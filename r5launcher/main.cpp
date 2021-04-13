@@ -22,12 +22,19 @@ void PrintLastError()
 
 bool LaunchR5Apex()
 {
+    FILE* sLaunchParams;
+    CHAR sArgumentSize[1024];
+    CHAR sCommandDirectory[MAX_PATH];
+    LPSTR sCommandLine = sCommandDirectory;
+
+#pragma warning(suppress : 4996) // Temp since fopen_s() does not parse the arguments over for some reason.
+    sLaunchParams = fopen("launchparams.txt", "r"); // "+exec autoexec -dev -fnf -noplatform"
+
     BOOL result;
 
     CHAR sDevDll[MAX_PATH];
     CHAR sGameExe[MAX_PATH];
     CHAR sGameDirectory[MAX_PATH];
-    LPSTR sCommandLine = NULL;// ("-dev -novideo -noorigin";
 
     STARTUPINFO StartupInfo = { 0 };
     PROCESS_INFORMATION ProcInfo = { 0 };
@@ -35,10 +42,18 @@ bool LaunchR5Apex()
     // Initialize the startup info structure.
     StartupInfo.cb = sizeof(STARTUPINFO);
 
+    // Load command line arguments from a file on the disk.
+    if (sLaunchParams)
+    {
+        while (fgets(sArgumentSize, 1024, sLaunchParams) != NULL)
+            fclose(sLaunchParams);
+    }
+
     // Format the file paths for the game exe and dll.
     GetCurrentDirectory(MAX_PATH, sGameDirectory);
     snprintf(sGameExe, sizeof(sGameExe), "%s\\r5apex.exe", sGameDirectory);
     snprintf(sDevDll, sizeof(sDevDll), "%s\\r5dev.dll", sGameDirectory);
+    snprintf(sCommandLine, sizeof(sCommandDirectory), "%s\\r5apex.exe %s", sGameDirectory, sArgumentSize);
 
     printf("Launching Apex Dev...\n");
     printf(" - CWD: %s\n", sGameDirectory);
