@@ -5,8 +5,8 @@
 
 #include <detours.h>
 
-// Build 1038 R5pc_r5-80_J152_CL801289_2021_02_05_16_28
-void (*CommandExecute)(void * self, const char* cmd) = (void (*)(void*, const char*))0x140199C10;
+// Build 313 R5PC_J1624A_CL394493_2019_02_24_09_29_PM
+void (*CommandExecute)(void * self, const char* cmd) = (void (*)(void*, const char*))0x140244900; /*48 89 5C 24 ? 57 48 83 EC 20 48 8D 0D ? ? ? ? 41 8B D8*/
 
 DWORD __stdcall ProcessConsoleWorker(LPVOID);
 
@@ -20,7 +20,7 @@ void SetupConsole()
 	}
 
 	// Set the window title
-	SetConsoleTitle("R5pc_r5-80_J152_CL801289_2021_02_05_16_28");
+	SetConsoleTitle("R5PC_J1624A_CL394493_2019_02_24_09_29_PM");
 
 	// Open input/output streams
 	FILE* fDummy;
@@ -33,8 +33,8 @@ void SetupConsole()
     CloseHandle(hThread);
 }
 
-bool (*Cvar_IsFlagSet)(int ** cvar, int flag) = (bool (*)(int**, int))0x140427160;
-bool Hook_Cvar_IsFlagSet(int ** cvar, int flag);
+bool (*Cvar_IsFlagSet)(int ** cvar, int flag) = (bool (*)(int**, int))0x1404C87C0;
+bool Hook_Cvar_IsFlagSet(int ** cvar, int flag); /*48 8B 41 48 85 50 38*/
 
 bool Hook_Cvar_IsFlagSet(int ** cvar, int flag)
 {
