@@ -1,0 +1,4 @@
+LIBRARY r5dev
+
+EXPORTS
+    DummyExport @1
