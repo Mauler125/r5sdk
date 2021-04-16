@@ -16,7 +16,7 @@ void SetupConsole()
 	// Create the console window
 	if (AllocConsole() == FALSE)
 	{
-		OutputDebugStr("Failed to create console window!\n");
+		OutputDebugString("Failed to create console window!\n");
 		return;
 	}
 
