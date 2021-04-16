@@ -21,7 +21,7 @@ void PrintLastError()
 bool LaunchR5Apex()
 {
     FILE* sLaunchParams;
-    CHAR sArgumentSize[1024];
+    CHAR sArgumentBuffer[1024];
     CHAR sCommandDirectory[MAX_PATH];
     LPSTR sCommandLine = sCommandDirectory;
 
@@ -43,7 +43,7 @@ bool LaunchR5Apex()
     // Load command line arguments from a file on the disk.
     if (sLaunchParams)
     {
-        while (fgets(sArgumentSize, sizeof(sArgumentSize), sLaunchParams) != NULL)
+        while (fgets(sArgumentBuffer, sizeof(sArgumentBuffer), sLaunchParams) != NULL)
             fclose(sLaunchParams);
     }
 
@@ -51,7 +51,7 @@ bool LaunchR5Apex()
     GetCurrentDirectory(MAX_PATH, sGameDirectory);
     snprintf(sGameExe, sizeof(sGameExe), "%s\\r5apex.exe", sGameDirectory);
     snprintf(sDevDll, sizeof(sDevDll), "%s\\r5dev.dll", sGameDirectory);
-    snprintf(sCommandLine, sizeof(sCommandDirectory), "%s\\r5apex.exe %s", sGameDirectory, sArgumentSize);
+    snprintf(sCommandLine, sizeof(sCommandDirectory), "%s\\r5apex.exe %s", sGameDirectory, sArgumentBuffer);
 
     printf("Launching Apex Dev...\n");
     printf(" - CWD: %s\n", sGameDirectory);

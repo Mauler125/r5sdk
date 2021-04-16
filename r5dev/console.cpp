@@ -9,7 +9,7 @@
 
 DWORD __stdcall ProcessConsoleWorker(LPVOID);
 FILE* sBuildTxt;
-CHAR sBuildStr[1024];
+CHAR sBuildBuf[1024];
 
 void SetupConsole()
 {
@@ -25,10 +25,10 @@ void SetupConsole()
 	sBuildTxt = fopen("build.txt", "r");
 	if (sBuildTxt)
 	{
-		while (fgets(sBuildStr, sizeof(sBuildStr), sBuildTxt) != NULL)
+		while (fgets(sBuildBuf, sizeof(sBuildBuf), sBuildTxt) != NULL)
 			fclose(sBuildTxt);
 	}
-	SetConsoleTitle(sBuildStr);
+	SetConsoleTitle(sBuildBuf);
 
 	// Open input/output streams
 	FILE* fDummy;
@@ -40,8 +40,6 @@ void SetupConsole()
     HANDLE hThread = CreateThread(NULL, NULL, ProcessConsoleWorker, NULL, NULL, NULL);
     CloseHandle(hThread);
 }
-
-bool Hook_Cvar_IsFlagSet(int ** cvar, int flag);
 
 bool Hook_Cvar_IsFlagSet(int ** cvar, int flag)
 {

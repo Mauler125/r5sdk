@@ -8,11 +8,6 @@
 #include "hooks.h"
 #include "patterns.h"
 
-void* Hook_SQVM_Print(void* sqvm, char* fmt, ...);
-bool Hook_SQVM_LoadScript(void* sqvm, const char* script_path, const char* script_name, int flag);
-bool Hook_NET_ReceiveDatagram(int sock, void* inpacket, bool raw);
-unsigned int Hook_NET_SendDatagram(SOCKET s, const char* ptxt, int len, void* netchan_maybe, bool raw);
-
 //
 // Engine Hooks
 //
