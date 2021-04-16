@@ -173,7 +173,9 @@
   <ItemGroup>
     <ClInclude Include="console.h" />
     <ClInclude Include="hooks.h" />
+    <ClInclude Include="patterns.h" />
     <ClInclude Include="r5dev.h" />
+    <ClInclude Include="sigscan.h" />
     <ClInclude Include="utilities.h" />
   </ItemGroup>
   <ItemGroup>

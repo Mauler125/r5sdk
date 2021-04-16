@@ -5,22 +5,30 @@
 
 #include <detours.h>
 
-// Build 313 R5PC_J1624A_CL394493_2019_02_24_09_29_PM
-void (*CommandExecute)(void * self, const char* cmd) = (void (*)(void*, const char*))0x140244900; /*48 89 5C 24 ? 57 48 83 EC 20 48 8D 0D ? ? ? ? 41 8B D8*/
+#include "patterns.h"
 
 DWORD __stdcall ProcessConsoleWorker(LPVOID);
+FILE* sBuildTxt;
+CHAR sBuildStr[1024];
 
 void SetupConsole()
 {
 	// Create the console window
 	if (AllocConsole() == FALSE)
 	{
-		OutputDebugString("Failed to create console window!\n");
+		OutputDebugStr("Failed to create console window!\n");
 		return;
 	}
 
 	// Set the window title
-	SetConsoleTitle("R5PC_J1624A_CL394493_2019_02_24_09_29_PM");
+#pragma warning(suppress : 4996)
+	sBuildTxt = fopen("build.txt", "r");
+	if (sBuildTxt)
+	{
+		while (fgets(sBuildStr, sizeof(sBuildStr), sBuildTxt) != NULL)
+			fclose(sBuildTxt);
+	}
+	SetConsoleTitle(sBuildStr);
 
 	// Open input/output streams
 	FILE* fDummy;
@@ -33,8 +41,7 @@ void SetupConsole()
     CloseHandle(hThread);
 }
 
-bool (*Cvar_IsFlagSet)(int ** cvar, int flag) = (bool (*)(int**, int))0x1404C87C0;
-bool Hook_Cvar_IsFlagSet(int ** cvar, int flag); /*48 8B 41 48 85 50 38*/
+bool Hook_Cvar_IsFlagSet(int ** cvar, int flag);
 
 bool Hook_Cvar_IsFlagSet(int ** cvar, int flag)
 {

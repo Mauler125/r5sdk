@@ -18,8 +18,6 @@ void PrintLastError()
     LocalFree(messageBuffer);
 }
 
-// "C:\\Program Files (x86)\\Origin Games\\Apex"
-
 bool LaunchR5Apex()
 {
     FILE* sLaunchParams;
@@ -27,7 +25,7 @@ bool LaunchR5Apex()
     CHAR sCommandDirectory[MAX_PATH];
     LPSTR sCommandLine = sCommandDirectory;
 
-#pragma warning(suppress : 4996) // Temp since fopen_s() does not parse the arguments over for some reason.
+#pragma warning(suppress : 4996)
     sLaunchParams = fopen("launchparams.txt", "r"); // "+exec autoexec -dev -fnf -noplatform"
 
     BOOL result;
@@ -45,7 +43,7 @@ bool LaunchR5Apex()
     // Load command line arguments from a file on the disk.
     if (sLaunchParams)
     {
-        while (fgets(sArgumentSize, 1024, sLaunchParams) != NULL)
+        while (fgets(sArgumentSize, sizeof(sArgumentSize), sLaunchParams) != NULL)
             fclose(sLaunchParams);
     }
 
@@ -104,6 +102,6 @@ bool LaunchR5Apex()
 int main(int argc, char* argv[], char* envp[])
 {
     LaunchR5Apex();
-
+    Sleep(1000);
     return 0;
 }
