@@ -10,7 +10,9 @@ public:
 		MODULEINFO modinfo = { 0 };
 		HMODULE hModule = GetModuleHandle(szModule);
 		if (hModule == 0)
+		{
 			return modinfo;
+		}
 		GetModuleInformation(GetCurrentProcess(), hModule, &modinfo, sizeof(MODULEINFO));
 		return modinfo;
 	}

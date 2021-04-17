@@ -8,9 +8,9 @@
 #include "hooks.h"
 #include "patterns.h"
 
-//
+//---------------------------------------------------------------------------------
 // Engine Hooks
-//
+//---------------------------------------------------------------------------------
 
 struct __declspec(align(8)) netpacket_t
 {
@@ -76,24 +76,28 @@ bool Hook_SQVM_LoadScript(void* sqvm, const char* script_path, const char* scrip
 	char filepath[MAX_PATH] = {0};
 	sprintf_s(filepath, MAX_PATH, "platform\\%s", script_path);
 
-    // flip forward slashes in filepath to windows-style backslash
+    // Flip forward slashes in filepath to windows-style backslash
 	for (int i = 0; i < strlen(filepath); i++)
+	{
 		if (filepath[i] == '/')
+		{
 			filepath[i] = '\\';
+		}
+	}
 
 	printf(" + Loading SQVM Script '%s' ...\n", filepath);
 	if (FileExists(filepath) && SQVM_LoadScript(sqvm, filepath, script_name, flag))
 	{
-		return true; // redirect to disk worked / script exists on disk..
+		return true; // Redirect to disk worked / script exists on disk..
 	}
 	
-	printf(" |- FAILED, loading normally / from VPK...\n");
+	printf(" |- FAILED, loading from SearchPath / VPK...\n");
 	return SQVM_LoadScript(sqvm, script_path, script_name, flag);
 }
 
-//
+//---------------------------------------------------------------------------------
 // Hook Management
-//
+//---------------------------------------------------------------------------------
 
 void InstallHooks()
 {
@@ -102,12 +106,8 @@ void InstallHooks()
 	DetourUpdateThread(GetCurrentThread());
 
 	// Hook Functions
-	DetourAttach(&SQVM_Print, &Hook_SQVM_Print);
-	DetourAttach((PVOID*)&SQVM_LoadScript, &Hook_SQVM_LoadScript);
-
-	// TODO these might be fucked right now so they're disabled
-	//DetourAttach((PVOID*)&NET_SendDatagram, &Hook_NET_SendDatagram);
-	//DetourAttach((PVOID*)&NET_ReceiveDatagram, &Hook_NET_ReceiveDatagram);
+	DetourAttach((LPVOID*)&SQVM_Print, &Hook_SQVM_Print);
+	DetourAttach((LPVOID*)&SQVM_LoadScript, &Hook_SQVM_LoadScript);
 
 	// Commit the transaction
 	if (DetourTransactionCommit() != NO_ERROR)
@@ -119,11 +119,62 @@ void InstallHooks()
 
 void RemoveHooks()
 {
-	// Begin the detour transaction, to unhook the the process
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
-	//DetourDetach(&SQVMPrint, &Hook_SQVMPrint);
+	// Unhook Functions
+	DetourDetach((LPVOID*)&SQVM_Print, &Hook_SQVM_Print);
+	DetourDetach((LPVOID*)&SQVM_LoadScript, &Hook_SQVM_LoadScript);
 
 	DetourTransactionCommit();
+}
+
+void ToggleDevCommands()
+{
+	bool g_dev = false;
+
+	DetourTransactionBegin();
+	DetourUpdateThread(GetCurrentThread());
+
+	if (!g_dev)
+	{
+		DetourAttach((PVOID*)&Cvar_IsFlagSet, &Hook_Cvar_IsFlagSet);
+	}
+	else
+	{
+		DetourDetach((PVOID*)&Cvar_IsFlagSet, &Hook_Cvar_IsFlagSet);
+	}
+
+	if (DetourTransactionCommit() != NO_ERROR)
+	{
+		TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
+	}
+
+	g_dev = ~g_dev;
+}
+
+void ToggleNetHooks()
+{
+	bool g_net = false;
+
+	DetourTransactionBegin();
+	DetourUpdateThread(GetCurrentThread());
+
+	if (!g_net)
+	{
+		DetourAttach((PVOID*)&NET_SendDatagram, &Hook_NET_SendDatagram);
+		DetourAttach((PVOID*)&NET_ReceiveDatagram, &Hook_NET_ReceiveDatagram);
+	}
+	else
+	{
+		DetourDetach((PVOID*)&NET_SendDatagram, &Hook_NET_SendDatagram);
+		DetourDetach((PVOID*)&NET_ReceiveDatagram, &Hook_NET_ReceiveDatagram);
+	}
+
+	if (DetourTransactionCommit() != NO_ERROR)
+	{
+		TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
+	}
+
+	g_net = ~g_net;
 }
