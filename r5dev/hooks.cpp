@@ -119,6 +119,7 @@ void InstallHooks()
 
 void RemoveHooks()
 {
+	// Begin the detour transaction, to unhook the the process
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
@@ -126,6 +127,7 @@ void RemoveHooks()
 	DetourDetach((LPVOID*)&SQVM_Print, &Hook_SQVM_Print);
 	DetourDetach((LPVOID*)&SQVM_LoadScript, &Hook_SQVM_LoadScript);
 
+	// Commit the transaction
 	DetourTransactionCommit();
 }
 
