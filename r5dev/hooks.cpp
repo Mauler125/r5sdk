@@ -7,59 +7,37 @@
 #include "utilities.h"
 #include "hooks.h"
 #include "patterns.h"
+#include "structs.h"
 
 //---------------------------------------------------------------------------------
 // Engine Hooks
 //---------------------------------------------------------------------------------
-
-struct __declspec(align(8)) netpacket_t
-{
-	DWORD family_maybe;
-	sockaddr_in sin;
-	WORD sin_port;
-	BYTE gap16;
-	BYTE byte17;
-	DWORD source;
-	double received;
-	unsigned __int8* data;
-	QWORD label;
-	BYTE byte38;
-	QWORD qword40;
-	QWORD qword48;
-	BYTE gap50[8];
-	QWORD qword58;
-	QWORD qword60;
-	QWORD qword68;
-	int less_than_12;
-	DWORD wiresize;
-	BYTE gap78[8];
-	QWORD qword80;
-};
 
 bool Hook_NET_ReceiveDatagram(int sock, void* inpacket, bool raw)
 {
 	bool result = NET_ReceiveDatagram(sock, inpacket, raw);
 	if (result)
 	{
-		netpacket_t* pkt = (netpacket_t *)inpacket;
+		int i = NULL;
+		netpacket_t* pkt = (netpacket_t*)inpacket;
 
-		// TODO: print the rest of the data..
-		printf("Got packet! Len %u\n -- ", pkt->wiresize);
-		for (int i = 0; i < 16 && i < pkt->wiresize; i++)
-		{
-			printf("%02X ", pkt->data[i]);
-		}
-
-		printf("\n");
+		// Log received packet data
+		HexDump("", "", "", 0, &pkt->data[i], pkt->wiresize);
 	}
+
 	return result;
 }
 
-unsigned int Hook_NET_SendDatagram(SOCKET s, const char* ptxt, int len, void* netchan_maybe, bool raw)
+unsigned int Hook_NET_SendDatagram(SOCKET s, const char* buf, int len, int flags)
 {
-	// TODO print ptxt[...] up to len bytes
-	printf("Sending packet! %u bytes @ %p\n", len, ptxt);
-	return NET_SendDatagram(s, ptxt, len, netchan_maybe, raw);
+	unsigned int result = NET_SendDatagram(s, buf, len, flags);
+	if (result)
+	{
+		// Log transmitted packet data
+		HexDump("", "", "", 0, buf, len);
+	}
+
+	return result;
 }
 
 void* Hook_SQVM_Print(void* sqvm, char* fmt, ...)
@@ -73,7 +51,7 @@ void* Hook_SQVM_Print(void* sqvm, char* fmt, ...)
 
 bool Hook_SQVM_LoadScript(void* sqvm, const char* script_path, const char* script_name, int flag)
 {
-	char filepath[MAX_PATH] = {0};
+	char filepath[MAX_PATH] = { 0 };
 	sprintf_s(filepath, MAX_PATH, "platform\\%s", script_path);
 
     // Flip forward slashes in filepath to windows-style backslash
@@ -126,6 +104,10 @@ void RemoveHooks()
 	// Unhook Functions
 	DetourDetach((LPVOID*)&SQVM_Print, &Hook_SQVM_Print);
 	DetourDetach((LPVOID*)&SQVM_LoadScript, &Hook_SQVM_LoadScript);
+	DetourDetach((LPVOID*)&ConVar_IsFlagSet, &Hook_ConVar_IsFlagSet);
+	DetourDetach((LPVOID*)&ConCommand_IsFlagSet, &Hook_ConCommand_IsFlagSet);
+	DetourDetach((LPVOID*)&NET_SendDatagram, &Hook_NET_SendDatagram);
+	DetourDetach((LPVOID*)&NET_ReceiveDatagram, &Hook_NET_ReceiveDatagram);
 
 	// Commit the transaction
 	DetourTransactionCommit();
@@ -133,18 +115,20 @@ void RemoveHooks()
 
 void ToggleDevCommands()
 {
-	bool g_dev = false;
+	static bool g_dev = false;
 
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
 	if (!g_dev)
 	{
-		DetourAttach((PVOID*)&Cvar_IsFlagSet, &Hook_Cvar_IsFlagSet);
+		DetourAttach((LPVOID*)&ConVar_IsFlagSet, &Hook_ConVar_IsFlagSet);
+		DetourAttach((LPVOID*)&ConCommand_IsFlagSet, &Hook_ConCommand_IsFlagSet);
 	}
 	else
 	{
-		DetourDetach((PVOID*)&Cvar_IsFlagSet, &Hook_Cvar_IsFlagSet);
+		DetourDetach((LPVOID*)&ConVar_IsFlagSet, &Hook_ConVar_IsFlagSet);
+		DetourDetach((LPVOID*)&ConCommand_IsFlagSet, &Hook_ConCommand_IsFlagSet);
 	}
 
 	if (DetourTransactionCommit() != NO_ERROR)
@@ -152,25 +136,25 @@ void ToggleDevCommands()
 		TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
 	}
 
-	g_dev = ~g_dev;
+	g_dev = !g_dev;
 }
 
 void ToggleNetHooks()
 {
-	bool g_net = false;
+	static bool g_net = false;
 
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
 	if (!g_net)
 	{
-		DetourAttach((PVOID*)&NET_SendDatagram, &Hook_NET_SendDatagram);
-		DetourAttach((PVOID*)&NET_ReceiveDatagram, &Hook_NET_ReceiveDatagram);
+		DetourAttach((LPVOID*)&NET_SendDatagram, &Hook_NET_SendDatagram);
+		DetourAttach((LPVOID*)&NET_ReceiveDatagram, &Hook_NET_ReceiveDatagram);
 	}
 	else
 	{
-		DetourDetach((PVOID*)&NET_SendDatagram, &Hook_NET_SendDatagram);
-		DetourDetach((PVOID*)&NET_ReceiveDatagram, &Hook_NET_ReceiveDatagram);
+		DetourDetach((LPVOID*)&NET_SendDatagram, &Hook_NET_SendDatagram);
+		DetourDetach((LPVOID*)&NET_ReceiveDatagram, &Hook_NET_ReceiveDatagram);
 	}
 
 	if (DetourTransactionCommit() != NO_ERROR)
@@ -178,5 +162,5 @@ void ToggleNetHooks()
 		TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
 	}
 
-	g_net = ~g_net;
+	g_net = !g_net;
 }

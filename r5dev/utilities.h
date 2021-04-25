@@ -1,10 +1,19 @@
 #pragma once
-#include <Windows.h>
 #include <stdio.h>
 #include <string>
 
+#include "hooks.h"
+
 namespace
 {
+    BOOL FileExists(LPCTSTR szPath)
+    {
+        DWORD dwAttrib = GetFileAttributes(szPath);
+
+        return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
+            !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+    }
+
     static void DbgPrint(LPCSTR Format, ...)
     {
         CHAR Buffer[512] = { 0 };
@@ -21,17 +30,7 @@ namespace
         OutputDebugString(Buffer);
     }
 
-    typedef unsigned __int64 QWORD;
-
-    BOOL FileExists(LPCTSTR szPath)
-    {
-        DWORD dwAttrib = GetFileAttributes(szPath);
-
-        return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
-            !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
-    }
-
-    static void HexDump(char* data, int len)
+    static void HexDump(const char* header, const char* file, const char* mode, int func, const void* data, int size)
     {
         // todo..
     }

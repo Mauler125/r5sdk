@@ -1,8 +1,8 @@
 #include <string>
 #include <iostream>
 #include <sstream>
-#include <Windows.h>
 
+#include <Windows.h>
 #include <detours.h>
 
 #include "hooks.h"
@@ -23,13 +23,14 @@ void SetupConsole()
 
 	// Set the window title
 	FILE* sBuildTxt;
-	CHAR sBuildBuf[1024];
-#pragma warning(suppress : 4996)
-	sBuildTxt = fopen("build.txt", "r");
+	CHAR sBuildBuf[1024] = { 0 };
+	fopen_s(&sBuildTxt, "build.txt", "r");
 	if (sBuildTxt)
 	{
 		while (fgets(sBuildBuf, sizeof(sBuildBuf), sBuildTxt) != NULL)
+		{
 			fclose(sBuildTxt);
+		}
 	}
 	SetConsoleTitle(sBuildBuf);
 
@@ -39,25 +40,59 @@ void SetupConsole()
 	freopen_s(&fDummy, "CONOUT$", "w", stdout);
 	freopen_s(&fDummy, "CONOUT$", "w", stderr);
 
-    // Create a worker thread to process console commands.
+	// Create a worker thread to process console commands
+	DWORD threadId;
 	DWORD __stdcall ProcessConsoleWorker(LPVOID);
-    HANDLE hThread = CreateThread(NULL, NULL, ProcessConsoleWorker, NULL, NULL, NULL);
-    CloseHandle(hThread);
+	HANDLE hThread = CreateThread(NULL, 0, ProcessConsoleWorker, NULL, 0, &threadId);
+
+	if (hThread)
+	{
+		printf("THREAD ID: %ld\n\n", threadId);
+		CloseHandle(hThread);
+	}
 }
 
-bool Hook_Cvar_IsFlagSet(int ** cvar, int flag)
+static bool b_DebugConsole = true;
+bool Hook_ConVar_IsFlagSet(int** cvar, int flag)
 {
-	int real_flags = *(*(cvar + (72/(sizeof(void*)))) + (56/sizeof(int)));
+	int real_flags = *(*(cvar + (72 / (sizeof(void*)))) + (56 / sizeof(int)));
+	if (!b_DebugConsole)
+	{
+		printf("----------------------------------------------\n");
+		printf(" Flaged: %08X\n", real_flags);
+	}
 
-	printf("----------------------------------------------\n");
-	printf("Real flags: %08X\n", real_flags);
-
-    // Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY
+	// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY
 	real_flags &= 0xFFFFBFFD;
+	if (!b_DebugConsole)
+	{
+		printf(" Masked: %08X\n", real_flags);
+		printf(" Verify: %08X\n", flag);
+	}
+	if (flag & 0x80000)
+	{
+		return true;
+	}
 
-	printf("    Masked: %08X\n", real_flags);
-	printf("  Checking: %08X\n", flag);
+	return (real_flags & flag) != 0;
+}
 
+bool Hook_ConCommand_IsFlagSet(int* cmd, int flag)
+{
+	int real_flags = *((cmd + (56 / sizeof(int))));
+	if (!b_DebugConsole)
+	{
+		printf("----------------------------------------------\n");
+		printf(" Flaged: %08X\n", real_flags);
+	}
+
+	// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY
+	real_flags &= 0xFFFFBFFD;
+	if (!b_DebugConsole)
+	{
+		printf(" Masked: %08X\n", real_flags);
+		printf(" Verify: %08X\n", flag);
+	}
 	if (flag & 0x80000)
 	{
 		return true;
@@ -86,10 +121,19 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 			ToggleDevCommands();
 			continue;
 		}
-
 		if (sCommand == "toggle net")
 		{
 			ToggleNetHooks();
+			continue;
+		}
+		if (sCommand == "pattern test")
+		{
+			PrintHAddress();
+			continue;
+		}
+		if (sCommand == "console test")
+		{
+			b_DebugConsole = !b_DebugConsole;
 			continue;
 		}
 

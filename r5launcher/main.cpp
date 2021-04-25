@@ -8,7 +8,9 @@ void PrintLastError()
     //Get the error message, if any.
     DWORD errorMessageID = ::GetLastError();
     if (errorMessageID == 0)
+    {
         return;
+    }
 
     LPSTR messageBuffer = nullptr;
     size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -21,12 +23,12 @@ void PrintLastError()
 bool LaunchR5Apex()
 {
     FILE* sLaunchParams;
-    CHAR sArgumentBuffer[1024];
+    CHAR sArgumentBuffer[1024] = { 0 };
     CHAR sCommandDirectory[MAX_PATH];
     LPSTR sCommandLine = sCommandDirectory;
 
-#pragma warning(suppress : 4996)
-    sLaunchParams = fopen("launchparams.txt", "r"); // "+exec autoexec -dev -fnf -noplatform"
+    // '+exec autoexec -dev -fnf -noplatform'
+    fopen_s(&sLaunchParams, "launchparams.txt", "r");
 
     BOOL result;
 
@@ -44,7 +46,9 @@ bool LaunchR5Apex()
     if (sLaunchParams)
     {
         while (fgets(sArgumentBuffer, sizeof(sArgumentBuffer), sLaunchParams) != NULL)
+        {
             fclose(sLaunchParams);
+        }
     }
 
     // Format the file paths for the game exe and dll.
