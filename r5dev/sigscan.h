@@ -1,7 +1,7 @@
 #pragma once
 #include <Psapi.h>
 
-class SigScan
+class CSigScan
 {
 public:
 	// For getting information about the executing module
