@@ -28,7 +28,7 @@ bool LaunchR5Apex()
     LPSTR sCommandLine = sCommandDirectory;
 
     // '+exec autoexec -dev -fnf -noplatform'
-    fopen_s(&sLaunchParams, "launchparams.txt", "r");
+    fopen_s(&sLaunchParams, "platform\\cfg\\startup_debug.cfg", "r");
 
     BOOL result;
 

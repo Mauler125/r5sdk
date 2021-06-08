@@ -4,13 +4,14 @@
 #include <Windows.h>
 #include <detours.h>
 
-#include "utilities.h"
-#include "hooks.h"
 #include "patterns.h"
+#include "utility.h"
 #include "structs.h"
+#include "console.h"
+#include "hooks.h"
 
 //---------------------------------------------------------------------------------
-// Netchan Hooks
+// Netchan
 //---------------------------------------------------------------------------------
 
 bool Hook_NET_ReceiveDatagram(int sock, void* inpacket, bool raw)
@@ -41,7 +42,7 @@ unsigned int Hook_NET_SendDatagram(SOCKET s, const char* buf, int len, int flags
 }
 
 //---------------------------------------------------------------------------------
-// SquirrelVM Hooks
+// SQVM
 //---------------------------------------------------------------------------------
 
 void* Hook_SQVM_Print(void* sqvm, char* fmt, ...)
@@ -58,7 +59,7 @@ bool Hook_SQVM_LoadScript(void* sqvm, const char* script_path, const char* scrip
 	char filepath[MAX_PATH] = { 0 };
 	sprintf_s(filepath, MAX_PATH, "platform\\%s", script_path);
 
-    // Flip forward slashes in filepath to windows-style backslash
+	// Flip forward slashes in filepath to windows-style backslash
 	for (int i = 0; i < strlen(filepath); i++)
 	{
 		if (filepath[i] == '/')
@@ -67,27 +68,18 @@ bool Hook_SQVM_LoadScript(void* sqvm, const char* script_path, const char* scrip
 		}
 	}
 
-	printf(" [+] Loading SQVM Script '%s' ...\n", filepath);
+	if (g_bDebugLog) { printf(" [+] Loading SQVM Script '%s' ...\n", filepath); }
 	if (FileExists(filepath) && SQVM_LoadScript(sqvm, filepath, script_name, flag))
 	{
 		return true; // Redirect to disk worked / script exists on disk..
 	}
-	
-	printf(" [!] FAILED, loading from SearchPath / VPK...\n");
+
+	if (g_bDebugLog) { printf(" [!] FAILED. Try SP / VPK for '%s'\n", filepath); }
 	return SQVM_LoadScript(sqvm, script_path, script_name, flag);
 }
 
 //---------------------------------------------------------------------------------
-// Origin Hooks
-//---------------------------------------------------------------------------------
-
-unsigned int Hook_OriginScript(int value)
-{
-	return true;
-}
-
-//---------------------------------------------------------------------------------
-// Hook Management
+// Management
 //---------------------------------------------------------------------------------
 
 void InstallHooks()
@@ -99,11 +91,6 @@ void InstallHooks()
 	// Hook Engine functions
 	DetourAttach((LPVOID*)&SQVM_Print, &Hook_SQVM_Print);
 	DetourAttach((LPVOID*)&SQVM_LoadScript, &Hook_SQVM_LoadScript);
-	// Hook Origin functions
-	DetourAttach((LPVOID*)&Origin_IsEnabled, &Hook_OriginScript);
-	DetourAttach((LPVOID*)&Origin_IsUpToDate, &Hook_OriginScript);
-	DetourAttach((LPVOID*)&Origin_IsOnline, &Hook_OriginScript);
-	DetourAttach((LPVOID*)&Origin_IsReady, &Hook_OriginScript);
 
 	// Commit the transaction
 	if (DetourTransactionCommit() != NO_ERROR)
@@ -128,15 +115,14 @@ void RemoveHooks()
 	// Unhook Console functions
 	DetourDetach((LPVOID*)&ConVar_IsFlagSet, &Hook_ConVar_IsFlagSet);
 	DetourDetach((LPVOID*)&ConCommand_IsFlagSet, &Hook_ConCommand_IsFlagSet);
-	// Unhook Origin functions
-	DetourDetach((LPVOID*)&Origin_IsEnabled, &Hook_OriginScript);
-	DetourDetach((LPVOID*)&Origin_IsUpToDate, &Hook_OriginScript);
-	DetourDetach((LPVOID*)&Origin_IsOnline, &Hook_OriginScript);
-	DetourDetach((LPVOID*)&Origin_IsReady, &Hook_OriginScript);
 
 	// Commit the transaction
 	DetourTransactionCommit();
 }
+
+//---------------------------------------------------------------------------------
+// Toggles
+//---------------------------------------------------------------------------------
 
 void ToggleNetHooks()
 {

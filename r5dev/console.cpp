@@ -1,15 +1,17 @@
 #include <string>
-#include <iostream>
 #include <sstream>
+#include <iostream>
 
 #include <Windows.h>
 #include <detours.h>
 
 #include "hooks.h"
+#include "opcptc.h"
+#include "console.h"
 #include "patterns.h"
 
 //---------------------------------------------------------------------------------
-// Console Init
+// Init
 //---------------------------------------------------------------------------------
 
 void SetupConsole()
@@ -25,6 +27,7 @@ void SetupConsole()
 	FILE* sBuildTxt;
 	CHAR sBuildBuf[1024] = { 0 };
 	fopen_s(&sBuildTxt, "build.txt", "r");
+
 	if (sBuildTxt)
 	{
 		while (fgets(sBuildBuf, sizeof(sBuildBuf), sBuildTxt) != NULL)
@@ -41,29 +44,27 @@ void SetupConsole()
 	freopen_s(&fDummy, "CONOUT$", "w", stderr);
 
 	// Create a worker thread to process console commands
-	DWORD threadId;
+	DWORD threadId0;
 	DWORD __stdcall ProcessConsoleWorker(LPVOID);
-	HANDLE hThread = CreateThread(NULL, 0, ProcessConsoleWorker, NULL, 0, &threadId);
+	HANDLE hThread0 = CreateThread(NULL, 0, ProcessConsoleWorker, NULL, 0, &threadId0);
 
-	if (hThread)
+	if (hThread0)
 	{
-		printf("THREAD ID: %ld\n\n", threadId);
-		CloseHandle(hThread);
+		printf("THREAD ID: %ld\n\n", threadId0);
+		CloseHandle(hThread0);
 	}
 }
 
 //---------------------------------------------------------------------------------
-// Console Hooks
+// Hooks
 //---------------------------------------------------------------------------------
 
-static bool g_bDebugConsole	= true;
-static bool g_bToggleAll	= false;
 bool Hook_ConVar_IsFlagSet(int** cvar, int flag)
 {
 	int real_flags = *(*(cvar + (72 / (sizeof(void*)))) + (56 / sizeof(int)));
 	if (g_bDebugConsole)
 	{
-		printf("----------------------------------------------\n");
+		printf("--------------------------------------------------\n");
 		printf(" Flaged: %08X\n", real_flags);
 	}
 	// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY
@@ -72,11 +73,11 @@ bool Hook_ConVar_IsFlagSet(int** cvar, int flag)
 	{
 		printf(" Masked: %08X\n", real_flags);
 		printf(" Verify: %08X\n", flag);
-		printf("----------------------------------------------\n");
+		printf("--------------------------------------------------\n");
 	}
 	if (flag & 0x80000) { return true; }
 
-	if (!g_bToggleAll) { return (real_flags & flag) != 0; }
+	if (!g_bReturnAllFalse) { return (real_flags & flag) != 0; }
 	else { return false; }
 }
 
@@ -85,7 +86,7 @@ bool Hook_ConCommand_IsFlagSet(int* cmd, int flag)
 	int real_flags = *((cmd + (56 / sizeof(int))));
 	if (g_bDebugConsole)
 	{
-		printf("----------------------------------------------\n");
+		printf("--------------------------------------------------\n");
 		printf(" Flaged: %08X\n", real_flags);
 	}
 	// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY
@@ -94,16 +95,16 @@ bool Hook_ConCommand_IsFlagSet(int* cmd, int flag)
 	{
 		printf(" Masked: %08X\n", real_flags);
 		printf(" Verify: %08X\n", flag);
-		printf("----------------------------------------------\n");
+		printf("--------------------------------------------------\n");
 	}
 	if (flag & 0x80000) { return true; }
 
-	if (!g_bToggleAll) { return (real_flags & flag) != 0; }
+	if (!g_bReturnAllFalse) { return (real_flags & flag) != 0; }
 	else { return false; }
 }
 
 //---------------------------------------------------------------------------------
-// Console Worker
+// Worker
 //---------------------------------------------------------------------------------
 
 DWORD __stdcall ProcessConsoleWorker(LPVOID)
@@ -120,11 +121,15 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 		// Engine toggles
 		if (sCommand == "toggle net") { ToggleNetHooks(); continue; }
 		if (sCommand == "toggle dev") { ToggleDevCommands(); continue; }
-		if (sCommand == "toggle all") { g_bToggleAll = !g_bToggleAll; continue; }
+		if (sCommand == "toggle fal") { g_bReturnAllFalse = !g_bReturnAllFalse; continue; }
 
 		// Debug toggles
-		if (sCommand == "pattern test") { PrintHAddress(); continue; }
+		if (sCommand == "pattern test") { PrintHAddress(); PrintOAddress(); continue; }
 		if (sCommand == "console test") { g_bDebugConsole = !g_bDebugConsole; continue; }
+
+		// Exec toggles
+		if (sCommand == "1") { ToggleDevCommands(); CommandExecute(NULL, "exec autoexec_dev"); }
+		if (sCommand == "2") { g_bDebugLog = !g_bDebugLog; continue; }
 
 		// Execute the command in the r5 SQVM
 		CommandExecute(NULL, sCommand.c_str());
