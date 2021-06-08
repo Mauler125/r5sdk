@@ -19,8 +19,8 @@ void InstallOpcodes()
 	// JL  --> NOP | Enable clientcommand callbacks without persistent player data
 	WriteProcessMemory(GameProcess, LPVOID(dst002 + 0x76), "\x90\x90", 2, NULL);
 
-	// JA  --> JMP | Disable client-side verification for duplicate accounts on the server
-	WriteProcessMemory(GameProcess, LPVOID(dst003 + 0x269), "\xEB\x39", 2, NULL);
+	// JE  --> NOP | Disable server-side verification for duplicate accounts on the server
+	WriteProcessMemory(GameProcess, LPVOID(dst003 + 0x23A), "\x90\x90", 2, NULL);
 
 	// JA  --> JMP | Prevent FairFight anti-cheat from initializing on the server
 	WriteProcessMemory(GameProcess, LPVOID(dst004 + 0x72), "\xE9\xE4\x00\x00\x00\x00", 6, NULL);
