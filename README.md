@@ -1,7 +1,5 @@
 ## Note [Important]
-This is **NOT** a cheat/hack/esp/aimbot or the like, this is a utility to debug earlier version of the game,
-and create offline mods/other cool stuff for the game. Do not attempt to use this on the latest version of
-the game, or on the official servers.
+This is not a cheat or hack. Do not attempt to use this on the latest version of the game
 
 # Apex
 
