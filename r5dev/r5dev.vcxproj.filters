@@ -69,6 +69,12 @@
     <ClCompile Include="..\imgui\src\imgui_demo.cpp">
       <Filter>External Libraries\ImGui\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\id3dx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\console.h">
@@ -124,6 +130,12 @@
     </ClInclude>
     <ClInclude Include="..\imgui\include\imgui_impl_dx11.h">
       <Filter>External Libraries\ImGui\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\id3dx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlay.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

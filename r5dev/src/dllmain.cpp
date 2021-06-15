@@ -2,6 +2,7 @@
 #include <string>
 
 #include "r5dev.h"
+#include "id3dx.h"
 #include "hooks.h"
 #include "opcptc.h"
 #include "console.h"
@@ -40,12 +41,14 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  dwReason, LPVOID lpReserved)
         case DLL_PROCESS_ATTACH:
         {
             InitializeR5Dev();
+            SetupDXSwapChain();
             break;
         }
 
         case DLL_PROCESS_DETACH:
         {
             TerminateR5Dev();
+            RemoveDXHooks();
             break;
         }
     }
