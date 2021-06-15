@@ -80,12 +80,12 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)detours\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)detours\include;$(SolutionDir)imgui\include;$(SolutionDir)r5dev\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)detours\lib.X64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)detours\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)detours\include;$(SolutionDir)imgui\include;$(SolutionDir)r5dev\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)detours\lib.X64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -181,20 +181,20 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="console.h" />
-    <ClInclude Include="hooks.h" />
-    <ClInclude Include="opcptc.h" />
-    <ClInclude Include="patterns.h" />
-    <ClInclude Include="r5dev.h" />
-    <ClInclude Include="structs.h" />
-    <ClInclude Include="utility.h" />
+    <ClInclude Include="include\console.h" />
+    <ClInclude Include="include\hooks.h" />
+    <ClInclude Include="include\opcptc.h" />
+    <ClInclude Include="include\patterns.h" />
+    <ClInclude Include="include\r5dev.h" />
+    <ClInclude Include="include\structs.h" />
+    <ClInclude Include="include\utility.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="console.cpp" />
-    <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="hooks.cpp" />
-    <ClCompile Include="opcptc.cpp" />
-    <ClCompile Include="utility.cpp" />
+    <ClCompile Include="src\console.cpp" />
+    <ClCompile Include="src\dllmain.cpp" />
+    <ClCompile Include="src\hooks.cpp" />
+    <ClCompile Include="src\opcptc.cpp" />
+    <ClCompile Include="src\utility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="r5dev.def" />
