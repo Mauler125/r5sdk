@@ -181,6 +181,17 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\detours\include\detours.h" />
+    <ClInclude Include="..\detours\include\detver.h" />
+    <ClInclude Include="..\detours\include\syelog.h" />
+    <ClInclude Include="..\imgui\include\imconfig.h" />
+    <ClInclude Include="..\imgui\include\imgui.h" />
+    <ClInclude Include="..\imgui\include\imgui_impl_dx11.h" />
+    <ClInclude Include="..\imgui\include\imgui_impl_win32.h" />
+    <ClInclude Include="..\imgui\include\imgui_internal.h" />
+    <ClInclude Include="..\imgui\include\imstb_rectpack.h" />
+    <ClInclude Include="..\imgui\include\imstb_textedit.h" />
+    <ClInclude Include="..\imgui\include\imstb_truetype.h" />
     <ClInclude Include="include\console.h" />
     <ClInclude Include="include\hooks.h" />
     <ClInclude Include="include\opcptc.h" />
@@ -190,6 +201,13 @@
     <ClInclude Include="include\utility.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\imgui\src\imgui.cpp" />
+    <ClCompile Include="..\imgui\src\imgui_demo.cpp" />
+    <ClCompile Include="..\imgui\src\imgui_draw.cpp" />
+    <ClCompile Include="..\imgui\src\imgui_impl_dx11.cpp" />
+    <ClCompile Include="..\imgui\src\imgui_impl_win32.cpp" />
+    <ClCompile Include="..\imgui\src\imgui_tables.cpp" />
+    <ClCompile Include="..\imgui\src\imgui_widgets.cpp" />
     <ClCompile Include="src\console.cpp" />
     <ClCompile Include="src\dllmain.cpp" />
     <ClCompile Include="src\hooks.cpp" />

@@ -5,13 +5,31 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="External Libraries">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{a80939e5-3b3c-4873-885e-834e95d68d34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External Libraries\Detours">
+      <UniqueIdentifier>{584562a8-0382-488c-909c-67bbb1d1af3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External Libraries\ImGui">
+      <UniqueIdentifier>{c72b9789-72e9-4657-8a42-8712aaf8690e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External Libraries\Detours\Header Files">
+      <UniqueIdentifier>{3fa7f9a9-dc07-4d42-9172-0944829c010f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External Libraries\ImGui\Header Files">
+      <UniqueIdentifier>{c18fb898-adc3-4aa8-902c-4777bbc76e5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External Libraries\ImGui\Source Files">
+      <UniqueIdentifier>{c3bd7c47-4a04-43da-b79f-b8ef22ba72d4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -30,18 +48,42 @@
     <ClCompile Include="src\opcptc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\imgui\src\imgui_draw.cpp">
+      <Filter>External Libraries\ImGui\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\imgui\src\imgui_impl_dx11.cpp">
+      <Filter>External Libraries\ImGui\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\imgui\src\imgui_impl_win32.cpp">
+      <Filter>External Libraries\ImGui\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\imgui\src\imgui_tables.cpp">
+      <Filter>External Libraries\ImGui\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\imgui\src\imgui_widgets.cpp">
+      <Filter>External Libraries\ImGui\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\imgui\src\imgui.cpp">
+      <Filter>External Libraries\ImGui\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\imgui\src\imgui_demo.cpp">
+      <Filter>External Libraries\ImGui\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\r5dev.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\console.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\hooks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\opcptc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="include\patterns.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\r5dev.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\structs.h">
@@ -50,8 +92,38 @@
     <ClInclude Include="include\utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\opcptc.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\detours\include\detver.h">
+      <Filter>External Libraries\Detours\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\detours\include\syelog.h">
+      <Filter>External Libraries\Detours\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\detours\include\detours.h">
+      <Filter>External Libraries\Detours\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\imgui\include\imgui_impl_win32.h">
+      <Filter>External Libraries\ImGui\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\imgui\include\imgui_internal.h">
+      <Filter>External Libraries\ImGui\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\imgui\include\imstb_rectpack.h">
+      <Filter>External Libraries\ImGui\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\imgui\include\imstb_textedit.h">
+      <Filter>External Libraries\ImGui\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\imgui\include\imstb_truetype.h">
+      <Filter>External Libraries\ImGui\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\imgui\include\imconfig.h">
+      <Filter>External Libraries\ImGui\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\imgui\include\imgui.h">
+      <Filter>External Libraries\ImGui\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\imgui\include\imgui_impl_dx11.h">
+      <Filter>External Libraries\ImGui\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
