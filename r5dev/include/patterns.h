@@ -23,6 +23,9 @@ namespace
 	//DWORD64 p_SQVM_LoadScript = FindPattern("r5apex.exe", "\x48\x8B\xC4\x48\x89\x48\x08\x55\x41\x56\x48\x8D\x68", "xxxxxxxxxxxxx"); // For anything S2 and above (current S8)
 	bool (*SQVM_LoadScript)(void* sqvm, const char* script_path, const char* script_name, int flag) = (bool (*)(void*, const char*, const char*, int))p_SQVM_LoadScript; /*E8 ?? ?? ?? ?? 84 C0 74 1C 41 B9 ?? ?? ?? ??*/
 
+	DWORD64 p_SQVM_LoadRson = FindPattern("r5apex.exe", (const unsigned char*)"\x4C\x8B\xDC\x49\x89\x5B\x08\x57\x48\x81\xEC\xA0\x00\x00\x00\x33", "xxxxxxxxxxxxxxxx");
+	int (*SQVM_LoadRson)(const char* rson_name) = (int (*)(const char*))p_SQVM_LoadRson; /*4C 8B DC 49 89 5B 08 57 48 81 EC A0 00 00 00 33*/
+
 	/* ==== NETCHAN ========================================================================================================================================================= */
 	DWORD64 p_NET_ReceiveDatagram = FindPattern("r5apex.exe", (const unsigned char*)"\x48\x89\x74\x24\x18\x48\x89\x7C\x24\x20\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x50\xEB", "xxxxxxxxxxxxxxxxxxxxxxxxx");
 	bool (*NET_ReceiveDatagram)(int, void*, bool) = (bool (*)(int, void*, bool))p_NET_ReceiveDatagram; /*E8 ?? ?? ?? ?? 84 C0 75 35 48 8B D3*/
@@ -33,7 +36,7 @@ namespace
 	/* ==== WINAPI ========================================================================================================================================================== */
 	DWORD64 p_SetCursorPosition = FindPattern("r5apex.exe", (const unsigned char*)"\x48\x85\xD2\x0F\x00\x00\x00\x00\x00\x48\x89\x6C\x24\x00\x56\x48\x83\xEC\x40\x4C", "xxxx?????xxxx?xxxxxx"); // Uncomment for anything that is not between S1 build 525 and S4 build 856 
 	//DWORD64 p_SetCursorPosition = FindPattern("r5apex.exe", "\x48\x89\x6C\x24\x18\x48\x89\x74\x24\x20\x57\x48\x83\xEC\x40\x48\x8B\xF9", "xxxxxxxxxxxxxxxxxx"); //  Uncomment for anything that is between S1 build 525 and S4 build 856 
-	void (*SetCursorPosition)(int a1, INT64 posX, INT64 posY) = (void (*)(int, INT64, INT64))p_SetCursorPosition; /*48 85 D2 0F ?? ?? ?? ?? ?? 48 89 6C 24 ?? 56 48 83 EC 40 4C*/
+	void (*SetCursorPosition)(INT64 nFlag, LONG posX, LONG posY) = (void (*)(INT64, LONG, LONG))p_SetCursorPosition; /*48 85 D2 0F ?? ?? ?? ?? ?? 48 89 6C 24 ?? 56 48 83 EC 40 4C*/
 
 	//DWORD64 p_GameWindowProc = FindPattern("r5apex.exe", (const unsigned char*)"\x48\x89\x4C\x24\x00\x56\x41\x54\x41\x56\x41\x57\x48\x83\xEC\x48", "xxxx?xxxxxxxxxxx");
 	//unsigned int (*GameWindowProc)(int game, HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) = (unsigned int (*)(int, HWND, UINT, WPARAM, LPARAM))p_GameWindowProc; /*48 89 4C 24 ?? 56 41 54 41 56 41 57 48 83 EC 48*/
@@ -42,20 +45,21 @@ namespace
 
 	void PrintHAddress() // Test the sigscan results
 	{
-		std::cout << "--------------------------------------------------" << std::endl;
-		std::cout << " p_CommandExecute         : " << std::hex << p_CommandExecute << std::endl;
-		std::cout << " p_ConVar_IsFlagSet       : " << std::hex << p_ConVar_IsFlagSet << std::endl;
-		std::cout << " p_ConCommand_IsFlagSet   : " << std::hex << p_ConCommand_IsFlagSet << std::endl;
-		std::cout << "--------------------------------------------------" << std::endl;
-		std::cout << " p_SQVM_Print             : " << std::hex << p_SQVM_Print << std::endl;
-		std::cout << " p_SQVM_LoadScript        : " << std::hex << p_SQVM_LoadScript << std::endl;
-		std::cout << "--------------------------------------------------" << std::endl;
-		std::cout << " p_NET_ReceiveDatagram    : " << std::hex << p_NET_ReceiveDatagram << std::endl;
-		std::cout << " p_NET_SendDatagram       : " << std::hex << p_NET_SendDatagram << std::endl;
-		std::cout << "--------------------------------------------------" << std::endl;
-		std::cout << " p_SetCursorPosition      : " << std::hex << p_SetCursorPosition << std::endl;
-		//std::cout << " p_GameWindowProc         : " << std::hex << p_GameWindowProc << std::endl;
-		std::cout << "--------------------------------------------------" << std::endl;
+		std::cout << "+--------------------------------------------------------+" << std::endl;
+		std::cout << "| p_CommandExecute         : " << std::hex << p_CommandExecute << std::endl;
+		std::cout << "| p_ConVar_IsFlagSet       : " << std::hex << p_ConVar_IsFlagSet << std::endl;
+		std::cout << "| p_ConCommand_IsFlagSet   : " << std::hex << p_ConCommand_IsFlagSet << std::endl;
+		std::cout << "+--------------------------------------------------------+" << std::endl;
+		std::cout << "| p_SQVM_Print             : " << std::hex << p_SQVM_Print << std::endl;
+		std::cout << "| p_SQVM_LoadScript        : " << std::hex << p_SQVM_LoadScript << std::endl;
+		std::cout << "| p_SQVM_LoadRson          : " << std::hex << p_SQVM_LoadRson << std::endl;
+		std::cout << "+--------------------------------------------------------+" << std::endl;
+		std::cout << "| p_NET_ReceiveDatagram    : " << std::hex << p_NET_ReceiveDatagram << std::endl;
+		std::cout << "| p_NET_SendDatagram       : " << std::hex << p_NET_SendDatagram << std::endl;
+		std::cout << "+--------------------------------------------------------+" << std::endl;
+		std::cout << "| p_SetCursorPosition      : " << std::hex << p_SetCursorPosition << std::endl;
+		//std::cout << "| p_GameWindowProc         : " << std::hex << p_GameWindowProc << std::endl;
+		std::cout << "+--------------------------------------------------------+" << std::endl;
 
 		// TODO implement error handling when sigscan fails or result is 0
 	}

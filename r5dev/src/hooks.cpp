@@ -8,6 +8,7 @@
 #include "utility.h"
 #include "structs.h"
 #include "console.h"
+#include "overlay.h"
 #include "hooks.h"
 
 //---------------------------------------------------------------------------------
@@ -42,16 +43,30 @@ unsigned int Hook_NET_SendDatagram(SOCKET s, const char* buf, int len, int flags
 }
 
 //---------------------------------------------------------------------------------
-// SQVM
+// SquirrelVM
 //---------------------------------------------------------------------------------
 
 void* Hook_SQVM_Print(void* sqvm, char* fmt, ...)
 {
+	char buf[1024];
 	va_list args;
 	va_start(args, fmt);
 	vprintf(fmt, args);
+	vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
+	buf[IM_ARRAYSIZE(buf) - 1] = 0;
 	va_end(args);
+	Items.push_back(Strdup(buf));
 	return NULL;
+}
+
+__int64 Hook_SQVM_LoadRson(const char* rson_name)
+{
+	printf("\n");
+	printf("##################################################\n");
+	printf("] '%s'\n", rson_name);
+	printf("##################################################\n");
+	printf("\n");
+	return SQVM_LoadRson(rson_name);
 }
 
 bool Hook_SQVM_LoadScript(void* sqvm, const char* script_path, const char* script_name, int flag)
@@ -90,6 +105,7 @@ void InstallHooks()
 
 	// Hook Engine functions
 	DetourAttach((LPVOID*)&SQVM_Print, &Hook_SQVM_Print);
+	DetourAttach((LPVOID*)&SQVM_LoadRson, &Hook_SQVM_LoadRson);
 	DetourAttach((LPVOID*)&SQVM_LoadScript, &Hook_SQVM_LoadScript);
 
 	// Commit the transaction
@@ -108,6 +124,7 @@ void RemoveHooks()
 
 	// Unhook Squirrel functions
 	DetourDetach((LPVOID*)&SQVM_Print, &Hook_SQVM_Print);
+	DetourDetach((LPVOID*)&SQVM_LoadRson, &Hook_SQVM_LoadRson);
 	DetourDetach((LPVOID*)&SQVM_LoadScript, &Hook_SQVM_LoadScript);
 	// Unhook Netchan functions
 	DetourDetach((LPVOID*)&NET_SendDatagram, &Hook_NET_SendDatagram);

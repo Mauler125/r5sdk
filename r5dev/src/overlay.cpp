@@ -19,13 +19,10 @@
  * _overlay.cpp
  *-----------------------------------------------------------------------------*/
 
-ImVector<char*>       Items;
-
 class CGameConsole
 {
 private:
     char                  InputBuf[256];
-    //ImVector<char*>       Items;
     ImVector<const char*> Commands;
     ImVector<char*>       History;
     int                   HistoryPos;    // -1: new line, 0..History.Size-1 browsing history.
@@ -59,6 +56,38 @@ public:
     /////////////////////////////////////////////////////////////////////////////
     // Helpers
 
+    static int Stricmp(const char* s1, const char* s2)
+    {
+        int d;
+        while ((d = toupper(*s2) - toupper(*s1)) == 0 && *s1)
+        {
+            s1++; s2++;
+        }
+        return d;
+    }
+
+    static int Strnicmp(const char* s1, const char* s2, int n)
+    {
+        int d = 0; while (n > 0 && (d = toupper(*s2) - toupper(*s1)) == 0 && *s1)
+        {
+            s1++; s2++; n--;
+        }
+        return d;
+    }
+
+    static char* Strdup(const char* s)
+    {
+        IM_ASSERT(s); size_t len = strlen(s) + 1; void* buf = malloc(len); IM_ASSERT(buf); if (buf != NULL)
+        {
+            return (char*)memcpy(buf, (const void*)s, len);
+        }
+    }
+
+    static void  Strtrim(char* s)
+    {
+        char* str_end = s + strlen(s); while (str_end > s && str_end[-1] == ' ') str_end--; *str_end = 0;
+    }
+
     void ClearLog()
     {
         for (int i = 0; i < Items.Size; i++) { free(Items[i]); }
@@ -81,29 +110,30 @@ public:
     // Draw
     void Draw(const char* title, bool* p_open)
     {
-        ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(840, 600), ImGuiCond_FirstUseEver);
+        ImGui::SetWindowPos(ImVec2(1000, 50), ImGuiCond_FirstUseEver);
         if (!ImGui::Begin(title, p_open)) { ImGui::End(); return; }
         if (ImGui::BeginPopupContextItem())
         {
             if (ImGui::MenuItem("Close Console")) { *p_open = false; }
             ImGui::EndPopup();
         }
-        if (ImGui::SmallButton("Netchan Trace"))
-        {
-            ToggleNetHooks();
-            AddLog("+--------------------------------------------------------+\n");
-            AddLog("|>>>>>>>>>>>>>>| NETCHANNEL TRACE TOGGLED |<<<<<<<<<<<<<<|\n");
-            AddLog("+--------------------------------------------------------+\n");
-            ExecCommand("exec netchan");
-        }
-        ImGui::SameLine();
-        if (ImGui::SmallButton("Flag Override"))
+        if (ImGui::SmallButton("Developer mode"))
         {
             ToggleDevCommands();
             AddLog("+--------------------------------------------------------+\n");
             AddLog("|>>>>>>>>>>>>>>| DEVONLY COMMANDS TOGGLED |<<<<<<<<<<<<<<|\n");
             AddLog("+--------------------------------------------------------+\n");
             ExecCommand("exec autoexec");
+        }
+        ImGui::SameLine();
+        if (ImGui::SmallButton("Netchannel Trace"))
+        {
+            ToggleNetHooks();
+            AddLog("+--------------------------------------------------------+\n");
+            AddLog("|>>>>>>>>>>>>>>| NETCHANNEL TRACE TOGGLED |<<<<<<<<<<<<<<|\n");
+            AddLog("+--------------------------------------------------------+\n");
+            ExecCommand("exec netchan");
         }
 
         /////////////////////////////////////////////////////////////////////////
@@ -138,11 +168,36 @@ public:
             /////////////////////////////////////////////////////////////////////////
             ImVec4 color;
             bool has_color = false;
+
+            // General
             if (strstr(item, "[INFO]"))         { color = ImVec4(1.00f, 1.00f, 1.00f, 0.70f); has_color = true; }
             if (strstr(item, "[ERROR]"))        { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
             if (strstr(item, "[DEBUG]"))        { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
             if (strstr(item, "[WARNING]"))      { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
             if (strncmp(item, "# ", 2) == 0)    { color = ImVec4(1.00f, 0.80f, 0.60f, 1.00f); has_color = true; }
+
+            // Script errors
+            if (strstr(item, "[CLIENT]"))             { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+            if (strstr(item, "[SERVER]"))             { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+            if (strstr(item, "[UI]"))                 { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+            if (strstr(item, "SCRIPT ERROR"))         { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+            if (strstr(item, "SCRIPT COMPILE ERROR")) { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+            if (strstr(item, " -> "))                 { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+
+
+            // Script debug
+            if (strstr(item, "CALLSTACK"))  { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
+            if (strstr(item, "LOCALS"))     { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
+            if (strstr(item, "*FUNCTION"))  { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
+            if (strstr(item, "DIAGPRINTS")) { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
+            if (strstr(item, " File : "))   { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
+            if (strstr(item, "<><>GRX<><>")){ color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
+
+            // Callbacks
+            if (strstr(item, "CodeCallback_")) { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
+
+            // Filters
+            if (strstr(item, ") -> ")) { color = ImVec4(1.00f, 1.00f, 1.00f, 0.60f); has_color = true; }
 
             if (has_color) { ImGui::PushStyleColor(ImGuiCol_Text, color); }
             ImGui::TextUnformatted(item);
@@ -158,7 +213,7 @@ public:
         void SetStyleVar();
         {
             ImVec4* colors = ImGui::GetStyle().Colors;
-            colors[ImGuiCol_Text]                  = ImVec4(1.00f, 1.00f, 1.00f, 0.50f);
+            colors[ImGuiCol_Text]                  = ImVec4(1.00f, 1.00f, 1.00f, 0.60f);
             colors[ImGuiCol_TextDisabled]          = ImVec4(1.00f, 1.00f, 1.00f, 0.40f);
             colors[ImGuiCol_WindowBg]              = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
             //colors[ImGuiCol_ChildBg]               = ImVec4(0.00f, 0.00f, 0.00f, 0.86f);
@@ -232,7 +287,7 @@ public:
         // Console
         bool reclaim_focus = false;
         bool clear_inputbuf = false;
-        ImGui::PushItemWidth(600);
+        ImGui::PushItemWidth(750);
         if (ImGui::IsWindowAppearing()) { ImGui::SetKeyboardFocusHere(); }
         ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
         if (ImGui::InputText("##input", InputBuf, IM_ARRAYSIZE(InputBuf), input_text_flags, &TextEditCallbackStub, (void*)this))
