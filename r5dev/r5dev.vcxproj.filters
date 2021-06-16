@@ -137,6 +137,9 @@
     <ClInclude Include="include\overlay.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\enums.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="r5dev.def">

@@ -193,6 +193,7 @@
     <ClInclude Include="..\imgui\include\imstb_textedit.h" />
     <ClInclude Include="..\imgui\include\imstb_truetype.h" />
     <ClInclude Include="include\console.h" />
+    <ClInclude Include="include\enums.h" />
     <ClInclude Include="include\hooks.h" />
     <ClInclude Include="include\id3dx.h" />
     <ClInclude Include="include\opcptc.h" />

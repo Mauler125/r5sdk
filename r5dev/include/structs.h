@@ -1,6 +1,6 @@
 #pragma once
 
-// Define structures/types
+/* Structures */
 typedef unsigned __int64 QWORD;
 
 struct __declspec(align(8)) netpacket_t
