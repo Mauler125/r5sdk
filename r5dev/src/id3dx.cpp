@@ -263,11 +263,11 @@ void DestroyRenderTarget()
 		g_pRenderTargetView = nullptr;
 		g_pDeviceContext->OMSetRenderTargets(0, 0, 0);
 		std::cout << "+--------------------------------------------------------+" << std::endl;
-		std::cout << "| >>>>>>>>>>>>>>| RENDER TARGET DESTORYED |<<<<<<<<<<<<< |" << std::endl;
+		std::cout << "| >>>>>>>>>>>>>>| RENDER TARGET DESTROYED |<<<<<<<<<<<<< |" << std::endl;
 		std::cout << "+--------------------------------------------------------+" << std::endl;
 	}
 }
-static bool test;
+
 HRESULT __stdcall GetResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount, UINT nWidth, UINT nHeight, DXGI_FORMAT dxFormat, UINT nSwapChainFlags)
 {
 	g_bShowMenu       = false;
