@@ -45,7 +45,7 @@ bool LaunchR5Apex()
     // Load command line arguments from a file on the disk.
     if (sLaunchParams)
     {
-        while (fgets(sArgumentBuffer, sizeof(sArgumentBuffer), sLaunchParams) != NULL)
+        while (fread(sArgumentBuffer, sizeof(sArgumentBuffer), 1, sLaunchParams) != NULL)
         {
             fclose(sLaunchParams);
         }
