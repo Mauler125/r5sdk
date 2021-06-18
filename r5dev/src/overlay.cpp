@@ -22,30 +22,32 @@
 class CGameConsole
 {
 private:
-    char                  InputBuf[256];
-    ImVector<const char*> Commands;
-    ImVector<char*>       History;
-    int                   HistoryPos;    // -1: new line, 0..History.Size-1 browsing history.
-    ImGuiTextFilter       Filter;
-    bool                  AutoScroll;
-    bool                  ScrollToBottom;
+    ///////////////////////////////////////////////////////////////////////////
+    char                           InputBuf[256]    =  { 0 };
+    ImVector<const char*>          Commands;
+    ImVector<char*>                History;
+    int                            HistoryPos       =  -1;
+    ImGuiTextFilter                Filter;
+    bool                           AutoScroll       =  true;
+    bool                           ScrollToBottom   =  false;
 
 public:
-    /////////////////////////////////////////////////////////////////////////////
-    // Init
+    ///////////////////////////////////////////////////////////////////////////
     CGameConsole()
     {
         ClearLog();
         memset(InputBuf, 0, sizeof(InputBuf));
+
         HistoryPos      = -1;
         AutoScroll      = true;
         ScrollToBottom  = false;
+
         Commands.push_back("HELP");
         Commands.push_back("HISTORY");
         Commands.push_back("CLEAR");
         Commands.push_back("CLASSIFY");
-        AddLog("[DEBUG] THREAD ID: %ld\n", g_dThreadId);
 
+        AddLog("[DEBUG] THREAD ID: %ld\n", g_dThreadId);
     }
     ~CGameConsole()
     {
@@ -53,9 +55,8 @@ public:
         for (int i = 0; i < History.Size; i++) { free(History[i]); }
     }
 
-    /////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
     // Helpers
-
     static int Stricmp(const char* s1, const char* s2)
     {
         int d;
@@ -65,7 +66,6 @@ public:
         }
         return d;
     }
-
     static int Strnicmp(const char* s1, const char* s2, int n)
     {
         int d = 0; while (n > 0 && (d = toupper(*s2) - toupper(*s1)) == 0 && *s1)
@@ -74,7 +74,6 @@ public:
         }
         return d;
     }
-
     static char* Strdup(const char* s)
     {
         IM_ASSERT(s); size_t len = strlen(s) + 1; void* buf = malloc(len); IM_ASSERT(buf); if (buf != NULL)
@@ -82,12 +81,13 @@ public:
             return (char*)memcpy(buf, (const void*)s, len);
         }
     }
-
     static void  Strtrim(char* s)
     {
         char* str_end = s + strlen(s); while (str_end > s && str_end[-1] == ' ') str_end--; *str_end = 0;
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Utility
     void ClearLog()
     {
         for (int i = 0; i < Items.Size; i++) { free(Items[i]); }
@@ -106,18 +106,24 @@ public:
         Items.push_back(Strdup(buf));
     }
 
-    /////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
     // Draw
     void Draw(const char* title, bool* p_open)
     {
         ImGui::SetNextWindowSize(ImVec2(840, 600), ImGuiCond_FirstUseEver);
-        ImGui::SetWindowPos(ImVec2(1000, 50), ImGuiCond_FirstUseEver);
-        if (!ImGui::Begin(title, p_open)) { ImGui::End(); return; }
-        if (ImGui::BeginPopupContextItem())
+        ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
+        if (!ImGui::Begin(title, p_open))
         {
-            if (ImGui::MenuItem("Close Console")) { *p_open = false; }
-            ImGui::EndPopup();
+            g_bShowMenu = false;
+            ImGui::End(); return;
         }
+
+        if (*p_open == NULL)
+        {
+            g_bShowMenu = false;
+        }
+
+        ///////////////////////////////////////////////////////////////////////
         if (ImGui::SmallButton("Developer mode"))
         {
             ToggleDevCommands();
@@ -136,21 +142,34 @@ public:
             ExecCommand("exec netchan");
         }
 
-        /////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////
         ImGui::SameLine();
-        if (ImGui::SmallButton("Clear")) { ClearLog(); }
+        if (ImGui::SmallButton("Clear"))
+        {
+            ClearLog();
+        }
         ImGui::SameLine();
         bool copy_to_clipboard = ImGui::SmallButton("Copy");
         ImGui::Separator();
-        if (ImGui::BeginPopup("Options")) { ImGui::Checkbox("Auto-scroll", &AutoScroll); ImGui::EndPopup(); }
-        if (ImGui::Button("Options")) { ImGui::OpenPopup("Options"); }
+        if (ImGui::BeginPopup("Options"))
+        {
+            ImGui::Checkbox("Auto-scroll", &AutoScroll); ImGui::EndPopup();
+        }
+        if (ImGui::Button("Options"))
+        {
+            ImGui::OpenPopup("Options");
+        }
         ImGui::SameLine();
         Filter.Draw("Filter [\"-incl,-excl\"] [\"error\"]", 180);
         ImGui::Separator();
 
+        ///////////////////////////////////////////////////////////////////////
         // Reserve enough left-over height for 1 separator + 1 input text
         const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-        ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar);
+
+        ///////////////////////////////////////////////////////////////////////
+        ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), true, ImGuiWindowFlags_None);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 4.f, 6.f });
         if (ImGui::BeginPopupContextWindow())
         {
             if (ImGui::Selectable("Clear"))
@@ -165,10 +184,11 @@ public:
             const char* item = Items[i];
             if (!Filter.PassFilter(item)) { continue; }
 
-            /////////////////////////////////////////////////////////////////////////
+            ///////////////////////////////////////////////////////////////////
             ImVec4 color;
             bool has_color = false;
 
+            ///////////////////////////////////////////////////////////////////
             // General
             if (strstr(item, "[INFO]"))         { color = ImVec4(1.00f, 1.00f, 1.00f, 0.70f); has_color = true; }
             if (strstr(item, "[ERROR]"))        { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
@@ -176,31 +196,37 @@ public:
             if (strstr(item, "[WARNING]"))      { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
             if (strncmp(item, "# ", 2) == 0)    { color = ImVec4(1.00f, 0.80f, 0.60f, 1.00f); has_color = true; }
 
-            // Script errors
-            if (strstr(item, "[CLIENT]"))             { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-            if (strstr(item, "[SERVER]"))             { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-            if (strstr(item, "[UI]"))                 { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-            if (strstr(item, "SCRIPT ERROR"))         { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-            if (strstr(item, "SCRIPT COMPILE ERROR")) { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-            if (strstr(item, " -> "))                 { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-
-
-            // Script debug
-            if (strstr(item, "CALLSTACK"))  { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
-            if (strstr(item, "LOCALS"))     { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
-            if (strstr(item, "*FUNCTION"))  { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
-            if (strstr(item, "DIAGPRINTS")) { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
-            if (strstr(item, " File : "))   { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
-            if (strstr(item, "<><>GRX<><>")){ color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
-
+            ///////////////////////////////////////////////////////////////////
             // Callbacks
-            if (strstr(item, "CodeCallback_")) { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
+            if (strstr(item, "CodeCallback_"))  { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
 
+            ///////////////////////////////////////////////////////////////////
+            // Script errors
+            if (strstr(item, "[CLIENT]"))       { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+            if (strstr(item, "[SERVER]"))       { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+            if (strstr(item, "[UI]"))           { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+            if (strstr(item, "SCRIPT ERROR"))   { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+            if (strstr(item, "SCRIPT COMPILE")) { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+            if (strstr(item, ".gnut #"))        { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+            if (strstr(item, ".nut #"))         { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+            if (strstr(item, " -> "))           { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+
+            ///////////////////////////////////////////////////////////////////
+            // Script debug
+            if (strstr(item, "CALLSTACK"))      { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
+            if (strstr(item, "LOCALS"))         { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
+            if (strstr(item, "*FUNCTION"))      { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
+            if (strstr(item, "DIAGPRINTS"))     { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
+            if (strstr(item, " File : "))       { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
+            if (strstr(item, "<><>GRX<><>"))    { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
+
+            ///////////////////////////////////////////////////////////////////
             // Filters
-            if (strstr(item, ") -> ")) { color = ImVec4(1.00f, 1.00f, 1.00f, 0.60f); has_color = true; }
+            if (strstr(item, ") -> "))          { color = ImVec4(1.00f, 1.00f, 1.00f, 0.60f); has_color = true; }
+            ///////////////////////////////////////////////////////////////////
 
             if (has_color) { ImGui::PushStyleColor(ImGuiCol_Text, color); }
-            ImGui::TextUnformatted(item);
+            ImGui::TextWrapped(item);
             if (has_color) { ImGui::PopStyleColor(); }
         }
         if (copy_to_clipboard) { ImGui::LogFinish(); }
@@ -208,7 +234,7 @@ public:
         if (ScrollToBottom || (AutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())) { ImGui::SetScrollHereY(1.0f); }
         ScrollToBottom = false;
 
-        /////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////
         // Style
         void SetStyleVar();
         {
@@ -271,33 +297,34 @@ public:
             colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
             colors[ImGuiCol_NavWindowingDimBg]     = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
             colors[ImGuiCol_ModalWindowDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
-            ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.5f);
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-            ImGui::PushStyleVar(ImGuiStyleVar_ScrollbarRounding, 1.0f);
+            ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize,      0.5f);
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize,     0.0f);
+            ImGui::PushStyleVar(ImGuiStyleVar_ScrollbarRounding,    1.0f);
             //ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding,        2.0f);
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 2.5f);
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding,       2.5f);
             ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1)); // Tighten spacing
         }
 
+        ///////////////////////////////////////////////////////////////////////
         ImGui::PopStyleVar();
         ImGui::EndChild();
         ImGui::Separator();
 
-        /////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////
         // Console
         bool reclaim_focus = false;
-        bool clear_inputbuf = false;
         ImGui::PushItemWidth(750);
         if (ImGui::IsWindowAppearing()) { ImGui::SetKeyboardFocusHere(); }
         ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
+
         if (ImGui::InputText("##input", InputBuf, IM_ARRAYSIZE(InputBuf), input_text_flags, &TextEditCallbackStub, (void*)this))
         {
             char* s = InputBuf;
+            if (strstr(InputBuf, "`")) { strcpy(s, ""); }
             Strtrim(s);
             if (s[0]) { ExecCommand(s); }
             strcpy(s, "");
             reclaim_focus = true;
-            clear_inputbuf = false;
         }
         ImGui::SameLine();
         if (ImGui::Button("Submit"))
@@ -306,27 +333,19 @@ public:
             if (s[0]) { ExecCommand(s); }
             strcpy(s, "");
             reclaim_focus = true;
-            clear_inputbuf = false;
-        }
-        if (GetKeyState(VK_OEM_3) & 0x8000) { clear_inputbuf = true; }
-        if (clear_inputbuf == true)
-        {
-            char* s = InputBuf;
-            strcpy(s, "");
-            clear_inputbuf = false;
         }
 
+        ///////////////////////////////////////////////////////////////////////
         // Auto-focus on window apparition
         ImGui::SetItemDefaultFocus();
         if (reclaim_focus) { ImGui::SetKeyboardFocusHere(-1); }// Auto focus previous widget
         ImGui::End();
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Exec
     void ExecCommand(const char* command_line)
     {
-        using namespace std;
-        ifstream file("convar.txt");
-
         AddLog("# %s\n", command_line);
         CommandExecute(NULL, command_line);
 
@@ -344,9 +363,10 @@ public:
         }
 
         History.push_back(Strdup(command_line));
-
-        // Process command TODO: compare command with convar/concommand list else return unknown
-        if (Stricmp(command_line, "CLEAR") == 0) { ClearLog(); }
+        if (Stricmp(command_line, "CLEAR") == 0)
+        {
+            ClearLog();
+        }
         else if (Stricmp(command_line, "HELP") == 0)
         {
             AddLog("Commands:");
@@ -357,26 +377,12 @@ public:
             int first = History.Size - 10;
             for (int i = first > 0 ? first : 0; i < History.Size; i++) { AddLog("%3d: %s\n", i, History[i]); }
         }
-        //char input[256];
-        //bool found = false;
-        //while (file.good())
-        //{
-        //    file >> input;
-        //    if (file.good() && strcmp(input, command_line) == 0)
-        //    {
-        //        bool found = true;
-        //    }
-        //}
-        //if (!found)
-        //{
-        //    AddLog("[WARNING] Unknown command: '%s'\n", command_line);
-        //}
-        //// On command input, we scroll to bottom even if AutoScroll==false
-        //ScrollToBottom = true;
-        //found = false;
+
+        // On command input, we scroll to bottom even if AutoScroll==false
+        ScrollToBottom = true;
     }
 
-    /////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
     // History
     static int TextEditCallbackStub(ImGuiInputTextCallbackData* data)
     {
@@ -384,6 +390,8 @@ public:
         return console->TextEditCallback(data);
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Edit
     int TextEditCallback(ImGuiInputTextCallbackData* data)
     {
         switch (data->EventFlag)
@@ -428,6 +436,8 @@ public:
     }
 };
 
+///////////////////////////////////////////////////////////////////////////////
+// Entry
 void ShowGameConsole(bool* p_open)
 {
     static CGameConsole console;

@@ -16,6 +16,7 @@
 
 void SetupConsole()
 {
+	///////////////////////////////////////////////////////////////////////////////
 	// Create the console window
 	if (AllocConsole() == FALSE)
 	{
@@ -23,6 +24,7 @@ void SetupConsole()
 		return;
 	}
 
+	///////////////////////////////////////////////////////////////////////////////
 	// Set the window title
 	FILE* sBuildTxt;
 	CHAR sBuildBuf[1024] = { 0 };
@@ -37,12 +39,14 @@ void SetupConsole()
 	}
 	SetConsoleTitle(sBuildBuf);
 
+	///////////////////////////////////////////////////////////////////////////////
 	// Open input/output streams
 	FILE* fDummy;
 	freopen_s(&fDummy, "CONIN$", "r", stdin);
 	freopen_s(&fDummy, "CONOUT$", "w", stdout);
 	freopen_s(&fDummy, "CONOUT$", "w", stderr);
 
+	///////////////////////////////////////////////////////////////////////////////
 	// Create a worker thread to process console commands
 	DWORD threadId0;
 	DWORD __stdcall ProcessConsoleWorker(LPVOID);
@@ -67,6 +71,7 @@ bool Hook_ConVar_IsFlagSet(int** cvar, int flag)
 		printf("--------------------------------------------------\n");
 		printf(" Flaged: %08X\n", real_flags);
 	}
+	///////////////////////////////////////////////////////////////////////////////
 	// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY
 	real_flags &= 0xFFFFBFFD;
 	if (g_bDebugConsole)
@@ -89,6 +94,7 @@ bool Hook_ConCommand_IsFlagSet(int* cmd, int flag)
 		printf("--------------------------------------------------\n");
 		printf(" Flaged: %08X\n", real_flags);
 	}
+	///////////////////////////////////////////////////////////////////////////////
 	// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY
 	real_flags &= 0xFFFFBFFD;
 	if (g_bDebugConsole)
@@ -114,27 +120,31 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 	{
 		std::string sCommand;
 
+		///////////////////////////////////////////////////////////////////////////
 		// Get the user input on the debug console
 		printf(">");
 		std::getline(std::cin, sCommand);
 
+		///////////////////////////////////////////////////////////////////////////
 		// Engine toggles
 		if (sCommand == "toggle net") { ToggleNetHooks(); continue; }
 		if (sCommand == "toggle dev") { ToggleDevCommands(); continue; }
 		if (sCommand == "toggle fal") { g_bReturnAllFalse = !g_bReturnAllFalse; continue; }
-
+		///////////////////////////////////////////////////////////////////////////
 		// Debug toggles
 		if (sCommand == "pattern test") { PrintHAddress(); PrintOAddress(); continue; }
 		if (sCommand == "console test") { g_bDebugConsole = !g_bDebugConsole; continue; }
-
+		///////////////////////////////////////////////////////////////////////////
 		// Exec toggles
 		if (sCommand == "1") { ToggleDevCommands(); CommandExecute(NULL, "exec autoexec_dev"); }
 		if (sCommand == "2") { g_bDebugLog = !g_bDebugLog; continue; }
 
+		///////////////////////////////////////////////////////////////////////////
 		// Execute the command in the r5 SQVM
 		CommandExecute(NULL, sCommand.c_str());
 		sCommand.clear();
 
+		///////////////////////////////////////////////////////////////////////////
 		// Sleep and loop
 		Sleep(50);
 	}

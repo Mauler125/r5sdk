@@ -26,14 +26,13 @@ typedef HRESULT(__stdcall* IDXGISwapChainPresent)(IDXGISwapChain* pSwapChain, UI
 typedef HRESULT(__stdcall* IDXGIResizeBuffers)   (IDXGISwapChain* pSwapChain, UINT nBufferCount, UINT nWidth, UINT nHeight, DXGI_FORMAT dxFormat, UINT nSwapChainFlags);
 
 ///////////////////////////////////////////////////////////////////////////////////
-static BOOL g_bShowMenu         = false;
-static BOOL g_bInitialized      = false;
-static BOOL g_bPresentHooked    = false;
-static BOOL g_bListener[256]    = { 0 };
+extern BOOL                     g_bShowMenu                 = false;
+static BOOL                     g_bInitialized              = false;
+static BOOL                     g_bPresentHooked            = false;
 
-static HWND     g_hGameWindow   = NULL;
-static WNDPROC  g_oWndProc      = NULL;
-extern DWORD    g_dThreadId     = NULL;
+static WNDPROC                  g_oWndProc                  = NULL;
+static HWND                     g_hGameWindow               = NULL;
+extern DWORD                    g_dThreadId                 = NULL;
 
 ///////////////////////////////////////////////////////////////////////////////////
 static IDXGISwapChainPresent    g_fnIDXGISwapChainPresent   = nullptr;
@@ -62,7 +61,7 @@ LRESULT CALLBACK hWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	ImGuiIO& io = ImGui::GetIO();
 
-	if (uMsg == WM_KEYUP)
+	if (uMsg == WM_KEYDOWN)
 	{
 		if (wParam == VK_OEM_3)
 		{
@@ -79,7 +78,7 @@ LRESULT CALLBACK hWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return true;
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////
 	return CallWindowProc(g_oWndProc, hWnd, uMsg, wParam, lParam);
 }
 

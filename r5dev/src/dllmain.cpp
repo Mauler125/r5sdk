@@ -30,7 +30,7 @@ void TerminateR5Dev()
 }
 
 //---------------------------------------------------------------------------------
-// Main
+// Entry
 //---------------------------------------------------------------------------------
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  dwReason, LPVOID lpReserved)

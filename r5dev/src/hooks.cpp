@@ -23,6 +23,7 @@ bool Hook_NET_ReceiveDatagram(int sock, void* inpacket, bool raw)
 		int i = NULL;
 		netpacket_t* pkt = (netpacket_t*)inpacket;
 
+		///////////////////////////////////////////////////////////////////////////
 		// Log received packet data
 		HexDump("[+] NET_ReceiveDatagram", "platform\\log\\netchan.log", "a", 0, &pkt->data[i], pkt->wiresize);
 	}
@@ -35,6 +36,7 @@ unsigned int Hook_NET_SendDatagram(SOCKET s, const char* buf, int len, int flags
 	unsigned int result = NET_SendDatagram(s, buf, len, flags);
 	if (result)
 	{
+		///////////////////////////////////////////////////////////////////////////
 		// Log transmitted packet data
 		HexDump("[+] NET_SendDatagram", "platform\\log\\netchan.log", "a", 0, buf, len);
 	}
@@ -74,6 +76,7 @@ bool Hook_SQVM_LoadScript(void* sqvm, const char* script_path, const char* scrip
 	char filepath[MAX_PATH] = { 0 };
 	sprintf_s(filepath, MAX_PATH, "platform\\%s", script_path);
 
+	///////////////////////////////////////////////////////////////////////////////
 	// Flip forward slashes in filepath to windows-style backslash
 	for (int i = 0; i < strlen(filepath); i++)
 	{
@@ -82,14 +85,20 @@ bool Hook_SQVM_LoadScript(void* sqvm, const char* script_path, const char* scrip
 			filepath[i] = '\\';
 		}
 	}
-
-	if (g_bDebugLog) { printf(" [+] Loading SQVM Script '%s' ...\n", filepath); }
+	if (g_bDebugLog)
+	{
+		printf(" [+] Loading SQVM Script '%s' ...\n", filepath);
+	}
+	///////////////////////////////////////////////////////////////////////////////
+	// Returns true if the script exists on the disk
 	if (FileExists(filepath) && SQVM_LoadScript(sqvm, filepath, script_name, flag))
 	{
-		return true; // Redirect to disk worked / script exists on disk..
+		return true;
 	}
-
-	if (g_bDebugLog) { printf(" [!] FAILED. Try SP / VPK for '%s'\n", filepath); }
+	if (g_bDebugLog)
+	{
+		printf(" [!] FAILED. Try SP / VPK for '%s'\n", filepath);
+	}
 	return SQVM_LoadScript(sqvm, script_path, script_name, flag);
 }
 
@@ -99,15 +108,16 @@ bool Hook_SQVM_LoadScript(void* sqvm, const char* script_path, const char* scrip
 
 void InstallHooks()
 {
+	///////////////////////////////////////////////////////////////////////////////
 	// Begin the detour transaction
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
-
+	///////////////////////////////////////////////////////////////////////////////
 	// Hook Engine functions
 	DetourAttach((LPVOID*)&SQVM_Print, &Hook_SQVM_Print);
 	DetourAttach((LPVOID*)&SQVM_LoadRson, &Hook_SQVM_LoadRson);
 	DetourAttach((LPVOID*)&SQVM_LoadScript, &Hook_SQVM_LoadScript);
-
+	///////////////////////////////////////////////////////////////////////////////
 	// Commit the transaction
 	if (DetourTransactionCommit() != NO_ERROR)
 	{
@@ -118,21 +128,24 @@ void InstallHooks()
 
 void RemoveHooks()
 {
+	///////////////////////////////////////////////////////////////////////////////
 	// Begin the detour transaction, to unhook the the process
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
-
+	///////////////////////////////////////////////////////////////////////////////
 	// Unhook Squirrel functions
 	DetourDetach((LPVOID*)&SQVM_Print, &Hook_SQVM_Print);
 	DetourDetach((LPVOID*)&SQVM_LoadRson, &Hook_SQVM_LoadRson);
 	DetourDetach((LPVOID*)&SQVM_LoadScript, &Hook_SQVM_LoadScript);
+	///////////////////////////////////////////////////////////////////////////////
 	// Unhook Netchan functions
 	DetourDetach((LPVOID*)&NET_SendDatagram, &Hook_NET_SendDatagram);
 	DetourDetach((LPVOID*)&NET_ReceiveDatagram, &Hook_NET_ReceiveDatagram);
+	///////////////////////////////////////////////////////////////////////////////
 	// Unhook Console functions
 	DetourDetach((LPVOID*)&ConVar_IsFlagSet, &Hook_ConVar_IsFlagSet);
 	DetourDetach((LPVOID*)&ConCommand_IsFlagSet, &Hook_ConCommand_IsFlagSet);
-
+	///////////////////////////////////////////////////////////////////////////////
 	// Commit the transaction
 	DetourTransactionCommit();
 }
