@@ -197,6 +197,7 @@
     <ClInclude Include="include\enums.h" />
     <ClInclude Include="include\hooks.h" />
     <ClInclude Include="include\id3dx.h" />
+    <ClInclude Include="include\input.h" />
     <ClInclude Include="include\opcptc.h" />
     <ClInclude Include="include\overlay.h" />
     <ClInclude Include="include\patterns.h" />
@@ -216,6 +217,7 @@
     <ClCompile Include="src\dllmain.cpp" />
     <ClCompile Include="src\hooks.cpp" />
     <ClCompile Include="src\id3dx.cpp" />
+    <ClCompile Include="src\input.cpp" />
     <ClCompile Include="src\opcptc.cpp" />
     <ClCompile Include="src\overlay.cpp" />
     <ClCompile Include="src\utility.cpp" />

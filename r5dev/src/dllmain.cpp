@@ -3,6 +3,7 @@
 
 #include "r5dev.h"
 #include "id3dx.h"
+#include "input.h"
 #include "hooks.h"
 #include "opcptc.h"
 #include "console.h"
@@ -10,15 +11,18 @@
 
 ///////////////////////////////////////////////////////////////////////////////////
 //---------------------------------------------------------------------------------
-// Init
+// Initialization
 //---------------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////////
 
 void InitializeR5Dev()
 {
-	SetupConsole();
+    SetupConsole();
     InstallHooks();
+    InstallIPHooks();
+    InstallDXHooks();
     InstallOpcodes();
+    SetupDXSwapChain();
     printf("+-----------------------------------------------------------------------------+\n");
     printf("|   R5 DEV -- INITIALIZED -------------------------------------------------   |\n");
     printf("+-----------------------------------------------------------------------------+\n");
@@ -28,7 +32,9 @@ void InitializeR5Dev()
 void TerminateR5Dev()
 {
     RemoveHooks();
-	FreeConsole();
+    RemoveIPHooks();
+    RemoveDXHooks();
+    FreeConsole();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -45,14 +51,12 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  dwReason, LPVOID lpReserved)
         case DLL_PROCESS_ATTACH:
         {
             InitializeR5Dev();
-            SetupDXSwapChain();
             break;
         }
 
         case DLL_PROCESS_DETACH:
         {
             TerminateR5Dev();
-            RemoveDXHooks();
             break;
         }
     }
