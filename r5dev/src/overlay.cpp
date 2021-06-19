@@ -163,12 +163,11 @@ public:
         Filter.Draw("Filter [\"-incl,-excl\"] [\"error\"]", 180);
         ImGui::Separator();
 
-        ///////////////////////////////////////////////////////////////////////
         // Reserve enough left-over height for 1 separator + 1 input text
         const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
 
         ///////////////////////////////////////////////////////////////////////
-        ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), true, ImGuiWindowFlags_None);
+        ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 4.f, 6.f });
         if (ImGui::BeginPopupContextWindow())
         {
@@ -335,7 +334,6 @@ public:
             reclaim_focus = true;
         }
 
-        ///////////////////////////////////////////////////////////////////////
         // Auto-focus on window apparition
         ImGui::SetItemDefaultFocus();
         if (reclaim_focus) { ImGui::SetKeyboardFocusHere(-1); }// Auto focus previous widget
@@ -437,7 +435,47 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+//-----------------------------------------------------------------------------
+// Internals
+//-----------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
+
+int Stricmp(const char* s1, const char* s2)
+{
+    int d;
+    while ((d = toupper(*s2) - toupper(*s1)) == 0 && *s1)
+    {
+        s1++; s2++;
+    }
+    return d;
+}
+int Strnicmp(const char* s1, const char* s2, int n)
+{
+    int d = 0; while (n > 0 && (d = toupper(*s2) - toupper(*s1)) == 0 && *s1)
+    {
+        s1++; s2++; n--;
+    }
+    return d;
+}
+char* Strdup(const char* s)
+{
+    IM_ASSERT(s); size_t len = strlen(s) + 1; void* buf = malloc(len); IM_ASSERT(buf); if (buf != NULL)
+    {
+        return (char*)memcpy(buf, (const void*)s, len);
+    }
+    return NULL;
+}
+void  Strtrim(char* s)
+{
+    char* str_end = s + strlen(s); while (str_end > s && str_end[-1] == ' ') str_end--; *str_end = 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//-----------------------------------------------------------------------------
 // Entry
+//-----------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
+
 void ShowGameConsole(bool* p_open)
 {
     static CGameConsole console;

@@ -37,15 +37,6 @@ namespace
 	unsigned int (*NET_SendDatagram)(SOCKET s, const char* buf, int len, int flags) = (unsigned int (*)(SOCKET, const char*, int, int))p_NET_SendDatagram; /*48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 56 41 57 48 81 EC ?? 05 00 00*/
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/* ==== WINAPI ========================================================================================================================================================== */
-	DWORD64 p_SetCursorPosition = FindPattern("r5apex.exe", (const unsigned char*)"\x48\x85\xD2\x0F\x00\x00\x00\x00\x00\x48\x89\x6C\x24\x00\x56\x48\x83\xEC\x40\x4C", "xxxx?????xxxx?xxxxxx"); // Uncomment for anything that is not between S1 build 525 and S4 build 856 
-	//DWORD64 p_SetCursorPosition = FindPattern("r5apex.exe", "\x48\x89\x6C\x24\x18\x48\x89\x74\x24\x20\x57\x48\x83\xEC\x40\x48\x8B\xF9", "xxxxxxxxxxxxxxxxxx"); //  Uncomment for anything that is between S1 build 525 and S4 build 856 
-	void (*SetCursorPosition)(INT64 nFlag, LONG posX, LONG posY) = (void (*)(INT64, LONG, LONG))p_SetCursorPosition; /*48 85 D2 0F ?? ?? ?? ?? ?? 48 89 6C 24 ?? 56 48 83 EC 40 4C*/
-
-	//DWORD64 p_GameWindowProc = FindPattern("r5apex.exe", (const unsigned char*)"\x48\x89\x4C\x24\x00\x56\x41\x54\x41\x56\x41\x57\x48\x83\xEC\x48", "xxxx?xxxxxxxxxxx");
-	//unsigned int (*GameWindowProc)(int game, HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) = (unsigned int (*)(int, HWND, UINT, WPARAM, LPARAM))p_GameWindowProc; /*48 89 4C 24 ?? 56 41 54 41 56 41 57 48 83 EC 48*/
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/* ==== ------- ========================================================================================================================================================= */
 
 	void PrintHAddress() // Test the sigscan results
@@ -61,9 +52,6 @@ namespace
 		std::cout << "+--------------------------------------------------------+" << std::endl;
 		std::cout << "| p_NET_ReceiveDatagram    : " << std::hex << p_NET_ReceiveDatagram << std::endl;
 		std::cout << "| p_NET_SendDatagram       : " << std::hex << p_NET_SendDatagram << std::endl;
-		std::cout << "+--------------------------------------------------------+" << std::endl;
-		std::cout << "| p_SetCursorPosition      : " << std::hex << p_SetCursorPosition << std::endl;
-		//std::cout << "| p_GameWindowProc         : " << std::hex << p_GameWindowProc << std::endl;
 		std::cout << "+--------------------------------------------------------+" << std::endl;
 
 		// TODO implement error handling when sigscan fails or result is 0

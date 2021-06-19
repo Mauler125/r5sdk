@@ -10,9 +10,11 @@
 #include "console.h"
 #include "patterns.h"
 
+///////////////////////////////////////////////////////////////////////////////////
 //---------------------------------------------------------------------------------
 // Init
 //---------------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////////
 
 void SetupConsole()
 {
@@ -28,8 +30,8 @@ void SetupConsole()
 	// Set the window title
 	FILE* sBuildTxt;
 	CHAR sBuildBuf[1024] = { 0 };
-	fopen_s(&sBuildTxt, "build.txt", "r");
 
+	fopen_s(&sBuildTxt, "build.txt", "r");
 	if (sBuildTxt)
 	{
 		while (fgets(sBuildBuf, sizeof(sBuildBuf), sBuildTxt) != NULL)
@@ -59,9 +61,11 @@ void SetupConsole()
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////////////
 //---------------------------------------------------------------------------------
 // Hooks
 //---------------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////////
 
 bool Hook_ConVar_IsFlagSet(int** cvar, int flag)
 {
@@ -71,7 +75,6 @@ bool Hook_ConVar_IsFlagSet(int** cvar, int flag)
 		printf("--------------------------------------------------\n");
 		printf(" Flaged: %08X\n", real_flags);
 	}
-	///////////////////////////////////////////////////////////////////////////////
 	// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY
 	real_flags &= 0xFFFFBFFD;
 	if (g_bDebugConsole)
@@ -94,7 +97,6 @@ bool Hook_ConCommand_IsFlagSet(int* cmd, int flag)
 		printf("--------------------------------------------------\n");
 		printf(" Flaged: %08X\n", real_flags);
 	}
-	///////////////////////////////////////////////////////////////////////////////
 	// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY
 	real_flags &= 0xFFFFBFFD;
 	if (g_bDebugConsole)
@@ -109,9 +111,11 @@ bool Hook_ConCommand_IsFlagSet(int* cmd, int flag)
 	else { return false; }
 }
 
+///////////////////////////////////////////////////////////////////////////////////
 //---------------------------------------------------------------------------------
 // Worker
 //---------------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////////
 
 DWORD __stdcall ProcessConsoleWorker(LPVOID)
 {
