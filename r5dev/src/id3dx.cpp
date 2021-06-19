@@ -6,6 +6,7 @@
 #include <windows.h>
 
 #include "id3dx.h"
+#include "input.h"
 #include "enums.h"
 #include "detours.h"
 #include "overlay.h"
@@ -26,10 +27,15 @@ typedef HRESULT(__stdcall* IDXGISwapChainPresent)(IDXGISwapChain* pSwapChain, UI
 typedef HRESULT(__stdcall* IDXGIResizeBuffers)   (IDXGISwapChain* pSwapChain, UINT nBufferCount, UINT nWidth, UINT nHeight, DXGI_FORMAT dxFormat, UINT nSwapChainFlags);
 
 ///////////////////////////////////////////////////////////////////////////////////
+typedef BOOL(WINAPI* IPostMessageA)(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
+typedef BOOL(WINAPI* IPostMessageW)(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
+
+///////////////////////////////////////////////////////////////////////////////////
 extern BOOL                     g_bShowMenu                 = false;
 static BOOL                     g_bInitialized              = false;
 static BOOL                     g_bPresentHooked            = false;
 
+///////////////////////////////////////////////////////////////////////////////////
 static WNDPROC                  g_oWndProc                  = NULL;
 static HWND                     g_hGameWindow               = NULL;
 extern DWORD                    g_dThreadId                 = NULL;
@@ -41,16 +47,14 @@ static IDXGIResizeBuffers       g_oResizeBuffers            = nullptr;
 static ID3D11DeviceContext*     g_pDeviceContext            = nullptr;
 static ID3D11Device*            g_pDevice                   = nullptr;
 static ID3D11RenderTargetView*  g_pRenderTargetView         = nullptr;
+static IPostMessageA            g_oPostMessageA             = nullptr;
+static IPostMessageW            g_oPostMessageW             = nullptr;
 
+///////////////////////////////////////////////////////////////////////////////////
 //---------------------------------------------------------------------------------
 // Window
 //---------------------------------------------------------------------------------
-
-void Hook_SetCursorPosition(INT64 nFlag, LONG posX, LONG posY)
-{
-	if (g_bShowMenu) { return; }
-	return SetCursorPosition(nFlag, posX, posY);
-}
+///////////////////////////////////////////////////////////////////////////////////
 
 LRESULT CALLBACK DXGIMsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -68,23 +72,82 @@ LRESULT CALLBACK hWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			g_bShowMenu = !g_bShowMenu;
 		}
 	}
-	if (uMsg == WM_SIZE)
-	{
-		g_bShowMenu = false;
-	}
 	if (g_bShowMenu)
-	{
+	{//////////////////////////////////////////////////////////////////////////////
+
 		ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
-		return true;
+		g_bBlockInput = true;
+
+		switch (uMsg)
+		{
+		case WM_LBUTTONDOWN:
+			return 1L;
+		case WM_LBUTTONUP:
+			return 1L;
+		case WM_RBUTTONDOWN:
+			return 1L;
+		case WM_RBUTTONUP:
+			return 1L;
+		case WM_MBUTTONDOWN:
+			return 1L;
+		case WM_MBUTTONUP:
+			return 1L;
+		case WM_KEYDOWN:
+			return 1L;
+		case WM_KEYUP:
+			return 1L;
+		case WM_MOUSEACTIVATE:
+			return 1L;
+		case WM_MOUSEHOVER:
+			return 1L;
+		case WM_MOUSEHWHEEL:
+			return 1L;
+		case WM_MOUSELEAVE:
+			return 1L;
+		case WM_MOUSEMOVE:
+			return 1L;
+		case WM_MOUSEWHEEL:
+			return 1L;
+		case WM_SETCURSOR:
+			return 1L;
+		default:
+			break;
+		}
+	}//////////////////////////////////////////////////////////////////////////////
+	else
+	{
+		g_bBlockInput = false;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////
 	return CallWindowProc(g_oWndProc, hWnd, uMsg, wParam, lParam);
 }
 
+BOOL WINAPI HPostMessageA(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+	if (g_bBlockInput && Msg == WM_MOUSEMOVE)
+	{
+		return TRUE;
+	}
+
+	return g_oPostMessageA(hWnd, Msg, wParam, lParam);
+}
+
+BOOL WINAPI HPostMessageW(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+	if (g_bBlockInput && Msg == WM_MOUSEMOVE)
+	{
+		return TRUE;
+	}
+
+	return g_oPostMessageW(hWnd, Msg, wParam, lParam);
+}
+
+///////////////////////////////////////////////////////////////////////////////////
 //---------------------------------------------------------------------------------
 // Present
 //---------------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////////
 
 HRESULT GetDeviceAndCtxFromSwapchain(IDXGISwapChain* pSwapChain, ID3D11Device** ppDevice, ID3D11DeviceContext** ppContext)
 {
@@ -178,9 +241,11 @@ void GetPresent()
 	g_bPresentHooked          = true;
 }
 
+///////////////////////////////////////////////////////////////////////////////////
 //---------------------------------------------------------------------------------
 // Init
 //---------------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////////
 
 void SetupImGui()
 {
@@ -314,30 +379,53 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 	return g_fnIDXGISwapChainPresent(pSwapChain, nSyncInterval, nFlags);
 }
 
+///////////////////////////////////////////////////////////////////////////////////
 //---------------------------------------------------------------------------------
 // Management
 //---------------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////////
 
 void InstallDXHooks()
 {
+	g_oPostMessageA = (IPostMessageA)DetourFindFunction("user32.dll", "PostMessageA");
+	g_oPostMessageW = (IPostMessageW)DetourFindFunction("user32.dll", "PostMessageW");
+	///////////////////////////////////////////////////////////////////////////////
+	// Begin the detour transaction
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
-	DetourAttach((LPVOID*)&SetCursorPosition, &Hook_SetCursorPosition);
+	///////////////////////////////////////////////////////////////////////////////
+	// Hook PostMessage
+	DetourAttach(&(LPVOID&)g_oPostMessageA, (PBYTE)HPostMessageA);
+	DetourAttach(&(LPVOID&)g_oPostMessageW, (PBYTE)HPostMessageW);
+	///////////////////////////////////////////////////////////////////////////////
+	// Hook SwapChain
 	DetourAttach(&(LPVOID&)g_fnIDXGISwapChainPresent, (PBYTE)Present);
 	DetourAttach(&(LPVOID&)g_oResizeBuffers, (PBYTE)GetResizeBuffers);
+	///////////////////////////////////////////////////////////////////////////////
+	// Commit the transaction
 	DetourTransactionCommit();
 }
 
 void RemoveDXHooks()
 {
+	///////////////////////////////////////////////////////////////////////////////
+	// Begin the detour transaction
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
-	DetourDetach((LPVOID*)&SetCursorPosition, &Hook_SetCursorPosition);
+	//////////////////////////////////////////////////////////////////////////////
+	// Unhook PostMessage
+	DetourAttach(&(LPVOID&)g_oPostMessageA, (PBYTE)HPostMessageA);
+	DetourAttach(&(LPVOID&)g_oPostMessageW, (PBYTE)HPostMessageW);
+	//////////////////////////////////////////////////////////////////////////////
+	// Unhook SwapChain
 	DetourDetach(&(LPVOID&)g_fnIDXGISwapChainPresent, (PBYTE)Present);
 	DetourDetach(&(LPVOID&)g_oResizeBuffers, (PBYTE)GetResizeBuffers);
+	///////////////////////////////////////////////////////////////////////////////
+	// Commit the transaction
 	DetourTransactionCommit();
 
 	///////////////////////////////////////////////////////////////////////////////
+	// Shutdown ImGui
 	ImGui_ImplWin32_Shutdown();
 	ImGui_ImplDX11_Shutdown();
 }
@@ -353,9 +441,11 @@ void PrintDXAddress()
 	std::cout << "+--------------------------------------------------------+" << std::endl;
 }
 
+///////////////////////////////////////////////////////////////////////////////////
 //---------------------------------------------------------------------------------
-// Main
+// Entry
 //---------------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////////
 
 DWORD __stdcall DXSwapChainWorker(LPVOID)
 {
