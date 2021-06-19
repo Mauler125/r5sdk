@@ -56,7 +56,7 @@ public:
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    // Helpers
+    // Internals
     static int Stricmp(const char* s1, const char* s2)
     {
         int d;
@@ -96,7 +96,6 @@ public:
 
     void AddLog(const char* fmt, ...) IM_FMTARGS(2)
     {
-        // FIXME-OPT
         char buf[1024];
         va_list args;
         va_start(args, fmt);
@@ -241,14 +240,10 @@ public:
             colors[ImGuiCol_Text]                  = ImVec4(1.00f, 1.00f, 1.00f, 0.60f);
             colors[ImGuiCol_TextDisabled]          = ImVec4(1.00f, 1.00f, 1.00f, 0.40f);
             colors[ImGuiCol_WindowBg]              = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
-            //colors[ImGuiCol_ChildBg]               = ImVec4(0.00f, 0.00f, 0.00f, 0.86f);
             colors[ImGuiCol_ChildBg]               = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
             colors[ImGuiCol_PopupBg]               = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
-            //colors[ImGuiCol_Border]                = ImVec4(0.00f, 0.00f, 0.00f, 0.40f);
             colors[ImGuiCol_Border]                = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
-            //colors[ImGuiCol_BorderShadow]          = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
             colors[ImGuiCol_BorderShadow]          = ImVec4(0.00f, 0.00f, 0.00f, 0.70f);
-            //colors[ImGuiCol_FrameBg]               = ImVec4(0.02f, 0.02f, 0.02f, 1.00f);
             colors[ImGuiCol_FrameBg]               = ImVec4(0.00f, 0.00f, 0.00f, 0.75f);
             colors[ImGuiCol_FrameBgHovered]        = ImVec4(0.11f, 0.11f, 0.11f, 1.00f);
             colors[ImGuiCol_FrameBgActive]         = ImVec4(0.21f, 0.21f, 0.21f, 1.00f);
@@ -263,7 +258,6 @@ public:
             colors[ImGuiCol_CheckMark]             = ImVec4(1.00f, 1.00f, 1.00f, 0.59f);
             colors[ImGuiCol_SliderGrab]            = ImVec4(0.24f, 0.52f, 0.88f, 1.00f);
             colors[ImGuiCol_SliderGrabActive]      = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-            //colors[ImGuiCol_Button]                = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
             colors[ImGuiCol_Button]                = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
             colors[ImGuiCol_ButtonHovered]         = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
             colors[ImGuiCol_ButtonActive]          = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
@@ -299,7 +293,6 @@ public:
             ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize,      0.5f);
             ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize,     0.0f);
             ImGui::PushStyleVar(ImGuiStyleVar_ScrollbarRounding,    1.0f);
-            //ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding,        2.0f);
             ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding,       2.5f);
             ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1)); // Tighten spacing
         }

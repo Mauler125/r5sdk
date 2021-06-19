@@ -63,8 +63,6 @@ LRESULT CALLBACK DXGIMsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK hWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	ImGuiIO& io = ImGui::GetIO();
-
 	if (uMsg == WM_KEYDOWN)
 	{
 		if (wParam == VK_OEM_3)
@@ -84,13 +82,19 @@ LRESULT CALLBACK hWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			return 1L;
 		case WM_LBUTTONUP:
 			return 1L;
+		case WM_LBUTTONDBLCLK:
+			return 1L;
 		case WM_RBUTTONDOWN:
 			return 1L;
 		case WM_RBUTTONUP:
 			return 1L;
+		case WM_RBUTTONDBLCLK:
+			return 1L;
 		case WM_MBUTTONDOWN:
 			return 1L;
 		case WM_MBUTTONUP:
+			return 1L;
+		case WM_MBUTTONDBLCLK:
 			return 1L;
 		case WM_KEYDOWN:
 			return 1L;
@@ -243,7 +247,7 @@ void GetPresent()
 
 ///////////////////////////////////////////////////////////////////////////////////
 //---------------------------------------------------------------------------------
-// Init
+// Initialization
 //---------------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -412,11 +416,11 @@ void RemoveDXHooks()
 	// Begin the detour transaction
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
-	//////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////
 	// Unhook PostMessage
 	DetourAttach(&(LPVOID&)g_oPostMessageA, (PBYTE)HPostMessageA);
 	DetourAttach(&(LPVOID&)g_oPostMessageW, (PBYTE)HPostMessageW);
-	//////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////
 	// Unhook SwapChain
 	DetourDetach(&(LPVOID&)g_fnIDXGISwapChainPresent, (PBYTE)Present);
 	DetourDetach(&(LPVOID&)g_oResizeBuffers, (PBYTE)GetResizeBuffers);
