@@ -67,7 +67,7 @@ void SetupConsole()
 //---------------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////////
 
-bool Hook_ConVar_IsFlagSet(int** cvar, int flag)
+bool HConVar_IsFlagSet(int** cvar, int flag)
 {
 	int real_flags = *(*(cvar + (72 / (sizeof(void*)))) + (56 / sizeof(int)));
 	if (g_bDebugConsole)
@@ -89,7 +89,7 @@ bool Hook_ConVar_IsFlagSet(int** cvar, int flag)
 	else { return false; }
 }
 
-bool Hook_ConCommand_IsFlagSet(int* cmd, int flag)
+bool HConCommand_IsFlagSet(int* cmd, int flag)
 {
 	int real_flags = *((cmd + (56 / sizeof(int))));
 	if (g_bDebugConsole)
@@ -154,4 +154,70 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 	}
 
 	return 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+//---------------------------------------------------------------------------------
+// Management
+//---------------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////////
+
+void RemoveCMHooks()
+{
+	///////////////////////////////////////////////////////////////////////////////
+	// Begin the detour transaction, to unhook the the process
+	DetourTransactionBegin();
+	DetourUpdateThread(GetCurrentThread());
+
+	///////////////////////////////////////////////////////////////////////////////
+	// Unhook Console functions
+	DetourDetach((LPVOID*)&ConVar_IsFlagSet, &HConVar_IsFlagSet);
+	DetourDetach((LPVOID*)&ConCommand_IsFlagSet, &HConCommand_IsFlagSet);
+
+	///////////////////////////////////////////////////////////////////////////////
+	// Commit the transaction
+	DetourTransactionCommit();
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+//---------------------------------------------------------------------------------
+// Toggles
+//---------------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////////
+
+void ToggleDevCommands()
+{
+	static bool g_dev = false;
+
+	DetourTransactionBegin();
+	DetourUpdateThread(GetCurrentThread());
+
+	if (!g_dev)
+	{
+		DetourAttach((LPVOID*)&ConVar_IsFlagSet, &HConVar_IsFlagSet);
+		DetourAttach((LPVOID*)&ConCommand_IsFlagSet, &HConCommand_IsFlagSet);
+		printf("\n");
+		printf("+--------------------------------------------------------+\n");
+		printf("|>>>>>>>>>>>>>| DEVONLY COMMANDS ACTIVATED |<<<<<<<<<<<<<|\n");
+		printf("+--------------------------------------------------------+\n");
+		printf("\n");
+
+	}
+	else
+	{
+		DetourDetach((LPVOID*)&ConVar_IsFlagSet, &HConVar_IsFlagSet);
+		DetourDetach((LPVOID*)&ConCommand_IsFlagSet, &HConCommand_IsFlagSet);
+		printf("\n");
+		printf("+--------------------------------------------------------+\n");
+		printf("|>>>>>>>>>>>>| DEVONLY COMMANDS DEACTIVATED |<<<<<<<<<<<<|\n");
+		printf("+--------------------------------------------------------+\n");
+		printf("\n");
+	}
+
+	if (DetourTransactionCommit() != NO_ERROR)
+	{
+		TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
+	}
+
+	g_dev = !g_dev;
 }

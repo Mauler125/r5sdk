@@ -7,7 +7,6 @@
 #include "patterns.h"
 #include "utility.h"
 #include "structs.h"
-#include "console.h"
 #include "overlay.h"
 #include "hooks.h"
 
@@ -17,7 +16,7 @@
 //---------------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////////
 
-bool Hook_NET_ReceiveDatagram(int sock, void* inpacket, bool raw)
+bool HNET_ReceiveDatagram(int sock, void* inpacket, bool raw)
 {
 	bool result = NET_ReceiveDatagram(sock, inpacket, raw);
 	if (result)
@@ -33,7 +32,7 @@ bool Hook_NET_ReceiveDatagram(int sock, void* inpacket, bool raw)
 	return result;
 }
 
-unsigned int Hook_NET_SendDatagram(SOCKET s, const char* buf, int len, int flags)
+unsigned int HNET_SendDatagram(SOCKET s, const char* buf, int len, int flags)
 {
 	unsigned int result = NET_SendDatagram(s, buf, len, flags);
 	if (result)
@@ -52,7 +51,7 @@ unsigned int Hook_NET_SendDatagram(SOCKET s, const char* buf, int len, int flags
 //---------------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////////
 
-void* Hook_SQVM_Print(void* sqvm, char* fmt, ...)
+void* HSQVM_Print(void* sqvm, char* fmt, ...)
 {
 	char buf[1024];
 	va_list args;
@@ -65,7 +64,7 @@ void* Hook_SQVM_Print(void* sqvm, char* fmt, ...)
 	return NULL;
 }
 
-__int64 Hook_SQVM_LoadRson(const char* rson_name)
+__int64 HSQVM_LoadRson(const char* rson_name)
 {
 	printf("\n");
 	printf("##################################################\n");
@@ -75,7 +74,7 @@ __int64 Hook_SQVM_LoadRson(const char* rson_name)
 	return SQVM_LoadRson(rson_name);
 }
 
-bool Hook_SQVM_LoadScript(void* sqvm, const char* script_path, const char* script_name, int flag)
+bool HSQVM_LoadScript(void* sqvm, const char* script_path, const char* script_name, int flag)
 {
 	char filepath[MAX_PATH] = { 0 };
 	sprintf_s(filepath, MAX_PATH, "platform\\%s", script_path);
@@ -112,17 +111,19 @@ bool Hook_SQVM_LoadScript(void* sqvm, const char* script_path, const char* scrip
 //---------------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////////
 
-void InstallHooks()
+void InstallENHooks()
 {
 	///////////////////////////////////////////////////////////////////////////////
 	// Begin the detour transaction
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
+
 	///////////////////////////////////////////////////////////////////////////////
 	// Hook Engine functions
-	DetourAttach((LPVOID*)&SQVM_Print, &Hook_SQVM_Print);
-	DetourAttach((LPVOID*)&SQVM_LoadRson, &Hook_SQVM_LoadRson);
-	DetourAttach((LPVOID*)&SQVM_LoadScript, &Hook_SQVM_LoadScript);
+	DetourAttach((LPVOID*)&SQVM_Print, &HSQVM_Print);
+	DetourAttach((LPVOID*)&SQVM_LoadRson, &HSQVM_LoadRson);
+	DetourAttach((LPVOID*)&SQVM_LoadScript, &HSQVM_LoadScript);
+
 	///////////////////////////////////////////////////////////////////////////////
 	// Commit the transaction
 	if (DetourTransactionCommit() != NO_ERROR)
@@ -132,25 +133,24 @@ void InstallHooks()
 	}
 }
 
-void RemoveHooks()
+void RemoveENHooks()
 {
 	///////////////////////////////////////////////////////////////////////////////
 	// Begin the detour transaction, to unhook the the process
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
+
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook Squirrel functions
-	DetourDetach((LPVOID*)&SQVM_Print, &Hook_SQVM_Print);
-	DetourDetach((LPVOID*)&SQVM_LoadRson, &Hook_SQVM_LoadRson);
-	DetourDetach((LPVOID*)&SQVM_LoadScript, &Hook_SQVM_LoadScript);
+	DetourDetach((LPVOID*)&SQVM_Print, &HSQVM_Print);
+	DetourDetach((LPVOID*)&SQVM_LoadRson, &HSQVM_LoadRson);
+	DetourDetach((LPVOID*)&SQVM_LoadScript, &HSQVM_LoadScript);
+
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook Netchan functions
-	DetourDetach((LPVOID*)&NET_SendDatagram, &Hook_NET_SendDatagram);
-	DetourDetach((LPVOID*)&NET_ReceiveDatagram, &Hook_NET_ReceiveDatagram);
-	///////////////////////////////////////////////////////////////////////////////
-	// Unhook Console functions
-	DetourDetach((LPVOID*)&ConVar_IsFlagSet, &Hook_ConVar_IsFlagSet);
-	DetourDetach((LPVOID*)&ConCommand_IsFlagSet, &Hook_ConCommand_IsFlagSet);
+	DetourDetach((LPVOID*)&NET_SendDatagram, &HNET_SendDatagram);
+	DetourDetach((LPVOID*)&NET_ReceiveDatagram, &HNET_ReceiveDatagram);
+
 	///////////////////////////////////////////////////////////////////////////////
 	// Commit the transaction
 	DetourTransactionCommit();
@@ -171,8 +171,8 @@ void ToggleNetHooks()
 
 	if (!g_net)
 	{
-		DetourAttach((LPVOID*)&NET_SendDatagram, &Hook_NET_SendDatagram);
-		DetourAttach((LPVOID*)&NET_ReceiveDatagram, &Hook_NET_ReceiveDatagram);
+		DetourAttach((LPVOID*)&NET_SendDatagram, &HNET_SendDatagram);
+		DetourAttach((LPVOID*)&NET_ReceiveDatagram, &HNET_ReceiveDatagram);
 		printf("\n");
 		printf("+--------------------------------------------------------+\n");
 		printf("|>>>>>>>>>>>>>| NETCHANNEL TRACE ACTIVATED |<<<<<<<<<<<<<|\n");
@@ -181,8 +181,8 @@ void ToggleNetHooks()
 	}
 	else
 	{
-		DetourDetach((LPVOID*)&NET_SendDatagram, &Hook_NET_SendDatagram);
-		DetourDetach((LPVOID*)&NET_ReceiveDatagram, &Hook_NET_ReceiveDatagram);
+		DetourDetach((LPVOID*)&NET_SendDatagram, &HNET_SendDatagram);
+		DetourDetach((LPVOID*)&NET_ReceiveDatagram, &HNET_ReceiveDatagram);
 		printf("\n");
 		printf("+--------------------------------------------------------+\n");
 		printf("|>>>>>>>>>>>>| NETCHANNEL TRACE DEACTIVATED |<<<<<<<<<<<<|\n");
@@ -196,41 +196,4 @@ void ToggleNetHooks()
 	}
 
 	g_net = !g_net;
-}
-
-void ToggleDevCommands()
-{
-	static bool g_dev = false;
-
-	DetourTransactionBegin();
-	DetourUpdateThread(GetCurrentThread());
-
-	if (!g_dev)
-	{
-		DetourAttach((LPVOID*)&ConVar_IsFlagSet, &Hook_ConVar_IsFlagSet);
-		DetourAttach((LPVOID*)&ConCommand_IsFlagSet, &Hook_ConCommand_IsFlagSet);
-		printf("\n");
-		printf("+--------------------------------------------------------+\n");
-		printf("|>>>>>>>>>>>>>| DEVONLY COMMANDS ACTIVATED |<<<<<<<<<<<<<|\n");
-		printf("+--------------------------------------------------------+\n");
-		printf("\n");
-
-	}
-	else
-	{
-		DetourDetach((LPVOID*)&ConVar_IsFlagSet, &Hook_ConVar_IsFlagSet);
-		DetourDetach((LPVOID*)&ConCommand_IsFlagSet, &Hook_ConCommand_IsFlagSet);
-		printf("\n");
-		printf("+--------------------------------------------------------+\n");
-		printf("|>>>>>>>>>>>>| DEVONLY COMMANDS DEACTIVATED |<<<<<<<<<<<<|\n");
-		printf("+--------------------------------------------------------+\n");
-		printf("\n");
-	}
-
-	if (DetourTransactionCommit() != NO_ERROR)
-	{
-		TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
-	}
-
-	g_dev = !g_dev;
 }

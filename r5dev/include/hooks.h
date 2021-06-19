@@ -2,8 +2,8 @@
 
 /////////////////////////////////////////////////////////////////////////////
 // Initialization
-void InstallHooks();
-void RemoveHooks();
+void InstallENHooks();
+void RemoveENHooks();
 void ToggleDevCommands();
 void ToggleNetHooks();
 

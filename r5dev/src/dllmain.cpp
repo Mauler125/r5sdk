@@ -18,7 +18,7 @@
 void InitializeR5Dev()
 {
     SetupConsole();
-    InstallHooks();
+    InstallENHooks();
     InstallIPHooks();
     InstallDXHooks();
     InstallOpcodes();
@@ -31,7 +31,8 @@ void InitializeR5Dev()
 
 void TerminateR5Dev()
 {
-    RemoveHooks();
+    RemoveCMHooks();
+    RemoveENHooks();
     RemoveIPHooks();
     RemoveDXHooks();
     FreeConsole();

@@ -369,7 +369,6 @@ public:
             for (int i = first > 0 ? first : 0; i < History.Size; i++) { AddLog("%3d: %s\n", i, History[i]); }
         }
 
-        // On command input, we scroll to bottom even if AutoScroll==false
         ScrollToBottom = true;
     }
 
