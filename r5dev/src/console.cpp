@@ -141,7 +141,7 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 		///////////////////////////////////////////////////////////////////////////
 		// Exec toggles
 		if (sCommand == "1") { ToggleDevCommands(); CommandExecute(NULL, "exec autoexec_dev"); }
-		if (sCommand == "2") { g_bDebugLog = !g_bDebugLog; continue; }
+		if (sCommand == "2") { g_bDebugLoading = !g_bDebugLoading; continue; }
 
 		///////////////////////////////////////////////////////////////////////////
 		// Execute the command in the r5 SQVM

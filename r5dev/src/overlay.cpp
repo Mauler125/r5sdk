@@ -113,15 +113,12 @@ public:
         ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
         if (!ImGui::Begin(title, p_open))
         {
-            g_bShowMenu = false;
             ImGui::End(); return;
         }
-
         if (*p_open == NULL)
         {
             g_bShowMenu = false;
         }
-
         ///////////////////////////////////////////////////////////////////////
         if (ImGui::SmallButton("Developer mode"))
         {
@@ -140,7 +137,6 @@ public:
             AddLog("+--------------------------------------------------------+\n");
             ExecCommand("exec netchan");
         }
-
         ///////////////////////////////////////////////////////////////////////
         ImGui::SameLine();
         if (ImGui::SmallButton("Clear"))
@@ -159,7 +155,7 @@ public:
             ImGui::OpenPopup("Options");
         }
         ImGui::SameLine();
-        Filter.Draw("Filter [\"-incl,-excl\"] [\"error\"]", 180);
+        Filter.Draw("Filter [\"-incl,-excl\"] [\"error\"]", 265);
         ImGui::Separator();
 
         // Reserve enough left-over height for 1 separator + 1 input text
@@ -167,21 +163,18 @@ public:
 
         ///////////////////////////////////////////////////////////////////////
         ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 4.f, 6.f });
-        if (ImGui::BeginPopupContextWindow())
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 4.f, 6.f });   
+        if (copy_to_clipboard)
         {
-            if (ImGui::Selectable("Clear"))
-            {
-                ClearLog();
-                ImGui::EndPopup();
-            }
-        }        
-        if (copy_to_clipboard) { ImGui::LogToClipboard(); }
+            ImGui::LogToClipboard();
+        }
         for (int i = 0; i < Items.Size; i++)
         {
             const char* item = Items[i];
-            if (!Filter.PassFilter(item)) { continue; }
-
+            if (!Filter.PassFilter(item))
+            {
+                continue;
+            }
             ///////////////////////////////////////////////////////////////////
             ImVec4 color;
             bool has_color = false;
@@ -249,7 +242,7 @@ public:
             colors[ImGuiCol_FrameBgActive]         = ImVec4(0.21f, 0.21f, 0.21f, 1.00f);
             colors[ImGuiCol_TitleBg]               = ImVec4(0.04f, 0.04f, 0.04f, 1.00f);
             colors[ImGuiCol_TitleBgActive]         = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
-            colors[ImGuiCol_TitleBgCollapsed]      = ImVec4(0.00f, 0.00f, 0.00f, 0.51f);
+            colors[ImGuiCol_TitleBgCollapsed]      = ImVec4(0.04f, 0.04f, 0.04f, 1.00f);
             colors[ImGuiCol_MenuBarBg]             = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
             colors[ImGuiCol_ScrollbarBg]           = ImVec4(0.02f, 0.02f, 0.02f, 0.53f);
             colors[ImGuiCol_ScrollbarGrab]         = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
@@ -369,6 +362,7 @@ public:
             for (int i = first > 0 ? first : 0; i < History.Size; i++) { AddLog("%3d: %s\n", i, History[i]); }
         }
 
+        // On command input, we scroll to bottom even if AutoScroll==false
         ScrollToBottom = true;
     }
 
@@ -386,7 +380,7 @@ public:
     {
         switch (data->EventFlag)
         {
-            case ImGuiInputTextFlags_CallbackCompletion:
+        case ImGuiInputTextFlags_CallbackCompletion:
             {
                 // Locate beginning of current word
                 const char* word_end = data->Buf + data->CursorPos;
@@ -399,7 +393,7 @@ public:
                 }
                 break;
             }
-            case ImGuiInputTextFlags_CallbackHistory:
+        case ImGuiInputTextFlags_CallbackHistory:
             {
                 const int prev_history_pos = HistoryPos;
                 if (data->EventKey == ImGuiKey_UpArrow)

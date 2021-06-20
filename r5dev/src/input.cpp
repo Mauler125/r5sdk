@@ -22,7 +22,7 @@ static IClipCursor              g_oClipCursor               = nullptr;
 static IShowCursor              g_oShowCursor               = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
-static POINT                    g_pLastCursorPos            = { 0 };
+static POINT                    g_pLastCursorPos              { 0 };
 extern BOOL                     g_bBlockInput               = false;
 
 ///////////////////////////////////////////////////////////////////////////////

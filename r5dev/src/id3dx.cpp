@@ -8,6 +8,7 @@
 #include "id3dx.h"
 #include "input.h"
 #include "enums.h"
+#include "console.h"
 #include "detours.h"
 #include "overlay.h"
 #include "patterns.h"
@@ -32,6 +33,7 @@ typedef BOOL(WINAPI* IPostMessageW)(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM l
 
 ///////////////////////////////////////////////////////////////////////////////////
 extern BOOL                     g_bShowMenu                 = false;
+static BOOL                     g_bInitMenu                 = false;
 static BOOL                     g_bInitialized              = false;
 static BOOL                     g_bPresentHooked            = false;
 
@@ -61,7 +63,7 @@ LRESULT CALLBACK DXGIMsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
-LRESULT CALLBACK HWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if (uMsg == WM_KEYDOWN)
 	{
@@ -72,50 +74,49 @@ LRESULT CALLBACK HWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 	if (g_bShowMenu)
 	{//////////////////////////////////////////////////////////////////////////////
-
 		ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 		g_bBlockInput = true;
 
 		switch (uMsg)
 		{
-		case WM_LBUTTONDOWN:
-			return 1L;
-		case WM_LBUTTONUP:
-			return 1L;
-		case WM_LBUTTONDBLCLK:
-			return 1L;
-		case WM_RBUTTONDOWN:
-			return 1L;
-		case WM_RBUTTONUP:
-			return 1L;
-		case WM_RBUTTONDBLCLK:
-			return 1L;
-		case WM_MBUTTONDOWN:
-			return 1L;
-		case WM_MBUTTONUP:
-			return 1L;
-		case WM_MBUTTONDBLCLK:
-			return 1L;
-		case WM_KEYDOWN:
-			return 1L;
-		case WM_KEYUP:
-			return 1L;
-		case WM_MOUSEACTIVATE:
-			return 1L;
-		case WM_MOUSEHOVER:
-			return 1L;
-		case WM_MOUSEHWHEEL:
-			return 1L;
-		case WM_MOUSELEAVE:
-			return 1L;
-		case WM_MOUSEMOVE:
-			return 1L;
-		case WM_MOUSEWHEEL:
-			return 1L;
-		case WM_SETCURSOR:
-			return 1L;
-		default:
-			break;
+			case WM_LBUTTONDOWN:
+				return 1L;
+			case WM_LBUTTONUP:
+				return 1L;
+			case WM_LBUTTONDBLCLK:
+				return 1L;
+			case WM_RBUTTONDOWN:
+				return 1L;
+			case WM_RBUTTONUP:
+				return 1L;
+			case WM_RBUTTONDBLCLK:
+				return 1L;
+			case WM_MBUTTONDOWN:
+				return 1L;
+			case WM_MBUTTONUP:
+				return 1L;
+			case WM_MBUTTONDBLCLK:
+				return 1L;
+			case WM_KEYDOWN:
+				return 1L;
+			case WM_KEYUP:
+				return 1L;
+			case WM_MOUSEACTIVATE:
+				return 1L;
+			case WM_MOUSEHOVER:
+				return 1L;
+			case WM_MOUSEHWHEEL:
+				return 1L;
+			case WM_MOUSELEAVE:
+				return 1L;
+			case WM_MOUSEMOVE:
+				return 1L;
+			case WM_MOUSEWHEEL:
+				return 1L;
+			case WM_SETCURSOR:
+				return 1L;
+			default:
+				break;
 		}
 	}//////////////////////////////////////////////////////////////////////////////
 	else
@@ -169,7 +170,7 @@ void GetPresent()
 	RegisterClassExA(&wc);
 
 	HWND hWnd = CreateWindowA("DX", NULL, WS_OVERLAPPEDWINDOW, 100, 100, 300, 300, NULL, NULL, wc.hInstance, NULL);
-	DXGI_SWAP_CHAIN_DESC sd;
+	DXGI_SWAP_CHAIN_DESC sd                = { 0 };
 	D3D_FEATURE_LEVEL    nFeatureLevelsSet = D3D_FEATURE_LEVEL_11_0;
 	D3D_FEATURE_LEVEL    nFeatureLevelsSupported;
 
@@ -272,7 +273,20 @@ void DrawImGui()
 	if (g_bShowMenu)
 	{
 		bool bShowMenu = true;
+		if (!g_bInitMenu)
+		{
+			CommandExecute(NULL, "gameui_activate");
+			g_bInitMenu = true;
+		}
 		ShowGameConsole(&bShowMenu);
+	}
+	else if(!g_bShowMenu)
+	{
+		if (g_bInitMenu)
+		{
+			CommandExecute(NULL, "gameui_hide");
+			g_bInitMenu = false;
+		}
 	}
 
 	ImGui::EndFrame();
@@ -370,7 +384,7 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 
 		if (g_oWndProc == nullptr)
 		{   // Only initialize hWndProc pointer once to avoid stack overflow during ResizeBuffers(..)
-			g_oWndProc  = (WNDPROC)SetWindowLongPtr(g_hGameWindow, GWLP_WNDPROC, (LONG_PTR)HWndProc);
+			g_oWndProc  = (WNDPROC)SetWindowLongPtr(g_hGameWindow, GWLP_WNDPROC, (LONG_PTR)HwndProc);
 		}
 
 		g_bInitialized  = true;

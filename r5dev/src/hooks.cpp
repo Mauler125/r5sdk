@@ -88,7 +88,7 @@ bool HSQVM_LoadScript(void* sqvm, const char* script_path, const char* script_na
 			filepath[i] = '\\';
 		}
 	}
-	if (g_bDebugLog)
+	if (g_bDebugLoading)
 	{
 		printf(" [+] Loading SQVM Script '%s' ...\n", filepath);
 	}
@@ -98,7 +98,7 @@ bool HSQVM_LoadScript(void* sqvm, const char* script_path, const char* script_na
 	{
 		return true;
 	}
-	if (g_bDebugLog)
+	if (g_bDebugLoading)
 	{
 		printf(" [!] FAILED. Try SP / VPK for '%s'\n", filepath);
 	}
