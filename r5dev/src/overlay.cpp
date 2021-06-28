@@ -1,5 +1,7 @@
-#include <stdio.h>
+#include <thread>
 #include <fstream>
+
+#include <stdio.h>
 #include <windows.h>
 #include <detours.h>
 
@@ -12,8 +14,6 @@
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_win32.h"
-
-#pragma warning(disable : 4996)
 
 /*-----------------------------------------------------------------------------
  * _overlay.cpp
@@ -80,6 +80,7 @@ public:
         {
             return (char*)memcpy(buf, (const void*)s, len);
         }
+        return NULL;
     }
     static void  Strtrim(char* s)
     {
@@ -93,7 +94,6 @@ public:
         for (int i = 0; i < Items.Size; i++) { free(Items[i]); }
         Items.clear();
     }
-
     void AddLog(const char* fmt, ...) IM_FMTARGS(2)
     {
         char buf[1024];
@@ -126,7 +126,7 @@ public:
             AddLog("+--------------------------------------------------------+\n");
             AddLog("|>>>>>>>>>>>>>>| DEVONLY COMMANDS TOGGLED |<<<<<<<<<<<<<<|\n");
             AddLog("+--------------------------------------------------------+\n");
-            ExecCommand("exec autoexec");
+            ProcessCommand("exec autoexec");
         }
         ImGui::SameLine();
         if (ImGui::SmallButton("Netchannel Trace"))
@@ -135,7 +135,7 @@ public:
             AddLog("+--------------------------------------------------------+\n");
             AddLog("|>>>>>>>>>>>>>>| NETCHANNEL TRACE TOGGLED |<<<<<<<<<<<<<<|\n");
             AddLog("+--------------------------------------------------------+\n");
-            ExecCommand("exec netchan");
+            ProcessCommand("exec netchan");
         }
         ///////////////////////////////////////////////////////////////////////
         ImGui::SameLine();
@@ -305,36 +305,43 @@ public:
         if (ImGui::InputText("##input", InputBuf, IM_ARRAYSIZE(InputBuf), input_text_flags, &TextEditCallbackStub, (void*)this))
         {
             char* s = InputBuf;
-            if (strstr(InputBuf, "`")) { strcpy(s, ""); }
+            const char* replace = "";
+            if (strstr(InputBuf, "`")) { strcpy_s(s, sizeof(replace), replace); }
             Strtrim(s);
-            if (s[0]) { ExecCommand(s); }
-            strcpy(s, "");
+            if (s[0]) { ProcessCommand(s); }
+            strcpy_s(s, sizeof(replace), replace);
             reclaim_focus = true;
         }
         ImGui::SameLine();
         if (ImGui::Button("Submit"))
         {
             char* s = InputBuf;
-            if (s[0]) { ExecCommand(s); }
-            strcpy(s, "");
+            const char* replace = "";
+            if (s[0]) { ProcessCommand(s); }
+            strcpy_s(s, sizeof(replace), replace);
             reclaim_focus = true;
         }
 
         // Auto-focus on window apparition
         ImGui::SetItemDefaultFocus();
-        if (reclaim_focus) { ImGui::SetKeyboardFocusHere(-1); }// Auto focus previous widget
+        if (reclaim_focus)
+        {// Auto focus previous widget
+            ImGui::SetKeyboardFocusHere(-1);
+        }
         ImGui::End();
     }
 
     ///////////////////////////////////////////////////////////////////////////
     // Exec
-    void ExecCommand(const char* command_line)
+    void ProcessCommand(const char* command_line)
     {
-        AddLog("# %s\n", command_line);
-        CommandExecute(NULL, command_line);
+        std::thread t(&CGameConsole::ExecCommand, this, command_line);
+        t.detach();
 
-        // Insert into history. First find match and delete it so it can be pushed to the back.
-        // This isn't trying to be smart or optimal.
+        // HACK: This is to avoid a race condition.
+        Sleep(1);
+        AddLog("# %s\n", command_line);
+
         HistoryPos = -1;
         for (int i = History.Size - 1; i >= 0; i--)
         {
@@ -362,8 +369,11 @@ public:
             for (int i = first > 0 ? first : 0; i < History.Size; i++) { AddLog("%3d: %s\n", i, History[i]); }
         }
 
-        // On command input, we scroll to bottom even if AutoScroll==false
         ScrollToBottom = true;
+    }
+    void ExecCommand(const char* command_line)
+    {
+        CommandExecute(NULL, command_line);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -380,7 +390,7 @@ public:
     {
         switch (data->EventFlag)
         {
-        case ImGuiInputTextFlags_CallbackCompletion:
+            case ImGuiInputTextFlags_CallbackCompletion:
             {
                 // Locate beginning of current word
                 const char* word_end = data->Buf + data->CursorPos;
@@ -388,12 +398,15 @@ public:
                 while (word_start > data->Buf)
                 {
                     const char c = word_start[-1];
-                    if (c == ' ' || c == '\t' || c == ',' || c == ';') { break; }
+                    if (c == ' ' || c == '\t' || c == ',' || c == ';')
+                    {
+                        break;
+                    }
                     word_start--;
                 }
                 break;
             }
-        case ImGuiInputTextFlags_CallbackHistory:
+            case ImGuiInputTextFlags_CallbackHistory:
             {
                 const int prev_history_pos = HistoryPos;
                 if (data->EventKey == ImGuiKey_UpArrow)
@@ -405,7 +418,10 @@ public:
                 {
                     if (HistoryPos != -1)
                     {       
-                        if (++HistoryPos >= History.Size) { HistoryPos = -1; }
+                        if (++HistoryPos >= History.Size)
+                        {
+                            HistoryPos = -1;
+                        }
                     }
                 }
                 if (prev_history_pos != HistoryPos)
@@ -420,11 +436,9 @@ public:
     }
 };
 
-///////////////////////////////////////////////////////////////////////////////
-//-----------------------------------------------------------------------------
-// Internals
-//-----------------------------------------------------------------------------
-///////////////////////////////////////////////////////////////////////////////
+//#############################################################################
+// INTERNALS
+//#############################################################################
 
 int Stricmp(const char* s1, const char* s2)
 {
@@ -456,11 +470,9 @@ void  Strtrim(char* s)
     char* str_end = s + strlen(s); while (str_end > s && str_end[-1] == ' ') str_end--; *str_end = 0;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//-----------------------------------------------------------------------------
-// Entry
-//-----------------------------------------------------------------------------
-///////////////////////////////////////////////////////////////////////////////
+//#############################################################################
+// ENTRYPOINT
+//#############################################################################
 
 void ShowGameConsole(bool* p_open)
 {
