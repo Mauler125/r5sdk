@@ -52,11 +52,9 @@ static ID3D11RenderTargetView*  g_pRenderTargetView         = nullptr;
 static IPostMessageA            g_oPostMessageA             = nullptr;
 static IPostMessageW            g_oPostMessageW             = nullptr;
 
-///////////////////////////////////////////////////////////////////////////////////
-//---------------------------------------------------------------------------------
-// Window
-//---------------------------------------------------------------------------------
-///////////////////////////////////////////////////////////////////////////////////
+//#################################################################################
+// WINDOW PROCEDURE
+//#################################################################################
 
 LRESULT CALLBACK DXGIMsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -128,6 +126,10 @@ LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return CallWindowProc(g_oWndProc, hWnd, uMsg, wParam, lParam);
 }
 
+//#################################################################################
+// POST MESSAGE
+//#################################################################################
+
 BOOL WINAPI HPostMessageA(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
 	if (g_bBlockInput && Msg == WM_MOUSEMOVE)
@@ -148,21 +150,9 @@ BOOL WINAPI HPostMessageW(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 	return g_oPostMessageW(hWnd, Msg, wParam, lParam);
 }
 
-///////////////////////////////////////////////////////////////////////////////////
-//---------------------------------------------------------------------------------
-// Present
-//---------------------------------------------------------------------------------
-///////////////////////////////////////////////////////////////////////////////////
-
-HRESULT GetDeviceAndCtxFromSwapchain(IDXGISwapChain* pSwapChain, ID3D11Device** ppDevice, ID3D11DeviceContext** ppContext)
-{
-	HRESULT ret = pSwapChain->GetDevice(__uuidof(ID3D11Device), (PVOID*)ppDevice);
-	if (SUCCEEDED(ret))
-	{
-		(*ppDevice)->GetImmediateContext(ppContext);
-	}
-	return ret;
-}
+//#################################################################################
+// IDXGI PRESENT
+//#################################################################################
 
 void GetPresent()
 {
@@ -246,11 +236,9 @@ void GetPresent()
 	g_bPresentHooked          = true;
 }
 
-///////////////////////////////////////////////////////////////////////////////////
-//---------------------------------------------------------------------------------
-// Initialization
-//---------------------------------------------------------------------------------
-///////////////////////////////////////////////////////////////////////////////////
+//#################################################################################
+// INITIALIZATION
+//#################################################################################
 
 void SetupImGui()
 {
@@ -265,6 +253,8 @@ void SetupImGui()
 
 void DrawImGui()
 {
+	bool bShowMenu = false;
+
 	ImGui_ImplWin32_NewFrame();
 	ImGui_ImplDX11_NewFrame();
 
@@ -272,7 +262,7 @@ void DrawImGui()
 
 	if (g_bShowMenu)
 	{
-		bool bShowMenu = true;
+		bShowMenu = true;
 		if (!g_bInitMenu)
 		{
 			CommandExecute(NULL, "gameui_activate");
@@ -326,12 +316,12 @@ void CreateViewPort( UINT nWidth, UINT nHeight)
 	D3D11_VIEWPORT vp;
 
 	///////////////////////////////////////////////////////////////////////////////
-	vp.Width     = width;
-	vp.Height    = height;
-	vp.MinDepth  = 0.0f;
-	vp.MaxDepth  = 1.0f;
-	vp.TopLeftX  = 0;
-	vp.TopLeftY  = 0;
+	vp.Width             = width;
+	vp.Height            = height;
+	vp.MinDepth          = 0.0f;
+	vp.MaxDepth          = 1.0f;
+	vp.TopLeftX          = 0;
+	vp.TopLeftY          = 0;
 
 	///////////////////////////////////////////////////////////////////////////////
 	g_pDeviceContext->RSSetViewports(1, &vp);
@@ -348,6 +338,20 @@ void DestroyRenderTarget()
 		std::cout << "| >>>>>>>>>>>>>>| RENDER TARGET DESTROYED |<<<<<<<<<<<<< |" << std::endl;
 		std::cout << "+--------------------------------------------------------+" << std::endl;
 	}
+}
+
+//#################################################################################
+// INTERNALS
+//#################################################################################
+
+HRESULT GetDeviceAndCtxFromSwapchain(IDXGISwapChain* pSwapChain, ID3D11Device** ppDevice, ID3D11DeviceContext** ppContext)
+{
+	HRESULT ret = pSwapChain->GetDevice(__uuidof(ID3D11Device), (PVOID*)ppDevice);
+	if (SUCCEEDED(ret))
+	{
+		(*ppDevice)->GetImmediateContext(ppContext);
+	}
+	return ret;
 }
 
 HRESULT __stdcall GetResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount, UINT nWidth, UINT nHeight, DXGI_FORMAT dxFormat, UINT nSwapChainFlags)
@@ -383,7 +387,7 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 		SetupImGui();
 
 		if (g_oWndProc == nullptr)
-		{   // Only initialize hWndProc pointer once to avoid stack overflow during ResizeBuffers(..)
+		{   // Only initialize HwndProc pointer once to avoid stack overflow during ResizeBuffers(..)
 			g_oWndProc  = (WNDPROC)SetWindowLongPtr(g_hGameWindow, GWLP_WNDPROC, (LONG_PTR)HwndProc);
 		}
 
@@ -397,11 +401,9 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 	return g_fnIDXGISwapChainPresent(pSwapChain, nSyncInterval, nFlags);
 }
 
-///////////////////////////////////////////////////////////////////////////////////
-//---------------------------------------------------------------------------------
-// Management
-//---------------------------------------------------------------------------------
-///////////////////////////////////////////////////////////////////////////////////
+//#################################################################################
+// MANAGEMENT
+//#################################################################################
 
 void InstallDXHooks()
 {
@@ -432,8 +434,8 @@ void RemoveDXHooks()
 	DetourUpdateThread(GetCurrentThread());
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook PostMessage
-	DetourAttach(&(LPVOID&)g_oPostMessageA, (PBYTE)HPostMessageA);
-	DetourAttach(&(LPVOID&)g_oPostMessageW, (PBYTE)HPostMessageW);
+	DetourDetach(&(LPVOID&)g_oPostMessageA, (PBYTE)HPostMessageA);
+	DetourDetach(&(LPVOID&)g_oPostMessageW, (PBYTE)HPostMessageW);
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook SwapChain
 	DetourDetach(&(LPVOID&)g_fnIDXGISwapChainPresent, (PBYTE)Present);
@@ -459,11 +461,9 @@ void PrintDXAddress()
 	std::cout << "+--------------------------------------------------------+" << std::endl;
 }
 
-///////////////////////////////////////////////////////////////////////////////////
-//---------------------------------------------------------------------------------
-// Entry
-//---------------------------------------------------------------------------------
-///////////////////////////////////////////////////////////////////////////////////
+//#################################################################################
+// ENTRYPOINT
+//#################################################################################
 
 DWORD __stdcall DXSwapChainWorker(LPVOID)
 {
@@ -478,5 +478,8 @@ void SetupDXSwapChain()
 	DWORD __stdcall DXSwapChainWorker(LPVOID);
 	HANDLE hThread = CreateThread(NULL, 0, DXSwapChainWorker, NULL, 0, &g_dThreadId);
 
-	if (hThread) { CloseHandle(hThread); }
+	if (hThread)
+	{
+		CloseHandle(hThread);
+	}
 }

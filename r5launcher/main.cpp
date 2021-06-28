@@ -10,7 +10,7 @@
 void PrintLastError()
 {
     ///////////////////////////////////////////////////////////////////////////
-    //Get the error message, if any.
+    // Get the error message, if any.
     DWORD errorMessageID = ::GetLastError();
     if (errorMessageID == 0)
     {
@@ -118,7 +118,7 @@ bool LaunchR5Apex()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Entry point.
+// Entrypoint.
 int main(int argc, char* argv[], char* envp[])
 {
     LaunchR5Apex();
