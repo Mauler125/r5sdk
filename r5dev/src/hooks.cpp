@@ -23,7 +23,7 @@ bool HNET_ReceiveDatagram(int sock, void* inpacket, bool raw)
 
 		///////////////////////////////////////////////////////////////////////////
 		// Log received packet data
-		HexDump("[+] NET_ReceiveDatagram", "platform\\log\\netchan.log", "a", 0, &pkt->data[i], pkt->wiresize);
+		HexDump("[+] NET_ReceiveDatagram", 0, &pkt->data[i], pkt->wiresize);
 	}
 
 	return result;
@@ -36,7 +36,7 @@ unsigned int HNET_SendDatagram(SOCKET s, const char* buf, int len, int flags)
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// Log transmitted packet data
-		HexDump("[+] NET_SendDatagram", "platform\\log\\netchan.log", "a", 0, buf, len);
+		HexDump("[+] NET_SendDatagram",  0, buf, len);
 	}
 
 	return result;

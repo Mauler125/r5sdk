@@ -2,6 +2,8 @@
 #include <Psapi.h>
 #include <stdio.h>
 
+#include "utility.h"
+#include "spdlog.h"
 #include "hooks.h"
 
 /*-----------------------------------------------------------------------------
@@ -82,52 +84,77 @@ void DbgPrint(LPCSTR sFormat, ...)
 
 ///////////////////////////////////////////////////////////////////////////////
 // For dumping data from a buffer to a file on the disk
-void HexDump(const char* szHeader, const char* szFile, const char* szMode, int nFunc, const void* pData, int nSize)
+void HexDump(const char* szHeader, int nFunc, const void* pData, int nSize)
 {
-    char ascii[17] = { 0 };
-    int i, j;
+    static std::atomic<int> i, j, k = 0;
+    static char ascii[17] = { 0 };
+    static auto logger = spdlog::get("default_logger");
+    auto pattern = std::make_unique<spdlog::pattern_formatter>("%v", spdlog::pattern_time_type::local, std::string(""));
+
+    // Loop until the function returned to the first caller
+    while (k == 1) { Sleep(75); }
+
+    k = 1;
     ascii[16] = '\0';
-    FILE* sTraceLog;
 
-#pragma warning(suppress : 4996)
-    sTraceLog = fopen(szFile, szMode);
-    if (sTraceLog == NULL)
-    {
-        printf("Unable to write '%s'!\n", szFile);
-        if (nFunc == 0) { ToggleNetHooks(); }
-        return;
-    }
+    // Add new loggers here to replace the placeholder
+    if (nFunc == 0) { logger = spdlog::get("netchan_logger"); }
 
-    // Create block header
-    fprintf(sTraceLog, "%s ---- %u Bytes\n:\n", szHeader, nSize);
-    fprintf(sTraceLog, "--------  0  1  2  3  4  5  6  7   8  9  A  B  C  D  E  F  0123456789ABCDEF\n");
+    // Add timestamp
+    logger->set_level(spdlog::level::trace);
+    logger->set_pattern("%v [%H:%M:%S.%f]");
+    logger->trace("---------------------------------------------------------");
+
+    // Disable EOL and create block header
+    logger->set_formatter(std::move(pattern));
+    logger->trace("{:s} ---- LEN BYTES: {}\n:\n", szHeader, nSize);
+    logger->trace("--------  0  1  2  3  4  5  6  7   8  9  A  B  C  D  E  F  0123456789ABCDEF\n");
 
     // Output the buffer to the file
     for (i = 0; i < nSize; i++)
     {
-        if (i % nSize == 0) { fprintf(sTraceLog, " 0x%04x  ", i); fflush(NULL); }
-        fprintf(sTraceLog, "%02x ", ((unsigned char*)pData)[i]);
-        fflush(NULL);
+        if (i % nSize == 0) { logger->trace(" 0x{:04X}  ", i); }
+        logger->trace("{:02x} ", ((unsigned char*)pData)[i]);
 
         if (((unsigned char*)pData)[i] >= ' ' && ((unsigned char*)pData)[i] <= '~') { ascii[i % 16] = ((unsigned char*)pData)[i]; }
         else { ascii[i % 16] = '.'; }
 
         if ((i + 1) % 8 == 0 || i + 1 == nSize)
         {
-            fprintf(sTraceLog, " ");
-            fflush(NULL);
+            logger->trace(" ");
 
-            if ((i + 1) % 16 == 0) { i++; fprintf(sTraceLog, "%s \n ", ascii); fprintf(sTraceLog, "0x%04X  ", i--); fflush(NULL); }
+            if ((i + 1) % 16 == 0)
+            {
+                if (i + 1 == nSize)
+                {
+                    logger->trace("{:s}\n", ascii);
+                    logger->trace("---------------------------------------------------------------------------\n");
+                    logger->trace("\n");
+                }
+                else
+                {
+                    i++;
+                    logger->trace("{:s}\n ", ascii);
+                    logger->trace("0x{:04X}  ", i--);
+                }
+            }
             else if (i + 1 == nSize)
             {
                 ascii[(i + 1) % 16] = '\0';
-                if ((i + 1) % 16 <= 8) { fprintf(sTraceLog, " "); fflush(NULL); }
-                for (j = (i + 1) % 16; j < 16; j++) { fprintf(sTraceLog, "   "); fflush(NULL); }
-                fprintf(sTraceLog, "%s \n", ascii);
-                fprintf(sTraceLog, "---------------------------------------------------------------------------\n\n");
+                if ((i + 1) % 16 <= 8)
+                {
+                    logger->trace(" ");
+                }
+                for (j = (i + 1) % 16; j < 16; j++)
+                {
+                    logger->trace("   ");
+                }
+                logger->trace("{:s}\n", ascii);
+                logger->trace("---------------------------------------------------------------------------\n");
+                logger->trace("\n");
             }
         }
     }
+    k = 0;
     ///////////////////////////////////////////////////////////////////////////
-    fclose(sTraceLog);
 }
