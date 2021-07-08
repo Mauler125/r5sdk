@@ -48,25 +48,25 @@
     <ClCompile Include="src\opcptc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\imgui\src\imgui_draw.cpp">
+    <ClCompile Include="..\external\imgui\src\imgui_draw.cpp">
       <Filter>External Libraries\ImGui\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\imgui\src\imgui_impl_dx11.cpp">
+    <ClCompile Include="..\external\imgui\src\imgui_impl_dx11.cpp">
       <Filter>External Libraries\ImGui\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\imgui\src\imgui_impl_win32.cpp">
+    <ClCompile Include="..\external\imgui\src\imgui_impl_win32.cpp">
       <Filter>External Libraries\ImGui\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\imgui\src\imgui_tables.cpp">
+    <ClCompile Include="..\external\imgui\src\imgui_tables.cpp">
       <Filter>External Libraries\ImGui\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\imgui\src\imgui_widgets.cpp">
+    <ClCompile Include="..\external\imgui\src\imgui_widgets.cpp">
       <Filter>External Libraries\ImGui\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\imgui\src\imgui.cpp">
+    <ClCompile Include="..\external\imgui\src\imgui.cpp">
       <Filter>External Libraries\ImGui\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\imgui\src\imgui_demo.cpp">
+    <ClCompile Include="..\external\imgui\src\imgui_demo.cpp">
       <Filter>External Libraries\ImGui\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\id3dx.cpp">
@@ -101,37 +101,37 @@
     <ClInclude Include="include\utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\detours\include\detver.h">
+    <ClInclude Include="..\external\detours\include\detver.h">
       <Filter>External Libraries\Detours\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\detours\include\syelog.h">
+    <ClInclude Include="..\external\detours\include\syelog.h">
       <Filter>External Libraries\Detours\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\detours\include\detours.h">
+    <ClInclude Include="..\external\detours\include\detours.h">
       <Filter>External Libraries\Detours\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\imgui\include\imgui_impl_win32.h">
+    <ClInclude Include="..\external\imgui\include\imgui_impl_win32.h">
       <Filter>External Libraries\ImGui\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\imgui\include\imgui_internal.h">
+    <ClInclude Include="..\external\imgui\include\imgui_internal.h">
       <Filter>External Libraries\ImGui\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\imgui\include\imstb_rectpack.h">
+    <ClInclude Include="..\external\imgui\include\imstb_rectpack.h">
       <Filter>External Libraries\ImGui\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\imgui\include\imstb_textedit.h">
+    <ClInclude Include="..\external\imgui\include\imstb_textedit.h">
       <Filter>External Libraries\ImGui\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\imgui\include\imstb_truetype.h">
+    <ClInclude Include="..\external\imgui\include\imstb_truetype.h">
       <Filter>External Libraries\ImGui\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\imgui\include\imconfig.h">
+    <ClInclude Include="..\external\imgui\include\imconfig.h">
       <Filter>External Libraries\ImGui\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\imgui\include\imgui.h">
+    <ClInclude Include="..\external\imgui\include\imgui.h">
       <Filter>External Libraries\ImGui\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\imgui\include\imgui_impl_dx11.h">
+    <ClInclude Include="..\external\imgui\include\imgui_impl_dx11.h">
       <Filter>External Libraries\ImGui\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\id3dx.h">

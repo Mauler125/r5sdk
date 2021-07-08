@@ -52,7 +52,7 @@
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
-    <UseOfMfc>false</UseOfMfc>
+    <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -82,13 +82,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)detours\include;$(SolutionDir)imgui\include;$(SolutionDir)r5dev\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)detours\lib.X64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)external\detours\include;$(SolutionDir)external\imgui\include;$(SolutionDir)r5dev\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)external\detours\lib.X64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)detours\include;$(SolutionDir)imgui\include;$(SolutionDir)r5dev\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)detours\lib.X64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)external\detours\include;$(SolutionDir)external\imgui\include;$(SolutionDir)r5dev\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)external\detours\lib.X64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -182,17 +182,17 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\detours\include\detours.h" />
-    <ClInclude Include="..\detours\include\detver.h" />
-    <ClInclude Include="..\detours\include\syelog.h" />
-    <ClInclude Include="..\imgui\include\imconfig.h" />
-    <ClInclude Include="..\imgui\include\imgui.h" />
-    <ClInclude Include="..\imgui\include\imgui_impl_dx11.h" />
-    <ClInclude Include="..\imgui\include\imgui_impl_win32.h" />
-    <ClInclude Include="..\imgui\include\imgui_internal.h" />
-    <ClInclude Include="..\imgui\include\imstb_rectpack.h" />
-    <ClInclude Include="..\imgui\include\imstb_textedit.h" />
-    <ClInclude Include="..\imgui\include\imstb_truetype.h" />
+    <ClInclude Include="..\external\detours\include\detours.h" />
+    <ClInclude Include="..\external\detours\include\detver.h" />
+    <ClInclude Include="..\external\detours\include\syelog.h" />
+    <ClInclude Include="..\external\imgui\include\imconfig.h" />
+    <ClInclude Include="..\external\imgui\include\imgui.h" />
+    <ClInclude Include="..\external\imgui\include\imgui_impl_dx11.h" />
+    <ClInclude Include="..\external\imgui\include\imgui_impl_win32.h" />
+    <ClInclude Include="..\external\imgui\include\imgui_internal.h" />
+    <ClInclude Include="..\external\imgui\include\imstb_rectpack.h" />
+    <ClInclude Include="..\external\imgui\include\imstb_textedit.h" />
+    <ClInclude Include="..\external\imgui\include\imstb_truetype.h" />
     <ClInclude Include="include\console.h" />
     <ClInclude Include="include\enums.h" />
     <ClInclude Include="include\hooks.h" />
@@ -206,13 +206,13 @@
     <ClInclude Include="include\utility.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\imgui\src\imgui.cpp" />
-    <ClCompile Include="..\imgui\src\imgui_demo.cpp" />
-    <ClCompile Include="..\imgui\src\imgui_draw.cpp" />
-    <ClCompile Include="..\imgui\src\imgui_impl_dx11.cpp" />
-    <ClCompile Include="..\imgui\src\imgui_impl_win32.cpp" />
-    <ClCompile Include="..\imgui\src\imgui_tables.cpp" />
-    <ClCompile Include="..\imgui\src\imgui_widgets.cpp" />
+    <ClCompile Include="..\external\imgui\src\imgui.cpp" />
+    <ClCompile Include="..\external\imgui\src\imgui_demo.cpp" />
+    <ClCompile Include="..\external\imgui\src\imgui_draw.cpp" />
+    <ClCompile Include="..\external\imgui\src\imgui_impl_dx11.cpp" />
+    <ClCompile Include="..\external\imgui\src\imgui_impl_win32.cpp" />
+    <ClCompile Include="..\external\imgui\src\imgui_tables.cpp" />
+    <ClCompile Include="..\external\imgui\src\imgui_widgets.cpp" />
     <ClCompile Include="src\console.cpp" />
     <ClCompile Include="src\dllmain.cpp" />
     <ClCompile Include="src\hooks.cpp" />

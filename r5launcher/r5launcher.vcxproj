@@ -51,7 +51,7 @@
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
-    <UseOfMfc>false</UseOfMfc>
+    <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -81,13 +81,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)detours\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)detours\lib.X64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)external\detours\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)external\detours\lib.X64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)detours\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)detours\lib.X64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)external\detours\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)external\detours\lib.X64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
