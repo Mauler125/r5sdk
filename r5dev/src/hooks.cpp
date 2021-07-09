@@ -61,12 +61,39 @@ void* HSQVM_Print(void* sqvm, char* fmt, ...)
 
 __int64 HSQVM_LoadRson(const char* rson_name)
 {
-	printf("\n");
-	printf("##################################################\n");
-	printf("] '%s'\n", rson_name);
-	printf("##################################################\n");
-	printf("\n");
-	return SQVM_LoadRson(rson_name);
+	char filepath[MAX_PATH] = { 0 };
+	sprintf_s(filepath, MAX_PATH, "platform\\%s", rson_name);
+
+	///////////////////////////////////////////////////////////////////////////////
+	// Flip forward slashes in filepath to windows-style backslash
+	for (int i = 0; i < strlen(filepath); i++)
+	{
+		if (filepath[i] == '/')
+		{
+			filepath[i] = '\\';
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////////
+	// Returns the new path if the rson exists on the disk
+	if (FileExists(filepath) && SQVM_LoadRson(rson_name))
+	{
+		printf("\n");
+		printf("##################################################\n");
+		printf("] '%s'\n", filepath);
+		printf("##################################################\n");
+		printf("\n");
+		return SQVM_LoadRson(filepath);
+	}
+	else
+	{
+		printf("\n");
+		printf("##################################################\n");
+		printf("] '%s'\n", rson_name);
+		printf("##################################################\n");
+		printf("\n");
+		return SQVM_LoadRson(rson_name);
+	}
 }
 
 bool HSQVM_LoadScript(void* sqvm, const char* script_path, const char* script_name, int flag)

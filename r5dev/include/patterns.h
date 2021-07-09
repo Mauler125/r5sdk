@@ -1,5 +1,7 @@
 #pragma once
 #include <iostream>
+#include <iomanip>
+
 #include "utility.h"
 
 // Define the signatures or offsets to be searched and hooked
@@ -42,16 +44,16 @@ namespace
 	void PrintHAddress() // Test the sigscan results
 	{
 		std::cout << "+--------------------------------------------------------+" << std::endl;
-		std::cout << "| p_CommandExecute         : " << std::hex << p_CommandExecute << std::endl;
-		std::cout << "| p_ConVar_IsFlagSet       : " << std::hex << p_ConVar_IsFlagSet << std::endl;
-		std::cout << "| p_ConCommand_IsFlagSet   : " << std::hex << p_ConCommand_IsFlagSet << std::endl;
+		std::cout << "| p_CommandExecute         : " << std::hex << p_CommandExecute << std::setw(20) << " |" << std::endl;
+		std::cout << "| p_ConVar_IsFlagSet       : " << std::hex << p_ConVar_IsFlagSet << std::setw(20) << " |" << std::endl;
+		std::cout << "| p_ConCommand_IsFlagSet   : " << std::hex << p_ConCommand_IsFlagSet << std::setw(20) << " |" << std::endl;
 		std::cout << "+--------------------------------------------------------+" << std::endl;
-		std::cout << "| p_SQVM_Print             : " << std::hex << p_SQVM_Print << std::endl;
-		std::cout << "| p_SQVM_LoadScript        : " << std::hex << p_SQVM_LoadScript << std::endl;
-		std::cout << "| p_SQVM_LoadRson          : " << std::hex << p_SQVM_LoadRson << std::endl;
+		std::cout << "| p_SQVM_Print             : " << std::hex << p_SQVM_Print << std::setw(20) << " |" << std::endl;
+		std::cout << "| p_SQVM_LoadScript        : " << std::hex << p_SQVM_LoadScript << std::setw(20) << " |" << std::endl;
+		std::cout << "| p_SQVM_LoadRson          : " << std::hex << p_SQVM_LoadRson << std::setw(20) << " |" << std::endl;
 		std::cout << "+--------------------------------------------------------+" << std::endl;
-		std::cout << "| p_NET_ReceiveDatagram    : " << std::hex << p_NET_ReceiveDatagram << std::endl;
-		std::cout << "| p_NET_SendDatagram       : " << std::hex << p_NET_SendDatagram << std::endl;
+		std::cout << "| p_NET_ReceiveDatagram    : " << std::hex << p_NET_ReceiveDatagram << std::setw(20) << " |" << std::endl;
+		std::cout << "| p_NET_SendDatagram       : " << std::hex << p_NET_SendDatagram << std::setw(20) << " |" << std::endl;
 		std::cout << "+--------------------------------------------------------+" << std::endl;
 
 		// TODO implement error handling when sigscan fails or result is 0
