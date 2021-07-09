@@ -2,9 +2,9 @@
 #include <fstream>
 
 #include <stdio.h>
+#include "httplib.h"
 #include <windows.h>
 #include <detours.h>
-
 #include "hooks.h"
 #include "id3dx.h"
 #include "overlay.h"
@@ -14,6 +14,9 @@
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_win32.h"
+#include <filesystem>
+#include <thread>
+#include <sstream>
 
 /*-----------------------------------------------------------------------------
  * _overlay.cpp
@@ -46,6 +49,7 @@ public:
         Commands.push_back("HISTORY");
         Commands.push_back("CLEAR");
         Commands.push_back("CLASSIFY");
+
 
         AddLog("[DEBUG] THREAD ID: %ld\n", g_dThreadId);
     }
@@ -107,7 +111,7 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
     // Draw
-    void Draw(const char* title, bool* p_open)
+    void DrawConsole(const char* title, bool* p_open)
     {
         ImGui::SetNextWindowSize(ImVec2(840, 600), ImGuiCond_FirstUseEver);
         ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
@@ -120,7 +124,7 @@ public:
             g_bShowMenu = false;
         }
         ///////////////////////////////////////////////////////////////////////
-        if (ImGui::SmallButton("Developer mode"))
+        if (ImGui::SmallButton("Developery mode UwU"))
         {
             ToggleDevCommands();
             AddLog("+--------------------------------------------------------+\n");
@@ -232,8 +236,8 @@ public:
             ImVec4* colors = ImGui::GetStyle().Colors;
             colors[ImGuiCol_Text]                  = ImVec4(1.00f, 1.00f, 1.00f, 0.60f);
             colors[ImGuiCol_TextDisabled]          = ImVec4(1.00f, 1.00f, 1.00f, 0.40f);
-            colors[ImGuiCol_WindowBg]              = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
-            colors[ImGuiCol_ChildBg]               = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+            colors[ImGuiCol_WindowBg]              = ImVec4(0.06f, 0.06f, 0.06f, 0.98f);
+            colors[ImGuiCol_ChildBg]               = ImVec4(0.00f, 0.00f, 0.00f, 0.98f);
             colors[ImGuiCol_PopupBg]               = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
             colors[ImGuiCol_Border]                = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
             colors[ImGuiCol_BorderShadow]          = ImVec4(0.00f, 0.00f, 0.00f, 0.70f);
@@ -330,6 +334,9 @@ public:
         }
         ImGui::End();
     }
+
+    
+
 
     ///////////////////////////////////////////////////////////////////////////
     // Exec
@@ -436,6 +443,225 @@ public:
     }
 };
 
+class CCompanion {
+public:
+    ////////////////////
+    // Server Browser //
+    ////////////////////
+    ImVector<ServerListing*>       ServerList;
+    ServerListing*                 SelectedServer;
+
+    char FilterBuffer[256] = { 0 };
+
+    ////////////////////
+    //    Settings    //
+    ////////////////////
+    char MatchmakingServerStringBuffer[256] = { 0 }; 
+
+
+    ////////////////////
+    //   Host Server  //
+    ////////////////////
+    std::vector<std::string> MapsList;
+    std::string* SelectedMap = nullptr;
+    char ServerNameBuffer[64] = { 0 };
+
+    enum class ESection : UINT8 {
+        ServerBrowser,
+        HostServer,
+        Settings
+    } CurrentSection;
+
+    CCompanion()
+    {
+        memset(FilterBuffer, 0, sizeof(FilterBuffer));
+        memset(MatchmakingServerStringBuffer, 0, sizeof(MatchmakingServerStringBuffer));
+        memset(ServerNameBuffer, 0, sizeof(ServerNameBuffer));
+
+
+        strcpy_s(MatchmakingServerStringBuffer, "localhost");
+
+
+        
+        std::string path = "stbsp";
+        for (const auto& entry : std::filesystem::directory_iterator(path))
+        {
+            std::string filename = entry.path().string();
+            int slashPos = filename.rfind("\\", std::string::npos);
+            filename = filename.substr((INT8)slashPos + 1, std::string::npos);
+            filename = filename.substr(0, filename.size() - 6);
+            MapsList.push_back(filename);
+        }
+
+
+
+        //RefreshServerList();
+
+    }
+
+    void RefreshServerList()
+    {
+        ServerList.clear();
+        httplib::Client client(MatchmakingServerStringBuffer);
+        auto res = client.Get("/browse");
+        json root = json::parse(res->body);
+        for (auto obj : root["servers"])
+        {
+            ServerList.push_back(
+                new ServerListing(obj["token"], obj["name"], obj["version"])
+            );
+        }
+    }
+
+
+    void SetSection(ESection section)
+    {
+        CurrentSection = section;
+    }
+    
+    void CompMenu()
+    {
+        ImGui::BeginTabBar("CompMenu");
+        if (ImGui::TabItemButton("Server Browser"))
+        {
+            SetSection(ESection::ServerBrowser);
+        }
+        if (ImGui::TabItemButton("Host Server"))
+        {
+            SetSection(ESection::HostServer);
+        }
+        if (ImGui::TabItemButton("Settings"))
+        {
+            SetSection(ESection::Settings);
+        }
+        ImGui::EndTabBar();
+    }
+
+
+    void ServerBrowserSection()
+    {
+        ImGui::InputText("Filter", FilterBuffer, IM_ARRAYSIZE(FilterBuffer), 0);
+        ImGui::SameLine();
+        ImGui::Spacing();
+        ImGui::SameLine();
+        if (ImGui::Button("Refresh List"))
+        {
+            RefreshServerList();
+        }
+
+        ImGui::BeginChild("ServerListChild", { 0, 780 }, false, ImGuiWindowFlags_HorizontalScrollbar);
+
+        ImGui::BeginTable("bumbumceau", 4);
+
+        ImGui::TableSetupColumn("Token", 0, 20);
+        ImGui::TableSetupColumn("Server Name", 0, 30);
+        ImGui::TableSetupColumn("Server Version", 0, 30);
+        ImGui::TableSetupColumn("Operations", 0, 5);
+        ImGui::TableHeadersRow();
+
+        for (ServerListing* server : ServerList)
+        {
+            if (!strcmp(FilterBuffer, "") || strstr(server->token.c_str(), FilterBuffer) != NULL || strstr(server->name.c_str(), FilterBuffer) != NULL)
+            {
+                ImGui::TableNextColumn();
+                ImGui::Text(server->token.c_str());
+                ImGui::TableNextColumn();
+                ImGui::Text(server->name.c_str());
+                ImGui::TableNextColumn();
+                
+                ImGui::Text(server->version.c_str());
+                ImGui::TableNextColumn();
+                std::string selectButtonText = "Select##";
+                selectButtonText += server->token;
+
+                if (ImGui::Button(selectButtonText.c_str()))
+                {
+                    SelectedServer = server;
+                    server->Select();
+                }
+            }
+            
+        }
+
+        ImGui::EndTable();
+        ImGui::EndChild();
+
+        ImGui::Spacing();
+        ImGui::Button("Connect to the server", ImVec2(ImGui::GetWindowSize().x, 32));
+    }
+
+    void HostServerSection() 
+    {
+        ImGui::InputText("ServerName##ServerHost_ServerName", ServerNameBuffer, IM_ARRAYSIZE(ServerNameBuffer));
+        ImGui::Spacing();
+        ImGui::BeginListBox("Map##ServerHost_MapListBox");
+        for(auto& item : MapsList)
+        {
+            if (ImGui::Selectable(item.c_str(), &item == SelectedMap))
+            {
+                SelectedMap = &item;
+            }
+        }
+        ImGui::EndListBox();
+        if (ImGui::Button("Host The Server", ImVec2(ImGui::GetWindowSize().x, 32)))
+        {
+            std::stringstream cmd;
+            cmd << "map " << SelectedMap->c_str();
+            static CGameConsole console;
+            console.ProcessCommand(cmd.str().c_str());
+        }
+        if (ImGui::Button("Stop The Server", ImVec2(ImGui::GetWindowSize().x, 32)))
+        {
+            static CGameConsole console;
+            console.ProcessCommand("disconnect");
+        }
+    }
+
+    void SettingsSection() 
+    {
+        ImGui::InputText("Matchmaking Server String", MatchmakingServerStringBuffer, IM_ARRAYSIZE(MatchmakingServerStringBuffer), 0);
+    }
+
+
+    void DrawCompanion(const char* title, bool* p_open)
+    {
+        ImGui::SetNextWindowSize(ImVec2(2000, 1000), ImGuiCond_FirstUseEver);
+        ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
+        if (!ImGui::Begin(title, p_open))
+        {
+            ImGui::End(); return;
+        }
+        if (*p_open == NULL)
+        {
+            g_bShowMenu = false;
+        }
+        ///////////////////////////////////////////////////////////////////////
+        CompMenu();
+
+        switch (CurrentSection)
+        {
+        case ESection::ServerBrowser:
+            ServerBrowserSection();
+            break;
+
+        case ESection::HostServer:
+            HostServerSection();
+            break;
+
+        case ESection::Settings:
+            SettingsSection();
+            break;
+
+
+        default:
+            break;
+        }
+
+        ImGui::End();
+    }
+
+};
+
 //#############################################################################
 // INTERNALS
 //#############################################################################
@@ -470,6 +696,7 @@ void  Strtrim(char* s)
     char* str_end = s + strlen(s); while (str_end > s && str_end[-1] == ' ') str_end--; *str_end = 0;
 }
 
+
 //#############################################################################
 // ENTRYPOINT
 //#############################################################################
@@ -477,5 +704,7 @@ void  Strtrim(char* s)
 void ShowGameConsole(bool* p_open)
 {
     static CGameConsole console;
-    console.Draw("Console", p_open);
+    static CCompanion browser;
+    console.DrawConsole("Console", p_open);
+    browser.DrawCompanion("Companion", p_open);
 }

@@ -1,6 +1,8 @@
 #pragma once
 #include "imgui.h"
-
+#include "serverlisting.h"
+#include "json.hpp"
+#include <vector>
 /////////////////////////////////////////////////////////////////////////////
 // Initialization
 void PrintDXAddress();
@@ -19,4 +21,8 @@ void  Strtrim(char* s);
 // Globals
 inline ImVector<char*>       Items;
 
+inline std::string OriginUID = "1010417302770";
+
 /////////////////////////////////////////////////////////////////////////////
+
+using json = nlohmann::json;
