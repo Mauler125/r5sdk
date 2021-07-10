@@ -83,12 +83,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)external\detours\include;$(SolutionDir)external\imgui\include;$(SolutionDir)external\spdlog\include;$(SolutionDir)r5dev\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)external\detours\lib.X64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)external\detours\libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)external\detours\include;$(SolutionDir)external\imgui\include;$(SolutionDir)external\spdlog\include;$(SolutionDir)r5dev\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)external\detours\lib.X64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)external\detours\libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
