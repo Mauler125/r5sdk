@@ -593,16 +593,16 @@ public:
                 || ServerBrowserFilter.PassFilter(version))
             {
                 ImGui::TableNextColumn();
-                ImGui::Text(server->name.c_str());
+                ImGui::Text(name);
                 ImGui::TableNextColumn();
 
-                ImGui::Text(server->ip.c_str());
+                ImGui::Text(ip);
                 ImGui::TableNextColumn();
 
-                ImGui::Text(server->map.c_str());
+                ImGui::Text(map);
                 ImGui::TableNextColumn();
 
-                ImGui::Text(server->version.c_str());
+                ImGui::Text(version);
                 ImGui::TableNextColumn();
                 std::string selectButtonText = "Connect##";
                 selectButtonText += (server->name + server->ip + server->map);
