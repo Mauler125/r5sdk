@@ -453,11 +453,11 @@ void RemoveDXHooks()
 void PrintDXAddress()
 {
 	std::cout << "+--------------------------------------------------------+" << std::endl;
-	std::cout << "| ID3D11DeviceContext    : " << std::hex << g_pDeviceContext << std::endl;
-	std::cout << "| ID3D11Device           : " << std::hex << g_pDevice << std::endl;
-	std::cout << "| ID3D11RenderTargetView : " << std::hex << g_pRenderTargetView << std::endl;
-	std::cout << "| IDXGISwapChain         : " << std::hex << g_pSwapChain << std::endl;
-	std::cout << "| IDXGISwapChainPresent  : " << std::hex << g_fnIDXGISwapChainPresent << std::endl;
+	std::cout << "| ID3D11DeviceContext      : " << std::hex << g_pDeviceContext          << std::setw(13) << " |" << std::endl;
+	std::cout << "| ID3D11Device             : " << std::hex << g_pDevice                 << std::setw(13) << " |" << std::endl;
+	std::cout << "| ID3D11RenderTargetView   : " << std::hex << g_pRenderTargetView       << std::setw(13) << " |" << std::endl;
+	std::cout << "| IDXGISwapChain           : " << std::hex << g_pSwapChain              << std::setw(13) << " |" << std::endl;
+	std::cout << "| IDXGISwapChainPresent    : " << std::hex << g_fnIDXGISwapChainPresent << std::setw(13) << " |" << std::endl;
 	std::cout << "+--------------------------------------------------------+" << std::endl;
 }
 

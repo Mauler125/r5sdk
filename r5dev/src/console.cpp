@@ -5,6 +5,7 @@
 #include <Windows.h>
 #include <detours.h>
 
+#include "id3dx.h"
 #include "hooks.h"
 #include "opcptc.h"
 #include "console.h"
@@ -131,6 +132,7 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 		///////////////////////////////////////////////////////////////////////
 		// Debug toggles
 		if (sCommand == "pattern test") { PrintHAddress(); PrintOAddress(); continue; }
+		if (sCommand == "directx test") { PrintDXAddress(); continue; }
 		if (sCommand == "console test") { g_bDebugConsole = !g_bDebugConsole; continue; }
 		///////////////////////////////////////////////////////////////////////
 		// Exec toggles
