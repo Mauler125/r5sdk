@@ -26,3 +26,4 @@ inline std::string OriginUID = "1010417302770";
 /////////////////////////////////////////////////////////////////////////////
 
 using json = nlohmann::json;
+void RunConsoleCommand(std::string command);

@@ -452,6 +452,7 @@ public:
     ServerListing*                 SelectedServer;
 
     char FilterBuffer[256] = { 0 };
+    char ServerConnStringBuffer[256] = { 0 };
 
     ////////////////////
     //    Settings    //
@@ -465,6 +466,7 @@ public:
     std::vector<std::string> MapsList;
     std::string* SelectedMap = nullptr;
     char ServerNameBuffer[64] = { 0 };
+    bool StartAsDedi;
 
     enum class ESection : UINT8 {
         ServerBrowser,
@@ -477,7 +479,9 @@ public:
         memset(FilterBuffer, 0, sizeof(FilterBuffer));
         memset(MatchmakingServerStringBuffer, 0, sizeof(MatchmakingServerStringBuffer));
         memset(ServerNameBuffer, 0, sizeof(ServerNameBuffer));
-
+        memset(ServerConnStringBuffer, 0, sizeof(ServerConnStringBuffer));
+        
+        strcpy_s(ServerConnStringBuffer, "localhost");
 
         strcpy_s(MatchmakingServerStringBuffer, "localhost");
 
@@ -493,7 +497,7 @@ public:
             MapsList.push_back(filename);
         }
 
-
+        SelectedMap = &MapsList[0];
 
         //RefreshServerList();
 
@@ -540,14 +544,15 @@ public:
 
     void ServerBrowserSection()
     {
+
+        ImGui::BeginGroup();
         ImGui::InputText("Filter", FilterBuffer, IM_ARRAYSIZE(FilterBuffer), 0);
         ImGui::SameLine();
-        ImGui::Spacing();
-        ImGui::SameLine();
-        if (ImGui::Button("Refresh List"))
+        if (ImGui::Button("Refresh List", ImVec2(ImGui::GetWindowSize().x * (2.f/6.f), 19)))
         {
             RefreshServerList();
         }
+        ImGui::EndGroup();
 
         ImGui::BeginChild("ServerListChild", { 0, 780 }, false, ImGuiWindowFlags_HorizontalScrollbar);
 
@@ -586,35 +591,63 @@ public:
         ImGui::EndTable();
         ImGui::EndChild();
 
-        ImGui::Spacing();
-        ImGui::Button("Connect to the server", ImVec2(ImGui::GetWindowSize().x, 32));
+        ImGui::Separator();
+        ImGui::InputText("##ServerBrowser_ServerConnString", ServerConnStringBuffer, IM_ARRAYSIZE(ServerConnStringBuffer));
+        ImGui::SameLine();
+        if (ImGui::Button("Connect to the server", ImVec2(ImGui::GetWindowSize().x * (1.f / 3.f), 19)))
+        {
+            std::stringstream cmd;
+            cmd << "connect " << ServerConnStringBuffer;
+            RunConsoleCommand(cmd.str().c_str());
+        }
     }
 
     void HostServerSection() 
     {
-        ImGui::InputText("ServerName##ServerHost_ServerName", ServerNameBuffer, IM_ARRAYSIZE(ServerNameBuffer));
+        ImGui::InputText("Server Name##ServerHost_ServerName", ServerNameBuffer, IM_ARRAYSIZE(ServerNameBuffer));
         ImGui::Spacing();
-        ImGui::BeginListBox("Map##ServerHost_MapListBox");
-        for(auto& item : MapsList)
+        if (ImGui::BeginCombo("Map##ServerHost_MapListBox", SelectedMap->c_str()))
         {
-            if (ImGui::Selectable(item.c_str(), &item == SelectedMap))
+            for (auto& item : MapsList)
             {
-                SelectedMap = &item;
+                if (ImGui::Selectable(item.c_str(), &item == SelectedMap))
+                {
+                    SelectedMap = &item;
+                }
             }
+            ImGui::EndCombo();
         }
-        ImGui::EndListBox();
-        if (ImGui::Button("Host The Server", ImVec2(ImGui::GetWindowSize().x, 32)))
+        ImGui::Spacing();
+        
+        ImGui::Checkbox("Start as dedicated server (HACK)##ServerHost_DediCheckbox", &StartAsDedi);
+
+        ImGui::Separator();
+
+        if (ImGui::Button("Start The Server##ServerHost_StartServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
             std::stringstream cmd;
             cmd << "map " << SelectedMap->c_str();
-            static CGameConsole console;
-            console.ProcessCommand(cmd.str().c_str());
+            RunConsoleCommand(cmd.str());
+            if (StartAsDedi)
+            {
+                ToggleDevCommands();
+            }
+            
         }
-        if (ImGui::Button("Stop The Server", ImVec2(ImGui::GetWindowSize().x, 32)))
+        if (StartAsDedi)
         {
-            static CGameConsole console;
-            console.ProcessCommand("disconnect");
+            if (ImGui::Button("Reload Scripts##ServerHost_ReloadServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
+            {
+                RunConsoleCommand("reparse_weapons");
+                RunConsoleCommand("reload");
+            }
+            if (ImGui::Button("Stop The Server##ServerHost_StopServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
+            {
+                RunConsoleCommand("disconnect");
+            }
         }
+        
+
     }
 
     void SettingsSection() 
@@ -707,4 +740,11 @@ void ShowGameConsole(bool* p_open)
     static CCompanion browser;
     console.DrawConsole("Console", p_open);
     browser.DrawCompanion("Companion", p_open);
+}
+
+
+void RunConsoleCommand(std::string command)
+{
+    static CGameConsole console;
+    console.ProcessCommand(command.c_str());
 }
