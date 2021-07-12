@@ -6,6 +6,7 @@ ServerListing::ServerListing(std::string name, std::string map, std::string ip, 
 {
 	this->name = name;
 	this->map = map;
+	this->ip = ip;
 	this->version = version;
 }
 
