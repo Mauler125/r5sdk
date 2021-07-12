@@ -255,6 +255,11 @@ void DrawImGui()
 {
 	bool bShowMenu = false;
 
+	ID3D11RenderTargetView* pRenderTargetBackup = nullptr;
+	ID3D11DepthStencilView* pStencilViewBackup = nullptr;
+	g_pDeviceContext->OMGetRenderTargets(1, &pRenderTargetBackup, &pStencilViewBackup);
+	g_pDeviceContext->OMSetRenderTargets(1, &g_pRenderTargetView, nullptr);
+
 	ImGui_ImplWin32_NewFrame();
 	ImGui_ImplDX11_NewFrame();
 
@@ -282,8 +287,9 @@ void DrawImGui()
 	ImGui::EndFrame();
 	ImGui::Render();
 
-	g_pDeviceContext->OMSetRenderTargets(1, &g_pRenderTargetView, NULL);
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+	g_pDeviceContext->OMSetRenderTargets(1, &pRenderTargetBackup, pStencilViewBackup);
 }
 
 void CreateRenderTarget(IDXGISwapChain* pSwapChain)
@@ -300,6 +306,7 @@ void CreateRenderTarget(IDXGISwapChain* pSwapChain)
 	g_hGameWindow = sd.OutputWindow;
 	render_target_view_desc.Format = sd.BufferDesc.Format;
 	render_target_view_desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	render_target_view_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 	///////////////////////////////////////////////////////////////////////////////
 	pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
