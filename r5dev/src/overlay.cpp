@@ -480,8 +480,7 @@ public:
         memset(MatchmakingServerStringBuffer, 0, sizeof(MatchmakingServerStringBuffer));
         memset(ServerNameBuffer, 0, sizeof(ServerNameBuffer));
         memset(ServerConnStringBuffer, 0, sizeof(ServerConnStringBuffer));
-        
-        strcpy_s(ServerConnStringBuffer, "localhost");
+       
 
         strcpy_s(MatchmakingServerStringBuffer, "localhost");
 
@@ -511,9 +510,9 @@ public:
         json root = json::parse(res->body);
         for (auto obj : root["servers"])
         {
-            ServerList.push_back(
-                new ServerListing(obj["token"], obj["name"], obj["version"])
-            );
+            //ServerList.push_back(
+            //    new ServerListing(obj["token"], obj["name"], obj["version"])
+            //);
         }
     }
 
@@ -540,7 +539,13 @@ public:
         }
         ImGui::EndTabBar();
     }
-
+    
+    std::string stringtolower(std::string source)
+    {
+        for (auto& ch : source)
+            ch = std::tolower(ch);
+        return source;
+    }
 
     void ServerBrowserSection()
     {
@@ -553,31 +558,47 @@ public:
             RefreshServerList();
         }
         ImGui::EndGroup();
+        ImGui::Separator();
 
         ImGui::BeginChild("ServerListChild", { 0, 780 }, false, ImGuiWindowFlags_HorizontalScrollbar);
 
-        ImGui::BeginTable("bumbumceau", 4);
+        ImGui::BeginTable("bumbumceau", 5);
 
-        ImGui::TableSetupColumn("Token", 0, 20);
-        ImGui::TableSetupColumn("Server Name", 0, 30);
-        ImGui::TableSetupColumn("Server Version", 0, 30);
-        ImGui::TableSetupColumn("Operations", 0, 5);
+        ImGui::TableSetupColumn("Name", 0, 40);
+        ImGui::TableSetupColumn("IP Address", 0, 20);
+        ImGui::TableSetupColumn("Map", 0, 20);
+        ImGui::TableSetupColumn("Version", 0, 10);
+        ImGui::TableSetupColumn("", 0, 10);
         ImGui::TableHeadersRow();
 
         for (ServerListing* server : ServerList)
         {
-            if (!strcmp(FilterBuffer, "") || strstr(server->token.c_str(), FilterBuffer) != NULL || strstr(server->name.c_str(), FilterBuffer) != NULL)
+            const char* name = stringtolower(server->name).c_str();
+            const char* ip = stringtolower(server->ip).c_str();
+            const char* map = stringtolower(server->map).c_str();
+            const char* version = stringtolower(server->version).c_str();
+
+
+            if (!strcmp(FilterBuffer, "") 
+                || strstr(name, FilterBuffer) != NULL 
+                || strstr(ip, FilterBuffer) != NULL
+                || strstr(map, FilterBuffer) != NULL
+                || strstr(version, FilterBuffer) != NULL)
             {
-                ImGui::TableNextColumn();
-                ImGui::Text(server->token.c_str());
                 ImGui::TableNextColumn();
                 ImGui::Text(server->name.c_str());
                 ImGui::TableNextColumn();
-                
+
+                ImGui::Text(server->ip.c_str());
+                ImGui::TableNextColumn();
+
+                ImGui::Text(server->map.c_str());
+                ImGui::TableNextColumn();
+
                 ImGui::Text(server->version.c_str());
                 ImGui::TableNextColumn();
-                std::string selectButtonText = "Select##";
-                selectButtonText += server->token;
+                std::string selectButtonText = "Connect##";
+                selectButtonText += (server->name + server->ip + server->map);
 
                 if (ImGui::Button(selectButtonText.c_str()))
                 {
@@ -592,7 +613,7 @@ public:
         ImGui::EndChild();
 
         ImGui::Separator();
-        ImGui::InputText("##ServerBrowser_ServerConnString", ServerConnStringBuffer, IM_ARRAYSIZE(ServerConnStringBuffer));
+        ImGui::InputTextWithHint("##ServerBrowser_ServerConnString", "Enter an ip address or \"localhost\"", ServerConnStringBuffer, IM_ARRAYSIZE(ServerConnStringBuffer));
         ImGui::SameLine();
         if (ImGui::Button("Connect to the server", ImVec2(ImGui::GetWindowSize().x * (1.f / 3.f), 19)))
         {

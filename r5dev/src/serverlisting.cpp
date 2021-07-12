@@ -2,20 +2,17 @@
 #include "overlay.h"
 #include "httplib.h"
 
-ServerListing::ServerListing(std::string token, std::string name, std::string version)
+ServerListing::ServerListing(std::string name, std::string map, std::string ip, std::string version)
 {
-	this->token = token;
 	this->name = name;
+	this->map = map;
 	this->version = version;
 }
 
 bool ServerListing::Select()
 {
-	httplib::Client client("http://localhost:80");
-	std::stringstream body;
-
-	body << "uid=" << OriginUID << "&servertoken=" << token;
-	client.Post("/browse/select", body.str(), "application/x-www-form-urlencoded");
-	std::cout << body.str() << "\n";
+	std::stringstream cmd;
+	cmd << "connect " << this->ip;
+	RunConsoleCommand(cmd.str().c_str());
 	return true;
 }

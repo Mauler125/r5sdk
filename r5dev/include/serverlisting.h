@@ -7,11 +7,12 @@ class ServerListing
 	
 public:
 
-	std::string token;
 	std::string name;
+	std::string map;
+	std::string ip;
 	std::string version;
 
-	ServerListing(std::string token, std::string name, std::string version);
+	ServerListing(std::string name, std::string map, std::string ip, std::string version);
 	bool Select();
 };
 
