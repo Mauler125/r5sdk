@@ -515,18 +515,6 @@ public:
 
         //RefreshServerList();
 
-        ServerList.push_back(
-            new ServerListing("TDM friendly <3", "mp_rr_desertlands_64k_x_64k", "192.168.0.55", "v1.132.0")
-        );
-        ServerList.push_back(
-            new ServerListing("OCTANE RACING UwU", "mp_rr_desertlands_64k_x_64k", "192.168.0.55", "v1.132.0")
-        );
-        ServerList.push_back(
-            new ServerListing("TDM friendly <3", "mp_rr_desertlands_64k_x_64k", "192.168.0.55", "v1.142.0")
-        );
-        ServerList.push_back(
-            new ServerListing("TDM friendly <3", "mp_rr_desertlands_64k_x_64k", "192.168.0.55", "v1.132.0")
-        );
     }
 
     void RefreshServerList()
