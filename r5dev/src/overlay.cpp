@@ -111,7 +111,7 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
     // Draw
-    void DrawConsole(const char* title, bool* p_open)
+    void Draw(const char* title, bool* p_open)
     {
         ImGui::SetNextWindowSize(ImVec2(840, 600), ImGuiCond_FirstUseEver);
         ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
@@ -677,7 +677,7 @@ public:
     }
 
 
-    void DrawCompanion(const char* title, bool* p_open)
+    void Draw(const char* title, bool* p_open)
     {
         ImGui::SetNextWindowSize(ImVec2(2000, 1000), ImGuiCond_FirstUseEver);
         ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
@@ -759,8 +759,8 @@ void ShowGameConsole(bool* p_open)
 {
     static CGameConsole console;
     static CCompanion browser;
-    console.DrawConsole("Console", p_open);
-    browser.DrawCompanion("Companion", p_open);
+    console.Draw("Console", p_open);
+    browser.Draw("Companion", p_open);
 }
 
 
