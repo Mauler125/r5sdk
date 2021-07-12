@@ -201,7 +201,7 @@ public:
             g_bShowMenu = false;
         }
         ///////////////////////////////////////////////////////////////////////
-        if (ImGui::SmallButton("Developery mode UwU"))
+        if (ImGui::SmallButton("Developer mode"))
         {
             ToggleDevCommands();
             AddLog("+--------------------------------------------------------+\n");
