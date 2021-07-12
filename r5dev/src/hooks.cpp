@@ -128,6 +128,20 @@ bool HSQVM_LoadScript(void* sqvm, const char* script_path, const char* script_na
 }
 
 //#################################################################################
+// UTILITY HOOKS
+//#################################################################################
+
+int HMSG_EngineError(char* fmt, va_list args)
+{
+	char buf[1024];
+	vprintf(fmt, args);
+	vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
+	buf[IM_ARRAYSIZE(buf) - 1] = 0;
+	Items.push_back(Strdup(buf));
+	return MSG_EngineError(fmt, args);
+}
+
+//#################################################################################
 // MANAGEMENT
 //#################################################################################
 
@@ -139,10 +153,14 @@ void InstallENHooks()
 	DetourUpdateThread(GetCurrentThread());
 
 	///////////////////////////////////////////////////////////////////////////////
-	// Hook Engine functions
+	// Hook Squirrel functions
 	DetourAttach((LPVOID*)&SQVM_Print, &HSQVM_Print);
 	DetourAttach((LPVOID*)&SQVM_LoadRson, &HSQVM_LoadRson);
 	DetourAttach((LPVOID*)&SQVM_LoadScript, &HSQVM_LoadScript);
+
+	///////////////////////////////////////////////////////////////////////////////
+	// Hook Utility functions
+	DetourAttach((LPVOID*)&MSG_EngineError, &HMSG_EngineError);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Commit the transaction
@@ -170,6 +188,10 @@ void RemoveENHooks()
 	// Unhook Netchan functions
 	DetourDetach((LPVOID*)&NET_SendDatagram, &HNET_SendDatagram);
 	DetourDetach((LPVOID*)&NET_ReceiveDatagram, &HNET_ReceiveDatagram);
+
+	///////////////////////////////////////////////////////////////////////////////
+	// Unhook Utility functions
+	DetourDetach((LPVOID*)&MSG_EngineError, &HMSG_EngineError);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Commit the transaction

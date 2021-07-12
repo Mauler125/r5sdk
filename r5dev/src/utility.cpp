@@ -92,13 +92,13 @@ void HexDump(const char* szHeader, int nFunc, const void* pData, int nSize)
     auto pattern = std::make_unique<spdlog::pattern_formatter>("%v", spdlog::pattern_time_type::local, std::string(""));
 
     // Loop until the function returned to the first caller
-    while (k == 1) { Sleep(75); }
+    while (k == 1) { /*Sleep(75);*/ }
 
     k = 1;
     ascii[16] = '\0';
 
     // Add new loggers here to replace the placeholder
-    if (nFunc == 0) { logger = spdlog::get("netchan_logger"); }
+    if (nFunc == 0) { logger = g_spdnetchan_logger; }
 
     // Add timestamp
     logger->set_level(spdlog::level::trace);

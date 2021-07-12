@@ -39,21 +39,28 @@ namespace
 	int (*NET_SendDatagram)(SOCKET s, const char* buf, int len, int flags) = (int (*)(SOCKET, const char*, int, int))p_NET_SendDatagram; /*48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 56 41 57 48 81 EC ?? 05 00 00*/
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/* ==== UTILITY ========================================================================================================================================================= */
+	DWORD64 p_MSG_EngineError = FindPattern("r5apex.exe", (const unsigned char*)"\x48\x89\x5C\x24\x08\x48\x89\x74\x24\x10\x57\x48\x81\xEC\x30\x08\x00\x00\x48\x8B\xDA\x48\x8B\xF9\xE8\x00\x00\x00\xFF\x33\xF6\x48", "xxxxxxxxxxxxxxxxxxxxxxxxx???xxxx");
+	int (*MSG_EngineError)(char* fmt, va_list args) = (int (*)(char*, va_list))p_MSG_EngineError; /*48 89 5C 24 08 48 89 74 24 10 57 48 81 EC 30 08 00 00 48 8B DA 48 8B F9 E8 ?? ?? ?? FF 33 F6 48*/
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/* ==== ------- ========================================================================================================================================================= */
 
 	void PrintHAddress() // Test the sigscan results
 	{
 		std::cout << "+--------------------------------------------------------+" << std::endl;
-		std::cout << "| p_CommandExecute         : " << std::hex << p_CommandExecute << std::setw(20) << " |" << std::endl;
-		std::cout << "| p_ConVar_IsFlagSet       : " << std::hex << p_ConVar_IsFlagSet << std::setw(20) << " |" << std::endl;
-		std::cout << "| p_ConCommand_IsFlagSet   : " << std::hex << p_ConCommand_IsFlagSet << std::setw(20) << " |" << std::endl;
+		std::cout << "| CommandExecute           : " << std::hex << p_CommandExecute       << std::setw(20) << " |" << std::endl;
+		std::cout << "| ConVar_IsFlagSet         : " << std::hex << p_ConVar_IsFlagSet     << std::setw(20) << " |" << std::endl;
+		std::cout << "| ConCommand_IsFlagSet     : " << std::hex << p_ConCommand_IsFlagSet << std::setw(20) << " |" << std::endl;
 		std::cout << "+--------------------------------------------------------+" << std::endl;
-		std::cout << "| p_SQVM_Print             : " << std::hex << p_SQVM_Print << std::setw(20) << " |" << std::endl;
-		std::cout << "| p_SQVM_LoadScript        : " << std::hex << p_SQVM_LoadScript << std::setw(20) << " |" << std::endl;
-		std::cout << "| p_SQVM_LoadRson          : " << std::hex << p_SQVM_LoadRson << std::setw(20) << " |" << std::endl;
+		std::cout << "| SQVM_Print               : " << std::hex << p_SQVM_Print           << std::setw(20) << " |" << std::endl;
+		std::cout << "| SQVM_LoadScript          : " << std::hex << p_SQVM_LoadScript      << std::setw(20) << " |" << std::endl;
+		std::cout << "| SQVM_LoadRson            : " << std::hex << p_SQVM_LoadRson        << std::setw(20) << " |" << std::endl;
 		std::cout << "+--------------------------------------------------------+" << std::endl;
-		std::cout << "| p_NET_ReceiveDatagram    : " << std::hex << p_NET_ReceiveDatagram << std::setw(20) << " |" << std::endl;
-		std::cout << "| p_NET_SendDatagram       : " << std::hex << p_NET_SendDatagram << std::setw(20) << " |" << std::endl;
+		std::cout << "| NET_ReceiveDatagram      : " << std::hex << p_NET_ReceiveDatagram  << std::setw(20) << " |" << std::endl;
+		std::cout << "| NET_SendDatagram         : " << std::hex << p_NET_SendDatagram     << std::setw(20) << " |" << std::endl;
+		std::cout << "+--------------------------------------------------------+" << std::endl;
+		std::cout << "| MSG_EngineError          : " << std::hex << p_NET_SendDatagram     << std::setw(20) << " |" << std::endl;
 		std::cout << "+--------------------------------------------------------+" << std::endl;
 
 		// TODO implement error handling when sigscan fails or result is 0
