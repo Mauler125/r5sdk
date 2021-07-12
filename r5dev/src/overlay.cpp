@@ -125,9 +125,9 @@ public:
         colors[ImGuiCol_PopupBg] = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
         colors[ImGuiCol_Border] = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
         colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.70f);
-        colors[ImGuiCol_FrameBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.75f);
-        colors[ImGuiCol_FrameBgHovered] = ImVec4(0.11f, 0.11f, 0.11f, 1.00f);
-        colors[ImGuiCol_FrameBgActive] = ImVec4(0.21f, 0.21f, 0.21f, 1.00f);
+        colors[ImGuiCol_FrameBg] = ImVec4(0.05f, 0.05f, 0.05f, 0.75f);
+        colors[ImGuiCol_FrameBgHovered] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
+        colors[ImGuiCol_FrameBgActive] = ImVec4(0.26f, 0.26f, 0.26f, 1.00f);
         colors[ImGuiCol_TitleBg] = ImVec4(0.04f, 0.04f, 0.04f, 1.00f);
         colors[ImGuiCol_TitleBgActive] = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
         colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.04f, 0.04f, 0.04f, 1.00f);
@@ -176,7 +176,8 @@ public:
         style.WindowBorderSize = 0.0f;
         style.ScrollbarRounding = 1.0f;
         style.WindowRounding = 2.5f;
-        style.ItemSpacing = ImVec2(4, 1);
+        style.ItemSpacing = ImVec2(4, 4);
+        style.WindowTitleAlign = ImVec2(0.5f, 0.5f);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -192,6 +193,7 @@ public:
 
         ImGui::SetNextWindowSize(ImVec2(840, 600), ImGuiCond_FirstUseEver);
         ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
+
         if (!ImGui::Begin(title, p_open))
         {
             ImGui::End(); return;
@@ -344,6 +346,7 @@ public:
         {// Auto focus previous widget
             ImGui::SetKeyboardFocusHere(-1);
         }
+
         ImGui::End();
     }
 
@@ -463,7 +466,8 @@ public:
     ImVector<ServerListing*>       ServerList;
     ServerListing*                 SelectedServer;
 
-    char FilterBuffer[256] = { 0 };
+    ImGuiTextFilter ServerBrowserFilter;
+
     char ServerConnStringBuffer[256] = { 0 };
 
     ////////////////////
@@ -488,7 +492,6 @@ public:
 
     CCompanion()
     {
-        memset(FilterBuffer, 0, sizeof(FilterBuffer));
         memset(MatchmakingServerStringBuffer, 0, sizeof(MatchmakingServerStringBuffer));
         memset(ServerNameBuffer, 0, sizeof(ServerNameBuffer));
         memset(ServerConnStringBuffer, 0, sizeof(ServerConnStringBuffer));
@@ -512,6 +515,18 @@ public:
 
         //RefreshServerList();
 
+        ServerList.push_back(
+            new ServerListing("TDM friendly <3", "mp_rr_desertlands_64k_x_64k", "192.168.0.55", "v1.132.0")
+        );
+        ServerList.push_back(
+            new ServerListing("OCTANE RACING UwU", "mp_rr_desertlands_64k_x_64k", "192.168.0.55", "v1.132.0")
+        );
+        ServerList.push_back(
+            new ServerListing("TDM friendly <3", "mp_rr_desertlands_64k_x_64k", "192.168.0.55", "v1.142.0")
+        );
+        ServerList.push_back(
+            new ServerListing("TDM friendly <3", "mp_rr_desertlands_64k_x_64k", "192.168.0.55", "v1.132.0")
+        );
     }
 
     void RefreshServerList()
@@ -551,21 +566,14 @@ public:
         }
         ImGui::EndTabBar();
     }
-    
-    std::string stringtolower(std::string source)
-    {
-        for (auto& ch : source)
-            ch = std::tolower(ch);
-        return source;
-    }
 
     void ServerBrowserSection()
     {
 
         ImGui::BeginGroup();
-        ImGui::InputText("Filter", FilterBuffer, IM_ARRAYSIZE(FilterBuffer), 0);
+        ServerBrowserFilter.Draw();
         ImGui::SameLine();
-        if (ImGui::Button("Refresh List", ImVec2(ImGui::GetWindowSize().x * (2.f/6.f), 19)))
+        if (ImGui::Button("Refresh List"))
         {
             RefreshServerList();
         }
@@ -585,17 +593,16 @@ public:
 
         for (ServerListing* server : ServerList)
         {
-            const char* name = stringtolower(server->name).c_str();
-            const char* ip = stringtolower(server->ip).c_str();
-            const char* map = stringtolower(server->map).c_str();
-            const char* version = stringtolower(server->version).c_str();
+            const char* name = server->name.c_str();
+            const char* ip = server->ip.c_str();
+            const char* map = server->map.c_str();
+            const char* version = server->version.c_str();
 
 
-            if (!strcmp(FilterBuffer, "") 
-                || strstr(name, FilterBuffer) != NULL 
-                || strstr(ip, FilterBuffer) != NULL
-                || strstr(map, FilterBuffer) != NULL
-                || strstr(version, FilterBuffer) != NULL)
+            if (ServerBrowserFilter.PassFilter(name) 
+                || ServerBrowserFilter.PassFilter(ip)
+                || ServerBrowserFilter.PassFilter(map)
+                || ServerBrowserFilter.PassFilter(version))
             {
                 ImGui::TableNextColumn();
                 ImGui::Text(server->name.c_str());
@@ -691,8 +698,9 @@ public:
 
     void Draw(const char* title, bool* p_open)
     {
-        ImGui::SetNextWindowSize(ImVec2(2000, 1000), ImGuiCond_FirstUseEver);
-        ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(800, 890), ImGuiCond_FirstUseEver);
+        ImGui::SetWindowPos(ImVec2(-500, 50), ImGuiCond_FirstUseEver);
+
         if (!ImGui::Begin(title, p_open))
         {
             ImGui::End(); return;
