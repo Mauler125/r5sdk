@@ -12,6 +12,7 @@
 #include "detours.h"
 #include "overlay.h"
 #include "patterns.h"
+#include "gameclasses.h"
 
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
@@ -262,23 +263,16 @@ void DrawImGui()
 
 	ImGui::NewFrame();
 
+	static CInputSystem* InputSystem = *reinterpret_cast<CInputSystem**>(0x14D40B380);
+
 	if (g_bShowMenu)
 	{
-		bShowMenu = true;
-		if (!g_bInitMenu)
-		{
-			CommandExecute(NULL, "gameui_activate");
-			g_bInitMenu = true;
-		}
+		InputSystem->EnableInput(false); // Disable input.
 		ShowGameConsole(&bShowMenu);
 	}
-	else if(!g_bShowMenu)
+	else if (!g_bShowMenu)
 	{
-		if (g_bInitMenu)
-		{
-			CommandExecute(NULL, "gameui_hide");
-			g_bInitMenu = false;
-		}
+		InputSystem->EnableInput(true); // Enable input.
 	}
 
 	ImGui::EndFrame();

@@ -8,6 +8,7 @@
 #include "opcptc.h"
 #include "console.h"
 #include "utility.h"
+#include "gameclasses.h"
 
 //#############################################################################
 // INITIALIZATION

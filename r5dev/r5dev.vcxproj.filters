@@ -449,6 +449,9 @@
     <ClInclude Include="..\external\spdlog\include\sinks\qt_sinks.h">
       <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
     </ClInclude>
+    <ClInclude Include="include\gameclasses.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="r5dev.def">
