@@ -134,6 +134,7 @@ bool HSQVM_LoadScript(void* sqvm, const char* script_path, const char* script_na
 int HMSG_EngineError(char* fmt, va_list args)
 {
 	char buf[1024];
+	printf("ENGINE ERROR #####################################\n");
 	vprintf(fmt, args);
 	vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
 	buf[IM_ARRAYSIZE(buf) - 1] = 0;

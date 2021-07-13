@@ -49,6 +49,7 @@ static IDXGIResizeBuffers       g_oResizeBuffers            = nullptr;
 static ID3D11DeviceContext*     g_pDeviceContext            = nullptr;
 static ID3D11Device*            g_pDevice                   = nullptr;
 static ID3D11RenderTargetView*  g_pRenderTargetView         = nullptr;
+static ID3D11DepthStencilView*  g_pDepthStencilView         = nullptr;
 static IPostMessageA            g_oPostMessageA             = nullptr;
 static IPostMessageW            g_oPostMessageW             = nullptr;
 
@@ -169,7 +170,7 @@ void GetPresent()
 	///////////////////////////////////////////////////////////////////////////////
 	sd.BufferCount                          = 1;
 	sd.BufferUsage                          = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	sd.BufferDesc.Format                    = DXGI_FORMAT_R8G8B8A8_UNORM;
+	sd.BufferDesc.Format                    = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	sd.BufferDesc.Height                    = 800;
 	sd.BufferDesc.Width                     = 600;
 	sd.BufferDesc.RefreshRate               = { 60, 1 };
@@ -180,6 +181,7 @@ void GetPresent()
 	sd.SampleDesc.Count                     = 1;
 	sd.SampleDesc.Quality                   = 0;
 	sd.SwapEffect                           = DXGI_SWAP_EFFECT_DISCARD;
+	sd.Flags                                = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 	///////////////////////////////////////////////////////////////////////////////
 	g_hGameWindow                           = sd.OutputWindow;
@@ -255,11 +257,6 @@ void DrawImGui()
 {
 	bool bShowMenu = false;
 
-	ID3D11RenderTargetView* pRenderTargetBackup = nullptr;
-	ID3D11DepthStencilView* pStencilViewBackup = nullptr;
-	g_pDeviceContext->OMGetRenderTargets(1, &pRenderTargetBackup, &pStencilViewBackup);
-	g_pDeviceContext->OMSetRenderTargets(1, &g_pRenderTargetView, nullptr);
-
 	ImGui_ImplWin32_NewFrame();
 	ImGui_ImplDX11_NewFrame();
 
@@ -287,9 +284,8 @@ void DrawImGui()
 	ImGui::EndFrame();
 	ImGui::Render();
 
+	g_pDeviceContext->OMSetRenderTargets(1, &g_pRenderTargetView, NULL);
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-	g_pDeviceContext->OMSetRenderTargets(1, &pRenderTargetBackup, pStencilViewBackup);
 }
 
 void CreateRenderTarget(IDXGISwapChain* pSwapChain)
@@ -304,9 +300,8 @@ void CreateRenderTarget(IDXGISwapChain* pSwapChain)
 	ZeroMemory(&render_target_view_desc, sizeof(render_target_view_desc));
 
 	g_hGameWindow = sd.OutputWindow;
-	render_target_view_desc.Format = sd.BufferDesc.Format;
+	render_target_view_desc.Format        = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	render_target_view_desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-	render_target_view_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 	///////////////////////////////////////////////////////////////////////////////
 	pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
