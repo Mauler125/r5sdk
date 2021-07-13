@@ -520,14 +520,55 @@ public:
     void RefreshServerList()
     {
         ServerList.clear();
+
+        static bool bThreadLocked = false;
+
+        if (!bThreadLocked) {
+            std::thread t([this]() {
+                std::cout << "Refreshing server list..." << std::endl;
+                bThreadLocked = true;
+                httplib::Client client(MatchmakingServerStringBuffer);
+                client.set_connection_timeout(10);
+                auto res = client.Get("/servers");
+                if (res)
+                {
+                    json root = json::parse(res->body);
+                    for (auto obj : root["servers"])
+                    {
+                        ServerList.push_back(
+                            new ServerListing(obj["name"], obj["map"], obj["ip"], obj["version"])
+                        );
+                    }
+                }
+                bThreadLocked = false;
+            });
+
+            t.detach();
+        }
+        
+        
+
+        
+    }
+
+    void SendHostingPostRequest() 
+    {
         httplib::Client client(MatchmakingServerStringBuffer);
-        auto res = client.Get("/browse");
-        json root = json::parse(res->body);
-        for (auto obj : root["servers"])
+        client.set_connection_timeout(10);
+        // send a post request to "/servers/add" with a json body
+        json body = json::object();
+        body["name"] = ServerNameBuffer;
+        body["map"] = *SelectedMap;
+        body["version"] = "1.0";
+
+        std::string body_str = body.dump();
+
+        std::cout << body_str << "\n";
+
+        auto res = client.Post("/servers/add", body_str.c_str(), body_str.length(), "application/json");
+        if (res)
         {
-            //ServerList.push_back(
-            //    new ServerListing(obj["token"], obj["name"], obj["version"])
-            //);
+            std::cout << "Hosting Request Result: " << res->body << "\n";
         }
     }
 
@@ -536,6 +577,7 @@ public:
     {
         CurrentSection = section;
     }
+    
     
     void CompMenu()
     {
@@ -660,6 +702,7 @@ public:
             {
                 ToggleDevCommands();
             }
+            SendHostingPostRequest();
             
         }
         if (StartAsDedi)
