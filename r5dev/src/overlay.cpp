@@ -182,14 +182,12 @@ public:
 
         ImGui::SetNextWindowSize(ImVec2(840, 600), ImGuiCond_FirstUseEver);
         ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
-        if (!ImGui::Begin(title, p_open))
+
+        if (!ImGui::Begin(title, NULL)) // Passing a bool only causes problems if you Begin a new window. I would not suggest to use it.
         {
             ImGui::End(); return;
         }
-        if (*p_open == NULL)
-        {
-            g_bShowMenu = false;
-        }
+
         ///////////////////////////////////////////////////////////////////////
         if (ImGui::SmallButton("Developer mode"))
         {
