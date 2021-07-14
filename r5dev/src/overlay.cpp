@@ -189,8 +189,6 @@ public:
             ThemeSet = true;
         }
 
-        ImGui::ShowStyleEditor();
-
         ImGui::SetNextWindowSize(ImVec2(840, 600), ImGuiCond_FirstUseEver);
         ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
 
@@ -497,10 +495,9 @@ public:
         memset(ServerConnStringBuffer, 0, sizeof(ServerConnStringBuffer));
        
 
-        strcpy_s(MatchmakingServerStringBuffer, "localhost");
+        strcpy_s(MatchmakingServerStringBuffer, "r5a-comp-sv.herokuapp.com");
 
 
-        
         std::string path = "stbsp";
         for (const auto& entry : std::filesystem::directory_iterator(path))
         {
@@ -525,7 +522,7 @@ public:
 
         if (!bThreadLocked) {
             std::thread t([this]() {
-                std::cout << "Refreshing server list..." << std::endl;
+                std::cout << "Refreshing server list with string" << MatchmakingServerStringBuffer << std::endl;
                 bThreadLocked = true;
                 httplib::Client client(MatchmakingServerStringBuffer);
                 client.set_connection_timeout(10);
@@ -536,7 +533,7 @@ public:
                     for (auto obj : root["servers"])
                     {
                         ServerList.push_back(
-                            new ServerListing(obj["name"], obj["map"], obj["ip"], obj["version"])
+                            new ServerListing(obj["name"], obj["map"], obj["ip"], obj["version"], obj["expire"])
                         );
                     }
                 }
@@ -612,13 +609,14 @@ public:
 
         ImGui::BeginChild("ServerListChild", { 0, 780 }, false, ImGuiWindowFlags_HorizontalScrollbar);
 
-        ImGui::BeginTable("bumbumceau", 5);
+        ImGui::BeginTable("bumbumceau", 6);
 
-        ImGui::TableSetupColumn("Name", 0, 40);
+        ImGui::TableSetupColumn("Name", 0, 35);
         ImGui::TableSetupColumn("IP Address", 0, 20);
-        ImGui::TableSetupColumn("Map", 0, 20);
+        ImGui::TableSetupColumn("Map", 0, 25);
         ImGui::TableSetupColumn("Version", 0, 10);
-        ImGui::TableSetupColumn("", 0, 10);
+        ImGui::TableSetupColumn("Expiry", 0, 10);
+        ImGui::TableSetupColumn("", 0, 8);
         ImGui::TableHeadersRow();
 
         for (ServerListing* server : ServerList)
@@ -627,7 +625,7 @@ public:
             const char* ip = server->ip.c_str();
             const char* map = server->map.c_str();
             const char* version = server->version.c_str();
-
+            int expiry = server->expiry;
 
             if (ServerBrowserFilter.PassFilter(name) 
                 || ServerBrowserFilter.PassFilter(ip)
@@ -646,6 +644,12 @@ public:
 
                 ImGui::Text(version);
                 ImGui::TableNextColumn();
+
+                std::stringstream expirySS;
+                expirySS << expiry << " seconds left";
+                ImGui::Text(expirySS.str().c_str());
+                ImGui::TableNextColumn();
+
                 std::string selectButtonText = "Connect##";
                 selectButtonText += (server->name + server->ip + server->map);
 
@@ -674,7 +678,7 @@ public:
 
     void HostServerSection() 
     {
-        ImGui::InputText("Server Name##ServerHost_ServerName", ServerNameBuffer, IM_ARRAYSIZE(ServerNameBuffer));
+        ImGui::InputTextWithHint("Server Name##ServerHost_ServerName", "Required Field", ServerNameBuffer, IM_ARRAYSIZE(ServerNameBuffer));
         ImGui::Spacing();
         if (ImGui::BeginCombo("Map##ServerHost_MapListBox", SelectedMap->c_str()))
         {
@@ -692,19 +696,22 @@ public:
         ImGui::Checkbox("Start as dedicated server (HACK)##ServerHost_DediCheckbox", &StartAsDedi);
 
         ImGui::Separator();
-
+        
         if (ImGui::Button("Start The Server##ServerHost_StartServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
-            std::stringstream cmd;
-            cmd << "map " << SelectedMap->c_str();
-            RunConsoleCommand(cmd.str());
-            if (StartAsDedi)
+            if (strcmp(ServerNameBuffer, "") != 0)
             {
-                ToggleDevCommands();
+                std::stringstream cmd;
+                cmd << "map " << SelectedMap->c_str();
+                RunConsoleCommand(cmd.str());
+                if (StartAsDedi)
+                {
+                    ToggleDevCommands();
+                }
+                SendHostingPostRequest();
             }
-            SendHostingPostRequest();
-            
         }
+        if (strcmp(ServerNameBuffer, "") == 0) ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), "ERROR: Please specify a name for the server!");
         if (StartAsDedi)
         {
             if (ImGui::Button("Reload Scripts##ServerHost_ReloadServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
