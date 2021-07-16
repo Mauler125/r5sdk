@@ -289,6 +289,7 @@
     <ClInclude Include="..\external\spdlog\include\version.h" />
     <ClInclude Include="include\console.h" />
     <ClInclude Include="include\enums.h" />
+    <ClInclude Include="include\gameclasses.h" />
     <ClInclude Include="include\hooks.h" />
     <ClInclude Include="include\httplib.h" />
     <ClInclude Include="include\id3dx.h" />

@@ -459,6 +459,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\serverlisting.h">
+    <ClInclude Include="include\gameclasses.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
