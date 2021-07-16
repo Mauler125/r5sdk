@@ -1,3 +1,5 @@
+
+#include "overlay.h"
 #include <thread>
 #include <fstream>
 
@@ -7,7 +9,6 @@
 #include <detours.h>
 #include "hooks.h"
 #include "id3dx.h"
-#include "overlay.h"
 #include "console.h"
 #include "patterns.h"
 
@@ -17,6 +18,9 @@
 #include <filesystem>
 #include <thread>
 #include <sstream>
+
+#include <shlobj.h>
+#include <objbase.h>
 
 /*-----------------------------------------------------------------------------
  * _overlay.cpp
@@ -456,65 +460,112 @@ public:
     }
 };
 
-class CCompanion {
-public:
-    ////////////////////
-    // Server Browser //
-    ////////////////////
-    ImVector<ServerListing*>       ServerList;
-    ServerListing*                 SelectedServer;
 
-    ImGuiTextFilter ServerBrowserFilter;
-
-    char ServerConnStringBuffer[256] = { 0 };
-
-    ////////////////////
-    //    Settings    //
-    ////////////////////
-    char MatchmakingServerStringBuffer[256] = { 0 }; 
-
-
-    ////////////////////
-    //   Host Server  //
-    ////////////////////
-    std::vector<std::string> MapsList;
-    std::string* SelectedMap = nullptr;
-    char ServerNameBuffer[64] = { 0 };
-    bool StartAsDedi;
-
-    enum class ESection : UINT8 {
-        ServerBrowser,
-        HostServer,
-        Settings
-    } CurrentSection;
-
-    CCompanion()
-    {
-        memset(MatchmakingServerStringBuffer, 0, sizeof(MatchmakingServerStringBuffer));
-        memset(ServerNameBuffer, 0, sizeof(ServerNameBuffer));
-        memset(ServerConnStringBuffer, 0, sizeof(ServerConnStringBuffer));
+CCompanion::CCompanion()
+{
+    memset(MatchmakingServerStringBuffer, 0, sizeof(MatchmakingServerStringBuffer));
+    memset(ServerNameBuffer, 0, sizeof(ServerNameBuffer));
+    memset(ServerConnStringBuffer, 0, sizeof(ServerConnStringBuffer));
        
 
-        strcpy_s(MatchmakingServerStringBuffer, "r5a-comp-sv.herokuapp.com");
+    strcpy_s(MatchmakingServerStringBuffer, "r5a-comp-sv.herokuapp.com");
 
 
-        std::string path = "stbsp";
-        for (const auto& entry : std::filesystem::directory_iterator(path))
-        {
-            std::string filename = entry.path().string();
-            int slashPos = filename.rfind("\\", std::string::npos);
-            filename = filename.substr((INT8)slashPos + 1, std::string::npos);
-            filename = filename.substr(0, filename.size() - 6);
-            MapsList.push_back(filename);
-        }
+    std::string path = "stbsp";
+    for (const auto& entry : std::filesystem::directory_iterator(path))
+    {
+        std::string filename = entry.path().string();
+        int slashPos = filename.rfind("\\", std::string::npos);
+        filename = filename.substr((INT8)slashPos + 1, std::string::npos);
+        filename = filename.substr(0, filename.size() - 6);
+        MapsList.push_back(filename);
+    }
 
         SelectedMap = &MapsList[0];
 
         //RefreshServerList();
 
+        static std::thread HostingServerRequestThread([this]() 
+        {
+            while(true)
+            {
+                UpdateHostingStatus();
+                std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+            }
+        });
+        HostingServerRequestThread.detach();
+
+}
+
+    void CCompanion::UpdateHostingStatus()
+    {
+        std::string lastMap = GetGameStateLastMap();
+
+        switch(HostingStatus)
+        {
+            case EHostStatus::NotHosting: 
+            { 
+                if(lastMap != "no_map" && lastMap != "")
+                    HostingStatus = EHostStatus::ConnectedToSomeoneElse;
+                break; 
+            }
+            case EHostStatus::WaitingForStateChange: 
+            {
+                if(lastMap != "no_map" && lastMap != "")
+                    HostingStatus = EHostStatus::Hosting;
+                break;
+            }
+            case EHostStatus::Hosting:
+            {
+                SendHostingPostRequest();
+                break;
+            }
+            case EHostStatus::ConnectedToSomeoneElse:
+            {
+                if(lastMap == "no_map" || lastMap == "")
+                {
+                    HostingStatus = EHostStatus::NotHosting;
+                }
+                break;
+            }
+        }
+        std::cout << HostingStatus;
     }
 
-    void RefreshServerList()
+    std::string CCompanion::GetGameStateLastMap()
+    {
+
+        // I know you're gonna comment abt this function; but I dont think it's necessary to include a fully-fledged VDF parser for now
+
+        wchar_t* savedGamesPath = new wchar_t[256];
+
+        SHGetKnownFolderPath(FOLDERID_SavedGames, KF_FLAG_CREATE, nullptr, &savedGamesPath);
+
+        if (savedGamesPath == nullptr) return "";
+
+        std::wstringstream filePath;
+
+        filePath << savedGamesPath;
+        filePath << "\\Respawn\\Apex\\local\\previousgamestate.txt";
+
+        CoTaskMemFree(static_cast<void*>(savedGamesPath));
+
+        std::ifstream f(filePath.str());
+        std::string line;
+
+
+        for(int i = 0; i < 7; i++)
+        {
+            std::getline(f, line);
+        }
+        
+        // returns the substring of the line that contains only the map name
+        return line.substr(35, line.size() - 35 - 1);
+        
+
+    }
+
+    void CCompanion::RefreshServerList()
     {
         ServerList.clear();
 
@@ -548,7 +599,7 @@ public:
         
     }
 
-    void SendHostingPostRequest() 
+    void CCompanion::SendHostingPostRequest() 
     {
         httplib::Client client(MatchmakingServerStringBuffer);
         client.set_connection_timeout(10);
@@ -570,13 +621,13 @@ public:
     }
 
 
-    void SetSection(ESection section)
+    void CCompanion::SetSection(ESection section)
     {
         CurrentSection = section;
     }
     
     
-    void CompMenu()
+    void CCompanion::CompMenu()
     {
         ImGui::BeginTabBar("CompMenu");
         if (ImGui::TabItemButton("Server Browser"))
@@ -594,7 +645,7 @@ public:
         ImGui::EndTabBar();
     }
 
-    void ServerBrowserSection()
+    void CCompanion::ServerBrowserSection()
     {
 
         ImGui::BeginGroup();
@@ -676,7 +727,7 @@ public:
         }
     }
 
-    void HostServerSection() 
+    void CCompanion::HostServerSection() 
     {
         ImGui::InputTextWithHint("Server Name##ServerHost_ServerName", "Required Field", ServerNameBuffer, IM_ARRAYSIZE(ServerNameBuffer));
         ImGui::Spacing();
@@ -699,8 +750,14 @@ public:
         
         if (ImGui::Button("Start The Server##ServerHost_StartServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
+
             if (strcmp(ServerNameBuffer, "") != 0)
             {
+                UpdateHostingStatus();
+                if(HostingStatus == EHostStatus::NotHosting)
+                    HostingStatus = EHostStatus::WaitingForStateChange;
+                UpdateHostingStatus();
+
                 std::stringstream cmd;
                 cmd << "map " << SelectedMap->c_str();
                 RunConsoleCommand(cmd.str());
@@ -708,7 +765,7 @@ public:
                 {
                     ToggleDevCommands();
                 }
-                SendHostingPostRequest();
+                
             }
         }
         if (strcmp(ServerNameBuffer, "") == 0) ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), "ERROR: Please specify a name for the server!");
@@ -728,13 +785,13 @@ public:
 
     }
 
-    void SettingsSection() 
+    void CCompanion::SettingsSection() 
     {
         ImGui::InputText("Matchmaking Server String", MatchmakingServerStringBuffer, IM_ARRAYSIZE(MatchmakingServerStringBuffer), 0);
     }
 
 
-    void Draw(const char* title, bool* p_open)
+    void CCompanion::Draw(const char* title, bool* p_open)
     {
         ImGui::SetNextWindowSize(ImVec2(800, 890), ImGuiCond_FirstUseEver);
         ImGui::SetWindowPos(ImVec2(-500, 50), ImGuiCond_FirstUseEver);
@@ -771,8 +828,6 @@ public:
 
         ImGui::End();
     }
-
-};
 
 //#############################################################################
 // INTERNALS
