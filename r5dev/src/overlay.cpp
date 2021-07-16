@@ -511,7 +511,9 @@ CCompanion::CCompanion()
             }
             case EHostStatus::Hosting:
             {
-                SendHostingPostRequest();
+                if (lastMap == "no_map" || lastMap == "")
+                    HostingStatus = EHostStatus::NotHosting;
+                else SendHostingPostRequest();
                 break;
             }
             case EHostStatus::ConnectedToSomeoneElse:
@@ -789,13 +791,9 @@ CCompanion::CCompanion()
         ImGui::SetNextWindowSize(ImVec2(800, 890), ImGuiCond_FirstUseEver);
         ImGui::SetWindowPos(ImVec2(-500, 50), ImGuiCond_FirstUseEver);
 
-        if (!ImGui::Begin(title, p_open))
+        if (!ImGui::Begin(title, NULL))
         {
             ImGui::End(); return;
-        }
-        if (*p_open == NULL)
-        {
-            g_bShowMenu = false;
         }
         ///////////////////////////////////////////////////////////////////////
         CompMenu();
