@@ -41,9 +41,9 @@ public:
     } CurrentSection;
 
     enum class EHostStatus {
+        NotHosting,
         WaitingForStateChange,
         Hosting,
-        NotHosting,
         ConnectedToSomeoneElse
     };
 
@@ -71,7 +71,7 @@ public:
     std::string* SelectedMap = nullptr;
     char ServerNameBuffer[64] = { 0 };
     bool StartAsDedi;
-    EHostStatus HostingStatus = EHostStatus::WaitingForStateChange;
+    EHostStatus HostingStatus = EHostStatus::NotHosting;
 
     void RefreshServerList();
 
