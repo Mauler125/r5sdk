@@ -523,7 +523,6 @@ CCompanion::CCompanion()
                 break;
             }
         }
-        std::cout << HostingStatus;
     }
 
     std::string CCompanion::GetGameStateLastMap()
