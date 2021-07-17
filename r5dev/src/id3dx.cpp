@@ -67,7 +67,7 @@ LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if (uMsg == WM_KEYDOWN)
 	{
-		if (wParam == VK_OEM_3)
+		if (wParam == VK_OEM_3 || wParam == VK_INSERT) // For everyone without a US keyboard layout.
 		{
 			g_bShowMenu = !g_bShowMenu;
 		}

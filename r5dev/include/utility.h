@@ -7,7 +7,7 @@
 // Internals
 BOOL FileExists(LPCTSTR szPath);
 MODULEINFO GetModuleInfo(const char* szModule);
-DWORD64 FindPattern(const char* szModule, const unsigned char* szPattern, const char* szMask);
+std::uint8_t* PatternScan(const char* module, const char* signature);
 
 /////////////////////////////////////////////////////////////////////////////
 // Utility
