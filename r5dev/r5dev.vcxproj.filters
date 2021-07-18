@@ -452,14 +452,16 @@
     <ClInclude Include="..\external\spdlog\include\sinks\qt_sinks.h">
       <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
     </ClInclude>
+    <ClInclude Include="include\gameclasses.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="include\httplib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\json.hpp">
+    <ClInclude Include="include\serverlisting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\serverlisting.h">
-    <ClInclude Include="include\gameclasses.h">
+    <ClInclude Include="include\json.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
