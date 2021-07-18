@@ -39,6 +39,12 @@ namespace
 	int (*NET_SendDatagram)(SOCKET s, const char* buf, int len, int flags) = (int (*)(SOCKET, const char*, int, int))p_NET_SendDatagram;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/* ==== CHLCLIENT ======================================================================================================================================================= */
+
+	DWORD64 p_CHLClient_FrameStageNotify = /*0x1405C0740*/ reinterpret_cast<DWORD64>(PatternScan("r5apex.exe", "48 83 EC 28 89 15 ?? ?? ?? ??"));
+	void (*CHLClient_FrameStageNotify)(void* rcx, int curStage) = (void (*)(void*, int))p_CHLClient_FrameStageNotify;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/* ==== UTILITY ========================================================================================================================================================= */
 	DWORD64 p_MSG_EngineError = /*0x140295600*/ reinterpret_cast<DWORD64>(PatternScan("r5apex.exe", "48 89 5C 24 08 48 89 74 24 10 57 48 81 EC 30 08 00 00 48 8B DA 48 8B F9 E8 ?? ?? ?? FF 33 F6 48"));
 	int (*MSG_EngineError)(char* fmt, va_list args) = (int (*)(char*, va_list))p_MSG_EngineError;
