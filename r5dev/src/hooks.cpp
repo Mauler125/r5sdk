@@ -8,6 +8,7 @@
 #include "structs.h"
 #include "overlay.h"
 #include "hooks.h"
+#include "gameclasses.h"
 
 //#################################################################################
 // NETCHANNEL HOOKS
@@ -40,6 +41,32 @@ unsigned int HNET_SendDatagram(SOCKET s, const char* buf, int len, int flags)
 	}
 
 	return result;
+}
+
+//#################################################################################
+// CHLCLIENT HOOKS
+//#################################################################################
+
+void __fastcall HCHLClient__FrameStageNotify(CHLClient* rcx, ClientFrameStage_t curStage) /* __fastcall so we can make sure first argument will be RCX and second RDX. */
+{
+	static CHostState* HostState = reinterpret_cast<CHostState*>(0x141736120);
+
+	switch (curStage)
+	{
+	case FRAME_START: // FrameStageNotify gets called every frame by CEngine::Frame with the stage being FRAME_START. We can use this to check/set global variables.
+	{
+		if (HostState->m_bWaitingForConnection) // Easy way to check if we are DEDI.
+		{
+		//	printf("AWAITING CONNECTION\n");
+		}
+
+		break;
+	}
+	default:
+		break;
+	}
+
+	CHLClient_FrameStageNotify(rcx, curStage);
 }
 
 //#################################################################################
@@ -160,6 +187,10 @@ void InstallENHooks()
 	DetourAttach((LPVOID*)&SQVM_LoadScript, &HSQVM_LoadScript);
 
 	///////////////////////////////////////////////////////////////////////////////
+	// Hook Game Functions
+	DetourAttach((LPVOID*)&CHLClient_FrameStageNotify, &HCHLClient__FrameStageNotify);
+
+	///////////////////////////////////////////////////////////////////////////////
 	// Hook Utility functions
 	DetourAttach((LPVOID*)&MSG_EngineError, &HMSG_EngineError);
 
@@ -184,6 +215,10 @@ void RemoveENHooks()
 	DetourDetach((LPVOID*)&SQVM_Print, &HSQVM_Print);
 	DetourDetach((LPVOID*)&SQVM_LoadRson, &HSQVM_LoadRson);
 	DetourDetach((LPVOID*)&SQVM_LoadScript, &HSQVM_LoadScript);
+
+	///////////////////////////////////////////////////////////////////////////////
+	// Unhook Game Functions
+	DetourDetach((LPVOID*)&CHLClient_FrameStageNotify, &HCHLClient__FrameStageNotify);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook Netchan functions

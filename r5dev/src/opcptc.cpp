@@ -22,7 +22,7 @@ void InstallOpcodes() /* .TEXT */
 	WriteProcessMemory(GameProcess, LPVOID(dst004 + 0x1D6), "\xEB\x27", 2, NULL);
 	//-------------------------------------------------------------------------
 	// JNE --> JMP | Prevent connect localhost from being executed after listenserver init
-	//WriteProcessMemory(GameProcess, LPVOID(dst005 + 0x637), "\xE9\xC1\x00\x00\x00", 5, NULL);
+	//WriteProcessMemory(GameProcess, LPVOID(Host_NewGame + 0x637), "\xE9\xC1\x00\x00\x00", 5, NULL);
 	//-------------------------------------------------------------------------
 	// JA  --> JMP | Disable server-side verification for duplicate accounts on the server
 	WriteProcessMemory(GameProcess, LPVOID(dst006 + 0x284), "\x90\x90", 2, NULL);

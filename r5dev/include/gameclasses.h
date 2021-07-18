@@ -263,7 +263,7 @@ public:
 
 	void* AllocKeyValuesMemory(__int64 size) // @0x1413AA1F8 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	{
-		using OriginalFn = void*(__thiscall*)(CKeyValuesSystem*, __int64);
+		using OriginalFn = void* (__thiscall*)(CKeyValuesSystem*, __int64);
 		return (*reinterpret_cast<OriginalFn**>(this))[1](this, size);
 	}
 
@@ -281,33 +281,33 @@ public:
 
 	const char* GetStringForSymbol(HKeySymbol symbol) // @0x1413AA210 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	{
-		using OriginalFn = const char*(__thiscall*)(CKeyValuesSystem*, HKeySymbol);
+		using OriginalFn = const char* (__thiscall*)(CKeyValuesSystem*, HKeySymbol);
 		return (*reinterpret_cast<OriginalFn**>(this))[4](this, symbol);
 	}
 
-//	void __fastcall CKeyValuesSystem::FreeKeyValuesMemory(CKeyValuesSystem* this_arg, void* ptr_mem_arg)
-//	{
-//		__int64* v2; // rax
-//		__int64 v4; // rax
-//		__int64* v5; // rax
-// 
-//		v2 = qword_14D40B538;
-//		if (!qword_14D40B538)
-//		{
-//			v2 = sub_140462930();
-//			qword_14D40B538 = v2;
-//		}
-//		v4 = (*(*v2 + 48))(v2, ptr_mem_arg);
-//		if (v4 > 0)
-//			CKeyValuesSystem::m_pMemPool -= v4;
-//		v5 = qword_14D40B538;
-//		if (!qword_14D40B538)
-//		{
-//			v5 = sub_140462930();
-//			qword_14D40B538 = v5;
-//		}
-//		(*(*v5 + 40))(v5, ptr_mem_arg);
-//	}
+	//	void __fastcall CKeyValuesSystem::FreeKeyValuesMemory(CKeyValuesSystem* this_arg, void* ptr_mem_arg)
+	//	{
+	//		__int64* v2; // rax
+	//		__int64 v4; // rax
+	//		__int64* v5; // rax
+	// 
+	//		v2 = qword_14D40B538;
+	//		if (!qword_14D40B538)
+	//		{
+	//			v2 = sub_140462930();
+	//			qword_14D40B538 = v2;
+	//		}
+	//		v4 = (*(*v2 + 48))(v2, ptr_mem_arg);
+	//		if (v4 > 0)
+	//			CKeyValuesSystem::m_pMemPool -= v4;
+	//		v5 = qword_14D40B538;
+	//		if (!qword_14D40B538)
+	//		{
+	//			v5 = sub_140462930();
+	//			qword_14D40B538 = v5;
+	//		}
+	//		(*(*v5 + 40))(v5, ptr_mem_arg);
+	//	}
 
 	// GetMemPool return a global variable called m_pMemPool it gets modified by AllocKeyValuesMemory and FreeKeyValuesMemory above you can see where the find it in FreeKeyValuesMemory.
 	void* GetMemPool() // @0x1413AA228 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
@@ -335,20 +335,20 @@ public:
 
 	// Datatypes aren't accurate. But full fill the actual byte distance.
 public:
-	void* vtable;
-	__int64 m_iMaxKeyValuesSize;
+	void* vtable; // 0x0000
+	__int64 m_iMaxKeyValuesSize; // 0x0008
 private:
-	char gap10[240];
+	char gap10[240]; // 0x0010
 public:
-	int m_KvConditionalSymbolTable;
+	__int32 m_KvConditionalSymbolTable; // 0x0100
 private:
-	char gap104[4];
+	char gap104[4]; // 0x0104
 public:
-	__int64 field_108;
+	__int64 field_108; // 0x0108
 private:
-	char gap110[32];
+	char gap110[32]; // 0x0110
 public:
-	int m_mutex;
+	int m_mutex; // 0x0130
 };
 
 enum KeyValuesTypes
@@ -373,15 +373,15 @@ public:
 
 	KeyValues* FindKey(const char* keyName, bool bCreate)
 	{
-	//	static auto func = reinterpret_cast<KeyValues*(__thiscall*)(KeyValues*, const char*, bool)>(p_KeyValues_FindKey);
-	//	return func(this, keyName, bCreate);
+		//	static auto func = reinterpret_cast<KeyValues*(__thiscall*)(KeyValues*, const char*, bool)>(p_KeyValues_FindKey);
+		//	return func(this, keyName, bCreate);
 		return nullptr;
 	}
 
 	int GetInt(const char* keyName, int defaultValue)
 	{
-		KeyValues* dat = FindKey(keyName, false); 
-		
+		KeyValues* dat = FindKey(keyName, false);
+
 		if (!dat)
 			return defaultValue;
 
@@ -436,17 +436,83 @@ public:
 	}
 
 public:
-	unsigned __int32 m_iKeyName : 24;
-	unsigned __int32 m_iKeyNameCaseSensitive : 8;
-	char* m_sValue;
-	wchar_t* m_wsValue;
-	int m_Value;
+	unsigned __int32 m_iKeyName : 24; // 0x0000
+	unsigned __int32 m_iKeyNameCaseSensitive : 8; // 0x0003
+	char* m_sValue; // 0x0008
+	wchar_t* m_wsValue; // 0x0010
+	int m_Value; // 0x0018
 private:
-	char gap1C[12];
+	char gap1C[12]; // 0x0020
 public:
-	char m_iDataType;
-	unsigned __int16 m_iKeyNameCaseSensitive2;
-	KeyValues* m_pPeer;
-	KeyValues* m_pSub;
-	KeyValues* m_pChain;
+	char m_iDataType; // 0x0028
+	unsigned __int16 m_iKeyNameCaseSensitive2; // 0x002A
+	KeyValues* m_pPeer; // 0x0030
+	KeyValues* m_pSub; // 0x0038
+	KeyValues* m_pChain; // 0x0040
+};
+
+struct Vector3 // Implement the proper class of this at some point.
+{
+	float x; // 0x0000
+	float y; // 0x0004
+	float z; // 0x0008
+};
+
+struct QAngle // Implement the proper class of this at some point.
+{
+	float pitch; //0x0000
+	float yaw; // 0x0004
+	float roll; // 0x0008
+};
+
+class CHostState
+{
+public:
+	__int32 m_iCurrentState; //0x0000
+	__int32 n_iNextState; //0x0004
+	Vector3 m_vecLocation; //0x0008
+	QAngle m_angLocation; //0x0014
+	char m_levelName[64]; //0x0020
+	char m_mapGroupName[256]; //0x0060
+	char m_landMarkName[256]; //0x0160
+	float m_flShortFrameTime; //0x0260
+	bool m_bActiveGame; //0x0264
+	bool m_bRememberLocation; //0x0265
+	bool m_bBackgroundLevel; //0x0266
+	bool m_bWaitingForConnection; //0x0267
+	bool m_bSplitScreenConnect; //0x0268
+	bool m_bGameHasShutDownAndFlushedMemory; //0x0269
+	bool m_bWorkshopMapDownloadPending; //0x026A
+};
+
+enum ClientFrameStage_t
+{
+	FRAME_UNDEFINED = -1,			// (haven't run any frames yet)
+	FRAME_START,
+
+	// A network packet is being recieved
+	FRAME_NET_UPDATE_START,
+	// Data has been received and we're going to start calling PostDataUpdate
+	FRAME_NET_UPDATE_POSTDATAUPDATE_START,
+	// Data has been received and we've called PostDataUpdate on all data recipients
+	FRAME_NET_UPDATE_POSTDATAUPDATE_END,
+	// We've received all packets, we can now do interpolation, prediction, etc..
+	FRAME_NET_UPDATE_END,
+
+	// We're about to start rendering the scene
+	FRAME_RENDER_START,
+	// We've finished rendering the scene.
+	FRAME_RENDER_END,
+
+	FRAME_NET_FULL_FRAME_UPDATE_ON_REMOVE
+};
+
+class CHLClient
+{
+public:
+	void FrameStageNotify(ClientFrameStage_t curStage) // @0x1405C0740 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
+	{
+		using OriginalFn = void(__thiscall*)(CHLClient*, ClientFrameStage_t);
+		(*reinterpret_cast<OriginalFn**>(this))[58](this, curStage); /* 48 83 EC 28 89 15 ? ? ? ? */
+	}
 };
