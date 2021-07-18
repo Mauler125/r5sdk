@@ -256,23 +256,22 @@ void SetupImGui()
 
 void DrawImGui()
 {
-	bool bShowMenu = false;
+	if (!GameGlobals::IsInitialized || !GameGlobals::InputSystem) // Check if GameGlobals initialized and if InputSystem is valid.
+		return;
 
 	ImGui_ImplWin32_NewFrame();
 	ImGui_ImplDX11_NewFrame();
 
 	ImGui::NewFrame();
 
-	static CInputSystem* InputSystem = *reinterpret_cast<CInputSystem**>(0x14D40B380);
-
 	if (g_bShowMenu)
 	{
-		InputSystem->EnableInput(false); // Disable input.
-		ShowGameConsole(&bShowMenu);
+		GameGlobals::InputSystem->EnableInput(false); // Disable input.
+		DrawMenu();
 	}
-	else if (!g_bShowMenu)
+	else
 	{
-		InputSystem->EnableInput(true); // Enable input.
+		GameGlobals::InputSystem->EnableInput(true); // Enable input.
 	}
 
 	ImGui::EndFrame();

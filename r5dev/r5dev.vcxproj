@@ -313,6 +313,7 @@
     <ClCompile Include="..\external\imgui\src\imgui_widgets.cpp" />
     <ClCompile Include="src\console.cpp" />
     <ClCompile Include="src\dllmain.cpp" />
+    <ClCompile Include="src\gameclasses.cpp" />
     <ClCompile Include="src\hooks.cpp" />
     <ClCompile Include="src\id3dx.cpp" />
     <ClCompile Include="src\input.cpp" />
