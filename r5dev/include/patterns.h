@@ -10,13 +10,13 @@ namespace
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/* ==== CONSOLE ========================================================================================================================================================= */
 	DWORD64 p_CommandExecute = /*0x140202090*/ reinterpret_cast<DWORD64>(PatternScan("r5apex.exe", "48 89 5C 24 ? 57 48 83 EC 20 48 8D 0D ? ? ? ? 41 8B D8"));
-	void (*CommandExecute)(void* self, const char* cmd) = (void (*)(void*, const char*))p_CommandExecute;
+	void (*org_CommandExecute)(void* self, const char* cmd) = (void (*)(void*, const char*))p_CommandExecute;
 
 	DWORD64 p_ConVar_IsFlagSet = /*0x14046FE90*/ reinterpret_cast<DWORD64>(PatternScan("r5apex.exe", "48 8B 41 48 85 50 38"));
-	bool (*ConVar_IsFlagSet)(int** cvar, int flag) = (bool (*)(int**, int))p_ConVar_IsFlagSet;
+	bool (*org_ConVar_IsFlagSet)(int** cvar, int flag) = (bool (*)(int**, int))p_ConVar_IsFlagSet;
 
 	DWORD64 p_ConCommand_IsFlagSet = /*0x14046F490*/ reinterpret_cast<DWORD64>(PatternScan("r5apex.exe", "85 51 38 0F 95 C0 C3"));
-	bool (*ConCommand_IsFlagSet)(int* cmd, int flag) = (bool (*)(int*, int))p_ConCommand_IsFlagSet; 
+	bool (*org_ConCommand_IsFlagSet)(int* cmd, int flag) = (bool (*)(int*, int))p_ConCommand_IsFlagSet; 
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/* ==== SQUIRREL ======================================================================================================================================================== */

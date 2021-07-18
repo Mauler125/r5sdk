@@ -136,12 +136,12 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 		if (sCommand == "console test") { g_bDebugConsole = !g_bDebugConsole; continue; }
 		///////////////////////////////////////////////////////////////////////
 		// Exec toggles
-		if (sCommand == "1") { ToggleDevCommands(); CommandExecute(NULL, "exec autoexec_dev"); }
+		if (sCommand == "1") { ToggleDevCommands(); org_CommandExecute(NULL, "exec autoexec_dev"); }
 		if (sCommand == "2") { g_bDebugLoading = !g_bDebugLoading; continue; }
 
 		///////////////////////////////////////////////////////////////////////
 		// Execute the command in the r5 SQVM
-		CommandExecute(NULL, sCommand.c_str());
+		org_CommandExecute(NULL, sCommand.c_str());
 		sCommand.clear();
 
 		///////////////////////////////////////////////////////////////////////
@@ -165,8 +165,8 @@ void RemoveCMHooks()
 
 	///////////////////////////////////////////////////////////////////////////
 	// Unhook Console functions
-	DetourDetach((LPVOID*)&ConVar_IsFlagSet, &HConVar_IsFlagSet);
-	DetourDetach((LPVOID*)&ConCommand_IsFlagSet, &HConCommand_IsFlagSet);
+	DetourDetach((LPVOID*)&org_ConVar_IsFlagSet, &HConVar_IsFlagSet);
+	DetourDetach((LPVOID*)&org_ConCommand_IsFlagSet, &HConCommand_IsFlagSet);
 
 	///////////////////////////////////////////////////////////////////////////
 	// Commit the transaction
@@ -186,8 +186,8 @@ void ToggleDevCommands()
 
 	if (!g_dev)
 	{
-		DetourAttach((LPVOID*)&ConVar_IsFlagSet, &HConVar_IsFlagSet);
-		DetourAttach((LPVOID*)&ConCommand_IsFlagSet, &HConCommand_IsFlagSet);
+		DetourAttach((LPVOID*)&org_ConVar_IsFlagSet, &HConVar_IsFlagSet);
+		DetourAttach((LPVOID*)&org_ConCommand_IsFlagSet, &HConCommand_IsFlagSet);
 		printf("\n");
 		printf("+--------------------------------------------------------+\n");
 		printf("|>>>>>>>>>>>>>| DEVONLY COMMANDS ACTIVATED |<<<<<<<<<<<<<|\n");
@@ -197,8 +197,8 @@ void ToggleDevCommands()
 	}
 	else
 	{
-		DetourDetach((LPVOID*)&ConVar_IsFlagSet, &HConVar_IsFlagSet);
-		DetourDetach((LPVOID*)&ConCommand_IsFlagSet, &HConCommand_IsFlagSet);
+		DetourDetach((LPVOID*)&org_ConVar_IsFlagSet, &HConVar_IsFlagSet);
+		DetourDetach((LPVOID*)&org_ConCommand_IsFlagSet, &HConCommand_IsFlagSet);
 		printf("\n");
 		printf("+--------------------------------------------------------+\n");
 		printf("|>>>>>>>>>>>>| DEVONLY COMMANDS DEACTIVATED |<<<<<<<<<<<<|\n");

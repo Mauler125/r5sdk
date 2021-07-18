@@ -279,7 +279,7 @@ void CGameConsole::ProcessCommand(const char* command_line)
 
 void CGameConsole::ExecCommand(const char* command_line)
 {
-    CommandExecute(NULL, command_line);
+    org_CommandExecute(NULL, command_line);
 }
 
 ///////////////////////////////////////////////////////////////////////////
