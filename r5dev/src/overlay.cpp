@@ -377,7 +377,9 @@ void CCompanion::UpdateHostingStatus()
     switch (HostingStatus)
     {
     case EHostStatus::NotHosting: 
-    { 
+    {
+        HostRequestMessage = "";
+        HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
         break; 
     }
     case EHostStatus::Hosting:
