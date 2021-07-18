@@ -291,12 +291,15 @@
     <ClInclude Include="include\enums.h" />
     <ClInclude Include="include\gameclasses.h" />
     <ClInclude Include="include\hooks.h" />
+    <ClInclude Include="include\httplib.h" />
     <ClInclude Include="include\id3dx.h" />
     <ClInclude Include="include\input.h" />
+    <ClInclude Include="include\json.hpp" />
     <ClInclude Include="include\opcptc.h" />
     <ClInclude Include="include\overlay.h" />
     <ClInclude Include="include\patterns.h" />
     <ClInclude Include="include\r5dev.h" />
+    <ClInclude Include="include\serverlisting.h" />
     <ClInclude Include="include\structs.h" />
     <ClInclude Include="include\utility.h" />
   </ItemGroup>
@@ -315,6 +318,7 @@
     <ClCompile Include="src\input.cpp" />
     <ClCompile Include="src\opcptc.cpp" />
     <ClCompile Include="src\overlay.cpp" />
+    <ClCompile Include="src\serverlisting.cpp" />
     <ClCompile Include="src\utility.cpp" />
   </ItemGroup>
   <ItemGroup>

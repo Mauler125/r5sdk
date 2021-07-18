@@ -1,19 +1,26 @@
+
+#include "overlay.h"
 #include <thread>
 #include <fstream>
 
 #include <stdio.h>
+#include "httplib.h"
 #include <windows.h>
 #include <detours.h>
-
 #include "hooks.h"
 #include "id3dx.h"
-#include "overlay.h"
 #include "console.h"
 #include "patterns.h"
 
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_win32.h"
+#include <filesystem>
+#include <thread>
+#include <sstream>
+
+#include <shlobj.h>
+#include <objbase.h>
 
 /*-----------------------------------------------------------------------------
  * _overlay.cpp
@@ -48,6 +55,7 @@ public:
         Commands.push_back("HISTORY");
         Commands.push_back("CLEAR");
         Commands.push_back("CLASSIFY");
+
 
         AddLog("[DEBUG] THREAD ID: %ld\n", g_dThreadId);
     }
@@ -334,8 +342,12 @@ public:
         {// Auto focus previous widget
             ImGui::SetKeyboardFocusHere(-1);
         }
+
         ImGui::End();
     }
+
+    
+
 
     ///////////////////////////////////////////////////////////////////////////
     // Exec
@@ -442,6 +454,372 @@ public:
     }
 };
 
+
+CCompanion::CCompanion()
+{
+    memset(MatchmakingServerStringBuffer, 0, sizeof(MatchmakingServerStringBuffer));
+    memset(ServerNameBuffer, 0, sizeof(ServerNameBuffer));
+    memset(ServerConnStringBuffer, 0, sizeof(ServerConnStringBuffer));
+       
+
+    strcpy_s(MatchmakingServerStringBuffer, "r5a-comp-sv.herokuapp.com");
+
+
+    std::string path = "stbsp";
+    for (const auto& entry : std::filesystem::directory_iterator(path))
+    {
+        std::string filename = entry.path().string();
+        int slashPos = filename.rfind("\\", std::string::npos);
+        filename = filename.substr((INT8)slashPos + 1, std::string::npos);
+        filename = filename.substr(0, filename.size() - 6);
+        MapsList.push_back(filename);
+    }
+
+        SelectedMap = &MapsList[0];
+
+        //RefreshServerList();
+
+        static std::thread HostingServerRequestThread([this]() 
+        {
+            while(true)
+            {
+                UpdateHostingStatus();
+                std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+            }
+        });
+        HostingServerRequestThread.detach();
+
+}
+
+    void CCompanion::UpdateHostingStatus()
+    {
+        std::string lastMap = GetGameStateLastMap();
+
+        switch(HostingStatus)
+        {
+            case EHostStatus::NotHosting: 
+            { 
+                if(lastMap != "no_map" && lastMap != "")
+                    HostingStatus = EHostStatus::ConnectedToSomeoneElse;
+                break; 
+            }
+            case EHostStatus::WaitingForStateChange: 
+            {
+                if(lastMap != "no_map" && lastMap != "")
+                    HostingStatus = EHostStatus::Hosting;
+                break;
+            }
+            case EHostStatus::Hosting:
+            {
+                if (lastMap == "no_map" || lastMap == "")
+                    HostingStatus = EHostStatus::NotHosting;
+                else SendHostingPostRequest();
+                break;
+            }
+            case EHostStatus::ConnectedToSomeoneElse:
+            {
+                if(lastMap == "no_map" || lastMap == "")
+                {
+                    HostingStatus = EHostStatus::NotHosting;
+                }
+                break;
+            }
+        }
+    }
+
+    std::string CCompanion::GetGameStateLastMap()
+    {
+
+        // I know you're gonna comment abt this function; but I dont think it's necessary to include a fully-fledged VDF parser for now
+
+        wchar_t* savedGamesPath = new wchar_t[256];
+
+        SHGetKnownFolderPath(FOLDERID_SavedGames, KF_FLAG_CREATE, nullptr, &savedGamesPath);
+
+        if (savedGamesPath == nullptr) return "";
+
+        std::wstringstream filePath;
+
+        filePath << savedGamesPath;
+        filePath << "\\Respawn\\Apex\\local\\previousgamestate.txt";
+
+        CoTaskMemFree(static_cast<void*>(savedGamesPath));
+
+        std::ifstream f(filePath.str());
+        std::string line;
+
+
+        for(int i = 0; i < 7; i++)
+        {
+            std::getline(f, line);
+        }
+        
+        // returns the substring of the line that contains only the map name
+        return line.substr(35, line.size() - 35 - 1);
+        
+
+    }
+
+    void CCompanion::RefreshServerList()
+    {
+        ServerList.clear();
+
+        static bool bThreadLocked = false;
+
+        if (!bThreadLocked) {
+            std::thread t([this]() {
+                std::cout << "Refreshing server list with string" << MatchmakingServerStringBuffer << std::endl;
+                bThreadLocked = true;
+                httplib::Client client(MatchmakingServerStringBuffer);
+                client.set_connection_timeout(10);
+                auto res = client.Get("/servers");
+                if (res)
+                {
+                    json root = json::parse(res->body);
+                    for (auto obj : root["servers"])
+                    {
+                        ServerList.push_back(
+                            new ServerListing(obj["name"], obj["map"], obj["ip"], obj["version"], obj["expire"])
+                        );
+                    }
+                }
+                bThreadLocked = false;
+            });
+
+            t.detach();
+        }
+        
+        
+
+        
+    }
+
+    void CCompanion::SendHostingPostRequest() 
+    {
+        httplib::Client client(MatchmakingServerStringBuffer);
+        client.set_connection_timeout(10);
+        // send a post request to "/servers/add" with a json body
+        json body = json::object();
+        body["name"] = ServerNameBuffer;
+        body["map"] = *SelectedMap;
+        body["version"] = "1.0";
+
+        std::string body_str = body.dump();
+
+        std::cout << body_str << "\n";
+
+        auto res = client.Post("/servers/add", body_str.c_str(), body_str.length(), "application/json");
+        if (res)
+        {
+            std::cout << "Hosting Request Result: " << res->body << "\n";
+        }
+    }
+
+
+    void CCompanion::SetSection(ESection section)
+    {
+        CurrentSection = section;
+    }
+    
+    
+    void CCompanion::CompMenu()
+    {
+        ImGui::BeginTabBar("CompMenu");
+        if (ImGui::TabItemButton("Server Browser"))
+        {
+            SetSection(ESection::ServerBrowser);
+        }
+        if (ImGui::TabItemButton("Host Server"))
+        {
+            SetSection(ESection::HostServer);
+        }
+        if (ImGui::TabItemButton("Settings"))
+        {
+            SetSection(ESection::Settings);
+        }
+        ImGui::EndTabBar();
+    }
+
+    void CCompanion::ServerBrowserSection()
+    {
+
+        ImGui::BeginGroup();
+        ServerBrowserFilter.Draw();
+        ImGui::SameLine();
+        if (ImGui::Button("Refresh List"))
+        {
+            RefreshServerList();
+        }
+        ImGui::EndGroup();
+        ImGui::Separator();
+
+        ImGui::BeginChild("ServerListChild", { 0, 780 }, false, ImGuiWindowFlags_HorizontalScrollbar);
+
+        ImGui::BeginTable("bumbumceau", 6);
+
+        ImGui::TableSetupColumn("Name", 0, 35);
+        ImGui::TableSetupColumn("IP Address", 0, 20);
+        ImGui::TableSetupColumn("Map", 0, 25);
+        ImGui::TableSetupColumn("Version", 0, 10);
+        ImGui::TableSetupColumn("Expiry", 0, 10);
+        ImGui::TableSetupColumn("", 0, 8);
+        ImGui::TableHeadersRow();
+
+        for (ServerListing* server : ServerList)
+        {
+            const char* name = server->name.c_str();
+            const char* ip = server->ip.c_str();
+            const char* map = server->map.c_str();
+            const char* version = server->version.c_str();
+            int expiry = server->expiry;
+
+            if (ServerBrowserFilter.PassFilter(name) 
+                || ServerBrowserFilter.PassFilter(ip)
+                || ServerBrowserFilter.PassFilter(map)
+                || ServerBrowserFilter.PassFilter(version))
+            {
+                ImGui::TableNextColumn();
+                ImGui::Text(name);
+                ImGui::TableNextColumn();
+
+                ImGui::Text(ip);
+                ImGui::TableNextColumn();
+
+                ImGui::Text(map);
+                ImGui::TableNextColumn();
+
+                ImGui::Text(version);
+                ImGui::TableNextColumn();
+
+                std::stringstream expirySS;
+                expirySS << expiry << " seconds left";
+                ImGui::Text(expirySS.str().c_str());
+                ImGui::TableNextColumn();
+
+                std::string selectButtonText = "Connect##";
+                selectButtonText += (server->name + server->ip + server->map);
+
+                if (ImGui::Button(selectButtonText.c_str()))
+                {
+                    SelectedServer = server;
+                    server->Select();
+                }
+            }
+            
+        }
+
+        ImGui::EndTable();
+        ImGui::EndChild();
+
+        ImGui::Separator();
+        ImGui::InputTextWithHint("##ServerBrowser_ServerConnString", "Enter an ip address or \"localhost\"", ServerConnStringBuffer, IM_ARRAYSIZE(ServerConnStringBuffer));
+        ImGui::SameLine();
+        if (ImGui::Button("Connect to the server", ImVec2(ImGui::GetWindowSize().x * (1.f / 3.f), 19)))
+        {
+            std::stringstream cmd;
+            cmd << "connect " << ServerConnStringBuffer;
+            RunConsoleCommand(cmd.str().c_str());
+        }
+    }
+
+    void CCompanion::HostServerSection() 
+    {
+        ImGui::InputTextWithHint("Server Name##ServerHost_ServerName", "Required Field", ServerNameBuffer, IM_ARRAYSIZE(ServerNameBuffer));
+        ImGui::Spacing();
+        if (ImGui::BeginCombo("Map##ServerHost_MapListBox", SelectedMap->c_str()))
+        {
+            for (auto& item : MapsList)
+            {
+                if (ImGui::Selectable(item.c_str(), &item == SelectedMap))
+                {
+                    SelectedMap = &item;
+                }
+            }
+            ImGui::EndCombo();
+        }
+        ImGui::Spacing();
+        
+        ImGui::Checkbox("Start as dedicated server (HACK)##ServerHost_DediCheckbox", &StartAsDedi);
+
+        ImGui::Separator();
+        
+        if (ImGui::Button("Start The Server##ServerHost_StartServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
+        {
+
+            if (strcmp(ServerNameBuffer, "") != 0)
+            {
+                UpdateHostingStatus();
+                if(HostingStatus == EHostStatus::NotHosting)
+                    HostingStatus = EHostStatus::WaitingForStateChange;
+                UpdateHostingStatus();
+
+                std::stringstream cmd;
+                cmd << "map " << SelectedMap->c_str();
+                RunConsoleCommand(cmd.str());
+                if (StartAsDedi)
+                {
+                    ToggleDevCommands();
+                }
+                
+            }
+        }
+        if (strcmp(ServerNameBuffer, "") == 0) ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), "ERROR: Please specify a name for the server!");
+        if (StartAsDedi)
+        {
+            if (ImGui::Button("Reload Scripts##ServerHost_ReloadServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
+            {
+                RunConsoleCommand("reparse_weapons");
+                RunConsoleCommand("reload");
+            }
+            if (ImGui::Button("Stop The Server##ServerHost_StopServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
+            {
+                RunConsoleCommand("disconnect");
+            }
+        }
+        
+
+    }
+
+    void CCompanion::SettingsSection() 
+    {
+        ImGui::InputText("Matchmaking Server String", MatchmakingServerStringBuffer, IM_ARRAYSIZE(MatchmakingServerStringBuffer), 0);
+    }
+
+
+    void CCompanion::Draw(const char* title, bool* p_open)
+    {
+        ImGui::SetNextWindowSize(ImVec2(800, 890), ImGuiCond_FirstUseEver);
+        ImGui::SetWindowPos(ImVec2(-500, 50), ImGuiCond_FirstUseEver);
+
+        if (!ImGui::Begin(title, NULL))
+        {
+            ImGui::End(); return;
+        }
+        ///////////////////////////////////////////////////////////////////////
+        CompMenu();
+
+        switch (CurrentSection)
+        {
+        case ESection::ServerBrowser:
+            ServerBrowserSection();
+            break;
+
+        case ESection::HostServer:
+            HostServerSection();
+            break;
+
+        case ESection::Settings:
+            SettingsSection();
+            break;
+
+
+        default:
+            break;
+        }
+
+        ImGui::End();
+    }
+
 //#############################################################################
 // INTERNALS
 //#############################################################################
@@ -476,6 +854,7 @@ void  Strtrim(char* s)
     char* str_end = s + strlen(s); while (str_end > s && str_end[-1] == ' ') str_end--; *str_end = 0;
 }
 
+
 //#############################################################################
 // ENTRYPOINT
 //#############################################################################
@@ -483,5 +862,14 @@ void  Strtrim(char* s)
 void ShowGameConsole(bool* p_open)
 {
     static CGameConsole console;
+    static CCompanion browser;
     console.Draw("Console", p_open);
+    browser.Draw("Companion", p_open);
+}
+
+
+void RunConsoleCommand(std::string command)
+{
+    static CGameConsole console;
+    console.ProcessCommand(command.c_str());
 }
