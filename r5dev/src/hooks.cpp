@@ -16,7 +16,7 @@
 
 bool HNET_ReceiveDatagram(int sock, void* inpacket, bool raw)
 {
-	bool result = NET_ReceiveDatagram(sock, inpacket, raw);
+	bool result = org_NET_ReceiveDatagram(sock, inpacket, raw);
 	if (result)
 	{
 		int i = NULL;
@@ -32,7 +32,7 @@ bool HNET_ReceiveDatagram(int sock, void* inpacket, bool raw)
 
 unsigned int HNET_SendDatagram(SOCKET s, const char* buf, int len, int flags)
 {
-	unsigned int result = NET_SendDatagram(s, buf, len, flags);
+	unsigned int result = org_NET_SendDatagram(s, buf, len, flags);
 	if (result)
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -49,16 +49,12 @@ unsigned int HNET_SendDatagram(SOCKET s, const char* buf, int len, int flags)
 
 void __fastcall HCHLClient__FrameStageNotify(CHLClient* rcx, ClientFrameStage_t curStage) /* __fastcall so we can make sure first argument will be RCX and second RDX. */
 {
-	static CHostState* HostState = reinterpret_cast<CHostState*>(0x141736120);
-
 	switch (curStage)
 	{
 	case FRAME_START: // FrameStageNotify gets called every frame by CEngine::Frame with the stage being FRAME_START. We can use this to check/set global variables.
 	{
-		if (HostState->m_bWaitingForConnection) // Easy way to check if we are DEDI.
-		{
-		//	printf("AWAITING CONNECTION\n");
-		}
+		if (!GameGlobals::IsInitialized)
+			GameGlobals::InitGameGlobals();
 
 		break;
 	}
@@ -66,7 +62,7 @@ void __fastcall HCHLClient__FrameStageNotify(CHLClient* rcx, ClientFrameStage_t 
 		break;
 	}
 
-	CHLClient_FrameStageNotify(rcx, curStage);
+	org_CHLClient_FrameStageNotify(rcx, curStage);
 }
 
 //#################################################################################
@@ -103,14 +99,14 @@ __int64 HSQVM_LoadRson(const char* rson_name)
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Returns the new path if the rson exists on the disk
-	if (FileExists(filepath) && SQVM_LoadRson(rson_name))
+	if (FileExists(filepath) && org_SQVM_LoadRson(rson_name))
 	{
 		printf("\n");
 		printf("##################################################\n");
 		printf("] '%s'\n", filepath);
 		printf("##################################################\n");
 		printf("\n");
-		return SQVM_LoadRson(filepath);
+		return org_SQVM_LoadRson(filepath);
 	}
 	else
 	{
@@ -119,7 +115,7 @@ __int64 HSQVM_LoadRson(const char* rson_name)
 		printf("] '%s'\n", rson_name);
 		printf("##################################################\n");
 		printf("\n");
-		return SQVM_LoadRson(rson_name);
+		return org_SQVM_LoadRson(rson_name);
 	}
 }
 
@@ -143,7 +139,7 @@ bool HSQVM_LoadScript(void* sqvm, const char* script_path, const char* script_na
 	}
 	///////////////////////////////////////////////////////////////////////////////
 	// Returns true if the script exists on the disk
-	if (FileExists(filepath) && SQVM_LoadScript(sqvm, filepath, script_name, flag))
+	if (FileExists(filepath) && org_SQVM_LoadScript(sqvm, filepath, script_name, flag))
 	{
 		return true;
 	}
@@ -151,7 +147,7 @@ bool HSQVM_LoadScript(void* sqvm, const char* script_path, const char* script_na
 	{
 		printf(" [!] FAILED. Try SP / VPK for '%s'\n", filepath);
 	}
-	return SQVM_LoadScript(sqvm, script_path, script_name, flag);
+	return org_SQVM_LoadScript(sqvm, script_path, script_name, flag);
 }
 
 //#################################################################################
@@ -166,7 +162,7 @@ int HMSG_EngineError(char* fmt, va_list args)
 	vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
 	buf[IM_ARRAYSIZE(buf) - 1] = 0;
 	Items.push_back(Strdup(buf));
-	return MSG_EngineError(fmt, args);
+	return org_MSG_EngineError(fmt, args);
 }
 
 //#################################################################################
@@ -182,17 +178,17 @@ void InstallENHooks()
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Hook Squirrel functions
-	DetourAttach((LPVOID*)&SQVM_Print, &HSQVM_Print);
-	DetourAttach((LPVOID*)&SQVM_LoadRson, &HSQVM_LoadRson);
-	DetourAttach((LPVOID*)&SQVM_LoadScript, &HSQVM_LoadScript);
+	DetourAttach((LPVOID*)&org_SQVM_Print, &HSQVM_Print);
+	DetourAttach((LPVOID*)&org_SQVM_LoadRson, &HSQVM_LoadRson);
+	DetourAttach((LPVOID*)&org_SQVM_LoadScript, &HSQVM_LoadScript);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Hook Game Functions
-	DetourAttach((LPVOID*)&CHLClient_FrameStageNotify, &HCHLClient__FrameStageNotify);
+	DetourAttach((LPVOID*)&org_CHLClient_FrameStageNotify, &HCHLClient__FrameStageNotify);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Hook Utility functions
-	DetourAttach((LPVOID*)&MSG_EngineError, &HMSG_EngineError);
+	DetourAttach((LPVOID*)&org_MSG_EngineError, &HMSG_EngineError);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Commit the transaction
@@ -212,22 +208,22 @@ void RemoveENHooks()
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook Squirrel functions
-	DetourDetach((LPVOID*)&SQVM_Print, &HSQVM_Print);
-	DetourDetach((LPVOID*)&SQVM_LoadRson, &HSQVM_LoadRson);
-	DetourDetach((LPVOID*)&SQVM_LoadScript, &HSQVM_LoadScript);
+	DetourDetach((LPVOID*)&org_SQVM_Print, &HSQVM_Print);
+	DetourDetach((LPVOID*)&org_SQVM_LoadRson, &HSQVM_LoadRson);
+	DetourDetach((LPVOID*)&org_SQVM_LoadScript, &HSQVM_LoadScript);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook Game Functions
-	DetourDetach((LPVOID*)&CHLClient_FrameStageNotify, &HCHLClient__FrameStageNotify);
+	DetourDetach((LPVOID*)&org_CHLClient_FrameStageNotify, &HCHLClient__FrameStageNotify);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook Netchan functions
-	DetourDetach((LPVOID*)&NET_SendDatagram, &HNET_SendDatagram);
-	DetourDetach((LPVOID*)&NET_ReceiveDatagram, &HNET_ReceiveDatagram);
+	DetourDetach((LPVOID*)&org_NET_SendDatagram, &HNET_SendDatagram);
+	DetourDetach((LPVOID*)&org_NET_ReceiveDatagram, &HNET_ReceiveDatagram);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook Utility functions
-	DetourDetach((LPVOID*)&MSG_EngineError, &HMSG_EngineError);
+	DetourDetach((LPVOID*)&org_MSG_EngineError, &HMSG_EngineError);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Commit the transaction
@@ -247,8 +243,8 @@ void ToggleNetHooks()
 
 	if (!g_net)
 	{
-		DetourAttach((LPVOID*)&NET_SendDatagram, &HNET_SendDatagram);
-		DetourAttach((LPVOID*)&NET_ReceiveDatagram, &HNET_ReceiveDatagram);
+		DetourAttach((LPVOID*)&org_NET_SendDatagram, &HNET_SendDatagram);
+		DetourAttach((LPVOID*)&org_NET_ReceiveDatagram, &HNET_ReceiveDatagram);
 		printf("\n");
 		printf("+--------------------------------------------------------+\n");
 		printf("|>>>>>>>>>>>>>| NETCHANNEL TRACE ACTIVATED |<<<<<<<<<<<<<|\n");
@@ -257,8 +253,8 @@ void ToggleNetHooks()
 	}
 	else
 	{
-		DetourDetach((LPVOID*)&NET_SendDatagram, &HNET_SendDatagram);
-		DetourDetach((LPVOID*)&NET_ReceiveDatagram, &HNET_ReceiveDatagram);
+		DetourDetach((LPVOID*)&org_NET_SendDatagram, &HNET_SendDatagram);
+		DetourDetach((LPVOID*)&org_NET_ReceiveDatagram, &HNET_ReceiveDatagram);
 		printf("\n");
 		printf("+--------------------------------------------------------+\n");
 		printf("|>>>>>>>>>>>>| NETCHANNEL TRACE DEACTIVATED |<<<<<<<<<<<<|\n");

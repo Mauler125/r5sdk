@@ -516,3 +516,15 @@ public:
 		(*reinterpret_cast<OriginalFn**>(this))[58](this, curStage); /* 48 83 EC 28 89 15 ? ? ? ? */
 	}
 };
+
+/////////////////////////////////////////////////////////////////////////////
+// Initialize Game Globals
+
+namespace GameGlobals
+{
+	extern CHostState* HostState;
+	extern CInputSystem* InputSystem;
+
+	void InitGameGlobals();
+	extern bool IsInitialized;
+}

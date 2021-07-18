@@ -4,7 +4,6 @@
 
 class ServerListing
 {
-	
 public:
 
 	std::string name;
@@ -14,6 +13,6 @@ public:
 	int expiry;
 
 	ServerListing(std::string name, std::string map, std::string ip, std::string version, int expiry);
-	bool Select();
+	void Select();
 };
 

@@ -11,10 +11,9 @@ ServerListing::ServerListing(std::string name, std::string map, std::string ip, 
 	this->expiry = expiry;
 }
 
-bool ServerListing::Select()
+void ServerListing::Select()
 {
 	std::stringstream cmd;
 	cmd << "connect " << this->ip;
-	RunConsoleCommand(cmd.str().c_str());
-	return true;
+	g_GameConsole->ProcessCommand(cmd.str().c_str());
 }
