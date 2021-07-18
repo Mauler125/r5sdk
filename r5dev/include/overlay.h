@@ -179,6 +179,8 @@ public:
     ////////////////////
     std::vector<std::string> MapsList;
     std::string* SelectedMap = nullptr;
+    std::string HostRequestMessage;
+    ImVec4 HostRequestMessageColor;
     char ServerNameBuffer[64] = { 0 };
     bool StartAsDedi;
 

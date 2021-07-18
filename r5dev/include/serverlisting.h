@@ -10,9 +10,8 @@ public:
 	std::string map;
 	std::string ip;
 	std::string version;
-	int expiry;
 
-	ServerListing(std::string name, std::string map, std::string ip, std::string version, int expiry);
+	ServerListing(std::string name, std::string map, std::string ip, std::string version);
 	void Select();
 };
 
