@@ -377,7 +377,9 @@ void CCompanion::UpdateHostingStatus()
     switch (HostingStatus)
     {
     case EHostStatus::NotHosting: 
-    { 
+    {
+        HostRequestMessage = "";
+        HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
         break; 
     }
     case EHostStatus::Hosting:
@@ -413,7 +415,7 @@ void CCompanion::RefreshServerList()
                 for (auto obj : root["servers"])
                 {
                     ServerList.push_back(
-                        new ServerListing(obj["name"], obj["map"], obj["ip"], obj["version"], obj["expire"])
+                        new ServerListing(obj["name"], obj["map"], obj["ip"], obj["version"])
                     );
                 }
             }
@@ -435,6 +437,7 @@ void CCompanion::SendHostingPostRequest(char* mapName)
     body["map"] = mapName;
     body["version"] = "1.0";
 
+
     std::string body_str = body.dump();
 
 #ifdef DebugOverlay
@@ -446,6 +449,23 @@ void CCompanion::SendHostingPostRequest(char* mapName)
     if (result)
     {
         std::cout << " [+CCompanion+] Request Result: " << result->body << "\n";
+        nlohmann::json res = nlohmann::json::parse(result->body);
+        if (!res["success"] && !res["err"].is_null())
+        {
+            HostRequestMessage = res["err"];
+            HostRequestMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+        } 
+        else if(res["success"] == true)
+        {
+            HostRequestMessage = "Hosting!";
+            HostRequestMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
+        }
+        else
+        {
+            HostRequestMessage = "";
+            HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+        }
+
     }
 #endif 
 }
@@ -482,47 +502,34 @@ void CCompanion::ServerBrowserSection()
 
     ImGui::BeginChild("ServerListChild", { 0, 780 }, false, ImGuiWindowFlags_HorizontalScrollbar);
     {
-        ImGui::BeginTable("bumbumceau", 6);
+        ImGui::BeginTable("##ServerBrowser_ServerList", 4);
         {
             ImGui::TableSetupColumn("Name", 0, 35);
-            ImGui::TableSetupColumn("IP Address", 0, 20);
             ImGui::TableSetupColumn("Map", 0, 25);
             ImGui::TableSetupColumn("Version", 0, 10);
-            ImGui::TableSetupColumn("Expiry", 0, 10);
             ImGui::TableSetupColumn("", 0, 8);
             ImGui::TableHeadersRow();
 
             for (ServerListing* server : ServerList)
             {
                 const char* name = server->name.c_str();
-                const char* ip = server->ip.c_str();
                 const char* map = server->map.c_str();
                 const char* version = server->version.c_str();
-                int expiry = server->expiry;
 
                 if (ServerBrowserFilter.PassFilter(name)
-                    || ServerBrowserFilter.PassFilter(ip)
                     || ServerBrowserFilter.PassFilter(map)
                     || ServerBrowserFilter.PassFilter(version))
                 {
                     ImGui::TableNextColumn();
                     ImGui::Text(name);
-                    ImGui::TableNextColumn();
 
-                    ImGui::Text(ip);
                     ImGui::TableNextColumn();
-
                     ImGui::Text(map);
-                    ImGui::TableNextColumn();
 
+                    ImGui::TableNextColumn();
                     ImGui::Text(version);
-                    ImGui::TableNextColumn();
 
-                    std::stringstream expirySS;
-                    expirySS << expiry << " seconds left";
-                    ImGui::Text(expirySS.str().c_str());
                     ImGui::TableNextColumn();
-
                     std::string selectButtonText = "Connect##";
                     selectButtonText += (server->name + server->ip + server->map);
 
@@ -573,23 +580,19 @@ void CCompanion::HostServerSection()
 
     if (ImGui::Button("Start The Server##ServerHost_StartServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
     {
-        if (strcmp(ServerNameBuffer, "") != 0)
+        UpdateHostingStatus();
+
+        std::stringstream cmd;
+        cmd << "map " << SelectedMap->c_str();
+        g_GameConsole->ProcessCommand(cmd.str().c_str());
+
+        if (StartAsDedi)
         {
-            UpdateHostingStatus();
-
-            std::stringstream cmd;
-            cmd << "map " << SelectedMap->c_str();
-            g_GameConsole->ProcessCommand(cmd.str().c_str());
-
-            if (StartAsDedi)
-            {
-                ToggleDevCommands();
-            }
+            ToggleDevCommands();
         }
     }
 
-    if (strcmp(ServerNameBuffer, "") == 0)
-        ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), "ERROR: Please specify a name for the server!");
+    ImGui::TextColored(HostRequestMessageColor, HostRequestMessage.c_str());
 
     if (StartAsDedi)
     {
