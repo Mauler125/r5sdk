@@ -1,8 +1,4 @@
 #pragma once
-#include <iostream>
-#include <iomanip>
-
-#include "utility.h"
 
 void InstallOpcodes();
 inline HANDLE GameProcess = GetCurrentProcess();

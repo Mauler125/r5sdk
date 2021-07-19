@@ -1,9 +1,5 @@
-#include <Windows.h>
-#include <Psapi.h>
-#include <stdio.h>
-
+#include "pch.h"
 #include "utility.h"
-#include "spdlog.h"
 #include "hooks.h"
 
 /*-----------------------------------------------------------------------------

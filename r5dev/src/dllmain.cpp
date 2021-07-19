@@ -1,13 +1,10 @@
-#include <Windows.h>
-#include <string>
-
+#include "pch.h"
 #include "r5dev.h"
 #include "id3dx.h"
 #include "input.h"
 #include "hooks.h"
 #include "opcptc.h"
 #include "console.h"
-#include "utility.h"
 #include "gameclasses.h"
 
 //#############################################################################

@@ -1,10 +1,5 @@
-#include <string>
-
-#include <Windows.h>
-#include <detours.h>
-
+#include "pch.h"
 #include "patterns.h"
-#include "utility.h"
 #include "structs.h"
 #include "overlay.h"
 #include "hooks.h"

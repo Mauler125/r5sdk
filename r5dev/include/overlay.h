@@ -1,8 +1,6 @@
 #pragma once
-#include "imgui.h"
 #include "serverlisting.h"
-#include "json.hpp"
-#include <vector>
+
 /////////////////////////////////////////////////////////////////////////////
 // Initialization
 void PrintDXAddress();

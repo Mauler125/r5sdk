@@ -1,10 +1,4 @@
-#include <iomanip>
-#include <iostream>
-
-#include <stdio.h>
-#include <d3d11.h>
-#include <windows.h>
-
+#include "pch.h"
 #include "id3dx.h"
 #include "input.h"
 #include "enums.h"
@@ -13,10 +7,6 @@
 #include "overlay.h"
 #include "patterns.h"
 #include "gameclasses.h"
-
-#include "imgui.h"
-#include "imgui_impl_dx11.h"
-#include "imgui_impl_win32.h"
 
 #pragma comment(lib, "d3d11.lib")
 

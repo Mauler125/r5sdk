@@ -1,7 +1,4 @@
 #pragma once
-#include <Windows.h>
-#include <Psapi.h>
-#include <sinks/basic_file_sink.h>
 
 /////////////////////////////////////////////////////////////////////////////
 // Internals

@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "gameclasses.h"
 
 namespace GameGlobals
