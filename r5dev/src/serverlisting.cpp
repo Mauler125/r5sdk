@@ -6,5 +6,5 @@ void ServerListing::Select()
 {
 	std::stringstream cmd;
 	cmd << "connect " << this->ip;
-	g_GameConsole->ProcessCommand(cmd.str().c_str());
+	g_ServerBrowser->ProcessCommand(cmd.str().c_str());
 }

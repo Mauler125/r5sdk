@@ -6,10 +6,10 @@
 #include "patterns.h"
 #include "gameclasses.h"
 
-
 #define DebugOverlay
 
 CGameConsole* g_GameConsole = nullptr;
+CCompanion* g_ServerBrowser = nullptr;
 
 /*-----------------------------------------------------------------------------
  * _overlay.cpp
@@ -194,6 +194,7 @@ void CGameConsole::Draw(const char* title)
         strcpy_s(s, sizeof(replace), replace);
         reclaim_focus = true;
     }
+
     ImGui::SameLine();
     if (ImGui::Button("Submit"))
     {
@@ -206,8 +207,10 @@ void CGameConsole::Draw(const char* title)
 
     // Auto-focus on window apparition
     ImGui::SetItemDefaultFocus();
+
+    // Auto focus previous widget
     if (reclaim_focus)
-    {// Auto focus previous widget
+    {
         ImGui::SetKeyboardFocusHere(-1);
     }
 
@@ -319,7 +322,6 @@ int CGameConsole::TextEditCallback(ImGuiInputTextCallbackData* data)
 
 ///////////////////////////////////////////////////////////////////////////
 // Companion
-
 CCompanion::CCompanion()
 {
     memset(MatchmakingServerStringBuffer, 0, sizeof(MatchmakingServerStringBuffer));
@@ -487,9 +489,9 @@ void CCompanion::ServerBrowserSection()
     ImGui::EndGroup();
     ImGui::Separator();
 
-    ImGui::BeginChild("ServerListChild", { 0, 780 }, false, ImGuiWindowFlags_HorizontalScrollbar);
+    ImGui::BeginChild("ServerListChild", { 0, 780 }, true, ImGuiWindowFlags_NoScrollbar);
     {
-        ImGui::BeginTable("##ServerBrowser_ServerList", 4);
+        ImGui::BeginTable("##ServerBrowser_ServerList", 4, ImGuiWindowFlags_None);
         {
             ImGui::TableSetupColumn("Name", 0, 35);
             ImGui::TableSetupColumn("Map", 0, 25);
@@ -535,12 +537,14 @@ void CCompanion::ServerBrowserSection()
 
     ImGui::Separator();
     ImGui::InputTextWithHint("##ServerBrowser_ServerConnString", "Enter an ip address or \"localhost\"", ServerConnStringBuffer, IM_ARRAYSIZE(ServerConnStringBuffer));
+
     ImGui::SameLine();
     if (ImGui::Button("Connect to the server", ImVec2(ImGui::GetWindowSize().x * (1.f / 3.f), 19)))
     {
+        //const char* replace = ""; // For history pos soon
         std::stringstream cmd;
         cmd << "connect " << ServerConnStringBuffer;
-        g_GameConsole->ProcessCommand(cmd.str().c_str());
+        //strcpy_s(ServerConnStringBuffer, sizeof(replace), replace); // For history pos soon
     }
 }
 
@@ -580,7 +584,7 @@ void CCompanion::HostServerSection()
 
             std::stringstream cmd;
             cmd << "map " << SelectedMap->c_str();
-            g_GameConsole->ProcessCommand(cmd.str().c_str());
+            ProcessCommand(cmd.str().c_str());
 
             if (StartAsDedi)
             {
@@ -600,12 +604,12 @@ void CCompanion::HostServerSection()
     {
         if (ImGui::Button("Reload Scripts##ServerHost_ReloadServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
-            g_GameConsole->ProcessCommand("reparse_weapons");
-            g_GameConsole->ProcessCommand("reload");
+            ProcessCommand("reparse_weapons");
+            ProcessCommand("reload");
         }
         if (ImGui::Button("Stop The Server##ServerHost_StopServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
-            g_GameConsole->ProcessCommand("disconnect");
+            ProcessCommand("disconnect");
         }
     }
 }
@@ -626,7 +630,7 @@ void CCompanion::Draw(const char* title)
     ImGui::SetNextWindowSize(ImVec2(800, 890), ImGuiCond_FirstUseEver);
     ImGui::SetWindowPos(ImVec2(-500, 50), ImGuiCond_FirstUseEver);
 
-    if (!ImGui::Begin(title, NULL))
+    if (!ImGui::Begin(title, NULL, ImGuiWindowFlags_NoScrollbar))
     {
         ImGui::End();
         return;
@@ -652,8 +656,27 @@ void CCompanion::Draw(const char* title)
     ImGui::End();
 }
 
-///////////////////////////////////////////////////////////////////////////
-// Internals
+void CCompanion::ProcessCommand(const char* command_line)
+{
+    std::thread t(&CCompanion::ExecCommand, this, command_line);
+    t.detach();
+
+    // HACK: This is to avoid a race condition.
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+    // TODO:
+    //ScrollToBottom = true;
+}
+
+void CCompanion::ExecCommand(const char* command_line)
+{
+    org_CommandExecute(NULL, command_line);
+}
+
+//#############################################################################
+// INTERNALS
+//#############################################################################
+
 int Stricmp(const char* s1, const char* s2)
 {
     int d;
@@ -708,5 +731,9 @@ void DrawConsole()
 void DrawBrowser()
 {
     static CCompanion browser;
+    static bool AssignPtr = []() {
+        g_ServerBrowser = &browser;
+        return true;
+    } ();
     browser.Draw("Companion");
 }
