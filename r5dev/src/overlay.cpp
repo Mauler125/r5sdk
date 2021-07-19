@@ -605,8 +605,7 @@ void CCompanion::HostServerSection()
         }
         else
         {
-            HostRequestMessage = "No Server Name assigned.";
-            HostRequestMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+            ServerNameErr = "No Server Name assigned.";
         }
     }
 
