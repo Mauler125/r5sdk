@@ -126,10 +126,10 @@ void CGameConsole::Draw(const char* title)
 
         ///////////////////////////////////////////////////////////////////
         // General
-        if (strstr(item, "[INFO]")) { color = ImVec4(1.00f, 1.00f, 1.00f, 0.70f); has_color = true; }
-        if (strstr(item, "[ERROR]")) { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-        if (strstr(item, "[DEBUG]")) { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
-        if (strstr(item, "[WARNING]")) { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
+        if (strstr(item, "[INFO]"))      { color = ImVec4(1.00f, 1.00f, 1.00f, 0.70f); has_color = true; }
+        if (strstr(item, "[ERROR]"))     { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+        if (strstr(item, "[DEBUG]"))     { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
+        if (strstr(item, "[WARNING]"))   { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
         if (strncmp(item, "# ", 2) == 0) { color = ImVec4(1.00f, 0.80f, 0.60f, 1.00f); has_color = true; }
 
         ///////////////////////////////////////////////////////////////////
@@ -138,24 +138,24 @@ void CGameConsole::Draw(const char* title)
 
         ///////////////////////////////////////////////////////////////////
         // Script errors
-        if (strstr(item, ".gnut")) { color = ImVec4(1.00f, 1.00f, 1.00f, 0.60f); has_color = true; }
-        if (strstr(item, ".nut")) { color = ImVec4(1.00f, 1.00f, 1.00f, 0.60f); has_color = true; }
-        if (strstr(item, "[CLIENT]")) { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-        if (strstr(item, "[SERVER]")) { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-        if (strstr(item, "[UI]")) { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-        if (strstr(item, "SCRIPT ERROR")) { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+        if (strstr(item, ".gnut"))          { color = ImVec4(1.00f, 1.00f, 1.00f, 0.60f); has_color = true; }
+        if (strstr(item, ".nut"))           { color = ImVec4(1.00f, 1.00f, 1.00f, 0.60f); has_color = true; }
+        if (strstr(item, "[CLIENT]"))       { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+        if (strstr(item, "[SERVER]"))       { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+        if (strstr(item, "[UI]"))           { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+        if (strstr(item, "SCRIPT ERROR"))   { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
         if (strstr(item, "SCRIPT COMPILE")) { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-        if (strstr(item, ".gnut #")) { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-        if (strstr(item, ".nut #")) { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-        if (strstr(item, " -> ")) { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+        if (strstr(item, ".gnut #"))        { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+        if (strstr(item, ".nut #"))         { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+        if (strstr(item, " -> "))           { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
 
         ///////////////////////////////////////////////////////////////////
         // Script debug
-        if (strstr(item, "CALLSTACK")) { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
-        if (strstr(item, "LOCALS")) { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
-        if (strstr(item, "*FUNCTION")) { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
-        if (strstr(item, "DIAGPRINTS")) { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
-        if (strstr(item, " File : ")) { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
+        if (strstr(item, "CALLSTACK"))   { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
+        if (strstr(item, "LOCALS"))      { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
+        if (strstr(item, "*FUNCTION"))   { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
+        if (strstr(item, "DIAGPRINTS"))  { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
+        if (strstr(item, " File : "))    { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
         if (strstr(item, "<><>GRX<><>")) { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
 
         ///////////////////////////////////////////////////////////////////
@@ -489,50 +489,49 @@ void CCompanion::ServerBrowserSection()
     ImGui::EndGroup();
     ImGui::Separator();
 
-    ImGui::BeginChild("ServerListChild", { 0, 780 }, true, ImGuiWindowFlags_NoScrollbar);
+    const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+    ImGui::BeginChild("ServerListChild", { 0, -footer_height_to_reserve }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+    ImGui::BeginTable("##ServerBrowser_ServerList", 4, ImGuiWindowFlags_None);
     {
-        ImGui::BeginTable("##ServerBrowser_ServerList", 4, ImGuiWindowFlags_None);
+        ImGui::TableSetupColumn("Name", 0, 35);
+        ImGui::TableSetupColumn("Map", 0, 25);
+        ImGui::TableSetupColumn("Version", 0, 10);
+        ImGui::TableSetupColumn("", 0, 8);
+        ImGui::TableHeadersRow();
+
+        for (ServerListing* server : ServerList)
         {
-            ImGui::TableSetupColumn("Name", 0, 35);
-            ImGui::TableSetupColumn("Map", 0, 25);
-            ImGui::TableSetupColumn("Version", 0, 10);
-            ImGui::TableSetupColumn("", 0, 8);
-            ImGui::TableHeadersRow();
+            const char* name = server->name.c_str();
+            const char* map = server->map.c_str();
+            const char* version = server->version.c_str();
 
-            for (ServerListing* server : ServerList)
+            if (ServerBrowserFilter.PassFilter(name)
+                || ServerBrowserFilter.PassFilter(map)
+                || ServerBrowserFilter.PassFilter(version))
             {
-                const char* name = server->name.c_str();
-                const char* map = server->map.c_str();
-                const char* version = server->version.c_str();
+                ImGui::TableNextColumn();
+                ImGui::Text(name);
 
-                if (ServerBrowserFilter.PassFilter(name)
-                    || ServerBrowserFilter.PassFilter(map)
-                    || ServerBrowserFilter.PassFilter(version))
+                ImGui::TableNextColumn();
+                ImGui::Text(map);
+
+                ImGui::TableNextColumn();
+                ImGui::Text(version);
+
+                ImGui::TableNextColumn();
+                std::string selectButtonText = "Connect##";
+                selectButtonText += (server->name + server->ip + server->map);
+
+                if (ImGui::Button(selectButtonText.c_str()))
                 {
-                    ImGui::TableNextColumn();
-                    ImGui::Text(name);
-
-                    ImGui::TableNextColumn();
-                    ImGui::Text(map);
-
-                    ImGui::TableNextColumn();
-                    ImGui::Text(version);
-
-                    ImGui::TableNextColumn();
-                    std::string selectButtonText = "Connect##";
-                    selectButtonText += (server->name + server->ip + server->map);
-
-                    if (ImGui::Button(selectButtonText.c_str()))
-                    {
-                        SelectedServer = server;
-                        server->Select();
-                    }
+                    SelectedServer = server;
+                    server->Select();
                 }
-
             }
+
         }
-        ImGui::EndTable();
     }
+    ImGui::EndTable();
     ImGui::EndChild();
 
     ImGui::Separator();
@@ -627,7 +626,7 @@ void CCompanion::Draw(const char* title)
         ThemeSet = true;
     }
 
-    ImGui::SetNextWindowSize(ImVec2(800, 890), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(840, 600), ImGuiCond_FirstUseEver);
     ImGui::SetWindowPos(ImVec2(-500, 50), ImGuiCond_FirstUseEver);
 
     if (!ImGui::Begin(title, NULL, ImGuiWindowFlags_NoScrollbar))
