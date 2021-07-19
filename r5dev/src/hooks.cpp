@@ -160,7 +160,7 @@ int HMSG_EngineError(char* fmt, va_list args)
 }
 
 // TODO: turn this into a playerstruct constructor if it ever becomes necessary
-bool HPersistence_IsReady(__int64 entidx, int client)
+bool HCVEngineClient_IsPersistenceDataAvailable(__int64 thisptr, int client)
 {
 	static bool isPersistenceVarSet[256];
 
@@ -182,7 +182,8 @@ bool HPersistence_IsReady(__int64 entidx, int client)
 		printf("\n");
 		isPersistenceVarSet[client] = true;
 	}
-	return org_Persistence_IsReady;
+
+	return org_CVEngineServer_IsPersistenceDataAvailable(thisptr, client);
 }
 
 //#################################################################################
@@ -209,7 +210,7 @@ void InstallENHooks()
 	///////////////////////////////////////////////////////////////////////////////
 	// Hook Utility functions
 	DetourAttach((LPVOID*)&org_MSG_EngineError, &HMSG_EngineError);
-	DetourAttach((LPVOID*)&org_Persistence_IsReady, &HPersistence_IsReady);
+	DetourAttach((LPVOID*)&org_CVEngineServer_IsPersistenceDataAvailable, &HCVEngineClient_IsPersistenceDataAvailable);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Commit the transaction
@@ -245,7 +246,7 @@ void RemoveENHooks()
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook Utility functions
 	DetourDetach((LPVOID*)&org_MSG_EngineError, &HMSG_EngineError);
-	DetourDetach((LPVOID*)&org_Persistence_IsReady, &HPersistence_IsReady);
+	DetourDetach((LPVOID*)&org_CVEngineServer_IsPersistenceDataAvailable, &HCVEngineClient_IsPersistenceDataAvailable);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Commit the transaction

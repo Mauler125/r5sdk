@@ -46,8 +46,8 @@ namespace
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/* ==== CCLIENT ========================================================================================================================================================= */
-	DWORD64 p_Persistence_IsReady = /*0x140315CF0*/ reinterpret_cast<DWORD64>(PatternScan("r5apex.exe", "3B 15 ?? ?? ?? ?? 7D 33"));
-	bool (*org_Persistence_IsReady)(__int64 entidx, int client) = (bool(*)(__int64, int))p_Persistence_IsReady;
+	DWORD64 p_CVEngineServer_IsPersistenceDataAvailable = /*0x140315CF0*/ reinterpret_cast<DWORD64>(PatternScan("r5apex.exe", "3B 15 ?? ?? ?? ?? 7D 33"));
+	bool (*org_CVEngineServer_IsPersistenceDataAvailable)(__int64 thisptr /*Class thisptr usually CVEngineServer*/, int client) = (bool(*)(__int64, int))p_CVEngineServer_IsPersistenceDataAvailable;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/* ==== UTILITY ========================================================================================================================================================= */
