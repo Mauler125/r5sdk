@@ -45,6 +45,11 @@ namespace
 	void (*org_CHLClient_FrameStageNotify)(void* rcx, int curStage) = (void (*)(void*, int))p_CHLClient_FrameStageNotify;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/* ==== CCLIENT ========================================================================================================================================================= */
+	DWORD64 p_Persistence_IsReady = /*0x140315CF0*/ reinterpret_cast<DWORD64>(PatternScan("r5apex.exe", "3B 15 ?? ?? ?? ?? 7D 33"));
+	bool (*org_Persistence_IsReady)(__int64 entidx, int client) = (bool(*)(__int64, int))p_Persistence_IsReady;
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/* ==== UTILITY ========================================================================================================================================================= */
 	DWORD64 p_MSG_EngineError = /*0x140295600*/ reinterpret_cast<DWORD64>(PatternScan("r5apex.exe", "48 89 5C 24 08 48 89 74 24 10 57 48 81 EC 30 08 00 00 48 8B DA 48 8B F9 E8 ?? ?? ?? FF 33 F6 48"));
 	int (*org_MSG_EngineError)(char* fmt, va_list args) = (int (*)(char*, va_list))p_MSG_EngineError;

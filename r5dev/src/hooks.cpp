@@ -108,15 +108,13 @@ __int64 HSQVM_LoadRson(const char* rson_name)
 		printf("\n");
 		return org_SQVM_LoadRson(filepath);
 	}
-	else
-	{
-		printf("\n");
-		printf("##################################################\n");
-		printf("] '%s'\n", rson_name);
-		printf("##################################################\n");
-		printf("\n");
-		return org_SQVM_LoadRson(rson_name);
-	}
+
+	printf("\n");
+	printf("##################################################\n");
+	printf("] '%s'\n", rson_name);
+	printf("##################################################\n");
+	printf("\n");
+	return org_SQVM_LoadRson(rson_name);
 }
 
 bool HSQVM_LoadScript(void* sqvm, const char* script_path, const char* script_name, int flag)
@@ -156,13 +154,35 @@ bool HSQVM_LoadScript(void* sqvm, const char* script_path, const char* script_na
 
 int HMSG_EngineError(char* fmt, va_list args)
 {
-	char buf[1024];
-	printf("ENGINE ERROR #####################################\n");
+	printf("\nENGINE ERROR #####################################\n");
 	vprintf(fmt, args);
-	vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
-	buf[IM_ARRAYSIZE(buf) - 1] = 0;
-	Items.push_back(Strdup(buf));
 	return org_MSG_EngineError(fmt, args);
+}
+
+// TODO: turn this into a playerstruct constructor if it ever becomes necessary
+bool HPersistence_IsReady(__int64 entidx, int client)
+{
+	static bool isPersistenceVarSet[256];
+
+	// TODO: Maybe not hardcode
+	DWORD64 playerStructBase = 0x16073B200;
+	DWORD64 playerStructSize = 0x4A4C0;
+	DWORD64 persistenceVar = 0x5BC;
+
+	DWORD64 targetPlayerStruct = playerStructBase + client * playerStructSize;
+
+	*(char*)(targetPlayerStruct + persistenceVar) = (char)0x5;
+
+	if (!isPersistenceVarSet[client])
+	{
+		printf("\n");
+		printf("##################################################\n");
+		printf("] SETTING PERSISTENCE VAR FOR CLIENT #%d\n", client);
+		printf("##################################################\n");
+		printf("\n");
+		isPersistenceVarSet[client] = true;
+	}
+	return org_Persistence_IsReady;
 }
 
 //#################################################################################
@@ -189,6 +209,7 @@ void InstallENHooks()
 	///////////////////////////////////////////////////////////////////////////////
 	// Hook Utility functions
 	DetourAttach((LPVOID*)&org_MSG_EngineError, &HMSG_EngineError);
+	DetourAttach((LPVOID*)&org_Persistence_IsReady, &HPersistence_IsReady);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Commit the transaction
@@ -224,6 +245,7 @@ void RemoveENHooks()
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook Utility functions
 	DetourDetach((LPVOID*)&org_MSG_EngineError, &HMSG_EngineError);
+	DetourDetach((LPVOID*)&org_Persistence_IsReady, &HPersistence_IsReady);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Commit the transaction

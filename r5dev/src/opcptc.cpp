@@ -15,9 +15,6 @@ void InstallOpcodes() /* .TEXT */
 	// JNE --> JMP | Allow games to be loaded without the optional texture streaming file
 	WriteProcessMemory(GameProcess, LPVOID(dst002 + 0x8E5), "\xEB\x19", 2, NULL);
 	//-------------------------------------------------------------------------
-	// MOV --> NOP | Prevent PDATA global being initialized as NULL
-	WriteProcessMemory(GameProcess, LPVOID(dst003 + 0x174), "\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90", 14, NULL);
-	//-------------------------------------------------------------------------
 	// JNE --> JMP | Prevent connect command from crashing by invalid call to UI function
 	WriteProcessMemory(GameProcess, LPVOID(dst004 + 0x1D6), "\xEB\x27", 2, NULL);
 	//-------------------------------------------------------------------------
@@ -29,11 +26,4 @@ void InstallOpcodes() /* .TEXT */
 	//-------------------------------------------------------------------------
 	// JA  --> JMP | Prevent FairFight anti-cheat from initializing on the server
 	WriteProcessMemory(GameProcess, LPVOID(dst007 + 0x61), "\xE9\xED\x00\x00\x00\x00", 6, NULL);
-}
-
-void InstallGlobals() /* .DATA */
-{
-	//-------------------------------------------------------------------------
-	//  00  --> 05  | Set PDATA global to enable clientcommand codecallback on the server
-	WriteProcessMemory(GameProcess, LPVOID(ofs000), "\x05", 1, NULL);
 }

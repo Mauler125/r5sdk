@@ -615,6 +615,12 @@ void CCompanion::SettingsSection()
 
 void CCompanion::Draw(const char* title)
 {
+    if (!ThemeSet)
+    {
+        SetStyleVar();
+        ThemeSet = true;
+    }
+
     ImGui::SetNextWindowSize(ImVec2(800, 890), ImGuiCond_FirstUseEver);
     ImGui::SetWindowPos(ImVec2(-500, 50), ImGuiCond_FirstUseEver);
 
@@ -687,11 +693,15 @@ void Strtrim(char* s)
 // ENTRYPOINT
 //#############################################################################
 
-void DrawMenu()
+void DrawConsole()
 {
     static CGameConsole console;
     g_GameConsole = &console;
-    static CCompanion browser;
     console.Draw("Console");
+}
+
+void DrawBrowser()
+{
+    static CCompanion browser;
     browser.Draw("Companion");
 }

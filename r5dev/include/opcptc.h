@@ -5,7 +5,6 @@
 #include "utility.h"
 
 void InstallOpcodes();
-void InstallGlobals();
 inline HANDLE GameProcess = GetCurrentProcess();
 
 namespace
@@ -16,7 +15,6 @@ namespace
 
 	/* -------------- ENGINE ------------------------------------------------------------------------------------------------------------------------------------------------ */
 	DWORD64 dst002 /*0x14043FB90*/ = reinterpret_cast<DWORD64>(PatternScan("r5apex.exe", "48 89 4C 24 08 56 41 55 48 81 EC 68 03 ? ? 4C"));
-	DWORD64 dst003 /*0x140302FF0*/ = reinterpret_cast<DWORD64>(PatternScan("r5apex.exe", "40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74"));
 	DWORD64 dst004 /*0x14022A4A0*/ = reinterpret_cast<DWORD64>(PatternScan("r5apex.exe", "48 83 EC 38 0F 29 74 24 20 48 89 5C 24 40 48 8B"));
 	DWORD64 Host_NewGame /*0x140238DA0*/ = reinterpret_cast<DWORD64>(PatternScan("r5apex.exe", "48 8B C4 ? 41 54 41 ? 48 81 EC ? ? ? ? F2"));
 
@@ -28,9 +26,6 @@ namespace
 
 	/* -------------- ------- ----------------------------------------------------------------------------------------------------------------------------------------------- */
 
-	/* -------------- GLOBALS ----------------------------------------------------------------------------------------------------------------------------------------------- */
-	DWORD64 ofs000 = 0x000000016073B7BC;
-
 	void PrintOAddress() // Test the sigscan results
 	{
 		std::cout << "+--------------------------------------------------------+" << std::endl;
@@ -38,7 +33,6 @@ namespace
 		std::cout << "| dst001                   : " << std::hex << std::uppercase << dst001 << std::setw(20) << " |" << std::endl;
 		std::cout << "+--------------------------------------------------------+" << std::endl;
 		std::cout << "| dst002                   : " << std::hex << std::uppercase << dst002 << std::setw(20) << " |" << std::endl;
-		std::cout << "| dst003                   : " << std::hex << std::uppercase << dst003 << std::setw(20) << " |" << std::endl;
 		std::cout << "| dst004                   : " << std::hex << std::uppercase << dst004 << std::setw(20) << " |" << std::endl;
 		std::cout << "| Host_NewGame             : " << std::hex << std::uppercase << Host_NewGame << std::setw(20) << " |" << std::endl;
 		std::cout << "+--------------------------------------------------------+" << std::endl;

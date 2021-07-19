@@ -21,7 +21,6 @@ void InitializeR5Dev()
     InstallIPHooks();
     InstallDXHooks();
     InstallOpcodes();
-    InstallGlobals();
     SetupDXSwapChain();
     printf("+-----------------------------------------------------------------------------+\n");
     printf("|   R5 DEV -- INITIALIZED -------------------------------------------------   |\n");

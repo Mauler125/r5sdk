@@ -22,6 +22,7 @@ extern HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval,
 /////////////////////////////////////////////////////////////////////////////
 // Globals
 extern DWORD g_dThreadId;
-extern BOOL  g_bShowMenu;
+extern BOOL  g_bShowConsole;
+extern BOOL  g_bShowBrowser;
 
 /////////////////////////////////////////////////////////////////////////////

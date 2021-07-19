@@ -33,7 +33,8 @@ typedef BOOL(WINAPI* IPostMessageA)(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM l
 typedef BOOL(WINAPI* IPostMessageW)(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
 ///////////////////////////////////////////////////////////////////////////////////
-extern BOOL                     g_bShowMenu                 = false;
+extern BOOL                     g_bShowConsole              = false;
+extern BOOL                     g_bShowBrowser              = false;
 static BOOL                     g_bInitMenu                 = false;
 static BOOL                     g_bInitialized              = false;
 static BOOL                     g_bPresentHooked            = false;
@@ -69,10 +70,17 @@ LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		if (wParam == VK_OEM_3 || wParam == VK_INSERT) // For everyone without a US keyboard layout.
 		{
-			g_bShowMenu = !g_bShowMenu;
+			g_bShowConsole = !g_bShowConsole;
 		}
 	}
-	if (g_bShowMenu)
+	if (uMsg == WM_SYSKEYDOWN)
+	{
+		if (wParam == VK_F10)
+		{
+			g_bShowBrowser = !g_bShowBrowser;
+		}
+	}
+	if (g_bShowConsole || g_bShowBrowser)
 	{//////////////////////////////////////////////////////////////////////////////
 		ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 		g_bBlockInput = true;
@@ -264,10 +272,15 @@ void DrawImGui()
 
 	ImGui::NewFrame();
 
-	if (g_bShowMenu)
+	if (g_bShowConsole)
 	{
 		GameGlobals::InputSystem->EnableInput(false); // Disable input.
-		DrawMenu();
+		DrawConsole();
+	}
+	if(g_bShowBrowser)
+	{
+		GameGlobals::InputSystem->EnableInput(false); // Disable input.
+		DrawBrowser();
 	}
 	else
 	{
@@ -351,7 +364,8 @@ HRESULT GetDeviceAndCtxFromSwapchain(IDXGISwapChain* pSwapChain, ID3D11Device** 
 
 HRESULT __stdcall GetResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount, UINT nWidth, UINT nHeight, DXGI_FORMAT dxFormat, UINT nSwapChainFlags)
 {
-	g_bShowMenu       = false;
+	g_bShowConsole    = false;
+	g_bShowBrowser    = false;
 	g_bInitialized    = false;
 	g_bPresentHooked  = false;
 
