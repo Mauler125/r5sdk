@@ -1,10 +1,4 @@
-#include <string>
-#include <sstream>
-#include <iostream>
-
-#include <Windows.h>
-#include <detours.h>
-
+#include "pch.h"
 #include "id3dx.h"
 #include "hooks.h"
 #include "opcptc.h"

@@ -1,9 +1,4 @@
-#include <cassert>
-
-#include <windows.h>
-#include <stdio.h>
-
-#include "detours.h"
+#include "pch.h"
 #include "input.h"
 
 /*-----------------------------------------------------------------------------

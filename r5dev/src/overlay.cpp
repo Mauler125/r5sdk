@@ -1,27 +1,11 @@
-
+#include "pch.h"
 #include "overlay.h"
-#include <thread>
-#include <fstream>
-
-#include <stdio.h>
-#include "httplib.h"
-#include <windows.h>
-#include <detours.h>
 #include "hooks.h"
 #include "id3dx.h"
 #include "console.h"
 #include "patterns.h"
 #include "gameclasses.h"
 
-#include "imgui.h"
-#include "imgui_impl_dx11.h"
-#include "imgui_impl_win32.h"
-#include <filesystem>
-#include <thread>
-#include <sstream>
-
-#include <shlobj.h>
-#include <objbase.h>
 
 #define DebugOverlay
 

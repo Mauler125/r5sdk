@@ -1,8 +1,4 @@
 #pragma once
-#include <iostream>
-#include <iomanip>
-
-#include "utility.h"
 
 // Define the signatures or offsets to be searched and hooked
 namespace
