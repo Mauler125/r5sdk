@@ -182,10 +182,11 @@ public:
     ////////////////////
     std::vector<std::string> MapsList;
     std::string* SelectedMap = nullptr;
-    std::string HostRequestMessage;
-    ImVec4 HostRequestMessageColor;
+    std::string HostRequestMessage = "";
+    ImVec4 HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
     char ServerNameBuffer[64] = { 0 };
-    bool StartAsDedi;
+    bool StartAsDedi = false;
+    bool BroadCastServer = false;
 
     void SetSection(ESection section)
     {

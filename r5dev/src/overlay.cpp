@@ -246,7 +246,7 @@ void CGameConsole::ProcessCommand(const char* command_line)
     {
         if (Stricmp(History[i], command_line) == 0)
         {
-            free(History[i]);
+            delete History[i];
             History.erase(History.begin() + i);
             break;
         }
@@ -384,6 +384,9 @@ void CCompanion::UpdateHostingStatus()
     }
     case EHostStatus::Hosting:
     {
+        if (!BroadCastServer) // Do we wanna broadcast server to the browser?
+            break;
+
         SendHostingPostRequest(GameGlobals::HostState->m_levelName);
         break;
     }
@@ -559,6 +562,8 @@ void CCompanion::ServerBrowserSection()
 
 void CCompanion::HostServerSection()
 {
+    static std::string ServerNameErr = "";
+
     ImGui::InputTextWithHint("Server Name##ServerHost_ServerName", "Required Field", ServerNameBuffer, IM_ARRAYSIZE(ServerNameBuffer));
     ImGui::Spacing();
     if (ImGui::BeginCombo("Map##ServerHost_MapListBox", SelectedMap->c_str()))
@@ -576,22 +581,35 @@ void CCompanion::HostServerSection()
 
     ImGui::Checkbox("Start as dedicated server (HACK)##ServerHost_DediCheckbox", &StartAsDedi);
 
+    ImGui::SameLine();
+
+    ImGui::Checkbox("Broadcast Server to Server Browser", &BroadCastServer);
+
     ImGui::Separator();
 
     if (ImGui::Button("Start The Server##ServerHost_StartServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
     {
-        UpdateHostingStatus();
-
-        std::stringstream cmd;
-        cmd << "map " << SelectedMap->c_str();
-        g_GameConsole->ProcessCommand(cmd.str().c_str());
-
-        if (StartAsDedi)
+        if (strlen(ServerNameBuffer) != 0)
         {
-            ToggleDevCommands();
+            ServerNameErr = std::string();
+            UpdateHostingStatus();
+
+            std::stringstream cmd;
+            cmd << "map " << SelectedMap->c_str();
+            g_GameConsole->ProcessCommand(cmd.str().c_str());
+
+            if (StartAsDedi)
+            {
+                ToggleDevCommands();
+            }
+        }
+        else
+        {
+            ServerNameErr = "No Server Name assigned.";
         }
     }
 
+    ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), ServerNameErr.c_str());
     ImGui::TextColored(HostRequestMessageColor, HostRequestMessage.c_str());
 
     if (StartAsDedi)
@@ -696,7 +714,10 @@ void Strtrim(char* s)
 void DrawConsole()
 {
     static CGameConsole console;
-    g_GameConsole = &console;
+    static bool AssignPtr = []() {
+        g_GameConsole = &console;
+        return true;
+    } ();
     console.Draw("Console");
 }
 
