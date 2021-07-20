@@ -63,6 +63,7 @@ LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			g_bShowConsole = !g_bShowConsole;
 		}
 	}
+
 	if (uMsg == WM_SYSKEYDOWN)
 	{
 		if (wParam == VK_F10)
@@ -70,6 +71,7 @@ LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			g_bShowBrowser = !g_bShowBrowser;
 		}
 	}
+
 	if (g_bShowConsole || g_bShowBrowser)
 	{//////////////////////////////////////////////////////////////////////////////
 		ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);

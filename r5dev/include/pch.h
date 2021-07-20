@@ -31,3 +31,11 @@
 #include "spdlog.h"
 #include "utility.h"
 #include "json.hpp"
+
+#include "address.h"
+
+#define FUNC_AT_ADDRESS(name, funcbody, addr) \
+   using _##name = funcbody; \
+   _##name name = (funcbody)addr \
+
+#define PRINT_ADDRESS(name, address) std::cout << name << ": " << std::hex << std::uppercase << address << std::endl;
