@@ -160,11 +160,11 @@ bool HCVEngineClient_IsPersistenceDataAvailable(__int64 thisptr, int client)
 	static bool isPersistenceVarSet[256];
 
 	// TODO: Maybe not hardcode
-	DWORD64 playerStructBase = 0x16073B200;
-	DWORD64 playerStructSize = 0x4A4C0;
-	DWORD64 persistenceVar = 0x5BC;
+	std::uintptr_t playerStructBase = 0x16073B200;
+	std::uintptr_t playerStructSize = 0x4A4C0;
+	std::uintptr_t persistenceVar = 0x5BC;
 
-	DWORD64 targetPlayerStruct = playerStructBase + client * playerStructSize;
+	std::uintptr_t targetPlayerStruct = playerStructBase + client * playerStructSize;
 
 	*(char*)(targetPlayerStruct + persistenceVar) = (char)0x5;
 
