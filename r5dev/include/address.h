@@ -77,7 +77,7 @@ public:
 
 	MemoryAddress Deref(int deref = 1)
 	{
-		std::uintptr_t  reference = ptr;
+		std::uintptr_t reference = ptr;
 
 		while (deref--)
 		{
