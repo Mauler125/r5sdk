@@ -59,6 +59,11 @@ public:
 		return reinterpret_cast<T>(ptr);
 	}
 
+	template<class T> T GetValue()
+	{
+		return *reinterpret_cast<T*>(ptr);
+	}
+
 	MemoryAddress Offset(std::ptrdiff_t offset)
 	{
 		return MemoryAddress(ptr + offset);
@@ -94,33 +99,43 @@ public:
 		return *this;
 	}
 
-	bool CheckOpCode(char opcode)
+	bool CheckOpCodes(const std::vector<std::uint8_t> opcodeArray)
 	{
-		return *reinterpret_cast<char*>(ptr) == opcode;
+		std::uintptr_t reference = ptr; // Create pointer reference.
+
+		for (auto [byteAtCurrentAddress, i] = std::tuple{ std::uint8_t(), (std::size_t)0 }; i < opcodeArray.size(); i++, reference++) // Loop forward in the ptr class member.
+		{
+			byteAtCurrentAddress = *reinterpret_cast<std::uint8_t*>(reference); // Get byte at current address.
+
+			if (byteAtCurrentAddress != opcodeArray[i]) // If byte at ptr doesn't equal in the byte array return false.
+				return false;
+		}
+
+		return true;
 	}
 
 	template<class T> T GetVirtualFunctionIndex()
 	{
-		return *reinterpret_cast<T*>(ptr) / 4;
+		return *reinterpret_cast<T*>(ptr) / 8; // Its divided by 8 in x64.
 	}
 
-	void Patch(std::vector<byte> opcodes)
+	void Patch(std::vector<std::uint8_t> opcodes)
 	{
 		DWORD oldProt = NULL;
 
 		SIZE_T dwSize = opcodes.size();
-		VirtualProtect((void*)ptr, dwSize, PAGE_EXECUTE_READWRITE, &oldProt);
+		VirtualProtect((void*)ptr, dwSize, PAGE_EXECUTE_READWRITE, &oldProt); // Patch page to be able to read and write to it.
 
 		for (int i = 0; i < opcodes.size(); i++)
 		{
-			*(byte*)(ptr + i) = opcodes[i];
+			*(std::uint8_t*)(ptr + i) = opcodes[i]; // Write opcodes to address.
 		}
 
 		dwSize = opcodes.size();
-		VirtualProtect((void*)ptr, dwSize, oldProt, &oldProt);
+		VirtualProtect((void*)ptr, dwSize, oldProt, &oldProt); // Restore protection.
 	}
 
-	MemoryAddress FindPattern(const char* pattern, Direction searchDirect, int opCodesToScan = 100)
+	MemoryAddress FindPatternSelf(const char* pattern, Direction searchDirect, int opCodesToScan = 100, int occurence = 1)
 	{
 		static auto PatternToBytes = [](const char* pattern)
 		{
@@ -155,6 +170,7 @@ public:
 
 		const std::vector<int> PatternBytes = PatternToBytes(pattern); // Convert our pattern to a byte array.
 		const std::pair BytesInfo = std::make_pair(PatternBytes.size(), PatternBytes.data()); // Get the size and data of our bytes.
+		int occurences = 0;
 
 		for (auto i = 01; i < opCodesToScan + BytesInfo.first; ++i)
 		{
@@ -175,12 +191,117 @@ public:
 
 			if (FoundAddress)
 			{
-				return MemoryAddress(&ScanBytes[memOffset]);
+				occurences++;
+				if (occurence == occurences)
+				{
+					ptr = reinterpret_cast<std::uintptr_t>(&ScanBytes[memOffset]);
+					return *this;
+				}
+			}
+
+		}
+
+		ptr = std::uintptr_t();
+		return *this;
+	}
+
+	MemoryAddress FindPattern(const char* pattern, Direction searchDirect, int opCodesToScan = 100, int occurence = 1)
+	{
+		static auto PatternToBytes = [](const char* pattern)
+		{
+			char* PatternStart = const_cast<char*>(pattern); // Cast const away and get start of pattern.
+			char* PatternEnd = PatternStart + std::strlen(pattern); // Get end of pattern.
+
+			std::vector<std::int32_t> Bytes = std::vector<std::int32_t>{ }; // Initialize byte vector.
+
+			for (char* CurrentByte = PatternStart; CurrentByte < PatternEnd; ++CurrentByte)
+			{
+				if (*CurrentByte == '?') // Is current char(byte) a wildcard?
+				{
+					++CurrentByte; // Skip 1 character.
+
+					if (*CurrentByte == '?') // Is it a double wildcard pattern?
+						++CurrentByte; // If so skip the next space that will come up so we can reach the next byte.
+
+					Bytes.push_back(-1); // Push the byte back as invalid.
+				}
+				else
+				{
+					// https://stackoverflow.com/a/43860875/12541255
+					// Here we convert our string to a unsigned long integer. We pass our string then we use 16 as the base because we want it as hexadecimal.
+					// Afterwards we push the byte into our bytes vector.
+					Bytes.push_back(std::strtoul(CurrentByte, &CurrentByte, 16));
+				}
+			}
+			return Bytes;
+		};
+
+		std::uint8_t* ScanBytes = reinterpret_cast<std::uint8_t*>(ptr); // Get the base of the module.
+
+		const std::vector<int> PatternBytes = PatternToBytes(pattern); // Convert our pattern to a byte array.
+		const std::pair BytesInfo = std::make_pair(PatternBytes.size(), PatternBytes.data()); // Get the size and data of our bytes.
+		int occurences = 0;
+
+		for (auto i = 01; i < opCodesToScan + BytesInfo.first; ++i)
+		{
+			bool FoundAddress = true;
+
+			int memOffset = searchDirect == Direction::UP ? -i : i;
+
+			for (DWORD j = 0ul; j < BytesInfo.first; ++j)
+			{
+				// If either the current byte equals to the byte in our pattern or our current byte in the pattern is a wildcard
+				// our if clause will be false.
+				if (ScanBytes[memOffset + j] != BytesInfo.second[j] && BytesInfo.second[j] != -1)
+				{
+					FoundAddress = false;
+					break;
+				}
+			}
+
+			if (FoundAddress)
+			{
+				occurences++;
+				if (occurence == occurences)
+				{
+					return MemoryAddress(&ScanBytes[memOffset]);
+				}
 			}
 
 		}
 
 		return MemoryAddress();
+	}
+
+	MemoryAddress FollowNearCall(std::ptrdiff_t opcodeOffset = 0x1, std::ptrdiff_t nextInstructionOffset = 0x5)
+	{
+		// Skip E9 opcode.
+		std::uintptr_t skipOpCode = ptr + opcodeOffset;
+
+		// Get 4-byte long relative address.
+		std::int32_t relativeAddress = *reinterpret_cast<std::int32_t*>(skipOpCode);
+
+		// Get location of next instruction.
+		std::uintptr_t nextInstruction = ptr + nextInstructionOffset;
+
+		// Get function location via adding relative address to next instruction.
+		return MemoryAddress(nextInstruction + relativeAddress);
+	}
+
+	MemoryAddress FollowNearCallSelf(std::ptrdiff_t opcodeOffset = 0x1, std::ptrdiff_t nextInstructionOffset = 0x5)
+	{
+		// Skip E9 opcode.
+		std::uintptr_t skipOpCode = ptr + opcodeOffset;
+
+		// Get 4-byte long relative address.
+		std::int32_t relativeAddress = *reinterpret_cast<std::int32_t*>(skipOpCode);
+
+		// Get location of next instruction.
+		std::uintptr_t nextInstruction = ptr + nextInstructionOffset;
+
+		// Get function location via adding relative address to next instruction.
+		ptr = nextInstruction + relativeAddress;
+		return *this;
 	}
 	
 private:
