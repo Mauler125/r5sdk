@@ -6,7 +6,7 @@
 #include "patterns.h"
 #include "gameclasses.h"
 
-#define DebugOverlay
+#define OVERLAY_DEBUG
 
 CGameConsole* g_GameConsole = nullptr;
 CCompanion* g_ServerBrowser = nullptr;
@@ -391,8 +391,8 @@ void CCompanion::RefreshServerList()
     {
         std::thread t([this]()
         {
-#ifdef DebugOverlay
-            std::cout << " [+CCompanion+] Refreshing server list with string" << MatchmakingServerStringBuffer << "\n";
+#ifdef OVERLAY_DEBUG
+            std::cout << " [+CCompanion+] Refreshing server list with string " << MatchmakingServerStringBuffer << "\n";
 #endif
             bThreadLocked = true;
             httplib::Client client(MatchmakingServerStringBuffer);
@@ -404,7 +404,7 @@ void CCompanion::RefreshServerList()
                 for (auto obj : root["servers"])
                 {
                     ServerList.push_back(
-                        new ServerListing(obj["name"], obj["map"], obj["ip"], obj["version"])
+                        new ServerListing(obj["name"], obj["map"], obj["ip"], obj["port"])
                     );
                 }
             }
@@ -424,17 +424,21 @@ void CCompanion::SendHostingPostRequest(char* mapName)
     nlohmann::json body = nlohmann::json::object();
     body["name"] = ServerNameBuffer;
     body["map"] = mapName;
-    body["version"] = "1.0";
 
+    CVValue_t* hostport_value = (CVValue_t*)(0x141734DD0 + 0x58);
+
+    body["port"] = hostport_value->m_pszString;
 
     std::string body_str = body.dump();
 
-#ifdef DebugOverlay
-    std::cout << " [+CCompanion+] Sending request now, Body:" << body_str << "\n";
+    
+
+#ifdef OVERLAY_DEBUG
+    std::cout << " [+CCompanion+] Sending request now, Body: " << body_str << "\n";
 #endif 
 
     httplib::Result result = client.Post("/servers/add", body_str.c_str(), body_str.length(), "application/json");
-#ifdef DebugOverlay
+#ifdef OVERLAY_DEBUG
     if (result)
     {
         std::cout << " [+CCompanion+] Request Result: " << result->body << "\n";
@@ -495,7 +499,7 @@ void CCompanion::ServerBrowserSection()
     {
         ImGui::TableSetupColumn("Name", 0, 35);
         ImGui::TableSetupColumn("Map", 0, 25);
-        ImGui::TableSetupColumn("Version", 0, 10);
+        ImGui::TableSetupColumn("Port", 0, 10);
         ImGui::TableSetupColumn("", 0, 8);
         ImGui::TableHeadersRow();
 
@@ -503,11 +507,11 @@ void CCompanion::ServerBrowserSection()
         {
             const char* name = server->name.c_str();
             const char* map = server->map.c_str();
-            const char* version = server->version.c_str();
+            const char* port = server->port.c_str();
 
             if (ServerBrowserFilter.PassFilter(name)
                 || ServerBrowserFilter.PassFilter(map)
-                || ServerBrowserFilter.PassFilter(version))
+                || ServerBrowserFilter.PassFilter(port))
             {
                 ImGui::TableNextColumn();
                 ImGui::Text(name);
@@ -516,7 +520,7 @@ void CCompanion::ServerBrowserSection()
                 ImGui::Text(map);
 
                 ImGui::TableNextColumn();
-                ImGui::Text(version);
+                ImGui::Text(port);
 
                 ImGui::TableNextColumn();
                 std::string selectButtonText = "Connect##";
