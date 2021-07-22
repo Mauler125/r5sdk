@@ -3,7 +3,7 @@
 class ServerListing
 {
 public:
-	ServerListing(std::string name, std::string map, std::string ip, std::string version) : name(name), map(map), ip(ip), version(version)
+	ServerListing(std::string name, std::string map, std::string ip, std::string port) : name(name), map(map), ip(ip), port(port)
 	{
 		// for future constructor use.
 	}
@@ -13,6 +13,6 @@ public:
 	std::string name;
 	std::string map;
 	std::string ip;
-	std::string version;
+	std::string port;
 };
 

@@ -517,6 +517,14 @@ public:
 	}
 };
 
+struct CVValue_t
+{
+	char* m_pszString;
+	__int64 m_StringLength;
+	float m_fValue;
+	int m_nValue;
+};
+
 /////////////////////////////////////////////////////////////////////////////
 // Initialize Game Globals
 
