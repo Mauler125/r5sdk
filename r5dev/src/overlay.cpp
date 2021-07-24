@@ -355,7 +355,7 @@ CCompanion::CCompanion()
 
 void CCompanion::UpdateHostingStatus()
 {
-    if (!GameGlobals::HostState) // Is HostState valid?
+    if (!GameGlobals::HostState || !GameGlobals::Cvar) // Is HostState and Cvar valid?
         return;
 
     GameGlobals::HostState->m_bActiveGame ? HostingStatus = EHostStatus::Hosting : HostingStatus = EHostStatus::NotHosting; // Are we hosting a server?
@@ -425,13 +425,11 @@ void CCompanion::SendHostingPostRequest(char* mapName)
     body["name"] = ServerNameBuffer;
     body["map"] = mapName;
 
-    CVValue_t* hostport_value = (CVValue_t*)(0x141734DD0 + 0x58);
+    static ConVar* hostport = GameGlobals::Cvar->FindVar("hostport"); // static since it won't move memory locations.
 
-    body["port"] = hostport_value->m_pszString;
+    body["port"] = hostport->m_pzsCurrentValue;
 
     std::string body_str = body.dump();
-
-    
 
 #ifdef OVERLAY_DEBUG
     std::cout << " [+CCompanion+] Sending request now, Body: " << body_str << "\n";
