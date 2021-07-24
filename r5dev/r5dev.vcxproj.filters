@@ -108,6 +108,9 @@
     <ClCompile Include="src\pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\external\imgui\src\imgui_stdlib.cpp">
+      <Filter>External Libraries\imgui\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\console.h">
@@ -475,6 +478,9 @@
     </ClInclude>
     <ClInclude Include="include\pch.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imgui_stdlib.h">
+      <Filter>External Libraries\imgui\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

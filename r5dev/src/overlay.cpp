@@ -325,7 +325,6 @@ int CGameConsole::TextEditCallback(ImGuiInputTextCallbackData* data)
 CCompanion::CCompanion()
 {
     memset(MatchmakingServerStringBuffer, 0, sizeof(MatchmakingServerStringBuffer));
-    memset(ServerNameBuffer, 0, sizeof(ServerNameBuffer));
     memset(ServerConnStringBuffer, 0, sizeof(ServerConnStringBuffer));
     strcpy_s(MatchmakingServerStringBuffer, "r5a-comp-sv.herokuapp.com");
 
@@ -338,8 +337,9 @@ CCompanion::CCompanion()
         filename = filename.substr(0, filename.size() - 6);
         MapsList.push_back(filename);
     }
-
-    SelectedMap = &MapsList[0];
+    
+    // copy assignment kjek
+    MyServer.map = MapsList[0];
 
     static std::thread HostingServerRequestThread([this]()
     {
@@ -353,6 +353,12 @@ CCompanion::CCompanion()
     HostingServerRequestThread.detach();
 }
 
+void CCompanion::UpdateMyServerInfo()
+{
+    MyServer.map = GameGlobals::HostState->m_levelName;
+    MyServer.port = ((CVValue_t*)(0x141734DD0 + 0x58))->m_pszString;
+
+}
 void CCompanion::UpdateHostingStatus()
 {
     if (!GameGlobals::HostState) // Is HostState valid?
@@ -373,7 +379,8 @@ void CCompanion::UpdateHostingStatus()
         if (!BroadCastServer) // Do we wanna broadcast server to the browser?
             break;
 
-        SendHostingPostRequest(GameGlobals::HostState->m_levelName);
+        UpdateMyServerInfo();
+        SendHostingPostRequest();
         break;
     }
     default:
@@ -415,19 +422,16 @@ void CCompanion::RefreshServerList()
     }
 }
 
-void CCompanion::SendHostingPostRequest(char* mapName)
+void CCompanion::SendHostingPostRequest()
 {
     httplib::Client client(MatchmakingServerStringBuffer);
     client.set_connection_timeout(10);
 
     // send a post request to "/servers/add" with a json body
     nlohmann::json body = nlohmann::json::object();
-    body["name"] = ServerNameBuffer;
-    body["map"] = mapName;
-
-    CVValue_t* hostport_value = (CVValue_t*)(0x141734DD0 + 0x58);
-
-    body["port"] = hostport_value->m_pszString;
+    body["name"] = MyServer.name;
+    body["map"] = MyServer.map;
+    body["port"] = MyServer.port;
 
     std::string body_str = body.dump();
 
@@ -555,15 +559,15 @@ void CCompanion::HostServerSection()
 {
     static std::string ServerNameErr = "";
 
-    ImGui::InputTextWithHint("Server Name##ServerHost_ServerName", "Required Field", ServerNameBuffer, IM_ARRAYSIZE(ServerNameBuffer));
+    ImGui::InputTextWithHint("Server Name##ServerHost_ServerName", "Required Field", &MyServer.name);
     ImGui::Spacing();
-    if (ImGui::BeginCombo("Map##ServerHost_MapListBox", SelectedMap->c_str()))
+    if (ImGui::BeginCombo("Map##ServerHost_MapListBox", MyServer.map.c_str()))
     {
         for (auto& item : MapsList)
         {
-            if (ImGui::Selectable(item.c_str(), &item == SelectedMap))
+            if (ImGui::Selectable(item.c_str(), item == MyServer.map))
             {
-                SelectedMap = &item;
+                MyServer.map = item;
             }
         }
         ImGui::EndCombo();
@@ -580,13 +584,13 @@ void CCompanion::HostServerSection()
 
     if (ImGui::Button("Start The Server##ServerHost_StartServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
     {
-        if (strlen(ServerNameBuffer) != 0)
+        if (!MyServer.name.empty())
         {
             ServerNameErr = std::string();
             UpdateHostingStatus();
 
             std::stringstream cmd;
-            cmd << "map " << SelectedMap->c_str();
+            cmd << "map " << MyServer.map;
             ProcessCommand(cmd.str().c_str());
 
             if (StartAsDedi)

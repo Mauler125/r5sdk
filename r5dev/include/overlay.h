@@ -178,11 +178,10 @@ public:
     ////////////////////
     //   Host Server  //
     ////////////////////
+    ServerListing MyServer;
     std::vector<std::string> MapsList;
-    std::string* SelectedMap = nullptr;
     std::string HostRequestMessage = "";
     ImVec4 HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-    char ServerNameBuffer[64] = { 0 };
     bool StartAsDedi = false;
     bool BroadCastServer = false;
 
@@ -254,7 +253,8 @@ public:
     }
 
     void RefreshServerList();
-    void SendHostingPostRequest(char* mapName);
+    void UpdateMyServerInfo();
+    void SendHostingPostRequest();
     void CompMenu();
     void ServerBrowserSection();
     void SettingsSection();

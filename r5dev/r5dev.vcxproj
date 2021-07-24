@@ -293,6 +293,7 @@
     <ClInclude Include="include\hooks.h" />
     <ClInclude Include="include\httplib.h" />
     <ClInclude Include="include\id3dx.h" />
+    <ClInclude Include="include\imgui_stdlib.h" />
     <ClInclude Include="include\input.h" />
     <ClInclude Include="include\json.hpp" />
     <ClInclude Include="include\opcptc.h" />
@@ -318,6 +319,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\external\imgui\src\imgui_impl_win32.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\external\imgui\src\imgui_stdlib.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\external\imgui\src\imgui_tables.cpp">
