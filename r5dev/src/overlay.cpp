@@ -454,7 +454,13 @@ void CCompanion::SendHostingPostRequest()
         } 
         else if(res["success"] == true)
         {
-            HostRequestMessage = "Hosting!";
+            std::stringstream msg;
+            msg << "Broadcasting! ";
+            if (res["token"].is_string())
+            {
+                msg << "Share this token: " << res["token"] << ", and the password you set";
+            }
+            HostRequestMessage = msg.str().c_str();
             HostRequestMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
         }
         else
@@ -546,14 +552,67 @@ void CCompanion::ServerBrowserSection()
     ImGui::InputTextWithHint("##ServerBrowser_ServerConnString", "Enter an ip address or \"localhost\"", ServerConnStringBuffer, IM_ARRAYSIZE(ServerConnStringBuffer));
 
     ImGui::SameLine();
-    if (ImGui::Button("Connect to the server", ImVec2(ImGui::GetWindowSize().x * (1.f / 3.f), 19)))
+    if (ImGui::Button("Connect", ImVec2(ImGui::GetWindowContentRegionWidth() * (1.f / 3.f /2.f), 19)))
     {
         //const char* replace = ""; // For history pos soon
         std::stringstream cmd;
         cmd << "connect " << ServerConnStringBuffer;
         //strcpy_s(ServerConnStringBuffer, sizeof(replace), replace); // For history pos soon
     }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("Private Servers##ServerBrowser_PrivateServersButton", ImVec2(ImGui::GetWindowContentRegionWidth() * (1.f / 3.f / 2.f), 19)))
+        ImGui::OpenPopup("Connect to a Private Server##PrivateServersConnectModal");
+
+    bool open = true;
+    if (ImGui::BeginPopupModal("Connect to a Private Server##PrivateServersConnectModal", &open))
+    {
+        // I *WILL* move this in a separate class
+
+        ImGui::SetWindowSize(ImVec2(400.f, 200.f));
+
+        int imgWidth = 0;
+        int imgHeight = 0;
+        static ID3D11ShaderResourceView* apex_private_servers_icon = NULL;
+        bool ret = LoadTextureFromFile("lockedserver.png", &apex_private_servers_icon, &imgWidth, &imgHeight);
+        IM_ASSERT(ret);
+
+        //
+
+
+        static std::string token;
+        static std::string password;
+
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.00f, 0.00f, 0.00f, 0.00f)); // transparent bg
+        ImGui::BeginChild("##PrivateServersConnectModal_IconParent", ImVec2(imgWidth, imgHeight));
+        ImGui::Image((void*)apex_private_servers_icon, ImVec2(imgWidth, imgHeight));
+        ImGui::EndChild();
+        ImGui::PopStyleColor();
+
+
+        ImGui::SameLine();
+
+        ImGui::Text("Enter the following details to continue");
+
+        ImGui::PushItemWidth(ImGui::GetWindowContentRegionWidth());
+        ImGui::InputTextWithHint("##PrivateServersConnectModal_TokenInput", "Token", &token);
+        ImGui::InputTextWithHint("##PrivateServersConnectModal_PasswordInput", "Password", &password);
+        ImGui::PopItemWidth();
+
+        ImGui::Spacing();
+        ImGui::Separator();
+
+        if(ImGui::Button("Connect##PrivateServersConnectModal_ConnectButton"))
+            ImGui::CloseCurrentPopup();
+        ImGui::SameLine();
+        if (ImGui::Button("Close##PrivateServersConnectModal_CloseButton"))
+            ImGui::CloseCurrentPopup();
+        ImGui::EndPopup();
+    }
+
 }
+
 
 void CCompanion::HostServerSection()
 {

@@ -87,7 +87,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)external\detours\include;$(SolutionDir)external\imgui\include;$(SolutionDir)external\spdlog\include;$(SolutionDir)r5dev\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)external\detours\include;$(SolutionDir)external\imgui\include;$(SolutionDir)external\spdlog\include;$(SolutionDir)external\stb\include;$(SolutionDir)r5dev\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)external\detours\libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -286,6 +286,7 @@
     <ClInclude Include="..\external\spdlog\include\stopwatch.h" />
     <ClInclude Include="..\external\spdlog\include\tweakme.h" />
     <ClInclude Include="..\external\spdlog\include\version.h" />
+    <ClInclude Include="..\external\stb\include\stb_image.h" />
     <ClInclude Include="include\address.h" />
     <ClInclude Include="include\console.h" />
     <ClInclude Include="include\enums.h" />

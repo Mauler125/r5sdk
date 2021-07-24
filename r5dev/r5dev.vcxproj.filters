@@ -52,6 +52,12 @@
     <Filter Include="External Libraries\spdlog\Header Files\fmt\bundled">
       <UniqueIdentifier>{6faf53e7-9be1-439f-92f9-16ab96c005b7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="External Libraries\stb">
+      <UniqueIdentifier>{10c4f432-81f6-46f2-9ab0-ac70ee08bff7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External Libraries\stb\Header Files">
+      <UniqueIdentifier>{558c4758-4b1c-4480-946d-ff6c9df375ee}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dllmain.cpp">
@@ -481,6 +487,9 @@
     </ClInclude>
     <ClInclude Include="include\imgui_stdlib.h">
       <Filter>External Libraries\imgui\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\stb\include\stb_image.h">
+      <Filter>External Libraries\stb\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

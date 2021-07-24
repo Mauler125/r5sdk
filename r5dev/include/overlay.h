@@ -263,6 +263,7 @@ public:
     void UpdateHostingStatus();
     void ProcessCommand(const char* command_line);
     void ExecCommand(const char* command_line);
+
 };
 
 extern CCompanion* g_ServerBrowser;
