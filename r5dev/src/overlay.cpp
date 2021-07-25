@@ -432,6 +432,7 @@ void CCompanion::SendHostingPostRequest()
     body["name"] = MyServer.name;
     body["map"] = MyServer.map;
     body["port"] = MyServer.port;
+    body["password"] = MyServer.password;
 
     std::string body_str = body.dump();
 
@@ -456,9 +457,11 @@ void CCompanion::SendHostingPostRequest()
         {
             std::stringstream msg;
             msg << "Broadcasting! ";
+            HostToken = "";
             if (res["token"].is_string())
             {
-                msg << "Share this token: " << res["token"] << ", and the password you set";
+                msg << "Share the following token for people to connect: ";
+                HostToken = res["token"];
             }
             HostRequestMessage = msg.str().c_str();
             HostRequestMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
@@ -472,6 +475,27 @@ void CCompanion::SendHostingPostRequest()
     }
 #endif 
 }
+
+const nlohmann::json CCompanion::SendGetServerByTokenRequest(const std::string &token, const std::string &password)
+{
+    httplib::Client client(MatchmakingServerStringBuffer);
+    client.set_connection_timeout(10);
+    
+    nlohmann::json reqBody = nlohmann::json::object();
+
+    reqBody["token"] = token;
+    reqBody["password"] = password;
+
+    std::string reqBody_str = reqBody.dump();
+
+    auto res = client.Post("/server/byToken", reqBody_str.c_str(), reqBody_str.length(), "application/json");
+    if (res && !res->body.empty())
+    {
+        return nlohmann::json::parse(res->body);
+    }
+    return nlohmann::json::object();
+}
+
 
 void CCompanion::CompMenu()
 {
@@ -557,7 +581,10 @@ void CCompanion::ServerBrowserSection()
         //const char* replace = ""; // For history pos soon
         std::stringstream cmd;
         cmd << "connect " << ServerConnStringBuffer;
+        ConnectToServer(ServerConnStringBuffer);
+
         //strcpy_s(ServerConnStringBuffer, sizeof(replace), replace); // For history pos soon
+        // wut?
     }
 
     ImGui::SameLine();
@@ -565,12 +592,12 @@ void CCompanion::ServerBrowserSection()
     if (ImGui::Button("Private Servers##ServerBrowser_PrivateServersButton", ImVec2(ImGui::GetWindowContentRegionWidth() * (1.f / 3.f / 2.f), 19)))
         ImGui::OpenPopup("Connect to a Private Server##PrivateServersConnectModal");
 
-    bool open = true;
-    if (ImGui::BeginPopupModal("Connect to a Private Server##PrivateServersConnectModal", &open))
+    bool modalOpen = true;
+    if (ImGui::BeginPopupModal("Connect to a Private Server##PrivateServersConnectModal", &modalOpen))
     {
         // I *WILL* move this in a separate class
 
-        ImGui::SetWindowSize(ImVec2(400.f, 200.f));
+        ImGui::SetWindowSize(ImVec2(400.f, 200.f), ImGuiCond_Always);
 
         int imgWidth = 0;
         int imgHeight = 0;
@@ -597,17 +624,54 @@ void CCompanion::ServerBrowserSection()
 
         ImGui::PushItemWidth(ImGui::GetWindowContentRegionWidth());
         ImGui::InputTextWithHint("##PrivateServersConnectModal_TokenInput", "Token", &token);
-        ImGui::InputTextWithHint("##PrivateServersConnectModal_PasswordInput", "Password", &password);
+        ImGui::InputTextWithHint("##PrivateServersConnectModal_PasswordInput", "Password", &password, ImGuiInputTextFlags_Password);
         ImGui::PopItemWidth();
 
-        ImGui::Spacing();
+        ImGui::Dummy(ImVec2(ImGui::GetWindowContentRegionWidth(), 19.f));
+
+
+        static std::string reqMessage;
+        static ImVec4 reqMessageColor;
+
+        ImGui::TextColored(reqMessageColor, reqMessage.c_str());
+
         ImGui::Separator();
 
-        if(ImGui::Button("Connect##PrivateServersConnectModal_ConnectButton"))
-            ImGui::CloseCurrentPopup();
+        if (ImGui::Button("Connect##PrivateServersConnectModal_ConnectButton", ImVec2(ImGui::GetWindowContentRegionWidth() / 2.f, 19)))
+        {
+            nlohmann::json response = SendGetServerByTokenRequest(token, password);
+            if (response["success"])
+            {
+                auto server = response["server"];
+
+
+                if (server["ip"].is_string() && server["port"].is_string())
+                {
+                    std::string name = server["name"];
+                    std::string ip = server["ip"];
+                    std::string port = server["port"];
+
+
+                    ConnectToServer(ip, port);
+                    reqMessage = "Found Server: " + name;
+                    reqMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
+
+                    
+                }
+            }
+            else
+            {
+                std::string err = response["err"];
+                reqMessage = "Error: " + err;
+                reqMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+            }
+            
+        }
+
         ImGui::SameLine();
-        if (ImGui::Button("Close##PrivateServersConnectModal_CloseButton"))
+        if (ImGui::Button("Close##PrivateServersConnectModal_CloseButton", ImVec2(ImGui::GetWindowContentRegionWidth() / 2.f, 19)))
             ImGui::CloseCurrentPopup();
+
         ImGui::EndPopup();
     }
 
@@ -618,7 +682,8 @@ void CCompanion::HostServerSection()
 {
     static std::string ServerNameErr = "";
 
-    ImGui::InputTextWithHint("Server Name##ServerHost_ServerName", "Required Field", &MyServer.name);
+    ImGui::InputTextWithHint("Server Name##ServerHost_ServerName", "Server Name (Required)", &MyServer.name);
+    ImGui::InputTextWithHint("Server Name##ServerHost_ServerPassword", "Password (Optional)", &MyServer.password);
     ImGui::Spacing();
     if (ImGui::BeginCombo("Map##ServerHost_MapListBox", MyServer.map.c_str()))
     {
@@ -665,6 +730,10 @@ void CCompanion::HostServerSection()
 
     ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), ServerNameErr.c_str());
     ImGui::TextColored(HostRequestMessageColor, HostRequestMessage.c_str());
+    if (!HostToken.empty())
+    {
+        ImGui::InputText("##ServerHost_HostToken", &HostToken, ImGuiInputTextFlags_ReadOnly);
+    }
 
     if (StartAsDedi)
     {
@@ -777,6 +846,23 @@ void Strtrim(char* s)
 
     while (str_end > s && str_end[-1] == ' ')
         str_end--; *str_end = 0;
+}
+
+
+void CCompanion::ConnectToServer(const std::string &ip, const std::string &port)
+{
+
+    std::stringstream cmd;
+    cmd << "connect " << ip << ":" << port;
+    g_ServerBrowser->ProcessCommand(cmd.str().c_str());
+}
+
+void CCompanion::ConnectToServer(const std::string &connString)
+{
+
+    std::stringstream cmd;
+    cmd << "connect " << connString;
+    g_ServerBrowser->ProcessCommand(cmd.str().c_str());
 }
 
 

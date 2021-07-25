@@ -181,6 +181,7 @@ public:
     ServerListing MyServer;
     std::vector<std::string> MapsList;
     std::string HostRequestMessage = "";
+    std::string HostToken = "";
     ImVec4 HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
     bool StartAsDedi = false;
     bool BroadCastServer = false;
@@ -255,6 +256,7 @@ public:
     void RefreshServerList();
     void UpdateMyServerInfo();
     void SendHostingPostRequest();
+    const nlohmann::json SendGetServerByTokenRequest(const std::string &token, const std::string &password);
     void CompMenu();
     void ServerBrowserSection();
     void SettingsSection();
@@ -264,6 +266,8 @@ public:
     void ProcessCommand(const char* command_line);
     void ExecCommand(const char* command_line);
 
+    void ConnectToServer(const std::string &ip, const std::string &port);
+    void ConnectToServer(const std::string &connString);
 };
 
 extern CCompanion* g_ServerBrowser;

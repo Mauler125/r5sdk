@@ -17,5 +17,6 @@ public:
 	std::string map;
 	std::string ip;
 	std::string port;
+	std::string password;
 };
 
