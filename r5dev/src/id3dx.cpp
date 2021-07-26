@@ -495,12 +495,12 @@ void SetupDXSwapChain()
 //#################################################################################
 // UTILS
 //#################################################################################
-bool LoadTextureFromFile(const char* filename, ID3D11ShaderResourceView** out_srv, int* out_width, int* out_height)
+bool LoadTextureFromCharArray(unsigned char* image_data, const int &image_width, const int &image_height, ID3D11ShaderResourceView** out_srv)
 {
 	// Load from disk into a raw RGBA buffer
-	int image_width = 0;
-	int image_height = 0;
-	unsigned char* image_data = stbi_load(filename, &image_width, &image_height, NULL, 4);
+	//int image_width = 0;
+	//int image_height = 0;
+	//unsigned char* image_data = stbi_load(filename, &image_width, &image_height, NULL, 4);
 	if (image_data == NULL)
 		return false;
 
@@ -534,9 +534,7 @@ bool LoadTextureFromFile(const char* filename, ID3D11ShaderResourceView** out_sr
 	g_pDevice->CreateShaderResourceView(pTexture, &srvDesc, out_srv);
 	pTexture->Release();
 
-	*out_width = image_width;
-	*out_height = image_height;
-	stbi_image_free(image_data);
+	//stbi_image_free(image_data);
 
 	return true;
 }
