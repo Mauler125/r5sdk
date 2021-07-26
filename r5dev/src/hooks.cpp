@@ -155,7 +155,7 @@ int HMSG_EngineError(char* fmt, va_list args)
 }
 
 // TODO: turn this into a playerstruct constructor if it ever becomes necessary
-bool HCVEngineClient_IsPersistenceDataAvailable(__int64 thisptr, int client)
+bool HCVEngineServer_IsPersistenceDataAvailable(__int64 thisptr, int client)
 {
 	static bool isPersistenceVarSet[256];
 
@@ -205,7 +205,7 @@ void InstallENHooks()
 	///////////////////////////////////////////////////////////////////////////////
 	// Hook Utility functions
 	DetourAttach((LPVOID*)&org_MSG_EngineError, &HMSG_EngineError);
-	DetourAttach((LPVOID*)&org_CVEngineServer_IsPersistenceDataAvailable, &HCVEngineClient_IsPersistenceDataAvailable);
+	DetourAttach((LPVOID*)&org_CVEngineServer_IsPersistenceDataAvailable, &HCVEngineServer_IsPersistenceDataAvailable);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Commit the transaction
@@ -241,7 +241,7 @@ void RemoveENHooks()
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook Utility functions
 	DetourDetach((LPVOID*)&org_MSG_EngineError, &HMSG_EngineError);
-	DetourDetach((LPVOID*)&org_CVEngineServer_IsPersistenceDataAvailable, &HCVEngineClient_IsPersistenceDataAvailable);
+	DetourDetach((LPVOID*)&org_CVEngineServer_IsPersistenceDataAvailable, &HCVEngineServer_IsPersistenceDataAvailable);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Commit the transaction

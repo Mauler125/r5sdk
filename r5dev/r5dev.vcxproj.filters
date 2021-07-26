@@ -1,56 +1,63 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{a80939e5-3b3c-4873-885e-834e95d68d34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core">
+      <UniqueIdentifier>{927ea852-3616-4fc4-8b32-781f65853a6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\include">
+      <UniqueIdentifier>{b421eb0e-1e3d-4a7a-a8d8-f9b397911702}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared">
+      <UniqueIdentifier>{c2ad07a8-ef40-4faa-b86c-19b31bf3209d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared\include">
+      <UniqueIdentifier>{633d6e7a-c709-4d64-a134-b383d43c8c8e}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source Files">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="shared\libraries">
+      <UniqueIdentifier>{7cef4f92-94d9-43af-bea5-c6963d68fff2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="External Libraries">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{a80939e5-3b3c-4873-885e-834e95d68d34}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External Libraries\imgui">
-      <UniqueIdentifier>{c72b9789-72e9-4657-8a42-8712aaf8690e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External Libraries\imgui\Header Files">
-      <UniqueIdentifier>{c18fb898-adc3-4aa8-902c-4777bbc76e5b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External Libraries\imgui\Source Files">
-      <UniqueIdentifier>{c3bd7c47-4a04-43da-b79f-b8ef22ba72d4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External Libraries\detours">
+    <Filter Include="shared\libraries\detours">
       <UniqueIdentifier>{584562a8-0382-488c-909c-67bbb1d1af3c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="External Libraries\detours\Header Files">
-      <UniqueIdentifier>{3fa7f9a9-dc07-4d42-9172-0944829c010f}</UniqueIdentifier>
+    <Filter Include="shared\libraries\imgui">
+      <UniqueIdentifier>{c72b9789-72e9-4657-8a42-8712aaf8690e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="External Libraries\spdlog">
+    <Filter Include="shared\libraries\spdlog">
       <UniqueIdentifier>{757af774-e575-4623-8582-71efb0ae53a4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="External Libraries\spdlog\Header Files">
+    <Filter Include="shared\libraries\detours\include">
+      <UniqueIdentifier>{3fa7f9a9-dc07-4d42-9172-0944829c010f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared\libraries\imgui\include">
+      <UniqueIdentifier>{c18fb898-adc3-4aa8-902c-4777bbc76e5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared\libraries\spdlog\include">
       <UniqueIdentifier>{7b737633-f8a6-464b-868c-c63854984082}</UniqueIdentifier>
     </Filter>
-    <Filter Include="External Libraries\spdlog\Header Files\cfg">
+    <Filter Include="shared\libraries\spdlog\include\cfg">
       <UniqueIdentifier>{f832e462-9066-45a9-8f58-f865d5c24de3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="External Libraries\spdlog\Header Files\details">
+    <Filter Include="shared\libraries\spdlog\include\details">
       <UniqueIdentifier>{af02cb01-8e1d-49f9-b3da-cff2cf7dc7a1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="External Libraries\spdlog\Header Files\fmt">
+    <Filter Include="shared\libraries\spdlog\include\fmt">
       <UniqueIdentifier>{9d3b7c40-958a-4f6e-9ab6-72c3caea9591}</UniqueIdentifier>
     </Filter>
-    <Filter Include="External Libraries\spdlog\Header Files\sinks">
+    <Filter Include="shared\libraries\spdlog\include\fmt\bundled">
+      <UniqueIdentifier>{6faf53e7-9be1-439f-92f9-16ab96c005b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared\libraries\spdlog\include\sinks">
       <UniqueIdentifier>{e38cd6c5-b355-4bb5-bf65-bfd51fef296b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="External Libraries\spdlog\Header Files\fmt\bundled">
-      <UniqueIdentifier>{6faf53e7-9be1-439f-92f9-16ab96c005b7}</UniqueIdentifier>
+    <Filter Include="core\resource">
+      <UniqueIdentifier>{30005d10-4213-441c-b18b-4dd47fcb8812}</UniqueIdentifier>
     </Filter>
     <Filter Include="External Libraries\stb">
       <UniqueIdentifier>{10c4f432-81f6-46f2-9ab0-ac70ee08bff7}</UniqueIdentifier>
@@ -60,41 +67,14 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\dllmain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\console.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\hooks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\utility.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\opcptc.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\imgui\src\imgui_draw.cpp">
-      <Filter>External Libraries\imgui\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\imgui\src\imgui_impl_dx11.cpp">
-      <Filter>External Libraries\imgui\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\imgui\src\imgui_impl_win32.cpp">
-      <Filter>External Libraries\imgui\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\imgui\src\imgui_tables.cpp">
-      <Filter>External Libraries\imgui\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\imgui\src\imgui_widgets.cpp">
-      <Filter>External Libraries\imgui\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\imgui\src\imgui.cpp">
-      <Filter>External Libraries\imgui\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\imgui\src\imgui_demo.cpp">
-      <Filter>External Libraries\imgui\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\id3dx.cpp">
       <Filter>Source Files</Filter>
@@ -111,8 +91,35 @@
     <ClCompile Include="src\gameclasses.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\dllmain.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
     <ClCompile Include="src\pch.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\imgui\src\imgui_widgets.cpp">
+      <Filter>shared\libraries\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\imgui\src\imgui.cpp">
+      <Filter>shared\libraries\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\imgui\src\imgui_demo.cpp">
+      <Filter>shared\libraries\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\imgui\src\imgui_draw.cpp">
+      <Filter>shared\libraries\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\imgui\src\imgui_impl_dx11.cpp">
+      <Filter>shared\libraries\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\imgui\src\imgui_impl_win32.cpp">
+      <Filter>shared\libraries\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\imgui\src\imgui_tables.cpp">
+      <Filter>shared\libraries\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\utility.cpp">
+      <Filter>shared</Filter>
     </ClCompile>
     <ClCompile Include="..\external\imgui\src\imgui_stdlib.cpp">
       <Filter>External Libraries\imgui\Source Files</Filter>
@@ -137,41 +144,38 @@
     <ClInclude Include="include\structs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\utility.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\external\detours\include\detver.h">
-      <Filter>External Libraries\detours\Header Files</Filter>
+      <Filter>shared\libraries\detours\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\detours\include\syelog.h">
-      <Filter>External Libraries\detours\Header Files</Filter>
+      <Filter>shared\libraries\detours\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\detours\include\detours.h">
-      <Filter>External Libraries\detours\Header Files</Filter>
+      <Filter>shared\libraries\detours\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\imgui\include\imgui_impl_win32.h">
-      <Filter>External Libraries\imgui\Header Files</Filter>
+      <Filter>shared\libraries\imgui\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\imgui\include\imgui_internal.h">
-      <Filter>External Libraries\imgui\Header Files</Filter>
+      <Filter>shared\libraries\imgui\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\imgui\include\imstb_rectpack.h">
-      <Filter>External Libraries\imgui\Header Files</Filter>
+      <Filter>shared\libraries\imgui\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\imgui\include\imstb_textedit.h">
-      <Filter>External Libraries\imgui\Header Files</Filter>
+      <Filter>shared\libraries\imgui\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\imgui\include\imstb_truetype.h">
-      <Filter>External Libraries\imgui\Header Files</Filter>
+      <Filter>shared\libraries\imgui\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\imgui\include\imconfig.h">
-      <Filter>External Libraries\imgui\Header Files</Filter>
+      <Filter>shared\libraries\imgui\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\imgui\include\imgui.h">
-      <Filter>External Libraries\imgui\Header Files</Filter>
+      <Filter>shared\libraries\imgui\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\imgui\include\imgui_impl_dx11.h">
-      <Filter>External Libraries\imgui\Header Files</Filter>
+      <Filter>shared\libraries\imgui\include</Filter>
     </ClInclude>
     <ClInclude Include="include\id3dx.h">
       <Filter>Header Files</Filter>
@@ -186,304 +190,307 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\async_logger-inl.h">
-      <Filter>External Libraries\spdlog\Header Files</Filter>
+      <Filter>shared\libraries\spdlog\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\common.h">
-      <Filter>External Libraries\spdlog\Header Files</Filter>
+      <Filter>shared\libraries\spdlog\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\common-inl.h">
-      <Filter>External Libraries\spdlog\Header Files</Filter>
+      <Filter>shared\libraries\spdlog\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\formatter.h">
-      <Filter>External Libraries\spdlog\Header Files</Filter>
+      <Filter>shared\libraries\spdlog\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\fwd.h">
-      <Filter>External Libraries\spdlog\Header Files</Filter>
+      <Filter>shared\libraries\spdlog\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\logger.h">
-      <Filter>External Libraries\spdlog\Header Files</Filter>
+      <Filter>shared\libraries\spdlog\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\logger-inl.h">
-      <Filter>External Libraries\spdlog\Header Files</Filter>
+      <Filter>shared\libraries\spdlog\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\pattern_formatter.h">
-      <Filter>External Libraries\spdlog\Header Files</Filter>
+      <Filter>shared\libraries\spdlog\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\pattern_formatter-inl.h">
-      <Filter>External Libraries\spdlog\Header Files</Filter>
+      <Filter>shared\libraries\spdlog\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\spdlog.h">
-      <Filter>External Libraries\spdlog\Header Files</Filter>
+      <Filter>shared\libraries\spdlog\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\spdlog-inl.h">
-      <Filter>External Libraries\spdlog\Header Files</Filter>
+      <Filter>shared\libraries\spdlog\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\stopwatch.h">
-      <Filter>External Libraries\spdlog\Header Files</Filter>
+      <Filter>shared\libraries\spdlog\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\tweakme.h">
-      <Filter>External Libraries\spdlog\Header Files</Filter>
+      <Filter>shared\libraries\spdlog\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\version.h">
-      <Filter>External Libraries\spdlog\Header Files</Filter>
+      <Filter>shared\libraries\spdlog\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\async.h">
-      <Filter>External Libraries\spdlog\Header Files</Filter>
+      <Filter>shared\libraries\spdlog\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\async_logger.h">
-      <Filter>External Libraries\spdlog\Header Files</Filter>
+      <Filter>shared\libraries\spdlog\include</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\cfg\env.h">
-      <Filter>External Libraries\spdlog\Header Files\cfg</Filter>
+      <Filter>shared\libraries\spdlog\include\cfg</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\cfg\helpers.h">
-      <Filter>External Libraries\spdlog\Header Files\cfg</Filter>
+      <Filter>shared\libraries\spdlog\include\cfg</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\cfg\helpers-inl.h">
-      <Filter>External Libraries\spdlog\Header Files\cfg</Filter>
+      <Filter>shared\libraries\spdlog\include\cfg</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\cfg\argv.h">
-      <Filter>External Libraries\spdlog\Header Files\cfg</Filter>
+      <Filter>shared\libraries\spdlog\include\cfg</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\details\fmt_helper.h">
-      <Filter>External Libraries\spdlog\Header Files\details</Filter>
+      <Filter>shared\libraries\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\details\log_msg.h">
-      <Filter>External Libraries\spdlog\Header Files\details</Filter>
+      <Filter>shared\libraries\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\details\log_msg_buffer.h">
-      <Filter>External Libraries\spdlog\Header Files\details</Filter>
+      <Filter>shared\libraries\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\details\log_msg_buffer-inl.h">
-      <Filter>External Libraries\spdlog\Header Files\details</Filter>
+      <Filter>shared\libraries\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\details\log_msg-inl.h">
-      <Filter>External Libraries\spdlog\Header Files\details</Filter>
+      <Filter>shared\libraries\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\details\mpmc_blocking_q.h">
-      <Filter>External Libraries\spdlog\Header Files\details</Filter>
+      <Filter>shared\libraries\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\details\null_mutex.h">
-      <Filter>External Libraries\spdlog\Header Files\details</Filter>
+      <Filter>shared\libraries\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\details\os.h">
-      <Filter>External Libraries\spdlog\Header Files\details</Filter>
+      <Filter>shared\libraries\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\details\os-inl.h">
-      <Filter>External Libraries\spdlog\Header Files\details</Filter>
+      <Filter>shared\libraries\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\details\periodic_worker.h">
-      <Filter>External Libraries\spdlog\Header Files\details</Filter>
+      <Filter>shared\libraries\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\details\periodic_worker-inl.h">
-      <Filter>External Libraries\spdlog\Header Files\details</Filter>
+      <Filter>shared\libraries\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\details\registry.h">
-      <Filter>External Libraries\spdlog\Header Files\details</Filter>
+      <Filter>shared\libraries\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\details\registry-inl.h">
-      <Filter>External Libraries\spdlog\Header Files\details</Filter>
+      <Filter>shared\libraries\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\details\synchronous_factory.h">
-      <Filter>External Libraries\spdlog\Header Files\details</Filter>
+      <Filter>shared\libraries\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\details\tcp_client.h">
-      <Filter>External Libraries\spdlog\Header Files\details</Filter>
+      <Filter>shared\libraries\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\details\tcp_client-windows.h">
-      <Filter>External Libraries\spdlog\Header Files\details</Filter>
+      <Filter>shared\libraries\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\details\thread_pool.h">
-      <Filter>External Libraries\spdlog\Header Files\details</Filter>
+      <Filter>shared\libraries\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\details\thread_pool-inl.h">
-      <Filter>External Libraries\spdlog\Header Files\details</Filter>
+      <Filter>shared\libraries\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\details\windows_include.h">
-      <Filter>External Libraries\spdlog\Header Files\details</Filter>
+      <Filter>shared\libraries\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\details\backtracer.h">
-      <Filter>External Libraries\spdlog\Header Files\details</Filter>
+      <Filter>shared\libraries\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\details\backtracer-inl.h">
-      <Filter>External Libraries\spdlog\Header Files\details</Filter>
+      <Filter>shared\libraries\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\details\circular_q.h">
-      <Filter>External Libraries\spdlog\Header Files\details</Filter>
+      <Filter>shared\libraries\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\details\console_globals.h">
-      <Filter>External Libraries\spdlog\Header Files\details</Filter>
+      <Filter>shared\libraries\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\details\file_helper.h">
-      <Filter>External Libraries\spdlog\Header Files\details</Filter>
+      <Filter>shared\libraries\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\details\file_helper-inl.h">
-      <Filter>External Libraries\spdlog\Header Files\details</Filter>
+      <Filter>shared\libraries\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\fmt\fmt.h">
-      <Filter>External Libraries\spdlog\Header Files\fmt</Filter>
+      <Filter>shared\libraries\spdlog\include\fmt</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\fmt\ostr.h">
-      <Filter>External Libraries\spdlog\Header Files\fmt</Filter>
+      <Filter>shared\libraries\spdlog\include\fmt</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\fmt\xchar.h">
-      <Filter>External Libraries\spdlog\Header Files\fmt</Filter>
+      <Filter>shared\libraries\spdlog\include\fmt</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\fmt\bin_to_hex.h">
-      <Filter>External Libraries\spdlog\Header Files\fmt</Filter>
+      <Filter>shared\libraries\spdlog\include\fmt</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\fmt\chrono.h">
-      <Filter>External Libraries\spdlog\Header Files\fmt</Filter>
+      <Filter>shared\libraries\spdlog\include\fmt</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\fmt\bundled\compile.h">
-      <Filter>External Libraries\spdlog\Header Files\fmt\bundled</Filter>
+      <Filter>shared\libraries\spdlog\include\fmt\bundled</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\fmt\bundled\core.h">
-      <Filter>External Libraries\spdlog\Header Files\fmt\bundled</Filter>
+      <Filter>shared\libraries\spdlog\include\fmt\bundled</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\fmt\bundled\format.h">
-      <Filter>External Libraries\spdlog\Header Files\fmt\bundled</Filter>
+      <Filter>shared\libraries\spdlog\include\fmt\bundled</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\fmt\bundled\format-inl.h">
-      <Filter>External Libraries\spdlog\Header Files\fmt\bundled</Filter>
+      <Filter>shared\libraries\spdlog\include\fmt\bundled</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\fmt\bundled\locale.h">
-      <Filter>External Libraries\spdlog\Header Files\fmt\bundled</Filter>
+      <Filter>shared\libraries\spdlog\include\fmt\bundled</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\fmt\bundled\os.h">
-      <Filter>External Libraries\spdlog\Header Files\fmt\bundled</Filter>
+      <Filter>shared\libraries\spdlog\include\fmt\bundled</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\fmt\bundled\ostream.h">
-      <Filter>External Libraries\spdlog\Header Files\fmt\bundled</Filter>
+      <Filter>shared\libraries\spdlog\include\fmt\bundled</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\fmt\bundled\printf.h">
-      <Filter>External Libraries\spdlog\Header Files\fmt\bundled</Filter>
+      <Filter>shared\libraries\spdlog\include\fmt\bundled</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\fmt\bundled\ranges.h">
-      <Filter>External Libraries\spdlog\Header Files\fmt\bundled</Filter>
+      <Filter>shared\libraries\spdlog\include\fmt\bundled</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\fmt\bundled\xchar.h">
-      <Filter>External Libraries\spdlog\Header Files\fmt\bundled</Filter>
+      <Filter>shared\libraries\spdlog\include\fmt\bundled</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\fmt\bundled\args.h">
-      <Filter>External Libraries\spdlog\Header Files\fmt\bundled</Filter>
+      <Filter>shared\libraries\spdlog\include\fmt\bundled</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\fmt\bundled\chrono.h">
-      <Filter>External Libraries\spdlog\Header Files\fmt\bundled</Filter>
+      <Filter>shared\libraries\spdlog\include\fmt\bundled</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\fmt\bundled\color.h">
-      <Filter>External Libraries\spdlog\Header Files\fmt\bundled</Filter>
+      <Filter>shared\libraries\spdlog\include\fmt\bundled</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\ringbuffer_sink.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\rotating_file_sink.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\rotating_file_sink-inl.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\sink.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\sink-inl.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\stdout_color_sinks.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\stdout_color_sinks-inl.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\stdout_sinks.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\stdout_sinks-inl.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\syslog_sink.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\systemd_sink.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\tcp_sink.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\win_eventlog_sink.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\wincolor_sink.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\wincolor_sink-inl.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\android_sink.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\ansicolor_sink.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\ansicolor_sink-inl.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\base_sink.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\base_sink-inl.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\basic_file_sink.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\basic_file_sink-inl.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\daily_file_sink.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\dist_sink.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\dup_filter_sink.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\hourly_file_sink.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\mongo_sink.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\msvc_sink.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\null_sink.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\ostream_sink.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\sinks\qt_sinks.h">
-      <Filter>External Libraries\spdlog\Header Files\sinks</Filter>
+      <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
     <ClInclude Include="include\gameclasses.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\httplib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\serverlisting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\json.hpp">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\shared\include\address.h">
+      <Filter>shared\include</Filter>
     </ClInclude>
-    <ClInclude Include="include\address.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\shared\include\json.hpp">
+      <Filter>shared\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\include\utility.h">
+      <Filter>shared\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\include\httplib.h">
+      <Filter>shared\include</Filter>
     </ClInclude>
     <ClInclude Include="include\pch.h">
-      <Filter>Header Files</Filter>
+      <Filter>core\include</Filter>
     </ClInclude>
     <ClInclude Include="include\imgui_stdlib.h">
       <Filter>External Libraries\imgui\Header Files</Filter>
@@ -494,7 +501,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="r5dev.def">
-      <Filter>Resource Files</Filter>
+      <Filter>core\resource</Filter>
     </None>
   </ItemGroup>
 </Project>

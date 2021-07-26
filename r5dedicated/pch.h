@@ -4,6 +4,7 @@
 #define WIN32_LEAN_AND_MEAN // Prevent winsock2 redefinition.
 #include <windows.h>
 #include <detours.h>
+#include <WinSock2.h>
 #include <thread>
 #include <fstream>
 #include <stdio.h>
@@ -14,26 +15,22 @@
 #include <cassert>
 #include <iomanip>
 #include <iostream>
-#include <d3d11.h>
 #include <string>
 #include <Psapi.h>
 #include <vector>
 
 
-
 // Our headers
 
-#include "imgui.h"
-#include "imgui_stdlib.h"
-#include "imgui_impl_dx11.h"
-#include "imgui_impl_win32.h"
 #include "spdlog.h"
 #include "sinks/basic_file_sink.h"
 #include "utility.h"
-#include "httplib.h"
-#include "json.hpp"
+//#include "httplib.h"
+//#include "json.hpp"
 
 #include "address.h"
+
+#pragma once
 
 #define FUNC_AT_ADDRESS(name, funcbody, addr) \
    using _##name = funcbody; \

@@ -517,12 +517,68 @@ public:
 	}
 };
 
-struct CVValue_t
+class ConCommandBase
 {
-	char* m_pszString;
-	__int64 m_StringLength;
-	float m_fValue;
-	int m_nValue;
+public:
+	void* m_pConCommandBaseVTable; //0x0000
+	ConCommandBase* m_pNext; //0x0008
+	bool m_bRegistered; //0x0010
+private:
+	char pad_0011[7]; //0x0011
+public:
+	const char* m_pszName; //0x0018
+	const char* m_pszHelpString; //0x0020
+private:
+	char pad_0028[16]; //0x0028
+public:
+	__int32 m_nFlags; //0x0038
+private:
+	char pad_003C[4]; //0x003C
+}; //Size: 0x0038
+
+class ConVar
+{
+public:
+	ConCommandBase m_ConCommandBase; // 0x0000
+	void* m_pConVarVTable; //0x0040
+	ConVar* m_pParent; //0x0048
+	const char* n_pszDefaultValue; //0x0050
+	const char* m_pzsCurrentValue; //0x0058
+	__int64 m_iStringLength; //0x0060
+	float m_flValue; //0x0068
+	__int64 m_iValue; //0x006C
+	bool m_bHasMin; //0x0070
+private:
+	char pad_0071[3]; //0x0071
+public:
+	float m_flMinValue; //0x0074
+	bool m_bHasMax; //0x0078
+private:
+	char pad_0079[3]; //0x0079
+public:
+	float m_flMaxValue; //0x007C
+}; //Size: 0x0080
+
+class CCVar
+{
+public:
+	ConCommandBase* FindCommandBase(const char* szCommandName) // @0x1405983A0 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
+	{
+		using OriginalFn = ConCommandBase*(__thiscall*)(CCVar*, const char*);
+		return (*reinterpret_cast<OriginalFn**>(this))[14](this, szCommandName);
+	}
+
+	ConVar* FindVar(const char* szVarName) // @0x1405983B0 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
+	{
+		using OriginalFn = ConVar*(__thiscall*)(CCVar*, const char*);
+		return (*reinterpret_cast<OriginalFn**>(this))[16](this, szVarName);
+	}
+
+	void* /*Implement ConCommand class.*/ FindCommand(const char* szCommandName) // @0x1405983F0 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
+	{
+		using OriginalFn = void*(__thiscall*)(CCVar*, const char*);
+		return (*reinterpret_cast<OriginalFn**>(this))[18](this, szCommandName);
+	}
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -532,6 +588,7 @@ namespace GameGlobals
 {
 	extern CHostState* HostState;
 	extern CInputSystem* InputSystem;
+	extern CCVar* Cvar;
 
 	void InitGameGlobals();
 	extern bool IsInitialized;

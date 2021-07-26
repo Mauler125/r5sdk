@@ -356,12 +356,11 @@ CCompanion::CCompanion()
 void CCompanion::UpdateMyServerInfo()
 {
     MyServer.map = GameGlobals::HostState->m_levelName;
-    MyServer.port = ((CVValue_t*)(0x141734DD0 + 0x58))->m_pszString;
 
 }
 void CCompanion::UpdateHostingStatus()
 {
-    if (!GameGlobals::HostState) // Is HostState valid?
+    if (!GameGlobals::HostState || !GameGlobals::Cvar) // Is HostState and Cvar valid?
         return;
 
     GameGlobals::HostState->m_bActiveGame ? HostingStatus = EHostStatus::Hosting : HostingStatus = EHostStatus::NotHosting; // Are we hosting a server?
@@ -431,12 +430,13 @@ void CCompanion::SendHostingPostRequest()
     nlohmann::json body = nlohmann::json::object();
     body["name"] = MyServer.name;
     body["map"] = MyServer.map;
-    body["port"] = MyServer.port;
+    static ConVar* hostport = GameGlobals::Cvar->FindVar("hostport"); // static since it won't move memory locations.
+    body["port"] = hostport->m_pzsCurrentValue; //body["port"] = MyServer.port;
     body["password"] = MyServer.password;
 
-    std::string body_str = body.dump();
 
-    
+
+    std::string body_str = body.dump();
 
 #ifdef OVERLAY_DEBUG
     std::cout << " [+CCompanion+] Sending request now, Body: " << body_str << "\n";
@@ -740,8 +740,8 @@ void CCompanion::HostServerSection()
 {
     static std::string ServerNameErr = "";
 
-    ImGui::InputTextWithHint("Server Name##ServerHost_ServerName", "Server Name (Required)", &MyServer.name);
-    ImGui::InputTextWithHint("Server Name##ServerHost_ServerPassword", "Password (Optional)", &MyServer.password);
+    ImGui::InputTextWithHint("##ServerHost_ServerName", "Server Name (Required)", &MyServer.name);
+    ImGui::InputTextWithHint("##ServerHost_ServerPassword", "Password (Optional)", &MyServer.password);
     ImGui::Spacing();
     if (ImGui::BeginCombo("Map##ServerHost_MapListBox", MyServer.map.c_str()))
     {

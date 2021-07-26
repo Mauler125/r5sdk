@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "utility.h"
-#include "hooks.h"
 
 /*-----------------------------------------------------------------------------
  * _utility.cpp
