@@ -297,7 +297,7 @@
     <ClInclude Include="sqvm.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="r5dev.def" />
+    <None Include="r5dedicated.def" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

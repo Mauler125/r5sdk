@@ -20,10 +20,6 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="shared\libraries">
       <UniqueIdentifier>{7cef4f92-94d9-43af-bea5-c6963d68fff2}</UniqueIdentifier>
     </Filter>
@@ -60,15 +56,15 @@
     <Filter Include="shared\libraries\spdlog\include\sinks">
       <UniqueIdentifier>{e38cd6c5-b355-4bb5-bf65-bfd51fef296b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="core\resource">
+      <UniqueIdentifier>{30005d10-4213-441c-b18b-4dd47fcb8812}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\console.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\hooks.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\utility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\opcptc.cpp">
@@ -88,9 +84,6 @@
     </ClCompile>
     <ClCompile Include="src\gameclasses.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\utility.cpp">
-      <Filter>shared</Filter>
     </ClCompile>
     <ClCompile Include="src\dllmain.cpp">
       <Filter>core</Filter>
@@ -118,6 +111,9 @@
     </ClCompile>
     <ClCompile Include="..\external\imgui\src\imgui_tables.cpp">
       <Filter>shared\libraries\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\utility.cpp">
+      <Filter>shared</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -490,7 +486,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="r5dev.def">
-      <Filter>Resource Files</Filter>
+      <Filter>core\resource</Filter>
     </None>
   </ItemGroup>
 </Project>

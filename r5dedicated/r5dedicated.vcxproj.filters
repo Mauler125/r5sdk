@@ -393,9 +393,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\shared\utility.cpp">
-      <Filter>shared</Filter>
-    </ClCompile>
     <ClCompile Include="console.cpp">
       <Filter>core</Filter>
     </ClCompile>
@@ -429,9 +426,12 @@
     <ClCompile Include="iconvar.cpp">
       <Filter>hooks\iconvar</Filter>
     </ClCompile>
+    <ClCompile Include="..\shared\utility.cpp">
+      <Filter>shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="r5dev.def">
+    <None Include="r5dedicated.def">
       <Filter>core\resource</Filter>
     </None>
   </ItemGroup>
