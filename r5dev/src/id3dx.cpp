@@ -1,8 +1,5 @@
 #include "pch.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
 #include "id3dx.h"
 #include "input.h"
 #include "enums.h"
