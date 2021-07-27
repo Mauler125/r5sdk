@@ -17,26 +17,8 @@
     <Filter Include="shared\include">
       <UniqueIdentifier>{a0165b58-06b1-4b6a-b5d1-5d643517ad14}</UniqueIdentifier>
     </Filter>
-    <Filter Include="hooks\iconvar">
-      <UniqueIdentifier>{06affed3-5a59-4b95-88ca-72d92c91909b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="hooks\concommand">
-      <UniqueIdentifier>{0742106d-702f-499e-99f1-e43f2a6ae561}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="hooks\cvengineserver">
-      <UniqueIdentifier>{338a4fb7-7519-4628-9206-679d33824965}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="hooks\other">
-      <UniqueIdentifier>{cc424eef-0c7a-4fb0-9d84-30bf8db2e253}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="hooks\squirrel">
-      <UniqueIdentifier>{74afa89f-72af-4e13-aa90-70f7a1957154}</UniqueIdentifier>
-    </Filter>
     <Filter Include="core\resource">
       <UniqueIdentifier>{35b40ed1-12bd-4bcf-9c05-5a42a0096619}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="hooks\netchannel">
-      <UniqueIdentifier>{05e6e9a7-801b-49b0-9c5a-21c4868befb7}</UniqueIdentifier>
     </Filter>
     <Filter Include="shared\libraries">
       <UniqueIdentifier>{a7199092-e8a9-49fa-97e1-b2d0ea21001b}</UniqueIdentifier>
@@ -62,6 +44,42 @@
     <Filter Include="shared\libraries\spdlog\include\sinks">
       <UniqueIdentifier>{eaefe9b7-d14d-48b6-878a-53a5ada7454b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shared\libraries\minhook">
+      <UniqueIdentifier>{245e8064-9b24-4631-9326-340dfb761fde}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared\libraries\minhook\include">
+      <UniqueIdentifier>{485b5648-149f-4664-a961-be9cd520e9e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="r5-sdk">
+      <UniqueIdentifier>{f5326cf2-826e-4499-98de-e818e096939d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="r5-sdk\include">
+      <UniqueIdentifier>{4c680991-cc41-4265-a6f3-b46d698bd72f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="r5-sdk\src">
+      <UniqueIdentifier>{8aac7eb6-9810-4fa2-bbfe-499fb2950f01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hooks\src">
+      <UniqueIdentifier>{f28b1a49-9b41-48d2-9462-1674af3d72a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hooks\src\other">
+      <UniqueIdentifier>{cc424eef-0c7a-4fb0-9d84-30bf8db2e253}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hooks\src\squirrel">
+      <UniqueIdentifier>{74afa89f-72af-4e13-aa90-70f7a1957154}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hooks\src\netchannel">
+      <UniqueIdentifier>{05e6e9a7-801b-49b0-9c5a-21c4868befb7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hooks\src\iconvar">
+      <UniqueIdentifier>{06affed3-5a59-4b95-88ca-72d92c91909b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hooks\src\cvengineserver">
+      <UniqueIdentifier>{338a4fb7-7519-4628-9206-679d33824965}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hooks\include">
+      <UniqueIdentifier>{31cdde4d-3641-497c-9b34-20d3d7c89d87}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\shared\include\address.h">
@@ -79,35 +97,11 @@
     <ClInclude Include="console.h">
       <Filter>core\include</Filter>
     </ClInclude>
-    <ClInclude Include="cnetchan.h">
-      <Filter>hooks\netchannel</Filter>
-    </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>core\include</Filter>
     </ClInclude>
-    <ClInclude Include="concommand.h">
-      <Filter>hooks\concommand</Filter>
-    </ClInclude>
-    <ClInclude Include="cvengineserver.h">
-      <Filter>hooks\cvengineserver</Filter>
-    </ClInclude>
-    <ClInclude Include="sqvm.h">
-      <Filter>hooks\squirrel</Filter>
-    </ClInclude>
-    <ClInclude Include="msgbox.h">
-      <Filter>hooks\other</Filter>
-    </ClInclude>
-    <ClInclude Include="hooks.h">
-      <Filter>hooks</Filter>
-    </ClInclude>
     <ClInclude Include="dllmain.h">
       <Filter>core\include</Filter>
-    </ClInclude>
-    <ClInclude Include="opcodes.h">
-      <Filter>hooks\other</Filter>
-    </ClInclude>
-    <ClInclude Include="iconvar.h">
-      <Filter>hooks\iconvar</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\async.h">
       <Filter>shared\libraries\spdlog\include</Filter>
@@ -391,6 +385,15 @@
     <ClInclude Include="..\external\spdlog\include\sinks\win_eventlog_sink.h">
       <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
+    <ClInclude Include="..\external\minhook\include\MinHook.h">
+      <Filter>shared\libraries\minhook\include</Filter>
+    </ClInclude>
+    <ClInclude Include="opcodes.h">
+      <Filter>r5-sdk\include</Filter>
+    </ClInclude>
+    <ClInclude Include="hooks.h">
+      <Filter>hooks\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="console.cpp">
@@ -402,32 +405,29 @@
     <ClCompile Include="pch.cpp">
       <Filter>core</Filter>
     </ClCompile>
-    <ClCompile Include="hooks.cpp">
-      <Filter>hooks</Filter>
-    </ClCompile>
-    <ClCompile Include="cnetchan.cpp">
-      <Filter>hooks\netchannel</Filter>
-    </ClCompile>
-    <ClCompile Include="concommand.cpp">
-      <Filter>hooks\concommand</Filter>
+    <ClCompile Include="net.cpp">
+      <Filter>hooks\src\netchannel</Filter>
     </ClCompile>
     <ClCompile Include="cvengineserver.cpp">
-      <Filter>hooks\cvengineserver</Filter>
+      <Filter>hooks\src\cvengineserver</Filter>
     </ClCompile>
     <ClCompile Include="sqvm.cpp">
-      <Filter>hooks\squirrel</Filter>
+      <Filter>hooks\src\squirrel</Filter>
     </ClCompile>
     <ClCompile Include="msgbox.cpp">
-      <Filter>hooks\other</Filter>
-    </ClCompile>
-    <ClCompile Include="opcodes.cpp">
-      <Filter>hooks\other</Filter>
-    </ClCompile>
-    <ClCompile Include="iconvar.cpp">
-      <Filter>hooks\iconvar</Filter>
+      <Filter>hooks\src\other</Filter>
     </ClCompile>
     <ClCompile Include="..\shared\utility.cpp">
       <Filter>shared</Filter>
+    </ClCompile>
+    <ClCompile Include="iconvar.cpp">
+      <Filter>hooks\src\iconvar</Filter>
+    </ClCompile>
+    <ClCompile Include="opcodes.cpp">
+      <Filter>r5-sdk\src</Filter>
+    </ClCompile>
+    <ClCompile Include="hooks.cpp">
+      <Filter>hooks\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

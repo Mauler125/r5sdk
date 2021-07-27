@@ -87,8 +87,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>dedicated</TargetName>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)external\detours\include;$(SolutionDir)external\spdlog\include;$(SolutionDir)shared\include;$(SolutionDir)r5dedicated;$(IncludePath)</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(SolutionDir)external\detours\libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)external\minhook\include;$(SolutionDir)external\spdlog\include;$(SolutionDir)shared\include;$(SolutionDir)r5dedicated;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)external\minhook\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -164,19 +164,18 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libMinHook.x64.lib</AdditionalDependencies>
       <ModuleDefinitionFile>r5dedicated.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\shared\utility.cpp" />
-    <ClCompile Include="concommand.cpp" />
     <ClCompile Include="console.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="hooks.cpp" />
     <ClCompile Include="iconvar.cpp" />
     <ClCompile Include="msgbox.cpp" />
-    <ClCompile Include="cnetchan.cpp" />
+    <ClCompile Include="net.cpp" />
     <ClCompile Include="opcodes.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -186,6 +185,7 @@
     <ClCompile Include="sqvm.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\external\minhook\include\MinHook.h" />
     <ClInclude Include="..\external\spdlog\include\async.h" />
     <ClInclude Include="..\external\spdlog\include\async_logger-inl.h" />
     <ClInclude Include="..\external\spdlog\include\async_logger.h" />
@@ -284,17 +284,11 @@
     <ClInclude Include="..\shared\include\httplib.h" />
     <ClInclude Include="..\shared\include\json.hpp" />
     <ClInclude Include="..\shared\include\utility.h" />
-    <ClInclude Include="concommand.h" />
     <ClInclude Include="console.h" />
     <ClInclude Include="dllmain.h" />
     <ClInclude Include="hooks.h" />
-    <ClInclude Include="iconvar.h" />
-    <ClInclude Include="msgbox.h" />
-    <ClInclude Include="cnetchan.h" />
     <ClInclude Include="opcodes.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="cvengineserver.h" />
-    <ClInclude Include="sqvm.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="r5dedicated.def" />

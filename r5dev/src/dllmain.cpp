@@ -5,7 +5,6 @@
 #include "hooks.h"
 #include "opcptc.h"
 #include "console.h"
-#include "gameclasses.h"
 
 //#############################################################################
 // INITIALIZATION
@@ -14,9 +13,7 @@
 void InitializeR5Dev()
 {
     SetupConsole();
-    InstallENHooks();
-    InstallIPHooks();
-    InstallDXHooks();
+    Hooks::InstallHooks();
     InstallOpcodes();
     SetupDXSwapChain();
     printf("+-----------------------------------------------------------------------------+\n");
@@ -27,10 +24,8 @@ void InitializeR5Dev()
 
 void TerminateR5Dev()
 {
-    RemoveCMHooks();
-    RemoveENHooks();
-    RemoveIPHooks();
     RemoveDXHooks();
+    Hooks::RemoveHooks();
     FreeConsole();
 }
 
@@ -38,7 +33,7 @@ void TerminateR5Dev()
 // ENTRYPOINT
 //#############################################################################
 
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD  dwReason, LPVOID lpReserved)
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
 {
 
     switch (dwReason)

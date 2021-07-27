@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{a80939e5-3b3c-4873-885e-834e95d68d34}</UniqueIdentifier>
-    </Filter>
     <Filter Include="core">
       <UniqueIdentifier>{927ea852-3616-4fc4-8b32-781f65853a6b}</UniqueIdentifier>
     </Filter>
@@ -16,24 +13,14 @@
     <Filter Include="shared\include">
       <UniqueIdentifier>{633d6e7a-c709-4d64-a134-b383d43c8c8e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
     <Filter Include="shared\libraries">
       <UniqueIdentifier>{7cef4f92-94d9-43af-bea5-c6963d68fff2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="shared\libraries\detours">
-      <UniqueIdentifier>{584562a8-0382-488c-909c-67bbb1d1af3c}</UniqueIdentifier>
     </Filter>
     <Filter Include="shared\libraries\imgui">
       <UniqueIdentifier>{c72b9789-72e9-4657-8a42-8712aaf8690e}</UniqueIdentifier>
     </Filter>
     <Filter Include="shared\libraries\spdlog">
       <UniqueIdentifier>{757af774-e575-4623-8582-71efb0ae53a4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="shared\libraries\detours\include">
-      <UniqueIdentifier>{3fa7f9a9-dc07-4d42-9172-0944829c010f}</UniqueIdentifier>
     </Filter>
     <Filter Include="shared\libraries\imgui\include">
       <UniqueIdentifier>{c18fb898-adc3-4aa8-902c-4777bbc76e5b}</UniqueIdentifier>
@@ -59,32 +46,62 @@
     <Filter Include="core\resource">
       <UniqueIdentifier>{30005d10-4213-441c-b18b-4dd47fcb8812}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shared\libraries\minhook">
+      <UniqueIdentifier>{e901ef66-ddeb-4aff-9d7e-786d74a791e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared\libraries\minhook\include">
+      <UniqueIdentifier>{da82c6eb-abba-4b52-84bf-9f3758a169bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hooks">
+      <UniqueIdentifier>{6a6d7e33-2ce0-4b53-bcf6-41dc6dacdc5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hooks\src">
+      <UniqueIdentifier>{e449786f-692c-4d6c-a292-b0720bf9e2a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hooks\src\winapi">
+      <UniqueIdentifier>{46b49d69-ea42-467c-86d8-00611f2718ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hooks\src\other">
+      <UniqueIdentifier>{2ec9179b-7320-47da-b170-f021d0279310}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hooks\src\squirrel">
+      <UniqueIdentifier>{83391c47-4a5b-4231-a9ef-29e119c5bb69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hooks\src\netchannel">
+      <UniqueIdentifier>{c27e3539-0070-40fa-b262-0ecd39f47919}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hooks\src\iconvar">
+      <UniqueIdentifier>{afb847fc-853f-4e6f-bde6-91bf345369b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hooks\src\cvengineserver">
+      <UniqueIdentifier>{9f8f15a7-6e69-4a79-b644-a92ad815c600}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hooks\src\chlclient">
+      <UniqueIdentifier>{25c5fe7f-23c0-4d44-b92d-ea4b127eec05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hooks\include">
+      <UniqueIdentifier>{0420f99f-468e-4ba5-abe3-960cc332b636}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui">
+      <UniqueIdentifier>{a40dcf17-855b-4965-b58d-6c7d24edc627}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\src">
+      <UniqueIdentifier>{03d79a58-4706-4ee0-b0ea-6251a2fafada}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\include">
+      <UniqueIdentifier>{89bf5311-5686-4077-9b79-c6306dc1bd91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="r5-sdk">
+      <UniqueIdentifier>{3a4ca756-24d2-47e8-af7f-0e8a75933c4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="r5-sdk\src">
+      <UniqueIdentifier>{58dbc5f6-cf3c-4d71-80c8-caefffb39beb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="r5-sdk\include">
+      <UniqueIdentifier>{0136e8e8-91ef-45c1-8661-476b5c20fc48}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\console.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\hooks.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\opcptc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\id3dx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\overlay.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\input.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\serverlisting.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\gameclasses.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\dllmain.cpp">
       <Filter>core</Filter>
     </ClCompile>
@@ -115,35 +132,53 @@
     <ClCompile Include="..\shared\utility.cpp">
       <Filter>shared</Filter>
     </ClCompile>
+    <ClCompile Include="src\hooks\chlclient.cpp">
+      <Filter>hooks\src\chlclient</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hooks\sqvm.cpp">
+      <Filter>hooks\src\squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hooks\cvengineserver.cpp">
+      <Filter>hooks\src\cvengineserver</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hooks\msgbox.cpp">
+      <Filter>hooks\src\other</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hooks\net.cpp">
+      <Filter>hooks\src\netchannel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hooks\iconvar.cpp">
+      <Filter>hooks\src\iconvar</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hooks\winapi.cpp">
+      <Filter>hooks\src\winapi</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hooks\hooks.cpp">
+      <Filter>hooks\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlay.cpp">
+      <Filter>gui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\serverlisting.cpp">
+      <Filter>gui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\id3dx.cpp">
+      <Filter>gui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameclasses.cpp">
+      <Filter>r5-sdk\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\console.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opcptc.cpp">
+      <Filter>r5-sdk\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\console.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\hooks.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\opcptc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\patterns.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\r5dev.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\structs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\detours\include\detver.h">
-      <Filter>shared\libraries\detours\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\detours\include\syelog.h">
-      <Filter>shared\libraries\detours\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\external\detours\include\detours.h">
-      <Filter>shared\libraries\detours\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\external\imgui\include\imgui_impl_win32.h">
       <Filter>shared\libraries\imgui\include</Filter>
     </ClInclude>
@@ -167,18 +202,6 @@
     </ClInclude>
     <ClInclude Include="..\external\imgui\include\imgui_impl_dx11.h">
       <Filter>shared\libraries\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\id3dx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\overlay.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\enums.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\input.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\external\spdlog\include\async_logger-inl.h">
       <Filter>shared\libraries\spdlog\include</Filter>
@@ -462,12 +485,6 @@
     <ClInclude Include="..\external\spdlog\include\sinks\qt_sinks.h">
       <Filter>shared\libraries\spdlog\include\sinks</Filter>
     </ClInclude>
-    <ClInclude Include="include\gameclasses.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\serverlisting.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\shared\include\address.h">
       <Filter>shared\include</Filter>
     </ClInclude>
@@ -481,6 +498,45 @@
       <Filter>shared\include</Filter>
     </ClInclude>
     <ClInclude Include="include\pch.h">
+      <Filter>core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\minhook\include\MinHook.h">
+      <Filter>shared\libraries\minhook\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\hooks.h">
+      <Filter>hooks\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\id3dx.h">
+      <Filter>gui\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlay.h">
+      <Filter>gui\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\serverlisting.h">
+      <Filter>gui\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gameclasses.h">
+      <Filter>r5-sdk\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\r5dev.h">
+      <Filter>core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\console.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\patterns.h">
+      <Filter>r5-sdk\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\structs.h">
+      <Filter>r5-sdk\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\opcptc.h">
+      <Filter>r5-sdk\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\enums.h">
+      <Filter>r5-sdk\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\input.h">
       <Filter>core\include</Filter>
     </ClInclude>
   </ItemGroup>

@@ -10,7 +10,7 @@
 void InitializeR5Dedicated()
 {
     SetupConsole();
-    InstallHooks();
+    Hooks::InstallHooks();
     printf("+-----------------------------------------------------------------------------+\n");
     printf("|   R5 DEDICATED SERVER ---------------------------------------------------   |\n");
     printf("+-----------------------------------------------------------------------------+\n");
@@ -20,7 +20,7 @@ void InitializeR5Dedicated()
 void TerminateR5Dedicated()
 {
     FreeConsole();
-    RemoveHooks();
+    Hooks::RemoveHooks();
 }
 
 //#############################################################################

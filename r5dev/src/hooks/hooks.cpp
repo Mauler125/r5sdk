@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "hooks.h"
-#include "opcodes.h"
+
+bool g_bBlockInput = false;
 
 void Hooks::InstallHooks()
 {
@@ -8,6 +9,7 @@ void Hooks::InstallHooks()
 	// Initialize Minhook
 	MH_Initialize();
 
+	///////////////////////////////////////////////////////////////////////////////
 	// Hook Squirrel functions
 	MH_CreateHook(addr_SQVM_Print, &Hooks::SQVM_Print, NULL);
 	MH_CreateHook(addr_SQVM_LoadRson, &Hooks::SQVM_LoadRson, reinterpret_cast<void**>(&originalSQVM_LoadRson));
@@ -15,7 +17,7 @@ void Hooks::InstallHooks()
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Hook Game Functions
-	// MH_CreateHook(addr_CHLClient_FrameStageNotify, &Hooks::FrameStageNotify, reinterpret_cast<void**>(&originalFrameStageNotify));
+	MH_CreateHook(addr_CHLClient_FrameStageNotify, &Hooks::FrameStageNotify, reinterpret_cast<void**>(&originalFrameStageNotify));
 	MH_CreateHook(addr_CVEngineServer_IsPersistenceDataAvailable, &Hooks::IsPersistenceDataAvailable, reinterpret_cast<void**>(&originalIsPersistenceDataAvailable));
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -27,6 +29,19 @@ void Hooks::InstallHooks()
 	// Hook ConVar | ConCommand functions.
 	MH_CreateHook(addr_ConVar_IsFlagSet, &Hooks::ConVar_IsFlagSet, NULL);
 	MH_CreateHook(addr_ConCommand_IsFlagSet, &Hooks::ConCommand_IsFlagSet, NULL);
+
+	///////////////////////////////////////////////////////////////////////////////
+	// Hook WinAPI
+	HMODULE user32dll = GetModuleHandleA("user32.dll");
+	void* SetCursorPosPtr = GetProcAddress(user32dll, "SetCursorPos");
+	void* ClipCursorPtr = GetProcAddress(user32dll, "ClipCursor");
+	void* GetCursorPosPtr = GetProcAddress(user32dll, "GetCursorPos");
+	void* ShowCursorPtr = GetProcAddress(user32dll, "ShowCursor");
+
+	MH_CreateHook(SetCursorPosPtr, &Hooks::SetCursorPos, reinterpret_cast<void**>(&originalSetCursorPos));
+	MH_CreateHook(ClipCursorPtr, &Hooks::ClipCursor, reinterpret_cast<void**>(&originalClipCursor));
+	MH_CreateHook(GetCursorPosPtr, &Hooks::GetCursorPos, reinterpret_cast<void**>(&originalGetCursorPos));
+	MH_CreateHook(ShowCursorPtr, &Hooks::ShowCursor, reinterpret_cast<void**>(&originalShowCursor));
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Hook Utility functions
@@ -44,10 +59,15 @@ void Hooks::InstallHooks()
 	MH_EnableHook(addr_CVEngineServer_IsPersistenceDataAvailable);
 
 	///////////////////////////////////////////////////////////////////////////////
-	// Enabled Utility hooks
-	MH_EnableHook(addr_MSG_EngineError);
+	// Enable WinAPI hooks
+	MH_EnableHook(SetCursorPosPtr);
+	MH_EnableHook(ClipCursorPtr);
+	MH_EnableHook(GetCursorPosPtr);
+	MH_EnableHook(ShowCursorPtr);
 
-	InstallOpcodes();
+	///////////////////////////////////////////////////////////////////////////////
+    // Enabled Utility hooks
+	MH_EnableHook(addr_MSG_EngineError);
 }
 
 void Hooks::RemoveHooks()
@@ -74,6 +94,19 @@ void Hooks::RemoveHooks()
 	MH_RemoveHook(addr_ConCommand_IsFlagSet);
 
 	///////////////////////////////////////////////////////////////////////////////
+	// Unhook WinAPI
+	HMODULE user32dll = GetModuleHandleA("user32.dll");
+	void* SetCursorPosPtr = GetProcAddress(user32dll, "SetCursorPos");
+	void* ClipCursorPtr = GetProcAddress(user32dll, "ClipCursor");
+	void* GetCursorPosPtr = GetProcAddress(user32dll, "GetCursorPos");
+	void* ShowCursorPtr = GetProcAddress(user32dll, "ShowCursor");
+
+	MH_RemoveHook(SetCursorPosPtr);
+	MH_RemoveHook(ClipCursorPtr);
+	MH_RemoveHook(GetCursorPosPtr);
+	MH_RemoveHook(ShowCursorPtr);
+
+	///////////////////////////////////////////////////////////////////////////////
 	// Unhook Utility functions
 	MH_RemoveHook(addr_MSG_EngineError);
 
@@ -82,15 +115,39 @@ void Hooks::RemoveHooks()
 	MH_Uninitialize();
 }
 
-//#################################################################################
-// TOGGLES
-//#################################################################################
+void Hooks::ToggleNetHooks()
+{
+	static bool g_net = false;
+
+	if (!g_net)
+	{
+		MH_EnableHook(addr_NET_ReceiveDatagram);
+		MH_EnableHook(addr_NET_SendDatagram);
+		printf("\n");
+		printf("+--------------------------------------------------------+\n");
+		printf("|>>>>>>>>>>>>>| NETCHANNEL TRACE ACTIVATED |<<<<<<<<<<<<<|\n");
+		printf("+--------------------------------------------------------+\n");
+		printf("\n");
+	}
+	else
+	{
+		MH_DisableHook(addr_NET_ReceiveDatagram);
+		MH_DisableHook(addr_NET_SendDatagram);
+		printf("\n");
+		printf("+--------------------------------------------------------+\n");
+		printf("|>>>>>>>>>>>>| NETCHANNEL TRACE DEACTIVATED |<<<<<<<<<<<<|\n");
+		printf("+--------------------------------------------------------+\n");
+		printf("\n");
+	}
+
+	g_net = !g_net;
+}
 
 void Hooks::ToggleDevCommands()
 {
-	static bool bDev = true;;
+	static bool g_dev = false;
 
-	if (!bDev)
+	if (!g_dev)
 	{
 		MH_EnableHook(addr_ConVar_IsFlagSet);
 		MH_EnableHook(addr_ConCommand_IsFlagSet);
@@ -112,33 +169,5 @@ void Hooks::ToggleDevCommands()
 		printf("\n");
 	}
 
-	bDev = !bDev;
-}
-
-void Hooks::ToggleNetHooks()
-{
-	static bool bNet = true;
-
-	if (!bNet)
-	{
-		MH_EnableHook(addr_NET_ReceiveDatagram);
-		MH_EnableHook(addr_NET_SendDatagram);
-		printf("\n");
-		printf("+--------------------------------------------------------+\n");
-		printf("|>>>>>>>>>>>>>| NETCHANNEL TRACE ACTIVATED |<<<<<<<<<<<<<|\n");
-		printf("+--------------------------------------------------------+\n");
-		printf("\n");
-	}
-	else
-	{
-		MH_DisableHook(addr_NET_ReceiveDatagram);
-		MH_DisableHook(addr_NET_SendDatagram);
-		printf("\n");
-		printf("+--------------------------------------------------------+\n");
-		printf("|>>>>>>>>>>>>| NETCHANNEL TRACE DEACTIVATED |<<<<<<<<<<<<|\n");
-		printf("+--------------------------------------------------------+\n");
-		printf("\n");
-	}
-
-	bNet = !bNet;
+	g_dev = !g_dev;
 }
