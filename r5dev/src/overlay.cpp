@@ -67,7 +67,7 @@ void CGameConsole::Draw(const char* title)
     ///////////////////////////////////////////////////////////////////////
     if (ImGui::SmallButton("Developer mode"))
     {
-        ToggleDevCommands();
+        Hooks::ToggleDevCommands();
         AddLog("+--------------------------------------------------------+\n");
         AddLog("|>>>>>>>>>>>>>>| DEVONLY COMMANDS TOGGLED |<<<<<<<<<<<<<<|\n");
         AddLog("+--------------------------------------------------------+\n");
@@ -76,7 +76,7 @@ void CGameConsole::Draw(const char* title)
     ImGui::SameLine();
     if (ImGui::SmallButton("Netchannel Trace"))
     {
-        ToggleNetHooks();
+        Hooks::ToggleNetHooks();
         AddLog("+--------------------------------------------------------+\n");
         AddLog("|>>>>>>>>>>>>>>| NETCHANNEL TRACE TOGGLED |<<<<<<<<<<<<<<|\n");
         AddLog("+--------------------------------------------------------+\n");
@@ -266,7 +266,7 @@ void CGameConsole::ProcessCommand(const char* command_line)
 
 void CGameConsole::ExecCommand(const char* command_line)
 {
-    org_CommandExecute(NULL, command_line);
+    addr_CommandExecute(NULL, command_line);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -589,7 +589,7 @@ void CCompanion::HostServerSection()
 
             if (StartAsDedi)
             {
-                ToggleDevCommands();
+                Hooks::ToggleDevCommands();
             }
         }
         else
@@ -671,7 +671,7 @@ void CCompanion::ProcessCommand(const char* command_line)
 
 void CCompanion::ExecCommand(const char* command_line)
 {
-    org_CommandExecute(NULL, command_line);
+    addr_CommandExecute(NULL, command_line);
 }
 
 //#############################################################################

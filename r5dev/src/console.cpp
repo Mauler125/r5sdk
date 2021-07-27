@@ -55,61 +55,12 @@ void SetupConsole()
 }
 
 //#############################################################################
-// CONSOLE HOOKS
-//#############################################################################
-
-bool HConVar_IsFlagSet(int** cvar, int flag)
-{
-	int real_flags = *(*(cvar + (72 / (sizeof(void*)))) + (56 / sizeof(int)));
-	if (g_bDebugConsole)
-	{
-		printf("--------------------------------------------------\n");
-		printf(" Flaged: %08X\n", real_flags);
-	}
-	// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY
-	real_flags &= 0xFFFFBFFD;
-	if (g_bDebugConsole)
-	{
-		printf(" Masked: %08X\n", real_flags);
-		printf(" Verify: %08X\n", flag);
-		printf("--------------------------------------------------\n");
-	}
-	if (flag & 0x80000) { return true; }
-
-	if (!g_bReturnAllFalse) { return (real_flags & flag) != 0; }
-	else { return false; }
-}
-
-bool HConCommand_IsFlagSet(int* cmd, int flag)
-{
-	int real_flags = *((cmd + (56 / sizeof(int))));
-	if (g_bDebugConsole)
-	{
-		printf("--------------------------------------------------\n");
-		printf(" Flaged: %08X\n", real_flags);
-	}
-	// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY
-	real_flags &= 0xFFFFBFFD;
-	if (g_bDebugConsole)
-	{
-		printf(" Masked: %08X\n", real_flags);
-		printf(" Verify: %08X\n", flag);
-		printf("--------------------------------------------------\n");
-	}
-	if (flag & 0x80000) { return true; }
-
-	if (!g_bReturnAllFalse) { return (real_flags & flag) != 0; }
-	else { return false; }
-}
-
-//#############################################################################
 // WORKER THREAD
 //#############################################################################
 
 DWORD __stdcall ProcessConsoleWorker(LPVOID)
 {
-	// Loop forever
-	while (true)
+	while (true) // Loop forever
 	{
 		std::string sCommand;
 
@@ -120,8 +71,8 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 
 		///////////////////////////////////////////////////////////////////////
 		// Engine toggles
-		if (sCommand == "toggle net") { ToggleNetHooks(); continue; }
-		if (sCommand == "toggle dev") { ToggleDevCommands(); continue; }
+		if (sCommand == "toggle net") { Hooks::ToggleNetHooks(); continue; }
+		if (sCommand == "toggle dev") { Hooks::ToggleDevCommands(); continue; }
 		if (sCommand == "toggle fal") { g_bReturnAllFalse = !g_bReturnAllFalse; continue; }
 		///////////////////////////////////////////////////////////////////////
 		// Debug toggles
@@ -130,12 +81,12 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 		if (sCommand == "console test") { g_bDebugConsole = !g_bDebugConsole; continue; }
 		///////////////////////////////////////////////////////////////////////
 		// Exec toggles
-		if (sCommand == "1") { ToggleDevCommands(); org_CommandExecute(NULL, "exec autoexec_dev"); }
+		if (sCommand == "1") { Hooks::ToggleDevCommands(); addr_CommandExecute(NULL, "exec autoexec_dev"); }
 		if (sCommand == "2") { g_bDebugLoading = !g_bDebugLoading; continue; }
 
 		///////////////////////////////////////////////////////////////////////
 		// Execute the command in the r5 SQVM
-		org_CommandExecute(NULL, sCommand.c_str());
+		addr_CommandExecute(NULL, sCommand.c_str());
 		sCommand.clear();
 
 		///////////////////////////////////////////////////////////////////////
@@ -144,66 +95,4 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 	}
 
 	return 0;
-}
-
-//#############################################################################
-// MANAGEMENT
-//#############################################################################
-
-void RemoveCMHooks()
-{
-	///////////////////////////////////////////////////////////////////////////
-	// Begin the detour transaction, to unhook the the process
-	DetourTransactionBegin();
-	DetourUpdateThread(GetCurrentThread());
-
-	///////////////////////////////////////////////////////////////////////////
-	// Unhook Console functions
-	DetourDetach((LPVOID*)&org_ConVar_IsFlagSet, &HConVar_IsFlagSet);
-	DetourDetach((LPVOID*)&org_ConCommand_IsFlagSet, &HConCommand_IsFlagSet);
-
-	///////////////////////////////////////////////////////////////////////////
-	// Commit the transaction
-	DetourTransactionCommit();
-}
-
-//#############################################################################
-// TOGGLES
-//#############################################################################
-
-void ToggleDevCommands()
-{
-	static bool g_dev = false;
-
-	DetourTransactionBegin();
-	DetourUpdateThread(GetCurrentThread());
-
-	if (!g_dev)
-	{
-		DetourAttach((LPVOID*)&org_ConVar_IsFlagSet, &HConVar_IsFlagSet);
-		DetourAttach((LPVOID*)&org_ConCommand_IsFlagSet, &HConCommand_IsFlagSet);
-		printf("\n");
-		printf("+--------------------------------------------------------+\n");
-		printf("|>>>>>>>>>>>>>| DEVONLY COMMANDS ACTIVATED |<<<<<<<<<<<<<|\n");
-		printf("+--------------------------------------------------------+\n");
-		printf("\n");
-
-	}
-	else
-	{
-		DetourDetach((LPVOID*)&org_ConVar_IsFlagSet, &HConVar_IsFlagSet);
-		DetourDetach((LPVOID*)&org_ConCommand_IsFlagSet, &HConCommand_IsFlagSet);
-		printf("\n");
-		printf("+--------------------------------------------------------+\n");
-		printf("|>>>>>>>>>>>>| DEVONLY COMMANDS DEACTIVATED |<<<<<<<<<<<<|\n");
-		printf("+--------------------------------------------------------+\n");
-		printf("\n");
-	}
-
-	if (DetourTransactionCommit() != NO_ERROR)
-	{
-		TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
-	}
-
-	g_dev = !g_dev;
 }

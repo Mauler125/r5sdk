@@ -1,9 +1,7 @@
 #include "pch.h"
 #include "id3dx.h"
-#include "input.h"
-#include "enums.h"
+#include "hooks.h"
 #include "console.h"
-#include "detours.h"
 #include "overlay.h"
 #include "patterns.h"
 #include "gameclasses.h"
@@ -269,7 +267,7 @@ void DrawImGui()
 		GameGlobals::InputSystem->EnableInput(false); // Disable input.
 		DrawConsole();
 	}
-	if(g_bShowBrowser)
+	if (g_bShowBrowser)
 	{
 		GameGlobals::InputSystem->EnableInput(false); // Disable input.
 		DrawBrowser();
@@ -354,6 +352,8 @@ HRESULT GetDeviceAndCtxFromSwapchain(IDXGISwapChain* pSwapChain, ID3D11Device** 
 	return ret;
 }
 
+IDXGIResizeBuffers originalResizeBuffers = nullptr;
+
 HRESULT __stdcall GetResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount, UINT nWidth, UINT nHeight, DXGI_FORMAT dxFormat, UINT nSwapChainFlags)
 {
 	g_bShowConsole    = false;
@@ -369,8 +369,10 @@ HRESULT __stdcall GetResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount
 
 	ImGui_ImplDX11_CreateDeviceObjects();
 	///////////////////////////////////////////////////////////////////////////////
-	return g_oResizeBuffers(pSwapChain, nBufferCount, nWidth, nHeight, dxFormat, nSwapChainFlags);
+	return originalResizeBuffers(pSwapChain, nBufferCount, nWidth, nHeight, dxFormat, nSwapChainFlags);
 }
+
+IDXGISwapChainPresent originalPresent = nullptr;
 
 HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT nFlags)
 {
@@ -378,7 +380,7 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 	{
 		if (FAILED(GetDeviceAndCtxFromSwapchain(pSwapChain, &g_pDevice, &g_pDeviceContext)))
 		{
-			return g_fnIDXGISwapChainPresent(pSwapChain, nSyncInterval, nFlags);
+			return originalPresent(pSwapChain, nSyncInterval, nFlags);
 			std::cout << "+--------------------------------------------------------+" << std::endl;
 			std::cout << "| >>>>>>>>>>| GET DVS AND CTX FROM SCP FAILED |<<<<<<<<< |" << std::endl;
 			std::cout << "+--------------------------------------------------------+" << std::endl;
@@ -399,7 +401,7 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 	DrawImGui();
 	g_bInitialized      = true;
 	///////////////////////////////////////////////////////////////////////////////
-	return g_fnIDXGISwapChainPresent(pSwapChain, nSyncInterval, nFlags);
+	return originalPresent(pSwapChain, nSyncInterval, nFlags);
 }
 
 //#################################################################################
@@ -408,42 +410,45 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 
 void InstallDXHooks()
 {
-	g_oPostMessageA = (IPostMessageA)DetourFindFunction("user32.dll", "PostMessageA");
-	g_oPostMessageW = (IPostMessageW)DetourFindFunction("user32.dll", "PostMessageW");
-	///////////////////////////////////////////////////////////////////////////////
-	// Begin the detour transaction
-	DetourTransactionBegin();
-	DetourUpdateThread(GetCurrentThread());
+	HMODULE user32dll = GetModuleHandleA("user32.dll");
+
+	IPostMessageA PostMessageA = (IPostMessageA)GetProcAddress(user32dll, "PostMessageA");
+	IPostMessageW PostMessageW = (IPostMessageW)GetProcAddress(user32dll, "PostMessageW");
+
 	///////////////////////////////////////////////////////////////////////////////
 	// Hook PostMessage
-	DetourAttach(&(LPVOID&)g_oPostMessageA, (PBYTE)HPostMessageA);
-	DetourAttach(&(LPVOID&)g_oPostMessageW, (PBYTE)HPostMessageW);
+	MH_CreateHook(PostMessageA, &HPostMessageA, reinterpret_cast<void**>(&g_oPostMessageA));
+	MH_CreateHook(PostMessageW, &HPostMessageW, reinterpret_cast<void**>(&g_oPostMessageW));
+
 	///////////////////////////////////////////////////////////////////////////////
 	// Hook SwapChain
-	DetourAttach(&(LPVOID&)g_fnIDXGISwapChainPresent, (PBYTE)Present);
-	DetourAttach(&(LPVOID&)g_oResizeBuffers, (PBYTE)GetResizeBuffers);
+	MH_CreateHook(g_fnIDXGISwapChainPresent, &Present, reinterpret_cast<void**>(&originalPresent));
+	MH_CreateHook(g_oResizeBuffers, &GetResizeBuffers, reinterpret_cast<void**>(&originalResizeBuffers));
+	 
 	///////////////////////////////////////////////////////////////////////////////
-	// Commit the transaction
-	DetourTransactionCommit();
+	// Enable hooks
+	MH_EnableHook(PostMessageA);
+	MH_EnableHook(PostMessageW);
+	MH_EnableHook(g_fnIDXGISwapChainPresent);
+	MH_EnableHook(g_oResizeBuffers);
 }
 
 void RemoveDXHooks()
 {
-	///////////////////////////////////////////////////////////////////////////////
-	// Begin the detour transaction
-	DetourTransactionBegin();
-	DetourUpdateThread(GetCurrentThread());
+	HMODULE user32dll = GetModuleHandleA("user32.dll");
+
+	IPostMessageA PostMessageA = (IPostMessageA)GetProcAddress(user32dll, "PostMessageA");
+	IPostMessageW PostMessageW = (IPostMessageW)GetProcAddress(user32dll, "PostMessageW");
+
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook PostMessage
-	DetourDetach(&(LPVOID&)g_oPostMessageA, (PBYTE)HPostMessageA);
-	DetourDetach(&(LPVOID&)g_oPostMessageW, (PBYTE)HPostMessageW);
+	MH_RemoveHook(PostMessageA);
+	MH_RemoveHook(PostMessageW);
+
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook SwapChain
-	DetourDetach(&(LPVOID&)g_fnIDXGISwapChainPresent, (PBYTE)Present);
-	DetourDetach(&(LPVOID&)g_oResizeBuffers, (PBYTE)GetResizeBuffers);
-	///////////////////////////////////////////////////////////////////////////////
-	// Commit the transaction
-	DetourTransactionCommit();
+	MH_RemoveHook(g_fnIDXGISwapChainPresent);
+	MH_RemoveHook(g_oResizeBuffers);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Shutdown ImGui
