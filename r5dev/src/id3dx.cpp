@@ -267,12 +267,14 @@ void DrawImGui()
 		GameGlobals::InputSystem->EnableInput(false); // Disable input.
 		DrawConsole();
 	}
+
 	if (g_bShowBrowser)
 	{
 		GameGlobals::InputSystem->EnableInput(false); // Disable input.
 		DrawBrowser();
 	}
-	else
+
+	if (!g_bShowConsole && !g_bShowBrowser)
 	{
 		GameGlobals::InputSystem->EnableInput(true); // Enable input.
 	}
