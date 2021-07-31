@@ -178,13 +178,26 @@ public:
     ////////////////////
     //   Host Server  //
     ////////////////////
+    ServerListing MyServer;
     std::vector<std::string> MapsList;
-    std::string* SelectedMap = nullptr;
     std::string HostRequestMessage = "";
+    std::string HostToken = "";
     ImVec4 HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-    char ServerNameBuffer[64] = { 0 };
     bool StartAsDedi = false;
     bool BroadCastServer = false;
+
+    ////////////////////
+    // Private Server //
+    ////////////////////
+    std::string PrivateServerToken = "";
+    std::string PrivateServerPassword = "";
+    std::string PrivateServerRequestMessage = "";
+    ImVec4 PrivateServerMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
+
+    /* Texture */
+    ID3D11ShaderResourceView* ApexLockIcon = nullptr;
+    int ApexLockIconWidth = 48;
+    int ApexLockIconHeight = 48;
 
     void SetSection(ESection section)
     {
@@ -254,7 +267,8 @@ public:
     }
 
     void RefreshServerList();
-    void SendHostingPostRequest(char* mapName);
+    void SendHostingPostRequest();
+    const nlohmann::json SendGetServerByTokenRequest(const std::string &token, const std::string &password);
     void CompMenu();
     void ServerBrowserSection();
     void SettingsSection();
@@ -263,6 +277,9 @@ public:
     void UpdateHostingStatus();
     void ProcessCommand(const char* command_line);
     void ExecCommand(const char* command_line);
+
+    void ConnectToServer(const std::string &ip, const std::string &port);
+    void ConnectToServer(const std::string &connString);
 };
 
 extern CCompanion* g_ServerBrowser;
