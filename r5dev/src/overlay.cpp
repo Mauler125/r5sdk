@@ -786,16 +786,16 @@ void CCompanion::HostServerSection()
             ProcessCommand("reload");
         }
 
-        if (ImGui::Button("Stop The Server##ServerHost_StopServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
-        {
-            ProcessCommand("LeaveMatch"); // Use script callback instead.
-            GameGlobals::HostState->m_iNextState = HostStates_t::HS_GAME_SHUTDOWN; // Force CHostState::FrameUpdate to shutdown the server for dedicated.
-        }
-
         if (ImGui::Button("Change Level##ServerHost_ChangeLevel", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
             strncpy_s(GameGlobals::HostState->m_levelName, MyServer.map.c_str(), 64); // Copy new map into hoststate levelname. 64 is size of m_levelname.
             GameGlobals::HostState->m_iNextState = HostStates_t::HS_CHANGE_LEVEL_MP; // Force CHostState::FrameUpdate to change the level.
+        }
+
+        if (ImGui::Button("Stop The Server##ServerHost_StopServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
+        {
+            ProcessCommand("LeaveMatch"); // Use script callback instead.
+            GameGlobals::HostState->m_iNextState = HostStates_t::HS_GAME_SHUTDOWN; // Force CHostState::FrameUpdate to shutdown the server for dedicated.
         }
     }
 }
