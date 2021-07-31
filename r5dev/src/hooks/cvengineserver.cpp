@@ -6,9 +6,7 @@ namespace Hooks
 	IsPersistenceDataAvailableFn originalIsPersistenceDataAvailable = nullptr;
 }
 
-//-----------------------------------------------------------------------------
-// Sets the persistence var in the playerstruct to ready for each client     
-//-----------------------------------------------------------------------------
+// TODO: turn this into a playerstruct constructor if it ever becomes necessary
 bool Hooks::IsPersistenceDataAvailable(__int64 thisptr, int client)
 {
 	static bool isPersistenceVarSet[256];

@@ -1,12 +1,6 @@
 #include "pch.h"
 #include "hooks.h"
 
-//-----------------------------------------------------------------------------
-// Purpose: test each ConVar query before setting the cvar
-// Input  : **cvar - flag
-// Output : true if change is not permitted, false if permitted
-//-----------------------------------------------------------------------------
-
 bool Hooks::ConVar_IsFlagSet(int** cvar, int flag)
 {
 	int real_flags = *(*(cvar + (72 / (sizeof(void*)))) + (56 / sizeof(int)));
@@ -34,12 +28,6 @@ bool Hooks::ConVar_IsFlagSet(int** cvar, int flag)
 		return false;
 	}
 }
-
-//-----------------------------------------------------------------------------
-// Purpose: test each ConCommand query before execution
-// Input  : *cmd - flag
-// Output : true if execution is not permitted, false if permitted
-//-----------------------------------------------------------------------------
 
 bool Hooks::ConCommand_IsFlagSet(int* cmd, int flag)
 {

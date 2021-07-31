@@ -7,23 +7,18 @@ namespace Hooks
 	SQVM_LoadScriptFn originalSQVM_LoadScript = nullptr;
 }
 
-//---------------------------------------------------------------------------------
-// Print the output of the VM.
-// TODO: separate SV CL and UI
-//---------------------------------------------------------------------------------
-
 void* Hooks::SQVM_Print(void* sqvm, char* fmt, ...)
 {
+	char buf[1024];
 	va_list args;
 	va_start(args, fmt);
 	vprintf(fmt, args);
+	vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
+	buf[IM_ARRAYSIZE(buf) - 1] = 0;
 	va_end(args);
+	Items.push_back(Strdup(buf));
 	return NULL;
 }
-
-//---------------------------------------------------------------------------------
-// Load the include file from the mods directory
-//---------------------------------------------------------------------------------
 
 __int64 Hooks::SQVM_LoadRson(const char* rson_name)
 {
@@ -61,10 +56,6 @@ __int64 Hooks::SQVM_LoadRson(const char* rson_name)
 
 	return originalSQVM_LoadRson(rson_name);
 }
-
-//---------------------------------------------------------------------------------
-// Load the script file from the mods directory
-//---------------------------------------------------------------------------------
 
 bool Hooks::SQVM_LoadScript(void* sqvm, const char* script_path, const char* script_name, int flag)
 {

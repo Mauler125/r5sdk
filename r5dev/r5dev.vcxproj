@@ -87,8 +87,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)external\detours\include;$(SolutionDir)external\imgui\include;$(SolutionDir)external\spdlog\include;$(SolutionDir)shared\include;$(SolutionDir)r5dev\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)external\detours\libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)external\minhook\include;$(SolutionDir)external\imgui\include;$(SolutionDir)external\spdlog\include;$(SolutionDir)shared\include;$(SolutionDir)r5dev\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)external\minhook\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -165,6 +165,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -173,16 +174,13 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>r5dev.def</ModuleDefinitionFile>
-      <AdditionalDependencies>detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libMinHook.x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>del "$(TargetDir)\r5detours.dll" &amp;&amp; rename "$(TargetPath)" "r5detours.dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\external\detours\include\detours.h" />
-    <ClInclude Include="..\external\detours\include\detver.h" />
-    <ClInclude Include="..\external\detours\include\syelog.h" />
     <ClInclude Include="..\external\imgui\include\imconfig.h" />
     <ClInclude Include="..\external\imgui\include\imgui.h" />
     <ClInclude Include="..\external\imgui\include\imgui_impl_dx11.h" />
@@ -191,6 +189,7 @@
     <ClInclude Include="..\external\imgui\include\imstb_rectpack.h" />
     <ClInclude Include="..\external\imgui\include\imstb_textedit.h" />
     <ClInclude Include="..\external\imgui\include\imstb_truetype.h" />
+    <ClInclude Include="..\external\minhook\include\MinHook.h" />
     <ClInclude Include="..\external\spdlog\include\async.h" />
     <ClInclude Include="..\external\spdlog\include\async_logger-inl.h" />
     <ClInclude Include="..\external\spdlog\include\async_logger.h" />
@@ -349,10 +348,14 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="src\hooks.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</PrecompiledHeaderFile>
-    </ClCompile>
+    <ClCompile Include="src\hooks\chlclient.cpp" />
+    <ClCompile Include="src\hooks\cvengineserver.cpp" />
+    <ClCompile Include="src\hooks\hooks.cpp" />
+    <ClCompile Include="src\hooks\iconvar.cpp" />
+    <ClCompile Include="src\hooks\msgbox.cpp" />
+    <ClCompile Include="src\hooks\net.cpp" />
+    <ClCompile Include="src\hooks\sqvm.cpp" />
+    <ClCompile Include="src\hooks\winapi.cpp" />
     <ClCompile Include="src\id3dx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</PrecompiledHeaderFile>

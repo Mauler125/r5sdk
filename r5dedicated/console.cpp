@@ -1,8 +1,6 @@
 #include "pch.h"
 #include "hooks.h"
 #include "console.h"
-#include "iconvar.h"
-#include "concommand.h"
 
 //#############################################################################
 // INITIALIZATION
@@ -71,8 +69,8 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 
 		///////////////////////////////////////////////////////////////////////
 		// Engine toggles
-		if (sCommand == "toggle net") { ToggleNetTrace(); continue; }
-		if (sCommand == "toggle dev") { ToggleDevCommands(); continue; }
+		if (sCommand == "toggle net") { Hooks::ToggleNetHooks(); continue; }
+		if (sCommand == "toggle dev") { Hooks::ToggleDevCommands(); continue; }
 		if (sCommand == "toggle fal") { g_bReturnAllFalse = !g_bReturnAllFalse; continue; }
 		///////////////////////////////////////////////////////////////////////
 		// Debug toggles
@@ -80,12 +78,12 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 		if (sCommand == "console test") { g_bDebugConsole = !g_bDebugConsole; continue; }
 		///////////////////////////////////////////////////////////////////////
 		// Exec toggles
-		if (sCommand == "1") { org_CommandExecute(NULL, "exec autoexec_dev"); }
+		if (sCommand == "1") { addr_CommandExecute(NULL, "exec autoexec_dev"); }
 		if (sCommand == "2") { g_bDebugLoading = !g_bDebugLoading; continue; }
 
 		///////////////////////////////////////////////////////////////////////
 		// Execute the command in the r5 SQVM
-		org_CommandExecute(NULL, sCommand.c_str());
+		addr_CommandExecute(NULL, sCommand.c_str());
 		sCommand.clear();
 
 		///////////////////////////////////////////////////////////////////////

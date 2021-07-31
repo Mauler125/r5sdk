@@ -3,7 +3,7 @@
 
 #define WIN32_LEAN_AND_MEAN // Prevent winsock2 redefinition.
 #include <windows.h>
-#include <detours.h>
+#include <minhook.h>
 #include <thread>
 #include <fstream>
 #include <stdio.h>
@@ -19,8 +19,6 @@
 #include <Psapi.h>
 #include <vector>
 
-
-
 // Our headers
 
 #include "imgui.h"
@@ -34,6 +32,7 @@
 #include "json.hpp"
 
 #include "address.h"
+#include "enums.h"
 
 #define FUNC_AT_ADDRESS(name, funcbody, addr) \
    using _##name = funcbody; \

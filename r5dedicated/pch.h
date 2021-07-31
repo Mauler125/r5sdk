@@ -3,7 +3,7 @@
 
 #define WIN32_LEAN_AND_MEAN // Prevent winsock2 redefinition.
 #include <windows.h>
-#include <detours.h>
+#include <minhook.h>
 #include <WinSock2.h>
 #include <thread>
 #include <fstream>
