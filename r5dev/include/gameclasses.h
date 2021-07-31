@@ -236,7 +236,7 @@ class CHostState
 {
 public:
 	__int32 m_iCurrentState; //0x0000
-	__int32 n_iNextState; //0x0004
+	__int32 m_iNextState; //0x0004
 	Vector3 m_vecLocation; //0x0008
 	QAngle m_angLocation; //0x0014
 	char m_levelName[64]; //0x0020

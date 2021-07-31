@@ -267,7 +267,6 @@ public:
     }
 
     void RefreshServerList();
-    void UpdateMyServerInfo();
     void SendHostingPostRequest();
     const nlohmann::json SendGetServerByTokenRequest(const std::string &token, const std::string &password);
     void CompMenu();

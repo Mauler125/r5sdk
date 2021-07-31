@@ -353,11 +353,6 @@ CCompanion::CCompanion()
     HostingServerRequestThread.detach();
 }
 
-void CCompanion::UpdateMyServerInfo()
-{
-    MyServer.map = GameGlobals::HostState->m_levelName;
-
-}
 void CCompanion::UpdateHostingStatus()
 {
     if (!GameGlobals::HostState || !GameGlobals::Cvar) // Is HostState and Cvar valid?
@@ -378,7 +373,6 @@ void CCompanion::UpdateHostingStatus()
         if (!BroadCastServer) // Do we wanna broadcast server to the browser?
             break;
 
-        UpdateMyServerInfo();
         SendHostingPostRequest();
         break;
     }
@@ -429,7 +423,7 @@ void CCompanion::SendHostingPostRequest()
     // send a post request to "/servers/add" with a json body
     nlohmann::json body = nlohmann::json::object();
     body["name"] = MyServer.name;
-    body["map"] = MyServer.map;
+    body["map"] = std::string(GameGlobals::HostState->m_levelName);
     static ConVar* hostport = GameGlobals::Cvar->FindVar("hostport"); // static since it won't move memory locations.
     body["port"] = hostport->m_pzsCurrentValue; //body["port"] = MyServer.port;
     body["password"] = MyServer.password;
@@ -771,6 +765,12 @@ void CCompanion::HostServerSection()
         }
     }
 
+    if (ImGui::Button("Force Start##ServerHost_ForceStart", ImVec2(ImGui::GetWindowSize().x, 32)))
+    {
+        strncpy_s(GameGlobals::HostState->m_levelName, MyServer.map.c_str(), 64); // Copy new map into hoststate levelname. 64 is size of m_levelname.
+        GameGlobals::HostState->m_iNextState = HostStates_t::HS_NEW_GAME; // Force CHostState::FrameUpdate to start a server.
+    }
+
     ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), ServerNameErr.c_str());
     ImGui::TextColored(HostRequestMessageColor, HostRequestMessage.c_str());
     if (!HostToken.empty())
@@ -778,16 +778,24 @@ void CCompanion::HostServerSection()
         ImGui::InputText("##ServerHost_HostToken", &HostToken, ImGuiInputTextFlags_ReadOnly);
     }
 
-    if (StartAsDedi)
+    if (GameGlobals::HostState->m_bActiveGame)
     {
         if (ImGui::Button("Reload Scripts##ServerHost_ReloadServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
             ProcessCommand("reparse_weapons");
             ProcessCommand("reload");
         }
+
         if (ImGui::Button("Stop The Server##ServerHost_StopServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
-            ProcessCommand("disconnect");
+            ProcessCommand("LeaveMatch"); // Use script callback instead.
+            GameGlobals::HostState->m_iNextState = HostStates_t::HS_GAME_SHUTDOWN; // Force CHostState::FrameUpdate to shutdown the server for dedicated.
+        }
+
+        if (ImGui::Button("Change Level##ServerHost_ChangeLevel", ImVec2(ImGui::GetWindowSize().x, 32)))
+        {
+            strncpy_s(GameGlobals::HostState->m_levelName, MyServer.map.c_str(), 64); // Copy new map into hoststate levelname. 64 is size of m_levelname.
+            GameGlobals::HostState->m_iNextState = HostStates_t::HS_CHANGE_LEVEL_MP; // Force CHostState::FrameUpdate to change the level.
         }
     }
 }

@@ -177,6 +177,9 @@
     <ClCompile Include="src\opcptc.cpp">
       <Filter>r5-sdk\src</Filter>
     </ClCompile>
+    <ClCompile Include="..\external\imgui\src\imgui_stdlib.cpp">
+      <Filter>shared\libraries\imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\external\imgui\include\imgui_impl_win32.h">
@@ -538,6 +541,9 @@
     </ClInclude>
     <ClInclude Include="include\input.h">
       <Filter>core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imgui_stdlib.h">
+      <Filter>shared\libraries\imgui\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

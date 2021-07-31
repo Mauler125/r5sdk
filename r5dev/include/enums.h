@@ -331,3 +331,15 @@ enum ClientFrameStage_t
 
 	FRAME_NET_FULL_FRAME_UPDATE_ON_REMOVE
 };
+
+enum HostStates_t
+{
+	HS_NEW_GAME = 0x0,
+	HS_LOAD_GAME = 0x1,
+	HS_CHANGE_LEVEL_SP = 0x2,
+	HS_CHANGE_LEVEL_MP = 0x3,
+	HS_RUN = 0x4,
+	HS_GAME_SHUTDOWN = 0x5,
+	HS_SHUTDOWN = 0x6,
+	HS_RESTART = 0x7,
+};
