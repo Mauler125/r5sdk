@@ -186,6 +186,19 @@ public:
     bool StartAsDedi = false;
     bool BroadCastServer = false;
 
+    ////////////////////
+    // Private Server //
+    ////////////////////
+    std::string PrivateServerToken = "";
+    std::string PrivateServerPassword = "";
+    std::string PrivateServerRequestMessage = "";
+    ImVec4 PrivateServerMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
+
+    /* Texture */
+    ID3D11ShaderResourceView* ApexLockIcon = nullptr;
+    int ApexLockIconWidth = 48;
+    int ApexLockIconHeight = 48;
+
     void SetSection(ESection section)
     {
         CurrentSection = section;

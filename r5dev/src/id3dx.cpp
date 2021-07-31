@@ -492,7 +492,7 @@ void SetupDXSwapChain()
 //#################################################################################
 // UTILS
 //#################################################################################
-bool LoadTextureFromCharArray(unsigned char* image_data, const int &image_width, const int &image_height, ID3D11ShaderResourceView** out_srv)
+bool LoadTextureFromByteArray(unsigned char* image_data, const int &image_width, const int &image_height, ID3D11ShaderResourceView** out_srv)
 {
 	// Load from disk into a raw RGBA buffer
 	//int image_width = 0;

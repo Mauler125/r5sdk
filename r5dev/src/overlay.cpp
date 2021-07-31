@@ -410,7 +410,7 @@ void CCompanion::RefreshServerList()
                 for (auto obj : root["servers"])
                 {
                     ServerList.push_back(
-                        new ServerListing(obj["name"], obj["map"], obj["ip"], obj["port"])
+                        new ServerListing(obj["name"].get<std::string>(), obj["map"].get<std::string>(), obj["ip"].get<std::string>(), obj["port"].get<std::string>())
                     );
                 }
             }
@@ -434,8 +434,6 @@ void CCompanion::SendHostingPostRequest()
     body["port"] = hostport->m_pzsCurrentValue; //body["port"] = MyServer.port;
     body["password"] = MyServer.password;
 
-
-
     std::string body_str = body.dump();
 
 #ifdef OVERLAY_DEBUG
@@ -450,10 +448,10 @@ void CCompanion::SendHostingPostRequest()
         nlohmann::json res = nlohmann::json::parse(result->body);
         if (!res["success"] && !res["err"].is_null())
         {
-            HostRequestMessage = res["err"];
+            HostRequestMessage = res["err"].get<std::string>();
             HostRequestMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
         } 
-        else if(res["success"] == true)
+        else if (res["success"].get<bool>() == true)
         {
             std::stringstream msg;
             msg << "Broadcasting! ";
@@ -461,7 +459,7 @@ void CCompanion::SendHostingPostRequest()
             if (res["token"].is_string())
             {
                 msg << "Share the following token for people to connect: ";
-                HostToken = res["token"];
+                HostToken = res["token"].get<std::string>();
             }
             HostRequestMessage = msg.str().c_str();
             HostRequestMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
@@ -488,11 +486,12 @@ const nlohmann::json CCompanion::SendGetServerByTokenRequest(const std::string &
 
     std::string reqBody_str = reqBody.dump();
 
-    auto res = client.Post("/server/byToken", reqBody_str.c_str(), reqBody_str.length(), "application/json");
+    httplib::Result res = client.Post("/server/byToken", reqBody_str.c_str(), reqBody_str.length(), "application/json");
     if (res && !res->body.empty())
     {
         return nlohmann::json::parse(res->body);
     }
+
     return nlohmann::json::object();
 }
 
@@ -527,8 +526,8 @@ void CCompanion::ServerBrowserSection()
     ImGui::EndGroup();
     ImGui::Separator();
 
-    const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-    ImGui::BeginChild("ServerListChild", { 0, -footer_height_to_reserve }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+    const float FooterHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+    ImGui::BeginChild("ServerListChild", { 0, -FooterHeight }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
     ImGui::BeginTable("##ServerBrowser_ServerList", 4, ImGuiWindowFlags_None);
     {
         ImGui::TableSetupColumn("Name", 0, 35);
@@ -576,21 +575,22 @@ void CCompanion::ServerBrowserSection()
     ImGui::InputTextWithHint("##ServerBrowser_ServerConnString", "Enter an ip address or \"localhost\"", ServerConnStringBuffer, IM_ARRAYSIZE(ServerConnStringBuffer));
 
     ImGui::SameLine();
+
     if (ImGui::Button("Connect", ImVec2(ImGui::GetWindowContentRegionWidth() * (1.f / 3.f /2.f), 19)))
     {
         //const char* replace = ""; // For history pos soon
         std::stringstream cmd;
         cmd << "connect " << ServerConnStringBuffer;
         ConnectToServer(ServerConnStringBuffer);
-
         //strcpy_s(ServerConnStringBuffer, sizeof(replace), replace); // For history pos soon
-        // wut?
     }
 
     ImGui::SameLine();
 
     if (ImGui::Button("Private Servers##ServerBrowser_PrivateServersButton", ImVec2(ImGui::GetWindowContentRegionWidth() * (1.f / 3.f / 2.f), 19)))
+    {
         ImGui::OpenPopup("Connect to a Private Server##PrivateServersConnectModal");
+    }
 
     bool modalOpen = true;
     if (ImGui::BeginPopupModal("Connect to a Private Server##PrivateServersConnectModal", &modalOpen))
@@ -599,9 +599,7 @@ void CCompanion::ServerBrowserSection()
 
         ImGui::SetWindowSize(ImVec2(400.f, 200.f), ImGuiCond_Always);
 
-        int imgWidth = 48;
-        int imgHeight = 48;
-        static ID3D11ShaderResourceView* apex_private_servers_icon = NULL;
+        /* When removing this and adding the resource instead. Please initialize the texture in the CCompanion class constructor. - Pixie*/
         static unsigned char lockedserver[] = {
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -655,86 +653,73 @@ void CCompanion::ServerBrowserSection()
         };
         // ^^^^
         // this definitely wont reach the final commit lmao
-        if (apex_private_servers_icon == nullptr)
+        // Nope it will for now -Pixie
+        if (!ApexLockIcon)
         {
-            bool ret = LoadTextureFromCharArray(lockedserver, imgWidth, imgHeight, &apex_private_servers_icon);
-            IM_ASSERT(ret);
-
+            bool ret = LoadTextureFromByteArray(lockedserver, ApexLockIconWidth, ApexLockIconHeight, &ApexLockIcon); // Load texture from byte array.
         }
-        
 
-        //
-
-
-        static std::string token;
-        static std::string password;
-
-        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.00f, 0.00f, 0.00f, 0.00f)); // transparent bg
-        ImGui::BeginChild("##PrivateServersConnectModal_IconParent", ImVec2(imgWidth, imgHeight));
-        ImGui::Image((void*)apex_private_servers_icon, ImVec2(imgWidth, imgHeight));
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.00f, 0.00f, 0.00f, 0.00f)); // Override the style color for child bg.
+        ImGui::BeginChild("##PrivateServersConnectModal_IconParent", ImVec2(ApexLockIconWidth, ApexLockIconHeight));
+        {
+            ImGui::Image(ApexLockIcon, ImVec2(ApexLockIconWidth, ApexLockIconHeight)); // Display texture.
+        }
         ImGui::EndChild();
-        ImGui::PopStyleColor();
-
+        ImGui::PopStyleColor(); // Pop the override for the child bg.
 
         ImGui::SameLine();
 
         ImGui::Text("Enter the following details to continue");
 
-        ImGui::PushItemWidth(ImGui::GetWindowContentRegionWidth());
-        ImGui::InputTextWithHint("##PrivateServersConnectModal_TokenInput", "Token", &token);
-        ImGui::InputTextWithHint("##PrivateServersConnectModal_PasswordInput", "Password", &password, ImGuiInputTextFlags_Password);
-        ImGui::PopItemWidth();
+        ImGui::PushItemWidth(ImGui::GetWindowContentRegionWidth()); // Override item width.
+        ImGui::InputTextWithHint("##PrivateServersConnectModal_TokenInput", "Token", &PrivateServerToken);
+        ImGui::InputTextWithHint("##PrivateServersConnectModal_PasswordInput", "Password", &PrivateServerPassword, ImGuiInputTextFlags_Password);
+        ImGui::PopItemWidth(); // Pop item width.
 
-        ImGui::Dummy(ImVec2(ImGui::GetWindowContentRegionWidth(), 19.f));
+        ImGui::Dummy(ImVec2(ImGui::GetWindowContentRegionWidth(), 19.f)); // Place a dummy, basically making space inserting a blank element.
 
-
-        static std::string reqMessage;
-        static ImVec4 reqMessageColor;
-
-        ImGui::TextColored(reqMessageColor, reqMessage.c_str());
+        ImGui::TextColored(PrivateServerMessageColor, PrivateServerRequestMessage.c_str());
 
         ImGui::Separator();
 
         if (ImGui::Button("Connect##PrivateServersConnectModal_ConnectButton", ImVec2(ImGui::GetWindowContentRegionWidth() / 2.f, 19)))
         {
-            nlohmann::json response = SendGetServerByTokenRequest(token, password);
-            if (response["success"])
+            nlohmann::json response = SendGetServerByTokenRequest(PrivateServerToken, PrivateServerPassword); // Send token connect request.
+            if (response["success"].get<bool>()) // Was the response successful?
             {
-                auto server = response["server"];
+                nlohmann::json server = response["server"].get<nlohmann::json>(); // Get server field.
 
-
-                if (server["ip"].is_string() && server["port"].is_string())
+                if (server["ip"].is_string() && server["port"].is_string()) // Check if both field are a string.
                 {
-                    std::string name = server["name"];
-                    std::string ip = server["ip"];
-                    std::string port = server["port"];
+                    std::string name = server["name"].get<std::string>(); // Please do this if you grab values from the response.
+                    std::string ip = server["ip"].get<std::string>();
+                    std::string port = server["port"].get<std::string>();
 
-
-                    ConnectToServer(ip, port);
-                    reqMessage = "Found Server: " + name;
-                    reqMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
-
-                    
+                    ConnectToServer(ip, port); // Connect to the server
+                    PrivateServerRequestMessage = "Found Server: " + name;
+                    PrivateServerMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
+                    ImGui::CloseCurrentPopup();
                 }
             }
             else
             {
-                std::string err = response["err"];
-                reqMessage = "Error: " + err;
-                reqMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+                std::string err = response["err"].get<std::string>();
+                PrivateServerRequestMessage = "Error: " + err;
+                PrivateServerMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
             }
             
         }
 
         ImGui::SameLine();
+
         if (ImGui::Button("Close##PrivateServersConnectModal_CloseButton", ImVec2(ImGui::GetWindowContentRegionWidth() / 2.f, 19)))
+        {
             ImGui::CloseCurrentPopup();
+        }
 
         ImGui::EndPopup();
     }
-
 }
-
 
 void CCompanion::HostServerSection()
 {
@@ -866,6 +851,20 @@ void CCompanion::ExecCommand(const char* command_line)
     org_CommandExecute(NULL, command_line);
 }
 
+void CCompanion::ConnectToServer(const std::string& ip, const std::string& port)
+{
+    std::stringstream cmd;
+    cmd << "connect " << ip << ":" << port;
+    g_ServerBrowser->ProcessCommand(cmd.str().c_str());
+}
+
+void CCompanion::ConnectToServer(const std::string& connString)
+{
+    std::stringstream cmd;
+    cmd << "connect " << connString;
+    g_ServerBrowser->ProcessCommand(cmd.str().c_str());
+}
+
 //#############################################################################
 // INTERNALS
 //#############################################################################
@@ -904,23 +903,6 @@ void Strtrim(char* s)
 
     while (str_end > s && str_end[-1] == ' ')
         str_end--; *str_end = 0;
-}
-
-
-void CCompanion::ConnectToServer(const std::string &ip, const std::string &port)
-{
-
-    std::stringstream cmd;
-    cmd << "connect " << ip << ":" << port;
-    g_ServerBrowser->ProcessCommand(cmd.str().c_str());
-}
-
-void CCompanion::ConnectToServer(const std::string &connString)
-{
-
-    std::stringstream cmd;
-    cmd << "connect " << connString;
-    g_ServerBrowser->ProcessCommand(cmd.str().c_str());
 }
 
 
