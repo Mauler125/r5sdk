@@ -65,6 +65,8 @@ void CGameConsole::Draw(const char* title)
     }
 
     ///////////////////////////////////////////////////////////////////////
+    // If bToggledDevFlags is true, override text color to be green, if its false red.
+    Hooks::bToggledDevFlags ? ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 255, 0, 255)) : ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 0, 0, 255));
     if (ImGui::SmallButton("Developer mode"))
     {
         Hooks::ToggleDevCommands();
@@ -73,7 +75,12 @@ void CGameConsole::Draw(const char* title)
         AddLog("+--------------------------------------------------------+\n");
         ProcessCommand("exec autoexec");
     }
+    ImGui::PopStyleColor(); // Pop color override.
+
     ImGui::SameLine();
+
+    // Do the same for bToggledNetHooks.
+    Hooks::bToggledNetHooks ? ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 255, 0, 255)) : ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 0, 0, 255));
     if (ImGui::SmallButton("Netchannel Trace"))
     {
         Hooks::ToggleNetHooks();
@@ -82,6 +89,9 @@ void CGameConsole::Draw(const char* title)
         AddLog("+--------------------------------------------------------+\n");
         ProcessCommand("exec netchan");
     }
+
+    ImGui::PopStyleColor(); // Pop color override.
+
     ///////////////////////////////////////////////////////////////////////
     ImGui::SameLine();
     if (ImGui::SmallButton("Clear"))

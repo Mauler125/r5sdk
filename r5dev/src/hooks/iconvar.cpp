@@ -17,7 +17,10 @@ bool Hooks::ConVar_IsFlagSet(int** cvar, int flag)
 		printf(" Verify: %08X\n", flag);
 		printf("--------------------------------------------------\n");
 	}
-	if (flag & 0x80000) { return true; }
+	if (flag & 0x80000)
+	{
+		return true;
+	}
 
 	if (!g_bReturnAllFalse)
 	{
@@ -45,11 +48,15 @@ bool Hooks::ConCommand_IsFlagSet(int* cmd, int flag)
 		printf(" Verify: %08X\n", flag);
 		printf("--------------------------------------------------\n");
 	}
-	if (flag & 0x80000) { return true; }
+
+	if (flag & 0x80000)
+	{
+		return true;
+	}
 
 	if (!g_bReturnAllFalse)
 	{
-		return(real_flags & flag) != 0;
+		return (real_flags & flag) != 0;
 	}
 	else
 	{

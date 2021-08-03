@@ -3,6 +3,12 @@
 
 bool g_bBlockInput = false;
 
+namespace Hooks
+{
+	bool bToggledDevFlags = false;
+	bool bToggledNetHooks = false;
+}
+
 void Hooks::InstallHooks()
 {
 	///////////////////////////////////////////////////////////////////////////////
@@ -57,6 +63,10 @@ void Hooks::InstallHooks()
 	// Enable Game hooks
 	MH_EnableHook(addr_CHLClient_FrameStageNotify);
 	MH_EnableHook(addr_CVEngineServer_IsPersistenceDataAvailable);
+
+	///////////////////////////////////////////////////////////////////////////////
+	// Enable ConVar | ConCommand hooks
+	ToggleDevCommands();
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Enable WinAPI hooks
@@ -117,9 +127,7 @@ void Hooks::RemoveHooks()
 
 void Hooks::ToggleNetHooks()
 {
-	static bool g_net = false;
-
-	if (!g_net)
+	if (!bToggledNetHooks)
 	{
 		MH_EnableHook(addr_NET_ReceiveDatagram);
 		MH_EnableHook(addr_NET_SendDatagram);
@@ -139,15 +147,12 @@ void Hooks::ToggleNetHooks()
 		printf("+--------------------------------------------------------+\n");
 		printf("\n");
 	}
-
-	g_net = !g_net;
+	bToggledNetHooks = !bToggledNetHooks;
 }
 
 void Hooks::ToggleDevCommands()
 {
-	static bool g_dev = false;
-
-	if (!g_dev)
+	if (!bToggledDevFlags)
 	{
 		MH_EnableHook(addr_ConVar_IsFlagSet);
 		MH_EnableHook(addr_ConCommand_IsFlagSet);
@@ -156,7 +161,6 @@ void Hooks::ToggleDevCommands()
 		printf("|>>>>>>>>>>>>>| DEVONLY COMMANDS ACTIVATED |<<<<<<<<<<<<<|\n");
 		printf("+--------------------------------------------------------+\n");
 		printf("\n");
-
 	}
 	else
 	{
@@ -168,6 +172,5 @@ void Hooks::ToggleDevCommands()
 		printf("+--------------------------------------------------------+\n");
 		printf("\n");
 	}
-
-	g_dev = !g_dev;
+	bToggledDevFlags = !bToggledDevFlags;
 }
