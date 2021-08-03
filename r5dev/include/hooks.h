@@ -83,5 +83,7 @@ namespace Hooks
 	void InstallHooks();
 	void RemoveHooks();
 	void ToggleNetHooks();
+	extern bool bToggledNetHooks;
 	void ToggleDevCommands();
+	extern bool bToggledDevFlags;
 }

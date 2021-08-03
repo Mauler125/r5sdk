@@ -326,6 +326,13 @@ public:
 	}
 };
 
+struct Interface
+{
+	__int64 (*InterfacePtr)(void);
+	const char* InterfaceName;
+	__int64* NextInterfacePtr;
+};
+
 /////////////////////////////////////////////////////////////////////////////
 // Initialize Game Globals
 
