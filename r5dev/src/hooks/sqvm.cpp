@@ -7,15 +7,25 @@ namespace Hooks
 	SQVM_LoadScriptFn originalSQVM_LoadScript = nullptr;
 }
 
+std::string prefixes[3] = { "Script(S)", "Script(C)", "Script(U)" };
+
 void* Hooks::SQVM_Print(void* sqvm, char* fmt, ...)
 {
+	int vmIdx = *(int*)((std::uintptr_t)sqvm + 0x18);
 	char buf[1024];
 	va_list args;
 	va_start(args, fmt);
+
+	// external console
+	printf("%s:", prefixes[vmIdx].c_str());
 	vprintf(fmt, args);
+
+	// imgui console
 	vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
 	buf[IM_ARRAYSIZE(buf) - 1] = 0;
+
 	va_end(args);
+
 	Items.push_back(Strdup(buf));
 	return NULL;
 }
