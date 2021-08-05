@@ -8,7 +8,7 @@
 void InstallOpcodes() /* .TEXT */
 {
 	//-------------------------------------------------------------------------
-	// JNZ --> JMP | Prevent OriginSDK from initializing on the client
+	// JNZ --> JMP | Prevent OriginSDK from initializing
 	//Origin_Init.Offset(0x0B).Patch({ 0xE9, 0x63, 0x02, 0x00, 0x00, 0x00 });
 	//Origin_SetState.Offset(0x0E).Patch({ 0xE9, 0xCB, 0x03, 0x00, 0x00 });
 	//-------------------------------------------------------------------------

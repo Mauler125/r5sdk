@@ -7,29 +7,52 @@ namespace Hooks
 	SQVM_LoadScriptFn originalSQVM_LoadScript = nullptr;
 }
 
-std::string prefixes[3] = { "Script(S)", "Script(C)", "Script(U)" };
-
+//---------------------------------------------------------------------------------
+// Purpose: prints the output of each VM to the console
+//---------------------------------------------------------------------------------
 void* Hooks::SQVM_Print(void* sqvm, char* fmt, ...)
 {
 	int vmIdx = *(int*)((std::uintptr_t)sqvm + 0x18);
-	char buf[1024];
+
+	static char buf[1024];
+	static std::string vmType[3] = { "Script(S):", "Script(C):", "Script(U):" };
+
+	static auto iconsole = spdlog::stdout_logger_mt("sqvm_iconsole"); // in-game console
+	static auto wconsole = spdlog::stdout_logger_mt("sqvm_wconsole"); // windows console
+
+	std::string vmStr = vmType[vmIdx].c_str();
+	std::ostringstream oss;
+	auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_st>(oss);
+
+	iconsole = std::make_shared<spdlog::logger>("ostream", ostream_sink);
+	iconsole->set_pattern("[%S.%e] %v");
+	iconsole->set_level(spdlog::level::debug);
+	wconsole->set_pattern("[%S.%e] %v");
+	wconsole->set_level(spdlog::level::debug);
+
 	va_list args;
 	va_start(args, fmt);
 
-	// external console
-	printf("%s:", prefixes[vmIdx].c_str());
-	vprintf(fmt, args);
+	vsnprintf(buf, sizeof(buf), fmt, args);
 
-	// imgui console
-	vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
-	buf[IM_ARRAYSIZE(buf) - 1] = 0;
-
+	buf[sizeof(buf) - 1] = 0;
 	va_end(args);
 
-	Items.push_back(Strdup(buf));
+	vmStr.append(buf);
+
+	iconsole->debug(vmStr);
+	wconsole->debug(vmStr);
+
+	std::string s = oss.str();
+	const char* c = s.c_str();
+
+	Items.push_back(Strdup((const char*)c));
 	return NULL;
 }
 
+//---------------------------------------------------------------------------------
+// Purpose: loads the include file from the mods directory
+//---------------------------------------------------------------------------------
 __int64 Hooks::SQVM_LoadRson(const char* rson_name)
 {
 	char filepath[MAX_PATH] = { 0 };
@@ -67,6 +90,9 @@ __int64 Hooks::SQVM_LoadRson(const char* rson_name)
 	return originalSQVM_LoadRson(rson_name);
 }
 
+//---------------------------------------------------------------------------------
+// Purpose: loads the script file from the mods directory
+//---------------------------------------------------------------------------------
 bool Hooks::SQVM_LoadScript(void* sqvm, const char* script_path, const char* script_name, int flag)
 {
 	char filepath[MAX_PATH] = { 0 };

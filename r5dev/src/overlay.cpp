@@ -48,6 +48,8 @@ CGameConsole::~CGameConsole()
 
 void CGameConsole::Draw(const char* title)
 {
+    bool copy_to_clipboard = false;
+
     if (!ThemeSet)
     {
         SetStyleVar();
@@ -56,7 +58,7 @@ void CGameConsole::Draw(const char* title)
 
     //ImGui::ShowStyleEditor();
 
-    ImGui::SetNextWindowSize(ImVec2(840, 600), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(1000, 600), ImGuiCond_FirstUseEver);
     ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
 
     if (!ImGui::Begin(title, NULL)) // Passing a bool only causes problems if you Begin a new window. I would not suggest to use it.
@@ -64,57 +66,58 @@ void CGameConsole::Draw(const char* title)
         ImGui::End(); return;
     }
 
-    ///////////////////////////////////////////////////////////////////////
-    // If bToggledDevFlags is true, override text color to be green, if its false red.
-    Hooks::bToggledDevFlags ? ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 255, 0, 255)) : ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 0, 0, 255));
-    if (ImGui::SmallButton("Developer mode"))
-    {
-        Hooks::ToggleDevCommands();
-        AddLog("+--------------------------------------------------------+\n");
-        AddLog("|>>>>>>>>>>>>>>| DEVONLY COMMANDS TOGGLED |<<<<<<<<<<<<<<|\n");
-        AddLog("+--------------------------------------------------------+\n");
-        ProcessCommand("exec autoexec");
-    }
-    ImGui::PopStyleColor(); // Pop color override.
-
-    ImGui::SameLine();
-
-    // Do the same for bToggledNetHooks.
-    Hooks::bToggledNetHooks ? ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 255, 0, 255)) : ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 0, 0, 255));
-    if (ImGui::SmallButton("Netchannel Trace"))
-    {
-        Hooks::ToggleNetHooks();
-        AddLog("+--------------------------------------------------------+\n");
-        AddLog("|>>>>>>>>>>>>>>| NETCHANNEL TRACE TOGGLED |<<<<<<<<<<<<<<|\n");
-        AddLog("+--------------------------------------------------------+\n");
-        ProcessCommand("exec netchan");
-    }
-
-    ImGui::PopStyleColor(); // Pop color override.
+    // Reserve enough left-over height and width for 1 separator + 1 input text
+    const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+    const float footer_width_to_reserve  = ImGui::GetStyle().ItemSpacing.y + ImGui::GetWindowWidth();
 
     ///////////////////////////////////////////////////////////////////////
-    ImGui::SameLine();
-    if (ImGui::SmallButton("Clear"))
-    {
-        ClearLog();
-    }
-    ImGui::SameLine();
-    bool copy_to_clipboard = ImGui::SmallButton("Copy");
     ImGui::Separator();
     if (ImGui::BeginPopup("Options"))
     {
-        ImGui::Checkbox("Auto-scroll", &AutoScroll); ImGui::EndPopup();
+        ImGui::Checkbox("Auto-scroll", &AutoScroll);
+        if (ImGui::SmallButton("Clear"))
+        {
+            ClearLog();
+        }
+        copy_to_clipboard = ImGui::SmallButton("Copy");
+        ImGui::EndPopup();
     }
     if (ImGui::Button("Options"))
     {
         ImGui::OpenPopup("Options");
     }
     ImGui::SameLine();
-    Filter.Draw("Filter [\"-incl,-excl\"] [\"error\"]", 265);
+    if (ImGui::BeginPopup("Tools"))
+    {
+        Hooks::bToggledDevFlags ? ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 255, 0, 255)) : ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 0, 0, 255));
+        if (ImGui::SmallButton("Developer Mode"))
+        {
+            Hooks::ToggleDevCommands();
+            AddLog("+--------------------------------------------------------+\n");
+            AddLog("|>>>>>>>>>>>>>>| DEVONLY COMMANDS TOGGLED |<<<<<<<<<<<<<<|\n");
+            AddLog("+--------------------------------------------------------+\n");
+            ProcessCommand("exec autoexec");
+        }
+        ImGui::PopStyleColor(); // Pop color override.
+        Hooks::bToggledNetTrace ? ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 255, 0, 255)) : ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 0, 0, 255));
+        if (ImGui::SmallButton("Netchannel Trace"))
+        {
+            Hooks::ToggleNetTrace();
+            AddLog("+--------------------------------------------------------+\n");
+            AddLog("|>>>>>>>>>>>>>>| NETCHANNEL TRACE TOGGLED |<<<<<<<<<<<<<<|\n");
+            AddLog("+--------------------------------------------------------+\n");
+            ProcessCommand("exec netchan");
+        }
+        ImGui::PopStyleColor(); // Pop color override.
+        ImGui::EndPopup();
+    }
+    if (ImGui::Button("Tools"))
+    {
+        ImGui::OpenPopup("Tools");
+    }
+    ImGui::SameLine();
+    Filter.Draw("Filter [\"-incl,-excl\"] [\"error\"]", footer_width_to_reserve - 500);
     ImGui::Separator();
-
-    // Reserve enough left-over height for 1 separator + 1 input text
-    const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
 
     ///////////////////////////////////////////////////////////////////////
     ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
@@ -136,15 +139,21 @@ void CGameConsole::Draw(const char* title)
 
         ///////////////////////////////////////////////////////////////////
         // General
-        if (strstr(item, "[INFO]"))      { color = ImVec4(1.00f, 1.00f, 1.00f, 0.70f); has_color = true; }
-        if (strstr(item, "[ERROR]"))     { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-        if (strstr(item, "[DEBUG]"))     { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
-        if (strstr(item, "[WARNING]"))   { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
-        if (strncmp(item, "# ", 2) == 0) { color = ImVec4(1.00f, 0.80f, 0.60f, 1.00f); has_color = true; }
+        if (strstr(item, "[INFO]"))         { color = ImVec4(1.00f, 1.00f, 1.00f, 0.70f); has_color = true; }
+        if (strstr(item, "[ERROR]"))        { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+        if (strstr(item, "[DEBUG]"))        { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
+        if (strstr(item, "[WARNING]"))      { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
+        if (strncmp(item, "# ", 2) == 0)    { color = ImVec4(1.00f, 0.80f, 0.60f, 1.00f); has_color = true; }
+
+        ///////////////////////////////////////////////////////////////////
+        // Virtual machines
+        if (strstr(item, "Script(S):"))     { color = ImVec4(0.59f, 0.58f, 0.73f, 1.00f); has_color = true; }
+        if (strstr(item, "Script(C):"))     { color = ImVec4(0.59f, 0.58f, 0.63f, 1.00f); has_color = true; }
+        if (strstr(item, "Script(U):"))     { color = ImVec4(0.59f, 0.48f, 0.53f, 1.00f); has_color = true; }
 
         ///////////////////////////////////////////////////////////////////
         // Callbacks
-        if (strstr(item, "CodeCallback_")) { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
+        //if (strstr(item, "CodeCallback_"))  { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
 
         ///////////////////////////////////////////////////////////////////
         // Script errors
@@ -157,21 +166,20 @@ void CGameConsole::Draw(const char* title)
         if (strstr(item, "SCRIPT COMPILE")) { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
         if (strstr(item, ".gnut #"))        { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
         if (strstr(item, ".nut #"))         { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-        if (strstr(item, " -> "))           { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+        if (strstr(item, "): -> "))         { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
 
         ///////////////////////////////////////////////////////////////////
         // Script debug
-        if (strstr(item, "CALLSTACK"))   { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
-        if (strstr(item, "LOCALS"))      { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
-        if (strstr(item, "*FUNCTION"))   { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
-        if (strstr(item, "DIAGPRINTS"))  { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
-        if (strstr(item, " File : "))    { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
-        if (strstr(item, "<><>GRX<><>")) { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
+        if (strstr(item, "CALLSTACK"))      { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
+        if (strstr(item, "LOCALS"))         { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
+        if (strstr(item, "*FUNCTION"))      { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
+        if (strstr(item, "DIAGPRINTS"))     { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
+        if (strstr(item, " File : "))       { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
+        if (strstr(item, "<><>GRX<><>"))    { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
 
         ///////////////////////////////////////////////////////////////////
         // Filters
-        if (strstr(item, ") -> ")) { color = ImVec4(1.00f, 1.00f, 1.00f, 0.70f); has_color = true; }
-        ///////////////////////////////////////////////////////////////////
+        //if (strstr(item, ") -> "))          { color = ImVec4(1.00f, 1.00f, 1.00f, 0.70f); has_color = true; }
 
         if (has_color) { ImGui::PushStyleColor(ImGuiCol_Text, color); }
         ImGui::TextWrapped(item);
@@ -190,7 +198,7 @@ void CGameConsole::Draw(const char* title)
     ///////////////////////////////////////////////////////////////////////
     // Console
     bool reclaim_focus = false;
-    ImGui::PushItemWidth(750);
+    ImGui::PushItemWidth(footer_width_to_reserve - 80);
     if (ImGui::IsWindowAppearing()) { ImGui::SetKeyboardFocusHere(); }
     ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
 

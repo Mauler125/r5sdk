@@ -131,6 +131,6 @@ namespace Hooks
 
 	void InstallHooks();
 	void RemoveHooks();
-	void ToggleNetHooks();
+	void ToggleNetTrace();
 	void ToggleDevCommands();
 }

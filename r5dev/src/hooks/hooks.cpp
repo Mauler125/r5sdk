@@ -5,8 +5,8 @@ bool g_bBlockInput = false;
 
 namespace Hooks
 {
-	bool bToggledDevFlags = false;
-	bool bToggledNetHooks = false;
+	bool bToggledDevFlags = true;
+	bool bToggledNetTrace = false;
 }
 
 void Hooks::InstallHooks()
@@ -28,6 +28,7 @@ void Hooks::InstallHooks()
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Hook Netchan functions
+	MH_CreateHook(addr_NET_PrintFunc, &Hooks::NET_PrintFunc, reinterpret_cast<void**>(&originalNET_PrintFunc));
 	MH_CreateHook(addr_NET_ReceiveDatagram, &Hooks::NET_ReceiveDatagram, reinterpret_cast<void**>(&originalNET_ReceiveDatagram));
 	MH_CreateHook(addr_NET_SendDatagram, &Hooks::NET_SendDatagram, reinterpret_cast<void**>(&originalNET_SendDatagram));
 
@@ -37,21 +38,32 @@ void Hooks::InstallHooks()
 	MH_CreateHook(addr_ConCommand_IsFlagSet, &Hooks::ConCommand_IsFlagSet, NULL);
 
 	///////////////////////////////////////////////////////////////////////////////
-	// Hook WinAPI
-	HMODULE user32dll = GetModuleHandleA("user32.dll");
-	void* SetCursorPosPtr = GetProcAddress(user32dll, "SetCursorPos");
-	void* ClipCursorPtr = GetProcAddress(user32dll, "ClipCursor");
-	void* GetCursorPosPtr = GetProcAddress(user32dll, "GetCursorPos");
-	void* ShowCursorPtr = GetProcAddress(user32dll, "ShowCursor");
-
-	MH_CreateHook(SetCursorPosPtr, &Hooks::SetCursorPos, reinterpret_cast<void**>(&originalSetCursorPos));
-	MH_CreateHook(ClipCursorPtr, &Hooks::ClipCursor, reinterpret_cast<void**>(&originalClipCursor));
-	MH_CreateHook(GetCursorPosPtr, &Hooks::GetCursorPos, reinterpret_cast<void**>(&originalGetCursorPos));
-	MH_CreateHook(ShowCursorPtr, &Hooks::ShowCursor, reinterpret_cast<void**>(&originalShowCursor));
-
-	///////////////////////////////////////////////////////////////////////////////
 	// Hook Utility functions
 	MH_CreateHook(addr_MSG_EngineError, &Hooks::MSG_EngineError, reinterpret_cast<void**>(&originalMSG_EngineError));
+
+	///////////////////////////////////////////////////////////////////////////////
+	// Hook WinAPI
+	HMODULE user32dll = GetModuleHandleA("user32.dll");
+
+	if (user32dll)
+	{
+		void* SetCursorPosPtr = GetProcAddress(user32dll, "SetCursorPos");
+		void* ClipCursorPtr = GetProcAddress(user32dll, "ClipCursor");
+		void* GetCursorPosPtr = GetProcAddress(user32dll, "GetCursorPos");
+		void* ShowCursorPtr = GetProcAddress(user32dll, "ShowCursor");
+
+		MH_CreateHook(SetCursorPosPtr, &Hooks::SetCursorPos, reinterpret_cast<void**>(&originalSetCursorPos));
+		MH_CreateHook(ClipCursorPtr, &Hooks::ClipCursor, reinterpret_cast<void**>(&originalClipCursor));
+		MH_CreateHook(GetCursorPosPtr, &Hooks::GetCursorPos, reinterpret_cast<void**>(&originalGetCursorPos));
+		MH_CreateHook(ShowCursorPtr, &Hooks::ShowCursor, reinterpret_cast<void**>(&originalShowCursor));
+
+		///////////////////////////////////////////////////////////////////////////
+		// Enable WinAPI hooks
+		MH_EnableHook(SetCursorPosPtr);
+		MH_EnableHook(ClipCursorPtr);
+		MH_EnableHook(GetCursorPosPtr);
+		MH_EnableHook(ShowCursorPtr);
+	}
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Enable Squirrel hooks
@@ -65,15 +77,13 @@ void Hooks::InstallHooks()
 	MH_EnableHook(addr_CVEngineServer_IsPersistenceDataAvailable);
 
 	///////////////////////////////////////////////////////////////////////////////
-	// Enable ConVar | ConCommand hooks
-	ToggleDevCommands();
+	// Enable Netchan hooks
+	MH_EnableHook(addr_NET_PrintFunc);
 
 	///////////////////////////////////////////////////////////////////////////////
-	// Enable WinAPI hooks
-	MH_EnableHook(SetCursorPosPtr);
-	MH_EnableHook(ClipCursorPtr);
-	MH_EnableHook(GetCursorPosPtr);
-	MH_EnableHook(ShowCursorPtr);
+	// Enable ConVar | ConCommand hooks
+	MH_EnableHook(addr_ConVar_IsFlagSet);
+	MH_EnableHook(addr_ConCommand_IsFlagSet);
 
 	///////////////////////////////////////////////////////////////////////////////
     // Enabled Utility hooks
@@ -95,6 +105,7 @@ void Hooks::RemoveHooks()
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook Netchan functions
+	MH_RemoveHook(addr_NET_PrintFunc);
 	MH_RemoveHook(addr_NET_ReceiveDatagram);
 	MH_RemoveHook(addr_NET_SendDatagram);
 
@@ -106,15 +117,19 @@ void Hooks::RemoveHooks()
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook WinAPI
 	HMODULE user32dll = GetModuleHandleA("user32.dll");
-	void* SetCursorPosPtr = GetProcAddress(user32dll, "SetCursorPos");
-	void* ClipCursorPtr = GetProcAddress(user32dll, "ClipCursor");
-	void* GetCursorPosPtr = GetProcAddress(user32dll, "GetCursorPos");
-	void* ShowCursorPtr = GetProcAddress(user32dll, "ShowCursor");
 
-	MH_RemoveHook(SetCursorPosPtr);
-	MH_RemoveHook(ClipCursorPtr);
-	MH_RemoveHook(GetCursorPosPtr);
-	MH_RemoveHook(ShowCursorPtr);
+	if (user32dll)
+	{
+		void* SetCursorPosPtr = GetProcAddress(user32dll, "SetCursorPos");
+		void* ClipCursorPtr = GetProcAddress(user32dll, "ClipCursor");
+		void* GetCursorPosPtr = GetProcAddress(user32dll, "GetCursorPos");
+		void* ShowCursorPtr = GetProcAddress(user32dll, "ShowCursor");
+
+		MH_RemoveHook(SetCursorPosPtr);
+		MH_RemoveHook(ClipCursorPtr);
+		MH_RemoveHook(GetCursorPosPtr);
+		MH_RemoveHook(ShowCursorPtr);
+	}
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook Utility functions
@@ -125,9 +140,9 @@ void Hooks::RemoveHooks()
 	MH_Uninitialize();
 }
 
-void Hooks::ToggleNetHooks()
+void Hooks::ToggleNetTrace()
 {
-	if (!bToggledNetHooks)
+	if (!bToggledNetTrace)
 	{
 		MH_EnableHook(addr_NET_ReceiveDatagram);
 		MH_EnableHook(addr_NET_SendDatagram);
@@ -147,7 +162,7 @@ void Hooks::ToggleNetHooks()
 		printf("+--------------------------------------------------------+\n");
 		printf("\n");
 	}
-	bToggledNetHooks = !bToggledNetHooks;
+	bToggledNetTrace = !bToggledNetTrace;
 }
 
 void Hooks::ToggleDevCommands()

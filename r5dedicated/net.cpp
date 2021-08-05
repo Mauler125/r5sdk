@@ -34,9 +34,8 @@ struct __declspec(align(8)) netpacket_t
 };
 
 //-----------------------------------------------------------------------------
-// Hook and log the receive datagram
+// Purpose: hook and log the receive datagram
 //-----------------------------------------------------------------------------
-
 bool Hooks::NET_ReceiveDatagram(int sock, void* inpacket, bool raw)
 {
 	bool result = originalNET_ReceiveDatagram(sock, inpacket, raw);
@@ -54,9 +53,8 @@ bool Hooks::NET_ReceiveDatagram(int sock, void* inpacket, bool raw)
 }
 
 //-----------------------------------------------------------------------------
-// Hook and log send datagram
+// Purpose: hook and log send datagram
 //-----------------------------------------------------------------------------
-
 unsigned int Hooks::NET_SendDatagram(SOCKET s, const char* buf, int len, int flags)
 {
 	unsigned int result = originalNET_SendDatagram(s, buf, len, flags);

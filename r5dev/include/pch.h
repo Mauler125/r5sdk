@@ -27,6 +27,8 @@
 #include "imgui_impl_win32.h"
 #include "spdlog.h"
 #include "sinks/basic_file_sink.h"
+#include "sinks/stdout_sinks.h"
+#include "sinks/ostream_sink.h"
 #include "utility.h"
 #include "httplib.h"
 #include "json.hpp"

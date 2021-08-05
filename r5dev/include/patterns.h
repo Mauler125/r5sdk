@@ -32,6 +32,9 @@ namespace
 
 #pragma region NetChannel
 	/*0x1402655F0*/
+	FUNC_AT_ADDRESS(addr_NET_PrintFunc, bool(*)(int, void*, bool), r5_patterns.PatternSearch("48 89 54 24 10 4C 89 44 24 18 4C 89 4C 24 20 C3 48").GetPtr());
+
+	/*0x1402655F0*/
 	FUNC_AT_ADDRESS(addr_NET_ReceiveDatagram, bool(*)(int, void*, bool), r5_patterns.PatternSearch("48 89 74 24 18 48 89 7C 24 20 55 41 54 41 55 41 56 41 57 48 8D AC 24 50 EB").GetPtr());
 
 	/*0x1402662D0*/
@@ -64,6 +67,7 @@ namespace
 		PRINT_ADDRESS("SQVM_Print", addr_SQVM_Print);
 		PRINT_ADDRESS("SQVM_LoadScript", addr_SQVM_LoadScript);
 		PRINT_ADDRESS("SQVM_LoadRson", addr_SQVM_LoadRson);
+		PRINT_ADDRESS("NET_PrintFunc", addr_NET_PrintFunc);
 		PRINT_ADDRESS("NET_ReceiveDatagram", addr_NET_ReceiveDatagram);
 		PRINT_ADDRESS("NET_SendDatagram ", addr_NET_SendDatagram);
 		PRINT_ADDRESS("CHLClient::FrameStageNotify", addr_CHLClient_FrameStageNotify);

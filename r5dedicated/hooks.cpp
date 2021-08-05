@@ -44,6 +44,11 @@ void Hooks::InstallHooks()
 	MH_EnableHook(addr_CVEngineServer_IsPersistenceDataAvailable);
 
 	///////////////////////////////////////////////////////////////////////////////
+	// Enable ConVar | ConCommand hooks
+	MH_EnableHook(addr_ConVar_IsFlagSet);
+	MH_EnableHook(addr_ConCommand_IsFlagSet);
+
+	///////////////////////////////////////////////////////////////////////////////
 	// Enabled Utility hooks
 	MH_EnableHook(addr_MSG_EngineError);
 
@@ -115,7 +120,7 @@ void Hooks::ToggleDevCommands()
 	bDev = !bDev;
 }
 
-void Hooks::ToggleNetHooks()
+void Hooks::ToggleNetTrace()
 {
 	static bool bNet = true;
 

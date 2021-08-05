@@ -71,7 +71,7 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 
 		///////////////////////////////////////////////////////////////////////
 		// Engine toggles
-		if (sCommand == "toggle net") { Hooks::ToggleNetHooks(); continue; }
+		if (sCommand == "toggle net") { Hooks::ToggleNetTrace(); continue; }
 		if (sCommand == "toggle dev") { Hooks::ToggleDevCommands(); continue; }
 		if (sCommand == "toggle fal") { g_bReturnAllFalse = !g_bReturnAllFalse; continue; }
 		///////////////////////////////////////////////////////////////////////

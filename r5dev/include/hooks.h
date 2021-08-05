@@ -41,6 +41,10 @@ namespace Hooks
 #pragma region NetChannel
 	bool NET_ReceiveDatagram(int sock, void* inpacket, bool raw);
 	unsigned int NET_SendDatagram(SOCKET s, const char* buf, int len, int flags);
+	void NET_PrintFunc(const char* fmt, ...);
+
+	using NET_PrintFuncFn = void(*)(const char* fmt, ...);
+	extern NET_PrintFuncFn originalNET_PrintFunc;
 
 	using NET_ReceiveDatagramFn = bool(*)(int, void*, bool);
 	extern NET_ReceiveDatagramFn originalNET_ReceiveDatagram;
@@ -82,8 +86,8 @@ namespace Hooks
 
 	void InstallHooks();
 	void RemoveHooks();
-	void ToggleNetHooks();
-	extern bool bToggledNetHooks;
+	void ToggleNetTrace();
+	extern bool bToggledNetTrace;
 	void ToggleDevCommands();
 	extern bool bToggledDevFlags;
 }
