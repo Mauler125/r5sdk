@@ -82,13 +82,19 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)external\detours\include;$(SolutionDir)external\imgui\include;$(SolutionDir)external\spdlog\include;$(SolutionDir)shared\include;$(SolutionDir)r5dev\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)external\detours\libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)external\minhook\include;$(SolutionDir)external\imgui\include;$(SolutionDir)external\spdlog\include;$(SolutionDir)shared\include;$(SolutionDir)r5dev\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)external\minhook\lib\$(Configuration);$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <TargetName>r5detours</TargetName>
+    <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)external\minhook\include;$(SolutionDir)external\imgui\include;$(SolutionDir)external\spdlog\include;$(SolutionDir)shared\include;$(SolutionDir)r5dev\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)external\minhook\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)external\minhook\lib\$(Configuration);$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
+    <TargetName>r5detours</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -142,12 +148,17 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>r5dev.def</ModuleDefinitionFile>
-      <AdditionalDependencies>detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Minhook.x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
       </Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>if not EXIST $(SolutionDir)external\minhook\lib\$(Configuration)\Minhook.x64.lib (
+"$(DevEnvDir)devenv" "$(SolutionDir)apex.sln" /Rebuild $(Configuration) /project "$(SolutionDir)external\minhook\libMinHook.vcxproj"
+)</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -174,11 +185,17 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>r5dev.def</ModuleDefinitionFile>
-      <AdditionalDependencies>libMinHook.x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Minhook.x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>del "$(TargetDir)\r5detours.dll" &amp;&amp; rename "$(TargetPath)" "r5detours.dll"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>if not EXIST $(SolutionDir)external\minhook\lib\$(Configuration)\Minhook.x64.lib (
+"$(DevEnvDir)devenv" "$(SolutionDir)apex.sln" /Rebuild $(Configuration) /project "$(SolutionDir)external\minhook\libMinHook.vcxproj"
+)</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\external\imgui\include\imconfig.h" />
@@ -326,6 +343,7 @@
     </ClCompile>
     <ClCompile Include="..\external\imgui\src\imgui_stdlib.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\external\imgui\src\imgui_tables.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>

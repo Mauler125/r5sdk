@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\buffer.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hook.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\trampoline.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hde\hde32.c">
+      <Filter>src\hde</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hde\hde64.c">
+      <Filter>src\hde</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\buffer.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\trampoline.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\hde\hde32.h">
+      <Filter>src\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="src\hde\hde64.h">
+      <Filter>src\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="src\hde\pstdint.h">
+      <Filter>src\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="src\hde\table32.h">
+      <Filter>src\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="src\hde\table64.h">
+      <Filter>src\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MinHook.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{62eb648f-1c53-4909-8805-77a8cdc6f408}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\hde">
+      <UniqueIdentifier>{161a8d4e-b988-418b-a31e-d089ae0e9e22}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{dd59bf86-2fa2-4576-bb49-7b65617b67a5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

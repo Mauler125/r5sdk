@@ -1,4 +1,4 @@
-LIBRARY r5dev
+LIBRARY r5detours
 
 EXPORTS
     DummyExport @1

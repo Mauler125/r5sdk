@@ -83,11 +83,17 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)external\detours\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)external\detours\libs;$(LibraryPath)</LibraryPath>
+    <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <TargetName>launcher</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)external\detours\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)external\detours\libs;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
+    <TargetName>launcher</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -159,7 +165,8 @@
       <AdditionalDependencies>detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>del "$(TargetDir)\launcher.exe" &amp;&amp; rename "$(TargetPath)" "launcher.exe"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
