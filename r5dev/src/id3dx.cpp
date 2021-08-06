@@ -259,8 +259,8 @@ void DrawImGui()
 	if (!GameGlobals::IsInitialized || !GameGlobals::InputSystem) // Check if GameGlobals initialized and if InputSystem is valid.
 		return;
 
-	ImGui_ImplWin32_NewFrame();
 	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
 
 	ImGui::NewFrame();
 

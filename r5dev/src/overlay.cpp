@@ -540,12 +540,12 @@ void CCompanion::ServerBrowserSection()
 
     const float FooterHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
     ImGui::BeginChild("ServerListChild", { 0, -FooterHeight }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
-    ImGui::BeginTable("##ServerBrowser_ServerList", 4, ImGuiWindowFlags_None);
+    ImGui::BeginTable("##ServerBrowser_ServerList", 4, ImGuiTableFlags_Resizable);
     {
-        ImGui::TableSetupColumn("Name", 0, 35);
-        ImGui::TableSetupColumn("Map", 0, 25);
-        ImGui::TableSetupColumn("Port", 0, 10);
-        ImGui::TableSetupColumn("", 0, 8);
+        ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 35);
+        ImGui::TableSetupColumn("Map", ImGuiTableColumnFlags_WidthStretch, 25);
+        ImGui::TableSetupColumn("Port", ImGuiTableColumnFlags_WidthStretch, 10);
+        ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch, 8);
         ImGui::TableHeadersRow();
 
         for (ServerListing* server : ServerList)
