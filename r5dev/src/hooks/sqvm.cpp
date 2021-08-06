@@ -7,6 +7,9 @@ namespace Hooks
 	SQVM_LoadScriptFn originalSQVM_LoadScript = nullptr;
 }
 
+static std::ostringstream oss;
+static auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_st>(oss);
+
 //---------------------------------------------------------------------------------
 // Purpose: prints the output of each VM to the console
 //---------------------------------------------------------------------------------
@@ -21,8 +24,9 @@ void* Hooks::SQVM_Print(void* sqvm, char* fmt, ...)
 	static auto wconsole = spdlog::stdout_logger_mt("sqvm_wconsole"); // windows console
 
 	std::string vmStr = vmType[vmIdx].c_str();
-	std::ostringstream oss;
-	auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_st>(oss);
+
+	oss.str("");
+	oss.clear();
 
 	iconsole = std::make_shared<spdlog::logger>("ostream", ostream_sink);
 	iconsole->set_pattern("[%S.%e] %v");

@@ -8,6 +8,9 @@ namespace Hooks
 	NET_SendDatagramFn originalNET_SendDatagram = nullptr;
 }
 
+static std::ostringstream oss;
+static auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_st>(oss);
+
 //-----------------------------------------------------------------------------
 // Purpose: log the clients signonstate to the console
 //-----------------------------------------------------------------------------
@@ -18,8 +21,8 @@ void Hooks::NET_PrintFunc(const char* fmt, ...)
 	static auto iconsole = spdlog::stdout_logger_mt("net_iconsole"); // in-game console
 	static auto wconsole = spdlog::stdout_logger_mt("net_wconsole"); // windows console
 
-	std::ostringstream oss;
-	auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_st>(oss);
+	oss.str("");
+	oss.clear();
 
 	iconsole = std::make_shared<spdlog::logger>("ostream", ostream_sink);
 	iconsole->set_pattern("[%S.%e] %v");
