@@ -214,16 +214,16 @@ void GetPresent()
 	}
 
 	///////////////////////////////////////////////////////////////////////////////
-	DWORD_PTR* pSwapChainVtable		        = nullptr;
-	DWORD_PTR* pContextVTable		        = nullptr;
-	DWORD_PTR* pDeviceVTable		        = nullptr;
+	DWORD_PTR* pSwapChainVtable             = nullptr;
+	DWORD_PTR* pContextVTable               = nullptr;
+	DWORD_PTR* pDeviceVTable                = nullptr;
 
-	pSwapChainVtable		  = (DWORD_PTR*)pSwapChain;
-	pSwapChainVtable		  = (DWORD_PTR*)pSwapChainVtable[0];
-	pContextVTable			  = (DWORD_PTR*)pContext;
-	pContextVTable			  = (DWORD_PTR*)pContextVTable[0];
-	pDeviceVTable			  = (DWORD_PTR*)pDevice;
-	pDeviceVTable			  = (DWORD_PTR*)pDeviceVTable[0];
+	pSwapChainVtable          = (DWORD_PTR*)pSwapChain;
+	pSwapChainVtable          = (DWORD_PTR*)pSwapChainVtable[0];
+	pContextVTable            = (DWORD_PTR*)pContext;
+	pContextVTable            = (DWORD_PTR*)pContextVTable[0];
+	pDeviceVTable             = (DWORD_PTR*)pDevice;
+	pDeviceVTable             = (DWORD_PTR*)pDeviceVTable[0];
 
 	int pIDX                  = (int)DXGISwapChainVTbl::Present;
 	int rIDX                  = (int)DXGISwapChainVTbl::ResizeBuffers;
@@ -521,11 +521,11 @@ void RemoveDXHooks()
 void PrintDXAddress()
 {
 	std::cout << "+--------------------------------------------------------+" << std::endl;
-	std::cout << "| ID3D11DeviceContext      : " << std::hex << g_pDeviceContext          << std::setw(13) << " |" << std::endl;
-	std::cout << "| ID3D11Device             : " << std::hex << g_pDevice                 << std::setw(13) << " |" << std::endl;
-	std::cout << "| ID3D11RenderTargetView   : " << std::hex << g_pRenderTargetView       << std::setw(13) << " |" << std::endl;
-	std::cout << "| IDXGISwapChain           : " << std::hex << g_pSwapChain              << std::setw(13) << " |" << std::endl;
-	std::cout << "| IDXGISwapChainPresent    : " << std::hex << g_fnIDXGISwapChainPresent << std::setw(13) << " |" << std::endl;
+	std::cout << "| ID3D11DeviceContext      : " << std::hex << std::uppercase << g_pDeviceContext          << std::setw(13) << " |" << std::endl;
+	std::cout << "| ID3D11Device             : " << std::hex << std::uppercase << g_pDevice                 << std::setw(13) << " |" << std::endl;
+	std::cout << "| ID3D11RenderTargetView   : " << std::hex << std::uppercase << g_pRenderTargetView       << std::setw(13) << " |" << std::endl;
+	std::cout << "| IDXGISwapChain           : " << std::hex << std::uppercase << g_pSwapChain              << std::setw(13) << " |" << std::endl;
+	std::cout << "| IDXGISwapChainPresent    : " << std::hex << std::uppercase << g_fnIDXGISwapChainPresent << std::setw(13) << " |" << std::endl;
 	std::cout << "+--------------------------------------------------------+" << std::endl;
 }
 

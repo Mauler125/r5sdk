@@ -16,6 +16,7 @@ static auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_st>(oss)
 void* Hooks::SQVM_Print(void* sqvm, char* fmt, ...)
 {
 	int vmIdx = *(int*)((std::uintptr_t)sqvm + 0x18);
+	static bool initialized = false;
 
 	static char buf[1024];
 	static std::string vmType[3] = { "Script(S):", "Script(C):", "Script(U):" };
@@ -28,11 +29,15 @@ void* Hooks::SQVM_Print(void* sqvm, char* fmt, ...)
 	oss.str("");
 	oss.clear();
 
-	iconsole = std::make_shared<spdlog::logger>("ostream", ostream_sink);
-	iconsole->set_pattern("[%S.%e] %v");
-	iconsole->set_level(spdlog::level::debug);
-	wconsole->set_pattern("[%S.%e] %v");
-	wconsole->set_level(spdlog::level::debug);
+	if (!initialized)
+	{
+		iconsole = std::make_shared<spdlog::logger>("ostream", ostream_sink);
+		iconsole->set_pattern("[%S.%e] %v");
+		iconsole->set_level(spdlog::level::debug);
+		wconsole->set_pattern("[%S.%e] %v");
+		wconsole->set_level(spdlog::level::debug);
+		initialized = true;
+	}
 
 	va_list args;
 	va_start(args, fmt);
