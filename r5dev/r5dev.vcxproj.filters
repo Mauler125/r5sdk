@@ -85,9 +85,6 @@
     <Filter Include="gui">
       <UniqueIdentifier>{a40dcf17-855b-4965-b58d-6c7d24edc627}</UniqueIdentifier>
     </Filter>
-    <Filter Include="gui\src">
-      <UniqueIdentifier>{03d79a58-4706-4ee0-b0ea-6251a2fafada}</UniqueIdentifier>
-    </Filter>
     <Filter Include="gui\include">
       <UniqueIdentifier>{89bf5311-5686-4077-9b79-c6306dc1bd91}</UniqueIdentifier>
     </Filter>
@@ -99,6 +96,9 @@
     </Filter>
     <Filter Include="r5-sdk\include">
       <UniqueIdentifier>{0136e8e8-91ef-45c1-8661-476b5c20fc48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\interface">
+      <UniqueIdentifier>{1979149f-6402-4985-b900-25a91f1168ac}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -156,15 +156,6 @@
     <ClCompile Include="src\hooks\hooks.cpp">
       <Filter>hooks\src</Filter>
     </ClCompile>
-    <ClCompile Include="src\overlay.cpp">
-      <Filter>gui\src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\serverlisting.cpp">
-      <Filter>gui\src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\id3dx.cpp">
-      <Filter>gui\src</Filter>
-    </ClCompile>
     <ClCompile Include="src\gameclasses.cpp">
       <Filter>r5-sdk\src</Filter>
     </ClCompile>
@@ -179,6 +170,21 @@
     </ClCompile>
     <ClCompile Include="..\external\imgui\src\imgui_stdlib.cpp">
       <Filter>shared\libraries\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CCompanion.cpp">
+      <Filter>gui\interface</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CGameConsole.cpp">
+      <Filter>gui\interface</Filter>
+    </ClCompile>
+    <ClCompile Include="src\serverlisting.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\id3dx.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui_utility.cpp">
+      <Filter>gui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -512,7 +518,7 @@
     <ClInclude Include="include\id3dx.h">
       <Filter>gui\include</Filter>
     </ClInclude>
-    <ClInclude Include="include\overlay.h">
+    <ClInclude Include="include\CGameConsole.h">
       <Filter>gui\include</Filter>
     </ClInclude>
     <ClInclude Include="include\serverlisting.h">
@@ -544,6 +550,12 @@
     </ClInclude>
     <ClInclude Include="include\imgui_stdlib.h">
       <Filter>shared\libraries\imgui\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CCompanion.h">
+      <Filter>gui\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gui_utility.h">
+      <Filter>gui\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

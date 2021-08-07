@@ -1,9 +1,10 @@
 #pragma once
 #include "patterns.h"
 #include "structs.h"
-#include "overlay.h"
 #include "hooks.h"
 #include "gameclasses.h"
+#include "CCompanion.h"
+#include "CGameConsole.h"
 
 inline bool g_bDebugLoading = false;
 inline bool g_bReturnAllFalse = false;

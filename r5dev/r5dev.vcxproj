@@ -305,15 +305,17 @@
     <ClInclude Include="..\shared\include\httplib.h" />
     <ClInclude Include="..\shared\include\json.hpp" />
     <ClInclude Include="..\shared\include\utility.h" />
+    <ClInclude Include="include\CCompanion.h" />
     <ClInclude Include="include\console.h" />
     <ClInclude Include="include\enums.h" />
     <ClInclude Include="include\gameclasses.h" />
+    <ClInclude Include="include\gui_utility.h" />
     <ClInclude Include="include\hooks.h" />
     <ClInclude Include="include\id3dx.h" />
     <ClInclude Include="include\imgui_stdlib.h" />
     <ClInclude Include="include\input.h" />
     <ClInclude Include="include\opcptc.h" />
-    <ClInclude Include="include\overlay.h" />
+    <ClInclude Include="include\CGameConsole.h" />
     <ClInclude Include="include\patterns.h" />
     <ClInclude Include="include\pch.h" />
     <ClInclude Include="include\r5dev.h" />
@@ -354,6 +356,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\shared\utility.cpp" />
+    <ClCompile Include="src\CCompanion.cpp" />
     <ClCompile Include="src\console.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</PrecompiledHeaderFile>
@@ -382,11 +385,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="src\gui_utility.cpp" />
     <ClCompile Include="src\opcptc.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="src\overlay.cpp">
+    <ClCompile Include="src\CGameConsole.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</PrecompiledHeaderFile>
     </ClCompile>

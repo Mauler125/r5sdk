@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "serverlisting.h"
-#include "overlay.h"
+#include "CCompanion.h"
 
 void ServerListing::Select()
 {

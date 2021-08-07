@@ -3,9 +3,11 @@
 #include "id3dx.h"
 #include "hooks.h"
 #include "console.h"
-#include "overlay.h"
 #include "patterns.h"
 #include "gameclasses.h"
+
+#include "CCompanion.h"
+#include "CGameConsole.h"
 
 
 #pragma comment(lib, "d3d11.lib")
@@ -420,9 +422,9 @@ bool LoadTextureFromByteArray(unsigned char* image_data, const int& image_width,
 	}
 
 	// Create texture
-	D3D11_TEXTURE2D_DESC desc;
-	ID3D11Texture2D* pTexture = NULL;
-	D3D11_SUBRESOURCE_DATA subResource;
+	D3D11_TEXTURE2D_DESC            desc;
+	ID3D11Texture2D*                pTexture = NULL;
+	D3D11_SUBRESOURCE_DATA          subResource;
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 
 	ZeroMemory(&desc, sizeof(desc));
