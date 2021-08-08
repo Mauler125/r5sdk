@@ -127,10 +127,11 @@ void CCompanion::SendHostingPostRequest()
 #endif 
 
     httplib::Result result = client.Post("/servers/add", body_str.c_str(), body_str.length(), "application/json");
-#ifdef OVERLAY_DEBUG
     if (result)
     {
+#ifdef OVERLAY_DEBUG
         std::cout << " [+CCompanion+] Request Result: " << result->body << "\n";
+#endif 
         nlohmann::json res = nlohmann::json::parse(result->body);
         if (!res["success"] && !res["err"].is_null())
         {
@@ -155,9 +156,7 @@ void CCompanion::SendHostingPostRequest()
             HostRequestMessage = "";
             HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
         }
-
     }
-#endif 
 }
 
 const nlohmann::json CCompanion::SendGetServerByTokenRequest(const std::string &token, const std::string &password)
@@ -180,7 +179,6 @@ const nlohmann::json CCompanion::SendGetServerByTokenRequest(const std::string &
 
     return nlohmann::json::object();
 }
-
 
 void CCompanion::CompMenu()
 {
@@ -214,50 +212,52 @@ void CCompanion::ServerBrowserSection()
 
     const float FooterHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
     ImGui::BeginChild("ServerListChild", { 0, -FooterHeight }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
-    ImGui::BeginTable("##ServerBrowser_ServerList", 4, ImGuiTableFlags_Resizable);
     {
-        ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 35);
-        ImGui::TableSetupColumn("Map", ImGuiTableColumnFlags_WidthStretch, 25);
-        ImGui::TableSetupColumn("Port", ImGuiTableColumnFlags_WidthStretch, 10);
-        ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch, 8);
-        ImGui::TableHeadersRow();
-
-        for (ServerListing* server : ServerList)
+        ImGui::BeginTable("##ServerBrowser_ServerList", 4, ImGuiTableFlags_Resizable);
         {
-            const char* name = server->name.c_str();
-            const char* map = server->map.c_str();
-            const char* port = server->port.c_str();
+            ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 35);
+            ImGui::TableSetupColumn("Map", ImGuiTableColumnFlags_WidthStretch, 25);
+            ImGui::TableSetupColumn("Port", ImGuiTableColumnFlags_WidthStretch, 10);
+            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch, 8);
+            ImGui::TableHeadersRow();
 
-            if (ServerBrowserFilter.PassFilter(name)
-                || ServerBrowserFilter.PassFilter(map)
-                || ServerBrowserFilter.PassFilter(port))
+            for (ServerListing* server : ServerList)
             {
-                ImGui::TableNextColumn();
-                ImGui::Text(name);
+                const char* name = server->name.c_str();
+                const char* map = server->map.c_str();
+                const char* port = server->port.c_str();
 
-                ImGui::TableNextColumn();
-                ImGui::Text(map);
-
-                ImGui::TableNextColumn();
-                ImGui::Text(port);
-
-                ImGui::TableNextColumn();
-                std::string selectButtonText = "Connect##";
-                selectButtonText += (server->name + server->ip + server->map);
-
-                if (ImGui::Button(selectButtonText.c_str()))
+                if (ServerBrowserFilter.PassFilter(name)
+                    || ServerBrowserFilter.PassFilter(map)
+                    || ServerBrowserFilter.PassFilter(port))
                 {
-                    SelectedServer = server;
-                    server->Select();
+                    ImGui::TableNextColumn();
+                    ImGui::Text(name);
+
+                    ImGui::TableNextColumn();
+                    ImGui::Text(map);
+
+                    ImGui::TableNextColumn();
+                    ImGui::Text(port);
+
+                    ImGui::TableNextColumn();
+                    std::string selectButtonText = "Connect##";
+                    selectButtonText += (server->name + server->ip + server->map);
+
+                    if (ImGui::Button(selectButtonText.c_str()))
+                    {
+                        SelectedServer = server;
+                        server->Select();
+                    }
                 }
             }
-
         }
+        ImGui::EndTable();
     }
-    ImGui::EndTable();
     ImGui::EndChild();
 
     ImGui::Separator();
+
     ImGui::InputTextWithHint("##ServerBrowser_ServerConnString", "Enter IP address or \"localhost\"", ServerConnStringBuffer, IM_ARRAYSIZE(ServerConnStringBuffer));
 
     ImGui::SameLine();
@@ -508,29 +508,25 @@ void CCompanion::Draw(const char* title)
     ImGui::SetNextWindowSize(ImVec2(840, 600), ImGuiCond_FirstUseEver);
     ImGui::SetWindowPos(ImVec2(-500, 50), ImGuiCond_FirstUseEver);
 
-    if (!ImGui::Begin(title, NULL, ImGuiWindowFlags_NoScrollbar))
+    ImGui::Begin(title, NULL, ImGuiWindowFlags_NoScrollbar);
     {
-        ImGui::End();
-        return;
-    }
-    ///////////////////////////////////////////////////////////////////////
-    CompMenu();
+        CompMenu();
 
-    switch (CurrentSection)
-    {
-    case ESection::ServerBrowser:
-        ServerBrowserSection();
-        break;
-    case ESection::HostServer:
-        HostServerSection();
-        break;
-    case ESection::Settings:
-        SettingsSection();
-        break;
-    default:
-        break;
+        switch (CurrentSection)
+        {
+        case ESection::ServerBrowser:
+            ServerBrowserSection();
+            break;
+        case ESection::HostServer:
+            HostServerSection();
+            break;
+        case ESection::Settings:
+            SettingsSection();
+            break;
+        default:
+            break;
+        }
     }
-
     ImGui::End();
 }
 
@@ -555,14 +551,14 @@ void CCompanion::ConnectToServer(const std::string& ip, const std::string& port)
 {
     std::stringstream cmd;
     cmd << "connect " << ip << ":" << port;
-    g_ServerBrowser->ProcessCommand(cmd.str().c_str());
+    ProcessCommand(cmd.str().c_str());
 }
 
 void CCompanion::ConnectToServer(const std::string& connString)
 {
     std::stringstream cmd;
     cmd << "connect " << connString;
-    g_ServerBrowser->ProcessCommand(cmd.str().c_str());
+    ProcessCommand(cmd.str().c_str());
 }
 
 //#############################################################################
