@@ -78,6 +78,13 @@ namespace Hooks
 	extern ShowCursorFn originalShowCursor;
 #pragma endregion
 
+#pragma region CBaseFileSystem
+	void FileSystemWarning(void* thisptr, FileWarningLevel_t level, const char* fmt, ...);
+
+	using FileSystemWarningFn = void(*)(void*, FileWarningLevel_t, const char*, ...);
+	extern FileSystemWarningFn originalFileSystemWarning;
+#pragma endregion
+
 #pragma region Other
 	int MSG_EngineError(char* fmt, va_list args);
 
