@@ -6,8 +6,8 @@ public:
 
 	enum class Direction : int
 	{
-		UP = 0,
-		DOWN,
+		DOWN = 0,
+		UP,
 	};
 
 	std::uintptr_t GetPtr()
@@ -135,12 +135,12 @@ public:
 		VirtualProtect((void*)ptr, dwSize, oldProt, &oldProt); // Restore protection.
 	}
 
-	MemoryAddress FindPatternSelf(const char* pattern, Direction searchDirect, int opCodesToScan = 100, int occurence = 1)
+	MemoryAddress FindPatternSelf(const std::string pattern, const Direction searchDirect, const int opCodesToScan = 100, const std::ptrdiff_t occurence = 1)
 	{
-		static auto PatternToBytes = [](const char* pattern)
+		static auto PatternToBytes = [](const std::string pattern)
 		{
-			char* PatternStart = const_cast<char*>(pattern); // Cast const away and get start of pattern.
-			char* PatternEnd = PatternStart + std::strlen(pattern); // Get end of pattern.
+			char* PatternStart = const_cast<char*>(pattern.c_str()); // Cast const away and get start of pattern.
+			char* PatternEnd = PatternStart + std::strlen(pattern.c_str()); // Get end of pattern.
 
 			std::vector<std::int32_t> Bytes = std::vector<std::int32_t>{ }; // Initialize byte vector.
 
@@ -170,19 +170,20 @@ public:
 
 		const std::vector<int> PatternBytes = PatternToBytes(pattern); // Convert our pattern to a byte array.
 		const std::pair BytesInfo = std::make_pair(PatternBytes.size(), PatternBytes.data()); // Get the size and data of our bytes.
-		int occurences = 0;
+		std::ptrdiff_t occurences = 0;
 
-		for (auto i = 01; i < opCodesToScan + BytesInfo.first; ++i)
+		for (long i = 01; i < opCodesToScan + BytesInfo.first; i++)
 		{
 			bool FoundAddress = true;
 
-			int memOffset = searchDirect == Direction::UP ? -i : i;
-
-			for (DWORD j = 0ul; j < BytesInfo.first; ++j)
+			int memOffset = searchDirect == Direction::DOWN ? i : -i;
+			
+			for (DWORD j = 0ul; j < BytesInfo.first; j++)
 			{
 				// If either the current byte equals to the byte in our pattern or our current byte in the pattern is a wildcard
 				// our if clause will be false.
-				if (ScanBytes[memOffset + j] != BytesInfo.second[j] && BytesInfo.second[j] != -1)
+				std::uint8_t currentByte = *(ScanBytes + memOffset + j);
+				if (currentByte != BytesInfo.second[j] && BytesInfo.second[j] != -1)
 				{
 					FoundAddress = false;
 					break;
@@ -194,7 +195,7 @@ public:
 				occurences++;
 				if (occurence == occurences)
 				{
-					ptr = reinterpret_cast<std::uintptr_t>(&ScanBytes[memOffset]);
+					ptr = std::uintptr_t(&*(ScanBytes + memOffset));
 					return *this;
 				}
 			}
@@ -205,12 +206,12 @@ public:
 		return *this;
 	}
 
-	MemoryAddress FindPattern(const char* pattern, Direction searchDirect, int opCodesToScan = 100, int occurence = 1)
+	MemoryAddress FindPattern(const std::string pattern, const Direction searchDirect, const int opCodesToScan = 100, const std::ptrdiff_t occurence = 1)
 	{
-		static auto PatternToBytes = [](const char* pattern)
+		static auto PatternToBytes = [](const std::string pattern)
 		{
-			char* PatternStart = const_cast<char*>(pattern); // Cast const away and get start of pattern.
-			char* PatternEnd = PatternStart + std::strlen(pattern); // Get end of pattern.
+			char* PatternStart = const_cast<char*>(pattern.c_str()); // Cast const away and get start of pattern.
+			char* PatternEnd = PatternStart + std::strlen(pattern.c_str()); // Get end of pattern.
 
 			std::vector<std::int32_t> Bytes = std::vector<std::int32_t>{ }; // Initialize byte vector.
 
@@ -240,19 +241,20 @@ public:
 
 		const std::vector<int> PatternBytes = PatternToBytes(pattern); // Convert our pattern to a byte array.
 		const std::pair BytesInfo = std::make_pair(PatternBytes.size(), PatternBytes.data()); // Get the size and data of our bytes.
-		int occurences = 0;
+		std::ptrdiff_t occurences = 0;
 
-		for (auto i = 01; i < opCodesToScan + BytesInfo.first; ++i)
+		for (long i = 01; i < opCodesToScan + BytesInfo.first; i++)
 		{
 			bool FoundAddress = true;
 
-			int memOffset = searchDirect == Direction::UP ? -i : i;
+			int memOffset = searchDirect == Direction::DOWN ? i : -i;
 
-			for (DWORD j = 0ul; j < BytesInfo.first; ++j)
+			for (DWORD j = 0ul; j < BytesInfo.first; j++)
 			{
 				// If either the current byte equals to the byte in our pattern or our current byte in the pattern is a wildcard
 				// our if clause will be false.
-				if (ScanBytes[memOffset + j] != BytesInfo.second[j] && BytesInfo.second[j] != -1)
+				std::uint8_t currentByte = *(ScanBytes + memOffset + j);
+				if (currentByte != BytesInfo.second[j] && BytesInfo.second[j] != -1)
 				{
 					FoundAddress = false;
 					break;
@@ -264,10 +266,9 @@ public:
 				occurences++;
 				if (occurence == occurences)
 				{
-					return MemoryAddress(&ScanBytes[memOffset]);
+					return MemoryAddress(&*(ScanBytes + memOffset));
 				}
 			}
-
 		}
 
 		return MemoryAddress();
@@ -311,20 +312,66 @@ private:
 class Module
 {
 public:
+
+	struct ModuleSections
+	{
+		ModuleSections() = default;
+		ModuleSections(std::string sectionName, std::uintptr_t sectionStartAddress, DWORD sectionSize) : sectionName(sectionName), sectionStartAddress(sectionStartAddress), sectionSize(sectionSize) {}
+
+		bool IsSectionValid()
+		{
+			return sectionSize != 0;
+		}
+
+		std::string sectionName = std::string(); // Name of section.
+		std::uintptr_t sectionStartAddress = 0; // Start memory address of section.
+		DWORD sectionSize = 0; // Size of section.
+	};
+
+	ModuleSections GetSectionByName(const std::string sectionName)
+	{
+		for (ModuleSections& currentSection : moduleSections)
+		{
+			if (currentSection.sectionName.compare(sectionName) == 0)
+				return currentSection;
+		}
+
+		return ModuleSections();
+	}
+
+	void PrintSections()
+	{
+		for (ModuleSections& currentSection : moduleSections)
+		{
+			printf(" [+Module: %s+]%s, %p\n", moduleName.c_str(), currentSection.sectionName.c_str(), currentSection.sectionStartAddress);
+		}
+	}
+
 	Module() = default;
 	Module(std::string moduleName) : moduleName(moduleName)
 	{
 		const MODULEINFO mInfo = GetModuleInfo(moduleName.c_str()); // Get module info.
 		sizeOfModule = (DWORD64)mInfo.SizeOfImage; // Grab the module size.
 		moduleBase = (std::uintptr_t)mInfo.lpBaseOfDll; // Grab module base.
+
+		dosHeader = reinterpret_cast<IMAGE_DOS_HEADER*>(moduleBase); // Get dosHeader.
+		ntHeaders = reinterpret_cast<IMAGE_NT_HEADERS64*>(moduleBase + dosHeader->e_lfanew); // Get ntHeaders.
+
+		const IMAGE_SECTION_HEADER* hSection = IMAGE_FIRST_SECTION(ntHeaders); // Get first image section.
+
+		for (WORD i = 0; i < ntHeaders->FileHeader.NumberOfSections; i++) // Loop through the sections.
+		{
+			const IMAGE_SECTION_HEADER& currentSection = hSection[i]; // Get current section.
+			moduleSections.push_back(ModuleSections(std::string(reinterpret_cast<const char*>(currentSection.Name)), (std::uintptr_t)(DWORD64)(moduleBase + currentSection.VirtualAddress), currentSection.SizeOfRawData)); // Push back a struct with the section data.
+		}
 	}
 
-	MemoryAddress PatternSearch(const char* signature)
+	MemoryAddress PatternSearch(const std::string pattern, const std::ptrdiff_t patternOccurence = 1)
 	{
-		static auto PatternToBytes = [](const char* pattern)
+		static auto PatternToBytes = [](const std::string pattern)
 		{
-			char* PatternStart = const_cast<char*>(pattern); // Cast const away and get start of pattern.
-			char* PatternEnd = PatternStart + std::strlen(pattern); // Get end of pattern.
+			char* PatternStart = const_cast<char*>(pattern.c_str()); // Cast const away and get start of pattern.
+			char* PatternEnd = PatternStart + std::strlen(pattern.c_str()); // Get end of pattern.
 
 			std::vector<std::int32_t> Bytes = std::vector<std::int32_t>{ }; // Initialize byte vector.
 
@@ -350,20 +397,27 @@ public:
 			return Bytes;
 		};
 
-		std::uint8_t* ScanBytes = reinterpret_cast<std::uint8_t*>(moduleBase); // Get the base of the module.
+		ModuleSections textSection = GetSectionByName(".text"); // Get the .text section.
+		if (!textSection.IsSectionValid())
+			return MemoryAddress();
 
-		const std::vector<int> PatternBytes = PatternToBytes(signature); // Convert our pattern to a byte array.
+		const std::vector<std::int32_t> PatternBytes = PatternToBytes(pattern); // Convert our pattern to a byte array.
 		const std::pair BytesInfo = std::make_pair(PatternBytes.size(), PatternBytes.data()); // Get the size and data of our bytes.
 
-		for (DWORD i = 0ul; i < sizeOfModule - BytesInfo.first; ++i)
+		std::uint8_t* latestOccurence = nullptr;
+		std::ptrdiff_t occurencesFound = 0;
+
+		std::uint8_t* StartOfCodeSection = reinterpret_cast<std::uint8_t*>(textSection.sectionStartAddress); // Get start of .text section.
+
+		for (DWORD i = 0ul; i < textSection.sectionSize - BytesInfo.first; i++)
 		{
 			bool FoundAddress = true;
 
-			for (DWORD j = 0ul; j < BytesInfo.first; ++j)
+			for (DWORD j = 0ul; j < BytesInfo.first; j++)
 			{
 				// If either the current byte equals to the byte in our pattern or our current byte in the pattern is a wildcard
 				// our if clause will be false.
-				if (ScanBytes[i + j] != BytesInfo.second[j] && BytesInfo.second[j] != -1)
+				if (StartOfCodeSection[i + j] != BytesInfo.second[j] && BytesInfo.second[j] != -1)
 				{
 					FoundAddress = false;
 					break;
@@ -372,11 +426,139 @@ public:
 
 			if (FoundAddress)
 			{
-				return MemoryAddress(&ScanBytes[i]);
+				occurencesFound++; // Increment occurences found counter.
+				if (patternOccurence == occurencesFound) // Is it the occurence we want?
+					return MemoryAddress(&StartOfCodeSection[i]); // If yes return it.
+
+				latestOccurence = &StartOfCodeSection[i]; // Stash latest occurence.
+			}
+		}
+
+		return MemoryAddress(latestOccurence);
+	}
+	
+	MemoryAddress FindAddressForString(const std::string string, bool nullTerminator)
+	{
+		static auto StringToBytes = [](const std::string string, bool nullTerminator)
+		{
+			char* StringStart = const_cast<char*>(string.c_str()); // Cast const away and get start of string.
+			char* StringEnd = StringStart + std::strlen(string.c_str()); // Get end of string.
+
+			std::vector<std::int32_t> Bytes = std::vector<std::int32_t>{ }; // Initialize byte vector.
+
+			for (char* CurrentByte = StringStart; CurrentByte < StringEnd; ++CurrentByte) // Loop through all the characters in the .rdata string.
+			{
+				Bytes.push_back(*CurrentByte); // Dereference character and push back the byte.
+			}
+
+			if (nullTerminator) // Does the string have a null terminator at the end of it?
+				Bytes.push_back(0x0); // If yes push back 0 at the end of the byte array.
+
+			return Bytes;
+		};
+
+		ModuleSections rdataSection = GetSectionByName(".rdata"); // .Get rdata section, we only loop through here because most important strings are in the .rdata section.
+		if (!rdataSection.IsSectionValid())
+			return MemoryAddress();
+
+		std::vector<std::int32_t> stringBytes = StringToBytes(string, nullTerminator); // Convert our string to a byte array.
+		const std::pair BytesInfo = std::make_pair(stringBytes.size(), stringBytes.data()); // Get the size and data of our bytes.
+
+		std::uint8_t* StartOfRdata = reinterpret_cast<std::uint8_t*>(rdataSection.sectionStartAddress); // Get start of .rdata section.
+
+		for (DWORD i = 0ul; i < rdataSection.sectionSize - BytesInfo.first; i++)
+		{
+			bool FoundAddress = true;
+
+			// If either the current byte equals to the byte in our pattern or our current byte in the pattern is a wildcard
+			// our if clause will be false.
+			for (DWORD j = 0ul; j < BytesInfo.first; j++)
+			{
+				if (StartOfRdata[i + j] != BytesInfo.second[j] && BytesInfo.second[j] != -1)
+				{
+					FoundAddress = false;
+					break;
+				}
+			}
+
+			if (FoundAddress)
+			{
+				return MemoryAddress(&StartOfRdata[i]);
 			}
 		}
 
 		return MemoryAddress();
+	}
+
+	MemoryAddress StringSearch(const std::string string, const std::ptrdiff_t occurence = 1, bool nullTerminator = false)
+	{
+		static auto PatternToBytes = [](const std::string pattern)
+		{
+			char* PatternStart = const_cast<char*>(pattern.c_str()); // Cast const away and get start of pattern.
+			char* PatternEnd = PatternStart + std::strlen(pattern.c_str()); // Get end of pattern.
+
+			std::vector<std::int32_t> Bytes = std::vector<std::int32_t>{ }; // Initialize byte vector.
+
+			for (char* CurrentByte = PatternStart; CurrentByte < PatternEnd; ++CurrentByte)
+			{
+				if (*CurrentByte == '?') // Is current char(byte) a wildcard?
+				{
+					++CurrentByte; // Skip 1 character.
+
+					if (*CurrentByte == '?') // Is it a double wildcard pattern?
+						++CurrentByte; // If so skip the next space that will come up so we can reach the next byte.
+
+					Bytes.push_back(-1); // Push the byte back as invalid.
+				}
+				else
+				{
+					// https://stackoverflow.com/a/43860875/12541255
+					// Here we convert our string to a unsigned long integer. We pass our string then we use 16 as the base because we want it as hexadecimal.
+					// Afterwards we push the byte into our bytes vector.
+					Bytes.push_back(std::strtoul(CurrentByte, &CurrentByte, 16));
+				}
+			}
+			return Bytes;
+		};
+
+		ModuleSections textSection = GetSectionByName(".text"); // Get the .text section.
+		if (!textSection.IsSectionValid())
+			return MemoryAddress();
+
+		MemoryAddress stringAddress = FindAddressForString(string, nullTerminator); // Get address for the string in the .rdata section.
+		if (!stringAddress)
+			return MemoryAddress();
+
+		std::uint8_t* latestOccurence = nullptr;
+		std::ptrdiff_t occurencesFound = 0;
+
+		std::uint8_t* StartOfCodeSection = reinterpret_cast<std::uint8_t*>(textSection.sectionStartAddress); // Get the start of the .text section.
+
+		for (DWORD i = 0ul; i < textSection.sectionSize - 0x5; i++)
+		{
+			byte byte = StartOfCodeSection[i];
+			if (byte == 0x8D) // is it a LEA instruction?
+			{
+				MemoryAddress skipOpCode = MemoryAddress((std::uintptr_t)&StartOfCodeSection[i]).OffsetSelf(0x2); // Skip next 2 opcodes, those being the instruction and then the register.
+
+				std::int32_t relativeAddress = skipOpCode.GetValue<std::int32_t>(); // Get 4-byte long string relative address
+
+				std::uintptr_t nextInstruction = skipOpCode.Offset(0x4).GetPtr(); // Get location of next instruction.
+
+				MemoryAddress potentialLocation = MemoryAddress(nextInstruction + relativeAddress); // Get potential string location.
+
+				if (potentialLocation == stringAddress)
+				{
+					occurencesFound++; // Increment occurences found counter.
+					if (occurence == occurencesFound) // Is it the occurence we want?
+						return MemoryAddress(&StartOfCodeSection[i]); // If yes return it.
+
+					latestOccurence = &StartOfCodeSection[i]; // Stash latest occurence.
+				}
+			}
+		}
+
+		return MemoryAddress(latestOccurence);
 	}
 
 	std::uintptr_t GetModuleBase()
@@ -384,8 +566,16 @@ public:
 		return moduleBase;
 	}
 
+	std::string GetModuleName()
+	{
+		return moduleName;
+	}
+
 private:
 	std::string moduleName = std::string();
 	std::uintptr_t moduleBase = 0;
 	DWORD64 sizeOfModule = 0;
+	IMAGE_NT_HEADERS64* ntHeaders = nullptr;
+	IMAGE_DOS_HEADER* dosHeader = nullptr;
+	std::vector<ModuleSections> moduleSections = {};
 };

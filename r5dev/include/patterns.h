@@ -57,7 +57,7 @@ namespace
 
 #pragma region Utility
 	/*0x140295600*/
-	FUNC_AT_ADDRESS(addr_MSG_EngineError, int(*)(char*, va_list), r5_patterns.PatternSearch("48 89 5C 24 08 48 89 74 24 10 57 48 81 EC 30 08 00 00 48 8B DA").GetPtr());
+	FUNC_AT_ADDRESS(addr_MSG_EngineError, int(*)(char*, va_list), r5_patterns.StringSearch("Engine Error").FindPatternSelf("48 89 ? ? ? 48 89", MemoryAddress::Direction::UP, 500).GetPtr());
 #pragma endregion
 	// Un-used atm.
 	// DWORD64 p_KeyValues_FindKey = /*1404744E0*/ reinterpret_cast<DWORD64>(PatternScan("r5apex.exe", "40 56 57 41 57 48 81 EC ?? ?? ?? ?? 45"));
