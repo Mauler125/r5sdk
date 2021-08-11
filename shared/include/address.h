@@ -557,7 +557,6 @@ public:
 				}
 			}
 		}
-
 		return MemoryAddress(latestOccurence);
 	}
 

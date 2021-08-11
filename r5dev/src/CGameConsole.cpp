@@ -104,6 +104,16 @@ void CGameConsole::Draw(const char* title)
                 ProcessCommand("exec netchan");
             }
             ImGui::PopStyleColor(); // Pop color override.
+            if (ImGui::SmallButton("Commands/Convars to Console"))
+            {
+                if (GameGlobals::Cvar)
+                {
+                    for (auto map : GameGlobals::Cvar->DumpToMap())
+                    {
+                        AddLog("%s\n", map.first.c_str());
+                    }
+                }
+            }
             ImGui::EndPopup();
         }
         if (ImGui::Button("Tools"))
@@ -125,9 +135,8 @@ void CGameConsole::Draw(const char* title)
         {
             const char* item = Items[i];
             if (!Filter.PassFilter(item))
-            {
                 continue;
-            }
+
             ///////////////////////////////////////////////////////////////////
             ImVec4 color;
             bool has_color = false;
@@ -176,11 +185,23 @@ void CGameConsole::Draw(const char* title)
             // Filters
             //if (strstr(item, ") -> "))          { color = ImVec4(1.00f, 1.00f, 1.00f, 0.70f); has_color = true; }
 
-            if (has_color) { ImGui::PushStyleColor(ImGuiCol_Text, color); }
+            if (has_color)
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, color);
+            }
+
             ImGui::TextWrapped(item);
-            if (has_color) { ImGui::PopStyleColor(); }
+
+            if (has_color)
+            { 
+                ImGui::PopStyleColor();
+            }
         }
-        if (copy_to_clipboard) { ImGui::LogFinish(); }
+
+        if (copy_to_clipboard)
+        {
+            ImGui::LogFinish();
+        }
 
         if (ScrollToBottom || (AutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())) { ImGui::SetScrollHereY(1.0f); }
         ScrollToBottom = false;
