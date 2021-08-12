@@ -1,6 +1,7 @@
 #pragma once
 #include "serverlisting.h"
 #include "gui_utility.h"
+#include "r5net.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Initialization
@@ -12,6 +13,7 @@ private:
     bool ThemeSet = false;
 public:
     CCompanion();
+
 
     ////////////////////
     //     Enums      //
@@ -32,15 +34,17 @@ public:
     ////////////////////
     // Server Browser //
     ////////////////////
-    ImVector<ServerListing*> ServerList;
-    ServerListing* SelectedServer;
+
+    R5Net::Client r5net;
+
+    std::vector<ServerListing> ServerList;
     ImGuiTextFilter ServerBrowserFilter;
     char ServerConnStringBuffer[256] = { 0 };
 
     ////////////////////
     //    Settings    //
     ////////////////////
-    char MatchmakingServerStringBuffer[256] = { 0 };
+    std::string MatchmakingServerStringBuffer;
 
     ////////////////////
     //   Host Server  //
@@ -135,7 +139,6 @@ public:
 
     void RefreshServerList();
     void SendHostingPostRequest();
-    const nlohmann::json SendGetServerByTokenRequest(const std::string &token, const std::string &password);
     void CompMenu();
     void ServerBrowserSection();
     void SettingsSection();

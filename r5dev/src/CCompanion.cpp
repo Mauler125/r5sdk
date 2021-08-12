@@ -5,6 +5,7 @@
 #include "patterns.h"
 #include "gameclasses.h"
 #include "CCompanion.h"
+#include "r5net.h"
 
 #define OVERLAY_DEBUG
 
@@ -14,11 +15,9 @@ CCompanion* g_ServerBrowser = nullptr;
  * _ccompanion.cpp
  *-----------------------------------------------------------------------------*/
 
-CCompanion::CCompanion()
+CCompanion::CCompanion() : MatchmakingServerStringBuffer("r5a-comp-sv.herokuapp.com"), r5net(R5Net::Client("r5a-comp-sv.herokuapp.com"))
 {
-    memset(MatchmakingServerStringBuffer, 0, sizeof(MatchmakingServerStringBuffer));
     memset(ServerConnStringBuffer, 0, sizeof(ServerConnStringBuffer));
-    strcpy_s(MatchmakingServerStringBuffer, "r5a-comp-sv.herokuapp.com");
 
     std::string path = "stbsp";
     for (const auto& entry : std::filesystem::directory_iterator(path))
@@ -87,19 +86,7 @@ void CCompanion::RefreshServerList()
             std::cout << " [+CCompanion+] Refreshing server list with string " << MatchmakingServerStringBuffer << "\n";
 #endif
             bThreadLocked = true;
-            httplib::Client client(MatchmakingServerStringBuffer);
-            client.set_connection_timeout(10);
-            auto res = client.Get("/servers");
-            if (res)
-            {
-                nlohmann::json root = nlohmann::json::parse(res->body);
-                for (auto obj : root["servers"])
-                {
-                    ServerList.push_back(
-                        new ServerListing(obj["name"].get<std::string>(), obj["map"].get<std::string>(), obj["ip"].get<std::string>(), obj["port"].get<std::string>())
-                    );
-                }
-            }
+            ServerList = r5net.GetServersList();
             bThreadLocked = false;
         });
 
@@ -109,76 +96,25 @@ void CCompanion::RefreshServerList()
 
 void CCompanion::SendHostingPostRequest()
 {
-    httplib::Client client(MatchmakingServerStringBuffer);
-    client.set_connection_timeout(10);
-
-    // send a post request to "/servers/add" with a json body
-    nlohmann::json body = nlohmann::json::object();
-    body["name"] = MyServer.name;
-    body["map"] = std::string(GameGlobals::HostState->m_levelName);
-    static ConVar* hostport = GameGlobals::Cvar->FindVar("hostport"); // static since it won't move memory locations.
-    body["port"] = hostport->m_pzsCurrentValue; //body["port"] = MyServer.port;
-    body["password"] = MyServer.password;
-
-    std::string body_str = body.dump();
-
-#ifdef OVERLAY_DEBUG
-    std::cout << " [+CCompanion+] Sending request now, Body: " << body_str << "\n";
-#endif 
-
-    httplib::Result result = client.Post("/servers/add", body_str.c_str(), body_str.length(), "application/json");
-#ifdef OVERLAY_DEBUG
+    HostToken = "";
+    bool result = r5net.PostServerHost(HostRequestMessage, HostToken, ServerListing{ MyServer.name, std::string(GameGlobals::HostState->m_levelName), GameGlobals::Cvar->FindVar("hostport")->m_pzsCurrentValue, MyServer.password });
     if (result)
     {
-        std::cout << " [+CCompanion+] Request Result: " << result->body << "\n";
-        nlohmann::json res = nlohmann::json::parse(result->body);
-        if (!res["success"] && !res["err"].is_null())
+        HostRequestMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
+        std::stringstream msg;
+        msg << "Broadcasting! ";
+        if (!HostToken.empty())
         {
-            HostRequestMessage = res["err"].get<std::string>();
-            HostRequestMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
-        } 
-        else if (res["success"].get<bool>() == true)
-        {
-            std::stringstream msg;
-            msg << "Broadcasting! ";
-            HostToken = "";
-            if (res["token"].is_string())
-            {
-                msg << "Share the following token for people to connect: ";
-                HostToken = res["token"].get<std::string>();
-            }
-            HostRequestMessage = msg.str().c_str();
-            HostRequestMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
+            msg << "Share the following token for people to connect: ";
         }
-        else
-        {
-            HostRequestMessage = "";
-            HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-        }
+        HostRequestMessage = msg.str().c_str();
+        
 
     }
-#endif 
-}
-
-const nlohmann::json CCompanion::SendGetServerByTokenRequest(const std::string &token, const std::string &password)
-{
-    httplib::Client client(MatchmakingServerStringBuffer);
-    client.set_connection_timeout(10);
-    
-    nlohmann::json reqBody = nlohmann::json::object();
-
-    reqBody["token"] = token;
-    reqBody["password"] = password;
-
-    std::string reqBody_str = reqBody.dump();
-
-    httplib::Result res = client.Post("/server/byToken", reqBody_str.c_str(), reqBody_str.length(), "application/json");
-    if (res && !res->body.empty())
+    else
     {
-        return nlohmann::json::parse(res->body);
+        HostRequestMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
     }
-
-    return nlohmann::json::object();
 }
 
 
@@ -222,11 +158,11 @@ void CCompanion::ServerBrowserSection()
         ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch, 8);
         ImGui::TableHeadersRow();
 
-        for (ServerListing* server : ServerList)
+        for (ServerListing& server : ServerList)
         {
-            const char* name = server->name.c_str();
-            const char* map = server->map.c_str();
-            const char* port = server->port.c_str();
+            const char* name = server.name.c_str();
+            const char* map = server.map.c_str();
+            const char* port = server.port.c_str();
 
             if (ServerBrowserFilter.PassFilter(name)
                 || ServerBrowserFilter.PassFilter(map)
@@ -243,12 +179,11 @@ void CCompanion::ServerBrowserSection()
 
                 ImGui::TableNextColumn();
                 std::string selectButtonText = "Connect##";
-                selectButtonText += (server->name + server->ip + server->map);
+                selectButtonText += (server.name + server.ip + server.map);
 
                 if (ImGui::Button(selectButtonText.c_str()))
                 {
-                    SelectedServer = server;
-                    server->Select();
+                    //server->Select();
                 }
             }
 
@@ -370,27 +305,19 @@ void CCompanion::ServerBrowserSection()
 
         if (ImGui::Button("Connect##PrivateServersConnectModal_ConnectButton", ImVec2(ImGui::GetWindowContentRegionWidth() / 2.f, 19)))
         {
-            nlohmann::json response = SendGetServerByTokenRequest(PrivateServerToken, PrivateServerPassword); // Send token connect request.
-            if (response["success"].get<bool>()) // Was the response successful?
+            PrivateServerRequestMessage = "";
+            ServerListing server;
+            bool result = r5net.GetServerByToken(server, PrivateServerRequestMessage, PrivateServerToken, PrivateServerPassword); // Send token connect request.
+            if (!server.name.empty())
             {
-                nlohmann::json server = response["server"].get<nlohmann::json>(); // Get server field.
-
-                if (server["ip"].is_string() && server["port"].is_string()) // Check if both field are a string.
-                {
-                    std::string name = server["name"].get<std::string>(); // Please do this if you grab values from the response.
-                    std::string ip = server["ip"].get<std::string>();
-                    std::string port = server["port"].get<std::string>();
-
-                    ConnectToServer(ip, port); // Connect to the server
-                    PrivateServerRequestMessage = "Found Server: " + name;
-                    PrivateServerMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
-                    ImGui::CloseCurrentPopup();
-                }
+                ConnectToServer(server.ip, server.port); // Connect to the server
+                PrivateServerRequestMessage = "Found Server: " + server.name;
+                PrivateServerMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
+                ImGui::CloseCurrentPopup();
             }
             else
             {
-                std::string err = response["err"].get<std::string>();
-                PrivateServerRequestMessage = "Error: " + err;
+                PrivateServerRequestMessage = "Error: " + PrivateServerRequestMessage;
                 PrivateServerMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
             }
             
@@ -494,7 +421,8 @@ void CCompanion::HostServerSection()
 
 void CCompanion::SettingsSection()
 {
-    ImGui::InputText("Matchmaking Server String", MatchmakingServerStringBuffer, IM_ARRAYSIZE(MatchmakingServerStringBuffer), 0);
+    ImGui::Text("In renovation");
+    //ImGui::InputText("Matchmaking Server String", MatchmakingServerStringBuffer, IM_ARRAYSIZE(MatchmakingServerStringBuffer), 0);
 }
 
 void CCompanion::Draw(const char* title)

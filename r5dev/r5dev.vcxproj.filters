@@ -177,9 +177,6 @@
     <ClCompile Include="src\CGameConsole.cpp">
       <Filter>gui\interface</Filter>
     </ClCompile>
-    <ClCompile Include="src\serverlisting.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
     <ClCompile Include="src\id3dx.cpp">
       <Filter>gui</Filter>
     </ClCompile>
@@ -519,9 +516,6 @@
       <Filter>gui\include</Filter>
     </ClInclude>
     <ClInclude Include="include\CGameConsole.h">
-      <Filter>gui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\serverlisting.h">
       <Filter>gui\include</Filter>
     </ClInclude>
     <ClInclude Include="include\gameclasses.h">
