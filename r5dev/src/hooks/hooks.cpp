@@ -38,6 +38,10 @@ void Hooks::InstallHooks()
 	MH_CreateHook(addr_ConCommand_IsFlagSet, &Hooks::ConCommand_IsFlagSet, NULL);
 
 	///////////////////////////////////////////////////////////////////////////////
+	// Hooks CBaseFileSystem functions.
+	//MH_CreateHook(addr_CBaseFileSystem_FileSystemWarning, &Hooks::FileSystemWarning, reinterpret_cast<void**>(&originalFileSystemWarning);
+
+	///////////////////////////////////////////////////////////////////////////////
 	// Hook Utility functions
 	MH_CreateHook(addr_MSG_EngineError, &Hooks::MSG_EngineError, reinterpret_cast<void**>(&originalMSG_EngineError));
 
@@ -84,6 +88,10 @@ void Hooks::InstallHooks()
 	// Enable ConVar | ConCommand hooks
 	MH_EnableHook(addr_ConVar_IsFlagSet);
 	MH_EnableHook(addr_ConCommand_IsFlagSet);
+
+	///////////////////////////////////////////////////////////////////////////////
+	// Enable CBaseFileSystem hooks
+	//MH_EnableHook(addr_CBaseFileSystem_FileSystemWarning);
 
 	///////////////////////////////////////////////////////////////////////////////
     // Enabled Utility hooks
@@ -134,6 +142,10 @@ void Hooks::RemoveHooks()
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook Utility functions
 	MH_RemoveHook(addr_MSG_EngineError);
+
+	///////////////////////////////////////////////////////////////////////////////
+	// Unhook CBaseFileSystem functions.
+	//MH_RemoveHook(addr_CBaseFileSystem_FileSystemWarning);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Reset Minhook

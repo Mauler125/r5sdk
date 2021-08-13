@@ -266,21 +266,23 @@ void DrawImGui()
 
 	ImGui::NewFrame();
 
-	if (g_bShowConsole)
+	if (g_bShowConsole || g_bShowBrowser)
 	{
 		GameGlobals::InputSystem->EnableInput(false); // Disable input.
+	}
+	else
+	{
+		GameGlobals::InputSystem->EnableInput(true); // Enable input.
+	}
+
+	if (g_bShowConsole)
+	{
 		DrawConsole();
 	}
 
 	if (g_bShowBrowser)
 	{
-		GameGlobals::InputSystem->EnableInput(false); // Disable input.
 		DrawBrowser();
-	}
-
-	if (!g_bShowConsole && !g_bShowBrowser)
-	{
-		GameGlobals::InputSystem->EnableInput(true); // Enable input.
 	}
 
 	ImGui::EndFrame();
@@ -310,25 +312,6 @@ void CreateRenderTarget(IDXGISwapChain* pSwapChain)
 	if (pBackBuffer != NULL) { g_pDevice->CreateRenderTargetView(pBackBuffer, &render_target_view_desc, &g_pRenderTargetView); }
 	g_pDeviceContext->OMSetRenderTargets(1, &g_pRenderTargetView, NULL);
 	pBackBuffer->Release();
-}
-
-void CreateViewPort( UINT nWidth, UINT nHeight)
-{
-	float width  = *(float*)(&nWidth);
-	float height = *(float*)(&nHeight);
-
-	D3D11_VIEWPORT vp;
-
-	///////////////////////////////////////////////////////////////////////////////
-	vp.Width             = width;
-	vp.Height            = height;
-	vp.MinDepth          = 0.0f;
-	vp.MaxDepth          = 1.0f;
-	vp.TopLeftX          = 0;
-	vp.TopLeftY          = 0;
-
-	///////////////////////////////////////////////////////////////////////////////
-	g_pDeviceContext->RSSetViewports(1, &vp);
 }
 
 void DestroyRenderTarget()
@@ -368,12 +351,9 @@ HRESULT __stdcall GetResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount
 	g_bPresentHooked  = false;
 
 	///////////////////////////////////////////////////////////////////////////////
-	ImGui_ImplDX11_InvalidateDeviceObjects();
 
 	DestroyRenderTarget();
-	CreateViewPort(nWidth, nHeight);
 
-	ImGui_ImplDX11_CreateDeviceObjects();
 	///////////////////////////////////////////////////////////////////////////////
 	return originalResizeBuffers(pSwapChain, nBufferCount, nWidth, nHeight, dxFormat, nSwapChainFlags);
 }

@@ -29,7 +29,6 @@ CGameConsole::CGameConsole()
     Commands.push_back("CLEAR");
     Commands.push_back("CLASSIFY");
 
-
     AddLog("[DEBUG] THREAD ID: %ld\n", g_dThreadId);
 }
 
@@ -59,177 +58,207 @@ void CGameConsole::Draw(const char* title)
     ImGui::SetNextWindowSize(ImVec2(1000, 600), ImGuiCond_FirstUseEver);
     ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
 
-    if (!ImGui::Begin(title, NULL)) // Passing a bool only causes problems if you Begin a new window. I would not suggest to use it.
+    ImGui::Begin(title, NULL); // ImGui::Begin should never fail, if it does we got another problem.
     {
-        ImGui::End(); return;
-    }
 
-    // Reserve enough left-over height and width for 1 separator + 1 input text
-    const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-    const float footer_width_to_reserve  = ImGui::GetStyle().ItemSpacing.y + ImGui::GetWindowWidth();
+        // Reserve enough left-over height and width for 1 separator + 1 input text
+        const float FooterHeightToReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+        const float FooterWidthtoReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetWindowWidth();
 
-    ///////////////////////////////////////////////////////////////////////
-    ImGui::Separator();
-    if (ImGui::BeginPopup("Options"))
-    {
-        ImGui::Checkbox("Auto-scroll", &AutoScroll);
-        if (ImGui::SmallButton("Clear"))
+        ///////////////////////////////////////////////////////////////////////
+        ImGui::Separator();
+        if (ImGui::BeginPopup("Options"))
         {
-            ClearLog();
+            ImGui::Checkbox("Auto-scroll", &AutoScroll);
+            if (ImGui::SmallButton("Clear"))
+            {
+                ClearLog();
+            }
+            copy_to_clipboard = ImGui::SmallButton("Copy");
+            ImGui::EndPopup();
         }
-        copy_to_clipboard = ImGui::SmallButton("Copy");
-        ImGui::EndPopup();
-    }
-    if (ImGui::Button("Options"))
-    {
-        ImGui::OpenPopup("Options");
-    }
-    ImGui::SameLine();
-    if (ImGui::BeginPopup("Tools"))
-    {
-        Hooks::bToggledDevFlags ? ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 255, 0, 255)) : ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 0, 0, 255));
-        if (ImGui::SmallButton("Developer Mode"))
+        if (ImGui::Button("Options"))
         {
-            Hooks::ToggleDevCommands();
-            AddLog("+--------------------------------------------------------+\n");
-            AddLog("|>>>>>>>>>>>>>>| DEVONLY COMMANDS TOGGLED |<<<<<<<<<<<<<<|\n");
-            AddLog("+--------------------------------------------------------+\n");
-            ProcessCommand("exec autoexec");
+            ImGui::OpenPopup("Options");
         }
-        ImGui::PopStyleColor(); // Pop color override.
-        Hooks::bToggledNetTrace ? ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 255, 0, 255)) : ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 0, 0, 255));
-        if (ImGui::SmallButton("Netchannel Trace"))
+        ImGui::SameLine();
+        if (ImGui::BeginPopup("Tools"))
         {
-            Hooks::ToggleNetTrace();
-            AddLog("+--------------------------------------------------------+\n");
-            AddLog("|>>>>>>>>>>>>>>| NETCHANNEL TRACE TOGGLED |<<<<<<<<<<<<<<|\n");
-            AddLog("+--------------------------------------------------------+\n");
-            ProcessCommand("exec netchan");
+            Hooks::bToggledDevFlags ? ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 255, 0, 255)) : ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 0, 0, 255));
+            if (ImGui::SmallButton("Developer Mode"))
+            {
+                Hooks::ToggleDevCommands();
+                AddLog("+--------------------------------------------------------+\n");
+                AddLog("|>>>>>>>>>>>>>>| DEVONLY COMMANDS TOGGLED |<<<<<<<<<<<<<<|\n");
+                AddLog("+--------------------------------------------------------+\n");
+                ProcessCommand("exec autoexec");
+            }
+            ImGui::PopStyleColor(); // Pop color override.
+            Hooks::bToggledNetTrace ? ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 255, 0, 255)) : ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 0, 0, 255));
+            if (ImGui::SmallButton("Netchannel Trace"))
+            {
+                Hooks::ToggleNetTrace();
+                AddLog("+--------------------------------------------------------+\n");
+                AddLog("|>>>>>>>>>>>>>>| NETCHANNEL TRACE TOGGLED |<<<<<<<<<<<<<<|\n");
+                AddLog("+--------------------------------------------------------+\n");
+                ProcessCommand("exec netchan");
+            }
+            ImGui::PopStyleColor(); // Pop color override.
+            if (ImGui::SmallButton("Commands/Convars to Console"))
+            {
+                if (GameGlobals::Cvar)
+                {
+                    for (auto map : GameGlobals::Cvar->DumpToMap())
+                    {
+                        AddLog("%s\n", map.first.c_str());
+                    }
+                }
+            }
+            ImGui::EndPopup();
         }
-        ImGui::PopStyleColor(); // Pop color override.
-        ImGui::EndPopup();
-    }
-    if (ImGui::Button("Tools"))
-    {
-        ImGui::OpenPopup("Tools");
-    }
-    ImGui::SameLine();
-    Filter.Draw("Filter [\"-incl,-excl\"] [\"error\"]", footer_width_to_reserve - 500);
-    ImGui::Separator();
-
-    ///////////////////////////////////////////////////////////////////////
-    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 4.f, 6.f });
-    if (copy_to_clipboard)
-    {
-        ImGui::LogToClipboard();
-    }
-    for (int i = 0; i < Items.Size; i++)
-    {
-        const char* item = Items[i];
-        if (!Filter.PassFilter(item))
+        if (ImGui::Button("Tools"))
         {
-            continue;
+            ImGui::OpenPopup("Tools");
         }
-        ///////////////////////////////////////////////////////////////////
-        ImVec4 color;
-        bool has_color = false;
+        ImGui::SameLine();
+        Filter.Draw("Filter [\"-incl,-excl\"] [\"error\"]", FooterWidthtoReserve - 500);
+        ImGui::Separator();
 
-        ///////////////////////////////////////////////////////////////////
-        // General
-        if (strstr(item, "[INFO]"))         { color = ImVec4(1.00f, 1.00f, 1.00f, 0.70f); has_color = true; }
-        if (strstr(item, "[ERROR]"))        { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-        if (strstr(item, "[DEBUG]"))        { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
-        if (strstr(item, "[WARNING]"))      { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
-        if (strncmp(item, "# ", 2) == 0)    { color = ImVec4(1.00f, 0.80f, 0.60f, 1.00f); has_color = true; }
+        ///////////////////////////////////////////////////////////////////////
+        ImGui::BeginChild("ScrollingRegion", ImVec2(0, -FooterHeightToReserve), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 4.f, 6.f });
+        if (copy_to_clipboard)
+        {
+            ImGui::LogToClipboard();
+        }
+        for (int i = 0; i < Items.Size; i++)
+        {
+            const char* item = Items[i];
+            if (!Filter.PassFilter(item))
+                continue;
 
-        ///////////////////////////////////////////////////////////////////
-        // Virtual machines
-        if (strstr(item, "Script(S):"))     { color = ImVec4(0.59f, 0.58f, 0.73f, 1.00f); has_color = true; }
-        if (strstr(item, "Script(C):"))     { color = ImVec4(0.59f, 0.58f, 0.63f, 1.00f); has_color = true; }
-        if (strstr(item, "Script(U):"))     { color = ImVec4(0.59f, 0.48f, 0.53f, 1.00f); has_color = true; }
+            ///////////////////////////////////////////////////////////////////
+            ImVec4 color;
+            bool has_color = false;
 
-        ///////////////////////////////////////////////////////////////////
-        // Callbacks
-        //if (strstr(item, "CodeCallback_"))  { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
+            ///////////////////////////////////////////////////////////////////
+            // General
+            if (strstr(item, "[INFO]")) { color = ImVec4(1.00f, 1.00f, 1.00f, 0.70f); has_color = true; }
+            if (strstr(item, "[ERROR]")) { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+            if (strstr(item, "[DEBUG]")) { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
+            if (strstr(item, "[WARNING]")) { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
+            if (strncmp(item, "# ", 2) == 0) { color = ImVec4(1.00f, 0.80f, 0.60f, 1.00f); has_color = true; }
 
-        ///////////////////////////////////////////////////////////////////
-        // Script errors
-        if (strstr(item, ".gnut"))          { color = ImVec4(1.00f, 1.00f, 1.00f, 0.60f); has_color = true; }
-        if (strstr(item, ".nut"))           { color = ImVec4(1.00f, 1.00f, 1.00f, 0.60f); has_color = true; }
-        if (strstr(item, "[CLIENT]"))       { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-        if (strstr(item, "[SERVER]"))       { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-        if (strstr(item, "[UI]"))           { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-        if (strstr(item, "SCRIPT ERROR"))   { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-        if (strstr(item, "SCRIPT COMPILE")) { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-        if (strstr(item, ".gnut #"))        { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-        if (strstr(item, ".nut #"))         { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-        if (strstr(item, "): -> "))         { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+            ///////////////////////////////////////////////////////////////////
+            // Virtual machines
+            if (strstr(item, "Script(S):")) { color = ImVec4(0.59f, 0.58f, 0.73f, 1.00f); has_color = true; }
+            if (strstr(item, "Script(C):")) { color = ImVec4(0.59f, 0.58f, 0.63f, 1.00f); has_color = true; }
+            if (strstr(item, "Script(U):")) { color = ImVec4(0.59f, 0.48f, 0.53f, 1.00f); has_color = true; }
 
-        ///////////////////////////////////////////////////////////////////
-        // Script debug
-        if (strstr(item, "CALLSTACK"))      { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
-        if (strstr(item, "LOCALS"))         { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
-        if (strstr(item, "*FUNCTION"))      { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
-        if (strstr(item, "DIAGPRINTS"))     { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
-        if (strstr(item, " File : "))       { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
-        if (strstr(item, "<><>GRX<><>"))    { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
+            ///////////////////////////////////////////////////////////////////
+            // Callbacks
+            //if (strstr(item, "CodeCallback_"))  { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
 
-        ///////////////////////////////////////////////////////////////////
-        // Filters
-        //if (strstr(item, ") -> "))          { color = ImVec4(1.00f, 1.00f, 1.00f, 0.70f); has_color = true; }
+            ///////////////////////////////////////////////////////////////////
+            // Script errors
+            if (strstr(item, ".gnut")) { color = ImVec4(1.00f, 1.00f, 1.00f, 0.60f); has_color = true; }
+            if (strstr(item, ".nut")) { color = ImVec4(1.00f, 1.00f, 1.00f, 0.60f); has_color = true; }
+            if (strstr(item, "[CLIENT]")) { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+            if (strstr(item, "[SERVER]")) { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+            if (strstr(item, "[UI]")) { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+            if (strstr(item, "SCRIPT ERROR")) { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+            if (strstr(item, "SCRIPT COMPILE")) { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+            if (strstr(item, ".gnut #")) { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+            if (strstr(item, ".nut #")) { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+            if (strstr(item, "): -> ")) { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
 
-        if (has_color) { ImGui::PushStyleColor(ImGuiCol_Text, color); }
-        ImGui::TextWrapped(item);
-        if (has_color) { ImGui::PopStyleColor(); }
+            ///////////////////////////////////////////////////////////////////
+            // Script debug
+            if (strstr(item, "CALLSTACK")) { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
+            if (strstr(item, "LOCALS")) { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
+            if (strstr(item, "*FUNCTION")) { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
+            if (strstr(item, "DIAGPRINTS")) { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
+            if (strstr(item, " File : ")) { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
+            if (strstr(item, "<><>GRX<><>")) { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
+
+            ///////////////////////////////////////////////////////////////////
+            // Filters
+            //if (strstr(item, ") -> "))          { color = ImVec4(1.00f, 1.00f, 1.00f, 0.70f); has_color = true; }
+
+            if (has_color)
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, color);
+            }
+
+            ImGui::TextWrapped(item);
+
+            if (has_color)
+            { 
+                ImGui::PopStyleColor();
+            }
+        }
+
+        if (copy_to_clipboard)
+        {
+            ImGui::LogFinish();
+        }
+
+        if (ScrollToBottom || (AutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())) { ImGui::SetScrollHereY(1.0f); }
+        ScrollToBottom = false;
+
+        ///////////////////////////////////////////////////////////////////////
+        ImGui::PopStyleVar();
+        ImGui::EndChild();
+        ImGui::Separator();
+
+        ///////////////////////////////////////////////////////////////////////
+        // Console
+        bool ShouldReclaimFocus = false;
+        ImGui::PushItemWidth(FooterWidthtoReserve - 80);
+        if (ImGui::IsWindowAppearing()) { ImGui::SetKeyboardFocusHere(); }
+        ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
+
+        std::function<void(char*)> CommandExec = [&](char* InputBuf)
+        {
+            char* s = InputBuf;
+            const char* replace = "";
+            if (strstr(InputBuf, "`"))
+            {
+                strcpy_s(s, sizeof(replace), replace);
+            }
+
+            Strtrim(s);
+
+            if (s[0])
+            {
+                ProcessCommand(s);
+            }
+
+            strcpy_s(s, sizeof(replace), replace);
+            ShouldReclaimFocus = true;
+        };
+
+        if (ImGui::InputText("##input", InputBuf, IM_ARRAYSIZE(InputBuf), input_text_flags, &TextEditCallbackStub, (void*)this))
+        {
+            CommandExec(InputBuf);
+        }
+
+        ImGui::SameLine();
+
+        if (ImGui::Button("Submit"))
+        {
+            CommandExec(InputBuf);
+        }
+
+        // Auto-focus on window apparition
+        ImGui::SetItemDefaultFocus();
+
+        // Auto focus previous widget
+        if (ShouldReclaimFocus)
+        {
+            ImGui::SetKeyboardFocusHere(-1);
+        }
     }
-    if (copy_to_clipboard) { ImGui::LogFinish(); }
-
-    if (ScrollToBottom || (AutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())) { ImGui::SetScrollHereY(1.0f); }
-    ScrollToBottom = false;
-
-    ///////////////////////////////////////////////////////////////////////
-    ImGui::PopStyleVar();
-    ImGui::EndChild();
-    ImGui::Separator();
-
-    ///////////////////////////////////////////////////////////////////////
-    // Console
-    bool reclaim_focus = false;
-    ImGui::PushItemWidth(footer_width_to_reserve - 80);
-    if (ImGui::IsWindowAppearing()) { ImGui::SetKeyboardFocusHere(); }
-    ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
-
-    if (ImGui::InputText("##input", InputBuf, IM_ARRAYSIZE(InputBuf), input_text_flags, &TextEditCallbackStub, (void*)this))
-    {
-        char* s = InputBuf;
-        const char* replace = "";
-        if (strstr(InputBuf, "`")) { strcpy_s(s, sizeof(replace), replace); }
-        Strtrim(s);
-        if (s[0]) { ProcessCommand(s); }
-        strcpy_s(s, sizeof(replace), replace);
-        reclaim_focus = true;
-    }
-
-    ImGui::SameLine();
-    if (ImGui::Button("Submit"))
-    {
-        char* s = InputBuf;
-        const char* replace = "";
-        if (s[0]) { ProcessCommand(s); }
-        strcpy_s(s, sizeof(replace), replace);
-        reclaim_focus = true;
-    }
-
-    // Auto-focus on window apparition
-    ImGui::SetItemDefaultFocus();
-
-    // Auto focus previous widget
-    if (reclaim_focus)
-    {
-        ImGui::SetKeyboardFocusHere(-1);
-    }
-
     ImGui::End();
 }
 

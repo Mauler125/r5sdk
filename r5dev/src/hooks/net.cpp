@@ -30,7 +30,7 @@ void Hooks::NET_PrintFunc(const char* fmt, ...)
 		iconsole = std::make_shared<spdlog::logger>("ostream", ostream_sink);
 		iconsole->set_pattern("[%S.%e] %v");
 		iconsole->set_level(spdlog::level::debug);
-		wconsole->set_pattern("[%S.%e] %v");
+		wconsole->set_pattern("[%S.%e] %v\n");
 		wconsole->set_level(spdlog::level::debug);
 		initialized = true;
 	}

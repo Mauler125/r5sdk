@@ -343,3 +343,30 @@ enum HostStates_t
 	HS_SHUTDOWN = 0x6,
 	HS_RESTART = 0x7,
 };
+
+enum SIGNONSTATE
+{
+	SIGNONSTATE_NONE = 0, // no state yet; about to connect
+	SIGNONSTATE_CHALLENGE = 1, // client challenging server; all OOB packets
+	SIGNONSTATE_CONNECTED = 2, // client is connected to server; netchans ready
+	SIGNONSTATE_NEW = 3, // just got serverinfo and string tables
+	SIGNONSTATE_PRESPAWN = 4, // received signon buffers
+	SIGNONSTATE_GETTING_DATA = 5, // getting persistence data I assume?
+	SIGNONSTATE_SPAWN = 6, // ready to receive entity packets
+	SIGNONSTATE_FIRST_SNAP = 7, // ???
+	SIGNONSTATE_FULL = 8, // we are fully connected; first non-delta packet received
+	SIGNONSTATE_CHANGELEVEL = 9, // server is changing level; please wait
+};
+
+enum FileWarningLevel_t
+{
+	FILESYSTEM_WARNING = -1,
+	FILESYSTEM_WARNING_QUIET = 0,
+	FILESYSTEM_WARNING_REPORTUNCLOSED,
+	FILESYSTEM_WARNING_REPORTUSAGE,
+	FILESYSTEM_WARNING_REPORTALLACCESSES,
+	FILESYSTEM_WARNING_REPORTALLACCESSES_READ,
+	FILESYSTEM_WARNING_REPORTALLACCESSES_READWRITE,
+	FILESYSTEM_WARNING_REPORTALLACCESSES_ASYNC
+
+};

@@ -369,6 +369,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="src\hooks\cbasefilesystem.cpp" />
     <ClCompile Include="src\hooks\chlclient.cpp" />
     <ClCompile Include="src\hooks\cvengineserver.cpp" />
     <ClCompile Include="src\hooks\hooks.cpp" />

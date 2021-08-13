@@ -152,11 +152,13 @@ void CCompanion::ServerBrowserSection()
     ImGui::BeginChild("ServerListChild", { 0, -FooterHeight }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
     if(ImGui::BeginTable("##ServerBrowser_ServerList", 4, ImGuiTableFlags_Resizable))
     {
-        ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 35);
-        ImGui::TableSetupColumn("Map", ImGuiTableColumnFlags_WidthStretch, 25);
-        ImGui::TableSetupColumn("Port", ImGuiTableColumnFlags_WidthStretch, 10);
-        ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch, 8);
-        ImGui::TableHeadersRow();
+        if (ImGui::BeginTable("##ServerBrowser_ServerList", 4, ImGuiTableFlags_Resizable))
+        {
+            ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 35);
+            ImGui::TableSetupColumn("Map", ImGuiTableColumnFlags_WidthStretch, 25);
+            ImGui::TableSetupColumn("Port", ImGuiTableColumnFlags_WidthStretch, 10);
+            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch, 8);
+            ImGui::TableHeadersRow();
 
         for (ServerListing& server : ServerList)
         {
@@ -164,18 +166,18 @@ void CCompanion::ServerBrowserSection()
             const char* map = server.map.c_str();
             const char* port = server.port.c_str();
 
-            if (ServerBrowserFilter.PassFilter(name)
-                || ServerBrowserFilter.PassFilter(map)
-                || ServerBrowserFilter.PassFilter(port))
-            {
-                ImGui::TableNextColumn();
-                ImGui::Text(name);
+                if (ServerBrowserFilter.PassFilter(name)
+                    || ServerBrowserFilter.PassFilter(map)
+                    || ServerBrowserFilter.PassFilter(port))
+                {
+                    ImGui::TableNextColumn();
+                    ImGui::Text(name);
 
-                ImGui::TableNextColumn();
-                ImGui::Text(map);
+                    ImGui::TableNextColumn();
+                    ImGui::Text(map);
 
-                ImGui::TableNextColumn();
-                ImGui::Text(port);
+                    ImGui::TableNextColumn();
+                    ImGui::Text(port);
 
                 ImGui::TableNextColumn();
                 std::string selectButtonText = "Connect##";
@@ -193,6 +195,7 @@ void CCompanion::ServerBrowserSection()
     ImGui::EndChild();
 
     ImGui::Separator();
+
     ImGui::InputTextWithHint("##ServerBrowser_ServerConnString", "Enter IP address or \"localhost\"", ServerConnStringBuffer, IM_ARRAYSIZE(ServerConnStringBuffer));
 
     ImGui::Text("hello");
@@ -437,29 +440,25 @@ void CCompanion::Draw(const char* title)
     ImGui::SetNextWindowSize(ImVec2(840, 600), ImGuiCond_FirstUseEver);
     ImGui::SetWindowPos(ImVec2(-500, 50), ImGuiCond_FirstUseEver);
 
-    if (!ImGui::Begin(title, NULL, ImGuiWindowFlags_NoScrollbar))
+    ImGui::Begin(title, NULL, ImGuiWindowFlags_NoScrollbar);
     {
-        ImGui::End();
-        return;
-    }
-    ///////////////////////////////////////////////////////////////////////
-    CompMenu();
+        CompMenu();
 
-    switch (CurrentSection)
-    {
-    case ESection::ServerBrowser:
-        ServerBrowserSection();
-        break;
-    case ESection::HostServer:
-        HostServerSection();
-        break;
-    case ESection::Settings:
-        SettingsSection();
-        break;
-    default:
-        break;
+        switch (CurrentSection)
+        {
+        case ESection::ServerBrowser:
+            ServerBrowserSection();
+            break;
+        case ESection::HostServer:
+            HostServerSection();
+            break;
+        case ESection::Settings:
+            SettingsSection();
+            break;
+        default:
+            break;
+        }
     }
-
     ImGui::End();
 }
 
@@ -484,14 +483,14 @@ void CCompanion::ConnectToServer(const std::string& ip, const std::string& port)
 {
     std::stringstream cmd;
     cmd << "connect " << ip << ":" << port;
-    g_ServerBrowser->ProcessCommand(cmd.str().c_str());
+    ProcessCommand(cmd.str().c_str());
 }
 
 void CCompanion::ConnectToServer(const std::string& connString)
 {
     std::stringstream cmd;
     cmd << "connect " << connString;
-    g_ServerBrowser->ProcessCommand(cmd.str().c_str());
+    ProcessCommand(cmd.str().c_str());
 }
 
 //#############################################################################

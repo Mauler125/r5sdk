@@ -293,16 +293,19 @@ public:
 	float m_flValue; //0x0068
 	__int64 m_iValue; //0x006C
 	bool m_bHasMin; //0x0070
-private:
-	char pad_0071[3]; //0x0071
-public:
 	float m_flMinValue; //0x0074
 	bool m_bHasMax; //0x0078
-private:
-	char pad_0079[3]; //0x0079
-public:
 	float m_flMaxValue; //0x007C
 }; //Size: 0x0080
+
+class CCVarIteratorInternal // Fully reversed table, just look at the virtual function table and rename the function.
+{
+public:
+	virtual void		    SetFirst(void) = 0; //0
+	virtual void		    Next(void)     = 0; //1
+	virtual	bool		    IsValid(void)  = 0; //2
+	virtual ConCommandBase* Get(void)      = 0; //3
+};
 
 class CCVar
 {
@@ -323,6 +326,29 @@ public:
 	{
 		using OriginalFn = void*(__thiscall*)(CCVar*, const char*);
 		return (*reinterpret_cast<OriginalFn**>(this))[18](this, szCommandName);
+	}
+
+	CCVarIteratorInternal* FactoryInternalIterator() // @0x140597C10 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
+	{
+		using OriginalFn = CCVarIteratorInternal*(__thiscall*)(CCVar*);
+		return (*reinterpret_cast<OriginalFn**>(this))[41](this);
+	}
+
+	std::unordered_map<std::string, ConCommandBase*> DumpToMap()
+	{
+		std::stringstream ss;
+		CCVarIteratorInternal* itint = FactoryInternalIterator(); // Allocatd new InternalIterator.
+
+		std::unordered_map<std::string, ConCommandBase*> allConVars;
+
+		for (itint->SetFirst(); itint->IsValid(); itint->Next()) // Loop through all instances.
+		{
+			ConCommandBase* command = itint->Get();
+			const char* commandName = command->m_pszName;
+			allConVars[commandName] = command;
+		}
+
+		return allConVars;
 	}
 };
 

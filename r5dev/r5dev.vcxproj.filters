@@ -100,6 +100,9 @@
     <Filter Include="gui\interface">
       <UniqueIdentifier>{1979149f-6402-4985-b900-25a91f1168ac}</UniqueIdentifier>
     </Filter>
+    <Filter Include="hooks\src\cbasefilesystem">
+      <UniqueIdentifier>{90ee1072-2d57-4d4e-aa1e-f19a81e6b27f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dllmain.cpp">
@@ -182,6 +185,9 @@
     </ClCompile>
     <ClCompile Include="src\gui_utility.cpp">
       <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hooks\cbasefilesystem.cpp">
+      <Filter>hooks\src\cbasefilesystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
