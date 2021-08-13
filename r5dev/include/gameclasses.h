@@ -293,14 +293,8 @@ public:
 	float m_flValue; //0x0068
 	__int64 m_iValue; //0x006C
 	bool m_bHasMin; //0x0070
-private:
-	char pad_0071[3]; //0x0071
-public:
 	float m_flMinValue; //0x0074
 	bool m_bHasMax; //0x0078
-private:
-	char pad_0079[3]; //0x0079
-public:
 	float m_flMaxValue; //0x007C
 }; //Size: 0x0080
 
