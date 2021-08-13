@@ -484,14 +484,14 @@ void InstallDXHooks()
 	///////////////////////////////////////////////////////////////////////////////
 	// Hook SwapChain
 	MH_CreateHook(g_fnIDXGISwapChainPresent, &Present, reinterpret_cast<void**>(&originalPresent));
-	MH_CreateHook(g_oResizeBuffers, &GetResizeBuffers, reinterpret_cast<void**>(&originalResizeBuffers));
+//	MH_CreateHook(g_oResizeBuffers, &GetResizeBuffers, reinterpret_cast<void**>(&originalResizeBuffers));
 	 
 	///////////////////////////////////////////////////////////////////////////////
 	// Enable hooks
 	MH_EnableHook(PostMessageA);
 	MH_EnableHook(PostMessageW);
 	MH_EnableHook(g_fnIDXGISwapChainPresent);
-	MH_EnableHook(g_oResizeBuffers);
+//	MH_EnableHook(g_oResizeBuffers);
 }
 
 void RemoveDXHooks()
@@ -512,7 +512,7 @@ void RemoveDXHooks()
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook SwapChain
 	MH_RemoveHook(g_fnIDXGISwapChainPresent);
-	MH_RemoveHook(g_oResizeBuffers);
+//	MH_RemoveHook(g_oResizeBuffers);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Shutdown ImGui
