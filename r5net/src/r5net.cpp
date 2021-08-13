@@ -2,14 +2,11 @@
 //
 
 #include "netpch.h"
-#include "r5net.h"
+#include "r5\r5net.h"
 
-
-using namespace R5Net;
-
-std::vector<ServerListing> Client::GetServersList()
+std::vector<ServerListing> R5Net::Client::GetServersList()
 {
-    std::vector<ServerListing> list;
+    std::vector<ServerListing> list{ };
     
     auto res = m_HttpClient.Get("/servers");
 
@@ -23,11 +20,10 @@ std::vector<ServerListing> Client::GetServersList()
             );
         }
     }
-
     return list;
 }
 
-bool Client::PostServerHost(std::string& outMessage, std::string& outToken, const ServerListing& serverListing)
+bool R5Net::Client::PostServerHost(std::string& outMessage, std::string& outToken, const ServerListing& serverListing)
 {
     nlohmann::json reqBody = nlohmann::json::object();
     reqBody["name"] = serverListing.name;
@@ -48,7 +44,7 @@ bool Client::PostServerHost(std::string& outMessage, std::string& outToken, cons
         if (resBody["token"].is_string())
             outToken = resBody["token"].get<std::string>();
         else
-            outToken     = "";
+            outToken = "";
         return true;
     }
     else
@@ -94,5 +90,7 @@ bool R5Net::Client::GetServerByToken(ServerListing& outServer, std::string& outE
         outServer = ServerListing{};
         return false;
     }
+
+    return false;
 }
 

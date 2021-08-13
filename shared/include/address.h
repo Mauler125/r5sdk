@@ -343,7 +343,7 @@ public:
 	{
 		for (ModuleSections& currentSection : moduleSections)
 		{
-			printf(" [+Module: %s+]%s, %p\n", moduleName.c_str(), currentSection.sectionName.c_str(), currentSection.sectionStartAddress);
+			printf(" [+Module: %s+]%s, %p\n", moduleName.c_str(), currentSection.sectionName.c_str(), reinterpret_cast<void*>(currentSection.sectionStartAddress));
 		}
 	}
 
@@ -435,6 +435,52 @@ public:
 		}
 
 		return MemoryAddress(latestOccurence);
+	}
+
+	MemoryAddress GetExportedFunction(const std::string functionName)
+	{
+		if (!dosHeader || dosHeader->e_magic != IMAGE_DOS_SIGNATURE) // Is dosHeader valid?
+			return MemoryAddress();
+
+		if (!ntHeaders || ntHeaders->Signature != IMAGE_NT_SIGNATURE) // Is ntHeader valid?
+			return MemoryAddress();
+
+		// Get the location of IMAGE_EXPORT_DIRECTORY for this module by adding the IMAGE_DIRECTORY_ENTRY_EXPORT relative virtual address onto our module base address.
+		IMAGE_EXPORT_DIRECTORY* ImageExportDirectory = reinterpret_cast<IMAGE_EXPORT_DIRECTORY*>(moduleBase + ntHeaders->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress);
+		if (!ImageExportDirectory)
+			return MemoryAddress();
+
+		// Are there any exported functions?
+		if (!ImageExportDirectory->NumberOfFunctions)
+			return MemoryAddress();
+
+		// Get the location of the functions via adding the relative virtual address from the struct into our module base address.
+		DWORD* AddressOfFunctionsPtr = reinterpret_cast<DWORD*>(moduleBase + ImageExportDirectory->AddressOfFunctions);
+		if (!AddressOfFunctionsPtr)
+			return MemoryAddress();
+
+		// Get the names of the functions via adding the relative virtual address from the struct into our module base address.
+		DWORD* AddressOfNamePtr = reinterpret_cast<DWORD*>(moduleBase + ImageExportDirectory->AddressOfNames);
+		if (!AddressOfNamePtr)
+			return MemoryAddress();
+
+		// Get the ordinals of the functions via adding the relative virtual address from the struct into our module base address.
+		DWORD* AddressOfOrdinalsPtr = reinterpret_cast<DWORD*>(moduleBase + ImageExportDirectory->AddressOfNameOrdinals);
+		if (!AddressOfOrdinalsPtr)
+			return MemoryAddress();
+
+		for (std::size_t i = 0; i < ImageExportDirectory->NumberOfFunctions; i++) // Iterate through all the functions.
+		{
+			// Get virtual relative address of the function name. Then add module base address to get the actual location.
+			std::string ExportFunctionName = reinterpret_cast<char*>(reinterpret_cast<DWORD*>(moduleBase + AddressOfNamePtr[i]));
+
+			if (ExportFunctionName.compare(functionName) == 0) // Is this our wanted exported function?
+			{
+				// Get the function ordinal. Then grab the relative virtual address of our wanted function. Then add module base address so we get the actual location.
+				return MemoryAddress(moduleBase + AddressOfFunctionsPtr[reinterpret_cast<WORD*>(AddressOfOrdinalsPtr)[i]]); // Return as MemoryAddress class.
+			}
+		}
+		return MemoryAddress();
 	}
 	
 	MemoryAddress FindAddressForString(const std::string string, bool nullTerminator)

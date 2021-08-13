@@ -4,7 +4,6 @@
 
 namespace R5Net
 {
-
 	struct Config
 	{
 		std::string MOTD;
@@ -19,14 +18,10 @@ namespace R5Net
 		Client(std::string serverString) : m_HttpClient(serverString.c_str())
 		{
 			m_HttpClient.set_connection_timeout(10);
-
 		}
 	
-
 		std::vector<ServerListing> GetServersList();
-
 		bool PostServerHost(std::string& outMessage, std::string& outToken, const ServerListing& serverListing);
-
 		bool GetServerByToken(ServerListing& outServer, std::string& outError, const std::string& token, const std::string& password = "");
 	};
 }

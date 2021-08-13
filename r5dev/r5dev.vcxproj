@@ -82,7 +82,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)r5net\include;$(SolutionDir)external\minhook\include;$(SolutionDir)external\imgui\include;$(SolutionDir)external\spdlog\include;$(SolutionDir)shared\include;$(SolutionDir)r5dev\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)r5net\include\r5;$(SolutionDir)external\minhook\include;$(SolutionDir)external\imgui\include;$(SolutionDir)external\spdlog\include;$(SolutionDir)shared\include;$(SolutionDir)r5dev\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)external\minhook\lib\$(Configuration);$(SolutionDir)r5net\lib\$(Configuration);$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <TargetName>r5detours</TargetName>
@@ -90,7 +90,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)r5net\include;$(SolutionDir)external\minhook\include;$(SolutionDir)external\imgui\include;$(SolutionDir)external\spdlog\include;$(SolutionDir)shared\include;$(SolutionDir)r5dev\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)r5net\include\r5;$(SolutionDir)external\minhook\include;$(SolutionDir)external\imgui\include;$(SolutionDir)external\spdlog\include;$(SolutionDir)shared\include;$(SolutionDir)r5dev\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)external\minhook\lib\$(Configuration);$(SolutionDir)r5net\lib\$(Configuration);$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
@@ -157,7 +157,11 @@
     <PreBuildEvent>
       <Command>if not EXIST $(SolutionDir)external\minhook\lib\$(Configuration)\Minhook.x64.lib (
 "$(DevEnvDir)devenv" "$(SolutionDir)apex.sln" /Rebuild $(Configuration) /project "$(SolutionDir)external\minhook\libMinHook.vcxproj"
-)</Command>
+);
+
+if not EXIST $(SolutionDir)r5net\lib\$(Configuration)\r5net.lib (
+"$(DevEnvDir)devenv" "$(SolutionDir)apex.sln" /Rebuild $(Configuration) /project "$(SolutionDir)r5net\r5net.vcxproj"
+);</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -194,7 +198,11 @@
     <PreBuildEvent>
       <Command>if not EXIST $(SolutionDir)external\minhook\lib\$(Configuration)\Minhook.x64.lib (
 "$(DevEnvDir)devenv" "$(SolutionDir)apex.sln" /Rebuild $(Configuration) /project "$(SolutionDir)external\minhook\libMinHook.vcxproj"
-)</Command>
+);
+
+if not EXIST $(SolutionDir)r5net\lib\$(Configuration)\r5net.lib (
+"$(DevEnvDir)devenv" "$(SolutionDir)apex.sln" /Rebuild $(Configuration) /project "$(SolutionDir)r5net\r5net.vcxproj"
+);</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "netpch.h"
-
 struct ServerListing
 {
 	std::string name;

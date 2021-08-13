@@ -9,7 +9,6 @@
 #include "CCompanion.h"
 #include "CGameConsole.h"
 
-
 #pragma comment(lib, "d3d11.lib")
 
 /*---------------------------------------------------------------------------------
@@ -29,7 +28,6 @@ extern BOOL                     g_bShowConsole              = false;
 extern BOOL                     g_bShowBrowser              = false;
 static BOOL                     g_bInitMenu                 = false;
 static BOOL                     g_bInitialized              = false;
-static BOOL                     g_bPresentHooked            = false;
 
 ///////////////////////////////////////////////////////////////////////////////////
 static WNDPROC                  g_oWndProc                  = NULL;
@@ -227,18 +225,12 @@ void GetPresent()
 	pDeviceVTable             = (DWORD_PTR*)pDevice;
 	pDeviceVTable             = (DWORD_PTR*)pDeviceVTable[0];
 
-	int pIDX                  = (int)DXGISwapChainVTbl::Present;
-	int rIDX                  = (int)DXGISwapChainVTbl::ResizeBuffers;
-
-	g_fnIDXGISwapChainPresent = (IDXGISwapChainPresent)(DWORD_PTR)pSwapChainVtable[pIDX];
-	g_oResizeBuffers          = (IDXGIResizeBuffers)(DWORD_PTR)pSwapChainVtable[rIDX];
+	g_fnIDXGISwapChainPresent = (IDXGISwapChainPresent)(DWORD_PTR)pSwapChainVtable[(int)DXGISwapChainVTbl::Present];
+	g_oResizeBuffers          = (IDXGIResizeBuffers)(DWORD_PTR)pSwapChainVtable[(int)DXGISwapChainVTbl::ResizeBuffers];
 
 	pSwapChain->Release();
 	pContext->Release();
 	pDevice->Release();
-
-	///////////////////////////////////////////////////////////////////////////////
-	g_bPresentHooked          = true;
 }
 
 //#################################################################################
@@ -316,7 +308,7 @@ void CreateRenderTarget(IDXGISwapChain* pSwapChain)
 
 void DestroyRenderTarget()
 {
-	if (nullptr != g_pRenderTargetView)
+	if (g_pRenderTargetView)
 	{
 		g_pRenderTargetView->Release();
 		g_pRenderTargetView = nullptr;
@@ -348,7 +340,6 @@ HRESULT __stdcall GetResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount
 	g_bShowConsole    = false;
 	g_bShowBrowser    = false;
 	g_bInitialized    = false;
-	g_bPresentHooked  = false;
 
 	///////////////////////////////////////////////////////////////////////////////
 
@@ -448,19 +439,6 @@ bool LoadTextureFromByteArray(unsigned char* image_data, const int& image_width,
 
 void InstallDXHooks()
 {
-	HMODULE user32dll = GetModuleHandleA("user32.dll");
-
-	if (user32dll)
-	{
-		IPostMessageA PostMessageA = (IPostMessageA)GetProcAddress(user32dll, "PostMessageA");
-		IPostMessageW PostMessageW = (IPostMessageW)GetProcAddress(user32dll, "PostMessageW");
-	}
-
-	///////////////////////////////////////////////////////////////////////////////
-	// Hook PostMessage
-	MH_CreateHook(PostMessageA, &HPostMessageA, reinterpret_cast<void**>(&g_oPostMessageA));
-	MH_CreateHook(PostMessageW, &HPostMessageW, reinterpret_cast<void**>(&g_oPostMessageW));
-
 	///////////////////////////////////////////////////////////////////////////////
 	// Hook SwapChain
 	MH_CreateHook(g_fnIDXGISwapChainPresent, &Present, reinterpret_cast<void**>(&originalPresent));
@@ -468,26 +446,36 @@ void InstallDXHooks()
 	 
 	///////////////////////////////////////////////////////////////////////////////
 	// Enable hooks
-	MH_EnableHook(PostMessageA);
-	MH_EnableHook(PostMessageW);
 	MH_EnableHook(g_fnIDXGISwapChainPresent);
 	MH_EnableHook(g_oResizeBuffers);
+
+	if (Module user32dll = Module("user32.dll"); user32dll.GetModuleBase()) // Is user32.dll valid?
+	{
+		IPostMessageA PostMessageA = user32dll.GetExportedFunction("PostMessageA").RCast<IPostMessageA>();
+		IPostMessageW PostMessageW = user32dll.GetExportedFunction("PostMessageW").RCast<IPostMessageW>();
+
+		///////////////////////////////////////////////////////////////////////////////
+		// Hook PostMessage
+		MH_CreateHook(PostMessageA, &HPostMessageA, reinterpret_cast<void**>(&g_oPostMessageA));
+		MH_CreateHook(PostMessageW, &HPostMessageW, reinterpret_cast<void**>(&g_oPostMessageW));
+
+		MH_EnableHook(PostMessageA);
+		MH_EnableHook(PostMessageW);
+	}
 }
 
 void RemoveDXHooks()
 {
-	HMODULE user32dll = GetModuleHandleA("user32.dll");
-
-	if (user32dll)
-	{
-		IPostMessageA PostMessageA = (IPostMessageA)GetProcAddress(user32dll, "PostMessageA");
-		IPostMessageW PostMessageW = (IPostMessageW)GetProcAddress(user32dll, "PostMessageW");
-	}
-
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook PostMessage
-	MH_RemoveHook(PostMessageA);
-	MH_RemoveHook(PostMessageW);
+	if (Module user32dll = Module("user32.dll"); user32dll.GetModuleBase()) // Is user32.dll valid?
+	{
+		IPostMessageA PostMessageA = user32dll.GetExportedFunction("PostMessageA").RCast<IPostMessageA>();
+		IPostMessageW PostMessageW = user32dll.GetExportedFunction("PostMessageW").RCast<IPostMessageW>();
+
+		MH_RemoveHook(PostMessageA);
+		MH_RemoveHook(PostMessageW);
+	}
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook SwapChain
