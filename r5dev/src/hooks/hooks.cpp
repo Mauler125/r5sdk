@@ -47,14 +47,12 @@ void Hooks::InstallHooks()
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Hook WinAPI
-	HMODULE user32dll = GetModuleHandleA("user32.dll");
-
-	if (user32dll)
+	if (Module user32dll = Module("user32.dll"); user32dll.GetModuleBase()) // Is user32.dll valid?
 	{
-		void* SetCursorPosPtr = GetProcAddress(user32dll, "SetCursorPos");
-		void* ClipCursorPtr = GetProcAddress(user32dll, "ClipCursor");
-		void* GetCursorPosPtr = GetProcAddress(user32dll, "GetCursorPos");
-		void* ShowCursorPtr = GetProcAddress(user32dll, "ShowCursor");
+		void* SetCursorPosPtr = user32dll.GetExportedFunction("SetCursorPos");
+		void* ClipCursorPtr = user32dll.GetExportedFunction("ClipCursor");
+		void* GetCursorPosPtr = user32dll.GetExportedFunction("GetCursorPos");
+		void* ShowCursorPtr = user32dll.GetExportedFunction("ShowCursor");
 
 		MH_CreateHook(SetCursorPosPtr, &Hooks::SetCursorPos, reinterpret_cast<void**>(&originalSetCursorPos));
 		MH_CreateHook(ClipCursorPtr, &Hooks::ClipCursor, reinterpret_cast<void**>(&originalClipCursor));
@@ -124,14 +122,12 @@ void Hooks::RemoveHooks()
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook WinAPI
-	HMODULE user32dll = GetModuleHandleA("user32.dll");
-
-	if (user32dll)
+	if (Module user32dll = Module("user32.dll"); user32dll.GetModuleBase()) // Is user32.dll valid?
 	{
-		void* SetCursorPosPtr = GetProcAddress(user32dll, "SetCursorPos");
-		void* ClipCursorPtr = GetProcAddress(user32dll, "ClipCursor");
-		void* GetCursorPosPtr = GetProcAddress(user32dll, "GetCursorPos");
-		void* ShowCursorPtr = GetProcAddress(user32dll, "ShowCursor");
+		void* SetCursorPosPtr = user32dll.GetExportedFunction("SetCursorPos");
+		void* ClipCursorPtr = user32dll.GetExportedFunction("ClipCursor");
+		void* GetCursorPosPtr = user32dll.GetExportedFunction("GetCursorPos");
+		void* ShowCursorPtr = user32dll.GetExportedFunction("ShowCursor");
 
 		MH_RemoveHook(SetCursorPosPtr);
 		MH_RemoveHook(ClipCursorPtr);

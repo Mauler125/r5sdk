@@ -180,9 +180,6 @@
     <ClCompile Include="src\CGameConsole.cpp">
       <Filter>gui\interface</Filter>
     </ClCompile>
-    <ClCompile Include="src\serverlisting.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
     <ClCompile Include="src\id3dx.cpp">
       <Filter>gui</Filter>
     </ClCompile>
@@ -527,9 +524,6 @@
     <ClInclude Include="include\CGameConsole.h">
       <Filter>gui\include</Filter>
     </ClInclude>
-    <ClInclude Include="include\serverlisting.h">
-      <Filter>gui\include</Filter>
-    </ClInclude>
     <ClInclude Include="include\gameclasses.h">
       <Filter>r5-sdk\include</Filter>
     </ClInclude>
@@ -563,6 +557,7 @@
     <ClInclude Include="include\gui_utility.h">
       <Filter>gui\include</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="r5dev.def">
