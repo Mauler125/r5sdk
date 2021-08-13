@@ -97,7 +97,7 @@ void CCompanion::RefreshServerList()
 void CCompanion::SendHostingPostRequest()
 {
     HostToken = "";
-    bool result = r5net.PostServerHost(HostRequestMessage, HostToken, ServerListing{ MyServer.name, std::string(GameGlobals::HostState->m_levelName), GameGlobals::Cvar->FindVar("hostport")->m_pzsCurrentValue, MyServer.password });
+    bool result = r5net.PostServerHost(HostRequestMessage, HostToken, ServerListing{ MyServer.name, std::string(GameGlobals::HostState->m_levelName), "", GameGlobals::Cvar->FindVar("hostport")->m_pzsCurrentValue, MyServer.password});
     if (result)
     {
         HostRequestMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
@@ -150,7 +150,7 @@ void CCompanion::ServerBrowserSection()
 
     const float FooterHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
     ImGui::BeginChild("ServerListChild", { 0, -FooterHeight }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
-    ImGui::BeginTable("##ServerBrowser_ServerList", 4, ImGuiTableFlags_Resizable);
+    if(ImGui::BeginTable("##ServerBrowser_ServerList", 4, ImGuiTableFlags_Resizable))
     {
         ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 35);
         ImGui::TableSetupColumn("Map", ImGuiTableColumnFlags_WidthStretch, 25);
@@ -183,18 +183,19 @@ void CCompanion::ServerBrowserSection()
 
                 if (ImGui::Button(selectButtonText.c_str()))
                 {
-                    //server->Select();
+                    ConnectToServer(server.ip, server.port);
                 }
             }
 
         }
+        ImGui::EndTable();
     }
-    ImGui::EndTable();
     ImGui::EndChild();
 
     ImGui::Separator();
     ImGui::InputTextWithHint("##ServerBrowser_ServerConnString", "Enter IP address or \"localhost\"", ServerConnStringBuffer, IM_ARRAYSIZE(ServerConnStringBuffer));
 
+    ImGui::Text("hello");
     ImGui::SameLine();
 
     if (ImGui::Button("Connect", ImVec2(ImGui::GetWindowContentRegionWidth() * (1.f / 3.f /2.f), 19)))

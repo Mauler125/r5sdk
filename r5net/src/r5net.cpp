@@ -1,7 +1,7 @@
 // r5net.cpp : Defines the functions for the static library.
 //
 
-#include "pch.h"
+#include "netpch.h"
 #include "r5net.h"
 
 
@@ -77,10 +77,10 @@ bool R5Net::Client::GetServerByToken(ServerListing& outServer, std::string& outE
     if (res && resBody["success"].is_boolean() && resBody["success"])
     {
         outServer = ServerListing{
-            reqBody["name"].get<std::string>(),
-            reqBody["map"].get<std::string>(),
-            reqBody["ip"].get<std::string>(),
-            reqBody["port"].get<std::string>()
+            resBody["server"]["name"].get<std::string>(),
+            resBody["server"]["map"].get<std::string>(),
+            resBody["server"]["ip"].get<std::string>(),
+            resBody["server"]["port"].get<std::string>()
         };
         return true;
     }

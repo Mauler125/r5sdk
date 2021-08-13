@@ -320,6 +320,7 @@
     <ClInclude Include="include\pch.h" />
     <ClInclude Include="include\r5dev.h" />
     <ClInclude Include="include\structs.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\external\imgui\src\imgui.cpp">

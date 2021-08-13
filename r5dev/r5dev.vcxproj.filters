@@ -551,6 +551,7 @@
     <ClInclude Include="include\gui_utility.h">
       <Filter>gui\include</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="r5dev.def">

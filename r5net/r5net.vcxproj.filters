@@ -15,7 +15,7 @@
     <ClInclude Include="include\serverlisting.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\pch.h">
+    <ClInclude Include="include\netpch.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
@@ -26,7 +26,7 @@
     <ClCompile Include="src\serverlisting.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\pch.cpp">
+    <ClCompile Include="src\netpch.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

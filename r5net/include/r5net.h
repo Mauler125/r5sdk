@@ -19,6 +19,7 @@ namespace R5Net
 		Client(std::string serverString) : m_HttpClient(serverString.c_str())
 		{
 			m_HttpClient.set_connection_timeout(10);
+
 		}
 	
 
