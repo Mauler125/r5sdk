@@ -213,7 +213,7 @@ void CCompanion::ServerBrowserSection()
     const float FooterHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
     ImGui::BeginChild("ServerListChild", { 0, -FooterHeight }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
     {
-        ImGui::BeginTable("##ServerBrowser_ServerList", 4, ImGuiTableFlags_Resizable);
+        if (ImGui::BeginTable("##ServerBrowser_ServerList", 4, ImGuiTableFlags_Resizable))
         {
             ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 35);
             ImGui::TableSetupColumn("Map", ImGuiTableColumnFlags_WidthStretch, 25);
@@ -251,8 +251,8 @@ void CCompanion::ServerBrowserSection()
                     }
                 }
             }
+            ImGui::EndTable();
         }
-        ImGui::EndTable();
     }
     ImGui::EndChild();
 
