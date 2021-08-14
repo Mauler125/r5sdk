@@ -102,7 +102,6 @@ void CCompanion::RefreshServerList()
 void CCompanion::SendHostingPostRequest()
 {
     HostToken = std::string();
-    HostRequestMessage = std::string();
     bool result = r5net->PostServerHost(HostRequestMessage, HostToken, ServerListing{ MyServer.name, std::string(GameGlobals::HostState->m_levelName), "", GameGlobals::Cvar->FindVar("hostport")->m_pzsCurrentValue, MyServer.password, std::to_string(*reinterpret_cast<std::int32_t*>(0x1656057E0)) /* checksum */});
     if (result)
     {
