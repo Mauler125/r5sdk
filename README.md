@@ -31,9 +31,11 @@ There is a Checkbox that is by default disabled that allows you to stream to the
 
 If you tick that and don't assign a password your server will be visible in the server browser.
 
-But if you assign a password you will get a token as a response and a password.
+But if you assign a password you will get a token as a response and a password and it won't be visible in the server browser.
 
-People can join with that over the "Private Servers" button. If you do that your IP will still be stored on the database till you stop hosting the server to ensure people can connect.
+People can join with that over the "Private Servers" button.
+
+If you do that your IP will still be stored on the database till you stop hosting the server to ensure people can connect.
 
 Alternative way is just to host the server without ticking the server browser checkbox and just give the people you want to connect the IP including the port.
 
