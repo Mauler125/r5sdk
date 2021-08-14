@@ -69,6 +69,9 @@ void CCompanion::UpdateHostingStatus()
         if (!BroadCastServer) // Do we wanna broadcast server to the browser?
             break;
 
+        if (*reinterpret_cast<std::int32_t*>(0x1656057E0) == NULL) // Check if script checksum is valid yet.
+            break;
+
         SendHostingPostRequest();
         break;
     }
