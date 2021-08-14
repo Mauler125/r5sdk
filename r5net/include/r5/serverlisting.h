@@ -7,5 +7,6 @@ struct ServerListing
 	std::string ip;
 	std::string port;
 	std::string password;
+	std::string checksum;
 };
 

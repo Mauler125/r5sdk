@@ -30,6 +30,7 @@ bool R5Net::Client::PostServerHost(std::string& outMessage, std::string& outToke
     reqBody["map"] = serverListing.map;
     reqBody["port"] = serverListing.port;
     reqBody["password"] = serverListing.password;
+    reqBody["remote_checksum"] = serverListing.checksum;
 
     std::string reqBodyStr = reqBody.dump();
 
@@ -45,8 +46,6 @@ bool R5Net::Client::PostServerHost(std::string& outMessage, std::string& outToke
     nlohmann::json resBody = nlohmann::json::parse(res->body);
     if (resBody["success"].is_boolean() && resBody["success"])
     {
-        outMessage = "Broadcasting!";
-
         if (resBody["token"].is_string())
             outToken = resBody["token"].get<std::string>();
         else
