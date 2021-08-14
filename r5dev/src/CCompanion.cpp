@@ -102,7 +102,9 @@ void CCompanion::RefreshServerList()
 void CCompanion::SendHostingPostRequest()
 {
     HostToken = "";
-    bool result = r5net->PostServerHost(HostRequestMessage, HostToken, ServerListing{ MyServer.name, std::string(GameGlobals::HostState->m_levelName), "", GameGlobals::Cvar->FindVar("hostport")->m_pzsCurrentValue, MyServer.password});
+    HostToken = std::string();
+    HostRequestMessage = std::string();
+    bool result = r5net->PostServerHost(HostRequestMessage, HostToken, ServerListing{ MyServer.name, std::string(GameGlobals::HostState->m_levelName), "", GameGlobals::Cvar->FindVar("hostport")->m_pzsCurrentValue, MyServer.password, std::to_string(*reinterpret_cast<std::int32_t*>(0x1656057E0)) /* checksum */});
     if (result)
     {
         HostRequestMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
@@ -113,8 +115,6 @@ void CCompanion::SendHostingPostRequest()
             msg << "Share the following token for people to connect: ";
         }
         HostRequestMessage = msg.str().c_str();
-        
-
     }
     else
     {
