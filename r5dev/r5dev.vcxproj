@@ -384,6 +384,7 @@ if not EXIST $(SolutionDir)r5net\lib\$(Configuration)\r5net.lib (
     <ClCompile Include="src\hooks\iconvar.cpp" />
     <ClCompile Include="src\hooks\msgbox.cpp" />
     <ClCompile Include="src\hooks\net.cpp" />
+    <ClCompile Include="src\hooks\netchannel.cpp" />
     <ClCompile Include="src\hooks\sqvm.cpp" />
     <ClCompile Include="src\hooks\winapi.cpp" />
     <ClCompile Include="src\id3dx.cpp">

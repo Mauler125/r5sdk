@@ -31,6 +31,7 @@ void Hooks::InstallHooks()
 	MH_CreateHook(addr_NET_PrintFunc, &Hooks::NET_PrintFunc, reinterpret_cast<void**>(&originalNET_PrintFunc));
 	MH_CreateHook(addr_NET_ReceiveDatagram, &Hooks::NET_ReceiveDatagram, reinterpret_cast<void**>(&originalNET_ReceiveDatagram));
 	MH_CreateHook(addr_NET_SendDatagram, &Hooks::NET_SendDatagram, reinterpret_cast<void**>(&originalNET_SendDatagram));
+	MH_CreateHook(addr_NetChan_Shutdown, &Hooks::NetChanShutdown, reinterpret_cast<void**>(&originalNetChanShutDown));
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Hook ConVar | ConCommand functions.
@@ -81,6 +82,7 @@ void Hooks::InstallHooks()
 	///////////////////////////////////////////////////////////////////////////////
 	// Enable Netchan hooks
 	MH_EnableHook(addr_NET_PrintFunc);
+	MH_EnableHook(addr_NetChan_Shutdown);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Enable ConVar | ConCommand hooks
@@ -114,6 +116,7 @@ void Hooks::RemoveHooks()
 	MH_RemoveHook(addr_NET_PrintFunc);
 	MH_RemoveHook(addr_NET_ReceiveDatagram);
 	MH_RemoveHook(addr_NET_SendDatagram);
+	MH_RemoveHook(addr_NetChan_Shutdown);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook ConVar | ConCommand functions.
