@@ -10,7 +10,7 @@ std::vector<ServerListing> R5Net::Client::GetServersList()
     
     auto res = m_HttpClient.Get("/servers");
 
-    if (res)
+    if (!res) return std::vector<ServerListing>();
     {
         nlohmann::json root = nlohmann::json::parse(res->body);
         for (auto obj : root["servers"])
@@ -35,9 +35,15 @@ bool R5Net::Client::PostServerHost(std::string& outMessage, std::string& outToke
 
     auto res = m_HttpClient.Post("/servers/add", reqBodyStr.c_str(), reqBodyStr.length(), "application/json");
 
-    
+    if (!res) 
+    {
+        outMessage = "Failed to reach comp-server";
+        outToken = "";
+        return false;
+    }
+     
     nlohmann::json resBody = nlohmann::json::parse(res->body);
-    if (res && resBody["success"].is_boolean() && resBody["success"])
+    if (resBody["success"].is_boolean() && resBody["success"])
     {
         outMessage = "Broadcasting!";
 
@@ -67,7 +73,13 @@ bool R5Net::Client::GetServerByToken(ServerListing& outServer, std::string& outE
 
     httplib::Result res = m_HttpClient.Post("/server/byToken", reqBody.dump().c_str(), reqBody.dump().length(), "application/json");
 
-    std::cout << "YEEEEEEEEEEEEEE" << res->body << "\n";
+    if (!res) 
+    {
+        outError = "Failed to reach comp-server";
+        outServer = ServerListing{};
+        return false;
+    }
+
     nlohmann::json resBody = nlohmann::json::parse(res->body);
 
     if (res && resBody["success"].is_boolean() && resBody["success"])
