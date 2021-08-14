@@ -13,7 +13,7 @@ private:
     bool ThemeSet = false;
 public:
     CCompanion();
-
+    ~CCompanion();
 
     ////////////////////
     //     Enums      //
@@ -35,7 +35,7 @@ public:
     // Server Browser //
     ////////////////////
 
-    R5Net::Client r5net;
+    R5Net::Client* r5net;
 
     std::vector<ServerListing> ServerList;
     ImGuiTextFilter ServerBrowserFilter;
