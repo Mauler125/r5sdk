@@ -15,7 +15,7 @@ CCompanion* g_ServerBrowser = nullptr;
  * _ccompanion.cpp
  *-----------------------------------------------------------------------------*/
 
-CCompanion::CCompanion() : MatchmakingServerStringBuffer("r5a-comp-sv.herokuapp.com"), r5net(R5Net::Client("r5a-comp-sv.herokuapp.com"))
+CCompanion::CCompanion() : MatchmakingServerStringBuffer("r5a-comp-sv.herokuapp.com"), r5net(new R5Net::Client("r5a-comp-sv.herokuapp.com"))
 {
     memset(ServerConnStringBuffer, 0, sizeof(ServerConnStringBuffer));
 
@@ -42,6 +42,11 @@ CCompanion::CCompanion() : MatchmakingServerStringBuffer("r5a-comp-sv.herokuapp.
     });
 
     HostingServerRequestThread.detach();
+}
+
+CCompanion::~CCompanion()
+{
+    delete r5net;
 }
 
 void CCompanion::UpdateHostingStatus()
@@ -86,7 +91,7 @@ void CCompanion::RefreshServerList()
             std::cout << " [+CCompanion+] Refreshing server list with string " << MatchmakingServerStringBuffer << "\n";
 #endif
             bThreadLocked = true;
-            ServerList = r5net.GetServersList();
+            ServerList = r5net->GetServersList();
             bThreadLocked = false;
         });
 
@@ -97,7 +102,7 @@ void CCompanion::RefreshServerList()
 void CCompanion::SendHostingPostRequest()
 {
     HostToken = "";
-    bool result = r5net.PostServerHost(HostRequestMessage, HostToken, ServerListing{ MyServer.name, std::string(GameGlobals::HostState->m_levelName), "", GameGlobals::Cvar->FindVar("hostport")->m_pzsCurrentValue, MyServer.password});
+    bool result = r5net->PostServerHost(HostRequestMessage, HostToken, ServerListing{ MyServer.name, std::string(GameGlobals::HostState->m_levelName), "", GameGlobals::Cvar->FindVar("hostport")->m_pzsCurrentValue, MyServer.password});
     if (result)
     {
         HostRequestMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
@@ -307,7 +312,7 @@ void CCompanion::ServerBrowserSection()
         {
             PrivateServerRequestMessage = "";
             ServerListing server;
-            bool result = r5net.GetServerByToken(server, PrivateServerRequestMessage, PrivateServerToken, PrivateServerPassword); // Send token connect request.
+            bool result = r5net->GetServerByToken(server, PrivateServerRequestMessage, PrivateServerToken, PrivateServerPassword); // Send token connect request.
             if (!server.name.empty())
             {
                 ConnectToServer(server.ip, server.port); // Connect to the server
@@ -420,8 +425,12 @@ void CCompanion::HostServerSection()
 
 void CCompanion::SettingsSection()
 {
-    ImGui::Text("In renovation");
-    //ImGui::InputText("Matchmaking Server String", MatchmakingServerStringBuffer, IM_ARRAYSIZE(MatchmakingServerStringBuffer), 0);
+    ImGui::InputTextWithHint("##MatchmakingServerString", "Matchmaking Server String", & MatchmakingServerStringBuffer);
+    if (ImGui::Button("Update Settings"))
+    {
+        if (r5net) delete r5net;
+        r5net = new R5Net::Client(MatchmakingServerStringBuffer);
+    }
 }
 
 void CCompanion::Draw(const char* title)
