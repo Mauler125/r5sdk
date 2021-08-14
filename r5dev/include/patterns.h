@@ -14,6 +14,9 @@ namespace
 
 	/*0x14046F490*/
 	FUNC_AT_ADDRESS(addr_ConCommand_IsFlagSet, bool(*)(int*, int), r5_patterns.PatternSearch("85 51 38 0F 95 C0 C3").GetPtr());
+
+	/*0x140279CE0*/
+	FUNC_AT_ADDRESS(addr_downloadPlaylists_Callback, void*, r5_patterns.PatternSearch("33 C9 C6 05 ? ? ? ? ? E9 ? ? ? ?").GetPtr());
 #pragma endregion
 
 #pragma region Squirrel
@@ -39,6 +42,9 @@ namespace
 
 	/*0x1402662D0*/
 	FUNC_AT_ADDRESS(addr_NET_SendDatagram, int(*)(SOCKET, const char*, int, int), r5_patterns.PatternSearch("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 56 41 57 48 81 EC ? 05 ? ?").GetPtr());
+
+	/*0x14025F190*/
+	FUNC_AT_ADDRESS(addr_NetChan_Shutdown, void(*)(void*, const char*, unsigned __int8, char), r5_patterns.StringSearch("Disconnect by server.\n").FindPatternSelf("E8 ? ? ? ? 4C 89 B3 ? ? ? ?", MemoryAddress::Direction::DOWN).FollowNearCall().GetPtr());
 #pragma endregion
 
 #pragma region CHLClient
@@ -68,12 +74,14 @@ namespace
 		PRINT_ADDRESS("CommandExecute", addr_CommandExecute);
 		PRINT_ADDRESS("ConVar_IsFlagSet", addr_ConVar_IsFlagSet);
 		PRINT_ADDRESS("ConCommand_IsFlagSet", addr_ConCommand_IsFlagSet);
+		PRINT_ADDRESS("Downloadplaylists_Callback", addr_downloadPlaylists_Callback);
 		PRINT_ADDRESS("SQVM_Print", addr_SQVM_Print);
 		PRINT_ADDRESS("SQVM_LoadScript", addr_SQVM_LoadScript);
 		PRINT_ADDRESS("SQVM_LoadRson", addr_SQVM_LoadRson);
 		PRINT_ADDRESS("NET_PrintFunc", addr_NET_PrintFunc);
 		PRINT_ADDRESS("NET_ReceiveDatagram", addr_NET_ReceiveDatagram);
 		PRINT_ADDRESS("NET_SendDatagram ", addr_NET_SendDatagram);
+		PRINT_ADDRESS("INetChannel::Shutdown", addr_NetChan_Shutdown);
 		PRINT_ADDRESS("CHLClient::FrameStageNotify", addr_CHLClient_FrameStageNotify);
 		PRINT_ADDRESS("CVEngineServer::IsPersistenceDataAvailable", addr_CVEngineServer_IsPersistenceDataAvailable);
 		PRINT_ADDRESS("CBaseFileSystem::FileSystemWarning", addr_CBaseFileSystem_FileSystemWarning);

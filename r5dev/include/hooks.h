@@ -43,6 +43,7 @@ namespace Hooks
 	bool NET_ReceiveDatagram(int sock, void* inpacket, bool raw);
 	unsigned int NET_SendDatagram(SOCKET s, const char* buf, int len, int flags);
 	void NET_PrintFunc(const char* fmt, ...);
+	void NetChanShutdown(void* rcx, const char* reason, unsigned __int8 unk1, char unk2);
 
 	using NET_PrintFuncFn = void(*)(const char* fmt, ...);
 	extern NET_PrintFuncFn originalNET_PrintFunc;
@@ -52,6 +53,8 @@ namespace Hooks
 
 	using NET_SendDatagramFn = unsigned int(*)(SOCKET, const char*, int, int);
 	extern NET_SendDatagramFn originalNET_SendDatagram;
+	using NetChan_ShutDown = void(*)(void*, const char*, unsigned __int8, char);
+	extern NetChan_ShutDown originalNetChanShutDown;
 #pragma endregion
 
 #pragma region ConVar
