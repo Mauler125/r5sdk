@@ -40,6 +40,7 @@ public:
     std::vector<ServerListing> ServerList;
     ImGuiTextFilter ServerBrowserFilter;
     char ServerConnStringBuffer[256] = { 0 };
+    std::string ServerListMessage = std::string();
 
     ////////////////////
     //    Settings    //
@@ -56,6 +57,7 @@ public:
     ImVec4 HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
     bool StartAsDedi = false;
     bool BroadCastServer = false;
+    bool OverridePlaylist = false;
 
     ////////////////////
     // Private Server //

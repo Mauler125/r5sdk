@@ -8,6 +8,36 @@ namespace GameGlobals
 	CInputSystem* InputSystem = nullptr;
 	CCVar* Cvar = nullptr;
 
+	void EmptyHostNames()
+	{
+		const char* hostnameArray[] =
+		{
+			"pin_telemetry_hostname",
+			"assetdownloads_hostname",
+			"users_hostname",
+			"persistence_hostname",
+			"speechtotexttoken_hostname",
+			"communities_hostname",
+			"persistenceDef_hostname",
+			"party_hostname",
+			"speechtotext_hostname",
+			"serverReports_hostname",
+			"subscription_hostname",
+			"steamlink_hostname",
+			"staticfile_hostname",
+			"matchmaking_hostname",
+			"skill_hostname",
+			"publication_hostname",
+			"stats_hostname"
+		};
+
+		for (int i = 0; i < 17; i++)
+		{
+			const char* name = hostnameArray[i];
+			Cvar->FindVar(name)->m_pzsCurrentValue = "0.0.0.0";
+		}
+	}
+
 	void InitGameGlobals()
 	{
 		HostState = reinterpret_cast<CHostState*>(0x141736120); // Get CHostState from memory.
@@ -19,7 +49,7 @@ namespace GameGlobals
 	//	{
 	//		printf("%s: %p\n", current->InterfaceName, current->InterfacePtr);
 	//	}
-
+		EmptyHostNames();
 		IsInitialized = true;
 	}
 }

@@ -54,7 +54,7 @@ void CCompanion::UpdateHostingStatus()
     if (!GameGlobals::HostState || !GameGlobals::Cvar) // Is HostState and Cvar valid?
         return;
 
-    GameGlobals::HostState->m_bActiveGame ? HostingStatus = EHostStatus::Hosting : HostingStatus = EHostStatus::NotHosting; // Are we hosting a server?
+    HostingStatus = GameGlobals::HostState->m_bActiveGame ? EHostStatus::Hosting : EHostStatus::NotHosting; // Are we hosting a server?
 
     switch (HostingStatus)
     {
@@ -94,7 +94,7 @@ void CCompanion::RefreshServerList()
             std::cout << " [+CCompanion+] Refreshing server list with string " << MatchmakingServerStringBuffer << "\n";
 #endif
             bThreadLocked = true;
-            ServerList = r5net->GetServersList();
+            ServerList = r5net->GetServersList(ServerListMessage);
             bThreadLocked = false;
         });
 
@@ -105,7 +105,17 @@ void CCompanion::RefreshServerList()
 void CCompanion::SendHostingPostRequest()
 {
     HostToken = std::string();
-    bool result = r5net->PostServerHost(HostRequestMessage, HostToken, ServerListing{ MyServer.name, std::string(GameGlobals::HostState->m_levelName), "", GameGlobals::Cvar->FindVar("hostport")->m_pzsCurrentValue, MyServer.password, std::to_string(*reinterpret_cast<std::int32_t*>(0x1656057E0)) /* checksum */});
+    bool result = r5net->PostServerHost(HostRequestMessage,HostToken,
+        ServerListing{ MyServer.name,
+        std::string(GameGlobals::HostState->m_levelName),
+        "",
+        GameGlobals::Cvar->FindVar("hostport")->m_pzsCurrentValue,
+        GameGlobals::Cvar->FindVar("mp_gamemode")->m_pzsCurrentValue,
+        MyServer.password,
+        std::to_string(*reinterpret_cast<std::int32_t*>(0x1656057E0)),
+        std::string()}
+    );
+
     if (result)
     {
         HostRequestMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
@@ -152,16 +162,18 @@ void CCompanion::ServerBrowserSection()
         RefreshServerList();
     }
     ImGui::EndGroup();
+    ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), ServerListMessage.c_str());
     ImGui::Separator();
 
     const float FooterHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
     ImGui::BeginChild("ServerListChild", { 0, -FooterHeight }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
-    if (ImGui::BeginTable("##ServerBrowser_ServerList", 4, ImGuiTableFlags_Resizable))
+    if (ImGui::BeginTable("##ServerBrowser_ServerList", 5, ImGuiTableFlags_Resizable))
     {
-           ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 35);
+           ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 20);
             ImGui::TableSetupColumn("Map", ImGuiTableColumnFlags_WidthStretch, 25);
-            ImGui::TableSetupColumn("Port", ImGuiTableColumnFlags_WidthStretch, 10);
-            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch, 8);
+            ImGui::TableSetupColumn("Port", ImGuiTableColumnFlags_WidthStretch, 5);
+            ImGui::TableSetupColumn("Gamemode", ImGuiTableColumnFlags_WidthStretch, 5);
+            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch, 5);
             ImGui::TableHeadersRow();
 
             for (ServerListing& server : ServerList)
@@ -169,6 +181,7 @@ void CCompanion::ServerBrowserSection()
                 const char* name = server.name.c_str();
                 const char* map = server.map.c_str();
                 const char* port = server.port.c_str();
+                const char* gamemode = server.gamemode.c_str();
 
                 if (ServerBrowserFilter.PassFilter(name)
                     || ServerBrowserFilter.PassFilter(map)
@@ -182,6 +195,9 @@ void CCompanion::ServerBrowserSection()
 
                     ImGui::TableNextColumn();
                     ImGui::Text(port);
+
+                    ImGui::TableNextColumn();
+                    ImGui::Text(gamemode);
 
                     ImGui::TableNextColumn();
                     std::string selectButtonText = "Connect##";

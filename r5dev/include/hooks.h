@@ -22,8 +22,12 @@ namespace Hooks
 
 #pragma region Squirrel
 	void* SQVM_Print(void* sqvm, char* fmt, ...);
+	__int64 SQVM_Warning(void* sqvm, int a2, int a3, int* stringSize, void** string);
 	__int64 SQVM_LoadRson(const char* rson_name);
 	bool SQVM_LoadScript(void* sqvm, const char* script_path, const char* script_name, int flag);
+
+	using SQVM_WarningFn = __int64(*)(void*, int, int, int*, void**);
+	extern SQVM_WarningFn originalSQVM_Warning;
 
 	using SQVM_LoadRsonFn = __int64(*)(const char*);
 	extern SQVM_LoadRsonFn originalSQVM_LoadRson;
@@ -58,8 +62,18 @@ namespace Hooks
 #pragma endregion
 
 #pragma region ConVar
-	bool ConVar_IsFlagSet(int** cvar, int flag);
-	bool ConCommand_IsFlagSet(int* cmd, int flag);
+	bool ConVar_IsFlagSet(ConVar* cvar, int flag);
+	bool ConCommand_IsFlagSet(ConCommandBase* cmd, int flag);
+	void Map_Callback(void* args);
+
+	using ConVar_IsFlagSetFn = bool(*)(ConVar*, int);
+	extern ConVar_IsFlagSetFn originalConVar_IsFlagSet;
+
+	using ConCommand_IsFlagSetFn = bool(*)(ConCommandBase*, int);
+	extern ConCommand_IsFlagSetFn originalConCommand_IsFlagSet;
+
+	using Map_CallbackFn = void(*)(void*);
+	extern Map_CallbackFn originalMap_Callback;
 #pragma endregion
 
 #pragma region WinAPI

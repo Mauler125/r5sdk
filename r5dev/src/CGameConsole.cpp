@@ -155,6 +155,10 @@ void CGameConsole::Draw(const char* title)
             if (strstr(item, "Script(C):")) { color = ImVec4(0.59f, 0.58f, 0.63f, 1.00f); has_color = true; }
             if (strstr(item, "Script(U):")) { color = ImVec4(0.59f, 0.48f, 0.53f, 1.00f); has_color = true; }
 
+            if (strstr(item, "Script(S) Warning:")) { color = ImVec4(0.80f, 0.80f, 0.73f, 1.00f); has_color = true; }
+            if (strstr(item, "Script(C) Warning:")) { color = ImVec4(0.80f, 0.80f, 0.63f, 1.00f); has_color = true; }
+            if (strstr(item, "Script(U) Warning:")) { color = ImVec4(0.80f, 0.80f, 0.53f, 1.00f); has_color = true; }
+
             ///////////////////////////////////////////////////////////////////
             // Callbacks
             //if (strstr(item, "CodeCallback_"))  { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
