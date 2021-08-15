@@ -4,22 +4,47 @@
 #include "netpch.h"
 #include "r5\r5net.h"
 
-std::vector<ServerListing> R5Net::Client::GetServersList()
+std::string R5Net::Client::GetVersionString()
+{
+    return "beta 1.5";
+}
+
+std::vector<ServerListing> R5Net::Client::GetServersList(std::string& outMessage)
 {
     std::vector<ServerListing> list{ };
-    
-    auto res = m_HttpClient.Get("/servers");
 
-    if (!res) return std::vector<ServerListing>();
+    nlohmann::json reqBody = nlohmann::json::object();
+    reqBody["version"] = GetVersionString();
+
+    std::string reqBodyStr = reqBody.dump();;
+    
+    httplib::Result res = m_HttpClient.Post("/servers", reqBody.dump().c_str(), reqBody.dump().length(), "application/json");
+
+    if (res)
     {
-        nlohmann::json root = nlohmann::json::parse(res->body);
-        for (auto obj : root["servers"])
+        nlohmann::json resBody = nlohmann::json::parse(res->body);
+        if (resBody["success"].is_boolean() && resBody["success"].get<bool>())
         {
-            list.push_back(
-               ServerListing{ obj["name"].get<std::string>(), obj["map"].get<std::string>(), obj["ip"].get<std::string>(), obj["port"].get<std::string>() }
-            );
+            for (auto obj : resBody["servers"])
+            {
+                list.push_back(
+                    ServerListing{ obj["name"].get<std::string>(), obj["map"].get<std::string>(), obj["ip"].get<std::string>(), obj["port"].get<std::string>(), obj["gamemode"].get<std::string>() }
+                );
+            }
+        }
+        else
+        {
+            if (resBody["err"].is_string())
+                outMessage = resBody["err"].get<std::string>();
+            else
+                outMessage = "An unknown error occured!";
         }
     }
+    else
+    {
+        outMessage = "Failed to reach comp-server";
+    }
+
     return list;
 }
 
@@ -31,6 +56,8 @@ bool R5Net::Client::PostServerHost(std::string& outMessage, std::string& outToke
     reqBody["port"] = serverListing.port;
     reqBody["password"] = serverListing.password;
     reqBody["remote_checksum"] = serverListing.checksum;
+    reqBody["version"] = GetVersionString();
+    reqBody["gamemode"] = serverListing.gamemode;
 
     std::string reqBodyStr = reqBody.dump();
 
@@ -44,7 +71,7 @@ bool R5Net::Client::PostServerHost(std::string& outMessage, std::string& outToke
     }
      
     nlohmann::json resBody = nlohmann::json::parse(res->body);
-    if (resBody["success"].is_boolean() && resBody["success"])
+    if (resBody["success"].is_boolean() && resBody["success"].get<bool>())
     {
         if (resBody["token"].is_string())
             outToken = resBody["token"].get<std::string>();

@@ -20,8 +20,9 @@ namespace R5Net
 			m_HttpClient.set_connection_timeout(10);
 		}
 	
-		std::vector<ServerListing> GetServersList();
+		std::vector<ServerListing> GetServersList(std::string& outMessage);
 		bool PostServerHost(std::string& outMessage, std::string& outToken, const ServerListing& serverListing);
 		bool GetServerByToken(ServerListing& outServer, std::string& outError, const std::string& token, const std::string& password = "");
+		std::string GetVersionString();
 	};
 }

@@ -18,6 +18,7 @@ void Hooks::InstallHooks()
 	///////////////////////////////////////////////////////////////////////////////
 	// Hook Squirrel functions
 	MH_CreateHook(addr_SQVM_Print, &Hooks::SQVM_Print, NULL);
+	MH_CreateHook(addr_SQVM_Warning, &Hooks::SQVM_Warning, reinterpret_cast<void**>(&originalSQVM_Warning));
 	MH_CreateHook(addr_SQVM_LoadRson, &Hooks::SQVM_LoadRson, reinterpret_cast<void**>(&originalSQVM_LoadRson));
 	MH_CreateHook(addr_SQVM_LoadScript, &Hooks::SQVM_LoadScript, reinterpret_cast<void**>(&originalSQVM_LoadScript));
 
@@ -35,8 +36,8 @@ void Hooks::InstallHooks()
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Hook ConVar | ConCommand functions.
-	MH_CreateHook(addr_ConVar_IsFlagSet, &Hooks::ConVar_IsFlagSet, NULL);
-	MH_CreateHook(addr_ConCommand_IsFlagSet, &Hooks::ConCommand_IsFlagSet, NULL);
+	MH_CreateHook(addr_ConVar_IsFlagSet, &Hooks::ConVar_IsFlagSet, reinterpret_cast<void**>(&originalConVar_IsFlagSet));
+	MH_CreateHook(addr_ConCommand_IsFlagSet, &Hooks::ConCommand_IsFlagSet, reinterpret_cast<void**>(&originalConCommand_IsFlagSet));
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Hooks CBaseFileSystem functions.
@@ -71,6 +72,7 @@ void Hooks::InstallHooks()
 	///////////////////////////////////////////////////////////////////////////////
 	// Enable Squirrel hooks
 	MH_EnableHook(addr_SQVM_Print);
+	MH_EnableHook(addr_SQVM_Warning);
 	MH_EnableHook(addr_SQVM_LoadRson);
 	MH_EnableHook(addr_SQVM_LoadScript);
 

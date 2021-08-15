@@ -3,12 +3,13 @@
 
 namespace Hooks
 {
+	SQVM_WarningFn originalSQVM_Warning = nullptr;
 	SQVM_LoadRsonFn originalSQVM_LoadRson = nullptr;
 	SQVM_LoadScriptFn originalSQVM_LoadScript = nullptr;
 }
 
-static std::ostringstream oss;
-static auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_st>(oss);
+static std::ostringstream oss_print;
+static auto ostream_sink_print = std::make_shared<spdlog::sinks::ostream_sink_st>(oss_print);
 
 //---------------------------------------------------------------------------------
 // Purpose: prints the output of each VM to the console
@@ -21,17 +22,17 @@ void* Hooks::SQVM_Print(void* sqvm, char* fmt, ...)
 	static char buf[1024];
 	static std::string vmType[3] = { "Script(S):", "Script(C):", "Script(U):" };
 
-	static auto iconsole = spdlog::stdout_logger_mt("sqvm_iconsole"); // in-game console
-	static auto wconsole = spdlog::stdout_logger_mt("sqvm_wconsole"); // windows console
+	static auto iconsole = spdlog::stdout_logger_mt("sqvm_print_iconsole"); // in-game console
+	static auto wconsole = spdlog::stdout_logger_mt("sqvm_print_wconsole"); // windows console
 
 	std::string vmStr = vmType[vmIdx].c_str();
 
-	oss.str("");
-	oss.clear();
+	oss_print.str("");
+	oss_print.clear();
 
 	if (!initialized)
 	{
-		iconsole = std::make_shared<spdlog::logger>("ostream", ostream_sink);
+		iconsole = std::make_shared<spdlog::logger>("ostream", ostream_sink_print);
 		iconsole->set_pattern("[%S.%e] %v");
 		iconsole->set_level(spdlog::level::debug);
 		wconsole->set_pattern("[%S.%e] %v");
@@ -52,11 +53,60 @@ void* Hooks::SQVM_Print(void* sqvm, char* fmt, ...)
 	iconsole->debug(vmStr);
 	wconsole->debug(vmStr);
 
-	std::string s = oss.str();
+	std::string s = oss_print.str();
 	const char* c = s.c_str();
 
 	Items.push_back(Strdup((const char*)c));
 	return NULL;
+}
+
+static std::ostringstream oss_warning;
+static auto ostream_sink_warning = std::make_shared<spdlog::sinks::ostream_sink_st>(oss_warning);
+
+__int64 Hooks::SQVM_Warning(void* sqvm, int a2, int a3, int* stringSize, void** string)
+{
+	__int64 result = originalSQVM_Warning(sqvm, a2, a3, stringSize, string);
+
+	void* retaddr = _ReturnAddress(); // Get return address.
+
+	if (retaddr != addr_SQVM_Warning_ReturnAddr) // Check if its SQVM_Warning calling.
+		return result; // If not return.
+
+	static bool initialized = false;
+	static auto iconsole = spdlog::stdout_logger_mt("sqvm_warning_iconsole"); // in-game console
+	static auto wconsole = spdlog::stdout_logger_mt("sqvm_warning_wconsole"); // windows console
+
+	static std::string vmType[3] = { "Script(S) Warning:", "Script(C) Warning:", "Script(U) Warning:" };
+
+	int vmIdx = *(int*)((std::uintptr_t)sqvm + 0x18); // Get vm index.
+
+	std::string vmStr = vmType[vmIdx].c_str(); // Get string prefix for vm.
+
+	oss_warning.str("");
+	oss_warning.clear();
+
+	if (!initialized)
+	{
+		iconsole = std::make_shared<spdlog::logger>("ostream", ostream_sink_warning);
+		iconsole->set_pattern("[%S.%e] %v");
+		iconsole->set_level(spdlog::level::debug);
+		wconsole->set_pattern("[%S.%e] %v\n");
+		wconsole->set_level(spdlog::level::debug);
+		initialized = true;
+	}
+
+	std::string stringConstructor((char*)*string, *stringSize); // Get string from memory via std::string constructor.
+	vmStr.append(stringConstructor);
+
+	iconsole->debug(vmStr.c_str());
+	wconsole->debug(vmStr.c_str());
+
+	std::string s = oss_warning.str();
+	const char* c = s.c_str();
+
+	Items.push_back(Strdup((const char*)c));
+
+	return result;
 }
 
 //---------------------------------------------------------------------------------

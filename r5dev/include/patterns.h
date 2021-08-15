@@ -23,6 +23,10 @@ namespace
 	/*0x141057FD0*/
 	FUNC_AT_ADDRESS(addr_SQVM_Print, void*, r5_patterns.PatternSearch("83 F8 01 48 8D 3D ? ? ? ?").OffsetSelf(0x3).FollowNearCallSelf(0x3, 0x7).GetPtr());
 
+	FUNC_AT_ADDRESS(addr_SQVM_Warning, __int64(*)(__int64, int, int, const char*, std::size_t*), r5_patterns.PatternSearch("E8 ? ? ? ? 85 C0 0F 99 C3").FollowNearCallSelf().GetPtr());
+
+	FUNC_AT_ADDRESS(addr_SQVM_Warning_ReturnAddr, void*, r5_patterns.PatternSearch("E8 ? ? ? ? 85 C0 0F 99 C3").OffsetSelf(0x5).GetPtr());
+
 	//DWORD64 p_SQVM_LoadScript = FindPattern("r5apex.exe", (const unsigned char*)"\x48\x89\x5C\x24\x10\x48\x89\x74\x24\x18\x48\x89\x7C\x24\x20\x48\x89\x4C\x24\x08\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"); // For S0 and S1
 
 	/*0x141055630*/

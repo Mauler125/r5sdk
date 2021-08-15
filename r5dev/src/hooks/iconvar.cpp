@@ -1,65 +1,85 @@
 #include "pch.h"
 #include "hooks.h"
 
-bool Hooks::ConVar_IsFlagSet(int** cvar, int flag)
+namespace Hooks
 {
-	int real_flags = *(*(cvar + (72 / (sizeof(void*)))) + (56 / sizeof(int)));
-	if (g_bDebugConsole)
-	{
-		printf("--------------------------------------------------\n");
-		printf(" Flaged: %08X\n", real_flags);
-	}
-	// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY
-	real_flags &= 0xFFFFBFFD;
-	if (g_bDebugConsole)
-	{
-		printf(" Masked: %08X\n", real_flags);
-		printf(" Verify: %08X\n", flag);
-		printf("--------------------------------------------------\n");
-	}
-	if (flag & 0x80000)
-	{
-		return true;
-	}
-
-	if (!g_bReturnAllFalse)
-	{
-		return (real_flags & flag) != 0;
-	}
-	else
-	{
-		return false;
-	}
+	ConVar_IsFlagSetFn originalConVar_IsFlagSet = nullptr;
+	ConCommand_IsFlagSetFn originalConCommand_IsFlagSet = nullptr;
+	Map_CallbackFn originalMap_Callback = nullptr;
 }
 
-bool Hooks::ConCommand_IsFlagSet(int* cmd, int flag)
+bool Hooks::ConVar_IsFlagSet(ConVar* cvar, int flag)
 {
-	int real_flags = *((cmd + (56 / sizeof(int))));
+#ifdef _DEBUG
 	if (g_bDebugConsole)
 	{
 		printf("--------------------------------------------------\n");
-		printf(" Flaged: %08X\n", real_flags);
+		printf(" Flaged: %08X\n", cvar->m_ConCommandBase.m_nFlags);
 	}
 	// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY
-	real_flags &= 0xFFFFBFFD;
+	cvar->m_ConCommandBase.m_nFlags &= 0xFFFFBFFD;
 	if (g_bDebugConsole)
 	{
-		printf(" Masked: %08X\n", real_flags);
+		printf(" Masked: %08X\n", cvar->m_ConCommandBase.m_nFlags);
 		printf(" Verify: %08X\n", flag);
 		printf("--------------------------------------------------\n");
 	}
 
-	if (flag & 0x80000)
+	if (flag & FCVAR_RELEASE)
 	{
 		return true;
 	}
 
 	if (!g_bReturnAllFalse)
 	{
-		return (real_flags & flag) != 0;
+		return (cvar->m_ConCommandBase.m_nFlags & flag) != 0;
 	}
 	else
 	{
 		return false;
 	}
+#else
+	// Mask off FCVAR_DEVELOPMENTONLY if existing.
+	cvar->m_ConCommandBase.m_nFlags &= ~FCVAR_DEVELOPMENTONLY;
+
+	return originalConVar_IsFlagSet(cvar, flag);
+#endif
+}
+
+bool Hooks::ConCommand_IsFlagSet(ConCommandBase* cmd, int flag)
+{
+#ifdef _DEBUG
+	if (g_bDebugConsole)
+	{
+		printf("--------------------------------------------------\n");
+		printf(" Flaged: %08X\n", cmd->m_nFlags);
+	}
+	// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY
+	cmd->m_nFlags &= 0xFFFFBFFD;
+	if (g_bDebugConsole)
+	{
+		printf(" Masked: %08X\n", cmd->m_nFlags);
+		printf(" Verify: %08X\n", flag);
+		printf("--------------------------------------------------\n");
+	}
+
+	if (flag & FCVAR_RELEASE)
+	{
+		return true;
+	}
+
+	if (!g_bReturnAllFalse)
+	{
+		return (cmd->m_nFlags & flag) != 0;
+	}
+	else
+	{
+		return false;
+	}
+#else
+	// Mask off FCVAR_DEVELOPMENTONLY if existing.
+	cmd->m_nFlags &= ~FCVAR_DEVELOPMENTONLY;
+
+	return originalConCommand_IsFlagSet(cmd, flag);
+#endif
 }
