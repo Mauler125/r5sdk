@@ -1,5 +1,5 @@
 ## Note **Important**
-This is not a cheat or hack. Do not attempt to use this on the latest version of the game.
+### This is not a cheat or hack. Do not attempt to use this on the latest version of the game.
 
 # Apex
 
@@ -9,7 +9,7 @@ APEX Legends / R5 Server Engine research
 
 ## R5Dev
 
-Go to [installaion](installation/install.md)
+Go to [Installaion.](docs/installation/install.md)
 
 ## R5Net DISCLAIMER
 
