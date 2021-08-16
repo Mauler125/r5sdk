@@ -14,7 +14,7 @@ CCompanion* g_ServerBrowser = nullptr;
 /*-----------------------------------------------------------------------------
  * _ccompanion.cpp
  *-----------------------------------------------------------------------------*/
-
+std::string weapon;
 CCompanion::CCompanion() : MatchmakingServerStringBuffer("r5a-comp-sv.herokuapp.com"), r5net(new R5Net::Client("r5a-comp-sv.herokuapp.com"))
 {
     memset(ServerConnStringBuffer, 0, sizeof(ServerConnStringBuffer));
@@ -26,7 +26,12 @@ CCompanion::CCompanion() : MatchmakingServerStringBuffer("r5a-comp-sv.herokuapp.
         int slashPos = filename.rfind("\\", std::string::npos);
         filename = filename.substr((INT8)slashPos + 1, std::string::npos);
         filename = filename.substr(0, filename.size() - 6);
-        MapsList.push_back(filename);
+        if (filename == "mp_rr_desertlands_64k_x_64k") {
+            MapsList.push_back("World's Edge");
+        }
+        else if (filename == "mp_rr_canyonlands_64k_x_64k") {
+            MapsList.push_back("King's Canyon");
+        }
     }
     
     // copy assignment kjek
@@ -120,10 +125,10 @@ void CCompanion::SendHostingPostRequest()
     {
         HostRequestMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
         std::stringstream msg;
-        msg << "Broadcasting! ";
+        msg << "Your server is visible to everyone! ";
         if (!HostToken.empty())
         {
-            msg << "Share the following token for people to connect: ";
+            msg << "Share this token to other people for them to connect: ";
         }
         HostRequestMessage = msg.str().c_str();
     }
@@ -149,6 +154,10 @@ void CCompanion::CompMenu()
     {
         SetSection(ESection::Settings);
     }
+    if (ImGui::TabItemButton("Give"))
+    {
+        SetSection(ESection::Give);
+    }
     ImGui::EndTabBar();
 }
 
@@ -157,7 +166,7 @@ void CCompanion::ServerBrowserSection()
     ImGui::BeginGroup();
     ServerBrowserFilter.Draw();
     ImGui::SameLine();
-    if (ImGui::Button("Refresh List"))
+    if (ImGui::Button("Refresh Server List"))
     {
         RefreshServerList();
     }
@@ -169,11 +178,11 @@ void CCompanion::ServerBrowserSection()
     ImGui::BeginChild("ServerListChild", { 0, -FooterHeight }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
     if (ImGui::BeginTable("##ServerBrowser_ServerList", 5, ImGuiTableFlags_Resizable))
     {
-           ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 20);
+           ImGui::TableSetupColumn("Server Name", ImGuiTableColumnFlags_WidthStretch, 20);
             ImGui::TableSetupColumn("Map", ImGuiTableColumnFlags_WidthStretch, 25);
-            ImGui::TableSetupColumn("Port", ImGuiTableColumnFlags_WidthStretch, 5);
+            ImGui::TableSetupColumn("Port", ImGuiTableColumnFlags_WidthStretch, 3);
             ImGui::TableSetupColumn("Gamemode", ImGuiTableColumnFlags_WidthStretch, 5);
-            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch, 5);
+            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch, 4);
             ImGui::TableHeadersRow();
 
             for (ServerListing& server : ServerList)
@@ -216,7 +225,7 @@ void CCompanion::ServerBrowserSection()
 
     ImGui::Separator();
 
-    ImGui::InputTextWithHint("##ServerBrowser_ServerConnString", "Enter IP address or \"localhost\"", ServerConnStringBuffer, IM_ARRAYSIZE(ServerConnStringBuffer));
+    ImGui::InputTextWithHint("##ServerBrowser_ServerConnString", "Enter Server IP Address", ServerConnStringBuffer, IM_ARRAYSIZE(ServerConnStringBuffer));
 
     ImGui::SameLine();
 
@@ -312,7 +321,7 @@ void CCompanion::ServerBrowserSection()
         
         ImGui::SameLine();
 
-        ImGui::Text("Enter the following details to continue");
+        ImGui::Text("Enter the Server Token and Password you have acquired from the Host!");
 
         ImGui::PushItemWidth(ImGui::GetWindowContentRegionWidth()); // Override item width.
         ImGui::InputTextWithHint("##PrivateServersConnectModal_TokenInput", "Token", &PrivateServerToken);
@@ -333,13 +342,13 @@ void CCompanion::ServerBrowserSection()
             if (!server.name.empty())
             {
                 ConnectToServer(server.ip, server.port); // Connect to the server
-                PrivateServerRequestMessage = "Found Server: " + server.name;
+                PrivateServerRequestMessage = "Server Found: " + server.name;
                 PrivateServerMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
                 ImGui::CloseCurrentPopup();
             }
             else
             {
-                PrivateServerRequestMessage = "Error: " + PrivateServerRequestMessage;
+                PrivateServerRequestMessage = "Something isn't right...:" + PrivateServerRequestMessage;
                 PrivateServerMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
             }
         }
@@ -375,23 +384,30 @@ void CCompanion::HostServerSection()
     }
     ImGui::Spacing();
 
-    ImGui::Checkbox("Start as dedicated server (HACK)##ServerHost_DediCheckbox", &StartAsDedi);
+    ImGui::Checkbox("Dedicated Server(Cheats)##ServerHost_DediCheckbox", &StartAsDedi);
 
     ImGui::SameLine();
 
-    ImGui::Checkbox("Broadcast Server to Server Browser", &BroadCastServer);
+    ImGui::Checkbox("Broadcast Server to other Players", &BroadCastServer);
 
     ImGui::Separator();
 
-    if (ImGui::Button("Start Server##ServerHost_StartServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
+    if (ImGui::Button("Host Server##ServerHost_StartServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
     {
         if (!MyServer.name.empty())
         {
             ServerNameErr = std::string();
             UpdateHostingStatus();
-
+            std::string ServerMap;
             std::stringstream cmd;
-            cmd << "map " << MyServer.map;
+            if (MyServer.map == "King's Canyon") {
+                ServerMap = "mp_rr_canyonlands_64k_x_64k";
+            }
+            else if (MyServer.map == "World's Edge")
+            {
+                ServerMap = "mp_rr_desertlands_64k_x_64k";
+            }
+            cmd << "map " << ServerMap;
             ProcessCommand(cmd.str().c_str());
 
             if (StartAsDedi)
@@ -450,6 +466,29 @@ void CCompanion::SettingsSection()
     }
 }
 
+void CCompanion::GiveSection()
+{
+    std::stringstream cmd;
+    ImGui::InputTextWithHint("##WeaponName", "Input Weapon Name", & weapon);
+    if (weapon == "flatline" || weapon == "Flatline") {
+        if (ImGui::Button("Give Weapon")) {
+            cmd << "give_weapon mp_weapon_vinson";
+        }
+    }
+    if (weapon == "r99" || weapon == "R99")
+    {
+        if (ImGui::Button("Give Weapon")) {
+            cmd << "give_weapon mp_weapon_r97";
+        }
+    }
+    if (weapon == "r301" || weapon == "R301")
+    {
+        if (ImGui::Button("Give Weapon")) {
+            cmd << "give_weapon mp_weapon_rsn101";
+        }
+    }
+}
+
 void CCompanion::Draw(const char* title)
 {
     if (!ThemeSet)
@@ -476,6 +515,8 @@ void CCompanion::Draw(const char* title)
         case ESection::Settings:
             SettingsSection();
             break;
+        case ESection::Give:
+            GiveSection();
         default:
             break;
         }

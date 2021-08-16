@@ -21,7 +21,8 @@ public:
     enum class ESection {
         ServerBrowser,
         HostServer,
-        Settings
+        Settings,
+        Give
     } CurrentSection = ESection::ServerBrowser;
 
     enum class EHostStatus {
@@ -46,6 +47,11 @@ public:
     //    Settings    //
     ////////////////////
     std::string MatchmakingServerStringBuffer;
+
+    ////////////////////
+    //      Give      //
+    ////////////////////
+    std::string weapon;
 
     ////////////////////
     //   Host Server  //
@@ -145,6 +151,7 @@ public:
     void ServerBrowserSection();
     void SettingsSection();
     void HostServerSection();
+    void GiveSection();
     void Draw(const char* title);
     void UpdateHostingStatus();
     void ProcessCommand(const char* command_line);
