@@ -7,6 +7,11 @@ Detours-based Visual Studio project for hooking the game engine.
 TO-DO: Add some additional information here.
 
 ---
+## Other Languages
+
+[Languages](#languages)
+
+---
 ## Installation
 
 Go to [Installation.](installation/install)
@@ -55,3 +60,6 @@ TL;DR If you tick the server browser box in "Host Server" your IP will be stored
 ## Additional Info
 
 The game will pop a debug terminal, that will forward your commands directly to the in-game source console backend. SQVM prints are also enabled, and the hooks will attempt to load game vscripts out of `platform\` relative from the game executable before falling back to the SearchPath's defined in GameInfo.txt or the in-memory VPK structures.
+
+## Languages
+ - [français](languages/fr)
