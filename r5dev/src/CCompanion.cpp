@@ -411,7 +411,7 @@ void CCompanion::HostServerSection()
 
     ImGui::Separator();
 
-    if (ImGui::Button("Host Server##ServerHost_StartServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
+    if (ImGui::Button("Start Server##ServerHost_StartServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
     {
         if (!MyServer.name.empty())
         {
