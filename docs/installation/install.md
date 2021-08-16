@@ -15,7 +15,7 @@
 Create a Directory for your files. It should be in a place with at least 45GB free. You can now move your apex build to this folder. Make sure to keep an unmodified backup just in case.
 
 ### 3. Build files
-Next you should obtain the r5_detours binaries you can do that through the linked repo or by building it yourself. See: [Building the binaries yourself.](#building-the-binaries-yourself) Once you have obtained `r5detours.dll` `dedicated.dll` and `launcher.exe` copy them to the root of your install folder. Your install directory should look as follows. Some files are ommited for brevity. See [Full Directory Tree.](../installation/tree)
+Next you should obtain the r5_detours binaries you can do that through the linked repo or by building it yourself. See: [Building the binaries yourself.](#building-the-binaries-yourself) Once you have obtained `r5detours.dll` `dedicated.dll` and `launcher.exe` copy them to the root of your install folder. Your install directory should look as follows. Some files have been ommited for brevity. See [Full Directory Tree](../installation/tree) if you are confused.
 ```
 ├───audio
 ├───paks
@@ -23,16 +23,62 @@ Next you should obtain the r5_detours binaries you can do that through the linke
 ├───stbsp
 ├───vpk
 ├───r5apex.exe
-├───launcher.exe -- 
-├───dedicated.dll -- 
-└───r5detours.dll -- 
+├───launcher.exe <-- 
+├───dedicated.dll <-- 
+├───r5detours.dll <-- 
+└───... 
+```
+### 4. Copy files
+Now you can move on to copying the scripts. The contents of scripts_r5 needs to go into the scripts folder which itself is in the platform folder. If you do not have a scripts folder you should create it. 
+
+```
+platform
+|
+|   imgui.ini
+|   playlists_r5_patch.txt
+|   
++---cfg
+|   |
+|   ...
+|           
++---log
+|   |
+|   ...
+|
++---maps
+|   |
+|   ...
+|           
++---scripts                                 <--
+|   |   .gitattributes                      <--
+|   |   enginevguilayout.res                <--
+|   |   entitlements.rson                   <--
+|   |   hudanimations.txt                   <--
+|   |   hud_textures.txt                    <--
+|   |   kb_act.lst                          <--
+|   |   propdata.txt                        <--
+|   |   status_effect_types.txt             <--
+|   |   surfaceproperties.rson              <--
+|   |   surfaceproperties_manifest.txt      <--
+|   |   vgui_screens.txt                    <--
+|       10 Folders were ommited...          
+|               
++---shaders
+|   |
+|   ...
+|           
+\---support
+    |
+    ...
 ```
 
-### 4. Copy files
+### 5. Additional Maps
 
-### 5. Copy Maps
+At this point you have a working install, if you would like to install additional maps you should do that now. Simply follow the directions of the readme inside the map zip.
 
 ## Usage
+
+
 
 ## Building the binaries yourself
 

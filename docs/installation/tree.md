@@ -1,6 +1,6 @@
 # **File structure of an apex install**
 
-## Example of the file structure of an apex install.
+### Example of the file structure of an apex install.
 
 ```
 |   amd_ags_x64.dll
