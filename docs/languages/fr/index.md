@@ -12,23 +12,23 @@ TO-DO: Ajouter des informations additionnelles ici.
 Rendez-vous dans [Installation.](installation/install)
 
 ---
-## Help! I Keep Crashing!
+## Mon jeu n'arrête pas de crash !
 
-See: [FAQ #Y'a t-il des bugs ?](faq/faq#are-there-bugs)
-
----
-## Hosting a server
-
-See: [Héberger un Serveur](servers/hosting)
+Voir : [FAQ #Y'a t-il des bugs ?](faq/faq#are-there-bugs)
 
 ---
-## Frequently Asked Questions
+## Héberger un serveur
 
-Go to [FAQ.](faq/faq)
+Voir : [Héberger un Serveur](servers/hosting)
+
+---
+## FAQ
+
+Rendez-vous dans [FAQ.](faq/faq)
 
 ---
 
-## Important Notices
+## Détail Important :
 *  Ceci n'est pas un logiciel de triche ou de hack. N'essayez pas de l'utiliser sur la dernière version du jeu.
 *   Quand vous utilisez R5Net vous communiquez votre adresse IP à notre base de données qui sera stockée jusqu'à la fin de votre hébergement de serveur. Ceci est requis pour pouvoir se connecter aux serveurs des autres joueurs.
 
