@@ -130,7 +130,7 @@ void CCompanion::SendHostingPostRequest()
     {
         HostRequestMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
         std::stringstream msg;
-        msg << "Broadcasting!";
+        msg << "Broadcasting! ";
         if (!HostToken.empty())
         {
             msg << "Share the following token for people to connect: ";
@@ -226,7 +226,7 @@ void CCompanion::ServerBrowserSection()
 
     ImGui::Separator();
 
-    ImGui::InputTextWithHint("##ServerBrowser_ServerConnString", "Enter IP Address or \"localhost\"", ServerConnStringBuffer, IM_ARRAYSIZE(ServerConnStringBuffer));
+    ImGui::InputTextWithHint("##ServerBrowser_ServerConnString", "Enter IP address or \"localhost\"", ServerConnStringBuffer, IM_ARRAYSIZE(ServerConnStringBuffer));
 
     ImGui::SameLine();
 
@@ -343,7 +343,7 @@ void CCompanion::ServerBrowserSection()
             if (!server.name.empty())
             {
                 ConnectToServer(server.ip, server.port); // Connect to the server
-                PrivateServerRequestMessage = "Server Found: " + server.name;
+                PrivateServerRequestMessage = "Found Server: " + server.name;
                 PrivateServerMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
                 ImGui::CloseCurrentPopup();
             }
