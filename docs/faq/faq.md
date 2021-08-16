@@ -11,6 +11,8 @@
 - [What are the ban risks?](#what-are-the-ban-risks)
 - [Are there bugs?](#are-there-bugs)
 - [Can I contribute?](#can-i-contribute)
+- [Can I play alone on a server?](#can-i-play-alone-on-a-server)
+- [Why do I crash when connecting to a Server?](#why-do-i-crash-when-connecting-to-a-server)
 
 ## Can I play on Console?
 No, R5Reloaded is PC only. Additionally, you cannot invite your console friends to an R5Reloaded lobby.
@@ -32,8 +34,7 @@ Some characters don't work completely at the moment. For example Caustic in the 
 
 ## Can I play solos-duos?
 Yes! That's up to you. You could even have 20 players in 1 squad.
-
-See: [Hosting a server](servers/hosting)
+</br>See: [Hosting a server](servers/hosting)
 
 ## Can I play new Apex maps?
 No, Current playable map list:
@@ -52,6 +53,25 @@ We suggest not using your main account for this. You need an origin account with
 
 ## Are there bugs?
 There is shit-ton of bugs still persisting YOU WILL CRASH GURANTEED. You can follow our [Trello](https://trello.com/b/ymr4R3j9/apexmod-s3n1094) page for tracking what bugs have been reported and fixed at this time.
+</br>See Also: [Why do I crash when connecting to a Server?](#why-do-i-crash-when-connecting-to-a-server)
 
 ## Can I contribute?
 Everyone can, please open pull requests and issues on our github projects we would love any help we could get!
+
+## Can I play alone on a server?
+Yes you can, and even disable the ring to practice certain maps.
+</br>See: [Hosting a server](servers/hosting)
+
+## Why do I crash when connecting to a Server?
+Certain scenarios cause this.
+Can you connect to your own local server?
+Cool your build isn't corrupted that's already good.
+
+Did you spam the Connect button like 2 times?
+If yes this will also crash because the game does not expect that. If it doesn't work the first time wait till a prompt comes up with an error code from the game.
+
+Did you try to connect and didn't close a prompt that came up giving you an error code?
+
+Close it before trying to connect again else you will crash once again
+
+Also only connect through main menu.
