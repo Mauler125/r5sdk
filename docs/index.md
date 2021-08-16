@@ -4,24 +4,25 @@
 
 Detours-based Visual Studio project for hooking the game engine.
 
-
-* [R5Net](docs/installation/install.md)
-* [FAQ.](docs/installation/install.md)
+* [R5Dev](docs/about/r5dev)
+* [R5Net](docs/about/r5net)
+* [R5Launcher](docs/about/r5launcher)
+* [R5Dedicated](docs/about/r5dedicated)
 
 ---
 ## Installaion
 
-Go to [Installaion.](docs/installation/install.md)
+Go to [Installaion.](installation/install)
 
 ---
 ## Hosting a server
 
-Go to [Hosting a server.](docs/servers/hosting.md)
+See: [Hosting a server.](servers/hosting)
 
 ---
 ## Frequently Asked Questions
 
-Go to [FAQ.](docs/faq/faq.md)
+Go to [FAQ.](faq/faq)
 
 ---
 

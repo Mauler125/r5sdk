@@ -1,4 +1,4 @@
-# **FAQ**
+# **Hosting A Server**
 
 You need to portforward from 37015-37020 otherwise nobody will be able to connect. If you host to the Server Browser and don't have those ports forwarded no one can join you. Same for hosting private servers. Please keep that in mind.
 
