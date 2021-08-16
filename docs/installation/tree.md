@@ -7,15 +7,11 @@
 |   bink2w64.dll
 |   binkawin64.dll
 |   build.txt
-|   dedicated.dll
 |   gameinfo.txt
 |   gameversion.txt
-|   launcher.exe
 |   mileswin64.dll
 |   r5apex.exe
 |   r5apexdata.bin
-|   r5detours.dll
-|   tree.txt
 |   
 +---audio
 |   \---ship
@@ -1406,5 +1402,5 @@
         englishclient_mp_rr_desertlands_64k_x_64k.bsp.pak000_dir.vpk
         englishserver_mp_common.bsp.pak000_dir.vpk
         server_mp_common.bsp.pak000_000.vpk
-        
+
 ```
