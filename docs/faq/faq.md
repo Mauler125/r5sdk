@@ -20,7 +20,7 @@ Under absolutely no circumstances should you attempt to run this with Season 10 
 You can create your own lobbies to play solo or with your friends. There is also a server browser so you can eaisly find public servers.
 
 ## How do you properly host servers?
-See: [Hosting A Server](docs/servers/hosting.md)
+See: [Hosting A Server](servers/hosting)
 
 ## Why are some characters unavailable?
 Some characters don't work completely at the moment. For example Caustic in the in-dev version uses the Electric Smoke grenade from Titanfall 2 for his ultimate to work.
