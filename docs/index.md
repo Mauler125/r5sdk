@@ -9,15 +9,7 @@ APEX Legends / R5 Server Engine research
 
 ## R5Dev
 
-Instructions are kinda outdated. Will be updated soon.
-
-To use the vs project / engine hooking, here are some basic instructions:
-
-1. Build the solution
-	* or get the binaries from the releases page of this repo
-2. Copy `r5detours.dll` and `launcher.exe` to the apex game folder
-3. Copy the unpacked version of `r5apex.exe` over the original in your game folder
-4. Run `launcher.exe`
+Go to [installaion](installation/install.md)
 
 ## R5Net DISCLAIMER
 
