@@ -1,15 +1,33 @@
-## Note **Important**
-### This is not a cheat or hack. Do not attempt to use this on the latest version of the game.
+# **Documentation**
 
-# Apex
+## R5Reloaded
 
-APEX Legends / R5 Server Engine research
+Detours-based Visual Studio project for hooking the game engine.
 
- * Detours-based Visual Studio project for hooking the game engine
 
-## R5Dev
+* [R5Net](docs/installation/install.md)
+* [FAQ.](docs/installation/install.md)
+
+---
+## Installaion
 
 Go to [Installaion.](docs/installation/install.md)
+
+---
+## Hosting a server
+
+Go to [Hosting a server.](docs/servers/hosting.md)
+
+---
+## Frequently Asked Questions
+
+Go to [FAQ.](docs/faq/faq.md)
+
+---
+
+## Important Notices
+*  This is not a cheat or hack. Do not attempt to use this on the latest version of the game.
+*   When using R5Net you will stream your IP to our database which will be stored untill you stop hosting your server. This is required to connect to others servers.
 
 ## R5Net DISCLAIMER
 
