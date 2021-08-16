@@ -151,8 +151,7 @@
       <AdditionalDependencies>Minhook.x64.lib;r5net.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>rename "$(TargetPath)" "r5dev.dll"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>if not EXIST $(SolutionDir)external\minhook\lib\$(Configuration)\Minhook.x64.lib (
