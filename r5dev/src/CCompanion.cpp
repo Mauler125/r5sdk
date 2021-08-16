@@ -14,7 +14,6 @@ CCompanion* g_ServerBrowser = nullptr;
 /*-----------------------------------------------------------------------------
  * _ccompanion.cpp
  *-----------------------------------------------------------------------------*/
-std::string weapon;
 CCompanion::CCompanion() : MatchmakingServerStringBuffer("r5a-comp-sv.herokuapp.com"), r5net(new R5Net::Client("r5a-comp-sv.herokuapp.com"))
 {
     memset(ServerConnStringBuffer, 0, sizeof(ServerConnStringBuffer));
@@ -131,10 +130,10 @@ void CCompanion::SendHostingPostRequest()
     {
         HostRequestMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
         std::stringstream msg;
-        msg << "Your server is visible to everyone! ";
+        msg << "Broadcasting!";
         if (!HostToken.empty())
         {
-            msg << "Share this token to other people for them to connect: ";
+            msg << "Share the following token for people to connect: ";
         }
         HostRequestMessage = msg.str().c_str();
     }
@@ -168,7 +167,7 @@ void CCompanion::ServerBrowserSection()
     ImGui::BeginGroup();
     ServerBrowserFilter.Draw();
     ImGui::SameLine();
-    if (ImGui::Button("Refresh Server List"))
+    if (ImGui::Button("Refresh List"))
     {
         RefreshServerList();
     }
@@ -180,11 +179,11 @@ void CCompanion::ServerBrowserSection()
     ImGui::BeginChild("ServerListChild", { 0, -FooterHeight }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
     if (ImGui::BeginTable("##ServerBrowser_ServerList", 5, ImGuiTableFlags_Resizable))
     {
-           ImGui::TableSetupColumn("Server Name", ImGuiTableColumnFlags_WidthStretch, 20);
+           ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 20);
             ImGui::TableSetupColumn("Map", ImGuiTableColumnFlags_WidthStretch, 25);
-            ImGui::TableSetupColumn("Port", ImGuiTableColumnFlags_WidthStretch, 3);
+            ImGui::TableSetupColumn("Port", ImGuiTableColumnFlags_WidthStretch, 5);
             ImGui::TableSetupColumn("Gamemode", ImGuiTableColumnFlags_WidthStretch, 5);
-            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch, 4);
+            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch, 5);
             ImGui::TableHeadersRow();
 
             for (ServerListing& server : ServerList)
@@ -227,7 +226,7 @@ void CCompanion::ServerBrowserSection()
 
     ImGui::Separator();
 
-    ImGui::InputTextWithHint("##ServerBrowser_ServerConnString", "Enter Server IP Address", ServerConnStringBuffer, IM_ARRAYSIZE(ServerConnStringBuffer));
+    ImGui::InputTextWithHint("##ServerBrowser_ServerConnString", "Enter IP Address or \"localhost\"", ServerConnStringBuffer, IM_ARRAYSIZE(ServerConnStringBuffer));
 
     ImGui::SameLine();
 
@@ -323,7 +322,7 @@ void CCompanion::ServerBrowserSection()
         
         ImGui::SameLine();
 
-        ImGui::Text("Enter the Server Token and Password you have acquired from the Host!");
+        ImGui::Text("Enter the following details to continue");
 
         ImGui::PushItemWidth(ImGui::GetWindowContentRegionWidth()); // Override item width.
         ImGui::InputTextWithHint("##PrivateServersConnectModal_TokenInput", "Token", &PrivateServerToken);
@@ -350,7 +349,7 @@ void CCompanion::ServerBrowserSection()
             }
             else
             {
-                PrivateServerRequestMessage = "Something isn't right...:" + PrivateServerRequestMessage;
+                PrivateServerRequestMessage = "Error: " + PrivateServerRequestMessage;
                 PrivateServerMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
             }
         }
@@ -404,11 +403,11 @@ void CCompanion::HostServerSection()
     }
     ImGui::Spacing();
 
-    ImGui::Checkbox("Dedicated Server(Cheats)##ServerHost_DediCheckbox", &StartAsDedi);
+    ImGui::Checkbox("Start as Dedicated Server (HACK)##ServerHost_DediCheckbox", &StartAsDedi);
 
     ImGui::SameLine();
 
-    ImGui::Checkbox("Broadcast Server to other Players", &BroadCastServer);
+    ImGui::Checkbox("Broadcast Server to Server Browser", &BroadCastServer);
 
     ImGui::Separator();
 

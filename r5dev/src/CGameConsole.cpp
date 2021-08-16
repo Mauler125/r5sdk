@@ -89,7 +89,7 @@ void CGameConsole::Draw(const char* title)
             {
                 Hooks::ToggleDevCommands();
                 AddLog("+--------------------------------------------------------+\n");
-                AddLog("|>>>>>>>>>>>>>>| DEVELOPER MODE TOGGLED |<<<<<<<<<<<<<<|\n");
+                AddLog("|>>>>>>>>>>>>>>| DEVONLY COMMANDS TOGGLED |<<<<<<<<<<<<<<|\n");
                 AddLog("+--------------------------------------------------------+\n");
                 ProcessCommand("exec autoexec");
             }

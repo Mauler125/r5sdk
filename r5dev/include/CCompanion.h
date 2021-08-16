@@ -21,7 +21,7 @@ public:
     enum class ESection {
         ServerBrowser,
         HostServer,
-        Settings,
+        Settings
     } CurrentSection = ESection::ServerBrowser;
 
     enum class EHostStatus {
@@ -46,6 +46,7 @@ public:
     //    Settings    //
     ////////////////////
     std::string MatchmakingServerStringBuffer;
+
     ////////////////////
     //   Host Server  //
     ////////////////////
