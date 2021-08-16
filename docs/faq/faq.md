@@ -16,7 +16,7 @@
 No, R5Reloaded is PC only. Additionally, you cannot invite your console friends to an R5Reloaded lobby.
 
 ## Can I use in game cosmetics?
-No, In-game cosmetics disabled and will stay disabled. If you want in-game cosmetics you should support Respawn by buying them.
+No, In-game cosmetics are disabled and will stay disabled. If you want in-game cosmetics you should support Respawn by buying them.
 
 ## Can I use my Season 10 Apex files?
 Under absolutely no circumstances should you attempt to run this with Season 10 Apex files. Doing this won't work, Easy Anti-Cheat will block it or may even ban you! Don't even try it. We only support the Season 3 Apex build files with the build string `R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM`.
@@ -33,7 +33,7 @@ Some characters don't work completely at the moment. For example Caustic in the 
 ## Can I play solos-duos?
 Yes! That's up to you. You could even have 20 players in 1 squad.
 
-See: [Hosting a server.](servers/hosting)
+See: [Hosting a server](servers/hosting)
 
 ## Can I play new Apex maps?
 No, Current playable map list:
@@ -43,7 +43,7 @@ No, Current playable map list:
 - World's Edge
 - World's Edge After Dark
 
-We aren't able to load new maps at the moment of writing this, subject to change.
+We are unable to load new maps at the moment, subject to change.
 
 ## What are the ban risks?
 We don't have a definitive answer but our project doesn't interfere with the apex official servers aside from using your origin account to retrieve the ingame name. Proceed at your own risk.
