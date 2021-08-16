@@ -4,6 +4,8 @@
 
 Detours-based Visual Studio project for hooking the game engine.
 
+TO-DO: Add some additional information here.
+
 ---
 ## Installaion
 
@@ -28,7 +30,7 @@ Go to [FAQ.](faq/faq)
 
 ## Important Notices
 *  This is not a cheat or hack. Do not attempt to use this on the latest version of the game.
-*   When using R5Net you will stream your IP to our database which will be stored untill you stop hosting your server. This is required to connect to others servers.
+*   When using R5Net you will stream your IP to our database which will be stored untill you stop hosting your server. This is required to connect to others' servers.
 
 ## R5Net DISCLAIMER
 
