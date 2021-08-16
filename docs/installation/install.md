@@ -11,10 +11,10 @@
 - Run the current version of Apex Legends. 
 
 ## Installing
-## 1. Create Directory
+### 1. Create Directory
 Create a Directory for your files. It should be in a place with at least 45GB free. You can now move your apex build to this folder. Make sure to keep an unmodified backup just in case.
 
-## 3. Build files
+### 3. Build files
 Next you should obtain the r5_detours binaries you can do that through the linked repo or by building it yourself. See: [Building the binaries yourself.](#building-the-binaries-yourself) Once you have obtained `r5detours.dll` , `dedicated.dll` and `launcher.exe` copy them to the root of your install folder. Your install directory should look as follows. Some files are ommited for brevity. See [Full Directory Tree.](/tree)
 ```
 ├───audio
@@ -32,14 +32,17 @@ Next you should obtain the r5_detours binaries you can do that through the linke
 └───vpk
 ```
 
-## 4. Copy files
+### 4. Copy files
 
-## 5. Copy Maps
-\
-# Usage
+### 5. Copy Maps
 
-# Building the binaries yourself
+## Usage
 
+## Building the binaries yourself
+
+TO-DO
+
+```
 Instructions are kinda outdated. Will be updated soon.
 
 To use the vs project / engine hooking, here are some basic instructions:
@@ -51,3 +54,4 @@ To use the vs project / engine hooking, here are some basic instructions:
 4. Run `launcher.exe`
 
 The game will pop a debug terminal, that will forward your commands directly to the in-game source console backend. SQVM prints are also enabled, and the hooks will attempt to load game vscripts out of `platform\` relative from the game executable before falling back to the SearchPath's defined in GameInfo.txt or the in-memory VPK structures.
+```
