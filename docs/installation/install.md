@@ -8,7 +8,7 @@
 
 ## Before proceding please...
 - Read the [FAQ](../faq/faq)
-- Run the current version of Apex Legends. 
+- Run the current version of Apex Legends at least once. 
 
 ## Installing
 ### 1. Create Directory
@@ -74,26 +74,13 @@ platform
 
 ### 5. Additional Maps
 
-At this point you have a working install, if you would like to install additional maps you should do that now. Simply follow the directions of the readme inside the map zip.
+At this point you have a working install, if you would like to install additional maps you should do that now. Simply follow the directions from the readme contained inside the map zip.
 
-## Usage
+## Running and Usage
 
+To run R5Reloaded simply execute the `launcher.exe` in the root of your install. If you have done everything correctly, you will be greeted with the EA splash screen and shortly after the games hould try and connect to EA's servers which will fail. From here you can press F10 and refresh the server browser to find a server to join or [create your own.](../servers/hosting)
 
 
 ## Building the binaries yourself
 
 TO-DO
-
-```
-Instructions are kinda outdated. Will be updated soon.
-
-To use the vs project / engine hooking, here are some basic instructions:
-
-1. Build the solution
-	* or get the binaries from the releases page of this repo
-2. Copy `r5detours.dll` and `launcher.exe` to the apex game folder
-3. Copy the unpacked version of `r5apex.exe` over the original in your game folder
-4. Run `launcher.exe`
-
-The game will pop a debug terminal, that will forward your commands directly to the in-game source console backend. SQVM prints are also enabled, and the hooks will attempt to load game vscripts out of `platform\` relative from the game executable before falling back to the SearchPath's defined in GameInfo.txt or the in-memory VPK structures.
-```
