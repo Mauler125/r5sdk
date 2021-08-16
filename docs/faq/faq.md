@@ -1,4 +1,4 @@
-# **FAQ**
+# **FAQ.**
 
 - [Can I play on Console?](#can-i-play-on-console)
 - [Can I use in game cosmetics?](#can-i-use-in-game-cosmetics)
@@ -6,6 +6,11 @@
 - [What can I do with this project?](#what-can-i-do-with-this-project)
 - [How do you properly host servers?](#how-do-you-properly-host-servers)
 - [Why are some characters unavailable?](#why-are-some-characters-unavailable)
+- [Can I play solos-duos?](#can-i-play-solos-duos)
+- [Can I play new Apex maps?](#can-i-play-new-apex-maps)
+- [What are the ban risks?](#what-are-the-ban-risks)
+- [Are there bugs?](#are-there-bugs)
+- [Can I contribute?](#can-i-contribute)
 
 ## Can I play on Console?
 No, R5Reloaded is PC only. Additionally, you cannot invite your console friends to an R5Reloaded lobby.
@@ -20,13 +25,15 @@ Under absolutely no circumstances should you attempt to run this with Season 10 
 You can create your own lobbies to play solo or with your friends. There is also a server browser so you can eaisly find public servers.
 
 ## How do you properly host servers?
-See: [Hosting A Server](servers/hosting)
+See: [Hosting a Server](servers/hosting)
 
 ## Why are some characters unavailable?
 Some characters don't work completely at the moment. For example Caustic in the in-dev version uses the Electric Smoke grenade from Titanfall 2 for his ultimate to work.
 
 ## Can I play solos-duos?
 Yes! That's up to you. You could even have 20 players in 1 squad.
+
+See: [Hosting a server.](servers/hosting)
 
 ## Can I play new Apex maps?
 No, Current playable map list:

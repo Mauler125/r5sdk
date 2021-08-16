@@ -15,6 +15,11 @@ Detours-based Visual Studio project for hooking the game engine.
 Go to [Installaion.](installation/install)
 
 ---
+## Help! I Keep Crashing!
+
+See: [FAQ #Are there bugs?](faq/faq#are-there-bugs)
+
+---
 ## Hosting a server
 
 See: [Hosting a server.](servers/hosting)
