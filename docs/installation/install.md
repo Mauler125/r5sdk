@@ -15,21 +15,17 @@
 Create a Directory for your files. It should be in a place with at least 45GB free. You can now move your apex build to this folder. Make sure to keep an unmodified backup just in case.
 
 ### 3. Build files
-Next you should obtain the r5_detours binaries you can do that through the linked repo or by building it yourself. See: [Building the binaries yourself.](#building-the-binaries-yourself) Once you have obtained `r5detours.dll` , `dedicated.dll` and `launcher.exe` copy them to the root of your install folder. Your install directory should look as follows. Some files are ommited for brevity. See [Full Directory Tree.](/tree)
+Next you should obtain the r5_detours binaries you can do that through the linked repo or by building it yourself. See: [Building the binaries yourself.](#building-the-binaries-yourself) Once you have obtained `r5detours.dll` `dedicated.dll` and `launcher.exe` copy them to the root of your install folder. Your install directory should look as follows. Some files are ommited for brevity. See [Full Directory Tree.](tree)
 ```
 ├───audio
-├───bin
-├───cfg
-├───materials
-├───media
 ├───paks
 ├───platform
-├───r2
 ├───stbsp
 ├───vpk
 ├───r5apex.exe
-├───
-└───vpk
+├───launcher.exe -- 
+├───dedicated.dll -- 
+└───r5detours.dll -- 
 ```
 
 ### 4. Copy files

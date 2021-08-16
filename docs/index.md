@@ -4,11 +4,6 @@
 
 Detours-based Visual Studio project for hooking the game engine.
 
-* [R5Dev](about/r5dev)
-* [R5Net](about/r5net)
-* [R5Launcher](about/r5launcher)
-* [R5Dedicated](about/r5dedicated)
-
 ---
 ## Installaion
 
