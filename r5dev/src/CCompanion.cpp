@@ -26,12 +26,18 @@ CCompanion::CCompanion() : MatchmakingServerStringBuffer("r5a-comp-sv.herokuapp.
         int slashPos = filename.rfind("\\", std::string::npos);
         filename = filename.substr((INT8)slashPos + 1, std::string::npos);
         filename = filename.substr(0, filename.size() - 6);
-        if (filename == "mp_rr_desertlands_64k_x_64k") {
-            MapsList.push_back("World's Edge");
-        }
-        else if (filename == "mp_rr_canyonlands_64k_x_64k") {
-            MapsList.push_back("King's Canyon");
-        }
+            if (filename == "mp_rr_canyonlands_64k_x_64k") {
+                MapsList.push_back("King's Canyon Season 0");
+            }
+            else if (filename == "mp_rr_desertlands_64k_x_64k") {
+                MapsList.push_back("World's Edge");
+            }
+            else if (filename == "mp_rr_canyonlands_mu1") {
+                MapsList.push_back("King's Canyon Season 2");
+            }
+            else if (filename == "mp_rr_canyonlands_mu1_night") {
+                MapsList.push_back("King's Canyon Season 2 After Dark");
+            }
     }
     
     // copy assignment kjek
@@ -153,10 +159,6 @@ void CCompanion::CompMenu()
     if (ImGui::TabItemButton("Settings"))
     {
         SetSection(ESection::Settings);
-    }
-    if (ImGui::TabItemButton("Give"))
-    {
-        SetSection(ESection::Give);
     }
     ImGui::EndTabBar();
 }
@@ -364,6 +366,8 @@ void CCompanion::ServerBrowserSection()
     }
 }
 
+std::string ServerMap;
+
 void CCompanion::HostServerSection()
 {
     static std::string ServerNameErr = "";
@@ -378,6 +382,22 @@ void CCompanion::HostServerSection()
             if (ImGui::Selectable(item.c_str(), item == MyServer.map))
             {
                 MyServer.map = item;
+                if (MyServer.map == "King's Canyon Season 0")
+                {
+                    ServerMap = "mp_rr_canyonlands_64k_x_64k";
+                }
+                else if (MyServer.map == "King's Canyon Season 2")
+                {
+                    ServerMap = "mp_rr_canyonlands_mu1";
+                }
+                else if (MyServer.map == "King's Canyon Season 2 After Dark")
+                {
+                    ServerMap = "mp_rr_canyonlands_mu1_night";
+                }
+                else if (MyServer.map == "World's Edge")
+                {
+                    ServerMap = "mp_rr_desertlands_64k_x_64k";
+                }
             }
         }
         ImGui::EndCombo();
@@ -398,15 +418,7 @@ void CCompanion::HostServerSection()
         {
             ServerNameErr = std::string();
             UpdateHostingStatus();
-            std::string ServerMap;
             std::stringstream cmd;
-            if (MyServer.map == "King's Canyon") {
-                ServerMap = "mp_rr_canyonlands_64k_x_64k";
-            }
-            else if (MyServer.map == "World's Edge")
-            {
-                ServerMap = "mp_rr_desertlands_64k_x_64k";
-            }
             cmd << "map " << ServerMap;
             ProcessCommand(cmd.str().c_str());
 
@@ -423,7 +435,7 @@ void CCompanion::HostServerSection()
 
     if (ImGui::Button("Force Start##ServerHost_ForceStart", ImVec2(ImGui::GetWindowSize().x, 32)))
     {
-        strncpy_s(GameGlobals::HostState->m_levelName, MyServer.map.c_str(), 64); // Copy new map into hoststate levelname. 64 is size of m_levelname.
+        strncpy_s(GameGlobals::HostState->m_levelName, ServerMap.c_str(), 64); // Copy new map into hoststate levelname. 64 is size of m_levelname.
         GameGlobals::HostState->m_iNextState = HostStates_t::HS_NEW_GAME; // Force CHostState::FrameUpdate to start a server.
     }
 
@@ -444,7 +456,7 @@ void CCompanion::HostServerSection()
 
         if (ImGui::Button("Change Level##ServerHost_ChangeLevel", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
-            strncpy_s(GameGlobals::HostState->m_levelName, MyServer.map.c_str(), 64); // Copy new map into hoststate levelname. 64 is size of m_levelname.
+            strncpy_s(GameGlobals::HostState->m_levelName, ServerMap.c_str(), 64); // Copy new map into hoststate levelname. 64 is size of m_levelname.
             GameGlobals::HostState->m_iNextState = HostStates_t::HS_CHANGE_LEVEL_MP; // Force CHostState::FrameUpdate to change the level.
         }
 
@@ -463,29 +475,6 @@ void CCompanion::SettingsSection()
     {
         if (r5net) delete r5net;
         r5net = new R5Net::Client(MatchmakingServerStringBuffer);
-    }
-}
-
-void CCompanion::GiveSection()
-{
-    std::stringstream cmd;
-    ImGui::InputTextWithHint("##WeaponName", "Input Weapon Name", & weapon);
-    if (weapon == "flatline" || weapon == "Flatline") {
-        if (ImGui::Button("Give Weapon")) {
-            cmd << "give_weapon mp_weapon_vinson";
-        }
-    }
-    if (weapon == "r99" || weapon == "R99")
-    {
-        if (ImGui::Button("Give Weapon")) {
-            cmd << "give_weapon mp_weapon_r97";
-        }
-    }
-    if (weapon == "r301" || weapon == "R301")
-    {
-        if (ImGui::Button("Give Weapon")) {
-            cmd << "give_weapon mp_weapon_rsn101";
-        }
     }
 }
 
@@ -515,8 +504,6 @@ void CCompanion::Draw(const char* title)
         case ESection::Settings:
             SettingsSection();
             break;
-        case ESection::Give:
-            GiveSection();
         default:
             break;
         }
