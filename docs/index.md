@@ -7,9 +7,9 @@ Detours-based Visual Studio project for hooking the game engine.
 TO-DO: Add some additional information here.
 
 ---
-## Installaion
+## Installation
 
-Go to [Installaion.](installation/install)
+Go to [Installation.](installation/install)
 
 ---
 ## Help! I Keep Crashing!
