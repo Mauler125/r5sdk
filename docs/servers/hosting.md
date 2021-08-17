@@ -12,7 +12,7 @@
 ## 1. Port Forwarding
 Go to your routers settings and add a port forwarding rule, you will need to add the range `37015-37020` using `UDP` if you have an option for both UDP and TCP, use that.<br/>
 You may also want to open up your windows firewall if you're having trouble.<br/>
-[Canyouseeme](https://canyouseeme.org/) can also be useful.
+[Canyouseeme](https://canyouseeme.org/) and [Port forwarding tutorial](https://portforward.com/router.htm) may also be useful.
 
 ## 2. Starting a server
 Open R5Reloaded<br/> 
