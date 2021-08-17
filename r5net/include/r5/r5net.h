@@ -22,7 +22,7 @@ namespace R5Net
 	
 		std::vector<ServerListing> GetServersList(std::string& outMessage);
 		bool PostServerHost(std::string& outMessage, std::string& outToken, const ServerListing& serverListing);
-		bool GetServerByToken(ServerListing& outServer, std::string& outError, const std::string& token, const std::string& password = "");
+		bool GetServerByToken(ServerListing& outServer, std::string& outMessage, const std::string token, const std::string password = "");
 		std::string GetVersionString();
 	};
 }
