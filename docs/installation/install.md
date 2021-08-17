@@ -16,7 +16,7 @@
 Create a Directory for your files. It should be in a place with at least 45GB free. You can now move your apex build to this folder. Make sure to keep an unmodified backup just in case.
 
 ### 3. Copy Binaries
-Next you should obtain the r5_detours binaries you can do that through the realeases section of the linked repo or by building it yourself. See: [Building the binaries yourself.](#building-the-binaries-yourself) Once you have obtained `r5detours.dll` `dedicated.dll` and `launcher.exe` copy them to the root of your install folder. Your install directory should look as follows. Some files have been ommited for brevity. See [Full Directory Tree](../installation/tree) if you are confused.
+Next you should obtain the r5_detours binaries you can do that through the realeases section of the linked repo or by [building it yourself.](../installation/build) Once you have obtained `r5detours.dll` `dedicated.dll` and `launcher.exe` copy them to the root of your install folder. Your install directory should look as follows. Some files have been ommited for brevity. See [Full Directory Tree](../installation/tree) if you are confused.
 ```
 ├───audio
 ├───paks
@@ -80,8 +80,3 @@ At this point you have a working install, if you would like to install additiona
 ## Running and Usage
 
 To run R5Reloaded simply execute the `launcher.exe` in the root of your install. If you have done everything correctly, you will be greeted with the EA splash screen and shortly after the games hould try and connect to EA's servers which will fail. From here you can press F10 and refresh the server browser to find a server to join or [create your own.](../servers/hosting)
-
-
-## Building the binaries yourself
-
-TO-DO

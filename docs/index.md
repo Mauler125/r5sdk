@@ -4,12 +4,15 @@
 
 Detours-based Visual Studio project for hooking the game engine.
 
-TO-DO: Add some additional information here.
-
 ---
 ## Other Languages
 
 [Languages](#languages)
+
+---
+## Console and Server Browser
+To use the in-game server broswer, press `F10`!<br/>
+You can also open a developer console window by pressing `~` or the `insert` key.
 
 ---
 ## Installation
@@ -58,10 +61,8 @@ Alternative way is just to host the server without ticking the server browser ch
 TL;DR If you tick the server browser box in "Host Server" your IP will be stored till you close the server.
 
 ## Additional Info
-
-TO-DO: Clean this up.
-
-The game will pop a debug terminal, that will forward your commands directly to the in-game source console backend. SQVM prints are also enabled, and the hooks will attempt to load game vscripts out of `platform\` relative from the game executable before falling back to the SearchPath's defined in GameInfo.txt or the in-memory VPK structures.
+The in-game console will forward your commands directly to the in-game source console backend.<br/>
+SQVM prints are also enabled, and the hooks will attempt to load game vscripts out of `platform\` relative from the game executable before falling back to the SearchPath's defined in GameInfo.txt or the in-memory VPK structures.
 
 ## Languages
  - [français](languages/fr)
