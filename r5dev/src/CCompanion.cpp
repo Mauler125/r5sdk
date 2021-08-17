@@ -374,11 +374,10 @@ void CCompanion::ServerBrowserSection()
     }
 }
 
-std::string ServerMap;
-
 void CCompanion::HostServerSection()
 {
     static std::string ServerNameErr = "";
+    static std::string ServerMap = std::string();
 
     ImGui::InputTextWithHint("##ServerHost_ServerName", "Server Name (Required)", &MyServer.name);
     ImGui::InputTextWithHint("##ServerHost_ServerPassword", "Password (Optional)", &MyServer.password);
