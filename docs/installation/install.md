@@ -79,4 +79,4 @@ At this point you have a working install, if you would like to install additiona
 
 ## Running and Usage
 
-To run R5Reloaded simply execute the `launcher.exe` in the root of your install. If you have done everything correctly, you will be greeted with the EA splash screen and shortly after the games hould try and connect to EA's servers which will fail. From here you can press F10 and refresh the server browser to find a server to join or [create your own.](../servers/hosting)
+To run R5Reloaded simply execute the `launcher.exe` in the root of your install. There is also a bat file available in the `releases` section of the `detours_r5` repository for easy switching between retail and developer mode.<br/> If you have done everything correctly, you will be greeted with the EA splash screen,shortly after the game should try and connect to EA's servers which will fail. From here you can press `F10` and refresh the server browser to find a server to join or [create your own.](../servers/hosting)
