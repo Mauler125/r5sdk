@@ -53,6 +53,8 @@ void Hooks::InstallHooks()
 	MH_EnableHook(addr_MSG_EngineError);
 
 	InstallOpcodes();
+
+	Hooks::DedicatedPatch();
 }
 
 void Hooks::RemoveHooks()

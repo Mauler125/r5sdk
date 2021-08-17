@@ -185,6 +185,7 @@
   <ItemGroup>
     <ClCompile Include="..\shared\utility.cpp" />
     <ClCompile Include="console.cpp" />
+    <ClCompile Include="dedi.cc" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="hooks.cpp" />
     <ClCompile Include="iconvar.cpp" />

@@ -429,6 +429,9 @@
     <ClCompile Include="hooks.cpp">
       <Filter>hooks\src</Filter>
     </ClCompile>
+    <ClCompile Include="dedi.cc">
+      <Filter>hooks\src\other</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="r5dedicated.def">

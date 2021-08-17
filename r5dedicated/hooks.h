@@ -127,6 +127,8 @@ namespace Hooks
 
 	using MSG_EngineErrorFn = int(*)(char*, va_list);
 	extern MSG_EngineErrorFn originalMSG_EngineError;
+
+	void DedicatedPatch();
 #pragma endregion
 
 	void InstallHooks();
