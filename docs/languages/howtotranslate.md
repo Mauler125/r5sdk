@@ -1,8 +1,12 @@
 # **How to Translate**
 
 ### If you would like to translate it is very easy!
+
+First fork [my project](https://github.com/SwItChBlAdEfUrY/detours_r5), you can now create a local copy of your repository using git. If you would like to be able to view your changes you can enable gihub pages on your repo, or enable a markdown preview plugin for your editor. Make your changes and push it to your repo.<br/> 
+Once you have finished making your changes submit a [pull request](https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request#creating-the-pull-request).
+
 ---
-All you need to do is copy the `en-template` folder located in `docs/languages/` and rename it.<br/>
+To translate, all you need to do is copy the `en-template` folder located in `docs/languages/` and rename it.<br/>
 ```
 docs/languages/
 
