@@ -276,26 +276,21 @@ public:
 
 	MemoryAddress FollowNearCall(std::ptrdiff_t opcodeOffset = 0x1, std::ptrdiff_t nextInstructionOffset = 0x5)
 	{
-		// Skip E9 opcode.
-		std::uintptr_t skipOpCode = ptr + opcodeOffset;
-
-		// Get 4-byte long relative address.
-		std::int32_t relativeAddress = *reinterpret_cast<std::int32_t*>(skipOpCode);
-
-		// Get location of next instruction.
-		std::uintptr_t nextInstruction = ptr + nextInstructionOffset;
-
-		// Get function location via adding relative address to next instruction.
-		return MemoryAddress(nextInstruction + relativeAddress);
+		return ResolveRelativeAddress(opcodeOffset, nextInstructionOffset);
 	}
 
 	MemoryAddress FollowNearCallSelf(std::ptrdiff_t opcodeOffset = 0x1, std::ptrdiff_t nextInstructionOffset = 0x5)
 	{
-		// Skip E9 opcode.
-		std::uintptr_t skipOpCode = ptr + opcodeOffset;
+		return ResolveRelativeAddressSelf(opcodeOffset, nextInstructionOffset);
+	}
+
+	MemoryAddress ResolveRelativeAddressSelf(std::ptrdiff_t registerOffset = 0x1, std::ptrdiff_t nextInstructionOffset = 0x4)
+	{
+		// Skip register.
+		std::uintptr_t skipRegister = ptr + registerOffset;
 
 		// Get 4-byte long relative address.
-		std::int32_t relativeAddress = *reinterpret_cast<std::int32_t*>(skipOpCode);
+		std::int32_t relativeAddress = *reinterpret_cast<std::int32_t*>(skipRegister);
 
 		// Get location of next instruction.
 		std::uintptr_t nextInstruction = ptr + nextInstructionOffset;
@@ -304,7 +299,22 @@ public:
 		ptr = nextInstruction + relativeAddress;
 		return *this;
 	}
-	
+
+	MemoryAddress ResolveRelativeAddress(std::ptrdiff_t registerOffset = 0x1, std::ptrdiff_t nextInstructionOffset = 0x4)
+	{
+		// Skip register.
+		std::uintptr_t skipRegister = ptr + registerOffset;
+
+		// Get 4-byte long relative address.
+		std::int32_t relativeAddress = *reinterpret_cast<std::int32_t*>(skipRegister);
+
+		// Get location of next instruction.
+		std::uintptr_t nextInstruction = ptr + nextInstructionOffset;
+
+		// Get function location via adding relative address to next instruction.
+		return MemoryAddress(nextInstruction + relativeAddress);
+	}
+
 private:
 	std::uintptr_t ptr = 0;
 };
@@ -337,14 +347,6 @@ public:
 		}
 
 		return ModuleSections();
-	}
-
-	void PrintSections()
-	{
-		for (ModuleSections& currentSection : moduleSections)
-		{
-			printf(" [+Module: %s+]%s, %p\n", moduleName.c_str(), currentSection.sectionName.c_str(), reinterpret_cast<void*>(currentSection.sectionStartAddress));
-		}
 	}
 
 	Module() = default;
