@@ -11,6 +11,17 @@
 
 CCompanion* g_ServerBrowser = nullptr;
 
+std::map<std::string, std::string> mapArray =
+{
+    { "mp_rr_canyonlands_64k_x_64k", "King's Canyon Season 0" },
+    { "mp_rr_desertlands_64k_x_64k", "World's Edge Season 3" },
+    { "mp_rr_canyonlands_mu1", "King's Canyon Season 2" },
+    { "mp_rr_canyonlands_mu1_night", "King's Canyon Season 2 After Dark" },
+    { "mp_rr_desertlands_64k_x_64k_nx", "World's Edge Season 3 After Dark" },
+    { "mp_lobby", "Lobby Season 3" },
+    { "mp_rr_canyonlands_staging", "King's Canyon Firing Range" }
+};
+
 /*-----------------------------------------------------------------------------
  * _ccompanion.cpp
  *-----------------------------------------------------------------------------*/
@@ -25,18 +36,16 @@ CCompanion::CCompanion() : MatchmakingServerStringBuffer("r5a-comp-sv.herokuapp.
         int slashPos = filename.rfind("\\", std::string::npos);
         filename = filename.substr((INT8)slashPos + 1, std::string::npos);
         filename = filename.substr(0, filename.size() - 6);
-            if (filename == "mp_rr_canyonlands_64k_x_64k") {
-                MapsList.push_back("King's Canyon Season 0");
-            }
-            else if (filename == "mp_rr_desertlands_64k_x_64k") {
-                MapsList.push_back("World's Edge");
-            }
-            else if (filename == "mp_rr_canyonlands_mu1") {
-                MapsList.push_back("King's Canyon Season 2");
-            }
-            else if (filename == "mp_rr_canyonlands_mu1_night") {
-                MapsList.push_back("King's Canyon Season 2 After Dark");
-            }
+
+        auto it = mapArray.find(filename); // Find MapName in mapArray.
+        if (it != mapArray.end())
+        {
+            MapsList.push_back(it->second);
+        }
+        else
+        {
+            MapsList.push_back(filename);
+        }
     }
     
     // copy assignment kjek
@@ -381,21 +390,10 @@ void CCompanion::HostServerSection()
             if (ImGui::Selectable(item.c_str(), item == MyServer.map))
             {
                 MyServer.map = item;
-                if (MyServer.map == "King's Canyon Season 0")
+                for (auto it = mapArray.begin(); it != mapArray.end(); ++it)
                 {
-                    ServerMap = "mp_rr_canyonlands_64k_x_64k";
-                }
-                else if (MyServer.map == "King's Canyon Season 2")
-                {
-                    ServerMap = "mp_rr_canyonlands_mu1";
-                }
-                else if (MyServer.map == "King's Canyon Season 2 After Dark")
-                {
-                    ServerMap = "mp_rr_canyonlands_mu1_night";
-                }
-                else if (MyServer.map == "World's Edge")
-                {
-                    ServerMap = "mp_rr_desertlands_64k_x_64k";
+                    if (it->second.compare(MyServer.map) == NULL)
+                        ServerMap = it->first;
                 }
             }
         }
