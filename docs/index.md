@@ -5,7 +5,7 @@
 Detours-based Visual Studio project for hooking the game engine.
 
 ---
-## Other Languages 🇺🇲🇫🇷
+## Other Languages 🇺🇸🇺🇲 🇫🇷
 
 [Languages](#languages)
 
