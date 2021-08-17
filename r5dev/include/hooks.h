@@ -64,7 +64,6 @@ namespace Hooks
 #pragma region ConVar
 	bool ConVar_IsFlagSet(ConVar* cvar, int flag);
 	bool ConCommand_IsFlagSet(ConCommandBase* cmd, int flag);
-	void Map_Callback(void* args);
 
 	using ConVar_IsFlagSetFn = bool(*)(ConVar*, int);
 	extern ConVar_IsFlagSetFn originalConVar_IsFlagSet;
