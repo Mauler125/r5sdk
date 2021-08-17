@@ -31,7 +31,7 @@ Also dont forget to include a link to your translation in `docs/index.md` at the
 ```
 
 ### Need further help?
-reach out to me on discord `Switch#9867`
+Reach out to me on discord `Switch#9867`
 
 ## Notes:
 
