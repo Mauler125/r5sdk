@@ -40,8 +40,8 @@ bool LaunchR5Apex(LAUNCHMODE lMode, LAUNCHSTATE lState)
     BOOL result;
 
     FILE* sLaunchParams;
-    CHAR sArgumentBuffer[1024] = { 0 };
-    CHAR sCommandDirectory[MAX_PATH];
+    CHAR sArgumentBuffer[4096] = { 0 };
+    CHAR sCommandDirectory[4096];
     LPSTR sCommandLine = sCommandDirectory;
 
     CHAR sDevDll[MAX_PATH];

@@ -118,9 +118,13 @@ __int64 __fastcall CModAppSystemGroup__Main_hk(__int64 a1, __int64 a2) {
 */
 
 struct DedicatedExportsVtbl {
-	char pad[0x48];
+	char pad[0x40];
+	void* Sys_Printf;
 	void* RunFrame;
 } devtbl;
+
+static_assert(offsetof(DedicatedExportsVtbl, RunFrame) == 0x48);
+static_assert(offsetof(DedicatedExportsVtbl, Sys_Printf) == 0x40);
 
 struct {
 	DedicatedExportsVtbl* vtbl = &devtbl;
@@ -130,6 +134,13 @@ void DERunFrame() {
 	auto engine = (uintptr_t**)0x141741BA0;
 	using frame_t = void(__fastcall*)(uintptr_t**);
 
+	// Yes, trust me it's less broken this way...
+	// Nvm, this game is more stable smh
+	*(uint8_t*)0x14171A9B4 = 1;
+
+	using void_f = void(__fastcall*)();
+	//void_f(0x14095A140)(); // init miles???
+
 	spdlog::info("Reached DERunFrame yay!");
 	puts("DERF");
 
@@ -138,6 +149,10 @@ void DERunFrame() {
 		frame(engine);
 		Sleep(1000 / 80);
 	}
+}
+
+void __fastcall DEPrintf(__int64 thisptr, char* text) {
+	printf("%s", text);
 }
 
 void Hooks::DedicatedPatch() {
@@ -150,6 +165,7 @@ void Hooks::DedicatedPatch() {
 	*(void**)0x14C119C10 = &DedicatedExports;
 
 	devtbl.RunFrame = &DERunFrame;
+	devtbl.Sys_Printf = &DEPrintf;
 
 	// Hooks first
 	{
@@ -253,6 +269,8 @@ void Hooks::DedicatedPatch() {
 		MemoryAddress(0x00000001402312A0).Patch({ 0xC3, 0x90, 0x90, 0x90 });
 
 		// HLClient FFS
+		// first is interpolate
+		// second is delayPostSnapshotNotificationsToAfterInterpolation
 		MemoryAddress(0x00000001402327B1).Patch({
 			0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90,
 			0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90
