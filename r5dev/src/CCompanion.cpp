@@ -7,7 +7,7 @@
 #include "CCompanion.h"
 #include "r5net.h"
 
-#define OVERLAY_DEBUG
+//#define OVERLAY_DEBUG
 
 CCompanion* g_ServerBrowser = nullptr;
 
