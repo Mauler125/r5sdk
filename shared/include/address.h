@@ -284,7 +284,7 @@ public:
 		return ResolveRelativeAddressSelf(opcodeOffset, nextInstructionOffset);
 	}
 
-	MemoryAddress ResolveRelativeAddressSelf(std::ptrdiff_t registerOffset = 0x1, std::ptrdiff_t nextInstructionOffset = 0x4)
+	MemoryAddress ResolveRelativeAddressSelf(std::ptrdiff_t registerOffset = 0x0, std::ptrdiff_t nextInstructionOffset = 0x4)
 	{
 		// Skip register.
 		std::uintptr_t skipRegister = ptr + registerOffset;
@@ -300,7 +300,7 @@ public:
 		return *this;
 	}
 
-	MemoryAddress ResolveRelativeAddress(std::ptrdiff_t registerOffset = 0x1, std::ptrdiff_t nextInstructionOffset = 0x4)
+	MemoryAddress ResolveRelativeAddress(std::ptrdiff_t registerOffset = 0x0, std::ptrdiff_t nextInstructionOffset = 0x4)
 	{
 		// Skip register.
 		std::uintptr_t skipRegister = ptr + registerOffset;

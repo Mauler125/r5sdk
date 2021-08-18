@@ -37,7 +37,8 @@ namespace
 #pragma endregion
 
 #pragma region Squirrel
-	MemoryAddress Squirrel_CompileError = r5_op.PatternSearch("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 81 EC ? ? ? ? 48 8B D9 4C 8B F2");
+	/*0x14105CCA0*/
+	MemoryAddress Squirrel_CompileError = r5_op.StringSearch("%s SCRIPT COMPILE ERROR: %s").FindPatternSelf("48 89 5C", MemoryAddress::Direction::UP);
 #pragma endregion
 
 	void PrintOAddress() // Test the sigscan results

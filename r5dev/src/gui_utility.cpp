@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "gui_utility.h"
 
+GuiConfig g_GuiConfig;
 
 /*-----------------------------------------------------------------------------
  * _gui_utility.cpp

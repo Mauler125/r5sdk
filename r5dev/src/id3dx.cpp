@@ -56,17 +56,14 @@ LRESULT CALLBACK DXGIMsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	if (uMsg == WM_KEYDOWN)
+	if (uMsg == WM_KEYUP || uMsg == WM_SYSKEYDOWN)
 	{
-		if (wParam == VK_OEM_3 || wParam == VK_INSERT) // For everyone without a US keyboard layout.
+		if (wParam == g_GuiConfig.CGameConsoleConfig.bind1 || wParam == g_GuiConfig.CGameConsoleConfig.bind2)
 		{
 			g_bShowConsole = !g_bShowConsole;
 		}
-	}
 
-	if (uMsg == WM_SYSKEYDOWN)
-	{
-		if (wParam == VK_F10)
+		if (wParam == g_GuiConfig.CCompanionConfig.bind1 || wParam == g_GuiConfig.CCompanionConfig.bind2)
 		{
 			g_bShowBrowser = !g_bShowBrowser;
 		}

@@ -55,7 +55,7 @@ namespace
 
 #pragma region CHLClient
 	/*0x1405C0740*/
-	FUNC_AT_ADDRESS(addr_CHLClient_FrameStageNotify, void(*)(void* rcx, int curStage), r5_patterns.PatternSearch("48 83 EC 28 89 15 ?? ?? ?? ??").GetPtr());
+	FUNC_AT_ADDRESS(addr_CHLClient_FrameStageNotify, void(*)(void*, int), r5_patterns.PatternSearch("48 83 EC 28 89 15 ?? ?? ?? ??").GetPtr());
 #pragma endregion
 
 #pragma region CVEngineServer
@@ -71,6 +71,9 @@ namespace
 #pragma region Utility
 	/*0x140295600*/
 	FUNC_AT_ADDRESS(addr_MSG_EngineError, int(*)(char*, va_list), r5_patterns.StringSearch("Engine Error").FindPatternSelf("48 89 ? ? ? 48 89", MemoryAddress::Direction::UP, 500).GetPtr());
+
+	/*0x1401B31C0*/
+	FUNC_AT_ADDRESS(addr_MemAlloc_Wrapper, void*(*)(__int64), r5_patterns.StringSearch("ConversionModeMenu").FindPatternSelf("E8 ? ? ? ? 48", MemoryAddress::Direction::UP).FollowNearCallSelf().GetPtr());
 #pragma endregion
 	// Un-used atm.
 	// DWORD64 p_KeyValues_FindKey = /*1404744E0*/ reinterpret_cast<DWORD64>(PatternScan("r5apex.exe", "40 56 57 41 57 48 81 EC ?? ?? ?? ?? 45"));
@@ -95,6 +98,7 @@ namespace
 		PRINT_ADDRESS("CVEngineServer::IsPersistenceDataAvailable", addr_CVEngineServer_IsPersistenceDataAvailable);
 		PRINT_ADDRESS("CBaseFileSystem::FileSystemWarning", addr_CBaseFileSystem_FileSystemWarning);
 		PRINT_ADDRESS("MSG_EngineError", addr_MSG_EngineError);
+		PRINT_ADDRESS("MemAlloc_Wrapper", addr_MemAlloc_Wrapper);
 		std::cout << "+--------------------------------------------------------+" << std::endl;
 		// TODO implement error handling when sigscan fails or result is 0
 	}

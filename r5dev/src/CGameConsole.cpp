@@ -75,6 +75,18 @@ void CGameConsole::Draw(const char* title)
                 ClearLog();
             }
             copy_to_clipboard = ImGui::SmallButton("Copy");
+            ImGui::Text("CG Hotkey:");
+            ImGui::SameLine();
+            if (ImGui::Hotkey("##OpenCGameConsoleBind1", &g_GuiConfig.CGameConsoleConfig.bind1, ImVec2(80, 80)))
+            {
+                g_GuiConfig.Save();
+            }
+            ImGui::Text("CC Hotkey:");
+            ImGui::SameLine();
+            if (ImGui::Hotkey("##OpenCCompanionBind1", &g_GuiConfig.CCompanionConfig.bind1, ImVec2(80, 80)))
+            {
+                g_GuiConfig.Save();
+            }
             ImGui::EndPopup();
         }
         if (ImGui::Button("Options"))
