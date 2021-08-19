@@ -227,5 +227,5 @@ int main(int argc, char* argv[], char* envp[])
 
     Sleep(5000);
 
-    return EXIT_SUCCESS;
+    return EXIT_FAILURE;
 }
