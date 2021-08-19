@@ -26,4 +26,7 @@ void InstallOpcodes() /* .TEXT */
 	//-------------------------------------------------------------------------
 	// JA  --> JMP | Prevent FairFight anti-cheat from initializing on the server
 	FairFight_Init.Offset(0x61).Patch({ 0xE9, 0xED, 0x00, 0x00, 0x00, 0x00 });
+	//-------------------------------------------------------------------------
+	// CALL --> NOP | Prevent squirrel compiler errors from calling Error
+	Squirrel_CompileError.Offset(0x12C).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });
 }

@@ -291,12 +291,13 @@ public:
 	const char* m_pzsCurrentValue; //0x0058
 	__int64 m_iStringLength; //0x0060
 	float m_flValue; //0x0068
-	__int64 m_iValue; //0x006C
+	int m_iValue; //0x006C
 	bool m_bHasMin; //0x0070
 	float m_flMinValue; //0x0074
 	bool m_bHasMax; //0x0078
 	float m_flMaxValue; //0x007C
-}; //Size: 0x0080
+	char pad_0080[32]; //0x0080
+}; //Size: 0x00A0
 
 class CCVarIteratorInternal // Fully reversed table, just look at the virtual function table and rename the function.
 {
@@ -368,6 +369,7 @@ namespace GameGlobals
 	extern CInputSystem* InputSystem;
 	extern CCVar* Cvar;
 
+	ConVar* CreateCustomConVar(const char* name, const char* defaultValue, int flags, const char* helpString, bool bMin, float fMin, bool bMax, float fMax, void* callback, void* unk);
 	void InitGameGlobals();
 	extern bool IsInitialized;
 }

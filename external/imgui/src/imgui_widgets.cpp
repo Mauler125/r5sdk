@@ -8048,4 +8048,365 @@ void ImGui::TabItemLabelAndCloseButton(ImDrawList* draw_list, const ImRect& bb, 
 }
 
 
+const char* const KeyNames[] =
+{
+    "Null",
+    "Mouse1",
+    "Mouse2",
+    "Cancel",
+    "Mouse3",
+    "Mouse4",
+    "Mouse5",
+    "Undefined",
+    "Back",
+    "Tab",
+    "Reserved",
+    "Reserved",
+    "Clear",
+    "Return",
+    "Undefined",
+    "Undefined",
+    "Shift",
+    "Control",
+    "Menu",
+    "Pause",
+    "Capital",
+    "Kana",
+    "Ime On",
+    "Junja",
+    "Final",
+    "Kanji",
+    "Ime Off",
+    "Escape",
+    "Convert",
+    "Nonconvert",
+    "Accept",
+    "Modechange",
+    "Space",
+    "Prior",
+    "Next",
+    "End",
+    "Home",
+    "Left",
+    "Up",
+    "Right",
+    "Down",
+    "Select",
+    "Print",
+    "Execute",
+    "Snapshot",
+    "Insert",
+    "Delete",
+    "Help",
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J",
+    "K",
+    "L",
+    "M",
+    "N",
+    "O",
+    "P",
+    "Q",
+    "R",
+    "S",
+    "T",
+    "U",
+    "V",
+    "W",
+    "X",
+    "Y",
+    "Z",
+    "Lwin",
+    "Rwin",
+    "Apps",
+    "Unknown",
+    "Sleep",
+    "Numpad0",
+    "Numpad1",
+    "Numpad2",
+    "Numpad3",
+    "Numpad4",
+    "Numpad5",
+    "Numpad6",
+    "Numpad7",
+    "Numpad8",
+    "Numpad9",
+    "Multiply",
+    "Add",
+    "Separator",
+    "Subtract",
+    "Decimal",
+    "Divide",
+    "F1",
+    "F2",
+    "F3",
+    "F4",
+    "F5",
+    "F6",
+    "F7",
+    "F8",
+    "F9",
+    "F10",
+    "F11",
+    "F12",
+    "F13",
+    "F14",
+    "F15",
+    "F16",
+    "F17",
+    "F18",
+    "F19",
+    "F20",
+    "F21",
+    "F22",
+    "F23",
+    "F24",
+    "Unassigned",
+    "Unassigned",
+    "Unassigned",
+    "Unassigned",
+    "Unassigned",
+    "Unassigned",
+    "Unassigned",
+    "Unassigned",
+    "Numlock",
+    "Scroll",
+    "Oem_nec_equal",
+    "Oem_fj_masshou",
+    "Oem_fj_touroku",
+    "Oem_fj_loya",
+    "Oem_fj_roya",
+    "Unknown",
+    "Unknown",
+    "Unknown",
+    "Unknown",
+    "Unknown",
+    "Unknown",
+    "Unknown",
+    "Unknown",
+    "Unknown",
+    "Lshift",
+    "Rshift",
+    "Lcontrol",
+    "Rcontrol",
+    "Lmenu",
+    "Rmenu",
+    "Browser Back",
+    "Browser Stop",
+    "Browser Refresh",
+    "Browser Search",
+    "Browser Favorite",
+    "Browser Home",
+    "Volume Mute",
+    "Volume Down",
+    "Volume Up",
+    "Next Track",
+    "Previous Track",
+    "Media Stop",
+    "Play/Pause",
+    "Mail",
+    "Media",
+    "App1",
+    "App2",
+    "Reserved",
+    "Reserved",
+    "Reserved",
+    ":;",
+    "+",
+    ",",
+    "-",
+    ".",
+    "?",
+    "~",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Undefined"
+};
+
+bool ImGui::Hotkey(const char* label, int* key, const ImVec2& ssize)
+{
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    if (window->SkipItems)
+        return false;
+
+    ImGuiContext& g = *GImGui;
+    ImGuiIO& io = g.IO;
+    const ImGuiStyle& style = g.Style;
+
+    float backupPaddingY = style.FramePadding.y;
+    g.Style.FramePadding.y = 0.0f;
+
+    const ImGuiID id = window->GetID(label);
+    const ImVec2 labelSize = ImGui::CalcTextSize(label, NULL, true);
+    const ImVec2 size = ImGui::CalcItemSize(ssize, ImGui::CalcItemWidth(), labelSize.y + style.FramePadding.y * 2.0f);
+
+    const ImRect frameBB(window->DC.CursorPos, window->DC.CursorPos + ImVec2(size.x, labelSize.y + style.FramePadding.y));
+    const ImRect total_bb(frameBB.Min, frameBB.Max + ImVec2(labelSize.x > 0.0f ? style.ItemInnerSpacing.x + labelSize.x : 0.0f, 0.0f));
+
+    ImGui::ItemSize(total_bb, style.FramePadding.y);
+    if (!ImGui::ItemAdd(total_bb, id))
+    {
+        g.Style.FramePadding.y = backupPaddingY;
+        return false;
+    }
+
+    const bool requestedFocus = ImGui::FocusableItemRegister(window, id);
+    const bool isHovered = ImGui::ItemHoverable(frameBB, id);
+
+    if (isHovered) {
+        ImGui::SetHoveredID(id);
+        g.MouseCursor = ImGuiMouseCursor_TextInput;
+    }
+
+    const bool didClick = isHovered && io.MouseClicked[0];
+
+    if (requestedFocus || didClick)
+    {
+        if (g.ActiveId != id)
+        {
+            memset(io.MouseDown, 0, sizeof(io.MouseDown));
+            memset(io.KeysDown, 0, sizeof(io.KeysDown));
+            *key = 0;
+        }
+        ImGui::SetActiveID(id, window);
+        ImGui::FocusWindow(window);
+    }
+    else if (io.MouseClicked[0]) 
+    {
+        if (g.ActiveId == id)
+        {
+            ImGui::ClearActiveID();
+        }
+    }
+
+    bool didValueChange = false;
+    int kkey = *key;
+
+    if (g.ActiveId == id)
+    {
+        for (auto i = 0x1; i <= 0xA5; i++)
+        {
+            if (io.KeysDown[i])
+            {
+                kkey = i;
+                didValueChange = true;
+                ImGui::ClearActiveID();
+            }
+        }
+
+        if (IsKeyPressedMap(ImGuiKey_Escape))
+        {
+            *key = NULL;
+            ImGui::ClearActiveID();
+        }
+        else
+        {
+            *key = kkey;
+        }
+    }
+
+    char displayBuf[24] = "None";
+
+    if (*key != 0 && g.ActiveId != id)
+    {
+        strcpy_s(displayBuf, KeyNames[*key]);
+    }
+    else if (g.ActiveId == id)
+    {
+        strcpy_s(displayBuf, "Press key");
+    }
+
+    const ImRect clip_rect(frameBB.Min.x, frameBB.Min.y, frameBB.Min.x + size.x, frameBB.Min.y + size.y);
+    ImGui::RenderTextClipped(frameBB.Min + style.FramePadding, frameBB.Max - style.FramePadding, displayBuf, NULL, NULL, style.ButtonTextAlign, &clip_rect);
+
+    g.Style.FramePadding.y = backupPaddingY;
+
+    return didValueChange;
+}
+
 #endif // #ifndef IMGUI_DISABLE

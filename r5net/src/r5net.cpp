@@ -16,11 +16,19 @@ std::vector<ServerListing> R5Net::Client::GetServersList(std::string& outMessage
     nlohmann::json reqBody = nlohmann::json::object();
     reqBody["version"] = GetVersionString();
 
-    std::string reqBodyStr = reqBody.dump();;
+    std::string reqBodyStr = reqBody.dump();
+
+#ifdef DebugR5Net
+    std::cout << " [+R5Net+] Sending GetServerList post now..\n";
+#endif 
     
     httplib::Result res = m_HttpClient.Post("/servers", reqBody.dump().c_str(), reqBody.dump().length(), "application/json");
 
-    if (res)
+#ifdef DebugR5Net
+    std::cout << " [+R5Net+] GetServerList replied with " << res->status << "\n";
+#endif 
+
+    if (res && res->status == 200) // STATUS_OK
     {
         nlohmann::json resBody = nlohmann::json::parse(res->body);
         if (resBody["success"].is_boolean() && resBody["success"].get<bool>())
@@ -42,7 +50,10 @@ std::vector<ServerListing> R5Net::Client::GetServersList(std::string& outMessage
     }
     else
     {
-        outMessage = "Failed to reach comp-server";
+        if (res)
+            outMessage = std::string("Failed to reach comp-server ") + std::to_string(res->status);
+        else
+            outMessage = "Failed to reach comp-server unknown error code.";
     }
 
     return list;
@@ -61,70 +72,119 @@ bool R5Net::Client::PostServerHost(std::string& outMessage, std::string& outToke
 
     std::string reqBodyStr = reqBody.dump();
 
-    auto res = m_HttpClient.Post("/servers/add", reqBodyStr.c_str(), reqBodyStr.length(), "application/json");
+#ifdef DebugR5Net
+    std::cout << " [+R5Net+] Sending PostServerHost post now..\n";
+#endif 
 
-    if (!res) 
+    httplib::Result res = m_HttpClient.Post("/servers/add", reqBodyStr.c_str(), reqBodyStr.length(), "application/json");
+
+#ifdef DebugR5Net
+    std::cout << " [+R5Net+] PostServerHost replied with " << res->status << "\n";
+#endif 
+
+    if (res && res->status == 200) // STATUS_OK
     {
-        outMessage = "Failed to reach comp-server";
-        outToken = "";
-        return false;
-    }
-     
-    nlohmann::json resBody = nlohmann::json::parse(res->body);
-    if (resBody["success"].is_boolean() && resBody["success"].get<bool>())
-    {
-        if (resBody["token"].is_string())
-            outToken = resBody["token"].get<std::string>();
+        nlohmann::json resBody = nlohmann::json::parse(res->body);
+        if (resBody["success"].is_boolean() && resBody["success"].get<bool>())
+        {
+            if (resBody["token"].is_string())
+                outToken = resBody["token"].get<std::string>();
+            else
+                outToken = "";
+
+            return true;
+        }
         else
-            outToken = "";
-        return true;
+        {
+            if (resBody["err"].is_string())
+                outMessage = resBody["err"].get<std::string>();
+            else
+                outMessage = "An unknown error occured!";
+
+            return false;
+        }
     }
     else
     {
-        if (resBody["err"].is_string())
-            outMessage = resBody["err"].get<std::string>();
-        else 
-            outMessage = "An unknown error occured!";
+        if (res)
+            outMessage = std::string("Failed to reach comp-server ") + std::to_string(res->status);
+        else
+            outMessage = "Failed to reach comp-server unknown error code.";
+
+        outToken = "";
 
         return false;
     }
+
+    return false;
 }
 
-bool R5Net::Client::GetServerByToken(ServerListing& outServer, std::string& outError, const std::string& token, const std::string& password)
+bool R5Net::Client::GetServerByToken(ServerListing& outServer, std::string& outMessage, const std::string token, const std::string password)
 {
     nlohmann::json reqBody = nlohmann::json::object();
 
     reqBody["token"] = token;
     reqBody["password"] = password;
 
+#ifdef DebugR5Net
+    std::cout << " [+R5Net+] Sending GetServerByToken post now...\n";
+#endif 
+
     httplib::Result res = m_HttpClient.Post("/server/byToken", reqBody.dump().c_str(), reqBody.dump().length(), "application/json");
 
-    if (!res) 
+#ifdef DebugR5Net
+    std::cout << " [+R5Net+] GetServerByToken replied with " << res->status << "\n";
+#endif 
+
+    if (res && res->status == 200) // STATUS_OK
     {
-        outError = "Failed to reach comp-server";
-        outServer = ServerListing{};
-        return false;
+        if (!res->body.empty())
+        {
+            nlohmann::json resBody = nlohmann::json::parse(res->body);
+
+            if (res && resBody["success"].is_boolean() && resBody["success"])
+            {
+                outServer = ServerListing{
+                    resBody["server"]["name"].get<std::string>(),
+                    resBody["server"]["map"].get<std::string>(),
+                    resBody["server"]["ip"].get<std::string>(),
+                    resBody["server"]["port"].get<std::string>()
+                };
+                return true;
+            }
+            else
+            {
+                if (resBody["err"].is_string())
+                    outMessage = resBody["err"].get<std::string>();
+                else
+                    outMessage = "";
+
+                outServer = ServerListing{};
+                return false;
+            }
+        }
     }
-
-    nlohmann::json resBody = nlohmann::json::parse(res->body);
-
-    if (res && resBody["success"].is_boolean() && resBody["success"])
+    else
     {
-        outServer = ServerListing{
-            resBody["server"]["name"].get<std::string>(),
-            resBody["server"]["map"].get<std::string>(),
-            resBody["server"]["ip"].get<std::string>(),
-            resBody["server"]["port"].get<std::string>()
-        };
-        return true;
-    }
-    else 
-    {
-        if (resBody["err"].is_string())
-            outError = resBody["err"].get<std::string>();
-        else
-            outError = "";
+        if (res)
+        {
+            if (!res->body.empty())
+            {
+                nlohmann::json resBody = nlohmann::json::parse(res->body);
 
+                if (resBody["err"].is_string())
+                    outMessage = resBody["err"].get<std::string>();
+                else
+                    outMessage = "Failed to reach comp-server unknown error code.";
+
+                return false;
+            }
+
+            outMessage = std::string("Failed to reach comp-server ") + std::to_string(res->status);
+            return false;
+        }
+
+        outMessage = "failed to reach comp-server unknown error code.";
         outServer = ServerListing{};
         return false;
     }

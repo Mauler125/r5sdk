@@ -15,6 +15,7 @@ void InitializeR5Dev()
     SetupConsole();
     Hooks::InstallHooks();
     InstallOpcodes();
+    g_GuiConfig.Load(); // Load gui config.
     SetupDXSwapChain();
     printf("+-----------------------------------------------------------------------------+\n");
     printf("|   R5 DEV -- INITIALIZED -------------------------------------------------   |\n");

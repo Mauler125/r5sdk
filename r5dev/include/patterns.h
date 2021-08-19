@@ -23,8 +23,10 @@ namespace
 	/*0x141057FD0*/
 	FUNC_AT_ADDRESS(addr_SQVM_Print, void*, r5_patterns.PatternSearch("83 F8 01 48 8D 3D ? ? ? ?").OffsetSelf(0x3).FollowNearCallSelf(0x3, 0x7).GetPtr());
 
+	/*0x14105F950*/
 	FUNC_AT_ADDRESS(addr_SQVM_Warning, __int64(*)(__int64, int, int, const char*, std::size_t*), r5_patterns.PatternSearch("E8 ? ? ? ? 85 C0 0F 99 C3").FollowNearCallSelf().GetPtr());
 
+	/*0x140B1E55*/
 	FUNC_AT_ADDRESS(addr_SQVM_Warning_ReturnAddr, void*, r5_patterns.PatternSearch("E8 ? ? ? ? 85 C0 0F 99 C3").OffsetSelf(0x5).GetPtr());
 
 	//DWORD64 p_SQVM_LoadScript = FindPattern("r5apex.exe", (const unsigned char*)"\x48\x89\x5C\x24\x10\x48\x89\x74\x24\x18\x48\x89\x7C\x24\x20\x48\x89\x4C\x24\x08\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"); // For S0 and S1
@@ -53,7 +55,7 @@ namespace
 
 #pragma region CHLClient
 	/*0x1405C0740*/
-	FUNC_AT_ADDRESS(addr_CHLClient_FrameStageNotify, void(*)(void* rcx, int curStage), r5_patterns.PatternSearch("48 83 EC 28 89 15 ?? ?? ?? ??").GetPtr());
+	FUNC_AT_ADDRESS(addr_CHLClient_FrameStageNotify, void(*)(void*, int), r5_patterns.PatternSearch("48 83 EC 28 89 15 ?? ?? ?? ??").GetPtr());
 #pragma endregion
 
 #pragma region CVEngineServer
@@ -62,12 +64,16 @@ namespace
 #pragma endregion
 
 #pragma region CBaseFileSystem
+	/*0x14038BE20*/
 	FUNC_AT_ADDRESS(addr_CBaseFileSystem_FileSystemWarning, void(*)(void*, FileWarningLevel_t, const char*, ...), r5_patterns.PatternSearch("E8 ? ? ? ? 33 C0 80 3B 2A").FollowNearCallSelf().GetPtr());
 #pragma endregion
 
 #pragma region Utility
 	/*0x140295600*/
 	FUNC_AT_ADDRESS(addr_MSG_EngineError, int(*)(char*, va_list), r5_patterns.StringSearch("Engine Error").FindPatternSelf("48 89 ? ? ? 48 89", MemoryAddress::Direction::UP, 500).GetPtr());
+
+	/*0x1401B31C0*/
+	FUNC_AT_ADDRESS(addr_MemAlloc_Wrapper, void*(*)(__int64), r5_patterns.StringSearch("ConversionModeMenu").FindPatternSelf("E8 ? ? ? ? 48", MemoryAddress::Direction::UP).FollowNearCallSelf().GetPtr());
 #pragma endregion
 	// Un-used atm.
 	// DWORD64 p_KeyValues_FindKey = /*1404744E0*/ reinterpret_cast<DWORD64>(PatternScan("r5apex.exe", "40 56 57 41 57 48 81 EC ?? ?? ?? ?? 45"));
@@ -82,6 +88,8 @@ namespace
 		PRINT_ADDRESS("SQVM_Print", addr_SQVM_Print);
 		PRINT_ADDRESS("SQVM_LoadScript", addr_SQVM_LoadScript);
 		PRINT_ADDRESS("SQVM_LoadRson", addr_SQVM_LoadRson);
+		PRINT_ADDRESS("SQVM_Warning", addr_SQVM_Warning);
+		PRINT_ADDRESS("SQVM_Warning_ReturnAddr", addr_SQVM_Warning_ReturnAddr);
 		PRINT_ADDRESS("NET_PrintFunc", addr_NET_PrintFunc);
 		PRINT_ADDRESS("NET_ReceiveDatagram", addr_NET_ReceiveDatagram);
 		PRINT_ADDRESS("NET_SendDatagram ", addr_NET_SendDatagram);
@@ -90,6 +98,7 @@ namespace
 		PRINT_ADDRESS("CVEngineServer::IsPersistenceDataAvailable", addr_CVEngineServer_IsPersistenceDataAvailable);
 		PRINT_ADDRESS("CBaseFileSystem::FileSystemWarning", addr_CBaseFileSystem_FileSystemWarning);
 		PRINT_ADDRESS("MSG_EngineError", addr_MSG_EngineError);
+		PRINT_ADDRESS("MemAlloc_Wrapper", addr_MemAlloc_Wrapper);
 		std::cout << "+--------------------------------------------------------+" << std::endl;
 		// TODO implement error handling when sigscan fails or result is 0
 	}

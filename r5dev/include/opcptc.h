@@ -36,6 +36,11 @@ namespace
 	MemoryAddress FairFight_Init = r5_op.PatternSearch("40 53 48 83 EC 20 8B 81 B0 03 ? ? 48 8B D9 C6");
 #pragma endregion
 
+#pragma region Squirrel
+	/*0x14105CCA0*/
+	MemoryAddress Squirrel_CompileError = r5_op.StringSearch("%s SCRIPT COMPILE ERROR: %s").FindPatternSelf("48 89 5C", MemoryAddress::Direction::UP);
+#pragma endregion
+
 	void PrintOAddress() // Test the sigscan results
 	{
 		std::cout << "+--------------------------------------------------------+" << std::endl;
@@ -46,6 +51,7 @@ namespace
 		PRINT_ADDRESS("Host_NewGame", Host_NewGame.GetPtr());
 		PRINT_ADDRESS("CServer_Auth", CServer_Auth.GetPtr());
 		PRINT_ADDRESS("FairFight_Init", FairFight_Init.GetPtr());
+		PRINT_ADDRESS("Squirrel_CompileError", Squirrel_CompileError.GetPtr());
 		std::cout << "+--------------------------------------------------------+" << std::endl;
 
 		// TODO implement error handling when sigscan fails or result is 0

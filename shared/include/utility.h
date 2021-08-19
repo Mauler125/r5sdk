@@ -4,7 +4,6 @@
 // Internals
 BOOL FileExists(LPCTSTR szPath);
 MODULEINFO GetModuleInfo(const char* szModule);
-std::uint8_t* PatternScan(const char* module, const char* signature);
 
 /////////////////////////////////////////////////////////////////////////////
 // Utility

@@ -1,6 +1,8 @@
 #pragma once
 #pragma message("Precompiling r5net headers.\n")
 
+//#define DebugR5Net
+
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <thread>

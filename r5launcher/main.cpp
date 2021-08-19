@@ -1,6 +1,6 @@
 #include <string>
 #include <stdio.h>
-
+#include <iostream>
 #include <Windows.h>
 #include <detours.h>
 
@@ -40,7 +40,7 @@ bool LaunchR5Apex(LAUNCHMODE lMode, LAUNCHSTATE lState)
     BOOL result;
 
     FILE* sLaunchParams;
-    CHAR sArgumentBuffer[1024] = { 0 };
+    CHAR sArgumentBuffer[2048] = { 0 };
     CHAR sCommandDirectory[MAX_PATH];
     LPSTR sCommandLine = sCommandDirectory;
 
@@ -182,14 +182,75 @@ int main(int argc, char* argv[], char* envp[])
             Sleep(2000);
             return EXIT_SUCCESS;
         }
+
         if ((arg == "-debug") || (arg == "-dbg"))
         {
             LaunchR5Apex(LAUNCHMODE::LM_DEBUG, LAUNCHSTATE::LS_CHEATS);
             Sleep(2000);
             return EXIT_SUCCESS;
         }
+
+        if ((arg == "-release") || (arg == "-rl"))
+        {
+            LaunchR5Apex(LAUNCHMODE::LM_GAME, LAUNCHSTATE::LS_CHEATS);
+            Sleep(2000);
+            return EXIT_SUCCESS;
+        }
     }
-    LaunchR5Apex(LAUNCHMODE::LM_GAME, LAUNCHSTATE::LS_CHEATS);
-    Sleep(2000);
-    return EXIT_SUCCESS;
+
+    std::cout << "If you choose Dev as start parameter do not host servers into the Server Browser\n\n" 
+        << "Every command will be and people can execute any script on your server.\n\n"
+        << "Use release for normal playing.\n\n"
+        << "Dev should only be used for testing purposes.\n\n";
+
+    std::cout << "Enter 1 for Dev Build. Enter 2 for Release Build:\n";
+
+    std::string input = std::string();
+
+    if (std::cin >> input)
+    {
+        try
+        {
+            LAUNCHMODE iinput = (LAUNCHMODE)std::stoi(input);
+            switch (iinput)
+            {
+            case LAUNCHMODE::LM_DEBUG:
+            {
+                LaunchR5Apex(LAUNCHMODE::LM_DEBUG, LAUNCHSTATE::LS_CHEATS);
+                Sleep(2000);
+                return EXIT_SUCCESS;
+            }
+            case LAUNCHMODE::LM_GAME:
+            {
+                LaunchR5Apex(LAUNCHMODE::LM_GAME, LAUNCHSTATE::LS_CHEATS);
+                Sleep(2000);
+                return EXIT_SUCCESS;
+            }
+            case LAUNCHMODE::LM_DEDI:
+            {
+                LaunchR5Apex(LAUNCHMODE::LM_DEDI, LAUNCHSTATE::LS_CHEATS);
+                Sleep(2000);
+                return EXIT_SUCCESS;
+            }
+            default:
+            {
+                std::cout << "R5 Reloaded asked for a number between 1 and 2 :(.\n";
+                Sleep(2000);
+                return EXIT_FAILURE;
+            }
+            }
+        }
+        catch (std::exception& e)
+        {
+            std::cout << "R5 Reloaded asked for a number and not a letter or anything of that sort :(. Error: " << e.what() << std::endl;
+            Sleep(5000);
+            return EXIT_FAILURE;
+        }
+    }
+
+    std::cout << "R5 Reloaded needs an input to launch :(.\n";
+
+    Sleep(5000);
+
+    return EXIT_FAILURE;
 }
