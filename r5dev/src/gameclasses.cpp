@@ -26,7 +26,7 @@ namespace GameGlobals
 			}
 			catch (std::exception& e)
 			{
-				std::cout << " [+CGameConsole+] Please don't input a character that isn't a number into cgameconsole :(." << e.what() << std::endl;
+				std::cout << " [+CGameConsole+] Please don't input a character that isn't a number into cgameconsole :(. Error: " << e.what() << std::endl;
 			}
 		}
 
@@ -50,7 +50,7 @@ namespace GameGlobals
 			}
 			catch (std::exception& e)
 			{
-				std::cout << " [+CCompanion+] Please don't input a character that isn't a number into ccompanion :(." << e.what() << std::endl;
+				std::cout << " [+CCompanion+] Please don't input a character that isn't a number into ccompanion :(. Error: " << e.what() << std::endl;
 			};
 		}
 	}

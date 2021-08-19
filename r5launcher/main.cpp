@@ -242,7 +242,7 @@ int main(int argc, char* argv[], char* envp[])
         }
         catch (std::exception& e)
         {
-            std::cout << "R5 Reloaded asked for a number and not a letter or anything of that sort :(." << e.what() << std::endl;
+            std::cout << "R5 Reloaded asked for a number and not a letter or anything of that sort :(. Error: " << e.what() << std::endl;
             Sleep(5000);
             return EXIT_FAILURE;
         }
