@@ -5,9 +5,10 @@
 //-----------------------------------------------------------------------------
 enum class LAUNCHMODE : int
 {
-    LM_GAME,  // Dev DLL
-    LM_DEDI,  // Dedi DLL
-    LM_DEBUG  // Debug DLL
+    LM_NULL,
+    LM_DEBUG,  // Debug DLL
+    LM_GAME,  // Release DLL
+    LM_DEDI  // Dedi DLL
 };
 
 //-----------------------------------------------------------------------------
