@@ -173,6 +173,31 @@ bool LaunchR5Apex(LAUNCHMODE lMode, LAUNCHSTATE lState)
 ///////////////////////////////////////////////////////////////////////////////
 int main(int argc, char* argv[], char* envp[])
 {
+    for (int i = 1; i < argc; ++i)
+    {
+        std::string arg = argv[i];
+        if ((arg == "-dedicated") || (arg == "-dedi"))
+        {
+            LaunchR5Apex(LAUNCHMODE::LM_DEDI, LAUNCHSTATE::LS_CHEATS);
+            Sleep(2000);
+            return EXIT_SUCCESS;
+        }
+
+        if ((arg == "-debug") || (arg == "-dbg"))
+        {
+            LaunchR5Apex(LAUNCHMODE::LM_DEBUG, LAUNCHSTATE::LS_CHEATS);
+            Sleep(2000);
+            return EXIT_SUCCESS;
+        }
+
+        if ((arg == "-release") || (arg == "-rl"))
+        {
+            LaunchR5Apex(LAUNCHMODE::LM_GAME, LAUNCHSTATE::LS_CHEATS);
+            Sleep(2000);
+            return EXIT_SUCCESS;
+        }
+    }
+
     std::cout << "If you choose Dev as start parameter do not host servers into the Server Browser\n\n" 
         << "Every command will be and people can execute any script on your server.\n\n"
         << "Use release for normal playing.\n\n"
