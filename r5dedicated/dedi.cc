@@ -136,10 +136,16 @@ void DERunFrame() {
 
 	// Yes, trust me it's less broken this way...
 	// Nvm, this game is more stable smh
-	*(uint8_t*)0x14171A9B4 = 1;
+	//*(uint8_t*)0x14171A9B4 = 1;
 
 	using void_f = void(__fastcall*)();
 	//void_f(0x14095A140)(); // init miles???
+	//void_f(0x140456780)(); // Precache mat shit...
+
+	//using vpk_load_f = void(__fastcall*)(const char*, const char*, char);
+	//vpk_load_f(0x140341700)("vpk/client_mp_common.bsp", 0, 0);
+
+	//void_f(0x140297D30)();
 
 	spdlog::info("Reached DERunFrame yay!");
 	puts("DERF");
@@ -155,14 +161,32 @@ void __fastcall DEPrintf(__int64 thisptr, char* text) {
 	printf("%s", text);
 }
 
+/*
+PVOID sub_140345130 = 0;
+__int64 __fastcall sub_140345130_hk(__int64 a1) {
+
+	return reinterpret_cast<decltype(&sub_14044AFA0_hk)>(sub_14044AFA0)(a1);
+} // */
+
+// Create window...
+PVOID sub_140299100 = 0;
+char __fastcall sub_140299100_hk(int* a1) {
+	using void_f = void(__fastcall*)();
+	void_f(0x140297D30)();
+
+	return 1;
+}
+
 void Hooks::DedicatedPatch() {
 	// for future reference 14171A9B4 - matsys mode
 
-	//*p_is_dedicated = 1;
+	*p_is_dedicated = 1;
 
 	*(uintptr_t*)0x14D415040 = 0x1417304E8;
 
 	*(void**)0x14C119C10 = &DedicatedExports;
+
+	*(uintptr_t*)0x14B37C3C0 = 0x141F10CA0;
 
 	devtbl.RunFrame = &DERunFrame;
 	devtbl.Sys_Printf = &DEPrintf;
@@ -184,6 +208,11 @@ void Hooks::DedicatedPatch() {
 	*/
 
 	{
+		// Make dedi exports run anyway
+		MemoryAddress(0x140345160).Patch({ 0x90, 0x90 });
+	}
+
+	{
 		// write 1 to dedi, get rid of hook
 		//MemoryAddress(0x000000014030C607).Patch({ 0xC6, 0x05, 0xFA, 0x4B, 0x95, 0x22, 0x01 });
 	}
@@ -194,6 +223,9 @@ void Hooks::DedicatedPatch() {
 		MemoryAddress(0x00000001403BD142).Patch({ 0xEB });
 	}
 
+	//return;
+
+	/*
 	{
 		// Shader_Connect related things
 		MemoryAddress(0x0000000140342BA0).Patch({ 0xB0, 0x01, 0xC3, 0x90 }); // with pad
@@ -206,7 +238,7 @@ void Hooks::DedicatedPatch() {
 
 	{
 		// StudioRender::Init
-		MemoryAddress(0x0000000140456780).Patch({ 0xC3, 0x90, 0x90, 0x90 });
+		//MemoryAddress(0x0000000140456780).Patch({ 0xC3, 0x90, 0x90, 0x90 });
 
 		// Avi::Init
 		MemoryAddress(0x00000001402ABD10).Patch({ 0xC3, 0x90, 0x90, 0x90 });
@@ -220,16 +252,23 @@ void Hooks::DedicatedPatch() {
 		// CMatSysSur::Init
 		MemoryAddress(0x000000014053DCC0).Patch({ 0xC3, 0x90, 0x90, 0x90, 0x90 });
 	}
+	*/
 
 	{
 		// Skip create window and stuff, game is only aware of CL since RSPN didn't do enough #ifdef
-		MemoryAddress(0x0000000140344225).Patch({ 0xE9, 0x19, 0x02, 0x00, 0x00 });
+		//MemoryAddress(0x0000000140344225).Patch({ 0xE9, 0x19, 0x02, 0x00, 0x00 });
+
+		auto addr_sub_140299100 = PVOID(0x140299100);
+		//MH_CreateHook(addr_sub_140299100, &sub_140299100_hk, reinterpret_cast<void**>(&sub_140299100));
+		//MH_EnableHook(addr_sub_140299100);
 	}
 
 	{
 		// Make dedicated in mod info 1, and jump cuz we replaced cmp
-		MemoryAddress(0x0000000140344D01).Patch({ 0x41, 0xC6, 0x87, 0xA8, 0x00, 0x00, 0x00, 0x01, 0xEB });
+		//MemoryAddress(0x0000000140344D01).Patch({ 0x41, 0xC6, 0x87, 0xA8, 0x00, 0x00, 0x00, 0x01, 0xEB });
 	}
+
+	return;
 
 	{
 		// this move broke hearts of many
@@ -275,6 +314,27 @@ void Hooks::DedicatedPatch() {
 			0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90,
 			0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90
 		});
+	}
+
+	// Day 3 of LLIye
+	{
+		// nop this lmfao
+		MemoryAddress(0x0000000140456903).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });
+	}
+
+	{
+		// something with gamemode
+		MemoryAddress(0x000000014022A4F8).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });
+	}
+
+	{
+		// gameui shit
+		MemoryAddress(0x0000000140283131).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });
+	}
+
+	{
+		// hl client call near some bsp
+		MemoryAddress(0x0000000140238DF0).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });
 	}
 
 	// ---
