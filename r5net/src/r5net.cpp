@@ -106,7 +106,7 @@ bool R5Net::Client::PostServerHost(std::string& outMessage, std::string& outToke
             if (resBody["token"].is_string())
                 outToken = resBody["token"].get<std::string>();
             else
-                outToken = "";
+                outToken = std::string();
 
             return true;
         }
@@ -133,13 +133,16 @@ bool R5Net::Client::PostServerHost(std::string& outMessage, std::string& outToke
                 else
                     outMessage = std::string("Failed to reach comp-server ") + std::to_string(res->status);
 
+                outToken = std::string();
                 return false;
             }
 
+            outToken = std::string();
             outMessage = std::string("Failed to reach comp-server ") + std::to_string(res->status);
             return false;
         }
 
+        outToken = std::string();
         outMessage = "failed to reach comp-server unknown error code.";
         return false;
     }
