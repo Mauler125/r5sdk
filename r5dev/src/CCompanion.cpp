@@ -389,6 +389,7 @@ void CCompanion::HostServerSection()
             if (ImGui::Selectable(item.c_str(), item == MyServer.map))
             {
                 MyServer.map = item;
+                ServerMap = item;
                 for (auto it = mapArray.begin(); it != mapArray.end(); ++it)
                 {
                     if (it->second.compare(MyServer.map) == NULL)
