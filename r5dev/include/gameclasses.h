@@ -34,6 +34,8 @@ public:
 
 typedef int HKeySymbol;
 
+#define MAKE_3_BYTES_FROM_1_AND_2( x1, x2 ) (( (( std::uint16_t )x2) << 8 ) | (std::uint8_t)(x1))
+
 class CKeyValuesSystem // VTABLE @ 0x1413AA1E8 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 {
 public:
@@ -140,10 +142,11 @@ public:
 
 	KeyValues* FindKey(const char* keyName, bool bCreate)
 	{
-		//	static auto func = reinterpret_cast<KeyValues*(__thiscall*)(KeyValues*, const char*, bool)>(p_KeyValues_FindKey);
-		//	return func(this, keyName, bCreate);
-		return nullptr;
+		static auto func = reinterpret_cast<KeyValues*(__thiscall*)(KeyValues*, const char*, bool)>(addr_KeyValues_FindKey);
+		return func(this, keyName, bCreate);
 	}
+
+	const char* GetName();
 
 	int GetInt(const char* keyName, int defaultValue)
 	{
@@ -368,8 +371,13 @@ namespace GameGlobals
 	extern CHostState* HostState;
 	extern CInputSystem* InputSystem;
 	extern CCVar* Cvar;
+	extern KeyValues** PlaylistKeyValues;
+	extern CKeyValuesSystem* KeyValuesSystem;
+	extern std::vector<std::string> allPlaylists;
 
 	ConVar* CreateCustomConVar(const char* name, const char* defaultValue, int flags, const char* helpString, bool bMin, float fMin, bool bMax, float fMax, void* callback, void* unk);
 	void InitGameGlobals();
+	void InitConVars();
+	void InitPlaylist();
 	extern bool IsInitialized;
 }

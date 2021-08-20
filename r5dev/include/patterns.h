@@ -16,7 +16,7 @@ namespace
 	FUNC_AT_ADDRESS(addr_ConCommand_IsFlagSet, bool(*)(int*, int), r5_patterns.PatternSearch("85 51 38 0F 95 C0 C3").GetPtr());
 
 	/*0x140279CE0*/
-	FUNC_AT_ADDRESS(addr_downloadPlaylists_Callback, void*, r5_patterns.PatternSearch("33 C9 C6 05 ? ? ? ? ? E9 ? ? ? ?").GetPtr());
+	FUNC_AT_ADDRESS(addr_downloadPlaylists_Callback, void(*)(), r5_patterns.PatternSearch("33 C9 C6 05 ? ? ? ? ? E9 ? ? ? ?").GetPtr());
 #pragma endregion
 
 #pragma region Squirrel
@@ -74,9 +74,23 @@ namespace
 
 	/*0x1401B31C0*/
 	FUNC_AT_ADDRESS(addr_MemAlloc_Wrapper, void*(*)(__int64), r5_patterns.StringSearch("ConversionModeMenu").FindPatternSelf("E8 ? ? ? ? 48", MemoryAddress::Direction::UP).FollowNearCallSelf().GetPtr());
+
+	/*0x14B37DE80 has current loaded playlist name*/
+	/*0x1402790C0*/
+	FUNC_AT_ADDRESS(addr_LoadPlaylist, bool(*)(const char*), r5_patterns.PatternSearch("E8 ? ? ? ? 80 3D ? ? ? ? ? 74 0C").FollowNearCallSelf().GetPtr());
+
+	/*0x1671060C0*/
+	FUNC_AT_ADDRESS(addr_MapVPKCache, void*, r5_patterns.StringSearch("PrecacheMTVF").FindPatternSelf("48 8D 1D ? ? ? ? 4C", MemoryAddress::Direction::UP, 900).OffsetSelf(0x3).ResolveRelativeAddress().GetPtr());
+
+	/*0x140278C50*/
+	FUNC_AT_ADDRESS(addr_mp_gamemode_Callback, bool(*)(const char*), r5_patterns.StringSearch("Failed to load playlist data\n").FindPatternSelf("E8 ? ? ? ? B0 01", MemoryAddress::Direction::DOWN, 200).FollowNearCallSelf().GetPtr());
 #pragma endregion
-	// Un-used atm.
-	// DWORD64 p_KeyValues_FindKey = /*1404744E0*/ reinterpret_cast<DWORD64>(PatternScan("r5apex.exe", "40 56 57 41 57 48 81 EC ?? ?? ?? ?? 45"));
+
+#pragma region KeyValues
+	/*0x1404744E0*/
+	FUNC_AT_ADDRESS(addr_KeyValues_FindKey, void*(*)(void*, const char*, bool), r5_patterns.PatternSearch("40 56 57 41 57 48 81 EC ?? ?? ?? ?? 45").GetPtr());
+#pragma endregion
+
 
 	void PrintHAddress() // Test the sigscan results
 	{
@@ -85,6 +99,7 @@ namespace
 		PRINT_ADDRESS("ConVar_IsFlagSet", addr_ConVar_IsFlagSet);
 		PRINT_ADDRESS("ConCommand_IsFlagSet", addr_ConCommand_IsFlagSet);
 		PRINT_ADDRESS("Downloadplaylists_Callback", addr_downloadPlaylists_Callback);
+		PRINT_ADDRESS("MP_gamemode_Callback", addr_mp_gamemode_Callback);
 		PRINT_ADDRESS("SQVM_Print", addr_SQVM_Print);
 		PRINT_ADDRESS("SQVM_LoadScript", addr_SQVM_LoadScript);
 		PRINT_ADDRESS("SQVM_LoadRson", addr_SQVM_LoadRson);
@@ -98,6 +113,8 @@ namespace
 		PRINT_ADDRESS("CVEngineServer::IsPersistenceDataAvailable", addr_CVEngineServer_IsPersistenceDataAvailable);
 		PRINT_ADDRESS("CBaseFileSystem::FileSystemWarning", addr_CBaseFileSystem_FileSystemWarning);
 		PRINT_ADDRESS("MSG_EngineError", addr_MSG_EngineError);
+		PRINT_ADDRESS("LoadPlaylist", addr_LoadPlaylist);
+		PRINT_ADDRESS("MapVPKCache", addr_MapVPKCache);
 		PRINT_ADDRESS("MemAlloc_Wrapper", addr_MemAlloc_Wrapper);
 		std::cout << "+--------------------------------------------------------+" << std::endl;
 		// TODO implement error handling when sigscan fails or result is 0

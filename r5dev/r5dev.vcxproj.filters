@@ -192,6 +192,9 @@
     <ClCompile Include="src\hooks\netchannel.cpp">
       <Filter>hooks\src\netchannel</Filter>
     </ClCompile>
+    <ClCompile Include="src\hooks\loadplaylist.cpp">
+      <Filter>hooks\src\other</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\external\imgui\include\imgui_impl_win32.h">

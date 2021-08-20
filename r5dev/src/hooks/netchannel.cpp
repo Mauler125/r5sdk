@@ -8,6 +8,6 @@ namespace Hooks
 
 void Hooks::NetChanShutdown(void* rcx, const char* reason, unsigned __int8 unk1, char unk2)
 {
-	reinterpret_cast<void(*)()>(addr_downloadPlaylists_Callback)(); // Re-Load playlist from disk after getting dropped or disconnecting off a server.
+	addr_downloadPlaylists_Callback(); // Re-Load playlist from disk after getting dropped or disconnecting off a server.
 	originalNetChanShutDown(rcx, reason, unk1, unk2);
 }

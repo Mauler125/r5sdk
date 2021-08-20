@@ -103,9 +103,13 @@ namespace Hooks
 
 #pragma region Other
 	int MSG_EngineError(char* fmt, va_list args);
+	bool LoadPlaylist(const char* playlist);
 
 	using MSG_EngineErrorFn = int(*)(char*, va_list);
 	extern MSG_EngineErrorFn originalMSG_EngineError;
+
+	using LoadPlaylistFn = bool(*)(const char*);
+	extern LoadPlaylistFn originalLoadPlaylist;
 #pragma endregion
 
 	void InstallHooks();

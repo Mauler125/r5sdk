@@ -20,6 +20,5 @@ void __fastcall Hooks::FrameStageNotify(CHLClient* rcx, ClientFrameStage_t curSt
 	default:
 		break;
 	}
-
 	originalFrameStageNotify(rcx, curStage);
 }

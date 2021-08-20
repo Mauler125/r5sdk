@@ -46,6 +46,7 @@ void Hooks::InstallHooks()
 	///////////////////////////////////////////////////////////////////////////////
 	// Hook Utility functions
 	MH_CreateHook(addr_MSG_EngineError, &Hooks::MSG_EngineError, reinterpret_cast<void**>(&originalMSG_EngineError));
+	MH_CreateHook(addr_LoadPlaylist, &Hooks::LoadPlaylist, reinterpret_cast<void**>(&originalLoadPlaylist));
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Hook WinAPI
@@ -98,6 +99,7 @@ void Hooks::InstallHooks()
 	///////////////////////////////////////////////////////////////////////////////
     // Enabled Utility hooks
 	MH_EnableHook(addr_MSG_EngineError);
+	MH_EnableHook(addr_LoadPlaylist);
 }
 
 void Hooks::RemoveHooks()
@@ -143,6 +145,7 @@ void Hooks::RemoveHooks()
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook Utility functions
 	MH_RemoveHook(addr_MSG_EngineError);
+	MH_RemoveHook(addr_LoadPlaylist);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook CBaseFileSystem functions.

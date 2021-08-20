@@ -84,7 +84,7 @@ bool R5Net::Client::PostServerHost(std::string& outMessage, std::string& outToke
     reqBody["password"] = serverListing.password;
     reqBody["remote_checksum"] = serverListing.checksum;
     reqBody["version"] = GetVersionString();
-    reqBody["gamemode"] = serverListing.gamemode;
+    reqBody["gamemode"] = serverListing.playlist;
 
     std::string reqBodyStr = reqBody.dump();
 

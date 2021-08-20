@@ -2,8 +2,26 @@
 #include "gameclasses.h"
 #include "id3dx.h"
 
+//  Need this for a re-factor later.
+//	Interface* interfaces = *reinterpret_cast<Interface**>(0x167F4FA48);
+
+//	for (Interface* current = interfaces; current; current = reinterpret_cast<Interface*>(current->NextInterfacePtr))
+//	{
+//		printf("%s: %p\n", current->InterfaceName, current->InterfacePtr);
+//	}
+
 namespace GameGlobals
 {
+	bool IsInitialized = false;
+	CHostState* HostState = nullptr;
+	CInputSystem* InputSystem = nullptr;
+	CCVar* Cvar = nullptr;
+
+	CKeyValuesSystem* KeyValuesSystem = nullptr;
+	KeyValues** PlaylistKeyValues = nullptr;	
+
+	std::vector<std::string> allPlaylists = { "none" };
+
 	namespace CustomConVar
 	{
 		void CGameConsole_Callback(void* cmd)
@@ -55,12 +73,7 @@ namespace GameGlobals
 		}
 	}
 
-	bool IsInitialized = false;
-	CHostState* HostState = nullptr;
-	CInputSystem* InputSystem = nullptr;
-	CCVar* Cvar = nullptr;
-
-	void EmptyHostNames()
+	void NullHostNames()
 	{
 		const char* hostnameArray[] =
 		{
@@ -95,17 +108,45 @@ namespace GameGlobals
 		HostState = reinterpret_cast<CHostState*>(0x141736120); // Get CHostState from memory.
 		InputSystem = *reinterpret_cast<CInputSystem**>(0x14D40B380); // Get IInputSystem from memory.
 		Cvar = *reinterpret_cast<CCVar**>(0x14D40B348); // Get CCVar from memory.
-	//	Interface* interfaces = *reinterpret_cast<Interface**>(0x167F4FA48);
+		KeyValuesSystem = reinterpret_cast<CKeyValuesSystem*>(0x141F105C0); // Get CKeyValuesSystem from memory.
+		PlaylistKeyValues = reinterpret_cast<KeyValues**>(0x16705B980); // Get the KeyValue for the playlist file.
 
-	//	for (Interface* current = interfaces; current; current = reinterpret_cast<Interface*>(current->NextInterfacePtr))
-	//	{
-	//		printf("%s: %p\n", current->InterfaceName, current->InterfacePtr);
-	//	}
+		NullHostNames(); // Null all hostnames.
+		InitConVars(); // Initialize our custom ConVars.
 
+		std::thread t1(InitPlaylist); // Start thread to grab playlists.
+		t1.detach(); // Detach thread from current one.
+
+		IsInitialized = true;
+	}
+	
+	void InitPlaylist()
+	{
+		while (true)
+		{
+			if ((*PlaylistKeyValues))
+			{
+				KeyValues* playlists = (*PlaylistKeyValues)->FindKey("Playlists", false); // Find playlists key.
+				if (playlists)
+				{
+					allPlaylists.clear();
+					for (KeyValues* dat = playlists->m_pSub; dat != nullptr; dat = dat->m_pPeer) // Parse through all sub keys.
+					{
+						allPlaylists.push_back(dat->GetName()); // Get all playlist names.
+					}
+
+					break; // Break if playlist got filled.
+				}
+				std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		}
+	}
+
+	void InitConVars()
+	{
 		ConVar* CGameConsoleConVar = CreateCustomConVar("cgameconsole", "0", 0, "Opens the R5 Reloaded Console", false, 0.f, false, 0.f, CustomConVar::CGameConsole_Callback, nullptr);
 		ConVar* CCompanionConVar = CreateCustomConVar("ccompanion", "0", 0, "Opens the R5 Reloaded Server Browser", false, 0.f, false, 0.f, CustomConVar::CCompanion_Callback, nullptr);
-		EmptyHostNames();
-		IsInitialized = true;
 	}
 
 	ConVar* CreateCustomConVar(const char* name, const char* defaultValue, int flags, const char* helpString, bool bMin, float fMin, bool bMax, float fMax, void* callback, void* unk)
@@ -127,3 +168,12 @@ namespace GameGlobals
 		return allocatedConvar; // Return allocated ConVar.
 	}
 }
+
+#pragma region KeyValues
+
+const char* KeyValues::GetName()
+{
+	return GameGlobals::KeyValuesSystem->GetStringForSymbol(MAKE_3_BYTES_FROM_1_AND_2(m_iKeyNameCaseSensitive, m_iKeyNameCaseSensitive2));
+}
+
+#pragma endregion
