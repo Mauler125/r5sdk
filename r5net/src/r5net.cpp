@@ -51,9 +51,25 @@ std::vector<ServerListing> R5Net::Client::GetServersList(std::string& outMessage
     else
     {
         if (res)
+        {
+            if (!res->body.empty())
+            {
+                nlohmann::json resBody = nlohmann::json::parse(res->body);
+
+                if (resBody["err"].is_string())
+                    outMessage = resBody["err"].get<std::string>();
+                else
+                    outMessage = std::string("Failed to reach comp-server ") + std::to_string(res->status);
+
+                return list;
+            }
+
             outMessage = std::string("Failed to reach comp-server ") + std::to_string(res->status);
-        else
-            outMessage = "Failed to reach comp-server unknown error code.";
+            return list;
+        }
+
+        outMessage = "failed to reach comp-server unknown error code.";
+        return list;
     }
 
     return list;
@@ -107,12 +123,24 @@ bool R5Net::Client::PostServerHost(std::string& outMessage, std::string& outToke
     else
     {
         if (res)
+        {
+            if (!res->body.empty())
+            {
+                nlohmann::json resBody = nlohmann::json::parse(res->body);
+
+                if (resBody["err"].is_string())
+                    outMessage = resBody["err"].get<std::string>();
+                else
+                    outMessage = std::string("Failed to reach comp-server ") + std::to_string(res->status);
+
+                return false;
+            }
+
             outMessage = std::string("Failed to reach comp-server ") + std::to_string(res->status);
-        else
-            outMessage = "Failed to reach comp-server unknown error code.";
+            return false;
+        }
 
-        outToken = "";
-
+        outMessage = "failed to reach comp-server unknown error code.";
         return false;
     }
 
@@ -175,7 +203,7 @@ bool R5Net::Client::GetServerByToken(ServerListing& outServer, std::string& outM
                 if (resBody["err"].is_string())
                     outMessage = resBody["err"].get<std::string>();
                 else
-                    outMessage = "Failed to reach comp-server unknown error code.";
+                    outMessage = std::string("Failed to reach comp-server ") + std::to_string(res->status);
 
                 return false;
             }
