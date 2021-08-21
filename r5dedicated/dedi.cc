@@ -177,6 +177,49 @@ char __fastcall sub_140299100_hk(int* a1) {
 	return 1;
 }
 
+void NukeRender() {
+	// Day 4
+
+	{
+		// something calls unmap map shit
+		MemoryAddress(0x00000001402FE280).Patch({ 0xC3 });
+	}
+	{
+		// set shader stuff
+		MemoryAddress(0x00000001403B3A50).Patch({ 0xC3 });
+	}
+	{
+		// no comment
+		//MemoryAddress(0x00000001403D74A0).Patch({ 0xC3 }); // gets hit...
+	}
+	{
+		// no comment
+		//MemoryAddress(0x00000001403DE970).Patch({ 0xC3 }); // one time?
+	}
+	{
+		// no comment
+		MemoryAddress(0x00000001403DEE90).Patch({ 0xC3 });
+	}
+	{
+		// Clear stuff rendering
+		MemoryAddress(0x0000000140404380).Patch({ 0xC3 });
+	}
+	{
+		// heavy render stuff...
+		MemoryAddress(0x000000014040D850).Patch({ 0xC3 });
+	}
+	{
+		// with set shader resource
+		MemoryAddress(0x0000000140413260).Patch({ 0xC3 });
+	}
+
+	{
+		// shader stuff in matsys
+		// gets called when loading/changing the map
+		//MemoryAddress(0x000000014040D7F0).Patch({ 0xC3 });
+	}
+}
+
 void Hooks::DedicatedPatch() {
 	// for future reference 14171A9B4 - matsys mode
 
@@ -190,6 +233,8 @@ void Hooks::DedicatedPatch() {
 
 	devtbl.RunFrame = &DERunFrame;
 	devtbl.Sys_Printf = &DEPrintf;
+
+	NukeRender();
 
 	// Hooks first
 	{
@@ -220,7 +265,7 @@ void Hooks::DedicatedPatch() {
 
 	{
 		// Make dedi exports run anyway
-		MemoryAddress(0x140345160).Patch({ 0x90, 0x90 });
+		//MemoryAddress(0x0000000140345150).Patch({ 0x90, 0x90 });
 	}
 
 	{
