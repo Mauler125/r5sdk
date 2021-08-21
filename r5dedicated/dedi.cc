@@ -41,6 +41,11 @@ void NukeRender() {
 		// with set shader resource
 		MemoryAddress(0x0000000140413260).Patch({ 0xC3 });
 	}
+
+	{
+		// HLClient call inside eng->frame
+		MemoryAddress(0x00000001402974F0).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });
+	}
 }
 
 void Hooks::DedicatedPatch() {
