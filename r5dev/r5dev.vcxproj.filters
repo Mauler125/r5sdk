@@ -103,6 +103,9 @@
     <Filter Include="hooks\src\cbasefilesystem">
       <UniqueIdentifier>{90ee1072-2d57-4d4e-aa1e-f19a81e6b27f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="hooks\src\cnetmessage">
+      <UniqueIdentifier>{3f44c89c-ddae-4d7e-b003-5a18be89d82e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dllmain.cpp">
@@ -191,6 +194,9 @@
     </ClCompile>
     <ClCompile Include="src\hooks\netchannel.cpp">
       <Filter>hooks\src\netchannel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hooks\cnetmessage.cpp">
+      <Filter>hooks\src\cnetmessage</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

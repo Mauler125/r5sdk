@@ -108,6 +108,13 @@ namespace Hooks
 	extern MSG_EngineErrorFn originalMSG_EngineError;
 #pragma endregion
 
+#pragma region CNetMessage
+	bool SVC_Print_Process(__int64 thisptr);
+
+	using SVC_Print_ProcessFn = bool(*)(__int64);
+	extern SVC_Print_ProcessFn originalSVC_Print_Process;
+#pragma endregion
+
 	void InstallHooks();
 	void RemoveHooks();
 	void ToggleNetTrace();

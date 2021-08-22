@@ -78,6 +78,11 @@ namespace
 	// Un-used atm.
 	// DWORD64 p_KeyValues_FindKey = /*1404744E0*/ reinterpret_cast<DWORD64>(PatternScan("r5apex.exe", "40 56 57 41 57 48 81 EC ?? ?? ?? ?? 45"));
 
+#pragma region CNetMessage
+	/*0x1402D0810*/
+	FUNC_AT_ADDRESS(addr_SVC_Print_Process, bool(*)(__int64*), r5_patterns.PatternSearch("48 8B D1 48 8B 49 18 48 8B 01 48 FF 60 28").GetPtr());
+#pragma endregion
+
 	void PrintHAddress() // Test the sigscan results
 	{
 		std::cout << "+--------------------------------------------------------+" << std::endl;
@@ -99,6 +104,7 @@ namespace
 		PRINT_ADDRESS("CBaseFileSystem::FileSystemWarning", addr_CBaseFileSystem_FileSystemWarning);
 		PRINT_ADDRESS("MSG_EngineError", addr_MSG_EngineError);
 		PRINT_ADDRESS("MemAlloc_Wrapper", addr_MemAlloc_Wrapper);
+		PRINT_ADDRESS("SVC_Print::Process", addr_SVC_Print_Process);
 		std::cout << "+--------------------------------------------------------+" << std::endl;
 		// TODO implement error handling when sigscan fails or result is 0
 	}

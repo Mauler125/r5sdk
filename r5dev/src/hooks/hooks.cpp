@@ -48,6 +48,10 @@ void Hooks::InstallHooks()
 	MH_CreateHook(addr_MSG_EngineError, &Hooks::MSG_EngineError, reinterpret_cast<void**>(&originalMSG_EngineError));
 
 	///////////////////////////////////////////////////////////////////////////////
+	// Hook CNetMessage functions
+	MH_CreateHook(addr_SVC_Print_Process, &Hooks::SVC_Print_Process, reinterpret_cast<void**>(&originalSVC_Print_Process));
+
+	///////////////////////////////////////////////////////////////////////////////
 	// Hook WinAPI
 	if (Module user32dll = Module("user32.dll"); user32dll.GetModuleBase()) // Is user32.dll valid?
 	{
@@ -98,6 +102,10 @@ void Hooks::InstallHooks()
 	///////////////////////////////////////////////////////////////////////////////
     // Enabled Utility hooks
 	MH_EnableHook(addr_MSG_EngineError);
+
+	///////////////////////////////////////////////////////////////////////////////
+	// Enabled CNetMessage hooks
+	MH_EnableHook(addr_SVC_Print_Process);
 }
 
 void Hooks::RemoveHooks()
@@ -147,6 +155,10 @@ void Hooks::RemoveHooks()
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook CBaseFileSystem functions.
 	//MH_RemoveHook(addr_CBaseFileSystem_FileSystemWarning);
+
+	///////////////////////////////////////////////////////////////////////////////
+	// Unhook CNetMessage functions
+	MH_RemoveHook(addr_SVC_Print_Process);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Reset Minhook
