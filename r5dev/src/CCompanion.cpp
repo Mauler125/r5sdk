@@ -434,8 +434,11 @@ void CCompanion::HostServerSection()
                 * Then when you would normally call launchplaylist which calls StartPlaylist it would cmd call mp_gamemode which parses the gamemode specific part of the playlist..
                 */
                 addr_LoadPlaylist(MyServer.playlist.c_str());
-                addr_mp_gamemode_Callback(MyServer.playlist.c_str());
-                GameGlobals::Cvar->FindVar("mp_gamemode")->m_pzsCurrentValue = MyServer.playlist.c_str(); // Since we call the callback of the cmd, set the playlist name manually here.
+                std::stringstream cgmd;
+                cgmd << "mp_gamemode " << MyServer.playlist;
+                ProcessCommand(cgmd.str().c_str());
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Avoid race condition.
 
                 std::stringstream cmd;
                 cmd << "map " << ServerMap;
