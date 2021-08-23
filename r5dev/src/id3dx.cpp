@@ -56,7 +56,7 @@ LRESULT CALLBACK DXGIMsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	if (uMsg == WM_KEYUP || uMsg == WM_SYSKEYDOWN)
+	if (uMsg == WM_KEYDOWN || uMsg == WM_SYSKEYDOWN)
 	{
 		if (wParam == g_GuiConfig.CGameConsoleConfig.bind1 || wParam == g_GuiConfig.CGameConsoleConfig.bind2)
 		{
@@ -72,6 +72,7 @@ LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	if (g_bShowConsole || g_bShowBrowser)
 	{//////////////////////////////////////////////////////////////////////////////
 		ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
+
 		g_bBlockInput = true;
 
 		switch (uMsg)
