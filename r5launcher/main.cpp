@@ -3,12 +3,10 @@
 #include <iostream>
 #include <Windows.h>
 #include <detours.h>
-
+#include <filesystem>
+#include <fstream>
+#include <sstream>
 #include "main.h"
-
-/*-----------------------------------------------------------------------------
- * _main.cpp
- *-----------------------------------------------------------------------------*/
 
  //----------------------------------------------------------------------------
  // Print the error message to the console if any
@@ -16,17 +14,15 @@
 void PrintLastError()
 {
     DWORD errorMessageID = ::GetLastError();
-    if (errorMessageID == 0)
+    if (errorMessageID != NULL)
     {
-        return;
+        LPSTR messageBuffer = nullptr;
+        size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
+
+        std::cout << "ERROR: " << messageBuffer << std::endl;
+        LocalFree(messageBuffer);
     }
-
-    LPSTR messageBuffer = nullptr;
-    size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
-
-    printf("ERROR: %s\n", messageBuffer);
-    LocalFree(messageBuffer);
 }
 
 //-----------------------------------------------------------------------------
@@ -37,115 +33,137 @@ void PrintLastError()
 //-----------------------------------------------------------------------------
 bool LaunchR5Apex(LAUNCHMODE lMode, LAUNCHSTATE lState)
 {
-    BOOL result;
-
-    FILE* sLaunchParams;
-    CHAR sArgumentBuffer[2048] = { 0 };
-    CHAR sCommandDirectory[MAX_PATH];
-    LPSTR sCommandLine = sCommandDirectory;
-
-    CHAR sDevDll[MAX_PATH];
-    CHAR sGameExe[MAX_PATH];
-    CHAR sGameDirectory[MAX_PATH];
-
-    STARTUPINFO StartupInfo = { 0 };
-    PROCESS_INFORMATION ProcInfo = { 0 };
+    ///////////////////////////////////////////////////////////////////////////
+    // Initialize strings.
+    std::string WorkerDll            = std::string();
+    std::string GameDirectory        = std::string();
+    std::string CommandLineArguments = std::string();
+    std::string StartupCommandLine   = std::string();
+    std::string currentDirectory     = std::filesystem::current_path().u8string();
 
     ///////////////////////////////////////////////////////////////////////////
-    // Initialize the startup info structure.
-    StartupInfo.cb = sizeof(STARTUPINFO);
-
-    GetCurrentDirectory(MAX_PATH, sGameDirectory);
+    // Determine launch mode.
     switch (lMode)
     {
         case LAUNCHMODE::LM_DEDI:
         {
-            fopen_s(&sLaunchParams, "platform\\cfg\\startup_dedi.cfg", "r");
-            if (sLaunchParams)
+            std::filesystem::path cfgPath = std::filesystem::current_path() /= "platform\\cfg\\startup_dedi.cfg"; // Get cfg path for dedicated startup.
+            std::ifstream cfgFile(cfgPath); // Read the cfg file.
+            if (cfgFile.good() && cfgFile) // Does the cfg file exist?
             {
-                while (fread(sArgumentBuffer, sizeof(sArgumentBuffer), 1, sLaunchParams) != NULL)
-                {
-                    fclose(sLaunchParams);
-                }
+                std::stringstream ss;
+                ss << cfgFile.rdbuf(); // Read ifstream buffer into stringstream.
+                CommandLineArguments = ss.str();  // Get all the contents of the cfg file.
             }
+            else
+            {
+                std::cout << "*** platform\\cfg\\startup_dedi.cfg does not exist. ***" << std::endl;
+                cfgFile.close();
+                return false;
+            }
+            cfgFile.close(); // Close cfg file.
 
-            snprintf(sGameExe, sizeof(sGameExe), "%s\\r5apex.exe", sGameDirectory);
-            snprintf(sDevDll, sizeof(sDevDll), "%s\\dedicated.dll", sGameDirectory);
-            snprintf(sCommandLine, sizeof(sCommandDirectory), "%s\\r5apex.exe %s", sGameDirectory, sArgumentBuffer);
-            printf("*** LAUNCHING DEDICATED SERVER ***\n");
+            WorkerDll          = currentDirectory + "\\dedicated.dll";                      // Get path to worker dll.
+            GameDirectory      = currentDirectory + "\\r5apex.exe";                         // Get path to game executeable.
+            StartupCommandLine = currentDirectory + "\\r5apex.exe " + CommandLineArguments; // Setup startup command line string.
+
+            std::cout << "*** LAUNCHING GAME [DEDICATED] ***" << std::endl;
             break;
         }
         case LAUNCHMODE::LM_DEBUG:
         {
-            fopen_s(&sLaunchParams, "platform\\cfg\\startup_debug.cfg", "r");
-            if (sLaunchParams)
+            std::filesystem::path cfgPath = std::filesystem::current_path() /= "platform\\cfg\\startup_debug.cfg"; // Get cfg path for debug startup.
+            std::ifstream cfgFile(cfgPath); // Read the cfg file.
+            if (cfgFile.good() && cfgFile) // Does the cfg file exist?
             {
-                while (fread(sArgumentBuffer, sizeof(sArgumentBuffer), 1, sLaunchParams) != NULL)
-                {
-                    fclose(sLaunchParams);
-                }
+                std::stringstream ss;
+                ss << cfgFile.rdbuf(); // Read ifstream buffer into stringstream.
+                CommandLineArguments = ss.str();  // Get all the contents of the cfg file.
             }
+            else
+            {
+                std::cout << "*** platform\\cfg\\startup_debug.cfg does not exist. ***" << std::endl;
+                cfgFile.close();
+                return false;
+            }
+            cfgFile.close(); // Close cfg file.
 
-            snprintf(sGameExe, sizeof(sGameExe), "%s\\r5apex.exe", sGameDirectory);
-            snprintf(sDevDll, sizeof(sDevDll), "%s\\r5dev.dll", sGameDirectory);
-            snprintf(sCommandLine, sizeof(sCommandDirectory), "%s\\r5apex.exe %s", sGameDirectory, sArgumentBuffer);
-            printf("*** LAUNCHING GAME [DEBUG] ***\n");
+            WorkerDll           = currentDirectory + "\\r5dev.dll";                          // Get path to worker dll.
+            GameDirectory       = currentDirectory + "\\r5apex.exe";                         // Get path to game executeable.
+            StartupCommandLine  = currentDirectory + "\\r5apex.exe " + CommandLineArguments; // Setup startup command line string.
+
+            std::cout << "*** LAUNCHING GAME [DEBUG] ***" << std::endl;
             break;
         }
         case LAUNCHMODE::LM_GAME:
         {
-            fopen_s(&sLaunchParams, "platform\\cfg\\startup_retail.cfg", "r");
-            if (sLaunchParams)
+            std::filesystem::path cfgPath = std::filesystem::current_path() /= "platform\\cfg\\startup_retail.cfg"; // Get cfg path for release startup.
+            std::ifstream cfgFile(cfgPath); // Read the cfg file.
+            if (cfgFile.good() && cfgFile) // Does the cfg file exist?
             {
-                while (fread(sArgumentBuffer, sizeof(sArgumentBuffer), 1, sLaunchParams) != NULL)
-                {
-                    fclose(sLaunchParams);
-                }
+                std::stringstream ss;
+                ss << cfgFile.rdbuf(); // Read ifstream buffer into stringstream.
+                CommandLineArguments = ss.str();  // Get all the contents of the cfg file.
             }
+            else
+            {
+                std::cout << "*** platform\\cfg\\startup_retail.cfg does not exist. ***" << std::endl;
+                cfgFile.close();
+                return false;
+            }
+            cfgFile.close(); // Close cfg file.
 
-            snprintf(sGameExe, sizeof(sGameExe), "%s\\r5apex.exe", sGameDirectory);
-            snprintf(sDevDll, sizeof(sDevDll), "%s\\r5detours.dll", sGameDirectory);
-            snprintf(sCommandLine, sizeof(sCommandDirectory), "%s\\r5apex.exe %s", sGameDirectory, sArgumentBuffer);
-            printf("*** LAUNCHING GAME [RETAIL] ***\n");
+            WorkerDll          = currentDirectory + "\\r5detours.dll";                      // Get path to worker dll.
+            GameDirectory      = currentDirectory + "\\r5apex.exe";                         // Get path to game executeable.
+            StartupCommandLine = currentDirectory + "\\r5apex.exe " + CommandLineArguments; // Setup startup command line string.
+
+            std::cout << "*** LAUNCHING GAME [RELEASE] ***" << std::endl;
             break;
         }
         default:
         {
-            printf("*** ERROR: NO LAUNCHMODE SPECIFIED ***\n");
+            std::cout << "*** ERROR: NO LAUNCHMODE SPECIFIED ***" << std::endl;
             return false;
         }
     }
 
     ///////////////////////////////////////////////////////////////////////////
     // Print the filepaths and arguments.
-    printf(" - CWD: %s\n", sGameDirectory);
-    printf(" - EXE: %s\n", sGameExe);
-    printf(" - DLL: %s\n", sDevDll);
-    printf(" - CLI: %s\n", sCommandLine);
+    std::cout << " - CWD: " << currentDirectory     << std::endl;
+    std::cout << " - EXE: " << GameDirectory        << std::endl;
+    std::cout << " - DLL: " << WorkerDll            << std::endl;
+    std::cout << " - CLI: " << CommandLineArguments << std::endl;
 
     ///////////////////////////////////////////////////////////////////////////
     // Build our list of dlls to inject.
     LPCSTR DllsToInject[1] =
     {
-        sDevDll
+        WorkerDll.c_str()
     };
+
+    STARTUPINFO StartupInfo = { 0 };
+    PROCESS_INFORMATION ProcInfo = { 0 };
+
+    // Initialize startup info struct.
+    StartupInfo.cb = sizeof(STARTUPINFO);
 
     ///////////////////////////////////////////////////////////////////////////
     // Create the game process in a suspended state with our dll.
-    result = DetourCreateProcessWithDllsA(
-        sGameExe,                 // lpApplicationName
-        sCommandLine,             // lpCommandLine
-        NULL,                     // lpProcessAttributes
-        NULL,                     // lpThreadAttributes
-        FALSE,                    // bInheritHandles
-        CREATE_SUSPENDED,         // dwCreationFlags
-        NULL,                     // lpEnvironment
-        sGameDirectory,           // lpCurrentDirectory
-        &StartupInfo,             // lpStartupInfo
-        &ProcInfo,                // lpProcessInformation
-        1,                        // nDlls
-        DllsToInject,             // rlpDlls
-        NULL                      // pfCreateProcessA
+    BOOL result = DetourCreateProcessWithDllsA
+    (
+        GameDirectory.c_str(),                         // lpApplicationName
+        (LPSTR)StartupCommandLine.c_str(),             // lpCommandLine
+        NULL,                                          // lpProcessAttributes
+        NULL,                                          // lpThreadAttributes
+        FALSE,                                         // bInheritHandles
+        CREATE_SUSPENDED,                              // dwCreationFlags
+        NULL,                                          // lpEnvironment
+        currentDirectory.c_str(),                      // lpCurrentDirectory
+        &StartupInfo,                                  // lpStartupInfo
+        &ProcInfo,                                     // lpProcessInformation
+        sizeof(DllsToInject) / sizeof(LPCSTR),         // nDlls
+        DllsToInject,                                  // rlpDlls
+        NULL                                           // pfCreateProcessA
     );
 
     ///////////////////////////////////////////////////////////////////////////
