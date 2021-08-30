@@ -10,33 +10,32 @@ namespace Hooks
 
 static std::ostringstream oss_print;
 static auto ostream_sink_print = std::make_shared<spdlog::sinks::ostream_sink_st>(oss_print);
+static auto log_sink_print = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/SQVM_Print.txt", true);
 
 //---------------------------------------------------------------------------------
 // Purpose: prints the output of each VM to the console
 //---------------------------------------------------------------------------------
 void* Hooks::SQVM_Print(void* sqvm, char* fmt, ...)
 {
-	int vmIdx = *(int*)((std::uintptr_t)sqvm + 0x18);
 	static bool initialized = false;
-
 	static char buf[1024];
 	static std::string vmType[3] = { "Script(S):", "Script(C):", "Script(U):" };
 
-	static auto iconsole = spdlog::stdout_logger_mt("sqvm_print_iconsole"); // in-game console
-	static auto wconsole = spdlog::stdout_logger_mt("sqvm_print_wconsole"); // windows console
-
+	int vmIdx = *(int*)((std::uintptr_t)sqvm + 0x18);
 	std::string vmStr = vmType[vmIdx].c_str();
 
 	oss_print.str("");
 	oss_print.clear();
 
+	static spdlog::logger logger("sqvm_print", { log_sink_print, ostream_sink_print });
+
 	if (!initialized)
 	{
-		iconsole = std::make_shared<spdlog::logger>("ostream", ostream_sink_print);
-		iconsole->set_pattern("[%S.%e] %v");
-		iconsole->set_level(spdlog::level::debug);
-		wconsole->set_pattern("[%S.%e] %v");
-		wconsole->set_level(spdlog::level::debug);
+		log_sink_print->set_level(spdlog::level::debug);
+		ostream_sink_print->set_level(spdlog::level::debug);
+		logger.set_level(spdlog::level::debug);
+		logger.set_pattern("[%S.%e] %v");
+
 		initialized = true;
 	}
 
@@ -50,8 +49,7 @@ void* Hooks::SQVM_Print(void* sqvm, char* fmt, ...)
 
 	vmStr.append(buf);
 
-	iconsole->debug(vmStr);
-	wconsole->debug(vmStr);
+	logger.debug(vmStr);
 
 	std::string s = oss_print.str();
 	const char* c = s.c_str();
@@ -62,6 +60,7 @@ void* Hooks::SQVM_Print(void* sqvm, char* fmt, ...)
 
 static std::ostringstream oss_warning;
 static auto ostream_sink_warning = std::make_shared<spdlog::sinks::ostream_sink_st>(oss_warning);
+static auto log_sink_warning = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/SQVM_Warning.txt", true);
 
 __int64 Hooks::SQVM_Warning(void* sqvm, int a2, int a3, int* stringSize, void** string)
 {
@@ -73,33 +72,30 @@ __int64 Hooks::SQVM_Warning(void* sqvm, int a2, int a3, int* stringSize, void** 
 		return result; // If not return.
 
 	static bool initialized = false;
-	static auto iconsole = spdlog::stdout_logger_mt("sqvm_warning_iconsole"); // in-game console
-	static auto wconsole = spdlog::stdout_logger_mt("sqvm_warning_wconsole"); // windows console
-
 	static std::string vmType[3] = { "Script(S) Warning:", "Script(C) Warning:", "Script(U) Warning:" };
 
-	int vmIdx = *(int*)((std::uintptr_t)sqvm + 0x18); // Get vm index.
+	int vmIdx = *(int*)((std::uintptr_t)sqvm + 0x18);
+	std::string vmStr = vmType[vmIdx].c_str();
 
-	std::string vmStr = vmType[vmIdx].c_str(); // Get string prefix for vm.
+	oss_print.str("");
+	oss_print.clear();
 
-	oss_warning.str("");
-	oss_warning.clear();
+	static spdlog::logger logger("sqvm_warning", { log_sink_warning, ostream_sink_warning });
 
 	if (!initialized)
 	{
-		iconsole = std::make_shared<spdlog::logger>("ostream", ostream_sink_warning);
-		iconsole->set_pattern("[%S.%e] %v");
-		iconsole->set_level(spdlog::level::debug);
-		wconsole->set_pattern("[%S.%e] %v\n");
-		wconsole->set_level(spdlog::level::debug);
+		log_sink_warning->set_level(spdlog::level::debug);
+		ostream_sink_warning->set_level(spdlog::level::debug);
+		logger.set_level(spdlog::level::debug);
+		logger.set_pattern("[%S.%e] %v");
+
 		initialized = true;
 	}
 
 	std::string stringConstructor((char*)*string, *stringSize); // Get string from memory via std::string constructor.
 	vmStr.append(stringConstructor);
 
-	iconsole->debug(vmStr.c_str());
-	wconsole->debug(vmStr.c_str());
+	logger.debug(vmStr);
 
 	std::string s = oss_warning.str();
 	const char* c = s.c_str();

@@ -8,7 +8,7 @@ namespace Hooks
 
 int Hooks::MSG_EngineError(char* fmt, va_list args)
 {
-	printf("\nENGINE ERROR #####################################\n");
+	std::cout << "\nENGINE ERROR #####################################\n";
 	vprintf(fmt, args);
 
 	return originalMSG_EngineError(fmt, args);

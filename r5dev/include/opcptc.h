@@ -53,7 +53,5 @@ namespace
 		PRINT_ADDRESS("FairFight_Init", FairFight_Init.GetPtr());
 		PRINT_ADDRESS("Squirrel_CompileError", Squirrel_CompileError.GetPtr());
 		std::cout << "+--------------------------------------------------------+" << std::endl;
-
-		// TODO implement error handling when sigscan fails or result is 0
 	}
 }

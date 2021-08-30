@@ -21,14 +21,7 @@ bool Hooks::IsPersistenceDataAvailable(__int64 thisptr, int client)
 	*(char*)(targetPlayerStruct + persistenceVar) = (char)0x5;
 
 	if (!isPersistenceVarSet[client])
-	{
-		printf("\n");
-		printf("##################################################\n");
-		printf("] SETTING PERSISTENCE VAR FOR CLIENT #%d\n", client);
-		printf("##################################################\n");
-		printf("\n");
 		isPersistenceVarSet[client] = true;
-	}
 
 	return originalIsPersistenceDataAvailable(thisptr, client);
 }

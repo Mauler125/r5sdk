@@ -8,8 +8,9 @@ namespace Hooks
 	NET_SendDatagramFn originalNET_SendDatagram = nullptr;
 }
 
-static std::ostringstream oss;
-static auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_st>(oss);
+static std::ostringstream oss_print;
+static auto ostream_sink_print = std::make_shared<spdlog::sinks::ostream_sink_st>(oss_print);
+static auto log_sink_print = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/NET_Print.txt", true);
 
 //-----------------------------------------------------------------------------
 // Purpose: log the clients signonstate to the console
@@ -19,19 +20,18 @@ void Hooks::NET_PrintFunc(const char* fmt, ...)
 	static bool initialized = false;
 	static char buf[1024];
 
-	static auto iconsole = spdlog::stdout_logger_mt("net_iconsole"); // in-game console
-	static auto wconsole = spdlog::stdout_logger_mt("net_wconsole"); // windows console
+	oss_print.str("");
+	oss_print.clear();
 
-	oss.str("");
-	oss.clear();
+	static spdlog::logger logger("sqvm_print", { log_sink_print, ostream_sink_print });
 
 	if (!initialized)
 	{
-		iconsole = std::make_shared<spdlog::logger>("ostream", ostream_sink);
-		iconsole->set_pattern("[%S.%e] %v");
-		iconsole->set_level(spdlog::level::debug);
-		wconsole->set_pattern("[%S.%e] %v\n");
-		wconsole->set_level(spdlog::level::debug);
+		log_sink_print->set_level(spdlog::level::debug);
+		ostream_sink_print->set_level(spdlog::level::debug);
+		logger.set_level(spdlog::level::debug);
+		logger.set_pattern("[%S.%e] %v");
+
 		initialized = true;
 	}
 
@@ -43,10 +43,9 @@ void Hooks::NET_PrintFunc(const char* fmt, ...)
 	buf[sizeof(buf) - 1] = 0;
 	va_end(args);
 
-	iconsole->debug(buf);
-	wconsole->debug(buf);
+	logger.debug(buf);
 
-	std::string s = oss.str();
+	std::string s = oss_print.str();
 	const char* c = s.c_str();
 
 	Items.push_back(Strdup((const char*)c));
