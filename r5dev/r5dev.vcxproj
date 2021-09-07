@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -148,7 +148,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>r5dev.def</ModuleDefinitionFile>
-      <AdditionalDependencies>Minhook.x64.lib;r5net.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Minhook.x64.lib;r5net.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>del "$(SolutionDir)bin\$(Configuration)\r5dev.dll"
@@ -189,7 +189,7 @@ if not EXIST $(SolutionDir)r5net\lib\$(Configuration)\r5net.lib (
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>r5dev.def</ModuleDefinitionFile>
-      <AdditionalDependencies>Minhook.x64.lib;r5net.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Minhook.x64.lib;r5net.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -310,6 +310,7 @@ if not EXIST $(SolutionDir)r5net\lib\$(Configuration)\r5net.lib (
     <ClInclude Include="..\external\spdlog\include\tweakme.h" />
     <ClInclude Include="..\external\spdlog\include\version.h" />
     <ClInclude Include="..\shared\include\address.h" />
+    <ClInclude Include="..\shared\include\banlist.h" />
     <ClInclude Include="..\shared\include\httplib.h" />
     <ClInclude Include="..\shared\include\json.hpp" />
     <ClInclude Include="..\shared\include\utility.h" />
@@ -379,6 +380,7 @@ if not EXIST $(SolutionDir)r5net\lib\$(Configuration)\r5net.lib (
     </ClCompile>
     <ClCompile Include="src\hooks\cbasefilesystem.cpp" />
     <ClCompile Include="src\hooks\chlclient.cpp" />
+    <ClCompile Include="src\hooks\connectclient.cpp" />
     <ClCompile Include="src\hooks\cvengineserver.cpp" />
     <ClCompile Include="src\hooks\hooks.cpp" />
     <ClCompile Include="src\hooks\iconvar.cpp" />

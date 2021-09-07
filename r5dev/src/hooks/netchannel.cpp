@@ -3,11 +3,11 @@
 
 namespace Hooks
 {
-	NetChan_ShutDown originalNetChanShutDown = nullptr;
+	NetChan_ShutDown originalNetChan_ShutDown = nullptr;
 }
 
-void Hooks::NetChanShutdown(void* rcx, const char* reason, unsigned __int8 unk1, char unk2)
+void Hooks::NetChan_Shutdown(void* rcx, const char* reason, unsigned __int8 unk1, char unk2)
 {
 	addr_downloadPlaylists_Callback(); // Re-Load playlist from disk after getting dropped or disconnecting off a server.
-	originalNetChanShutDown(rcx, reason, unk1, unk2);
+	originalNetChan_ShutDown(rcx, reason, unk1, unk2);
 }

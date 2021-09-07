@@ -1,5 +1,6 @@
 #pragma once
 #include "patterns.h"
+#include "banlist.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // Classes and Structs
@@ -238,8 +239,8 @@ struct QAngle // Implement the proper class of this at some point.
 class CHostState
 {
 public:
-	__int32 m_iCurrentState; //0x0000
-	__int32 m_iNextState; //0x0004
+	int m_iCurrentState; //0x0000
+	int m_iNextState; //0x0004
 	Vector3 m_vecLocation; //0x0008
 	QAngle m_angLocation; //0x0014
 	char m_levelName[64]; //0x0020
@@ -263,6 +264,98 @@ public:
 		using OriginalFn = void(__thiscall*)(CHLClient*, ClientFrameStage_t);
 		(*reinterpret_cast<OriginalFn**>(this))[58](this, curStage); /* 48 83 EC 28 89 15 ? ? ? ? */
 	}
+};
+
+class CClient
+{
+public:
+	inline CClient* GetClientInstance(int index)
+	{
+		return (CClient*)(std::uintptr_t)(0x16073B200 + (index * (std::uintptr_t)0x4A4C0));
+	}
+
+	void*& GetNetChan()
+	{
+		return m_nNetChannel;
+	}
+private:
+	char pad_0000[16]; //0x0000
+public:
+	int m_iUserID; //0x0010
+private:
+	char pad_0014[908]; //0x0014
+public:
+	void* m_nNetChannel; //0x03A0
+private:
+	char pad_03A8[8]; //0x03A8
+public:
+	int m_iSignonstate; //0x03B0
+private:
+	char pad_03B4[4]; //0x03B4
+public:
+	std::int64_t m_iOriginID; //0x03B8
+private:
+	char pad_03C0[303360]; //0x03C0
+};
+
+class CCommand
+{
+private:
+	enum
+	{
+		COMMAND_MAX_ARGC = 64,
+		COMMAND_MAX_LENGTH = 512,
+	};
+
+public:
+	CCommand() = delete;
+
+	inline int MaxCommandLength()
+	{
+		return COMMAND_MAX_LENGTH - 1;
+	}
+
+	inline int64_t ArgC() const
+	{
+		return m_nArgc;
+	}
+
+	inline const char** ArgV() const
+	{
+		return m_nArgc ? (const char**)m_ppArgv : NULL;
+	}
+
+	inline const char* ArgS() const
+	{
+		return m_nArgv0Size ? &m_pArgSBuffer[m_nArgv0Size] : "";
+	}
+
+	inline const char* GetCommandString() const
+	{
+		return m_nArgc ? m_pArgSBuffer : "";
+	}
+
+	inline const char* Arg(int nIndex) const
+	{
+		// FIXME: Many command handlers appear to not be particularly careful
+		// about checking for valid argc range. For now, we're going to
+		// do the extra check and return an empty string if it's out of range
+		if (nIndex < 0 || nIndex >= m_nArgc)
+			return "";
+		return m_ppArgv[nIndex];
+	}
+
+	inline const char* operator[](int nIndex) const
+	{
+		return Arg(nIndex);
+	}
+
+private:
+	std::int64_t m_nArgc;
+	std::int64_t m_nArgv0Size;
+	char    	 m_pArgSBuffer[COMMAND_MAX_LENGTH];
+	char	     m_pArgvBuffer[COMMAND_MAX_LENGTH];
+	const char*  m_ppArgv[COMMAND_MAX_ARGC];
 };
 
 class ConCommandBase
@@ -368,16 +461,27 @@ struct Interface
 
 namespace GameGlobals
 {
+	// Class Instances
 	extern CHostState* HostState;
 	extern CInputSystem* InputSystem;
 	extern CCVar* Cvar;
 	extern KeyValues** PlaylistKeyValues;
 	extern CKeyValuesSystem* KeyValuesSystem;
-	extern std::vector<std::string> allPlaylists;
-
+	extern CClient* Client;
+	extern BanList* BanSystem;
+	
+	// Var
 	ConVar* CreateCustomConVar(const char* name, const char* defaultValue, int flags, const char* helpString, bool bMin, float fMin, bool bMax, float fMax, void* callback, void* unk);
+	void* CreateCustomConCommand(const char* name, const char* helpString, int flags, void* callback, void* callbackAfterExecution);
+
+	// Init
 	void InitGameGlobals();
-	void InitConVars();
+	void InitAllCommandVariations();
 	void InitPlaylist();
+
+	extern std::vector<std::string> allPlaylists;
 	extern bool IsInitialized;
+
+	// Utility
+	void DisconnectClient(CClient* client, const char* reason, unsigned __int8 unk1, char unk2);
 }

@@ -103,6 +103,9 @@
     <Filter Include="hooks\src\cbasefilesystem">
       <UniqueIdentifier>{90ee1072-2d57-4d4e-aa1e-f19a81e6b27f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="hooks\src\cserver">
+      <UniqueIdentifier>{10edfee7-8c10-41de-b8f3-424826d2614a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dllmain.cpp">
@@ -194,6 +197,9 @@
     </ClCompile>
     <ClCompile Include="src\hooks\loadplaylist.cpp">
       <Filter>hooks\src\other</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hooks\connectclient.cpp">
+      <Filter>hooks\src\cserver</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -564,6 +570,9 @@
       <Filter>gui\include</Filter>
     </ClInclude>
     <ClInclude Include="resource.h" />
+    <ClInclude Include="..\shared\include\banlist.h">
+      <Filter>shared\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="r5dev.def">

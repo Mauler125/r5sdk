@@ -7,8 +7,9 @@ struct ServerListing
 	std::string ip;
 	std::string port;
 	std::string playlist;
-	std::string password;
-	std::string checksum;
+	bool hidden;
+	std::string remoteChecksum;
 	std::string version;
+	std::string netchanEncryptionKey;
 };
 

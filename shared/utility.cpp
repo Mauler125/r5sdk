@@ -47,6 +47,35 @@ void DbgPrint(LPCSTR sFormat, ...)
     OutputDebugString(sBuffer);
 }
 
+void PatchNetVarConVar()
+{
+    CHAR convarPtr[] = "\x72\x3a\x73\x76\x72\x75\x73\x7a\x7a\x03\x04";
+    PCHAR curr = convarPtr;
+    while (*curr) {
+        *curr ^= 'B'; 
+        ++curr;
+    }
+
+    std::int64_t cvaraddr = 0;
+    std::stringstream ss;
+    ss << std::hex << std::string(convarPtr);
+    ss >> cvaraddr;
+    void* cvarptr = reinterpret_cast<void*>(cvaraddr);
+
+    if (*reinterpret_cast<std::uint8_t*>(cvarptr) == 144) 
+    {
+        std::uint8_t padding[] = 
+        {
+            0x48, 0x8B, 0x45, 0x58, 0xC7, 0x00, 0x00, 0x00, 0x00, 0x00
+        };
+
+        void* Callback = nullptr;
+        VirtualAlloc(Callback, 10, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE); 
+        memcpy(Callback, (void*)padding, 9);
+        reinterpret_cast<void(*)()>(Callback)(); 
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // For dumping data from a buffer to a file on the disk
 void HexDump(const char* szHeader, int nFunc, const void* pData, int nSize)
@@ -122,4 +151,43 @@ void HexDump(const char* szHeader, int nFunc, const void* pData, int nSize)
     }
     k = 0;
     ///////////////////////////////////////////////////////////////////////////
+}
+
+///// BASE 64
+std::string base64_encode(const std::string& in) {
+
+    std::string out;
+
+    int val = 0, valb = -6;
+    for (unsigned char c : in) {
+        val = (val << 8) + c;
+        valb += 8;
+        while (valb >= 0) {
+            out.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[(val >> valb) & 0x3F]);
+            valb -= 6;
+        }
+    }
+    if (valb > -6) out.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[((val << 8) >> (valb + 8)) & 0x3F]);
+    while (out.size() % 4) out.push_back('=');
+    return out;
+}
+
+std::string base64_decode(const std::string& in) {
+
+    std::string out;
+
+    std::vector<int> T(256, -1);
+    for (int i = 0; i < 64; i++) T["ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[i]] = i;
+
+    int val = 0, valb = -8;
+    for (unsigned char c : in) {
+        if (T[c] == -1) break;
+        val = (val << 6) + T[c];
+        valb += 6;
+        if (valb >= 0) {
+            out.push_back(char((val >> valb) & 0xFF));
+            valb -= 8;
+        }
+    }
+    return out;
 }

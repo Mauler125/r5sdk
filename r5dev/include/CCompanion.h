@@ -26,10 +26,14 @@ public:
 
     enum class EHostStatus {
         NotHosting,
-        WaitingForStateChange,
-        Hosting,
-        ConnectedToSomeoneElse
+        Hosting
     } HostingStatus = EHostStatus::NotHosting;
+
+    enum class EServerVisibility {
+        Offline,
+        Hidden,
+        Public
+    } ServerVisibility = EServerVisibility::Offline;
 
     ////////////////////
     // Server Browser //
@@ -37,9 +41,12 @@ public:
 
     R5Net::Client* r5net;
 
+    R5Net::Client* GetR5Net() { return r5net;  }
+
     std::vector<ServerListing> ServerList;
     ImGuiTextFilter ServerBrowserFilter;
     char ServerConnStringBuffer[256] = { 0 };
+    char ServerEncKeyBuffer[30] = { 0 };
     std::string ServerListMessage = std::string();
 
     ////////////////////
@@ -56,16 +63,14 @@ public:
     std::string HostToken = "";
     ImVec4 HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
     bool StartAsDedi = false;
-    bool BroadCastServer = false;
     bool OverridePlaylist = false;
 
     ////////////////////
     // Private Server //
     ////////////////////
-    std::string PrivateServerToken = "";
-    std::string PrivateServerPassword = "";
-    std::string PrivateServerRequestMessage = "";
-    ImVec4 PrivateServerMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
+    std::string HiddenServerToken = "";
+    std::string HiddenServerRequestMessage = "";
+    ImVec4 HiddenServerMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
 
     /* Texture */
     ID3D11ShaderResourceView* ApexLockIcon = nullptr;
@@ -144,14 +149,20 @@ public:
     void CompMenu();
     void ServerBrowserSection();
     void SettingsSection();
+    void HiddenServersModal();
     void HostServerSection();
     void Draw(const char* title);
     void UpdateHostingStatus();
     void ProcessCommand(const char* command_line);
     void ExecCommand(const char* command_line);
 
-    void ConnectToServer(const std::string &ip, const std::string &port);
-    void ConnectToServer(const std::string &connString);
+    void RegenerateEncryptionKey();
+    void ChangeEncryptionKeyTo(const std::string str);
+
+    void ConnectToServer(const std::string ip, const std::string port, const std::string encKey);
+    void ConnectToServer(const std::string connString, const std::string encKey);
 };
 
 extern CCompanion* g_ServerBrowser;
+
+extern bool g_CheckCompBanDB;

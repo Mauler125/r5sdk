@@ -9,7 +9,6 @@ namespace Hooks
 {
 	ConVar_IsFlagSetFn originalConVar_IsFlagSet = nullptr;
 	ConCommand_IsFlagSetFn originalConCommand_IsFlagSet = nullptr;
-	Map_CallbackFn originalMap_Callback = nullptr;
 }
 
 bool Hooks::ConVar_IsFlagSet(ConVar* cvar, int flag)

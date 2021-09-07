@@ -21,7 +21,7 @@
   <ItemGroup>
     <ClInclude Include="include\netpch.h" />
     <ClInclude Include="include\r5\r5net.h" />
-    <ClInclude Include="include\serverlisting.h" />
+    <ClInclude Include="include\r5\serverlisting.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\netpch.cpp">

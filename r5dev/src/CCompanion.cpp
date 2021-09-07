@@ -10,6 +10,7 @@
 //#define OVERLAY_DEBUG
 
 CCompanion* g_ServerBrowser = nullptr;
+bool g_CheckCompBanDB = true;
 
 std::map<std::string, std::string> mapArray =
 {
@@ -85,11 +86,23 @@ void CCompanion::UpdateHostingStatus()
     }
     case EHostStatus::Hosting:
     {
-        if (!BroadCastServer) // Do we wanna broadcast server to the browser?
+        if (ServerVisibility == EServerVisibility::Offline) // Do we wanna broadcast server to the browser?
             break;
 
         if (*reinterpret_cast<std::int32_t*>(0x1656057E0) == NULL) // Check if script checksum is valid yet.
             break;
+
+        switch (ServerVisibility) {
+
+        case EServerVisibility::Hidden:
+            MyServer.hidden = true;
+                break;
+
+        case EServerVisibility::Public:
+            MyServer.hidden = false;
+            break;
+          
+        }
 
         SendHostingPostRequest();
         break;
@@ -125,14 +138,17 @@ void CCompanion::SendHostingPostRequest()
 {
     HostToken = std::string();
     bool result = r5net->PostServerHost(HostRequestMessage,HostToken,
-        ServerListing{ MyServer.name,
-        std::string(GameGlobals::HostState->m_levelName),
-        "",
-        GameGlobals::Cvar->FindVar("hostport")->m_pzsCurrentValue,
-        GameGlobals::Cvar->FindVar("mp_gamemode")->m_pzsCurrentValue,
-        MyServer.password,
-        std::to_string(*reinterpret_cast<std::int32_t*>(0x1656057E0)),
-        std::string()}
+        ServerListing{ 
+            MyServer.name,
+            std::string(GameGlobals::HostState->m_levelName),
+            "",
+            GameGlobals::Cvar->FindVar("hostport")->m_pzsCurrentValue,
+            GameGlobals::Cvar->FindVar("mp_gamemode")->m_pzsCurrentValue,
+            MyServer.hidden,
+            std::to_string(*reinterpret_cast<std::int32_t*>(0x1656057E0)),
+            std::string(),
+            addr_NetChan_EncKey
+        }
     );
 
     if (result)
@@ -222,9 +238,9 @@ void CCompanion::ServerBrowserSection()
                     std::string selectButtonText = "Connect##";
                     selectButtonText += (server.name + server.ip + server.map);
 
-                    if (ImGui::Button(selectButtonText.c_str()))
+                    if (ImGui::Button(selectButtonText.c_str())) 
                     {
-                        ConnectToServer(server.ip, server.port);
+                        ConnectToServer(server.ip, server.port, server.netchanEncryptionKey);
                     }
                 }
 
@@ -235,28 +251,37 @@ void CCompanion::ServerBrowserSection()
 
     ImGui::Separator();
 
-    ImGui::InputTextWithHint("##ServerBrowser_ServerConnString", "Enter IP address or \"localhost\"", ServerConnStringBuffer, IM_ARRAYSIZE(ServerConnStringBuffer));
-
-    ImGui::SameLine();
-
-    if (ImGui::Button("Connect##ServerBrowser_ConnectByIp", ImVec2(ImGui::GetWindowContentRegionWidth() * (1.f / 3.f / 2.f), 19)))
+    ImGui::PushItemWidth(ImGui::GetWindowContentRegionWidth() / 4);
     {
-        //const char* replace = ""; // For history pos soon
-        std::stringstream cmd;
-        cmd << "connect " << ServerConnStringBuffer;
-        ConnectToServer(ServerConnStringBuffer);
-        //strcpy_s(ServerConnStringBuffer, sizeof(replace), replace); // For history pos soon
+        ImGui::InputTextWithHint("##ServerBrowser_ServerConnString", "Enter IP address or \"localhost\"", ServerConnStringBuffer, IM_ARRAYSIZE(ServerConnStringBuffer));
+
+        ImGui::SameLine(); ImGui::InputTextWithHint("##ServerBrowser_ServerEncKey", "Enter the encryption key", ServerEncKeyBuffer, IM_ARRAYSIZE(ServerEncKeyBuffer));
+
+
+        if (ImGui::SameLine(); ImGui::Button("Connect##ServerBrowser_ConnectByIp", ImVec2(ImGui::GetWindowContentRegionWidth() / 4, 18.5)))
+        {
+            ConnectToServer(ServerConnStringBuffer, ServerEncKeyBuffer);
+        }
+
+        ImGui::SameLine();
+
+        if (ImGui::Button("Private Servers##ServerBrowser_HiddenServersButton", ImVec2(ImGui::GetWindowContentRegionWidth() / 4, 18.5)))
+        {
+            ImGui::OpenPopup("Connect to Private Server##HiddenServersConnectModal");
+        }
+        HiddenServersModal();
+        // TODO: Still not in a seperate class...
+
     }
+    ImGui::PopItemWidth();
 
-    ImGui::SameLine();
+    
+}
 
-    if (ImGui::Button("Private Servers##ServerBrowser_PrivateServersButton", ImVec2(ImGui::GetWindowContentRegionWidth() * (1.f / 3.f / 2.f), 19)))
-    {
-        ImGui::OpenPopup("Connect to Private Server##PrivateServersConnectModal");
-    }
-
+void CCompanion::HiddenServersModal() 
+{
     bool modalOpen = true;
-    if (ImGui::BeginPopupModal("Connect to Private Server##PrivateServersConnectModal", &modalOpen))
+    if (ImGui::BeginPopupModal("Connect to Private Server##HiddenServersConnectModal", &modalOpen))
     {
         // I *WILL* move this in a separate class
 
@@ -322,7 +347,7 @@ void CCompanion::ServerBrowserSection()
         }
 
         ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.00f, 0.00f, 0.00f, 0.00f)); // Override the style color for child bg.
-        ImGui::BeginChild("##PrivateServersConnectModal_IconParent", ImVec2(ApexLockIconWidth, ApexLockIconHeight));
+        ImGui::BeginChild("##HiddenServersConnectModal_IconParent", ImVec2(ApexLockIconWidth, ApexLockIconHeight));
         {
             ImGui::Image(ApexLockIcon, ImVec2(ApexLockIconWidth, ApexLockIconHeight)); // Display texture.
         }
@@ -334,38 +359,37 @@ void CCompanion::ServerBrowserSection()
         ImGui::Text("Enter the following details to continue");
 
         ImGui::PushItemWidth(ImGui::GetWindowContentRegionWidth()); // Override item width.
-        ImGui::InputTextWithHint("##PrivateServersConnectModal_TokenInput", "Token", &PrivateServerToken);
-        ImGui::InputTextWithHint("##PrivateServersConnectModal_PasswordInput", "Password", &PrivateServerPassword, ImGuiInputTextFlags_Password);
+        ImGui::InputTextWithHint("##HiddenServersConnectModal_TokenInput", "Token", &HiddenServerToken);
         ImGui::PopItemWidth(); // Pop item width.
 
         ImGui::Dummy(ImVec2(ImGui::GetWindowContentRegionWidth(), 19.f)); // Place a dummy, basically making space inserting a blank element.
 
-        ImGui::TextColored(PrivateServerMessageColor, PrivateServerRequestMessage.c_str());
+        ImGui::TextColored(HiddenServerMessageColor, HiddenServerRequestMessage.c_str());
 
         ImGui::Separator();
 
-        if (ImGui::Button("Connect##PrivateServersConnectModal_ConnectButton", ImVec2(ImGui::GetWindowContentRegionWidth() / 2.f, 19)))
+        if (ImGui::Button("Connect##HiddenServersConnectModal_ConnectButton", ImVec2(ImGui::GetWindowContentRegionWidth() / 2, 24)))
         {
-            PrivateServerRequestMessage = "";
+            HiddenServerRequestMessage = "";
             ServerListing server;
-            bool result = r5net->GetServerByToken(server, PrivateServerRequestMessage, PrivateServerToken, PrivateServerPassword); // Send token connect request.
+            bool result = r5net->GetServerByToken(server, HiddenServerRequestMessage, HiddenServerToken); // Send token connect request.
             if (!server.name.empty())
             {
-                ConnectToServer(server.ip, server.port); // Connect to the server
-                PrivateServerRequestMessage = "Found Server: " + server.name;
-                PrivateServerMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
+                ConnectToServer(server.ip, server.port, server.netchanEncryptionKey); // Connect to the server
+                HiddenServerRequestMessage = "Found Server: " + server.name;
+                HiddenServerMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
                 ImGui::CloseCurrentPopup();
             }
             else
             {
-                PrivateServerRequestMessage = "Error: " + PrivateServerRequestMessage;
-                PrivateServerMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+                HiddenServerRequestMessage = "Error: " + HiddenServerRequestMessage;
+                HiddenServerMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
             }
         }
 
         ImGui::SameLine();
 
-        if (ImGui::Button("Close##PrivateServersConnectModal_CloseButton", ImVec2(ImGui::GetWindowContentRegionWidth() / 2.f, 19)))
+        if (ImGui::Button("Close##HiddenServersConnectModal_CloseButton", ImVec2(ImGui::GetWindowContentRegionWidth() / 2, 24)))
         {
             ImGui::CloseCurrentPopup();
         }
@@ -380,8 +404,20 @@ void CCompanion::HostServerSection()
     static std::string ServerMap = std::string();
 
     ImGui::InputTextWithHint("##ServerHost_ServerName", "Server Name (Required)", &MyServer.name);
-    ImGui::InputTextWithHint("##ServerHost_ServerPassword", "Password (Optional)", &MyServer.password);
     ImGui::Spacing();
+
+    if (ImGui::BeginCombo("Playlist##ServerHost_PlaylistBox", MyServer.playlist.c_str()))
+    {
+        for (auto& item : GameGlobals::allPlaylists)
+        {
+            if (ImGui::Selectable(item.c_str(), item == MyServer.playlist))
+            {
+                MyServer.playlist = item;
+            }
+        }
+        ImGui::EndCombo();
+    }
+
     if (ImGui::BeginCombo("Map##ServerHost_MapListBox", MyServer.map.c_str()))
     {
         for (auto& item : MapsList)
@@ -399,25 +435,28 @@ void CCompanion::HostServerSection()
         }
         ImGui::EndCombo();
     }
-    if (ImGui::BeginCombo("Playlist##ServerHost_PlaylistBox", MyServer.playlist.c_str()))
-    {
-        for (auto& item : GameGlobals::allPlaylists)
-        {
-            if (ImGui::Selectable(item.c_str(), item == MyServer.playlist))
-            {
-                MyServer.playlist = item;
-            }
-        }
-        ImGui::EndCombo();
-    }
+
+ // ImGui::Checkbox("Start as Dedicated Server (HACK)##ServerHost_DediCheckbox", &StartAsDedi);
+    ImGui::Checkbox("Load Global Ban List##ServerHost_CheckCompBanDBCheckbox", &g_CheckCompBanDB);
+
     ImGui::Spacing();
-
-    ImGui::Checkbox("Start as Dedicated Server (HACK)##ServerHost_DediCheckbox", &StartAsDedi);
-
     ImGui::SameLine();
+    ImGui::Text("Server Visiblity");
+    
+    if (ImGui::SameLine(); ImGui::RadioButton("Offline##ServerHost_ServerChoice1", ServerVisibility == EServerVisibility::Offline)) 
+    {
+        ServerVisibility = EServerVisibility::Offline;
+    }
+    if (ImGui::SameLine(); ImGui::RadioButton("Hidden##ServerHost_ServerChoice2", ServerVisibility == EServerVisibility::Hidden))
+    {
+        ServerVisibility = EServerVisibility::Hidden;
+    }
+    if (ImGui::SameLine(); ImGui::RadioButton("Public##ServerHost_ServerChoice2", ServerVisibility == EServerVisibility::Public))
+    {
+        ServerVisibility = EServerVisibility::Public;
+    }
 
-    ImGui::Checkbox("Broadcast Server to Server Browser", &BroadCastServer);
-
+    ImGui::Spacing();
     ImGui::Separator();
 
     if (!GameGlobals::HostState->m_bActiveGame)
@@ -501,12 +540,23 @@ void CCompanion::HostServerSection()
 
 void CCompanion::SettingsSection()
 {
-    ImGui::InputTextWithHint("##MatchmakingServerString", "Matchmaking Server String", & MatchmakingServerStringBuffer);
+    // Matchmaking Server String
+    ImGui::InputTextWithHint("##MatchmakingServerString", "Matchmaking Server String", &MatchmakingServerStringBuffer);
     if (ImGui::Button("Update Settings"))
     {
-        if (r5net) delete r5net;
+        if (r5net)
+        {
+            delete r5net;
+        }
+
         r5net = new R5Net::Client(MatchmakingServerStringBuffer);
     }
+    // Encryption Key
+    if (ImGui::Button("Regenerate Encryption Key##SettingsSection_RegenEncKey"))
+    {
+        RegenerateEncryptionKey();
+    }
+    ImGui::InputText("Encryption Key##SettingsSection_EncKey", addr_NetChan_EncKey, ImGuiInputTextFlags_ReadOnly);
 }
 
 void CCompanion::Draw(const char* title)
@@ -559,18 +609,57 @@ void CCompanion::ExecCommand(const char* command_line)
     addr_CommandExecute(NULL, command_line);
 }
 
-void CCompanion::ConnectToServer(const std::string& ip, const std::string& port)
+void CCompanion::ConnectToServer(const std::string ip, const std::string port, const std::string encKey)
 {
+    if (!encKey.empty())
+    {
+        ChangeEncryptionKeyTo(encKey);
+    }
+
     std::stringstream cmd;
     cmd << "connect " << ip << ":" << port;
     ProcessCommand(cmd.str().c_str());
 }
 
-void CCompanion::ConnectToServer(const std::string& connString)
+void CCompanion::ConnectToServer(const std::string connString, const std::string encKey)
 {
+    if (!encKey.empty())
+    {
+        ChangeEncryptionKeyTo(encKey);
+    }
+
     std::stringstream cmd;
     cmd << "connect " << connString;
     ProcessCommand(cmd.str().c_str());
+}
+
+void CCompanion::RegenerateEncryptionKey()
+{
+    BCRYPT_ALG_HANDLE hAlgorithm;
+    if (BCryptOpenAlgorithmProvider(&hAlgorithm, L"RNG", 0, 0) < 0)
+    {
+        std::cerr << "Failed to open rng algorithm\n";
+    }
+    unsigned char pBuffer[0x10u];
+    if (BCryptGenRandom(hAlgorithm, pBuffer, 0x10u, 0) < 0)
+    {
+        std::cerr << "Failed to generate random data\n";
+    }
+    std::string fin;
+
+    for (int i = 0; i < 0x10u; i++)
+    {
+        fin += pBuffer[i];
+    }
+
+    fin = base64_encode(fin);
+
+    addr_NetChan_SetEncKey(addr_NetChan_EncKeyPtr.GetPtr(), fin.c_str());
+}
+
+void CCompanion::ChangeEncryptionKeyTo(const std::string str)
+{
+    addr_NetChan_SetEncKey(addr_NetChan_EncKeyPtr.GetPtr(), str.c_str());
 }
 
 //#############################################################################
@@ -584,5 +673,6 @@ void DrawBrowser()
         g_ServerBrowser = &browser;
         return true;
     } ();
+
     browser.Draw("Companion");
 }

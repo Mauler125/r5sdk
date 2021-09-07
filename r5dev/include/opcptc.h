@@ -29,6 +29,8 @@ namespace
 #pragma region NetChannel
 	/*0x14030D000*/
 	MemoryAddress CServer_Auth = r5_op.PatternSearch("40 55 57 41 55 41 57 48 8D AC 24 ? ? ? ?");
+	/*0x1413336F0*/
+	MemoryAddress NetChan_EncKey_DefaultAssign = r5_op.PatternSearch("E8 ? ? ? ? 48 8D 1D ? ? ? ? 4C 39 3D ? ? ? ?");
 #pragma endregion
 
 #pragma region FairFight
@@ -50,6 +52,7 @@ namespace
 		PRINT_ADDRESS("dst004", dst004.GetPtr());
 		PRINT_ADDRESS("Host_NewGame", Host_NewGame.GetPtr());
 		PRINT_ADDRESS("CServer_Auth", CServer_Auth.GetPtr());
+		PRINT_ADDRESS("NetChan_EncKey_DefaultAssign", NetChan_EncKey_DefaultAssign.GetPtr());
 		PRINT_ADDRESS("FairFight_Init", FairFight_Init.GetPtr());
 		PRINT_ADDRESS("Squirrel_CompileError", Squirrel_CompileError.GetPtr());
 		std::cout << "+--------------------------------------------------------+" << std::endl;

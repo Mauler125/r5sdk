@@ -9,13 +9,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\serverlisting.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\netpch.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\r5\r5net.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\r5\serverlisting.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

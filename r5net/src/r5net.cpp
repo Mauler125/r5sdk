@@ -6,7 +6,7 @@
 
 std::string R5Net::Client::GetVersionString()
 {
-    return "beta 1.5";
+    return "beta 1.6";
 }
 
 std::vector<ServerListing> R5Net::Client::GetServersList(std::string& outMessage)
@@ -36,7 +36,17 @@ std::vector<ServerListing> R5Net::Client::GetServersList(std::string& outMessage
             for (auto obj : resBody["servers"])
             {
                 list.push_back(
-                    ServerListing{ obj["name"].get<std::string>(), obj["map"].get<std::string>(), obj["ip"].get<std::string>(), obj["port"].get<std::string>(), obj["gamemode"].get<std::string>() }
+                    ServerListing{
+                        obj.value("name",""),
+                        obj.value("map", ""),
+                        obj.value("ip", ""),
+                        obj.value("port", ""),
+                        obj.value("gamemode", ""),
+                        obj.value("hidden", "false") == "true",
+                        obj.value("remote_checksum", ""),
+                        obj.value("version", GetVersionString()),
+                        obj.value("encKey", "")
+                    }
                 );
             }
         }
@@ -81,15 +91,16 @@ bool R5Net::Client::PostServerHost(std::string& outMessage, std::string& outToke
     reqBody["name"] = serverListing.name;
     reqBody["map"] = serverListing.map;
     reqBody["port"] = serverListing.port;
-    reqBody["password"] = serverListing.password;
-    reqBody["remote_checksum"] = serverListing.checksum;
+    reqBody["remote_checksum"] = serverListing.remoteChecksum;
     reqBody["version"] = GetVersionString();
     reqBody["gamemode"] = serverListing.playlist;
+    reqBody["encKey"] = serverListing.netchanEncryptionKey;
+    reqBody["hidden"] = serverListing.hidden;
 
     std::string reqBodyStr = reqBody.dump();
 
-#ifdef DebugR5Net
-    std::cout << " [+R5Net+] Sending PostServerHost post now..\n";
+    #ifdef DebugR5Net
+    std::cout << " [+R5Net+] Sending PostServerHost post now..\n" << reqBodyStr << "\n";
 #endif 
 
     httplib::Result res = m_HttpClient.Post("/servers/add", reqBodyStr.c_str(), reqBodyStr.length(), "application/json");
@@ -150,12 +161,11 @@ bool R5Net::Client::PostServerHost(std::string& outMessage, std::string& outToke
     return false;
 }
 
-bool R5Net::Client::GetServerByToken(ServerListing& outServer, std::string& outMessage, const std::string token, const std::string password)
+bool R5Net::Client::GetServerByToken(ServerListing& outServer, std::string& outMessage, const std::string token)
 {
     nlohmann::json reqBody = nlohmann::json::object();
 
     reqBody["token"] = token;
-    reqBody["password"] = password;
 
 #ifdef DebugR5Net
     std::cout << " [+R5Net+] Sending GetServerByToken post now...\n";
@@ -176,10 +186,15 @@ bool R5Net::Client::GetServerByToken(ServerListing& outServer, std::string& outM
             if (res && resBody["success"].is_boolean() && resBody["success"])
             {
                 outServer = ServerListing{
-                    resBody["server"]["name"].get<std::string>(),
-                    resBody["server"]["map"].get<std::string>(),
-                    resBody["server"]["ip"].get<std::string>(),
-                    resBody["server"]["port"].get<std::string>()
+                        resBody["server"].value("name",""),
+                        resBody["server"].value("map", ""),
+                        resBody["server"].value("ip", ""),
+                        resBody["server"].value("port", ""),
+                        resBody["server"].value("gamemode", ""),
+                        resBody["server"].value("hidden", "false") == "true",
+                        resBody["server"].value("remote_checksum", ""),
+                        resBody["server"].value("version", GetVersionString()),
+                        resBody["server"].value("encKey", "")
                 };
                 return true;
             }
@@ -220,6 +235,30 @@ bool R5Net::Client::GetServerByToken(ServerListing& outServer, std::string& outM
         return false;
     }
 
+    return false;
+}
+
+bool R5Net::Client::GetClientIsBanned(const std::string ip, std::int64_t orid, std::string& outErrCl)
+{
+    nlohmann::json reqBody = nlohmann::json::object();
+    reqBody["ip"] = ip;
+    reqBody["orid"] = orid;
+
+    httplib::Result res = m_HttpClient.Post("/banlist/isBanned", reqBody.dump().c_str(), reqBody.dump().length(), "application/json");
+
+    if (res && res->status == 200)
+    {
+        nlohmann::json resBody = nlohmann::json::parse(res->body);
+
+        if (resBody["success"].is_boolean() && resBody["success"].get<bool>())
+        {
+            if (resBody["isBanned"].is_boolean() && resBody["isBanned"].get<bool>())
+            {
+                outErrCl = resBody.value("errCl", "Generic error (code:gen). Contact R5Reloaded developers.");
+                return true;
+            }
+        }
+    }
     return false;
 }
 

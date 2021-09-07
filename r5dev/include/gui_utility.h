@@ -27,12 +27,12 @@ public:
         std::filesystem::path path = std::filesystem::current_path() /= "gui.config"; // Get current path + gui.config
 
         nlohmann::json in;
-        std::ifstream config_file(path, std::ios::in); // Parse config file.
+        std::ifstream configFile(path, std::ios::in); // Parse config file.
 
-        if (config_file.good() && config_file) // Check if it parsed.
+        if (configFile.good() && configFile) // Check if it parsed.
         {
-            config_file >> in;
-            config_file.close();
+            configFile >> in;
+            configFile.close();
 
             if (!in.is_null())
             {
@@ -63,11 +63,11 @@ public:
         out["config"]["CCompanion"]["bind2"] = CCompanionConfig.bind2;
 
         std::filesystem::path path = std::filesystem::current_path() /= "gui.config"; // Get current path + gui.config
-        std::ofstream out_file(path, std::ios::out | std::ios::trunc); // Write config file..
+        std::ofstream outFile(path, std::ios::out | std::ios::trunc); // Write config file..
 
-        out_file << out.dump(4); // Dump it into config file..
+        outFile << out.dump(4); // Dump it into config file..
 
-        out_file.close(); // Close the file handle.
+        outFile.close(); // Close the file handle.
     };
 };
 

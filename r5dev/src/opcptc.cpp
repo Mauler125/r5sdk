@@ -29,4 +29,7 @@ void InstallOpcodes() /* .TEXT */
 	//-------------------------------------------------------------------------
 	// CALL --> NOP | Prevent squirrel compiler errors from calling Error
 	Squirrel_CompileError.Offset(0x12C).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });
+	//-------------------------------------------------------------------------
+	// CALL --> NOP | Prevent random netchan encryption key from being overriden by default key
+	NetChan_EncKey_DefaultAssign.Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });
 }

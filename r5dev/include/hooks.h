@@ -36,6 +36,13 @@ namespace Hooks
 	extern SQVM_LoadScriptFn originalSQVM_LoadScript;
 #pragma endregion
 
+#pragma region CServer
+	void* ConnectClient(void* thisptr, void* packet);
+
+	using ConnectClientFn = void* (*)(void*, void*);
+	extern ConnectClientFn originalConnectClient;
+#pragma endregion
+
 #pragma region CVEngineServer
 	bool IsPersistenceDataAvailable(__int64 thisptr, int client);
 
@@ -47,7 +54,7 @@ namespace Hooks
 	bool NET_ReceiveDatagram(int sock, void* inpacket, bool raw);
 	unsigned int NET_SendDatagram(SOCKET s, const char* buf, int len, int flags);
 	void NET_PrintFunc(const char* fmt, ...);
-	void NetChanShutdown(void* rcx, const char* reason, unsigned __int8 unk1, char unk2);
+	void NetChan_Shutdown(void* rcx, const char* reason, unsigned __int8 unk1, char unk2);
 
 	using NET_PrintFuncFn = void(*)(const char* fmt, ...);
 	extern NET_PrintFuncFn originalNET_PrintFunc;
@@ -58,7 +65,7 @@ namespace Hooks
 	using NET_SendDatagramFn = unsigned int(*)(SOCKET, const char*, int, int);
 	extern NET_SendDatagramFn originalNET_SendDatagram;
 	using NetChan_ShutDown = void(*)(void*, const char*, unsigned __int8, char);
-	extern NetChan_ShutDown originalNetChanShutDown;
+	extern NetChan_ShutDown originalNetChan_ShutDown;
 #pragma endregion
 
 #pragma region ConVar
@@ -70,9 +77,6 @@ namespace Hooks
 
 	using ConCommand_IsFlagSetFn = bool(*)(ConCommandBase*, int);
 	extern ConCommand_IsFlagSetFn originalConCommand_IsFlagSet;
-
-	using Map_CallbackFn = void(*)(void*);
-	extern Map_CallbackFn originalMap_Callback;
 #pragma endregion
 
 #pragma region WinAPI
