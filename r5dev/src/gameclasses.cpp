@@ -2,6 +2,7 @@
 #include "gameclasses.h"
 #include "id3dx.h"
 #include "cgameconsole.h"
+#include "CCompanion.h"
 
 //  Need this for a re-factor later.
 //	Interface* interfaces = *reinterpret_cast<Interface**>(0x167F4FA48);
@@ -35,6 +36,20 @@ namespace GameGlobals
 		void CCompanion_Callback(const CCommand& cmd)
 		{
 			g_bShowBrowser = !g_bShowBrowser;
+		}
+
+		void LauncherConnect_Callback(CCommand* cmd)
+		{
+			std::int32_t argSize = *(std::int32_t*)((std::uintptr_t)cmd + 0x4);
+			if (argSize < 4) // Do we atleast have 4 arguments?
+				return;
+
+			CCommand& cmdReference = *cmd; // Get reference.
+			const char* ip = cmdReference[1]; // Get ip.
+			const char* port = cmdReference[2]; // Get port.
+			const char* key = cmdReference[3]; // Get key.
+
+			g_ServerBrowser->ConnectToServer(ip, port, key);
 		}
 
 		void Kick_Callback(CCommand* cmd)
@@ -406,6 +421,8 @@ namespace GameGlobals
 		void* ReloadBanListConCommand = CreateCustomConCommand("reloadbanlist", "Reloads the ban list from disk.", 0, CustomCommandVariations::ReloadBanList_Callback, nullptr);
 		void* BanConCommand =           CreateCustomConCommand("ban", "Bans a client from the Server via name. | Usage: ban (name)", 0, CustomCommandVariations::Ban_Callback, nullptr);
 		void* BanIDConCommand =         CreateCustomConCommand("banid", "Bans a client from the Server via originID, userID or IP | Usage: banid (originID/ipAddress/userID)", 0, CustomCommandVariations::BanID_Callback, nullptr);
+	
+		void* LauncherConnectCommand = CreateCustomConCommand("launcherconnect", "Connects to a server directly from the launcher | Usage: lconnect (ip) (port) (key)", 0, CustomCommandVariations::LauncherConnect_Callback, nullptr);
 	}
 
 	void* CreateCustomConCommand(const char* name, const char* helpString, int flags, void* callback, void* callbackAfterExecution)
