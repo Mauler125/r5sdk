@@ -21,6 +21,7 @@ void Hooks::InstallHooks()
 	MH_CreateHook(addr_SQVM_Warning, &Hooks::SQVM_Warning, reinterpret_cast<void**>(&originalSQVM_Warning));
 	MH_CreateHook(addr_SQVM_LoadRson, &Hooks::SQVM_LoadRson, reinterpret_cast<void**>(&originalSQVM_LoadRson));
 	MH_CreateHook(addr_SQVM_LoadScript, &Hooks::SQVM_LoadScript, reinterpret_cast<void**>(&originalSQVM_LoadScript));
+	MH_CreateHook(addr_Script_RegisterOriginFuncs, &Hooks::Script_RegisterOriginFuncs, reinterpret_cast<void**>(&originalScript_RegisterOriginFuncs));
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Hook Game Functions
@@ -77,6 +78,7 @@ void Hooks::InstallHooks()
 	MH_EnableHook(addr_SQVM_Warning);
 	MH_EnableHook(addr_SQVM_LoadRson);
 	MH_EnableHook(addr_SQVM_LoadScript);
+	MH_EnableHook(addr_Script_RegisterOriginFuncs);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Enable Game hooks
@@ -111,6 +113,7 @@ void Hooks::RemoveHooks()
 	MH_RemoveHook(addr_SQVM_Print);
 	MH_RemoveHook(addr_SQVM_LoadRson);
 	MH_RemoveHook(addr_SQVM_LoadScript);
+	MH_RemoveHook(addr_Script_RegisterOriginFuncs);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook Game Functions

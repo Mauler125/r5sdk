@@ -37,6 +37,9 @@ namespace
 
 	/*0x140C957E0*/
 	FUNC_AT_ADDRESS(addr_SQVM_LoadRson, int(*)(const char*), r5_patterns.PatternSearch("4C 8B DC 49 89 5B 08 57 48 81 EC A0 00 00 00 33").GetPtr());
+
+	/*0x140834A00*/
+	FUNC_AT_ADDRESS(addr_Script_RegisterOriginFuncs, void(*)(void*), r5_patterns.PatternSearch("E8 ? ? ? ? 48 8B 0D ? ? ? ? 48 8D 15 ? ? ? ? E8 ? ? ? ? 48 8B 05 ? ? ? ? C7 05 ? ? ? ? ? ? ? ?").FollowNearCall().GetPtr());
 #pragma endregion
 
 #pragma region NetChannel
@@ -144,6 +147,7 @@ namespace
 		PRINT_ADDRESS("LoadPlaylist", addr_LoadPlaylist);
 		PRINT_ADDRESS("MapVPKCache", addr_MapVPKCache);
 		PRINT_ADDRESS("MemAlloc_Wrapper", addr_MemAlloc_Wrapper);
+		PRINT_ADDRESS("Script_RegisterOriginFuncs", addr_Script_RegisterOriginFuncs);
 		std::cout << "+--------------------------------------------------------+" << std::endl;
 		// TODO implement error handling when sigscan fails or result is 0
 	}

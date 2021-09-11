@@ -456,6 +456,33 @@ struct Interface
 	__int64* NextInterfacePtr;
 };
 
+struct SQFuncRegistration
+{
+	const char* scriptName;       // 00
+	const char* nativeName;       // 08
+	const char* helpString;		  // 10
+	const char* retValType;		  // 18
+	const char* argTypes;         // 20
+	int16_t unk28;				  // 28
+	int16_t padding1;			  // 2A
+	int32_t unk2c;				  // 2C
+	int64_t unk30;			      // 30
+	int32_t unk38;			      // 38
+	int32_t padding2;             // 3C
+	int64_t unk40;			      // 40
+	int64_t unk48;			      // 48
+	int64_t unk50;			      // 50
+	int32_t unk58;			      // 58
+	int32_t padding3;			  // 5C
+	void* funcPtr;				  // 60
+
+	SQFuncRegistration()
+	{
+		memset(this, 0, sizeof(SQFuncRegistration));
+		this->padding2 = 6;
+	}
+};
+
 /////////////////////////////////////////////////////////////////////////////
 // Initialize Game Globals
 
@@ -474,10 +501,16 @@ namespace GameGlobals
 	ConVar* CreateCustomConVar(const char* name, const char* defaultValue, int flags, const char* helpString, bool bMin, float fMin, bool bMax, float fMax, void* callback, void* unk);
 	void* CreateCustomConCommand(const char* name, const char* helpString, int flags, void* callback, void* callbackAfterExecution);
 
+	// Script
+	void Script_RegisterFunction(void* sqvm, const char* name, const char* helpString, const char* retValType, const char* argTypes, void* funcPtr);
+	void RegisterUIScriptFunctions(void* sqvm);
+	void RegisterClientScriptFunctions(void* sqvm);
+
 	// Init
 	void InitGameGlobals();
 	void InitAllCommandVariations();
 	void InitPlaylist();
+
 
 	extern std::vector<std::string> allPlaylists;
 	extern bool IsInitialized;
