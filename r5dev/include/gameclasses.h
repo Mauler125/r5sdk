@@ -458,23 +458,23 @@ struct Interface
 
 struct SQFuncRegistration
 {
-	const char* scriptName;       // 00
-	const char* nativeName;       // 08
-	const char* helpString;		  // 10
-	const char* retValType;		  // 18
-	const char* argTypes;         // 20
-	int16_t unk28;				  // 28
-	int16_t padding1;			  // 2A
-	int32_t unk2c;				  // 2C
-	int64_t unk30;			      // 30
-	int32_t unk38;			      // 38
-	int32_t padding2;             // 3C
-	int64_t unk40;			      // 40
-	int64_t unk48;			      // 48
-	int64_t unk50;			      // 50
-	int32_t unk58;			      // 58
-	int32_t padding3;			  // 5C
-	void* funcPtr;				  // 60
+	const char* scriptName;   // 00
+	const char* nativeName;   // 08
+	const char* helpString;   // 10
+	const char* retValType;   // 18
+	const char* argTypes;     // 20
+	int16_t unk28;            // 28
+	int16_t padding1;         // 2A
+	int32_t unk2c;            // 2C
+	int64_t unk30;            // 30
+	int32_t unk38;            // 38
+	int32_t padding2;         // 3C
+	int64_t unk40;            // 40
+	int64_t unk48;            // 48
+	int64_t unk50;            // 50
+	int32_t unk58;            // 58
+	int32_t padding3;         // 5C
+	void* funcPtr;            // 60
 
 	SQFuncRegistration()
 	{
