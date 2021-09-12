@@ -5,6 +5,10 @@ namespace
 {
 	Module r5_patterns = Module("r5apex.exe"); // Create module class instance.
 
+#pragma region CSourceAppSystemGroup
+	FUNC_AT_ADDRESS(addr_CSourceAppSystemGroup_Create, char(*)(__int64), r5_patterns.PatternSearch("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B F9 E8 ? ? ? ? 33 C9").GetPtr());
+#pragma endregion
+
 #pragma region Console
 	/*0x140202090*/
 	FUNC_AT_ADDRESS(addr_CommandExecute, void(*)(void*, const char*), r5_patterns.PatternSearch("48 89 5C 24 ? 57 48 83 EC 20 48 8D 0D ? ? ? ? 41 8B D8").GetPtr());
@@ -36,11 +40,19 @@ namespace
 
 	/*0x1402662D0*/
 	FUNC_AT_ADDRESS(addr_NET_SendDatagram, int(*)(SOCKET, const char*, int, int), r5_patterns.PatternSearch("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 56 41 57 48 81 EC ? 05 ? ?").GetPtr());
+
+	/*0x14025F190*/
+	FUNC_AT_ADDRESS(addr_NetChan_Shutdown, void(*)(void*, const char*, unsigned __int8, char), r5_patterns.StringSearch("Disconnect by server.\n").FindPatternSelf("E8 ? ? ? ? 4C 89 B3 ? ? ? ?", MemoryAddress::Direction::DOWN).FollowNearCallSelf().GetPtr());
 #pragma endregion
 
 #pragma region CHLClient
 	/*0x1405C0740*/
 	FUNC_AT_ADDRESS(addr_CHLClient_FrameStageNotify, void(*)(void* rcx, int curStage), r5_patterns.PatternSearch("48 83 EC 28 89 15 ?? ?? ?? ??").GetPtr());
+#pragma endregion
+
+#pragma region CClientState
+	/*0x1418223E4*/
+	FUNC_AT_ADDRESS(addr_m_bRestrictServerCommands, void*, r5_patterns.StringSearch("DevShotGenerator_Init()").FindPatternSelf("88 05", MemoryAddress::Direction::UP).ResolveRelativeAddressSelf(0x2).OffsetSelf(0x2).GetPtr());
 #pragma endregion
 
 #pragma region CVEngineServer
@@ -51,13 +63,23 @@ namespace
 #pragma region Utility
 	/*0x140295600*/
 	FUNC_AT_ADDRESS(addr_MSG_EngineError, int(*)(char*, va_list), r5_patterns.PatternSearch("48 89 5C 24 08 48 89 74 24 10 57 48 81 EC 30 08 00 00 48 8B DA").GetPtr());
+
+	/*0x1401B31C0*/
+	FUNC_AT_ADDRESS(addr_MemAlloc_Wrapper, void* (*)(__int64), r5_patterns.StringSearch("ConversionModeMenu").FindPatternSelf("E8 ? ? ? ? 48", MemoryAddress::Direction::UP).FollowNearCallSelf().GetPtr());
 #pragma endregion
 	// Un-used atm.
 	// DWORD64 p_KeyValues_FindKey = /*1404744E0*/ reinterpret_cast<DWORD64>(PatternScan("r5apex.exe", "40 56 57 41 57 48 81 EC ?? ?? ?? ?? 45"));
 
+#pragma region KeyValues
+/*0x1404744E0*/
+	FUNC_AT_ADDRESS(addr_KeyValues_FindKey, void* (*)(void*, const char*, bool), r5_patterns.PatternSearch("40 56 57 41 57 48 81 EC ?? ?? ?? ?? 45").GetPtr());
+#pragma endregion
+
+
 	void PrintHAddress() // Test the sigscan results
 	{
 		std::cout << "+--------------------------------------------------------+" << std::endl;
+		PRINT_ADDRESS("CSourceAppSystemGroup::Create", addr_CSourceAppSystemGroup_Create);
 		PRINT_ADDRESS("CommandExecute", addr_CommandExecute);
 		PRINT_ADDRESS("ConVar_IsFlagSet", addr_ConVar_IsFlagSet);
 		PRINT_ADDRESS("ConCommand_IsFlagSet", addr_ConCommand_IsFlagSet);
@@ -66,9 +88,12 @@ namespace
 		PRINT_ADDRESS("SQVM_LoadRson", addr_SQVM_LoadRson);
 		PRINT_ADDRESS("NET_ReceiveDatagram", addr_NET_ReceiveDatagram);
 		PRINT_ADDRESS("NET_SendDatagram ", addr_NET_SendDatagram);
+		PRINT_ADDRESS("NetChan_Shutdown ", addr_NetChan_Shutdown);
 		PRINT_ADDRESS("CHLClient::FrameStageNotify", addr_CHLClient_FrameStageNotify);
 		PRINT_ADDRESS("CVEngineServer::IsPersistenceDataAvailable", addr_CVEngineServer_IsPersistenceDataAvailable);
 		PRINT_ADDRESS("MSG_EngineError", addr_MSG_EngineError);
+		PRINT_ADDRESS("MemAlloc_Wrapper", addr_MemAlloc_Wrapper);
+		PRINT_ADDRESS("KeyValues_FindKey", addr_KeyValues_FindKey);
 		std::cout << "+--------------------------------------------------------+" << std::endl;
 		// TODO implement error handling when sigscan fails or result is 0
 	}
@@ -80,6 +105,13 @@ inline bool g_bDebugConsole = false;
 
 namespace Hooks
 {
+#pragma region CSourceAppSystemGroup
+	char __fastcall CSourceAppSystemGroup_Create(__int64 a1);
+
+	using CSourceAppSystemGroup_CreateFn = char(*)(__int64);
+	extern CSourceAppSystemGroup_CreateFn originalCSourceAppSystemGroup_Create;
+#pragma endregion
+
 #pragma region CHLClient
 //	void __fastcall FrameStageNotify(CHLClient* rcx, ClientFrameStage_t curStage);
 
@@ -122,7 +154,7 @@ namespace Hooks
 	bool ConCommand_IsFlagSet(int* cmd, int flag);
 #pragma endregion
 
-#pragma region Other
+#pragma region Utility
 	int MSG_EngineError(char* fmt, va_list args);
 
 	using MSG_EngineErrorFn = int(*)(char*, va_list);
@@ -133,4 +165,5 @@ namespace Hooks
 	void RemoveHooks();
 	void ToggleNetTrace();
 	void ToggleDevCommands();
+	void DedicatedPatch();
 }

@@ -50,35 +50,35 @@
     <Filter Include="shared\libraries\minhook\include">
       <UniqueIdentifier>{485b5648-149f-4664-a961-be9cd520e9e3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="r5-sdk">
-      <UniqueIdentifier>{f5326cf2-826e-4499-98de-e818e096939d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="r5-sdk\include">
-      <UniqueIdentifier>{4c680991-cc41-4265-a6f3-b46d698bd72f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="r5-sdk\src">
-      <UniqueIdentifier>{8aac7eb6-9810-4fa2-bbfe-499fb2950f01}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="hooks\src">
-      <UniqueIdentifier>{f28b1a49-9b41-48d2-9462-1674af3d72a2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="hooks\src\other">
-      <UniqueIdentifier>{cc424eef-0c7a-4fb0-9d84-30bf8db2e253}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="hooks\src\squirrel">
-      <UniqueIdentifier>{74afa89f-72af-4e13-aa90-70f7a1957154}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="hooks\src\netchannel">
-      <UniqueIdentifier>{05e6e9a7-801b-49b0-9c5a-21c4868befb7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="hooks\src\iconvar">
-      <UniqueIdentifier>{06affed3-5a59-4b95-88ca-72d92c91909b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="hooks\src\cvengineserver">
-      <UniqueIdentifier>{338a4fb7-7519-4628-9206-679d33824965}</UniqueIdentifier>
-    </Filter>
     <Filter Include="hooks\include">
       <UniqueIdentifier>{31cdde4d-3641-497c-9b34-20d3d7c89d87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hooks\cvengineserver">
+      <UniqueIdentifier>{338a4fb7-7519-4628-9206-679d33824965}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hooks\iconvar">
+      <UniqueIdentifier>{06affed3-5a59-4b95-88ca-72d92c91909b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hooks\netchannel">
+      <UniqueIdentifier>{05e6e9a7-801b-49b0-9c5a-21c4868befb7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hooks\other">
+      <UniqueIdentifier>{cc424eef-0c7a-4fb0-9d84-30bf8db2e253}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hooks\squirrel">
+      <UniqueIdentifier>{74afa89f-72af-4e13-aa90-70f7a1957154}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hooks\csourceappsystemgroup">
+      <UniqueIdentifier>{9381fa63-cf89-4980-8e5a-bf6e43cb2283}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="r5-sdk">
+      <UniqueIdentifier>{7fd080e8-390a-430b-a94c-e19c5792bf10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="r5-sdk\src">
+      <UniqueIdentifier>{e7e154b6-398e-42f9-bfb9-e80cd306254e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="r5-sdk\include">
+      <UniqueIdentifier>{3c89e0ef-e415-4a91-86b7-2a04a5f03340}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -388,11 +388,17 @@
     <ClInclude Include="..\external\minhook\include\MinHook.h">
       <Filter>shared\libraries\minhook\include</Filter>
     </ClInclude>
-    <ClInclude Include="opcodes.h">
-      <Filter>r5-sdk\include</Filter>
-    </ClInclude>
     <ClInclude Include="hooks.h">
       <Filter>hooks\include</Filter>
+    </ClInclude>
+    <ClInclude Include="opcodes.h">
+      <Filter>hooks\include</Filter>
+    </ClInclude>
+    <ClInclude Include="gameclasses.h">
+      <Filter>r5-sdk\include</Filter>
+    </ClInclude>
+    <ClInclude Include="enums.h">
+      <Filter>r5-sdk\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -406,28 +412,34 @@
       <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="net.cpp">
-      <Filter>hooks\src\netchannel</Filter>
+      <Filter>hooks\netchannel</Filter>
     </ClCompile>
     <ClCompile Include="cvengineserver.cpp">
-      <Filter>hooks\src\cvengineserver</Filter>
+      <Filter>hooks\cvengineserver</Filter>
     </ClCompile>
     <ClCompile Include="sqvm.cpp">
-      <Filter>hooks\src\squirrel</Filter>
+      <Filter>hooks\squirrel</Filter>
     </ClCompile>
     <ClCompile Include="msgbox.cpp">
-      <Filter>hooks\src\other</Filter>
+      <Filter>hooks\other</Filter>
     </ClCompile>
     <ClCompile Include="..\shared\utility.cpp">
       <Filter>shared</Filter>
     </ClCompile>
     <ClCompile Include="iconvar.cpp">
-      <Filter>hooks\src\iconvar</Filter>
+      <Filter>hooks\iconvar</Filter>
     </ClCompile>
     <ClCompile Include="opcodes.cpp">
-      <Filter>r5-sdk\src</Filter>
+      <Filter>hooks</Filter>
     </ClCompile>
     <ClCompile Include="hooks.cpp">
-      <Filter>hooks\src</Filter>
+      <Filter>hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="csourceappsystemgroup.cpp">
+      <Filter>hooks\csourceappsystemgroup</Filter>
+    </ClCompile>
+    <ClCompile Include="gameclasses.cpp">
+      <Filter>r5-sdk\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

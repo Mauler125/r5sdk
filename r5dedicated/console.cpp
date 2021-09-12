@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "hooks.h"
+#include "opcodes.h"
 #include "console.h"
 
 //#############################################################################
@@ -80,6 +81,7 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 		// Exec toggles
 		if (sCommand == "1") { addr_CommandExecute(NULL, "exec autoexec_dev"); }
 		if (sCommand == "2") { g_bDebugLoading = !g_bDebugLoading; continue; }
+		if (sCommand == "3") { SetCHostState(); continue; } // TEST
 
 		///////////////////////////////////////////////////////////////////////
 		// Execute the command in the r5 SQVM

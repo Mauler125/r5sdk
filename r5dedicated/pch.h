@@ -1,5 +1,5 @@
 #pragma once
-#pragma message("Pre-compiling headers.\n")
+#pragma message("[DEDICATED] pre-compiling headers.\n")
 
 #define WIN32_LEAN_AND_MEAN // Prevent winsock2 redefinition.
 #include <windows.h>
@@ -27,8 +27,8 @@
 #include "sinks/stdout_sinks.h"
 #include "sinks/ostream_sink.h"
 #include "utility.h"
-//#include "httplib.h"
-//#include "json.hpp"
+#include "httplib.h"
+#include "json.hpp"
 
 #include "address.h"
 

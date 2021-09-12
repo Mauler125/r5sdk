@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "hooks.h"
 #include "opcodes.h"
+#include "gameclasses.h"
 
 void Hooks::InstallHooks()
 {
@@ -8,6 +9,11 @@ void Hooks::InstallHooks()
 	// Initialize Minhook
 	MH_Initialize();
 
+	///////////////////////////////////////////////////////////////////////////////
+	// Hook SourceAppSystemGroup functions
+	MH_CreateHook(addr_CSourceAppSystemGroup_Create, &Hooks::CSourceAppSystemGroup_Create, reinterpret_cast<void**>(&originalCSourceAppSystemGroup_Create));
+
+	///////////////////////////////////////////////////////////////////////////////
 	// Hook Squirrel functions
 	MH_CreateHook(addr_SQVM_Print, &Hooks::SQVM_Print, NULL);
 	MH_CreateHook(addr_SQVM_LoadRson, &Hooks::SQVM_LoadRson, reinterpret_cast<void**>(&originalSQVM_LoadRson));
@@ -33,6 +39,10 @@ void Hooks::InstallHooks()
 	MH_CreateHook(addr_MSG_EngineError, &Hooks::MSG_EngineError, reinterpret_cast<void**>(&originalMSG_EngineError));
 
 	///////////////////////////////////////////////////////////////////////////////
+	// Enable SourceAppSystemGroup hooks
+	MH_EnableHook(addr_CSourceAppSystemGroup_Create);
+
+	///////////////////////////////////////////////////////////////////////////////
 	// Enable Squirrel hooks
 	MH_EnableHook(addr_SQVM_Print);
 	MH_EnableHook(addr_SQVM_LoadRson);
@@ -52,11 +62,17 @@ void Hooks::InstallHooks()
 	// Enabled Utility hooks
 	MH_EnableHook(addr_MSG_EngineError);
 
-	InstallOpcodes();
+	///////////////////////////////////////////////////////////////////////////////
+	// Set global variables
+	GameGlobals::InitGameGlobals();
 }
 
 void Hooks::RemoveHooks()
 {
+	///////////////////////////////////////////////////////////////////////////////
+	// Hook SourceAppSystemGroup functions
+	MH_RemoveHook(addr_CSourceAppSystemGroup_Create);
+
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook Squirrel functions
 	MH_RemoveHook(addr_SQVM_Print);

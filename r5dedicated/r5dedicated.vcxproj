@@ -185,7 +185,9 @@
   <ItemGroup>
     <ClCompile Include="..\shared\utility.cpp" />
     <ClCompile Include="console.cpp" />
+    <ClCompile Include="csourceappsystemgroup.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="gameclasses.cpp" />
     <ClCompile Include="hooks.cpp" />
     <ClCompile Include="iconvar.cpp" />
     <ClCompile Include="msgbox.cpp" />
@@ -300,6 +302,8 @@
     <ClInclude Include="..\shared\include\utility.h" />
     <ClInclude Include="console.h" />
     <ClInclude Include="dllmain.h" />
+    <ClInclude Include="enums.h" />
+    <ClInclude Include="gameclasses.h" />
     <ClInclude Include="hooks.h" />
     <ClInclude Include="opcodes.h" />
     <ClInclude Include="pch.h" />

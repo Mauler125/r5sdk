@@ -1,5 +1,5 @@
 #pragma once
-#pragma message("Pre-compiling headers.\n")
+#pragma message("[DEV] pre-compiling headers.\n")
 
 #define WIN32_LEAN_AND_MEAN // Prevent winsock2 redefinition.
 #include <windows.h>
