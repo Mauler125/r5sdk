@@ -6,9 +6,9 @@
 enum class LAUNCHMODE : int
 {
     LM_NULL,
-    LM_DEBUG,  // Debug DLL
-    LM_GAME,  // Release DLL
-    LM_DEDI  // Dedi DLL
+    LM_DEBUG,   // Debug DLL
+    LM_RELEASE, // Release DLL
+    LM_DEDI     // Dedicated DLL
 };
 
 //-----------------------------------------------------------------------------
@@ -16,6 +16,7 @@ enum class LAUNCHMODE : int
 //-----------------------------------------------------------------------------
 enum class LAUNCHSTATE : int
 {
+    LS_NULL,
     LS_NOCHEATS, // Disabled cheats
     LS_CHEATS,   // Enable cheats
     LS_DEBUG     // Enable debug
