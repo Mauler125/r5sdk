@@ -2,6 +2,7 @@
 #include "gameclasses.h"
 #include "id3dx.h"
 #include "cgameconsole.h"
+#include "squirrel.h"
 
 //  Need this for a re-factor later.
 //	Interface* interfaces = *reinterpret_cast<Interface**>(0x167F4FA48);
@@ -480,17 +481,22 @@ namespace GameGlobals
 	{
 		// function code goes here
 
+		//sq_pushbool(sqvm, 1); // return true
+
+		//char* arg1 = sq_getstring(sqvm, 1);  // get string from arg 1
+		//int arg2   = sq_getinteger(sqvm, 2); // get int from arg 2
+
 		return 1;
 	}
 
 	void RegisterUIScriptFunctions(void* sqvm)
 	{
-		Script_RegisterFunction(sqvm, "UINativeTest", "native ui function", "void", "", &Script_NativeTest);
+		//Script_RegisterFunction(sqvm, "UINativeTest", "native ui function", "void", "", &Script_NativeTest);
 	}
 
 	void RegisterClientScriptFunctions(void* sqvm)
 	{
-		Script_RegisterFunction(sqvm, "ClientNativeTest", "native client function", "void", "", &Script_NativeTest);
+		//Script_RegisterFunction(sqvm, "ClientNativeTest", "native client function", "void", "", &Script_NativeTest);
 	}
 
 	void DisconnectClient(CClient* client, const char* reason, unsigned __int8 unk1, char unk2)
