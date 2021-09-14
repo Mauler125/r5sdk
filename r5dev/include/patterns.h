@@ -29,6 +29,27 @@ namespace
 	/*0x140B1E55*/
 	FUNC_AT_ADDRESS(addr_SQVM_Warning_ReturnAddr, void*, r5_patterns.PatternSearch("E8 ? ? ? ? 85 C0 0F 99 C3").OffsetSelf(0x5).GetPtr());
 
+	/*0x141061A50*/
+	FUNC_AT_ADDRESS(addr_sq_pushstring, void(*)(void*, char*, __int64), r5_patterns.PatternSearch("E8 ? ? ? ? 8D 55 FE").FollowNearCall().GetPtr());
+	
+	/*0x141061CD0*/
+	FUNC_AT_ADDRESS(addr_sq_pushbool, void(*)(void*, int), r5_patterns.PatternSearch("E8 ? ? ? ? 41 0F B6 17").FollowNearCall().GetPtr());
+
+	/*0x141061C70*/
+	FUNC_AT_ADDRESS(addr_sq_pushinteger, void(*)(void*, int), r5_patterns.PatternSearch("E8 ? ? ? ? 41 0F B7 17").FollowNearCall().GetPtr());
+
+	/*0x141062040*/
+	FUNC_AT_ADDRESS(addr_sq_newarray, void(*)(void*, int), r5_patterns.PatternSearch("E8 ? ? ? ? 49 63 F5").FollowNearCall().GetPtr());
+
+	/*0x1410621F0*/
+	FUNC_AT_ADDRESS(addr_sq_arrayappend, __int64(*)(void*, int), r5_patterns.PatternSearch("E8 ? ? ? ? 49 63 46 38").FollowNearCall().GetPtr());
+
+	/*0x141061FB0*/
+	FUNC_AT_ADDRESS(addr_sq_newtable, void(*)(void*), r5_patterns.PatternSearch("E8 ? ? ? ? 83 C6 04").FollowNearCall().GetPtr());
+
+	/*0x141064250*/
+	FUNC_AT_ADDRESS(addr_sq_newslot, __int64(*)(void*, int), r5_patterns.PatternSearch("E8 ? ? ? ? 49 63 46 18").FollowNearCall().GetPtr());
+
 	//DWORD64 p_SQVM_LoadScript = FindPattern("r5apex.exe", (const unsigned char*)"\x48\x89\x5C\x24\x10\x48\x89\x74\x24\x18\x48\x89\x7C\x24\x20\x48\x89\x4C\x24\x08\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"); // For S0 and S1
 
 	/*0x141055630*/
@@ -37,6 +58,9 @@ namespace
 
 	/*0x140C957E0*/
 	FUNC_AT_ADDRESS(addr_SQVM_LoadRson, int(*)(const char*), r5_patterns.PatternSearch("4C 8B DC 49 89 5B 08 57 48 81 EC A0 00 00 00 33").GetPtr());
+
+	/*0x140834A00*/
+	FUNC_AT_ADDRESS(addr_SQVM_RegisterOriginFuncs, void(*)(void*), r5_patterns.PatternSearch("E8 ? ? ? ? 48 8B 0D ? ? ? ? 48 8D 15 ? ? ? ? E8 ? ? ? ? 48 8B 05 ? ? ? ? C7 05 ? ? ? ? ? ? ? ?").FollowNearCall().GetPtr());
 #pragma endregion
 
 #pragma region NetChannel
@@ -55,7 +79,6 @@ namespace
 	/*0x160686DC0*/
 	MemoryAddress addr_NetChan_EncKeyPtr = MemoryAddress(0x160686DC0);
 	char* addr_NetChan_EncKey = addr_NetChan_EncKeyPtr.Offset(4816).RCast<char*>();
-
 
 	/*0x140263E70*/
 	FUNC_AT_ADDRESS(addr_NetChan_SetEncKey, void(*)(uintptr_t, const char*), MemoryAddress(0x140263E70).GetPtr());
@@ -132,18 +155,32 @@ namespace
 		PRINT_ADDRESS("SQVM_LoadRson", addr_SQVM_LoadRson);
 		PRINT_ADDRESS("SQVM_Warning", addr_SQVM_Warning);
 		PRINT_ADDRESS("SQVM_Warning_ReturnAddr", addr_SQVM_Warning_ReturnAddr);
+		PRINT_ADDRESS("SQVM_RegisterOriginFuncs", addr_SQVM_RegisterOriginFuncs);
+		PRINT_ADDRESS("sq_arrayappend", addr_sq_arrayappend);
+		PRINT_ADDRESS("sq_newarray", addr_sq_newarray);
+		PRINT_ADDRESS("sq_newslot", addr_sq_newslot);
+		PRINT_ADDRESS("sq_newtable", addr_sq_newtable);
+		PRINT_ADDRESS("sq_pushbool", addr_sq_pushbool);
+		PRINT_ADDRESS("sq_pushinteger", addr_sq_pushinteger);
+		PRINT_ADDRESS("sq_pushstring", addr_sq_pushstring);
 		PRINT_ADDRESS("NET_PrintFunc", addr_NET_PrintFunc);
 		PRINT_ADDRESS("NET_ReceiveDatagram", addr_NET_ReceiveDatagram);
 		PRINT_ADDRESS("NET_SendDatagram ", addr_NET_SendDatagram);
 		PRINT_ADDRESS("CClientState::m_bRestrictServerCommands", addr_m_bRestrictServerCommands);
+		PRINT_ADDRESS("CClient::Clear", addr_CClient_Clear);
 		PRINT_ADDRESS("INetChannel::Shutdown", addr_NetChan_Shutdown);
+		PRINT_ADDRESS("INetChannel::SetEncryptionKey", addr_NetChan_SetEncKey);
+		PRINT_ADDRESS("INetChannel::EncryptionKey", addr_NetChan_EncKey)
 		PRINT_ADDRESS("CHLClient::FrameStageNotify", addr_CHLClient_FrameStageNotify);
 		PRINT_ADDRESS("CVEngineServer::IsPersistenceDataAvailable", addr_CVEngineServer_IsPersistenceDataAvailable);
+		PRINT_ADDRESS("CServer::ConnectClient", addr_CServer_ConnectClient);
+		PRINT_ADDRESS("CServer::RejectConnection", addr_CServer_RejectConnection);
 		PRINT_ADDRESS("CBaseFileSystem::FileSystemWarning", addr_CBaseFileSystem_FileSystemWarning);
 		PRINT_ADDRESS("MSG_EngineError", addr_MSG_EngineError);
 		PRINT_ADDRESS("LoadPlaylist", addr_LoadPlaylist);
 		PRINT_ADDRESS("MapVPKCache", addr_MapVPKCache);
 		PRINT_ADDRESS("MemAlloc_Wrapper", addr_MemAlloc_Wrapper);
+		PRINT_ADDRESS("KeyValues::FindKey", addr_KeyValues_FindKey);
 		std::cout << "+--------------------------------------------------------+" << std::endl;
 		// TODO implement error handling when sigscan fails or result is 0
 	}

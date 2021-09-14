@@ -2,6 +2,7 @@
 #include "gameclasses.h"
 #include "id3dx.h"
 #include "cgameconsole.h"
+#include "squirrel.h"
 
 //  Need this for a re-factor later.
 //	Interface* interfaces = *reinterpret_cast<Interface**>(0x167F4FA48);
@@ -458,6 +459,39 @@ namespace GameGlobals
 			(allocatedConvar, name, defaultValue, flags, helpString, bMin, fMin, bMax, fMax, callback, unk);
 
 		return allocatedConvar; // Return allocated ConVar.
+	}
+
+	void Script_RegisterFunction(void* sqvm, const char* name, const char* helpString, const char* retValType, const char* argTypes, void* funcPtr)
+	{
+		static MemoryAddress Script_RegisterFunction = MemoryAddress(0x141056040);
+
+		SQFuncRegistration* func = new SQFuncRegistration();
+
+		func->scriptName = name;
+		func->nativeName = name;
+		func->helpString = helpString;
+		func->retValType = retValType;
+		func->argTypes   = argTypes;
+		func->funcPtr    = funcPtr;
+
+		Script_RegisterFunction.RCast<void(*)(void*, SQFuncRegistration*, char unk)>()(sqvm, func, 1);
+	}
+
+	int Script_NativeTest(void* sqvm)
+	{
+		// function code goes here
+
+		return 1;
+	}
+
+	void RegisterUIScriptFunctions(void* sqvm)
+	{
+	//	Script_RegisterFunction(sqvm, "UINativeTest", "native ui function", "void", "", &Script_NativeTest);
+	}
+
+	void RegisterClientScriptFunctions(void* sqvm)
+	{
+	//	Script_RegisterFunction(sqvm, "ClientNativeTest", "native client function", "void", "", &Script_NativeTest);
 	}
 
 	void DisconnectClient(CClient* client, const char* reason, unsigned __int8 unk1, char unk2)

@@ -201,6 +201,9 @@
     <ClCompile Include="src\hooks\connectclient.cpp">
       <Filter>hooks\src\cserver</Filter>
     </ClCompile>
+    <ClCompile Include="src\squirrel.cpp">
+      <Filter>r5-sdk\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\external\imgui\include\imgui_impl_win32.h">
@@ -572,6 +575,9 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="..\shared\include\banlist.h">
       <Filter>shared\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\squirrel.h">
+      <Filter>r5-sdk\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
