@@ -25,7 +25,7 @@ namespace Hooks
 	__int64 SQVM_Warning(void* sqvm, int a2, int a3, int* stringSize, void** string);
 	__int64 SQVM_LoadRson(const char* rson_name);
 	bool SQVM_LoadScript(void* sqvm, const char* script_path, const char* script_name, int flag);
-	void Script_RegisterOriginFuncs(void* sqvm);
+	void SQVM_RegisterOriginFuncs(void* sqvm);
 
 	using SQVM_WarningFn = __int64(*)(void*, int, int, int*, void**);
 	extern SQVM_WarningFn originalSQVM_Warning;
@@ -36,8 +36,8 @@ namespace Hooks
 	using SQVM_LoadScriptFn = bool(*)(void*, const char*, const char*, int);
 	extern SQVM_LoadScriptFn originalSQVM_LoadScript;
 
-	using Script_RegisterOriginFuncsFn = void(*)(void*);
-	extern Script_RegisterOriginFuncsFn originalScript_RegisterOriginFuncs;
+	using SQVM_RegisterOriginFuncsFn = void(*)(void*);
+	extern SQVM_RegisterOriginFuncsFn originalSQVM_RegisterOriginFuncs;
 #pragma endregion
 
 #pragma region CServer

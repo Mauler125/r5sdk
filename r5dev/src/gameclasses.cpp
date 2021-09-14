@@ -486,12 +486,12 @@ namespace GameGlobals
 
 	void RegisterUIScriptFunctions(void* sqvm)
 	{
-		Script_RegisterFunction(sqvm, "UINativeTest", "native ui function", "void", "", &Script_NativeTest);
+	//	Script_RegisterFunction(sqvm, "UINativeTest", "native ui function", "void", "", &Script_NativeTest);
 	}
 
 	void RegisterClientScriptFunctions(void* sqvm)
 	{
-		Script_RegisterFunction(sqvm, "ClientNativeTest", "native client function", "void", "", &Script_NativeTest);
+	//	Script_RegisterFunction(sqvm, "ClientNativeTest", "native client function", "void", "", &Script_NativeTest);
 	}
 
 	void DisconnectClient(CClient* client, const char* reason, unsigned __int8 unk1, char unk2)

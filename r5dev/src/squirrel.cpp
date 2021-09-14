@@ -3,16 +3,16 @@
 
 char* sq_getstring(void* sqvm, int i)
 {
-	std::uintptr_t a1 = reinterpret_cast<std::uintptr_t>(sqvm);
+	std::uintptr_t thisptr = reinterpret_cast<std::uintptr_t>(sqvm);
 
-	return *(char**)(*(__int64*)(a1 + 88) + 16 * i + 8) + 64;
+	return *(char**)(*(__int64*)(thisptr + 0x58) + 0x10 * i + 0x8) + 0x40;
 }
 
 int sq_getinteger(void* sqvm, int i)
 {
-	std::uintptr_t a1 = reinterpret_cast<std::uintptr_t>(sqvm);
+	std::uintptr_t thisptr = reinterpret_cast<std::uintptr_t>(sqvm);
 
-	return *(int*)(*(__int64*)(a1 + 88) + 16 * i + 8);
+	return *(int*)(*(__int64*)(thisptr + 0x58) + 0x10 * i + 0x8);
 }
 
 void sq_pushbool(void* sqvm, int val)
