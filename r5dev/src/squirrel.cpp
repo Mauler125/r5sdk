@@ -20,7 +20,32 @@ void sq_pushbool(void* sqvm, int val)
 	addr_sq_pushbool(sqvm, val);
 }
 
-void sq_pushstring(void* sqvm, char* string)
+void sq_pushstring(void* sqvm, char* string, int len)
 {
-	addr_sq_pushstring(sqvm, string, -1);
+	addr_sq_pushstring(sqvm, string, len);
+}
+
+void sq_pushinteger(void* sqvm, int val)
+{
+	addr_sq_pushinteger(sqvm, val);
+}
+
+void sq_newarray(void* sqvm, int size)
+{
+	addr_sq_newarray(sqvm, size);
+}
+
+void sq_arrayappend(void* sqvm, int idx)
+{
+	addr_sq_arrayappend(sqvm, idx);
+}
+
+void sq_newtable(void* sqvm)
+{
+	addr_sq_newtable(sqvm);
+}
+
+void sq_newslot(void* sqvm, int idx)
+{
+	addr_sq_newslot(sqvm, idx);
 }

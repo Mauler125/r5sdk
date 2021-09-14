@@ -35,6 +35,21 @@ namespace
 	/*0x141061CD0*/
 	FUNC_AT_ADDRESS(addr_sq_pushbool, void(*)(void*, int), r5_patterns.PatternSearch("E8 ? ? ? ? 41 0F B6 17").FollowNearCall().GetPtr());
 
+	/*0x141061C70*/
+	FUNC_AT_ADDRESS(addr_sq_pushinteger, void(*)(void*, int), r5_patterns.PatternSearch("E8 ? ? ? ? 41 0F B7 17").FollowNearCall().GetPtr());
+
+	/*0x141062040*/
+	FUNC_AT_ADDRESS(addr_sq_newarray, void(*)(void*, int), r5_patterns.PatternSearch("E8 ? ? ? ? 49 63 F5").FollowNearCall().GetPtr());
+
+	/*0x1410621F0*/
+	FUNC_AT_ADDRESS(addr_sq_arrayappend, __int64(*)(void*, int), r5_patterns.PatternSearch("E8 ? ? ? ? 49 63 46 38").FollowNearCall().GetPtr());
+
+	/*0x141061FB0*/
+	FUNC_AT_ADDRESS(addr_sq_newtable, void(*)(void*), r5_patterns.PatternSearch("E8 ? ? ? ? 83 C6 04").FollowNearCall().GetPtr());
+
+	/*0x141064250*/
+	FUNC_AT_ADDRESS(addr_sq_newslot, __int64(*)(void*, int), r5_patterns.PatternSearch("E8 ? ? ? ? 49 63 46 18").FollowNearCall().GetPtr());
+
 	//DWORD64 p_SQVM_LoadScript = FindPattern("r5apex.exe", (const unsigned char*)"\x48\x89\x5C\x24\x10\x48\x89\x74\x24\x18\x48\x89\x7C\x24\x20\x48\x89\x4C\x24\x08\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"); // For S0 and S1
 
 	/*0x141055630*/
