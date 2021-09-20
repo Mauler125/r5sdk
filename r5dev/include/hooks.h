@@ -26,6 +26,7 @@ namespace Hooks
 	__int64 SQVM_LoadRson(const char* rson_name);
 	bool SQVM_LoadScript(void* sqvm, const char* script_path, const char* script_name, int flag);
 	void SQVM_RegisterOriginFuncs(void* sqvm);
+	void SQVM_RegisterCreatePlayerTasklist(void* sqvm);
 
 	using SQVM_WarningFn = __int64(*)(void*, int, int, int*, void**);
 	extern SQVM_WarningFn originalSQVM_Warning;
@@ -38,6 +39,9 @@ namespace Hooks
 
 	using SQVM_RegisterOriginFuncsFn = void(*)(void*);
 	extern SQVM_RegisterOriginFuncsFn originalSQVM_RegisterOriginFuncs;
+
+	using SQVM_RegisterCreatePlayerTasklistFn = void(*)(void*);
+	extern SQVM_RegisterCreatePlayerTasklistFn originalSQVM_RegisterCreatePlayerTasklist;
 #pragma endregion
 
 #pragma region CServer

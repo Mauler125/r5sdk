@@ -22,6 +22,7 @@ void Hooks::InstallHooks()
 	MH_CreateHook(addr_SQVM_LoadRson, &Hooks::SQVM_LoadRson, reinterpret_cast<void**>(&originalSQVM_LoadRson));
 	MH_CreateHook(addr_SQVM_LoadScript, &Hooks::SQVM_LoadScript, reinterpret_cast<void**>(&originalSQVM_LoadScript));
 	MH_CreateHook(addr_SQVM_RegisterOriginFuncs, &Hooks::SQVM_RegisterOriginFuncs, reinterpret_cast<void**>(&originalSQVM_RegisterOriginFuncs));
+	MH_CreateHook(addr_SQVM_RegisterCreatePlayerTasklist, &Hooks::SQVM_RegisterCreatePlayerTasklist, reinterpret_cast<void**>(&originalSQVM_RegisterCreatePlayerTasklist));
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Hook Game Functions
@@ -79,6 +80,7 @@ void Hooks::InstallHooks()
 	MH_EnableHook(addr_SQVM_LoadRson);
 	MH_EnableHook(addr_SQVM_LoadScript);
 	MH_EnableHook(addr_SQVM_RegisterOriginFuncs);
+	MH_EnableHook(addr_SQVM_RegisterCreatePlayerTasklist);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Enable Game hooks
@@ -114,6 +116,7 @@ void Hooks::RemoveHooks()
 	MH_RemoveHook(addr_SQVM_LoadRson);
 	MH_RemoveHook(addr_SQVM_LoadScript);
 	MH_RemoveHook(addr_SQVM_RegisterOriginFuncs);
+	MH_RemoveHook(addr_SQVM_RegisterCreatePlayerTasklist);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook Game Functions

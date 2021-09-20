@@ -61,6 +61,9 @@ namespace
 
 	/*0x140834A00*/
 	FUNC_AT_ADDRESS(addr_SQVM_RegisterOriginFuncs, void(*)(void*), r5_patterns.PatternSearch("E8 ? ? ? ? 48 8B 0D ? ? ? ? 48 8D 15 ? ? ? ? E8 ? ? ? ? 48 8B 05 ? ? ? ? C7 05 ? ? ? ? ? ? ? ?").FollowNearCall().GetPtr());
+
+	/*0x140C06B20*/
+	FUNC_AT_ADDRESS(addr_SQVM_RegisterCreatePlayerTasklist, void(*)(void*), r5_patterns.PatternSearch("E8 ? ? ? ? 48 8B 0D ? ? ? ? E8 ? ? ? ? 48 8B CB").FollowNearCall().GetPtr());
 #pragma endregion
 
 #pragma region NetChannel
@@ -156,6 +159,7 @@ namespace
 		PRINT_ADDRESS("SQVM_Warning", addr_SQVM_Warning);
 		PRINT_ADDRESS("SQVM_Warning_ReturnAddr", addr_SQVM_Warning_ReturnAddr);
 		PRINT_ADDRESS("SQVM_RegisterOriginFuncs", addr_SQVM_RegisterOriginFuncs);
+		PRINT_ADDRESS("SQVM_RegisterCreatePlayerTasklist", addr_SQVM_RegisterCreatePlayerTasklist);
 		PRINT_ADDRESS("sq_arrayappend", addr_sq_arrayappend);
 		PRINT_ADDRESS("sq_newarray", addr_sq_newarray);
 		PRINT_ADDRESS("sq_newslot", addr_sq_newslot);
