@@ -7,6 +7,7 @@ namespace Hooks
 	SQVM_LoadRsonFn originalSQVM_LoadRson = nullptr;
 	SQVM_LoadScriptFn originalSQVM_LoadScript = nullptr;
 	SQVM_RegisterOriginFuncsFn originalSQVM_RegisterOriginFuncs = nullptr;
+	SQVM_RegisterCreatePlayerTasklistFn originalSQVM_RegisterCreatePlayerTasklist = nullptr;
 }
 
 static std::ostringstream oss_print;
@@ -181,7 +182,8 @@ bool Hooks::SQVM_LoadScript(void* sqvm, const char* script_path, const char* scr
 	return originalSQVM_LoadScript(sqvm, script_path, script_name, flag);
 }
 
-void Hooks::SQVM_RegisterOriginFuncs(void* sqvm) {
+void Hooks::SQVM_RegisterOriginFuncs(void* sqvm)
+{
 	static MemoryAddress UIVM = MemoryAddress(0x14D4151F0);
 
 	originalSQVM_RegisterOriginFuncs(sqvm);
@@ -192,4 +194,11 @@ void Hooks::SQVM_RegisterOriginFuncs(void* sqvm) {
 	else {
 		GameGlobals::RegisterClientScriptFunctions(sqvm);
 	}
+}
+
+void Hooks::SQVM_RegisterCreatePlayerTasklist(void* sqvm)
+{
+	GameGlobals::RegisterServerScriptFunctions(sqvm);
+
+	originalSQVM_RegisterCreatePlayerTasklist(sqvm);
 }

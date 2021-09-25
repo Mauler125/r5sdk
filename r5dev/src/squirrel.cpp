@@ -25,6 +25,11 @@ void sq_pushstring(void* sqvm, char* string, int len)
 	addr_sq_pushstring(sqvm, string, len);
 }
 
+void sq_pushstring(void* sqvm, const char* string, int len)
+{
+	addr_sq_pushstring(sqvm, const_cast<char*>(string), len);
+}
+
 void sq_pushinteger(void* sqvm, int val)
 {
 	addr_sq_pushinteger(sqvm, val);

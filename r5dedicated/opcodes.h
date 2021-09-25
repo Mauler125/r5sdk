@@ -59,16 +59,22 @@ namespace
 	MemoryAddress s0 = 0x0000000140237B00; // server Host_Init()?
 	MemoryAddress s1 = 0x0000000140231C00; // _Host_RunFrame() with inlined CFrameTimer::MarkFrame()?
 	MemoryAddress s2 = 0x00000001402312A0; // server HeartBeat? (baseserver.cpp)
+	MemoryAddress s3 = 0x0000000140FB36D0; // TEMP??
 
 	// CLIENT
 	MemoryAddress c0 = 0x0000000140236640; // client Host_Init()?
 	MemoryAddress c1 = 0x0000000140299100; // CreateGameWindowInit()?
 	MemoryAddress c2 = 0x00000001403F4360; // 1403DF870 --> 1403F4360
 	MemoryAddress c3 = 0x00000001403F8A80; // 1403DF870 --> 1403F8A40
+	MemoryAddress c4 = 0x00000001405C27B0; // CHLClient + 1000
+	MemoryAddress c5 = 0x00000001405BAC00; //
+	MemoryAddress c6 = 0x00000001403CA2D0; //
+	MemoryAddress c7 = 0x00000001403CC750; // lightmaps?
 	MemoryAddress CreateGameWindow = 0x0000000140343DE0;
 
 	// VGUI
 	MemoryAddress v0 = 0x0000000140282E40; // jumptable
+	MemoryAddress OnLevelLoadingStarted = 0x00000001402830D0;
 	MemoryAddress SCR_BeginLoadingPlaque = 0x000000014023E870;
 
 

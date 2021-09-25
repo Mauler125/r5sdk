@@ -505,6 +505,7 @@ namespace GameGlobals
 	void Script_RegisterFunction(void* sqvm, const char* name, const char* helpString, const char* retValType, const char* argTypes, void* funcPtr);
 	void RegisterUIScriptFunctions(void* sqvm);
 	void RegisterClientScriptFunctions(void* sqvm);
+	void RegisterServerScriptFunctions(void* sqvm);
 
 	// Init
 	void InitGameGlobals();

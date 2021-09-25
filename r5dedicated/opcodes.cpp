@@ -88,6 +88,7 @@ void Hooks::DedicatedPatch()
 
 	*(uintptr_t*)0x14B3800D7 = 0x1; // bDedicated
 
+
 	DisableRenderer();
 	DisableClient();
 	DisableVGUI();
@@ -137,6 +138,26 @@ void Hooks::DedicatedPatch()
 	// JNE --> NOP | Skip settings field loading for client texture assets.
 	// TODO: this is also used by server.dll library.
 	e1.Offset(0x213).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });
+
+	//-------------------------------------------------------------------------
+	// RET
+	c4.Patch({ 0xC3 });
+	c5.Patch({ 0xC3 });
+	c7.Patch({ 0xC3 });
+
+	//-------------------------------------------------------------------------
+	// JNE --> JMP | 
+	c6.Offset(0x23).Patch({ 0xEB, 0x23 });
+
+
+	//-------------------------------------------------------------------------
+	// JNE --> JMP | (TEMP) jump over some settings block issues. not sure what to do here
+	s3.Offset(0x16C).Patch({ 0xE9, 0x47, 0x01, 0x00 });
+
+
+
+
+	OnLevelLoadingStarted.Offset(0x61).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });
 
 	//-------------------------------------------------------------------------
 	// ??? 1403DFC30 = 0x94490 ??? // an expensive stuff that wasted many CPU cycles, this one seems to be the best candidate to return
