@@ -381,6 +381,21 @@ int CGameConsole::TextEditCallback(ImGuiInputTextCallbackData* data)
     return 0;
 }
 
+void CGameConsole::SendMenuDataThough(const std::string map, const std::string gamemode)
+{
+    std::stringstream gamemodecmd;
+    gamemodecmd << "mp_gamemode " << gamemode;
+    std::thread gmt(&CGameConsole::ExecCommand, this, gamemodecmd.str().c_str());
+    gmt.detach();
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(500)); // Avoid race condition.
+
+    std::stringstream mapcmd;
+    mapcmd << "map " << map;
+    std::thread mapt(&CGameConsole::ExecCommand, this, mapcmd.str().c_str());
+    mapt.detach();
+}
+
 //#############################################################################
 // ENTRYPOINT
 //#############################################################################

@@ -37,6 +37,24 @@ namespace GameGlobals
 			g_bShowBrowser = !g_bShowBrowser;
 		}
 
+		void MMLaunchSolo_Callback(CCommand* cmd)
+		{
+			std::int32_t argSize = *(std::int32_t*)((std::uintptr_t)cmd + 0x4);
+			if (argSize < 3) // Do we atleast have 2 arguments?
+				return;
+
+			CCommand& cmdReference = *cmd; // Get reference.
+			const char* firstArg = cmdReference[1]; // Get first arg.
+			const char* secondArg = cmdReference[1]; // Get first arg.
+
+			g_GameConsole->SendMenuDataThough(firstArg, secondArg);
+		}
+
+		void MMQuickJoin_Callback(CCommand* cmd)
+		{
+			//Not Done
+		}
+
 		void Kick_Callback(CCommand* cmd)
 		{
 			std::int32_t argSize = *(std::int32_t*)((std::uintptr_t)cmd + 0x4);
@@ -398,14 +416,16 @@ namespace GameGlobals
 
 	void InitAllCommandVariations()
 	{
-		void* CGameConsoleConCommand =  CreateCustomConCommand("cgameconsole", "Opens the R5 Reloaded Console.", 0, CustomCommandVariations::CGameConsole_Callback, nullptr);
-		void* CCompanionConCommand =    CreateCustomConCommand("ccompanion", "Opens the R5 Reloaded Server Browser.", 0, CustomCommandVariations::CCompanion_Callback, nullptr);
+		void* CGameConsoleConCommand =  CreateCustomConCommand("cgameconsole", "Opens the R5 Reloaded Console.", FCVAR_CLIENTCMD_CAN_EXECUTE, CustomCommandVariations::CGameConsole_Callback, nullptr);
+		void* CCompanionConCommand =    CreateCustomConCommand("ccompanion", "Opens the R5 Reloaded Server Browser.", FCVAR_CLIENTCMD_CAN_EXECUTE, CustomCommandVariations::CCompanion_Callback, nullptr);
 		void* KickConCommand =          CreateCustomConCommand("kick", "Kick a client from the Server via name. | Usage: kick (name).", 0, CustomCommandVariations::Kick_Callback, nullptr);
 		void* KickIDConCommand =        CreateCustomConCommand("kickid", "Kick a client from the Server via userID or originID | Usage: kickid (originID/userID)", 0, CustomCommandVariations::KickID_Callback, nullptr);
 		void* UnbanConCommand =         CreateCustomConCommand("unban", "Unbans a client from the Server via IP or originID | Usage: unban (originID/ipAddress)", 0, CustomCommandVariations::Unban_Callback, nullptr);
 		void* ReloadBanListConCommand = CreateCustomConCommand("reloadbanlist", "Reloads the ban list from disk.", 0, CustomCommandVariations::ReloadBanList_Callback, nullptr);
 		void* BanConCommand =           CreateCustomConCommand("ban", "Bans a client from the Server via name. | Usage: ban (name)", 0, CustomCommandVariations::Ban_Callback, nullptr);
 		void* BanIDConCommand =         CreateCustomConCommand("banid", "Bans a client from the Server via originID, userID or IP | Usage: banid (originID/ipAddress/userID)", 0, CustomCommandVariations::BanID_Callback, nullptr);
+		void* MainMenuLaunchSolo =		CreateCustomConCommand("mmlaunchsolo", "Launch a solo game | Usage: mmlaunchsolo (map) (gamemode)", FCVAR_CLIENTCMD_CAN_EXECUTE, CustomCommandVariations::MMLaunchSolo_Callback, nullptr);
+		void* MainMenuQuickJoin =		CreateCustomConCommand("quickjoin", "Joins a random server | Usage: quickjoin", FCVAR_CLIENTCMD_CAN_EXECUTE, CustomCommandVariations::MMQuickJoin_Callback, nullptr); //Not Done
 	}
 
 	void* CreateCustomConCommand(const char* name, const char* helpString, int flags, void* callback, void* callbackAfterExecution)

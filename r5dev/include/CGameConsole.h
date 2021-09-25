@@ -34,6 +34,8 @@ public:
     void ExecCommand(const char* command_line);
     int TextEditCallback(ImGuiInputTextCallbackData* data);
 
+    void SendMenuDataThough(const std::string map, const std::string gamemode);
+
     ///////////////////////////////////////////////////////////////////////////
     // History
     static int TextEditCallbackStub(ImGuiInputTextCallbackData* data)
