@@ -80,8 +80,8 @@ namespace
 	FUNC_AT_ADDRESS(addr_NetChan_Shutdown, void(*)(void*, const char*, unsigned __int8, char), r5_patterns.StringSearch("Disconnect by server.\n").FindPatternSelf("E8 ? ? ? ? 4C 89 B3 ? ? ? ?", MemoryAddress::Direction::DOWN).FollowNearCallSelf().GetPtr());
 	
 	/*0x160686DC0*/
-	MemoryAddress addr_NetChan_EncKeyPtr = MemoryAddress(0x160686DC0);
-	char* addr_NetChan_EncKey = addr_NetChan_EncKeyPtr.Offset(4816).RCast<char*>();
+	MemoryAddress addr_NetChan_EncKeyPtr = r5_patterns.StringSearch("client:NetEncryption_NewKey").FindPatternSelf("48 8D ? ? ? ? ? 48 3B", MemoryAddress::Direction::UP, 150).ResolveRelativeAddressSelf(0x3, 0x7);
+	char* addr_NetChan_EncKey = addr_NetChan_EncKeyPtr.Offset(0x12D0).RCast<char*>();
 
 	/*0x140263E70*/
 	FUNC_AT_ADDRESS(addr_NetChan_SetEncKey, void(*)(uintptr_t, const char*), MemoryAddress(0x140263E70).GetPtr());
@@ -121,6 +121,12 @@ namespace
 	FUNC_AT_ADDRESS(addr_CBaseFileSystem_FileSystemWarning, void(*)(void*, FileWarningLevel_t, const char*, ...), r5_patterns.PatternSearch("E8 ? ? ? ? 33 C0 80 3B 2A").FollowNearCallSelf().GetPtr());
 #pragma endregion
 
+#pragma region CMatSystemSurface
+	/*0x140548A00*/
+	FUNC_AT_ADDRESS(addr_CMatSystemSurface_LockCursor, void(*)(void*), MemoryAddress(0x140548A00).GetPtr()); // Maybe sigscan this via RTTI.
+
+	/*0x1405489C0*/
+	FUNC_AT_ADDRESS(addr_CMatSystemSurface_UnlockCursor, void(*)(void*), MemoryAddress(0x1405489C0).GetPtr()); // Maybe sigscan this via RTTI.
 #pragma region Utility
 	/*0x140295600*/
 	FUNC_AT_ADDRESS(addr_MSG_EngineError, int(*)(char*, va_list), r5_patterns.StringSearch("Engine Error").FindPatternSelf("48 89 ? ? ? 48 89", MemoryAddress::Direction::UP, 500).GetPtr());
@@ -174,7 +180,7 @@ namespace
 		PRINT_ADDRESS("CClient::Clear", addr_CClient_Clear);
 		PRINT_ADDRESS("INetChannel::Shutdown", addr_NetChan_Shutdown);
 		PRINT_ADDRESS("INetChannel::SetEncryptionKey", addr_NetChan_SetEncKey);
-		PRINT_ADDRESS("INetChannel::EncryptionKey", addr_NetChan_EncKey)
+		PRINT_ADDRESS("INetChannel::EncryptionKey", addr_NetChan_EncKey);
 		PRINT_ADDRESS("CHLClient::FrameStageNotify", addr_CHLClient_FrameStageNotify);
 		PRINT_ADDRESS("CVEngineServer::IsPersistenceDataAvailable", addr_CVEngineServer_IsPersistenceDataAvailable);
 		PRINT_ADDRESS("CServer::ConnectClient", addr_CServer_ConnectClient);

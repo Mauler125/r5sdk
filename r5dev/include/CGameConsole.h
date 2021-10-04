@@ -8,7 +8,7 @@ void DrawConsole();
 
 ///////////////////////////////////////////////////////////////////////////////
 // Globals
-inline ImVector<char*> Items;
+extern ImVector<char*> Items;
 
 class CGameConsole
 {
@@ -33,6 +33,7 @@ public:
     void ProcessCommand(const char* command_line);
     void ExecCommand(const char* command_line);
     int TextEditCallback(ImGuiInputTextCallbackData* data);
+    bool ShouldPrintToCommandPrompt() { return g_GuiConfig.CGameConsoleConfig.printCmd; };
 
     ///////////////////////////////////////////////////////////////////////////
     // History
@@ -46,9 +47,9 @@ public:
     // Utility
     void ClearLog()
     {
-        for (int i = 0; i < Items.Size; i++) { free(Items[i]); }
         Items.clear();
     }
+
     void AddLog(const char* fmt, ...) IM_FMTARGS(2)
     {
         char buf[1024];

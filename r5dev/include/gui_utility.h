@@ -14,6 +14,9 @@ public:
     {
         int bind1 = VK_OEM_3;
         int bind2 = VK_INSERT;
+        int autoClearLimit = 300;
+        bool autoClear = true;
+        bool printCmd = false;
     } CGameConsoleConfig;
 
     struct
@@ -24,13 +27,13 @@ public:
 
     void Load()
     {
+        spdlog::debug("Loading the Gui Config..\n");
         std::filesystem::path path = std::filesystem::current_path() /= "gui.config"; // Get current path + gui.config
 
         nlohmann::json in;
-        std::ifstream configFile(path, std::ios::in); // Parse config file.
-
-        if (configFile.good() && configFile) // Check if it parsed.
+        try
         {
+            std::ifstream configFile(path, std::ios::binary); // Parse config file.
             configFile >> in;
             configFile.close();
 
@@ -41,12 +44,20 @@ public:
                     // CGameConsole
                     CGameConsoleConfig.bind1 = in["config"]["CGameConsole"]["bind1"].get<int>();
                     CGameConsoleConfig.bind2 = in["config"]["CGameConsole"]["bind2"].get<int>();
+                    CGameConsoleConfig.autoClearLimit = in["config"]["CGameConsole"]["autoClearLimit"].get<int>();
+                    CGameConsoleConfig.autoClear = in["config"]["CGameConsole"]["autoClear"].get<bool>();
+                    CGameConsoleConfig.printCmd = in["config"]["CGameConsole"]["printCmd"].get<bool>();
 
                     // CCompanion
                     CCompanionConfig.bind1 = in["config"]["CCompanion"]["bind1"].get<int>();
                     CCompanionConfig.bind2 = in["config"]["CCompanion"]["bind2"].get<int>();
                 }
             }
+        }
+        catch (const std::exception& ex)
+        {
+            spdlog::critical("Gui Config loading failed. Perhaps re-create it by messing with Options in CGameConsole. Reason: {}\n", ex.what());
+            return;
         }
     }
 
@@ -57,6 +68,9 @@ public:
         // CGameConsole
         out["config"]["CGameConsole"]["bind1"] = CGameConsoleConfig.bind1;
         out["config"]["CGameConsole"]["bind2"] = CGameConsoleConfig.bind2;
+        out["config"]["CGameConsole"]["autoClearLimit"] = CGameConsoleConfig.autoClearLimit;
+        out["config"]["CGameConsole"]["autoClear"] = CGameConsoleConfig.autoClear;
+        out["config"]["CGameConsole"]["printCmd"] = CGameConsoleConfig.printCmd;
 
         // CCompanion
         out["config"]["CCompanion"]["bind1"] = CCompanionConfig.bind1;

@@ -388,8 +388,10 @@ if not EXIST $(SolutionDir)r5net\lib\$(Configuration)\r5net.lib (
     <ClCompile Include="src\hooks\connectclient.cpp" />
     <ClCompile Include="src\hooks\cvengineserver.cpp" />
     <ClCompile Include="src\hooks\hooks.cpp" />
+    <ClCompile Include="src\hooks\hoststate.cpp" />
     <ClCompile Include="src\hooks\iconvar.cpp" />
     <ClCompile Include="src\hooks\loadplaylist.cpp" />
+    <ClCompile Include="src\hooks\lockcursor.cpp" />
     <ClCompile Include="src\hooks\msgbox.cpp" />
     <ClCompile Include="src\hooks\net.cpp" />
     <ClCompile Include="src\hooks\netchannel.cpp" />

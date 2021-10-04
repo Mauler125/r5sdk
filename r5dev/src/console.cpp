@@ -52,6 +52,16 @@ void SetupConsole()
 		printf("THREAD ID: %ld\n\n", threadId0);
 		CloseHandle(hThread0);
 	}
+
+	// Initialize global spdlog.
+	auto console = spdlog::stdout_logger_mt("console");
+	console->set_pattern("[%I:%M:%S:%e] [%L] %v"); // Set pattern.
+	spdlog::set_default_logger(console); // Set as default.
+	spdlog::flush_every(std::chrono::seconds(5)); // Flush buffers every 5 seconds for every logger.
+#ifdef _DEBUG
+	console->set_level(spdlog::level::debug);
+#endif
+	spdlog::debug("Console and spdlog are setup now!\n");
 }
 
 //#############################################################################

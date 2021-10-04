@@ -87,6 +87,13 @@ namespace Hooks
 	extern ConCommand_IsFlagSetFn originalConCommand_IsFlagSet;
 #pragma endregion
 
+#pragma region CMatSystemSurface
+	void LockCursor(void* thisptr);
+
+	using LockCursorFn = void(*)(void*);
+	extern LockCursorFn originalLockCursor;
+#pragma endregion
+
 #pragma region WinAPI
 	BOOL WINAPI GetCursorPos(LPPOINT lpPoint);
 	BOOL WINAPI SetCursorPos(int X, int Y);
@@ -111,6 +118,13 @@ namespace Hooks
 
 	using FileSystemWarningFn = void(*)(void*, FileWarningLevel_t, const char*, ...);
 	extern FileSystemWarningFn originalFileSystemWarning;
+#pragma endregion
+
+#pragma region HostState
+	void FrameUpdate(void* rcx, void* rdx, float time);
+
+	using FrameUpdateFn = void(*)(void*, void*, float);
+	extern FrameUpdateFn originalFrameUpdate;
 #pragma endregion
 
 #pragma region Other

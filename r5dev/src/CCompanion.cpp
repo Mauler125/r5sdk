@@ -7,8 +7,6 @@
 #include "CCompanion.h"
 #include "r5net.h"
 
-//#define OVERLAY_DEBUG
-
 CCompanion* g_ServerBrowser = nullptr;
 bool g_CheckCompBanDB = true;
 
@@ -92,16 +90,17 @@ void CCompanion::UpdateHostingStatus()
         if (*reinterpret_cast<std::int32_t*>(0x1656057E0) == NULL) // Check if script checksum is valid yet.
             break;
 
-        switch (ServerVisibility) {
+        switch (ServerVisibility)
+        {
 
         case EServerVisibility::Hidden:
             MyServer.hidden = true;
-                break;
-
+            break;
         case EServerVisibility::Public:
             MyServer.hidden = false;
             break;
-          
+        default:
+            break;
         }
 
         SendHostingPostRequest();
@@ -122,9 +121,7 @@ void CCompanion::RefreshServerList()
     {
         std::thread t([this]()
         {
-#ifdef OVERLAY_DEBUG
-            std::cout << " [+CCompanion+] Refreshing server list with string " << MatchmakingServerStringBuffer << "\n";
-#endif
+            spdlog::debug("[+CCompanion+] Refreshing server list with string {}\n", MatchmakingServerStringBuffer);
             bThreadLocked = true;
             ServerList = r5net->GetServersList(ServerListMessage);
             bThreadLocked = false;
@@ -137,6 +134,7 @@ void CCompanion::RefreshServerList()
 void CCompanion::SendHostingPostRequest()
 {
     HostToken = std::string();
+    spdlog::debug("[+CCompanion+] Sending PostServerHost request now..\n");
     bool result = r5net->PostServerHost(HostRequestMessage,HostToken,
         ServerListing{ 
             MyServer.name,
@@ -255,10 +253,11 @@ void CCompanion::ServerBrowserSection()
     {
         ImGui::InputTextWithHint("##ServerBrowser_ServerConnString", "Enter IP address or \"localhost\"", ServerConnStringBuffer, IM_ARRAYSIZE(ServerConnStringBuffer));
 
-        ImGui::SameLine(); ImGui::InputTextWithHint("##ServerBrowser_ServerEncKey", "Enter the encryption key", ServerEncKeyBuffer, IM_ARRAYSIZE(ServerEncKeyBuffer));
+        ImGui::SameLine();
+        ImGui::InputTextWithHint("##ServerBrowser_ServerEncKey", "Enter the encryption key", ServerEncKeyBuffer, IM_ARRAYSIZE(ServerEncKeyBuffer));
+        ImGui::SameLine();
 
-
-        if (ImGui::SameLine(); ImGui::Button("Connect##ServerBrowser_ConnectByIp", ImVec2(ImGui::GetWindowContentRegionWidth() / 4, 18.5)))
+        if (ImGui::Button("Connect##ServerBrowser_ConnectByIp", ImVec2(ImGui::GetWindowContentRegionWidth() / 4, 18.5)))
         {
             ConnectToServer(ServerConnStringBuffer, ServerEncKeyBuffer);
         }
@@ -274,8 +273,6 @@ void CCompanion::ServerBrowserSection()
 
     }
     ImGui::PopItemWidth();
-
-    
 }
 
 void CCompanion::HiddenServersModal() 
@@ -465,6 +462,7 @@ void CCompanion::HostServerSection()
         {
             if (!MyServer.name.empty() && !MyServer.playlist.empty())
             {
+                spdlog::debug("[+CCompanion+] Starting Server with name {}, map {} and playlist {}..\n", MyServer.name, ServerMap, MyServer.playlist);
                 ServerNameErr = std::string();
                 UpdateHostingStatus();
 
@@ -482,11 +480,6 @@ void CCompanion::HostServerSection()
                 std::stringstream cmd;
                 cmd << "map " << ServerMap;
                 ProcessCommand(cmd.str().c_str());
-
-                if (StartAsDedi)
-                {
-                    Hooks::ToggleDevCommands();
-                }
             }
             else
             {
@@ -512,18 +505,21 @@ void CCompanion::HostServerSection()
     {
         if (ImGui::Button("Reload Scripts##ServerHost_ReloadServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
+            spdlog::debug("[+CCompanion+] Reloading scripts..\n");
             ProcessCommand("reparse_weapons");
             ProcessCommand("reload");
         }
 
         if (ImGui::Button("Change Level##ServerHost_ChangeLevel", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
+            spdlog::debug("[+CCompanion+] Changing level to {}..\n", ServerMap);
             strncpy_s(GameGlobals::HostState->m_levelName, ServerMap.c_str(), 64); // Copy new map into hoststate levelname. 64 is size of m_levelname.
             GameGlobals::HostState->m_iNextState = HostStates_t::HS_CHANGE_LEVEL_MP; // Force CHostState::FrameUpdate to change the level.
         }
 
         if (ImGui::Button("Stop Server##ServerHost_StopServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
+            spdlog::debug("[+CCompanion+] Stopping server..\n");
             ProcessCommand("LeaveMatch"); // Use script callback instead.
             GameGlobals::HostState->m_iNextState = HostStates_t::HS_GAME_SHUTDOWN; // Force CHostState::FrameUpdate to shutdown the server for dedicated.
         }
@@ -594,6 +590,7 @@ void CCompanion::Draw(const char* title)
 
 void CCompanion::ProcessCommand(const char* command_line)
 {
+    spdlog::debug("[+CCompanion+] Processing command {}\n", command_line);
     std::thread t(&CCompanion::ExecCommand, this, command_line);
     t.detach();
 
@@ -635,15 +632,16 @@ void CCompanion::ConnectToServer(const std::string connString, const std::string
 
 void CCompanion::RegenerateEncryptionKey()
 {
+    spdlog::debug("[+CCompanion+] Regenerating Encryption Key..\n");
     BCRYPT_ALG_HANDLE hAlgorithm;
     if (BCryptOpenAlgorithmProvider(&hAlgorithm, L"RNG", 0, 0) < 0)
     {
-        std::cerr << "Failed to open rng algorithm\n";
+        spdlog::critical("[+CCompanion+] Failed to open rng algorithm\n");
     }
     unsigned char pBuffer[0x10u];
     if (BCryptGenRandom(hAlgorithm, pBuffer, 0x10u, 0) < 0)
     {
-        std::cerr << "Failed to generate random data\n";
+        spdlog::critical("[+CCompanion+] Failed to generate random data\n");
     }
     std::string fin;
 
@@ -671,6 +669,7 @@ void DrawBrowser()
     static CCompanion browser;
     static bool AssignPtr = []() {
         g_ServerBrowser = &browser;
+        spdlog::debug("[+CCompanion+] Created CCompanion Class instance.\n");
         return true;
     } ();
 

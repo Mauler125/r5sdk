@@ -106,6 +106,12 @@
     <Filter Include="hooks\src\cserver">
       <UniqueIdentifier>{10edfee7-8c10-41de-b8f3-424826d2614a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="hooks\src\hoststate">
+      <UniqueIdentifier>{02d83321-09fe-4a60-86d9-b1e8d5e165f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hooks\src\cmatsystemsurface">
+      <UniqueIdentifier>{a2663195-c4f2-4d5f-8d65-cfed54976e4c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dllmain.cpp">
@@ -203,6 +209,12 @@
     </ClCompile>
     <ClCompile Include="src\squirrel.cpp">
       <Filter>r5-sdk\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hooks\hoststate.cpp">
+      <Filter>hooks\src\hoststate</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hooks\lockcursor.cpp">
+      <Filter>hooks\src\cmatsystemsurface</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

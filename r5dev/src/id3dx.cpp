@@ -10,51 +10,29 @@
 #include "CGameConsole.h"
 
 #pragma comment(lib, "d3d11.lib")
-
-/*---------------------------------------------------------------------------------
- * _id3dx.cpp
- *---------------------------------------------------------------------------------*/
-
 ///////////////////////////////////////////////////////////////////////////////////
+// Type definitions.
 typedef HRESULT(__stdcall* IDXGISwapChainPresent)(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT nFlags);
 typedef HRESULT(__stdcall* IDXGIResizeBuffers)   (IDXGISwapChain* pSwapChain, UINT nBufferCount, UINT nWidth, UINT nHeight, DXGI_FORMAT dxFormat, UINT nSwapChainFlags);
 
 ///////////////////////////////////////////////////////////////////////////////////
-typedef BOOL(WINAPI* IPostMessageA)(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
-typedef BOOL(WINAPI* IPostMessageW)(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
-
-///////////////////////////////////////////////////////////////////////////////////
-extern BOOL                     g_bShowConsole              = false;
-extern BOOL                     g_bShowBrowser              = false;
-static BOOL                     g_bInitMenu                 = false;
-static BOOL                     g_bInitialized              = false;
-
-///////////////////////////////////////////////////////////////////////////////////
-static WNDPROC                  g_oWndProc                  = NULL;
-static HWND                     g_hGameWindow               = NULL;
-extern DWORD                    g_dThreadId                 = NULL;
-
-///////////////////////////////////////////////////////////////////////////////////
-static IDXGISwapChainPresent    g_fnIDXGISwapChainPresent   = nullptr;
-static IDXGISwapChain*          g_pSwapChain                = nullptr;
-static IDXGIResizeBuffers       g_oResizeBuffers            = nullptr;
-static ID3D11DeviceContext*     g_pDeviceContext            = nullptr;
-static ID3D11Device*            g_pDevice                   = nullptr;
-static ID3D11RenderTargetView*  g_pRenderTargetView         = nullptr;
-static ID3D11DepthStencilView*  g_pDepthStencilView         = nullptr;
-static IPostMessageA            g_oPostMessageA             = nullptr;
-static IPostMessageW            g_oPostMessageW             = nullptr;
-
-//#################################################################################
-// WINDOW PROCEDURE
-//#################################################################################
+// Variables.
+bool                    g_bShowConsole            = false;
+bool                    g_bShowBrowser            = false;
+IDXGISwapChainPresent   g_fnIDXGISwapChainPresent = nullptr;
+IDXGIResizeBuffers      g_fnIDXGIResizeBuffers    = nullptr;
+ID3D11Device*           g_pDevice                 = nullptr;
+ID3D11RenderTargetView* g_pMainRenderTargetView   = nullptr;
+ID3D11DeviceContext*    g_pDeviceContext          = nullptr;
+WNDPROC                 originalWndProc           = NULL;
+DWORD                   g_dThreadId               = NULL;
 
 LRESULT CALLBACK DXGIMsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
-LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if (uMsg == WM_KEYDOWN || uMsg == WM_SYSKEYDOWN)
 	{
@@ -70,313 +48,113 @@ LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 
 	if (g_bShowConsole || g_bShowBrowser)
-	{//////////////////////////////////////////////////////////////////////////////
-		ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
-
-		g_bBlockInput = true;
-
-		switch (uMsg)
-		{
-			case WM_LBUTTONDOWN:
-				return 1L;
-			case WM_LBUTTONUP:
-				return 1L;
-			case WM_LBUTTONDBLCLK:
-				return 1L;
-			case WM_RBUTTONDOWN:
-				return 1L;
-			case WM_RBUTTONUP:
-				return 1L;
-			case WM_RBUTTONDBLCLK:
-				return 1L;
-			case WM_MBUTTONDOWN:
-				return 1L;
-			case WM_MBUTTONUP:
-				return 1L;
-			case WM_MBUTTONDBLCLK:
-				return 1L;
-			case WM_KEYDOWN:
-				return 1L;
-			case WM_KEYUP:
-				return 1L;
-			case WM_MOUSEACTIVATE:
-				return 1L;
-			case WM_MOUSEHOVER:
-				return 1L;
-			case WM_MOUSEHWHEEL:
-				return 1L;
-			case WM_MOUSELEAVE:
-				return 1L;
-			case WM_MOUSEMOVE:
-				return 1L;
-			case WM_MOUSEWHEEL:
-				return 1L;
-			case WM_SETCURSOR:
-				return 1L;
-			default:
-				break;
-		}
-	}//////////////////////////////////////////////////////////////////////////////
-	else
 	{
-		g_bBlockInput = false;
-	}
-
-	///////////////////////////////////////////////////////////////////////////////
-	return CallWindowProc(g_oWndProc, hWnd, uMsg, wParam, lParam);
-}
-
-//#################################################################################
-// POST MESSAGE
-//#################################################################################
-
-BOOL WINAPI HPostMessageA(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
-{
-	if (g_bBlockInput && Msg == WM_MOUSEMOVE)
-	{
-		return TRUE;
-	}
-
-	return g_oPostMessageA(hWnd, Msg, wParam, lParam);
-}
-
-BOOL WINAPI HPostMessageW(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
-{
-	if (g_bBlockInput && Msg == WM_MOUSEMOVE)
-	{
-		return TRUE;
-	}
-
-	return g_oPostMessageW(hWnd, Msg, wParam, lParam);
-}
-
-//#################################################################################
-// IDXGI PRESENT
-//#################################################################################
-
-void GetPresent()
-{
-	WNDCLASSEXA wc = { sizeof(WNDCLASSEX), CS_CLASSDC, DXGIMsgProc, 0L, 0L, GetModuleHandleA(NULL), NULL, NULL, NULL, NULL, "DX", NULL };
-	RegisterClassExA(&wc);
-
-	HWND hWnd = CreateWindowA("DX", NULL, WS_OVERLAPPEDWINDOW, 100, 100, 300, 300, NULL, NULL, wc.hInstance, NULL);
-	DXGI_SWAP_CHAIN_DESC sd                = { 0 };
-	D3D_FEATURE_LEVEL    nFeatureLevelsSet = D3D_FEATURE_LEVEL_11_0;
-	D3D_FEATURE_LEVEL    nFeatureLevelsSupported;
-
-	ZeroMemory(&sd, sizeof(sd));
-
-	///////////////////////////////////////////////////////////////////////////////
-	sd.BufferCount                          = 1;
-	sd.BufferUsage                          = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	sd.BufferDesc.Format                    = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	sd.BufferDesc.Height                    = 800;
-	sd.BufferDesc.Width                     = 600;
-	sd.BufferDesc.RefreshRate               = { 60, 1 };
-	sd.BufferDesc.ScanlineOrdering          = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-	sd.BufferDesc.Scaling                   = DXGI_MODE_SCALING_UNSPECIFIED;
-	sd.Windowed                             = TRUE;
-	sd.OutputWindow                         = hWnd;
-	sd.SampleDesc.Count                     = 1;
-	sd.SampleDesc.Quality                   = 0;
-	sd.SwapEffect                           = DXGI_SWAP_EFFECT_DISCARD;
-	sd.Flags                                = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-
-	///////////////////////////////////////////////////////////////////////////////
-	g_hGameWindow                           = sd.OutputWindow;
-	UINT       nFeatureLevelsRequested      = 1;
-	HRESULT                 hr              = 0;
-	IDXGISwapChain*         pSwapChain      = nullptr;
-	ID3D11Device*           pDevice         = nullptr;
-	ID3D11DeviceContext*    pContext        = nullptr;
-
-	///////////////////////////////////////////////////////////////////////////////
-	if (FAILED(hr = D3D11CreateDeviceAndSwapChain(NULL,
-		D3D_DRIVER_TYPE_HARDWARE,
-		NULL,
-		NULL,
-		&nFeatureLevelsSet,
-		nFeatureLevelsRequested,
-		D3D11_SDK_VERSION,
-		&sd,
-		&pSwapChain,
-		&pDevice,
-		&nFeatureLevelsSupported,
-		&pContext)))
-	{
-		std::cout << "+--------------------------------------------------------+" << std::endl;
-		std::cout << "| >>>>>>>>>| VIRTUAL METHOD TABLE HOOK FAILED |<<<<<<<<< |" << std::endl;
-		std::cout << "+--------------------------------------------------------+" << std::endl;
-		RemoveDXHooks();
-		return;
-	}
-
-	///////////////////////////////////////////////////////////////////////////////
-	DWORD_PTR* pSwapChainVtable             = nullptr;
-	DWORD_PTR* pContextVTable               = nullptr;
-	DWORD_PTR* pDeviceVTable                = nullptr;
-
-	pSwapChainVtable          = (DWORD_PTR*)pSwapChain;
-	pSwapChainVtable          = (DWORD_PTR*)pSwapChainVtable[0];
-	pContextVTable            = (DWORD_PTR*)pContext;
-	pContextVTable            = (DWORD_PTR*)pContextVTable[0];
-	pDeviceVTable             = (DWORD_PTR*)pDevice;
-	pDeviceVTable             = (DWORD_PTR*)pDeviceVTable[0];
-
-	g_fnIDXGISwapChainPresent = (IDXGISwapChainPresent)(DWORD_PTR)pSwapChainVtable[(int)DXGISwapChainVTbl::Present];
-	g_oResizeBuffers          = (IDXGIResizeBuffers)(DWORD_PTR)pSwapChainVtable[(int)DXGISwapChainVTbl::ResizeBuffers];
-
-	pSwapChain->Release();
-	pContext->Release();
-	pDevice->Release();
-}
-
-//#################################################################################
-// INITIALIZATION
-//#################################################################################
-
-void SetupImGui()
-{
-	ImGui::CreateContext();
-	IMGUI_CHECKVERSION();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	ImGui_ImplWin32_Init(g_hGameWindow);
-	ImGui_ImplDX11_Init(g_pDevice, g_pDeviceContext);
-	ImGui::GetIO().ImeWindowHandle = g_hGameWindow;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-}
-
-void DrawImGui()
-{
-	if (!GameGlobals::IsInitialized || !GameGlobals::InputSystem) // Check if GameGlobals initialized and if InputSystem is valid.
-		return;
-
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-
-	ImGui::NewFrame();
-
-	if (g_bShowConsole || g_bShowBrowser)
-	{
-		GameGlobals::InputSystem->EnableInput(false); // Disable input.
+		g_bBlockInput = true; // Prevent mouse cursor from being modified if console is open.
+		if (ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam) > 0)
+			return 1L;
 	}
 	else
 	{
-		GameGlobals::InputSystem->EnableInput(true); // Enable input.
+		g_bBlockInput = false; // Allow mouse input.
 	}
 
-	if (g_bShowConsole)
-	{
-		DrawConsole();
-	}
-
-	if (g_bShowBrowser)
-	{
-		DrawBrowser();
-	}
-
-	ImGui::EndFrame();
-	ImGui::Render();
-
-	g_pDeviceContext->OMSetRenderTargets(1, &g_pRenderTargetView, NULL);
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	return CallWindowProc(originalWndProc, hwnd, uMsg, wParam, lParam);
 }
 
-void CreateRenderTarget(IDXGISwapChain* pSwapChain)
+void InitRenderer()
 {
-	///////////////////////////////////////////////////////////////////////////////
-	DXGI_SWAP_CHAIN_DESC            sd          = { 0 };
-	ID3D11Texture2D*                pBackBuffer = { 0 };
-	D3D11_RENDER_TARGET_VIEW_DESC   render_target_view_desc;
+	spdlog::debug("Registering temporary Window for DirectX..\n");
+	// Register temporary window instance to get DirectX 11 relevant virtual function ptr.
+	WNDCLASSEX ws;
+	ws.cbSize = sizeof(WNDCLASSEX);
+	ws.style = CS_HREDRAW | CS_VREDRAW;
+	ws.lpfnWndProc = DXGIMsgProc;
+	ws.cbClsExtra = 0;
+	ws.cbWndExtra = 0;
+	ws.hInstance = GetModuleHandle(NULL);
+	ws.hIcon = NULL;
+	ws.hCursor = NULL;
+	ws.hbrBackground = NULL;
+	ws.lpszMenuName = NULL;
+	ws.lpszClassName = "R5 Reloaded";
+	ws.hIconSm = NULL;
 
-	///////////////////////////////////////////////////////////////////////////////
-	pSwapChain->GetDesc(&sd);
-	ZeroMemory(&render_target_view_desc, sizeof(render_target_view_desc));
+	RegisterClassEx(&ws);
+	
+	// Create temporary window.
+	HWND window = CreateWindowA(ws.lpszClassName, "R5 Reloaded Window", WS_OVERLAPPEDWINDOW, 0, 0, 100, 100, NULL, NULL, ws.hInstance, NULL);
 
-	g_hGameWindow = sd.OutputWindow;
-	render_target_view_desc.Format        = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	render_target_view_desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	DXGI_RATIONAL refreshRate;
+	refreshRate.Numerator = 60;
+	refreshRate.Denominator = 1;
 
-	///////////////////////////////////////////////////////////////////////////////
-	pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
-	if (pBackBuffer != NULL) { g_pDevice->CreateRenderTargetView(pBackBuffer, &render_target_view_desc, &g_pRenderTargetView); }
-	g_pDeviceContext->OMSetRenderTargets(1, &g_pRenderTargetView, NULL);
-	pBackBuffer->Release();
-}
+	D3D_FEATURE_LEVEL featureLevel;
+	const D3D_FEATURE_LEVEL featureLevels[] = { D3D_FEATURE_LEVEL_11_0 };
 
-void DestroyRenderTarget()
-{
-	if (g_pRenderTargetView)
+	// Setup buffer description.
+	DXGI_MODE_DESC bufferDescription;
+	bufferDescription.Width = 100;
+	bufferDescription.Height = 100;
+	bufferDescription.RefreshRate = refreshRate;
+	bufferDescription.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	bufferDescription.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+	bufferDescription.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+
+	DXGI_SAMPLE_DESC sampleDescription;
+	sampleDescription.Count = 1;
+	sampleDescription.Quality = 0;
+
+	// Setup swap chain description.
+	DXGI_SWAP_CHAIN_DESC swapChainDescription;
+	swapChainDescription.BufferDesc = bufferDescription;
+	swapChainDescription.SampleDesc = sampleDescription;
+	swapChainDescription.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapChainDescription.BufferCount = 1;
+	swapChainDescription.OutputWindow = window;
+	swapChainDescription.Windowed = TRUE;
+	swapChainDescription.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+	swapChainDescription.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+
+	IDXGISwapChain* swapChain;
+	ID3D11Device* device;
+	ID3D11DeviceContext* context;
+
+	// Create temporary fake device and swap chain.
+	if (FAILED(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, featureLevels, 1, D3D11_SDK_VERSION, &swapChainDescription, &swapChain, &device, &featureLevel, &context)))
 	{
-		g_pRenderTargetView->Release();
-		g_pRenderTargetView = nullptr;
-		g_pDeviceContext->OMSetRenderTargets(0, 0, 0);
-		std::cout << "+--------------------------------------------------------+" << std::endl;
-		std::cout << "| >>>>>>>>>>>>>>| RENDER TARGET DESTROYED |<<<<<<<<<<<<< |" << std::endl;
-		std::cout << "+--------------------------------------------------------+" << std::endl;
-	}
-}
-
-//#################################################################################
-// INTERNALS
-//#################################################################################
-
-HRESULT GetDeviceAndCtxFromSwapchain(IDXGISwapChain* pSwapChain, ID3D11Device** ppDevice, ID3D11DeviceContext** ppContext)
-{
-	HRESULT ret = pSwapChain->GetDevice(__uuidof(ID3D11Device), (PVOID*)ppDevice);
-	if (SUCCEEDED(ret))
-	{
-		(*ppDevice)->GetImmediateContext(ppContext);
-	}
-	return ret;
-}
-
-IDXGIResizeBuffers originalResizeBuffers = nullptr;
-
-HRESULT __stdcall GetResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount, UINT nWidth, UINT nHeight, DXGI_FORMAT dxFormat, UINT nSwapChainFlags)
-{
-	g_bShowConsole    = false;
-	g_bShowBrowser    = false;
-	g_bInitialized    = false;
-
-	///////////////////////////////////////////////////////////////////////////////
-
-	DestroyRenderTarget();
-
-	///////////////////////////////////////////////////////////////////////////////
-	return originalResizeBuffers(pSwapChain, nBufferCount, nWidth, nHeight, dxFormat, nSwapChainFlags);
-}
-
-IDXGISwapChainPresent originalPresent = nullptr;
-
-HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT nFlags)
-{
-	if (!g_bInitialized)
-	{
-		if (FAILED(GetDeviceAndCtxFromSwapchain(pSwapChain, &g_pDevice, &g_pDeviceContext)))
-		{
-			return originalPresent(pSwapChain, nSyncInterval, nFlags);
-			std::cout << "+--------------------------------------------------------+" << std::endl;
-			std::cout << "| >>>>>>>>>>| GET DVS AND CTX FROM SCP FAILED |<<<<<<<<< |" << std::endl;
-			std::cout << "+--------------------------------------------------------+" << std::endl;
-		}
-
-		CreateRenderTarget(pSwapChain);
-		SetupImGui();
-
-		if (g_oWndProc == nullptr)
-		{   // Only initialize HwndProc pointer once to avoid stack overflow during ResizeBuffers(..)
-			g_oWndProc  = (WNDPROC)SetWindowLongPtr(g_hGameWindow, GWLP_WNDPROC, (LONG_PTR)HwndProc);
-		}
-
-		g_bInitialized  = true;
-		g_pSwapChain    = pSwapChain;
+		std::cout << "Creating Device and Swap Chain failed." << std::endl;
+		return;
 	}
 
-	DrawImGui();
-	g_bInitialized      = true;
-	///////////////////////////////////////////////////////////////////////////////
-	return originalPresent(pSwapChain, nSyncInterval, nFlags);
+	DWORD_PTR* swapChainVTable = nullptr;
+	DWORD_PTR* contextVTable = nullptr;
+	DWORD_PTR* deviceVTable = nullptr;
+
+	// Get vtable by dereferencing once.
+	swapChainVTable = (DWORD_PTR*)swapChain;
+	swapChainVTable = (DWORD_PTR*)swapChainVTable[0]; 
+	contextVTable = (DWORD_PTR*)context;
+	contextVTable = (DWORD_PTR*)contextVTable[0];
+	deviceVTable = (DWORD_PTR*)device;
+	deviceVTable = (DWORD_PTR*)deviceVTable[0];
+
+	// Get virtual functions addresses.
+	g_fnIDXGISwapChainPresent = (IDXGISwapChainPresent)(DWORD_PTR)swapChainVTable[(int)DXGISwapChainVTbl::Present];
+	g_fnIDXGIResizeBuffers    = (IDXGIResizeBuffers)(DWORD_PTR)swapChainVTable[(int)DXGISwapChainVTbl::ResizeBuffers];
+
+	// Safe release all relevant ptrs.
+	swapChain->Release();
+	swapChain = nullptr;
+
+	device->Release();
+	device = nullptr;
+
+	context->Release();
+	context = nullptr;
+
+	// Destroy Window used for getting the virtual functions addresses and unregister its class.
+	DestroyWindow(swapChainDescription.OutputWindow);
+	UnregisterClass(ws.lpszClassName, ws.hInstance);
 }
 
 bool LoadTextureFromByteArray(unsigned char* image_data, const int& image_width, const int& image_height, ID3D11ShaderResourceView** out_srv)
@@ -431,57 +209,158 @@ bool LoadTextureFromByteArray(unsigned char* image_data, const int& image_width,
 	return true;
 }
 
-//#################################################################################
-// MANAGEMENT
-//#################################################################################
+void DrawMenu()
+{
+	if (!GameGlobals::IsInitialized || !GameGlobals::InputSystem) // Check if GameGlobals initialized and if InputSystem is valid.
+		return;
+
+	// Handle new ImGui frame.
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	// Handle game input if one of the menus is open.
+	if (g_bShowConsole || g_bShowBrowser)
+	{
+		GameGlobals::InputSystem->EnableInput(false);
+	}
+	else
+	{
+		GameGlobals::InputSystem->EnableInput(true);
+	}
+
+	if (g_bShowConsole)
+	{
+		DrawConsole();
+	}
+
+	if (g_bShowBrowser)
+	{
+		DrawBrowser();
+	}
+
+	// Handle end of frame and prepare rendering.
+	ImGui::EndFrame();
+	ImGui::Render();
+
+	// Set new render target.
+	// This breaks 4:3 in main menu and load screen if not applying the games DepthStencilView. Applying the games DepthStencilView makes ImGui not render tho.
+	g_pDeviceContext->OMSetRenderTargets(1, &g_pMainRenderTargetView, NULL);
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData()); // Tell ImGui to render all the draw data.
+}
+
+IDXGIResizeBuffers originalResizeBuffers = nullptr;
+HRESULT __stdcall GetResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount, UINT nWidth, UINT nHeight, DXGI_FORMAT dxFormat, UINT nSwapChainFlags)
+{
+	spdlog::debug("Resizing IDXGIResizeBuffers..\n");
+	// Re-create render target if our window got resized.
+	if (g_pMainRenderTargetView)
+	{
+		g_pDeviceContext->OMSetRenderTargets(0, 0, 0); // Set render target to null.
+
+		// Safe release the render target.
+		g_pMainRenderTargetView->Release();
+		g_pMainRenderTargetView = nullptr;
+	}
+
+	ImGui_ImplDX11_InvalidateDeviceObjects(); // Invalidate all ImGui DirectX objects.
+
+	HRESULT hr = originalResizeBuffers(pSwapChain, nBufferCount, nWidth, nHeight, dxFormat, nSwapChainFlags); // Let DirectX resize all the buffers.
+
+	if (!g_pDevice) // Valid device?
+		return hr;
+
+	ID3D11Texture2D* pBuffer;
+	pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer); // Grab the swapchains buffer.
+
+	if (!pBuffer) // Valid buffer?
+		return hr;
+
+	g_pDevice->CreateRenderTargetView(pBuffer, NULL, &g_pMainRenderTargetView); // Create render target again with the new swapchain buffer.
+
+	// Safe release the buffer.
+	pBuffer->Release();
+	pBuffer = nullptr;
+
+	if (!g_pMainRenderTargetView) // Valid render target?
+		return hr;
+
+	g_pDeviceContext->OMSetRenderTargets(1, &g_pMainRenderTargetView, NULL); // Set new render target.
+
+	// Set up the viewport.
+	D3D11_VIEWPORT vp;
+	vp.Width = nWidth;
+	vp.Height = nHeight;
+	vp.MinDepth = 0.0f;
+	vp.MaxDepth = 1.0f;
+	vp.TopLeftX = 0;
+	vp.TopLeftY = 0;
+	g_pDeviceContext->RSSetViewports(1, &vp);
+
+	ImGui_ImplDX11_CreateDeviceObjects(); // Create new DirectX objects for ImGui.
+
+ 	return hr;
+}
+
+IDXGISwapChainPresent originalPresent = nullptr; 
+HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT nFlags)
+{
+	static bool InitializedPresent = false;
+	if (!InitializedPresent)
+	{
+		spdlog::debug("Initializing IDXGISwapChainPresent hook..\n");
+		if (SUCCEEDED(pSwapChain->GetDevice(__uuidof(ID3D11Device), (void**)&g_pDevice))) // Get device via swap chain.
+		{
+			g_pDevice->GetImmediateContext(&g_pDeviceContext); // Get device context via device.
+			DXGI_SWAP_CHAIN_DESC sd;
+			pSwapChain->GetDesc(&sd); // Get the swap chain description.
+			ID3D11Texture2D* pBuffer;
+			pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBuffer); // Get swap chain buffer.
+
+			if (!pBuffer) // Valid buffer?
+				return originalPresent(pSwapChain, nSyncInterval, nFlags);
+
+			g_pDevice->CreateRenderTargetView(pBuffer, NULL, &g_pMainRenderTargetView); // Create new render target.
+
+			// Safe release the buffer.
+			pBuffer->Release();
+			pBuffer = nullptr;
+
+			originalWndProc = (WNDPROC)SetWindowLongPtr(sd.OutputWindow, GWLP_WNDPROC, (LONG_PTR)WindowProc); // Hook current output window.
+
+			// Initialize ImGui.
+			ImGui::CreateContext();
+			ImGui_ImplWin32_Init(sd.OutputWindow);
+			ImGui_ImplDX11_Init(g_pDevice, g_pDeviceContext);
+
+			InitializedPresent = true;
+		}
+		else
+		{
+			return originalPresent(pSwapChain, nSyncInterval, nFlags);
+		}
+	}
+
+	DrawMenu();
+	return originalPresent(pSwapChain, nSyncInterval, nFlags);
+}
 
 void InstallDXHooks()
 {
-	///////////////////////////////////////////////////////////////////////////////
-	// Hook SwapChain
+	spdlog::debug("Initializing IDXGISwapChainPresent hook..\n");
 	MH_CreateHook(g_fnIDXGISwapChainPresent, &Present, reinterpret_cast<void**>(&originalPresent));
-	MH_CreateHook(g_oResizeBuffers, &GetResizeBuffers, reinterpret_cast<void**>(&originalResizeBuffers));
+	MH_CreateHook(g_fnIDXGIResizeBuffers, &GetResizeBuffers, reinterpret_cast<void**>(&originalResizeBuffers));
 	 
-	///////////////////////////////////////////////////////////////////////////////
-	// Enable hooks
 	MH_EnableHook(g_fnIDXGISwapChainPresent);
-	MH_EnableHook(g_oResizeBuffers);
-
-	if (Module user32dll = Module("user32.dll"); user32dll.GetModuleBase()) // Is user32.dll valid?
-	{
-		IPostMessageA PostMessageA = user32dll.GetExportedFunction("PostMessageA").RCast<IPostMessageA>();
-		IPostMessageW PostMessageW = user32dll.GetExportedFunction("PostMessageW").RCast<IPostMessageW>();
-
-		///////////////////////////////////////////////////////////////////////////////
-		// Hook PostMessage
-		MH_CreateHook(PostMessageA, &HPostMessageA, reinterpret_cast<void**>(&g_oPostMessageA));
-		MH_CreateHook(PostMessageW, &HPostMessageW, reinterpret_cast<void**>(&g_oPostMessageW));
-
-		MH_EnableHook(PostMessageA);
-		MH_EnableHook(PostMessageW);
-	}
+	MH_EnableHook(g_fnIDXGIResizeBuffers);
 }
 
 void RemoveDXHooks()
 {
-	///////////////////////////////////////////////////////////////////////////////
-	// Unhook PostMessage
-	if (Module user32dll = Module("user32.dll"); user32dll.GetModuleBase()) // Is user32.dll valid?
-	{
-		IPostMessageA PostMessageA = user32dll.GetExportedFunction("PostMessageA").RCast<IPostMessageA>();
-		IPostMessageW PostMessageW = user32dll.GetExportedFunction("PostMessageW").RCast<IPostMessageW>();
-
-		MH_RemoveHook(PostMessageA);
-		MH_RemoveHook(PostMessageW);
-	}
-
-	///////////////////////////////////////////////////////////////////////////////
-	// Unhook SwapChain
+	spdlog::debug("Initializing IDXGISwapChainPresent hook..\n");
 	MH_RemoveHook(g_fnIDXGISwapChainPresent);
-	MH_RemoveHook(g_oResizeBuffers);
+	MH_RemoveHook(g_fnIDXGIResizeBuffers);
 
-	///////////////////////////////////////////////////////////////////////////////
-	// Shutdown ImGui
 	ImGui_ImplWin32_Shutdown();
 	ImGui_ImplDX11_Shutdown();
 }
@@ -489,10 +368,9 @@ void RemoveDXHooks()
 void PrintDXAddress()
 {
 	std::cout << "+--------------------------------------------------------+" << std::endl;
-	std::cout << "| ID3D11DeviceContext      : " << std::hex << std::uppercase << g_pDeviceContext          << std::setw(13) << " |" << std::endl;
-	std::cout << "| ID3D11Device             : " << std::hex << std::uppercase << g_pDevice                 << std::setw(13) << " |" << std::endl;
-	std::cout << "| ID3D11RenderTargetView   : " << std::hex << std::uppercase << g_pRenderTargetView       << std::setw(13) << " |" << std::endl;
-	std::cout << "| IDXGISwapChain           : " << std::hex << std::uppercase << g_pSwapChain              << std::setw(13) << " |" << std::endl;
+	std::cout << "| ID3D11DeviceContext      : " << std::hex << std::uppercase << g_pDeviceContext << std::setw(13) << " |" << std::endl;
+	std::cout << "| ID3D11Device             : " << std::hex << std::uppercase << g_pDevice << std::setw(13) << " |" << std::endl;
+	std::cout << "| ID3D11RenderTargetView   : " << std::hex << std::uppercase << g_pMainRenderTargetView << std::setw(13) << " |" << std::endl;
 	std::cout << "| IDXGISwapChainPresent    : " << std::hex << std::uppercase << g_fnIDXGISwapChainPresent << std::setw(13) << " |" << std::endl;
 	std::cout << "+--------------------------------------------------------+" << std::endl;
 }
@@ -503,13 +381,14 @@ void PrintDXAddress()
 
 DWORD __stdcall DXSwapChainWorker(LPVOID)
 {
-	GetPresent();
+	InitRenderer();
 	InstallDXHooks();
 	return true;
 }
 
 void SetupDXSwapChain()
 {
+	spdlog::debug("Setting up DirectX thread..\n");
 	// Create a worker thread for the console overlay
 	DWORD __stdcall DXSwapChainWorker(LPVOID);
 	HANDLE hThread = CreateThread(NULL, 0, DXSwapChainWorker, NULL, 0, &g_dThreadId);

@@ -6,9 +6,8 @@
 #include "gameclasses.h"
 #include "CGameConsole.h"
 
-#define OVERLAY_DEBUG
-
 CGameConsole* g_GameConsole = nullptr;
+ImVector<char*> Items;
 
 /*-----------------------------------------------------------------------------
  * _cgameconsole.cpp
@@ -35,22 +34,27 @@ CGameConsole::CGameConsole()
 CGameConsole::~CGameConsole()
 {
     ClearLog();
-    for (int i = 0; i < History.Size; i++)
-    {
-        free(History[i]);
-    }
+    History.clear();
 }
 
 ///////////////////////////////////////////////////////////////////////////
 // Draw
 void CGameConsole::Draw(const char* title)
 {
-    bool copy_to_clipboard = false;
+    bool CopyToClipboard = false;
+    static auto cgameconsoleConfig = &g_GuiConfig.CGameConsoleConfig;
+    static auto ccompanionConfig = &g_GuiConfig.CCompanionConfig;
 
     if (!ThemeSet)
     {
         SetStyleVar();
         ThemeSet = true;
+    }
+
+    if (cgameconsoleConfig->autoClear && Items.Size > cgameconsoleConfig->autoClearLimit) // Check if Auto-Clear is enabled and if its above our limit. If yes then clear.
+    {
+        ClearLog();
+        History.clear();
     }
 
     //ImGui::ShowStyleEditor();
@@ -60,7 +64,6 @@ void CGameConsole::Draw(const char* title)
 
     ImGui::Begin(title, NULL); // ImGui::Begin should never fail, if it does we got another problem.
     {
-
         // Reserve enough left-over height and width for 1 separator + 1 input text
         const float FooterHeightToReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
         const float FooterWidthtoReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetWindowWidth();
@@ -69,24 +72,38 @@ void CGameConsole::Draw(const char* title)
         ImGui::Separator();
         if (ImGui::BeginPopup("Options"))
         {
-            ImGui::Checkbox("Auto-scroll", &AutoScroll);
+            if (ImGui::Checkbox("Print to Cmd", &cgameconsoleConfig->printCmd))
+                g_GuiConfig.Save();
+
+            ImGui::Checkbox("Auto-Scroll", &AutoScroll);
+
+            if (ImGui::Checkbox("Auto-Clear", &cgameconsoleConfig->autoClear))
+                g_GuiConfig.Save();
+
+            ImGui::SameLine();
+
+            ImGui::PushItemWidth(100);
+            if (ImGui::InputInt("Auto Clear Limit##AutoClearAfterCertainIndexCGameConsole", &cgameconsoleConfig->autoClearLimit))
+                g_GuiConfig.Save();
+
+            ImGui::PopItemWidth();
+
             if (ImGui::SmallButton("Clear"))
-            {
                 ClearLog();
-            }
-            copy_to_clipboard = ImGui::SmallButton("Copy");
+
+            ImGui::SameLine();
+            CopyToClipboard = ImGui::SmallButton("Copy");
             ImGui::Text("CG Hotkey:");
             ImGui::SameLine();
-            if (ImGui::Hotkey("##OpenCGameConsoleBind1", &g_GuiConfig.CGameConsoleConfig.bind1, ImVec2(80, 80)))
-            {
+            if (ImGui::Hotkey("##OpenCGameConsoleBind1", &cgameconsoleConfig->bind1, ImVec2(80, 80)))
                 g_GuiConfig.Save();
-            }
+
             ImGui::Text("CC Hotkey:");
             ImGui::SameLine();
-            if (ImGui::Hotkey("##OpenCCompanionBind1", &g_GuiConfig.CCompanionConfig.bind1, ImVec2(80, 80)))
-            {
+
+            if (ImGui::Hotkey("##OpenCCompanionBind1", &ccompanionConfig->bind1, ImVec2(80, 80)))
                 g_GuiConfig.Save();
-            }
+
             ImGui::EndPopup();
         }
         if (ImGui::Button("Options"))
@@ -139,10 +156,11 @@ void CGameConsole::Draw(const char* title)
         ///////////////////////////////////////////////////////////////////////
         ImGui::BeginChild("ScrollingRegion", ImVec2(0, -FooterHeightToReserve), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 4.f, 6.f });
-        if (copy_to_clipboard)
+        if (CopyToClipboard)
         {
             ImGui::LogToClipboard();
         }
+
         for (int i = 0; i < Items.Size; i++)
         {
             const char* item = Items[i];
@@ -214,12 +232,15 @@ void CGameConsole::Draw(const char* title)
             }
         }
 
-        if (copy_to_clipboard)
+        if (CopyToClipboard)
         {
             ImGui::LogFinish();
         }
 
-        if (ScrollToBottom || (AutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())) { ImGui::SetScrollHereY(1.0f); }
+        if (ScrollToBottom || (AutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY()))
+        {
+            ImGui::SetScrollHereY(1.0f);
+        }
         ScrollToBottom = false;
 
         ///////////////////////////////////////////////////////////////////////
@@ -390,6 +411,7 @@ void DrawConsole()
     static CGameConsole console;
     static bool AssignPtr = []() {
         g_GameConsole = &console;
+        spdlog::debug("[+CGameConsole+] Created CGameConsole Class instance.\n");
         return true;
     } ();
     console.Draw("Console");

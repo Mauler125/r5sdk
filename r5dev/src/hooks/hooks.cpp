@@ -13,6 +13,7 @@ void Hooks::InstallHooks()
 {
 	///////////////////////////////////////////////////////////////////////////////
 	// Initialize Minhook
+	spdlog::debug("Hooking game functions now..\n");
 	MH_Initialize();
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -25,7 +26,7 @@ void Hooks::InstallHooks()
 	MH_CreateHook(addr_SQVM_RegisterCreatePlayerTasklist, &Hooks::SQVM_RegisterCreatePlayerTasklist, reinterpret_cast<void**>(&originalSQVM_RegisterCreatePlayerTasklist));
 
 	///////////////////////////////////////////////////////////////////////////////
-	// Hook Game Functions
+	// Hook Game functions
 	MH_CreateHook(addr_CHLClient_FrameStageNotify, &Hooks::FrameStageNotify, reinterpret_cast<void**>(&originalFrameStageNotify));
 	MH_CreateHook(addr_CVEngineServer_IsPersistenceDataAvailable, &Hooks::IsPersistenceDataAvailable, reinterpret_cast<void**>(&originalIsPersistenceDataAvailable));
 	MH_CreateHook(addr_CServer_ConnectClient, &Hooks::ConnectClient, reinterpret_cast<void**>(&originalConnectClient));
@@ -38,13 +39,21 @@ void Hooks::InstallHooks()
 	MH_CreateHook(addr_NetChan_Shutdown, &Hooks::NetChan_Shutdown, reinterpret_cast<void**>(&originalNetChan_ShutDown));
 
 	///////////////////////////////////////////////////////////////////////////////
-	// Hook ConVar | ConCommand functions.
+	// Hook ConVar | ConCommand functions
 	MH_CreateHook(addr_ConVar_IsFlagSet, &Hooks::ConVar_IsFlagSet, reinterpret_cast<void**>(&originalConVar_IsFlagSet));
 	MH_CreateHook(addr_ConCommand_IsFlagSet, &Hooks::ConCommand_IsFlagSet, reinterpret_cast<void**>(&originalConCommand_IsFlagSet));
 
 	///////////////////////////////////////////////////////////////////////////////
-	// Hooks CBaseFileSystem functions.
+	// Hook CMatSystemSurface functions
+	MH_CreateHook(addr_CMatSystemSurface_LockCursor, &LockCursor, reinterpret_cast<void**>(&originalLockCursor));
+
+	///////////////////////////////////////////////////////////////////////////////
+	// Hook CBaseFileSystem functions
 	//MH_CreateHook(addr_CBaseFileSystem_FileSystemWarning, &Hooks::FileSystemWarning, reinterpret_cast<void**>(&originalFileSystemWarning);
+
+	///////////////////////////////////////////////////////////////////////////////
+	// Hook HostState functions
+    //MH_CreateHook(MemoryAddress(0x14023EF80).RCast<void*>(), &Hooks::FrameUpdate, reinterpret_cast<void**>(&originalFrameUpdate));
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Hook Utility functions
@@ -59,12 +68,10 @@ void Hooks::InstallHooks()
 		void* ClipCursorPtr = user32dll.GetExportedFunction("ClipCursor");
 		void* GetCursorPosPtr = user32dll.GetExportedFunction("GetCursorPos");
 		void* ShowCursorPtr = user32dll.GetExportedFunction("ShowCursor");
-
 		MH_CreateHook(SetCursorPosPtr, &Hooks::SetCursorPos, reinterpret_cast<void**>(&originalSetCursorPos));
 		MH_CreateHook(ClipCursorPtr, &Hooks::ClipCursor, reinterpret_cast<void**>(&originalClipCursor));
 		MH_CreateHook(GetCursorPosPtr, &Hooks::GetCursorPos, reinterpret_cast<void**>(&originalGetCursorPos));
 		MH_CreateHook(ShowCursorPtr, &Hooks::ShowCursor, reinterpret_cast<void**>(&originalShowCursor));
-
 		///////////////////////////////////////////////////////////////////////////
 		// Enable WinAPI hooks
 		MH_EnableHook(SetCursorPosPtr);
@@ -99,8 +106,16 @@ void Hooks::InstallHooks()
 	MH_EnableHook(addr_ConCommand_IsFlagSet);
 
 	///////////////////////////////////////////////////////////////////////////////
+	// Enable CMatSystemSurface hooks
+	MH_EnableHook(addr_CMatSystemSurface_LockCursor);
+
+	///////////////////////////////////////////////////////////////////////////////
 	// Enable CBaseFileSystem hooks
 	//MH_EnableHook(addr_CBaseFileSystem_FileSystemWarning);
+
+	///////////////////////////////////////////////////////////////////////////////
+	// Enable HostState hooks
+//	MH_EnableHook(MemoryAddress(0x14023EF80).RCast<void*>());
 
 	///////////////////////////////////////////////////////////////////////////////
     // Enabled Utility hooks
@@ -132,9 +147,18 @@ void Hooks::RemoveHooks()
 	MH_RemoveHook(addr_NetChan_Shutdown);
 
 	///////////////////////////////////////////////////////////////////////////////
-	// Unhook ConVar | ConCommand functions.
+	// Unhook ConVar | ConCommand functions
 	MH_RemoveHook(addr_ConVar_IsFlagSet);
 	MH_RemoveHook(addr_ConCommand_IsFlagSet);
+
+	///////////////////////////////////////////////////////////////////////////////
+	// Unhook CMatSystemSurface functions
+	MH_EnableHook(MemoryAddress(0x140548A00).RCast<void*>());
+
+	///////////////////////////////////////////////////////////////////////////////
+	// Unhook Utility functions
+	MH_RemoveHook(addr_MSG_EngineError);
+	MH_RemoveHook(addr_LoadPlaylist);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook WinAPI
@@ -144,7 +168,6 @@ void Hooks::RemoveHooks()
 		void* ClipCursorPtr = user32dll.GetExportedFunction("ClipCursor");
 		void* GetCursorPosPtr = user32dll.GetExportedFunction("GetCursorPos");
 		void* ShowCursorPtr = user32dll.GetExportedFunction("ShowCursor");
-
 		MH_RemoveHook(SetCursorPosPtr);
 		MH_RemoveHook(ClipCursorPtr);
 		MH_RemoveHook(GetCursorPosPtr);
@@ -152,13 +175,12 @@ void Hooks::RemoveHooks()
 	}
 
 	///////////////////////////////////////////////////////////////////////////////
-	// Unhook Utility functions
-	MH_RemoveHook(addr_MSG_EngineError);
-	MH_RemoveHook(addr_LoadPlaylist);
-
-	///////////////////////////////////////////////////////////////////////////////
 	// Unhook CBaseFileSystem functions.
 	//MH_RemoveHook(addr_CBaseFileSystem_FileSystemWarning);
+
+	///////////////////////////////////////////////////////////////////////////////
+	// Unhook HostState hooks
+    //MH_RemoveHook(MemoryAddress(0x14023EF80).RCast<void*>());
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Reset Minhook
@@ -171,21 +193,21 @@ void Hooks::ToggleNetTrace()
 	{
 		MH_EnableHook(addr_NET_ReceiveDatagram);
 		MH_EnableHook(addr_NET_SendDatagram);
-		printf("\n");
-		printf("+--------------------------------------------------------+\n");
-		printf("|>>>>>>>>>>>>>| NETCHANNEL TRACE ACTIVATED |<<<<<<<<<<<<<|\n");
-		printf("+--------------------------------------------------------+\n");
-		printf("\n");
+		spdlog::info("\n");
+		spdlog::info("+--------------------------------------------------------+\n");
+		spdlog::info("|>>>>>>>>>>>>>| NETCHANNEL TRACE ACTIVATED |<<<<<<<<<<<<<|\n");
+		spdlog::info("+--------------------------------------------------------+\n");
+		spdlog::info("\n");
 	}
 	else
 	{
 		MH_DisableHook(addr_NET_ReceiveDatagram);
 		MH_DisableHook(addr_NET_SendDatagram);
-		printf("\n");
-		printf("+--------------------------------------------------------+\n");
-		printf("|>>>>>>>>>>>>| NETCHANNEL TRACE DEACTIVATED |<<<<<<<<<<<<|\n");
-		printf("+--------------------------------------------------------+\n");
-		printf("\n");
+		spdlog::info("\n");
+		spdlog::info("+--------------------------------------------------------+\n");
+		spdlog::info("|>>>>>>>>>>>>| NETCHANNEL TRACE DEACTIVATED |<<<<<<<<<<<<|\n");
+		spdlog::info("+--------------------------------------------------------+\n");
+		spdlog::info("\n");
 	}
 	bToggledNetTrace = !bToggledNetTrace;
 }
@@ -196,21 +218,21 @@ void Hooks::ToggleDevCommands()
 	{
 		MH_EnableHook(addr_ConVar_IsFlagSet);
 		MH_EnableHook(addr_ConCommand_IsFlagSet);
-		printf("\n");
-		printf("+--------------------------------------------------------+\n");
-		printf("|>>>>>>>>>>>>>| DEVONLY COMMANDS ACTIVATED |<<<<<<<<<<<<<|\n");
-		printf("+--------------------------------------------------------+\n");
-		printf("\n");
+		spdlog::info("\n");
+		spdlog::info("+--------------------------------------------------------+\n");
+		spdlog::info("|>>>>>>>>>>>>>| DEVONLY COMMANDS ACTIVATED |<<<<<<<<<<<<<|\n");
+		spdlog::info("+--------------------------------------------------------+\n");
+		spdlog::info("\n");
 	}
 	else
 	{
 		MH_DisableHook(addr_ConVar_IsFlagSet);
 		MH_DisableHook(addr_ConCommand_IsFlagSet);
-		printf("\n");
-		printf("+--------------------------------------------------------+\n");
-		printf("|>>>>>>>>>>>>| DEVONLY COMMANDS DEACTIVATED |<<<<<<<<<<<<|\n");
-		printf("+--------------------------------------------------------+\n");
-		printf("\n");
+		spdlog::info("\n");
+		spdlog::info("+--------------------------------------------------------+\n");
+		spdlog::info("|>>>>>>>>>>>>| DEVONLY COMMANDS DEACTIVATED |<<<<<<<<<<<<|\n");
+		spdlog::info("+--------------------------------------------------------+\n");
+		spdlog::info("\n");
 	}
 	bToggledDevFlags = !bToggledDevFlags;
 }

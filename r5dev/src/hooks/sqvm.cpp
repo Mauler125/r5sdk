@@ -51,12 +51,18 @@ void* Hooks::SQVM_Print(void* sqvm, char* fmt, ...)
 
 	vmStr.append(buf);
 
+	if (g_GameConsole && g_GameConsole->ShouldPrintToCommandPrompt())
+	{
+		spdlog::info(vmStr);
+	}
+
 	logger.debug(vmStr);
+
 
 	std::string s = oss_print.str();
 	const char* c = s.c_str();
 
-	Items.push_back(Strdup((const char*)c));
+	Items.push_back(Strdup(c));
 	return NULL;
 }
 
@@ -97,12 +103,17 @@ __int64 Hooks::SQVM_Warning(void* sqvm, int a2, int a3, int* stringSize, void** 
 	std::string stringConstructor((char*)*string, *stringSize); // Get string from memory via std::string constructor.
 	vmStr.append(stringConstructor);
 
+	if (g_GameConsole && g_GameConsole->ShouldPrintToCommandPrompt())
+	{
+		spdlog::info(vmStr);
+	}
+
 	logger.debug(vmStr);
 
 	std::string s = oss_warning.str();
 	const char* c = s.c_str();
 
-	Items.push_back(Strdup((const char*)c));
+	Items.push_back(Strdup(c));
 
 	return result;
 }
@@ -129,20 +140,20 @@ __int64 Hooks::SQVM_LoadRson(const char* rson_name)
 	// Returns the new path if the rson exists on the disk
 	if (FileExists(filepath) && originalSQVM_LoadRson(rson_name))
 	{
-		printf("\n");
-		printf("##################################################\n");
-		printf("] '%s'\n", filepath);
-		printf("##################################################\n");
-		printf("\n");
+		spdlog::info("\n");
+		spdlog::info("##################################################\n");
+		spdlog::info("] '{}'\n", filepath);
+		spdlog::info("##################################################\n");
+		spdlog::info("\n");
 
 		return originalSQVM_LoadRson(filepath);
 	}
 
-	printf("\n");
-	printf("##################################################\n");
-	printf("] '%s'\n", rson_name);
-	printf("##################################################\n");
-	printf("\n");
+	spdlog::info("\n");
+	spdlog::info("##################################################\n");
+	spdlog::info("] '{}'\n", rson_name);
+	spdlog::info("##################################################\n");
+	spdlog::info("\n");
 
 	return originalSQVM_LoadRson(rson_name);
 }
@@ -166,7 +177,7 @@ bool Hooks::SQVM_LoadScript(void* sqvm, const char* script_path, const char* scr
 	}
 	if (g_bDebugLoading)
 	{
-		printf(" [+] Loading SQVM Script '%s' ...\n", filepath);
+		spdlog::info(" [+] Loading SQVM Script '{}' ...\n", filepath);
 	}
 	///////////////////////////////////////////////////////////////////////////////
 	// Returns true if the script exists on the disk
@@ -176,7 +187,7 @@ bool Hooks::SQVM_LoadScript(void* sqvm, const char* script_path, const char* scr
 	}
 	if (g_bDebugLoading)
 	{
-		printf(" [!] FAILED. Try SP / VPK for '%s'\n", filepath);
+		spdlog::info(" [!] FAILED. Try SP / VPK for '%s'\n", filepath);
 	}
 
 	return originalSQVM_LoadScript(sqvm, script_path, script_name, flag);

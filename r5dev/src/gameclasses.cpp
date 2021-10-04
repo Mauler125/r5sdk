@@ -326,6 +326,7 @@ namespace GameGlobals
 
 	void NullHostNames()
 	{
+		spdlog::debug("Nulling host names..\n");
 		const char* hostnameArray[] =
 		{
 			"pin_telemetry_hostname",
@@ -356,6 +357,7 @@ namespace GameGlobals
 
 	void InitGameGlobals()
 	{
+		spdlog::debug("Initializing Game Globals..\n");
 		HostState = reinterpret_cast<CHostState*>(0x141736120); // Get CHostState from memory.
 		InputSystem = *reinterpret_cast<CInputSystem**>(0x14D40B380); // Get IInputSystem from memory.
 		Cvar = *reinterpret_cast<CCVar**>(0x14D40B348); // Get CCVar from memory.
@@ -377,6 +379,7 @@ namespace GameGlobals
 	
 	void InitPlaylist()
 	{
+		spdlog::debug("Parsing Playlist..\n");
 		while (true)
 		{
 			if ((*PlaylistKeyValues))
@@ -400,6 +403,7 @@ namespace GameGlobals
 
 	void InitAllCommandVariations()
 	{
+		spdlog::debug("Initializing all Custom ConVars and Commands..\n");
 		void* CGameConsoleConCommand =  CreateCustomConCommand("cgameconsole", "Opens the R5 Reloaded Console.", 0, CustomCommandVariations::CGameConsole_Callback, nullptr);
 		void* CCompanionConCommand =    CreateCustomConCommand("ccompanion", "Opens the R5 Reloaded Server Browser.", 0, CustomCommandVariations::CCompanion_Callback, nullptr);
 		void* KickConCommand =          CreateCustomConCommand("kick", "Kick a client from the Server via name. | Usage: kick (name).", 0, CustomCommandVariations::Kick_Callback, nullptr);

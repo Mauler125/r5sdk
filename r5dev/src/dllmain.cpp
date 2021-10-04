@@ -17,10 +17,12 @@ void InitializeR5Dev()
     InstallOpcodes();
     g_GuiConfig.Load(); // Load gui config.
     SetupDXSwapChain();
-    printf("+-----------------------------------------------------------------------------+\n");
-    printf("|   R5 DEV -- INITIALIZED -------------------------------------------------   |\n");
-    printf("+-----------------------------------------------------------------------------+\n");
-    printf("\n");
+
+    spdlog::get("console")->set_pattern("%v");
+    spdlog::info("+-----------------------------------------------------------------------------+\n");
+    spdlog::info("|   R5 DEV -- INITIALIZED -------------------------------------------------   |\n");
+    spdlog::info("+-----------------------------------------------------------------------------+\n");
+    spdlog::get("console")->set_pattern("[%I:%M:%S:%e] [%L] %v");
 }
 
 void TerminateR5Dev()

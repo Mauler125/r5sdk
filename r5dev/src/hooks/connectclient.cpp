@@ -61,8 +61,6 @@ void* Hooks::ConnectClient(void* thisptr, void* packet)
 		finalIPAddress = ss.str();
 	}
 
-	R5Net::Client* r5net = g_ServerBrowser->GetR5Net();
-
 	const char* name = *(const char**)((std::uintptr_t)packet + 0x30);
 	std::int64_t originID = *(std::int64_t*)((std::uintptr_t)packet + 0x28);
 
@@ -80,6 +78,7 @@ void* Hooks::ConnectClient(void* thisptr, void* packet)
 
 	if (g_CheckCompBanDB)
 	{
+		R5Net::Client* r5net = g_ServerBrowser->GetR5Net();
 		if (r5net)
 		{
 			std::thread t1(IsClientBanned, r5net, finalIPAddress, originID);

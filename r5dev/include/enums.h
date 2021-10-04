@@ -332,7 +332,7 @@ enum ClientFrameStage_t
 	FRAME_NET_FULL_FRAME_UPDATE_ON_REMOVE
 };
 
-enum HostStates_t
+enum class HostStates_t : int
 {
 	HS_NEW_GAME = 0x0,
 	HS_LOAD_GAME = 0x1,
