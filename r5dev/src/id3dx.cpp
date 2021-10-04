@@ -347,7 +347,7 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 
 void InstallDXHooks()
 {
-	spdlog::debug("Initializing IDXGISwapChainPresent hook..\n");
+	spdlog::debug("Initializing DirectC hooks..\n");
 	MH_CreateHook(g_fnIDXGISwapChainPresent, &Present, reinterpret_cast<void**>(&originalPresent));
 	MH_CreateHook(g_fnIDXGIResizeBuffers, &GetResizeBuffers, reinterpret_cast<void**>(&originalResizeBuffers));
 	 
@@ -357,7 +357,7 @@ void InstallDXHooks()
 
 void RemoveDXHooks()
 {
-	spdlog::debug("Initializing IDXGISwapChainPresent hook..\n");
+	spdlog::debug("Removing DirectX hooks..\n");
 	MH_RemoveHook(g_fnIDXGISwapChainPresent);
 	MH_RemoveHook(g_fnIDXGIResizeBuffers);
 

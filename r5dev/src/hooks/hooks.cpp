@@ -125,6 +125,7 @@ void Hooks::InstallHooks()
 
 void Hooks::RemoveHooks()
 {
+	spdlog::debug("Unhooking game functions..\n");
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook Squirrel functions
 	MH_RemoveHook(addr_SQVM_Print);
