@@ -412,6 +412,8 @@ namespace GameGlobals
 		void* ReloadBanListConCommand = CreateCustomConCommand("reloadbanlist", "Reloads the ban list from disk.", 0, CustomCommandVariations::ReloadBanList_Callback, nullptr);
 		void* BanConCommand =           CreateCustomConCommand("ban", "Bans a client from the Server via name. | Usage: ban (name)", 0, CustomCommandVariations::Ban_Callback, nullptr);
 		void* BanIDConCommand =         CreateCustomConCommand("banid", "Bans a client from the Server via originID, userID or IP | Usage: banid (originID/ipAddress/userID)", 0, CustomCommandVariations::BanID_Callback, nullptr);
+		
+		ConVar* DrawConsoleOverlayConVar = CreateCustomConVar("cl_drawconsoleoverlay", "0", 0, "Draw the console overlay at the top of the screen", false, 0.f, false, 0.f, nullptr, nullptr);
 	}
 
 	void* CreateCustomConCommand(const char* name, const char* helpString, int flags, void* callback, void* callbackAfterExecution)

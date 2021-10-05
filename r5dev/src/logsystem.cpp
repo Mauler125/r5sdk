@@ -16,6 +16,9 @@ void LogSystem::Update()
 	for (int i = 0; i < m_vLogs.size(); ++i) {
 		if (m_vLogs[i].Ticks >= 0)
 		{
+			if (GameGlobals::Cvar->FindVar("cl_drawconsoleoverlay")->m_iValue < 1)
+				return;
+
 			if (i < LOGSYSTEM_LINES_TO_SHOW) {
 
 				float fadepct = fminf(float(m_vLogs[i].Ticks) / 64.f, 1.0);
@@ -56,10 +59,10 @@ std::array<int, 3> LogSystem::GetLogColorForType(LogType_t type) {
 		case LogType_t::NATIVE:
 			return { 255, 255, 255 };
 		case LogType_t::SCRIPT_SERVER:
-			return { 163, 156, 213 };
+			return { 190, 183, 240 };
 		case LogType_t::SCRIPT_CLIENT:
 			return { 117, 116, 139 };
 		case LogType_t::SCRIPT_UI:
-			return { 117, 99, 98 };
+			return { 197, 160, 177 };
 	}
 }
