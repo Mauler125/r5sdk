@@ -159,11 +159,6 @@ void Hooks::RemoveHooks()
 	MH_RemoveHook(addr_CMatSystemSurface_LockCursor);
 
 	///////////////////////////////////////////////////////////////////////////////
-	// Unhook Utility functions
-	MH_RemoveHook(addr_MSG_EngineError);
-	MH_RemoveHook(addr_LoadPlaylist);
-
-	///////////////////////////////////////////////////////////////////////////////
 	// Unhook WinAPI
 	if (Module user32dll = Module("user32.dll"); user32dll.GetModuleBase()) // Is user32.dll valid?
 	{
