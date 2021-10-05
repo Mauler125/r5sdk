@@ -112,6 +112,9 @@
     <Filter Include="hooks\src\cmatsystemsurface">
       <UniqueIdentifier>{a2663195-c4f2-4d5f-8d65-cfed54976e4c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="hooks\src\cfpspanel">
+      <UniqueIdentifier>{10a22c13-763e-4054-bf6a-8f4b61697520}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dllmain.cpp">
@@ -215,6 +218,12 @@
     </ClCompile>
     <ClCompile Include="src\hooks\lockcursor.cpp">
       <Filter>hooks\src\cmatsystemsurface</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cfpspanel.cpp">
+      <Filter>hooks\src\cfpspanel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\logsystem.cpp">
+      <Filter>r5-sdk\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -589,6 +598,9 @@
       <Filter>shared\include</Filter>
     </ClInclude>
     <ClInclude Include="include\squirrel.h">
+      <Filter>r5-sdk\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\logsystem.h">
       <Filter>r5-sdk\include</Filter>
     </ClInclude>
   </ItemGroup>
