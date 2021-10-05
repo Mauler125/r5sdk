@@ -13,7 +13,6 @@ extern bool g_bBlockInput;
 
 namespace Hooks
 {
-	extern std::vector<std::string> g_vOutput;
 #pragma region CHLClient
 	void __fastcall FrameStageNotify(CHLClient* rcx, ClientFrameStage_t curStage);
 
