@@ -59,6 +59,7 @@ void Hooks::InstallHooks()
 	// Hook Utility functions
 	MH_CreateHook(addr_MSG_EngineError, &Hooks::MSG_EngineError, reinterpret_cast<void**>(&originalMSG_EngineError));
 	MH_CreateHook(addr_LoadPlaylist, &Hooks::LoadPlaylist, reinterpret_cast<void**>(&originalLoadPlaylist));
+	MH_CreateHook(addr_CFPSPanel_Paint, &Hooks::CFPSPanel_Paint, reinterpret_cast<void**>(&originalCFPSPanel_Paint));
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Hook WinAPI
@@ -121,6 +122,7 @@ void Hooks::InstallHooks()
     // Enabled Utility hooks
 	MH_EnableHook(addr_MSG_EngineError);
 	MH_EnableHook(addr_LoadPlaylist);
+	MH_EnableHook(addr_CFPSPanel_Paint);
 }
 
 void Hooks::RemoveHooks()
@@ -157,11 +159,6 @@ void Hooks::RemoveHooks()
 	MH_RemoveHook(addr_CMatSystemSurface_LockCursor);
 
 	///////////////////////////////////////////////////////////////////////////////
-	// Unhook Utility functions
-	MH_RemoveHook(addr_MSG_EngineError);
-	MH_RemoveHook(addr_LoadPlaylist);
-
-	///////////////////////////////////////////////////////////////////////////////
 	// Unhook WinAPI
 	if (Module user32dll = Module("user32.dll"); user32dll.GetModuleBase()) // Is user32.dll valid?
 	{
@@ -174,6 +171,12 @@ void Hooks::RemoveHooks()
 		MH_RemoveHook(GetCursorPosPtr);
 		MH_RemoveHook(ShowCursorPtr);
 	}
+
+	///////////////////////////////////////////////////////////////////////////////
+	// Unhook Utility functions
+	MH_RemoveHook(addr_MSG_EngineError);
+	MH_RemoveHook(addr_LoadPlaylist);
+	MH_RemoveHook(addr_CFPSPanel_Paint);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Unhook CBaseFileSystem functions.

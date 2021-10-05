@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "hooks.h"
+#include "logsystem.h"
 
 namespace Hooks
 {
@@ -47,6 +48,8 @@ void Hooks::NET_PrintFunc(const char* fmt, ...)
 
 	std::string s = oss_print.str();
 	const char* c = s.c_str();
+
+	g_LogSystem.AddLog(LogType_t::NATIVE, s);
 
 	Items.push_back(Strdup((const char*)c));
 }

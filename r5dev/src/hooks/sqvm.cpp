@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "hooks.h"
+#include "logsystem.h"
 
 namespace Hooks
 {
@@ -62,7 +63,10 @@ void* Hooks::SQVM_Print(void* sqvm, char* fmt, ...)
 	std::string s = oss_print.str();
 	const char* c = s.c_str();
 
-	Items.push_back(Strdup(c));
+	g_LogSystem.AddLog((LogType_t)vmIdx, s);
+
+	Items.push_back(Strdup(c));	
+
 	return NULL;
 }
 
@@ -112,6 +116,8 @@ __int64 Hooks::SQVM_Warning(void* sqvm, int a2, int a3, int* stringSize, void** 
 
 	std::string s = oss_warning.str();
 	const char* c = s.c_str();
+
+	g_LogSystem.AddLog((LogType_t)vmIdx, s);
 
 	Items.push_back(Strdup(c));
 
