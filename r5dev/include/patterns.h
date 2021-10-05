@@ -150,6 +150,7 @@ namespace
 	FUNC_AT_ADDRESS(addr_KeyValues_FindKey, void*(*)(void*, const char*, bool), r5_patterns.PatternSearch("40 56 57 41 57 48 81 EC ?? ?? ?? ?? 45").GetPtr());
 #pragma endregion
 
+#pragma region CFPSPanel
 	/*0x14074A230*/
 	FUNC_AT_ADDRESS(addr_CFPSPanel_Paint, void(*)(void*), r5_patterns.PatternSearch("48 8B C4 55 56 41 55 48 8D A8 ? ? ? ?").GetPtr());
 #pragma endregion
