@@ -406,6 +406,8 @@ namespace GameGlobals
 		void* ReloadBanListConCommand = CreateCustomConCommand("reloadbanlist", "Reloads the ban list from disk.", 0, CustomCommandVariations::ReloadBanList_Callback, nullptr);
 		void* BanConCommand =           CreateCustomConCommand("ban", "Bans a client from the Server via name. | Usage: ban (name)", 0, CustomCommandVariations::Ban_Callback, nullptr);
 		void* BanIDConCommand =         CreateCustomConCommand("banid", "Bans a client from the Server via originID, userID or IP | Usage: banid (originID/ipAddress/userID)", 0, CustomCommandVariations::BanID_Callback, nullptr);
+
+		ConVar* AdminPassword = CreateCustomConVar("sv_admin_password", "~~none~~", FCVAR_PROTECTED, "Admin password. Share only with trusted players!", 0, 0, 0, 0, nullptr, nullptr);
 	}
 
 	void* CreateCustomConCommand(const char* name, const char* helpString, int flags, void* callback, void* callbackAfterExecution)
