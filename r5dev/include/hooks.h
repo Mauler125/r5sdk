@@ -127,10 +127,16 @@ namespace Hooks
 	extern FrameUpdateFn originalFrameUpdate;
 #pragma endregion
 
+#pragma region CEngineVGui
+	int CEngineVGui_Paint(void* thisptr, int mode);
+
+	using CEngineVGui_PaintFn = int(*)(void*, int);
+	extern CEngineVGui_PaintFn originalCEngineVGui_Paint;
+#pragma endregion
+
 #pragma region Other
 	int MSG_EngineError(char* fmt, va_list args);
 	bool LoadPlaylist(const char* playlist);
-	void CFPSPanel_Paint(void* thisptr);
 
 	using MSG_EngineErrorFn = int(*)(char*, va_list);
 	extern MSG_EngineErrorFn originalMSG_EngineError;
@@ -138,8 +144,6 @@ namespace Hooks
 	using LoadPlaylistFn = bool(*)(const char*);
 	extern LoadPlaylistFn originalLoadPlaylist;
 
-	using CFPSPanel_PaintFn = void(*)(void*);
-	extern CFPSPanel_PaintFn originalCFPSPanel_Paint;
 #pragma endregion
 
 	void InstallHooks();
