@@ -1,8 +1,6 @@
 #pragma once
 
-#define LOGSYSTEM_LINES_TO_SHOW 3
-
-enum LogType_t
+enum class LogType_t : int
 {
 	SCRIPT_SERVER,
 	SCRIPT_CLIENT,
@@ -13,6 +11,12 @@ enum LogType_t
 
 struct Log
 {
+	Log(const std::string Message, const int Ticks, const LogType_t Type)
+	{
+		this->Message = Message;
+		this->Ticks = Ticks;
+		this->Type = Type;
+	}
 	std::string Message = "";
 	int Ticks = 1024;
 	LogType_t Type = LogType_t::NATIVE;
@@ -20,7 +24,6 @@ struct Log
 
 class LogSystem
 {
-
 public:
 	void AddLog(LogType_t type, std::string text);
 	void Update();

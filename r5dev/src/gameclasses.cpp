@@ -413,7 +413,7 @@ namespace GameGlobals
 		void* BanConCommand =           CreateCustomConCommand("ban", "Bans a client from the Server via name. | Usage: ban (name)", 0, CustomCommandVariations::Ban_Callback, nullptr);
 		void* BanIDConCommand =         CreateCustomConCommand("banid", "Bans a client from the Server via originID, userID or IP | Usage: banid (originID/ipAddress/userID)", 0, CustomCommandVariations::BanID_Callback, nullptr);
 		
-		ConVar* DrawConsoleOverlayConVar = CreateCustomConVar("cl_drawconsoleoverlay", "0", 0, "Draw the console overlay at the top of the screen", false, 0.f, false, 0.f, nullptr, nullptr);
+		ConVar* DrawConsoleOverlayConVar  = CreateCustomConVar("cl_drawconsoleoverlay", "0", 0, "Draw the console overlay at the top of the screen", false, 0.f, false, 0.f, nullptr, nullptr);
 		ConVar* ConsoleOverlayLinesConVar = CreateCustomConVar("cl_consoleoverlay_lines", "3", 0, "Number of lines of console output to draw", false, 1.f, false, 50.f, nullptr, nullptr);
 	}
 

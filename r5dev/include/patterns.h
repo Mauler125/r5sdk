@@ -127,6 +127,9 @@ namespace
 
 	/*0x1405489C0*/
 	FUNC_AT_ADDRESS(addr_CMatSystemSurface_UnlockCursor, void(*)(void*), MemoryAddress(0x1405489C0).GetPtr()); // Maybe sigscan this via RTTI.
+
+	/*0x140547900*/
+	FUNC_AT_ADDRESS(addr_CMatSystemSurface_DrawColoredText, void(*)(void*, int, int, int, int, int, int, int, int, const char*, ...), MemoryAddress(0x140547900).GetPtr());
 #pragma region Utility
 	/*0x140295600*/
 	FUNC_AT_ADDRESS(addr_MSG_EngineError, int(*)(char*, va_list), r5_patterns.StringSearch("Engine Error").FindPatternSelf("48 89 ? ? ? 48 89", MemoryAddress::Direction::UP, 500).GetPtr());
