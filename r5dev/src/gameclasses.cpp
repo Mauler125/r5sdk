@@ -143,7 +143,7 @@ namespace GameGlobals
 			}
 			catch (std::exception& e)
 			{
-				std::cout << "Kick UID asked for a userID or originID :( You can get the userid with the 'status' command. Error: " << e.what() << std::endl;
+				spdlog::critical("Kick UID asked for a userID or originID :( You can get the userid with the 'status' command. Error: {}\n", e.what());
 				g_GameConsole->AddLog("Kick UID asked for a userID or originID :( You can get the userid with the 'status' command. Error: %s", e.what());
 				return;
 			}
@@ -183,7 +183,7 @@ namespace GameGlobals
 			}
 			catch (std::exception& e)
 			{
-				std::cout << "Unban Error: " << e.what() << std::endl;
+				spdlog::critical("Unban Error: {}\n", e.what());
 				g_GameConsole->AddLog("Unban Error: %s", e.what());
 				return;
 			}
@@ -317,7 +317,7 @@ namespace GameGlobals
 			}
 			catch (std::exception& e)
 			{
-				std::cout << "Banid Error: " << e.what() << std::endl;
+				spdlog::critical("Banid Error: {}\n", e.what());
 				g_GameConsole->AddLog("Banid Error: %s", e.what());
 				return;
 			}

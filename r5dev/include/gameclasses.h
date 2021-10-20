@@ -41,15 +41,15 @@ class CKeyValuesSystem // VTABLE @ 0x1413AA1E8 in R5pc_r5launch_N1094_CL456479_2
 {
 public:
 
-	void RegisterSizeofKeyValues(__int64 size) //@0x1413AA1F0 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
+	void RegisterSizeofKeyValues(std::int64_t size) //@0x1413AA1F0 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	{
-		using OriginalFn = void(__thiscall*)(CKeyValuesSystem*, __int64);
+		using OriginalFn = void(__thiscall*)(CKeyValuesSystem*, std::int64_t);
 		(*reinterpret_cast<OriginalFn**>(this))[0](this, size);
 	}
 
-	void* AllocKeyValuesMemory(__int64 size) // @0x1413AA1F8 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
+	void* AllocKeyValuesMemory(std::int64_t size) // @0x1413AA1F8 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	{
-		using OriginalFn = void* (__thiscall*)(CKeyValuesSystem*, __int64);
+		using OriginalFn = void* (__thiscall*)(CKeyValuesSystem*, std::int64_t);
 		return (*reinterpret_cast<OriginalFn**>(this))[1](this, size);
 	}
 
@@ -122,15 +122,15 @@ public:
 	// Datatypes aren't accurate. But full fill the actual byte distance.
 public:
 	void* vtable; // 0x0000
-	__int64 m_iMaxKeyValuesSize; // 0x0008
+	std::int64_t m_iMaxKeyValuesSize; // 0x0008
 private:
 	char gap10[240]; // 0x0010
 public:
-	__int32 m_KvConditionalSymbolTable; // 0x0100
+	int m_KvConditionalSymbolTable; // 0x0100
 private:
 	char gap104[4]; // 0x0104
 public:
-	__int64 field_108; // 0x0108
+	std::int64_t field_108; // 0x0108
 private:
 	char gap110[32]; // 0x0110
 public:
@@ -315,7 +315,7 @@ public:
 		return COMMAND_MAX_LENGTH - 1;
 	}
 
-	inline int64_t ArgC() const
+	inline std::int64_t ArgC() const
 	{
 		return m_nArgc;
 	}
@@ -372,7 +372,7 @@ public:
 private:
 	char pad_0028[16]; //0x0028
 public:
-	__int32 m_nFlags; //0x0038
+	int m_nFlags; //0x0038
 private:
 	char pad_003C[4]; //0x003C
 }; //Size: 0x0038
@@ -385,7 +385,7 @@ public:
 	ConVar* m_pParent; //0x0048
 	const char* n_pszDefaultValue; //0x0050
 	const char* m_pzsCurrentValue; //0x0058
-	__int64 m_iStringLength; //0x0060
+	std::int64_t m_iStringLength; //0x0060
 	float m_flValue; //0x0068
 	int m_iValue; //0x006C
 	bool m_bHasMin; //0x0070
@@ -451,9 +451,9 @@ public:
 
 struct Interface
 {
-	__int64 (*InterfacePtr)(void);
+	std::int64_t(*InterfacePtr)(void);
 	const char* InterfaceName;
-	__int64* NextInterfacePtr;
+	std::int64_t* NextInterfacePtr;
 };
 
 struct SQFuncRegistration
@@ -463,17 +463,17 @@ struct SQFuncRegistration
 	const char* helpString;   // 10
 	const char* retValType;   // 18
 	const char* argTypes;     // 20
-	int16_t unk28;            // 28
-	int16_t padding1;         // 2A
-	int32_t unk2c;            // 2C
-	int64_t unk30;            // 30
-	int32_t unk38;            // 38
-	int32_t padding2;         // 3C
-	int64_t unk40;            // 40
-	int64_t unk48;            // 48
-	int64_t unk50;            // 50
-	int32_t unk58;            // 58
-	int32_t padding3;         // 5C
+	std::int16_t unk28;       // 28
+	std::int16_t padding1;    // 2A
+	std::int32_t unk2c;       // 2C
+	std::int64_t unk30;       // 30
+	std::int32_t unk38;       // 38
+	std::int32_t padding2;    // 3C
+	std::int64_t unk40;       // 40
+	std::int64_t unk48;       // 48
+	std::int64_t unk50;       // 50
+	std::int32_t unk58;       // 58
+	std::int32_t padding3;    // 5C
 	void* funcPtr;            // 60
 
 	SQFuncRegistration()

@@ -78,11 +78,14 @@ void* Hooks::ConnectClient(void* thisptr, void* packet)
 
 	if (g_CheckCompBanDB)
 	{
-		R5Net::Client* r5net = g_ServerBrowser->GetR5Net();
-		if (r5net)
+		if (g_ServerBrowser)
 		{
-			std::thread t1(IsClientBanned, r5net, finalIPAddress, originID);
-			t1.detach();
+			R5Net::Client* r5net = g_ServerBrowser->GetR5Net();
+			if (r5net)
+			{
+				std::thread t1(IsClientBanned, r5net, finalIPAddress, originID);
+				t1.detach();
+			}
 		}
 	}
 

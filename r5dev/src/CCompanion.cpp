@@ -528,6 +528,7 @@ void CCompanion::HostServerSection()
     {
         if (ImGui::Button("Reload Playlist from Disk##ServerHost_ReloadPlaylist", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
+            spdlog::debug("[+CCompanion+] Reloading playlist..\n");
             addr_downloadPlaylists_Callback();
             GameGlobals::InitPlaylist(); // Re-Init playlist.
         }
@@ -543,9 +544,8 @@ void CCompanion::SettingsSection()
         if (r5net)
         {
             delete r5net;
+            r5net = new R5Net::Client(MatchmakingServerStringBuffer);
         }
-
-        r5net = new R5Net::Client(MatchmakingServerStringBuffer);
     }
     // Encryption Key
     if (ImGui::Button("Regenerate Encryption Key##SettingsSection_RegenEncKey"))
@@ -590,9 +590,11 @@ void CCompanion::Draw(const char* title)
 
 void CCompanion::ProcessCommand(const char* command_line)
 {
-    spdlog::debug("[+CCompanion+] Processing command {}\n", command_line);
+    spdlog::debug("[+CCompanion+] Processing command: {} creating tread now.\n", command_line);
     std::thread t(&CCompanion::ExecCommand, this, command_line);
+    spdlog::debug("[+CCompanion+] Thread created.\n");
     t.detach();
+    spdlog::debug("[+CCompanion+] Detached from Thread.\n");
 
     // HACK: This is to avoid a race condition.
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -603,6 +605,7 @@ void CCompanion::ProcessCommand(const char* command_line)
 
 void CCompanion::ExecCommand(const char* command_line)
 {
+    spdlog::debug("[+CCompanion+] Executing command {}\n", command_line);
     addr_CommandExecute(NULL, command_line);
 }
 
@@ -643,7 +646,7 @@ void CCompanion::RegenerateEncryptionKey()
     {
         spdlog::critical("[+CCompanion+] Failed to generate random data\n");
     }
-    std::string fin;
+    std::string fin = std::string();
 
     for (int i = 0; i < 0x10u; i++)
     {

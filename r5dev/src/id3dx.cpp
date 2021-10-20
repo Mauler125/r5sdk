@@ -289,8 +289,8 @@ HRESULT __stdcall GetResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount
 
 	// Set up the viewport.
 	D3D11_VIEWPORT vp;
-	vp.Width = nWidth;
-	vp.Height = nHeight;
+	vp.Width = static_cast<float>(nWidth);
+	vp.Height = static_cast<float>(nHeight);
 	vp.MinDepth = 0.0f;
 	vp.MaxDepth = 1.0f;
 	vp.TopLeftX = 0;
@@ -347,7 +347,7 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 
 void InstallDXHooks()
 {
-	spdlog::debug("Initializing DirectC hooks..\n");
+	spdlog::debug("Initializing DirectX hooks..\n");
 	MH_CreateHook(g_fnIDXGISwapChainPresent, &Present, reinterpret_cast<void**>(&originalPresent));
 	MH_CreateHook(g_fnIDXGIResizeBuffers, &GetResizeBuffers, reinterpret_cast<void**>(&originalResizeBuffers));
 	 

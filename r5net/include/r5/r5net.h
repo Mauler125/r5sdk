@@ -14,9 +14,6 @@ namespace R5Net
 
 	class Client
 	{
-		httplib::Client m_HttpClient;
-		Config config;
-
 	public:
 		Client(std::string serverString) : m_HttpClient(serverString.c_str())
 		{
@@ -27,8 +24,10 @@ namespace R5Net
 		bool PostServerHost(std::string& outMessage, std::string& outToken, const ServerListing& serverListing);
 		bool GetServerByToken(ServerListing& outServer, std::string& outMessage, const std::string token);
 		bool GetClientIsBanned(std::string ip, std::int64_t orid, std::string& outErrCl);
-
 		std::string GetVersionString();
 
+	private:
+		httplib::Client m_HttpClient;
+		Config config;
 	};
 }
