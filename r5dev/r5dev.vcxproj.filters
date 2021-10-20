@@ -112,7 +112,7 @@
     <Filter Include="hooks\src\cmatsystemsurface">
       <UniqueIdentifier>{a2663195-c4f2-4d5f-8d65-cfed54976e4c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="hooks\src\cfpspanel">
+    <Filter Include="hooks\src\cenginevgui">
       <UniqueIdentifier>{10a22c13-763e-4054-bf6a-8f4b61697520}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -219,8 +219,8 @@
     <ClCompile Include="src\hooks\lockcursor.cpp">
       <Filter>hooks\src\cmatsystemsurface</Filter>
     </ClCompile>
-    <ClCompile Include="src\cfpspanel.cpp">
-      <Filter>hooks\src\cfpspanel</Filter>
+    <ClCompile Include="src\cenginevgui.cpp">
+      <Filter>hooks\src\cenginevgui</Filter>
     </ClCompile>
     <ClCompile Include="src\logsystem.cpp">
       <Filter>r5-sdk\src</Filter>
