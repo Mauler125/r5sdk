@@ -41,22 +41,20 @@ void DisableRenderer()
 
 void DisableClient()
 {
+	Sleep(5000);
 	//-------------------------------------------------------------------------
 	// JNZ --> JMP | Prevent EbisuSDK from initializing on the engine and server.
 	Origin_Init.Offset(0x0B).Patch({ 0xE9, 0x63, 0x02, 0x00, 0x00, 0x00 });
 	Origin_SetState.Offset(0x0E).Patch({ 0xE9, 0xCB, 0x03, 0x00, 0x00 });
 	//-------------------------------------------------------------------------
 	// JE  --> JMP | Skip CreateGameWindow initialization code.
-	CreateGameWindow.Offset(0x3DD).Patch({ 0xEB, 0x6D });
+	//CreateGameWindow.Offset(0x3DD).Patch({ 0xEB, 0x6D });
 	//-------------------------------------------------------------------------
 	// JNZ --> JMP | Skip CreateGameWindow validation code.
 	CreateGameWindow.Offset(0x44C).Patch({ 0xEB, 0x49 });
 	//-------------------------------------------------------------------------
 	// PUS --> XOR | Prevent ShowWindow and CreateGameWindow from being initialized.
-	c1.Patch({ 0x30, 0xC0, 0xC3 });
-	//-------------------------------------------------------------------------
-	// PUS --> XOR | Prevent ShowWindow and CreateGameWindow from being initialized.
-	c1.Patch({ 0x30, 0xC0, 0xC3 });
+	c1.Offset(0x2C).Patch({ 0xE9, 0x9A, 0x00, 0x00, 0x00 });
 	//-------------------------------------------------------------------------
 	// JNE --> NOP | TODO: NOP 'particle_script' instead.
 	c2.Offset(0x23C).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });
@@ -66,6 +64,16 @@ void DisableClient()
 	//-------------------------------------------------------------------------
 	// MOV --> NOP | TODO: NOP 'highlight_system' instead.
 	c3.Offset(0xA9).Patch({ 0x90, 0x90, 0x90, 0x90 });
+
+	//-------------------------------------------------------------------------
+	// FUN --> RET | 
+	c4.Patch({ 0xC3 });
+	c5.Patch({ 0xC3 });
+	c7.Patch({ 0xC3 });
+
+	//-------------------------------------------------------------------------
+	// JNE --> JMP | 
+	c6.Offset(0x23).Patch({ 0xEB, 0x23 });
 }
 
 void DisableVGUI()
@@ -120,7 +128,7 @@ void Hooks::DedicatedPatch()
 	//s1.Offset(0x1C6).Patch({ 0xE9, 0xAD, 0x11, 0x00, 0x00 }); // <-- this one was only used to debug.
 	//-------------------------------------------------------------------------
 	// JNE --> JMP | Return early in _Host_RunFrame() for debugging perposes.
-	s1.Offset(0x1010).Patch({ 0xEB, 0x14 });
+	//s1.Offset(0x1010).Patch({ 0xEB, 0x14 });
 	//-------------------------------------------------------------------------
 	// CAL --> NOP | NOP NULL call as client is never initialized.
 	s1.Offset(0x1023).Patch({ 0x90, 0x90, 0x90 });
@@ -133,29 +141,22 @@ void Hooks::DedicatedPatch()
 	e0.Offset(0x182).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });
 	//-------------------------------------------------------------------------
 	// JNE --> JNP | Skip client.dll library initialization.
-	e0.Offset(0xA7D).Patch({ 0xE9, 0xF0, 0x01, 0x00, 0x00 });
+	//e0.Offset(0xA7D).Patch({ 0xE9, 0xF0, 0x01, 0x00, 0x00 });
 	//-------------------------------------------------------------------------
 	// JNE --> NOP | Skip settings field loading for client texture assets.
 	// TODO: this is also used by server.dll library.
 	e1.Offset(0x213).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });
-
 	//-------------------------------------------------------------------------
-	// RET
-	c4.Patch({ 0xC3 });
-	c5.Patch({ 0xC3 });
-	c7.Patch({ 0xC3 });
+	// CAL --> NOP | NOP call to unused VGUI code to prevent crash at SIGNONSTATE_PRESPAWN.
+	e3.Offset(0xFB0).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });
 
-	//-------------------------------------------------------------------------
-	// JNE --> JMP | 
-	c6.Offset(0x23).Patch({ 0xEB, 0x23 });
+	//MemoryAddress(0x140E157F0).Patch({ 0xC3 });
 
+	//e4.Offset(0x20).Patch({ 0xE9, 0xE3, 0x00, 0x00, 0x00 });
 
-	//-------------------------------------------------------------------------
-	// JNE --> JMP | (TEMP) jump over some settings block issues. not sure what to do here
-	s3.Offset(0x16C).Patch({ 0xE9, 0x47, 0x01, 0x00 });
-
-
-
+	//e5.Offset(0x21).Patch({ 0xE9, 0x35, 0x04, 0x00, 0x00 });
+	//e5.Offset(0x59).Patch({ 0xEB, 0x0A });
+	//e6.Offset(0x1B0).Patch({0x90, 0x90, 0x90});
 
 	OnLevelLoadingStarted.Offset(0x61).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });
 
