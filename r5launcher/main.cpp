@@ -1,9 +1,9 @@
 #include "pch.h"
 #include "main.h"
 
- //----------------------------------------------------------------------------
- // Print the error message to the console if any.
- //----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+// Print the error message to the console if any.
+//-----------------------------------------------------------------------------
 void PrintLastError()
 {
     DWORD errorMessageID = ::GetLastError();
@@ -221,7 +221,7 @@ int main(int argc, char* argv[], char* envp[])
     std::cout << "--------------------------------------------------------------------------------------------------------" << std::endl;
     spdlog::warn("Use DEBUG     [1] for development and debugging purposes.\n");
     spdlog::warn("Use RELEASE   [2] for normal playing and server hosting.\n");
-    spdlog::warn("Use DEDICATED [3] for running the server only without the client/ui components.\n");
+    spdlog::warn("Use DEDICATED [3] for running a dedicated server.\n");
     std::cout << "--------------------------------------------------------------------------------------------------------" << std::endl;
     spdlog::info("Enter 1 for DEBUG. Enter 2 for RELEASE. Enter 3 for DEDICATED: ");
 

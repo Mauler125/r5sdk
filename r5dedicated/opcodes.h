@@ -54,6 +54,10 @@ namespace
 	MemoryAddress e0 = 0x0000000140236E40; // main Host_Init()?
 	MemoryAddress e1 = 0x0000000140FB2F10; // also used by CServerGameDLL
 	MemoryAddress addr_CEngine_Frame = 0x00000001402970E0;
+	MemoryAddress e3 = 0x0000000140231C00;
+	MemoryAddress e4 = 0x0000000140BE1970;
+	MemoryAddress e5 = 0x0000000140DBBAF0;
+	MemoryAddress e6 = 0x0000000140DBE610;
 
 	// SERVER
 	MemoryAddress s0 = 0x0000000140237B00; // server Host_Init()?
@@ -67,9 +71,9 @@ namespace
 	MemoryAddress c2 = 0x00000001403F4360; // 1403DF870 --> 1403F4360
 	MemoryAddress c3 = 0x00000001403F8A80; // 1403DF870 --> 1403F8A40
 	MemoryAddress c4 = 0x00000001405C27B0; // CHLClient + 1000
-	MemoryAddress c5 = 0x00000001405BAC00; //
+	MemoryAddress c5 = 0x00000001405BAC00; // CHudMessage
 	MemoryAddress c6 = 0x00000001403CA2D0; //
-	MemoryAddress c7 = 0x00000001403CC750; // lightmaps?
+	MemoryAddress c7 = 0x00000001403CC750; // LightmapsInit
 	MemoryAddress CreateGameWindow = 0x0000000140343DE0;
 
 	// VGUI
