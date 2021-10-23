@@ -51,22 +51,39 @@ namespace
 	MemoryAddress d3d11init = 0x000000014043CDF0; //
 
 	// Engine
-	MemoryAddress e0 = 0x0000000140236E40; // main Host_Init()?
+	MemoryAddress gHost_Init_0 = 0x0000000140236E40; // main Host_Init()?
 	MemoryAddress e1 = 0x0000000140FB2F10; // also used by CServerGameDLL
 	MemoryAddress addr_CEngine_Frame = 0x00000001402970E0;
 	MemoryAddress e3 = 0x0000000140231C00;
 	MemoryAddress e4 = 0x0000000140BE1970;
 	MemoryAddress e5 = 0x0000000140DBBAF0;
 	MemoryAddress e6 = 0x0000000140DBE610;
+	MemoryAddress e7 = 0x000000014044AFA0;
+	MemoryAddress e8 = 0x000000014027EC50; // RenderFrame?
+	MemoryAddress gCEngineAPI_Init = 0x0000000140342FB0; //
+	MemoryAddress gCEngineAPI_ModInit = 0x0000000140343DE0; //
+	MemoryAddress gCEngineAPI_Connect = 0x0000000140342BA0; //
+	MemoryAddress gCEngineAPI_OnStartup = 0x0000000140343860; //
+	MemoryAddress gCSourceAppSystemGroup_Create = 0x000000014044AFA0; //
+	MemoryAddress gCShaderSystem_Init = 0x00000001403DF870; //
+	MemoryAddress gInitMaterialSystem = 0x000000014024B390; //
+	MemoryAddress gCVideoMode_Common__DrawStartupGraphic = 0x000000014027F0F0; //
+	MemoryAddress gShaderDispatch = 0x00000001403EE5C0;
+	MemoryAddress gShaderCreate = 0x00000001403ECD00; //
+	MemoryAddress gTextureCreate = 0x00000001403EDCD0;
+
+
+	MemoryAddress e9 = 0x00000001404066E0;
+	MemoryAddress e10 = 0x00000001403B49E0; // CMaterialGlue?
 
 	// SERVER
-	MemoryAddress s0 = 0x0000000140237B00; // server Host_Init()?
+	MemoryAddress gHost_Init_1 = 0x0000000140237B00; // server Host_Init()?
 	MemoryAddress s1 = 0x0000000140231C00; // _Host_RunFrame() with inlined CFrameTimer::MarkFrame()?
 	MemoryAddress s2 = 0x00000001402312A0; // server HeartBeat? (baseserver.cpp)
 	MemoryAddress s3 = 0x0000000140FB36D0; // TEMP??
 
 	// CLIENT
-	MemoryAddress c0 = 0x0000000140236640; // client Host_Init()?
+	MemoryAddress gHost_Init_2 = 0x0000000140236640; // client Host_Init()?
 	MemoryAddress c1 = 0x0000000140299100; // CreateGameWindowInit()?
 	MemoryAddress c2 = 0x00000001403F4360; // 1403DF870 --> 1403F4360
 	MemoryAddress c3 = 0x00000001403F8A80; // 1403DF870 --> 1403F8A40
@@ -74,6 +91,7 @@ namespace
 	MemoryAddress c5 = 0x00000001405BAC00; // CHudMessage
 	MemoryAddress c6 = 0x00000001403CA2D0; //
 	MemoryAddress c7 = 0x00000001403CC750; // LightmapsInit
+	MemoryAddress ParticleEffect_Init = 0x0000000140235F30;
 	MemoryAddress CreateGameWindow = 0x0000000140343DE0;
 
 	// VGUI
