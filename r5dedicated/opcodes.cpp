@@ -42,7 +42,7 @@ void Hooks::DedicatedPatch()
 	gCEngineAPI__Connect.Offset(0xF1).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | NOP call to texture and material preloading.
 	gCEngineAPI__Connect.Offset(0x1C6).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90});        // CAL --> NOP | NOP call to texture and material preloading.
 	//gCEngineAPI__ModInit.Offset(0x3DD).Patch({ 0xE9, 0xB5, 0x00, 0x00, 0x00, 0x00 }); // JNE --> JNP | Skip CreateWindow Initialization code.
-	gCEngineAPI__ModInit.Offset(0x44C).Patch({ 0xEB, 0x49 });                        // JNZ --> JMP | Skip CreateGameWindow validation code.
+	gCEngineAPI__ModInit.Offset(0x44C).Patch({ 0xEB, 0x49 });                         // JNZ --> JMP | Skip CreateGameWindow validation code.
 	//gCEngineAPI__ModInit.Offset(0x3DD).Patch({ 0xEB, 0x6D });                        // JE  --> JMP | Skip CreateGameWindow initialization code.
 
 	//-------------------------------------------------------------------------

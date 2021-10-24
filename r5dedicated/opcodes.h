@@ -93,7 +93,6 @@ namespace
 	MemoryAddress gCHLClient__1000 = 0x00000001405C27B0; // CHLClient + 1000
 	MemoryAddress gCHLClient__HudMessage = 0x00000001405BAC00; // CHudMessage
 	MemoryAddress c6 = 0x00000001403CA2D0; //
-	MemoryAddress gCEngineAPI__ModInit = 0x0000000140343DE0;
 
 	// VGUI
 	MemoryAddress gCEngineVGui__Init = 0x0000000140282E40; // jumptable
