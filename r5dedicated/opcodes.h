@@ -40,9 +40,9 @@ namespace
 	// TODO: create patterns instead and rename to function names.
 	// Renderer
 	MemoryAddress r0 = 0x00000001402FE280; //
-	MemoryAddress r1 = 0x00000001403B3A50; //
-	MemoryAddress r2 = 0x00000001403DEE90; //
-	MemoryAddress r3 = 0x00000001403BD120; //
+	MemoryAddress gCShaderGlue__Init = 0x00000001403B3A50; //
+	MemoryAddress gMatSync = 0x00000001403DEE90; //
+	MemoryAddress gCMaterialSystem__MatsysMode_Init = 0x00000001403BD120; //
 	MemoryAddress r4 = 0x0000000140404380; //
 	MemoryAddress r5 = 0x000000014040D850; //
 	MemoryAddress r6 = 0x0000000140413260; //
@@ -60,17 +60,20 @@ namespace
 	MemoryAddress e6 = 0x0000000140DBE610;
 	MemoryAddress e7 = 0x000000014044AFA0;
 	MemoryAddress e8 = 0x000000014027EC50; // RenderFrame?
-	MemoryAddress gCEngineAPI_Init = 0x0000000140342FB0; //
-	MemoryAddress gCEngineAPI_ModInit = 0x0000000140343DE0; //
-	MemoryAddress gCEngineAPI_Connect = 0x0000000140342BA0; //
-	MemoryAddress gCEngineAPI_OnStartup = 0x0000000140343860; //
-	MemoryAddress gCSourceAppSystemGroup_Create = 0x000000014044AFA0; //
-	MemoryAddress gCShaderSystem_Init = 0x00000001403DF870; //
+	MemoryAddress gCEngineAPI__Init = 0x0000000140342FB0; //
+	MemoryAddress gCEngineAPI__ModInit = 0x0000000140343DE0; //
+	MemoryAddress gCEngineAPI__Connect = 0x0000000140342BA0; //
+	MemoryAddress gCEngineAPI__OnStartup = 0x0000000140343860; //
+	MemoryAddress gCSourceAppSystemGroup__Create = 0x000000014044AFA0; //
+	MemoryAddress gCShaderSystem__Init = 0x00000001403DF870; //
 	MemoryAddress gInitMaterialSystem = 0x000000014024B390; //
 	MemoryAddress gCVideoMode_Common__DrawStartupGraphic = 0x000000014027F0F0; //
 	MemoryAddress gShaderDispatch = 0x00000001403EE5C0;
 	MemoryAddress gShaderCreate = 0x00000001403ECD00; //
 	MemoryAddress gTextureCreate = 0x00000001403EDCD0;
+
+	MemoryAddress gCShaderSystem__9 = 0x00000001403DFC30;
+	MemoryAddress gBSP_LUMP_INIT = 0x00000001402546F0; // BSP.
 
 
 	MemoryAddress e9 = 0x00000001404066E0;
@@ -84,19 +87,17 @@ namespace
 
 	// CLIENT
 	MemoryAddress gHost_Init_2 = 0x0000000140236640; // client Host_Init()?
-	MemoryAddress c1 = 0x0000000140299100; // CreateGameWindowInit()?
+	MemoryAddress gCGame__CreateGameWindow = 0x0000000140299100; //
 	MemoryAddress c2 = 0x00000001403F4360; // 1403DF870 --> 1403F4360
 	MemoryAddress c3 = 0x00000001403F8A80; // 1403DF870 --> 1403F8A40
-	MemoryAddress c4 = 0x00000001405C27B0; // CHLClient + 1000
-	MemoryAddress c5 = 0x00000001405BAC00; // CHudMessage
+	MemoryAddress gCHLClient__1000 = 0x00000001405C27B0; // CHLClient + 1000
+	MemoryAddress gCHLClient__HudMessage = 0x00000001405BAC00; // CHudMessage
 	MemoryAddress c6 = 0x00000001403CA2D0; //
-	MemoryAddress c7 = 0x00000001403CC750; // LightmapsInit
-	MemoryAddress ParticleEffect_Init = 0x0000000140235F30;
-	MemoryAddress CreateGameWindow = 0x0000000140343DE0;
+	MemoryAddress gCEngineAPI__ModInit = 0x0000000140343DE0;
 
 	// VGUI
-	MemoryAddress v0 = 0x0000000140282E40; // jumptable
-	MemoryAddress OnLevelLoadingStarted = 0x00000001402830D0;
+	MemoryAddress gCEngineVGui__Init = 0x0000000140282E40; // jumptable
+	MemoryAddress gCEngineVGui__OnLevelLoadingStarted = 0x00000001402830D0;
 	MemoryAddress SCR_BeginLoadingPlaque = 0x000000014023E870;
 
 
