@@ -1,11 +1,6 @@
 #pragma once
-#include "serverlisting.h"
 #include "gui_utility.h"
 #include "r5net.h"
-
-///////////////////////////////////////////////////////////////////////////////
-// Initialization
-void DrawBrowser();
 
 class CCompanion
 {
@@ -38,9 +33,9 @@ public:
     ////////////////////
     // Server Browser //
     ////////////////////
-
-    R5Net::Client* r5net;
-
+private:
+    R5Net::Client* r5net = nullptr;
+public:
     R5Net::Client* GetR5Net() { return r5net;  }
 
     std::vector<ServerListing> ServerList;

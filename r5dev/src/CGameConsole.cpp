@@ -401,18 +401,3 @@ int CGameConsole::TextEditCallback(ImGuiInputTextCallbackData* data)
     }
     return 0;
 }
-
-//#############################################################################
-// ENTRYPOINT
-//#############################################################################
-
-void DrawConsole()
-{
-    static CGameConsole console;
-    static bool AssignPtr = []() {
-        g_GameConsole = &console;
-        spdlog::debug("[+CGameConsole+] Created CGameConsole Class instance.\n");
-        return true;
-    } ();
-    console.Draw("Console");
-}

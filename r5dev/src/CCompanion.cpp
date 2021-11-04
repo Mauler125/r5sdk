@@ -605,7 +605,7 @@ void CCompanion::Draw(const char* title)
 
 void CCompanion::ProcessCommand(const char* command_line)
 {
-    spdlog::debug("[+CCompanion+] Processing command: {} creating tread now.\n", command_line);
+    spdlog::debug("[+CCompanion+] Processing command: {} creating thread now.\n", command_line);
     std::thread t(&CCompanion::ExecCommand, this, command_line);
     spdlog::debug("[+CCompanion+] Thread created.\n");
     t.detach();
@@ -676,20 +676,4 @@ void CCompanion::RegenerateEncryptionKey()
 void CCompanion::ChangeEncryptionKeyTo(const std::string str)
 {
     addr_NetChan_SetEncKey(addr_NetChan_EncKeyPtr.GetPtr(), str.c_str());
-}
-
-//#############################################################################
-// ENTRYPOINT
-//#############################################################################
-
-void DrawBrowser()
-{
-    static CCompanion browser;
-    static bool AssignPtr = []() {
-        g_ServerBrowser = &browser;
-        spdlog::debug("[+CCompanion+] Created CCompanion Class instance.\n");
-        return true;
-    } ();
-
-    browser.Draw("Companion");
 }

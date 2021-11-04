@@ -219,6 +219,21 @@ void DrawMenu()
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
+	// Init class instances.
+	static CGameConsole console;
+	static bool AssignConsolePtr = []() {
+		g_GameConsole = &console;
+		spdlog::debug("[+CGameConsole+] Created CGameConsole Class instance.\n");
+		return true;
+	} ();
+
+	static CCompanion companion;
+	static bool AssignCompanionPtr = []() {
+		g_ServerBrowser = &companion;
+		spdlog::debug("[+CCompanion+] Created CCompanion Class instance.\n");
+		return true;
+	} ();
+
 	// Handle game input if one of the menus is open.
 	if (g_bShowConsole || g_bShowBrowser)
 	{
@@ -231,12 +246,12 @@ void DrawMenu()
 
 	if (g_bShowConsole)
 	{
-		DrawConsole();
+		console.Draw("Console");
 	}
 
 	if (g_bShowBrowser)
 	{
-		DrawBrowser();
+		companion.Draw("Companion");
 	}
 
 	// Handle end of frame and prepare rendering.

@@ -41,13 +41,6 @@ void* Hooks::ConnectClient(void* thisptr, void* packet)
 	if (!GameGlobals::BanSystem)
 		return originalConnectClient(thisptr, packet);
 
-	static int skipConnects = 0;
-	if (skipConnects != 2) // Skip first two connect attempts.
-	{
-		skipConnects++;
-		return originalConnectClient(thisptr, packet);
-	}
-
 	std::string finalIPAddress = "null";
 	MemoryAddress ipAddressField = MemoryAddress(((std::uintptr_t)packet + 0x10));
 	if (ipAddressField && ipAddressField.GetValue<int>() != 0x0)
