@@ -460,7 +460,7 @@ void CCompanion::HostServerSection()
     {
         if (ImGui::Button("Start Server##ServerHost_StartServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
-            if (!MyServer.name.empty() && !MyServer.playlist.empty())
+            if (!MyServer.name.empty() && !MyServer.playlist.empty() && !ServerMap.empty())
             {
                 spdlog::debug("[+CCompanion+] Starting Server with name {}, map {} and playlist {}..\n", MyServer.name, ServerMap, MyServer.playlist);
                 ServerNameErr = std::string();
@@ -483,15 +483,23 @@ void CCompanion::HostServerSection()
             }
             else
             {
-                ServerNameErr = "No Server Name assigned. Or playlist assigned.";
+                ServerNameErr = "No Server Name assigned / Playlist assigned / Map didn't apply properly.";
             }
         }
     }
 
     if (ImGui::Button("Force Start##ServerHost_ForceStart", ImVec2(ImGui::GetWindowSize().x, 32)))
     {
-        strncpy_s(GameGlobals::HostState->m_levelName, ServerMap.c_str(), 64); // Copy new map into hoststate levelname. 64 is size of m_levelname.
-        GameGlobals::HostState->m_iNextState = HostStates_t::HS_NEW_GAME; // Force CHostState::FrameUpdate to start a server.
+        ServerNameErr = std::string();
+        if (!ServerMap.empty())
+        {
+            strncpy_s(GameGlobals::HostState->m_levelName, ServerMap.c_str(), 64); // Copy new map into hoststate levelname. 64 is size of m_levelname.
+            GameGlobals::HostState->m_iNextState = HostStates_t::HS_NEW_GAME; // Force CHostState::FrameUpdate to start a server.
+        }
+        else
+        {
+            ServerNameErr = "Failed to force start. Map didn't apply properly.";
+        }
     }
 
     ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), ServerNameErr.c_str());
@@ -512,9 +520,16 @@ void CCompanion::HostServerSection()
 
         if (ImGui::Button("Change Level##ServerHost_ChangeLevel", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
-            spdlog::debug("[+CCompanion+] Changing level to {}..\n", ServerMap);
-            strncpy_s(GameGlobals::HostState->m_levelName, ServerMap.c_str(), 64); // Copy new map into hoststate levelname. 64 is size of m_levelname.
-            GameGlobals::HostState->m_iNextState = HostStates_t::HS_CHANGE_LEVEL_MP; // Force CHostState::FrameUpdate to change the level.
+            if (!ServerMap.empty())
+            {
+                spdlog::debug("[+CCompanion+] Changing level to {}..\n", ServerMap);
+                strncpy_s(GameGlobals::HostState->m_levelName, ServerMap.c_str(), 64); // Copy new map into hoststate levelname. 64 is size of m_levelname.
+                GameGlobals::HostState->m_iNextState = HostStates_t::HS_CHANGE_LEVEL_MP; // Force CHostState::FrameUpdate to change the level.
+            }
+            else
+            {
+                ServerNameErr = "Failed to change level. Map didn't apply properly.";
+            }
         }
 
         if (ImGui::Button("Stop Server##ServerHost_StopServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
