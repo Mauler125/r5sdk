@@ -26,7 +26,7 @@ void Hooks::InstallHooks()
 	MH_CreateHook(addr_SQVM_RegisterCreatePlayerTasklist, &Hooks::SQVM_RegisterCreatePlayerTasklist, reinterpret_cast<void**>(&originalSQVM_RegisterCreatePlayerTasklist));
 
 	///////////////////////////////////////////////////////////////////////////////
-	// Hook Game functions
+	// Hook various Game functions
 	MH_CreateHook(addr_CHLClient_FrameStageNotify, &Hooks::FrameStageNotify, reinterpret_cast<void**>(&originalFrameStageNotify));
 	MH_CreateHook(addr_CVEngineServer_IsPersistenceDataAvailable, &Hooks::IsPersistenceDataAvailable, reinterpret_cast<void**>(&originalIsPersistenceDataAvailable));
 	MH_CreateHook(addr_CServer_ConnectClient, &Hooks::ConnectClient, reinterpret_cast<void**>(&originalConnectClient));
@@ -48,31 +48,25 @@ void Hooks::InstallHooks()
 	MH_CreateHook(addr_CMatSystemSurface_LockCursor, &LockCursor, reinterpret_cast<void**>(&originalLockCursor));
 
 	///////////////////////////////////////////////////////////////////////////////
-	// Hook CBaseFileSystem functions
-	//MH_CreateHook(addr_CBaseFileSystem_FileSystemWarning, &Hooks::FileSystemWarning, reinterpret_cast<void**>(&originalFileSystemWarning);
-
-	///////////////////////////////////////////////////////////////////////////////
-	// Hook HostState functions
-    //MH_CreateHook(MemoryAddress(0x14023EF80).RCast<void*>(), &Hooks::FrameUpdate, reinterpret_cast<void**>(&originalFrameUpdate));
-
-	///////////////////////////////////////////////////////////////////////////////
 	// Hook Utility functions
 	MH_CreateHook(addr_MSG_EngineError, &Hooks::MSG_EngineError, reinterpret_cast<void**>(&originalMSG_EngineError));
 	MH_CreateHook(addr_LoadPlaylist, &Hooks::LoadPlaylist, reinterpret_cast<void**>(&originalLoadPlaylist));
 	MH_CreateHook(addr_CEngineVGui_Paint, &Hooks::CEngineVGui_Paint, reinterpret_cast<void**>(&originalCEngineVGui_Paint));
+	MH_CreateHook(addr_OriginGetErrorDescription, &Hooks::OriginGetErrorDescription, reinterpret_cast<void**>(&originalOriginGetErrorDescriptionWrapper));
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Hook WinAPI
 	if (Module user32dll = Module("user32.dll"); user32dll.GetModuleBase()) // Is user32.dll valid?
 	{
 		void* SetCursorPosPtr = user32dll.GetExportedFunction("SetCursorPos");
-		void* ClipCursorPtr = user32dll.GetExportedFunction("ClipCursor");
+		void* ClipCursorPtr   = user32dll.GetExportedFunction("ClipCursor");
 		void* GetCursorPosPtr = user32dll.GetExportedFunction("GetCursorPos");
-		void* ShowCursorPtr = user32dll.GetExportedFunction("ShowCursor");
+		void* ShowCursorPtr   = user32dll.GetExportedFunction("ShowCursor");
 		MH_CreateHook(SetCursorPosPtr, &Hooks::SetCursorPos, reinterpret_cast<void**>(&originalSetCursorPos));
 		MH_CreateHook(ClipCursorPtr, &Hooks::ClipCursor, reinterpret_cast<void**>(&originalClipCursor));
 		MH_CreateHook(GetCursorPosPtr, &Hooks::GetCursorPos, reinterpret_cast<void**>(&originalGetCursorPos));
 		MH_CreateHook(ShowCursorPtr, &Hooks::ShowCursor, reinterpret_cast<void**>(&originalShowCursor));
+
 		///////////////////////////////////////////////////////////////////////////
 		// Enable WinAPI hooks
 		MH_EnableHook(SetCursorPosPtr);
@@ -91,7 +85,7 @@ void Hooks::InstallHooks()
 	MH_EnableHook(addr_SQVM_RegisterCreatePlayerTasklist);
 
 	///////////////////////////////////////////////////////////////////////////////
-	// Enable Game hooks
+	// Enable various Game hooks
 	MH_EnableHook(addr_CHLClient_FrameStageNotify);
 	MH_EnableHook(addr_CVEngineServer_IsPersistenceDataAvailable);
 	MH_EnableHook(addr_CServer_ConnectClient);
@@ -111,18 +105,11 @@ void Hooks::InstallHooks()
 	MH_EnableHook(addr_CMatSystemSurface_LockCursor);
 
 	///////////////////////////////////////////////////////////////////////////////
-	// Enable CBaseFileSystem hooks
-	//MH_EnableHook(addr_CBaseFileSystem_FileSystemWarning);
-
-	///////////////////////////////////////////////////////////////////////////////
-	// Enable HostState hooks
-//	MH_EnableHook(MemoryAddress(0x14023EF80).RCast<void*>());
-
-	///////////////////////////////////////////////////////////////////////////////
     // Enabled Utility hooks
 	MH_EnableHook(addr_MSG_EngineError);
 	MH_EnableHook(addr_LoadPlaylist);
 	MH_EnableHook(addr_CEngineVGui_Paint);
+	MH_EnableHook(addr_OriginGetErrorDescription);
 }
 
 void Hooks::RemoveHooks()
@@ -137,7 +124,7 @@ void Hooks::RemoveHooks()
 	MH_RemoveHook(addr_SQVM_RegisterCreatePlayerTasklist);
 
 	///////////////////////////////////////////////////////////////////////////////
-	// Unhook Game Functions
+	// Unhook various Game Functions
 	MH_RemoveHook(addr_CHLClient_FrameStageNotify);
 	MH_RemoveHook(addr_CVEngineServer_IsPersistenceDataAvailable);
 	MH_RemoveHook(addr_CServer_ConnectClient);
@@ -163,9 +150,10 @@ void Hooks::RemoveHooks()
 	if (Module user32dll = Module("user32.dll"); user32dll.GetModuleBase()) // Is user32.dll valid?
 	{
 		void* SetCursorPosPtr = user32dll.GetExportedFunction("SetCursorPos");
-		void* ClipCursorPtr = user32dll.GetExportedFunction("ClipCursor");
+		void* ClipCursorPtr   = user32dll.GetExportedFunction("ClipCursor");
 		void* GetCursorPosPtr = user32dll.GetExportedFunction("GetCursorPos");
-		void* ShowCursorPtr = user32dll.GetExportedFunction("ShowCursor");
+		void* ShowCursorPtr   = user32dll.GetExportedFunction("ShowCursor");
+
 		MH_RemoveHook(SetCursorPosPtr);
 		MH_RemoveHook(ClipCursorPtr);
 		MH_RemoveHook(GetCursorPosPtr);
@@ -177,14 +165,7 @@ void Hooks::RemoveHooks()
 	MH_RemoveHook(addr_MSG_EngineError);
 	MH_RemoveHook(addr_LoadPlaylist);
 	MH_RemoveHook(addr_CEngineVGui_Paint);
-
-	///////////////////////////////////////////////////////////////////////////////
-	// Unhook CBaseFileSystem functions.
-	//MH_RemoveHook(addr_CBaseFileSystem_FileSystemWarning);
-
-	///////////////////////////////////////////////////////////////////////////////
-	// Unhook HostState hooks
-    //MH_RemoveHook(MemoryAddress(0x14023EF80).RCast<void*>());
+	MH_RemoveHook(addr_OriginGetErrorDescription);
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Reset Minhook

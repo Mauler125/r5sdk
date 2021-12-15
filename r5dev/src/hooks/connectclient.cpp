@@ -43,7 +43,7 @@ void* Hooks::ConnectClient(void* thisptr, void* packet)
 
 	std::string finalIPAddress = "null";
 	MemoryAddress ipAddressField = MemoryAddress(((std::uintptr_t)packet + 0x10));
-	if (ipAddressField && ipAddressField.GetValue<int>() != 0x0)
+	if (ipAddressField && ipAddressField.GetValue<int>() != 0x0) // The api they use to store the IP is pretty eh and idk any other way to do it rn.
 	{
 		std::stringstream ss;
 		ss << std::to_string(ipAddressField.GetValue<std::uint8_t>()) << "."
@@ -53,9 +53,13 @@ void* Hooks::ConnectClient(void* thisptr, void* packet)
 
 		finalIPAddress = ss.str();
 	}
+	const char* name = *(const char**)((std::uintptr_t)packet + 0x30); // Get player name.
+	std::int64_t originID = *(std::int64_t*)((std::uintptr_t)packet + 0x28); // Get origin ID.
 
-	const char* name = *(const char**)((std::uintptr_t)packet + 0x30);
-	std::int64_t originID = *(std::int64_t*)((std::uintptr_t)packet + 0x28);
+	if (std::strlen(name) == 0 || originID == 0) // Yeah that should not happen lol.
+	{
+		addr_CServer_RejectConnection(thisptr, *(unsigned int*)((std::uintptr_t)thisptr + 0xC), packet, "Invalid connection credentials."); // RejectConnection for the client.
+	}
 
 	g_GameConsole->AddLog("[CServer::ConnectClient] %s is trying to connect. OriginID: %lld", name, originID);
 

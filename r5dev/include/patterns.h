@@ -158,6 +158,11 @@ namespace
 	FUNC_AT_ADDRESS(addr_CEngineVGui_Paint, int(*)(void*, int), r5_patterns.PatternSearch("41 55 41 56 48 83 EC 78 44 8B EA").GetPtr());
 #pragma endregion
 
+#pragma region OriginSDK
+	/*0x1410A2D70*/
+	FUNC_AT_ADDRESS(addr_OriginGetErrorDescription, const char*(*)(std::int32_t), r5_patterns.StringSearch("OriginGetErrorDescription entered").FindPatternSelf("40 53", MemoryAddress::Direction::UP).GetPtr());
+#pragma endregion
+
 
 	void PrintHAddress() // Test the sigscan results
 	{

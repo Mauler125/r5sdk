@@ -100,9 +100,6 @@
     <Filter Include="gui\interface">
       <UniqueIdentifier>{1979149f-6402-4985-b900-25a91f1168ac}</UniqueIdentifier>
     </Filter>
-    <Filter Include="hooks\src\cbasefilesystem">
-      <UniqueIdentifier>{90ee1072-2d57-4d4e-aa1e-f19a81e6b27f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="hooks\src\cserver">
       <UniqueIdentifier>{10edfee7-8c10-41de-b8f3-424826d2614a}</UniqueIdentifier>
     </Filter>
@@ -114,6 +111,9 @@
     </Filter>
     <Filter Include="hooks\src\cenginevgui">
       <UniqueIdentifier>{10a22c13-763e-4054-bf6a-8f4b61697520}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hooks\src\originsdk">
+      <UniqueIdentifier>{04423080-121a-4982-8fd5-1d1d17157cbd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -198,9 +198,6 @@
     <ClCompile Include="src\gui_utility.cpp">
       <Filter>gui</Filter>
     </ClCompile>
-    <ClCompile Include="src\hooks\cbasefilesystem.cpp">
-      <Filter>hooks\src\cbasefilesystem</Filter>
-    </ClCompile>
     <ClCompile Include="src\hooks\netchannel.cpp">
       <Filter>hooks\src\netchannel</Filter>
     </ClCompile>
@@ -224,6 +221,9 @@
     </ClCompile>
     <ClCompile Include="src\logsystem.cpp">
       <Filter>r5-sdk\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hooks\originsdk.cpp">
+      <Filter>hooks\src\originsdk</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

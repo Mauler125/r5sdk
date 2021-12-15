@@ -113,13 +113,6 @@ namespace Hooks
 	extern ShowCursorFn originalShowCursor;
 #pragma endregion
 
-#pragma region CBaseFileSystem
-	void FileSystemWarning(void* thisptr, FileWarningLevel_t level, const char* fmt, ...);
-
-	using FileSystemWarningFn = void(*)(void*, FileWarningLevel_t, const char*, ...);
-	extern FileSystemWarningFn originalFileSystemWarning;
-#pragma endregion
-
 #pragma region HostState
 	void FrameUpdate(void* rcx, void* rdx, float time);
 
@@ -132,6 +125,13 @@ namespace Hooks
 
 	using CEngineVGui_PaintFn = int(*)(void*, int);
 	extern CEngineVGui_PaintFn originalCEngineVGui_Paint;
+#pragma endregion
+
+#pragma region OriginSDK
+	const char* OriginGetErrorDescription(std::uint32_t originCode);
+
+	using OriginGetErrorDescriptionWrapperFn = const char* (*)(std::uint32_t);
+	extern OriginGetErrorDescriptionWrapperFn originalOriginGetErrorDescriptionWrapper;
 #pragma endregion
 
 #pragma region Other
