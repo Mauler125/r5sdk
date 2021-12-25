@@ -1,315 +1,127 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="core">
-      <UniqueIdentifier>{5857edb8-da8e-491a-96a1-00a4fcfe3d38}</UniqueIdentifier>
-    </Filter>
     <Filter Include="sdk">
-      <UniqueIdentifier>{8de4910c-a79a-4e5b-8da1-d6da52425492}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="sdk\engine">
-      <UniqueIdentifier>{d2a0971d-1de6-47f7-8a77-4246bc0cda3c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="sdk\ebisusdk">
-      <UniqueIdentifier>{c00eb6b9-50b2-4fc3-9e24-d8f7ff601e0e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="sdk\common">
-      <UniqueIdentifier>{8caa20bd-7dea-4cb9-a69f-e90498e96a93}</UniqueIdentifier>
+      <UniqueIdentifier>{f97c7e9b-cc5e-4ec1-8c2a-19cf941b5c90}</UniqueIdentifier>
     </Filter>
     <Filter Include="sdk\client">
-      <UniqueIdentifier>{c069ad8a-c3be-4e61-afbf-f3eee3846d83}</UniqueIdentifier>
+      <UniqueIdentifier>{c9b133cf-3943-49c9-abb0-c6f9e83a696c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sdk\gameui">
-      <UniqueIdentifier>{0b1b90e6-79f6-4b19-8f5e-aac20d346094}</UniqueIdentifier>
+    <Filter Include="sdk\common">
+      <UniqueIdentifier>{f280958c-f362-4918-a1f3-ca66f4bf1ec6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sdk\rtech">
-      <UniqueIdentifier>{fb47caac-589a-490f-9a7d-00f53add78cc}</UniqueIdentifier>
+    <Filter Include="sdk\ebisusdk">
+      <UniqueIdentifier>{00cd526c-e897-4d88-86e0-03612cfda456}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sdk\inputsystem">
-      <UniqueIdentifier>{4afffd57-c78e-420f-a0a7-863b04e64812}</UniqueIdentifier>
+    <Filter Include="sdk\engine">
+      <UniqueIdentifier>{495a53fc-5055-4449-b42c-b7edc5e83466}</UniqueIdentifier>
     </Filter>
     <Filter Include="sdk\launcher">
-      <UniqueIdentifier>{86b2ad0f-8709-48fa-8e92-0e9b8053ffce}</UniqueIdentifier>
+      <UniqueIdentifier>{08dd9239-516c-4b9f-8064-28bd127d9806}</UniqueIdentifier>
     </Filter>
     <Filter Include="sdk\mathlib">
-      <UniqueIdentifier>{09875779-c73f-4138-9ed5-14af2b9d8337}</UniqueIdentifier>
+      <UniqueIdentifier>{a6ab59cc-8df3-4fbd-b94b-2ec6e83feea9}</UniqueIdentifier>
     </Filter>
     <Filter Include="sdk\networksystem">
-      <UniqueIdentifier>{1dd9c7b9-1abc-412a-8e85-928c0d017beb}</UniqueIdentifier>
+      <UniqueIdentifier>{009673c6-839f-48d7-b2c6-eca9a6e606b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\rtech">
+      <UniqueIdentifier>{08acc045-15dd-469f-b717-35f1dd35c07c}</UniqueIdentifier>
     </Filter>
     <Filter Include="sdk\server">
-      <UniqueIdentifier>{525505fd-c8bb-453c-8cce-e11123499ae9}</UniqueIdentifier>
+      <UniqueIdentifier>{8786ae3f-91d3-4eb8-89b7-e2135d143faa}</UniqueIdentifier>
     </Filter>
     <Filter Include="sdk\squirrel">
-      <UniqueIdentifier>{10a04e38-fd13-476b-92ea-ebbe60803ef6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="thirdparty">
-      <UniqueIdentifier>{7977cef5-28c7-40ca-be44-394d9f1b75de}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="thirdparty\detours">
-      <UniqueIdentifier>{3d8e58ec-0228-40ca-8ec8-66791a71bc08}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="thirdparty\detours\include">
-      <UniqueIdentifier>{4759136c-9b08-4e32-91a9-a71c62f019c1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="thirdparty\imgui">
-      <UniqueIdentifier>{c54c9382-0c06-4046-9e91-fb2a8019a22b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="thirdparty\imgui\include">
-      <UniqueIdentifier>{0ac635a8-3c25-4b4b-b382-1bb8bc882c55}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="thirdparty\spdlog">
-      <UniqueIdentifier>{db621634-f890-4852-b8dc-d540dffd433a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="thirdparty\spdlog\include">
-      <UniqueIdentifier>{2fb19b52-f018-4e95-8eca-ed230132ce0b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="thirdparty\spdlog\include\sinks">
-      <UniqueIdentifier>{d0a016cc-d3bc-449b-be29-29289dc550cb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="thirdparty\spdlog\include\fmt">
-      <UniqueIdentifier>{47bf6838-c9bf-4429-b55a-9a00339c630f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="thirdparty\spdlog\include\fmt\bundled">
-      <UniqueIdentifier>{510de005-f0c8-48b9-b274-2424ccf8f7c7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="thirdparty\spdlog\include\details">
-      <UniqueIdentifier>{7cdf9989-f142-4f8a-a5ee-595fba1a354f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="thirdparty\spdlog\include\cfg">
-      <UniqueIdentifier>{ce08331e-176d-4071-8564-2cbda5a09f34}</UniqueIdentifier>
+      <UniqueIdentifier>{e88d652e-34a0-44a0-a886-8861315c5b4f}</UniqueIdentifier>
     </Filter>
     <Filter Include="sdk\tier0">
-      <UniqueIdentifier>{a37df87a-dfda-47ab-a1be-1e49bdfecf44}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="sdk\vgui">
-      <UniqueIdentifier>{a7469cda-54f2-4efc-8a58-6105c74845f9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="sdk\vguimatsurface">
-      <UniqueIdentifier>{f7c791f6-2cda-4702-88bd-458ea662e7ef}</UniqueIdentifier>
+      <UniqueIdentifier>{9dc16eaa-182b-42ea-9524-8cc8421829b6}</UniqueIdentifier>
     </Filter>
     <Filter Include="sdk\vpc">
-      <UniqueIdentifier>{956f49fb-0d6a-47d6-96a0-9d616e47e5f2}</UniqueIdentifier>
+      <UniqueIdentifier>{3792464a-e366-4bbb-86fa-35631e3748f2}</UniqueIdentifier>
     </Filter>
     <Filter Include="sdk\vphysics">
-      <UniqueIdentifier>{698f4add-abac-46e5-a3f8-55d3a230b369}</UniqueIdentifier>
+      <UniqueIdentifier>{a7be4dd8-3e52-4053-afa5-26faf833e5b7}</UniqueIdentifier>
     </Filter>
     <Filter Include="windows">
-      <UniqueIdentifier>{942b8ea5-ce53-4e1e-ad7a-845991aaead6}</UniqueIdentifier>
+      <UniqueIdentifier>{3db73603-e800-4763-98dc-f3bf4c674261}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty">
+      <UniqueIdentifier>{2b79f12d-1506-42e6-94a9-560891c0ff8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\detours">
+      <UniqueIdentifier>{1a595a55-8bcf-4c0f-8456-4669b8692ce5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\detours\include">
+      <UniqueIdentifier>{7c06597f-4eda-4695-9d39-d7719ead774e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\spdlog">
+      <UniqueIdentifier>{a0f19f1c-dfba-49b4-a9d1-2f7c353bf0d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\spdlog\include">
+      <UniqueIdentifier>{6c7f8ba7-fc42-49a3-b22d-c23098e75c0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\spdlog\include\sinks">
+      <UniqueIdentifier>{903e9591-e043-4d78-970e-8246198f4d7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\spdlog\include\fmt">
+      <UniqueIdentifier>{4f304fe8-8e16-44c3-a173-cb47fb009e23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\spdlog\include\fmt\bundled">
+      <UniqueIdentifier>{2dd28355-d167-479b-8437-855a2186cbb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\spdlog\include\details">
+      <UniqueIdentifier>{86d45699-fa61-431d-920e-bfdb013b1918}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\spdlog\include\cfg">
+      <UniqueIdentifier>{d4c6d6c0-05da-43ab-a6fc-f61ce721f870}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core">
+      <UniqueIdentifier>{8aacb674-0b73-41fa-94f0-98ba718289a9}</UniqueIdentifier>
     </Filter>
     <Filter Include="sdk\public">
-      <UniqueIdentifier>{b0696621-8658-4918-b0f2-ba20acc26829}</UniqueIdentifier>
+      <UniqueIdentifier>{bbb7a170-37ae-4c76-b99a-8ebb924818ed}</UniqueIdentifier>
     </Filter>
     <Filter Include="sdk\public\include">
-      <UniqueIdentifier>{cbe60970-f348-4a8b-8cee-d4cfebbe0d99}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="sdk\resource">
-      <UniqueIdentifier>{14a61eec-93ec-4e7c-b0bf-2ce23c3b782c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="sdk\resource\png">
-      <UniqueIdentifier>{64bc6e43-c5e7-474f-be64-31df89e0034b}</UniqueIdentifier>
+      <UniqueIdentifier>{e1897f61-953e-4173-9c75-e59ca33929ea}</UniqueIdentifier>
     </Filter>
     <Filter Include="sdk\vpklib">
-      <UniqueIdentifier>{d914384a-56bc-4829-977b-5900f01b5612}</UniqueIdentifier>
+      <UniqueIdentifier>{e7189077-ca26-4a4e-bb60-eec7e5a1bafc}</UniqueIdentifier>
     </Filter>
     <Filter Include="thirdparty\lzham">
-      <UniqueIdentifier>{da0b06b6-feab-44a9-bf9e-afb9e103eceb}</UniqueIdentifier>
+      <UniqueIdentifier>{24c9de5d-3333-4464-acb2-41f950a879b8}</UniqueIdentifier>
     </Filter>
     <Filter Include="thirdparty\lzham\include">
-      <UniqueIdentifier>{7995c0ea-4972-4c52-854a-bd94cbdc6be9}</UniqueIdentifier>
+      <UniqueIdentifier>{db372a17-c0de-4a8b-8aa8-9b3129cc5955}</UniqueIdentifier>
     </Filter>
     <Filter Include="sdk\bsplib">
-      <UniqueIdentifier>{336e3141-0276-4cd5-a836-585eef681b7b}</UniqueIdentifier>
+      <UniqueIdentifier>{8288ba1a-7609-42ef-af3b-850727635a99}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="client\client.cpp">
-      <Filter>sdk\client</Filter>
-    </ClCompile>
-    <ClCompile Include="client\IVEngineClient.cpp">
-      <Filter>sdk\client</Filter>
-    </ClCompile>
-    <ClCompile Include="client\cdll_engine_int.cpp">
-      <Filter>sdk\client</Filter>
-    </ClCompile>
-    <ClCompile Include="ebisusdk\EbisuSDK.cpp">
-      <Filter>sdk\ebisusdk</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\host_state.cpp">
-      <Filter>sdk\engine</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\net_chan.cpp">
-      <Filter>sdk\engine</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\sys_dll.cpp">
-      <Filter>sdk\engine</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\sys_dll2.cpp">
-      <Filter>sdk\engine</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\sys_utils.cpp">
-      <Filter>sdk\engine</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\baseclient.cpp">
-      <Filter>sdk\engine</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\baseclientstate.cpp">
-      <Filter>sdk\engine</Filter>
-    </ClCompile>
-    <ClCompile Include="gameui\IBrowser.cpp">
-      <Filter>sdk\gameui</Filter>
-    </ClCompile>
-    <ClCompile Include="gameui\IConsole.cpp">
-      <Filter>sdk\gameui</Filter>
-    </ClCompile>
-    <ClCompile Include="public\bansystem.cpp">
-      <Filter>sdk\public</Filter>
-    </ClCompile>
-    <ClCompile Include="public\utility.cpp">
-      <Filter>sdk\public</Filter>
-    </ClCompile>
-    <ClCompile Include="rtech\rtech.cpp">
-      <Filter>sdk\rtech</Filter>
-    </ClCompile>
-    <ClCompile Include="rtech\stryder.cpp">
-      <Filter>sdk\rtech</Filter>
-    </ClCompile>
-    <ClCompile Include="inputsystem\inputsystem.cpp">
-      <Filter>sdk\inputsystem</Filter>
-    </ClCompile>
-    <ClCompile Include="launcher\IApplication.cpp">
-      <Filter>sdk\launcher</Filter>
-    </ClCompile>
-    <ClCompile Include="server\IVEngineServer.cpp">
-      <Filter>sdk\server</Filter>
-    </ClCompile>
-    <ClCompile Include="squirrel\sqvm.cpp">
-      <Filter>sdk\squirrel</Filter>
-    </ClCompile>
-    <ClCompile Include="squirrel\sqapi.cpp">
-      <Filter>sdk\squirrel</Filter>
-    </ClCompile>
-    <ClCompile Include="thirdparty\imgui\src\imgui_widgets.cpp">
-      <Filter>thirdparty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="thirdparty\imgui\src\imgui.cpp">
-      <Filter>thirdparty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="thirdparty\imgui\src\imgui_draw.cpp">
-      <Filter>thirdparty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="thirdparty\imgui\src\imgui_impl_dx11.cpp">
-      <Filter>thirdparty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="thirdparty\imgui\src\imgui_impl_win32.cpp">
-      <Filter>thirdparty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="thirdparty\imgui\src\imgui_stdlib.cpp">
-      <Filter>thirdparty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="thirdparty\imgui\src\imgui_tables.cpp">
-      <Filter>thirdparty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="thirdparty\imgui\src\imgui_utility.cpp">
-      <Filter>thirdparty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="tier0\completion.cpp">
-      <Filter>sdk\tier0</Filter>
-    </ClCompile>
-    <ClCompile Include="tier0\cvar.cpp">
-      <Filter>sdk\tier0</Filter>
-    </ClCompile>
-    <ClCompile Include="tier0\IConVar.cpp">
-      <Filter>sdk\tier0</Filter>
-    </ClCompile>
-    <ClCompile Include="tier0\ConCommand.cpp">
-      <Filter>sdk\tier0</Filter>
-    </ClCompile>
-    <ClCompile Include="vgui\vgui_fpspanel.cpp">
-      <Filter>sdk\vgui</Filter>
-    </ClCompile>
-    <ClCompile Include="vgui\CEngineVGui.cpp">
-      <Filter>sdk\vgui</Filter>
-    </ClCompile>
-    <ClCompile Include="vguimatsurface\MatSystemSurface.cpp">
-      <Filter>sdk\vguimatsurface</Filter>
-    </ClCompile>
-    <ClCompile Include="vpc\IAppSystem.cpp">
-      <Filter>sdk\vpc</Filter>
-    </ClCompile>
-    <ClCompile Include="vpc\keyvalues.cpp">
-      <Filter>sdk\vpc</Filter>
-    </ClCompile>
-    <ClCompile Include="vpc\basefilesystem.cpp">
-      <Filter>sdk\vpc</Filter>
-    </ClCompile>
-    <ClCompile Include="vphysics\QHull.cpp">
-      <Filter>sdk\vphysics</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\id3dx.cpp">
-      <Filter>windows</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\input.cpp">
-      <Filter>windows</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\console.cpp">
-      <Filter>windows</Filter>
-    </ClCompile>
-    <ClCompile Include="core\stdafx.cpp">
-      <Filter>core</Filter>
-    </ClCompile>
-    <ClCompile Include="core\dllmain.cpp">
-      <Filter>core</Filter>
-    </ClCompile>
-    <ClCompile Include="core\init.cpp">
-      <Filter>core</Filter>
-    </ClCompile>
-    <ClCompile Include="thirdparty\imgui\src\imgui_demo.cpp">
-      <Filter>thirdparty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="common\opcodes.cpp">
-      <Filter>sdk\common</Filter>
-    </ClCompile>
-    <ClCompile Include="mathlib\IceKey.cpp">
-      <Filter>sdk\mathlib</Filter>
-    </ClCompile>
-    <ClCompile Include="networksystem\r5net.cpp">
-      <Filter>sdk\networksystem</Filter>
-    </ClCompile>
-    <ClCompile Include="squirrel\sqinit.cpp">
-      <Filter>sdk\squirrel</Filter>
-    </ClCompile>
-    <ClCompile Include="server\server.cpp">
-      <Filter>sdk\server</Filter>
-    </ClCompile>
-    <ClCompile Include="vpklib\packedstore.cpp">
-      <Filter>sdk\vpklib</Filter>
-    </ClCompile>
-    <ClCompile Include="public\binstream.cpp">
-      <Filter>sdk\public</Filter>
-    </ClCompile>
-    <ClCompile Include="bsplib\bsplib.cpp">
-      <Filter>sdk\bsplib</Filter>
-    </ClCompile>
-    <ClCompile Include="mathlib\adler32.cpp">
-      <Filter>sdk\mathlib</Filter>
-    </ClCompile>
-    <ClCompile Include="mathlib\crc32.cpp">
-      <Filter>sdk\mathlib</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="client\cdll_engine_int.h">
-      <Filter>sdk\client</Filter>
-    </ClInclude>
     <ClInclude Include="client\client.h">
       <Filter>sdk\client</Filter>
     </ClInclude>
     <ClInclude Include="client\IVEngineClient.h">
       <Filter>sdk\client</Filter>
     </ClInclude>
+    <ClInclude Include="common\opcodes.h">
+      <Filter>sdk\common</Filter>
+    </ClInclude>
     <ClInclude Include="common\protocol.h">
       <Filter>sdk\common</Filter>
+    </ClInclude>
+    <ClInclude Include="core\init.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\logdef.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\r5dev.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\stdafx.h">
+      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="ebisusdk\EbisuSDK.h">
       <Filter>sdk\ebisusdk</Filter>
@@ -335,14 +147,17 @@
     <ClInclude Include="engine\baseclient.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
-    <ClInclude Include="gameui\IBrowser.h">
-      <Filter>sdk\gameui</Filter>
+    <ClInclude Include="launcher\IApplication.h">
+      <Filter>sdk\launcher</Filter>
     </ClInclude>
-    <ClInclude Include="gameui\IConsole.h">
-      <Filter>sdk\gameui</Filter>
+    <ClInclude Include="mathlib\vector.h">
+      <Filter>sdk\mathlib</Filter>
     </ClInclude>
-    <ClInclude Include="public\include\bansystem.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="networksystem\serverlisting.h">
+      <Filter>sdk\networksystem</Filter>
+    </ClInclude>
+    <ClInclude Include="networksystem\sm_protocol.h">
+      <Filter>sdk\networksystem</Filter>
     </ClInclude>
     <ClInclude Include="public\include\httplib.h">
       <Filter>sdk\public\include</Filter>
@@ -356,26 +171,14 @@
     <ClInclude Include="public\include\memaddr.h">
       <Filter>sdk\public\include</Filter>
     </ClInclude>
-    <ClInclude Include="rtech\rtech.h">
-      <Filter>sdk\rtech</Filter>
+    <ClInclude Include="public\include\bansystem.h">
+      <Filter>sdk\public\include</Filter>
     </ClInclude>
     <ClInclude Include="rtech\stryder.h">
       <Filter>sdk\rtech</Filter>
     </ClInclude>
-    <ClInclude Include="inputsystem\inputsystem.h">
-      <Filter>sdk\inputsystem</Filter>
-    </ClInclude>
-    <ClInclude Include="inputsystem\ButtonCode.h">
-      <Filter>sdk\inputsystem</Filter>
-    </ClInclude>
-    <ClInclude Include="launcher\IApplication.h">
-      <Filter>sdk\launcher</Filter>
-    </ClInclude>
-    <ClInclude Include="mathlib\vector.h">
-      <Filter>sdk\mathlib</Filter>
-    </ClInclude>
-    <ClInclude Include="networksystem\sm_protocol.h">
-      <Filter>sdk\networksystem</Filter>
+    <ClInclude Include="rtech\rtech.h">
+      <Filter>sdk\rtech</Filter>
     </ClInclude>
     <ClInclude Include="server\IVEngineServer.h">
       <Filter>sdk\server</Filter>
@@ -386,6 +189,9 @@
     <ClInclude Include="squirrel\sqvm.h">
       <Filter>sdk\squirrel</Filter>
     </ClInclude>
+    <ClInclude Include="thirdparty\detours\include\detours.h">
+      <Filter>thirdparty\detours\include</Filter>
+    </ClInclude>
     <ClInclude Include="thirdparty\detours\include\detver.h">
       <Filter>thirdparty\detours\include</Filter>
     </ClInclude>
@@ -394,45 +200,6 @@
     </ClInclude>
     <ClInclude Include="thirdparty\detours\include\syelog.h">
       <Filter>thirdparty\detours\include</Filter>
-    </ClInclude>
-    <ClInclude Include="thirdparty\detours\include\detours.h">
-      <Filter>thirdparty\detours\include</Filter>
-    </ClInclude>
-    <ClInclude Include="thirdparty\imgui\include\imgui_impl_dx11.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="thirdparty\imgui\include\imgui_impl_win32.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="thirdparty\imgui\include\imgui_internal.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="thirdparty\imgui\include\imgui_stdlib.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="thirdparty\imgui\include\imgui_utility.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="thirdparty\imgui\include\imstb_rectpack.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="thirdparty\imgui\include\imstb_textedit.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="thirdparty\imgui\include\imstb_truetype.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="thirdparty\imgui\include\imconfig.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="thirdparty\imgui\include\imgui.h">
-      <Filter>thirdparty\imgui\include</Filter>
-    </ClInclude>
-    <ClInclude Include="thirdparty\spdlog\include\async_logger-inl.h">
-      <Filter>thirdparty\spdlog\include</Filter>
-    </ClInclude>
-    <ClInclude Include="thirdparty\spdlog\include\common.h">
-      <Filter>thirdparty\spdlog\include</Filter>
     </ClInclude>
     <ClInclude Include="thirdparty\spdlog\include\common-inl.h">
       <Filter>thirdparty\spdlog\include</Filter>
@@ -476,11 +243,11 @@
     <ClInclude Include="thirdparty\spdlog\include\async_logger.h">
       <Filter>thirdparty\spdlog\include</Filter>
     </ClInclude>
-    <ClInclude Include="thirdparty\spdlog\include\sinks\basic_file_sink-inl.h">
-      <Filter>thirdparty\spdlog\include\sinks</Filter>
+    <ClInclude Include="thirdparty\spdlog\include\async_logger-inl.h">
+      <Filter>thirdparty\spdlog\include</Filter>
     </ClInclude>
-    <ClInclude Include="thirdparty\spdlog\include\sinks\daily_file_sink.h">
-      <Filter>thirdparty\spdlog\include\sinks</Filter>
+    <ClInclude Include="thirdparty\spdlog\include\common.h">
+      <Filter>thirdparty\spdlog\include</Filter>
     </ClInclude>
     <ClInclude Include="thirdparty\spdlog\include\sinks\dist_sink.h">
       <Filter>thirdparty\spdlog\include\sinks</Filter>
@@ -569,6 +336,15 @@
     <ClInclude Include="thirdparty\spdlog\include\sinks\basic_file_sink.h">
       <Filter>thirdparty\spdlog\include\sinks</Filter>
     </ClInclude>
+    <ClInclude Include="thirdparty\spdlog\include\sinks\basic_file_sink-inl.h">
+      <Filter>thirdparty\spdlog\include\sinks</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\spdlog\include\sinks\daily_file_sink.h">
+      <Filter>thirdparty\spdlog\include\sinks</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\spdlog\include\fmt\bin_to_hex.h">
+      <Filter>thirdparty\spdlog\include\fmt</Filter>
+    </ClInclude>
     <ClInclude Include="thirdparty\spdlog\include\fmt\chrono.h">
       <Filter>thirdparty\spdlog\include\fmt</Filter>
     </ClInclude>
@@ -581,8 +357,8 @@
     <ClInclude Include="thirdparty\spdlog\include\fmt\xchar.h">
       <Filter>thirdparty\spdlog\include\fmt</Filter>
     </ClInclude>
-    <ClInclude Include="thirdparty\spdlog\include\fmt\bin_to_hex.h">
-      <Filter>thirdparty\spdlog\include\fmt</Filter>
+    <ClInclude Include="thirdparty\spdlog\include\fmt\bundled\compile.h">
+      <Filter>thirdparty\spdlog\include\fmt\bundled</Filter>
     </ClInclude>
     <ClInclude Include="thirdparty\spdlog\include\fmt\bundled\core.h">
       <Filter>thirdparty\spdlog\include\fmt\bundled</Filter>
@@ -619,15 +395,6 @@
     </ClInclude>
     <ClInclude Include="thirdparty\spdlog\include\fmt\bundled\color.h">
       <Filter>thirdparty\spdlog\include\fmt\bundled</Filter>
-    </ClInclude>
-    <ClInclude Include="thirdparty\spdlog\include\fmt\bundled\compile.h">
-      <Filter>thirdparty\spdlog\include\fmt\bundled</Filter>
-    </ClInclude>
-    <ClInclude Include="thirdparty\spdlog\include\details\file_helper.h">
-      <Filter>thirdparty\spdlog\include\details</Filter>
-    </ClInclude>
-    <ClInclude Include="thirdparty\spdlog\include\details\file_helper-inl.h">
-      <Filter>thirdparty\spdlog\include\details</Filter>
     </ClInclude>
     <ClInclude Include="thirdparty\spdlog\include\details\fmt_helper.h">
       <Filter>thirdparty\spdlog\include\details</Filter>
@@ -698,6 +465,12 @@
     <ClInclude Include="thirdparty\spdlog\include\details\console_globals.h">
       <Filter>thirdparty\spdlog\include\details</Filter>
     </ClInclude>
+    <ClInclude Include="thirdparty\spdlog\include\details\file_helper.h">
+      <Filter>thirdparty\spdlog\include\details</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\spdlog\include\details\file_helper-inl.h">
+      <Filter>thirdparty\spdlog\include\details</Filter>
+    </ClInclude>
     <ClInclude Include="thirdparty\spdlog\include\cfg\env.h">
       <Filter>thirdparty\spdlog\include\cfg</Filter>
     </ClInclude>
@@ -725,18 +498,6 @@
     <ClInclude Include="tier0\ConCommand.h">
       <Filter>sdk\tier0</Filter>
     </ClInclude>
-    <ClInclude Include="vgui\vgui_fpspanel.h">
-      <Filter>sdk\vgui</Filter>
-    </ClInclude>
-    <ClInclude Include="vgui\CEngineVGui.h">
-      <Filter>sdk\vgui</Filter>
-    </ClInclude>
-    <ClInclude Include="vgui\vgui.h">
-      <Filter>sdk\vgui</Filter>
-    </ClInclude>
-    <ClInclude Include="vguimatsurface\MatSystemSurface.h">
-      <Filter>sdk\vguimatsurface</Filter>
-    </ClInclude>
     <ClInclude Include="vpc\IAppSystem.h">
       <Filter>sdk\vpc</Filter>
     </ClInclude>
@@ -752,50 +513,20 @@
     <ClInclude Include="vphysics\QHull.h">
       <Filter>sdk\vphysics</Filter>
     </ClInclude>
-    <ClInclude Include="windows\id3dx.h">
-      <Filter>windows</Filter>
-    </ClInclude>
-    <ClInclude Include="windows\input.h">
-      <Filter>windows</Filter>
-    </ClInclude>
     <ClInclude Include="windows\console.h">
       <Filter>windows</Filter>
-    </ClInclude>
-    <ClInclude Include="core\init.h">
-      <Filter>core</Filter>
-    </ClInclude>
-    <ClInclude Include="core\logdef.h">
-      <Filter>core</Filter>
-    </ClInclude>
-    <ClInclude Include="core\r5dev.h">
-      <Filter>core</Filter>
-    </ClInclude>
-    <ClInclude Include="core\stdafx.h">
-      <Filter>core</Filter>
-    </ClInclude>
-    <ClInclude Include="common\opcodes.h">
-      <Filter>sdk\common</Filter>
-    </ClInclude>
-    <ClInclude Include="mathlib\IceKey.H">
-      <Filter>sdk\mathlib</Filter>
     </ClInclude>
     <ClInclude Include="networksystem\r5net.h">
       <Filter>sdk\networksystem</Filter>
     </ClInclude>
-    <ClInclude Include="networksystem\serverlisting.h">
-      <Filter>sdk\networksystem</Filter>
+    <ClInclude Include="mathlib\IceKey.H">
+      <Filter>sdk\mathlib</Filter>
     </ClInclude>
     <ClInclude Include="mathlib\parallel_for.h">
       <Filter>sdk\mathlib</Filter>
     </ClInclude>
-    <ClInclude Include="public\include\stb_image.h">
-      <Filter>sdk\public\include</Filter>
-    </ClInclude>
     <ClInclude Include="squirrel\sqinit.h">
       <Filter>sdk\squirrel</Filter>
-    </ClInclude>
-    <ClInclude Include="core\resource.h">
-      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="server\server.h">
       <Filter>sdk\server</Filter>
@@ -829,16 +560,128 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="client\IVEngineClient.cpp">
+      <Filter>sdk\client</Filter>
+    </ClCompile>
+    <ClCompile Include="client\client.cpp">
+      <Filter>sdk\client</Filter>
+    </ClCompile>
+    <ClCompile Include="common\opcodes.cpp">
+      <Filter>sdk\common</Filter>
+    </ClCompile>
+    <ClCompile Include="core\stdafx.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\dllmain.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\init.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="ebisusdk\EbisuSDK.cpp">
+      <Filter>sdk\ebisusdk</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\host_state.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\net_chan.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\sys_dll.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\sys_dll2.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\sys_utils.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\baseclient.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\baseclientstate.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="launcher\IApplication.cpp">
+      <Filter>sdk\launcher</Filter>
+    </ClCompile>
+    <ClCompile Include="public\utility.cpp">
+      <Filter>sdk\public</Filter>
+    </ClCompile>
+    <ClCompile Include="public\bansystem.cpp">
+      <Filter>sdk\public</Filter>
+    </ClCompile>
+    <ClCompile Include="rtech\stryder.cpp">
+      <Filter>sdk\rtech</Filter>
+    </ClCompile>
+    <ClCompile Include="rtech\rtech.cpp">
+      <Filter>sdk\rtech</Filter>
+    </ClCompile>
+    <ClCompile Include="server\IVEngineServer.cpp">
+      <Filter>sdk\server</Filter>
+    </ClCompile>
+    <ClCompile Include="squirrel\sqapi.cpp">
+      <Filter>sdk\squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="squirrel\sqvm.cpp">
+      <Filter>sdk\squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="tier0\completion.cpp">
+      <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="tier0\cvar.cpp">
+      <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="tier0\IConVar.cpp">
+      <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="tier0\ConCommand.cpp">
+      <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="vpc\IAppSystem.cpp">
+      <Filter>sdk\vpc</Filter>
+    </ClCompile>
+    <ClCompile Include="vpc\keyvalues.cpp">
+      <Filter>sdk\vpc</Filter>
+    </ClCompile>
+    <ClCompile Include="vpc\basefilesystem.cpp">
+      <Filter>sdk\vpc</Filter>
+    </ClCompile>
+    <ClCompile Include="vphysics\QHull.cpp">
+      <Filter>sdk\vphysics</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\console.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
+    <ClCompile Include="networksystem\r5net.cpp">
+      <Filter>sdk\networksystem</Filter>
+    </ClCompile>
+    <ClCompile Include="mathlib\IceKey.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="squirrel\sqinit.cpp">
+      <Filter>sdk\squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="server\server.cpp">
+      <Filter>sdk\server</Filter>
+    </ClCompile>
+    <ClCompile Include="vpklib\packedstore.cpp">
+      <Filter>sdk\vpklib</Filter>
+    </ClCompile>
+    <ClCompile Include="public\binstream.cpp">
+      <Filter>sdk\public</Filter>
+    </ClCompile>
+    <ClCompile Include="bsplib\bsplib.cpp">
+      <Filter>sdk\bsplib</Filter>
+    </ClCompile>
+    <ClCompile Include="mathlib\adler32.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="mathlib\crc32.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
     <None Include="r5dev.def" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="shared\resource\lockedserver.png">
-      <Filter>sdk\resource\png</Filter>
-    </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="resource\r5dev.rc">
-      <Filter>sdk\resource</Filter>
-    </ResourceCompile>
   </ItemGroup>
 </Project>

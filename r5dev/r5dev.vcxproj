@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -18,6 +18,283 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="bsplib\bsplib.cpp" />
+    <ClCompile Include="client\cdll_engine_int.cpp" />
+    <ClCompile Include="client\client.cpp" />
+    <ClCompile Include="client\IVEngineClient.cpp" />
+    <ClCompile Include="common\opcodes.cpp" />
+    <ClCompile Include="core\dllmain.cpp" />
+    <ClCompile Include="core\init.cpp" />
+    <ClCompile Include="core\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ebisusdk\EbisuSDK.cpp" />
+    <ClCompile Include="engine\baseclient.cpp" />
+    <ClCompile Include="engine\baseclientstate.cpp" />
+    <ClCompile Include="engine\host_state.cpp" />
+    <ClCompile Include="engine\net_chan.cpp" />
+    <ClCompile Include="engine\sys_dll.cpp" />
+    <ClCompile Include="engine\sys_dll2.cpp" />
+    <ClCompile Include="engine\sys_utils.cpp" />
+    <ClCompile Include="gameui\IConsole.cpp" />
+    <ClCompile Include="gameui\IBrowser.cpp" />
+    <ClCompile Include="inputsystem\inputsystem.cpp" />
+    <ClCompile Include="launcher\IApplication.cpp" />
+    <ClCompile Include="mathlib\adler32.cpp" />
+    <ClCompile Include="mathlib\crc32.cpp" />
+    <ClCompile Include="mathlib\IceKey.cpp" />
+    <ClCompile Include="networksystem\r5net.cpp" />
+    <ClCompile Include="public\bansystem.cpp" />
+    <ClCompile Include="public\binstream.cpp" />
+    <ClCompile Include="public\utility.cpp" />
+    <ClCompile Include="rtech\rtech.cpp" />
+    <ClCompile Include="rtech\stryder.cpp" />
+    <ClCompile Include="server\IVEngineServer.cpp" />
+    <ClCompile Include="server\server.cpp" />
+    <ClCompile Include="squirrel\sqapi.cpp" />
+    <ClCompile Include="squirrel\sqinit.cpp" />
+    <ClCompile Include="squirrel\sqvm.cpp" />
+    <ClCompile Include="thirdparty\imgui\src\imgui.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\imgui\src\imgui_demo.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\imgui\src\imgui_draw.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\imgui\src\imgui_impl_dx11.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\imgui\src\imgui_impl_win32.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\imgui\src\imgui_stdlib.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\imgui\src\imgui_tables.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\imgui\src\imgui_utility.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\imgui\src\imgui_widgets.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="tier0\ConCommand.cpp" />
+    <ClCompile Include="tier0\completion.cpp" />
+    <ClCompile Include="tier0\cvar.cpp" />
+    <ClCompile Include="tier0\IConVar.cpp" />
+    <ClCompile Include="vguimatsurface\MatSystemSurface.cpp" />
+    <ClCompile Include="vgui\CEngineVGui.cpp" />
+    <ClCompile Include="vgui\vgui_fpspanel.cpp" />
+    <ClCompile Include="vpc\basefilesystem.cpp" />
+    <ClCompile Include="vpc\IAppSystem.cpp" />
+    <ClCompile Include="vpc\keyvalues.cpp" />
+    <ClCompile Include="vphysics\QHull.cpp" />
+    <ClCompile Include="vpklib\packedstore.cpp" />
+    <ClCompile Include="windows\console.cpp" />
+    <ClCompile Include="windows\id3dx.cpp" />
+    <ClCompile Include="windows\input.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="bsplib\bsplib.h" />
+    <ClInclude Include="client\cdll_engine_int.h" />
+    <ClInclude Include="client\client.h" />
+    <ClInclude Include="client\IVEngineClient.h" />
+    <ClInclude Include="common\opcodes.h" />
+    <ClInclude Include="common\protocol.h" />
+    <ClInclude Include="common\psuedodefs.h" />
+    <ClInclude Include="core\init.h" />
+    <ClInclude Include="core\logdef.h" />
+    <ClInclude Include="core\r5dev.h" />
+    <ClInclude Include="core\stdafx.h" />
+    <ClInclude Include="ebisusdk\EbisuSDK.h" />
+    <ClInclude Include="engine\baseclient.h" />
+    <ClInclude Include="engine\baseclientstate.h" />
+    <ClInclude Include="engine\host_state.h" />
+    <ClInclude Include="engine\net_chan.h" />
+    <ClInclude Include="engine\sys_dll.h" />
+    <ClInclude Include="engine\sys_dll2.h" />
+    <ClInclude Include="engine\sys_utils.h" />
+    <ClInclude Include="gameui\IConsole.h" />
+    <ClInclude Include="gameui\IBrowser.h" />
+    <ClInclude Include="inputsystem\ButtonCode.h" />
+    <ClInclude Include="inputsystem\inputsystem.h" />
+    <ClInclude Include="launcher\IApplication.h" />
+    <ClInclude Include="mathlib\adler32.h" />
+    <ClInclude Include="mathlib\crc32.h" />
+    <ClInclude Include="mathlib\IceKey.H" />
+    <ClInclude Include="mathlib\parallel_for.h" />
+    <ClInclude Include="mathlib\vector.h" />
+    <ClInclude Include="networksystem\r5net.h" />
+    <ClInclude Include="networksystem\serverlisting.h" />
+    <ClInclude Include="networksystem\sm_protocol.h" />
+    <ClInclude Include="public\include\memaddr.h" />
+    <ClInclude Include="public\include\bansystem.h" />
+    <ClInclude Include="public\include\binstream.h" />
+    <ClInclude Include="public\include\httplib.h" />
+    <ClInclude Include="public\include\json.hpp" />
+    <ClInclude Include="public\include\stb_image.h" />
+    <ClInclude Include="public\include\utility.h" />
+    <ClInclude Include="core\resource.h" />
+    <ClInclude Include="rtech\rtech.h" />
+    <ClInclude Include="rtech\stryder.h" />
+    <ClInclude Include="server\IVEngineServer.h" />
+    <ClInclude Include="server\server.h" />
+    <ClInclude Include="squirrel\sqapi.h" />
+    <ClInclude Include="squirrel\sqinit.h" />
+    <ClInclude Include="squirrel\sqvm.h" />
+    <ClInclude Include="thirdparty\detours\include\detours.h" />
+    <ClInclude Include="thirdparty\detours\include\detver.h" />
+    <ClInclude Include="thirdparty\detours\include\idetour.h" />
+    <ClInclude Include="thirdparty\detours\include\syelog.h" />
+    <ClInclude Include="thirdparty\imgui\include\imconfig.h" />
+    <ClInclude Include="thirdparty\imgui\include\imgui.h" />
+    <ClInclude Include="thirdparty\imgui\include\imgui_impl_dx11.h" />
+    <ClInclude Include="thirdparty\imgui\include\imgui_impl_win32.h" />
+    <ClInclude Include="thirdparty\imgui\include\imgui_internal.h" />
+    <ClInclude Include="thirdparty\imgui\include\imgui_stdlib.h" />
+    <ClInclude Include="thirdparty\imgui\include\imgui_utility.h" />
+    <ClInclude Include="thirdparty\imgui\include\imstb_rectpack.h" />
+    <ClInclude Include="thirdparty\imgui\include\imstb_textedit.h" />
+    <ClInclude Include="thirdparty\imgui\include\imstb_truetype.h" />
+    <ClInclude Include="thirdparty\lzham\include\lzham.h" />
+    <ClInclude Include="thirdparty\lzham\include\lzham_static_lib.h" />
+    <ClInclude Include="thirdparty\spdlog\include\async.h" />
+    <ClInclude Include="thirdparty\spdlog\include\async_logger-inl.h" />
+    <ClInclude Include="thirdparty\spdlog\include\async_logger.h" />
+    <ClInclude Include="thirdparty\spdlog\include\cfg\argv.h" />
+    <ClInclude Include="thirdparty\spdlog\include\cfg\env.h" />
+    <ClInclude Include="thirdparty\spdlog\include\cfg\helpers-inl.h" />
+    <ClInclude Include="thirdparty\spdlog\include\cfg\helpers.h" />
+    <ClInclude Include="thirdparty\spdlog\include\common-inl.h" />
+    <ClInclude Include="thirdparty\spdlog\include\common.h" />
+    <ClInclude Include="thirdparty\spdlog\include\details\backtracer-inl.h" />
+    <ClInclude Include="thirdparty\spdlog\include\details\backtracer.h" />
+    <ClInclude Include="thirdparty\spdlog\include\details\circular_q.h" />
+    <ClInclude Include="thirdparty\spdlog\include\details\console_globals.h" />
+    <ClInclude Include="thirdparty\spdlog\include\details\file_helper-inl.h" />
+    <ClInclude Include="thirdparty\spdlog\include\details\file_helper.h" />
+    <ClInclude Include="thirdparty\spdlog\include\details\fmt_helper.h" />
+    <ClInclude Include="thirdparty\spdlog\include\details\log_msg-inl.h" />
+    <ClInclude Include="thirdparty\spdlog\include\details\log_msg.h" />
+    <ClInclude Include="thirdparty\spdlog\include\details\log_msg_buffer-inl.h" />
+    <ClInclude Include="thirdparty\spdlog\include\details\log_msg_buffer.h" />
+    <ClInclude Include="thirdparty\spdlog\include\details\mpmc_blocking_q.h" />
+    <ClInclude Include="thirdparty\spdlog\include\details\null_mutex.h" />
+    <ClInclude Include="thirdparty\spdlog\include\details\os-inl.h" />
+    <ClInclude Include="thirdparty\spdlog\include\details\os.h" />
+    <ClInclude Include="thirdparty\spdlog\include\details\periodic_worker-inl.h" />
+    <ClInclude Include="thirdparty\spdlog\include\details\periodic_worker.h" />
+    <ClInclude Include="thirdparty\spdlog\include\details\registry-inl.h" />
+    <ClInclude Include="thirdparty\spdlog\include\details\registry.h" />
+    <ClInclude Include="thirdparty\spdlog\include\details\synchronous_factory.h" />
+    <ClInclude Include="thirdparty\spdlog\include\details\tcp_client-windows.h" />
+    <ClInclude Include="thirdparty\spdlog\include\details\tcp_client.h" />
+    <ClInclude Include="thirdparty\spdlog\include\details\thread_pool-inl.h" />
+    <ClInclude Include="thirdparty\spdlog\include\details\thread_pool.h" />
+    <ClInclude Include="thirdparty\spdlog\include\details\windows_include.h" />
+    <ClInclude Include="thirdparty\spdlog\include\fmt\bin_to_hex.h" />
+    <ClInclude Include="thirdparty\spdlog\include\fmt\bundled\args.h" />
+    <ClInclude Include="thirdparty\spdlog\include\fmt\bundled\chrono.h" />
+    <ClInclude Include="thirdparty\spdlog\include\fmt\bundled\color.h" />
+    <ClInclude Include="thirdparty\spdlog\include\fmt\bundled\compile.h" />
+    <ClInclude Include="thirdparty\spdlog\include\fmt\bundled\core.h" />
+    <ClInclude Include="thirdparty\spdlog\include\fmt\bundled\format-inl.h" />
+    <ClInclude Include="thirdparty\spdlog\include\fmt\bundled\format.h" />
+    <ClInclude Include="thirdparty\spdlog\include\fmt\bundled\locale.h" />
+    <ClInclude Include="thirdparty\spdlog\include\fmt\bundled\os.h" />
+    <ClInclude Include="thirdparty\spdlog\include\fmt\bundled\ostream.h" />
+    <ClInclude Include="thirdparty\spdlog\include\fmt\bundled\printf.h" />
+    <ClInclude Include="thirdparty\spdlog\include\fmt\bundled\ranges.h" />
+    <ClInclude Include="thirdparty\spdlog\include\fmt\bundled\xchar.h" />
+    <ClInclude Include="thirdparty\spdlog\include\fmt\chrono.h" />
+    <ClInclude Include="thirdparty\spdlog\include\fmt\fmt.h" />
+    <ClInclude Include="thirdparty\spdlog\include\fmt\ostr.h" />
+    <ClInclude Include="thirdparty\spdlog\include\fmt\xchar.h" />
+    <ClInclude Include="thirdparty\spdlog\include\formatter.h" />
+    <ClInclude Include="thirdparty\spdlog\include\fwd.h" />
+    <ClInclude Include="thirdparty\spdlog\include\logger-inl.h" />
+    <ClInclude Include="thirdparty\spdlog\include\logger.h" />
+    <ClInclude Include="thirdparty\spdlog\include\pattern_formatter-inl.h" />
+    <ClInclude Include="thirdparty\spdlog\include\pattern_formatter.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\android_sink.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\ansicolor_sink-inl.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\ansicolor_sink.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\base_sink-inl.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\base_sink.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\basic_file_sink-inl.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\basic_file_sink.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\daily_file_sink.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\dist_sink.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\dup_filter_sink.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\hourly_file_sink.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\mongo_sink.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\msvc_sink.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\null_sink.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\ostream_sink.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\qt_sinks.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\ringbuffer_sink.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\rotating_file_sink-inl.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\rotating_file_sink.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\sink-inl.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\sink.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\stdout_color_sinks-inl.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\stdout_color_sinks.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\stdout_sinks-inl.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\stdout_sinks.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\syslog_sink.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\systemd_sink.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\tcp_sink.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\wincolor_sink-inl.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\wincolor_sink.h" />
+    <ClInclude Include="thirdparty\spdlog\include\sinks\win_eventlog_sink.h" />
+    <ClInclude Include="thirdparty\spdlog\include\spdlog-inl.h" />
+    <ClInclude Include="thirdparty\spdlog\include\spdlog.h" />
+    <ClInclude Include="thirdparty\spdlog\include\stopwatch.h" />
+    <ClInclude Include="thirdparty\spdlog\include\tweakme.h" />
+    <ClInclude Include="thirdparty\spdlog\include\version.h" />
+    <ClInclude Include="tier0\basetypes.h" />
+    <ClInclude Include="tier0\ConCommand.h" />
+    <ClInclude Include="tier0\completion.h" />
+    <ClInclude Include="tier0\cvar.h" />
+    <ClInclude Include="tier0\IConVar.h" />
+    <ClInclude Include="tier0\interface.h" />
+    <ClInclude Include="vguimatsurface\MatSystemSurface.h" />
+    <ClInclude Include="vgui\CEngineVGui.h" />
+    <ClInclude Include="vgui\vgui.h" />
+    <ClInclude Include="vgui\vgui_fpspanel.h" />
+    <ClInclude Include="vpc\basefilesystem.h" />
+    <ClInclude Include="vpc\IAppSystem.h" />
+    <ClInclude Include="vpc\interfaces.h" />
+    <ClInclude Include="vpc\keyvalues.h" />
+    <ClInclude Include="vphysics\QHull.h" />
+    <ClInclude Include="vpklib\packedstore.h" />
+    <ClInclude Include="windows\console.h" />
+    <ClInclude Include="windows\id3dx.h" />
+    <ClInclude Include="windows\input.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="r5dev.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resource\r5dev.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="shared\resource\lockedserver.png" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -30,29 +307,30 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
-    <UseOfMfc>false</UseOfMfc>
+    <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -71,7 +349,7 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="PropertySheet.props" />
+    <Import Project="r5dev.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -82,22 +360,21 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)r5net\include\r5;$(SolutionDir)external\minhook\include;$(SolutionDir)external\imgui\include;$(SolutionDir)external\spdlog\include;$(SolutionDir)shared\include;$(SolutionDir)r5dev\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)external\minhook\lib\$(Configuration);$(SolutionDir)r5net\lib\$(Configuration);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
+    <LibraryPath>$(SolutionDir)r5dev\thirdparty\detours\libs;$(SolutionDir)r5dev\thirdparty\lzham\libs;$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
+    <TargetName>r5apexvtxd</TargetName>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
-    <TargetName>r5detours</TargetName>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
+    <ReferencePath>$(VC_ReferencesPath_x64);</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)r5net\include\r5;$(SolutionDir)external\minhook\include;$(SolutionDir)external\imgui\include;$(SolutionDir)external\spdlog\include;$(SolutionDir)shared\include;$(SolutionDir)r5dev\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)external\minhook\lib\$(Configuration);$(SolutionDir)r5net\lib\$(Configuration);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
+    <LibraryPath>$(SolutionDir)r5dev\thirdparty\detours\libs;$(SolutionDir)r5dev\thirdparty\lzham\libs;$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
+    <TargetName>r5apexsdkd</TargetName>
+    <ReferencePath>$(VC_ReferencesPath_x64);</ReferencePath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
-    <TargetName>r5detours</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg">
-    <VcpkgEnabled>false</VcpkgEnabled>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -142,31 +419,22 @@
       <PreprocessorDefinitions>_DEBUG;R5DEV_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <PrecompiledHeaderFile>core\stdafx.h</PrecompiledHeaderFile>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>r5dev.def</ModuleDefinitionFile>
-      <AdditionalDependencies>Minhook.x64.lib;r5net.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>detours.lib;lzhamlib_x64D.lib;lzhamcomp_x64D.lib;lzhamdecomp_x64D.lib;d3d11.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>del "$(SolutionDir)bin\$(Configuration)\r5dev.dll"
-rename "$(TargetPath)" "r5dev.dll"</Command>
+      <Command>copy /Y "$(TargetPath)" "..\..\..\bin\$(TargetFileName)"</Command>
     </PostBuildEvent>
-    <PreBuildEvent>
-      <Command>if not EXIST $(SolutionDir)external\minhook\lib\$(Configuration)\Minhook.x64.lib (
-"$(DevEnvDir)devenv" "$(SolutionDir)apex.sln" /Rebuild $(Configuration) /project "$(SolutionDir)external\minhook\libMinHook.vcxproj"
-);
-
-if not EXIST $(SolutionDir)r5net\lib\$(Configuration)\r5net.lib (
-"$(DevEnvDir)devenv" "$(SolutionDir)apex.sln" /Rebuild $(Configuration) /project "$(SolutionDir)r5net\r5net.vcxproj"
-);</Command>
-    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -177,14 +445,19 @@ if not EXIST $(SolutionDir)r5net\lib\$(Configuration)\r5net.lib (
       <PreprocessorDefinitions>NDEBUG;R5DEV_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>core\stdafx.h</PrecompiledHeaderFile>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <StringPooling>true</StringPooling>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <CreateHotpatchableImage>
+      </CreateHotpatchableImage>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -193,249 +466,12 @@ if not EXIST $(SolutionDir)r5net\lib\$(Configuration)\r5net.lib (
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>r5dev.def</ModuleDefinitionFile>
-      <AdditionalDependencies>Minhook.x64.lib;r5net.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>detours.lib;lzhamlib_x64.lib;lzhamcomp_x64.lib;lzhamdecomp_x64.lib;d3d11.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>copy /Y "$(TargetPath)" "..\..\..\$(TargetFileName)" &amp;&amp; del "..\..\..\r5apexsdkd64.dll" &amp;&amp; rename "..\..\..\$(TargetFileName)" "r5apexsdkd64.dll"</Command>
     </PostBuildEvent>
-    <PreBuildEvent>
-      <Command>if not EXIST $(SolutionDir)external\minhook\lib\$(Configuration)\Minhook.x64.lib (
-"$(DevEnvDir)devenv" "$(SolutionDir)apex.sln" /Rebuild $(Configuration) /project "$(SolutionDir)external\minhook\libMinHook.vcxproj"
-);
-
-if not EXIST $(SolutionDir)r5net\lib\$(Configuration)\r5net.lib (
-"$(DevEnvDir)devenv" "$(SolutionDir)apex.sln" /Rebuild $(Configuration) /project "$(SolutionDir)r5net\r5net.vcxproj"
-);</Command>
-    </PreBuildEvent>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="..\external\imgui\include\imconfig.h" />
-    <ClInclude Include="..\external\imgui\include\imgui.h" />
-    <ClInclude Include="..\external\imgui\include\imgui_impl_dx11.h" />
-    <ClInclude Include="..\external\imgui\include\imgui_impl_win32.h" />
-    <ClInclude Include="..\external\imgui\include\imgui_internal.h" />
-    <ClInclude Include="..\external\imgui\include\imstb_rectpack.h" />
-    <ClInclude Include="..\external\imgui\include\imstb_textedit.h" />
-    <ClInclude Include="..\external\imgui\include\imstb_truetype.h" />
-    <ClInclude Include="..\external\minhook\include\MinHook.h" />
-    <ClInclude Include="..\external\spdlog\include\async.h" />
-    <ClInclude Include="..\external\spdlog\include\async_logger-inl.h" />
-    <ClInclude Include="..\external\spdlog\include\async_logger.h" />
-    <ClInclude Include="..\external\spdlog\include\cfg\argv.h" />
-    <ClInclude Include="..\external\spdlog\include\cfg\env.h" />
-    <ClInclude Include="..\external\spdlog\include\cfg\helpers-inl.h" />
-    <ClInclude Include="..\external\spdlog\include\cfg\helpers.h" />
-    <ClInclude Include="..\external\spdlog\include\common-inl.h" />
-    <ClInclude Include="..\external\spdlog\include\common.h" />
-    <ClInclude Include="..\external\spdlog\include\details\backtracer-inl.h" />
-    <ClInclude Include="..\external\spdlog\include\details\backtracer.h" />
-    <ClInclude Include="..\external\spdlog\include\details\circular_q.h" />
-    <ClInclude Include="..\external\spdlog\include\details\console_globals.h" />
-    <ClInclude Include="..\external\spdlog\include\details\file_helper-inl.h" />
-    <ClInclude Include="..\external\spdlog\include\details\file_helper.h" />
-    <ClInclude Include="..\external\spdlog\include\details\fmt_helper.h" />
-    <ClInclude Include="..\external\spdlog\include\details\log_msg-inl.h" />
-    <ClInclude Include="..\external\spdlog\include\details\log_msg.h" />
-    <ClInclude Include="..\external\spdlog\include\details\log_msg_buffer-inl.h" />
-    <ClInclude Include="..\external\spdlog\include\details\log_msg_buffer.h" />
-    <ClInclude Include="..\external\spdlog\include\details\mpmc_blocking_q.h" />
-    <ClInclude Include="..\external\spdlog\include\details\null_mutex.h" />
-    <ClInclude Include="..\external\spdlog\include\details\os-inl.h" />
-    <ClInclude Include="..\external\spdlog\include\details\os.h" />
-    <ClInclude Include="..\external\spdlog\include\details\periodic_worker-inl.h" />
-    <ClInclude Include="..\external\spdlog\include\details\periodic_worker.h" />
-    <ClInclude Include="..\external\spdlog\include\details\registry-inl.h" />
-    <ClInclude Include="..\external\spdlog\include\details\registry.h" />
-    <ClInclude Include="..\external\spdlog\include\details\synchronous_factory.h" />
-    <ClInclude Include="..\external\spdlog\include\details\tcp_client-windows.h" />
-    <ClInclude Include="..\external\spdlog\include\details\tcp_client.h" />
-    <ClInclude Include="..\external\spdlog\include\details\thread_pool-inl.h" />
-    <ClInclude Include="..\external\spdlog\include\details\thread_pool.h" />
-    <ClInclude Include="..\external\spdlog\include\details\windows_include.h" />
-    <ClInclude Include="..\external\spdlog\include\fmt\bin_to_hex.h" />
-    <ClInclude Include="..\external\spdlog\include\fmt\bundled\args.h" />
-    <ClInclude Include="..\external\spdlog\include\fmt\bundled\chrono.h" />
-    <ClInclude Include="..\external\spdlog\include\fmt\bundled\color.h" />
-    <ClInclude Include="..\external\spdlog\include\fmt\bundled\compile.h" />
-    <ClInclude Include="..\external\spdlog\include\fmt\bundled\core.h" />
-    <ClInclude Include="..\external\spdlog\include\fmt\bundled\format-inl.h" />
-    <ClInclude Include="..\external\spdlog\include\fmt\bundled\format.h" />
-    <ClInclude Include="..\external\spdlog\include\fmt\bundled\locale.h" />
-    <ClInclude Include="..\external\spdlog\include\fmt\bundled\os.h" />
-    <ClInclude Include="..\external\spdlog\include\fmt\bundled\ostream.h" />
-    <ClInclude Include="..\external\spdlog\include\fmt\bundled\printf.h" />
-    <ClInclude Include="..\external\spdlog\include\fmt\bundled\ranges.h" />
-    <ClInclude Include="..\external\spdlog\include\fmt\bundled\xchar.h" />
-    <ClInclude Include="..\external\spdlog\include\fmt\chrono.h" />
-    <ClInclude Include="..\external\spdlog\include\fmt\fmt.h" />
-    <ClInclude Include="..\external\spdlog\include\fmt\ostr.h" />
-    <ClInclude Include="..\external\spdlog\include\fmt\xchar.h" />
-    <ClInclude Include="..\external\spdlog\include\formatter.h" />
-    <ClInclude Include="..\external\spdlog\include\fwd.h" />
-    <ClInclude Include="..\external\spdlog\include\logger-inl.h" />
-    <ClInclude Include="..\external\spdlog\include\logger.h" />
-    <ClInclude Include="..\external\spdlog\include\pattern_formatter-inl.h" />
-    <ClInclude Include="..\external\spdlog\include\pattern_formatter.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\android_sink.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\ansicolor_sink-inl.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\ansicolor_sink.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\base_sink-inl.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\base_sink.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\basic_file_sink-inl.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\basic_file_sink.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\daily_file_sink.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\dist_sink.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\dup_filter_sink.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\hourly_file_sink.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\mongo_sink.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\msvc_sink.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\null_sink.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\ostream_sink.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\qt_sinks.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\ringbuffer_sink.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\rotating_file_sink-inl.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\rotating_file_sink.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\sink-inl.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\sink.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\stdout_color_sinks-inl.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\stdout_color_sinks.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\stdout_sinks-inl.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\stdout_sinks.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\syslog_sink.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\systemd_sink.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\tcp_sink.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\wincolor_sink-inl.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\wincolor_sink.h" />
-    <ClInclude Include="..\external\spdlog\include\sinks\win_eventlog_sink.h" />
-    <ClInclude Include="..\external\spdlog\include\spdlog-inl.h" />
-    <ClInclude Include="..\external\spdlog\include\spdlog.h" />
-    <ClInclude Include="..\external\spdlog\include\stopwatch.h" />
-    <ClInclude Include="..\external\spdlog\include\tweakme.h" />
-    <ClInclude Include="..\external\spdlog\include\version.h" />
-    <ClInclude Include="..\shared\include\address.h" />
-    <ClInclude Include="..\shared\include\banlist.h" />
-    <ClInclude Include="..\shared\include\httplib.h" />
-    <ClInclude Include="..\shared\include\json.hpp" />
-    <ClInclude Include="..\shared\include\utility.h" />
-    <ClInclude Include="include\CCompanion.h" />
-    <ClInclude Include="include\console.h" />
-    <ClInclude Include="include\enums.h" />
-    <ClInclude Include="include\gameclasses.h" />
-    <ClInclude Include="include\gui_utility.h" />
-    <ClInclude Include="include\hooks.h" />
-    <ClInclude Include="include\id3dx.h" />
-    <ClInclude Include="include\imgui_stdlib.h" />
-    <ClInclude Include="include\input.h" />
-    <ClInclude Include="include\logsystem.h" />
-    <ClInclude Include="include\opcptc.h" />
-    <ClInclude Include="include\CGameConsole.h" />
-    <ClInclude Include="include\patterns.h" />
-    <ClInclude Include="include\pch.h" />
-    <ClInclude Include="include\r5dev.h" />
-    <ClInclude Include="include\squirrel.h" />
-    <ClInclude Include="include\structs.h" />
-    <ClInclude Include="resource.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\external\imgui\src\imgui.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\external\imgui\src\imgui_demo.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\external\imgui\src\imgui_draw.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\external\imgui\src\imgui_impl_dx11.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\external\imgui\src\imgui_impl_win32.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\external\imgui\src\imgui_stdlib.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\external\imgui\src\imgui_tables.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\external\imgui\src\imgui_widgets.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\shared\utility.cpp" />
-    <ClCompile Include="src\CCompanion.cpp" />
-    <ClCompile Include="src\cenginevgui.cpp" />
-    <ClCompile Include="src\console.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="src\dllmain.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="src\gameclasses.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="src\hooks\chlclient.cpp" />
-    <ClCompile Include="src\hooks\connectclient.cpp" />
-    <ClCompile Include="src\hooks\cvengineserver.cpp" />
-    <ClCompile Include="src\hooks\hooks.cpp" />
-    <ClCompile Include="src\hooks\hoststate.cpp" />
-    <ClCompile Include="src\hooks\iconvar.cpp" />
-    <ClCompile Include="src\hooks\loadplaylist.cpp" />
-    <ClCompile Include="src\hooks\lockcursor.cpp" />
-    <ClCompile Include="src\hooks\msgbox.cpp" />
-    <ClCompile Include="src\hooks\net.cpp" />
-    <ClCompile Include="src\hooks\netchannel.cpp" />
-    <ClCompile Include="src\hooks\originsdk.cpp" />
-    <ClCompile Include="src\hooks\sqvm.cpp" />
-    <ClCompile Include="src\hooks\winapi.cpp" />
-    <ClCompile Include="src\id3dx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="src\input.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="src\gui_utility.cpp" />
-    <ClCompile Include="src\logsystem.cpp" />
-    <ClCompile Include="src\opcptc.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="src\CGameConsole.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="src\pch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="src\squirrel.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</PrecompiledHeaderFile>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="r5dev.def" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\r5net\r5net.vcxproj">
-      <Project>{f04be619-0326-4ff1-b06b-fbe882e04d5e}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
