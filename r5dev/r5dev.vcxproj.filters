@@ -824,7 +824,7 @@
     <ClInclude Include="bsplib\bsplib.h">
       <Filter>sdk\bsplib</Filter>
     </ClInclude>
-    <ClInclude Include="common\psuedodefs.h">
+    <ClInclude Include="common\pseudodefs.h">
       <Filter>sdk\common</Filter>
     </ClInclude>
   </ItemGroup>

@@ -115,7 +115,7 @@
     <ClInclude Include="client\IVEngineClient.h" />
     <ClInclude Include="common\opcodes.h" />
     <ClInclude Include="common\protocol.h" />
-    <ClInclude Include="common\psuedodefs.h" />
+    <ClInclude Include="common\pseudodefs.h" />
     <ClInclude Include="core\init.h" />
     <ClInclude Include="core\logdef.h" />
     <ClInclude Include="core\r5dev.h" />

@@ -1,6 +1,6 @@
 #include "core/stdafx.h"
 #include "tier0/cvar.h"
-#include "common/psuedodefs.h"
+#include "common/pseudodefs.h"
 #include "bsplib/bsplib.h"
 
 //-----------------------------------------------------------------------------
