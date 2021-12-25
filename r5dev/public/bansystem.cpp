@@ -16,7 +16,7 @@ void CBanSystem::operator[](std::pair<std::string, std::int64_t> pair)
 //-----------------------------------------------------------------------------
 void CBanSystem::Load()
 {
-	std::filesystem::path path = std::filesystem::current_path() /= "platform\\cfg\\banlist.cfg"; // Get current path + banlist.config
+	std::filesystem::path path = std::filesystem::current_path() /= "banlist.config"; // Get current path + banlist.config
 
 	nlohmann::json jsIn;
 	std::ifstream banFile(path, std::ios::in); // Parse ban list.
@@ -67,7 +67,7 @@ void CBanSystem::Save()
 		jsOut[std::to_string(i).c_str()]["originID"] = vsvBanList[i].second; // Populate originID field for this entry.
 	}
 
-	std::filesystem::path path = std::filesystem::current_path() /= "platform\\cfg\\banlist.cfg"; // Get current path + banlist.config
+	std::filesystem::path path = std::filesystem::current_path() /= "banlist.config"; // Get current path + banlist.config
 	std::ofstream outFile(path, std::ios::out | std::ios::trunc); // Write config file..
 
 	outFile << jsOut.dump(4); // Dump it into config file..
