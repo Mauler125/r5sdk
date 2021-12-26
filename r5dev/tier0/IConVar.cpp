@@ -17,7 +17,7 @@ bool HIConVar_IsFlagSet(ConVar* pConVar, int nFlags)
 		printf(" Flaged: %08X\n", pConVar->m_ConCommandBase.m_nFlags);
 	}
 	// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY
-	pConVar->m_ConCommandBase.m_nFlags &= 0xFFFFBFFD;
+	pConVar->m_ConCommandBase.m_nFlags &= ~(FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT);
 	if (cm_debug_cmdquery->m_pParent->m_iValue > 0)
 	{
 		printf(" Masked: %08X\n", pConVar->m_ConCommandBase.m_nFlags);

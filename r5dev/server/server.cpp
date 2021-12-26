@@ -7,7 +7,7 @@
 #include "public/include/bansystem.h"
 
 //-----------------------------------------------------------------------------
-// Purpose: checks is particular client is banned on the comp server
+// Purpose: checks if particular client is banned on the comp server
 //-----------------------------------------------------------------------------
 void IsClientBanned(R5Net::Client* pR5net, const std::string svIPAddr, std::int64_t nNucleusID)
 {
