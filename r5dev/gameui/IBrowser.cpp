@@ -602,11 +602,14 @@ void IBrowser::Draw(const char* title, bool* bDraw)
         SetStyleVar();
         m_bThemeSet = true;
     }
+
     if (!ImGui::Begin(title, bDraw))
     {
         ImGui::End();
         return;
     }
+    ImGui::End();
+
     if (*bDraw == NULL)
     {
         g_bShowBrowser = false;

@@ -143,7 +143,7 @@
       <AdditionalDependencies>detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>del "..\..\..\bin\r5reloaded.exe" &amp;&amp; copy /Y "$(TargetPath)" "..\..\..\bin\$(TargetFileName)"</Command>
+      <Command>del "..\..\..\r5reloaded.exe" &amp;&amp; copy /Y "$(TargetPath)" "..\..\..\$(TargetFileName)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

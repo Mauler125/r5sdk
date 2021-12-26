@@ -16,6 +16,7 @@
 #include "vpklib/packedstore.h"
 #include "gameui/IConsole.h"
 #include "public/include/bansystem.h"
+#include "mathlib/crc32.h"
 
 #ifndef DEDICATED
 void _CGameConsole_f_CompletionFunc(const CCommand& cmd)
@@ -399,6 +400,8 @@ void _RTech_Decompress_f_CompletionFunc(CCommand* cmd)
 	std::string pak_name_out = mod_dir + firstArg + ".rpak";
 	std::string pak_name_in = base_dir + firstArg + ".rpak";
 
+	CreateDirectories(pak_name_out);
+
 	DevMsg(eDLL_T::RTECH, "______________________________________________________________\n");
 	DevMsg(eDLL_T::RTECH, "] RTECH_DECOMPRESS -------------------------------------------\n");
 
@@ -450,8 +453,8 @@ void _RTech_Decompress_f_CompletionFunc(CCommand* cmd)
 		return;
 	}
 
-	std::int64_t params[18];
-	std::uint32_t dsize = g_pRtech->DecompressedSize((std::int64_t)(params), upak.data(), upak.size(), 0, PAK_HEADER_SIZE);
+	rpak_decomp_state state;
+	std::uint32_t dsize = g_pRtech->DecompressedSize(&state, upak.data(), upak.size(), 0, PAK_HEADER_SIZE);
 
 	if (dsize == rheader->m_nSizeDisk)
 	{
@@ -465,10 +468,10 @@ void _RTech_Decompress_f_CompletionFunc(CCommand* cmd)
 
 	std::vector<std::uint8_t> pakbuf(rheader->m_nSizeMemory, 0);
 
-	params[1] = std::int64_t(pakbuf.data());
-	params[3] = -1i64;
+	state.m_nOutMask = UINT64_MAX;
+	state.m_nOut = uint64_t(pakbuf.data());
 
-	std::uint8_t decomp_result = g_pRtech->Decompress(params, upak.size(), pakbuf.size());
+	std::uint8_t decomp_result = g_pRtech->Decompress(&state, upak.size(), pakbuf.size());
 	if (decomp_result != 1)
 	{
 		DevMsg(eDLL_T::RTECH, "Error: decompression failed for '%s' return value: '%u'!\n", pak_name_in.c_str(), +decomp_result);
@@ -479,13 +482,17 @@ void _RTech_Decompress_f_CompletionFunc(CCommand* cmd)
 	rheader->m_nSizeDisk = rheader->m_nSizeMemory; // Equal compressed size with decompressed
 
 	std::ofstream out_block(pak_name_out, std::fstream::binary);
-	std::ofstream out_header(pak_name_out, std::fstream::binary);
 
-	out_block.write((char*)pakbuf.data(), params[5]);
-	out_header.write((char*)rheader, PAK_HEADER_SIZE);
+	memcpy_s(pakbuf.data(), state.m_nDecompSize, ((std::uint8_t*)rheader), PAK_HEADER_SIZE); // Overwrite first 0x80 bytes which are NULL with the header data.
 
+	out_block.write((char*)pakbuf.data(), state.m_nDecompSize);
+
+	uint32_t crc32_init = {};
+	DevMsg(eDLL_T::RTECH, "] CRC32          : '%08X'\n", crc32::update(crc32_init, pakbuf.data(), state.m_nDecompSize));
 	DevMsg(eDLL_T::RTECH, "] Decompressed rpak to: '%s'\n", pak_name_out.c_str());
 	DevMsg(eDLL_T::RTECH, "--------------------------------------------------------------\n");
+
+	out_block.close();
 }
 
 void _NET_TraceNetChan_f_CompletionFunc(CCommand* cmd)

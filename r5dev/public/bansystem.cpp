@@ -152,18 +152,15 @@ bool CBanSystem::IsBanned(std::string svIpAddress, std::int64_t nOriginID)
 			continue;
 		}
 
-
 		if (originID <= 0) // Is originID below 0?
 		{
 			continue;
 		}
 
-
 		if (ipAddress.compare(svIpAddress) == NULL) // Do they match?
 		{
 			return true;
 		}
-
 
 		if (nOriginID == originID) // Do they match?
 		{

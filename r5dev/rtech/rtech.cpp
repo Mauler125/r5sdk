@@ -13,6 +13,7 @@ History:
 - 18:07:2021 | 13:02 : Created by Kawe Mazidjatari
 - 10:09:2021 | 18:22 : Implement 'StringToGuid' method
 - 12:11:2021 | 14:41 : Add decompression method to ConCommand callback
+- 25:12:2021 | 23:20 : Made everything more readable thanks to bezdna5-rs
 
 ******************************************************************************/
 
@@ -23,15 +24,15 @@ std::uint64_t __fastcall RTech::StringToGuid(const char* pData)
 {
 	std::uint32_t*        v1; // r8
 	std::uint64_t         v2; // r10
-	int                   v3; // er11
+	std::int32_t          v3; // er11
 	std::uint32_t         v4; // er9
 	std::uint32_t          i; // edx
 	std::uint64_t         v6; // rcx
-	int                   v7; // er9
-	int                   v8; // edx
-	int                   v9; // eax
+	std::int32_t          v7; // er9
+	std::int32_t          v8; // edx
+	std::int32_t          v9; // eax
 	std::uint32_t        v10; // er8
-	int                  v12; // ecx
+	std::int32_t         v12; // ecx
 	std::uint32_t* a1 = (std::uint32_t*)pData;
 
 	v1 = a1;
@@ -61,436 +62,437 @@ std::uint64_t __fastcall RTech::StringToGuid(const char* pData)
 //-----------------------------------------------------------------------------
 // Purpose: calculate 'decompressed' size and commit parameters
 //-----------------------------------------------------------------------------
-std::uint32_t __fastcall RTech::DecompressedSize(std::int64_t param_buf, std::uint8_t* file_buf, std::int64_t file_size, std::int64_t off_no_header, std::int64_t header_size)
+std::uint32_t __fastcall RTech::DecompressedSize(rpak_decomp_state* state, std::uint8_t* fileBuffer, std::int64_t fileSize, std::int64_t offNoHeader, std::int64_t headerSize)
 {
-	std::int64_t       v8;    // r9
-	std::uint64_t      v9;    // r11
-	char              v10;    // r8
-	int               v11;    // er8
-	std::int64_t      v12;    // rbx
-	unsigned int      v13;    // ebp
-	std::uint64_t     v14;    // rbx
-	std::int64_t      v15;    // rax
-	unsigned int      v16;    // er9
-	std::uint64_t     v17;    // r12
-	std::uint64_t     v18;    // r11
-	std::uint64_t     v19;    // r10
-	std::uint64_t     v20;    // rax
-	int               v21;    // ebp
-	std::uint64_t     v22;    // r10
-	unsigned int      v23;    // er9
-	std::int64_t      v24;    // rax
-	std::int64_t      v25;    // rsi
-	std::int64_t      v26;    // rdx
-	std::int64_t      v28;    // rdx
-	std::int64_t      v29;    // [rsp+48h] [rbp+18h]
-	std::int64_t   result;    // rax
+	std::int64_t input_byte_pos_init;        // r9
+	std::uint64_t byte_init;                 // r11
+	std::int32_t decompressed_size_bits;     // ecx
+	std::int64_t byte_1_low;                 // rdi
+	std::uint64_t input_byte_pos_1;          // r10
+	std::uint32_t bit_pos_final;             // ebp
+	std::uint64_t byte_1;                    // rdi
+	std::uint32_t brih_bits;                 // er11
+	std::uint64_t inv_mask_in;               // r8
+	std::uint64_t byte_final_full;           // rbx
+	std::uint64_t bit_pos_final_1;           // rax
+	std::int32_t byte_bit_offset_final;      // ebp
+	std::uint64_t input_byte_pos_final;      // r10
+	std::uint64_t byte_final;                // rbx
+	std::uint32_t brih_bytes;                // er11
+	std::int64_t byte_tmp;                   // rdx
+	std::int64_t stream_len_needed;          // r14
+	std::int64_t result;                     // rax
+	std::uint64_t inv_mask_out;              // r8
+	std::int64_t qw70;                       // rcx
+	std::int64_t stream_compressed_size_new; // rdx
 
-	v29 = 0xFFFFFFi64;
-	*(std::uint64_t*)param_buf = (std::uint64_t)file_buf;
-	*(std::uint64_t*)(param_buf + 32) = off_no_header + file_size;
-	*(std::uint64_t*)(param_buf + 8) = 0i64;
-	*(std::uint64_t*)(param_buf + 24) = 0i64;
-	*(std::uint32_t*)(param_buf + 68) = 0;
-	*(std::uint64_t*)(param_buf + 16) = -1i64;
-	v8 = off_no_header + header_size + 8;
-	v9 = *(std::uint64_t*)((0xFFFFFFi64 & (off_no_header + header_size)) + file_buf);
-	*(std::uint64_t*)(param_buf + 80) = header_size;
-	*(std::uint64_t*)(param_buf + 72) = v8;
-	v10 = v9;
-	v9 >>= 6;
-	v11 = v10 & 0x3F;
-	*(std::uint64_t*)(param_buf + 40) = (1i64 << v11) | v9 & ((1i64 << v11) - 1);
-	v12 = *(std::uint64_t*)((0xFFFFFFi64 & v8) + file_buf) << (64 - ((std::uint8_t)v11 + 6));
-	*(std::uint64_t*)(param_buf + 72) = v8 + ((std::uint8_t)(unsigned int)(v11 + 6) >> 3);
-	v13 = ((v11 + 6) & 7) + 13;
-	v14 = (0xFFFFFFFFFFFFFFFFui64 >> ((v11 + 6) & 7)) & ((v9 >> v11) | v12);
-	v15 = v29 & *(std::uint64_t*)(param_buf + 72);
-	v16 = (((std::uint8_t)v14 - 1) & 0x3F) + 1;
-	v17 = 0xFFFFFFFFFFFFFFFFui64 >> (64 - (std::uint8_t)v16);
-	*(uint64_t*)(param_buf + 48) = v17;
-	v18 = 0xFFFFFFFFFFFFFFFFui64 >> (64 - ((((v14 >> 6) - 1) & 0x3F) + 1));
-	*(uint64_t*)(param_buf + 56) = v18;
-	v19 = (v14 >> 13) | (*(std::uint64_t*)(v15 + file_buf) << (64 - (std::uint8_t)v13));
-	v20 = v13;
-	v21 = v13 & 7;
-	*(std::uint64_t*)(param_buf + 72) += v20 >> 3;
-	v22 = (0xFFFFFFFFFFFFFFFFui64 >> v21) & v19;
-	if (v17 == -1i64)
+	const std::uintptr_t mask = UINT64_MAX;
+	const std::uintptr_t file_buf = std::uintptr_t(fileBuffer);
+
+	state->m_nInputBuf = file_buf;
+	state->m_nOut = 0i64;
+	state->m_nOutMask = 0i64;
+	state->dword44 = 0;
+	state->m_nTotalFileLen = fileSize + offNoHeader;
+	state->m_nMask = mask;
+	input_byte_pos_init = offNoHeader + headerSize + 8;
+	byte_init = *(std::uint64_t*)((mask & (offNoHeader + headerSize)) + file_buf);
+	state->m_nDecompPosition = headerSize;
+	decompressed_size_bits = byte_init & 0x3F;
+	byte_init >>= 6;
+	state->input_byte_pos = input_byte_pos_init;
+	state->m_nDecompSize = byte_init & ((1i64 << decompressed_size_bits) - 1) | (1i64 << decompressed_size_bits);
+	byte_1_low = *(std::uint64_t*)((mask & input_byte_pos_init) + file_buf) << (64
+		- ((std::uint8_t)decompressed_size_bits
+			+ 6));
+	input_byte_pos_1 = input_byte_pos_init + ((std::uint64_t)(std::uint32_t)(decompressed_size_bits + 6) >> 3);
+	state->input_byte_pos = input_byte_pos_1;
+	bit_pos_final = ((decompressed_size_bits + 6) & 7) + 13;
+	byte_1 = (0xFFFFFFFFFFFFFFFFui64 >> ((decompressed_size_bits + 6) & 7)) & ((byte_init >> decompressed_size_bits) | byte_1_low);
+	brih_bits = (((std::uint8_t)byte_1 - 1) & 0x3F) + 1;
+	inv_mask_in = 0xFFFFFFFFFFFFFFFFui64 >> (64 - (std::uint8_t)brih_bits);
+	state->m_nInvMaskIn = inv_mask_in;
+	state->m_nInvMaskOut = 0xFFFFFFFFFFFFFFFFui64 >> (63 - (((byte_1 >> 6) - 1) & 0x3F));
+	byte_final_full = (byte_1 >> 13) | (*(std::uint64_t*)((mask & input_byte_pos_1) + file_buf) << (64
+		- (std::uint8_t)bit_pos_final));
+	bit_pos_final_1 = bit_pos_final;
+	byte_bit_offset_final = bit_pos_final & 7;
+	input_byte_pos_final = (bit_pos_final_1 >> 3) + input_byte_pos_1;
+	byte_final = (0xFFFFFFFFFFFFFFFFui64 >> byte_bit_offset_final) & byte_final_full;
+	state->input_byte_pos = input_byte_pos_final;
+	if (inv_mask_in == -1i64)
 	{
-		*(std::uint32_t*)(param_buf + 64) = 0;
-		*(std::uint64_t*)(param_buf + 88) = file_size;
+		state->header_skip_bytes_bs = 0;
+		stream_len_needed = fileSize;
 	}
 	else
 	{
-		v23 = v16 >> 3;
-	 	v24 = v29 & *(std::uint64_t*)(param_buf + 72);
-		*(std::uint32_t*)(param_buf + 64) = v23 + 1;
-	 	v25 = *(std::uint64_t*)(v24 + file_buf) & ((1i64 << (8 * ((std::uint8_t)v23 + 1))) - 1);
-		*(std::uint64_t*)(param_buf + 72) += v23 + 1;
-		*(std::uint64_t*)(param_buf + 88) = v25;
+		brih_bytes = brih_bits >> 3;
+		state->header_skip_bytes_bs = brih_bytes + 1;
+		byte_tmp = *(std::uint64_t*)((mask & input_byte_pos_final) + file_buf);
+		state->input_byte_pos = input_byte_pos_final + brih_bytes + 1;
+		stream_len_needed = byte_tmp & ((1i64 << (8 * ((std::uint8_t)brih_bytes + 1))) - 1);
 	}
-	*(std::uint64_t*)(param_buf + 88) += off_no_header;
-	v26 = *(std::uint64_t*)(param_buf + 88);
-	*(std::uint64_t*)(param_buf + 96) = v22;
-	*(std::uint32_t*)(param_buf + 104) = v21;
-	*(std::uint64_t*)(param_buf + 112) = v17 + off_no_header - 6;
-	result = *(std::uint64_t*)(param_buf + 40);
-	*(std::uint32_t*)(param_buf + 108) = 0;
-	*(std::uint64_t*)(param_buf + 120) = v26;
-	*(std::uint64_t*)(param_buf + 128) = result;
-	if ((((std::uint8_t)(v14 >> 6) - 1) & 0x3F) != -1i64 && result - 1 > v18)
+	result = state->m_nDecompSize;
+	inv_mask_out = state->m_nInvMaskOut;
+	qw70 = offNoHeader + state->m_nInvMaskIn - 6i64;
+	state->len_needed = stream_len_needed + offNoHeader;
+	state->qword70 = qw70;
+	state->byte = byte_final;
+	state->byte_bit_offset = byte_bit_offset_final;
+	state->dword6C = 0;
+	state->m_nCompressedStreamSize = stream_len_needed + offNoHeader;
+	state->m_nDecompStreamSize = result;
+	if (result - 1 > inv_mask_out)
 	{
-		v28 = v26 - *(unsigned int*)(param_buf + 64);
-		*(std::uint64_t*)(param_buf + 128) = v18 + 1;
-		*(std::uint64_t*)(param_buf + 120) = v28;
+		stream_compressed_size_new = stream_len_needed + offNoHeader - state->header_skip_bytes_bs;
+		state->m_nDecompStreamSize = inv_mask_out + 1;
+		state->m_nCompressedStreamSize = stream_compressed_size_new;
 	}
+
 	return result;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: decompress input data
 //-----------------------------------------------------------------------------
-std::uint8_t __fastcall RTech::Decompress(std::int64_t* param_buffer, std::uint64_t file_size, std::uint64_t buf_size)
+std::uint8_t __fastcall RTech::Decompress(rpak_decomp_state* state, std::uint64_t inLen, std::uint64_t outLen)
 {
-	char        result; // al
-	std::int64_t    v5; // r15
-	std::int64_t    v6; // r11
-	std::uint32_t   v7; // ebp
-	std::uint64_t   v8; // rsi
-	std::uint64_t   v9; // rdi
-	std::uint64_t  v10; // r12
-	std::int64_t   v11; // r13
-	std::uint32_t  v12; // ecx
-	std::uint64_t  v13; // rsi
-	std::uint64_t    i; // rax
-	std::uint64_t  v15; // r8
-	std::int64_t   v16; // r9
-	int            v17; // ecx
-	std::uint64_t  v18; // rax
-	std::uint64_t  v19; // rsi
-	std::int64_t   v20; // r14
-	int            v21; // ecx
-	std::uint64_t  v22; // r11
-	int            v23; // edx
-	std::int64_t   v24; // rax
-	int            v25; // er8
-	std::uint32_t  v26; // er13
-	std::int64_t   v27; // r10
-	std::int64_t   v28; // rax
-	std::uint64_t* v29; // r10
-	std::uint64_t  v30; // r9
-	std::uint64_t  v31; // r10
-	std::uint64_t  v32; // r8
-	std::uint64_t  v33; // rax
-	std::uint64_t  v34; // rax
-	std::uint64_t  v35; // rax
-	std::uint64_t  v36; // rcx
-	std::uint64_t  v37; // rdx
-	std::uint64_t  v38; // r14
-	std::uint64_t  v39; // r11
-	char           v40; // cl
-	std::uint64_t  v41; // rsi
-	std::uint64_t  v42; // rcx
-	std::uint64_t  v43; // r8
-	int            v44; // er11
-	std::uint8_t   v45; // r9
-	std::uint64_t  v46; // rcx
-	std::uint64_t  v47; // rcx
-	std::uint64_t  v48; // r9
-	std::uint64_t    l; // r8
-	std::uint32_t  v50; // er9
-	std::uint64_t  v51; // r8
-	std::uint64_t  v52; // rdx
-	std::uint64_t    k; // r8
-	char*          v54; // r10
-	std::uint64_t  v55; // rdx
-	std::uint32_t  v56; // er14
-	std::uint64_t* v57; // rdx
-	std::uint64_t* v58; // r8
-	char           v59; // al
-	std::uint64_t  v60; // rsi
-	std::uint64_t  v61; // rax
-	std::uint64_t  v62; // r9
-	int            v63; // er10
-	std::uint8_t   v64; // cl
-	std::uint64_t  v65; // rax
-	std::uint32_t  v66; // er14
-	std::uint32_t    j; // ecx
-	std::uint64_t  v68; // rax
-	std::uint64_t  v69; // rcx
-	std::uint64_t  v70; // [rsp+0h] [rbp-58h]
-	int            v71; // [rsp+60h] [rbp+8h]
-	std::uint64_t  v74; // [rsp+78h] [rbp+20h]
-	
-	if (file_size < param_buffer[11])
-	{
+	std::uint64_t decompressed_position;        // r15
+	std::uint32_t byte_bit_offset;              // ebp
+	std::uint64_t byte;                         // rsi
+	std::uint64_t input_byte_pos;               // rdi
+	std::uint64_t some_size;                    // r12
+	std::uint32_t dword6C;                      // ecx MAPDST
+	std::uint64_t v12;                          // rsi
+	std::uint64_t i;                            // rax
+	std::uint64_t dword6c_shl8;                 // r8
+	std::int64_t dword6c_old;                   // r9
+	std::int32_t LUT_200_val;                   // ecx
+	std::uint64_t v17;                          // rax
+	std::uint64_t byte_new;                     // rsi
+	std::int64_t  LUT_0_VAL;                    // r14
+	std::int32_t byte_4bits_1;                  // ecx
+	std::uint64_t v21;                          // r11
+	std::int32_t v22;                           // edx
+	std::uint64_t out_mask;                     // rax
+	std::int32_t v24;                           // er8
+	std::uint32_t LUT_400_seek_backwards;       // er13
+	std::uint64_t out_seek_back;                // r10
+	std::uint64_t out_seekd_1;                  // rax
+	std::uint64_t* out_seekd_back;              // r10
+	std::uint64_t decompressed_size;            // r9
+	std::uint64_t inv_mask_in;                  // r10
+	std::uint64_t header_skip_bytes_bs;         // r8
+	std::uint64_t v32;                          // rax
+	std::uint64_t v33;                          // rax
+	std::uint64_t v34;                          // rax
+	std::uint64_t stream_decompressed_size_new; // rcx
+	std::int64_t  v36;                          // rdx
+	std::uint64_t len_needed_new;               // r14
+	std::uint64_t stream_compressed_size_new;   // r11
+	char v39;                                   // cl MAPDST
+	std::uint64_t v40;                          // rsi MAPDST
+	uint64_t v46;                               // rcx
+	std::int64_t v47;                           // r9
+	std::int64_t m;                             // r8
+	std::uint32_t v49;                          // er9
+	std::int64_t v50;                           // r8
+	std::int64_t v51;                           // rdx
+	std::int64_t k;                             // r8
+	char* v53;                                  // r10
+	std::int64_t  v54;                          // rdx
+	std::uint32_t lut0_val_abs;                 // er14
+	std::int64_t* in_seekd;                     // rdx
+	std::int64_t* out_seekd;                    // r8
+	std::int64_t  byte_3bits;                   // rax MAPDST
+	std::uint64_t byte_new_tmp;                 // r9 MAPDST
+	std::int32_t LUT_4D0_480;                   // er10 MAPDST
+	std::uint8_t LUT_4D8_4C0_nBits;             // cl MAPDST
+	std::uint64_t byte_4bits;                   // rax MAPDST
+	std::uint32_t copy_bytes_ammount;           // er14
+	std::uint32_t j;                            // ecx
+	std::int64_t v67;                           // rax
+	std::uint64_t v68;                          // rcx
+	std::uint8_t result;                        // al
+
+	if (inLen < state->len_needed)
 		return 0;
-	}
-	v5 = param_buffer[10];
-	if (buf_size < param_buffer[7] + (v5 & (std::uint64_t)~param_buffer[7]) + 1 && buf_size < param_buffer[5])
-	{
+
+	decompressed_position = state->m_nDecompPosition;
+	if (outLen < state->m_nInvMaskOut + (decompressed_position & ~state->m_nInvMaskOut) + 1 && outLen < state->m_nDecompSize)
 		return 0;
-	}
-	v6 = param_buffer[1];
-	v7 = *((std::uint32_t*)param_buffer + 26);
-	v8 = param_buffer[12];
-	v9 = param_buffer[9];
-	v10 = param_buffer[14];
-	v11 = *param_buffer;
-	if (param_buffer[15] < v10)
+
+	byte_bit_offset = state->byte_bit_offset; // Keeping copy since we increment it down below.
+	byte = state->byte; // Keeping copy since its getting overwritten down below.
+	input_byte_pos = state->input_byte_pos; // Keeping copy since we increment it down below.
+	some_size = state->qword70;
+	if (state->m_nCompressedStreamSize < some_size)
+		some_size = state->m_nCompressedStreamSize;
+	dword6C = state->dword6C;
+
+	if (!byte_bit_offset)
+		goto LABEL_9;
+
+	v12 = (*(std::uint64_t*)((input_byte_pos & state->m_nMask) + state->m_nInputBuf) << (64 - (std::uint8_t)byte_bit_offset)) | byte;
+	for (i = byte_bit_offset; ; i = byte_bit_offset)
 	{
-		v10 = param_buffer[15];
-	}
-	v12 = *((std::uint32_t*)param_buffer + 27);
-	v74 = v11;
-	v70 = v6;
-	v71 = v12;
-	if (!v7)
-	{
-		goto LABEL_11;
-	}
-	v13 = (*(std::uint64_t*)((v9 & param_buffer[2]) + v11) << (64 - (std::uint8_t)v7)) | v8;
-	for (i = v7; ; i = v7)
-	{
-		v7 &= 7u;
-		v9 += i >> 3;
-		v12 = v71;
-		v8 = (0xFFFFFFFFFFFFFFFFui64 >> v7) & v13;
-	LABEL_11:
-		v15 = (std::uint64_t)v12 << 8;
-		v16 = v12;
-		v17 = *((std::uint8_t*)&LUT_0 + (std::uint8_t)v8 + v15 + 512);
-		v18 = (std::uint8_t)v8 + v15;
-		v7 += v17;
-		v19 = v8 >> v17;
-		v20 = (std::uint32_t)*((char*)&LUT_0 + v18);
-		if (*((char*)&LUT_0 + v18) < 0)
+		byte_bit_offset &= 7u;
+		input_byte_pos += i >> 3;
+		byte = (0xFFFFFFFFFFFFFFFFui64 >> byte_bit_offset) & v12;
+	LABEL_9:
+		dword6c_shl8 = (std::uint64_t)dword6C << 8;
+		dword6c_old = dword6C;
+		LUT_200_val = LUT_200[(std::uint8_t)byte + dword6c_shl8];// LUT_200 - u8 - ammount of bits
+		v17 = (std::uint8_t)byte + dword6c_shl8;
+		byte_bit_offset += LUT_200_val;
+		byte_new = byte >> LUT_200_val;
+		LUT_0_VAL = LUT_0[v17];// LUT_0 - i32 - signed, ammount of bytes
+
+		if (LUT_0_VAL < 0)
 		{
-			v56 = -(int)v20;
-			v57 = (std::uint64_t*)(v11 + (v9 & param_buffer[2]));
-			v71 = 1;
-			v58 = (std::uint64_t*)(v6 + (v5 & param_buffer[3]));
-			if (v56 == *((std::uint8_t*)&LUT_0 + v16 + 1248))
+			lut0_val_abs = -(std::int32_t)LUT_0_VAL;
+			in_seekd = (std::int64_t*)(state->m_nInputBuf + (input_byte_pos & state->m_nMask));
+			dword6C = 1;
+			out_seekd = (std::int64_t*)(state->m_nOut + (decompressed_position & state->m_nOutMask));
+			if (lut0_val_abs == LUT_4E0[dword6c_old])
 			{
-				if ((~v9 & param_buffer[6]) < 0xF || (param_buffer[7] & (std::uint64_t)~v5) < 0xF || (std::uint64_t)(param_buffer[5] - v5) < 0x10)
+				if ((~input_byte_pos & state->m_nInvMaskIn) < 0xF
+					|| (state->m_nInvMaskOut & ~decompressed_position) < 0xF
+					|| state->m_nDecompSize - decompressed_position < 0x10)
 				{
-					v56 = 1;
+					lut0_val_abs = 1;
 				}
-				v59 = v19;
-				v60 = v19 >> 3;
-				v61 = v59 & 7;
-				v62 = v60;
-				if (v61)
+
+				v39 = byte_new;
+				v40 = byte_new >> 3;
+				byte_3bits = v39 & 7;
+				byte_new_tmp = v40;
+
+				if (byte_3bits)
 				{
-					v63 = *((std::uint8_t*)&LUT_0 + v61 + 1232);
-					v64 = *((std::uint8_t*)&LUT_0 + v61 + 1240);
+					LUT_4D0_480 = LUT_4D0[byte_3bits];// LUT_4D0 - u8
+					LUT_4D8_4C0_nBits = LUT_4D8[byte_3bits];// LUT_4D8 - u8 - ammount of bits
 				}
 				else
 				{
-					v62 = v60 >> 4;
-					v65 = v60 & 0xF;
-					v7 += 4;
-					v63 = *((std::uint32_t*)&LUT_0 + v65 + 288);
-					v64 = *((std::uint8_t*)&LUT_0 + v65 + 1216);
+					byte_new_tmp = v40 >> 4;
+					byte_4bits = v40 & 15;
+					byte_bit_offset += 4;
+					LUT_4D0_480 = LUT_480[byte_4bits];// LUT_480 - u32
+					LUT_4D8_4C0_nBits = LUT_4C0[byte_4bits]; // LUT_4C0 - u8 - ammount of bits???
 				}
-				v7 += v64 + 3;
-				v19 = v62 >> v64;
-				v66 = v63 + (v62 & ((1 << v64) - 1)) + v56;
-				for (j = v66 >> 3; j; --j)
+
+				byte_bit_offset += LUT_4D8_4C0_nBits + 3;
+				byte_new = byte_new_tmp >> LUT_4D8_4C0_nBits;
+				copy_bytes_ammount = LUT_4D0_480 + (byte_new_tmp & ((1 << LUT_4D8_4C0_nBits) - 1)) + lut0_val_abs;
+
+				for (j = copy_bytes_ammount >> 3; j; --j)// copy by 8 bytes
 				{
-					v68 = *v57++;
-					*v58++ = v68;
+					v67 = *in_seekd++;
+					*out_seekd++ = v67;
 				}
-				if ((v66 & 4) != 0)
+
+				if ((copy_bytes_ammount & 4) != 0)    // copy by 4
 				{
-					*(std::uint32_t*)v58 = *(std::uint32_t*)v57;
-					v58 = (std::uint64_t*)((char*)v58 + 4);
-					v57 = (std::uint64_t*)((char*)v57 + 4);
+					*(std::uint32_t*)out_seekd = *(std::uint32_t*)in_seekd;
+					out_seekd = (std::int64_t*)((char*)out_seekd + 4);
+					in_seekd = (std::int64_t*)((char*)in_seekd + 4);
 				}
-				if ((v66 & 2) != 0)
+
+				if ((copy_bytes_ammount & 2) != 0)    // copy by 2
 				{
-					*(std::uint16_t*)v58 = *(std::uint16_t*)v57;
-					v58 = (std::uint64_t*)((char*)v58 + 2);
-					v57 = (std::uint64_t*)((char*)v57 + 2);
+					*(std::uint16_t*)out_seekd = *(std::uint16_t*)in_seekd;
+					out_seekd = (std::int64_t*)((char*)out_seekd + 2);
+					in_seekd = (std::int64_t*)((char*)in_seekd + 2);
 				}
-				if ((v66 & 1) != 0)
-				{
-					*(std::uint8_t*)v58 = *(std::uint8_t*)v57;
-				}
-				v9 += v66;
-				v5 += v66;
+
+				if ((copy_bytes_ammount & 1) != 0)    // copy by 1
+					*(std::uint8_t*)out_seekd = *(std::uint8_t*)in_seekd;
+
+				input_byte_pos += copy_bytes_ammount;
+				decompressed_position += copy_bytes_ammount;
 			}
 			else
 			{
-				*v58 = *v57;
-				v58[1] = v57[1];
-				v9 += v56;
-				v5 += v56;
+				*out_seekd = *in_seekd;
+				out_seekd[1] = in_seekd[1];
+				input_byte_pos += lut0_val_abs;
+				decompressed_position += lut0_val_abs;
 			}
 		}
 		else
 		{
-			v21 = v19 & 0xF;
-			v71 = 0;
-			v22 = ((std::uint64_t)(std::uint32_t)v19 >> (((std::uint32_t)(v21 - 31) >> 3) & 6)) & 0x3F;
-			v23 = 1 << (v21 + ((v19 >> 4) & ((24 * (((std::uint32_t)(v21 - 31) >> 3) & 2)) >> 4)));
-			v7 += (((std::uint32_t)(v21 - 31) >> 3) & 6) + *((std::uint8_t*)&LUT_0 + v22 + 1088) + v21 + ((v19 >> 4) & ((24 * (((std::uint32_t)(v21 - 31) >> 3) & 2)) >> 4));
-			v24 = param_buffer[3];
-			v25 = 16 * (v23 + ((v23 - 1) & (v19 >> ((((std::uint32_t)(v21 - 31) >> 3) & 6) + *((std::uint8_t*)&LUT_0 + v22 + 1088)))));
-			v19 >>= (((std::uint32_t)(v21 - 31) >> 3) & 6) + *((std::uint8_t*)&LUT_0 + v22 + 1088) + v21 + ((v19 >> 4) & ((24 * (((std::uint32_t)(v21 - 31) >> 3) & 2)) >> 4));
-			v26 = v25 + *((std::uint8_t*)&LUT_0 + v22 + 1024) - 16;
-			v27 = v24 & (v5 - v26);
-			v28 = v70 + (v5 & v24);
-			v29 = (std::uint64_t*)(v70 + v27);
-			if ((std::uint32_t)v20 == 17)
+			byte_4bits_1 = byte_new & 0xF;
+			dword6C = 0;
+			v21 = ((std::uint64_t)(std::uint32_t)byte_new >> (((std::uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 6)) & 0x3F;// 6 bits after shift for who knows how much???
+			v22 = 1 << (byte_4bits_1 + ((byte_new >> 4) & ((24 * (((std::uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 2)) >> 4)));// ammount of bits to read???
+			byte_bit_offset += (((std::uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 6)// shit shit gets shifted by ammount of bits it read or something
+				+ LUT_440[v21]
+				+ byte_4bits_1
+				+ ((byte_new >> 4) & ((24 * (((std::uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 2)) >> 4));
+			out_mask = state->m_nOutMask;
+			v24 = 16
+				* (v22
+					+ ((v22 - 1) & (byte_new >> ((((std::uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 6)
+						+ LUT_440[v21]))));
+			byte_new >>= (((std::uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 6)
+				+ LUT_440[v21]
+				+ byte_4bits_1
+				+ ((byte_new >> 4) & ((24 * (((std::uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 2)) >> 4));
+			LUT_400_seek_backwards = v24 + LUT_400[v21] - 16;// LUT_400 - u8 - seek backwards
+			out_seek_back = out_mask & (decompressed_position - LUT_400_seek_backwards);
+			out_seekd_1 = state->m_nOut + (decompressed_position & out_mask);
+			out_seekd_back = (std::uint64_t*)(state->m_nOut + out_seek_back);
+			if ((std::int32_t)LUT_0_VAL == 17)
 			{
-				v40 = v19;
-				v41 = v19 >> 3;
-				v42 = v40 & 7;
-				v43 = v41;
-				if (v42)
+				v39 = byte_new;
+				v40 = byte_new >> 3;
+				byte_3bits = v39 & 7;
+				byte_new_tmp = v40;
+				if (byte_3bits)
 				{
-					v44 = *((std::uint8_t*)&LUT_0 + v42 + 1232);
-					v45 = *((std::uint8_t*)&LUT_0 + v42 + 1240);
+					LUT_4D0_480 = LUT_4D0[byte_3bits];
+					LUT_4D8_4C0_nBits = LUT_4D8[byte_3bits];
 				}
 				else
 				{
-					v7 += 4;
-					v46 = v41 & 0xF;
-					v43 = v41 >> 4;
-					v44 = *((std::uint32_t*)&LUT_0 + v46 + 288);
-					v45 = *((std::uint8_t*)&LUT_0 + v46 + 1216);
-					if (v74 && v7 + v45 >= 0x3D)
+					byte_bit_offset += 4;
+					byte_4bits = v40 & 0xF;
+					byte_new_tmp = v40 >> 4;
+					LUT_4D0_480 = LUT_480[byte_4bits];
+					LUT_4D8_4C0_nBits = LUT_4C0[byte_4bits];
+					if (state->m_nInputBuf && byte_bit_offset + LUT_4D8_4C0_nBits >= 0x3D)
 					{
-						v47 = v9++ & param_buffer[2];
-						v43 |= (std::uint64_t)*(std::uint8_t*)(v47 + v74) << (61 - (std::uint8_t)v7);
-						v7 -= 8;
+						v46 = input_byte_pos++ & state->m_nMask;
+						byte_new_tmp |= (std::uint64_t) * (std::uint8_t*)(v46 + state->m_nInputBuf) << (61
+							- (std::uint8_t)byte_bit_offset);
+						byte_bit_offset -= 8;
 					}
 				}
-				v7 += v45 + 3;
-				v19 = v43 >> v45;
-				v48 = ((std::uint32_t)v43 & ((1 << v45) - 1)) + v44 + 17;
-				v5 += v48;
-				if (v26 < 8)
+				byte_bit_offset += LUT_4D8_4C0_nBits + 3;
+				byte_new = byte_new_tmp >> LUT_4D8_4C0_nBits;
+				v47 = ((std::uint32_t)byte_new_tmp & ((1 << LUT_4D8_4C0_nBits) - 1)) + LUT_4D0_480 + 17;
+				decompressed_position += v47;
+				if (LUT_400_seek_backwards < 8)
 				{
-					v50 = v48 - 13;
-					v5 -= 13i64;
-					if (v26 == 1)
+					v49 = v47 - 13;
+					decompressed_position -= 13i64;
+					if (LUT_400_seek_backwards == 1)    // 1 means copy v49 qwords?
 					{
-						v51 = *(std::uint8_t*)v29;
-						v52 = 0i64;
-						for (k = 0x101010101010101i64 * v51; (std::uint32_t)v52 < v50; v52 = (std::uint32_t)(v52 + 8))
-						{
-							*(std::uint64_t*)(v52 + v28) = k;
-						}
+						v50 = *(std::uint8_t*)out_seekd_back;
+						v51 = 0i64;
+						for (k = 0x101010101010101i64 * v50; (std::uint32_t)v51 < v49; v51 = (std::uint32_t)(v51 + 8))
+							*(std::uint64_t*)(v51 + out_seekd_1) = k;
 					}
 					else
 					{
-						if (v50)
+						if (v49)
 						{
-							v54 = (char*)v29 - v28;
-							v55 = v50;
+							v53 = (char*)out_seekd_back - out_seekd_1;
+							v54 = v49;
 							do
 							{
-								*(std::uint8_t*)v28 = v54[v28];
-								++v28;
-								--v55;
-							} while (v55);
+								*(std::uint8_t*)out_seekd_1 = v53[out_seekd_1];// seekd = seek_back; increment ptrs
+								++out_seekd_1;
+								--v54;
+							} while (v54);
 						}
 					}
 				}
 				else
 				{
-					for (l = 0i64; (std::uint32_t)l < (std::uint32_t)v48; l = (std::uint32_t)(l + 8))
-					{
-						*(std::uint64_t*)(l + v28) = *(std::uint64_t*)((char*)v29 + l);
-					}
+					for (m = 0i64; (std::uint32_t)m < (std::uint32_t)v47; m = (std::uint32_t)(m + 8))
+						*(std::uint64_t*)(m + out_seekd_1) = *(std::uint64_t*)((char*)out_seekd_back + m);
 				}
 			}
 			else
 			{
-				v5 += v20;
-				*(std::uint64_t*)v28 = *v29;
-				*(std::uint64_t*)(v28 + 8) = v29[1];
+				decompressed_position += LUT_0_VAL;
+				*(std::uint64_t*)out_seekd_1 = *out_seekd_back;
+				*(std::uint64_t*)(out_seekd_1 + 8) = out_seekd_back[1];
 			}
-			v11 = v74;
 		}
-		if (v9 >= v10)
-		{
+		if (input_byte_pos >= some_size)
 			break;
-		}
-	LABEL_29:
-		v6 = v70;
-		v13 = (*(std::uint64_t*)((v9 & param_buffer[2]) + v11) << (64 - (std::uint8_t)v7)) | v19;
+
+	LABEL_26:
+		v12 = (*(std::uint64_t*)((input_byte_pos & state->m_nMask) + state->m_nInputBuf) << (64 - (std::uint8_t)byte_bit_offset)) | byte_new;
 	}
-	if (v5 != param_buffer[16])
+
+	if (decompressed_position != state->m_nDecompStreamSize)
+		goto LABEL_22;
+
+	decompressed_size = state->m_nDecompSize;
+	if (decompressed_position == decompressed_size)
 	{
-		goto LABEL_25;
-	}
-	v30 = param_buffer[5];
-	if (v5 == v30)
-	{
+		state->input_byte_pos = input_byte_pos;
 		result = 1;
-		goto LABEL_69;
+		state->m_nDecompPosition = decompressed_position;
+		return result;
 	}
-	v31 = param_buffer[6];
-	v32 = *((std::uint32_t*)param_buffer + 16);
-	v33 = v31 & -(std::int64_t)v9;
-	v19 >>= 1;
-	++v7;
-	if (v32 > v33)
+
+	inv_mask_in = state->m_nInvMaskIn;
+	header_skip_bytes_bs = state->header_skip_bytes_bs;
+	v32 = inv_mask_in & -(std::int64_t)input_byte_pos;
+	byte_new >>= 1;
+	++byte_bit_offset;
+
+	if (header_skip_bytes_bs > v32)
 	{
-		v9 += v33;
-		v34 = param_buffer[14];
-		if (v9 > v34)
+		input_byte_pos += v32;
+		v33 = state->qword70;
+		if (input_byte_pos > v33)
+			state->qword70 = inv_mask_in + v33 + 1;
+	}
+
+	v34 = input_byte_pos & state->m_nMask;
+	input_byte_pos += header_skip_bytes_bs;
+	stream_decompressed_size_new = decompressed_position + state->m_nInvMaskOut + 1;
+	v36 = *(std::uint64_t*)(v34 + state->m_nInputBuf) & ((1LL << (8 * (std::uint8_t)header_skip_bytes_bs)) - 1);
+	len_needed_new = v36 + state->len_needed;
+	stream_compressed_size_new = v36 + state->m_nCompressedStreamSize;
+	state->len_needed = len_needed_new;
+	state->m_nCompressedStreamSize = stream_compressed_size_new;
+
+	if (stream_decompressed_size_new >= decompressed_size)
+	{
+		stream_decompressed_size_new = decompressed_size;
+		state->m_nCompressedStreamSize = header_skip_bytes_bs + stream_compressed_size_new;
+	}
+
+	state->m_nDecompStreamSize = stream_decompressed_size_new;
+
+	if (inLen >= len_needed_new && outLen >= stream_decompressed_size_new)
+	{
+	LABEL_22:
+		some_size = state->qword70;
+		if (input_byte_pos >= some_size)
 		{
-			param_buffer[14] = v31 + v34 + 1;
+			input_byte_pos = ~state->m_nInvMaskIn & (input_byte_pos + 7);
+			some_size += state->m_nInvMaskIn + 1;
+			state->qword70 = some_size;
 		}
+		if (state->m_nCompressedStreamSize < some_size)
+			some_size = state->m_nCompressedStreamSize;
+		goto LABEL_26;
 	}
-	v35 = v9 & param_buffer[2];
-	v9 += v32;
-	v36 = v5 + param_buffer[7] + 1;
-	v37 = *(std::uint32_t*)(v35 + v11) & ((1i64 << (8 * (std::uint8_t)v32)) - 1);
-	v38 = v37 + param_buffer[11];
-	v39 = v37 + param_buffer[15];
-	param_buffer[11] = v38;
-	param_buffer[15] = v39;
-	if (v36 >= v30)
+
+	v68 = state->qword70;
+
+	if (input_byte_pos >= v68)
 	{
-		v36 = v30;
-		param_buffer[15] = v32 + v39;
+		input_byte_pos = ~inv_mask_in & (input_byte_pos + 7);
+		state->qword70 = v68 + inv_mask_in + 1;
 	}
-	param_buffer[16] = v36;
-	if (file_size >= v38 && buf_size >= v36)
-	{
-	LABEL_25:
-		v10 = param_buffer[14];
-		if (v9 >= v10)
-		{
-			v9 = ~param_buffer[6] & (v9 + 7);
-			v10 += param_buffer[6] + 1;
-			param_buffer[14] = v10;
-		}
-		if (param_buffer[15] < v10)
-		{
-			v10 = param_buffer[15];
-		}
-		goto LABEL_29;
-	}
-	v69 = param_buffer[14];
-	if (v9 >= v69)
-	{
-		v9 = ~v31 & (v9 + 7);
-		param_buffer[14] = v69 + v31 + 1;
-	}
-	*((std::uint32_t*)param_buffer + 27) = v71;
+
+	state->dword6C = dword6C;
 	result = 0;
-	param_buffer[12] = v19;
-	*((std::uint32_t*)param_buffer + 26) = v7;
-LABEL_69:
-	param_buffer[10] = v5;
-	param_buffer[9] = v9;
+	state->input_byte_pos = input_byte_pos;
+	state->m_nDecompPosition = decompressed_position;
+	state->byte = byte_new;
+	state->byte_bit_offset = byte_bit_offset;
+
 	return result;
 }
 ///////////////////////////////////////////////////////////////////////////////

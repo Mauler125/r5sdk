@@ -399,10 +399,10 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 		}
 
 		CreateRenderTarget(pSwapChain);
-		SetupImGui();
 
-		if (g_oWndProc == nullptr)
+		if (!g_oWndProc)
 		{   // Only initialize HwndProc pointer once to avoid stack overflow during ResizeBuffers(..)
+			SetupImGui(); // Don't re-init imgui everytime.
 			g_oWndProc  = (WNDPROC)SetWindowLongPtr(g_hGameWindow, GWLP_WNDPROC, (LONG_PTR)HwndProc);
 		}
 

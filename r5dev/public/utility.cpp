@@ -8,12 +8,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // For checking if a specific file exists.
-BOOL FileExists(LPCTSTR szPath)
+BOOL FileExists(const char* szPath)
 {
-    DWORD dwAttrib = GetFileAttributes(szPath);
-
-    return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
-        !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+    return std::filesystem::exists(szPath);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -21,11 +18,13 @@ BOOL FileExists(LPCTSTR szPath)
 MODULEINFO GetModuleInfo(const char* szModule)
 {
     MODULEINFO modinfo = { 0 };
+
     HMODULE hModule = GetModuleHandle(szModule);
-    if (hModule == 0)
+    if (hModule == INVALID_HANDLE_VALUE)
     {
         return modinfo;
     }
+
     GetModuleInformation(GetCurrentProcess(), hModule, &modinfo, sizeof(MODULEINFO));
     return modinfo;
 }
@@ -42,22 +41,6 @@ BOOL Compare(const unsigned char* pData, const unsigned char* szPattern, const c
         }
     }
     return (*szMask) == NULL;
-}
-DWORD64 FindPatternV1(const char* szModule, const unsigned char* szPattern, const char* szMask)
-{
-    MODULEINFO mInfo = GetModuleInfo(szModule);
-    DWORD64 dwAddress = (DWORD64)mInfo.lpBaseOfDll;
-    DWORD64 dwLen = (DWORD64)mInfo.SizeOfImage;
-
-    size_t maskLen = strlen(szMask);
-    for (int i = 0; i < dwLen - maskLen; i++)
-    {
-        if (Compare((unsigned char*)(dwAddress + i), szPattern, szMask))
-        {
-            return (dwAddress + i);
-        }
-    }
-    return NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
