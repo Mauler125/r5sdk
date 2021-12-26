@@ -129,15 +129,17 @@ void HNET_PrintFunc(const char* fmt, ...)
 //-----------------------------------------------------------------------------
 void NET_DisconnectClient(CClient* pClient, int nIndex, const char* szReason, uint8_t unk1, char unk2)
 {
-	if (!pClient) //	Client valid?
+	if (!pClient) // Client valid?
 	{
 		return;
 	}
+
 	if (std::strlen(szReason) == NULL) // Is reason null?
 	{
 		return;
 	}
-	if (!pClient->GetNetChan())
+
+	if (!pClient->GetNetChan()) // NC even existent?
 	{
 		return;
 	}
