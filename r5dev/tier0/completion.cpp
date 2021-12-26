@@ -576,15 +576,15 @@ void _VPK_Decompress_f_CompletionFunc(CCommand* cmd)
 
 void _NET_SetKey_f_CompletionFunc(CCommand* cmd)
 {
-	CCommand& args = *cmd; // Get reference.
-	std::string firstArg = args[1]; // Get first arg.
-
 	std::int32_t argSize = *(std::int32_t*)((std::uintptr_t)cmd + 0x4);
 
 	if (argSize < 2) // Do we atleast have 2 arguments?
 	{
 		return;
 	}
+
+	CCommand& args = *cmd; // Get reference.
+	std::string firstArg = args[1]; // Get first arg.
 
 	HNET_SetKey(firstArg);
 }
