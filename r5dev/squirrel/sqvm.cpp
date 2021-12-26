@@ -284,6 +284,15 @@ void RegisterServerScriptFunctions(void* sqvm)
 	HSQVM_RegisterFunction(sqvm, "ServerNativeTest", "native server function", "void", "", &HSQVM_NativeTest);
 }
 
+void* g_pUIVM = (void*)p_SQVM_CreateUIVM.FollowNearCall().FindPatternSelf("48 8B 1D", ADDRESS::Direction::DOWN, 50).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr();
+
+bool HSQVM_CreateUIVM()
+{
+	bool result = SQVM_CreateUIVM();
+	RegisterUIScriptFunctions(g_pUIVM);
+	return result;
+}
+
 void SQVM_Attach()
 {
 	DetourAttach((LPVOID*)&SQVM_PrintFunc, &HSQVM_PrintFunc);
@@ -291,6 +300,7 @@ void SQVM_Attach()
 	DetourAttach((LPVOID*)&SQVM_WarningCmd, &HSQVM_WarningCmd);
 	DetourAttach((LPVOID*)&SQVM_LoadRson, &HSQVM_LoadRson);
 	DetourAttach((LPVOID*)&SQVM_LoadScript, &HSQVM_LoadScript);
+	DetourAttach((LPVOID*)&SQVM_CreateUIVM, &HSQVM_CreateUIVM);
 }
 
 void SQVM_Detach()
@@ -300,6 +310,7 @@ void SQVM_Detach()
 	DetourDetach((LPVOID*)&SQVM_WarningCmd, &HSQVM_WarningCmd);
 	DetourDetach((LPVOID*)&SQVM_LoadRson, &HSQVM_LoadRson);
 	DetourDetach((LPVOID*)&SQVM_LoadScript, &HSQVM_LoadScript);
+	DetourDetach((LPVOID*)&SQVM_CreateUIVM, &HSQVM_CreateUIVM);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
