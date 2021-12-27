@@ -177,7 +177,7 @@
     <ClInclude Include="rtech\stryder.h">
       <Filter>sdk\rtech</Filter>
     </ClInclude>
-    <ClInclude Include="rtech\rtech.h">
+    <ClInclude Include="rtech\rtech_utils.h">
       <Filter>sdk\rtech</Filter>
     </ClInclude>
     <ClInclude Include="server\IVEngineServer.h">
@@ -558,6 +558,12 @@
     <ClInclude Include="common\psuedodefs.h">
       <Filter>sdk\common</Filter>
     </ClInclude>
+    <ClInclude Include="engine\host_cmd.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="rtech\rtech_game.h">
+      <Filter>sdk\rtech</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="client\IVEngineClient.cpp">
@@ -614,7 +620,7 @@
     <ClCompile Include="rtech\stryder.cpp">
       <Filter>sdk\rtech</Filter>
     </ClCompile>
-    <ClCompile Include="rtech\rtech.cpp">
+    <ClCompile Include="rtech\rtech_utils.cpp">
       <Filter>sdk\rtech</Filter>
     </ClCompile>
     <ClCompile Include="server\IVEngineServer.cpp">
@@ -679,6 +685,12 @@
     </ClCompile>
     <ClCompile Include="mathlib\crc32.cpp">
       <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\host_cmd.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="rtech\rtech_game.cpp">
+      <Filter>sdk\rtech</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

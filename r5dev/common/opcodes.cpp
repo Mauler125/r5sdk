@@ -174,7 +174,7 @@ void Dedicated_Init()
 	// RUNTIME BLOCK
 	//-------------------------------------------------------------------------
 	ADDRESS t0 = 0x00000001401D71E0;
-	t0.Patch({ 0xC3 });
+	//t0.Patch({ 0xC3 });                                               // RPak unload?
 	ADDRESS t1 = 0x0000000140456B50;
 	t1.Offset(0x292).Patch({ 0xE9, 0xEE, 0x00, 0x00, 0x00 });
 	ADDRESS t2 = 0x0000000140238DA0;

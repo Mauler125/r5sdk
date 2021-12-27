@@ -7,7 +7,7 @@
 // ENGINE                                                                 |
 ConVar* cm_debug_cmdquery                  = new ConVar();
 ConVar* cm_return_false_cmdquery_all       = new ConVar();
-ConVar* cm_return_false_cmdquery_dev_cheat = new ConVar();
+ConVar* cm_return_false_cmdquery_cheats    = new ConVar();
 //-------------------------------------------------------------------------
 // SERVER                                                                 |
 ConVar* sv_showconnecting                  = new ConVar();
@@ -23,7 +23,7 @@ ConVar* fs_warning_level_native            = new ConVar();
 ConVar* fs_packedstore_entryblock_stats    = new ConVar();
 //-------------------------------------------------------------------------
 // MATERIALSYSTEM                                                         |
-ConVar* mat_showdxoutput                 = new ConVar();
+ConVar* mat_showdxoutput                   = new ConVar();
 //-------------------------------------------------------------------------
 // SQUIRREL                                                               |
 ConVar* sq_showrsonloading                 = new ConVar();
