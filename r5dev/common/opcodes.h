@@ -97,7 +97,6 @@ namespace
 		ADDRESS SCR_BeginLoadingPlaque = 0x000000014023E870;
 	}
 
-
 	void PrintOAddress() // Test the sigscan results
 	{
 		std::cout << "+--------------------------------------------------------+" << std::endl;

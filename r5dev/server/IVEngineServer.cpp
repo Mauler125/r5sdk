@@ -15,9 +15,8 @@
 //-----------------------------------------------------------------------------
 bool HIVEngineServer_PersistenceAvailable(void* entidx, int clientidx)
 {
-	CClient* pClient = g_pClient->GetClientInstance(clientidx); // Get client instance.
-	std::uintptr_t targetInstance = (std::uintptr_t)pClient;
-	*(char*)(targetInstance + g_dwPersistenceVar) = (char)0x5; // Set the client instance to 'ready'.
+	CClient* pClient = g_pClient->GetClientInstance(clientidx);         // Get client instance.
+	*(char*)((std::uintptr_t)pClient + g_dwPersistenceVar) = (char)0x5; // Set the client instance to 'ready'.
 
 	if (!g_bIsPersistenceVarSet[clientidx] && sv_showconnecting->m_pParent->m_iValue > 0)
 	{

@@ -1,6 +1,6 @@
 #include "core/stdafx.h"
 #include "core/init.h"
-#include "rtech/rtech.h"
+#include "rtech/rtech_utils.h"
 #ifndef DEDICATED
 #include "windows/id3dx.h"
 #endif // !DEDICATED

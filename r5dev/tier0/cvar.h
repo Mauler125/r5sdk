@@ -18,7 +18,7 @@ namespace
 // ENGINE                                                                 |
 extern ConVar* cm_debug_cmdquery;
 extern ConVar* cm_return_false_cmdquery_all;
-extern ConVar* cm_return_false_cmdquery_dev_cheat;
+extern ConVar* cm_return_false_cmdquery_cheats;
 //-------------------------------------------------------------------------
 // SERVER                                                                 |
 extern ConVar* sv_showconnecting;
