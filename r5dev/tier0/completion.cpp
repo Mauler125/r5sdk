@@ -492,6 +492,16 @@ void _RTech_Decompress_f_CompletionFunc(CCommand* cmd)
 
 	std::ofstream out_block(pak_name_out, std::fstream::binary);
 
+	if (rheader->m_nPatchIndex > 0) // Check if its an patch rpak.
+	{
+		//// Loop through all the structs and patch their compress size.
+		for (int i = 1, patch_offset = 0x88; i <= rheader->m_nPatchIndex; i++, patch_offset += sizeof(rpak_patch_compress_header))
+		{
+			rpak_patch_compress_header* patch_header = (rpak_patch_compress_header*)((std::uintptr_t)pakbuf.data() + patch_offset);
+			patch_header->m_nSizeDisk = patch_header->m_nSizeMemory;
+		}
+	}
+
 	memcpy_s(pakbuf.data(), state.m_nDecompSize, ((std::uint8_t*)rheader), PAK_HEADER_SIZE); // Overwrite first 0x80 bytes which are NULL with the header data.
 
 	out_block.write((char*)pakbuf.data(), state.m_nDecompSize);

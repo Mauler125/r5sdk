@@ -20,10 +20,10 @@
 //-----------------------------------------------------------------------------
 // Purpose: shutdown netchannel
 //-----------------------------------------------------------------------------
-void NET_ShutDown(void* thisptr, const char* szReason, std::uint8_t a1, char a2)
+void HNET_ShutDown(void* thisptr, const char* szReason, std::uint8_t a1, char a2)
 {
 	DownloadPlaylists_Callback(); // Re-load playlist from disk after getting disconnected from the server.
-	NET_ShutDown(thisptr, szReason, a1, a2);
+	NET_Shutdown(thisptr, szReason, a1, a2);
 }
 
 //-----------------------------------------------------------------------------
@@ -154,11 +154,17 @@ void NET_DisconnectClient(CClient* pClient, int nIndex, const char* szReason, ui
 void CNetChan_Attach()
 {
 	DetourAttach((LPVOID*)&NET_PrintFunc, &HNET_PrintFunc);
+#ifndef DEDICATED
+	DetourAttach((LPVOID*)&NET_Shutdown, &HNET_ShutDown);
+#endif
 }
 
 void CNetChan_Detach()
 {
 	DetourDetach((LPVOID*)&NET_PrintFunc, &HNET_PrintFunc);
+#ifndef DEDICATED
+	DetourDetach((LPVOID*)&NET_Shutdown, &HNET_ShutDown);
+#endif
 }
 
 void CNetChan_Trace_Attach()

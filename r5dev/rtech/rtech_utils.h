@@ -78,29 +78,34 @@ struct rpak_h
 	std::uint8_t  unk2[0x1C];                  //
 };
 
+struct __declspec(align(8)) rpak_patch_compress_header
+{
+	std::uint64_t m_nSizeDisk;
+	std::uint64_t m_nSizeMemory;
+};
+
 struct __declspec(align(8)) rpak_decomp_state
 {
-  uint64_t m_nInputBuf;
-  uint64_t m_nOut;
-  uint64_t m_nMask;
-  uint64_t m_nOutMask;
-  uint64_t m_nTotalFileLen;
-  uint64_t m_nDecompSize;
-  uint64_t m_nInvMaskIn;
-  uint64_t m_nInvMaskOut;
-  uint32_t header_skip_bytes_bs;
-  uint32_t dword44;
-  uint64_t input_byte_pos;
-  uint64_t m_nDecompPosition;
-  uint64_t len_needed;
-  uint64_t byte;
-  uint32_t byte_bit_offset;
-  uint32_t dword6C;
-  uint64_t qword70;
-  uint64_t m_nCompressedStreamSize;
-  uint64_t m_nDecompStreamSize;
+	std::uint64_t m_nInputBuf;
+	std::uint64_t m_nOut;
+	std::uint64_t m_nMask;
+	std::uint64_t m_nOutMask;
+	std::uint64_t m_nTotalFileLen;
+	std::uint64_t m_nDecompSize;
+	std::uint64_t m_nInvMaskIn;
+	std::uint64_t m_nInvMaskOut;
+	std::uint32_t header_skip_bytes_bs;
+	std::uint32_t dword44;
+	std::uint64_t input_byte_pos;
+	std::uint64_t m_nDecompPosition;
+	std::uint64_t len_needed;
+	std::uint64_t byte;
+	std::uint32_t byte_bit_offset;
+	std::uint32_t dword6C;
+	std::uint64_t qword70;
+	std::uint64_t m_nCompressedStreamSize;
+	std::uint64_t m_nDecompStreamSize;
 };
-static_assert(sizeof(rpak_decomp_state) == 0x88);
 
 namespace
 {
