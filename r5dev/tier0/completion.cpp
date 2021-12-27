@@ -463,7 +463,7 @@ void _RTech_Decompress_f_CompletionFunc(CCommand* cmd)
 	}
 
 	rpak_decomp_state state;
-	std::uint32_t dsize = g_pRtech->DecompressedSize(&state, upak.data(), upak.size(), 0, PAK_HEADER_SIZE);
+	std::uint32_t dsize = g_pRtech->DecompressPakFileInit(&state, upak.data(), upak.size(), 0, PAK_HEADER_SIZE);
 
 	if (dsize == rheader->m_nSizeDisk)
 	{
@@ -480,7 +480,7 @@ void _RTech_Decompress_f_CompletionFunc(CCommand* cmd)
 	state.m_nOutMask = UINT64_MAX;
 	state.m_nOut = uint64_t(pakbuf.data());
 
-	std::uint8_t decomp_result = g_pRtech->Decompress(&state, upak.size(), pakbuf.size());
+	std::uint8_t decomp_result = g_pRtech->DecompressPakFile(&state, upak.size(), pakbuf.size());
 	if (decomp_result != 1)
 	{
 		DevMsg(eDLL_T::RTECH, "Error: decompression failed for '%s' return value: '%u'!\n", pak_name_in.c_str(), +decomp_result);

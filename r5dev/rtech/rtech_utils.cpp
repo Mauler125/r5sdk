@@ -62,7 +62,7 @@ std::uint64_t __fastcall RTech::StringToGuid(const char* pData)
 //-----------------------------------------------------------------------------
 // Purpose: calculate 'decompressed' size and commit parameters
 //-----------------------------------------------------------------------------
-std::uint32_t __fastcall RTech::DecompressedSize(rpak_decomp_state* state, std::uint8_t* fileBuffer, std::int64_t fileSize, std::int64_t offNoHeader, std::int64_t headerSize)
+std::uint32_t __fastcall RTech::DecompressPakFileInit(rpak_decomp_state* state, std::uint8_t* fileBuffer, std::int64_t fileSize, std::int64_t offNoHeader, std::int64_t headerSize)
 {
 	std::int64_t input_byte_pos_init;        // r9
 	std::uint64_t byte_init;                 // r11
@@ -156,7 +156,7 @@ std::uint32_t __fastcall RTech::DecompressedSize(rpak_decomp_state* state, std::
 //-----------------------------------------------------------------------------
 // Purpose: decompress input data
 //-----------------------------------------------------------------------------
-std::uint8_t __fastcall RTech::Decompress(rpak_decomp_state* state, std::uint64_t inLen, std::uint64_t outLen)
+std::uint8_t __fastcall RTech::DecompressPakFile(rpak_decomp_state* state, std::uint64_t inLen, std::uint64_t outLen)
 {
 	std::uint64_t decompressed_position;        // r15
 	std::uint32_t byte_bit_offset;              // ebp

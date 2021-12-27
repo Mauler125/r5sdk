@@ -116,8 +116,8 @@ class RTech
 {
 public:
 	std::uint64_t __fastcall StringToGuid(const char* pData);
-	std::uint8_t __fastcall Decompress(rpak_decomp_state* state, std::uint64_t inLen, std::uint64_t outLen);
-	std::uint32_t __fastcall DecompressedSize(rpak_decomp_state* state, std::uint8_t* fileBuffer, std::int64_t fileSize, std::int64_t offNoHeader, std::int64_t headerSize);
+	std::uint8_t __fastcall DecompressPakFile(rpak_decomp_state* state, std::uint64_t inLen, std::uint64_t outLen);
+	std::uint32_t __fastcall DecompressPakFileInit(rpak_decomp_state* state, std::uint8_t* fileBuffer, std::int64_t fileSize, std::int64_t offNoHeader, std::int64_t headerSize);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
