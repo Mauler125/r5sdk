@@ -494,11 +494,11 @@ void _RTech_Decompress_f_CompletionFunc(CCommand* cmd)
 
 	if (rheader->m_nPatchIndex > 0) // Check if its an patch rpak.
 	{
-		//// Loop through all the structs and patch their compress size.
+		// Loop through all the structs and patch their compress size.
 		for (int i = 1, patch_offset = 0x88; i <= rheader->m_nPatchIndex; i++, patch_offset += sizeof(rpak_patch_compress_header))
 		{
 			rpak_patch_compress_header* patch_header = (rpak_patch_compress_header*)((std::uintptr_t)pakbuf.data() + patch_offset);
-			patch_header->m_nSizeDisk = patch_header->m_nSizeMemory;
+			patch_header->m_nSizeDisk = patch_header->m_nSizeMemory; // Fix size for decompress.
 		}
 	}
 
