@@ -127,7 +127,8 @@ void ConCommand_InitConCommand()
 	void* fs_decompress_pak = ConCommand_RegisterCommand("fs_decompress_pak", "Decompresses user specified 'vpk_dir' file.", 0, _VPK_Decompress_f_CompletionFunc, nullptr);
 	//-------------------------------------------------------------------------
 	// RTECH API                                                              |
-	void* rtech_toguid     = ConCommand_RegisterCommand("rtech_toguid", "Calculates the GUID from input data.", 0, _RTech_GenerateGUID_f_CompletionFunc, nullptr);
+	void* rtech_strtoguid  = ConCommand_RegisterCommand("rtech_strtoguid", "Calculates the GUID from input data.", 0, _RTech_StringToGUID_f_CompletionFunc, nullptr);
+	void* rtech_asyncload  = ConCommand_RegisterCommand("rtech_asyncload", "Loads user specified 'RPak' file.", 0, _RTech_AsyncLoad_f_CompletionFunc, nullptr);
 	void* rtech_decompress = ConCommand_RegisterCommand("rtech_decompress", "Decompresses user specified 'RPak' file.", 0, _RTech_Decompress_f_CompletionFunc, nullptr);
 	//-------------------------------------------------------------------------
 	// NETCHANNEL                                                             |

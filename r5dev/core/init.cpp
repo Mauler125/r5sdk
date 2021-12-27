@@ -32,8 +32,10 @@
 #include "squirrel/sqinit.h"
 #include "squirrel/sqapi.h"
 #include "squirrel/sqvm.h"
+#include "rtech/rtech_game.h"
 #include "rtech/stryder.h"
 #include "engine/baseclient.h"
+#include "engine/host_cmd.h"
 #include "engine/host_state.h"
 #include "engine/net_chan.h"
 #include "engine/sys_dll.h"
@@ -63,9 +65,6 @@ void Systems_Init()
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
-	// TEMP
-	Opcodes_Hook();
-
 	// Hook functions
 	IApplication_Attach();
 	CBaseClient_Attach();
@@ -93,6 +92,9 @@ void Systems_Init()
 	IVEngineServer_Attach();
 	SQAPI_Attach();
 	SQVM_Attach();
+
+	RTech_Game_Attach();
+
 	SysDll_Attach();
 	SysUtils_Attach();
 
@@ -157,6 +159,9 @@ void Systems_Shutdown()
 	IVEngineServer_Detach();
 	SQAPI_Detach();
 	SQVM_Detach();
+
+	RTech_Game_Detach();
+
 	SysDll_Detach();
 	SysUtils_Detach();
 

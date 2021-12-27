@@ -5,22 +5,6 @@
   * _opcodes.cpp
   *-----------------------------------------------------------------------------*/
 
-
-  // TODO: Move to RTech::..
-void HRTech_UnloadAsset(int64_t a1, int64_t a2)
-{
-	// Return early if address is out of scope.
-	if (a2 <= 0x0000000000 || a2 >= 0xFFFFFFFFFF)
-	{
-		return;
-	}
-	return RTech_UnloadAsset(a1, a2);
-}
-
-void Opcodes_Hook()
-{
-	DetourAttach((LPVOID*)&RTech_UnloadAsset, &HRTech_UnloadAsset);
-}
 #ifdef DEDICATED
 void Dedicated_Init()
 {

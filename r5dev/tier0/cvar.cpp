@@ -23,7 +23,7 @@ ConVar* fs_warning_level_native            = new ConVar();
 ConVar* fs_packedstore_entryblock_stats    = new ConVar();
 //-------------------------------------------------------------------------
 // MATERIALSYSTEM                                                         |
-ConVar* mat_showdxoutput                 = new ConVar();
+ConVar* mat_showdxoutput                   = new ConVar();
 //-------------------------------------------------------------------------
 // SQUIRREL                                                               |
 ConVar* sq_showrsonloading                 = new ConVar();

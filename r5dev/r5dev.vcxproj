@@ -33,6 +33,7 @@
     <ClCompile Include="ebisusdk\EbisuSDK.cpp" />
     <ClCompile Include="engine\baseclient.cpp" />
     <ClCompile Include="engine\baseclientstate.cpp" />
+    <ClCompile Include="engine\host_cmd.cpp" />
     <ClCompile Include="engine\host_state.cpp" />
     <ClCompile Include="engine\net_chan.cpp" />
     <ClCompile Include="engine\sys_dll.cpp" />
@@ -49,7 +50,8 @@
     <ClCompile Include="public\bansystem.cpp" />
     <ClCompile Include="public\binstream.cpp" />
     <ClCompile Include="public\utility.cpp" />
-    <ClCompile Include="rtech\rtech.cpp" />
+    <ClCompile Include="rtech\rtech_utils.cpp" />
+    <ClCompile Include="rtech\rtech_game.cpp" />
     <ClCompile Include="rtech\stryder.cpp" />
     <ClCompile Include="server\IVEngineServer.cpp" />
     <ClCompile Include="server\server.cpp" />
@@ -123,6 +125,7 @@
     <ClInclude Include="ebisusdk\EbisuSDK.h" />
     <ClInclude Include="engine\baseclient.h" />
     <ClInclude Include="engine\baseclientstate.h" />
+    <ClInclude Include="engine\host_cmd.h" />
     <ClInclude Include="engine\host_state.h" />
     <ClInclude Include="engine\net_chan.h" />
     <ClInclude Include="engine\sys_dll.h" />
@@ -149,7 +152,8 @@
     <ClInclude Include="public\include\stb_image.h" />
     <ClInclude Include="public\include\utility.h" />
     <ClInclude Include="core\resource.h" />
-    <ClInclude Include="rtech\rtech.h" />
+    <ClInclude Include="rtech\rtech_utils.h" />
+    <ClInclude Include="rtech\rtech_game.h" />
     <ClInclude Include="rtech\stryder.h" />
     <ClInclude Include="server\IVEngineServer.h" />
     <ClInclude Include="server\server.h" />

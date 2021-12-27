@@ -12,7 +12,8 @@
 #include "tier0/completion.h"
 #include "engine/net_chan.h"
 #include "engine/sys_utils.h"
-#include "rtech/rtech.h"
+#include "rtech/rtech_game.h"
+#include "rtech/rtech_utils.h"
 #include "vpklib/packedstore.h"
 #include "gameui/IConsole.h"
 #include "public/include/bansystem.h"
@@ -363,7 +364,7 @@ void _ReloadBanList_f_CompletionFunc(CCommand* cmd)
 	g_pBanSystem->Load(); // Reload banlist.
 }
 
-void _RTech_GenerateGUID_f_CompletionFunc(CCommand* cmd)
+void _RTech_StringToGUID_f_CompletionFunc(CCommand* cmd)
 {
 	std::int32_t argSize = *(std::int32_t*)((std::uintptr_t)cmd + 0x4);
 
@@ -379,6 +380,14 @@ void _RTech_GenerateGUID_f_CompletionFunc(CCommand* cmd)
 	DevMsg(eDLL_T::RTECH, "______________________________________________________________\n");
 	DevMsg(eDLL_T::RTECH, "] RTECH_HASH -------------------------------------------------\n");
 	DevMsg(eDLL_T::RTECH, "] GUID: '0x%llX'\n", guid);
+}
+
+void _RTech_AsyncLoad_f_CompletionFunc(CCommand* cmd)
+{
+	CCommand& args = *cmd; // Get reference.
+	std::string firstArg = args[1]; // Get first arg.
+
+	HRtech_AsyncLoad(firstArg);
 }
 
 void _RTech_Decompress_f_CompletionFunc(CCommand* cmd)
