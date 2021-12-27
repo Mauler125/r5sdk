@@ -12,31 +12,60 @@
 //-----------------------------------------------------------------------------
 bool HConCommand_IsFlagSet(ConCommandBase* pCommandBase, int nFlag)
 {
-	if (cm_debug_cmdquery->m_pParent->m_iValue > 0)
+	if (cm_return_false_cmdquery_cheats->m_pParent->m_iValue > 0)
 	{
-		printf("--------------------------------------------------\n");
-		printf(" Flaged: %08X\n", pCommandBase->m_nFlags);
-	}
-	// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY
-	pCommandBase->m_nFlags &= ~(FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT);
-	if (cm_debug_cmdquery->m_pParent->m_iValue > 0)
-	{
-		printf(" Masked: %08X\n", pCommandBase->m_nFlags);
-		printf(" Verify: %08X\n", nFlag);
-		printf("--------------------------------------------------\n");
-	}
-	if (nFlag & 0x80000 && cm_return_false_cmdquery_all->m_pParent->m_iValue <= 0)
-	{
-		return ConCommand_IsFlagSet(pCommandBase, nFlag);
-	}
-	if (cm_return_false_cmdquery_all->m_pParent->m_iValue > 0)
-	{
-		// Returning false on all queries may cause problems.
-		return false;
-	}
-	if (cm_return_false_cmdquery_dev_cheat->m_pParent->m_iValue > 0)
-	{
+		if (cm_debug_cmdquery->m_pParent->m_iValue > 0)
+		{
+			printf("--------------------------------------------------\n");
+			printf(" Flaged: %08X\n", pCommandBase->m_nFlags);
+		}
+		// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY.
+		pCommandBase->m_nFlags &= ~(FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT);
+		if (cm_debug_cmdquery->m_pParent->m_iValue > 0)
+		{
+			printf(" Masked: %08X\n", pCommandBase->m_nFlags);
+			printf(" Verify: %08X\n", nFlag);
+			printf("--------------------------------------------------\n");
+		}
+		if (nFlag & FCVAR_RELEASE && cm_return_false_cmdquery_all->m_pParent->m_iValue <= 0)
+		{
+			// Default retail behaviour.
+			return ConCommand_IsFlagSet(pCommandBase, nFlag);
+		}
+		if (cm_return_false_cmdquery_all->m_pParent->m_iValue > 0)
+		{
+			// Returning false on all queries may cause problems.
+			return false;
+		}
 		// Return false on every FCVAR_DEVELOPMENTONLY || FCVAR_CHEAT query.
+		return (pCommandBase->m_nFlags & nFlag) != 0;
+	}
+	else
+	{
+		if (cm_debug_cmdquery->m_pParent->m_iValue > 0)
+		{
+			printf("--------------------------------------------------\n");
+			printf(" Flaged: %08X\n", pCommandBase->m_nFlags);
+		}
+		// Mask off FCVAR_DEVELOPMENTONLY.
+		pCommandBase->m_nFlags &= ~(FCVAR_DEVELOPMENTONLY);
+		if (cm_debug_cmdquery->m_pParent->m_iValue > 0)
+		{
+			printf(" Masked: %08X\n", pCommandBase->m_nFlags);
+			printf(" Verify: %08X\n", nFlag);
+			printf("--------------------------------------------------\n");
+		}
+		if (nFlag & FCVAR_RELEASE && cm_return_false_cmdquery_all->m_pParent->m_iValue <= 0)
+		{
+			// Default retail behaviour.
+			return ConCommand_IsFlagSet(pCommandBase, nFlag);
+		}
+		if (cm_return_false_cmdquery_all->m_pParent->m_iValue > 0)
+		{
+			// Returning false on all queries may cause problems.
+			return false;
+		}
+		// Return false on every FCVAR_DEVELOPMENTONLY query.
 		return (pCommandBase->m_nFlags & nFlag) != 0;
 	}
 	// Default behaviour.

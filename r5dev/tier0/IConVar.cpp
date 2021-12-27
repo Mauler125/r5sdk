@@ -11,34 +11,63 @@
 //-----------------------------------------------------------------------------
 bool HIConVar_IsFlagSet(ConVar* pConVar, int nFlags)
 {
-	if (cm_debug_cmdquery->m_pParent->m_iValue > 0)
+	if (cm_return_false_cmdquery_cheats->m_pParent->m_iValue > 0)
 	{
-		printf("--------------------------------------------------\n");
-		printf(" Flaged: %08X\n", pConVar->m_ConCommandBase.m_nFlags);
-	}
-	// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY
-	pConVar->m_ConCommandBase.m_nFlags &= ~(FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT);
-	if (cm_debug_cmdquery->m_pParent->m_iValue > 0)
-	{
-		printf(" Masked: %08X\n", pConVar->m_ConCommandBase.m_nFlags);
-		printf(" Verify: %08X\n", nFlags);
-		printf("--------------------------------------------------\n");
-	}
-	if (nFlags & 0x80000 && cm_return_false_cmdquery_all->m_pParent->m_iValue <= 0)
-	{
-		return IConVar_IsFlagSet(pConVar, nFlags);
-	}
-	if (cm_return_false_cmdquery_all->m_pParent->m_iValue > 0)
-	{
-		// Returning false on all queries may cause problems.
-		return false;
-	}
-	if (cm_return_false_cmdquery_dev_cheat->m_pParent->m_iValue > 0)
-	{
-		// Return false on every FCVAR_DEVELOPMENTONLY || FCVAR_CHEAT query.
+		if (cm_debug_cmdquery->m_pParent->m_iValue > 0)
+		{
+			printf("--------------------------------------------------\n");
+			printf(" Flaged: %08X\n", pConVar->m_ConCommandBase.m_nFlags);
+		}
+		// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY.
+		pConVar->m_ConCommandBase.m_nFlags &= ~(FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT);
+		if (cm_debug_cmdquery->m_pParent->m_iValue > 0)
+		{
+			printf(" Masked: %08X\n", pConVar->m_ConCommandBase.m_nFlags);
+			printf(" Verify: %08X\n", nFlags);
+			printf("--------------------------------------------------\n");
+		}
+		if (nFlags & FCVAR_RELEASE && cm_return_false_cmdquery_all->m_pParent->m_iValue <= 0)
+		{
+			// Default retail behaviour.
+			return IConVar_IsFlagSet(pConVar, nFlags);
+		}
+		if (cm_return_false_cmdquery_all->m_pParent->m_iValue > 0)
+		{
+			// Returning false on all queries may cause problems.
+			return false;
+		}
+		// Return false on every FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT query.
 		return (pConVar->m_ConCommandBase.m_nFlags & nFlags) != 0;
 	}
-	// Default behaviour.
+	else
+	{
+		if (cm_debug_cmdquery->m_pParent->m_iValue > 0)
+		{
+			printf("--------------------------------------------------\n");
+			printf(" Flaged: %08X\n", pConVar->m_ConCommandBase.m_nFlags);
+		}
+		// Mask off FCVAR_DEVELOPMENTONLY.
+		pConVar->m_ConCommandBase.m_nFlags &= ~(FCVAR_DEVELOPMENTONLY);
+		if (cm_debug_cmdquery->m_pParent->m_iValue > 0)
+		{
+			printf(" Masked: %08X\n", pConVar->m_ConCommandBase.m_nFlags);
+			printf(" Verify: %08X\n", nFlags);
+			printf("--------------------------------------------------\n");
+		}
+		if (nFlags & FCVAR_RELEASE && cm_return_false_cmdquery_all->m_pParent->m_iValue <= 0)
+		{
+			// Default retail behaviour.
+			return IConVar_IsFlagSet(pConVar, nFlags);
+		}
+		if (cm_return_false_cmdquery_all->m_pParent->m_iValue > 0)
+		{
+			// Returning false on all queries may cause problems.
+			return false;
+		}
+		// Return false on every FCVAR_DEVELOPMENTONLY query.
+		return (pConVar->m_ConCommandBase.m_nFlags & nFlags) != 0;
+	}
+	// Default retail behaviour.
 	return IConVar_IsFlagSet(pConVar, nFlags);
 }
 
@@ -67,9 +96,9 @@ void IConVar_InitConVar()
 {
 	//-------------------------------------------------------------------------
 	// ENGINE                                                                 |
-	cm_debug_cmdquery                  = IConVar_RegisterConVar("cm_debug_cmdquery", "0", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Prints the flags of each ConVar/ConCommand query to the console ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
-	cm_return_false_cmdquery_all       = IConVar_RegisterConVar("cm_return_false_cmdquery_all", "0", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Returns false on every ConVar/ConCommand query ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
-	cm_return_false_cmdquery_dev_cheat = IConVar_RegisterConVar("cm_return_false_cmdquery_dev_cheat", "1", FCVAR_RELEASE, "Returns false on all FCVAR_DEVELOPMENTONLY and FCVAR_CHEAT ConVar/ConCommand queries ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	cm_debug_cmdquery               = IConVar_RegisterConVar("cm_debug_cmdquery", "0", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Prints the flags of each ConVar/ConCommand query to the console ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	cm_return_false_cmdquery_all    = IConVar_RegisterConVar("cm_return_false_cmdquery_all", "0", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Returns false on every ConVar/ConCommand query ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	cm_return_false_cmdquery_cheats = IConVar_RegisterConVar("cm_return_false_cmdquery_cheats", "0", FCVAR_RELEASE, "Returns false on all FCVAR_DEVELOPMENTONLY and FCVAR_CHEAT ConVar/ConCommand queries ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// SERVER                                                                 |
 	sv_showconnecting = IConVar_RegisterConVar("sv_showconnecting", "1", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Logs information about the connecting client to the console.", false, 0.f, false, 0.f, nullptr, nullptr);
