@@ -21,6 +21,7 @@ namespace
 	const std::uintptr_t g_dwPersistenceVar = 0x5BC;
 	const std::uintptr_t g_dwCClientPadding = 303360;
 #endif
+	static ADDRESS g_pClientBuffer = p_IVEngineServer_PersistenceAvailable.FindPatternSelf("48 8D 0D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
 }
 
 class CClient
@@ -28,7 +29,7 @@ class CClient
 public:
 	inline CClient* GetClientInstance(int nIndex)
 	{
-		return (CClient*)(std::uintptr_t)(g_pClient + (nIndex * g_dwCClientSize));
+		return (CClient*)(std::uintptr_t)(g_pClientBuffer.GetPtr() + (nIndex * g_dwCClientSize));
 	}
 
 	void*& GetNetChan()
