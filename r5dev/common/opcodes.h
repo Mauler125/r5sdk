@@ -7,6 +7,9 @@ void Dedicated_Init();
 void RuntimePtc_Init();
 void RuntimePtc_Toggle();
 
+// TEMP
+void Opcodes_Hook();
+
 namespace
 {
 	///* -------------- ORIGIN ------------------------------------------------------------------------------------------------------------------------------------------------ */
@@ -97,6 +100,10 @@ namespace
 		ADDRESS SCR_BeginLoadingPlaque = 0x000000014023E870;
 	}
 
+
+	// TODO: Move to RTech::..
+	ADDRESS p_RTech_UnloadAsset = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x83\xEC\x28\x48\x85\xD2\x74\x40\x48\x8B\x05\x00\x00\x00\x00", "xxxxxxxxxxxx????");
+	void (*RTech_UnloadAsset)(int64_t a1, int64_t a2) = (void (*)(int64_t, int64_t))p_RTech_UnloadAsset.GetPtr(); /*48 83 EC 28 48 85 D2 74 40 48 8B 05 ? ? ? ?*/
 
 	void PrintOAddress() // Test the sigscan results
 	{

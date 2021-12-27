@@ -63,6 +63,9 @@ void Systems_Init()
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
+	// TEMP
+	Opcodes_Hook();
+
 	// Hook functions
 	IApplication_Attach();
 	CBaseClient_Attach();

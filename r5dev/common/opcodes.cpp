@@ -5,6 +5,22 @@
   * _opcodes.cpp
   *-----------------------------------------------------------------------------*/
 
+
+  // TODO: Move to RTech::..
+void HRTech_UnloadAsset(int64_t a1, int64_t a2)
+{
+	// Return early if address is out of scope.
+	if (a2 <= 0x0000000000 || a2 >= 0xFFFFFFFFFF)
+	{
+		return;
+	}
+	return RTech_UnloadAsset(a1, a2);
+}
+
+void Opcodes_Hook()
+{
+	DetourAttach((LPVOID*)&RTech_UnloadAsset, &HRTech_UnloadAsset);
+}
 #ifdef DEDICATED
 void Dedicated_Init()
 {
@@ -174,7 +190,7 @@ void Dedicated_Init()
 	// RUNTIME BLOCK
 	//-------------------------------------------------------------------------
 	ADDRESS t0 = 0x00000001401D71E0;
-	t0.Patch({ 0xC3 });
+	//t0.Patch({ 0xC3 });                                               // RPak unload?
 	ADDRESS t1 = 0x0000000140456B50;
 	t1.Offset(0x292).Patch({ 0xE9, 0xEE, 0x00, 0x00, 0x00 });
 	ADDRESS t2 = 0x0000000140238DA0;
