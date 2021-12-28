@@ -42,6 +42,7 @@ namespace R5Net
 
 		R5NET_POST_ENDPOINT(UpdateMyGameServer, "/api/game_servers/update", UpdateGameServerMSRequest, UpdateGameServerMSResponse)
 		R5NET_POST_ENDPOINT(GetClientIsBanned, "/api/ban_system/is_user_banned", GetIsUserBannedMSRequest, GetIsUserBannedMSResponse)
+		R5NET_POST_ENDPOINT(GetPrivateGameServerInfo, "/api/game_servers/game_server_private_info", GetPrivateGameServerInfoMSRequest, GetPrivateGameServerInfoMSResponse)
 
 
 

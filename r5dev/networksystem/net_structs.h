@@ -42,14 +42,37 @@ namespace R5Net {
 
 
 	////// Requests
-	struct UpdateGameServerMSRequest 
+	struct UpdateGameServerMSRequest
 	{
 		NetGameServer gameServer;
 
 		NLOHMANN_DEFINE_TYPE_INTRUSIVE(UpdateGameServerMSRequest, gameServer)
 	};
 
-	enum class EResponseStatus 
+	struct GetIsUserBannedMSRequest
+	{
+		int oid;
+		std::string ipAddress;
+
+		NLOHMANN_DEFINE_TYPE_INTRUSIVE(GetIsUserBannedMSRequest, oid, ipAddress)
+	};
+
+	struct GetPrivateGameServerInfoMSRequest
+	{
+		std::string publicRef;
+		std::string password;
+
+		NLOHMANN_DEFINE_TYPE_INTRUSIVE(GetPrivateGameServerInfoMSRequest, publicRef, password)
+	};
+
+
+	/// <summary>
+	/// Responses
+	/// </summary>
+	/// 
+	/// 
+
+	enum class EResponseStatus
 	{
 		NO_REACH,
 		SUCCESS,
@@ -57,11 +80,9 @@ namespace R5Net {
 		NOT_FOUND,
 		MS_ERROR
 	};
-	
-	/// <summary>
-	/// Responses
-	/// </summary>
-	struct DefaultMSResponse 
+
+
+	struct DefaultMSResponse
 	{
 		EResponseStatus status = EResponseStatus::NO_REACH;
 		std::string error;
@@ -88,6 +109,21 @@ namespace R5Net {
 	struct UpdateGameServerMSResponse : DefaultMSResponse
 	{
 
+	};
+
+	struct GetIsUserBannedMSResponse : DefaultMSResponse
+	{
+		bool isBanned;
+		std::string metaString;
+
+		NLOHMANN_DEFINE_TYPE_INTRUSIVE(GetIsUserBannedMSResponse, isBanned, metaString)
+	};
+
+	struct GetPrivateGameServerInfoMSResponse : DefaultMSResponse
+	{
+		NetGameServer gameServer;
+
+		NLOHMANN_DEFINE_TYPE_INTRUSIVE(GetPrivateGameServerInfoMSResponse, gameServer)
 	};
 
 }
