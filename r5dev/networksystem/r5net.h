@@ -18,7 +18,7 @@ namespace R5Net
 	ResponseStructType result{};\
 	nlohmann::json request_body;\
 	nlohmann::to_json(request_body, request);\
-	httplib::Result response = HttpClient.Post("/", request_body.dump(), "application/json");\
+	httplib::Result response = HttpClient.Post(Route, request_body.dump(), "application/json");\
 	if (response == nullptr) return result;\
 	nlohmann::json response_body = nlohmann::json::parse(response->body);\
 	nlohmann::to_json(response_body, result);\
