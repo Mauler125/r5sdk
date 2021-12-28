@@ -4,6 +4,35 @@
 #include "engine/net_chan.h"
 #include "tier0/cvar.h"
 #include "client/IVEngineClient.h"
+#include "networksystem/r5net.h"
+#include "squirrel/sqinit.h"
+
+//-----------------------------------------------------------------------------
+// Purpose: Send keep alive request to Pylon Master Server.
+// NOTE: When Pylon update reaches indev remove this and implement properly.
+//-----------------------------------------------------------------------------
+void KeepAliveToPylon()
+{
+	if (g_pHostState->m_bActiveGame && sv_pylonvisibility->m_iValue == 1) // Check for active game.
+	{
+		std::string m_szHostToken = std::string();
+		std::string m_szHostRequestMessage = std::string();
+		DevMsg(eDLL_T::CLIENT, "Sending PostServerHost request\n");
+		bool result = g_pR5net->PostServerHost(m_szHostRequestMessage, m_szHostToken,
+			ServerListing{
+				g_pCvar->FindVar("hostname")->m_pzsCurrentValue,
+				std::string(g_pHostState->m_levelName),
+				"",
+				g_pCvar->FindVar("hostport")->m_pzsCurrentValue,
+				g_pCvar->FindVar("mp_gamemode")->m_pzsCurrentValue,
+				false,
+				std::to_string(*g_nRemoteFunctionCallsChecksum), // BUG BUG: Checksum is null on dedi
+				std::string(),
+				g_szNetKey.c_str()
+			}
+		);
+	}
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: state machine's main processing loop
@@ -47,6 +76,15 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 		*(bool*)m_bRestrictServerCommands = true; // Restrict commands.
 		ConCommandBase* disconnect = (ConCommandBase*)g_pCvar->FindCommand("disconnect");
 		disconnect->AddFlags(FCVAR_SERVER_CAN_EXECUTE); // Make sure server is not restricted to this.
+
+		static std::thread PylonThread([]() // Pylon request thread.
+		{
+				while (true)
+				{
+					KeepAliveToPylon();
+					std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+				}
+		});
 
 		if (net_userandomkey->m_pParent->m_iValue == 1)
 		{

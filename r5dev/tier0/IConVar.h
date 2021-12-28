@@ -52,6 +52,34 @@
 #define FCVAR_SERVER_CANNOT_QUERY   (1<<29)	// If this is set, then the server is not allowed to query this cvar's value (via IServerPluginHelpers::StartQueryCvarValue).
 #define FCVAR_CLIENTCMD_CAN_EXECUTE (1<<30)	// IVEngineClient::ClientCmd is allowed to execute this command.
 
+/*
+class ConVar : ConCommandBase, IConVar; [MI] (#classinformer)
+dq offset ? ? _R4ConVar@@6B@; const ConVar::`RTTI Complete Object Locator'
+
+dq offset ??_G__ExceptionPtr@@QEAAPEAXI@Z_0; 0 Index
+dq offset sub_1401F9930
+dq offset loc_14046FE90
+dq offset ConVar__AddFlags
+dq offset ConVar__RemoveFlags
+dq offset sub_14046FEA0
+dq offset loc_14046FF70
+dq offset ConVar__GetHelpString
+dq offset sub_14046FEC0
+dq offset sub_14046FEE0
+dq offset ConVar__IsRegistered
+dq offset ConVar__GetDllIdentifier
+dq offset sub_14046F3F0
+dq offset sub_14046F470
+dq offset ConVar__InternalSetFloatValue; The one below also does something similar
+dq offset sub_140470340
+dq offset sub_140470420; Seems to be InternalSetInt below maybe ?
+dq offset sub_140470510
+dq offset nullsub
+dq offset sub_140470300
+dq offset sub_1404701A0
+dq offset RegisterConVar; #STR: "Convar '%s' is flagged as both FCVAR_ARCHIVE and FCVAR_ARC
+*/
+
 class ConVar
 {
 public:
