@@ -70,7 +70,21 @@ namespace
 		ADDRESS gTextureCreate = 0x00000001403EDCD0;
 
 		ADDRESS gCShaderSystem__9 = 0x00000001403DFC30;
-		ADDRESS gBSP_LUMP_INIT = 0x00000001402546F0; // BSP.
+		ADDRESS CollisionBSPData_LoadAllLumps = 0x00000001402546F0; // BSP.
+
+
+		ADDRESS gCStudioRenderContext__LoadModel = 0x00000001404554C0;
+		ADDRESS CStudioRenderContext__LoadMaterials = 0x0000000140456B50;
+
+
+		ADDRESS gCGameServer__SpawnServer = 0x0000000140312D80;
+		
+		ADDRESS FindModel = 0x140253530;
+		ADDRESS LoadModel = 0x140253810;
+
+
+		ADDRESS ParsePropStatic = 0x1402901E0;
+
 
 
 		ADDRESS e9 = 0x00000001404066E0;

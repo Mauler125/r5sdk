@@ -1,16 +1,50 @@
 #include "core/stdafx.h"
+#include "tier0/basetypes.h"
 #include "common/opcodes.h"
+#include "engine/host_cmd.h"
+#include "bsplib/bsplib.h"
 
  /*-----------------------------------------------------------------------------
   * _opcodes.cpp
   *-----------------------------------------------------------------------------*/
 
 #ifdef DEDICATED
+
+void NoShaderApi()
+{
+	//-------------------------------------------------------------------------
+	// -NOSHADERAPI
+	//-------------------------------------------------------------------------
+	gCShaderSystem__Init.Patch({ 0xC3 });                                   // FUN --> RET | Return early in 'CShaderSystem::Init' to prevent initialization.
+
+	gCGameServer__SpawnServer.Offset(0x43).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });
+	//gCGameServer__SpawnServer.Offset(0x48).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });
+
+	CStudioRenderContext__LoadMaterials.Offset(0x28).Patch({ 0xE9, 0x80, 0x04, 0x00, 0x00 });
+	gCStudioRenderContext__LoadModel.Offset(0x17A).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });
+
+	CollisionBSPData_LoadAllLumps.Offset(0x1045).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });
+
+	LoadModel.Offset(0x462).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });
+	LoadModel.Offset(0x6FE).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });
+
+	ParsePropStatic.Offset(0x2F8).Patch({ 0xE9, 0xC4, 0x04, 0x00, 0x00 }); // TODO: FIX!. Disable this patch to hit the exception of RSP + 0x70 being nullptr described below.
+
+	//-------------------------------------------------------------------------
+	// The instruction at 'CalcPropStaticFrustumCull' [0x14028F3B0 + 0x5C7] moves RSP + 0x70 into the R13 register.
+	// RSP + 0x70 seems to contain a pointer to collission data for that particular prop model.
+	// When running NoShaderApi() and passing the dedicated server the '-noshaderapi' command line parameter, RSP + 0x70 will be a nullptr.
+	// This has to be fixed to have prop static collissions on the server.
+	//-------------------------------------------------------------------------
+}
+
 void Dedicated_Init()
 {
 	*(uintptr_t*)0x14D415040 = 0x1417304E8;
 	*(uintptr_t*)0x14B37C3C0 = 0x141F10CA0;
 	*(uintptr_t*)0x14B3800D7 = 0x1; // bDedicated
+
+	NoShaderApi();
 
 	//-------------------------------------------------------------------------
 	// RESEARCH FOR IMPROVEMENT!
@@ -63,8 +97,9 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	// CSOURCEAPPSYSTEMGROUP
 	//-------------------------------------------------------------------------
+	gCSourceAppSystemGroup__Create.Offset(0x2A5).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90}); // CAL --> NOP | studioRender->Connect().
 	gCSourceAppSystemGroup__Create.Offset(0x35D).Patch({ 0x90, 0x90, 0x90 }); // CAL --> NOP | joystickInit?
-	//gCSourceAppSystemGroup__Create.Offset(0x384).Patch({ 0x90, 0x90, 0x90 }); // CAL --> NOP | PrecacheMaterial.
+	gCSourceAppSystemGroup__Create.Offset(0x384).Patch({ 0x90, 0x90, 0x90 }); // CAL --> NOP | PrecacheMaterial.
 	gCSourceAppSystemGroup__Create.Offset(0x39E).Patch({ 0x90, 0x90, 0x90 }); // CAL --> NOP | binkBlankTexture.
 
 	//-------------------------------------------------------------------------
@@ -80,7 +115,7 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	// CSHADERSYSTEM
 	//-------------------------------------------------------------------------
-	//gCShaderSystem_Init.Patch({ 0xC3 });                                   // FUN --> RET | Return early in 'CShaderSystem::Init' to prevent initialization.
+	//gCShaderSystem__Init.Patch({ 0xC3 });                                   // FUN --> RET | Return early in 'CShaderSystem::Init' to prevent initialization.
 	gCShaderSystem__9.Offset(0x3).Patch({ 0xE9, 0x95, 0x03, 0x00, 0x00 }); // Unnecessary CShaderSystem call?
 
 	//-------------------------------------------------------------------------
@@ -127,16 +162,16 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	// RUNTIME: BSP_LUMP
 	//-------------------------------------------------------------------------
-	gBSP_LUMP_INIT.Offset(0x41).Patch({ 0xE9, 0x4F, 0x04, 0x00, 0x00 });  // JNE --> NOP | SKYLIGHTS.
-	gBSP_LUMP_INIT.Offset(0x974).Patch({ 0x90, 0x90 });                   // JE  --> NOP | VERTNORMALS.
-	gBSP_LUMP_INIT.Offset(0xA55).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | MATERIALSORTS.
-	gBSP_LUMP_INIT.Offset(0xA62).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | MESHBOUNDS.
-	gBSP_LUMP_INIT.Offset(0xA83).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | MESHVERTS.
-	gBSP_LUMP_INIT.Offset(0xAC0).Patch({ 0x90, 0x90 });                   // JE  --> NOP | INDICES.
-	gBSP_LUMP_INIT.Offset(0xBF2).Patch({ 0x90, 0x90 });                   // JE  --> NOP | WORLDLIGHTS.
-	gBSP_LUMP_INIT.Offset(0xDA9).Patch({ 0x90, 0x90 });                   // JE  --> NOP | TWEAKLIGHTS.
-	gBSP_LUMP_INIT.Offset(0xEEB).Patch({ 0xE9, 0x3D, 0x01, 0x00, 0x00 });
-	//gBSP_LUMP_INIT.Offset(0x61B).Patch({ 0xE9, 0xE2, 0x02, 0x00, 0x00 });
+	CollisionBSPData_LoadAllLumps.Offset(0x41).Patch({ 0xE9, 0x4F, 0x04, 0x00, 0x00 });  // JNE --> NOP | SKYLIGHTS.
+	CollisionBSPData_LoadAllLumps.Offset(0x974).Patch({ 0x90, 0x90 });                   // JE  --> NOP | VERTNORMALS.
+	CollisionBSPData_LoadAllLumps.Offset(0xA55).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | MATERIALSORTS.
+	CollisionBSPData_LoadAllLumps.Offset(0xA62).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | MESHBOUNDS.
+	CollisionBSPData_LoadAllLumps.Offset(0xA83).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | MESHVERTS.
+	CollisionBSPData_LoadAllLumps.Offset(0xAC0).Patch({ 0x90, 0x90 });                   // JE  --> NOP | INDICES.
+	CollisionBSPData_LoadAllLumps.Offset(0xBF2).Patch({ 0x90, 0x90 });                   // JE  --> NOP | WORLDLIGHTS.
+	CollisionBSPData_LoadAllLumps.Offset(0xDA9).Patch({ 0x90, 0x90 });                   // JE  --> NOP | TWEAKLIGHTS.
+	CollisionBSPData_LoadAllLumps.Offset(0xEEB).Patch({ 0xE9, 0x3D, 0x01, 0x00, 0x00 });
+	//CollisionBSPData_LoadAllLumps.Offset(0x61B).Patch({ 0xE9, 0xE2, 0x02, 0x00, 0x00 });
 
 	//-------------------------------------------------------------------------
 	// RUNTIME: RENDERING
@@ -148,6 +183,7 @@ void Dedicated_Init()
 	r6.Patch({ 0xC3 });                                       // FUN --> RET | Set shader resource.
 	r7.Patch({ 0xC3, 0x90, 0x90, 0x90, 0x90 });               // FUN --> RET | Return early in lightmap and post processing code.
 	r8.Patch({ 0xC3, 0x90, 0x90, 0x90, 0x90, 0x90 });         // FUN --> RET | Return early.
+	//e9.Offset(0x4A6).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | NOP call to prevent shader dispatch.
 	e9.Offset(0x4AB).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | NOP call to prevent texture creation.
 	e9.Offset(0x4B5).Patch({ 0xC3 });                         // JMP --> RET | RET early to prevent 'PIXVIS' code execution.
 
@@ -218,15 +254,12 @@ void RuntimePtc_Toggle() /* .TEXT */
 	{
 		//-------------------------------------------------------------------------
 		// CALL --> NOP | Allow some maps to be loaded by nopping out a call in LoadProp function
-		//WriteProcessMemory(GameProcess, LPVOID(dst007 + 0x5E8), "\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90", 11, NULL);
-
 		dst007.Offset(0x5E8).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });
 
 
 		//-------------------------------------------------------------------------
 		// CALL --> NOP | Disable the viewmodel rendered to avoid a crash from a certain entity in desertlands_mu1
-		//WriteProcessMemory(GameProcess, LPVOID(dst008 + 0x67), "\x90\x90\x90\x90\x90", 5, NULL);
-		dst008.Offset(0x67).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });
+		//dst008.Offset(0x67).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });
 
 
 		printf("\n");
@@ -244,8 +277,7 @@ void RuntimePtc_Toggle() /* .TEXT */
 		dst007.Offset(0x5E8).Patch({ 0x48, 0x8B, 0x03, 0xFF, 0x90, 0xB0, 0x02, 0x00, 0x00, 0x84, 0xC0 });
 		//-------------------------------------------------------------------------
 		// NOP --> CALL | Recover function DST008
-		//WriteProcessMemory(GameProcess, LPVOID(dst008 + 0x67), "\xE8\x54\xD8\xFF\xFF", 5, NULL);
-		dst008.Offset(0x67).Patch({ 0xE8, 0x54, 0xD8, 0xFF, 0xFF });
+		//dst008.Offset(0x67).Patch({ 0xE8, 0x54, 0xD8, 0xFF, 0xFF });
 
 		printf("\n");
 		printf("+--------------------------------------------------------+\n");
