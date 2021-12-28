@@ -15,27 +15,26 @@ void NoShaderApi()
 	//-------------------------------------------------------------------------
 	// -NOSHADERAPI
 	//-------------------------------------------------------------------------
-	gCShaderSystem__Init.Patch({ 0xC3 });                                   // FUN --> RET | Return early in 'CShaderSystem::Init' to prevent initialization.
+	gCShaderSystem__Init.Patch({ 0xC3 });                                                         // FUN --> RET | Return early in 'CShaderSystem::Init' to prevent initialization.
 
-	gCGameServer__SpawnServer.Offset(0x43).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });
-	//gCGameServer__SpawnServer.Offset(0x48).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });
+	gCGameServer__SpawnServer.Offset(0x43).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });               // CAL --> NOP | Prevent call to unknown materia;/shader code.
+	//gCGameServer__SpawnServer.Offset(0x48).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });               // TODO: Research 'CIVDebugOverlay'.
 
-	CStudioRenderContext__LoadMaterials.Offset(0x28).Patch({ 0xE9, 0x80, 0x04, 0x00, 0x00 });
-	gCStudioRenderContext__LoadModel.Offset(0x17A).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });
+	CStudioRenderContext__LoadMaterials.Offset(0x28).Patch({ 0xE9, 0x80, 0x04, 0x00, 0x00 });     // FUN --> RET | 'CStudioRenderContext::LoadMaterials' is called virtually by the 'RMDL' streaming job.
 
-	CollisionBSPData_LoadAllLumps.Offset(0x1045).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });
+	// Note: The registers here seems to contains pointers to material data and 'CMaterial' class methods when the shader system is initialized.
+	gCStudioRenderContext__LoadModel.Offset(0x17D).Patch({ 0x90, 0x90, 0x90, 0x90 });             // MOV --> NOP | RAX + RCX are both nullptrs.
+	gCStudioRenderContext__LoadModel.Offset(0x181).Patch({ 0x90, 0x90, 0x90 });                   // MOV --> NOP | RCX is nullptr when trying to move to RAX.
+	gCStudioRenderContext__LoadModel.Offset(0x184).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | RAX is nullptr during virtual call resulting in exception 'C0000005'.
 
-	LoadModel.Offset(0x462).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });
-	LoadModel.Offset(0x6FE).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });
+	CollisionBSPData_LoadAllLumps.Offset(0x1045).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });         // CAL --> NOP | Prevent call to 'Mod_LoadCubemapSamples()'
 
-	ParsePropStatic.Offset(0x2F8).Patch({ 0xE9, 0xC4, 0x04, 0x00, 0x00 }); // TODO: FIX!. Disable this patch to hit the exception of RSP + 0x70 being nullptr described below.
+	LoadModel.Offset(0x462).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });                              // CAL --> NOP | Prevent call to 'CStudioRenderContext::LoadMaterials'.
+	LoadModel.Offset(0x6FE).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });                              // CAL --> NOP | Unknown material/texture code.
 
-	//-------------------------------------------------------------------------
-	// The instruction at 'CalcPropStaticFrustumCull' [0x14028F3B0 + 0x5C7] moves RSP + 0x70 into the R13 register.
-	// RSP + 0x70 seems to contain a pointer to collission data for that particular prop model.
-	// When running NoShaderApi() and passing the dedicated server the '-noshaderapi' command line parameter, RSP + 0x70 will be a nullptr.
-	// This has to be fixed to have prop static collissions on the server.
-	//-------------------------------------------------------------------------
+	// Note: At [14028F3B0 + 0x5C7] RSP seems to contain a block of pointers to data for the static prop rmdl in question. [RSP + 0x70] is a pointer to (what seems to be) shader/material data. The pointer will be NULL without a shader system.
+	p_CalcPropStaticFrustumCulling.Offset(0x5E0).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });         // MOV --> NOP | RSP + 0x70 is a nullptr which gets moved to R13, R13 gets used here resulting in exception 'C0000005'.
+	p_CalcPropStaticFrustumCulling.Offset(0x5EB).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });   // CAL --> NOP | RAX is nullptr during virtual call resulting in exception 'C0000005'.
 }
 
 void Dedicated_Init()
@@ -115,7 +114,6 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	// CSHADERSYSTEM
 	//-------------------------------------------------------------------------
-	//gCShaderSystem__Init.Patch({ 0xC3 });                                   // FUN --> RET | Return early in 'CShaderSystem::Init' to prevent initialization.
 	gCShaderSystem__9.Offset(0x3).Patch({ 0xE9, 0x95, 0x03, 0x00, 0x00 }); // Unnecessary CShaderSystem call?
 
 	//-------------------------------------------------------------------------
@@ -171,7 +169,7 @@ void Dedicated_Init()
 	CollisionBSPData_LoadAllLumps.Offset(0xBF2).Patch({ 0x90, 0x90 });                   // JE  --> NOP | WORLDLIGHTS.
 	CollisionBSPData_LoadAllLumps.Offset(0xDA9).Patch({ 0x90, 0x90 });                   // JE  --> NOP | TWEAKLIGHTS.
 	CollisionBSPData_LoadAllLumps.Offset(0xEEB).Patch({ 0xE9, 0x3D, 0x01, 0x00, 0x00 });
-	//CollisionBSPData_LoadAllLumps.Offset(0x61B).Patch({ 0xE9, 0xE2, 0x02, 0x00, 0x00 });
+	CollisionBSPData_LoadAllLumps.Offset(0x61B).Patch({ 0xE9, 0xE2, 0x02, 0x00, 0x00 });
 
 	//-------------------------------------------------------------------------
 	// RUNTIME: RENDERING
@@ -183,7 +181,7 @@ void Dedicated_Init()
 	r6.Patch({ 0xC3 });                                       // FUN --> RET | Set shader resource.
 	r7.Patch({ 0xC3, 0x90, 0x90, 0x90, 0x90 });               // FUN --> RET | Return early in lightmap and post processing code.
 	r8.Patch({ 0xC3, 0x90, 0x90, 0x90, 0x90, 0x90 });         // FUN --> RET | Return early.
-	//e9.Offset(0x4A6).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | NOP call to prevent shader dispatch.
+	e9.Offset(0x4A6).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | NOP call to prevent shader dispatch.
 	e9.Offset(0x4AB).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | NOP call to prevent texture creation.
 	e9.Offset(0x4B5).Patch({ 0xC3 });                         // JMP --> RET | RET early to prevent 'PIXVIS' code execution.
 
