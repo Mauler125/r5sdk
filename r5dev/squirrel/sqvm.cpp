@@ -13,6 +13,7 @@
 #include "squirrel/sqvm.h"
 #include "vgui/CEngineVGui.h"
 #include "gameui/IConsole.h"
+#include "serverbrowser/serverbrowser.h"
 
 //---------------------------------------------------------------------------------
 // Purpose: prints the output of each VM to the console
@@ -284,6 +285,17 @@ void RegisterServerScriptFunctions(void* sqvm)
 	HSQVM_RegisterFunction(sqvm, "ServerNativeTest", "native server function", "void", "", &HSQVM_NativeTest);
 }
 
+ADDRESS UIVM = (void*)p_SQVM_CreateUIVM.FollowNearCall().FindPatternSelf("48 8B 1D", ADDRESS::Direction::DOWN, 50).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr();
+
+void HSQVM_RegisterOriginFuncs(void* sqvm)
+{
+	if (sqvm == *UIVM.RCast<void**>())
+		RegisterUIScriptFunctions(sqvm);
+	else
+		RegisterClientScriptFunctions(sqvm);
+	return SQVM_RegisterOriginFuncs(sqvm);
+}
+
 void SQVM_Attach()
 {
 	DetourAttach((LPVOID*)&SQVM_PrintFunc, &HSQVM_PrintFunc);
@@ -291,6 +303,7 @@ void SQVM_Attach()
 	DetourAttach((LPVOID*)&SQVM_WarningCmd, &HSQVM_WarningCmd);
 	DetourAttach((LPVOID*)&SQVM_LoadRson, &HSQVM_LoadRson);
 	DetourAttach((LPVOID*)&SQVM_LoadScript, &HSQVM_LoadScript);
+	DetourAttach((LPVOID*)&SQVM_RegisterOriginFuncs, &HSQVM_RegisterOriginFuncs);
 }
 
 void SQVM_Detach()
@@ -300,6 +313,7 @@ void SQVM_Detach()
 	DetourDetach((LPVOID*)&SQVM_WarningCmd, &HSQVM_WarningCmd);
 	DetourDetach((LPVOID*)&SQVM_LoadRson, &HSQVM_LoadRson);
 	DetourDetach((LPVOID*)&SQVM_LoadScript, &HSQVM_LoadScript);
+	DetourDetach((LPVOID*)&SQVM_RegisterOriginFuncs, &HSQVM_RegisterOriginFuncs);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
