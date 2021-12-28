@@ -9,6 +9,7 @@
 #include "engine/sys_utils.h"
 #include "inputsystem/inputsystem.h"
 #include "public/include/stb_image.h"
+#include <IDevPalette.h>
 
 /**********************************************************************************
 -----------------------------------------------------------------------------------
@@ -278,6 +279,11 @@ void DrawImGui()
 	{
 		g_pInputSystem->EnableInput(false); // Disable input to game when console is drawn.
 		DrawConsole(&bShowConsole);
+	}
+	if (g_bShowBrowser)
+	{
+		g_pInputSystem->EnableInput(false);
+		DrawDevPalette(&bShowBrowser);	
 	}
 	if (!g_bShowConsole && !g_bShowBrowser)
 	{

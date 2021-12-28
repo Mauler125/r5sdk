@@ -7,3 +7,4 @@
 #define IM_FMTARGS(FMT) __attribute__((format(printf, FMT, FMT+1)))
 #define IM_FMTARGS(FMT) __attribute__((format(gnu_printf, FMT, FMT+1)))
 #define IM_FMTARGS(FMT)
+#define NLOHMANN_DEFINE_TYPE_INTRUSIVE(Type, __VA_ARGS__) friend void to_json(nlohmann::json& nlohmann_json_j, const Type& nlohmann_json_t) { NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, __VA_ARGS__)) } friend void from_json(const nlohmann::json& nlohmann_json_j, Type& nlohmann_json_t) { NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, __VA_ARGS__)) }

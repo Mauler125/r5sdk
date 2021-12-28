@@ -78,7 +78,8 @@ namespace R5Net {
 		SUCCESS,
 		FORBIDDEN,
 		NOT_FOUND,
-		MS_ERROR
+		MS_ERROR,
+		UNKNOWN
 	};
 
 
@@ -108,7 +109,9 @@ namespace R5Net {
 
 	struct UpdateGameServerMSResponse : DefaultMSResponse
 	{
+		NetGameServer gameServer;
 
+		NLOHMANN_DEFINE_TYPE_INTRUSIVE(UpdateGameServerMSResponse, gameServer)
 	};
 
 	struct GetIsUserBannedMSResponse : DefaultMSResponse
