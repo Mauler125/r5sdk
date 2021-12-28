@@ -1,10 +1,35 @@
 #pragma once
-#include "serverlisting.h"
+
+#include "net_structs.h"
+#include "core/stdafx.h"
 
 namespace R5Net
 {
-	class Client
+#define R5NET_GET_ENDPOINT(FuncName, Route, ResponseStructType) ResponseStructType FuncName() {\
+	ResponseStructType result{};\
+	httplib::Result response = HttpClient.Get(Route);\
+	if(response == nullptr) return result;\
+	nlohmann::json response_body = nlohmann::json::parse(response->body);\
+	nlohmann::to_json(response_body, result);\
+	return result;\
+}\
+
+#define R5NET_POST_ENDPOINT(FuncName, Route, RequestStructType, ResponseStructType) ResponseStructType FuncName(RequestStructType& request) {\
+	ResponseStructType result{};\
+	nlohmann::json request_body;\
+	nlohmann::to_json(request_body, request);\
+	httplib::Result response = HttpClient.Post("/", request_body.dump(), "application/json");\
+	if (response == nullptr) return result;\
+	nlohmann::json response_body = nlohmann::json::parse(response->body);\
+	nlohmann::to_json(response_body, result);\
+	return result;\
+}
+
+
+	class Client 
 	{
+		httplib::Client HttpClient;
+
 	public:
 		Client(std::string masterServerConnectionString) : HttpClient(masterServerConnectionString.c_str()) 
 		{
@@ -22,4 +47,5 @@ namespace R5Net
 
 	};
 }
-extern R5Net::Client* g_pR5net;
+
+extern R5Net::Client* g_pR5net;	

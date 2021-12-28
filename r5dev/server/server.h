@@ -33,7 +33,6 @@ namespace
 void CServer_Attach();
 void CServer_Detach();
 
-void IsClientBanned(R5Net::Client* r5net, const std::string ipaddr, std::int64_t nucleus_id);
 void* HCServer_Authenticate(void* cserver, user_creds* inpacket);
 
 extern bool g_bCheckCompBanDB;
