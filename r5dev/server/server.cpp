@@ -12,7 +12,16 @@
 void IsClientBanned(R5Net::Client* pR5net, const std::string svIPAddr, std::int64_t nNucleusID)
 {
 	std::string svError = std::string();
-	bool bCompBanned = pR5net && pR5net->GetClientIsBanned(svIPAddr, nNucleusID, svError);
+	
+	R5Net::GetIsUserBannedMSRequest req{nNucleusID, svIPAddr};
+	R5Net::GetIsUserBannedMSResponse res = pR5net->GetClientIsBanned(req);
+
+	switch (res.status)
+	{
+		// TODO: EVENTUALLY IMPLEMENT SITUATIONS WHERE REQUEST DIDNT SUCCEED
+	}
+
+	bool bCompBanned = res.isBanned;
 	if (bCompBanned)
 	{
 		while (bCompBanned)

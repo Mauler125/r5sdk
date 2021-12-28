@@ -6,22 +6,20 @@ namespace R5Net
 	class Client
 	{
 	public:
-		Client(std::string serverString) : m_HttpClient(serverString.c_str())
+		Client(std::string masterServerConnectionString) : HttpClient(masterServerConnectionString.c_str()) 
 		{
-			m_HttpClient.set_connection_timeout(10);
+			HttpClient.set_connection_timeout(25);
 		}
-	
-		std::vector<ServerListing> GetServersList(std::string& svOutMessage);
-		bool PostServerHost(std::string& svOutMessage, std::string& svOutToken, const ServerListing& slServerListing);
-		bool GetServerByToken(ServerListing& slOutServer, std::string& svOutMessage, const std::string svToken);
-		bool GetClientIsBanned(std::string svIpAddress, std::int64_t nOriginID, std::string& svOutErrCl);
-		std::string GetSDKVersion();
 
-		Client* pR5net = nullptr;
-		Client* GetR5Net() { return pR5net; }
 
-	private:
-		httplib::Client m_HttpClient;
+		R5NET_GET_ENDPOINT(GetGlobalStats, "/api/stats", GetGlobalStatsMSResponse)
+		R5NET_GET_ENDPOINT(GetGameServersList, "/api/game_servers/list", GetGameServersListMSResponse)
+
+		R5NET_POST_ENDPOINT(UpdateMyGameServer, "/api/game_servers/update", UpdateGameServerMSRequest, UpdateGameServerMSResponse)
+		R5NET_POST_ENDPOINT(GetClientIsBanned, "/api/ban_system/is_user_banned", GetIsUserBannedMSRequest, GetIsUserBannedMSResponse)
+
+
+
 	};
 }
 extern R5Net::Client* g_pR5net;
