@@ -45,8 +45,8 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 #endif // !DEDICATED
 
 		*(bool*)m_bRestrictServerCommands = true; // Restrict commands.
-		void* disconnect = g_pCvar->FindCommand("disconnect");
-		*(std::int32_t*)((std::uintptr_t)disconnect + 0x38) |= FCVAR_SERVER_CAN_EXECUTE; // Make sure server is not restricted to this.
+		ConCommandBase* disconnect = (ConCommandBase*)g_pCvar->FindCommand("disconnect");
+		disconnect->AddFlags(FCVAR_SERVER_CAN_EXECUTE); // Make sure server is not restricted to this.
 
 		if (net_userandomkey->m_pParent->m_iValue == 1)
 		{
