@@ -19,7 +19,7 @@ bool HIConVar_IsFlagSet(ConVar* pConVar, int nFlags)
 			printf(" Flaged: %08X\n", pConVar->m_ConCommandBase.m_nFlags);
 		}
 		// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY.
-		pConVar->m_ConCommandBase.m_nFlags &= ~(FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT);
+		pConVar->m_ConCommandBase.RemoveFlags(FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT);
 		if (cm_debug_cmdquery->m_pParent->m_iValue > 0)
 		{
 			printf(" Masked: %08X\n", pConVar->m_ConCommandBase.m_nFlags);
@@ -37,7 +37,7 @@ bool HIConVar_IsFlagSet(ConVar* pConVar, int nFlags)
 			return false;
 		}
 		// Return false on every FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT query.
-		return (pConVar->m_ConCommandBase.m_nFlags & nFlags) != 0;
+		return pConVar->m_ConCommandBase.HasFlags(nFlags) != 0;
 	}
 	else
 	{
@@ -47,7 +47,7 @@ bool HIConVar_IsFlagSet(ConVar* pConVar, int nFlags)
 			printf(" Flaged: %08X\n", pConVar->m_ConCommandBase.m_nFlags);
 		}
 		// Mask off FCVAR_DEVELOPMENTONLY.
-		pConVar->m_ConCommandBase.m_nFlags &= ~(FCVAR_DEVELOPMENTONLY);
+		pConVar->m_ConCommandBase.RemoveFlags(FCVAR_DEVELOPMENTONLY);
 		if (cm_debug_cmdquery->m_pParent->m_iValue > 0)
 		{
 			printf(" Masked: %08X\n", pConVar->m_ConCommandBase.m_nFlags);
@@ -65,7 +65,7 @@ bool HIConVar_IsFlagSet(ConVar* pConVar, int nFlags)
 			return false;
 		}
 		// Return false on every FCVAR_DEVELOPMENTONLY query.
-		return (pConVar->m_ConCommandBase.m_nFlags & nFlags) != 0;
+		return pConVar->m_ConCommandBase.HasFlags(nFlags) != 0;
 	}
 	// Default retail behaviour.
 	return IConVar_IsFlagSet(pConVar, nFlags);
@@ -101,7 +101,8 @@ void IConVar_InitConVar()
 	cm_return_false_cmdquery_cheats = IConVar_RegisterConVar("cm_return_false_cmdquery_cheats", "0", FCVAR_RELEASE, "Returns false on all FCVAR_DEVELOPMENTONLY and FCVAR_CHEAT ConVar/ConCommand queries ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// SERVER                                                                 |
-	sv_showconnecting = IConVar_RegisterConVar("sv_showconnecting", "1", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Logs information about the connecting client to the console.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sv_showconnecting  = IConVar_RegisterConVar("sv_showconnecting", "1", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Logs information about the connecting client to the console.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sv_pylonvisibility = IConVar_RegisterConVar("sv_pylonvisibility", "0", FCVAR_RELEASE, "Determines the visiblity to the Pylon Master Server, 0 = Not visible, 1 = Visible, 2 = Hidden BUG BUG: not implemented yet.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// CLIENT                                                                 |
 	cl_drawconsoleoverlay      = IConVar_RegisterConVar("cl_drawconsoleoverlay", "1", FCVAR_RELEASE, "Draw the console overlay at the top of the screen.", false, 0.f, false, 0.f, nullptr, nullptr);

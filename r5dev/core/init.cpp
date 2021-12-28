@@ -70,7 +70,7 @@ void Systems_Init()
 	CBaseClient_Attach();
 	CBaseFileSystem_Attach();
 
-	//QHull_Attach();
+	QHull_Attach();
 	//BspLib_Attach();
 
 #ifndef DEDICATED
@@ -138,7 +138,7 @@ void Systems_Shutdown()
 	CBaseClient_Detach();
 	CBaseFileSystem_Detach();
 
-	//QHull_Detach();
+	QHull_Detach();
 	//BspLib_Detach();
 
 #ifndef DEDICATED

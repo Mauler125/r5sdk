@@ -8588,7 +8588,6 @@ bool ImGui::Hotkey(const char* label, int* key, const ImVec2& ssize)
         return false;
     }
 
-    const bool requestedFocus = ImGui::FocusableItemRegister(window, id);
     const bool isHovered = ImGui::ItemHoverable(frameBB, id);
 
     if (isHovered) {
@@ -8598,7 +8597,7 @@ bool ImGui::Hotkey(const char* label, int* key, const ImVec2& ssize)
 
     const bool didClick = isHovered && io.MouseClicked[0];
 
-    if (requestedFocus || didClick)
+    if (didClick)
     {
         if (g.ActiveId != id)
         {

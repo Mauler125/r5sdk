@@ -11,6 +11,7 @@ ConVar* cm_return_false_cmdquery_cheats    = new ConVar();
 //-------------------------------------------------------------------------
 // SERVER                                                                 |
 ConVar* sv_showconnecting                  = new ConVar();
+ConVar* sv_pylonvisibility                 = new ConVar();
 //-------------------------------------------------------------------------
 // CLIENT                                                                 |
 ConVar* cl_drawconsoleoverlay              = new ConVar();

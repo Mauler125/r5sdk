@@ -22,6 +22,7 @@ extern ConVar* cm_return_false_cmdquery_cheats;
 //-------------------------------------------------------------------------
 // SERVER                                                                 |
 extern ConVar* sv_showconnecting;
+extern ConVar* sv_pylonvisibility;
 //-------------------------------------------------------------------------
 // CLIENT                                                                 |
 extern ConVar* cl_drawconsoleoverlay;

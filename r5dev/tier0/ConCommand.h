@@ -70,6 +70,22 @@ class ConCommand
 class ConCommandBase
 {
 public:
+
+	void AddFlags(int flags)
+	{
+		m_nFlags |= flags;
+	}
+
+	void RemoveFlags(int flags)
+	{
+		m_nFlags &= ~flags;
+	}
+
+	bool HasFlags(int flags)
+	{
+		return m_nFlags & flags;
+	}
+
 	void* m_pConCommandBaseVTable; //0x0000
 	ConCommandBase* m_pNext;       //0x0008
 	bool        m_bRegistered;     //0x0010
