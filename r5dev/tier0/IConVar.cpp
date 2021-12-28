@@ -19,7 +19,7 @@ bool HIConVar_IsFlagSet(ConVar* pConVar, int nFlags)
 			printf(" Flaged: %08X\n", pConVar->m_ConCommandBase.m_nFlags);
 		}
 		// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY.
-		pConVar->m_ConCommandBase.m_nFlags &= ~(FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT);
+		pConVar->m_ConCommandBase.RemoveFlags(FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT);
 		if (cm_debug_cmdquery->m_pParent->m_iValue > 0)
 		{
 			printf(" Masked: %08X\n", pConVar->m_ConCommandBase.m_nFlags);
@@ -37,7 +37,7 @@ bool HIConVar_IsFlagSet(ConVar* pConVar, int nFlags)
 			return false;
 		}
 		// Return false on every FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT query.
-		return (pConVar->m_ConCommandBase.m_nFlags & nFlags) != 0;
+		return pConVar->m_ConCommandBase.HasFlags(nFlags) != 0;
 	}
 	else
 	{
@@ -47,7 +47,7 @@ bool HIConVar_IsFlagSet(ConVar* pConVar, int nFlags)
 			printf(" Flaged: %08X\n", pConVar->m_ConCommandBase.m_nFlags);
 		}
 		// Mask off FCVAR_DEVELOPMENTONLY.
-		pConVar->m_ConCommandBase.m_nFlags &= ~(FCVAR_DEVELOPMENTONLY);
+		pConVar->m_ConCommandBase.RemoveFlags(FCVAR_DEVELOPMENTONLY);
 		if (cm_debug_cmdquery->m_pParent->m_iValue > 0)
 		{
 			printf(" Masked: %08X\n", pConVar->m_ConCommandBase.m_nFlags);
@@ -65,7 +65,7 @@ bool HIConVar_IsFlagSet(ConVar* pConVar, int nFlags)
 			return false;
 		}
 		// Return false on every FCVAR_DEVELOPMENTONLY query.
-		return (pConVar->m_ConCommandBase.m_nFlags & nFlags) != 0;
+		return pConVar->m_ConCommandBase.HasFlags(nFlags) != 0;
 	}
 	// Default retail behaviour.
 	return IConVar_IsFlagSet(pConVar, nFlags);
