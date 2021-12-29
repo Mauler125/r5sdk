@@ -40,7 +40,7 @@ void HRtech_AsyncLoad(std::string svPakFileName)
 
 		if (results == 0xFFFFFFFF)
 		{
-			DevMsg(eDLL_T::RTECH, "RTech AsyncLoad failed read '%s' results '%u'\n", svPakFileName, results);
+			DevMsg(eDLL_T::RTECH, "RTech AsyncLoad failed read '%s' results '%u'\n", svPakFileName.c_str(), results);
 		}
 	}
 	else
