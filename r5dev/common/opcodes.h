@@ -68,7 +68,7 @@ namespace
 		ADDRESS gCEngineAPI__Connect = 0x0000000140342BA0; //
 		ADDRESS gCEngineAPI__OnStartup = 0x0000000140343860; //
 		ADDRESS gCSourceAppSystemGroup__Create = 0x000000014044AFA0; //
-		ADDRESS gCShaderSystem__Init = 0x00000001403DF870; //
+		ADDRESS CShaderSystem__Init = 0x00000001403DF870; //
 		ADDRESS gInitMaterialSystem = 0x000000014024B390; //
 		ADDRESS gCVideoMode_Common__DrawStartupGraphic = 0x000000014027F0F0; //
 		ADDRESS gShaderDispatch = 0x00000001403EE5C0;
@@ -79,20 +79,20 @@ namespace
 		ADDRESS CollisionBSPData_LoadAllLumps = 0x00000001402546F0; // BSP.
 
 
-		ADDRESS gCStudioRenderContext__LoadModel = 0x00000001404554C0;
+		ADDRESS CStudioRenderContext__LoadModel = 0x00000001404554C0;
 		ADDRESS CStudioRenderContext__LoadMaterials = 0x0000000140456B50;
 
 
-		ADDRESS gCGameServer__SpawnServer = 0x0000000140312D80;
+		ADDRESS CGameServer__SpawnServer = 0x0000000140312D80;
 		
-		ADDRESS FindModel = 0x140253530;
-		ADDRESS LoadModel = 0x140253810;
-		ADDRESS unk1 = 0x140256480; // case 1: only gets called on changelevel, needs more research, function gets called by CModelLoader virtual function.
+		ADDRESS CModelLoader__FindModel = 0x140253530;
+		ADDRESS CModelLoader__LoadModel = 0x140253810;
+		ADDRESS CollisionBSPData_LinkPhysics = 0x140256480; // case 1: only gets called on changelevel, needs more research, function gets called by CModelLoader virtual function.
 
 
 		ADDRESS ParsePropStatic = 0x1402901E0;
 
-		ADDRESS CModelLoader__Sprite_LoadModel = 0x140252F10;
+		ADDRESS CModelLoader__Studio_LoadModel = 0x140252F10;
 
 
 		ADDRESS e9 = 0x00000001404066E0;

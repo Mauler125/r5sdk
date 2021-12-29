@@ -10,38 +10,40 @@
 
 #ifdef DEDICATED
 
-void NoShaderApi()
+void NoShaderApi_Init()
 {
 	//-------------------------------------------------------------------------
-	// -NOSHADERAPI
+	// NOSHADERAPI
 	//-------------------------------------------------------------------------
-	gCShaderSystem__Init.Patch({ 0xC3 });                                                         // FUN --> RET | Return early in 'CShaderSystem::Init' to prevent initialization.
+	CShaderSystem__Init.Patch({ 0xC3 });                                                         // FUN --> RET | Return early in 'CShaderSystem::Init' to prevent initialization.
 
-	gCGameServer__SpawnServer.Offset(0x43).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });               // CAL --> NOP | Prevent call to unknown materia;/shader code.
-	gCGameServer__SpawnServer.Offset(0x48).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });               // TODO: Research 'CIVDebugOverlay'.
+	CGameServer__SpawnServer.Offset(0x43).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });               // CAL --> NOP | Prevent call to unknown material/shader code.
+	CGameServer__SpawnServer.Offset(0x48).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });               // TODO: Research 'CIVDebugOverlay'.
 
-	CStudioRenderContext__LoadMaterials.Offset(0x28).Patch({ 0xE9, 0x80, 0x04, 0x00, 0x00 });     // FUN --> RET | 'CStudioRenderContext::LoadMaterials' is called virtually by the 'RMDL' streaming job.
+	CStudioRenderContext__LoadMaterials.Offset(0x28).Patch({ 0xE9, 0x80, 0x04, 0x00, 0x00 });    // FUN --> RET | 'CStudioRenderContext::LoadMaterials' is called virtually by the 'RMDL' streaming job.
 
 	// Note: The registers here seems to contains pointers to material data and 'CMaterial' class methods when the shader system is initialized.
-	gCStudioRenderContext__LoadModel.Offset(0x17D).Patch({ 0x90, 0x90, 0x90, 0x90 });             // MOV --> NOP | RAX + RCX are both nullptrs.
-	gCStudioRenderContext__LoadModel.Offset(0x181).Patch({ 0x90, 0x90, 0x90 });                   // MOV --> NOP | RCX is nullptr when trying to dereference.
-	gCStudioRenderContext__LoadModel.Offset(0x184).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | RAX is nullptr during virtual call resulting in exception 'C0000005'.
+	CStudioRenderContext__LoadModel.Offset(0x17D).Patch({ 0x90, 0x90, 0x90, 0x90 });             // MOV --> NOP | RAX + RCX are both nullptrs.
+	CStudioRenderContext__LoadModel.Offset(0x181).Patch({ 0x90, 0x90, 0x90 });                   // MOV --> NOP | RCX is nullptr when trying to dereference.
+	CStudioRenderContext__LoadModel.Offset(0x184).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | RAX is nullptr during virtual call resulting in exception 'C0000005'.
 
-	CollisionBSPData_LoadAllLumps.Offset(0x1045).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });         // CAL --> NOP | Prevent call to 'Mod_LoadCubemapSamples()'
+	CModelLoader__Studio_LoadModel.Offset(0x325).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | Virtual call to 'CMaterialSystem::FindMaterialEx' fails as RAX is nullptr.
+	CModelLoader__Studio_LoadModel.Offset(0x33D).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | Virtual call to 'CMaterialGlue' class method fails as RAX is nullptr.
+	CModelLoader__Studio_LoadModel.Offset(0x359).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | Virtual call to 'CMaterialGlue' class method fails as RAX is nullptr.
+	CModelLoader__Studio_LoadModel.Offset(0x374).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | Virtual call to 'CMaterialGlue' class method fails as RAX is nullptr.
+	CModelLoader__Studio_LoadModel.Offset(0x38D).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | Virtual call to 'ReturnZero' fails as RAX is nullptr.
+	CModelLoader__Studio_LoadModel.Offset(0x3A4).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | Virtual call to 'CMaterialGlue' class method fails as RAX is nullptr.
 
-	LoadModel.Offset(0x462).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });                              // CAL --> NOP | Prevent call to 'CStudioRenderContext::LoadMaterials'.
-	//LoadModel.Offset(0x6FE).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });                              // CAL --> NOP | Unknown material/texture code.
-
-	CModelLoader__Sprite_LoadModel.Offset(0x325).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | Virtual call to 'CMaterialSystem::FindMaterialEx' fails as RAX is nullptr.
-	CModelLoader__Sprite_LoadModel.Offset(0x33D).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | Virtual call to 'CMaterialGlue' class method fails as RAX is nullptr.
-	CModelLoader__Sprite_LoadModel.Offset(0x359).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | Virtual call to 'CMaterialGlue' class method fails as RAX is nullptr.
-	CModelLoader__Sprite_LoadModel.Offset(0x374).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | Virtual call to 'CMaterialGlue' class method fails as RAX is nullptr.
-	CModelLoader__Sprite_LoadModel.Offset(0x38D).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | Virtual call to 'ReturnZero' fails as RAX is nullptr.
-	CModelLoader__Sprite_LoadModel.Offset(0x3A4).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | Virtual call to 'CMaterialGlue' class method fails as RAX is nullptr.
+	CModelLoader__LoadModel.Offset(0x462).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });                             // CAL --> NOP | Prevent call to 'CStudioRenderContext::LoadMaterials'.
 
 	// Note: At [14028F3B0 + 0x5C7] RSP seems to contain a block of pointers to data for the static prop rmdl in question. [RSP + 0x70] is a pointer to (what seems to be) shader/material data. The pointer will be NULL without a shader system.
-	p_CalcPropStaticFrustumCulling.Offset(0x5E0).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });         // MOV --> NOP | RSP + 0x70 is a nullptr which gets moved to R13, R13 gets used here resulting in exception 'C0000005'.
-	p_CalcPropStaticFrustumCulling.Offset(0x5EB).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });   // CAL --> NOP | RAX is nullptr during virtual call resulting in exception 'C0000005'.
+	p_CalcPropStaticFrustumCulling.Offset(0x5E0).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });        // MOV --> NOP | RSP + 0x70 is a nullptr which gets moved to R13, R13 gets used here resulting in exception 'C0000005'.
+	p_CalcPropStaticFrustumCulling.Offset(0x5EB).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | RAX is nullptr during virtual call resulting in exception 'C0000005'.
+
+	CollisionBSPData_LinkPhysics.Offset(0x129).Patch({ 0x90, 0x90, 0x90 });                      // MOV --> NOP | RCX is nullptr during dereference since shadersystem isn't initialized. Exception 'C0000005'.
+	CollisionBSPData_LinkPhysics.Offset(0x12C).Patch({ 0x90, 0x90, 0x90 });                      // CAL --> NOP | Virtual call to 'CTexture' class member in RAX + 0x78 fails. Previous instruction could not dereference.
+
+	CollisionBSPData_LoadAllLumps.Offset(0x1045).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });        // CAL --> NOP | Prevent call to 'Mod_LoadCubemapSamples()'.
 }
 
 void Dedicated_Init()
@@ -50,7 +52,7 @@ void Dedicated_Init()
 	*(uintptr_t*)0x14B37C3C0 = 0x141F10CA0;
 	*(uintptr_t*)0x14B3800D7 = 0x1; // bDedicated
 
-	NoShaderApi();
+	NoShaderApi_Init();
 
 	//-------------------------------------------------------------------------
 	// RESEARCH FOR IMPROVEMENT!
@@ -70,7 +72,6 @@ void Dedicated_Init()
 	c2.Offset(0x23C).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });                 // JNE --> NOP | TODO: NOP 'particle_script' instead.
 	c2.Offset(0x2BD).Patch({ 0x90, 0x90, 0x90 });                                   // MOV --> NOP | TODO: NOP 'particle_script' instead.
 	c3.Offset(0xA9).Patch({ 0x90, 0x90, 0x90, 0x90 });                              // MOV --> NOP | TODO: NOP 'highlight_system' instead.
-	unk1.Offset(0x129).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });               // MOV AND CALL --> | Eliminates null pointer dereference crash. Needs more research.
 
 	//-------------------------------------------------------------------------
 	// CENGINEAPI
@@ -261,11 +262,9 @@ void RuntimePtc_Toggle() /* .TEXT */
 		//-------------------------------------------------------------------------
 		// CALL --> NOP | Allow some maps to be loaded by nopping out a call in LoadProp function
 		dst007.Offset(0x5E8).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });
-
-
 		//-------------------------------------------------------------------------
 		// CALL --> NOP | Disable the viewmodel rendered to avoid a crash from a certain entity in desertlands_mu1
-		//dst008.Offset(0x67).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });
+		dst008.Offset(0x67).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });
 
 
 		printf("\n");
@@ -278,12 +277,10 @@ void RuntimePtc_Toggle() /* .TEXT */
 	{
 		//-------------------------------------------------------------------------
 		// NOP --> CALL | Recover function DST007
-		//WriteProcessMemory(GameProcess, LPVOID(dst007 + 0x5E8), "\x48\x8B\x03\xFF\x90\xB0\x02\x00\x00\x84\xC0", 11, NULL);
-
 		dst007.Offset(0x5E8).Patch({ 0x48, 0x8B, 0x03, 0xFF, 0x90, 0xB0, 0x02, 0x00, 0x00, 0x84, 0xC0 });
 		//-------------------------------------------------------------------------
 		// NOP --> CALL | Recover function DST008
-		//dst008.Offset(0x67).Patch({ 0xE8, 0x54, 0xD8, 0xFF, 0xFF });
+		dst008.Offset(0x67).Patch({ 0xE8, 0x54, 0xD8, 0xFF, 0xFF });
 
 		printf("\n");
 		printf("+--------------------------------------------------------+\n");
