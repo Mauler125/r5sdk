@@ -22,15 +22,15 @@ namespace
 #ifdef DEDICATED
 #if defined (GAMEDLL_S1)
 	ADDRESS g_bEbisuSDKInitialized = p_EbisuSDK_Init_Tier0.FindPatternSelf("80 3D ?? ?? ?? ?? 00", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x7).GetPtr();
-	ADDRESS g_bEbisuSDKCvarInitialized = p_Map_Callback.FindPatternSelf("80 3D 8F 7C 1E 22 00", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x7).GetPtr();
+	ADDRESS g_bEbisuSDKCvarInitialized = p_Host_Map_f_CompletionFunc.FindPatternSelf("80 3D 8F 7C 1E 22 00", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x7).GetPtr();
 	ADDRESS g_qEbisuSDKCvarInitialized = p_EbisuSDK_CVar_Init.FindPatternSelf("4C 89 05 C4 2B 0E 22", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr();
 #elif defined (GAMEDLL_S2)
 	ADDRESS g_bEbisuSDKInitialized = p_EbisuSDK_Init_Tier0.FindPatternSelf("80 3D ?? ?? ?? ?? 00", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x7).GetPtr();
-	ADDRESS g_bEbisuSDKCvarInitialized = p_Map_Callback.FindPatternSelf("80 3D 43 2D 41 22 00", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x7).GetPtr();
+	ADDRESS g_bEbisuSDKCvarInitialized = p_Host_Map_f_CompletionFunc.FindPatternSelf("80 3D 43 2D 41 22 00", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x7).GetPtr();
 	ADDRESS g_qEbisuSDKCvarInitialized = p_EbisuSDK_CVar_Init.FindPatternSelf("4C 89 05 74 2D 32 22", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr();
 #elif defined (GAMEDLL_S3)
 	ADDRESS g_bEbisuSDKInitialized = p_EbisuSDK_Init_Tier0.FindPatternSelf("80 3D ?? ?? ?? ?? 00", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x7).GetPtr();
-	ADDRESS g_bEbisuSDKCvarInitialized = p_Map_Callback.FindPatternSelf("80 3D 23 54 2B 23 00", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x7).GetPtr();
+	ADDRESS g_bEbisuSDKCvarInitialized = p_Host_Map_f_CompletionFunc.FindPatternSelf("80 3D 23 54 2B 23 00", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x7).GetPtr();
 	ADDRESS g_qEbisuSDKCvarInitialized = p_EbisuSDK_CVar_Init.FindPatternSelf("4C 89 05 B4 2C 1C 23", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr();
 #endif // GAMEDLL_*
 #endif // DEDICATED
