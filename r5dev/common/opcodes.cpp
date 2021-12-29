@@ -70,6 +70,7 @@ void Dedicated_Init()
 	c2.Offset(0x23C).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });                 // JNE --> NOP | TODO: NOP 'particle_script' instead.
 	c2.Offset(0x2BD).Patch({ 0x90, 0x90, 0x90 });                                   // MOV --> NOP | TODO: NOP 'particle_script' instead.
 	c3.Offset(0xA9).Patch({ 0x90, 0x90, 0x90, 0x90 });                              // MOV --> NOP | TODO: NOP 'highlight_system' instead.
+	unk1.Offset(0x129).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });               // MOV AND CALL --> | Eliminates null pointer dereference crash. Needs more research.
 
 	//-------------------------------------------------------------------------
 	// CENGINEAPI

@@ -87,6 +87,7 @@ namespace
 		
 		ADDRESS FindModel = 0x140253530;
 		ADDRESS LoadModel = 0x140253810;
+		ADDRESS unk1 = 0x140256480; // case 1: only gets called on changelevel, needs more research, function gets called by CModelLoader virtual function.
 
 
 		ADDRESS ParsePropStatic = 0x1402901E0;
