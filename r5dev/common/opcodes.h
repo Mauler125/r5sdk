@@ -91,6 +91,7 @@ namespace
 
 		ADDRESS ParsePropStatic = 0x1402901E0;
 
+		ADDRESS CModelLoader__Sprite_LoadModel = 0x140252F10;
 
 
 		ADDRESS e9 = 0x00000001404066E0;
