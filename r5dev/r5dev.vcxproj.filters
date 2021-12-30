@@ -303,8 +303,8 @@
     <ClCompile Include="engine\host_cmd.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
-    <ClCompile Include="engine\debugoverlay.cpp">
-      <Filter>sdk\engine</Filter>
+    <ClCompile Include="windows\system.cpp">
+      <Filter>windows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -842,8 +842,8 @@
     <ClInclude Include="engine\host_cmd.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
-    <ClInclude Include="engine\debugoverlay.h">
-      <Filter>sdk\engine</Filter>
+    <ClInclude Include="windows\system.h">
+      <Filter>windows</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

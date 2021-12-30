@@ -50,6 +50,7 @@ void Dedicated_Init()
 {
 	*(uintptr_t*)0x14D415040 = 0x1417304E8;
 	*(uintptr_t*)0x14B37C3C0 = 0x141F10CA0;
+
 	*(uintptr_t*)0x14B3800D7 = 0x1; // bDedicated
 
 	NoShaderApi_Init();
@@ -77,12 +78,13 @@ void Dedicated_Init()
 	// CENGINEAPI
 	//-------------------------------------------------------------------------
 	gCEngineAPI__Init.Offset(0xB7).Patch({ 0xE9, 0xC7, 0x00, 0x00, 0x00 });           // JNE --> JNP | Skip Video Mode validation code.
-	gCEngineAPI__OnStartup.Offset(0x5E).Patch({ 0xE9, 0xC6, 0x01, 0x00, 0x00 });      // JNE --> JNP | Skip Video Mode initialization code.
-	gCEngineAPI__Connect.Offset(0xDD).Patch({ 0x90, 0x90, 0x90 });                    // CAL --> NOP | NOP call to texture and material preloading.
-	gCEngineAPI__Connect.Offset(0xF1).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | NOP call to texture and material preloading.
-	gCEngineAPI__Connect.Offset(0x1C6).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });       // CAL --> NOP | NOP call to texture and material preloading.
+
+	//gCEngineAPI__Connect.Offset(0x3E).Patch({ 0xE9, 0x8F, 0x01, 0x00, 0x00 });          // JE  --> JMP | NOP call to texture and material preloading.
+	//gCEngineAPI__Connect.Offset(0xDD).Patch({ 0x90, 0x90, 0x90 });                    // CAL --> NOP | NOP call to texture and material preloading.
+	//gCEngineAPI__Connect.Offset(0xF1).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | NOP call to texture and material preloading.
+	//gCEngineAPI__Connect.Offset(0x1C6).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });       // CAL --> NOP | NOP call to texture and material preloading.
 	//gCEngineAPI__ModInit.Offset(0x3DD).Patch({ 0xE9, 0xB5, 0x00, 0x00, 0x00, 0x00 }); // JNE --> JNP | Skip CreateWindow Initialization code.
-	gCEngineAPI__ModInit.Offset(0x44C).Patch({ 0xEB, 0x49 });                         // JNZ --> JMP | Skip CreateGameWindow validation code.
+	//gCEngineAPI__ModInit.Offset(0x44C).Patch({ 0xEB, 0x49 });                         // JNZ --> JMP | Skip CreateGameWindow validation code.
 	//gCEngineAPI__ModInit.Offset(0x3DD).Patch({ 0xEB, 0x6D });                         // JE  --> JMP | Skip CreateGameWindow initialization code.
 
 	//-------------------------------------------------------------------------
@@ -105,10 +107,22 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	// CSOURCEAPPSYSTEMGROUP
 	//-------------------------------------------------------------------------
-	gCSourceAppSystemGroup__Create.Offset(0x2A5).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90}); // CAL --> NOP | studioRender->Connect().
-	gCSourceAppSystemGroup__Create.Offset(0x35D).Patch({ 0x90, 0x90, 0x90 }); // CAL --> NOP | joystickInit?
-	gCSourceAppSystemGroup__Create.Offset(0x384).Patch({ 0x90, 0x90, 0x90 }); // CAL --> NOP | PrecacheMaterial.
-	gCSourceAppSystemGroup__Create.Offset(0x39E).Patch({ 0x90, 0x90, 0x90 }); // CAL --> NOP | binkBlankTexture.
+	gCSourceAppSystemGroup__Create.Offset(0x248).Patch({ 0x90, 0x90, 0x90 }); // CAL --> NOP | inputSystem->Connect().
+	gCSourceAppSystemGroup__Create.Offset(0x267).Patch({ 0x90, 0x90, 0x90 }); // CAL --> NOP | materials->Connect().
+	//gCSourceAppSystemGroup__Create.Offset(0x286).Patch({ 0x90, 0x90, 0x90 }); // CAL --> NOP | mdlCache->Connect().
+	gCSourceAppSystemGroup__Create.Offset(0x2A5).Patch({ 0x90, 0x90, 0x90 }); // CAL --> NOP | studioRender->Connect().
+	gCSourceAppSystemGroup__Create.Offset(0x2C4).Patch({ 0x90, 0x90, 0x90 }); // CAL --> NOP | avi->Connect().
+	gCSourceAppSystemGroup__Create.Offset(0x2E3).Patch({ 0x90, 0x90, 0x90 }); // CAL --> NOP | engineAPI->Connect().
+	//gCSourceAppSystemGroup__Create.Offset(0x302).Patch({ 0x90, 0x90, 0x90 }); // CAL --> NOP | dataCache->Connect().
+	gCSourceAppSystemGroup__Create.Offset(0x321).Patch({ 0x90, 0x90, 0x90 }); // CAL --> NOP | matSystemSurface->Connect().
+	gCSourceAppSystemGroup__Create.Offset(0x340).Patch({ 0x90, 0x90, 0x90 }); // CAL --> NOP | vgui->Connect().
+	gCSourceAppSystemGroup__Create.Offset(0x35D).Patch({ 0x90, 0x90, 0x90 }); // CAL --> NOP | inputSystem->Init().
+	gCSourceAppSystemGroup__Create.Offset(0x384).Patch({ 0x90, 0x90, 0x90 }); // CAL --> NOP | studioRender->Init().
+	gCSourceAppSystemGroup__Create.Offset(0x39E).Patch({ 0x90, 0x90, 0x90 }); // CAL --> NOP | bik->Init().
+	gCSourceAppSystemGroup__Create.Offset(0x3AB).Patch({ 0x90, 0x90, 0x90 }); // CAL --> NOP | engineAPI->Init().
+	gCSourceAppSystemGroup__Create.Offset(0x3F6).Patch({ 0x90, 0x90, 0x90 }); // CAL --> NOP | vgui->Init().
+	gCSourceAppSystemGroup__Create.Offset(0x3E9).Patch({ 0x90, 0x90, 0x90 }); // CAL --> NOP | matEmbeddedPanel->Init().
+	gCSourceAppSystemGroup__Create.Offset(0x3F9).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | EAC_ClientInterface_Init().
 
 	//-------------------------------------------------------------------------
 	// CVIDEOMODE_COMMON
@@ -118,17 +132,17 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	// CMATERIALSYSTEM
 	//-------------------------------------------------------------------------
-	gCMaterialSystem__MatsysMode_Init.Offset(0x22).Patch({ 0xEB, 0x66 }); // JE  --> JMP | Matsys mode init (CMaterialSystem).
-
-	//-------------------------------------------------------------------------
-	// CSHADERSYSTEM
-	//-------------------------------------------------------------------------
-	gCShaderSystem__9.Offset(0x3).Patch({ 0xE9, 0x95, 0x03, 0x00, 0x00 }); // Unnecessary CShaderSystem call?
+	//gCMaterialSystem__MatsysMode_Init.Offset(0x22).Patch({ 0xEB, 0x66 }); // JE  --> JMP | Matsys mode init (CMaterialSystem). // TODO: Needed?
 
 	//-------------------------------------------------------------------------
 	// CSHADERGLUE
 	//-------------------------------------------------------------------------
-	gCShaderGlue__Init.Patch({ 0xC3 }); // FUN --> RET | Skip ShaderSetup(). CShaderGlue.
+	//gCShaderGlue__Init.Patch({ 0xC3 }); // FUN --> RET | Skip ShaderSetup(). CShaderGlue.
+
+	//-------------------------------------------------------------------------
+	// RUNTIME: SYS_INITGAME
+	//-------------------------------------------------------------------------
+	Sys_InitGame.Offset(0x70).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // STZNZ --> NOP | Prevent 'bDedicated' from being set to false.
 
 	//-------------------------------------------------------------------------
 	// RUNTIME: HOST_INIT
@@ -137,12 +151,17 @@ void Dedicated_Init()
 	gHost_Init_0.Offset(0x182).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> JMP | Disable UI material asset initialization.
 	gHost_Init_0.Offset(0x859).Patch({ 0xE9, 0x19, 0x04, 0x00, 0x00 }); // LEA --> RET | Disable 'client.dll' library initialization.
 	gHost_Init_0.Offset(0xC77).Patch({ 0xE8, 0x44, 0xCF, 0xFF, 0xFF }); // CAL --> CAL | Disable user config loading and call entitlements.rson initialization instead.
-	gHost_Init_1.Offset(0x19).Patch({ 0xEB, 0x6E });                    // JNE --> JMP | Take dedicated initialization routine instead.
+
+
+	//gHost_Init_1.Offset(0x19).Patch({ 0xEB, 0x6E });                    // JNE --> JMP | Take dedicated initialization routine instead. // REMOVE
 	gHost_Init_1.Offset(0x609).Patch({ 0xEB, 0x2B });                   // JE  --> JMP | Skip client.dll Init_PostVideo() validation code.
 	gHost_Init_1.Offset(0x621).Patch({ 0xEB, 0x0C });                   // JNE --> JMP | Skip client.dll Init_PostVideo() validation code.
 	gHost_Init_1.Offset(0x658).Patch({ 0xE9, 0x8C, 0x00, 0x00, 0x00 }); // JE  --> JMP | Skip NULL call as client is never initialized.
 	gHost_Init_1.Offset(0x6E9).Patch({ 0xE9, 0xB0, 0x00, 0x00, 0x00 }); // JNE --> JMP | Skip shader preloading as cvar can't be checked due to client being NULL.
+
+
 	//gHost_Init_2.Offset(0x5D8).Patch({ 0xEB, 0x05 });                   // JE  --> JMP | Render?
+	gHost_Init_2.Offset(0x26F).Patch({ 0xE9, 0x4D, 0x05, 0x00, 0x00 });   // JNE --> JMP | client.dll systems initialization.
 
 	//-------------------------------------------------------------------------
 	// RUNTIME: _HOST_RUNFRAME

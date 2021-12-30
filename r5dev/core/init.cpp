@@ -35,9 +35,6 @@
 #include "rtech/rtech_game.h"
 #include "rtech/stryder.h"
 #include "engine/baseclient.h"
-#ifndef DEDICATED
-#include "engine/debugoverlay.h"
-#endif // !DEDICATED
 #include "engine/host_cmd.h"
 #include "engine/host_state.h"
 #include "engine/net_chan.h"
@@ -48,7 +45,6 @@
 #include "inputsystem/inputsystem.h"
 #include "windows/id3dx.h"
 #endif // !DEDICATED
-
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -80,7 +76,6 @@ void Systems_Init()
 	CEngineVGui_Attach();
 	CFPSPanel_Attach();
 	CHLClient_Attach();
-	DebugOverlays_Init();
 #endif // !DEDICATED
 
 	CServer_Attach();

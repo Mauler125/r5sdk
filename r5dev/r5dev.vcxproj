@@ -33,7 +33,6 @@
     <ClCompile Include="ebisusdk\EbisuSDK.cpp" />
     <ClCompile Include="engine\baseclient.cpp" />
     <ClCompile Include="engine\baseclientstate.cpp" />
-    <ClCompile Include="engine\debugoverlay.cpp" />
     <ClCompile Include="engine\host_cmd.cpp" />
     <ClCompile Include="engine\host_state.cpp" />
     <ClCompile Include="engine\net_chan.cpp" />
@@ -110,6 +109,7 @@
     <ClCompile Include="windows\console.cpp" />
     <ClCompile Include="windows\id3dx.cpp" />
     <ClCompile Include="windows\input.cpp" />
+    <ClCompile Include="windows\system.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bsplib\bsplib.h" />
@@ -126,7 +126,6 @@
     <ClInclude Include="ebisusdk\EbisuSDK.h" />
     <ClInclude Include="engine\baseclient.h" />
     <ClInclude Include="engine\baseclientstate.h" />
-    <ClInclude Include="engine\debugoverlay.h" />
     <ClInclude Include="engine\host_cmd.h" />
     <ClInclude Include="engine\host_state.h" />
     <ClInclude Include="engine\net_chan.h" />
@@ -291,6 +290,7 @@
     <ClInclude Include="windows\console.h" />
     <ClInclude Include="windows\id3dx.h" />
     <ClInclude Include="windows\input.h" />
+    <ClInclude Include="windows\system.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="r5dev.def" />

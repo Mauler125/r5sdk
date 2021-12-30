@@ -25,7 +25,7 @@ extern BOOL                     g_bBlockInput               = false;
 // INITIALIZATION
 //#############################################################################
 
-void SetupIPHooks()
+void Input_Setup()
 {
 	g_oSetCursorPos = (ISetCursorPos)DetourFindFunction("user32.dll", "SetCursorPos");
 	g_oClipCursor   = (IClipCursor  )DetourFindFunction("user32.dll", "ClipCursor"  );
@@ -87,7 +87,7 @@ BOOL WINAPI HShowCursor(BOOL bShow)
 
 void Input_Init()
 {
-	SetupIPHooks();
+	Input_Setup();
 	///////////////////////////////////////////////////////////////////////////
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
