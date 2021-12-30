@@ -40,89 +40,89 @@ namespace
 
 	namespace
 	{
-		// TODO: create patterns instead and rename to function names.
-		// Renderer
-		ADDRESS r0 = 0x00000001402FE280; //
-		ADDRESS gCShaderGlue__Init = 0x00000001403B3A50; //
-		ADDRESS gMatSync = 0x00000001403DEE90; //
-		ADDRESS gCMaterialSystem__MatsysMode_Init = 0x00000001403BD120; //
-		ADDRESS r4 = 0x0000000140404380; //
-		ADDRESS r5 = 0x000000014040D850; //
-		ADDRESS r6 = 0x0000000140413260; //
-		ADDRESS r7 = 0x00000001404093F0; //
-		ADDRESS r8 = 0x00000001403D2E60; //
-		ADDRESS d3d11init = 0x000000014043CDF0; //
+	// TODO: create patterns instead and rename to function names.
+	//-------------------------------------------------------------------------
+	// CGAME
+	//-------------------------------------------------------------------------
+		ADDRESS gCGame__CreateGameWindow = 0x0000000140299100; //
 
-		// Engine
-		ADDRESS gHost_Init_0 = 0x0000000140236E40; // main Host_Init()?
-		ADDRESS e1 = 0x0000000140FB2F10; // also used by CServerGameDLL
-		ADDRESS addr_CEngine_Frame = 0x00000001402970E0;
-		ADDRESS e3 = 0x0000000140231C00;
-		ADDRESS e4 = 0x0000000140BE1970;
-		ADDRESS e5 = 0x0000000140DBBAF0;
-		ADDRESS e6 = 0x0000000140DBE610;
-		ADDRESS e8 = 0x000000014027EC50; // RenderFrame?
-		ADDRESS gCEngineAPI__Init = 0x0000000140342FB0; //
-		ADDRESS gCEngineAPI__ModInit = 0x0000000140343DE0; //
-		ADDRESS gCEngineAPI__Connect = 0x0000000140342BA0; //
-		ADDRESS gCEngineAPI__OnStartup = 0x0000000140343860; //
+	//-------------------------------------------------------------------------
+	// CHLClIENT
+	//-------------------------------------------------------------------------
+		ADDRESS gCHLClient__1000 = 0x00000001405C27B0; // CHLClient + 1000
 
-
+	//-------------------------------------------------------------------------
+	// CSOURCEAPPSYSTEMGROUP
+	//-------------------------------------------------------------------------
 		ADDRESS gCSourceAppSystemGroup__Create = 0x000000014044AFA0; //
 
+	//-------------------------------------------------------------------------
+	// MM_HEARTBEAT
+	//-------------------------------------------------------------------------
+		ADDRESS MM_Heartbeat__ToString = 0x00000001402312A0; // server HeartBeat? (baseserver.cpp).
 
+	//-------------------------------------------------------------------------
+	// RUNTIME: SYS_INITGAME
+	//-------------------------------------------------------------------------
 		ADDRESS Sys_InitGame = 0x1402958D0;
 
 
+	//-------------------------------------------------------------------------
+	// CSHADERSYSTEM
+	//-------------------------------------------------------------------------
 		ADDRESS CShaderSystem__Init = 0x00000001403DF870; //
-		ADDRESS gInitMaterialSystem = 0x000000014024B390; //
-		ADDRESS gCVideoMode_Common__DrawStartupGraphic = 0x000000014027F0F0; //
-		ADDRESS gShaderDispatch = 0x00000001403EE5C0;
-		ADDRESS gShaderCreate = 0x00000001403ECD00; //
-		ADDRESS gTextureCreate = 0x00000001403EDCD0;
 
-		ADDRESS gCShaderSystem__9 = 0x00000001403DFC30;
+
+	//-------------------------------------------------------------------------
+	// CMATERIALSYSTEM
+	//-------------------------------------------------------------------------
+		ADDRESS CMaterialSystem__Init = 0x1403BBFD0;
+		ADDRESS InitMaterialSystem = 0x000000014024B390; //
+
+	//-------------------------------------------------------------------------
+	// RUNTIME: BSP_LUMP
+	//-------------------------------------------------------------------------
 		ADDRESS CollisionBSPData_LoadAllLumps = 0x00000001402546F0; // BSP.
+		ADDRESS CollisionBSPData_LinkPhysics = 0x140256480; // case 1: only gets called on changelevel, needs more research, function gets called by CModelLoader virtual function.
 
 
+	//-------------------------------------------------------------------------
+	// CSTUDIORENDERCONTEXT
+	//-------------------------------------------------------------------------
 		ADDRESS CStudioRenderContext__LoadModel = 0x00000001404554C0;
 		ADDRESS CStudioRenderContext__LoadMaterials = 0x0000000140456B50;
 
 
-		ADDRESS CGameServer__SpawnServer = 0x0000000140312D80;
-		
+	//-------------------------------------------------------------------------
+	// CMODELLOADER
+	//-------------------------------------------------------------------------
 		ADDRESS CModelLoader__FindModel = 0x140253530;
 		ADDRESS CModelLoader__LoadModel = 0x140253810;
-		ADDRESS CollisionBSPData_LinkPhysics = 0x140256480; // case 1: only gets called on changelevel, needs more research, function gets called by CModelLoader virtual function.
-
-
-		ADDRESS ParsePropStatic = 0x1402901E0;
-
 		ADDRESS CModelLoader__Studio_LoadModel = 0x140252F10;
 
+	//-------------------------------------------------------------------------
+	// CGAMESERVER
+	//-------------------------------------------------------------------------
+		ADDRESS CGameServer__SpawnServer = 0x0000000140312D80;
 
-		ADDRESS e9 = 0x00000001404066E0;
-		ADDRESS e10 = 0x00000001403B49E0; // CMaterialGlue?
 
-		// SERVER
+	//-------------------------------------------------------------------------
+	// RUNTIME: HOST_INIT
+	//-------------------------------------------------------------------------
+		ADDRESS gHost_Init_0 = 0x0000000140236E40; // main Host_Init()?
 		ADDRESS gHost_Init_1 = 0x0000000140237B00; // server Host_Init()?
-		ADDRESS s1 = 0x0000000140231C00; // _Host_RunFrame() with inlined CFrameTimer::MarkFrame()?
-		ADDRESS s2 = 0x00000001402312A0; // server HeartBeat? (baseserver.cpp)
-		ADDRESS s3 = 0x0000000140FB36D0; // TEMP??
-
-		// CLIENT
 		ADDRESS gHost_Init_2 = 0x0000000140236640; // client Host_Init()?
-		ADDRESS gCGame__CreateGameWindow = 0x0000000140299100; //
-		ADDRESS c2 = 0x00000001403F4360; // 1403DF870 --> 1403F4360
-		ADDRESS c3 = 0x00000001403F8A80; // 1403DF870 --> 1403F8A40
-		ADDRESS gCHLClient__1000 = 0x00000001405C27B0; // CHLClient + 1000
-		ADDRESS gCHLClient__HudMessage = 0x00000001405BAC00; // CHudMessage
-		ADDRESS c6 = 0x00000001403CA2D0; //
 
-		// VGUI
-		ADDRESS gCEngineVGui__Init = 0x0000000140282E40; // jumptable
-		ADDRESS gCEngineVGui__OnLevelLoadingStarted = 0x00000001402830D0;
-		ADDRESS SCR_BeginLoadingPlaque = 0x000000014023E870;
+
+	//-------------------------------------------------------------------------
+	// RUNTIME: _HOST_RUNFRAME
+	//-------------------------------------------------------------------------
+		ADDRESS _Host_RunFrame = 0x0000000140231C00; // _Host_RunFrame() with inlined CFrameTimer::MarkFrame()?
+
+	//-------------------------------------------------------------------------
+	// RUNTIME: GL_SCREEN
+	//-------------------------------------------------------------------------
+		ADDRESS SCR_BeginLoadingPlaque = 0x14022A4A0;
 	}
 
 	void PrintOAddress() // Test the sigscan results
