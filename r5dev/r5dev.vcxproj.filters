@@ -303,6 +303,9 @@
     <ClCompile Include="engine\host_cmd.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
+    <ClCompile Include="engine\debugoverlay.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\cdll_engine_int.h">
@@ -837,6 +840,9 @@
       <Filter>sdk\rtech</Filter>
     </ClInclude>
     <ClInclude Include="engine\host_cmd.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\debugoverlay.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
   </ItemGroup>
