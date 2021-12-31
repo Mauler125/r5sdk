@@ -14,6 +14,7 @@ namespace
 
 	ADDRESS p_EbisuSDK_SetState = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x81\xEC\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x0F\x84\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x74\x5B", "xxx????xx?????xx????xx?????xx");
 	void(*EbisuSDK_SetState) = (void(*))p_EbisuSDK_SetState.GetPtr(); /* 48 81 EC ? ? ? ? 80 3D ? ? ? ? ? 0F 84 ? ? ? ? 80 3D ? ? ? ? ? 74 5B  */
+#endif
 }
 
 namespace
