@@ -1,25 +1,26 @@
+/*-----------------------------------------------------------------------------
+ * _opcodes.cpp
+ *-----------------------------------------------------------------------------*/
+
 #include "core/stdafx.h"
 #include "tier0/basetypes.h"
 #include "common/opcodes.h"
 #include "engine/host_cmd.h"
 #include "bsplib/bsplib.h"
+#include "ebisusdk/EbisuSDK.h"
 
- /*-----------------------------------------------------------------------------
-  * _opcodes.cpp
-  *-----------------------------------------------------------------------------*/
 
 #ifdef DEDICATED
-
 void Dedicated_Init()
 {
 	*(uintptr_t*)0x14D415040 = 0x1417304E8; // CEngineClient::CEngineClient().
-	*(uintptr_t*)0x14B37C3C0 = 0x141F10CA0; // CHLClient::CHLClient().
+	//*(uintptr_t*)0x14B37C3C0 = 0x141F10CA0; // CHLClient::CHLClient().
 	*(uintptr_t*)0x14B3800D7 = 0x1;         // bool bDedicated = true.
 
 	//-------------------------------------------------------------------------
 	// CGAME
 	//-------------------------------------------------------------------------
-	gCGame__CreateGameWindow.Offset(0x2C).Patch({ 0xE9, 0x9A, 0x00, 0x00, 0x00 }); // PUS --> XOR | Prevent ShowWindow and CreateGameWindow from being initialized (STGS RPak datatype is registered here).
+	CVideoMode_Common__CreateGameWindow.Offset(0x2C).Patch({ 0xE9, 0x9A, 0x00, 0x00, 0x00 }); // PUS --> XOR | Prevent ShowWindow and CreateGameWindow from being initialized (STGS RPak datatype is registered here).
 
 	//-------------------------------------------------------------------------
 	// CHLClIENT
@@ -125,8 +126,8 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	// RUNTIME: EBISUSDK
 	//-------------------------------------------------------------------------
-	Origin_Init.Offset(0x0B).Patch({ 0xE9, 0x63, 0x02, 0x00, 0x00, 0x00 }); // JNZ --> JMP | Prevent EbisuSDK from initializing on the engine and server.
-	Origin_SetState.Offset(0x0E).Patch({ 0xE9, 0xCB, 0x03, 0x00, 0x00 });   // JNZ --> JMP | Prevent EbisuSDK from initializing on the engine and server.
+	p_EbisuSDK_Init_Tier0.Offset(0x0B).Patch({ 0xE9, 0x63, 0x02, 0x00, 0x00, 0x00 }); // JNZ --> JMP | Prevent EbisuSDK from initializing on the engine and server.
+	p_EbisuSDK_SetState.Offset(0x0E).Patch({ 0xE9, 0xCB, 0x03, 0x00, 0x00 });         // JNZ --> JMP | Prevent EbisuSDK from initializing on the engine and server.
 
 	//-------------------------------------------------------------------------
 	// RUNTIME: FAIRFIGHT
@@ -163,17 +164,17 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	SCR_BeginLoadingPlaque.Offset(0x82).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // JNE --> JMP | virtual call to 'CHLClient::CHudMessage'.
 	SCR_BeginLoadingPlaque.Offset(0xA4).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // JNE --> JMP | virtual call to 'CEngineVGui::OnLevelLoadingStarted'.
+	SCR_BeginLoadingPlaque.Offset(0x1D6).Patch({ 0xEB, 0x27 });                        // JNE --> JMP | Prevent connect command from crashing by invalid call to UI function.
 }
 #endif // DEDICATED
 
 void RuntimePtc_Init() /* .TEXT */
 {
+	SCR_BeginLoadingPlaque.Offset(0x1D6).Patch({ 0xEB, 0x27 });                       // JNE --> JMP | Prevent connect command from crashing by invalid call to UI function.
 	//-------------------------------------------------------------------------
 	// JNE --> JMP | Allow games to be loaded without the optional texture streaming file
 	//WriteProcessMemory(GameProcess, LPVOID(dst002 + 0x8E5), "\xEB\x19", 2, NULL);
 	//-------------------------------------------------------------------------
-	// JNE --> JMP | Prevent connect command from crashing by invalid call to UI function
-	dst003.Offset(0x1D6).Patch({ 0xEB, 0x27 });
 	//-------------------------------------------------------------------------
 	// JA  --> JMP | Prevent FairFight anti-cheat from initializing on the server.
 	FairFight_Init.Offset(0x61).Patch({ 0xE9, 0xED, 0x00, 0x00, 0x00, 0x00 });

@@ -11,10 +11,9 @@ namespace
 
 	ADDRESS p_EbisuSDK_CVar_Init = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x57\x48\x83\xEC\x40\x83\x3D", "xxxxxxxx");
 	void(*EbisuSDK_CVar_Init) = (void(*))p_EbisuSDK_CVar_Init.GetPtr(); /*40 57 48 83 EC 40 83 3D*/
-#else
-	ADDRESS p_OriginGetErrorDescription = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x48\x83\xEC\x20\x8B\xD9\x48\x8D\x15\x00\x00\x00\x00", "xxxxxxxxxxx????").GetPtr();
-	void(*OriginGetErrorDescription) = (void(*))p_OriginGetErrorDescription.GetPtr(); /*40 53 48 83 EC 20 8B D9 48 8D 15 ?? ?? ?? ??*/
-#endif
+
+	ADDRESS p_EbisuSDK_SetState = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x81\xEC\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x0F\x84\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x74\x5B", "xxx????xx?????xx????xx?????xx");
+	void(*EbisuSDK_SetState) = (void(*))p_EbisuSDK_SetState.GetPtr(); /* 48 81 EC ? ? ? ? 80 3D ? ? ? ? ? 0F 84 ? ? ? ? 80 3D ? ? ? ? ? 74 5B  */
 }
 
 namespace
@@ -50,13 +49,12 @@ class HEbisuSDK : public IDetour
 #ifdef DEDICATED
 		std::cout << "| FUN: EbisuSDK_Init_Tier0                  : 0x" << std::hex << std::uppercase << p_EbisuSDK_Init_Tier0.GetPtr()       << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: EbisuSDK_CVar_Init                   : 0x" << std::hex << std::uppercase << p_EbisuSDK_CVar_Init.GetPtr()        << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: EbisuSDK_SetState                    : 0x" << std::hex << std::uppercase << p_EbisuSDK_SetState.GetPtr()        << std::setw(npad) << " |" << std::endl;
 		std::cout << "| VAR: g_bEbisuSDKInitialized               : 0x" << std::hex << std::uppercase << g_bEbisuSDKInitialized.GetPtr()      << std::setw(npad) << " |" << std::endl;
 		std::cout << "| VAR: g_bEbisuSDKCvarInitialized           : 0x" << std::hex << std::uppercase << g_bEbisuSDKCvarInitialized.GetPtr()  << std::setw(npad) << " |" << std::endl;
 		std::cout << "| VAR: g_qEbisuSDKCvarInitialized           : 0x" << std::hex << std::uppercase << g_qEbisuSDKCvarInitialized.GetPtr()  << std::setw(npad) << " |" << std::endl;
-#else
-		std::cout << "| FUN: OriginGetErrorDescription            : 0x" << std::hex << std::uppercase << p_OriginGetErrorDescription.GetPtr() << std::setw(npad) << " |" << std::endl;
-#endif // DEDICATED
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
+#endif // DEDICATED
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////

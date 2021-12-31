@@ -84,7 +84,7 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 
 		///////////////////////////////////////////////////////////////////////
 		// Debug toggles
-		if (sCommand == "pattern test") { PrintHAddress(); PrintOAddress(); continue; }
+		if (sCommand == "pattern test") { PrintHAddress(); continue; }
 		if (sCommand == "opcodes test") { RuntimePtc_Toggle(); continue; }
 		///////////////////////////////////////////////////////////////////////
 		// Execute the command in the r5 SQVM
