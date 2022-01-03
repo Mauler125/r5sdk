@@ -13,7 +13,6 @@
 #include "squirrel/sqvm.h"
 #include "vgui/CEngineVGui.h"
 #include "gameui/IConsole.h"
-#include "serverbrowser/serverbrowser.h"
 
 //---------------------------------------------------------------------------------
 // Purpose: prints the output of each VM to the console
