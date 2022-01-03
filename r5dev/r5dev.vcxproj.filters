@@ -303,6 +303,9 @@
     <ClCompile Include="engine\host_cmd.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
+    <ClCompile Include="windows\system.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\cdll_engine_int.h">
@@ -838,6 +841,9 @@
     </ClInclude>
     <ClInclude Include="engine\host_cmd.h">
       <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\system.h">
+      <Filter>windows</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

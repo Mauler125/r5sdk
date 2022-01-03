@@ -7,6 +7,7 @@
 #include "windows/input.h"
 #endif // !DEDICATED
 #include "windows/console.h"
+#include "windows/system.h"
 
 //#############################################################################
 // INITIALIZATION
@@ -16,6 +17,7 @@ void R5Dev_Init()
 {
     Console_Init();
     Systems_Init();
+    WinSys_Attach();
 
 #ifndef DEDICATED
     Input_Init();
@@ -32,6 +34,7 @@ void R5Dev_Init()
 void R5Dev_Shutdown()
 {
     Systems_Shutdown();
+    WinSys_Detach();
 
 #ifndef DEDICATED
     Input_Shutdown();

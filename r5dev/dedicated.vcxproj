@@ -324,6 +324,7 @@
     <ClInclude Include="vphysics\QHull.h" />
     <ClInclude Include="vpklib\packedstore.h" />
     <ClInclude Include="windows\console.h" />
+    <ClInclude Include="windows\system.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bsplib\bsplib.cpp" />
@@ -371,6 +372,7 @@
     <ClCompile Include="vphysics\QHull.cpp" />
     <ClCompile Include="vpklib\packedstore.cpp" />
     <ClCompile Include="windows\console.cpp" />
+    <ClCompile Include="windows\system.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="r5dev.def" />

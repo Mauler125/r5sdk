@@ -564,7 +564,7 @@ void IBrowser::HostServerSection()
     {
         if (ImGui::Button("Reload Playlist from Disk##ServerHost_ReloadPlaylist", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
-            DownloadPlaylists_Callback();
+            DownloadPlaylists_f_CompletionFunc();
             CKeyValueSystem_InitPlaylist(); // Re-Init playlist.
         }
     }
