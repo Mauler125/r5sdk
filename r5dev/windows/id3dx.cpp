@@ -6,10 +6,10 @@
 #include "windows/id3dx.h"
 #include "windows/input.h"
 #include "gameui/IConsole.h"
-#include "gameui/IBrowser.h"
 #include "engine/sys_utils.h"
 #include "inputsystem/inputsystem.h"
 #include "public/include/stb_image.h"
+#include <IDevPalette.h>
 
 /**********************************************************************************
 -----------------------------------------------------------------------------------
@@ -282,8 +282,8 @@ void DrawImGui()
 	}
 	if (g_bShowBrowser)
 	{
-		g_pInputSystem->EnableInput(false); // Disable input to game when browser is drawn.
-		DrawBrowser(&bShowBrowser);
+		g_pInputSystem->EnableInput(false);
+		DrawDevPalette(&bShowBrowser);	
 	}
 	if (!g_bShowConsole && !g_bShowBrowser)
 	{

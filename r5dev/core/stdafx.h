@@ -45,6 +45,8 @@
 #include "public/include/httplib.h"
 #include "public/include/json.hpp"
 
+#include "networksystem/net_structs.h"
+
 #ifndef SDKLAUNCHER
 namespace
 {

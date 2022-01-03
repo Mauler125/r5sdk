@@ -156,9 +156,6 @@
     <ClCompile Include="engine\baseclientstate.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
-    <ClCompile Include="gameui\IBrowser.cpp">
-      <Filter>sdk\gameui</Filter>
-    </ClCompile>
     <ClCompile Include="gameui\IConsole.cpp">
       <Filter>sdk\gameui</Filter>
     </ClCompile>
@@ -306,6 +303,9 @@
     <ClCompile Include="windows\system.cpp">
       <Filter>windows</Filter>
     </ClCompile>
+    <ClCompile Include="IDevPallete.cpp">
+      <Filter>sdk\gameui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\cdll_engine_int.h">
@@ -343,9 +343,6 @@
     </ClInclude>
     <ClInclude Include="engine\baseclient.h">
       <Filter>sdk\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="gameui\IBrowser.h">
-      <Filter>sdk\gameui</Filter>
     </ClInclude>
     <ClInclude Include="gameui\IConsole.h">
       <Filter>sdk\gameui</Filter>
@@ -791,9 +788,6 @@
     <ClInclude Include="networksystem\r5net.h">
       <Filter>sdk\networksystem</Filter>
     </ClInclude>
-    <ClInclude Include="networksystem\serverlisting.h">
-      <Filter>sdk\networksystem</Filter>
-    </ClInclude>
     <ClInclude Include="mathlib\parallel_for.h">
       <Filter>sdk\mathlib</Filter>
     </ClInclude>
@@ -844,6 +838,12 @@
     </ClInclude>
     <ClInclude Include="windows\system.h">
       <Filter>windows</Filter>
+      </ClInclude>
+    <ClInclude Include="networksystem\net_structs.h">
+      <Filter>sdk\networksystem</Filter>
+    </ClInclude>
+    <ClInclude Include="IDevPalette.h">
+      <Filter>sdk\gameui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

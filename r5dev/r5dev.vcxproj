@@ -40,7 +40,7 @@
     <ClCompile Include="engine\sys_dll2.cpp" />
     <ClCompile Include="engine\sys_utils.cpp" />
     <ClCompile Include="gameui\IConsole.cpp" />
-    <ClCompile Include="gameui\IBrowser.cpp" />
+    <ClCompile Include="IDevPallete.cpp" />
     <ClCompile Include="inputsystem\inputsystem.cpp" />
     <ClCompile Include="launcher\IApplication.cpp" />
     <ClCompile Include="mathlib\adler32.cpp" />
@@ -133,7 +133,7 @@
     <ClInclude Include="engine\sys_dll2.h" />
     <ClInclude Include="engine\sys_utils.h" />
     <ClInclude Include="gameui\IConsole.h" />
-    <ClInclude Include="gameui\IBrowser.h" />
+    <ClInclude Include="IDevPalette.h" />
     <ClInclude Include="inputsystem\ButtonCode.h" />
     <ClInclude Include="inputsystem\inputsystem.h" />
     <ClInclude Include="launcher\IApplication.h" />
@@ -142,8 +142,8 @@
     <ClInclude Include="mathlib\IceKey.H" />
     <ClInclude Include="mathlib\parallel_for.h" />
     <ClInclude Include="mathlib\vector.h" />
+    <ClInclude Include="networksystem\net_structs.h" />
     <ClInclude Include="networksystem\r5net.h" />
-    <ClInclude Include="networksystem\serverlisting.h" />
     <ClInclude Include="networksystem\sm_protocol.h" />
     <ClInclude Include="public\include\memaddr.h" />
     <ClInclude Include="public\include\bansystem.h" />
