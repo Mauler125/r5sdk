@@ -50,7 +50,11 @@
 #ifndef SDKLAUNCHER
 namespace
 {
-	MODULE g_mGameDll            = MODULE("r5apex.exe");
+#ifdef DEDICATED
+	MODULE g_mGameDll = MODULE("r5apex_ds.exe");
+#else
+	MODULE g_mGameDll = MODULE("r5apex.exe");
+#endif // DEDICATED
 	MODULE g_mRadVideoToolsDll   = MODULE("bink2w64.dll");
 	MODULE g_mRadAudioDecoderDll = MODULE("binkawin64.dll");
 	MODULE g_mRadAudioSystemDll  = MODULE("mileswin64.dll");

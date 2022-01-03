@@ -564,6 +564,9 @@
     <ClInclude Include="rtech\rtech_game.h">
       <Filter>sdk\rtech</Filter>
     </ClInclude>
+    <ClInclude Include="windows\system.h">
+      <Filter>windows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="client\IVEngineClient.cpp">
@@ -691,6 +694,9 @@
     </ClCompile>
     <ClCompile Include="rtech\rtech_game.cpp">
       <Filter>sdk\rtech</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\system.cpp">
+      <Filter>windows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

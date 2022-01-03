@@ -300,6 +300,9 @@
     <ClCompile Include="engine\host_cmd.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
+    <ClCompile Include="windows\system.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
     <ClCompile Include="IDevPallete.cpp">
       <Filter>sdk\gameui</Filter>
     </ClCompile>
@@ -833,6 +836,9 @@
     <ClInclude Include="engine\host_cmd.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
+    <ClInclude Include="windows\system.h">
+      <Filter>windows</Filter>
+      </ClInclude>
     <ClInclude Include="networksystem\net_structs.h">
       <Filter>sdk\networksystem</Filter>
     </ClInclude>

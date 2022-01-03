@@ -42,7 +42,7 @@ namespace
 	ADDRESS p_SQVM_LoadScript = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x10\x48\x89\x74\x24\x18\x48\x89\x7C\x24\x20\x48\x89\x4C\x24\x08\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 	bool (*SQVM_LoadScript)(void* sqvm, const char* szScriptPath, const char* szScriptName, int nFlag) = (bool (*)(void*, const char*, const char*, int))p_SQVM_LoadScript.GetPtr(); /*48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 48 89 4C 24 08 55 41 54 41 55 41 56 41 57 48 8D 6C*/
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	ADDRESS p_SQVM_LoadScript = FindPatternSIMD("r5apex.exe", (const unsigned char*)"\x48\x8B\xC4\x48\x89\x48\x08\x55\x41\x56\x48\x8D\x68", "xxxxxxxxxxxxx"); /*48 8B C4 48 89 48 08 55 41 56 48 8D 68*/
+	ADDRESS p_SQVM_LoadScript = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x8B\xC4\x48\x89\x48\x08\x55\x41\x56\x48\x8D\x68", "xxxxxxxxxxxxx"); /*48 8B C4 48 89 48 08 55 41 56 48 8D 68*/
 	bool (*SQVM_LoadScript)(void* sqvm, const char* szScriptPath, const char* szScriptName, int nFlag) = (bool (*)(void*, const char*, const char*, int))p_SQVM_LoadScript.GetPtr();
 #endif
 	ADDRESS p_SQVM_LoadRson = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x4C\x8B\xDC\x49\x89\x5B\x08\x57\x48\x81\xEC\xA0\x00\x00\x00\x33", "xxxxxxxxxxxxxxxx");
