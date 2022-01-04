@@ -181,7 +181,6 @@
     <ClInclude Include="core\stdafx.h" />
     <ClInclude Include="ebisusdk\EbisuSDK.h" />
     <ClInclude Include="engine\baseclient.h" />
-    <ClInclude Include="engine\baseclientstate.h" />
     <ClInclude Include="engine\host_cmd.h" />
     <ClInclude Include="engine\host_state.h" />
     <ClInclude Include="engine\net_chan.h" />
@@ -339,7 +338,6 @@
     </ClCompile>
     <ClCompile Include="ebisusdk\EbisuSDK.cpp" />
     <ClCompile Include="engine\baseclient.cpp" />
-    <ClCompile Include="engine\baseclientstate.cpp" />
     <ClCompile Include="engine\host_cmd.cpp" />
     <ClCompile Include="engine\host_state.cpp" />
     <ClCompile Include="engine\net_chan.cpp" />

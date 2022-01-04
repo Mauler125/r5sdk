@@ -26,7 +26,11 @@ void KeepAliveToPylon()
 				g_pCvar->FindVar("hostport")->m_pzsCurrentValue,
 				g_pCvar->FindVar("mp_gamemode")->m_pzsCurrentValue,
 				false,
-				std::to_string(*g_nRemoteFunctionCallsChecksum), // BUG BUG: Checksum is null on dedi
+
+				// BUG BUG: Checksum is null on dedi
+				// ADDITIONAL NOTES: seems to be related to scripts, this also happens when the listen server is started but the client from the same process never connects.
+				// Checksum only gets set on the server if the client from its own process connects to it.
+				std::to_string(*g_nRemoteFunctionCallsChecksum),
 				std::string(),
 				g_szNetKey.c_str()
 			}

@@ -126,9 +126,6 @@
     <ClInclude Include="ebisusdk\EbisuSDK.h">
       <Filter>sdk\ebisusdk</Filter>
     </ClInclude>
-    <ClInclude Include="engine\baseclientstate.h">
-      <Filter>sdk\engine</Filter>
-    </ClInclude>
     <ClInclude Include="engine\host_state.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
@@ -606,9 +603,6 @@
       <Filter>sdk\engine</Filter>
     </ClCompile>
     <ClCompile Include="engine\baseclient.cpp">
-      <Filter>sdk\engine</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\baseclientstate.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
     <ClCompile Include="launcher\IApplication.cpp">

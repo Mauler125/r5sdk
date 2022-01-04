@@ -1,5 +1,6 @@
 #pragma once
 #include "tier0/basetypes.h"
+#include "engine/debugoverlay.h"
 
 namespace
 {
@@ -16,6 +17,30 @@ namespace
 #endif
 }
 
+namespace
+{
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+	bool* cl_m_bPaused = p_DrawAllOverlays.Offset(0x90).FindPatternSelf("80 3D ? ? ? 0B ?", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x2).RCast<bool*>();
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+	bool* cl_m_bPaused = p_DrawAllOverlays.Offset(0x70).FindPatternSelf("80 3D ? ? ? 01 ?", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x7).RCast<bool*>();
+#endif
+	int* cl_host_tickcount = p_DrawAllOverlays.Offset(0xC0).FindPatternSelf("66 0F 6E", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x4, 0x8).RCast<int*>();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+class CBaseClientState
+{
+public:
+	bool* m_bPaused = cl_m_bPaused; // pauzes the client side simulation in apex.
+	int* host_tickcount = cl_host_tickcount; // client simulation tick count.
+
+	bool IsPaused();
+	float GetClientTime();
+	int GetClientTickCount() const;	// Get the client tick count.
+	void SetClientTickCount(int tick); // Set the client tick count.
+};
+
+extern CBaseClientState* g_pBaseClientState;
 
 ///////////////////////////////////////////////////////////////////////////////
 class HClientState : public IDetour
@@ -23,7 +48,9 @@ class HClientState : public IDetour
 	virtual void debugp()
 	{
 		//std::cout << "| FUN: CClientState::CheckForResend         : 0x" << std::hex << std::uppercase << p_CClientState__CheckForResend.GetPtr() << std::setw(npad) << " |" << std::endl;
-		//std::cout << "+----------------------------------------------------------------+" << std::endl;
+		std::cout << "| VAR: cl_m_bPaused                         : 0x" << std::hex << std::uppercase << cl_m_bPaused      << std::setw(0) << " |" << std::endl;
+		std::cout << "| FUN: cl_host_tickcount                    : 0x" << std::hex << std::uppercase << cl_host_tickcount << std::setw(npad) << " |" << std::endl;
+		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////

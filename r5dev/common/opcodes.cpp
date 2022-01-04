@@ -6,6 +6,7 @@
 #include "tier0/basetypes.h"
 #include "common/opcodes.h"
 #include "engine/host_cmd.h"
+#include "materialsystem/materialsystem.h"
 #include "bsplib/bsplib.h"
 #include "ebisusdk/EbisuSDK.h"
 
@@ -126,8 +127,8 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	// RUNTIME: EBISUSDK
 	//-------------------------------------------------------------------------
-	p_EbisuSDK_Init_Tier0.Offset(0x0B).Patch({ 0xE9, 0x63, 0x02, 0x00, 0x00, 0x00 }); // JNZ --> JMP | Prevent EbisuSDK from initializing on the engine and server.
 	p_EbisuSDK_SetState.Offset(0x0E).Patch({ 0xE9, 0xCB, 0x03, 0x00, 0x00 });         // JNZ --> JMP | Prevent EbisuSDK from initializing on the engine and server.
+	p_EbisuSDK_Init_Tier0.Offset(0x0B).Patch({ 0xE9, 0x63, 0x02, 0x00, 0x00, 0x00 }); // JNZ --> JMP | Prevent EbisuSDK from initializing on the engine and server.
 
 	//-------------------------------------------------------------------------
 	// RUNTIME: FAIRFIGHT

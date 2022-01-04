@@ -58,15 +58,6 @@ namespace
 		// 0x1403DF870 // 48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 C6 41 10 00 //
 
 	//-------------------------------------------------------------------------
-	// CMATERIALSYSTEM
-	//-------------------------------------------------------------------------
-		ADDRESS CMaterialSystem__Init = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x70\x48\x83\x3D\x00\x00\x00\x00\x00", "xxxx?xxxxxxxxxxxxxxxxxx?????");
-		// 0x1403BBFD0 // 48 89 5C 24 ? 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 70 48 83 3D ? ? ? ? ? //
-
-		ADDRESS InitMaterialSystem = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x83\xEC\x28\x48\x8B\x0D\x00\x00\x00\x00\x48\x8D\x15\x00\x00\x00\x00\x48\x8B\x01\xFF\x90\x00\x00\x00\x00\x48\x8B\x0D\x00\x00\x00\x00\x48\x8D\x15\x00\x00\x00\x00\x48\x8B\x01\xFF\x90\x00\x00\x00\x00", "xxxxxxx????xxx????xxxxx????xxx????xxx????xxxxx????"); //
-		// 0x14024B390 // 48 83 EC 28 48 8B 0D ? ? ? ? 48 8D 15 ? ? ? ? 48 8B 01 FF 90 ? ? ? ? 48 8B 0D ? ? ? ? 48 8D 15 ? ? ? ? 48 8B 01 FF 90 ? ? ? ? //
-
-	//-------------------------------------------------------------------------
 	// RUNTIME: BSP_LUMP
 	//-------------------------------------------------------------------------
 		ADDRESS CollisionBSPData_LoadAllLumps = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x54\x24\x00\x48\x89\x4C\x24\x00\x55\x53\x56\x57\x41\x54\x41\x55\x41\x57", "xxxx?xxxx?xxxxxxxxxx"); // BSP.
@@ -74,7 +65,6 @@ namespace
 
 		ADDRESS CollisionBSPData_LinkPhysics = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xF9\x33\xED", "xxxx?xxxx?xxxx????xxxxx"); // case 1: only gets called on changelevel, needs more research, function gets called by CModelLoader virtual function.
 		// 0x140256480 // 48 89 5C 24 ? 48 89 6C 24 ? 57 48 81 EC ? ? ? ? 48 8B F9 33 ED //
-
 
 	//-------------------------------------------------------------------------
 	// CSTUDIORENDERCONTEXT
@@ -152,9 +142,6 @@ class HOpcodes : public IDetour
 		std::cout << "| FUN: Sys_InitGame                         : 0x" << std::hex << std::uppercase << Sys_InitGame.GetPtr()                        << std::setw(npad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 		std::cout << "| FUN: CShaderSystem::Init                  : 0x" << std::hex << std::uppercase << CShaderSystem__Init.GetPtr()                 << std::setw(npad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
-		std::cout << "| FUN: CMaterialSystem::Init                : 0x" << std::hex << std::uppercase << CMaterialSystem__Init.GetPtr()               << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: InitMaterialSystem                   : 0x" << std::hex << std::uppercase << InitMaterialSystem.GetPtr()                  << std::setw(npad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 		std::cout << "| FUN: CollisionBSPData_LoadAllLumps        : 0x" << std::hex << std::uppercase << CollisionBSPData_LoadAllLumps.GetPtr()       << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: CollisionBSPData_LinkPhysics         : 0x" << std::hex << std::uppercase << CollisionBSPData_LinkPhysics.GetPtr()        << std::setw(npad) << " |" << std::endl;

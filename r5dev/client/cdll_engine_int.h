@@ -1,7 +1,6 @@
 #pragma once
 #include "tier0/basetypes.h"
 
-
 enum class ClientFrameStage_t : int
 {
 	FRAME_UNDEFINED = -1, // (haven't run any frames yet)
@@ -50,6 +49,8 @@ namespace
 	ADDRESS p_CHLClient_PostInit = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x83\xEC\x28\x48\x83\x3D\x00\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00", "xxxxxxx?????xxx????");
 	void* (*CHLClient_PostInit)() = (void* (*)())p_CHLClient_PostInit.GetPtr(); /*48 83 EC 28 48 83 3D ? ? ? ? ? 48 8D 05 ? ? ? ?*/
 #endif
+
+	bool* scr_drawloading = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x80\x3D\x00\x00\x00\x00\x00\x74\x14\x66\x0F\x6E\x05\x00\x00\x00\x00", "xx?????xxxxxx????").ResolveRelativeAddress(0x2, 0x7).RCast<bool*>();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -66,6 +67,7 @@ class HDll_Engine_Int : public IDetour
 	{
 		std::cout << "| FUN: CHLClient::FrameStageNotify          : 0x" << std::hex << std::uppercase << p_CHLClient_FrameStageNotify.GetPtr() << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: CHLClient::PostInit                  : 0x" << std::hex << std::uppercase << p_CHLClient_PostInit.GetPtr()         << std::setw(npad) << " |" << std::endl;
+		std::cout << "| VAR: scr_drawloading                      : 0x" << std::hex << std::uppercase << scr_drawloading                       << std::setw(0)    << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 };

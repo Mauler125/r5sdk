@@ -121,6 +121,9 @@
     <Filter Include="sdk\bsplib">
       <UniqueIdentifier>{336e3141-0276-4cd5-a836-585eef681b7b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\materialsystem">
+      <UniqueIdentifier>{55bb4f60-5f5a-4780-a7a2-b3db51c53680}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="client\client.cpp">
@@ -844,6 +847,12 @@
     </ClInclude>
     <ClInclude Include="windows\system.h">
       <Filter>windows</Filter>
+    </ClInclude>
+    <ClInclude Include="mathlib\color.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="materialsystem\materialsystem.h">
+      <Filter>sdk\materialsystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
