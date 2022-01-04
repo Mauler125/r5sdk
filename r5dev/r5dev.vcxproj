@@ -126,6 +126,7 @@
     <ClInclude Include="ebisusdk\EbisuSDK.h" />
     <ClInclude Include="engine\baseclient.h" />
     <ClInclude Include="engine\baseclientstate.h" />
+    <ClInclude Include="engine\debugoverlay.h" />
     <ClInclude Include="engine\host_cmd.h" />
     <ClInclude Include="engine\host_state.h" />
     <ClInclude Include="engine\net_chan.h" />

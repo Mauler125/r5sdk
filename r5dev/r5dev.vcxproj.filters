@@ -854,6 +854,9 @@
     <ClInclude Include="materialsystem\materialsystem.h">
       <Filter>sdk\materialsystem</Filter>
     </ClInclude>
+    <ClInclude Include="engine\debugoverlay.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="r5dev.def" />

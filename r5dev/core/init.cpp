@@ -6,7 +6,6 @@
 
 #include "core/stdafx.h"
 #include "core/init.h"
-#include "common/opcodes.h"
 #include "tier0/ConCommand.h"
 #include "tier0/completion.h"
 #include "tier0/cvar.h"
@@ -15,11 +14,13 @@
 #include "vpc/keyvalues.h"
 #include "vpc/basefilesystem.h"
 #include "vpc/keyvalues.h"
+#include "common/opcodes.h"
 #include "launcher/IApplication.h"
 #include "ebisusdk/EbisuSDK.h"
 #include "vphysics/QHull.h"
 #include "bsplib/bsplib.h"
 #ifndef DEDICATED
+#include "materialsystem/materialsystem.h"
 #include "vgui/CEngineVGui.h"
 #include "vgui/vgui_fpspanel.h"
 #include "vguimatsurface/MatSystemSurface.h"
@@ -42,6 +43,7 @@
 #include "engine/sys_dll2.h"
 #include "engine/sys_utils.h"
 #ifndef DEDICATED
+#include "engine/debugoverlay.h"
 #include "inputsystem/inputsystem.h"
 #include "windows/id3dx.h"
 #endif // !DEDICATED
