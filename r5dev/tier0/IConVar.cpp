@@ -137,12 +137,16 @@ void IConVar_ClearHostNames()
 	const char* szHostnameArray[] =
 	{
 		"pin_telemetry_hostname",
+#ifdef GAMEDLL_S3
 		"assetdownloads_hostname",
+#endif // GAMEDLL_S3
 		"users_hostname",
 		"persistence_hostname",
 		"speechtotexttoken_hostname",
 		"communities_hostname",
+#ifdef GAMEDLL_S3
 		"persistenceDef_hostname",
+#endif // GAMEDLL_S3
 		"party_hostname",
 		"speechtotext_hostname",
 		"serverReports_hostname",

@@ -80,7 +80,9 @@ void Systems_Init()
 	CHLClient_Attach();
 #endif // !DEDICATED
 
-	CServer_Attach();
+#ifdef GAMEDLL_S3
+	CServer_Attach(); // S1 and S2 CServer functions require work.
+#endif // GAMEDLL_S3
 
 #ifdef DEDICATED
 	CHostState_Attach(); // Dedicated only for now until backwards compatible with S1.
@@ -147,7 +149,10 @@ void Systems_Shutdown()
 	CFPSPanel_Detach();
 	CHLClient_Detach();
 #endif // !DEDICATED
-	CServer_Detach();
+
+#ifdef GAMEDLL_S3
+	CServer_Detach(); // S1 and S2 CServer functions require work.
+#endif // GAMEDLL_S3
 
 #ifdef DEDICATED
 	CHostState_Detach(); // Dedicated only for now until backwards compatible with S1.

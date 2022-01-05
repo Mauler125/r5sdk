@@ -5,9 +5,9 @@
 // Something has to be hardcoded..
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
 
-constexpr auto MATERIALSYSTEM_VCALL_OFF_0 0x3F8;
-constexpr auto CMATQUEUEDRENDERCONTEXT_VCALL_OFS_0 0x278;
-constexpr auto CMATQUEUEDRENDERCONTEXT_VCALL_OFS_1 0x280;
+constexpr auto MATERIALSYSTEM_VCALL_OFF_0 = 0x3F8;
+constexpr auto CMATQUEUEDRENDERCONTEXT_VCALL_OFS_0 = 0x278;
+constexpr auto CMATQUEUEDRENDERCONTEXT_VCALL_OFS_1 = 0x280;
 
 #elif defined (GAMEDLL_S3)
 

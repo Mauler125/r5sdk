@@ -6,8 +6,8 @@
 #include "client/IVEngineClient.h"
 #include "client/client.h"
 #include "client/cdll_engine_int.h"
-#include "public/include/bansystem.h"
 #include "engine/net_chan.h"
+#include "public/include/bansystem.h"
 #include "vpc/keyvalues.h"
 /*****************************************************************************/
 
@@ -23,7 +23,10 @@ void __fastcall HFrameStageNotify(CHLClient* rcx, ClientFrameStage_t frameStage)
 			static bool bInitialized = false;
 			if (!bInitialized)
 			{
-				IConVar_ClearHostNames();
+#ifdef GAMEDLL_S3
+				IConVar_ClearHostNames(); // TODO: S1/S2
+#endif // GAMEDLL_S3
+
 				ConCommand_InitConCommand();
 				CKeyValueSystem_Init();
 

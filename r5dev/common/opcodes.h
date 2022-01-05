@@ -1,4 +1,6 @@
 #pragma once
+#include "tier0/basetypes.h"
+
 namespace
 {
 #ifdef DEDICATED
@@ -15,8 +17,8 @@ void RuntimePtc_Toggle();
 namespace
 {
 	/* -------------- OTHER ------------------------------------------------------------------------------------------------------------------------------------------------- */
-	ADDRESS dst007 = /*0x14028F3B0*/ FindPatternSIMD(g_szGameDll, (const unsigned char*)"\x48\x8B\xC4\x44\x89\x40\x18\x48\x89\x50\x10\x55\x53\x56\x57\x41", "xxxxxxxxxxxxxxxx");
-	ADDRESS dst008 = /*0x140E3E110*/ FindPatternSIMD(g_szGameDll, (const unsigned char*)"\x48\x83\xEC\x78\x48\x8B\x84\x24\x00\x00\x00\x00\x4D\x8B\xD8\x00", "xxxxxxxx????xxx?");
+	//ADDRESS dst007 = /*0x14028F3B0*/ FindPatternSIMD(g_szGameDll, (const unsigned char*)"\x48\x8B\xC4\x44\x89\x40\x18\x48\x89\x50\x10\x55\x53\x56\x57\x41", "xxxxxxxxxxxxxxxx");
+	//ADDRESS dst008 = /*0x140E3E110*/ FindPatternSIMD(g_szGameDll, (const unsigned char*)"\x48\x83\xEC\x78\x48\x8B\x84\x24\x00\x00\x00\x00\x4D\x8B\xD8\x00", "xxxxxxxx????xxx?");
 	/* -------------- ------- ----------------------------------------------------------------------------------------------------------------------------------------------- */
 
 	namespace
@@ -69,8 +71,13 @@ namespace
 	//-------------------------------------------------------------------------
 	// CSTUDIORENDERCONTEXT
 	//-------------------------------------------------------------------------
+#if defined (GAMEDLL_S1)
+		ADDRESS CStudioRenderContext__LoadModel = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x4C\x89\x44\x24\x00\x53\x55\x56\x41\x54\x41\x57", "xxxx?xxxxxxx");
+#elif defined (GAMEDLL_S2)
+		ADDRESS CStudioRenderContext__LoadModel = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x4C\x89\x44\x24\x00\x48\x89\x54\x24\x00\x53\x57\x41\x55\x48\x81\xEC\x00\x00\x00\x00", "xxxx?xxxx?xxxxxxx????");
+#elif defined (GAMEDLL_S3)
 		ADDRESS CStudioRenderContext__LoadModel = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x4C\x89\x44\x24\x00\x48\x89\x54\x24\x00\x48\x89\x4C\x24\x00\x53\x55\x56\x57\x48\x83\xEC\x78", "xxxx?xxxx?xxxx?xxxxxxxx");
-		// 0x1404554C0 // 4C 89 44 24 ? 48 89 54 24 ? 48 89 4C 24 ? 53 55 56 57 48 83 EC 78 //
+#endif// 0x1404554C0 // 4C 89 44 24 ? 48 89 54 24 ? 48 89 4C 24 ? 53 55 56 57 48 83 EC 78 //
 
 		ADDRESS CStudioRenderContext__LoadMaterials = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x8B\xC4\x4C\x89\x40\x18\x55\x56\x41\x55", "xxxxxxxxxxx");
 		// 0x140456B50 // 48 8B C4 4C 89 40 18 55 56 41 55 //

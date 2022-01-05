@@ -9,9 +9,12 @@ namespace
 
 	ADDRESS p_Sys_LoadAssetHelper = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x74\x24\x10\x48\x89\x7C\x24\x18\x41\x56\x48\x83\xEC\x40\x33", "xxxxxxxxxxxxxxxxx");
 	void*(*Sys_LoadAssetHelper)(const CHAR* lpFileName, std::int64_t a2, LARGE_INTEGER* a3) = (void*(*)(const CHAR*, std::int64_t, LARGE_INTEGER*))p_Sys_LoadAssetHelper.GetPtr();/*48 89 74 24 10 48 89 7C 24 18 41 56 48 83 EC 40 33*/
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 	ADDRESS p_MemAlloc_Wrapper = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x48\x83\xEC\x20\x48\x8B\x05\x00\x00\x00\x00\x48\x8B\xD9\x48\x85\xC0\x75\x0C\xE8\x16", "xxxxxxxxx????xxxxxxxxxx");
 	void* (*MemAlloc_Wrapper)(std::int64_t size) = (void* (*)(std::int64_t))p_MemAlloc_Wrapper.GetPtr(); /*40 53 48 83 EC 20 48 8B 05 ?? ?? ?? ?? 48 8B D9 48 85 C0 75 0C E8 16*/
+#elif defined (GAMEDLL_S2)
+	ADDRESS p_MemAlloc_Wrapper = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x48\x83\xEC\x20\x48\x8B\x05\x00\x00\x00\x00\x48\x8B\xD9\x48\x85\xC0\x75\x0C\xE8\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x4C\x8B\x00\x48\x8B\xD3\x48\x8B\xC8\x48\x83\xC4\x20\x5B\x49\xFF\x60\x08", "xxxxxxxxx????xxxxxxxxx????xxx????xxxxxxxxxxxxxxxxxx");
+	void* (*MemAlloc_Wrapper)(std::int64_t size) = (void* (*)(std::int64_t))p_MemAlloc_Wrapper.GetPtr(); /*40 53 48 83 EC 20 48 8B 05 ? ? ? ? 48 8B D9 48 85 C0 75 0C E8 ? ? ? ? 48 89 05 ? ? ? ? 4C 8B 00 48 8B D3 48 8B C8 48 83 C4 20 5B 49 FF 60 08 */
 #elif defined (GAMEDLL_S3)
 	ADDRESS p_MemAlloc_Wrapper = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x48\x83\xEC\x20\x48\x8B\x05\x6B\x83\x25\x0D\x48\x8B\xD9", "xxxxxxxxxxxxxxxx");
 	void* (*MemAlloc_Wrapper)(std::int64_t size) = (void* (*)(std::int64_t))p_MemAlloc_Wrapper.GetPtr(); /*40 53 48 83 EC 20 48 8B 05 6B 83 25 0D 48 8B D9*/
