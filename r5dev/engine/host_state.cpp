@@ -6,6 +6,7 @@
 #include "client/IVEngineClient.h"
 #include "networksystem/r5net.h"
 #include "squirrel/sqinit.h"
+#include "public/include/bansystem.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: Send keep alive request to Pylon Master Server.
@@ -115,6 +116,37 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 		{
 			Cbuf_ExecuteFn();
 			oldState = g_pHostState->m_iCurrentState;
+
+			if (g_pBanSystem->IsRefuseListValid())
+			{
+				for (int i = 0; i < g_pBanSystem->vsvrefuseList.size(); i++) // Loop through vector.
+				{
+					for (int c = 0; c < MAX_PLAYERS; c++) // Loop through all possible client instances.
+					{
+						CClient* client = g_pClient->GetClientInstance(c); // Get client instance.
+						if (!client)
+						{
+							continue;
+						}
+
+						if (!client->GetNetChan()) // Netchan valid?
+						{
+							continue;
+						}
+
+						int clientID = g_pClient->m_iUserID + 1; // Get UserID + 1.
+						if (clientID != g_pBanSystem->vsvrefuseList[i].second) // See if they match.
+						{
+							continue;
+						}
+
+						NET_DisconnectClient(g_pClient, c, g_pBanSystem->vsvrefuseList[i].first.c_str(), 0, 1);
+						g_pBanSystem->DeleteConnectionRefuse(clientID);
+						break;
+					}
+				}
+			}
+
 			switch (g_pHostState->m_iCurrentState)
 			{
 			case HostStates_t::HS_NEW_GAME:
