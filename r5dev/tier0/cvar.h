@@ -19,6 +19,7 @@ namespace
 extern ConVar* cm_debug_cmdquery;
 extern ConVar* cm_return_false_cmdquery_all;
 extern ConVar* cm_return_false_cmdquery_cheats;
+extern ConVar* r_debug_overlay_nodecay;
 //-------------------------------------------------------------------------
 // SERVER                                                                 |
 extern ConVar* sv_showconnecting;
@@ -34,7 +35,7 @@ extern ConVar* cl_consoleoverlay_offset_y;
 extern ConVar* fs_warning_level_native;
 extern ConVar* fs_packedstore_entryblock_stats;
 //-------------------------------------------------------------------------
-// FILESYSTEM                                                             |
+// MATERIALSYSTEM                                                         |
 extern ConVar* mat_showdxoutput;
 //-------------------------------------------------------------------------
 // SQUIRREL                                                               |

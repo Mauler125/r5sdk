@@ -124,6 +124,9 @@
     <Filter Include="sdk\materialsystem">
       <UniqueIdentifier>{55bb4f60-5f5a-4780-a7a2-b3db51c53680}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\milessdk">
+      <UniqueIdentifier>{f52dfb17-f5bd-4258-91a2-500587bee708}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="client\client.cpp">
@@ -856,6 +859,7 @@
     </ClInclude>
     <ClInclude Include="engine\debugoverlay.h">
       <Filter>sdk\engine</Filter>
+    <ClInclude Include="milessdk\win64_rrthreads.h">
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

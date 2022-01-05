@@ -17,6 +17,9 @@
 #include "common/opcodes.h"
 #include "launcher/IApplication.h"
 #include "ebisusdk/EbisuSDK.h"
+#ifndef DEDICATED
+#include "milessdk/win64_rrthreads.h"
+#endif // !DEDICATED
 #include "vphysics/QHull.h"
 #include "bsplib/bsplib.h"
 #ifndef DEDICATED

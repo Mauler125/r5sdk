@@ -66,4 +66,4 @@ void IVEngineServer_Detach()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-bool g_bIsPersistenceVarSet[128];
+bool g_bIsPersistenceVarSet[MAX_PLAYERS];

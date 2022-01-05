@@ -8,6 +8,7 @@
 ConVar* cm_debug_cmdquery                  = new ConVar();
 ConVar* cm_return_false_cmdquery_all       = new ConVar();
 ConVar* cm_return_false_cmdquery_cheats    = new ConVar();
+ConVar* r_debug_overlay_nodecay            = new ConVar();
 //-------------------------------------------------------------------------
 // SERVER                                                                 |
 ConVar* sv_showconnecting                  = new ConVar();
