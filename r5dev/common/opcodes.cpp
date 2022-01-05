@@ -175,7 +175,8 @@ void RuntimePtc_Init() /* .TEXT */
 {
 #ifndef DEDICATED
 	p_WASAPI_GetAudioDevice.Offset(0x410).FindPattern("FF 15 ?? ?? 01 00", ADDRESS::Direction::DOWN, 100).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0xEB }); // CAL --> NOP | Disable debugger check when miles searches for audio device to allow attaching the debugger to the game upon launch.
-	FairFight_Init.Offset(0x0).FindPatternSelf("0F 87", ADDRESS::Direction::DOWN, 200).Patch({ 0x0F, 0x85 });                                                              // JA  --> JNZ | Prevent 'FairFight' anti-cheat from initializing on the server by comparing RAX against 0x0 instead. Init will crash since the plugins aren't shipped.
+	FairFight_Init.Offset(0x0).FindPatternSelf("0F 87", ADDRESS::Direction::DOWN, 200).Patch({ 0x0F, 0x85 });      // JA  --> JNZ | Prevent 'FairFight' anti-cheat from initializing on the server by comparing RAX against 0x0 instead. Init will crash since the plugins aren't shipped.
+	SCR_BeginLoadingPlaque.Offset(0x1AD).FindPatternSelf("75 27", ADDRESS::Direction::DOWN).Patch({ 0xEB, 0x27 }); // JNE --> JMP | Prevent connect command from crashing by invalid call to UI function.
 #endif // !DEDICATED
 }
 
