@@ -859,7 +859,9 @@
     </ClInclude>
     <ClInclude Include="engine\debugoverlay.h">
       <Filter>sdk\engine</Filter>
+   </ClInclude>
     <ClInclude Include="milessdk\win64_rrthreads.h">
+      <Filter>sdk\milessdk</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
