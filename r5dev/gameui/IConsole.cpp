@@ -268,7 +268,7 @@ void CConsole::Draw(const char* title, bool* bDraw)
     // Auto focus previous widget.
     if (reclaim_focus)
     {
-        ImGui::SetKeyboardFocusHere(-1);
+        ImGui::SetKeyboardFocusHere();
     }
 
     ImGui::End();
