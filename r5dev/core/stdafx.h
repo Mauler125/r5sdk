@@ -36,6 +36,11 @@
 #include "thirdparty/imgui/include/imgui_impl_win32.h"
 #endif // !DEDICATED
 
+#if !defined(SDKLAUNCHER)
+#include "thirdparty/lzham/include/lzham_types.h"
+#include "thirdparty/lzham/include/lzham.h"
+#endif // !SDKLAUNCHER
+
 #include "thirdparty/spdlog/include/spdlog.h"
 #include "thirdparty/spdlog/include/sinks/basic_file_sink.h"
 #include "thirdparty/spdlog/include/sinks/stdout_sinks.h"
@@ -57,4 +62,4 @@ namespace
 	MODULE g_mRadAudioDecoderDll = MODULE("binkawin64.dll");
 	MODULE g_mRadAudioSystemDll  = MODULE("mileswin64.dll");
 }
-#endif // SDKLAUNCHER
+#endif // !SDKLAUNCHER

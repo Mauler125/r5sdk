@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Detours Files">
+      <UniqueIdentifier>{82b18787-373d-42ce-8d8d-1e3adba8d3a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Detours Files\include">
+      <UniqueIdentifier>{dc968871-7ca2-452b-a5b1-350a12dd54aa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sdklauncher\sdklauncher.cpp">
@@ -20,6 +26,18 @@
     </ClCompile>
     <ClCompile Include="core\stdafx.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\detours\src\detours.cpp">
+      <Filter>Detours Files</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\detours\src\disasm.cpp">
+      <Filter>Detours Files</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\detours\src\modules.cpp">
+      <Filter>Detours Files</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\detours\src\creatwth.cpp">
+      <Filter>Detours Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -36,6 +54,15 @@
     </ClInclude>
     <ClInclude Include="sdklauncher\sdklauncher_res.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\detours\include\detver.h">
+      <Filter>Detours Files\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\detours\include\syelog.h">
+      <Filter>Detours Files\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\detours\include\detours.h">
+      <Filter>Detours Files\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

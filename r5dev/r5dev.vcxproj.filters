@@ -127,6 +127,18 @@
     <Filter Include="sdk\milessdk">
       <UniqueIdentifier>{f52dfb17-f5bd-4258-91a2-500587bee708}</UniqueIdentifier>
     </Filter>
+    <Filter Include="thirdparty\lzham\lzhamcomp">
+      <UniqueIdentifier>{f450ee50-7010-49e2-9f91-05a74fcb6a8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\lzham\lzhamcomp\include">
+      <UniqueIdentifier>{11645361-fd70-462f-ab8b-8a78283a5fc7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\lzham\lzhamdecomp">
+      <UniqueIdentifier>{785353c2-6417-4213-b55f-3007a0b79801}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\lzham\lzhamdecomp\include">
+      <UniqueIdentifier>{5beb12b5-0422-4337-9be6-2e6c0a05a69b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="client\client.cpp">
@@ -320,6 +332,69 @@
     </ClCompile>
     <ClCompile Include="thirdparty\detours\src\detours.cpp">
       <Filter>thirdparty\detours</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\detours\src\creatwth.cpp">
+      <Filter>thirdparty\detours</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_assert.cpp">
+      <Filter>thirdparty\lzham</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_checksum.cpp">
+      <Filter>thirdparty\lzham</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_huffman_codes.cpp">
+      <Filter>thirdparty\lzham</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_lzbase.cpp">
+      <Filter>thirdparty\lzham</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_match_accel.cpp">
+      <Filter>thirdparty\lzham</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_mem.cpp">
+      <Filter>thirdparty\lzham</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_platform.cpp">
+      <Filter>thirdparty\lzham</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_polar_codes.cpp">
+      <Filter>thirdparty\lzham</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_prefix_coding.cpp">
+      <Filter>thirdparty\lzham</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_pthreads_threading.cpp">
+      <Filter>thirdparty\lzham</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_symbol_codec.cpp">
+      <Filter>thirdparty\lzham</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_timer.cpp">
+      <Filter>thirdparty\lzham</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_vector.cpp">
+      <Filter>thirdparty\lzham</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_win32_threading.cpp">
+      <Filter>thirdparty\lzham</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_api.cpp">
+      <Filter>thirdparty\lzham</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzhamcomp\lzham_lzcomp_internal.cpp">
+      <Filter>thirdparty\lzham\lzhamcomp</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzhamcomp\lzham_lzcomp_state.cpp">
+      <Filter>thirdparty\lzham\lzhamcomp</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzhamcomp\lzham_lzcomp.cpp">
+      <Filter>thirdparty\lzham\lzhamcomp</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzhamdecomp\lzham_lzdecomp.cpp">
+      <Filter>thirdparty\lzham\lzhamdecomp</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzhamdecomp\lzham_lzdecompbase.cpp">
+      <Filter>thirdparty\lzham\lzhamdecomp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -836,12 +911,6 @@
     <ClInclude Include="public\include\binstream.h">
       <Filter>sdk\public\include</Filter>
     </ClInclude>
-    <ClInclude Include="thirdparty\lzham\include\lzham.h">
-      <Filter>thirdparty\lzham\include</Filter>
-    </ClInclude>
-    <ClInclude Include="thirdparty\lzham\include\lzham_static_lib.h">
-      <Filter>thirdparty\lzham\include</Filter>
-    </ClInclude>
     <ClInclude Include="mathlib\adler32.h">
       <Filter>sdk\mathlib</Filter>
     </ClInclude>
@@ -871,6 +940,93 @@
     </ClInclude>
     <ClInclude Include="milessdk\win64_rrthreads.h">
       <Filter>sdk\milessdk</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\include\lzham_config.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\include\lzham_core.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\include\lzham_helpers.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\include\lzham_huffman_codes.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\include\lzham_lzbase.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\include\lzham_match_accel.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\include\lzham_math.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\include\lzham_mem.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\include\lzham_null_threading.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\include\lzham_platform.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\include\lzham_polar_codes.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\include\lzham_prefix_coding.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\include\lzham_pthreads_threading.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\include\lzham_static_lib.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\include\lzham_symbol_codec.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\include\lzham_threading.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\include\lzham_timer.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\include\lzham_traits.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\include\lzham_types.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\include\lzham_utils.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\include\lzham_vector.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\include\lzham_win32_threading.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\include\lzham.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\include\lzham_assert.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\include\lzham_checksum.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\lzhamcomp\lzham_comp.h">
+      <Filter>thirdparty\lzham\lzhamcomp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\lzhamcomp\lzham_lzcomp_internal.h">
+      <Filter>thirdparty\lzham\lzhamcomp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\lzhamdecomp\lzham_decomp.h">
+      <Filter>thirdparty\lzham\lzhamdecomp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\lzham\lzhamdecomp\lzham_lzdecompbase.h">
+      <Filter>thirdparty\lzham\lzhamdecomp\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
