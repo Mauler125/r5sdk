@@ -312,6 +312,15 @@
     <ClCompile Include="windows\system.cpp">
       <Filter>windows</Filter>
     </ClCompile>
+    <ClCompile Include="thirdparty\detours\src\disasm.cpp">
+      <Filter>thirdparty\detours</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\detours\src\modules.cpp">
+      <Filter>thirdparty\detours</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdparty\detours\src\detours.cpp">
+      <Filter>thirdparty\detours</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\cdll_engine_int.h">
@@ -859,7 +868,7 @@
     </ClInclude>
     <ClInclude Include="engine\debugoverlay.h">
       <Filter>sdk\engine</Filter>
-   </ClInclude>
+    </ClInclude>
     <ClInclude Include="milessdk\win64_rrthreads.h">
       <Filter>sdk\milessdk</Filter>
     </ClInclude>

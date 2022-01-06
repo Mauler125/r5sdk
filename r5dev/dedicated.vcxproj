@@ -135,7 +135,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>detours.lib;lzhamlib_x64D.lib;lzhamcomp_x64D.lib;lzhamdecomp_x64D.lib;d3d11.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lzhamlib_x64D.lib;lzhamcomp_x64D.lib;lzhamdecomp_x64D.lib;d3d11.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>del "..\..\..\$(ProjectName)" &amp;&amp; copy /Y "$(TargetPath)" "..\..\..\</Command>
@@ -162,7 +162,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>detours.lib;lzhamlib_x64.lib;lzhamcomp_x64.lib;lzhamdecomp_x64.lib;d3d11.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lzhamlib_x64.lib;lzhamcomp_x64.lib;lzhamdecomp_x64.lib;d3d11.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>del "..\..\..\$(ProjectName)" &amp;&amp; copy /Y "$(TargetPath)" "..\..\..\</Command>
@@ -360,6 +360,18 @@
     <ClCompile Include="squirrel\sqapi.cpp" />
     <ClCompile Include="squirrel\sqinit.cpp" />
     <ClCompile Include="squirrel\sqvm.cpp" />
+    <ClCompile Include="thirdparty\detours\src\detours.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\detours\src\disasm.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\detours\src\modules.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="tier0\ConCommand.cpp" />
     <ClCompile Include="tier0\completion.cpp" />
     <ClCompile Include="tier0\cvar.cpp" />
