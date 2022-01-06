@@ -10,7 +10,7 @@ using namespace lzham;
 #define LZHAM_MEM_STATS 0
 
 #ifndef LZHAM_USE_WIN32_API
-   #define _msize malloc_usable_size
+   //#define _msize malloc_usable_size
 #endif
 
 namespace lzham

@@ -1,7 +1,6 @@
 // File: lzham_core.h
 // See Copyright Notice and license at the end of include/lzham.h
 #pragma once
-#include "core/stdafx.h"
 
 #if defined(_MSC_VER)
    #pragma warning (disable: 4127) // conditional expression is constant
@@ -136,6 +135,8 @@
    #define LZHAM_FORCE_INLINE inline
 
    #define LZHAM_NOTE_UNUSED(x) (void)x
+
+#include <windows.h>
 #endif
 
 #if LZHAM_LITTLE_ENDIAN_CPU
