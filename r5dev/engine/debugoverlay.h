@@ -113,13 +113,10 @@ namespace
 	LPCRITICAL_SECTION s_OverlayMutex = p_DrawAllOverlays.Offset(0x10).FindPatternSelf("48 8D 0D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).RCast<LPCRITICAL_SECTION>();
 
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	int* render_tickcount = p_DrawAllOverlays.Offset(0x80).FindPatternSelf("3B 0D 17", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).RCast<int*>();
+	int* render_tickcount = p_DrawAllOverlays.Offset(0x80).FindPatternSelf("3B 0D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).RCast<int*>();
 	int* overlay_tickcount = p_DrawAllOverlays.Offset(0x70).FindPatternSelf("3B 0D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).RCast<int*>();
-#elif defined (GAMEDLL_S2)
-	int* render_tickcount = p_DrawAllOverlays.Offset(0x50).FindPatternSelf("3B 05 79", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).RCast<int*>();
-	int* overlay_tickcount = p_DrawAllOverlays.Offset(0x70).FindPatternSelf("3B 05", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).RCast<int*>();
-#elif defined (GAMEDLL_S3)
-	int* render_tickcount = p_DrawAllOverlays.Offset(0x50).FindPatternSelf("3B 05 B1", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).RCast<int*>();
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+	int* render_tickcount = p_DrawAllOverlays.Offset(0x50).FindPatternSelf("3B 05", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).RCast<int*>();
 	int* overlay_tickcount = p_DrawAllOverlays.Offset(0x70).FindPatternSelf("3B 05", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).RCast<int*>();
 #endif
 }
