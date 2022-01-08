@@ -11,64 +11,39 @@
 //-----------------------------------------------------------------------------
 bool HIConVar_IsFlagSet(ConVar* pConVar, int nFlags)
 {
+	if (cm_debug_cmdquery->m_pParent->m_iValue > 0)
+	{
+		printf("--------------------------------------------------\n");
+		printf(" Flaged: %08X\n", pConVar->m_ConCommandBase.m_nFlags);
+	}
 	if (cm_return_false_cmdquery_cheats->m_pParent->m_iValue > 0)
 	{
-		if (cm_debug_cmdquery->m_pParent->m_iValue > 0)
-		{
-			printf("--------------------------------------------------\n");
-			printf(" Flaged: %08X\n", pConVar->m_ConCommandBase.m_nFlags);
-		}
 		// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY.
 		pConVar->m_ConCommandBase.RemoveFlags(FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT);
-		if (cm_debug_cmdquery->m_pParent->m_iValue > 0)
-		{
-			printf(" Masked: %08X\n", pConVar->m_ConCommandBase.m_nFlags);
-			printf(" Verify: %08X\n", nFlags);
-			printf("--------------------------------------------------\n");
-		}
-		if (nFlags & FCVAR_RELEASE && cm_return_false_cmdquery_all->m_pParent->m_iValue <= 0)
-		{
-			// Default retail behaviour.
-			return IConVar_IsFlagSet(pConVar, nFlags);
-		}
-		if (cm_return_false_cmdquery_all->m_pParent->m_iValue > 0)
-		{
-			// Returning false on all queries may cause problems.
-			return false;
-		}
-		// Return false on every FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT query.
-		return pConVar->m_ConCommandBase.HasFlags(nFlags) != 0;
 	}
 	else
 	{
-		if (cm_debug_cmdquery->m_pParent->m_iValue > 0)
-		{
-			printf("--------------------------------------------------\n");
-			printf(" Flaged: %08X\n", pConVar->m_ConCommandBase.m_nFlags);
-		}
 		// Mask off FCVAR_DEVELOPMENTONLY.
 		pConVar->m_ConCommandBase.RemoveFlags(FCVAR_DEVELOPMENTONLY);
-		if (cm_debug_cmdquery->m_pParent->m_iValue > 0)
-		{
-			printf(" Masked: %08X\n", pConVar->m_ConCommandBase.m_nFlags);
-			printf(" Verify: %08X\n", nFlags);
-			printf("--------------------------------------------------\n");
-		}
-		if (nFlags & FCVAR_RELEASE && cm_return_false_cmdquery_all->m_pParent->m_iValue <= 0)
-		{
-			// Default retail behaviour.
-			return IConVar_IsFlagSet(pConVar, nFlags);
-		}
-		if (cm_return_false_cmdquery_all->m_pParent->m_iValue > 0)
-		{
-			// Returning false on all queries may cause problems.
-			return false;
-		}
-		// Return false on every FCVAR_DEVELOPMENTONLY query.
-		return pConVar->m_ConCommandBase.HasFlags(nFlags) != 0;
 	}
-	// Default retail behaviour.
-	return IConVar_IsFlagSet(pConVar, nFlags);
+	if (cm_debug_cmdquery->m_pParent->m_iValue > 0)
+	{
+		printf(" Masked: %08X\n", pConVar->m_ConCommandBase.m_nFlags);
+		printf(" Verify: %08X\n", nFlags);
+		printf("--------------------------------------------------\n");
+	}
+	if (nFlags & FCVAR_RELEASE && cm_return_false_cmdquery_all->m_pParent->m_iValue <= 0)
+	{
+		// Default retail behaviour.
+		return IConVar_IsFlagSet(pConVar, nFlags);
+	}
+	if (cm_return_false_cmdquery_all->m_pParent->m_iValue > 0)
+	{
+		// Returning false on all queries may cause problems.
+		return false;
+	}
+	// Return false on every FCVAR_DEVELOPMENTONLY query.
+	return pConVar->m_ConCommandBase.HasFlags(nFlags) != 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -110,6 +85,14 @@ void IConVar_InitConVar()
 	cl_consoleoverlay_lines    = IConVar_RegisterConVar("cl_consoleoverlay_lines", "3", FCVAR_RELEASE, "Number of lines of console output to draw.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_consoleoverlay_offset_x = IConVar_RegisterConVar("cl_consoleoverlay_offset_x", "10", FCVAR_RELEASE, "X offset for console overlay.", false, 1.f, false, 50.f, nullptr, nullptr);
 	cl_consoleoverlay_offset_y = IConVar_RegisterConVar("cl_consoleoverlay_offset_y", "10", FCVAR_RELEASE, "Y offset for console overlay.", false, 1.f, false, 50.f, nullptr, nullptr);
+
+	cl_showsimstats      = IConVar_RegisterConVar("cl_showsimstats", "1", FCVAR_RELEASE, "Shows the tick counter for the server/client simulation and the render frame.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_simstats_offset_x = IConVar_RegisterConVar("cl_simstats_offset_x", "1250", FCVAR_RELEASE, "X offset for simulation debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_simstats_offset_y = IConVar_RegisterConVar("cl_simstats_offset_y", "885", FCVAR_RELEASE, "Y offset for simulation debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+
+	cl_showgpustats      = IConVar_RegisterConVar("cl_showgpustats", "1", FCVAR_RELEASE, "Texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_gpustats_offset_x = IConVar_RegisterConVar("cl_gpustats_offset_x", "1250", FCVAR_RELEASE, "X offset for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_gpustats_offset_y = IConVar_RegisterConVar("cl_gpustats_offset_y", "900", FCVAR_RELEASE, "Y offset for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// FILESYSTEM                                                             |
 	fs_warning_level_native         = IConVar_RegisterConVar("fs_warning_level_native", "0", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Set the filesystem warning level ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);

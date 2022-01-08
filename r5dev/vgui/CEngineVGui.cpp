@@ -1,7 +1,12 @@
 #include "core/stdafx.h"
 #include "tier0/cvar.h"
+#include "mathlib/color.h"
 #include "vgui/CEngineVGui.h"
 #include "vguimatsurface/MatSystemSurface.h"
+#include "materialsystem/materialsystem.h"
+#include "engine/debugoverlay.h"
+#include "engine/baseclientstate.h"
+#include "server/server.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -31,21 +36,46 @@ int HCEngineVGui_Paint(void* thisptr, int mode)
 //-----------------------------------------------------------------------------
 void CLogSystem::Update()
 {
-	if (cl_drawconsoleoverlay->m_pParent->m_iValue < 1)
-	{
-		return;
-	}
-	if (m_vLogs.empty())
-	{
-		return;
-	}
 	if (!g_pMatSystemSurface)
 	{
 		return;
 	}
+	if (cl_drawconsoleoverlay->m_pParent->m_iValue > 0)
+	{
+		DrawLog();
+	}
+	if (cl_showsimstats->m_pParent->m_iValue > 0)
+	{
+		DrawSimStats();
+	}
+	if (cl_showgpustats->m_pParent->m_iValue > 0)
+	{
+		DrawGPUStats();
+	}
+}
 
-	static int fontHeight = 16;
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogSystem::AddLog(LogType_t type, std::string message)
+{
+	if (message.length() > 0)
+	{
+		m_vLogs.push_back(Log{ message, 1024, type });
+	}
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void  CLogSystem::DrawLog()
+{
+	if (m_vLogs.empty())
+	{
+		return;
+	}
 	for (int i = 0; i < m_vLogs.size(); ++i)
 	{
 		if (m_vLogs[i].Ticks >= 0)
@@ -58,8 +88,8 @@ void CLogSystem::Update()
 				int y = (cl_consoleoverlay_offset_y->m_pParent->m_iValue + (fontHeight * i));
 				int x = cl_consoleoverlay_offset_x->m_pParent->m_iValue;
 
-				std::array<int, 3> color = GetLogColorForType(m_vLogs[i].Type);
-				CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, fontHeight, x, y, color[0], color[1], color[2], alpha, m_vLogs[i].Message.c_str());
+				Color c = GetLogColorForType(m_vLogs[i].Type);
+				CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, fontHeight, x, y, c._color[0], c._color[1], c._color[2], alpha, m_vLogs[i].Message.c_str());
 			}
 			else
 			{
@@ -76,31 +106,55 @@ void CLogSystem::Update()
 	}
 }
 
-void CLogSystem::AddLog(LogType_t type, std::string message)
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogSystem::DrawSimStats()
 {
-	if (message.length() > 0)
-	{
-		m_vLogs.push_back(Log{ message, 1024, type });
-	}
+	Color c = { 255, 255, 255, 255 };
+	static const char* szLogbuf[4096]{};
+	snprintf((char*)szLogbuf, 4096, "Server Frame: (%d) Client Frame (%d) Render Frame (%d)\n",
+	*sv_m_nTickCount, *cl_host_tickcount, *render_tickcount);
+
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, fontHeight, cl_simstats_offset_x->m_iValue, cl_simstats_offset_y->m_iValue, c._color[0], c._color[1], c._color[2], 255, (char*)szLogbuf);
 }
 
-std::array<int, 3> CLogSystem::GetLogColorForType(LogType_t type)
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogSystem::DrawGPUStats()
+{
+	Color c = { 255, 255, 255, 255 };
+	static const char* szLogbuf[4096]{};
+	snprintf((char*)szLogbuf, 4096, "%8d/%8d/%8dkiB unusable/unfree/total GPU Streaming Texture memory\n", 
+	*unusable_streaming_tex_memory / 1024, *unfree_streaming_tex_memory / 1024, *unusable_streaming_tex_memory / 1024);
+
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, fontHeight, cl_gpustats_offset_x->m_iValue, cl_gpustats_offset_y->m_iValue, c._color[0], c._color[1], c._color[2], 255, (char*)szLogbuf);
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+Color CLogSystem::GetLogColorForType(LogType_t type)
 {
 	switch (type)
 	{
 		case LogType_t::NATIVE:
-			return { 255, 255, 255 };
+			return { 255, 255, 255, 255 };
 		case LogType_t::SCRIPT_SERVER:
-			return { 190, 183, 240 };
+			return { 190, 183, 240, 255 };
 		case LogType_t::SCRIPT_CLIENT:
-			return { 117, 116, 139 };
+			return { 117, 116, 139, 255 };
 		case LogType_t::SCRIPT_UI:
-			return { 197, 160, 177 };
+			return { 197, 160, 177, 255 };
 		default:
-			return { 255, 255, 255 };
+			return { 255, 255, 255, 255 };
 	}
 
-	return { 255, 255, 255 };
+	return { 255, 255, 255, 255 };
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -19,6 +19,14 @@ ConVar* cl_drawconsoleoverlay              = new ConVar();
 ConVar* cl_consoleoverlay_lines            = new ConVar();
 ConVar* cl_consoleoverlay_offset_x         = new ConVar();
 ConVar* cl_consoleoverlay_offset_y         = new ConVar();
+
+ConVar* cl_showsimstats                    = new ConVar();
+ConVar* cl_simstats_offset_x               = new ConVar();
+ConVar* cl_simstats_offset_y               = new ConVar();
+
+ConVar* cl_showgpustats                    = new ConVar();
+ConVar* cl_gpustats_offset_x               = new ConVar();
+ConVar* cl_gpustats_offset_y               = new ConVar();
 //-------------------------------------------------------------------------
 // FILESYSTEM                                                             |
 ConVar* fs_warning_level_native            = new ConVar();

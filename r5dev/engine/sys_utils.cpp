@@ -36,9 +36,9 @@ void DevMsg(eDLL_T idx, const char* fmt, ...)
 
 	static std::string vmType[7] = { "Native(S):", "Native(C):", "Native(U):", "Native(E):", "Native(F):", "Native(R):", "Native(M):" };
 
-	static auto iconsole = spdlog::stdout_logger_mt("sys_print_iconsole"); // in-game console.
-	static auto wconsole = spdlog::stdout_logger_mt("sys_print_wconsole"); // windows console.
-	static auto sqlogger = spdlog::basic_logger_mt("sys_print_logger", "platform\\logs\\sys_print.log"); // file logger.
+	static auto iconsole = spdlog::stdout_logger_mt("dev_message_iconsole"); // in-game console.
+	static auto wconsole = spdlog::stdout_logger_mt("dev_message_wconsole"); // windows console.
+	static auto sqlogger = spdlog::basic_logger_mt("dev_message_logger", "platform\\logs\\dev_message.log"); // file logger.
 
 	std::string vmStr = vmType[vmIdx].c_str();
 
