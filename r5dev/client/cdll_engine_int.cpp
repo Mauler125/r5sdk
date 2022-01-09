@@ -24,10 +24,10 @@ void __fastcall HFrameStageNotify(CHLClient* rcx, ClientFrameStage_t frameStage)
 			if (!bInitialized)
 			{
 #ifdef GAMEDLL_S3
-				IConVar_ClearHostNames(); // TODO: S1/S2
+				g_pConVar->ClearHostNames();
 #endif // GAMEDLL_S3
 
-				ConCommand_InitConCommand();
+				g_pConCommand->Init();
 				CKeyValueSystem_Init();
 
 				IVEngineClient_CommandExecute(NULL, "exec autoexec.cfg");
@@ -42,7 +42,7 @@ void __fastcall HFrameStageNotify(CHLClient* rcx, ClientFrameStage_t frameStage)
 				{
 					HNET_GenerateKey();
 				}
-				g_pCvar->FindVar("net_usesocketsforloopback")->m_pParent->m_iValue = 1;
+				g_pCvar->FindVar("net_usesocketsforloopback")->SetValue(1);
 
 				bInitialized = true;
 			}

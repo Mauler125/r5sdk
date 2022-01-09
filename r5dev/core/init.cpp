@@ -114,7 +114,7 @@ void Systems_Init()
 		TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
 	}
 
-	IConVar_InitConVar();
+	g_pConVar->Init();
 
 #ifdef DEDICATED
 	Dedicated_Init();

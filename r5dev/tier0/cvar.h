@@ -57,6 +57,28 @@ extern ConVar* net_userandomkey;
 extern ConVar* r5net_matchmaking_hostname;
 extern ConVar* r5net_show_debug;
 
+extern ConVar* test_color_test;
+
+
+class CCVarIteratorInternal // Fully reversed table, just look at the virtual function table and rename the function.
+{
+public:
+	virtual void            SetFirst(void) = 0; //0
+	virtual void            Next(void)     = 0; //1
+	virtual	bool            IsValid(void)  = 0; //2
+	virtual ConCommandBase* Get(void)      = 0; //3
+};
+
+class CCVar
+{
+public:
+	ConCommandBase* FindCommandBase(const char* pszCommandName); // @0x1405983A0 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
+	ConVar* FindVar(const char* pszVarName);                     // @0x1405983B0 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
+	ConCommand* FindCommand(const char* pszCommandName);
+	CCVarIteratorInternal* FactoryInternalIterator();
+	std::unordered_map<std::string, ConCommandBase*> DumpToMap();
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 extern CCVar* g_pCvar;
 

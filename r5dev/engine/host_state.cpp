@@ -129,8 +129,8 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 	static bool bInitialized = false;
 	if (!bInitialized)
 	{
-		IConVar_ClearHostNames();
-		ConCommand_InitConCommand();
+		g_pConCommand->Init();
+		g_pConVar->ClearHostNames();
 
 		IVEngineClient_CommandExecute(NULL, "exec autoexec.cfg");
 		IVEngineClient_CommandExecute(NULL, "exec autoexec_server.cfg");

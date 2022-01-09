@@ -64,27 +64,21 @@ private:
 
 class ConCommand
 {
+	friend class CCVar;
+public:
+	ConCommand(void) {};
+	ConCommand(const char* szName, const char* szHelpString, int nFlags, void* pCallback, void* pCommandCompletionCallback);
+	void Init(void);
 	// TODO
 };
 
 class ConCommandBase
 {
 public:
-
-	void AddFlags(int flags)
-	{
-		m_nFlags |= flags;
-	}
-
-	void RemoveFlags(int flags)
-	{
-		m_nFlags &= ~flags;
-	}
-
-	bool HasFlags(int flags)
-	{
-		return m_nFlags & flags;
-	}
+	void AddFlags(int nFlags);
+	void RemoveFlags(int nFlags);
+	bool HasFlags(int nFlags);
+	static bool IsFlagSet(ConCommandBase* pCommandBase, int nFlags);
 
 	void* m_pConCommandBaseVTable; //0x0000
 	ConCommandBase* m_pNext;       //0x0008
@@ -105,8 +99,8 @@ private:
 namespace
 {
 	/* ==== CONCOMMAND ====================================================================================================================================================== */
-	ADDRESS p_ConCommand_IsFlagSet = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x85\x51\x38\x0F\x95\xC0\xC3", "xxxxxxx");
-	bool (*ConCommand_IsFlagSet)(ConCommandBase* cmd, int flag) = (bool (*)(ConCommandBase*, int))p_ConCommand_IsFlagSet.GetPtr(); /*85 51 38 0F 95 C0 C3*/
+	ADDRESS p_ConCommandBase_IsFlagSet = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x85\x51\x38\x0F\x95\xC0\xC3", "xxxxxxx");
+	bool (*ConCommandBase_IsFlagSet)(ConCommandBase* cmd, int flag) = (bool (*)(ConCommandBase*, int))p_ConCommandBase_IsFlagSet.GetPtr(); /*85 51 38 0F 95 C0 C3*/
 
 	ADDRESS p_ConCommand_CMaterialSystemCmdInit = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8B\xEC\x48\x83\xEC\x50\x48\x8B\x15\x00\x00\x00\x00", "xxxx?xxxx?xxxx?xxxxxxxxxxxxxxxxxxx????");
 	ConCommand*(*ConCommand_CMaterialSystemCmdInit)() = (ConCommand* (*)())p_ConCommand_CMaterialSystemCmdInit.GetPtr();
@@ -124,18 +118,17 @@ namespace
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-bool HConCommand_IsFlagSet(ConCommandBase* pCommand, int nFlag);
-void ConCommand_InitConCommand();
-
 void ConCommand_Attach();
 void ConCommand_Detach();
+
+extern ConCommand* g_pConCommand;
 
 ///////////////////////////////////////////////////////////////////////////////
 class HConCommand : public IDetour
 {
 	virtual void debugp()
 	{
-		std::cout << "| FUN: ConCommand::IsFlagSet                : 0x" << std::hex << std::uppercase << p_ConCommand_IsFlagSet.GetPtr()              << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: ConCommandBase::IsFlagSet            : 0x" << std::hex << std::uppercase << p_ConCommandBase_IsFlagSet.GetPtr()              << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: ConCommand::CMaterialSystemCmdInit   : 0x" << std::hex << std::uppercase << p_ConCommand_CMaterialSystemCmdInit.GetPtr() << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: ConCommand::NullSub                  : 0x" << std::hex << std::uppercase << p_ConCommand_NullSub.GetPtr()                << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: ConCommand::CallbackCompletion       : 0x" << std::hex << std::uppercase << p_ConCommand_CallbackCompletion.GetPtr()     << std::setw(npad) << " |" << std::endl;

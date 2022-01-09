@@ -396,6 +396,9 @@
     <ClCompile Include="thirdparty\lzham\lzhamdecomp\lzham_lzdecompbase.cpp">
       <Filter>thirdparty\lzham\lzhamdecomp</Filter>
     </ClCompile>
+    <ClCompile Include="mathlib\bits.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\cdll_engine_int.h">
@@ -1027,6 +1030,9 @@
     </ClInclude>
     <ClInclude Include="thirdparty\lzham\lzhamdecomp\lzham_lzdecompbase.h">
       <Filter>thirdparty\lzham\lzhamdecomp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="mathlib\bits.h">
+      <Filter>sdk\mathlib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

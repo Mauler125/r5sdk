@@ -40,20 +40,19 @@ void CLogSystem::Update()
 	{
 		return;
 	}
-	if (cl_drawconsoleoverlay->m_pParent->m_iValue > 0)
+	if (cl_drawconsoleoverlay->GetBool())
 	{
 		DrawLog();
 	}
-	if (cl_showsimstats->m_pParent->m_iValue > 0)
+	if (cl_showsimstats->GetBool())
 	{
 		DrawSimStats();
 	}
-	if (cl_showgpustats->m_pParent->m_iValue > 0)
+	if (cl_showgpustats->GetBool())
 	{
 		DrawGPUStats();
 	}
 }
-
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -65,7 +64,6 @@ void CLogSystem::AddLog(LogType_t type, std::string message)
 		m_vLogs.push_back(Log{ message, 1024, type });
 	}
 }
-
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -106,7 +104,6 @@ void  CLogSystem::DrawLog()
 	}
 }
 
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -114,12 +111,11 @@ void CLogSystem::DrawSimStats()
 {
 	Color c = { 255, 255, 255, 255 };
 	static const char* szLogbuf[4096]{};
-	snprintf((char*)szLogbuf, 4096, "Server Frame: (%d) Client Frame (%d) Render Frame (%d)\n",
+	snprintf((char*)szLogbuf, 4096, "Server Frame: (%d) Client Frame: (%d) Render Frame: (%d)\n",
 	*sv_m_nTickCount, *cl_host_tickcount, *render_tickcount);
 
-	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, fontHeight, cl_simstats_offset_x->m_iValue, cl_simstats_offset_y->m_iValue, c._color[0], c._color[1], c._color[2], 255, (char*)szLogbuf);
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, fontHeight, cl_simstats_offset_x->GetInt(), cl_simstats_offset_y->GetInt(), c._color[0], c._color[1], c._color[2], 255, (char*)szLogbuf);
 }
-
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -131,9 +127,8 @@ void CLogSystem::DrawGPUStats()
 	snprintf((char*)szLogbuf, 4096, "%8d/%8d/%8dkiB unusable/unfree/total GPU Streaming Texture memory\n", 
 	*unusable_streaming_tex_memory / 1024, *unfree_streaming_tex_memory / 1024, *unusable_streaming_tex_memory / 1024);
 
-	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, fontHeight, cl_gpustats_offset_x->m_iValue, cl_gpustats_offset_y->m_iValue, c._color[0], c._color[1], c._color[2], 255, (char*)szLogbuf);
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, fontHeight, cl_gpustats_offset_x->GetInt(), cl_gpustats_offset_y->GetInt(), c._color[0], c._color[1], c._color[2], 255, (char*)szLogbuf);
 }
-
 
 //-----------------------------------------------------------------------------
 // Purpose: 
