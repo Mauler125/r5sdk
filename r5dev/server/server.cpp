@@ -44,7 +44,7 @@ void* HCServer_Authenticate(void* pServer, user_creds* pInpacket)
 		svIpAddress = ss.str();
 	}
 
-	if (sv_showconnecting->m_pParent->m_iValue > 0)
+	if (sv_showconnecting->GetBool())
 	{
 		DevMsg(eDLL_T::SERVER, "\n");
 		DevMsg(eDLL_T::SERVER, "______________________________________________________________\n");
@@ -61,7 +61,7 @@ void* HCServer_Authenticate(void* pServer, user_creds* pInpacket)
 		{
 			CServer_RejectConnection(pServer, *(unsigned int*)((std::uintptr_t)pServer + 0xC), pInpacket, "You have been banned from this Server."); // RejectConnection for the client.
 
-			if (sv_showconnecting->m_pParent->m_iValue > 0)
+			if (sv_showconnecting->GetBool())
 			{
 				DevMsg(eDLL_T::SERVER, "] NOTICE   : | THIS CLIENT IS BANNED!\n");
 				DevMsg(eDLL_T::SERVER, "--------------------------------------------------------------\n\n");
@@ -69,7 +69,7 @@ void* HCServer_Authenticate(void* pServer, user_creds* pInpacket)
 			return nullptr;
 		}
 	}
-	if (sv_showconnecting->m_pParent->m_iValue > 0)
+	if (sv_showconnecting->GetBool())
 	{
 		DevMsg(eDLL_T::SERVER, "\n");
 	}

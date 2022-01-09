@@ -211,7 +211,7 @@ void GetPresent()
 		&nFeatureLevelsSupported,
 		&pContext)))
 	{
-		if (mat_showdxoutput->m_pParent->m_iValue > 0)
+		if (mat_showdxoutput->GetBool())
 		{
 			DevMsg(eDLL_T::MS, "+--------------------------------------------------------+\n");
 			DevMsg(eDLL_T::MS, "| >>>>>>>>>| VIRTUAL METHOD TABLE HOOK FAILED |<<<<<<<<< |\n");
@@ -346,7 +346,7 @@ void DestroyRenderTarget()
 		g_pRenderTargetView = nullptr;
 		g_pDeviceContext->OMSetRenderTargets(0, 0, 0);
 
-		if (mat_showdxoutput->m_pParent->m_iValue > 0)
+		if (mat_showdxoutput->GetBool())
 		{
 			DevMsg(eDLL_T::MS, "+--------------------------------------------------------+\n");
 			DevMsg(eDLL_T::MS, "| >>>>>>>>>>>>>>| RENDER TARGET DESTROYED |<<<<<<<<<<<<< |\n");
@@ -389,7 +389,7 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 	{
 		if (FAILED(GetDeviceAndCtxFromSwapchain(pSwapChain, &g_pDevice, &g_pDeviceContext)))
 		{
-			if (mat_showdxoutput->m_pParent->m_iValue > 0)
+			if (mat_showdxoutput->GetBool())
 			{
 				DevMsg(eDLL_T::MS, "+--------------------------------------------------------+\n");
 				DevMsg(eDLL_T::MS, "| >>>>>>>>>>| GET DVS AND CTX FROM SCP FAILED |<<<<<<<<< |\n");

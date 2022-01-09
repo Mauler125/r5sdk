@@ -27,14 +27,14 @@ std::vector<ServerListing> R5Net::Client::GetServersList(std::string& svOutMessa
 
     std::string reqBodyStr = jsReqBody.dump();
 
-    if (r5net_show_debug->m_pParent->m_iValue > 0)
+    if (r5net_show_debug->GetBool())
     {
        DevMsg(eDLL_T::ENGINE, "Sending GetServerList post.\n");
     }
 
     httplib::Result htResults = m_HttpClient.Post("/servers", jsReqBody.dump().c_str(), jsReqBody.dump().length(), "application/json");
 
-    if (r5net_show_debug->m_pParent->m_iValue > 0)
+    if (r5net_show_debug->GetBool())
     {
         DevMsg(eDLL_T::ENGINE, "GetServerList replied with '%d'.\n", htResults->status);
     }
@@ -125,14 +125,14 @@ bool R5Net::Client::PostServerHost(std::string& svOutMessage, std::string& svOut
 
     std::string svRequestBody = jsRequestBody.dump();
 
-    if (r5net_show_debug->m_pParent->m_iValue > 0)
+    if (r5net_show_debug->GetBool())
     {
         DevMsg(eDLL_T::ENGINE, "Sending PostServerHost post '%s'.\n", svRequestBody.c_str());
     }
 
     httplib::Result htResults = m_HttpClient.Post("/servers/add", svRequestBody.c_str(), svRequestBody.length(), "application/json");
 
-    if (r5net_show_debug->m_pParent->m_iValue > 0)
+    if (r5net_show_debug->GetBool())
     {
         DevMsg(eDLL_T::ENGINE, "PostServerHost replied with '%d'.\n", htResults->status);
     }
@@ -213,14 +213,14 @@ bool R5Net::Client::GetServerByToken(ServerListing& slOutServer, std::string& sv
 
     jsRequestBody["token"] = svToken;
 
-    if (r5net_show_debug->m_pParent->m_iValue > 0)
+    if (r5net_show_debug->GetBool())
     {
         DevMsg(eDLL_T::ENGINE, "Sending GetServerByToken post.\n");
     }
 
     httplib::Result htResults = m_HttpClient.Post("/server/byToken", jsRequestBody.dump().c_str(), jsRequestBody.dump().length(), "application/json");
 
-    if (r5net_show_debug->m_pParent->m_iValue > 0)
+    if (r5net_show_debug->GetBool())
     {
         DevMsg(eDLL_T::ENGINE, "GetServerByToken replied with '%d'\n", htResults->status);
     }

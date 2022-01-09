@@ -60,11 +60,11 @@ void* HSQVM_PrintFunc(void* sqvm, char* fmt, ...)
 
 	vmStr.append(buf);
 
-	if (sq_showvmoutput->m_pParent->m_iValue > 0)
+	if (sq_showvmoutput->GetInt() > 0)
 	{
 		sqlogger->debug(vmStr);
 	}
-	if (sq_showvmoutput->m_pParent->m_iValue > 1)
+	if (sq_showvmoutput->GetInt() > 1)
 	{
 		iconsole->debug(vmStr);
 		wconsole->debug(vmStr);
@@ -75,7 +75,7 @@ void* HSQVM_PrintFunc(void* sqvm, char* fmt, ...)
 #endif // !DEDICATED
 	}
 #ifndef DEDICATED
-	if (sq_showvmoutput->m_pParent->m_iValue > 2)
+	if (sq_showvmoutput->GetInt() > 2)
 	{
 		std::string s = g_spd_sqvm_p_oss.str();
 		g_pLogSystem.AddLog((LogType_t)vmIdx, s);
@@ -130,11 +130,11 @@ void* HSQVM_WarningFunc(void* sqvm, int a2, int a3, int* nStringSize, void** ppS
 	std::string s = g_spd_sqvm_w_oss.str();
 	const char* c = s.c_str();
 
-	if (sq_showvmwarning->m_pParent->m_iValue > 0)
+	if (sq_showvmwarning->GetInt() > 0)
 	{
 		sqlogger->debug(vmStr); // Emit to file.
 	}
-	if (sq_showvmwarning->m_pParent->m_iValue > 1)
+	if (sq_showvmwarning->GetInt() > 1)
 	{
 		iconsole->debug(vmStr); // Emit to in-game console.
 		wconsole->debug(vmStr); // Emit to windows console.
@@ -145,7 +145,7 @@ void* HSQVM_WarningFunc(void* sqvm, int a2, int a3, int* nStringSize, void** ppS
 #endif // !DEDICATED
 	}
 #ifndef DEDICATED
-	if (sq_showvmwarning->m_pParent->m_iValue > 2)
+	if (sq_showvmwarning->GetInt() > 2)
 	{
 		g_pLogSystem.AddLog((LogType_t)vmIdx, s);
 		const char* c = s.c_str();
@@ -186,7 +186,7 @@ void* HSQVM_LoadRson(const char* szRsonName)
 	// Returns the new path if the rson exists on the disk
 	if (FileExists(szFilePath) && SQVM_LoadRson(szRsonName))
 	{
-		if (sq_showrsonloading->m_pParent->m_iValue > 0)
+		if (sq_showrsonloading->GetBool())
 		{
 			DevMsg(eDLL_T::ENGINE, "\n");
 			DevMsg(eDLL_T::ENGINE, "______________________________________________________________\n");
@@ -199,7 +199,7 @@ void* HSQVM_LoadRson(const char* szRsonName)
 	}
 	else
 	{
-		if (sq_showrsonloading->m_pParent->m_iValue > 0)
+		if (sq_showrsonloading->GetBool())
 		{
 			DevMsg(eDLL_T::ENGINE, "\n");
 			DevMsg(eDLL_T::ENGINE, "______________________________________________________________\n");
@@ -229,7 +229,7 @@ bool HSQVM_LoadScript(void* sqvm, const char* szScriptPath, const char* szScript
 		}
 	}
 
-	if (sq_showscriptloading->m_pParent->m_iValue > 0)
+	if (sq_showscriptloading->GetBool())
 	{
 		DevMsg(eDLL_T::ENGINE, "Loading SQVM Script '%s'\n", filepath);
 	}
@@ -240,7 +240,7 @@ bool HSQVM_LoadScript(void* sqvm, const char* szScriptPath, const char* szScript
 		return true;
 	}
 
-	if (sq_showscriptloading->m_pParent->m_iValue > 0)
+	if (sq_showscriptloading->GetBool())
 	{
 		DevMsg(eDLL_T::ENGINE, "FAILED. Try SP / VPK for '%s'\n", filepath);
 	}

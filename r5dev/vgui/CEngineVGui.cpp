@@ -78,13 +78,13 @@ void  CLogSystem::DrawLog()
 	{
 		if (m_vLogs[i].Ticks >= 0)
 		{
-			if (i < cl_consoleoverlay_lines->m_pParent->m_iValue)
+			if (i < cl_consoleoverlay_lines->GetInt())
 			{
 				float fadepct = fminf(static_cast<float>(m_vLogs[i].Ticks) / 255.f, 4.0); // TODO [ AMOS ]: register a ConVar for this!
 				float ptc = static_cast<int>(ceilf(fadepct * 100.f));                     // TODO [ AMOS ]: register a ConVar for this!
 				int alpha = static_cast<int>(ptc);
-				int y = (cl_consoleoverlay_offset_y->m_pParent->m_iValue + (fontHeight * i));
-				int x = cl_consoleoverlay_offset_x->m_pParent->m_iValue;
+				int y = (cl_consoleoverlay_offset_y->GetInt() + (fontHeight * i));
+				int x = cl_consoleoverlay_offset_x->GetInt();
 
 				Color c = GetLogColorForType(m_vLogs[i].Type);
 				CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, fontHeight, x, y, c._color[0], c._color[1], c._color[2], alpha, m_vLogs[i].Message.c_str());

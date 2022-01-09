@@ -38,7 +38,7 @@ void __fastcall HFrameStageNotify(CHLClient* rcx, ClientFrameStage_t frameStage)
 				ConCommandBase* disconnect = (ConCommandBase*)g_pCvar->FindCommand("disconnect");
 				disconnect->AddFlags(FCVAR_SERVER_CAN_EXECUTE); // Make sure server is not restricted to this.
 
-				if (net_userandomkey->m_pParent->m_iValue == 1)
+				if (net_userandomkey->GetBool())
 				{
 					HNET_GenerateKey();
 				}

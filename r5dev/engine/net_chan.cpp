@@ -78,7 +78,7 @@ void HNET_SetKey(std::string svNetKey)
 void HNET_GenerateKey()
 {
 	g_szNetKey.clear();
-	net_userandomkey->m_pParent->m_iValue = 1;
+	net_userandomkey->SetValue(1);
 
 	BCRYPT_ALG_HANDLE hAlgorithm;
 	if (BCryptOpenAlgorithmProvider(&hAlgorithm, L"RNG", 0, 0) < 0)
