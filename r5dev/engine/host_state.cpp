@@ -31,6 +31,7 @@ void KeepAliveToPylon()
 				// BUG BUG: Checksum is null on dedi
 				// ADDITIONAL NOTES: seems to be related to scripts, this also happens when the listen server is started but the client from the same process never connects.
 				// Checksum only gets set on the server if the client from its own process connects to it.
+				std::to_string(*g_nRemoteFunctionCallsChecksum),
 				std::string(),
 				g_szNetKey.c_str()
 			}
@@ -84,9 +85,9 @@ void BanListCheck()
 				DevMsg(eDLL_T::SERVER, "] PYLON NOTICE -----------------------------------------------\n");
 				DevMsg(eDLL_T::SERVER, "] OriginID : | '%lld' IS GETTING DISCONNECTED.\n", g_pClient->m_iOriginID);
 				if (finalIpAddress.empty())
-					DevMsg(eDLL_T::SERVER, "] IP-ADDR : | CLIENT MODIFIED PACKET.\n");
+					DevMsg(eDLL_T::SERVER, "] IP-ADDR  : | CLIENT MODIFIED PACKET.\n");
 				else
-					DevMsg(eDLL_T::SERVER, "] IP-ADDR : | '%s'\n", finalIpAddress.c_str());
+					DevMsg(eDLL_T::SERVER, "] IP-ADDR  : | '%s'\n", finalIpAddress.c_str());
 				DevMsg(eDLL_T::SERVER, "--------------------------------------------------------------\n");
 				DevMsg(eDLL_T::SERVER, "\n");
 
