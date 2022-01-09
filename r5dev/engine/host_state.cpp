@@ -31,11 +31,70 @@ void KeepAliveToPylon()
 				// BUG BUG: Checksum is null on dedi
 				// ADDITIONAL NOTES: seems to be related to scripts, this also happens when the listen server is started but the client from the same process never connects.
 				// Checksum only gets set on the server if the client from its own process connects to it.
-				std::to_string(*g_nRemoteFunctionCallsChecksum),
 				std::string(),
 				g_szNetKey.c_str()
 			}
 		);
+	}
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Check refuse list and kill netchan connection.
+//-----------------------------------------------------------------------------
+void BanListCheck()
+{
+	if (g_pBanSystem->IsRefuseListValid())
+	{
+		for (int i = 0; i < g_pBanSystem->vsvrefuseList.size(); i++) // Loop through vector.
+		{
+			for (int c = 0; c < MAX_PLAYERS; c++) // Loop through all possible client instances.
+			{
+				CClient* client = g_pClient->GetClientInstance(c); // Get client instance.
+				if (!client)
+				{
+					continue;
+				}
+
+				if (!client->GetNetChan()) // Netchan valid?
+				{
+					continue;
+				}
+
+				if (g_pClient->m_iOriginID != g_pBanSystem->vsvrefuseList[i].second) // See if nucleus id matches entry.
+				{
+					continue;
+				}
+
+				std::string finalIpAddress = std::string();
+				ADDRESS ipAddressField = ADDRESS(((std::uintptr_t)client->GetNetChan()) + 0x1AC0); // Get client ip from netchan.
+				if (ipAddressField && ipAddressField.GetValue<int>() != 0x0)
+				{
+					std::stringstream ss;
+					ss << std::to_string(ipAddressField.GetValue<std::uint8_t>()) << "."
+						<< std::to_string(ipAddressField.Offset(0x1).GetValue<std::uint8_t>()) << "."
+						<< std::to_string(ipAddressField.Offset(0x2).GetValue<std::uint8_t>()) << "."
+						<< std::to_string(ipAddressField.Offset(0x3).GetValue<std::uint8_t>());
+
+					finalIpAddress = ss.str();
+				}
+
+				DevMsg(eDLL_T::SERVER, "\n");
+				DevMsg(eDLL_T::SERVER, "______________________________________________________________\n");
+				DevMsg(eDLL_T::SERVER, "] PYLON NOTICE -----------------------------------------------\n");
+				DevMsg(eDLL_T::SERVER, "] OriginID : | '%lld' IS GETTING DISCONNECTED.\n", g_pClient->m_iOriginID);
+				if (finalIpAddress.empty())
+					DevMsg(eDLL_T::SERVER, "] IP-ADDR : | CLIENT MODIFIED PACKET.\n");
+				else
+					DevMsg(eDLL_T::SERVER, "] IP-ADDR : | '%s'\n", finalIpAddress.c_str());
+				DevMsg(eDLL_T::SERVER, "--------------------------------------------------------------\n");
+				DevMsg(eDLL_T::SERVER, "\n");
+
+				g_pBanSystem->AddEntry(finalIpAddress, g_pClient->m_iOriginID); // Add local entry to reserve a non needed request.
+				g_pBanSystem->Save(); // Save list.
+				NET_DisconnectClient(g_pClient, c, g_pBanSystem->vsvrefuseList[i].first.c_str(), 0, 1); // Disconnect client.
+			}
+		}
 	}
 }
 
@@ -91,6 +150,15 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 				}
 		});
 
+		static std::thread BanlistThread([]()
+		{
+				while (true)
+				{
+					BanListCheck();
+					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+				}
+		});
+
 		if (net_userandomkey->m_pParent->m_iValue == 1)
 		{
 			HNET_GenerateKey();
@@ -116,36 +184,6 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 		{
 			Cbuf_ExecuteFn();
 			oldState = g_pHostState->m_iCurrentState;
-
-			if (g_pBanSystem->IsRefuseListValid())
-			{
-				for (int i = 0; i < g_pBanSystem->vsvrefuseList.size(); i++) // Loop through vector.
-				{
-					for (int c = 0; c < MAX_PLAYERS; c++) // Loop through all possible client instances.
-					{
-						CClient* client = g_pClient->GetClientInstance(c); // Get client instance.
-						if (!client)
-						{
-							continue;
-						}
-
-						if (!client->GetNetChan()) // Netchan valid?
-						{
-							continue;
-						}
-
-						int clientID = g_pClient->m_iUserID + 1; // Get UserID + 1.
-						if (clientID != g_pBanSystem->vsvrefuseList[i].second) // See if they match.
-						{
-							continue;
-						}
-
-						NET_DisconnectClient(g_pClient, c, g_pBanSystem->vsvrefuseList[i].first.c_str(), 0, 1);
-						g_pBanSystem->DeleteConnectionRefuse(clientID);
-						break;
-					}
-				}
-			}
 
 			switch (g_pHostState->m_iCurrentState)
 			{

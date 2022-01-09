@@ -12,36 +12,16 @@
 void IsClientBanned(R5Net::Client* pR5net, const std::string svIPAddr, std::int64_t nNucleusID)
 {
 	std::string svError = std::string();
-	bool bCompBanned = pR5net && pR5net->GetClientIsBanned(svIPAddr, nNucleusID, svError);
+	bool bCompBanned = pR5net->GetClientIsBanned(svIPAddr, nNucleusID, svError);
 	if (bCompBanned)
 	{
-		while (bCompBanned)
-		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(500));
-			for (int i = 0; i < MAX_PLAYERS; i++) // Loop through all possible client instances.
-			{
-				CClient* pClient = g_pClient->GetClientInstance(i); // Get client instance.
-				if (!pClient) // Client instance valid?
-				{
-					continue;
-				}
-
-				if (!pClient->GetNetChan()) // Netchan valid?
-				{
-					continue;
-				}
-
-				std::int64_t nOriginID = pClient->m_iOriginID; // Get originID.
-				if (nOriginID != nNucleusID) // See if they match.
-				{
-					continue;
-				}
-
-				g_pBanSystem->AddConnectionRefuse(svError, pClient->m_iUserID + 1); // Add to the vector.
-				bCompBanned = false;
-				break;
-			}
-		}
+		DevMsg(eDLL_T::SERVER, "\n");
+		DevMsg(eDLL_T::SERVER, "______________________________________________________________\n");
+		DevMsg(eDLL_T::SERVER, "] PYLON NOTICE -------------------------------------\n");
+		DevMsg(eDLL_T::SERVER, "] OriginID : | '%lld' IS PYLON BANNED.\n", nNucleusID);
+		DevMsg(eDLL_T::SERVER, "--------------------------------------------------------------\n");
+		DevMsg(eDLL_T::SERVER, "\n");
+		g_pBanSystem->AddConnectionRefuse(svError, nNucleusID); // Add to the vector.
 	}
 }
 
