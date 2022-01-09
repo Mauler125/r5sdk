@@ -56,7 +56,7 @@ bool LaunchR5Apex(LAUNCHMODE lMode, LAUNCHSTATE lState)
             }
             cfgFile.close(); // Close cfg file.
 
-            WorkerDll           = currentDirectory + "\\bin\\r5apexvtxd.dll";                // Get path to worker dll.
+            WorkerDll           = currentDirectory + "\\r5apexsdkd64.dll";                   // Get path to worker dll.
             GameDirectory       = currentDirectory + "\\r5apex.exe";                         // Get path to game executeable.
             StartupCommandLine  = currentDirectory + "\\r5apex.exe " + CommandLineArguments; // Setup startup command line string.
 
@@ -106,7 +106,7 @@ bool LaunchR5Apex(LAUNCHMODE lMode, LAUNCHSTATE lState)
             }
             cfgFile.close(); // Close cfg file.
 
-            WorkerDll          = currentDirectory + "\\dedicated.dll";                      // Get path to worker dll.
+            WorkerDll          = currentDirectory + "\\dedicated.dll";                         // Get path to worker dll.
             GameDirectory      = currentDirectory + "\\r5apex_ds.exe";                         // Get path to game executeable.
             StartupCommandLine = currentDirectory + "\\r5apex_ds.exe " + CommandLineArguments; // Setup startup command line string.
 

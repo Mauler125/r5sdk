@@ -860,7 +860,7 @@
     <ClCompile Include="thirdparty\lzham\lzhamdecomp\lzham_lzdecompbase.cpp">
       <Filter>thirdparty\lzham\lzhamdecomp</Filter>
     </ClCompile>
-    <ClCompile Include="mathlib\bits.c">
+    <ClCompile Include="mathlib\bits.cpp">
       <Filter>sdk\mathlib</Filter>
     </ClCompile>
   </ItemGroup>

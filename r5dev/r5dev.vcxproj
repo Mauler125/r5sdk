@@ -497,7 +497,7 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
     <LibraryPath>$(SolutionDir)r5dev\thirdparty\detours\libs;$(SolutionDir)r5dev\thirdparty\lzham\libs;$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
-    <TargetName>r5apexvtxd</TargetName>
+    <TargetName>r5apexsdkd</TargetName>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
     <ReferencePath>$(VC_ReferencesPath_x64);</ReferencePath>
@@ -568,7 +568,7 @@
       <AdditionalDependencies>d3d11.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(TargetPath)" "..\..\..\bin\$(TargetFileName)"</Command>
+      <Command>copy /Y "$(TargetPath)" "..\..\..\$(TargetFileName)" &amp;&amp; del "..\..\..\r5apexsdkd64.dll" &amp;&amp; rename "..\..\..\$(TargetFileName)" "r5apexsdkd64.dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
