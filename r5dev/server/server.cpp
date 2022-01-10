@@ -17,7 +17,7 @@ void IsClientBanned(R5Net::Client* pR5net, const std::string svIPAddr, std::int6
 	{
 		DevMsg(eDLL_T::SERVER, "\n");
 		DevMsg(eDLL_T::SERVER, "______________________________________________________________\n");
-		DevMsg(eDLL_T::SERVER, "] PYLON NOTICE -------------------------------------\n");
+		DevMsg(eDLL_T::SERVER, "] PYLON NOTICE -----------------------------------------------\n");
 		DevMsg(eDLL_T::SERVER, "] OriginID : | '%lld' IS PYLON BANNED.\n", nNucleusID);
 		DevMsg(eDLL_T::SERVER, "--------------------------------------------------------------\n");
 		DevMsg(eDLL_T::SERVER, "\n");
