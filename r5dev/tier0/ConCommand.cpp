@@ -125,7 +125,7 @@ bool ConCommandBase::IsFlagSet(ConCommandBase* pCommandBase, int nFlags)
 		printf(" Verify: %08X\n", nFlags);
 		printf("--------------------------------------------------\n");
 	}
-	if (nFlags & FCVAR_RELEASE && cm_return_false_cmdquery_all->GetBool())
+	if (nFlags & FCVAR_RELEASE && !cm_return_false_cmdquery_all->GetBool())
 	{
 		// Default retail behaviour.
 		return ConCommandBase_IsFlagSet(pCommandBase, nFlags);

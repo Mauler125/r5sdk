@@ -525,12 +525,12 @@ bool ConVar::ClampValue(float& flValue)
 //-----------------------------------------------------------------------------
 bool ConVar::IsFlagSet(ConVar* pConVar, int nFlags)
 {
-	if (cm_debug_cmdquery->m_pParent->m_iValue > 0)
+	if (cm_debug_cmdquery->GetBool())
 	{
 		printf("--------------------------------------------------\n");
 		printf(" Flaged: %08X\n", pConVar->m_ConCommandBase.m_nFlags);
 	}
-	if (cm_return_false_cmdquery_cheats->m_pParent->m_iValue > 0)
+	if (cm_return_false_cmdquery_cheats->GetBool())
 	{
 		// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY.
 		pConVar->m_ConCommandBase.RemoveFlags(FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT);
@@ -539,18 +539,18 @@ bool ConVar::IsFlagSet(ConVar* pConVar, int nFlags)
 	{
 		pConVar->m_ConCommandBase.RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	}
-	if (cm_debug_cmdquery->m_pParent->m_iValue > 0)
+	if (cm_debug_cmdquery->GetBool())
 	{
 		printf(" Masked: %08X\n", pConVar->m_ConCommandBase.m_nFlags);
 		printf(" Verify: %08X\n", nFlags);
 		printf("--------------------------------------------------\n");
 	}
-	if (nFlags & FCVAR_RELEASE && cm_return_false_cmdquery_all->m_pParent->m_iValue <= 0)
+	if (nFlags & FCVAR_RELEASE && !cm_return_false_cmdquery_all->GetBool())
 	{
 		// Default retail behaviour.
 		return IConVar_IsFlagSet(pConVar, nFlags);
 	}
-	if (cm_return_false_cmdquery_all->m_pParent->m_iValue > 0)
+	if (cm_return_false_cmdquery_all->GetBool())
 	{
 		// Returning false on all queries may cause problems.
 		return false;
