@@ -660,6 +660,9 @@
     <ClInclude Include="mathlib\bits.h">
       <Filter>sdk\mathlib</Filter>
     </ClInclude>
+    <ClInclude Include="tier0\commandline.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="client\IVEngineClient.cpp">
@@ -862,6 +865,9 @@
     </ClCompile>
     <ClCompile Include="mathlib\bits.cpp">
       <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="tier0\commandline.cpp">
+      <Filter>sdk\tier0</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

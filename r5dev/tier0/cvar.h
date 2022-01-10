@@ -6,12 +6,14 @@ namespace
 {
 	/* ==== CCVAR =========================================================================================================================================================== */
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	ADDRESS p_CCvar_Disconnect = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x57\x41\x56\x48\x83\xEC\x38\x4C\x8B\x35", "xxxxxxxxxxx");
-	void* (*CCvar_Disconnect)() = (void* (*)())p_CCvar_Disconnect.GetPtr(); /*40 57 41 56 48 83 EC 38 4C 8B 35 ? ? ? ?*/
+	ADDRESS p_CCVar_Disconnect = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x57\x41\x56\x48\x83\xEC\x38\x4C\x8B\x35", "xxxxxxxxxxx");
+	void* (*CCVar_Disconnect)() = (void* (*)())p_CCVar_Disconnect.GetPtr(); /*40 57 41 56 48 83 EC 38 4C 8B 35 ? ? ? ?*/
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	ADDRESS p_CCvar_Disconnect = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x83\xEC\x28\x48\x8B\x0D\x00\x00\x00\x00\x48\x85\xC9\x74\x26\x80\x3D\x00\x00\x00\x00\x00\x74\x1D\x48\x8B\x01\x8B\x15\x00\x00\x00\x00\xFF\x50\x58\xC7\x05\x00\x00\x00\x00\x00\x00\x00\x00\xC6\x05\x00\x00\x00\x00\x00\x48\xC7\x05\x00\x00\x00", "xxxxxxx????xxxxxxx?????xxxxxxx????xxxxx????????xx");
-	void* (*CCvar_Disconnect)() = (void* (*)())p_CCvar_Disconnect.GetPtr(); /*48 83 EC 28 48 8B 0D ? ? ? ? 48 85 C9 74 26 80 3D ? ? ? ? ? 74 1D 48 8B 01 8B 15 ? ? ? ? FF 50 58 C7 05 ? ? ? ? ? ? ? ? C6 05 ? ? ? ? ? 48 C7 05 ? ? ? ? ? ? ? ?*/
+	ADDRESS p_CCVar_Disconnect = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x83\xEC\x28\x48\x8B\x0D\x00\x00\x00\x00\x48\x85\xC9\x74\x26\x80\x3D\x00\x00\x00\x00\x00\x74\x1D\x48\x8B\x01\x8B\x15\x00\x00\x00\x00\xFF\x50\x58\xC7\x05\x00\x00\x00\x00\x00\x00\x00\x00\xC6\x05\x00\x00\x00\x00\x00\x48\xC7\x05\x00\x00\x00", "xxxxxxx????xxxxxxx?????xxxxxxx????xxxxx????????xx");
+	void* (*CCVar_Disconnect)() = (void* (*)())p_CCVar_Disconnect.GetPtr(); /*48 83 EC 28 48 8B 0D ? ? ? ? 48 85 C9 74 26 80 3D ? ? ? ? ? 74 1D 48 8B 01 8B 15 ? ? ? ? FF 50 58 C7 05 ? ? ? ? ? ? ? ? C6 05 ? ? ? ? ? 48 C7 05 ? ? ? ? ? ? ? ?*/
 #endif
+	ADDRESS p_CCVar_GetCommandLineValue = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x55\x48\x83\xEC\x20\x48\x8D\x6C\x24\x00\x48\x89\x5D\x10\x49\xC7\xC0\x00\x00\x00\x00", "xxxxxxxxxx?xxxxxxx????");
+	const char* (*CCVar_GetCommandLineValue)(void* thisptr, const char* pVariableName) = (const char* (*)(void*, const char*))p_CCVar_GetCommandLineValue.GetPtr(); /*40 55 48 83 EC 20 48 8D 6C 24 ? 48 89 5D 10 49 C7 C0 ? ? ? ?*/
 }
 
 //-------------------------------------------------------------------------
@@ -88,8 +90,9 @@ class HCvar : public IDetour
 {
 	virtual void debugp()
 	{
-		std::cout << "| FUN: CCvar::Disconnect                    : 0x" << std::hex << std::uppercase << p_CCvar_Disconnect.GetPtr() << std::setw(npad) << " |" << std::endl;
-		std::cout << "| VAR: g_pCvar                              : 0x" << std::hex << std::uppercase << g_pCvar                     << std::setw(0)    << " |" << std::endl;
+		std::cout << "| FUN: CCVar::Disconnect                    : 0x" << std::hex << std::uppercase << p_CCVar_Disconnect.GetPtr()          << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: CCVar::GetCommandLineValue           : 0x" << std::hex << std::uppercase << p_CCVar_GetCommandLineValue.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| VAR: g_pCvar                              : 0x" << std::hex << std::uppercase << g_pCvar                              << std::setw(0)    << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 };

@@ -6,6 +6,7 @@
 
 #include "core/stdafx.h"
 #include "core/init.h"
+#include "tier0/commandline.h"
 #include "tier0/ConCommand.h"
 #include "tier0/completion.h"
 #include "tier0/cvar.h"
@@ -119,7 +120,6 @@ void Systems_Init()
 #ifdef DEDICATED
 	Dedicated_Init();
 #endif // DEDICATED
-
 }
 
 //////////////////////////////////////////////////////////////////////////
