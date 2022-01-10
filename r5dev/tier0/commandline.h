@@ -7,10 +7,10 @@ public:
 	void CreateCmdLine(int argc, char** argv);
 	void CreatePool(void* pMem);
 	const char* GetCmdLine(void);
-	const char* CheckParm(const char* psz, const char** ppszValue);
+	const char* CheckParm(const char* psz, const char** ppszValue = NULL);
 	void RemoveParm(void);
 	void AppendParm(const char* pszParm, const char* pszValues);
-	const char* ParmValue(const char* psz, const char* pDefaultVal);
+	const char* ParmValue(const char* psz, const char* pDefaultVal = NULL);
 	int ParmValue(const char* psz, int nDefaultVal);
 	float ParmValue(const char* psz, float flDefaultVal);
 	int ParmCount(void);

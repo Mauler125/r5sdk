@@ -1,8 +1,9 @@
 #include "core/stdafx.h"
+#include "tier0/cvar.h"
+#include "tier0/commandline.h"
 #include "engine/sys_utils.h"
 #include "engine/host_state.h"
 #include "engine/net_chan.h"
-#include "tier0/cvar.h"
 #include "client/IVEngineClient.h"
 #include "networksystem/r5net.h"
 #include "squirrel/sqinit.h"
@@ -132,11 +133,23 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 		g_pConCommand->Init();
 		g_pConVar->ClearHostNames();
 
-		IVEngineClient_CommandExecute(NULL, "exec autoexec.cfg");
-		IVEngineClient_CommandExecute(NULL, "exec autoexec_server.cfg");
+
+		if (!g_pCmdLine->CheckParm("-devsdk"))
+		{
+			IVEngineClient_CommandExecute(NULL, "exec autoexec.cfg");
+			IVEngineClient_CommandExecute(NULL, "exec autoexec_server.cfg");
 #ifndef DEDICATED
-		IVEngineClient_CommandExecute(NULL, "exec autoexec_client.cfg");
+			IVEngineClient_CommandExecute(NULL, "exec autoexec_client.cfg");
 #endif // !DEDICATED
+		}
+		else // Development configs.
+		{
+			IVEngineClient_CommandExecute(NULL, "exec autoexec_dev.cfg");
+			IVEngineClient_CommandExecute(NULL, "exec autoexec_server_dev.cfg");
+#ifndef DEDICATED
+			IVEngineClient_CommandExecute(NULL, "exec autoexec_client_dev.cfg");
+#endif // !DEDICATED
+		}
 
 		*(bool*)m_bRestrictServerCommands = true; // Restrict commands.
 		ConCommandBase* disconnect = (ConCommandBase*)g_pCVar->FindCommand("disconnect");

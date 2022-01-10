@@ -3,6 +3,7 @@
 #include "tier0/basetypes.h"
 #include "tier0/IConVar.h"
 #include "tier0/cvar.h"
+#include "tier0/commandline.h"
 #include "client/IVEngineClient.h"
 #include "client/client.h"
 #include "client/cdll_engine_int.h"
@@ -30,9 +31,18 @@ void __fastcall HFrameStageNotify(CHLClient* rcx, ClientFrameStage_t frameStage)
 				g_pConCommand->Init();
 				CKeyValueSystem_Init();
 
-				IVEngineClient_CommandExecute(NULL, "exec autoexec.cfg");
-				IVEngineClient_CommandExecute(NULL, "exec autoexec_server.cfg");
-				IVEngineClient_CommandExecute(NULL, "exec autoexec_client.cfg");
+				if (!g_pCmdLine->CheckParm("-devsdk"))
+				{
+					IVEngineClient_CommandExecute(NULL, "exec autoexec.cfg");
+					IVEngineClient_CommandExecute(NULL, "exec autoexec_server.cfg");
+					IVEngineClient_CommandExecute(NULL, "exec autoexec_client.cfg");
+				}
+				else // Development configs.
+				{
+					IVEngineClient_CommandExecute(NULL, "exec autoexec_dev.cfg");
+					IVEngineClient_CommandExecute(NULL, "exec autoexec_server_dev.cfg");
+					IVEngineClient_CommandExecute(NULL, "exec autoexec_client_dev.cfg");
+				}
 
 				*(bool*)m_bRestrictServerCommands = true; // Restrict commands.
 				ConCommandBase* disconnect = (ConCommandBase*)g_pCVar->FindCommand("disconnect");
