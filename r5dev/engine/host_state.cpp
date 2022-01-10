@@ -21,11 +21,11 @@ void KeepAliveToPylon()
 		DevMsg(eDLL_T::CLIENT, "Sending PostServerHost request\n");
 		bool result = g_pR5net->PostServerHost(m_szHostRequestMessage, m_szHostToken,
 			ServerListing{
-				g_pCvar->FindVar("hostname")->m_pzsCurrentValue,
+				g_pCVar->FindVar("hostname")->m_pzsCurrentValue,
 				std::string(g_pHostState->m_levelName),
 				"",
-				g_pCvar->FindVar("hostport")->m_pzsCurrentValue,
-				g_pCvar->FindVar("mp_gamemode")->m_pzsCurrentValue,
+				g_pCVar->FindVar("hostport")->m_pzsCurrentValue,
+				g_pCVar->FindVar("mp_gamemode")->m_pzsCurrentValue,
 				false,
 
 				// BUG BUG: Checksum is null on dedi
@@ -139,7 +139,7 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 #endif // !DEDICATED
 
 		*(bool*)m_bRestrictServerCommands = true; // Restrict commands.
-		ConCommandBase* disconnect = (ConCommandBase*)g_pCvar->FindCommand("disconnect");
+		ConCommandBase* disconnect = (ConCommandBase*)g_pCVar->FindCommand("disconnect");
 		disconnect->AddFlags(FCVAR_SERVER_CAN_EXECUTE); // Make sure server is not restricted to this.
 
 		static std::thread PylonThread([]() // Pylon request thread.
@@ -165,7 +165,7 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 			HNET_GenerateKey();
 		}
 
-		g_pCvar->FindVar("net_usesocketsforloopback")->SetValue(1);
+		g_pCVar->FindVar("net_usesocketsforloopback")->SetValue(1);
 
 		bInitialized = true;
 	}
@@ -234,7 +234,7 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 				g_pHostState->m_iCurrentState = HostStates_t::HS_RUN; // Set current state to run.
 
 				// If our next state isn't a shutdown or its a forced shutdown then set next state to run.
-				if (g_pHostState->m_iNextState != HostStates_t::HS_SHUTDOWN || !g_pCvar->FindVar("host_hasIrreversibleShutdown")->GetBool())
+				if (g_pHostState->m_iNextState != HostStates_t::HS_SHUTDOWN || !g_pCVar->FindVar("host_hasIrreversibleShutdown")->GetBool())
 				{
 					g_pHostState->m_iNextState = HostStates_t::HS_RUN;
 				}
@@ -264,7 +264,7 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 				g_pHostState->m_iCurrentState = HostStates_t::HS_RUN; // Set current state to run.
 
 				// If our next state isn't a shutdown or its a forced shutdown then set next state to run.
-				if (g_pHostState->m_iNextState != HostStates_t::HS_SHUTDOWN || !g_pCvar->FindVar("host_hasIrreversibleShutdown")->GetBool())
+				if (g_pHostState->m_iNextState != HostStates_t::HS_SHUTDOWN || !g_pCVar->FindVar("host_hasIrreversibleShutdown")->GetBool())
 				{
 					g_pHostState->m_iNextState = HostStates_t::HS_RUN;
 				}
@@ -297,7 +297,7 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 				g_pHostState->m_iCurrentState = HostStates_t::HS_RUN; // Set current state to run.
 
 				// If our next state isn't a shutdown or its a forced shutdown then set next state to run.
-				if (g_pHostState->m_iNextState != HostStates_t::HS_SHUTDOWN || !g_pCvar->FindVar("host_hasIrreversibleShutdown")->GetBool())
+				if (g_pHostState->m_iNextState != HostStates_t::HS_SHUTDOWN || !g_pCVar->FindVar("host_hasIrreversibleShutdown")->GetBool())
 				{
 					g_pHostState->m_iNextState = HostStates_t::HS_RUN;
 				}
@@ -337,7 +337,7 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 			}
 			}
 
-		} while ((oldState != HostStates_t::HS_RUN || g_pHostState->m_iNextState == HostStates_t::HS_LOAD_GAME && g_pCvar->FindVar("g_single_frame_shutdown_for_reload_cvar")->GetBool())
+		} while ((oldState != HostStates_t::HS_RUN || g_pHostState->m_iNextState == HostStates_t::HS_LOAD_GAME && g_pCVar->FindVar("g_single_frame_shutdown_for_reload_cvar")->GetBool())
 			&& oldState != HostStates_t::HS_SHUTDOWN
 			&& oldState != HostStates_t::HS_RESTART);
 

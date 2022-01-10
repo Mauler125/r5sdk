@@ -588,7 +588,7 @@ void ConVar::ClearHostNames(void)
 	for (int i = 0; i < 17; i++)
 	{
 		const char* pszName = pszHostnameArray[i];
-		ConVar* pCVar = g_pCvar->FindVar(pszName);
+		ConVar* pCVar = g_pCVar->FindVar(pszName);
 
 		if (pCVar != nullptr)
 		{

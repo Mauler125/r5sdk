@@ -106,4 +106,4 @@ std::unordered_map<std::string, ConCommandBase*> CCVar::DumpToMap()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-CCVar* g_pCvar = reinterpret_cast<CCVar*>(p_CEngineAPI_Connect.FindPatternSelf("48 8D 0D", ADDRESS::Direction::DOWN, 40).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr());
+CCVar* g_pCVar = reinterpret_cast<CCVar*>(p_CEngineAPI_Connect.FindPatternSelf("48 8D 0D", ADDRESS::Direction::DOWN, 40).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr());

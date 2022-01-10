@@ -35,14 +35,14 @@ void __fastcall HFrameStageNotify(CHLClient* rcx, ClientFrameStage_t frameStage)
 				IVEngineClient_CommandExecute(NULL, "exec autoexec_client.cfg");
 
 				*(bool*)m_bRestrictServerCommands = true; // Restrict commands.
-				ConCommandBase* disconnect = (ConCommandBase*)g_pCvar->FindCommand("disconnect");
+				ConCommandBase* disconnect = (ConCommandBase*)g_pCVar->FindCommand("disconnect");
 				disconnect->AddFlags(FCVAR_SERVER_CAN_EXECUTE); // Make sure server is not restricted to this.
 
 				if (net_userandomkey->GetBool())
 				{
 					HNET_GenerateKey();
 				}
-				g_pCvar->FindVar("net_usesocketsforloopback")->SetValue(1);
+				g_pCVar->FindVar("net_usesocketsforloopback")->SetValue(1);
 
 				bInitialized = true;
 			}

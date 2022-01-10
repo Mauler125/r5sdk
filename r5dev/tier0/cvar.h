@@ -82,7 +82,7 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-extern CCVar* g_pCvar;
+extern CCVar* g_pCVar;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -92,7 +92,7 @@ class HCvar : public IDetour
 	{
 		std::cout << "| FUN: CCVar::Disconnect                    : 0x" << std::hex << std::uppercase << p_CCVar_Disconnect.GetPtr()          << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: CCVar::GetCommandLineValue           : 0x" << std::hex << std::uppercase << p_CCVar_GetCommandLineValue.GetPtr() << std::setw(npad) << " |" << std::endl;
-		std::cout << "| VAR: g_pCvar                              : 0x" << std::hex << std::uppercase << g_pCvar                              << std::setw(0)    << " |" << std::endl;
+		std::cout << "| VAR: g_pCvar                              : 0x" << std::hex << std::uppercase << g_pCVar                              << std::setw(0)    << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 };

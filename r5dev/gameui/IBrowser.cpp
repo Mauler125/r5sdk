@@ -94,7 +94,7 @@ IBrowser::~IBrowser()
 //-----------------------------------------------------------------------------
 void IBrowser::UpdateHostingStatus()
 {
-    if (!g_pHostState || !g_pCvar)
+    if (!g_pHostState || !g_pCVar)
     {
         return;
     }
@@ -177,8 +177,8 @@ void IBrowser::SendHostingPostRequest()
             m_Server.svServerName,
             std::string(g_pHostState->m_levelName),
             "",
-            g_pCvar->FindVar("hostport")->m_pzsCurrentValue,
-            g_pCvar->FindVar("mp_gamemode")->m_pzsCurrentValue,
+            g_pCVar->FindVar("hostport")->m_pzsCurrentValue,
+            g_pCVar->FindVar("mp_gamemode")->m_pzsCurrentValue,
             m_Server.bHidden,
             std::to_string(*g_nRemoteFunctionCallsChecksum),
 
