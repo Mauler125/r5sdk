@@ -99,9 +99,9 @@ bool ConCommandBase::HasFlags(int nFlags)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: test each ConCommand query before execution.
+// Purpose: Test each ConCommand query before execution.
 // Input  : *pCommandBase - nFlags 
-// Output : false if execution is permitted, true if not.
+// Output : False if execution is permitted, true if not.
 //-----------------------------------------------------------------------------
 bool ConCommandBase::IsFlagSet(ConCommandBase* pCommandBase, int nFlags)
 {

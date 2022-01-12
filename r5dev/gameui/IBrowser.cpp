@@ -1,3 +1,16 @@
+/******************************************************************************
+-------------------------------------------------------------------------------
+File   : IBrowser.cpp
+Date   : 09:06:2021
+Author : Sal
+Purpose: Implements the in-game server browser front-end
+-------------------------------------------------------------------------------
+History:
+- 09:06:2021   21:07 : Created by Sal
+- 25:07:2021   14:26 : Implement private servers connect dialog and password field
+
+******************************************************************************/
+
 #include "core/stdafx.h"
 #include "core/init.h"
 #include "core/resource.h"
@@ -16,19 +29,6 @@
 #include "vpc/keyvalues.h"
 #include "squirrel/sqinit.h"
 #include "gameui/IBrowser.h"
-
-/******************************************************************************
--------------------------------------------------------------------------------
-File   : IBrowser.cpp
-Date   : 09:06:2021
-Author : Sal
-Purpose: Implements the in-game server browser frontend
--------------------------------------------------------------------------------
-History:
-- 09:06:2021   21:07 : Created by Sal
-- 25:07:2021   14:26 : Implement private servers connect dialog and password field
-
-******************************************************************************/
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -56,7 +56,6 @@ IBrowser::IBrowser()
         }
     }
 
-    m_szMatchmakingHostName = r5net_matchmaking_hostname->m_pzsCurrentValue;
     static std::thread hostingServerRequestThread([this]()
     {
         while (true)
@@ -90,118 +89,53 @@ IBrowser::~IBrowser()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: updates the hoster's status
+// Purpose: draws the main browser front-end
 //-----------------------------------------------------------------------------
-void IBrowser::UpdateHostingStatus()
+void IBrowser::Draw(const char* title, bool* bDraw)
 {
-    if (!g_pHostState || !g_pCVar)
+    if (!m_bInitialized)
     {
+        SetStyleVar();
+        m_szMatchmakingHostName = r5net_matchmaking_hostname->GetString();
+
+        m_bInitialized = true;
+    }
+
+    if (!ImGui::Begin(title, bDraw))
+    {
+        ImGui::End();
         return;
     }
+    ImGui::End();
 
-    eHostingStatus = g_pHostState->m_bActiveGame ? EHostStatus::HOSTING : EHostStatus::NOT_HOSTING; // Are we hosting a server?
-    switch (eHostingStatus)
+    if (*bDraw == NULL)
     {
-    case EHostStatus::NOT_HOSTING:
-    {
-        m_szHostRequestMessage.clear();
-        m_iv4HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-        break;
+        m_bActivate = false;
     }
-    case EHostStatus::HOSTING:
+
+    ImGui::SetNextWindowSize(ImVec2(840, 600), ImGuiCond_FirstUseEver);
+    ImGui::SetWindowPos(ImVec2(-500, 50), ImGuiCond_FirstUseEver);
+
+    ImGui::Begin(title, NULL, ImGuiWindowFlags_NoScrollbar);
     {
-        if (eServerVisibility == EServerVisibility::OFFLINE)
-        {
-            break;
-        }
+        CompMenu();
 
-        if (*g_nRemoteFunctionCallsChecksum == NULL) // Check if script checksum is valid yet.
+        switch (eCurrentSection)
         {
+        case ESection::SERVER_BROWSER:
+            ServerBrowserSection();
             break;
-        }
-
-        switch (eServerVisibility)
-        {
-
-        case EServerVisibility::HIDDEN:
-            m_Server.bHidden = true;
+        case ESection::HOST_SERVER:
+            HostServerSection();
             break;
-        case EServerVisibility::PUBLIC:
-            m_Server.bHidden = false;
+        case ESection::SETTINGS:
+            SettingsSection();
             break;
         default:
             break;
         }
-
-        SendHostingPostRequest();
-        break;
     }
-    default:
-        break;
-    }
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: refreshes the server browser list with available servers
-//-----------------------------------------------------------------------------
-void IBrowser::RefreshServerList()
-{
-    static bool bThreadLocked = false;
-
-    m_vServerList.clear();
-    m_szServerListMessage.clear();
-
-    if (!bThreadLocked)
-    {
-        std::thread t([this]()
-        {
-            DevMsg(eDLL_T::CLIENT, "Refreshing server list with string '%s'\n", r5net_matchmaking_hostname->m_pzsCurrentValue);
-            bThreadLocked = true;
-            m_vServerList = g_pR5net->GetServersList(m_szServerListMessage);
-            bThreadLocked = false;
-        });
-
-        t.detach();
-    }
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: sends the hosting POST request to the comp server
-//-----------------------------------------------------------------------------
-void IBrowser::SendHostingPostRequest()
-{
-    m_szHostToken = std::string();
-    DevMsg(eDLL_T::CLIENT, "Sending PostServerHost request\n");
-    bool result = g_pR5net->PostServerHost(m_szHostRequestMessage, m_szHostToken,
-        ServerListing{
-            m_Server.svServerName,
-            std::string(g_pHostState->m_levelName),
-            "",
-            g_pCVar->FindVar("hostport")->m_pzsCurrentValue,
-            g_pCVar->FindVar("mp_gamemode")->m_pzsCurrentValue,
-            m_Server.bHidden,
-            std::to_string(*g_nRemoteFunctionCallsChecksum),
-
-            std::string(),
-            g_szNetKey.c_str()
-        }
-    );
-
-    if (result)
-    {
-        m_iv4HostRequestMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
-        std::stringstream msg;
-        msg << "Broadcasting! ";
-        if (!m_szHostToken.empty())
-        {
-            msg << "Share the following token for clients to connect: ";
-        }
-        m_szHostRequestMessage = msg.str().c_str();
-    }
-    else
-    {
-        m_iv4HostRequestMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
-    }
+    ImGui::End();
 }
 
 //-----------------------------------------------------------------------------
@@ -312,6 +246,60 @@ void IBrowser::ServerBrowserSection()
         HiddenServersModal();
     }
     ImGui::PopItemWidth();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: refreshes the server browser list with available servers
+//-----------------------------------------------------------------------------
+void IBrowser::RefreshServerList()
+{
+    static bool bThreadLocked = false;
+
+    m_vServerList.clear();
+    m_szServerListMessage.clear();
+
+    if (!bThreadLocked)
+    {
+        std::thread t([this]()
+            {
+                DevMsg(eDLL_T::CLIENT, "Refreshing server list with matchmaking host '%s'\n", r5net_matchmaking_hostname->GetString());
+                bThreadLocked = true;
+                m_vServerList = g_pR5net->GetServersList(m_szServerListMessage);
+                bThreadLocked = false;
+            });
+
+        t.detach();
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: connects to specified server
+//-----------------------------------------------------------------------------
+void IBrowser::ConnectToServer(const std::string ip, const std::string port, const std::string encKey)
+{
+    if (!encKey.empty())
+    {
+        ChangeEncryptionKeyTo(encKey);
+    }
+
+    std::stringstream cmd;
+    cmd << "connect " << ip << ":" << port;
+    ProcessCommand(cmd.str().c_str());
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: connects to specified server
+//-----------------------------------------------------------------------------
+void IBrowser::ConnectToServer(const std::string connString, const std::string encKey)
+{
+    if (!encKey.empty())
+    {
+        ChangeEncryptionKeyTo(encKey);
+    }
+
+    std::stringstream cmd;
+    cmd << "connect " << connString;
+    ProcessCommand(cmd.str().c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -571,73 +559,94 @@ void IBrowser::HostServerSection()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: draws the settings section
+// Purpose: updates the hoster's status
 //-----------------------------------------------------------------------------
-void IBrowser::SettingsSection()
+void IBrowser::UpdateHostingStatus()
 {
-    ImGui::InputTextWithHint("Hostname##MatchmakingServerString", "Matchmaking Server String", &m_szMatchmakingHostName);
-    if (ImGui::Button("Update Hostname"))
+    if (!g_pHostState || !g_pCVar)
     {
-        r5net_matchmaking_hostname->m_pzsCurrentValue = m_szMatchmakingHostName.c_str();
-        if (g_pR5net)
-        {
-            delete g_pR5net;
-            g_pR5net = new R5Net::Client(r5net_matchmaking_hostname->m_pzsCurrentValue);
-        }
-    }
-    ImGui::InputText("Netkey##SettingsSection_EncKey", (char*)g_szNetKey.c_str(), ImGuiInputTextFlags_ReadOnly);
-    if (ImGui::Button("Regenerate Encryption Key##SettingsSection_RegenEncKey"))
-    {
-        RegenerateEncryptionKey();
-    }
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: draws the main browser frontend
-//-----------------------------------------------------------------------------
-void IBrowser::Draw(const char* title, bool* bDraw)
-{
-    if (!m_bThemeSet)
-    {
-        SetStyleVar();
-        m_bThemeSet = true;
-    }
-
-    if (!ImGui::Begin(title, bDraw))
-    {
-        ImGui::End();
         return;
     }
-    ImGui::End();
 
-    if (*bDraw == NULL)
+    eHostingStatus = g_pHostState->m_bActiveGame ? EHostStatus::HOSTING : EHostStatus::NOT_HOSTING; // Are we hosting a server?
+    switch (eHostingStatus)
     {
-        g_bShowBrowser = false;
+    case EHostStatus::NOT_HOSTING:
+    {
+        m_szHostRequestMessage.clear();
+        m_iv4HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+        break;
     }
-
-    ImGui::SetNextWindowSize(ImVec2(840, 600), ImGuiCond_FirstUseEver);
-    ImGui::SetWindowPos(ImVec2(-500, 50), ImGuiCond_FirstUseEver);
-
-    ImGui::Begin(title, NULL, ImGuiWindowFlags_NoScrollbar);
+    case EHostStatus::HOSTING:
     {
-        CompMenu();
-
-        switch (eCurrentSection)
+        if (eServerVisibility == EServerVisibility::OFFLINE)
         {
-        case ESection::SERVER_BROWSER:
-            ServerBrowserSection();
             break;
-        case ESection::HOST_SERVER:
-            HostServerSection();
+        }
+
+        if (*g_nRemoteFunctionCallsChecksum == NULL) // Check if script checksum is valid yet.
+        {
             break;
-        case ESection::SETTINGS:
-            SettingsSection();
+        }
+
+        switch (eServerVisibility)
+        {
+
+        case EServerVisibility::HIDDEN:
+            m_Server.bHidden = true;
+            break;
+        case EServerVisibility::PUBLIC:
+            m_Server.bHidden = false;
             break;
         default:
             break;
         }
+
+        SendHostingPostRequest();
+        break;
     }
-    ImGui::End();
+    default:
+        break;
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: sends the hosting POST request to the comp server
+//-----------------------------------------------------------------------------
+void IBrowser::SendHostingPostRequest()
+{
+    m_szHostToken = std::string();
+    DevMsg(eDLL_T::CLIENT, "Sending PostServerHost request\n");
+    bool result = g_pR5net->PostServerHost(m_szHostRequestMessage, m_szHostToken,
+        ServerListing{
+            m_Server.svServerName,
+            std::string(g_pHostState->m_levelName),
+            "",
+            g_pCVar->FindVar("hostport")->GetString(),
+            g_pCVar->FindVar("mp_gamemode")->GetString(),
+            m_Server.bHidden,
+            std::to_string(*g_nRemoteFunctionCallsChecksum),
+
+            std::string(),
+            g_szNetKey.c_str()
+        }
+    );
+
+    if (result)
+    {
+        m_iv4HostRequestMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
+        std::stringstream msg;
+        msg << "Broadcasting! ";
+        if (!m_szHostToken.empty())
+        {
+            msg << "Share the following token for clients to connect: ";
+        }
+        m_szHostRequestMessage = msg.str().c_str();
+    }
+    else
+    {
+        m_iv4HostRequestMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -653,33 +662,25 @@ void IBrowser::ProcessCommand(const char* command_line)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: connects to specified server
+// Purpose: draws the settings section
 //-----------------------------------------------------------------------------
-void IBrowser::ConnectToServer(const std::string ip, const std::string port, const std::string encKey)
+void IBrowser::SettingsSection()
 {
-    if (!encKey.empty())
+    ImGui::InputTextWithHint("Hostname##MatchmakingServerString", "Matchmaking Server String", &m_szMatchmakingHostName);
+    if (ImGui::Button("Update Hostname"))
     {
-        ChangeEncryptionKeyTo(encKey);
+        r5net_matchmaking_hostname->SetValue(m_szMatchmakingHostName.c_str());
+        if (g_pR5net)
+        {
+            delete g_pR5net;
+            g_pR5net = new R5Net::Client(r5net_matchmaking_hostname->GetString());
+        }
     }
-
-    std::stringstream cmd;
-    cmd << "connect " << ip << ":" << port;
-    ProcessCommand(cmd.str().c_str());
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: connects to specified server
-//-----------------------------------------------------------------------------
-void IBrowser::ConnectToServer(const std::string connString, const std::string encKey)
-{
-    if (!encKey.empty())
+    ImGui::InputText("Netkey##SettingsSection_EncKey", (char*)g_szNetKey.c_str(), ImGuiInputTextFlags_ReadOnly);
+    if (ImGui::Button("Regenerate Encryption Key##SettingsSection_RegenEncKey"))
     {
-        ChangeEncryptionKeyTo(encKey);
+        RegenerateEncryptionKey();
     }
-
-    std::stringstream cmd;
-    cmd << "connect " << connString;
-    ProcessCommand(cmd.str().c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -698,18 +699,67 @@ void IBrowser::ChangeEncryptionKeyTo(const std::string str)
     HNET_SetKey(str);
 }
 
-//#############################################################################
-// ENTRYPOINT
-//#############################################################################
-
-IBrowser* g_pServerBrowser = nullptr;
-void DrawBrowser(bool* bDraw)
+//-----------------------------------------------------------------------------
+// Purpose: sets the browser front-end style
+//-----------------------------------------------------------------------------
+void IBrowser::SetStyleVar()
 {
-    static IBrowser browser;
-    static bool AssignPtr = []()
-    {
-        g_pServerBrowser = &browser;
-        return true;
-    } ();
-    browser.Draw("Server Browser", bDraw);
+    ImGuiStyle& style                     = ImGui::GetStyle();
+    ImVec4* colors                        = style.Colors;
+
+    colors[ImGuiCol_Text]                 = ImVec4(0.81f, 0.81f, 0.81f, 1.00f);
+    colors[ImGuiCol_TextDisabled]         = ImVec4(0.56f, 0.56f, 0.56f, 1.00f);
+    colors[ImGuiCol_WindowBg]             = ImVec4(0.27f, 0.27f, 0.27f, 1.00f);
+    colors[ImGuiCol_ChildBg]              = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+    colors[ImGuiCol_PopupBg]              = ImVec4(0.27f, 0.27f, 0.27f, 1.00f);
+    colors[ImGuiCol_Border]               = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
+    colors[ImGuiCol_BorderShadow]         = ImVec4(0.04f, 0.04f, 0.04f, 0.64f);
+    colors[ImGuiCol_FrameBg]              = ImVec4(0.13f, 0.13f, 0.13f, 1.00f);
+    colors[ImGuiCol_FrameBgHovered]       = ImVec4(0.19f, 0.19f, 0.19f, 1.00f);
+    colors[ImGuiCol_FrameBgActive]        = ImVec4(0.24f, 0.24f, 0.24f, 1.00f);
+    colors[ImGuiCol_TitleBg]              = ImVec4(0.22f, 0.22f, 0.22f, 1.00f);
+    colors[ImGuiCol_TitleBgActive]        = ImVec4(0.27f, 0.27f, 0.27f, 1.00f);
+    colors[ImGuiCol_TitleBgCollapsed]     = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+    colors[ImGuiCol_MenuBarBg]            = ImVec4(0.22f, 0.22f, 0.22f, 1.00f);
+    colors[ImGuiCol_ScrollbarBg]          = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+    colors[ImGuiCol_ScrollbarGrab]        = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
+    colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.53f, 0.53f, 0.53f, 1.00f);
+    colors[ImGuiCol_ScrollbarGrabActive]  = ImVec4(0.63f, 0.63f, 0.63f, 1.00f);
+    colors[ImGuiCol_CheckMark]            = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
+    colors[ImGuiCol_SliderGrab]           = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
+    colors[ImGuiCol_SliderGrabActive]     = ImVec4(0.53f, 0.53f, 0.53f, 1.00f);
+    colors[ImGuiCol_Button]               = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
+    colors[ImGuiCol_ButtonHovered]        = ImVec4(0.45f, 0.45f, 0.45f, 1.00f);
+    colors[ImGuiCol_ButtonActive]         = ImVec4(0.52f, 0.52f, 0.52f, 1.00f);
+    colors[ImGuiCol_Header]               = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
+    colors[ImGuiCol_HeaderHovered]        = ImVec4(0.45f, 0.45f, 0.45f, 1.00f);
+    colors[ImGuiCol_HeaderActive]         = ImVec4(0.53f, 0.53f, 0.53f, 1.00f);
+    colors[ImGuiCol_Separator]            = ImVec4(0.53f, 0.53f, 0.57f, 1.00f);
+    colors[ImGuiCol_SeparatorHovered]     = ImVec4(0.53f, 0.53f, 0.53f, 1.00f);
+    colors[ImGuiCol_SeparatorActive]      = ImVec4(0.63f, 0.63f, 0.63f, 1.00f);
+    colors[ImGuiCol_ResizeGrip]           = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
+    colors[ImGuiCol_ResizeGripHovered]    = ImVec4(0.52f, 0.52f, 0.52f, 1.00f);
+    colors[ImGuiCol_ResizeGripActive]     = ImVec4(0.63f, 0.63f, 0.63f, 1.00f);
+    colors[ImGuiCol_Tab]                  = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+    colors[ImGuiCol_TabHovered]           = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
+    colors[ImGuiCol_TabActive]            = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
+
+    style.WindowBorderSize                = 0.0f;
+    style.FrameBorderSize                 = 1.0f;
+    style.ChildBorderSize                 = 1.0f;
+    style.PopupBorderSize                 = 1.0f;
+    style.TabBorderSize                   = 1.0f;
+
+    style.WindowRounding                  = 2.5f;
+    style.FrameRounding                   = 0.0f;
+    style.ChildRounding                   = 0.0f;
+    style.PopupRounding                   = 0.0f;
+    style.TabRounding                     = 1.0f;
+    style.ScrollbarRounding               = 1.0f;
+
+    style.ItemSpacing                     = ImVec2(4, 4);
+    style.WindowPadding                   = ImVec2(5, 5);
 }
+
+
+IBrowser* g_pIBrowser = new IBrowser();

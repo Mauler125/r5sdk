@@ -22,11 +22,11 @@ void KeepAliveToPylon()
 		DevMsg(eDLL_T::CLIENT, "Sending PostServerHost request\n");
 		bool result = g_pR5net->PostServerHost(m_szHostRequestMessage, m_szHostToken,
 			ServerListing{
-				g_pCVar->FindVar("hostname")->m_pzsCurrentValue,
+				g_pCVar->FindVar("hostname")->GetString(),
 				std::string(g_pHostState->m_levelName),
 				"",
-				g_pCVar->FindVar("hostport")->m_pzsCurrentValue,
-				g_pCVar->FindVar("mp_gamemode")->m_pzsCurrentValue,
+				g_pCVar->FindVar("hostport")->GetString(),
+				g_pCVar->FindVar("mp_gamemode")->GetString(),
 				false,
 
 				// BUG BUG: Checksum is null on dedi

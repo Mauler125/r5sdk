@@ -70,18 +70,15 @@ void CLogSystem::AddLog(LogType_t type, std::string message)
 //-----------------------------------------------------------------------------
 void  CLogSystem::DrawLog()
 {
-	if (m_vLogs.empty())
-	{
-		return;
-	}
+	if (m_vLogs.empty()) { return; }
 	for (int i = 0; i < m_vLogs.size(); ++i)
 	{
 		if (m_vLogs[i].Ticks >= 0)
 		{
 			if (i < cl_consoleoverlay_lines->GetInt())
 			{
-				float fadepct = fminf(static_cast<float>(m_vLogs[i].Ticks) / 255.f, 4.0); // TODO [ AMOS ]: register a ConVar for this!
-				float ptc = static_cast<int>(ceilf(fadepct * 100.f));                     // TODO [ AMOS ]: register a ConVar for this!
+				float fadepct = fminf(static_cast<float>(m_vLogs[i].Ticks) / 255.f, 4.f); // TODO [ AMOS ]: register a ConVar for this!
+				float ptc = static_cast<int>(ceilf(fadepct * 100.f));
 				int alpha = static_cast<int>(ptc);
 				int y = (cl_consoleoverlay_offset_y->GetInt() + (fontHeight * i));
 				int x = cl_consoleoverlay_offset_x->GetInt();
@@ -109,7 +106,7 @@ void  CLogSystem::DrawLog()
 //-----------------------------------------------------------------------------
 void CLogSystem::DrawSimStats()
 {
-	Color c = { 255, 255, 255, 255 };
+	static Color c = { 255, 255, 255, 255 };
 	static const char* szLogbuf[4096]{};
 	snprintf((char*)szLogbuf, 4096, "Server Frame: (%d) Client Frame: (%d) Render Frame: (%d)\n",
 	*sv_m_nTickCount, *cl_host_tickcount, *render_tickcount);
@@ -122,7 +119,7 @@ void CLogSystem::DrawSimStats()
 //-----------------------------------------------------------------------------
 void CLogSystem::DrawGPUStats()
 {
-	Color c = { 255, 255, 255, 255 };
+	static Color c = { 255, 255, 255, 255 };
 	static const char* szLogbuf[4096]{};
 	snprintf((char*)szLogbuf, 4096, "%8d/%8d/%8dkiB unusable/unfree/total GPU Streaming Texture memory\n", 
 	*unusable_streaming_tex_memory / 1024, *unfree_streaming_tex_memory / 1024, *unusable_streaming_tex_memory / 1024);
@@ -137,19 +134,19 @@ Color CLogSystem::GetLogColorForType(LogType_t type)
 {
 	switch (type)
 	{
-		case LogType_t::NATIVE:
-			return { 255, 255, 255, 255 };
-		case LogType_t::SCRIPT_SERVER:
-			return { 190, 183, 240, 255 };
-		case LogType_t::SCRIPT_CLIENT:
-			return { 117, 116, 139, 255 };
-		case LogType_t::SCRIPT_UI:
-			return { 197, 160, 177, 255 };
-		default:
-			return { 255, 255, 255, 255 };
+	case LogType_t::NATIVE:
+		return { cl_consoleoverlay_native_clr->GetColor() };
+	case LogType_t::SCRIPT_SERVER:
+		return { cl_consoleoverlay_server_clr->GetColor() };
+	case LogType_t::SCRIPT_CLIENT:
+		return { cl_consoleoverlay_client_clr->GetColor() };
+	case LogType_t::SCRIPT_UI:
+		return { cl_consoleoverlay_ui_clr->GetColor() };
+	default:
+		return { cl_consoleoverlay_native_clr->GetColor() };
 	}
 
-	return { 255, 255, 255, 255 };
+	return { cl_consoleoverlay_native_clr->GetColor() };
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -19,6 +19,10 @@ ConVar* cl_drawconsoleoverlay              = new ConVar();
 ConVar* cl_consoleoverlay_lines            = new ConVar();
 ConVar* cl_consoleoverlay_offset_x         = new ConVar();
 ConVar* cl_consoleoverlay_offset_y         = new ConVar();
+ConVar* cl_consoleoverlay_native_clr       = new ConVar();
+ConVar* cl_consoleoverlay_server_clr       = new ConVar();
+ConVar* cl_consoleoverlay_client_clr       = new ConVar();
+ConVar* cl_consoleoverlay_ui_clr           = new ConVar();
 
 ConVar* cl_showsimstats                    = new ConVar();
 ConVar* cl_simstats_offset_x               = new ConVar();

@@ -76,7 +76,7 @@ void DevMsg(eDLL_T idx, const char* fmt, ...)
 	const char* c = s.c_str();
 
 	g_pLogSystem.AddLog((LogType_t)eDLL_T::ENGINE, s);
-	Items.push_back(Strdup((const char*)c));
+	g_pIConsole->m_ivConLog.push_back(Strdup((const char*)c));
 #endif // !DEDICATED
 }
 

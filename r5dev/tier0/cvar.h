@@ -32,6 +32,10 @@ extern ConVar* cl_drawconsoleoverlay;
 extern ConVar* cl_consoleoverlay_lines;
 extern ConVar* cl_consoleoverlay_offset_x;
 extern ConVar* cl_consoleoverlay_offset_y;
+extern ConVar* cl_consoleoverlay_native_clr;
+extern ConVar* cl_consoleoverlay_server_clr;
+extern ConVar* cl_consoleoverlay_client_clr;
+extern ConVar* cl_consoleoverlay_ui_clr;
 
 extern ConVar* cl_showsimstats;
 extern ConVar* cl_simstats_offset_x;

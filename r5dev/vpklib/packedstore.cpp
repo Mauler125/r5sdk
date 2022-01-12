@@ -66,11 +66,11 @@ vpk_dir_h CPackedStore::GetPackDirFile(std::string svPackDirFile)
 					{
 						std::string svPackDirPrefix = DIR_LOCALE_PREFIX[i] + DIR_LOCALE_PREFIX[i];
 						StringReplace(svPackDirFile, DIR_LOCALE_PREFIX[i].c_str(), svPackDirPrefix.c_str());
-						break;
+						goto escape;
 					}
 				}
 			}
-		}
+		}escape:;
 	}
 
 	vpk_dir_h vpk_dir(svPackDirFile);
@@ -195,11 +195,8 @@ void CPackedStore::UnpackAll(vpk_dir_h vpk_dir, std::string svPathOut)
 
 		for ( vpk_entry_block block : vpk_dir.m_vvEntryBlocks)
 		{
-			if (block.m_iArchiveIndex != i)
-			{
-				// Break if block archive index is not part of the extracting archive chunk index.
-				break;
-			}
+			// Escape if block archive index is not part of the extracting archive chunk index.
+			if (block.m_iArchiveIndex != i) { goto escape; }
 			else
 			{
 				std::string svFilePath = CreateDirectories(svPathOut + "\\" + block.m_svBlockPath);
@@ -271,9 +268,9 @@ void CPackedStore::UnpackAll(vpk_dir_h vpk_dir, std::string svPathOut)
 
 					ValidateCRC32PostDecomp(svFilePath);
 					//ValidateAdler32PostDecomp(svFilePath);
-					m_nEntryCount       = 0;
+					m_nEntryCount = 0;
 				}
-			}cont:;
+			}escape:;
 		}
 		packChunkStream.close();
 	}
@@ -357,7 +354,7 @@ vpk_dir_h::vpk_dir_h(std::string svPath)
 	for (int i = 0; i < this->m_iArchiveCount + 1; i++)
 	{
 		std::string svArchivePath = g_pPackedStore->GetPackChunkFile(svPath, i);
-		DevMsg(eDLL_T::FS, "] '%s\n", svArchivePath.c_str());
+		DevMsg(eDLL_T::FS, "] '%s'\n", svArchivePath.c_str());
 		this->m_vsvArchives.push_back(svArchivePath);
 	}
 }

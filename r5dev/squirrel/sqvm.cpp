@@ -71,7 +71,7 @@ void* HSQVM_PrintFunc(void* sqvm, char* fmt, ...)
 #ifndef DEDICATED
 		std::string s = g_spd_sqvm_p_oss.str();
 		const char* c = s.c_str();
-		Items.push_back(Strdup((const char*)c));
+		g_pIConsole->m_ivConLog.push_back(Strdup((const char*)c));
 #endif // !DEDICATED
 	}
 #ifndef DEDICATED
@@ -141,7 +141,7 @@ void* HSQVM_WarningFunc(void* sqvm, int a2, int a3, int* nStringSize, void** ppS
 #ifndef DEDICATED
 		std::string s = g_spd_sqvm_w_oss.str();
 		const char* c = s.c_str();
-		Items.push_back(Strdup(c));
+		g_pIConsole->m_ivConLog.push_back(Strdup(c));
 #endif // !DEDICATED
 	}
 #ifndef DEDICATED
@@ -149,7 +149,7 @@ void* HSQVM_WarningFunc(void* sqvm, int a2, int a3, int* nStringSize, void** ppS
 	{
 		g_pLogSystem.AddLog((LogType_t)vmIdx, s);
 		const char* c = s.c_str();
-		Items.push_back(Strdup(c));
+		g_pIConsole->m_ivConLog.push_back(Strdup(c));
 	}
 #endif // !DEDICATED
 	g_bSQVM_WarnFuncCalled = false;

@@ -63,6 +63,11 @@ void ConVar::Init(void)
 	cl_consoleoverlay_offset_x = new ConVar("cl_consoleoverlay_offset_x", "10", FCVAR_DEVELOPMENTONLY, "X offset for console overlay.", false, 1.f, false, 50.f, nullptr, nullptr);
 	cl_consoleoverlay_offset_y = new ConVar("cl_consoleoverlay_offset_y", "10", FCVAR_DEVELOPMENTONLY, "Y offset for console overlay.", false, 1.f, false, 50.f, nullptr, nullptr);
 
+	cl_consoleoverlay_native_clr = new ConVar("cl_consoleoverlay_native_clr", "255 255 255 255", FCVAR_DEVELOPMENTONLY, "Native RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_consoleoverlay_server_clr = new ConVar("cl_consoleoverlay_server_clr", "190 183 240 255", FCVAR_DEVELOPMENTONLY, "Server script VM RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_consoleoverlay_client_clr = new ConVar("cl_consoleoverlay_client_clr", "117 116 139 255", FCVAR_DEVELOPMENTONLY, "Client script VM RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_consoleoverlay_ui_clr     = new ConVar("cl_consoleoverlay_ui_clr", "197 160 177 255", FCVAR_DEVELOPMENTONLY, "UI script VM RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+
 	cl_showsimstats      = new ConVar("cl_showsimstats", "0", FCVAR_DEVELOPMENTONLY, "Shows the tick counter for the server/client simulation and the render frame.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_simstats_offset_x = new ConVar("cl_simstats_offset_x", "1250", FCVAR_DEVELOPMENTONLY, "X offset for simulation debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_simstats_offset_y = new ConVar("cl_simstats_offset_y", "885", FCVAR_DEVELOPMENTONLY, "Y offset for simulation debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
@@ -314,41 +319,41 @@ void ConVar::SetValue(float flValue)
 // Purpose: sets the ConVar string value.
 // Input  : *szValue - 
 //-----------------------------------------------------------------------------
-void ConVar::SetValue(const char* szValue)
+void ConVar::SetValue(const char* pszValue)
 {
-	if (strcmp(this->m_pParent->m_pzsCurrentValue, szValue) == 0)
+	if (strcmp(this->m_pParent->m_pzsCurrentValue, pszValue) == 0)
 	{
 		return;
 	}
-	this->m_pParent->m_pzsCurrentValue = szValue;
+	this->m_pParent->m_pzsCurrentValue = pszValue;
 
 	char szTempValue[32]{};
-	const char* pszValue{};
+	const char* pszNewValue{};
 
 	// Only valid for root convars.
 	assert(m_pParent == this);
 
 	float flOldValue = m_flValue;
-	pszValue = (char*)szValue;
-	if (!pszValue)
+	pszNewValue = (char*)pszValue;
+	if (!pszNewValue)
 	{
-		pszValue = "";
+		pszNewValue = "";
 	}
 
-	if (!SetColorFromString(szValue))
+	if (!SetColorFromString(pszValue))
 	{
 		// Not a color, do the standard thing
-		float flNewValue = (float)atof(szValue);
+		float flNewValue = (float)atof(pszValue);
 		if (!IsFinite(flNewValue))
 		{
-			DevMsg(eDLL_T::ENGINE ,"Warning: ConVar '%s' = '%s' is infinite, clamping value.\n", GetBaseName(), szValue);
+			DevMsg(eDLL_T::ENGINE ,"Warning: ConVar '%s' = '%s' is infinite, clamping value.\n", GetBaseName(), pszValue);
 			flNewValue = FLT_MAX;
 		}
 
 		if (ClampValue(flNewValue))
 		{
 			snprintf(szTempValue, sizeof(szTempValue), "%f", flNewValue);
-			pszValue = szTempValue;
+			pszNewValue = szTempValue;
 		}
 
 		// Redetermine value
@@ -358,7 +363,7 @@ void ConVar::SetValue(const char* szValue)
 
 	if (!(m_ConCommandBase.m_nFlags & FCVAR_NEVER_AS_STRING))
 	{
-		ChangeStringValue(pszValue, flOldValue);
+		ChangeStringValue(pszNewValue, flOldValue);
 	}
 }
 
@@ -519,9 +524,9 @@ bool ConVar::ClampValue(float& flValue)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: test each ConVar query before setting the cvar.
+// Purpose: Test each ConVar query before setting the value.
 // Input  : *pConVar - nFlags
-// Output : false if change is permitted, true if not.
+// Output : False if change is permitted, true if not.
 //-----------------------------------------------------------------------------
 bool ConVar::IsFlagSet(ConVar* pConVar, int nFlags)
 {

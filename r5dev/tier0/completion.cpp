@@ -15,19 +15,22 @@
 #include "rtech/rtech_game.h"
 #include "rtech/rtech_utils.h"
 #include "vpklib/packedstore.h"
+#ifndef DEDICATED
+#include "gameui/IBrowser.h"
 #include "gameui/IConsole.h"
+#endif // !DEDICATED
 #include "public/include/bansystem.h"
 #include "mathlib/crc32.h"
 
 #ifndef DEDICATED
 void _CGameConsole_f_CompletionFunc(const CCommand& cmd)
 {
-	g_bShowConsole = !g_bShowConsole;
+	g_pIConsole->m_bActivate = !g_pIConsole->m_bActivate;
 }
 
 void _CCompanion_f_CompletionFunc(const CCommand& cmd)
 {
-	g_bShowBrowser = !g_bShowBrowser;
+	g_pIBrowser->m_bActivate = !g_pIBrowser->m_bActivate;
 }
 #endif // !DEDICATED
 
