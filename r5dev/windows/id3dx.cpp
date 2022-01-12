@@ -62,6 +62,8 @@ LRESULT CALLBACK DXGIMsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
+
 	if (uMsg == WM_KEYDOWN || uMsg == WM_SYSKEYDOWN)
 	{
 		if (wParam == g_pImGuiConfig->IConsole_Config.m_nBind0 || wParam == g_pImGuiConfig->IConsole_Config.m_nBind1)
@@ -77,7 +79,6 @@ LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	if (g_pIConsole->m_bActivate || g_pIBrowser->m_bActivate)
 	{//////////////////////////////////////////////////////////////////////////////
-		ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 		g_bBlockInput = true;
 
 		switch (uMsg)
@@ -270,15 +271,15 @@ void DrawImGui()
 
 	ImGui::NewFrame();
 
-	if (g_pIConsole->m_bActivate)
-	{
-		g_pInputSystem->EnableInput(false); // Disable input to game when console is drawn.
-		g_pIConsole->Draw("Console", &g_pIConsole->m_bActivate);
-	}
 	if (g_pIBrowser->m_bActivate)
 	{
 		g_pInputSystem->EnableInput(false); // Disable input to game when browser is drawn.
 		g_pIBrowser->Draw("Server Browser", &g_pIBrowser->m_bActivate);
+	}
+	if (g_pIConsole->m_bActivate)
+	{
+		g_pInputSystem->EnableInput(false); // Disable input to game when console is drawn.
+		g_pIConsole->Draw("Console", &g_pIConsole->m_bActivate);
 	}
 	if (!g_pIConsole->m_bActivate && !g_pIBrowser->m_bActivate)
 	{
