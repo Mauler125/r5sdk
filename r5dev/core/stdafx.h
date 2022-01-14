@@ -42,22 +42,30 @@
 #endif // !SDKLAUNCHER
 
 #include "thirdparty/spdlog/include/spdlog.h"
+#include "thirdparty/spdlog/include/async.h"
+#include "thirdparty/spdlog/include/sinks/ostream_sink.h"
 #include "thirdparty/spdlog/include/sinks/basic_file_sink.h"
 #include "thirdparty/spdlog/include/sinks/stdout_sinks.h"
-#include "thirdparty/spdlog/include/sinks/ostream_sink.h"
+#include "thirdparty/spdlog/include/sinks/stdout_color_sinks.h"
+#include "thirdparty/spdlog/include/sinks/ansicolor_sink.h"
+#include "thirdparty/spdlog/include/sinks/rotating_file_sink.h"
+
 #include "public/include/utility.h"
 #include "public/include/memaddr.h"
 #include "public/include/httplib.h"
 #include "public/include/json.hpp"
 
-#ifndef SDKLAUNCHER
+#include "tier0/basetypes.h"
+#include "core/assert.h"
+
+#if !defined (SDKLAUNCHER)
 namespace
 {
-#ifdef DEDICATED
-	MODULE g_mGameDll = MODULE("r5apex_ds.exe");
-#else
+#if !defined (DEDICATED)
 	MODULE g_mGameDll = MODULE("r5apex.exe");
-#endif // DEDICATED
+#else
+	MODULE g_mGameDll = MODULE("r5apex_ds.exe");
+#endif // !DEDICATED
 	MODULE g_mRadVideoToolsDll   = MODULE("bink2w64.dll");
 	MODULE g_mRadAudioDecoderDll = MODULE("binkawin64.dll");
 	MODULE g_mRadAudioSystemDll  = MODULE("mileswin64.dll");
