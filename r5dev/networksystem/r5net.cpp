@@ -34,7 +34,7 @@ std::vector<ServerListing> R5Net::Client::GetServersList(std::string& svOutMessa
 
     httplib::Result htResults = m_HttpClient.Post("/servers", jsReqBody.dump().c_str(), jsReqBody.dump().length(), "application/json");
 
-    if (r5net_show_debug->GetBool())
+    if (htResults && r5net_show_debug->GetBool())
     {
         DevMsg(eDLL_T::ENGINE, "GetServerList replied with '%d'.\n", htResults->status);
     }
@@ -132,7 +132,7 @@ bool R5Net::Client::PostServerHost(std::string& svOutMessage, std::string& svOut
 
     httplib::Result htResults = m_HttpClient.Post("/servers/add", svRequestBody.c_str(), svRequestBody.length(), "application/json");
 
-    if (r5net_show_debug->GetBool())
+    if (htResults && r5net_show_debug->GetBool())
     {
         DevMsg(eDLL_T::ENGINE, "PostServerHost replied with '%d'.\n", htResults->status);
     }
