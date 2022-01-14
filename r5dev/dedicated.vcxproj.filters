@@ -872,6 +872,9 @@
     <ClCompile Include="tier0\commandline.cpp">
       <Filter>sdk\tier0</Filter>
     </ClCompile>
+    <ClCompile Include="core\logdef.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="r5dev.def" />
