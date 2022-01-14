@@ -13,6 +13,13 @@
 #include "squirrel/sqvm.h"
 #include "vgui/CEngineVGui.h"
 #include "gameui/IConsole.h"
+#include <squirrel/sqapi.h>
+#include <networksystem/r5net.h>
+#include "gameui/IBrowser.h"
+#include <engine/net_chan.h>
+#include <client/IVEngineClient.h>
+#include "vpc/keyvalues.h"
+#include <windows/id3dx.h>
 
 //---------------------------------------------------------------------------------
 // Purpose: prints the output of each VM to the console
@@ -269,9 +276,256 @@ int HSQVM_NativeTest(void* sqvm)
 	return 1;
 }
 
+std::vector<ServerListing> ServerList;
+
+int GetServerName(void* sqvm)
+{
+
+	int a = hsq_getinteger(sqvm, 1);
+	std::string str = ServerList[a].svServerName;
+
+	char* c = const_cast<char*>(str.c_str());
+
+	hsq_pushstring(sqvm, c, -1);
+
+	return 1;
+}
+
+int GetServerPlaylist(void* sqvm)
+{
+	int a = hsq_getinteger(sqvm, 1);
+	std::string str = ServerList[a].svPlaylist;
+
+	char* c = const_cast<char*>(str.c_str());
+
+	hsq_pushstring(sqvm, c, -1);
+
+	return 1;
+}
+
+int GetServerMap(void* sqvm)
+{
+	int a = hsq_getinteger(sqvm, 1);
+	std::string str = ServerList[a].svMapName;
+
+	char* c = const_cast<char*>(str.c_str());
+
+	hsq_pushstring(sqvm, c, -1);
+
+	return 1;
+}
+
+int GetServerAmmount(void* sqvm)
+{
+	std::string msg;
+	ServerList = g_pR5net->GetServersList(msg);
+
+	int i = -1;
+
+	for (ServerListing& server : ServerList)
+	{
+		i++;
+	}
+
+	hsq_pushinteger(sqvm, i);
+
+	return 1;
+}
+
+int GetSDKVersion(void* sqvm)
+{
+	std::string SDKV;
+	SDKV = g_pR5net->GetSDKVersion();
+
+	char* c = const_cast<char*>(SDKV.c_str());
+
+	hsq_pushstring(sqvm, c, -1);
+
+	return 1;
+}
+
+int GetPromoData(void* sqvm)
+{
+	//PromoLargeTitle, PromoLargeDesc, PromoLeftTitle, PromoLeftDesc, PromoRightTitle, PromoRightDesc
+	std::string promodatatype = hsq_getstring(sqvm, 1);
+	std::string senddataback;
+
+	if (promodatatype == "PromoLargeTitle") {
+		senddataback = "Welcome To R5Reloaded!";
+	}
+	else if (promodatatype == "PromoLargeDesc") {
+		senddataback = "Make sure to join the discord! discord.gg/r5reloaded";
+	}
+	else if (promodatatype == "PromoLeftTitle") {
+		senddataback = "Check out the Rendy Gaming montage";
+	}
+	else if (promodatatype == "PromoLeftDesc") {
+		senddataback = "This can be hooked up to recive data from a server. Check sqvm.cpp";
+	}
+	else if (promodatatype == "PromoRightTitle") {
+		senddataback = "Check out the Rendy Gaming montage";
+	}
+	else if (promodatatype == "PromoRightDesc") {
+		senddataback = "This can be hooked up to recive data from a server. Check sqvm.cpp";
+	}
+	else
+	{
+		return 1;
+	}
+
+	char* c = const_cast<char*>(senddataback.c_str());
+
+	hsq_pushstring(sqvm, c, -1);
+
+	return 1;
+}
+
+int SetEncKeyAndConnect(void* sqvm)
+{
+	int i = hsq_getinteger(sqvm, 1);
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Avoid race condition.
+
+	HNET_SetKey(ServerList[i].svEncryptionKey);
+
+	std::stringstream cmd;
+	cmd << "connect " << ServerList[i].svIpAddress << ":" << ServerList[i].svPort;
+
+	//This dosnt crash
+	IVEngineClient_CommandExecute(NULL, cmd.str().c_str());
+
+	//This crashes becuase the server browser needs to be initilized at leats once before i can send the connect command
+	//g_pServerBrowser->ConnectToServer(ServerList[i].svIpAddress, ServerList[i].svPort, ServerList[i].svEncryptionKey);
+
+	return 1;
+}
+
+int CreateServerFromMenu(void* sqvm)
+{
+	std::string servername = hsq_getstring(sqvm, 1);
+	std::string mapname = hsq_getstring(sqvm, 2);
+	std::string gamemode = hsq_getstring(sqvm, 3);
+	std::string vis = hsq_getstring(sqvm, 4);
+
+	if (mapname == "")
+		return 1;
+
+	if (gamemode == "")
+		return 1;
+
+	if (vis == "")
+		return 1;
+
+	//Had to do a shitty fix in scripts to get this to work maybe someone else can do a better job
+	//server browser needs to be opened at least once to set the vars when creating a server
+	g_pIBrowser->SetMenuVars(servername, vis);
+
+	DevMsg(eDLL_T::ENGINE, "Starting Server with map '%s' and playlist '%s'\n", mapname.c_str(), gamemode.c_str());
+
+	KeyValues_LoadPlaylist(gamemode.c_str());
+	std::stringstream cgmd;
+	cgmd << "mp_gamemode " << gamemode;
+	IVEngineClient_CommandExecute(NULL, cgmd.str().c_str());
+
+	// This is to avoid a race condition.
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+	std::stringstream cmd;
+	cmd << "map " << mapname;
+	IVEngineClient_CommandExecute(NULL, cmd.str().c_str());
+
+	return 1;
+}
+
+int JoinPrivateServerFromMenu(void* sqvm)
+{
+	std::string m_szHiddenServerRequestMessage;
+
+	std::string token = hsq_getstring(sqvm, 1);
+
+	ServerListing server;
+	bool result = g_pR5net->GetServerByToken(server, m_szHiddenServerRequestMessage, token); // Send token connect request.
+	if (!server.svServerName.empty())
+	{
+		HNET_SetKey(server.svEncryptionKey);
+
+		std::stringstream cmd;
+		cmd << "connect " << server.svIpAddress << ":" << server.svPort;
+
+		//This dosnt crash
+		IVEngineClient_CommandExecute(NULL, cmd.str().c_str());
+	}
+
+	return 1;
+}
+
+int GetPrivateServerMessage(void* sqvm)
+{
+	std::string m_szHiddenServerRequestMessage;
+
+	std::string token = hsq_getstring(sqvm, 1);
+
+	ServerListing server;
+	bool result = g_pR5net->GetServerByToken(server, m_szHiddenServerRequestMessage, token); // Send token connect request.
+	if (!server.svServerName.empty())
+	{
+		m_szHiddenServerRequestMessage = "Found Server: " + server.svServerName;
+
+		char* c = const_cast<char*>(m_szHiddenServerRequestMessage.c_str());
+
+		hsq_pushstring(sqvm, c, -1);
+	}
+	else
+	{
+		m_szHiddenServerRequestMessage = "Error: Server Not Found";
+
+		char* c = const_cast<char*>(m_szHiddenServerRequestMessage.c_str());
+
+		hsq_pushstring(sqvm, c, -1);
+	}
+
+	return 1;
+}
+
+int ConnectToIPFromMenu(void* sqvm)
+{
+	std::string ip = hsq_getstring(sqvm, 1);
+	std::string key = hsq_getstring(sqvm, 2);
+
+	if (key != "")
+	{
+		HNET_SetKey(key);
+	}
+
+	std::stringstream cmd;
+	cmd << "connect " << ip;
+
+	//This dosnt crash
+	IVEngineClient_CommandExecute(NULL, cmd.str().c_str());
+
+	return 1;
+}
+
 void RegisterUIScriptFunctions(void* sqvm)
 {
 	HSQVM_RegisterFunction(sqvm, "UINativeTest", "native ui function", "void", "", &HSQVM_NativeTest);
+
+	//Server Browser Data
+	HSQVM_RegisterFunction(sqvm, "GetServerName", "native ui function", "string", "int", &GetServerName);
+	HSQVM_RegisterFunction(sqvm, "GetServerPlaylist", "native ui function", "string", "int", &GetServerPlaylist);
+	HSQVM_RegisterFunction(sqvm, "GetServerMap", "native ui function", "string", "int", &GetServerMap);
+	HSQVM_RegisterFunction(sqvm, "GetServerAmmount", "native ui function", "int", "", &GetServerAmmount);
+
+	//Main Menu Data
+	HSQVM_RegisterFunction(sqvm, "GetSDKVersion", "native ui function", "string", "", &GetSDKVersion);
+	HSQVM_RegisterFunction(sqvm, "GetPromoData", "native ui function", "string", "string", &GetPromoData);
+
+	//Connecting To Servers
+	HSQVM_RegisterFunction(sqvm, "CreateServer", "native ui function", "void", "string,string,string,string", &CreateServerFromMenu);
+	HSQVM_RegisterFunction(sqvm, "SetEncKeyAndConnect", "native ui function", "void", "int", &SetEncKeyAndConnect);
+	HSQVM_RegisterFunction(sqvm, "JoinPrivateServerFromMenu", "native ui function", "void", "string", &JoinPrivateServerFromMenu);
+	HSQVM_RegisterFunction(sqvm, "GetPrivateServerMessage", "native ui function", "string", "string", &GetPrivateServerMessage);
+	HSQVM_RegisterFunction(sqvm, "ConnectToIPFromMenu", "native ui function", "void", "string,string", &ConnectToIPFromMenu);
 }
 
 void RegisterClientScriptFunctions(void* sqvm)
@@ -284,6 +538,18 @@ void RegisterServerScriptFunctions(void* sqvm)
 	HSQVM_RegisterFunction(sqvm, "ServerNativeTest", "native server function", "void", "", &HSQVM_NativeTest);
 }
 
+ADDRESS UIVM = (void*)p_SQVM_CreateUIVM.FollowNearCall().FindPatternSelf("48 8B 1D", ADDRESS::Direction::DOWN, 50).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr();
+
+void HSQVM_RegisterOriginFuncs(void* sqvm)
+{
+	if (sqvm == *UIVM.RCast<void**>())
+		RegisterUIScriptFunctions(sqvm);
+	else
+		RegisterClientScriptFunctions(sqvm);
+	return SQVM_RegisterOriginFuncs(sqvm);
+}
+
+
 void SQVM_Attach()
 {
 	DetourAttach((LPVOID*)&SQVM_PrintFunc, &HSQVM_PrintFunc);
@@ -291,6 +557,7 @@ void SQVM_Attach()
 	DetourAttach((LPVOID*)&SQVM_WarningCmd, &HSQVM_WarningCmd);
 	DetourAttach((LPVOID*)&SQVM_LoadRson, &HSQVM_LoadRson);
 	DetourAttach((LPVOID*)&SQVM_LoadScript, &HSQVM_LoadScript);
+	DetourAttach((LPVOID*)&SQVM_RegisterOriginFuncs, &HSQVM_RegisterOriginFuncs);
 }
 
 void SQVM_Detach()
@@ -300,6 +567,7 @@ void SQVM_Detach()
 	DetourDetach((LPVOID*)&SQVM_WarningCmd, &HSQVM_WarningCmd);
 	DetourDetach((LPVOID*)&SQVM_LoadRson, &HSQVM_LoadRson);
 	DetourDetach((LPVOID*)&SQVM_LoadScript, &HSQVM_LoadScript);
+	DetourDetach((LPVOID*)&SQVM_RegisterOriginFuncs, &HSQVM_RegisterOriginFuncs);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

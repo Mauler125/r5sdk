@@ -684,6 +684,32 @@ void IBrowser::SettingsSection()
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Sets needed create game vars
+//-----------------------------------------------------------------------------
+void IBrowser::SetMenuVars(std::string name, std::string vis)
+{
+    if (vis == "Public")
+    {
+        m_Server.bHidden = false;
+        eServerVisibility = EServerVisibility::PUBLIC;
+    }
+    else if (vis == "Private")
+    {
+        eServerVisibility = EServerVisibility::HIDDEN;
+        m_Server.bHidden = true;
+    }
+    else
+    {
+        m_Server.bHidden = true;
+        eServerVisibility = EServerVisibility::OFFLINE;
+    }
+
+    m_Server.svServerName = name;
+
+    UpdateHostingStatus();
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: regenerates encryption key
 //-----------------------------------------------------------------------------
 void IBrowser::RegenerateEncryptionKey()

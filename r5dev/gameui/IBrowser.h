@@ -19,6 +19,8 @@ public:
     void ConnectToServer(const std::string ip, const std::string port, const std::string encKey);
     void ConnectToServer(const std::string connString, const std::string encKey);
 
+    void SetMenuVars(std::string name, std::string vis);
+
     void HiddenServersModal();
     void HostServerSection();
 

@@ -50,6 +50,17 @@ namespace
 
 	ADDRESS p_SQVM_RegisterFunc = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x83\xEC\x38\x45\x0F\xB6\xC8", "xxxxxxxx"); /*48 83 EC 38 45 0F B6 C8*/
 	void* (*SQVM_RegisterFunc)(void* sqvm, SQFuncRegistration* sqFunc, int a1) = (void* (*)(void*, SQFuncRegistration*, int))p_SQVM_RegisterFunc.GetPtr();
+
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+	ADDRESS p_SQVM_CreateUIVM = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\xE8\x00\x00\x00\x00\x84\xC0\x74\x18\xE8\x00\x00\x00\x00", "x????xxxxx????")
+		bool (*SQVM_CreateUIVM)() = (bool(*)())p_SQVM_CreateUIVM.FollowNearCall().GetPtr();
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+	ADDRESS p_SQVM_CreateUIVM = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\xE8\x00\x00\x00\x00\x84\xC0\x74\xE0\x44\x38\x25\x00\x00\x00\x00", "x????xxxxxxx????");
+	bool (*SQVM_CreateUIVM)() = (bool(*)())p_SQVM_CreateUIVM.FollowNearCall().GetPtr();
+#endif
+
+	ADDRESS p_SQVM_RegisterOriginFuncs = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\xE8\x00\x00\x00\x00\x48\x8B\x0D\x00\x00\x00\x00\x48\x8D\x15\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\xC7\x05\x00\x00\x00\x00\x00\x00\x00\x00", "x????xxx????xxx????x????xxx????xx????????");
+	void (*SQVM_RegisterOriginFuncs)(void* sqvm) = (void(*)(void*))p_SQVM_RegisterOriginFuncs.FollowNearCall().GetPtr();
 }
 
 void* HSQVM_PrintFunc(void* sqvm, char* fmt, ...);
@@ -58,6 +69,8 @@ bool HSQVM_LoadScript(void* sqvm, const char* szScriptPath, const char* szScript
 
 void HSQVM_RegisterFunction(void* sqvm, const char* szName, const char* szHelpString, const char* szRetValType, const char* szArgTypes, void* pFunction);
 int HSQVM_NativeTest(void* sqvm);
+
+void HSQVM_RegisterOriginFuncs(void* sqvm);
 
 
 void SQVM_Attach();
