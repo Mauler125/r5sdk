@@ -1040,6 +1040,9 @@
     <ClInclude Include="tier0\commandline.h">
       <Filter>sdk\tier0</Filter>
     </ClInclude>
+    <ClInclude Include="core\assert.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="r5dev.def" />

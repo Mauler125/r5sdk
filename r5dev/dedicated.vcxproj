@@ -135,7 +135,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>User32.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>del "..\..\..\$(ProjectName)" &amp;&amp; copy /Y "$(TargetPath)" "..\..\..\</Command>
@@ -162,7 +162,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>User32.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>del "..\..\..\$(ProjectName)" &amp;&amp; copy /Y "$(TargetPath)" "..\..\..\</Command>
@@ -175,6 +175,7 @@
     <ClInclude Include="common\opcodes.h" />
     <ClInclude Include="common\protocol.h" />
     <ClInclude Include="common\psuedodefs.h" />
+    <ClInclude Include="core\assert.h" />
     <ClInclude Include="core\init.h" />
     <ClInclude Include="core\logdef.h" />
     <ClInclude Include="core\r5dev.h" />

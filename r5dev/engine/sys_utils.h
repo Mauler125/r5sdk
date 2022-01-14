@@ -7,6 +7,9 @@ namespace
 	ADDRESS p_Sys_Error = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x4C\x24\x08\x48\x89\x54\x24\x10\x4C\x89\x44\x24\x18\x4C\x89\x4C\x24\x20\x53\x55\x41\x54\x41\x56\xB8\x58\x10\x00\x00\xE8", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 	void (*Sys_Error)(char* fmt, ...) = (void (*)(char* fmt, ...))p_Sys_Error.GetPtr(); /*48 89 4C 24 08 48 89 54 24 10 4C 89 44 24 18 4C 89 4C 24 20 53 55 41 54 41 56 B8 58 10 00 00 E8*/
 
+	ADDRESS p_Warning = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x54\x24\x00\x4C\x89\x44\x24\x00\x4C\x89\x4C\x24\x00\x48\x83\xEC\x28\x4C\x8D\x44\x24\x00\xE8\x00\x00\x00\x00\x48\x83\xC4\x28\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x8B\x05\x00\x00\x00\x00", "xxxx?xxxx?xxxx?xxxxxxxx?x????xxxxxxxxxxxxxxxxxxxxxxx?xxxx?xxxx?xx????");
+	void* (*Sys_Warning)(int level, char* fmt, ...) = (void* (*)(int, char* fmt, ...))p_Warning.GetPtr(); /*48 89 54 24 ? 4C 89 44 24 ? 4C 89 4C 24 ? 48 83 EC 28 4C 8D 44 24 ? E8 ? ? ? ? 48 83 C4 28 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC CC 48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 8B 05 ? ? ? ?*/
+
 	ADDRESS p_Sys_LoadAssetHelper = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x74\x24\x10\x48\x89\x7C\x24\x18\x41\x56\x48\x83\xEC\x40\x33", "xxxxxxxxxxxxxxxxx");
 	void*(*Sys_LoadAssetHelper)(const CHAR* lpFileName, std::int64_t a2, LARGE_INTEGER* a3) = (void*(*)(const CHAR*, std::int64_t, LARGE_INTEGER*))p_Sys_LoadAssetHelper.GetPtr();/*48 89 74 24 10 48 89 7C 24 18 41 56 48 83 EC 40 33*/
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
@@ -30,7 +33,32 @@ enum class eDLL_T : int
 	ENGINE = 3, // Wrapper
 	FS     = 4, // File System
 	RTECH  = 5, // RTech API
-	MS     = 6  // Material System
+	MS     = 6, // Material System
+	NONE   = 7
+};
+
+const std::string sDLL_T[8] = 
+{
+	"Native(S):",
+	"Native(C):",
+	"Native(U):",
+	"Native(E):",
+	"Native(F):",
+	"Native(R):",
+	"Native(M):",
+	""
+};
+
+const static std::string sANSI_DLL_T[8] = 
+{
+	"\u001b[94mNative(S):",
+	"\u001b[90mNative(C):",
+	"\u001b[33mNative(U):",
+	"\u001b[37mNative(E):",
+	"\u001b[96mNative(F):",
+	"\u001b[92mNative(R):",
+	"\u001b[91mNative(M):",
+	""
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -46,6 +74,7 @@ class HSys_Utils : public IDetour
 	virtual void debugp()
 	{
 		std::cout << "| FUN: Sys_Error                            : 0x" << std::hex << std::uppercase << p_Sys_Error.GetPtr()           << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: Sys_Warning                          : 0x" << std::hex << std::uppercase << p_Warning.GetPtr()           << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: Sys_LoadAssetHelper                  : 0x" << std::hex << std::uppercase << p_Sys_LoadAssetHelper.GetPtr() << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: MemAlloc_Wrapper                     : 0x" << std::hex << std::uppercase << p_MemAlloc_Wrapper.GetPtr()    << std::setw(npad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;

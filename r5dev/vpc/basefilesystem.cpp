@@ -14,42 +14,38 @@ void HCBaseFileSystem_Warning(void* thisptr, FileWarningLevel_t level, const cha
 		return;
 	}
 
-	static bool initialized = false;
 	static char buf[1024] = {};
 
-	static auto iconsole = spdlog::stdout_logger_mt("fs_warn_iconsole"); // in-game console.
-	static auto wconsole = spdlog::stdout_logger_mt("fs_warn_wconsole"); // windows console.
+	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
+	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
+	static std::shared_ptr<spdlog::logger> fslogger = spdlog::get("filesystem_warn_logger");
 
-	fs_oss.str("");
-	fs_oss.clear();
+	{/////////////////////////////
+		va_list args{};
+		va_start(args, fmt);
 
-	if (!initialized)
+		vsnprintf(buf, sizeof(buf), fmt, args);
+
+		buf[sizeof(buf) - 1] = 0;
+		va_end(args);
+	}/////////////////////////////
+
+	fslogger->debug(buf);
+
+	if (fs_show_warning_output->GetBool())
 	{
-		iconsole = std::make_shared<spdlog::logger>("fs_warn_ostream", fs_ostream_sink);
-		iconsole->set_pattern("[%S.%e] %v");
-		iconsole->set_level(spdlog::level::debug);
-		wconsole->set_pattern("[%S.%e] %v");
-		wconsole->set_level(spdlog::level::debug);
-		initialized = true;
-	}
-
-	va_list args{};
-	va_start(args, fmt);
-
-	vsnprintf(buf, sizeof(buf), fmt, args);
-
-	buf[sizeof(buf) - 1] = 0;
-	va_end(args);
-
-	iconsole->debug(buf);
-	wconsole->debug(buf);
-
+		wconsole->debug(buf);
 #ifndef DEDICATED
-	std::string s = fs_oss.str();
-	const char* c = s.c_str();
+		g_spd_sys_w_oss.str("");
+		g_spd_sys_w_oss.clear();
 
-	g_pIConsole->m_ivConLog.push_back(Strdup((const char*)c));
+		iconsole->debug(buf);
+
+		std::string s = g_spd_sys_w_oss.str();
+
+		g_pIConsole->m_ivConLog.push_back(Strdup(s.c_str()));
 #endif // !DEDICATED
+	}
 }
 
 void CBaseFileSystem_Attach()

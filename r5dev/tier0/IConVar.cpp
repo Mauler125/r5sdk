@@ -77,7 +77,8 @@ void ConVar::Init(void)
 	cl_gpustats_offset_y = new ConVar("cl_gpustats_offset_y", "900", FCVAR_DEVELOPMENTONLY, "Y offset for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// FILESYSTEM                                                             |
-	fs_warning_level_native         = new ConVar("fs_warning_level_native", "0", FCVAR_DEVELOPMENTONLY, "Set the filesystem warning level ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	fs_warning_level_native = new ConVar("fs_warning_level_native", "0", FCVAR_DEVELOPMENTONLY, "Set the filesystem warning level.", false, 0.f, false, 0.f, nullptr, nullptr);
+	fs_show_warning_output  = new ConVar("fs_show_warning_output", "0", FCVAR_DEVELOPMENTONLY, "Logs the filesystem warnings to the console, filtered by 'fs_warning_level_native' ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	fs_packedstore_entryblock_stats = new ConVar("fs_packedstore_entryblock_stats", "0", FCVAR_DEVELOPMENTONLY, "If set to 1, prints the stats of each file entry in the VPK during decompression ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// FILESYSTEM                                                             |

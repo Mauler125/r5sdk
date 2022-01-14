@@ -1,6 +1,6 @@
 #include "core/stdafx.h"
 #include "core/init.h"
-#include "rtech/rtech_utils.h"
+#include "core/logdef.h"
 #ifndef DEDICATED
 #include "windows/id3dx.h"
 #endif // !DEDICATED
@@ -47,22 +47,29 @@ void Console_Init()
 
 	///////////////////////////////////////////////////////////////////////////
 	// Create a worker thread to process console commands
-	DWORD threadId;
+	DWORD dwMode = NULL;
+	DWORD dwThreadId = NULL;
 	DWORD __stdcall ProcessConsoleWorker(LPVOID);
-	HANDLE hThread = CreateThread(NULL, 0, ProcessConsoleWorker, NULL, 0, &threadId);
+	HANDLE hThread = CreateThread(NULL, 0, ProcessConsoleWorker, NULL, 0, &dwThreadId);
 
-	// Initialize global spdlog.
-	auto console = spdlog::stdout_logger_mt("console");
-	console->set_pattern("[%S.%e] %v"); // Set pattern.
-
-	spdlog::set_level(spdlog::level::trace);
-	spdlog::set_default_logger(console); // Set as default.
-	spdlog::flush_every(std::chrono::seconds(5)); // Flush buffers every 5 seconds for every logger.
+	//HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
+	HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 	
 	if (hThread)
 	{
-		spdlog::debug("THREAD ID: {}\n\n", threadId);
 		CloseHandle(hThread);
+	}
+
+	if (strstr(GetCommandLineA(), "-ansiclr"))
+	{
+		GetConsoleMode(hOutput, &dwMode);
+		dwMode |= ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+
+		if (!SetConsoleMode(hOutput, dwMode)) // Some editions of Windows have 'VirtualTerminalLevel' disabled by default.
+		{
+			// Warn the user if 'VirtualTerminalLevel' could not be set on users environment.
+			MessageBox(NULL, "Failed to set console mode 'VirtualTerminalLevel'.\nPlease omit the '-ansiclr' parameter and restart\nthe game if output logging appears distorted.", "SDK Warning", MB_ICONEXCLAMATION | MB_OK);
+		}
 	}
 }
 

@@ -663,6 +663,9 @@
     <ClInclude Include="tier0\commandline.h">
       <Filter>sdk\tier0</Filter>
     </ClInclude>
+    <ClInclude Include="core\assert.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="client\IVEngineClient.cpp">

@@ -31,12 +31,11 @@ CConsole::CConsole()
     m_nHistoryPos     = -1;
     m_bAutoScroll     = true;
     m_bScrollToBottom = false;
-    m_bInitialized       = false;
+    m_bInitialized    = false;
 
     m_ivCommands.push_back("CLEAR");
     m_ivCommands.push_back("HELP");
     m_ivCommands.push_back("HISTORY");
-    AddLog("[DEBUG] THREAD ID: %ld\n", g_dThreadId);
 }
 
 //-----------------------------------------------------------------------------
@@ -54,7 +53,7 @@ CConsole::~CConsole()
 //-----------------------------------------------------------------------------
 // Purpose: draws the console frontend
 //-----------------------------------------------------------------------------
-void CConsole::Draw(const char* title, bool* bDraw)
+void CConsole::Draw(const char* pszTitle, bool* bDraw)
 {
     if (!m_bInitialized)
     {
@@ -79,7 +78,7 @@ void CConsole::Draw(const char* title, bool* bDraw)
     ImGui::SetNextWindowSize(ImVec2(1000, 600), ImGuiCond_FirstUseEver);
     ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
 
-    if (!ImGui::Begin(title, bDraw))
+    if (!ImGui::Begin(pszTitle, bDraw))
     {
         ImGui::End();
         return;
@@ -135,29 +134,21 @@ void CConsole::Draw(const char* title, bool* bDraw)
 
     ImGui::PushItemWidth(footer_width_to_reserve - 80);
     if (ImGui::IsWindowAppearing()) { ImGui::SetKeyboardFocusHere(); }
+
     ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
 
     if (ImGui::InputText("##input", m_szInputBuf, IM_ARRAYSIZE(m_szInputBuf), input_text_flags, &TextEditCallbackStub, (void*)this))
     {
-        char* s = m_szInputBuf;
-
-
-        const char* replace = "";
-
-        if (strstr(m_szInputBuf, "`")) { strcpy_s(s, sizeof(replace), replace); }
-        Strtrim(s);
-        if (s[0]) { ProcessCommand(s); }
-        strcpy_s(s, sizeof(replace), replace);
+        if (m_szInputBuf[0]) { ProcessCommand(m_szInputBuf); }
+        strcpy_s(m_szInputBuf, 1, "");
         m_bReclaimFocus = true;
     }
 
     ImGui::SameLine();
     if (ImGui::Button("Submit"))
     {
-        char* s = m_szInputBuf;
-        const char* replace = "";
-        if (s[0]) { ProcessCommand(s); }
-        strcpy_s(s, sizeof(replace), replace);
+        if (m_szInputBuf[0]) { ProcessCommand(m_szInputBuf); }
+        strcpy_s(m_szInputBuf, 1, "");
         m_bReclaimFocus = true;
     }
 
@@ -226,11 +217,11 @@ void CConsole::Options()
 //-----------------------------------------------------------------------------
 // Purpose: executes submitted commands in a separate thread
 //-----------------------------------------------------------------------------
-void CConsole::ProcessCommand(const char* command_line)
+void CConsole::ProcessCommand(const char* pszCommand)
 {
-    AddLog("# %s\n", command_line);
+    AddLog("# %s\n", pszCommand);
 
-    std::thread t(IVEngineClient_CommandExecute, this, command_line);
+    std::thread t(IVEngineClient_CommandExecute, this, pszCommand);
     t.detach(); // Detach from render thread.
 
     // This is to avoid a race condition.
@@ -239,7 +230,7 @@ void CConsole::ProcessCommand(const char* command_line)
     m_nHistoryPos = -1;
     for (int i = m_ivHistory.Size - 1; i >= 0; i--)
     {
-        if (Stricmp(m_ivHistory[i], command_line) == 0)
+        if (Stricmp(m_ivHistory[i], pszCommand) == 0)
         {
             delete m_ivHistory[i];
             m_ivHistory.erase(m_ivHistory.begin() + i);
@@ -247,12 +238,12 @@ void CConsole::ProcessCommand(const char* command_line)
         }
     }
 
-    m_ivHistory.push_back(Strdup(command_line));
-    if (Stricmp(command_line, "CLEAR") == 0)
+    m_ivHistory.push_back(Strdup(pszCommand));
+    if (Stricmp(pszCommand, "CLEAR") == 0)
     {
         ClearLog();
     }
-    else if (Stricmp(command_line, "HELP") == 0)
+    else if (Stricmp(pszCommand, "HELP") == 0)
     {
         AddLog("Commands:");
         for (int i = 0; i < m_ivCommands.Size; i++)
@@ -274,7 +265,7 @@ void CConsole::ProcessCommand(const char* command_line)
         AddLog("Native(R): = RTech DLL (Code)");
         AddLog("Native(M): = MatSys DLL (Code)");
     }
-    else if (Stricmp(command_line, "HISTORY") == 0)
+    else if (Stricmp(pszCommand, "HISTORY") == 0)
     {
         int first = m_ivHistory.Size - 10;
         for (int i = first > 0 ? first : 0; i < m_ivHistory.Size; i++)
@@ -296,22 +287,22 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* data)
     case ImGuiInputTextFlags_CallbackCompletion:
     {
         // Locate beginning of current word.
-        const char* word_end = data->Buf + data->CursorPos;
-        const char* word_start = word_end;
-        while (word_start > data->Buf)
+        const char* pszWordEnd = data->Buf + data->CursorPos;
+        const char* pszWordStart = pszWordEnd;
+        while (pszWordStart > data->Buf)
         {
-            const char c = word_start[-1];
+            const char c = pszWordStart[-1];
             if (c == ' ' || c == '\t' || c == ',' || c == ';')
             {
                 break;
             }
-            word_start--;
+            pszWordStart--;
         }
         break;
     }
     case ImGuiInputTextFlags_CallbackHistory:
     {
-        const int prev_history_pos = m_nHistoryPos;
+        const int nPrevHistoryPos = m_nHistoryPos;
         if (data->EventKey == ImGuiKey_UpArrow)
         {
             if (m_nHistoryPos == -1) { m_nHistoryPos = m_ivHistory.Size - 1; }
@@ -327,11 +318,11 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* data)
                 }
             }
         }
-        if (prev_history_pos != m_nHistoryPos)
+        if (nPrevHistoryPos != m_nHistoryPos)
         {
-            const char* history_str = (m_nHistoryPos >= 0) ? m_ivHistory[m_nHistoryPos] : "";
+            const char* pszHistory = (m_nHistoryPos >= 0) ? m_ivHistory[m_nHistoryPos] : "";
             data->DeleteChars(0, data->BufTextLen);
-            data->InsertChars(0, history_str);
+            data->InsertChars(0, pszHistory);
         }
     }
     }
@@ -343,8 +334,8 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* data)
 //-----------------------------------------------------------------------------
 int CConsole::TextEditCallbackStub(ImGuiInputTextCallbackData* data)
 {
-    CConsole* console = (CConsole*)data->UserData;
-    return console->TextEditCallback(data);
+    CConsole* pConsole = (CConsole*)data->UserData;
+    return pConsole->TextEditCallback(data);
 }
 
 //-----------------------------------------------------------------------------
@@ -377,67 +368,67 @@ void CConsole::ColorLog()
 {
     for (int i = 0; i < m_ivConLog.Size; i++)
     {
-        const char* item = m_ivConLog[i];
-        if (!m_itFilter.PassFilter(item))
+        const char* pszConLog = m_ivConLog[i];
+        if (!m_itFilter.PassFilter(pszConLog))
         {
             continue;
         }
         ///////////////////////////////////////////////////////////////////////
-        ImVec4 color;
-        bool has_color = false;
+        ImVec4 imColor;
 
         // General
-        if (strstr(item, "[INFO]"))      { color = ImVec4(1.00f, 1.00f, 1.00f, 0.70f); has_color = true; }
-        if (strstr(item, "[ERROR]"))     { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-        if (strstr(item, "[DEBUG]"))     { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
-        if (strstr(item, "[WARNING]"))   { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
-        if (strncmp(item, "# ", 2) == 0) { color = ImVec4(1.00f, 0.80f, 0.60f, 1.00f); has_color = true; }
+        if (strstr(pszConLog, "[INFO]"))      { imColor = ImVec4(1.00f, 1.00f, 1.00f, 0.70f); true; }
+        if (strstr(pszConLog, "[ERROR]"))     { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
+        if (strstr(pszConLog, "[DEBUG]"))     { imColor = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); true; }
+        if (strstr(pszConLog, "[WARNING]"))   { imColor = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); true; }
+        if (strncmp(pszConLog, "# ", 2) == 0) { imColor = ImVec4(1.00f, 0.80f, 0.60f, 1.00f); true; }
 
         // Script virtual machines per game dll
-        if (strstr(item, "Script(S):")) { color = ImVec4(0.59f, 0.58f, 0.73f, 1.00f); has_color = true; }
-        if (strstr(item, "Script(C):")) { color = ImVec4(0.59f, 0.58f, 0.63f, 1.00f); has_color = true; }
-        if (strstr(item, "Script(U):")) { color = ImVec4(0.59f, 0.48f, 0.53f, 1.00f); has_color = true; }
+        if (strstr(pszConLog, "Script(S):")) { imColor = ImVec4(0.59f, 0.58f, 0.73f, 1.00f); true; }
+        if (strstr(pszConLog, "Script(C):")) { imColor = ImVec4(0.59f, 0.58f, 0.63f, 1.00f); true; }
+        if (strstr(pszConLog, "Script(U):")) { imColor = ImVec4(0.59f, 0.48f, 0.53f, 1.00f); true; }
+        if (strstr(pszConLog, "Script(X):")) { imColor = ImVec4(0.59f, 0.58f, 0.63f, 1.00f); true; }
 
         // Native per game dll
-        if (strstr(item, "Native(S):")) { color = ImVec4(0.59f, 0.58f, 0.73f, 1.00f); has_color = true; }
-        if (strstr(item, "Native(C):")) { color = ImVec4(0.59f, 0.58f, 0.63f, 1.00f); has_color = true; }
-        if (strstr(item, "Native(U):")) { color = ImVec4(0.59f, 0.48f, 0.53f, 1.00f); has_color = true; }
+        if (strstr(pszConLog, "Native(S):")) { imColor = ImVec4(0.59f, 0.58f, 0.73f, 1.00f); true; }
+        if (strstr(pszConLog, "Native(C):")) { imColor = ImVec4(0.59f, 0.58f, 0.63f, 1.00f); true; }
+        if (strstr(pszConLog, "Native(U):")) { imColor = ImVec4(0.59f, 0.48f, 0.53f, 1.00f); true; }
 
         // Native per sys dll
-        if (strstr(item, "Native(E):")) { color = ImVec4(0.70f, 0.70f, 0.70f, 1.00f); has_color = true; }
-        if (strstr(item, "Native(F):")) { color = ImVec4(0.32f, 0.64f, 0.72f, 1.00f); has_color = true; }
-        if (strstr(item, "Native(R):")) { color = ImVec4(0.36f, 0.70f, 0.35f, 1.00f); has_color = true; }
-        if (strstr(item, "Native(M):")) { color = ImVec4(0.75f, 0.41f, 0.67f, 1.00f); has_color = true; }
+        if (strstr(pszConLog, "Native(E):")) { imColor = ImVec4(0.70f, 0.70f, 0.70f, 1.00f); true; }
+        if (strstr(pszConLog, "Native(F):")) { imColor = ImVec4(0.32f, 0.64f, 0.72f, 1.00f); true; }
+        if (strstr(pszConLog, "Native(R):")) { imColor = ImVec4(0.36f, 0.70f, 0.35f, 1.00f); true; }
+        if (strstr(pszConLog, "Native(M):")) { imColor = ImVec4(0.75f, 0.41f, 0.67f, 1.00f); true; }
 
         // Callbacks
         //if (strstr(item, "CodeCallback_"))  { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
 
         // Squirrel VM script errors
-        if (strstr(item, ".gnut"))          { color = ImVec4(1.00f, 1.00f, 1.00f, 0.60f); has_color = true; }
-        if (strstr(item, ".nut"))           { color = ImVec4(1.00f, 1.00f, 1.00f, 0.60f); has_color = true; }
-        if (strstr(item, "[CLIENT]"))       { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-        if (strstr(item, "[SERVER]"))       { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-        if (strstr(item, "[UI]"))           { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-        if (strstr(item, "SCRIPT ERROR"))   { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-        if (strstr(item, "SCRIPT COMPILE")) { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-        if (strstr(item, ".gnut #"))        { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-        if (strstr(item, ".nut #"))         { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
-        if (strstr(item, "): -> "))         { color = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); has_color = true; }
+        if (strstr(pszConLog, ".gnut"))          { imColor = ImVec4(1.00f, 1.00f, 1.00f, 0.60f); true; }
+        if (strstr(pszConLog, ".nut"))           { imColor = ImVec4(1.00f, 1.00f, 1.00f, 0.60f); true; }
+        if (strstr(pszConLog, "[CLIENT]"))       { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
+        if (strstr(pszConLog, "[SERVER]"))       { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
+        if (strstr(pszConLog, "[UI]"))           { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
+        if (strstr(pszConLog, "SCRIPT ERROR"))   { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
+        if (strstr(pszConLog, "SCRIPT COMPILE")) { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
+        if (strstr(pszConLog, ".gnut #"))        { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
+        if (strstr(pszConLog, ".nut #"))         { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
+        if (strstr(pszConLog, "): -> "))         { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
 
         // Squirrel VM script debug
-        if (strstr(item, "CALLSTACK"))   { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
-        if (strstr(item, "LOCALS"))      { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
-        if (strstr(item, "*FUNCTION"))   { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
-        if (strstr(item, "DIAGPRINTS"))  { color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); has_color = true; }
-        if (strstr(item, " File : "))    { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
-        if (strstr(item, "<><>GRX<><>")) { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
+        if (strstr(pszConLog, "CALLSTACK"))   { imColor = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); true; }
+        if (strstr(pszConLog, "LOCALS"))      { imColor = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); true; }
+        if (strstr(pszConLog, "*FUNCTION"))   { imColor = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); true; }
+        if (strstr(pszConLog, "DIAGPRINTS"))  { imColor = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); true; }
+        if (strstr(pszConLog, " File : "))    { imColor = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); true; }
+        if (strstr(pszConLog, "<><>GRX<><>")) { imColor = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); true; }
 
         // Filters
         //if (strstr(item, ") -> "))          { color = ImVec4(1.00f, 1.00f, 1.00f, 0.70f); has_color = true; }
 
-        if (has_color) { ImGui::PushStyleColor(ImGuiCol_Text, color); }
-        ImGui::TextWrapped(item);
-        if (has_color) { ImGui::PopStyleColor(); }
+        ImGui::PushStyleColor(ImGuiCol_Text, imColor);
+        ImGui::TextWrapped(pszConLog);
+        ImGui::PopStyleColor();
     }
 }
 
@@ -446,61 +437,61 @@ void CConsole::ColorLog()
 //-----------------------------------------------------------------------------
 void CConsole::SetStyleVar()
 {
-    ImGuiStyle& style = ImGui::GetStyle();
-    ImVec4* colors = style.Colors;
+    ImGuiStyle& imStyle                    = ImGui::GetStyle();
+    ImVec4* imColor                        = imStyle.Colors;
 
-    colors[ImGuiCol_Text]                   = ImVec4(0.81f, 0.81f, 0.81f, 1.00f);
-    colors[ImGuiCol_TextDisabled]           = ImVec4(0.56f, 0.56f, 0.56f, 1.00f);
-    colors[ImGuiCol_WindowBg]               = ImVec4(0.27f, 0.27f, 0.27f, 1.00f);
-    colors[ImGuiCol_ChildBg]                = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-    colors[ImGuiCol_PopupBg]                = ImVec4(0.27f, 0.27f, 0.27f, 1.00f);
-    colors[ImGuiCol_Border]                 = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
-    colors[ImGuiCol_BorderShadow]           = ImVec4(0.04f, 0.04f, 0.04f, 0.64f);
-    colors[ImGuiCol_FrameBg]                = ImVec4(0.13f, 0.13f, 0.13f, 1.00f);
-    colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.19f, 0.19f, 0.19f, 1.00f);
-    colors[ImGuiCol_FrameBgActive]          = ImVec4(0.24f, 0.24f, 0.24f, 1.00f);
-    colors[ImGuiCol_TitleBg]                = ImVec4(0.22f, 0.22f, 0.22f, 1.00f);
-    colors[ImGuiCol_TitleBgActive]          = ImVec4(0.27f, 0.27f, 0.27f, 1.00f);
-    colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-    colors[ImGuiCol_MenuBarBg]              = ImVec4(0.22f, 0.22f, 0.22f, 1.00f);
-    colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
-    colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
-    colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.53f, 0.53f, 0.53f, 1.00f);
-    colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.63f, 0.63f, 0.63f, 1.00f);
-    colors[ImGuiCol_CheckMark]              = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
-    colors[ImGuiCol_SliderGrab]             = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
-    colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.53f, 0.53f, 0.53f, 1.00f);
-    colors[ImGuiCol_Button]                 = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
-    colors[ImGuiCol_ButtonHovered]          = ImVec4(0.45f, 0.45f, 0.45f, 1.00f);
-    colors[ImGuiCol_ButtonActive]           = ImVec4(0.52f, 0.52f, 0.52f, 1.00f);
-    colors[ImGuiCol_Header]                 = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
-    colors[ImGuiCol_HeaderHovered]          = ImVec4(0.45f, 0.45f, 0.45f, 1.00f);
-    colors[ImGuiCol_HeaderActive]           = ImVec4(0.53f, 0.53f, 0.53f, 1.00f);
-    colors[ImGuiCol_Separator]              = ImVec4(0.53f, 0.53f, 0.57f, 1.00f);
-    colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.53f, 0.53f, 0.53f, 1.00f);
-    colors[ImGuiCol_SeparatorActive]        = ImVec4(0.63f, 0.63f, 0.63f, 1.00f);
-    colors[ImGuiCol_ResizeGrip]             = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
-    colors[ImGuiCol_ResizeGripHovered]      = ImVec4(0.52f, 0.52f, 0.52f, 1.00f);
-    colors[ImGuiCol_ResizeGripActive]       = ImVec4(0.63f, 0.63f, 0.63f, 1.00f);
-    colors[ImGuiCol_Tab]                    = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
-    colors[ImGuiCol_TabHovered]             = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
-    colors[ImGuiCol_TabActive]              = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
+    imColor[ImGuiCol_Text]                 = ImVec4(0.81f, 0.81f, 0.81f, 1.00f);
+    imColor[ImGuiCol_TextDisabled]         = ImVec4(0.56f, 0.56f, 0.56f, 1.00f);
+    imColor[ImGuiCol_WindowBg]             = ImVec4(0.27f, 0.27f, 0.27f, 1.00f);
+    imColor[ImGuiCol_ChildBg]              = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+    imColor[ImGuiCol_PopupBg]              = ImVec4(0.27f, 0.27f, 0.27f, 1.00f);
+    imColor[ImGuiCol_Border]               = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
+    imColor[ImGuiCol_BorderShadow]         = ImVec4(0.04f, 0.04f, 0.04f, 0.64f);
+    imColor[ImGuiCol_FrameBg]              = ImVec4(0.13f, 0.13f, 0.13f, 1.00f);
+    imColor[ImGuiCol_FrameBgHovered]       = ImVec4(0.19f, 0.19f, 0.19f, 1.00f);
+    imColor[ImGuiCol_FrameBgActive]        = ImVec4(0.24f, 0.24f, 0.24f, 1.00f);
+    imColor[ImGuiCol_TitleBg]              = ImVec4(0.22f, 0.22f, 0.22f, 1.00f);
+    imColor[ImGuiCol_TitleBgActive]        = ImVec4(0.27f, 0.27f, 0.27f, 1.00f);
+    imColor[ImGuiCol_TitleBgCollapsed]     = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+    imColor[ImGuiCol_MenuBarBg]            = ImVec4(0.22f, 0.22f, 0.22f, 1.00f);
+    imColor[ImGuiCol_ScrollbarBg]          = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+    imColor[ImGuiCol_ScrollbarGrab]        = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
+    imColor[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.53f, 0.53f, 0.53f, 1.00f);
+    imColor[ImGuiCol_ScrollbarGrabActive]  = ImVec4(0.63f, 0.63f, 0.63f, 1.00f);
+    imColor[ImGuiCol_CheckMark]            = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
+    imColor[ImGuiCol_SliderGrab]           = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
+    imColor[ImGuiCol_SliderGrabActive]     = ImVec4(0.53f, 0.53f, 0.53f, 1.00f);
+    imColor[ImGuiCol_Button]               = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
+    imColor[ImGuiCol_ButtonHovered]        = ImVec4(0.45f, 0.45f, 0.45f, 1.00f);
+    imColor[ImGuiCol_ButtonActive]         = ImVec4(0.52f, 0.52f, 0.52f, 1.00f);
+    imColor[ImGuiCol_Header]               = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
+    imColor[ImGuiCol_HeaderHovered]        = ImVec4(0.45f, 0.45f, 0.45f, 1.00f);
+    imColor[ImGuiCol_HeaderActive]         = ImVec4(0.53f, 0.53f, 0.53f, 1.00f);
+    imColor[ImGuiCol_Separator]            = ImVec4(0.53f, 0.53f, 0.57f, 1.00f);
+    imColor[ImGuiCol_SeparatorHovered]     = ImVec4(0.53f, 0.53f, 0.53f, 1.00f);
+    imColor[ImGuiCol_SeparatorActive]      = ImVec4(0.63f, 0.63f, 0.63f, 1.00f);
+    imColor[ImGuiCol_ResizeGrip]           = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
+    imColor[ImGuiCol_ResizeGripHovered]    = ImVec4(0.52f, 0.52f, 0.52f, 1.00f);
+    imColor[ImGuiCol_ResizeGripActive]     = ImVec4(0.63f, 0.63f, 0.63f, 1.00f);
+    imColor[ImGuiCol_Tab]                  = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+    imColor[ImGuiCol_TabHovered]           = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
+    imColor[ImGuiCol_TabActive]            = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
 
-    style.WindowBorderSize  = 0.0f;
-    style.FrameBorderSize   = 1.0f;
-    style.ChildBorderSize   = 1.0f;
-    style.PopupBorderSize   = 1.0f;
-    style.TabBorderSize     = 1.0f;
+    imStyle.WindowBorderSize  = 0.0f;
+    imStyle.FrameBorderSize   = 1.0f;
+    imStyle.ChildBorderSize   = 1.0f;
+    imStyle.PopupBorderSize   = 1.0f;
+    imStyle.TabBorderSize     = 1.0f;
 
-    style.WindowRounding    = 2.5f;
-    style.FrameRounding     = 0.0f;
-    style.ChildRounding     = 0.0f;
-    style.PopupRounding     = 0.0f;
-    style.TabRounding       = 1.0f;
-    style.ScrollbarRounding = 1.0f;
+    imStyle.WindowRounding    = 2.5f;
+    imStyle.FrameRounding     = 0.0f;
+    imStyle.ChildRounding     = 0.0f;
+    imStyle.PopupRounding     = 0.0f;
+    imStyle.TabRounding       = 1.0f;
+    imStyle.ScrollbarRounding = 1.0f;
 
-    style.ItemSpacing       = ImVec2(4, 4);
-    style.WindowPadding     = ImVec2(5, 5);
+    imStyle.ItemSpacing       = ImVec2(4, 4);
+    imStyle.WindowPadding     = ImVec2(5, 5);
 }
 
 CConsole* g_pIConsole = new CConsole();

@@ -148,7 +148,7 @@ void HexDump(const char* szHeader, int nFunc, const void* pData, int nSize)
     szAscii[16] = '\0';
 
     // Add new loggers here to replace the placeholder.
-    if (nFunc == 0) { logger = g_spd_netchan_logger; }
+    if (nFunc == 0) { logger = spdlog::get("netchan_pack_logger"); }
 
     // Add timestamp.
     logger->set_level(spdlog::level::trace);

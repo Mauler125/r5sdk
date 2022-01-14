@@ -27,6 +27,22 @@ struct SQFuncRegistration
 	}
 };
 
+const static std::string SQVM_LOG_T[4] =
+{
+	"Script(S):",
+	"Script(C):",
+	"Script(U):",
+	"Script(X):"
+};
+
+const static std::string SQVM_ANSI_LOG_T[4] =
+{
+	"\u001b[94mScript(S):",
+	"\u001b[90mScript(C):",
+	"\u001b[33mScript(U):",
+	"\u001b[90mScript(X):"
+};
+
 namespace
 {
 	/* ==== SQUIRREL ======================================================================================================================================================== */
@@ -62,9 +78,6 @@ int HSQVM_NativeTest(void* sqvm);
 
 void SQVM_Attach();
 void SQVM_Detach();
-
-///////////////////////////////////////////////////////////////////////////////
-extern bool g_bSQVM_WarnFuncCalled;
 
 ///////////////////////////////////////////////////////////////////////////////
 class HSQVM : public IDetour

@@ -34,6 +34,7 @@ ConVar* cl_gpustats_offset_y               = new ConVar();
 //-----------------------------------------------------------------------------
 // FILESYSTEM                                                                 |
 ConVar* fs_warning_level_native            = new ConVar();
+ConVar* fs_show_warning_output             = new ConVar();
 ConVar* fs_packedstore_entryblock_stats    = new ConVar();
 //-----------------------------------------------------------------------------
 // MATERIALSYSTEM                                                             |

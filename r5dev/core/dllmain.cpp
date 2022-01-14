@@ -1,6 +1,7 @@
 #include "core/stdafx.h"
 #include "core/r5dev.h"
 #include "core/init.h"
+#include "core/logdef.h"
 /*****************************************************************************/
 #ifndef DEDICATED
 #include "windows/id3dx.h"
@@ -15,7 +16,13 @@
 
 void R5Dev_Init()
 {
+#ifndef DEDICATED
+    if (strstr(GetCommandLineA(), "-wconsole")) { Console_Init(); }
+#else
     Console_Init();
+#endif // !DEDICATED
+
+    SpdLog_Init();
     Systems_Init();
     WinSys_Attach();
 
@@ -24,12 +31,16 @@ void R5Dev_Init()
     DirectX_Init();
 #endif // !DEDICATED
 
-    spdlog::get("console")->set_pattern("%v");
+    spdlog::info("\n");
     spdlog::info("+-----------------------------------------------------------------------------+\n");
     spdlog::info("|   R5 DEVELOPER CONSOLE -- INITIALIZED -----------------------------------   |\n");
     spdlog::info("+-----------------------------------------------------------------------------+\n");
-    spdlog::get("console")->set_pattern("[%S.%e] %v");
+    spdlog::info("\n");
 }
+
+//#############################################################################
+// SHUTDOWN
+//#############################################################################
 
 void R5Dev_Shutdown()
 {

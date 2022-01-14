@@ -47,6 +47,7 @@ extern ConVar* cl_gpustats_offset_y;
 //-------------------------------------------------------------------------
 // FILESYSTEM                                                             |
 extern ConVar* fs_warning_level_native;
+extern ConVar* fs_show_warning_output;
 extern ConVar* fs_packedstore_entryblock_stats;
 //-------------------------------------------------------------------------
 // MATERIALSYSTEM                                                         |
