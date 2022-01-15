@@ -1,5 +1,11 @@
 #pragma once
 
+typedef int SQRESULT;
+#define SQ_OK (1)
+#define SQ_ERROR (-1)
+#define SQ_FAILED(res) (res<0)
+#define SQ_SUCCEEDED(res) (res>=0)
+
 struct SQFuncRegistration
 {
 	const char* m_szScriptName; // 00
@@ -43,12 +49,6 @@ const static std::string SQVM_ANSI_LOG_T[4] =
 	"\u001b[90mScript(X):"
 };
 
-typedef int SQRESULT;
-#define SQ_OK (1)
-#define SQ_ERROR (-1)
-#define SQ_FAILED(res) (res<0)
-#define SQ_SUCCEEDED(res) (res>=0)
-
 namespace
 {
 	/* ==== SQUIRREL ======================================================================================================================================================== */
@@ -86,7 +86,6 @@ void* HSQVM_LoadRson(const char* szRsonName);
 bool HSQVM_LoadScript(void* sqvm, const char* szScriptPath, const char* szScriptName, int nFlags);
 
 void HSQVM_RegisterFunction(void* sqvm, const char* szName, const char* szHelpString, const char* szRetValType, const char* szArgTypes, void* pFunction);
-int HSQVM_NativeTest(void* sqvm);
 void HSQVM_RegisterOriginFuncs(void* sqvm);
 
 void SQVM_Attach();
@@ -97,12 +96,14 @@ class HSQVM : public IDetour
 {
 	virtual void debugp()
 	{
-		std::cout << "| FUN: SQVM_PrintFunc                       : 0x" << std::hex << std::uppercase << p_SQVM_PrintFunc.GetPtr()    << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: SQVM_WarningFunc                     : 0x" << std::hex << std::uppercase << p_SQVM_WarningFunc.GetPtr()  << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: SQVM_WarningCmd                      : 0x" << std::hex << std::uppercase << p_SQVM_WarningCmd.GetPtr()   << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: SQVM_LoadScript                      : 0x" << std::hex << std::uppercase << p_SQVM_LoadScript.GetPtr()   << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: SQVM_LoadRson                        : 0x" << std::hex << std::uppercase << p_SQVM_LoadRson.GetPtr()     << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: SQVM_RegisterFunc                    : 0x" << std::hex << std::uppercase << p_SQVM_RegisterFunc.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: SQVM_PrintFunc                       : 0x" << std::hex << std::uppercase << p_SQVM_PrintFunc.GetPtr()           << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: SQVM_WarningFunc                     : 0x" << std::hex << std::uppercase << p_SQVM_WarningFunc.GetPtr()         << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: SQVM_WarningCmd                      : 0x" << std::hex << std::uppercase << p_SQVM_WarningCmd.GetPtr()          << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: SQVM_LoadScript                      : 0x" << std::hex << std::uppercase << p_SQVM_LoadScript.GetPtr()          << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: SQVM_LoadRson                        : 0x" << std::hex << std::uppercase << p_SQVM_LoadRson.GetPtr()            << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: SQVM_RegisterFunc                    : 0x" << std::hex << std::uppercase << p_SQVM_RegisterFunc.GetPtr()        << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: SQVM_CreateUIVM                      : 0x" << std::hex << std::uppercase << p_SQVM_CreateUIVM.GetPtr()          << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: SQVM_RegisterOriginFuncs             : 0x" << std::hex << std::uppercase << p_SQVM_RegisterOriginFuncs.GetPtr() << std::setw(npad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 };

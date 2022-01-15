@@ -59,7 +59,6 @@
     <ClCompile Include="server\server.cpp" />
     <ClCompile Include="squirrel\sqapi.cpp" />
     <ClCompile Include="squirrel\sqinit.cpp" />
-    <ClCompile Include="squirrel\sqnativefunctions.cpp" />
     <ClCompile Include="squirrel\sqvm.cpp" />
     <ClCompile Include="thirdparty\detours\src\creatwth.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -266,7 +265,6 @@
     <ClInclude Include="server\server.h" />
     <ClInclude Include="squirrel\sqapi.h" />
     <ClInclude Include="squirrel\sqinit.h" />
-    <ClInclude Include="squirrel\sqnativefunctions.h" />
     <ClInclude Include="squirrel\sqvm.h" />
     <ClInclude Include="thirdparty\detours\include\detours.h" />
     <ClInclude Include="thirdparty\detours\include\detver.h" />

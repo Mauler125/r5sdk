@@ -14,7 +14,7 @@
 #include "vgui/CEngineVGui.h"
 #include "gameui/IConsole.h"
 #include "squirrel/sqvm.h"
-#include "squirrel/sqnativefunctions.h"
+#include "squirrel/sqinit.h"
 
 //---------------------------------------------------------------------------------
 // Purpose: prints the output of each VM to the console
@@ -226,6 +226,9 @@ bool HSQVM_LoadScript(void* sqvm, const char* szScriptPath, const char* szScript
 	return SQVM_LoadScript(sqvm, szScriptPath, szScriptName, nFlag);
 }
 
+//---------------------------------------------------------------------------------
+// Purpose: registers and exposes code functions to target VM's
+//---------------------------------------------------------------------------------
 void HSQVM_RegisterFunction(void* sqvm, const char* szName, const char* szHelpString, const char* szRetValType, const char* szArgTypes, void* pFunction)
 {
 	SQFuncRegistration* sqFunc = new SQFuncRegistration();
@@ -240,48 +243,53 @@ void HSQVM_RegisterFunction(void* sqvm, const char* szName, const char* szHelpSt
 	SQVM_RegisterFunc(sqvm, sqFunc, 1);
 }
 
-int HSQVM_NativeTest(void* sqvm)
-{
-	// Function code goes here.
-	return 1;
-}
-
-void RegisterUIScriptFunctions(void* sqvm)
-{
-#ifndef DEDICATED
-	HSQVM_RegisterFunction(sqvm, "UINativeTest", "native ui test function", "void", "", &HSQVM_NativeTest);
-
-	// functions for retrieving server browser data
-	HSQVM_RegisterFunction(sqvm, "GetServerName", "get name of the server at the specified index of the server list", "string", "int", &SQNativeFunctions::IBrowser::GetServerName);
-	HSQVM_RegisterFunction(sqvm, "GetServerPlaylist", "get playlist of the server at the specified index of the server list", "string", "int", &SQNativeFunctions::IBrowser::GetServerPlaylist);
-	HSQVM_RegisterFunction(sqvm, "GetServerMap", "get map of the server at the specified index of the server list", "string", "int", &SQNativeFunctions::IBrowser::GetServerMap);
-	HSQVM_RegisterFunction(sqvm, "GetServerCount", "get number of public servers", "int", "", &SQNativeFunctions::IBrowser::GetServerCount);
-
-	// misc main menu functions
-	HSQVM_RegisterFunction(sqvm, "GetSDKVersion", "get sdk version as a string", "string", "", &SQNativeFunctions::IBrowser::GetSDKVersion);
-	HSQVM_RegisterFunction(sqvm, "GetPromoData", "get promo data for specified slot type", "string", "int", &SQNativeFunctions::IBrowser::GetPromoData);
-
-	// functions for connecting to servers
-	HSQVM_RegisterFunction(sqvm, "CreateServer", "start server with the specified settings", "void", "string,string,string,int", &SQNativeFunctions::IBrowser::CreateServerFromMenu);
-	HSQVM_RegisterFunction(sqvm, "SetEncKeyAndConnect", "set the encryption key to that of the specified server and connects to it", "void", "int", &SQNativeFunctions::IBrowser::SetEncKeyAndConnect);
-	HSQVM_RegisterFunction(sqvm, "JoinPrivateServerFromMenu", "join private server by token", "void", "string", &SQNativeFunctions::IBrowser::JoinPrivateServerFromMenu);
-	HSQVM_RegisterFunction(sqvm, "GetPrivateServerMessage", "get private server join status message", "string", "string", &SQNativeFunctions::IBrowser::GetPrivateServerMessage);
-	HSQVM_RegisterFunction(sqvm, "ConnectToIPFromMenu", "join server by ip and encryption key", "void", "string,string", &SQNativeFunctions::IBrowser::ConnectToIPFromMenu);
-
-	HSQVM_RegisterFunction(sqvm, "GetAvailableMaps", "gets an array of all the available maps that can be used to host a server", "array<string>", "", &SQNativeFunctions::IBrowser::GetAvailableMaps);
-#endif
-}
-
-void RegisterClientScriptFunctions(void* sqvm)
-{
-	HSQVM_RegisterFunction(sqvm, "ClientNativeTest", "native client function", "void", "", &HSQVM_NativeTest);
-}
-
+//---------------------------------------------------------------------------------
+// Purpose: registers SERVER script functions
+//---------------------------------------------------------------------------------
 void RegisterServerScriptFunctions(void* sqvm)
 {
-	HSQVM_RegisterFunction(sqvm, "ServerNativeTest", "native server function", "void", "", &HSQVM_NativeTest);
+	HSQVM_RegisterFunction(sqvm, "ServerNativeTest", "Native SERVER test function", "void", "", &VSquirrel::SHARED::Script_NativeTest);
 }
 
+#ifndef DEDICATED
+//---------------------------------------------------------------------------------
+// Purpose: registers CLIENT script functions
+//---------------------------------------------------------------------------------
+void RegisterClientScriptFunctions(void* sqvm)
+{
+	HSQVM_RegisterFunction(sqvm, "ClientNativeTest", "Native CLIENT test function", "void", "", &VSquirrel::SHARED::Script_NativeTest);
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: registers UI script functions
+//---------------------------------------------------------------------------------
+void RegisterUIScriptFunctions(void* sqvm)
+{
+	HSQVM_RegisterFunction(sqvm, "UINativeTest", "Native UI test function", "void", "", &VSquirrel::SHARED::Script_NativeTest);
+
+	// functions for retrieving server browser data
+	HSQVM_RegisterFunction(sqvm, "GetServerName", "Gets the name of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerName);
+	HSQVM_RegisterFunction(sqvm, "GetServerPlaylist", "Gets the playlist of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerPlaylist);
+	HSQVM_RegisterFunction(sqvm, "GetServerMap", "Gets the map of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerMap);
+	HSQVM_RegisterFunction(sqvm, "GetServerCount", "Gets the number of public servers", "int", "", &VSquirrel::UI::GetServerCount);
+
+	// misc main menu functions
+	HSQVM_RegisterFunction(sqvm, "GetSDKVersion", "Gets the SDK version as a string", "string", "", &VSquirrel::UI::GetSDKVersion);
+	HSQVM_RegisterFunction(sqvm, "GetPromoData", "Gets promo data for specified slot type", "string", "int", &VSquirrel::UI::GetPromoData);
+
+	// functions for connecting to servers
+	HSQVM_RegisterFunction(sqvm, "CreateServer", "Start server with the specified settings", "void", "string,string,string,int", &VSquirrel::UI::CreateServerFromMenu);
+	HSQVM_RegisterFunction(sqvm, "SetEncKeyAndConnect", "Set the encryption key to that of the specified server and connects to it", "void", "int", &VSquirrel::UI::SetEncKeyAndConnect);
+	HSQVM_RegisterFunction(sqvm, "JoinPrivateServerFromMenu", "Joins private server by token", "void", "string", &VSquirrel::UI::JoinPrivateServerFromMenu);
+	HSQVM_RegisterFunction(sqvm, "GetPrivateServerMessage", "Gets private server join status message", "string", "string", &VSquirrel::UI::GetPrivateServerMessage);
+	HSQVM_RegisterFunction(sqvm, "ConnectToIPFromMenu", "Joins server by ip and encryption key", "void", "string,string", &VSquirrel::UI::ConnectToIPFromMenu);
+
+	HSQVM_RegisterFunction(sqvm, "GetAvailableMaps", "Gets an array of all the available maps that can be used to host a server", "array<string>", "", &VSquirrel::UI::GetAvailableMaps);
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: Origin functions are the last to be registered in the UI VM, we register anything ours below
+//---------------------------------------------------------------------------------
 void HSQVM_RegisterOriginFuncs(void* sqvm)
 {
 	if (sqvm == *p_SQVM_UIVM.RCast<void**>())
@@ -291,6 +299,7 @@ void HSQVM_RegisterOriginFuncs(void* sqvm)
 
 	return SQVM_RegisterOriginFuncs(sqvm);
 }
+#endif // !DEDICATED
 
 void SQVM_Attach()
 {
@@ -298,7 +307,9 @@ void SQVM_Attach()
 	DetourAttach((LPVOID*)&SQVM_WarningFunc, &HSQVM_WarningFunc);
 	DetourAttach((LPVOID*)&SQVM_LoadRson, &HSQVM_LoadRson);
 	DetourAttach((LPVOID*)&SQVM_LoadScript, &HSQVM_LoadScript);
+#ifndef DEDICATED
 	DetourAttach((LPVOID*)&SQVM_RegisterOriginFuncs, &HSQVM_RegisterOriginFuncs);
+#endif // !DEDICATED
 }
 
 void SQVM_Detach()
@@ -307,7 +318,9 @@ void SQVM_Detach()
 	DetourDetach((LPVOID*)&SQVM_WarningFunc, &HSQVM_WarningFunc);
 	DetourDetach((LPVOID*)&SQVM_LoadRson, &HSQVM_LoadRson);
 	DetourDetach((LPVOID*)&SQVM_LoadScript, &HSQVM_LoadScript);
+#ifndef DEDICATED
 	DetourDetach((LPVOID*)&SQVM_RegisterOriginFuncs, &HSQVM_RegisterOriginFuncs);
+#endif // !DEDICATED
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -1,4 +1,5 @@
 #pragma once
+#include "squirrel/sqapi.h"
 
 namespace
 {
@@ -6,6 +7,37 @@ namespace
 	void* Script_Remote_BeginRegisteringFunctions = (void*)p_Script_Remote_BeginRegisteringFunctions.GetPtr(); /*48 83 EC 28 83 3D ?? ?? ?? ?? ?? 74 10*/
 
 	std::uint32_t* g_nRemoteFunctionCallsChecksum = reinterpret_cast<std::uint32_t*>(p_Script_Remote_BeginRegisteringFunctions.FindPatternSelf("89 05", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).GetPtr());
+}
+
+namespace VSquirrel
+{
+	namespace SHARED
+	{
+		SQRESULT Script_NativeTest(void* sqvm);
+	}
+	namespace SERVER
+	{
+	}
+#ifndef DEDICATED
+	namespace CLIENT
+	{
+	}
+	namespace UI
+	{
+		SQRESULT GetServerName(void* sqvm);
+		SQRESULT GetServerPlaylist(void* sqvm);
+		SQRESULT GetServerMap(void* sqvm);
+		SQRESULT GetServerCount(void* sqvm);
+		SQRESULT GetSDKVersion(void* sqvm);
+		SQRESULT GetPromoData(void* sqvm);
+		SQRESULT SetEncKeyAndConnect(void* sqvm);
+		SQRESULT CreateServerFromMenu(void* sqvm);
+		SQRESULT JoinPrivateServerFromMenu(void* sqvm);
+		SQRESULT GetPrivateServerMessage(void* sqvm);
+		SQRESULT ConnectToIPFromMenu(void* sqvm);
+		SQRESULT GetAvailableMaps(void* sqvm);
+	}
+#endif // !DEDICATED
 }
 
 ///////////////////////////////////////////////////////////////////////////////
