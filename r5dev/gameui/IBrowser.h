@@ -3,11 +3,42 @@
 #include "networksystem/serverlisting.h"
 #include "networksystem/r5net.h"
 
+enum class ESection
+{
+    SERVER_BROWSER,
+    HOST_SERVER,
+    SETTINGS
+};
+
+enum class EHostStatus
+{
+    NOT_HOSTING,
+    HOSTING
+};
+
+enum class EServerVisibility
+{
+    OFFLINE,
+    HIDDEN,
+    PUBLIC
+};
+
 class IBrowser
 {
 private:
     bool m_bInitialized = false;
 public:
+    ////////////////////
+    //   Enum Vars    //
+    ////////////////////
+
+    ESection eCurrentSection = ESection::SERVER_BROWSER;
+    EHostStatus eHostingStatus = EHostStatus::NOT_HOSTING;
+    EServerVisibility eServerVisibility = EServerVisibility::OFFLINE;
+public:
+    ////////////////////
+    //     Funcs      //
+    ////////////////////
     IBrowser();
     ~IBrowser();
 
@@ -20,7 +51,7 @@ public:
 
     void ConnectToServer(const std::string ip, const std::string port, const std::string encKey);
     void ConnectToServer(const std::string connString, const std::string encKey);
-    void SetMenuVars(std::string name, std::string vis);
+    void SetMenuVars(std::string name, EServerVisibility vis);
 
     void HiddenServersModal();
     void HostServerSection();
@@ -36,29 +67,6 @@ public:
     void ChangeEncryptionKeyTo(const std::string str);
 
     void SetStyleVar();
-
-    ////////////////////
-    //     Enums      //
-    ////////////////////
-    enum class ESection
-    {
-        SERVER_BROWSER,
-        HOST_SERVER,
-        SETTINGS
-    } eCurrentSection = ESection::SERVER_BROWSER;
-
-    enum class EHostStatus
-    {
-        NOT_HOSTING,
-        HOSTING
-    } eHostingStatus = EHostStatus::NOT_HOSTING;
-
-    enum class EServerVisibility
-    {
-        OFFLINE,
-        HIDDEN,
-        PUBLIC
-    } eServerVisibility = EServerVisibility::OFFLINE;
 
     ////////////////////
     // Server Browser //
@@ -93,6 +101,7 @@ public:
     ////////////////////
     ServerListing m_Server;
     std::vector<std::string> m_vszMapsList;
+    std::vector<std::string> m_vszMapFileNameList;
     std::string m_szHostRequestMessage  = "";
     std::string m_szHostToken           = "";
     ImVec4 m_iv4HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);

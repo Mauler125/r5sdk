@@ -38,11 +38,11 @@ namespace SQNativeFunctions
             return SQ_OK;
         }
 
-        SQRESULT GetServerAmount(void* sqvm)
+        SQRESULT GetServerCount(void* sqvm)
         {
             g_pIBrowser->GetServerList(); // Refresh server list.
 
-            hsq_pushinteger(sqvm, g_pIBrowser->m_vServerList.size() - 1); // please fix the -1 rexx okay thank you.
+            hsq_pushinteger(sqvm, g_pIBrowser->m_vServerList.size());
 
             return SQ_OK;
         }
@@ -128,13 +128,12 @@ namespace SQNativeFunctions
             std::string svName = hsq_getstring(sqvm, 1);
             std::string svMapName = hsq_getstring(sqvm, 2);
             std::string svPlaylist = hsq_getstring(sqvm, 3);
-            std::string svVisibility = hsq_getstring(sqvm, 4); // Rexx please change this to an integer, so we don't have that ghetto switch case in SetMenuVars.
+            EServerVisibility svVisibility = (EServerVisibility)hsq_getinteger(sqvm, 4);
 
-            if (svMapName.empty() || svPlaylist.empty() || svVisibility.empty())
+            if (svMapName.empty() || svPlaylist.empty())
                 return SQ_OK;
 
             g_pIBrowser->SetMenuVars(svName, svVisibility); // Pass integer instead
-
 
             /* Changing this up to call a IBrowser method eventually. */
             DevMsg(eDLL_T::ENGINE, "Starting Server with map '%s' and playlist '%s'\n", svMapName.c_str(), svPlaylist.c_str());
@@ -200,6 +199,23 @@ namespace SQNativeFunctions
             std::string key = hsq_getstring(sqvm, 2);
 
             g_pIBrowser->ConnectToServer(ip, key);
+
+            return SQ_OK;
+        }
+
+        SQRESULT GetAvailableMaps(void* sqvm)
+        {
+            std::vector<std::string> mapList = g_pIBrowser->m_vszMapFileNameList;
+
+            DevMsg(eDLL_T::UI, "Requesting an array of %i available maps from script\n", mapList.size());
+
+            hsq_newarray(sqvm, 0);
+
+            for (auto& it : mapList)
+            {
+                hsq_pushstring(sqvm, it.c_str(), -1);
+                hsq_arrayappend(sqvm, -2);
+            }
 
             return SQ_OK;
         }

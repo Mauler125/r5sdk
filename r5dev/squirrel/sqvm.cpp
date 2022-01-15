@@ -248,23 +248,28 @@ int HSQVM_NativeTest(void* sqvm)
 
 void RegisterUIScriptFunctions(void* sqvm)
 {
-	HSQVM_RegisterFunction(sqvm, "UINativeTest", "native ui function", "void", "", &HSQVM_NativeTest);
-	//Server Browser Data
-	HSQVM_RegisterFunction(sqvm, "GetServerName", "native ui function", "string", "int", &SQNativeFunctions::IBrowser::GetServerName);
-	HSQVM_RegisterFunction(sqvm, "GetServerPlaylist", "native ui function", "string", "int", &SQNativeFunctions::IBrowser::GetServerPlaylist);
-	HSQVM_RegisterFunction(sqvm, "GetServerMap", "native ui function", "string", "int", &SQNativeFunctions::IBrowser::GetServerMap);
-	HSQVM_RegisterFunction(sqvm, "GetServerAmmount", "native ui function", "int", "", &SQNativeFunctions::IBrowser::GetServerAmount);
+#ifndef DEDICATED
+	HSQVM_RegisterFunction(sqvm, "UINativeTest", "native ui test function", "void", "", &HSQVM_NativeTest);
 
-	//Main Menu Data
-	HSQVM_RegisterFunction(sqvm, "GetSDKVersion", "native ui function", "string", "", &SQNativeFunctions::IBrowser::GetSDKVersion);
-	HSQVM_RegisterFunction(sqvm, "GetPromoData", "native ui function", "string", "int", &SQNativeFunctions::IBrowser::GetPromoData);
+	// functions for retrieving server browser data
+	HSQVM_RegisterFunction(sqvm, "GetServerName", "get name of the server at the specified index of the server list", "string", "int", &SQNativeFunctions::IBrowser::GetServerName);
+	HSQVM_RegisterFunction(sqvm, "GetServerPlaylist", "get playlist of the server at the specified index of the server list", "string", "int", &SQNativeFunctions::IBrowser::GetServerPlaylist);
+	HSQVM_RegisterFunction(sqvm, "GetServerMap", "get map of the server at the specified index of the server list", "string", "int", &SQNativeFunctions::IBrowser::GetServerMap);
+	HSQVM_RegisterFunction(sqvm, "GetServerCount", "get number of public servers", "int", "", &SQNativeFunctions::IBrowser::GetServerCount);
 
-	//Connecting To Servers
-	HSQVM_RegisterFunction(sqvm, "CreateServer", "native ui function", "void", "string,string,string,string", &SQNativeFunctions::IBrowser::CreateServerFromMenu);
-	HSQVM_RegisterFunction(sqvm, "SetEncKeyAndConnect", "native ui function", "void", "int", &SQNativeFunctions::IBrowser::SetEncKeyAndConnect);
-	HSQVM_RegisterFunction(sqvm, "JoinPrivateServerFromMenu", "native ui function", "void", "string", &SQNativeFunctions::IBrowser::JoinPrivateServerFromMenu);
-	HSQVM_RegisterFunction(sqvm, "GetPrivateServerMessage", "native ui function", "string", "string", &SQNativeFunctions::IBrowser::GetPrivateServerMessage);
-	HSQVM_RegisterFunction(sqvm, "ConnectToIPFromMenu", "native ui function", "void", "string,string", &SQNativeFunctions::IBrowser::ConnectToIPFromMenu);
+	// misc main menu functions
+	HSQVM_RegisterFunction(sqvm, "GetSDKVersion", "get sdk version as a string", "string", "", &SQNativeFunctions::IBrowser::GetSDKVersion);
+	HSQVM_RegisterFunction(sqvm, "GetPromoData", "get promo data for specified slot type", "string", "int", &SQNativeFunctions::IBrowser::GetPromoData);
+
+	// functions for connecting to servers
+	HSQVM_RegisterFunction(sqvm, "CreateServer", "start server with the specified settings", "void", "string,string,string,int", &SQNativeFunctions::IBrowser::CreateServerFromMenu);
+	HSQVM_RegisterFunction(sqvm, "SetEncKeyAndConnect", "set the encryption key to that of the specified server and connects to it", "void", "int", &SQNativeFunctions::IBrowser::SetEncKeyAndConnect);
+	HSQVM_RegisterFunction(sqvm, "JoinPrivateServerFromMenu", "join private server by token", "void", "string", &SQNativeFunctions::IBrowser::JoinPrivateServerFromMenu);
+	HSQVM_RegisterFunction(sqvm, "GetPrivateServerMessage", "get private server join status message", "string", "string", &SQNativeFunctions::IBrowser::GetPrivateServerMessage);
+	HSQVM_RegisterFunction(sqvm, "ConnectToIPFromMenu", "join server by ip and encryption key", "void", "string,string", &SQNativeFunctions::IBrowser::ConnectToIPFromMenu);
+
+	HSQVM_RegisterFunction(sqvm, "GetAvailableMaps", "gets an array of all the available maps that can be used to host a server", "array<string>", "", &SQNativeFunctions::IBrowser::GetAvailableMaps);
+#endif
 }
 
 void RegisterClientScriptFunctions(void* sqvm)
