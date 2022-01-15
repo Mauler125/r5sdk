@@ -14,6 +14,7 @@
 #include "vgui/CEngineVGui.h"
 #include "gameui/IConsole.h"
 #include "squirrel/sqvm.h"
+#include "squirrel/sqnativefunctions.h"
 
 //---------------------------------------------------------------------------------
 // Purpose: prints the output of each VM to the console
@@ -248,6 +249,22 @@ int HSQVM_NativeTest(void* sqvm)
 void RegisterUIScriptFunctions(void* sqvm)
 {
 	HSQVM_RegisterFunction(sqvm, "UINativeTest", "native ui function", "void", "", &HSQVM_NativeTest);
+	//Server Browser Data
+	HSQVM_RegisterFunction(sqvm, "GetServerName", "native ui function", "string", "int", &SQNativeFunctions::IBrowser::GetServerName);
+	HSQVM_RegisterFunction(sqvm, "GetServerPlaylist", "native ui function", "string", "int", &SQNativeFunctions::IBrowser::GetServerPlaylist);
+	HSQVM_RegisterFunction(sqvm, "GetServerMap", "native ui function", "string", "int", &SQNativeFunctions::IBrowser::GetServerMap);
+	HSQVM_RegisterFunction(sqvm, "GetServerAmmount", "native ui function", "int", "", &SQNativeFunctions::IBrowser::GetServerAmount);
+
+	//Main Menu Data
+	HSQVM_RegisterFunction(sqvm, "GetSDKVersion", "native ui function", "string", "", &SQNativeFunctions::IBrowser::GetSDKVersion);
+	HSQVM_RegisterFunction(sqvm, "GetPromoData", "native ui function", "string", "int", &SQNativeFunctions::IBrowser::GetPromoData);
+
+	//Connecting To Servers
+	HSQVM_RegisterFunction(sqvm, "CreateServer", "native ui function", "void", "string,string,string,string", &SQNativeFunctions::IBrowser::CreateServerFromMenu);
+	HSQVM_RegisterFunction(sqvm, "SetEncKeyAndConnect", "native ui function", "void", "int", &SQNativeFunctions::IBrowser::SetEncKeyAndConnect);
+	HSQVM_RegisterFunction(sqvm, "JoinPrivateServerFromMenu", "native ui function", "void", "string", &SQNativeFunctions::IBrowser::JoinPrivateServerFromMenu);
+	HSQVM_RegisterFunction(sqvm, "GetPrivateServerMessage", "native ui function", "string", "string", &SQNativeFunctions::IBrowser::GetPrivateServerMessage);
+	HSQVM_RegisterFunction(sqvm, "ConnectToIPFromMenu", "native ui function", "void", "string,string", &SQNativeFunctions::IBrowser::ConnectToIPFromMenu);
 }
 
 void RegisterClientScriptFunctions(void* sqvm)
@@ -260,12 +277,23 @@ void RegisterServerScriptFunctions(void* sqvm)
 	HSQVM_RegisterFunction(sqvm, "ServerNativeTest", "native server function", "void", "", &HSQVM_NativeTest);
 }
 
+void HSQVM_RegisterOriginFuncs(void* sqvm)
+{
+	if (sqvm == *p_SQVM_UIVM.RCast<void**>())
+		RegisterUIScriptFunctions(sqvm);
+	else
+		RegisterClientScriptFunctions(sqvm);
+
+	return SQVM_RegisterOriginFuncs(sqvm);
+}
+
 void SQVM_Attach()
 {
 	DetourAttach((LPVOID*)&SQVM_PrintFunc, &HSQVM_PrintFunc);
 	DetourAttach((LPVOID*)&SQVM_WarningFunc, &HSQVM_WarningFunc);
 	DetourAttach((LPVOID*)&SQVM_LoadRson, &HSQVM_LoadRson);
 	DetourAttach((LPVOID*)&SQVM_LoadScript, &HSQVM_LoadScript);
+	DetourAttach((LPVOID*)&SQVM_RegisterOriginFuncs, &HSQVM_RegisterOriginFuncs);
 }
 
 void SQVM_Detach()
@@ -274,6 +302,7 @@ void SQVM_Detach()
 	DetourDetach((LPVOID*)&SQVM_WarningFunc, &HSQVM_WarningFunc);
 	DetourDetach((LPVOID*)&SQVM_LoadRson, &HSQVM_LoadRson);
 	DetourDetach((LPVOID*)&SQVM_LoadScript, &HSQVM_LoadScript);
+	DetourDetach((LPVOID*)&SQVM_RegisterOriginFuncs, &HSQVM_RegisterOriginFuncs);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

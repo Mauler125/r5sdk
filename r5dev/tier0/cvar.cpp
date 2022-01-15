@@ -96,7 +96,7 @@ CCVarIteratorInternal* CCVar::FactoryInternalIterator()
 std::unordered_map<std::string, ConCommandBase*> CCVar::DumpToMap()
 {
 	std::stringstream ss;
-	CCVarIteratorInternal* itint = FactoryInternalIterator(); // Allocatd new InternalIterator.
+	CCVarIteratorInternal* itint = FactoryInternalIterator(); // Allocate new InternalIterator.
 
 	std::unordered_map<std::string, ConCommandBase*> allConVars;
 

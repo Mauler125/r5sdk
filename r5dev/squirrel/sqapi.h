@@ -48,6 +48,12 @@ void hsq_newslot(void* sqvm, int idx);
 void SQAPI_Attach();
 void SQAPI_Detach();
 
+typedef int SQRESULT;
+#define SQ_OK (1)
+#define SQ_ERROR (-1)
+#define SQ_FAILED(res) (res<0)
+#define SQ_SUCCEEDED(res) (res>=0)
+
 ///////////////////////////////////////////////////////////////////////////////
 class HSqapi : public IDetour
 {

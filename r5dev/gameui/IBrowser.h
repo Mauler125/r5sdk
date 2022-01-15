@@ -16,8 +16,11 @@ public:
 
     void ServerBrowserSection();
     void RefreshServerList();
+    void GetServerList();
+
     void ConnectToServer(const std::string ip, const std::string port, const std::string encKey);
     void ConnectToServer(const std::string connString, const std::string encKey);
+    void SetMenuVars(std::string name, std::string vis);
 
     void HiddenServersModal();
     void HostServerSection();
@@ -26,6 +29,7 @@ public:
     void SendHostingPostRequest();
 
     void ProcessCommand(const char* command_line);
+    void LoadPlaylist(const char* playlistName);
 
     void SettingsSection();
     void RegenerateEncryptionKey();

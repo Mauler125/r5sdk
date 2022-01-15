@@ -29,6 +29,7 @@ History:
 #include "vpc/keyvalues.h"
 #include "squirrel/sqinit.h"
 #include "gameui/IBrowser.h"
+#include "squirrel/sqapi.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -86,6 +87,32 @@ IBrowser::IBrowser()
 IBrowser::~IBrowser()
 {
     //delete r5net;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Sets needed create game vars
+//-----------------------------------------------------------------------------
+void IBrowser::SetMenuVars(std::string name, std::string vis)
+{
+    if (vis == "Public")
+    {
+        m_Server.bHidden = false;
+        eServerVisibility = EServerVisibility::PUBLIC;
+    }
+    else if (vis == "Private")
+    {
+        eServerVisibility = EServerVisibility::HIDDEN;
+        m_Server.bHidden = true;
+    }
+    else
+    {
+        m_Server.bHidden = true;
+        eServerVisibility = EServerVisibility::OFFLINE;
+    }
+
+    m_Server.svServerName = name;
+
+    UpdateHostingStatus();
 }
 
 //-----------------------------------------------------------------------------
@@ -273,6 +300,16 @@ void IBrowser::RefreshServerList()
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: get server list from pylon.
+//-----------------------------------------------------------------------------
+void IBrowser::GetServerList()
+{
+    m_vServerList.clear();
+    m_szServerListMessage.clear();
+    m_vServerList = g_pR5net->GetServersList(m_szServerListMessage);
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: connects to specified server
 //-----------------------------------------------------------------------------
 void IBrowser::ConnectToServer(const std::string ip, const std::string port, const std::string encKey)
@@ -300,6 +337,14 @@ void IBrowser::ConnectToServer(const std::string connString, const std::string e
     std::stringstream cmd;
     cmd << "connect " << connString;
     ProcessCommand(cmd.str().c_str());
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Load playlist into KeyValues.
+//-----------------------------------------------------------------------------
+void IBrowser::LoadPlaylist(const char* playlistName)
+{
+    KeyValues_LoadPlaylist(playlistName);
 }
 
 //-----------------------------------------------------------------------------
@@ -445,7 +490,7 @@ void IBrowser::HostServerSection()
                 * Playlist gets parsed in two instances, first in LoadPlaylist all the neccessary values.
                 * Then when you would normally call launchplaylist which calls StartPlaylist it would cmd call mp_gamemode which parses the gamemode specific part of the playlist..
                 */
-                KeyValues_LoadPlaylist(m_Server.svPlaylist.c_str());
+                LoadPlaylist(m_Server.svPlaylist.c_str());
                 std::stringstream cgmd;
                 cgmd << "mp_gamemode " << m_Server.svPlaylist;
                 ProcessCommand(cgmd.str().c_str());
@@ -488,7 +533,7 @@ void IBrowser::HostServerSection()
             * Playlist gets parsed in two instances, first in LoadPlaylist all the neccessary values.
             * Then when you would normally call launchplaylist which calls StartPlaylist it would cmd call mp_gamemode which parses the gamemode specific part of the playlist..
             */
-            KeyValues_LoadPlaylist(m_Server.svPlaylist.c_str());
+            LoadPlaylist(m_Server.svPlaylist.c_str());
             std::stringstream cgmd;
             cgmd << "mp_gamemode " << m_Server.svPlaylist;
             ProcessCommand(cgmd.str().c_str());
@@ -760,6 +805,5 @@ void IBrowser::SetStyleVar()
     style.ItemSpacing                     = ImVec2(4, 4);
     style.WindowPadding                   = ImVec2(5, 5);
 }
-
 
 IBrowser* g_pIBrowser = new IBrowser();

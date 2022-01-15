@@ -405,6 +405,9 @@
     <ClCompile Include="core\logdef.cpp">
       <Filter>core</Filter>
     </ClCompile>
+    <ClCompile Include="squirrel\sqnativefunctions.cpp">
+      <Filter>sdk\squirrel</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\cdll_engine_int.h">
@@ -1045,6 +1048,9 @@
     </ClInclude>
     <ClInclude Include="core\assert.h">
       <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="squirrel\sqnativefunctions.h">
+      <Filter>sdk\squirrel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
