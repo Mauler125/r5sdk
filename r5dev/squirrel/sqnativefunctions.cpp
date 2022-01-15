@@ -211,9 +211,9 @@ namespace SQNativeFunctions
 
             hsq_newarray(sqvm, 0);
 
-            for (int i = 0; i < mapList.size(); ++i)
+            for (auto& it : mapList)
             {
-                hsq_pushstring(sqvm, mapList[i].c_str(), -1);
+                hsq_pushstring(sqvm, it.c_str(), -1);
                 hsq_arrayappend(sqvm, -2);
             }
 
