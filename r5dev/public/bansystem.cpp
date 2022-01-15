@@ -81,7 +81,11 @@ void CBanSystem::AddEntry(std::string svIpAddress, std::int64_t nOriginID)
 {
 	if (!svIpAddress.empty() && nOriginID > 0) // Check if args are valid.
 	{
-		vsvBanList.push_back(std::make_pair(svIpAddress, nOriginID)); // Push it back into the vector.
+		auto it = std::find(vsvBanList.begin(), vsvBanList.end(), std::make_pair(svIpAddress, nOriginID)); // Check if we have this entry already.
+		if (it == vsvBanList.end()) // We don't have that entry?
+		{
+			vsvBanList.push_back(std::make_pair(svIpAddress, nOriginID)); // Add it.
+		}
 	}
 }
 
@@ -102,19 +106,19 @@ void CBanSystem::DeleteEntry(std::string svIpAddress, std::int64_t nOriginID)
 //-----------------------------------------------------------------------------
 // Purpose: adds a connect refuse entry to the refuselist
 //-----------------------------------------------------------------------------
-void CBanSystem::AddConnectionRefuse(std::string svError, int nUserID)
+void CBanSystem::AddConnectionRefuse(std::string svError, std::int64_t nOriginID)
 {
 	if (vsvrefuseList.empty())
 	{
-		vsvrefuseList.push_back(std::make_pair(svError, nUserID));
+		vsvrefuseList.push_back(std::make_pair(svError, nOriginID));
 	}
 	else
 	{
 		for (int i = 0; i < vsvrefuseList.size(); i++) // Loop through vector.
 		{
-			if (vsvrefuseList[i].second != nUserID) // Do any entries match our vector?
+			if (vsvrefuseList[i].second != nOriginID) // Do any entries match our vector?
 			{
-				vsvrefuseList.push_back(std::make_pair(svError, nUserID)); // Push it back into the vector.
+				vsvrefuseList.push_back(std::make_pair(svError, nOriginID)); // Push it back into the vector.
 			}
 		}
 	}
@@ -123,11 +127,11 @@ void CBanSystem::AddConnectionRefuse(std::string svError, int nUserID)
 //-----------------------------------------------------------------------------
 // Purpose: deletes an entry in the refuselist
 //-----------------------------------------------------------------------------
-void CBanSystem::DeleteConnectionRefuse(int nUserID)
+void CBanSystem::DeleteConnectionRefuse(std::int64_t nOriginID)
 {
 	for (int i = 0; i < vsvrefuseList.size(); i++) // Loop through vector.
 	{
-		if (vsvrefuseList[i].second == nUserID) // Do any entries match our vector?
+		if (vsvrefuseList[i].second == nOriginID) // Do any entries match our vector?
 		{
 			vsvrefuseList.erase(vsvrefuseList.begin() + i); // If so erase that vector element.
 		}

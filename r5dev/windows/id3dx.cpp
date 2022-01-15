@@ -29,8 +29,6 @@ typedef BOOL(WINAPI* IPostMessageA)(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM l
 typedef BOOL(WINAPI* IPostMessageW)(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
 ///////////////////////////////////////////////////////////////////////////////////
-extern BOOL                     g_bShowConsole              = false;
-extern BOOL                     g_bShowBrowser              = false;
 static BOOL                     g_bInitMenu                 = false;
 static BOOL                     g_bInitialized              = false;
 static BOOL                     g_bPresentHooked            = false;
@@ -64,22 +62,23 @@ LRESULT CALLBACK DXGIMsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
+
 	if (uMsg == WM_KEYDOWN || uMsg == WM_SYSKEYDOWN)
 	{
 		if (wParam == g_pImGuiConfig->IConsole_Config.m_nBind0 || wParam == g_pImGuiConfig->IConsole_Config.m_nBind1)
 		{
-			g_bShowConsole = !g_bShowConsole;
+			g_pIConsole->m_bActivate = !g_pIConsole->m_bActivate;
 		}
 
 		if (wParam == g_pImGuiConfig->IBrowser_Config.m_nBind0 || wParam == g_pImGuiConfig->IBrowser_Config.m_nBind1)
 		{
-			g_bShowBrowser = !g_bShowBrowser;
+			g_pIBrowser->m_bActivate = !g_pIBrowser->m_bActivate;
 		}
 	}
 
-	if (g_bShowConsole || g_bShowBrowser)
+	if (g_pIConsole->m_bActivate || g_pIBrowser->m_bActivate)
 	{//////////////////////////////////////////////////////////////////////////////
-		ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 		g_bBlockInput = true;
 
 		switch (uMsg)
@@ -211,7 +210,7 @@ void GetPresent()
 		&nFeatureLevelsSupported,
 		&pContext)))
 	{
-		if (mat_showdxoutput->m_pParent->m_iValue > 0)
+		if (mat_showdxoutput->GetBool())
 		{
 			DevMsg(eDLL_T::MS, "+--------------------------------------------------------+\n");
 			DevMsg(eDLL_T::MS, "| >>>>>>>>>| VIRTUAL METHOD TABLE HOOK FAILED |<<<<<<<<< |\n");
@@ -267,25 +266,22 @@ void SetupImGui()
 
 void DrawImGui()
 {
-	bool bShowConsole = g_bShowConsole;
-	bool bShowBrowser = g_bShowBrowser;
-
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 
 	ImGui::NewFrame();
 
-	if (g_bShowConsole)
+	if (g_pIBrowser->m_bActivate)
+	{
+		g_pInputSystem->EnableInput(false); // Disable input to game when browser is drawn.
+		g_pIBrowser->Draw("Server Browser", &g_pIBrowser->m_bActivate);
+	}
+	if (g_pIConsole->m_bActivate)
 	{
 		g_pInputSystem->EnableInput(false); // Disable input to game when console is drawn.
-		DrawConsole(&bShowConsole);
+		g_pIConsole->Draw("Console", &g_pIConsole->m_bActivate);
 	}
-	if (g_bShowBrowser)
-	{
-		g_pInputSystem->EnableInput(false);
-		DrawDevPalette(&bShowBrowser);	
-	}
-	if (!g_bShowConsole && !g_bShowBrowser)
+	if (!g_pIConsole->m_bActivate && !g_pIBrowser->m_bActivate)
 	{
 		g_pInputSystem->EnableInput(true); // Enable input to game when both are not drawn.
 	}
@@ -346,7 +342,7 @@ void DestroyRenderTarget()
 		g_pRenderTargetView = nullptr;
 		g_pDeviceContext->OMSetRenderTargets(0, 0, 0);
 
-		if (mat_showdxoutput->m_pParent->m_iValue > 0)
+		if (mat_showdxoutput->GetBool())
 		{
 			DevMsg(eDLL_T::MS, "+--------------------------------------------------------+\n");
 			DevMsg(eDLL_T::MS, "| >>>>>>>>>>>>>>| RENDER TARGET DESTROYED |<<<<<<<<<<<<< |\n");
@@ -371,8 +367,8 @@ HRESULT GetDeviceAndCtxFromSwapchain(IDXGISwapChain* pSwapChain, ID3D11Device** 
 
 HRESULT __stdcall GetResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount, UINT nWidth, UINT nHeight, DXGI_FORMAT dxFormat, UINT nSwapChainFlags)
 {
-	g_bShowConsole    = false;
-	g_bShowBrowser    = false;
+	g_pIConsole->m_bActivate = false;
+	g_pIBrowser->m_bActivate = false;
 	g_bInitialized    = false;
 	g_bPresentHooked  = false;
 
@@ -389,7 +385,7 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 	{
 		if (FAILED(GetDeviceAndCtxFromSwapchain(pSwapChain, &g_pDevice, &g_pDeviceContext)))
 		{
-			if (mat_showdxoutput->m_pParent->m_iValue > 0)
+			if (mat_showdxoutput->GetBool())
 			{
 				DevMsg(eDLL_T::MS, "+--------------------------------------------------------+\n");
 				DevMsg(eDLL_T::MS, "| >>>>>>>>>>| GET DVS AND CTX FROM SCP FAILED |<<<<<<<<< |\n");

@@ -51,10 +51,10 @@ void HRtech_AsyncLoad(std::string svPakFileName)
 
 void RTech_Game_Attach()
 {
-	DetourAttach((LPVOID*)&RTech_UnloadAsset, &HRTech_UnloadAsset);
+	//DetourAttach((LPVOID*)&RTech_UnloadAsset, &HRTech_UnloadAsset);
 }
 
 void RTech_Game_Detach()
 {
-	DetourAttach((LPVOID*)&RTech_UnloadAsset, &HRTech_UnloadAsset);
+	//DetourAttach((LPVOID*)&RTech_UnloadAsset, &HRTech_UnloadAsset);
 }

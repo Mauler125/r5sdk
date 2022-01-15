@@ -6,7 +6,7 @@
 
 #include "core/stdafx.h"
 #include "core/init.h"
-#include "common/opcodes.h"
+#include "tier0/commandline.h"
 #include "tier0/ConCommand.h"
 #include "tier0/completion.h"
 #include "tier0/cvar.h"
@@ -15,11 +15,16 @@
 #include "vpc/keyvalues.h"
 #include "vpc/basefilesystem.h"
 #include "vpc/keyvalues.h"
+#include "common/opcodes.h"
 #include "launcher/IApplication.h"
 #include "ebisusdk/EbisuSDK.h"
+#ifndef DEDICATED
+#include "milessdk/win64_rrthreads.h"
+#endif // !DEDICATED
 #include "vphysics/QHull.h"
 #include "bsplib/bsplib.h"
 #ifndef DEDICATED
+#include "materialsystem/materialsystem.h"
 #include "vgui/CEngineVGui.h"
 #include "vgui/vgui_fpspanel.h"
 #include "vguimatsurface/MatSystemSurface.h"
@@ -42,6 +47,7 @@
 #include "engine/sys_dll2.h"
 #include "engine/sys_utils.h"
 #ifndef DEDICATED
+#include "engine/debugoverlay.h"
 #include "inputsystem/inputsystem.h"
 #include "windows/id3dx.h"
 #endif // !DEDICATED
@@ -78,7 +84,9 @@ void Systems_Init()
 	CHLClient_Attach();
 #endif // !DEDICATED
 
-	CServer_Attach();
+#ifdef GAMEDLL_S3
+	CServer_Attach(); // S1 and S2 CServer functions require work.
+#endif // GAMEDLL_S3
 
 #ifdef DEDICATED
 	CHostState_Attach(); // Dedicated only for now until backwards compatible with S1.
@@ -107,12 +115,11 @@ void Systems_Init()
 		TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
 	}
 
-	IConVar_InitConVar();
+	g_pConVar->Init();
 
 #ifdef DEDICATED
 	Dedicated_Init();
 #endif // DEDICATED
-
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -145,7 +152,10 @@ void Systems_Shutdown()
 	CFPSPanel_Detach();
 	CHLClient_Detach();
 #endif // !DEDICATED
-	CServer_Detach();
+
+#ifdef GAMEDLL_S3
+	CServer_Detach(); // S1 and S2 CServer functions require work.
+#endif // GAMEDLL_S3
 
 #ifdef DEDICATED
 	CHostState_Detach(); // Dedicated only for now until backwards compatible with S1.

@@ -1,7 +1,12 @@
 #include "core/stdafx.h"
 #include "tier0/cvar.h"
+#include "mathlib/color.h"
 #include "vgui/CEngineVGui.h"
 #include "vguimatsurface/MatSystemSurface.h"
+#include "materialsystem/materialsystem.h"
+#include "engine/debugoverlay.h"
+#include "engine/baseclientstate.h"
+#include "server/server.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -31,35 +36,55 @@ int HCEngineVGui_Paint(void* thisptr, int mode)
 //-----------------------------------------------------------------------------
 void CLogSystem::Update()
 {
-	if (cl_drawconsoleoverlay->m_pParent->m_iValue < 1)
-	{
-		return;
-	}
-	if (m_vLogs.empty())
-	{
-		return;
-	}
 	if (!g_pMatSystemSurface)
 	{
 		return;
 	}
+	if (cl_drawconsoleoverlay->GetBool())
+	{
+		DrawLog();
+	}
+	if (cl_showsimstats->GetBool())
+	{
+		DrawSimStats();
+	}
+	if (cl_showgpustats->GetBool())
+	{
+		DrawGPUStats();
+	}
+}
 
-	static int fontHeight = 16;
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogSystem::AddLog(LogType_t type, std::string message)
+{
+	if (message.length() > 0)
+	{
+		m_vLogs.push_back(Log{ message, 1024, type });
+	}
+}
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void  CLogSystem::DrawLog()
+{
+	if (m_vLogs.empty()) { return; }
 	for (int i = 0; i < m_vLogs.size(); ++i)
 	{
 		if (m_vLogs[i].Ticks >= 0)
 		{
-			if (i < cl_consoleoverlay_lines->m_pParent->m_iValue)
+			if (i < cl_consoleoverlay_lines->GetInt())
 			{
-				float fadepct = fminf(static_cast<float>(m_vLogs[i].Ticks) / 255.f, 4.0); // TODO [ AMOS ]: register a ConVar for this!
-				float ptc = static_cast<int>(ceilf(fadepct * 100.f));                     // TODO [ AMOS ]: register a ConVar for this!
+				float fadepct = fminf(static_cast<float>(m_vLogs[i].Ticks) / 255.f, 4.f); // TODO [ AMOS ]: register a ConVar for this!
+				float ptc = static_cast<int>(ceilf(fadepct * 100.f));
 				int alpha = static_cast<int>(ptc);
-				int y = (cl_consoleoverlay_offset_y->m_pParent->m_iValue + (fontHeight * i));
-				int x = cl_consoleoverlay_offset_x->m_pParent->m_iValue;
+				int y = (cl_consoleoverlay_offset_y->GetInt() + (fontHeight * i));
+				int x = cl_consoleoverlay_offset_x->GetInt();
 
-				std::array<int, 3> color = GetLogColorForType(m_vLogs[i].Type);
-				CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, fontHeight, x, y, color[0], color[1], color[2], alpha, m_vLogs[i].Message.c_str());
+				Color c = GetLogColorForType(m_vLogs[i].Type);
+				CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, fontHeight, x, y, c._color[0], c._color[1], c._color[2], alpha, m_vLogs[i].Message.c_str());
 			}
 			else
 			{
@@ -76,31 +101,52 @@ void CLogSystem::Update()
 	}
 }
 
-void CLogSystem::AddLog(LogType_t type, std::string message)
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogSystem::DrawSimStats()
 {
-	if (message.length() > 0)
-	{
-		m_vLogs.push_back(Log{ message, 1024, type });
-	}
+	static Color c = { 255, 255, 255, 255 };
+	static const char* szLogbuf[4096]{};
+	snprintf((char*)szLogbuf, 4096, "Server Frame: (%d) Client Frame: (%d) Render Frame: (%d)\n",
+	*sv_m_nTickCount, *cl_host_tickcount, *render_tickcount);
+
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, fontHeight, cl_simstats_offset_x->GetInt(), cl_simstats_offset_y->GetInt(), c._color[0], c._color[1], c._color[2], 255, (char*)szLogbuf);
 }
 
-std::array<int, 3> CLogSystem::GetLogColorForType(LogType_t type)
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CLogSystem::DrawGPUStats()
+{
+	static Color c = { 255, 255, 255, 255 };
+	static const char* szLogbuf[4096]{};
+	snprintf((char*)szLogbuf, 4096, "%8d/%8d/%8dkiB unusable/unfree/total GPU Streaming Texture memory\n", 
+	*unusable_streaming_tex_memory / 1024, *unfree_streaming_tex_memory / 1024, *unusable_streaming_tex_memory / 1024);
+
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, fontHeight, cl_gpustats_offset_x->GetInt(), cl_gpustats_offset_y->GetInt(), c._color[0], c._color[1], c._color[2], 255, (char*)szLogbuf);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+Color CLogSystem::GetLogColorForType(LogType_t type)
 {
 	switch (type)
 	{
-		case LogType_t::NATIVE:
-			return { 255, 255, 255 };
-		case LogType_t::SCRIPT_SERVER:
-			return { 190, 183, 240 };
-		case LogType_t::SCRIPT_CLIENT:
-			return { 117, 116, 139 };
-		case LogType_t::SCRIPT_UI:
-			return { 197, 160, 177 };
-		default:
-			return { 255, 255, 255 };
+	case LogType_t::NATIVE:
+		return { cl_consoleoverlay_native_clr->GetColor() };
+	case LogType_t::SCRIPT_SERVER:
+		return { cl_consoleoverlay_server_clr->GetColor() };
+	case LogType_t::SCRIPT_CLIENT:
+		return { cl_consoleoverlay_client_clr->GetColor() };
+	case LogType_t::SCRIPT_UI:
+		return { cl_consoleoverlay_ui_clr->GetColor() };
+	default:
+		return { cl_consoleoverlay_native_clr->GetColor() };
 	}
 
-	return { 255, 255, 255 };
+	return { cl_consoleoverlay_native_clr->GetColor() };
 }
 
 ///////////////////////////////////////////////////////////////////////////////

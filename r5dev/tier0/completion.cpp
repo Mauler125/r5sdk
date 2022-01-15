@@ -15,19 +15,22 @@
 #include "rtech/rtech_game.h"
 #include "rtech/rtech_utils.h"
 #include "vpklib/packedstore.h"
+#ifndef DEDICATED
+#include "gameui/IBrowser.h"
 #include "gameui/IConsole.h"
+#endif // !DEDICATED
 #include "public/include/bansystem.h"
 #include "mathlib/crc32.h"
 
 #ifndef DEDICATED
 void _CGameConsole_f_CompletionFunc(const CCommand& cmd)
 {
-	g_bShowConsole = !g_bShowConsole;
+	g_pIConsole->m_bActivate = !g_pIConsole->m_bActivate;
 }
 
 void _CCompanion_f_CompletionFunc(const CCommand& cmd)
 {
-	g_bShowBrowser = !g_bShowBrowser;
+	g_pIBrowser->m_bActivate = !g_pIBrowser->m_bActivate;
 }
 #endif // !DEDICATED
 
@@ -519,7 +522,7 @@ void _NET_TraceNetChan_f_CompletionFunc(CCommand* cmd)
 	static bool bTraceNetChannel = false;
 	if (!bTraceNetChannel)
 	{
-		g_pCvar->FindVar("net_usesocketsforloopback")->m_pParent->m_iValue = 1;
+		g_pCVar->FindVar("net_usesocketsforloopback")->SetValue(1);
 		DevMsg(eDLL_T::ENGINE, "\n");
 		DevMsg(eDLL_T::ENGINE, "+--------------------------------------------------------+\n");
 		DevMsg(eDLL_T::ENGINE, "|>>>>>>>>>>>>>| NETCHANNEL TRACE ACTIVATED |<<<<<<<<<<<<<|\n");
