@@ -1,6 +1,7 @@
 #pragma once
 #include "basetypes.h"
 #include "ConCommand.h"
+#include "mathlib/color.h"
 
 //-----------------------------------------------------------------------------
 // Command to ConVars and ConCommands
@@ -83,74 +84,65 @@ dq offset RegisterConVar; #STR: "Convar '%s' is flagged as both FCVAR_ARCHIVE an
 class ConVar
 {
 public:
-	ConCommandBase m_ConCommandBase;  //0x0000
-	void*          m_pConVarVTable;   //0x0040
-	ConVar*        m_pParent;         //0x0048
-	const char*    n_pszDefaultValue; //0x0050
-	const char*    m_pzsCurrentValue; //0x0058
-	std::int64_t   m_iStringLength;   //0x0060
-	float          m_flValue;         //0x0068
-	int            m_iValue;          //0x006C
-	bool           m_bHasMin;         //0x0070
-	float          m_flMinValue;      //0x0074
-	bool           m_bHasMax;         //0x0078
-	float          m_flMaxValue;      //0x007C
-	char           pad_0080[32];      //0x0080
+	ConVar(void){};
+	ConVar(const char* pszName, const char* pszDefaultValue, int nFlags, const char*pszHelpString,
+		bool bMin, float fMin, bool bMax, float fMax, void* pCallback, void* unk);
+	~ConVar(void);
+
+	void Init(void);
+
+	const char* GetBaseName(void);
+	const char* GetHelpText(void);
+
+	void AddFlags(int nFlags);
+	void RemoveFlags(int nFlags);
+
+	bool IsRegistered(void);
+
+	bool GetBool(void);
+	float GetFloat(void);
+	int GetInt(void);
+	Color GetColor(void);
+	const char* GetString(void);
+
+	bool GetMin(float& flMinValue);
+	bool GetMax(float& flMaxValue);
+	float GetMinValue(void);
+	float GetMaxValue(void);
+	bool HasMin(void);
+	bool HasMax(void);
+
+	void SetValue(int nValue);
+	void SetValue(float flValue);
+	void SetValue(const char* pszValue);
+	void SetValue(Color clValue);
+
+	void Revert(void);
+
+	const char* GetDefault(void);
+	void SetDefault(const char* pszDefault);
+
+	void ChangeStringValue(const char* pszTempValue, float flOldValue);
+	bool SetColorFromString(const char* pszValue);
+	bool ClampValue(float& value);
+
+	static bool IsFlagSet(ConVar* pConVar, int nFlags);
+	void ClearHostNames(void);
+
+	ConCommandBase m_ConCommandBase {}; //0x0000
+	void*          m_pConVarVTable  {}; //0x0040
+	ConVar*        m_pParent        {}; //0x0048
+	const char*    m_pszDefaultValue{}; //0x0050
+	const char*    m_pzsCurrentValue{}; //0x0058
+	std::int64_t   m_iStringLength  {}; //0x0060
+	float          m_flValue        {}; //0x0068
+	int            m_iValue         {}; //0x006C
+	bool           m_bHasMin        {}; //0x0070
+	float          m_flMinValue     {}; //0x0074
+	bool           m_bHasMax        {}; //0x0078
+	float          m_flMaxValue     {}; //0x007C
+	char           pad_0080[32]     {}; //0x0080
 }; //Size: 0x00A0
-
-class CCVarIteratorInternal // Fully reversed table, just look at the virtual function table and rename the function.
-{
-public:
-	virtual void            SetFirst(void) = 0; //0
-	virtual void            Next(void)     = 0; //1
-	virtual	bool            IsValid(void)  = 0; //2
-	virtual ConCommandBase* Get(void)      = 0; //3
-};
-
-class CCVar
-{
-public:
-	ConCommandBase* FindCommandBase(const char* szCommandName) // @0x1405983A0 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
-	{
-		using OriginalFn = ConCommandBase * (__thiscall*)(CCVar*, const char*);
-		return (*reinterpret_cast<OriginalFn**>(this))[14](this, szCommandName);
-	}
-
-	ConVar* FindVar(const char* szVarName) // @0x1405983B0 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
-	{
-		using OriginalFn = ConVar * (__thiscall*)(CCVar*, const char*);
-		return (*reinterpret_cast<OriginalFn**>(this))[16](this, szVarName);
-	}
-
-	void* /*Implement ConCommand class.*/ FindCommand(const char* szCommandName) // @0x1405983F0 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
-	{
-		using OriginalFn = void* (__thiscall*)(CCVar*, const char*);
-		return (*reinterpret_cast<OriginalFn**>(this))[18](this, szCommandName);
-	}
-
-	CCVarIteratorInternal* FactoryInternalIterator() // @0x140597C10 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
-	{
-		using OriginalFn = CCVarIteratorInternal * (__thiscall*)(CCVar*);
-		return (*reinterpret_cast<OriginalFn**>(this))[41](this);
-	}
-
-	std::unordered_map<std::string, ConCommandBase*> DumpToMap()
-	{
-		std::stringstream ss;
-		CCVarIteratorInternal* itint = FactoryInternalIterator(); // Allocatd new InternalIterator.
-
-		std::unordered_map<std::string, ConCommandBase*> allConVars;
-
-		for (itint->SetFirst(); itint->IsValid(); itint->Next()) // Loop through all instances.
-		{
-			ConCommandBase* pCommand = itint->Get();
-			const char* commandName = pCommand->m_pszName;
-			allConVars[commandName] = pCommand;
-		}
-
-		return allConVars;
-	}
-};
 
 namespace
 {
@@ -176,12 +168,10 @@ namespace
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-bool HIConVar_IsFlagSet(ConVar* pConVar, int nFlag);
-void IConVar_InitConVar();
-void IConVar_ClearHostNames();
-
 void IConVar_Attach();
 void IConVar_Detach();
+
+extern ConVar* g_pConVar;
 
 ///////////////////////////////////////////////////////////////////////////////
 class HConVar : public IDetour

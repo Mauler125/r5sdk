@@ -41,5 +41,5 @@ std::shared_ptr<logger> stderr_color_st(const std::string &logger_name, color_mo
 } // namespace spdlog
 
 #ifdef SPDLOG_HEADER_ONLY
-#include "thirdparty/spdlog/include/stdout_color_sinks-inl.h"
+#include "thirdparty/spdlog/include/sinks/stdout_color_sinks-inl.h"
 #endif

@@ -22,7 +22,9 @@
 //-----------------------------------------------------------------------------
 void HNET_ShutDown(void* thisptr, const char* szReason, std::uint8_t a1, char a2)
 {
+#ifndef GAMEDLL_S1 // TODO
 	DownloadPlaylists_f_CompletionFunc(); // Re-load playlist from disk after getting disconnected from the server.
+#endif
 	NET_Shutdown(thisptr, szReason, a1, a2);
 }
 
@@ -76,7 +78,7 @@ void HNET_SetKey(std::string svNetKey)
 void HNET_GenerateKey()
 {
 	g_szNetKey.clear();
-	net_userandomkey->m_pParent->m_iValue = 1;
+	net_userandomkey->SetValue(1);
 
 	BCRYPT_ALG_HANDLE hAlgorithm;
 	if (BCryptOpenAlgorithmProvider(&hAlgorithm, L"RNG", 0, 0) < 0)
@@ -181,4 +183,4 @@ void CNetChan_Trace_Detach()
 
 ///////////////////////////////////////////////////////////////////////////////
 std::string g_szNetKey = "WDNWLmJYQ2ZlM0VoTid3Yg==";
-std::uintptr_t g_pNetKey = g_mGameDll.StringSearch("client:NetEncryption_NewKey").FindPatternSelf("48 8D ? ? ? ? ? 48 3B", ADDRESS::Direction::UP, 150).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr();
+std::uintptr_t g_pNetKey = g_mGameDll.StringSearch("client:NetEncryption_NewKey").FindPatternSelf("48 8D ? ? ? ? ? 48 3B", ADDRESS::Direction::UP, 300).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr();

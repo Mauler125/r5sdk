@@ -14,6 +14,22 @@ BOOL FileExists(const char* szPath)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For checking if pointer is valid or bad.
+BOOL IsBadReadPtrV2(void* ptr)
+{
+    MEMORY_BASIC_INFORMATION mbi = { 0 };
+    if (::VirtualQuery(ptr, &mbi, sizeof(mbi)))
+    {
+        DWORD mask = (PAGE_READONLY | PAGE_READWRITE | PAGE_WRITECOPY | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY);
+        bool b = !(mbi.Protect & mask);
+        // check the page is not a guard page
+        if (mbi.Protect & (PAGE_GUARD | PAGE_NOACCESS)) b = true;
+        return b;
+    }
+    return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For getting information about the executing module.
 MODULEINFO GetModuleInfo(const char* szModule)
 {
@@ -132,7 +148,7 @@ void HexDump(const char* szHeader, int nFunc, const void* pData, int nSize)
     szAscii[16] = '\0';
 
     // Add new loggers here to replace the placeholder.
-    if (nFunc == 0) { logger = g_spd_netchan_logger; }
+    if (nFunc == 0) { logger = spdlog::get("netchan_pack_logger"); }
 
     // Add timestamp.
     logger->set_level(spdlog::level::trace);

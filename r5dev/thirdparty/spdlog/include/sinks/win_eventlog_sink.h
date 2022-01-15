@@ -34,7 +34,7 @@ Windows Registry Editor Version 5.00
 #include <thirdparty/spdlog/include/sinks/base_sink.h>
 
 #include <thirdparty/spdlog/include/details/windows_include.h>
-#include <thirdparty/spdlog/include/winbase.h>
+#include <winbase.h>
 
 #include <mutex>
 #include <string>

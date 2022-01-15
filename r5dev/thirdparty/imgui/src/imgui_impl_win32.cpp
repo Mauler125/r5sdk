@@ -21,6 +21,15 @@
 #include <tchar.h>
 #include <dwmapi.h>
 
+// Includes of the game have to be here since this header is precompiled.
+#include "string"
+#include "d3d11.h"
+#include "public/include/httplib.h"
+
+// Game ImGui headers are here for mouse tracking.
+#include "gameui/IBrowser.h"
+#include "gameui/IConsole.h"
+
 // Configuration flags to add in your imconfig.h file:
 //#define IMGUI_IMPL_WIN32_DISABLE_GAMEPAD              // Disable gamepad support. This was meaningful before <1.81 but we now load XInput dynamically so the option is now less relevant.
 
@@ -190,35 +199,40 @@ void    ImGui_ImplWin32_Shutdown()
 
 static bool ImGui_ImplWin32_UpdateMouseCursor()
 {
-    ImGuiIO& io = ImGui::GetIO();
-    if (io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)
-        return false;
+    // These have to be here to prevent the mouse in-game from flickering when '::SetCursor(...)' is called.
+    if (g_pIBrowser->m_bActivate || g_pIConsole->m_bActivate)
+    {
+        ImGuiIO& io = ImGui::GetIO();
+        if (io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)
+            return false;
 
-    ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
-    if (imgui_cursor == ImGuiMouseCursor_None || io.MouseDrawCursor)
-    {
-        // Hide OS mouse cursor if imgui is drawing it or if it wants no cursor
-        ::SetCursor(NULL);
-    }
-    else
-    {
-        // Show OS mouse cursor
-        LPTSTR win32_cursor = IDC_ARROW;
-        switch (imgui_cursor)
+        ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
+        if (imgui_cursor == ImGuiMouseCursor_None || io.MouseDrawCursor)
         {
-        case ImGuiMouseCursor_Arrow:        win32_cursor = IDC_ARROW; break;
-        case ImGuiMouseCursor_TextInput:    win32_cursor = IDC_IBEAM; break;
-        case ImGuiMouseCursor_ResizeAll:    win32_cursor = IDC_SIZEALL; break;
-        case ImGuiMouseCursor_ResizeEW:     win32_cursor = IDC_SIZEWE; break;
-        case ImGuiMouseCursor_ResizeNS:     win32_cursor = IDC_SIZENS; break;
-        case ImGuiMouseCursor_ResizeNESW:   win32_cursor = IDC_SIZENESW; break;
-        case ImGuiMouseCursor_ResizeNWSE:   win32_cursor = IDC_SIZENWSE; break;
-        case ImGuiMouseCursor_Hand:         win32_cursor = IDC_HAND; break;
-        case ImGuiMouseCursor_NotAllowed:   win32_cursor = IDC_NO; break;
+            // Hide OS mouse cursor if imgui is drawing it or if it wants no cursor
+            ::SetCursor(NULL);
         }
-        ::SetCursor(::LoadCursor(NULL, win32_cursor));
+        else
+        {
+            // Show OS mouse cursor
+            LPTSTR win32_cursor = IDC_ARROW;
+            switch (imgui_cursor)
+            {
+            case ImGuiMouseCursor_Arrow:        win32_cursor = IDC_ARROW; break;
+            case ImGuiMouseCursor_TextInput:    win32_cursor = IDC_IBEAM; break;
+            case ImGuiMouseCursor_ResizeAll:    win32_cursor = IDC_SIZEALL; break;
+            case ImGuiMouseCursor_ResizeEW:     win32_cursor = IDC_SIZEWE; break;
+            case ImGuiMouseCursor_ResizeNS:     win32_cursor = IDC_SIZENS; break;
+            case ImGuiMouseCursor_ResizeNESW:   win32_cursor = IDC_SIZENESW; break;
+            case ImGuiMouseCursor_ResizeNWSE:   win32_cursor = IDC_SIZENWSE; break;
+            case ImGuiMouseCursor_Hand:         win32_cursor = IDC_HAND; break;
+            case ImGuiMouseCursor_NotAllowed:   win32_cursor = IDC_NO; break;
+            }
+            ::SetCursor(::LoadCursor(NULL, win32_cursor));
+        }
+        return true;
     }
-    return true;
+    return false;
 }
 
 static void ImGui_ImplWin32_UpdateMousePos()

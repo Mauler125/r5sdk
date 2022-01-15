@@ -29,7 +29,7 @@ class HSys_Dll2 : public IDetour
 {
 	virtual void debugp()
 	{
-		std::cout << "| FUN: CEngineAPI_Connect                   : 0x" << std::hex << std::uppercase << p_CEngineAPI_Connect.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: CEngineAPI::Connect                  : 0x" << std::hex << std::uppercase << p_CEngineAPI_Connect.GetPtr() << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: PakFile_Init                         : 0x" << std::hex << std::uppercase << p_PakFile_Init.GetPtr()       << std::setw(npad) << " |" << std::endl;
 		std::cout << "| VAR: g_pMapVPKCache                       : 0x" << std::hex << std::uppercase << g_pMapVPKCache.GetPtr()       << std::setw(npad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;

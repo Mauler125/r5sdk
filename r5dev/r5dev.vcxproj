@@ -26,6 +26,7 @@
     <ClCompile Include="common\opcodes.cpp" />
     <ClCompile Include="core\dllmain.cpp" />
     <ClCompile Include="core\init.cpp" />
+    <ClCompile Include="core\logdef.cpp" />
     <ClCompile Include="core\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -44,6 +45,7 @@
     <ClCompile Include="inputsystem\inputsystem.cpp" />
     <ClCompile Include="launcher\IApplication.cpp" />
     <ClCompile Include="mathlib\adler32.cpp" />
+    <ClCompile Include="mathlib\bits.cpp" />
     <ClCompile Include="mathlib\crc32.cpp" />
     <ClCompile Include="mathlib\IceKey.cpp" />
     <ClCompile Include="networksystem\r5net.cpp" />
@@ -57,7 +59,24 @@
     <ClCompile Include="server\server.cpp" />
     <ClCompile Include="squirrel\sqapi.cpp" />
     <ClCompile Include="squirrel\sqinit.cpp" />
+    <ClCompile Include="squirrel\sqnativefunctions.cpp" />
     <ClCompile Include="squirrel\sqvm.cpp" />
+    <ClCompile Include="thirdparty\detours\src\creatwth.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\detours\src\detours.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\detours\src\disasm.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\detours\src\modules.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="thirdparty\imgui\src\imgui.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
@@ -87,13 +106,94 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="thirdparty\imgui\src\imgui_utility.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="thirdparty\imgui\src\imgui_widgets.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzhamcomp\lzham_lzcomp.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzhamcomp\lzham_lzcomp_internal.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzhamcomp\lzham_lzcomp_state.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzhamdecomp\lzham_lzdecomp.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzhamdecomp\lzham_lzdecompbase.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_api.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_assert.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_checksum.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_huffman_codes.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_lzbase.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_match_accel.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_mem.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_platform.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_polar_codes.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_prefix_coding.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_pthreads_threading.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_symbol_codec.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_timer.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_vector.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\lzham\lzham_win32_threading.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="tier0\commandline.cpp" />
     <ClCompile Include="tier0\ConCommand.cpp" />
     <ClCompile Include="tier0\completion.cpp" />
     <ClCompile Include="tier0\cvar.cpp" />
@@ -119,6 +219,7 @@
     <ClInclude Include="common\opcodes.h" />
     <ClInclude Include="common\protocol.h" />
     <ClInclude Include="common\pseudodefs.h" />
+    <ClInclude Include="core\assert.h" />
     <ClInclude Include="core\init.h" />
     <ClInclude Include="core\logdef.h" />
     <ClInclude Include="core\r5dev.h" />
@@ -126,6 +227,7 @@
     <ClInclude Include="ebisusdk\EbisuSDK.h" />
     <ClInclude Include="engine\baseclient.h" />
     <ClInclude Include="engine\baseclientstate.h" />
+    <ClInclude Include="engine\debugoverlay.h" />
     <ClInclude Include="engine\host_cmd.h" />
     <ClInclude Include="engine\host_state.h" />
     <ClInclude Include="engine\net_chan.h" />
@@ -137,12 +239,15 @@
     <ClInclude Include="inputsystem\ButtonCode.h" />
     <ClInclude Include="inputsystem\inputsystem.h" />
     <ClInclude Include="launcher\IApplication.h" />
+    <ClInclude Include="materialsystem\materialsystem.h" />
     <ClInclude Include="mathlib\adler32.h" />
+    <ClInclude Include="mathlib\bits.h" />
+    <ClInclude Include="mathlib\color.h" />
     <ClInclude Include="mathlib\crc32.h" />
     <ClInclude Include="mathlib\IceKey.H" />
     <ClInclude Include="mathlib\parallel_for.h" />
     <ClInclude Include="mathlib\vector.h" />
-    <ClInclude Include="networksystem\net_structs.h" />
+    <ClInclude Include="milessdk\win64_rrthreads.h" />
     <ClInclude Include="networksystem\r5net.h" />
     <ClInclude Include="networksystem\sm_protocol.h" />
     <ClInclude Include="public\include\memaddr.h" />
@@ -160,6 +265,7 @@
     <ClInclude Include="server\server.h" />
     <ClInclude Include="squirrel\sqapi.h" />
     <ClInclude Include="squirrel\sqinit.h" />
+    <ClInclude Include="squirrel\sqnativefunctions.h" />
     <ClInclude Include="squirrel\sqvm.h" />
     <ClInclude Include="thirdparty\detours\include\detours.h" />
     <ClInclude Include="thirdparty\detours\include\detver.h" />
@@ -176,7 +282,34 @@
     <ClInclude Include="thirdparty\imgui\include\imstb_textedit.h" />
     <ClInclude Include="thirdparty\imgui\include\imstb_truetype.h" />
     <ClInclude Include="thirdparty\lzham\include\lzham.h" />
+    <ClInclude Include="thirdparty\lzham\include\lzham_assert.h" />
+    <ClInclude Include="thirdparty\lzham\include\lzham_checksum.h" />
+    <ClInclude Include="thirdparty\lzham\include\lzham_config.h" />
+    <ClInclude Include="thirdparty\lzham\include\lzham_core.h" />
+    <ClInclude Include="thirdparty\lzham\include\lzham_helpers.h" />
+    <ClInclude Include="thirdparty\lzham\include\lzham_huffman_codes.h" />
+    <ClInclude Include="thirdparty\lzham\include\lzham_lzbase.h" />
+    <ClInclude Include="thirdparty\lzham\include\lzham_match_accel.h" />
+    <ClInclude Include="thirdparty\lzham\include\lzham_math.h" />
+    <ClInclude Include="thirdparty\lzham\include\lzham_mem.h" />
+    <ClInclude Include="thirdparty\lzham\include\lzham_null_threading.h" />
+    <ClInclude Include="thirdparty\lzham\include\lzham_platform.h" />
+    <ClInclude Include="thirdparty\lzham\include\lzham_polar_codes.h" />
+    <ClInclude Include="thirdparty\lzham\include\lzham_prefix_coding.h" />
+    <ClInclude Include="thirdparty\lzham\include\lzham_pthreads_threading.h" />
     <ClInclude Include="thirdparty\lzham\include\lzham_static_lib.h" />
+    <ClInclude Include="thirdparty\lzham\include\lzham_symbol_codec.h" />
+    <ClInclude Include="thirdparty\lzham\include\lzham_threading.h" />
+    <ClInclude Include="thirdparty\lzham\include\lzham_timer.h" />
+    <ClInclude Include="thirdparty\lzham\include\lzham_traits.h" />
+    <ClInclude Include="thirdparty\lzham\include\lzham_types.h" />
+    <ClInclude Include="thirdparty\lzham\include\lzham_utils.h" />
+    <ClInclude Include="thirdparty\lzham\include\lzham_vector.h" />
+    <ClInclude Include="thirdparty\lzham\include\lzham_win32_threading.h" />
+    <ClInclude Include="thirdparty\lzham\lzhamcomp\lzham_comp.h" />
+    <ClInclude Include="thirdparty\lzham\lzhamcomp\lzham_lzcomp_internal.h" />
+    <ClInclude Include="thirdparty\lzham\lzhamdecomp\lzham_decomp.h" />
+    <ClInclude Include="thirdparty\lzham\lzhamdecomp\lzham_lzdecompbase.h" />
     <ClInclude Include="thirdparty\spdlog\include\async.h" />
     <ClInclude Include="thirdparty\spdlog\include\async_logger-inl.h" />
     <ClInclude Include="thirdparty\spdlog\include\async_logger.h" />
@@ -272,6 +405,7 @@
     <ClInclude Include="thirdparty\spdlog\include\tweakme.h" />
     <ClInclude Include="thirdparty\spdlog\include\version.h" />
     <ClInclude Include="tier0\basetypes.h" />
+    <ClInclude Include="tier0\commandline.h" />
     <ClInclude Include="tier0\ConCommand.h" />
     <ClInclude Include="tier0\completion.h" />
     <ClInclude Include="tier0\cvar.h" />
@@ -368,7 +502,7 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
     <LibraryPath>$(SolutionDir)r5dev\thirdparty\detours\libs;$(SolutionDir)r5dev\thirdparty\lzham\libs;$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
-    <TargetName>r5apexvtxd</TargetName>
+    <TargetName>r5apexsdkd</TargetName>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
     <ReferencePath>$(VC_ReferencesPath_x64);</ReferencePath>
@@ -436,10 +570,10 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>r5dev.def</ModuleDefinitionFile>
-      <AdditionalDependencies>detours.lib;lzhamlib_x64D.lib;lzhamcomp_x64D.lib;lzhamdecomp_x64D.lib;d3d11.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(TargetPath)" "..\..\..\bin\$(TargetFileName)"</Command>
+      <Command>copy /Y "$(TargetPath)" "..\..\..\$(TargetFileName)" &amp;&amp; del "..\..\..\r5apexsdkd64.dll" &amp;&amp; rename "..\..\..\$(TargetFileName)" "r5apexsdkd64.dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -472,7 +606,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>r5dev.def</ModuleDefinitionFile>
-      <AdditionalDependencies>detours.lib;lzhamlib_x64.lib;lzhamcomp_x64.lib;lzhamdecomp_x64.lib;d3d11.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(TargetPath)" "..\..\..\$(TargetFileName)" &amp;&amp; del "..\..\..\r5apexsdkd64.dll" &amp;&amp; rename "..\..\..\$(TargetFileName)" "r5apexsdkd64.dll"</Command>

@@ -24,33 +24,13 @@ void IsClientBanned(R5Net::Client* pR5net, const std::string svIPAddr, std::int6
 	bool bCompBanned = res.isBanned;
 	if (bCompBanned)
 	{
-		while (bCompBanned)
-		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(500));
-			for (int i = 0; i < MAX_PLAYERS; i++) // Loop through all possible client instances.
-			{
-				CClient* pClient = g_pClient->GetClientInstance(i); // Get client instance.
-				if (!pClient) // Client instance valid?
-				{
-					continue;
-				}
-
-				if (!pClient->GetNetChan()) // Netchan valid?
-				{
-					continue;
-				}
-
-				std::int64_t nOriginID = pClient->m_iOriginID; // Get originID.
-				if (nOriginID != nNucleusID) // See if they match.
-				{
-					continue;
-				}
-
-				g_pBanSystem->AddConnectionRefuse(svError, pClient->m_iUserID + 1); // Add to the vector.
-				bCompBanned = false;
-				break;
-			}
-		}
+		DevMsg(eDLL_T::SERVER, "\n");
+		DevMsg(eDLL_T::SERVER, "______________________________________________________________\n");
+		DevMsg(eDLL_T::SERVER, "] PYLON NOTICE -----------------------------------------------\n");
+		DevMsg(eDLL_T::SERVER, "] OriginID : | '%lld' IS PYLON BANNED.\n", nNucleusID);
+		DevMsg(eDLL_T::SERVER, "--------------------------------------------------------------\n");
+		DevMsg(eDLL_T::SERVER, "\n");
+		g_pBanSystem->AddConnectionRefuse(svError, nNucleusID); // Add to the vector.
 	}
 }
 
@@ -73,7 +53,7 @@ void* HCServer_Authenticate(void* pServer, user_creds* pInpacket)
 		svIpAddress = ss.str();
 	}
 
-	if (sv_showconnecting->m_pParent->m_iValue > 0)
+	if (sv_showconnecting->GetBool())
 	{
 		DevMsg(eDLL_T::SERVER, "\n");
 		DevMsg(eDLL_T::SERVER, "______________________________________________________________\n");
@@ -90,7 +70,7 @@ void* HCServer_Authenticate(void* pServer, user_creds* pInpacket)
 		{
 			CServer_RejectConnection(pServer, *(unsigned int*)((std::uintptr_t)pServer + 0xC), pInpacket, "You have been banned from this Server."); // RejectConnection for the client.
 
-			if (sv_showconnecting->m_pParent->m_iValue > 0)
+			if (sv_showconnecting->GetBool())
 			{
 				DevMsg(eDLL_T::SERVER, "] NOTICE   : | THIS CLIENT IS BANNED!\n");
 				DevMsg(eDLL_T::SERVER, "--------------------------------------------------------------\n\n");
@@ -98,7 +78,7 @@ void* HCServer_Authenticate(void* pServer, user_creds* pInpacket)
 			return nullptr;
 		}
 	}
-	if (sv_showconnecting->m_pParent->m_iValue > 0)
+	if (sv_showconnecting->GetBool())
 	{
 		DevMsg(eDLL_T::SERVER, "\n");
 	}

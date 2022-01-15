@@ -1,4 +1,6 @@
 #pragma once
+#include "tier0/basetypes.h"
+
 namespace
 {
 #ifdef DEDICATED
@@ -14,11 +16,12 @@ void RuntimePtc_Toggle();
 
 namespace
 {
+#ifdef GAMEDLL_S3
 	/* -------------- OTHER ------------------------------------------------------------------------------------------------------------------------------------------------- */
 	ADDRESS dst007 = /*0x14028F3B0*/ FindPatternSIMD(g_szGameDll, (const unsigned char*)"\x48\x8B\xC4\x44\x89\x40\x18\x48\x89\x50\x10\x55\x53\x56\x57\x41", "xxxxxxxxxxxxxxxx");
 	ADDRESS dst008 = /*0x140E3E110*/ FindPatternSIMD(g_szGameDll, (const unsigned char*)"\x48\x83\xEC\x78\x48\x8B\x84\x24\x00\x00\x00\x00\x4D\x8B\xD8\x00", "xxxxxxxx????xxx?");
 	/* -------------- ------- ----------------------------------------------------------------------------------------------------------------------------------------------- */
-
+#endif // GAMEDLL_S3
 	namespace
 	{
 	//-------------------------------------------------------------------------
@@ -58,15 +61,6 @@ namespace
 		// 0x1403DF870 // 48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 C6 41 10 00 //
 
 	//-------------------------------------------------------------------------
-	// CMATERIALSYSTEM
-	//-------------------------------------------------------------------------
-		ADDRESS CMaterialSystem__Init = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x70\x48\x83\x3D\x00\x00\x00\x00\x00", "xxxx?xxxxxxxxxxxxxxxxxx?????");
-		// 0x1403BBFD0 // 48 89 5C 24 ? 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 70 48 83 3D ? ? ? ? ? //
-
-		ADDRESS InitMaterialSystem = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x83\xEC\x28\x48\x8B\x0D\x00\x00\x00\x00\x48\x8D\x15\x00\x00\x00\x00\x48\x8B\x01\xFF\x90\x00\x00\x00\x00\x48\x8B\x0D\x00\x00\x00\x00\x48\x8D\x15\x00\x00\x00\x00\x48\x8B\x01\xFF\x90\x00\x00\x00\x00", "xxxxxxx????xxx????xxxxx????xxx????xxx????xxxxx????"); //
-		// 0x14024B390 // 48 83 EC 28 48 8B 0D ? ? ? ? 48 8D 15 ? ? ? ? 48 8B 01 FF 90 ? ? ? ? 48 8B 0D ? ? ? ? 48 8D 15 ? ? ? ? 48 8B 01 FF 90 ? ? ? ? //
-
-	//-------------------------------------------------------------------------
 	// RUNTIME: BSP_LUMP
 	//-------------------------------------------------------------------------
 		ADDRESS CollisionBSPData_LoadAllLumps = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x54\x24\x00\x48\x89\x4C\x24\x00\x55\x53\x56\x57\x41\x54\x41\x55\x41\x57", "xxxx?xxxx?xxxxxxxxxx"); // BSP.
@@ -75,19 +69,37 @@ namespace
 		ADDRESS CollisionBSPData_LinkPhysics = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xF9\x33\xED", "xxxx?xxxx?xxxx????xxxxx"); // case 1: only gets called on changelevel, needs more research, function gets called by CModelLoader virtual function.
 		// 0x140256480 // 48 89 5C 24 ? 48 89 6C 24 ? 57 48 81 EC ? ? ? ? 48 8B F9 33 ED //
 
-
 	//-------------------------------------------------------------------------
 	// CSTUDIORENDERCONTEXT
 	//-------------------------------------------------------------------------
+#if defined (GAMEDLL_S1)
+		ADDRESS CStudioRenderContext__LoadModel = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x4C\x89\x44\x24\x00\x53\x55\x56\x41\x54\x41\x57", "xxxx?xxxxxxx");
+#elif defined (GAMEDLL_S2)
+		ADDRESS CStudioRenderContext__LoadModel = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x4C\x89\x44\x24\x00\x48\x89\x54\x24\x00\x53\x57\x41\x55\x48\x81\xEC\x00\x00\x00\x00", "xxxx?xxxx?xxxxxxx????");
+#elif defined (GAMEDLL_S3)
 		ADDRESS CStudioRenderContext__LoadModel = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x4C\x89\x44\x24\x00\x48\x89\x54\x24\x00\x48\x89\x4C\x24\x00\x53\x55\x56\x57\x48\x83\xEC\x78", "xxxx?xxxx?xxxx?xxxxxxxx");
-		// 0x1404554C0 // 4C 89 44 24 ? 48 89 54 24 ? 48 89 4C 24 ? 53 55 56 57 48 83 EC 78 //
+#endif// 0x1404554C0 // 4C 89 44 24 ? 48 89 54 24 ? 48 89 4C 24 ? 53 55 56 57 48 83 EC 78 //
 
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+		ADDRESS CStudioRenderContext__LoadMaterials = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x4C\x89\x44\x24\x00\x55\x56\x41\x57", "xxxx?xxxx");
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		ADDRESS CStudioRenderContext__LoadMaterials = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x8B\xC4\x4C\x89\x40\x18\x55\x56\x41\x55", "xxxxxxxxxxx");
-		// 0x140456B50 // 48 8B C4 4C 89 40 18 55 56 41 55 //
+#endif// 0x140456B50 // 48 8B C4 4C 89 40 18 55 56 41 55 //
 
 	//-------------------------------------------------------------------------
 	// CMODELLOADER
 	//-------------------------------------------------------------------------
+
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+		ADDRESS CModelLoader__FindModel = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x55\x41\x55\x41\x56\x48\x8D\xAC\x24\x00\x00\x00\x00", "xxxxxxxxxx????");
+		// 0x1402A1F10 // 40 55 41 55 41 56 48 8D AC 24 ? ? ? ? //
+
+		ADDRESS CModelLoader__LoadModel = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x57\x41\x56\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xFA", "xxxxxxxx????xxx");
+		// 0x1402A23B0 // 40 53 57 41 56 48 81 EC ? ? ? ? 48 8B FA //
+
+		ADDRESS CModelLoader__Studio_LoadModel = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x56\x48\x8D\xAC\x24\x00\x00\x00\x00", "xxxx?xxxxxxxxxxx????");
+		// 0x140252F10 // 48 89 5C 24 ? 55 56 57 41 54 41 57 48 81 EC ? ? ? ? //
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		ADDRESS CModelLoader__FindModel = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x55\x41\x57\x48\x83\xEC\x48\x80\x3A\x2A", "xxxxxxxxxxx");
 		// 0x140253530 // 40 55 41 57 48 83 EC 48 80 3A 2A //
 
@@ -96,18 +108,26 @@ namespace
 
 		ADDRESS CModelLoader__Studio_LoadModel = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x57\x48\x81\xEC\x00\x00\x00\x00", "xxxx?xxxxxxxxxx????");
 		// 0x140252F10 // 48 89 5C 24 ? 55 56 57 41 54 41 57 48 81 EC ? ? ? ? //
+#endif
 
 	//-------------------------------------------------------------------------
 	// CGAMESERVER
 	//-------------------------------------------------------------------------
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+		ADDRESS CGameServer__SpawnServer = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x55\x56\x57\x41\x55\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00", "xxxxxxxxxxxxxx????");
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		ADDRESS CGameServer__SpawnServer = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x8B\xC4\x53\x55\x56\x57\x41\x54\x41\x55\x41\x57", "xxxxxxxxxxxxx");
 		// 0x140312D80 // 48 8B C4 53 55 56 57 41 54 41 55 41 57 //
+#endif
 
 	//-------------------------------------------------------------------------
 	// RUNTIME: FAIRFIGHT
 	//-------------------------------------------------------------------------
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+		ADDRESS FairFight_Init = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x57\x41\x57\x48\x83\xEC\x30\x8B\x81\x00\x00\x00\x00", "xxxxxxxxxxx????");
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		ADDRESS FairFight_Init = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x48\x83\xEC\x20\x8B\x81\xB0\x03\x00\x00\x48\x8B\xD9\xC6", "xxxxxxxxxxxxxxxx");
-		// 0x140303AE0 // 40 53 48 83 EC 20 8B 81 ? ? ? ? 48 8B D9 C6 81 ? ? ? ? ? //
+#endif // 0x140303AE0 // 40 53 48 83 EC 20 8B 81 ? ? ? ? 48 8B D9 C6 81 ? ? ? ? ? //
 
 	//-------------------------------------------------------------------------
 	// RUNTIME: HOST_INIT
@@ -136,8 +156,14 @@ namespace
 	//-------------------------------------------------------------------------
 	// RUNTIME: GL_SCREEN
 	//-------------------------------------------------------------------------
+
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+		ADDRESS SCR_BeginLoadingPlaque = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x30\x0F\x29\x74\x24\x00\x48\x8B\xF9", "xxxx?xxxx?xxxxxxxxx?xxx");
+		// 0x14022A4A0 // 48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 30 0F 29 74 24 ? 48 8B F9  //
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		ADDRESS SCR_BeginLoadingPlaque = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x83\xEC\x38\x0F\x29\x74\x24\x00\x48\x89\x5C\x24\x00", "xxxxxxxx?xxxx?");
 		// 0x14022A4A0 // 48 83 EC 38 0F 29 74 24 ? 48 89 5C 24 ? //
+#endif
 	}
 }
 
@@ -152,9 +178,6 @@ class HOpcodes : public IDetour
 		std::cout << "| FUN: Sys_InitGame                         : 0x" << std::hex << std::uppercase << Sys_InitGame.GetPtr()                        << std::setw(npad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 		std::cout << "| FUN: CShaderSystem::Init                  : 0x" << std::hex << std::uppercase << CShaderSystem__Init.GetPtr()                 << std::setw(npad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
-		std::cout << "| FUN: CMaterialSystem::Init                : 0x" << std::hex << std::uppercase << CMaterialSystem__Init.GetPtr()               << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: InitMaterialSystem                   : 0x" << std::hex << std::uppercase << InitMaterialSystem.GetPtr()                  << std::setw(npad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 		std::cout << "| FUN: CollisionBSPData_LoadAllLumps        : 0x" << std::hex << std::uppercase << CollisionBSPData_LoadAllLumps.GetPtr()       << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: CollisionBSPData_LinkPhysics         : 0x" << std::hex << std::uppercase << CollisionBSPData_LinkPhysics.GetPtr()        << std::setw(npad) << " |" << std::endl;

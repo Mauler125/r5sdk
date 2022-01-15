@@ -6,8 +6,12 @@
 #include "tier0/basetypes.h"
 #include "common/opcodes.h"
 #include "engine/host_cmd.h"
+#include "materialsystem/materialsystem.h"
 #include "bsplib/bsplib.h"
 #include "ebisusdk/EbisuSDK.h"
+#ifndef DEDICATED
+#include "milessdk/win64_rrthreads.h"
+#endif // !DEDICATED
 
 
 #ifdef DEDICATED
@@ -126,13 +130,12 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	// RUNTIME: EBISUSDK
 	//-------------------------------------------------------------------------
-	p_EbisuSDK_Init_Tier0.Offset(0x0B).Patch({ 0xE9, 0x63, 0x02, 0x00, 0x00, 0x00 }); // JNZ --> JMP | Prevent EbisuSDK from initializing on the engine and server.
-	p_EbisuSDK_SetState.Offset(0x0E).Patch({ 0xE9, 0xCB, 0x03, 0x00, 0x00 });         // JNZ --> JMP | Prevent EbisuSDK from initializing on the engine and server.
+	p_EbisuSDK_SetState.Offset(0x0).FindPatternSelf("0F 84", ADDRESS::Direction::DOWN).Patch({ 0x0F, 0x85 }); // JE  --> JNZ | Prevent EbisuSDK from initializing on the engine and server.
 
 	//-------------------------------------------------------------------------
 	// RUNTIME: FAIRFIGHT
 	//-------------------------------------------------------------------------
-	FairFight_Init.Offset(0x61).Patch({ 0xE9, 0xED, 0x00, 0x00, 0x00, 0x00 });
+	FairFight_Init.Offset(0x0).FindPatternSelf("0F 87", ADDRESS::Direction::DOWN, 200).Patch({ 0x0F, 0x85 }); // JA  --> JNZ | Prevent 'FairFight' anti-cheat from initializing on the server by comparing RAX against 0x0 instead. Init will crash since the plugins aren't shipped.
 
 	//-------------------------------------------------------------------------
 	// RUNTIME: BSP_LUMP
@@ -170,18 +173,16 @@ void Dedicated_Init()
 
 void RuntimePtc_Init() /* .TEXT */
 {
-	SCR_BeginLoadingPlaque.Offset(0x1D6).Patch({ 0xEB, 0x27 });                       // JNE --> JMP | Prevent connect command from crashing by invalid call to UI function.
-	//-------------------------------------------------------------------------
-	// JNE --> JMP | Allow games to be loaded without the optional texture streaming file
-	//WriteProcessMemory(GameProcess, LPVOID(dst002 + 0x8E5), "\xEB\x19", 2, NULL);
-	//-------------------------------------------------------------------------
-	//-------------------------------------------------------------------------
-	// JA  --> JMP | Prevent FairFight anti-cheat from initializing on the server.
-	FairFight_Init.Offset(0x61).Patch({ 0xE9, 0xED, 0x00, 0x00, 0x00, 0x00 });
+#ifndef DEDICATED
+	p_WASAPI_GetAudioDevice.Offset(0x410).FindPattern("FF 15 ?? ?? 01 00", ADDRESS::Direction::DOWN, 100).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0xEB }); // CAL --> NOP | Disable debugger check when miles searches for audio device to allow attaching the debugger to the game upon launch.
+	FairFight_Init.Offset(0x0).FindPatternSelf("0F 87", ADDRESS::Direction::DOWN, 200).Patch({ 0x0F, 0x85 });      // JA  --> JNZ | Prevent 'FairFight' anti-cheat from initializing on the server by comparing RAX against 0x0 instead. Init will crash since the plugins aren't shipped.
+	SCR_BeginLoadingPlaque.Offset(0x1AD).FindPatternSelf("75 27", ADDRESS::Direction::DOWN).Patch({ 0xEB, 0x27 }); // JNE --> JMP | Prevent connect command from crashing by invalid call to UI function.
+#endif // !DEDICATED
 }
 
 void RuntimePtc_Toggle() /* .TEXT */
 {
+#ifdef GAMEDLL_S3
 	static bool g_nop = true;
 
 	if (g_nop)
@@ -191,7 +192,7 @@ void RuntimePtc_Toggle() /* .TEXT */
 		dst007.Offset(0x5E8).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });
 		//-------------------------------------------------------------------------
 		// CALL --> NOP | Disable the viewmodel rendered to avoid a crash from a certain entity in desertlands_mu1
-		dst008.Offset(0x67).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });
+		//dst008.Offset(0x67).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });
 
 
 		printf("\n");
@@ -207,7 +208,7 @@ void RuntimePtc_Toggle() /* .TEXT */
 		dst007.Offset(0x5E8).Patch({ 0x48, 0x8B, 0x03, 0xFF, 0x90, 0xB0, 0x02, 0x00, 0x00, 0x84, 0xC0 });
 		//-------------------------------------------------------------------------
 		// NOP --> CALL | Recover function DST008
-		dst008.Offset(0x67).Patch({ 0xE8, 0x54, 0xD8, 0xFF, 0xFF });
+		//dst008.Offset(0x67).Patch({ 0xE8, 0x54, 0xD8, 0xFF, 0xFF });
 
 		printf("\n");
 		printf("+--------------------------------------------------------+\n");
@@ -216,4 +217,13 @@ void RuntimePtc_Toggle() /* .TEXT */
 		printf("\n");
 	}
 	g_nop = !g_nop;
+
+
+/*
+rtech_asyncload "common.rpak"
+rtech_asyncload "common_mp.rpak"
+rtech_asyncload "mp_rr_canyonlands_mu1.rpak"
+rtech_asyncload "mp_rr_desertlands_64k_x_64k.rpak"
+*/
+#endif // GAMEDLL_S3
 }

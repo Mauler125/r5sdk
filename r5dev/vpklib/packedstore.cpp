@@ -124,9 +124,9 @@ std::string CPackedStore::StripLocalePrefix(std::string svPackDirFile)
 		if (strstr(svFileName.c_str(), DIR_LOCALE_PREFIX[i].c_str()))
 		{
 			StringReplace(svFileName, DIR_LOCALE_PREFIX[i].c_str(), "");
-			goto escape;
+			break;
 		}
-	}escape:;
+	}
 	return svFileName;
 }
 
@@ -195,11 +195,8 @@ void CPackedStore::UnpackAll(vpk_dir_h vpk_dir, std::string svPathOut)
 
 		for ( vpk_entry_block block : vpk_dir.m_vvEntryBlocks)
 		{
-			if (block.m_iArchiveIndex != i)
-			{
-				// Continue if block archive index is not part of the extracting archive chunk index.
-				goto cont;
-			}
+			// Escape if block archive index is not part of the extracting archive chunk index.
+			if (block.m_iArchiveIndex != i) { goto escape; }
 			else
 			{
 				std::string svFilePath = CreateDirectories(svPathOut + "\\" + block.m_svBlockPath);
@@ -223,7 +220,7 @@ void CPackedStore::UnpackAll(vpk_dir_h vpk_dir, std::string svPathOut)
 						lzham_uint8* pLzOutputBuf = new lzham_uint8[entry.m_nUncompressedSize];
 						m_lzDecompStatus = lzham_decompress_memory(&m_lzDecompParams, pLzOutputBuf, (size_t*)&entry.m_nUncompressedSize, (lzham_uint8*)pCompressedData, entry.m_nCompressedSize, &m_nAdler32_Internal, &m_nCrc32_Internal);
 
-						if (fs_packedstore_entryblock_stats->m_pParent->m_iValue > 0)
+						if (fs_packedstore_entryblock_stats->GetBool())
 						{
 							DevMsg(eDLL_T::FS, "--------------------------------------------------------------\n");
 							DevMsg(eDLL_T::FS, "] Block path            : '%s'\n", block.m_svBlockPath.c_str());
@@ -271,9 +268,9 @@ void CPackedStore::UnpackAll(vpk_dir_h vpk_dir, std::string svPathOut)
 
 					ValidateCRC32PostDecomp(svFilePath);
 					//ValidateAdler32PostDecomp(svFilePath);
-					m_nEntryCount       = 0;
+					m_nEntryCount = 0;
 				}
-			}cont:;
+			}escape:;
 		}
 		packChunkStream.close();
 	}
@@ -357,7 +354,7 @@ vpk_dir_h::vpk_dir_h(std::string svPath)
 	for (int i = 0; i < this->m_iArchiveCount + 1; i++)
 	{
 		std::string svArchivePath = g_pPackedStore->GetPackChunkFile(svPath, i);
-		DevMsg(eDLL_T::FS, "] '%s\n", svArchivePath.c_str());
+		DevMsg(eDLL_T::FS, "] '%s'\n", svArchivePath.c_str());
 		this->m_vsvArchives.push_back(svArchivePath);
 	}
 }
