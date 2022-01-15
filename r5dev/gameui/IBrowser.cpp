@@ -55,6 +55,7 @@ IBrowser::IBrowser()
         {
             m_vszMapsList.push_back(filename);
         }
+        m_vszMapFileNameList.push_back(filename);
     }
 
     static std::thread hostingServerRequestThread([this]()
@@ -92,24 +93,22 @@ IBrowser::~IBrowser()
 //-----------------------------------------------------------------------------
 // Purpose: Sets needed create game vars
 //-----------------------------------------------------------------------------
-void IBrowser::SetMenuVars(std::string name, std::string vis)
+void IBrowser::SetMenuVars(std::string name, EServerVisibility vis)
 {
-    if (vis == "Public")
+    switch (vis)
     {
+    case EServerVisibility::PUBLIC:
         m_Server.bHidden = false;
-        eServerVisibility = EServerVisibility::PUBLIC;
-    }
-    else if (vis == "Private")
-    {
-        eServerVisibility = EServerVisibility::HIDDEN;
+        break;
+    case EServerVisibility::HIDDEN:
         m_Server.bHidden = true;
-    }
-    else
-    {
+        break;
+    default:
         m_Server.bHidden = true;
-        eServerVisibility = EServerVisibility::OFFLINE;
+        break;
     }
 
+    eServerVisibility = vis;
     m_Server.svServerName = name;
 
     UpdateHostingStatus();
