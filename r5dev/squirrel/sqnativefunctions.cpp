@@ -8,45 +8,61 @@ namespace SQNativeFunctions
 {
 	namespace IBrowser
 	{
+
+        //----------------------------------------------------------------------------
+        // Purpose: get servers current server name from serverlist index
+        //-----------------------------------------------------------------------------
         SQRESULT GetServerName(void* sqvm)
         {
             int svIndex = hsq_getinteger(sqvm, 1);
-            std::string svName = g_pIBrowser->m_vServerList[svIndex].svServerName;
+            std::string szSvName = g_pIBrowser->m_vServerList[svIndex].svServerName;
 
-            hsq_pushstring(sqvm, svName.c_str(), -1);
+            hsq_pushstring(sqvm, szSvName.c_str(), -1);
 
             return SQ_OK;
         }
 
+        //----------------------------------------------------------------------------
+        // Purpose: get servers current playlist via serverlist index
+        //-----------------------------------------------------------------------------
         SQRESULT GetServerPlaylist(void* sqvm)
         {
             int svIndex = hsq_getinteger(sqvm, 1);
-            std::string svPlaylist = g_pIBrowser->m_vServerList[svIndex].svPlaylist;
+            std::string szSvPlaylist = g_pIBrowser->m_vServerList[svIndex].svPlaylist;
 
-            hsq_pushstring(sqvm, svPlaylist.c_str(), -1);
+            hsq_pushstring(sqvm, szSvPlaylist.c_str(), -1);
 
             return SQ_OK;
         }
 
+        //----------------------------------------------------------------------------
+        // Purpose: get servers current map via serverlist index
+        //-----------------------------------------------------------------------------
         SQRESULT GetServerMap(void* sqvm)
         {
             int svIndex = hsq_getinteger(sqvm, 1);
-            std::string svMapName = g_pIBrowser->m_vServerList[svIndex].svMapName;
+            std::string szSvMapName = g_pIBrowser->m_vServerList[svIndex].svMapName;
 
-            hsq_pushstring(sqvm, svMapName.c_str(), -1);
+            hsq_pushstring(sqvm, szSvMapName.c_str(), -1);
 
             return SQ_OK;
         }
 
+        //----------------------------------------------------------------------------
+        // Purpose: get current server count from pylon
+        //-----------------------------------------------------------------------------
         SQRESULT GetServerCount(void* sqvm)
         {
-            g_pIBrowser->GetServerList(); // Refresh server list.
+            g_pIBrowser->GetServerList(); // Refresh svListing list.
 
             hsq_pushinteger(sqvm, g_pIBrowser->m_vServerList.size());
 
             return SQ_OK;
         }
 
+        //----------------------------------------------------------------------------
+        // Purpose: expose SDK version to SQ
+        //-----------------------------------------------------------------------------
         SQRESULT GetSDKVersion(void* sqvm)
         {
             hsq_pushstring(sqvm, g_pR5net->GetSDKVersion().c_str(), -1);
@@ -54,6 +70,9 @@ namespace SQNativeFunctions
             return SQ_OK;
         }
 
+        //----------------------------------------------------------------------------
+        // Purpose: get promo data for serverbrowser panels
+        //-----------------------------------------------------------------------------
         SQRESULT GetPromoData(void* sqvm)
         {
             enum class R5RPromoData : int
@@ -66,54 +85,57 @@ namespace SQNativeFunctions
                 PromoRightDesc
             };
 
-            R5RPromoData prIndex = (R5RPromoData)hsq_getinteger(sqvm, 1);
+            R5RPromoData ePromoIndex = (R5RPromoData)hsq_getinteger(sqvm, 1);
 
-            std::string prStr = std::string();
+            std::string szPromo = std::string();
 
-            switch (prIndex)
+            switch (ePromoIndex)
             {
             case R5RPromoData::PromoLargeTitle:
             {
-                prStr = "Welcome To R5Reloaded!";
+                szPromo = "Welcome To R5Reloaded!";
                 break;
             }
             case R5RPromoData::PromoLargeDesc:
             {
-                prStr = "Make sure to join the discord! discord.gg/r5reloaded";
+                szPromo = "Make sure to join the discord! discord.gg/r5reloaded";
                 break;
             }
             case R5RPromoData::PromoLeftTitle:
             {
-                prStr = "Yes";
+                szPromo = "Yes";
                 break;
             }
             case R5RPromoData::PromoLeftDesc:
             {
-                prStr = "Your ad could be here";
+                szPromo = "Your ad could be here";
                 break;
             }
             case R5RPromoData::PromoRightTitle:
             {
-                prStr = "Yes2";
+                szPromo = "Yes2";
                 break;
             }
             case R5RPromoData::PromoRightDesc:
             {
-                prStr = "Yes3";
+                szPromo = "Yes3";
                 break;
             }
             default:
             {
-                prStr = "You should not see this.";
+                szPromo = "You should not see this.";
                 break;
             }
             }
 
-            hsq_pushstring(sqvm, prStr.c_str(), -1);
+            hsq_pushstring(sqvm, szPromo.c_str(), -1);
 
             return SQ_OK;
         }
 
+        //-----------------------------------------------------------------------------
+        // Purpose: set netchannel encryption key and connect to server
+        //-----------------------------------------------------------------------------
         SQRESULT SetEncKeyAndConnect(void* sqvm)
         {
             int svIndex = hsq_getinteger(sqvm, 1);
@@ -123,89 +145,109 @@ namespace SQNativeFunctions
             return SQ_OK;
         }
 
+        //-----------------------------------------------------------------------------
+        // Purpose: create server via native serverbrowser entries
+        //-----------------------------------------------------------------------------
         SQRESULT CreateServerFromMenu(void* sqvm)
         {
-            std::string svName = hsq_getstring(sqvm, 1);
-            std::string svMapName = hsq_getstring(sqvm, 2);
-            std::string svPlaylist = hsq_getstring(sqvm, 3);
-            EServerVisibility svVisibility = (EServerVisibility)hsq_getinteger(sqvm, 4);
+            std::string szSvName = hsq_getstring(sqvm, 1);
+            std::string szSvMapName = hsq_getstring(sqvm, 2);
+            std::string szSvPlaylist = hsq_getstring(sqvm, 3);
+            EServerVisibility eSvVisibility = (EServerVisibility)hsq_getinteger(sqvm, 4);
 
-            if (svMapName.empty() || svPlaylist.empty())
+            if (szSvName.empty() || szSvMapName.empty() || szSvPlaylist.empty())
                 return SQ_OK;
+            
+            // Adjust browser settings.
+            g_pIBrowser->m_Server.svPlaylist   = szSvPlaylist;
+            g_pIBrowser->m_Server.svMapName    = szSvMapName;
+            g_pIBrowser->m_Server.svServerName = szSvName;
+            g_pIBrowser->eServerVisibility     = eSvVisibility;
 
-            g_pIBrowser->SetMenuVars(svName, svVisibility); // Pass integer instead
-
-            /* Changing this up to call a IBrowser method eventually. */
-            DevMsg(eDLL_T::ENGINE, "Starting Server with map '%s' and playlist '%s'\n", svMapName.c_str(), svPlaylist.c_str());
-
-            g_pIBrowser->LoadPlaylist(svPlaylist.c_str());
-            std::stringstream cgmd;
-            cgmd << "mp_gamemode " << svPlaylist;
-            g_pIBrowser->ProcessCommand(cgmd.str().c_str());
-
-            // This is to avoid svIndex race condition.
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-            std::stringstream cmd;
-            cmd << "map " << svMapName;
-            g_pIBrowser->ProcessCommand(cmd.str().c_str());
+            // Launch server.
+            g_pIBrowser->LaunchServer();
 
             return SQ_OK;
         }
 
+        //-----------------------------------------------------------------------------
+        // // Purpose: request token from pylon and join server with result.
+        //-----------------------------------------------------------------------------
         SQRESULT JoinPrivateServerFromMenu(void* sqvm)
         {
-            std::string m_szHiddenServerRequestMessage;
+            std::string szHiddenServerRequestMessage = std::string();
 
-            std::string token = hsq_getstring(sqvm, 1);
+            std::string szToken = hsq_getstring(sqvm, 1);
 
-            ServerListing server;
-            bool result = g_pR5net->GetServerByToken(server, m_szHiddenServerRequestMessage, token); // Send token connect request.
+            ServerListing svListing;
+            bool result = g_pR5net->GetServerByToken(svListing, szHiddenServerRequestMessage, szToken); // Send szToken connect request.
             if (result)
             {
-                g_pIBrowser->ConnectToServer(server.svIpAddress, server.svPort, server.svEncryptionKey);
+                g_pIBrowser->ConnectToServer(svListing.svIpAddress, svListing.svPort, svListing.svEncryptionKey);
             }
 
             return SQ_OK;
         }
 
+        //-----------------------------------------------------------------------------
+        // Purpose: get response from private server request
+        //-----------------------------------------------------------------------------
         SQRESULT GetPrivateServerMessage(void* sqvm)
         {
-            std::string m_szHiddenServerRequestMessage;
+            std::string szHiddenServerRequestMessage = std::string();
 
-            std::string token = hsq_getstring(sqvm, 1);
+            std::string szToken = hsq_getstring(sqvm, 1);
 
-            ServerListing server;
-            bool result = g_pR5net->GetServerByToken(server, m_szHiddenServerRequestMessage, token); // Send token connect request.
-            if (!server.svServerName.empty())
+            ServerListing slServer;
+            bool result = g_pR5net->GetServerByToken(slServer, szHiddenServerRequestMessage, szToken); // Send szToken connect request.
+            if (!slServer.svServerName.empty())
             {
-                m_szHiddenServerRequestMessage = "Found Server: " + server.svServerName;
+                szHiddenServerRequestMessage = "Found Server: " + slServer.svServerName;
 
-                hsq_pushstring(sqvm, m_szHiddenServerRequestMessage.c_str(), -1);
+                hsq_pushstring(sqvm, szHiddenServerRequestMessage.c_str(), -1);
             }
             else
             {
-                m_szHiddenServerRequestMessage = "Error: Server Not Found";
+                szHiddenServerRequestMessage = "Error: Server Not Found";
 
-                hsq_pushstring(sqvm, m_szHiddenServerRequestMessage.c_str(), -1);
+                hsq_pushstring(sqvm, szHiddenServerRequestMessage.c_str(), -1);
             }
 
+            DevMsg(eDLL_T::UI, "GetPrivateServeMessage response: %s\n", szHiddenServerRequestMessage.c_str());
+
             return SQ_OK;
         }
 
+        //-----------------------------------------------------------------------------
+        // Purpose: connect to server from native server browser entries
+        //-----------------------------------------------------------------------------
         SQRESULT ConnectToIPFromMenu(void* sqvm)
         {
-            std::string ip = hsq_getstring(sqvm, 1);
-            std::string key = hsq_getstring(sqvm, 2);
+            std::string szIP = hsq_getstring(sqvm, 1);
+            std::string szEncKey = hsq_getstring(sqvm, 2);
 
-            g_pIBrowser->ConnectToServer(ip, key);
+            if (szIP.empty() || szEncKey.empty())
+                return SQ_OK;
+
+            DevMsg(eDLL_T::UI, "Connecting to server with connection string %s and encryptionkey %s\n", szIP, szEncKey);
+
+            g_pIBrowser->ConnectToServer(szIP, szEncKey);
 
             return SQ_OK;
         }
 
+        //-----------------------------------------------------------------------------
+        // Purpose: return all available map
+        //-----------------------------------------------------------------------------
         SQRESULT GetAvailableMaps(void* sqvm)
         {
             std::vector<std::string> mapList = g_pIBrowser->m_vszMapFileNameList;
+
+            if (mapList.empty())
+            {
+                DevMsg(eDLL_T::UI, "Available maps is empty!!!\n");
+                return SQ_OK;
+            }
 
             DevMsg(eDLL_T::UI, "Requesting an array of %i available maps from script\n", mapList.size());
 

@@ -91,30 +91,6 @@ IBrowser::~IBrowser()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Sets needed create game vars
-//-----------------------------------------------------------------------------
-void IBrowser::SetMenuVars(std::string name, EServerVisibility vis)
-{
-    switch (vis)
-    {
-    case EServerVisibility::PUBLIC:
-        m_Server.bHidden = false;
-        break;
-    case EServerVisibility::HIDDEN:
-        m_Server.bHidden = true;
-        break;
-    default:
-        m_Server.bHidden = true;
-        break;
-    }
-
-    eServerVisibility = vis;
-    m_Server.svServerName = name;
-
-    UpdateHostingStatus();
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: draws the main browser front-end
 //-----------------------------------------------------------------------------
 void IBrowser::Draw(const char* title, bool* bDraw)
@@ -311,7 +287,7 @@ void IBrowser::GetServerList()
 //-----------------------------------------------------------------------------
 // Purpose: connects to specified server
 //-----------------------------------------------------------------------------
-void IBrowser::ConnectToServer(const std::string ip, const std::string port, const std::string encKey)
+void IBrowser::ConnectToServer(const std::string& ip, const std::string& port, const std::string& encKey)
 {
     if (!encKey.empty())
     {
@@ -326,7 +302,7 @@ void IBrowser::ConnectToServer(const std::string ip, const std::string port, con
 //-----------------------------------------------------------------------------
 // Purpose: connects to specified server
 //-----------------------------------------------------------------------------
-void IBrowser::ConnectToServer(const std::string connString, const std::string encKey)
+void IBrowser::ConnectToServer(const std::string& connString, const std::string& encKey)
 {
     if (!encKey.empty())
     {
@@ -339,11 +315,27 @@ void IBrowser::ConnectToServer(const std::string connString, const std::string e
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Load playlist into KeyValues.
+// Purpose: Launch server with given parameters
 //-----------------------------------------------------------------------------
-void IBrowser::LoadPlaylist(const char* playlistName)
+void IBrowser::LaunchServer()
 {
-    KeyValues_LoadPlaylist(playlistName);
+    DevMsg(eDLL_T::ENGINE, "Starting Server with name '%s', map '%s' and playlist '%s'\n", m_Server.svServerName.c_str(), m_Server.svMapName.c_str(), m_Server.svPlaylist.c_str());
+
+    /*
+    * Playlist gets parsed in two instances, first in LoadPlaylist all the neccessary values.
+    * Then when you would normally call launchplaylist which calls StartPlaylist it would cmd call mp_gamemode which parses the gamemode specific part of the playlist..
+    */
+    KeyValues_LoadPlaylist(m_Server.svPlaylist.c_str());
+    std::stringstream cgmd;
+    cgmd << "mp_gamemode " << m_Server.svPlaylist;
+    ProcessCommand(cgmd.str().c_str());
+
+    // This is to avoid a race condition.
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    std::stringstream cmd;
+    cmd << "map " << m_Server.svMapName;
+    ProcessCommand(cmd.str().c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -481,25 +473,8 @@ void IBrowser::HostServerSection()
             szServerNameErr.clear();
             if (!m_Server.svServerName.empty() && !m_Server.svPlaylist.empty() && !m_Server.svMapName.empty())
             {
-                DevMsg(eDLL_T::ENGINE, "Starting Server with name '%s', map '%s' and playlist '%s'\n", m_Server.svServerName.c_str(), m_Server.svMapName.c_str(), m_Server.svPlaylist.c_str());
-                szServerNameErr = std::string();
-                UpdateHostingStatus();
-
-                /*
-                * Playlist gets parsed in two instances, first in LoadPlaylist all the neccessary values.
-                * Then when you would normally call launchplaylist which calls StartPlaylist it would cmd call mp_gamemode which parses the gamemode specific part of the playlist..
-                */
-                LoadPlaylist(m_Server.svPlaylist.c_str());
-                std::stringstream cgmd;
-                cgmd << "mp_gamemode " << m_Server.svPlaylist;
-                ProcessCommand(cgmd.str().c_str());
-
-                // This is to avoid a race condition.
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-                std::stringstream cmd;
-                cmd << "map " << m_Server.svMapName;
-                ProcessCommand(cmd.str().c_str());
+                LaunchServer(); // Launch server.
+                UpdateHostingStatus(); // Update hosting status.
             }
             else
             {
@@ -524,25 +499,8 @@ void IBrowser::HostServerSection()
         szServerNameErr.clear();
         if (!m_Server.svPlaylist.empty() && !m_Server.svMapName.empty())
         {
-            DevMsg(eDLL_T::ENGINE, "Starting Server with map '%s' and playlist '%s'\n", m_Server.svMapName.c_str(), m_Server.svPlaylist.c_str());
-            szServerNameErr = std::string();
-            UpdateHostingStatus();
-
-            /*
-            * Playlist gets parsed in two instances, first in LoadPlaylist all the neccessary values.
-            * Then when you would normally call launchplaylist which calls StartPlaylist it would cmd call mp_gamemode which parses the gamemode specific part of the playlist..
-            */
-            LoadPlaylist(m_Server.svPlaylist.c_str());
-            std::stringstream cgmd;
-            cgmd << "mp_gamemode " << m_Server.svPlaylist;
-            ProcessCommand(cgmd.str().c_str());
-
-            // This is to avoid a race condition.
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-            std::stringstream cmd;
-            cmd << "map " << m_Server.svMapName;
-            ProcessCommand(cmd.str().c_str());
+            LaunchServer(); // Launch server.
+            UpdateHostingStatus(); // Update hosting status.
         }
         else
         {
@@ -686,6 +644,7 @@ void IBrowser::SendHostingPostRequest()
             msg << "Share the following token for clients to connect: ";
         }
         m_szHostRequestMessage = msg.str().c_str();
+        DevMsg(eDLL_T::CLIENT, "PostServerHost replied with: %s\n", m_szHostRequestMessage);
     }
     else
     {
@@ -738,7 +697,7 @@ void IBrowser::RegenerateEncryptionKey()
 //-----------------------------------------------------------------------------
 // Purpose: changes encryption key to specified one
 //-----------------------------------------------------------------------------
-void IBrowser::ChangeEncryptionKeyTo(const std::string str)
+void IBrowser::ChangeEncryptionKeyTo(const std::string& str)
 {
     HNET_SetKey(str);
 }
