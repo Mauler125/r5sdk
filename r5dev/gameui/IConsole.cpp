@@ -60,18 +60,6 @@ void CConsole::Draw(const char* pszTitle, bool* bDraw)
         SetStyleVar();
         m_bInitialized = true;
     }
-    if (g_pImGuiConfig->IConsole_Config.m_bAutoClear) // Check if Auto-Clear is enabled.
-    {
-        // Loop and clear the beginning of the vector until we are below our limit.
-        while (m_ivConLog.Size > g_pImGuiConfig->IConsole_Config.m_nAutoClearLimit)
-        {
-            m_ivConLog.erase(m_ivConLog.begin());
-        }
-        while (m_ivHistory.Size > 512)
-        {
-            m_ivHistory.erase(m_ivHistory.begin());
-        }
-    }
 
     //ImGui::ShowStyleEditor();
 
@@ -212,6 +200,25 @@ void CConsole::Options()
     }
 
     ImGui::EndPopup();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: runs tasks for the console while not being drawn
+//-----------------------------------------------------------------------------
+void CConsole::Think()
+{
+    if (g_pImGuiConfig->IConsole_Config.m_bAutoClear) // Check if Auto-Clear is enabled.
+    {
+        // Loop and clear the beginning of the vector until we are below our limit.
+        while (m_ivConLog.Size > g_pImGuiConfig->IConsole_Config.m_nAutoClearLimit)
+        {
+            m_ivConLog.erase(m_ivConLog.begin());
+        }
+        while (m_ivHistory.Size > 512)
+        {
+            m_ivHistory.erase(m_ivHistory.begin());
+        }
+    }
 }
 
 //-----------------------------------------------------------------------------

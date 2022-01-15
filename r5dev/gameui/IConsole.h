@@ -25,6 +25,7 @@ public:
 
     void Draw(const char* title, bool* bDraw);
     void Options();
+    void Think();
 
     void ProcessCommand(const char* command_line);
     int TextEditCallback(ImGuiInputTextCallbackData* data);

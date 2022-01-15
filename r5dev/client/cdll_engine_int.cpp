@@ -10,6 +10,7 @@
 #include "engine/net_chan.h"
 #include "public/include/bansystem.h"
 #include "vpc/keyvalues.h"
+#include "gameui/IConsole.h"
 /*****************************************************************************/
 
 //-----------------------------------------------------------------------------
@@ -97,7 +98,7 @@ void __fastcall HFrameStageNotify(CHLClient* rcx, ClientFrameStage_t frameStage)
 			break;
 		}
 	}
-
+	g_pIConsole->Think();
 	CHLClient_FrameStageNotify(rcx, (int)frameStage);
 }
 
