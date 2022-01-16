@@ -32,7 +32,7 @@ void R5Dev_Init()
 #endif // !DEDICATED
 
     spdlog::info("\n");
-    for (int i = 0; i < 7; i++)
+    for (int i = 0; i < (&R5R_LOGO)[1] - R5R_LOGO; i++)
     {
         std::string unescaped = StringEscape(R5R_LOGO[i]);
         spdlog::info("{}{}{}\n", g_svRedF.c_str(), unescaped.c_str(), g_svReset.c_str());
