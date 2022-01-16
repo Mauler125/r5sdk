@@ -1,6 +1,5 @@
 #pragma once
 #include "core/stdafx.h"
-#include "tier0/basetypes.h"
 #include "mathlib/color.h"
 
 enum class LogType_t : int

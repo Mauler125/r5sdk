@@ -1,5 +1,4 @@
 #pragma once
-#include "tier0/basetypes.h"
 #include "tier0/interface.h"
 
 class CEngineAPI

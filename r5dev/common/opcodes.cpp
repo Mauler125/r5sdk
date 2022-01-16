@@ -3,7 +3,6 @@
  *-----------------------------------------------------------------------------*/
 
 #include "core/stdafx.h"
-#include "tier0/basetypes.h"
 #include "common/opcodes.h"
 #include "engine/host_cmd.h"
 #include "materialsystem/materialsystem.h"

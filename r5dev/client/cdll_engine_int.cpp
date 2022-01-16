@@ -1,6 +1,5 @@
 #include "core/stdafx.h"
 /*****************************************************************************/
-#include "tier0/basetypes.h"
 #include "tier0/IConVar.h"
 #include "tier0/cvar.h"
 #include "tier0/commandline.h"

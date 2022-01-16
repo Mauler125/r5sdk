@@ -1,6 +1,5 @@
 #pragma once
 #include "core/stdafx.h"
-#include "tier0/basetypes.h"
 #include "common/protocol.h"
 #include "client/client.h"
 

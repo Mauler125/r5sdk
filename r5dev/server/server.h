@@ -1,5 +1,4 @@
 #pragma once
-#include "tier0/basetypes.h"
 #include "networksystem/r5net.h"
 
 struct user_creds

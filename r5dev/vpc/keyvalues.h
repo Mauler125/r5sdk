@@ -1,5 +1,4 @@
 #pragma once
-#include "tier0/basetypes.h"
 
 #define MAKE_3_BYTES_FROM_1_AND_2( x1, x2 ) (( (( std::uint16_t )x2) << 8 ) | (std::uint8_t)(x1))
 extern std::vector<std::string> g_szAllPlaylists;

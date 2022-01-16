@@ -1,5 +1,4 @@
 #pragma once
-#include "tier0/basetypes.h"
 #include "tier0/completion.h"
 #include "public/include/utility.h"
 

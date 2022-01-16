@@ -5,7 +5,6 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#include "tier0/basetypes.h"
 #include "client/IVEngineClient.h"
 
 //#ifdef GAMEDLL_S3

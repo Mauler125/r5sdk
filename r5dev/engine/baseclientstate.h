@@ -1,5 +1,4 @@
 #pragma once
-#include "tier0/basetypes.h"
 #include "engine/debugoverlay.h"
 
 namespace
