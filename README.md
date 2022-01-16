@@ -25,10 +25,10 @@ All preconfigured launch parameters are available from the release page of this 
 
 The `startup_*.cfg` files are loaded from `<gamedir>\platform\cfg\startup_*.cfg`
 
- * Launch option 1 [RELEASE GAME] loads `startup_retail.cfg`
- * Launch option 2 [DEBUG GAME] loads `startup_debug.cfg`
- * Launch option 3 [RELEASE DEDICATED] loads `startup_dedi_retail.cfg`
- * Launch option 4 [DEBUG DEDICATED] loads `startup_dedi_debug.cfg`
+ * Launch option 1 [DEBUG GAME] loads `startup_debug.cfg`
+ * Launch option 2 [RELEASE GAME] loads `startup_retail.cfg`
+ * Launch option 3 [DEBUG DEDICATED] loads `startup_dedi_debug.cfg`
+ * Launch option 4 [RELEASE DEDICATED] loads `startup_dedi_retail.cfg`
 
 You can add or remove launch parameters from these files. Be carefull, as some are necessary to run the SDK with the game.
 

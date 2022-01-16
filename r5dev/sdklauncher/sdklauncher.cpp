@@ -24,7 +24,7 @@ void PrintLastError()
 // * Load specified command line arguments from a file on the disk.
 // * Format the file paths for the game exe and specified hook dll.
 //-----------------------------------------------------------------------------
-bool LaunchR5Apex(LAUNCHMODE lMode, LAUNCHSTATE lState)
+bool LaunchR5Apex(eLaunchMode lMode, eLaunchState lState)
 {
     ///////////////////////////////////////////////////////////////////////////
     // Initialize strings.
@@ -38,7 +38,7 @@ bool LaunchR5Apex(LAUNCHMODE lMode, LAUNCHSTATE lState)
     // Determine launch mode.
     switch (lMode)
     {
-        case LAUNCHMODE::LM_DEBUG:
+        case eLaunchMode::LM_DEBUG_GAME:
         {
             std::filesystem::path cfgPath = std::filesystem::current_path() /= "platform\\cfg\\startup_debug.cfg"; // Get cfg path for debug startup.
             std::ifstream cfgFile(cfgPath); // Read the cfg file.
@@ -50,7 +50,7 @@ bool LaunchR5Apex(LAUNCHMODE lMode, LAUNCHSTATE lState)
             }
             else
             {
-                spdlog::error("File 'platform\\cfg\\startup_debug.cfg' does not exist.\n");
+                spdlog::error("File 'platform\\cfg\\startup_debug.cfg' does not exist!\n");
                 cfgFile.close();
                 return false;
             }
@@ -63,7 +63,7 @@ bool LaunchR5Apex(LAUNCHMODE lMode, LAUNCHSTATE lState)
             spdlog::info("*** LAUNCHING GAME [DEBUG] ***\n");
             break;
         }
-        case LAUNCHMODE::LM_RELEASE:
+        case eLaunchMode::LM_RELEASE_GAME:
         {
             std::filesystem::path cfgPath = std::filesystem::current_path() /= "platform\\cfg\\startup_retail.cfg"; // Get cfg path for release startup.
             std::ifstream cfgFile(cfgPath); // Read the cfg file.
@@ -75,7 +75,7 @@ bool LaunchR5Apex(LAUNCHMODE lMode, LAUNCHSTATE lState)
             }
             else
             {
-                spdlog::error("File 'platform\\cfg\\startup_retail.cfg' does not exist.\n");
+                spdlog::error("File 'platform\\cfg\\startup_retail.cfg' does not exist!\n");
                 cfgFile.close();
                 return false;
             }
@@ -88,9 +88,9 @@ bool LaunchR5Apex(LAUNCHMODE lMode, LAUNCHSTATE lState)
             spdlog::info("*** LAUNCHING GAME [RELEASE] ***\n");
             break;
         }
-        case LAUNCHMODE::LM_DEDI:
+        case eLaunchMode::LM_DEBUG_DEDI:
         {
-            std::filesystem::path cfgPath = std::filesystem::current_path() /= "platform\\cfg\\startup_dedi.cfg"; // Get cfg path for dedicated startup.
+            std::filesystem::path cfgPath = std::filesystem::current_path() /= "platform\\cfg\\startup_dedi_debug.cfg"; // Get cfg path for dedicated startup.
             std::ifstream cfgFile(cfgPath); // Read the cfg file.
             if (cfgFile.good() && cfgFile)  // Does the cfg file exist?
             {
@@ -100,7 +100,7 @@ bool LaunchR5Apex(LAUNCHMODE lMode, LAUNCHSTATE lState)
             }
             else
             {
-                spdlog::error("File 'platform\\cfg\\startup_dedi.cfg' does not exist.\n");
+                spdlog::error("File 'platform\\cfg\\startup_dedi_debug.cfg' does not exist!\n");
                 cfgFile.close();
                 return false;
             }
@@ -110,7 +110,32 @@ bool LaunchR5Apex(LAUNCHMODE lMode, LAUNCHSTATE lState)
             GameDirectory      = currentDirectory + "\\r5apex_ds.exe";                         // Get path to game executeable.
             StartupCommandLine = currentDirectory + "\\r5apex_ds.exe " + CommandLineArguments; // Setup startup command line string.
 
-            spdlog::info("*** LAUNCHING GAME [DEDICATED] ***\n");
+            spdlog::info("*** LAUNCHING DEDICATED [DEBUG] ***\n");
+            break;
+        }
+        case eLaunchMode::LM_RELEASE_DEDI:
+        {
+            std::filesystem::path cfgPath = std::filesystem::current_path() /= "platform\\cfg\\startup_dedi_retail.cfg"; // Get cfg path for dedicated startup.
+            std::ifstream cfgFile(cfgPath); // Read the cfg file.
+            if (cfgFile.good() && cfgFile)  // Does the cfg file exist?
+            {
+                std::stringstream ss;
+                ss << cfgFile.rdbuf();           // Read ifstream buffer into stringstream.
+                CommandLineArguments = ss.str(); // Get all the contents of the cfg file.
+            }
+            else
+            {
+                spdlog::error("File 'platform\\cfg\\startup_dedi_retail.cfg' does not exist!\n");
+                cfgFile.close();
+                return false;
+            }
+            cfgFile.close(); // Close cfg file.
+
+            WorkerDll          = currentDirectory + "\\dedicated.dll";                         // Get path to worker dll.
+            GameDirectory      = currentDirectory + "\\r5apex_ds.exe";                         // Get path to game executeable.
+            StartupCommandLine = currentDirectory + "\\r5apex_ds.exe " + CommandLineArguments; // Setup startup command line string.
+
+            spdlog::info("*** LAUNCHING DEDICATED [RELEASE] ***\n");
             break;
         }
         default:
@@ -122,12 +147,12 @@ bool LaunchR5Apex(LAUNCHMODE lMode, LAUNCHSTATE lState)
 
     ///////////////////////////////////////////////////////////////////////////
     // Print the file paths and arguments.
-    std::cout << "--------------------------------------------------------------------------------------------------------" << std::endl;
+    std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
     spdlog::debug("- CWD: {}\n", currentDirectory);
     spdlog::debug("- EXE: {}\n", GameDirectory);
     spdlog::debug("- DLL: {}\n", WorkerDll);
     spdlog::debug("- CLI: {}\n", CommandLineArguments);
-    std::cout << "--------------------------------------------------------------------------------------------------------" << std::endl;
+    std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
 
     ///////////////////////////////////////////////////////////////////////////
     // Build our list of dlls to inject.
@@ -194,66 +219,82 @@ int main(int argc, char* argv[], char* envp[])
         std::string arg = argv[i];
         if ((arg == "-debug") || (arg == "-dbg"))
         {
-            LaunchR5Apex(LAUNCHMODE::LM_DEBUG, LAUNCHSTATE::LS_CHEATS);
+            LaunchR5Apex(eLaunchMode::LM_DEBUG_GAME, eLaunchState::LS_CHEATS);
             Sleep(2000);
             return EXIT_SUCCESS;
         }
-
         if ((arg == "-release") || (arg == "-rel"))
         {
-            LaunchR5Apex(LAUNCHMODE::LM_RELEASE, LAUNCHSTATE::LS_CHEATS);
+            LaunchR5Apex(eLaunchMode::LM_RELEASE_GAME, eLaunchState::LS_CHEATS);
             Sleep(2000);
             return EXIT_SUCCESS;
         }
-
         if ((arg == "-dedicated") || (arg == "-dedi"))
         {
-            LaunchR5Apex(LAUNCHMODE::LM_DEDI, LAUNCHSTATE::LS_CHEATS);
+            LaunchR5Apex(eLaunchMode::LM_DEBUG_DEDI, eLaunchState::LS_CHEATS);
+            Sleep(2000);
+            return EXIT_SUCCESS;
+        }
+        if ((arg == "-dedicated_dev") || (arg == "-dedid"))
+        {
+            LaunchR5Apex(eLaunchMode::LM_DEBUG_DEDI, eLaunchState::LS_CHEATS);
             Sleep(2000);
             return EXIT_SUCCESS;
         }
     }
 
-    std::cout << "--------------------------------------------------------------------------------------------------------" << std::endl;
-    spdlog::warn("If DEBUG has been choosen as launch parameter, do not broadcast servers to the Server Browser.\n");
+    std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
+    spdlog::warn("If a DEBUG option has been choosen as launch parameter, do not broadcast servers to the Server Browser!\n");
     spdlog::warn("All FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY ConVar's/ConCommand's will be enabled.\n");
     spdlog::warn("Connected clients will be able to set and execute anything flagged FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY.\n");
-    std::cout << "--------------------------------------------------------------------------------------------------------" << std::endl;
-    spdlog::warn("Use DEBUG     [1] for research and development purposes.\n");
-    spdlog::warn("Use RELEASE   [2] for playing and server hosting purposes.\n");
-    spdlog::warn("Use DEDICATED [3] for running and hosting a dedicated server.\n");
-    std::cout << "--------------------------------------------------------------------------------------------------------" << std::endl;
-    spdlog::info("Enter 1 for DEBUG. Enter 2 for RELEASE. Enter 3 for DEDICATED: ");
+    std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
+    spdlog::warn("Use DEBUG GAME        [1] for research and development purposes.\n");
+    spdlog::warn("Use RELEASE GAME      [2] for playing the game and creating servers.\n");
+    spdlog::warn("Use DEBUG DEDICATED   [3] for research and development purposes.\n");
+    spdlog::warn("Use RELEASE DEDICATED [3] for running and hosting dedicated servers.\n");
+    std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
+    spdlog::info("Enter '1' for 'DEBUG GAME'.\n");
+    spdlog::info("Enter '2' for 'RELEASE GAME'.\n");
+    spdlog::info("Enter '3' for 'DEBUG DEDICATED'.\n");
+    spdlog::info("Enter '4' for 'RELEASE DEDICATED'.\n");
+    std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
+    std::cout << "User input: ";
 
     std::string input = std::string();
     if (std::cin >> input)
     {
         try
         {
-            LAUNCHMODE iinput = (LAUNCHMODE)std::stoi(input);
+            eLaunchMode iinput = (eLaunchMode)std::stoi(input);
             switch (iinput)
             {
-            case LAUNCHMODE::LM_DEBUG:
+            case eLaunchMode::LM_DEBUG_GAME:
             {
-                LaunchR5Apex(LAUNCHMODE::LM_DEBUG, LAUNCHSTATE::LS_CHEATS);
+                LaunchR5Apex(eLaunchMode::LM_DEBUG_GAME, eLaunchState::LS_CHEATS);
                 Sleep(2000);
                 return EXIT_SUCCESS;
             }
-            case LAUNCHMODE::LM_RELEASE:
+            case eLaunchMode::LM_RELEASE_GAME:
             {
-                LaunchR5Apex(LAUNCHMODE::LM_RELEASE, LAUNCHSTATE::LS_CHEATS);
+                LaunchR5Apex(eLaunchMode::LM_RELEASE_GAME, eLaunchState::LS_CHEATS);
                 Sleep(2000);
                 return EXIT_SUCCESS;
             }
-            case LAUNCHMODE::LM_DEDI:
+            case eLaunchMode::LM_DEBUG_DEDI:
             {
-                LaunchR5Apex(LAUNCHMODE::LM_DEDI, LAUNCHSTATE::LS_CHEATS);
+                LaunchR5Apex(eLaunchMode::LM_DEBUG_DEDI, eLaunchState::LS_CHEATS);
+                Sleep(2000);
+                return EXIT_SUCCESS;
+            }
+            case eLaunchMode::LM_RELEASE_DEDI:
+            {
+                LaunchR5Apex(eLaunchMode::LM_DEBUG_DEDI, eLaunchState::LS_CHEATS);
                 Sleep(2000);
                 return EXIT_SUCCESS;
             }
             default:
             {
-                spdlog::error("R5Reloaded requires '1' for DEBUG mode, '2' for RELEASE mode, '3' for DEDICATED mode.\n");
+                spdlog::error("R5Reloaded requires '1' for DEBUG GAME mode, '2' for RELEASE GAME mode, '3' for DEBUG DEDICATED mode, '4' for RELEASE DEDICATED mode.\n");
                 Sleep(5000);
                 return EXIT_FAILURE;
             }
