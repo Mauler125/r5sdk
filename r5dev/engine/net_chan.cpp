@@ -8,6 +8,7 @@
 #include "core/logdef.h"
 #include "tier0/cvar.h"
 #include "tier0/completion.h"
+#include "mathlib/color.h"
 #include "engine/sys_utils.h"
 #include "engine/net_chan.h"
 #include "engine/baseclient.h"
@@ -66,7 +67,7 @@ void HNET_SetKey(std::string svNetKey)
 
 	DevMsg(eDLL_T::ENGINE, "______________________________________________________________\n");
 	DevMsg(eDLL_T::ENGINE, "] NET_KEY ----------------------------------------------------\n");
-	DevMsg(eDLL_T::ENGINE, "] BASE64: '%s'\n", g_szNetKey.c_str());
+	DevMsg(eDLL_T::ENGINE, "] BASE64: %s%s%s\n", g_svGreyB.c_str(), g_szNetKey.c_str(), g_svReset.c_str());
 	DevMsg(eDLL_T::ENGINE, "--------------------------------------------------------------\n");
 
 	NET_SetKey(g_pNetKey, g_szNetKey.c_str());
@@ -102,7 +103,7 @@ void HNET_GenerateKey()
 
 	DevMsg(eDLL_T::ENGINE, "______________________________________________________________\n");
 	DevMsg(eDLL_T::ENGINE, "] NET_KEY ----------------------------------------------------\n");
-	DevMsg(eDLL_T::ENGINE, "] BASE64: '%s'\n", g_szNetKey.c_str());
+	DevMsg(eDLL_T::ENGINE, "] BASE64: %s%s%s\n", g_svGreyB.c_str(), g_szNetKey.c_str(), g_svReset.c_str());
 	DevMsg(eDLL_T::ENGINE, "--------------------------------------------------------------\n");
 
 	NET_SetKey(g_pNetKey, g_szNetKey.c_str());

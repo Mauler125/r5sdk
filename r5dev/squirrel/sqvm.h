@@ -43,10 +43,10 @@ const static std::string SQVM_LOG_T[4] =
 
 const static std::string SQVM_ANSI_LOG_T[4] =
 {
-	"\u001b[94mScript(S):",
-	"\u001b[90mScript(C):",
-	"\u001b[33mScript(U):",
-	"\u001b[90mScript(X):"
+	"\033[38;2;151;149;187mScript(S):",
+	"\033[38;2;151;149;163mScript(C):",
+	"\033[38;2;151;123;136mScript(U):",
+	"\033[38;2;151;149;163mScript(X):"
 };
 
 namespace

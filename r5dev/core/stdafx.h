@@ -55,8 +55,9 @@
 #include "public/include/httplib.h"
 #include "public/include/json.hpp"
 
-#include "tier0/basetypes.h"
 #include "core/assert.h"
+#include "core/termutil.h"
+#include "tier0/basetypes.h"
 
 #if !defined (SDKLAUNCHER)
 namespace

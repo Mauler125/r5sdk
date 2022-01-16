@@ -31,6 +31,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="core\termutil.cpp" />
     <ClCompile Include="ebisusdk\EbisuSDK.cpp" />
     <ClCompile Include="engine\baseclient.cpp" />
     <ClCompile Include="engine\baseclientstate.cpp" />
@@ -223,6 +224,7 @@
     <ClInclude Include="core\logdef.h" />
     <ClInclude Include="core\r5dev.h" />
     <ClInclude Include="core\stdafx.h" />
+    <ClInclude Include="core\termutil.h" />
     <ClInclude Include="ebisusdk\EbisuSDK.h" />
     <ClInclude Include="engine\baseclient.h" />
     <ClInclude Include="engine\baseclientstate.h" />

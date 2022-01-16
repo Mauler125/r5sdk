@@ -666,6 +666,12 @@
     <ClInclude Include="core\assert.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="mathlib\color.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="core\termutil.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="client\IVEngineClient.cpp">
@@ -873,6 +879,9 @@
       <Filter>sdk\tier0</Filter>
     </ClCompile>
     <ClCompile Include="core\logdef.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\termutil.cpp">
       <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>

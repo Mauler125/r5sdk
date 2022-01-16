@@ -51,13 +51,13 @@ const std::string sDLL_T[8] =
 
 const static std::string sANSI_DLL_T[8] = 
 {
-	"\u001b[94mNative(S):",
-	"\u001b[90mNative(C):",
-	"\u001b[33mNative(U):",
-	"\u001b[37mNative(E):",
-	"\u001b[96mNative(F):",
-	"\u001b[92mNative(R):",
-	"\u001b[91mNative(M):",
+	"\033[38;2;059;120;218mNative(S):",
+	"\033[38;2;118;118;118mNative(C):",
+	"\033[38;2;151;090;118mNative(U):",
+	"\033[38;2;204;204;204mNative(E):",
+	"\033[38;2;097;214;214mNative(F):",
+	"\033[38;2;092;181;089mNative(R):",
+	"\033[38;2;192;105;173mNative(M):",
 	""
 };
 

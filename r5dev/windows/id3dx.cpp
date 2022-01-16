@@ -429,7 +429,7 @@ bool LoadTextureBuffer(unsigned char* buffer, int len, ID3D11ShaderResourceView*
 	///////////////////////////////////////////////////////////////////////////////
 	ID3D11Texture2D*                pTexture = NULL;
 	D3D11_TEXTURE2D_DESC            desc;
-	D3D11_SUBRESOURCE_DATA          subResource;
+	D3D11_SUBRESOURCE_DATA          subResource{};
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 
 	///////////////////////////////////////////////////////////////////////////////

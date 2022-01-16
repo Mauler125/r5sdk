@@ -295,3 +295,51 @@ std::string CreateDirectories(std::string svFilePath)
 
     return results;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// For escaping special characters in a string.
+std::string StringEscape(const std::string& input)
+{
+    std::string results;
+    results.reserve(input.size());
+    for (const char c : input)
+    {
+        switch (c)
+        {
+        case '\'':  results += "\\'";  break;
+        case '\a':  results += "\\a";  break;
+        case '\b':  results += "\\b";  break;
+        case '\f':  results += "\\f";  break;
+        case '\n':  results += "\\n";  break;
+        case '\r':  results += "\\r";  break;
+        case '\t':  results += "\\t";  break;
+        case '\v':  results += "\\v";  break;
+        default:    results += c;      break;
+        }
+    }
+    return results;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// For unescaping special characters in a string.
+std::string StringUnescape(const std::string& input)
+{
+    std::string results;
+    results.reserve(input.size());
+    for (const char c : input)
+    {
+        switch (c)
+        {
+        case '\\':   results += "\'";  break;
+        case '\\a':  results += "\a";  break;
+        case '\\b':  results += "\b";  break;
+        case '\\f':  results += "\f";  break;
+        case '\\n':  results += "\n";  break;
+        case '\\r':  results += "\r";  break;
+        case '\\t':  results += "\t";  break;
+        case '\\v':  results += "\v";  break;
+        default:     results += c;     break;
+        }
+    }
+    return results;
+}

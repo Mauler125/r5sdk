@@ -59,7 +59,12 @@ void* HSys_Warning(int level, char* fmt, ...)
 //-----------------------------------------------------------------------------
 void DevMsg(eDLL_T idx, const char* fmt, ...)
 {
-	static char buf[1024] = {};
+	static char szBuf[1024] = {};
+
+	static std::string svOut;
+	static std::string svAnsiOut;
+
+	static std::regex rxAnsiExp("\\\033\\[.*?m");
 
 	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
@@ -69,30 +74,31 @@ void DevMsg(eDLL_T idx, const char* fmt, ...)
 		va_list args{};
 		va_start(args, fmt);
 
-		vsnprintf(buf, sizeof(buf), fmt, args);
+		vsnprintf(szBuf, sizeof(szBuf), fmt, args);
 
-		buf[sizeof(buf) - 1] = 0;
+		szBuf[sizeof(szBuf) - 1] = 0;
 		va_end(args);
 	}/////////////////////////////
 
-	std::string vmStr = sDLL_T[(int)idx].c_str();
-	vmStr.append(buf);
+	svOut = sDLL_T[(int)idx].c_str();
+	svOut.append(szBuf);
+	svOut = std::regex_replace(svOut, rxAnsiExp, "");
 
-	sqlogger->debug(vmStr);
-
-	if (!g_bSpdLog_UseAnsiClr) { wconsole->debug(vmStr); }
+	if (!g_bSpdLog_UseAnsiClr) { wconsole->debug(svOut); }
 	else
 	{
-		std::string vmStrAnsi = sANSI_DLL_T[(int)idx].c_str();
-		vmStrAnsi.append(buf);
-		wconsole->debug(vmStrAnsi);
+		svAnsiOut = sANSI_DLL_T[(int)idx].c_str();
+		svAnsiOut.append(szBuf);
+		wconsole->debug(svAnsiOut);
 	}
+
+	sqlogger->debug(svOut);
 
 #ifndef DEDICATED
 	g_spd_sys_w_oss.str("");
 	g_spd_sys_w_oss.clear();
 
-	iconsole->info(vmStr);
+	iconsole->info(svOut);
 
 	std::string s = g_spd_sys_w_oss.str();
 

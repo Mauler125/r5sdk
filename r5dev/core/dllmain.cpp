@@ -1,4 +1,4 @@
-#include "core/stdafx.h"
+﻿#include "core/stdafx.h"
 #include "core/r5dev.h"
 #include "core/init.h"
 #include "core/logdef.h"
@@ -32,9 +32,11 @@ void R5Dev_Init()
 #endif // !DEDICATED
 
     spdlog::info("\n");
-    spdlog::info("+-----------------------------------------------------------------------------+\n");
-    spdlog::info("|   R5 DEVELOPER CONSOLE -- INITIALIZED -----------------------------------   |\n");
-    spdlog::info("+-----------------------------------------------------------------------------+\n");
+    for (int i = 0; i < 7; i++)
+    {
+        std::string unescaped = StringEscape(R5R_LOGO[i]);
+        spdlog::info("{}{}{}\n", g_svRedF.c_str(), unescaped.c_str(), g_svReset.c_str());
+    }
     spdlog::info("\n");
 }
 
