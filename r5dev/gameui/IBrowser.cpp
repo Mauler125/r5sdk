@@ -644,7 +644,7 @@ void IBrowser::SendHostingPostRequest()
             msg << "Share the following token for clients to connect: ";
         }
         m_szHostRequestMessage = msg.str().c_str();
-        DevMsg(eDLL_T::CLIENT, "PostServerHost replied with: %s\n", m_szHostRequestMessage);
+        DevMsg(eDLL_T::CLIENT, "PostServerHost replied with: %s\n", m_szHostRequestMessage.c_str());
     }
     else
     {

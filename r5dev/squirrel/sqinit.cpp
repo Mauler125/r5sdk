@@ -39,7 +39,7 @@ namespace VSquirrel
     namespace UI
     {
         //----------------------------------------------------------------------------
-        // Purpose: get server's current server name from serverlist index
+        // Purpose: get server's current name from serverlist index
         //-----------------------------------------------------------------------------
         SQRESULT GetServerName(void* sqvm)
         {
@@ -90,7 +90,7 @@ namespace VSquirrel
         }
 
         //----------------------------------------------------------------------------
-        // Purpose: expose SDK version to the UI SQVM
+        // Purpose: expose SDK version to the UI VM
         //-----------------------------------------------------------------------------
         SQRESULT GetSDKVersion(void* sqvm)
         {
@@ -258,7 +258,7 @@ namespace VSquirrel
             if (svIpAddr.empty() || svEncKey.empty())
                 return SQ_OK;
 
-            DevMsg(eDLL_T::UI, "Connecting to server with connection string '%s' and encryption key '%s'\n", svIpAddr, svEncKey);
+            DevMsg(eDLL_T::UI, "Connecting to server with connection string '%s' and encryption key '%s'\n", svIpAddr.c_str(), svEncKey.c_str());
 
             g_pIBrowser->ConnectToServer(svIpAddr, svEncKey);
 
@@ -266,7 +266,7 @@ namespace VSquirrel
         }
 
         //-----------------------------------------------------------------------------
-        // Purpose: return all available map
+        // Purpose: return all available maps
         //-----------------------------------------------------------------------------
         SQRESULT GetAvailableMaps(void* sqvm)
         {

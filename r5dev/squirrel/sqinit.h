@@ -46,7 +46,7 @@ class HSqInit : public IDetour
 	virtual void debugp()
 	{
 		std::cout << "| FUN: Remote_BeginRegisteringFunctions     : 0x" << std::hex << std::uppercase << p_Script_Remote_BeginRegisteringFunctions.GetPtr() << std::setw(npad) << " |" << std::endl;
-		std::cout << "| VAR: g_nRemoteFunctionCallsChecksum       : 0x" << std::hex << std::uppercase << g_nRemoteFunctionCallsChecksum                     << std::setw(0) << " |" << std::endl;
+		std::cout << "| VAR: g_nRemoteFunctionCallsChecksum       : 0x" << std::hex << std::uppercase << g_nRemoteFunctionCallsChecksum                     << std::setw(0)    << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 };
