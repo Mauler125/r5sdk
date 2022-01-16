@@ -18,10 +18,10 @@ To compile and use the SDK:
 There are 4 launch options, all of them use separate `startup_*.cfg` files to pass command line arguments to the game.
 All preconfigured launch parameters are available from the release page of this repository.
 
- * Launch option 1 [RELEASE GAME] is for research and development purposes on the game.
- * Launch option 2 [DEBUG GAME] is for playing the game and creating servers.
- * Launch option 3 [RELEASE DEDICATED] is for research and development purposes on the dedicated server.
- * Launch option 4 [DEBUG DEDICATED] is for running and hosting dedicated servers.
+ * Launch option 1 [DEBUG GAME] is for research and development purposes on the game.
+ * Launch option 2 [RELEASE GAME] is for playing the game and creating servers.
+ * Launch option 3 [DEBUG DEDICATED] is for research and development purposes on the dedicated server.
+ * Launch option 4 [RELEASE DEDICATED] is for running and hosting dedicated servers.
 
 The `startup_*.cfg` files are loaded from `<gamedir>\platform\cfg\startup_*.cfg`
 
