@@ -15,6 +15,14 @@
 //-----------------------------------------------------------------------------
 bool HIVEngineServer_PersistenceAvailable(void* entidx, int clientidx)
 {
+	/* I don't know if permanently setting persistence to ready is a solution
+	*  We might wanna re-think that and handle persistence properly by also removing it on client disconnect.
+	*  Doing it for when we kick someone or ban someone is already a good start. Though we need to figure out how to handle timeouts?
+	*  Maybe NetChan::Shutdown gets called then anyway.
+	*  Then we might need to check ReturnAddress to make sure its not a local disconnect due to local server usage.
+	*  A lot of things to be considered..
+	*  - Pix
+	*/
 	CClient* pClient = g_pClient->GetClientInstance(clientidx);         // Get client instance.
 	*(char*)((std::uintptr_t)pClient + g_dwPersistenceVar) = (char)0x5; // Set the client instance to 'ready'.
 
