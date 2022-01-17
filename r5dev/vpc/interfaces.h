@@ -7,9 +7,11 @@
 //-----------------------------------------------------------------------------
 // Mapping of interface string to globals
 //-----------------------------------------------------------------------------
+typedef void* (*InstantiateInterfaceFn)();
+
 struct InterfaceGlobals_t
 {
-	std::int64_t(*m_pInterfacePtr)(void);
+	InstantiateInterfaceFn m_pInterfacePtr;
 	const char* m_pInterfaceName;
-	std::int64_t* m_pNextInterfacePtr;
+	InterfaceGlobals_t* m_pNextInterfacePtr;
 };
