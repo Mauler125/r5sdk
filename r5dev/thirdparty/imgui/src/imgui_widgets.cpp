@@ -4048,6 +4048,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
     const bool user_scroll_active = is_multiline && state != NULL && g.ActiveId == GetWindowScrollbarID(draw_window, ImGuiAxis_Y);
     bool clear_active_id = false;
     bool select_all = false;
+    bool auto_caret = false;
 
     float scroll_y = is_multiline ? draw_window->Scroll.y : FLT_MAX;
 
@@ -4088,6 +4089,12 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
             state->ID = id;
             state->ScrollX = 0.0f;
             stb_textedit_initialize_state(&state->Stb, !is_multiline);
+        }
+
+        if (flags & ImGuiInputTextFlags_AutoCaretEnd)
+        {
+            state->Stb.cursor = state->CurLenW;
+            auto_caret = true;
         }
 
         if (!is_multiline)
@@ -4230,7 +4237,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
             }
             state->CursorAnimReset();
         }
-        else if (io.MouseClicked[0] && !state->SelectedAllMouseLock)
+        else if (io.MouseClicked[0] && !state->SelectedAllMouseLock && !auto_caret)
         {
             // FIXME: unselect on late click could be done release?
             if (hovered)
