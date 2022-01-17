@@ -203,6 +203,7 @@
     <ClCompile Include="vgui\vgui_fpspanel.cpp" />
     <ClCompile Include="vpc\basefilesystem.cpp" />
     <ClCompile Include="vpc\IAppSystem.cpp" />
+    <ClCompile Include="vpc\interfaces.cpp" />
     <ClCompile Include="vpc\keyvalues.cpp" />
     <ClCompile Include="vphysics\QHull.cpp" />
     <ClCompile Include="vpklib\packedstore.cpp" />

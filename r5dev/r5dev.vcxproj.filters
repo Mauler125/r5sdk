@@ -408,6 +408,9 @@
     <ClCompile Include="core\termutil.cpp">
       <Filter>core</Filter>
     </ClCompile>
+    <ClCompile Include="vpc\interfaces.cpp">
+      <Filter>sdk\vpc</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\cdll_engine_int.h">
