@@ -762,6 +762,7 @@ void IBrowser::SetStyleVar()
 
     style.ItemSpacing                     = ImVec2(4, 4);
     style.WindowPadding                   = ImVec2(5, 5);
+    style.WindowMinSize                   = ImVec2(750, 510);
 }
 
 IBrowser* g_pIBrowser = new IBrowser();
