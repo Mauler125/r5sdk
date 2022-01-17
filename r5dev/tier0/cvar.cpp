@@ -31,6 +31,8 @@ ConVar* cl_simstats_offset_y               = new ConVar();
 ConVar* cl_showgpustats                    = new ConVar();
 ConVar* cl_gpustats_offset_x               = new ConVar();
 ConVar* cl_gpustats_offset_y               = new ConVar();
+
+ConVar* con_suggestion_limit               = new ConVar();
 //-----------------------------------------------------------------------------
 // FILESYSTEM                                                                 |
 ConVar* fs_warning_level_native            = new ConVar();
@@ -111,4 +113,5 @@ std::unordered_map<std::string, ConCommandBase*> CCVar::DumpToMap()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+std::vector<std::string> g_vsvAllConVars;
 CCVar* g_pCVar = reinterpret_cast<CCVar*>(p_CEngineAPI_Connect.FindPatternSelf("48 8D 0D", ADDRESS::Direction::DOWN, 40).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr());

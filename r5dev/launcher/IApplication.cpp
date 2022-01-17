@@ -1,4 +1,5 @@
 #include "core/stdafx.h"
+#include "tier0/cvar.h"
 #include "launcher/IApplication.h"
 #include "ebisusdk/EbisuSDK.h"
 
@@ -21,6 +22,10 @@ bool HIApplication_Create(void* a1)
 	// Also add cross-season support?
 	* (uintptr_t*)0x162C61208 = 0x1; // g_bDedicated
 #endif // DEDICATED
+	for (auto& map : g_pCVar->DumpToMap())
+	{
+		g_vsvAllConVars.push_back(map.first.c_str());
+	}
 	return IAppSystem_Create(a1);
 }
 

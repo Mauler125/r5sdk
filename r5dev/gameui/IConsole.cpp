@@ -33,9 +33,9 @@ CConsole::CConsole()
     m_bScrollToBottom = false;
     m_bInitialized    = false;
 
-    m_ivCommands.push_back("CLEAR");
-    m_ivCommands.push_back("HELP");
-    m_ivCommands.push_back("HISTORY");
+    m_vsvCommands.push_back("CLEAR");
+    m_vsvCommands.push_back("HELP");
+    m_vsvCommands.push_back("HISTORY");
 }
 
 //-----------------------------------------------------------------------------
@@ -44,14 +44,11 @@ CConsole::CConsole()
 CConsole::~CConsole()
 {
     ClearLog();
-    for (int i = 0; i < m_ivHistory.Size; i++)
-    {
-        free(m_ivHistory[i]);
-    }
+    m_vsvHistory.clear();
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: draws the console frontend
+// Purpose: game console main render loop
 //-----------------------------------------------------------------------------
 void CConsole::Draw(const char* pszTitle, bool* bDraw)
 {
@@ -59,32 +56,69 @@ void CConsole::Draw(const char* pszTitle, bool* bDraw)
     {
         SetStyleVar();
         m_bInitialized = true;
+        m_pszConsoleTitle = pszTitle;
     }
-
     //ImGui::ShowStyleEditor();
 
-    ImGui::SetNextWindowSize(ImVec2(1000, 600), ImGuiCond_FirstUseEver);
-    ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
+    { // BASEPANEL SETUP.
+        if (!*bDraw)
+        {
+            m_bActivate = false;
+            return;
+        }
+        ImGui::SetNextWindowSize(ImVec2(1000, 600), ImGuiCond_FirstUseEver);
+        ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
 
-    if (!ImGui::Begin(pszTitle, bDraw))
+        BasePanel(bDraw);
+    }
+
+    { // SUGGESTION PANEL SETUP
+        if (CanAutoComplete())
+        {
+            SuggestPanel();
+        }
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: runs tasks for the console while not being drawn
+//-----------------------------------------------------------------------------
+void CConsole::Think(void)
+{
+    if (g_pImGuiConfig->IConsole_Config.m_bAutoClear) // Check if Auto-Clear is enabled.
+    {
+        // Loop and clear the beginning of the vector until we are below our limit.
+        while (m_ivConLog.Size > g_pImGuiConfig->IConsole_Config.m_nAutoClearLimit)
+        {
+            m_ivConLog.erase(m_ivConLog.begin());
+        }
+        while ((int)m_vsvHistory.size() > 512)
+        {
+            m_vsvHistory.erase(m_vsvHistory.begin());
+        }
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: draws the console's main surface
+//-----------------------------------------------------------------------------
+void CConsole::BasePanel(bool* bDraw)
+{
+    if (!ImGui::Begin(m_pszConsoleTitle, bDraw))
     {
         ImGui::End();
         return;
     }
-    if (!*bDraw)
-    {
-        m_bActivate = false;
-    }
 
     // Reserve enough left-over height and width for 1 separator + 1 input text
     const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-    const float footer_width_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetWindowWidth();
+    const float footer_width_to_reserve  = ImGui::GetStyle().ItemSpacing.y + ImGui::GetWindowWidth();
 
     ///////////////////////////////////////////////////////////////////////
     ImGui::Separator();
     if (ImGui::BeginPopup("Options"))
     {
-        Options();
+        OptionsPanel();
     }
     if (ImGui::Button("Options"))
     {
@@ -123,14 +157,42 @@ void CConsole::Draw(const char* pszTitle, bool* bDraw)
     ImGui::PushItemWidth(footer_width_to_reserve - 80);
     if (ImGui::IsWindowAppearing()) { ImGui::SetKeyboardFocusHere(); }
 
-    ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
-
     if (ImGui::InputText("##input", m_szInputBuf, IM_ARRAYSIZE(m_szInputBuf), input_text_flags, &TextEditCallbackStub, (void*)this))
     {
-        if (m_szInputBuf[0]) { ProcessCommand(m_szInputBuf); }
-        strcpy_s(m_szInputBuf, 1, "");
-        m_bReclaimFocus = true;
+        if (m_nSuggestPos != -1)
+        {
+            // Remove the default value from ConVar before assigning it to the input buffer.
+            std::string svConVar = m_vsvSuggest[m_nSuggestPos].substr(0, m_vsvSuggest[m_nSuggestPos].find(' ')) + " ";
+            memmove(m_szInputBuf, svConVar.c_str(), svConVar.size() + 1);
+
+            m_bSuggestActive = false;
+            m_nSuggestPos = -1;
+            m_bReclaimFocus = true;
+        }
+        else
+        {
+            if (m_szInputBuf[0]) { ProcessCommand(m_szInputBuf); }
+            strcpy_s(m_szInputBuf, 1, "");
+
+            m_bSuggestActive = false;
+            m_nSuggestPos = -1;
+            m_bReclaimFocus = true;
+        }
     }
+
+    // Auto-focus on window apparition.
+    ImGui::SetItemDefaultFocus();
+
+    // Auto-focus previous widget.
+    if (m_bReclaimFocus)
+    {
+        ImGui::SetKeyboardFocusHere(-1);
+        m_bReclaimFocus = false;
+    }
+
+    m_vecSuggestWindowPos = ImGui::GetItemRectMin();
+    m_vecSuggestWindowPos.y += ImGui::GetItemRectSize().y;
+    m_vecSuggestWindowSize = ImVec2(500, std::clamp((int)m_vsvSuggest.size() * 20, 0, 122));
 
     ImGui::SameLine();
     if (ImGui::Button("Submit"))
@@ -139,24 +201,13 @@ void CConsole::Draw(const char* pszTitle, bool* bDraw)
         strcpy_s(m_szInputBuf, 1, "");
         m_bReclaimFocus = true;
     }
-
-    // Auto-focus on window apparition.
-    ImGui::SetItemDefaultFocus();
-
-    // Auto focus previous widget.
-    if (m_bReclaimFocus)
-    {
-        ImGui::SetKeyboardFocusHere();
-        m_bReclaimFocus = false;
-    }
-
     ImGui::End();
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: draws the options panel
 //-----------------------------------------------------------------------------
-void CConsole::Options()
+void CConsole::OptionsPanel(void)
 {
     ImGui::Checkbox("Auto-Scroll", &m_bAutoScroll);
 
@@ -203,21 +254,118 @@ void CConsole::Options()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: runs tasks for the console while not being drawn
+// Purpose: draws the suggestion panel with results based on user input
 //-----------------------------------------------------------------------------
-void CConsole::Think()
+void CConsole::SuggestPanel(void)
 {
-    if (g_pImGuiConfig->IConsole_Config.m_bAutoClear) // Check if Auto-Clear is enabled.
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(0.0f, 0.0f));
+
+    ImGui::SetNextWindowPos(m_vecSuggestWindowPos);
+    ImGui::SetNextWindowSize(m_vecSuggestWindowSize);
+
+    ImGui::Begin("##suggest", nullptr, popup_window_flags);
+    ImGui::PushAllowKeyboardFocus(false);
+
+    for (int i = 0; i < m_vsvSuggest.size(); i++)
     {
-        // Loop and clear the beginning of the vector until we are below our limit.
-        while (m_ivConLog.Size > g_pImGuiConfig->IConsole_Config.m_nAutoClearLimit)
+        bool bIsIndexActive = m_nSuggestPos == i;
+
+        ImGui::PushID(i);
+        if (ImGui::Selectable(m_vsvSuggest[i].c_str(), bIsIndexActive))
         {
-            m_ivConLog.erase(m_ivConLog.begin());
+            ImGui::Separator();
+
+            // Remove the default value from ConVar before assigning it to the input buffer.
+            std::string svConVar = m_vsvSuggest[i].substr(0, m_vsvSuggest[i].find(' ')) + " ";
+            memmove(m_szInputBuf, svConVar.c_str(), svConVar.size() + 1);
+
+            m_bSuggestActive = false;
+            m_nSuggestPos = -1;
+            m_bReclaimFocus = true;
         }
-        while (m_ivHistory.Size > 512)
+        ImGui::PopID();
+
+        if (bIsIndexActive)
         {
-            m_ivHistory.erase(m_ivHistory.begin());
+            if (m_bSuggestMoved)
+            {
+                // Make sure we bring the currently 'active' item into view.
+                ImGui::SetScrollHereY();
+                m_bSuggestMoved = false;
+            }
         }
+    }
+
+    ImGui::PopAllowKeyboardFocus();
+    ImGui::End();
+    ImGui::PopStyleVar(1);
+}
+
+//-----------------------------------------------------------------------------
+// purpose: checks if the console can autocomplete based on input
+//-----------------------------------------------------------------------------
+bool CConsole::CanAutoComplete(void)
+{
+    // Show ConVar/ConCommand suggestions when at least 2 characters have been entered.
+    if (strlen(m_szInputBuf) > 1)
+    {
+        // Update suggestions if input buffer changed.
+        if (strcmp(m_szInputBuf, m_szInputBufOld) != 0)
+        {
+            memmove(m_szInputBufOld, m_szInputBuf, strlen(m_szInputBuf) + 1);
+            FindFromPartial();
+        }
+        if ((int)m_vsvSuggest.size() <= 0)
+        {
+            m_nSuggestPos = -1;
+            return false;
+        }
+    }
+    else
+    {
+        m_nSuggestPos = -1;
+        return false;
+    }
+
+    // Don't suggest if user tries to assign value to ConVar or execute ConCommand.
+    if (strstr(m_szInputBuf, " ") || strstr(m_szInputBuf, ";"))
+    {
+        m_bSuggestActive = false;
+        m_nSuggestPos = -1;
+        return false;
+    }
+    m_bSuggestActive = true;
+    return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: find ConVars/ConCommands from user input and add to vector
+//-----------------------------------------------------------------------------
+void CConsole::FindFromPartial(void)
+{
+    m_vsvSuggest.clear();
+    for (int i = 0; i < g_vsvAllConVars.size(); i++)
+    {
+        if (m_vsvSuggest.size() < con_suggestion_limit->GetInt())
+        {
+            if (g_vsvAllConVars[i].find(m_szInputBuf) != std::string::npos)
+            {
+                if (std::find(m_vsvSuggest.begin(), m_vsvSuggest.end(), g_vsvAllConVars[i]) == m_vsvSuggest.end());
+                {
+                    std::string svValue;
+                    ConVar* pConVar = g_pCVar->FindVar(g_vsvAllConVars[i].c_str());
+                    if (pConVar != nullptr)
+                    {
+                        // Assign default value to string if its a ConVar.
+                        svValue = g_pCVar->FindVar(g_vsvAllConVars[i].c_str())->GetString();
+                    }
+
+                    m_vsvSuggest.push_back(g_vsvAllConVars[i] + " " + svValue + "");
+                }
+            }
+        }
+        else { break; }
     }
 }
 
@@ -235,17 +383,16 @@ void CConsole::ProcessCommand(const char* pszCommand)
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
     m_nHistoryPos = -1;
-    for (int i = m_ivHistory.Size - 1; i >= 0; i--)
+    for (int i = (int)m_vsvHistory.size() - 1; i >= 0; i--)
     {
-        if (Stricmp(m_ivHistory[i], pszCommand) == 0)
+        if (Stricmp(m_vsvHistory[i].c_str(), pszCommand) == 0)
         {
-            delete m_ivHistory[i];
-            m_ivHistory.erase(m_ivHistory.begin() + i);
+            m_vsvHistory.erase(m_vsvHistory.begin() + i);
             break;
         }
     }
 
-    m_ivHistory.push_back(Strdup(pszCommand));
+    m_vsvHistory.push_back(Strdup(pszCommand));
     if (Stricmp(pszCommand, "CLEAR") == 0)
     {
         ClearLog();
@@ -253,9 +400,9 @@ void CConsole::ProcessCommand(const char* pszCommand)
     else if (Stricmp(pszCommand, "HELP") == 0)
     {
         AddLog("Commands:");
-        for (int i = 0; i < m_ivCommands.Size; i++)
+        for (int i = 0; i < (int)m_vsvCommands.size(); i++)
         {
-            AddLog("- %s", m_ivCommands[i]);
+            AddLog("- %s", m_vsvCommands[i].c_str());
         }
 
         AddLog("Log types:");
@@ -274,10 +421,10 @@ void CConsole::ProcessCommand(const char* pszCommand)
     }
     else if (Stricmp(pszCommand, "HISTORY") == 0)
     {
-        int first = m_ivHistory.Size - 10;
-        for (int i = first > 0 ? first : 0; i < m_ivHistory.Size; i++)
+        int nFirst = (int)m_vsvHistory.size() - 10;
+        for (int i = nFirst > 0 ? nFirst : 0; i < (int)m_vsvHistory.size(); i++)
         {
-            AddLog("%3d: %s\n", i, m_ivHistory[i]);
+            AddLog("%3d: %s\n", i, m_vsvHistory[i]);
         }
     }
 
@@ -285,7 +432,7 @@ void CConsole::ProcessCommand(const char* pszCommand)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: text edit callback
+// Purpose: console input box callback
 //-----------------------------------------------------------------------------
 int CConsole::TextEditCallback(ImGuiInputTextCallbackData* data)
 {
@@ -309,35 +456,71 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* data)
     }
     case ImGuiInputTextFlags_CallbackHistory:
     {
-        const int nPrevHistoryPos = m_nHistoryPos;
-        if (data->EventKey == ImGuiKey_UpArrow)
+        if (m_bSuggestActive)
         {
-            if (m_nHistoryPos == -1) { m_nHistoryPos = m_ivHistory.Size - 1; }
-            else if (m_nHistoryPos > 0) { m_nHistoryPos--; }
-        }
-        else if (data->EventKey == ImGuiKey_DownArrow)
-        {
-            if (m_nHistoryPos != -1)
+            if (data->EventKey == ImGuiKey_UpArrow && m_nSuggestPos > - 1)
             {
-                if (++m_nHistoryPos >= m_ivHistory.Size)
+                m_nSuggestPos--;
+                m_bSuggestMoved = true;
+            }
+            else if (data->EventKey == ImGuiKey_DownArrow)
+            {
+                if (m_nSuggestPos < (int)m_vsvSuggest.size() - 1)
                 {
-                    m_nHistoryPos = -1;
+                    m_nSuggestPos++;
+                    m_bSuggestMoved = true;
                 }
             }
         }
-        if (nPrevHistoryPos != m_nHistoryPos)
+        else // Allow user to navigate through the history if suggest isn't drawn.
         {
-            const char* pszHistory = (m_nHistoryPos >= 0) ? m_ivHistory[m_nHistoryPos] : "";
-            data->DeleteChars(0, data->BufTextLen);
-            data->InsertChars(0, pszHistory);
+            const int nPrevHistoryPos = m_nHistoryPos;
+            if (data->EventKey == ImGuiKey_UpArrow)
+            {
+                if (m_nHistoryPos == -1)
+                {
+                    m_nHistoryPos = (int)m_vsvHistory.size() - 1;
+                }
+                else if (m_nHistoryPos > 0)
+                {
+                    m_nHistoryPos--;
+                }
+            }
+            else if (data->EventKey == ImGuiKey_DownArrow)
+            {
+                if (m_nHistoryPos != -1)
+                {
+                    if (++m_nHistoryPos >= (int)m_vsvHistory.size())
+                    {
+                        m_nHistoryPos = -1;
+                    }
+                }
+            }
+            if (nPrevHistoryPos != m_nHistoryPos)
+            {
+                std::string svHistory = (m_nHistoryPos >= 0) ? m_vsvHistory[m_nHistoryPos] : "";
+
+                if (!svHistory.empty())
+                {
+                    if (!strstr(m_vsvHistory[m_nHistoryPos].c_str(), " "))
+                    {
+                        // Append whitespace to previous entered command if absent or no parameters where passed.
+                        svHistory.append(" ");
+                    }
+                }
+
+                data->DeleteChars(0, data->BufTextLen);
+                data->InsertChars(0, svHistory.c_str());
+            }
         }
+        break;
     }
     }
     return 0;
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: text edit callback stub
+// Purpose: console input box callback stub
 //-----------------------------------------------------------------------------
 int CConsole::TextEditCallbackStub(ImGuiInputTextCallbackData* data)
 {
@@ -362,7 +545,7 @@ void CConsole::AddLog(const char* fmt, ...) IM_FMTARGS(2)
 //-----------------------------------------------------------------------------
 // Purpose: clears the entire vector
 //-----------------------------------------------------------------------------
-void CConsole::ClearLog()
+void CConsole::ClearLog(void)
 {
     for (int i = 0; i < m_ivConLog.Size; i++) { free(m_ivConLog[i]); }
     m_ivConLog.clear();
@@ -371,7 +554,7 @@ void CConsole::ClearLog()
 //-----------------------------------------------------------------------------
 // Purpose: colors important logs
 //-----------------------------------------------------------------------------
-void CConsole::ColorLog()
+void CConsole::ColorLog(void)
 {
     for (int i = 0; i < m_ivConLog.Size; i++)
     {
@@ -442,7 +625,7 @@ void CConsole::ColorLog()
 //-----------------------------------------------------------------------------
 // Purpose: sets the console front-end style
 //-----------------------------------------------------------------------------
-void CConsole::SetStyleVar()
+void CConsole::SetStyleVar(void)
 {
     ImGuiStyle& imStyle                    = ImGui::GetStyle();
     ImVec4* imColor                        = imStyle.Colors;
@@ -499,6 +682,7 @@ void CConsole::SetStyleVar()
 
     imStyle.ItemSpacing       = ImVec2(4, 4);
     imStyle.WindowPadding     = ImVec2(5, 5);
+    imStyle.WindowMinSize = ImVec2(510, 510);
 }
 
 CConsole* g_pIConsole = new CConsole();

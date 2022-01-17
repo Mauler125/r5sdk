@@ -43,6 +43,8 @@ extern ConVar* cl_simstats_offset_y;
 extern ConVar* cl_showgpustats;;
 extern ConVar* cl_gpustats_offset_x;
 extern ConVar* cl_gpustats_offset_y;
+
+extern ConVar* con_suggestion_limit;
 //-------------------------------------------------------------------------
 // FILESYSTEM                                                             |
 extern ConVar* fs_warning_level_native;
@@ -86,6 +88,7 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+extern std::vector<std::string> g_vsvAllConVars;
 extern CCVar* g_pCVar;
 
 
