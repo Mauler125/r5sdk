@@ -171,8 +171,11 @@ void CConsole::BasePanel(bool* bDraw)
         }
         else
         {
-            if (m_szInputBuf[0]) { ProcessCommand(m_szInputBuf); }
-            strcpy_s(m_szInputBuf, 1, "");
+            if (m_szInputBuf[0])
+            {
+                ProcessCommand(m_szInputBuf);
+                memset(m_szInputBuf, '\0', 1);
+            }
 
             m_bSuggestActive = false;
             m_nSuggestPos = -1;
@@ -197,8 +200,11 @@ void CConsole::BasePanel(bool* bDraw)
     ImGui::SameLine();
     if (ImGui::Button("Submit"))
     {
-        if (m_szInputBuf[0]) { ProcessCommand(m_szInputBuf); }
-        strcpy_s(m_szInputBuf, 1, "");
+        if (m_szInputBuf[0])
+        {
+            ProcessCommand(m_szInputBuf);
+            memset(m_szInputBuf, '\0', 1);
+        }
         m_bReclaimFocus = true;
     }
     ImGui::End();
@@ -567,6 +573,7 @@ void CConsole::ColorLog(void)
         ImVec4 imColor;
 
         // General
+        if (strstr(pszConLog, ""))            { imColor = ImVec4(0.81f, 0.81f, 0.81f, 1.00f); true; }
         if (strstr(pszConLog, "[INFO]"))      { imColor = ImVec4(1.00f, 1.00f, 1.00f, 0.70f); true; }
         if (strstr(pszConLog, "[ERROR]"))     { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
         if (strstr(pszConLog, "[DEBUG]"))     { imColor = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); true; }
