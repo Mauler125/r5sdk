@@ -363,8 +363,9 @@ void CConsole::FindFromPartial(void)
                     ConVar* pConVar = g_pCVar->FindVar(g_vsvAllConVars[i].c_str());
                     if (pConVar != nullptr)
                     {
-                        // Assign default value to string if its a ConVar.
-                        svValue = g_pCVar->FindVar(g_vsvAllConVars[i].c_str())->GetString();
+                        svValue = "= \""; // Assign default value to string if its a ConVar.
+                        svValue.append(g_pCVar->FindVar(g_vsvAllConVars[i].c_str())->GetString());
+                        svValue.append("\"");
                     }
 
                     m_vsvSuggest.push_back(g_vsvAllConVars[i] + " " + svValue + "");
