@@ -430,7 +430,7 @@ void CConsole::ProcessCommand(const char* pszCommand)
         int nFirst = (int)m_vsvHistory.size() - 10;
         for (int i = nFirst > 0 ? nFirst : 0; i < (int)m_vsvHistory.size(); i++)
         {
-            AddLog("%3d: %s\n", i, m_vsvHistory[i]);
+            AddLog("%3d: %s\n", i, m_vsvHistory[i].c_str());
         }
     }
 
