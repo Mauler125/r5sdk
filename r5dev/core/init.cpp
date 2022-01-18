@@ -14,7 +14,7 @@
 #include "vpc/IAppSystem.h"
 #include "vpc/keyvalues.h"
 #include "vpc/basefilesystem.h"
-#include "vpc/keyvalues.h"
+#include "vpc/interfaces.h"
 #include "common/opcodes.h"
 #include "launcher/IApplication.h"
 #include "ebisusdk/EbisuSDK.h"

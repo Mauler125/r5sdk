@@ -1,10 +1,11 @@
-#include "core/stdafx.h"
-#include "interfaces.h"
+//===========================================================================//
+//
+// Purpose: A higher level link library for general use in the game and SDK.
+//
+//===========================================================================//
 
-/* Might wanna move this and rename a few things?
-*  I'm not sure how Amos wants to structure this part of the SDK.
-*  - Pix
-*/
+#include "core/stdafx.h"
+#include "vpc/interfaces.h"
 
 //---------------------------------------------------------------------------------
 // Purpose: get all factory registered in the global s_pInterfacesRegs
@@ -58,3 +59,5 @@ void IFactory::AddFactory(FactoryInfo factoryInfo)
 {
 	factories.push_back(factoryInfo); // Push factory info back into the vector.
 }
+
+IFactory* g_pFactory = new IFactory();

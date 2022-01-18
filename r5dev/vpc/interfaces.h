@@ -40,11 +40,23 @@ public:
 
 	std::vector<FactoryInfo> factories = {};
 };
+extern IFactory* g_pFactory;
 
 namespace
 {
 	/* ==== s_pInterfaceRegs ==================================================================================================================================================== */
-	// Check pattern viability for all seasons.
-	// Make sure it properly gets the interface factory pointer.
-	InterfaceGlobals_t* s_pInterfacesRegs = nullptr; /* g_mGameDll.FindPatternSIMD((std::uint8_t*)"\xE9\x00\x00\x00\x00\xCC\xCC\x89\x91\x00\x00\x00\x00", "x????xxxx????").FollowNearCallSelf().FindPatternSelf("48 8B 1D", ADDRESS::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).DerefSelf().RCast<InterfaceGlobals_t*>(); */
+	InterfaceGlobals_t* s_pInterfacesRegs = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\xE9\x00\x00\x00\x00\xCC\xCC\x89\x91\x00\x00\x00\x00", "x????xxxx????").FollowNearCallSelf().FindPatternSelf("48 8B 1D", ADDRESS::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).DerefSelf().RCast<InterfaceGlobals_t*>();
 }
+
+///////////////////////////////////////////////////////////////////////////////
+class HFactory : public IDetour
+{
+	virtual void debugp()
+	{
+		std::cout << "| VAR: s_pInterfacesRegs                    : 0x" << std::hex << std::uppercase << s_pInterfacesRegs << std::setw(0) << " |" << std::endl;
+		std::cout << "+----------------------------------------------------------------+" << std::endl;
+	}
+};
+///////////////////////////////////////////////////////////////////////////////
+
+REGISTER(HFactory);
