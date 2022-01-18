@@ -150,7 +150,7 @@ void CConsole::BasePanel(bool* bDraw)
     }
 
     ///////////////////////////////////////////////////////////////////////
-    ImGui::PopStyleVar();
+    ImGui::PopStyleVar(1);
     ImGui::EndChild();
     ImGui::Separator();
 
@@ -305,7 +305,7 @@ void CConsole::SuggestPanel(void)
 
     ImGui::PopAllowKeyboardFocus();
     ImGui::End();
-    ImGui::PopStyleVar(1);
+    ImGui::PopStyleVar(2);
 }
 
 //-----------------------------------------------------------------------------
