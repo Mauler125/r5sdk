@@ -884,6 +884,9 @@
     <ClCompile Include="core\termutil.cpp">
       <Filter>core</Filter>
     </ClCompile>
+    <ClCompile Include="vpc\interfaces.cpp">
+      <Filter>sdk\vpc</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="r5dev.def" />
