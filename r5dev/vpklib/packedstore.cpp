@@ -42,7 +42,7 @@ std::string CPackedStore::GetPackChunkFile(std::string svPackDirFile, int iArchi
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: returns pupulated pack dir struct for specified pack dir file
+// Purpose: returns populated pack dir struct for specified pack dir file
 //-----------------------------------------------------------------------------
 vpk_dir_h CPackedStore::GetPackDirFile(std::string svPackDirFile)
 {
