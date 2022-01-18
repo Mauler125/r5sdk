@@ -30,8 +30,9 @@
 
 #if !defined(DEDICATED)
 #include "thirdparty/imgui/include/imgui.h"
-#include "thirdparty/imgui/include/imgui_utility.h"
 #include "thirdparty/imgui/include/imgui_stdlib.h"
+#include "thirdparty/imgui/include/imgui_utility.h"
+#include "thirdparty/imgui/include/imgui_internal.h"
 #include "thirdparty/imgui/include/imgui_impl_dx11.h"
 #include "thirdparty/imgui/include/imgui_impl_win32.h"
 #endif // !DEDICATED
