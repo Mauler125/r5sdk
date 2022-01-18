@@ -196,7 +196,7 @@ void CConsole::BasePanel(bool* bDraw)
 
     m_vecSuggestWindowPos = ImGui::GetItemRectMin();
     m_vecSuggestWindowPos.y += ImGui::GetItemRectSize().y;
-    m_vecSuggestWindowSize = ImVec2(500, std::clamp((int)m_vsvSuggest.size() * 20, 0, 122));
+    m_vecSuggestWindowSize = ImVec2(500, std::clamp((int)m_vsvSuggest.size() * 20, 0, 123));
 
     ImGui::SameLine();
     if (ImGui::Button("Submit"))
