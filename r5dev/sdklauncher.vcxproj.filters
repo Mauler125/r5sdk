@@ -39,6 +39,9 @@
     <ClCompile Include="thirdparty\detours\src\creatwth.cpp">
       <Filter>Detours Files</Filter>
     </ClCompile>
+    <ClCompile Include="public\utility.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource\sdklauncher.rc">
@@ -63,6 +66,9 @@
     </ClInclude>
     <ClInclude Include="thirdparty\detours\include\detours.h">
       <Filter>Detours Files\include</Filter>
+    </ClInclude>
+    <ClInclude Include="public\include\utility.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

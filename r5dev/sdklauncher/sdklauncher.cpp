@@ -2,24 +2,7 @@
 #include "sdklauncher.h"
 
 //-----------------------------------------------------------------------------
-// Print the error message to the console if any.
-//-----------------------------------------------------------------------------
-void PrintLastError()
-{
-    DWORD errorMessageID = ::GetLastError();
-    if (errorMessageID != NULL)
-    {
-        LPSTR messageBuffer = nullptr;
-        size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
-
-        spdlog::error("{}\n", messageBuffer);
-        LocalFree(messageBuffer);
-    }
-}
-
-//-----------------------------------------------------------------------------
-// Purpose case switch:
+// Purpose switch case:
 // * Launch the game in user specified mode and state.
 // * Load specified command line arguments from a file on the disk.
 // * Format the file paths for the game exe and specified hook dll.

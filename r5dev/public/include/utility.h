@@ -11,6 +11,7 @@ DWORD64 FindPatternSIMD(const char* szModule, const unsigned char* szPattern, co
 /////////////////////////////////////////////////////////////////////////////
 // Utility
 void DbgPrint(LPCSTR sFormat, ...);
+void PrintLastError(void);
 void HexDump(const char* szHeader, int nFunc, const void* pData, int nSize);
 std::string Base64Encode(const std::string& in);
 std::string Base64Decode(const std::string& in);

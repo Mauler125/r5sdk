@@ -184,6 +184,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="public\utility.cpp" />
     <ClCompile Include="sdklauncher\sdklauncher.cpp" />
     <ClCompile Include="thirdparty\detours\src\creatwth.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -211,6 +212,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\stdafx.h" />
+    <ClInclude Include="public\include\utility.h" />
     <ClInclude Include="sdklauncher\sdklauncher.h" />
     <ClInclude Include="sdklauncher\sdklauncher_res.h" />
     <ClInclude Include="thirdparty\detours\include\detours.h" />

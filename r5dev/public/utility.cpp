@@ -134,6 +134,22 @@ void DbgPrint(LPCSTR sFormat, ...)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For printing the last error to the console if any.
+void PrintLastError(void)
+{
+    DWORD errorMessageID = ::GetLastError();
+    if (errorMessageID != NULL)
+    {
+        LPSTR messageBuffer = nullptr;
+        size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
+
+        spdlog::error("{}\n", messageBuffer);
+        LocalFree(messageBuffer);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For dumping data from a buffer to a file on the disk
 void HexDump(const char* szHeader, int nFunc, const void* pData, int nSize)
 {
