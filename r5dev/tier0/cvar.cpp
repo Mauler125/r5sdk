@@ -36,7 +36,7 @@ ConVar* con_suggestion_limit               = new ConVar();
 ConVar* con_suggestion_helptext            = new ConVar();
 //-----------------------------------------------------------------------------
 // FILESYSTEM                                                                 |
-ConVar* fs_warning_level_native            = new ConVar();
+ConVar* fs_warning_level_sdk               = new ConVar();
 ConVar* fs_show_warning_output             = new ConVar();
 ConVar* fs_packedstore_entryblock_stats    = new ConVar();
 //-----------------------------------------------------------------------------

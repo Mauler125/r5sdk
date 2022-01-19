@@ -48,7 +48,7 @@ extern ConVar* con_suggestion_limit;
 extern ConVar* con_suggestion_helptext;
 //-------------------------------------------------------------------------
 // FILESYSTEM                                                             |
-extern ConVar* fs_warning_level_native;
+extern ConVar* fs_warning_level_sdk;
 extern ConVar* fs_show_warning_output;
 extern ConVar* fs_packedstore_entryblock_stats;
 //-------------------------------------------------------------------------
@@ -65,9 +65,6 @@ extern ConVar* sq_showvmwarning;
 extern ConVar* net_userandomkey;
 extern ConVar* r5net_matchmaking_hostname;
 extern ConVar* r5net_show_debug;
-
-extern ConVar* test_color_test;
-
 
 class CCVarIteratorInternal // Fully reversed table, just look at the virtual function table and rename the function.
 {
