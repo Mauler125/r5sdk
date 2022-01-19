@@ -12,7 +12,7 @@ class HWASAPIServiceThread : public IDetour
 {
 	virtual void debugp()
 	{
-		std::cout << "| FUN: WASAPI_GetAudioDevice                : 0x" << std::hex << std::uppercase << p_WASAPI_GetAudioDevice.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: WASAPI_GetAudioDevice                : 0x" << std::hex << std::uppercase << p_WASAPI_GetAudioDevice.GetPtr() << std::setw(6) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 };
