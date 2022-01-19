@@ -27,8 +27,6 @@ void __fastcall HFrameStageNotify(CHLClient* rcx, ClientFrameStage_t frameStage)
 #ifdef GAMEDLL_S3
 				g_pConVar->ClearHostNames();
 #endif // GAMEDLL_S3
-
-				g_pConCommand->Init();
 				CKeyValueSystem_Init();
 
 				if (!g_pCmdLine->CheckParm("-devsdk"))

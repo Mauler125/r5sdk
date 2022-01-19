@@ -130,9 +130,7 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 	static bool bInitialized = false;
 	if (!bInitialized)
 	{
-		g_pConCommand->Init();
 		g_pConVar->ClearHostNames();
-
 
 		if (!g_pCmdLine->CheckParm("-devsdk"))
 		{

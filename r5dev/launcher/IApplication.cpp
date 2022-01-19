@@ -22,6 +22,8 @@ bool HIApplication_Create(void* a1)
 	// Also add cross-season support?
 	* (uintptr_t*)0x162C61208 = 0x1; // g_bDedicated
 #endif // DEDICATED
+	g_pConCommand->Init();
+
 	for (auto& map : g_pCVar->DumpToMap())
 	{
 		g_vsvAllConVars.push_back(map.first.c_str());
