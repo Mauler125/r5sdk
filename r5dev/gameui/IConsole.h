@@ -34,13 +34,14 @@ private:
         ImGuiInputTextFlags_EnterReturnsTrue;
 
     ImGuiWindowFlags popup_window_flags =
-        ImGuiWindowFlags_HorizontalScrollbar |
-        ImGuiWindowFlags_NoMove              |
-        /*ImGuiWindowFlags_NoResize            |*/
-        ImGuiWindowFlags_NoTitleBar          |
-        ImGuiWindowFlags_NoSavedSettings     |
-        ImGuiWindowFlags_NoFocusOnAppearing  |
-        ImGuiWindowFlags_NoBringToFrontOnFocus;
+        ImGuiWindowFlags_NoMove                    |
+        /*ImGuiWindowFlags_NoResize                  |*/
+        ImGuiWindowFlags_NoTitleBar                |
+        ImGuiWindowFlags_NoSavedSettings           |
+        ImGuiWindowFlags_NoFocusOnAppearing        |
+        ImGuiWindowFlags_NoBringToFrontOnFocus     |
+        ImGuiWindowFlags_AlwaysVerticalScrollbar   |
+        ImGuiWindowFlags_AlwaysHorizontalScrollbar;
 
 public:
     bool            m_bActivate = false;

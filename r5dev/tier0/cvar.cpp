@@ -33,6 +33,7 @@ ConVar* cl_gpustats_offset_x               = new ConVar();
 ConVar* cl_gpustats_offset_y               = new ConVar();
 
 ConVar* con_suggestion_limit               = new ConVar();
+ConVar* con_suggestion_helptext            = new ConVar();
 //-----------------------------------------------------------------------------
 // FILESYSTEM                                                                 |
 ConVar* fs_warning_level_native            = new ConVar();

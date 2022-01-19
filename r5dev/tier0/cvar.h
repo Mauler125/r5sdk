@@ -45,6 +45,7 @@ extern ConVar* cl_gpustats_offset_x;
 extern ConVar* cl_gpustats_offset_y;
 
 extern ConVar* con_suggestion_limit;
+extern ConVar* con_suggestion_helptext;
 //-------------------------------------------------------------------------
 // FILESYSTEM                                                             |
 extern ConVar* fs_warning_level_native;

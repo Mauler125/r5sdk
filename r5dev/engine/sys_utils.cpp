@@ -47,7 +47,7 @@ void* HSys_Warning(int level, char* fmt, ...)
 	buf[sizeof(buf) - 1] = 0;
 	va_end(args);
 
-	DevMsg(eDLL_T::NONE, "Warning(%d)%s\n", level, buf); // TODO: Color
+	DevMsg(eDLL_T::NONE, "Warning(%d):%s\n", level, buf); // TODO: Color
 	return Sys_Warning(level, buf);
 }
 

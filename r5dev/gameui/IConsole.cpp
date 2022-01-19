@@ -59,7 +59,11 @@ void CConsole::Draw(const char* pszTitle, bool* bDraw)
         m_bInitialized = true;
         m_pszConsoleTitle = pszTitle;
     }
-    //ImGui::ShowStyleEditor();
+
+    {
+        //ImGui::ShowStyleEditor();
+        //ImGui::ShowDemoWindow();
+    }
 
     { // BASEPANEL SETUP.
         if (!*bDraw)
@@ -67,16 +71,28 @@ void CConsole::Draw(const char* pszTitle, bool* bDraw)
             m_bActivate = false;
             return;
         }
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 4.f, 6.f });
+
         ImGui::SetNextWindowSize(ImVec2(1000, 600), ImGuiCond_FirstUseEver);
         ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
 
         BasePanel(bDraw);
+
+        ImGui::PopStyleVar(1);
     }
 
     { // SUGGESTION PANEL SETUP
         if (CanAutoComplete())
         {
+            ImGui::SetNextWindowPos(m_vecSuggestWindowPos);
+            ImGui::SetNextWindowSize(m_vecSuggestWindowSize);
+
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(500, 37));
+
             SuggestPanel();
+
+            ImGui::PopStyleVar(2);
         }
     }
 }
@@ -132,7 +148,6 @@ void CConsole::BasePanel(bool* bDraw)
 
     ///////////////////////////////////////////////////////////////////////
     ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 4.f, 6.f });
 
     if (m_bCopyToClipBoard) { ImGui::LogToClipboard(); }
     ColorLog();
@@ -151,7 +166,6 @@ void CConsole::BasePanel(bool* bDraw)
     }
 
     ///////////////////////////////////////////////////////////////////////
-    ImGui::PopStyleVar(1);
     ImGui::EndChild();
     ImGui::Separator();
 
@@ -196,7 +210,7 @@ void CConsole::BasePanel(bool* bDraw)
 
     m_vecSuggestWindowPos = ImGui::GetItemRectMin();
     m_vecSuggestWindowPos.y += ImGui::GetItemRectSize().y;
-    m_vecSuggestWindowSize = ImVec2(500, std::clamp((int)m_vsvSuggest.size() * 20, 0, 123));
+    m_vecSuggestWindowSize = ImVec2(500, std::clamp((int)m_vsvSuggest.size() * 18, 37, 122));
 
     ImGui::SameLine();
     if (ImGui::Button("Submit"))
@@ -265,12 +279,6 @@ void CConsole::OptionsPanel(void)
 //-----------------------------------------------------------------------------
 void CConsole::SuggestPanel(void)
 {
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(0.0f, 0.0f));
-
-    ImGui::SetNextWindowPos(m_vecSuggestWindowPos);
-    ImGui::SetNextWindowSize(m_vecSuggestWindowSize);
-
     ImGui::Begin("##suggest", nullptr, popup_window_flags);
     ImGui::PushAllowKeyboardFocus(false);
 
@@ -309,7 +317,6 @@ void CConsole::SuggestPanel(void)
 
     ImGui::PopAllowKeyboardFocus();
     ImGui::End();
-    ImGui::PopStyleVar(2);
 }
 
 //-----------------------------------------------------------------------------
@@ -372,6 +379,16 @@ void CConsole::FindFromPartial(void)
                         svValue = "= \""; // Assign default value to string if its a ConVar.
                         svValue.append(g_pCVar->FindVar(g_vsvAllConVars[i].c_str())->GetString());
                         svValue.append("\"");
+
+                        if (con_suggestion_helptext->GetBool())
+                        {
+                            std::string svHelpText = g_pCVar->FindVar(g_vsvAllConVars[i].c_str())->GetHelpText();
+
+                            if (!svHelpText.empty())
+                            {
+                                svValue.append(" [" + svHelpText + "]");
+                            }
+                        }
                     }
 
                     m_vsvSuggest.push_back(g_vsvAllConVars[i] + " " + svValue + "");
@@ -698,7 +715,7 @@ void CConsole::SetStyleVar(void)
     style.TabBorderSize     = 1.0f;
 
     style.WindowRounding    = 2.5f;
-    style.FrameRounding     = 0.0f;
+    style.FrameRounding     = 1.0f;
     style.ChildRounding     = 0.0f;
     style.PopupRounding     = 0.0f;
     style.TabRounding       = 1.0f;
@@ -706,7 +723,7 @@ void CConsole::SetStyleVar(void)
 
     style.ItemSpacing       = ImVec2(4, 4);
     style.WindowPadding     = ImVec2(5, 5);
-    style.WindowMinSize = ImVec2(510, 510);
+    style.WindowMinSize = ImVec2(518, 518);
 }
 
 CConsole* g_pIConsole = new CConsole();

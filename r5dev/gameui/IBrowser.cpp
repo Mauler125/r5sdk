@@ -764,7 +764,7 @@ void IBrowser::SetStyleVar()
     style.TabBorderSize                   = 1.0f;
 
     style.WindowRounding                  = 2.5f;
-    style.FrameRounding                   = 0.0f;
+    style.FrameRounding                   = 1.0f;
     style.ChildRounding                   = 0.0f;
     style.PopupRounding                   = 0.0f;
     style.TabRounding                     = 1.0f;
