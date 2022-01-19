@@ -221,6 +221,8 @@ void CConsole::BasePanel(bool* bDraw)
             memset(m_szInputBuf, '\0', 1);
         }
         m_bReclaimFocus = true;
+        m_nSuggestPos = -1;
+        m_bSuggestActive = false;
     }
     ImGui::End();
 }
