@@ -251,7 +251,7 @@ int main(int argc, char* argv[], char* envp[])
     spdlog::warn("Use DEBUG GAME        [1] for research and development purposes.\n");
     spdlog::warn("Use RELEASE GAME      [2] for playing the game and creating servers.\n");
     spdlog::warn("Use DEBUG DEDICATED   [3] for research and development purposes.\n");
-    spdlog::warn("Use RELEASE DEDICATED [3] for running and hosting dedicated servers.\n");
+    spdlog::warn("Use RELEASE DEDICATED [4] for running and hosting dedicated servers.\n");
     std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
     spdlog::info("Enter '1' for 'DEBUG GAME'.\n");
     spdlog::info("Enter '2' for 'RELEASE GAME'.\n");
