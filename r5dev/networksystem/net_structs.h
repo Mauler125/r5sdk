@@ -1,3 +1,5 @@
+#include "core/stdafx.h"
+
 #pragma once
 
 namespace R5Net {

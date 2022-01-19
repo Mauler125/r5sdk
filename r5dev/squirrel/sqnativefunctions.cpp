@@ -3,6 +3,7 @@
 
 #include "engine/sys_utils.h"
 #include "gameui/IBrowser.h"
+#include <networksystem/r5net.h>
 
 namespace SQNativeFunctions
 {
@@ -15,7 +16,17 @@ namespace SQNativeFunctions
         SQRESULT GetServerName(void* sqvm)
         {
             int svIndex = hsq_getinteger(sqvm, 1);
-            std::string szSvName = g_pIBrowser->m_vServerList[svIndex].svServerName;
+            std::string szSvName = g_pIBrowser->m_vServerList[svIndex].name;
+
+            hsq_pushstring(sqvm, szSvName.c_str(), -1);
+
+            return SQ_OK;
+        }
+
+        SQRESULT GetServerDescription(void* sqvm)
+        {
+            int svIndex = hsq_getinteger(sqvm, 1);
+            std::string szSvName = g_pIBrowser->m_vServerList[svIndex].description;
 
             hsq_pushstring(sqvm, szSvName.c_str(), -1);
 
@@ -28,7 +39,7 @@ namespace SQNativeFunctions
         SQRESULT GetServerPlaylist(void* sqvm)
         {
             int svIndex = hsq_getinteger(sqvm, 1);
-            std::string szSvPlaylist = g_pIBrowser->m_vServerList[svIndex].svPlaylist;
+            std::string szSvPlaylist = g_pIBrowser->m_vServerList[svIndex].playlist;
 
             hsq_pushstring(sqvm, szSvPlaylist.c_str(), -1);
 
@@ -41,9 +52,29 @@ namespace SQNativeFunctions
         SQRESULT GetServerMap(void* sqvm)
         {
             int svIndex = hsq_getinteger(sqvm, 1);
-            std::string szSvMapName = g_pIBrowser->m_vServerList[svIndex].svMapName;
+            std::string szSvMapName = g_pIBrowser->m_vServerList[svIndex].mapName;
 
             hsq_pushstring(sqvm, szSvMapName.c_str(), -1);
+
+            return SQ_OK;
+        }
+
+        SQRESULT GetServerPlayersNum(void* sqvm)
+        {
+            int svIndex = hsq_getinteger(sqvm, 1);
+            int szSvPlayersNum = g_pIBrowser->m_vServerList[svIndex].playerCount;
+
+            hsq_pushinteger(sqvm, szSvPlayersNum);
+
+            return SQ_OK;
+        }
+
+        SQRESULT GetServerMaxPlayersNum(void* sqvm)
+        {
+            int svIndex = hsq_getinteger(sqvm, 1);
+            int szSvMaxPlayersNum = g_pIBrowser->m_vServerList[svIndex].maxPlayerCount;
+
+            hsq_pushinteger(sqvm, szSvMaxPlayersNum);
 
             return SQ_OK;
         }
@@ -65,7 +96,7 @@ namespace SQNativeFunctions
         //-----------------------------------------------------------------------------
         SQRESULT GetSDKVersion(void* sqvm)
         {
-            hsq_pushstring(sqvm, g_pR5net->GetSDKVersion().c_str(), -1);
+            hsq_pushstring(sqvm, /*g_pR5net->GetSDKVersion().c_str()*/ "TEMP TEMP!!", -1);
 
             return SQ_OK;
         }
@@ -140,7 +171,7 @@ namespace SQNativeFunctions
         {
             int svIndex = hsq_getinteger(sqvm, 1);
 
-            g_pIBrowser->ConnectToServer(g_pIBrowser->m_vServerList[svIndex].svIpAddress, g_pIBrowser->m_vServerList[svIndex].svPort, g_pIBrowser->m_vServerList[svIndex].svEncryptionKey);
+            g_pIBrowser->ConnectToServer(g_pIBrowser->m_vServerList[svIndex].ipAddress, g_pIBrowser->m_vServerList[svIndex].gamePort, g_pIBrowser->m_vServerList[svIndex].encryptionKey);
 
             return SQ_OK;
         }
@@ -150,19 +181,24 @@ namespace SQNativeFunctions
         //-----------------------------------------------------------------------------
         SQRESULT CreateServerFromMenu(void* sqvm)
         {
-            std::string szSvName = hsq_getstring(sqvm, 1);
-            std::string szSvMapName = hsq_getstring(sqvm, 2);
-            std::string szSvPlaylist = hsq_getstring(sqvm, 3);
-            EServerVisibility eSvVisibility = (EServerVisibility)hsq_getinteger(sqvm, 4);
+            std::string szSvName        = hsq_getstring(sqvm, 1);
+            std::string szSvDescription = hsq_getstring(sqvm, 2);
+            std::string szSvMapName     = hsq_getstring(sqvm, 3);
+            std::string szSvPlaylist    = hsq_getstring(sqvm, 4);
+            std::string szSvPassword    = hsq_getstring(sqvm, 5);
+
+            // Visibility got deprecated in favor of a password system.
+            //EServerVisibility eSvVisibility = (EServerVisibility)hsq_getinteger(sqvm, 4);
 
             if (szSvName.empty() || szSvMapName.empty() || szSvPlaylist.empty())
                 return SQ_OK;
             
             // Adjust browser settings.
-            g_pIBrowser->m_Server.svPlaylist   = szSvPlaylist;
-            g_pIBrowser->m_Server.svMapName    = szSvMapName;
-            g_pIBrowser->m_Server.svServerName = szSvName;
-            g_pIBrowser->eServerVisibility     = eSvVisibility;
+            R5Net::LocalServer->playlist       = szSvPlaylist;
+            R5Net::LocalServer->mapName        = szSvMapName;
+            R5Net::LocalServer->name           = szSvName;
+            R5Net::LocalServer->description    = szSvDescription;
+            R5Net::LocalServer->password       = szSvPassword;
 
             // Launch server.
             g_pIBrowser->LaunchServer();
@@ -175,7 +211,7 @@ namespace SQNativeFunctions
         //-----------------------------------------------------------------------------
         SQRESULT JoinPrivateServerFromMenu(void* sqvm)
         {
-            std::string szHiddenServerRequestMessage = std::string();
+            /*std::string szHiddenServerRequestMessage = std::string();
 
             std::string szToken = hsq_getstring(sqvm, 1);
 
@@ -186,6 +222,7 @@ namespace SQNativeFunctions
                 g_pIBrowser->ConnectToServer(svListing.svIpAddress, svListing.svPort, svListing.svEncryptionKey);
             }
 
+            return SQ_OK;*/
             return SQ_OK;
         }
 
@@ -194,7 +231,7 @@ namespace SQNativeFunctions
         //-----------------------------------------------------------------------------
         SQRESULT GetPrivateServerMessage(void* sqvm)
         {
-            std::string szHiddenServerRequestMessage = std::string();
+            /*std::string szHiddenServerRequestMessage = std::string();
 
             std::string szToken = hsq_getstring(sqvm, 1);
 
@@ -215,6 +252,7 @@ namespace SQNativeFunctions
 
             DevMsg(eDLL_T::UI, "GetPrivateServeMessage response: %s\n", szHiddenServerRequestMessage.c_str());
 
+            return SQ_OK;*/
             return SQ_OK;
         }
 

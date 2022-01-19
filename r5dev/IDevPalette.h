@@ -28,12 +28,12 @@ public:
             {
             case R5Net::EResponseStatus::SUCCESS:
             {
-                g_GameConsole->AddLog("SUCCESS: %d players, %d servers", response.noPlayers, response.noServers);
+                g_pIConsole->AddLog("SUCCESS: %d players, %d servers", response.noPlayers, response.noServers);
                 break;
             }
             default:
             {
-                g_GameConsole->AddLog("ERROR: %s", response.error.c_str());
+                g_pIConsole->AddLog("ERROR: %s", response.error.c_str());
             }
             }
         }
@@ -50,18 +50,17 @@ public:
             {
             case R5Net::EResponseStatus::SUCCESS:
             {
-                g_GameConsole->AddLog("SUCCESS: %s", response.gameServer.name.c_str());
+                g_pIConsole->AddLog("SUCCESS: %s", response.gameServer.name.c_str());
                 break;
             }
             default:
             {
-                g_GameConsole->AddLog("ERROR: %s", response.error.c_str());
+                g_pIConsole->AddLog("ERROR: %s", response.error.c_str());
             }
             }
         }
         if (*bDraw == NULL)
         {
-            g_bShowBrowser = false;
         }
         ImGui::End();
 	}

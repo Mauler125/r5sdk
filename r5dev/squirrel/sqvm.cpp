@@ -253,16 +253,20 @@ void RegisterUIScriptFunctions(void* sqvm)
 
 	// functions for retrieving server browser data
 	HSQVM_RegisterFunction(sqvm, "GetServerName", "get name of the server at the specified index of the server list", "string", "int", &SQNativeFunctions::IBrowser::GetServerName);
+	HSQVM_RegisterFunction(sqvm, "GetServerDescription", "get description of the server at the specified index of the server list", "string", "int", &SQNativeFunctions::IBrowser::GetServerDescription);
 	HSQVM_RegisterFunction(sqvm, "GetServerPlaylist", "get playlist of the server at the specified index of the server list", "string", "int", &SQNativeFunctions::IBrowser::GetServerPlaylist);
 	HSQVM_RegisterFunction(sqvm, "GetServerMap", "get map of the server at the specified index of the server list", "string", "int", &SQNativeFunctions::IBrowser::GetServerMap);
+	HSQVM_RegisterFunction(sqvm, "GetServerPlayersNum", "get num of connected players of the server at the specified index of the server list", "int", "int", &SQNativeFunctions::IBrowser::GetServerPlayersNum);
+	HSQVM_RegisterFunction(sqvm, "GetServerMaxPlayersNum", "get num of max players of the server at the specified index of the server list", "int", "int", &SQNativeFunctions::IBrowser::GetServerMaxPlayersNum);
 	HSQVM_RegisterFunction(sqvm, "GetServerCount", "get number of public servers", "int", "", &SQNativeFunctions::IBrowser::GetServerCount);
+
 
 	// misc main menu functions
 	HSQVM_RegisterFunction(sqvm, "GetSDKVersion", "get sdk version as a string", "string", "", &SQNativeFunctions::IBrowser::GetSDKVersion);
 	HSQVM_RegisterFunction(sqvm, "GetPromoData", "get promo data for specified slot type", "string", "int", &SQNativeFunctions::IBrowser::GetPromoData);
 
 	// functions for connecting to servers
-	HSQVM_RegisterFunction(sqvm, "CreateServer", "start server with the specified settings", "void", "string,string,string,int", &SQNativeFunctions::IBrowser::CreateServerFromMenu);
+	HSQVM_RegisterFunction(sqvm, "CreateServer", "start server with the specified settings", "void", "string,string,string,string,string", &SQNativeFunctions::IBrowser::CreateServerFromMenu);
 	HSQVM_RegisterFunction(sqvm, "SetEncKeyAndConnect", "set the encryption key to that of the specified server and connects to it", "void", "int", &SQNativeFunctions::IBrowser::SetEncKeyAndConnect);
 	HSQVM_RegisterFunction(sqvm, "JoinPrivateServerFromMenu", "join private server by token", "void", "string", &SQNativeFunctions::IBrowser::JoinPrivateServerFromMenu);
 	HSQVM_RegisterFunction(sqvm, "GetPrivateServerMessage", "get private server join status message", "string", "string", &SQNativeFunctions::IBrowser::GetPrivateServerMessage);

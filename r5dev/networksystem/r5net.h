@@ -119,6 +119,8 @@ void FuncName##_Async(const RequestStructType& request, std::function<void(Respo
 
 
 	};
+
+	extern NetGameServer* LocalServer;
 }
 
 extern R5Net::Client* g_pR5net;	
