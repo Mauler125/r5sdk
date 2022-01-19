@@ -16,6 +16,7 @@ std::string Base64Encode(const std::string& in);
 std::string Base64Decode(const std::string& in);
 bool StringReplace(std::string& str, const std::string& from, const std::string& to);
 std::string CreateDirectories(std::string svFilePath);
+std::string ConvertToWinPath(const std::string& input);
 std::string StringEscape(const std::string& input);
 std::string StringUnescape(const std::string& input);
 

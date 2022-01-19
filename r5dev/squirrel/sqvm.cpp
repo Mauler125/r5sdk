@@ -143,82 +143,30 @@ void* HSQVM_WarningFunc(void* sqvm, int a2, int a3, int* nStringSize, void** ppS
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: loads the include file from the mods directory
+// Purpose: prints the global include file the compiler loads for loading scripts
 //---------------------------------------------------------------------------------
 void* HSQVM_LoadRson(const char* szRsonName)
 {
-	char szFilePath[MAX_PATH] = { 0 };
-	sprintf_s(szFilePath, MAX_PATH, "platform\\%s", szRsonName);
-
-	// Flip forward slashes in filepath to windows-style backslash
-	for (int i = 0; i < strlen(szFilePath); i++)
+	if (sq_showrsonloading->GetBool())
 	{
-		if (szFilePath[i] == '/')
-		{
-			szFilePath[i] = '\\';
-		}
-	}
-
-	// Returns the new path if the rson exists on the disk
-	if (FileExists(szFilePath) && SQVM_LoadRson(szRsonName))
-	{
-		if (sq_showrsonloading->GetBool())
-		{
-			DevMsg(eDLL_T::ENGINE, "\n");
-			DevMsg(eDLL_T::ENGINE, "______________________________________________________________\n");
-			DevMsg(eDLL_T::ENGINE, "] RSON_DISK --------------------------------------------------\n");
-			DevMsg(eDLL_T::ENGINE, "] PATH: '%s'\n", szFilePath);
-			DevMsg(eDLL_T::ENGINE, "--------------------------------------------------------------\n");
-			DevMsg(eDLL_T::ENGINE, "\n");
-		}
-		return SQVM_LoadRson(szFilePath);
-	}
-	else
-	{
-		if (sq_showrsonloading->GetBool())
-		{
-			DevMsg(eDLL_T::ENGINE, "\n");
-			DevMsg(eDLL_T::ENGINE, "______________________________________________________________\n");
-			DevMsg(eDLL_T::ENGINE, "] RSON_VPK ---------------------------------------------------\n");
-			DevMsg(eDLL_T::ENGINE, "] PATH: '%s'\n", szRsonName);
-			DevMsg(eDLL_T::ENGINE, "--------------------------------------------------------------\n");
-			DevMsg(eDLL_T::ENGINE, "\n");
-		}
+		DevMsg(eDLL_T::ENGINE, "\n");
+		DevMsg(eDLL_T::ENGINE, "______________________________________________________________\n");
+		DevMsg(eDLL_T::ENGINE, "] RSON_SQVM --------------------------------------------------\n");
+		DevMsg(eDLL_T::ENGINE, "] PATH: '%s'\n", szRsonName);
+		DevMsg(eDLL_T::ENGINE, "--------------------------------------------------------------\n");
+		DevMsg(eDLL_T::ENGINE, "\n");
 	}
 	return SQVM_LoadRson(szRsonName);
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: loads the script file from the mods directory
+// Purpose: prints the scripts the compiler loads from global include to be compiled
 //---------------------------------------------------------------------------------
 bool HSQVM_LoadScript(void* sqvm, const char* szScriptPath, const char* szScriptName, int nFlag)
 {
-	char filepath[MAX_PATH] = { 0 };
-	sprintf_s(filepath, MAX_PATH, "platform\\%s", szScriptPath);
-
-	// Flip forward slashes in filepath to windows-style backslash
-	for (int i = 0; i < strlen(filepath); i++)
-	{
-		if (filepath[i] == '/')
-		{
-			filepath[i] = '\\';
-		}
-	}
-
 	if (sq_showscriptloading->GetBool())
 	{
-		DevMsg(eDLL_T::ENGINE, "Loading SQVM Script '%s'\n", filepath);
-	}
-
-	// Returns true if the script exists on the disk
-	if (FileExists(filepath) && SQVM_LoadScript(sqvm, filepath, szScriptName, nFlag))
-	{
-		return true;
-	}
-
-	if (sq_showscriptloading->GetBool())
-	{
-		DevMsg(eDLL_T::ENGINE, "FAILED. Try SP / VPK for '%s'\n", filepath);
+		DevMsg(eDLL_T::ENGINE, "Loading SQVM Script '%s'\n", szScriptName);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -247,7 +195,7 @@ void HSQVM_RegisterFunction(void* sqvm, const char* szName, const char* szHelpSt
 //---------------------------------------------------------------------------------
 void RegisterServerScriptFunctions(void* sqvm)
 {
-	HSQVM_RegisterFunction(sqvm, "ServerNativeTest", "Native SERVER test function", "void", "", &VSquirrel::SHARED::Script_NativeTest);
+	HSQVM_RegisterFunction(sqvm, "SDKNativeTest", "Native SERVER test function", "void", "", &VSquirrel::SHARED::Script_NativeTest);
 }
 
 #ifndef DEDICATED
@@ -256,7 +204,7 @@ void RegisterServerScriptFunctions(void* sqvm)
 //---------------------------------------------------------------------------------
 void RegisterClientScriptFunctions(void* sqvm)
 {
-	HSQVM_RegisterFunction(sqvm, "ClientNativeTest", "Native CLIENT test function", "void", "", &VSquirrel::SHARED::Script_NativeTest);
+	HSQVM_RegisterFunction(sqvm, "SDKNativeTest", "Native CLIENT test function", "void", "", &VSquirrel::SHARED::Script_NativeTest);
 }
 
 //---------------------------------------------------------------------------------
@@ -264,7 +212,7 @@ void RegisterClientScriptFunctions(void* sqvm)
 //---------------------------------------------------------------------------------
 void RegisterUIScriptFunctions(void* sqvm)
 {
-	HSQVM_RegisterFunction(sqvm, "UINativeTest", "Native UI test function", "void", "", &VSquirrel::SHARED::Script_NativeTest);
+	HSQVM_RegisterFunction(sqvm, "SDKNativeTest", "Native UI test function", "void", "", &VSquirrel::SHARED::Script_NativeTest);
 
 	// functions for retrieving server browser data
 	HSQVM_RegisterFunction(sqvm, "GetServerName", "Gets the name of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerName);

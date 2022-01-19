@@ -48,12 +48,63 @@ void HCBaseFileSystem_Warning(void* thisptr, FileWarningLevel_t level, const cha
 	}
 }
 
+//---------------------------------------------------------------------------------
+// Purpose: attempts to load files from disk if exist before loading from VPK
+//---------------------------------------------------------------------------------
+FileHandle_t HCBaseFileSystem_ReadFromVPK(void* pVpk, std::int64_t* pResults, char* pszFilePath)
+{
+	std::string svFilePath = ConvertToWinPath(pszFilePath);
+
+	if (strstr(svFilePath.c_str(), "\\\*\\"))
+	{
+		// Erase '//*/'.
+		svFilePath.erase(0, 4);
+	}
+
+	// TODO: obtain 'mod' SearchPath's instead.
+	svFilePath.insert(0, "platform\\");
+
+	if (FileExists(svFilePath.c_str()) || FileExists(pszFilePath))
+	{
+		*pResults = -1;
+		return (void*)pResults;
+	}
+	return CBaseFileSystem_LoadFromVPK(pVpk, pResults, pszFilePath);
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: attempts to load files from disk if exist before loading from cache
+//---------------------------------------------------------------------------------
+bool HCBaseFileSystem_ReadFromCache(void* pFileSystem, char* pszFilePath, void* pResults)
+{
+	std::string svFilePath = ConvertToWinPath(pszFilePath);
+
+	if (strstr(svFilePath.c_str(), "\\\*\\"))
+	{
+		// Erase '//*/'.
+		svFilePath.erase(0, 4);
+	}
+
+	// TODO: obtain 'mod' SearchPath's instead.
+	svFilePath.insert(0, "platform\\");
+
+	if (FileExists(svFilePath.c_str()) || FileExists(pszFilePath))
+	{
+		return false;
+	}
+	return CBaseFileSystem_LoadFromCache(pFileSystem, pszFilePath, pResults);
+}
+
 void CBaseFileSystem_Attach()
 {
 	DetourAttach((LPVOID*)&CBaseFileSystem_Warning, &HCBaseFileSystem_Warning);
+	DetourAttach((LPVOID*)&CBaseFileSystem_LoadFromVPK, &HCBaseFileSystem_ReadFromVPK);
+	DetourAttach((LPVOID*)&CBaseFileSystem_LoadFromCache, &HCBaseFileSystem_ReadFromCache);
 }
 
 void CBaseFileSystem_Detach()
 {
 	DetourDetach((LPVOID*)&CBaseFileSystem_Warning, &HCBaseFileSystem_Warning);
+	DetourDetach((LPVOID*)&CBaseFileSystem_LoadFromVPK, &HCBaseFileSystem_ReadFromVPK);
+	DetourDetach((LPVOID*)&CBaseFileSystem_LoadFromCache, &HCBaseFileSystem_ReadFromCache);
 }

@@ -297,6 +297,25 @@ std::string CreateDirectories(std::string svFilePath)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For converting filepaths to windows filepaths.
+std::string ConvertToWinPath(const std::string& input)
+{
+    char szFilePath[MAX_PATH] = { 0 };
+    std::string results;
+    sprintf_s(szFilePath, MAX_PATH, "%s", input.c_str());
+
+    // Flip forward slashes in filepath to windows-style backslash
+    for (int i = 0; i < strlen(szFilePath); i++)
+    {
+        if (szFilePath[i] == '/')
+        {
+            szFilePath[i] = '\\';
+        }
+    }
+    return results = szFilePath;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For escaping special characters in a string.
 std::string StringEscape(const std::string& input)
 {
