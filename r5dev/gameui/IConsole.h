@@ -21,6 +21,7 @@ private:
     std::vector<std::string>       m_vsvSuggest;
     bool                           m_bSuggestActive   = false;
     bool                           m_bSuggestMoved    = false;
+    bool                           m_bSuggestUpdate   = false;
     int                            m_nSuggestPos      = -1;
 
     ImVec2                         m_vecSuggestWindowPos;

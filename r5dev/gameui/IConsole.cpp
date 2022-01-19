@@ -315,6 +315,12 @@ void CConsole::SuggestPanel(void)
                 m_bSuggestMoved = false;
             }
         }
+
+        if (m_bSuggestUpdate)
+        {
+            ImGui::SetScrollHereY(0.f);
+            m_bSuggestUpdate = false;
+        }
     }
 
     ImGui::PopAllowKeyboardFocus();
@@ -364,6 +370,7 @@ bool CConsole::CanAutoComplete(void)
 void CConsole::FindFromPartial(void)
 {
     m_nSuggestPos = -1;
+    m_bSuggestUpdate = true;
     m_vsvSuggest.clear();
 
     for (int i = 0; i < g_vsvAllConVars.size(); i++)

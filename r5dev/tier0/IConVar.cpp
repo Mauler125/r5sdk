@@ -76,7 +76,7 @@ void ConVar::Init(void)
 	cl_gpustats_offset_x = new ConVar("cl_gpustats_offset_x", "1250", FCVAR_DEVELOPMENTONLY, "X offset for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_gpustats_offset_y = new ConVar("cl_gpustats_offset_y", "900", FCVAR_DEVELOPMENTONLY, "Y offset for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 
-	con_suggestion_limit     = new ConVar("con_suggestion_limit", "40", FCVAR_DEVELOPMENTONLY, "Maximum number of suggestions the autocomplete window will show for the console.", false, 0.f, false, 0.f, nullptr, nullptr);
+	con_suggestion_limit     = new ConVar("con_suggestion_limit", "120", FCVAR_DEVELOPMENTONLY, "Maximum number of suggestions the autocomplete window will show for the console.", false, 0.f, false, 0.f, nullptr, nullptr);
 	con_suggestion_helptext = new ConVar("con_suggestion_helptext", "0", FCVAR_DEVELOPMENTONLY, "Show ConVar help text in autocomplete window. Disabled by default to keep window less populated.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// FILESYSTEM                                                             |
