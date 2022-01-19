@@ -405,6 +405,10 @@
     <ClCompile Include="squirrel\sqnativefunctions.cpp">
       <Filter>sdk\squirrel</Filter>
     </ClCompile>
+    <ClCompile Include="IDevPallete.cpp" />
+    <ClCompile Include="gameui\IBrowser.cpp">
+      <Filter>sdk\gameui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\cdll_engine_int.h">
@@ -1042,6 +1046,13 @@
     </ClInclude>
     <ClInclude Include="squirrel\sqnativefunctions.h">
       <Filter>sdk\squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="IDevPalette.h" />
+    <ClInclude Include="networksystem\net_structs.h">
+      <Filter>sdk\networksystem</Filter>
+    </ClInclude>
+    <ClInclude Include="gameui\IBrowser.h">
+      <Filter>sdk\gameui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

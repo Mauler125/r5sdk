@@ -6,8 +6,11 @@ namespace SQNativeFunctions
 	namespace IBrowser
 	{
         SQRESULT GetServerName(void* sqvm);
+        SQRESULT GetServerDescription(void* sqvm);
         SQRESULT GetServerPlaylist(void* sqvm);
         SQRESULT GetServerMap(void* sqvm);
+        SQRESULT GetServerPlayersNum(void* sqvm);
+        SQRESULT GetServerMaxPlayersNum(void* sqvm);
         SQRESULT GetServerCount(void* sqvm);
         SQRESULT GetSDKVersion(void* sqvm);
         SQRESULT GetPromoData(void* sqvm);

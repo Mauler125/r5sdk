@@ -10,6 +10,7 @@
 #include "inputsystem/inputsystem.h"
 #include "public/include/stb_image.h"
 #include <IDevPalette.h>
+#include <gameui/IBrowser.h>
 
 /**********************************************************************************
 -----------------------------------------------------------------------------------
@@ -274,7 +275,7 @@ void DrawImGui()
 	if (g_pIBrowser->m_bActivate)
 	{
 		g_pInputSystem->EnableInput(false); // Disable input to game when browser is drawn.
-		g_pIBrowser->Draw("Server Browser", &g_pIBrowser->m_bActivate);
+		//g_pIBrowser->Draw("Server Browser", &g_pIBrowser->m_bActivate);
 	}
 	if (g_pIConsole->m_bActivate)
 	{

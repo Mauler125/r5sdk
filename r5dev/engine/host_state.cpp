@@ -9,6 +9,25 @@
 #include "squirrel/sqinit.h"
 #include "public/include/bansystem.h"
 
+
+
+
+inline int GetLocalPlayersNum()
+{
+	int currPlayers = 0;
+	for (int i = 0; i < MAX_PLAYERS; i++)
+	{
+		CClient* client = g_pClient->GetClientInstance(i); // Get client instance.
+		if (client)
+		{
+			if (client->GetNetChan())
+				currPlayers++;
+		}
+	}
+	return currPlayers;
+}
+
+
 //-----------------------------------------------------------------------------
 // Purpose: Send keep alive request to Pylon Master Server.
 // NOTE: When Pylon update reaches indev remove this and implement properly.
@@ -20,26 +39,27 @@ void KeepAliveToPylon()
 		std::string m_szHostToken = std::string();
 		std::string m_szHostRequestMessage = std::string();
 		DevMsg(eDLL_T::CLIENT, "Sending PostServerHost request\n");
-		bool result = g_pR5net->PostServerHost(m_szHostRequestMessage, m_szHostToken,
-			ServerListing{
-				g_pCVar->FindVar("hostname")->GetString(),
-				std::string(g_pHostState->m_levelName),
-				"",
-				g_pCVar->FindVar("hostport")->GetString(),
-				g_pCVar->FindVar("mp_gamemode")->GetString(),
-				false,
 
-				// BUG BUG: Checksum is null on dedi
-				// ADDITIONAL NOTES: seems to be related to scripts, this also happens when the listen server is started but the client from the same process never connects.
-				// Checksum only gets set on the server if the client from its own process connects to it.
-				std::to_string(*g_nRemoteFunctionCallsChecksum),
-				std::string(),
-				g_szNetKey.c_str()
-			}
-		);
+		R5Net::UpdateGameServerMSRequest Request;
+
+		Request.gameServer = *(R5Net::LocalServer);
+
+		if(Request.gameServer.name.empty())
+			Request.gameServer.name = g_pCVar->FindVar("hostname")->GetString();
+
+		Request.gameServer.mapName = std::string(g_pHostState->m_levelName);
+		sscanf_s(g_pCVar->FindVar("hostport")->GetString(), "%d", &Request.gameServer.gamePort);
+		Request.gameServer.playlist = g_pCVar->FindVar("mp_gamemode")->GetString();
+		Request.gameServer.remoteChecksum = std::to_string(*g_nRemoteFunctionCallsChecksum);
+		Request.gameServer.encryptionKey = g_szNetKey.c_str();
+		Request.gameServer.playerCount = GetLocalPlayersNum();
+		Request.gameServer.maxPlayerCount = MAX_PLAYERS; // TODO: replace with actual max_players
+
+		auto Response = g_pR5net->UpdateMyGameServer(Request);
+
+		
 	}
 }
-
 
 //-----------------------------------------------------------------------------
 // Purpose: Check refuse list and kill netchan connection.
@@ -164,6 +184,8 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 				}
 		});
 
+		PylonThread.detach();
+
 		static std::thread BanlistThread([]()
 		{
 				while (true)
@@ -172,6 +194,8 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 				}
 		});
+
+		BanlistThread.detach();
 
 		if (net_userandomkey->GetBool())
 		{
