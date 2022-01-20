@@ -9,7 +9,7 @@
 //---------------------------------------------------------------------------------
 void HCBaseFileSystem_Warning(void* thisptr, FileWarningLevel_t level, const char* fmt, ...)
 {
-	if (fs_warning_level_native->GetInt() < (int)level)
+	if (fs_warning_level_sdk->GetInt() < (int)level)
 	{
 		return;
 	}
