@@ -31,15 +31,15 @@ void __fastcall HFrameStageNotify(CHLClient* rcx, ClientFrameStage_t frameStage)
 
 				if (!g_pCmdLine->CheckParm("-devsdk"))
 				{
-					IVEngineClient_CommandExecute(NULL, "exec autoexec.cfg");
 					IVEngineClient_CommandExecute(NULL, "exec autoexec_server.cfg");
 					IVEngineClient_CommandExecute(NULL, "exec autoexec_client.cfg");
+					IVEngineClient_CommandExecute(NULL, "exec autoexec.cfg");
 				}
 				else // Development configs.
 				{
-					IVEngineClient_CommandExecute(NULL, "exec autoexec_dev.cfg");
 					IVEngineClient_CommandExecute(NULL, "exec autoexec_server_dev.cfg");
 					IVEngineClient_CommandExecute(NULL, "exec autoexec_client_dev.cfg");
+					IVEngineClient_CommandExecute(NULL, "exec autoexec_dev.cfg");
 				}
 
 				*(bool*)m_bRestrictServerCommands = true; // Restrict commands.
