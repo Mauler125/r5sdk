@@ -379,7 +379,7 @@ void CConsole::FindFromPartial(void)
         {
             if (g_vsvAllConVars[i].find(m_szInputBuf) != std::string::npos)
             {
-                if (std::find(m_vsvSuggest.begin(), m_vsvSuggest.end(), g_vsvAllConVars[i]) == m_vsvSuggest.end());
+                if (std::find(m_vsvSuggest.begin(), m_vsvSuggest.end(), g_vsvAllConVars[i]) == m_vsvSuggest.end())
                 {
                     std::string svValue;
                     ConVar* pConVar = g_pCVar->FindVar(g_vsvAllConVars[i].c_str());
