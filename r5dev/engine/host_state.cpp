@@ -32,7 +32,7 @@ void KeepAliveToPylon()
 				// BUG BUG: Checksum is null on dedi
 				// ADDITIONAL NOTES: seems to be related to scripts, this also happens when the listen server is started but the client from the same process never connects.
 				// Checksum only gets set on the server if the client from its own process connects to it.
-				std::to_string(*g_nRemoteFunctionCallsChecksum),
+				std::to_string(*g_nClientRemoteChecksum),
 				std::string(),
 				g_szNetKey.c_str()
 			}

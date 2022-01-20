@@ -587,7 +587,7 @@ void IBrowser::UpdateHostingStatus()
             break;
         }
 
-        if (*g_nRemoteFunctionCallsChecksum == NULL) // Check if script checksum is valid yet.
+        if (*g_nClientRemoteChecksum == NULL) // Check if script checksum is valid yet.
         {
             break;
         }
@@ -628,7 +628,7 @@ void IBrowser::SendHostingPostRequest()
             g_pCVar->FindVar("hostport")->GetString(),
             g_pCVar->FindVar("mp_gamemode")->GetString(),
             m_Server.bHidden,
-            std::to_string(*g_nRemoteFunctionCallsChecksum),
+            std::to_string(*g_nClientRemoteChecksum),
 
             std::string(),
             g_szNetKey.c_str()
