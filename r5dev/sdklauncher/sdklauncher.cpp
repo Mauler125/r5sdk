@@ -212,15 +212,15 @@ int main(int argc, char* argv[], char* envp[])
             Sleep(2000);
             return EXIT_SUCCESS;
         }
-        if ((arg == "-dedicated") || (arg == "-dedi"))
+        if ((arg == "-dedicated_dev") || (arg == "-dedid"))
         {
             LaunchR5Apex(eLaunchMode::LM_DEBUG_DEDI, eLaunchState::LS_CHEATS);
             Sleep(2000);
             return EXIT_SUCCESS;
         }
-        if ((arg == "-dedicated_dev") || (arg == "-dedid"))
+        if ((arg == "-dedicated") || (arg == "-dedi"))
         {
-            LaunchR5Apex(eLaunchMode::LM_DEBUG_DEDI, eLaunchState::LS_CHEATS);
+            LaunchR5Apex(eLaunchMode::LM_RELEASE_DEDI, eLaunchState::LS_CHEATS);
             Sleep(2000);
             return EXIT_SUCCESS;
         }
