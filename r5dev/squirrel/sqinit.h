@@ -9,8 +9,9 @@ namespace
 	ADDRESS p_RestoreRemoteChecksumsFromSaveGame = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x4C\x24\x00\x41\x54\x48\x83\xEC\x40", "xxxx?xxxxxx");
 	void* (*RestoreRemoteChecksumsFromSaveGame)(void* a1, void* a2) = (void* (*)(void*, void*))p_RestoreRemoteChecksumsFromSaveGame.GetPtr(); /*48 89 4C 24 ? 41 54 48 83 EC 40*/
 
-	std::uint32_t* g_nServerRemoteChecksum = reinterpret_cast<std::uint32_t*>(p_RestoreRemoteChecksumsFromSaveGame.Offset(0x1C0).FindPatternSelf("48 8D 15", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr());
-	std::uint32_t* g_nClientRemoteChecksum = reinterpret_cast<std::uint32_t*>(p_Script_Remote_BeginRegisteringFunctions.Offset(0x0).FindPatternSelf("89 05", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).GetPtr());
+	/* CHANGE THIS WHEN SWITCHING TO PYLONV2 TO UNSIGNED AGAIN!*/
+	std::int32_t* g_nServerRemoteChecksum = reinterpret_cast<std::int32_t*>(p_RestoreRemoteChecksumsFromSaveGame.Offset(0x1C0).FindPatternSelf("48 8D 15", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr());
+	std::int32_t* g_nClientRemoteChecksum = reinterpret_cast<std::int32_t*>(p_Script_Remote_BeginRegisteringFunctions.Offset(0x0).FindPatternSelf("89 05", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).GetPtr());
 }
 
 namespace VSquirrel
