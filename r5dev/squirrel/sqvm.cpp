@@ -67,11 +67,11 @@ void* HSQVM_PrintFunc(void* sqvm, char* fmt, ...)
 
 		iconsole->debug(vmStr);
 
-		std::string s = g_spd_sys_w_oss.str();
-		g_pIConsole->m_ivConLog.push_back(Strdup(s.c_str()));
-
 		if (sq_showvmoutput->GetInt() > 2)
 		{
+			std::string s = g_spd_sys_w_oss.str();
+
+			g_pIConsole->m_ivConLog.push_back(Strdup(s.c_str()));
 			g_pLogSystem.AddLog((LogType_t)vmIdx, s);
 		}
 #endif // !DEDICATED
@@ -84,10 +84,10 @@ void* HSQVM_PrintFunc(void* sqvm, char* fmt, ...)
 //---------------------------------------------------------------------------------
 void* HSQVM_WarningFunc(void* sqvm, int a2, int a3, int* nStringSize, void** ppString)
 {
+	static void* retaddr = reinterpret_cast<void*>(p_SQVM_WarningCmd.Offset(0x10).FindPatternSelf("85 ?? ?? 99", ADDRESS::Direction::DOWN).GetPtr());
 	void* result = SQVM_WarningFunc(sqvm, a2, a3, nStringSize, ppString);
-	void* retaddr = _ReturnAddress();
 
-	if (retaddr != SQVM_WarningFunc) // Check if its SQVM_Warning calling.
+	if (retaddr != _ReturnAddress()) // Check if its SQVM_Warning calling.
 	{
 		return result; // If not return.
 	}
@@ -102,7 +102,7 @@ void* HSQVM_WarningFunc(void* sqvm, int a2, int a3, int* nStringSize, void** ppS
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
 	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sqvm_warn_logger");
 
-	std::string vmStr = SQVM_LOG_T[vmIdx].c_str();
+	std::string vmStr = SQVM_WARNING_LOG_T[vmIdx].c_str();
 	std::string svConstructor((char*)*ppString, *nStringSize); // Get string from memory via std::string constructor.
 	vmStr.append(svConstructor);
 
@@ -118,7 +118,7 @@ void* HSQVM_WarningFunc(void* sqvm, int a2, int a3, int* nStringSize, void** ppS
 		}
 		else
 		{
-			std::string vmStrAnsi = SQVM_ANSI_LOG_T[vmIdx].c_str();
+			std::string vmStrAnsi = SQVM_WARNING_ANSI_LOG_T[vmIdx].c_str();
 			vmStrAnsi.append(svConstructor);
 			wconsole->debug(vmStrAnsi);
 		}
