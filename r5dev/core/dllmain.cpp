@@ -34,8 +34,8 @@ void R5Dev_Init()
     spdlog::info("\n");
     for (int i = 0; i < (&R5R_LOGO)[1] - R5R_LOGO; i++)
     {
-        std::string unescaped = StringEscape(R5R_LOGO[i]);
-        spdlog::info("{}{}{}\n", g_svRedF.c_str(), unescaped.c_str(), g_svReset.c_str());
+        std::string svEscaped = StringEscape(R5R_LOGO[i]);
+        spdlog::info("{}{}{}\n", g_svRedF.c_str(), svEscaped.c_str(), g_svReset.c_str());
     }
     spdlog::info("\n");
 }

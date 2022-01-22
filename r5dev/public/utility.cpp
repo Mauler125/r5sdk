@@ -341,7 +341,7 @@ std::string StringEscape(const std::string& input)
     {
         switch (c)
         {
-        case '\'':  results += "\\'";  break;
+        //case '\'':  results += "\\'";  break;
         case '\a':  results += "\\a";  break;
         case '\b':  results += "\\b";  break;
         case '\f':  results += "\\f";  break;
@@ -365,7 +365,7 @@ std::string StringUnescape(const std::string& input)
     {
         switch (c)
         {
-        case '\\':   results += "\'";  break;
+        //case '\\':   results += "\'";  break;
         case '\\a':  results += "\a";  break;
         case '\\b':  results += "\b";  break;
         case '\\f':  results += "\f";  break;

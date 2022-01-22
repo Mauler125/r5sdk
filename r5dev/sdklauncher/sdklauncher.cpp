@@ -248,8 +248,8 @@ int main(int argc, char* argv[], char* envp[])
     {
         try
         {
-            eLaunchMode iinput = (eLaunchMode)std::stoi(input);
-            switch (iinput)
+            eLaunchMode mode = (eLaunchMode)std::stoi(input);
+            switch (mode)
             {
             case eLaunchMode::LM_DEBUG_GAME:
             {
