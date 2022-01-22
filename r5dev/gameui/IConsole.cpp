@@ -102,18 +102,19 @@ void CConsole::Draw(const char* pszTitle, bool* bDraw)
 //-----------------------------------------------------------------------------
 void CConsole::Think(void)
 {
-    if (g_pImGuiConfig->IConsole_Config.m_bAutoClear) // Check if Auto-Clear is enabled.
-    {
-        // Loop and clear the beginning of the vector until we are below our limit.
-        while (m_ivConLog.Size > g_pImGuiConfig->IConsole_Config.m_nAutoClearLimit)
-        {
-            m_ivConLog.erase(m_ivConLog.begin());
-        }
-        while ((int)m_vsvHistory.size() > 512)
-        {
-            m_vsvHistory.erase(m_vsvHistory.begin());
-        }
-    }
+   if (m_ivConLog.Size > con_max_size_logvector->GetInt())
+   {
+       while (m_ivConLog.Size > con_max_size_logvector->GetInt() / 4 * 3)
+       {
+           m_ivConLog.erase(m_ivConLog.begin());
+           m_nScrollBack++;
+       }
+   }
+
+   while ((int)m_vsvHistory.size() > 512)
+   {
+       m_vsvHistory.erase(m_vsvHistory.begin());
+   }
 }
 
 //-----------------------------------------------------------------------------
@@ -157,6 +158,12 @@ void CConsole::BasePanel(bool* bDraw)
         ImGui::LogFinish();
 
         m_bCopyToClipBoard = false;
+    }
+
+    if (m_nScrollBack > 0)
+    {
+        ImGui::SetScrollY(ImGui::GetScrollY() - m_nScrollBack * ImGui::GetTextLineHeightWithSpacing() - m_nScrollBack - 90);
+        m_nScrollBack = 0;
     }
 
     if (m_bScrollToBottom || (m_bAutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY()))
@@ -210,7 +217,7 @@ void CConsole::BasePanel(bool* bDraw)
 
     m_vecSuggestWindowPos = ImGui::GetItemRectMin();
     m_vecSuggestWindowPos.y += ImGui::GetItemRectSize().y;
-    m_vecSuggestWindowSize = ImVec2(500, std::clamp((int)m_vsvSuggest.size() * 18, 37, 122));
+    m_vecSuggestWindowSize = ImVec2(500, std::clamp((int)m_vsvSuggest.size() * (int)ImGui::GetTextLineHeight(), 37, 122));
 
     ImGui::SameLine();
     if (ImGui::Button("Submit"))
@@ -234,18 +241,8 @@ void CConsole::OptionsPanel(void)
 {
     ImGui::Checkbox("Auto-Scroll", &m_bAutoScroll);
 
-    if (ImGui::Checkbox("Auto-Clear", &g_pImGuiConfig->IConsole_Config.m_bAutoClear))
-    {
-        g_pImGuiConfig->Save();
-    }
-
     ImGui::SameLine();
     ImGui::PushItemWidth(100);
-
-    if (ImGui::InputInt("Limit##AutoClearFirstIConsole", &g_pImGuiConfig->IConsole_Config.m_nAutoClearLimit))
-    {
-        g_pImGuiConfig->Save();
-    }
 
     ImGui::PopItemWidth();
 
@@ -620,9 +617,9 @@ void CConsole::ColorLog(void)
         if (strstr(pszConLog, "Script(X):")) { imColor = ImVec4(0.59f, 0.58f, 0.63f, 1.00f); true; }
 
         // Native per game dll
-        if (strstr(pszConLog, "Native(S):")) { imColor = ImVec4(0.59f, 0.58f, 0.73f, 1.00f); true; }
-        if (strstr(pszConLog, "Native(C):")) { imColor = ImVec4(0.59f, 0.58f, 0.63f, 1.00f); true; }
-        if (strstr(pszConLog, "Native(U):")) { imColor = ImVec4(0.59f, 0.48f, 0.53f, 1.00f); true; }
+        if (strstr(pszConLog, "Native(S):")) { imColor = ImVec4(0.23f, 0.47f, 0.85f, 1.00f); true; }
+        if (strstr(pszConLog, "Native(C):")) { imColor = ImVec4(0.46f, 0.46f, 0.46f, 1.00f); true; }
+        if (strstr(pszConLog, "Native(U):")) { imColor = ImVec4(0.59f, 0.35f, 0.46f, 1.00f); true; }
 
         // Native per sys dll
         if (strstr(pszConLog, "Native(E):")) { imColor = ImVec4(0.70f, 0.70f, 0.70f, 1.00f); true; }
@@ -644,6 +641,7 @@ void CConsole::ColorLog(void)
         if (strstr(pszConLog, ".gnut #"))        { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
         if (strstr(pszConLog, ".nut #"))         { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
         if (strstr(pszConLog, "): -> "))         { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
+        if (strstr(pszConLog, "):Warning:"))     { imColor = ImVec4(1.00f, 1.00f, 0.00f, 1.00f); true; }
 
         // Squirrel VM script debug
         if (strstr(pszConLog, "CALLSTACK"))   { imColor = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); true; }
@@ -723,14 +721,15 @@ void CConsole::SetStyleVar(void)
     style.PopupBorderSize   = 1.0f;
     style.TabBorderSize     = 1.0f;
 
-    style.WindowRounding    = 2.5f;
+    style.WindowRounding    = 4.0f;
     style.FrameRounding     = 1.0f;
-    style.ChildRounding     = 0.0f;
-    style.PopupRounding     = 0.0f;
+    style.ChildRounding     = 1.0f;
+    style.PopupRounding     = 3.0f;
     style.TabRounding       = 1.0f;
     style.ScrollbarRounding = 1.0f;
 
     style.ItemSpacing       = ImVec2(4, 4);
+    style.FramePadding      = ImVec2(4, 4);
     style.WindowPadding     = ImVec2(5, 5);
     style.WindowMinSize = ImVec2(518, 518);
 }

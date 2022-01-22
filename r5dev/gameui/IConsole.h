@@ -11,6 +11,7 @@ private:
     std::vector<std::string>       m_vsvCommands;
     std::vector<std::string>       m_vsvHistory;
     int                            m_nHistoryPos      = -1;
+    int                            m_nScrollBack      = 0;
     ImGuiTextFilter                m_itFilter;
     bool                           m_bInitialized     = false;
     bool                           m_bReclaimFocus    = false;

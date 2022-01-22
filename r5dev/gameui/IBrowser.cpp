@@ -180,12 +180,14 @@ void IBrowser::ServerBrowserSection()
 
     const float FooterHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
     ImGui::BeginChild("ServerListChild", { 0, -FooterHeight }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 0));
     if (ImGui::BeginTable("##ServerBrowser_ServerList", 5, ImGuiTableFlags_Resizable))
     {
-        ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 20);
-        ImGui::TableSetupColumn("Map", ImGuiTableColumnFlags_WidthStretch, 25);
+        ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 25);
+        ImGui::TableSetupColumn("Map", ImGuiTableColumnFlags_WidthStretch, 20);
         ImGui::TableSetupColumn("Port", ImGuiTableColumnFlags_WidthStretch, 5);
-        ImGui::TableSetupColumn("Playlist", ImGuiTableColumnFlags_WidthStretch, 5);
+        ImGui::TableSetupColumn("Playlist", ImGuiTableColumnFlags_WidthStretch, 10);
         ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch, 5);
         ImGui::TableHeadersRow();
 
@@ -224,6 +226,7 @@ void IBrowser::ServerBrowserSection()
 
         }
         ImGui::EndTable();
+        ImGui::PopStyleVar(1);
     }
     ImGui::EndChild();
 
@@ -757,22 +760,23 @@ void IBrowser::SetStyleVar()
         colors[ImGuiCol_WindowBg]             = ImVec4(0.06f, 0.06f, 0.06f, 0.97f);
     }
 
-    style.WindowBorderSize                = 0.0f;
-    style.FrameBorderSize                 = 1.0f;
-    style.ChildBorderSize                 = 1.0f;
-    style.PopupBorderSize                 = 1.0f;
-    style.TabBorderSize                   = 1.0f;
+    style.WindowBorderSize  = 0.0f;
+    style.FrameBorderSize   = 1.0f;
+    style.ChildBorderSize   = 1.0f;
+    style.PopupBorderSize   = 1.0f;
+    style.TabBorderSize     = 1.0f;
 
-    style.WindowRounding                  = 2.5f;
-    style.FrameRounding                   = 1.0f;
-    style.ChildRounding                   = 0.0f;
-    style.PopupRounding                   = 0.0f;
-    style.TabRounding                     = 1.0f;
-    style.ScrollbarRounding               = 1.0f;
+    style.WindowRounding    = 4.0f;
+    style.FrameRounding     = 1.0f;
+    style.ChildRounding     = 1.0f;
+    style.PopupRounding     = 3.0f;
+    style.TabRounding       = 1.0f;
+    style.ScrollbarRounding = 1.0f;
 
-    style.ItemSpacing                     = ImVec2(4, 4);
-    style.WindowPadding                   = ImVec2(5, 5);
-    style.WindowMinSize                   = ImVec2(750, 510);
+    style.ItemSpacing       = ImVec2(4, 4);
+    style.FramePadding      = ImVec2(4, 4);
+    style.WindowPadding     = ImVec2(5, 5);
+    style.WindowMinSize     = ImVec2(750, 510);
 }
 
 IBrowser* g_pIBrowser = new IBrowser();

@@ -44,6 +44,7 @@ extern ConVar* cl_showgpustats;;
 extern ConVar* cl_gpustats_offset_x;
 extern ConVar* cl_gpustats_offset_y;
 
+extern ConVar* con_max_size_logvector;
 extern ConVar* con_suggestion_limit;
 extern ConVar* con_suggestion_helptext;
 //-------------------------------------------------------------------------

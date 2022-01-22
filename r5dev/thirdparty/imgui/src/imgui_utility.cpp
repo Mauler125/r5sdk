@@ -61,8 +61,6 @@ void ImGuiConfig::Load()
                 // IConsole
                 IConsole_Config.m_nBind0          = jsIn["config"]["IConsole"]["bind0"].get<int>();
                 IConsole_Config.m_nBind1          = jsIn["config"]["IConsole"]["bind1"].get<int>();
-                IConsole_Config.m_nAutoClearLimit = jsIn["config"]["IConsole"]["autoClearLimit"].get<int>();
-                IConsole_Config.m_bAutoClear      = jsIn["config"]["IConsole"]["autoClear"].get<bool>();
 
                 // IBrowser
                 IBrowser_Config.m_nBind0 = jsIn["config"]["IBrowser"]["bind0"].get<int>();
@@ -84,8 +82,6 @@ void ImGuiConfig::Save()
     // IConsole
     jsOut["config"]["IConsole"]["bind0"]          = IConsole_Config.m_nBind0;
     jsOut["config"]["IConsole"]["bind1"]          = IConsole_Config.m_nBind1;
-    jsOut["config"]["IConsole"]["autoClearLimit"] = IConsole_Config.m_nAutoClearLimit;
-    jsOut["config"]["IConsole"]["autoClear"]      = IConsole_Config.m_bAutoClear;
 
     // IBrowser
     jsOut["config"]["IBrowser"]["bind0"] = IBrowser_Config.m_nBind0;

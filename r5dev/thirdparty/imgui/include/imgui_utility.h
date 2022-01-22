@@ -12,10 +12,8 @@ class ImGuiConfig
 public:
     struct
     {
-        int m_nBind0          = VK_OEM_3;
-        int m_nBind1          = VK_INSERT;
-        int m_nAutoClearLimit = 300;
-        bool m_bAutoClear     = true;
+        int m_nBind0 = VK_OEM_3;
+        int m_nBind1 = VK_INSERT;
     } IConsole_Config;
 
     struct
