@@ -36,8 +36,7 @@ void CEngine::SetNextState(EngineState_t iNextState)
 //-----------------------------------------------------------------------------
 EngineState_t CEngine::GetState()
 {
-	// Rebuild function, vfunc index is 4 in season 3.
-	return m_nDLLState();
+	return m_nDLLState(); // Rebuild function, vfunc index is 4 in season 3.
 }
 
 //-----------------------------------------------------------------------------
@@ -54,8 +53,7 @@ void CEngine::Frame()
 //-----------------------------------------------------------------------------
 float CEngine::GetFrameTime()
 {
-	// Rebuild function, vfunc index is 6 in season 3.
-	return m_flFrameTime();
+	return m_flFrameTime(); // Rebuild function, vfunc index is 6 in season 3.
 }
 
 //-----------------------------------------------------------------------------
