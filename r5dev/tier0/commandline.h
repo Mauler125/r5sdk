@@ -8,7 +8,7 @@ public:
 	void CreatePool(void* pMem);
 	const char* GetCmdLine(void);
 	const char* CheckParm(const char* psz, const char** ppszValue = NULL);
-	void RemoveParm(void);
+	void RemoveParm(const char* pszParm);
 	void AppendParm(const char* pszParm, const char* pszValues);
 	const char* ParmValue(const char* psz, const char* pDefaultVal = NULL);
 	int ParmValue(const char* psz, int nDefaultVal);

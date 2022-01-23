@@ -38,8 +38,10 @@
     <ClCompile Include="engine\host_cmd.cpp" />
     <ClCompile Include="engine\host_state.cpp" />
     <ClCompile Include="engine\net_chan.cpp" />
+    <ClCompile Include="engine\sv_main.cpp" />
     <ClCompile Include="engine\sys_dll.cpp" />
     <ClCompile Include="engine\sys_dll2.cpp" />
+    <ClCompile Include="engine\sys_engine.cpp" />
     <ClCompile Include="engine\sys_utils.cpp" />
     <ClCompile Include="gameui\IConsole.cpp" />
     <ClCompile Include="gameui\IBrowser.cpp" />
@@ -233,8 +235,10 @@
     <ClInclude Include="engine\host_cmd.h" />
     <ClInclude Include="engine\host_state.h" />
     <ClInclude Include="engine\net_chan.h" />
+    <ClInclude Include="engine\sv_main.h" />
     <ClInclude Include="engine\sys_dll.h" />
     <ClInclude Include="engine\sys_dll2.h" />
+    <ClInclude Include="engine\sys_engine.h" />
     <ClInclude Include="engine\sys_utils.h" />
     <ClInclude Include="gameui\IConsole.h" />
     <ClInclude Include="gameui\IBrowser.h" />

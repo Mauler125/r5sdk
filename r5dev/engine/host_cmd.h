@@ -1,5 +1,15 @@
 #pragma once
 
+struct EngineParms_t
+{
+	char* baseDirectory;
+	char* modName;
+	char* rootGameName;
+	unsigned int memSizeAvailable;
+};
+
+extern EngineParms_t* g_pEngineParms;
+
 namespace
 {
 	/* ==== HOST ============================================================================================================================================================ */
@@ -12,6 +22,9 @@ namespace
 #endif
 	ADDRESS p_malloc_internal = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\xE9\x00\x00\x00\x00\xCC\xCC\xCC\x40\x53\x48\x83\xEC\x20\x48\x8D\x05\x00\x00\x00\x00", "x????xxxxxxxxxxxx????");
 	void* (*malloc_internal)(void* pPool, int64_t size) = (void* (*)(void*, int64_t))p_malloc_internal.GetPtr(); /*E9 ? ? ? ? CC CC CC 40 53 48 83 EC 20 48 8D 05 ? ? ? ?*/
+
+	// TODO: Verify for other seasons beside 3.
+	static ADDRESS g_pEngineParmsBuffer = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x4C\x8B\x05\x00\x00\x00\x00\xB2\x01", "xxx????xx").ResolveRelativeAddressSelf(0x3, 0x7);
 }
 
 namespace
@@ -28,9 +41,10 @@ class HHostCmd : public IDetour
 {
 	virtual void debugp()
 	{
-		std::cout << "| FUN: Host_Init                            : 0x" << std::hex << std::uppercase << p_Host_Init.GetPtr()       << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: malloc_internal                      : 0x" << std::hex << std::uppercase << p_malloc_internal.GetPtr() << std::setw(npad) << " |" << std::endl;
-		std::cout << "| VAR: g_pMallocPool                        : 0x" << std::hex << std::uppercase << g_pMallocPool.GetPtr()     << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: Host_Init                            : 0x" << std::hex << std::uppercase << p_Host_Init.GetPtr()          << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: malloc_internal                      : 0x" << std::hex << std::uppercase << p_malloc_internal.GetPtr()    << std::setw(npad) << " |" << std::endl;
+		std::cout << "| VAR: g_pEngineParms                       : 0x" << std::hex << std::uppercase << g_pEngineParmsBuffer.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| VAR: g_pMallocPool                        : 0x" << std::hex << std::uppercase << g_pMallocPool.GetPtr()        << std::setw(npad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 };

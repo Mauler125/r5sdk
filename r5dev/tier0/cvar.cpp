@@ -61,8 +61,8 @@ ConVar* r5net_show_debug                   = new ConVar();
 //-----------------------------------------------------------------------------
 ConCommandBase* CCVar::FindCommandBase(const char* pszCommandName)
 {
-	using OriginalFn = ConCommandBase * (__thiscall*)(CCVar*, const char*);
-	return (*reinterpret_cast<OriginalFn**>(this))[14](this, pszCommandName);
+	static int index = 14;
+	return CallVFunc<ConCommandBase*>(index, this, pszCommandName);
 }
 
 //-----------------------------------------------------------------------------
@@ -71,8 +71,8 @@ ConCommandBase* CCVar::FindCommandBase(const char* pszCommandName)
 //-----------------------------------------------------------------------------
 ConVar* CCVar::FindVar(const char* pszVarName)
 {
-	using OriginalFn = ConVar * (__thiscall*)(CCVar*, const char*);
-	return (*reinterpret_cast<OriginalFn**>(this))[16](this, pszVarName);
+	static int index = 16;
+	return CallVFunc<ConVar*>(index, this, pszVarName);
 }
 
 //-----------------------------------------------------------------------------
@@ -81,8 +81,8 @@ ConVar* CCVar::FindVar(const char* pszVarName)
 //-----------------------------------------------------------------------------
 ConCommand* CCVar::FindCommand(const char* pszCommandName)
 {
-	using OriginalFn = ConCommand* (__thiscall*)(CCVar*, const char*);
-	return (*reinterpret_cast<OriginalFn**>(this))[18](this, pszCommandName);
+	static int index = 18;
+	return CallVFunc<ConCommand*>(index, this, pszCommandName);
 }
 
 //-----------------------------------------------------------------------------
@@ -90,8 +90,8 @@ ConCommand* CCVar::FindCommand(const char* pszCommandName)
 //-----------------------------------------------------------------------------
 CCVarIteratorInternal* CCVar::FactoryInternalIterator()
 {
-	using OriginalFn = CCVarIteratorInternal * (__thiscall*)(CCVar*);
-	return (*reinterpret_cast<OriginalFn**>(this))[41](this);
+	static int index = 41;
+	return CallVFunc<CCVarIteratorInternal*>(index, this);
 }
 
 //-----------------------------------------------------------------------------

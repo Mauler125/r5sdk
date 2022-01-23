@@ -411,6 +411,12 @@
     <ClCompile Include="vpc\interfaces.cpp">
       <Filter>sdk\vpc</Filter>
     </ClCompile>
+    <ClCompile Include="engine\sv_main.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\sys_engine.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\cdll_engine_int.h">
@@ -1054,6 +1060,12 @@
     </ClInclude>
     <ClInclude Include="core\termutil.h">
       <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sv_main.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sys_engine.h">
+      <Filter>sdk\engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

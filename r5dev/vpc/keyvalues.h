@@ -51,32 +51,32 @@ public:
 
 	void RegisterSizeofKeyValues(std::int64_t size) //@0x1413AA1F0 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	{
-		using OriginalFn = void(__thiscall*)(CKeyValuesSystem*, std::int64_t);
-		(*reinterpret_cast<OriginalFn**>(this))[0](this, size);
+		static int index = 0;
+		CallVFunc<void>(index, this, size);
 	}
 
 	void* AllocKeyValuesMemory(std::int64_t size) // @0x1413AA1F8 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	{
-		using OriginalFn = void* (__thiscall*)(CKeyValuesSystem*, std::int64_t);
-		return (*reinterpret_cast<OriginalFn**>(this))[1](this, size);
+		static int index = 1;
+		return CallVFunc<void*>(index, this, size);
 	}
 
 	void FreeKeyValuesMemory(void* pMem) // @0x1413AA200 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	{
-		using OriginalFn = void(__thiscall*)(CKeyValuesSystem*, void*);
-		(*reinterpret_cast<OriginalFn**>(this))[2](this, pMem);
+		static int index = 2;
+		CallVFunc<void>(index, this, pMem);
 	}
 
 	HKeySymbol GetSymbolForString(const char* name, bool bCreate) // @0x1413AA208 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	{
-		using OriginalFn = HKeySymbol(__thiscall*)(CKeyValuesSystem*, const char*, bool);
-		return (*reinterpret_cast<OriginalFn**>(this))[3](this, name, bCreate);
+		static int index = 3;
+		return CallVFunc<HKeySymbol>(index, this, name, bCreate);
 	}
 
 	const char* GetStringForSymbol(HKeySymbol symbol) // @0x1413AA210 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	{
-		using OriginalFn = const char* (__thiscall*)(CKeyValuesSystem*, HKeySymbol);
-		return (*reinterpret_cast<OriginalFn**>(this))[4](this, symbol);
+		static int index = 4;
+		return CallVFunc<const char*>(index, this, symbol);
 	}
 
 	//	void __fastcall CKeyValuesSystem::FreeKeyValuesMemory(CKeyValuesSystem* this_arg, void* ptr_mem_arg)
@@ -111,20 +111,20 @@ public:
 
 	void SetKeyValuesExpressionSymbol(const char* name, bool bValue) // @0x1413AA230 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	{
-		using OriginalFn = void(__thiscall*)(CKeyValuesSystem*, const char*, bool);
-		(*reinterpret_cast<OriginalFn**>(this))[8](this, name, bValue);
+		static int index = 8;
+		CallVFunc<void>(index, this, name, bValue);
 	}
 
 	bool GetKeyValuesExpressionSymbol(const char* name) // @0x1413AA238 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	{
-		using OriginalFn = bool(__thiscall*)(CKeyValuesSystem*, const char*);
-		return (*reinterpret_cast<OriginalFn**>(this))[9](this, name);
+		static int index = 9;
+		return CallVFunc<bool>(index, this, name);
 	}
 
 	HKeySymbol GetSymbolForStringCaseSensitive(HKeySymbol& hCaseInsensitiveSymbol, const char* name, bool bCreate) // @0x1413AA240 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	{
-		using OriginalFn = HKeySymbol(__thiscall*)(CKeyValuesSystem*, HKeySymbol&, const char*, bool);
-		return (*reinterpret_cast<OriginalFn**>(this))[10](this, hCaseInsensitiveSymbol, name, bCreate);
+		static int index = 10;
+		return CallVFunc<HKeySymbol>(index, this, hCaseInsensitiveSymbol, name, bCreate);
 	}
 
 // Datatypes aren't accurate. But full fill the actual byte distance.
@@ -202,17 +202,8 @@ public:
 	}
 
 	// Compiler makes it so m_Value shares the offset spot with m_flValue that why we cast it like this.
-	float& m_flValue()
-	{
-		static std::int32_t offset = 0x18;
-		return *(float*)((std::uintptr_t)this + offset);
-	}
-
-	int& m_iValue()
-	{
-		static std::int32_t offset = 0x18;
-		return *(int*)((std::uintptr_t)this + offset);
-	}
+	MEMBER_AT_OFFSET(float, m_flValue, 0x18);
+	MEMBER_AT_OFFSET(int, m_iValue, 0x18);
 
 public:
 	uint32_t m_iKeyName              : 24;         // 0x0000

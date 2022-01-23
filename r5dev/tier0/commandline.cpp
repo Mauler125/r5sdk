@@ -15,26 +15,26 @@
 //-----------------------------------------------------------------------------
 void CCommandLine::CreateCmdLine(const char* pszCommandline)
 {
-	using OriginalFn = void(__thiscall*)(CCommandLine*, const char*);
-	(*reinterpret_cast<OriginalFn**>(this))[0](this, pszCommandline);
+	static int index = 0;
+	CallVFunc<void>(index, this, pszCommandline);
 }
 
 //-----------------------------------------------------------------------------
-// purpose: creates a command line from the arguments passed in
+// Purpose: creates a command line from the arguments passed in
 //-----------------------------------------------------------------------------
 void CCommandLine::CreateCmdLine(int argc, char** argv)
 {
-	using OriginalFn = void(__thiscall*)(CCommandLine*, int, char**);
-	return (*reinterpret_cast<OriginalFn**>(this))[1](this, argc, argv);
+	static int index = 1;
+	CallVFunc<void>(index, this, argc, argv);
 }
 
 //-----------------------------------------------------------------------------
-// purpose: allocates a pool for the command line [seems unused]
+// Purpose: allocates a pool for the command line [seems unused]
 //-----------------------------------------------------------------------------
 void CCommandLine::CreatePool(void* pMem)
 {
-	using OriginalFn = void(__thiscall*)(CCommandLine*, void*);
-	(*reinterpret_cast<OriginalFn**>(this))[2](this, pMem);
+	static int index = 2;
+	CallVFunc<void>(index, this, pMem);
 }
 
 //-----------------------------------------------------------------------------
@@ -43,8 +43,8 @@ void CCommandLine::CreatePool(void* pMem)
 //-----------------------------------------------------------------------------
 const char* CCommandLine::GetCmdLine(void)
 {
-	using OriginalFn = const char* (__thiscall*)(CCommandLine*);
-	return (*reinterpret_cast<OriginalFn**>(this))[3](this);
+	static int index = 3;
+	return CallVFunc<const char*>(index, this);
 }
 
 //-----------------------------------------------------------------------------
@@ -55,18 +55,18 @@ const char* CCommandLine::GetCmdLine(void)
 //-----------------------------------------------------------------------------
 const char* CCommandLine::CheckParm(const char* psz, const char** ppszValue)
 {
-	using OriginalFn = const char* (__thiscall*)(CCommandLine*, const char*, const char**);
-	return (*reinterpret_cast<OriginalFn**>(this))[4](this, psz, ppszValue);
+	static int index = 4;
+	return CallVFunc<const char*>(index, this, psz, ppszValue);
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: Remove specified string ( and any args attached to it ) from command line
 // Input  : *pszParm - 
 //-----------------------------------------------------------------------------
-void CCommandLine::RemoveParm(void)
+void CCommandLine::RemoveParm(const char* pszParm)
 {
-	using OriginalFn = void(__thiscall*)(CCommandLine*);
-	return (*reinterpret_cast<OriginalFn**>(this))[5](this);
+	static int index = 5;
+	CallVFunc<void>(index, this, pszParm);
 }
 
 //-----------------------------------------------------------------------------
@@ -76,8 +76,8 @@ void CCommandLine::RemoveParm(void)
 //-----------------------------------------------------------------------------
 void CCommandLine::AppendParm(const char* pszParm, const char* pszValues)
 {
-	using OriginalFn = void(__thiscall*)(CCommandLine*, const char*, const char*);
-	return (*reinterpret_cast<OriginalFn**>(this))[6](this, pszParm, pszParm);
+	static int index = 6;
+	CallVFunc<void>(index, this, pszParm, pszValues);
 }
 
 //-----------------------------------------------------------------------------
@@ -85,47 +85,47 @@ void CCommandLine::AppendParm(const char* pszParm, const char* pszValues)
 //-----------------------------------------------------------------------------
 const char* CCommandLine::ParmValue(const char* psz, const char* pDefaultVal)
 {
-	using OriginalFn = const char* (__thiscall*)(CCommandLine*, const char*, const char*);
-	return (*reinterpret_cast<OriginalFn**>(this))[7](this, psz, pDefaultVal);
+	static int index = 7;
+	return CallVFunc<const char*>(index, this, psz, pDefaultVal);
 }
 
 int CCommandLine::ParmValue(const char* psz, int nDefaultVal)
 {
-	using OriginalFn = int(__thiscall*)(CCommandLine*, const char*, int);
-	return (*reinterpret_cast<OriginalFn**>(this))[8](this, psz, nDefaultVal);
+	static int index = 8;
+	return CallVFunc<int>(index, this, psz, nDefaultVal);
 }
 
 float CCommandLine::ParmValue(const char* psz, float flDefaultVal)
 {
-	using OriginalFn = float(__thiscall*)(CCommandLine*, const char*, float);
-	return (*reinterpret_cast<OriginalFn**>(this))[9](this, psz, flDefaultVal);
+	static int index = 9;
+	return CallVFunc<float>(index, this, psz, flDefaultVal);
 }
 
 //-----------------------------------------------------------------------------
-// purpose: returns individual command line arguments
+// Purpose: returns individual command line arguments
 //-----------------------------------------------------------------------------
 int CCommandLine::ParmCount(void)
 {
-	using OriginalFn = int(__thiscall*)(CCommandLine*);
-	return (*reinterpret_cast<OriginalFn**>(this))[10](this);
+	static int index = 10;
+	return CallVFunc<int>(index, this);
 }
 
 int CCommandLine::FindParm(const char* psz)
 {
-	using OriginalFn = int(__thiscall*)(CCommandLine*, const char*);
-	return (*reinterpret_cast<OriginalFn**>(this))[11](this, psz);
+	static int index = 11;
+	return CallVFunc<int>(index, this, psz);
 }
 
 const char* CCommandLine::GetParm(int nIndex)
 {
-	using OriginalFn = const char* (__thiscall*)(CCommandLine*, int);
-	return (*reinterpret_cast<OriginalFn**>(this))[12](this, nIndex);
+	static int index = 12;
+	return CallVFunc<const char*>(index, this, nIndex);
 }
 
 void CCommandLine::SetParm(int nIndex, char const* pParm)
 {
-	using OriginalFn = void(__thiscall*)(CCommandLine*, int, const char*);
-	return (*reinterpret_cast<OriginalFn**>(this))[13](this, nIndex, pParm);
+	static int index = 13;
+	CallVFunc<void>(index, this, nIndex, pParm);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

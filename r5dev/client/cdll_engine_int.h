@@ -25,17 +25,16 @@ enum class ClientFrameStage_t : int
 class CHLClient
 {
 public:
-	/* Might wanna implement my callvfunc wrapper I sent the other day here? - Pix*/
 	void FrameStageNotify(ClientFrameStage_t curStage) // @0x1405C0740 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	{
-		using OriginalFn = void(__thiscall*)(CHLClient*, ClientFrameStage_t);
-		(*reinterpret_cast<OriginalFn**>(this))[58](this, curStage); /*48 83 EC 28 89 15 ?? ?? ?? ??*/
+		static int index = 58;
+		CallVFunc<void>(index, this, curStage); /*48 83 EC 28 89 15 ?? ?? ?? ??*/
 	}
 
 	void* /* CUserCmd* */ GetUserCmd(int sequenceNumber) // @0x1405BB020 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	{
-		using OriginalFn = void(__thiscall*)(CHLClient*, int);
-		(*reinterpret_cast<OriginalFn**>(this))[28](this, sequenceNumber); /*48 83 EC 28 48 8B 05 ? ? ? ? 48 8D 0D ? ? ? ? 44 8B C2*/
+		static int index = 28;
+		return CallVFunc<void*>(index, this, sequenceNumber); /*48 83 EC 28 48 8B 05 ? ? ? ? 48 8D 0D ? ? ? ? 44 8B C2*/
 	}
 };
 

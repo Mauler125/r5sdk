@@ -73,3 +73,17 @@ namespace
 	MODULE g_mRadAudioSystemDll  = MODULE("mileswin64.dll");
 }
 #endif // !SDKLAUNCHER
+
+// Since we wanna be able to use it anywhere I thought this might be the best location for it. Since it gets inlined anyway.
+#define MEMBER_AT_OFFSET(varType, varName, offset) \
+	varType& varName() \
+    { \
+		static int _##varName = offset; \
+		return *(varType*)((std::uintptr_t)this + _##varName); \
+	}
+
+template <typename ReturnType, typename ...Args>
+ReturnType CallVFunc(int index, void* thisPtr, Args... args)
+{
+	return (*reinterpret_cast<ReturnType(__fastcall***)(void*, Args...)>(thisPtr))[index](thisPtr, args...);
+}

@@ -8,6 +8,7 @@
 #include "networksystem/r5net.h"
 #include "squirrel/sqinit.h"
 #include "public/include/bansystem.h"
+#include "engine/sys_engine.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: Send keep alive request to Pylon Master Server.
@@ -125,7 +126,6 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 	static auto Host_ChangelevelFn             = ADDRESS(0x1402387B0).RCast<void(*)(bool, const char*, const char*)>();
 	static auto CL_EndMovieFn                  = ADDRESS(0x1402C03D0).RCast<void(*)()>();
 	static auto SendOfflineRequestToStryderFn  = ADDRESS(0x14033D380).RCast<void(*)()>();
-	static auto CEngine                        = ADDRESS(0X141741BA0).RCast<void*>();
 
 	static bool bInitialized = false;
 	if (!bInitialized)
@@ -331,7 +331,7 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 				DevMsg(eDLL_T::ENGINE, "CHostState::FrameUpdate | CASE:HS_RESTART | Restarting client\n");
 				CL_EndMovieFn();
 				SendOfflineRequestToStryderFn(); // We have hostnames nulled anyway.
-				*(std::int32_t*)((std::uintptr_t)CEngine + 0xC) = 3; //g_CEngine.vtable->SetNextState(&g_CEngine, DLL_RESTART);
+				g_pEngine->SetNextState(EngineState_t::DLL_RESTART);
 				break;
 			}
 			case HostStates_t::HS_SHUTDOWN:
@@ -339,7 +339,7 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 				DevMsg(eDLL_T::ENGINE, "CHostState::FrameUpdate | CASE:HS_SHUTDOWN | Shutdown client\n");
 				CL_EndMovieFn();
 				SendOfflineRequestToStryderFn(); // We have hostnames nulled anyway.
-				*(std::int32_t*)((std::uintptr_t)CEngine + 0xC) = 2; //g_CEngine.vtable->SetNextState(&g_CEngine, DLL_CLOSE);
+				g_pEngine->SetNextState(EngineState_t::DLL_CLOSE);
 				break;
 			}
 			default:

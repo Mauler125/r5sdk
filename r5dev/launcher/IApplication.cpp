@@ -2,14 +2,43 @@
 #include "tier0/cvar.h"
 #include "launcher/IApplication.h"
 #include "ebisusdk/EbisuSDK.h"
+#include "engine/sys_engine.h"
+#include "engine/sys_dll2.h"
+#include "engine/sv_main.h"
+#include "engine/host_cmd.h"
 
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-void* HIApplication_Main(void* a1, void* a2)
+int HIApplication_Main(CModAppSystemGroup* modAppSystemGroup)
 {
-	HEbisuSDK_Init();
-	return IAppSystem_Main(a1, a2);
+	int nRunResult = 3; // RUN_OK
+	HEbisuSDK_Init(); // Not here in retail. We init EbisuSDK here though.
+
+	if (modAppSystemGroup->m_bIsServerOnly()) // This will never be true anyway but we implement it for the sake of it.
+	{
+		if (g_pEngine->Load(true, g_pEngineParms->baseDirectory))
+		{
+			// Below is vfunc call that is supposed to be used for real dedicated servers. The class instance is sadly stripped to some degree.
+			//(*(void(__fastcall**)(__int64))(*(_QWORD*)qword_14C119C10 + 72i64))(qword_14C119C10);// dedicated->RunServer
+			SV_ShutdownGameDLL();
+		}
+	}
+	else
+	{
+		g_pEngine->SetQuitting(EngineDllQuitting_t::QUIT_NOTQUITTING);
+		if (g_pEngine->Load(false, g_pEngineParms->baseDirectory))
+		{
+			if (CEngineAPI_MainLoop())
+			{
+				nRunResult = 4; // RUN_RESTART
+			}
+			g_pEngine->Unload();
+			SV_ShutdownGameDLL();
+		}
+	}
+
+	return nRunResult;
 }
 
 //-----------------------------------------------------------------------------
