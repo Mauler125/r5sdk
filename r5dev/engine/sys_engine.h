@@ -29,83 +29,15 @@ enum class EngineDllQuitting_t : int
 class CEngine
 {
 public:
-	//-----------------------------------------------------------------------------
-	// Purpose: Start initializing the engine.
-	//-----------------------------------------------------------------------------
-	bool Load(bool dedicated, const char* rootDir)
-	{
-		static int index = 1;
-		return CallVFunc<bool>(index, this, dedicated, rootDir);
-	}
-	
-	//-----------------------------------------------------------------------------
-	// Purpose: Start to shutdown the engine.
-	//-----------------------------------------------------------------------------
-	void Unload()
-	{
-		static int index = 2;
-		CallVFunc<void>(index, this);
-	}
-	//-----------------------------------------------------------------------------
-	// Purpose: Set the next dll engine state.
-    //-----------------------------------------------------------------------------
-	void SetNextState(EngineState_t iNextState)
-	{
-		// Rebuild function, vfunc index is 3 in season 3.
-		m_nNextDLLState() = iNextState;
-	}
-
-	//-----------------------------------------------------------------------------
-	// Purpose: Get the dll engine state.
-	//-----------------------------------------------------------------------------
-	EngineState_t GetState()
-	{
-		// Rebuild function, vfunc index is 4 in season 3.
-		return m_nDLLState();
-	}
-
-	//-----------------------------------------------------------------------------
-	// Purpose:
-	//-----------------------------------------------------------------------------
-	void Frame()
-	{
-		static int index = 5;
-		CallVFunc<void>(index, this);
-	}
-
-	//-----------------------------------------------------------------------------
-	// Purpose: Get engine frame time.
-	//-----------------------------------------------------------------------------
-	float GetFrameTime()
-	{
-		// Rebuild function, vfunc index is 6 in season 3.
-		return m_flFrameTime();
-	}
-
-	//-----------------------------------------------------------------------------
-	// Purpose:
-	//-----------------------------------------------------------------------------
-	float GetPreviousTime() // I'm not sure if this is right, should double check.
-	{
-		static int index = 7;
-		return CallVFunc<float>(index, this);
-	}
-
-	// Yes that is the function, I have no clue how to implement it at this moment so its gonna reside here for now. It's vfunc index 8.
-	 
-	//__m128 __fastcall CEngine::GetCurTime(CEngine *thisPtr)
-	//{
-	//	return _mm_cvtpd_ps((__m128d)(unsigned __int64)thisPtr->m_flCurrentTime);
-	//}
-
-	//-----------------------------------------------------------------------------
-	// Purpose: Set dll state.
-	//-----------------------------------------------------------------------------
-	void SetQuitting(EngineDllQuitting_t quitDllState)
-	{
-		static int index = 9;
-		CallVFunc<void>(index, this, quitDllState);
-	}
+	bool Load(bool dedicated, const char* rootDir);
+	void Unload();
+	void SetNextState(EngineState_t iNextState);
+	EngineState_t GetState();
+	void Frame();
+	float GetFrameTime();
+	float GetPreviousTime();
+	void SetQuitting(EngineDllQuitting_t quitDllState);
+	// __m128 __fastcall GetCurTime()
 
 	// Last functions in class table.
 	// sub_1401FE2A0

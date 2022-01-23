@@ -10,8 +10,8 @@
 
 //-----------------------------------------------------------------------------
 // Purpose: Create a command line from the passed in string
-//  Note that if you pass in a @filename, then the routine will read settings
-//  from a file instead of the command line
+// Note that if you pass in a @filename, then the routine will read settings
+// from a file instead of the command line
 //-----------------------------------------------------------------------------
 void CCommandLine::CreateCmdLine(const char* pszCommandline)
 {
