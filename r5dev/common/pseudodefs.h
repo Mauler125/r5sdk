@@ -441,8 +441,8 @@ void __noreturn __break(uint16 code, uint16 subcode);
 #define _UNKNOWN char
 
 #ifdef _MSC_VER
-#define snprintf _snprintf
-#define vsnprintf _vsnprintf
+//#define snprintf _snprintf
+//#define vsnprintf _vsnprintf
 #endif
 
 // The ADJ() macro is used for shifted pointers.

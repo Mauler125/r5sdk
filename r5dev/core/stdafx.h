@@ -57,7 +57,8 @@
 #include "public/include/json.hpp"
 
 #include "core/assert.h"
-#include "core/termutil.h"
+#include "core/assert.h"
+#include "common/pseudodefs.h"
 #include "tier0/basetypes.h"
 
 #if !defined (SDKLAUNCHER)
@@ -74,7 +75,6 @@ namespace
 }
 #endif // !SDKLAUNCHER
 
-// Since we wanna be able to use it anywhere I thought this might be the best location for it. Since it gets inlined anyway.
 #define MEMBER_AT_OFFSET(varType, varName, offset) \
 	varType& varName() \
     { \
