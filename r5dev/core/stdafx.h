@@ -57,7 +57,7 @@
 #include "public/include/json.hpp"
 
 #include "core/assert.h"
-#include "core/assert.h"
+#include "core/termutil.h"
 #include "common/pseudodefs.h"
 #include "tier0/basetypes.h"
 
