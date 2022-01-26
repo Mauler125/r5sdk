@@ -78,7 +78,8 @@ class HEngine : public IDetour
 {
 	virtual void debugp()
 	{
-		std::cout << "| VAR: g_pEngine                  : 0x" << std::hex << std::uppercase << g_pEngineBuffer.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| VAR: g_pEngine                            : 0x" << std::hex << std::uppercase << g_pEngineBuffer.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////

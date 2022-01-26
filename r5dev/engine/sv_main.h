@@ -18,7 +18,8 @@ class HSV_MAIN : public IDetour
 {
 	virtual void debugp()
 	{
-		std::cout << "| FUN: SV_ShutdownGameDLL                        : 0x" << std::hex << std::uppercase << p_SV_ShutdownGameDLL.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: SV_ShutdownGameDLL                   : 0x" << std::hex << std::uppercase << p_SV_ShutdownGameDLL.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////

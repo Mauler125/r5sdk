@@ -136,6 +136,24 @@ public:
 		VirtualProtect((void*)ptr, dwSize, oldProt, &oldProt); // Restore protection.
 	}
 
+	void PatchString(const std::string string)
+	{
+		DWORD oldProt = NULL;
+
+		SIZE_T dwSize = string.size();
+		std::vector<char> bytes(string.begin(), string.end());
+
+		VirtualProtect((void*)ptr, dwSize, PAGE_EXECUTE_READWRITE, &oldProt); // Patch page to be able to read and write to it.
+
+		for (int i = 0; i < string.size(); i++)
+		{
+			*(std::uint8_t*)(ptr + i) = bytes[i]; // Write string to Address.
+		}
+
+		dwSize = string.size();
+		VirtualProtect((void*)ptr, dwSize, oldProt, &oldProt); // Restore protection.
+	}
+
 	ADDRESS FindPatternSelf(const std::string pattern, const Direction searchDirect, const int opCodesToScan = 100, const std::ptrdiff_t occurence = 1)
 	{
 		static auto PatternToBytes = [](const std::string pattern)

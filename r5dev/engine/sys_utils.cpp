@@ -95,15 +95,14 @@ void DevMsg(eDLL_T idx, const char* fmt, ...)
 	sqlogger->debug(svOut);
 
 #ifndef DEDICATED
-	g_spd_sys_w_oss.str("");
-	g_spd_sys_w_oss.clear();
-
 	iconsole->info(svOut);
-
 	std::string s = g_spd_sys_w_oss.str();
 
 	g_pLogSystem.AddLog((LogType_t)eDLL_T::ENGINE, s);
 	g_pIConsole->m_ivConLog.push_back(Strdup(s.c_str()));
+
+	g_spd_sys_w_oss.str("");
+	g_spd_sys_w_oss.clear();
 #endif // !DEDICATED
 }
 

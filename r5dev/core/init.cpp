@@ -43,8 +43,10 @@
 #include "engine/host_cmd.h"
 #include "engine/host_state.h"
 #include "engine/net_chan.h"
+#include "engine/sv_main.h"
 #include "engine/sys_dll.h"
 #include "engine/sys_dll2.h"
+#include "engine/sys_engine.h"
 #include "engine/sys_utils.h"
 #ifndef DEDICATED
 #include "engine/debugoverlay.h"

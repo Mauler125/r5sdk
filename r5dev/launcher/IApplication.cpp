@@ -6,9 +6,10 @@
 #include "engine/sys_dll2.h"
 #include "engine/sv_main.h"
 #include "engine/host_cmd.h"
+#include "server/IVEngineServer.h"
 
 //-----------------------------------------------------------------------------
-// Purpose:
+// Purpose: 
 //-----------------------------------------------------------------------------
 int HIApplication_Main(CModAppSystemGroup* modAppSystemGroup)
 {
@@ -20,7 +21,7 @@ int HIApplication_Main(CModAppSystemGroup* modAppSystemGroup)
 		if (g_pEngine->Load(true, g_pEngineParms->baseDirectory))
 		{
 			// Below is vfunc call that is supposed to be used for real dedicated servers. The class instance is sadly stripped to some degree.
-			//(*(void(__fastcall**)(__int64))(*(_QWORD*)qword_14C119C10 + 72i64))(qword_14C119C10);// dedicated->RunServer
+			//(*(void(__fastcall**)(__int64))(*(_QWORD*)qword_14C119C10 + 72i64))(qword_14C119C10);// dedicated->RunServer()
 			SV_ShutdownGameDLL();
 		}
 	}
@@ -42,14 +43,12 @@ int HIApplication_Main(CModAppSystemGroup* modAppSystemGroup)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose:
+// Purpose: Instantiate all main libraries
 //-----------------------------------------------------------------------------
 bool HIApplication_Create(void* a1)
 {
 #ifdef DEDICATED
-	// TODO: Don't hardcode!
-	// Also add cross-season support?
-	* (uintptr_t*)0x162C61208 = 0x1; // g_bDedicated
+	* g_bDedicated = true;
 #endif // DEDICATED
 	g_pConCommand->Init();
 
