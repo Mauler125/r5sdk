@@ -2,7 +2,9 @@
 #include "core/logdef.h"
 #include "tier0/cvar.h"
 #include "vpc/basefilesystem.h"
+#ifndef DEDICATED
 #include "gameui/IConsole.h"
+#endif // !DEDICATED
 
 //---------------------------------------------------------------------------------
 // Purpose: prints the output of the filesystem based on the warning level
@@ -64,7 +66,7 @@ FileHandle_t HCBaseFileSystem_ReadFromVPK(void* pVpk, std::int64_t* pResults, ch
 	// TODO: obtain 'mod' SearchPath's instead.
 	svFilePath.insert(0, "platform\\");
 
-	if (FileExists(svFilePath.c_str()) || FileExists(pszFilePath))
+	if (FileExists(svFilePath.c_str()) /*|| FileExists(pszFilePath)*/)
 	{
 		*pResults = -1;
 		return (void*)pResults;
@@ -88,7 +90,7 @@ bool HCBaseFileSystem_ReadFromCache(void* pFileSystem, char* pszFilePath, void* 
 	// TODO: obtain 'mod' SearchPath's instead.
 	svFilePath.insert(0, "platform\\");
 
-	if (FileExists(svFilePath.c_str()) || FileExists(pszFilePath))
+	if (FileExists(svFilePath.c_str()) /*|| FileExists(pszFilePath)*/)
 	{
 		return false;
 	}

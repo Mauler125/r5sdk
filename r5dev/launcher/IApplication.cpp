@@ -1,3 +1,9 @@
+//=============================================================================//
+//
+// Purpose: IApplication methods
+//
+//=============================================================================//
+
 #include "core/stdafx.h"
 #include "tier0/cvar.h"
 #include "launcher/IApplication.h"
@@ -56,6 +62,8 @@ bool HIApplication_Create(void* a1)
 	{
 		g_vsvAllConVars.push_back(map.first.c_str());
 	}
+	g_bAppSystemInit = true;
+
 	return IAppSystem_Create(a1);
 }
 

@@ -35,6 +35,8 @@ bool HIApplication_Create(void* a1);
 void IApplication_Attach();
 void IApplication_Detach();
 
+inline bool g_bAppSystemInit = false;
+
 ///////////////////////////////////////////////////////////////////////////////
 class HApplication : public IDetour
 {
