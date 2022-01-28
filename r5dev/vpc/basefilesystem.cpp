@@ -61,19 +61,11 @@ FileHandle_t HCBaseFileSystem_ReadFromVPK(void* pVpk, std::int64_t* pResults, ch
 	{
 		// Erase '//*/'.
 		svFilePath.erase(0, 4);
-
-		// Check if file exist in the main game folder.
-		if (FileExists(svFilePath.c_str()))
-		{
-			*pResults = -1;
-			return (void*)pResults;
-		}
 	}
 
 	// TODO: obtain 'mod' SearchPath's instead.
 	svFilePath.insert(0, "platform\\");
 
-	// Check if file exist in 'mod' folders.
 	if (FileExists(svFilePath.c_str()) /*|| FileExists(pszFilePath)*/)
 	{
 		*pResults = -1;
@@ -93,19 +85,12 @@ bool HCBaseFileSystem_ReadFromCache(void* pFileSystem, char* pszFilePath, void* 
 	{
 		// Erase '//*/'.
 		svFilePath.erase(0, 4);
-
-		// Check if file exist in the main game folder.
-		if (FileExists(svFilePath.c_str()))
-		{
-			return false;
-		}
 	}
 
 	// TODO: obtain 'mod' SearchPath's instead.
 	svFilePath.insert(0, "platform\\");
 
-	// Check if file exist in 'mod' folders.
-	if (FileExists(svFilePath.c_str()))
+	if (FileExists(svFilePath.c_str()) /*|| FileExists(pszFilePath)*/)
 	{
 		return false;
 	}
