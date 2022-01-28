@@ -49,8 +49,8 @@ void ConVar::Init(void)
 	//-------------------------------------------------------------------------
 	// ENGINE                                                                 |
 	cm_debug_cmdquery               = new ConVar("cm_debug_cmdquery", "0", FCVAR_DEVELOPMENTONLY, "Prints the flags of each ConVar/ConCommand query to the console ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
-	cm_return_false_cmdquery_all    = new ConVar("cm_return_false_cmdquery_all", "0", FCVAR_DEVELOPMENTONLY, "Returns false on every ConVar/ConCommand query ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
-	cm_return_false_cmdquery_cheats = new ConVar("cm_return_false_cmdquery_cheats", "0", FCVAR_DEVELOPMENTONLY, "Returns false on all FCVAR_DEVELOPMENTONLY and FCVAR_CHEAT ConVar/ConCommand queries ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	cm_return_false_cmdquery_all    = new ConVar("cm_return_false_cmdquery_all", "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Returns false on every ConVar/ConCommand query ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	cm_return_false_cmdquery_cheats = new ConVar("cm_return_false_cmdquery_cheats", "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Returns false on all FCVAR_DEVELOPMENTONLY and FCVAR_CHEAT ConVar/ConCommand queries ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	r_debug_overlay_nodecay         = new ConVar("r_debug_overlay_nodecay", "0", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Keeps all debug overlays alive regardless of their lifetime. Use command 'clear_debug_overlays' to clear everything.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// SERVER                                                                 |

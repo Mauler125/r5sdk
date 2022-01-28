@@ -14,7 +14,7 @@
 #define FCVAR_HIDDEN            (1<<4)	// Hidden. Doesn't appear in find or auto complete. Like DEVELOPMENTONLY, but can't be compiled out.
 
 // ConVar only
-#define FCVAR_PROTECTED	        (1<<5)	// It's a server cvar, but we don't send the data since it's a password, etc.  Sends 1 if it's not bland/zero, 0 otherwise as value
+#define FCVAR_PROTECTED         (1<<5)	// It's a server cvar, but we don't send the data since it's a password, etc.  Sends 1 if it's not bland/zero, 0 otherwise as value
 #define FCVAR_SPONLY            (1<<6)	// This cvar cannot be changed by clients connected to a multiplayer server.
 #define	FCVAR_ARCHIVE           (1<<7)	// set to cause it to be saved to vars.rc
 #define	FCVAR_NOTIFY            (1<<8)	// notifies players when changed
