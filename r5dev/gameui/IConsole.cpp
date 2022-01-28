@@ -37,6 +37,8 @@ CConsole::CConsole()
     m_vsvCommands.push_back("CLEAR");
     m_vsvCommands.push_back("HELP");
     m_vsvCommands.push_back("HISTORY");
+
+    snprintf(m_szSummary, 256, "%llu history items", m_vsvHistory.size());
 }
 
 //-----------------------------------------------------------------------------
@@ -65,13 +67,24 @@ void CConsole::Draw(const char* pszTitle, bool* bDraw)
         //ImGui::ShowDemoWindow();
     }
 
-    { // BASEPANEL SETUP.
+    /**************************
+     * BASE PANEL SETUP       *
+     **************************/
+    {
         if (!*bDraw)
         {
             m_bActivate = false;
             return;
         }
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 4.f, 6.f });
+        if (m_bDefaultTheme)
+        {
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 8.f, 10.f });
+        }
+        else
+        {
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 4.f, 6.f });
+            ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);
+        }
 
         ImGui::SetNextWindowSize(ImVec2(1000, 600), ImGuiCond_FirstUseEver);
         ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
@@ -81,9 +94,18 @@ void CConsole::Draw(const char* pszTitle, bool* bDraw)
         ImGui::PopStyleVar(1);
     }
 
-    { // SUGGESTION PANEL SETUP
+    /**************************
+     * SUGGESTION PANEL SETUP *
+     **************************/
+    {
         if (CanAutoComplete())
         {
+            if (m_bDefaultTheme)
+            {
+                static ImGuiStyle& style = ImGui::GetStyle();
+                m_vecSuggestWindowPos.y = m_vecSuggestWindowPos.y + style.WindowPadding.y + 1.5f;
+            }
+
             ImGui::SetNextWindowPos(m_vecSuggestWindowPos);
             ImGui::SetNextWindowSize(m_vecSuggestWindowSize);
 
@@ -144,7 +166,11 @@ void CConsole::BasePanel(bool* bDraw)
     }
 
     ImGui::SameLine();
-    m_itFilter.Draw("Filter [\"-incl,-excl\"] [\"error\"]", footer_width_to_reserve - 500);
+    m_itFilter.Draw("Filter | ", footer_width_to_reserve - 500);
+
+    ImGui::SameLine();
+    ImGui::Text(m_szSummary);
+
     ImGui::Separator();
 
     ///////////////////////////////////////////////////////////////////////
@@ -551,6 +577,33 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* data)
         }
         break;
     }
+    case ImGuiInputTextFlags_CallbackAlways:
+    {
+        char szValue[256]{};
+        sprintf_s(szValue, 256, "%s", m_szInputBuf);
+
+        // Remove space or semicolon before we call 'g_pCVar->FindVar(..)'.
+        for (int i = 0; i < strlen(szValue); i++)
+        {
+            if (szValue[i] == ' ' || szValue[i] == ';')
+            {
+                szValue[i] = '\0';
+            }
+        }
+
+        ConVar* pConVar = g_pCVar->FindVar(szValue);
+        if (pConVar != nullptr)
+        {
+            // Display the current and default value of ConVar if found.
+            snprintf(m_szSummary, 256, "(\"%s\", default \"%s\")", pConVar->GetString(), pConVar->GetDefault());
+        }
+        else
+        {
+            // Display amount of history items if ConVar cannot be found.
+            snprintf(m_szSummary, 256, "%llu history items", m_vsvHistory.size());
+        }
+        break;
+    }
     }
     return 0;
 }
@@ -707,26 +760,69 @@ void CConsole::SetStyleVar(void)
         colors[ImGuiCol_Tab]                  = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
         colors[ImGuiCol_TabHovered]           = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
         colors[ImGuiCol_TabActive]            = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
+
+        style.WindowBorderSize  = 0.0f;
+        style.FrameBorderSize   = 1.0f;
+        style.ChildBorderSize   = 1.0f;
+        style.PopupBorderSize   = 1.0f;
+        style.TabBorderSize     = 1.0f;
+
+        style.WindowRounding    = 4.0f;
+        style.FrameRounding     = 1.0f;
+        style.ChildRounding     = 1.0f;
+        style.PopupRounding     = 3.0f;
+        style.TabRounding       = 1.0f;
+        style.ScrollbarRounding = 1.0f;
     }
     else
     {
-        colors[ImGuiCol_Text]                 = ImVec4(0.81f, 0.81f, 0.81f, 1.00f);
-        colors[ImGuiCol_TextDisabled]         = ImVec4(0.56f, 0.56f, 0.56f, 1.00f);
-        colors[ImGuiCol_WindowBg]             = ImVec4(0.06f, 0.06f, 0.06f, 0.97f);
+        colors[ImGuiCol_WindowBg]               = ImVec4(0.11f, 0.13f, 0.17f, 1.00f);
+        colors[ImGuiCol_ChildBg]                = ImVec4(0.02f, 0.04f, 0.06f, 1.00f);
+        colors[ImGuiCol_PopupBg]                = ImVec4(0.11f, 0.13f, 0.17f, 1.00f);
+        colors[ImGuiCol_Border]                 = ImVec4(0.41f, 0.41f, 0.41f, 0.50f);
+        colors[ImGuiCol_BorderShadow]           = ImVec4(0.04f, 0.04f, 0.04f, 0.00f);
+        colors[ImGuiCol_FrameBg]                = ImVec4(0.02f, 0.04f, 0.06f, 1.00f);
+        colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.04f, 0.06f, 0.10f, 1.00f);
+        colors[ImGuiCol_FrameBgActive]          = ImVec4(0.04f, 0.07f, 0.12f, 1.00f);
+        colors[ImGuiCol_TitleBg]                = ImVec4(0.26f, 0.51f, 0.78f, 1.00f);
+        colors[ImGuiCol_TitleBgActive]          = ImVec4(0.26f, 0.51f, 0.78f, 1.00f);
+        colors[ImGuiCol_MenuBarBg]              = ImVec4(0.11f, 0.13f, 0.17f, 1.00f);
+        colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.14f, 0.19f, 0.24f, 1.00f);
+        colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.23f, 0.36f, 0.51f, 1.00f);
+        colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.30f, 0.46f, 0.65f, 1.00f);
+        colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.31f, 0.49f, 0.69f, 1.00f);
+        colors[ImGuiCol_SliderGrab]             = ImVec4(0.31f, 0.43f, 0.43f, 1.00f);
+        colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.41f, 0.56f, 0.57f, 1.00f);
+        colors[ImGuiCol_Button]                 = ImVec4(0.31f, 0.43f, 0.43f, 1.00f);
+        colors[ImGuiCol_ButtonHovered]          = ImVec4(0.38f, 0.52f, 0.53f, 1.00f);
+        colors[ImGuiCol_ButtonActive]           = ImVec4(0.41f, 0.56f, 0.57f, 1.00f);
+        colors[ImGuiCol_Header]                 = ImVec4(0.31f, 0.43f, 0.43f, 1.00f);
+        colors[ImGuiCol_HeaderHovered]          = ImVec4(0.38f, 0.53f, 0.53f, 1.00f);
+        colors[ImGuiCol_HeaderActive]           = ImVec4(0.41f, 0.56f, 0.57f, 1.00f);
+        colors[ImGuiCol_Separator]              = ImVec4(0.53f, 0.53f, 0.57f, 0.00f);
+        colors[ImGuiCol_ResizeGrip]             = ImVec4(0.41f, 0.41f, 0.41f, 0.50f);
+        colors[ImGuiCol_Tab]                    = ImVec4(0.31f, 0.43f, 0.43f, 1.00f);
+        colors[ImGuiCol_TabHovered]             = ImVec4(0.38f, 0.53f, 0.53f, 1.00f);
+        colors[ImGuiCol_TabActive]              = ImVec4(0.41f, 0.56f, 0.57f, 1.00f);
+        colors[ImGuiCol_TableHeaderBg]          = ImVec4(0.14f, 0.19f, 0.24f, 1.00f);
+        colors[ImGuiCol_TableBorderStrong]      = ImVec4(0.20f, 0.26f, 0.33f, 1.00f);
+        colors[ImGuiCol_TableBorderLight]       = ImVec4(0.22f, 0.29f, 0.37f, 1.00f);
+
+        style.WindowBorderSize  = 1.0f;
+        style.FrameBorderSize   = 0.0f;
+        style.ChildBorderSize   = 0.0f;
+        style.PopupBorderSize   = 1.0f;
+        style.TabBorderSize     = 1.0f;
+
+        style.WindowRounding    = 4.0f;
+        style.FrameRounding     = 1.0f;
+        style.ChildRounding     = 1.0f;
+        style.PopupRounding     = 3.0f;
+        style.TabRounding       = 1.0f;
+        style.ScrollbarRounding = 3.0f;
+
+        m_bDefaultTheme = true;
     }
-
-    style.WindowBorderSize  = 0.0f;
-    style.FrameBorderSize   = 1.0f;
-    style.ChildBorderSize   = 1.0f;
-    style.PopupBorderSize   = 1.0f;
-    style.TabBorderSize     = 1.0f;
-
-    style.WindowRounding    = 4.0f;
-    style.FrameRounding     = 1.0f;
-    style.ChildRounding     = 1.0f;
-    style.PopupRounding     = 3.0f;
-    style.TabRounding       = 1.0f;
-    style.ScrollbarRounding = 1.0f;
 
     style.ItemSpacing       = ImVec2(4, 4);
     style.FramePadding      = ImVec2(4, 4);

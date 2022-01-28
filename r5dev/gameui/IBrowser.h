@@ -27,6 +27,7 @@ class IBrowser
 {
 private:
     bool m_bInitialized = false;
+    bool m_bDefaultTheme = false;
 public:
     ////////////////////
     //   Enum Vars    //

@@ -6,6 +6,7 @@ private:
     ///////////////////////////////////////////////////////////////////////////
     char                           m_szInputBuf[512]     = { 0 };
     char                           m_szInputBufOld[512]  = { 0 };
+    char                           m_szSummary[256]      = { 0 };
     const char*                    m_pszConsoleTitle     = { 0 };
 
     std::vector<std::string>       m_vsvCommands;
@@ -14,6 +15,7 @@ private:
     int                            m_nScrollBack      = 0;
     ImGuiTextFilter                m_itFilter;
     bool                           m_bInitialized     = false;
+    bool                           m_bDefaultTheme    = false;
     bool                           m_bReclaimFocus    = false;
     bool                           m_bAutoScroll      = true;
     bool                           m_bScrollToBottom  = false;
@@ -32,6 +34,7 @@ private:
         ImGuiInputTextFlags_AutoCaretEnd       |
         ImGuiInputTextFlags_CallbackCompletion |
         ImGuiInputTextFlags_CallbackHistory    |
+        ImGuiInputTextFlags_CallbackAlways     |
         ImGuiInputTextFlags_CallbackEdit       |
         ImGuiInputTextFlags_EnterReturnsTrue;
 
