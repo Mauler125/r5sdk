@@ -16,6 +16,7 @@
 //-----------------------------------------------------------------------------
 ConVar::ConVar(const char* pszName, const char* pszDefaultValue, int nFlags, const char* pszHelpString, bool bMin, float fMin, bool bMax, float fMax, void* pCallback, void* unk)
 {
+	// Here we should make a proper constructor so we don't need casts etc. Maybe make a custom class/struct or use existing one, and then use register function at bottom.
 	ConVar* allocatedConvar = reinterpret_cast<ConVar*>(MemAlloc_Wrapper(0xA0)); // Allocate new memory with StdMemAlloc else we crash.
 	memset(allocatedConvar, 0, 0xA0);                                            // Set all to null.
 	std::uintptr_t cvarPtr = reinterpret_cast<std::uintptr_t>(allocatedConvar);  // To ptr.
