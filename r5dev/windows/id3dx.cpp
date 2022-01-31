@@ -404,7 +404,6 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 
 		g_bInitialized  = true;
 		g_pSwapChain    = pSwapChain;
-		g_pImGuiConfig->Load(); // Load ImGui configs.
 	}
 
 	DrawImGui();
@@ -540,6 +539,7 @@ void HIDXGI::debugp()
 
 DWORD __stdcall DXSwapChainWorker(LPVOID)
 {
+	g_pImGuiConfig->Load(); // Load ImGui configs.
 	GetPresent();
 	InstallDXHooks();
 	return true;
