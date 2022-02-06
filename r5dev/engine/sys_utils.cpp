@@ -26,7 +26,7 @@ void HSys_Error(char* fmt, ...)
 	va_end(args);
 
 	DevMsg(eDLL_T::ENGINE, "%s\n", buf);
-	Sys_Error(buf);
+	return Sys_Error(buf);
 }
 
 //-----------------------------------------------------------------------------
