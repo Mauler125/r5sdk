@@ -68,6 +68,14 @@
 
 void Systems_Init()
 {
+	// Initialize winsock system
+	WSAData wsaData{};
+	int nError = ::WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (nError != 0)
+	{
+		assert(nError != 0 && "Failed to start Winsock via WSAStartup.");
+	}
+
 	// Begin the detour transaction to hook the the process
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
@@ -137,6 +145,13 @@ void Systems_Init()
 
 void Systems_Shutdown()
 {
+	// Shutdown winsock system
+	int nError = ::WSACleanup();
+	if (nError != 0)
+	{
+		assert(nError != 0 && "Failed to stop winsock via WSACleanup.\n");
+	}
+
 	// Begin the detour transaction to unhook the the process
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
