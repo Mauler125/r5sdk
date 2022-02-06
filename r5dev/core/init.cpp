@@ -73,7 +73,7 @@ void Systems_Init()
 	int nError = ::WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (nError != 0)
 	{
-		assert(nError != 0 && "Failed to start Winsock via WSAStartup.");
+		std::cerr << "Failed to start Winsock via WSAStartup. Error: " << nError << std::endl;
 	}
 
 	// Begin the detour transaction to hook the the process
@@ -149,7 +149,7 @@ void Systems_Shutdown()
 	int nError = ::WSACleanup();
 	if (nError != 0)
 	{
-		assert(nError != 0 && "Failed to stop winsock via WSACleanup.\n");
+		std::cerr << "Failed to stop winsock via WSACleanup. Error: " << nError << std::endl;
 	}
 
 	// Begin the detour transaction to unhook the the process

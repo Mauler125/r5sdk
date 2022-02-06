@@ -14,8 +14,7 @@
 //-----------------------------------------------------------------------------
 void CNetCon::Send(void)
 {
-	char buf[MAX_NETCONSOLE_INPUT_LEN]{};
-	std::string svUserInput;
+	static std::string svUserInput;
 
 	do
 	{
@@ -24,11 +23,6 @@ void CNetCon::Send(void)
 		svUserInput.append("\n\r");
 
 		int nSendResult = ::send(pSocket->GetAcceptedSocketData(0)->m_hSocket, svUserInput.c_str(), svUserInput.size(), MSG_NOSIGNAL);
-
-		if (nSendResult != SOCKET_ERROR)
-		{
-			memcpy(buf, "", MAX_NETCONSOLE_INPUT_LEN);
-		}
 	} while (svUserInput.size() > 0);
 }
 
@@ -37,17 +31,17 @@ void CNetCon::Send(void)
 //-----------------------------------------------------------------------------
 void CNetCon::Recv(void)
 {
-	static char buf[MAX_NETCONSOLE_INPUT_LEN]{};
+	static char szRecvBuf[MAX_NETCONSOLE_INPUT_LEN]{};
 
 	for (;;)
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-		int nRecvLen = ::recv(pSocket->GetAcceptedSocketData(0)->m_hSocket, buf, sizeof(buf), MSG_NOSIGNAL);
+		int nRecvLen = ::recv(pSocket->GetAcceptedSocketData(0)->m_hSocket, szRecvBuf, sizeof(szRecvBuf), MSG_NOSIGNAL);
 		if (nRecvLen > 0 && nRecvLen < MAX_NETCONSOLE_INPUT_LEN - 1)
 		{
-			buf[nRecvLen + 1] = '\0';
-			printf("%s\n", buf);
+			szRecvBuf[nRecvLen + 1] = '\0';
+			printf("%s\n", szRecvBuf);
 		}
 	}
 }
