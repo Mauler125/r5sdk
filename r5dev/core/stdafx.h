@@ -21,26 +21,26 @@
 #include <cassert>
 #include <filesystem>
 
-#if !defined(DEDICATED)
+#if !defined(DEDICATED) && !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
 #include <d3d11.h>
-#endif // !DEDICATED
+#endif // !DEDICATED && !SDKLAUNCHER && !NETCONSOLE
 
 #include "thirdparty/detours/include/detours.h"
 #include "thirdparty/detours/include/idetour.h"
 
-#if !defined(DEDICATED)
+#if !defined(DEDICATED) && !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
 #include "thirdparty/imgui/include/imgui.h"
 #include "thirdparty/imgui/include/imgui_stdlib.h"
 #include "thirdparty/imgui/include/imgui_utility.h"
 #include "thirdparty/imgui/include/imgui_internal.h"
 #include "thirdparty/imgui/include/imgui_impl_dx11.h"
 #include "thirdparty/imgui/include/imgui_impl_win32.h"
-#endif // !DEDICATED
+#endif // !DEDICATED && !SDKLAUNCHER && !NETCONSOLE
 
-#if !defined(SDKLAUNCHER)
+#if !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
 #include "thirdparty/lzham/include/lzham_types.h"
 #include "thirdparty/lzham/include/lzham.h"
-#endif // !SDKLAUNCHER
+#endif // !SDKLAUNCHER && !NETCONSOLE
 
 #include "thirdparty/spdlog/include/spdlog.h"
 #include "thirdparty/spdlog/include/async.h"
@@ -61,24 +61,23 @@
 #include "common/pseudodefs.h"
 #include "tier0/basetypes.h"
 
-#if !defined (SDKLAUNCHER)
+#if !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
 namespace
 {
 #if !defined (DEDICATED)
 	MODULE g_mGameDll = MODULE("r5apex.exe");
-#else
+#else // No DX imports.
 	MODULE g_mGameDll = MODULE("r5apex_ds.exe");
 #endif // !DEDICATED
 	MODULE g_mRadVideoToolsDll   = MODULE("bink2w64.dll");
 	MODULE g_mRadAudioDecoderDll = MODULE("binkawin64.dll");
 	MODULE g_mRadAudioSystemDll  = MODULE("mileswin64.dll");
 }
-#endif // !SDKLAUNCHER
 
-#define MEMBER_AT_OFFSET(varType, varName, offset) \
-	varType& varName() \
-    { \
-		static int _##varName = offset; \
+#define MEMBER_AT_OFFSET(varType, varName, offset)             \
+	varType& varName()                                         \
+	{                                                          \
+		static int _##varName = offset;                        \
 		return *(varType*)((std::uintptr_t)this + _##varName); \
 	}
 
@@ -87,3 +86,4 @@ ReturnType CallVFunc(int index, void* thisPtr, Args... args)
 {
 	return (*reinterpret_cast<ReturnType(__fastcall***)(void*, Args...)>(thisPtr))[index](thisPtr, args...);
 }
+#endif // !SDKLAUNCHER && !NETCONSOLE

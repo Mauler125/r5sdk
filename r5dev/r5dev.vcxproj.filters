@@ -97,12 +97,6 @@
     <Filter Include="windows">
       <UniqueIdentifier>{942b8ea5-ce53-4e1e-ad7a-845991aaead6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sdk\public">
-      <UniqueIdentifier>{b0696621-8658-4918-b0f2-ba20acc26829}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="sdk\public\include">
-      <UniqueIdentifier>{cbe60970-f348-4a8b-8cee-d4cfebbe0d99}</UniqueIdentifier>
-    </Filter>
     <Filter Include="sdk\resource">
       <UniqueIdentifier>{14a61eec-93ec-4e7c-b0bf-2ce23c3b782c}</UniqueIdentifier>
     </Filter>
@@ -138,6 +132,18 @@
     </Filter>
     <Filter Include="thirdparty\lzham\lzhamdecomp\include">
       <UniqueIdentifier>{5beb12b5-0422-4337-9be6-2e6c0a05a69b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tier1">
+      <UniqueIdentifier>{c5adc45b-d14c-4d52-9835-29948cab931a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\public">
+      <UniqueIdentifier>{b0696621-8658-4918-b0f2-ba20acc26829}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\public\include">
+      <UniqueIdentifier>{cbe60970-f348-4a8b-8cee-d4cfebbe0d99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tier2">
+      <UniqueIdentifier>{9da19829-c065-4584-9cf2-af751fb0d060}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -415,6 +421,24 @@
       <Filter>sdk\engine</Filter>
     </ClCompile>
     <ClCompile Include="engine\sys_engine.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\sv_rcon.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\cl_rcon.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="tier2\socketcreator.cpp">
+      <Filter>sdk\tier2</Filter>
+    </ClCompile>
+    <ClCompile Include="tier1\NetAdr2.cpp">
+      <Filter>sdk\tier1</Filter>
+    </ClCompile>
+    <ClCompile Include="mathlib\sha256.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\net.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1065,6 +1089,30 @@
       <Filter>sdk\engine</Filter>
     </ClInclude>
     <ClInclude Include="engine\sys_engine.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sv_rcon.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\cl_rcon.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="mathlib\swap.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="tier2\socketcreator.h">
+      <Filter>sdk\tier2</Filter>
+    </ClInclude>
+    <ClInclude Include="tier1\NetAdr2.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="mathlib\sha256.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="common\igameserverdata.h">
+      <Filter>sdk\common</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\net.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
   </ItemGroup>

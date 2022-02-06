@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="sdk">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="sdk\engine">
+      <UniqueIdentifier>{7ec4619a-05f9-4949-937b-4b945edc3fe8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tier1">
+      <UniqueIdentifier>{82bd526b-7838-4923-8c87-b035f2d5d2c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\public">
+      <UniqueIdentifier>{033185e7-f6ca-4225-8ddb-089bf5bd5891}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core">
+      <UniqueIdentifier>{a6970588-331b-4da5-bfcf-b6f6cf1d87ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tier2">
+      <UniqueIdentifier>{99b7ba90-bc5d-4f07-a299-b68322c5ca63}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="tier1\NetAdr2.cpp">
+      <Filter>sdk\tier1</Filter>
+    </ClCompile>
+    <ClCompile Include="public\utility.cpp">
+      <Filter>sdk\public</Filter>
+    </ClCompile>
+    <ClCompile Include="core\stdafx.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="tier2\socketcreator.cpp">
+      <Filter>sdk\tier2</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\net.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="netconsole\netconsole.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="tier1\NetAdr2.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="core\stdafx.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="tier2\socketcreator.h">
+      <Filter>sdk\tier2</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\net.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="netconsole\netconsole.h">
+      <Filter>core</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -3,11 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31808.319
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "r5devdll", "r5dev\r5dev.vcxproj", "{28CC6B4F-7A95-4933-ADA9-65E38D48516D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "r5dev", "r5dev\r5dev.vcxproj", "{28CC6B4F-7A95-4933-ADA9-65E38D48516D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sdklauncher", "r5dev\sdklauncher.vcxproj", "{18F8C75E-3844-4AA6-AB93-980A08253519}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dedicated", "r5dev\dedicated.vcxproj", "{ED2C50B3-7C2C-4E44-988E-DAA059F72B9C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "netconsole", "r5dev\netconsole.vcxproj", "{9579B31F-CE24-4852-A941-CD1AD71E2248}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,14 @@ Global
 		{ED2C50B3-7C2C-4E44-988E-DAA059F72B9C}.Release|x64.Build.0 = Release|x64
 		{ED2C50B3-7C2C-4E44-988E-DAA059F72B9C}.Release|x86.ActiveCfg = Release|Win32
 		{ED2C50B3-7C2C-4E44-988E-DAA059F72B9C}.Release|x86.Build.0 = Release|Win32
+		{9579B31F-CE24-4852-A941-CD1AD71E2248}.Debug|x64.ActiveCfg = Debug|x64
+		{9579B31F-CE24-4852-A941-CD1AD71E2248}.Debug|x64.Build.0 = Debug|x64
+		{9579B31F-CE24-4852-A941-CD1AD71E2248}.Debug|x86.ActiveCfg = Debug|Win32
+		{9579B31F-CE24-4852-A941-CD1AD71E2248}.Debug|x86.Build.0 = Debug|Win32
+		{9579B31F-CE24-4852-A941-CD1AD71E2248}.Release|x64.ActiveCfg = Release|x64
+		{9579B31F-CE24-4852-A941-CD1AD71E2248}.Release|x64.Build.0 = Release|x64
+		{9579B31F-CE24-4852-A941-CD1AD71E2248}.Release|x86.ActiveCfg = Release|Win32
+		{9579B31F-CE24-4852-A941-CD1AD71E2248}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -109,6 +109,12 @@
     <Filter Include="thirdparty\lzham\lzhamdecomp\include">
       <UniqueIdentifier>{463e0739-1e5f-47a0-94d1-6cf5b6bf3ea6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\tier1">
+      <UniqueIdentifier>{da2c5c3d-eff4-404f-af3f-e30ec17dcc1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\tier2">
+      <UniqueIdentifier>{efae8c5b-e29e-497f-8bbb-af3b213f6c79}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\client.h">
@@ -678,6 +684,27 @@
     <ClInclude Include="engine\sv_main.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
+    <ClInclude Include="engine\sv_rcon.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="tier2\socketcreator.h">
+      <Filter>sdk\tier2</Filter>
+    </ClInclude>
+    <ClInclude Include="mathlib\swap.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="tier1\NetAdr2.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="mathlib\sha256.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="common\igameserverdata.h">
+      <Filter>sdk\common</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\net.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="client\IVEngineClient.cpp">
@@ -897,6 +924,21 @@
       <Filter>sdk\engine</Filter>
     </ClCompile>
     <ClCompile Include="engine\sv_main.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\sv_rcon.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="tier2\socketcreator.cpp">
+      <Filter>sdk\tier2</Filter>
+    </ClCompile>
+    <ClCompile Include="tier1\NetAdr2.cpp">
+      <Filter>sdk\tier1</Filter>
+    </ClCompile>
+    <ClCompile Include="mathlib\sha256.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\net.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
   </ItemGroup>

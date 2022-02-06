@@ -17,3 +17,17 @@
 #define MAX_PLAYERS 128 // Max R5 players.
 
 #define SDK_VERSION "beta 1.6"
+
+// #define COMPILETIME_MAX and COMPILETIME_MIN for max/min in constant expressions
+#define COMPILETIME_MIN( a, b ) ( ( ( a ) < ( b ) ) ? ( a ) : ( b ) )
+#define COMPILETIME_MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
+#ifndef MIN
+#define MIN( a, b ) ( ( ( a ) < ( b ) ) ? ( a ) : ( b ) )
+#endif
+
+#ifndef MAX
+#define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
+#endif
+
+constexpr int MAX_NETCONSOLE_INPUT_LEN = 4096;
+constexpr int MSG_NOSIGNAL             = 0;

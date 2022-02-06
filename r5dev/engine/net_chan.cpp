@@ -124,7 +124,7 @@ void HNET_PrintFunc(const char* fmt, ...)
 	buf[sizeof(buf) -1] = 0;
 	va_end(args);
 
-	DevMsg(eDLL_T::CLIENT, "%s\n", buf);
+	DevMsg(eDLL_T::CLIENT, "%s", buf);
 }
 
 //-----------------------------------------------------------------------------

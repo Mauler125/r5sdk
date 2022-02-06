@@ -1,6 +1,14 @@
+//=============================================================================//
+//
+// Purpose: Runs the state machine for the host & server
+//
+//=============================================================================//
+
 #include "core/stdafx.h"
 #include "tier0/cvar.h"
 #include "tier0/commandline.h"
+#include "tier1/NetAdr2.h"
+#include "tier2/socketcreator.h"
 #include "engine/sys_utils.h"
 #include "engine/host_state.h"
 #include "engine/net_chan.h"
@@ -9,6 +17,7 @@
 #include "squirrel/sqinit.h"
 #include "public/include/bansystem.h"
 #include "engine/sys_engine.h"
+#include "engine/sv_rcon.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: Send keep alive request to Pylon Master Server.
@@ -29,10 +38,6 @@ void KeepAliveToPylon()
 				g_pCVar->FindVar("hostport")->GetString(),
 				g_pCVar->FindVar("mp_gamemode")->GetString(),
 				false,
-
-				// BUG BUG: Checksum is null on dedi
-				// ADDITIONAL NOTES: seems to be related to scripts, this also happens when the listen server is started but the client from the same process never connects.
-				// Checksum only gets set on the server if the client from its own process connects to it.
 				std::to_string(*g_nServerRemoteChecksum),
 				std::string(),
 				g_szNetKey.c_str()
@@ -40,7 +45,6 @@ void KeepAliveToPylon()
 		);
 	}
 }
-
 
 //-----------------------------------------------------------------------------
 // Purpose: Check refuse list and kill netchan connection.
@@ -130,24 +134,31 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 	static bool bInitialized = false;
 	if (!bInitialized)
 	{
-		g_pConVar->ClearHostNames();
+		g_pRConServer = new CRConServer();
 
 		if (!g_pCmdLine->CheckParm("-devsdk"))
 		{
 			IVEngineClient_CommandExecute(NULL, "exec autoexec_server.cfg");
+			IVEngineClient_CommandExecute(NULL, "exec rcon_server.cfg");
 #ifndef DEDICATED
 			IVEngineClient_CommandExecute(NULL, "exec autoexec_client.cfg");
+			IVEngineClient_CommandExecute(NULL, "exec rcon_client.cfg");
 #endif // !DEDICATED
 			IVEngineClient_CommandExecute(NULL, "exec autoexec.cfg");
 		}
 		else // Development configs.
 		{
 			IVEngineClient_CommandExecute(NULL, "exec autoexec_server_dev.cfg");
+			IVEngineClient_CommandExecute(NULL, "exec rcon_server_dev.cfg");
 #ifndef DEDICATED
 			IVEngineClient_CommandExecute(NULL, "exec autoexec_client_dev.cfg");
+			IVEngineClient_CommandExecute(NULL, "exec rcon_client_dev.cfg");
 #endif // !DEDICATED
 			IVEngineClient_CommandExecute(NULL, "exec autoexec_dev.cfg");
 		}
+
+		g_pConVar->ClearHostNames();
+		g_pRConServer->Init();
 
 		*(bool*)m_bRestrictServerCommands = true; // Restrict commands.
 		ConCommandBase* disconnect = (ConCommandBase*)g_pCVar->FindCommand("disconnect");
@@ -180,6 +191,8 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 
 		bInitialized = true;
 	}
+
+	g_pRConServer->RunFrame();
 
 	HostStates_t oldState{};
 	void* placeHolder = nullptr;
@@ -348,7 +361,7 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 			}
 			}
 
-		} while ((oldState != HostStates_t::HS_RUN || g_pHostState->m_iNextState == HostStates_t::HS_LOAD_GAME && g_pCVar->FindVar("g_single_frame_shutdown_for_reload_cvar")->GetBool())
+		} while ((oldState != HostStates_t::HS_RUN || g_pHostState->m_iNextState == HostStates_t::HS_LOAD_GAME && g_pCVar->FindVar("single_frame_shutdown_for_reload")->GetBool())
 			&& oldState != HostStates_t::HS_SHUTDOWN
 			&& oldState != HostStates_t::HS_RESTART);
 

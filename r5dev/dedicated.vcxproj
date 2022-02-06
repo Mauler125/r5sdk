@@ -172,6 +172,7 @@
     <ClInclude Include="bsplib\bsplib.h" />
     <ClInclude Include="client\client.h" />
     <ClInclude Include="client\IVEngineClient.h" />
+    <ClInclude Include="common\igameserverdata.h" />
     <ClInclude Include="common\opcodes.h" />
     <ClInclude Include="common\protocol.h" />
     <ClInclude Include="common\psuedodefs.h" />
@@ -185,8 +186,10 @@
     <ClInclude Include="engine\baseclient.h" />
     <ClInclude Include="engine\host_cmd.h" />
     <ClInclude Include="engine\host_state.h" />
+    <ClInclude Include="engine\net.h" />
     <ClInclude Include="engine\net_chan.h" />
     <ClInclude Include="engine\sv_main.h" />
+    <ClInclude Include="engine\sv_rcon.h" />
     <ClInclude Include="engine\sys_dll.h" />
     <ClInclude Include="engine\sys_dll2.h" />
     <ClInclude Include="engine\sys_engine.h" />
@@ -198,6 +201,8 @@
     <ClInclude Include="mathlib\crc32.h" />
     <ClInclude Include="mathlib\IceKey.H" />
     <ClInclude Include="mathlib\parallel_for.h" />
+    <ClInclude Include="mathlib\sha256.h" />
+    <ClInclude Include="mathlib\swap.h" />
     <ClInclude Include="mathlib\vector.h" />
     <ClInclude Include="networksystem\r5net.h" />
     <ClInclude Include="networksystem\serverlisting.h" />
@@ -350,6 +355,8 @@
     <ClInclude Include="tier0\cvar.h" />
     <ClInclude Include="tier0\IConVar.h" />
     <ClInclude Include="tier0\interface.h" />
+    <ClInclude Include="tier1\NetAdr2.h" />
+    <ClInclude Include="tier2\socketcreator.h" />
     <ClInclude Include="vpc\basefilesystem.h" />
     <ClInclude Include="vpc\IAppSystem.h" />
     <ClInclude Include="vpc\interfaces.h" />
@@ -376,8 +383,10 @@
     <ClCompile Include="engine\baseclient.cpp" />
     <ClCompile Include="engine\host_cmd.cpp" />
     <ClCompile Include="engine\host_state.cpp" />
+    <ClCompile Include="engine\net.cpp" />
     <ClCompile Include="engine\net_chan.cpp" />
     <ClCompile Include="engine\sv_main.cpp" />
+    <ClCompile Include="engine\sv_rcon.cpp" />
     <ClCompile Include="engine\sys_dll.cpp" />
     <ClCompile Include="engine\sys_dll2.cpp" />
     <ClCompile Include="engine\sys_engine.cpp" />
@@ -387,6 +396,7 @@
     <ClCompile Include="mathlib\bits.cpp" />
     <ClCompile Include="mathlib\crc32.cpp" />
     <ClCompile Include="mathlib\IceKey.cpp" />
+    <ClCompile Include="mathlib\sha256.cpp" />
     <ClCompile Include="networksystem\r5net.cpp" />
     <ClCompile Include="public\bansystem.cpp" />
     <ClCompile Include="public\binstream.cpp" />
@@ -500,6 +510,8 @@
     <ClCompile Include="tier0\completion.cpp" />
     <ClCompile Include="tier0\cvar.cpp" />
     <ClCompile Include="tier0\IConVar.cpp" />
+    <ClCompile Include="tier1\NetAdr2.cpp" />
+    <ClCompile Include="tier2\socketcreator.cpp" />
     <ClCompile Include="vpc\basefilesystem.cpp" />
     <ClCompile Include="vpc\IAppSystem.cpp" />
     <ClCompile Include="vpc\interfaces.cpp" />
