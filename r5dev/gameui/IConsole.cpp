@@ -71,6 +71,7 @@ void CConsole::Draw(const char* pszTitle, bool* bDraw)
      * BASE PANEL SETUP       *
      **************************/
     {
+        static int nVars{};
         if (!*bDraw)
         {
             m_bActivate = false;
@@ -79,11 +80,13 @@ void CConsole::Draw(const char* pszTitle, bool* bDraw)
         if (m_bDefaultTheme)
         {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 8.f, 10.f });
+            nVars = 1;
         }
         else
         {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 4.f, 6.f });
             ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);
+            nVars = 2;
         }
 
         ImGui::SetNextWindowSize(ImVec2(1000, 600), ImGuiCond_FirstUseEver);
@@ -91,19 +94,21 @@ void CConsole::Draw(const char* pszTitle, bool* bDraw)
 
         BasePanel(bDraw);
 
-        ImGui::PopStyleVar(1);
+        ImGui::PopStyleVar(nVars);
     }
 
     /**************************
      * SUGGESTION PANEL SETUP *
      **************************/
     {
+        static int nVars{};
         if (CanAutoComplete())
         {
             if (m_bDefaultTheme)
             {
                 static ImGuiStyle& style = ImGui::GetStyle();
                 m_vecSuggestWindowPos.y = m_vecSuggestWindowPos.y + style.WindowPadding.y + 1.5f;
+                nVars = 2;
             }
 
             ImGui::SetNextWindowPos(m_vecSuggestWindowPos);
@@ -114,7 +119,7 @@ void CConsole::Draw(const char* pszTitle, bool* bDraw)
 
             SuggestPanel();
 
-            ImGui::PopStyleVar(2);
+            ImGui::PopStyleVar(nVars);
         }
     }
 }
