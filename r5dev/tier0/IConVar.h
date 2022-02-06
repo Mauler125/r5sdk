@@ -1,5 +1,5 @@
 #pragma once
-#include "ConCommand.h"
+#include "tier0/cmd.h"
 #include "mathlib/color.h"
 
 //-----------------------------------------------------------------------------

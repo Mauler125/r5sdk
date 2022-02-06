@@ -5,9 +5,9 @@
 //===========================================================================//
 
 #include "core/stdafx.h"
+#include "tier0/cmd.h"
 #include "tier0/cvar.h"
 #include "tier0/IConVar.h"
-#include "tier0/ConCommand.h"
 #include "tier1/NetAdr2.h"
 #include "tier2/socketcreator.h"
 #include "engine/sys_utils.h"

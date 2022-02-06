@@ -200,7 +200,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="tier0\commandline.cpp" />
-    <ClCompile Include="tier0\ConCommand.cpp" />
+    <ClCompile Include="tier0\cmd.cpp" />
     <ClCompile Include="tier0\completion.cpp" />
     <ClCompile Include="tier0\cvar.cpp" />
     <ClCompile Include="tier0\IConVar.cpp" />
@@ -424,7 +424,7 @@
     <ClInclude Include="thirdparty\spdlog\include\version.h" />
     <ClInclude Include="tier0\basetypes.h" />
     <ClInclude Include="tier0\commandline.h" />
-    <ClInclude Include="tier0\ConCommand.h" />
+    <ClInclude Include="tier0\cmd.h" />
     <ClInclude Include="tier0\completion.h" />
     <ClInclude Include="tier0\cvar.h" />
     <ClInclude Include="tier0\IConVar.h" />

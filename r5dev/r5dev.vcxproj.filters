@@ -246,7 +246,7 @@
     <ClCompile Include="tier0\IConVar.cpp">
       <Filter>sdk\tier0</Filter>
     </ClCompile>
-    <ClCompile Include="tier0\ConCommand.cpp">
+    <ClCompile Include="tier0\cmd.cpp">
       <Filter>sdk\tier0</Filter>
     </ClCompile>
     <ClCompile Include="vgui\vgui_fpspanel.cpp">
@@ -866,7 +866,7 @@
     <ClInclude Include="tier0\basetypes.h">
       <Filter>sdk\tier0</Filter>
     </ClInclude>
-    <ClInclude Include="tier0\ConCommand.h">
+    <ClInclude Include="tier0\cmd.h">
       <Filter>sdk\tier0</Filter>
     </ClInclude>
     <ClInclude Include="vgui\vgui_fpspanel.h">
