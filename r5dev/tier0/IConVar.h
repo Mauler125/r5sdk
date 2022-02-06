@@ -90,26 +90,26 @@ public:
 
 	void Init(void);
 
-	const char* GetBaseName(void);
-	const char* GetHelpText(void);
+	const char* GetBaseName(void) const;
+	const char* GetHelpText(void) const;
 
 	void AddFlags(int nFlags);
 	void RemoveFlags(int nFlags);
 
-	bool IsRegistered(void);
+	bool IsRegistered(void) const;
 
-	bool GetBool(void);
-	float GetFloat(void);
-	int GetInt(void);
-	Color GetColor(void);
-	const char* GetString(void);
+	bool GetBool(void) const;
+	float GetFloat(void) const;
+	int GetInt(void) const;
+	Color GetColor(void) const;
+	const char* GetString(void) const;
 
-	bool GetMin(float& flMinValue);
-	bool GetMax(float& flMaxValue);
-	float GetMinValue(void);
-	float GetMaxValue(void);
-	bool HasMin(void);
-	bool HasMax(void);
+	bool GetMin(float& flMinValue) const;
+	bool GetMax(float& flMaxValue) const;
+	float GetMinValue(void) const;
+	float GetMaxValue(void) const;
+	bool HasMin(void) const;
+	bool HasMax(void) const;
 
 	void SetValue(int nValue);
 	void SetValue(float flValue);
@@ -118,7 +118,7 @@ public:
 
 	void Revert(void);
 
-	const char* GetDefault(void);
+	const char* GetDefault(void) const;
 	void SetDefault(const char* pszDefault);
 
 	void ChangeStringValue(const char* pszTempValue, float flOldValue);

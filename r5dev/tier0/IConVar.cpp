@@ -114,7 +114,7 @@ void ConVar::Init(void)
 // Purpose: Returns the base ConVar name.
 // Output : const char*
 //-----------------------------------------------------------------------------
-const char* ConVar::GetBaseName(void)
+const char* ConVar::GetBaseName(void) const
 {
 	return m_pParent->m_ConCommandBase.m_pszName;
 }
@@ -123,7 +123,7 @@ const char* ConVar::GetBaseName(void)
 // Purpose: Returns the ConVar help text.
 // Output : const char*
 //-----------------------------------------------------------------------------
-const char* ConVar::GetHelpText(void)
+const char* ConVar::GetHelpText(void) const
 {
 	return m_pParent->m_ConCommandBase.m_pszHelpString;
 }
@@ -150,7 +150,7 @@ void ConVar::RemoveFlags(int nFlags)
 // Purpose: Checks if ConVar is registered.
 // Output : bool
 //-----------------------------------------------------------------------------
-bool ConVar::IsRegistered(void)
+bool ConVar::IsRegistered(void) const
 {
 	return m_pParent->m_ConCommandBase.m_bRegistered;
 }
@@ -159,7 +159,7 @@ bool ConVar::IsRegistered(void)
 // Purpose: Return ConVar value as a boolean.
 // Output : bool
 //-----------------------------------------------------------------------------
-bool ConVar::GetBool(void)
+bool ConVar::GetBool(void) const
 {
 	return !!GetInt();
 }
@@ -168,7 +168,7 @@ bool ConVar::GetBool(void)
 // Purpose: Return ConVar value as a float.
 // Output : float
 //-----------------------------------------------------------------------------
-float ConVar::GetFloat(void)
+float ConVar::GetFloat(void) const
 {
 	return m_pParent->m_flValue;
 }
@@ -177,7 +177,7 @@ float ConVar::GetFloat(void)
 // Purpose: Return ConVar value as an integer.
 // Output : int
 //-----------------------------------------------------------------------------
-int ConVar::GetInt(void)
+int ConVar::GetInt(void) const
 {
 	return m_pParent->m_iValue;
 }
@@ -186,7 +186,7 @@ int ConVar::GetInt(void)
 // Purpose: Return ConVar value as a color.
 // Output : Color
 //-----------------------------------------------------------------------------
-Color ConVar::GetColor(void)
+Color ConVar::GetColor(void) const
 {
 	unsigned char* pColorElement = ((unsigned char*)&m_pParent->m_iValue);
 	return Color(pColorElement[0], pColorElement[1], pColorElement[2], pColorElement[3]);
@@ -196,7 +196,7 @@ Color ConVar::GetColor(void)
 // Purpose: Return ConVar value as a string.
 // Output : const char *
 //-----------------------------------------------------------------------------
-const char* ConVar::GetString(void)
+const char* ConVar::GetString(void) const
 {
 	if (m_ConCommandBase.m_nFlags & FCVAR_NEVER_AS_STRING)
 	{
@@ -212,7 +212,7 @@ const char* ConVar::GetString(void)
 // Input  : flMinVal - 
 // Output : true if there is a min set.
 //-----------------------------------------------------------------------------
-bool ConVar::GetMin(float& flMinVal)
+bool ConVar::GetMin(float& flMinVal) const
 {
 	flMinVal = m_pParent->m_flMinValue;
 	return m_pParent->m_bHasMin;
@@ -223,7 +223,7 @@ bool ConVar::GetMin(float& flMinVal)
 // Input  : flMaxVal - 
 // Output : true if there is a max set.
 //-----------------------------------------------------------------------------
-bool ConVar::GetMax(float& flMaxVal)
+bool ConVar::GetMax(float& flMaxVal) const
 {
 	flMaxVal = m_pParent->m_flMaxValue;
 	return m_pParent->m_bHasMax;
@@ -233,7 +233,7 @@ bool ConVar::GetMax(float& flMaxVal)
 // Purpose: returns the min value.
 // Output : float
 //-----------------------------------------------------------------------------
-float ConVar::GetMinValue(void)
+float ConVar::GetMinValue(void) const
 {
 	return m_pParent->m_flMinValue;
 }
@@ -242,7 +242,7 @@ float ConVar::GetMinValue(void)
 // Purpose: returns the max value.
 // Output : float
 //-----------------------------------------------------------------------------
-float ConVar::GetMaxValue(void)
+float ConVar::GetMaxValue(void) const
 {
 	return m_pParent->m_flMaxValue;;
 }
@@ -251,7 +251,7 @@ float ConVar::GetMaxValue(void)
 // Purpose: checks if ConVar has min value.
 // Output : bool
 //-----------------------------------------------------------------------------
-bool ConVar::HasMin(void)
+bool ConVar::HasMin(void) const
 {
 	return m_pParent->m_bHasMin;
 }
@@ -260,7 +260,7 @@ bool ConVar::HasMin(void)
 // Purpose: checks if ConVar has max value.
 // Output : bool
 //-----------------------------------------------------------------------------
-bool ConVar::HasMax(void)
+bool ConVar::HasMax(void) const
 {
 	return m_pParent->m_bHasMax;
 }
@@ -415,7 +415,7 @@ void ConVar::Revert(void)
 // Purpose: returns the default ConVar value.
 // Output : const char
 //-----------------------------------------------------------------------------
-const char* ConVar::GetDefault(void)
+const char* ConVar::GetDefault(void) const
 {
 	return m_pParent->m_pszDefaultValue;
 }
