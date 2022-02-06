@@ -24,6 +24,7 @@ namespace
 	ADDRESS p_PakFile_Init = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x44\x88\x44\x24\x00\x53\x55\x56\x57", "xxxx?xxxx");
 	void (*PakFile_Init)(char* buffer, char* source, char vpk_file) = (void (*)(char*, char*, char))p_PakFile_Init.GetPtr(); /*44 88 44 24 ?? 53 55 56 57*/
 
+	// TODO: Fix exception during search.
 	ADDRESS g_pMapVPKCache = p_PakFile_Init.FindPatternSelf("48 8D 1D ?? ?? ?? ?? 4C", ADDRESS::Direction::DOWN, 250).OffsetSelf(0x3).ResolveRelativeAddressSelf().GetPtr();
 #endif
 }
