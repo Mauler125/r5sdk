@@ -21,10 +21,17 @@ extern ConVar* cm_debug_cmdquery;
 extern ConVar* cm_return_false_cmdquery_all;
 extern ConVar* cm_return_false_cmdquery_cheats;
 extern ConVar* r_debug_overlay_nodecay;
+
+extern ConVar* rcon_address;
+extern ConVar* rcon_password;
 //-------------------------------------------------------------------------
 // SERVER                                                                 |
 extern ConVar* sv_showconnecting;
 extern ConVar* sv_pylonvisibility;
+
+extern ConVar* sv_rcon_banpenalty;
+extern ConVar* sv_rcon_maxfailures;
+extern ConVar* sv_rcon_whitelist_address;
 //-------------------------------------------------------------------------
 // CLIENT                                                                 |
 extern ConVar* cl_drawconsoleoverlay;

@@ -53,10 +53,19 @@ void ConVar::Init(void)
 	cm_return_false_cmdquery_all    = new ConVar("cm_return_false_cmdquery_all", "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Returns false on every ConVar/ConCommand query ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	cm_return_false_cmdquery_cheats = new ConVar("cm_return_false_cmdquery_cheats", "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Returns false on all FCVAR_DEVELOPMENTONLY and FCVAR_CHEAT ConVar/ConCommand queries ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	r_debug_overlay_nodecay         = new ConVar("r_debug_overlay_nodecay", "0", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Keeps all debug overlays alive regardless of their lifetime. Use command 'clear_debug_overlays' to clear everything.", false, 0.f, false, 0.f, nullptr, nullptr);
+
+	rcon_address  = new ConVar("rcon_address",  "::", FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Remote console address.", false, 0.f, false, 0.f, nullptr, nullptr);
+	rcon_password = new ConVar("rcon_password", "", FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Remote console password, RCON is disabled if empty.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// SERVER                                                                 |
 	sv_showconnecting  = new ConVar("sv_showconnecting", "1", FCVAR_RELEASE, "Logs information about the connecting client to the console.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_pylonvisibility = new ConVar("sv_pylonvisibility", "0", FCVAR_RELEASE, "Determines the visiblity to the Pylon Master Server, 0 = Not visible, 1 = Visible, 2 = Hidden BUG BUG: not implemented yet.", false, 0.f, false, 0.f, nullptr, nullptr);
+
+	//RconPasswordChanged_f
+	sv_rcon_banpenalty  = new ConVar("sv_rcon_banpenalty", "10", FCVAR_RELEASE, "Number of minutes to ban users who fail rcon authentication.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sv_rcon_maxfailures = new ConVar("sv_rcon_maxfailures", "10", FCVAR_RELEASE, "Max number of times a user can fail rcon authentication before being banned.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sv_rcon_whitelist_address = new ConVar("sv_rcon_whitelist_address", "", FCVAR_RELEASE, "When set, rcon failed authentications will never ban this address, e.g. '127.0.0.1'.", false, 0.f, false, 0.f, nullptr, nullptr);
+
 	//-------------------------------------------------------------------------
 	// CLIENT                                                                 |
 	cl_drawconsoleoverlay      = new ConVar("cl_drawconsoleoverlay", "0", FCVAR_DEVELOPMENTONLY, "Draw the console overlay at the top of the screen.", false, 0.f, false, 0.f, nullptr, nullptr);

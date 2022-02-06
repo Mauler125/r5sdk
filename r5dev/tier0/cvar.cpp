@@ -9,10 +9,17 @@ ConVar* cm_debug_cmdquery                  = new ConVar();
 ConVar* cm_return_false_cmdquery_all       = new ConVar();
 ConVar* cm_return_false_cmdquery_cheats    = new ConVar();
 ConVar* r_debug_overlay_nodecay            = new ConVar();
+
+ConVar* rcon_address                       = new ConVar();
+ConVar* rcon_password                      = new ConVar();
 //-----------------------------------------------------------------------------
 // SERVER                                                                     |
 ConVar* sv_showconnecting                  = new ConVar();
 ConVar* sv_pylonvisibility                 = new ConVar();
+
+ConVar* sv_rcon_banpenalty                 = new ConVar(); // TODO
+ConVar* sv_rcon_maxfailures                = new ConVar();
+ConVar* sv_rcon_whitelist_address          = new ConVar(); // TODO
 //-----------------------------------------------------------------------------
 // CLIENT                                                                     |
 ConVar* cl_drawconsoleoverlay              = new ConVar();
