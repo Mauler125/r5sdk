@@ -9,6 +9,9 @@
 #include "tier0/cvar.h"
 #include "tier0/IConVar.h"
 #include "tier0/completion.h"
+#ifndef DEDICATED
+#include "engine/cl_rcon.h"
+#endif // !DEDICATED
 #include "engine/net_chan.h"
 #include "engine/sys_utils.h"
 #include "rtech/rtech_game.h"
@@ -580,7 +583,7 @@ void _VPK_Decompress_f_CompletionFunc(CCommand* cmd)
 	DevMsg(eDLL_T::FS, "] Processing: '%s'\n", firstArg.c_str());
 
 	vpk_dir_h vpk = g_pPackedStore->GetPackDirFile(firstArg);
-	g_pPackedStore->InitLzParams();
+	g_pPackedStore->InitLzDecompParams();
 
 	std::thread th([&] { g_pPackedStore->UnpackAll(vpk, szPathOut); });
 	th.join();
@@ -613,4 +616,10 @@ void _NET_SetKey_f_CompletionFunc(CCommand* cmd)
 void _NET_GenerateKey_f_CompletionFunc(CCommand* cmd)
 {
 	HNET_GenerateKey();
+}
+
+void _RCON_CmdQuery_f_CompletionFunc(CCommand* cmd)
+{
+	// TODO: CRConClient..
+	return;
 }

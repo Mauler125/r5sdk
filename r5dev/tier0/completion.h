@@ -33,7 +33,7 @@ void _VPK_Decompress_f_CompletionFunc(CCommand* cmd);
 void _NET_TraceNetChan_f_CompletionFunc(CCommand* cmd);
 void _NET_SetKey_f_CompletionFunc(CCommand* cmd);
 void _NET_GenerateKey_f_CompletionFunc(CCommand* cmd);
-
+void _RCON_CmdQuery_f_CompletionFunc(CCommand* cmd);
 
 ///////////////////////////////////////////////////////////////////////////////
 class HCompletion : public IDetour

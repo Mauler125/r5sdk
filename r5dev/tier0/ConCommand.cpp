@@ -43,17 +43,18 @@ void ConCommand::Init(void)
 {
 	//-------------------------------------------------------------------------
 	// SERVER DLL                                                             |
-	ConCommand* sv_kick          = new ConCommand("sv_kick", "Kick a client from the server by name. | Usage: kick <name>.", FCVAR_RELEASE, _Kick_f_CompletionFunc, nullptr);
-	ConCommand* sv_kickid        = new ConCommand("sv_kickid", "Kick a client from the server by UserID or OriginID | Usage: kickid <OriginID>/<UserID>.", FCVAR_RELEASE, _KickID_f_CompletionFunc, nullptr);
+	ConCommand* sv_kick          = new ConCommand("sv_kick", "Kick a client from the server by name. | Usage: kick \"<name>\".", FCVAR_RELEASE, _Kick_f_CompletionFunc, nullptr);
+	ConCommand* sv_kickid        = new ConCommand("sv_kickid", "Kick a client from the server by UserID or OriginID | Usage: kickid \"<OriginID>\"/\"<UserID>\".", FCVAR_RELEASE, _KickID_f_CompletionFunc, nullptr);
 	ConCommand* sv_ban           = new ConCommand("sv_ban", "Bans a client from the server by name. | Usage: ban <name>.", FCVAR_RELEASE, _Ban_f_CompletionFunc, nullptr);
-	ConCommand* sv_banid         = new ConCommand("sv_banid", "Bans a client from the server by OriginID, UserID or IPAddress | Usage: banid <OriginID>/<IPAddress>/<UserID>.", FCVAR_RELEASE, _BanID_f_CompletionFunc, nullptr);
-	ConCommand* sv_unban         = new ConCommand("sv_unban", "Unbans a client from the Server by IPAddress or OriginID | Usage: unban <OriginID>/<IPAddress>.", FCVAR_RELEASE, _Unban_f_CompletionFunc, nullptr);
+	ConCommand* sv_banid         = new ConCommand("sv_banid", "Bans a client from the server by OriginID, UserID or IPAddress | Usage: banid \"<OriginID>\"/\"<IPAddress>/<UserID>\".", FCVAR_RELEASE, _BanID_f_CompletionFunc, nullptr);
+	ConCommand* sv_unban         = new ConCommand("sv_unban", "Unbans a client from the Server by IPAddress or OriginID | Usage: unban \"<OriginID>\"/\"<IPAddress>\".", FCVAR_RELEASE, _Unban_f_CompletionFunc, nullptr);
 	ConCommand* sv_reloadbanlist = new ConCommand("sv_reloadbanlist", "Reloads the ban list from the disk.", FCVAR_RELEASE, _ReloadBanList_f_CompletionFunc, nullptr);
 #ifndef DEDICATED
 	//-------------------------------------------------------------------------
 	// CLIENT DLL                                                             |
 	ConCommand* cl_showconsole = new ConCommand("cl_showconsole", "Opens the game console.", FCVAR_CLIENTDLL | FCVAR_RELEASE, _CGameConsole_f_CompletionFunc, nullptr);
 	ConCommand* cl_showbrowser = new ConCommand("cl_showbrowser", "Opens the server browser.", FCVAR_CLIENTDLL | FCVAR_RELEASE, _CCompanion_f_CompletionFunc, nullptr);
+	ConCommand* rcon = new ConCommand("rcon", "Forward RCON query to remote server. | Usage: rcon \"<query>\".", FCVAR_CLIENTDLL | FCVAR_RELEASE, _RCON_CmdQuery_f_CompletionFunc, nullptr);
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// FILESYSTEM API                                                         |

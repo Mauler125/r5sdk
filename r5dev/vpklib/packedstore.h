@@ -56,11 +56,14 @@ class CPackedStore
 	lzham_uint32                 m_nAdler32         {}; // Pre/post operation Adler32 file checksum.
 	lzham_uint32                 m_nCrc32_Internal  {}; // Internal operation Crc32 file checksum.
 	lzham_uint32                 m_nCrc32           {}; // Pre/post operation Crc32 file checksum.
+	lzham_compress_params        m_lzCompParams     {}; // LZham decompression parameters.
+	lzham_compress_status_t      m_lzCompStatus     {}; // LZham compression status.
 	lzham_decompress_params      m_lzDecompParams   {}; // LZham decompression parameters.
-	lzham_decompress_status_t    m_lzDecompStatus   {}; // LZham decompression results.
+	lzham_decompress_status_t    m_lzDecompStatus   {}; // LZham decompression status.
 
 public:
-	void InitLzParams();
+	void InitLzCompParams(void);
+	void InitLzDecompParams(void);
 	vpk_dir_h GetPackDirFile(std::string svPackDirFile);
 	std::string GetPackChunkFile(std::string svPackDirFile, int iArchiveIndex);
 	std::vector<vpk_entry_block> GetEntryBlocks(CIOStream* reader);

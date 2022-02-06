@@ -15,9 +15,18 @@
 ***********************************************************************/
 
 //-----------------------------------------------------------------------------
+// Purpose: initialize parameters for compression algorithm
+//-----------------------------------------------------------------------------
+void CPackedStore::InitLzCompParams(void)
+{
+	/*| PARAMETERS ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
+	m_lzCompParams.m_dict_size_log2 = RVPK_DICT_SIZE;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: initialize parameters for decompression algorithm
 //-----------------------------------------------------------------------------
-void CPackedStore::InitLzParams()
+void CPackedStore::InitLzDecompParams(void)
 {
 	/*| PARAMETERS ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
 	m_lzDecompParams.m_dict_size_log2   = RVPK_DICT_SIZE;
