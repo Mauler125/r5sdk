@@ -71,7 +71,7 @@ bool CNetCon::Init(void)
 		return false;
 	}
 
-	std::thread tRecv(&CNetCon::Recv, this, this->pSocket);
+	std::thread tRecv(&CNetCon::Recv, this);
 	tRecv.detach();
 
 	return true;
