@@ -1,26 +1,6 @@
 #pragma once
 #include "tier1/netadr2.h"
-
-typedef int SocketHandle_t;
-
-class CConnectedNetConsoleData
-{
-public:
-	SocketHandle_t m_hSocket                               {};
-	int  m_nCharsInCommandBuffer                           {};
-	char m_pszInputCommandBuffer[MAX_NETCONSOLE_INPUT_LEN] {};
-	bool m_bAuthorized                                     {}; // If set, this netconsole is authenticated.
-	bool m_bInputOnly                                      {}; // If set, don't send spew to this netconsole.
-	int  m_nFailedAttempts                                 {}; // Num failed authentication attempts.
-
-	CConnectedNetConsoleData(SocketHandle_t hSocket = -1)
-	{
-		m_nCharsInCommandBuffer = 0;
-		m_bAuthorized           = false;
-		m_hSocket               = hSocket;
-		m_bInputOnly            = false;
-	}
-};
+#include "common/igameserverdata.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: container class to handle network streams

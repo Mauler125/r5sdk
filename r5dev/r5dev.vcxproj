@@ -41,7 +41,6 @@
     <ClCompile Include="engine\net.cpp" />
     <ClCompile Include="engine\net_chan.cpp" />
     <ClCompile Include="engine\sv_main.cpp" />
-    <ClCompile Include="engine\sv_rcon.cpp" />
     <ClCompile Include="engine\sys_dll.cpp" />
     <ClCompile Include="engine\sys_dll2.cpp" />
     <ClCompile Include="engine\sys_engine.cpp" />
@@ -245,7 +244,6 @@
     <ClInclude Include="engine\net.h" />
     <ClInclude Include="engine\net_chan.h" />
     <ClInclude Include="engine\sv_main.h" />
-    <ClInclude Include="engine\sv_rcon.h" />
     <ClInclude Include="engine\sys_dll.h" />
     <ClInclude Include="engine\sys_dll2.h" />
     <ClInclude Include="engine\sys_engine.h" />

@@ -25,6 +25,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="core\termutil.cpp" />
     <ClCompile Include="engine\net.cpp" />
     <ClCompile Include="netconsole\netconsole.cpp" />
     <ClCompile Include="public\utility.cpp" />
@@ -33,6 +34,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\stdafx.h" />
+    <ClInclude Include="core\termutil.h" />
     <ClInclude Include="engine\net.h" />
     <ClInclude Include="netconsole\netconsole.h" />
     <ClInclude Include="tier1\NetAdr2.h" />

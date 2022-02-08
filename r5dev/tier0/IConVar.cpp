@@ -54,6 +54,7 @@ void ConVar::Init(void)
 	cm_return_false_cmdquery_cheats = new ConVar("cm_return_false_cmdquery_cheats", "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Returns false on all FCVAR_DEVELOPMENTONLY and FCVAR_CHEAT ConVar/ConCommand queries ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	r_debug_overlay_nodecay         = new ConVar("r_debug_overlay_nodecay", "0", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Keeps all debug overlays alive regardless of their lifetime. Use command 'clear_debug_overlays' to clear everything.", false, 0.f, false, 0.f, nullptr, nullptr);
 
+	// TODO: RconPasswordChanged_f
 	rcon_address  = new ConVar("rcon_address",  "::", FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Remote console address.", false, 0.f, false, 0.f, nullptr, nullptr);
 	rcon_password = new ConVar("rcon_password", "", FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Remote console password, RCON is disabled if empty.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
@@ -61,13 +62,16 @@ void ConVar::Init(void)
 	sv_showconnecting  = new ConVar("sv_showconnecting", "1", FCVAR_RELEASE, "Logs information about the connecting client to the console.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_pylonvisibility = new ConVar("sv_pylonvisibility", "0", FCVAR_RELEASE, "Determines the visiblity to the Pylon Master Server, 0 = Not visible, 1 = Visible, 2 = Hidden BUG BUG: not implemented yet.", false, 0.f, false, 0.f, nullptr, nullptr);
 
-	//RconPasswordChanged_f
-	sv_rcon_banpenalty  = new ConVar("sv_rcon_banpenalty", "10", FCVAR_RELEASE, "Number of minutes to ban users who fail rcon authentication.", false, 0.f, false, 0.f, nullptr, nullptr);
+#ifdef DEDICATED
+	sv_rcon_banpenalty = new ConVar("sv_rcon_banpenalty", "10", FCVAR_RELEASE, "Number of minutes to ban users who fail rcon authentication.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_maxfailures = new ConVar("sv_rcon_maxfailures", "10", FCVAR_RELEASE, "Max number of times a user can fail rcon authentication before being banned.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sv_rcon_maxignores = new ConVar("sv_rcon_maxignores", "10", FCVAR_RELEASE, "Max number of times a user can ignore the no-auth message before being banned.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sv_rcon_maxsockets = new ConVar("sv_rcon_maxsockets", "32", FCVAR_RELEASE, "Max number of accepted sockets before the server starts closing redundant sockets.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_whitelist_address = new ConVar("sv_rcon_whitelist_address", "", FCVAR_RELEASE, "When set, rcon failed authentications will never ban this address, e.g. '127.0.0.1'.", false, 0.f, false, 0.f, nullptr, nullptr);
-
+#endif // DEDICATED
 	//-------------------------------------------------------------------------
 	// CLIENT                                                                 |
+#ifndef DEDICATED
 	cl_drawconsoleoverlay      = new ConVar("cl_drawconsoleoverlay", "0", FCVAR_DEVELOPMENTONLY, "Draw the console overlay at the top of the screen.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_consoleoverlay_lines    = new ConVar("cl_consoleoverlay_lines", "3", FCVAR_DEVELOPMENTONLY, "Number of lines of console output to draw.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_consoleoverlay_offset_x = new ConVar("cl_consoleoverlay_offset_x", "10", FCVAR_DEVELOPMENTONLY, "X offset for console overlay.", false, 1.f, false, 50.f, nullptr, nullptr);
@@ -89,14 +93,17 @@ void ConVar::Init(void)
 	con_max_size_logvector  = new ConVar("con_max_size_logvector", "1000", FCVAR_DEVELOPMENTONLY, "Maximum number of logs in the console until cleanup starts.", false, 0.f, false, 0.f, nullptr, nullptr);
 	con_suggestion_limit    = new ConVar("con_suggestion_limit", "120", FCVAR_DEVELOPMENTONLY, "Maximum number of suggestions the autocomplete window will show for the console.", false, 0.f, false, 0.f, nullptr, nullptr);
 	con_suggestion_helptext = new ConVar("con_suggestion_helptext", "0", FCVAR_DEVELOPMENTONLY, "Show ConVar help text in autocomplete window. Disabled by default to keep window less populated.", false, 0.f, false, 0.f, nullptr, nullptr);
+#endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// FILESYSTEM                                                             |
 	fs_warning_level_sdk    = new ConVar("fs_warning_level_sdk", "0", FCVAR_DEVELOPMENTONLY, "Set the SDK filesystem warning level.", false, 0.f, false, 0.f, nullptr, nullptr);
 	fs_show_warning_output  = new ConVar("fs_show_warning_output", "0", FCVAR_DEVELOPMENTONLY, "Logs the filesystem warnings to the console, filtered by 'fs_warning_level_native' ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	fs_packedstore_entryblock_stats = new ConVar("fs_packedstore_entryblock_stats", "0", FCVAR_DEVELOPMENTONLY, "If set to 1, prints the stats of each file entry in the VPK during decompression ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
-	// FILESYSTEM                                                             |
+	// MATERIALSYSTEM                                                         |
+#ifndef DEDICATED
 	mat_showdxoutput = new ConVar("mat_showdxoutput", "0", FCVAR_DEVELOPMENTONLY, "Shows debug output for the DirectX system.", false, 0.f, false, 0.f, nullptr, nullptr);
+#endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// SQUIRREL                                                               |
 	sq_showrsonloading   = new ConVar("sq_showrsonloading", "0", FCVAR_DEVELOPMENTONLY, "Logs all 'rson' files loaded by the SQVM ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);

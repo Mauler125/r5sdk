@@ -17,7 +17,9 @@
 #include "squirrel/sqinit.h"
 #include "public/include/bansystem.h"
 #include "engine/sys_engine.h"
+#ifdef DEDICATED
 #include "engine/sv_rcon.h"
+#endif // DEDICATED
 
 //-----------------------------------------------------------------------------
 // Purpose: Send keep alive request to Pylon Master Server.
@@ -134,8 +136,6 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 	static bool bInitialized = false;
 	if (!bInitialized)
 	{
-		g_pRConServer = new CRConServer();
-
 		if (!g_pCmdLine->CheckParm("-devsdk"))
 		{
 			IVEngineClient_CommandExecute(NULL, "exec autoexec_server.cfg");
@@ -158,7 +158,9 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 		}
 
 		g_pConVar->ClearHostNames();
+#ifdef DEDICATED
 		g_pRConServer->Init();
+#endif // DEDICATED
 
 		*(bool*)m_bRestrictServerCommands = true; // Restrict commands.
 		ConCommandBase* disconnect = (ConCommandBase*)g_pCVar->FindCommand("disconnect");
@@ -191,8 +193,9 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 
 		bInitialized = true;
 	}
-
+#ifdef DEDICATED
 	g_pRConServer->RunFrame();
+#endif // DEDICATED
 
 	HostStates_t oldState{};
 	void* placeHolder = nullptr;

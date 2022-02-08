@@ -423,9 +423,6 @@
     <ClCompile Include="engine\sys_engine.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
-    <ClCompile Include="engine\sv_rcon.cpp">
-      <Filter>sdk\engine</Filter>
-    </ClCompile>
     <ClCompile Include="engine\cl_rcon.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
@@ -1089,9 +1086,6 @@
       <Filter>sdk\engine</Filter>
     </ClInclude>
     <ClInclude Include="engine\sys_engine.h">
-      <Filter>sdk\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\sv_rcon.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
     <ClInclude Include="engine\cl_rcon.h">

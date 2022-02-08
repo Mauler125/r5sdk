@@ -40,6 +40,9 @@
     <ClCompile Include="netconsole\netconsole.cpp">
       <Filter>core</Filter>
     </ClCompile>
+    <ClCompile Include="core\termutil.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tier1\NetAdr2.h">
@@ -55,6 +58,9 @@
       <Filter>sdk\engine</Filter>
     </ClInclude>
     <ClInclude Include="netconsole\netconsole.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\termutil.h">
       <Filter>core</Filter>
     </ClInclude>
   </ItemGroup>

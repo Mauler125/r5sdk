@@ -49,7 +49,7 @@ void CSocketCreator::ProcessAccept(void)
 {
 	sockaddr_storage inClient{};
 	int nLengthAddr = sizeof(inClient);
-	int newSocket = accept(m_hListenSocket, reinterpret_cast<sockaddr*>(&inClient), &nLengthAddr);
+	int newSocket = ::accept(m_hListenSocket, reinterpret_cast<sockaddr*>(&inClient), &nLengthAddr);
 	if (newSocket == -1)
 	{
 		if (!IsSocketBlocking())
@@ -65,7 +65,7 @@ void CSocketCreator::ProcessAccept(void)
 
 	if (!ConfigureListenSocket(newSocket))
 	{
-		closesocket(newSocket);
+		::closesocket(newSocket);
 		return;
 	}
 
@@ -85,11 +85,11 @@ bool CSocketCreator::ConfigureListenSocket(int iSocket)
 	int v6only  = 0;
 	u_long opt  = 1;
 
-	setsockopt(iSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&nodelay, sizeof(nodelay));
-	setsockopt(iSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&nodelay, sizeof(nodelay));
-	setsockopt(iSocket, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&v6only, sizeof(v6only));
+	::setsockopt(iSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&nodelay, sizeof(nodelay));
+	::setsockopt(iSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&nodelay, sizeof(nodelay));
+	::setsockopt(iSocket, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&v6only, sizeof(v6only));
 
-	int results = ioctlsocket(iSocket, FIONBIO, (u_long*)&opt); // Non-blocking.
+	int results = ::ioctlsocket(iSocket, FIONBIO, (u_long*)&opt); // Non-blocking.
 	if (results == -1)
 	{
 #ifndef NETCONSOLE
@@ -110,7 +110,7 @@ bool CSocketCreator::ConfigureConnectSocket(SocketHandle_t hSocket)
 	int opt = 1;
 	int ret = 0;
 
-	ret = ioctlsocket(hSocket, FIONBIO, reinterpret_cast<u_long*>(&opt)); // Non-blocking
+	ret = ::ioctlsocket(hSocket, FIONBIO, reinterpret_cast<u_long*>(&opt)); // Non-blocking
 	if (ret == -1)
 	{
 #ifndef NETCONSOLE
@@ -118,13 +118,13 @@ bool CSocketCreator::ConfigureConnectSocket(SocketHandle_t hSocket)
 #else
 		printf("Socket ioctl(FIONBIO) failed (%s)\n", NET_ErrorString(WSAGetLastError()));
 #endif // !NETCONSOLE
-		closesocket(hSocket);
+		::closesocket(hSocket);
 		return false;
 	}
 
 	// Disable NAGLE as RCON cmds are small in size.
 	int nodelay = 1;
-	setsockopt(hSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&nodelay, sizeof(nodelay));
+	::setsockopt(hSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&nodelay, sizeof(nodelay));
 
 	return true;
 }
@@ -139,7 +139,7 @@ bool CSocketCreator::CreateListenSocket(const CNetAdr2& netAdr2, bool bListenOnA
 {
 	CloseListenSocket();
 	m_ListenAddress = netAdr2;
-	m_hListenSocket = socket(PF_INET6, SOCK_STREAM, IPPROTO_TCP);
+	m_hListenSocket = ::socket(PF_INET6, SOCK_STREAM, IPPROTO_TCP);
 
 	if (m_hListenSocket != INVALID_SOCKET)
 	{
@@ -152,7 +152,7 @@ bool CSocketCreator::CreateListenSocket(const CNetAdr2& netAdr2, bool bListenOnA
 		sockaddr_storage sadr{};
 		m_ListenAddress.ToSockadr(&sadr);
 
-		int results = bind(m_hListenSocket, reinterpret_cast<sockaddr*>(&sadr), m_ListenAddress.GetSize());
+		int results = ::bind(m_hListenSocket, reinterpret_cast<sockaddr*>(&sadr), m_ListenAddress.GetSize());
 		if (results == -1)
 		{
 #ifndef NETCONSOLE
@@ -164,7 +164,7 @@ bool CSocketCreator::CreateListenSocket(const CNetAdr2& netAdr2, bool bListenOnA
 			return false;
 		}
 
-		results = listen(m_hListenSocket, SOCKET_TCP_MAX_ACCEPTS);
+		results = ::listen(m_hListenSocket, SOCKET_TCP_MAX_ACCEPTS);
 		if (results == -1)
 		{
 #ifndef NETCONSOLE
@@ -186,7 +186,7 @@ void CSocketCreator::CloseListenSocket(void)
 {
 	if (m_hListenSocket != -1)
 	{
-		closesocket(m_hListenSocket);
+		::closesocket(m_hListenSocket);
 		m_hListenSocket = -1;
 	}
 }
@@ -204,7 +204,7 @@ int CSocketCreator::ConnectSocket(const CNetAdr2& netAdr2, bool bSingleSocket)
 		CloseAllAcceptedSockets();
 	}
 
-	SocketHandle_t hSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+	SocketHandle_t hSocket = ::socket(netAdr2.GetFamily(), SOCK_STREAM, IPPROTO_TCP);
 	if (hSocket == SOCKET_ERROR)
 	{
 #ifndef NETCONSOLE
@@ -223,7 +223,7 @@ int CSocketCreator::ConnectSocket(const CNetAdr2& netAdr2, bool bSingleSocket)
 	struct sockaddr_storage s{};
 	netAdr2.ToSockadr(&s);
 
-	int results = connect(hSocket, reinterpret_cast<sockaddr*>(&s), sizeof(s));
+	int results = ::connect(hSocket, reinterpret_cast<sockaddr*>(&s), netAdr2.GetSize());
 	if (results == SOCKET_ERROR)
 	{
 		if (!IsSocketBlocking())
@@ -233,7 +233,7 @@ int CSocketCreator::ConnectSocket(const CNetAdr2& netAdr2, bool bSingleSocket)
 #else
 			printf("Socket connection failed (%s)\n", NET_ErrorString(WSAGetLastError()));
 #endif // !NETCONSOLE
-			closesocket(hSocket);
+			::closesocket(hSocket);
 			return SOCKET_ERROR;
 		}
 
@@ -246,9 +246,9 @@ int CSocketCreator::ConnectSocket(const CNetAdr2& netAdr2, bool bSingleSocket)
 		FD_ZERO(&writefds);
 		FD_SET(static_cast<u_int>(hSocket), &writefds);
 
-		if (select(hSocket + 1, NULL, &writefds, NULL, &tv) < 1) // block for at most 1 second
+		if (::select(hSocket + 1, NULL, &writefds, NULL, &tv) < 1) // block for at most 1 second
 		{
-			closesocket(hSocket); // took too long to connect to, give up
+			::closesocket(hSocket); // took too long to connect to, give up
 			return SOCKET_ERROR;
 		}
 	}
@@ -300,7 +300,7 @@ void CSocketCreator::CloseAcceptedSocket(int nIndex)
 	}
 
 	AcceptedSocket_t& connected = m_hAcceptedSockets[nIndex];
-	closesocket(connected.m_hSocket);
+	::closesocket(connected.m_hSocket);
 	m_hAcceptedSockets.erase(m_hAcceptedSockets.begin() + nIndex);
 }
 
@@ -313,7 +313,7 @@ void CSocketCreator::CloseAllAcceptedSockets(void)
 	for (int i = 0; i < nCount; ++i)
 	{
 		AcceptedSocket_t& connected = m_hAcceptedSockets[i];
-		closesocket(connected.m_hSocket);
+		::closesocket(connected.m_hSocket);
 	}
 	m_hAcceptedSockets.clear();
 }

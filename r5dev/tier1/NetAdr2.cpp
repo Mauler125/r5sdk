@@ -17,12 +17,12 @@
 CNetAdr2::CNetAdr2(std::string svInAdr)
 {
 	SetType(netadrtype_t::NA_IP);
-	if (std::strcmp(svInAdr.c_str(), "loopback") == 0 || std::strcmp(svInAdr.c_str(), "::1") == 0)
+	if (strcmp(svInAdr.c_str(), "loopback") == 0 || strcmp(svInAdr.c_str(), "::1") == 0)
 	{
 		SetType(netadrtype_t::NA_LOOPBACK);
 		svInAdr = "[127.0.0.1" + GetPort(svInAdr);
 	}
-	else if (std::strcmp(svInAdr.c_str(), "localhost"))
+	else if (strcmp(svInAdr.c_str(), "localhost"))
 	{
 		svInAdr = "[127.0.0.1" + GetPort(svInAdr);
 	}
@@ -50,16 +50,16 @@ CNetAdr2::CNetAdr2(std::string svInAdr, std::string svInPort)
 {
 	SetType(netadrtype_t::NA_IP);
 
-	if (std::strcmp(svInAdr.c_str(), "loopback") == 0 || std::strcmp(svInAdr.c_str(), "::1") == 0)
+	if (strcmp(svInAdr.c_str(), "loopback") == 0 || strcmp(svInAdr.c_str(), "::1") == 0)
 	{
 		SetType(netadrtype_t::NA_LOOPBACK);
 	}
-	else if (std::strcmp(svInAdr.c_str(), "localhost") == 0)
+	else if (strcmp(svInAdr.c_str(), "localhost") == 0)
 	{
 		svInAdr = "127.0.0.1";
 	}
 
-	if (std::strstr(svInAdr.c_str(), "["))
+	if (strstr(svInAdr.c_str(), "["))
 	{
 		svInAdr = GetBase(svInAdr);
 	}
@@ -129,7 +129,7 @@ void CNetAdr2::SetVersion(void)
 {
 	if (inet_pton(reinterpret_cast<sockaddr_in*>(&m_sadr)->sin_family, 
 		GetBase().c_str(), &reinterpret_cast<sockaddr_in*>(m_sadr)->sin_addr) &&
-		!std::strstr(GetBase().c_str(), "::"))
+		!strstr(GetBase().c_str(), "::"))
 	{
 		m_version = netadrversion_t::NA_V4;
 		return;
@@ -342,7 +342,23 @@ int CNetAdr2::GetSize(void) const
 	{
 		return sizeof(sockaddr_in6);
 	}
-	return 0;
+	return NULL;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: returns the network family version.
+//-----------------------------------------------------------------------------
+int CNetAdr2::GetFamily(void) const
+{
+	if (GetVersion() == netadrversion_t::NA_V4)
+	{
+		return AF_INET;
+	}
+	else if (GetVersion() == netadrversion_t::NA_V6)
+	{
+		return AF_INET6;
+	}
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -438,7 +454,7 @@ void CNetAdr2::ToAdrinfo(addrinfo* pHint) const
 //-----------------------------------------------------------------------------
 bool CNetAdr2::IsLocalhost(void) const
 {
-	return (std::strcmp(GetBase().c_str(), "127.0.0.1") == 0);
+	return (strcmp(GetBase().c_str(), "127.0.0.1") == 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -503,12 +519,12 @@ bool CNetAdr2::CompareAdr(const CNetAdr2& netAdr2, bool bBaseOnly) const
 	if (GetType() == netadrtype_t::NA_IP)
 	{
 		if (!bBaseOnly && 
-			(std::strcmp(netAdr2.GetPort().c_str(), GetPort().c_str()) != 0))
+			(strcmp(netAdr2.GetPort().c_str(), GetPort().c_str()) != 0))
 		{
 			return false;
 		}
 
-		if (std::strcmp(netAdr2.GetBase().c_str(), GetBase().c_str()) == 0)
+		if (strcmp(netAdr2.GetBase().c_str(), GetBase().c_str()) == 0)
 		{
 			return true;
 		}
@@ -544,8 +560,8 @@ bool CNetAdr2::CompareClassBAdr(const CNetAdr2& netAdr2) const
 		std::vector<std::string> v0 = netAdr2.GetParts();
 		std::vector<std::string> v1 = GetParts();
 
-		if (std::strcmp(v0[0].c_str(), v1[0].c_str()) == 0 && 
-			std::strcmp(v0[1].c_str(), v1[1].c_str()) == 0)
+		if (strcmp(v0[0].c_str(), v1[0].c_str()) == 0 && 
+			strcmp(v0[1].c_str(), v1[1].c_str()) == 0)
 		{
 			return true;
 		}
@@ -581,9 +597,9 @@ bool CNetAdr2::CompareClassCAdr(const CNetAdr2& netAdr2) const
 		std::vector<std::string> v0 = netAdr2.GetParts();
 		std::vector<std::string> v1 = GetParts();
 
-		if (std::strcmp(v0[0].c_str(), v1[0].c_str()) == 0 && 
-			std::strcmp(v0[1].c_str(), v1[1].c_str()) == 0 && 
-			std::strcmp(v0[2].c_str(), v1[2].c_str()) == 0)
+		if (strcmp(v0[0].c_str(), v1[0].c_str()) == 0 && 
+			strcmp(v0[1].c_str(), v1[1].c_str()) == 0 && 
+			strcmp(v0[2].c_str(), v1[2].c_str()) == 0)
 		{
 			return true;
 		}

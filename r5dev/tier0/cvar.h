@@ -28,12 +28,16 @@ extern ConVar* rcon_password;
 // SERVER                                                                 |
 extern ConVar* sv_showconnecting;
 extern ConVar* sv_pylonvisibility;
-
+#ifdef DEDICATED
 extern ConVar* sv_rcon_banpenalty;
 extern ConVar* sv_rcon_maxfailures;
+extern ConVar* sv_rcon_maxignores;
+extern ConVar* sv_rcon_maxsockets;
 extern ConVar* sv_rcon_whitelist_address;
+#endif // DEDICATED
 //-------------------------------------------------------------------------
 // CLIENT                                                                 |
+#ifndef DEDICATED
 extern ConVar* cl_drawconsoleoverlay;
 extern ConVar* cl_consoleoverlay_lines;
 extern ConVar* cl_consoleoverlay_offset_x;
@@ -54,6 +58,7 @@ extern ConVar* cl_gpustats_offset_y;
 extern ConVar* con_max_size_logvector;
 extern ConVar* con_suggestion_limit;
 extern ConVar* con_suggestion_helptext;
+#endif // !DEDICATED
 //-------------------------------------------------------------------------
 // FILESYSTEM                                                             |
 extern ConVar* fs_warning_level_sdk;
@@ -61,7 +66,9 @@ extern ConVar* fs_show_warning_output;
 extern ConVar* fs_packedstore_entryblock_stats;
 //-------------------------------------------------------------------------
 // MATERIALSYSTEM                                                         |
+#ifndef DEDICATED
 extern ConVar* mat_showdxoutput;
+#endif // !DEDICATED
 //-------------------------------------------------------------------------
 // SQUIRREL                                                               |
 extern ConVar* sq_showrsonloading;

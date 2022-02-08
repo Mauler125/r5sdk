@@ -17,11 +17,16 @@ ConVar* rcon_password                      = new ConVar();
 ConVar* sv_showconnecting                  = new ConVar();
 ConVar* sv_pylonvisibility                 = new ConVar();
 
+#ifdef DEDICATED
 ConVar* sv_rcon_banpenalty                 = new ConVar(); // TODO
 ConVar* sv_rcon_maxfailures                = new ConVar();
-ConVar* sv_rcon_whitelist_address          = new ConVar(); // TODO
+ConVar* sv_rcon_maxignores                 = new ConVar();
+ConVar* sv_rcon_maxsockets                 = new ConVar();
+ConVar* sv_rcon_whitelist_address          = new ConVar();
+#endif // DEDICATED
 //-----------------------------------------------------------------------------
 // CLIENT                                                                     |
+#ifndef DEDICATED
 ConVar* cl_drawconsoleoverlay              = new ConVar();
 ConVar* cl_consoleoverlay_lines            = new ConVar();
 ConVar* cl_consoleoverlay_offset_x         = new ConVar();
@@ -42,6 +47,7 @@ ConVar* cl_gpustats_offset_y               = new ConVar();
 ConVar* con_max_size_logvector             = new ConVar();
 ConVar* con_suggestion_limit               = new ConVar();
 ConVar* con_suggestion_helptext            = new ConVar();
+#endif // !DEDICATED
 //-----------------------------------------------------------------------------
 // FILESYSTEM                                                                 |
 ConVar* fs_warning_level_sdk               = new ConVar();
@@ -49,7 +55,9 @@ ConVar* fs_show_warning_output             = new ConVar();
 ConVar* fs_packedstore_entryblock_stats    = new ConVar();
 //-----------------------------------------------------------------------------
 // MATERIALSYSTEM                                                             |
+#ifndef DEDICATED
 ConVar* mat_showdxoutput                   = new ConVar();
+#endif // !DEDICATED
 //-----------------------------------------------------------------------------
 // SQUIRREL                                                                   |
 ConVar* sq_showrsonloading                 = new ConVar();

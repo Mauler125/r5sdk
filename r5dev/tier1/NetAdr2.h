@@ -66,6 +66,7 @@ public:
 	std::string GetBase(std::string svInAdr) const;
 	std::vector<std::string> GetParts(void) const;
 	int GetSize(void) const;
+	int GetFamily(void) const;
 
 	void ToSockadr(sockaddr_storage* pSadr) const;
 	void ToAdrinfo(addrinfo* pHint) const;

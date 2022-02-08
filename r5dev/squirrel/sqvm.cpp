@@ -10,6 +10,9 @@
 #include "tier0/IConVar.h"
 #include "tier0/commandline.h"
 #include "engine/sys_utils.h"
+#ifdef DEDICATED
+#include "engine/sv_rcon.h"
+#endif // DEDICATED
 #include "vgui/CEngineVGui.h"
 #include "gameui/IConsole.h"
 #include "squirrel/sqvm.h"
@@ -53,18 +56,21 @@ void* HSQVM_PrintFunc(void* sqvm, char* fmt, ...)
 		if (!g_bSpdLog_UseAnsiClr)
 		{
 			wconsole->debug(vmStr);
+#ifdef DEDICATED
+			g_pRConServer->Send(vmStr.c_str());
+#endif // DEDICATED
 		}
 		else
 		{
 			std::string vmStrAnsi = SQVM_ANSI_LOG_T[vmIdx].c_str();
 			vmStrAnsi.append(buf);
 			wconsole->debug(vmStrAnsi);
+#ifdef DEDICATED
+			g_pRConServer->Send(vmStrAnsi.c_str());
+#endif // DEDICATED
 		}
 
 #ifndef DEDICATED
-		g_spd_sys_w_oss.str("");
-		g_spd_sys_w_oss.clear();
-
 		iconsole->debug(vmStr);
 
 		if (sq_showvmoutput->GetInt() > 2)
@@ -73,6 +79,9 @@ void* HSQVM_PrintFunc(void* sqvm, char* fmt, ...)
 
 			g_pIConsole->m_ivConLog.push_back(Strdup(s.c_str()));
 			g_pLogSystem.AddLog((LogType_t)vmIdx, s);
+
+			g_spd_sys_w_oss.str("");
+			g_spd_sys_w_oss.clear();
 		}
 #endif // !DEDICATED
 	}
@@ -115,12 +124,18 @@ void* HSQVM_WarningFunc(void* sqvm, int a2, int a3, int* nStringSize, void** ppS
 		if (!g_bSpdLog_UseAnsiClr)
 		{
 			wconsole->debug(vmStr);
+#ifdef DEDICATED
+			g_pRConServer->Send(vmStr.c_str());
+#endif // DEDICATED
 		}
 		else
 		{
 			std::string vmStrAnsi = SQVM_WARNING_ANSI_LOG_T[vmIdx].c_str();
 			vmStrAnsi.append(svConstructor);
 			wconsole->debug(vmStrAnsi);
+#ifdef DEDICATED
+			g_pRConServer->Send(vmStrAnsi.c_str());
+#endif // DEDICATED
 		}
 
 #ifndef DEDICATED
@@ -174,7 +189,7 @@ bool HSQVM_LoadScript(void* sqvm, const char* szScriptPath, const char* szScript
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: registers and exposes code functions to target VM's
+// Purpose: registers and exposes code functions to target context
 //---------------------------------------------------------------------------------
 void HSQVM_RegisterFunction(void* sqvm, const char* szName, const char* szHelpString, const char* szRetValType, const char* szArgTypes, void* pFunction)
 {
@@ -191,7 +206,7 @@ void HSQVM_RegisterFunction(void* sqvm, const char* szName, const char* szHelpSt
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: registers SERVER script functions
+// Purpose: registers script functions in SERVER context
 //---------------------------------------------------------------------------------
 void RegisterServerScriptFunctions(void* sqvm)
 {
@@ -200,7 +215,7 @@ void RegisterServerScriptFunctions(void* sqvm)
 
 #ifndef DEDICATED
 //---------------------------------------------------------------------------------
-// Purpose: registers CLIENT script functions
+// Purpose: registers script functions in CLIENT context
 //---------------------------------------------------------------------------------
 void RegisterClientScriptFunctions(void* sqvm)
 {
@@ -208,7 +223,7 @@ void RegisterClientScriptFunctions(void* sqvm)
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: registers UI script functions
+// Purpose: registers script functions in UI context
 //---------------------------------------------------------------------------------
 void RegisterUIScriptFunctions(void* sqvm)
 {
@@ -235,7 +250,8 @@ void RegisterUIScriptFunctions(void* sqvm)
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: Origin functions are the last to be registered in the UI VM, we register anything ours below
+// Purpose: Origin functions are the last to be registered in UI context, we register anything ours below
+// TODO   : Hook 'CreateVM' instead
 //---------------------------------------------------------------------------------
 void HSQVM_RegisterOriginFuncs(void* sqvm)
 {

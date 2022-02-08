@@ -17,30 +17,66 @@
 #include "common/igameserverdata.h"
 
 //-----------------------------------------------------------------------------
-// Purpose: Create's listen socket for RCON
+// Purpose: creates listen socket for RCON
 //-----------------------------------------------------------------------------
 void CRConServer::Init(void)
 {
 	if (std::strlen(rcon_password->GetString()) < 8)
 	{
-		DevMsg(eDLL_T::SERVER, "RCON disabled\n");
+		if (std::strlen(rcon_password->GetString()) != 0)
+		{
+			DevMsg(eDLL_T::SERVER, "Remote server access requires a password of at least 8 characters\n");
+		}
 
+		if (m_pSocket->IsListening())
+		{
+			m_pSocket->CloseListenSocket();
+		}
 		m_bInitialized = false;
 		return;
 	}
 
 	static ConVar* hostport = g_pCVar->FindVar("hostport");
+
 	m_pAdr2 = new CNetAdr2(rcon_address->GetString(), hostport->GetString());
 	m_pSocket->CreateListenSocket(*m_pAdr2, false);
 
+	DevMsg(eDLL_T::SERVER, "Remote server access initialized\n");
 	m_bInitialized = true;
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: run tasks for RCON
+// Purpose: run tasks for the RCON server
 //-----------------------------------------------------------------------------
 void CRConServer::Think(void)
 {
+	int nCount = m_pSocket->GetAcceptedSocketCount();
+
+	// Close redundant sockets if there are too many except for whitelisted and authenticated.
+	if (nCount >= sv_rcon_maxsockets->GetInt())
+	{
+		for (m_nConnIndex = nCount - 1; m_nConnIndex >= 0; m_nConnIndex--)
+		{
+			CNetAdr2 netAdr2 = m_pSocket->GetAcceptedSocketAddress(m_nConnIndex);
+			if (std::strcmp(netAdr2.GetIP(true).c_str(), sv_rcon_whitelist_address->GetString()) != 0)
+			{
+				CConnectedNetConsoleData* pData = m_pSocket->GetAcceptedSocketData(m_nConnIndex);
+				if (!pData->m_bAuthorized)
+				{
+					CloseConnection();
+				}
+			}
+		}
+	}
+
+	// Create a new listen socket if authenticated socket is closed.
+	if (nCount == 0)
+	{
+		if (!m_pSocket->IsListening())
+		{
+			m_pSocket->CreateListenSocket(*m_pAdr2, false);
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -51,14 +87,16 @@ void CRConServer::RunFrame(void)
 	if (m_bInitialized)
 	{
 		m_pSocket->RunFrame();
-		ProcessMessage();
+		this->Think();
+		this->Recv();
 	}
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: process incoming packet
+// Purpose: process outgoing packet
+// Input  : *pszBuf - 
 //-----------------------------------------------------------------------------
-void CRConServer::ProcessMessage(void)
+void CRConServer::Send(const char* pszBuf)
 {
 	int nCount = m_pSocket->GetAcceptedSocketCount();
 
@@ -66,16 +104,34 @@ void CRConServer::ProcessMessage(void)
 	{
 		CConnectedNetConsoleData* pData = m_pSocket->GetAcceptedSocketData(i);
 
+		if (pData->m_bAuthorized)
+		{
+			::send(pData->m_hSocket, pszBuf, strlen(pszBuf), MSG_NOSIGNAL);
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: process incoming packet
+//-----------------------------------------------------------------------------
+void CRConServer::Recv(void)
+{
+	int nCount = m_pSocket->GetAcceptedSocketCount();
+
+	for (m_nConnIndex = nCount - 1; m_nConnIndex >= 0; m_nConnIndex--)
+	{
+		CConnectedNetConsoleData* pData = m_pSocket->GetAcceptedSocketData(m_nConnIndex);
+
 		{//////////////////////////////////////////////
-			if (CheckForBan(i, pData))
+			if (CheckForBan(pData))
 			{
-				send(pData->m_hSocket, s_pszBannedMessage, strlen(s_pszBannedMessage), MSG_NOSIGNAL);
-				CloseConnection(i);
+				::send(pData->m_hSocket, s_pszBannedMessage, strlen(s_pszBannedMessage), MSG_NOSIGNAL);
+				CloseConnection();
 				continue;
 			}
 
 			char szRecvBuf{};
-			int nPendingLen = recv(pData->m_hSocket, &szRecvBuf, sizeof(szRecvBuf), MSG_PEEK);
+			int nPendingLen = ::recv(pData->m_hSocket, &szRecvBuf, sizeof(szRecvBuf), MSG_PEEK);
 
 			if (nPendingLen == SOCKET_ERROR && m_pSocket->IsSocketBlocking())
 			{
@@ -84,13 +140,13 @@ void CRConServer::ProcessMessage(void)
 
 			if (nPendingLen <= 0) // EOF or error.
 			{
-				CloseConnection(i);
+				CloseConnection();
 				continue;
 			}
 		}//////////////////////////////////////////////
 
 		u_long nReadLen; // Find out how much we have to read.
-		ioctlsocket(pData->m_hSocket, FIONREAD, &nReadLen);
+		::ioctlsocket(pData->m_hSocket, FIONREAD, &nReadLen);
 
 		while (nReadLen > 0 && nReadLen < MAX_NETCONSOLE_INPUT_LEN -1)
 		{
@@ -99,7 +155,7 @@ void CRConServer::ProcessMessage(void)
 
 			if (nRecvLen == 0) // Socket was closed.
 			{
-				CloseConnection(i);
+				CloseConnection();
 				break;
 			}
 
@@ -118,11 +174,12 @@ void CRConServer::ProcessMessage(void)
 
 //-----------------------------------------------------------------------------
 // Purpose: authenticate new connections
+// Input  : *pData - 
 // TODO   : implement logic for key exchange instead so we never network our
 // password in plain text over the wire. create a cvar for this so user could
-// also opt out and use legacy authentication instead for legacy RCON clients
+// also opt out and use legacy authentication instead for older RCON clients
 //-----------------------------------------------------------------------------
-void CRConServer::Authenticate(CConnectedNetConsoleData* pData)
+void CRConServer::Auth(CConnectedNetConsoleData* pData)
 {
 	if (pData->m_bAuthorized)
 	{
@@ -131,12 +188,15 @@ void CRConServer::Authenticate(CConnectedNetConsoleData* pData)
 	else if (std::memcmp(pData->m_pszInputCommandBuffer, "PASS ", 5) == 0)
 	{
 		if (std::strcmp(pData->m_pszInputCommandBuffer + 5, rcon_password->GetString()) == 0)
-		{ // TODO: Hash password instead!
+		{ // TODO: Hash and compare password with SHA256 instead!
 			pData->m_bAuthorized = true;
+			m_pSocket->CloseListenSocket();
+			this->CloseNonAuthConnection();
 		}
 		else // Bad password.
 		{
-			DevMsg(eDLL_T::SERVER, "Bad password attempt from net console\n");
+			CNetAdr2 netAdr2 = m_pSocket->GetAcceptedSocketAddress(m_nConnIndex);
+			DevMsg(eDLL_T::SERVER, "Bad RCON password attempt from '%s'\n", netAdr2.GetIPAndPort().c_str());
 			::send(pData->m_hSocket, s_pszWrongPwMessage, strlen(s_pszWrongPwMessage), MSG_NOSIGNAL);
 
 			pData->m_bAuthorized = false;
@@ -146,11 +206,15 @@ void CRConServer::Authenticate(CConnectedNetConsoleData* pData)
 	else
 	{
 		::send(pData->m_hSocket, s_pszNoAuthMessage, strlen(s_pszNoAuthMessage), MSG_NOSIGNAL);
+		pData->m_nIgnoredMessage++;
 	}
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: handles input command buffer
+// Input  : *pszIn - 
+//			nRecvLen - 
+//			*pData - 
 //-----------------------------------------------------------------------------
 void CRConServer::HandleInputChars(const char* pszIn, int nRecvLen, CConnectedNetConsoleData* pData)
 {
@@ -164,11 +228,12 @@ void CRConServer::HandleInputChars(const char* pszIn, int nRecvLen, CConnectedNe
 			if (pData->m_nCharsInCommandBuffer)
 			{
 				pData->m_pszInputCommandBuffer[pData->m_nCharsInCommandBuffer] = 0;
-				Authenticate(pData);
+				this->Auth(pData);
 
+				// Only execute if auth was succesfull.
 				if (pData->m_bAuthorized)
 				{
-					Execute(pData);
+					this->Execute(pData);
 				}
 			}
 			pData->m_nCharsInCommandBuffer = 0;
@@ -189,7 +254,8 @@ void CRConServer::HandleInputChars(const char* pszIn, int nRecvLen, CConnectedNe
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: execute commands issued from net console
+// Input  : *pData - 
 //-----------------------------------------------------------------------------
 void CRConServer::Execute(CConnectedNetConsoleData* pData)
 {
@@ -197,22 +263,33 @@ void CRConServer::Execute(CConnectedNetConsoleData* pData)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: checks for amount of failed attempts and bans netconsole accordingly
+// Purpose: checks for amount of failed attempts and bans net console accordingly
+// Input  : *pData - 
 //-----------------------------------------------------------------------------
-bool CRConServer::CheckForBan(int nIdx, CConnectedNetConsoleData* pData)
+bool CRConServer::CheckForBan(CConnectedNetConsoleData* pData)
 {
-	CNetAdr2 netAdr2 = m_pSocket->GetAcceptedSocketAddress(nIdx);
+	CNetAdr2 netAdr2 = m_pSocket->GetAcceptedSocketAddress(m_nConnIndex);
 
 	// Check if IP is in the ban vector.
-	if (std::find(m_vBannedAddress.begin(), m_vBannedAddress.end(), 
+	if (std::find(m_vBannedAddress.begin(), m_vBannedAddress.end(),
 		netAdr2.GetIP(true)) != m_vBannedAddress.end())
 	{
 		return true;
 	}
 
-	// Check if netconsole has reached maximum number of attempts and add to ban vector.
-	if (pData->m_nFailedAttempts >= sv_rcon_maxfailures->GetInt())
+	// Check if net console has reached maximum number of attempts and add to ban vector.
+	if (pData->m_nFailedAttempts >= sv_rcon_maxfailures->GetInt()
+		|| pData->m_nIgnoredMessage >= sv_rcon_maxignores->GetInt())
 	{
+		// Don't add whitelisted address to ban vector.
+		if (std::strcmp(netAdr2.GetIP(true).c_str(), sv_rcon_whitelist_address->GetString()) == 0)
+		{
+			pData->m_nFailedAttempts = 0;
+			pData->m_nIgnoredMessage = 0;
+			return false;
+		}
+
+		DevMsg(eDLL_T::SERVER, "Banned '%s' for RCON hacking attempts\n", netAdr2.GetIPAndPort().c_str());
 		m_vBannedAddress.push_back(netAdr2.GetIP(true));
 		return true;
 	}
@@ -220,11 +297,29 @@ bool CRConServer::CheckForBan(int nIdx, CConnectedNetConsoleData* pData)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: close specific connection
 //-----------------------------------------------------------------------------
-void CRConServer::CloseConnection(int nIdx) // NETMGR
+void CRConServer::CloseConnection(void) // NETMGR
 {
-	m_pSocket->CloseAcceptedSocket(nIdx);
+	m_pSocket->CloseAcceptedSocket(m_nConnIndex);
 }
 
-CRConServer* g_pRConServer = nullptr;
+//-----------------------------------------------------------------------------
+// Purpose: close all connections except for authenticated
+//-----------------------------------------------------------------------------
+void CRConServer::CloseNonAuthConnection(void)
+{
+	int nCount = m_pSocket->GetAcceptedSocketCount();
+
+	for (int i = nCount - 1; i >= 0; i--)
+	{
+		CConnectedNetConsoleData* pData = m_pSocket->GetAcceptedSocketData(i);
+
+		if (!pData->m_bAuthorized)
+		{
+			m_pSocket->CloseAcceptedSocket(i);
+		}
+	}
+}
+///////////////////////////////////////////////////////////////////////////////
+CRConServer* g_pRConServer = new CRConServer();

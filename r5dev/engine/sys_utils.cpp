@@ -2,7 +2,9 @@
 #include "core/logdef.h"
 #include "tier0/commandline.h"
 #include "engine/sys_utils.h"
-#ifndef DEDICATED
+#ifdef DEDICATED
+#include "engine/sv_rcon.h"
+#else
 #include "vgui/CEngineVGui.h"
 #include "gameui/IConsole.h"
 #endif // !DEDICATED
@@ -84,12 +86,21 @@ void DevMsg(eDLL_T idx, const char* fmt, ...)
 	svOut.append(szBuf);
 	svOut = std::regex_replace(svOut, rxAnsiExp, "");
 
-	if (!g_bSpdLog_UseAnsiClr) { wconsole->debug(svOut); }
+	if (!g_bSpdLog_UseAnsiClr)
+	{
+		wconsole->debug(svOut);
+#ifdef DEDICATED
+		g_pRConServer->Send(svOut.c_str());
+#endif // DEDICATED
+	}
 	else
 	{
 		svAnsiOut = sANSI_DLL_T[(int)idx].c_str();
 		svAnsiOut.append(szBuf);
 		wconsole->debug(svAnsiOut);
+#ifdef DEDICATED
+		g_pRConServer->Send(svAnsiOut.c_str());
+#endif // DEDICATED
 	}
 
 	sqlogger->debug(svOut);

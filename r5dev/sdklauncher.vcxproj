@@ -84,7 +84,7 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);</IncludePath>
     <LibraryPath>$(SolutionDir)r5dev\thirdparty\detours\libs;$(LibraryPath);</LibraryPath>
-    <TargetName>r5reloaded</TargetName>
+    <TargetName>launcher</TargetName>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
@@ -92,7 +92,7 @@
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);</IncludePath>
     <LibraryPath>$(SolutionDir)r5dev\thirdparty\detours\libs;$(LibraryPath);</LibraryPath>
-    <TargetName>r5reloaded</TargetName>
+    <TargetName>launcher</TargetName>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>

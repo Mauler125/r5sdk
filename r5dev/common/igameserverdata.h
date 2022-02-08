@@ -5,6 +5,8 @@
 //===========================================================================//
 #pragma once
 
+typedef int SocketHandle_t;
+
 enum class ServerDataRequestType_t : int
 {
 	SERVERDATA_REQUESTVALUE = 0,
@@ -29,6 +31,26 @@ enum class ServerDataResponseType_t : int
 	SERVERDATA_CONSOLE_LOG_RESPONSE,
 	SERVERDATA_RESPONSE_STRING,
 	SERVERDATA_RESPONSE_REMOTEBUG,
+};
+
+class CConnectedNetConsoleData
+{
+public:
+	SocketHandle_t m_hSocket                               {};
+	int  m_nCharsInCommandBuffer                           {};
+	char m_pszInputCommandBuffer[MAX_NETCONSOLE_INPUT_LEN] {};
+	bool m_bAuthorized                                     {}; // Set to true after netconsole successfully authed.
+	bool m_bInputOnly                                      {}; // If set, don't send spew to this net console.
+	int  m_nFailedAttempts                                 {}; // Num failed authentication attempts.
+	int  m_nIgnoredMessage                                 {}; // Count how many times client ignored the no-auth message.
+
+	CConnectedNetConsoleData(SocketHandle_t hSocket = -1)
+	{
+		m_nCharsInCommandBuffer = 0;
+		m_bAuthorized           = false;
+		m_hSocket               = hSocket;
+		m_bInputOnly            = false;
+	}
 };
 
 /* PACKET FORMAT **********************************

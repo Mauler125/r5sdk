@@ -12,6 +12,9 @@
 #include "engine/sys_utils.h"
 #include "engine/net_chan.h"
 #include "engine/baseclient.h"
+#ifdef DEDICATED
+#include "engine/sv_rcon.h"
+#endif // DEDICATED
 #include "server/IVEngineServer.h"
 
 #ifndef DEDICATED
