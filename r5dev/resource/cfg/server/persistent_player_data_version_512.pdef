@@ -1,0 +1,619 @@
+$SCRIPT_VERSION 202003300
+//#########################
+
+bool isACheater
+bool showGameSummary
+bool trainingCompleted
+
+int initializedVersion
+int announcementVersionSeen
+int promoVersionSeen
+
+int tutorialActionCount[100]
+
+int lastGameRank
+int lastGamePlayers
+int lastGameSquads
+int lastAbandonTime
+
+//#########################
+// GRX DATA
+//#########################
+
+int lastSeenPremiumCurrency
+
+int xp
+int previousXP
+int credits
+int xp_match[20]
+int xp_count[20]
+int gen
+int netWorth
+
+//#########################
+// STK DATA
+//#########################
+
+$ENUM_START eSeasonFlavor
+	SAID01769158912
+	SAID01774506873
+	SAID00724938940
+	SAID01092263930
+$ENUM_END
+
+$ENUM_START eBattlePass
+	SAID00093464144
+	SAID00423770662
+	SAID00681462556
+	SAID00784324919
+	SAID01440294075
+	SAID01727937125
+	SAID01838736969
+	SAID01914132855
+$ENUM_END
+
+$ENUM_START eMapZones
+	can_relay
+	can_wetlands
+	can_swamps
+	can_hydrodam
+	can_repulsor
+	can_cage
+	can_artillery
+	can_containment
+	can_watertreatment
+	can_slumlakes
+	can_pit
+	can_runoff
+	can_airbase
+	can_skulltown
+	can_market
+	can_thunderdome
+	can_bunker
+	can_bridges
+	can_cascades
+	can_octanett
+	des_wastelands
+	des_uncharted
+	des_snipe
+	des_blood
+	des_drill_site
+	des_cap_city
+	des_tunnel_z2
+	des_lost
+	des_buried_refinery
+	des_ground_zero
+	des_lava_fissure
+	des_pass
+	des_trainyard
+	des_harvester
+	des_fragment_west
+	des_fragment_east
+	des_survey
+	des_tunnel_z5
+	des_new_springfield
+	des_snow_field
+	des_tunnel_z7
+	des_hot_spring
+	des_end
+	des_fuel
+	des_ridge_line
+	des_bridge
+	des_out
+	des_research_station_bravo
+	des_tunnel_z10
+	des_thermal_station
+	des_research_station_alpha
+	des_refinery
+	des_lava_city
+	des_volcanic
+	des_mt
+$ENUM_END
+
+$ENUM_START eRankedPeriodFlavor
+	SAID00747315762
+	SAID00091805734
+	SAID00609587000
+$ENUM_END
+
+//BEGIN_AUTOGEN/////////////////////////////
+////////////////////////////////////////////
+//// AUTO-GENERATED SECTION             ////
+//// Manual changes will be lost.       ////
+////////////////////////////////////////////
+////////////////////////////////////////////
+
+// All the character item flavors from Bakery that are registered in the game.
+$ENUM_START eCharacterFlavor
+	SAID00725342087
+	SAID00898565421
+	SAID01111853120
+	SAID00182221730
+	SAID01409694078
+	SAID02045656322
+	SAID00843405508
+	SAID01464849662
+	SAID00827049897
+	SAID00187386164
+	SAID00080232848
+$ENUM_END
+
+// All the weapon item flavors from Bakery that are registered in the game.
+$ENUM_START eWeaponFlavor
+	SAID01475792313
+	SAID00686444189
+	SAID00352110003
+	SAID00908539842
+	SAID01928357643
+	SAID01870377113
+	SAID00909655776
+	SAID01082669812
+	SAID01920744447
+	SAID00418361060
+	SAID00945439943
+	SAID01496005473
+	SAID01388774763
+	SAID00080404303
+	SAID00048783537
+	SAID00970511567
+	SAID01363034817
+	SAID01603172346
+	SAID02091853053
+	SAID01820095990
+	SAID00194888968
+	SAID00107352658
+$ENUM_END
+
+// All the weapon stats categories.
+$ENUM_START eWeaponStatCategory
+	smg
+	pistol
+	lmg
+	sniper
+	shotgun
+	ar
+	crate_unique
+$ENUM_END
+
+// All non-character-specific loadout fields registered by script-func RegisterLoadoutSlot.
+$STRUCT_START sLoadoutsData
+	int character_selection
+	int skydive_trail
+	int weapon_skin_for_SAID01475792313
+	int weapon_charm_for_SAID01475792313
+	int weapon_skin_for_SAID00686444189
+	int weapon_charm_for_SAID00686444189
+	int weapon_skin_for_SAID00352110003
+	int weapon_charm_for_SAID00352110003
+	int weapon_skin_for_SAID00908539842
+	int weapon_charm_for_SAID00908539842
+	int weapon_skin_for_SAID01928357643
+	int weapon_charm_for_SAID01928357643
+	int weapon_skin_for_SAID01870377113
+	int weapon_charm_for_SAID01870377113
+	int weapon_skin_for_SAID00909655776
+	int weapon_charm_for_SAID00909655776
+	int weapon_skin_for_SAID01082669812
+	int weapon_charm_for_SAID01082669812
+	int weapon_skin_for_SAID01920744447
+	int weapon_charm_for_SAID01920744447
+	int weapon_skin_for_SAID00418361060
+	int weapon_charm_for_SAID00418361060
+	int weapon_skin_for_SAID00945439943
+	int weapon_charm_for_SAID00945439943
+	int weapon_skin_for_SAID01496005473
+	int weapon_charm_for_SAID01496005473
+	int weapon_skin_for_SAID01388774763
+	int weapon_charm_for_SAID01388774763
+	int weapon_skin_for_SAID00080404303
+	int weapon_charm_for_SAID00080404303
+	int weapon_skin_for_SAID00048783537
+	int weapon_charm_for_SAID00048783537
+	int weapon_skin_for_SAID00970511567
+	int weapon_charm_for_SAID00970511567
+	int weapon_skin_for_SAID01363034817
+	int weapon_charm_for_SAID01363034817
+	int weapon_skin_for_SAID01603172346
+	int weapon_charm_for_SAID01603172346
+	int weapon_skin_for_SAID02091853053
+	int weapon_charm_for_SAID02091853053
+	int weapon_skin_for_SAID01820095990
+	int weapon_charm_for_SAID01820095990
+	int weapon_skin_for_SAID00194888968
+	int weapon_charm_for_SAID00194888968
+	int weapon_skin_for_SAID00107352658
+	int weapon_charm_for_SAID00107352658
+	int loadscreen_selection
+	int music_pack_selection
+$STRUCT_END
+
+// All character-specific loadout fields registered by script-func RegisterLoadoutSlot.
+$STRUCT_START sCharacterLoadoutsData
+	int skin
+	int execution
+	int intro_quip
+	int kill_quip
+	int quips_0
+	int quips_1
+	int quips_2
+	int quips_3
+	int quips_4
+	int quips_5
+	int quips_6
+	int quips_7
+	int skydive_emote_0
+	int skydive_emote_1
+	int skydive_emote_2
+	int skydive_emote_3
+	int skydive_emote_4
+	int skydive_emote_5
+	int skydive_emote_6
+	int skydive_emote_7
+	int gcard_frame
+	int gcard_stance
+	int gcard_badge_0
+	int gcard_badge_0_tier
+	int gcard_badge_1
+	int gcard_badge_1_tier
+	int gcard_badge_2
+	int gcard_badge_2_tier
+	int gcard_tracker_0
+	int gcard_tracker_0_value
+	int gcard_tracker_1
+	int gcard_tracker_1_value
+	int gcard_tracker_2
+	int gcard_tracker_2_value
+	int meleeskin
+$STRUCT_END
+
+// 
+$STRUCT_START sStatEnumStruct_weapons
+	int kills
+	int dooms
+	int solo_dooms
+	int damage_done
+	int shots
+	int hits
+	int headshots
+$STRUCT_END
+
+// 
+$STRUCT_START sStatEnumStruct_characters_weapons
+	int kills
+	int dooms
+	int solo_dooms
+	int damage_done
+	int shots
+	int hits
+	int headshots
+$STRUCT_END
+
+// 
+$STRUCT_START sStatEnumStruct_characters_weaponcategories
+$STRUCT_END
+
+// 
+$STRUCT_START sStatEnumStruct_characters
+	sStatEnumStruct_characters_weapons weapons[eWeaponFlavor]
+	sStatEnumStruct_characters_weaponcategories weaponcategories[eWeaponStatCategory]
+	int kills
+	int dooms
+	int solo_dooms
+	int deaths
+	int winning_kills
+	int kills_while_killleader
+	int damage_done
+	int character_damage_done_max_single_game
+	int shots
+	int hits
+	int headshots
+	int executions
+	int revived_ally
+	int games_played
+	
+	int season02_event01_character_solo_wins
+	int season02_event01_num_characters_with_solo_win
+	int season02_event02_character_wins
+	int season02_event02_num_characters_with_win
+	int games_with_5_kills
+	int games_with_20_kills
+	int character_games_with_respawning_both_teammates
+	int character_rapid_eliminations
+	int most_squad_squad_kills_in_1_game
+	int placements_win
+	int placements_win_with_squad_alive
+	int placements_top_3
+	int character_placements_win_as_jumpmaster
+	int character_placements_win_as_killleader
+	int character_placements_win_as_killleader_and_champion
+	int character_placements_win_flawless_1
+	int character_placements_win_flawless_2
+	int character_placements_win_with_5_headshots
+	bool character_won_last_game
+	int character_hot_streaks
+	int character_reinforcement_recalls
+	bool character_banner_once_filled
+	int neutral_airdrops_looted
+	int character_elite_game_wins
+	int character_elite_game_8kill_wins
+$STRUCT_END
+
+// 
+$STRUCT_START sStatEnumStruct_weaponcategories
+$STRUCT_END
+
+// 
+$STRUCT_START sStatEnumStruct_seasons_characters
+	int damage_done
+	int kills
+	int placements_win
+	int placements_top_5
+	int battlepass_bonus_xp
+	int character_damage_done_max_single_game
+	int elite_game_wins
+	int elite_games_played
+	int elite_kills
+$STRUCT_END
+
+// 
+$STRUCT_START sStatEnumStruct_seasons
+	sStatEnumStruct_seasons_characters characters[eCharacterFlavor]
+	int battlepass_level
+	int kills_with_7_characters
+	int placements_wins_with_7_characters
+	int placements_top_5_with_7_characters
+	int battlepass_bonus_xp_with_7_characters
+	int games_played
+	int placements_win
+	int damage_done
+	int kills
+	int deaths
+	int dooms
+	int solo_dooms
+	int team_work_kill_count
+	int revived_ally
+	int times_respawned_ally
+	int assists
+	int kills_max_single_game
+	int win_streak_longest
+	int win_streak_current
+	int elite_current_streak
+	int elite_max_streak
+$STRUCT_END
+
+// 
+$STRUCT_START sStatEnumStruct_zones
+	int kills
+	int damage_done
+	int dooms
+	int solo_dooms
+	int executions
+	int landings
+	int loot_bins_opened
+$STRUCT_END
+
+// 
+$STRUCT_START sStatEnumStruct_rankedperiods_characters
+	int character_damage_done_max_single_game
+$STRUCT_END
+
+// 
+$STRUCT_START sStatEnumStruct_rankedperiods
+	sStatEnumStruct_rankedperiods_characters characters[eCharacterFlavor]
+	int games_played
+	int placements_win
+	int placements_top_5
+	int damage_done
+	int kills
+	int deaths
+	int dooms
+	int solo_dooms
+	int thanks
+	int revived_ally
+	int times_respawned_ally
+	int assists
+	int kills_max_single_game
+	int win_streak_longest
+	int win_streak_current
+	int current_rank_score
+$STRUCT_END
+
+// All registered player game stats to save.
+$STRUCT_START sStatsData
+	sStatEnumStruct_weapons weapons[eWeaponFlavor]
+	sStatEnumStruct_characters characters[eCharacterFlavor]
+	sStatEnumStruct_weaponcategories weaponcategories[eWeaponStatCategory]
+	sStatEnumStruct_seasons seasons[eSeasonFlavor]
+	sStatEnumStruct_zones zones[eMapZones]
+	sStatEnumStruct_rankedperiods rankedperiods[eRankedPeriodFlavor]
+	int total_legendary_items
+	int num_characters_with_banners_once_filled
+	int fashionista
+	int weapons_with_legendary_skin
+	int well_rounded
+	int looted_all_launch_loot_once
+	int master_of_all
+	int respawn_dev
+	int times_fully_kitted
+	int distance_kill
+	int times_jumpmaster
+	int times_jumpmaster_post_fix
+	bool looted_all_nongold_weapons_in_1_match
+	int valentines_revives_and_respawns
+	int looted_epic_item
+	int looted_legendary_item
+	int looted_legendary_helmet
+	int looted_legendary_armor
+	int daily_challenges_completed
+	int challenge_xp_earned
+	int dooms
+	int solo_dooms
+	int character_solo_dooms
+	int thanks
+	int kills
+	int assists
+	int times_got_doomed
+	int deaths
+	int times_respawned_ally
+	int winning_kills
+	int win_streak_longest
+	int win_streak_current
+	int kills_while_killleader
+	int kills_max_single_game
+	int damage_done
+	int damage_taken
+	int shots
+	int hits
+	int headshots
+	int executions
+	int revived_ally
+	int games_played
+	int placements_win
+	int placements_win_with_squad_alive
+	int placements_top_3
+	int placements_top_5
+	int placements_win_with_friends
+	int placements_win_with_no_witnessess
+	int placements_win_with_min_executions_per_person
+	int max_placement_win_streak_with_premade_squad
+	int team_work_kill_count
+	int neutral_airdrops_looted
+	int bloodhound_tactical_enemies_detected
+	int bloodhound_tactical_traps_detected
+	int bloodhound_ultimate_kills_while_active
+	int crypto_passive_enemies_scanned
+	int caustic_tactical_barrels_traps_detonated
+	int caustic_gas_damage_dealt
+	int caustic_passive_enemies_in_gas_killed
+	int gibraltar_tactical_bubble_enemy_damage_absorbed
+	int crypto_ultimate_shield_damage
+	int crypto_ultimate_traps_destroyed
+	int gibraltar_ultimate_bombardment_kills
+	int gibraltar_passive_gunshield_enemy_damage_absorbed
+	int lifeline_tactical_drone_healing_given
+	int lifeline_ultimate_droppod_items_grabbed_by_allies
+	int lifeline_passive_enemy_damage_absorbed
+	int mirage_decoys_created
+	int mirage_successful_bamboozles
+	int mirage_successful_revives
+	float octane_stim_distance_traveled
+	int octane_jump_pad_allies_launched
+	int octane_passive_health_regenerated
+	float pathfinder_tactical_meters_moved_by_grapple
+	int pathfinder_ultimate_ziplines_used_by_allies
+	int pathfinder_passive_beacons_scanned
+	int wattson_breaches_detected
+	int wattson_friendly_shields_charged
+	int wattson_enemy_ordnance_intercepted
+	int wraith_ultimate_phase_tunnel_ally_uses
+	int wraith_passive_voices_heard
+	float wraith_tactical_time_spent_in_phase
+	int bangalore_passive_distance
+	int bangalore_tactical_smoke_hits
+	int bangalore_ultimate_damage_done
+	int elite_badge_unlock
+	int loot_bins_opened
+	int opponents_outlived
+	int season01_event_placements_top_5
+	int season01_event_elite_placements_top_5
+	int season01_event_placements_win
+	int season01_event_bp_premium_lvl
+	int octanett_ringoffire_times_traversed_with_armor
+	int season02_event01_top5s_badge
+	int shotguns_and_snipers_plays
+	int shotguns_and_snipers_wins
+	int s03e01_badge
+	int s03e01_ltm_placements_win_legend
+	int s03e01_ltm_placements_win_shadow
+	int s03e01_ltm_win_as_both_kinds
+	int s03e01_ltm_shadows_killed
+	int s03e01_ltm_legends_killed
+	int s03e01_ltm_kill_lootbin_creatures
+	int s03e02_badge
+	int s03_duos_badge_play
+	int s03_duos_badge_win
+	int s03_duos_tiers_earned
+$STRUCT_END
+
+// 
+//::::LOADOUTS::::
+	sLoadoutsData loadouts
+//::::LOADOUTS::::
+
+// 
+//::::CHARACTER LOADOUTS::::
+	sCharacterLoadoutsData character_loadouts[eCharacterFlavor]
+//::::CHARACTER LOADOUTS::::
+
+// 
+//::::ITEM STATE::::
+	int newItemFlavorSparseList[60]
+//::::ITEM STATE::::
+
+// 
+//::::STATS::::
+	sStatsData stats
+//::::STATS::::
+
+////////////////////////////////////////////
+//END_AUTOGEN///////////////////////////////
+
+$STRUCT_START sRankedData
+	int currentRank
+	bool isPlayingRanked
+	int currentRankedScore
+	bool lastGameRankedForgiveness
+	bool lastGameAbandonForgiveness
+	int numUsedForgivenessAbandons
+$STRUCT_END
+
+sRankedData ranked
+sRankedData offSeasonRankedData
+sRankedData allRankedData[eRankedPeriodFlavor]
+
+$STRUCT_START sChallengeData
+	int currentTier
+	int guid
+	int statMarker
+$STRUCT_END
+
+sChallengeData challenges[142]
+
+$STRUCT_START trackedSquadStats
+	string{32} playerName
+	int eHandle
+	eCharacterFlavor character
+	int survivalTime
+	int kills
+	int assists
+	int knockdowns
+	int damageDealt
+	int revivesGiven
+	int respawnsGiven
+	int unused
+	string{21} platformUid
+	string{21} nucleusId
+	int hardwareID
+$STRUCT_END
+
+trackedSquadStats lastGameSquadStats[4]
+
+bool respawnKillInfected
+
+$STRUCT_START sBattlePassData
+	int cachedPurchasedXP
+	int challengeRerollsUsed
+	int characterXP[eCharacterFlavor]
+	int xp_match[20]
+	int xp_count[20]
+	int earnedXP
+	int lastPopupLevel
+	int lastSeenEarnedXP
+	bool lastSeenPremiumState
+	int lastSeenPurchasedXP
+	int previousEarnedXP
+$STRUCT_END
+
+sBattlePassData battlePasses[eBattlePass]
+
+string{32} lastPlaylist
