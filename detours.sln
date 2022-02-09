@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31808.319
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "r5dev", "r5dev\r5dev.vcxproj", "{28CC6B4F-7A95-4933-ADA9-65E38D48516D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gamesdk", "r5dev\gamesdk.vcxproj", "{28CC6B4F-7A95-4933-ADA9-65E38D48516D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sdklauncher", "r5dev\sdklauncher.vcxproj", "{18F8C75E-3844-4AA6-AB93-980A08253519}"
 EndProject

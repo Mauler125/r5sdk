@@ -459,7 +459,7 @@
     <ProjectGuid>{28cc6b4f-7a95-4933-ada9-65e38d48516d}</ProjectGuid>
     <RootNamespace>r5dev</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>r5dev</ProjectName>
+    <ProjectName>gamesdk</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
