@@ -1,0 +1,727 @@
+﻿playlists
+{
+	version stable
+	versionNum 214
+	Gamemodes
+	{
+		defaults
+		{
+			vars
+			{
+				///////////////////////////////////////////////////////////////////////////////////
+				//// Code Required Vars
+				///////////////////////////////////////////////////////////////////////////////////
+				max_players                                    60
+				max_teams                                      20
+
+				bsp_build_warnings_off                         0
+				cmdlineMapLoad                                 1
+
+				faq_community_count                            1
+				faq_community_url_00                           ""
+				faq_community_version                          0
+				faq_patchnotes_count                           1
+				faq_patchnotes_version                         0
+
+				idleKickTime_minutes                           0
+				mixtape_onboarding                             "survival"
+				observer_mode_check_same_team                  1
+				hover_tank_revive_fix                          1
+				player_freefall_job_enable                     1
+
+				enable_report                                  2
+				enable_three_weapons                           0
+				charselect_intro_countdown_duration            5
+				wait_for_players_forever                       0
+
+
+				///////////////////////////////////////////////////////////////////////////////////
+				//// Script Required Vars
+				///////////////////////////////////////////////////////////////////////////////////
+				canyonlands_hovertanks_circle_index            1
+
+				loot_main_weapon_energy_ar_edition             20
+				loot_main_weapon_lstar_edition                 30
+
+				waiting_for_players_countdown_seconds          5
+				waiting_for_players_min_wait                   0
+				waiting_for_players_timeout_seconds            60
+				waiting_for_players_has_black_screen           1
+				survival_enable_gladiator_intros               0
+				character_select_time_max                      6
+				character_select_time_min                      6
+
+
+				///////////////////////////////////////////////////////////////////////////////////
+				//// Character Configurations
+				///////////////////////////////////////////////////////////////////////////////////
+				character_dummie                               hide
+				//character_wattson                              lock
+				//character_crypto                               lock
+				//character_random                               lock
+				//============= Hide from Normal Use ============//
+
+
+				///////////////////////////////////////////////////////////////////////////////////
+				//// Character Damage Balances
+				///////////////////////////////////////////////////////////////////////////////////
+				leg_hitbox_override_character_wraith           "20 21"
+				leg_hitbox_override_character_lifeline         "20 21"
+				leg_hitbox_override_character_wattson          "20 21"
+				leg_hitbox_override_character_pathfinder       "16 26 25 12"
+
+
+				///////////////////////////////////////////////////////////////////////////////////
+				//// Deathfield
+				///////////////////////////////////////////////////////////////////////////////////
+				deathfield_damagePercent_0                     0.02
+				deathfield_damagePercent_1                     0.10
+				deathfield_damagePercent_2                     0.15
+				deathfield_damagePercent_3                     0.20
+				deathfield_damagePercent_4                     0.20
+				deathfield_damagePercent_5                     0.25
+				deathfield_damagePercent_6                     0.25
+				deathfield_damagePercent_7                     0.25
+				deathfield_preShrinkDuration_0                 180
+				deathfield_preShrinkDuration_1                 145
+				deathfield_preShrinkDuration_2                 135
+				deathfield_preShrinkDuration_3                 120
+				deathfield_preShrinkDuration_4                 90
+				deathfield_preShrinkDuration_5                 60
+				deathfield_preShrinkDuration_6                 20
+				deathfield_preShrinkDuration_7                 20
+				deathfield_radius_0                            22000
+				deathfield_radius_1                            13000
+				deathfield_radius_2                            8000
+				deathfield_radius_3                            4000
+				deathfield_radius_4                            1500
+				deathfield_radius_5                            750
+				deathfield_radius_6                            100
+				deathfield_radius_7                            1
+				deathfield_shrinkSpeed_0                       160
+				deathfield_shrinkSpeed_1                       130
+				deathfield_shrinkSpeed_2                       120
+				deathfield_shrinkSpeed_3                       100
+				deathfield_shrinkSpeed_4                       80
+				deathfield_shrinkSpeed_5                       80
+				deathfield_shrinkSpeed_6                       100
+				deathfield_shrinkSpeed_7                       100
+
+
+				///////////////////////////////////////////////////////////////////////////////////
+				//// Airdrops
+				///////////////////////////////////////////////////////////////////////////////////
+				//"type:dropCount:preWait:contentsLeft:contentsRight:contentsCenter"
+				// contents can be expanded with: "contentsL1,contentsL2,contentsL3 ...:contentsR1:contentsC1" using "," as a delimiter
+				// multiple airdrops can be added per round using " " as a delimiter
+				//=====================================================================================================================
+				airdrop_data_round_0                           "2:30:care_package_1_L:care_package_1_R:care_package_1_C"
+				airdrop_data_round_1                           "1:15:care_package_2_L:care_package_2_R:care_package_2_C"
+				airdrop_data_round_2                           "1:0:care_package_3_L:care_package_3_R:care_package_3_C"
+
+
+				///////////////////////////////////////////////////////////////////////////////////
+				//// MTX and Progression
+				///////////////////////////////////////////////////////////////////////////////////
+				xp_first_game_amount                           0
+				xp_champion_amount                             500
+				xp_damage_dealt_amount                         0.25
+				xp_friend_amount                               3.0
+				xp_friend_frac                                 0.05
+				xp_kill_amount                                 50
+				xp_kill_champion_amount                        500
+				xp_kill_leader_amount                          50
+				xp_loot_master_amount                          50
+				xp_respawn_ally_amount                         200
+				xp_revive_ally_amount                          25
+				xp_survival_duration_amount                    3.0
+				xp_top_five_amount                             300
+				xp_win_match_amount                            900
+				xp_first_kill_amount                           500
+				xp_challenge_completed_amount                  1
+
+				grx_currency_bundle_crafting_common_count      15
+				grx_currency_bundle_crafting_epic_count        200
+				grx_currency_bundle_crafting_legendary_count   600
+				grx_currency_bundle_crafting_rare_count        30
+
+
+				///////////////////////////////////////////////////////////////////////////////////
+				//// Dialogs
+				///////////////////////////////////////////////////////////////////////////////////
+				generic_dialog_header_30                       "#MATCHMAKING_PENALTY_ACTIVE"
+				generic_dialog_message_31                      "#MATCHMAKING_PENALTY_1"
+				generic_dialog_message_32                      "#MATCHMAKING_PENALTY_2"
+				generic_dialog_message_33                      "#MATCHMAKING_PENALTY_3"
+				generic_dialog_message_34                      "#MATCHMAKING_PENALTY_4"
+				generic_dialog_message_35                      "#MATCHMAKING_PENALTY_5"
+				generic_dialog_message_36                      "#MATCHMAKING_PENALTY_GE_5"
+
+
+				///////////////////////////////////////////////////////////////////////////////////
+				//// Hovertanks
+				///////////////////////////////////////////////////////////////////////////////////
+				hovertanks_count_intro                         1
+				hovertanks_count_mid                           1
+				hovertanks_chance_intro                        1.00
+				hovertanks_chance_mid                          0.33
+
+
+				///////////////////////////////////////////////////////////////////////////////////
+				//// Gamemodes
+				///////////////////////////////////////////////////////////////////////////////////
+				mode_fall_ltm                                  0
+
+
+				///////////////////////////////////////////////////////////////////////////////////
+				//// Events
+				///////////////////////////////////////////////////////////////////////////////////
+				valentines_event                               0
+				halloween_event                                0
+
+				///////////////////////////////////////////////////////////////////////////////////
+				//// Aim Assist
+				///////////////////////////////////////////////////////////////////////////////////
+				aimassist_adspull_disabled                     1
+				aimassist_magnet_pc                            0.40
+				aimassist_magnet                               0.55
+
+
+				///////////////////////////////////////////////////////////////////////////////////
+				//// Battlepass
+				///////////////////////////////////////////////////////////////////////////////////
+				//battlepass_character_max_xp                    25000
+				//battlepass_character_max_weekly_xp             25000
+
+
+				///////////////////////////////////////////////////////////////////////////////////
+				//// Misc Configuration
+				///////////////////////////////////////////////////////////////////////////////////
+				timelimit                                      30
+				enable_grx                                     1
+				enable_battlepass                              1
+				enable_wraith_alert_effect                     1
+				disable_hud_score_display                      0
+				ranked_in_match_check_party                    0
+				ranked_in_match_check_party_force_team         0
+				quick_melee_enabled                            1
+				require_training                               0
+				octane_preview                                 0
+				player_revive_enabled                          1
+				match_ending_enabled                           1
+				battlechatter_enabled                          1
+				survival_shields                               1
+				survival_jumpkit_enabled                       1
+				survival_wallrun_enabled                       1
+
+				///////////////////////////////////////////////////////////////////////////////////
+				//// Player Reporting
+				///////////////////////////////////////////////////////////////////////////////////
+				report_player_reason_pc_friendly_count         4
+				report_player_reason_pc_friendly_1             "#REPORT_PLAYER_REASON_LOS"
+				report_player_reason_pc_friendly_2             "#REPORT_PLAYER_REASON_AIMSNAP"
+				report_player_reason_pc_friendly_3             "#REPORT_PLAYER_REASON_WEIRDMOVING"
+				report_player_reason_pc_friendly_4             "#REPORT_PLAYER_REASON_AMMOORRECOIL"
+
+				report_player_reason_pc_enemy_count            4
+				report_player_reason_pc_enemy_1                "#REPORT_PLAYER_REASON_LOS"
+				report_player_reason_pc_enemy_2                "#REPORT_PLAYER_REASON_AIMSNAP"
+				report_player_reason_pc_enemy_3                "#REPORT_PLAYER_REASON_WEIRDMOVING"
+				report_player_reason_pc_enemy_4                "#REPORT_PLAYER_REASON_AMMOORRECOIL"
+
+				report_player_reason_console_friendly_count    5
+				report_player_reason_console_friendly_1        "#REPORT_PLAYER_REASON_OFFENSIVE"
+				report_player_reason_console_friendly_2        "#REPORT_PLAYER_REASON_SPAWN"
+				report_player_reason_console_friendly_3        "#REPORT_PLAYER_REASON_HARRASMENT"
+				report_player_reason_console_friendly_4        "#REPORT_PLAYER_REASON_HATE"
+				report_player_reason_console_friendly_5        "#REPORT_PLAYER_REASON_SUICIDE"
+
+				report_player_reason_console_enemy_count       4
+				report_player_reason_console_enemy_1           "#REPORT_PLAYER_REASON_LOS"
+				report_player_reason_console_enemy_2           "#REPORT_PLAYER_REASON_AIMSNAP"
+				report_player_reason_console_enemy_3           "#REPORT_PLAYER_REASON_WEIRDMOVING"
+				report_player_reason_console_enemy_4           "#REPORT_PLAYER_REASON_AMMOORRECOIL"
+
+
+				///////////////////////////////////////////////////////////////////////////////////
+				//// Unknown
+				///////////////////////////////////////////////////////////////////////////////////
+				color "254 184 0 255"
+
+
+				///////////////////////////////////////////////////////////////////////////////////
+				//// Season start/end datetimes (don't delete these)
+				///////////////////////////////////////////////////////////////////////////////////
+				season03_reveal_unixtime                       1626656230
+				season03_start_unixtime                        1626656230
+				season03_finish_unixtime                       1637272618
+				season03_hide_unixtime                         1637272618
+
+
+				///////////////////////////////////////////////////////////////////////////////////
+				//// Dev Playlist Vars
+				///////////////////////////////////////////////////////////////////////////////////
+				gamemode_select_v2_enable                      1 // Enable gamemode select version 2 over 1
+				beta_watermark                                 1 // Enable Beta Watermark
+				survival_quick_chat_enabled                    1 // Quips
+				desertlands_script_train_enable                1 // World's Edge Train
+				thirdperson_match                              0 // Third Person Mode
+				enable_nessies                                 1 // Kings Canyon Easter Egg
+
+				///////////////////////////////////////////////////////////////////////////////////
+				///////////////////////////////////////////////////////////////////////////////////
+			}
+			maps
+			{
+			}
+		}
+
+		survival
+		{
+			inherit defaults
+		}
+		
+		custom_tdm 
+		{
+			inherit defaults
+		}
+	}
+
+// START OF MP GAMEMODES LINE --------------------------------------------------
+
+	Playlists
+	{
+		survival_staging_baseline
+		{
+			inherit survival
+			vars
+			{
+				max_teams                                      20
+				max_players                                    20
+				min_players                                    1
+				num_squads_in_staging                          1
+				waiting_for_players_spawning_enabled           1
+				jump_from_plane_enabled                        0
+				wait_for_players_forever                       1
+				scorebar_hide_squads_remaining                 1
+				scorebar_hide_waiting_for_players              1
+				airdrop_enabled                                0
+				num_static_loot_ticks_to_spawn                 0
+				loot_preprocessing_should_be_skipped           1
+
+				charge_pylons_raise_time_override              15 //Shorter time in training
+
+				survival_staging_area_enabled                  1
+
+				make_room_for_new_players                      1
+
+				//Reconnect is disabled in firing range!
+				reconnect_disabled                             1
+			}
+			gamemodes { survival { maps {
+				mp_rr_canyonlands_staging                      1
+			} } }
+		}
+
+		survival_training
+		{
+			inherit survival_firingrange
+			vars
+			{
+				visible                                        1
+				ui_slot                                        training
+				video                                          _temp
+				name                                           #PL_TRAINING
+				description                                    #PL_TRAINING_DESC
+				image                                          training
+
+				//
+				survival_training                              1
+				survival_firingrange                           0
+				pin_match_type                                 training
+			}
+		}
+
+		survival_firingrange
+		{
+			inherit survival_staging_baseline
+			vars
+			{
+				visible                                        1
+				ui_slot                                        firing_range
+				image                                          firing_range
+				name                                           #PL_FIRINGRANGE
+				description                                    #PL_FIRINGRANGE_DESC
+				video                                          _temp
+
+				// match teams will not fill with more than one party, up to max_teams of size max_team_size (or less) -- not exceeding max_players
+				visible                                        1
+
+				// Skip intros:
+				waiting_for_players_spawning_enabled           1
+				waiting_for_players_countdown_seconds          0
+				waiting_for_players_timeout_seconds            1
+				character_select_time_max                      0.0
+				character_select_time_min                      0.0
+				survival_enable_gladiator_intros               0
+				jump_from_plane_enabled                        0
+
+				// No circle:
+				sur_circle_start_paused                        1
+
+				// Can change loadouts:
+				dev_loadout_changeable_at_any_time             1
+				sur_dev_unrestricted_character_changes         1
+				character_reselect_enabled                     1
+				charselect_enabled                             1
+
+				// Bots:
+				sur_bots_spawn_with_random_weapons             1
+				
+				//General Gamemode Settings
+				match_ending_enabled                           0
+				max_teams                                      1
+				max_players                                    3
+				min_players                                    1
+				
+				// Firing Range:
+				survival_firingrange                           1
+				staging_ultimates_enabled                      1
+				survival_staging_area_enabled                  0
+				//survival_infinite_ammo                       1
+				
+				pin_match_type                                 firing_range
+			}
+		}
+
+		///////////////////////////////////
+		///////////   SURVIVAL  ///////////
+		///////////////////////////////////
+
+		survival
+		{
+			inherit defaults
+			vars
+			{
+				visible                                        0
+				battlechatter_enabled                          1
+				name                                           #PL_PLAY_APEX
+				description                                    #PL_SURVIVAL_SQUADS_DESC
+				abbreviation                                   #PL_PLAY_APEX
+
+				pin_match_type                                 survival
+				enable_nessies                                 1
+				max_teams                                      20
+				max_players                                    60
+				min_players                                    60
+				survival_shields                               1
+				is_ranked_game                                 0
+				player_revive_enabled                          1
+				enable_apex_screens                            1
+				skydive_ziplines_enabled                       1
+			}
+			gamemodes { survival { maps {
+				mp_rr_desertlands_64k_x_64k                    1
+				mp_rr_desertlands_64k_x_64k_nx                 1
+				mp_rr_canyonlands_64k_x_64k                    1
+				mp_rr_canyonlands_mu1                          1
+				mp_rr_canyonlands_mu1_night                    1
+				mp_rr_canyonlands_staging                      1
+			} } }
+		}
+
+		///////////////////////////////////
+		/////////// CANYONLANDS ///////////
+		///////////////////////////////////
+
+		defaults
+		{
+			vars
+			{
+			}
+		}
+
+		ranked
+		{
+			inherit defaults
+			vars
+			{
+				panel_image                                    panel_worlds_edge
+				visible                                        1
+				battlechatter_enabled                          1
+				name                                           #PL_Ranked_Leagues
+				description                                    #PL_survival_ranked_desc
+				abbreviation                                   #PL_Ranked_Leagues
+				map_name                                       #MP_RR_DESERTLANDS_64K_X_64K
+				visible_schedule_block_0                       "2021-06-15 10:00:00 -07:00 | 2021-12-03 10:00:00 -07:00"
+				image                                          ranked_2
+				video                                          ranked_2
+				max_teams                                      20
+				max_players                                    60
+				min_players                                    60
+				survival_shields                               1
+				freelance_enabled                              1
+				is_ranked_game                                 1
+				ui_slot                                        regular_2
+				pin_match_type                                 survival
+				player_revive_enabled                          1
+				enable_apex_screens                            1
+				skydive_ziplines_enabled                       1
+			}
+			gamemodes { survival { maps {
+				mp_rr_canyonlands_64k_x_64k                    1
+				mp_rr_canyonlands_mu1                          1
+				mp_rr_desertlands_64k_x_64k                    1
+				mp_rr_desertlands_64k_x_64k_nx                 1
+				mp_rr_canyonlands_mu1_night                    1
+				mp_rr_canyonlands_staging                      1
+			} } }
+		}
+
+		///////////////////////////////////
+		/////////////  LTMs  //////////////
+		///////////////////////////////////
+
+		FallLTM
+		{
+			inherit defaults
+			vars
+			{
+				name                                           #SHADOW_SQUAD_MODE
+				description                                    #SHADOW_SQUAD_MODE_DESC
+				abbreviation                                   #SHADOW_SQUAD_MODE_ABOUT
+				image                                          shadow_squad
+				video                                          shadow_squad
+				visible                                        1
+				show_ltm_about_button                          1
+				max_teams                                      60
+				max_players                                    60
+				min_players                                    60
+				survival_shields                               1
+				freelance_enabled                              1
+				is_ranked_game                                 0
+				//ui_slot                                      ltm
+				mode_fall_ltm                                  1
+				evil_leviathans                                1
+				player_revive_enabled                          0
+				battlechatter_enabled                          1
+				showLTMAboutButton                             1
+				character_select_time_max                      4.0
+				character_select_time_min                      4.0
+			}
+			gamemodes { survival { maps {
+				mp_rr_canyonlands_mu1_night                    1
+				mp_rr_desertlands_64k_x_64k_nx                 1
+			} } }
+		}
+		
+		duos
+		{
+			inherit defaults
+			vars
+			{
+				name                                           #PL_DES_DUO
+				description                                    #PL_DES_DUO_SHORT
+				abbreviation                                   #PL_DES_DUO_LONG
+				image                                          duos
+				video                                          duos
+				sur_bots_spawn_with_random_weapons             1
+				enable_nessies                                 1
+				max_teams                                      30
+				max_players                                    60
+				min_players                                    60
+				survival_shields                               1
+				freelance_enabled                              1
+				visible                                        1
+				is_ranked_game                                 0
+				player_revive_enabled                          1
+				enable_apex_screens                            1
+				showLTMAboutButton                             1
+				//ui_slot                                      ltm
+				
+				character_select_time_max                      6.0
+				character_select_time_min                      6.0
+
+				pin_match_type duo
+			}
+			gamemodes { survival { maps {
+				mp_rr_canyonlands_64k_x_64k                    1
+				mp_rr_canyonlands_mu1                          1
+				mp_rr_desertlands_64k_x_64k                    1
+				mp_rr_desertlands_64k_x_64k_nx                 1
+				mp_rr_canyonlands_mu1_night                    1
+				mp_rr_canyonlands_staging                      1
+			} } }
+		}
+		
+		custom_tdm
+		{
+			inherit defaults
+			vars
+			{
+				//ui_slot                                      regular_2
+				image                                          worlds_edge
+				video                                          worlds_edge
+				panel_image                                    panel_worlds_edge
+				visible                                        1
+				battlechatter_enabled                          1
+				name                                           custom_tdm
+				description                                    "You, against them, in a variety of gamemodes"
+				abbreviation                                   "Team Deathmatch"
+				lobbytitle                                     "Team Deathmatch"
+
+				pin_match_type                                 survival
+				enable_nessies                                 0
+				max_teams                                      2
+				max_players                                    12
+				min_players                                    6
+
+				survival_shields                               1
+				skydive_ziplines_enabled                       0
+				
+				//TDM Settings
+				survival_jumpkit_enabled                       1
+				survival_wallrun_enabled                       1
+				survival_infinite_ammo                         1
+				survival_custom_deploy                         1
+				replay_enabled                                 1
+				replay_delay                                   2
+				default_shield_hp                              75
+				ground_loot_enable                             0
+				lootbin_loot_enable                            0
+
+				//whitelisted_weapon_0                         "mp_weapon_mastiff"
+
+				// Intro Settings:
+				character_select_time_min                      3
+				character_select_time_max                      3
+				charselect_picking_delay_after_all             0
+				survival_enable_squad_intro                    0
+				survival_enable_gladiator_intros               0
+
+				jump_from_plane_enabled                        0
+				match_ending_enabled                           0
+				sur_circle_start_paused                        1
+
+
+			}
+			gamemodes { custom_tdm { maps {
+				mp_rr_canyonlands_64k_x_64k                    1
+				mp_rr_canyonlands_mu1                          1
+				mp_rr_desertlands_64k_x_64k                    1
+				mp_rr_desertlands_64k_x_64k_nx                 1
+				mp_rr_canyonlands_mu1_night                    1
+				mp_rr_canyonlands_staging                      1
+			} } }
+		}
+		
+		custom_tdm_tps
+		{
+			inherit custom_tdm
+			vars
+			{
+				thirdperson_match                              1
+			}
+			gamemodes { custom_tdm { maps {
+				mp_rr_canyonlands_64k_x_64k                    1
+				mp_rr_canyonlands_mu1                          1
+				mp_rr_desertlands_64k_x_64k                    1
+				mp_rr_desertlands_64k_x_64k_nx                 1
+				mp_rr_canyonlands_mu1_night                    1
+				mp_rr_canyonlands_staging                      1
+			} } }
+		}
+		
+		survival_dev
+		{
+			inherit survival
+			vars
+			{
+				// Skip intros:
+				waiting_for_players_spawning_enabled           1
+				waiting_for_players_countdown_seconds          0
+				waiting_for_players_timeout_seconds            1
+				character_select_time_max                      0.0
+				character_select_time_min                      0.0
+				survival_enable_gladiator_intros               0
+				jump_from_plane_enabled                        0
+				// No circle:
+				sur_circle_start_paused                        1
+				// Can change loadouts:
+				dev_loadout_changeable_at_any_time             1
+				sur_dev_unrestricted_character_changes         1
+				// Bots:
+				sur_bots_spawn_with_random_weapons             1
+				match_ending_enabled                           0
+			}
+			gamemodes { survival { maps {
+				mp_rr_canyonlands_64k_x_64k                    1
+				mp_rr_canyonlands_mu1                          1
+				mp_rr_desertlands_64k_x_64k                    1
+				mp_rr_desertlands_64k_x_64k_nx                 1
+				mp_rr_canyonlands_mu1_night                    1
+				mp_rr_canyonlands_staging                      1
+			} } }
+		}
+
+		dev_default
+		{
+			inherit survival_dev
+			vars
+			{
+				// The "cmdlineMapLoad" var here makes this playlist be the default in dev:
+				cmdlineMapLoad                                 1
+				// R5DEV-196963
+				reconnect_disabled                             1
+			}
+			gamemodes { survival { maps {
+				mp_rr_canyonlands_64k_x_64k                    1
+				mp_rr_canyonlands_mu1                          1
+				mp_rr_desertlands_64k_x_64k                    1
+				mp_rr_desertlands_64k_x_64k_nx                 1
+				mp_rr_canyonlands_mu1_night                    1
+				mp_rr_canyonlands_staging                      1
+			} } }
+		}
+		
+		menufall
+		{
+			vars
+			{
+				menu_fall_ltm                                  1
+			}
+
+			gamemodes { survival { maps {
+				mp_lobby                                       1
+			} } }
+		}
+
+// END OF MP GAMEMODES LINE ----------------------------------------------------
+
+		///////////////////////////////////
+		//////////////  DEV  //////////////
+		///////////////////////////////////
+	}
+	"LocalizedStrings"
+	{
+	  "lang"
+		{
+			"Language" "english"
+			"Tokens"
+			{
+				"MP_RR_DESERTLANDS_64K_X_64K_NX" "World's Edge After Dark"
+				"WORLDS_EDGE_NIGHT" "SHADOWFALL WORLD'S EDGE"
+				"WORLDS_EDGE_NIGHT_DESC" "Dead Legends respawn as Shadows.\nSurvive and escape with final 10 Legends."
+				"Kings_Canyon_OG" "Kings Canyon"
+				"KC_MU1" "Kings Canyon Season 2"
+				"KCAD" "Kings Canyon After Dark"
+				"Playtest" "Playtest"
+				"Playtest_Only" "Playtest"
+				"BETA_BUILD_WATERMARK" "R5Reloaded v1.6-beta"
+			}
+		}
+	}
+	"KVFileOverrides"
+	{
+	}
+}
