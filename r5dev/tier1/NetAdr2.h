@@ -48,12 +48,12 @@ public:
 	CNetAdr2(std::string svInAdr, std::string svInPort);
 	~CNetAdr2(void);
 
-	void SetIP(std::string svInAdr);
-	void SetPort(std::string svInPort);
-	void SetIPAndPort(std::string svInAdr, std::string svInPort);
-	void SetType(netadrtype_t version);
+	void SetIP(const std::string& svInAdr);
+	void SetPort(const std::string& svInPort);
+	void SetIPAndPort(const std::string& svInAdr, const std::string& svInPort);
+	void SetType(const netadrtype_t& type);
 	void SetVersion(void);
-	void SetFromSocket(int hSocket);
+	void SetFromSocket(const int& hSocket);
 	bool SetFromSockadr(sockaddr_storage* s);
 
 	std::string GetIP(bool bBaseOnly) const;

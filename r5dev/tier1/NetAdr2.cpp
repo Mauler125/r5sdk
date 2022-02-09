@@ -88,7 +88,7 @@ CNetAdr2::~CNetAdr2(void)
 // Purpose: sets the IP address.
 // input  : svInAdr - 
 //-----------------------------------------------------------------------------
-void CNetAdr2::SetIP(std::string svInAdr)
+void CNetAdr2::SetIP(const std::string& svInAdr)
 {
 	m_svip = "[" + svInAdr + "]";
 }
@@ -97,7 +97,7 @@ void CNetAdr2::SetIP(std::string svInAdr)
 // Purpose: sets the port.
 // input  : svInPort - 
 //-----------------------------------------------------------------------------
-void CNetAdr2::SetPort(std::string svInPort)
+void CNetAdr2::SetPort(const std::string& svInPort)
 {
 	m_svip += ":" + svInPort;
 }
@@ -107,7 +107,7 @@ void CNetAdr2::SetPort(std::string svInPort)
 // input  : svInAdr - 
 //			svInPort - 
 //-----------------------------------------------------------------------------
-void CNetAdr2::SetIPAndPort(std::string svInAdr, std::string svInPort)
+void CNetAdr2::SetIPAndPort(const std::string& svInAdr, const std::string& svInPort)
 {
 	m_svip = "[" + svInAdr + "]:" + svInPort;
 	SetVersion();
@@ -117,7 +117,7 @@ void CNetAdr2::SetIPAndPort(std::string svInAdr, std::string svInPort)
 // Purpose: sets the type.
 // Input  : type - 
 //-----------------------------------------------------------------------------
-void CNetAdr2::SetType(netadrtype_t type)
+void CNetAdr2::SetType(const netadrtype_t& type)
 {
 	m_type = type;
 }
@@ -147,7 +147,7 @@ void CNetAdr2::SetVersion(void)
 // Purpose: sets IP address and port from sockaddr struct.
 // Input  : hSocket - 
 //-----------------------------------------------------------------------------
-void CNetAdr2:: SetFromSocket(int hSocket)
+void CNetAdr2::SetFromSocket(const int& hSocket)
 {
 	Clear();
 	m_type = netadrtype_t::NA_IP;
