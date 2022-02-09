@@ -34,31 +34,6 @@ bool CNetCon::Init(void)
 }
 
 //-----------------------------------------------------------------------------
-// purpose: connect to specified address and port
-// Input  : svInAdr - 
-//			svInPort - 
-// Output : true if connection succeeds, false otherwise
-//-----------------------------------------------------------------------------
-bool CNetCon::Connect(std::string svInAdr, std::string svInPort)
-{
-	if (svInAdr.size() > 0 && svInPort.size() > 0)
-	{
-		// Default is [127.0.0.1]:37015
-		m_pNetAdr2->SetIPAndPort(svInAdr, svInPort);
-	}
-
-	if (m_pSocket->ConnectSocket(*m_pNetAdr2, true) == SOCKET_ERROR)
-	{
-		std::cerr << "Failed to connect. Error: 'SOCKET_ERROR'. Verify IP and PORT." << std::endl;
-		return false;
-	}
-	std::cout << "Connected to: " << m_pNetAdr2->GetIPAndPort() << std::endl;
-
-	m_abConnEstablished = true;
-	return true;
-}
-
-//-----------------------------------------------------------------------------
 // purpose: WSA and NETCON systems shutdown
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
@@ -115,26 +90,6 @@ void CNetCon::TermSetup(void)
 }
 
 //-----------------------------------------------------------------------------
-// purpose: client's main processing loop
-//-----------------------------------------------------------------------------
-void CNetCon::RunFrame(void)
-{
-	for (;;)
-	{
-		if (m_abConnEstablished)
-		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
-			this->Recv();
-		}
-		else if (m_abPromptConnect)
-		{
-			std::cout << "Enter <IP> <PORT>: ";
-			m_abPromptConnect = false;
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
 // purpose: gets input IP and port for initialization
 //-----------------------------------------------------------------------------
 void CNetCon::UserInput(void)
@@ -169,7 +124,6 @@ void CNetCon::UserInput(void)
 			}
 			else // Initialize as [127.0.0.1]:37015.
 			{
-
 				if (!this->Connect("", ""))
 				{
 					m_abPromptConnect = true;
@@ -178,6 +132,60 @@ void CNetCon::UserInput(void)
 			}
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+// purpose: client's main processing loop
+//-----------------------------------------------------------------------------
+void CNetCon::RunFrame(void)
+{
+	for (;;)
+	{
+		if (m_abConnEstablished)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			this->Recv();
+		}
+		else if (m_abPromptConnect)
+		{
+			std::cout << "Enter <IP> <PORT>: ";
+			m_abPromptConnect = false;
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// purpose: checks if application should be terminated
+// Output : true for termination, false otherwise
+//-----------------------------------------------------------------------------
+bool CNetCon::ShouldQuit(void)
+{
+	return this->m_bQuitApplication;
+}
+
+//-----------------------------------------------------------------------------
+// purpose: connect to specified address and port
+// Input  : svInAdr - 
+//			svInPort - 
+// Output : true if connection succeeds, false otherwise
+//-----------------------------------------------------------------------------
+bool CNetCon::Connect(std::string svInAdr, std::string svInPort)
+{
+	if (svInAdr.size() > 0 && svInPort.size() > 0)
+	{
+		// Default is [127.0.0.1]:37015
+		m_pNetAdr2->SetIPAndPort(svInAdr, svInPort);
+	}
+
+	if (m_pSocket->ConnectSocket(*m_pNetAdr2, true) == SOCKET_ERROR)
+	{
+		std::cerr << "Failed to connect. Error: 'SOCKET_ERROR'. Verify IP and PORT." << std::endl;
+		return false;
+	}
+	std::cout << "Connected to: " << m_pNetAdr2->GetIPAndPort() << std::endl;
+
+	m_abConnEstablished = true;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -259,7 +267,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	while (!pNetCon->m_bQuitApplication)
+	while (!pNetCon->ShouldQuit())
 	{
 		pNetCon->UserInput();
 	}

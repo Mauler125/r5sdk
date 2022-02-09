@@ -1,7 +1,7 @@
 // Microsoft Visual C++ generated resource script.
 //
 #define USE_RES
-#define RELEASE
+//#define RELEASE
 #ifdef USE_RES
 #include "sdklauncher/sdklauncher_res.h"
 

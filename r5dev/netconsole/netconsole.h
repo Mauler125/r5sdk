@@ -17,12 +17,13 @@ public:
 	void UserInput(void);
 
 	void RunFrame(void);
+	bool ShouldQuit(void);
 
 	bool Connect(std::string svInAdr, std::string svInPort);
-
 	void Send(std::string svMessage);
 	void Recv(void);
 
+private:
 	CNetAdr2* m_pNetAdr2 = new CNetAdr2("localhost", "37015");
 	CSocketCreator* m_pSocket = new CSocketCreator();
 
