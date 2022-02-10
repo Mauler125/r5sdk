@@ -55,6 +55,14 @@
     <ClCompile Include="mathlib\IceKey.cpp" />
     <ClCompile Include="mathlib\sha256.cpp" />
     <ClCompile Include="networksystem\r5net.cpp" />
+    <ClCompile Include="protoc\cl_rcon.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="protoc\sv_rcon.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="public\bansystem.cpp" />
     <ClCompile Include="public\binstream.cpp" />
     <ClCompile Include="public\utility.cpp" />
@@ -267,6 +275,8 @@
     <ClInclude Include="networksystem\r5net.h" />
     <ClInclude Include="networksystem\serverlisting.h" />
     <ClInclude Include="networksystem\sm_protocol.h" />
+    <ClInclude Include="protoc\cl_rcon.pb.h" />
+    <ClInclude Include="protoc\sv_rcon.pb.h" />
     <ClInclude Include="public\include\memaddr.h" />
     <ClInclude Include="public\include\bansystem.h" />
     <ClInclude Include="public\include\binstream.h" />
@@ -520,7 +530,7 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
     <LibraryPath>$(SolutionDir)r5dev\thirdparty\detours\libs;$(SolutionDir)r5dev\thirdparty\lzham\libs;$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
-    <TargetName>r5apexsdkd</TargetName>
+    <TargetName>r5apexsdkd64</TargetName>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
     <ReferencePath>$(VC_ReferencesPath_x64);</ReferencePath>
@@ -529,7 +539,7 @@
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
     <LibraryPath>$(SolutionDir)r5dev\thirdparty\detours\libs;$(SolutionDir)r5dev\thirdparty\lzham\libs;$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
-    <TargetName>r5apexsdkd</TargetName>
+    <TargetName>r5apexsdkd64</TargetName>
     <ReferencePath>$(VC_ReferencesPath_x64);</ReferencePath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
@@ -588,11 +598,18 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>r5dev.def</ModuleDefinitionFile>
-      <AdditionalDependencies>d3d11.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;bcrypt.lib;protobuf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(TargetPath)" "..\..\..\$(TargetFileName)" &amp;&amp; del "..\..\..\r5apexsdkd64.dll" &amp;&amp; rename "..\..\..\$(TargetFileName)" "r5apexsdkd64.dll"</Command>
+      <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\$(ProjectName)" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>if not EXIST $(SolutionDir)bin\$(Configuration)\protobuf.lib (
+"$(DevEnvDir)devenv" "$(SolutionDir)detours.sln" /Rebuild $(Configuration) /project "$(SolutionDir)r5dev\protobuf.vcxproj"
+);
+</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -624,11 +641,18 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>r5dev.def</ModuleDefinitionFile>
-      <AdditionalDependencies>d3d11.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;bcrypt.lib;protobuf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(TargetPath)" "..\..\..\$(TargetFileName)" &amp;&amp; del "..\..\..\r5apexsdkd64.dll" &amp;&amp; rename "..\..\..\$(TargetFileName)" "r5apexsdkd64.dll"</Command>
+      <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\$(ProjectName)" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>if not EXIST $(SolutionDir)bin\$(Configuration)\protobuf.lib (
+"$(DevEnvDir)devenv" "$(SolutionDir)detours.sln" /Rebuild $(Configuration) /project "$(SolutionDir)r5dev\protobuf.vcxproj"
+);
+</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

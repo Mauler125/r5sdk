@@ -20,6 +20,12 @@
     <Filter Include="sdk\tier2">
       <UniqueIdentifier>{99b7ba90-bc5d-4f07-a299-b68322c5ca63}</UniqueIdentifier>
     </Filter>
+    <Filter Include="thirdparty">
+      <UniqueIdentifier>{8459ce10-e58c-4fb4-9ec7-e2503f4014e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\protobuf">
+      <UniqueIdentifier>{7c7da8dd-043a-46b7-9413-832924e4574e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="tier1\NetAdr2.cpp">
@@ -43,6 +49,12 @@
     <ClCompile Include="core\termutil.cpp">
       <Filter>core</Filter>
     </ClCompile>
+    <ClCompile Include="protoc\sv_rcon.pb.cc">
+      <Filter>thirdparty\protobuf</Filter>
+    </ClCompile>
+    <ClCompile Include="protoc\cl_rcon.pb.cc">
+      <Filter>thirdparty\protobuf</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tier1\NetAdr2.h">
@@ -62,6 +74,12 @@
     </ClInclude>
     <ClInclude Include="core\termutil.h">
       <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="protoc\sv_rcon.pb.h">
+      <Filter>thirdparty\protobuf</Filter>
+    </ClInclude>
+    <ClInclude Include="protoc\cl_rcon.pb.h">
+      <Filter>thirdparty\protobuf</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

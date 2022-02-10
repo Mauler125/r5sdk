@@ -115,6 +115,9 @@
     <Filter Include="sdk\tier2">
       <UniqueIdentifier>{efae8c5b-e29e-497f-8bbb-af3b213f6c79}</UniqueIdentifier>
     </Filter>
+    <Filter Include="thirdparty\protobuf">
+      <UniqueIdentifier>{9d1e327b-f385-4d84-82e0-918bc0bde704}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\client.h">
@@ -705,6 +708,12 @@
     <ClInclude Include="engine\net.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
+    <ClInclude Include="protoc\cl_rcon.pb.h">
+      <Filter>thirdparty\protobuf</Filter>
+    </ClInclude>
+    <ClInclude Include="protoc\sv_rcon.pb.h">
+      <Filter>thirdparty\protobuf</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="client\IVEngineClient.cpp">
@@ -940,6 +949,12 @@
     </ClCompile>
     <ClCompile Include="engine\net.cpp">
       <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="protoc\cl_rcon.pb.cc">
+      <Filter>thirdparty\protobuf</Filter>
+    </ClCompile>
+    <ClCompile Include="protoc\sv_rcon.pb.cc">
+      <Filter>thirdparty\protobuf</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

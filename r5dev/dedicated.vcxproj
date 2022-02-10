@@ -135,11 +135,17 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>User32.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>User32.lib;bcrypt.lib;protobuf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>del "..\..\..\$(ProjectName)" &amp;&amp; copy /Y "$(TargetPath)" "..\..\..\</Command>
+      <Command>IF EXIST "$(SolutionDir)..\..\r5apex_ds.exe" del "$(SolutionDir)..\..\$(ProjectName)" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>if not EXIST $(SolutionDir)bin\$(Configuration)\protobuf.lib (
+"$(DevEnvDir)devenv" "$(SolutionDir)detours.sln" /Rebuild $(Configuration) /project "$(SolutionDir)r5dev\protobuf.vcxproj"
+);</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -162,11 +168,17 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>User32.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>User32.lib;bcrypt.lib;protobuf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>del "..\..\..\$(ProjectName)" &amp;&amp; copy /Y "$(TargetPath)" "..\..\..\</Command>
+      <Command>IF EXIST "$(SolutionDir)..\..\r5apex_ds.exe" del "$(SolutionDir)..\..\$(ProjectName)" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>if not EXIST $(SolutionDir)bin\$(Configuration)\protobuf.lib (
+"$(DevEnvDir)devenv" "$(SolutionDir)detours.sln" /Rebuild $(Configuration) /project "$(SolutionDir)r5dev\protobuf.vcxproj"
+);</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="bsplib\bsplib.h" />
@@ -207,6 +219,8 @@
     <ClInclude Include="networksystem\r5net.h" />
     <ClInclude Include="networksystem\serverlisting.h" />
     <ClInclude Include="networksystem\sm_protocol.h" />
+    <ClInclude Include="protoc\cl_rcon.pb.h" />
+    <ClInclude Include="protoc\sv_rcon.pb.h" />
     <ClInclude Include="public\include\memaddr.h" />
     <ClInclude Include="public\include\bansystem.h" />
     <ClInclude Include="public\include\binstream.h" />
@@ -398,6 +412,14 @@
     <ClCompile Include="mathlib\IceKey.cpp" />
     <ClCompile Include="mathlib\sha256.cpp" />
     <ClCompile Include="networksystem\r5net.cpp" />
+    <ClCompile Include="protoc\cl_rcon.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="protoc\sv_rcon.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="public\bansystem.cpp" />
     <ClCompile Include="public\binstream.cpp" />
     <ClCompile Include="public\utility.cpp" />

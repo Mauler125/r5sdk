@@ -28,6 +28,14 @@
     <ClCompile Include="core\termutil.cpp" />
     <ClCompile Include="engine\net.cpp" />
     <ClCompile Include="netconsole\netconsole.cpp" />
+    <ClCompile Include="protoc\cl_rcon.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="protoc\sv_rcon.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="public\utility.cpp" />
     <ClCompile Include="tier1\NetAdr2.cpp" />
     <ClCompile Include="tier2\socketcreator.cpp" />
@@ -37,6 +45,8 @@
     <ClInclude Include="core\termutil.h" />
     <ClInclude Include="engine\net.h" />
     <ClInclude Include="netconsole\netconsole.h" />
+    <ClInclude Include="protoc\cl_rcon.pb.h" />
+    <ClInclude Include="protoc\sv_rcon.pb.h" />
     <ClInclude Include="tier1\NetAdr2.h" />
     <ClInclude Include="tier2\socketcreator.h" />
   </ItemGroup>
@@ -100,14 +110,14 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
-    <TargetName>netcon86</TargetName>
+    <TargetName>netcon32</TargetName>
     <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
-    <TargetName>netcon86</TargetName>
+    <TargetName>netcon32</TargetName>
     <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -138,8 +148,14 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;protobuf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
+    <PreBuildEvent>
+      <Command>if not EXIST $(SolutionDir)bin\$(Configuration)\protobuf.lib (
+"$(DevEnvDir)devenv" "$(SolutionDir)detours.sln" /Rebuild $(Configuration) /project "$(SolutionDir)r5dev\protobuf.vcxproj"
+);</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -159,8 +175,17 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;protobuf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
+    <PreBuildEvent>
+      <Command>if not EXIST $(SolutionDir)bin\$(Configuration)\protobuf.lib (
+"$(DevEnvDir)devenv" "$(SolutionDir)detours.sln" /Rebuild $(Configuration) /project "$(SolutionDir)r5dev\protobuf.vcxproj"
+);</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>IF EXIST "$(SolutionDir)..\..\r5apexdata.bin" del "$(SolutionDir)..\..\$(ProjectName)" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -176,8 +201,17 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;protobuf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>IF EXIST "$(SolutionDir)..\..\r5apexdata.bin" del "$(SolutionDir)..\..\$(ProjectName)" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>if not EXIST $(SolutionDir)bin\$(Configuration)\protobuf.lib (
+"$(DevEnvDir)devenv" "$(SolutionDir)detours.sln" /Rebuild $(Configuration) /project "$(SolutionDir)r5dev\protobuf.vcxproj"
+);</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -197,8 +231,17 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>User32.lib;Bcrypt.lib;Ws2_32.lib;protobuf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>IF EXIST "$(SolutionDir)..\..\r5apexdata.bin" del "$(SolutionDir)..\..\$(ProjectName)" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>if not EXIST $(SolutionDir)bin\$(Configuration)\protobuf.lib (
+"$(DevEnvDir)devenv" "$(SolutionDir)detours.sln" /Rebuild $(Configuration) /project "$(SolutionDir)r5dev\protobuf.vcxproj"
+);</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
