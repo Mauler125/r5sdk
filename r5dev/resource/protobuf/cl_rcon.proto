@@ -1,0 +1,20 @@
+syntax = "proto2";
+package cl_rcon;
+
+enum request_t
+{
+	SERVERDATA_REQUEST_VALUE            = 0;
+	SERVERDATA_REQUEST_SETVALUE         = 1;
+	SERVERDATA_REQUEST_EXECCOMMAND      = 2;
+	SERVERDATA_REQUEST_AUTH             = 3;
+	SERVERDATA_REQUEST_SEND_CONSOLE_LOG = 4;
+	SERVERDATA_REQUEST_SEND_REMOTEBUG   = 5;
+}
+
+message request
+{
+    optional int32     requestID   = 1;
+    optional request_t requestType = 2;
+    optional string    requestBuf  = 3;
+    optional string    requestVal  = 4;
+}
