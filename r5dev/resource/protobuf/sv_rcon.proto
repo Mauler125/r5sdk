@@ -1,7 +1,7 @@
 syntax = "proto2";
 package sv_rcon;
 
-enum request_t
+enum response_t
 {
 	SERVERDATA_RESPONSE_VALUE       = 0;
 	SERVERDATA_RESPONSE_UPDATE      = 1;
@@ -11,10 +11,10 @@ enum request_t
 	SERVERDATA_RESPONSE_REMOTEBUG   = 5;
 }
 
-message request
+message response
 {
-    optional int32     responseID   = 1;
-    optional request_t responseType = 2;
-    optional string    responseBuf  = 3;
-    optional string    responseVal  = 4;
+    optional int32      responseID   = 1;
+    optional response_t responseType = 2;
+    optional string     responseBuf  = 3;
+    optional string     responseVal  = 4;
 }

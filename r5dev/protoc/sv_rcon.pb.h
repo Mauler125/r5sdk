@@ -55,16 +55,16 @@ struct TableStruct_sv_5frcon_2eproto {
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_sv_5frcon_2eproto;
 namespace sv_rcon {
-class request;
-struct requestDefaultTypeInternal;
-extern requestDefaultTypeInternal _request_default_instance_;
+class response;
+struct responseDefaultTypeInternal;
+extern responseDefaultTypeInternal _response_default_instance_;
 }  // namespace sv_rcon
 PROTOBUF_NAMESPACE_OPEN
-template<> ::sv_rcon::request* Arena::CreateMaybeMessage<::sv_rcon::request>(Arena*);
+template<> ::sv_rcon::response* Arena::CreateMaybeMessage<::sv_rcon::response>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace sv_rcon {
 
-enum request_t : int {
+enum response_t : int {
   SERVERDATA_RESPONSE_VALUE = 0,
   SERVERDATA_RESPONSE_UPDATE = 1,
   SERVERDATA_RESPONSE_AUTH = 2,
@@ -72,45 +72,45 @@ enum request_t : int {
   SERVERDATA_RESPONSE_STRING = 4,
   SERVERDATA_RESPONSE_REMOTEBUG = 5
 };
-bool request_t_IsValid(int value);
-constexpr request_t request_t_MIN = SERVERDATA_RESPONSE_VALUE;
-constexpr request_t request_t_MAX = SERVERDATA_RESPONSE_REMOTEBUG;
-constexpr int request_t_ARRAYSIZE = request_t_MAX + 1;
+bool response_t_IsValid(int value);
+constexpr response_t response_t_MIN = SERVERDATA_RESPONSE_VALUE;
+constexpr response_t response_t_MAX = SERVERDATA_RESPONSE_REMOTEBUG;
+constexpr int response_t_ARRAYSIZE = response_t_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* request_t_descriptor();
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* response_t_descriptor();
 template<typename T>
-inline const std::string& request_t_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, request_t>::value ||
+inline const std::string& response_t_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, response_t>::value ||
     ::std::is_integral<T>::value,
-    "Incorrect type passed to function request_t_Name.");
+    "Incorrect type passed to function response_t_Name.");
   return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    request_t_descriptor(), enum_t_value);
+    response_t_descriptor(), enum_t_value);
 }
-inline bool request_t_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, request_t* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<request_t>(
-    request_t_descriptor(), name, value);
+inline bool response_t_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, response_t* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<response_t>(
+    response_t_descriptor(), name, value);
 }
 // ===================================================================
 
-class request final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:sv_rcon.request) */ {
+class response final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:sv_rcon.response) */ {
  public:
-  inline request() : request(nullptr) {}
-  ~request() override;
-  explicit constexpr request(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  inline response() : response(nullptr) {}
+  ~response() override;
+  explicit constexpr response(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
-  request(const request& from);
-  request(request&& from) noexcept
-    : request() {
+  response(const response& from);
+  response(response&& from) noexcept
+    : response() {
     *this = ::std::move(from);
   }
 
-  inline request& operator=(const request& from) {
+  inline response& operator=(const response& from) {
     CopyFrom(from);
     return *this;
   }
-  inline request& operator=(request&& from) noexcept {
+  inline response& operator=(response&& from) noexcept {
     if (this == &from) return *this;
     if (GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -140,20 +140,20 @@ class request final :
   static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
-  static const request& default_instance() {
+  static const response& default_instance() {
     return *internal_default_instance();
   }
-  static inline const request* internal_default_instance() {
-    return reinterpret_cast<const request*>(
-               &_request_default_instance_);
+  static inline const response* internal_default_instance() {
+    return reinterpret_cast<const response*>(
+               &_response_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
     0;
 
-  friend void swap(request& a, request& b) {
+  friend void swap(response& a, response& b) {
     a.Swap(&b);
   }
-  inline void Swap(request* other) {
+  inline void Swap(response* other) {
     if (other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
     if (GetOwningArena() != nullptr &&
@@ -166,7 +166,7 @@ class request final :
       ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(request* other) {
+  void UnsafeArenaSwap(response* other) {
     if (other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
@@ -174,13 +174,13 @@ class request final :
 
   // implements Message ----------------------------------------------
 
-  request* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<request>(arena);
+  response* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<response>(arena);
   }
   using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
-  void CopyFrom(const request& from);
+  void CopyFrom(const response& from);
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
-  void MergeFrom(const request& from);
+  void MergeFrom(const response& from);
   private:
   static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
   public:
@@ -197,15 +197,15 @@ class request final :
   void SharedCtor();
   void SharedDtor();
   void SetCachedSize(int size) const final;
-  void InternalSwap(request* other);
+  void InternalSwap(response* other);
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "sv_rcon.request";
+    return "sv_rcon.response";
   }
   protected:
-  explicit request(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+  explicit response(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                        bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
@@ -276,20 +276,20 @@ class request final :
   void _internal_set_responseid(int32_t value);
   public:
 
-  // optional .sv_rcon.request_t responseType = 2;
+  // optional .sv_rcon.response_t responseType = 2;
   bool has_responsetype() const;
   private:
   bool _internal_has_responsetype() const;
   public:
   void clear_responsetype();
-  ::sv_rcon::request_t responsetype() const;
-  void set_responsetype(::sv_rcon::request_t value);
+  ::sv_rcon::response_t responsetype() const;
+  void set_responsetype(::sv_rcon::response_t value);
   private:
-  ::sv_rcon::request_t _internal_responsetype() const;
-  void _internal_set_responsetype(::sv_rcon::request_t value);
+  ::sv_rcon::response_t _internal_responsetype() const;
+  void _internal_set_responsetype(::sv_rcon::response_t value);
   public:
 
-  // @@protoc_insertion_point(class_scope:sv_rcon.request)
+  // @@protoc_insertion_point(class_scope:sv_rcon.response)
  private:
   class _Internal;
 
@@ -313,106 +313,106 @@ class request final :
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
-// request
+// response
 
 // optional int32 responseID = 1;
-inline bool request::_internal_has_responseid() const {
+inline bool response::_internal_has_responseid() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
   return value;
 }
-inline bool request::has_responseid() const {
+inline bool response::has_responseid() const {
   return _internal_has_responseid();
 }
-inline void request::clear_responseid() {
+inline void response::clear_responseid() {
   responseid_ = 0;
   _has_bits_[0] &= ~0x00000004u;
 }
-inline int32_t request::_internal_responseid() const {
+inline int32_t response::_internal_responseid() const {
   return responseid_;
 }
-inline int32_t request::responseid() const {
-  // @@protoc_insertion_point(field_get:sv_rcon.request.responseID)
+inline int32_t response::responseid() const {
+  // @@protoc_insertion_point(field_get:sv_rcon.response.responseID)
   return _internal_responseid();
 }
-inline void request::_internal_set_responseid(int32_t value) {
+inline void response::_internal_set_responseid(int32_t value) {
   _has_bits_[0] |= 0x00000004u;
   responseid_ = value;
 }
-inline void request::set_responseid(int32_t value) {
+inline void response::set_responseid(int32_t value) {
   _internal_set_responseid(value);
-  // @@protoc_insertion_point(field_set:sv_rcon.request.responseID)
+  // @@protoc_insertion_point(field_set:sv_rcon.response.responseID)
 }
 
-// optional .sv_rcon.request_t responseType = 2;
-inline bool request::_internal_has_responsetype() const {
+// optional .sv_rcon.response_t responseType = 2;
+inline bool response::_internal_has_responsetype() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
   return value;
 }
-inline bool request::has_responsetype() const {
+inline bool response::has_responsetype() const {
   return _internal_has_responsetype();
 }
-inline void request::clear_responsetype() {
+inline void response::clear_responsetype() {
   responsetype_ = 0;
   _has_bits_[0] &= ~0x00000008u;
 }
-inline ::sv_rcon::request_t request::_internal_responsetype() const {
-  return static_cast< ::sv_rcon::request_t >(responsetype_);
+inline ::sv_rcon::response_t response::_internal_responsetype() const {
+  return static_cast< ::sv_rcon::response_t >(responsetype_);
 }
-inline ::sv_rcon::request_t request::responsetype() const {
-  // @@protoc_insertion_point(field_get:sv_rcon.request.responseType)
+inline ::sv_rcon::response_t response::responsetype() const {
+  // @@protoc_insertion_point(field_get:sv_rcon.response.responseType)
   return _internal_responsetype();
 }
-inline void request::_internal_set_responsetype(::sv_rcon::request_t value) {
-  assert(::sv_rcon::request_t_IsValid(value));
+inline void response::_internal_set_responsetype(::sv_rcon::response_t value) {
+  assert(::sv_rcon::response_t_IsValid(value));
   _has_bits_[0] |= 0x00000008u;
   responsetype_ = value;
 }
-inline void request::set_responsetype(::sv_rcon::request_t value) {
+inline void response::set_responsetype(::sv_rcon::response_t value) {
   _internal_set_responsetype(value);
-  // @@protoc_insertion_point(field_set:sv_rcon.request.responseType)
+  // @@protoc_insertion_point(field_set:sv_rcon.response.responseType)
 }
 
 // optional string responseBuf = 3;
-inline bool request::_internal_has_responsebuf() const {
+inline bool response::_internal_has_responsebuf() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   return value;
 }
-inline bool request::has_responsebuf() const {
+inline bool response::has_responsebuf() const {
   return _internal_has_responsebuf();
 }
-inline void request::clear_responsebuf() {
+inline void response::clear_responsebuf() {
   responsebuf_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000001u;
 }
-inline const std::string& request::responsebuf() const {
-  // @@protoc_insertion_point(field_get:sv_rcon.request.responseBuf)
+inline const std::string& response::responsebuf() const {
+  // @@protoc_insertion_point(field_get:sv_rcon.response.responseBuf)
   return _internal_responsebuf();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
-void request::set_responsebuf(ArgT0&& arg0, ArgT... args) {
+void response::set_responsebuf(ArgT0&& arg0, ArgT... args) {
  _has_bits_[0] |= 0x00000001u;
  responsebuf_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:sv_rcon.request.responseBuf)
+  // @@protoc_insertion_point(field_set:sv_rcon.response.responseBuf)
 }
-inline std::string* request::mutable_responsebuf() {
+inline std::string* response::mutable_responsebuf() {
   std::string* _s = _internal_mutable_responsebuf();
-  // @@protoc_insertion_point(field_mutable:sv_rcon.request.responseBuf)
+  // @@protoc_insertion_point(field_mutable:sv_rcon.response.responseBuf)
   return _s;
 }
-inline const std::string& request::_internal_responsebuf() const {
+inline const std::string& response::_internal_responsebuf() const {
   return responsebuf_.Get();
 }
-inline void request::_internal_set_responsebuf(const std::string& value) {
+inline void response::_internal_set_responsebuf(const std::string& value) {
   _has_bits_[0] |= 0x00000001u;
   responsebuf_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
-inline std::string* request::_internal_mutable_responsebuf() {
+inline std::string* response::_internal_mutable_responsebuf() {
   _has_bits_[0] |= 0x00000001u;
   return responsebuf_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
-inline std::string* request::release_responsebuf() {
-  // @@protoc_insertion_point(field_release:sv_rcon.request.responseBuf)
+inline std::string* response::release_responsebuf() {
+  // @@protoc_insertion_point(field_release:sv_rcon.response.responseBuf)
   if (!_internal_has_responsebuf()) {
     return nullptr;
   }
@@ -425,7 +425,7 @@ inline std::string* request::release_responsebuf() {
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
-inline void request::set_allocated_responsebuf(std::string* responsebuf) {
+inline void response::set_allocated_responsebuf(std::string* responsebuf) {
   if (responsebuf != nullptr) {
     _has_bits_[0] |= 0x00000001u;
   } else {
@@ -438,50 +438,50 @@ inline void request::set_allocated_responsebuf(std::string* responsebuf) {
     responsebuf_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:sv_rcon.request.responseBuf)
+  // @@protoc_insertion_point(field_set_allocated:sv_rcon.response.responseBuf)
 }
 
 // optional string responseVal = 4;
-inline bool request::_internal_has_responseval() const {
+inline bool response::_internal_has_responseval() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
   return value;
 }
-inline bool request::has_responseval() const {
+inline bool response::has_responseval() const {
   return _internal_has_responseval();
 }
-inline void request::clear_responseval() {
+inline void response::clear_responseval() {
   responseval_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000002u;
 }
-inline const std::string& request::responseval() const {
-  // @@protoc_insertion_point(field_get:sv_rcon.request.responseVal)
+inline const std::string& response::responseval() const {
+  // @@protoc_insertion_point(field_get:sv_rcon.response.responseVal)
   return _internal_responseval();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
-void request::set_responseval(ArgT0&& arg0, ArgT... args) {
+void response::set_responseval(ArgT0&& arg0, ArgT... args) {
  _has_bits_[0] |= 0x00000002u;
  responseval_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:sv_rcon.request.responseVal)
+  // @@protoc_insertion_point(field_set:sv_rcon.response.responseVal)
 }
-inline std::string* request::mutable_responseval() {
+inline std::string* response::mutable_responseval() {
   std::string* _s = _internal_mutable_responseval();
-  // @@protoc_insertion_point(field_mutable:sv_rcon.request.responseVal)
+  // @@protoc_insertion_point(field_mutable:sv_rcon.response.responseVal)
   return _s;
 }
-inline const std::string& request::_internal_responseval() const {
+inline const std::string& response::_internal_responseval() const {
   return responseval_.Get();
 }
-inline void request::_internal_set_responseval(const std::string& value) {
+inline void response::_internal_set_responseval(const std::string& value) {
   _has_bits_[0] |= 0x00000002u;
   responseval_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
-inline std::string* request::_internal_mutable_responseval() {
+inline std::string* response::_internal_mutable_responseval() {
   _has_bits_[0] |= 0x00000002u;
   return responseval_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
-inline std::string* request::release_responseval() {
-  // @@protoc_insertion_point(field_release:sv_rcon.request.responseVal)
+inline std::string* response::release_responseval() {
+  // @@protoc_insertion_point(field_release:sv_rcon.response.responseVal)
   if (!_internal_has_responseval()) {
     return nullptr;
   }
@@ -494,7 +494,7 @@ inline std::string* request::release_responseval() {
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   return p;
 }
-inline void request::set_allocated_responseval(std::string* responseval) {
+inline void response::set_allocated_responseval(std::string* responseval) {
   if (responseval != nullptr) {
     _has_bits_[0] |= 0x00000002u;
   } else {
@@ -507,7 +507,7 @@ inline void request::set_allocated_responseval(std::string* responseval) {
     responseval_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:sv_rcon.request.responseVal)
+  // @@protoc_insertion_point(field_set_allocated:sv_rcon.response.responseVal)
 }
 
 #ifdef __GNUC__
@@ -520,10 +520,10 @@ inline void request::set_allocated_responseval(std::string* responseval) {
 
 PROTOBUF_NAMESPACE_OPEN
 
-template <> struct is_proto_enum< ::sv_rcon::request_t> : ::std::true_type {};
+template <> struct is_proto_enum< ::sv_rcon::response_t> : ::std::true_type {};
 template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::sv_rcon::request_t>() {
-  return ::sv_rcon::request_t_descriptor();
+inline const EnumDescriptor* GetEnumDescriptor< ::sv_rcon::response_t>() {
+  return ::sv_rcon::response_t_descriptor();
 }
 
 PROTOBUF_NAMESPACE_CLOSE
