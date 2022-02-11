@@ -1,4 +1,4 @@
-# Discription
+# Description
 
  * Fully documented SDK to be used for the 'Apex Legends' Source Engine.
 
