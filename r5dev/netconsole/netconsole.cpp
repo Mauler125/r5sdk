@@ -198,8 +198,8 @@ bool CNetCon::ShouldQuit(void) const
 
 //-----------------------------------------------------------------------------
 // Purpose: connect to specified address and port
-// Input  : svInAdr - 
-//			svInPort - 
+// Input  : *svInAdr - 
+//			*svInPort - 
 // Output : true if connection succeeds, false otherwise
 //-----------------------------------------------------------------------------
 bool CNetCon::Connect(const std::string& svInAdr, const std::string& svInPort)
@@ -233,7 +233,7 @@ void CNetCon::Disconnect(void)
 
 //-----------------------------------------------------------------------------
 // Purpose: send message
-// Input  : svMessage - 
+// Input  : *svMessage - 
 //-----------------------------------------------------------------------------
 void CNetCon::Send(const std::string& svMessage) const
 {
@@ -328,7 +328,7 @@ void CNetCon::ProcessBuffer(const char* pszIn, int nRecvLen) const
 
 //-----------------------------------------------------------------------------
 // Purpose: processes received message
-// Input  : sv_response - 
+// Input  : *sv_response - 
 //-----------------------------------------------------------------------------
 void CNetCon::ProcessMessage(const sv_rcon::response& sv_response) const
 {
@@ -359,8 +359,8 @@ void CNetCon::ProcessMessage(const sv_rcon::response& sv_response) const
 
 //-----------------------------------------------------------------------------
 // Purpose: serializes input
-// Input  : svReqBuf - 
-//			svReqVal - 
+// Input  : *svReqBuf - 
+//			*svReqVal - 
 //			request_t - 
 // Output : serialized results as string
 //-----------------------------------------------------------------------------
@@ -391,10 +391,10 @@ std::string CNetCon::Serialize(const std::string& svReqBuf, const std::string& s
 
 //-----------------------------------------------------------------------------
 // Purpose: de-serializes input
-// Input  : pszBuf - 
+// Input  : *svBuf - 
 // Output : de-serialized object
 //-----------------------------------------------------------------------------
-sv_rcon::response CNetCon::Deserialize(std::string svBuf) const
+sv_rcon::response CNetCon::Deserialize(const std::string& svBuf) const
 {
 	sv_rcon::response sv_response;
 	sv_response.ParseFromArray(svBuf.c_str(), static_cast<int>(svBuf.size()));

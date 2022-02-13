@@ -12,7 +12,7 @@
 
 //-----------------------------------------------------------------------------
 // Purpose: constructor (use this when string contains <[IP]:PORT> or 'loopback'/'localhost').
-// input  : svInAdr - 
+// Input  : svInAdr - 
 //-----------------------------------------------------------------------------
 CNetAdr2::CNetAdr2(std::string svInAdr)
 {
@@ -43,7 +43,7 @@ CNetAdr2::CNetAdr2(std::string svInAdr)
 
 //-----------------------------------------------------------------------------
 // Purpose: constructor (expects string format <IPv4/IPv6> <PORT>).
-// input  : svInAdr - 
+// Input  : svInAdr - 
 //			svInPort - 
 //-----------------------------------------------------------------------------
 CNetAdr2::CNetAdr2(std::string svInAdr, std::string svInPort)
@@ -86,7 +86,7 @@ CNetAdr2::~CNetAdr2(void)
 
 //-----------------------------------------------------------------------------
 // Purpose: sets the IP address.
-// input  : svInAdr - 
+// Input  : svInAdr - 
 //-----------------------------------------------------------------------------
 void CNetAdr2::SetIP(const std::string& svInAdr)
 {
@@ -95,7 +95,7 @@ void CNetAdr2::SetIP(const std::string& svInAdr)
 
 //-----------------------------------------------------------------------------
 // Purpose: sets the port.
-// input  : svInPort - 
+// Input  : svInPort - 
 //-----------------------------------------------------------------------------
 void CNetAdr2::SetPort(const std::string& svInPort)
 {
@@ -104,7 +104,7 @@ void CNetAdr2::SetPort(const std::string& svInPort)
 
 //-----------------------------------------------------------------------------
 // Purpose: sets the IP address and port.
-// input  : svInAdr - 
+// Input  : svInAdr - 
 //			svInPort - 
 //-----------------------------------------------------------------------------
 void CNetAdr2::SetIPAndPort(const std::string& svInAdr, const std::string& svInPort)

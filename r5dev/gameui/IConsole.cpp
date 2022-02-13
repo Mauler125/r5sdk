@@ -356,7 +356,7 @@ void CConsole::SuggestPanel(void)
 }
 
 //-----------------------------------------------------------------------------
-// purpose: checks if the console can autocomplete based on input
+// Purpose: checks if the console can autocomplete based on input
 //-----------------------------------------------------------------------------
 bool CConsole::CanAutoComplete(void)
 {

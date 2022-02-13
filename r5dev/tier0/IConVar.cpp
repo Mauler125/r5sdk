@@ -12,7 +12,7 @@
 #include "mathlib/bits.h"
 
 //-----------------------------------------------------------------------------
-// purpose: construct/allocate
+// Purpose: construct/allocate
 //-----------------------------------------------------------------------------
 ConVar::ConVar(const char* pszName, const char* pszDefaultValue, int nFlags, const char* pszHelpString, bool bMin, float fMin, bool bMax, float fMax, void* pCallback, void* unk)
 {
@@ -31,7 +31,7 @@ ConVar::ConVar(const char* pszName, const char* pszDefaultValue, int nFlags, con
 }
 
 //-----------------------------------------------------------------------------
-// purpose: destructor
+// Purpose: destructor
 //-----------------------------------------------------------------------------
 ConVar::~ConVar(void)
 {

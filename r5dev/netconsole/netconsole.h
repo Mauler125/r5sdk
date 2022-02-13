@@ -31,7 +31,7 @@ public:
 	void ProcessMessage(const sv_rcon::response& sv_response) const;
 
 	std::string Serialize(const std::string& svReqBuf, const std::string& svReqVal, cl_rcon::request_t request_t) const;
-	sv_rcon::response Deserialize(std::string svBuf) const;
+	sv_rcon::response Deserialize(const std::string& svBuf) const;
 
 private:
 	CNetAdr2* m_pNetAdr2 = new CNetAdr2("localhost", "37015");

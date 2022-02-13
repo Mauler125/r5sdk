@@ -6,7 +6,7 @@
 #include "engine/sys_utils.h"
 
 //-----------------------------------------------------------------------------
-// purpose: construct/allocate
+// Purpose: construct/allocate
 //-----------------------------------------------------------------------------
 ConCommand::ConCommand(const char* pszName, const char* pszHelpString, int nFlags, void* pCallback, void* pCommandCompletionCallback)
 {

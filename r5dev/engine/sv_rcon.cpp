@@ -95,7 +95,7 @@ void CRConServer::RunFrame(void)
 
 //-----------------------------------------------------------------------------
 // Purpose: send message
-// Input  : svMessage - 
+// Input  : *svMessage - 
 //-----------------------------------------------------------------------------
 void CRConServer::Send(const std::string& svMessage) const
 {
@@ -171,8 +171,8 @@ void CRConServer::Recv(void)
 
 //-----------------------------------------------------------------------------
 // Purpose: serializes input
-// Input  : svRspBuf - 
-//			svRspVal - 
+// Input  : *svRspBuf - 
+//			*svRspVal - 
 //			response_t - 
 // Output : serialized results as string
 //-----------------------------------------------------------------------------
@@ -206,7 +206,7 @@ std::string CRConServer::Serialize(const std::string& svRspBuf, const std::strin
 
 //-----------------------------------------------------------------------------
 // Purpose: de-serializes input
-// Input  : svBuf - 
+// Input  : *svBuf - 
 // Output : de-serialized object
 //-----------------------------------------------------------------------------
 cl_rcon::request CRConServer::Deserialize(const std::string& svBuf) const
@@ -219,8 +219,9 @@ cl_rcon::request CRConServer::Deserialize(const std::string& svBuf) const
 
 //-----------------------------------------------------------------------------
 // Purpose: authenticate new connections
-// Input  : *pData - 
-// TODO   : implement logic for key exchange instead so we never network our
+// Input  : *cl_request - 
+//			*pData - 
+// Todo   : implement logic for key exchange instead so we never network our
 // password in plain text over the wire. create a cvar for this so user could
 // also opt out and use legacy authentication instead for older RCON clients
 //-----------------------------------------------------------------------------

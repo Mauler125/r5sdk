@@ -81,7 +81,7 @@ void CCommandLine::AppendParm(const char* pszParm, const char* pszValues)
 }
 
 //-----------------------------------------------------------------------------
-// purpose: returns the argument after the one specified, or the default if not found
+// Purpose: returns the argument after the one specified, or the default if not found
 //-----------------------------------------------------------------------------
 const char* CCommandLine::ParmValue(const char* psz, const char* pDefaultVal)
 {
