@@ -408,34 +408,34 @@ void _RTech_Decompress_f_CompletionFunc(CCommand* cmd)
 	std::string firstArg  = args[1]; // Get first arg.
 	std::string secondArg = args[2]; // Get second arg.
 
-	const std::string mod_dir = "paks\\Win32\\";
-	const std::string base_dir = "paks\\Win64\\";
+	const std::string modDir = "paks\\Win32\\";
+	const std::string baseDir = "paks\\Win64\\";
 
-	std::string pak_name_out = mod_dir + firstArg + ".rpak";
-	std::string pak_name_in = base_dir + firstArg + ".rpak";
+	std::string pakNameOut = modDir + firstArg + ".rpak";
+	std::string pakNameIn = baseDir + firstArg + ".rpak";
 
-	CreateDirectories(pak_name_out);
+	CreateDirectories(pakNameOut);
 
 	DevMsg(eDLL_T::RTECH, "______________________________________________________________\n");
 	DevMsg(eDLL_T::RTECH, "] RTECH_DECOMPRESS -------------------------------------------\n");
 
-	if (!FileExists(pak_name_in.c_str()))
+	if (!FileExists(pakNameIn.c_str()))
 	{
-		DevMsg(eDLL_T::RTECH, "Error: pak file '%s' does not exist!\n", pak_name_in.c_str());
+		DevMsg(eDLL_T::RTECH, "Error: pak file '%s' does not exist!\n", pakNameIn.c_str());
 		return;
 	}
 
-	DevMsg(eDLL_T::RTECH, "] Processing: '%s'\n", pak_name_in.c_str());
+	DevMsg(eDLL_T::RTECH, "] Processing: '%s'\n", pakNameIn.c_str());
 
 	std::vector<std::uint8_t> upak; // Compressed region.
-	std::ifstream ipak(pak_name_in, std::fstream::binary);
+	std::ifstream ipak(pakNameIn, std::fstream::binary);
 
 	ipak.seekg(0, std::fstream::end);
 	upak.resize(ipak.tellg());
 	ipak.seekg(0, std::fstream::beg);
 	ipak.read((char*)upak.data(), upak.size());
 
-	rpak_h* rheader = (rpak_h*)upak.data();
+	RPakApexHeader_t* rheader = (RPakApexHeader_t*)upak.data();
 	uint16_t flags = (rheader->m_nFlags[0] << 8) | rheader->m_nFlags[1];
 
 	DevMsg(eDLL_T::RTECH, "______________________________________________________________\n");
@@ -453,70 +453,70 @@ void _RTech_Decompress_f_CompletionFunc(CCommand* cmd)
 
 	if (rheader->m_nMagic != 'kaPR')
 	{
-		DevMsg(eDLL_T::RTECH, "Error: pak file '%s' has invalid magic!\n", pak_name_in.c_str());
+		DevMsg(eDLL_T::RTECH, "Error: pak file '%s' has invalid magic!\n", pakNameIn.c_str());
 		return;
 	}
 	if ((rheader->m_nFlags[1] & 1) != 1)
 	{
-		DevMsg(eDLL_T::RTECH, "Error: pak file '%s' already decompressed!\n", pak_name_in.c_str());
+		DevMsg(eDLL_T::RTECH, "Error: pak file '%s' already decompressed!\n", pakNameIn.c_str());
 		return;
 	}
 	if (rheader->m_nSizeDisk != upak.size())
 	{
-		DevMsg(eDLL_T::RTECH, "Error: pak file '%s' decompressed size '%u' doesn't match expected value '%u'!\n", pak_name_in.c_str(), upak.size(), rheader->m_nSizeMemory);
+		DevMsg(eDLL_T::RTECH, "Error: pak file '%s' decompressed size '%u' doesn't match expected value '%u'!\n", pakNameIn.c_str(), upak.size(), rheader->m_nSizeMemory);
 		return;
 	}
 
-	rpak_decomp_state state;
-	std::uint32_t dsize = g_pRtech->DecompressPakFileInit(&state, upak.data(), upak.size(), 0, PAK_HEADER_SIZE);
+	RPakDecompState_t state;
+	std::uint32_t decompSize = g_pRtech->DecompressPakFileInit(&state, upak.data(), upak.size(), 0, PAK_HEADER_SIZE);
 
-	if (dsize == rheader->m_nSizeDisk)
+	if (decompSize == rheader->m_nSizeDisk)
 	{
-		DevMsg(eDLL_T::RTECH, "Error: calculated size: '%zu' expected: '%zu'!\n", dsize, rheader->m_nSizeMemory);
+		DevMsg(eDLL_T::RTECH, "Error: calculated size: '%zu' expected: '%zu'!\n", decompSize, rheader->m_nSizeMemory);
 		return;
 	}
 	else
 	{
-		DevMsg(eDLL_T::RTECH, "] Calculated size: '%zu'\n", dsize);
+		DevMsg(eDLL_T::RTECH, "] Calculated size: '%zu'\n", decompSize);
 	}
 
-	std::vector<std::uint8_t> pakbuf(rheader->m_nSizeMemory, 0);
+	std::vector<std::uint8_t> pakBuf(rheader->m_nSizeMemory, 0);
 
 	state.m_nOutMask = UINT64_MAX;
-	state.m_nOut = uint64_t(pakbuf.data());
+	state.m_nOut = uint64_t(pakBuf.data());
 
-	std::uint8_t decomp_result = g_pRtech->DecompressPakFile(&state, upak.size(), pakbuf.size());
-	if (decomp_result != 1)
+	std::uint8_t decompResult = g_pRtech->DecompressPakFile(&state, upak.size(), pakBuf.size());
+	if (decompResult != 1)
 	{
-		DevMsg(eDLL_T::RTECH, "Error: decompression failed for '%s' return value: '%u'!\n", pak_name_in.c_str(), +decomp_result);
+		DevMsg(eDLL_T::RTECH, "Error: decompression failed for '%s' return value: '%u'!\n", pakNameIn.c_str(), +decompResult);
 		return;
 	}
 
 	rheader->m_nFlags[1] = 0x0; // Set compressed flag to false for the decompressed pak file
 	rheader->m_nSizeDisk = rheader->m_nSizeMemory; // Equal compressed size with decompressed
 
-	std::ofstream out_block(pak_name_out, std::fstream::binary);
+	std::ofstream outBlock(pakNameOut, std::fstream::binary);
 
 	if (rheader->m_nPatchIndex > 0) // Check if its an patch rpak.
 	{
 		// Loop through all the structs and patch their compress size.
-		for (int i = 1, patch_offset = 0x88; i <= rheader->m_nPatchIndex; i++, patch_offset += sizeof(rpak_patch_compress_header))
+		for (int i = 1, patch_offset = 0x88; i <= rheader->m_nPatchIndex; i++, patch_offset += sizeof(RPakPatchCompressedHeader_t))
 		{
-			rpak_patch_compress_header* patch_header = (rpak_patch_compress_header*)((std::uintptr_t)pakbuf.data() + patch_offset);
+			RPakPatchCompressedHeader_t* patch_header = (RPakPatchCompressedHeader_t*)((std::uintptr_t)pakBuf.data() + patch_offset);
 			patch_header->m_nSizeDisk = patch_header->m_nSizeMemory; // Fix size for decompress.
 		}
 	}
 
-	memcpy_s(pakbuf.data(), state.m_nDecompSize, ((std::uint8_t*)rheader), PAK_HEADER_SIZE); // Overwrite first 0x80 bytes which are NULL with the header data.
+	memcpy_s(pakBuf.data(), state.m_nDecompSize, ((std::uint8_t*)rheader), PAK_HEADER_SIZE); // Overwrite first 0x80 bytes which are NULL with the header data.
 
-	out_block.write((char*)pakbuf.data(), state.m_nDecompSize);
+	outBlock.write((char*)pakBuf.data(), state.m_nDecompSize);
 
 	uint32_t crc32_init = {};
-	DevMsg(eDLL_T::RTECH, "] CRC32          : '%08X'\n", crc32::update(crc32_init, pakbuf.data(), state.m_nDecompSize));
-	DevMsg(eDLL_T::RTECH, "] Decompressed rpak to: '%s'\n", pak_name_out.c_str());
+	DevMsg(eDLL_T::RTECH, "] CRC32          : '%08X'\n", crc32::update(crc32_init, pakBuf.data(), state.m_nDecompSize));
+	DevMsg(eDLL_T::RTECH, "] Decompressed rpak to: '%s'\n", pakNameOut.c_str());
 	DevMsg(eDLL_T::RTECH, "--------------------------------------------------------------\n");
 
-	out_block.close();
+	outBlock.close();
 }
 
 void _NET_TraceNetChan_f_CompletionFunc(CCommand* cmd)

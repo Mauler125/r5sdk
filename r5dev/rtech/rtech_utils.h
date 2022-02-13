@@ -50,7 +50,7 @@ namespace
 #pragma warning( pop ) 
 }
 
-struct rpak_h
+struct RPakApexHeader_t
 {
 	std::uint32_t m_nMagic;                    // 'RPak'
 	std::uint16_t m_nVersion;                  // R2 = '7' R5 = '8'
@@ -70,21 +70,21 @@ struct rpak_h
 
 	std::uint32_t m_nPatchIndex;               //
 
-	std::uint32_t m_nUnknownThirdBlockCount;   //
+	std::uint32_t m_nDescriptorCount;          //
 	std::uint32_t m_nAssetEntryCount;          // File entry count
-	std::uint32_t m_nUnknownFifthBlockCount;   //
-	std::uint32_t m_nUnknownSixedBlockCount;   //
+	std::uint32_t m_nGuidDescriptorCount;      //
+	std::uint32_t m_nRelationsCounts;         //
 
 	std::uint8_t  unk2[0x1C];                  //
 };
 
-struct __declspec(align(8)) rpak_patch_compress_header
+struct __declspec(align(8)) RPakPatchCompressedHeader_t
 {
 	std::uint64_t m_nSizeDisk;
 	std::uint64_t m_nSizeMemory;
 };
 
-struct __declspec(align(8)) rpak_decomp_state
+struct __declspec(align(8)) RPakDecompState_t
 {
 	std::uint64_t m_nInputBuf;
 	std::uint64_t m_nOut;
@@ -98,7 +98,7 @@ struct __declspec(align(8)) rpak_decomp_state
 	std::uint32_t dword44;
 	std::uint64_t input_byte_pos;
 	std::uint64_t m_nDecompPosition;
-	std::uint64_t len_needed;
+	std::uint64_t m_nLengthNeeded;
 	std::uint64_t byte;
 	std::uint32_t byte_bit_offset;
 	std::uint32_t dword6C;
@@ -121,8 +121,8 @@ class RTech
 {
 public:
 	std::uint64_t __fastcall StringToGuid(const char* pData);
-	std::uint8_t __fastcall DecompressPakFile(rpak_decomp_state* state, std::uint64_t inLen, std::uint64_t outLen);
-	std::uint32_t __fastcall DecompressPakFileInit(rpak_decomp_state* state, std::uint8_t* fileBuffer, std::int64_t fileSize, std::int64_t offNoHeader, std::int64_t headerSize);
+	std::uint8_t __fastcall DecompressPakFile(RPakDecompState_t* state, std::uint64_t inLen, std::uint64_t outLen);
+	std::uint32_t __fastcall DecompressPakFileInit(RPakDecompState_t* state, std::uint8_t* fileBuffer, std::int64_t fileSize, std::int64_t offNoHeader, std::int64_t headerSize);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -62,7 +62,7 @@ std::uint64_t __fastcall RTech::StringToGuid(const char* pData)
 //-----------------------------------------------------------------------------
 // Purpose: calculate 'decompressed' size and commit parameters
 //-----------------------------------------------------------------------------
-std::uint32_t __fastcall RTech::DecompressPakFileInit(rpak_decomp_state* state, std::uint8_t* fileBuffer, std::int64_t fileSize, std::int64_t offNoHeader, std::int64_t headerSize)
+std::uint32_t __fastcall RTech::DecompressPakFileInit(RPakDecompState_t* state, std::uint8_t* fileBuffer, std::int64_t fileSize, std::int64_t offNoHeader, std::int64_t headerSize)
 {
 	std::int64_t input_byte_pos_init;        // r9
 	std::uint64_t byte_init;                 // r11
@@ -136,7 +136,7 @@ std::uint32_t __fastcall RTech::DecompressPakFileInit(rpak_decomp_state* state, 
 	result = state->m_nDecompSize;
 	inv_mask_out = state->m_nInvMaskOut;
 	qw70 = offNoHeader + state->m_nInvMaskIn - 6i64;
-	state->len_needed = stream_len_needed + offNoHeader;
+	state->m_nLengthNeeded = stream_len_needed + offNoHeader;
 	state->qword70 = qw70;
 	state->byte = byte_final;
 	state->byte_bit_offset = byte_bit_offset_final;
@@ -156,7 +156,7 @@ std::uint32_t __fastcall RTech::DecompressPakFileInit(rpak_decomp_state* state, 
 //-----------------------------------------------------------------------------
 // Purpose: decompress input data
 //-----------------------------------------------------------------------------
-std::uint8_t __fastcall RTech::DecompressPakFile(rpak_decomp_state* state, std::uint64_t inLen, std::uint64_t outLen)
+std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::uint64_t inLen, std::uint64_t outLen)
 {
 	std::uint64_t decompressed_position;        // r15
 	std::uint32_t byte_bit_offset;              // ebp
@@ -216,7 +216,7 @@ std::uint8_t __fastcall RTech::DecompressPakFile(rpak_decomp_state* state, std::
 	std::uint64_t v68;                          // rcx
 	std::uint8_t result;                        // al
 
-	if (inLen < state->len_needed)
+	if (inLen < state->m_nLengthNeeded)
 		return 0;
 
 	decompressed_position = state->m_nDecompPosition;
@@ -450,9 +450,9 @@ std::uint8_t __fastcall RTech::DecompressPakFile(rpak_decomp_state* state, std::
 	input_byte_pos += header_skip_bytes_bs;
 	stream_decompressed_size_new = decompressed_position + state->m_nInvMaskOut + 1;
 	v36 = *(std::uint64_t*)(v34 + state->m_nInputBuf) & ((1LL << (8 * (std::uint8_t)header_skip_bytes_bs)) - 1);
-	len_needed_new = v36 + state->len_needed;
+	len_needed_new = v36 + state->m_nLengthNeeded;
 	stream_compressed_size_new = v36 + state->m_nCompressedStreamSize;
-	state->len_needed = len_needed_new;
+	state->m_nLengthNeeded = len_needed_new;
 	state->m_nCompressedStreamSize = stream_compressed_size_new;
 
 	if (stream_decompressed_size_new >= decompressed_size)
