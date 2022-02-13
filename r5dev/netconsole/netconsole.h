@@ -4,6 +4,8 @@
 //
 //===========================================================================//
 #pragma once
+#include "protoc/cl_rcon.pb.h"
+#include "protoc/sv_rcon.pb.h"
 
 constexpr const char* NETCON_VERSION = "2.0.0.1";
 
@@ -17,11 +19,19 @@ public:
 	void UserInput(void);
 
 	void RunFrame(void);
-	bool ShouldQuit(void);
+	bool ShouldQuit(void) const;
 
-	bool Connect(std::string svInAdr, std::string svInPort);
-	void Send(std::string svMessage);
+	bool Connect(const std::string& svInAdr, const std::string& svInPort);
+	void Disconnect(void);
+
+	void Send(const std::string& svMessage) const;
 	void Recv(void);
+
+	void ProcessBuffer(const char* pszIn, int nRecvLen) const;
+	void ProcessMessage(const sv_rcon::response& sv_response) const;
+
+	std::string Serialize(const std::string& svReqBuf, const std::string& svReqVal, cl_rcon::request_t request_t) const;
+	sv_rcon::response Deserialize(std::string svBuf) const;
 
 private:
 	CNetAdr2* m_pNetAdr2 = new CNetAdr2("localhost", "37015");

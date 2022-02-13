@@ -1,7 +1,8 @@
 #pragma once
 #include "tier1/NetAdr2.h"
 #include "tier2/socketcreator.h"
-#include "common/igameserverdata.h"
+#include "protoc/sv_rcon.pb.h"
+#include "protoc/cl_rcon.pb.h"
 
 constexpr char s_pszNoAuthMessage[]  = "This server is password protected for console access. Must send 'PASS <password>' command.\n\r";
 constexpr char s_pszWrongPwMessage[] = "Password incorrect.\n\r";
@@ -15,14 +16,20 @@ public:
 
 	void RunFrame(void);
 
+	void Send(const std::string& svMessage) const;
 	void Recv(void);
-	void Send(const char* pszBuf);
-	void Auth(CConnectedNetConsoleData* pData);
 
-	void HandleInputChars(const char* pszIn, int nRecvLen, CConnectedNetConsoleData* pData);
-	void Execute(CConnectedNetConsoleData* pData);
+	std::string Serialize(const std::string& svRspBuf, const std::string& svRspVal, sv_rcon::response_t response_t) const;
+	cl_rcon::request Deserialize(const std::string& svBuf) const;
 
+	void Authenticate(const cl_rcon::request& cl_request, CConnectedNetConsoleData* pData);
+
+	void ProcessBuffer(const char* pszIn, int nRecvLen, CConnectedNetConsoleData* pData);
+	void ProcessMessage(const cl_rcon::request& cl_request);
+
+	void Execute(const cl_rcon::request& cl_request) const;
 	bool CheckForBan(CConnectedNetConsoleData* pData);
+
 	void CloseConnection(void);
 	void CloseNonAuthConnection(void);
 
