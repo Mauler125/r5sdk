@@ -435,7 +435,7 @@ void _RTech_Decompress_f_CompletionFunc(CCommand* cmd)
 	ipak.seekg(0, std::fstream::beg);
 	ipak.read((char*)upak.data(), upak.size());
 
-	RPakApexHeader_t* rheader = (RPakApexHeader_t*)upak.data();
+	RPakHeader_t* rheader = (RPakHeader_t*)upak.data();
 	uint16_t flags = (rheader->m_nFlags[0] << 8) | rheader->m_nFlags[1];
 
 	DevMsg(eDLL_T::RTECH, "______________________________________________________________\n");

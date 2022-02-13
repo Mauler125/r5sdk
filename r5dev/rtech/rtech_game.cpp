@@ -6,7 +6,7 @@
 //-----------------------------------------------------------------------------
 // Purpose: unloads asset files from the memory pool
 //-----------------------------------------------------------------------------
-void HRTech_UnloadAsset(std::int64_t a1, std::int64_t a2)
+void HRTech_UnloadAsset(std::int64_t a1, std::int64_t a2) // This ain't related to RTech, its a CSTDMem function.
 {
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 	std::int64_t pAsset = a1;

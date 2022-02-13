@@ -50,7 +50,7 @@ namespace
 #pragma warning( pop ) 
 }
 
-struct RPakApexHeader_t
+struct RPakHeader_t
 {
 	std::uint32_t m_nMagic;                    // 'RPak'
 	std::uint16_t m_nVersion;                  // R2 = '7' R5 = '8'
