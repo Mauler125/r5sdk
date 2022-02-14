@@ -316,11 +316,13 @@ void CNetCon::ProcessBuffer(const char* pszIn, int nRecvLen) const
 		}
 
 		default:
+		{
 			if (nCharsInRespondBuffer < MAX_NETCONSOLE_INPUT_LEN - 1)
 			{
 				szInputRespondBuffer[nCharsInRespondBuffer++] = *pszIn;
 			}
 			break;
+		}
 		}
 		pszIn++;
 		nRecvLen--;

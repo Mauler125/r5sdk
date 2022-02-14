@@ -1,5 +1,8 @@
 #pragma once
 
+//-----------------------------------------------------------------------------
+// Purpose: Command tokenizer
+//-----------------------------------------------------------------------------
 class CCommand
 {
 private:
@@ -12,47 +15,13 @@ private:
 public:
 	CCommand() = delete;
 
-	inline int MaxCommandLength()
-	{
-		return COMMAND_MAX_LENGTH - 1;
-	}
-
-	inline std::int64_t ArgC() const
-	{
-		return m_nArgc;
-	}
-
-	inline const char** ArgV() const
-	{
-		return m_nArgc ? (const char**)m_ppArgv : NULL;
-	}
-
-	inline const char* ArgS() const
-	{
-		return m_nArgv0Size ? &m_pArgSBuffer[m_nArgv0Size] : "";
-	}
-
-	inline const char* GetCommandString() const
-	{
-		return m_nArgc ? m_pArgSBuffer : "";
-	}
-
-	inline const char* Arg(int nIndex) const
-	{
-		// FIXME: Many command handlers appear to not be particularly careful
-		// about checking for valid argc range. For now, we're going to
-		// do the extra check and return an empty string if it's out of range
-		if (nIndex < 0 || nIndex >= m_nArgc)
-		{
-			return "";
-		}
-		return m_ppArgv[nIndex];
-	}
-
-	inline const char* operator[](int nIndex) const
-	{
-		return Arg(nIndex);
-	}
+	int MaxCommandLength();
+	std::int64_t ArgC(void) const;
+	const char** ArgV(void) const;
+	const char* ArgS(void) const;
+	const char* GetCommandString(void) const;
+	const char* Arg(int nIndex) const;
+	const char* operator[](int nIndex) const;
 
 private:
 	std::int64_t m_nArgc;
@@ -62,6 +31,9 @@ private:
 	const char*  m_ppArgv[COMMAND_MAX_ARGC];
 };
 
+//-----------------------------------------------------------------------------
+// Purpose: The console invoked command
+//-----------------------------------------------------------------------------
 class ConCommand
 {
 	friend class CCVar;
@@ -72,6 +44,9 @@ public:
 	// TODO
 };
 
+//-----------------------------------------------------------------------------
+// Purpose: The base console invoked command/cvar interface
+//-----------------------------------------------------------------------------
 class ConCommandBase
 {
 public:

@@ -19,7 +19,7 @@
 #include "common/igameserverdata.h"
 
 //-----------------------------------------------------------------------------
-// Purpose: creates listen socket for RCON
+// Purpose: NETCON systems init
 //-----------------------------------------------------------------------------
 void CRConServer::Init(void)
 {
@@ -29,11 +29,7 @@ void CRConServer::Init(void)
 		{
 			DevMsg(eDLL_T::SERVER, "Remote server access requires a password of at least 8 characters\n");
 		}
-		if (m_pSocket->IsListening())
-		{
-			m_pSocket->CloseListenSocket();
-		}
-		m_bInitialized = false;
+		this->Shutdown();
 		return;
 	}
 
@@ -45,6 +41,18 @@ void CRConServer::Init(void)
 
 	DevMsg(eDLL_T::SERVER, "Remote server access initialized\n");
 	m_bInitialized = true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: NETCON systems shutdown
+//-----------------------------------------------------------------------------
+void CRConServer::Shutdown(void)
+{
+	if (m_pSocket->IsListening())
+	{
+		m_pSocket->CloseListenSocket();
+	}
+	m_bInitialized = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -65,7 +73,7 @@ void CRConServer::Think(void)
 				CConnectedNetConsoleData* pData = m_pSocket->GetAcceptedSocketData(m_nConnIndex);
 				if (!pData->m_bAuthorized)
 				{
-					CloseConnection();
+					this->CloseConnection();
 				}
 			}
 		}
@@ -126,7 +134,7 @@ void CRConServer::Recv(void)
 	{
 		CConnectedNetConsoleData* pData = m_pSocket->GetAcceptedSocketData(m_nConnIndex);
 		{//////////////////////////////////////////////
-			if (CheckForBan(pData))
+			if (this->CheckForBan(pData))
 			{
 				std::string svNoAuth =  this->Serialize(s_pszBannedMessage, "", sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH);
 				::send(pData->m_hSocket, svNoAuth.c_str(), static_cast<int>(svNoAuth.size()), MSG_NOSIGNAL);

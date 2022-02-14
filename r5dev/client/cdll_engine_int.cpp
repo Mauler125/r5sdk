@@ -7,6 +7,7 @@
 #include "client/client.h"
 #include "client/cdll_engine_int.h"
 #include "engine/net_chan.h"
+#include "engine/cl_rcon.h"
 #include "public/include/bansystem.h"
 #include "vpc/keyvalues.h"
 #include "gameui/IConsole.h"
@@ -31,15 +32,17 @@ void __fastcall HFrameStageNotify(CHLClient* rcx, ClientFrameStage_t frameStage)
 
 				if (!g_pCmdLine->CheckParm("-devsdk"))
 				{
-					IVEngineClient_CommandExecute(NULL, "exec autoexec_server.cfg");
-					IVEngineClient_CommandExecute(NULL, "exec autoexec_client.cfg");
-					IVEngineClient_CommandExecute(NULL, "exec autoexec.cfg");
+					IVEngineClient_CommandExecute(NULL, "exec \"autoexec_server.cfg\"");
+					IVEngineClient_CommandExecute(NULL, "exec \"autoexec_client.cfg\"");
+					IVEngineClient_CommandExecute(NULL, "exec \"autoexec.cfg\"");
+					IVEngineClient_CommandExecute(NULL, "exec \"rcon_client.cfg\"");
 				}
 				else // Development configs.
 				{
-					IVEngineClient_CommandExecute(NULL, "exec autoexec_server_dev.cfg");
-					IVEngineClient_CommandExecute(NULL, "exec autoexec_client_dev.cfg");
-					IVEngineClient_CommandExecute(NULL, "exec autoexec_dev.cfg");
+					IVEngineClient_CommandExecute(NULL, "exec \"autoexec_server_dev.cfg\"");
+					IVEngineClient_CommandExecute(NULL, "exec \"autoexec_client_dev.cfg\"");
+					IVEngineClient_CommandExecute(NULL, "exec \"autoexec_dev.cfg\"");
+					IVEngineClient_CommandExecute(NULL, "exec \"rcon_client_dev.cfg\"");
 				}
 
 				*(bool*)m_bRestrictServerCommands = true; // Restrict commands.
@@ -51,6 +54,7 @@ void __fastcall HFrameStageNotify(CHLClient* rcx, ClientFrameStage_t frameStage)
 					HNET_GenerateKey();
 				}
 				g_pCVar->FindVar("net_usesocketsforloopback")->SetValue(1);
+				g_pRConClient->Init();
 
 				bInitialized = true;
 			}
@@ -96,6 +100,7 @@ void __fastcall HFrameStageNotify(CHLClient* rcx, ClientFrameStage_t frameStage)
 		}
 	}
 	g_pIConsole->Think();
+	g_pRConClient->RunFrame();
 	CHLClient_FrameStageNotify(rcx, (int)frameStage);
 }
 

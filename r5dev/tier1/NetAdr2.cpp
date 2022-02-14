@@ -11,34 +11,12 @@
 #endif // !NETCONSOLE
 
 //-----------------------------------------------------------------------------
-// Purpose: constructor (use this when string contains <[IP]:PORT> or 'loopback'/'localhost').
+// Purpose: constructor (use this when string contains <[IP]:PORT>).
 // Input  : svInAdr - 
 //-----------------------------------------------------------------------------
 CNetAdr2::CNetAdr2(std::string svInAdr)
 {
-	SetType(netadrtype_t::NA_IP);
-	if (strcmp(svInAdr.c_str(), "loopback") == 0 || strcmp(svInAdr.c_str(), "::1") == 0)
-	{
-		SetType(netadrtype_t::NA_LOOPBACK);
-		svInAdr = "[127.0.0.1" + GetPort(svInAdr);
-	}
-	else if (strcmp(svInAdr.c_str(), "localhost"))
-	{
-		svInAdr = "[127.0.0.1" + GetPort(svInAdr);
-	}
-
-	// [IP]:PORT
-	m_svip = GetBase(svInAdr);
-	SetVersion();
-
-	if (GetVersion() == netadrversion_t::NA_V4)
-	{
-		reinterpret_cast<sockaddr_in*>(&m_sadr)->sin_port = htons(stoi(GetPort()));
-	}
-	else if (GetVersion() == netadrversion_t::NA_V6)
-	{
-		reinterpret_cast<sockaddr_in6*>(&m_sadr)->sin6_port = htons(stoi(GetPort()));
-	}
+	SetIPAndPort(svInAdr);
 }
 
 //-----------------------------------------------------------------------------
@@ -105,12 +83,67 @@ void CNetAdr2::SetPort(const std::string& svInPort)
 //-----------------------------------------------------------------------------
 // Purpose: sets the IP address and port.
 // Input  : *svInAdr - 
+//-----------------------------------------------------------------------------
+void CNetAdr2::SetIPAndPort(std::string svInAdr)
+{
+	SetType(netadrtype_t::NA_IP);
+	if (strstr(svInAdr.c_str(), "loopback") || strstr(svInAdr.c_str(), "::1"))
+	{
+		SetType(netadrtype_t::NA_LOOPBACK);
+		svInAdr = "[127.0.0.1]:" + GetPort(svInAdr);
+	}
+	else if (strstr(svInAdr.c_str(), "localhost"))
+	{
+		svInAdr = "[127.0.0.1]:" + GetPort(svInAdr);
+	}
+	// [IP]:PORT
+	m_svip = svInAdr;
+	SetVersion();
+
+	if (GetVersion() == netadrversion_t::NA_V4)
+	{
+		reinterpret_cast<sockaddr_in*>(&m_sadr)->sin_port = htons(stoi(GetPort()));
+	}
+	else if (GetVersion() == netadrversion_t::NA_V6)
+	{
+		reinterpret_cast<sockaddr_in6*>(&m_sadr)->sin6_port = htons(stoi(GetPort()));
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: sets the IP address and port.
+// Input  : *svInAdr - 
 //			*svInPort - 
 //-----------------------------------------------------------------------------
-void CNetAdr2::SetIPAndPort(const std::string& svInAdr, const std::string& svInPort)
+void CNetAdr2::SetIPAndPort(std::string svInAdr, std::string svInPort)
 {
+	SetType(netadrtype_t::NA_IP);
+
+	if (strcmp(svInAdr.c_str(), "loopback") == 0 || strcmp(svInAdr.c_str(), "::1") == 0)
+	{
+		SetType(netadrtype_t::NA_LOOPBACK);
+	}
+	else if (strcmp(svInAdr.c_str(), "localhost") == 0)
+	{
+		svInAdr = "127.0.0.1";
+	}
+
+	if (strstr(svInAdr.c_str(), "["))
+	{
+		svInAdr = GetBase(svInAdr);
+	}
+
 	m_svip = "[" + svInAdr + "]:" + svInPort;
 	SetVersion();
+
+	if (m_version == netadrversion_t::NA_V4)
+	{
+		reinterpret_cast<sockaddr_in*>(&m_sadr)->sin_port = htons(stoi(GetPort()));
+	}
+	else if (m_version == netadrversion_t::NA_V6)
+	{
+		reinterpret_cast<sockaddr_in6*>(&m_sadr)->sin6_port = htons(stoi(GetPort()));
+	}
 }
 
 //-----------------------------------------------------------------------------

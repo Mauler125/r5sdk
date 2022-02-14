@@ -1,6 +1,6 @@
 //=============================================================================//
 //
-// Purpose: Completion functions for ConCommand callbacks
+// Purpose: Completion functions for ConCommand callbacks.
 //
 //=============================================================================//
 
@@ -25,17 +25,32 @@
 #include "mathlib/crc32.h"
 
 #ifndef DEDICATED
+/*
+=====================
+_CGameConsole_f_CompletionFunc
+=====================
+*/
 void _CGameConsole_f_CompletionFunc(const CCommand& cmd)
 {
 	g_pIConsole->m_bActivate = !g_pIConsole->m_bActivate;
 }
 
+/*
+=====================
+_CCompanion_f_CompletionFunc
+=====================
+*/
 void _CCompanion_f_CompletionFunc(const CCommand& cmd)
 {
 	g_pIBrowser->m_bActivate = !g_pIBrowser->m_bActivate;
 }
 #endif // !DEDICATED
 
+/*
+=====================
+_Kick_f_CompletionFunc
+=====================
+*/
 void _Kick_f_CompletionFunc(CCommand* cmd)
 {
 	std::int32_t argSize = *(std::int32_t*)((std::uintptr_t)cmd + 0x4);
@@ -77,6 +92,11 @@ void _Kick_f_CompletionFunc(CCommand* cmd)
 	}
 }
 
+/*
+=====================
+_KickID_f_CompletionFunc
+=====================
+*/
 void _KickID_f_CompletionFunc(CCommand* cmd)
 {
 	static auto HasOnlyDigits = [](const std::string& string)
@@ -169,6 +189,11 @@ void _KickID_f_CompletionFunc(CCommand* cmd)
 	}
 }
 
+/*
+=====================
+_Ban_f_CompletionFunc
+=====================
+*/
 void _Ban_f_CompletionFunc(CCommand* cmd)
 {
 	std::int32_t argSize = *(std::int32_t*)((std::uintptr_t)cmd + 0x4);
@@ -225,6 +250,11 @@ void _Ban_f_CompletionFunc(CCommand* cmd)
 	}
 }
 
+/*
+=====================
+_BanID_f_CompletionFunc
+=====================
+*/
 void _BanID_f_CompletionFunc(CCommand* cmd)
 {
 	static auto HasOnlyDigits = [](const std::string& string)
@@ -321,6 +351,11 @@ void _BanID_f_CompletionFunc(CCommand* cmd)
 	}
 }
 
+/*
+=====================
+_Unban_f_CompletionFunc
+=====================
+*/
 void _Unban_f_CompletionFunc(CCommand* cmd)
 {
 	static auto HasOnlyDigits = [](const std::string& string)
@@ -364,11 +399,21 @@ void _Unban_f_CompletionFunc(CCommand* cmd)
 	}
 }
 
+/*
+=====================
+_ReloadBanList_f_CompletionFunc
+=====================
+*/
 void _ReloadBanList_f_CompletionFunc(CCommand* cmd)
 {
 	g_pBanSystem->Load(); // Reload banlist.
 }
 
+/*
+=====================
+_RTech_StringToGUID_f_CompletionFunc
+=====================
+*/
 void _RTech_StringToGUID_f_CompletionFunc(CCommand* cmd)
 {
 	std::int32_t argSize = *(std::int32_t*)((std::uintptr_t)cmd + 0x4);
@@ -387,6 +432,11 @@ void _RTech_StringToGUID_f_CompletionFunc(CCommand* cmd)
 	DevMsg(eDLL_T::RTECH, "] GUID: '0x%llX'\n", guid);
 }
 
+/*
+=====================
+_RTech_AsyncLoad_f_CompletionFunc
+=====================
+*/
 void _RTech_AsyncLoad_f_CompletionFunc(CCommand* cmd)
 {
 	CCommand& args = *cmd; // Get reference.
@@ -395,6 +445,14 @@ void _RTech_AsyncLoad_f_CompletionFunc(CCommand* cmd)
 	HRtech_AsyncLoad(firstArg);
 }
 
+/*
+=====================
+_RTech_Decompress_f_CompletionFunc
+
+  Decompresses input RPak file and
+  dumps results to 'paks\Win32\*.rpak'
+=====================
+*/
 void _RTech_Decompress_f_CompletionFunc(CCommand* cmd)
 {
 	std::int32_t argSize = *(std::int32_t*)((std::uintptr_t)cmd + 0x4);
@@ -519,6 +577,15 @@ void _RTech_Decompress_f_CompletionFunc(CCommand* cmd)
 	outBlock.close();
 }
 
+/*
+=====================
+_NET_TraceNetChan_f_CompletionFunc
+
+  Logs all data transmitted and received
+  over the UDP socket to a file on the disk.
+  File: '<mod\logs\net_trace.log>'.
+=====================
+*/
 void _NET_TraceNetChan_f_CompletionFunc(CCommand* cmd)
 {
 	static bool bTraceNetChannel = false;
@@ -563,6 +630,14 @@ void _NET_TraceNetChan_f_CompletionFunc(CCommand* cmd)
 	bTraceNetChannel = !bTraceNetChannel;
 }
 
+/*
+=====================
+_VPK_Decompress_f_CompletionFunc
+
+  Decompresses input VPK files and
+  dumps the output to '<mod>\vpk'.
+=====================
+*/
 void _VPK_Decompress_f_CompletionFunc(CCommand* cmd)
 {
 	std::int32_t argSize = *(std::int32_t*)((std::uintptr_t)cmd + 0x4);
@@ -598,6 +673,13 @@ void _VPK_Decompress_f_CompletionFunc(CCommand* cmd)
 	DevMsg(eDLL_T::FS, "--------------------------------------------------------------\n");
 }
 
+/*
+=====================
+_NET_SetKey_f_CompletionFunc
+
+  Sets the input netchannel encryption key
+=====================
+*/
 void _NET_SetKey_f_CompletionFunc(CCommand* cmd)
 {
 	std::int32_t argSize = *(std::int32_t*)((std::uintptr_t)cmd + 0x4);
@@ -613,13 +695,88 @@ void _NET_SetKey_f_CompletionFunc(CCommand* cmd)
 	HNET_SetKey(firstArg);
 }
 
+/*
+=====================
+_NET_GenerateKey_f_CompletionFunc
+
+  Sets a random netchannel encryption key
+=====================
+*/
 void _NET_GenerateKey_f_CompletionFunc(CCommand* cmd)
 {
 	HNET_GenerateKey();
 }
+#ifndef DEDICATED
+/*
+=====================
+_RCON_CmdQuery_f_CompletionFunc
 
+  Issues an RCON command to the
+  RCON server.
+=====================
+*/
 void _RCON_CmdQuery_f_CompletionFunc(CCommand* cmd)
 {
-	// TODO: CRConClient..
-	return;
+	std::int32_t argSize = *(std::int32_t*)((std::uintptr_t)cmd + 0x4);
+
+	switch (argSize)
+	{
+		case 0:
+		case 1:
+		{
+			if (g_pRConClient->IsInitialized()
+				&& !g_pRConClient->IsConnected()
+				&& strlen(rcon_address->GetString()) > 0)
+			{
+				g_pRConClient->Connect();
+			}
+			break;
+		}
+		case 2:
+		{
+			if (!g_pRConClient->IsInitialized())
+			{
+				DevMsg(eDLL_T::CLIENT, "Failed to issue command to RCON server: uninitialized.\n");
+				break;
+			}
+
+			CCommand& args = *cmd; // Get reference.
+			if (!g_pRConClient->IsConnected())
+			{
+				DevMsg(eDLL_T::CLIENT, "Failed to issue command to RCON server: unconnected.\n");
+				break;
+			}
+
+			std::string svCmdQuery = g_pRConClient->Serialize(args[1], "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+			g_pRConClient->Send(svCmdQuery);
+			break;
+		}
+		case 3:
+		{
+			if (!g_pRConClient->IsInitialized())
+			{
+				DevMsg(eDLL_T::CLIENT, "Failed to issue command to RCON server: uninitialized.\n");
+				break;
+			}
+
+			CCommand& args = *cmd; // Get reference.
+			if (!g_pRConClient->IsConnected())
+			{
+				DevMsg(eDLL_T::CLIENT, "Failed to issue command to RCON server: unconnected.\n");
+				break;
+			}
+
+			if (strcmp(args[1], "PASS") == 0)
+			{
+				std::string svCmdQuery = g_pRConClient->Serialize(args[1], args[2], cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+				g_pRConClient->Send(svCmdQuery);
+				break;
+			}
+
+			std::string svCmdQuery = g_pRConClient->Serialize(args[1], args[2], cl_rcon::request_t::SERVERDATA_REQUEST_SETVALUE);
+			g_pRConClient->Send(svCmdQuery);
+			break;
+		}
+	}
 }
+#endif // !DEDICATED

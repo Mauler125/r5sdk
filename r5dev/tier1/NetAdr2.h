@@ -50,7 +50,8 @@ public:
 
 	void SetIP(const std::string& svInAdr);
 	void SetPort(const std::string& svInPort);
-	void SetIPAndPort(const std::string& svInAdr, const std::string& svInPort);
+	void SetIPAndPort(std::string svInAdr);
+	void SetIPAndPort(std::string svInAdr, std::string svInPort);
 	void SetType(const netadrtype_t& type);
 	void SetVersion(void);
 	void SetFromSocket(const int& hSocket);

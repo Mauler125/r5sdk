@@ -12,6 +12,7 @@ class CRConServer
 {
 public:
 	void Init(void);
+	void Shutdown(void);
 
 	void Think(void);
 	void RunFrame(void);

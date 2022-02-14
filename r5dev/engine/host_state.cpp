@@ -1,6 +1,6 @@
 //=============================================================================//
 //
-// Purpose: Runs the state machine for the host & server
+// Purpose: Runs the state machine for the host & server.
 //
 //=============================================================================//
 
@@ -19,6 +19,8 @@
 #include "engine/sys_engine.h"
 #ifdef DEDICATED
 #include "engine/sv_rcon.h"
+#else // 
+#include "engine/cl_rcon.h"
 #endif // DEDICATED
 
 //-----------------------------------------------------------------------------
@@ -138,28 +140,30 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 	{
 		if (!g_pCmdLine->CheckParm("-devsdk"))
 		{
-			IVEngineClient_CommandExecute(NULL, "exec autoexec_server.cfg");
-			IVEngineClient_CommandExecute(NULL, "exec rcon_server.cfg");
+			IVEngineClient_CommandExecute(NULL, "exec \"autoexec_server.cfg\"");
+			IVEngineClient_CommandExecute(NULL, "exec \"rcon_server.cfg\"");
 #ifndef DEDICATED
-			IVEngineClient_CommandExecute(NULL, "exec autoexec_client.cfg");
-			IVEngineClient_CommandExecute(NULL, "exec rcon_client.cfg");
+			IVEngineClient_CommandExecute(NULL, "exec \"autoexec_client.cfg\"");
+			IVEngineClient_CommandExecute(NULL, "exec \"rcon_client.cfg\"");
 #endif // !DEDICATED
-			IVEngineClient_CommandExecute(NULL, "exec autoexec.cfg");
+			IVEngineClient_CommandExecute(NULL, "exec \"autoexec.cfg\"");
 		}
 		else // Development configs.
 		{
-			IVEngineClient_CommandExecute(NULL, "exec autoexec_server_dev.cfg");
-			IVEngineClient_CommandExecute(NULL, "exec rcon_server_dev.cfg");
+			IVEngineClient_CommandExecute(NULL, "exec \"autoexec_server_dev.cfg\"");
+			IVEngineClient_CommandExecute(NULL, "exec \"rcon_server_dev.cfg\"");
 #ifndef DEDICATED
-			IVEngineClient_CommandExecute(NULL, "exec autoexec_client_dev.cfg");
-			IVEngineClient_CommandExecute(NULL, "exec rcon_client_dev.cfg");
+			IVEngineClient_CommandExecute(NULL, "exec \"autoexec_client_dev.cfg\"");
+			IVEngineClient_CommandExecute(NULL, "exec \"rcon_client_dev.cfg\"");
 #endif // !DEDICATED
-			IVEngineClient_CommandExecute(NULL, "exec autoexec_dev.cfg");
+			IVEngineClient_CommandExecute(NULL, "exec \"autoexec_dev.cfg\"");
 		}
 
 		g_pConVar->ClearHostNames();
 #ifdef DEDICATED
 		g_pRConServer->Init();
+#else // 
+		g_pRConClient->Init();
 #endif // DEDICATED
 
 		*(bool*)m_bRestrictServerCommands = true; // Restrict commands.
@@ -195,6 +199,8 @@ void HCHostState_FrameUpdate(void* rcx, void* rdx, float time)
 	}
 #ifdef DEDICATED
 	g_pRConServer->RunFrame();
+#else // 
+	g_pRConClient->RunFrame();
 #endif // DEDICATED
 
 	HostStates_t oldState{};
