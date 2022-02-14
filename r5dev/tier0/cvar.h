@@ -29,6 +29,7 @@ extern ConVar* rcon_password;
 extern ConVar* sv_showconnecting;
 extern ConVar* sv_pylonvisibility;
 #ifdef DEDICATED
+extern ConVar* sv_rcon_debug;
 extern ConVar* sv_rcon_banpenalty;
 extern ConVar* sv_rcon_maxfailures;
 extern ConVar* sv_rcon_maxignores;

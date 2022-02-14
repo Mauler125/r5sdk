@@ -18,6 +18,7 @@ ConVar* sv_showconnecting                  = new ConVar();
 ConVar* sv_pylonvisibility                 = new ConVar();
 
 #ifdef DEDICATED
+ConVar* sv_rcon_debug                      = new ConVar();
 ConVar* sv_rcon_banpenalty                 = new ConVar(); // TODO
 ConVar* sv_rcon_maxfailures                = new ConVar();
 ConVar* sv_rcon_maxignores                 = new ConVar();

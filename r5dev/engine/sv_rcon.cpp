@@ -41,6 +41,7 @@ void CRConServer::Init(void)
 
 	m_pAdr2 = new CNetAdr2(rcon_address->GetString(), hostport->GetString());
 	m_pSocket->CreateListenSocket(*m_pAdr2, false);
+	m_svPasswordHash = sha256(rcon_password->GetString());
 
 	DevMsg(eDLL_T::SERVER, "Remote server access initialized\n");
 	m_bInitialized = true;
@@ -233,8 +234,8 @@ void CRConServer::Authenticate(const cl_rcon::request& cl_request, CConnectedNet
 	}
 	else if (strcmp(cl_request.requestbuf().c_str(), "PASS") == 0)
 	{
-		if (strcmp(cl_request.requestval().c_str(), rcon_password->GetString()) == 0)
-		{// TODO: Hash and compare password with SHA256 instead!
+		if (this->Comparator(cl_request.requestval()))
+		{
 			pData->m_bAuthorized = true;
 			m_pSocket->CloseListenSocket();
 			this->CloseNonAuthConnection();
@@ -242,15 +243,40 @@ void CRConServer::Authenticate(const cl_rcon::request& cl_request, CConnectedNet
 		else // Bad password.
 		{
 			CNetAdr2 netAdr2 = m_pSocket->GetAcceptedSocketAddress(m_nConnIndex);
-			DevMsg(eDLL_T::SERVER, "Bad RCON password attempt from '%s'\n", netAdr2.GetIPAndPort().c_str());
+			if (sv_rcon_debug->GetBool())
+			{
+				DevMsg(eDLL_T::SERVER, "Bad RCON password attempt from '%s'\n", netAdr2.GetIPAndPort().c_str());
+			}
 
-			std::string svWrongPass = this->Serialize(s_pszBannedMessage, "", sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH);
+			std::string svWrongPass = this->Serialize(s_pszWrongPwMessage, "", sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH);
 			::send(pData->m_hSocket, svWrongPass.c_str(), static_cast<int>(svWrongPass.size()), MSG_NOSIGNAL);
 
 			pData->m_bAuthorized = false;
 			pData->m_nFailedAttempts++;
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: sha256 hashed password comparison
+// Input  : *svCompare - 
+// Output : true if matches, false otherwise
+//-----------------------------------------------------------------------------
+bool CRConServer::Comparator(std::string svPassword) const
+{
+	svPassword = sha256(svPassword);
+	if (sv_rcon_debug->GetBool())
+	{
+		DevMsg(eDLL_T::SERVER, "+---------------------------------------------------------------------------+\n");
+		DevMsg(eDLL_T::SERVER, "] Server: '%s'[\n", m_svPasswordHash.c_str());
+		DevMsg(eDLL_T::SERVER, "] Client: '%s'[\n", svPassword.c_str());
+		DevMsg(eDLL_T::SERVER, "+---------------------------------------------------------------------------+\n");
+	}
+	if (memcmp(svPassword.c_str(), m_svPasswordHash.c_str(), SHA256::DIGEST_SIZE) == 0)
+	{
+		return true;
+	}
+	return false;
 }
 
 //-----------------------------------------------------------------------------

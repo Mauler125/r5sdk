@@ -12,8 +12,8 @@ class CRConServer
 {
 public:
 	void Init(void);
-	void Think(void);
 
+	void Think(void);
 	void RunFrame(void);
 
 	void Send(const std::string& svMessage) const;
@@ -23,6 +23,7 @@ public:
 	cl_rcon::request Deserialize(const std::string& svBuf) const;
 
 	void Authenticate(const cl_rcon::request& cl_request, CConnectedNetConsoleData* pData);
+	bool Comparator(std::string svPassword) const;
 
 	void ProcessBuffer(const char* pszIn, int nRecvLen, CConnectedNetConsoleData* pData);
 	void ProcessMessage(const cl_rcon::request& cl_request);
@@ -40,5 +41,6 @@ private:
 	CNetAdr2*                m_pAdr2         = new CNetAdr2();
 	CSocketCreator*          m_pSocket       = new CSocketCreator();
 	std::vector<std::string> m_vBannedAddress;
+	std::string              m_svPasswordHash;
 };
 extern CRConServer* g_pRConServer;
