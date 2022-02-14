@@ -53,8 +53,8 @@ public:
     ImVector<char*> m_ivConLog;
 
     ///////////////////////////////////////////////////////////////////////////
-    CConsole();
-    ~CConsole();
+    CConsole(void);
+    ~CConsole(void);
 
     void Draw(const char* pszTitle, bool* bDraw);
     void Think(void);
@@ -74,7 +74,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     void AddLog(const char* fmt, ...) IM_FMTARGS(2);
     void ClearLog(void);
-    void ColorLog(void);
+    void ColorLog(void) const;
 
     ///////////////////////////////////////////////////////////////////////////
     void SetStyleVar(void);

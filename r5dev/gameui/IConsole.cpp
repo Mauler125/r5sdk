@@ -24,7 +24,7 @@ History:
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CConsole::CConsole()
+CConsole::CConsole(void)
 {
     ClearLog();
     memset(m_szInputBuf, 0, sizeof(m_szInputBuf));
@@ -44,7 +44,7 @@ CConsole::CConsole()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CConsole::~CConsole()
+CConsole::~CConsole(void)
 {
     ClearLog();
     m_vsvHistory.clear();
@@ -52,6 +52,8 @@ CConsole::~CConsole()
 
 //-----------------------------------------------------------------------------
 // Purpose: game console main render loop
+// Input  : *pszTitle - 
+//          *bDraw - 
 //-----------------------------------------------------------------------------
 void CConsole::Draw(const char* pszTitle, bool* bDraw)
 {
@@ -101,14 +103,13 @@ void CConsole::Draw(const char* pszTitle, bool* bDraw)
      * SUGGESTION PANEL SETUP *
      **************************/
     {
-        static int nVars{};
+        static int nVars = 2;
         if (CanAutoComplete())
         {
             if (m_bDefaultTheme)
             {
                 static ImGuiStyle& style = ImGui::GetStyle();
                 m_vecSuggestWindowPos.y = m_vecSuggestWindowPos.y + style.WindowPadding.y + 1.5f;
-                nVars = 2;
             }
 
             ImGui::SetNextWindowPos(m_vecSuggestWindowPos);
@@ -146,6 +147,7 @@ void CConsole::Think(void)
 
 //-----------------------------------------------------------------------------
 // Purpose: draws the console's main surface
+// Input  : *bDraw - 
 //-----------------------------------------------------------------------------
 void CConsole::BasePanel(bool* bDraw)
 {
@@ -357,6 +359,7 @@ void CConsole::SuggestPanel(void)
 
 //-----------------------------------------------------------------------------
 // Purpose: checks if the console can autocomplete based on input
+// Output : true to perform autocomplete, false otherwise
 //-----------------------------------------------------------------------------
 bool CConsole::CanAutoComplete(void)
 {
@@ -438,6 +441,7 @@ void CConsole::FindFromPartial(void)
 
 //-----------------------------------------------------------------------------
 // Purpose: executes submitted commands in a separate thread
+// Input  : pszCommand - 
 //-----------------------------------------------------------------------------
 void CConsole::ProcessCommand(const char* pszCommand)
 {
@@ -500,17 +504,19 @@ void CConsole::ProcessCommand(const char* pszCommand)
 
 //-----------------------------------------------------------------------------
 // Purpose: console input box callback
+// Input  : *iData - 
+// Output : 
 //-----------------------------------------------------------------------------
-int CConsole::TextEditCallback(ImGuiInputTextCallbackData* data)
+int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
 {
-    switch (data->EventFlag)
+    switch (iData->EventFlag)
     {
     case ImGuiInputTextFlags_CallbackCompletion:
     {
         // Locate beginning of current word.
-        const char* pszWordEnd = data->Buf + data->CursorPos;
+        const char* pszWordEnd = iData->Buf + iData->CursorPos;
         const char* pszWordStart = pszWordEnd;
-        while (pszWordStart > data->Buf)
+        while (pszWordStart > iData->Buf)
         {
             const char c = pszWordStart[-1];
             if (c == ' ' || c == '\t' || c == ',' || c == ';')
@@ -525,12 +531,12 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* data)
     {
         if (m_bSuggestActive)
         {
-            if (data->EventKey == ImGuiKey_UpArrow && m_nSuggestPos > - 1)
+            if (iData->EventKey == ImGuiKey_UpArrow && m_nSuggestPos > - 1)
             {
                 m_nSuggestPos--;
                 m_bSuggestMoved = true;
             }
-            else if (data->EventKey == ImGuiKey_DownArrow)
+            else if (iData->EventKey == ImGuiKey_DownArrow)
             {
                 if (m_nSuggestPos < (int)m_vsvSuggest.size() - 1)
                 {
@@ -542,7 +548,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* data)
         else // Allow user to navigate through the history if suggest isn't drawn.
         {
             const int nPrevHistoryPos = m_nHistoryPos;
-            if (data->EventKey == ImGuiKey_UpArrow)
+            if (iData->EventKey == ImGuiKey_UpArrow)
             {
                 if (m_nHistoryPos == -1)
                 {
@@ -553,7 +559,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* data)
                     m_nHistoryPos--;
                 }
             }
-            else if (data->EventKey == ImGuiKey_DownArrow)
+            else if (iData->EventKey == ImGuiKey_DownArrow)
             {
                 if (m_nHistoryPos != -1)
                 {
@@ -576,8 +582,8 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* data)
                     }
                 }
 
-                data->DeleteChars(0, data->BufTextLen);
-                data->InsertChars(0, svHistory.c_str());
+                iData->DeleteChars(0, iData->BufTextLen);
+                iData->InsertChars(0, svHistory.c_str());
             }
         }
         break;
@@ -615,15 +621,19 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* data)
 
 //-----------------------------------------------------------------------------
 // Purpose: console input box callback stub
+// Input  : *iData - 
+// Output : 
 //-----------------------------------------------------------------------------
-int CConsole::TextEditCallbackStub(ImGuiInputTextCallbackData* data)
+int CConsole::TextEditCallbackStub(ImGuiInputTextCallbackData* iData)
 {
-    CConsole* pConsole = (CConsole*)data->UserData;
-    return pConsole->TextEditCallback(data);
+    CConsole* pConsole = (CConsole*)iData->UserData;
+    return pConsole->TextEditCallback(iData);
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: adds logs to the vector
+// Input  : *fmt - 
+//          ... - 
 //-----------------------------------------------------------------------------
 void CConsole::AddLog(const char* fmt, ...) IM_FMTARGS(2)
 {
@@ -648,7 +658,7 @@ void CConsole::ClearLog(void)
 //-----------------------------------------------------------------------------
 // Purpose: colors important logs
 //-----------------------------------------------------------------------------
-void CConsole::ColorLog(void)
+void CConsole::ColorLog(void) const
 {
     for (int i = 0; i < m_ivConLog.Size; i++)
     {

@@ -86,7 +86,7 @@ CNetAdr2::~CNetAdr2(void)
 
 //-----------------------------------------------------------------------------
 // Purpose: sets the IP address.
-// Input  : svInAdr - 
+// Input  : *svInAdr - 
 //-----------------------------------------------------------------------------
 void CNetAdr2::SetIP(const std::string& svInAdr)
 {
@@ -95,7 +95,7 @@ void CNetAdr2::SetIP(const std::string& svInAdr)
 
 //-----------------------------------------------------------------------------
 // Purpose: sets the port.
-// Input  : svInPort - 
+// Input  : *svInPort - 
 //-----------------------------------------------------------------------------
 void CNetAdr2::SetPort(const std::string& svInPort)
 {
@@ -104,8 +104,8 @@ void CNetAdr2::SetPort(const std::string& svInPort)
 
 //-----------------------------------------------------------------------------
 // Purpose: sets the IP address and port.
-// Input  : svInAdr - 
-//			svInPort - 
+// Input  : *svInAdr - 
+//			*svInPort - 
 //-----------------------------------------------------------------------------
 void CNetAdr2::SetIPAndPort(const std::string& svInAdr, const std::string& svInPort)
 {
@@ -115,7 +115,7 @@ void CNetAdr2::SetIPAndPort(const std::string& svInAdr, const std::string& svInP
 
 //-----------------------------------------------------------------------------
 // Purpose: sets the type.
-// Input  : type - 
+// Input  : *type - 
 //-----------------------------------------------------------------------------
 void CNetAdr2::SetType(const netadrtype_t& type)
 {
@@ -245,7 +245,7 @@ std::string CNetAdr2::GetIP(bool bBaseOnly) const
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: removes brackets and port from IP address.
+// Purpose: removes brackets and IP address from port.
 //-----------------------------------------------------------------------------
 std::string CNetAdr2::GetPort(void) const
 {
@@ -255,6 +255,11 @@ std::string CNetAdr2::GetPort(void) const
 
 	return svport;
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: removes brackets and IP address from port.
+// Input  : svInPort - 
+//-----------------------------------------------------------------------------
 std::string CNetAdr2::GetPort(std::string svInPort) const
 {
 	static std::regex rx(".*\\]:");
@@ -415,10 +420,11 @@ void CNetAdr2::ToAdrinfo(addrinfo* pHint) const
 	addrinfo hint{ }; // <-- TODO: Pass these instead.
 	if (GetVersion() == netadrversion_t::NA_V4)
 	{
-		hint.ai_family = AF_INET;
+		hint.ai_flags    = AI_PASSIVE;
+		hint.ai_family   = AF_INET;
 		hint.ai_socktype = SOCK_STREAM;
 		hint.ai_protocol = IPPROTO_TCP;
-		hint.ai_flags = AI_PASSIVE;
+
 		results = getaddrinfo(GetBase().c_str(), GetPort().c_str(), &hint, &pHint);
 		if (results != 0)
 		{
@@ -432,10 +438,11 @@ void CNetAdr2::ToAdrinfo(addrinfo* pHint) const
 	}
 	else if (GetVersion() == netadrversion_t::NA_V6)
 	{
-		hint.ai_family = AF_INET6;
+		hint.ai_flags    = AI_PASSIVE;
+		hint.ai_family   = AF_INET6;
 		hint.ai_socktype = SOCK_STREAM;
 		hint.ai_protocol = IPPROTO_TCP;
-		hint.ai_flags = AI_PASSIVE;
+
 		results = getaddrinfo(GetBase().c_str(), GetPort().c_str(), &hint, &pHint);
 		if (results != 0)
 		{
