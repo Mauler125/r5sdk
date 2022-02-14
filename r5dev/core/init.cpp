@@ -42,6 +42,7 @@
 #include "engine/baseclient.h"
 #include "engine/host_cmd.h"
 #include "engine/host_state.h"
+#include "engine/net.h"
 #include "engine/net_chan.h"
 #include "engine/sv_main.h"
 #include "engine/sys_dll.h"
@@ -73,7 +74,7 @@ void Systems_Init()
 	int nError = ::WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (nError != 0)
 	{
-		std::cerr << "Failed to start Winsock via WSAStartup. Error: " << nError << std::endl;
+		std::cerr << "Failed to start Winsock via WSAStartup: (" << NET_ErrorString(WSAGetLastError()) << ")." << std::endl;
 	}
 
 	// Begin the detour transaction to hook the the process
@@ -149,7 +150,7 @@ void Systems_Shutdown()
 	int nError = ::WSACleanup();
 	if (nError != 0)
 	{
-		std::cerr << "Failed to stop winsock via WSACleanup. Error: " << nError << std::endl;
+		std::cerr << "Failed to stop winsock via WSACleanup: (" << NET_ErrorString(WSAGetLastError()) << ")." << std::endl;
 	}
 
 	// Begin the detour transaction to unhook the the process

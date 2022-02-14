@@ -10,6 +10,7 @@
 #include "tier2/socketcreator.h"
 #include "protoc/sv_rcon.pb.h"
 #include "protoc/cl_rcon.pb.h"
+#include "engine/net.h"
 #include "netconsole/netconsole.h"
 
 //-----------------------------------------------------------------------------
@@ -23,7 +24,7 @@ bool CNetCon::Init(void)
 
 	if (nError != 0)
 	{
-		std::cerr << "Failed to start Winsock via WSAStartup. Error: " << nError << std::endl;
+		std::cerr << "Failed to start Winsock via WSAStartup: (" << NET_ErrorString(WSAGetLastError()) << ")." << std::endl;
 		return false;
 	}
 
@@ -47,7 +48,7 @@ bool CNetCon::Shutdown(void)
 	int nError = ::WSACleanup();
 	if (nError != 0)
 	{
-		std::cerr << "Failed to stop winsock via WSACleanup. Error: " << nError << std::endl;
+		std::cerr << "Failed to stop winsock via WSACleanup: (" << NET_ErrorString(WSAGetLastError()) << ")." << std::endl;
 		return false;
 	}
 	return true;
@@ -212,7 +213,7 @@ bool CNetCon::Connect(const std::string& svInAdr, const std::string& svInPort)
 
 	if (m_pSocket->ConnectSocket(*m_pNetAdr2, true) == SOCKET_ERROR)
 	{
-		std::cerr << "Failed to connect. Error: 'SOCKET_ERROR'. Verify IP and PORT." << std::endl;
+		std::cerr << "Failed to connect. Error: (SOCKET_ERROR). Verify IP and PORT." << std::endl;
 		return false;
 	}
 	std::cout << "Connected to: " << m_pNetAdr2->GetIPAndPort() << std::endl;
@@ -240,7 +241,7 @@ void CNetCon::Send(const std::string& svMessage) const
 	int nSendResult = ::send(m_pSocket->GetAcceptedSocketData(0)->m_hSocket, svMessage.c_str(), svMessage.size(), MSG_NOSIGNAL);
 	if (nSendResult == SOCKET_ERROR)
 	{
-		std::cout << "Failed to send message: SOCKET_ERROR." << std::endl;
+		std::cout << "Failed to send message: (SOCKET_ERROR)." << std::endl;
 	}
 }
 

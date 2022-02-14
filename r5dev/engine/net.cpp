@@ -51,6 +51,7 @@ const char* NET_ErrorString(int iCode)
 		case WSAELOOP          : return "WSAELOOP";
 		case WSAENAMETOOLONG   : return "WSAENAMETOOLONG";
 		case WSAEHOSTDOWN      : return "WSAEHOSTDOWN";
+		case WSAEPROCLIM       : return "WSAEPROCLIM";
 		case WSASYSNOTREADY    : return "WSASYSNOTREADY";
 		case WSAVERNOTSUPPORTED: return "WSAVERNOTSUPPORTED";
 		case WSANOTINITIALISED : return "WSANOTINITIALISED";
