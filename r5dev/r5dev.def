@@ -1,4 +1,4 @@
-LIBRARY r5apexsdkd
+LIBRARY r5apexsdkd64
 
 EXPORTS
     DummyExport @1
