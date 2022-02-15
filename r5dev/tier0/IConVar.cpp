@@ -66,9 +66,9 @@ void ConVar::Init(void)
 	sv_rcon_debug       = new ConVar("sv_rcon_debug", "0", FCVAR_RELEASE, "Show rcon debug information ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_banpenalty  = new ConVar("sv_rcon_banpenalty", "10", FCVAR_RELEASE, "Number of minutes to ban users who fail rcon authentication.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_maxfailures = new ConVar("sv_rcon_maxfailures", "10", FCVAR_RELEASE, "Max number of times a user can fail rcon authentication before being banned.", false, 0.f, false, 0.f, nullptr, nullptr);
-	sv_rcon_maxignores  = new ConVar("sv_rcon_maxignores", "10", FCVAR_RELEASE, "Max number of times a user can ignore the no-auth message before being banned.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sv_rcon_maxignores  = new ConVar("sv_rcon_maxignores", "15", FCVAR_RELEASE, "Max number of times a user can ignore the no-auth message before being banned.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_maxsockets  = new ConVar("sv_rcon_maxsockets", "32", FCVAR_RELEASE, "Max number of accepted sockets before the server starts closing redundant sockets.", false, 0.f, false, 0.f, nullptr, nullptr);
-	sv_rcon_whitelist_address = new ConVar("sv_rcon_whitelist_address", "", FCVAR_RELEASE, "When set, rcon failed authentications will never ban this address, e.g. '127.0.0.1'.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sv_rcon_whitelist_address = new ConVar("sv_rcon_whitelist_address", "", FCVAR_RELEASE, "This address is not considered a 'redundant' socket and will never be banned for failed authentications. Example: '::ffff:127.0.0.1'.", false, 0.f, false, 0.f, nullptr, nullptr);
 #endif // DEDICATED
 	//-------------------------------------------------------------------------
 	// CLIENT                                                                 |

@@ -25,7 +25,6 @@ void CRConClient::Init(void)
 		{
 			DevMsg(eDLL_T::CLIENT, "Remote server access requires a password of at least 8 characters\n");
 		}
-		m_bInitialized = false;
 	}
 	m_bInitialized = true;
 }
@@ -281,7 +280,7 @@ sv_rcon::response CRConClient::Deserialize(const std::string& svBuf) const
 //-----------------------------------------------------------------------------
 bool CRConClient::IsInitialized(void) const
 {
-	return this->m_bInitialized;
+	return m_bInitialized;
 }
 
 //-----------------------------------------------------------------------------
@@ -290,7 +289,7 @@ bool CRConClient::IsInitialized(void) const
 //-----------------------------------------------------------------------------
 bool CRConClient::IsConnected(void) const
 {
-	return this->m_bConnEstablished;
+	return m_bConnEstablished;
 }
 
 CRConClient* g_pRConClient = new CRConClient();

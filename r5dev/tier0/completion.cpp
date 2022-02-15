@@ -718,6 +718,7 @@ _RCON_CmdQuery_f_CompletionFunc
 void _RCON_CmdQuery_f_CompletionFunc(CCommand* cmd)
 {
 	std::int32_t argSize = *(std::int32_t*)((std::uintptr_t)cmd + 0x4);
+	CCommand& args = *cmd; // Get reference.
 
 	switch (argSize)
 	{
@@ -736,45 +737,54 @@ void _RCON_CmdQuery_f_CompletionFunc(CCommand* cmd)
 		{
 			if (!g_pRConClient->IsInitialized())
 			{
-				DevMsg(eDLL_T::CLIENT, "Failed to issue command to RCON server: uninitialized.\n");
+				DevMsg(eDLL_T::CLIENT, "Failed to issue command to RCON server: uninitialized\n");
 				break;
 			}
-
-			CCommand& args = *cmd; // Get reference.
-			if (!g_pRConClient->IsConnected())
+			else if (g_pRConClient->IsConnected())
 			{
-				DevMsg(eDLL_T::CLIENT, "Failed to issue command to RCON server: unconnected.\n");
+				if (strcmp(args[1], "PASS") == 0) // Auth with RCON server using rcon_password ConVar value.
+				{
+					std::string svCmdQuery = g_pRConClient->Serialize(args[1], rcon_password->GetString(), cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+					g_pRConClient->Send(svCmdQuery);
+					break;
+				}
+				else if (strcmp(args[1], "disconnect") == 0) // Disconnect from RCON server.
+				{
+					g_pRConClient->Disconnect();
+					break;
+				}
+
+				std::string svCmdQuery = g_pRConClient->Serialize(args[1], "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+				g_pRConClient->Send(svCmdQuery);
 				break;
 			}
-
-			std::string svCmdQuery = g_pRConClient->Serialize(args[1], "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
-			g_pRConClient->Send(svCmdQuery);
+			else
+			{
+				DevMsg(eDLL_T::CLIENT, "Failed to issue command to RCON server: unconnected\n");
+				break;
+			}
 			break;
 		}
 		case 3:
 		{
-			if (!g_pRConClient->IsInitialized())
+			if (g_pRConClient->IsConnected())
 			{
-				DevMsg(eDLL_T::CLIENT, "Failed to issue command to RCON server: uninitialized.\n");
-				break;
-			}
+				if (strcmp(args[1], "PASS") == 0) // Auth with RCON server.
+				{
+					std::string svCmdQuery = g_pRConClient->Serialize(args[1], args[2], cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+					g_pRConClient->Send(svCmdQuery);
+					break;
+				}
 
-			CCommand& args = *cmd; // Get reference.
-			if (!g_pRConClient->IsConnected())
-			{
-				DevMsg(eDLL_T::CLIENT, "Failed to issue command to RCON server: unconnected.\n");
-				break;
-			}
-
-			if (strcmp(args[1], "PASS") == 0)
-			{
-				std::string svCmdQuery = g_pRConClient->Serialize(args[1], args[2], cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+				std::string svCmdQuery = g_pRConClient->Serialize(args[1], args[2], cl_rcon::request_t::SERVERDATA_REQUEST_SETVALUE);
 				g_pRConClient->Send(svCmdQuery);
 				break;
 			}
-
-			std::string svCmdQuery = g_pRConClient->Serialize(args[1], args[2], cl_rcon::request_t::SERVERDATA_REQUEST_SETVALUE);
-			g_pRConClient->Send(svCmdQuery);
+			else
+			{
+				DevMsg(eDLL_T::CLIENT, "Failed to issue command to RCON server: unconnected\n");
+				break;
+			}
 			break;
 		}
 	}
