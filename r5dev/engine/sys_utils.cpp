@@ -86,6 +86,12 @@ void DevMsg(eDLL_T idx, const char* fmt, ...)
 	svOut.append(szBuf);
 	svOut = std::regex_replace(svOut, rxAnsiExp, "");
 
+	char szNewLine = svOut.back();
+	if (szNewLine != '\n')
+	{
+		svOut.append("\n");
+	}
+
 	if (!g_bSpdLog_UseAnsiClr)
 	{
 		wconsole->debug(svOut);
@@ -97,6 +103,12 @@ void DevMsg(eDLL_T idx, const char* fmt, ...)
 	{
 		svAnsiOut = sANSI_DLL_T[(int)idx].c_str();
 		svAnsiOut.append(szBuf);
+
+		char szNewLine = svAnsiOut.back();
+		if (szNewLine != '\n')
+		{
+			svAnsiOut.append("\n");
+		}
 		wconsole->debug(svAnsiOut);
 #ifdef DEDICATED
 		g_pRConServer->Send(svAnsiOut.c_str());

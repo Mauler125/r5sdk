@@ -130,9 +130,9 @@ void CConsole::Draw(const char* pszTitle, bool* bDraw)
 //-----------------------------------------------------------------------------
 void CConsole::Think(void)
 {
-   if (m_ivConLog.Size > con_max_size_logvector->GetInt())
+   if (m_ivConLog.size() > con_max_size_logvector->GetInt())
    {
-       while (m_ivConLog.Size > con_max_size_logvector->GetInt() / 4 * 3)
+       while (m_ivConLog.size() > con_max_size_logvector->GetInt() / 4 * 3)
        {
            m_ivConLog.erase(m_ivConLog.begin());
            m_nScrollBack++;
@@ -651,7 +651,7 @@ void CConsole::AddLog(const char* fmt, ...) IM_FMTARGS(2)
 //-----------------------------------------------------------------------------
 void CConsole::ClearLog(void)
 {
-    for (int i = 0; i < m_ivConLog.Size; i++) { free(m_ivConLog[i]); }
+    for (int i = 0; i < m_ivConLog.size(); i++) { free(m_ivConLog[i]); }
     m_ivConLog.clear();
 }
 
@@ -660,7 +660,7 @@ void CConsole::ClearLog(void)
 //-----------------------------------------------------------------------------
 void CConsole::ColorLog(void) const
 {
-    for (int i = 0; i < m_ivConLog.Size; i++)
+    for (int i = 0; i < m_ivConLog.size(); i++)
     {
         const char* pszConLog = m_ivConLog[i];
         if (!m_itFilter.PassFilter(pszConLog))
