@@ -7,8 +7,17 @@ enum class LogType_t : int
 	SCRIPT_SERVER,
 	SCRIPT_CLIENT,
 	SCRIPT_UI,
-	SCRIPT_WARNING,
-	NATIVE
+	NATIVE_SERVER,
+	NATIVE_CLIENT,
+	NATIVE_UI,
+	NATIVE_ENGINE,
+	NATIVE_FS,
+	NATIVE_RTECH,
+	NATIVE_MS,
+	NETCON_S,
+	WARNING_C,
+	ERROR_C,
+	NONE
 };
 
 struct Log
@@ -21,17 +30,17 @@ struct Log
 	}
 	std::string Message = "";
 	int Ticks = 1024;
-	LogType_t Type = LogType_t::NATIVE;
+	LogType_t Type = LogType_t::NONE;
 };
 
 class CLogSystem
 {
 public:
-	void Update();
+	void Update(void);
 	void AddLog(LogType_t type, std::string text);
-	void DrawLog();
-	void DrawSimStats();
-	void DrawGPUStats();
+	void DrawLog(void);
+	void DrawSimStats(void) const;
+	void DrawGPUStats(void) const;
 
 private:
 	Color GetLogColorForType(LogType_t type);

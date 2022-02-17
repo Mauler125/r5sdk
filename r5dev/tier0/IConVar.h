@@ -88,7 +88,7 @@ public:
 		bool bMin, float fMin, bool bMax, float fMax, void* pCallback, void* unk);
 	~ConVar(void);
 
-	void Init(void);
+	void Init(void) const;
 
 	const char* GetBaseName(void) const;
 	const char* GetHelpText(void) const;

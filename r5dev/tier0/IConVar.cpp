@@ -45,60 +45,72 @@ ConVar::~ConVar(void)
 //-----------------------------------------------------------------------------
 // Purpose: register ConVar
 //-----------------------------------------------------------------------------
-void ConVar::Init(void)
+void ConVar::Init(void) const
 {
 	//-------------------------------------------------------------------------
 	// ENGINE                                                                 |
-	cm_debug_cmdquery               = new ConVar("cm_debug_cmdquery", "0", FCVAR_DEVELOPMENTONLY, "Prints the flags of each ConVar/ConCommand query to the console ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
-	cm_return_false_cmdquery_all    = new ConVar("cm_return_false_cmdquery_all", "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Returns false on every ConVar/ConCommand query ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	cm_debug_cmdquery               = new ConVar("cm_debug_cmdquery"              , "0", FCVAR_DEVELOPMENTONLY, "Prints the flags of each ConVar/ConCommand query to the console ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	cm_return_false_cmdquery_all    = new ConVar("cm_return_false_cmdquery_all"   , "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Returns false on every ConVar/ConCommand query ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	cm_return_false_cmdquery_cheats = new ConVar("cm_return_false_cmdquery_cheats", "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Returns false on all FCVAR_DEVELOPMENTONLY and FCVAR_CHEAT ConVar/ConCommand queries ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
-	r_debug_overlay_nodecay         = new ConVar("r_debug_overlay_nodecay", "0", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Keeps all debug overlays alive regardless of their lifetime. Use command 'clear_debug_overlays' to clear everything.", false, 0.f, false, 0.f, nullptr, nullptr);
+	r_debug_overlay_nodecay         = new ConVar("r_debug_overlay_nodecay"        , "0", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT     , "Keeps all debug overlays alive regardless of their lifetime. Use command 'clear_debug_overlays' to clear everything.", false, 0.f, false, 0.f, nullptr, nullptr);
 
 	// TODO: RconPasswordChanged_f
 	rcon_address  = new ConVar("rcon_address",  "::", FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Remote server access address.", false, 0.f, false, 0.f, nullptr, nullptr);
-	rcon_password = new ConVar("rcon_password", "", FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Remote server access password (rcon is disabled if empty).", false, 0.f, false, 0.f, nullptr, nullptr);
+	rcon_password = new ConVar("rcon_password", ""  , FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Remote server access password (rcon is disabled if empty).", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// SERVER                                                                 |
-	sv_showconnecting  = new ConVar("sv_showconnecting", "1", FCVAR_RELEASE, "Logs information about the connecting client to the console.", false, 0.f, false, 0.f, nullptr, nullptr);
-	sv_pylonvisibility = new ConVar("sv_pylonvisibility", "0", FCVAR_RELEASE, "Determines the visiblity to the Pylon Master Server, 0 = Not visible, 1 = Visible, 2 = Hidden BUG BUG: not implemented yet.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sv_showconnecting  = new ConVar("sv_showconnecting" , "1", FCVAR_RELEASE, "Logs information about the connecting client to the console.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sv_pylonvisibility = new ConVar("sv_pylonvisibility", "0", FCVAR_RELEASE, "Determines the visiblity to the Pylon Master Server, 0 = Not visible, 1 = Visible, 2 = Hidden !TODO: not implemented yet.", false, 0.f, false, 0.f, nullptr, nullptr);
 
 #ifdef DEDICATED
-	sv_rcon_debug       = new ConVar("sv_rcon_debug", "0", FCVAR_RELEASE, "Show rcon debug information ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
-	sv_rcon_banpenalty  = new ConVar("sv_rcon_banpenalty", "10", FCVAR_RELEASE, "Number of minutes to ban users who fail rcon authentication.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sv_rcon_debug       = new ConVar("sv_rcon_debug"      , "0" , FCVAR_RELEASE, "Show rcon debug information ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	sv_rcon_banpenalty  = new ConVar("sv_rcon_banpenalty" , "10", FCVAR_RELEASE, "Number of minutes to ban users who fail rcon authentication.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_maxfailures = new ConVar("sv_rcon_maxfailures", "10", FCVAR_RELEASE, "Max number of times a user can fail rcon authentication before being banned.", false, 0.f, false, 0.f, nullptr, nullptr);
-	sv_rcon_maxignores  = new ConVar("sv_rcon_maxignores", "15", FCVAR_RELEASE, "Max number of times a user can ignore the no-auth message before being banned.", false, 0.f, false, 0.f, nullptr, nullptr);
-	sv_rcon_maxsockets  = new ConVar("sv_rcon_maxsockets", "32", FCVAR_RELEASE, "Max number of accepted sockets before the server starts closing redundant sockets.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sv_rcon_maxignores  = new ConVar("sv_rcon_maxignores" , "15", FCVAR_RELEASE, "Max number of times a user can ignore the no-auth message before being banned.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sv_rcon_maxsockets  = new ConVar("sv_rcon_maxsockets" , "32", FCVAR_RELEASE, "Max number of accepted sockets before the server starts closing redundant sockets.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_whitelist_address = new ConVar("sv_rcon_whitelist_address", "", FCVAR_RELEASE, "This address is not considered a 'redundant' socket and will never be banned for failed authentications. Example: '::ffff:127.0.0.1'.", false, 0.f, false, 0.f, nullptr, nullptr);
 #endif // DEDICATED
 	//-------------------------------------------------------------------------
 	// CLIENT                                                                 |
 #ifndef DEDICATED
-	cl_drawconsoleoverlay      = new ConVar("cl_drawconsoleoverlay", "0", FCVAR_DEVELOPMENTONLY, "Draw the console overlay at the top of the screen.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_consoleoverlay_lines    = new ConVar("cl_consoleoverlay_lines", "3", FCVAR_DEVELOPMENTONLY, "Number of lines of console output to draw.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_drawconsoleoverlay      = new ConVar("cl_drawconsoleoverlay"     , "0" , FCVAR_DEVELOPMENTONLY, "Draw the console overlay at the top of the screen.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_consoleoverlay_lines    = new ConVar("cl_consoleoverlay_lines"   , "3" , FCVAR_DEVELOPMENTONLY, "Number of lines of console output to draw.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_consoleoverlay_offset_x = new ConVar("cl_consoleoverlay_offset_x", "10", FCVAR_DEVELOPMENTONLY, "X offset for console overlay.", false, 1.f, false, 50.f, nullptr, nullptr);
 	cl_consoleoverlay_offset_y = new ConVar("cl_consoleoverlay_offset_y", "10", FCVAR_DEVELOPMENTONLY, "Y offset for console overlay.", false, 1.f, false, 50.f, nullptr, nullptr);
 
-	cl_consoleoverlay_native_clr = new ConVar("cl_consoleoverlay_native_clr", "255 255 255 255", FCVAR_DEVELOPMENTONLY, "Native RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_consoleoverlay_server_clr = new ConVar("cl_consoleoverlay_server_clr", "190 183 240 255", FCVAR_DEVELOPMENTONLY, "Server script VM RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_consoleoverlay_client_clr = new ConVar("cl_consoleoverlay_client_clr", "117 116 139 255", FCVAR_DEVELOPMENTONLY, "Client script VM RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_consoleoverlay_ui_clr     = new ConVar("cl_consoleoverlay_ui_clr", "197 160 177 255", FCVAR_DEVELOPMENTONLY, "UI script VM RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_script_server_clr  = new ConVar("cl_conoverlay_script_server_clr", "130 120 245 255", FCVAR_DEVELOPMENTONLY, "Script SERVER VM RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_script_client_clr  = new ConVar("cl_conoverlay_script_client_clr", "117 116 139 255", FCVAR_DEVELOPMENTONLY, "Script CLIENT VM RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_script_ui_clr      = new ConVar("cl_conoverlay_script_ui_clr    ", "200 110 110 255", FCVAR_DEVELOPMENTONLY, "Script UI VM RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 
-	cl_showsimstats      = new ConVar("cl_showsimstats", "0", FCVAR_DEVELOPMENTONLY, "Shows the tick counter for the server/client simulation and the render frame.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_conoverlay_native_server_clr = new ConVar("cl_conoverlay_native_server_clr", "020 050 248 255", FCVAR_DEVELOPMENTONLY, "Native SERVER RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_native_client_clr = new ConVar("cl_conoverlay_native_client_clr", "070 070 070 255", FCVAR_DEVELOPMENTONLY, "Native CLIENT RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_native_ui_clr     = new ConVar("cl_conoverlay_native_ui_clr"    , "200 060 060 255", FCVAR_DEVELOPMENTONLY, "Native UI RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_native_engine_clr = new ConVar("cl_conoverlay_native_engine_clr", "255 255 255 255", FCVAR_DEVELOPMENTONLY, "Native engine RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_native_fs_clr     = new ConVar("cl_conoverlay_native_fs_clr"    , "000 100 225 255", FCVAR_DEVELOPMENTONLY, "Native filesystem RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_native_rtech_clr  = new ConVar("cl_conoverlay_native_rtech_clr" , "025 100 100 255", FCVAR_DEVELOPMENTONLY, "Native rtech RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_native_ms_clr     = new ConVar("cl_conoverlay_native_ms_clr"    , "200 020 180 255", FCVAR_DEVELOPMENTONLY, "Native materialsystem RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+
+	cl_conoverlay_netcon_clr        = new ConVar("cl_conoverlay_netcon_clr"       , "255 255 255 255", FCVAR_DEVELOPMENTONLY, "Net console RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+
+	cl_conoverlay_warning_clr       = new ConVar("cl_conoverlay_warning_clr"      , "180 180 020 255", FCVAR_DEVELOPMENTONLY, "Warning RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_error_clr         = new ConVar("cl_conoverlay_error_clr"        , "225 050 050 255", FCVAR_DEVELOPMENTONLY, "Error RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+
+	cl_showsimstats      = new ConVar("cl_showsimstats"     , "0"   , FCVAR_DEVELOPMENTONLY, "Shows the tick counter for the server/client simulation and the render frame.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_simstats_offset_x = new ConVar("cl_simstats_offset_x", "1250", FCVAR_DEVELOPMENTONLY, "X offset for simulation debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_simstats_offset_y = new ConVar("cl_simstats_offset_y", "885", FCVAR_DEVELOPMENTONLY, "Y offset for simulation debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_simstats_offset_y = new ConVar("cl_simstats_offset_y", "885" , FCVAR_DEVELOPMENTONLY, "Y offset for simulation debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 
-	cl_showgpustats      = new ConVar("cl_showgpustats", "0", FCVAR_DEVELOPMENTONLY, "Texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_showgpustats      = new ConVar("cl_showgpustats"     , "0"   , FCVAR_DEVELOPMENTONLY, "Texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_gpustats_offset_x = new ConVar("cl_gpustats_offset_x", "1250", FCVAR_DEVELOPMENTONLY, "X offset for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_gpustats_offset_y = new ConVar("cl_gpustats_offset_y", "900", FCVAR_DEVELOPMENTONLY, "Y offset for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_gpustats_offset_y = new ConVar("cl_gpustats_offset_y", "900" , FCVAR_DEVELOPMENTONLY, "Y offset for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 
 	con_max_size_logvector  = new ConVar("con_max_size_logvector", "1000", FCVAR_DEVELOPMENTONLY, "Maximum number of logs in the console until cleanup starts.", false, 0.f, false, 0.f, nullptr, nullptr);
-	con_suggestion_limit    = new ConVar("con_suggestion_limit", "120", FCVAR_DEVELOPMENTONLY, "Maximum number of suggestions the autocomplete window will show for the console.", false, 0.f, false, 0.f, nullptr, nullptr);
-	con_suggestion_helptext = new ConVar("con_suggestion_helptext", "0", FCVAR_DEVELOPMENTONLY, "Show ConVar help text in autocomplete window. Disabled by default to keep window less populated.", false, 0.f, false, 0.f, nullptr, nullptr);
+	con_suggestion_limit    = new ConVar("con_suggestion_limit"  , "120" , FCVAR_DEVELOPMENTONLY, "Maximum number of suggestions the autocomplete window will show for the console.", false, 0.f, false, 0.f, nullptr, nullptr);
+	con_suggestion_helptext = new ConVar("con_suggestion_helptext", "0"  , FCVAR_DEVELOPMENTONLY, "Show ConVar help text in autocomplete window. Disabled by default to keep window less populated.", false, 0.f, false, 0.f, nullptr, nullptr);
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// FILESYSTEM                                                             |
-	fs_warning_level_sdk    = new ConVar("fs_warning_level_sdk", "0", FCVAR_DEVELOPMENTONLY, "Set the SDK filesystem warning level.", false, 0.f, false, 0.f, nullptr, nullptr);
-	fs_show_warning_output  = new ConVar("fs_show_warning_output", "0", FCVAR_DEVELOPMENTONLY, "Logs the filesystem warnings to the console, filtered by 'fs_warning_level_native' ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	fs_warning_level_sdk            = new ConVar("fs_warning_level_sdk"           , "0", FCVAR_DEVELOPMENTONLY, "Set the SDK filesystem warning level.", false, 0.f, false, 0.f, nullptr, nullptr);
+	fs_show_warning_output          = new ConVar("fs_show_warning_output"         , "0", FCVAR_DEVELOPMENTONLY, "Logs the filesystem warnings to the console, filtered by 'fs_warning_level_native' ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	fs_packedstore_entryblock_stats = new ConVar("fs_packedstore_entryblock_stats", "0", FCVAR_DEVELOPMENTONLY, "If set to 1, prints the stats of each file entry in the VPK during decompression ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// MATERIALSYSTEM                                                         |
@@ -107,15 +119,15 @@ void ConVar::Init(void)
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// SQUIRREL                                                               |
-	sq_showrsonloading   = new ConVar("sq_showrsonloading", "0", FCVAR_DEVELOPMENTONLY, "Logs all 'rson' files loaded by the SQVM ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	sq_showrsonloading   = new ConVar("sq_showrsonloading"  , "0", FCVAR_DEVELOPMENTONLY, "Logs all 'rson' files loaded by the SQVM ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	sq_showscriptloading = new ConVar("sq_showscriptloading", "0", FCVAR_DEVELOPMENTONLY, "Logs all scripts loaded by the SQVM to be pre-compiled ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
-	sq_showvmoutput      = new ConVar("sq_showvmoutput", "0", FCVAR_DEVELOPMENTONLY, "Prints the VM output to the console. 1 = Log to file. 2 = 1 + log to console. 3 = 1 + 2 + log to overhead console. 4 = only log to overhead console.", false, 0.f, false, 0.f, nullptr, nullptr);
-	sq_showvmwarning     = new ConVar("sq_showvmwarning", "0", FCVAR_DEVELOPMENTONLY, "Prints the VM warning output to the console. 1 = Log to file. 2 = 1 + log to console.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sq_showvmoutput      = new ConVar("sq_showvmoutput"     , "0", FCVAR_DEVELOPMENTONLY, "Prints the VM output to the console. 1 = Log to file. 2 = 1 + log to console. 3 = 1 + 2 + log to overhead console. 4 = only log to overhead console.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sq_showvmwarning     = new ConVar("sq_showvmwarning"    , "0", FCVAR_DEVELOPMENTONLY, "Prints the VM warning output to the console. 1 = Log to file. 2 = 1 + log to console.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// NETCHANNEL                                                             |
-	net_userandomkey = new ConVar("net_userandomkey", "1", FCVAR_RELEASE, "If set to 1, the netchannel generates and sets a random base64 netkey.", false, 0.f, false, 0.f, nullptr, nullptr);
-	r5net_matchmaking_hostname = new ConVar("r5net_matchmaking_hostname", "r5a-comp-sv.herokuapp.com", FCVAR_RELEASE, "Holds the R5Net matchmaking hostname.", false, 0.f, false, 0.f, nullptr, nullptr);
-	r5net_show_debug           = new ConVar("r5net_show_debug", "1", FCVAR_DEVELOPMENTONLY, "Shows debug output for R5Net.", false, 0.f, false, 0.f, nullptr, nullptr);
+	net_userandomkey           = new ConVar("net_userandomkey"          , "1"                        , FCVAR_RELEASE        , "If set to 1, the netchannel generates and sets a random base64 netkey.", false, 0.f, false, 0.f, nullptr, nullptr);
+	r5net_matchmaking_hostname = new ConVar("r5net_matchmaking_hostname", "r5a-comp-sv.herokuapp.com", FCVAR_RELEASE        , "Holds the R5Net matchmaking hostname.", false, 0.f, false, 0.f, nullptr, nullptr);
+	r5net_show_debug           = new ConVar("r5net_show_debug"          , "1"                        , FCVAR_DEVELOPMENTONLY, "Shows debug output for R5Net.", false, 0.f, false, 0.f, nullptr, nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -400,9 +412,9 @@ void ConVar::SetValue(Color clValue)
 
 	for (int i = 0; i < 4; i++)
 	{
-		if (!(clValue._color[i] == 0 && svResult.size() == 0))
+		if (!(clValue.GetValue(i) == 0 && svResult.size() == 0))
 		{
-			svResult += std::to_string(clValue._color[i]);
+			svResult += std::to_string(clValue.GetValue(i));
 			svResult.append(" ");
 		}
 	}

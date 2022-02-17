@@ -32,10 +32,20 @@ ConVar* cl_drawconsoleoverlay              = new ConVar();
 ConVar* cl_consoleoverlay_lines            = new ConVar();
 ConVar* cl_consoleoverlay_offset_x         = new ConVar();
 ConVar* cl_consoleoverlay_offset_y         = new ConVar();
-ConVar* cl_consoleoverlay_native_clr       = new ConVar();
-ConVar* cl_consoleoverlay_server_clr       = new ConVar();
-ConVar* cl_consoleoverlay_client_clr       = new ConVar();
-ConVar* cl_consoleoverlay_ui_clr           = new ConVar();
+
+ConVar* cl_conoverlay_script_server_clr    = new ConVar();
+ConVar* cl_conoverlay_script_client_clr    = new ConVar();
+ConVar* cl_conoverlay_script_ui_clr        = new ConVar();
+ConVar* cl_conoverlay_native_server_clr    = new ConVar();
+ConVar* cl_conoverlay_native_client_clr    = new ConVar();
+ConVar* cl_conoverlay_native_ui_clr        = new ConVar();
+ConVar* cl_conoverlay_native_engine_clr    = new ConVar();
+ConVar* cl_conoverlay_native_fs_clr        = new ConVar();
+ConVar* cl_conoverlay_native_rtech_clr     = new ConVar();
+ConVar* cl_conoverlay_native_ms_clr        = new ConVar();
+ConVar* cl_conoverlay_netcon_clr           = new ConVar();
+ConVar* cl_conoverlay_warning_clr          = new ConVar();
+ConVar* cl_conoverlay_error_clr            = new ConVar();
 
 ConVar* cl_showsimstats                    = new ConVar();
 ConVar* cl_simstats_offset_x               = new ConVar();

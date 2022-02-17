@@ -43,10 +43,20 @@ extern ConVar* cl_drawconsoleoverlay;
 extern ConVar* cl_consoleoverlay_lines;
 extern ConVar* cl_consoleoverlay_offset_x;
 extern ConVar* cl_consoleoverlay_offset_y;
-extern ConVar* cl_consoleoverlay_native_clr;
-extern ConVar* cl_consoleoverlay_server_clr;
-extern ConVar* cl_consoleoverlay_client_clr;
-extern ConVar* cl_consoleoverlay_ui_clr;
+
+extern ConVar* cl_conoverlay_script_server_clr;
+extern ConVar* cl_conoverlay_script_client_clr;
+extern ConVar* cl_conoverlay_script_ui_clr;
+extern ConVar* cl_conoverlay_native_server_clr;
+extern ConVar* cl_conoverlay_native_client_clr;
+extern ConVar* cl_conoverlay_native_ui_clr;
+extern ConVar* cl_conoverlay_native_engine_clr;
+extern ConVar* cl_conoverlay_native_fs_clr;
+extern ConVar* cl_conoverlay_native_rtech_clr;
+extern ConVar* cl_conoverlay_native_ms_clr;
+extern ConVar* cl_conoverlay_netcon_clr;
+extern ConVar* cl_conoverlay_warning_clr;
+extern ConVar* cl_conoverlay_error_clr;
 
 extern ConVar* cl_showsimstats;
 extern ConVar* cl_simstats_offset_x;

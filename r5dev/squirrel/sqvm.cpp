@@ -23,12 +23,32 @@
 //---------------------------------------------------------------------------------
 void* HSQVM_PrintFunc(void* sqvm, char* fmt, ...)
 {
+	static int vmIdx{};
+	// We use the sqvm pointer as index for SDK usage as the function prototype has to match assembly.
+	switch (reinterpret_cast<int>(sqvm))
+	{
+	case 0:
+		vmIdx = 0;
+		break;
+	case 1:
+		vmIdx = 1;
+		break;
+	case 2:
+		vmIdx = 2;
+		break;
+	case 3:
+		vmIdx = 3;
+		break;
+	default:
 #ifdef GAMEDLL_S3
-	int vmIdx = *(int*)((std::uintptr_t)sqvm + 0x18);
+		vmIdx = *reinterpret_cast<int*>(reinterpret_cast<std::uintptr_t>(sqvm) + 0x18);
 #else // TODO [ AMOS ]: nothing equal to 'rdx + 18h' exist in the vm structs for anything below S3.
-	static int vmIdx = 3;
+		vmIdx = 3;
 #endif
+		break;
+	}
 	static char buf[1024] = {};
+	static std::regex rxAnsiExp("\\\033\\[.*?m");
 
 	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
@@ -71,6 +91,7 @@ void* HSQVM_PrintFunc(void* sqvm, char* fmt, ...)
 		}
 
 #ifndef DEDICATED
+		vmStr = std::regex_replace(vmStr, rxAnsiExp, "");
 		iconsole->debug(vmStr);
 
 		if (sq_showvmoutput->GetInt() > 2)
@@ -78,7 +99,7 @@ void* HSQVM_PrintFunc(void* sqvm, char* fmt, ...)
 			std::string s = g_spd_sys_w_oss.str();
 
 			g_pIConsole->m_ivConLog.push_back(Strdup(s.c_str()));
-			g_pLogSystem.AddLog((LogType_t)vmIdx, s);
+			g_pLogSystem.AddLog(static_cast<LogType_t>(vmIdx), s);
 
 			g_spd_sys_w_oss.str("");
 			g_spd_sys_w_oss.clear();
@@ -149,7 +170,7 @@ void* HSQVM_WarningFunc(void* sqvm, int a2, int a3, int* nStringSize, void** ppS
 
 		if (sq_showvmwarning->GetInt() > 2)
 		{
-			g_pLogSystem.AddLog((LogType_t)vmIdx, s);
+			g_pLogSystem.AddLog(LogType_t::WARNING_C, s);
 			g_pIConsole->m_ivConLog.push_back(Strdup(s.c_str()));
 		}
 #endif // !DEDICATED

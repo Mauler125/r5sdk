@@ -82,7 +82,7 @@ void DevMsg(eDLL_T idx, const char* fmt, ...)
 		va_end(args);
 	}/////////////////////////////
 
-	svOut = sDLL_T[(int)idx].c_str();
+	svOut = sDLL_T[static_cast<int>(idx)].c_str();
 	svOut.append(szBuf);
 	svOut = std::regex_replace(svOut, rxAnsiExp, "");
 
@@ -101,7 +101,7 @@ void DevMsg(eDLL_T idx, const char* fmt, ...)
 	}
 	else
 	{
-		svAnsiOut = sANSI_DLL_T[(int)idx].c_str();
+		svAnsiOut = sANSI_DLL_T[static_cast<int>(idx)].c_str();
 		svAnsiOut.append(szBuf);
 
 		char szNewLine = svAnsiOut.back();
@@ -121,7 +121,10 @@ void DevMsg(eDLL_T idx, const char* fmt, ...)
 	iconsole->info(svOut);
 	std::string s = g_spd_sys_w_oss.str();
 
-	g_pLogSystem.AddLog((LogType_t)eDLL_T::ENGINE, s);
+	int nLog = static_cast<int>(idx) + 3; // RUI log enum is shifted by 3 for scripts.
+	LogType_t tLog = static_cast<LogType_t>(nLog);
+
+	g_pLogSystem.AddLog(tLog, s);
 	g_pIConsole->m_ivConLog.push_back(Strdup(s.c_str()));
 
 	g_spd_sys_w_oss.str("");

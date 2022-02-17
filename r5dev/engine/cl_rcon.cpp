@@ -12,6 +12,7 @@
 #include "protoc/cl_rcon.pb.h"
 #include "engine/cl_rcon.h"
 #include "engine/sys_utils.h"
+#include "squirrel/sqvm.h"
 #include "common/igameserverdata.h"
 
 //-----------------------------------------------------------------------------
@@ -211,15 +212,61 @@ void CRConClient::ProcessBuffer(const char* pszIn, int nRecvLen) const
 //-----------------------------------------------------------------------------
 void CRConClient::ProcessMessage(const sv_rcon::response& sv_response) const
 {
+	std::string svOut = sv_response.responsebuf();
+
 	switch (sv_response.responsetype())
 	{
 	case sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH:
+	{
+		StringReplace(svOut, sDLL_T[7], "");
+		DevMsg(eDLL_T::NETCON, "%s", svOut.c_str());
+		break;
+	}
 	case sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG:
 	{
-		std::string svOut = sv_response.responsebuf();
-
-		// TODO: Manipulate string..
-		DevMsg(eDLL_T::NONE, "%s", svOut.c_str());
+		// !TODO: Network the enum for this.
+		if (strstr(svOut.c_str(), SQVM_LOG_T[0].c_str()))
+		{
+			HSQVM_PrintFunc(nullptr, const_cast<char*>("%s"), svOut.c_str());
+		}
+		else // This has to be done for RUI color logging.
+		{
+			if (strstr(svOut.c_str(), sDLL_T[0].c_str()))
+			{
+				StringReplace(svOut, sDLL_T[0], "");
+				DevMsg(eDLL_T::SERVER, "%s", svOut.c_str());
+			}
+			if (strstr(svOut.c_str(), sDLL_T[1].c_str()))
+			{
+				StringReplace(svOut, sDLL_T[1], "");
+				DevMsg(eDLL_T::CLIENT, "%s", svOut.c_str());
+			}
+			if (strstr(svOut.c_str(), sDLL_T[2].c_str()))
+			{
+				StringReplace(svOut, sDLL_T[2], "");
+				DevMsg(eDLL_T::UI, "%s", svOut.c_str());
+			}
+			if (strstr(svOut.c_str(), sDLL_T[3].c_str()))
+			{
+				StringReplace(svOut, sDLL_T[3], "");
+				DevMsg(eDLL_T::ENGINE, "%s", svOut.c_str());
+			}
+			if (strstr(svOut.c_str(), sDLL_T[4].c_str()))
+			{
+				StringReplace(svOut, sDLL_T[4], "");
+				DevMsg(eDLL_T::FS, "%s", svOut.c_str());
+			}
+			if (strstr(svOut.c_str(), sDLL_T[5].c_str()))
+			{
+				StringReplace(svOut, sDLL_T[5], "");
+				DevMsg(eDLL_T::RTECH, "%s", svOut.c_str());
+			}
+			if (strstr(svOut.c_str(), sDLL_T[6].c_str()))
+			{
+				StringReplace(svOut, sDLL_T[6], "");
+				DevMsg(eDLL_T::MS, "%s", svOut.c_str());
+			}
+		}
 		break;
 	}
 	default:
@@ -291,5 +338,5 @@ bool CRConClient::IsConnected(void) const
 {
 	return m_bConnEstablished;
 }
-
+///////////////////////////////////////////////////////////////////////////////
 CRConClient* g_pRConClient = new CRConClient();

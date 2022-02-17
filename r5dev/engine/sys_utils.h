@@ -33,7 +33,8 @@ enum class eDLL_T : int
 	FS     = 4, // File System
 	RTECH  = 5, // RTech API
 	MS     = 6, // Material System
-	NONE   = 7
+	NETCON = 7, // Net Console
+	NONE   = 8
 };
 
 const std::string sDLL_T[8] = 
@@ -45,6 +46,7 @@ const std::string sDLL_T[8] =
 	"Native(F):",
 	"Native(R):",
 	"Native(M):",
+	"Netcon(X):"
 	""
 };
 
