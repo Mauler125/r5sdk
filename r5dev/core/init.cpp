@@ -17,6 +17,7 @@
 #include "vpc/interfaces.h"
 #include "common/opcodes.h"
 #include "launcher/IApplication.h"
+#include "launcher/prx.h"
 #include "ebisusdk/EbisuSDK.h"
 #ifndef DEDICATED
 #include "milessdk/win64_rrthreads.h"
@@ -83,6 +84,9 @@ void Systems_Init()
 
 	// Hook functions
 	IApplication_Attach();
+#ifdef DEDICATED
+	PRX_Attach();
+#endif // DEDICATED
 	CBaseClient_Attach();
 	CBaseFileSystem_Attach();
 
@@ -159,6 +163,9 @@ void Systems_Shutdown()
 
 	// Unhook functions
 	IApplication_Detach();
+#ifdef DEDICATED
+	PRX_Detach();
+#endif // DEDICATED
 	CBaseClient_Detach();
 	CBaseFileSystem_Detach();
 

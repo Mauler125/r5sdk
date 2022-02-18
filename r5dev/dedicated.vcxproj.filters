@@ -714,6 +714,9 @@
     <ClInclude Include="protoc\sv_rcon.pb.h">
       <Filter>thirdparty\protobuf</Filter>
     </ClInclude>
+    <ClInclude Include="launcher\prx.h">
+      <Filter>sdk\launcher</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="client\IVEngineClient.cpp">
@@ -955,6 +958,9 @@
     </ClCompile>
     <ClCompile Include="protoc\sv_rcon.pb.cc">
       <Filter>thirdparty\protobuf</Filter>
+    </ClCompile>
+    <ClCompile Include="launcher\prx.cpp">
+      <Filter>sdk\launcher</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

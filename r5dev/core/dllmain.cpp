@@ -46,6 +46,14 @@ void R5Dev_Init()
 
 void R5Dev_Shutdown()
 {
+    static bool bShutDown = false;
+    if (bShutDown)
+    {
+        spdlog::error("Recursive shutdown!\n");
+        return;
+    }
+    bShutDown = true;
+
     Systems_Shutdown();
     WinSys_Detach();
 
