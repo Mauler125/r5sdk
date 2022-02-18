@@ -33,7 +33,8 @@ void Dedicated_Init()
 	// CHLClIENT
 	//-------------------------------------------------------------------------
 	{
-		gCHLClient__1000.Patch({ 0xC3 }); // FUN --> RET | Return early in unknown 'CHLClient' function to prevent infinite loop.
+		CHLClient__LevelShutdown.Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 }); // FUN --> RET | Return early in 'CHLClient::LevelShutdown()' during DLL shutdown.
+		CHLClient__HudProcessInput.Patch({ 0xC3 });                             // FUN --> RET | Return early in 'CHLClient::HudProcessInput()' to prevent infinite loop.
 	}
 
 	//-------------------------------------------------------------------------
@@ -71,7 +72,7 @@ void Dedicated_Init()
 	// CSHADERSYSTEM
 	//-------------------------------------------------------------------------
 	{
-		CShaderSystem__Init.Patch({ 0xC3 });                                         // FUN --> RET | Return early in 'CShaderSystem::Init' to prevent initialization.
+		CShaderSystem__Init.Patch({ 0xC3 });                                         // FUN --> RET | Return early in 'CShaderSystem::Init()' to prevent initialization.
 	}
 
 	//-------------------------------------------------------------------------
@@ -107,6 +108,22 @@ void Dedicated_Init()
 	}
 
 	//-------------------------------------------------------------------------
+	// CVGUI
+	//-------------------------------------------------------------------------
+	{
+		/*MOV EAX, 0*/
+		CVGui__RunFrame.Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 });                 // FUN --> RET | 'CVGui::RunFrame()' gets called on DLL shutdown.
+	}
+
+	//-------------------------------------------------------------------------
+	// CENGINEVGUI
+	//-------------------------------------------------------------------------
+	{
+		CEngineVGui__Shutdown.Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 });                                  // FUN --> RET | Cannot shutdown CEngineVGui if its never initialized.
+		CEngineVGui__ActivateGameUI.FindPatternSelf("74 08", ADDRESS::Direction::DOWN).Patch({ 0x90, 0x90 }); // JZ  --> NOP | Remove condition to return early when engine attempts to activate UI on the server.
+	}
+
+	//-------------------------------------------------------------------------
 	// MM_HEARTBEAT
 	//-------------------------------------------------------------------------
 	{
@@ -138,11 +155,24 @@ void Dedicated_Init()
 	}
 
 	//-------------------------------------------------------------------------
+	// RUNTIME: HOST_SHUTDOWN
+	//-------------------------------------------------------------------------
+	{
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+		Host_Shutdown.Offset(0x3B0).FindPatternSelf("0F 84", ADDRESS::Direction::DOWN).Patch({ 0x0F, 0x85 });      // JE  --> JNE | Cannot shutdown ClientDLL if its never initialized.
+		Host_Shutdown.Offset(0x9D0).FindPatternSelf("0F 84", ADDRESS::Direction::DOWN, 300).Patch({ 0x0F, 0x85 }); // JE  --> JNE | Cannot shutdown EngineVGui if its never initialized.
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+		Host_Shutdown.Offset(0x2B0).FindPatternSelf("0F 84", ADDRESS::Direction::DOWN, 300).Patch({ 0x0F, 0x85 }); // JE  --> JNE | Cannot shutdown ClientDLL if its never initialized.
+		Host_Shutdown.Offset(0x5C0).FindPatternSelf("0F 84", ADDRESS::Direction::DOWN, 300).Patch({ 0x0F, 0x85 }); // JE  --> JNE | Cannot shutdown EngineVGui if its never initialized.
+#endif
+	}
+
+	//-------------------------------------------------------------------------
 	// RUNTIME: HOST_NEWGAME
 	//-------------------------------------------------------------------------
 	{
 		Host_NewGame.Offset(0x4E0).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });
-		Host_NewGame.Offset(0x637).Patch({ 0xE9, 0xC1, 0x00, 0x00, 0x00 }); // JNE --> JMP | Prevent connect localhost from being executed in Host_NewGame.
+		Host_NewGame.Offset(0x637).Patch({ 0xE9, 0xC1, 0x00, 0x00, 0x00 });      // JNE --> JMP | Prevent connect localhost from being executed in Host_NewGame.
 	}
 
 	//-------------------------------------------------------------------------
@@ -151,6 +181,15 @@ void Dedicated_Init()
 	{
 		_Host_RunFrame.Offset(0xFB0).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });    // CAL --> NOP | NOP call to unused VGUI code to prevent crash at SIGNONSTATE_PRESPAWN.
 		_Host_RunFrame.Offset(0x1023).Patch({ 0x90, 0x90, 0x90 });               // CAL --> NOP | NOP NULL call as client is never initialized.
+	}
+
+	//-------------------------------------------------------------------------
+	// RUNTIME: HOST_DISCONNECT
+	//-------------------------------------------------------------------------
+	{
+#if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+		Host_Disconnect.Offset(0x4A).FindPatternSelf("FF 90 80", ADDRESS::Direction::DOWN, 300).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, }); // CAL --> RET | This seems to call 'CEngineVGui::GetGameUIInputContext()'.
+#endif
 	}
 
 	//-------------------------------------------------------------------------
@@ -205,10 +244,19 @@ void Dedicated_Init()
 		SCR_BeginLoadingPlaque.Offset(0x1D6).Patch({ 0xEB, 0x27 });                        // JNE --> JMP | Prevent connect command from crashing by invalid call to UI function.
 	}
 
+	//-------------------------------------------------------------------------
+	// RUNTIME: CL_CLEARSTATE
+	//-------------------------------------------------------------------------
+#if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+	{
+		CL_ClearState.Offset(0x0).Patch({ 0xC3 });                                         // FUN --> RET | Invalid 'CL_ClearState()' call from Host_Shutdown causing segfault.
+	}
+#endif
+
 	// This mandatory pak file should only exist on the client.
 	if (!FileExists("vpk\\client_frontend.bsp.pak000_000.vpk"))
 	{
-		// Patch 'client' pak file string constants to 'server' if this is a standalone dedicated server
+		// Patch 'client' pak file string constants to 'server' if this is a standalone dedicated server.
 		g_pClientVPKDir.PatchString("vpk/%sserver_%s.bsp.pak000%s");
 		g_pClientBSP.PatchString("vpk/server_%s.bsp");
 		g_pClientCommonBSP.PatchString("vpk/server_mp_common.bsp");
@@ -264,13 +312,5 @@ void RuntimePtc_Toggle() /* .TEXT */
 		printf("\n");
 	}
 	g_nop = !g_nop;
-
-
-/*
-rtech_asyncload "common.rpak"
-rtech_asyncload "common_mp.rpak"
-rtech_asyncload "mp_rr_canyonlands_mu1.rpak"
-rtech_asyncload "mp_rr_desertlands_64k_x_64k.rpak"
-*/
 #endif // GAMEDLL_S3
 }
