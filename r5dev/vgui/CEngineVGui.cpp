@@ -153,7 +153,7 @@ Color CLogSystem::GetLogColorForType(LogType_t type)
 	case LogType_t::NATIVE_RTECH:
 		return { cl_conoverlay_native_rtech_clr->GetColor() };
 	case LogType_t::NATIVE_MS:
-		return { cl_conoverlay_native_rtech_clr->GetColor() };
+		return { cl_conoverlay_native_ms_clr->GetColor() };
 	case LogType_t::NETCON_S:
 		return { cl_conoverlay_netcon_clr->GetColor() };
 	case LogType_t::WARNING_C:
