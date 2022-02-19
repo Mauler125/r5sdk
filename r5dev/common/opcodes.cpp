@@ -3,9 +3,9 @@
  *-----------------------------------------------------------------------------*/
 
 #include "core/stdafx.h"
+#include "launcher/IApplication.h"
 #include "common/opcodes.h"
 #include "common/netmessages.h"
-#include "launcher/IApplication.h"
 #include "engine/cmodel_bsp.h"
 #include "engine/host_cmd.h"
 #include "engine/gl_screen.h"
@@ -13,6 +13,7 @@
 #include "engine/cl_main.h"
 #include "engine/sv_main.h"
 #include "engine/sys_getmodes.h"
+#include "rtech/rtech_game.h"
 #include "client/cdll_engine_int.h"
 #include "game/server/fairfight_impl.h"
 #include "materialsystem/materialsystem.h"
@@ -199,6 +200,15 @@ void Dedicated_Init()
 	{
 #if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		Host_Disconnect.Offset(0x4A).FindPatternSelf("FF 90 80", ADDRESS::Direction::DOWN, 300).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, }); // CAL --> RET | This seems to call 'CEngineVGui::GetGameUIInputContext()'.
+#endif
+	}
+
+	//-------------------------------------------------------------------------
+	// RUNTIME: RTECH_GAME
+	//-------------------------------------------------------------------------
+	{
+#if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+		p_RTech_LoadPak.Offset(0x890).FindPatternSelf("75", ADDRESS::Direction::DOWN, 200).Patch({ 0xEB });       // JNZ --> JMP | Disable error handling for missing streaming files on the server. The server does not need streamed data from the starpak files.
 #endif
 	}
 
