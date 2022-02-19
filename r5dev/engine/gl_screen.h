@@ -31,8 +31,7 @@ class HGL_Screen : public IDetour
 {
 	virtual void debugp()
 	{
-		std::cout << "| VAR: SCR_BeginLoadingPlaque               : 0x" << std::hex << std::uppercase << SCR_BeginLoadingPlaque.GetPtr()         << std::setw(npad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		std::cout << "| FUN: SCR_BeginLoadingPlaque               : 0x" << std::hex << std::uppercase << SCR_BeginLoadingPlaque.GetPtr()         << std::setw(npad) << " |" << std::endl;
 		std::cout << "| VAR: scr_drawloading                      : 0x" << std::hex << std::uppercase << scr_drawloading                         << std::setw(0) << " |" << std::endl;
 		std::cout << "| VAR: scr_engineevent_loadingstarted       : 0x" << std::hex << std::uppercase << scr_engineevent_loadingstarted          << std::setw(0) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
