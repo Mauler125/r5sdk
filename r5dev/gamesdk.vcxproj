@@ -237,6 +237,7 @@
     <ClInclude Include="client\client.h" />
     <ClInclude Include="client\IVEngineClient.h" />
     <ClInclude Include="common\igameserverdata.h" />
+    <ClInclude Include="common\netmessages.h" />
     <ClInclude Include="common\opcodes.h" />
     <ClInclude Include="common\protocol.h" />
     <ClInclude Include="common\pseudodefs.h" />
@@ -249,6 +250,7 @@
     <ClInclude Include="ebisusdk\EbisuSDK.h" />
     <ClInclude Include="engine\baseclient.h" />
     <ClInclude Include="engine\baseclientstate.h" />
+    <ClInclude Include="engine\cl_main.h" />
     <ClInclude Include="engine\cl_rcon.h" />
     <ClInclude Include="engine\cmodel_bsp.h" />
     <ClInclude Include="engine\common.h" />
@@ -263,9 +265,11 @@
     <ClInclude Include="engine\sys_dll.h" />
     <ClInclude Include="engine\sys_dll2.h" />
     <ClInclude Include="engine\sys_engine.h" />
+    <ClInclude Include="engine\sys_getmodes.h" />
     <ClInclude Include="engine\sys_utils.h" />
     <ClInclude Include="gameui\IConsole.h" />
     <ClInclude Include="gameui\IBrowser.h" />
+    <ClInclude Include="game\server\fairfight_impl.h" />
     <ClInclude Include="inputsystem\ButtonCode.h" />
     <ClInclude Include="inputsystem\inputsystem.h" />
     <ClInclude Include="launcher\IApplication.h" />
@@ -302,6 +306,7 @@
     <ClInclude Include="squirrel\sqapi.h" />
     <ClInclude Include="squirrel\sqinit.h" />
     <ClInclude Include="squirrel\sqvm.h" />
+    <ClInclude Include="studiorender\studiorendercontext.h" />
     <ClInclude Include="thirdparty\detours\include\detours.h" />
     <ClInclude Include="thirdparty\detours\include\detver.h" />
     <ClInclude Include="thirdparty\detours\include\idetour.h" />

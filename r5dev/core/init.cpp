@@ -16,6 +16,7 @@
 #include "vpc/basefilesystem.h"
 #include "vpc/interfaces.h"
 #include "common/opcodes.h"
+#include "common/netmessages.h"
 #include "launcher/IApplication.h"
 #include "launcher/prx.h"
 #include "ebisusdk/EbisuSDK.h"
@@ -39,6 +40,7 @@
 #include "squirrel/sqinit.h"
 #include "squirrel/sqapi.h"
 #include "squirrel/sqvm.h"
+#include "studiorender/studiorendercontext.h"
 #include "rtech/rtech_game.h"
 #include "rtech/stryder.h"
 #include "engine/baseclient.h"
@@ -49,14 +51,19 @@
 #include "engine/modelloader.h"
 #include "engine/net.h"
 #include "engine/net_chan.h"
+#include "engine/cl_main.h"
 #include "engine/sv_main.h"
 #include "engine/sys_dll.h"
 #include "engine/sys_dll2.h"
 #include "engine/sys_engine.h"
 #include "engine/sys_utils.h"
+#include "engine/sys_getmodes.h"
 #ifndef DEDICATED
 #include "engine/gl_screen.h"
 #include "engine/debugoverlay.h"
+#endif // !DEDICATED
+#include "game/server/fairfight_impl.h"
+#ifndef DEDICATED
 #include "inputsystem/inputsystem.h"
 #include "windows/id3dx.h"
 #endif // !DEDICATED

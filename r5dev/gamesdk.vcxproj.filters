@@ -148,6 +148,15 @@
     <Filter Include="thirdparty\protobuf">
       <UniqueIdentifier>{69f89031-0a48-4c3c-9ca8-c9a46f420e67}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\studiorender">
+      <UniqueIdentifier>{f26bcefd-b91a-4a1f-8b41-1124819c6e1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\game">
+      <UniqueIdentifier>{5c9f1dab-de5d-4d9f-b542-fad470862de7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\game\server">
+      <UniqueIdentifier>{9b8dfdef-ff4d-49c4-89ac-d6ad59a1f58a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="client\client.cpp">
@@ -1153,6 +1162,21 @@
     </ClInclude>
     <ClInclude Include="networksystem\pylon.h">
       <Filter>sdk\networksystem</Filter>
+    </ClInclude>
+    <ClInclude Include="studiorender\studiorendercontext.h">
+      <Filter>sdk\studiorender</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\cl_main.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sys_getmodes.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="game\server\fairfight_impl.h">
+      <Filter>sdk\game\server</Filter>
+    </ClInclude>
+    <ClInclude Include="common\netmessages.h">
+      <Filter>sdk\common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

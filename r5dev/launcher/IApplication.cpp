@@ -17,7 +17,7 @@
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-int HIApplication_Main(CModAppSystemGroup* modAppSystemGroup)
+int HModAppSystemGroup_Main(CModAppSystemGroup* modAppSystemGroup)
 {
 	int nRunResult = 3; // RUN_OK
 	HEbisuSDK_Init(); // Not here in retail. We init EbisuSDK here though.
@@ -51,7 +51,7 @@ int HIApplication_Main(CModAppSystemGroup* modAppSystemGroup)
 //-----------------------------------------------------------------------------
 // Purpose: Instantiate all main libraries
 //-----------------------------------------------------------------------------
-bool HIApplication_Create(void* a1)
+bool HModAppSystemGroup_Create(CModAppSystemGroup* modAppSystemGroup)
 {
 #ifdef DEDICATED
 	* g_bDedicated = true;
@@ -64,17 +64,18 @@ bool HIApplication_Create(void* a1)
 	}
 	g_bAppSystemInit = true;
 
-	return IAppSystem_Create(a1);
+	return CModAppSystemGroup_Create(modAppSystemGroup);
 }
 
+///////////////////////////////////////////////////////////////////////////////
 void IApplication_Attach()
 {
-	DetourAttach((LPVOID*)&IAppSystem_Main, &HIApplication_Main);
-	DetourAttach((LPVOID*)&IAppSystem_Create, &HIApplication_Create);
+	DetourAttach((LPVOID*)&CModAppSystemGroup_Main, &HModAppSystemGroup_Main);
+	DetourAttach((LPVOID*)&CModAppSystemGroup_Create, &HModAppSystemGroup_Create);
 }
 
 void IApplication_Detach()
 {
-	DetourDetach((LPVOID*)&IAppSystem_Main, &HIApplication_Main);
-	DetourDetach((LPVOID*)&IAppSystem_Create, &HIApplication_Create);
+	DetourDetach((LPVOID*)&CModAppSystemGroup_Main, &HModAppSystemGroup_Main);
+	DetourDetach((LPVOID*)&CModAppSystemGroup_Create, &HModAppSystemGroup_Create);
 }

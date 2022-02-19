@@ -26,57 +26,10 @@ namespace
 namespace
 {
 	//-------------------------------------------------------------------------
-	// CGAME
-	//-------------------------------------------------------------------------
-	ADDRESS CVideoMode_Common__CreateGameWindow = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x56\x57\x48\x83\xEC\x28\x48\x8B\xF9\xE8\x00\x00\x00\x00\x48\x8B\xF0", "xxxxxxxxxxx????xxx");
-	// 0x140299100 // 40 56 57 48 83 EC 28 48 8B F9 E8 ? ? ? ? 48 8B F0 //
-
-	//-------------------------------------------------------------------------
-	// CHLClIENT
-	//-------------------------------------------------------------------------
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	ADDRESS CHLClient__LevelShutdown = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x56\x41\x54\x41\x56\x48\x83\xEC\x28\x48\x8B\xF1", "xxxxxxxxxxxxxx");
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	ADDRESS CHLClient__LevelShutdown = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\xF9\x48\x8D\x0D\x00\x00\x00\x00", "xxxx?xxxx?xxxx?xxxxxxxxxxx????");
-#endif // 0x1405BA360 // 48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B F9 48 8D 0D ? ? ? ? //
-
-	ADDRESS CHLClient__HudProcessInput = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x83\xEC\x28\x0F\xB6\x0D\x00\x00\x00\x00\x88\x15\x00\x00\x00\x00", "xxxxxxx????xx????"); // CHLClient + 1000
-	// 0x1405C27B0 // 48 83 EC 28 0F B6 0D ? ? ? ? 88 15 ? ? ? ? //
-
-	//-------------------------------------------------------------------------
-	// CSOURCEAPPSYSTEMGROUP
-	//-------------------------------------------------------------------------
-	ADDRESS gCSourceAppSystemGroup__Create = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\xF9\xE8\x00\x00\x00\x00\x33\xC9", "xxxx?xxxx?xxxxxxxxx????xx");
-	// 0x14044AFA0 // 48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B F9 E8 ? ? ? ? 33 C9 //
-
-	//-------------------------------------------------------------------------
-	// MM_HEARTBEAT
-	//-------------------------------------------------------------------------
-	ADDRESS MM_Heartbeat__ToString = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x83\xEC\x38\xE8\x00\x00\x00\x00\x3B\x05\x00\x00\x00\x00", "xxxxx????xx????"); // server HeartBeat? (baseserver.cpp).
-	// 0x1402312A0 // 48 83 EC 38 E8 ? ? ? ? 3B 05 ? ? ? ? //
-
-	//-------------------------------------------------------------------------
 	// CSHADERSYSTEM
 	//-------------------------------------------------------------------------
 	ADDRESS CShaderSystem__Init = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\xC6\x41\x10\x00", "xxxx?xxxx?xxxxxxxxx");
 	// 0x1403DF870 // 48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 C6 41 10 00 //
-
-	//-------------------------------------------------------------------------
-	// CSTUDIORENDERCONTEXT
-	//-------------------------------------------------------------------------
-#if defined (GAMEDLL_S1)
-	ADDRESS CStudioRenderContext__LoadModel = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x4C\x89\x44\x24\x00\x53\x55\x56\x41\x54\x41\x57", "xxxx?xxxxxxx");
-#elif defined (GAMEDLL_S2)
-	ADDRESS CStudioRenderContext__LoadModel = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x4C\x89\x44\x24\x00\x48\x89\x54\x24\x00\x53\x57\x41\x55\x48\x81\xEC\x00\x00\x00\x00", "xxxx?xxxx?xxxxxxx????");
-#elif defined (GAMEDLL_S3)
-	ADDRESS CStudioRenderContext__LoadModel = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x4C\x89\x44\x24\x00\x48\x89\x54\x24\x00\x48\x89\x4C\x24\x00\x53\x55\x56\x57\x48\x83\xEC\x78", "xxxx?xxxx?xxxx?xxxxxxxx");
-#endif// 0x1404554C0 // 4C 89 44 24 ? 48 89 54 24 ? 48 89 4C 24 ? 53 55 56 57 48 83 EC 78 //
-
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	ADDRESS CStudioRenderContext__LoadMaterials = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x4C\x89\x44\x24\x00\x55\x56\x41\x57", "xxxx?xxxx");
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	ADDRESS CStudioRenderContext__LoadMaterials = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x8B\xC4\x4C\x89\x40\x18\x55\x56\x41\x55", "xxxxxxxxxxx");
-#endif// 0x140456B50 // 48 8B C4 4C 89 40 18 55 56 41 55 //
 
 	//-------------------------------------------------------------------------
 	// CVGUI
@@ -97,15 +50,6 @@ namespace
 #endif // 0x140282C90 // 48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 80 3D ? ? ? ? ? 48 8B D9 //
 	ADDRESS CEngineVGui__ActivateGameUI = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x48\x83\xEC\x20\xF6\x81\x00\x00\x00\x00\x00\x48\x8B\xD9\x74\x08", "xxxxxxxx?????xxxxx");
 	// 
-
-	//-------------------------------------------------------------------------
-	// RUNTIME: FAIRFIGHT
-	//-------------------------------------------------------------------------
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	ADDRESS FairFight_Init = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x57\x41\x57\x48\x83\xEC\x30\x8B\x81\x00\x00\x00\x00", "xxxxxxxxxxx????");
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	ADDRESS FairFight_Init = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x48\x83\xEC\x20\x8B\x81\xB0\x03\x00\x00\x48\x8B\xD9\xC6", "xxxxxxxxxxxxxxxx");
-#endif // 0x140303AE0 // 40 53 48 83 EC 20 8B 81 ? ? ? ? 48 8B D9 C6 81 ? ? ? ? ? //
 
 	//-------------------------------------------------------------------------
 	// RUNTIME: SYS_INITGAME
@@ -153,13 +97,6 @@ namespace
 	// 0x140231C00 // 48 8B C4 48 89 58 18 48 89 70 20 F3 0F 11 48 ? //
 
 	//-------------------------------------------------------------------------
-	// RUNTIME: CL_CLEARSTATE
-	//-------------------------------------------------------------------------
-#if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	ADDRESS CL_ClearState = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x0D\x00\x00\x00\x00\x48\x8B\x01", "xxxx?xxxx?xxxx????xxx????xxx");
-#endif // 0x1402BE4C0 // 48 89 5C 24 ? 48 89 74 24 ? 57 48 81 EC ? ? ? ? 48 8B 0D ? ? ? ? 48 8B 01 //
-
-	//-------------------------------------------------------------------------
 	// .RDATA
 	//-------------------------------------------------------------------------
 	ADDRESS g_pClientVPKDir    = g_mGameDll.FindAddressForString("vpk/%sclient_%s.bsp.pak000%s", true);
@@ -175,24 +112,12 @@ class HOpcodes : public IDetour
 {
 	virtual void debugp()
 	{
-		std::cout << "| FUN: CVideoMode_Common::CreateGameWindow  : 0x" << std::hex << std::uppercase << CVideoMode_Common__CreateGameWindow.GetPtr() << std::setw(npad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
-		std::cout << "| FUN: CHLClient::LevelShutdown             : 0x" << std::hex << std::uppercase << CHLClient__LevelShutdown.GetPtr()            << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: CHLClient::HudProcessInput           : 0x" << std::hex << std::uppercase << CHLClient__HudProcessInput.GetPtr()          << std::setw(npad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
-		std::cout << "| FUN: MM_Heartbeat::ToString               : 0x" << std::hex << std::uppercase << MM_Heartbeat__ToString.GetPtr()              << std::setw(npad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
 		std::cout << "| FUN: CShaderSystem::Init                  : 0x" << std::hex << std::uppercase << CShaderSystem__Init.GetPtr()                 << std::setw(npad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
-		std::cout << "| FUN: CStudioRenderContext::LoadModel      : 0x" << std::hex << std::uppercase << CStudioRenderContext__LoadModel.GetPtr()     << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: CStudioRenderContext::LoadMaterials  : 0x" << std::hex << std::uppercase << CStudioRenderContext__LoadMaterials.GetPtr() << std::setw(npad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 		std::cout << "| FUN: CVGui::RunFrame                      : 0x" << std::hex << std::uppercase << CVGui__RunFrame.GetPtr()                     << std::setw(npad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 		std::cout << "| FUN: CEngineVGui::Shutdown                : 0x" << std::hex << std::uppercase << CEngineVGui__Shutdown.GetPtr()               << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: CEngineVGui::ActivateGameUI          : 0x" << std::hex << std::uppercase << CEngineVGui__ActivateGameUI.GetPtr()         << std::setw(npad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
-		std::cout << "| FUN: FairFight_Init                       : 0x" << std::hex << std::uppercase << FairFight_Init.GetPtr()                      << std::setw(npad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 		std::cout << "| FUN: Sys_InitGame                         : 0x" << std::hex << std::uppercase << Sys_InitGame.GetPtr()                        << std::setw(npad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
