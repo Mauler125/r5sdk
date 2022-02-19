@@ -1,6 +1,6 @@
 //===========================================================================//
 //
-// Purpose: 
+// Purpose: Implementation of the CBaseClient class.
 //
 //===========================================================================//
 
@@ -18,13 +18,13 @@ bool CBaseClientState::IsPaused()
 	return *m_bPaused;
 }
 
-// Technically doesn't belong here.
 //------------------------------------------------------------------------------
 // Purpose: gets the client time
+// Technically doesn't belong here
 //------------------------------------------------------------------------------
 float CBaseClientState::GetClientTime()
 {
-    if (*scr_drawloading)
+    if (*cl_time_use_host_tickcount)
     {
         return (float)(int)*host_tickcount * (float)*client_debugdraw_int_unk;
     }

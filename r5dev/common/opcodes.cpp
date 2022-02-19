@@ -4,7 +4,11 @@
 
 #include "core/stdafx.h"
 #include "common/opcodes.h"
+#include "engine/cmodel_bsp.h"
 #include "engine/host_cmd.h"
+#include "engine/gl_screen.h"
+#include "engine/modelloader.h"
+#include "engine/sv_main.h"
 #include "materialsystem/materialsystem.h"
 #include "bsplib/bsplib.h"
 #include "ebisusdk/EbisuSDK.h"

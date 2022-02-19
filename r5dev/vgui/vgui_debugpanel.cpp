@@ -1,35 +1,19 @@
-#include "core/stdafx.h"
-#include "tier0/cvar.h"
-#include "mathlib/color.h"
-#include "vgui/CEngineVGui.h"
-#include "vguimatsurface/MatSystemSurface.h"
-#include "materialsystem/materialsystem.h"
-#include "engine/debugoverlay.h"
-#include "engine/baseclientstate.h"
-#include "server/server.h"
+//===========================================================================//
+//
+// Purpose: Implements the debug panels.
+//
+// $NoKeywords: $
+//===========================================================================//
 
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-int HCEngineVGui_Paint(void* thisptr, int mode)
-{
-	int result = CEngineVGui_Paint(thisptr, mode);
-
-	static void* pCMatSystemSurface = ADDRESS(0x14D40B3B0).RCast<void* (*)()>();
-	static auto fnRenderStart       = ADDRESS(0x14053EFC0).RCast<void(*)(void*)>();
-	static auto fnRenderEnd         = ADDRESS(0x14053F1B0).RCast<void* (*)()>();
-
-	if (mode == 1 || mode == 2) // Render in-main menu and in-game.
-	{
-		fnRenderStart(pCMatSystemSurface);
-
-		g_pLogSystem.Update();
-
-		fnRenderEnd();
-	}
-
-	return result;
-}
+#include <core/stdafx.h>
+#include <tier0/cvar.h>
+#include <mathlib/color.h>
+#include <vgui/vgui_debugpanel.h>
+#include <vguimatsurface/MatSystemSurface.h>
+#include <materialsystem/materialsystem.h>
+#include <engine/debugoverlay.h>
+#include <engine/baseclientstate.h>
+#include <server/server.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -61,7 +45,7 @@ void CLogSystem::AddLog(LogType_t type, std::string svMessage)
 {
 	if (svMessage.length() > 0)
 	{
-		m_vLogs.push_back(Log{ svMessage, 1024, type });
+		m_vLogs.push_back(LogMsg_t{ svMessage, 1024, type });
 	}
 }
 
@@ -73,18 +57,18 @@ void CLogSystem::DrawLog(void)
 	if (m_vLogs.empty()) { return; }
 	for (int i = 0; i < m_vLogs.size(); ++i)
 	{
-		if (m_vLogs[i].Ticks >= 0)
+		if (m_vLogs[i].m_nTicks >= 0)
 		{
 			if (i < cl_consoleoverlay_lines->GetInt())
 			{
-				float fadepct = fminf(static_cast<float>(m_vLogs[i].Ticks) / 255.f, 4.f); // TODO [ AMOS ]: register a ConVar for this!
+				float fadepct = fminf(static_cast<float>(m_vLogs[i].m_nTicks) / 255.f, 4.f); // TODO [ AMOS ]: register a ConVar for this!
 				float ptc = static_cast<int>(ceilf(fadepct * 100.f));
 				int alpha = static_cast<int>(ptc);
-				int y = (cl_consoleoverlay_offset_y->GetInt() + (fontHeight * i));
+				int y = (cl_consoleoverlay_offset_y->GetInt() + (m_nFontHeight * i));
 				int x = cl_consoleoverlay_offset_x->GetInt();
 
-				Color c = GetLogColorForType(m_vLogs[i].Type);
-				CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, fontHeight, x, y, c.r(), c.g(), c.b(), alpha, m_vLogs[i].Message.c_str());
+				Color c = GetLogColorForType(m_vLogs[i].m_type);
+				CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, x, y, c.r(), c.g(), c.b(), alpha, m_vLogs[i].m_svMessage.c_str());
 			}
 			else
 			{
@@ -92,7 +76,7 @@ void CLogSystem::DrawLog(void)
 				continue;
 			}
 
-			m_vLogs[i].Ticks--;
+			m_vLogs[i].m_nTicks--;
 		}
 		else
 		{
@@ -111,7 +95,7 @@ void CLogSystem::DrawSimStats(void) const
 	snprintf((char*)szLogbuf, 4096, "Server Frame: (%d) Client Frame: (%d) Render Frame: (%d)\n",
 	*sv_m_nTickCount, *cl_host_tickcount, *render_tickcount);
 
-	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, fontHeight, cl_simstats_offset_x->GetInt(), cl_simstats_offset_y->GetInt(), c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, cl_simstats_offset_x->GetInt(), cl_simstats_offset_y->GetInt(), c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
 }
 
 //-----------------------------------------------------------------------------
@@ -124,13 +108,13 @@ void CLogSystem::DrawGPUStats(void) const
 	snprintf((char*)szLogbuf, 4096, "%8d/%8d/%8dkiB unusable/unfree/total GPU Streaming Texture memory\n", 
 	*unusable_streaming_tex_memory / 1024, *unfree_streaming_tex_memory / 1024, *unusable_streaming_tex_memory / 1024);
 
-	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, fontHeight, cl_gpustats_offset_x->GetInt(), cl_gpustats_offset_y->GetInt(), c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, cl_gpustats_offset_x->GetInt(), cl_gpustats_offset_y->GetInt(), c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-Color CLogSystem::GetLogColorForType(LogType_t type)
+Color CLogSystem::GetLogColorForType(LogType_t type) const
 {
 	switch (type)
 	{
@@ -163,17 +147,6 @@ Color CLogSystem::GetLogColorForType(LogType_t type)
 	default:
 		return { cl_conoverlay_native_engine_clr->GetColor() };
 	}
-}
-
-///////////////////////////////////////////////////////////////////////////////
-void CEngineVGui_Attach()
-{
-	//DetourAttach((LPVOID*)&CEngineVGui_Paint, &HCEngineVGui_Paint);
-}
-
-void CEngineVGui_Detach()
-{
-	//DetourDetach((LPVOID*)&CEngineVGui_Paint, &HCEngineVGui_Paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

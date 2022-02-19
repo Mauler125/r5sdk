@@ -1,11 +1,12 @@
 #include "core/stdafx.h"
 #include "core/logdef.h"
 #include "tier0/commandline.h"
+#include "engine/common.h"
 #include "engine/sys_utils.h"
 #ifdef DEDICATED
 #include "engine/sv_rcon.h"
 #else
-#include "vgui/CEngineVGui.h"
+#include "vgui/vgui_debugpanel.h"
 #include "gameui/IConsole.h"
 #endif // !DEDICATED
 

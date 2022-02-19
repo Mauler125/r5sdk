@@ -13,7 +13,7 @@
 #ifdef DEDICATED
 #include "engine/sv_rcon.h"
 #endif // DEDICATED
-#include "vgui/CEngineVGui.h"
+#include "vgui/vgui_debugpanel.h"
 #include "gameui/IConsole.h"
 #include "squirrel/sqvm.h"
 #include "squirrel/sqinit.h"

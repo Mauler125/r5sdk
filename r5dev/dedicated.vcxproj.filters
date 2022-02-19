@@ -717,6 +717,18 @@
     <ClInclude Include="launcher\prx.h">
       <Filter>sdk\launcher</Filter>
     </ClInclude>
+    <ClInclude Include="engine\common.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\cmodel_bsp.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\modelloader.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="networksystem\pylon.h">
+      <Filter>sdk\networksystem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="client\IVEngineClient.cpp">
@@ -961,6 +973,12 @@
     </ClCompile>
     <ClCompile Include="launcher\prx.cpp">
       <Filter>sdk\launcher</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\common.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="networksystem\pylon.cpp">
+      <Filter>sdk\networksystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

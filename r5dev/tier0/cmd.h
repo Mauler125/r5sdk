@@ -1,6 +1,32 @@
 #pragma once
 
 //-----------------------------------------------------------------------------
+// Purpose: Command buffer context
+//-----------------------------------------------------------------------------
+typedef enum
+{
+	CBUF_FIRST_PLAYER = 0,
+	CBUF_LAST_PLAYER = MAX_SPLITSCREEN_CLIENTS - 1,
+	CBUF_SERVER = CBUF_LAST_PLAYER + 1,
+
+	CBUF_COUNT,
+} ECommandTarget_t;
+
+//-----------------------------------------------------------------------------
+// Sources of console commands
+//-----------------------------------------------------------------------------
+enum class cmd_source_t : int
+{
+	kCommandSrcCode,
+	kCommandSrcClientCmd,
+	kCommandSrcUserInput,
+	kCommandSrcNetClient,
+	kCommandSrcNetServer,
+	kCommandSrcDemoFile,
+	kCommandSrcInvalid = -1
+};
+
+//-----------------------------------------------------------------------------
 // Purpose: Command tokenizer
 //-----------------------------------------------------------------------------
 class CCommand
@@ -73,6 +99,13 @@ private:
 
 namespace
 {
+	/* ==== COMMAND_BUFFER ================================================================================================================================================== */
+	ADDRESS p_Cbuf_AddText = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x44\x89\x4C\x24\x00\x48\x89\x4C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8D\x6C\x24\x00\x48\x89\x9D\x00\x00\x00\x00\x4C\x8B", "xxxx?xxxx?xxxxxxxxxxxxxx????xxxx?xxx????xx");
+	bool (*Cbuf_AddText)(ECommandTarget_t eTarget, const char* pText, cmd_source_t cmdSource, int nTickDelay) = (bool (*)(ECommandTarget_t, const char*, cmd_source_t, int))p_Cbuf_AddText.GetPtr(); /*44 89 4C 24 ? 48 89 4C 24 ? 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8D 6C 24 ? 48 89 9D ? ? ? ? 4C 8B*/
+
+	ADDRESS p_Cbuf_Execute = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\xFF\x15\x00\x00\x00\x00", "xxxx?xxxx?xxxx?xxxxxxx????");
+	void (*Cbuf_Execute)(void) = (void (*)(void))p_Cbuf_Execute.GetPtr(); /*48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 20 FF 15 ? ? ? ?*/
+
 	/* ==== CONCOMMAND ====================================================================================================================================================== */
 	ADDRESS p_ConCommandBase_IsFlagSet = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x85\x51\x38\x0F\x95\xC0\xC3", "xxxxxxx");
 	bool (*ConCommandBase_IsFlagSet)(ConCommandBase* cmd, int flag) = (bool (*)(ConCommandBase*, int))p_ConCommandBase_IsFlagSet.GetPtr(); /*85 51 38 0F 95 C0 C3*/
@@ -103,7 +136,10 @@ class HConCommand : public IDetour
 {
 	virtual void debugp()
 	{
-		std::cout << "| FUN: ConCommandBase::IsFlagSet            : 0x" << std::hex << std::uppercase << p_ConCommandBase_IsFlagSet.GetPtr()              << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: Cbuf_AddText                         : 0x" << std::hex << std::uppercase << p_Cbuf_AddText.GetPtr()                      << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: Cbuf_Execute                         : 0x" << std::hex << std::uppercase << p_Cbuf_Execute.GetPtr()                      << std::setw(npad) << " |" << std::endl;
+		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		std::cout << "| FUN: ConCommandBase::IsFlagSet            : 0x" << std::hex << std::uppercase << p_ConCommandBase_IsFlagSet.GetPtr()          << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: ConCommand::CMaterialSystemCmdInit   : 0x" << std::hex << std::uppercase << p_ConCommand_CMaterialSystemCmdInit.GetPtr() << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: ConCommand::NullSub                  : 0x" << std::hex << std::uppercase << p_ConCommand_NullSub.GetPtr()                << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: ConCommand::CallbackCompletion       : 0x" << std::hex << std::uppercase << p_ConCommand_CallbackCompletion.GetPtr()     << std::setw(npad) << " |" << std::endl;

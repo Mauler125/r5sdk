@@ -29,7 +29,7 @@ void __fastcall HFrameStageNotify(CHLClient* rcx, ClientFrameStage_t frameStage)
 				g_pConVar->ClearHostNames();
 #endif // GAMEDLL_S3
 				CKeyValueSystem_Init();
-
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2) // !TEMP UNTIL CHOSTSTATE IS BUILD AGNOSTIC! //
 				if (!g_pCmdLine->CheckParm("-devsdk"))
 				{
 					IVEngineClient_CommandExecute(NULL, "exec \"autoexec_server.cfg\"");
@@ -55,42 +55,14 @@ void __fastcall HFrameStageNotify(CHLClient* rcx, ClientFrameStage_t frameStage)
 				}
 				g_pCVar->FindVar("net_usesocketsforloopback")->SetValue(1);
 				g_pRConClient->Init();
-
+#endif // GAMEDLL_S0 || GAMEDLL_S1 || GAMEDLL_S2
 				bInitialized = true;
 			}
 			break;
 		}
 		case ClientFrameStage_t::FRAME_NET_UPDATE_POSTDATAUPDATE_END:
 		{
-			if (g_pBanSystem->IsRefuseListValid())
-			{
-				for (int i = 0; i < g_pBanSystem->vsvrefuseList.size(); i++) // Loop through vector.
-				{
-					for (int c = 0; c < MAX_PLAYERS; c++) // Loop through all possible client instances.
-					{
-						CClient* client = g_pClient->GetClientInstance(c); // Get client instance.
-						if (!client)
-						{
-							continue;
-						}
-
-						if (!client->GetNetChan()) // Netchan valid?
-						{
-							continue;
-						}
-
-						int clientID = g_pClient->m_iUserID + 1; // Get UserID + 1.
-						if (clientID != g_pBanSystem->vsvrefuseList[i].second) // See if they match.
-						{
-							continue;
-						}
-
-						NET_DisconnectClient(g_pClient, c, g_pBanSystem->vsvrefuseList[i].first.c_str(), 0, 1);
-						g_pBanSystem->DeleteConnectionRefuse(clientID);
-						break;
-					}
-				}
-			}
+			g_pBanSystem->BanListCheck();
 			PatchNetVarConVar();
 			break;
 		}

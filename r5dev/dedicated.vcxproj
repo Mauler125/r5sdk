@@ -196,8 +196,11 @@
     <ClInclude Include="core\termutil.h" />
     <ClInclude Include="ebisusdk\EbisuSDK.h" />
     <ClInclude Include="engine\baseclient.h" />
+    <ClInclude Include="engine\cmodel_bsp.h" />
+    <ClInclude Include="engine\common.h" />
     <ClInclude Include="engine\host_cmd.h" />
     <ClInclude Include="engine\host_state.h" />
+    <ClInclude Include="engine\modelloader.h" />
     <ClInclude Include="engine\net.h" />
     <ClInclude Include="engine\net_chan.h" />
     <ClInclude Include="engine\sv_main.h" />
@@ -217,6 +220,7 @@
     <ClInclude Include="mathlib\sha256.h" />
     <ClInclude Include="mathlib\swap.h" />
     <ClInclude Include="mathlib\vector.h" />
+    <ClInclude Include="networksystem\pylon.h" />
     <ClInclude Include="networksystem\r5net.h" />
     <ClInclude Include="networksystem\serverlisting.h" />
     <ClInclude Include="networksystem\sm_protocol.h" />
@@ -396,6 +400,7 @@
     <ClCompile Include="core\termutil.cpp" />
     <ClCompile Include="ebisusdk\EbisuSDK.cpp" />
     <ClCompile Include="engine\baseclient.cpp" />
+    <ClCompile Include="engine\common.cpp" />
     <ClCompile Include="engine\host_cmd.cpp" />
     <ClCompile Include="engine\host_state.cpp" />
     <ClCompile Include="engine\net.cpp" />
@@ -413,6 +418,7 @@
     <ClCompile Include="mathlib\crc32.cpp" />
     <ClCompile Include="mathlib\IceKey.cpp" />
     <ClCompile Include="mathlib\sha256.cpp" />
+    <ClCompile Include="networksystem\pylon.cpp" />
     <ClCompile Include="networksystem\r5net.cpp" />
     <ClCompile Include="protoc\cl_rcon.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>

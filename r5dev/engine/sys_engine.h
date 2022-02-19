@@ -1,5 +1,5 @@
 #pragma once
-
+#include <launcher/IApplication.h>
 //-----------------------------------------------------------------------------
 // Forward declarations
 //-----------------------------------------------------------------------------
@@ -62,10 +62,10 @@ public:
 namespace
 {
 	/* ==== CENGINE ======================================================================================================================================================= */
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) // Verify for s0 and s1
-	static ADDRESS g_pEngineBuffer = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x8D\x0D\x00\x00\x00\x00\x74\x2A\x4C\x8B\x05\x00\x00\x00\x00", "xxx????xxxxx????").ResolveRelativeAddressSelf(0x3, 0x7);
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3) // Verify for s2
-	static ADDRESS g_pEngineBuffer = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x8D\x0D\x00\x00\x00\x00\x74\x2A\x4C\x8B\x05\x00\x00\x00\x00", "xxx????xxxxx????").ResolveRelativeAddressSelf(0x3, 0x7);
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+	static ADDRESS g_pEngineBuffer = p_IAppSystem_Main.Offset(0x0).FindPatternSelf("48 8D ?? ?? ?? ?? 01", ADDRESS::Direction::DOWN, 300).ResolveRelativeAddressSelf(0x3, 0x7);
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+	static ADDRESS g_pEngineBuffer = p_IAppSystem_Main.Offset(0x0).FindPatternSelf("48 8B ?? ?? ?? ?? 01", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
 #endif
 }
 

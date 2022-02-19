@@ -1,11 +1,27 @@
+//=====================================================================================//
+//
+// Purpose: Implementation of the CBanSystem class.
+//
+// $NoKeywords: $
+//=====================================================================================//
+
 #include "core/stdafx.h"
+#include "client/client.h"
+#include "engine/net_chan.h"
+#include "engine/sys_utils.h"
 #include "public/include/bansystem.h"
 
-CBanSystem::CBanSystem()
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CBanSystem::CBanSystem(void)
 {
 	Load();
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CBanSystem::operator[](std::pair<std::string, std::int64_t> pair)
 {
 	AddEntry(pair.first, pair.second);
@@ -14,7 +30,7 @@ void CBanSystem::operator[](std::pair<std::string, std::int64_t> pair)
 //-----------------------------------------------------------------------------
 // Purpose: loads and parses the banlist
 //-----------------------------------------------------------------------------
-void CBanSystem::Load()
+void CBanSystem::Load(void)
 {
 	std::filesystem::path path = std::filesystem::current_path() /= "banlist.config"; // Get current path + banlist.config
 
@@ -44,7 +60,6 @@ void CBanSystem::Load()
 				continue;
 			}
 
-
 			std::int64_t nOriginID  = jsEntry["originID"].get<std::int64_t>(); // Get originID field from entry.
 			std::string svIpAddress = jsEntry["ipAddress"].get<std::string>(); // Get ipAddress field from entry.
 
@@ -56,7 +71,7 @@ void CBanSystem::Load()
 //-----------------------------------------------------------------------------
 // Purpose: saves the banlist
 //-----------------------------------------------------------------------------
-void CBanSystem::Save()
+void CBanSystem::Save(void) const
 {
 	nlohmann::json jsOut;
 
@@ -144,7 +159,7 @@ void CBanSystem::DeleteConnectionRefuse(std::int64_t nOriginID)
 //			nOriginID - 
 // Output : true if banned, false if not banned
 //-----------------------------------------------------------------------------
-bool CBanSystem::IsBanned(std::string svIpAddress, std::int64_t nOriginID)
+bool CBanSystem::IsBanned(std::string svIpAddress, std::int64_t nOriginID) const
 {
 	for (int i = 0; i < vsvBanList.size(); i++)
 	{
@@ -176,9 +191,68 @@ bool CBanSystem::IsBanned(std::string svIpAddress, std::int64_t nOriginID)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Check refuse list and kill netchan connection.
+//-----------------------------------------------------------------------------
+void CBanSystem::BanListCheck(void)
+{
+	if (IsRefuseListValid())
+	{
+		for (int i = 0; i < vsvrefuseList.size(); i++) // Loop through vector.
+		{
+			for (int c = 0; c < MAX_PLAYERS; c++) // Loop through all possible client instances.
+			{
+				CClient* client = g_pClient->GetClientInstance(c); // Get client instance.
+				if (!client)
+				{
+					continue;
+				}
+
+				if (!client->GetNetChan()) // Netchan valid?
+				{
+					continue;
+				}
+
+				if (g_pClient->m_iOriginID != vsvrefuseList[i].second) // See if nucleus id matches entry.
+				{
+					continue;
+				}
+
+				std::string finalIpAddress = std::string();
+				ADDRESS ipAddressField = ADDRESS(((std::uintptr_t)client->GetNetChan()) + 0x1AC0); // Get client ip from netchan.
+				if (ipAddressField && ipAddressField.GetValue<int>() != 0x0)
+				{
+					std::stringstream ss;
+					ss << std::to_string(ipAddressField.GetValue<std::uint8_t>()) << "."
+						<< std::to_string(ipAddressField.Offset(0x1).GetValue<std::uint8_t>()) << "."
+						<< std::to_string(ipAddressField.Offset(0x2).GetValue<std::uint8_t>()) << "."
+						<< std::to_string(ipAddressField.Offset(0x3).GetValue<std::uint8_t>());
+
+					finalIpAddress = ss.str();
+				}
+
+				DevMsg(eDLL_T::SERVER, "\n");
+				DevMsg(eDLL_T::SERVER, "______________________________________________________________\n");
+				DevMsg(eDLL_T::SERVER, "] PYLON_NOTICE -----------------------------------------------\n");
+				DevMsg(eDLL_T::SERVER, "] OriginID : | '%lld' IS GETTING DISCONNECTED.\n", g_pClient->m_iOriginID);
+				if (finalIpAddress.empty())
+					DevMsg(eDLL_T::SERVER, "] IP-ADDR  : | CLIENT MODIFIED PACKET.\n");
+				else
+					DevMsg(eDLL_T::SERVER, "] IP-ADDR  : | '%s'\n", finalIpAddress.c_str());
+				DevMsg(eDLL_T::SERVER, "--------------------------------------------------------------\n");
+				DevMsg(eDLL_T::SERVER, "\n");
+
+				AddEntry(finalIpAddress, g_pClient->m_iOriginID); // Add local entry to reserve a non needed request.
+				Save(); // Save list.
+				NET_DisconnectClient(g_pClient, c, vsvrefuseList[i].first.c_str(), 0, 1); // Disconnect client.
+			}
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: checks if refuselist is valid
 //-----------------------------------------------------------------------------
-bool CBanSystem::IsRefuseListValid()
+bool CBanSystem::IsRefuseListValid(void) const
 {
 	return !vsvrefuseList.empty();
 }
@@ -186,7 +260,7 @@ bool CBanSystem::IsRefuseListValid()
 //-----------------------------------------------------------------------------
 // Purpose: checks if banlist is valid
 //-----------------------------------------------------------------------------
-bool CBanSystem::IsBanListValid()
+bool CBanSystem::IsBanListValid(void) const
 {
 	return !vsvBanList.empty();
 }

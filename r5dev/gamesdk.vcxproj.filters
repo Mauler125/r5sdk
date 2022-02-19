@@ -255,7 +255,7 @@
     <ClCompile Include="vgui\vgui_fpspanel.cpp">
       <Filter>sdk\vgui</Filter>
     </ClCompile>
-    <ClCompile Include="vgui\CEngineVGui.cpp">
+    <ClCompile Include="vgui\vgui_debugpanel.cpp">
       <Filter>sdk\vgui</Filter>
     </ClCompile>
     <ClCompile Include="vguimatsurface\MatSystemSurface.cpp">
@@ -446,6 +446,18 @@
     </ClCompile>
     <ClCompile Include="protoc\sv_rcon.pb.cc">
       <Filter>thirdparty\protobuf</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\gl_screen.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\common.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="vgui\vgui_baseui_interface.cpp">
+      <Filter>sdk\vgui</Filter>
+    </ClCompile>
+    <ClCompile Include="networksystem\pylon.cpp">
+      <Filter>sdk\networksystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -878,7 +890,7 @@
     <ClInclude Include="vgui\vgui_fpspanel.h">
       <Filter>sdk\vgui</Filter>
     </ClInclude>
-    <ClInclude Include="vgui\CEngineVGui.h">
+    <ClInclude Include="vgui\vgui_debugpanel.h">
       <Filter>sdk\vgui</Filter>
     </ClInclude>
     <ClInclude Include="vgui\vgui.h">
@@ -1123,6 +1135,24 @@
     </ClInclude>
     <ClInclude Include="protoc\sv_rcon.pb.h">
       <Filter>thirdparty\protobuf</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\gl_screen.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\common.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="vgui\vgui_baseui_interface.h">
+      <Filter>sdk\vgui</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\cmodel_bsp.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\modelloader.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="networksystem\pylon.h">
+      <Filter>sdk\networksystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

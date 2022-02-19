@@ -1,5 +1,5 @@
 #pragma once
-
+#include "launcher/IApplication.h"
 struct EngineParms_t
 {
 	char* baseDirectory;
@@ -22,17 +22,16 @@ namespace
 #endif
 	ADDRESS p_malloc_internal = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\xE9\x00\x00\x00\x00\xCC\xCC\xCC\x40\x53\x48\x83\xEC\x20\x48\x8D\x05\x00\x00\x00\x00", "x????xxxxxxxxxxxx????");
 	void* (*malloc_internal)(void* pPool, int64_t size) = (void* (*)(void*, int64_t))p_malloc_internal.GetPtr(); /*E9 ? ? ? ? CC CC CC 40 53 48 83 EC 20 48 8D 05 ? ? ? ?*/
-
-	// TODO: Verify for other seasons beside 3.
-	static ADDRESS g_pEngineParmsBuffer = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x4C\x8B\x05\x00\x00\x00\x00\xB2\x01", "xxx????xx").ResolveRelativeAddressSelf(0x3, 0x7);
 }
 
 namespace
 {
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 	ADDRESS g_pMallocPool = p_Host_Init.Offset(0x600).FindPatternSelf("48 8D 15 ?? ?? ?? 01", ADDRESS::Direction::DOWN, 100).ResolveRelativeAddressSelf(0x3, 0x7);
+	static ADDRESS g_pEngineParmsBuffer = p_IAppSystem_Main.Offset(0x0).FindPatternSelf("48 8B", ADDRESS::Direction::DOWN, 100).ResolveRelativeAddress(0x3, 0x7);
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 	ADDRESS g_pMallocPool = p_Host_Init.Offset(0x130).FindPatternSelf("48 8D 15 ?? ?? ?? 01", ADDRESS::Direction::DOWN, 100).ResolveRelativeAddressSelf(0x3, 0x7);
+	static ADDRESS g_pEngineParmsBuffer = p_IAppSystem_Main.Offset(0x0).FindPatternSelf("4C 8B", ADDRESS::Direction::DOWN, 100).ResolveRelativeAddress(0x3, 0x7);
 #endif
 }
 

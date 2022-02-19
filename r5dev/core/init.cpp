@@ -26,7 +26,8 @@
 #include "bsplib/bsplib.h"
 #ifndef DEDICATED
 #include "materialsystem/materialsystem.h"
-#include "vgui/CEngineVGui.h"
+#include "vgui/vgui_baseui_interface.h"
+#include "vgui/vgui_debugpanel.h"
 #include "vgui/vgui_fpspanel.h"
 #include "vguimatsurface/MatSystemSurface.h"
 #include "client/cdll_engine_int.h"
@@ -41,8 +42,11 @@
 #include "rtech/rtech_game.h"
 #include "rtech/stryder.h"
 #include "engine/baseclient.h"
+#include "engine/common.h"
+#include "engine/cmodel_bsp.h"
 #include "engine/host_cmd.h"
 #include "engine/host_state.h"
+#include "engine/modelloader.h"
 #include "engine/net.h"
 #include "engine/net_chan.h"
 #include "engine/sv_main.h"
@@ -51,6 +55,7 @@
 #include "engine/sys_engine.h"
 #include "engine/sys_utils.h"
 #ifndef DEDICATED
+#include "engine/gl_screen.h"
 #include "engine/debugoverlay.h"
 #include "inputsystem/inputsystem.h"
 #include "windows/id3dx.h"
@@ -103,9 +108,10 @@ void Systems_Init()
 	CServer_Attach(); // S1 and S2 CServer functions require work.
 #endif // GAMEDLL_S3
 
-#ifdef DEDICATED
-	CHostState_Attach(); // Dedicated only for now until backwards compatible with S1.
-#endif // DEDICATED
+// !TEMP UNTIL CHOSTSTATE IS BUILD AGNOSTIC! //
+#if defined (DEDICATED) || defined (GAMEDLL_S3)
+	CHostState_Attach();
+#endif // DEDICATED || GAMEDLL_S3
 
 	CNetChan_Attach();
 	ConCommand_Attach();
@@ -182,9 +188,10 @@ void Systems_Shutdown()
 	CServer_Detach(); // S1 and S2 CServer functions require work.
 #endif // GAMEDLL_S3
 
-#ifdef DEDICATED
+// !TEMP UNTIL CHOSTSTATE IS BUILD AGNOSTIC! //
+#if defined (DEDICATED) || defined (GAMEDLL_S3)
 	CHostState_Detach(); // Dedicated only for now until backwards compatible with S1.
-#endif // DEDICATED
+#endif // DEDICATED || GAMEDLL_S3
 
 	CNetChan_Detach();
 	ConCommand_Detach();
