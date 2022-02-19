@@ -86,13 +86,13 @@ void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 			}
 			case HostStates_t::HS_GAME_SHUTDOWN:
 			{
-				DevMsg(eDLL_T::ENGINE, "Shutdown game\n");
+				DevMsg(eDLL_T::ENGINE, "Shutdown host game\n");
 				Host_Game_ShutdownFn(g_pHostState);
 				break;
 			}
 			case HostStates_t::HS_RESTART:
 			{
-				DevMsg(eDLL_T::ENGINE, "Restarting statemachine\n");
+				DevMsg(eDLL_T::ENGINE, "Restarting state machine\n");
 #ifndef DEDICATED
 				CL_EndMovieFn();
 #endif // !DEDICATED
@@ -102,7 +102,7 @@ void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 			}
 			case HostStates_t::HS_SHUTDOWN:
 			{
-				DevMsg(eDLL_T::ENGINE, "Shutdown statemachine\n");
+				DevMsg(eDLL_T::ENGINE, "Shutdown state machine\n");
 #ifndef DEDICATED
 				CL_EndMovieFn();
 #endif // !DEDICATED
@@ -124,7 +124,7 @@ void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: setup state machine
 //-----------------------------------------------------------------------------
 void CHostState::Setup(void) const
 {
@@ -167,7 +167,7 @@ void CHostState::Setup(void) const
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: load and execute configuration files
 //-----------------------------------------------------------------------------
 void CHostState::LoadConfig(void) const
 {
@@ -194,7 +194,7 @@ void CHostState::LoadConfig(void) const
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: initialize new game
 //-----------------------------------------------------------------------------
 void CHostState::State_NewGame(void)
 {
@@ -224,7 +224,7 @@ void CHostState::State_NewGame(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: shutdown active game
 //-----------------------------------------------------------------------------
 void CHostState::GameShutDown(void)
 {
@@ -237,7 +237,7 @@ void CHostState::GameShutDown(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: change singleplayer level
 //-----------------------------------------------------------------------------
 void CHostState::State_ChangeLevelSP(void)
 {
@@ -263,7 +263,7 @@ void CHostState::State_ChangeLevelSP(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: change multiplayer level
 //-----------------------------------------------------------------------------
 void CHostState::State_ChangeLevelMP(void)
 {
