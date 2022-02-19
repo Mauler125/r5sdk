@@ -53,6 +53,7 @@ void R5Dev_Shutdown()
         return;
     }
     bShutDown = true;
+    spdlog::info("Shutdown GameSDK\n");
 
     Systems_Shutdown();
     WinSys_Detach();
