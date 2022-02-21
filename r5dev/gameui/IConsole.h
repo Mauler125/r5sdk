@@ -5,7 +5,6 @@ class CConsole
 private:
     ///////////////////////////////////////////////////////////////////////////
     char                           m_szInputBuf[512]     = { 0 };
-    char                           m_szInputBufOld[512]  = { 0 };
     char                           m_szSummary[256]      = { 0 };
     const char*                    m_pszConsoleTitle     = { 0 };
 
@@ -40,7 +39,6 @@ private:
 
     ImGuiWindowFlags popup_window_flags =
         ImGuiWindowFlags_NoMove                    |
-        /*ImGuiWindowFlags_NoResize                  |*/
         ImGuiWindowFlags_NoTitleBar                |
         ImGuiWindowFlags_NoSavedSettings           |
         ImGuiWindowFlags_NoFocusOnAppearing        |

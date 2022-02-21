@@ -30,8 +30,7 @@
 #define FCVAR_NEVER_AS_STRING   (1<<12)  // never try to print that cvar
 
 // It's a ConVar that's shared between the client and the server.
-// At signon, the values of all such ConVars are sent from the server to the client (skipped for local
-// client, of course )
+// At signon, the values of all such ConVars are sent from the server to the client (skipped for local client, of course )
 // If a change is requested it must come from the console (i.e., no remote client changes)
 // If a value is changed while a server is active, it's replicated to all connected clients
 #define FCVAR_REPLICATED        (1<<13)	// server setting enforced on clients, TODO rename to FCAR_SERVER at some time
@@ -80,6 +79,9 @@ dq offset sub_1404701A0
 dq offset RegisterConVar; #STR: "Convar '%s' is flagged as both FCVAR_ARCHIVE and FCVAR_ARC
 */
 
+//-----------------------------------------------------------------------------
+// Purpose: A console variable
+//-----------------------------------------------------------------------------
 class ConVar
 {
 public:

@@ -264,7 +264,7 @@ float ConVar::GetMinValue(void) const
 //-----------------------------------------------------------------------------
 float ConVar::GetMaxValue(void) const
 {
-	return m_pParent->m_flMaxValue;;
+	return m_pParent->m_flMaxValue;
 }
 
 //-----------------------------------------------------------------------------

@@ -5,81 +5,81 @@
 
 //-----------------------------------------------------------------------------
 // ENGINE                                                                     |
-ConVar* cm_debug_cmdquery                  = new ConVar();
-ConVar* cm_return_false_cmdquery_all       = new ConVar();
-ConVar* cm_return_false_cmdquery_cheats    = new ConVar();
-ConVar* r_debug_overlay_nodecay            = new ConVar();
+ConVar* cm_debug_cmdquery                  = nullptr;
+ConVar* cm_return_false_cmdquery_all       = nullptr;
+ConVar* cm_return_false_cmdquery_cheats    = nullptr;
+ConVar* r_debug_overlay_nodecay            = nullptr;
 
-ConVar* rcon_address                       = new ConVar();
-ConVar* rcon_password                      = new ConVar();
+ConVar* rcon_address                       = nullptr;
+ConVar* rcon_password                      = nullptr;
 //-----------------------------------------------------------------------------
 // SERVER                                                                     |
-ConVar* sv_showconnecting                  = new ConVar();
-ConVar* sv_pylonvisibility                 = new ConVar();
+ConVar* sv_showconnecting                  = nullptr;
+ConVar* sv_pylonvisibility                 = nullptr;
 
 #ifdef DEDICATED
-ConVar* sv_rcon_debug                      = new ConVar();
-ConVar* sv_rcon_banpenalty                 = new ConVar(); // TODO
-ConVar* sv_rcon_maxfailures                = new ConVar();
-ConVar* sv_rcon_maxignores                 = new ConVar();
-ConVar* sv_rcon_maxsockets                 = new ConVar();
-ConVar* sv_rcon_whitelist_address          = new ConVar();
+ConVar* sv_rcon_debug                      = nullptr;
+ConVar* sv_rcon_banpenalty                 = nullptr; // TODO
+ConVar* sv_rcon_maxfailures                = nullptr;
+ConVar* sv_rcon_maxignores                 = nullptr;
+ConVar* sv_rcon_maxsockets                 = nullptr;
+ConVar* sv_rcon_whitelist_address          = nullptr;
 #endif // DEDICATED
 //-----------------------------------------------------------------------------
 // CLIENT                                                                     |
 #ifndef DEDICATED
-ConVar* cl_drawconsoleoverlay              = new ConVar();
-ConVar* cl_consoleoverlay_lines            = new ConVar();
-ConVar* cl_consoleoverlay_offset_x         = new ConVar();
-ConVar* cl_consoleoverlay_offset_y         = new ConVar();
+ConVar* cl_drawconsoleoverlay              = nullptr;
+ConVar* cl_consoleoverlay_lines            = nullptr;
+ConVar* cl_consoleoverlay_offset_x         = nullptr;
+ConVar* cl_consoleoverlay_offset_y         = nullptr;
 
-ConVar* cl_conoverlay_script_server_clr    = new ConVar();
-ConVar* cl_conoverlay_script_client_clr    = new ConVar();
-ConVar* cl_conoverlay_script_ui_clr        = new ConVar();
-ConVar* cl_conoverlay_native_server_clr    = new ConVar();
-ConVar* cl_conoverlay_native_client_clr    = new ConVar();
-ConVar* cl_conoverlay_native_ui_clr        = new ConVar();
-ConVar* cl_conoverlay_native_engine_clr    = new ConVar();
-ConVar* cl_conoverlay_native_fs_clr        = new ConVar();
-ConVar* cl_conoverlay_native_rtech_clr     = new ConVar();
-ConVar* cl_conoverlay_native_ms_clr        = new ConVar();
-ConVar* cl_conoverlay_netcon_clr           = new ConVar();
-ConVar* cl_conoverlay_warning_clr          = new ConVar();
-ConVar* cl_conoverlay_error_clr            = new ConVar();
+ConVar* cl_conoverlay_script_server_clr    = nullptr;
+ConVar* cl_conoverlay_script_client_clr    = nullptr;
+ConVar* cl_conoverlay_script_ui_clr        = nullptr;
+ConVar* cl_conoverlay_native_server_clr    = nullptr;
+ConVar* cl_conoverlay_native_client_clr    = nullptr;
+ConVar* cl_conoverlay_native_ui_clr        = nullptr;
+ConVar* cl_conoverlay_native_engine_clr    = nullptr;
+ConVar* cl_conoverlay_native_fs_clr        = nullptr;
+ConVar* cl_conoverlay_native_rtech_clr     = nullptr;
+ConVar* cl_conoverlay_native_ms_clr        = nullptr;
+ConVar* cl_conoverlay_netcon_clr           = nullptr;
+ConVar* cl_conoverlay_warning_clr          = nullptr;
+ConVar* cl_conoverlay_error_clr            = nullptr;
 
-ConVar* cl_showsimstats                    = new ConVar();
-ConVar* cl_simstats_offset_x               = new ConVar();
-ConVar* cl_simstats_offset_y               = new ConVar();
+ConVar* cl_showsimstats                    = nullptr;
+ConVar* cl_simstats_offset_x               = nullptr;
+ConVar* cl_simstats_offset_y               = nullptr;
 
-ConVar* cl_showgpustats                    = new ConVar();
-ConVar* cl_gpustats_offset_x               = new ConVar();
-ConVar* cl_gpustats_offset_y               = new ConVar();
+ConVar* cl_showgpustats                    = nullptr;
+ConVar* cl_gpustats_offset_x               = nullptr;
+ConVar* cl_gpustats_offset_y               = nullptr;
 
-ConVar* con_max_size_logvector             = new ConVar();
-ConVar* con_suggestion_limit               = new ConVar();
-ConVar* con_suggestion_helptext            = new ConVar();
+ConVar* con_max_size_logvector             = nullptr;
+ConVar* con_suggestion_limit               = nullptr;
+ConVar* con_suggestion_helptext            = nullptr;
 #endif // !DEDICATED
 //-----------------------------------------------------------------------------
 // FILESYSTEM                                                                 |
-ConVar* fs_warning_level_sdk               = new ConVar();
-ConVar* fs_show_warning_output             = new ConVar();
-ConVar* fs_packedstore_entryblock_stats    = new ConVar();
+ConVar* fs_warning_level_sdk               = nullptr;
+ConVar* fs_show_warning_output             = nullptr;
+ConVar* fs_packedstore_entryblock_stats    = nullptr;
 //-----------------------------------------------------------------------------
 // MATERIALSYSTEM                                                             |
 #ifndef DEDICATED
-ConVar* mat_showdxoutput                   = new ConVar();
+ConVar* mat_showdxoutput                   = nullptr;
 #endif // !DEDICATED
 //-----------------------------------------------------------------------------
 // SQUIRREL                                                                   |
-ConVar* sq_showrsonloading                 = new ConVar();
-ConVar* sq_showscriptloading               = new ConVar();
-ConVar* sq_showvmoutput                    = new ConVar();
-ConVar* sq_showvmwarning                   = new ConVar();
+ConVar* sq_showrsonloading                 = nullptr;
+ConVar* sq_showscriptloading               = nullptr;
+ConVar* sq_showvmoutput                    = nullptr;
+ConVar* sq_showvmwarning                   = nullptr;
 //-----------------------------------------------------------------------------
 // NETCHANNEL                                                                 |
-ConVar* net_userandomkey                   = new ConVar();
-ConVar* r5net_matchmaking_hostname         = new ConVar();
-ConVar* r5net_show_debug                   = new ConVar();
+ConVar* net_userandomkey                   = nullptr;
+ConVar* r5net_matchmaking_hostname         = nullptr;
+ConVar* r5net_show_debug                   = nullptr;
 
 //-----------------------------------------------------------------------------
 // Purpose: finds base commands.

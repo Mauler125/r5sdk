@@ -366,10 +366,10 @@ bool CConsole::CanAutoComplete(void)
     // Show ConVar/ConCommand suggestions when at least 2 characters have been entered.
     if (strlen(m_szInputBuf) > 1)
     {
-        // Update suggestions if input buffer changed.
-        if (strcmp(m_szInputBuf, m_szInputBufOld) != 0)
+        static char szCurInputBuf[512]{};
+        if (strcmp(m_szInputBuf, szCurInputBuf) != 0) // Update suggestions if input buffer changed.
         {
-            memmove(m_szInputBufOld, m_szInputBuf, strlen(m_szInputBuf) + 1);
+            memmove(szCurInputBuf, m_szInputBuf, strlen(m_szInputBuf) + 1);
             FindFromPartial();
         }
         if ((int)m_vsvSuggest.size() <= 0)
@@ -590,30 +590,35 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
     }
     case ImGuiInputTextFlags_CallbackAlways:
     {
-        char szValue[256]{};
-        sprintf_s(szValue, 256, "%s", m_szInputBuf);
-
-        // Remove space or semicolon before we call 'g_pCVar->FindVar(..)'.
-        for (int i = 0; i < strlen(szValue); i++)
+        static char szCurInputBuf[512]{};
+        if (strcmp(m_szInputBuf, szCurInputBuf) != 0) // Only run if changed.
         {
-            if (szValue[i] == ' ' || szValue[i] == ';')
+            char szValue[512]{};
+            memmove(szCurInputBuf, m_szInputBuf, strlen(m_szInputBuf) + 1);
+            sprintf_s(szValue, sizeof(szValue), "%s", m_szInputBuf);
+
+            // Remove space or semicolon before we call 'g_pCVar->FindVar(..)'.
+            for (int i = 0; i < strlen(szValue); i++)
             {
-                szValue[i] = '\0';
+                if (szValue[i] == ' ' || szValue[i] == ';')
+                {
+                    szValue[i] = '\0';
+                }
             }
-        }
 
-        ConVar* pConVar = g_pCVar->FindVar(szValue);
-        if (pConVar != nullptr)
-        {
-            // Display the current and default value of ConVar if found.
-            snprintf(m_szSummary, 256, "(\"%s\", default \"%s\")", pConVar->GetString(), pConVar->GetDefault());
+            ConVar* pConVar = g_pCVar->FindVar(szValue);
+            if (pConVar != nullptr)
+            {
+                // Display the current and default value of ConVar if found.
+                snprintf(m_szSummary, 256, "(\"%s\", default \"%s\")", pConVar->GetString(), pConVar->GetDefault());
+            }
+            else
+            {
+                // Display amount of history items if ConVar cannot be found.
+                snprintf(m_szSummary, 256, "%llu history items", m_vsvHistory.size());
+            }
+            break;
         }
-        else
-        {
-            // Display amount of history items if ConVar cannot be found.
-            snprintf(m_szSummary, 256, "%llu history items", m_vsvHistory.size());
-        }
-        break;
     }
     }
     return 0;
