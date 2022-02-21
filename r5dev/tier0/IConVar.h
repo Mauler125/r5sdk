@@ -87,7 +87,7 @@ class ConVar
 public:
 	ConVar(void){};
 	ConVar(const char* pszName, const char* pszDefaultValue, int nFlags, const char*pszHelpString,
-		bool bMin, float fMin, bool bMax, float fMax, void* pCallback, void* unk);
+		bool bMin, float fMin, bool bMax, float fMax, void* pCallback, const char* pszUsageString);
 	~ConVar(void);
 
 	void Init(void) const;
@@ -130,18 +130,23 @@ public:
 	static bool IsFlagSet(ConVar* pConVar, int nFlags);
 	void ClearHostNames(void);
 
+	struct CVValue_t
+	{
+		const char* m_pszString;
+		int64_t     m_iStringLength;
+		float       m_fValue;
+		int         m_nValue;
+	};
+
 	ConCommandBase m_ConCommandBase {}; //0x0000
-	void*          m_pConVarVTable  {}; //0x0040
+	void*          m_pIConVarVTable {}; //0x0040
 	ConVar*        m_pParent        {}; //0x0048
 	const char*    m_pszDefaultValue{}; //0x0050
-	const char*    m_pzsCurrentValue{}; //0x0058
-	std::int64_t   m_iStringLength  {}; //0x0060
-	float          m_flValue        {}; //0x0068
-	int            m_iValue         {}; //0x006C
+	CVValue_t      m_Value          {}; //0c0058
 	bool           m_bHasMin        {}; //0x0070
-	float          m_flMinValue     {}; //0x0074
+	float          m_fMinVal        {}; //0x0074
 	bool           m_bHasMax        {}; //0x0078
-	float          m_flMaxValue     {}; //0x007C
+	float          m_fMaxVal        {}; //0x007C
 	char           pad_0080[32]     {}; //0x0080
 }; //Size: 0x00A0
 
@@ -158,7 +163,7 @@ namespace
 	void* (*ConVar_Register)(ConVar* allocatedConvar, const char* szName, const char* szDefaultValue, int nFlags, const char* szHelpString, bool bMin, float fMin, bool bMax, float fMax, void* pCallback, void* unk) = (void* (*)(ConVar*, const char*, const char*, int, const char*, bool, float, bool, float, void*, void*))p_ConVar_Register.GetPtr();
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 	ADDRESS p_ConVar_Register = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x40\xF3\x0F\x10\x84\x24\x00\x00\x00\x00", "xxxx?xxxx?xxxx?xxxxxxxxxx????"); /*48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 40 F3 0F 10 84 24 ? ? ? ?*/
-	void* (*ConVar_Register)(ConVar* allocatedConvar, const char* szName, const char* szDefaultValue, int nFlags, const char* szHelpString, bool bMin, float fMin, bool bMax, float fMax, void* pCallback, void* unk) = (void* (*)(ConVar*, const char*, const char*, int, const char*, bool, float, bool, float, void*, void*))p_ConVar_Register.GetPtr();
+	void* (*ConVar_Register)(ConVar* allocatedConvar, const char* szName, const char* szDefaultValue, int nFlags, const char* szHelpString, bool bMin, float fMin, bool bMax, float fMax, void* pCallback, const char* pszUsageString) = (void* (*)(ConVar*, const char*, const char*, int, const char*, bool, float, bool, float, void*, const char*))p_ConVar_Register.GetPtr();
 #endif
 }
 

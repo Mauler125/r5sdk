@@ -75,29 +75,25 @@ const char* CCommand::operator[](int nIndex) const
 //-----------------------------------------------------------------------------
 ConCommand::ConCommand(const char* pszName, const char* pszHelpString, int nFlags, void* pCallback, void* pCommandCompletionCallback)
 {
-	ConCommand* pCommand = reinterpret_cast<ConCommand*>(MemAlloc_Wrapper(0x68)); // Allocate new memory with StdMemAlloc else we crash.
-	memset(pCommand, 0, 0x68);                                                    // Set all to null.
-	std::uintptr_t pCommandBase = reinterpret_cast<std::uintptr_t>(pCommand);     // To ptr.
+	ConCommand* pCommand = reinterpret_cast<ConCommand*>(MemAlloc_Wrapper(sizeof(ConCommand))); // Allocate new memory with StdMemAlloc else we crash.
+	memset(pCommand, '\0', sizeof(ConCommand)); // Set all to null.
 
-	*(void**)pCommandBase = g_pConCommandVtable.RCast<void*>();  // 0x00 to ConCommand vtable.
-	*(const char**)(pCommandBase + 0x18) = pszName;                       // 0x18 to ConCommand Name.
-	*(const char**)(pCommandBase + 0x20) = pszHelpString;                 // 0x20 to ConCommand help string.
-	*(std::int32_t*)(pCommandBase + 0x38) = nFlags;                       // 0x38 to ConCommand Flags.
-	*(void**)(pCommandBase + 0x40) = p_ConCommand_NullSub.RCast<void*>(); // 0x40 Nullsub since every concommand has it.
-	*(void**)(pCommandBase + 0x50) = pCallback;                           // 0x50 has function callback.
-	*(std::int32_t*)(pCommandBase + 0x60) = 2; // 0x60 Set to use callback and newcommand callback.
-
-	if (pCommandCompletionCallback) // callback after execution desired?
+	pCommand->m_ConCommandBase.m_pConCommandBaseVTable = g_pConCommandVtable.RCast<void*>();
+	pCommand->m_ConCommandBase.m_pszName       = pszName;
+	pCommand->m_ConCommandBase.m_pszHelpString = pszHelpString;
+	pCommand->m_ConCommandBase.m_nFlags        = nFlags;
+	pCommand->m_nNullCallBack                  = NullSub;
+	pCommand->m_pCommandCallback               = pCallback;
+	pCommand->m_nCallbackFlags                 = 2;
+	if (pCommandCompletionCallback)
 	{
-		*(void**)(pCommandBase + 0x58) = pCommandCompletionCallback; // 0x58 to our callback after execution.
+		pCommand->m_pCompletionCallback = pCommandCompletionCallback;
 	}
 	else
 	{
-		*(void**)(pCommandBase + 0x58) = p_ConCommand_CallbackCompletion.RCast<void*>(); // 0x58 nullsub.
+		pCommand->m_pCompletionCallback = CallbackStub;
 	}
-
-	p_ConCommand_RegisterConCommand.RCast<void(*)(void*)>()((void*)pCommandBase); // Register command in ConVarAccessor.
-
+	ConCommand_RegisterConCommand(pCommand);
 	*this = *pCommand;
 }
 
