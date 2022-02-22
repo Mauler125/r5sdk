@@ -101,7 +101,7 @@ void ConVar::Init(void) const
 
 	con_max_size_logvector  = new ConVar("con_max_size_logvector", "1000", FCVAR_DEVELOPMENTONLY, "Maximum number of logs in the console until cleanup starts.", false, 0.f, false, 0.f, nullptr, nullptr);
 	con_suggestion_limit    = new ConVar("con_suggestion_limit"  , "120" , FCVAR_DEVELOPMENTONLY, "Maximum number of suggestions the autocomplete window will show for the console.", false, 0.f, false, 0.f, nullptr, nullptr);
-	con_suggestion_helptext = new ConVar("con_suggestion_helptext", "0"  , FCVAR_DEVELOPMENTONLY, "Show ConVar help text in autocomplete window. Disabled by default to keep window less populated.", false, 0.f, false, 0.f, nullptr, nullptr);
+	con_suggestion_helptext = new ConVar("con_suggestion_helptext", "1"  , FCVAR_DEVELOPMENTONLY, "Show ConVar help text in autocomplete window.", false, 0.f, false, 0.f, nullptr, nullptr);
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// FILESYSTEM                                                             |
@@ -142,6 +142,15 @@ const char* ConVar::GetBaseName(void) const
 const char* ConVar::GetHelpText(void) const
 {
 	return m_pParent->m_ConCommandBase.m_pszHelpString;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns the ConVar usage text.
+// Output : const char*
+//-----------------------------------------------------------------------------
+const char* ConVar::GetUsageText(void) const
+{
+	return m_pParent->m_ConCommandBase.m_pszUsageString;
 }
 
 //-----------------------------------------------------------------------------

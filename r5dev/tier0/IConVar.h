@@ -94,6 +94,7 @@ public:
 
 	const char* GetBaseName(void) const;
 	const char* GetHelpText(void) const;
+	const char* GetUsageText(void) const;
 
 	void AddFlags(int nFlags);
 	void RemoveFlags(int nFlags);

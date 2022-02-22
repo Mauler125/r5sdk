@@ -417,16 +417,21 @@ void CConsole::FindFromPartial(void)
                     if (pConVar != nullptr)
                     {
                         svValue = "= \""; // Assign default value to string if its a ConVar.
-                        svValue.append(g_pCVar->FindVar(g_vsvAllConVars[i].c_str())->GetString());
+                        svValue.append(pConVar->GetString());
                         svValue.append("\"");
 
                         if (con_suggestion_helptext->GetBool())
                         {
-                            std::string svHelpText = g_pCVar->FindVar(g_vsvAllConVars[i].c_str())->GetHelpText();
-
+                            std::string svHelpText = pConVar->GetHelpText();
                             if (!svHelpText.empty())
                             {
-                                svValue.append(" [" + svHelpText + "]");
+                                svValue.append(" | [" + svHelpText + "]");
+                            }
+
+                            std::string svUsageText = pConVar->GetUsageText();
+                            if (!svUsageText.empty())
+                            {
+                                svValue.append(" | [" + svUsageText + "]");
                             }
                         }
                     }
