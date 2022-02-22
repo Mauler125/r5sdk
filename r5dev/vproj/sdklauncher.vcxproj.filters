@@ -21,61 +21,61 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="sdklauncher\sdklauncher.cpp">
+    <ClCompile Include="..\sdklauncher\sdklauncher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="core\stdafx.cpp">
+    <ClCompile Include="..\core\stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="thirdparty\detours\src\detours.cpp">
+    <ClCompile Include="..\thirdparty\detours\src\detours.cpp">
       <Filter>Detours Files</Filter>
     </ClCompile>
-    <ClCompile Include="thirdparty\detours\src\disasm.cpp">
+    <ClCompile Include="..\thirdparty\detours\src\disasm.cpp">
       <Filter>Detours Files</Filter>
     </ClCompile>
-    <ClCompile Include="thirdparty\detours\src\modules.cpp">
+    <ClCompile Include="..\thirdparty\detours\src\modules.cpp">
       <Filter>Detours Files</Filter>
     </ClCompile>
-    <ClCompile Include="thirdparty\detours\src\creatwth.cpp">
+    <ClCompile Include="..\thirdparty\detours\src\creatwth.cpp">
       <Filter>Detours Files</Filter>
     </ClCompile>
-    <ClCompile Include="public\utility.cpp">
+    <ClCompile Include="..\public\utility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="resource\sdklauncher.rc">
+    <ResourceCompile Include="..\resource\sdklauncher.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="core\stdafx.h">
+    <ClInclude Include="..\core\stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sdklauncher\sdklauncher.h">
+    <ClInclude Include="..\sdklauncher\sdklauncher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sdklauncher\sdklauncher_res.h">
+    <ClInclude Include="..\sdklauncher\sdklauncher_res.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="thirdparty\detours\include\detver.h">
+    <ClInclude Include="..\thirdparty\detours\include\detver.h">
       <Filter>Detours Files\include</Filter>
     </ClInclude>
-    <ClInclude Include="thirdparty\detours\include\syelog.h">
+    <ClInclude Include="..\thirdparty\detours\include\syelog.h">
       <Filter>Detours Files\include</Filter>
     </ClInclude>
-    <ClInclude Include="thirdparty\detours\include\detours.h">
+    <ClInclude Include="..\thirdparty\detours\include\detours.h">
       <Filter>Detours Files\include</Filter>
     </ClInclude>
-    <ClInclude Include="public\include\utility.h">
+    <ClInclude Include="..\public\include\utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="resource\ico\sdklauncher_rel.ico">
+    <Image Include="..\resource\ico\sdklauncher_rel.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="resource\ico\sdklauncher_dbg.ico">
+    <Image Include="..\resource\ico\sdklauncher_dbg.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

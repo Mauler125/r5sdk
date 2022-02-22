@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31808.319
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gamesdk", "r5dev\gamesdk.vcxproj", "{28CC6B4F-7A95-4933-ADA9-65E38D48516D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gamesdk", "r5dev\vproj\gamesdk.vcxproj", "{28CC6B4F-7A95-4933-ADA9-65E38D48516D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sdklauncher", "r5dev\sdklauncher.vcxproj", "{18F8C75E-3844-4AA6-AB93-980A08253519}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sdklauncher", "r5dev\vproj\sdklauncher.vcxproj", "{18F8C75E-3844-4AA6-AB93-980A08253519}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dedicated", "r5dev\dedicated.vcxproj", "{ED2C50B3-7C2C-4E44-988E-DAA059F72B9C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dedicated", "r5dev\vproj\dedicated.vcxproj", "{ED2C50B3-7C2C-4E44-988E-DAA059F72B9C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "netconsole", "r5dev\netconsole.vcxproj", "{9579B31F-CE24-4852-A941-CD1AD71E2248}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "netconsole", "r5dev\vproj\netconsole.vcxproj", "{9579B31F-CE24-4852-A941-CD1AD71E2248}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "protobuf", "r5dev\protobuf.vcxproj", "{B273A875-6618-49FE-8CA4-0B693BA264D5}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "protobuf", "r5dev\vproj\protobuf.vcxproj", "{B273A875-6618-49FE-8CA4-0B693BA264D5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

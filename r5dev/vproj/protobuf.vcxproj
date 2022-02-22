@@ -163,511 +163,511 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="thirdparty\protobuf\any.cc">
+    <ClCompile Include="..\thirdparty\protobuf\any.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\any.pb.cc">
+    <ClCompile Include="..\thirdparty\protobuf\any.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\any_lite.cc">
+    <ClCompile Include="..\thirdparty\protobuf\any_lite.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\api.pb.cc">
+    <ClCompile Include="..\thirdparty\protobuf\api.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\arena.cc">
+    <ClCompile Include="..\thirdparty\protobuf\arena.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\arenastring.cc">
+    <ClCompile Include="..\thirdparty\protobuf\arenastring.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\compiler\importer.cc">
+    <ClCompile Include="..\thirdparty\protobuf\compiler\importer.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\compiler\parser.cc">
+    <ClCompile Include="..\thirdparty\protobuf\compiler\parser.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\descriptor.cc">
+    <ClCompile Include="..\thirdparty\protobuf\descriptor.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\descriptor.pb.cc">
+    <ClCompile Include="..\thirdparty\protobuf\descriptor.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\descriptor_database.cc">
+    <ClCompile Include="..\thirdparty\protobuf\descriptor_database.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\duration.pb.cc">
+    <ClCompile Include="..\thirdparty\protobuf\duration.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\dynamic_message.cc">
+    <ClCompile Include="..\thirdparty\protobuf\dynamic_message.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\empty.pb.cc">
+    <ClCompile Include="..\thirdparty\protobuf\empty.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\extension_set.cc">
+    <ClCompile Include="..\thirdparty\protobuf\extension_set.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\extension_set_heavy.cc">
+    <ClCompile Include="..\thirdparty\protobuf\extension_set_heavy.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\field_mask.pb.cc">
+    <ClCompile Include="..\thirdparty\protobuf\field_mask.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\generated_enum_util.cc">
+    <ClCompile Include="..\thirdparty\protobuf\generated_enum_util.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\generated_message_bases.cc">
+    <ClCompile Include="..\thirdparty\protobuf\generated_message_bases.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\generated_message_reflection.cc">
+    <ClCompile Include="..\thirdparty\protobuf\generated_message_reflection.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\generated_message_table_driven.cc">
+    <ClCompile Include="..\thirdparty\protobuf\generated_message_table_driven.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\generated_message_table_driven_lite.cc">
+    <ClCompile Include="..\thirdparty\protobuf\generated_message_table_driven_lite.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\generated_message_tctable_full.cc">
+    <ClCompile Include="..\thirdparty\protobuf\generated_message_tctable_full.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\generated_message_tctable_lite.cc">
+    <ClCompile Include="..\thirdparty\protobuf\generated_message_tctable_lite.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\generated_message_util.cc">
+    <ClCompile Include="..\thirdparty\protobuf\generated_message_util.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\implicit_weak_message.cc">
+    <ClCompile Include="..\thirdparty\protobuf\implicit_weak_message.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\inlined_string_field.cc">
+    <ClCompile Include="..\thirdparty\protobuf\inlined_string_field.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\io\coded_stream.cc">
+    <ClCompile Include="..\thirdparty\protobuf\io\coded_stream.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\io\gzip_stream.cc">
+    <ClCompile Include="..\thirdparty\protobuf\io\gzip_stream.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\io\io_win32.cc">
+    <ClCompile Include="..\thirdparty\protobuf\io\io_win32.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\io\printer.cc">
+    <ClCompile Include="..\thirdparty\protobuf\io\printer.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\io\strtod.cc">
+    <ClCompile Include="..\thirdparty\protobuf\io\strtod.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\io\tokenizer.cc">
+    <ClCompile Include="..\thirdparty\protobuf\io\tokenizer.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\io\zero_copy_stream.cc">
+    <ClCompile Include="..\thirdparty\protobuf\io\zero_copy_stream.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\io\zero_copy_stream_impl.cc">
+    <ClCompile Include="..\thirdparty\protobuf\io\zero_copy_stream_impl.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\io\zero_copy_stream_impl_lite.cc">
+    <ClCompile Include="..\thirdparty\protobuf\io\zero_copy_stream_impl_lite.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\map.cc">
+    <ClCompile Include="..\thirdparty\protobuf\map.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\map_field.cc">
+    <ClCompile Include="..\thirdparty\protobuf\map_field.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\message.cc">
+    <ClCompile Include="..\thirdparty\protobuf\message.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\message_lite.cc">
+    <ClCompile Include="..\thirdparty\protobuf\message_lite.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\parse_context.cc">
+    <ClCompile Include="..\thirdparty\protobuf\parse_context.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\reflection_ops.cc">
+    <ClCompile Include="..\thirdparty\protobuf\reflection_ops.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\repeated_field.cc">
+    <ClCompile Include="..\thirdparty\protobuf\repeated_field.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\repeated_ptr_field.cc">
+    <ClCompile Include="..\thirdparty\protobuf\repeated_ptr_field.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\service.cc">
+    <ClCompile Include="..\thirdparty\protobuf\service.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\source_context.pb.cc">
+    <ClCompile Include="..\thirdparty\protobuf\source_context.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\struct.pb.cc">
+    <ClCompile Include="..\thirdparty\protobuf\struct.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\stubs\bytestream.cc">
+    <ClCompile Include="..\thirdparty\protobuf\stubs\bytestream.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\stubs\common.cc">
+    <ClCompile Include="..\thirdparty\protobuf\stubs\common.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\stubs\int128.cc">
+    <ClCompile Include="..\thirdparty\protobuf\stubs\int128.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\stubs\status.cc">
+    <ClCompile Include="..\thirdparty\protobuf\stubs\status.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\stubs\statusor.cc">
+    <ClCompile Include="..\thirdparty\protobuf\stubs\statusor.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\stubs\stringpiece.cc">
+    <ClCompile Include="..\thirdparty\protobuf\stubs\stringpiece.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\stubs\stringprintf.cc">
+    <ClCompile Include="..\thirdparty\protobuf\stubs\stringprintf.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\stubs\structurally_valid.cc">
+    <ClCompile Include="..\thirdparty\protobuf\stubs\structurally_valid.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\stubs\strutil.cc">
+    <ClCompile Include="..\thirdparty\protobuf\stubs\strutil.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\stubs\substitute.cc">
+    <ClCompile Include="..\thirdparty\protobuf\stubs\substitute.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\stubs\time.cc">
+    <ClCompile Include="..\thirdparty\protobuf\stubs\time.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\text_format.cc">
+    <ClCompile Include="..\thirdparty\protobuf\text_format.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\timestamp.pb.cc">
+    <ClCompile Include="..\thirdparty\protobuf\timestamp.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\type.pb.cc">
+    <ClCompile Include="..\thirdparty\protobuf\type.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\unknown_field_set.cc">
+    <ClCompile Include="..\thirdparty\protobuf\unknown_field_set.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\util\delimited_message_util.cc">
+    <ClCompile Include="..\thirdparty\protobuf\util\delimited_message_util.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\util\field_comparator.cc">
+    <ClCompile Include="..\thirdparty\protobuf\util\field_comparator.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\util\field_mask_util.cc">
+    <ClCompile Include="..\thirdparty\protobuf\util\field_mask_util.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\util\internal\datapiece.cc">
+    <ClCompile Include="..\thirdparty\protobuf\util\internal\datapiece.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\util\internal\default_value_objectwriter.cc">
+    <ClCompile Include="..\thirdparty\protobuf\util\internal\default_value_objectwriter.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\util\internal\error_listener.cc">
+    <ClCompile Include="..\thirdparty\protobuf\util\internal\error_listener.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\util\internal\field_mask_utility.cc">
+    <ClCompile Include="..\thirdparty\protobuf\util\internal\field_mask_utility.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\util\internal\json_escaping.cc">
+    <ClCompile Include="..\thirdparty\protobuf\util\internal\json_escaping.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\util\internal\json_objectwriter.cc">
+    <ClCompile Include="..\thirdparty\protobuf\util\internal\json_objectwriter.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\util\internal\json_stream_parser.cc">
+    <ClCompile Include="..\thirdparty\protobuf\util\internal\json_stream_parser.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\util\internal\object_writer.cc">
+    <ClCompile Include="..\thirdparty\protobuf\util\internal\object_writer.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\util\internal\protostream_objectsource.cc">
+    <ClCompile Include="..\thirdparty\protobuf\util\internal\protostream_objectsource.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\util\internal\protostream_objectwriter.cc">
+    <ClCompile Include="..\thirdparty\protobuf\util\internal\protostream_objectwriter.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\util\internal\proto_writer.cc">
+    <ClCompile Include="..\thirdparty\protobuf\util\internal\proto_writer.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\util\internal\type_info.cc">
+    <ClCompile Include="..\thirdparty\protobuf\util\internal\type_info.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\util\internal\utility.cc">
+    <ClCompile Include="..\thirdparty\protobuf\util\internal\utility.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\util\json_util.cc">
+    <ClCompile Include="..\thirdparty\protobuf\util\json_util.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\util\message_differencer.cc">
+    <ClCompile Include="..\thirdparty\protobuf\util\message_differencer.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\util\time_util.cc">
+    <ClCompile Include="..\thirdparty\protobuf\util\time_util.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\util\type_resolver_util.cc">
+    <ClCompile Include="..\thirdparty\protobuf\util\type_resolver_util.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\wire_format.cc">
+    <ClCompile Include="..\thirdparty\protobuf\wire_format.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\wire_format_lite.cc">
+    <ClCompile Include="..\thirdparty\protobuf\wire_format_lite.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="thirdparty\protobuf\wrappers.pb.cc">
+    <ClCompile Include="..\thirdparty\protobuf\wrappers.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -675,90 +675,90 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="thirdparty\protobuf\any.h" />
-    <ClInclude Include="thirdparty\protobuf\any.pb.h" />
-    <ClInclude Include="thirdparty\protobuf\api.pb.h" />
-    <ClInclude Include="thirdparty\protobuf\arena.h" />
-    <ClInclude Include="thirdparty\protobuf\arenastring.h" />
-    <ClInclude Include="thirdparty\protobuf\compiler\importer.h" />
-    <ClInclude Include="thirdparty\protobuf\compiler\parser.h" />
-    <ClInclude Include="thirdparty\protobuf\descriptor.h" />
-    <ClInclude Include="thirdparty\protobuf\descriptor.pb.h" />
-    <ClInclude Include="thirdparty\protobuf\descriptor_database.h" />
-    <ClInclude Include="thirdparty\protobuf\duration.pb.h" />
-    <ClInclude Include="thirdparty\protobuf\dynamic_message.h" />
-    <ClInclude Include="thirdparty\protobuf\empty.pb.h" />
-    <ClInclude Include="thirdparty\protobuf\extension_set.h" />
-    <ClInclude Include="thirdparty\protobuf\extension_set_inl.h" />
-    <ClInclude Include="thirdparty\protobuf\field_mask.pb.h" />
-    <ClInclude Include="thirdparty\protobuf\generated_enum_util.h" />
-    <ClInclude Include="thirdparty\protobuf\generated_message_bases.h" />
-    <ClInclude Include="thirdparty\protobuf\generated_message_reflection.h" />
-    <ClInclude Include="thirdparty\protobuf\generated_message_table_driven.h" />
-    <ClInclude Include="thirdparty\protobuf\generated_message_table_driven_lite.h" />
-    <ClInclude Include="thirdparty\protobuf\generated_message_util.h" />
-    <ClInclude Include="thirdparty\protobuf\implicit_weak_message.h" />
-    <ClInclude Include="thirdparty\protobuf\inlined_string_field.h" />
-    <ClInclude Include="thirdparty\protobuf\io\coded_stream.h" />
-    <ClInclude Include="thirdparty\protobuf\io\gzip_stream.h" />
-    <ClInclude Include="thirdparty\protobuf\io\io_win32.h" />
-    <ClInclude Include="thirdparty\protobuf\io\printer.h" />
-    <ClInclude Include="thirdparty\protobuf\io\strtod.h" />
-    <ClInclude Include="thirdparty\protobuf\io\tokenizer.h" />
-    <ClInclude Include="thirdparty\protobuf\io\zero_copy_stream.h" />
-    <ClInclude Include="thirdparty\protobuf\io\zero_copy_stream_impl.h" />
-    <ClInclude Include="thirdparty\protobuf\io\zero_copy_stream_impl_lite.h" />
-    <ClInclude Include="thirdparty\protobuf\map.h" />
-    <ClInclude Include="thirdparty\protobuf\map_field.h" />
-    <ClInclude Include="thirdparty\protobuf\message.h" />
-    <ClInclude Include="thirdparty\protobuf\message_lite.h" />
-    <ClInclude Include="thirdparty\protobuf\parse_context.h" />
-    <ClInclude Include="thirdparty\protobuf\reflection_ops.h" />
-    <ClInclude Include="thirdparty\protobuf\repeated_field.h" />
-    <ClInclude Include="thirdparty\protobuf\repeated_ptr_field.h" />
-    <ClInclude Include="thirdparty\protobuf\service.h" />
-    <ClInclude Include="thirdparty\protobuf\source_context.pb.h" />
-    <ClInclude Include="thirdparty\protobuf\struct.pb.h" />
-    <ClInclude Include="thirdparty\protobuf\stubs\bytestream.h" />
-    <ClInclude Include="thirdparty\protobuf\stubs\common.h" />
-    <ClInclude Include="thirdparty\protobuf\stubs\int128.h" />
-    <ClInclude Include="thirdparty\protobuf\stubs\status.h" />
-    <ClInclude Include="thirdparty\protobuf\stubs\statusor.h" />
-    <ClInclude Include="thirdparty\protobuf\stubs\stringpiece.h" />
-    <ClInclude Include="thirdparty\protobuf\stubs\stringprintf.h" />
-    <ClInclude Include="thirdparty\protobuf\stubs\strutil.h" />
-    <ClInclude Include="thirdparty\protobuf\stubs\substitute.h" />
-    <ClInclude Include="thirdparty\protobuf\stubs\time.h" />
-    <ClInclude Include="thirdparty\protobuf\text_format.h" />
-    <ClInclude Include="thirdparty\protobuf\timestamp.pb.h" />
-    <ClInclude Include="thirdparty\protobuf\type.pb.h" />
-    <ClInclude Include="thirdparty\protobuf\unknown_field_set.h" />
-    <ClInclude Include="thirdparty\protobuf\util\delimited_message_util.h" />
-    <ClInclude Include="thirdparty\protobuf\util\field_comparator.h" />
-    <ClInclude Include="thirdparty\protobuf\util\field_mask_util.h" />
-    <ClInclude Include="thirdparty\protobuf\util\internal\datapiece.h" />
-    <ClInclude Include="thirdparty\protobuf\util\internal\default_value_objectwriter.h" />
-    <ClInclude Include="thirdparty\protobuf\util\internal\error_listener.h" />
-    <ClInclude Include="thirdparty\protobuf\util\internal\field_mask_utility.h" />
-    <ClInclude Include="thirdparty\protobuf\util\internal\json_escaping.h" />
-    <ClInclude Include="thirdparty\protobuf\util\internal\json_objectwriter.h" />
-    <ClInclude Include="thirdparty\protobuf\util\internal\json_stream_parser.h" />
-    <ClInclude Include="thirdparty\protobuf\util\internal\object_writer.h" />
-    <ClInclude Include="thirdparty\protobuf\util\internal\protostream_objectsource.h" />
-    <ClInclude Include="thirdparty\protobuf\util\internal\protostream_objectwriter.h" />
-    <ClInclude Include="thirdparty\protobuf\util\internal\proto_writer.h" />
-    <ClInclude Include="thirdparty\protobuf\util\internal\type_info.h" />
-    <ClInclude Include="thirdparty\protobuf\util\internal\utility.h" />
-    <ClInclude Include="thirdparty\protobuf\util\json_util.h" />
-    <ClInclude Include="thirdparty\protobuf\util\message_differencer.h" />
-    <ClInclude Include="thirdparty\protobuf\util\time_util.h" />
-    <ClInclude Include="thirdparty\protobuf\util\type_resolver_util.h" />
-    <ClInclude Include="thirdparty\protobuf\wire_format.h" />
-    <ClInclude Include="thirdparty\protobuf\wire_format_lite.h" />
-    <ClInclude Include="thirdparty\protobuf\wrappers.pb.h" />
+    <ClInclude Include="..\thirdparty\protobuf\any.h" />
+    <ClInclude Include="..\thirdparty\protobuf\any.pb.h" />
+    <ClInclude Include="..\thirdparty\protobuf\api.pb.h" />
+    <ClInclude Include="..\thirdparty\protobuf\arena.h" />
+    <ClInclude Include="..\thirdparty\protobuf\arenastring.h" />
+    <ClInclude Include="..\thirdparty\protobuf\compiler\importer.h" />
+    <ClInclude Include="..\thirdparty\protobuf\compiler\parser.h" />
+    <ClInclude Include="..\thirdparty\protobuf\descriptor.h" />
+    <ClInclude Include="..\thirdparty\protobuf\descriptor.pb.h" />
+    <ClInclude Include="..\thirdparty\protobuf\descriptor_database.h" />
+    <ClInclude Include="..\thirdparty\protobuf\duration.pb.h" />
+    <ClInclude Include="..\thirdparty\protobuf\dynamic_message.h" />
+    <ClInclude Include="..\thirdparty\protobuf\empty.pb.h" />
+    <ClInclude Include="..\thirdparty\protobuf\extension_set.h" />
+    <ClInclude Include="..\thirdparty\protobuf\extension_set_inl.h" />
+    <ClInclude Include="..\thirdparty\protobuf\field_mask.pb.h" />
+    <ClInclude Include="..\thirdparty\protobuf\generated_enum_util.h" />
+    <ClInclude Include="..\thirdparty\protobuf\generated_message_bases.h" />
+    <ClInclude Include="..\thirdparty\protobuf\generated_message_reflection.h" />
+    <ClInclude Include="..\thirdparty\protobuf\generated_message_table_driven.h" />
+    <ClInclude Include="..\thirdparty\protobuf\generated_message_table_driven_lite.h" />
+    <ClInclude Include="..\thirdparty\protobuf\generated_message_util.h" />
+    <ClInclude Include="..\thirdparty\protobuf\implicit_weak_message.h" />
+    <ClInclude Include="..\thirdparty\protobuf\inlined_string_field.h" />
+    <ClInclude Include="..\thirdparty\protobuf\io\coded_stream.h" />
+    <ClInclude Include="..\thirdparty\protobuf\io\gzip_stream.h" />
+    <ClInclude Include="..\thirdparty\protobuf\io\io_win32.h" />
+    <ClInclude Include="..\thirdparty\protobuf\io\printer.h" />
+    <ClInclude Include="..\thirdparty\protobuf\io\strtod.h" />
+    <ClInclude Include="..\thirdparty\protobuf\io\tokenizer.h" />
+    <ClInclude Include="..\thirdparty\protobuf\io\zero_copy_stream.h" />
+    <ClInclude Include="..\thirdparty\protobuf\io\zero_copy_stream_impl.h" />
+    <ClInclude Include="..\thirdparty\protobuf\io\zero_copy_stream_impl_lite.h" />
+    <ClInclude Include="..\thirdparty\protobuf\map.h" />
+    <ClInclude Include="..\thirdparty\protobuf\map_field.h" />
+    <ClInclude Include="..\thirdparty\protobuf\message.h" />
+    <ClInclude Include="..\thirdparty\protobuf\message_lite.h" />
+    <ClInclude Include="..\thirdparty\protobuf\parse_context.h" />
+    <ClInclude Include="..\thirdparty\protobuf\reflection_ops.h" />
+    <ClInclude Include="..\thirdparty\protobuf\repeated_field.h" />
+    <ClInclude Include="..\thirdparty\protobuf\repeated_ptr_field.h" />
+    <ClInclude Include="..\thirdparty\protobuf\service.h" />
+    <ClInclude Include="..\thirdparty\protobuf\source_context.pb.h" />
+    <ClInclude Include="..\thirdparty\protobuf\struct.pb.h" />
+    <ClInclude Include="..\thirdparty\protobuf\stubs\bytestream.h" />
+    <ClInclude Include="..\thirdparty\protobuf\stubs\common.h" />
+    <ClInclude Include="..\thirdparty\protobuf\stubs\int128.h" />
+    <ClInclude Include="..\thirdparty\protobuf\stubs\status.h" />
+    <ClInclude Include="..\thirdparty\protobuf\stubs\statusor.h" />
+    <ClInclude Include="..\thirdparty\protobuf\stubs\stringpiece.h" />
+    <ClInclude Include="..\thirdparty\protobuf\stubs\stringprintf.h" />
+    <ClInclude Include="..\thirdparty\protobuf\stubs\strutil.h" />
+    <ClInclude Include="..\thirdparty\protobuf\stubs\substitute.h" />
+    <ClInclude Include="..\thirdparty\protobuf\stubs\time.h" />
+    <ClInclude Include="..\thirdparty\protobuf\text_format.h" />
+    <ClInclude Include="..\thirdparty\protobuf\timestamp.pb.h" />
+    <ClInclude Include="..\thirdparty\protobuf\type.pb.h" />
+    <ClInclude Include="..\thirdparty\protobuf\unknown_field_set.h" />
+    <ClInclude Include="..\thirdparty\protobuf\util\delimited_message_util.h" />
+    <ClInclude Include="..\thirdparty\protobuf\util\field_comparator.h" />
+    <ClInclude Include="..\thirdparty\protobuf\util\field_mask_util.h" />
+    <ClInclude Include="..\thirdparty\protobuf\util\internal\datapiece.h" />
+    <ClInclude Include="..\thirdparty\protobuf\util\internal\default_value_objectwriter.h" />
+    <ClInclude Include="..\thirdparty\protobuf\util\internal\error_listener.h" />
+    <ClInclude Include="..\thirdparty\protobuf\util\internal\field_mask_utility.h" />
+    <ClInclude Include="..\thirdparty\protobuf\util\internal\json_escaping.h" />
+    <ClInclude Include="..\thirdparty\protobuf\util\internal\json_objectwriter.h" />
+    <ClInclude Include="..\thirdparty\protobuf\util\internal\json_stream_parser.h" />
+    <ClInclude Include="..\thirdparty\protobuf\util\internal\object_writer.h" />
+    <ClInclude Include="..\thirdparty\protobuf\util\internal\protostream_objectsource.h" />
+    <ClInclude Include="..\thirdparty\protobuf\util\internal\protostream_objectwriter.h" />
+    <ClInclude Include="..\thirdparty\protobuf\util\internal\proto_writer.h" />
+    <ClInclude Include="..\thirdparty\protobuf\util\internal\type_info.h" />
+    <ClInclude Include="..\thirdparty\protobuf\util\internal\utility.h" />
+    <ClInclude Include="..\thirdparty\protobuf\util\json_util.h" />
+    <ClInclude Include="..\thirdparty\protobuf\util\message_differencer.h" />
+    <ClInclude Include="..\thirdparty\protobuf\util\time_util.h" />
+    <ClInclude Include="..\thirdparty\protobuf\util\type_resolver_util.h" />
+    <ClInclude Include="..\thirdparty\protobuf\wire_format.h" />
+    <ClInclude Include="..\thirdparty\protobuf\wire_format_lite.h" />
+    <ClInclude Include="..\thirdparty\protobuf\wrappers.pb.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="thirdparty\protobuf\version.rc" />
+    <ResourceCompile Include="..\thirdparty\protobuf\version.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
