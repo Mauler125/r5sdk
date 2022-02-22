@@ -142,6 +142,24 @@
     <Filter Include="sdk\appframework">
       <UniqueIdentifier>{cd141b6d-58a2-4b7d-afc9-32195cd9aa3c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="thirdparty\lzham">
+      <UniqueIdentifier>{75f3cdf7-cbe5-4138-90b1-24492f570abb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\lzham\include">
+      <UniqueIdentifier>{7fdf29d5-bc3d-41f4-8788-7ad63e4f9a13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\lzham\lzhamcomp">
+      <UniqueIdentifier>{9432e37b-2460-491e-96cb-ac0cfb477581}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\lzham\lzhamcomp\include">
+      <UniqueIdentifier>{d82555e7-9f83-444b-ba0d-7e309e08ce73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\lzham\lzhamdecomp">
+      <UniqueIdentifier>{5f9f0e7f-9bfb-4303-9bb6-fdce3bd23f23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\lzham\lzhamdecomp\include">
+      <UniqueIdentifier>{3446634c-a632-4281-a500-459a56668a6b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\client.cpp">
@@ -1021,6 +1039,93 @@
     </ClInclude>
     <ClInclude Include="..\appframework\engine_launcher_api.h">
       <Filter>sdk\appframework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\include\lzham.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_assert.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_checksum.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_config.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_core.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_helpers.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_huffman_codes.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_lzbase.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_match_accel.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_math.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_mem.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_null_threading.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_platform.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_polar_codes.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_prefix_coding.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_pthreads_threading.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_static_lib.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_symbol_codec.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_threading.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_timer.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_traits.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_types.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_utils.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_vector.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_win32_threading.h">
+      <Filter>thirdparty\lzham\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\lzhamcomp\lzham_comp.h">
+      <Filter>thirdparty\lzham\lzhamcomp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\lzhamcomp\lzham_lzcomp_internal.h">
+      <Filter>thirdparty\lzham\lzhamcomp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\lzhamdecomp\lzham_decomp.h">
+      <Filter>thirdparty\lzham\lzhamdecomp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\lzham\lzhamdecomp\lzham_lzdecompbase.h">
+      <Filter>thirdparty\lzham\lzhamdecomp\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

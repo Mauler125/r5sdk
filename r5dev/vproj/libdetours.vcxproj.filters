@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{50abaf44-bd51-4c7a-a050-949827ec8d0e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\thirdparty\detours\include\detours.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\detours\include\detver.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\detours\include\idetour.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\detours\include\syelog.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\thirdparty\detours\src\creatwth.cpp" />
+    <ClCompile Include="..\thirdparty\detours\src\detours.cpp" />
+    <ClCompile Include="..\thirdparty\detours\src\disasm.cpp" />
+    <ClCompile Include="..\thirdparty\detours\src\modules.cpp" />
+  </ItemGroup>
+</Project>

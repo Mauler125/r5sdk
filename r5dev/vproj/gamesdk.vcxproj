@@ -243,6 +243,35 @@
     <ClInclude Include="..\thirdparty\imgui\include\imstb_rectpack.h" />
     <ClInclude Include="..\thirdparty\imgui\include\imstb_textedit.h" />
     <ClInclude Include="..\thirdparty\imgui\include\imstb_truetype.h" />
+    <ClInclude Include="..\thirdparty\lzham\include\lzham.h" />
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_assert.h" />
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_checksum.h" />
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_config.h" />
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_core.h" />
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_helpers.h" />
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_huffman_codes.h" />
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_lzbase.h" />
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_match_accel.h" />
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_math.h" />
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_mem.h" />
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_null_threading.h" />
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_platform.h" />
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_polar_codes.h" />
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_prefix_coding.h" />
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_pthreads_threading.h" />
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_static_lib.h" />
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_symbol_codec.h" />
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_threading.h" />
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_timer.h" />
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_traits.h" />
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_types.h" />
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_utils.h" />
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_vector.h" />
+    <ClInclude Include="..\thirdparty\lzham\include\lzham_win32_threading.h" />
+    <ClInclude Include="..\thirdparty\lzham\lzhamcomp\lzham_comp.h" />
+    <ClInclude Include="..\thirdparty\lzham\lzhamcomp\lzham_lzcomp_internal.h" />
+    <ClInclude Include="..\thirdparty\lzham\lzhamdecomp\lzham_decomp.h" />
+    <ClInclude Include="..\thirdparty\lzham\lzhamdecomp\lzham_lzdecompbase.h" />
     <ClInclude Include="..\thirdparty\spdlog\include\async.h" />
     <ClInclude Include="..\thirdparty\spdlog\include\async_logger-inl.h" />
     <ClInclude Include="..\thirdparty\spdlog\include\async_logger.h" />
@@ -437,7 +466,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
-    <LibraryPath>$(SolutionDir)r5dev\thirdparty\detours\libs;$(SolutionDir)r5dev\thirdparty\lzham\libs;$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
+    <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
     <TargetName>r5apexsdkd64</TargetName>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
@@ -446,7 +475,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
-    <LibraryPath>$(SolutionDir)r5dev\thirdparty\detours\libs;$(SolutionDir)r5dev\thirdparty\lzham\libs;$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
+    <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
     <TargetName>r5apexsdkd64</TargetName>
     <ReferencePath>$(VC_ReferencesPath_x64);</ReferencePath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
@@ -506,8 +535,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>..\GameSDK.def</ModuleDefinitionFile>
-      <AdditionalDependencies>d3d11.lib;bcrypt.lib;libprotobuf_x64.lib;liblzham_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration)\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d11.lib;bcrypt.lib;libdetours_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\$(ProjectName)" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
@@ -547,8 +576,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>..\GameSDK.def</ModuleDefinitionFile>
-      <AdditionalDependencies>d3d11.lib;bcrypt.lib;libprotobuf_x64.lib;liblzham_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration)\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d11.lib;bcrypt.lib;libdetours_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\$(ProjectName)" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
