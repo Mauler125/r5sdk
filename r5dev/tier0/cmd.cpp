@@ -274,7 +274,7 @@ char* ConCommandBase::CopyString(const char* szFrom) const
 	else
 	{
 		szTo = new char[nLen + 1];
-		strncpy(szTo, szFrom, nLen + 1);
+		memmove(szTo, szFrom, nLen + 1);
 	}
 	return szTo;
 }
