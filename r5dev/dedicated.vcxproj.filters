@@ -127,6 +127,9 @@
     <Filter Include="sdk\game\server">
       <UniqueIdentifier>{3097f306-20ab-4601-a184-ce56c5265746}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\appframework">
+      <UniqueIdentifier>{888e265d-d431-4c9c-8d1a-e8a3639c9fbd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client\client.h">
@@ -755,6 +758,12 @@
     </ClInclude>
     <ClInclude Include="common\netmessages.h">
       <Filter>sdk\common</Filter>
+    </ClInclude>
+    <ClInclude Include="appframework\iappsystem.h">
+      <Filter>sdk\appframework</Filter>
+    </ClInclude>
+    <ClInclude Include="appframework\engine_launcher_api.h">
+      <Filter>sdk\appframework</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

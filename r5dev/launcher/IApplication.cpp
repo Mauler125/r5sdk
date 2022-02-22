@@ -19,7 +19,7 @@
 //-----------------------------------------------------------------------------
 int HModAppSystemGroup_Main(CModAppSystemGroup* modAppSystemGroup)
 {
-	int nRunResult = 3; // RUN_OK
+	int nRunResult = RUN_OK;
 	HEbisuSDK_Init(); // Not here in retail. We init EbisuSDK here though.
 
 	if (modAppSystemGroup->m_bIsServerOnly()) // This will never be true anyway but we implement it for the sake of it.
@@ -38,7 +38,7 @@ int HModAppSystemGroup_Main(CModAppSystemGroup* modAppSystemGroup)
 		{
 			if (CEngineAPI_MainLoop())
 			{
-				nRunResult = 4; // RUN_RESTART
+				nRunResult = RUN_RESTART;
 			}
 			g_pEngine->Unload();
 			SV_ShutdownGameDLL();

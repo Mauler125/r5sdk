@@ -232,6 +232,8 @@
     <ClCompile Include="windows\system.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="appframework\engine_launcher_api.h" />
+    <ClInclude Include="appframework\iappsystem.h" />
     <ClInclude Include="bsplib\bsplib.h" />
     <ClInclude Include="client\cdll_engine_int.h" />
     <ClInclude Include="client\client.h" />
