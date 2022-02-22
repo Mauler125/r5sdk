@@ -128,7 +128,7 @@ void CNetAdr2::SetIPAndPort(std::string svInAdr, std::string svInPort)
 		svInAdr = "127.0.0.1";
 	}
 
-	if (strstr(svInAdr.c_str(), "["))
+	if (strstr(svInAdr.c_str(), "[") || strstr(svInAdr.c_str(), "]"))
 	{
 		svInAdr = GetBase(svInAdr);
 	}
