@@ -133,31 +133,30 @@ void ConCommand::Init(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Add's flags to ConCommand.
-// Input  : nFlags - 
+// Purpose: Returns true if this is a command 
+// Output : bool
 //-----------------------------------------------------------------------------
-void ConCommandBase::AddFlags(int nFlags)
+bool ConCommand::IsCommand(void) const
 {
-	m_nFlags |= nFlags;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Removes flags from ConCommand.
-// Input  : nFlags - 
+// Purpose: Returns true if this is a command 
+// Output : bool
 //-----------------------------------------------------------------------------
-void ConCommandBase::RemoveFlags(int nFlags)
+bool ConCommandBase::IsCommand(void) const
 {
-	m_nFlags &= ~nFlags;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Checks if ConCommand has requested flags.
-// Input  : nFlags - 
-// Output : True if ConCommand has nFlags.
+// Purpose: Has this cvar been registered
+// Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
-bool ConCommandBase::HasFlags(int nFlags)
+bool ConCommandBase::IsRegistered(void) const
 {
-	return m_nFlags & nFlags;
+	return m_bRegistered;
 }
 
 //-----------------------------------------------------------------------------
@@ -199,6 +198,85 @@ bool ConCommandBase::IsFlagSet(ConCommandBase* pCommandBase, int nFlags)
 	}
 	// Return false on every FCVAR_DEVELOPMENTONLY || FCVAR_CHEAT query.
 	return pCommandBase->HasFlags(nFlags) != 0;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Checks if ConCommand has requested flags.
+// Input  : nFlags - 
+// Output : True if ConCommand has nFlags.
+//-----------------------------------------------------------------------------
+bool ConCommandBase::HasFlags(int nFlags)
+{
+	return m_nFlags & nFlags;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Add's flags to ConCommand.
+// Input  : nFlags - 
+//-----------------------------------------------------------------------------
+void ConCommandBase::AddFlags(int nFlags)
+{
+	m_nFlags |= nFlags;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Removes flags from ConCommand.
+// Input  : nFlags - 
+//-----------------------------------------------------------------------------
+void ConCommandBase::RemoveFlags(int nFlags)
+{
+	m_nFlags &= ~nFlags;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns current flags.
+// Output : int
+//-----------------------------------------------------------------------------
+int ConCommandBase::GetFlags(void) const
+{
+	return m_nFlags;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Output : const ConCommandBase
+//-----------------------------------------------------------------------------
+ConCommandBase* ConCommandBase::GetNext(void) const
+{
+	return m_pNext;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns the ConCommandBase help text.
+// Output : const char*
+//-----------------------------------------------------------------------------
+const char* ConCommandBase::GetHelpText(void) const
+{
+	return m_pszHelpString;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Copies string using local new/delete operators
+// Input  : *szFrom - 
+// Output : char
+//-----------------------------------------------------------------------------
+char* ConCommandBase::CopyString(const char* szFrom) const
+{
+	size_t nLen;
+	char* szTo;
+
+	nLen = strlen(szFrom);
+	if (nLen <= 0)
+	{
+		szTo = new char[1];
+		szTo[0] = 0;
+	}
+	else
+	{
+		szTo = new char[nLen + 1];
+		strncpy(szTo, szFrom, nLen + 1);
+	}
+	return szTo;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -92,14 +92,12 @@ public:
 
 	void Init(void) const;
 
-	const char* GetBaseName(void) const;
-	const char* GetHelpText(void) const;
-	const char* GetUsageText(void) const;
-
 	void AddFlags(int nFlags);
 	void RemoveFlags(int nFlags);
 
-	bool IsRegistered(void) const;
+	const char* GetBaseName(void) const;
+	const char* GetHelpText(void) const;
+	const char* GetUsageText(void) const;
 
 	bool GetBool(void) const;
 	float GetFloat(void) const;
@@ -128,7 +126,10 @@ public:
 	bool SetColorFromString(const char* pszValue);
 	bool ClampValue(float& value);
 
+	bool IsRegistered(void) const;
+	bool IsCommand(void) const;
 	static bool IsFlagSet(ConVar* pConVar, int nFlags);
+
 	void ClearHostNames(void);
 
 	struct CVValue_t

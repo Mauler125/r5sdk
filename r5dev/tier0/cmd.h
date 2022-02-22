@@ -80,12 +80,21 @@ private:
 class ConCommandBase
 {
 public:
+	bool HasFlags(int nFlags);
 	void AddFlags(int nFlags);
 	void RemoveFlags(int nFlags);
-	bool HasFlags(int nFlags);
+
+	bool IsCommand(void) const;
+	bool IsRegistered(void) const;
 	static bool IsFlagSet(ConCommandBase* pCommandBase, int nFlags);
 
-	void* m_pConCommandBaseVTable;             //0x0000
+	int GetFlags(void) const;
+	ConCommandBase* GetNext(void) const;
+	const char* GetHelpText(void) const;
+
+	char* CopyString(const char* szFrom) const;
+
+	void*    m_pConCommandBaseVTable;          //0x0000
 	ConCommandBase*          m_pNext;          //0x0008
 	bool                     m_bRegistered;    //0x0010
 	char                     pad_0011[7];      //0x0011
@@ -100,13 +109,14 @@ public:
 //-----------------------------------------------------------------------------
 // Purpose: The console invoked command
 //-----------------------------------------------------------------------------
-class ConCommand
+class ConCommand : public ConCommandBase
 {
 	friend class CCVar;
 public:
 	ConCommand(void) {};
 	ConCommand(const char* szName, const char* szHelpString, int nFlags, void* pCallback, void* pCommandCompletionCallback);
 	void Init(void);
+	bool IsCommand(void) const;
 
 	ConCommandBase m_ConCommandBase     {}; //0x0000
 	void*          m_nNullCallBack      {}; //0x0040

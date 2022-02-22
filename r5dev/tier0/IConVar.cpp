@@ -127,6 +127,24 @@ void ConVar::Init(void) const
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Add's flags to ConVar.
+// Input  : nFlags - 
+//-----------------------------------------------------------------------------
+void ConVar::AddFlags(int nFlags)
+{
+	m_pParent->m_ConCommandBase.m_nFlags |= nFlags;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Removes flags from ConVar.
+// Input  : nFlags - 
+//-----------------------------------------------------------------------------
+void ConVar::RemoveFlags(int nFlags)
+{
+	m_ConCommandBase.m_nFlags &= ~nFlags;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Returns the base ConVar name.
 // Output : const char*
 //-----------------------------------------------------------------------------
@@ -151,33 +169,6 @@ const char* ConVar::GetHelpText(void) const
 const char* ConVar::GetUsageText(void) const
 {
 	return m_pParent->m_ConCommandBase.m_pszUsageString;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Add's flags to ConVar.
-// Input  : nFlags - 
-//-----------------------------------------------------------------------------
-void ConVar::AddFlags(int nFlags)
-{
-	m_pParent->m_ConCommandBase.m_nFlags |= nFlags;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Removes flags from ConVar.
-// Input  : nFlags - 
-//-----------------------------------------------------------------------------
-void ConVar::RemoveFlags(int nFlags)
-{
-	m_ConCommandBase.m_nFlags &= ~nFlags;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Checks if ConVar is registered.
-// Output : bool
-//-----------------------------------------------------------------------------
-bool ConVar::IsRegistered(void) const
-{
-	return m_pParent->m_ConCommandBase.m_bRegistered;
 }
 
 //-----------------------------------------------------------------------------
@@ -560,6 +551,24 @@ bool ConVar::ClampValue(float& flValue)
 		return true;
 	}
 
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Checks if ConVar is registered.
+// Output : bool
+//-----------------------------------------------------------------------------
+bool ConVar::IsRegistered(void) const
+{
+	return m_pParent->m_ConCommandBase.m_bRegistered;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns true if this is a command 
+// Output : bool
+//-----------------------------------------------------------------------------
+bool ConVar::IsCommand(void) const
+{
 	return false;
 }
 
