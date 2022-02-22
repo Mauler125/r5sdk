@@ -1,0 +1,4 @@
+LIBRARY dedicated
+
+EXPORTS
+    DummyExport @1
