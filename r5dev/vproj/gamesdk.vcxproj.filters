@@ -228,30 +228,6 @@
     <ClCompile Include="..\squirrel\sqapi.cpp">
       <Filter>sdk\squirrel</Filter>
     </ClCompile>
-    <ClCompile Include="..\thirdparty\imgui\src\imgui_widgets.cpp">
-      <Filter>thirdparty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\imgui\src\imgui.cpp">
-      <Filter>thirdparty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\imgui\src\imgui_draw.cpp">
-      <Filter>thirdparty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\imgui\src\imgui_impl_dx11.cpp">
-      <Filter>thirdparty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\imgui\src\imgui_impl_win32.cpp">
-      <Filter>thirdparty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\imgui\src\imgui_stdlib.cpp">
-      <Filter>thirdparty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\imgui\src\imgui_tables.cpp">
-      <Filter>thirdparty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\imgui\src\imgui_utility.cpp">
-      <Filter>thirdparty\imgui</Filter>
-    </ClCompile>
     <ClCompile Include="..\tier0\completion.cpp">
       <Filter>sdk\tier0</Filter>
     </ClCompile>
@@ -303,9 +279,6 @@
     <ClCompile Include="..\core\init.cpp">
       <Filter>core</Filter>
     </ClCompile>
-    <ClCompile Include="..\thirdparty\imgui\src\imgui_demo.cpp">
-      <Filter>thirdparty\imgui</Filter>
-    </ClCompile>
     <ClCompile Include="..\common\opcodes.cpp">
       <Filter>sdk\common</Filter>
     </ClCompile>
@@ -344,18 +317,6 @@
     </ClCompile>
     <ClCompile Include="..\windows\system.cpp">
       <Filter>windows</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\detours\src\disasm.cpp">
-      <Filter>thirdparty\detours</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\detours\src\modules.cpp">
-      <Filter>thirdparty\detours</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\detours\src\detours.cpp">
-      <Filter>thirdparty\detours</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\detours\src\creatwth.cpp">
-      <Filter>thirdparty\detours</Filter>
     </ClCompile>
     <ClCompile Include="..\mathlib\bits.cpp">
       <Filter>sdk\mathlib</Filter>
@@ -410,6 +371,9 @@
     </ClCompile>
     <ClCompile Include="..\networksystem\pylon.cpp">
       <Filter>sdk\networksystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\imgui\src\imgui_utility.cpp">
+      <Filter>thirdparty\imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

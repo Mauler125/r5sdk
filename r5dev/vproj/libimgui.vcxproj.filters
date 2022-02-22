@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{83a57cdd-4776-47d1-b7c4-c6986dcbab9f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\thirdparty\imgui\include\imconfig.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\imgui\include\imgui.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\imgui\include\imgui_impl_dx11.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\imgui\include\imgui_impl_win32.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\imgui\include\imgui_internal.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\imgui\include\imgui_stdlib.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\imgui\include\imgui_utility.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\imgui\include\imstb_rectpack.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\imgui\include\imstb_textedit.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\imgui\include\imstb_truetype.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\thirdparty\imgui\src\imgui.cpp" />
+    <ClCompile Include="..\thirdparty\imgui\src\imgui_demo.cpp" />
+    <ClCompile Include="..\thirdparty\imgui\src\imgui_draw.cpp" />
+    <ClCompile Include="..\thirdparty\imgui\src\imgui_impl_dx11.cpp" />
+    <ClCompile Include="..\thirdparty\imgui\src\imgui_impl_win32.cpp" />
+    <ClCompile Include="..\thirdparty\imgui\src\imgui_stdlib.cpp" />
+    <ClCompile Include="..\thirdparty\imgui\src\imgui_tables.cpp" />
+    <ClCompile Include="..\thirdparty\imgui\src\imgui_widgets.cpp" />
+  </ItemGroup>
+</Project>

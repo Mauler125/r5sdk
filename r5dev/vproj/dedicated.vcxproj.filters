@@ -893,18 +893,6 @@
     <ClCompile Include="..\windows\system.cpp">
       <Filter>windows</Filter>
     </ClCompile>
-    <ClCompile Include="..\thirdparty\detours\src\detours.cpp">
-      <Filter>thirdparty\detours</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\detours\src\disasm.cpp">
-      <Filter>thirdparty\detours</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\detours\src\modules.cpp">
-      <Filter>thirdparty\detours</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\detours\src\creatwth.cpp">
-      <Filter>thirdparty\detours</Filter>
-    </ClCompile>
     <ClCompile Include="..\mathlib\bits.cpp">
       <Filter>sdk\mathlib</Filter>
     </ClCompile>
