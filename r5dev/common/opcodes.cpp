@@ -259,8 +259,9 @@ void Dedicated_Init()
 	// RUNTIME: GL_SCREEN
 	//-------------------------------------------------------------------------
 	{
-		SCR_BeginLoadingPlaque.Offset(0x82).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // JNE --> JMP | virtual call to 'CHLClient::CHudMessage'.
-		SCR_BeginLoadingPlaque.Offset(0xA4).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // JNE --> JMP | virtual call to 'CEngineVGui::OnLevelLoadingStarted'.
+		SCR_BeginLoadingPlaque.Offset(0x5B).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | virtual call to 'CHLClient::MilesQueueEvent'.
+		SCR_BeginLoadingPlaque.Offset(0x82).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | virtual call to 'CHLClient::CHudMessage'.
+		SCR_BeginLoadingPlaque.Offset(0xA4).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | virtual call to 'CEngineVGui::OnLevelLoadingStarted'.
 		SCR_BeginLoadingPlaque.Offset(0x1D6).Patch({ 0xEB, 0x27 });                        // JNE --> JMP | Prevent connect command from crashing by invalid call to UI function.
 	}
 

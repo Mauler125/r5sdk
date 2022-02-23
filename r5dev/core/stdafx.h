@@ -66,12 +66,12 @@ namespace
 {
 #if !defined (DEDICATED)
 	MODULE g_mGameDll = MODULE("r5apex.exe");
-#else // No DX imports.
-	MODULE g_mGameDll = MODULE("r5apex_ds.exe");
-#endif // !DEDICATED
 	MODULE g_mRadVideoToolsDll   = MODULE("bink2w64.dll");
 	MODULE g_mRadAudioDecoderDll = MODULE("binkawin64.dll");
 	MODULE g_mRadAudioSystemDll  = MODULE("mileswin64.dll");
+#else // No DirectX and Miles imports.
+	MODULE g_mGameDll = MODULE("r5apex_ds.exe");
+#endif // !DEDICATED
 }
 
 #define MEMBER_AT_OFFSET(varType, varName, offset)             \
