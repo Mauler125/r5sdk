@@ -118,7 +118,6 @@ public:
 	void Init(void);
 	bool IsCommand(void) const;
 
-	ConCommandBase m_ConCommandBase     {}; //0x0000
 	void*          m_nNullCallBack      {}; //0x0040
 	char           m_nPad48[8]          {}; //0x0048
 	void*          m_pCommandCallback   {}; //0x0050

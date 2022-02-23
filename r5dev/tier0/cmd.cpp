@@ -78,13 +78,13 @@ ConCommand::ConCommand(const char* pszName, const char* pszHelpString, int nFlag
 	ConCommand* pCommand = reinterpret_cast<ConCommand*>(MemAlloc_Wrapper(sizeof(ConCommand))); // Allocate new memory with StdMemAlloc else we crash.
 	memset(pCommand, '\0', sizeof(ConCommand)); // Set all to null.
 
-	pCommand->m_ConCommandBase.m_pConCommandBaseVTable = g_pConCommandVtable.RCast<void*>();
-	pCommand->m_ConCommandBase.m_pszName       = pszName;
-	pCommand->m_ConCommandBase.m_pszHelpString = pszHelpString;
-	pCommand->m_ConCommandBase.m_nFlags        = nFlags;
-	pCommand->m_nNullCallBack                  = NullSub;
-	pCommand->m_pCommandCallback               = pCallback;
-	pCommand->m_nCallbackFlags                 = 2;
+	pCommand->m_pConCommandBaseVTable = g_pConCommandVtable.RCast<void*>();
+	pCommand->m_pszName          = pszName;
+	pCommand->m_pszHelpString    = pszHelpString;
+	pCommand->m_nFlags           = nFlags;
+	pCommand->m_nNullCallBack    = NullSub;
+	pCommand->m_pCommandCallback = pCallback;
+	pCommand->m_nCallbackFlags   = 2;
 	if (pCommandCompletionCallback)
 	{
 		pCommand->m_pCompletionCallback = pCommandCompletionCallback;
