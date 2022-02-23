@@ -147,7 +147,7 @@ bool ConCommand::IsCommand(void) const
 //-----------------------------------------------------------------------------
 bool ConCommandBase::IsCommand(void) const
 {
-	return true;
+	return m_pConCommandBaseVTable != g_pConVarVtable.RCast<void*>();
 }
 
 //-----------------------------------------------------------------------------
@@ -253,6 +253,15 @@ ConCommandBase* ConCommandBase::GetNext(void) const
 const char* ConCommandBase::GetHelpText(void) const
 {
 	return m_pszHelpString;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns the ConCommandBase usage text.
+// Output : const char*
+//-----------------------------------------------------------------------------
+const char* ConCommandBase::GetUsageText(void) const
+{
+	return m_pszUsageString;
 }
 
 //-----------------------------------------------------------------------------

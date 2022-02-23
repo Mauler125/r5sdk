@@ -91,6 +91,7 @@ public:
 	int GetFlags(void) const;
 	ConCommandBase* GetNext(void) const;
 	const char* GetHelpText(void) const;
+	const char* GetUsageText(void) const;
 
 	char* CopyString(const char* szFrom) const;
 

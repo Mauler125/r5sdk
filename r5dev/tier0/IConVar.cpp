@@ -19,7 +19,7 @@ ConVar::ConVar(const char* pszName, const char* pszDefaultValue, int nFlags, con
 	ConVar* pNewConVar = reinterpret_cast<ConVar*>(MemAlloc_Wrapper(sizeof(ConVar))); // Allocate new memory with StdMemAlloc else we crash.
 	memset(pNewConVar, '\0', sizeof(ConVar));                                         // Set all to null.
 
-	pNewConVar->m_ConCommandBase.m_pConCommandBaseVTable = g_pConVarVtable.RCast<void*>();
+	pNewConVar->m_pConCommandBaseVTable = g_pConVarVtable.RCast<void*>();
 	pNewConVar->m_pIConVarVTable = g_pIConVarVtable.RCast<void*>();
 
 	ConVar_Register(pNewConVar, pszName, pszDefaultValue, nFlags, pszHelpString, bMin, fMin, bMax, fMax, pCallback, pszUsageString);
@@ -132,7 +132,7 @@ void ConVar::Init(void) const
 //-----------------------------------------------------------------------------
 void ConVar::AddFlags(int nFlags)
 {
-	m_pParent->m_ConCommandBase.m_nFlags |= nFlags;
+	m_pParent->m_nFlags |= nFlags;
 }
 
 //-----------------------------------------------------------------------------
@@ -141,7 +141,7 @@ void ConVar::AddFlags(int nFlags)
 //-----------------------------------------------------------------------------
 void ConVar::RemoveFlags(int nFlags)
 {
-	m_ConCommandBase.m_nFlags &= ~nFlags;
+	m_nFlags &= ~nFlags;
 }
 
 //-----------------------------------------------------------------------------
@@ -150,7 +150,7 @@ void ConVar::RemoveFlags(int nFlags)
 //-----------------------------------------------------------------------------
 const char* ConVar::GetBaseName(void) const
 {
-	return m_pParent->m_ConCommandBase.m_pszName;
+	return m_pParent->m_pszName;
 }
 
 //-----------------------------------------------------------------------------
@@ -159,7 +159,7 @@ const char* ConVar::GetBaseName(void) const
 //-----------------------------------------------------------------------------
 const char* ConVar::GetHelpText(void) const
 {
-	return m_pParent->m_ConCommandBase.m_pszHelpString;
+	return m_pParent->m_pszHelpString;
 }
 
 //-----------------------------------------------------------------------------
@@ -168,7 +168,7 @@ const char* ConVar::GetHelpText(void) const
 //-----------------------------------------------------------------------------
 const char* ConVar::GetUsageText(void) const
 {
-	return m_pParent->m_ConCommandBase.m_pszUsageString;
+	return m_pParent->m_pszUsageString;
 }
 
 //-----------------------------------------------------------------------------
@@ -214,7 +214,7 @@ Color ConVar::GetColor(void) const
 //-----------------------------------------------------------------------------
 const char* ConVar::GetString(void) const
 {
-	if (m_ConCommandBase.m_nFlags & FCVAR_NEVER_AS_STRING)
+	if (m_nFlags & FCVAR_NEVER_AS_STRING)
 	{
 		return "FCVAR_NEVER_AS_STRING";
 	}
@@ -308,7 +308,7 @@ void ConVar::SetValue(int nValue)
 	m_Value.m_fValue = flValue;
 	m_Value.m_fValue = nValue;
 
-	if (!(m_ConCommandBase.m_nFlags & FCVAR_NEVER_AS_STRING))
+	if (!(m_nFlags & FCVAR_NEVER_AS_STRING))
 	{
 		char szTempValue[32];
 		snprintf(szTempValue, sizeof(szTempValue), "%d", m_Value.m_nValue);
@@ -338,7 +338,7 @@ void ConVar::SetValue(float flValue)
 	m_Value.m_fValue = flValue;
 	m_Value.m_nValue = (int)m_Value.m_fValue;
 
-	if (!(m_ConCommandBase.m_nFlags & FCVAR_NEVER_AS_STRING))
+	if (!(m_nFlags & FCVAR_NEVER_AS_STRING))
 	{
 		char szTempValue[32];
 		snprintf(szTempValue, sizeof(szTempValue), "%f", m_Value.m_fValue);
@@ -392,7 +392,7 @@ void ConVar::SetValue(const char* pszValue)
 		m_Value.m_nValue = (int)(m_Value.m_fValue);
 	}
 
-	if (!(m_ConCommandBase.m_nFlags & FCVAR_NEVER_AS_STRING))
+	if (!(m_nFlags & FCVAR_NEVER_AS_STRING))
 	{
 		ChangeStringValue(pszNewValue, flOldValue);
 	}
@@ -560,7 +560,7 @@ bool ConVar::ClampValue(float& flValue)
 //-----------------------------------------------------------------------------
 bool ConVar::IsRegistered(void) const
 {
-	return m_pParent->m_ConCommandBase.m_bRegistered;
+	return m_pParent->m_bRegistered;
 }
 
 //-----------------------------------------------------------------------------
@@ -582,20 +582,20 @@ bool ConVar::IsFlagSet(ConVar* pConVar, int nFlags)
 	if (cm_debug_cmdquery->GetBool())
 	{
 		printf("--------------------------------------------------\n");
-		printf(" Flaged: %08X\n", pConVar->m_ConCommandBase.m_nFlags);
+		printf(" Flaged: %08X\n", pConVar->m_nFlags);
 	}
 	if (cm_return_false_cmdquery_cheats->GetBool())
 	{
 		// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY.
-		pConVar->m_ConCommandBase.RemoveFlags(FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT);
+		pConVar->RemoveFlags(FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT);
 	}
 	else // Mask off FCVAR_DEVELOPMENTONLY.
 	{
-		pConVar->m_ConCommandBase.RemoveFlags(FCVAR_DEVELOPMENTONLY);
+		pConVar->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	}
 	if (cm_debug_cmdquery->GetBool())
 	{
-		printf(" Masked: %08X\n", pConVar->m_ConCommandBase.m_nFlags);
+		printf(" Masked: %08X\n", pConVar->m_nFlags);
 		printf(" Verify: %08X\n", nFlags);
 		printf("--------------------------------------------------\n");
 	}
@@ -610,7 +610,7 @@ bool ConVar::IsFlagSet(ConVar* pConVar, int nFlags)
 		return false;
 	}
 	// Return false on every FCVAR_DEVELOPMENTONLY query.
-	return pConVar->m_ConCommandBase.HasFlags(nFlags) != 0;
+	return pConVar->HasFlags(nFlags) != 0;
 }
 
 //-----------------------------------------------------------------------------

@@ -139,7 +139,7 @@ void CConsole::Think(void)
        }
    }
 
-   while ((int)m_vsvHistory.size() > 512)
+   while (static_cast<int>(m_vsvHistory.size()) > 512)
    {
        m_vsvHistory.erase(m_vsvHistory.begin());
    }
@@ -212,7 +212,7 @@ void CConsole::BasePanel(bool* bDraw)
     ImGui::PushItemWidth(footer_width_to_reserve - 80);
     if (ImGui::IsWindowAppearing()) { ImGui::SetKeyboardFocusHere(); }
 
-    if (ImGui::InputText("##input", m_szInputBuf, IM_ARRAYSIZE(m_szInputBuf), input_text_flags, &TextEditCallbackStub, (void*)this))
+    if (ImGui::InputText("##input", m_szInputBuf, IM_ARRAYSIZE(m_szInputBuf), input_text_flags, &TextEditCallbackStub, reinterpret_cast<void*>(this)))
     {
         if (m_nSuggestPos != -1)
         {
@@ -248,9 +248,15 @@ void CConsole::BasePanel(bool* bDraw)
         m_bReclaimFocus = false;
     }
 
+    int nPad = 0;
+    if (static_cast<int>(m_vsvSuggest.size()) > 1)
+    {
+        // Pad with 18 to keep all items in view.
+        nPad = 18;
+    }
     m_vecSuggestWindowPos = ImGui::GetItemRectMin();
     m_vecSuggestWindowPos.y += ImGui::GetItemRectSize().y;
-    m_vecSuggestWindowSize = ImVec2(500, std::clamp((int)m_vsvSuggest.size() * (int)ImGui::GetTextLineHeight(), 37, 122));
+    m_vecSuggestWindowSize = ImVec2(500, nPad + std::clamp(static_cast<int>(m_vsvSuggest.size()) * 18, 37, 122));
 
     ImGui::SameLine();
     if (ImGui::Button("Submit"))
@@ -372,7 +378,7 @@ bool CConsole::CanAutoComplete(void)
             memmove(szCurInputBuf, m_szInputBuf, strlen(m_szInputBuf) + 1);
             FindFromPartial();
         }
-        if ((int)m_vsvSuggest.size() <= 0)
+        if (static_cast<int>(m_vsvSuggest.size()) <= 0)
         {
             m_nSuggestPos = -1;
             return false;
@@ -413,25 +419,35 @@ void CConsole::FindFromPartial(void)
                 if (std::find(m_vsvSuggest.begin(), m_vsvSuggest.end(), g_vsvAllConVars[i]) == m_vsvSuggest.end())
                 {
                     std::string svValue;
-                    ConVar* pConVar = g_pCVar->FindVar(g_vsvAllConVars[i].c_str());
-                    if (pConVar != nullptr)
-                    {
-                        svValue = "= \""; // Assign default value to string if its a ConVar.
-                        svValue.append(pConVar->GetString());
-                        svValue.append("\"");
+                    ConCommandBase* pCommandBase = g_pCVar->FindCommandBase(g_vsvAllConVars[i].c_str());
 
+                    if (pCommandBase != nullptr)
+                    {
+                        if (!pCommandBase->IsCommand())
+                        {
+                            ConVar* pConVar = reinterpret_cast<ConVar*>(pCommandBase);
+
+                            svValue = "= ["; // Assign default value to string if its a ConVar.
+                            svValue.append(pConVar->GetString());
+                            svValue.append("]");
+                        }
                         if (con_suggestion_helptext->GetBool())
                         {
-                            std::string svHelpText = pConVar->GetHelpText();
-                            if (!svHelpText.empty())
+                            if (pCommandBase->GetHelpText())
                             {
-                                svValue.append(" | [" + svHelpText + "]");
+                                std::string svHelpText = pCommandBase->GetHelpText();
+                                if (!svHelpText.empty())
+                                {
+                                    svValue.append(" | \"" + svHelpText + "\"");
+                                }
                             }
-
-                            std::string svUsageText = pConVar->GetUsageText();
-                            if (!svUsageText.empty())
+                            if (pCommandBase->GetUsageText())
                             {
-                                svValue.append(" | [" + svUsageText + "]");
+                                std::string svUsageText = pCommandBase->GetUsageText();
+                                if (!svUsageText.empty())
+                                {
+                                    svValue.append(" | \"" + svUsageText + "\"");
+                                }
                             }
                         }
                     }
@@ -459,7 +475,7 @@ void CConsole::ProcessCommand(const char* pszCommand)
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
     m_nHistoryPos = -1;
-    for (int i = (int)m_vsvHistory.size() - 1; i >= 0; i--)
+    for (int i = static_cast<int>(m_vsvHistory.size()) - 1; i >= 0; i--)
     {
         if (Stricmp(m_vsvHistory[i].c_str(), pszCommand) == 0)
         {
@@ -476,7 +492,7 @@ void CConsole::ProcessCommand(const char* pszCommand)
     else if (Stricmp(pszCommand, "HELP") == 0)
     {
         AddLog("Commands:");
-        for (int i = 0; i < (int)m_vsvCommands.size(); i++)
+        for (int i = 0; i < static_cast<int>(m_vsvCommands.size()); i++)
         {
             AddLog("- %s", m_vsvCommands[i].c_str());
         }
@@ -497,8 +513,8 @@ void CConsole::ProcessCommand(const char* pszCommand)
     }
     else if (Stricmp(pszCommand, "HISTORY") == 0)
     {
-        int nFirst = (int)m_vsvHistory.size() - 10;
-        for (int i = nFirst > 0 ? nFirst : 0; i < (int)m_vsvHistory.size(); i++)
+        int nFirst = static_cast<int>(m_vsvHistory.size()) - 10;
+        for (int i = nFirst > 0 ? nFirst : 0; i < static_cast<int>(m_vsvHistory.size()); i++)
         {
             AddLog("%3d: %s\n", i, m_vsvHistory[i].c_str());
         }
@@ -543,7 +559,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
             }
             else if (iData->EventKey == ImGuiKey_DownArrow)
             {
-                if (m_nSuggestPos < (int)m_vsvSuggest.size() - 1)
+                if (m_nSuggestPos < static_cast<int>(m_vsvSuggest.size()) - 1)
                 {
                     m_nSuggestPos++;
                     m_bSuggestMoved = true;
@@ -557,7 +573,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
             {
                 if (m_nHistoryPos == -1)
                 {
-                    m_nHistoryPos = (int)m_vsvHistory.size() - 1;
+                    m_nHistoryPos = static_cast<int>(m_vsvHistory.size()) - 1;
                 }
                 else if (m_nHistoryPos > 0)
                 {
@@ -568,7 +584,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
             {
                 if (m_nHistoryPos != -1)
                 {
-                    if (++m_nHistoryPos >= (int)m_vsvHistory.size())
+                    if (++m_nHistoryPos >= static_cast<int>(m_vsvHistory.size()))
                     {
                         m_nHistoryPos = -1;
                     }
@@ -636,7 +652,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
 //-----------------------------------------------------------------------------
 int CConsole::TextEditCallbackStub(ImGuiInputTextCallbackData* iData)
 {
-    CConsole* pConsole = (CConsole*)iData->UserData;
+    CConsole* pConsole = reinterpret_cast<CConsole*>(iData->UserData);
     return pConsole->TextEditCallback(iData);
 }
 

@@ -82,7 +82,7 @@ dq offset RegisterConVar; #STR: "Convar '%s' is flagged as both FCVAR_ARCHIVE an
 //-----------------------------------------------------------------------------
 // Purpose: A console variable
 //-----------------------------------------------------------------------------
-class ConVar
+class ConVar : public ConCommandBase
 {
 public:
 	ConVar(void){};
@@ -140,7 +140,6 @@ public:
 		int         m_nValue;
 	};
 
-	ConCommandBase m_ConCommandBase {}; //0x0000
 	void*          m_pIConVarVTable {}; //0x0040
 	ConVar*        m_pParent        {}; //0x0048
 	const char*    m_pszDefaultValue{}; //0x0050
