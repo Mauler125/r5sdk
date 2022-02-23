@@ -60,7 +60,7 @@ bool HModAppSystemGroup_Create(CModAppSystemGroup* modAppSystemGroup)
 
 	for (auto& map : g_pCVar->DumpToMap())
 	{
-		g_vsvAllConVars.push_back(map.first.c_str());
+		g_vsvCommandBases.push_back(map.first.c_str());
 	}
 	g_bAppSystemInit = true;
 

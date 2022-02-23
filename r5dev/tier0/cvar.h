@@ -112,7 +112,7 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-extern std::vector<std::string> g_vsvAllConVars;
+extern std::vector<std::string> g_vsvCommandBases;
 extern CCVar* g_pCVar;
 
 

@@ -410,16 +410,16 @@ void CConsole::FindFromPartial(void)
     m_bSuggestUpdate = true;
     m_vsvSuggest.clear();
 
-    for (int i = 0; i < g_vsvAllConVars.size(); i++)
+    for (int i = 0; i < g_vsvCommandBases.size(); i++)
     {
         if (m_vsvSuggest.size() < con_suggestion_limit->GetInt())
         {
-            if (g_vsvAllConVars[i].find(m_szInputBuf) != std::string::npos)
+            if (g_vsvCommandBases[i].find(m_szInputBuf) != std::string::npos)
             {
-                if (std::find(m_vsvSuggest.begin(), m_vsvSuggest.end(), g_vsvAllConVars[i]) == m_vsvSuggest.end())
+                if (std::find(m_vsvSuggest.begin(), m_vsvSuggest.end(), g_vsvCommandBases[i]) == m_vsvSuggest.end())
                 {
                     std::string svValue;
-                    ConCommandBase* pCommandBase = g_pCVar->FindCommandBase(g_vsvAllConVars[i].c_str());
+                    ConCommandBase* pCommandBase = g_pCVar->FindCommandBase(g_vsvCommandBases[i].c_str());
 
                     if (pCommandBase != nullptr)
                     {
@@ -452,7 +452,7 @@ void CConsole::FindFromPartial(void)
                         }
                     }
 
-                    m_vsvSuggest.push_back(g_vsvAllConVars[i] + svValue);
+                    m_vsvSuggest.push_back(g_vsvCommandBases[i] + svValue);
                 }
             }
         }
