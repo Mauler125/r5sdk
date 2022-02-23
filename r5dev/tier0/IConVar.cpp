@@ -453,7 +453,7 @@ void ConVar::SetDefault(const char* pszDefault)
 //-----------------------------------------------------------------------------
 void ConVar::ChangeStringValue(const char* pszTempVal, float flOldValue)
 {
-	assert(!(m_ConCommandBase.m_nFlags & FCVAR_NEVER_AS_STRING));
+	assert(!(m_nFlags & FCVAR_NEVER_AS_STRING));
 
 	char* pszOldValue = (char*)_malloca(m_Value.m_iStringLength);
 	if (pszOldValue != NULL)

@@ -256,7 +256,7 @@ void CConsole::BasePanel(bool* bDraw)
     }
     m_vecSuggestWindowPos = ImGui::GetItemRectMin();
     m_vecSuggestWindowPos.y += ImGui::GetItemRectSize().y;
-    m_vecSuggestWindowSize = ImVec2(500, nPad + std::clamp(static_cast<int>(m_vsvSuggest.size()) * 18, 37, 122));
+    m_vecSuggestWindowSize = ImVec2(600, nPad + std::clamp(static_cast<int>(m_vsvSuggest.size()) * 18, 37, 122));
 
     ImGui::SameLine();
     if (ImGui::Button("Submit"))
@@ -427,7 +427,7 @@ void CConsole::FindFromPartial(void)
                         {
                             ConVar* pConVar = reinterpret_cast<ConVar*>(pCommandBase);
 
-                            svValue = "= ["; // Assign default value to string if its a ConVar.
+                            svValue = " = ["; // Assign default value to string if its a ConVar.
                             svValue.append(pConVar->GetString());
                             svValue.append("]");
                         }
@@ -438,7 +438,7 @@ void CConsole::FindFromPartial(void)
                                 std::string svHelpText = pCommandBase->GetHelpText();
                                 if (!svHelpText.empty())
                                 {
-                                    svValue.append(" | \"" + svHelpText + "\"");
+                                    svValue.append(" - \"" + svHelpText + "\"");
                                 }
                             }
                             if (pCommandBase->GetUsageText())
@@ -446,13 +446,13 @@ void CConsole::FindFromPartial(void)
                                 std::string svUsageText = pCommandBase->GetUsageText();
                                 if (!svUsageText.empty())
                                 {
-                                    svValue.append(" | \"" + svUsageText + "\"");
+                                    svValue.append(" - \"" + svUsageText + "\"");
                                 }
                             }
                         }
                     }
 
-                    m_vsvSuggest.push_back(g_vsvAllConVars[i] + " " + svValue + "");
+                    m_vsvSuggest.push_back(g_vsvAllConVars[i] + svValue);
                 }
             }
         }
@@ -868,7 +868,7 @@ void CConsole::SetStyleVar(void)
     style.ItemSpacing       = ImVec2(4, 4);
     style.FramePadding      = ImVec2(4, 4);
     style.WindowPadding     = ImVec2(5, 5);
-    style.WindowMinSize = ImVec2(518, 518);
+    style.WindowMinSize = ImVec2(618, 518);
 }
 
 CConsole* g_pIConsole = new CConsole();
