@@ -7,6 +7,7 @@
 constexpr char s_pszNoAuthMessage[]  = "This server is password protected for console access. Must send 'PASS <password>' command.\n\r";
 constexpr char s_pszWrongPwMessage[] = "Password incorrect.\n\r";
 constexpr char s_pszBannedMessage[]  = "Go away.\n\r";
+constexpr char s_pszAuthMessage[]    = "RCON authentication succesfull.\n\r";
 
 class CRConServer
 {

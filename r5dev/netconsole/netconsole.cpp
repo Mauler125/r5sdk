@@ -24,7 +24,7 @@ bool CNetCon::Init(void)
 
 	if (nError != 0)
 	{
-		std::cerr << "Failed to start Winsock via WSAStartup: (" << NET_ErrorString(WSAGetLastError()) << ")." << std::endl;
+		std::cerr << "Failed to start Winsock via WSAStartup: (" << NET_ErrorString(WSAGetLastError()) << ")" << std::endl;
 		return false;
 	}
 
@@ -48,7 +48,7 @@ bool CNetCon::Shutdown(void)
 	int nError = ::WSACleanup();
 	if (nError != 0)
 	{
-		std::cerr << "Failed to stop winsock via WSACleanup: (" << NET_ErrorString(WSAGetLastError()) << ")." << std::endl;
+		std::cerr << "Failed to stop winsock via WSACleanup: (" << NET_ErrorString(WSAGetLastError()) << ")" << std::endl;
 		return false;
 	}
 	return true;
@@ -241,7 +241,7 @@ void CNetCon::Send(const std::string& svMessage) const
 	int nSendResult = ::send(m_pSocket->GetAcceptedSocketData(0)->m_hSocket, svMessage.c_str(), svMessage.size(), MSG_NOSIGNAL);
 	if (nSendResult == SOCKET_ERROR)
 	{
-		std::cout << "Failed to send message: (SOCKET_ERROR)." << std::endl;
+		std::cout << "Failed to send message: (SOCKET_ERROR)" << std::endl;
 	}
 }
 
@@ -261,7 +261,7 @@ void CNetCon::Recv(void)
 		if (nPendingLen <= 0 && m_abConnEstablished) // EOF or error.
 		{
 			this->Disconnect();
-			std::cout << "Server closed connection." << std::endl;
+			std::cout << "Server closed connection" << std::endl;
 			return;
 		}
 	}//////////////////////////////////////////////
@@ -277,7 +277,7 @@ void CNetCon::Recv(void)
 		if (nRecvLen == 0 && m_abConnEstablished) // Socket was closed.
 		{
 			this->Disconnect();
-			std::cout << "Server closed connection." << std::endl;
+			std::cout << "Server closed connection" << std::endl;
 			break;
 		}
 		if (nRecvLen < 0 && !m_pSocket->IsSocketBlocking())

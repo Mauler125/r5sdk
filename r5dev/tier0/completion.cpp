@@ -789,4 +789,20 @@ void _RCON_CmdQuery_f_CompletionFunc(CCommand* cmd)
 		}
 	}
 }
+
+/*
+=====================
+_RCON_CmdQuery_f_CompletionFunc
+
+  Disconnect from RCON server
+=====================
+*/
+void _RCON_Disconnect_f_CompletionFunc(CCommand* cmd)
+{
+	if (g_pRConClient->IsConnected())
+	{
+		g_pRConClient->Disconnect();
+		DevMsg(eDLL_T::CLIENT, "User closed RCON connection\n");
+	}
+}
 #endif // !DEDICATED

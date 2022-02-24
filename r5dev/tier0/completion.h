@@ -35,6 +35,7 @@ void _NET_SetKey_f_CompletionFunc(CCommand* cmd);
 void _NET_GenerateKey_f_CompletionFunc(CCommand* cmd);
 #ifndef DEDICATED
 void _RCON_CmdQuery_f_CompletionFunc(CCommand* cmd);
+void _RCON_Disconnect_f_CompletionFunc(CCommand* cmd);
 #endif // !DEDICATED
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -115,7 +115,8 @@ void ConCommand::Init(void)
 	// CLIENT DLL                                                             |
 	ConCommand* cl_showconsole = new ConCommand("cl_showconsole", "Opens the game console.", FCVAR_CLIENTDLL | FCVAR_RELEASE, _CGameConsole_f_CompletionFunc, nullptr);
 	ConCommand* cl_showbrowser = new ConCommand("cl_showbrowser", "Opens the server browser.", FCVAR_CLIENTDLL | FCVAR_RELEASE, _CCompanion_f_CompletionFunc, nullptr);
-	ConCommand* rcon = new ConCommand("rcon", "Forward RCON query to remote server. | Usage: rcon \"<query>\".", FCVAR_CLIENTDLL | FCVAR_RELEASE, _RCON_CmdQuery_f_CompletionFunc, nullptr);
+	ConCommand* rcon            = new ConCommand("rcon", "Forward RCON query to remote server. | Usage: rcon \"<query>\".", FCVAR_CLIENTDLL | FCVAR_RELEASE, _RCON_CmdQuery_f_CompletionFunc, nullptr);
+	ConCommand* rcon_disconnect = new ConCommand("rcon_disconnect", "Disconnect from RCON server.", FCVAR_CLIENTDLL | FCVAR_RELEASE, _RCON_Disconnect_f_CompletionFunc, nullptr);
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// FILESYSTEM API                                                         |

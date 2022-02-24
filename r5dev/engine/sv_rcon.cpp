@@ -247,6 +247,9 @@ void CRConServer::Authenticate(const cl_rcon::request& cl_request, CConnectedNet
 			pData->m_bAuthorized = true;
 			m_pSocket->CloseListenSocket();
 			this->CloseNonAuthConnection();
+
+			std::string svAuth = this->Serialize(s_pszAuthMessage, "", sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH);
+			::send(pData->m_hSocket, svAuth.c_str(), static_cast<int>(svAuth.size()), MSG_NOSIGNAL);
 		}
 		else // Bad password.
 		{
@@ -430,6 +433,13 @@ bool CRConServer::CheckForBan(CConnectedNetConsoleData* pData)
 //-----------------------------------------------------------------------------
 void CRConServer::CloseConnection(void) // NETMGR
 {
+	CConnectedNetConsoleData* pData = m_pSocket->GetAcceptedSocketData(m_nConnIndex);
+	if (pData->m_bAuthorized)
+	{
+		// Inform server owner when authenticated connection has been closed.
+		CNetAdr2 netAdr2 = m_pSocket->GetAcceptedSocketAddress(m_nConnIndex);
+		DevMsg(eDLL_T::SERVER, "Net console '%s' closed RCON connection\n", netAdr2.GetIPAndPort().c_str());
+	}
 	m_pSocket->CloseAcceptedSocket(m_nConnIndex);
 }
 
