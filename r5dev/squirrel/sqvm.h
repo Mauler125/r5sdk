@@ -91,10 +91,14 @@ namespace
 
 	ADDRESS p_SQVM_CreateUIVM = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x48\x83\xEC\x20\x48\x8B\x1D\x00\x00\x00\x00\xC6\x05\x00\x00\x00\x00\x00", "xxxxxxxxx????xx?????"); /*40 53 48 83 EC 20 48 8B 1D ? ? ? ? C6 05 ? ? ? ? ?*/
 	bool (*SQVM_CreateUIVM)() = (bool(*)())p_SQVM_CreateUIVM.GetPtr();
-	ADDRESS p_SQVM_UIVM = (void*)p_SQVM_CreateUIVM.FindPatternSelf("48 8B 1D", ADDRESS::Direction::DOWN, 50).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr();
 
-	ADDRESS p_SQVM_RegisterOriginFuncs = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\xE8\x00\x00\x00\x00\x48\x8B\x0D\x00\x00\x00\x00\x48\x8D\x15\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\xC7\x05\x00\x00\x00\x00\x00\x00\x00\x00", "x????xxx????xxx????x????xxx????xx????????"); /*E8 ? ? ? ? 48 8B 0D ? ? ? ? 48 8D 15 ? ? ? ? E8 ? ? ? ? 48 8B 05 ? ? ? ? C7 05 ? ? ? ? ? ? ? ?*/
-	void (*SQVM_RegisterOriginFuncs)(void* sqvm) = (void(*)(void*))p_SQVM_RegisterOriginFuncs.FollowNearCall().GetPtr();
+	ADDRESS p_SQVM_CompileError = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xD9\x4C\x8B\xF2", "xxxx?xxxx?xxxx?xxxx?xxxxx????xxxxxx");
+	void (*SQVM_CompileError)(void* sqvm, std::int64_t a2, std::int64_t a3, std::uint32_t a4, int a5) = (void(*)(void*, std::int64_t, std::int64_t, std::uint32_t, int))p_SQVM_CompileError.GetPtr();/*48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 81 EC ? ? ? ? 48 8B D9 4C 8B F2*/
+
+	ADDRESS p_SQVM_RegisterOriginFuncs = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\xE8\x00\x00\x00\x00\x48\x8B\x0D\x00\x00\x00\x00\x48\x8D\x15\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\xC7\x05\x00\x00\x00\x00\x00\x00\x00\x00", "x????xxx????xxx????x????xxx????xx????????");
+	void (*SQVM_RegisterOriginFuncs)(void* sqvm) = (void(*)(void*))p_SQVM_RegisterOriginFuncs.FollowNearCall().GetPtr(); /*E8 ? ? ? ? 48 8B 0D ? ? ? ? 48 8D 15 ? ? ? ? E8 ? ? ? ? 48 8B 05 ? ? ? ? C7 05 ? ? ? ? ? ? ? ?*/
+
+	ADDRESS p_SQVM_UIVM = (void*)p_SQVM_CreateUIVM.FindPatternSelf("48 8B 1D", ADDRESS::Direction::DOWN, 50).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr();
 }
 
 void* HSQVM_PrintFunc(void* sqvm, char* fmt, ...);
@@ -119,7 +123,9 @@ class HSQVM : public IDetour
 		std::cout << "| FUN: SQVM_LoadRson                        : 0x" << std::hex << std::uppercase << p_SQVM_LoadRson.GetPtr()            << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: SQVM_RegisterFunc                    : 0x" << std::hex << std::uppercase << p_SQVM_RegisterFunc.GetPtr()        << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: SQVM_CreateUIVM                      : 0x" << std::hex << std::uppercase << p_SQVM_CreateUIVM.GetPtr()          << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: SQVM_CompileError                    : 0x" << std::hex << std::uppercase << p_SQVM_CompileError.GetPtr()        << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: SQVM_RegisterOriginFuncs             : 0x" << std::hex << std::uppercase << p_SQVM_RegisterOriginFuncs.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| VAR: SQVM_UIVM                            : 0x" << std::hex << std::uppercase << p_SQVM_UIVM.GetPtr()                << std::setw(npad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 };

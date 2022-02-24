@@ -26,11 +26,12 @@
 #include "client/IVEngineClient.h"
 #include "networksystem/pylon.h"
 #include "public/include/bansystem.h"
+#include "game/server/gameinterface.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: state machine's main processing loop
 //-----------------------------------------------------------------------------
-void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
+FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 {
 	static bool bInitialized = false;
 	if (!bInitialized)
@@ -126,7 +127,7 @@ void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 //-----------------------------------------------------------------------------
 // Purpose: setup state machine
 //-----------------------------------------------------------------------------
-void CHostState::Setup(void) const
+FORCEINLINE void CHostState::Setup(void) const
 {
 	g_pHostState->LoadConfig();
 	g_pConVar->ClearHostNames();
@@ -169,7 +170,7 @@ void CHostState::Setup(void) const
 //-----------------------------------------------------------------------------
 // Purpose: load and execute configuration files
 //-----------------------------------------------------------------------------
-void CHostState::LoadConfig(void) const
+FORCEINLINE void CHostState::LoadConfig(void) const
 {
 	if (!g_pCmdLine->CheckParm("-devsdk"))
 	{
@@ -196,7 +197,7 @@ void CHostState::LoadConfig(void) const
 //-----------------------------------------------------------------------------
 // Purpose: initialize new game
 //-----------------------------------------------------------------------------
-void CHostState::State_NewGame(void)
+FORCEINLINE void CHostState::State_NewGame(void)
 {
 	m_bSplitScreenConnect = false;
 	if (!g_ServerGameClients) // Init Game if it ain't valid.
@@ -226,12 +227,11 @@ void CHostState::State_NewGame(void)
 //-----------------------------------------------------------------------------
 // Purpose: shutdown active game
 //-----------------------------------------------------------------------------
-void CHostState::GameShutDown(void)
+FORCEINLINE void CHostState::GameShutDown(void)
 {
 	if (m_bActiveGame)
 	{
-		using GameShutdownFn = void(*)(void*);
-		(*reinterpret_cast<GameShutdownFn**>(g_ServerDLL))[9](g_ServerDLL); // (*(void(__fastcall**)(void*))(*(_QWORD*)g_ServerDLL + 72i64))(g_ServerDLL);// GameShutdown
+		g_pServerGameDLL->GameShutdown();
 		m_bActiveGame = 0;
 	}
 }
@@ -239,7 +239,7 @@ void CHostState::GameShutDown(void)
 //-----------------------------------------------------------------------------
 // Purpose: change singleplayer level
 //-----------------------------------------------------------------------------
-void CHostState::State_ChangeLevelSP(void)
+FORCEINLINE void CHostState::State_ChangeLevelSP(void)
 {
 	DevMsg(eDLL_T::ENGINE, "Changing singleplayer level to: '%s'\n", m_levelName);
 	m_flShortFrameTime = 1.5; // Set frame time.
@@ -265,19 +265,17 @@ void CHostState::State_ChangeLevelSP(void)
 //-----------------------------------------------------------------------------
 // Purpose: change multiplayer level
 //-----------------------------------------------------------------------------
-void CHostState::State_ChangeLevelMP(void)
+FORCEINLINE void CHostState::State_ChangeLevelMP(void)
 {
 	DevMsg(eDLL_T::ENGINE, "Changing multiplayer level to: '%s'\n", m_levelName);
 	m_flShortFrameTime = 0.5; // Set frame time.
 
-	using LevelShutdownFn = void(__thiscall*)(void*);
-	(*reinterpret_cast<LevelShutdownFn**>(*g_ServerDLL))[8](g_ServerDLL); // (*(void (__fastcall **)(void *))(*(_QWORD *)server_dll_var + 64i64))(server_dll_var);// LevelShutdown
-
+	g_pServerGameDLL->LevelShutdown();
 	if (CModelLoader_Map_IsValidFn(g_CModelLoader, m_levelName)) // Check if map is valid and if we can start a new game.
 	{
 #ifndef DEDICATED
 		using EnabledProgressBarForNextLoadFn = void(*)(void*);
-		(*reinterpret_cast<EnabledProgressBarForNextLoadFn**>(g_pEngineVGui))[31](g_pEngineVGui); // (*((void(__fastcall**)(void**))g_CEngineVGUI + 31))(&g_CEngineVGUI);// EnabledProgressBarForNextLoad
+		(*reinterpret_cast<EnabledProgressBarForNextLoadFn**>(g_pEngineVGui))[31](g_pEngineVGui); // EnabledProgressBarForNextLoad
 #endif // !DEDICATED
 		Host_ChangelevelFn(false, m_levelName, m_mapGroupName); // Call change level as multiplayer level.
 	}

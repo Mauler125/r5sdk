@@ -18,6 +18,7 @@
 #include "game/server/fairfight_impl.h"
 #include "materialsystem/materialsystem.h"
 #include "studiorender/studiorendercontext.h"
+#include "squirrel/sqvm.h"
 #include "bsplib/bsplib.h"
 #include "ebisusdk/EbisuSDK.h"
 #ifndef DEDICATED
@@ -295,6 +296,7 @@ void RuntimePtc_Init() /* .TEXT */
 	FairFight_Init.Offset(0x0).FindPatternSelf("0F 87", ADDRESS::Direction::DOWN, 200).Patch({ 0x0F, 0x85 });      // JA  --> JNZ | Prevent 'FairFight' anti-cheat from initializing on the server by comparing RAX against 0x0 instead. Init will crash since the plugins aren't shipped.
 	SCR_BeginLoadingPlaque.Offset(0x1AD).FindPatternSelf("75 27", ADDRESS::Direction::DOWN).Patch({ 0xEB, 0x27 }); // JNE --> JMP | Prevent connect command from crashing by invalid call to UI function.
 #endif // !DEDICATED
+	p_SQVM_CompileError.FindPatternSelf("41 B0 01", ADDRESS::Direction::DOWN, 400).Patch({ 0x41, 0xB0, 0x00 });    // MOV --> MOV | Set script error level to 0 (not severe): 'mov r8b, 0'.
 }
 
 void RuntimePtc_Toggle() /* .TEXT */

@@ -63,6 +63,7 @@
 #include "engine/debugoverlay.h"
 #endif // !DEDICATED
 #include "game/server/fairfight_impl.h"
+#include "game/server/gameinterface.h"
 #ifndef DEDICATED
 #include "inputsystem/inputsystem.h"
 #include "windows/id3dx.h"

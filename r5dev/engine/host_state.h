@@ -16,16 +16,16 @@ enum class HostStates_t : int
 class CHostState
 {
 public:
-	static void FrameUpdate(void* rcx, void* rdx, float time);
+	FORCEINLINE static void FrameUpdate(void* rcx, void* rdx, float time);
 
-	void Setup(void) const;
-	void LoadConfig(void) const;
+	FORCEINLINE void Setup(void) const;
+	FORCEINLINE void LoadConfig(void) const;
 
-	void State_NewGame(void);
-	void GameShutDown(void);
+	FORCEINLINE void State_NewGame(void);
+	FORCEINLINE void GameShutDown(void);
 
-	void State_ChangeLevelSP(void);
-	void State_ChangeLevelMP(void);
+	FORCEINLINE void State_ChangeLevelSP(void);
+	FORCEINLINE void State_ChangeLevelMP(void);
 
 public:
 	HostStates_t m_iCurrentState;                    //0x0000
@@ -65,7 +65,6 @@ namespace // !TEMP
 	static auto CModelLoader_Map_IsValidFn = ADDRESS(0x1402562F0).RCast<bool(*)(void*, const char*)>();
 	static auto Host_NewGameFn             = ADDRESS(0x140238DA0).RCast<bool(*)(char*, char*, bool, bool, void*)>();
 	static auto Host_Game_ShutdownFn       = ADDRESS(0x14023EDA0).RCast<void(*)(CHostState*)>();
-	static auto g_ServerDLL                    = ADDRESS(0x141732048).RCast<void**>();
 	static auto Host_ChangelevelFn             = ADDRESS(0x1402387B0).RCast<void(*)(bool, const char*, const char*)>();
 	static auto CL_EndMovieFn                  = ADDRESS(0x1402C03D0).RCast<void(*)()>();
 	static auto SendOfflineRequestToStryderFn  = ADDRESS(0x14033D380).RCast<void(*)()>();

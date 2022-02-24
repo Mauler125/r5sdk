@@ -765,6 +765,9 @@
     <ClInclude Include="..\thirdparty\lzham\lzhamdecomp\lzham_lzdecompbase.h">
       <Filter>thirdparty\lzham\lzhamdecomp\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\game\server\gameinterface.h">
+      <Filter>sdk\game\server</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\IVEngineClient.cpp">
@@ -943,6 +946,9 @@
     </ClCompile>
     <ClCompile Include="..\networksystem\pylon.cpp">
       <Filter>sdk\networksystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\server\gameinterface.cpp">
+      <Filter>sdk\game\server</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

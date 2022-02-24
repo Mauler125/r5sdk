@@ -216,6 +216,7 @@
     <ClInclude Include="..\engine\sys_getmodes.h" />
     <ClInclude Include="..\engine\sys_utils.h" />
     <ClInclude Include="..\game\server\fairfight_impl.h" />
+    <ClInclude Include="..\game\server\gameinterface.h" />
     <ClInclude Include="..\launcher\IApplication.h" />
     <ClInclude Include="..\launcher\prx.h" />
     <ClInclude Include="..\mathlib\adler32.h" />
@@ -419,6 +420,7 @@
     <ClCompile Include="..\engine\sys_dll2.cpp" />
     <ClCompile Include="..\engine\sys_engine.cpp" />
     <ClCompile Include="..\engine\sys_utils.cpp" />
+    <ClCompile Include="..\game\server\gameinterface.cpp" />
     <ClCompile Include="..\launcher\IApplication.cpp" />
     <ClCompile Include="..\launcher\prx.cpp" />
     <ClCompile Include="..\mathlib\adler32.cpp" />

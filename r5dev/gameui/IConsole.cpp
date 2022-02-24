@@ -451,7 +451,6 @@ void CConsole::FindFromPartial(void)
                             }
                         }
                     }
-
                     m_vsvSuggest.push_back(g_vsvCommandBases[i] + svValue);
                 }
             }

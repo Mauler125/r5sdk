@@ -375,6 +375,9 @@
     <ClCompile Include="..\thirdparty\imgui\src\imgui_utility.cpp">
       <Filter>thirdparty\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="..\game\server\gameinterface.cpp">
+      <Filter>sdk\game\server</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1090,6 +1093,9 @@
     </ClInclude>
     <ClInclude Include="..\thirdparty\lzham\lzhamdecomp\lzham_lzdecompbase.h">
       <Filter>thirdparty\lzham\lzhamdecomp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\server\gameinterface.h">
+      <Filter>sdk\game\server</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -49,6 +49,7 @@
     <ClCompile Include="..\engine\sys_utils.cpp" />
     <ClCompile Include="..\gameui\IConsole.cpp" />
     <ClCompile Include="..\gameui\IBrowser.cpp" />
+    <ClCompile Include="..\game\server\gameinterface.cpp" />
     <ClCompile Include="..\inputsystem\inputsystem.cpp" />
     <ClCompile Include="..\launcher\IApplication.cpp" />
     <ClCompile Include="..\mathlib\adler32.cpp" />
@@ -141,6 +142,7 @@
     <ClInclude Include="..\gameui\IConsole.h" />
     <ClInclude Include="..\gameui\IBrowser.h" />
     <ClInclude Include="..\game\server\fairfight_impl.h" />
+    <ClInclude Include="..\game\server\gameinterface.h" />
     <ClInclude Include="..\inputsystem\ButtonCode.h" />
     <ClInclude Include="..\inputsystem\inputsystem.h" />
     <ClInclude Include="..\launcher\IApplication.h" />
