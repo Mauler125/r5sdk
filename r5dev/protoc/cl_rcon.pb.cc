@@ -8,10 +8,7 @@
 #include <thirdparty/protobuf/io/coded_stream.h>
 #include <thirdparty/protobuf/extension_set.h>
 #include <thirdparty/protobuf/wire_format_lite.h>
-#include <thirdparty/protobuf/descriptor.h>
-#include <thirdparty/protobuf/generated_message_reflection.h>
-#include <thirdparty/protobuf/reflection_ops.h>
-#include <thirdparty/protobuf/wire_format.h>
+#include <thirdparty/protobuf/io/zero_copy_stream_impl_lite.h>
 // @@protoc_insertion_point(includes)
 #include <thirdparty/protobuf/port_def.inc>
 
@@ -34,63 +31,7 @@ struct requestDefaultTypeInternal {
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT requestDefaultTypeInternal _request_default_instance_;
 }  // namespace cl_rcon
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_cl_5frcon_2eproto[1];
-static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_cl_5frcon_2eproto[1];
-static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_cl_5frcon_2eproto = nullptr;
-
-const uint32_t TableStruct_cl_5frcon_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  PROTOBUF_FIELD_OFFSET(::cl_rcon::request, _has_bits_),
-  PROTOBUF_FIELD_OFFSET(::cl_rcon::request, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::cl_rcon::request, requestid_),
-  PROTOBUF_FIELD_OFFSET(::cl_rcon::request, requesttype_),
-  PROTOBUF_FIELD_OFFSET(::cl_rcon::request, requestbuf_),
-  PROTOBUF_FIELD_OFFSET(::cl_rcon::request, requestval_),
-  2,
-  3,
-  0,
-  1,
-};
-static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, 10, -1, sizeof(::cl_rcon::request)},
-};
-
-static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::cl_rcon::_request_default_instance_),
-};
-
-const char descriptor_table_protodef_cl_5frcon_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\rcl_rcon.proto\022\007cl_rcon\"m\n\007request\022\021\n\tr"
-  "equestID\030\001 \001(\005\022\'\n\013requestType\030\002 \001(\0162\022.cl"
-  "_rcon.request_t\022\022\n\nrequestBuf\030\003 \001(\t\022\022\n\nr"
-  "equestVal\030\004 \001(\t*\333\001\n\trequest_t\022\034\n\030SERVERD"
-  "ATA_REQUEST_VALUE\020\000\022\037\n\033SERVERDATA_REQUES"
-  "T_SETVALUE\020\001\022\"\n\036SERVERDATA_REQUEST_EXECC"
-  "OMMAND\020\002\022\033\n\027SERVERDATA_REQUEST_AUTH\020\003\022\'\n"
-  "#SERVERDATA_REQUEST_SEND_CONSOLE_LOG\020\004\022%"
-  "\n!SERVERDATA_REQUEST_SEND_REMOTEBUG\020\005"
-  ;
-static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_cl_5frcon_2eproto_once;
-const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_cl_5frcon_2eproto = {
-  false, false, 357, descriptor_table_protodef_cl_5frcon_2eproto, "cl_rcon.proto", 
-  &descriptor_table_cl_5frcon_2eproto_once, nullptr, 0, 1,
-  schemas, file_default_instances, TableStruct_cl_5frcon_2eproto::offsets,
-  file_level_metadata_cl_5frcon_2eproto, file_level_enum_descriptors_cl_5frcon_2eproto, file_level_service_descriptors_cl_5frcon_2eproto,
-};
-PROTOBUF_ATTRIBUTE_WEAK const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable* descriptor_table_cl_5frcon_2eproto_getter() {
-  return &descriptor_table_cl_5frcon_2eproto;
-}
-
-// Force running AddDescriptors() at dynamic initialization time.
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_cl_5frcon_2eproto(&descriptor_table_cl_5frcon_2eproto);
 namespace cl_rcon {
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* request_t_descriptor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cl_5frcon_2eproto);
-  return file_level_enum_descriptors_cl_5frcon_2eproto[0];
-}
 bool request_t_IsValid(int value) {
   switch (value) {
     case 0:
@@ -105,6 +46,59 @@ bool request_t_IsValid(int value) {
   }
 }
 
+static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> request_t_strings[6] = {};
+
+static const char request_t_names[] =
+  "SERVERDATA_REQUEST_AUTH"
+  "SERVERDATA_REQUEST_EXECCOMMAND"
+  "SERVERDATA_REQUEST_SEND_CONSOLE_LOG"
+  "SERVERDATA_REQUEST_SEND_REMOTEBUG"
+  "SERVERDATA_REQUEST_SETVALUE"
+  "SERVERDATA_REQUEST_VALUE";
+
+static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry request_t_entries[] = {
+  { {request_t_names + 0, 23}, 3 },
+  { {request_t_names + 23, 30}, 2 },
+  { {request_t_names + 53, 35}, 4 },
+  { {request_t_names + 88, 33}, 5 },
+  { {request_t_names + 121, 27}, 1 },
+  { {request_t_names + 148, 24}, 0 },
+};
+
+static const int request_t_entries_by_number[] = {
+  5, // 0 -> SERVERDATA_REQUEST_VALUE
+  4, // 1 -> SERVERDATA_REQUEST_SETVALUE
+  1, // 2 -> SERVERDATA_REQUEST_EXECCOMMAND
+  0, // 3 -> SERVERDATA_REQUEST_AUTH
+  2, // 4 -> SERVERDATA_REQUEST_SEND_CONSOLE_LOG
+  3, // 5 -> SERVERDATA_REQUEST_SEND_REMOTEBUG
+};
+
+const std::string& request_t_Name(
+    request_t value) {
+  static const bool dummy =
+      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
+          request_t_entries,
+          request_t_entries_by_number,
+          6, request_t_strings);
+  (void) dummy;
+  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
+      request_t_entries,
+      request_t_entries_by_number,
+      6, value);
+  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
+                     request_t_strings[idx].get();
+}
+bool request_t_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, request_t* value) {
+  int int_value;
+  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
+      request_t_entries, 6, name, &int_value);
+  if (success) {
+    *value = static_cast<request_t>(int_value);
+  }
+  return success;
+}
 
 // ===================================================================
 
@@ -127,7 +121,7 @@ class request::_Internal {
 
 request::request(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
   SharedCtor();
   if (!is_message_owned) {
     RegisterArenaDtor(arena);
@@ -135,9 +129,9 @@ request::request(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   // @@protoc_insertion_point(arena_constructor:cl_rcon.request)
 }
 request::request(const request& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
       _has_bits_(from._has_bits_) {
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
   requestbuf_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     requestbuf_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
@@ -179,7 +173,7 @@ request::~request() {
   // @@protoc_insertion_point(destructor:cl_rcon.request)
   if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
-  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+  _internal_metadata_.Delete<std::string>();
 }
 
 inline void request::SharedDtor() {
@@ -219,7 +213,7 @@ void request::Clear() {
         reinterpret_cast<char*>(&requestid_)) + sizeof(requesttype_));
   }
   _has_bits_.Clear();
-  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+  _internal_metadata_.Clear<std::string>();
 }
 
 const char* request::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -243,11 +237,7 @@ const char* request::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
           uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
-          if (PROTOBUF_PREDICT_TRUE(::cl_rcon::request_t_IsValid(val))) {
-            _internal_set_requesttype(static_cast<::cl_rcon::request_t>(val));
-          } else {
-            ::PROTOBUF_NAMESPACE_ID::internal::WriteVarint(2, val, mutable_unknown_fields());
-          }
+          _internal_set_requesttype(static_cast<::cl_rcon::request_t>(val));
         } else
           goto handle_unusual;
         continue;
@@ -256,9 +246,7 @@ const char* request::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           auto str = _internal_mutable_requestbuf();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          #ifndef NDEBUG
-          ::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "cl_rcon.request.requestBuf");
-          #endif  // !NDEBUG
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -268,9 +256,7 @@ const char* request::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           auto str = _internal_mutable_requestval();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          #ifndef NDEBUG
-          ::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "cl_rcon.request.requestVal");
-          #endif  // !NDEBUG
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -286,7 +272,7 @@ const char* request::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
     }
     ptr = UnknownFieldParse(
         tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        _internal_metadata_.mutable_unknown_fields<std::string>(),
         ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
@@ -305,43 +291,42 @@ uint8_t* request::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  cached_has_bits = _has_bits_[0];
   // optional int32 requestID = 1;
-  if (cached_has_bits & 0x00000004u) {
+  if (_internal_has_requestid()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_requestid(), target);
   }
 
   // optional .cl_rcon.request_t requestType = 2;
-  if (cached_has_bits & 0x00000008u) {
+  if (_internal_has_requesttype()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
       2, this->_internal_requesttype(), target);
   }
 
   // optional string requestBuf = 3;
-  if (cached_has_bits & 0x00000001u) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
+  if (_internal_has_requestbuf()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_requestbuf().data(), static_cast<int>(this->_internal_requestbuf().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "cl_rcon.request.requestBuf");
     target = stream->WriteStringMaybeAliased(
         3, this->_internal_requestbuf(), target);
   }
 
   // optional string requestVal = 4;
-  if (cached_has_bits & 0x00000002u) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
+  if (_internal_has_requestval()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_requestval().data(), static_cast<int>(this->_internal_requestval().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "cl_rcon.request.requestVal");
     target = stream->WriteStringMaybeAliased(
         4, this->_internal_requestval(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+    target = stream->WriteRaw(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).data(),
+        static_cast<int>(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size()), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:cl_rcon.request)
   return target;
@@ -383,21 +368,19 @@ size_t request::ByteSizeLong() const {
     }
 
   }
-  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
 }
 
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData request::_class_data_ = {
-    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
-    request::MergeImpl
-};
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*request::GetClassData() const { return &_class_data_; }
-
-void request::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<request *>(to)->MergeFrom(
-      static_cast<const request &>(from));
+void request::CheckTypeAndMergeFrom(
+    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
+  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const request*>(
+      &from));
 }
-
 
 void request::MergeFrom(const request& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:cl_rcon.request)
@@ -421,7 +404,7 @@ void request::MergeFrom(const request& from) {
     }
     _has_bits_[0] |= cached_has_bits;
   }
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
 }
 
 void request::CopyFrom(const request& from) {
@@ -459,11 +442,10 @@ void request::InternalSwap(request* other) {
           reinterpret_cast<char*>(&other->requestid_));
 }
 
-::PROTOBUF_NAMESPACE_ID::Metadata request::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_cl_5frcon_2eproto_getter, &descriptor_table_cl_5frcon_2eproto_once,
-      file_level_metadata_cl_5frcon_2eproto[0]);
+std::string request::GetTypeName() const {
+  return "cl_rcon.request";
 }
+
 
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace cl_rcon

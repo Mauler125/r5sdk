@@ -8,10 +8,7 @@
 #include <thirdparty/protobuf/io/coded_stream.h>
 #include <thirdparty/protobuf/extension_set.h>
 #include <thirdparty/protobuf/wire_format_lite.h>
-#include <thirdparty/protobuf/descriptor.h>
-#include <thirdparty/protobuf/generated_message_reflection.h>
-#include <thirdparty/protobuf/reflection_ops.h>
-#include <thirdparty/protobuf/wire_format.h>
+#include <thirdparty/protobuf/io/zero_copy_stream_impl_lite.h>
 // @@protoc_insertion_point(includes)
 #include <thirdparty/protobuf/port_def.inc>
 
@@ -34,63 +31,7 @@ struct responseDefaultTypeInternal {
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT responseDefaultTypeInternal _response_default_instance_;
 }  // namespace sv_rcon
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_sv_5frcon_2eproto[1];
-static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_sv_5frcon_2eproto[1];
-static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_sv_5frcon_2eproto = nullptr;
-
-const uint32_t TableStruct_sv_5frcon_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  PROTOBUF_FIELD_OFFSET(::sv_rcon::response, _has_bits_),
-  PROTOBUF_FIELD_OFFSET(::sv_rcon::response, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::sv_rcon::response, responseid_),
-  PROTOBUF_FIELD_OFFSET(::sv_rcon::response, responsetype_),
-  PROTOBUF_FIELD_OFFSET(::sv_rcon::response, responsebuf_),
-  PROTOBUF_FIELD_OFFSET(::sv_rcon::response, responseval_),
-  2,
-  3,
-  0,
-  1,
-};
-static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, 10, -1, sizeof(::sv_rcon::response)},
-};
-
-static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::sv_rcon::_response_default_instance_),
-};
-
-const char descriptor_table_protodef_sv_5frcon_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\rsv_rcon.proto\022\007sv_rcon\"s\n\010response\022\022\n\n"
-  "responseID\030\001 \001(\005\022)\n\014responseType\030\002 \001(\0162\023"
-  ".sv_rcon.response_t\022\023\n\013responseBuf\030\003 \001(\t"
-  "\022\023\n\013responseVal\030\004 \001(\t*\321\001\n\nresponse_t\022\035\n\031"
-  "SERVERDATA_RESPONSE_VALUE\020\000\022\036\n\032SERVERDAT"
-  "A_RESPONSE_UPDATE\020\001\022\034\n\030SERVERDATA_RESPON"
-  "SE_AUTH\020\002\022#\n\037SERVERDATA_RESPONSE_CONSOLE"
-  "_LOG\020\003\022\036\n\032SERVERDATA_RESPONSE_STRING\020\004\022!"
-  "\n\035SERVERDATA_RESPONSE_REMOTEBUG\020\005"
-  ;
-static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_sv_5frcon_2eproto_once;
-const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_sv_5frcon_2eproto = {
-  false, false, 353, descriptor_table_protodef_sv_5frcon_2eproto, "sv_rcon.proto", 
-  &descriptor_table_sv_5frcon_2eproto_once, nullptr, 0, 1,
-  schemas, file_default_instances, TableStruct_sv_5frcon_2eproto::offsets,
-  file_level_metadata_sv_5frcon_2eproto, file_level_enum_descriptors_sv_5frcon_2eproto, file_level_service_descriptors_sv_5frcon_2eproto,
-};
-PROTOBUF_ATTRIBUTE_WEAK const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable* descriptor_table_sv_5frcon_2eproto_getter() {
-  return &descriptor_table_sv_5frcon_2eproto;
-}
-
-// Force running AddDescriptors() at dynamic initialization time.
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_sv_5frcon_2eproto(&descriptor_table_sv_5frcon_2eproto);
 namespace sv_rcon {
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* response_t_descriptor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_sv_5frcon_2eproto);
-  return file_level_enum_descriptors_sv_5frcon_2eproto[0];
-}
 bool response_t_IsValid(int value) {
   switch (value) {
     case 0:
@@ -105,6 +46,59 @@ bool response_t_IsValid(int value) {
   }
 }
 
+static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> response_t_strings[6] = {};
+
+static const char response_t_names[] =
+  "SERVERDATA_RESPONSE_AUTH"
+  "SERVERDATA_RESPONSE_CONSOLE_LOG"
+  "SERVERDATA_RESPONSE_REMOTEBUG"
+  "SERVERDATA_RESPONSE_STRING"
+  "SERVERDATA_RESPONSE_UPDATE"
+  "SERVERDATA_RESPONSE_VALUE";
+
+static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry response_t_entries[] = {
+  { {response_t_names + 0, 24}, 2 },
+  { {response_t_names + 24, 31}, 3 },
+  { {response_t_names + 55, 29}, 5 },
+  { {response_t_names + 84, 26}, 4 },
+  { {response_t_names + 110, 26}, 1 },
+  { {response_t_names + 136, 25}, 0 },
+};
+
+static const int response_t_entries_by_number[] = {
+  5, // 0 -> SERVERDATA_RESPONSE_VALUE
+  4, // 1 -> SERVERDATA_RESPONSE_UPDATE
+  0, // 2 -> SERVERDATA_RESPONSE_AUTH
+  1, // 3 -> SERVERDATA_RESPONSE_CONSOLE_LOG
+  3, // 4 -> SERVERDATA_RESPONSE_STRING
+  2, // 5 -> SERVERDATA_RESPONSE_REMOTEBUG
+};
+
+const std::string& response_t_Name(
+    response_t value) {
+  static const bool dummy =
+      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
+          response_t_entries,
+          response_t_entries_by_number,
+          6, response_t_strings);
+  (void) dummy;
+  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
+      response_t_entries,
+      response_t_entries_by_number,
+      6, value);
+  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
+                     response_t_strings[idx].get();
+}
+bool response_t_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, response_t* value) {
+  int int_value;
+  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
+      response_t_entries, 6, name, &int_value);
+  if (success) {
+    *value = static_cast<response_t>(int_value);
+  }
+  return success;
+}
 
 // ===================================================================
 
@@ -127,7 +121,7 @@ class response::_Internal {
 
 response::response(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
   SharedCtor();
   if (!is_message_owned) {
     RegisterArenaDtor(arena);
@@ -135,9 +129,9 @@ response::response(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   // @@protoc_insertion_point(arena_constructor:sv_rcon.response)
 }
 response::response(const response& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
       _has_bits_(from._has_bits_) {
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
   responsebuf_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     responsebuf_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
@@ -179,7 +173,7 @@ response::~response() {
   // @@protoc_insertion_point(destructor:sv_rcon.response)
   if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
-  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+  _internal_metadata_.Delete<std::string>();
 }
 
 inline void response::SharedDtor() {
@@ -219,7 +213,7 @@ void response::Clear() {
         reinterpret_cast<char*>(&responseid_)) + sizeof(responsetype_));
   }
   _has_bits_.Clear();
-  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+  _internal_metadata_.Clear<std::string>();
 }
 
 const char* response::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
@@ -243,11 +237,7 @@ const char* response::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
           uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
-          if (PROTOBUF_PREDICT_TRUE(::sv_rcon::response_t_IsValid(val))) {
-            _internal_set_responsetype(static_cast<::sv_rcon::response_t>(val));
-          } else {
-            ::PROTOBUF_NAMESPACE_ID::internal::WriteVarint(2, val, mutable_unknown_fields());
-          }
+          _internal_set_responsetype(static_cast<::sv_rcon::response_t>(val));
         } else
           goto handle_unusual;
         continue;
@@ -256,9 +246,7 @@ const char* response::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           auto str = _internal_mutable_responsebuf();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          #ifndef NDEBUG
-          ::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "sv_rcon.response.responseBuf");
-          #endif  // !NDEBUG
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -268,9 +256,7 @@ const char* response::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           auto str = _internal_mutable_responseval();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          #ifndef NDEBUG
-          ::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "sv_rcon.response.responseVal");
-          #endif  // !NDEBUG
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -286,7 +272,7 @@ const char* response::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
     }
     ptr = UnknownFieldParse(
         tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        _internal_metadata_.mutable_unknown_fields<std::string>(),
         ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
@@ -305,43 +291,42 @@ uint8_t* response::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  cached_has_bits = _has_bits_[0];
   // optional int32 responseID = 1;
-  if (cached_has_bits & 0x00000004u) {
+  if (_internal_has_responseid()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_responseid(), target);
   }
 
   // optional .sv_rcon.response_t responseType = 2;
-  if (cached_has_bits & 0x00000008u) {
+  if (_internal_has_responsetype()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
       2, this->_internal_responsetype(), target);
   }
 
   // optional string responseBuf = 3;
-  if (cached_has_bits & 0x00000001u) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
+  if (_internal_has_responsebuf()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_responsebuf().data(), static_cast<int>(this->_internal_responsebuf().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "sv_rcon.response.responseBuf");
     target = stream->WriteStringMaybeAliased(
         3, this->_internal_responsebuf(), target);
   }
 
   // optional string responseVal = 4;
-  if (cached_has_bits & 0x00000002u) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
+  if (_internal_has_responseval()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_responseval().data(), static_cast<int>(this->_internal_responseval().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "sv_rcon.response.responseVal");
     target = stream->WriteStringMaybeAliased(
         4, this->_internal_responseval(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+    target = stream->WriteRaw(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).data(),
+        static_cast<int>(_internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size()), target);
   }
   // @@protoc_insertion_point(serialize_to_array_end:sv_rcon.response)
   return target;
@@ -383,21 +368,19 @@ size_t response::ByteSizeLong() const {
     }
 
   }
-  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
 }
 
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData response::_class_data_ = {
-    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
-    response::MergeImpl
-};
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*response::GetClassData() const { return &_class_data_; }
-
-void response::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<response *>(to)->MergeFrom(
-      static_cast<const response &>(from));
+void response::CheckTypeAndMergeFrom(
+    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
+  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const response*>(
+      &from));
 }
-
 
 void response::MergeFrom(const response& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:sv_rcon.response)
@@ -421,7 +404,7 @@ void response::MergeFrom(const response& from) {
     }
     _has_bits_[0] |= cached_has_bits;
   }
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
 }
 
 void response::CopyFrom(const response& from) {
@@ -459,11 +442,10 @@ void response::InternalSwap(response* other) {
           reinterpret_cast<char*>(&other->responseid_));
 }
 
-::PROTOBUF_NAMESPACE_ID::Metadata response::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
-      &descriptor_table_sv_5frcon_2eproto_getter, &descriptor_table_sv_5frcon_2eproto_once,
-      file_level_metadata_sv_5frcon_2eproto[0]);
+std::string response::GetTypeName() const {
+  return "sv_rcon.response";
 }
+
 
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace sv_rcon

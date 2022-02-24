@@ -26,12 +26,10 @@
 #include <thirdparty/protobuf/generated_message_table_driven.h>
 #include <thirdparty/protobuf/generated_message_util.h>
 #include <thirdparty/protobuf/metadata_lite.h>
-#include <thirdparty/protobuf/generated_message_reflection.h>
-#include <thirdparty/protobuf/message.h>
+#include <thirdparty/protobuf/message_lite.h>
 #include <thirdparty/protobuf/repeated_field.h>  // IWYU pragma: export
 #include <thirdparty/protobuf/extension_set.h>  // IWYU pragma: export
-#include <thirdparty/protobuf/generated_enum_reflection.h>
-#include <thirdparty/protobuf/unknown_field_set.h>
+#include <thirdparty/protobuf/generated_enum_util.h>
 // @@protoc_insertion_point(includes)
 #include <thirdparty/protobuf/port_def.inc>
 #define PROTOBUF_INTERNAL_EXPORT_sv_5frcon_2eproto
@@ -53,7 +51,6 @@ struct TableStruct_sv_5frcon_2eproto {
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
   static const uint32_t offsets[];
 };
-extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_sv_5frcon_2eproto;
 namespace sv_rcon {
 class response;
 struct responseDefaultTypeInternal;
@@ -70,31 +67,29 @@ enum response_t : int {
   SERVERDATA_RESPONSE_AUTH = 2,
   SERVERDATA_RESPONSE_CONSOLE_LOG = 3,
   SERVERDATA_RESPONSE_STRING = 4,
-  SERVERDATA_RESPONSE_REMOTEBUG = 5
+  SERVERDATA_RESPONSE_REMOTEBUG = 5,
+  response_t_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
+  response_t_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
 };
 bool response_t_IsValid(int value);
 constexpr response_t response_t_MIN = SERVERDATA_RESPONSE_VALUE;
 constexpr response_t response_t_MAX = SERVERDATA_RESPONSE_REMOTEBUG;
 constexpr int response_t_ARRAYSIZE = response_t_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* response_t_descriptor();
+const std::string& response_t_Name(response_t value);
 template<typename T>
 inline const std::string& response_t_Name(T enum_t_value) {
   static_assert(::std::is_same<T, response_t>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function response_t_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    response_t_descriptor(), enum_t_value);
+  return response_t_Name(static_cast<response_t>(enum_t_value));
 }
-inline bool response_t_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, response_t* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<response_t>(
-    response_t_descriptor(), name, value);
-}
+bool response_t_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, response_t* value);
 // ===================================================================
 
 class response final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:sv_rcon.response) */ {
+    public ::PROTOBUF_NAMESPACE_ID::MessageLite /* @@protoc_insertion_point(class_definition:sv_rcon.response) */ {
  public:
   inline response() : response(nullptr) {}
   ~response() override;
@@ -124,22 +119,6 @@ class response final :
     return *this;
   }
 
-  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
-  }
-  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-  }
-
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
   static const response& default_instance() {
     return *internal_default_instance();
   }
@@ -177,13 +156,9 @@ class response final :
   response* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
     return CreateMaybeMessage<response>(arena);
   }
-  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)  final;
   void CopyFrom(const response& from);
-  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   void MergeFrom(const response& from);
-  private:
-  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
-  public:
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -196,7 +171,7 @@ class response final :
   private:
   void SharedCtor();
   void SharedDtor();
-  void SetCachedSize(int size) const final;
+  void SetCachedSize(int size) const;
   void InternalSwap(response* other);
 
   private:
@@ -212,10 +187,7 @@ class response final :
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
-  static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
-
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  std::string GetTypeName() const final;
 
   // nested types ----------------------------------------------------
 
@@ -363,7 +335,6 @@ inline ::sv_rcon::response_t response::responsetype() const {
   return _internal_responsetype();
 }
 inline void response::_internal_set_responsetype(::sv_rcon::response_t value) {
-  assert(::sv_rcon::response_t_IsValid(value));
   _has_bits_[0] |= 0x00000008u;
   responsetype_ = value;
 }
@@ -521,10 +492,6 @@ inline void response::set_allocated_responseval(std::string* responseval) {
 PROTOBUF_NAMESPACE_OPEN
 
 template <> struct is_proto_enum< ::sv_rcon::response_t> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::sv_rcon::response_t>() {
-  return ::sv_rcon::response_t_descriptor();
-}
 
 PROTOBUF_NAMESPACE_CLOSE
 

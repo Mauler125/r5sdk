@@ -1,5 +1,6 @@
-syntax = "proto2";
+syntax = "proto3";
 package cl_rcon;
+option optimize_for = LITE_RUNTIME;
 
 enum request_t
 {

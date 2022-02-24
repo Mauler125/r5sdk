@@ -1,269 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\thirdparty\protobuf\compiler\importer.cc">
-      <Filter>compiler</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\compiler\parser.cc">
-      <Filter>compiler</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\stubs\bytestream.cc">
-      <Filter>stubs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\stubs\common.cc">
-      <Filter>stubs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\stubs\int128.cc">
-      <Filter>stubs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\stubs\status.cc">
-      <Filter>stubs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\stubs\statusor.cc">
-      <Filter>stubs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\stubs\stringpiece.cc">
-      <Filter>stubs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\stubs\stringprintf.cc">
-      <Filter>stubs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\stubs\structurally_valid.cc">
-      <Filter>stubs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\stubs\strutil.cc">
-      <Filter>stubs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\stubs\substitute.cc">
-      <Filter>stubs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\stubs\time.cc">
-      <Filter>stubs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\io\coded_stream.cc">
-      <Filter>io</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\io\gzip_stream.cc">
-      <Filter>io</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\io\io_win32.cc">
-      <Filter>io</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\io\printer.cc">
-      <Filter>io</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\io\strtod.cc">
-      <Filter>io</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\io\tokenizer.cc">
-      <Filter>io</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\io\zero_copy_stream_impl.cc">
-      <Filter>io</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\io\zero_copy_stream_impl_lite.cc">
-      <Filter>io</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\io\zero_copy_stream.cc">
-      <Filter>io</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\util\delimited_message_util.cc">
-      <Filter>util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\util\field_comparator.cc">
-      <Filter>util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\util\field_mask_util.cc">
-      <Filter>util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\util\json_util.cc">
-      <Filter>util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\util\message_differencer.cc">
-      <Filter>util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\util\time_util.cc">
-      <Filter>util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\util\type_resolver_util.cc">
-      <Filter>util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\util\internal\datapiece.cc">
-      <Filter>util\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\util\internal\default_value_objectwriter.cc">
-      <Filter>util\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\util\internal\error_listener.cc">
-      <Filter>util\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\util\internal\field_mask_utility.cc">
-      <Filter>util\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\util\internal\json_objectwriter.cc">
-      <Filter>util\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\util\internal\json_stream_parser.cc">
-      <Filter>util\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\util\internal\json_escaping.cc">
-      <Filter>util\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\util\internal\object_writer.cc">
-      <Filter>util\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\util\internal\proto_writer.cc">
-      <Filter>util\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\util\internal\protostream_objectsource.cc">
-      <Filter>util\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\util\internal\protostream_objectwriter.cc">
-      <Filter>util\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\util\internal\type_info.cc">
-      <Filter>util\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\util\internal\utility.cc">
-      <Filter>util\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\any.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\any.pb.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\any_lite.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\api.pb.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\arena.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\arenastring.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\descriptor.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\descriptor.pb.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\descriptor_database.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\duration.pb.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\dynamic_message.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\empty.pb.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\extension_set.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\extension_set_heavy.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\field_mask.pb.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\generated_enum_util.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\generated_message_bases.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\generated_message_reflection.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\generated_message_table_driven.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\generated_message_table_driven_lite.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\generated_message_tctable_full.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\generated_message_tctable_lite.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\generated_message_util.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\implicit_weak_message.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\inlined_string_field.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\map.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\map_field.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\message.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\message_lite.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\parse_context.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\reflection_ops.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\repeated_field.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\repeated_ptr_field.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\service.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\source_context.pb.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\struct.pb.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\text_format.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\timestamp.pb.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\type.pb.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\unknown_field_set.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\wire_format.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\wire_format_lite.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\wrappers.pb.cc">
-      <Filter>source</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="compiler">
-      <UniqueIdentifier>{9938338d-9b4b-4464-97e5-a47636d0b1a4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="compiler\include">
-      <UniqueIdentifier>{8ce9e500-f5b5-4d81-aafb-becab42d0174}</UniqueIdentifier>
-    </Filter>
     <Filter Include="stubs">
       <UniqueIdentifier>{d60db004-45fa-4ae3-b74d-47b327b69c2e}</UniqueIdentifier>
     </Filter>
@@ -296,49 +33,108 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\thirdparty\protobuf\compiler\importer.h">
-      <Filter>compiler\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\compiler\parser.h">
-      <Filter>compiler\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\stubs\bytestream.h">
-      <Filter>stubs\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\stubs\common.h">
-      <Filter>stubs\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\stubs\int128.h">
-      <Filter>stubs\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\stubs\status.h">
-      <Filter>stubs\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\stubs\statusor.h">
-      <Filter>stubs\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\stubs\stringpiece.h">
-      <Filter>stubs\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\stubs\stringprintf.h">
-      <Filter>stubs\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\stubs\strutil.h">
-      <Filter>stubs\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\stubs\substitute.h">
-      <Filter>stubs\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\stubs\time.h">
-      <Filter>stubs\include</Filter>
-    </ClInclude>
+    <ResourceCompile Include="..\thirdparty\protobuf\version.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\thirdparty\protobuf\any_lite.cc">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\arena.cc">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\arenastring.cc">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\stubs\bytestream.cc">
+      <Filter>stubs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\io\coded_stream.cc">
+      <Filter>io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\stubs\common.cc">
+      <Filter>stubs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\extension_set.cc">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\generated_enum_util.cc">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\generated_message_table_driven_lite.cc">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\generated_message_tctable_lite.cc">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\generated_message_util.cc">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\implicit_weak_message.cc">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\inlined_string_field.cc">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\stubs\int128.cc">
+      <Filter>stubs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\io\io_win32.cc">
+      <Filter>io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\map.cc">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\message_lite.cc">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\parse_context.cc">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\repeated_field.cc">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\repeated_ptr_field.cc">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\stubs\status.cc">
+      <Filter>stubs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\stubs\statusor.cc">
+      <Filter>stubs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\stubs\stringpiece.cc">
+      <Filter>stubs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\stubs\stringprintf.cc">
+      <Filter>stubs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\stubs\strutil.cc">
+      <Filter>stubs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\stubs\time.cc">
+      <Filter>stubs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\io\strtod.cc">
+      <Filter>io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\io\zero_copy_stream.cc">
+      <Filter>io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\io\zero_copy_stream_impl.cc">
+      <Filter>io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\io\zero_copy_stream_impl_lite.cc">
+      <Filter>io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\wire_format_lite.cc">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\protobuf\stubs\structurally_valid.cc">
+      <Filter>stubs</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="..\thirdparty\protobuf\any.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\any.pb.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\api.pb.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\thirdparty\protobuf\arena.h">
@@ -347,46 +143,28 @@
     <ClInclude Include="..\thirdparty\protobuf\arenastring.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\descriptor.h">
-      <Filter>include</Filter>
+    <ClInclude Include="..\thirdparty\protobuf\stubs\bytestream.h">
+      <Filter>stubs\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\descriptor.pb.h">
-      <Filter>include</Filter>
+    <ClInclude Include="..\thirdparty\protobuf\io\coded_stream.h">
+      <Filter>io\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\descriptor_database.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\duration.pb.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\dynamic_message.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\empty.pb.h">
-      <Filter>include</Filter>
+    <ClInclude Include="..\thirdparty\protobuf\stubs\common.h">
+      <Filter>stubs\include</Filter>
     </ClInclude>
     <ClInclude Include="..\thirdparty\protobuf\extension_set.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\extension_set_inl.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\field_mask.pb.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\thirdparty\protobuf\generated_enum_util.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\generated_message_bases.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\generated_message_reflection.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\generated_message_table_driven.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="..\thirdparty\protobuf\generated_message_table_driven_lite.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\protobuf\generated_message_tctable_decl.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\protobuf\generated_message_tctable_impl.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\thirdparty\protobuf\generated_message_util.h">
@@ -395,25 +173,67 @@
     <ClInclude Include="..\thirdparty\protobuf\implicit_weak_message.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="..\thirdparty\protobuf\arena_impl.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\protobuf\stubs\callback.h">
+      <Filter>stubs\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\protobuf\stubs\casts.h">
+      <Filter>stubs\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\protobuf\explicitly_constructed.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\protobuf\extension_set_inl.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\protobuf\generated_message_table_driven.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\protobuf\has_bits.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\protobuf\stubs\hash.h">
+      <Filter>stubs\include</Filter>
+    </ClInclude>
     <ClInclude Include="..\thirdparty\protobuf\inlined_string_field.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\protobuf\stubs\logging.h">
+      <Filter>stubs\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\protobuf\stubs\macros.h">
+      <Filter>stubs\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\protobuf\stubs\map_util.h">
+      <Filter>stubs\include</Filter>
     </ClInclude>
     <ClInclude Include="..\thirdparty\protobuf\map.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\map_field.h">
+    <ClInclude Include="..\thirdparty\protobuf\map_entry_lite.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\message.h">
+    <ClInclude Include="..\thirdparty\protobuf\map_field_lite.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\message_lite.h">
-      <Filter>include</Filter>
+    <ClInclude Include="..\thirdparty\protobuf\stubs\mutex.h">
+      <Filter>stubs\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\protobuf\stubs\once.h">
+      <Filter>stubs\include</Filter>
     </ClInclude>
     <ClInclude Include="..\thirdparty\protobuf\parse_context.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\reflection_ops.h">
+    <ClInclude Include="..\thirdparty\protobuf\stubs\platform_macros.h">
+      <Filter>stubs\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\protobuf\stubs\port.h">
+      <Filter>stubs\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\protobuf\port.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\thirdparty\protobuf\repeated_field.h">
@@ -422,125 +242,53 @@
     <ClInclude Include="..\thirdparty\protobuf\repeated_ptr_field.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\service.h">
-      <Filter>include</Filter>
+    <ClInclude Include="..\thirdparty\protobuf\stubs\status.h">
+      <Filter>stubs\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\source_context.pb.h">
-      <Filter>include</Filter>
+    <ClInclude Include="..\thirdparty\protobuf\stubs\stl_util.h">
+      <Filter>stubs\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\struct.pb.h">
-      <Filter>include</Filter>
+    <ClInclude Include="..\thirdparty\protobuf\stubs\stringpiece.h">
+      <Filter>stubs\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\text_format.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\timestamp.pb.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\type.pb.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\unknown_field_set.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\wire_format_lite.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\wire_format.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\wrappers.pb.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\io\coded_stream.h">
-      <Filter>io\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\io\gzip_stream.h">
-      <Filter>io\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\io\io_win32.h">
-      <Filter>io\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\io\printer.h">
-      <Filter>io\include</Filter>
+    <ClInclude Include="..\thirdparty\protobuf\stubs\strutil.h">
+      <Filter>stubs\include</Filter>
     </ClInclude>
     <ClInclude Include="..\thirdparty\protobuf\io\strtod.h">
       <Filter>io\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\io\tokenizer.h">
-      <Filter>io\include</Filter>
+    <ClInclude Include="..\thirdparty\protobuf\stubs\template_util.h">
+      <Filter>stubs\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\io\zero_copy_stream_impl_lite.h">
+    <ClInclude Include="..\thirdparty\protobuf\io\zero_copy_stream.h">
       <Filter>io\include</Filter>
     </ClInclude>
     <ClInclude Include="..\thirdparty\protobuf\io\zero_copy_stream_impl.h">
       <Filter>io\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\io\zero_copy_stream.h">
+    <ClInclude Include="..\thirdparty\protobuf\io\zero_copy_stream_impl_lite.h">
       <Filter>io\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\util\internal\datapiece.h">
-      <Filter>util\internal\include</Filter>
+    <ClInclude Include="..\thirdparty\protobuf\stubs\int128.h">
+      <Filter>stubs\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\util\internal\default_value_objectwriter.h">
-      <Filter>util\internal\include</Filter>
+    <ClInclude Include="..\thirdparty\protobuf\io\io_win32.h">
+      <Filter>io\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\util\internal\error_listener.h">
-      <Filter>util\internal\include</Filter>
+    <ClInclude Include="..\thirdparty\protobuf\message_lite.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\util\internal\field_mask_utility.h">
-      <Filter>util\internal\include</Filter>
+    <ClInclude Include="..\thirdparty\protobuf\stubs\statusor.h">
+      <Filter>stubs\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\util\internal\json_escaping.h">
-      <Filter>util\internal\include</Filter>
+    <ClInclude Include="..\thirdparty\protobuf\stubs\stringprintf.h">
+      <Filter>stubs\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\util\internal\json_objectwriter.h">
-      <Filter>util\internal\include</Filter>
+    <ClInclude Include="..\thirdparty\protobuf\stubs\time.h">
+      <Filter>stubs\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\util\internal\json_stream_parser.h">
-      <Filter>util\internal\include</Filter>
+    <ClInclude Include="..\thirdparty\protobuf\wire_format_lite.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\util\internal\object_writer.h">
-      <Filter>util\internal\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\util\internal\proto_writer.h">
-      <Filter>util\internal\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\util\internal\protostream_objectsource.h">
-      <Filter>util\internal\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\util\internal\protostream_objectwriter.h">
-      <Filter>util\internal\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\util\internal\type_info.h">
-      <Filter>util\internal\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\util\internal\utility.h">
-      <Filter>util\internal\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\util\delimited_message_util.h">
-      <Filter>util\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\util\field_comparator.h">
-      <Filter>util\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\util\field_mask_util.h">
-      <Filter>util\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\util\json_util.h">
-      <Filter>util\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\util\message_differencer.h">
-      <Filter>util\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\util\time_util.h">
-      <Filter>util\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\protobuf\util\type_resolver_util.h">
-      <Filter>util\include</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="..\thirdparty\protobuf\version.rc" />
   </ItemGroup>
 </Project>
