@@ -96,6 +96,13 @@ namespace
 	ADDRESS _Host_RunFrame = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x8B\xC4\x48\x89\x58\x18\x48\x89\x70\x20\xF3\x0F\x11\x48\x00", "xxxxxxxxxxxxxxx?"); // _Host_RunFrame() with inlined CFrameTimer::MarkFrame()?
 	// 0x140231C00 // 48 8B C4 48 89 58 18 48 89 70 20 F3 0F 11 48 ? //
 
+
+	//-------------------------------------------------------------------------
+	// RUNTIME: DETOUR_LEVELINIT
+	//-------------------------------------------------------------------------
+	ADDRESS Detour_LevelInit = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x45\x33\xE4", "xxxx?xxxx?xxxx?xxxxxxxxxxxxx????xxx????xxx");
+	// 0x140EF9100 // 48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 55 41 54 41 55 41 56 41 57 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ? 45 33 E4 //
+
 	//-------------------------------------------------------------------------
 	// .RDATA
 	//-------------------------------------------------------------------------

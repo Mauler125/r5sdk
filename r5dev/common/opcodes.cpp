@@ -13,9 +13,10 @@
 #include "engine/cl_main.h"
 #include "engine/sv_main.h"
 #include "engine/sys_getmodes.h"
+#include "game/server/ai_networkmanager.h"
+#include "game/server/fairfight_impl.h"
 #include "rtech/rtech_game.h"
 #include "client/cdll_engine_int.h"
-#include "game/server/fairfight_impl.h"
 #include "materialsystem/materialsystem.h"
 #include "studiorender/studiorendercontext.h"
 #include "squirrel/sqvm.h"
@@ -300,6 +301,11 @@ void RuntimePtc_Init() /* .TEXT */
 #else
 	p_SQVM_CompileError.Offset(0xE0).FindPatternSelf("E8", ADDRESS::Direction::DOWN, 200).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | For dedicated we should not perform post-error events such as telemetry / showing 'COM_ExplainDisconnection' UI etc.
 #endif // !DEDICATED
+
+#if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+	p_CAI_NetworkManager__ShouldRebuild.Offset(0xA0).FindPatternSelf("FF ?? ?? ?? 00 00", ADDRESS::Direction::DOWN, 200).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | Virtual call to restart when building AIN (which clears the AIN memory). Remove this once writing to file works.
+	Detour_LevelInit.Offset(0x100).FindPatternSelf("74", ADDRESS::Direction::DOWN, 600).Patch({ 0xEB });                                                                // JE  --> JMP | Do while loop setting fields to -1 in navmesh is writing out of bounds (!TODO).
+#endif
 }
 
 void RuntimePtc_Toggle() /* .TEXT */

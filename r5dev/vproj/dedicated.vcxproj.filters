@@ -768,6 +768,21 @@
     <ClInclude Include="..\game\server\gameinterface.h">
       <Filter>sdk\game\server</Filter>
     </ClInclude>
+    <ClInclude Include="..\game\server\ai_networkmanager.h">
+      <Filter>sdk\game\server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\server\ai_node.h">
+      <Filter>sdk\game\server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\server\ai_network.h">
+      <Filter>sdk\game\server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\edict.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\globalvars_base.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\IVEngineClient.cpp">
@@ -948,6 +963,9 @@
       <Filter>sdk\networksystem</Filter>
     </ClCompile>
     <ClCompile Include="..\game\server\gameinterface.cpp">
+      <Filter>sdk\game\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\server\ai_networkmanager.cpp">
       <Filter>sdk\game\server</Filter>
     </ClCompile>
   </ItemGroup>

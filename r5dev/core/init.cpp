@@ -62,8 +62,12 @@
 #include "engine/gl_screen.h"
 #include "engine/debugoverlay.h"
 #endif // !DEDICATED
+#include "game/server/ai_node.h"
+#include "game/server/ai_network.h"
+#include "game/server/ai_networkmanager.h"
 #include "game/server/fairfight_impl.h"
 #include "game/server/gameinterface.h"
+#include "public/include/edict.h"
 #ifndef DEDICATED
 #include "inputsystem/inputsystem.h"
 #include "windows/id3dx.h"

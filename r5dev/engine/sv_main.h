@@ -5,11 +5,14 @@
 namespace
 {
 	/* ==== SV_MAIN ======================================================================================================================================================= */
-	ADDRESS p_SV_CreateBaseline = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x83\xEC\x28\x48\x8B\x0D\x00\x00\x00\x00\x48\x85\xC9\x75\x07", "xxxxxxx????xxxxx");
-	bool (*SV_CreateBaseline)() = (bool(*)())p_SV_CreateBaseline.GetPtr(); /*48 83 EC 28 48 8B 0D ? ? ? ? 48 85 C9 75 07*/
+	ADDRESS p_SV_InitGameDLL = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x81\xEC\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x0F\x85\x00\x00\x00\x00", "xxx????x????xx?????xx????");
+	void (*SV_InitGameDLL)(float a1) = (void(*)(float))p_SV_InitGameDLL.GetPtr(); /*48 81 EC ? ? ? ? E8 ? ? ? ? 80 3D ? ? ? ? ? 0F 85 ? ? ? ?*/
 
 	ADDRESS p_SV_ShutdownGameDLL = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x83\xEC\x28\x80\x3D\x00\x00\x00\x00\x00\x0F\x84\x00\x00\x00\x00\x48\x8B\x0D\x00\x00\x00\x00\x48\x89\x5C\x24\x00", "xxxxxx?????xx????xxx????xxxx?");
 	void (*SV_ShutdownGameDLL)() = (void(*)())p_SV_ShutdownGameDLL.GetPtr(); /*48 83 EC 28 80 3D ? ? ? ? ? 0F 84 ? ? ? ? 48 8B 0D ? ? ? ? 48 89 5C 24 ?*/
+
+	ADDRESS p_SV_CreateBaseline = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x83\xEC\x28\x48\x8B\x0D\x00\x00\x00\x00\x48\x85\xC9\x75\x07", "xxxxxxx????xxxxx");
+	bool (*SV_CreateBaseline)() = (bool(*)())p_SV_CreateBaseline.GetPtr(); /*48 83 EC 28 48 8B 0D ? ? ? ? 48 85 C9 75 07*/
 
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 	ADDRESS CGameServer__SpawnServer = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x55\x56\x57\x41\x55\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00", "xxxxxxxxxxxxxx????");
@@ -28,8 +31,9 @@ class HSV_Main : public IDetour
 {
 	virtual void debugp()
 	{
-		std::cout << "| FUN: SV_CreateBaseline                    : 0x" << std::hex << std::uppercase << p_SV_CreateBaseline.GetPtr()      << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: SV_InitGameDLL                       : 0x" << std::hex << std::uppercase << p_SV_ShutdownGameDLL.GetPtr()     << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: SV_ShutdownGameDLL                   : 0x" << std::hex << std::uppercase << p_SV_ShutdownGameDLL.GetPtr()     << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: SV_CreateBaseline                    : 0x" << std::hex << std::uppercase << p_SV_CreateBaseline.GetPtr()      << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: CGameServer::SpawnServer             : 0x" << std::hex << std::uppercase << CGameServer__SpawnServer.GetPtr() << std::setw(npad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}

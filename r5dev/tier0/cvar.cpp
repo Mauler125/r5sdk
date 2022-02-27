@@ -14,6 +14,7 @@ ConVar* rcon_address                       = nullptr;
 ConVar* rcon_password                      = nullptr;
 //-----------------------------------------------------------------------------
 // SERVER                                                                     |
+ConVar* ai_dumpAINfileFromLoad             = nullptr;
 ConVar* sv_showconnecting                  = nullptr;
 ConVar* sv_pylonvisibility                 = nullptr;
 

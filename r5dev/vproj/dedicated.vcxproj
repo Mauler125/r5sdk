@@ -215,6 +215,9 @@
     <ClInclude Include="..\engine\sys_engine.h" />
     <ClInclude Include="..\engine\sys_getmodes.h" />
     <ClInclude Include="..\engine\sys_utils.h" />
+    <ClInclude Include="..\game\server\ai_network.h" />
+    <ClInclude Include="..\game\server\ai_networkmanager.h" />
+    <ClInclude Include="..\game\server\ai_node.h" />
     <ClInclude Include="..\game\server\fairfight_impl.h" />
     <ClInclude Include="..\game\server\gameinterface.h" />
     <ClInclude Include="..\launcher\IApplication.h" />
@@ -234,6 +237,8 @@
     <ClInclude Include="..\networksystem\sm_protocol.h" />
     <ClInclude Include="..\protoc\cl_rcon.pb.h" />
     <ClInclude Include="..\protoc\sv_rcon.pb.h" />
+    <ClInclude Include="..\public\include\edict.h" />
+    <ClInclude Include="..\public\include\globalvars_base.h" />
     <ClInclude Include="..\public\include\memaddr.h" />
     <ClInclude Include="..\public\include\bansystem.h" />
     <ClInclude Include="..\public\include\binstream.h" />
@@ -420,6 +425,7 @@
     <ClCompile Include="..\engine\sys_dll2.cpp" />
     <ClCompile Include="..\engine\sys_engine.cpp" />
     <ClCompile Include="..\engine\sys_utils.cpp" />
+    <ClCompile Include="..\game\server\ai_networkmanager.cpp" />
     <ClCompile Include="..\game\server\gameinterface.cpp" />
     <ClCompile Include="..\launcher\IApplication.cpp" />
     <ClCompile Include="..\launcher\prx.cpp" />
