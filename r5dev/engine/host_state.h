@@ -17,9 +17,10 @@ class CHostState
 {
 public:
 	FORCEINLINE static void FrameUpdate(void* rcx, void* rdx, float time);
+	FORCEINLINE void LoadConfig(void) const;
 
 	FORCEINLINE void Setup(void) const;
-	FORCEINLINE void LoadConfig(void) const;
+	FORCEINLINE void Think(void) const;
 
 	FORCEINLINE void State_NewGame(void);
 	FORCEINLINE void GameShutDown(void);

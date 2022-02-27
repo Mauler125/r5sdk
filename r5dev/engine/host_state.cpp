@@ -28,6 +28,9 @@
 #include "public/include/bansystem.h"
 #include "game/server/gameinterface.h"
 
+std::chrono::time_point<std::chrono::steady_clock> tpPylonStartClock   = std::chrono::steady_clock::now();
+std::chrono::time_point<std::chrono::steady_clock> tpBanListStartClock = std::chrono::steady_clock::now();
+
 //-----------------------------------------------------------------------------
 // Purpose: state machine's main processing loop
 //-----------------------------------------------------------------------------
@@ -55,7 +58,6 @@ FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 	else
 	{
 		*g_ServerAbortServer = true;
-
 		do
 		{
 			Cbuf_Execute();
@@ -82,6 +84,7 @@ FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 			}
 			case HostStates_t::HS_RUN:
 			{
+				g_pHostState->Think();
 				State_RunFn(&g_pHostState->m_iCurrentState, nullptr, time);
 				break;
 			}
@@ -120,7 +123,6 @@ FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 		} while ((oldState != HostStates_t::HS_RUN || g_pHostState->m_iNextState == HostStates_t::HS_LOAD_GAME && g_pCVar->FindVar("single_frame_shutdown_for_reload")->GetBool())
 			&& oldState != HostStates_t::HS_SHUTDOWN
 			&& oldState != HostStates_t::HS_RESTART);
-
 	}
 }
 
@@ -141,30 +143,31 @@ FORCEINLINE void CHostState::Setup(void) const
 	ConCommandBase* disconnect = (ConCommandBase*)g_pCVar->FindCommand("disconnect");
 	disconnect->AddFlags(FCVAR_SERVER_CAN_EXECUTE); // Make sure server is not restricted to this.
 
-	static std::thread PylonThread([]() // Pylon request thread.
-		{
-			while (true)
-			{
-				KeepAliveToPylon();
-				std::this_thread::sleep_for(std::chrono::milliseconds(5000));
-			}
-		});
-
-	static std::thread BanlistThread([]()
-		{
-			while (true)
-			{
-				g_pBanSystem->BanListCheck();
-				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-			}
-		});
-
 	if (net_userandomkey->GetBool())
 	{
 		HNET_GenerateKey();
 	}
 
 	g_pCVar->FindVar("net_usesocketsforloopback")->SetValue(1);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: think
+//-----------------------------------------------------------------------------
+FORCEINLINE void CHostState::Think(void) const
+{
+	std::chrono::time_point<std::chrono::steady_clock> tpCrrentClock = std::chrono::steady_clock::now();
+
+	if (std::chrono::duration_cast<std::chrono::seconds>(tpCrrentClock - tpBanListStartClock).count() >= 1)
+	{
+		g_pBanSystem->BanListCheck();
+		tpBanListStartClock = std::chrono::steady_clock::now();
+	}
+	if (std::chrono::duration_cast<std::chrono::seconds>(tpCrrentClock - tpPylonStartClock).count() >= 5)
+	{
+		KeepAliveToPylon();
+		tpPylonStartClock = std::chrono::steady_clock::now();
+	}
 }
 
 //-----------------------------------------------------------------------------

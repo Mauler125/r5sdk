@@ -92,7 +92,7 @@ void Systems_Init()
 	int nError = ::WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (nError != 0)
 	{
-		std::cerr << "Failed to start Winsock via WSAStartup: (" << NET_ErrorString(WSAGetLastError()) << ")." << std::endl;
+		std::cerr << "Failed to start Winsock via WSAStartup: (" << NET_ErrorString(WSAGetLastError()) << ")" << std::endl;
 	}
 
 	// Begin the detour transaction to hook the the process
@@ -102,7 +102,7 @@ void Systems_Init()
 	// Hook functions
 	IApplication_Attach();
 #ifdef DEDICATED
-	PRX_Attach();
+	//PRX_Attach();
 #endif // DEDICATED
 	CBaseClient_Attach();
 	CBaseFileSystem_Attach();
@@ -172,7 +172,7 @@ void Systems_Shutdown()
 	int nError = ::WSACleanup();
 	if (nError != 0)
 	{
-		std::cerr << "Failed to stop winsock via WSACleanup: (" << NET_ErrorString(WSAGetLastError()) << ")." << std::endl;
+		std::cerr << "Failed to stop winsock via WSACleanup: (" << NET_ErrorString(WSAGetLastError()) << ")" << std::endl;
 	}
 
 	// Begin the detour transaction to unhook the the process
@@ -182,7 +182,7 @@ void Systems_Shutdown()
 	// Unhook functions
 	IApplication_Detach();
 #ifdef DEDICATED
-	PRX_Detach();
+	//PRX_Detach();
 #endif // DEDICATED
 	CBaseClient_Detach();
 	CBaseFileSystem_Detach();
