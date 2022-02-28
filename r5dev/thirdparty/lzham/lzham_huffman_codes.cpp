@@ -211,7 +211,7 @@ namespace lzham
       if ((!num_syms) || (num_syms > cHuffmanMaxSupportedSyms))
          return false;
                   
-      huffman_work_tables& state = *static_cast<huffman_work_tables*>(pContext);;
+      huffman_work_tables& state = *static_cast<huffman_work_tables*>(pContext);
             
       uint max_freq = 0;
       uint total_freq = 0;

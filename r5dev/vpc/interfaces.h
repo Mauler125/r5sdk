@@ -35,7 +35,7 @@ class IFactory
 public:
 
 	void GetFactoriesFromRegister();
-	void AddFactory(FactoryInfo factoryInfo);;
+	void AddFactory(FactoryInfo factoryInfo);
 	ADDRESS GetFactoryPtr(const std::string& factoryName, bool versionLess = true);
 
 	std::vector<FactoryInfo> factories = {};

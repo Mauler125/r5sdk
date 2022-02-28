@@ -265,4 +265,4 @@ bool CBanSystem::IsBanListValid(void) const
 	return !vsvBanList.empty();
 }
 ///////////////////////////////////////////////////////////////////////////////
-CBanSystem* g_pBanSystem = new CBanSystem();;
+CBanSystem* g_pBanSystem = new CBanSystem();

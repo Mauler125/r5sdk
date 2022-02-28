@@ -22,7 +22,7 @@ public:
 	void BanListCheck(void);
 
 private:
-	std::vector<std::pair<std::string, std::int64_t>> vsvrefuseList = {};;
+	std::vector<std::pair<std::string, std::int64_t>> vsvrefuseList = {};
 	std::vector<std::pair<std::string, std::int64_t>> vsvBanList = {};
 };
 

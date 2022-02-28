@@ -36,7 +36,7 @@ namespace
 	ADDRESS p_KeyValues_FindKey = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x56\x57\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x45", "xxxxxxxx????x");
 	void* (*KeyValues_FindKey)(void* a1, const char* a2, bool a3) = (void* (*)(void*, const char*, bool))p_KeyValues_FindKey.GetPtr(); /*40 56 57 41 57 48 81 EC 30 01 00 00 45 0F B6 F8*/
 #endif
-	ADDRESS p_KeyValues_LoadPlaylist = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\xE8\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x74\x0C", "x????xx?????xx").FollowNearCallSelf().GetPtr();;
+	ADDRESS p_KeyValues_LoadPlaylist = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\xE8\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x74\x0C", "x????xx?????xx").FollowNearCallSelf().GetPtr();
 	bool (*KeyValues_LoadPlaylist)(const char* source) = (bool (*)(const char*))p_KeyValues_LoadPlaylist.GetPtr(); /*E8 ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 74 0C*/
 
 	ADDRESS p_KeyValues_GetMemPool = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x8B\x05\x00\x00\x00\x00\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x48\x85\xD2", "xxx????xxxxxxxxxxxx");

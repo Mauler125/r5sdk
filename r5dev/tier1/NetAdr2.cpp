@@ -416,13 +416,13 @@ void CNetAdr2::ToSockadr(sockaddr_storage* pSadr) const
 		else if (GetType() == netadrtype_t::NA_IP)
 		{
 			reinterpret_cast<sockaddr_in*>(pSadr)->sin_family = AF_INET;
-			reinterpret_cast<sockaddr_in*>(pSadr)->sin_port = htons(stoi(GetPort()));;
+			reinterpret_cast<sockaddr_in*>(pSadr)->sin_port = htons(stoi(GetPort()));
 			inet_pton(AF_INET, GetBase().c_str(), &reinterpret_cast<sockaddr_in*>(pSadr)->sin_addr.s_addr);
 		}
 		else if (GetType() == netadrtype_t::NA_LOOPBACK)
 		{
 			reinterpret_cast<sockaddr_in*>(pSadr)->sin_family = AF_INET;
-			reinterpret_cast<sockaddr_in*>(pSadr)->sin_port = htons(stoi(GetPort()));;
+			reinterpret_cast<sockaddr_in*>(pSadr)->sin_port = htons(stoi(GetPort()));
 			reinterpret_cast<sockaddr_in*>(pSadr)->sin_addr.s_addr = INADDR_LOOPBACK;
 		}
 	}
@@ -431,13 +431,13 @@ void CNetAdr2::ToSockadr(sockaddr_storage* pSadr) const
 		if (GetType() == netadrtype_t::NA_IP)
 		{
 			reinterpret_cast<sockaddr_in6*>(pSadr)->sin6_family = AF_INET6;
-			reinterpret_cast<sockaddr_in6*>(pSadr)->sin6_port = htons(stoi(GetPort()));;
+			reinterpret_cast<sockaddr_in6*>(pSadr)->sin6_port = htons(stoi(GetPort()));
 			inet_pton(AF_INET6, GetBase().c_str(), &reinterpret_cast<sockaddr_in6*>(pSadr)->sin6_addr);
 		}
 		else if (GetType() == netadrtype_t::NA_LOOPBACK)
 		{
 			reinterpret_cast<sockaddr_in6*>(pSadr)->sin6_family = AF_INET6;
-			reinterpret_cast<sockaddr_in6*>(pSadr)->sin6_port = htons(stoi(GetPort()));;
+			reinterpret_cast<sockaddr_in6*>(pSadr)->sin6_port = htons(stoi(GetPort()));
 			reinterpret_cast<sockaddr_in6*>(pSadr)->sin6_addr = in6addr_loopback;
 		}
 	}

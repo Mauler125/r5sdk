@@ -364,7 +364,7 @@ namespace lzham
       if ((!num_syms) || (num_syms > cPolarMaxSupportedSyms))
          return false;
 
-      polar_work_tables& state = *static_cast<polar_work_tables*>(pContext);;
+      polar_work_tables& state = *static_cast<polar_work_tables*>(pContext);
 
       uint max_freq = 0;
       uint total_freq = 0;

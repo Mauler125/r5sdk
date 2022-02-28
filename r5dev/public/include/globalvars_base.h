@@ -27,7 +27,7 @@ public:
 	char            m_nPad0[24];                     // All unknown.
 	int             m_nMaxClients;                   // Current maxplayers setting
 	int             m_nMaxMilesAudioQueues_Maybe;    // Only used on the server.
-	GameMode_t      m_nGameMode;;                    // 1 (MP) 2 (PVE) 3 (SP)
+	GameMode_t      m_nGameMode;                     // 1 (MP) 2 (PVE) 3 (SP)
 	int             m_nTickCount;                    // Simulation ticks - does not increase when game is paused - resets on restart.
 	int             m_nUnk0;
 	int             m_nUnk1;
