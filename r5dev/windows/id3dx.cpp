@@ -372,6 +372,9 @@ HRESULT __stdcall GetResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount
 	g_bInitialized    = false;
 	g_bPresentHooked  = false;
 
+	g_nWindowWidth  = nWidth;
+	g_nWindowHeight = nHeight;
+
 	///////////////////////////////////////////////////////////////////////////////
 	DestroyRenderTarget();
 

@@ -46,6 +46,7 @@
     <ClCompile Include="..\engine\sys_dll.cpp" />
     <ClCompile Include="..\engine\sys_dll2.cpp" />
     <ClCompile Include="..\engine\sys_engine.cpp" />
+    <ClCompile Include="..\engine\sys_getmodes.cpp" />
     <ClCompile Include="..\engine\sys_utils.cpp" />
     <ClCompile Include="..\gameui\IConsole.cpp" />
     <ClCompile Include="..\gameui\IBrowser.cpp" />

@@ -71,10 +71,12 @@ void ConVar::Init(void) const
 	//-------------------------------------------------------------------------
 	// CLIENT                                                                 |
 #ifndef DEDICATED
-	cl_drawconsoleoverlay      = new ConVar("cl_drawconsoleoverlay"     , "0" , FCVAR_DEVELOPMENTONLY, "Draw the console overlay at the top of the screen.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_consoleoverlay_lines    = new ConVar("cl_consoleoverlay_lines"   , "3" , FCVAR_DEVELOPMENTONLY, "Number of lines of console output to draw.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_consoleoverlay_offset_x = new ConVar("cl_consoleoverlay_offset_x", "10", FCVAR_DEVELOPMENTONLY, "X offset for console overlay.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_consoleoverlay_offset_y = new ConVar("cl_consoleoverlay_offset_y", "10", FCVAR_DEVELOPMENTONLY, "Y offset for console overlay.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_drawconsoleoverlay           = new ConVar("cl_drawconsoleoverlay"          , "0" , FCVAR_DEVELOPMENTONLY, "Draws the RUI console overlay at the top of the screen.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_consoleoverlay_lines         = new ConVar("cl_consoleoverlay_lines"        , "3" , FCVAR_DEVELOPMENTONLY, "Number of lines of console output to draw.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_consoleoverlay_invert_rect_x = new ConVar("cl_consoleoverlay_invert_rect_x", "0" , FCVAR_DEVELOPMENTONLY, "Inverts the X rect for RUI console overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_consoleoverlay_invert_rect_y = new ConVar("cl_consoleoverlay_invert_rect_y", "0" , FCVAR_DEVELOPMENTONLY, "Inverts the Y rect for RUI console overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_consoleoverlay_offset_x      = new ConVar("cl_consoleoverlay_offset_x"     , "10", FCVAR_DEVELOPMENTONLY, "X offset for RUI console overlay.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_consoleoverlay_offset_y      = new ConVar("cl_consoleoverlay_offset_y"     , "10", FCVAR_DEVELOPMENTONLY, "Y offset for RUI console overlay.", false, 1.f, false, 50.f, nullptr, nullptr);
 
 	cl_conoverlay_script_server_clr  = new ConVar("cl_conoverlay_script_server_clr", "130 120 245 255", FCVAR_DEVELOPMENTONLY, "Script SERVER VM RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 	cl_conoverlay_script_client_clr  = new ConVar("cl_conoverlay_script_client_clr", "117 116 139 255", FCVAR_DEVELOPMENTONLY, "Script CLIENT VM RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
@@ -88,18 +90,27 @@ void ConVar::Init(void) const
 	cl_conoverlay_native_rtech_clr  = new ConVar("cl_conoverlay_native_rtech_clr" , "025 100 100 255", FCVAR_DEVELOPMENTONLY, "Native rtech RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 	cl_conoverlay_native_ms_clr     = new ConVar("cl_conoverlay_native_ms_clr"    , "200 020 180 255", FCVAR_DEVELOPMENTONLY, "Native materialsystem RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 
-	cl_conoverlay_netcon_clr        = new ConVar("cl_conoverlay_netcon_clr"       , "255 255 255 255", FCVAR_DEVELOPMENTONLY, "Net console RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_netcon_clr  = new ConVar("cl_conoverlay_netcon_clr" , "255 255 255 255", FCVAR_DEVELOPMENTONLY, "Net console RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_warning_clr = new ConVar("cl_conoverlay_warning_clr", "180 180 020 255", FCVAR_DEVELOPMENTONLY, "Warning RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_error_clr   = new ConVar("cl_conoverlay_error_clr"  , "225 050 050 255", FCVAR_DEVELOPMENTONLY, "Error RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 
-	cl_conoverlay_warning_clr       = new ConVar("cl_conoverlay_warning_clr"      , "180 180 020 255", FCVAR_DEVELOPMENTONLY, "Warning RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_conoverlay_error_clr         = new ConVar("cl_conoverlay_error_clr"        , "225 050 050 255", FCVAR_DEVELOPMENTONLY, "Error RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_showhoststats           = new ConVar("cl_showhoststats"          , "0", FCVAR_DEVELOPMENTONLY, "Host speeds debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_hoststats_invert_rect_x = new ConVar("cl_hoststats_invert_rect_x", "0", FCVAR_DEVELOPMENTONLY, "Inverts the X rect for host speeds debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_hoststats_invert_rect_y = new ConVar("cl_hoststats_invert_rect_y", "0", FCVAR_DEVELOPMENTONLY, "Inverts the Y rect for host speeds debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_hoststats_offset_x      = new ConVar("cl_hoststats_offset_x"    , "10", FCVAR_DEVELOPMENTONLY, "X offset for host speeds debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_hoststats_offset_y      = new ConVar("cl_hoststats_offset_y"    , "10", FCVAR_DEVELOPMENTONLY, "Y offset for host speeds debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 
-	cl_showsimstats      = new ConVar("cl_showsimstats"     , "0"   , FCVAR_DEVELOPMENTONLY, "Shows the tick counter for the server/client simulation and the render frame.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_simstats_offset_x = new ConVar("cl_simstats_offset_x", "1250", FCVAR_DEVELOPMENTONLY, "X offset for simulation debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_simstats_offset_y = new ConVar("cl_simstats_offset_y", "885" , FCVAR_DEVELOPMENTONLY, "Y offset for simulation debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_showsimstats           = new ConVar("cl_showsimstats"          , "0"  , FCVAR_DEVELOPMENTONLY, "Shows the tick counter for the server/client simulation and the render frame.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_simstats_invert_rect_x = new ConVar("cl_simstats_invert_rect_x", "1"  , FCVAR_DEVELOPMENTONLY, "Inverts the X rect for simulation debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_simstats_invert_rect_y = new ConVar("cl_simstats_invert_rect_y", "1"  , FCVAR_DEVELOPMENTONLY, "Inverts the Y rect for simulation debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_simstats_offset_x      = new ConVar("cl_simstats_offset_x"     , "650", FCVAR_DEVELOPMENTONLY, "X offset for simulation debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_simstats_offset_y      = new ConVar("cl_simstats_offset_y"     , "120", FCVAR_DEVELOPMENTONLY, "Y offset for simulation debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 
-	cl_showgpustats      = new ConVar("cl_showgpustats"     , "0"   , FCVAR_DEVELOPMENTONLY, "Texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_gpustats_offset_x = new ConVar("cl_gpustats_offset_x", "1250", FCVAR_DEVELOPMENTONLY, "X offset for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_gpustats_offset_y = new ConVar("cl_gpustats_offset_y", "900" , FCVAR_DEVELOPMENTONLY, "Y offset for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_showgpustats           = new ConVar("cl_showgpustats"            , "0", FCVAR_DEVELOPMENTONLY, "Texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_gpustats_invert_rect_x = new ConVar("cl_gpustats_invert_rect_x"  , "1", FCVAR_DEVELOPMENTONLY, "Inverts the X rect for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_gpustats_invert_rect_y = new ConVar("cl_gpustats_invert_rect_y"  , "1", FCVAR_DEVELOPMENTONLY, "Inverts the Y rect for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_gpustats_offset_x      = new ConVar("cl_gpustats_offset_x"     , "650", FCVAR_DEVELOPMENTONLY, "X offset for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_gpustats_offset_y      = new ConVar("cl_gpustats_offset_y"     , "105", FCVAR_DEVELOPMENTONLY, "Y offset for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 
 	con_max_size_logvector  = new ConVar("con_max_size_logvector", "1000", FCVAR_DEVELOPMENTONLY, "Maximum number of logs in the console until cleanup starts.", false, 0.f, false, 0.f, nullptr, nullptr);
 	con_suggestion_limit    = new ConVar("con_suggestion_limit"  , "120" , FCVAR_DEVELOPMENTONLY, "Maximum number of suggestions the autocomplete window will show for the console.", false, 0.f, false, 0.f, nullptr, nullptr);

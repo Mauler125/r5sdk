@@ -31,6 +31,8 @@ ConVar* sv_rcon_whitelist_address          = nullptr;
 #ifndef DEDICATED
 ConVar* cl_drawconsoleoverlay              = nullptr;
 ConVar* cl_consoleoverlay_lines            = nullptr;
+ConVar* cl_consoleoverlay_invert_rect_x    = nullptr;
+ConVar* cl_consoleoverlay_invert_rect_y    = nullptr;
 ConVar* cl_consoleoverlay_offset_x         = nullptr;
 ConVar* cl_consoleoverlay_offset_y         = nullptr;
 
@@ -48,11 +50,21 @@ ConVar* cl_conoverlay_netcon_clr           = nullptr;
 ConVar* cl_conoverlay_warning_clr          = nullptr;
 ConVar* cl_conoverlay_error_clr            = nullptr;
 
+ConVar* cl_showhoststats                   = nullptr;
+ConVar* cl_hoststats_invert_rect_x         = nullptr;
+ConVar* cl_hoststats_invert_rect_y         = nullptr;
+ConVar* cl_hoststats_offset_x              = nullptr;
+ConVar* cl_hoststats_offset_y              = nullptr;
+
 ConVar* cl_showsimstats                    = nullptr;
+ConVar* cl_simstats_invert_rect_x          = nullptr;
+ConVar* cl_simstats_invert_rect_y          = nullptr;
 ConVar* cl_simstats_offset_x               = nullptr;
 ConVar* cl_simstats_offset_y               = nullptr;
 
 ConVar* cl_showgpustats                    = nullptr;
+ConVar* cl_gpustats_invert_rect_x          = nullptr;
+ConVar* cl_gpustats_invert_rect_y          = nullptr;
 ConVar* cl_gpustats_offset_x               = nullptr;
 ConVar* cl_gpustats_offset_y               = nullptr;
 

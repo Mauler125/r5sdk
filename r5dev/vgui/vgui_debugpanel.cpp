@@ -7,6 +7,8 @@
 
 #include <core/stdafx.h>
 #include <tier0/cvar.h>
+#include <windows/id3dx.h>
+#include <vpc/keyvalues.h>
 #include <mathlib/color.h>
 #include <vgui/vgui_debugpanel.h>
 #include <vguimatsurface/MatSystemSurface.h>
@@ -36,6 +38,10 @@ void CLogSystem::Update(void)
 	{
 		DrawGPUStats();
 	}
+	if (cl_showhoststats->GetBool())
+	{
+		DrawHostStats();
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -64,10 +70,20 @@ void CLogSystem::DrawLog(void)
 				float fadepct = fminf(static_cast<float>(m_vLogs[i].m_nTicks) / 255.f, 4.f); // TODO [ AMOS ]: register a ConVar for this!
 				float ptc = static_cast<int>(ceilf(fadepct * 100.f));
 				int alpha = static_cast<int>(ptc);
-				int y = (cl_consoleoverlay_offset_y->GetInt() + (m_nFontHeight * i));
 				int x = cl_consoleoverlay_offset_x->GetInt();
-
+				int y = cl_consoleoverlay_offset_y->GetInt() + (m_nFontHeight * i);
 				Color c = GetLogColorForType(m_vLogs[i].m_type);
+
+				if (cl_consoleoverlay_invert_rect_x->GetBool())
+				{
+					x = g_nWindowWidth - cl_consoleoverlay_offset_x->GetInt();
+				}
+				if (cl_consoleoverlay_invert_rect_y->GetBool())
+				{
+					y = g_nWindowHeight - cl_consoleoverlay_offset_y->GetInt();
+					y += m_nFontHeight * i;
+				}
+
 				CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, x, y, c.r(), c.g(), c.b(), alpha, m_vLogs[i].m_svMessage.c_str());
 			}
 			else
@@ -88,14 +104,47 @@ void CLogSystem::DrawLog(void)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+void CLogSystem::DrawHostStats(void) const
+{
+	int nWidth  = cl_hoststats_offset_x->GetInt();
+	int nHeight = cl_hoststats_offset_y->GetInt();
+	static Color c = { 255, 255, 255, 255 };
+
+	if (cl_hoststats_invert_rect_x->GetBool())
+	{
+		nWidth  = g_nWindowWidth  - nWidth;
+	}
+	if (cl_hoststats_invert_rect_y->GetBool())
+	{
+		nHeight = g_nWindowHeight - nHeight;
+	}
+
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), (char*)m_pszCon_NPrintf_Buf);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CLogSystem::DrawSimStats(void) const
 {
+	int nWidth  = cl_simstats_offset_x->GetInt();
+	int nHeight = cl_simstats_offset_y->GetInt();
+
 	static Color c = { 255, 255, 255, 255 };
 	static const char* szLogbuf[4096]{};
 	snprintf((char*)szLogbuf, 4096, "Server Frame: (%d) Client Frame: (%d) Render Frame: (%d)\n",
 	*sv_m_nTickCount, *cl_host_tickcount, *render_tickcount);
 
-	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, cl_simstats_offset_x->GetInt(), cl_simstats_offset_y->GetInt(), c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
+	if (cl_simstats_invert_rect_x->GetBool())
+	{
+		nWidth  = g_nWindowWidth  - nWidth;
+	}
+	if (cl_simstats_invert_rect_y->GetBool())
+	{
+		nHeight = g_nWindowHeight - nHeight;
+	}
+
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
 }
 
 //-----------------------------------------------------------------------------
@@ -103,12 +152,24 @@ void CLogSystem::DrawSimStats(void) const
 //-----------------------------------------------------------------------------
 void CLogSystem::DrawGPUStats(void) const
 {
+	int nWidth  = cl_gpustats_offset_x->GetInt();
+	int nHeight = cl_gpustats_offset_y->GetInt();
+
 	static Color c = { 255, 255, 255, 255 };
 	static const char* szLogbuf[4096]{};
 	snprintf((char*)szLogbuf, 4096, "%8d/%8d/%8dkiB unusable/unfree/total GPU Streaming Texture memory\n", 
 	*unusable_streaming_tex_memory / 1024, *unfree_streaming_tex_memory / 1024, *unusable_streaming_tex_memory / 1024);
 
-	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, cl_gpustats_offset_x->GetInt(), cl_gpustats_offset_y->GetInt(), c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
+	if (cl_gpustats_invert_rect_x->GetBool())
+	{
+		nWidth  = g_nWindowWidth  - nWidth;
+	}
+	if (cl_gpustats_invert_rect_y->GetBool())
+	{
+		nHeight = g_nWindowHeight - nHeight;
+	}
+
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
 }
 
 //-----------------------------------------------------------------------------

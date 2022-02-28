@@ -138,6 +138,10 @@ void Systems_Init()
 	SysDll_Attach();
 	SysUtils_Attach();
 
+#ifndef DEDICATED
+	HCVideoMode_Common_Attach();
+#endif // !DEDICATED
+
 	// Patch instructions
 	RuntimePtc_Init();
 
@@ -217,6 +221,10 @@ void Systems_Shutdown()
 
 	SysDll_Detach();
 	SysUtils_Detach();
+
+#ifndef DEDICATED
+	HCVideoMode_Common_Detach();
+#endif // !DEDICATED
 
 	// Commit the transaction
 	DetourTransactionCommit();

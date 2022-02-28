@@ -42,6 +42,8 @@ extern ConVar* sv_rcon_whitelist_address;
 #ifndef DEDICATED
 extern ConVar* cl_drawconsoleoverlay;
 extern ConVar* cl_consoleoverlay_lines;
+extern ConVar* cl_consoleoverlay_invert_rect_x;
+extern ConVar* cl_consoleoverlay_invert_rect_y;
 extern ConVar* cl_consoleoverlay_offset_x;
 extern ConVar* cl_consoleoverlay_offset_y;
 
@@ -59,11 +61,21 @@ extern ConVar* cl_conoverlay_netcon_clr;
 extern ConVar* cl_conoverlay_warning_clr;
 extern ConVar* cl_conoverlay_error_clr;
 
+extern ConVar* cl_showhoststats;
+extern ConVar* cl_hoststats_invert_rect_x;
+extern ConVar* cl_hoststats_invert_rect_y;
+extern ConVar* cl_hoststats_offset_x;
+extern ConVar* cl_hoststats_offset_y;
+
 extern ConVar* cl_showsimstats;
+extern ConVar* cl_simstats_invert_rect_x;
+extern ConVar* cl_simstats_invert_rect_y;
 extern ConVar* cl_simstats_offset_x;
 extern ConVar* cl_simstats_offset_y;
 
-extern ConVar* cl_showgpustats;;
+extern ConVar* cl_showgpustats;
+extern ConVar* cl_gpustats_invert_rect_x;
+extern ConVar* cl_gpustats_invert_rect_y;
 extern ConVar* cl_gpustats_offset_x;
 extern ConVar* cl_gpustats_offset_y;
 

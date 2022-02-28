@@ -11,6 +11,9 @@ namespace
 
 	ADDRESS p_Sys_LoadAssetHelper = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x74\x24\x10\x48\x89\x7C\x24\x18\x41\x56\x48\x83\xEC\x40\x33", "xxxxxxxxxxxxxxxxx");
 	void*(*Sys_LoadAssetHelper)(const CHAR* lpFileName, std::int64_t a2, LARGE_INTEGER* a3) = (void*(*)(const CHAR*, std::int64_t, LARGE_INTEGER*))p_Sys_LoadAssetHelper.GetPtr();/*48 89 74 24 10 48 89 7C 24 18 41 56 48 83 EC 40 33*/
+
+	ADDRESS p_Con_NPrintf = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x4C\x24\x00\x48\x89\x54\x24\x00\x4C\x89\x44\x24\x00\x4C\x89\x4C\x24\x00\xC3", "xxxx?xxxx?xxxx?xxxx?x");
+	void (*Con_NPrintf)(int pos, const char* fmt, ...) = (void (*)(int, const char*, ...))p_Con_NPrintf.GetPtr(); /*48 89 4C 24 ? 48 89 54 24 ? 4C 89 44 24 ? 4C 89 4C 24 ? C3*/
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 	ADDRESS p_MemAlloc_Wrapper = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x48\x83\xEC\x20\x48\x8B\x05\x00\x00\x00\x00\x48\x8B\xD9\x48\x85\xC0\x75\x0C\xE8\x16", "xxxxxxxxx????xxxxxxxxxx");
 	void* (*MemAlloc_Wrapper)(std::int64_t size) = (void* (*)(std::int64_t))p_MemAlloc_Wrapper.GetPtr(); /*40 53 48 83 EC 20 48 8B 05 ?? ?? ?? ?? 48 8B D9 48 85 C0 75 0C E8 16*/
@@ -75,8 +78,9 @@ class HSys_Utils : public IDetour
 	virtual void debugp()
 	{
 		std::cout << "| FUN: Sys_Error                            : 0x" << std::hex << std::uppercase << p_Sys_Error.GetPtr()           << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: Sys_Warning                          : 0x" << std::hex << std::uppercase << p_Warning.GetPtr()           << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: Sys_Warning                          : 0x" << std::hex << std::uppercase << p_Warning.GetPtr()             << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: Sys_LoadAssetHelper                  : 0x" << std::hex << std::uppercase << p_Sys_LoadAssetHelper.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: Con_NPrintf                          : 0x" << std::hex << std::uppercase << p_Con_NPrintf.GetPtr()         << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: MemAlloc_Wrapper                     : 0x" << std::hex << std::uppercase << p_MemAlloc_Wrapper.GetPtr()    << std::setw(npad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}

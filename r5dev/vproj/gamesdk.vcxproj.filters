@@ -381,6 +381,9 @@
     <ClCompile Include="..\game\server\ai_networkmanager.cpp">
       <Filter>sdk\game\server</Filter>
     </ClCompile>
+    <ClCompile Include="..\engine\sys_getmodes.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">

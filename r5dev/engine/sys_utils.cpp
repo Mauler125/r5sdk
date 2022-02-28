@@ -1,5 +1,12 @@
+//=============================================================================//
+//
+// Purpose: General system utilities.
+//
+//=============================================================================//
+
 #include "core/stdafx.h"
 #include "core/logdef.h"
+#include "tier0/cvar.h"
 #include "tier0/commandline.h"
 #include "engine/common.h"
 #include "engine/sys_utils.h"
@@ -41,18 +48,46 @@ void HSys_Error(char* fmt, ...)
 void* HSys_Warning(int level, char* fmt, ...)
 {
 	static char buf[1024] = {};
+	{/////////////////////////////
+		va_list args{};
+		va_start(args, fmt);
 
-	va_list args{};
-	va_start(args, fmt);
+		vsnprintf(buf, sizeof(buf), fmt, args);
 
-	vsnprintf(buf, sizeof(buf), fmt, args);
-
-	buf[sizeof(buf) - 1] = 0;
-	va_end(args);
+		buf[sizeof(buf) - 1] = 0;
+		va_end(args);
+	}/////////////////////////////
 
 	DevMsg(eDLL_T::NONE, "Warning(%d):%s\n", level, buf); // TODO: Color
 	return Sys_Warning(level, buf);
 }
+
+#ifndef DEDICATED
+//-----------------------------------------------------------------------------
+// Purpose: Builds log to be displayed on the screen
+// Input  : pos - 
+//			*fmt - ... - 
+// Output : void NPrintf
+//-----------------------------------------------------------------------------
+void HCon_NPrintf(int pos, const char* fmt, ...)
+{
+	if (cl_showhoststats->GetBool())
+	{
+		static char buf[1024] = {};
+		{/////////////////////////////
+			va_list args{};
+			va_start(args, fmt);
+
+			vsnprintf(buf, sizeof(buf), fmt, args);
+
+			buf[sizeof(buf) - 1] = 0;
+			va_end(args);
+		}/////////////////////////////
+
+		snprintf((char*)g_pLogSystem.m_pszCon_NPrintf_Buf, 4096, buf);
+	}
+}
+#endif // !DEDICATED
 
 //-----------------------------------------------------------------------------
 // Purpose: Show logs to all console interfaces
@@ -170,6 +205,9 @@ void SysUtils_Attach()
 	DetourAttach((LPVOID*)&Sys_Error, &HSys_Error);
 	DetourAttach((LPVOID*)&Sys_Warning, &HSys_Warning);
 	DetourAttach((LPVOID*)&Sys_LoadAssetHelper, &HSys_LoadAssetHelper);
+#ifndef DEDICATED
+	DetourAttach((LPVOID*)&Con_NPrintf, &HCon_NPrintf);
+#endif // !DEDICATED
 }
 
 void SysUtils_Detach()
@@ -177,4 +215,7 @@ void SysUtils_Detach()
 	DetourDetach((LPVOID*)&Sys_Error, &HSys_Error);
 	DetourDetach((LPVOID*)&Sys_Warning, &HSys_Warning);
 	DetourDetach((LPVOID*)&Sys_LoadAssetHelper, &HSys_LoadAssetHelper);
+#ifndef DEDICATED
+	DetourDetach((LPVOID*)&Con_NPrintf, &HCon_NPrintf);
+#endif // !DEDICATED
 }
