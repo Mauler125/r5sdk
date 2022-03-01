@@ -968,6 +968,12 @@
     <ClCompile Include="..\game\server\ai_networkmanager.cpp">
       <Filter>sdk\game\server</Filter>
     </ClCompile>
+    <ClCompile Include="..\engine\cmodel_bsp.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\modelloader.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Dedicated.def" />

@@ -103,13 +103,28 @@ void Dedicated_Init()
 	// CMODELLOADER
 	//-------------------------------------------------------------------------
 	{
-		CModelLoader__LoadModel.Offset(0x462).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });               // CAL --> NOP | Prevent call to 'CStudioRenderContext::LoadMaterials'.
-		CModelLoader__Studio_LoadModel.Offset(0x325).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | Virtual call to 'CMaterialSystem::FindMaterialEx' fails as RAX is nullptr.
-		CModelLoader__Studio_LoadModel.Offset(0x33D).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | Virtual call to 'CMaterialGlue' class method fails as RAX is nullptr.
-		CModelLoader__Studio_LoadModel.Offset(0x359).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | Virtual call to 'CMaterialGlue' class method fails as RAX is nullptr.
-		CModelLoader__Studio_LoadModel.Offset(0x374).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | Virtual call to 'CMaterialGlue' class method fails as RAX is nullptr.
-		CModelLoader__Studio_LoadModel.Offset(0x38D).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | Virtual call to 'ReturnZero' fails as RAX is nullptr.
-		CModelLoader__Studio_LoadModel.Offset(0x3A4).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | Virtual call to 'CMaterialGlue' class method fails as RAX is nullptr.
+		p_CModelLoader__LoadModel.Offset(0x462).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });               // CAL --> NOP | Prevent call to 'CStudioRenderContext::LoadMaterials'.
+		p_CModelLoader__Studio_LoadModel.Offset(0x325).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | Virtual call to 'CMaterialSystem::FindMaterialEx' fails as RAX is nullptr.
+		p_CModelLoader__Studio_LoadModel.Offset(0x33D).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | Virtual call to 'CMaterialGlue' class method fails as RAX is nullptr.
+		p_CModelLoader__Studio_LoadModel.Offset(0x359).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | Virtual call to 'CMaterialGlue' class method fails as RAX is nullptr.
+		p_CModelLoader__Studio_LoadModel.Offset(0x374).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | Virtual call to 'CMaterialGlue' class method fails as RAX is nullptr.
+		p_CModelLoader__Studio_LoadModel.Offset(0x38D).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | Virtual call to 'ReturnZero' fails as RAX is nullptr.
+		p_CModelLoader__Studio_LoadModel.Offset(0x3A4).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | Virtual call to 'CMaterialGlue' class method fails as RAX is nullptr.
+
+		p_CModelLoader__Map_LoadModelGuts.Offset(0x41).Patch({ 0xE9, 0x4F, 0x04, 0x00, 0x00 });        // JNE --> NOP | SKYLIGHTS.
+		p_CModelLoader__Map_LoadModelGuts.Offset(0x974).Patch({ 0x90, 0x90 });                         // JE  --> NOP | VERTNORMALS.
+		p_CModelLoader__Map_LoadModelGuts.Offset(0xA55).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });       // CAL --> NOP | MATERIALSORTS.
+		p_CModelLoader__Map_LoadModelGuts.Offset(0xA62).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });       // CAL --> NOP | MESHBOUNDS.
+		p_CModelLoader__Map_LoadModelGuts.Offset(0xA83).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });       // CAL --> NOP | MESHVERTS.
+		p_CModelLoader__Map_LoadModelGuts.Offset(0xAC0).Patch({ 0x90, 0x90 });                         // JE  --> NOP | INDICES.
+		p_CModelLoader__Map_LoadModelGuts.Offset(0xBF2).Patch({ 0x90, 0x90 });                         // JE  --> NOP | WORLDLIGHTS.
+		p_CModelLoader__Map_LoadModelGuts.Offset(0xDA9).Patch({ 0x90, 0x90 });                         // JE  --> NOP | TWEAKLIGHTS.
+		p_CModelLoader__Map_LoadModelGuts.Offset(0xEEB).Patch({ 0xE9, 0x3D, 0x01, 0x00, 0x00 });       // JLE --> JMP | Exception 0x57 in while trying to dereference [R15 + R14 *8 + 0x10].
+		p_CModelLoader__Map_LoadModelGuts.Offset(0x61B).Patch({ 0xE9, 0xE2, 0x02, 0x00, 0x00 });       // JZ  --> JMP | Prevent call to 'CMod_LoadTextures()'.
+		p_CModelLoader__Map_LoadModelGuts.Offset(0x1045).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });      // CAL --> NOP | Prevent call to 'Mod_LoadCubemapSamples()'.
+
+		p_CModelLoader__Map_LoadModelGuts.Offset(0x129).Patch({ 0x90, 0x90, 0x90 });                   // MOV --> NOP | RCX is nullptr during dereference since shadersystem isn't initialized. Exception 'C0000005'.
+		p_CModelLoader__Map_LoadModelGuts.Offset(0x12C).Patch({ 0x90, 0x90, 0x90 });                   // CAL --> NOP | Virtual call to 'CTexture' class member in RAX + 0x78 fails. Previous instruction could not dereference.
 	}
 
 	//-------------------------------------------------------------------------
@@ -184,8 +199,8 @@ void Dedicated_Init()
 	// RUNTIME: HOST_NEWGAME
 	//-------------------------------------------------------------------------
 	{
-		Host_NewGame.Offset(0x4E0).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });
-		Host_NewGame.Offset(0x637).Patch({ 0xE9, 0xC1, 0x00, 0x00, 0x00 });      // JNE --> JMP | Prevent connect localhost from being executed in Host_NewGame.
+		p_Host_NewGame.Offset(0x4E0).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });
+		p_Host_NewGame.Offset(0x637).Patch({ 0xE9, 0xC1, 0x00, 0x00, 0x00 });      // JNE --> JMP | Prevent connect localhost from being executed in Host_NewGame.
 	}
 
 	//-------------------------------------------------------------------------
@@ -226,26 +241,6 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	{
 		FairFight_Init.Offset(0x0).FindPatternSelf("0F 87", ADDRESS::Direction::DOWN, 200).Patch({ 0x0F, 0x85 }); // JA  --> JNZ | Prevent 'FairFight' anti-cheat from initializing on the server by comparing RAX against 0x0 instead. Init will crash since the plugins aren't shipped.
-	}
-
-	//-------------------------------------------------------------------------
-	// RUNTIME: BSP_LUMP
-	//-------------------------------------------------------------------------
-	{
-		CollisionBSPData_LoadAllLumps.Offset(0x41).Patch({ 0xE9, 0x4F, 0x04, 0x00, 0x00 });   // JNE --> NOP | SKYLIGHTS.
-		CollisionBSPData_LoadAllLumps.Offset(0x974).Patch({ 0x90, 0x90 });                    // JE  --> NOP | VERTNORMALS.
-		CollisionBSPData_LoadAllLumps.Offset(0xA55).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | MATERIALSORTS.
-		CollisionBSPData_LoadAllLumps.Offset(0xA62).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | MESHBOUNDS.
-		CollisionBSPData_LoadAllLumps.Offset(0xA83).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | MESHVERTS.
-		CollisionBSPData_LoadAllLumps.Offset(0xAC0).Patch({ 0x90, 0x90 });                    // JE  --> NOP | INDICES.
-		CollisionBSPData_LoadAllLumps.Offset(0xBF2).Patch({ 0x90, 0x90 });                    // JE  --> NOP | WORLDLIGHTS.
-		CollisionBSPData_LoadAllLumps.Offset(0xDA9).Patch({ 0x90, 0x90 });                    // JE  --> NOP | TWEAKLIGHTS.
-		CollisionBSPData_LoadAllLumps.Offset(0xEEB).Patch({ 0xE9, 0x3D, 0x01, 0x00, 0x00 });  // JLE --> JMP | Exception 0x57 in while trying to dereference [R15 + R14 *8 + 0x10].
-		CollisionBSPData_LoadAllLumps.Offset(0x61B).Patch({ 0xE9, 0xE2, 0x02, 0x00, 0x00 });  // JZ  --> JMP | Prevent call to 'CMod_LoadTextures()'.
-		CollisionBSPData_LoadAllLumps.Offset(0x1045).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | Prevent call to 'Mod_LoadCubemapSamples()'.
-
-		CollisionBSPData_LinkPhysics.Offset(0x129).Patch({ 0x90, 0x90, 0x90 });               // MOV --> NOP | RCX is nullptr during dereference since shadersystem isn't initialized. Exception 'C0000005'.
-		CollisionBSPData_LinkPhysics.Offset(0x12C).Patch({ 0x90, 0x90, 0x90 });               // CAL --> NOP | Virtual call to 'CTexture' class member in RAX + 0x78 fails. Previous instruction could not dereference.
 	}
 
 	//-------------------------------------------------------------------------

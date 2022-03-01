@@ -384,6 +384,12 @@
     <ClCompile Include="..\engine\sys_getmodes.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
+    <ClCompile Include="..\engine\cmodel_bsp.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\modelloader.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">

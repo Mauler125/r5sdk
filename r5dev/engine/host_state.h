@@ -22,9 +22,10 @@ public:
 	FORCEINLINE void Setup(void) const;
 	FORCEINLINE void Think(void) const;
 
-	FORCEINLINE void State_NewGame(void);
 	FORCEINLINE void GameShutDown(void);
+	FORCEINLINE void UnloadPakFile(void);
 
+	FORCEINLINE void State_NewGame(void);
 	FORCEINLINE void State_ChangeLevelSP(void);
 	FORCEINLINE void State_ChangeLevelMP(void);
 
@@ -71,6 +72,7 @@ namespace // !TEMP
 	static auto SendOfflineRequestToStryderFn  = ADDRESS(0x14033D380).RCast<void(*)()>();
 }
 
+extern bool g_bLevelResourceInitialized;
 ///////////////////////////////////////////////////////////////////////////////
 void CHostState_Attach();
 void CHostState_Detach();

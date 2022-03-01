@@ -15,11 +15,13 @@
 #else // 
 #include "engine/cl_rcon.h"
 #endif // DEDICATED
-#include "engine/sys_engine.h"
-#include "engine/sys_utils.h"
+#include "engine/gl_screen.h"
 #include "engine/host_state.h"
 #include "engine/net_chan.h"
-#include "engine/gl_screen.h"
+#include "engine/sys_engine.h"
+#include "engine/sys_utils.h"
+#include "engine/cmodel_bsp.h"
+#include "rtech/rtech_game.h"
 #ifndef DEDICATED
 #include "vgui/vgui_baseui_interface.h"
 #endif // DEDICATED
@@ -30,6 +32,7 @@
 
 std::chrono::time_point<std::chrono::steady_clock> tpPylonStartClock   = std::chrono::steady_clock::now();
 std::chrono::time_point<std::chrono::steady_clock> tpBanListStartClock = std::chrono::steady_clock::now();
+bool g_bLevelResourceInitialized = false;
 
 //-----------------------------------------------------------------------------
 // Purpose: state machine's main processing loop
@@ -68,7 +71,6 @@ FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 			case HostStates_t::HS_NEW_GAME:
 			{
 				DevMsg(eDLL_T::ENGINE, "Loading level: '%s'\n", g_pHostState->m_levelName);
-
 				g_pHostState->State_NewGame();
 				break;
 			}
@@ -91,12 +93,15 @@ FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 			case HostStates_t::HS_GAME_SHUTDOWN:
 			{
 				DevMsg(eDLL_T::ENGINE, "Shutdown host game\n");
+
+				g_bLevelResourceInitialized = false;
 				Host_Game_ShutdownFn(g_pHostState);
 				break;
 			}
 			case HostStates_t::HS_RESTART:
 			{
 				DevMsg(eDLL_T::ENGINE, "Restarting state machine\n");
+				g_bLevelResourceInitialized = false;
 #ifndef DEDICATED
 				CL_EndMovieFn();
 #endif // !DEDICATED
@@ -107,6 +112,7 @@ FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 			case HostStates_t::HS_SHUTDOWN:
 			{
 				DevMsg(eDLL_T::ENGINE, "Shutdown state machine\n");
+				g_bLevelResourceInitialized = false;
 #ifndef DEDICATED
 				CL_EndMovieFn();
 #endif // !DEDICATED
@@ -198,10 +204,43 @@ FORCEINLINE void CHostState::LoadConfig(void) const
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: shutdown active game
+//-----------------------------------------------------------------------------
+FORCEINLINE void CHostState::GameShutDown(void)
+{
+	g_bLevelResourceInitialized = false;
+	if (m_bActiveGame)
+	{
+		g_pServerGameDLL->GameShutdown();
+		m_bActiveGame = 0;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: unloads all pakfiles loaded by the SDK
+//-----------------------------------------------------------------------------
+FORCEINLINE void CHostState::UnloadPakFile(void)
+{
+	for (int i = 0; i < sizeof(g_nLoadedPakFileId); i++)
+	{
+		if (g_nLoadedPakFileId[i] > 0)
+		{
+			RTech_UnloadPak(g_nLoadedPakFileId[i]);
+		}
+		else
+		{
+			memset(g_nLoadedPakFileId, '\0', sizeof(g_nLoadedPakFileId));
+			break;
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: initialize new game
 //-----------------------------------------------------------------------------
 FORCEINLINE void CHostState::State_NewGame(void)
 {
+	g_bLevelResourceInitialized = false;
 	m_bSplitScreenConnect = false;
 	if (!g_ServerGameClients) // Init Game if it ain't valid.
 	{
@@ -228,24 +267,13 @@ FORCEINLINE void CHostState::State_NewGame(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: shutdown active game
-//-----------------------------------------------------------------------------
-FORCEINLINE void CHostState::GameShutDown(void)
-{
-	if (m_bActiveGame)
-	{
-		g_pServerGameDLL->GameShutdown();
-		m_bActiveGame = 0;
-	}
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: change singleplayer level
 //-----------------------------------------------------------------------------
 FORCEINLINE void CHostState::State_ChangeLevelSP(void)
 {
 	DevMsg(eDLL_T::ENGINE, "Changing singleplayer level to: '%s'\n", m_levelName);
 	m_flShortFrameTime = 1.5; // Set frame time.
+	g_bLevelResourceInitialized = false;
 
 	if (CModelLoader_Map_IsValidFn(g_CModelLoader, m_levelName)) // Check if map is valid and if we can start a new game.
 	{
@@ -272,6 +300,7 @@ FORCEINLINE void CHostState::State_ChangeLevelMP(void)
 {
 	DevMsg(eDLL_T::ENGINE, "Changing multiplayer level to: '%s'\n", m_levelName);
 	m_flShortFrameTime = 0.5; // Set frame time.
+	g_bLevelResourceInitialized = false;
 
 	g_pServerGameDLL->LevelShutdown();
 	if (CModelLoader_Map_IsValidFn(g_CModelLoader, m_levelName)) // Check if map is valid and if we can start a new game.

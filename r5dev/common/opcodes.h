@@ -76,12 +76,6 @@ namespace
 	// 0x140239620 // 48 8B C4 48 83 EC ?? 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 8B 15 ? ? ? ? //
 
 	//-------------------------------------------------------------------------
-	// RUNTIME: HOST_NEWGAME
-	//-------------------------------------------------------------------------
-	ADDRESS Host_NewGame = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x8B\xC4\x00\x41\x54\x41\x00\x48\x81\xEC\x00\x00\x00\x00\xF2", "xxx?xxx?xxx??xxx");
-	// 0x140238DA0 // 48 8B C4 ?? 41 54 41 ?? 48 81 EC ?? ?? 00 00 F2 //
-
-	//-------------------------------------------------------------------------
 	// RUNTIME: HOST_DISCONNECT
 	//-------------------------------------------------------------------------
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
@@ -131,7 +125,6 @@ class HOpcodes : public IDetour
 		std::cout << "| FUN: Host_Init_0                          : 0x" << std::hex << std::uppercase << gHost_Init_0.GetPtr()                        << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: Host_Init_1                          : 0x" << std::hex << std::uppercase << gHost_Init_1.GetPtr()                        << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: Host_Init_2                          : 0x" << std::hex << std::uppercase << gHost_Init_2.GetPtr()                        << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: Host_NewGame                         : 0x" << std::hex << std::uppercase << Host_NewGame.GetPtr()                        << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: Host_Disconnect                      : 0x" << std::hex << std::uppercase << Host_Disconnect.GetPtr()                     << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: _Host_RunFrame                       : 0x" << std::hex << std::uppercase << _Host_RunFrame.GetPtr()                      << std::setw(npad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;

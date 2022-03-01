@@ -124,6 +124,7 @@ void Systems_Init()
 #if defined (DEDICATED) || defined (GAMEDLL_S3)
 	CHostState_Attach();
 #endif // DEDICATED || GAMEDLL_S3
+	//CModelLoader_Attach();
 
 	CNetChan_Attach();
 	ConCommand_Attach();
@@ -208,6 +209,7 @@ void Systems_Shutdown()
 #if defined (DEDICATED) || defined (GAMEDLL_S3)
 	CHostState_Detach(); // Dedicated only for now until backwards compatible with S1.
 #endif // DEDICATED || GAMEDLL_S3
+	//CModelLoader_Detach();
 
 	CNetChan_Detach();
 	ConCommand_Detach();

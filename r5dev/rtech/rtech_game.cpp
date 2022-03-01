@@ -35,11 +35,11 @@ void HRtech_AsyncLoad(std::string svPakFileName)
 
 	if (FileExists(svPakFilePathMod.c_str()) || FileExists(svPakFilePathBase.c_str()))
 	{
-		unsigned int results = RTech_AsyncLoad((void*)svPakFileName.c_str(), g_pMallocPool.GetPtr(), NULL, NULL);
+		int nPakId = RTech_AsyncLoad((void*)svPakFileName.c_str(), g_pMallocPool.GetPtr(), NULL, NULL);
 
-		if (results == 0xFFFFFFFF)
+		if (nPakId == 0xFFFFFFFF)
 		{
-			DevMsg(eDLL_T::RTECH, "RTech AsyncLoad failed read '%s' results '%u'\n", svPakFileName.c_str(), results);
+			DevMsg(eDLL_T::RTECH, "RTech AsyncLoad failed read '%s' results '%u'\n", svPakFileName.c_str(), nPakId);
 		}
 	}
 	else
@@ -48,12 +48,34 @@ void HRtech_AsyncLoad(std::string svPakFileName)
 	}
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void* HJT_HelpWithAnything(bool bShouldLoadPak)
+{
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+	static void* retaddr = reinterpret_cast<void*>(p_Host_NewGame.Offset(0x400).FindPatternSelf("48 8B ?? ?? ?? ?? 01", ADDRESS::Direction::DOWN).GetPtr());
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+	static void* retaddr = reinterpret_cast<void*>(p_Host_NewGame.Offset(0x4A0).FindPatternSelf("48 8B ?? ?? ?? ?? 01", ADDRESS::Direction::DOWN).GetPtr());
+#endif
+	void* results = JT_HelpWithAnything(bShouldLoadPak);
+
+	if (retaddr != _ReturnAddress()) // Check if this is called after 'PakFile_Init()'.
+	{
+		return results;
+	}
+	// Do stuff here after 'PakFile_Init()'.
+	return results;
+}
+
 void RTech_Game_Attach()
 {
 	//DetourAttach((LPVOID*)&RTech_UnloadAsset, &HRTech_UnloadAsset);
+	//DetourAttach((LPVOID*)&JT_HelpWithAnything, &HJT_HelpWithAnything);
 }
 
 void RTech_Game_Detach()
 {
 	//DetourAttach((LPVOID*)&RTech_UnloadAsset, &HRTech_UnloadAsset);
+	//DetourAttach((LPVOID*)&JT_HelpWithAnything, &HJT_HelpWithAnything);
 }

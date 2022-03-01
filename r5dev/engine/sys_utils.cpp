@@ -9,7 +9,9 @@
 #include "tier0/cvar.h"
 #include "tier0/commandline.h"
 #include "engine/common.h"
+#include "engine/host_state.h"
 #include "engine/sys_utils.h"
+#include "engine/cmodel_bsp.h"
 #ifdef DEDICATED
 #include "engine/sv_rcon.h"
 #else
@@ -180,6 +182,24 @@ void* HSys_LoadAssetHelper(const CHAR* lpFileName, std::int64_t a2, LARGE_INTEGE
 	std::string base_file = lpFileName;
 	const std::string mod_dir = "paks\\Win32\\";
 	const std::string base_dir = "paks\\Win64\\";
+	static bool bBasePaksLoaded = false;
+
+	if (g_pHostState)
+	{
+		std::string svLevelName = g_pHostState->m_levelName;
+		std::string svMapPakName = svLevelName + ".rpak";
+
+		if (!g_bLevelResourceInitialized && !g_pHostState->m_bActiveGame &&
+			bBasePaksLoaded || !strcmp(std::string(lpFileName).erase(0, 11).c_str(), "mp_lobby.rpak"))
+		{
+			// Attempt to load level dependencies if they exist.
+			MOD_LoadDependencies(eBspRes_t::RES_RPAK);
+
+			// By the time mp_lobby.rpak is loaded, all the base paks are loaded as well and we can load anything else.
+			bBasePaksLoaded = true;
+			g_bLevelResourceInitialized = true;
+		}
+	}
 
 	if (strstr(lpFileName, base_dir.c_str()))
 	{

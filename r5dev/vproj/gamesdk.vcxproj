@@ -36,10 +36,12 @@
     <ClCompile Include="..\engine\baseclient.cpp" />
     <ClCompile Include="..\engine\baseclientstate.cpp" />
     <ClCompile Include="..\engine\cl_rcon.cpp" />
+    <ClCompile Include="..\engine\cmodel_bsp.cpp" />
     <ClCompile Include="..\engine\common.cpp" />
     <ClCompile Include="..\engine\gl_screen.cpp" />
     <ClCompile Include="..\engine\host_cmd.cpp" />
     <ClCompile Include="..\engine\host_state.cpp" />
+    <ClCompile Include="..\engine\modelloader.cpp" />
     <ClCompile Include="..\engine\net.cpp" />
     <ClCompile Include="..\engine\net_chan.cpp" />
     <ClCompile Include="..\engine\sv_main.cpp" />

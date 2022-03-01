@@ -70,7 +70,7 @@ void ImGuiConfig::Load()
     }
     catch (const std::exception& ex)
     {
-        DevMsg(eDLL_T::MS, "ImGui config file '%s' not found. Changing the settings in the console or server browser options re-create's it. Exception: '%s'\n", fsPath.string().c_str(), ex.what());
+        DevMsg(eDLL_T::MS, "ImGui config file '%s' not found\n Changing the settings in the console or server browser options re-create's it\n Exception: '%s'\n", fsPath.string().c_str(), ex.what());
         return;
     }
 }
