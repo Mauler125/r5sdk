@@ -67,7 +67,8 @@ public:
 	const char* operator[](int nIndex) const;
 
 private:
-	std::int64_t m_nArgc;
+	int          m_nQueuedVal;
+	int          m_nArgc;
 	std::int64_t m_nArgv0Size;
 	char         m_pArgSBuffer[COMMAND_MAX_LENGTH];
 	char         m_pArgvBuffer[COMMAND_MAX_LENGTH];

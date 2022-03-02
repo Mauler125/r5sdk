@@ -30,7 +30,7 @@
 _CGameConsole_f_CompletionFunc
 =====================
 */
-void _CGameConsole_f_CompletionFunc(const CCommand& cmd)
+void _CGameConsole_f_CompletionFunc(const CCommand& args)
 {
 	g_pIConsole->m_bActivate = !g_pIConsole->m_bActivate;
 }
@@ -51,26 +51,22 @@ void _CCompanion_f_CompletionFunc(const CCommand& cmd)
 _Kick_f_CompletionFunc
 =====================
 */
-void _Kick_f_CompletionFunc(CCommand* cmd)
+void _Kick_f_CompletionFunc(const CCommand& args)
 {
-	std::int32_t argSize = *(std::int32_t*)((std::uintptr_t)cmd + 0x4);
-	if (argSize < 2) // Do we atleast have 2 arguments?
+	if (args.ArgC() < 2)
 	{
 		return;
 	}
 
-	CCommand& args = *cmd; // Get reference.
-	const char* firstArg = args[1]; // Get first arg.
-
-	for (int i = 0; i < MAX_PLAYERS; i++) // Loop through all possible client instances.
+	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
-		CClient* client = g_pClient->GetClientInstance(i); // Get client instance.
+		CClient* client = g_pClient->GetClientInstance(i);
 		if (!client)
 		{
 			continue;
 		}
 
-		if (!client->GetNetChan()) // Netchan valid?
+		if (!client->GetNetChan())
 		{
 			continue;
 		}
@@ -78,17 +74,17 @@ void _Kick_f_CompletionFunc(CCommand* cmd)
 		void* clientNamePtr = (void**)(((std::uintptr_t)client->GetNetChan()) + 0x1A8D); // Get client name from netchan.
 		std::string clientName((char*)clientNamePtr, 32); // Get full name.
 
-		if (clientName.empty()) // Empty name?
+		if (clientName.empty())
 		{
 			continue;
 		}
 
-		if (strcmp(firstArg, clientName.c_str()) != 0) // Our wanted name?
+		if (strcmp(args.Arg(1), clientName.c_str()) != 0) // Our wanted name?
 		{
 			continue;
 		}
 
-		NET_DisconnectClient(client, i, "Kicked from Server", 0, 1); // Disconnect client.
+		NET_DisconnectClient(client, i, "Kicked from Server", 0, 1);
 	}
 }
 
@@ -97,7 +93,7 @@ void _Kick_f_CompletionFunc(CCommand* cmd)
 _KickID_f_CompletionFunc
 =====================
 */
-void _KickID_f_CompletionFunc(CCommand* cmd)
+void _KickID_f_CompletionFunc(const CCommand& args)
 {
 	static auto HasOnlyDigits = [](const std::string& string)
 	{
@@ -111,27 +107,23 @@ void _KickID_f_CompletionFunc(CCommand* cmd)
 		return true;
 	};
 
-	std::int32_t argSize = *(std::int32_t*)((std::uintptr_t)cmd + 0x4);
-	if (argSize < 2) // Do we atleast have 2 arguments?
+	if (args.ArgC() < 2) // Do we atleast have 2 arguments?
 	{
 		return;
 	}
 
-	CCommand& args = *cmd; // Get reference.
-	std::string firstArg = args[1]; // Get first arg.
-
 	try
 	{
-		bool onlyDigits = HasOnlyDigits(firstArg); // Only has digits?
-		for (int i = 0; i < MAX_PLAYERS; i++) // Loop through all possible client instances.
+		bool onlyDigits = HasOnlyDigits(args.Arg(1));
+		for (int i = 0; i < MAX_PLAYERS; i++)
 		{
-			CClient* client = g_pClient->GetClientInstance(i); // Get client instance.
+			CClient* client = g_pClient->GetClientInstance(i);
 			if (!client)
 			{
 				continue;
 			}
 
-			if (!client->GetNetChan()) // Netchan valid?
+			if (!client->GetNetChan())
 			{
 				continue;
 			}
@@ -151,11 +143,11 @@ void _KickID_f_CompletionFunc(CCommand* cmd)
 
 			if (onlyDigits)
 			{
-				std::int64_t ID = static_cast<std::int64_t>(std::stoll(firstArg));
+				std::int64_t ID = static_cast<std::int64_t>(std::stoll(args.Arg(1)));
 				if (ID > MAX_PLAYERS) // Is it a possible originID?
 				{
 					std::int64_t originID = client->m_iOriginID;
-					if (originID != ID) // See if they match.
+					if (originID != ID)
 					{
 						continue;
 					}
@@ -163,22 +155,22 @@ void _KickID_f_CompletionFunc(CCommand* cmd)
 				else // If its not try by userID.
 				{
 					std::int64_t clientID = static_cast<std::int64_t>(client->m_iUserID + 1); // Get UserID + 1.
-					if (clientID != ID) // See if they match.
+					if (clientID != ID)
 					{
 						continue;
 					}
 				}
 
-				NET_DisconnectClient(client, i, "Kicked from Server", 0, 1); // Disconnect client.
+				NET_DisconnectClient(client, i, "Kicked from Server", 0, 1);
 			}
 			else
 			{
-				if (firstArg.compare(finalIpAddress) != NULL) // Do the string equal?
+				if (std::string(args.Arg(1)).compare(finalIpAddress) != NULL)
 				{
 					continue;
 				}
 
-				NET_DisconnectClient(client, i, "Kicked from Server", 0, 1); // Disconnect client.
+				NET_DisconnectClient(client, i, "Kicked from Server", 0, 1);
 			}
 		}
 	}
@@ -194,39 +186,35 @@ void _KickID_f_CompletionFunc(CCommand* cmd)
 _Ban_f_CompletionFunc
 =====================
 */
-void _Ban_f_CompletionFunc(CCommand* cmd)
+void _Ban_f_CompletionFunc(const CCommand& args)
 {
-	std::int32_t argSize = *(std::int32_t*)((std::uintptr_t)cmd + 0x4);
-	if (argSize < 2) // Do we atleast have 2 arguments?
+	if (args.ArgC() < 2)
 	{
 		return;
 	}
 
-	CCommand& args = *cmd; // Get reference.
-	const char* firstArg = args[1]; // Get first arg.
-
-	for (int i = 0; i < MAX_PLAYERS; i++) // Loop through all possible client instances.
+	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
-		CClient* client = g_pClient->GetClientInstance(i); // Get client instance.
+		CClient* client = g_pClient->GetClientInstance(i);
 		if (!client)
 		{
 			continue;
 		}
 
-		if (!client->GetNetChan()) // Netchan valid?
+		if (!client->GetNetChan())
 		{
 			continue;
 		}
 
-		void* clientNamePtr = (void**)(((std::uintptr_t)client->GetNetChan()) + 0x1A8D); // Get client name from netchan.
-		std::string clientName((char*)clientNamePtr, 32); // Get full name.
+		void* pClientName = (void**)(((std::uintptr_t)client->GetNetChan()) + 0x1A8D); // Get client name from netchan.
+		std::string svClientName((char*)pClientName, 32); // Get full name.
 
-		if (clientName.empty()) // Empty name?
+		if (svClientName.empty())
 		{
 			continue;
 		}
 
-		if (strcmp(firstArg, clientName.c_str()) != 0) // Our wanted name?
+		if (strcmp(args.Arg(1), svClientName.c_str()) != 0)
 		{
 			continue;
 		}
@@ -244,9 +232,9 @@ void _Ban_f_CompletionFunc(CCommand* cmd)
 			finalIpAddress = ss.str();
 		}
 
-		g_pBanSystem->AddEntry(finalIpAddress, client->m_iOriginID); // Add ban entry.
-		g_pBanSystem->Save(); // Save ban list.
-		NET_DisconnectClient(client, i, "Banned from Server", 0, 1); // Disconnect client.
+		g_pBanSystem->AddEntry(finalIpAddress, client->m_iOriginID);
+		g_pBanSystem->Save();
+		NET_DisconnectClient(client, i, "Banned from Server", 0, 1);
 	}
 }
 
@@ -255,7 +243,7 @@ void _Ban_f_CompletionFunc(CCommand* cmd)
 _BanID_f_CompletionFunc
 =====================
 */
-void _BanID_f_CompletionFunc(CCommand* cmd)
+void _BanID_f_CompletionFunc(const CCommand& args)
 {
 	static auto HasOnlyDigits = [](const std::string& string)
 	{
@@ -269,27 +257,23 @@ void _BanID_f_CompletionFunc(CCommand* cmd)
 		return true;
 	};
 
-	std::int32_t argSize = *(std::int32_t*)((std::uintptr_t)cmd + 0x4);
-	if (argSize < 2) // Do we atleast have 2 arguments?
+	if (args.ArgC() < 2)
 	{
 		return;
 	}
 
-	CCommand& args = *cmd; // Get reference.
-	std::string firstArg = args[1];
-
 	try
 	{
-		bool onlyDigits = HasOnlyDigits(firstArg); // Only has digits?
-		for (int i = 0; i < MAX_PLAYERS; i++) // Loop through all possible client instances.
+		bool onlyDigits = HasOnlyDigits(args.Arg(1));
+		for (int i = 0; i < MAX_PLAYERS; i++)
 		{
-			CClient* client = g_pClient->GetClientInstance(i); // Get client instance.
+			CClient* client = g_pClient->GetClientInstance(i);
 			if (!client)
 			{
 				continue;
 			}
 
-			if (!client->GetNetChan()) // Netchan valid?
+			if (!client->GetNetChan())
 			{
 				continue;
 			}
@@ -309,11 +293,11 @@ void _BanID_f_CompletionFunc(CCommand* cmd)
 
 			if (onlyDigits)
 			{
-				std::int64_t ID = static_cast<std::int64_t>(std::stoll(firstArg));
+				std::int64_t ID = static_cast<std::int64_t>(std::stoll(args.Arg(1)));
 				if (ID > MAX_PLAYERS) // Is it a possible originID?
 				{
 					std::int64_t originID = client->m_iOriginID;
-					if (originID != ID) // See if they match.
+					if (originID != ID)
 					{
 						continue;
 					}
@@ -321,26 +305,26 @@ void _BanID_f_CompletionFunc(CCommand* cmd)
 				else // If its not try by userID.
 				{
 					std::int64_t clientID = static_cast<std::int64_t>(client->m_iUserID + 1); // Get UserID + 1.
-					if (clientID != ID) // See if they match.
+					if (clientID != ID)
 					{
 						continue;
 					}
 				}
 
-				g_pBanSystem->AddEntry(finalIpAddress, client->m_iOriginID); // Add ban entry.
-				g_pBanSystem->Save(); // Save ban list.
-				NET_DisconnectClient(client, i, "Banned from Server", 0, 1); // Disconnect client.
+				g_pBanSystem->AddEntry(finalIpAddress, client->m_iOriginID);
+				g_pBanSystem->Save();
+				NET_DisconnectClient(client, i, "Banned from Server", 0, 1);
 			}
 			else
 			{
-				if (firstArg.compare(finalIpAddress) != NULL) // Do the string equal?
+				if (std::string(args.Arg(1)).compare(finalIpAddress) != NULL)
 				{
 					continue;
 				}
 
-				g_pBanSystem->AddEntry(finalIpAddress, client->m_iOriginID); // Add ban entry.
-				g_pBanSystem->Save(); // Save ban list.
-				NET_DisconnectClient(client, i, "Banned from Server", 0, 1); // Disconnect client.
+				g_pBanSystem->AddEntry(finalIpAddress, client->m_iOriginID);
+				g_pBanSystem->Save();
+				NET_DisconnectClient(client, i, "Banned from Server", 0, 1);
 			}
 		}
 	}
@@ -356,7 +340,7 @@ void _BanID_f_CompletionFunc(CCommand* cmd)
 _Unban_f_CompletionFunc
 =====================
 */
-void _Unban_f_CompletionFunc(CCommand* cmd)
+void _Unban_f_CompletionFunc(const CCommand& args)
 {
 	static auto HasOnlyDigits = [](const std::string& string)
 	{
@@ -370,25 +354,21 @@ void _Unban_f_CompletionFunc(CCommand* cmd)
 		return true;
 	};
 
-	std::int32_t argSize = *(std::int32_t*)((std::uintptr_t)cmd + 0x4);
-	if (argSize < 2) // Do we atleast have 2 arguments?
+	if (args.ArgC() < 2)
 	{
 		return;
 	}
 
-	CCommand& args = *cmd; // Get reference.
-
 	try
 	{
-		const char* firstArg = args[1];
-		if (HasOnlyDigits(firstArg)) // Check if we have an ip address or origin ID.
+		if (HasOnlyDigits(args.Arg(1))) // Check if we have an ip address or origin ID.
 		{
-			g_pBanSystem->DeleteEntry("noIP", std::stoll(firstArg)); // Delete ban entry.
+			g_pBanSystem->DeleteEntry("noIP", std::stoll(args.Arg(1))); // Delete ban entry.
 			g_pBanSystem->Save(); // Save modified vector to file.
 		}
 		else
 		{
-			g_pBanSystem->DeleteEntry(firstArg, 1); // Delete ban entry.
+			g_pBanSystem->DeleteEntry(args.Arg(1), 1); // Delete ban entry.
 			g_pBanSystem->Save(); // Save modified vector to file.
 		}
 	}
@@ -404,7 +384,7 @@ void _Unban_f_CompletionFunc(CCommand* cmd)
 _ReloadBanList_f_CompletionFunc
 =====================
 */
-void _ReloadBanList_f_CompletionFunc(CCommand* cmd)
+void _ReloadBanList_f_CompletionFunc(const CCommand& args)
 {
 	g_pBanSystem->Load(); // Reload banlist.
 }
@@ -414,18 +394,14 @@ void _ReloadBanList_f_CompletionFunc(CCommand* cmd)
 _RTech_StringToGUID_f_CompletionFunc
 =====================
 */
-void _RTech_StringToGUID_f_CompletionFunc(CCommand* cmd)
+void _RTech_StringToGUID_f_CompletionFunc(const CCommand& args)
 {
-	std::int32_t argSize = *(std::int32_t*)((std::uintptr_t)cmd + 0x4);
-
-	if (argSize < 2) // Do we atleast have 2 arguments?
+	if (args.ArgC() < 2)
 	{
 		return;
 	}
 
-	CCommand& args = *cmd; // Get reference.
-	const char* firstArg = args[1]; // Get first arg.
-	unsigned long long guid = g_pRtech->StringToGuid(firstArg);
+	unsigned long long guid = g_pRtech->StringToGuid(args.Arg(1));
 
 	DevMsg(eDLL_T::RTECH, "______________________________________________________________\n");
 	DevMsg(eDLL_T::RTECH, "] RTECH_HASH -------------------------------------------------\n");
@@ -437,12 +413,9 @@ void _RTech_StringToGUID_f_CompletionFunc(CCommand* cmd)
 _RTech_AsyncLoad_f_CompletionFunc
 =====================
 */
-void _RTech_AsyncLoad_f_CompletionFunc(CCommand* cmd)
+void _RTech_AsyncLoad_f_CompletionFunc(const CCommand& args)
 {
-	CCommand& args = *cmd; // Get reference.
-	std::string firstArg = args[1]; // Get first arg.
-
-	HRtech_AsyncLoad(firstArg);
+	HRtech_AsyncLoad(args.Arg(1));
 }
 
 /*
@@ -453,24 +426,18 @@ _RTech_Decompress_f_CompletionFunc
   dumps results to 'paks\Win32\*.rpak'
 =====================
 */
-void _RTech_Decompress_f_CompletionFunc(CCommand* cmd)
+void _RTech_Decompress_f_CompletionFunc(const CCommand& args)
 {
-	std::int32_t argSize = *(std::int32_t*)((std::uintptr_t)cmd + 0x4);
-
-	if (argSize < 2) // Do we atleast have 2 arguments?
+	if (args.ArgC() < 2)
 	{
 		return;
 	}
 
-	CCommand& args = *cmd; // Get reference.
-	std::string firstArg  = args[1]; // Get first arg.
-	std::string secondArg = args[2]; // Get second arg.
-
 	const std::string modDir = "paks\\Win32\\";
 	const std::string baseDir = "paks\\Win64\\";
 
-	std::string pakNameOut = modDir + firstArg + ".rpak";
-	std::string pakNameIn = baseDir + firstArg + ".rpak";
+	std::string pakNameOut = modDir + args.Arg(1) + ".rpak";
+	std::string pakNameIn = baseDir + args.Arg(1) + ".rpak";
 
 	CreateDirectories(pakNameOut);
 
@@ -550,8 +517,8 @@ void _RTech_Decompress_f_CompletionFunc(CCommand* cmd)
 		return;
 	}
 
-	rheader->m_nFlags[1] = 0x0; // Set compressed flag to false for the decompressed pak file
-	rheader->m_nSizeDisk = rheader->m_nSizeMemory; // Equal compressed size with decompressed
+	rheader->m_nFlags[1] = 0x0; // Set compressed flag to false for the decompressed pak file.
+	rheader->m_nSizeDisk = rheader->m_nSizeMemory; // Equal compressed size with decompressed.
 
 	std::ofstream outBlock(pakNameOut, std::fstream::binary);
 
@@ -586,7 +553,7 @@ _NET_TraceNetChan_f_CompletionFunc
   File: '<mod\logs\net_trace.log>'.
 =====================
 */
-void _NET_TraceNetChan_f_CompletionFunc(CCommand* cmd)
+void _NET_TraceNetChan_f_CompletionFunc(const CCommand& args)
 {
 	static bool bTraceNetChannel = false;
 	if (!bTraceNetChannel)
@@ -598,15 +565,15 @@ void _NET_TraceNetChan_f_CompletionFunc(CCommand* cmd)
 		DevMsg(eDLL_T::ENGINE, "+--------------------------------------------------------+\n");
 		DevMsg(eDLL_T::ENGINE, "\n");
 
-		// Begin the detour transaction to hook the the process
+		// Begin the detour transaction to hook the the process.
 		DetourTransactionBegin();
 		DetourUpdateThread(GetCurrentThread());
 
 		CNetChan_Trace_Attach();
-		// Commit the transaction
+		// Commit the transaction.
 		if (DetourTransactionCommit() != NO_ERROR)
 		{
-			// Failed to hook into the process, terminate
+			// Failed to hook into the process, terminate.
 			TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
 		}
 	}
@@ -618,13 +585,13 @@ void _NET_TraceNetChan_f_CompletionFunc(CCommand* cmd)
 		DevMsg(eDLL_T::ENGINE, "+--------------------------------------------------------+\n");
 		DevMsg(eDLL_T::ENGINE, "\n");
 
-		// Begin the detour transaction to hook the the process
+		// Begin the detour transaction to hook the the process.
 		DetourTransactionBegin();
 		DetourUpdateThread(GetCurrentThread());
 
 		CNetChan_Trace_Detach();
 
-		// Commit the transaction
+		// Commit the transaction.
 		DetourTransactionCommit();
 	}
 	bTraceNetChannel = !bTraceNetChannel;
@@ -638,26 +605,20 @@ _VPK_Decompress_f_CompletionFunc
   dumps the output to '<mod>\vpk'.
 =====================
 */
-void _VPK_Decompress_f_CompletionFunc(CCommand* cmd)
+void _VPK_Decompress_f_CompletionFunc(const CCommand& args)
 {
-	std::int32_t argSize = *(std::int32_t*)((std::uintptr_t)cmd + 0x4);
-
-	if (argSize < 2) // Do we atleast have 2 arguments?
+	if (args.ArgC() < 2)
 	{
 		return;
 	}
-
-	CCommand& args = *cmd; // Get reference.
-	std::string firstArg = args[1]; // Get first arg.
 	std::string szPathOut = "platform\\vpk";
-
 	std::chrono::milliseconds msStart = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 
 	DevMsg(eDLL_T::FS, "______________________________________________________________\n");
 	DevMsg(eDLL_T::FS, "] FS_DECOMPRESS ----------------------------------------------\n");
-	DevMsg(eDLL_T::FS, "] Processing: '%s'\n", firstArg.c_str());
+	DevMsg(eDLL_T::FS, "] Processing: '%s'\n", args.Arg(1));
 
-	vpk_dir_h vpk = g_pPackedStore->GetPackDirFile(firstArg);
+	vpk_dir_h vpk = g_pPackedStore->GetPackDirFile(args.Arg(1));
 	g_pPackedStore->InitLzDecompParams();
 
 	std::thread th([&] { g_pPackedStore->UnpackAll(vpk, szPathOut); });
@@ -680,19 +641,14 @@ _NET_SetKey_f_CompletionFunc
   Sets the input netchannel encryption key
 =====================
 */
-void _NET_SetKey_f_CompletionFunc(CCommand* cmd)
+void _NET_SetKey_f_CompletionFunc(const CCommand& args)
 {
-	std::int32_t argSize = *(std::int32_t*)((std::uintptr_t)cmd + 0x4);
-
-	if (argSize < 2) // Do we atleast have 2 arguments?
+	if (args.ArgC() < 2) // Do we atleast have 2 arguments?
 	{
 		return;
 	}
 
-	CCommand& args = *cmd; // Get reference.
-	std::string firstArg = args[1]; // Get first arg.
-
-	HNET_SetKey(firstArg);
+	HNET_SetKey(args.Arg(1));
 }
 
 /*
@@ -702,7 +658,7 @@ _NET_GenerateKey_f_CompletionFunc
   Sets a random netchannel encryption key
 =====================
 */
-void _NET_GenerateKey_f_CompletionFunc(CCommand* cmd)
+void _NET_GenerateKey_f_CompletionFunc(const CCommand& args)
 {
 	HNET_GenerateKey();
 }
@@ -715,12 +671,9 @@ _RCON_CmdQuery_f_CompletionFunc
   RCON server.
 =====================
 */
-void _RCON_CmdQuery_f_CompletionFunc(CCommand* cmd)
+void _RCON_CmdQuery_f_CompletionFunc(const CCommand& args)
 {
-	std::int32_t argSize = *(std::int32_t*)((std::uintptr_t)cmd + 0x4);
-	CCommand& args = *cmd; // Get reference.
-
-	switch (argSize)
+	switch (args.ArgC())
 	{
 		case 0:
 		case 1:
@@ -742,19 +695,19 @@ void _RCON_CmdQuery_f_CompletionFunc(CCommand* cmd)
 			}
 			else if (g_pRConClient->IsConnected())
 			{
-				if (strcmp(args[1], "PASS") == 0) // Auth with RCON server using rcon_password ConVar value.
+				if (strcmp(args.Arg(1), "PASS") == 0) // Auth with RCON server using rcon_password ConVar value.
 				{
-					std::string svCmdQuery = g_pRConClient->Serialize(args[1], rcon_password->GetString(), cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+					std::string svCmdQuery = g_pRConClient->Serialize(args.Arg(1), rcon_password->GetString(), cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
 					g_pRConClient->Send(svCmdQuery);
 					break;
 				}
-				else if (strcmp(args[1], "disconnect") == 0) // Disconnect from RCON server.
+				else if (strcmp(args.Arg(1), "disconnect") == 0) // Disconnect from RCON server.
 				{
 					g_pRConClient->Disconnect();
 					break;
 				}
 
-				std::string svCmdQuery = g_pRConClient->Serialize(args[1], "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+				std::string svCmdQuery = g_pRConClient->Serialize(args.Arg(1), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
 				g_pRConClient->Send(svCmdQuery);
 				break;
 			}
@@ -769,14 +722,14 @@ void _RCON_CmdQuery_f_CompletionFunc(CCommand* cmd)
 		{
 			if (g_pRConClient->IsConnected())
 			{
-				if (strcmp(args[1], "PASS") == 0) // Auth with RCON server.
+				if (strcmp(args.Arg(1), "PASS") == 0) // Auth with RCON server.
 				{
-					std::string svCmdQuery = g_pRConClient->Serialize(args[1], args[2], cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+					std::string svCmdQuery = g_pRConClient->Serialize(args.Arg(1), args.Arg(2), cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
 					g_pRConClient->Send(svCmdQuery);
 					break;
 				}
 
-				std::string svCmdQuery = g_pRConClient->Serialize(args[1], args[2], cl_rcon::request_t::SERVERDATA_REQUEST_SETVALUE);
+				std::string svCmdQuery = g_pRConClient->Serialize(args.Arg(1), args.Arg(2), cl_rcon::request_t::SERVERDATA_REQUEST_SETVALUE);
 				g_pRConClient->Send(svCmdQuery);
 				break;
 			}
@@ -797,7 +750,7 @@ _RCON_CmdQuery_f_CompletionFunc
   Disconnect from RCON server
 =====================
 */
-void _RCON_Disconnect_f_CompletionFunc(CCommand* cmd)
+void _RCON_Disconnect_f_CompletionFunc(const CCommand& args)
 {
 	if (g_pRConClient->IsConnected())
 	{

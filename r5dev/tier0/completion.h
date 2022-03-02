@@ -20,22 +20,22 @@ namespace
 void _CGameConsole_f_CompletionFunc(const CCommand& cmd);
 void _CCompanion_f_CompletionFunc(const CCommand& cmd);
 #endif // !DEDICATED
-void _Kick_f_CompletionFunc(CCommand* cmd);
-void _KickID_f_CompletionFunc(CCommand* cmd);
-void _Ban_f_CompletionFunc(CCommand* cmd);
-void _BanID_f_CompletionFunc(CCommand* cmd);
-void _Unban_f_CompletionFunc(CCommand* cmd);
-void _ReloadBanList_f_CompletionFunc(CCommand* cmd);
-void _RTech_StringToGUID_f_CompletionFunc(CCommand* cmd);
-void _RTech_AsyncLoad_f_CompletionFunc(CCommand* cmd);
-void _RTech_Decompress_f_CompletionFunc(CCommand* cmd);
-void _VPK_Decompress_f_CompletionFunc(CCommand* cmd);
-void _NET_TraceNetChan_f_CompletionFunc(CCommand* cmd);
-void _NET_SetKey_f_CompletionFunc(CCommand* cmd);
-void _NET_GenerateKey_f_CompletionFunc(CCommand* cmd);
+void _Kick_f_CompletionFunc(const CCommand& args);
+void _KickID_f_CompletionFunc(const CCommand& args);
+void _Ban_f_CompletionFunc(const CCommand& args);
+void _BanID_f_CompletionFunc(const CCommand& args);
+void _Unban_f_CompletionFunc(const CCommand& args);
+void _ReloadBanList_f_CompletionFunc(const CCommand& args);
+void _RTech_StringToGUID_f_CompletionFunc(const CCommand& args);
+void _RTech_AsyncLoad_f_CompletionFunc(const CCommand& args);
+void _RTech_Decompress_f_CompletionFunc(const CCommand& args);
+void _VPK_Decompress_f_CompletionFunc(const CCommand& args);
+void _NET_TraceNetChan_f_CompletionFunc(const CCommand& args);
+void _NET_SetKey_f_CompletionFunc(const CCommand& args);
+void _NET_GenerateKey_f_CompletionFunc(const CCommand& args);
 #ifndef DEDICATED
-void _RCON_CmdQuery_f_CompletionFunc(CCommand* cmd);
-void _RCON_Disconnect_f_CompletionFunc(CCommand* cmd);
+void _RCON_CmdQuery_f_CompletionFunc(const CCommand& args);
+void _RCON_Disconnect_f_CompletionFunc(const CCommand& args);
 #endif // !DEDICATED
 
 ///////////////////////////////////////////////////////////////////////////////
