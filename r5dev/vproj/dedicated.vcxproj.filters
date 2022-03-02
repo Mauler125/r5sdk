@@ -783,6 +783,9 @@
     <ClInclude Include="..\public\include\globalvars_base.h">
       <Filter>sdk\public\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\engine\gl_matsysiface.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\IVEngineClient.cpp">

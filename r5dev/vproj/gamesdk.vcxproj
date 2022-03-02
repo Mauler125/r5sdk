@@ -56,6 +56,7 @@
     <ClCompile Include="..\game\server\gameinterface.cpp" />
     <ClCompile Include="..\inputsystem\inputsystem.cpp" />
     <ClCompile Include="..\launcher\IApplication.cpp" />
+    <ClCompile Include="..\materialsystem\materialsystem.cpp" />
     <ClCompile Include="..\mathlib\adler32.cpp" />
     <ClCompile Include="..\mathlib\bits.cpp" />
     <ClCompile Include="..\mathlib\crc32.cpp" />
@@ -131,6 +132,7 @@
     <ClInclude Include="..\engine\cmodel_bsp.h" />
     <ClInclude Include="..\engine\common.h" />
     <ClInclude Include="..\engine\debugoverlay.h" />
+    <ClInclude Include="..\engine\gl_matsysiface.h" />
     <ClInclude Include="..\engine\gl_screen.h" />
     <ClInclude Include="..\engine\host_cmd.h" />
     <ClInclude Include="..\engine\host_state.h" />

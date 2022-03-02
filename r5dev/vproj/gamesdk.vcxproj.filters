@@ -390,6 +390,9 @@
     <ClCompile Include="..\engine\modelloader.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
+    <ClCompile Include="..\materialsystem\materialsystem.cpp">
+      <Filter>sdk\materialsystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1123,6 +1126,9 @@
     </ClInclude>
     <ClInclude Include="..\public\include\globalvars_base.h">
       <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\gl_matsysiface.h">
+      <Filter>sdk\engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

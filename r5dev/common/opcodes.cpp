@@ -9,6 +9,7 @@
 #include "engine/cmodel_bsp.h"
 #include "engine/host_cmd.h"
 #include "engine/gl_screen.h"
+#include "engine/gl_matsysiface.h"
 #include "engine/modelloader.h"
 #include "engine/cl_main.h"
 #include "engine/sv_main.h"

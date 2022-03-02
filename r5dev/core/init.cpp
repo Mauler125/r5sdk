@@ -58,8 +58,9 @@
 #include "engine/sys_engine.h"
 #include "engine/sys_utils.h"
 #include "engine/sys_getmodes.h"
-#ifndef DEDICATED
+#include "engine/gl_matsysiface.h"
 #include "engine/gl_screen.h"
+#ifndef DEDICATED
 #include "engine/debugoverlay.h"
 #endif // !DEDICATED
 #include "game/server/ai_node.h"
@@ -106,6 +107,10 @@ void Systems_Init()
 #endif // DEDICATED
 	CBaseClient_Attach();
 	CBaseFileSystem_Attach();
+
+#ifndef DEDICATED
+	CMaterialSystem_Attach();
+#endif // !DEDICATED
 
 	QHull_Attach();
 	//BspLib_Attach();
@@ -191,6 +196,10 @@ void Systems_Shutdown()
 #endif // DEDICATED
 	CBaseClient_Detach();
 	CBaseFileSystem_Detach();
+
+#ifndef DEDICATED
+	CMaterialSystem_Detach();
+#endif // !DEDICATED
 
 	QHull_Detach();
 	//BspLib_Detach();

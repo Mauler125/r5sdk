@@ -12,21 +12,15 @@
 #include "engine/cmodel_bsp.h"
 #include "rtech/rtech_game.h"
 
-int g_nLoadedPakFileId[256]{};
-
 //-----------------------------------------------------------------------------
-// Purpose: loads required assets for specified level
-// Todo   : STBSP and VPK loading
-// Todo   : Unload all assets loaded by this functions using 'nPakId'
+// Purpose: loads required pakfile assets for specified BSP
 //-----------------------------------------------------------------------------
-void MOD_LoadDependencies(eBspRes_t resourceType)
+void MOD_PreloadPak(void)
 {
 	std::ostringstream ostream;
-	ostream << "platform\\scripts\\levels\\" << g_pHostState->m_levelName << ".json";
+	ostream << "platform\\scripts\\levels\\settings\\" << g_pHostState->m_levelName << ".json";
 
 	std::filesystem::path fsPath = std::filesystem::current_path() /= ostream.str();
-	DevMsg(eDLL_T::ENGINE, "Loading level prerequisites file: '%s'\n", fsPath.string().c_str());
-
 	if (FileExists(fsPath.string().c_str()))
 	{
 		nlohmann::json jsIn;
@@ -36,47 +30,36 @@ void MOD_LoadDependencies(eBspRes_t resourceType)
 			iPakLoadDefFile >> jsIn;
 			iPakLoadDefFile.close();
 
-			switch (resourceType)
+			if (!jsIn.is_null())
 			{
-			case eBspRes_t::RES_RPAK:
-			{
-				if (!jsIn.is_null())
+				if (!jsIn["rpak"].is_null())
 				{
-					if (!jsIn["rpak"].is_null())
+					int iPakIdx{};
+					for (auto it = jsIn["rpak"].begin(); it != jsIn["rpak"].end(); ++it)
 					{
-						int iPakIdx{};
-						for (auto it = jsIn["rpak"].begin(); it != jsIn["rpak"].end(); ++it)
+						if (it.value().is_string())
 						{
-							if (it.value().is_string())
-							{
-								std::string svToLoad = it.value().get<std::string>() + ".rpak";
-								unsigned int nPakId = 0;
-								nPakId = RTech_AsyncLoad((void*)svToLoad.c_str(), g_pMallocPool.GetPtr(), 4, 0);
+							std::string svToLoad = it.value().get<std::string>() + ".rpak";
+							unsigned int nPakId = 0;
+							nPakId = RTech_AsyncLoad((void*)svToLoad.c_str(), g_pMallocPool.GetPtr(), 4, 0);
 
-								if (nPakId == -1)
-								{
-									DevMsg(eDLL_T::RTECH, "RTech AsyncLoad failed read '%s' results '%u'\n", fsPath.string().c_str(), nPakId);
-								}
-								else
-								{
-									g_nLoadedPakFileId[iPakIdx] = nPakId;
-									iPakIdx++;
-								}
+							if (nPakId == -1)
+							{
+								DevMsg(eDLL_T::RTECH, "RTech_AsyncLoad: failed read '%s' results '%u'\n", fsPath.string().c_str(), nPakId);
+							}
+							else
+							{
+								g_nLoadedPakFileId[iPakIdx] = nPakId;
+								iPakIdx++;
 							}
 						}
 					}
 				}
-				break;
-			}
-			default:
-			{
-				break;
-			}
 			}
 		}
 		catch (const std::exception& ex)
 		{
-			DevMsg(eDLL_T::ENGINE, "Error parsing level prerequisites file: '%s'\n", fsPath.string().c_str(), ex.what());
+			DevMsg(eDLL_T::RTECH, "Exception while parsing RPak load list: '%s'\n", ex.what());
 			return;
 		}
 	}

@@ -1,7 +1,13 @@
+//=============================================================================//
+//
+// Purpose: RTech game utilities
+//
+//=============================================================================//
 #include "core/stdafx.h"
 #include "engine/host_cmd.h"
 #include "engine/sys_utils.h"
 #include "rtech/rtech_game.h"
+int g_nLoadedPakFileId[256]{};
 
 //-----------------------------------------------------------------------------
 // Purpose: unloads asset files from the memory pool
@@ -39,12 +45,12 @@ void HRtech_AsyncLoad(std::string svPakFileName)
 
 		if (nPakId == 0xFFFFFFFF)
 		{
-			DevMsg(eDLL_T::RTECH, "RTech AsyncLoad failed read '%s' results '%u'\n", svPakFileName.c_str(), nPakId);
+			DevMsg(eDLL_T::RTECH, "RTech_AsyncLoad: Failed read '%s' results '%u'\n", svPakFileName.c_str(), nPakId);
 		}
 	}
 	else
 	{
-		DevMsg(eDLL_T::RTECH, "RTech AsyncLoad failed. File '%s' doesn't exist\n", svPakFileName.c_str());
+		DevMsg(eDLL_T::RTECH, "RTech_AsyncLoad: Failed. File '%s' doesn't exist\n", svPakFileName.c_str());
 	}
 }
 
