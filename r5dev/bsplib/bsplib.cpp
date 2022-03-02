@@ -226,7 +226,7 @@ __int64 __fastcall HCalcPropStaticFrustumCulling(__int64 a1, __int64 a2, unsigne
                         * 0.5)
                         * *(float*)&v11)
                     * g_pCVar->FindVar("model_defaultFadeDistScale")->GetFloat(),
-                    g_pCVar->FindVar("model_defaultFadeDistScale")->GetFloat());
+                    g_pCVar->FindVar("model_defaultFadeDistMin")->GetFloat());
             else
                 v41 = v43 * *(float*)&v11;
         }
