@@ -4,6 +4,7 @@
 #define WIN32_LEAN_AND_MEAN // Prevent winsock2 redefinition.
 #include <windows.h>
 #include <WinSock2.h>
+#include <comdef.h>
 
 #include <stdio.h>
 #include <Psapi.h>

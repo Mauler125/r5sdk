@@ -35,13 +35,18 @@ MODULEINFO GetModuleInfo(const char* szModule)
 {
     MODULEINFO modinfo = { 0 };
 
-    HMODULE hModule = GetModuleHandle(szModule);
+    wchar_t szWtext[256]{};
+    mbstowcs(szWtext, szModule, strlen(szModule) + 1);
+
+    HMODULE hModule = GetModuleHandle(szWtext);
     if (hModule == INVALID_HANDLE_VALUE)
     {
         return modinfo;
     }
-
-    GetModuleInformation(GetCurrentProcess(), hModule, &modinfo, sizeof(MODULEINFO));
+    if (hModule)
+    {
+        GetModuleInformation(GetCurrentProcess(), hModule, &modinfo, sizeof(MODULEINFO));
+    }
     return modinfo;
 }
 
@@ -129,8 +134,11 @@ void DbgPrint(LPCSTR sFormat, ...)
     int length = vsnprintf(sBuffer, sizeof(sBuffer), sFormat, sArgs);
     va_end(sArgs);
 
+    wchar_t szWtext[512]{}; // Convert to LPCWSTR.
+    mbstowcs(szWtext, sBuffer, strlen(sBuffer) + 1);
+
     // Output the string to the debugger.
-    OutputDebugString(sBuffer);
+    OutputDebugString(szWtext);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

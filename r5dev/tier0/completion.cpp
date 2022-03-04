@@ -643,7 +643,7 @@ _NET_SetKey_f_CompletionFunc
 */
 void _NET_SetKey_f_CompletionFunc(const CCommand& args)
 {
-	if (args.ArgC() < 2) // Do we atleast have 2 arguments?
+	if (args.ArgC() < 2)
 	{
 		return;
 	}

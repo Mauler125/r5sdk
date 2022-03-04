@@ -3,14 +3,14 @@
 #include "networksystem/serverlisting.h"
 #include "networksystem/r5net.h"
 
-enum class ESection
+enum class eSection
 {
     SERVER_BROWSER,
     HOST_SERVER,
     SETTINGS
 };
 
-enum class EHostStatus
+enum class eHostStatus
 {
     NOT_HOSTING,
     HOSTING
@@ -33,40 +33,40 @@ public:
     //   Enum Vars    //
     ////////////////////
 
-    ESection eCurrentSection = ESection::SERVER_BROWSER;
-    EHostStatus eHostingStatus = EHostStatus::NOT_HOSTING;
+    eSection eCurrentSection = eSection::SERVER_BROWSER;
+    eHostStatus eHostingStatus = eHostStatus::NOT_HOSTING;
     EServerVisibility eServerVisibility = EServerVisibility::OFFLINE;
 public:
     ////////////////////
     //     Funcs      //
     ////////////////////
-    IBrowser();
-    ~IBrowser();
+    IBrowser(void);
+    ~IBrowser(void);
 
-    void Draw(const char* title, bool* bDraw);
-    void CompMenu();
+    void Draw(const char* pszTitle, bool* bDraw);
+    void CompMenu(void);
 
-    void ServerBrowserSection();
-    void RefreshServerList();
-    void GetServerList();
+    void ServerBrowserSection(void);
+    void RefreshServerList(void);
+    void GetServerList(void);
 
-    void ConnectToServer(const std::string& ip, const std::string& port, const std::string& encKey);
-    void ConnectToServer(const std::string& connString, const std::string& encKey);
+    void ConnectToServer(const std::string& svIp, const std::string& svPort, const std::string& svNetKey);
+    void ConnectToServer(const std::string& svServer, const std::string& svNetKey);
 
-    void HiddenServersModal();
-    void HostServerSection();
+    void HiddenServersModal(void);
+    void HostServerSection(void);
 
-    void UpdateHostingStatus();
-    void SendHostingPostRequest();
+    void UpdateHostingStatus(void);
+    void SendHostingPostRequest(void);
 
-    void ProcessCommand(const char* command_line);
-    void LaunchServer();
+    void ProcessCommand(const char* pszCommand);
+    void LaunchServer(void);
 
-    void SettingsSection();
-    void RegenerateEncryptionKey();
-    void ChangeEncryptionKeyTo(const std::string& str);
+    void SettingsSection(void);
+    void RegenerateEncryptionKey(void) const;
+    void ChangeEncryptionKeyTo(const std::string& svNetKey) const;
 
-    void SetStyleVar();
+    void SetStyleVar(void);
 
     ////////////////////
     // Server Browser //
@@ -119,7 +119,7 @@ public:
     int m_nLockedIconWidth  = 0;
     int m_nLockedIconHeight = 0;
 
-    void SetSection(ESection section)
+    void SetSection(eSection section)
     {
         eCurrentSection = section;
     }

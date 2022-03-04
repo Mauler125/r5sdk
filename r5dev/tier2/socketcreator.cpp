@@ -93,9 +93,9 @@ bool CSocketCreator::ConfigureListenSocket(int iSocket)
 	if (results == -1)
 	{
 #ifndef NETCONSOLE
-		DevMsg(eDLL_T::ENGINE, "Socket accept 'ioctl(FIONBIO)' failed (%i)\n", WSAGetLastError());
+		DevMsg(eDLL_T::ENGINE, "Socket accept 'ioctl(FIONBIO)' failed (%s)\n", NET_ErrorString(WSAGetLastError()));
 #else
-		printf("Socket accept 'ioctl(FIONBIO)' failed (%i)\n", WSAGetLastError());
+		printf("Socket accept 'ioctl(FIONBIO)' failed (%s)\n", NET_ErrorString(WSAGetLastError()));
 #endif // !NETCONSOLE
 		return false;
 	}

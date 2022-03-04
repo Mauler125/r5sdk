@@ -37,7 +37,7 @@ CNetAdr2::CNetAdr2(std::string svInAdr, std::string svInPort)
 		svInAdr = "127.0.0.1";
 	}
 
-	if (strstr(svInAdr.c_str(), "["))
+	if (strstr(svInAdr.c_str(), "[") || strstr(svInAdr.c_str(), "]"))
 	{
 		svInAdr = GetBase(svInAdr);
 	}
@@ -256,10 +256,6 @@ std::string CNetAdr2::GetIP(bool bBaseOnly) const
 	{
 		return "loopback";
 	}
-	else if (GetType() == netadrtype_t::NA_BROADCAST)
-	{
-		return "broadcast";
-	}
 	else if (GetType() == netadrtype_t::NA_IP)
 	{
 		if (bBaseOnly)
@@ -286,6 +282,10 @@ std::string CNetAdr2::GetPort(void) const
 	static std::regex rx(".*\\]:");
 	svport = std::regex_replace(svport, rx, "");
 
+	if (!IsValidPort(svport))
+	{
+		return "37015";
+	}
 	return svport;
 }
 
@@ -298,6 +298,10 @@ std::string CNetAdr2::GetPort(std::string svInPort) const
 	static std::regex rx(".*\\]:");
 	svInPort = std::regex_replace(svInPort, rx, "");
 
+	if (!IsValidPort(svInPort))
+	{
+		return "37015";
+	}
 	return svInPort;
 }
 
@@ -407,13 +411,7 @@ void CNetAdr2::ToSockadr(sockaddr_storage* pSadr) const
 {
 	if (GetVersion() == netadrversion_t::NA_V4)
 	{
-		if (GetType() == netadrtype_t::NA_BROADCAST)
-		{
-			reinterpret_cast<sockaddr_in*>(pSadr)->sin_family = AF_INET;
-			reinterpret_cast<sockaddr_in*>(pSadr)->sin_port = htons(stoi(GetPort()));
-			reinterpret_cast<sockaddr_in*>(pSadr)->sin_addr.s_addr = INADDR_BROADCAST;
-		}
-		else if (GetType() == netadrtype_t::NA_IP)
+		if (GetType() == netadrtype_t::NA_IP)
 		{
 			reinterpret_cast<sockaddr_in*>(pSadr)->sin_family = AF_INET;
 			reinterpret_cast<sockaddr_in*>(pSadr)->sin_port = htons(stoi(GetPort()));
@@ -461,11 +459,14 @@ void CNetAdr2::ToAdrinfo(addrinfo* pHint) const
 		results = getaddrinfo(GetBase().c_str(), GetPort().c_str(), &hint, &pHint);
 		if (results != 0)
 		{
+			WCHAR* wszError = gai_strerror(results);
+			_bstr_t bStr(wszError);
+			const char* pszError = bStr;
 			// TODO: Implement 'Warning(..)' instead!
 #ifndef NETCONSOLE
-			DevMsg(eDLL_T::ENGINE, "Address info translation failed (%s)\n", gai_strerror(results));
+			DevMsg(eDLL_T::ENGINE, "Address info translation failed (%s)\n", pszError);
 #else
-			printf("Address info translation failed (%s)\n", gai_strerror(results));
+			printf("Address info translation failed (%s)\n", pszError);
 #endif // !NETCONSOLE
 		}
 	}
@@ -479,14 +480,32 @@ void CNetAdr2::ToAdrinfo(addrinfo* pHint) const
 		results = getaddrinfo(GetBase().c_str(), GetPort().c_str(), &hint, &pHint);
 		if (results != 0)
 		{
+			WCHAR* wszError = gai_strerror(results);
+			_bstr_t bStr(wszError);
+			const char* pszError = bStr;
 			// TODO: Implement 'Warning(..)' instead!
 #ifndef NETCONSOLE
-			DevMsg(eDLL_T::ENGINE, "Address info translation failed (%s)\n", gai_strerror(results));
+			DevMsg(eDLL_T::ENGINE, "Address info translation failed (%s)\n", pszError);
 #else
-			printf("Address info translation failed (%s)\n", gai_strerror(results));
+			printf("Address info translation failed (%s)\n", pszError);
 #endif // !NETCONSOLE
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: returns true if this is a valid port string.
+//-----------------------------------------------------------------------------
+bool CNetAdr2::IsValidPort(const std::string& svInPort) const
+{
+	for (char const& c : svInPort)
+	{
+		if (std::isdigit(c) == 0)
+		{
+			return false;
+		}
+	}
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -547,11 +566,6 @@ bool CNetAdr2::CompareAdr(const CNetAdr2& netAdr2, bool bBaseOnly) const
 	}
 
 	if (GetType() == netadrtype_t::NA_LOOPBACK)
-	{
-		return true;
-	}
-
-	if (GetType() == netadrtype_t::NA_BROADCAST)
 	{
 		return true;
 	}

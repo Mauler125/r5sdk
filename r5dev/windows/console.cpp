@@ -70,7 +70,7 @@ void Console_Init()
 	// Create the console window
 	if (AllocConsole() == FALSE)
 	{
-		OutputDebugString("Failed to create console window!\n");
+		OutputDebugStringA("Failed to create console window!\n");
 		return;
 	}
 
@@ -87,7 +87,7 @@ void Console_Init()
 			fclose(sBuildTxt);
 		}
 	}
-	SetConsoleTitle(sBuildBuf);
+	SetConsoleTitleA(sBuildBuf);
 
 	//-- Open input/output streams
 	FILE* fDummy;
@@ -117,7 +117,7 @@ void Console_Init()
 		if (!SetConsoleMode(hOutput, dwMode)) // Some editions of Windows have 'VirtualTerminalLevel' disabled by default.
 		{
 			// Warn the user if 'VirtualTerminalLevel' could not be set on users environment.
-			MessageBox(NULL, "Failed to set console mode 'VirtualTerminalLevel'.\nPlease omit the '-ansiclr' parameter and restart \nthe game if output logging appears distorted.", "SDK Warning", MB_ICONEXCLAMATION | MB_OK);
+			MessageBoxA(NULL, "Failed to set console mode 'VirtualTerminalLevel'.\nPlease omit the '-ansiclr' parameter and restart \nthe game if output logging appears distorted.", "SDK Warning", MB_ICONEXCLAMATION | MB_OK);
 		}
 		SetConsoleBackgroundColor(0x0000);
 		AnsiColors_Init();

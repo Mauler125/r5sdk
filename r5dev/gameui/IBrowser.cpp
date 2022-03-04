@@ -23,19 +23,20 @@ History:
 #include "engine/net_chan.h"
 #include "engine/sys_utils.h"
 #include "engine/host_state.h"
-#include "server/server.h"
-#include "client/IVEngineClient.h"
 #include "networksystem/serverlisting.h"
 #include "networksystem/r5net.h"
-#include "vpc/keyvalues.h"
 #include "squirrel/sqinit.h"
-#include "gameui/IBrowser.h"
 #include "squirrel/sqapi.h"
+#include "server/server.h"
+#include "client/IVEngineClient.h"
+#include "vpc/keyvalues.h"
+#include "vpklib/packedstore.h"
+#include "gameui/IBrowser.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-IBrowser::IBrowser()
+IBrowser::IBrowser(void)
 {
     memset(m_chServerConnStringBuffer, 0, sizeof(m_chServerConnStringBuffer));
 
@@ -73,7 +74,7 @@ IBrowser::IBrowser()
     /* Obtain handle to module */
     static HGLOBAL rcData = NULL;
     HMODULE handle;
-    GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)"unnamed", &handle);
+    GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)"unnamed", &handle);
     HRSRC rc = FindResource(handle, MAKEINTRESOURCE(IDB_PNG1), MAKEINTRESOURCE(PNG));
     /* Obtain assets from 'rsrc' */
     if (rc != NULL)
@@ -86,7 +87,7 @@ IBrowser::IBrowser()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-IBrowser::~IBrowser()
+IBrowser::~IBrowser(void)
 {
     //delete r5net;
 }
@@ -94,7 +95,7 @@ IBrowser::~IBrowser()
 //-----------------------------------------------------------------------------
 // Purpose: draws the main browser front-end
 //-----------------------------------------------------------------------------
-void IBrowser::Draw(const char* title, bool* bDraw)
+void IBrowser::Draw(const char* pszTitle, bool* bDraw)
 {
     if (!m_bInitialized)
     {
@@ -109,7 +110,7 @@ void IBrowser::Draw(const char* title, bool* bDraw)
         //ImGui::ShowDemoWindow();
     }
 
-    if (!ImGui::Begin(title, bDraw))
+    if (!ImGui::Begin(pszTitle, bDraw))
     {
         ImGui::End();
         return;
@@ -124,19 +125,19 @@ void IBrowser::Draw(const char* title, bool* bDraw)
     ImGui::SetNextWindowSize(ImVec2(840, 600), ImGuiCond_FirstUseEver);
     ImGui::SetWindowPos(ImVec2(-500, 50), ImGuiCond_FirstUseEver);
 
-    ImGui::Begin(title, NULL, ImGuiWindowFlags_NoScrollbar);
+    ImGui::Begin(pszTitle, NULL, ImGuiWindowFlags_NoScrollbar);
     {
         CompMenu();
 
         switch (eCurrentSection)
         {
-        case ESection::SERVER_BROWSER:
+        case eSection::SERVER_BROWSER:
             ServerBrowserSection();
             break;
-        case ESection::HOST_SERVER:
+        case eSection::HOST_SERVER:
             HostServerSection();
             break;
-        case ESection::SETTINGS:
+        case eSection::SETTINGS:
             SettingsSection();
             break;
         default:
@@ -149,20 +150,20 @@ void IBrowser::Draw(const char* title, bool* bDraw)
 //-----------------------------------------------------------------------------
 // Purpose: draws the compmenu
 //-----------------------------------------------------------------------------
-void IBrowser::CompMenu()
+void IBrowser::CompMenu(void)
 {
     ImGui::BeginTabBar("CompMenu");
     if (ImGui::TabItemButton("Server Browser"))
     {
-        SetSection(ESection::SERVER_BROWSER);
+        SetSection(eSection::SERVER_BROWSER);
     }
     if (ImGui::TabItemButton("Host Server"))
     {
-        SetSection(ESection::HOST_SERVER);
+        SetSection(eSection::HOST_SERVER);
     }
     if (ImGui::TabItemButton("Settings"))
     {
-        SetSection(ESection::SETTINGS);
+        SetSection(eSection::SETTINGS);
     }
     ImGui::EndTabBar();
 }
@@ -170,7 +171,7 @@ void IBrowser::CompMenu()
 //-----------------------------------------------------------------------------
 // Purpose: draws the server browser section
 //-----------------------------------------------------------------------------
-void IBrowser::ServerBrowserSection()
+void IBrowser::ServerBrowserSection(void)
 {
     ImGui::BeginGroup();
     m_imServerBrowserFilter.Draw();
@@ -183,8 +184,8 @@ void IBrowser::ServerBrowserSection()
     ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), m_szServerListMessage.c_str());
     ImGui::Separator();
 
-    const float FooterHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-    ImGui::BeginChild("ServerListChild", { 0, -FooterHeight }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+    const float fFooterHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+    ImGui::BeginChild("ServerListChild", { 0, -fFooterHeight }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
     if (m_bDefaultTheme) { ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 8.f, 0.f }); }
     else { ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.f, 0.f)); }
@@ -200,32 +201,32 @@ void IBrowser::ServerBrowserSection()
 
         for (ServerListing& server : m_vServerList)
         {
-            const char* name     = server.svServerName.c_str();
-            const char* map      = server.svMapName.c_str();
-            const char* port     = server.svPort.c_str();
-            const char* playlist = server.svPlaylist.c_str();
+            const char* pszHostName = server.svServerName.c_str();
+            const char* pszHostMap  = server.svMapName.c_str();
+            const char* pszHostPort = server.svPort.c_str();
+            const char* pszPlaylist = server.svPlaylist.c_str();
 
-            if (m_imServerBrowserFilter.PassFilter(name)
-                || m_imServerBrowserFilter.PassFilter(map)
-                || m_imServerBrowserFilter.PassFilter(port))
+            if (m_imServerBrowserFilter.PassFilter(pszHostName)
+                || m_imServerBrowserFilter.PassFilter(pszHostMap)
+                || m_imServerBrowserFilter.PassFilter(pszHostPort))
             {
                 ImGui::TableNextColumn();
-                ImGui::Text(name);
+                ImGui::Text(pszHostName);
 
                 ImGui::TableNextColumn();
-                ImGui::Text(map);
+                ImGui::Text(pszHostMap);
 
                 ImGui::TableNextColumn();
-                ImGui::Text(port);
+                ImGui::Text(pszHostPort);
 
                 ImGui::TableNextColumn();
-                ImGui::Text(playlist);
+                ImGui::Text(pszPlaylist);
 
                 ImGui::TableNextColumn();
-                std::string selectButtonText = "Connect##";
-                selectButtonText += (server.svServerName + server.svIpAddress + server.svMapName);
+                std::string svConnectBtn = "Connect##";
+                svConnectBtn += (server.svServerName + server.svIpAddress + server.svMapName);
 
-                if (ImGui::Button(selectButtonText.c_str()))
+                if (ImGui::Button(svConnectBtn.c_str()))
                 {
                     ConnectToServer(server.svIpAddress, server.svPort, server.svEncryptionKey);
                 }
@@ -264,7 +265,7 @@ void IBrowser::ServerBrowserSection()
 //-----------------------------------------------------------------------------
 // Purpose: refreshes the server browser list with available servers
 //-----------------------------------------------------------------------------
-void IBrowser::RefreshServerList()
+void IBrowser::RefreshServerList(void)
 {
     static bool bThreadLocked = false;
 
@@ -288,7 +289,7 @@ void IBrowser::RefreshServerList()
 //-----------------------------------------------------------------------------
 // Purpose: get server list from pylon.
 //-----------------------------------------------------------------------------
-void IBrowser::GetServerList()
+void IBrowser::GetServerList(void)
 {
     m_vServerList.clear();
     m_szServerListMessage.clear();
@@ -298,37 +299,37 @@ void IBrowser::GetServerList()
 //-----------------------------------------------------------------------------
 // Purpose: connects to specified server
 //-----------------------------------------------------------------------------
-void IBrowser::ConnectToServer(const std::string& ip, const std::string& port, const std::string& encKey)
+void IBrowser::ConnectToServer(const std::string& svIp, const std::string& svPort, const std::string& svNetKey)
 {
-    if (!encKey.empty())
+    if (!svNetKey.empty())
     {
-        ChangeEncryptionKeyTo(encKey);
+        ChangeEncryptionKeyTo(svNetKey);
     }
 
     std::stringstream cmd;
-    cmd << "connect " << ip << ":" << port;
+    cmd << "connect " << svIp << ":" << svPort;
     ProcessCommand(cmd.str().c_str());
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: connects to specified server
 //-----------------------------------------------------------------------------
-void IBrowser::ConnectToServer(const std::string& connString, const std::string& encKey)
+void IBrowser::ConnectToServer(const std::string& svServer, const std::string& svNetKey)
 {
-    if (!encKey.empty())
+    if (!svNetKey.empty())
     {
-        ChangeEncryptionKeyTo(encKey);
+        ChangeEncryptionKeyTo(svNetKey);
     }
 
     std::stringstream cmd;
-    cmd << "connect " << connString;
+    cmd << "connect " << svServer;
     ProcessCommand(cmd.str().c_str());
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: Launch server with given parameters
 //-----------------------------------------------------------------------------
-void IBrowser::LaunchServer()
+void IBrowser::LaunchServer(void)
 {
     DevMsg(eDLL_T::ENGINE, "Starting Server with name '%s', map '%s' and playlist '%s'\n", m_Server.svServerName.c_str(), m_Server.svMapName.c_str(), m_Server.svPlaylist.c_str());
 
@@ -352,7 +353,7 @@ void IBrowser::LaunchServer()
 //-----------------------------------------------------------------------------
 // Purpose: draws the hidden private server modal
 //-----------------------------------------------------------------------------
-void IBrowser::HiddenServersModal()
+void IBrowser::HiddenServersModal(void)
 {
     bool modalOpen = true;
     if (ImGui::BeginPopupModal("Connect to Private Server##HiddenServersConnectModal", &modalOpen))
@@ -417,9 +418,9 @@ void IBrowser::HiddenServersModal()
 //-----------------------------------------------------------------------------
 // Purpose: draws the host section
 //-----------------------------------------------------------------------------
-void IBrowser::HostServerSection()
+void IBrowser::HostServerSection(void)
 {
-    static std::string szServerNameErr = "";
+    static std::string svServerNameErr = "";
 
     ImGui::InputTextWithHint("##ServerHost_ServerName", "Server Name (Required)", &m_Server.svServerName);
     ImGui::Spacing();
@@ -481,7 +482,7 @@ void IBrowser::HostServerSection()
     {
         if (ImGui::Button("Start Server##ServerHost_StartServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
-            szServerNameErr.clear();
+            svServerNameErr.clear();
             if (!m_Server.svServerName.empty() && !m_Server.svPlaylist.empty() && !m_Server.svMapName.empty())
             {
                 LaunchServer(); // Launch server.
@@ -491,15 +492,15 @@ void IBrowser::HostServerSection()
             {
                 if (m_Server.svServerName.empty())
                 {
-                    szServerNameErr = "No Server Name assigned.";
+                    svServerNameErr = "No Server Name assigned.";
                 }
                 else if (m_Server.svPlaylist.empty())
                 {
-                    szServerNameErr = "No Playlist assigned.";
+                    svServerNameErr = "No Playlist assigned.";
                 }
                 else if (m_Server.svMapName.empty())
                 {
-                    szServerNameErr = "'levelname' was empty.";
+                    svServerNameErr = "'levelname' was empty.";
                 }
             }
         }
@@ -507,7 +508,7 @@ void IBrowser::HostServerSection()
 
     if (ImGui::Button("Force Start##ServerHost_ForceStart", ImVec2(ImGui::GetWindowSize().x, 32)))
     {
-        szServerNameErr.clear();
+        svServerNameErr.clear();
         if (!m_Server.svPlaylist.empty() && !m_Server.svMapName.empty())
         {
             LaunchServer(); // Launch server.
@@ -517,16 +518,16 @@ void IBrowser::HostServerSection()
         {
             if (m_Server.svPlaylist.empty())
             {
-                szServerNameErr = "No Playlist assigned.";
+                svServerNameErr = "No Playlist assigned.";
             }
             else if (m_Server.svMapName.empty())
             {
-                szServerNameErr = "'levelname' was empty.";
+                svServerNameErr = "'levelname' was empty.";
             }
         }
     }
 
-    ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), szServerNameErr.c_str());
+    ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), svServerNameErr.c_str());
     ImGui::TextColored(m_iv4HostRequestMessageColor, m_szHostRequestMessage.c_str());
     if (!m_szHostToken.empty())
     {
@@ -551,7 +552,7 @@ void IBrowser::HostServerSection()
             }
             else
             {
-                szServerNameErr = "Failed to change level: 'levelname' was empty.";
+                svServerNameErr = "Failed to change level: 'levelname' was empty.";
             }
         }
 
@@ -574,23 +575,23 @@ void IBrowser::HostServerSection()
 //-----------------------------------------------------------------------------
 // Purpose: updates the hoster's status
 //-----------------------------------------------------------------------------
-void IBrowser::UpdateHostingStatus()
+void IBrowser::UpdateHostingStatus(void)
 {
     if (!g_pHostState || !g_pCVar)
     {
         return;
     }
 
-    eHostingStatus = g_pHostState->m_bActiveGame ? EHostStatus::HOSTING : EHostStatus::NOT_HOSTING; // Are we hosting a server?
+    eHostingStatus = g_pHostState->m_bActiveGame ? eHostStatus::HOSTING : eHostStatus::NOT_HOSTING; // Are we hosting a server?
     switch (eHostingStatus)
     {
-    case EHostStatus::NOT_HOSTING:
+    case eHostStatus::NOT_HOSTING:
     {
         m_szHostRequestMessage.clear();
         m_iv4HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
         break;
     }
-    case EHostStatus::HOSTING:
+    case eHostStatus::HOSTING:
     {
         if (eServerVisibility == EServerVisibility::OFFLINE)
         {
@@ -626,12 +627,13 @@ void IBrowser::UpdateHostingStatus()
 //-----------------------------------------------------------------------------
 // Purpose: sends the hosting POST request to the comp server
 //-----------------------------------------------------------------------------
-void IBrowser::SendHostingPostRequest()
+void IBrowser::SendHostingPostRequest(void)
 {
     m_szHostToken = std::string();
     DevMsg(eDLL_T::CLIENT, "Sending PostServerHost request\n");
     bool result = g_pR5net->PostServerHost(m_szHostRequestMessage, m_szHostToken,
-        ServerListing{
+        ServerListing
+        {
             m_Server.svServerName,
             std::string(g_pHostState->m_levelName),
             "",
@@ -666,9 +668,9 @@ void IBrowser::SendHostingPostRequest()
 //-----------------------------------------------------------------------------
 // Purpose: executes submitted commands in a separate thread
 //-----------------------------------------------------------------------------
-void IBrowser::ProcessCommand(const char* command_line)
+void IBrowser::ProcessCommand(const char* pszCommand)
 {
-    std::thread t(IVEngineClient_CommandExecute, this, command_line);
+    std::thread t(IVEngineClient_CommandExecute, this, pszCommand);
     t.detach(); // Detach from render thread.
 
     // This is to avoid a race condition.
@@ -678,7 +680,7 @@ void IBrowser::ProcessCommand(const char* command_line)
 //-----------------------------------------------------------------------------
 // Purpose: draws the settings section
 //-----------------------------------------------------------------------------
-void IBrowser::SettingsSection()
+void IBrowser::SettingsSection(void)
 {
     ImGui::InputTextWithHint("Hostname##MatchmakingServerString", "Matchmaking Server String", &m_szMatchmakingHostName);
     if (ImGui::Button("Update Hostname"))
@@ -700,7 +702,7 @@ void IBrowser::SettingsSection()
 //-----------------------------------------------------------------------------
 // Purpose: regenerates encryption key
 //-----------------------------------------------------------------------------
-void IBrowser::RegenerateEncryptionKey()
+void IBrowser::RegenerateEncryptionKey(void) const
 {
     HNET_GenerateKey();
 }
@@ -708,15 +710,15 @@ void IBrowser::RegenerateEncryptionKey()
 //-----------------------------------------------------------------------------
 // Purpose: changes encryption key to specified one
 //-----------------------------------------------------------------------------
-void IBrowser::ChangeEncryptionKeyTo(const std::string& str)
+void IBrowser::ChangeEncryptionKeyTo(const std::string& svNetKey) const
 {
-    HNET_SetKey(str);
+    HNET_SetKey(svNetKey);
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: sets the browser front-end style
 //-----------------------------------------------------------------------------
-void IBrowser::SetStyleVar()
+void IBrowser::SetStyleVar(void)
 {
     ImGuiStyle& style                     = ImGui::GetStyle();
     ImVec4* colors                        = style.Colors;
