@@ -68,6 +68,8 @@ const static std::string sANSI_DLL_T[8] =
 ///////////////////////////////////////////////////////////////////////////////
 void HSys_Error(char* fmt, ...);
 void DevMsg(eDLL_T idx, const char* fmt, ...);
+void Warning(eDLL_T idx, const char* fmt, ...);
+void Error(eDLL_T idx, const char* fmt, ...);
 
 void SysUtils_Attach();
 void SysUtils_Detach();

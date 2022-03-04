@@ -95,11 +95,10 @@ void HCon_NPrintf(int pos, const char* fmt, ...)
 // Purpose: Show logs to all console interfaces
 // Input  : idx - 
 //			*fmt - ... - 
-// Output : void DevMsg
 //-----------------------------------------------------------------------------
 void DevMsg(eDLL_T idx, const char* fmt, ...)
 {
-	static char szBuf[1024] = {};
+	static char szBuf[2048] = {};
 
 	static std::string svOut;
 	static std::string svAnsiOut;
@@ -163,6 +162,158 @@ void DevMsg(eDLL_T idx, const char* fmt, ...)
 	LogType_t tLog = static_cast<LogType_t>(nLog);
 
 	g_pLogSystem.AddLog(tLog, s);
+	g_pIConsole->m_ivConLog.push_back(Strdup(s.c_str()));
+
+	g_spd_sys_w_oss.str("");
+	g_spd_sys_w_oss.clear();
+#endif // !DEDICATED
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Print engine and SDK errors
+// Input  : idx - 
+//			*fmt - ... - 
+//-----------------------------------------------------------------------------
+void Warning(eDLL_T idx, const char* fmt, ...)
+{
+	static char szBuf[2048] = {};
+
+	static std::string svOut;
+	static std::string svAnsiOut;
+
+	static std::regex rxAnsiExp("\\\033\\[.*?m");
+
+	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
+	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
+	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("warn_message_logger");
+
+	{/////////////////////////////
+		va_list args{};
+		va_start(args, fmt);
+
+		vsnprintf(szBuf, sizeof(szBuf), fmt, args);
+
+		szBuf[sizeof(szBuf) - 1] = 0;
+		va_end(args);
+	}/////////////////////////////
+
+	svOut = sDLL_T[static_cast<int>(idx)].c_str();
+	svOut.append(szBuf);
+	svOut = std::regex_replace(svOut, rxAnsiExp, "");
+
+	char szNewLine = svOut.back();
+	if (szNewLine != '\n')
+	{
+		svOut.append("\n");
+	}
+
+	if (!g_bSpdLog_UseAnsiClr)
+	{
+		wconsole->debug(svOut);
+#ifdef DEDICATED
+		g_pRConServer->Send(svOut.c_str());
+#endif // DEDICATED
+	}
+	else
+	{
+		svAnsiOut = sANSI_DLL_T[static_cast<int>(idx)].c_str();
+		svAnsiOut.append(g_svRedF.c_str());
+		svAnsiOut.append(szBuf);
+
+		char szNewLine = svAnsiOut.back();
+		if (szNewLine != '\n')
+		{
+			svAnsiOut.append("\n");
+		}
+		wconsole->debug(svAnsiOut);
+#ifdef DEDICATED
+		g_pRConServer->Send(svAnsiOut.c_str());
+#endif // DEDICATED
+	}
+
+	sqlogger->debug(svOut);
+
+#ifndef DEDICATED
+	iconsole->info(svOut);
+	std::string s = g_spd_sys_w_oss.str();
+
+	g_pLogSystem.AddLog(LogType_t::WARNING_C, s);
+	g_pIConsole->m_ivConLog.push_back(Strdup(s.c_str()));
+
+	g_spd_sys_w_oss.str("");
+	g_spd_sys_w_oss.clear();
+#endif // !DEDICATED
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Print engine and SDK errors
+// Input  : idx - 
+//			*fmt - ... - 
+//-----------------------------------------------------------------------------
+void Error(eDLL_T idx, const char* fmt, ...)
+{
+	static char szBuf[2048] = {};
+
+	static std::string svOut;
+	static std::string svAnsiOut;
+
+	static std::regex rxAnsiExp("\\\033\\[.*?m");
+
+	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
+	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
+	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("error_message_logger");
+
+	{/////////////////////////////
+		va_list args{};
+		va_start(args, fmt);
+
+		vsnprintf(szBuf, sizeof(szBuf), fmt, args);
+
+		szBuf[sizeof(szBuf) - 1] = 0;
+		va_end(args);
+	}/////////////////////////////
+
+	svOut = sDLL_T[static_cast<int>(idx)].c_str();
+	svOut.append(szBuf);
+	svOut = std::regex_replace(svOut, rxAnsiExp, "");
+
+	char szNewLine = svOut.back();
+	if (szNewLine != '\n')
+	{
+		svOut.append("\n");
+	}
+
+	if (!g_bSpdLog_UseAnsiClr)
+	{
+		wconsole->debug(svOut);
+#ifdef DEDICATED
+		g_pRConServer->Send(svOut.c_str());
+#endif // DEDICATED
+	}
+	else
+	{
+		svAnsiOut = sANSI_DLL_T[static_cast<int>(idx)].c_str();
+		svAnsiOut.append(g_svRedF.c_str());
+		svAnsiOut.append(szBuf);
+
+		char szNewLine = svAnsiOut.back();
+		if (szNewLine != '\n')
+		{
+			svAnsiOut.append("\n");
+		}
+		wconsole->debug(svAnsiOut);
+#ifdef DEDICATED
+		g_pRConServer->Send(svAnsiOut.c_str());
+#endif // DEDICATED
+	}
+
+	sqlogger->debug(svOut);
+
+#ifndef DEDICATED
+	iconsole->info(svOut);
+	std::string s = g_spd_sys_w_oss.str();
+
+	g_pLogSystem.AddLog(LogType_t::ERROR_C, s);
 	g_pIConsole->m_ivConLog.push_back(Strdup(s.c_str()));
 
 	g_spd_sys_w_oss.str("");
