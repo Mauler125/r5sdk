@@ -71,7 +71,7 @@ void CNetCon::TermSetup(void)
 		if (!SetConsoleMode(hOutput, dwMode)) // Some editions of Windows have 'VirtualTerminalLevel' disabled by default.
 		{
 			// Warn the user if 'VirtualTerminalLevel' could not be set on users environment.
-			MessageBox(NULL, "Failed to set console mode 'VirtualTerminalLevel'.\n"
+			MessageBoxA(NULL, "Failed to set console mode 'VirtualTerminalLevel'.\n"
 				"Restart the net console with the '-nocolor'\n"
 				"parameter if output logging appears distorted.", "SDK Warning",
 				MB_ICONEXCLAMATION | MB_OK);

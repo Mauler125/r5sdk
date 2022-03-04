@@ -144,11 +144,11 @@ bool LaunchR5Apex(eLaunchMode lMode, eLaunchState lState)
         WorkerDll.c_str()
     };
 
-    STARTUPINFO StartupInfo = { 0 };
+    STARTUPINFOA StartupInfo = { 0 };
     PROCESS_INFORMATION ProcInfo = { 0 };
 
     // Initialize startup info struct.
-    StartupInfo.cb = sizeof(STARTUPINFO);
+    StartupInfo.cb = sizeof(STARTUPINFOA);
 
     ///////////////////////////////////////////////////////////////////////////
     // Create the game process in a suspended state with our dll.
