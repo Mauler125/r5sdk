@@ -13,8 +13,6 @@
 #include <engine/net.h>
 #include <netconsole/netconsole.h>
 
-// TODO [AMOS] IMPLEMENT 'Warning(...)' for every DevMsg spew here..
-
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
@@ -55,7 +53,7 @@ void CSocketCreator::ProcessAccept(void)
 		if (!IsSocketBlocking())
 		{
 #ifndef NETCONSOLE
-			DevMsg(eDLL_T::ENGINE, "Socket ProcessAccept Error: %s\n", NET_ErrorString(WSAGetLastError()));
+			Error(eDLL_T::ENGINE, "Socket ProcessAccept Error: %s\n", NET_ErrorString(WSAGetLastError()));
 #else
 			printf("Socket ProcessAccept Error: %s\n", NET_ErrorString(WSAGetLastError()));
 #endif // !NETCONSOLE
@@ -93,7 +91,7 @@ bool CSocketCreator::ConfigureListenSocket(int iSocket)
 	if (results == -1)
 	{
 #ifndef NETCONSOLE
-		DevMsg(eDLL_T::ENGINE, "Socket accept 'ioctl(FIONBIO)' failed (%s)\n", NET_ErrorString(WSAGetLastError()));
+		Warning(eDLL_T::ENGINE, "Socket accept 'ioctl(FIONBIO)' failed (%s)\n", NET_ErrorString(WSAGetLastError()));
 #else
 		printf("Socket accept 'ioctl(FIONBIO)' failed (%s)\n", NET_ErrorString(WSAGetLastError()));
 #endif // !NETCONSOLE
@@ -114,7 +112,7 @@ bool CSocketCreator::ConfigureConnectSocket(SocketHandle_t hSocket)
 	if (ret == -1)
 	{
 #ifndef NETCONSOLE
-		DevMsg(eDLL_T::ENGINE, "Socket ioctl(FIONBIO) failed (%s)\n", NET_ErrorString(WSAGetLastError()));
+		Warning(eDLL_T::ENGINE, "Socket ioctl(FIONBIO) failed (%s)\n", NET_ErrorString(WSAGetLastError()));
 #else
 		printf("Socket ioctl(FIONBIO) failed (%s)\n", NET_ErrorString(WSAGetLastError()));
 #endif // !NETCONSOLE
@@ -156,7 +154,7 @@ bool CSocketCreator::CreateListenSocket(const CNetAdr2& netAdr2, bool bListenOnA
 		if (results == -1)
 		{
 #ifndef NETCONSOLE
-			DevMsg(eDLL_T::ENGINE, "Socket bind failed (%s)\n", NET_ErrorString(WSAGetLastError()));
+			Warning(eDLL_T::ENGINE, "Socket bind failed (%s)\n", NET_ErrorString(WSAGetLastError()));
 #else
 			printf("Socket bind failed (%s)\n", NET_ErrorString(WSAGetLastError()));
 #endif // !NETCONSOLE
@@ -168,7 +166,7 @@ bool CSocketCreator::CreateListenSocket(const CNetAdr2& netAdr2, bool bListenOnA
 		if (results == -1)
 		{
 #ifndef NETCONSOLE
-			DevMsg(eDLL_T::ENGINE, "Socket listen failed (%s)\n", NET_ErrorString(WSAGetLastError()));
+			Warning(eDLL_T::ENGINE, "Socket listen failed (%s)\n", NET_ErrorString(WSAGetLastError()));
 #else
 			printf("Socket listen failed (%s)\n", NET_ErrorString(WSAGetLastError()));
 #endif // !NETCONSOLE
@@ -208,7 +206,7 @@ int CSocketCreator::ConnectSocket(const CNetAdr2& netAdr2, bool bSingleSocket)
 	if (hSocket == SOCKET_ERROR)
 	{
 #ifndef NETCONSOLE
-		DevMsg(eDLL_T::ENGINE, "Unable to create socket (%s)\n", NET_ErrorString(WSAGetLastError()));
+		Warning(eDLL_T::ENGINE, "Unable to create socket (%s)\n", NET_ErrorString(WSAGetLastError()));
 #else
 		printf("Unable to create socket (%s)\n", NET_ErrorString(WSAGetLastError()));
 #endif // !NETCONSOLE
@@ -229,7 +227,7 @@ int CSocketCreator::ConnectSocket(const CNetAdr2& netAdr2, bool bSingleSocket)
 		if (!IsSocketBlocking())
 		{
 #ifndef NETCONSOLE
-			DevMsg(eDLL_T::ENGINE, "Socket connection failed (%s)\n", NET_ErrorString(WSAGetLastError()));
+			Warning(eDLL_T::ENGINE, "Socket connection failed (%s)\n", NET_ErrorString(WSAGetLastError()));
 #else
 			printf("Socket connection failed (%s)\n", NET_ErrorString(WSAGetLastError()));
 #endif // !NETCONSOLE

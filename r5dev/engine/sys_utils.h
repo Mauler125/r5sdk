@@ -40,7 +40,7 @@ enum class eDLL_T : int
 	NONE   = 8
 };
 
-const std::string sDLL_T[8] = 
+const std::string sDLL_T[9] = 
 {
 	"Native(S):",
 	"Native(C):",
@@ -49,11 +49,11 @@ const std::string sDLL_T[8] =
 	"Native(F):",
 	"Native(R):",
 	"Native(M):",
-	"Netcon(X):"
+	"Netcon(X):",
 	""
 };
 
-const static std::string sANSI_DLL_T[8] = 
+const static std::string sANSI_DLL_T[9] = 
 {
 	"\033[38;2;059;120;218mNative(S):",
 	"\033[38;2;118;118;118mNative(C):",
@@ -62,6 +62,7 @@ const static std::string sANSI_DLL_T[8] =
 	"\033[38;2;097;214;214mNative(F):",
 	"\033[38;2;092;181;089mNative(R):",
 	"\033[38;2;192;105;173mNative(M):",
+	"\033[38;2;204;204;204mNetcon(X):",
 	""
 };
 

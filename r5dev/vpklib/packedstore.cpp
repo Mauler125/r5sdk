@@ -156,7 +156,7 @@ void CPackedStore::ValidateAdler32PostDecomp(std::string svAssetFile)
 
 	if (m_nAdler32 != m_nAdler32_Internal)
 	{
-		DevMsg(eDLL_T::FS, "Warning: ADLER32 checksum mismatch for entry '%s' computed value '0x%lX' doesn't match expected value '0x%lX'. File may be corrupt!\n", svAssetFile.c_str(), m_nAdler32, m_nAdler32_Internal);
+		Warning(eDLL_T::FS, "Warning: ADLER32 checksum mismatch for entry '%s' computed value '0x%lX' doesn't match expected value '0x%lX'. File may be corrupt!\n", svAssetFile.c_str(), m_nAdler32, m_nAdler32_Internal);
 		m_nAdler32          = 0;
 		m_nAdler32_Internal = 0;
 	}
@@ -182,7 +182,7 @@ void CPackedStore::ValidateCRC32PostDecomp(std::string svDirAsset)
 
 	if (m_nCrc32 != m_nCrc32_Internal)
 	{
-		DevMsg(eDLL_T::FS, "Warning: CRC32 checksum mismatch for entry '%s' computed value '0x%lX' doesn't match expected value '0x%lX'. File may be corrupt!\n", svDirAsset.c_str(), m_nCrc32, m_nCrc32_Internal);
+		Warning(eDLL_T::FS, "Warning: CRC32 checksum mismatch for entry '%s' computed value '0x%lX' doesn't match expected value '0x%lX'. File may be corrupt!\n", svDirAsset.c_str(), m_nCrc32, m_nCrc32_Internal);
 		m_nCrc32          = 0;
 		m_nCrc32_Internal = 0;
 	}
@@ -213,7 +213,7 @@ void CPackedStore::UnpackAll(vpk_dir_h vpk_dir, std::string svPathOut)
 
 				if (!outFileStream.is_open())
 				{
-					DevMsg(eDLL_T::FS, "Error: unable to access file '%s'!\n", svFilePath.c_str());
+					Error(eDLL_T::FS, "Error: unable to access file '%s'!\n", svFilePath.c_str());
 				}
 				outFileStream.clear(); // Make sure file is empty before writing.
 				for (vpk_entry_h entry : block.m_vvEntries)
@@ -246,15 +246,15 @@ void CPackedStore::UnpackAll(vpk_dir_h vpk_dir, std::string svPathOut)
 						{
 							if (block.m_nCrc32 != m_nCrc32_Internal)
 							{
-								DevMsg(eDLL_T::FS, "Warning: CRC32 checksum mismatch for entry '%s' computed value '0x%lX' doesn't match expected value '0x%lX'. File may be corrupt!\n", block.m_svBlockPath.c_str(), m_nCrc32_Internal, block.m_nCrc32);
+								Warning(eDLL_T::FS, "Warning: CRC32 checksum mismatch for entry '%s' computed value '0x%lX' doesn't match expected value '0x%lX'. File may be corrupt!\n", block.m_svBlockPath.c_str(), m_nCrc32_Internal, block.m_nCrc32);
 							}
 						}
 						else { m_nEntryCount++; }
 
 						if (m_lzDecompStatus != lzham_decompress_status_t::LZHAM_DECOMP_STATUS_SUCCESS)
 						{
-							DevMsg(eDLL_T::FS, "Error: failed decompression for an entry within block '%s' in archive '%d'!\n", block.m_svBlockPath.c_str(), i);
-							DevMsg(eDLL_T::FS, "'lzham_decompress_memory_func' returned with status '%d'.\n", m_lzDecompStatus);
+							Error(eDLL_T::FS, "Error: failed decompression for an entry within block '%s' in archive '%d'!\n", block.m_svBlockPath.c_str(), i);
+							Error(eDLL_T::FS, "'lzham_decompress_memory_func' returned with status '%d'.\n", m_lzDecompStatus);
 						}
 						else
 						{
@@ -329,7 +329,7 @@ vpk_dir_h::vpk_dir_h(std::string svPath)
 
 	if (this->m_nFileMagic != RVPK_DIR_MAGIC)
 	{
-		DevMsg(eDLL_T::FS, "Error: vpk_dir file '%s' has invalid magic!\n", svPath.c_str());
+		Error(eDLL_T::FS, "Error: vpk_dir file '%s' has invalid magic!\n", svPath.c_str());
 		return;
 	}
 

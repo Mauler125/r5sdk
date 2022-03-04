@@ -60,7 +60,7 @@ void* HSys_Warning(int level, char* fmt, ...)
 		va_end(args);
 	}/////////////////////////////
 
-	DevMsg(eDLL_T::NONE, "Warning(%d):%s\n", level, buf); // TODO: Color
+	Warning(eDLL_T::NONE, "Warning(%d):%s\n", level, buf); // TODO: Color
 	return Sys_Warning(level, buf);
 }
 
@@ -217,7 +217,7 @@ void Warning(eDLL_T idx, const char* fmt, ...)
 	else
 	{
 		svAnsiOut = sANSI_DLL_T[static_cast<int>(idx)].c_str();
-		svAnsiOut.append(g_svRedF.c_str());
+		svAnsiOut.append(g_svYellowF.c_str());
 		svAnsiOut.append(szBuf);
 
 		char szNewLine = svAnsiOut.back();

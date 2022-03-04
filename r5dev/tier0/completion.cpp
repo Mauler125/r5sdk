@@ -176,7 +176,7 @@ void _KickID_f_CompletionFunc(const CCommand& args)
 	}
 	catch (std::exception& e)
 	{
-		DevMsg(eDLL_T::SERVER, "sv_kickid requires a UserID or OriginID. You can get the UserID with the 'status' command. Error: %s", e.what());
+		Error(eDLL_T::SERVER, "sv_kickid requires a UserID or OriginID. You can get the UserID with the 'status' command. Error: %s", e.what());
 		return;
 	}
 }
@@ -330,7 +330,7 @@ void _BanID_f_CompletionFunc(const CCommand& args)
 	}
 	catch (std::exception& e)
 	{
-		DevMsg(eDLL_T::SERVER, "Banid Error: %s", e.what());
+		Error(eDLL_T::SERVER, "Banid Error: %s", e.what());
 		return;
 	}
 }
@@ -374,7 +374,7 @@ void _Unban_f_CompletionFunc(const CCommand& args)
 	}
 	catch (std::exception& e)
 	{
-		DevMsg(eDLL_T::SERVER, "Unban Error: %s", e.what());
+		Error(eDLL_T::SERVER, "Unban Error: %s", e.what());
 		return;
 	}
 }
@@ -446,7 +446,7 @@ void _RTech_Decompress_f_CompletionFunc(const CCommand& args)
 
 	if (!FileExists(pakNameIn.c_str()))
 	{
-		DevMsg(eDLL_T::RTECH, "Error: pak file '%s' does not exist!\n", pakNameIn.c_str());
+		Error(eDLL_T::RTECH, "Error: pak file '%s' does not exist!\n", pakNameIn.c_str());
 		return;
 	}
 
@@ -478,17 +478,17 @@ void _RTech_Decompress_f_CompletionFunc(const CCommand& args)
 
 	if (rheader->m_nMagic != 'kaPR')
 	{
-		DevMsg(eDLL_T::RTECH, "Error: pak file '%s' has invalid magic!\n", pakNameIn.c_str());
+		Error(eDLL_T::RTECH, "Error: pak file '%s' has invalid magic!\n", pakNameIn.c_str());
 		return;
 	}
 	if ((rheader->m_nFlags[1] & 1) != 1)
 	{
-		DevMsg(eDLL_T::RTECH, "Error: pak file '%s' already decompressed!\n", pakNameIn.c_str());
+		Error(eDLL_T::RTECH, "Error: pak file '%s' already decompressed!\n", pakNameIn.c_str());
 		return;
 	}
 	if (rheader->m_nSizeDisk != upak.size())
 	{
-		DevMsg(eDLL_T::RTECH, "Error: pak file '%s' decompressed size '%u' doesn't match expected value '%u'!\n", pakNameIn.c_str(), upak.size(), rheader->m_nSizeMemory);
+		Error(eDLL_T::RTECH, "Error: pak file '%s' decompressed size '%u' doesn't match expected value '%u'!\n", pakNameIn.c_str(), upak.size(), rheader->m_nSizeMemory);
 		return;
 	}
 
@@ -497,7 +497,7 @@ void _RTech_Decompress_f_CompletionFunc(const CCommand& args)
 
 	if (decompSize == rheader->m_nSizeDisk)
 	{
-		DevMsg(eDLL_T::RTECH, "Error: calculated size: '%zu' expected: '%zu'!\n", decompSize, rheader->m_nSizeMemory);
+		Error(eDLL_T::RTECH, "Error: calculated size: '%zu' expected: '%zu'!\n", decompSize, rheader->m_nSizeMemory);
 		return;
 	}
 	else
@@ -513,7 +513,7 @@ void _RTech_Decompress_f_CompletionFunc(const CCommand& args)
 	std::uint8_t decompResult = g_pRtech->DecompressPakFile(&state, upak.size(), pakBuf.size());
 	if (decompResult != 1)
 	{
-		DevMsg(eDLL_T::RTECH, "Error: decompression failed for '%s' return value: '%u'!\n", pakNameIn.c_str(), +decompResult);
+		Error(eDLL_T::RTECH, "Error: decompression failed for '%s' return value: '%u'!\n", pakNameIn.c_str(), +decompResult);
 		return;
 	}
 
@@ -690,7 +690,7 @@ void _RCON_CmdQuery_f_CompletionFunc(const CCommand& args)
 		{
 			if (!g_pRConClient->IsInitialized())
 			{
-				DevMsg(eDLL_T::CLIENT, "Failed to issue command to RCON server: uninitialized\n");
+				Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: uninitialized\n");
 				break;
 			}
 			else if (g_pRConClient->IsConnected())
@@ -713,7 +713,7 @@ void _RCON_CmdQuery_f_CompletionFunc(const CCommand& args)
 			}
 			else
 			{
-				DevMsg(eDLL_T::CLIENT, "Failed to issue command to RCON server: unconnected\n");
+				Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: unconnected\n");
 				break;
 			}
 			break;
@@ -735,7 +735,7 @@ void _RCON_CmdQuery_f_CompletionFunc(const CCommand& args)
 			}
 			else
 			{
-				DevMsg(eDLL_T::CLIENT, "Failed to issue command to RCON server: unconnected\n");
+				Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: unconnected\n");
 				break;
 			}
 			break;

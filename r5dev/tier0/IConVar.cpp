@@ -92,7 +92,7 @@ void ConVar::Init(void) const
 
 	cl_conoverlay_netcon_clr  = new ConVar("cl_conoverlay_netcon_clr" , "255 255 255 255", FCVAR_DEVELOPMENTONLY, "Net console RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 	cl_conoverlay_warning_clr = new ConVar("cl_conoverlay_warning_clr", "180 180 020 255", FCVAR_DEVELOPMENTONLY, "Warning RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_conoverlay_error_clr   = new ConVar("cl_conoverlay_error_clr"  , "225 050 050 255", FCVAR_DEVELOPMENTONLY, "Error RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_error_clr   = new ConVar("cl_conoverlay_error_clr"  , "225 030 030 255", FCVAR_DEVELOPMENTONLY, "Error RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 
 	cl_showhoststats           = new ConVar("cl_showhoststats"          , "0", FCVAR_DEVELOPMENTONLY, "Host speeds debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_hoststats_invert_rect_x = new ConVar("cl_hoststats_invert_rect_x", "0", FCVAR_DEVELOPMENTONLY, "Inverts the X rect for host speeds debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
@@ -390,7 +390,7 @@ void ConVar::SetValue(const char* pszValue)
 		float flNewValue = (float)atof(pszValue);
 		if (!IsFinite(flNewValue))
 		{
-			DevMsg(eDLL_T::ENGINE ,"Warning: ConVar '%s' = '%s' is infinite, clamping value.\n", GetBaseName(), pszValue);
+			Warning(eDLL_T::ENGINE ,"Warning: ConVar '%s' = '%s' is infinite, clamping value.\n", GetBaseName(), pszValue);
 			flNewValue = FLT_MAX;
 		}
 

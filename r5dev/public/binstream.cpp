@@ -97,14 +97,14 @@ bool CIOStream::checkReadabilityStatus()
 {
 	if (eCurrentMode != eStreamFileMode::READ)
 	{
-		DevMsg(eDLL_T::FS, "Error: StreamFileMode doesn't match required mode for read operation.\n");
+		Error(eDLL_T::FS, "Error: StreamFileMode doesn't match required mode for read operation.\n");
 		return false;
 	}
 
 	// check if we hit the end of the file.
 	if (reader.eof())
 	{
-		DevMsg(eDLL_T::FS, "Error: trying to read past EOF.\n");
+		Error(eDLL_T::FS, "Error: trying to read past EOF.\n");
 		reader.close();
 		eCurrentMode = eStreamFileMode::NONE;
 		return false;
@@ -119,7 +119,7 @@ bool CIOStream::checkWritabilityStatus()
 {
 	if (eCurrentMode != eStreamFileMode::WRITE)
 	{
-		DevMsg(eDLL_T::FS, "Error: StreamFileMode doesn't match required mode for write operation.\n");
+		Error(eDLL_T::FS, "Error: StreamFileMode doesn't match required mode for write operation.\n");
 		return false;
 	}
 	return true;

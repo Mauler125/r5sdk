@@ -462,9 +462,8 @@ void CNetAdr2::ToAdrinfo(addrinfo* pHint) const
 			WCHAR* wszError = gai_strerror(results);
 			_bstr_t bStr(wszError);
 			const char* pszError = bStr;
-			// TODO: Implement 'Warning(..)' instead!
 #ifndef NETCONSOLE
-			DevMsg(eDLL_T::ENGINE, "Address info translation failed (%s)\n", pszError);
+			Warning(eDLL_T::ENGINE, "Address info translation failed (%s)\n", pszError);
 #else
 			printf("Address info translation failed (%s)\n", pszError);
 #endif // !NETCONSOLE
@@ -483,9 +482,8 @@ void CNetAdr2::ToAdrinfo(addrinfo* pHint) const
 			WCHAR* wszError = gai_strerror(results);
 			_bstr_t bStr(wszError);
 			const char* pszError = bStr;
-			// TODO: Implement 'Warning(..)' instead!
 #ifndef NETCONSOLE
-			DevMsg(eDLL_T::ENGINE, "Address info translation failed (%s)\n", pszError);
+			Warning(eDLL_T::ENGINE, "Address info translation failed (%s)\n", pszError);
 #else
 			printf("Address info translation failed (%s)\n", pszError);
 #endif // !NETCONSOLE
