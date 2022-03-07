@@ -6,6 +6,7 @@ CEngine* g_pEngine = reinterpret_cast<CEngine*>(g_pEngineBuffer.GetPtr());
 
 //-----------------------------------------------------------------------------
 // Purpose: Start initializing the engine.
+// Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
 bool CEngine::Load(bool dedicated, const char* rootDir)
 {
@@ -16,7 +17,7 @@ bool CEngine::Load(bool dedicated, const char* rootDir)
 //-----------------------------------------------------------------------------
 // Purpose: Start to shutdown the engine.
 //-----------------------------------------------------------------------------
-void CEngine::Unload()
+void CEngine::Unload(void)
 {
 	static int index = 2;
 	CallVFunc<void>(index, this);
@@ -27,22 +28,21 @@ void CEngine::Unload()
 //-----------------------------------------------------------------------------
 void CEngine::SetNextState(EngineState_t iNextState)
 {
-	// Rebuild function, vfunc index is 3 in season 3.
-	m_nNextDLLState() = iNextState;
+	m_nNextDLLState = iNextState;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: Get the dll engine state.
 //-----------------------------------------------------------------------------
-EngineState_t CEngine::GetState()
+EngineState_t CEngine::GetState(void) const
 {
-	return m_nDLLState(); // Rebuild function, vfunc index is 4 in season 3.
+	return m_nDLLState;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-void CEngine::Frame()
+void CEngine::Frame(void)
 {
 	static int index = 5;
 	CallVFunc<void>(index, this);
@@ -51,25 +51,27 @@ void CEngine::Frame()
 //-----------------------------------------------------------------------------
 // Purpose: Get engine frame time.
 //-----------------------------------------------------------------------------
-float CEngine::GetFrameTime()
+float CEngine::GetFrameTime(void) const
 {
-	return m_flFrameTime(); // Rebuild function, vfunc index is 6 in season 3.
+	return m_flFrameTime;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-float CEngine::GetPreviousTime() // I'm not sure if this is right, should double check.
+float CEngine::GetPreviousTime(void) // I'm not sure if this is right, should double check.
 {
 	static int index = 7;
 	return CallVFunc<float>(index, this);
 }
 
-// Yes that is the function, I have no clue how to implement it at this moment so its gonna reside here for now. It's vfunc index 8.
-//__m128 __fastcall GetCurTime(CEngine *thisPtr)
-//{
-//	return _mm_cvtpd_ps((__m128d)(unsigned __int64)thisPtr->m_flCurrentTime);
-//}
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+__m128 __fastcall CEngine::GetCurTime(CEngine *thisPtr) const
+{
+	return _mm_cvtpd_ps(_mm_cvtepi32_pd(_mm_cvtsi64_si128(thisPtr->m_flCurrentTime)));
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Set dll state.

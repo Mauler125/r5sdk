@@ -24,39 +24,32 @@ enum class EngineDllQuitting_t : int
 	QUIT_RESTART     = 0x2,
 };
 
-
-// TODO: Check if all indexes match up between seasons. If not patternscan them.
 class CEngine
 {
 public:
 	bool Load(bool dedicated, const char* rootDir);
-	void Unload();
+	void Unload(void);
 	void SetNextState(EngineState_t iNextState);
-	EngineState_t GetState();
-	void Frame();
-	float GetFrameTime();
-	float GetPreviousTime();
+	EngineState_t GetState(void) const;
+	void Frame(void);
+	float GetFrameTime(void) const;
+	float GetPreviousTime(void);
+	__m128 GetCurTime(CEngine* thisPtr) const;
 	void SetQuitting(EngineDllQuitting_t quitDllState);
-	// __m128 __fastcall GetCurTime()
 
-	// Last functions in class table.
-	// sub_1401FE2A0
-	// sub_1401FE2B0
-	// sub_1401FE3B0
-
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	MEMBER_AT_OFFSET(EngineState_t, m_nDLLState, 0x8);
-	MEMBER_AT_OFFSET(EngineState_t, m_nNextDLLState, 0xC);
-	MEMBER_AT_OFFSET(std::int64_t, m_flCurrentTime, 0x10);
-	MEMBER_AT_OFFSET(std::int64_t, m_flPreviousTime, 0x18);
-	MEMBER_AT_OFFSET(int, m_flFrameTime, 0x20);
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3) // TODO: Verify offsets for other seasons. Should probably be the same as Season 2.
-	MEMBER_AT_OFFSET(EngineState_t, m_nDLLState, 0x8);
-	MEMBER_AT_OFFSET(EngineState_t, m_nNextDLLState, 0xC);
-	MEMBER_AT_OFFSET(std::int64_t, m_flCurrentTime, 0x10); // They are 8 bytes for some reason but floats? Kinda confusing.
-	MEMBER_AT_OFFSET(std::int64_t, m_flPreviousTime, 0x18);
-	MEMBER_AT_OFFSET(float, m_flFrameTime, 0x20);
-#endif
+private:
+	void*         vtable;
+	EngineState_t m_nDLLState;
+	EngineState_t m_nNextDLLState;
+	int64_t       m_flCurrentTime;
+	int64_t       m_flPreviousTime;
+	int           m_flFrameTime;
+	int           field_24;
+	int           m_flFilteredTime;
+	uint8_t       gap2C[4];
+	int64_t       field_30;
+	char          field_38;
+	char          field_39;
 };
 
 namespace

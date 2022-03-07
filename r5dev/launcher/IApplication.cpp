@@ -22,6 +22,9 @@ int HModAppSystemGroup_Main(CModAppSystemGroup* modAppSystemGroup)
 	int nRunResult = RUN_OK;
 	HEbisuSDK_Init(); // Not here in retail. We init EbisuSDK here though.
 
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) // !TODO: rebuild does not work for S1 (CModAppSystemGroup and CEngine member offsets do align with all other builds).
+	return CModAppSystemGroup_Main(modAppSystemGroup);
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 	if (modAppSystemGroup->m_bIsServerOnly()) // This will never be true anyway but we implement it for the sake of it.
 	{
 		if (g_pEngine->Load(true, g_pEngineParms->baseDirectory))
@@ -46,6 +49,7 @@ int HModAppSystemGroup_Main(CModAppSystemGroup* modAppSystemGroup)
 	}
 
 	return nRunResult;
+#endif
 }
 
 //-----------------------------------------------------------------------------
