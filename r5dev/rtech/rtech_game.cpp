@@ -45,12 +45,12 @@ void HRtech_AsyncLoad(std::string svPakFileName)
 
 		if (nPakId == 0xFFFFFFFF)
 		{
-			DevMsg(eDLL_T::RTECH, "RTech_AsyncLoad: Failed read '%s' results '%u'\n", svPakFileName.c_str(), nPakId);
+			Error(eDLL_T::RTECH, "RTech_AsyncLoad: Failed read '%s' results '%u'\n", svPakFileName.c_str(), nPakId);
 		}
 	}
 	else
 	{
-		DevMsg(eDLL_T::RTECH, "RTech_AsyncLoad: Failed. File '%s' doesn't exist\n", svPakFileName.c_str());
+		Error(eDLL_T::RTECH, "RTech_AsyncLoad: Failed. File '%s' doesn't exist\n", svPakFileName.c_str());
 	}
 }
 

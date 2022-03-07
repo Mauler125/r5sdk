@@ -14,8 +14,9 @@
 
 //-----------------------------------------------------------------------------
 // Purpose: loads required pakfile assets for specified BSP
+// Input  : svSetFile - 
 //-----------------------------------------------------------------------------
-void MOD_PreloadPak(void)
+void MOD_PreloadPak(const std::string& svSetFile)
 {
 	std::ostringstream ostream;
 	ostream << "platform\\scripts\\levels\\settings\\" << g_pHostState->m_levelName << ".json";
@@ -45,7 +46,7 @@ void MOD_PreloadPak(void)
 
 							if (nPakId == -1)
 							{
-								DevMsg(eDLL_T::RTECH, "RTech_AsyncLoad: failed read '%s' results '%u'\n", fsPath.string().c_str(), nPakId);
+								Error(eDLL_T::RTECH, "RTech_AsyncLoad: failed read '%s' results '%u'\n", fsPath.string().c_str(), nPakId);
 							}
 							else
 							{
@@ -59,7 +60,7 @@ void MOD_PreloadPak(void)
 		}
 		catch (const std::exception& ex)
 		{
-			DevMsg(eDLL_T::RTECH, "Exception while parsing RPak load list: '%s'\n", ex.what());
+			Warning(eDLL_T::RTECH, "Exception while parsing RPak load list: '%s'\n", ex.what());
 			return;
 		}
 	}

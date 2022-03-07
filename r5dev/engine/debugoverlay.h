@@ -34,7 +34,7 @@ enum class OverlayType_t
 
 struct OverlayBase_t
 {
-	OverlayBase_t()
+	OverlayBase_t(void)
 	{
 		m_Type          = OverlayType_t::OVERLAY_BOX;
 		m_nServerCount  = -1;
@@ -43,7 +43,7 @@ struct OverlayBase_t
 		m_pNextOverlay  = NULL;
 		unk0            = NULL;
 	}
-	bool IsDead();
+	bool IsDead(void) const;
 
 	OverlayType_t   m_Type         {}; // What type of overlay is it?
 	int             m_nCreationTick{}; // Duration -1 means go away after this frame #
@@ -55,7 +55,7 @@ struct OverlayBase_t
 
 struct OverlayLine_t : public OverlayBase_t
 {
-	OverlayLine_t() { m_Type = OverlayType_t::OVERLAY_LINE; }
+	OverlayLine_t(void) { m_Type = OverlayType_t::OVERLAY_LINE; }
 
 	Vector3         origin{};
 	Vector3         dest{};
@@ -68,12 +68,26 @@ struct OverlayLine_t : public OverlayBase_t
 
 struct OverlayBox_t : public OverlayBase_t
 {
-	OverlayBox_t() { m_Type = OverlayType_t::OVERLAY_BOX; }
+	OverlayBox_t(void) { m_Type = OverlayType_t::OVERLAY_BOX; }
 
 	Vector3         origin{};
 	Vector3         mins{};
 	Vector3         maxs{};
 	QAngle          angles{};
+	int             r{};
+	int             g{};
+	int             b{};
+	int             a{};
+};
+
+struct OverlaySphere_t : public OverlayBase_t
+{
+	OverlaySphere_t(void) { m_Type = OverlayType_t::OVERLAY_SPHERE; }
+
+	Vector3         vOrigin{};
+	float           flRadius{};
+	int             nTheta{};
+	int             nPhi{};
 	int             r{};
 	int             g{};
 	int             b{};

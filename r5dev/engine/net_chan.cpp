@@ -87,13 +87,13 @@ void HNET_GenerateKey()
 	BCRYPT_ALG_HANDLE hAlgorithm;
 	if (BCryptOpenAlgorithmProvider(&hAlgorithm, L"RNG", 0, 0) < 0)
 	{
-		DevMsg(eDLL_T::ENGINE, "Failed to open rng algorithm\n");
+		Error(eDLL_T::ENGINE, "Failed to open rng algorithm\n");
 		return;
 	}
 	unsigned char pBuffer[0x10u];
 	if (BCryptGenRandom(hAlgorithm, pBuffer, 0x10u, 0) < 0)
 	{
-		DevMsg(eDLL_T::ENGINE, "Failed to generate random data\n");
+		Error(eDLL_T::ENGINE, "Failed to generate random data\n");
 		return;
 	}
 

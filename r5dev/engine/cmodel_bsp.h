@@ -7,7 +7,7 @@ namespace
 	// 0x140256480 // 48 89 5C 24 ? 48 89 6C 24 ? 57 48 81 EC ? ? ? ? 48 8B F9 33 ED //
 }
 
-void MOD_PreloadPak(void);
+void MOD_PreloadPak(const std::string& svSetFile);
 ///////////////////////////////////////////////////////////////////////////////
 class HModel_BSP : public IDetour
 {

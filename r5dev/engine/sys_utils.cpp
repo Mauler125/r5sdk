@@ -344,7 +344,7 @@ void* HSys_LoadAssetHelper(const CHAR* lpFileName, std::int64_t a2, LARGE_INTEGE
 			bBasePaksLoaded || !strcmp(std::string(lpFileName).erase(0, 11).c_str(), "mp_lobby.rpak"))
 		{
 			// Attempt to load level dependencies if they exist.
-			MOD_PreloadPak();
+			MOD_PreloadPak(svLevelName);
 
 			// By the time mp_lobby.rpak is loaded, all the base paks are loaded as well and we can load anything else.
 			bBasePaksLoaded = true;

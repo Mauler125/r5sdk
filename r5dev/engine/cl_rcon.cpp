@@ -66,7 +66,7 @@ bool CRConClient::Connect(void)
 
 	if (m_pSocket->ConnectSocket(*m_pNetAdr2, true) == SOCKET_ERROR)
 	{
-		DevMsg(eDLL_T::CLIENT, "Connection to RCON server failed: (SOCKET_ERROR)\n");
+		Warning(eDLL_T::CLIENT, "Connection to RCON server failed: (SOCKET_ERROR)\n");
 		return false;
 	}
 	DevMsg(eDLL_T::CLIENT, "Connected to: %s\n", m_pNetAdr2->GetIPAndPort().c_str());
@@ -91,7 +91,7 @@ bool CRConClient::Connect(const std::string& svInAdr, const std::string& svInPor
 
 	if (m_pSocket->ConnectSocket(*m_pNetAdr2, true) == SOCKET_ERROR)
 	{
-		DevMsg(eDLL_T::CLIENT, "Connection to RCON server failed: (SOCKET_ERROR)\n");
+		Warning(eDLL_T::CLIENT, "Connection to RCON server failed: (SOCKET_ERROR)\n");
 		return false;
 	}
 	DevMsg(eDLL_T::CLIENT, "Connected to: %s\n", m_pNetAdr2->GetIPAndPort().c_str());
@@ -118,7 +118,7 @@ void CRConClient::Send(const std::string& svMessage) const
 	int nSendResult = ::send(m_pSocket->GetAcceptedSocketData(0)->m_hSocket, svMessage.c_str(), svMessage.size(), MSG_NOSIGNAL);
 	if (nSendResult == SOCKET_ERROR)
 	{
-		DevMsg(eDLL_T::CLIENT, "Failed to send RCON message: (SOCKET_ERROR)\n");
+		Warning(eDLL_T::CLIENT, "Failed to send RCON message: (SOCKET_ERROR)\n");
 	}
 }
 
