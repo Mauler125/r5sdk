@@ -212,7 +212,11 @@ void CAI_NetworkBuilder::BuildFile(CAI_Network* pNetwork)
 
 void HCAI_NetworkManager__LoadNetworkGraph(void* aimanager, void* buf, const char* filename)
 {
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+	CAI_NetworkManager__LoadNetworkGraph(aimanager, buf, filename, NULL);
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 	CAI_NetworkManager__LoadNetworkGraph(aimanager, buf, filename);
+#endif
 
 	if (ai_dumpAINfileFromLoad->GetBool())
 	{
