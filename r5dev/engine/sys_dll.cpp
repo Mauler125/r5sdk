@@ -1,5 +1,6 @@
 #include "core/stdafx.h"
 #include "engine/sys_dll.h"
+#include "engine/sys_utils.h"
 
 //-----------------------------------------------------------------------------
 //	Sys_Error_Internal
@@ -7,9 +8,11 @@
 //-----------------------------------------------------------------------------
 int HSys_Error_Internal(char* fmt, va_list args)
 {
-	printf("\n_______________________________________________________________\n");
-	printf("] ENGINE ERROR ################################################\n");
-	vprintf(fmt, args);
+	char buffer[2048]{};
+	Error(eDLL_T::NONE, "_______________________________________________________________\n");
+	Error(eDLL_T::NONE, "] ENGINE ERROR ################################################\n");
+	vsprintf(buffer, fmt, args);
+	Error(eDLL_T::NONE, "%s\n", buffer);
 
 	///////////////////////////////////////////////////////////////////////////
 	return Sys_Error_Internal(fmt, args);
