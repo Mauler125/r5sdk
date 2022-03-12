@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Include">
+      <UniqueIdentifier>{022aa5b2-9d45-4484-b870-9a5f659dd4b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{ebbf6275-763e-4acc-9b8c-278cfb975054}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\thirdparty\recast\DebugUtils\Include\DetourDebugDraw.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\recast\DebugUtils\Include\RecastDebugDraw.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\recast\DebugUtils\Include\RecastDump.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\recast\DebugUtils\Include\DebugDraw.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\thirdparty\recast\DebugUtils\Source\DetourDebugDraw.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\recast\DebugUtils\Source\RecastDebugDraw.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\recast\DebugUtils\Source\RecastDump.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\recast\DebugUtils\Source\DebugDraw.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

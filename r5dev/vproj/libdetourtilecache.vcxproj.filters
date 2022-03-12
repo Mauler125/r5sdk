@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Include">
+      <UniqueIdentifier>{d576172b-e83c-4ad2-9072-04889023abe9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{25bfd9d8-8e84-4ec4-ac69-5f83a0c5f7ef}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\thirdparty\recast\detourtilecache\Include\DetourTileCache.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\recast\detourtilecache\Include\DetourTileCacheBuilder.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\thirdparty\recast\detourtilecache\Source\DetourTileCacheBuilder.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\recast\detourtilecache\Source\DetourTileCache.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
