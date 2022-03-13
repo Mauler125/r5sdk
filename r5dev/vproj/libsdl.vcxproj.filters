@@ -169,6 +169,12 @@
     <Filter Include="video\khronos\vulkan">
       <UniqueIdentifier>{4755f3a6-49ac-46d6-86be-21f5c21f2197}</UniqueIdentifier>
     </Filter>
+    <Filter Include="main">
+      <UniqueIdentifier>{b83a78cc-4e49-439f-b61a-90798f3012db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="main\windows">
+      <UniqueIdentifier>{cf91bc2a-7739-4654-a08e-51cbcc3878de}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\thirdparty\sdl\include\begin_code.h">
@@ -1313,6 +1319,9 @@
     <ClCompile Include="..\thirdparty\sdl\src\SDL_log.c" />
     <ClCompile Include="..\thirdparty\sdl\src\power\windows\SDL_syspower.c">
       <Filter>power\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\sdl\src\main\windows\SDL_windows_main.c">
+      <Filter>main\windows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

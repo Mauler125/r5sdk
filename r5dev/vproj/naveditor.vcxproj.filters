@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Include">
+      <UniqueIdentifier>{9ab87056-e082-4b08-96fc-91d0b5e14f3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Conrtib">
+      <UniqueIdentifier>{1ac9f8e6-8a00-4875-aa9e-0b439faaff62}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\naveditor\include\CrowdTool.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\naveditor\include\Filelist.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\naveditor\include\imgui.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\naveditor\include\imguiRenderGL.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\naveditor\include\InputGeom.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\naveditor\include\MeshLoaderBsp.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\naveditor\include\MeshLoaderObj.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\naveditor\include\MeshLoaderPly.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\naveditor\include\NavMeshPruneTool.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\naveditor\include\NavMeshTesterTool.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\naveditor\include\OffMeshConnectionTool.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\naveditor\include\PerfTimer.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\naveditor\include\Sample.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\naveditor\include\Sample_Debug.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\naveditor\include\Sample_SoloMesh.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\naveditor\include\Sample_TempObstacles.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\naveditor\include\Sample_TileMesh.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\naveditor\include\SampleInterfaces.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\naveditor\include\TestCase.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\naveditor\include\ValueHistory.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\naveditor\include\ChunkyTriMesh.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\naveditor\include\ConvexVolumeTool.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\fastlz\fastlz.h">
+      <Filter>Conrtib</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\naveditor\imgui.cpp" />
+    <ClCompile Include="..\naveditor\imguiRenderGL.cpp" />
+    <ClCompile Include="..\naveditor\InputGeom.cpp" />
+    <ClCompile Include="..\naveditor\main.cpp" />
+    <ClCompile Include="..\naveditor\MeshLoaderBsp.cpp" />
+    <ClCompile Include="..\naveditor\MeshLoaderObj.cpp" />
+    <ClCompile Include="..\naveditor\MeshLoaderPly.cpp" />
+    <ClCompile Include="..\naveditor\NavMeshPruneTool.cpp" />
+    <ClCompile Include="..\naveditor\NavMeshTesterTool.cpp" />
+    <ClCompile Include="..\naveditor\OffMeshConnectionTool.cpp" />
+    <ClCompile Include="..\naveditor\PerfTimer.cpp" />
+    <ClCompile Include="..\naveditor\Sample.cpp" />
+    <ClCompile Include="..\naveditor\Sample_Debug.cpp" />
+    <ClCompile Include="..\naveditor\Sample_SoloMesh.cpp" />
+    <ClCompile Include="..\naveditor\Sample_TempObstacles.cpp" />
+    <ClCompile Include="..\naveditor\Sample_TileMesh.cpp" />
+    <ClCompile Include="..\naveditor\SampleInterfaces.cpp" />
+    <ClCompile Include="..\naveditor\TestCase.cpp" />
+    <ClCompile Include="..\naveditor\ValueHistory.cpp" />
+    <ClCompile Include="..\naveditor\ChunkyTriMesh.cpp" />
+    <ClCompile Include="..\naveditor\ConvexVolumeTool.cpp" />
+    <ClCompile Include="..\naveditor\CrowdTool.cpp" />
+    <ClCompile Include="..\naveditor\Filelist.cpp" />
+    <ClCompile Include="..\thirdparty\fastlz\fastlz.c">
+      <Filter>Conrtib</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

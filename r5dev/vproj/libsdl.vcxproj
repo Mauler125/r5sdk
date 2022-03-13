@@ -530,6 +530,7 @@
     <ClCompile Include="..\thirdparty\sdl\src\loadso\windows\SDL_sysloadso.c" />
     <ClCompile Include="..\thirdparty\sdl\src\locale\SDL_locale.c" />
     <ClCompile Include="..\thirdparty\sdl\src\locale\windows\SDL_syslocale.c" />
+    <ClCompile Include="..\thirdparty\sdl\src\main\windows\SDL_windows_main.c" />
     <ClCompile Include="..\thirdparty\sdl\src\misc\SDL_url.c" />
     <ClCompile Include="..\thirdparty\sdl\src\misc\windows\SDL_sysurl.c" />
     <ClCompile Include="..\thirdparty\sdl\src\power\SDL_power.c" />
