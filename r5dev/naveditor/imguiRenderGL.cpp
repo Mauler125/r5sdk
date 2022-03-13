@@ -16,7 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "NavEditor/Include/Pch.h"
+#include "Pch.h"
 
 // Some math headers don't have PI defined.
 static const float PI = 3.14159265f;

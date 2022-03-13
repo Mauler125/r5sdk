@@ -16,19 +16,15 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "NavEditor/Include/Pch.h"
-#include "NavEditor/Include/NavMeshTesterTool.h"
-#include "NavEditor/Include/Sample.h"
+#include "Pch.h"
 #include "Recast/Include/Recast.h"
-#include "DebugUtils/Include/RecastDebugDraw.h"
 #include "Detour/Include/DetourNavMesh.h"
 #include "Detour/Include/DetourNavMeshBuilder.h"
-#include "DebugUtils/Include/DetourDebugDraw.h"
 #include "Detour/Include/DetourCommon.h"
-
-#ifdef WIN32
-#	define snprintf _snprintf
-#endif
+#include "DebugUtils/Include/DetourDebugDraw.h"
+#include "DebugUtils/Include/RecastDebugDraw.h"
+#include "NavEditor/Include/NavMeshTesterTool.h"
+#include "NavEditor/Include/Sample.h"
 
 // Uncomment this to dump all the requests in stdout.
 #define DUMP_REQS

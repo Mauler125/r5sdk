@@ -19,7 +19,6 @@
 #ifndef TESTCASE_H
 #define TESTCASE_H
 
-#include <string>
 #include "Detour/Include/DetourNavMesh.h"
 
 class TestCase

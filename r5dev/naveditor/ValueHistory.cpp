@@ -1,6 +1,5 @@
-#include "NavEditor/Include/Pch.h"
+#include "Pch.h"
 #include "NavEditor/Include/ValueHistory.h"
-#include "NavEditor/Include/imgui.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf

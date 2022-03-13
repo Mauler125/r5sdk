@@ -20,8 +20,8 @@
 #define SAMPLEINTERFACES_H
 
 #include "DebugUtils/Include/DebugDraw.h"
-#include "Recast/Include/Recast.h"
 #include "DebugUtils/Include/RecastDump.h"
+#include "Recast/Include/Recast.h"
 #include "NavEditor/Include/PerfTimer.h"
 
 // These are example implementations of various interfaces used in Recast and Detour.

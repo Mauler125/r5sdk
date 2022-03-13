@@ -21,7 +21,6 @@
 
 #include "Recast/Include/Recast.h"
 #include "NavEditor/Include/SampleInterfaces.h"
-#include <string>
 
 struct hulldef
 {

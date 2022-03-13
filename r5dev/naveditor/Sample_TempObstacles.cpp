@@ -16,30 +16,25 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "NavEditor/Include/Pch.h"
-#include "NavEditor/Include/imgui.h"
-#include "NavEditor/Include/InputGeom.h"
-#include "NavEditor/Include/Sample.h"
-#include "NavEditor/Include/Sample_TempObstacles.h"
+#include "Pch.h"
 #include "Recast/Include/Recast.h"
-#include "DebugUtils/Include/RecastDebugDraw.h"
+#include "Recast/Include/RecastAlloc.h"
+#include "Recast/Include/RecastAssert.h"
 #include "Detour/Include/DetourAssert.h"
 #include "Detour/Include/DetourNavMesh.h"
 #include "Detour/Include/DetourNavMeshBuilder.h"
-#include "DebugUtils/Include/DetourDebugDraw.h"
 #include "Detour/Include/DetourCommon.h"
 #include "DetourTileCache/Include/DetourTileCache.h"
+#include "DebugUtils/Include/RecastDebugDraw.h"
+#include "DebugUtils/Include/DetourDebugDraw.h"
 #include "NavEditor/Include/NavMeshTesterTool.h"
 #include "NavEditor/Include/OffMeshConnectionTool.h"
 #include "NavEditor/Include/ConvexVolumeTool.h"
 #include "NavEditor/Include/CrowdTool.h"
-#include "Recast/Include/RecastAlloc.h"
-#include "Recast/Include/RecastAssert.h"
+#include "NavEditor/Include/InputGeom.h"
+#include "NavEditor/Include/Sample.h"
+#include "NavEditor/Include/Sample_TempObstacles.h"
 #include "thirdparty/fastlz/fastlz.h"
-
-#ifdef WIN32
-#	define snprintf _snprintf
-#endif
 
 
 // This value specifies how many layers (or "floors") each navmesh tile is expected to have.

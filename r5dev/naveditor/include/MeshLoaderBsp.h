@@ -15,7 +15,8 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 //
-#pragma once
+#ifndef MESHLOADER_BSP
+#define MESHLOADER_BSP
 
 #include <string>
 #include <vector>
@@ -49,3 +50,5 @@ private:
 
 	
 };
+
+#endif // MESHLOADER_BSP

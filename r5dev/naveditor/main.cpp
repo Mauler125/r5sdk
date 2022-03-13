@@ -16,7 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "NavEditor/Include/Pch.h"
+#include "Pch.h"
 #include "Recast/Include/Recast.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "NavEditor/Include/InputGeom.h"

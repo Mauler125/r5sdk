@@ -1,5 +1,3 @@
-#ifndef DTPCH_H
-#define DTPCH_H
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -13,7 +11,7 @@
 
 #ifdef WIN32
 #	include <io.h>
-#else // Linux, BSD, OSX
+#else
 #	include <dirent.h>
 #	include <cstring>
 #endif
@@ -43,5 +41,3 @@
 
 #include "NavEditor/Include/imgui.h"
 #include "NavEditor/Include/imguiRenderGL.h"
-
-#endif // DTPCH_H

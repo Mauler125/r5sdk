@@ -1,13 +1,9 @@
-#include "NavEditor/Include/Pch.h"
-#include "NavEditor/Include/SampleInterfaces.h"
+#include "Pch.h"
 #include "Recast/Include/Recast.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"
+#include "NavEditor/Include/SampleInterfaces.h"
 #include "NavEditor/Include/PerfTimer.h"
-
-#ifdef WIN32
-#	define snprintf _snprintf
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

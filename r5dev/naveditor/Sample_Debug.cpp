@@ -16,18 +16,14 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "NavEditor/Include/Pch.h"
-#include "NavEditor/Include/Sample_Debug.h"
-#include "NavEditor/Include/InputGeom.h"
+#include "Pch.h"
 #include "Recast/Include/Recast.h"
-#include "Detour/Include/DetourNavMesh.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"
 #include "DebugUtils/Include/RecastDump.h"
-
-#ifdef WIN32
-#	define snprintf _snprintf
-#endif
+#include "Detour/Include/DetourNavMesh.h"
+#include "NavEditor/Include/Sample_Debug.h"
+#include "NavEditor/Include/InputGeom.h"
 
 /*
 static int loadBin(const char* path, unsigned char** data)

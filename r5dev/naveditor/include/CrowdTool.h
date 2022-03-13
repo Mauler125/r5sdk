@@ -19,11 +19,11 @@
 #ifndef CROWDTOOL_H
 #define CROWDTOOL_H
 
-#include "NavEditor/Include/Sample.h"
 #include "Detour/Include/DetourNavMesh.h"
 #include "DetourCrowd/Include/DetourObstacleAvoidance.h"
-#include "NavEditor/Include/ValueHistory.h"
 #include "DetourCrowd/Include/DetourCrowd.h"
+#include "NavEditor/Include/ValueHistory.h"
+#include "NavEditor/Include/Sample.h"
 
 // Tool to create crowds.
 

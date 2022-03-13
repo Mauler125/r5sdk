@@ -16,7 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "NavEditor/Include/Pch.h"
+#include "Pch.h"
 #include "NavEditor/Include/MeshLoaderBsp.h"
 
 bool rcMeshLoaderBsp::load(const std::string& filename)

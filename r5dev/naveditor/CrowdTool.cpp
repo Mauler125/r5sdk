@@ -16,20 +16,16 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "NavEditor/Include/Pch.h"
+#include "Pch.h"
+#include "Detour/Include/DetourCommon.h"
+#include "Detour/Include/DetourNode.h"
+#include "DetourCrowd/Include/DetourCrowd.h"
+#include "DetourCrowd/Include/DetourObstacleAvoidance.h"
+#include "DebugUtils/Include/DetourDebugDraw.h"
 #include "NavEditor/Include/CrowdTool.h"
 #include "NavEditor/Include/InputGeom.h"
 #include "NavEditor/Include/Sample.h"
-#include "DetourCrowd/Include/DetourCrowd.h"
-#include "DebugUtils/Include/DetourDebugDraw.h"
-#include "DetourCrowd/Include/DetourObstacleAvoidance.h"
-#include "Detour/Include/DetourCommon.h"
-#include "Detour/Include/DetourNode.h"
 #include "NavEditor/Include/SampleInterfaces.h"
-
-#ifdef WIN32
-#	define snprintf _snprintf
-#endif
 
 static bool isectSegAABB(const float* sp, const float* sq,
 						 const float* amin, const float* amax,

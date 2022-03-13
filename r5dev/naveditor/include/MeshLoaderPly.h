@@ -15,10 +15,9 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 //
-#pragma once
+#ifndef MESHLOADER_PLY
+#define MESHLOADER_PLY
 
-#include <string>
-#include <vector>
 #include <NavEditor/Include/MeshLoaderObj.h>
 
 class rcMeshLoaderPly:public IMeshLoader
@@ -48,3 +47,5 @@ private:
 	int m_vertCount = 0;
 	int m_triCount = 0;
 };
+
+#endif // MESHLOADER_PLY

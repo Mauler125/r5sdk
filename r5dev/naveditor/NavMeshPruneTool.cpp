@@ -16,14 +16,14 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "NavEditor/Include/Pch.h"
-#include "NavEditor/Include/NavMeshPruneTool.h"
-#include "NavEditor/Include/InputGeom.h"
-#include "NavEditor/Include/Sample.h"
+#include "Pch.h"
 #include "Detour/Include/DetourNavMesh.h"
 #include "Detour/Include/DetourCommon.h"
 #include "Detour/Include/DetourAssert.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"
+#include "NavEditor/Include/NavMeshPruneTool.h"
+#include "NavEditor/Include/InputGeom.h"
+#include "NavEditor/Include/Sample.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
