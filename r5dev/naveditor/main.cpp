@@ -376,6 +376,10 @@ int not_main(int argc, char** argv)
 			auto_load = argv[1];
 		}
 	}
+	else
+	{
+		FreeConsole();
+	}
 
 	float t = 0.0f;
 	float timeAcc = 0.0f;
@@ -412,8 +416,8 @@ int not_main(int argc, char** argv)
 	string sampleName = "Choose Sample...";
 	
 	vector<string> files;
-	const string meshesFolder = "Meshes";
-	string meshName = "Choose Mesh...";
+	const string meshesFolder = "Levels";
+	string meshName = "Choose Level...";
 	
 	float markerPosition[3] = {0, 0, 0};
 	bool markerPositionSet = false;
@@ -835,8 +839,8 @@ int not_main(int argc, char** argv)
 			imguiSeparator();
 			//if (imguiCheck("Import/Export TF2", tf2_transforms, true))
 			//	tf2_transforms = !tf2_transforms;
-			imguiLabel("Input Mesh");
-			if (imguiButton("Load mesh..."))
+			imguiLabel("Input Level");
+			if (imguiButton("Load Level..."))
 			{
 				char szFile[260];
 				OPENFILENAMEA diag = { 0 };

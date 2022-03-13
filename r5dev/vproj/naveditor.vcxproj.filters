@@ -39,9 +39,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\naveditor\include\Pch.h">
-      <Filter>core\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\naveditor\include\Sample.h">
       <Filter>core\include</Filter>
     </ClInclude>
@@ -111,15 +108,15 @@
     <ClInclude Include="..\thirdparty\fastlz\fastlz.h">
       <Filter>contrib\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\thirdparty\recast\Pch.h">
+      <Filter>core\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\thirdparty\fastlz\fastlz.c">
       <Filter>contrib</Filter>
     </ClCompile>
     <ClCompile Include="..\naveditor\main.cpp">
-      <Filter>core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\naveditor\Pch.cpp">
       <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="..\naveditor\Sample.cpp">
@@ -187,6 +184,9 @@
     </ClCompile>
     <ClCompile Include="..\naveditor\TestCase.cpp">
       <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\recast\Pch.cpp">
+      <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

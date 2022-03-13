@@ -1,3 +1,5 @@
+#ifndef DTPCH_H
+#define DTPCH_H
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -11,7 +13,7 @@
 
 #ifdef WIN32
 #	include <io.h>
-#else
+#else // Linux, BSD, OSX
 #	include <dirent.h>
 #	include <cstring>
 #endif
@@ -24,6 +26,9 @@
 #include <set>
 #include <vector>
 #include <algorithm>
+#include <filesystem>
+
+#include "thirdparty/fastlz/fastlz.h"
 
 #include "thirdparty/sdl/include/SDL.h"
 #include "thirdparty/sdl/include/SDL_syswm.h"
@@ -41,3 +46,5 @@
 
 #include "NavEditor/Include/imgui.h"
 #include "NavEditor/Include/imguiRenderGL.h"
+
+#endif // DTPCH_H

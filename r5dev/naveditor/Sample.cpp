@@ -161,7 +161,7 @@ void Sample::collectSettings(BuildSettings& settings)
 void Sample::resetCommonSettings()
 {
 	m_cellSize = 15.0f;
-	m_cellHeight = 5.8f;
+	m_cellHeight = 5.85f;
 	m_agentHeight = 2.0f;
 	m_agentRadius = 0.6f;
 	m_agentMaxClimb = 0.9f;
@@ -429,6 +429,125 @@ void unpatch_tiletf2(dtMeshTile* t)
 		coord_tf_unfix(t->offMeshCons[i].unk);
 	}
 }
+struct link_table_data
+{
+	//disjoint set algo from some crappy site because i'm too lazy to think
+	int set_count = 0;
+	std::vector<int> rank;
+	std::vector<int> parent;
+	void init(int size)
+	{
+		rank.resize(size);
+		parent.resize(size);
+
+		for (int i = 0; i < parent.size(); i++)
+			parent[i] = i;
+	}
+	int insert_new()
+	{
+		rank.push_back(0);
+		parent.push_back(set_count);
+		return set_count++;
+	}
+	int find(int id)
+	{
+		if (parent[id] != id)
+			return find(parent[id]);
+		return id;
+	}
+	void set_union(int x, int y)
+	{
+		int sx = find(x);
+		int sy = find(y);
+		if (sx == sy) //same set already
+			return;
+
+		if (rank[sx] < rank[sy])
+			parent[sx] = sy;
+		else if (rank[sx] > rank[sy])
+			parent[sy] = sx;
+		else
+		{
+			parent[sy] = sx;
+			rank[sx] += 1;
+		}
+	}
+};
+void build_link_table(dtNavMesh* mesh, link_table_data& data)
+{
+	//clear all labels
+	for (int i = 0; i < mesh->getMaxTiles(); ++i)
+	{
+		dtMeshTile* tile = mesh->getTile(i);
+		if (!tile || !tile->header || !tile->dataSize) continue;
+		auto pcount = tile->header->polyCount;
+		for (int j = 0; j < pcount; j++)
+		{
+			auto& poly = tile->polys[j];
+			poly.link_table_idx = -1;
+		}
+	}
+	//first pass
+	std::set<int> nlabels;
+	for (int i = 0; i < mesh->getMaxTiles(); ++i)
+	{
+		dtMeshTile* tile = mesh->getTile(i);
+		if (!tile || !tile->header || !tile->dataSize) continue;
+		auto pcount = tile->header->polyCount;
+		for (int j = 0; j < pcount; j++)
+		{
+			auto& poly = tile->polys[j];
+			auto plink = poly.firstLink;
+			while (plink != DT_NULL_LINK)
+			{
+				auto l = tile->links[plink];
+				const dtMeshTile* t;
+				const dtPoly* p;
+				mesh->getTileAndPolyByRefUnsafe(l.ref, &t, &p);
+
+				if (p->link_table_idx != (unsigned short)-1)
+					nlabels.insert(p->link_table_idx);
+				plink = l.next;
+			}
+			if (nlabels.empty())
+			{
+				poly.link_table_idx = data.insert_new();
+			}
+			else
+			{
+				auto l = *nlabels.begin();
+				poly.link_table_idx = l;
+				for (auto nl : nlabels)
+					data.set_union(l, nl);
+			}
+			nlabels.clear();
+		}
+	}
+	//second pass
+	for (int i = 0; i < mesh->getMaxTiles(); ++i)
+	{
+		dtMeshTile* tile = mesh->getTile(i);
+		if (!tile || !tile->header || !tile->dataSize) continue;
+		auto pcount = tile->header->polyCount;
+		for (int j = 0; j < pcount; j++)
+		{
+			auto& poly = tile->polys[j];
+			auto id = data.find(poly.link_table_idx);
+			poly.link_table_idx = id;
+		}
+	}
+}
+void set_reachable(std::vector<int>& data, int count, int id1, int id2, bool value)
+{
+	int w = ((count + 31) / 32);
+	auto& cell = data[id1 * w + id2 / 32];
+	uint32_t value_mask = ~(1 << (id2 & 0x1f));
+	if (!value)
+		cell = (cell & value_mask);
+	else
+		cell = (cell & value_mask) | (1 << (id2 & 0x1f));
+}
+
 dtNavMesh* Sample::loadAll(const char* path)
 {
 
@@ -505,133 +624,20 @@ dtNavMesh* Sample::loadAll(const char* path)
 
 	return mesh;
 }
-struct link_table_data
-{
-	//disjoint set algo from some crappy site because i'm too lazy to think
-	int set_count = 0;
-	std::vector<int> rank;
-	std::vector<int> parent;
-	void init(int size)
-	{
-		rank.resize(size);
-		parent.resize(size);
 
-		for (int i = 0; i < parent.size(); i++)
-			parent[i] = i;
-	}
-	int insert_new()
-	{
-		rank.push_back(0);
-		parent.push_back(set_count);
-		return set_count++;
-	}
-	int find(int id)
-	{
-		if (parent[id] != id)
-			return find(parent[id]);
-		return id;
-	}
-	void set_union(int x, int y)
-	{
-		int sx = find(x);
-		int sy = find(y);
-		if (sx == sy) //same set already
-			return;
-
-		if (rank[sx] < rank[sy])
-			parent[sx] = sy;
-		else if (rank[sx] > rank[sy])
-			parent[sy] = sx;
-		else
-		{
-			parent[sy] = sx;
-			rank[sx] += 1;
-		}
-	}
-};
-void build_link_table(dtNavMesh* mesh, link_table_data& data)
+void Sample::saveAll(std::string path, dtNavMesh* mesh)
 {
-	//clear all labels
-	for (int i = 0; i < mesh->getMaxTiles(); ++i)
-	{
-		dtMeshTile* tile = mesh->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		auto pcount = tile->header->polyCount;
-		for (int j = 0; j < pcount; j++)
-		{
-			auto& poly = tile->polys[j];
-			poly.link_table_idx = -1;
-		}
-	}
-	//first pass
-	std::set<int> nlabels;
-	for (int i = 0; i < mesh->getMaxTiles(); ++i)
-	{
-		dtMeshTile* tile = mesh->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		auto pcount = tile->header->polyCount;
-		for (int j = 0; j < pcount; j++)
-		{
-			auto& poly = tile->polys[j];
-			auto plink = poly.firstLink;
-			while (plink != DT_NULL_LINK)
-			{
-				auto l=tile->links[plink];
-				const dtMeshTile *t;
-				const dtPoly *p;
-				mesh->getTileAndPolyByRefUnsafe(l.ref, &t, &p);
-
-				if(p->link_table_idx != (unsigned short)-1)
-					nlabels.insert(p->link_table_idx);
-				plink = l.next;
-			}
-			if (nlabels.empty())
-			{
-				poly.link_table_idx = data.insert_new();
-			}
-			else
-			{
-				auto l = *nlabels.begin();
-				poly.link_table_idx = l;
-				for (auto nl : nlabels)
-					data.set_union(l, nl);
-			}
-			nlabels.clear();
-		}
-	}
-	//second pass
-	for (int i = 0; i < mesh->getMaxTiles(); ++i)
-	{
-		dtMeshTile* tile = mesh->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		auto pcount = tile->header->polyCount;
-		for (int j = 0; j < pcount; j++)
-		{
-			auto& poly = tile->polys[j];
-			auto id = data.find(poly.link_table_idx);
-			poly.link_table_idx = id;
-		}
-	}
-}
-void set_reachable(std::vector<int>& data,int count, int id1, int id2, bool value)
-{
-	int w = ((count + 31) / 32);
-	auto& cell = data[id1*w + id2 / 32];
-	uint32_t value_mask = ~(1<<(id2 & 0x1f));
-	if (!value)
-		cell = (cell & value_mask);
-	else
-		cell = (cell & value_mask) | (1 << (id2 & 0x1f));
-}
-void Sample::saveAll(const char* path,dtNavMesh* mesh)
-{
-
-	printf("%s\n", path);
 	if (!mesh) return;
-	char buffer[256];
-	sprintf(buffer, "%s_%s.nm", path, m_navmesh_name);
 
-	printf("%s\n", buffer);
+	std::filesystem::path p = "..\\maps\\navmesh\\";
+
+	if (std::filesystem::is_directory(p))
+	{
+		path.insert(0, p.string());
+	}
+
+	char buffer[256];
+	sprintf(buffer, "%s_%s.nm", path.c_str(), m_navmesh_name);
 
 	FILE* fp = fopen(buffer, "wb");
 	if (!fp)
@@ -642,7 +648,7 @@ void Sample::saveAll(const char* path,dtNavMesh* mesh)
 	header.magic = NAVMESHSET_MAGIC;
 	header.version = NAVMESHSET_VERSION;
 	header.numTiles = 0;
-	
+
 	for (int i = 0; i < mesh->getMaxTiles(); ++i)
 	{
 		dtMeshTile* tile = mesh->getTile(i);
@@ -653,7 +659,7 @@ void Sample::saveAll(const char* path,dtNavMesh* mesh)
 
 	link_table_data link_data;
 	build_link_table(mesh, link_data);
-	int table_size = ((link_data.set_count + 31) / 32)*link_data.set_count * 32;
+	int table_size = ((link_data.set_count + 31) / 32) * link_data.set_count * 32;
 	header.params.disjoint_poly_group_count = link_data.set_count;
 	header.params.reachability_table_count = m_count_reachability_tables;
 	header.params.reachability_table_size = table_size;
@@ -676,16 +682,16 @@ void Sample::saveAll(const char* path,dtNavMesh* mesh)
 		fwrite(tile->data, tile->dataSize, 1, fp);
 		if (*is_tf2)patch_tiletf2(const_cast<dtMeshTile*>(tile));
 	}
-	
+
 	//still dont know what this thing is...
-	int header_sth=0;
-	for(int i=0;i<link_data.set_count;i++)
+	int header_sth = 0;
+	for (int i = 0; i < link_data.set_count; i++)
 		fwrite(&header_sth, sizeof(int), 1, fp);
 
-	std::vector<int> reachability(table_size,0);
+	std::vector<int> reachability(table_size, 0);
 	for (int i = 0; i < link_data.set_count; i++)
 		set_reachable(reachability, link_data.set_count, i, i, true);
-	for(int i=0;i< header.params.reachability_table_count;i++)
-		fwrite(reachability.data(), sizeof(int), (table_size /4), fp);
+	for (int i = 0; i < header.params.reachability_table_count; i++)
+		fwrite(reachability.data(), sizeof(int), (table_size / 4), fp);
 	fclose(fp);
 }

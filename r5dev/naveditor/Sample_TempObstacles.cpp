@@ -34,7 +34,6 @@
 #include "NavEditor/Include/InputGeom.h"
 #include "NavEditor/Include/Sample.h"
 #include "NavEditor/Include/Sample_TempObstacles.h"
-#include "thirdparty/fastlz/fastlz.h"
 
 
 // This value specifies how many layers (or "floors") each navmesh tile is expected to have.

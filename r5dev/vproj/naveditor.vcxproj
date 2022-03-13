@@ -24,7 +24,6 @@
     <ClInclude Include="..\naveditor\include\NavMeshPruneTool.h" />
     <ClInclude Include="..\naveditor\include\NavMeshTesterTool.h" />
     <ClInclude Include="..\naveditor\include\OffMeshConnectionTool.h" />
-    <ClInclude Include="..\naveditor\include\Pch.h" />
     <ClInclude Include="..\naveditor\include\PerfTimer.h" />
     <ClInclude Include="..\naveditor\include\Sample.h" />
     <ClInclude Include="..\naveditor\include\SampleInterfaces.h" />
@@ -35,6 +34,7 @@
     <ClInclude Include="..\naveditor\include\TestCase.h" />
     <ClInclude Include="..\naveditor\include\ValueHistory.h" />
     <ClInclude Include="..\thirdparty\fastlz\fastlz.h" />
+    <ClInclude Include="..\thirdparty\recast\Pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\naveditor\ChunkyTriMesh.cpp" />
@@ -51,10 +51,6 @@
     <ClCompile Include="..\naveditor\NavMeshPruneTool.cpp" />
     <ClCompile Include="..\naveditor\NavMeshTesterTool.cpp" />
     <ClCompile Include="..\naveditor\OffMeshConnectionTool.cpp" />
-    <ClCompile Include="..\naveditor\Pch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="..\naveditor\PerfTimer.cpp" />
     <ClCompile Include="..\naveditor\Sample.cpp" />
     <ClCompile Include="..\naveditor\SampleInterfaces.cpp" />
@@ -67,6 +63,10 @@
     <ClCompile Include="..\thirdparty\fastlz\fastlz.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\recast\Pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <PropertyGroup Label="Globals">
