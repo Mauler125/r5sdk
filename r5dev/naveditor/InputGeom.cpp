@@ -16,12 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include <stdio.h>
-#include <ctype.h>
-#include <string.h>
-#include <algorithm>
+#include "NavEditor/Include/pch.h"
 #include "Recast/Include/Recast.h"
 #include "NavEditor/Include/InputGeom.h"
 #include "NavEditor/Include/ChunkyTriMesh.h"

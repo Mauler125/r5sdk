@@ -1,15 +1,9 @@
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include <stdio.h>
-#include <stdarg.h>
+#include "NavEditor/Include/Pch.h"
 #include "NavEditor/Include/SampleInterfaces.h"
 #include "Recast/Include/Recast.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"
 #include "NavEditor/Include/PerfTimer.h"
-
-#include "thirdparty/sdl/include/SDL.h"
-#include "thirdparty/sdl/include/SDL_opengl.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf

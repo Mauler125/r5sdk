@@ -24,6 +24,7 @@
     <ClInclude Include="..\naveditor\include\NavMeshPruneTool.h" />
     <ClInclude Include="..\naveditor\include\NavMeshTesterTool.h" />
     <ClInclude Include="..\naveditor\include\OffMeshConnectionTool.h" />
+    <ClInclude Include="..\naveditor\include\Pch.h" />
     <ClInclude Include="..\naveditor\include\PerfTimer.h" />
     <ClInclude Include="..\naveditor\include\Sample.h" />
     <ClInclude Include="..\naveditor\include\SampleInterfaces.h" />
@@ -50,6 +51,10 @@
     <ClCompile Include="..\naveditor\NavMeshPruneTool.cpp" />
     <ClCompile Include="..\naveditor\NavMeshTesterTool.cpp" />
     <ClCompile Include="..\naveditor\OffMeshConnectionTool.cpp" />
+    <ClCompile Include="..\naveditor\Pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\naveditor\PerfTimer.cpp" />
     <ClCompile Include="..\naveditor\Sample.cpp" />
     <ClCompile Include="..\naveditor\SampleInterfaces.cpp" />
@@ -59,7 +64,10 @@
     <ClCompile Include="..\naveditor\Sample_TileMesh.cpp" />
     <ClCompile Include="..\naveditor\TestCase.cpp" />
     <ClCompile Include="..\naveditor\ValueHistory.cpp" />
-    <ClCompile Include="..\thirdparty\fastlz\fastlz.c" />
+    <ClCompile Include="..\thirdparty\fastlz\fastlz.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -118,6 +126,8 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D WIN32 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>NavEditor/Include/Pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -125,6 +135,9 @@
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <AdditionalDependencies>librecast_x64.lib;libdtdetour_x64.lib;libdetourcrowd_x64.lib;libdetourtilecache_x64.lib;libdtdebugutils_x64.lib;libsdl2_x64.lib;OpenGL32.lib;Glu32.lib;Gdi32.lib;User32.lib;Shell32.lib;Comdlg32.lib;Kernel32.lib;Winmm.lib;Setupapi.lib;Advapi32.lib;Version.lib;Ole32.lib;Oleaut32.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>IF EXIST "$(SolutionDir)..\..\r5apexdata.bin" del "$(SolutionDir)..\..\bin$(ProjectName)" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\bin</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -136,6 +149,8 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D WIN32 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>NavEditor/Include/Pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

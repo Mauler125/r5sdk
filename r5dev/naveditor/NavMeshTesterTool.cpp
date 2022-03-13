@@ -16,19 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "thirdparty/sdl/include/SDL.h"
-#include "thirdparty/sdl/include/SDL_opengl.h"
-#ifdef __APPLE__
-#	include <OpenGL/glu.h>
-#else
-#	include <GL/glu.h>
-#endif
-#include "NavEditor/Include/imgui.h"
+#include "NavEditor/Include/Pch.h"
 #include "NavEditor/Include/NavMeshTesterTool.h"
 #include "NavEditor/Include/Sample.h"
 #include "Recast/Include/Recast.h"

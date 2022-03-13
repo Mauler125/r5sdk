@@ -16,9 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include <stdio.h>
+#include "NavEditor/Include/Pch.h"
 #include "NavEditor/Include/Sample.h"
 #include "NavEditor/Include/InputGeom.h"
 #include "Recast/Include/Recast.h"
@@ -27,15 +25,6 @@
 #include "Detour/Include/DetourNavMesh.h"
 #include "Detour/Include/DetourNavMeshQuery.h"
 #include "DetourCrowd/Include/DetourCrowd.h"
-#include "NavEditor/Include/imgui.h"
-#include "thirdparty/sdl/include/SDL.h"
-#include "thirdparty/sdl/include/SDL_opengl.h"
-
-#include <vector>
-#include <set>
-#ifdef WIN32
-#	define snprintf _snprintf
-#endif
 
 unsigned int SampleDebugDraw::areaToCol(unsigned int area)
 {
@@ -172,7 +161,7 @@ void Sample::collectSettings(BuildSettings& settings)
 void Sample::resetCommonSettings()
 {
 	m_cellSize = 15.0f;
-	m_cellHeight = 4.0f;
+	m_cellHeight = 5.8f;
 	m_agentHeight = 2.0f;
 	m_agentRadius = 0.6f;
 	m_agentMaxClimb = 0.9f;
@@ -636,9 +625,13 @@ void set_reachable(std::vector<int>& data,int count, int id1, int id2, bool valu
 }
 void Sample::saveAll(const char* path,dtNavMesh* mesh)
 {
+
+	printf("%s\n", path);
 	if (!mesh) return;
 	char buffer[256];
 	sprintf(buffer, "%s_%s.nm", path, m_navmesh_name);
+
+	printf("%s\n", buffer);
 
 	FILE* fp = fopen(buffer, "wb");
 	if (!fp)

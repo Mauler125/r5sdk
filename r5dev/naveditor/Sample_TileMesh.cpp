@@ -16,18 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include <stdio.h>
-#include <string.h>
-#include "thirdparty/sdl/include/SDL.h"
-#include "thirdparty/sdl/include/SDL_opengl.h"
-#ifdef __APPLE__
-#	include <OpenGL/glu.h>
-#else
-#	include <GL/glu.h>
-#endif
-#include "NavEditor/Include/imgui.h"
+#include "NavEditor/Include/Pch.h"
 #include "NavEditor/Include/InputGeom.h"
 #include "NavEditor/Include/Sample.h"
 #include "NavEditor/Include/Sample_TileMesh.h"
@@ -767,7 +756,7 @@ void Sample_TileMesh::buildAllTiles()
 }
 
 //CLEANUP: copied from sample
-extern hulldef hulls[4];/* = {
+extern hulldef hulls[5];/* = {
 	{"small",8,72 * 0.5,18,512.0f},
 	{"med_short",20,72 * 0.5,18,512.0f},
 	{"medium",48,150 * 0.5,32,512.0f},

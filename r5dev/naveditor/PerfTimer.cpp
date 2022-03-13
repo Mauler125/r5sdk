@@ -16,6 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include "NavEditor/Include/Pch.h"
 #include "NavEditor/Include/PerfTimer.h"
 
 #if defined(WIN32)

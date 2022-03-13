@@ -16,10 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <stdio.h>
-#include <ctype.h>
-#include <string.h>
-#include <math.h>
+#include "NavEditor/Include/Pch.h"
 #include "NavEditor/Include/TestCase.h"
 #include "Detour/Include/DetourNavMesh.h"
 #include "Detour/Include/DetourNavMeshQuery.h"
@@ -27,11 +24,11 @@
 
 #include "thirdparty/sdl/include/SDL.h"
 #include "thirdparty/sdl/include/SDL_opengl.h"
-#ifdef __APPLE__
-#	include <OpenGL/glu.h>
-#else
-#	include <GL/glu.h>
-#endif
+//#ifdef __APPLE__
+//#	include <OpenGL/glu.h>
+//#else
+//#	include <GL/glu.h>
+//#endif
 #include "NavEditor/Include/imgui.h"
 #include "NavEditor/Include/PerfTimer.h"
 

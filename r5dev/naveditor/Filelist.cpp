@@ -16,15 +16,8 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include "NavEditor/Include/Pch.h"
 #include "NavEditor/Include/Filelist.h"
-
-#include <algorithm>
-#ifdef WIN32
-#	include <io.h>
-#else
-#	include <dirent.h>
-#	include <cstring>
-#endif
 
 using std::vector;
 using std::string;

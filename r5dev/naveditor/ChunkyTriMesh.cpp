@@ -16,10 +16,8 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include "NavEditor/Include/Pch.h"
 #include "NavEditor/Include/ChunkyTriMesh.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
 
 struct BoundsItem
 {

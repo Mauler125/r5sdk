@@ -16,12 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#define _USE_MATH_DEFINES
-#include <cmath>
-#include <cstdio>
-#include "NavEditor/Include/imgui.h"
-#include "thirdparty/sdl/include/SDL.h"
-#include "thirdparty/sdl/include/SDL_opengl.h"
+#include "NavEditor/Include/Pch.h"
 
 // Some math headers don't have PI defined.
 static const float PI = 3.14159265f;

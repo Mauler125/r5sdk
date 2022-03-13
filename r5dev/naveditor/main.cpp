@@ -16,25 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <cstdio>
-#define _USE_MATH_DEFINES
-#include <cmath>
-
-#include "thirdparty/sdl/include/SDL.h"
-#include "thirdparty/sdl/include/SDL_syswm.h"
-#include "thirdparty/sdl/include/SDL_opengl.h"
-#ifdef __APPLE__
-#	include <OpenGL/glu.h>
-#else
-#	include <GL/glu.h>
-#endif
-
-#include <vector>
-#include <string>
-
-#include "NavEditor/Include/imgui.h"
-#include "NavEditor/Include/imguiRenderGL.h"
-
+#include "NavEditor/Include/Pch.h"
 #include "Recast/Include/Recast.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "NavEditor/Include/InputGeom.h"

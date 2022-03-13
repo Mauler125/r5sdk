@@ -16,9 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include <stdio.h>
+#include "NavEditor/Include/Pch.h"
 #include "NavEditor/Include/Sample_Debug.h"
 #include "NavEditor/Include/InputGeom.h"
 #include "Recast/Include/Recast.h"
@@ -26,9 +24,6 @@
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"
 #include "DebugUtils/Include/RecastDump.h"
-#include "NavEditor/Include/imgui.h"
-#include "thirdparty/sdl/include/SDL.h"
-#include "thirdparty/sdl/include/SDL_opengl.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
