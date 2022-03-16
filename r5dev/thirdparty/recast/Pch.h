@@ -11,13 +11,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-#ifdef WIN32
-#	include <io.h>
-#else // Linux, BSD, OSX
-#	include <dirent.h>
-#	include <cstring>
-#endif
-
 #include <stdio.h>
 #include <cstdio>
 #include <iostream>
@@ -42,6 +35,12 @@
 
 #ifdef WIN32
 #	define snprintf _snprintf
+#	define putenv _putenv
+#	include "commdlg.h"
+#	include <io.h>
+#else // Linux, BSD, OSX
+#	include <dirent.h>
+#	include <cstring>
 #endif
 
 #include "NavEditor/Include/imgui.h"
