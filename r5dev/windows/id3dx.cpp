@@ -212,9 +212,9 @@ void GetPresent()
 	{
 		if (mat_showdxoutput->GetBool())
 		{
-			DevMsg(eDLL_T::MS, "+--------------------------------------------------------+\n");
-			DevMsg(eDLL_T::MS, "| >>>>>>>>>| VIRTUAL METHOD TABLE HOOK FAILED |<<<<<<<<< |\n");
-			DevMsg(eDLL_T::MS, "+--------------------------------------------------------+\n");
+			Error(eDLL_T::MS, "+--------------------------------------------------------+\n");
+			Error(eDLL_T::MS, "| >>>>>>>>>| VIRTUAL METHOD TABLE HOOK FAILED |<<<<<<<<< |\n");
+			Error(eDLL_T::MS, "+--------------------------------------------------------+\n");
 		}
 		DirectX_Shutdown();
 		return;
@@ -390,9 +390,9 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 		{
 			if (mat_showdxoutput->GetBool())
 			{
-				DevMsg(eDLL_T::MS, "+--------------------------------------------------------+\n");
-				DevMsg(eDLL_T::MS, "| >>>>>>>>>>| GET DVS AND CTX FROM SCP FAILED |<<<<<<<<< |\n");
-				DevMsg(eDLL_T::MS, "+--------------------------------------------------------+\n");
+				Error(eDLL_T::MS, "+--------------------------------------------------------+\n");
+				Error(eDLL_T::MS, "| >>>>>>>>>>| GET DVS AND CTX FROM SCP FAILED |<<<<<<<<< |\n");
+				Error(eDLL_T::MS, "+--------------------------------------------------------+\n");
 			}
 			return g_fnIDXGISwapChainPresent(pSwapChain, nSyncInterval, nFlags);
 		}

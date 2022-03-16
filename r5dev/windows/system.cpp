@@ -12,7 +12,7 @@ static IGetVersionExA                                    g_oGetVersionExA = null
 BOOL WINAPI HGetVersionExA(_Inout_ LPOSVERSIONINFOA lpVersionInformation)
 {
 #ifdef DEDICATED
-	// Return false for dedicated to skip 'SetPRocessDpiAwareness' in 'CEngineAPI:OnStartup()'.
+	// Return false for dedicated to skip 'SetProcessDpiAwareness' in 'CEngineAPI:OnStartup()'.
 	return NULL;
 #else
 	return g_oGetVersionExA(lpVersionInformation);

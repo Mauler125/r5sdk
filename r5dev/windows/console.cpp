@@ -117,7 +117,8 @@ void Console_Init()
 		if (!SetConsoleMode(hOutput, dwMode)) // Some editions of Windows have 'VirtualTerminalLevel' disabled by default.
 		{
 			// Warn the user if 'VirtualTerminalLevel' could not be set on users environment.
-			MessageBoxA(NULL, "Failed to set console mode 'VirtualTerminalLevel'.\nPlease omit the '-ansiclr' parameter and restart \nthe game if output logging appears distorted.", "SDK Warning", MB_ICONEXCLAMATION | MB_OK);
+			MessageBoxA(NULL, "Failed to set console mode 'VirtualTerminalLevel'.\n"
+				"Please omit the '-ansiclr' parameter and restart \nthe game if output logging appears distorted.", "SDK Warning", MB_ICONEXCLAMATION | MB_OK);
 		}
 		SetConsoleBackgroundColor(0x0000);
 		AnsiColors_Init();
