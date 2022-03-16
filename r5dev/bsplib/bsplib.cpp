@@ -9,6 +9,7 @@
 //-----------------------------------------------------------------------------
 __int64 __fastcall HCalcPropStaticFrustumCulling(__int64 a1, __int64 a2, unsigned int a3, unsigned int a4, __int64 a5, __int64 a6, __int64 a7)
 {
+    /*
     float v9; // xmm6_4
     char v10; // r13
     double v11; // xmm7_8
@@ -343,6 +344,9 @@ __int64 __fastcall HCalcPropStaticFrustumCulling(__int64 a1, __int64 a2, unsigne
     if (v53)
         *(_BYTE*)(a1 + 5) &= 0x7Fu;
     return result;
+    */
+
+    return NULL;
 }
 
 void BspLib_Attach()
