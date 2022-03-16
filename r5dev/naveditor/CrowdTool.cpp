@@ -424,8 +424,8 @@ void CrowdToolState::handleRender()
 		else if (ag->targetState == DT_CROWDAGENT_TARGET_VELOCITY)
 			col = duLerpCol(col, duRGBA(64,255,0,128), 128);
 		
-		duDebugDrawCylinder(&dd, pos[0]-radius, pos[1]+radius*0.1f, pos[2]-radius,
-							pos[0]+radius, pos[1]+height, pos[2]+radius, col);
+		duDebugDrawCylinder(&dd, pos[0]-radius, pos[1]-radius, pos[2]+radius*0.1f,
+							pos[0]+radius, pos[1]+radius, pos[2]+height, col);
 	}
 	
 	
@@ -443,8 +443,8 @@ void CrowdToolState::handleRender()
 			const dtObstacleAvoidanceDebugData* vod = m_agentDebug.vod;
 			
 			const float dx = ag->npos[0];
-			const float dy = ag->npos[1]+ag->params.height;
-			const float dz = ag->npos[2];
+			const float dy = ag->npos[1];
+			const float dz = ag->npos[2]+ag->params.height;
 			
 			duDebugDrawCircle(&dd, dx,dy,dz, ag->params.maxSpeed, duRGBA(255,255,255,64), 2.0f);
 			
@@ -488,7 +488,7 @@ void CrowdToolState::handleRender()
 		else if (ag->targetState == DT_CROWDAGENT_TARGET_VELOCITY)
 			col = duLerpCol(col, duRGBA(64,255,0,192), 128);
 		
-		duDebugDrawCircle(&dd, pos[0], pos[1]+height, pos[2], radius, col, 2.0f);
+		duDebugDrawCircle(&dd, pos[0], pos[1], pos[2]+height, radius, col, 2.0f);
 		
 		duDebugDrawArrow(&dd, pos[0],pos[1]+height,pos[2],
 						 pos[0]+dvel[0],pos[1]+height+dvel[1],pos[2]+dvel[2],
@@ -557,7 +557,7 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 				if (!ag->active) continue;
 				const float* pos = ag->npos;
 				const float h = ag->params.height;
-				if (gluProject((GLdouble)pos[0], (GLdouble)pos[1]+h, (GLdouble)pos[2],
+				if (gluProject((GLdouble)pos[0], (GLdouble)pos[1], (GLdouble)pos[2]+h,
 							   model, proj, view, &x, &y, &z))
 				{
 					snprintf(label, 32, "%d", i);

@@ -82,7 +82,7 @@ void duDebugDrawCylinderWire(struct duDebugDraw* dd, float minx, float miny, flo
 	if (!dd) return;
 	
 	dd->begin(DU_DRAW_LINES, lineWidth);
-	duAppendCylinderWire(dd, minx,miny,minz, maxx,maxy,maxz, col);
+	duAppendCylinderWire(dd, minx,minz,miny, maxx,maxz,maxy, col);
 	dd->end();
 }
 
@@ -124,7 +124,7 @@ void duDebugDrawCircle(struct duDebugDraw* dd, const float x, const float y, con
 	if (!dd) return;
 	
 	dd->begin(DU_DRAW_LINES, lineWidth);
-	duAppendCircle(dd, x,y,z, r, col);
+	duAppendCircle(dd, x,z,y, r, col);
 	dd->end();
 }
 
@@ -154,7 +154,7 @@ void duDebugDrawCylinder(struct duDebugDraw* dd, float minx, float miny, float m
 	if (!dd) return;
 	
 	dd->begin(DU_DRAW_TRIS);
-	duAppendCylinder(dd, minx,miny,minz, maxx,maxy,maxz, col);
+	duAppendCylinder(dd, minx,minz,miny, maxx,maxz,maxy, col);
 	dd->end();
 }
 
@@ -243,15 +243,15 @@ void duAppendCylinderWire(struct duDebugDraw* dd, float minx, float miny, float 
 	
 	for (int i = 0, j = NUM_SEG-1; i < NUM_SEG; j = i++)
 	{
-		dd->vertex(cx+dir[j*2+0]*rx, miny, cz+dir[j*2+1]*rz, col);
-		dd->vertex(cx+dir[i*2+0]*rx, miny, cz+dir[i*2+1]*rz, col);
-		dd->vertex(cx+dir[j*2+0]*rx, maxy, cz+dir[j*2+1]*rz, col);
-		dd->vertex(cx+dir[i*2+0]*rx, maxy, cz+dir[i*2+1]*rz, col);
+		dd->vertex(cx+dir[j*2+0]*rx, cz+dir[j*2+1]*rz, miny, col);
+		dd->vertex(cx+dir[i*2+0]*rx, cz+dir[i*2+1]*rz, miny, col);
+		dd->vertex(cx+dir[j*2+0]*rx, cz+dir[j*2+1]*rz, maxy, col);
+		dd->vertex(cx+dir[i*2+0]*rx, cz+dir[i*2+1]*rz, maxy, col);
 	}
 	for (int i = 0; i < NUM_SEG; i += NUM_SEG/4)
 	{
-		dd->vertex(cx+dir[i*2+0]*rx, miny, cz+dir[i*2+1]*rz, col);
-		dd->vertex(cx+dir[i*2+0]*rx, maxy, cz+dir[i*2+1]*rz, col);
+		dd->vertex(cx+dir[i*2+0]*rx, cz+dir[i*2+1]*rz, miny, col);
+		dd->vertex(cx+dir[i*2+0]*rx, cz+dir[i*2+1]*rz, maxy, col);
 	}
 }
 
@@ -379,29 +379,28 @@ void duAppendCylinder(struct duDebugDraw* dd, float minx, float miny, float minz
 	for (int i = 2; i < NUM_SEG; ++i)
 	{
 		const int a = 0, b = i-1, c = i;
-		dd->vertex(cx+dir[a*2+0]*rx, miny, cz+dir[a*2+1]*rz, col2);
-		dd->vertex(cx+dir[b*2+0]*rx, miny, cz+dir[b*2+1]*rz, col2);
-		dd->vertex(cx+dir[c*2+0]*rx, miny, cz+dir[c*2+1]*rz, col2);
+		dd->vertex(cx+dir[a*2+0]*rx, cz+dir[a*2+1]*rz, miny, col2);
+		dd->vertex(cx+dir[b*2+0]*rx, cz+dir[b*2+1]*rz, miny, col2);
+		dd->vertex(cx+dir[c*2+0]*rx, cz+dir[c*2+1]*rz, miny, col2);
 	}
 	for (int i = 2; i < NUM_SEG; ++i)
 	{
 		const int a = 0, b = i, c = i-1;
-		dd->vertex(cx+dir[a*2+0]*rx, maxy, cz+dir[a*2+1]*rz, col);
-		dd->vertex(cx+dir[b*2+0]*rx, maxy, cz+dir[b*2+1]*rz, col);
-		dd->vertex(cx+dir[c*2+0]*rx, maxy, cz+dir[c*2+1]*rz, col);
+		dd->vertex(cx+dir[a*2+0]*rx, cz+dir[a*2+1]*rz, maxy, col);
+		dd->vertex(cx+dir[b*2+0]*rx, cz+dir[b*2+1]*rz, maxy, col);
+		dd->vertex(cx+dir[c*2+0]*rx, cz+dir[c*2+1]*rz, maxy, col);
 	}
 	for (int i = 0, j = NUM_SEG-1; i < NUM_SEG; j = i++)
 	{
-		dd->vertex(cx+dir[i*2+0]*rx, miny, cz+dir[i*2+1]*rz, col2);
-		dd->vertex(cx+dir[j*2+0]*rx, miny, cz+dir[j*2+1]*rz, col2);
-		dd->vertex(cx+dir[j*2+0]*rx, maxy, cz+dir[j*2+1]*rz, col);
+		dd->vertex(cx+dir[i*2+0]*rx, cz+dir[i*2+1]*rz, miny, col2);
+		dd->vertex(cx+dir[j*2+0]*rx, cz+dir[j*2+1]*rz, miny, col2);
+		dd->vertex(cx+dir[j*2+0]*rx, cz+dir[j*2+1]*rz, maxy, col);
 
-		dd->vertex(cx+dir[i*2+0]*rx, miny, cz+dir[i*2+1]*rz, col2);
-		dd->vertex(cx+dir[j*2+0]*rx, maxy, cz+dir[j*2+1]*rz, col);
-		dd->vertex(cx+dir[i*2+0]*rx, maxy, cz+dir[i*2+1]*rz, col);
+		dd->vertex(cx+dir[i*2+0]*rx, cz+dir[i*2+1]*rz, miny, col2);
+		dd->vertex(cx+dir[j*2+0]*rx, cz+dir[j*2+1]*rz, maxy, col);
+		dd->vertex(cx+dir[i*2+0]*rx, cz+dir[i*2+1]*rz, maxy, col);
 	}
 }
-
 
 inline void evalArc(const float x0, const float y0, const float z0,
 					const float dx, const float dy, const float dz,
@@ -546,8 +545,8 @@ void duAppendCircle(struct duDebugDraw* dd, const float x, const float y, const 
 	
 	for (int i = 0, j = NUM_SEG-1; i < NUM_SEG; j = i++)
 	{
-		dd->vertex(x+dir[j*2+0]*r, y, z+dir[j*2+1]*r, col);
-		dd->vertex(x+dir[i*2+0]*r, y, z+dir[i*2+1]*r, col);
+		dd->vertex(x+dir[j*2+0]*r, z+dir[j*2+1]*r, y, col);
+		dd->vertex(x+dir[i*2+0]*r, z+dir[i*2+1]*r, y, col);
 	}
 }
 

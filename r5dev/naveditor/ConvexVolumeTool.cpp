@@ -259,7 +259,7 @@ void ConvexVolumeTool::handleRender()
 	{
 		const float* vi = &m_pts[m_hull[j]*3];
 		const float* vj = &m_pts[m_hull[i]*3];
-		dd.vertex(vj[0],vj[1], minh, duRGBA(255, 255, 255, 64));
+		dd.vertex(vj[0], vj[1], minh, duRGBA(255, 255, 255, 64));
 		dd.vertex(vi[0], vi[1], minh, duRGBA(255, 255, 255, 64));
 		dd.vertex(vj[0], vj[1], maxh, duRGBA(255, 255, 255, 64));
 		dd.vertex(vi[0], vi[1], maxh, duRGBA(255, 255, 255, 64));
