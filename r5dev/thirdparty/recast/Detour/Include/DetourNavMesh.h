@@ -318,7 +318,6 @@ struct dtMeshTile
 	dtOffMeshConnection* offMeshCons;		///< The tile off-mesh connections. [Size: dtMeshHeader::offMeshConCount]
 		
 	unsigned char* data;					///< The tile data. (Not directly accessed under normal situations.)
-
 	void* meshLink;							///<  Seems shifted with 8 bytes from here (the rest seems to line up with r2) see field assignments in 'r5apex.exe 0x140F44A00'
 
 	int dataSize;							///< Size of the tile data.
@@ -356,6 +355,7 @@ struct dtNavMeshParams
 	int reachability_table_count = 0;
 };
 
+#pragma pack(push, 4)
 /// A navigation mesh based on tiles of convex polygons.
 /// @ingroup detour
 class dtNavMesh
@@ -688,17 +688,18 @@ private:
 
 	dtMeshTile** m_posLookup;			///< Tile hash lookup.
 	dtMeshTile* m_nextFree;				///< Freelist of tiles.
+
+	int unk0;							///< Unknown.
 	dtMeshTile* m_tiles;				///< List of tiles.
-
-	int nodePoolIdx;					///< Seems to be the node pool index? "[r5apex_ds.exe + 0xf4bfc0] e.g. 'dtNodePool::getNodeIdx(*&g_pdtNavMesh.unk0, node);'"
 #ifndef DT_POLYREF64
-
 	unsigned int m_saltBits;			///< Number of salt bits in the tile ID.
 	unsigned int m_tileBits;			///< Number of tile bits in the tile ID.
 	unsigned int m_polyBits;			///< Number of poly bits in the tile ID.
+	int unk1 = -1;						///< Unknown.
 #endif
 	friend class dtNavMeshQuery;
 };
+#pragma pack(pop)
 
 /// Allocates a navigation mesh object using the Detour allocator.
 /// @return A navigation mesh that is ready for initialization, or null on failure.
