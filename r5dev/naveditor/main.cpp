@@ -18,6 +18,7 @@
 
 #include "Pch.h"
 #include "Recast/Include/Recast.h"
+#include "Recast/Include/RecastAlloc.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "NavEditor/Include/InputGeom.h"
 #include "NavEditor/Include/TestCase.h"
@@ -27,16 +28,6 @@
 #include "NavEditor/Include/Sample_TempObstacles.h"
 #include "NavEditor/Include/Sample_Debug.h"
 #include "NavEditor/include/DroidSans.h"
-
-#include "Recast/Include/RecastAlloc.h"
-
-
-#ifdef WIN32
-#	define snprintf _snprintf
-#	define putenv _putenv
-#include "commdlg.h"
-
-#endif
 
 using std::string;
 using std::vector;
@@ -346,7 +337,7 @@ int not_main(int argc, char** argv)
 
 	if (errorCode != 0 || !window || !renderer)
 	{
-		printf("Could not initialise SDL opengl\nError: %s\n", SDL_GetError());
+		printf("Could not initialise SDL OpenGL\nError: %s\n", SDL_GetError());
 		return -1;
 	}
 
@@ -355,7 +346,7 @@ int not_main(int argc, char** argv)
 
 	if (!imguiRenderGLInit(droidsans_data))
 	{
-		printf("Could not init GUI renderer.\n");
+		printf("Could not initialise GUI renderer.\n");
 		SDL_Quit();
 		return -1;
 	}
