@@ -27,7 +27,7 @@ void CRConServer::Init(void)
 	{
 		if (std::strlen(rcon_password->GetString()) > 0)
 		{
-			DevMsg(eDLL_T::SERVER, "Remote server access requires a password of at least 8 characters\n");
+			Warning(eDLL_T::SERVER, "Remote server access requires a password of at least 8 characters\n");
 		}
 		this->Shutdown();
 		return;
