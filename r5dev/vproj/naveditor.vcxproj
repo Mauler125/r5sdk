@@ -136,7 +136,7 @@
       <AdditionalDependencies>librecast_x64.lib;libdtdetour_x64.lib;libdetourcrowd_x64.lib;libdetourtilecache_x64.lib;libdtdebugutils_x64.lib;libsdl2_x64.lib;OpenGL32.lib;Glu32.lib;Gdi32.lib;User32.lib;Shell32.lib;Comdlg32.lib;Kernel32.lib;Winmm.lib;Setupapi.lib;Advapi32.lib;Version.lib;Ole32.lib;Oleaut32.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST "$(SolutionDir)..\..\r5apexdata.bin" del "$(SolutionDir)..\..\bin$(ProjectName)" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\bin</Command>
+      <Command>IF EXIST "$(SolutionDir)..\..\r5apexdata.bin" del "$(SolutionDir)..\..\bin\$(ProjectName).exe" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\bin\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -161,7 +161,7 @@
       <AdditionalDependencies>librecast_x64.lib;libdtdetour_x64.lib;libdetourcrowd_x64.lib;libdetourtilecache_x64.lib;libdtdebugutils_x64.lib;libsdl2_x64.lib;OpenGL32.lib;Glu32.lib;Gdi32.lib;User32.lib;Shell32.lib;Comdlg32.lib;Kernel32.lib;Winmm.lib;Setupapi.lib;Advapi32.lib;Version.lib;Ole32.lib;Oleaut32.lib;Imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST "$(SolutionDir)..\..\r5apexdata.bin" del "$(SolutionDir)..\..\bin$(ProjectName)" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\bin</Command>
+      <Command>IF EXIST "$(SolutionDir)..\..\r5apexdata.bin" del "$(SolutionDir)..\..\bin\$(ProjectName).exe" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\bin\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
