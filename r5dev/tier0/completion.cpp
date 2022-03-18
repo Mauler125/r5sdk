@@ -774,16 +774,78 @@ _IMaterial_GetMaterialAtCrossHair_f_CompletionFunc
 */
 void _CMaterial_GetMaterialAtCrossHair_f_ComplectionFunc(const CCommand& args)
 {
-#if defined (GAMEDLL_S3) // [ PIXIE ]: Will do port to season 0-2 at a later date.
-	static auto GetMaterial = ADDRESS(0x14020B4A0).RCast<CMaterialGlue*(*)(void)>(); // [ PIXIE ]: I will sigscan this later and make it for work other seasons as well. 
-	CMaterialGlue* material = GetMaterial();
+#if defined (GAMEDLL_S3) // [ PIXIE ]: Verification needed for earlier seasons if CMaterialGlue matches.
+	CMaterialGlue* material = GetMaterialAtCrossHair();
 	if (material)
 	{
-		DevMsg(eDLL_T::CLIENT, "Current Material: %s", material->m_pszName); // [ PIXIE ]: Will add full CMaterialGlue description later.
+		DevMsg(eDLL_T::MS, "______________________________________________________________\n");
+		DevMsg(eDLL_T::MS, "] MATERIAL DETAILS -------------------------------------------\n");
+		DevMsg(eDLL_T::MS, "] ADDR: '%llX'\n", material);
+		DevMsg(eDLL_T::MS, "] GUID: '%llX'\n", material->m_GUID);
+		DevMsg(eDLL_T::MS, "] Material Res: '%d'\n", material->m_iMaterialRes);
+
+		std::function<void(CMaterialGlue*, const char*)> fnPrintChild = [](CMaterialGlue* material, const char* print)
+		{
+			DevMsg(eDLL_T::MS, "  ]___________________________________________________________\n");
+			DevMsg(eDLL_T::MS, "  ] CHILD DETAILS --------------------------------------------\n");
+			DevMsg(eDLL_T::MS, print, material);
+			DevMsg(eDLL_T::MS, "    ] GUID: '%llX'\n", material->m_GUID);
+			if (material->m_pszName)
+			{
+				DevMsg(eDLL_T::MS, "    ] Material Name: '%s'\n", material->m_pszName);
+			}
+			else
+			{
+				DevMsg(eDLL_T::MS, "    ] Material Name: 'NULL'\n");
+			}
+
+			DevMsg(eDLL_T::MS, "  ]___________________________________________________________\n");
+		};
+
+		if (material->m_pszName)
+		{
+			DevMsg(eDLL_T::MS, "] Material Name: '%s'\n", material->m_pszName);
+		}
+		else
+		{
+			DevMsg(eDLL_T::MS, "] Material Name: 'NULL'\n");
+		}
+
+		if (material->m_pszSurfaceName1)
+		{
+			DevMsg(eDLL_T::MS, "] Material Surface Name 1: '%s'\n", material->m_pszSurfaceName1);
+		}
+		else
+		{
+			DevMsg(eDLL_T::MS, "] Material Surface Name 1: 'NULL'\n");
+		}
+
+		if (material->m_pszSurfaceName2)
+		{
+			DevMsg(eDLL_T::MS, "] Material Surface Name 2: '%s'\n", material->m_pszSurfaceName2);
+		}
+		else
+		{
+			DevMsg(eDLL_T::MS, "] Material Surface Name 2: 'NULL'\n");
+		}
+
+		material->m_pDepthShadow  ? fnPrintChild(material->m_pDepthShadow,  "  ] DepthShadow Addr: '%llX'\n")      : DevMsg(eDLL_T::MS, "] DepthShadow Addr: 'NULL'\n");
+		material->m_pDepthPrepass ? fnPrintChild(material->m_pDepthPrepass, "  ] DepthPrepass Addr: '%llX'\n")     : DevMsg(eDLL_T::MS, "] DepthPrepass Addr: 'NULL'\n");
+		material->m_pDepthVSM     ? fnPrintChild(material->m_pDepthVSM,     "  ] DepthVSM Addr: '%llX'\n")         : DevMsg(eDLL_T::MS, "] DepthVSM Addr: 'NULL'\n");
+		material->m_pDepthShadow  ? fnPrintChild(material->m_pDepthShadow,  "  ] DepthShadowTight Addr: '%llX'\n") : DevMsg(eDLL_T::MS, "] DepthShadowTight Addr: 'NULL'\n");
+		material->m_pColPass      ? fnPrintChild(material->m_pColPass,      "  ] ColPass Addr: '%llX'\n")          : DevMsg(eDLL_T::MS, "] ColPass Addr: 'NULL'\n");
+
+		DevMsg(eDLL_T::MS, "  ]___________________________________________________________\n");
+		DevMsg(eDLL_T::MS, "  ] TEXTURE GUID MAP DETAILS ---------------------------------\n");
+		material->m_pTextureGUID1 ? DevMsg(eDLL_T::MS, "    ] TextureMap 1 Addr: '%llX'\n", material->m_pTextureGUID1) : DevMsg(eDLL_T::MS, "   ] TextureMap 1 Addr: 'NULL'\n");
+		material->m_pTextureGUID2 ? DevMsg(eDLL_T::MS, "    ] TextureMap 2 Addr: '%llX'\n", material->m_pTextureGUID2) : DevMsg(eDLL_T::MS, "   ] TextureMap 2 Addr: 'NULL'\n");
+		DevMsg(eDLL_T::MS, "  ]___________________________________________________________\n");
+
+		DevMsg(eDLL_T::MS, "--------------------------------------------------------------\n");
 	}
 	else
 	{
-		DevMsg(eDLL_T::CLIENT, "No Material found >:(");
+		DevMsg(eDLL_T::MS, "No Material found >:(");
 	}
 #endif
 }
