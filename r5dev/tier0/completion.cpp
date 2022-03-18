@@ -782,7 +782,10 @@ void _CMaterial_GetMaterialAtCrossHair_f_ComplectionFunc(const CCommand& args)
 		DevMsg(eDLL_T::MS, "] MATERIAL DETAILS -------------------------------------------\n");
 		DevMsg(eDLL_T::MS, "] ADDR: '%llX'\n", material);
 		DevMsg(eDLL_T::MS, "] GUID: '%llX'\n", material->m_GUID);
-		DevMsg(eDLL_T::MS, "] Material Res: '%d'\n", material->m_iMaterialRes);
+		DevMsg(eDLL_T::MS, "] UnknownSignature: '%d'\n", material->m_UnknownSignature);
+		DevMsg(eDLL_T::MS, "] Material Width: '%d'\n", material->m_iWidth);
+		DevMsg(eDLL_T::MS, "] Material Height: '%d'\n", material->m_iHeight);
+		DevMsg(eDLL_T::MS, "] Flags: '%llX'\n", material->m_iFlags);
 
 		std::function<void(CMaterialGlue*, const char*)> fnPrintChild = [](CMaterialGlue* material, const char* print)
 		{

@@ -7,7 +7,7 @@ class CMaterialGlue // [ PIXIE ]: Class seems mostly right, a few members are st
 public:
 	void* m_pVTable; //0x0000
 	char pad_0008[8]; //0x0008
-	std::uint64_t m_GUID; //0x0010
+	uint64_t m_GUID; //0x0010
 	char* m_pszName; //0x0018
 	char* m_pszSurfaceName1; //0x0020
 	char* m_pszSurfaceName2; //0x0028
@@ -16,16 +16,22 @@ public:
 	CMaterialGlue* m_pDepthVSM; //0x0040
 	CMaterialGlue* m_pDepthShadowTight; //0x0048
 	CMaterialGlue* m_pColPass; //0x0050
-	void* m_pShaderGlue; //0x0058 // [ PIXIE ] TODO: Reverse CShaderGlue.
+	void* m_pShaderGlue; //0x0058 [ PIXIE ] TODO: Reverse CShaderGlue.
 	void* m_pTextureGUID1; //0x0060
 	void* m_pTextureGUID2; //0x0068
-	char pad_0070[4]; //0x0070
-	int32_t m_iMaterialRes; //0x0074
-	char pad_0078[136]; //0x0078
+	std::int16_t m_UnknownSignature; //0x0070 [ PIXIE ]: This seems to be the start of a modified VTF Header, I have no clue what this member does. 
+	std::int16_t m_iWidth; //0x0072 
+	std::int16_t m_iHeight; //0x0074
+	std::int16_t m_unused1; //0x0076
+	std::uint32_t m_iFlags; //0x0078 [ PIXIE ]: I'm pretty sure those are VTF Image Flags, If you set them to NULL they cause Texture stretching.
+	std::int32_t m_unused2; //0x007C
+	char pad_0080[128]; //0x0080
+
+	// They first point to a jump table which holds the texture, then theres another jump onto the actual texture.
 	void** m_ppDXTexture1; //0x0100
 	void** m_ppDXTexture2; //0x0108
 	char pad_0110[32]; //0x0110
-}; //Size: 0x0130
+}; //Size: 0x0130 confirmed end size.
 
 namespace
 {
