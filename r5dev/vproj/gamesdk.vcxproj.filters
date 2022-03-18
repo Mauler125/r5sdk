@@ -396,6 +396,9 @@
     <ClCompile Include="..\game\server\ai_utility.cpp">
       <Filter>sdk\game\server</Filter>
     </ClCompile>
+    <ClCompile Include="..\materialsystem\cmaterialglue.cpp">
+      <Filter>sdk\materialsystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1138,6 +1141,9 @@
     </ClInclude>
     <ClInclude Include="..\game\server\ai_utility.h">
       <Filter>sdk\game\server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\materialsystem\cmaterialglue.h">
+      <Filter>sdk\materialsystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

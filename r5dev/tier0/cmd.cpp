@@ -131,6 +131,11 @@ void ConCommand::Init(void)
 	ConCommand* net_toggletrace = new ConCommand("net_toggletrace", "Logs the sending and receiving datagram to a file on the disk.", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, _NET_TraceNetChan_f_CompletionFunc, nullptr);
 	ConCommand* net_setkey      = new ConCommand("net_setkey", "Sets user specified base64 net key.", FCVAR_RELEASE, _NET_SetKey_f_CompletionFunc, nullptr);
 	ConCommand* net_generatekey = new ConCommand("net_generatekey", "Generates and sets a random base64 net key.", FCVAR_RELEASE, _NET_GenerateKey_f_CompletionFunc, nullptr);
+#ifndef DEDICATED
+	//-------------------------------------------------------------------------
+	// MATERIAL SYSTEM
+	ConCommand* mat_printmat_at_crosshair = new ConCommand("mat_printmat_at_crosshair", "Prints the material under the crosshair.", FCVAR_RELEASE | FCVAR_DEVELOPMENTONLY, _CMaterial_GetMaterialAtCrossHair_f_ComplectionFunc, nullptr);
+#endif // !DEDICATED
 }
 
 //-----------------------------------------------------------------------------

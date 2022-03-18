@@ -37,6 +37,9 @@ void _NET_GenerateKey_f_CompletionFunc(const CCommand& args);
 void _RCON_CmdQuery_f_CompletionFunc(const CCommand& args);
 void _RCON_Disconnect_f_CompletionFunc(const CCommand& args);
 #endif // !DEDICATED
+#ifndef DEDICATED
+void _CMaterial_GetMaterialAtCrossHair_f_ComplectionFunc(const CCommand& args);
+#endif // !DEDICATED
 
 ///////////////////////////////////////////////////////////////////////////////
 class HCompletion : public IDetour

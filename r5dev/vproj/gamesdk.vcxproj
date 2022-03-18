@@ -49,6 +49,7 @@
     <ClCompile Include="..\game\server\gameinterface.cpp" />
     <ClCompile Include="..\inputsystem\inputsystem.cpp" />
     <ClCompile Include="..\launcher\IApplication.cpp" />
+    <ClCompile Include="..\materialsystem\cmaterialglue.cpp" />
     <ClCompile Include="..\materialsystem\materialsystem.cpp" />
     <ClCompile Include="..\mathlib\adler32.cpp" />
     <ClCompile Include="..\mathlib\bits.cpp" />
@@ -150,6 +151,7 @@
     <ClInclude Include="..\inputsystem\ButtonCode.h" />
     <ClInclude Include="..\inputsystem\inputsystem.h" />
     <ClInclude Include="..\launcher\IApplication.h" />
+    <ClInclude Include="..\materialsystem\cmaterialglue.h" />
     <ClInclude Include="..\materialsystem\materialsystem.h" />
     <ClInclude Include="..\mathlib\adler32.h" />
     <ClInclude Include="..\mathlib\bits.h" />

@@ -23,6 +23,10 @@
 #endif // !DEDICATED
 #include "public/include/bansystem.h"
 #include "mathlib/crc32.h"
+#ifndef DEDICATED
+#include "materialsystem/cmaterialglue.h"
+#endif // !DEDICATED
+
 
 #ifndef DEDICATED
 /*
@@ -757,5 +761,30 @@ void _RCON_Disconnect_f_CompletionFunc(const CCommand& args)
 		g_pRConClient->Disconnect();
 		DevMsg(eDLL_T::CLIENT, "User closed RCON connection\n");
 	}
+}
+#endif // !DEDICATED
+
+#ifndef DEDICATED
+/*
+=====================
+_IMaterial_GetMaterialAtCrossHair_f_CompletionFunc
+
+  Print the material under the crosshair.
+=====================
+*/
+void _CMaterial_GetMaterialAtCrossHair_f_ComplectionFunc(const CCommand& args)
+{
+#if defined (GAMEDLL_S3) // [ PIXIE ]: Will do port to season 0-2 at a later date.
+	static auto GetMaterial = ADDRESS(0x14020B4A0).RCast<CMaterialGlue*(*)(void)>(); // [ PIXIE ]: I will sigscan this later and make it for work other seasons as well. 
+	CMaterialGlue* material = GetMaterial();
+	if (material)
+	{
+		DevMsg(eDLL_T::CLIENT, "Current Material: %s", material->m_pszName); // [ PIXIE ]: Will add full CMaterialGlue description later.
+	}
+	else
+	{
+		DevMsg(eDLL_T::CLIENT, "No Material found >:(");
+	}
+#endif
 }
 #endif // !DEDICATED
