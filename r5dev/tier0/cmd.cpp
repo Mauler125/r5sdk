@@ -134,7 +134,7 @@ void ConCommand::Init(void)
 #ifndef DEDICATED
 	//-------------------------------------------------------------------------
 	// MATERIAL SYSTEM
-	ConCommand* mat_printmat_at_crosshair = new ConCommand("mat_printmat_at_crosshair", "Prints the material under the crosshair.", FCVAR_RELEASE | FCVAR_DEVELOPMENTONLY, _CMaterial_GetMaterialAtCrossHair_f_ComplectionFunc, nullptr);
+	g_pCVar->FindCommand("mat_crosshair")->m_pCommandCallback = _CMaterial_GetMaterialAtCrossHair_f_ComplectionFunc; // Patch completion function to working callback.
 #endif // !DEDICATED
 }
 
