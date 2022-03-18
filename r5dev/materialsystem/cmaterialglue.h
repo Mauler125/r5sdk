@@ -7,7 +7,7 @@ class CMaterialGlue // [ PIXIE ]: Class seems mostly right, a few members are st
 public:
 	void* m_pVTable; //0x0000
 	char pad_0008[8]; //0x0008
-	uint64_t m_GUID; //0x0010
+	std::uint64_t m_GUID; //0x0010
 	char* m_pszName; //0x0018
 	char* m_pszSurfaceName1; //0x0020
 	char* m_pszSurfaceName2; //0x0028
