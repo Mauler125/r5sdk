@@ -21,7 +21,10 @@ public:
 	void* m_pTextureGUID2; //0x0068
 	char pad_0070[4]; //0x0070
 	int32_t m_iMaterialRes; //0x0074
-	char pad_0078[184]; //0x0078
+	char pad_0078[136]; //0x0078
+	void** m_ppDXTexture1; //0x0100
+	void** m_ppDXTexture2; //0x0108
+	char pad_0110[32]; //0x0110
 }; //Size: 0x0130
 
 namespace

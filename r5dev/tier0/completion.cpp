@@ -829,6 +829,24 @@ void _CMaterial_GetMaterialAtCrossHair_f_ComplectionFunc(const CCommand& args)
 			DevMsg(eDLL_T::MS, "] Material Surface Name 2: 'NULL'\n");
 		}
 
+		if (material->m_ppDXTexture1)
+		{
+			DevMsg(eDLL_T::MS, "] DX Texture 1: '%llX'\n", material->m_ppDXTexture1);
+		}
+		else
+		{
+			DevMsg(eDLL_T::MS, "] DX Texture 1: 'NULL'\n");
+		}
+
+		if (material->m_ppDXTexture2)
+		{
+			DevMsg(eDLL_T::MS, "] DX Texture 2: '%llX'\n", material->m_ppDXTexture2);
+		}
+		else
+		{
+			DevMsg(eDLL_T::MS, "] DX Texture 2: 'NULL'\n");
+		}
+
 		material->m_pDepthShadow  ? fnPrintChild(material->m_pDepthShadow,  "  ] DepthShadow Addr: '%llX'\n")      : DevMsg(eDLL_T::MS, "] DepthShadow Addr: 'NULL'\n");
 		material->m_pDepthPrepass ? fnPrintChild(material->m_pDepthPrepass, "  ] DepthPrepass Addr: '%llX'\n")     : DevMsg(eDLL_T::MS, "] DepthPrepass Addr: 'NULL'\n");
 		material->m_pDepthVSM     ? fnPrintChild(material->m_pDepthVSM,     "  ] DepthVSM Addr: '%llX'\n")         : DevMsg(eDLL_T::MS, "] DepthVSM Addr: 'NULL'\n");
