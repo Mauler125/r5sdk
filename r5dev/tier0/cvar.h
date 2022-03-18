@@ -27,6 +27,7 @@ extern ConVar* rcon_password;
 //-------------------------------------------------------------------------
 // SERVER                                                                 |
 extern ConVar* ai_dumpAINfileFromLoad;
+extern ConVar* navmesh_always_reachable;
 extern ConVar* sv_showconnecting;
 extern ConVar* sv_pylonvisibility;
 #ifdef DEDICATED

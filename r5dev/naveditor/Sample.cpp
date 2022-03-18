@@ -656,13 +656,8 @@ void Sample::saveAll(std::string path, dtNavMesh* mesh)
 		header.numTiles++;
 	}
 	memcpy(&header.params, mesh->getParams(), sizeof(dtNavMeshParams));
-
-	link_table_data link_data;
-	build_link_table(mesh, link_data);
-	int table_size = ((link_data.set_count + 31) / 32) * link_data.set_count * 32;
-	header.params.disjoint_poly_group_count = link_data.set_count;
-	header.params.reachability_table_count = m_count_reachability_tables;
-	header.params.reachability_table_size = table_size;
+	header.params.disjoint_poly_group_count = 3;
+	header.params.reachability_table_size = ((header.params.disjoint_poly_group_count + 31) / 32) * header.params.disjoint_poly_group_count * 32;
 
 	if (*is_tf2)unpatch_headertf2(header);
 	fwrite(&header, sizeof(NavMeshSetHeader), 1, fp);
@@ -683,15 +678,85 @@ void Sample::saveAll(std::string path, dtNavMesh* mesh)
 		if (*is_tf2)patch_tiletf2(const_cast<dtMeshTile*>(tile));
 	}
 
-	//still dont know what this thing is...
-	int header_sth = 0;
-	for (int i = 0; i < link_data.set_count; i++)
-		fwrite(&header_sth, sizeof(int), 1, fp);
+	int header_sth[3] = { 0,0,0 };
+	fwrite(header_sth, sizeof(int), 3, fp);
+	unsigned int reachability[32 * 3];
+	for (int i = 0; i < 32 * 3; i++)
+		reachability[i] = 0xffffffff;
 
-	std::vector<int> reachability(table_size, 0);
-	for (int i = 0; i < link_data.set_count; i++)
-		set_reachable(reachability, link_data.set_count, i, i, true);
 	for (int i = 0; i < header.params.reachability_table_count; i++)
-		fwrite(reachability.data(), sizeof(int), (table_size / 4), fp);
+		fwrite(reachability, sizeof(int), (header.params.reachability_table_size / 4), fp);
 	fclose(fp);
 }
+
+//void Sample::saveAll(std::string path, dtNavMesh* mesh)
+//{
+//	if (!mesh) return;
+//
+//	std::filesystem::path p = "..\\maps\\navmesh\\";
+//
+//	if (std::filesystem::is_directory(p))
+//	{
+//		path.insert(0, p.string());
+//	}
+//
+//	char buffer[256];
+//	sprintf(buffer, "%s_%s.nm", path.c_str(), m_navmesh_name);
+//
+//	FILE* fp = fopen(buffer, "wb");
+//	if (!fp)
+//		return;
+//
+//	// Store header.
+//	NavMeshSetHeader header;
+//	header.magic = NAVMESHSET_MAGIC;
+//	header.version = NAVMESHSET_VERSION;
+//	header.numTiles = 0;
+//
+//	for (int i = 0; i < mesh->getMaxTiles(); ++i)
+//	{
+//		dtMeshTile* tile = mesh->getTile(i);
+//		if (!tile || !tile->header || !tile->dataSize) continue;
+//		header.numTiles++;
+//	}
+//	memcpy(&header.params, mesh->getParams(), sizeof(dtNavMeshParams));
+//	header.params.disjoint_poly_group_count = 3;
+//
+//	link_table_data link_data;
+//	build_link_table(mesh, link_data);
+//	int table_size = ((link_data.set_count + 31) / 32) * link_data.set_count * 32;
+//	header.params.disjoint_poly_group_count = link_data.set_count;
+//	header.params.reachability_table_count = m_count_reachability_tables;
+//	header.params.reachability_table_size = table_size;
+//
+//	if (*is_tf2)unpatch_headertf2(header);
+//	fwrite(&header, sizeof(NavMeshSetHeader), 1, fp);
+//
+//	// Store tiles.
+//	for (int i = 0; i < mesh->getMaxTiles(); ++i)
+//	{
+//		dtMeshTile* tile = mesh->getTile(i);
+//		if (!tile || !tile->header || !tile->dataSize) continue;
+//
+//		NavMeshTileHeader tileHeader;
+//		tileHeader.tileRef = mesh->getTileRef(tile);
+//		tileHeader.dataSize = tile->dataSize;
+//		fwrite(&tileHeader, sizeof(tileHeader), 1, fp);
+//
+//		if (*is_tf2)unpatch_tiletf2(const_cast<dtMeshTile*>(tile));
+//		fwrite(tile->data, tile->dataSize, 1, fp);
+//		if (*is_tf2)patch_tiletf2(const_cast<dtMeshTile*>(tile));
+//	}
+//
+//	//still dont know what this thing is...
+//	int header_sth = 0;
+//	for (int i = 0; i < link_data.set_count; i++)
+//		fwrite(&header_sth, sizeof(int), 1, fp);
+//
+//	std::vector<int> reachability(table_size, 0);
+//	for (int i = 0; i < link_data.set_count; i++)
+//		set_reachable(reachability, link_data.set_count, i, i, true);
+//	for (int i = 0; i < header.params.reachability_table_count; i++)
+//		fwrite(reachability.data(), sizeof(int), (table_size / 4), fp);
+//	fclose(fp);
+//}

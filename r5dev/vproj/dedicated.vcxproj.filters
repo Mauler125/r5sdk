@@ -786,6 +786,12 @@
     <ClInclude Include="..\engine\gl_matsysiface.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
+    <ClInclude Include="..\game\server\detour_impl.h">
+      <Filter>sdk\game\server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\server\ai_utility.h">
+      <Filter>sdk\game\server</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\IVEngineClient.cpp">
@@ -976,6 +982,9 @@
     </ClCompile>
     <ClCompile Include="..\engine\modelloader.cpp">
       <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\server\ai_utility.cpp">
+      <Filter>sdk\game\server</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -66,6 +66,8 @@
 #include "game/server/ai_node.h"
 #include "game/server/ai_network.h"
 #include "game/server/ai_networkmanager.h"
+#include "game/server/ai_utility.h"
+#include "game/server/detour_impl.h"
 #include "game/server/fairfight_impl.h"
 #include "game/server/gameinterface.h"
 #include "public/include/edict.h"
@@ -146,7 +148,9 @@ void Systems_Init()
 
 #ifndef DEDICATED
 	HCVideoMode_Common_Attach();
+	//DebugOverlays_Attach();
 #endif // !DEDICATED
+	CAI_Utility_Attach();
 
 	// Patch instructions
 	RuntimePtc_Init();
@@ -235,7 +239,9 @@ void Systems_Shutdown()
 
 #ifndef DEDICATED
 	HCVideoMode_Common_Detach();
+	//DebugOverlays_Detach();
 #endif // !DEDICATED
+	CAI_Utility_Detach();
 
 	// Commit the transaction
 	DetourTransactionCommit();

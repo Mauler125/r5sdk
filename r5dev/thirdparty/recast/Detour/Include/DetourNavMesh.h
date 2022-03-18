@@ -19,8 +19,11 @@
 #ifndef DETOURNAVMESH_H
 #define DETOURNAVMESH_H
 
+// Only use types for function prototypes
+#ifndef GAMESDK
 #include "Detour/Include/DetourAlloc.h"
 #include "Detour/Include/DetourStatus.h"
+#endif // !GAMESDK
 
 // Undefine (or define in a build cofnig) the following line to use 64bit polyref.
 // Generally not needed, useful for very large worlds.
@@ -176,7 +179,7 @@ struct dtPoly
 
 	unsigned short link_table_idx;			//IDK but looks filled
 	unsigned short unk;						//IDK but looks filled
-	int unk1;								//!TODO: debug this if you ever find where this gets used in the engine..
+	unsigned int unk1;						//!TODO: debug this if you ever find where this gets used in the engine..
 	float org[3];							// Seems to be used for AIN file generation (build from large navmesh).
 
 	/// Sets the user defined area id. [Limit: < #DT_MAX_AREAS]
@@ -695,7 +698,6 @@ private:
 	unsigned int m_saltBits;			///< Number of salt bits in the tile ID.
 	unsigned int m_tileBits;			///< Number of tile bits in the tile ID.
 	unsigned int m_polyBits;			///< Number of poly bits in the tile ID.
-	int unk1 = -1;						///< Unknown.
 #endif
 	friend class dtNavMeshQuery;
 };

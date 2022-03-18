@@ -45,6 +45,7 @@
     <ClCompile Include="..\gameui\IConsole.cpp" />
     <ClCompile Include="..\gameui\IBrowser.cpp" />
     <ClCompile Include="..\game\server\ai_networkmanager.cpp" />
+    <ClCompile Include="..\game\server\ai_utility.cpp" />
     <ClCompile Include="..\game\server\gameinterface.cpp" />
     <ClCompile Include="..\inputsystem\inputsystem.cpp" />
     <ClCompile Include="..\launcher\IApplication.cpp" />
@@ -142,6 +143,8 @@
     <ClInclude Include="..\game\server\ai_network.h" />
     <ClInclude Include="..\game\server\ai_networkmanager.h" />
     <ClInclude Include="..\game\server\ai_node.h" />
+    <ClInclude Include="..\game\server\ai_utility.h" />
+    <ClInclude Include="..\game\server\detour_impl.h" />
     <ClInclude Include="..\game\server\fairfight_impl.h" />
     <ClInclude Include="..\game\server\gameinterface.h" />
     <ClInclude Include="..\inputsystem\ButtonCode.h" />
@@ -422,7 +425,7 @@
       </DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D GAMESDK /D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -462,7 +465,7 @@
       <CreateHotpatchableImage>
       </CreateHotpatchableImage>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D GAMESDK /D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

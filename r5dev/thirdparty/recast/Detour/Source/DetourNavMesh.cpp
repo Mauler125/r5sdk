@@ -225,7 +225,6 @@ dtStatus dtNavMesh::init(const dtNavMeshParams* params)
 {
 	memcpy(&m_params, params, sizeof(dtNavMeshParams));
 	dtVcopy(m_orig, params->orig);
-	unk0 = params->orig[2];
 
 	m_tileWidth = params->tileWidth;
 	m_tileHeight = params->tileHeight;
@@ -252,6 +251,8 @@ dtStatus dtNavMesh::init(const dtNavMeshParams* params)
 		m_nextFree = &m_tiles[i];
 	}
 	
+	unk0 = dtIlog2(dtNextPow2((unsigned int)params[1].orig[0]));
+
 	// Init ID generator values.
 #ifndef DT_POLYREF64
 	m_tileBits = dtIlog2(dtNextPow2((unsigned int)params->maxTiles));

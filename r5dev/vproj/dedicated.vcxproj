@@ -65,7 +65,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalOptions>/D DEDICATED /D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D GAMESDK /D DEDICATED /D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>core\stdafx.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -94,7 +94,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalOptions>/D DEDICATED /D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D GAMESDK /D DEDICATED /D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>core\stdafx.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -158,6 +158,8 @@
     <ClInclude Include="..\game\server\ai_network.h" />
     <ClInclude Include="..\game\server\ai_networkmanager.h" />
     <ClInclude Include="..\game\server\ai_node.h" />
+    <ClInclude Include="..\game\server\ai_utility.h" />
+    <ClInclude Include="..\game\server\detour_impl.h" />
     <ClInclude Include="..\game\server\fairfight_impl.h" />
     <ClInclude Include="..\game\server\gameinterface.h" />
     <ClInclude Include="..\launcher\IApplication.h" />
@@ -368,6 +370,7 @@
     <ClCompile Include="..\engine\sys_engine.cpp" />
     <ClCompile Include="..\engine\sys_utils.cpp" />
     <ClCompile Include="..\game\server\ai_networkmanager.cpp" />
+    <ClCompile Include="..\game\server\ai_utility.cpp" />
     <ClCompile Include="..\game\server\gameinterface.cpp" />
     <ClCompile Include="..\launcher\IApplication.cpp" />
     <ClCompile Include="..\launcher\prx.cpp" />

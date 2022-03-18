@@ -393,6 +393,9 @@
     <ClCompile Include="..\materialsystem\materialsystem.cpp">
       <Filter>sdk\materialsystem</Filter>
     </ClCompile>
+    <ClCompile Include="..\game\server\ai_utility.cpp">
+      <Filter>sdk\game\server</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1129,6 +1132,12 @@
     </ClInclude>
     <ClInclude Include="..\engine\gl_matsysiface.h">
       <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\server\detour_impl.h">
+      <Filter>sdk\game\server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\server\ai_utility.h">
+      <Filter>sdk\game\server</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
