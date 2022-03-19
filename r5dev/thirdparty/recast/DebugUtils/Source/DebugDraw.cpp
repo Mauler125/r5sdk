@@ -407,8 +407,8 @@ inline void evalArc(const float x0, const float y0, const float z0,
 					const float h, const float u, float* res)
 {
 	res[0] = x0 + dx * u;
-	res[1] = y0 + dy * u + h * (1-(u*2-1)*(u*2-1));
-	res[2] = z0 + dz * u;
+	res[1] = y0 + dy * u;
+	res[2] = z0 + dz * u + h * (1 - (u * 2 - 1) * (u * 2 - 1));
 }
 
 

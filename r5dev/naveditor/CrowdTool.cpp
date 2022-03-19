@@ -355,7 +355,7 @@ void CrowdToolState::handleRender()
 				if (dtTriArea2D(pos, s, s+3) < 0.0f)
 					col = duDarkenCol(col);
 				
-				duAppendArrow(&dd, s[0],s[1]+0.2f,s[2], s[3],s[4]+0.2f,s[5], 0.0f, 0.3f, col);
+				duAppendArrow(&dd, s[0],s[1],s[2]+0.2f, s[3],s[4],s[5]+0.2f, 0.0f, 0.3f, col);
 			}
 			dd.end();
 		}
@@ -490,12 +490,12 @@ void CrowdToolState::handleRender()
 		
 		duDebugDrawCircle(&dd, pos[0], pos[1], pos[2]+height, radius, col, 2.0f);
 		
-		duDebugDrawArrow(&dd, pos[0],pos[1]+height,pos[2],
-						 pos[0]+dvel[0],pos[1]+height+dvel[1],pos[2]+dvel[2],
+		duDebugDrawArrow(&dd, pos[0],pos[1],pos[2]+height,
+						 pos[0]+dvel[0],pos[1]+dvel[2],pos[2]+height+dvel[1],
 						 0.0f, 0.4f, duRGBA(0,192,255,192), (m_agentDebug.idx == i) ? 2.0f : 1.0f);
 		
-		duDebugDrawArrow(&dd, pos[0],pos[1]+height,pos[2],
-						 pos[0]+vel[0],pos[1]+height+vel[1],pos[2]+vel[2],
+		duDebugDrawArrow(&dd, pos[0],pos[1],pos[2]+height,
+						 pos[0]+vel[0],pos[1]+vel[2],pos[2]+height+vel[1],
 						 0.0f, 0.4f, duRGBA(0,0,0,160), 2.0f);
 	}
 	
