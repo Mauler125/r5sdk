@@ -98,7 +98,7 @@ struct CAI_ScriptNode
 	uint64_t scriptdata;
 };
 
-struct UnkNodeStruct0
+struct AINodeClusters
 {
 	int index;
 	char unk0;
@@ -126,7 +126,7 @@ struct UnkNodeStruct0
 //int* pUnkStruct0Count;
 //UnkNodeStruct0*** pppUnkNodeStruct0s;
 
-struct UnkLinkStruct1
+struct AINodeClusterLinks
 {
 	short unk0;
 	short unk1;

@@ -151,6 +151,7 @@ void Systems_Init()
 	//DebugOverlays_Attach();
 #endif // !DEDICATED
 	CAI_Utility_Attach();
+	CAI_NetworkManager_Attach();
 
 	// Patch instructions
 	RuntimePtc_Init();
@@ -242,6 +243,7 @@ void Systems_Shutdown()
 	//DebugOverlays_Detach();
 #endif // !DEDICATED
 	CAI_Utility_Detach();
+	CAI_NetworkManager_Detach();
 
 	// Commit the transaction
 	DetourTransactionCommit();
