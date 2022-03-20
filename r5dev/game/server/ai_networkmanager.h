@@ -39,9 +39,9 @@ void CAI_NetworkManager_Detach();
 namespace // !TODO: [AMOS] don't hardocde.
 {
 	int* g_nAiNodeClusters = ADDRESS(0x165DAD808).RCast<int*>();
-	AINodeClusters*** g_pppAiNodeClusters = ADDRESS(0x165DB18E8).RCast<AINodeClusters***>();
+	AINodeClusters*** g_pppAiNodeClusters = ADDRESS(0x165DAD7F0).RCast<AINodeClusters***>();
 	int* g_nAiNodeClusterLinks = ADDRESS(0x165DB18E8).RCast<int*>();
-	AINodeClusterLinks*** g_pppAiNodeClusterLinks = ADDRESS(0x165DB18E8).RCast<AINodeClusterLinks***>();
+	AINodeClusterLinks*** g_pppAiNodeClusterLinks = ADDRESS(0x165DB18D0).RCast<AINodeClusterLinks***>();
 }
 
 //-----------------------------------------------------------------------------

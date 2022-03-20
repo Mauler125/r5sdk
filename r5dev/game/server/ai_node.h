@@ -4,6 +4,7 @@
 //
 //=============================================================================//
 #pragma once
+#include "mathlib/vector.h"
 const int MAX_HULLS = 5;
 
 //=============================================================================
@@ -11,13 +12,13 @@ const int MAX_HULLS = 5;
 //=============================================================================
 struct CAI_NodeLink
 {
-	short srcId;
-	short destId;
-	bool hulls[MAX_HULLS];
+	short m_iSrcID;
+	short m_iDestID;
+	bool m_bHulls[MAX_HULLS];
 	char unk0;
 	char unk1; // maps => unk0 on disk
 	char unk2[5];
-	int64_t flags;
+	int64_t m_nFlags;
 };
 
 //=============================================================================
@@ -26,10 +27,10 @@ struct CAI_NodeLink
 #pragma pack(push, 1)
 struct CAI_NodeLinkDisk
 {
-	short srcId;
-	short destId;
+	short m_iSrcID;
+	short m_iDestID;
 	char unk0;
-	bool hulls[MAX_HULLS];
+	bool m_bHulls[MAX_HULLS];
 };
 #pragma pack(pop)
 
@@ -38,12 +39,10 @@ struct CAI_NodeLinkDisk
 //=============================================================================
 struct CAI_Node
 {
-	int index; // Not present on disk
-	float x;
-	float y;
-	float z;
-	float hulls[MAX_HULLS];
-	float yaw;
+	int m_nIndex; // Not present on disk
+	Vector3 m_vOrigin;
+	float m_fHulls[MAX_HULLS];
+	float m_flYaw;
 
 	int unk0;            // Always 2 in buildainfile, maps directly to unk0 in disk struct
 	int unk1;            // Maps directly to unk1 in disk struct
@@ -71,10 +70,9 @@ struct CAI_Node
 #pragma pack(push, 1)
 struct CAI_NodeDisk // The way CAI_Nodes are represented in on-disk ain files
 {
-	float x;
-	float y;
-	float z;
-	float yaw;
+	Vector3 m_vOrigin;
+
+	float m_flYaw;
 	float hulls[MAX_HULLS];
 
 	char unk0;
@@ -92,22 +90,18 @@ struct CAI_NodeDisk // The way CAI_Nodes are represented in on-disk ain files
 //=============================================================================
 struct CAI_ScriptNode
 {
-	float x;
-	float y;
-	float z;
+	Vector3 m_vOrigin;
 	uint64_t scriptdata;
 };
 
 struct AINodeClusters
 {
-	int index;
+	int m_nIndex;
 	char unk0;
 	char unk1;	  // Maps to unk1 on disk
 	char pad0[2]; // Padding to +8
 
-	float x;
-	float y;
-	float z;
+	Vector3 m_vOrigin;
 
 	char pad5[4];
 	int* unk2;     // Maps to unk5 on disk;
