@@ -55,7 +55,7 @@ struct CAI_Node
 
 	CAI_NodeLink** links;
 	char unk5[16];
-	int linkcount;
+	int m_nNumLinks;
 	int unk11;     // Bad name lmao
 	short unk6;    // Should match up to unk4 on disk
 	char unk7[16]; // Padding until next bit
@@ -117,9 +117,6 @@ struct AINodeClusters
 	char unk5;
 };
 
-//int* pUnkStruct0Count;
-//UnkNodeStruct0*** pppUnkNodeStruct0s;
-
 struct AINodeClusterLinks
 {
 	short unk0;
@@ -129,6 +126,3 @@ struct AINodeClusterLinks
 	char unk4;
 	char unk5;
 };
-
-//int* pUnkLinkStruct1Count;
-//UnkLinkStruct1*** pppUnkStruct1s;

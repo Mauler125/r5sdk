@@ -9,25 +9,24 @@
 class CAI_Network
 {
 public:
-	void* m_pVTable;
+	void* m_pVTable;  // <-- 'this'.
 
-	// this is uninitialised and never set on ain build, fun!
-	int m_iNumLinks;                   // +8
-	char unk1[124];                    // +12
-	int m_iNumZones;                   // +136
-	char unk2[16];                     // +140
+	int m_iNumLinks;              // +0x0008
+	char unk1[0x7C];              // +0x000C
+	int m_iNumZones;              // +0x0088
+	char unk2[0x10];              // +0x008C
 
 	// unk8 on disk
-	int unk5;                          // +156
-	char unk6[4];                      // +160
-	int m_iNumHints;                   // +164
+	int unk5;                     // +0x009C
+	char unk6[0x4];               // +0x00A0
+	int m_iNumHints;              // +0x00A4
 
-	// these probably aren't actually hints, but there's 1 of them per hint so idk
-	short m_Hints[2000];               // +168
-	int m_iNumScriptNodes;             // +4168
-	char pad[28]; // unk
-	int64_t m_iNumNodes;               // +4200
-	CAI_Node** m_pAInode;              // +4208
+	short m_Hints[0x7D0];         // +0x00A8 <-- '2000' hints.
+	CAI_ScriptNode* m_ScriptNode; // +0x1048 <-- '[r5apex_ds.exe + 0xc6fd39]'.
+	int m_iNumScriptNodes;        // +0x1050
 
-	CAI_ScriptNode m_ScriptNode[4000]; // +4172
+	char pad0[0x14];              // +0x1054 <-- !TODO
+
+	int64_t m_iNumNodes;          // +0x1070
+	CAI_Node** m_pAInode;         // +0x1078
 };

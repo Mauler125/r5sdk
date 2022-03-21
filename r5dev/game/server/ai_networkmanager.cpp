@@ -17,7 +17,6 @@
 const unsigned int PLACEHOLDER_CRC    = 0;
 const int AINET_SCRIPT_VERSION_NUMBER = 21;
 const int AINET_VERSION_NUMBER        = 57;
-const int MAP_VERSION_TEMP            = 30;
 
 /*
 ==============================
@@ -83,7 +82,7 @@ void CAI_NetworkBuilder::BuildFile(CAI_Network* pNetwork)
 		DevMsg(eDLL_T::SERVER, "Writing node '%d' from '%llx' to '%llx'\n", pNetwork->m_pAInode[i]->m_nIndex, reinterpret_cast<void*>(pNetwork->m_pAInode[i]), static_cast<size_t>(writeStream.tellp()));
 		writeStream.write(reinterpret_cast<char*>(&diskNode), sizeof(CAI_NodeDisk));
 
-		nCalculatedLinkcount += pNetwork->m_pAInode[i]->linkcount;
+		nCalculatedLinkcount += pNetwork->m_pAInode[i]->m_nNumLinks;
 	}
 
 	// links
@@ -104,7 +103,7 @@ void CAI_NetworkBuilder::BuildFile(CAI_Network* pNetwork)
 
 	for (int i = 0; i < pNetwork->m_iNumNodes; i++)
 	{
-		for (int j = 0; j < pNetwork->m_pAInode[i]->linkcount; j++)
+		for (int j = 0; j < pNetwork->m_pAInode[i]->m_nNumLinks; j++)
 		{
 			// skip links that don't originate from current node
 			if (pNetwork->m_pAInode[i]->links[j]->m_iSrcID != pNetwork->m_pAInode[i]->m_nIndex)
@@ -187,13 +186,13 @@ void CAI_NetworkBuilder::BuildFile(CAI_Network* pNetwork)
 
 	// Tf2-exclusive stuff past this point, i.e. ain v57 only.
 	DevMsg(eDLL_T::SERVER, "Writing '%d' script nodes at '%llx'\n", pNetwork->m_iNumScriptNodes, static_cast<size_t>(writeStream.tellp()));
-	//writeStream.write(reinterpret_cast<char*>(&pNetwork->scriptnodecount), sizeof(pNetwork->scriptnodecount));
-	//for (int i = 0; i < pNetwork->scriptnodecount; i++)
-	//{
-	//	// disk and memory structs are literally identical here so just directly write
-	//	DevMsg(eDLL_T::SERVER, "Writing script node '%d' at '%llx'\n", i, static_cast<size_t>(writeStream.tellp()));
-	//	writeStream.write(reinterpret_cast<char*>(&pNetwork->scriptnodes[i]), sizeof(pNetwork->scriptnodes[i]));
-	//}
+	writeStream.write(reinterpret_cast<char*>(&pNetwork->m_iNumScriptNodes), sizeof(pNetwork->m_iNumScriptNodes));
+	for (int i = 0; i < pNetwork->m_iNumScriptNodes; i++)
+	{
+		// disk and memory structs are literally identical here so just directly write
+		DevMsg(eDLL_T::SERVER, "Writing script node '%d' at '%llx'\n", i, static_cast<size_t>(writeStream.tellp()));
+		writeStream.write(reinterpret_cast<char*>(&pNetwork->m_ScriptNode[i]), sizeof(pNetwork->m_ScriptNode[i]));
+	}
 
 	DevMsg(eDLL_T::SERVER, "Writing '%d' hints at '%llx'\n", pNetwork->m_iNumHints, static_cast<size_t>(writeStream.tellp()));
 	writeStream.write(reinterpret_cast<char*>(&pNetwork->m_iNumHints), sizeof(pNetwork->m_iNumHints));

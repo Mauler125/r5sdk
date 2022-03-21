@@ -169,6 +169,7 @@ namespace VSquirrel
         {
             int iServerIndex = hsq_getinteger(sqvm, 1);
 
+            // !TODO: Create glue class instead.
             g_pIBrowser->ConnectToServer(g_pIBrowser->m_vServerList[iServerIndex].svIpAddress, g_pIBrowser->m_vServerList[iServerIndex].svPort, g_pIBrowser->m_vServerList[iServerIndex].svEncryptionKey);
 
             return SQ_OK;
