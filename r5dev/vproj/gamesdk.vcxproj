@@ -81,7 +81,10 @@
     <ClCompile Include="..\tier0\commandline.cpp" />
     <ClCompile Include="..\tier0\cmd.cpp" />
     <ClCompile Include="..\tier0\completion.cpp" />
+    <ClCompile Include="..\tier0\cpu.cpp" />
+    <ClCompile Include="..\tier0\cputopology.cpp" />
     <ClCompile Include="..\tier0\cvar.cpp" />
+    <ClCompile Include="..\tier0\fasttimer.cpp" />
     <ClCompile Include="..\tier0\IConVar.cpp" />
     <ClCompile Include="..\tier1\NetAdr2.cpp" />
     <ClCompile Include="..\tier2\socketcreator.cpp" />
@@ -329,9 +332,13 @@
     <ClInclude Include="..\tier0\commandline.h" />
     <ClInclude Include="..\tier0\cmd.h" />
     <ClInclude Include="..\tier0\completion.h" />
+    <ClInclude Include="..\tier0\cpu.h" />
+    <ClInclude Include="..\tier0\cputopology.h" />
     <ClInclude Include="..\tier0\cvar.h" />
+    <ClInclude Include="..\tier0\fasttimer.h" />
     <ClInclude Include="..\tier0\IConVar.h" />
     <ClInclude Include="..\tier0\interface.h" />
+    <ClInclude Include="..\tier0\platform.h" />
     <ClInclude Include="..\tier1\NetAdr2.h" />
     <ClInclude Include="..\tier2\socketcreator.h" />
     <ClInclude Include="..\vguimatsurface\MatSystemSurface.h" />

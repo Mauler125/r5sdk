@@ -399,6 +399,15 @@
     <ClCompile Include="..\materialsystem\cmaterialglue.cpp">
       <Filter>sdk\materialsystem</Filter>
     </ClCompile>
+    <ClCompile Include="..\tier0\cpu.cpp">
+      <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier0\cputopology.cpp">
+      <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier0\fasttimer.cpp">
+      <Filter>sdk\tier0</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1144,6 +1153,18 @@
     </ClInclude>
     <ClInclude Include="..\materialsystem\cmaterialglue.h">
       <Filter>sdk\materialsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\fasttimer.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\platform.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\cputopology.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\cpu.h">
+      <Filter>sdk\tier0</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

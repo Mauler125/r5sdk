@@ -5,15 +5,16 @@
 #include <windows.h>
 #include <WinSock2.h>
 #include <comdef.h>
-
+#include <tchar.h>
 #include <stdio.h>
 #include <Psapi.h>
 #include <shlobj.h>
 #include <objbase.h>
+#include <intrin.h>
 #include <emmintrin.h>
 #include <cmath>
-#include <vector>
 #include <thread>
+#include <vector>
 #include <string>
 #include <sstream>
 #include <fstream>
@@ -59,8 +60,9 @@
 
 #include "core/assert.h"
 #include "core/termutil.h"
-#include "common/pseudodefs.h"
 #include "tier0/basetypes.h"
+#include "tier0/platform.h"
+#include "common/pseudodefs.h"
 
 #if !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
 namespace

@@ -792,6 +792,18 @@
     <ClInclude Include="..\game\server\ai_utility.h">
       <Filter>sdk\game\server</Filter>
     </ClInclude>
+    <ClInclude Include="..\tier0\cpu.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\cputopology.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\platform.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\fasttimer.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\IVEngineClient.cpp">
@@ -985,6 +997,15 @@
     </ClCompile>
     <ClCompile Include="..\game\server\ai_utility.cpp">
       <Filter>sdk\game\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier0\cpu.cpp">
+      <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier0\cputopology.cpp">
+      <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier0\fasttimer.cpp">
+      <Filter>sdk\tier0</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
