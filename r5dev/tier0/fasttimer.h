@@ -143,7 +143,7 @@ public:
 	CTimeAdder(CCycleCount* pTotal);
 	~CTimeAdder(void);
 
-	void        End();
+	void    End(void);
 
 private:
 	CCycleCount* m_pTotal;

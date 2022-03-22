@@ -6,6 +6,21 @@
 #pragma once
 #include "game/server/ai_network.h"
 
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+const int AINETWORK_OFFSET = 2808;
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+const int AINETWORK_OFFSET = 2840;
+#endif
+
+const std::string HULL_SIZE[5] = 
+{
+	"small",
+	"med_short",
+	"medium",
+	"large",
+	"extra_large"
+};
+
 namespace
 {
 	/* ==== CAI_NETWORKMANAGER ============================================================================================================================================== */
@@ -31,11 +46,6 @@ namespace
 void CAI_NetworkManager_Attach();
 void CAI_NetworkManager_Detach();
 
-// dword_165DAD808 = g_nAiNodeClusters
-// qword_165DAD7F0 = pppUnkNodeStruct0s
-// dword_165DB18E8 = g_nAiNodeClusterLinks
-// qword_165DB18D0 = pppUnkStruct1s
-
 namespace // !TODO: [AMOS] don't hardocde.
 {
 	int* g_nAiNodeClusters = ADDRESS(0x165DAD808).RCast<int*>();
@@ -54,7 +64,7 @@ namespace // !TODO: [AMOS] don't hardocde.
 class CAI_NetworkBuilder
 {
 public:
-	static void BuildFile(CAI_Network* pNetwork);
+	static void SaveNetworkGraph(CAI_Network* pNetwork);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

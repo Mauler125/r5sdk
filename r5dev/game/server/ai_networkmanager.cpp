@@ -5,16 +5,18 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#include "public/include/edict.h"
 #include "tier0/cvar.h"
 #include "tier0/cmd.h"
+#include "tier0/fasttimer.h"
+#include "mathlib/crc32.h"
+#include "public/include/edict.h"
+#include "public/include/utility.h"
 #include "engine/host_state.h"
 #include "engine/sys_utils.h"
 #include "game/server/ai_node.h"
 #include "game/server/ai_network.h"
 #include "game/server/ai_networkmanager.h"
 
-const unsigned int PLACEHOLDER_CRC    = 0;
 const int AINET_SCRIPT_VERSION_NUMBER = 21;
 const int AINET_VERSION_NUMBER        = 57;
 
@@ -27,34 +29,67 @@ CAI_NetworkBuilder::BuildFile
   to disk to be loaded
 ==============================
 */
-void CAI_NetworkBuilder::BuildFile(CAI_Network* pNetwork)
+void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 {
-	std::filesystem::path fsWritePath("platform\\maps\\graphs\\");
-	fsWritePath /= g_pHostState->m_levelName;
-	fsWritePath += ".ain";
+	std::string svMeshDir = "maps\\navmesh\\";
+	std::string svGraphDir = "maps\\graphs\\";
+
+	std::filesystem::path fsMeshPath(svMeshDir + g_pHostState->m_levelName + "_" + HULL_SIZE[4] + ".nm");
+	std::filesystem::path fsGraphPath(svGraphDir + g_pHostState->m_levelName + ".ain");
+
+	CFastTimer masterTimer;
+	CFastTimer timer;
+
 	int nCalculatedLinkcount = 0;
 
 	// Dump from memory.
 	DevMsg(eDLL_T::SERVER, "++++--------------------------------------------------------------------------------------------------------------------------++++\n");
 	DevMsg(eDLL_T::SERVER, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> AI NETWORK GRAPH FILE CONSTRUCTION STARTED <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
 	DevMsg(eDLL_T::SERVER, "++++--------------------------------------------------------------------------------------------------------------------------++++\n");
-	DevMsg(eDLL_T::SERVER, "Output file: '%s'\n", fsWritePath.string().c_str());
+	DevMsg(eDLL_T::SERVER, "+- Writing header...\n");
 
-	std::ofstream writeStream(fsWritePath, std::ofstream::binary);
-	DevMsg(eDLL_T::SERVER, "Writing AINet version: '%d'\n", AINET_VERSION_NUMBER);
+	masterTimer.Start();
+	timer.Start();
+
+	CreateDirectories(svGraphDir);
+
+	std::ofstream writeStream(fsGraphPath, std::ofstream::binary);
+	DevMsg(eDLL_T::SERVER, " |-- AINet version: '%d'\n", AINET_VERSION_NUMBER);
 	writeStream.write(reinterpret_cast<const char*>(&AINET_VERSION_NUMBER), sizeof(int));
 
 	int nMapVersion = g_ServerGlobalVariables->m_nMapVersion;
-	DevMsg(eDLL_T::SERVER, "Writing map version: '%d'\n", nMapVersion);
+	DevMsg(eDLL_T::SERVER, " |-- Map version: '%d'\n", nMapVersion);
 	writeStream.write(reinterpret_cast<char*>(&nMapVersion), sizeof(int));
 
-	DevMsg(eDLL_T::SERVER, "Writing placeholder CRC: '%d'\n", PLACEHOLDER_CRC);
-	writeStream.write(reinterpret_cast<const char*>(&PLACEHOLDER_CRC), sizeof(int));
+	std::ifstream iNavMesh(fsMeshPath, std::fstream::binary);
+	std::vector<std::uint8_t> uNavMesh;
+	std::uint32_t nNavMeshHash = NULL;
+	if (iNavMesh.good())
+	{
+		iNavMesh.seekg(0, std::fstream::end);
+		uNavMesh.resize(iNavMesh.tellg());
+		iNavMesh.seekg(0, std::fstream::beg);
+		iNavMesh.read((char*)uNavMesh.data(), uNavMesh.size());
+
+		nNavMeshHash = crc32::update(NULL, uNavMesh.data(), uNavMesh.size());
+	}
+	else
+	{
+		Warning(eDLL_T::RTECH, "%s - No %s NavMesh found. Unable to calculate CRC for AI Network\n", __FUNCTION__, HULL_SIZE[3].c_str());
+	}
+
+	DevMsg(eDLL_T::SERVER, " |-- NavMesh CRC: '%lx'\n", nNavMeshHash);
+	writeStream.write(reinterpret_cast<const char*>(&nNavMeshHash), sizeof(int));
 
 	// Path nodes
-	DevMsg(eDLL_T::SERVER, "Writing nodecount: '%d'\n", pNetwork->m_iNumNodes);
+	DevMsg(eDLL_T::SERVER, " |-- Nodecount: '%d'\n", pNetwork->m_iNumNodes);
 	writeStream.write(reinterpret_cast<char*>(&pNetwork->m_iNumNodes), sizeof(int));
 
+	timer.End();
+	DevMsg(eDLL_T::SERVER, "...done writing header. %lf seconds\n", timer.GetDuration().GetSeconds());
+
+	timer.Start();
+	DevMsg(eDLL_T::SERVER, "+- Writing node positions...\n");
 	for (int i = 0; i < pNetwork->m_iNumNodes; i++)
 	{
 		// Construct on-disk node struct.
@@ -70,7 +105,6 @@ void CAI_NetworkBuilder::BuildFile(CAI_Network* pNetwork)
 		for (int j = 0; j < MAX_HULLS; j++)
 		{
 			diskNode.unk2[j] = static_cast<short>(pNetwork->m_pAInode[i]->unk2[j]);
-			//spdlog::info(static_cast<short>(pNetwork->nodes[i]->unk2[j]));
 		}
 
 		memcpy(diskNode.unk3, pNetwork->m_pAInode[i]->unk3, sizeof(diskNode.unk3));
@@ -79,35 +113,39 @@ void CAI_NetworkBuilder::BuildFile(CAI_Network* pNetwork)
 		memcpy(diskNode.unk6, pNetwork->m_pAInode[i]->unk10, sizeof(diskNode.unk6));
 
 
-		DevMsg(eDLL_T::SERVER, "Writing node '%d' from '%llx' to '%llx'\n", pNetwork->m_pAInode[i]->m_nIndex, reinterpret_cast<void*>(pNetwork->m_pAInode[i]), static_cast<size_t>(writeStream.tellp()));
+		DevMsg(eDLL_T::SERVER, " |-- Copying node '%d' from '%p' to '%llx'\n", pNetwork->m_pAInode[i]->m_nIndex, reinterpret_cast<void*>(pNetwork->m_pAInode[i]), static_cast<size_t>(writeStream.tellp()));
 		writeStream.write(reinterpret_cast<char*>(&diskNode), sizeof(CAI_NodeDisk));
 
 		nCalculatedLinkcount += pNetwork->m_pAInode[i]->m_nNumLinks;
 	}
+	timer.End();
+	DevMsg(eDLL_T::SERVER, "...done writing node positions. %lf seconds\n", timer.GetDuration().GetSeconds());
+	
+	timer.Start();
+	DevMsg(eDLL_T::SERVER, "+- Writing links...\n");
 
-	// links
-	DevMsg(eDLL_T::SERVER, "Linkcount: '%d'\n", pNetwork->m_iNumLinks);
-	DevMsg(eDLL_T::SERVER, "Calculated total linkcount: '%d'\n", nCalculatedLinkcount);
+	DevMsg(eDLL_T::SERVER, " |-- Cache linkcount: '%d'\n", pNetwork->m_iNumLinks);
+	DevMsg(eDLL_T::SERVER, " |-- Calculated linkcount: '%d'\n", nCalculatedLinkcount);
 
 	nCalculatedLinkcount /= 2;
 	if (ai_dumpAINfileFromLoad->GetBool())
 	{
 		if (pNetwork->m_iNumLinks != nCalculatedLinkcount)
 		{
-			DevMsg(eDLL_T::SERVER, "Calculated linkcount '%d' doesn't match file linkcount '%d' (expected on build!)\n", nCalculatedLinkcount, pNetwork->m_iNumLinks);
+			Warning(eDLL_T::SERVER, "%s - Calculated linkcount '%d' doesn't match file linkcount '%d' (expected on build!)\n", __FUNCTION__, nCalculatedLinkcount, pNetwork->m_iNumLinks);
 		}
 	}
 
-	DevMsg(eDLL_T::SERVER, "Writing linkcount: '%d'\n", nCalculatedLinkcount);
 	writeStream.write(reinterpret_cast<char*>(&nCalculatedLinkcount), sizeof(int));
-
 	for (int i = 0; i < pNetwork->m_iNumNodes; i++)
 	{
 		for (int j = 0; j < pNetwork->m_pAInode[i]->m_nNumLinks; j++)
 		{
 			// skip links that don't originate from current node
 			if (pNetwork->m_pAInode[i]->links[j]->m_iSrcID != pNetwork->m_pAInode[i]->m_nIndex)
+			{
 				continue;
+			}
 
 			CAI_NodeLinkDisk diskLink{};
 			diskLink.m_iSrcID = pNetwork->m_pAInode[i]->links[j]->m_iSrcID;
@@ -115,13 +153,18 @@ void CAI_NetworkBuilder::BuildFile(CAI_Network* pNetwork)
 			diskLink.unk0 = pNetwork->m_pAInode[i]->links[j]->unk1;
 			memcpy(diskLink.m_bHulls, pNetwork->m_pAInode[i]->links[j]->m_bHulls, sizeof(diskLink.m_bHulls));
 
-			DevMsg(eDLL_T::SERVER, "Writing link '%d' => '%d' to '%llx'\n", diskLink.m_iSrcID, diskLink.m_iDestID, static_cast<size_t>(writeStream.tellp()));
+			DevMsg(eDLL_T::SERVER, "  |-- Writing link '%d' => '%d' to '%llx'\n", diskLink.m_iSrcID, diskLink.m_iDestID, static_cast<size_t>(writeStream.tellp()));
 			writeStream.write(reinterpret_cast<char*>(&diskLink), sizeof(CAI_NodeLinkDisk));
 		}
 	}
 
+	timer.End();
+	DevMsg(eDLL_T::SERVER, "...done writing links. %lf seconds (%d links)\n", timer.GetDuration().GetSeconds(), nCalculatedLinkcount);
+
+	timer.Start();
+	DevMsg(eDLL_T::SERVER, "+- Writing hull data...\n");
 	// Don't know what this is, it's likely a block from tf1 that got deprecated? should just be 1 int per node
-	DevMsg(eDLL_T::SERVER, "Writing '%d' bytes for unknown block at '%llx'\n", pNetwork->m_iNumNodes * sizeof(uint32_t), static_cast<size_t>(writeStream.tellp()));
+	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' bytes for unknown block at '%llx'\n", pNetwork->m_iNumNodes * sizeof(uint32_t), static_cast<size_t>(writeStream.tellp()));
 	uint32_t* unkNodeBlock = new uint32_t[pNetwork->m_iNumNodes];
 	memset(unkNodeBlock, 0, pNetwork->m_iNumNodes * sizeof(uint32_t));
 	writeStream.write(reinterpret_cast<char*>(unkNodeBlock), pNetwork->m_iNumNodes * sizeof(uint32_t));
@@ -129,23 +172,28 @@ void CAI_NetworkBuilder::BuildFile(CAI_Network* pNetwork)
 
 	// TODO: this is traverse nodes i think? these aren't used in tf2 ains so we can get away with just writing count=0 and skipping
 	// but ideally should actually dump these
-	DevMsg(eDLL_T::SERVER, "Writing '%d' traversal nodes at '%llx'\n", 0, static_cast<size_t>(writeStream.tellp()));
+	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' traversal nodes at '%llx'\n", 0, static_cast<size_t>(writeStream.tellp()));
 	short traverseNodeCount = 0;
 	writeStream.write(reinterpret_cast<char*>(&traverseNodeCount), sizeof(short));
 	// Only write count since count=0 means we don't have to actually do anything here
 
 	// TODO: ideally these should be actually dumped, but they're always 0 in tf2 from what i can tell
-	DevMsg(eDLL_T::SERVER, "Writing '%d' bytes for unknown hull block at '%llx'\n", MAX_HULLS * 8, static_cast<size_t>(writeStream.tellp()));
+	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' bytes for unknown hull block at '%llx'\n", MAX_HULLS * 8, static_cast<size_t>(writeStream.tellp()));
 	char* unkHullBlock = new char[MAX_HULLS * 8];
 	memset(unkHullBlock, 0, MAX_HULLS * 8);
 	writeStream.write(unkHullBlock, MAX_HULLS * 8);
 	delete[] unkHullBlock;
 
-	DevMsg(eDLL_T::SERVER, "Writing '%d' AINode clusters at '%llx'\n", *g_nAiNodeClusters, static_cast<size_t>(writeStream.tellp()));
+	timer.End();
+	DevMsg(eDLL_T::SERVER, "...done writing hull data. %lf seconds\n", timer.GetDuration().GetSeconds());
+
+	timer.Start();
+	DevMsg(eDLL_T::SERVER, "+- Writing clusters...\n");
+
 	writeStream.write(reinterpret_cast<char*>(g_nAiNodeClusters), sizeof(*g_nAiNodeClusters));
 	for (int i = 0; i < *g_nAiNodeClusters; i++)
 	{
-		DevMsg(eDLL_T::SERVER, "Writing AINode cluster '%d' at '%llx'\n", i, static_cast<size_t>(writeStream.tellp()));
+		DevMsg(eDLL_T::SERVER, " |-- Writing cluster '%d' at '%llx'\n", i, static_cast<size_t>(writeStream.tellp()));
 		AINodeClusters* nodeClusters = (*g_pppAiNodeClusters)[i];
 
 		writeStream.write(reinterpret_cast<char*>(&nodeClusters->m_nIndex), sizeof(nodeClusters->m_nIndex));
@@ -172,36 +220,56 @@ void CAI_NetworkBuilder::BuildFile(CAI_Network* pNetwork)
 		writeStream.write(reinterpret_cast<char*>(&nodeClusters->unk5), sizeof(nodeClusters->unk5));
 	}
 
-	DevMsg(eDLL_T::SERVER, "Writing '%d' AINode cluster links at '%llx'\n", *g_nAiNodeClusterLinks, static_cast<size_t>(writeStream.tellp()));
+	timer.End();
+	DevMsg(eDLL_T::SERVER, "...done writing clusters. %lf seconds (%d clusters)\n", timer.GetDuration().GetSeconds(), *g_nAiNodeClusters);
+
+	timer.Start();
+	DevMsg(eDLL_T::SERVER, "+- Writing cluster links...\n");
+
 	writeStream.write(reinterpret_cast<char*>(g_nAiNodeClusterLinks), sizeof(*g_nAiNodeClusterLinks));
 	for (int i = 0; i < *g_nAiNodeClusterLinks; i++)
 	{
 		// Disk and memory structs are literally identical here so just directly write.
-		DevMsg(eDLL_T::SERVER, "Writing AINode cluster link '%d' at '%llx'\n", i, static_cast<size_t>(writeStream.tellp()));
+		DevMsg(eDLL_T::SERVER, " |-- Writing cluster link '%d' at '%llx'\n", i, static_cast<size_t>(writeStream.tellp()));
 		writeStream.write(reinterpret_cast<char*>((*g_pppAiNodeClusterLinks)[i]), sizeof(*(*g_pppAiNodeClusterLinks)[i]));
 	}
 
-	// Some weird int idk what this is used for.
+	timer.End();
+	DevMsg(eDLL_T::SERVER, "...done writing cluster links. %lf seconds (%d cluster links)\n", timer.GetDuration().GetSeconds(), *g_nAiNodeClusterLinks);
+
+	// This is always set to '-1'. Likely a field for maintaining compatibility.
 	writeStream.write(reinterpret_cast<char*>(&pNetwork->unk5), sizeof(pNetwork->unk5));
 
-	// Tf2-exclusive stuff past this point, i.e. ain v57 only.
-	DevMsg(eDLL_T::SERVER, "Writing '%d' script nodes at '%llx'\n", pNetwork->m_iNumScriptNodes, static_cast<size_t>(writeStream.tellp()));
+	// AIN v57 and above only (not present in r1, static array in r2, pointer to array in r5).
+	timer.Start();
+	DevMsg(eDLL_T::SERVER, "+- Writing script nodes...\n");
+
 	writeStream.write(reinterpret_cast<char*>(&pNetwork->m_iNumScriptNodes), sizeof(pNetwork->m_iNumScriptNodes));
 	for (int i = 0; i < pNetwork->m_iNumScriptNodes; i++)
 	{
-		// disk and memory structs are literally identical here so just directly write
-		DevMsg(eDLL_T::SERVER, "Writing script node '%d' at '%llx'\n", i, static_cast<size_t>(writeStream.tellp()));
+		// Disk and memory structs are literally identical here so just directly write
+		DevMsg(eDLL_T::SERVER, " |-- Writing script node '%d' at '%llx'\n", i, static_cast<size_t>(writeStream.tellp()));
 		writeStream.write(reinterpret_cast<char*>(&pNetwork->m_ScriptNode[i]), sizeof(pNetwork->m_ScriptNode[i]));
 	}
 
-	DevMsg(eDLL_T::SERVER, "Writing '%d' hints at '%llx'\n", pNetwork->m_iNumHints, static_cast<size_t>(writeStream.tellp()));
+	timer.End();
+	DevMsg(eDLL_T::SERVER, "...done writing script nodes. %lf seconds (%d nodes)\n", timer.GetDuration().GetSeconds(), pNetwork->m_iNumScriptNodes);
+
+	timer.Start();
+	DevMsg(eDLL_T::SERVER, "+- Writing hint data...\n");
+
 	writeStream.write(reinterpret_cast<char*>(&pNetwork->m_iNumHints), sizeof(pNetwork->m_iNumHints));
 	for (int i = 0; i < pNetwork->m_iNumHints; i++)
 	{
-		DevMsg(eDLL_T::SERVER, "Writing hint data '%d' at '%llx'\n", i, static_cast<size_t>(writeStream.tellp()));
+		DevMsg(eDLL_T::SERVER, " |-- Writing hint data '%d' at '%llx'\n", i, static_cast<size_t>(writeStream.tellp()));
 		writeStream.write(reinterpret_cast<char*>(&pNetwork->m_Hints[i]), sizeof(pNetwork->m_Hints[i]));
 	}
 
+	timer.End();
+	DevMsg(eDLL_T::SERVER, "...done writing hint data. %lf seconds (%d hints)\n", timer.GetDuration().GetSeconds(), pNetwork->m_iNumHints);
+
+	masterTimer.End();
+	DevMsg(eDLL_T::SERVER, "...done writing AI node graph. %lf seconds\n", masterTimer.GetDuration().GetSeconds());
 	DevMsg(eDLL_T::SERVER, "++++--------------------------------------------------------------------------------------------------------------------------++++\n");
 	DevMsg(eDLL_T::SERVER, "++++--------------------------------------------------------------------------------------------------------------------------++++\n");
 
@@ -219,14 +287,14 @@ void HCAI_NetworkManager__LoadNetworkGraph(void* aimanager, void* buf, const cha
 	if (ai_dumpAINfileFromLoad->GetBool())
 	{
 		DevMsg(eDLL_T::SERVER, "Running BuildAINFile for loaded file '%s'\n", filename);
-		CAI_NetworkBuilder::BuildFile(*(CAI_Network**)(reinterpret_cast<char*>(aimanager) + 2840));
+		CAI_NetworkBuilder::SaveNetworkGraph(*(CAI_Network**)(reinterpret_cast<char*>(aimanager) + AINETWORK_OFFSET));
 	}
 }
 
 void HCAI_NetworkBuilder__Build(void* builder, CAI_Network* aiNetwork, void* a3, int a4)
 {
 	CAI_NetworkBuilder__Build(builder, aiNetwork, a3, a4);
-	CAI_NetworkBuilder::BuildFile(aiNetwork);
+	CAI_NetworkBuilder::SaveNetworkGraph(aiNetwork);
 }
 
 void CAI_NetworkManager_Attach()
