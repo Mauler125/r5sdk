@@ -17,8 +17,8 @@
 #include "game/server/ai_network.h"
 #include "game/server/ai_networkmanager.h"
 
-const int AINET_SCRIPT_VERSION_NUMBER = 21;
-const int AINET_VERSION_NUMBER        = 57;
+constexpr int AINET_SCRIPT_VERSION_NUMBER = 21;
+constexpr int AINET_VERSION_NUMBER        = 57;
 
 /*
 ==============================
@@ -42,7 +42,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 
 	int nCalculatedLinkcount = 0;
 
-	// Dump from memory.
+	// Build from memory.
 	DevMsg(eDLL_T::SERVER, "++++--------------------------------------------------------------------------------------------------------------------------++++\n");
 	DevMsg(eDLL_T::SERVER, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> AI NETWORK GRAPH FILE CONSTRUCTION STARTED <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
 	DevMsg(eDLL_T::SERVER, "++++--------------------------------------------------------------------------------------------------------------------------++++\n");
@@ -78,10 +78,11 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 		Warning(eDLL_T::RTECH, "%s - No %s NavMesh found. Unable to calculate CRC for AI Network\n", __FUNCTION__, HULL_SIZE[3].c_str());
 	}
 
+	// Large NavMesh CRC.
 	DevMsg(eDLL_T::SERVER, " |-- NavMesh CRC: '%lx'\n", nNavMeshHash);
 	writeStream.write(reinterpret_cast<const char*>(&nNavMeshHash), sizeof(int));
 
-	// Path nodes
+	// Path nodes.
 	DevMsg(eDLL_T::SERVER, " |-- Nodecount: '%d'\n", pNetwork->m_iNumNodes);
 	writeStream.write(reinterpret_cast<char*>(&pNetwork->m_iNumNodes), sizeof(int));
 
@@ -113,7 +114,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 		memcpy(diskNode.unk6, pNetwork->m_pAInode[i]->unk10, sizeof(diskNode.unk6));
 
 
-		DevMsg(eDLL_T::SERVER, " |-- Copying node '%d' from '%p' to '%llx'\n", pNetwork->m_pAInode[i]->m_nIndex, reinterpret_cast<void*>(pNetwork->m_pAInode[i]), static_cast<size_t>(writeStream.tellp()));
+		DevMsg(eDLL_T::SERVER, " |-- Copying node '%d' from '%p' to '0x%llx'\n", pNetwork->m_pAInode[i]->m_nIndex, reinterpret_cast<void*>(pNetwork->m_pAInode[i]), static_cast<size_t>(writeStream.tellp()));
 		writeStream.write(reinterpret_cast<char*>(&diskNode), sizeof(CAI_NodeDisk));
 
 		nCalculatedLinkcount += pNetwork->m_pAInode[i]->m_nNumLinks;
@@ -141,7 +142,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	{
 		for (int j = 0; j < pNetwork->m_pAInode[i]->m_nNumLinks; j++)
 		{
-			// skip links that don't originate from current node
+			// Skip links that don't originate from current node.
 			if (pNetwork->m_pAInode[i]->links[j]->m_iSrcID != pNetwork->m_pAInode[i]->m_nIndex)
 			{
 				continue;
@@ -153,7 +154,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 			diskLink.unk0 = pNetwork->m_pAInode[i]->links[j]->unk1;
 			memcpy(diskLink.m_bHulls, pNetwork->m_pAInode[i]->links[j]->m_bHulls, sizeof(diskLink.m_bHulls));
 
-			DevMsg(eDLL_T::SERVER, "  |-- Writing link '%d' => '%d' to '%llx'\n", diskLink.m_iSrcID, diskLink.m_iDestID, static_cast<size_t>(writeStream.tellp()));
+			DevMsg(eDLL_T::SERVER, "  |-- Writing link '%d' => '%d' to '0x%llx'\n", diskLink.m_iSrcID, diskLink.m_iDestID, static_cast<size_t>(writeStream.tellp()));
 			writeStream.write(reinterpret_cast<char*>(&diskLink), sizeof(CAI_NodeLinkDisk));
 		}
 	}
@@ -163,24 +164,26 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 
 	timer.Start();
 	DevMsg(eDLL_T::SERVER, "+- Writing hull data...\n");
-	// Don't know what this is, it's likely a block from tf1 that got deprecated? should just be 1 int per node
-	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' bytes for unknown block at '%llx'\n", pNetwork->m_iNumNodes * sizeof(uint32_t), static_cast<size_t>(writeStream.tellp()));
-	uint32_t* unkNodeBlock = new uint32_t[pNetwork->m_iNumNodes];
-	memset(unkNodeBlock, 0, pNetwork->m_iNumNodes * sizeof(uint32_t));
-	writeStream.write(reinterpret_cast<char*>(unkNodeBlock), pNetwork->m_iNumNodes * sizeof(uint32_t));
-	delete[] unkNodeBlock;
+	// Don't know what this is, it's likely a block from tf1 that got deprecated? should just be 1 int per node.
+	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' bytes for unknown block at '0x%llx'\n", pNetwork->m_iNumNodes * sizeof(uint32_t), static_cast<size_t>(writeStream.tellp()));
 
-	// TODO: this is traverse nodes i think? these aren't used in tf2 ains so we can get away with just writing count=0 and skipping
-	// but ideally should actually dump these
-	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' traversal nodes at '%llx'\n", 0, static_cast<size_t>(writeStream.tellp()));
-	short traverseNodeCount = 0;
+	if (pNetwork->m_iNumNodes > 0)
+	{
+		uint32_t unkNodeBlock[pNetwork->m_iNumNodes];
+		memset(&unkNodeBlock, '\0', pNetwork->m_iNumNodes * sizeof(uint32_t));
+		writeStream.write(reinterpret_cast<char*>(&unkNodeBlock), pNetwork->m_iNumNodes * sizeof(uint32_t));
+	}
+
+	// TODO: This is traverse nodes i think? these aren't used in r2 ains so we can get away with just writing count=0 and skipping
+	// but ideally should actually dump these.
+	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' traversal nodes at '0x%llx'\n", 0, static_cast<size_t>(writeStream.tellp()));
+	short traverseNodeCount = 0; // Only write count since count=0 means we don't have to actually do anything here.
 	writeStream.write(reinterpret_cast<char*>(&traverseNodeCount), sizeof(short));
-	// Only write count since count=0 means we don't have to actually do anything here
 
-	// TODO: ideally these should be actually dumped, but they're always 0 in tf2 from what i can tell
-	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' bytes for unknown hull block at '%llx'\n", MAX_HULLS * 8, static_cast<size_t>(writeStream.tellp()));
+	// TODO: Ideally these should be actually dumped, but they're always 0 in r2 from what i can tell.
+	DevMsg(eDLL_T::SERVER, " |-- Writing '%lld' bytes for unknown hull block at '0x%llx'\n", MAX_HULLS * 8, static_cast<size_t>(writeStream.tellp()));
 	char* unkHullBlock = new char[MAX_HULLS * 8];
-	memset(unkHullBlock, 0, MAX_HULLS * 8);
+	memset(unkHullBlock, '\0', MAX_HULLS * 8);
 	writeStream.write(unkHullBlock, MAX_HULLS * 8);
 	delete[] unkHullBlock;
 
@@ -193,7 +196,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	writeStream.write(reinterpret_cast<char*>(g_nAiNodeClusters), sizeof(*g_nAiNodeClusters));
 	for (int i = 0; i < *g_nAiNodeClusters; i++)
 	{
-		DevMsg(eDLL_T::SERVER, " |-- Writing cluster '%d' at '%llx'\n", i, static_cast<size_t>(writeStream.tellp()));
+		DevMsg(eDLL_T::SERVER, " |-- Writing cluster '%d' at '0x%llx'\n", i, static_cast<size_t>(writeStream.tellp()));
 		AINodeClusters* nodeClusters = (*g_pppAiNodeClusters)[i];
 
 		writeStream.write(reinterpret_cast<char*>(&nodeClusters->m_nIndex), sizeof(nodeClusters->m_nIndex));
@@ -230,7 +233,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	for (int i = 0; i < *g_nAiNodeClusterLinks; i++)
 	{
 		// Disk and memory structs are literally identical here so just directly write.
-		DevMsg(eDLL_T::SERVER, " |-- Writing cluster link '%d' at '%llx'\n", i, static_cast<size_t>(writeStream.tellp()));
+		DevMsg(eDLL_T::SERVER, " |-- Writing cluster link '%d' at '0x%llx'\n", i, static_cast<size_t>(writeStream.tellp()));
 		writeStream.write(reinterpret_cast<char*>((*g_pppAiNodeClusterLinks)[i]), sizeof(*(*g_pppAiNodeClusterLinks)[i]));
 	}
 
@@ -240,15 +243,15 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	// This is always set to '-1'. Likely a field for maintaining compatibility.
 	writeStream.write(reinterpret_cast<char*>(&pNetwork->unk5), sizeof(pNetwork->unk5));
 
-	// AIN v57 and above only (not present in r1, static array in r2, pointer to array in r5).
+	// AIN v57 and above only (not present in r1, static array in r2, pointer to dynamic array in r5).
 	timer.Start();
 	DevMsg(eDLL_T::SERVER, "+- Writing script nodes...\n");
 
 	writeStream.write(reinterpret_cast<char*>(&pNetwork->m_iNumScriptNodes), sizeof(pNetwork->m_iNumScriptNodes));
 	for (int i = 0; i < pNetwork->m_iNumScriptNodes; i++)
 	{
-		// Disk and memory structs are literally identical here so just directly write
-		DevMsg(eDLL_T::SERVER, " |-- Writing script node '%d' at '%llx'\n", i, static_cast<size_t>(writeStream.tellp()));
+		// Disk and memory structs for script nodes are identical.
+		DevMsg(eDLL_T::SERVER, " |-- Writing script node '%d' at '0x%llx'\n", i, static_cast<size_t>(writeStream.tellp()));
 		writeStream.write(reinterpret_cast<char*>(&pNetwork->m_ScriptNode[i]), sizeof(pNetwork->m_ScriptNode[i]));
 	}
 
@@ -261,7 +264,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	writeStream.write(reinterpret_cast<char*>(&pNetwork->m_iNumHints), sizeof(pNetwork->m_iNumHints));
 	for (int i = 0; i < pNetwork->m_iNumHints; i++)
 	{
-		DevMsg(eDLL_T::SERVER, " |-- Writing hint data '%d' at '%llx'\n", i, static_cast<size_t>(writeStream.tellp()));
+		DevMsg(eDLL_T::SERVER, " |-- Writing hint data '%d' at '0x%llx'\n", i, static_cast<size_t>(writeStream.tellp()));
 		writeStream.write(reinterpret_cast<char*>(&pNetwork->m_Hints[i]), sizeof(pNetwork->m_Hints[i]));
 	}
 
