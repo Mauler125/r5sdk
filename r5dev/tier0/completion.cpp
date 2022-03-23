@@ -401,6 +401,7 @@ void _ReloadBanList_f_CompletionFunc(const CCommand& args)
 void _Pak_ListPaks_f_CompletionFunc(const CCommand& cmd)
 {
 #ifdef GAMEDLL_S3
+	// [ PIXIE ]: TODO pattern scan these.
 	static std::int16_t* s_pLoadedPakCount = ADDRESS(0x167ED7C6C).RCast<std::int16_t*>();
 	static RPakLoadedInfo_t* g_pLoadedPakInfo = ADDRESS(0x167D40B70).RCast<RPakLoadedInfo_t*>();
 
