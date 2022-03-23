@@ -126,6 +126,7 @@ void ConCommand::Init(void)
 	ConCommand* rtech_strtoguid  = new ConCommand("rtech_strtoguid", "Calculates the GUID from input data.", FCVAR_DEVELOPMENTONLY, _RTech_StringToGUID_f_CompletionFunc, nullptr);
 	ConCommand* rtech_asyncload  = new ConCommand("rtech_asyncload", "Loads user specified 'RPak' file.", FCVAR_DEVELOPMENTONLY, _RTech_AsyncLoad_f_CompletionFunc, nullptr);
 	ConCommand* rtech_decompress = new ConCommand("rtech_decompress", "Decompresses user specified 'RPak' file.", FCVAR_DEVELOPMENTONLY, _RTech_Decompress_f_CompletionFunc, nullptr);
+	ConCommand* pak_listpaks     = new ConCommand("pak_listpaks", "Display a list of the loaded Pak files.", FCVAR_DEVELOPMENTONLY, _Pak_ListPaks_f_CompletionFunc, nullptr);
 	//-------------------------------------------------------------------------
 	// NETCHANNEL                                                             |
 	ConCommand* net_toggletrace = new ConCommand("net_toggletrace", "Logs the sending and receiving datagram to a file on the disk.", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, _NET_TraceNetChan_f_CompletionFunc, nullptr);

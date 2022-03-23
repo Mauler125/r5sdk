@@ -50,6 +50,46 @@ namespace
 #pragma warning( pop ) 
 }
 
+enum class RPakStatus_t : std::int32_t
+{
+	PAK_STATUS_FREED = 0,
+	PAK_STATUS_LOAD_PENDING = 1,
+	PAK_STATUS_REPAK_RUNNING = 2,
+	PAK_STATUS_REPAK_DONE = 3,
+	PAK_STATUS_LOAD_STARTING = 4,
+	PAK_STATUS_LOAD_PAKHDR = 5,
+	PAK_STATUS_LOAD_PATCH_INIT = 6,
+	PAK_STATUS_LOAD_PATCH_EDIT_STREAM = 7,
+	PAK_STATUS_LOAD_ASSETS = 8,
+	PAK_STATUS_LOADED = 9,
+	PAK_STATUS_UNLOAD_PENDING = 10,
+	PAK_STATUS_FREE_PENDING = 11,
+	PAK_STATUS_CANCELING = 12,
+	PAK_STATUS_ERROR = 13,
+	PAK_STATUS_INVALID_PAKHANDLE = 14,
+	PAK_STATUS_BUSY = 15
+};
+
+const std::map<RPakStatus_t, std::string> RPakStatusToString {
+	{ RPakStatus_t::PAK_STATUS_FREED ,                 "PAK_STATUS_FREED" },
+	{ RPakStatus_t::PAK_STATUS_LOAD_PENDING ,          "PAK_STATUS_LOAD_PENDING" },
+	{ RPakStatus_t::PAK_STATUS_REPAK_RUNNING,          "PAK_STATUS_REPAK_RUNNING" },
+	{ RPakStatus_t::PAK_STATUS_REPAK_DONE,             "PAK_STATUS_REPAK_DONE" },
+	{ RPakStatus_t::PAK_STATUS_LOAD_STARTING,          "PAK_STATUS_LOAD_STARTING" },
+	{ RPakStatus_t::PAK_STATUS_LOAD_PAKHDR,            "PAK_STATUS_LOAD_PAKHDR" },
+	{ RPakStatus_t::PAK_STATUS_LOAD_PATCH_INIT,        "PAK_STATUS_LOAD_PATCH_INIT" },
+	{ RPakStatus_t::PAK_STATUS_LOAD_PATCH_EDIT_STREAM, "PAK_STATUS_LOAD_PATCH_EDIT_STREAM" },
+	{ RPakStatus_t::PAK_STATUS_LOAD_ASSETS,            "PAK_STATUS_LOAD_ASSETS" },
+	{ RPakStatus_t::PAK_STATUS_LOADED,                 "PAK_STATUS_LOADED" },
+	{ RPakStatus_t::PAK_STATUS_UNLOAD_PENDING,         "PAK_STATUS_UNLOAD_PENDING" },
+	{ RPakStatus_t::PAK_STATUS_FREE_PENDING,           "PAK_STATUS_FREE_PENDING" },
+	{ RPakStatus_t::PAK_STATUS_CANCELING,              "PAK_STATUS_CANCELING" },
+	{ RPakStatus_t::PAK_STATUS_ERROR,                  "PAK_STATUS_ERROR" },
+	{ RPakStatus_t::PAK_STATUS_INVALID_PAKHANDLE,      "PAK_STATUS_INVALID_PAKHANDLE" },
+	{ RPakStatus_t::PAK_STATUS_BUSY,                   "PAK_STATUS_BUSY" },
+};
+
+
 struct RPakHeader_t
 {
 	std::uint32_t m_nMagic;                    // 'RPak'
@@ -106,6 +146,21 @@ struct __declspec(align(8)) RPakDecompState_t
 	std::uint64_t m_nCompressedStreamSize;
 	std::uint64_t m_nDecompStreamSize;
 };
+
+class RPakLoadedInfo_t
+{
+public:
+	std::int32_t m_nPakId; //0x0000
+	RPakStatus_t m_nStatus; //0x0004
+	std::uint64_t m_nUnk1; //0x0008
+	std::uint32_t m_nUnk2; //0x0010
+	std::uint32_t m_nAssetCount; //0x0014
+	char* m_pszFileName; //0x0018
+	void* m_pUnk1; //0x0020
+	std::uint64_t* m_pAssetGuids; //0x0028 size of the array is m_nAssetCount
+	char pad_0030[128]; //0x0030
+	std::uint64_t m_nUnkEnd; //0x00B0
+}; //Size: 0x00B8
 
 namespace
 {

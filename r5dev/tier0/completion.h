@@ -26,6 +26,7 @@ void _Ban_f_CompletionFunc(const CCommand& args);
 void _BanID_f_CompletionFunc(const CCommand& args);
 void _Unban_f_CompletionFunc(const CCommand& args);
 void _ReloadBanList_f_CompletionFunc(const CCommand& args);
+void _Pak_ListPaks_f_CompletionFunc(const CCommand& cmd);
 void _RTech_StringToGUID_f_CompletionFunc(const CCommand& args);
 void _RTech_AsyncLoad_f_CompletionFunc(const CCommand& args);
 void _RTech_Decompress_f_CompletionFunc(const CCommand& args);

@@ -395,6 +395,45 @@ void _ReloadBanList_f_CompletionFunc(const CCommand& args)
 
 /*
 =====================
+ _Pak_ListPaks_f_CompletionFunc
+=====================
+*/
+void _Pak_ListPaks_f_CompletionFunc(const CCommand& cmd)
+{
+#ifdef GAMEDLL_S3
+	static std::int16_t* s_pLoadedPakCount = ADDRESS(0x167ED7C6C).RCast<std::int16_t*>();
+	static RPakLoadedInfo_t* g_pLoadedPakInfo = ADDRESS(0x167D40B70).RCast<RPakLoadedInfo_t*>();
+
+	DevMsg(eDLL_T::RTECH, "| id | name                             | status                               | asset count |\n");
+	DevMsg(eDLL_T::RTECH, "|----|----------------------------------|--------------------------------------|-------------|\n");
+
+	std::uint32_t nActuallyLoaded = 0;
+
+	for (int i = 0; i < *s_pLoadedPakCount; ++i)
+	{
+		RPakLoadedInfo_t info = g_pLoadedPakInfo[i];
+
+		if (info.m_nStatus == RPakStatus_t::PAK_STATUS_FREED)
+			continue;
+
+		std::string rpakStatus = "RPAK_CREATED_A_NEW_STATUS_SOMEHOW";
+
+		auto it = RPakStatusToString.find(info.m_nStatus);
+		if (it != RPakStatusToString.end())
+			rpakStatus = it->second;
+
+		// todo: make status into a string from an array/vector
+		DevMsg(eDLL_T::RTECH, "| %02i | %-32s | %-36s | %11i |\n", info.m_nPakId, info.m_pszFileName, rpakStatus.c_str(), info.m_nAssetCount);
+		nActuallyLoaded++;
+	}
+	DevMsg(eDLL_T::RTECH, "|----|----------------------------------|--------------------------------------|-------------|\n");
+	DevMsg(eDLL_T::RTECH, "| %16i loaded paks.                                                              |\n", nActuallyLoaded);
+	DevMsg(eDLL_T::RTECH, "|----|----------------------------------|--------------------------------------|-------------|\n");
+#endif
+}
+
+/*
+=====================
 _RTech_StringToGUID_f_CompletionFunc
 =====================
 */
