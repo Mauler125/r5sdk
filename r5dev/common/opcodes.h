@@ -98,6 +98,13 @@ namespace
 	// 0x140EF9100 // 48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 55 41 54 41 55 41 56 41 57 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ? 45 33 E4 //
 
 	//-------------------------------------------------------------------------
+	// RUNTIME: S2C_CHALLENGE
+	//-------------------------------------------------------------------------
+#ifndef GAMECLIENTONLY
+	ADDRESS Server_S2C_CONNECT_1 = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x3B\x05\x00\x00\x00\x00\x74\x0C", "xxx????xx");
+#endif // !GAMECLIENTONLY
+
+	//-------------------------------------------------------------------------
 	// .RDATA
 	//-------------------------------------------------------------------------
 	ADDRESS g_pClientVPKDir    = g_mGameDll.FindAddressForString("vpk/%sclient_%s.bsp.pak000%s", true);
