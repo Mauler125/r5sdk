@@ -75,7 +75,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	}
 	else
 	{
-		Warning(eDLL_T::RTECH, "%s - No %s NavMesh found. Unable to calculate CRC for AI Network\n", __FUNCTION__, HULL_SIZE[3].c_str());
+		Warning(eDLL_T::SERVER, "%s - No %s NavMesh found. Unable to calculate CRC for AI Network\n", __FUNCTION__, HULL_SIZE[3].c_str());
 	}
 
 	// Large NavMesh CRC.
@@ -169,9 +169,10 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 
 	if (pNetwork->m_iNumNodes > 0)
 	{
-		uint32_t unkNodeBlock[pNetwork->m_iNumNodes];
+		uint32_t* unkNodeBlock = new uint32_t[pNetwork->m_iNumNodes];
 		memset(&unkNodeBlock, '\0', pNetwork->m_iNumNodes * sizeof(uint32_t));
-		writeStream.write(reinterpret_cast<char*>(&unkNodeBlock), pNetwork->m_iNumNodes * sizeof(uint32_t));
+		writeStream.write(reinterpret_cast<char*>(*unkNodeBlock), pNetwork->m_iNumNodes * sizeof(uint32_t));
+		delete[] unkNodeBlock;
 	}
 
 	// TODO: This is traverse nodes i think? these aren't used in r2 ains so we can get away with just writing count=0 and skipping

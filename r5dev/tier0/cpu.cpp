@@ -445,7 +445,7 @@ const CPUInformation& GetCPUInformation(void)
 	// it likes to report 0 processors for some reason.
 	if (pi.m_nPhysicalProcessors == 0 && pi.m_nLogicalProcessors == 0)
 	{
-		Assert(!"Missing CPU detection code for this processor.");
+		assert(!"Missing CPU detection code for this processor.");
 		pi.m_nPhysicalProcessors = 1;
 		pi.m_nLogicalProcessors = 1;
 	}
