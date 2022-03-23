@@ -302,6 +302,9 @@ void RuntimePtc_Init() /* .TEXT */
 	p_CAI_NetworkManager__ShouldRebuild.Offset(0xA0).FindPatternSelf("FF ?? ?? ?? 00 00", ADDRESS::Direction::DOWN, 200).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | Virtual call to restart when building AIN (which clears the AIN memory). Remove this once writing to file works.
 	Detour_LevelInit.Offset(0x100).FindPatternSelf("74", ADDRESS::Direction::DOWN, 600).Patch({ 0xEB });                                                                // JE  --> JMP | Do while loop setting fields to -1 in navmesh is writing out of bounds (!TODO).
 #endif
+#ifndef GAMECLIENTONLY
+	Server_S2C_CONNECT_1.Offset(0x7).Patch({ 0xEB }); // JZ --> JMP | Prevent entitlement check to kick player from server on S2C_CONNECT Packet if it does not match the servers one.
+#endif // !GAMECLIENTONLY
 }
 
 void RuntimePtc_Toggle() /* .TEXT */
