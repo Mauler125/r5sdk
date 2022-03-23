@@ -113,8 +113,8 @@ void ConCommand::Init(void)
 #ifndef DEDICATED
 	//-------------------------------------------------------------------------
 	// CLIENT DLL                                                             |
-	ConCommand* cl_showconsole = new ConCommand("cl_showconsole", "Opens the game console.", FCVAR_CLIENTDLL | FCVAR_RELEASE, _CGameConsole_f_CompletionFunc, nullptr);
-	ConCommand* cl_showbrowser = new ConCommand("cl_showbrowser", "Opens the server browser.", FCVAR_CLIENTDLL | FCVAR_RELEASE, _CCompanion_f_CompletionFunc, nullptr);
+	ConCommand* cl_showconsole  = new ConCommand("cl_showconsole", "Opens the game console.", FCVAR_CLIENTDLL | FCVAR_RELEASE, _CGameConsole_f_CompletionFunc, nullptr);
+	ConCommand* cl_showbrowser  = new ConCommand("cl_showbrowser", "Opens the server browser.", FCVAR_CLIENTDLL | FCVAR_RELEASE, _CCompanion_f_CompletionFunc, nullptr);
 	ConCommand* rcon            = new ConCommand("rcon", "Forward RCON query to remote server. | Usage: rcon \"<query>\".", FCVAR_CLIENTDLL | FCVAR_RELEASE, _RCON_CmdQuery_f_CompletionFunc, nullptr);
 	ConCommand* rcon_disconnect = new ConCommand("rcon_disconnect", "Disconnect from RCON server.", FCVAR_CLIENTDLL | FCVAR_RELEASE, _RCON_Disconnect_f_CompletionFunc, nullptr);
 #endif // !DEDICATED
@@ -124,8 +124,8 @@ void ConCommand::Init(void)
 	//-------------------------------------------------------------------------
 	// RTECH API                                                              |
 	ConCommand* rtech_strtoguid  = new ConCommand("rtech_strtoguid", "Calculates the GUID from input data.", FCVAR_DEVELOPMENTONLY, _RTech_StringToGUID_f_CompletionFunc, nullptr);
-	ConCommand* rtech_asyncload  = new ConCommand("rtech_asyncload", "Loads user specified 'RPak' file.", FCVAR_DEVELOPMENTONLY, _RTech_AsyncLoad_f_CompletionFunc, nullptr);
-	ConCommand* rtech_decompress = new ConCommand("rtech_decompress", "Decompresses user specified 'RPak' file.", FCVAR_DEVELOPMENTONLY, _RTech_Decompress_f_CompletionFunc, nullptr);
+	ConCommand* pak_asyncload    = new ConCommand("pak_asyncload", "Loads the specified RPAK file asynchronously.", FCVAR_DEVELOPMENTONLY, _RTech_AsyncLoad_f_CompletionFunc, nullptr);
+	ConCommand* pak_decompress   = new ConCommand("pak_decompress", "Decompresses the specified RPAK file.", FCVAR_DEVELOPMENTONLY, _RTech_Decompress_f_CompletionFunc, nullptr);
 	ConCommand* pak_listpaks     = new ConCommand("pak_listpaks", "Display a list of the loaded Pak files.", FCVAR_DEVELOPMENTONLY, _Pak_ListPaks_f_CompletionFunc, nullptr);
 	//-------------------------------------------------------------------------
 	// NETCHANNEL                                                             |
