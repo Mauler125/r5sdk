@@ -1,5 +1,6 @@
 #pragma once
 
+#pragma pack(push, 1) // Without this MSVC might get the idea to align our members to completely fuck the offsets up.
 // [ PIXIE ]: The texture GUID's aren't in a specific order, gonna leave them as ptr's so an individual can check them in any memory searcher.
 // [ PIXIE ]: Verification needed for earlier seasons, if the struct is the same.
 class CMaterialGlue // [ PIXIE ]: Class seems mostly right, a few members are still missing though.
@@ -25,13 +26,24 @@ public:
 	std::int16_t m_unused1; //0x0076
 	std::uint32_t m_iFlags; //0x0078 [ PIXIE ]: I'm pretty sure those are VTF Image Flags, If you set them to NULL they cause Texture stretching.
 	std::int32_t m_unused2; //0x007C
-	char pad_0080[128]; //0x0080
+	char pad_0080[8]; //0x0080
+	std::uint32_t m_iUnknownFlags1; //0x0088
+	char pad_008C[116]; //0x008C
 
 	// They first point to a jump table which holds the texture, then theres another jump onto the actual texture.
 	void** m_ppDXTexture1; //0x0100
 	void** m_ppDXTexture2; //0x0108
-	char pad_0110[32]; //0x0110
+	char pad_0110[8]; //0x0110
+	std::uint32_t m_iUnknown1; //0x0118
+	std::uint16_t m_iUnknown2; //0x011C
+	std::uint16_t m_iUnknown3; //0x011E
+	std::uint16_t m_iUnknown4; //0x0120
+	std::uint64_t m_Unknown5; //0x0122
+	std::uint32_t m_iUnknown6; //0x012A
+	std::uint16_t m_iUnknown7; //0x012E
 }; //Size: 0x0130 confirmed end size.
+static_assert(sizeof(CMaterialGlue) == 0x130);
+#pragma pack(pop)
 
 namespace
 {
