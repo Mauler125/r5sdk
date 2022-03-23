@@ -1,6 +1,6 @@
 #include "core/stdafx.h"
 #include "vpc/keyvalues.h"
-#include "rtech/stryder.h"
+#include "rtech/stryder/stryder.h"
 #include "engine/sys_dll2.h"
 
 ///////////////////////////////////////////////////////////////////////////////

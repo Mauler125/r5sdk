@@ -71,8 +71,8 @@ enum class RPakStatus_t : std::int32_t
 };
 
 const std::map<RPakStatus_t, std::string> RPakStatusToString {
-	{ RPakStatus_t::PAK_STATUS_FREED,                 "PAK_STATUS_FREED" },
-	{ RPakStatus_t::PAK_STATUS_LOAD_PENDING,          "PAK_STATUS_LOAD_PENDING" },
+	{ RPakStatus_t::PAK_STATUS_FREED,                  "PAK_STATUS_FREED" },
+	{ RPakStatus_t::PAK_STATUS_LOAD_PENDING,           "PAK_STATUS_LOAD_PENDING" },
 	{ RPakStatus_t::PAK_STATUS_REPAK_RUNNING,          "PAK_STATUS_REPAK_RUNNING" },
 	{ RPakStatus_t::PAK_STATUS_REPAK_DONE,             "PAK_STATUS_REPAK_DONE" },
 	{ RPakStatus_t::PAK_STATUS_LOAD_STARTING,          "PAK_STATUS_LOAD_STARTING" },

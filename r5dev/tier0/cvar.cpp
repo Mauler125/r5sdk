@@ -95,6 +95,13 @@ ConVar* sq_showvmwarning                   = nullptr;
 ConVar* net_userandomkey                   = nullptr;
 ConVar* r5net_matchmaking_hostname         = nullptr;
 ConVar* r5net_show_debug                   = nullptr;
+//-----------------------------------------------------------------------------
+// RTECH API                                                                  |
+
+// RUI                                                                        |
+#ifndef DEDICATED
+ConVar* rui_drawEnable                     = nullptr;
+#endif // !DEDICATED
 
 //-----------------------------------------------------------------------------
 // Purpose: finds base commands.

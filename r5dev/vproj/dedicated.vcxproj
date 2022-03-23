@@ -189,7 +189,7 @@
     <ClInclude Include="..\public\include\utility.h" />
     <ClInclude Include="..\rtech\rtech_utils.h" />
     <ClInclude Include="..\rtech\rtech_game.h" />
-    <ClInclude Include="..\rtech\stryder.h" />
+    <ClInclude Include="..\rtech\stryder\stryder.h" />
     <ClInclude Include="..\server\IVEngineServer.h" />
     <ClInclude Include="..\server\server.h" />
     <ClInclude Include="..\squirrel\sqapi.h" />
@@ -398,7 +398,7 @@
     <ClCompile Include="..\public\utility.cpp" />
     <ClCompile Include="..\rtech\rtech_utils.cpp" />
     <ClCompile Include="..\rtech\rtech_game.cpp" />
-    <ClCompile Include="..\rtech\stryder.cpp" />
+    <ClCompile Include="..\rtech\stryder\stryder.cpp" />
     <ClCompile Include="..\server\IVEngineServer.cpp" />
     <ClCompile Include="..\server\server.cpp" />
     <ClCompile Include="..\squirrel\sqapi.cpp" />

@@ -105,6 +105,13 @@ extern ConVar* sq_showvmwarning;
 extern ConVar* net_userandomkey;
 extern ConVar* r5net_matchmaking_hostname;
 extern ConVar* r5net_show_debug;
+//-----------------------------------------------------------------------------
+// RTECH API                                                                  |
+
+// RUI                                                                        |
+#ifndef DEDICATED
+extern ConVar* rui_drawEnable;
+#endif // !DEDICATED
 
 class CCVarIteratorInternal // Fully reversed table, just look at the virtual function table and rename the function.
 {

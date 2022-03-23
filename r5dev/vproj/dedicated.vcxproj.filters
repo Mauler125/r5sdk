@@ -130,6 +130,9 @@
     <Filter Include="thirdparty\lzham\lzhamdecomp\include">
       <UniqueIdentifier>{40c41a94-4e9d-439f-9b16-68531ecc03a8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\rtech\stryder">
+      <UniqueIdentifier>{07362c29-d064-4bdb-97a6-6e3dbcdc8c02}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\client.h">
@@ -203,9 +206,6 @@
     </ClInclude>
     <ClInclude Include="..\public\include\bansystem.h">
       <Filter>sdk\public\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\rtech\stryder.h">
-      <Filter>sdk\rtech</Filter>
     </ClInclude>
     <ClInclude Include="..\rtech\rtech_utils.h">
       <Filter>sdk\rtech</Filter>
@@ -804,6 +804,9 @@
     <ClInclude Include="..\tier0\fasttimer.h">
       <Filter>sdk\tier0</Filter>
     </ClInclude>
+    <ClInclude Include="..\rtech\stryder\stryder.h">
+      <Filter>sdk\rtech\stryder</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\IVEngineClient.cpp">
@@ -853,9 +856,6 @@
     </ClCompile>
     <ClCompile Include="..\public\bansystem.cpp">
       <Filter>sdk\public</Filter>
-    </ClCompile>
-    <ClCompile Include="..\rtech\stryder.cpp">
-      <Filter>sdk\rtech</Filter>
     </ClCompile>
     <ClCompile Include="..\rtech\rtech_utils.cpp">
       <Filter>sdk\rtech</Filter>
@@ -1006,6 +1006,9 @@
     </ClCompile>
     <ClCompile Include="..\tier0\fasttimer.cpp">
       <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="..\rtech\stryder\stryder.cpp">
+      <Filter>sdk\rtech\stryder</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

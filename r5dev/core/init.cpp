@@ -44,7 +44,10 @@
 #include "squirrel/sqvm.h"
 #include "studiorender/studiorendercontext.h"
 #include "rtech/rtech_game.h"
-#include "rtech/stryder.h"
+#include "rtech/stryder/stryder.h"
+#ifndef DEDICATED
+#include "rtech/rui/rui.h"
+#endif // !DEDICATED
 #include "engine/baseclient.h"
 #include "engine/common.h"
 #include "engine/cmodel_bsp.h"
@@ -152,6 +155,9 @@ void Systems_Init()
 	SQVM_Attach();
 
 	RTech_Game_Attach();
+#ifndef DEDICATED
+	Rui_Attach();
+#endif // !DEDICATED
 
 	SysDll_Attach();
 	SysUtils_Attach();
@@ -249,6 +255,9 @@ void Systems_Shutdown()
 	SQVM_Detach();
 
 	RTech_Game_Detach();
+#ifndef DEDICATED
+	Rui_Detach();
+#endif // !DEDICATED
 
 	SysDll_Detach();
 	SysUtils_Detach();
