@@ -11,13 +11,12 @@
 #include "mathlib/color.h"
 #include "engine/sys_utils.h"
 #include "engine/net_chan.h"
+#ifndef GAMECLIENTONLY
 #include "engine/baseclient.h"
+#endif // !GAMECLIENTONLY
 #ifdef DEDICATED
 #include "engine/sv_rcon.h"
-#endif // DEDICATED
-#include "server/IVEngineServer.h"
-
-#ifndef DEDICATED
+#else // DEDICATED
 #include "gameui/IConsole.h"
 #endif // !DEDICATED
 
@@ -135,6 +134,7 @@ void HNET_PrintFunc(const char* fmt, ...)
 //-----------------------------------------------------------------------------
 void NET_DisconnectClient(CClient* pClient, int nIndex, const char* szReason, uint8_t unk1, char unk2)
 {
+#ifndef GAMECLIENTONLY
 	if (!pClient) // Client valid?
 	{
 		return;
@@ -154,6 +154,7 @@ void NET_DisconnectClient(CClient* pClient, int nIndex, const char* szReason, ui
 	pClient->GetNetChan() = nullptr;                           // Null netchan.
 	CBaseClient_Clear((std::int64_t)pClient);                  // Reset CClient instance for client.
 	g_bIsPersistenceVarSet[nIndex] = false;                    // Reset Persistence var.
+#endif // !GAMECLIENTONLY
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -36,7 +36,6 @@
     <ClCompile Include="..\engine\modelloader.cpp" />
     <ClCompile Include="..\engine\net.cpp" />
     <ClCompile Include="..\engine\net_chan.cpp" />
-    <ClCompile Include="..\engine\sv_main.cpp" />
     <ClCompile Include="..\engine\sys_dll.cpp" />
     <ClCompile Include="..\engine\sys_dll2.cpp" />
     <ClCompile Include="..\engine\sys_engine.cpp" />
@@ -44,9 +43,6 @@
     <ClCompile Include="..\engine\sys_utils.cpp" />
     <ClCompile Include="..\gameui\IConsole.cpp" />
     <ClCompile Include="..\gameui\IBrowser.cpp" />
-    <ClCompile Include="..\game\server\ai_networkmanager.cpp" />
-    <ClCompile Include="..\game\server\ai_utility.cpp" />
-    <ClCompile Include="..\game\server\gameinterface.cpp" />
     <ClCompile Include="..\inputsystem\inputsystem.cpp" />
     <ClCompile Include="..\launcher\IApplication.cpp" />
     <ClCompile Include="..\materialsystem\cmaterialglue.cpp" />
@@ -72,8 +68,6 @@
     <ClCompile Include="..\rtech\rtech_utils.cpp" />
     <ClCompile Include="..\rtech\rtech_game.cpp" />
     <ClCompile Include="..\rtech\stryder.cpp" />
-    <ClCompile Include="..\server\IVEngineServer.cpp" />
-    <ClCompile Include="..\server\server.cpp" />
     <ClCompile Include="..\squirrel\sqapi.cpp" />
     <ClCompile Include="..\squirrel\sqinit.cpp" />
     <ClCompile Include="..\squirrel\sqvm.cpp" />
@@ -136,7 +130,6 @@
     <ClInclude Include="..\engine\modelloader.h" />
     <ClInclude Include="..\engine\net.h" />
     <ClInclude Include="..\engine\net_chan.h" />
-    <ClInclude Include="..\engine\sv_main.h" />
     <ClInclude Include="..\engine\sys_dll.h" />
     <ClInclude Include="..\engine\sys_dll2.h" />
     <ClInclude Include="..\engine\sys_engine.h" />
@@ -144,13 +137,6 @@
     <ClInclude Include="..\engine\sys_utils.h" />
     <ClInclude Include="..\gameui\IConsole.h" />
     <ClInclude Include="..\gameui\IBrowser.h" />
-    <ClInclude Include="..\game\server\ai_network.h" />
-    <ClInclude Include="..\game\server\ai_networkmanager.h" />
-    <ClInclude Include="..\game\server\ai_node.h" />
-    <ClInclude Include="..\game\server\ai_utility.h" />
-    <ClInclude Include="..\game\server\detour_impl.h" />
-    <ClInclude Include="..\game\server\fairfight_impl.h" />
-    <ClInclude Include="..\game\server\gameinterface.h" />
     <ClInclude Include="..\inputsystem\ButtonCode.h" />
     <ClInclude Include="..\inputsystem\inputsystem.h" />
     <ClInclude Include="..\launcher\IApplication.h" />
@@ -185,8 +171,6 @@
     <ClInclude Include="..\rtech\rtech_utils.h" />
     <ClInclude Include="..\rtech\rtech_game.h" />
     <ClInclude Include="..\rtech\stryder.h" />
-    <ClInclude Include="..\server\IVEngineServer.h" />
-    <ClInclude Include="..\server\server.h" />
     <ClInclude Include="..\squirrel\sqapi.h" />
     <ClInclude Include="..\squirrel\sqinit.h" />
     <ClInclude Include="..\squirrel\sqvm.h" />
@@ -364,15 +348,15 @@
     <Image Include="..\shared\resource\lockedserver.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\GameSDK.def" />
+    <None Include="..\ClientSDK.def" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{28cc6b4f-7a95-4933-ada9-65e38d48516d}</ProjectGuid>
-    <RootNamespace>r5dev</RootNamespace>
+    <ProjectGuid>{8FC77C68-CE93-45CE-B753-68ABE36BCDDB}</ProjectGuid>
+    <RootNamespace>client</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>gamesdk</ProjectName>
+    <ProjectName>clientsdk</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -408,7 +392,7 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
     <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
-    <TargetName>r5apexsdkd64</TargetName>
+    <TargetName>client</TargetName>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
     <ReferencePath>$(VC_ReferencesPath_x64);</ReferencePath>
@@ -417,7 +401,7 @@
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
     <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
-    <TargetName>r5apexsdkd64</TargetName>
+    <TargetName>client</TargetName>
     <ReferencePath>$(VC_ReferencesPath_x64);</ReferencePath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
@@ -434,18 +418,18 @@
       </DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalOptions>/D GAMESDK /D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D GAMESDK /D GAMECLIENTONLY /D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <ModuleDefinitionFile>..\GameSDK.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>..\ClientSDK.def</ModuleDefinitionFile>
       <AdditionalDependencies>d3d11.lib;bcrypt.lib;libdetours_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\r5apexsdkd64.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
+      <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\client.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -474,7 +458,7 @@
       <CreateHotpatchableImage>
       </CreateHotpatchableImage>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalOptions>/D GAMESDK /D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D GAMESDK /D GAMECLIENTONLY /D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -482,12 +466,12 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <ModuleDefinitionFile>..\GameSDK.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>..\ClientSDK.def</ModuleDefinitionFile>
       <AdditionalDependencies>d3d11.lib;bcrypt.lib;libdetours_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\r5apexsdkd64.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
+      <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\client.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>

@@ -28,7 +28,9 @@
 #include "client/IVEngineClient.h"
 #include "networksystem/pylon.h"
 #include "public/include/bansystem.h"
+#ifndef GAMECLIENTONLY
 #include "game/server/gameinterface.h"
+#endif // !GAMECLIENTONLY
 
 std::chrono::time_point<std::chrono::steady_clock> tpPylonStartClock   = std::chrono::steady_clock::now();
 std::chrono::time_point<std::chrono::steady_clock> tpBanListStartClock = std::chrono::steady_clock::now();
@@ -60,7 +62,9 @@ FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 	}
 	else
 	{
+#ifndef GAMECLIENTONLY
 		*g_ServerAbortServer = true;
+#endif // !GAMECLIENTONLY
 		do
 		{
 			Cbuf_Execute();
@@ -211,7 +215,9 @@ FORCEINLINE void CHostState::GameShutDown(void)
 	g_bLevelResourceInitialized = false;
 	if (m_bActiveGame)
 	{
+#ifndef GAMECLIENTONLY
 		g_pServerGameDLL->GameShutdown();
+#endif // !GAMECLIENTONLY
 		m_bActiveGame = 0;
 	}
 }
@@ -302,7 +308,9 @@ FORCEINLINE void CHostState::State_ChangeLevelMP(void)
 	m_flShortFrameTime = 0.5; // Set frame time.
 	g_bLevelResourceInitialized = false;
 
+#ifndef GAMECLIENTONLY
 	g_pServerGameDLL->LevelShutdown();
+#endif // !GAMECLIENTONLY
 	if (CModelLoader_Map_IsValidFn(g_CModelLoader, m_levelName)) // Check if map is valid and if we can start a new game.
 	{
 #ifndef DEDICATED

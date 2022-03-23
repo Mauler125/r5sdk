@@ -35,8 +35,10 @@
 #endif // !DEDICATED
 #include "client/client.h"
 #include "client/IVEngineClient.h"
+#ifndef GAMECLIENTONLY
 #include "server/server.h"
 #include "server/IVEngineServer.h"
+#endif // !GAMECLIENTONLY
 #include "squirrel/sqinit.h"
 #include "squirrel/sqapi.h"
 #include "squirrel/sqvm.h"
@@ -52,7 +54,9 @@
 #include "engine/net.h"
 #include "engine/net_chan.h"
 #include "engine/cl_main.h"
+#ifndef GAMECLIENTONLY
 #include "engine/sv_main.h"
+#endif // !GAMECLIENTONLY
 #include "engine/sys_dll.h"
 #include "engine/sys_dll2.h"
 #include "engine/sys_engine.h"
@@ -63,6 +67,7 @@
 #ifndef DEDICATED
 #include "engine/debugoverlay.h"
 #endif // !DEDICATED
+#ifndef GAMECLIENTONLY
 #include "game/server/ai_node.h"
 #include "game/server/ai_network.h"
 #include "game/server/ai_networkmanager.h"
@@ -71,6 +76,7 @@
 #include "game/server/fairfight_impl.h"
 #include "game/server/gameinterface.h"
 #include "public/include/edict.h"
+#endif // !GAMECLIENTONLY
 #ifndef DEDICATED
 #include "inputsystem/inputsystem.h"
 #include "windows/id3dx.h"
@@ -123,9 +129,9 @@ void Systems_Init()
 	CHLClient_Attach();
 #endif // !DEDICATED
 
-#ifdef GAMEDLL_S3
+#if !defined(GAMECLIENTONLY) && defined (GAMEDLL_S3)
 	CServer_Attach(); // S1 and S2 CServer functions require work.
-#endif // GAMEDLL_S3
+#endif // !GAMECLIENTONLY && GAMEDLL_S3
 
 // !TEMP UNTIL CHOSTSTATE IS BUILD AGNOSTIC! //
 #if defined (DEDICATED) || defined (GAMEDLL_S3)
@@ -137,7 +143,11 @@ void Systems_Init()
 	ConCommand_Attach();
 	IConVar_Attach();
 	CKeyValueSystem_Attach();
+
+#ifndef GAMECLIENTONLY
 	IVEngineServer_Attach();
+#endif // !GAMECLIENTONLY
+
 	SQAPI_Attach();
 	SQVM_Attach();
 
@@ -150,9 +160,11 @@ void Systems_Init()
 	HCVideoMode_Common_Attach();
 	//DebugOverlays_Attach();
 #endif // !DEDICATED
+
+#ifndef GAMECLIENTONLY
 	CAI_Utility_Attach();
 	CAI_NetworkManager_Attach();
-
+#endif // !#ifndef GAMECLIENTONLY
 	// Patch instructions
 	RuntimePtc_Init();
 
@@ -215,9 +227,9 @@ void Systems_Shutdown()
 	CHLClient_Detach();
 #endif // !DEDICATED
 
-#ifdef GAMEDLL_S3
+#if !defined(GAMECLIENTONLY) && defined (GAMEDLL_S3)
 	CServer_Detach(); // S1 and S2 CServer functions require work.
-#endif // GAMEDLL_S3
+#endif // !GAMECLIENTONLY && GAMEDLL_S3
 
 // !TEMP UNTIL CHOSTSTATE IS BUILD AGNOSTIC! //
 #if defined (DEDICATED) || defined (GAMEDLL_S3)
@@ -229,7 +241,10 @@ void Systems_Shutdown()
 	ConCommand_Detach();
 	IConVar_Detach();
 	CKeyValueSystem_Detach();
+
+#ifndef GAMECLIENTONLY
 	IVEngineServer_Detach();
+#endif // !GAMECLIENTONLY
 	SQAPI_Detach();
 	SQVM_Detach();
 
@@ -242,8 +257,11 @@ void Systems_Shutdown()
 	HCVideoMode_Common_Detach();
 	//DebugOverlays_Detach();
 #endif // !DEDICATED
+
+#ifndef GAMECLIENTONLY
 	CAI_Utility_Detach();
 	CAI_NetworkManager_Detach();
+#endif // !GAMECLIENTONLY
 
 	// Commit the transaction
 	DetourTransactionCommit();

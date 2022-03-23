@@ -60,6 +60,7 @@ IBrowser::IBrowser(void)
         m_vszMapFileNameList.push_back(filename);
     }
 
+#ifndef GAMECLIENTONLY
     static std::thread hostingServerRequestThread([this]()
     {
         while (true)
@@ -70,6 +71,7 @@ IBrowser::IBrowser(void)
     });
 
     hostingServerRequestThread.detach();
+#endif // !GAMECLIENTONLY
 
     /* Obtain handle to module */
     static HGLOBAL rcData = NULL;
@@ -157,10 +159,12 @@ void IBrowser::CompMenu(void)
     {
         SetSection(eSection::SERVER_BROWSER);
     }
+#ifndef GAMECLIENTONLY
     if (ImGui::TabItemButton("Host Server"))
     {
         SetSection(eSection::HOST_SERVER);
     }
+#endif // !GAMECLIENTONLY
     if (ImGui::TabItemButton("Settings"))
     {
         SetSection(eSection::SETTINGS);
@@ -331,6 +335,7 @@ void IBrowser::ConnectToServer(const std::string& svServer, const std::string& s
 //-----------------------------------------------------------------------------
 void IBrowser::LaunchServer(void)
 {
+#ifndef GAMECLIENTONLY
     DevMsg(eDLL_T::ENGINE, "Starting Server with name '%s', map '%s' and playlist '%s'\n", m_Server.svServerName.c_str(), m_Server.svMapName.c_str(), m_Server.svPlaylist.c_str());
 
     /*
@@ -348,6 +353,7 @@ void IBrowser::LaunchServer(void)
     std::stringstream cmd;
     cmd << "map " << m_Server.svMapName;
     ProcessCommand(cmd.str().c_str());
+#endif // !GAMECLIENTONLY
 }
 
 //-----------------------------------------------------------------------------
@@ -420,6 +426,7 @@ void IBrowser::HiddenServersModal(void)
 //-----------------------------------------------------------------------------
 void IBrowser::HostServerSection(void)
 {
+#ifndef GAMECLIENTONLY
     static std::string svServerNameErr = "";
 
     ImGui::InputTextWithHint("##ServerHost_ServerName", "Server Name (Required)", &m_Server.svServerName);
@@ -570,6 +577,7 @@ void IBrowser::HostServerSection(void)
             CKeyValueSystem_InitPlaylist(); // Re-Init playlist.
         }
     }
+#endif // !GAMECLIENTONLY
 }
 
 //-----------------------------------------------------------------------------
@@ -577,6 +585,7 @@ void IBrowser::HostServerSection(void)
 //-----------------------------------------------------------------------------
 void IBrowser::UpdateHostingStatus(void)
 {
+#ifndef GAMECLIENTONLY
     if (!g_pHostState || !g_pCVar)
     {
         return;
@@ -622,6 +631,7 @@ void IBrowser::UpdateHostingStatus(void)
     default:
         break;
     }
+#endif // !GAMECLIENTONLY
 }
 
 //-----------------------------------------------------------------------------
@@ -629,6 +639,7 @@ void IBrowser::UpdateHostingStatus(void)
 //-----------------------------------------------------------------------------
 void IBrowser::SendHostingPostRequest(void)
 {
+#ifndef GAMECLIENTONLY
     m_szHostToken = std::string();
     DevMsg(eDLL_T::CLIENT, "Sending PostServerHost request\n");
     bool result = g_pR5net->PostServerHost(m_szHostRequestMessage, m_szHostToken,
@@ -663,6 +674,7 @@ void IBrowser::SendHostingPostRequest(void)
     {
         m_iv4HostRequestMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
     }
+#endif // !GAMECLIENTONLY
 }
 
 //-----------------------------------------------------------------------------
