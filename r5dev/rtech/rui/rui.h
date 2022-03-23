@@ -17,7 +17,7 @@ class HRui : public IDetour
 {
 	virtual void debugp()
 	{
-		std::cout << "| FUN: RuiDraw                    : 0x" << std::hex << std::uppercase << p_RuiDraw.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: RuiDraw                              : 0x" << std::hex << std::uppercase << p_RuiDraw.GetPtr() << std::setw(npad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 };

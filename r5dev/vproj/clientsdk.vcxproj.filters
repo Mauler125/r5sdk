@@ -151,6 +151,12 @@
     <Filter Include="thirdparty\lzham\lzhamdecomp\include">
       <UniqueIdentifier>{3446634c-a632-4281-a500-459a56668a6b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\rtech\rui">
+      <UniqueIdentifier>{b22b8726-d9bb-4a92-9825-4a97b93d43dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\rtech\stryder">
+      <UniqueIdentifier>{cbbed3bf-8879-4269-a518-c526199d95af}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\client.cpp">
@@ -199,9 +205,6 @@
       <Filter>sdk\public</Filter>
     </ClCompile>
     <ClCompile Include="..\rtech\rtech_utils.cpp">
-      <Filter>sdk\rtech</Filter>
-    </ClCompile>
-    <ClCompile Include="..\rtech\stryder.cpp">
       <Filter>sdk\rtech</Filter>
     </ClCompile>
     <ClCompile Include="..\inputsystem\inputsystem.cpp">
@@ -381,6 +384,12 @@
     <ClCompile Include="..\tier0\fasttimer.cpp">
       <Filter>sdk\tier0</Filter>
     </ClCompile>
+    <ClCompile Include="..\rtech\rui\rui.cpp">
+      <Filter>sdk\rtech\stryder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\rtech\stryder\stryder.cpp">
+      <Filter>sdk\rtech\rui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -441,9 +450,6 @@
       <Filter>sdk\public\include</Filter>
     </ClInclude>
     <ClInclude Include="..\rtech\rtech_utils.h">
-      <Filter>sdk\rtech</Filter>
-    </ClInclude>
-    <ClInclude Include="..\rtech\stryder.h">
       <Filter>sdk\rtech</Filter>
     </ClInclude>
     <ClInclude Include="..\inputsystem\inputsystem.h">
@@ -1108,6 +1114,12 @@
     </ClInclude>
     <ClInclude Include="..\tier0\cpu.h">
       <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rtech\rui\rui.h">
+      <Filter>sdk\rtech\stryder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rtech\stryder\stryder.h">
+      <Filter>sdk\rtech\rui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -67,7 +67,8 @@
     <ClCompile Include="..\public\utility.cpp" />
     <ClCompile Include="..\rtech\rtech_utils.cpp" />
     <ClCompile Include="..\rtech\rtech_game.cpp" />
-    <ClCompile Include="..\rtech\stryder.cpp" />
+    <ClCompile Include="..\rtech\rui\rui.cpp" />
+    <ClCompile Include="..\rtech\stryder\stryder.cpp" />
     <ClCompile Include="..\squirrel\sqapi.cpp" />
     <ClCompile Include="..\squirrel\sqinit.cpp" />
     <ClCompile Include="..\squirrel\sqvm.cpp" />
@@ -170,7 +171,8 @@
     <ClInclude Include="..\core\resource.h" />
     <ClInclude Include="..\rtech\rtech_utils.h" />
     <ClInclude Include="..\rtech\rtech_game.h" />
-    <ClInclude Include="..\rtech\stryder.h" />
+    <ClInclude Include="..\rtech\rui\rui.h" />
+    <ClInclude Include="..\rtech\stryder\stryder.h" />
     <ClInclude Include="..\squirrel\sqapi.h" />
     <ClInclude Include="..\squirrel\sqinit.h" />
     <ClInclude Include="..\squirrel\sqvm.h" />
