@@ -7,6 +7,7 @@
 #include "mathlib/vector.h"
 constexpr int MAX_HULLS = 5;
 
+#pragma pack(push, 1)
 //=============================================================================
 //	>> CAI_NodeLink
 //=============================================================================
@@ -24,7 +25,6 @@ struct CAI_NodeLink
 //=============================================================================
 //	>> CAI_NodeLinkDisk
 //=============================================================================
-#pragma pack(push, 1)
 struct CAI_NodeLinkDisk
 {
 	short m_iSrcID;
@@ -32,7 +32,6 @@ struct CAI_NodeLinkDisk
 	char unk0;
 	bool m_bHulls[MAX_HULLS];
 };
-#pragma pack(pop)
 
 //=============================================================================
 //	>> CAI_Node
@@ -67,7 +66,6 @@ struct CAI_Node
 //=============================================================================
 //	>> CAI_NodeDisk
 //=============================================================================
-#pragma pack(push, 1)
 struct CAI_NodeDisk // The way CAI_Nodes are represented in on-disk ain files
 {
 	Vector3 m_vOrigin;
@@ -83,7 +81,6 @@ struct CAI_NodeDisk // The way CAI_Nodes are represented in on-disk ain files
 	short unk5;
 	char unk6[8];
 }; // Total size of 68 bytes
-#pragma pack(pop)
 
 //=============================================================================
 //	>> CAI_ScriptNode
@@ -126,3 +123,4 @@ struct AINodeClusterLinks
 	char unk4;
 	char unk5;
 };
+#pragma pack(pop)
