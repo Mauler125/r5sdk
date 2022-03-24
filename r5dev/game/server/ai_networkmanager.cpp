@@ -91,33 +91,37 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 
 	timer.Start();
 	DevMsg(eDLL_T::SERVER, "+- Writing node positions...\n");
-	for (int i = 0; i < pNetwork->m_iNumNodes; i++)
+
+	if (pNetwork->m_pAInode)
 	{
-		// Construct on-disk node struct.
-		CAI_NodeDisk diskNode{};
-		diskNode.m_vOrigin.x = pNetwork->m_pAInode[i]->m_vOrigin.x;
-		diskNode.m_vOrigin.y = pNetwork->m_pAInode[i]->m_vOrigin.y;
-		diskNode.m_vOrigin.z = pNetwork->m_pAInode[i]->m_vOrigin.z;
-		diskNode.m_flYaw = pNetwork->m_pAInode[i]->m_flYaw;
-		memcpy(diskNode.hulls, pNetwork->m_pAInode[i]->m_fHulls, sizeof(diskNode.hulls));
-		diskNode.unk0 = static_cast<char>(pNetwork->m_pAInode[i]->unk0);
-		diskNode.unk1 = pNetwork->m_pAInode[i]->unk1;
-
-		for (int j = 0; j < MAX_HULLS; j++)
+		for (int i = 0; i < pNetwork->m_iNumNodes; i++)
 		{
-			diskNode.unk2[j] = static_cast<short>(pNetwork->m_pAInode[i]->unk2[j]);
+			// Construct on-disk node struct.
+			CAI_NodeDisk diskNode{};
+			diskNode.m_vOrigin.x = pNetwork->m_pAInode[i]->m_vOrigin.x;
+			diskNode.m_vOrigin.y = pNetwork->m_pAInode[i]->m_vOrigin.y;
+			diskNode.m_vOrigin.z = pNetwork->m_pAInode[i]->m_vOrigin.z;
+			diskNode.m_flYaw = pNetwork->m_pAInode[i]->m_flYaw;
+			memcpy(diskNode.hulls, pNetwork->m_pAInode[i]->m_fHulls, sizeof(diskNode.hulls));
+			diskNode.unk0 = static_cast<char>(pNetwork->m_pAInode[i]->unk0);
+			diskNode.unk1 = pNetwork->m_pAInode[i]->unk1;
+
+			for (int j = 0; j < MAX_HULLS; j++)
+			{
+				diskNode.unk2[j] = static_cast<short>(pNetwork->m_pAInode[i]->unk2[j]);
+			}
+
+			memcpy(diskNode.unk3, pNetwork->m_pAInode[i]->unk3, sizeof(diskNode.unk3));
+			diskNode.unk4 = pNetwork->m_pAInode[i]->unk6;
+			diskNode.unk5 = -1; // aiNetwork->nodes[i]->unk8; // This field is wrong, however it's always -1 in original navmeshes anyway.
+			memcpy(diskNode.unk6, pNetwork->m_pAInode[i]->unk10, sizeof(diskNode.unk6));
+
+
+			DevMsg(eDLL_T::SERVER, " |-- Copying node '%d' from '%p' to '0x%llx'\n", pNetwork->m_pAInode[i]->m_nIndex, reinterpret_cast<void*>(pNetwork->m_pAInode[i]), static_cast<size_t>(writeStream.tellp()));
+			writeStream.write(reinterpret_cast<char*>(&diskNode), sizeof(CAI_NodeDisk));
+
+			nCalculatedLinkcount += pNetwork->m_pAInode[i]->m_nNumLinks;
 		}
-
-		memcpy(diskNode.unk3, pNetwork->m_pAInode[i]->unk3, sizeof(diskNode.unk3));
-		diskNode.unk4 = pNetwork->m_pAInode[i]->unk6;
-		diskNode.unk5 = -1; // aiNetwork->nodes[i]->unk8; // This field is wrong, however it's always -1 in original navmeshes anyway.
-		memcpy(diskNode.unk6, pNetwork->m_pAInode[i]->unk10, sizeof(diskNode.unk6));
-
-
-		DevMsg(eDLL_T::SERVER, " |-- Copying node '%d' from '%p' to '0x%llx'\n", pNetwork->m_pAInode[i]->m_nIndex, reinterpret_cast<void*>(pNetwork->m_pAInode[i]), static_cast<size_t>(writeStream.tellp()));
-		writeStream.write(reinterpret_cast<char*>(&diskNode), sizeof(CAI_NodeDisk));
-
-		nCalculatedLinkcount += pNetwork->m_pAInode[i]->m_nNumLinks;
 	}
 	timer.End();
 	DevMsg(eDLL_T::SERVER, "...done writing node positions. %lf seconds\n", timer.GetDuration().GetSeconds());
@@ -138,24 +142,28 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	}
 
 	writeStream.write(reinterpret_cast<char*>(&nCalculatedLinkcount), sizeof(int));
-	for (int i = 0; i < pNetwork->m_iNumNodes; i++)
+
+	if (pNetwork->m_pAInode)
 	{
-		for (int j = 0; j < pNetwork->m_pAInode[i]->m_nNumLinks; j++)
+		for (int i = 0; i < pNetwork->m_iNumNodes; i++)
 		{
-			// Skip links that don't originate from current node.
-			if (pNetwork->m_pAInode[i]->links[j]->m_iSrcID != pNetwork->m_pAInode[i]->m_nIndex)
+			for (int j = 0; j < pNetwork->m_pAInode[i]->m_nNumLinks; j++)
 			{
-				continue;
+				// Skip links that don't originate from current node.
+				if (pNetwork->m_pAInode[i]->links[j]->m_iSrcID != pNetwork->m_pAInode[i]->m_nIndex)
+				{
+					continue;
+				}
+
+				CAI_NodeLinkDisk diskLink{};
+				diskLink.m_iSrcID = pNetwork->m_pAInode[i]->links[j]->m_iSrcID;
+				diskLink.m_iDestID = pNetwork->m_pAInode[i]->links[j]->m_iDestID;
+				diskLink.unk0 = pNetwork->m_pAInode[i]->links[j]->unk1;
+				memcpy(diskLink.m_bHulls, pNetwork->m_pAInode[i]->links[j]->m_bHulls, sizeof(diskLink.m_bHulls));
+
+				DevMsg(eDLL_T::SERVER, "  |-- Writing link '%d' => '%d' to '0x%llx'\n", diskLink.m_iSrcID, diskLink.m_iDestID, static_cast<size_t>(writeStream.tellp()));
+				writeStream.write(reinterpret_cast<char*>(&diskLink), sizeof(CAI_NodeLinkDisk));
 			}
-
-			CAI_NodeLinkDisk diskLink{};
-			diskLink.m_iSrcID = pNetwork->m_pAInode[i]->links[j]->m_iSrcID;
-			diskLink.m_iDestID = pNetwork->m_pAInode[i]->links[j]->m_iDestID;
-			diskLink.unk0 = pNetwork->m_pAInode[i]->links[j]->unk1;
-			memcpy(diskLink.m_bHulls, pNetwork->m_pAInode[i]->links[j]->m_bHulls, sizeof(diskLink.m_bHulls));
-
-			DevMsg(eDLL_T::SERVER, "  |-- Writing link '%d' => '%d' to '0x%llx'\n", diskLink.m_iSrcID, diskLink.m_iDestID, static_cast<size_t>(writeStream.tellp()));
-			writeStream.write(reinterpret_cast<char*>(&diskLink), sizeof(CAI_NodeLinkDisk));
 		}
 	}
 
