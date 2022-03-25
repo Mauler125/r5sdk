@@ -17,3 +17,11 @@ enum class SIGNONSTATE : int
 	SIGNONSTATE_FULL         = 8, // we are fully connected; first non-delta packet received.
 	SIGNONSTATE_CHANGELEVEL  = 9, // server is changing level; please wait.
 };
+
+enum class PERSISTENCE : int
+{
+	PERSISTENCE_NONE      = 0, // no persistence data for this client yet.
+	PERSISTENCE_PENDING   = 1, // pending or processing persistence data.
+	PERSISTENCE_AVAILABLE = 2, // persistence is available for this client.
+	PERSISTENCE_READY     = 5  // persistence is ready for this client.
+};

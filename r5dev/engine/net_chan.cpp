@@ -132,7 +132,7 @@ void HNET_PrintFunc(const char* fmt, ...)
 //-----------------------------------------------------------------------------
 // Purpose: disconnect the client and shutdown netchannel
 //-----------------------------------------------------------------------------
-void NET_DisconnectClient(CClient* pClient, int nIndex, const char* szReason, uint8_t unk1, char unk2)
+void NET_DisconnectClient(CBaseClient* pClient, int nIndex, const char* szReason, uint8_t unk1, char unk2)
 {
 #ifndef GAMECLIENTONLY
 	if (!pClient) // Client valid?
@@ -151,8 +151,8 @@ void NET_DisconnectClient(CClient* pClient, int nIndex, const char* szReason, ui
 	}
 
 	NET_Shutdown(pClient->GetNetChan(), szReason, unk1, unk2); // Shutdown netchan.
-	pClient->GetNetChan() = nullptr;                           // Null netchan.
-	CBaseClient_Clear((std::int64_t)pClient);                  // Reset CClient instance for client.
+	pClient->SetNetChan(nullptr);                              // Null netchan.
+	CBaseClient_Clear(pClient);                                // Reset CClient instance for client.
 	g_bIsPersistenceVarSet[nIndex] = false;                    // Reset Persistence var.
 #endif // !GAMECLIENTONLY
 }

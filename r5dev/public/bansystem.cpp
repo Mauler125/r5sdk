@@ -6,9 +6,9 @@
 //=====================================================================================//
 
 #include "core/stdafx.h"
-#include "client/client.h"
 #include "engine/net_chan.h"
 #include "engine/sys_utils.h"
+#include "engine/baseclient.h"
 #include "public/include/bansystem.h"
 
 //-----------------------------------------------------------------------------
@@ -201,7 +201,7 @@ void CBanSystem::BanListCheck(void)
 		{
 			for (int c = 0; c < MAX_PLAYERS; c++) // Loop through all possible client instances.
 			{
-				CClient* client = g_pClient->GetClientInstance(c); // Get client instance.
+				CBaseClient* client = g_pClient->GetClient(c); // Get client instance.
 				if (!client)
 				{
 					continue;
@@ -212,7 +212,7 @@ void CBanSystem::BanListCheck(void)
 					continue;
 				}
 
-				if (g_pClient->m_iOriginID != vsvrefuseList[i].second) // See if nucleus id matches entry.
+				if (g_pClient->GetOriginID() != vsvrefuseList[i].second) // See if nucleus id matches entry.
 				{
 					continue;
 				}
@@ -233,7 +233,7 @@ void CBanSystem::BanListCheck(void)
 				DevMsg(eDLL_T::SERVER, "\n");
 				DevMsg(eDLL_T::SERVER, "______________________________________________________________\n");
 				DevMsg(eDLL_T::SERVER, "] PYLON_NOTICE -----------------------------------------------\n");
-				DevMsg(eDLL_T::SERVER, "] OriginID : | '%lld' IS GETTING DISCONNECTED.\n", g_pClient->m_iOriginID);
+				DevMsg(eDLL_T::SERVER, "] OriginID : | '%lld' IS GETTING DISCONNECTED.\n", g_pClient->GetOriginID());
 				if (finalIpAddress.empty())
 					DevMsg(eDLL_T::SERVER, "] IP-ADDR  : | CLIENT MODIFIED PACKET.\n");
 				else
@@ -241,7 +241,7 @@ void CBanSystem::BanListCheck(void)
 				DevMsg(eDLL_T::SERVER, "--------------------------------------------------------------\n");
 				DevMsg(eDLL_T::SERVER, "\n");
 
-				AddEntry(finalIpAddress, g_pClient->m_iOriginID); // Add local entry to reserve a non needed request.
+				AddEntry(finalIpAddress, g_pClient->GetOriginID()); // Add local entry to reserve a non needed request.
 				Save(); // Save list.
 				NET_DisconnectClient(g_pClient, c, vsvrefuseList[i].first.c_str(), 0, 1); // Disconnect client.
 			}

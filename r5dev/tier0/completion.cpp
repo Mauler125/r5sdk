@@ -14,6 +14,7 @@
 #endif // !DEDICATED
 #include "engine/net_chan.h"
 #include "engine/sys_utils.h"
+#include "engine/baseclient.h"
 #include "rtech/rtech_game.h"
 #include "rtech/rtech_utils.h"
 #include "vpklib/packedstore.h"
@@ -64,7 +65,7 @@ void _Kick_f_CompletionFunc(const CCommand& args)
 
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
-		CClient* client = g_pClient->GetClientInstance(i);
+		CBaseClient* client = g_pClient->GetClient(i);
 		if (!client)
 		{
 			continue;
@@ -121,7 +122,7 @@ void _KickID_f_CompletionFunc(const CCommand& args)
 		bool onlyDigits = HasOnlyDigits(args.Arg(1));
 		for (int i = 0; i < MAX_PLAYERS; i++)
 		{
-			CClient* client = g_pClient->GetClientInstance(i);
+			CBaseClient* client = g_pClient->GetClient(i);
 			if (!client)
 			{
 				continue;
@@ -150,7 +151,7 @@ void _KickID_f_CompletionFunc(const CCommand& args)
 				std::int64_t ID = static_cast<std::int64_t>(std::stoll(args.Arg(1)));
 				if (ID > MAX_PLAYERS) // Is it a possible originID?
 				{
-					std::int64_t originID = client->m_iOriginID;
+					std::int64_t originID = client->GetOriginID();
 					if (originID != ID)
 					{
 						continue;
@@ -158,7 +159,7 @@ void _KickID_f_CompletionFunc(const CCommand& args)
 				}
 				else // If its not try by userID.
 				{
-					std::int64_t clientID = static_cast<std::int64_t>(client->m_iUserID + 1); // Get UserID + 1.
+					std::int64_t clientID = static_cast<std::int64_t>(client->GetOriginID() + 1); // Get UserID + 1.
 					if (clientID != ID)
 					{
 						continue;
@@ -199,7 +200,7 @@ void _Ban_f_CompletionFunc(const CCommand& args)
 
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
-		CClient* client = g_pClient->GetClientInstance(i);
+		CBaseClient* client = g_pClient->GetClient(i);
 		if (!client)
 		{
 			continue;
@@ -236,7 +237,7 @@ void _Ban_f_CompletionFunc(const CCommand& args)
 			finalIpAddress = ss.str();
 		}
 
-		g_pBanSystem->AddEntry(finalIpAddress, client->m_iOriginID);
+		g_pBanSystem->AddEntry(finalIpAddress, client->GetOriginID());
 		g_pBanSystem->Save();
 		NET_DisconnectClient(client, i, "Banned from Server", 0, 1);
 	}
@@ -271,7 +272,7 @@ void _BanID_f_CompletionFunc(const CCommand& args)
 		bool onlyDigits = HasOnlyDigits(args.Arg(1));
 		for (int i = 0; i < MAX_PLAYERS; i++)
 		{
-			CClient* client = g_pClient->GetClientInstance(i);
+			CBaseClient* client = g_pClient->GetClient(i);
 			if (!client)
 			{
 				continue;
@@ -300,7 +301,7 @@ void _BanID_f_CompletionFunc(const CCommand& args)
 				std::int64_t ID = static_cast<std::int64_t>(std::stoll(args.Arg(1)));
 				if (ID > MAX_PLAYERS) // Is it a possible originID?
 				{
-					std::int64_t originID = client->m_iOriginID;
+					std::int64_t originID = client->GetOriginID();
 					if (originID != ID)
 					{
 						continue;
@@ -308,14 +309,14 @@ void _BanID_f_CompletionFunc(const CCommand& args)
 				}
 				else // If its not try by userID.
 				{
-					std::int64_t clientID = static_cast<std::int64_t>(client->m_iUserID + 1); // Get UserID + 1.
+					std::int64_t clientID = static_cast<std::int64_t>(client->GetUserID() + 1); // Get UserID + 1.
 					if (clientID != ID)
 					{
 						continue;
 					}
 				}
 
-				g_pBanSystem->AddEntry(finalIpAddress, client->m_iOriginID);
+				g_pBanSystem->AddEntry(finalIpAddress, client->GetOriginID());
 				g_pBanSystem->Save();
 				NET_DisconnectClient(client, i, "Banned from Server", 0, 1);
 			}
@@ -326,7 +327,7 @@ void _BanID_f_CompletionFunc(const CCommand& args)
 					continue;
 				}
 
-				g_pBanSystem->AddEntry(finalIpAddress, client->m_iOriginID);
+				g_pBanSystem->AddEntry(finalIpAddress, client->GetOriginID());
 				g_pBanSystem->Save();
 				NET_DisconnectClient(client, i, "Banned from Server", 0, 1);
 			}

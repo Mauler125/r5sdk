@@ -38,7 +38,7 @@ void* HNET_SendDatagram(SOCKET s, const char* szPayload, int iLenght, int nFlags
 void HNET_SetKey(std::string svNetKey);
 void HNET_GenerateKey();
 void HNET_PrintFunc(const char* fmt, ...);
-void NET_DisconnectClient(CClient* pClient, int nIndex, const char* szReason, std::uint8_t unk1, char unk2);
+void NET_DisconnectClient(CBaseClient* pClient, int nIndex, const char* szReason, std::uint8_t unk1, char unk2);
 
 void CNetChan_Attach();
 void CNetChan_Detach();

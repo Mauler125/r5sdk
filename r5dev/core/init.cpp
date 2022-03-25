@@ -49,6 +49,9 @@
 #include "rtech/rui/rui.h"
 #endif // !DEDICATED
 #include "engine/baseclient.h"
+#ifndef GAMECLIENTONLY
+#include "engine/baseserver.h"
+#endif // !GAMECLIENTONLY
 #include "engine/common.h"
 #include "engine/cmodel_bsp.h"
 #include "engine/host_cmd.h"

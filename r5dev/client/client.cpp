@@ -1,5 +1,6 @@
 #include "core/stdafx.h"
 #include "client/client.h"
+#include "engine/baseclient.h"
 
 ///////////////////////////////////////////////////////////////////////////////
-CClient* g_pClient = reinterpret_cast<CClient*>(g_pClientBuffer.GetPtr());
+CBaseClient* g_pClient = reinterpret_cast<CBaseClient*>(g_pClientBuffer.GetPtr());

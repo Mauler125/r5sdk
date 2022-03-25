@@ -11,6 +11,7 @@
 #include "tier0/fasttimer.h"
 #include "tier1/NetAdr2.h"
 #include "tier2/socketcreator.h"
+#include "vpc/keyvalues.h"
 #ifdef DEDICATED
 #include "engine/sv_rcon.h"
 #else // 
@@ -22,6 +23,9 @@
 #include "engine/sys_engine.h"
 #include "engine/sys_utils.h"
 #include "engine/cmodel_bsp.h"
+#ifndef GAMECLIENTONLY
+#include "engine/baseserver.h"
+#endif // !GAMECLIENTONLY
 #include "rtech/rtech_game.h"
 #ifndef DEDICATED
 #include "vgui/vgui_baseui_interface.h"
@@ -29,6 +33,7 @@
 #include "client/IVEngineClient.h"
 #include "networksystem/pylon.h"
 #include "public/include/bansystem.h"
+#include "public/include/edict.h"
 #ifndef GAMECLIENTONLY
 #include "game/server/gameinterface.h"
 #endif // !GAMECLIENTONLY
@@ -147,16 +152,17 @@ FORCEINLINE void CHostState::Setup(void) const
 	g_pRConClient->Init();
 #endif // DEDICATED
 
-	*(bool*)m_bRestrictServerCommands = true; // Restrict commands.
-	ConCommandBase* disconnect = (ConCommandBase*)g_pCVar->FindCommand("disconnect");
+	*reinterpret_cast<bool*>(m_bRestrictServerCommands) = true; // Restrict commands.
+	ConCommandBase* disconnect = g_pCVar->FindCommandBase("disconnect");
 	disconnect->AddFlags(FCVAR_SERVER_CAN_EXECUTE); // Make sure server is not restricted to this.
+	g_pCVar->FindVar("net_usesocketsforloopback")->SetValue(1);
 
 	if (net_userandomkey->GetBool())
 	{
 		HNET_GenerateKey();
 	}
 
-	g_pCVar->FindVar("net_usesocketsforloopback")->SetValue(1);
+	snprintf(const_cast<char*>(m_levelName), sizeof(m_levelName), "no_map");
 }
 
 //-----------------------------------------------------------------------------
@@ -166,12 +172,14 @@ FORCEINLINE void CHostState::Think(void) const
 {
 	static CFastTimer banListTimer;
 	static CFastTimer pylonTimer;
+	static CFastTimer statsTimer;
 	static bool bInitialized = false;
 
 	if (!bInitialized) // Initialize clocks.
 	{
 		banListTimer.Start();
 		pylonTimer.Start();
+		statsTimer.Start();
 
 		bInitialized = true;
 	}
@@ -185,6 +193,15 @@ FORCEINLINE void CHostState::Think(void) const
 	{
 		KeepAliveToPylon();
 		pylonTimer.Start();
+	}
+	if (statsTimer.GetDurationInProgress().GetSeconds() > 1.0)
+	{
+		std::string svCurrentPlaylist = KeyValues_GetCurrentPlaylist();
+		std::int64_t nPlayerCount = g_pServer->GetNumHumanPlayers();
+
+		SetConsoleTitleA(fmt::format("{} - {}/{} Players ({} on {})", 
+			g_pCVar->FindVar("hostname")->GetString(), nPlayerCount, g_ServerGlobalVariables->m_nMaxClients, svCurrentPlaylist.c_str(), m_levelName).c_str());
+		statsTimer.Start();
 	}
 }
 
@@ -228,6 +245,7 @@ FORCEINLINE void CHostState::GameShutDown(void)
 		g_pServerGameDLL->GameShutdown();
 #endif // !GAMECLIENTONLY
 		m_bActiveGame = 0;
+		snprintf(const_cast<char*>(m_levelName), sizeof(m_levelName), "no_map");
 	}
 }
 

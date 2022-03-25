@@ -6,24 +6,25 @@
 
 #include "core/stdafx.h"
 #include "tier0/cvar.h"
+#include "common/protocol.h"
 #include "engine/sys_utils.h"
+#include "engine/baseclient.h"
 #include "server/IVEngineServer.h"
-#include "client/client.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: sets the persistence var in the CClient instance to 'ready'
 //-----------------------------------------------------------------------------
-bool HIVEngineServer_PersistenceAvailable(void* entidx, int clientidx)
+bool HIVEngineServer__PersistenceAvailable(void* entidx, int clientidx)
 {
-	CClient* pClient = g_pClient->GetClientInstance(clientidx);         // Get client instance.
-	*(char*)((std::uintptr_t)pClient + g_dwPersistenceVar) = (char)0x5; // Set the client instance to 'ready'.
+	CBaseClient* pClient = g_pClient->GetClient(clientidx);       // Get client instance.
+	pClient->SetPersistenceState(PERSISTENCE::PERSISTENCE_READY); // Set the client instance to 'ready'.
 
 	if (!g_bIsPersistenceVarSet[clientidx] && sv_showconnecting->GetBool())
 	{
 		void* clientNamePtr = (void**)(((std::uintptr_t)pClient->GetNetChan()) + 0x1A8D); // Get client name from netchan.
-		std::string clientName((char*)clientNamePtr, 32);                                // Get full name.
-		std::int64_t originID = pClient->m_iOriginID;
-		std::int64_t clientID = static_cast<std::int64_t>(pClient->m_iUserID + 1);
+		std::string clientName((char*)clientNamePtr, 32);                                 // Get full name.
+		std::int64_t originID = pClient->GetOriginID();
+		std::int64_t clientID = static_cast<std::int64_t>(pClient->GetUserID() + 1);
 
 		std::string ipAddress = "null"; // If this stays null they modified the packet somehow.
 		ADDRESS ipAddressField = ADDRESS(((std::uintptr_t)pClient->GetNetChan()) + 0x1AC0); // Get client ip from netchan.
@@ -52,17 +53,17 @@ bool HIVEngineServer_PersistenceAvailable(void* entidx, int clientidx)
 		g_bIsPersistenceVarSet[clientidx] = true;
 	}
 	///////////////////////////////////////////////////////////////////////////
-	return IVEngineServer_PersistenceAvailable(entidx, clientidx);
+	return IVEngineServer__PersistenceAvailable(entidx, clientidx);
 }
 
 void IVEngineServer_Attach()
 {
-	DetourAttach((LPVOID*)&IVEngineServer_PersistenceAvailable, &HIVEngineServer_PersistenceAvailable);
+	DetourAttach((LPVOID*)&IVEngineServer__PersistenceAvailable, &HIVEngineServer__PersistenceAvailable);
 }
 
 void IVEngineServer_Detach()
 {
-	DetourDetach((LPVOID*)&IVEngineServer_PersistenceAvailable, &HIVEngineServer_PersistenceAvailable);
+	DetourDetach((LPVOID*)&IVEngineServer__PersistenceAvailable, &HIVEngineServer__PersistenceAvailable);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
