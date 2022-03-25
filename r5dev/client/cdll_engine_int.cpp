@@ -32,18 +32,25 @@ void __fastcall HFrameStageNotify(CHLClient* rcx, ClientFrameStage_t frameStage)
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2) // !TEMP UNTIL CHOSTSTATE IS BUILD AGNOSTIC! //
 				if (!g_pCmdLine->CheckParm("-devsdk"))
 				{
-					IVEngineClient_CommandExecute(NULL, "exec \"autoexec_server.cfg\"");
-					IVEngineClient_CommandExecute(NULL, "exec \"autoexec_client.cfg\"");
-					IVEngineClient_CommandExecute(NULL, "exec \"autoexec.cfg\"");
-					IVEngineClient_CommandExecute(NULL, "exec \"rcon_client.cfg\"");
+					Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_server.cfg\"", cmd_source_t::kCommandSrcCode);
+					Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"rcon_server.cfg\"", cmd_source_t::kCommandSrcCode);
+#ifndef DEDICATED
+					Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_client.cfg\"", cmd_source_t::kCommandSrcCode);
+					Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"rcon_client.cfg\"", cmd_source_t::kCommandSrcCode);
+#endif // !DEDICATED
+					Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec.cfg\"", cmd_source_t::kCommandSrcCode);
 				}
 				else // Development configs.
 				{
-					IVEngineClient_CommandExecute(NULL, "exec \"autoexec_server_dev.cfg\"");
-					IVEngineClient_CommandExecute(NULL, "exec \"autoexec_client_dev.cfg\"");
-					IVEngineClient_CommandExecute(NULL, "exec \"autoexec_dev.cfg\"");
-					IVEngineClient_CommandExecute(NULL, "exec \"rcon_client_dev.cfg\"");
+					Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_server_dev.cfg\"", cmd_source_t::kCommandSrcCode);
+					Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"rcon_server_dev.cfg\"", cmd_source_t::kCommandSrcCode);
+#ifndef DEDICATED
+					Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_client_dev.cfg\"", cmd_source_t::kCommandSrcCode);
+					Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"rcon_client_dev.cfg\"", cmd_source_t::kCommandSrcCode);
+#endif // !DEDICATED
+					Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_dev.cfg\"", cmd_source_t::kCommandSrcCode);
 				}
+				Cbuf_Execute();
 
 				*(bool*)m_bRestrictServerCommands = true; // Restrict commands.
 				ConCommandBase* disconnect = (ConCommandBase*)g_pCVar->FindCommand("disconnect");

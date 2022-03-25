@@ -295,6 +295,16 @@ char* ConCommandBase::CopyString(const char* szFrom) const
 	return szTo;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Returns current player calling this function
+// Output : ECommandTarget_t - 
+//-----------------------------------------------------------------------------
+ECommandTarget_t Cbuf_GetCurrentPlayer(void)
+{
+	// Always returns 'CBUF_FIRST_PLAYER' in Respawn's code.
+	return ECommandTarget_t::CBUF_FIRST_PLAYER;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 void ConCommand_Attach()
 {

@@ -663,7 +663,7 @@ int CConsole::TextEditCallbackStub(ImGuiInputTextCallbackData* iData)
 void CConsole::AddLog(const char* fmt, ...) IM_FMTARGS(2)
 {
     char buf[1024];
-    va_list args;
+    va_list args{};
     va_start(args, fmt);
     vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
     buf[IM_ARRAYSIZE(buf) - 1] = 0;

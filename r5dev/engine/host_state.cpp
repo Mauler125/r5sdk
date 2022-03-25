@@ -34,7 +34,6 @@
 #endif // !GAMECLIENTONLY
 
 bool g_bLevelResourceInitialized = false;
-
 //-----------------------------------------------------------------------------
 // Purpose: state machine's main processing loop
 //-----------------------------------------------------------------------------
@@ -73,7 +72,7 @@ FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 			{
 			case HostStates_t::HS_NEW_GAME:
 			{
-				DevMsg(eDLL_T::ENGINE, "Loading level: '%s'\n", g_pHostState->m_levelName);
+				DevMsg(eDLL_T::ENGINE, "%s - Loading level: '%s'\n", "CHostState::FrameUpdate", g_pHostState->m_levelName);
 				g_pHostState->State_NewGame();
 				break;
 			}
@@ -95,7 +94,7 @@ FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 			}
 			case HostStates_t::HS_GAME_SHUTDOWN:
 			{
-				DevMsg(eDLL_T::ENGINE, "Shutdown host game\n");
+				DevMsg(eDLL_T::ENGINE, "%s - Shutdown host game\n", "CHostState::FrameUpdate");
 
 				g_bLevelResourceInitialized = false;
 				Host_Game_ShutdownFn(g_pHostState);
@@ -103,7 +102,7 @@ FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 			}
 			case HostStates_t::HS_RESTART:
 			{
-				DevMsg(eDLL_T::ENGINE, "Restarting state machine\n");
+				DevMsg(eDLL_T::ENGINE, "%s - Restarting state machine\n", "CHostState::FrameUpdate");
 				g_bLevelResourceInitialized = false;
 #ifndef DEDICATED
 				CL_EndMovieFn();
@@ -114,7 +113,7 @@ FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 			}
 			case HostStates_t::HS_SHUTDOWN:
 			{
-				DevMsg(eDLL_T::ENGINE, "Shutdown state machine\n");
+				DevMsg(eDLL_T::ENGINE, "%s - Shutdown state machine\n", "CHostState::FrameUpdate");
 				g_bLevelResourceInitialized = false;
 #ifndef DEDICATED
 				CL_EndMovieFn();
@@ -196,24 +195,25 @@ FORCEINLINE void CHostState::LoadConfig(void) const
 {
 	if (!g_pCmdLine->CheckParm("-devsdk"))
 	{
-		IVEngineClient_CommandExecute(NULL, "exec \"autoexec_server.cfg\"");
-		IVEngineClient_CommandExecute(NULL, "exec \"rcon_server.cfg\"");
+		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_server.cfg\"", cmd_source_t::kCommandSrcCode);
+		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"rcon_server.cfg\"", cmd_source_t::kCommandSrcCode);
 #ifndef DEDICATED
-		IVEngineClient_CommandExecute(NULL, "exec \"autoexec_client.cfg\"");
-		IVEngineClient_CommandExecute(NULL, "exec \"rcon_client.cfg\"");
+		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_client.cfg\"", cmd_source_t::kCommandSrcCode);
+		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"rcon_client.cfg\"", cmd_source_t::kCommandSrcCode);
 #endif // !DEDICATED
-		IVEngineClient_CommandExecute(NULL, "exec \"autoexec.cfg\"");
+		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec.cfg\"", cmd_source_t::kCommandSrcCode);
 	}
 	else // Development configs.
 	{
-		IVEngineClient_CommandExecute(NULL, "exec \"autoexec_server_dev.cfg\"");
-		IVEngineClient_CommandExecute(NULL, "exec \"rcon_server_dev.cfg\"");
+		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_server_dev.cfg\"", cmd_source_t::kCommandSrcCode);
+		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"rcon_server_dev.cfg\"", cmd_source_t::kCommandSrcCode);
 #ifndef DEDICATED
-		IVEngineClient_CommandExecute(NULL, "exec \"autoexec_client_dev.cfg\"");
-		IVEngineClient_CommandExecute(NULL, "exec \"rcon_client_dev.cfg\"");
+		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_client_dev.cfg\"", cmd_source_t::kCommandSrcCode);
+		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"rcon_client_dev.cfg\"", cmd_source_t::kCommandSrcCode);
 #endif // !DEDICATED
-		IVEngineClient_CommandExecute(NULL, "exec \"autoexec_dev.cfg\"");
+		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_dev.cfg\"", cmd_source_t::kCommandSrcCode);
 	}
+	Cbuf_Execute();
 }
 
 //-----------------------------------------------------------------------------
@@ -265,7 +265,7 @@ FORCEINLINE void CHostState::State_NewGame(void)
 	if (!CModelLoader_Map_IsValidFn(g_CModelLoader, m_levelName) // Check if map is valid and if we can start a new game.
 		|| !Host_NewGameFn(m_levelName, nullptr, m_bBackgroundLevel, m_bSplitScreenConnect, nullptr) || !g_ServerGameClients)
 	{
-		Error(eDLL_T::ENGINE, "Error: Map not valid\n");
+		Error(eDLL_T::ENGINE, "%s - Error: Map not valid\n", "CHostState::State_NewGame");
 #ifndef DEDICATED
 		SCR_EndLoadingPlaque();
 #endif // !DEDICATED
@@ -286,7 +286,7 @@ FORCEINLINE void CHostState::State_NewGame(void)
 //-----------------------------------------------------------------------------
 FORCEINLINE void CHostState::State_ChangeLevelSP(void)
 {
-	DevMsg(eDLL_T::ENGINE, "Changing singleplayer level to: '%s'\n", m_levelName);
+	DevMsg(eDLL_T::ENGINE, "%s - Changing singleplayer level to: '%s'\n", "CHostState::State_ChangeLevelSP", m_levelName);
 	m_flShortFrameTime = 1.5; // Set frame time.
 	g_bLevelResourceInitialized = false;
 
@@ -296,7 +296,7 @@ FORCEINLINE void CHostState::State_ChangeLevelSP(void)
 	}
 	else
 	{
-		Error(eDLL_T::ENGINE, "Error: Unable to find map: '%s'\n", m_levelName);
+		Error(eDLL_T::ENGINE, "%s - Error: Unable to find map: '%s'\n", "CHostState::State_ChangeLevelSP", m_levelName);
 	}
 
 	m_iCurrentState = HostStates_t::HS_RUN; // Set current state to run.
@@ -313,7 +313,7 @@ FORCEINLINE void CHostState::State_ChangeLevelSP(void)
 //-----------------------------------------------------------------------------
 FORCEINLINE void CHostState::State_ChangeLevelMP(void)
 {
-	DevMsg(eDLL_T::ENGINE, "Changing multiplayer level to: '%s'\n", m_levelName);
+	DevMsg(eDLL_T::ENGINE, "%s - Changing multiplayer level to: '%s'\n", "CHostState::State_ChangeLevelMP", m_levelName);
 	m_flShortFrameTime = 0.5; // Set frame time.
 	g_bLevelResourceInitialized = false;
 
@@ -330,7 +330,7 @@ FORCEINLINE void CHostState::State_ChangeLevelMP(void)
 	}
 	else
 	{
-		Error(eDLL_T::ENGINE, "Error: Unable to find map: '%s'\n", m_levelName);
+		Error(eDLL_T::ENGINE, "%s - Error: Unable to find map: '%s'\n", "CHostState::State_ChangeLevelMP", m_levelName);
 	}
 
 	m_iCurrentState = HostStates_t::HS_RUN; // Set current state to run.

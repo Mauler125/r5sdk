@@ -131,8 +131,8 @@ public:
 namespace
 {
 	/* ==== COMMAND_BUFFER ================================================================================================================================================== */
-	ADDRESS p_Cbuf_AddText = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x44\x89\x4C\x24\x00\x48\x89\x4C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8D\x6C\x24\x00\x48\x89\x9D\x00\x00\x00\x00\x4C\x8B", "xxxx?xxxx?xxxxxxxxxxxxxx????xxxx?xxx????xx");
-	bool (*Cbuf_AddText)(ECommandTarget_t eTarget, const char* pText, cmd_source_t cmdSource, int nTickDelay) = (bool (*)(ECommandTarget_t, const char*, cmd_source_t, int))p_Cbuf_AddText.GetPtr(); /*44 89 4C 24 ? 48 89 4C 24 ? 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8D 6C 24 ? 48 89 9D ? ? ? ? 4C 8B*/
+	ADDRESS p_Cbuf_AddText = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\x48\x63\xD9\x41\x8B\xF8\x48\x8D\x0D\x00\x00\x00\x00\x48\x8B\xF2\xFF\x15\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x41\xB9\x00\x00\x00\x00", "xxxx?xxxx?xxxxxxxxxxxxxx????xxxxx????xxx????xx????");
+	void (*Cbuf_AddText)(ECommandTarget_t eTarget, const char* pText, cmd_source_t cmdSource) = (void (*)(ECommandTarget_t, const char*, cmd_source_t))p_Cbuf_AddText.GetPtr(); /*48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 63 D9 41 8B F8 48 8D 0D ? ? ? ? 48 8B F2 FF 15 ? ? ? ? 48 8D 05 ? ? ? ? 41 B9 ? ? ? ?*/
 
 	ADDRESS p_Cbuf_Execute = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\xFF\x15\x00\x00\x00\x00", "xxxx?xxxx?xxxx?xxxxxxx????");
 	void (*Cbuf_Execute)(void) = (void (*)(void))p_Cbuf_Execute.GetPtr(); /*48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 20 FF 15 ? ? ? ?*/
@@ -157,6 +157,8 @@ namespace
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+ECommandTarget_t Cbuf_GetCurrentPlayer(void);
+
 void ConCommand_Attach();
 void ConCommand_Detach();
 

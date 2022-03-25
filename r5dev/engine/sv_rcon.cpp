@@ -15,7 +15,6 @@
 #include "protoc/sv_rcon.pb.h"
 #include "protoc/cl_rcon.pb.h"
 #include "mathlib/sha256.h"
-#include "client/IVEngineClient.h"
 #include "common/igameserverdata.h"
 
 //-----------------------------------------------------------------------------
@@ -390,7 +389,9 @@ void CRConServer::Execute(const cl_rcon::request& cl_request) const
 	else // Execute command with "<val>".
 	{
 		std::string svExec = cl_request.requestbuf() + " \"" + cl_request.requestval() + "\"";
-		IVEngineClient_CommandExecute(NULL, svExec.c_str());
+
+		Cbuf_AddText(Cbuf_GetCurrentPlayer(), svExec.c_str(), cmd_source_t::kCommandSrcCode);
+		Cbuf_Execute();
 	}
 }
 

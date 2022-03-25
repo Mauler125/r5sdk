@@ -7,11 +7,11 @@
 #include "core/stdafx.h"
 #include "core/init.h"
 #include "core/logdef.h"
+#include "tier0/cmd.h"
 #ifndef DEDICATED
 #include "windows/id3dx.h"
 #endif // !DEDICATED
 #include "windows/console.h"
-#include "client/IVEngineClient.h"
 #include "common/opcodes.h"
 
 //-----------------------------------------------------------------------------
@@ -145,7 +145,9 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 		if (sCommand == "opcodes test") { RuntimePtc_Toggle(); continue; }
 
 		// Execute the command in the r5 SQVM
-		IVEngineClient_CommandExecute(NULL, sCommand.c_str());
+		Cbuf_AddText(Cbuf_GetCurrentPlayer(), sCommand.c_str(), cmd_source_t::kCommandSrcCode);
+		Cbuf_Execute();
+
 		sCommand.clear();
 
 		///////////////////////////////////////////////////////////////////////
