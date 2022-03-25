@@ -45,6 +45,7 @@ bool g_bLevelResourceInitialized = false;
 FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 {
 	static bool bInitialized = false;
+	static ConVar* single_frame_shutdown_for_reload = g_pCVar->FindVar("single_frame_shutdown_for_reload");
 	if (!bInitialized)
 	{
 		g_pHostState->Setup();
@@ -133,7 +134,7 @@ FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 			}
 			}
 
-		} while ((oldState != HostStates_t::HS_RUN || g_pHostState->m_iNextState == HostStates_t::HS_LOAD_GAME && g_pCVar->FindVar("single_frame_shutdown_for_reload")->GetBool())
+		} while ((oldState != HostStates_t::HS_RUN || g_pHostState->m_iNextState == HostStates_t::HS_LOAD_GAME && single_frame_shutdown_for_reload->GetBool())
 			&& oldState != HostStates_t::HS_SHUTDOWN
 			&& oldState != HostStates_t::HS_RESTART);
 	}
@@ -174,6 +175,7 @@ FORCEINLINE void CHostState::Think(void) const
 	static CFastTimer pylonTimer;
 	static CFastTimer statsTimer;
 	static bool bInitialized = false;
+	static ConVar* hostname = g_pCVar->FindVar("hostname");
 
 	if (!bInitialized) // Initialize clocks.
 	{
@@ -200,7 +202,7 @@ FORCEINLINE void CHostState::Think(void) const
 		std::int64_t nPlayerCount = g_pServer->GetNumHumanPlayers();
 
 		SetConsoleTitleA(fmt::format("{} - {}/{} Players ({} on {})", 
-			g_pCVar->FindVar("hostname")->GetString(), nPlayerCount, g_ServerGlobalVariables->m_nMaxClients, svCurrentPlaylist.c_str(), m_levelName).c_str());
+			hostname->GetString(), nPlayerCount, g_ServerGlobalVariables->m_nMaxClients, svCurrentPlaylist.c_str(), m_levelName).c_str());
 		statsTimer.Start();
 	}
 }
