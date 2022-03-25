@@ -291,7 +291,6 @@ struct dtMeshHeader
 	
 	/// The bounding volume quantization factor. 
 	float bvQuantFactor;
-	//int unk0;
 };
 
 /// Defines a navigation mesh tile.
