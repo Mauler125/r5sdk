@@ -159,7 +159,7 @@ void _KickID_f_CompletionFunc(const CCommand& args)
 				}
 				else // If its not try by userID.
 				{
-					std::int64_t clientID = static_cast<std::int64_t>(client->GetOriginID() + 1); // Get UserID + 1.
+					std::int64_t clientID = static_cast<std::int64_t>(client->GetUserID() + 1); // Get UserID + 1.
 					if (clientID != ID)
 					{
 						continue;
