@@ -1,9 +1,9 @@
-﻿//===========================================================================//
+﻿//============================================================================//
 //
 // Purpose: 
 //
 // $NoKeywords: $
-//===========================================================================//
+//============================================================================//
 
 #ifndef FASTTIMER_H
 #define FASTTIMER_H
@@ -11,13 +11,38 @@
 #include "tier0/platform.h"
 #include "tier0/cpu.h"
 
-/*****************************************************************************/
+/******************************************************************************/ 
 extern uint64_t g_ClockSpeed;
 extern unsigned long g_dwClockSpeed;
 
 extern double g_ClockSpeedMicrosecondsMultiplier;
 extern double g_ClockSpeedMillisecondsMultiplier;
 extern double g_ClockSpeedSecondsMultiplier;
+
+// -------------------------------------------------------------------------- // 
+// CClockSpeedInit
+// -------------------------------------------------------------------------- // 
+class CClockSpeedInit
+{
+public:
+	CClockSpeedInit(void)
+	{
+		Init();
+	}
+
+	static void Init(void)
+	{
+		const CPUInformation& pi = GetCPUInformation();
+		g_ClockSpeed = pi.m_Speed;
+		g_dwClockSpeed = (unsigned long)g_ClockSpeed;
+
+		g_ClockSpeedMicrosecondsMultiplier = 1000000.0 / (double)g_ClockSpeed;
+		g_ClockSpeedMillisecondsMultiplier = 1000.0 / (double)g_ClockSpeed;
+		g_ClockSpeedSecondsMultiplier = 1.0f / (double)g_ClockSpeed;
+	}
+};
+/******************************************************************************/ 
+
 
 // -------------------------------------------------------------------------- // 
 // CCycleCount
@@ -61,30 +86,7 @@ public:
 private:
 	uint64_t        m_Int64{};
 };
-
-
-// -------------------------------------------------------------------------- // 
-// CClockSpeedInit
-// -------------------------------------------------------------------------- // 
-class CClockSpeedInit
-{
-public:
-	CClockSpeedInit(void)
-	{
-		Init();
-	}
-
-	static void Init(void)
-	{
-		const CPUInformation& pi = GetCPUInformation();
-		g_ClockSpeed = pi.m_Speed;
-		g_dwClockSpeed = (unsigned long)g_ClockSpeed;
-
-		g_ClockSpeedMicrosecondsMultiplier = 1000000.0 / (double)g_ClockSpeed;
-		g_ClockSpeedMillisecondsMultiplier = 1000.0 / (double)g_ClockSpeed;
-		g_ClockSpeedSecondsMultiplier = 1.0f / (double)g_ClockSpeed;
-	}
-};
+/******************************************************************************/ 
 
 
 // -------------------------------------------------------------------------- // 
@@ -109,6 +111,7 @@ private:
 	bool m_bRunning; // Are we currently running?
 #endif
 };
+/******************************************************************************/ 
 
 
 // -------------------------------------------------------------------------- // 
@@ -124,19 +127,13 @@ public:
 private:
 	CFastTimer* m_pTimer;
 };
+/******************************************************************************/ 
 
-inline CTimeScope::CTimeScope(CFastTimer* pTotal)
-{
-	m_pTimer = pTotal;
-	m_pTimer->Start();
-}
 
-inline CTimeScope::~CTimeScope(void)
-{
-	m_pTimer->End();
-}
-
+// -------------------------------------------------------------------------- // 
+// CTimeScope
 // This is a helper class that times whatever block of code it's in and adds the total (int microseconds) to a global counter.
+// -------------------------------------------------------------------------- // 
 class CTimeAdder
 {
 public:
@@ -147,68 +144,31 @@ public:
 
 private:
 	CCycleCount* m_pTotal;
-	CFastTimer	m_Timer;
+	CFastTimer m_Timer;
 };
-
-inline CTimeAdder::CTimeAdder(CCycleCount* pTotal)
-{
-	m_pTotal = pTotal;
-	m_Timer.Start();
-}
-
-inline CTimeAdder::~CTimeAdder(void)
-{
-	End();
-}
-
-inline void CTimeAdder::End(void)
-{
-	if (m_pTotal)
-	{
-		m_Timer.End();
-		*m_pTotal += m_Timer.GetDuration();
-		m_pTotal = 0;
-	}
-}
+/******************************************************************************/ 
 
 
 // -------------------------------------------------------------------------- // 
-// Simple tool to support timing a block of code, and reporting the results on
-// program exit or at each iteration
-//
-//	Macros used because dbg.h uses this header, thus Msg() is unavailable
+// CLimitTimer
+// Use this to time whether a desired interval of time has passed.  It's extremely fast
+// to check while running.  NOTE: CMicroSecOverage() and CMicroSecLeft() are not as fast to check.
 // -------------------------------------------------------------------------- // 
+class CLimitTimer
+{
+public:
+	CLimitTimer(void) { }
+	CLimitTimer(uint64_t cMicroSecDuration) { SetLimit(cMicroSecDuration); }
+	void SetLimit(uint64_t m_cMicroSecDuration);
+	bool BLimitReached(void) const;
 
-#define PROFILE_SCOPE(name)                                                          \
-	class C##name##ACC : public CAverageCycleCounter                                 \
-	{                                                                                \
-	public:                                                                          \
-		~C##name##ACC()                                                              \
-		{                                                                            \
-			Msg("%-48s: %6.3f avg (%8.1f total, %7.3f peak, %5d iters)\n",           \
-				#name,                                                               \
-				GetAverageMilliseconds(),                                            \
-				GetTotalMilliseconds(),                                              \
-				GetPeakMilliseconds(),                                               \
-				GetIters() );                                                        \
-		}                                                                            \
-	};                                                                               \
-	static C##name##ACC name##_ACC;                                                  \
-	CAverageTimeMarker name##_ATM( &name##_ACC )
+	int CMicroSecOverage(void) const;
+	uint64_t CMicroSecLeft(void) const;
 
-#define TIME_SCOPE(name)                                                             \
-	class CTimeScopeMsg_##name                                                       \
-	{                                                                                \
-	public:                                                                          \
-		CTimeScopeMsg_##name() { m_Timer.Start(); }                                  \
-		~CTimeScopeMsg_##name()                                                      \
-		{                                                                            \
-			m_Timer.End();                                                           \
-			Msg( #name "time: %.4fms\n", m_Timer.GetDuration().GetMillisecondsF() ); \
-		}                                                                            \
-	private:                                                                         \
-		CFastTimer m_Timer;                                                          \
-	} name##_TSM;
+private:
+	uint64_t m_lCycleLimit{};
+};
+/******************************************************************************/ 
 
 
 // -------------------------------------------------------------------------- // 
@@ -235,6 +195,7 @@ private:
 	bool        m_fReport{};
 	const char* m_pszName{};
 };
+/******************************************************************************/ 
 
 
 // -------------------------------------------------------------------------- // 
@@ -250,6 +211,7 @@ private:
 	CAverageCycleCounter* m_pCounter;
 	CFastTimer            m_Timer;
 };
+/******************************************************************************/ 
 
 
 // -------------------------------------------------------------------------- // 
@@ -360,6 +322,7 @@ inline double CCycleCount::GetSeconds(void) const
 {
 	return (double)(m_Int64 * g_ClockSpeedSecondsMultiplier);
 }
+// -------------------------------------------------------------------------- // 
 
 
 // -------------------------------------------------------------------------- // 
@@ -408,6 +371,49 @@ inline CCycleCount const& CFastTimer::GetDuration(void) const
 #endif
 	return m_Duration;
 }
+// -------------------------------------------------------------------------- // 
+
+
+// -------------------------------------------------------------------------- // 
+// CTimeScope inlines.
+// -------------------------------------------------------------------------- // 
+inline CTimeScope::CTimeScope(CFastTimer* pTotal)
+{
+	m_pTimer = pTotal;
+	m_pTimer->Start();
+}
+
+inline CTimeScope::~CTimeScope(void)
+{
+	m_pTimer->End();
+}
+// -------------------------------------------------------------------------- // 
+
+
+// -------------------------------------------------------------------------- // 
+// CTimeAdder inlines.
+// -------------------------------------------------------------------------- // 
+inline CTimeAdder::CTimeAdder(CCycleCount* pTotal)
+{
+	m_pTotal = pTotal;
+	m_Timer.Start();
+}
+
+inline CTimeAdder::~CTimeAdder(void)
+{
+	End();
+}
+
+inline void CTimeAdder::End(void)
+{
+	if (m_pTotal)
+	{
+		m_Timer.End();
+		*m_pTotal += m_Timer.GetDuration();
+		m_pTotal = 0;
+	}
+}
+// -------------------------------------------------------------------------- // 
 
 
 // -------------------------------------------------------------------------- // 
@@ -455,9 +461,12 @@ inline double CAverageCycleCounter::GetPeakMilliseconds(void) const
 {
 	return m_Peak.GetMillisecondsF();
 }
-
 // -------------------------------------------------------------------------- // 
 
+
+// -------------------------------------------------------------------------- // 
+// CAverageTimeMarker inlines
+// -------------------------------------------------------------------------- // 
 inline CAverageTimeMarker::CAverageTimeMarker(CAverageCycleCounter* pCounter)
 {
 	m_pCounter = pCounter;
@@ -469,29 +478,12 @@ inline CAverageTimeMarker::~CAverageTimeMarker(void)
 	m_Timer.End();
 	m_pCounter->MarkIter(m_Timer.GetDuration());
 }
+// -------------------------------------------------------------------------- // 
 
 
 // -------------------------------------------------------------------------- // 
-// CLimitTimer
-// Use this to time whether a desired interval of time has passed.  It's extremely fast
-// to check while running.  NOTE: CMicroSecOverage() and CMicroSecLeft() are not as fast to check.
+// CLimitTimer inlines
 // -------------------------------------------------------------------------- // 
-class CLimitTimer
-{
-public:
-	CLimitTimer(void) { }
-	CLimitTimer(uint64_t cMicroSecDuration) { SetLimit(cMicroSecDuration); }
-	void SetLimit(uint64_t m_cMicroSecDuration);
-	bool BLimitReached(void) const;
-
-	int CMicroSecOverage(void) const;
-	uint64_t CMicroSecLeft(void) const;
-
-private:
-	uint64_t m_lCycleLimit{};
-};
-
-//-----------------------------------------------------------------------------
 // Purpose: Initializes the limit timer with a period of time to measure.
 // Input  : cMicroSecDuration -		How long a time period to measure
 //-----------------------------------------------------------------------------
@@ -545,5 +537,45 @@ inline uint64_t CLimitTimer::CMicroSecLeft(void) const
 
 	return((uint64_t)((m_lCycleLimit - lcCycles) * (uint64_t)1000000L / g_dwClockSpeed));
 }
+// -------------------------------------------------------------------------- // 
+
+// -------------------------------------------------------------------------- // 
+// Simple tool to support timing a block of code, and reporting the results on
+// program exit or at each iteration
+//
+//	Macros used because dbg.h uses this header, thus Msg() is unavailable
+// -------------------------------------------------------------------------- // 
+
+#define PROFILE_SCOPE(name)                                                          \
+	class C##name##ACC : public CAverageCycleCounter                                 \
+	{                                                                                \
+	public:                                                                          \
+		~C##name##ACC()                                                              \
+		{                                                                            \
+			Msg("%-48s: %6.3f avg (%8.1f total, %7.3f peak, %5d iters)\n",           \
+				#name,                                                               \
+				GetAverageMilliseconds(),                                            \
+				GetTotalMilliseconds(),                                              \
+				GetPeakMilliseconds(),                                               \
+				GetIters() );                                                        \
+		}                                                                            \
+	};                                                                               \
+	static C##name##ACC name##_ACC;                                                  \
+	CAverageTimeMarker name##_ATM( &name##_ACC )
+
+#define TIME_SCOPE(name)                                                             \
+	class CTimeScopeMsg_##name                                                       \
+	{                                                                                \
+	public:                                                                          \
+		CTimeScopeMsg_##name() { m_Timer.Start(); }                                  \
+		~CTimeScopeMsg_##name()                                                      \
+		{                                                                            \
+			m_Timer.End();                                                           \
+			Msg( #name "time: %.4fms\n", m_Timer.GetDuration().GetMillisecondsF() ); \
+		}                                                                            \
+	private:                                                                         \
+		CFastTimer m_Timer;                                                          \
+	} name##_TSM;
+// -------------------------------------------------------------------------- // 
 
 #endif // FASTTIMER_H
