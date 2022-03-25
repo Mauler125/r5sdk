@@ -8,6 +8,7 @@
 #include "tier0/cmd.h"
 #include "tier0/cvar.h"
 #include "tier0/commandline.h"
+#include "tier0/fasttimer.h"
 #include "tier1/NetAdr2.h"
 #include "tier2/socketcreator.h"
 #ifdef DEDICATED
@@ -32,8 +33,6 @@
 #include "game/server/gameinterface.h"
 #endif // !GAMECLIENTONLY
 
-std::chrono::time_point<std::chrono::steady_clock> tpPylonStartClock   = std::chrono::steady_clock::now();
-std::chrono::time_point<std::chrono::steady_clock> tpBanListStartClock = std::chrono::steady_clock::now();
 bool g_bLevelResourceInitialized = false;
 
 //-----------------------------------------------------------------------------
@@ -166,17 +165,27 @@ FORCEINLINE void CHostState::Setup(void) const
 //-----------------------------------------------------------------------------
 FORCEINLINE void CHostState::Think(void) const
 {
-	std::chrono::time_point<std::chrono::steady_clock> tpCrrentClock = std::chrono::steady_clock::now();
+	static CFastTimer banListTimer;
+	static CFastTimer pylonTimer;
+	static bool bInitialized = false;
 
-	if (std::chrono::duration_cast<std::chrono::seconds>(tpCrrentClock - tpBanListStartClock).count() >= 1)
+	if (!bInitialized) // Initialize clocks.
+	{
+		banListTimer.Start();
+		pylonTimer.Start();
+
+		bInitialized = true;
+	}
+
+	if (banListTimer.GetDurationInProgress().GetSeconds() > 1.0)
 	{
 		g_pBanSystem->BanListCheck();
-		tpBanListStartClock = std::chrono::steady_clock::now();
+		banListTimer.Start();
 	}
-	if (std::chrono::duration_cast<std::chrono::seconds>(tpCrrentClock - tpPylonStartClock).count() >= 5)
+	if (pylonTimer.GetDurationInProgress().GetSeconds() > 5.0)
 	{
 		KeepAliveToPylon();
-		tpPylonStartClock = std::chrono::steady_clock::now();
+		pylonTimer.Start();
 	}
 }
 
