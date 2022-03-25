@@ -220,9 +220,7 @@ void CConsole::BasePanel(bool* bDraw)
             std::string svConVar = m_vsvSuggest[m_nSuggestPos].substr(0, m_vsvSuggest[m_nSuggestPos].find(' ')) + " ";
             memmove(m_szInputBuf, svConVar.c_str(), svConVar.size() + 1);
 
-            m_bSuggestActive = false;
-            m_nSuggestPos = -1;
-            m_bReclaimFocus = true;
+            ResetAutoComplete();
         }
         else
         {
@@ -232,9 +230,7 @@ void CConsole::BasePanel(bool* bDraw)
                 memset(m_szInputBuf, '\0', 1);
             }
 
-            m_bSuggestActive = false;
-            m_nSuggestPos = -1;
-            m_bReclaimFocus = true;
+            ResetAutoComplete();
         }
     }
 
@@ -266,9 +262,7 @@ void CConsole::BasePanel(bool* bDraw)
             ProcessCommand(m_szInputBuf);
             memset(m_szInputBuf, '\0', 1);
         }
-        m_bReclaimFocus = true;
-        m_nSuggestPos = -1;
-        m_bSuggestActive = false;
+        ResetAutoComplete();
     }
     ImGui::End();
 }
@@ -333,9 +327,7 @@ void CConsole::SuggestPanel(void)
             std::string svConVar = m_vsvSuggest[i].substr(0, m_vsvSuggest[i].find(' ')) + " ";
             memmove(m_szInputBuf, svConVar.c_str(), svConVar.size() + 1);
 
-            m_bSuggestActive = false;
-            m_nSuggestPos = -1;
-            m_bReclaimFocus = true;
+            ResetAutoComplete();
         }
         ImGui::PopID();
 
@@ -393,12 +385,21 @@ bool CConsole::CanAutoComplete(void)
     // Don't suggest if user tries to assign value to ConVar or execute ConCommand.
     if (strstr(m_szInputBuf, " ") || strstr(m_szInputBuf, ";"))
     {
-        m_bSuggestActive = false;
-        m_nSuggestPos = -1;
+        ResetAutoComplete();
         return false;
     }
     m_bSuggestActive = true;
     return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: resets the autocomplete window
+//-----------------------------------------------------------------------------
+void CConsole::ResetAutoComplete(void)
+{
+    m_bSuggestActive = false;
+    m_nSuggestPos = -1;
+    m_bReclaimFocus = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -641,7 +642,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
         }
     }
     }
-    return 0;
+    return NULL;
 }
 
 //-----------------------------------------------------------------------------

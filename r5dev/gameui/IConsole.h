@@ -61,8 +61,9 @@ public:
     void OptionsPanel(void);
     void SuggestPanel(void);
 
-
     bool CanAutoComplete(void);
+    void ResetAutoComplete(void);
+
     void FindFromPartial(void);
     void ProcessCommand(const char* pszCommand);
 
