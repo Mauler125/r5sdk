@@ -105,6 +105,8 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	{
 		p_CModelLoader__LoadModel.Offset(0x462).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });               // CAL --> NOP | Prevent call to 'CStudioRenderContext::LoadMaterials'.
+		p_CModelLoader__UnloadModel.Offset(0x129).Patch({ 0x90, 0x90, 0x90 });                         // MOV --> NOP | Virtual call to 'CShaderSystem' class method fails as RCX is nullptr.
+		p_CModelLoader__UnloadModel.Offset(0x12C).Patch({ 0x90, 0x90, 0x90 });                         // CAL --> NOP | Virtual call to 'CTexture' class member in RAX + 0x78 fails. Previous instruction could not dereference.
 		p_CModelLoader__Studio_LoadModel.Offset(0x325).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | Virtual call to 'CMaterialSystem::FindMaterialEx' fails as RAX is nullptr.
 		p_CModelLoader__Studio_LoadModel.Offset(0x33D).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | Virtual call to 'CMaterialGlue' class method fails as RAX is nullptr.
 		p_CModelLoader__Studio_LoadModel.Offset(0x359).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });  // CAL --> NOP | Virtual call to 'CMaterialGlue' class method fails as RAX is nullptr.
@@ -123,9 +125,6 @@ void Dedicated_Init()
 		p_CModelLoader__Map_LoadModelGuts.Offset(0xEEB).Patch({ 0xE9, 0x3D, 0x01, 0x00, 0x00 });       // JLE --> JMP | Exception 0x57 in while trying to dereference [R15 + R14 *8 + 0x10].
 		p_CModelLoader__Map_LoadModelGuts.Offset(0x61B).Patch({ 0xE9, 0xE2, 0x02, 0x00, 0x00 });       // JZ  --> JMP | Prevent call to 'CMod_LoadTextures()'.
 		p_CModelLoader__Map_LoadModelGuts.Offset(0x1045).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });      // CAL --> NOP | Prevent call to 'Mod_LoadCubemapSamples()'.
-
-		p_CModelLoader__Map_LoadModelGuts.Offset(0x129).Patch({ 0x90, 0x90, 0x90 });                   // MOV --> NOP | RCX is nullptr during dereference since shadersystem isn't initialized. Exception 'C0000005'.
-		p_CModelLoader__Map_LoadModelGuts.Offset(0x12C).Patch({ 0x90, 0x90, 0x90 });                   // CAL --> NOP | Virtual call to 'CTexture' class member in RAX + 0x78 fails. Previous instruction could not dereference.
 	}
 
 	//-------------------------------------------------------------------------
