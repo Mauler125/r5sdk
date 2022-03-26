@@ -75,19 +75,7 @@ void Console_Init()
 	}
 
 	//-- Set the window title
-	FILE* sBuildTxt;
-	CHAR sBuildBuf[1024] = { 0 };
-
-	fopen_s(&sBuildTxt, "build.txt", "r");
-
-	if (sBuildTxt)
-	{
-		while (fgets(sBuildBuf, sizeof(sBuildBuf), sBuildTxt) != NULL)
-		{
-			fclose(sBuildTxt);
-		}
-	}
-	SetConsoleTitleA(sBuildBuf);
+	SetConsoleTitleA("R5");
 
 	//-- Open input/output streams
 	FILE* fDummy;
