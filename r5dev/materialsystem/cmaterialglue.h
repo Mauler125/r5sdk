@@ -59,7 +59,8 @@ class HCMaterialGlue : public IDetour
 {
 	virtual void debugp()
 	{
-
+		std::cout << "| FUN: CMaterialGlue::GetMaterialAtCrossHair: 0x" << std::hex << std::uppercase << p_GetMaterialAtCrossHair.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////

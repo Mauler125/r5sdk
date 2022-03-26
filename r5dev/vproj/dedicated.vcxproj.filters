@@ -133,6 +133,9 @@
     <Filter Include="sdk\rtech\stryder">
       <UniqueIdentifier>{07362c29-d064-4bdb-97a6-6e3dbcdc8c02}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\materialsystem">
+      <UniqueIdentifier>{3e3725c1-9a0d-44c7-86dc-8e146bb38eca}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\client.h">
@@ -807,6 +810,12 @@
     <ClInclude Include="..\rtech\stryder\stryder.h">
       <Filter>sdk\rtech\stryder</Filter>
     </ClInclude>
+    <ClInclude Include="..\engine\baseserver.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\materialsystem\cmaterialsystem.h">
+      <Filter>sdk\materialsystem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\IVEngineClient.cpp">
@@ -1009,6 +1018,9 @@
     </ClCompile>
     <ClCompile Include="..\rtech\stryder\stryder.cpp">
       <Filter>sdk\rtech\stryder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\baseserver.cpp">
+      <Filter>sdk\engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

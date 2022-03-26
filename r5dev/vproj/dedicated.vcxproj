@@ -139,6 +139,7 @@
     <ClInclude Include="..\core\termutil.h" />
     <ClInclude Include="..\ebisusdk\EbisuSDK.h" />
     <ClInclude Include="..\engine\baseclient.h" />
+    <ClInclude Include="..\engine\baseserver.h" />
     <ClInclude Include="..\engine\cl_main.h" />
     <ClInclude Include="..\engine\cmodel_bsp.h" />
     <ClInclude Include="..\engine\common.h" />
@@ -164,6 +165,7 @@
     <ClInclude Include="..\game\server\gameinterface.h" />
     <ClInclude Include="..\launcher\IApplication.h" />
     <ClInclude Include="..\launcher\prx.h" />
+    <ClInclude Include="..\materialsystem\cmaterialsystem.h" />
     <ClInclude Include="..\mathlib\adler32.h" />
     <ClInclude Include="..\mathlib\bits.h" />
     <ClInclude Include="..\mathlib\color.h" />
@@ -360,6 +362,7 @@
     <ClCompile Include="..\core\termutil.cpp" />
     <ClCompile Include="..\ebisusdk\EbisuSDK.cpp" />
     <ClCompile Include="..\engine\baseclient.cpp" />
+    <ClCompile Include="..\engine\baseserver.cpp" />
     <ClCompile Include="..\engine\cmodel_bsp.cpp" />
     <ClCompile Include="..\engine\common.cpp" />
     <ClCompile Include="..\engine\host_cmd.cpp" />

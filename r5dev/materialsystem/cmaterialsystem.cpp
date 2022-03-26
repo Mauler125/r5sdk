@@ -6,7 +6,7 @@
 #include "core/stdafx.h"
 #include "tier0/cvar.h"
 #include "engine/sys_utils.h"
-#include "materialsystem/materialsystem.h"
+#include "materialsystem/cmaterialsystem.h"
 
 //---------------------------------------------------------------------------------
 // Purpose: loads and processes STBSP files

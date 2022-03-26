@@ -18,7 +18,7 @@
 #include "game/server/fairfight_impl.h"
 #include "rtech/rtech_game.h"
 #include "client/cdll_engine_int.h"
-#include "materialsystem/materialsystem.h"
+#include "materialsystem/cmaterialsystem.h"
 #include "studiorender/studiorendercontext.h"
 #include "squirrel/sqvm.h"
 #include "bsplib/bsplib.h"

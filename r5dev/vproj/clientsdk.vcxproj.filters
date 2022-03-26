@@ -369,7 +369,7 @@
     <ClCompile Include="..\engine\modelloader.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
-    <ClCompile Include="..\materialsystem\materialsystem.cpp">
+    <ClCompile Include="..\materialsystem\cmaterialsystem.cpp">
       <Filter>sdk\materialsystem</Filter>
     </ClCompile>
     <ClCompile Include="..\materialsystem\cmaterialglue.cpp">
@@ -917,7 +917,7 @@
     <ClInclude Include="..\mathlib\color.h">
       <Filter>sdk\mathlib</Filter>
     </ClInclude>
-    <ClInclude Include="..\materialsystem\materialsystem.h">
+    <ClInclude Include="..\materialsystem\cmaterialsystem.h">
       <Filter>sdk\materialsystem</Filter>
     </ClInclude>
     <ClInclude Include="..\engine\debugoverlay.h">

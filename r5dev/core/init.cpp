@@ -26,7 +26,8 @@
 #include "vphysics/QHull.h"
 #include "bsplib/bsplib.h"
 #ifndef DEDICATED
-#include "materialsystem/materialsystem.h"
+#include "materialsystem/cmaterialsystem.h"
+#include "materialsystem/cmaterialglue.h"
 #include "vgui/vgui_baseui_interface.h"
 #include "vgui/vgui_debugpanel.h"
 #include "vgui/vgui_fpspanel.h"
