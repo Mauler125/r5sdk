@@ -163,7 +163,12 @@ FORCEINLINE void CHostState::Setup(void) const
 		HNET_GenerateKey();
 	}
 
-	snprintf(const_cast<char*>(m_levelName), sizeof(m_levelName), "no_map");
+#ifdef DEDICATED
+	const char* szNoMap = "server_idle";
+#else // DEDICATED
+	const char* szNoMap = "main_menu";
+#endif
+	snprintf(const_cast<char*>(m_levelName), sizeof(m_levelName), szNoMap);
 }
 
 //-----------------------------------------------------------------------------
@@ -247,7 +252,12 @@ FORCEINLINE void CHostState::GameShutDown(void)
 		g_pServerGameDLL->GameShutdown();
 #endif // !GAMECLIENTONLY
 		m_bActiveGame = 0;
-		snprintf(const_cast<char*>(m_levelName), sizeof(m_levelName), "no_map");
+#ifdef DEDICATED
+		const char* szNoMap = "server_idle";
+#else // DEDICATED
+		const char* szNoMap = "main_menu";
+#endif
+		snprintf(const_cast<char*>(m_levelName), sizeof(m_levelName), szNoMap);
 	}
 }
 
