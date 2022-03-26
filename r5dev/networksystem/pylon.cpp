@@ -29,7 +29,6 @@ void KeepAliveToPylon()
 		std::string m_szHostToken = std::string();
 		std::string m_szHostRequestMessage = std::string();
 
-		DevMsg(eDLL_T::SERVER, "Sending PostServerHost request\n");
 		bool result = g_pR5net->PostServerHost(m_szHostRequestMessage, m_szHostToken,
 			ServerListing{
 				hostname->GetString(),

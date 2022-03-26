@@ -640,16 +640,18 @@ void IBrowser::UpdateHostingStatus(void)
 void IBrowser::SendHostingPostRequest(void)
 {
 #ifndef GAMECLIENTONLY
+    static ConVar* hostport = g_pCVar->FindVar("hostport");
+    static ConVar* mp_gamemode = g_pCVar->FindVar("mp_gamemode");
+
     m_szHostToken = std::string();
-    DevMsg(eDLL_T::CLIENT, "Sending PostServerHost request\n");
     bool result = g_pR5net->PostServerHost(m_szHostRequestMessage, m_szHostToken,
         ServerListing
         {
-            m_Server.svServerName,
+            m_Server.svServerName.c_str(),
             std::string(g_pHostState->m_levelName),
             "",
-            g_pCVar->FindVar("hostport")->GetString(),
-            g_pCVar->FindVar("mp_gamemode")->GetString(),
+            hostport->GetString(),
+            mp_gamemode->GetString(),
             m_Server.bHidden,
             std::to_string(*g_nClientRemoteChecksum),
 

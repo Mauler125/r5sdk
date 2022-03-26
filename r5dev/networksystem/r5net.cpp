@@ -21,17 +21,18 @@ std::vector<ServerListing> R5Net::Client::GetServersList(std::string& svOutMessa
 {
     std::vector<ServerListing> vslList{};
 
-    nlohmann::json jsReqBody = nlohmann::json::object();
-    jsReqBody["version"] = GetSDKVersion();
+    nlohmann::json jsRequestBody = nlohmann::json::object();
+    jsRequestBody["version"] = GetSDKVersion();
 
-    std::string reqBodyStr = jsReqBody.dump();
+    std::string svRequestBody = jsRequestBody.dump(4);
 
     if (r5net_show_debug->GetBool())
     {
        DevMsg(eDLL_T::ENGINE, "Sending GetServerList post.\n");
+       DevMsg(eDLL_T::ENGINE, "%s - Sending server list request to comp-server:\n%s\n", __FUNCTION__, svRequestBody.c_str());
     }
 
-    httplib::Result htResults = m_HttpClient.Post("/servers", jsReqBody.dump().c_str(), jsReqBody.dump().length(), "application/json");
+    httplib::Result htResults = m_HttpClient.Post("/servers", jsRequestBody.dump().c_str(), jsRequestBody.dump().length(), "application/json");
 
     if (htResults && r5net_show_debug->GetBool())
     {
@@ -122,18 +123,18 @@ bool R5Net::Client::PostServerHost(std::string& svOutMessage, std::string& svOut
     jsRequestBody["encKey"] = slServerListing.svEncryptionKey;
     jsRequestBody["hidden"] = slServerListing.bHidden;
 
-    std::string svRequestBody = jsRequestBody.dump();
+    std::string svRequestBody = jsRequestBody.dump(4);
 
     if (r5net_show_debug->GetBool())
     {
-        DevMsg(eDLL_T::ENGINE, "Sending PostServerHost post '%s'.\n", svRequestBody.c_str());
+        DevMsg(eDLL_T::ENGINE, "%s - Sending post host request to comp-server:\n%s\n", __FUNCTION__, svRequestBody.c_str());
     }
 
     httplib::Result htResults = m_HttpClient.Post("/servers/add", svRequestBody.c_str(), svRequestBody.length(), "application/json");
 
     if (htResults && r5net_show_debug->GetBool())
     {
-        DevMsg(eDLL_T::ENGINE, "PostServerHost replied with '%d'.\n", htResults->status);
+        DevMsg(eDLL_T::ENGINE, "%s - Comp-server replied with '%d'\n", __FUNCTION__, htResults->status);
     }
 
     if (htResults && htResults->status == 200) // STATUS_OK
@@ -209,19 +210,20 @@ bool R5Net::Client::PostServerHost(std::string& svOutMessage, std::string& svOut
 bool R5Net::Client::GetServerByToken(ServerListing& slOutServer, std::string& svOutMessage, const std::string svToken)
 {
     nlohmann::json jsRequestBody = nlohmann::json::object();
-
     jsRequestBody["token"] = svToken;
+
+    std::string svRequestBody = jsRequestBody.dump(4);
 
     if (r5net_show_debug->GetBool())
     {
-        DevMsg(eDLL_T::ENGINE, "Sending GetServerByToken post.\n");
+        DevMsg(eDLL_T::ENGINE, "%s - Sending token connect request to comp-server:\n%s\n", __FUNCTION__, svRequestBody.c_str());
     }
 
     httplib::Result htResults = m_HttpClient.Post("/server/byToken", jsRequestBody.dump().c_str(), jsRequestBody.dump().length(), "application/json");
 
     if (r5net_show_debug->GetBool())
     {
-        DevMsg(eDLL_T::ENGINE, "GetServerByToken replied with '%d'\n", htResults->status);
+        DevMsg(eDLL_T::ENGINE, "%s - Comp-server replied with '%d'\n", __FUNCTION__, htResults->status);
     }
 
     if (htResults && htResults->status == 200) // STATUS_OK

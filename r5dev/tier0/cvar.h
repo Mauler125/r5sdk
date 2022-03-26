@@ -107,7 +107,7 @@ extern ConVar* r5net_matchmaking_hostname;
 extern ConVar* r5net_show_debug;
 //-----------------------------------------------------------------------------
 // RTECH API                                                                  |
-
+//-----------------------------------------------------------------------------
 // RUI                                                                        |
 #ifndef DEDICATED
 extern ConVar* rui_drawEnable;

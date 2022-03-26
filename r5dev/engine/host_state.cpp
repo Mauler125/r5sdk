@@ -94,7 +94,6 @@ FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 			}
 			case HostStates_t::HS_RUN:
 			{
-				g_pHostState->Think();
 				State_RunFn(&g_pHostState->m_iCurrentState, nullptr, time);
 				break;
 			}
@@ -153,6 +152,9 @@ FORCEINLINE void CHostState::Setup(void) const
 	g_pRConClient->Init();
 #endif // DEDICATED
 
+	std::thread t1(&CHostState::Think, this);
+	t1.detach();
+
 	*reinterpret_cast<bool*>(m_bRestrictServerCommands) = true; // Restrict commands.
 	ConCommandBase* disconnect = g_pCVar->FindCommandBase("disconnect");
 	disconnect->AddFlags(FCVAR_SERVER_CAN_EXECUTE); // Make sure server is not restricted to this.
@@ -182,33 +184,40 @@ FORCEINLINE void CHostState::Think(void) const
 	static CFastTimer statsTimer;
 	static ConVar* hostname = g_pCVar->FindVar("hostname");
 
-	if (!bInitialized) // Initialize clocks.
+	for (;;) // Loop running at 20-tps.
 	{
-		banListTimer.Start();
-		pylonTimer.Start();
-		statsTimer.Start();
+		if (!bInitialized) // Initialize clocks.
+		{
+			banListTimer.Start();
+#ifdef DEDICATED
+			pylonTimer.Start();
+#endif // DEDICATED
+			statsTimer.Start();
+			bInitialized = true;
+		}
 
-		bInitialized = true;
-	}
+		if (banListTimer.GetDurationInProgress().GetSeconds() > 1.0)
+		{
+			g_pBanSystem->BanListCheck();
+			banListTimer.Start();
+		}
+#ifdef DEDICATED
+		if (pylonTimer.GetDurationInProgress().GetSeconds() > 5.0)
+		{
+			KeepAliveToPylon();
+			pylonTimer.Start();
+		}
+#endif // DEDICATED
+		if (statsTimer.GetDurationInProgress().GetSeconds() > 1.0)
+		{
+			std::string svCurrentPlaylist = KeyValues_GetCurrentPlaylist();
+			std::int64_t nPlayerCount = g_pServer->GetNumHumanPlayers();
 
-	if (banListTimer.GetDurationInProgress().GetSeconds() > 1.0)
-	{
-		g_pBanSystem->BanListCheck();
-		banListTimer.Start();
-	}
-	if (pylonTimer.GetDurationInProgress().GetSeconds() > 5.0)
-	{
-		KeepAliveToPylon();
-		pylonTimer.Start();
-	}
-	if (statsTimer.GetDurationInProgress().GetSeconds() > 1.0)
-	{
-		std::string svCurrentPlaylist = KeyValues_GetCurrentPlaylist();
-		std::int64_t nPlayerCount = g_pServer->GetNumHumanPlayers();
-
-		SetConsoleTitleA(fmt::format("{} - {}/{} Players ({} on {})", 
-			hostname->GetString(), nPlayerCount, g_ServerGlobalVariables->m_nMaxClients, svCurrentPlaylist.c_str(), m_levelName).c_str());
-		statsTimer.Start();
+			SetConsoleTitleA(fmt::format("{} - {}/{} Players ({} on {})",
+				hostname->GetString(), nPlayerCount, g_ServerGlobalVariables->m_nMaxClients, svCurrentPlaylist.c_str(), m_levelName).c_str());
+			statsTimer.Start();
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
 }
 
