@@ -15,12 +15,12 @@
 
 //---------------------------------------------------------------------------------
 // Purpose: Gets the number of human players on the server
-// Output : 
+// Output : int64_t
 // !TODO  : Rebuild properly..
 //---------------------------------------------------------------------------------
 int64_t CBaseServer::GetNumHumanPlayers(void) const
 {
-    uint32_t nHumans = 0;
+    uint32_t nHumans = 0i64;
     if (SHIDWORD(*g_dwMaxClients) > 0)
     {
         bool v13 = false;
@@ -46,12 +46,24 @@ int64_t CBaseServer::GetNumHumanPlayers(void) const
 
 //---------------------------------------------------------------------------------
 // Purpose: Gets the number of fake clients on the server
-// Output : 
+// Output : int64_t
+// !TODO  : Rebuild properly..
 //---------------------------------------------------------------------------------
 int64_t CBaseServer::GetNumFakeClients(void) const
 {
-    // !TODO: Needs partial CBaseClient class rebuild.
-    return NULL;
+    int nBots = 0i64;
+    if (SHIDWORD(*g_dwMaxClients) > 0)
+    {
+        int32_t* v16 = reinterpret_cast<int*>(&*m_Clients); // CUtlVector<CBaseClient*> m_Clients.
+        int64_t nBotCount = HIDWORD(*g_dwMaxClients);
+        do
+        {
+            if (*(v16 - 124) >= 2 && *v16)
+                nBots = (nBots + 1);
+            v16 += 76080;
+            --nBotCount;
+        }     while (nBotCount);
+    }
 }
 
 CBaseServer* g_pServer = new CBaseServer(); // !TODO: Replace with engine global if found.
