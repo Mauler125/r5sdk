@@ -12,7 +12,7 @@
 #include <mathlib/color.h>
 #include <vgui/vgui_debugpanel.h>
 #include <vguimatsurface/MatSystemSurface.h>
-#include <materialsystem/materialsystem.h>
+#include <materialsystem/cmaterialsystem.h>
 #include <engine/debugoverlay.h>
 #include <engine/baseclientstate.h>
 #include <server/server.h>
