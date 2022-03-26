@@ -171,10 +171,10 @@ FORCEINLINE void CHostState::Setup(void) const
 //-----------------------------------------------------------------------------
 FORCEINLINE void CHostState::Think(void) const
 {
+	static bool bInitialized = false;
 	static CFastTimer banListTimer;
 	static CFastTimer pylonTimer;
 	static CFastTimer statsTimer;
-	static bool bInitialized = false;
 	static ConVar* hostname = g_pCVar->FindVar("hostname");
 
 	if (!bInitialized) // Initialize clocks.

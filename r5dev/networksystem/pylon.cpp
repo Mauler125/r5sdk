@@ -22,16 +22,21 @@ void KeepAliveToPylon()
 {
 	if (g_pHostState->m_bActiveGame && sv_pylonvisibility->GetBool()) // Check for active game.
 	{
+		static ConVar* hostname = g_pCVar->FindVar("hostname");
+		static ConVar* hostport = g_pCVar->FindVar("hostport");
+		static ConVar* mp_gamemode = g_pCVar->FindVar("mp_gamemode");
+
 		std::string m_szHostToken = std::string();
 		std::string m_szHostRequestMessage = std::string();
+
 		DevMsg(eDLL_T::SERVER, "Sending PostServerHost request\n");
 		bool result = g_pR5net->PostServerHost(m_szHostRequestMessage, m_szHostToken,
 			ServerListing{
-				g_pCVar->FindVar("hostname")->GetString(),
+				hostname->GetString(),
 				std::string(g_pHostState->m_levelName),
 				"",
-				g_pCVar->FindVar("hostport")->GetString(),
-				g_pCVar->FindVar("mp_gamemode")->GetString(),
+				hostport->GetString(),
+				mp_gamemode->GetString(),
 				false,
 				std::to_string(*g_nServerRemoteChecksum),
 				std::string(),
