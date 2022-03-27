@@ -91,7 +91,7 @@ FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 			case HostStates_t::HS_CHANGE_LEVEL_MP:
 			{
 				g_pHostState->State_ChangeLevelMP();
-				g_pHostState->UnloadPakFile(); // Unload our loaded rpaks. Calling this before the actual level change happens kills the game.
+				g_pHostState->UnloadPakFile();
 				break;
 			}
 			case HostStates_t::HS_RUN:
@@ -103,9 +103,9 @@ FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 			{
 				DevMsg(eDLL_T::ENGINE, "%s - Shutdown host game\n", "CHostState::FrameUpdate");
 
-				g_pHostState->UnloadPakFile();
 				g_bLevelResourceInitialized = false;
 				Host_Game_ShutdownFn(g_pHostState);
+				g_pHostState->UnloadPakFile(); 
 				break;
 			}
 			case HostStates_t::HS_RESTART:
