@@ -100,9 +100,9 @@ namespace
 	//-------------------------------------------------------------------------
 	// RUNTIME: S2C_CHALLENGE
 	//-------------------------------------------------------------------------
-#ifndef GAMECLIENTONLY
+#ifndef CLIENT_DLL
 	ADDRESS Server_S2C_CONNECT_1 = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x3B\x05\x00\x00\x00\x00\x74\x0C", "xxx????xx");
-#endif // !GAMECLIENTONLY
+#endif // !CLIENT_DLL
 
 	//-------------------------------------------------------------------------
 	// .RDATA

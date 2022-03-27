@@ -3,9 +3,9 @@
 #include "launcher/IApplication.h"
 #endif // !DEDICATED
 #include "public/include/globalvars_base.h"
-#ifndef GAMECLIENTONLY
+#ifndef CLIENT_DLL
 #include "engine/sv_main.h"
-#endif // !GAMECLIENTONLY
+#endif // !CLIENT_DLL
 
 
 //-----------------------------------------------------------------------------
@@ -40,9 +40,9 @@ public:
 
 namespace
 {
-#ifndef GAMECLIENTONLY
+#ifndef CLIENT_DLL
 	CGlobalVars* g_ServerGlobalVariables = p_SV_InitGameDLL.Offset(0x0).FindPatternSelf("48 8D ?? ?? ?? ?? 01", ADDRESS::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CGlobalVars*>();
-#endif // !GAMECLIENTONLY
+#endif // !CLIENT_DLL
 #ifndef DEDICATED
 	CGlobalVarsBase* g_ClientGlobalVariables = p_CModAppSystemGroup_Create.Offset(0x0).FindPatternSelf("4C 8D ?? ?? ?? ?? 01", ADDRESS::Direction::DOWN, 8000).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CGlobalVarsBase*>();
 #endif // !DEDICATED
@@ -53,9 +53,9 @@ class HEdict : public IDetour
 {
 	virtual void debugp()
 	{
-#ifndef GAMECLIENTONLY
+#ifndef CLIENT_DLL
 		std::cout << "| VAR: g_ServerGlobalVariables              : 0x" << std::hex << std::uppercase << g_ServerGlobalVariables << std::setw(0) << " |" << std::endl;
-#endif // !GAMECLIENTONLY
+#endif // !CLIENT_DLL
 #ifndef DEDICATED
 		std::cout << "| VAR: g_ClientGlobalVariables              : 0x" << std::hex << std::uppercase << g_ClientGlobalVariables << std::setw(0) << " |" << std::endl;
 #endif // !DEDICATED

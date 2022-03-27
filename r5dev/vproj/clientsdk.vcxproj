@@ -420,7 +420,7 @@
       </DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalOptions>/D GAMESDK /D GAMECLIENTONLY /D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D GAMESDK /D CLIENT_DLL /D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -460,7 +460,7 @@
       <CreateHotpatchableImage>
       </CreateHotpatchableImage>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalOptions>/D GAMESDK /D GAMECLIENTONLY /D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D GAMESDK /D CLIENT_DLL /D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

@@ -23,9 +23,9 @@
 #include "engine/sys_engine.h"
 #include "engine/sys_utils.h"
 #include "engine/cmodel_bsp.h"
-#ifndef GAMECLIENTONLY
+#ifndef CLIENT_DLL
 #include "engine/baseserver.h"
-#endif // !GAMECLIENTONLY
+#endif // !CLIENT_DLL
 #include "rtech/rtech_game.h"
 #ifndef DEDICATED
 #include "vgui/vgui_baseui_interface.h"
@@ -34,9 +34,9 @@
 #include "networksystem/pylon.h"
 #include "public/include/bansystem.h"
 #include "public/include/edict.h"
-#ifndef GAMECLIENTONLY
+#ifndef CLIENT_DLL
 #include "game/server/gameinterface.h"
-#endif // !GAMECLIENTONLY
+#endif // !CLIENT_DLL
 
 bool g_bLevelResourceInitialized = false;
 //-----------------------------------------------------------------------------
@@ -66,9 +66,9 @@ FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 	}
 	else
 	{
-#ifndef GAMECLIENTONLY
+#ifndef CLIENT_DLL
 		*g_ServerAbortServer = true;
-#endif // !GAMECLIENTONLY
+#endif // !CLIENT_DLL
 		do
 		{
 			Cbuf_Execute();
@@ -257,9 +257,9 @@ FORCEINLINE void CHostState::GameShutDown(void)
 	g_bLevelResourceInitialized = false;
 	if (m_bActiveGame)
 	{
-#ifndef GAMECLIENTONLY
+#ifndef CLIENT_DLL
 		g_pServerGameDLL->GameShutdown();
-#endif // !GAMECLIENTONLY
+#endif // !CLIENT_DLL
 		m_bActiveGame = 0;
 #ifdef DEDICATED
 		const char* szNoMap = "server_idle";
@@ -356,9 +356,9 @@ FORCEINLINE void CHostState::State_ChangeLevelMP(void)
 	m_flShortFrameTime = 0.5; // Set frame time.
 	g_bLevelResourceInitialized = false;
 
-#ifndef GAMECLIENTONLY
+#ifndef CLIENT_DLL
 	g_pServerGameDLL->LevelShutdown();
-#endif // !GAMECLIENTONLY
+#endif // !CLIENT_DLL
 	if (CModelLoader_Map_IsValidFn(g_CModelLoader, m_levelName)) // Check if map is valid and if we can start a new game.
 	{
 #ifndef DEDICATED

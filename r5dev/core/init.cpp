@@ -36,10 +36,10 @@
 #endif // !DEDICATED
 #include "client/client.h"
 #include "client/IVEngineClient.h"
-#ifndef GAMECLIENTONLY
+#ifndef CLIENT_DLL
 #include "server/server.h"
 #include "server/IVEngineServer.h"
-#endif // !GAMECLIENTONLY
+#endif // !CLIENT_DLL
 #include "squirrel/sqinit.h"
 #include "squirrel/sqapi.h"
 #include "squirrel/sqvm.h"
@@ -50,9 +50,9 @@
 #include "rtech/rui/rui.h"
 #endif // !DEDICATED
 #include "engine/baseclient.h"
-#ifndef GAMECLIENTONLY
+#ifndef CLIENT_DLL
 #include "engine/baseserver.h"
-#endif // !GAMECLIENTONLY
+#endif // !CLIENT_DLL
 #include "engine/common.h"
 #include "engine/cmodel_bsp.h"
 #include "engine/host_cmd.h"
@@ -61,9 +61,9 @@
 #include "engine/net.h"
 #include "engine/net_chan.h"
 #include "engine/cl_main.h"
-#ifndef GAMECLIENTONLY
+#ifndef CLIENT_DLL
 #include "engine/sv_main.h"
-#endif // !GAMECLIENTONLY
+#endif // !CLIENT_DLL
 #include "engine/sys_dll.h"
 #include "engine/sys_dll2.h"
 #include "engine/sys_engine.h"
@@ -74,7 +74,7 @@
 #ifndef DEDICATED
 #include "engine/debugoverlay.h"
 #endif // !DEDICATED
-#ifndef GAMECLIENTONLY
+#ifndef CLIENT_DLL
 #include "game/server/ai_node.h"
 #include "game/server/ai_network.h"
 #include "game/server/ai_networkmanager.h"
@@ -83,7 +83,7 @@
 #include "game/server/fairfight_impl.h"
 #include "game/server/gameinterface.h"
 #include "public/include/edict.h"
-#endif // !GAMECLIENTONLY
+#endif // !CLIENT_DLL
 #ifndef DEDICATED
 #include "inputsystem/inputsystem.h"
 #include "windows/id3dx.h"
@@ -135,9 +135,9 @@ void Systems_Init()
 	CHLClient_Attach();
 #endif // !DEDICATED
 
-#if !defined(GAMECLIENTONLY) && defined (GAMEDLL_S3)
+#if !defined(CLIENT_DLL) && defined (GAMEDLL_S3)
 	CServer_Attach(); // S1 and S2 CServer functions require work.
-#endif // !GAMECLIENTONLY && GAMEDLL_S3
+#endif // !CLIENT_DLL && GAMEDLL_S3
 
 // !TEMP UNTIL CHOSTSTATE IS BUILD AGNOSTIC! //
 #if defined (DEDICATED) || defined (GAMEDLL_S3)
@@ -150,9 +150,9 @@ void Systems_Init()
 	IConVar_Attach();
 	CKeyValueSystem_Attach();
 
-#ifndef GAMECLIENTONLY
+#ifndef CLIENT_DLL
 	IVEngineServer_Attach();
-#endif // !GAMECLIENTONLY
+#endif // !CLIENT_DLL
 
 	SQAPI_Attach();
 	SQVM_Attach();
@@ -170,10 +170,10 @@ void Systems_Init()
 	//DebugOverlays_Attach();
 #endif // !DEDICATED
 
-#ifndef GAMECLIENTONLY
+#ifndef CLIENT_DLL
 	CAI_Utility_Attach();
 	CAI_NetworkManager_Attach();
-#endif // !#ifndef GAMECLIENTONLY
+#endif // !#ifndef CLIENT_DLL
 	// Patch instructions
 	RuntimePtc_Init();
 
@@ -236,9 +236,9 @@ void Systems_Shutdown()
 	CHLClient_Detach();
 #endif // !DEDICATED
 
-#if !defined(GAMECLIENTONLY) && defined (GAMEDLL_S3)
+#if !defined(CLIENT_DLL) && defined (GAMEDLL_S3)
 	CServer_Detach(); // S1 and S2 CServer functions require work.
-#endif // !GAMECLIENTONLY && GAMEDLL_S3
+#endif // !CLIENT_DLL && GAMEDLL_S3
 
 // !TEMP UNTIL CHOSTSTATE IS BUILD AGNOSTIC! //
 #if defined (DEDICATED) || defined (GAMEDLL_S3)
@@ -251,9 +251,9 @@ void Systems_Shutdown()
 	IConVar_Detach();
 	CKeyValueSystem_Detach();
 
-#ifndef GAMECLIENTONLY
+#ifndef CLIENT_DLL
 	IVEngineServer_Detach();
-#endif // !GAMECLIENTONLY
+#endif // !CLIENT_DLL
 	SQAPI_Detach();
 	SQVM_Detach();
 
@@ -270,10 +270,10 @@ void Systems_Shutdown()
 	//DebugOverlays_Detach();
 #endif // !DEDICATED
 
-#ifndef GAMECLIENTONLY
+#ifndef CLIENT_DLL
 	CAI_Utility_Detach();
 	CAI_NetworkManager_Detach();
-#endif // !GAMECLIENTONLY
+#endif // !CLIENT_DLL
 
 	// Commit the transaction
 	DetourTransactionCommit();

@@ -60,7 +60,7 @@ IBrowser::IBrowser(void)
         m_vszMapFileNameList.push_back(filename);
     }
 
-#ifndef GAMECLIENTONLY
+#ifndef CLIENT_DLL
     static std::thread hostingServerRequestThread([this]()
     {
         while (true)
@@ -71,7 +71,7 @@ IBrowser::IBrowser(void)
     });
 
     hostingServerRequestThread.detach();
-#endif // !GAMECLIENTONLY
+#endif // !CLIENT_DLL
 
     /* Obtain handle to module */
     static HGLOBAL rcData = NULL;
@@ -159,12 +159,12 @@ void IBrowser::CompMenu(void)
     {
         SetSection(eSection::SERVER_BROWSER);
     }
-#ifndef GAMECLIENTONLY
+#ifndef CLIENT_DLL
     if (ImGui::TabItemButton("Host Server"))
     {
         SetSection(eSection::HOST_SERVER);
     }
-#endif // !GAMECLIENTONLY
+#endif // !CLIENT_DLL
     if (ImGui::TabItemButton("Settings"))
     {
         SetSection(eSection::SETTINGS);
@@ -335,7 +335,7 @@ void IBrowser::ConnectToServer(const std::string& svServer, const std::string& s
 //-----------------------------------------------------------------------------
 void IBrowser::LaunchServer(void)
 {
-#ifndef GAMECLIENTONLY
+#ifndef CLIENT_DLL
     DevMsg(eDLL_T::ENGINE, "Starting Server with name '%s', map '%s' and playlist '%s'\n", m_Server.svServerName.c_str(), m_Server.svMapName.c_str(), m_Server.svPlaylist.c_str());
 
     /*
@@ -353,7 +353,7 @@ void IBrowser::LaunchServer(void)
     std::stringstream cmd;
     cmd << "map " << m_Server.svMapName;
     ProcessCommand(cmd.str().c_str());
-#endif // !GAMECLIENTONLY
+#endif // !CLIENT_DLL
 }
 
 //-----------------------------------------------------------------------------
@@ -426,7 +426,7 @@ void IBrowser::HiddenServersModal(void)
 //-----------------------------------------------------------------------------
 void IBrowser::HostServerSection(void)
 {
-#ifndef GAMECLIENTONLY
+#ifndef CLIENT_DLL
     static std::string svServerNameErr = "";
 
     ImGui::InputTextWithHint("##ServerHost_ServerName", "Server Name (Required)", &m_Server.svServerName);
@@ -577,7 +577,7 @@ void IBrowser::HostServerSection(void)
             CKeyValueSystem_InitPlaylist(); // Re-Init playlist.
         }
     }
-#endif // !GAMECLIENTONLY
+#endif // !CLIENT_DLL
 }
 
 //-----------------------------------------------------------------------------
@@ -585,7 +585,7 @@ void IBrowser::HostServerSection(void)
 //-----------------------------------------------------------------------------
 void IBrowser::UpdateHostingStatus(void)
 {
-#ifndef GAMECLIENTONLY
+#ifndef CLIENT_DLL
     if (!g_pHostState || !g_pCVar)
     {
         return;
@@ -631,7 +631,7 @@ void IBrowser::UpdateHostingStatus(void)
     default:
         break;
     }
-#endif // !GAMECLIENTONLY
+#endif // !CLIENT_DLL
 }
 
 //-----------------------------------------------------------------------------
@@ -639,7 +639,7 @@ void IBrowser::UpdateHostingStatus(void)
 //-----------------------------------------------------------------------------
 void IBrowser::SendHostingPostRequest(void)
 {
-#ifndef GAMECLIENTONLY
+#ifndef CLIENT_DLL
     static ConVar* hostport = g_pCVar->FindVar("hostport");
     static ConVar* mp_gamemode = g_pCVar->FindVar("mp_gamemode");
 
@@ -676,7 +676,7 @@ void IBrowser::SendHostingPostRequest(void)
     {
         m_iv4HostRequestMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
     }
-#endif // !GAMECLIENTONLY
+#endif // !CLIENT_DLL
 }
 
 //-----------------------------------------------------------------------------
