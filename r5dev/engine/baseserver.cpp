@@ -12,35 +12,26 @@
 #include "common/protocol.h"
 #include "engine/baseserver.h"
 #include "engine/baseclient.h"
+#include "public/include/edict.h"
 
 //---------------------------------------------------------------------------------
 // Purpose: Gets the number of human players on the server
 // Output : int64_t
 // !TODO  : Rebuild properly..
 //---------------------------------------------------------------------------------
-int64_t CBaseServer::GetNumHumanPlayers(void) const
+int CBaseServer::GetNumHumanPlayers(void) const
 {
-    uint32_t nHumans = 0i64;
-    if (SHIDWORD(*g_dwMaxClients) > 0)
+    int nHumans = 0;
+    for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
     {
-        bool v13 = false;
-        uint32_t v14 = 0;
-        int32_t* v11 = reinterpret_cast<int*>(&*m_Clients); // CUtlVector<CBaseClient*> m_Clients.
-        int64_t nHumanCount = HIDWORD(*g_dwMaxClients);
-        do
-        {
-            if (*(v11 - 124) >= static_cast<int>(SIGNONSTATE::SIGNONSTATE_CONNECTED)) // m_Client[i]->IsConnected().
-                v13 = *v11 == 0;
-            else
-                v13 = 0;
-            v14 = nHumans + 1;
-            if (!v13)
-                v14 = nHumans;
-            v11 += 0x12930;
-            nHumans = v14;
-            --nHumanCount;
-        }     while (nHumanCount);
+        CBaseClient* client = g_pClient->GetClient(i);
+        if (!client)
+            continue;
+
+        if (client->IsConnected())
+            nHumans++;
     }
+
     return nHumans;
 }
 
@@ -49,21 +40,20 @@ int64_t CBaseServer::GetNumHumanPlayers(void) const
 // Output : int64_t
 // !TODO  : Rebuild properly..
 //---------------------------------------------------------------------------------
-int64_t CBaseServer::GetNumFakeClients(void) const
+int CBaseServer::GetNumFakeClients(void) const
 {
-    int nBots = 0i64;
-    if (SHIDWORD(*g_dwMaxClients) > 0)
+    int nBots = 0;
+    for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
     {
-        int32_t* v16 = reinterpret_cast<int*>(&*m_Clients); // CUtlVector<CBaseClient*> m_Clients.
-        int64_t nBotCount = HIDWORD(*g_dwMaxClients);
-        do
-        {
-            if (*(v16 - 124) >= 2 && *v16)
-                nBots = (nBots + 1);
-            v16 += 76080;
-            --nBotCount;
-        }     while (nBotCount);
+        CBaseClient* client = g_pClient->GetClient(i);
+        if (!client)
+            continue;
+
+        if (client->IsConnected() && client->IsFakeClient())
+            nBots++;
     }
+
+    return nBots;
 }
 
 CBaseServer* g_pServer = new CBaseServer(); // !TODO: Replace with engine global if found.

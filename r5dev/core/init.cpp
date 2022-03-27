@@ -110,7 +110,6 @@ void Systems_Init()
 	{
 		std::cerr << "Failed to start Winsock via WSAStartup: (" << NET_ErrorString(WSAGetLastError()) << ")" << std::endl;
 	}
-
 	// Begin the detour transaction to hook the the process
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());

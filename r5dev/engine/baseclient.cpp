@@ -10,13 +10,14 @@
 ///////////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
 #include "engine/baseclient.h"
+#include "engine/baseserver.h"
 
 //---------------------------------------------------------------------------------
 // Purpose: gets the client from buffer by index
 //---------------------------------------------------------------------------------
 CBaseClient* CBaseClient::GetClient(int nIndex) const
 {
-	return (CBaseClient*)(std::uintptr_t)(g_pClientBuffer.GetPtr() + (nIndex * g_dwCClientSize));
+	return (CBaseClient*)(std::uintptr_t)(g_pClientBuffer.GetPtr() + (nIndex * sizeof(CBaseClient)));
 }
 
 //---------------------------------------------------------------------------------
@@ -24,7 +25,7 @@ CBaseClient* CBaseClient::GetClient(int nIndex) const
 //---------------------------------------------------------------------------------
 int32_t CBaseClient::GetUserID(void) const
 {
-	return m_UserID;
+	return m_nUserID;
 }
 
 //---------------------------------------------------------------------------------
@@ -32,7 +33,7 @@ int32_t CBaseClient::GetUserID(void) const
 //---------------------------------------------------------------------------------
 int64_t CBaseClient::GetOriginID(void) const
 {
-	return m_OriginID;
+	return m_nOriginID;
 }
 
 //---------------------------------------------------------------------------------
@@ -64,7 +65,7 @@ void* CBaseClient::GetNetChan(void) const
 //---------------------------------------------------------------------------------
 void CBaseClient::SetUserID(int32_t nUserID)
 {
-	m_UserID = nUserID;
+	m_nUserID = nUserID;
 }
 
 //---------------------------------------------------------------------------------
@@ -72,7 +73,7 @@ void CBaseClient::SetUserID(int32_t nUserID)
 //---------------------------------------------------------------------------------
 void CBaseClient::SetOriginID(int64_t nOriginID)
 {
-	m_OriginID = nOriginID;
+	m_nOriginID = nOriginID;
 }
 
 //---------------------------------------------------------------------------------

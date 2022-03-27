@@ -1,6 +1,8 @@
 #pragma once
 #include "server/IVEngineServer.h"
 
+// PLEASE REMOVE AND FULLY MIGRATE TO CBASECLIENT!
+
 //-----------------------------------------------------------------------------
 // Forward declarations
 //-----------------------------------------------------------------------------

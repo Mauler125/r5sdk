@@ -2,6 +2,8 @@
 #include "client/client.h"
 #include "common/protocol.h"
 
+class CBaseServer;
+
 class CBaseClient
 {
 public:
@@ -27,22 +29,30 @@ public:
 	static void* Clear(CBaseClient* pBaseClient);
 
 private:
-	char pad_0000[0x10];               //0x0000
-	int32_t m_UserID;                  //0x0010
-	char pad_0014[0x38C];              //0x0014
-	void* m_NetChannel;                //0x03A0
-	char pad_03A8[0x8];                //0x03A8
-	SIGNONSTATE m_nSignonState;        //0x03B0
-	char pad_03B4[0x4];                //0x03B4
-	int64_t m_OriginID;                //0x03B8
-	char pad_03C0[0x1D8];              //0x03C0
-#if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	int64_t pad_0598;                  //0x0598
-#endif
-	bool m_bFakePlayer;                //0x05A0
-	char pad_05A4[0x18];               //0x05A4
-	PERSISTENCE m_nPersistenceState;   //0x05BC
-	char pad_05C0[g_dwCClientPadding]; //0x05C0
+	// [ PIXIE ]: AMOS PLEASE VERIFY STRUCT INTEGRITY FOR EARLIER SEASONS. THERE WAS A PADDING AFTER ORIGINID BEFORE.
+	char pad_0000[16]; //0x0000
+	std::int32_t m_nUserID; //0x0010
+	char pad_0014[844]; //0x0014
+	void* m_ConVars; //0x0360
+	char pad_0368[8]; //0x0368
+	CBaseServer* m_Server; //0x0370
+	char pad_0378[40]; //0x0378
+	void* m_NetChannel; //0x03A0
+	char pad_03A8[8]; //0x03A8
+	SIGNONSTATE m_nSignonState; //0x03B0
+	std::int32_t m_nDeltaTick; //0x03B4
+	std::int64_t m_nOriginID; //0x03B8
+	char pad_03C0[480]; //0x03C0
+	bool m_bFakePlayer; //0x05A0
+	bool m_bReceivedPacket; //0x05A1
+	bool m_bLowViolence; //0x05A2
+	bool m_bFullyAuthenticated; //0x05A3
+	char pad_05A4[24]; //0x05A4
+	PERSISTENCE m_nPersistenceState; //0x05BC
+	char pad_05C0[302676]; //0x05C0
+	std::int32_t m_LastMovementTick; //0x4A414
+	char pad_4A418[168]; //0x4A418
+
 };
 
 namespace
