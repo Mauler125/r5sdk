@@ -44,34 +44,38 @@ void Strtrim(char* s)
 
 void ImGuiConfig::Load()
 {
-    std::filesystem::path fsPath = std::filesystem::current_path() /= "platform\\imgui.json"; // Get current path + imgui.json
-    DevMsg(eDLL_T::MS, "Loading ImGui config file '%s'\n", fsPath.string().c_str());
+    std::filesystem::path fsPath = "platform\\imgui.json";
+    DevMsg(eDLL_T::MS, "Loading ImGui config file '%s'\n", fsPath.relative_path().string().c_str());
 
-    nlohmann::json jsIn;
-    try
+    if (std::filesystem::exists(fsPath))
     {
-        std::ifstream configFile(fsPath, std::ios::binary); // Parse config file.
-        configFile >> jsIn;
-        configFile.close();
-
-        if (!jsIn.is_null())
+        try
         {
-            if (!jsIn["config"].is_null())
-            {
-                // IConsole
-                IConsole_Config.m_nBind0          = jsIn["config"]["IConsole"]["bind0"].get<int>();
-                IConsole_Config.m_nBind1          = jsIn["config"]["IConsole"]["bind1"].get<int>();
+            nlohmann::json jsIn;
+            std::ifstream configFile(fsPath, std::ios::binary); // Parse config file.
 
-                // IBrowser
-                IBrowser_Config.m_nBind0 = jsIn["config"]["IBrowser"]["bind0"].get<int>();
-                IBrowser_Config.m_nBind1 = jsIn["config"]["IBrowser"]["bind1"].get<int>();
+            configFile >> jsIn;
+            configFile.close();
+
+            if (!jsIn.is_null())
+            {
+                if (!jsIn["config"].is_null())
+                {
+                    // IConsole
+                    IConsole_Config.m_nBind0 = jsIn["config"]["IConsole"]["bind0"].get<int>();
+                    IConsole_Config.m_nBind1 = jsIn["config"]["IConsole"]["bind1"].get<int>();
+
+                    // IBrowser
+                    IBrowser_Config.m_nBind0 = jsIn["config"]["IBrowser"]["bind0"].get<int>();
+                    IBrowser_Config.m_nBind1 = jsIn["config"]["IBrowser"]["bind1"].get<int>();
+                }
             }
         }
-    }
-    catch (const std::exception& ex)
-    {
-        DevMsg(eDLL_T::MS, "ImGui config file '%s' not found\n Changing the settings in the console or server browser options re-create's it\n Exception: '%s'\n", fsPath.string().c_str(), ex.what());
-        return;
+        catch (const std::exception& ex)
+        {
+            Warning(eDLL_T::MS, "Exception while parsing ImGui config file:\n%s\n", ex.what());
+            return;
+        }
     }
 }
 
@@ -87,7 +91,7 @@ void ImGuiConfig::Save()
     jsOut["config"]["IBrowser"]["bind0"] = IBrowser_Config.m_nBind0;
     jsOut["config"]["IBrowser"]["bind1"] = IBrowser_Config.m_nBind1;
 
-    std::filesystem::path fsPath = std::filesystem::current_path() /= "platform\\imgui.json"; // Get current path + imgui.json
+    std::filesystem::path fsPath = "platform\\imgui.json";
 
     DevMsg(eDLL_T::MS, "Saving ImGui config file '%s'\n", fsPath.string().c_str());
     std::ofstream outFile(fsPath, std::ios::out | std::ios::trunc); // Write config file.
