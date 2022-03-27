@@ -79,10 +79,10 @@ SDL_ConvertStereoToMono_SSE3(SDL_AudioCVT * cvt, SDL_AudioFormat format)
     /* Do SSE blocks as long as we have 16 bytes available.
        Just use unaligned load/stores, if the memory at runtime is
        aligned it'll be just as fast on modern processors */
-    while (i >= 4) {   /* 4 * float32 */
-        _mm_storeu_ps(dst, _mm_mul_ps(_mm_hadd_ps(_mm_load_ps(src), _mm_loadu_ps(src+4)), divby2));
-        i -= 4; src += 8; dst += 4;
-    }
+    //while (i >= 4) {   /* 4 * float32 */
+    //    _mm_storeu_ps(dst, _mm_mul_ps(_mm_hadd_ps(_mm_load_ps(src), _mm_loadu_ps(src+4)), divby2));
+    //    i -= 4; src += 8; dst += 4;
+    //}
 
     /* Finish off any leftovers with scalar operations. */
     while (i) {
@@ -202,31 +202,31 @@ SDL_Convert51ToStereo_SSE(SDL_AudioCVT * cvt, SDL_AudioFormat format)
     /* SDL's 5.1 layout: FL+FR+FC+LFE+BL+BR */
     /* Just use unaligned load/stores, if the memory at runtime is */
     /* aligned it'll be just as fast on modern processors */
-    while (i >= 2) {
-        /* Two 5.1 samples (12 floats) fit nicely in three 128bit */
-        /* registers. Using shuffles they can be rearranged so that */
-        /* the conversion math can be vectorized. */
-        __m128 in0 = _mm_loadu_ps(src);     /* 0FL 0FR 0FC 0LF */
-        __m128 in1 = _mm_loadu_ps(src + 4); /* 0BL 0BR 1FL 1FR */
-        __m128 in2 = _mm_loadu_ps(src + 8); /* 1FC 1LF 1BL 1BR */
+    //while (i >= 2) {
+    //    /* Two 5.1 samples (12 floats) fit nicely in three 128bit */
+    //    /* registers. Using shuffles they can be rearranged so that */
+    //    /* the conversion math can be vectorized. */
+    //    __m128 in0 = _mm_loadu_ps(src);     /* 0FL 0FR 0FC 0LF */
+    //    __m128 in1 = _mm_loadu_ps(src + 4); /* 0BL 0BR 1FL 1FR */
+    //    __m128 in2 = _mm_loadu_ps(src + 8); /* 1FC 1LF 1BL 1BR */
 
-        /* 0FC 0FC 1FC 1FC */
-        __m128 fc_distributed = _mm_mul_ps(half, _mm_shuffle_ps(in0, in2, _MM_SHUFFLE(0, 0, 2, 2)));
+    //    /* 0FC 0FC 1FC 1FC */
+    //    __m128 fc_distributed = _mm_mul_ps(half, _mm_shuffle_ps(in0, in2, _MM_SHUFFLE(0, 0, 2, 2)));
 
-        /* 0FL 0FR 1BL 1BR */
-        __m128 blended = _mm_shuffle_ps(in0, in2, _MM_SHUFFLE(3, 2, 1, 0));
+    //    /* 0FL 0FR 1BL 1BR */
+    //    __m128 blended = _mm_shuffle_ps(in0, in2, _MM_SHUFFLE(3, 2, 1, 0));
 
-        /*   0FL 0FR 1BL 1BR */
-        /* + 0BL 0BR 1FL 1FR */
-        /* =  0L  0R  1L  1R */
-        __m128 out = _mm_add_ps(blended, in1);
-        out = _mm_add_ps(out, fc_distributed);
-        out = _mm_mul_ps(out, two_fifths_v);
+    //    /*   0FL 0FR 1BL 1BR */
+    //    /* + 0BL 0BR 1FL 1FR */
+    //    /* =  0L  0R  1L  1R */
+    //    __m128 out = _mm_add_ps(blended, in1);
+    //    out = _mm_add_ps(out, fc_distributed);
+    //    out = _mm_mul_ps(out, two_fifths_v);
 
-        _mm_storeu_ps(dst, out);
+    //    _mm_storeu_ps(dst, out);
 
-        i -= 2; src += 12; dst += 4;
-    }
+    //    i -= 2; src += 12; dst += 4;
+    //}
 
 
     /* Finish off any leftovers with scalar operations. */
