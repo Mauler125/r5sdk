@@ -7,7 +7,8 @@
 #include "engine/host_cmd.h"
 #include "engine/sys_utils.h"
 #include "rtech/rtech_game.h"
-int g_nLoadedPakFileId[256]{};
+
+std::vector<int> g_nLoadedPakFileId{ };
 
 //-----------------------------------------------------------------------------
 // Purpose: unloads asset files from the memory pool

@@ -85,11 +85,13 @@ FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 			case HostStates_t::HS_CHANGE_LEVEL_SP:
 			{
 				g_pHostState->State_ChangeLevelSP();
+				g_pHostState->UnloadPakFile(); // Unload our loaded rpaks. Calling this before the actual level change happens kills the game.
 				break;
 			}
 			case HostStates_t::HS_CHANGE_LEVEL_MP:
 			{
 				g_pHostState->State_ChangeLevelMP();
+				g_pHostState->UnloadPakFile(); // Unload our loaded rpaks. Calling this before the actual level change happens kills the game.
 				break;
 			}
 			case HostStates_t::HS_RUN:
@@ -101,6 +103,7 @@ FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 			{
 				DevMsg(eDLL_T::ENGINE, "%s - Shutdown host game\n", "CHostState::FrameUpdate");
 
+				g_pHostState->UnloadPakFile();
 				g_bLevelResourceInitialized = false;
 				Host_Game_ShutdownFn(g_pHostState);
 				break;
@@ -275,18 +278,14 @@ FORCEINLINE void CHostState::GameShutDown(void)
 //-----------------------------------------------------------------------------
 FORCEINLINE void CHostState::UnloadPakFile(void)
 {
-	for (int i = 0; i < sizeof(g_nLoadedPakFileId); i++)
+	for (auto& it : g_nLoadedPakFileId)
 	{
-		if (g_nLoadedPakFileId[i] > 0)
+		if (it >= 0) // [ PIXIE ] TODO: Create RTech function to get RPakLoadedInfo by ID and print which rpak is getting unloaded.
 		{
-			RTech_UnloadPak(g_nLoadedPakFileId[i]);
-		}
-		else
-		{
-			memset(g_nLoadedPakFileId, '\0', sizeof(g_nLoadedPakFileId));
-			break;
+			RTech_UnloadPak(it);
 		}
 	}
+	g_nLoadedPakFileId.clear();
 }
 
 //-----------------------------------------------------------------------------

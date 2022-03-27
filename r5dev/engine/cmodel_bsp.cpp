@@ -35,14 +35,12 @@ void MOD_PreloadPak(const std::string& svSetFile)
 			{
 				if (!jsIn["rpak"].is_null())
 				{
-					int iPakIdx{};
 					for (auto it = jsIn["rpak"].begin(); it != jsIn["rpak"].end(); ++it)
 					{
 						if (it.value().is_string())
 						{
 							std::string svToLoad = it.value().get<std::string>() + ".rpak";
-							unsigned int nPakId = 0;
-							nPakId = RTech_AsyncLoad((void*)svToLoad.c_str(), g_pMallocPool.GetPtr(), 4, 0);
+							std::uint32_t nPakId = RTech_AsyncLoad((void*)svToLoad.c_str(), g_pMallocPool.GetPtr(), 4, 0);
 
 							if (nPakId == -1)
 							{
@@ -50,8 +48,7 @@ void MOD_PreloadPak(const std::string& svSetFile)
 							}
 							else
 							{
-								g_nLoadedPakFileId[iPakIdx] = nPakId;
-								iPakIdx++;
+								g_nLoadedPakFileId.push_back(nPakId);
 							}
 						}
 					}

@@ -58,7 +58,7 @@ void HRtech_AsyncLoad(std::string svPakFileName);
 void RTech_Game_Attach();
 void RTech_Game_Detach();
 
-extern int g_nLoadedPakFileId[256];
+extern std::vector<int> g_nLoadedPakFileId;
 ///////////////////////////////////////////////////////////////////////////////
 class HRTechGame : public IDetour
 {
