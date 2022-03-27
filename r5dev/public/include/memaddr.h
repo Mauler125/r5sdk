@@ -458,22 +458,24 @@ public:
 		return ADDRESS(latestOccurence);
 	}
 
-	ADDRESS FindPatternSIMD(std::uint8_t* szPattern, const char* szMask)
+	ADDRESS FindPatternSIMD(uint8_t* szPattern, const char* szMask)
 	{
-
 		ModuleSections mInfo = GetSectionByName(".text"); // Get the .text section.
-		if (!mInfo.IsSectionValid()) { return ADDRESS(); }
+		if (!mInfo.IsSectionValid())
+		{
+			return ADDRESS();
+		}
 
-		DWORD64 base = (DWORD64)mInfo.sectionStartAddress;
-		DWORD64 size = (DWORD64)mInfo.sectionSize;
+		uint64_t nBase = static_cast<uint64_t>(mInfo.sectionStartAddress);
+		uint64_t nSize = static_cast<uint64_t>(mInfo.sectionSize);
 
-		unsigned char* pData = (unsigned char*)base;
-		unsigned int length = (unsigned int)size;
+		const uint8_t* pData = reinterpret_cast<uint8_t*>(nBase);
+		const uint8_t* pEnd = pData + static_cast<uint32_t>(nSize) - strlen(szMask);
 
-		const unsigned char* end = pData + length - strlen(szMask);
-		int num_masks = (int)ceil((float)strlen(szMask) / (float)16);
-		int masks[32]; // 32*16 = enough masks for 512 bytes.
-		memset(masks, 0, num_masks * sizeof(int));
+		int masks[64]; // 64*16 = enough masks for 1024 bytes.
+		int num_masks = static_cast<int>(ceil(static_cast<float>(strlen(szMask)) / 16.f));
+
+		memset(masks, '\0', num_masks * sizeof(int));
 		for (int64_t i = 0; i < num_masks; ++i)
 		{
 			for (int64_t j = strnlen(szMask + i * 16, 16) - 1; j >= 0; --j)
@@ -484,31 +486,34 @@ public:
 				}
 			}
 		}
-		__m128i xmm1 = _mm_loadu_si128((const __m128i*) szPattern);
+		__m128i xmm1 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(szPattern));
 		__m128i xmm2, xmm3, msks;
-		for (; pData != end; _mm_prefetch((const char*)(++pData + 64), _MM_HINT_NTA))
+		for (; pData != pEnd; _mm_prefetch(reinterpret_cast<const char*>(++pData + 64), _MM_HINT_NTA))
 		{
 			if (szPattern[0] == pData[0])
 			{
-				xmm2 = _mm_loadu_si128((const __m128i*) pData);
+				xmm2 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(pData));
 				msks = _mm_cmpeq_epi8(xmm1, xmm2);
 				if ((_mm_movemask_epi8(msks) & masks[0]) == masks[0])
 				{
 					for (DWORD64 i = 1; i < num_masks; ++i)
 					{
-						xmm2 = _mm_loadu_si128((const __m128i*) (pData + i * 16));
-						xmm3 = _mm_loadu_si128((const __m128i*) (szPattern + i * 16));
+						xmm2 = _mm_loadu_si128(reinterpret_cast<const __m128i*>((pData + i * 16)));
+						xmm3 = _mm_loadu_si128(reinterpret_cast<const __m128i*>((szPattern + i * 16)));
 						msks = _mm_cmpeq_epi8(xmm2, xmm3);
 						if ((_mm_movemask_epi8(msks) & masks[i]) == masks[i])
 						{
 							if ((i + 1) == num_masks)
 							{
-								return (ADDRESS)pData;
+								return static_cast<ADDRESS>(const_cast<uint8_t*>(pData));
 							}
 						}
-						else goto cont;
+						else
+						{
+							goto cont;
+						}
 					}
-					return (ADDRESS)(&*(pData));
+					return static_cast<ADDRESS>((&*(const_cast<uint8_t*>(pData))));
 				}
 			}cont:;
 		}
