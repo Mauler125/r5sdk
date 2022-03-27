@@ -124,7 +124,6 @@
     <ClInclude Include="..\appframework\iappsystem.h" />
     <ClInclude Include="..\bsplib\bsplib.h" />
     <ClInclude Include="..\client\cdll_engine_int.h" />
-    <ClInclude Include="..\client\client.h" />
     <ClInclude Include="..\client\IVEngineClient.h" />
     <ClInclude Include="..\common\igameserverdata.h" />
     <ClInclude Include="..\common\netmessages.h" />
@@ -349,7 +348,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\bsplib\bsplib.cpp" />
-    <ClCompile Include="..\client\client.cpp" />
     <ClCompile Include="..\client\IVEngineClient.cpp" />
     <ClCompile Include="..\common\opcodes.cpp" />
     <ClCompile Include="..\core\dllmain.cpp" />

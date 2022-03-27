@@ -138,9 +138,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\client\client.h">
-      <Filter>sdk\client</Filter>
-    </ClInclude>
     <ClInclude Include="..\client\IVEngineClient.h">
       <Filter>sdk\client</Filter>
     </ClInclude>
@@ -819,9 +816,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\IVEngineClient.cpp">
-      <Filter>sdk\client</Filter>
-    </ClCompile>
-    <ClCompile Include="..\client\client.cpp">
       <Filter>sdk\client</Filter>
     </ClCompile>
     <ClCompile Include="..\common\opcodes.cpp">
