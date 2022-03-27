@@ -13,7 +13,7 @@ inline uint64_t Plat_Rdtsc()
 	return (uint64_t)__rdtsc();
 #elif defined( _WIN32 )
 #if defined( _MSC_VER ) && ( _MSC_VER >= 1400 )
-	return (uint64)__rdtsc();
+	return (uint64_t)__rdtsc();
 #else
 	__asm rdtsc;
 	__asm ret;
