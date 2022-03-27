@@ -196,19 +196,19 @@ FORCEINLINE void CHostState::Think(void) const
 			bInitialized = true;
 		}
 
-		if (banListTimer.GetDurationInProgress().GetSeconds() > 1.0)
+		if (banListTimer.GetDurationInProgress().GetSeconds() > sv_banlistRefreshInterval->GetDouble())
 		{
 			g_pBanSystem->BanListCheck();
 			banListTimer.Start();
 		}
 #ifdef DEDICATED
-		if (pylonTimer.GetDurationInProgress().GetSeconds() > 5.0)
+		if (pylonTimer.GetDurationInProgress().GetSeconds() > sv_pylonRefreshInterval->GetDouble())
 		{
 			KeepAliveToPylon();
 			pylonTimer.Start();
 		}
 #endif // DEDICATED
-		if (statsTimer.GetDurationInProgress().GetSeconds() > 1.0)
+		if (statsTimer.GetDurationInProgress().GetSeconds() > sv_statusRefreshInterval->GetDouble())
 		{
 			std::string svCurrentPlaylist = KeyValues_GetCurrentPlaylist();
 			std::int64_t nPlayerCount = g_pServer->GetNumHumanPlayers();

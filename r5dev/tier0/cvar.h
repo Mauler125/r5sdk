@@ -30,6 +30,9 @@ extern ConVar* ai_dumpAINfileFromLoad;
 extern ConVar* navmesh_always_reachable;
 extern ConVar* sv_showconnecting;
 extern ConVar* sv_pylonvisibility;
+extern ConVar* sv_pylonRefreshInterval;
+extern ConVar* sv_banlistRefreshInterval;
+extern ConVar* sv_statusRefreshInterval;
 #ifdef DEDICATED
 extern ConVar* sv_rcon_debug;
 extern ConVar* sv_rcon_banpenalty;
@@ -105,10 +108,10 @@ extern ConVar* sq_showvmwarning;
 extern ConVar* net_userandomkey;
 extern ConVar* r5net_matchmaking_hostname;
 extern ConVar* r5net_show_debug;
-//-----------------------------------------------------------------------------
-// RTECH API                                                                  |
-//-----------------------------------------------------------------------------
-// RUI                                                                        |
+//-------------------------------------------------------------------------
+// RTECH API                                                              |
+//-------------------------------------------------------------------------
+// RUI                                                                    |
 #ifndef DEDICATED
 extern ConVar* rui_drawEnable;
 #endif // !DEDICATED

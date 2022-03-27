@@ -19,6 +19,9 @@ ConVar* navmesh_always_reachable           = nullptr;
 
 ConVar* sv_showconnecting                  = nullptr;
 ConVar* sv_pylonvisibility                 = nullptr;
+ConVar* sv_pylonRefreshInterval            = nullptr;
+ConVar* sv_banlistRefreshInterval          = nullptr;
+ConVar* sv_statusRefreshInterval           = nullptr;
 
 #ifdef DEDICATED
 ConVar* sv_rcon_debug                      = nullptr;

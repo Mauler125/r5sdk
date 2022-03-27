@@ -101,6 +101,7 @@ public:
 
 	bool GetBool(void) const;
 	float GetFloat(void) const;
+	double GetDouble(void) const;
 	int GetInt(void) const;
 	Color GetColor(void) const;
 	const char* GetString(void) const;

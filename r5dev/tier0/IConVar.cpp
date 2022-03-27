@@ -60,7 +60,9 @@ void ConVar::Init(void) const
 
 	sv_showconnecting  = new ConVar("sv_showconnecting" , "1", FCVAR_RELEASE, "Logs information about the connecting client to the console.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_pylonvisibility = new ConVar("sv_pylonvisibility", "0", FCVAR_RELEASE, "Determines the visiblity to the Pylon Master Server, 0 = Not visible, 1 = Visible, 2 = Hidden !TODO: not implemented yet.", false, 0.f, false, 0.f, nullptr, nullptr);
-
+	sv_pylonRefreshInterval   = new ConVar("sv_pylonRefreshInterval"  , "5.0", FCVAR_RELEASE, "Pylon server host request post update interval (seconds).", true, 2.f, true, 8.f, nullptr, nullptr);
+	sv_banlistRefreshInterval = new ConVar("sv_banlistRefreshInterval", "1.0", FCVAR_RELEASE, "Banlist refresh interval (seconds).", true, 1.f, false, 0.f, nullptr, nullptr);
+	sv_statusRefreshInterval  = new ConVar("sv_statusRefreshInterval" , "0.5", FCVAR_RELEASE, "Server status bar update interval (seconds).", false, 0.f, false, 0.f, nullptr, nullptr);
 #ifdef DEDICATED
 	sv_rcon_debug       = new ConVar("sv_rcon_debug"      , "0" , FCVAR_RELEASE, "Show rcon debug information ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_banpenalty  = new ConVar("sv_rcon_banpenalty" , "10", FCVAR_RELEASE, "Number of minutes to ban users who fail rcon authentication.", false, 0.f, false, 0.f, nullptr, nullptr);
@@ -212,6 +214,15 @@ float ConVar::GetFloat(void) const
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Return ConVar value as a double.
+// Output : double
+//-----------------------------------------------------------------------------
+double ConVar::GetDouble(void) const
+{
+	return static_cast<double>(m_pParent->m_Value.m_fValue);
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Return ConVar value as an integer.
 // Output : int
 //-----------------------------------------------------------------------------
@@ -226,7 +237,7 @@ int ConVar::GetInt(void) const
 //-----------------------------------------------------------------------------
 Color ConVar::GetColor(void) const
 {
-	unsigned char* pColorElement = ((unsigned char*)&m_pParent->m_Value.m_nValue);
+	unsigned char* pColorElement = (reinterpret_cast<unsigned char*>(&m_pParent->m_Value.m_nValue));
 	return Color(pColorElement[0], pColorElement[1], pColorElement[2], pColorElement[3]);
 }
 
@@ -317,12 +328,12 @@ void ConVar::SetValue(int nValue)
 	// Only valid for root ConVars.
 	assert(m_pParent == this);
 
-	float flValue = (float)nValue;
+	float flValue = static_cast<float>(nValue);
 
 	// Check bounds.
 	if (ClampValue(flValue))
 	{
-		nValue = (int)(flValue);
+		nValue = static_cast<int>(flValue);
 	}
 
 	// Redetermine value.
@@ -358,7 +369,7 @@ void ConVar::SetValue(float flValue)
 	// Redetermine value.
 	float flOldValue = m_Value.m_fValue;
 	m_Value.m_fValue = flValue;
-	m_Value.m_nValue = (int)m_Value.m_fValue;
+	m_Value.m_nValue = static_cast<int>(m_Value.m_fValue);
 
 	if (!(m_nFlags & FCVAR_NEVER_AS_STRING))
 	{
@@ -387,7 +398,7 @@ void ConVar::SetValue(const char* pszValue)
 	assert(m_pParent == this);
 
 	float flOldValue = m_Value.m_fValue;
-	pszNewValue = (char*)pszValue;
+	pszNewValue = const_cast<char*>(pszValue);
 	if (!pszNewValue)
 	{
 		pszNewValue = "";
@@ -396,7 +407,7 @@ void ConVar::SetValue(const char* pszValue)
 	if (!SetColorFromString(pszValue))
 	{
 		// Not a color, do the standard thing
-		float flNewValue = (float)atof(pszValue);
+		float flNewValue = static_cast<float>(atof(pszValue));
 		if (!IsFinite(flNewValue))
 		{
 			Warning(eDLL_T::ENGINE ,"Warning: ConVar '%s' = '%s' is infinite, clamping value.\n", GetBaseName(), pszValue);
@@ -411,7 +422,7 @@ void ConVar::SetValue(const char* pszValue)
 
 		// Redetermine value
 		m_Value.m_fValue = flNewValue;
-		m_Value.m_nValue = (int)(m_Value.m_fValue);
+		m_Value.m_nValue = static_cast<int>(m_Value.m_fValue);
 	}
 
 	if (!(m_nFlags & FCVAR_NEVER_AS_STRING))
@@ -477,7 +488,7 @@ void ConVar::ChangeStringValue(const char* pszTempVal, float flOldValue)
 {
 	assert(!(m_nFlags & FCVAR_NEVER_AS_STRING));
 
-	char* pszOldValue = (char*)_malloca(m_Value.m_iStringLength);
+	char* pszOldValue = reinterpret_cast<char*>(_malloca(m_Value.m_iStringLength));
 	if (pszOldValue != NULL)
 	{
 		memcpy(pszOldValue, m_Value.m_pszString, m_Value.m_iStringLength);
@@ -498,7 +509,7 @@ void ConVar::ChangeStringValue(const char* pszTempVal, float flOldValue)
 			m_Value.m_iStringLength = len;
 		}
 
-		memcpy((char*)m_Value.m_pszString, pszTempVal, len);
+		memcpy(const_cast<char*>(m_Value.m_pszString), pszTempVal, len);
 	}
 	else
 	{
@@ -540,14 +551,14 @@ bool ConVar::SetColorFromString(const char* pszValue)
 			bColor = true;
 
 			// Stuff all the values into each byte of our int.
-			unsigned char* pColorElement = ((unsigned char*)&m_Value.m_nValue);
+			unsigned char* pColorElement = (reinterpret_cast<unsigned char*>(&m_Value.m_nValue));
 			pColorElement[0] = nRGBA[0];
 			pColorElement[1] = nRGBA[1];
 			pColorElement[2] = nRGBA[2];
 			pColorElement[3] = nRGBA[3];
 
 			// Copy that value into our float.
-			m_Value.m_fValue = (float)(m_Value.m_nValue);
+			m_Value.m_fValue = static_cast<float>(m_Value.m_nValue);
 		}
 	}
 
