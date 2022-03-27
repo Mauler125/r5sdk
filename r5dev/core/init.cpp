@@ -34,7 +34,6 @@
 #include "vguimatsurface/MatSystemSurface.h"
 #include "client/cdll_engine_int.h"
 #endif // !DEDICATED
-#include "client/client.h"
 #include "client/IVEngineClient.h"
 #ifndef CLIENT_DLL
 #include "server/server.h"

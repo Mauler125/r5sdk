@@ -2,7 +2,7 @@
 #include "tier0/cvar.h"
 #include "engine/sys_utils.h"
 #include "server/server.h"
-#include "client/client.h"
+#include "engine/baseclient.h"
 #include "networksystem/r5net.h"
 #include "public/include/bansystem.h"
 

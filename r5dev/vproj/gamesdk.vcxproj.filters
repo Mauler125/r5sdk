@@ -168,9 +168,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\client\client.cpp">
-      <Filter>sdk\client</Filter>
-    </ClCompile>
     <ClCompile Include="..\client\IVEngineClient.cpp">
       <Filter>sdk\client</Filter>
     </ClCompile>
@@ -423,9 +420,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
-      <Filter>sdk\client</Filter>
-    </ClInclude>
-    <ClInclude Include="..\client\client.h">
       <Filter>sdk\client</Filter>
     </ClInclude>
     <ClInclude Include="..\client\IVEngineClient.h">

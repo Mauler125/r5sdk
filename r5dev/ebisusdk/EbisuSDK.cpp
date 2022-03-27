@@ -1,6 +1,5 @@
 #include "core/stdafx.h"
 #include "ebisusdk/EbisuSDK.h"
-#include "client/client.h"
 #include "engine/sys_utils.h"
 
 //-----------------------------------------------------------------------------

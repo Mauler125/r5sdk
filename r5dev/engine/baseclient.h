@@ -1,8 +1,15 @@
 #pragma once
-#include "client/client.h"
 #include "common/protocol.h"
+#include "server/IVEngineServer.h"
 
+//-----------------------------------------------------------------------------
+// Forward declarations
+//-----------------------------------------------------------------------------
 class CBaseServer;
+class CBaseClient;
+
+///////////////////////////////////////////////////////////////////////////////
+extern CBaseClient* g_pClient;
 
 class CBaseClient
 {
@@ -33,7 +40,7 @@ private:
 	char pad_0000[16]; //0x0000
 	std::int32_t m_nUserID; //0x0010
 	char pad_0014[844]; //0x0014
-	void* m_ConVars; //0x0360
+	void* m_ConVars; //0x0360 This is a KeyValue*!
 	char pad_0368[8]; //0x0368
 	CBaseServer* m_Server; //0x0370
 	char pad_0378[40]; //0x0378
@@ -63,6 +70,16 @@ namespace
 
 	ADDRESS p_CBaseClient_Clear = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74", "xxxxxxxxxxxxxxxx");
 	void* (*CBaseClient_Clear)(CBaseClient* pClient) = (void* (*)(CBaseClient*))p_CBaseClient_Clear.GetPtr(); /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
+
+	static ADDRESS g_pClientBuffer = p_IVEngineServer__PersistenceAvailable.FindPatternSelf("48 8D 0D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
+
+
+	// Notes for earlier seasons.
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+	const std::uintptr_t g_dwCClientSize = 0x4A440;
+	const std::uintptr_t g_dwPersistenceVar = 0x5B4;
+	const std::uintptr_t g_dwCClientPadding = 0x49E88;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -74,6 +91,7 @@ class HBaseClient : public IDetour
 {
 	virtual void debugp()
 	{
+		std::cout << "| VAR: g_pClient                            : 0x" << std::hex << std::uppercase << g_pClient << std::setw(0) << " |" << std::endl;
 		std::cout << "| FUN: CBaseClient::Connect                 : 0x" << std::hex << std::uppercase << p_CBaseClient_Connect.GetPtr() << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: CBaseClient::Clear                   : 0x" << std::hex << std::uppercase << p_CBaseClient_Clear.GetPtr()   << std::setw(npad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;

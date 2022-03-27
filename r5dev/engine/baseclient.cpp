@@ -206,3 +206,6 @@ void CBaseClient_Detach()
 	DetourDetach((LPVOID*)&CBaseClient_Clear, &CBaseClient::Clear);
 	DetourDetach((LPVOID*)&CBaseClient_Connect, &CBaseClient::Connect);
 }
+
+///////////////////////////////////////////////////////////////////////////////
+CBaseClient* g_pClient = reinterpret_cast<CBaseClient*>(g_pClientBuffer.GetPtr());

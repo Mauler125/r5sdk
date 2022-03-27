@@ -1,7 +1,8 @@
 #pragma once
 #include "common/protocol.h"
-#include "client/client.h"
 #include "tier1/NetAdr2.h"
+
+class CBaseClient;
 
 namespace
 {
