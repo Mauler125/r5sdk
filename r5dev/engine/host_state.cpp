@@ -291,7 +291,7 @@ FORCEINLINE void CHostState::UnloadPakFile(void)
 			RPakLoadedInfo_t pakInfo = g_pRTech->GetPakLoadedInfo(it);
 			if (pakInfo.m_pszFileName)
 			{
-				DevMsg(eDLL_T::RTECH, "Unloading PakFile '%s' now.", pakInfo.m_pszFileName);
+				DevMsg(eDLL_T::RTECH, "%s - Unloading PakFile '%s'\n", "CHostState::UnloadPakFile", pakInfo.m_pszFileName);
 			}
 #endif // GAMEDLL_S3
 			RTech_UnloadPak(it);

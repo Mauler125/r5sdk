@@ -24,9 +24,21 @@ namespace VSquirrel
 {
     namespace SHARED
     {
-        SQRESULT Script_NativeTest(void* sqvm)
+        //-----------------------------------------------------------------------------
+        // Purpose: SDK test and example body
+        //-----------------------------------------------------------------------------
+        SQRESULT SDKNativeTest(void* sqvm)
         {
             // Function code goes here.
+            return SQ_OK;
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: expose SDK version to the VScript API
+        //-----------------------------------------------------------------------------
+        SQRESULT GetSDKVersion(void* sqvm)
+        {
+            hsq_pushstring(sqvm, g_pR5net->GetSDKVersion().c_str(), -1);
             return SQ_OK;
         }
     }
@@ -88,16 +100,6 @@ namespace VSquirrel
             g_pIBrowser->GetServerList(); // Refresh svListing list.
 
             hsq_pushinteger(sqvm, g_pIBrowser->m_vServerList.size());
-
-            return SQ_OK;
-        }
-
-        //-----------------------------------------------------------------------------
-        // Purpose: expose SDK version to the UI VM
-        //-----------------------------------------------------------------------------
-        SQRESULT GetSDKVersion(void* sqvm)
-        {
-            hsq_pushstring(sqvm, g_pR5net->GetSDKVersion().c_str(), -1);
 
             return SQ_OK;
         }

@@ -61,6 +61,11 @@ void hsq_newslot(void* sqvm, int idx)
 	sq_newslot(sqvm, idx);
 }
 
+void hsq_pushstructure(void* sqvm, const char* name, const char* member, const char* codeclass1, const char* codeclass2)
+{
+	sq_pushstructure(sqvm, name, member, codeclass1, codeclass2);
+}
+
 void SQAPI_Attach()
 {
 	DetourAttach((LPVOID*)&sq_pushbool, &hsq_pushbool);
@@ -71,6 +76,7 @@ void SQAPI_Attach()
 	DetourAttach((LPVOID*)&sq_arrayappend, &hsq_arrayappend);
 	DetourAttach((LPVOID*)&sq_newtable, &hsq_newtable);
 	DetourAttach((LPVOID*)&sq_newslot, &hsq_newslot);
+	DetourAttach((LPVOID*)&sq_pushstructure, &hsq_pushstructure);
 }
 
 void SQAPI_Detach()
@@ -83,4 +89,5 @@ void SQAPI_Detach()
 	DetourDetach((LPVOID*)&sq_arrayappend, &hsq_arrayappend);
 	DetourDetach((LPVOID*)&sq_newtable, &hsq_newtable);
 	DetourDetach((LPVOID*)&sq_newslot, &hsq_newslot);
+	DetourDetach((LPVOID*)&sq_pushstructure, &hsq_pushstructure);
 }

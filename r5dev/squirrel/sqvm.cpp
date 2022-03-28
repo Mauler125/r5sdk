@@ -207,9 +207,9 @@ void HSQVM_ErrorFunc(void* sqvm, const char* pszError, const char* pszFile, unsi
 
 	SQVM_GetErrorLine(pszFile, nLine, szContextBuf, sizeof(szContextBuf));
 
-	Error(eDLL_T::SERVER, "%s SCRIPT COMPILE ERROR: %s\n", SQVM_TYPE_T[vmIdx].c_str(), pszError);
-	Error(eDLL_T::SERVER, " -> %s\n\n", szContextBuf);
-	Error(eDLL_T::SERVER, "%s line [%d] column [%d]\n", pszFile, nLine, nColumn);
+	Error(static_cast<eDLL_T>(vmIdx), "%s SCRIPT COMPILE ERROR: %s\n", SQVM_TYPE_T[vmIdx].c_str(), pszError);
+	Error(static_cast<eDLL_T>(vmIdx), " -> %s\n\n", szContextBuf);
+	Error(static_cast<eDLL_T>(vmIdx), "%s line [%d] column [%d]\n", pszFile, nLine, nColumn);
 }
 
 //---------------------------------------------------------------------------------
@@ -274,9 +274,10 @@ void HSQVM_RegisterFunction(void* sqvm, const char* szName, const char* szHelpSt
 // Purpose: registers script functions in SERVER context
 // Input  : *sqvm - 
 //---------------------------------------------------------------------------------
-void RegisterServerScriptFunctions(void* sqvm)
+void SQVM_RegisterServerScriptFunctions(void* sqvm)
 {
-	HSQVM_RegisterFunction(sqvm, "SDKNativeTest", "Native SERVER test function", "void", "", &VSquirrel::SHARED::Script_NativeTest);
+	HSQVM_RegisterFunction(sqvm, "SDKNativeTest", "Native SERVER test function", "void", "", &VSquirrel::SHARED::SDKNativeTest);
+	HSQVM_RegisterFunction(sqvm, "GetSDKVersion", "Gets the SDK version as a string", "string", "", &VSquirrel::SHARED::GetSDKVersion);
 }
 
 #ifndef DEDICATED
@@ -284,30 +285,31 @@ void RegisterServerScriptFunctions(void* sqvm)
 // Purpose: registers script functions in CLIENT context
 // Input  : *sqvm - 
 //---------------------------------------------------------------------------------
-void RegisterClientScriptFunctions(void* sqvm)
+void SQVM_RegisterClientScriptFunctions(void* sqvm)
 {
-	HSQVM_RegisterFunction(sqvm, "SDKNativeTest", "Native CLIENT test function", "void", "", &VSquirrel::SHARED::Script_NativeTest);
+	HSQVM_RegisterFunction(sqvm, "SDKNativeTest", "Native CLIENT test function", "void", "", &VSquirrel::SHARED::SDKNativeTest);
+	HSQVM_RegisterFunction(sqvm, "GetSDKVersion", "Gets the SDK version as a string", "string", "", &VSquirrel::SHARED::GetSDKVersion);
 }
 
 //---------------------------------------------------------------------------------
 // Purpose: registers script functions in UI context
 // Input  : *sqvm - 
 //---------------------------------------------------------------------------------
-void RegisterUIScriptFunctions(void* sqvm)
+void SQVM_RegisterUIScriptFunctions(void* sqvm)
 {
-	HSQVM_RegisterFunction(sqvm, "SDKNativeTest", "Native UI test function", "void", "", &VSquirrel::SHARED::Script_NativeTest);
+	HSQVM_RegisterFunction(sqvm, "SDKNativeTest", "Native UI test function", "void", "", &VSquirrel::SHARED::SDKNativeTest);
 
-	// functions for retrieving server browser data
+	// Functions for retrieving server browser data
 	HSQVM_RegisterFunction(sqvm, "GetServerName", "Gets the name of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerName);
 	HSQVM_RegisterFunction(sqvm, "GetServerPlaylist", "Gets the playlist of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerPlaylist);
 	HSQVM_RegisterFunction(sqvm, "GetServerMap", "Gets the map of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerMap);
 	HSQVM_RegisterFunction(sqvm, "GetServerCount", "Gets the number of public servers", "int", "", &VSquirrel::UI::GetServerCount);
 
-	// misc main menu functions
-	HSQVM_RegisterFunction(sqvm, "GetSDKVersion", "Gets the SDK version as a string", "string", "", &VSquirrel::UI::GetSDKVersion);
+	// Misc main menu functions
+	HSQVM_RegisterFunction(sqvm, "GetSDKVersion", "Gets the SDK version as a string", "string", "", &VSquirrel::SHARED::GetSDKVersion);
 	HSQVM_RegisterFunction(sqvm, "GetPromoData", "Gets promo data for specified slot type", "string", "int", &VSquirrel::UI::GetPromoData);
 
-	// functions for connecting to servers
+	// Functions for connecting to servers
 	HSQVM_RegisterFunction(sqvm, "CreateServer", "Start server with the specified settings", "void", "string,string,string,int", &VSquirrel::UI::CreateServerFromMenu);
 	HSQVM_RegisterFunction(sqvm, "SetEncKeyAndConnect", "Set the encryption key to that of the specified server and connects to it", "void", "int", &VSquirrel::UI::SetEncKeyAndConnect);
 	HSQVM_RegisterFunction(sqvm, "JoinPrivateServerFromMenu", "Joins private server by token", "void", "string", &VSquirrel::UI::JoinPrivateServerFromMenu);
@@ -318,18 +320,75 @@ void RegisterUIScriptFunctions(void* sqvm)
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: Origin functions are the last to be registered in UI context, we register anything ours below
+// Purpose: Initialize all CLIENT/UI global structs and register SDK (CLIENT/UI) script functions
 // Input  : *sqvm - 
-// TODO   : Hook 'CreateVM' instead
+//			context - (1 = CLIENT 2 = UI)
 //---------------------------------------------------------------------------------
-void HSQVM_RegisterOriginFuncs(void* sqvm)
+int HSQVM_InitializeCLGlobalScriptStructs(void* sqvm/**(+8)*/, SQCONTEXT context)
 {
-	if (sqvm == *g_pUIVM.RCast<void**>())
-		RegisterUIScriptFunctions(sqvm);
-	else
-		RegisterClientScriptFunctions(sqvm);
+	int results = SQVM_InitializeCLGlobalScriptStructs(sqvm/**(+8)*/, context);
+	if (context == SQCONTEXT::CLIENT)
+		SQVM_RegisterClientScriptFunctions(g_pClientVM.GetValue<void*>());
+	if (context == SQCONTEXT::UI)
+		SQVM_RegisterUIScriptFunctions(g_pUIVM.GetValue<void*>());
+	return results;
+}
+#endif // !DEDICATED
 
-	return SQVM_RegisterOriginFuncs(sqvm);
+#ifndef CLIENT_DLL
+//---------------------------------------------------------------------------------
+// Purpose: Initialize all SERVER global structs and register SDK (SERVER) script functions
+// Input  : *sqvm - 
+//---------------------------------------------------------------------------------
+void HSQVM_InitializeSVGlobalScriptStructs(void* sqvm/**(+8)*/)
+{
+	SQVM_InitializeSVGlobalScriptStructs(sqvm/**(+8)*/);
+	SQVM_RegisterServerScriptFunctions(g_pServerVM.GetValue<void*>());
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: Creates the SERVER Squirrel VM
+// Output : True on success, false on failure
+//---------------------------------------------------------------------------------
+bool HSQVM_CreateServerVM()
+{
+	bool results = SQVM_CreateServerVM();
+	if (results)
+		DevMsg(eDLL_T::SERVER, "Created SERVER VM: '%p'\n", g_pServerVM.GetValue<void*>());
+	else
+		Error(eDLL_T::SERVER, "Failed to create SERVER VM\n");
+	return results;
+}
+#endif // !CLIENT_DLL
+
+#ifndef DEDICATED
+//---------------------------------------------------------------------------------
+// Purpose: Creates the CLIENT Squirrel VM
+// Input  : *chlclient - 
+// Output : True on success, false on failure
+//---------------------------------------------------------------------------------
+bool HSQVM_CreateClientVM(void* chlclient)
+{
+	bool results = SQVM_CreateClientVM(chlclient);
+	if (results)
+		DevMsg(eDLL_T::CLIENT, "Created CLIENT VM: '%p'\n", g_pClientVM.GetValue<void*>());
+	else
+		Error(eDLL_T::CLIENT, "Failed to create CLIENT VM\n");
+	return results;
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: Creates the UI Squirrel VM
+// Output : True on success, false on failure
+//---------------------------------------------------------------------------------
+bool HSQVM_CreateUIVM()
+{
+	bool results = SQVM_CreateUIVM();
+	if (results)
+		DevMsg(eDLL_T::UI, "Created UI VM: '%p'\n", g_pUIVM.GetValue<void*>());
+	else
+		Error(eDLL_T::UI, "Failed to create UI VM\n");
+	return results;
 }
 #endif // !DEDICATED
 
@@ -341,7 +400,15 @@ void SQVM_Attach()
 	DetourAttach((LPVOID*)&SQVM_LoadRson, &HSQVM_LoadRson);
 	DetourAttach((LPVOID*)&SQVM_LoadScript, &HSQVM_LoadScript);
 #ifndef DEDICATED
-	DetourAttach((LPVOID*)&SQVM_RegisterOriginFuncs, &HSQVM_RegisterOriginFuncs);
+	DetourAttach((LPVOID*)&SQVM_InitializeCLGlobalScriptStructs, &HSQVM_InitializeCLGlobalScriptStructs);
+#endif // !DEDICATED
+#ifndef CLIENT_DLL
+	DetourAttach((LPVOID*)&SQVM_InitializeSVGlobalScriptStructs, &HSQVM_InitializeSVGlobalScriptStructs);
+	DetourAttach((LPVOID*)&SQVM_CreateServerVM, &HSQVM_CreateServerVM);
+#endif // !CLIENT_DLL
+#ifndef DEDICATED
+	DetourAttach((LPVOID*)&SQVM_CreateClientVM, &HSQVM_CreateClientVM);
+	DetourAttach((LPVOID*)&SQVM_CreateUIVM, &HSQVM_CreateUIVM);
 #endif // !DEDICATED
 }
 
@@ -353,7 +420,15 @@ void SQVM_Detach()
 	DetourDetach((LPVOID*)&SQVM_LoadRson, &HSQVM_LoadRson);
 	DetourDetach((LPVOID*)&SQVM_LoadScript, &HSQVM_LoadScript);
 #ifndef DEDICATED
-	DetourDetach((LPVOID*)&SQVM_RegisterOriginFuncs, &HSQVM_RegisterOriginFuncs);
+	DetourDetach((LPVOID*)&SQVM_InitializeCLGlobalScriptStructs, &HSQVM_InitializeCLGlobalScriptStructs);
+#endif // !DEDICATED
+#ifndef CLIENT_DLL
+	DetourDetach((LPVOID*)&SQVM_InitializeSVGlobalScriptStructs, &HSQVM_InitializeSVGlobalScriptStructs);
+	DetourDetach((LPVOID*)&SQVM_CreateServerVM, &HSQVM_CreateServerVM);
+#endif // !CLIENT_DLL
+#ifndef DEDICATED
+	DetourDetach((LPVOID*)&SQVM_CreateClientVM, &HSQVM_CreateClientVM);
+	DetourDetach((LPVOID*)&SQVM_CreateUIVM, &HSQVM_CreateUIVM);
 #endif // !DEDICATED
 }
 

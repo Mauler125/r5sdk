@@ -6,6 +6,13 @@ typedef int SQRESULT;
 #define SQ_FAILED(res) (res<0)
 #define SQ_SUCCEEDED(res) (res>=0)
 
+enum class SQCONTEXT : int
+{
+	SERVER = 0,
+	CLIENT,
+	UI
+};
+
 const static std::string SQVM_TYPE_T[3] =
 {
 	"SERVER",
@@ -108,34 +115,38 @@ namespace
 
 	ADDRESS p_SQVM_CompileError = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xD9\x4C\x8B\xF2", "xxxx?xxxx?xxxx?xxxx?xxxxx????xxxxxx");
 	void (*SQVM_CompileError)(void* sqvm, std::int64_t a2, std::int64_t a3, std::uint32_t a4, int a5) = (void(*)(void*, std::int64_t, std::int64_t, std::uint32_t, int))p_SQVM_CompileError.GetPtr();/*48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 81 EC ? ? ? ? 48 8B D9 4C 8B F2*/
-#ifndef DEDICATED
-	ADDRESS p_SQVM_RegisterOriginFuncs = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\xE8\x00\x00\x00\x00\x48\x8B\x0D\x00\x00\x00\x00\x48\x8D\x15\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\xC7\x05\x00\x00\x00\x00\x00\x00\x00\x00", "x????xxx????xxx????x????xxx????xx????????");
-	void (*SQVM_RegisterOriginFuncs)(void* sqvm) = (void(*)(void*))p_SQVM_RegisterOriginFuncs.FollowNearCall().GetPtr(); /*E8 ? ? ? ? 48 8B 0D ? ? ? ? 48 8D 15 ? ? ? ? E8 ? ? ? ? 48 8B 05 ? ? ? ? C7 05 ? ? ? ? ? ? ? ?*/
-
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 #if !defined (CLIENT_DLL)
+	ADDRESS p_SQVM_InitializeSVGlobalScriptStructs = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x30\x48\x8B\x3D\x00\x00\x00\x00\x48\x8B\xF1", "xxxx?xxxxxxxx????xxx");
+	void* (*SQVM_InitializeSVGlobalScriptStructs)(void* sqvm/**(+8)*/) = (void* (*)(void*))p_SQVM_InitializeSVGlobalScriptStructs.GetPtr(); /*48 89 74 24 ? 57 48 83 EC 30 48 8B 3D ? ? ? ? 48 8B F1*/
+#endif // !CLIENT_DLL
+#if !defined (DEDICATED)
+	ADDRESS p_SQVM_InitializeCLGlobalScriptStructs = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x83\xEC\x30\x48\x63\xC2\x48\x8D\x3D\x00\x00\x00\x00", "xxxx?xxxx?xxxxxxxxxxxx????");
+	int (*SQVM_InitializeCLGlobalScriptStructs)(void* sqvm/**(+8)*/, SQCONTEXT context) = (int (*)(void*, SQCONTEXT))p_SQVM_InitializeCLGlobalScriptStructs.GetPtr(); /*48 89 74 24 ? 48 89 7C 24 ? 41 56 48 83 EC 30 48 63 C2 48 8D 3D ? ? ? ?*/
+#endif // !DEDICATED
+
+#if !defined (CLIENT_DLL) && defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 	ADDRESS p_SQVM_CreateServerVM = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x48\x83\xEC\x50\x48\x8D\x0D\x00\x00\x00\x00", "xxxxxxxxx????");
 	bool (*SQVM_CreateServerVM)() = (bool(*)())p_SQVM_CreateServerVM.GetPtr(); /*40 53 48 83 EC 50 48 8D 0D ? ? ? ?*/
-#endif // !CLIENT_DLL
-#elif defined (GAMEDLL_S3) || defined (GAMEDLL_S2)
-#if !defined (CLIENT_DLL)
+#elif !defined (CLIENT_DLL) && defined (GAMEDLL_S3) || defined (GAMEDLL_S2)
 	ADDRESS p_SQVM_CreateServerVM = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x56\x48\x83\xEC\x48\x48\x8D\x0D\x00\x00\x00\x00", "xxxxxxxxxx????");
 	bool (*SQVM_CreateServerVM)() = (bool(*)())p_SQVM_CreateServerVM.GetPtr(); /*40 53 56 48 83 EC 48 48 8D 0D ? ? ? ?*/
-#endif // !CLIENT_DLL
 #endif
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
+#if !defined (DEDICATED) && defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
 	ADDRESS p_SQVM_CreateClientVM = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x83\xEC\x58\x48\x83\x3D\x00\x00\x00\x00\x00\x74\x05", "xxxxxxx?????xx");
 	bool (*SQVM_CreateClientVM)(void* chlclient) = (bool(*)(void*))p_SQVM_CreateClientVM.GetPtr(); /*48 83 EC 58 48 83 3D ? ? ? ? ? 74 05*/
-#elif defined (GAMEDLL_S3)
+#elif !defined (DEDICATED) && defined (GAMEDLL_S3)
 	ADDRESS p_SQVM_CreateClientVM = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x41\x57\x48\x83\xEC\x68\x48\x83\x3D\x00\x00\x00\x00\x00", "xxxxxxxxxxx?????");
 	bool (*SQVM_CreateClientVM)(void* chlclient) = (bool(*)(void*))p_SQVM_CreateClientVM.GetPtr(); /*40 53 41 57 48 83 EC 68 48 83 3D ? ? ? ? ?*/
 #endif
+#if !defined (DEDICATED)
 	ADDRESS p_SQVM_CreateUIVM = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x48\x83\xEC\x20\x48\x8B\x1D\x00\x00\x00\x00\xC6\x05\x00\x00\x00\x00\x00", "xxxxxxxxx????xx?????");
 	bool (*SQVM_CreateUIVM)() = (bool(*)())p_SQVM_CreateUIVM.GetPtr(); /*40 53 48 83 EC 20 48 8B 1D ? ? ? ? C6 05 ? ? ? ? ?*/
+#endif // !DEDICATED
 
 #if !defined (CLIENT_DLL)
-	ADDRESS g_pServerVM = p_SQVM_CreateServerVM.FindPatternSelf("48 89 1D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x8);
+	ADDRESS g_pServerVM = p_SQVM_CreateServerVM.FindPatternSelf("48 89 1D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
 #endif // !CLIENT_DLL
+#if !defined (DEDICATED)
 	ADDRESS g_pClientVM = p_SQVM_CreateClientVM.FindPatternSelf("48 83 3D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x8);
 	ADDRESS g_pUIVM = p_SQVM_CreateUIVM.FindPatternSelf("48 8B 1D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
 #endif // !DEDICATED
@@ -144,9 +155,7 @@ namespace
 void* HSQVM_PrintFunc(void* sqvm, char* fmt, ...);
 void* HSQVM_LoadRson(const char* szRsonName);
 bool HSQVM_LoadScript(void* sqvm, const char* szScriptPath, const char* szScriptName, int nFlags);
-
 void HSQVM_RegisterFunction(void* sqvm, const char* szName, const char* szHelpString, const char* szRetValType, const char* szArgTypes, void* pFunction);
-void HSQVM_RegisterOriginFuncs(void* sqvm);
 
 void SQVM_Attach();
 void SQVM_Detach();
@@ -165,16 +174,23 @@ class HSQVM : public IDetour
 		std::cout << "| FUN: SQVM_WarningCmd                      : 0x" << std::hex << std::uppercase << p_SQVM_WarningCmd.GetPtr()          << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: SQVM_RegisterFunc                    : 0x" << std::hex << std::uppercase << p_SQVM_RegisterFunc.GetPtr()        << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: SQVM_CompileError                    : 0x" << std::hex << std::uppercase << p_SQVM_CompileError.GetPtr()        << std::setw(npad) << " |" << std::endl;
+#ifndef CLIENT_DLL
+		std::cout << "| FUN: SQVM_InitializeSVGlobalScriptStructs : 0x" << std::hex << std::uppercase << p_SQVM_InitializeSVGlobalScriptStructs.GetPtr() << std::setw(npad) << " |" << std::endl;
+#endif // !CLIENT_DLL
 #ifndef DEDICATED
-		std::cout << "| FUN: SQVM_RegisterOriginFuncs             : 0x" << std::hex << std::uppercase << p_SQVM_RegisterOriginFuncs.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: SQVM_InitializeCLGlobalScriptStructs : 0x" << std::hex << std::uppercase << p_SQVM_InitializeCLGlobalScriptStructs.GetPtr() << std::setw(npad) << " |" << std::endl;
+#endif // !DEDICATED
 #ifndef CLIENT_DLL
 		std::cout << "| FUN: SQVM_CreateServerVM                  : 0x" << std::hex << std::uppercase << p_SQVM_CreateServerVM.GetPtr()      << std::setw(npad) << " |" << std::endl;
 #endif // !CLIENT_DLL
+#ifndef DEDICATED
 		std::cout << "| FUN: SQVM_CreateClientVM                  : 0x" << std::hex << std::uppercase << p_SQVM_CreateClientVM.GetPtr()      << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: SQVM_CreateUIVM                      : 0x" << std::hex << std::uppercase << p_SQVM_CreateUIVM.GetPtr()          << std::setw(npad) << " |" << std::endl;
+#endif // !DEDICATED
 #ifndef CLIENT_DLL
 		std::cout << "| VAR: g_pServerVM                          : 0x" << std::hex << std::uppercase << g_pServerVM.GetPtr()                << std::setw(npad) << " |" << std::endl;
 #endif // !CLIENT_DLL
+#ifndef DEDICATED
 		std::cout << "| VAR: g_pClientVM                          : 0x" << std::hex << std::uppercase << g_pClientVM.GetPtr()                << std::setw(npad) << " |" << std::endl;
 		std::cout << "| VAR: g_pUIVM                              : 0x" << std::hex << std::uppercase << g_pUIVM.GetPtr()                    << std::setw(npad) << " |" << std::endl;
 #endif // !DEDICATED

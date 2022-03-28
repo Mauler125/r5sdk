@@ -140,8 +140,8 @@ void ConCommand::Init(void)
 	//-------------------------------------------------------------------------
 	// RTECH API                                                              |
 	ConCommand* rtech_strtoguid   = new ConCommand("rtech_strtoguid", "Calculates the GUID from input data.", FCVAR_DEVELOPMENTONLY, _RTech_StringToGUID_f_CompletionFunc, nullptr);
-	ConCommand* pak_requestload   = new ConCommand("pak_requestload", "Requests asynchronous load for specified RPAK FILE.", FCVAR_DEVELOPMENTONLY, _Pak_RequestLoad_f_CompletionFunc, nullptr);
-	ConCommand* pak_requestunload = new ConCommand("pak_requestunload", "Requests unload for specified RPAK ID.", FCVAR_DEVELOPMENTONLY, _Pak_RequestUnload_f_CompletionFunc, nullptr);
+	ConCommand* pak_requestload   = new ConCommand("pak_requestload", "Requests asynchronous load for specified RPAK file.", FCVAR_DEVELOPMENTONLY, _Pak_RequestLoad_f_CompletionFunc, nullptr);
+	ConCommand* pak_requestunload = new ConCommand("pak_requestunload", "Requests unload for specified RPAK by ID.", FCVAR_DEVELOPMENTONLY, _Pak_RequestUnload_f_CompletionFunc, nullptr);
 	ConCommand* pak_decompress    = new ConCommand("pak_decompress", "Decompresses the specified RPAK file.", FCVAR_DEVELOPMENTONLY, _RTech_Decompress_f_CompletionFunc, nullptr);
 	ConCommand* pak_listpaks      = new ConCommand("pak_listpaks", "Display a list of the loaded Pak files.", FCVAR_DEVELOPMENTONLY, _Pak_ListPaks_f_CompletionFunc, nullptr);
 	//-------------------------------------------------------------------------

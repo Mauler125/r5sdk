@@ -18,7 +18,8 @@ namespace VSquirrel
 {
 	namespace SHARED
 	{
-		SQRESULT Script_NativeTest(void* sqvm);
+		SQRESULT SDKNativeTest(void* sqvm);
+		SQRESULT GetSDKVersion(void* sqvm);
 	}
 	namespace SERVER
 	{
@@ -33,7 +34,6 @@ namespace VSquirrel
 		SQRESULT GetServerPlaylist(void* sqvm);
 		SQRESULT GetServerMap(void* sqvm);
 		SQRESULT GetServerCount(void* sqvm);
-		SQRESULT GetSDKVersion(void* sqvm);
 		SQRESULT GetPromoData(void* sqvm);
 		SQRESULT SetEncKeyAndConnect(void* sqvm);
 		SQRESULT CreateServerFromMenu(void* sqvm);
