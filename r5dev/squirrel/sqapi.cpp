@@ -36,6 +36,11 @@ void hsq_pushinteger(void* sqvm, int val)
 	sq_pushinteger(sqvm, val);
 }
 
+void hsq_pushconstant(void* sqvm, const char* name, int val)
+{
+	sq_pushconstant(sqvm, name, val);
+}
+
 void hsq_newarray(void* sqvm, int size)
 {
 	sq_newarray(sqvm, size);
@@ -61,6 +66,7 @@ void SQAPI_Attach()
 	DetourAttach((LPVOID*)&sq_pushbool, &hsq_pushbool);
 	DetourAttach((LPVOID*)&sq_pushstring, &hsq_pushstring);
 	DetourAttach((LPVOID*)&sq_pushinteger, &hsq_pushinteger);
+	DetourAttach((LPVOID*)&sq_pushconstant, &hsq_pushconstant);
 	DetourAttach((LPVOID*)&sq_newarray, &hsq_newarray);
 	DetourAttach((LPVOID*)&sq_arrayappend, &hsq_arrayappend);
 	DetourAttach((LPVOID*)&sq_newtable, &hsq_newtable);
@@ -72,6 +78,7 @@ void SQAPI_Detach()
 	DetourDetach((LPVOID*)&sq_pushbool, &hsq_pushbool);
 	DetourDetach((LPVOID*)&sq_pushstring, &hsq_pushstring);
 	DetourDetach((LPVOID*)&sq_pushinteger, &hsq_pushinteger);
+	DetourDetach((LPVOID*)&sq_pushconstant, &hsq_pushconstant);
 	DetourDetach((LPVOID*)&sq_newarray, &hsq_newarray);
 	DetourDetach((LPVOID*)&sq_arrayappend, &hsq_arrayappend);
 	DetourDetach((LPVOID*)&sq_newtable, &hsq_newtable);

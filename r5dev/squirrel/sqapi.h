@@ -15,6 +15,9 @@ namespace
 	ADDRESS p_sq_pushinteger = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x83\xEC\x38\x33\xC0\x48\xC7\x44\x24\x20\x02\x00\x00\x05\x48", "xxxxxxxxxxxxxxxx");
 	void (*sq_pushinteger)(void* sqvm, int val) = (void (*)(void*, int))p_sq_pushinteger.GetPtr(); /*48 83 EC 38 33 C0 48 C7 44 24 20 02 00 00 05 48*/
 
+	ADDRESS p_sq_pushconstant = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x30\x4C\x8B", "xxxx?xxxx?xxxx?xxxxxxx");
+	void (*sq_pushconstant)(void* sqvm, const char* name, int val) = (void (*)(void*, const char*, int))p_sq_pushconstant.GetPtr(); /*48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 30 4C 8B*/
+
 	ADDRESS p_sq_newarray = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x08\x57\x48\x83\xEC\x30\x48\x8B\xD9\x48\xC7\x44\x24\x20\x40", "xxxxxxxxxxxxxxxxxxx");
 	void (*sq_newarray)(void* sqvm, int size) = (void (*)(void*, int))p_sq_newarray.GetPtr(); /*48 89 5C 24 08 57 48 83 EC 30 48 8B D9 48 C7 44 24 20 40*/
 
@@ -58,13 +61,14 @@ class HSqapi : public IDetour
 {
 	virtual void debugp()
 	{
-		std::cout << "| FUN: sq_pushbool                          : 0x" << std::hex << std::uppercase << p_sq_pushbool.GetPtr()    << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: sq_pushstring                        : 0x" << std::hex << std::uppercase << p_sq_pushstring.GetPtr()  << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: sq_pushinteger                       : 0x" << std::hex << std::uppercase << p_sq_pushinteger.GetPtr() << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: sq_newarray                          : 0x" << std::hex << std::uppercase << p_sq_newarray.GetPtr()    << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: sq_arrayappend                       : 0x" << std::hex << std::uppercase << p_sq_arrayappend.GetPtr() << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: sq_newtable                          : 0x" << std::hex << std::uppercase << p_sq_newtable.GetPtr()    << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: sq_newslot                           : 0x" << std::hex << std::uppercase << p_sq_newslot.GetPtr()     << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: sq_pushbool                          : 0x" << std::hex << std::uppercase << p_sq_pushbool.GetPtr()     << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: sq_pushstring                        : 0x" << std::hex << std::uppercase << p_sq_pushstring.GetPtr()   << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: sq_pushinteger                       : 0x" << std::hex << std::uppercase << p_sq_pushinteger.GetPtr()  << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: sq_pushconstant                      : 0x" << std::hex << std::uppercase << p_sq_pushconstant.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: sq_newarray                          : 0x" << std::hex << std::uppercase << p_sq_newarray.GetPtr()     << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: sq_arrayappend                       : 0x" << std::hex << std::uppercase << p_sq_arrayappend.GetPtr()  << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: sq_newtable                          : 0x" << std::hex << std::uppercase << p_sq_newtable.GetPtr()     << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: sq_newslot                           : 0x" << std::hex << std::uppercase << p_sq_newslot.GetPtr()      << std::setw(npad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 };
