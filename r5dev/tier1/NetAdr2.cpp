@@ -250,7 +250,7 @@ std::string CNetAdr2::GetBase(std::string svInAdr) const
 // Purpose: gets the IP address.
 // Input  : bBaseOnly - 
 //-----------------------------------------------------------------------------
-std::string CNetAdr2::GetIP(bool bBaseOnly) const
+std::string CNetAdr2::GetIP(bool bBaseOnly = false) const
 {
 	if (GetType() == netadrtype_t::NA_LOOPBACK)
 	{
