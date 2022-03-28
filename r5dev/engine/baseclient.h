@@ -15,13 +15,13 @@ class CBaseClient
 {
 public:
 	CBaseClient* GetClient(int nIndex) const;
-	int32_t GetUserID(void) const;
-	int64_t GetOriginID(void) const;
+	std::int32_t GetUserID(void) const;
+	std::int64_t GetOriginID(void) const;
 	SIGNONSTATE GetSignonState(void) const;
 	PERSISTENCE GetPersistenceState(void) const;
 	void* GetNetChan(void) const;
-	void SetUserID(int32_t nUserID);
-	void SetOriginID(int64_t nOriginID);
+	void SetUserID(std::int32_t nUserID);
+	void SetOriginID(std::int64_t nOriginID);
 	void SetSignonState(SIGNONSTATE nSignonState);
 	void SetPersistenceState(PERSISTENCE nPersistenceState);
 	void SetNetChan(void* pNetChan); // !TODO: HACK!
@@ -33,7 +33,7 @@ public:
 	bool IsFakeClient(void) const;
 	bool IsHumanPlayer(void) const;
 	static bool Connect(CBaseClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize);
-	static void* Clear(CBaseClient* pBaseClient);
+	static void Clear(CBaseClient* pBaseClient);
 
 private:
 	// [ PIXIE ]: AMOS PLEASE VERIFY STRUCT INTEGRITY FOR EARLIER SEASONS. THERE WAS A PADDING AFTER ORIGINID BEFORE.
@@ -59,8 +59,13 @@ private:
 	char pad_05C0[302676]; //0x05C0
 	std::int32_t m_LastMovementTick; //0x4A414
 	char pad_4A418[168]; //0x4A418
-
 };
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+static_assert(sizeof(CBaseClient) == 0x4A440);
+#else
+static_assert(sizeof(CBaseClient) == 0x4A4C0);
+#endif
+
 
 namespace
 {
@@ -69,10 +74,9 @@ namespace
 	bool (*CBaseClient_Connect)(CBaseClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize) = (bool (*)(CBaseClient*, const char*, void*, bool, void*, char*, int))p_CBaseClient_Connect.GetPtr();
 
 	ADDRESS p_CBaseClient_Clear = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74", "xxxxxxxxxxxxxxxx");
-	void* (*CBaseClient_Clear)(CBaseClient* pClient) = (void* (*)(CBaseClient*))p_CBaseClient_Clear.GetPtr(); /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
+	void (*CBaseClient_Clear)(CBaseClient* pClient) = (void (*)(CBaseClient*))p_CBaseClient_Clear.GetPtr(); /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
 
 	static ADDRESS g_pClientBuffer = p_IVEngineServer__PersistenceAvailable.FindPatternSelf("48 8D 0D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
-
 
 	// Notes for earlier seasons.
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)

@@ -23,7 +23,7 @@ CBaseClient* CBaseClient::GetClient(int nIndex) const
 //---------------------------------------------------------------------------------
 // Purpose: gets the userID of this client
 //---------------------------------------------------------------------------------
-int32_t CBaseClient::GetUserID(void) const
+std::int32_t CBaseClient::GetUserID(void) const
 {
 	return m_nUserID;
 }
@@ -31,7 +31,7 @@ int32_t CBaseClient::GetUserID(void) const
 //---------------------------------------------------------------------------------
 // Purpose: gets the userID of this client
 //---------------------------------------------------------------------------------
-int64_t CBaseClient::GetOriginID(void) const
+std::int64_t CBaseClient::GetOriginID(void) const
 {
 	return m_nOriginID;
 }
@@ -63,7 +63,7 @@ void* CBaseClient::GetNetChan(void) const
 //---------------------------------------------------------------------------------
 // Purpose: sets the userID of this client
 //---------------------------------------------------------------------------------
-void CBaseClient::SetUserID(int32_t nUserID)
+void CBaseClient::SetUserID(std::int32_t nUserID)
 {
 	m_nUserID = nUserID;
 }
@@ -71,7 +71,7 @@ void CBaseClient::SetUserID(int32_t nUserID)
 //---------------------------------------------------------------------------------
 // Purpose: sets the originID of this client
 //---------------------------------------------------------------------------------
-void CBaseClient::SetOriginID(int64_t nOriginID)
+void CBaseClient::SetOriginID(std::int64_t nOriginID)
 {
 	m_nOriginID = nOriginID;
 }
@@ -174,9 +174,9 @@ bool CBaseClient::IsHumanPlayer(void) const
 // Purpose: throw away any residual garbage in the channel
 // Input  : *pBaseClient - 
 //---------------------------------------------------------------------------------
-void* CBaseClient::Clear(CBaseClient* pBaseClient)
+void CBaseClient::Clear(CBaseClient* pBaseClient)
 {
-	return CBaseClient_Clear(pBaseClient);
+	CBaseClient_Clear(pBaseClient);
 }
 
 //---------------------------------------------------------------------------------
