@@ -34,16 +34,12 @@ namespace
 ///////////////////////////////////////////////////////////////////////////////
 char* hsq_getstring(void* sqvm, int i);
 int hsq_getinteger(void* sqvm, int i);
-
 void hsq_pushbool(void* sqvm, int val);
-
 void hsq_pushstring(void* sqvm, const char* string, int len);
-
 void hsq_pushinteger(void* sqvm, int val);
-
+void hsq_pushconstant(void* sqvm, const char* name, int val);
 void hsq_newarray(void* sqvm, int size);
 void hsq_arrayappend(void* sqvm, int idx);
-
 void hsq_newtable(void* sqvm);
 void hsq_newslot(void* sqvm, int idx);
 
