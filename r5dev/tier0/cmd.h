@@ -66,6 +66,8 @@ public:
 	const char* Arg(int nIndex) const;
 	const char* operator[](int nIndex) const;
 
+	bool HasOnlyDigits(int nIndex) const;
+
 private:
 	int          m_nQueuedVal;
 	int          m_nArgc;

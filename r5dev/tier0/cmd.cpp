@@ -70,6 +70,23 @@ const char* CCommand::operator[](int nIndex) const
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: return boolean depending on if the string only has digits in it
+// Input  : svString - 
+//-----------------------------------------------------------------------------
+bool CCommand::HasOnlyDigits(int nIndex) const
+{
+	std::string svString = Arg(nIndex);
+	for (const char& character : svString)
+	{
+		if (std::isdigit(character) == 0)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: construct/allocate
 //-----------------------------------------------------------------------------
 ConCommand::ConCommand(const char* pszName, const char* pszHelpString, int nFlags, void* pCallback, void* pCommandCompletionCallback)
@@ -122,10 +139,11 @@ void ConCommand::Init(void)
 	ConCommand* fs_decompress_pak = new ConCommand("fs_decompress_pak", "Decompresses user specified 'vpk_dir' file.", FCVAR_DEVELOPMENTONLY, _VPK_Decompress_f_CompletionFunc, nullptr);
 	//-------------------------------------------------------------------------
 	// RTECH API                                                              |
-	ConCommand* rtech_strtoguid  = new ConCommand("rtech_strtoguid", "Calculates the GUID from input data.", FCVAR_DEVELOPMENTONLY, _RTech_StringToGUID_f_CompletionFunc, nullptr);
-	ConCommand* pak_asyncload    = new ConCommand("pak_asyncload", "Loads the specified RPAK file asynchronously.", FCVAR_DEVELOPMENTONLY, _RTech_AsyncLoad_f_CompletionFunc, nullptr);
-	ConCommand* pak_decompress   = new ConCommand("pak_decompress", "Decompresses the specified RPAK file.", FCVAR_DEVELOPMENTONLY, _RTech_Decompress_f_CompletionFunc, nullptr);
-	ConCommand* pak_listpaks     = new ConCommand("pak_listpaks", "Display a list of the loaded Pak files.", FCVAR_DEVELOPMENTONLY, _Pak_ListPaks_f_CompletionFunc, nullptr);
+	ConCommand* rtech_strtoguid   = new ConCommand("rtech_strtoguid", "Calculates the GUID from input data.", FCVAR_DEVELOPMENTONLY, _RTech_StringToGUID_f_CompletionFunc, nullptr);
+	ConCommand* pak_requestload   = new ConCommand("pak_requestload", "Requests asynchronous load for specified RPAK FILE.", FCVAR_DEVELOPMENTONLY, _Pak_RequestLoad_f_CompletionFunc, nullptr);
+	ConCommand* pak_requestunload = new ConCommand("pak_requestunload", "Requests unload for specified RPAK ID.", FCVAR_DEVELOPMENTONLY, _Pak_RequestUnload_f_CompletionFunc, nullptr);
+	ConCommand* pak_decompress    = new ConCommand("pak_decompress", "Decompresses the specified RPAK file.", FCVAR_DEVELOPMENTONLY, _RTech_Decompress_f_CompletionFunc, nullptr);
+	ConCommand* pak_listpaks      = new ConCommand("pak_listpaks", "Display a list of the loaded Pak files.", FCVAR_DEVELOPMENTONLY, _Pak_ListPaks_f_CompletionFunc, nullptr);
 	//-------------------------------------------------------------------------
 	// NETCHANNEL                                                             |
 	ConCommand* net_toggletrace = new ConCommand("net_toggletrace", "Logs the sending and receiving datagram to a file on the disk.", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, _NET_TraceNetChan_f_CompletionFunc, nullptr);

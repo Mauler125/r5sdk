@@ -27,6 +27,7 @@
 #include "engine/baseserver.h"
 #endif // !CLIENT_DLL
 #include "rtech/rtech_game.h"
+#include "rtech/rtech_utils.h"
 #ifndef DEDICATED
 #include "vgui/vgui_baseui_interface.h"
 #endif // DEDICATED
@@ -284,8 +285,15 @@ FORCEINLINE void CHostState::UnloadPakFile(void)
 {
 	for (auto& it : g_nLoadedPakFileId)
 	{
-		if (it >= 0) // [ PIXIE ] TODO: Create RTech function to get RPakLoadedInfo by ID and print which rpak is getting unloaded.
+		if (it >= 0)
 		{
+#ifdef GAMEDLL_S3
+			RPakLoadedInfo_t pakInfo = g_pRTech->GetPakLoadedInfo(it);
+			if (pakInfo.m_pszFileName)
+			{
+				DevMsg(eDLL_T::RTECH, "Unloading PakFile '%s' now.", pakInfo.m_pszFileName);
+			}
+#endif // GAMEDLL_S3
 			RTech_UnloadPak(it);
 		}
 	}

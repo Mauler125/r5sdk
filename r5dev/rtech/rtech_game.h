@@ -33,7 +33,7 @@ namespace
 	ADDRESS p_RTech_UnloadAsset = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x83\xEC\x28\x48\x85\xD2\x74\x40\x48\x8B\x05\x00\x00\x00\x00", "xxxxxxxxxxxx????");
 	void (*RTech_UnloadAsset)(std::int64_t a1, std::int64_t a2) = (void (*)(std::int64_t, std::int64_t))p_RTech_UnloadAsset.GetPtr(); /*48 83 EC 28 48 85 D2 74 40 48 8B 05 ? ? ? ?*/
 
-		ADDRESS p_RTech_LoadPak = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x4C\x24\x00\x56\x41\x55", "xxxx?xxx"); /*48 89 4C 24 ? 56 41 55*/
+	ADDRESS p_RTech_LoadPak = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x4C\x24\x00\x56\x41\x55", "xxxx?xxx"); /*48 89 4C 24 ? 56 41 55*/
 	unsigned int (*RTech_LoadPak)(void* thisptr, void* a2, std::uint64_t a3) = (unsigned int (*)(void*, void*, std::uint64_t))p_RTech_LoadPak.GetPtr();
 
 	ADDRESS p_RTech_LoadMapPak = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x81\xEC\x00\x00\x00\x00\x0F\xB6\x05\x00\x00\x00\x00\x4C\x8D\x05\x00\x00\x00\x00\x84\xC0", "xxx????xxx????xxx????xx");
@@ -53,7 +53,7 @@ namespace
 	void* (*RTech_UnloadPak)(int nPakId) = (void* (*)(int nPakId))p_RTech_UnloadPak.GetPtr();/*48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 30 8B C1*/
 }
 void HRTech_UnloadAsset(std::int64_t a1, std::int64_t a2);
-void HRtech_AsyncLoad(std::string svPakFileName);
+void HRTech_AsyncLoad(std::string svPakFileName);
 
 void RTech_Game_Attach();
 void RTech_Game_Detach();

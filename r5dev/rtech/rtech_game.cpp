@@ -35,7 +35,7 @@ void HRTech_UnloadAsset(std::int64_t a1, std::int64_t a2) // This ain't related 
 //-----------------------------------------------------------------------------
 // Purpose: load user-requested pak files on-demand
 //-----------------------------------------------------------------------------
-void HRtech_AsyncLoad(std::string svPakFileName)
+void HRTech_AsyncLoad(std::string svPakFileName)
 {
 	std::string svPakFilePathMod = "paks\\Win32\\" + svPakFileName;
 	std::string svPakFilePathBase = "paks\\Win64\\" + svPakFileName;

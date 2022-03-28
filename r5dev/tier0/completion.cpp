@@ -45,7 +45,7 @@ void _CGameConsole_f_CompletionFunc(const CCommand& args)
 _CCompanion_f_CompletionFunc
 =====================
 */
-void _CCompanion_f_CompletionFunc(const CCommand& cmd)
+void _CCompanion_f_CompletionFunc(const CCommand& args)
 {
 	g_pIBrowser->m_bActivate = !g_pIBrowser->m_bActivate;
 }
@@ -100,18 +100,6 @@ _KickID_f_CompletionFunc
 */
 void _KickID_f_CompletionFunc(const CCommand& args)
 {
-	static auto HasOnlyDigits = [](const std::string& string)
-	{
-		for (const char& character : string)
-		{
-			if (std::isdigit(character) == 0)
-			{
-				return false;
-			}
-		}
-		return true;
-	};
-
 	if (args.ArgC() < 2) // Do we atleast have 2 arguments?
 	{
 		return;
@@ -119,7 +107,7 @@ void _KickID_f_CompletionFunc(const CCommand& args)
 
 	try
 	{
-		bool onlyDigits = HasOnlyDigits(args.Arg(1));
+		bool onlyDigits = args.HasOnlyDigits(1);
 		for (int i = 0; i < MAX_PLAYERS; i++)
 		{
 			CBaseClient* client = g_pClient->GetClient(i);
@@ -250,18 +238,6 @@ _BanID_f_CompletionFunc
 */
 void _BanID_f_CompletionFunc(const CCommand& args)
 {
-	static auto HasOnlyDigits = [](const std::string& string)
-	{
-		for (const char& character : string)
-		{
-			if (std::isdigit(character) == 0)
-			{
-				return false;
-			}
-		}
-		return true;
-	};
-
 	if (args.ArgC() < 2)
 	{
 		return;
@@ -269,7 +245,7 @@ void _BanID_f_CompletionFunc(const CCommand& args)
 
 	try
 	{
-		bool onlyDigits = HasOnlyDigits(args.Arg(1));
+		bool onlyDigits = args.HasOnlyDigits(1);
 		for (int i = 0; i < MAX_PLAYERS; i++)
 		{
 			CBaseClient* client = g_pClient->GetClient(i);
@@ -347,18 +323,6 @@ _Unban_f_CompletionFunc
 */
 void _Unban_f_CompletionFunc(const CCommand& args)
 {
-	static auto HasOnlyDigits = [](const std::string& string)
-	{
-		for (const char& character : string)
-		{
-			if (std::isdigit(character) == 0)
-			{
-				return false;
-			}
-		}
-		return true;
-	};
-
 	if (args.ArgC() < 2)
 	{
 		return;
@@ -366,7 +330,7 @@ void _Unban_f_CompletionFunc(const CCommand& args)
 
 	try
 	{
-		if (HasOnlyDigits(args.Arg(1))) // Check if we have an ip address or origin ID.
+		if (args.HasOnlyDigits(1)) // Check if we have an ip address or origin ID.
 		{
 			g_pBanSystem->DeleteEntry("noIP", std::stoll(args.Arg(1))); // Delete ban entry.
 			g_pBanSystem->Save(); // Save modified vector to file.
@@ -399,15 +363,11 @@ void _ReloadBanList_f_CompletionFunc(const CCommand& args)
  _Pak_ListPaks_f_CompletionFunc
 =====================
 */
-void _Pak_ListPaks_f_CompletionFunc(const CCommand& cmd)
+void _Pak_ListPaks_f_CompletionFunc(const CCommand& args)
 {
 #ifdef GAMEDLL_S3
-	// [ PIXIE ]: TODO pattern scan these.
-	static std::int16_t* s_pLoadedPakCount = ADDRESS(0x167ED7C6C).RCast<std::int16_t*>();
-	static RPakLoadedInfo_t* g_pLoadedPakInfo = ADDRESS(0x167D40B70).RCast<RPakLoadedInfo_t*>();
-
-	DevMsg(eDLL_T::RTECH, "| id | name                             | status                               | asset count |\n");
-	DevMsg(eDLL_T::RTECH, "|----|----------------------------------|--------------------------------------|-------------|\n");
+	DevMsg(eDLL_T::RTECH, "| id | name                                               | status                               | asset count |\n");
+	DevMsg(eDLL_T::RTECH, "|----|----------------------------------------------------|--------------------------------------|-------------|\n");
 
 	std::uint32_t nActuallyLoaded = 0;
 
@@ -425,13 +385,58 @@ void _Pak_ListPaks_f_CompletionFunc(const CCommand& cmd)
 			rpakStatus = it->second;
 
 		// todo: make status into a string from an array/vector
-		DevMsg(eDLL_T::RTECH, "| %02i | %-32s | %-36s | %11i |\n", info.m_nPakId, info.m_pszFileName, rpakStatus.c_str(), info.m_nAssetCount);
+		DevMsg(eDLL_T::RTECH, "| %02i | %-50s | %-36s | %11i |\n", info.m_nPakId, info.m_pszFileName, rpakStatus.c_str(), info.m_nAssetCount);
 		nActuallyLoaded++;
 	}
-	DevMsg(eDLL_T::RTECH, "|----|----------------------------------|--------------------------------------|-------------|\n");
-	DevMsg(eDLL_T::RTECH, "| %16i loaded paks.                                                              |\n", nActuallyLoaded);
-	DevMsg(eDLL_T::RTECH, "|----|----------------------------------|--------------------------------------|-------------|\n");
-#endif
+	DevMsg(eDLL_T::RTECH, "|----|----------------------------------------------------|--------------------------------------|-------------|\n");
+	DevMsg(eDLL_T::RTECH, "| %16i loaded paks.                                                                                |\n", nActuallyLoaded);
+	DevMsg(eDLL_T::RTECH, "|----|----------------------------------------------------|--------------------------------------|-------------|\n");
+#endif // GAMEDLL_S3
+}
+
+/*
+=====================
+ _Pak_RequestUnload_f_CompletionFunc
+=====================
+*/
+void _Pak_RequestUnload_f_CompletionFunc(const CCommand& args)
+{
+#ifdef GAMEDLL_S3
+	if (args.ArgC() < 2)
+	{
+		return;
+	}
+
+	try
+	{
+		if (args.HasOnlyDigits(1))
+		{
+			int nPakId = std::stoi(args.Arg(1));
+			RPakLoadedInfo_t pakInfo = g_pRTech->GetPakLoadedInfo(nPakId);
+			pakInfo.m_pszFileName ? DevMsg(eDLL_T::RTECH, "Requested Pak Unload for '%s'\n", pakInfo.m_pszFileName) : DevMsg(eDLL_T::RTECH, "Requested Pak Unload for '%d'\n", nPakId);
+			RTech_UnloadPak(nPakId);
+		}
+		else
+		{
+			throw std::exception("Please provide a number as an arg.");
+		}
+	}
+	catch (std::exception& e)
+	{
+		Error(eDLL_T::RTECH, "RequestUnload Error: %s", e.what());
+		return;
+	}
+#endif // GAMEDLL_S3
+}
+
+/*
+=====================
+_Pak_RequestLoad_f_CompletionFunc
+=====================
+*/
+void _Pak_RequestLoad_f_CompletionFunc(const CCommand& args)
+{
+	HRTech_AsyncLoad(args.Arg(1));
 }
 
 /*
@@ -446,21 +451,11 @@ void _RTech_StringToGUID_f_CompletionFunc(const CCommand& args)
 		return;
 	}
 
-	unsigned long long guid = g_pRtech->StringToGuid(args.Arg(1));
+	unsigned long long guid = g_pRTech->StringToGuid(args.Arg(1));
 
 	DevMsg(eDLL_T::RTECH, "______________________________________________________________\n");
 	DevMsg(eDLL_T::RTECH, "] RTECH_HASH -------------------------------------------------\n");
 	DevMsg(eDLL_T::RTECH, "] GUID: '0x%llX'\n", guid);
-}
-
-/*
-=====================
-_RTech_AsyncLoad_f_CompletionFunc
-=====================
-*/
-void _RTech_AsyncLoad_f_CompletionFunc(const CCommand& args)
-{
-	HRtech_AsyncLoad(args.Arg(1));
 }
 
 /*
@@ -538,7 +533,7 @@ void _RTech_Decompress_f_CompletionFunc(const CCommand& args)
 	}
 
 	RPakDecompState_t state;
-	std::uint32_t decompSize = g_pRtech->DecompressPakFileInit(&state, upak.data(), upak.size(), 0, PAK_HEADER_SIZE);
+	std::uint32_t decompSize = g_pRTech->DecompressPakFileInit(&state, upak.data(), upak.size(), 0, PAK_HEADER_SIZE);
 
 	if (decompSize == rheader->m_nSizeDisk)
 	{
@@ -555,7 +550,7 @@ void _RTech_Decompress_f_CompletionFunc(const CCommand& args)
 	state.m_nOutMask = UINT64_MAX;
 	state.m_nOut = uint64_t(pakBuf.data());
 
-	std::uint8_t decompResult = g_pRtech->DecompressPakFile(&state, upak.size(), pakBuf.size());
+	std::uint8_t decompResult = g_pRTech->DecompressPakFile(&state, upak.size(), pakBuf.size());
 	if (decompResult != 1)
 	{
 		Error(eDLL_T::RTECH, "Error: decompression failed for '%s' return value: '%u'!\n", pakNameIn.c_str(), +decompResult);

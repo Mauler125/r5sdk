@@ -17,8 +17,8 @@ namespace
 
 ///////////////////////////////////////////////////////////////////////////////
 #ifndef DEDICATED
-void _CGameConsole_f_CompletionFunc(const CCommand& cmd);
-void _CCompanion_f_CompletionFunc(const CCommand& cmd);
+void _CGameConsole_f_CompletionFunc(const CCommand& args);
+void _CCompanion_f_CompletionFunc(const CCommand& args);
 #endif // !DEDICATED
 void _Kick_f_CompletionFunc(const CCommand& args);
 void _KickID_f_CompletionFunc(const CCommand& args);
@@ -26,9 +26,10 @@ void _Ban_f_CompletionFunc(const CCommand& args);
 void _BanID_f_CompletionFunc(const CCommand& args);
 void _Unban_f_CompletionFunc(const CCommand& args);
 void _ReloadBanList_f_CompletionFunc(const CCommand& args);
-void _Pak_ListPaks_f_CompletionFunc(const CCommand& cmd);
+void _Pak_ListPaks_f_CompletionFunc(const CCommand& args);
+void _Pak_RequestUnload_f_CompletionFunc(const CCommand& args);
+void _Pak_RequestLoad_f_CompletionFunc(const CCommand& args);
 void _RTech_StringToGUID_f_CompletionFunc(const CCommand& args);
-void _RTech_AsyncLoad_f_CompletionFunc(const CCommand& args);
 void _RTech_Decompress_f_CompletionFunc(const CCommand& args);
 void _VPK_Decompress_f_CompletionFunc(const CCommand& args);
 void _NET_TraceNetChan_f_CompletionFunc(const CCommand& args);

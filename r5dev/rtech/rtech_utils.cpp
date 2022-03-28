@@ -14,6 +14,7 @@ History:
 - 10:09:2021 | 18:22 : Implement 'StringToGuid' method
 - 12:11:2021 | 14:41 : Add decompression method to ConCommand callback
 - 25:12:2021 | 23:20 : Made everything more readable thanks to bezdna5-rs
+- 28:03:2021 | 18:00 : Added getting pak info by PakID.
 
 ******************************************************************************/
 
@@ -495,5 +496,24 @@ std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::
 
 	return result;
 }
+
+RPakLoadedInfo_t RTech::GetPakLoadedInfo(int nPakId)
+{
+#ifdef GAMEDLL_S3
+	for (int i = 0; i < *s_pLoadedPakCount; ++i)
+	{
+		RPakLoadedInfo_t info = g_pLoadedPakInfo[i];
+
+		if (info.m_nPakId != nPakId)
+			continue;
+
+		return info;
+	}
+
+	Warning(eDLL_T::RTECH, "Failed getting RPakLoadInfo_t for PakId '%d'", nPakId);
+#endif // GAMEDLL_S3
+
+	return RPakLoadedInfo_t();
+}
 ///////////////////////////////////////////////////////////////////////////////
-RTech* g_pRtech = new RTech();
+RTech* g_pRTech = new RTech();
