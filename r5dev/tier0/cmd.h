@@ -20,14 +20,14 @@ public:
 //-----------------------------------------------------------------------------
 // Purpose: Command buffer context
 //-----------------------------------------------------------------------------
-typedef enum
+enum class ECommandTarget_t : int
 {
 	CBUF_FIRST_PLAYER = 0,
 	CBUF_LAST_PLAYER = MAX_SPLITSCREEN_CLIENTS - 1,
 	CBUF_SERVER = CBUF_LAST_PLAYER + 1,
 
 	CBUF_COUNT,
-} ECommandTarget_t;
+};
 
 //-----------------------------------------------------------------------------
 // Sources of console commands
