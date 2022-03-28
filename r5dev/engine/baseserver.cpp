@@ -16,8 +16,7 @@
 
 //---------------------------------------------------------------------------------
 // Purpose: Gets the number of human players on the server
-// Output : int64_t
-// !TODO  : Rebuild properly..
+// Output : int
 //---------------------------------------------------------------------------------
 int CBaseServer::GetNumHumanPlayers(void) const
 {
@@ -28,7 +27,7 @@ int CBaseServer::GetNumHumanPlayers(void) const
         if (!client)
             continue;
 
-        if (client->IsConnected())
+        if (client->IsHumanPlayer())
             nHumans++;
     }
 
@@ -37,8 +36,7 @@ int CBaseServer::GetNumHumanPlayers(void) const
 
 //---------------------------------------------------------------------------------
 // Purpose: Gets the number of fake clients on the server
-// Output : int64_t
-// !TODO  : Rebuild properly..
+// Output : int
 //---------------------------------------------------------------------------------
 int CBaseServer::GetNumFakeClients(void) const
 {

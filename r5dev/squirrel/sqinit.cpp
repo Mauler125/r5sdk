@@ -6,7 +6,8 @@
 // 
 // Create functions here under the target VM namespace. If the function has to
 // be registered for 2 or more VM's, put them under the 'SHARED' namespace. 
-// Ifdef them out for 'DEDICATED' if the target VM's do not include 'SERVER'.
+// Ifdef them out for 'DEDICATED' / 'CLIENT_DLL' if the target VM's do not 
+// include 'SERVER' / 'CLIENT'.
 //
 //=============================================================================//
 
@@ -29,9 +30,11 @@ namespace VSquirrel
             return SQ_OK;
         }
     }
+#ifndef CLIENT_DLL
     namespace SERVER
     {
     }
+#endif // !CLIENT_DLL
 #ifndef DEDICATED
     namespace CLIENT
     {

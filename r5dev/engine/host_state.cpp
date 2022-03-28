@@ -155,8 +155,8 @@ FORCEINLINE void CHostState::Setup(void) const
 	g_pRConClient->Init();
 #endif // DEDICATED
 
-	std::thread t1(&CHostState::Think, this);
-	t1.detach();
+	std::thread think(&CHostState::Think, this);
+	think.detach();
 
 	*reinterpret_cast<bool*>(m_bRestrictServerCommands) = true; // Restrict commands.
 	ConCommandBase* disconnect = g_pCVar->FindCommandBase("disconnect");
@@ -231,8 +231,10 @@ FORCEINLINE void CHostState::LoadConfig(void) const
 {
 	if (!g_pCmdLine->CheckParm("-devsdk"))
 	{
+#ifndef CLIENT_DLL
 		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_server.cfg\"", cmd_source_t::kCommandSrcCode);
 		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"rcon_server.cfg\"", cmd_source_t::kCommandSrcCode);
+#endif //!CLIENT_DLL
 #ifndef DEDICATED
 		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_client.cfg\"", cmd_source_t::kCommandSrcCode);
 		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"rcon_client.cfg\"", cmd_source_t::kCommandSrcCode);
@@ -241,8 +243,10 @@ FORCEINLINE void CHostState::LoadConfig(void) const
 	}
 	else // Development configs.
 	{
+#ifndef CLIENT_DLL
 		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_server_dev.cfg\"", cmd_source_t::kCommandSrcCode);
 		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"rcon_server_dev.cfg\"", cmd_source_t::kCommandSrcCode);
+#endif //!CLIENT_DLL
 #ifndef DEDICATED
 		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_client_dev.cfg\"", cmd_source_t::kCommandSrcCode);
 		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"rcon_client_dev.cfg\"", cmd_source_t::kCommandSrcCode);
