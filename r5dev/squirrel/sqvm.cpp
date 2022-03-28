@@ -324,7 +324,7 @@ void RegisterUIScriptFunctions(void* sqvm)
 //---------------------------------------------------------------------------------
 void HSQVM_RegisterOriginFuncs(void* sqvm)
 {
-	if (sqvm == *p_SQVM_UIVM.RCast<void**>())
+	if (sqvm == *g_pUIVM.RCast<void**>())
 		RegisterUIScriptFunctions(sqvm);
 	else
 		RegisterClientScriptFunctions(sqvm);
