@@ -1,93 +1,94 @@
 //=============================================================================//
 //
-// Purpose: Squirrel API
+// Purpose: Squirrel API interface to engine
 //
 //=============================================================================//
 
 #include "core/stdafx.h"
 #include "squirrel/sqapi.h"
+#include "squirrel/sqtype.h"
 
-char* hsq_getstring(void* sqvm, int i)
+char* sq_getstring(HSQUIRRELVM* v, int i)
 {
-	std::uintptr_t thisptr = reinterpret_cast<std::uintptr_t>(sqvm);
+	std::uintptr_t thisptr = reinterpret_cast<std::uintptr_t>(v);
 
 	return *(char**)(*(std::int64_t*)(thisptr + 0x58) + 0x10 * i + 0x8) + 0x40;
 }
 
-int hsq_getinteger(void* sqvm, int i)
+int sq_getinteger(HSQUIRRELVM* v, int i)
 {
-	std::uintptr_t thisptr = reinterpret_cast<std::uintptr_t>(sqvm);
+	std::uintptr_t thisptr = reinterpret_cast<std::uintptr_t>(v);
 
 	return *(int*)(*(std::int64_t*)(thisptr + 0x58) + 0x10 * i + 0x8);
 }
 
-void hsq_pushbool(void* sqvm, int val)
+void sq_pushbool(HSQUIRRELVM* v, int val)
 {
-	sq_pushbool(sqvm, val);
+	v_sq_pushbool(v, val);
 }
 
-void hsq_pushstring(void* sqvm, const char* string, int len)
+void sq_pushstring(HSQUIRRELVM* v, const char* string, int len)
 {
-	sq_pushstring(sqvm, const_cast<char*>(string), len);
+	v_sq_pushstring(v, const_cast<char*>(string), len);
 }
 
-void hsq_pushinteger(void* sqvm, int val)
+void sq_pushinteger(HSQUIRRELVM* v, int val)
 {
-	sq_pushinteger(sqvm, val);
+	v_sq_pushinteger(v, val);
 }
 
-void hsq_pushconstant(void* sqvm, const char* name, int val)
+void sq_pushconstant(HSQUIRRELVM* v, const char* name, int val)
 {
-	sq_pushconstant(sqvm, name, val);
+	v_sq_pushconstant(v, name, val);
 }
 
-void hsq_newarray(void* sqvm, int size)
+void sq_newarray(HSQUIRRELVM* v, int size)
 {
-	sq_newarray(sqvm, size);
+	v_sq_newarray(v, size);
 }
 
-void hsq_arrayappend(void* sqvm, int idx)
+void sq_arrayappend(HSQUIRRELVM* v, int idx)
 {
-	sq_arrayappend(sqvm, idx);
+	v_sq_arrayappend(v, idx);
 }
 
-void hsq_newtable(void* sqvm)
+void sq_newtable(HSQUIRRELVM* v)
 {
-	sq_newtable(sqvm);
+	v_sq_newtable(v);
 }
 
-void hsq_newslot(void* sqvm, int idx)
+void sq_newslot(HSQUIRRELVM* v, int idx)
 {
-	sq_newslot(sqvm, idx);
+	v_sq_newslot(v, idx);
 }
 
-void hsq_pushstructure(void* sqvm, const char* name, const char* member, const char* codeclass1, const char* codeclass2)
+void sq_pushstructure(HSQUIRRELVM* v, const char* name, const char* member, const char* codeclass1, const char* codeclass2)
 {
-	sq_pushstructure(sqvm, name, member, codeclass1, codeclass2);
+	v_sq_pushstructure(v, name, member, codeclass1, codeclass2);
 }
 
 void SQAPI_Attach()
 {
-	DetourAttach((LPVOID*)&sq_pushbool, &hsq_pushbool);
-	DetourAttach((LPVOID*)&sq_pushstring, &hsq_pushstring);
-	DetourAttach((LPVOID*)&sq_pushinteger, &hsq_pushinteger);
-	DetourAttach((LPVOID*)&sq_pushconstant, &hsq_pushconstant);
-	DetourAttach((LPVOID*)&sq_newarray, &hsq_newarray);
-	DetourAttach((LPVOID*)&sq_arrayappend, &hsq_arrayappend);
-	DetourAttach((LPVOID*)&sq_newtable, &hsq_newtable);
-	DetourAttach((LPVOID*)&sq_newslot, &hsq_newslot);
-	DetourAttach((LPVOID*)&sq_pushstructure, &hsq_pushstructure);
+	DetourAttach((LPVOID*)&v_sq_pushbool, &sq_pushbool);
+	DetourAttach((LPVOID*)&v_sq_pushstring, &sq_pushstring);
+	DetourAttach((LPVOID*)&v_sq_pushinteger, &sq_pushinteger);
+	DetourAttach((LPVOID*)&v_sq_pushconstant, &sq_pushconstant);
+	DetourAttach((LPVOID*)&v_sq_newarray, &sq_newarray);
+	DetourAttach((LPVOID*)&v_sq_arrayappend, &sq_arrayappend);
+	DetourAttach((LPVOID*)&v_sq_newtable, &sq_newtable);
+	DetourAttach((LPVOID*)&v_sq_newslot, &sq_newslot);
+	DetourAttach((LPVOID*)&v_sq_pushstructure, &sq_pushstructure);
 }
 
 void SQAPI_Detach()
 {
-	DetourDetach((LPVOID*)&sq_pushbool, &hsq_pushbool);
-	DetourDetach((LPVOID*)&sq_pushstring, &hsq_pushstring);
-	DetourDetach((LPVOID*)&sq_pushinteger, &hsq_pushinteger);
-	DetourDetach((LPVOID*)&sq_pushconstant, &hsq_pushconstant);
-	DetourDetach((LPVOID*)&sq_newarray, &hsq_newarray);
-	DetourDetach((LPVOID*)&sq_arrayappend, &hsq_arrayappend);
-	DetourDetach((LPVOID*)&sq_newtable, &hsq_newtable);
-	DetourDetach((LPVOID*)&sq_newslot, &hsq_newslot);
-	DetourDetach((LPVOID*)&sq_pushstructure, &hsq_pushstructure);
+	DetourDetach((LPVOID*)&v_sq_pushbool, &sq_pushbool);
+	DetourDetach((LPVOID*)&v_sq_pushstring, &sq_pushstring);
+	DetourDetach((LPVOID*)&v_sq_pushinteger, &sq_pushinteger);
+	DetourDetach((LPVOID*)&v_sq_pushconstant, &sq_pushconstant);
+	DetourDetach((LPVOID*)&v_sq_newarray, &sq_newarray);
+	DetourDetach((LPVOID*)&v_sq_arrayappend, &sq_arrayappend);
+	DetourDetach((LPVOID*)&v_sq_newtable, &sq_newtable);
+	DetourDetach((LPVOID*)&v_sq_newslot, &sq_newslot);
+	DetourDetach((LPVOID*)&v_sq_pushstructure, &sq_pushstructure);
 }

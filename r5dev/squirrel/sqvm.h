@@ -1,56 +1,5 @@
 #pragma once
-
-typedef int SQRESULT;
-#define SQ_OK (1)
-#define SQ_ERROR (-1)
-#define SQ_FAILED(res) (res<0)
-#define SQ_SUCCEEDED(res) (res>=0)
-
-enum class SQCONTEXT : int
-{
-	SERVER = 0,
-	CLIENT,
-	UI
-};
-
-const static std::string SQVM_TYPE_T[3] =
-{
-	"SERVER",
-	"CLIENT",
-	"UI",
-};
-
-const static std::string SQVM_LOG_T[4] =
-{
-	"Script(S):",
-	"Script(C):",
-	"Script(U):",
-	"Script(X):"
-};
-
-const static std::string SQVM_WARNING_LOG_T[4] =
-{
-	"Script(S):Warning:",
-	"Script(C):Warning:",
-	"Script(U):Warning:",
-	"Script(X):Warning:"
-};
-
-const static std::string SQVM_ANSI_LOG_T[4] =
-{
-	"\033[38;2;151;149;187mScript(S):",
-	"\033[38;2;151;149;163mScript(C):",
-	"\033[38;2;151;123;136mScript(U):",
-	"\033[38;2;151;149;163mScript(X):"
-};
-
-const static std::string SQVM_WARNING_ANSI_LOG_T[4] =
-{
-	"\033[38;2;151;149;187mScript(S):\033[38;2;255;255;000mWarning:",
-	"\033[38;2;151;149;163mScript(C):\033[38;2;255;255;000mWarning:",
-	"\033[38;2;151;123;136mScript(U):\033[38;2;255;255;000mWarning:",
-	"\033[38;2;151;149;163mScript(X):\033[38;2;255;255;000mWarning:"
-};
+#include "squirrel/sqtype.h"
 
 struct SQFuncRegistration
 {
@@ -123,7 +72,6 @@ namespace
 	ADDRESS p_SQVM_InitializeCLGlobalScriptStructs = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x83\xEC\x30\x48\x63\xC2\x48\x8D\x3D\x00\x00\x00\x00", "xxxx?xxxx?xxxxxxxxxxxx????");
 	int (*SQVM_InitializeCLGlobalScriptStructs)(void* sqvm/**(+8)*/, SQCONTEXT context) = (int (*)(void*, SQCONTEXT))p_SQVM_InitializeCLGlobalScriptStructs.GetPtr(); /*48 89 74 24 ? 48 89 7C 24 ? 41 56 48 83 EC 30 48 63 C2 48 8D 3D ? ? ? ?*/
 #endif // !DEDICATED
-
 #if !defined (CLIENT_DLL) && defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 	ADDRESS p_SQVM_CreateServerVM = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x48\x83\xEC\x50\x48\x8D\x0D\x00\x00\x00\x00", "xxxxxxxxx????");
 	bool (*SQVM_CreateServerVM)() = (bool(*)())p_SQVM_CreateServerVM.GetPtr(); /*40 53 48 83 EC 50 48 8D 0D ? ? ? ?*/

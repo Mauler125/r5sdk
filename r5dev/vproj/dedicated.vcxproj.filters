@@ -813,6 +813,9 @@
     <ClInclude Include="..\materialsystem\cmaterialsystem.h">
       <Filter>sdk\materialsystem</Filter>
     </ClInclude>
+    <ClInclude Include="..\squirrel\sqtype.h">
+      <Filter>sdk\squirrel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\IVEngineClient.cpp">
