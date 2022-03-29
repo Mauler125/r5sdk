@@ -266,7 +266,7 @@ namespace VSquirrel
             if (svIpAddr.empty() || svEncKey.empty())
                 return SQ_OK;
 
-            DevMsg(eDLL_T::UI, "Connecting to server with connection string '%s' and encryption key '%s'\n", svIpAddr.c_str(), svEncKey.c_str());
+            DevMsg(eDLL_T::UI, "Connecting to server with ip-address '%s' and encryption key '%s'\n", svIpAddr.c_str(), svEncKey.c_str());
 
             g_pIBrowser->ConnectToServer(svIpAddr, svEncKey);
 
@@ -282,7 +282,7 @@ namespace VSquirrel
 
             if (vsvMapList.empty())
             {
-                DevMsg(eDLL_T::UI, "Available maps is empty!!!\n");
+                Warning(eDLL_T::UI, "%s: Available maps is empty!\n", __FUNCTION__);
                 return SQ_OK;
             }
 

@@ -6,8 +6,29 @@
 #define SQ_FAILED(res) (res<0)
 #define SQ_SUCCEEDED(res) (res>=0)
 
-typedef int SQRESULT;
+typedef char SQChar;
+typedef float SQFloat;
+typedef long SQInteger;
+typedef unsigned long SQUnsignedInteger;
+
+typedef SQUnsignedInteger SQBool;
+typedef SQInteger SQRESULT;
+
 typedef struct SQVM* HSQUIRRELVM;
+
+struct SQBufState
+{
+	const SQChar* buf;
+	const SQChar* bufTail;
+	const SQChar* bufCopy;
+
+	SQBufState(const std::string& code)
+	{
+		buf = code.c_str();
+		bufTail = code.c_str() + code.size();
+		bufCopy = code.c_str();
+	}
+};
 
 enum class SQCONTEXT : int
 {
