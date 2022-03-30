@@ -120,6 +120,7 @@ void ConCommand::Init(void)
 {
 	//-------------------------------------------------------------------------
 	// SERVER DLL                                                             |
+	ConCommand* script           = new ConCommand("script", "Run input code as SERVER script on the VM.", FCVAR_GAMEDLL | FCVAR_CHEAT, _SQVM_ServerScript_f_CompletionFunc, nullptr);
 	ConCommand* sv_kick          = new ConCommand("sv_kick", "Kick a client from the server by name. | Usage: kick \"<name>\".", FCVAR_RELEASE, _Kick_f_CompletionFunc, nullptr);
 	ConCommand* sv_kickid        = new ConCommand("sv_kickid", "Kick a client from the server by UserID or OriginID | Usage: kickid \"<OriginID>\"/\"<UserID>\".", FCVAR_RELEASE, _KickID_f_CompletionFunc, nullptr);
 	ConCommand* sv_ban           = new ConCommand("sv_ban", "Bans a client from the server by name. | Usage: ban <name>.", FCVAR_RELEASE, _Ban_f_CompletionFunc, nullptr);
@@ -129,10 +130,14 @@ void ConCommand::Init(void)
 #ifndef DEDICATED
 	//-------------------------------------------------------------------------
 	// CLIENT DLL                                                             |
+	ConCommand* script_client   = new ConCommand("script_client", "Run input code as CLIENT script on the VM.", FCVAR_CLIENTDLL | FCVAR_CHEAT, _SQVM_ClientScript_f_CompletionFunc, nullptr);
 	ConCommand* cl_showconsole  = new ConCommand("cl_showconsole", "Opens the game console.", FCVAR_CLIENTDLL | FCVAR_RELEASE, _CGameConsole_f_CompletionFunc, nullptr);
 	ConCommand* cl_showbrowser  = new ConCommand("cl_showbrowser", "Opens the server browser.", FCVAR_CLIENTDLL | FCVAR_RELEASE, _CCompanion_f_CompletionFunc, nullptr);
 	ConCommand* rcon            = new ConCommand("rcon", "Forward RCON query to remote server. | Usage: rcon \"<query>\".", FCVAR_CLIENTDLL | FCVAR_RELEASE, _RCON_CmdQuery_f_CompletionFunc, nullptr);
 	ConCommand* rcon_disconnect = new ConCommand("rcon_disconnect", "Disconnect from RCON server.", FCVAR_CLIENTDLL | FCVAR_RELEASE, _RCON_Disconnect_f_CompletionFunc, nullptr);
+	//-------------------------------------------------------------------------
+	// UI DLL                                                                 |
+	ConCommand* script_ui = new ConCommand("script_ui", "Run input code as UI script on the VM.", FCVAR_CLIENTDLL | FCVAR_CHEAT, _SQVM_UIScript_f_CompletionFunc, nullptr);
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// FILESYSTEM API                                                         |

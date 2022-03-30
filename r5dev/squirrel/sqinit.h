@@ -18,8 +18,8 @@ namespace VSquirrel
 {
 	namespace SHARED
 	{
-		SQRESULT SDKNativeTest(HSQUIRRELVM* v);
-		SQRESULT GetSDKVersion(HSQUIRRELVM* v);
+		SQRESULT SDKNativeTest(HSQUIRRELVM v);
+		SQRESULT GetSDKVersion(HSQUIRRELVM v);
 	}
 	namespace SERVER
 	{
@@ -30,17 +30,17 @@ namespace VSquirrel
 	}
 	namespace UI
 	{
-		SQRESULT GetServerName(HSQUIRRELVM* v);
-		SQRESULT GetServerPlaylist(HSQUIRRELVM* v);
-		SQRESULT GetServerMap(HSQUIRRELVM* v);
-		SQRESULT GetServerCount(HSQUIRRELVM* v);
-		SQRESULT GetPromoData(HSQUIRRELVM* v);
-		SQRESULT SetEncKeyAndConnect(HSQUIRRELVM* v);
-		SQRESULT CreateServerFromMenu(HSQUIRRELVM* v);
-		SQRESULT JoinPrivateServerFromMenu(HSQUIRRELVM* v);
-		SQRESULT GetPrivateServerMessage(HSQUIRRELVM* v);
-		SQRESULT ConnectToIPFromMenu(HSQUIRRELVM* v);
-		SQRESULT GetAvailableMaps(HSQUIRRELVM* v);
+		SQRESULT GetServerName(HSQUIRRELVM v);
+		SQRESULT GetServerPlaylist(HSQUIRRELVM v);
+		SQRESULT GetServerMap(HSQUIRRELVM v);
+		SQRESULT GetServerCount(HSQUIRRELVM v);
+		SQRESULT GetPromoData(HSQUIRRELVM v);
+		SQRESULT SetEncKeyAndConnect(HSQUIRRELVM v);
+		SQRESULT CreateServerFromMenu(HSQUIRRELVM v);
+		SQRESULT JoinPrivateServerFromMenu(HSQUIRRELVM v);
+		SQRESULT GetPrivateServerMessage(HSQUIRRELVM v);
+		SQRESULT ConnectToIPFromMenu(HSQUIRRELVM v);
+		SQRESULT GetAvailableMaps(HSQUIRRELVM v);
 	}
 #endif // !DEDICATED
 }

@@ -18,6 +18,7 @@
 #include "rtech/rtech_game.h"
 #include "rtech/rtech_utils.h"
 #include "vpklib/packedstore.h"
+#include "squirrel/sqvm.h"
 #ifndef DEDICATED
 #include "gameui/IBrowser.h"
 #include "gameui/IConsole.h"
@@ -800,7 +801,61 @@ void _RCON_Disconnect_f_CompletionFunc(const CCommand& args)
 }
 #endif // !DEDICATED
 
+/*
+=====================
+_SQVM_ServerScript_f_CompletionFunc
+
+  Exectutes input on the
+  VM in SERVER context.
+=====================
+*/
+void _SQVM_ServerScript_f_CompletionFunc(const CCommand& args)
+{
+	if (args.ArgC() < 2)
+	{
+		return;
+	}
+
+	SQVM_Execute(args.Arg(1), SQCONTEXT::SERVER);
+}
+
 #ifndef DEDICATED
+/*
+=====================
+_SQVM_ClientScript_f_CompletionFunc
+
+  Exectutes input on the
+  VM in CLIENT context.
+=====================
+*/
+void _SQVM_ClientScript_f_CompletionFunc(const CCommand& args)
+{
+	if (args.ArgC() < 2)
+	{
+		return;
+	}
+
+	SQVM_Execute(args.Arg(1), SQCONTEXT::CLIENT);
+}
+
+/*
+=====================
+_SQVM_UIScript_f_CompletionFunc
+
+  Exectutes input on the
+  VM in UI context.
+=====================
+*/
+void _SQVM_UIScript_f_CompletionFunc(const CCommand& args)
+{
+	if (args.ArgC() < 2)
+	{
+		return;
+	}
+
+	SQVM_Execute(args.Arg(1), SQCONTEXT::UI);
+}
+
 /*
 =====================
 _IMaterial_GetMaterialAtCrossHair_f_CompletionFunc

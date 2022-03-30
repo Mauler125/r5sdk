@@ -1,33 +1,6 @@
 #pragma once
 #include "squirrel/sqtype.h"
 
-struct SQFuncRegistration
-{
-	const char* m_szScriptName; // 00
-	const char* m_szNativeName; // 08
-	const char* m_szHelpString; // 10
-	const char* m_szRetValType; // 18
-	const char* m_szArgTypes;   // 20
-	std::int16_t unk28;         // 28
-	std::int16_t padding1;      // 2A
-	std::int32_t unk2c;         // 2C
-	std::int64_t unk30;         // 30
-	std::int32_t unk38;         // 38
-	std::int32_t padding2;      // 3C
-	std::int64_t unk40;         // 40
-	std::int64_t unk48;         // 48
-	std::int64_t unk50;         // 50
-	std::int32_t unk58;         // 58
-	std::int32_t padding3;      // 5C
-	void* m_pFunction;          // 60
-
-	SQFuncRegistration()
-	{
-		memset(this, 0, sizeof(SQFuncRegistration));
-		this->padding2 = 6;
-	}
-};
-
 namespace
 {
 	/* ==== SQUIRREL ======================================================================================================================================================== */
@@ -104,6 +77,9 @@ void* HSQVM_PrintFunc(void* sqvm, char* fmt, ...);
 void* HSQVM_LoadRson(const char* szRsonName);
 bool HSQVM_LoadScript(void* sqvm, const char* szScriptPath, const char* szScriptName, int nFlags);
 void HSQVM_RegisterFunction(void* sqvm, const char* szName, const char* szHelpString, const char* szRetValType, const char* szArgTypes, void* pFunction);
+const SQChar* SQVM_GetContextName(SQCONTEXT context);
+HSQUIRRELVM SQVM_GetVM(SQCONTEXT context);
+void SQVM_Execute(const SQChar* code, SQCONTEXT context);
 
 void SQVM_Attach();
 void SQVM_Detach();

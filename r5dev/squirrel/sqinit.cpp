@@ -29,7 +29,7 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         // Purpose: SDK test and example body
         //-----------------------------------------------------------------------------
-        SQRESULT SDKNativeTest(HSQUIRRELVM* v)
+        SQRESULT SDKNativeTest(HSQUIRRELVM v)
         {
             // Function code goes here.
             return SQ_OK;
@@ -38,7 +38,7 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         // Purpose: expose SDK version to the VScript API
         //-----------------------------------------------------------------------------
-        SQRESULT GetSDKVersion(HSQUIRRELVM* v)
+        SQRESULT GetSDKVersion(HSQUIRRELVM v)
         {
             sq_pushstring(v, g_pR5net->GetSDKVersion().c_str(), -1);
             return SQ_OK;
@@ -58,7 +58,7 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         // Purpose: get server's current name from serverlist index
         //-----------------------------------------------------------------------------
-        SQRESULT GetServerName(HSQUIRRELVM* v)
+        SQRESULT GetServerName(HSQUIRRELVM v)
         {
             int iServerIndex = sq_getinteger(v, 1);
             std::string svServerName = g_pIBrowser->m_vServerList[iServerIndex].svServerName;
@@ -71,7 +71,7 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         // Purpose: get server's current playlist via serverlist index
         //-----------------------------------------------------------------------------
-        SQRESULT GetServerPlaylist(HSQUIRRELVM* v)
+        SQRESULT GetServerPlaylist(HSQUIRRELVM v)
         {
             int iServerIndex = sq_getinteger(v, 1);
             std::string svServerPlaylist = g_pIBrowser->m_vServerList[iServerIndex].svPlaylist;
@@ -84,7 +84,7 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         // Purpose: get server's current map via serverlist index
         //-----------------------------------------------------------------------------
-        SQRESULT GetServerMap(HSQUIRRELVM* v)
+        SQRESULT GetServerMap(HSQUIRRELVM v)
         {
             int iServerIndex = sq_getinteger(v, 1);
             std::string svServerMapName = g_pIBrowser->m_vServerList[iServerIndex].svMapName;
@@ -97,7 +97,7 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         // Purpose: get current server count from pylon
         //-----------------------------------------------------------------------------
-        SQRESULT GetServerCount(HSQUIRRELVM* v)
+        SQRESULT GetServerCount(HSQUIRRELVM v)
         {
             g_pIBrowser->GetServerList(); // Refresh svListing list.
 
@@ -109,7 +109,7 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         // Purpose: get promo data for serverbrowser panels
         //-----------------------------------------------------------------------------
-        SQRESULT GetPromoData(HSQUIRRELVM* v)
+        SQRESULT GetPromoData(HSQUIRRELVM v)
         {
             enum class R5RPromoData : int
             {
@@ -172,7 +172,7 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         // Purpose: set netchannel encryption key and connect to server
         //-----------------------------------------------------------------------------
-        SQRESULT SetEncKeyAndConnect(HSQUIRRELVM* v)
+        SQRESULT SetEncKeyAndConnect(HSQUIRRELVM v)
         {
             int iServerIndex = sq_getinteger(v, 1);
 
@@ -185,7 +185,7 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         // Purpose: create server via native serverbrowser entries
         //-----------------------------------------------------------------------------
-        SQRESULT CreateServerFromMenu(HSQUIRRELVM* v)
+        SQRESULT CreateServerFromMenu(HSQUIRRELVM v)
         {
             std::string svServerName = sq_getstring(v, 1);
             std::string svServerMapName = sq_getstring(v, 2);
@@ -210,7 +210,7 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         // Purpose: request token from pylon and join server with result.
         //-----------------------------------------------------------------------------
-        SQRESULT JoinPrivateServerFromMenu(HSQUIRRELVM* v)
+        SQRESULT JoinPrivateServerFromMenu(HSQUIRRELVM v)
         {
             std::string svHiddenServerRequestMessage = std::string();
 
@@ -229,7 +229,7 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         // Purpose: get response from private server request
         //-----------------------------------------------------------------------------
-        SQRESULT GetPrivateServerMessage(HSQUIRRELVM* v)
+        SQRESULT GetPrivateServerMessage(HSQUIRRELVM v)
         {
             std::string svHiddenServerRequestMessage = std::string();
 
@@ -258,7 +258,7 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         // Purpose: connect to server from native server browser entries
         //-----------------------------------------------------------------------------
-        SQRESULT ConnectToIPFromMenu(HSQUIRRELVM* v)
+        SQRESULT ConnectToIPFromMenu(HSQUIRRELVM v)
         {
             std::string svIpAddr = sq_getstring(v, 1);
             std::string svEncKey = sq_getstring(v, 2);
@@ -276,7 +276,7 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         // Purpose: return all available maps
         //-----------------------------------------------------------------------------
-        SQRESULT GetAvailableMaps(HSQUIRRELVM* v)
+        SQRESULT GetAvailableMaps(HSQUIRRELVM v)
         {
             std::vector<std::string> vsvMapList = g_pIBrowser->m_vszMapFileNameList;
 

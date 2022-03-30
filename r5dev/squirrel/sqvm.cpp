@@ -15,6 +15,7 @@
 #endif // DEDICATED
 #include "vgui/vgui_debugpanel.h"
 #include "gameui/IConsole.h"
+#include "squirrel/sqtype.h"
 #include "squirrel/sqvm.h"
 #include "squirrel/sqinit.h"
 
@@ -391,6 +392,78 @@ bool HSQVM_CreateUIVM()
 	return results;
 }
 #endif // !DEDICATED
+
+//---------------------------------------------------------------------------------
+// Purpose: Returns the VM name by context
+// Input  : context - 
+// Output : const SQChar* 
+//---------------------------------------------------------------------------------
+const SQChar* SQVM_GetContextName(SQCONTEXT context)
+{
+	switch (context)
+	{
+	case SQCONTEXT::SERVER:
+		return "SERVER";
+	case SQCONTEXT::CLIENT:
+		return "CLIENT";
+	case SQCONTEXT::UI:
+		return "UI";
+	default:
+		return nullptr;
+	}
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: Returns the VM pointer by context
+// Input  : context - 
+// Output : SQVM* 
+//---------------------------------------------------------------------------------
+HSQUIRRELVM SQVM_GetVM(SQCONTEXT context)
+{
+	switch (context)
+	{
+	case SQCONTEXT::SERVER:
+		return g_pServerVM.GetValue<HSQUIRRELVM>();
+	case SQCONTEXT::CLIENT:
+		return g_pClientVM.GetValue<HSQUIRRELVM>();
+	case SQCONTEXT::UI:
+		return g_pUIVM.GetValue<HSQUIRRELVM>();
+	default:
+		return nullptr;
+	}
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: Compiles and executes input code on target VM by context
+// Input  : *code - 
+//			context - 
+//---------------------------------------------------------------------------------
+void SQVM_Execute(const SQChar* code, SQCONTEXT context)
+{
+	HSQUIRRELVM v = SQVM_GetVM(context);
+	if (!v)
+	{
+		Error(eDLL_T::ENGINE, "Attempted to execute %s script while VM isn't initialized\n", SQVM_GetContextName(context));
+		return;
+	}
+
+	SQVM* vTable = v->GetVTable();
+	if (!vTable)
+	{
+		Error(eDLL_T::ENGINE, "Attempted to execute %s script while VM isn't initialized\n", SQVM_GetContextName(context));
+		return;
+	}
+
+	SQRESULT compileResult{};
+	SQBufState bufState = SQBufState(code);
+
+	compileResult = sq_compilebuffer(vTable, &bufState, "console", -1);
+	if (compileResult >= 0)
+	{
+		sq_pushroottable(vTable);
+		SQRESULT callResult = sq_call(vTable, 1, false, false);
+	}
+}
 
 void SQVM_Attach()
 {

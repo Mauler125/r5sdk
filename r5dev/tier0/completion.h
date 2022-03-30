@@ -39,7 +39,10 @@ void _NET_GenerateKey_f_CompletionFunc(const CCommand& args);
 void _RCON_CmdQuery_f_CompletionFunc(const CCommand& args);
 void _RCON_Disconnect_f_CompletionFunc(const CCommand& args);
 #endif // !DEDICATED
+void _SQVM_ServerScript_f_CompletionFunc(const CCommand& args);
 #ifndef DEDICATED
+void _SQVM_ClientScript_f_CompletionFunc(const CCommand& args);
+void _SQVM_UIScript_f_CompletionFunc(const CCommand& args);
 void _CMaterial_GetMaterialAtCrossHair_f_ComplectionFunc(const CCommand& args);
 #endif // !DEDICATED
 
