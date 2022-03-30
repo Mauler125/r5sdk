@@ -84,6 +84,7 @@ SQRESULT sq_call(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBool raiseerr
 
 void SQAPI_Attach()
 {
+	DetourAttach((LPVOID*)&v_sq_pushroottable, &sq_pushroottable);
 	DetourAttach((LPVOID*)&v_sq_pushbool, &sq_pushbool);
 	DetourAttach((LPVOID*)&v_sq_pushstring, &sq_pushstring);
 	DetourAttach((LPVOID*)&v_sq_pushinteger, &sq_pushinteger);
@@ -99,6 +100,7 @@ void SQAPI_Attach()
 
 void SQAPI_Detach()
 {
+	DetourDetach((LPVOID*)&v_sq_pushroottable, &sq_pushroottable);
 	DetourDetach((LPVOID*)&v_sq_pushbool, &sq_pushbool);
 	DetourDetach((LPVOID*)&v_sq_pushstring, &sq_pushstring);
 	DetourDetach((LPVOID*)&v_sq_pushinteger, &sq_pushinteger);
