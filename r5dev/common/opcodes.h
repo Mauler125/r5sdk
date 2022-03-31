@@ -103,6 +103,10 @@ namespace
 #ifndef CLIENT_DLL
 	ADDRESS Server_S2C_CONNECT_1 = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x3B\x05\x00\x00\x00\x00\x74\x0C", "xxx????xx");
 #endif // !CLIENT_DLL
+	//-------------------------------------------------------------------------
+	// RUNTIME: VIDEO_CFG
+	//-------------------------------------------------------------------------
+	ADDRESS UpdateCurrentVideoConfig = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x55\x00\x41\x56\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x4C\x8B\xF1", "xx?xxxxxx????xxx????xxx????xxx");
 
 	//-------------------------------------------------------------------------
 	// .RDATA
@@ -134,6 +138,9 @@ class HOpcodes : public IDetour
 		std::cout << "| FUN: Host_Init_2                          : 0x" << std::hex << std::uppercase << gHost_Init_2.GetPtr()                        << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: Host_Disconnect                      : 0x" << std::hex << std::uppercase << Host_Disconnect.GetPtr()                     << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: _Host_RunFrame                       : 0x" << std::hex << std::uppercase << _Host_RunFrame.GetPtr()                      << std::setw(npad) << " |" << std::endl;
+		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		std::cout << "| FUN: Server_S2C_CONNECT_1                 : 0x" << std::hex << std::uppercase << Server_S2C_CONNECT_1.GetPtr()                << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: UpdateCurrentVideoConfig             : 0x" << std::hex << std::uppercase << UpdateCurrentVideoConfig.GetPtr()            << std::setw(npad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 		std::cout << "| CON: g_pClientVPKDir                      : 0x" << std::hex << std::uppercase << g_pClientVPKDir.GetPtr()                     << std::setw(npad) << " |" << std::endl;
 		std::cout << "| CON: g_pClientBSP                         : 0x" << std::hex << std::uppercase << g_pClientBSP.GetPtr()                        << std::setw(npad) << " |" << std::endl;
