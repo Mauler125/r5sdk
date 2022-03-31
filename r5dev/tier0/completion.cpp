@@ -957,7 +957,7 @@ void _CMaterial_GetMaterialAtCrossHair_f_ComplectionFunc(const CCommand& args)
 	}
 	else
 	{
-		DevMsg(eDLL_T::MS, "No Material found >:(");
+		DevMsg(eDLL_T::MS, "No Material found >:(\n");
 	}
 #endif
 }

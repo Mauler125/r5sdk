@@ -25,33 +25,33 @@
 //			*fmt - 
 //			... - 
 //---------------------------------------------------------------------------------
-void* HSQVM_PrintFunc(void* sqvm, char* fmt, ...)
+SQRESULT HSQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 {
-	static int vmIdx{};
+	static SQCONTEXT context{};
 	// We use the sqvm pointer as index for SDK usage as the function prototype has to match assembly.
-	switch (reinterpret_cast<int>(sqvm))
+	switch (static_cast<SQCONTEXT>(reinterpret_cast<int>(v)))
 	{
-	case 0:
-		vmIdx = 0;
+	case SQCONTEXT::SERVER:
+		context = SQCONTEXT::SERVER;
 		break;
-	case 1:
-		vmIdx = 1;
+	case SQCONTEXT::CLIENT:
+		context = SQCONTEXT::CLIENT;
 		break;
-	case 2:
-		vmIdx = 2;
+	case SQCONTEXT::UI:
+		context = SQCONTEXT::UI;
 		break;
-	case 3:
-		vmIdx = 3;
+	case SQCONTEXT::NONE:
+		context = SQCONTEXT::NONE;
 		break;
 	default:
 #ifdef GAMEDLL_S3
-		vmIdx = *reinterpret_cast<int*>(reinterpret_cast<std::uintptr_t>(sqvm) + 0x18);
+		context = *reinterpret_cast<SQCONTEXT*>(reinterpret_cast<std::uintptr_t>(v) + 0x18);
 #else // TODO [ AMOS ]: nothing equal to 'rdx + 18h' exist in the vm structs for anything below S3.
 		vmIdx = 3;
 #endif
 		break;
 	}
-	static char buf[1024] = {};
+	static SQChar buf[1024] = {};
 	static std::regex rxAnsiExp("\\\033\\[.*?m");
 
 	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
@@ -68,7 +68,7 @@ void* HSQVM_PrintFunc(void* sqvm, char* fmt, ...)
 		va_end(args);
 	}/////////////////////////////
 
-	std::string vmStr = SQVM_LOG_T[vmIdx].c_str();
+	std::string vmStr = SQVM_LOG_T[static_cast<SQInteger>(context)].c_str();
 	vmStr.append(buf);
 
 	if (sq_showvmoutput->GetInt() > 0)
@@ -86,7 +86,7 @@ void* HSQVM_PrintFunc(void* sqvm, char* fmt, ...)
 		}
 		else
 		{
-			std::string vmStrAnsi = SQVM_ANSI_LOG_T[vmIdx].c_str();
+			std::string vmStrAnsi = SQVM_ANSI_LOG_T[static_cast<SQInteger>(context)].c_str();
 			vmStrAnsi.append(buf);
 			wconsole->debug(vmStrAnsi);
 #ifdef DEDICATED
@@ -103,14 +103,14 @@ void* HSQVM_PrintFunc(void* sqvm, char* fmt, ...)
 			std::string s = g_spd_sys_w_oss.str();
 
 			g_pIConsole->m_ivConLog.push_back(Strdup(s.c_str()));
-			g_pLogSystem.AddLog(static_cast<LogType_t>(vmIdx), s);
+			g_pLogSystem.AddLog(static_cast<LogType_t>(context), s);
 
 			g_spd_sys_w_oss.str("");
 			g_spd_sys_w_oss.clear();
 		}
 #endif // !DEDICATED
 	}
-	return NULL;
+	return SQ_OK;
 }
 
 //---------------------------------------------------------------------------------
@@ -121,27 +121,27 @@ void* HSQVM_PrintFunc(void* sqvm, char* fmt, ...)
 //			*nStringSize - 
 //			**ppString - 
 //---------------------------------------------------------------------------------
-void* HSQVM_WarningFunc(void* sqvm, int a2, int a3, int* nStringSize, void** ppString)
+SQRESULT HSQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* nStringSize, SQChar** ppString)
 {
 	static void* retaddr = reinterpret_cast<void*>(p_SQVM_WarningCmd.Offset(0x10).FindPatternSelf("85 ?? ?? 99", ADDRESS::Direction::DOWN).GetPtr());
-	void* result = SQVM_WarningFunc(sqvm, a2, a3, nStringSize, ppString);
+	SQRESULT result = SQVM_WarningFunc(v, a2, a3, nStringSize, ppString);
 
 	if (retaddr != _ReturnAddress()) // Check if its SQVM_Warning calling.
 	{
-		return result; // If not return.
+		return result;
 	}
 
 #ifdef GAMEDLL_S3
-	int vmIdx = *(int*)((std::uintptr_t)sqvm + 0x18);
+	SQCONTEXT context = *reinterpret_cast<SQCONTEXT*>(reinterpret_cast<std::uintptr_t>(v) + 0x18);
 #else // TODO [ AMOS ]: nothing equal to 'rdx + 18h' exist in the vm structs for anything below S3.
-	int vmIdx = 3;
+	SQCONTEXT context = SQCONTEXT::NONE;
 #endif
 
 	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
 	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sqvm_warn_logger");
 
-	std::string vmStr = SQVM_WARNING_LOG_T[vmIdx].c_str();
+	std::string vmStr = SQVM_WARNING_LOG_T[static_cast<int>(context)].c_str();
 	std::string svConstructor((char*)*ppString, *nStringSize); // Get string from memory via std::string constructor.
 	vmStr.append(svConstructor);
 
@@ -160,7 +160,7 @@ void* HSQVM_WarningFunc(void* sqvm, int a2, int a3, int* nStringSize, void** ppS
 		}
 		else
 		{
-			std::string vmStrAnsi = SQVM_WARNING_ANSI_LOG_T[vmIdx].c_str();
+			std::string vmStrAnsi = SQVM_WARNING_ANSI_LOG_T[static_cast<int>(context)].c_str();
 			vmStrAnsi.append(svConstructor);
 			wconsole->debug(vmStrAnsi);
 #ifdef DEDICATED
@@ -195,29 +195,29 @@ void* HSQVM_WarningFunc(void* sqvm, int a2, int a3, int* nStringSize, void** ppS
 //			nLine - 
 //			nColumn - 
 //---------------------------------------------------------------------------------
-void HSQVM_ErrorFunc(void* sqvm, const char* pszError, const char* pszFile, unsigned int nLine, int nColumn)
+void HSQVM_CompileError(HSQUIRRELVM v, const SQChar* pszError, const SQChar* pszFile, SQUnsignedInteger nLine, SQInteger nColumn)
 {
-	static int vmIdx{};
+	static SQCONTEXT context{};
 	static char szContextBuf[256]{};
 
 #ifdef GAMEDLL_S3
-	vmIdx = *reinterpret_cast<int*>(reinterpret_cast<std::uintptr_t>(sqvm) + 0x18);
+	context = *reinterpret_cast<SQCONTEXT*>(reinterpret_cast<std::uintptr_t>(v) + 0x18);
 #else // TODO [ AMOS ]: nothing equal to 'rdx + 18h' exist in the vm structs for anything below S3.
 	vmIdx = 3;
 #endif
 
 	SQVM_GetErrorLine(pszFile, nLine, szContextBuf, sizeof(szContextBuf));
 
-	Error(static_cast<eDLL_T>(vmIdx), "%s SCRIPT COMPILE ERROR: %s\n", SQVM_TYPE_T[vmIdx].c_str(), pszError);
-	Error(static_cast<eDLL_T>(vmIdx), " -> %s\n\n", szContextBuf);
-	Error(static_cast<eDLL_T>(vmIdx), "%s line [%d] column [%d]\n", pszFile, nLine, nColumn);
+	Error(static_cast<eDLL_T>(context), "%s SCRIPT COMPILE ERROR: %s\n", SQVM_TYPE_T[static_cast<int>(context)].c_str(), pszError);
+	Error(static_cast<eDLL_T>(context), " -> %s\n\n", szContextBuf);
+	Error(static_cast<eDLL_T>(context), "%s line [%d] column [%d]\n", pszFile, nLine, nColumn);
 }
 
 //---------------------------------------------------------------------------------
 // Purpose: prints the global include file the compiler loads for loading scripts
 // Input  : *szRsonName - 
 //---------------------------------------------------------------------------------
-void* HSQVM_LoadRson(const char* szRsonName)
+SQInteger HSQVM_LoadRson(const SQChar* szRsonName)
 {
 	if (sq_showrsonloading->GetBool())
 	{
@@ -237,7 +237,7 @@ void* HSQVM_LoadRson(const char* szRsonName)
 //			*szScriptPath - 
 //			nFlag - 
 //---------------------------------------------------------------------------------
-bool HSQVM_LoadScript(void* sqvm, const char* szScriptPath, const char* szScriptName, int nFlag)
+SQBool HSQVM_LoadScript(HSQUIRRELVM v, const SQChar* szScriptPath, const SQChar* szScriptName, SQInteger nFlag)
 {
 	if (sq_showscriptloading->GetBool())
 	{
@@ -245,7 +245,7 @@ bool HSQVM_LoadScript(void* sqvm, const char* szScriptPath, const char* szScript
 	}
 
 	///////////////////////////////////////////////////////////////////////////////
-	return SQVM_LoadScript(sqvm, szScriptPath, szScriptName, nFlag);
+	return SQVM_LoadScript(v, szScriptPath, szScriptName, nFlag);
 }
 
 //---------------------------------------------------------------------------------
@@ -257,7 +257,7 @@ bool HSQVM_LoadScript(void* sqvm, const char* szScriptPath, const char* szScript
 //			*szArgTypes - 
 //			*pFunction - 
 //---------------------------------------------------------------------------------
-void HSQVM_RegisterFunction(void* sqvm, const char* szName, const char* szHelpString, const char* szRetValType, const char* szArgTypes, void* pFunction)
+SQRESULT HSQVM_RegisterFunction(HSQUIRRELVM v, const SQChar* szName, const SQChar* szHelpString, const SQChar* szRetValType, const SQChar* szArgTypes, void* pFunction)
 {
 	SQFuncRegistration* sqFunc = new SQFuncRegistration();
 
@@ -268,17 +268,17 @@ void HSQVM_RegisterFunction(void* sqvm, const char* szName, const char* szHelpSt
 	sqFunc->m_szArgTypes   = szArgTypes;
 	sqFunc->m_pFunction    = pFunction;
 
-	SQVM_RegisterFunc(sqvm, sqFunc, 1);
+	return SQVM_RegisterFunc(v, sqFunc, 1);
 }
 
 //---------------------------------------------------------------------------------
 // Purpose: registers script functions in SERVER context
 // Input  : *sqvm - 
 //---------------------------------------------------------------------------------
-void SQVM_RegisterServerScriptFunctions(void* sqvm)
+void SQVM_RegisterServerScriptFunctions(HSQUIRRELVM v)
 {
-	HSQVM_RegisterFunction(sqvm, "SDKNativeTest", "Native SERVER test function", "void", "", &VSquirrel::SHARED::SDKNativeTest);
-	HSQVM_RegisterFunction(sqvm, "GetSDKVersion", "Gets the SDK version as a string", "string", "", &VSquirrel::SHARED::GetSDKVersion);
+	HSQVM_RegisterFunction(v, "SDKNativeTest", "Native SERVER test function", "void", "", &VSquirrel::SHARED::SDKNativeTest);
+	HSQVM_RegisterFunction(v, "GetSDKVersion", "Gets the SDK version as a string", "string", "", &VSquirrel::SHARED::GetSDKVersion);
 }
 
 #ifndef DEDICATED
@@ -286,38 +286,38 @@ void SQVM_RegisterServerScriptFunctions(void* sqvm)
 // Purpose: registers script functions in CLIENT context
 // Input  : *sqvm - 
 //---------------------------------------------------------------------------------
-void SQVM_RegisterClientScriptFunctions(void* sqvm)
+void SQVM_RegisterClientScriptFunctions(HSQUIRRELVM v)
 {
-	HSQVM_RegisterFunction(sqvm, "SDKNativeTest", "Native CLIENT test function", "void", "", &VSquirrel::SHARED::SDKNativeTest);
-	HSQVM_RegisterFunction(sqvm, "GetSDKVersion", "Gets the SDK version as a string", "string", "", &VSquirrel::SHARED::GetSDKVersion);
+	HSQVM_RegisterFunction(v, "SDKNativeTest", "Native CLIENT test function", "void", "", &VSquirrel::SHARED::SDKNativeTest);
+	HSQVM_RegisterFunction(v, "GetSDKVersion", "Gets the SDK version as a string", "string", "", &VSquirrel::SHARED::GetSDKVersion);
 }
 
 //---------------------------------------------------------------------------------
 // Purpose: registers script functions in UI context
 // Input  : *sqvm - 
 //---------------------------------------------------------------------------------
-void SQVM_RegisterUIScriptFunctions(void* sqvm)
+void SQVM_RegisterUIScriptFunctions(HSQUIRRELVM v)
 {
-	HSQVM_RegisterFunction(sqvm, "SDKNativeTest", "Native UI test function", "void", "", &VSquirrel::SHARED::SDKNativeTest);
+	HSQVM_RegisterFunction(v, "SDKNativeTest", "Native UI test function", "void", "", &VSquirrel::SHARED::SDKNativeTest);
 
 	// Functions for retrieving server browser data
-	HSQVM_RegisterFunction(sqvm, "GetServerName", "Gets the name of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerName);
-	HSQVM_RegisterFunction(sqvm, "GetServerPlaylist", "Gets the playlist of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerPlaylist);
-	HSQVM_RegisterFunction(sqvm, "GetServerMap", "Gets the map of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerMap);
-	HSQVM_RegisterFunction(sqvm, "GetServerCount", "Gets the number of public servers", "int", "", &VSquirrel::UI::GetServerCount);
+	HSQVM_RegisterFunction(v, "GetServerName", "Gets the name of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerName);
+	HSQVM_RegisterFunction(v, "GetServerPlaylist", "Gets the playlist of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerPlaylist);
+	HSQVM_RegisterFunction(v, "GetServerMap", "Gets the map of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerMap);
+	HSQVM_RegisterFunction(v, "GetServerCount", "Gets the number of public servers", "int", "", &VSquirrel::UI::GetServerCount);
 
 	// Misc main menu functions
-	HSQVM_RegisterFunction(sqvm, "GetSDKVersion", "Gets the SDK version as a string", "string", "", &VSquirrel::SHARED::GetSDKVersion);
-	HSQVM_RegisterFunction(sqvm, "GetPromoData", "Gets promo data for specified slot type", "string", "int", &VSquirrel::UI::GetPromoData);
+	HSQVM_RegisterFunction(v, "GetSDKVersion", "Gets the SDK version as a string", "string", "", &VSquirrel::SHARED::GetSDKVersion);
+	HSQVM_RegisterFunction(v, "GetPromoData", "Gets promo data for specified slot type", "string", "int", &VSquirrel::UI::GetPromoData);
 
 	// Functions for connecting to servers
-	HSQVM_RegisterFunction(sqvm, "CreateServer", "Start server with the specified settings", "void", "string,string,string,int", &VSquirrel::UI::CreateServerFromMenu);
-	HSQVM_RegisterFunction(sqvm, "SetEncKeyAndConnect", "Set the encryption key to that of the specified server and connects to it", "void", "int", &VSquirrel::UI::SetEncKeyAndConnect);
-	HSQVM_RegisterFunction(sqvm, "JoinPrivateServerFromMenu", "Joins private server by token", "void", "string", &VSquirrel::UI::JoinPrivateServerFromMenu);
-	HSQVM_RegisterFunction(sqvm, "GetPrivateServerMessage", "Gets private server join status message", "string", "string", &VSquirrel::UI::GetPrivateServerMessage);
-	HSQVM_RegisterFunction(sqvm, "ConnectToIPFromMenu", "Joins server by ip and encryption key", "void", "string,string", &VSquirrel::UI::ConnectToIPFromMenu);
+	HSQVM_RegisterFunction(v, "CreateServer", "Start server with the specified settings", "void", "string,string,string,int", &VSquirrel::UI::CreateServerFromMenu);
+	HSQVM_RegisterFunction(v, "SetEncKeyAndConnect", "Set the encryption key to that of the specified server and connects to it", "void", "int", &VSquirrel::UI::SetEncKeyAndConnect);
+	HSQVM_RegisterFunction(v, "JoinPrivateServerFromMenu", "Joins private server by token", "void", "string", &VSquirrel::UI::JoinPrivateServerFromMenu);
+	HSQVM_RegisterFunction(v, "GetPrivateServerMessage", "Gets private server join status message", "string", "string", &VSquirrel::UI::GetPrivateServerMessage);
+	HSQVM_RegisterFunction(v, "ConnectToIPFromMenu", "Joins server by ip and encryption key", "void", "string,string", &VSquirrel::UI::ConnectToIPFromMenu);
 
-	HSQVM_RegisterFunction(sqvm, "GetAvailableMaps", "Gets an array of all the available maps that can be used to host a server", "array<string>", "", &VSquirrel::UI::GetAvailableMaps);
+	HSQVM_RegisterFunction(v, "GetAvailableMaps", "Gets an array of all the available maps that can be used to host a server", "array<string>", "", &VSquirrel::UI::GetAvailableMaps);
 }
 
 //---------------------------------------------------------------------------------
@@ -325,13 +325,13 @@ void SQVM_RegisterUIScriptFunctions(void* sqvm)
 // Input  : *sqvm - 
 //			context - (1 = CLIENT 2 = UI)
 //---------------------------------------------------------------------------------
-int HSQVM_InitializeCLGlobalScriptStructs(void* sqvm/**(+8)*/, SQCONTEXT context)
+SQInteger HSQVM_InitializeCLGlobalScriptStructs(SQVM* sqvm, SQCONTEXT context)
 {
-	int results = SQVM_InitializeCLGlobalScriptStructs(sqvm/**(+8)*/, context);
+	int results = SQVM_InitializeCLGlobalScriptStructs(sqvm, context);
 	if (context == SQCONTEXT::CLIENT)
-		SQVM_RegisterClientScriptFunctions(g_pClientVM.GetValue<void*>());
+		SQVM_RegisterClientScriptFunctions(g_pClientVM.GetValue<HSQUIRRELVM>());
 	if (context == SQCONTEXT::UI)
-		SQVM_RegisterUIScriptFunctions(g_pUIVM.GetValue<void*>());
+		SQVM_RegisterUIScriptFunctions(g_pUIVM.GetValue<HSQUIRRELVM>());
 	return results;
 }
 #endif // !DEDICATED
@@ -341,21 +341,21 @@ int HSQVM_InitializeCLGlobalScriptStructs(void* sqvm/**(+8)*/, SQCONTEXT context
 // Purpose: Initialize all SERVER global structs and register SDK (SERVER) script functions
 // Input  : *sqvm - 
 //---------------------------------------------------------------------------------
-void HSQVM_InitializeSVGlobalScriptStructs(void* sqvm/**(+8)*/)
+void HSQVM_InitializeSVGlobalScriptStructs(SQVM* sqvm)
 {
-	SQVM_InitializeSVGlobalScriptStructs(sqvm/**(+8)*/);
-	SQVM_RegisterServerScriptFunctions(g_pServerVM.GetValue<void*>());
+	SQVM_InitializeSVGlobalScriptStructs(sqvm);
+	SQVM_RegisterServerScriptFunctions(g_pServerVM.GetValue<HSQUIRRELVM>());
 }
 
 //---------------------------------------------------------------------------------
 // Purpose: Creates the SERVER Squirrel VM
 // Output : True on success, false on failure
 //---------------------------------------------------------------------------------
-bool HSQVM_CreateServerVM()
+SQBool HSQVM_CreateServerVM()
 {
 	bool results = SQVM_CreateServerVM();
 	if (results)
-		DevMsg(eDLL_T::SERVER, "Created SERVER VM: '%p'\n", g_pServerVM.GetValue<void*>());
+		DevMsg(eDLL_T::SERVER, "Created SERVER VM: '%p'\n", g_pServerVM.GetValue<HSQUIRRELVM>());
 	else
 		Error(eDLL_T::SERVER, "Failed to create SERVER VM\n");
 	return results;
@@ -368,11 +368,11 @@ bool HSQVM_CreateServerVM()
 // Input  : *chlclient - 
 // Output : True on success, false on failure
 //---------------------------------------------------------------------------------
-bool HSQVM_CreateClientVM(void* chlclient)
+SQBool HSQVM_CreateClientVM(void* chlclient)
 {
 	bool results = SQVM_CreateClientVM(chlclient);
 	if (results)
-		DevMsg(eDLL_T::CLIENT, "Created CLIENT VM: '%p'\n", g_pClientVM.GetValue<void*>());
+		DevMsg(eDLL_T::CLIENT, "Created CLIENT VM: '%p'\n", g_pClientVM.GetValue<HSQUIRRELVM>());
 	else
 		Error(eDLL_T::CLIENT, "Failed to create CLIENT VM\n");
 	return results;
@@ -382,11 +382,11 @@ bool HSQVM_CreateClientVM(void* chlclient)
 // Purpose: Creates the UI Squirrel VM
 // Output : True on success, false on failure
 //---------------------------------------------------------------------------------
-bool HSQVM_CreateUIVM()
+SQBool HSQVM_CreateUIVM()
 {
 	bool results = SQVM_CreateUIVM();
 	if (results)
-		DevMsg(eDLL_T::UI, "Created UI VM: '%p'\n", g_pUIVM.GetValue<void*>());
+		DevMsg(eDLL_T::UI, "Created UI VM: '%p'\n", g_pUIVM.GetValue<HSQUIRRELVM>());
 	else
 		Error(eDLL_T::UI, "Failed to create UI VM\n");
 	return results;
@@ -424,10 +424,12 @@ HSQUIRRELVM SQVM_GetVM(SQCONTEXT context)
 	{
 	case SQCONTEXT::SERVER:
 		return g_pServerVM.GetValue<HSQUIRRELVM>();
+#ifndef DEDICATED
 	case SQCONTEXT::CLIENT:
 		return g_pClientVM.GetValue<HSQUIRRELVM>();
 	case SQCONTEXT::UI:
 		return g_pUIVM.GetValue<HSQUIRRELVM>();
+#endif // !DEDICATED
 	default:
 		return nullptr;
 	}
@@ -469,7 +471,7 @@ void SQVM_Attach()
 {
 	DetourAttach((LPVOID*)&SQVM_PrintFunc, &HSQVM_PrintFunc);
 	DetourAttach((LPVOID*)&SQVM_WarningFunc, &HSQVM_WarningFunc);
-	DetourAttach((LPVOID*)&SQVM_ErrorFunc, &HSQVM_ErrorFunc);
+	DetourAttach((LPVOID*)&SQVM_CompileError, &HSQVM_CompileError);
 	DetourAttach((LPVOID*)&SQVM_LoadRson, &HSQVM_LoadRson);
 	DetourAttach((LPVOID*)&SQVM_LoadScript, &HSQVM_LoadScript);
 #ifndef DEDICATED
@@ -489,7 +491,7 @@ void SQVM_Detach()
 {
 	DetourDetach((LPVOID*)&SQVM_PrintFunc, &HSQVM_PrintFunc);
 	DetourDetach((LPVOID*)&SQVM_WarningFunc, &HSQVM_WarningFunc);
-	DetourDetach((LPVOID*)&SQVM_ErrorFunc, &HSQVM_ErrorFunc);
+	DetourDetach((LPVOID*)&SQVM_CompileError, &HSQVM_CompileError);
 	DetourDetach((LPVOID*)&SQVM_LoadRson, &HSQVM_LoadRson);
 	DetourDetach((LPVOID*)&SQVM_LoadScript, &HSQVM_LoadScript);
 #ifndef DEDICATED

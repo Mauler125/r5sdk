@@ -72,14 +72,16 @@ enum class SQCONTEXT : int
 {
 	SERVER = 0,
 	CLIENT,
-	UI
+	UI,
+	NONE
 };
 
-const static std::string SQVM_TYPE_T[3] =
+const static std::string SQVM_TYPE_T[4] =
 {
 	"SERVER",
 	"CLIENT",
 	"UI",
+	"NONE"
 };
 
 const static std::string SQVM_LOG_T[4] =
