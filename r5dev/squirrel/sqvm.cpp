@@ -422,8 +422,10 @@ HSQUIRRELVM SQVM_GetVM(SQCONTEXT context)
 {
 	switch (context)
 	{
+#ifndef CLIENT_DLL
 	case SQCONTEXT::SERVER:
 		return g_pServerVM.GetValue<HSQUIRRELVM>();
+#endif // !CLIENT_DLL
 #ifndef DEDICATED
 	case SQCONTEXT::CLIENT:
 		return g_pClientVM.GetValue<HSQUIRRELVM>();

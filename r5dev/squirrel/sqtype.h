@@ -63,7 +63,7 @@ struct SQFuncRegistration
 
 	SQFuncRegistration()
 	{
-		memset(this, 0, sizeof(SQFuncRegistration));
+		memset(this, '\0', sizeof(SQFuncRegistration));
 		this->padding2 = 6;
 	}
 };
