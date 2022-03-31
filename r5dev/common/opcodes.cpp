@@ -270,7 +270,12 @@ void Dedicated_Init()
 		CL_ClearState.Offset(0x0).Patch({ 0xC3 });                                         // FUN --> RET | Invalid 'CL_ClearState()' call from Host_Shutdown causing segfault.
 	}
 #endif
+	//-------------------------------------------------------------------------
+	// RUNTIME: GAME_CFG
+	//-------------------------------------------------------------------------
 	UpdateCurrentVideoConfig.Offset(0x0).Patch({ 0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3 });    // FUN --> RET | Return early to prevent the server from writing a videoconfig.txt file to the disk (overwriting the existing one).
+	HandleConfigFile.Offset(0x0).Patch({ 0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3 });            // FUN --> RET | Return early to prevent the server from writing various input and ConVar config files to the disk (overwriting the existing one).
+	ResetPreviousGameState.Offset(0x0).Patch({ 0xC3 });                                    // FUN --> RET | Return early to prevent the server from writing a previousgamestate.txt file to the disk (overwriting the existing one).
 
 	// This mandatory pak file should only exist on the client.
 	if (!FileExists("vpk\\client_frontend.bsp.pak000_000.vpk"))
