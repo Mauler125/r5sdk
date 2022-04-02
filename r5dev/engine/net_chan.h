@@ -110,6 +110,9 @@ private:
 	int                 m_nOutSequenceNrAck;
 	int                 m_nChokedPackets;
 	int                 unknown_challenge_var;
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
+	char                pad[8];
+#endif
 	int                 m_nLastRecvFlags;
 	RTL_SRWLOCK         LOCK;
 	bf_write            m_StreamReliable;
@@ -161,7 +164,10 @@ private:
 	uint8_t             m_bRetrySendLong;
 	v_netadr_t          remote_address;
 };
-
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
+static_assert(sizeof(CNetChan) == 0x1AD0);
+#else
 static_assert(sizeof(CNetChan) == 0x1AC8);
+#endif
 
 #endif // NET_CHAN_H
