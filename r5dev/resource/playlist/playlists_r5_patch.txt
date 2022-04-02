@@ -710,14 +710,22 @@
 			"Tokens"
 			{
 				"MP_RR_DESERTLANDS_64K_X_64K_NX" "World's Edge After Dark"
-				"WORLDS_EDGE_NIGHT" "SHADOWFALL WORLD'S EDGE"
-				"WORLDS_EDGE_NIGHT_DESC" "Dead Legends respawn as Shadows.\nSurvive and escape with final 10 Legends."
-				"Kings_Canyon_OG" "Kings Canyon"
-				"KC_MU1" "Kings Canyon Season 2"
-				"KCAD" "Kings Canyon After Dark"
-				"Playtest" "Playtest"
-				"Playtest_Only" "Playtest"
-				"BETA_BUILD_WATERMARK" "R5Reloaded v1.6-beta"
+				"WORLDS_EDGE_NIGHT"              "SHADOWFALL WORLD'S EDGE"
+				"WORLDS_EDGE_NIGHT_DESC"         "Dead Legends respawn as Shadows.\nSurvive and escape with final 10 Legends."
+				"Kings_Canyon_OG"                "Kings Canyon"
+				"KC_MU1"                         "Kings Canyon Season 2"
+				"KCAD"                           "Kings Canyon After Dark"
+				"Playtest"                       "Playtest"
+				"Playtest_Only"                  "Playtest"
+				"BETA_BUILD_WATERMARK"           "R5Reloaded v2.4-rc"
+
+				"PROMO_LARGE_TITLE"              "Welcome To R5Reloaded!"
+				"PROMO_LARGE_DESCRIPTION"        "Make sure to join the discord! discord.gg/r5reloaded"
+				"PROMO_LEFT_TITLE"               "Yes"
+				"PROMO_LEFT_DESCRIPTION"         "Your ad could be here"
+				"PROMO_RIGHT_TITLE"              "Yes2"
+				"PROMO_RIGHT_DESCRIPTION"        "Yes3"
+				"PROMO_SDK_ERROR"                "You should not see this."
 			}
 		}
 	}
