@@ -21,34 +21,19 @@ bool HIVEngineServer__PersistenceAvailable(void* entidx, int clientidx)
 
 	if (!g_bIsPersistenceVarSet[clientidx] && sv_showconnecting->GetBool())
 	{
-		void* clientNamePtr = (void**)(((std::uintptr_t)pClient->GetNetChan()) + 0x1A8D); // Get client name from netchan.
-		std::string clientName((char*)clientNamePtr, 32);                                 // Get full name.
-		std::int64_t originID = pClient->GetOriginID();
-		std::int64_t clientID = static_cast<std::int64_t>(pClient->GetUserID() + 1);
+		CNetChan* pNetChan = pClient->GetNetChan();
 
-		std::string ipAddress = "null"; // If this stays null they modified the packet somehow.
-		ADDRESS ipAddressField = ADDRESS(((std::uintptr_t)pClient->GetNetChan()) + 0x1AC0); // Get client ip from netchan.
-		if (ipAddressField)
-		{
-			std::stringstream ss;
-			ss  << std::to_string(ipAddressField.GetValue<std::uint8_t>()) << "."
-				<< std::to_string(ipAddressField.Offset(0x1).GetValue<std::uint8_t>()) << "."
-				<< std::to_string(ipAddressField.Offset(0x2).GetValue<std::uint8_t>()) << "."
-				<< std::to_string(ipAddressField.Offset(0x3).GetValue<std::uint8_t>());
+		string svClientName(pNetChan->GetName(), NET_LEN_CHANNELNAME);
+		string svIpAddress = pNetChan->GetAddress();
+		int64_t nOriginID = pClient->GetOriginID();
 
-			ipAddress = ss.str();
-		}
-
-		DevMsg(eDLL_T::SERVER, "\n");
 		DevMsg(eDLL_T::SERVER, "______________________________________________________________\n");
-		DevMsg(eDLL_T::SERVER, "] CLIENT_INSTANCE_DETAILS ------------------------------------\n");
-		DevMsg(eDLL_T::SERVER, "] INDEX: | '#%d'\n", clientidx);
-		DevMsg(eDLL_T::SERVER, "] NAME : | '%s'\n", clientName.c_str());
-		DevMsg(eDLL_T::SERVER, "] OID  : | '%lld'\n", originID);
-		DevMsg(eDLL_T::SERVER, "] UID  : | '%lld'\n", clientID);
-		DevMsg(eDLL_T::SERVER, "] IPADR: | '%s'\n", ipAddress.c_str());
-		DevMsg(eDLL_T::SERVER, "--------------------------------------------------------------\n");
-		DevMsg(eDLL_T::SERVER, "\n");
+		DevMsg(eDLL_T::SERVER, "+- NetChannel details\n");
+		DevMsg(eDLL_T::SERVER, " |- IDX : | '#%d'\n", clientidx);
+		DevMsg(eDLL_T::SERVER, " |- UID : | '%s'\n", svClientName.c_str());
+		DevMsg(eDLL_T::SERVER, " |- OID : | '%lld'\n", nOriginID);
+		DevMsg(eDLL_T::SERVER, " |- ADR : | '%s'\n", svIpAddress.c_str());
+		DevMsg(eDLL_T::SERVER, " -------------------------------------------------------------\n");
 
 		g_bIsPersistenceVarSet[clientidx] = true;
 	}

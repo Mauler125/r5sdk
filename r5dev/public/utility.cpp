@@ -77,11 +77,11 @@ DWORD64 FindPatternSIMD(const char* szModule, const unsigned char* szPattern, co
 
     const unsigned char* end = pData + length - strlen(szMask);
     int num_masks = (int)ceil((float)strlen(szMask) / (float)16);
-    int masks[32]; // 32*16 = enough masks for 512 bytes.
+    int masks[64]; // 64*16 = enough masks for 1024 bytes.
     memset(masks, 0, num_masks * sizeof(int));
-    for (int64_t i = 0; i < num_masks; ++i)
+    for (int i = 0; i < num_masks; ++i)
     {
-        for (int64_t j = strnlen(szMask + i * 16, 16) - 1; j >= 0; --j)
+        for (int j = strnlen(szMask + i * 16, 16) - 1; j >= 0; --j)
         {
             if (szMask[i * 16 + j] == 'x')
             {

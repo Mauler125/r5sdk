@@ -20,7 +20,7 @@ History:
 #include "tier0/completion.h"
 #include "windows/id3dx.h"
 #include "windows/console.h"
-#include "engine/net_chan.h"
+#include "engine/net.h"
 #include "engine/sys_utils.h"
 #include "engine/host_state.h"
 #include "networksystem/serverlisting.h"
@@ -718,7 +718,7 @@ void IBrowser::SettingsSection(void)
 //-----------------------------------------------------------------------------
 void IBrowser::RegenerateEncryptionKey(void) const
 {
-    HNET_GenerateKey();
+    NET_GenerateKey();
 }
 
 //-----------------------------------------------------------------------------
@@ -726,7 +726,7 @@ void IBrowser::RegenerateEncryptionKey(void) const
 //-----------------------------------------------------------------------------
 void IBrowser::ChangeEncryptionKeyTo(const std::string& svNetKey) const
 {
-    HNET_SetKey(svNetKey);
+    NET_SetKey(svNetKey);
 }
 
 //-----------------------------------------------------------------------------

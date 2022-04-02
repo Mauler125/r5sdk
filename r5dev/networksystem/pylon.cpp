@@ -7,9 +7,9 @@
 
 #include <core/stdafx.h>
 #include <tier0/cvar.h>
+#include <engine/net.h>
 #include <engine/host_state.h>
 #include <engine/sys_utils.h>
-#include <engine/net_chan.h>
 #include <squirrel/sqinit.h>
 #include <networksystem/r5net.h>
 #include <networksystem/pylon.h>

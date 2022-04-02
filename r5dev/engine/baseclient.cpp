@@ -55,7 +55,7 @@ PERSISTENCE CBaseClient::GetPersistenceState(void) const
 //---------------------------------------------------------------------------------
 // Purpose: gets the net channel of this client
 //---------------------------------------------------------------------------------
-void* CBaseClient::GetNetChan(void) const
+CNetChan* CBaseClient::GetNetChan(void) const
 {
 	return m_NetChannel;
 }
@@ -96,7 +96,7 @@ void CBaseClient::SetPersistenceState(PERSISTENCE nPersistenceState)
 // Purpose: sets the net channel of this client
 // !TODO  : Remove this and rebuild INetChannel
 //---------------------------------------------------------------------------------
-void CBaseClient::SetNetChan(void* pNetChan)
+void CBaseClient::SetNetChan(CNetChan* pNetChan)
 {
 	m_NetChannel = pNetChan;
 }

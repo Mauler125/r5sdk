@@ -17,7 +17,7 @@ void IsClientBanned(R5Net::Client* pR5net, const std::string svIPAddr, std::int6
 	{
 		DevMsg(eDLL_T::SERVER, "\n");
 		DevMsg(eDLL_T::SERVER, "______________________________________________________________\n");
-		DevMsg(eDLL_T::SERVER, "] PYLON NOTICE -----------------------------------------------\n");
+		DevMsg(eDLL_T::SERVER, "] PYLON_NOTICE -----------------------------------------------\n");
 		DevMsg(eDLL_T::SERVER, "] OriginID : | '%lld' IS PYLON BANNED.\n", nNucleusID);
 		DevMsg(eDLL_T::SERVER, "--------------------------------------------------------------\n");
 		DevMsg(eDLL_T::SERVER, "\n");
@@ -30,28 +30,15 @@ void IsClientBanned(R5Net::Client* pR5net, const std::string svIPAddr, std::int6
 //-----------------------------------------------------------------------------
 void* HCServer_Authenticate(void* pServer, user_creds* pInpacket)
 {
-	std::string svIpAddress = "null";
-	ADDRESS ipAddressField = ADDRESS(&pInpacket->m_nIpAddr);
-
-	if (ipAddressField && ipAddressField.GetValue<int>() != 0x0)
-	{
-		std::stringstream ss;
-		ss << std::to_string(ipAddressField.GetValue<std::uint8_t>()) << "."
-			<< std::to_string(ipAddressField.Offset(0x1).GetValue<std::uint8_t>()) << "."
-			<< std::to_string(ipAddressField.Offset(0x2).GetValue<std::uint8_t>()) << "."
-			<< std::to_string(ipAddressField.Offset(0x3).GetValue<std::uint8_t>());
-
-		svIpAddress = ss.str();
-	}
-
+	std::string svIpAddress = pInpacket->m_nAddr.GetAddress();
 	if (sv_showconnecting->GetBool())
 	{
 		DevMsg(eDLL_T::SERVER, "\n");
 		DevMsg(eDLL_T::SERVER, "______________________________________________________________\n");
-		DevMsg(eDLL_T::SERVER, "] AUTHENTICATION_DETAILS -------------------------------------\n");
-		DevMsg(eDLL_T::SERVER, "] UserID   : | '%s'\n", pInpacket->m_nUserID);
-		DevMsg(eDLL_T::SERVER, "] OriginID : | '%lld'\n", pInpacket->m_nNucleusID);
-		DevMsg(eDLL_T::SERVER, "] IP-ADDR  : | '%s'\n", svIpAddress.c_str());
+		DevMsg(eDLL_T::SERVER, "] AUTHENTICATION ---------------------------------------------\n");
+		DevMsg(eDLL_T::SERVER, "] UID : | '%s'\n", pInpacket->m_nUserID);
+		DevMsg(eDLL_T::SERVER, "] OID : | '%lld'\n", pInpacket->m_nNucleusID);
+		DevMsg(eDLL_T::SERVER, "] ADR : | '%s'\n", svIpAddress.c_str());
 		DevMsg(eDLL_T::SERVER, "--------------------------------------------------------------\n");
 	}
 
@@ -63,8 +50,7 @@ void* HCServer_Authenticate(void* pServer, user_creds* pInpacket)
 
 			if (sv_showconnecting->GetBool())
 			{
-				DevMsg(eDLL_T::SERVER, "] NOTICE   : | THIS CLIENT IS BANNED!\n");
-				DevMsg(eDLL_T::SERVER, "--------------------------------------------------------------\n\n");
+				Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%lld' is banned from this Server!)\n", svIpAddress.c_str(), pInpacket->m_nNucleusID);
 			}
 			return nullptr;
 		}

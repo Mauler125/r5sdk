@@ -64,6 +64,10 @@
 #include "tier0/platform.h"
 #include "common/pseudodefs.h"
 
+// Common type declarations to reduce code verbosity.
+using std::string;
+using std::vector;
+
 #if !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
 namespace
 {

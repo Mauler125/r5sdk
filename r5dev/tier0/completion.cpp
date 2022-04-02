@@ -12,7 +12,7 @@
 #ifndef DEDICATED
 #include "engine/cl_rcon.h"
 #endif // !DEDICATED
-#include "engine/net_chan.h"
+#include "engine/net.h"
 #include "engine/sys_utils.h"
 #include "engine/baseclient.h"
 #include "rtech/rtech_game.h"
@@ -108,63 +108,49 @@ void _KickID_f_CompletionFunc(const CCommand& args)
 
 	try
 	{
-		bool onlyDigits = args.HasOnlyDigits(1);
+		bool bOnlyDigits = args.HasOnlyDigits(1);
 		for (int i = 0; i < MAX_PLAYERS; i++)
 		{
-			CBaseClient* client = g_pClient->GetClient(i);
-			if (!client)
+			CBaseClient* pClient = g_pClient->GetClient(i);
+			CNetChan* pNetChan = pClient->GetNetChan();
+
+			if (!pClient || !pNetChan)
 			{
 				continue;
 			}
 
-			if (!client->GetNetChan())
-			{
-				continue;
-			}
+			std::string svIpAddress = pNetChan->GetAddress(); // If this stays null they modified the packet somehow.
 
-			std::string finalIpAddress = "null"; // If this stays null they modified the packet somehow.
-			ADDRESS ipAddressField = ADDRESS(((std::uintptr_t)client->GetNetChan()) + 0x1AC0); // Get client ip from netchan.
-			if (ipAddressField)
+			if (bOnlyDigits)
 			{
-				std::stringstream ss;
-				ss << std::to_string(ipAddressField.GetValue<std::uint8_t>()) << "."
-					<< std::to_string(ipAddressField.Offset(0x1).GetValue<std::uint8_t>()) << "."
-					<< std::to_string(ipAddressField.Offset(0x2).GetValue<std::uint8_t>()) << "."
-					<< std::to_string(ipAddressField.Offset(0x3).GetValue<std::uint8_t>());
-
-				finalIpAddress = ss.str();
-			}
-
-			if (onlyDigits)
-			{
-				std::int64_t ID = static_cast<std::int64_t>(std::stoll(args.Arg(1)));
-				if (ID > MAX_PLAYERS) // Is it a possible originID?
+				std::int64_t nTargetID = static_cast<std::int64_t>(std::stoll(args.Arg(1)));
+				if (nTargetID > MAX_PLAYERS) // Is it a possible originID?
 				{
-					std::int64_t originID = client->GetOriginID();
-					if (originID != ID)
+					std::int64_t nOriginID = pClient->GetOriginID();
+					if (nOriginID != nTargetID)
 					{
 						continue;
 					}
 				}
 				else // If its not try by userID.
 				{
-					std::int64_t clientID = static_cast<std::int64_t>(client->GetUserID() + 1); // Get UserID + 1.
-					if (clientID != ID)
+					std::int64_t nClientID = static_cast<std::int64_t>(pClient->GetUserID() + 1); // Get userID + 1.
+					if (nClientID != nTargetID)
 					{
 						continue;
 					}
 				}
 
-				NET_DisconnectClient(client, i, "Kicked from Server", 0, 1);
+				NET_DisconnectClient(pClient, i, "Kicked from Server", 0, 1);
 			}
 			else
 			{
-				if (std::string(args.Arg(1)).compare(finalIpAddress) != NULL)
+				if (std::string(args.Arg(1)).compare(svIpAddress) != NULL)
 				{
 					continue;
 				}
 
-				NET_DisconnectClient(client, i, "Kicked from Server", 0, 1);
+				NET_DisconnectClient(pClient, i, "Kicked from Server", 0, 1);
 			}
 		}
 	}
@@ -189,19 +175,15 @@ void _Ban_f_CompletionFunc(const CCommand& args)
 
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
-		CBaseClient* client = g_pClient->GetClient(i);
-		if (!client)
+		CBaseClient* pClient = g_pClient->GetClient(i);
+		CNetChan* pNetChan = pClient->GetNetChan();
+
+		if (!pClient || !pNetChan)
 		{
 			continue;
 		}
 
-		if (!client->GetNetChan())
-		{
-			continue;
-		}
-
-		void* pClientName = (void**)(((std::uintptr_t)client->GetNetChan()) + 0x1A8D); // Get client name from netchan.
-		std::string svClientName((char*)pClientName, 32); // Get full name.
+		std::string svClientName(pNetChan->GetName(), NET_LEN_CHANNELNAME); // Get full name.
 
 		if (svClientName.empty())
 		{
@@ -213,22 +195,11 @@ void _Ban_f_CompletionFunc(const CCommand& args)
 			continue;
 		}
 
-		std::string finalIpAddress = "null"; // If this stays null they modified the packet somehow.
-		ADDRESS ipAddressField = ADDRESS(((std::uintptr_t)client->GetNetChan()) + 0x1AC0); // Get client ip from netchan.
-		if (ipAddressField && ipAddressField.GetValue<int>() != 0x0)
-		{
-			std::stringstream ss;
-			ss << std::to_string(ipAddressField.GetValue<std::uint8_t>()) << "."
-				<< std::to_string(ipAddressField.Offset(0x1).GetValue<std::uint8_t>()) << "."
-				<< std::to_string(ipAddressField.Offset(0x2).GetValue<std::uint8_t>()) << "."
-				<< std::to_string(ipAddressField.Offset(0x3).GetValue<std::uint8_t>());
+		std::string svIpAddress = pNetChan->GetAddress(); // If this stays empty they modified the packet somehow.
 
-			finalIpAddress = ss.str();
-		}
-
-		g_pBanSystem->AddEntry(finalIpAddress, client->GetOriginID());
+		g_pBanSystem->AddEntry(svIpAddress, pClient->GetOriginID());
 		g_pBanSystem->Save();
-		NET_DisconnectClient(client, i, "Banned from Server", 0, 1);
+		NET_DisconnectClient(pClient, i, "Banned from Server", 0, 1);
 	}
 }
 
@@ -246,67 +217,53 @@ void _BanID_f_CompletionFunc(const CCommand& args)
 
 	try
 	{
-		bool onlyDigits = args.HasOnlyDigits(1);
+		bool bOnlyDigits = args.HasOnlyDigits(1);
 		for (int i = 0; i < MAX_PLAYERS; i++)
 		{
-			CBaseClient* client = g_pClient->GetClient(i);
-			if (!client)
+			CBaseClient* pClient = g_pClient->GetClient(i);
+			CNetChan* pNetChan = pClient->GetNetChan();
+
+			if (!pClient || !pNetChan)
 			{
 				continue;
 			}
 
-			if (!client->GetNetChan())
-			{
-				continue;
-			}
+			std::string svIpAddress = pNetChan->GetAddress(); // If this stays empty they modified the packet somehow.
 
-			std::string finalIpAddress = "null"; // If this stays null they modified the packet somehow.
-			ADDRESS ipAddressField = ADDRESS(((std::uintptr_t)client->GetNetChan()) + 0x1AC0); // Get client ip from netchan.
-			if (ipAddressField)
+			if (bOnlyDigits)
 			{
-				std::stringstream ss;
-				ss << std::to_string(ipAddressField.GetValue<std::uint8_t>()) << "."
-					<< std::to_string(ipAddressField.Offset(0x1).GetValue<std::uint8_t>()) << "."
-					<< std::to_string(ipAddressField.Offset(0x2).GetValue<std::uint8_t>()) << "."
-					<< std::to_string(ipAddressField.Offset(0x3).GetValue<std::uint8_t>());
-
-				finalIpAddress = ss.str();
-			}
-
-			if (onlyDigits)
-			{
-				std::int64_t ID = static_cast<std::int64_t>(std::stoll(args.Arg(1)));
-				if (ID > MAX_PLAYERS) // Is it a possible originID?
+				std::int64_t nTargetID = static_cast<std::int64_t>(std::stoll(args.Arg(1)));
+				if (nTargetID > MAX_PLAYERS) // Is it a possible originID?
 				{
-					std::int64_t originID = client->GetOriginID();
-					if (originID != ID)
+					std::int64_t nOriginID = pClient->GetOriginID();
+					if (nOriginID != nTargetID)
 					{
 						continue;
 					}
 				}
 				else // If its not try by userID.
 				{
-					std::int64_t clientID = static_cast<std::int64_t>(client->GetUserID() + 1); // Get UserID + 1.
-					if (clientID != ID)
+					std::int64_t nClientID = static_cast<std::int64_t>(pClient->GetUserID() + 1); // Get UserID + 1.
+					if (nClientID != nTargetID)
 					{
 						continue;
 					}
 				}
 
-				g_pBanSystem->AddEntry(finalIpAddress, client->GetOriginID());
+				g_pBanSystem->AddEntry(svIpAddress, pClient->GetOriginID());
 				g_pBanSystem->Save();
-				NET_DisconnectClient(client, i, "Banned from Server", 0, 1);
+				NET_DisconnectClient(pClient, i, "Banned from Server", 0, 1);
 			}
 			else
 			{
-				if (std::string(args.Arg(1)).compare(finalIpAddress) != NULL)
+				if (std::string(args.Arg(1)).compare(svIpAddress) != NULL)
 				{
 					continue;
 				}
 
-				g_pBanSystem->AddEntry(finalIpAddress, client->GetOriginID());
+				g_pBanSystem->AddEntry(svIpAddress, pClient->GetOriginID());
 				g_pBanSystem->Save();
-				NET_DisconnectClient(client, i, "Banned from Server", 0, 1);
+				NET_DisconnectClient(pClient, i, "Banned from Server", 0, 1);
 			}
 		}
 	}
@@ -610,7 +567,7 @@ void _NET_TraceNetChan_f_CompletionFunc(const CCommand& args)
 		DetourTransactionBegin();
 		DetourUpdateThread(GetCurrentThread());
 
-		CNetChan_Trace_Attach();
+		NET_Trace_Attach();
 		// Commit the transaction.
 		if (DetourTransactionCommit() != NO_ERROR)
 		{
@@ -630,7 +587,7 @@ void _NET_TraceNetChan_f_CompletionFunc(const CCommand& args)
 		DetourTransactionBegin();
 		DetourUpdateThread(GetCurrentThread());
 
-		CNetChan_Trace_Detach();
+		NET_Trace_Detach();
 
 		// Commit the transaction.
 		DetourTransactionCommit();
@@ -689,7 +646,7 @@ void _NET_SetKey_f_CompletionFunc(const CCommand& args)
 		return;
 	}
 
-	HNET_SetKey(args.Arg(1));
+	NET_SetKey(args.Arg(1));
 }
 
 /*
@@ -701,7 +658,7 @@ _NET_GenerateKey_f_CompletionFunc
 */
 void _NET_GenerateKey_f_CompletionFunc(const CCommand& args)
 {
-	HNET_GenerateKey();
+	NET_GenerateKey();
 }
 #ifndef DEDICATED
 /*

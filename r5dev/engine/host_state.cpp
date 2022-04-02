@@ -17,9 +17,9 @@
 #else // 
 #include "engine/cl_rcon.h"
 #endif // DEDICATED
+#include "engine/net.h"
 #include "engine/gl_screen.h"
 #include "engine/host_state.h"
-#include "engine/net_chan.h"
 #include "engine/sys_engine.h"
 #include "engine/sys_utils.h"
 #include "engine/cmodel_bsp.h"
@@ -159,14 +159,14 @@ FORCEINLINE void CHostState::Setup(void) const
 	std::thread think(&CHostState::Think, this);
 	think.detach();
 
-	*reinterpret_cast<bool*>(m_bRestrictServerCommands) = true; // Restrict commands.
+	*m_bRestrictServerCommands = true; // Restrict commands.
 	ConCommandBase* disconnect = g_pCVar->FindCommandBase("disconnect");
 	disconnect->AddFlags(FCVAR_SERVER_CAN_EXECUTE); // Make sure server is not restricted to this.
 	g_pCVar->FindVar("net_usesocketsforloopback")->SetValue(1);
 
 	if (net_userandomkey->GetBool())
 	{
-		HNET_GenerateKey();
+		NET_GenerateKey();
 	}
 
 #ifdef DEDICATED

@@ -23,11 +23,11 @@ int CBaseServer::GetNumHumanPlayers(void) const
     int nHumans = 0;
     for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
     {
-        CBaseClient* client = g_pClient->GetClient(i);
-        if (!client)
+        CBaseClient* pClient = g_pClient->GetClient(i);
+        if (!pClient)
             continue;
 
-        if (client->IsHumanPlayer())
+        if (pClient->IsHumanPlayer())
             nHumans++;
     }
 
@@ -43,11 +43,11 @@ int CBaseServer::GetNumFakeClients(void) const
     int nBots = 0;
     for (int i = 0; i < g_ServerGlobalVariables->m_nMaxClients; i++)
     {
-        CBaseClient* client = g_pClient->GetClient(i);
-        if (!client)
+        CBaseClient* pClient = g_pClient->GetClient(i);
+        if (!pClient)
             continue;
 
-        if (client->IsConnected() && client->IsFakeClient())
+        if (pClient->IsConnected() && pClient->IsFakeClient())
             nBots++;
     }
 

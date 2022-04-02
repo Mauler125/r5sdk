@@ -68,6 +68,7 @@
     </ClCompile>
     <ClCompile Include="..\public\bansystem.cpp" />
     <ClCompile Include="..\public\binstream.cpp" />
+    <ClCompile Include="..\public\inetchannel.cpp" />
     <ClCompile Include="..\public\utility.cpp" />
     <ClCompile Include="..\rtech\rtech_utils.cpp" />
     <ClCompile Include="..\rtech\rtech_game.cpp" />
@@ -87,6 +88,7 @@
     <ClCompile Include="..\tier0\cvar.cpp" />
     <ClCompile Include="..\tier0\fasttimer.cpp" />
     <ClCompile Include="..\tier0\IConVar.cpp" />
+    <ClCompile Include="..\tier1\bitbuf.cpp" />
     <ClCompile Include="..\tier1\NetAdr2.cpp" />
     <ClCompile Include="..\tier2\socketcreator.cpp" />
     <ClCompile Include="..\vguimatsurface\MatSystemSurface.cpp" />
@@ -175,6 +177,7 @@
     <ClInclude Include="..\protoc\sv_rcon.pb.h" />
     <ClInclude Include="..\public\include\edict.h" />
     <ClInclude Include="..\public\include\globalvars_base.h" />
+    <ClInclude Include="..\public\include\inetchannel.h" />
     <ClInclude Include="..\public\include\memaddr.h" />
     <ClInclude Include="..\public\include\bansystem.h" />
     <ClInclude Include="..\public\include\binstream.h" />
@@ -342,7 +345,10 @@
     <ClInclude Include="..\tier0\IConVar.h" />
     <ClInclude Include="..\tier0\interface.h" />
     <ClInclude Include="..\tier0\platform.h" />
+    <ClInclude Include="..\tier1\bitbuf.h" />
     <ClInclude Include="..\tier1\NetAdr2.h" />
+    <ClInclude Include="..\tier1\utlmemory.h" />
+    <ClInclude Include="..\tier1\utlvector.h" />
     <ClInclude Include="..\tier2\socketcreator.h" />
     <ClInclude Include="..\vguimatsurface\MatSystemSurface.h" />
     <ClInclude Include="..\vgui\vgui_baseui_interface.h" />

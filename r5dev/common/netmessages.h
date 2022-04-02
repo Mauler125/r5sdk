@@ -1,5 +1,32 @@
 #pragma once
 
+struct CNetMessage
+{
+	void* iNetMessageVTable;
+	int m_nGroup;
+	bool m_bReliable;
+	char padding[3];
+	void* m_NetChannel;
+};
+
+struct VecNetMessages
+{
+	CNetMessage** items;
+	int64_t m_nAllocationCount;
+	int64_t m_nGrowSize;
+	int m_Size;
+	int padding_;
+};
+
+struct VecNetDataFragments
+{
+	void** items;
+	int64_t m_nAllocationCount;
+	int64_t m_nGrowSize;
+	int m_Size;
+	int padding_;
+};
+
 namespace
 {
 	//-------------------------------------------------------------------------

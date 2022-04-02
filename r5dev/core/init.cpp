@@ -144,7 +144,7 @@ void Systems_Init()
 #endif // DEDICATED || GAMEDLL_S3
 	//CModelLoader_Attach();
 
-	CNetChan_Attach();
+	NET_Attach();
 	ConCommand_Attach();
 	IConVar_Attach();
 	CKeyValueSystem_Attach();
@@ -245,7 +245,7 @@ void Systems_Shutdown()
 #endif // DEDICATED || GAMEDLL_S3
 	//CModelLoader_Detach();
 
-	CNetChan_Detach();
+	NET_Detach();
 	ConCommand_Detach();
 	IConVar_Detach();
 	CKeyValueSystem_Detach();

@@ -816,6 +816,18 @@
     <ClInclude Include="..\squirrel\sqtype.h">
       <Filter>sdk\squirrel</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\include\inetchannel.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\utlmemory.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\utlvector.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\bitbuf.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\IVEngineClient.cpp">
@@ -1018,6 +1030,9 @@
     </ClCompile>
     <ClCompile Include="..\engine\baseserver.cpp">
       <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier1\bitbuf.cpp">
+      <Filter>sdk\tier1</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

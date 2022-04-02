@@ -5,187 +5,178 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#include "core/logdef.h"
-#include "tier0/cvar.h"
-#include "tier0/completion.h"
-#include "mathlib/color.h"
-#include "engine/sys_utils.h"
 #include "engine/net_chan.h"
-#ifndef CLIENT_DLL
-#include "engine/baseclient.h"
-#endif // !CLIENT_DLL
-#ifdef DEDICATED
-#include "engine/sv_rcon.h"
-#else // DEDICATED
-#include "gameui/IConsole.h"
-#endif // !DEDICATED
 
 //-----------------------------------------------------------------------------
-// Purpose: shutdown netchannel
+// Purpose: gets the netchannel name
+// Output : const char*
 //-----------------------------------------------------------------------------
-void HNET_ShutDown(void* thisptr, const char* szReason, std::uint8_t a1, char a2)
+const char* CNetChan::GetName(void) const
 {
-#if !defined (GAMEDLL_S0) || !defined (GAMEDLL_S1) // !TEMP UNTIL CHOSTSTATE IS BUILD AGNOSTIC! //
-	DownloadPlaylists_f_CompletionFunc(); // Re-load playlist from disk after getting disconnected from the server.
-#endif // !GAMEDLL_S0 || GAMEDLL_S1
-	NET_Shutdown(thisptr, szReason, a1, a2);
+	// [0x1A8D + 0x1] (first char in array is a null character!).
+	return this->m_Name + 1;
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: hook and log the receive datagram
+// Purpose: gets the netchannel address
+// Output : const char*
 //-----------------------------------------------------------------------------
-bool HNET_ReceiveDatagram(int iSocket, netpacket_s* pInpacket, bool bRaw)
+const char* CNetChan::GetAddress(void) const
 {
-	bool result = NET_ReceiveDatagram(iSocket, pInpacket, bRaw);
-	if (result)
-	{
-		// Log received packet data
-		HexDump("[+] NET_ReceiveDatagram", 0, &pInpacket->data[NULL], pInpacket->wiresize);
-	}
-	return result;
+	char szAdr[INET6_ADDRSTRLEN]{};
+	inet_ntop(AF_INET6, &this->remote_address.adr, szAdr, INET6_ADDRSTRLEN);
+	return szAdr;
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: hook and log the send datagram
+// Purpose: gets the netchannel data rate
+// Output : int
 //-----------------------------------------------------------------------------
-void* HNET_SendDatagram(SOCKET s, const char* szPayload, int iLenght, int nFlags)
+int CNetChan::GetDataRate(void) const
 {
-	void* result = NET_SendDatagram(s, szPayload, iLenght, nFlags);
-	if (result)
-	{
-		// Log transmitted packet data
-		HexDump("[+] NET_SendDatagram", 0, szPayload, iLenght);
-	}
-	return result;
+	return this->m_Rate;
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: sets the user specified encryption key
+// Purpose: gets the netchannel buffer size (NET_FRAMES_BACKUP)
+// Output : int
 //-----------------------------------------------------------------------------
-void HNET_SetKey(std::string svNetKey)
+int CNetChan::GetBufferSize(void) const
 {
-	g_szNetKey.clear();
-	g_szNetKey = svNetKey;
-
-	DevMsg(eDLL_T::ENGINE, "______________________________________________________________\n");
-	DevMsg(eDLL_T::ENGINE, "] NET_KEY ----------------------------------------------------\n");
-	DevMsg(eDLL_T::ENGINE, "] BASE64: %s%s%s\n", g_svGreyB.c_str(), g_szNetKey.c_str(), g_svReset.c_str());
-	DevMsg(eDLL_T::ENGINE, "--------------------------------------------------------------\n");
-
-	NET_SetKey(g_pNetKey, g_szNetKey.c_str());
+	return NET_FRAMES_BACKUP;
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: calculates and sets the encryption key
+// Purpose: gets the netchannel latency
+// Input  : flow - 
+// Output : float
 //-----------------------------------------------------------------------------
-void HNET_GenerateKey()
+float CNetChan::GetLatency(int flow) const
 {
-	g_szNetKey.clear();
-	net_userandomkey->SetValue(1);
-
-	BCRYPT_ALG_HANDLE hAlgorithm;
-	if (BCryptOpenAlgorithmProvider(&hAlgorithm, L"RNG", 0, 0) < 0)
-	{
-		Error(eDLL_T::ENGINE, "Failed to open rng algorithm\n");
-		return;
-	}
-	unsigned char pBuffer[0x10u];
-	if (BCryptGenRandom(hAlgorithm, pBuffer, 0x10u, 0) < 0)
-	{
-		Error(eDLL_T::ENGINE, "Failed to generate random data\n");
-		return;
-	}
-
-	for (int i = 0; i < 0x10u; i++)
-	{
-		g_szNetKey += pBuffer[i];
-	}
-
-	g_szNetKey = Base64Encode(g_szNetKey);
-
-	DevMsg(eDLL_T::ENGINE, "______________________________________________________________\n");
-	DevMsg(eDLL_T::ENGINE, "] NET_KEY ----------------------------------------------------\n");
-	DevMsg(eDLL_T::ENGINE, "] BASE64: %s%s%s\n", g_svGreyB.c_str(), g_szNetKey.c_str(), g_svReset.c_str());
-	DevMsg(eDLL_T::ENGINE, "--------------------------------------------------------------\n");
-
-	NET_SetKey(g_pNetKey, g_szNetKey.c_str());
+	return this->m_DataFlow[flow].latency;
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: hook and log the client's signonstate to the console
+// Purpose: gets the netchannel average choke
+// Input  : flow - 
+// Output : float
 //-----------------------------------------------------------------------------
-void HNET_PrintFunc(const char* fmt, ...)
+float CNetChan::GetAvgChoke(int flow) const
 {
-	static char buf[1024];
-
-	va_list args;
-	va_start(args, fmt);
-
-	vsnprintf(buf, sizeof(buf), fmt, args);
-
-	buf[sizeof(buf) -1] = 0;
-	va_end(args);
-
-	DevMsg(eDLL_T::CLIENT, "%s", buf);
+	return this->m_DataFlow[flow].avgchoke;
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: disconnect the client and shutdown netchannel
+// Purpose: gets the netchannel average latency
+// Input  : flow - 
+// Output : float
 //-----------------------------------------------------------------------------
-void NET_DisconnectClient(CBaseClient* pClient, int nIndex, const char* szReason, uint8_t unk1, char unk2)
+float CNetChan::GetAvgLatency(int flow) const
 {
-#ifndef CLIENT_DLL
-	if (!pClient) // Client valid?
-	{
-		return;
-	}
+	return this->m_DataFlow[flow].avglatency;
+}
 
-	if (std::strlen(szReason) == NULL) // Is reason null?
-	{
-		return;
-	}
+//-----------------------------------------------------------------------------
+// Purpose: gets the netchannel average loss
+// Input  : flow - 
+// Output : float
+//-----------------------------------------------------------------------------
+float CNetChan::GetAvgLoss(int flow) const
+{
+	return this->m_DataFlow[flow].avgloss;
+}
 
-	if (!pClient->GetNetChan()) // NC even existent?
+//-----------------------------------------------------------------------------
+// Purpose: gets the netchannel average packets
+// Input  : flow - 
+// Output : float
+//-----------------------------------------------------------------------------
+float CNetChan::GetAvgPackets(int flow) const
+{
+	return this->m_DataFlow[flow].avgpacketspersec;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the netchannel average data
+// Input  : flow - 
+// Output : float
+//-----------------------------------------------------------------------------
+float CNetChan::GetAvgData(int flow) const
+{
+	return this->m_DataFlow[flow].avgbytespersec;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the netchannel total data
+// Input  : flow - 
+// Output : int
+//-----------------------------------------------------------------------------
+int CNetChan::GetTotalData(int flow) const
+{
+	return this->m_DataFlow[flow].totalbytes;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the netchannel total packets
+// Input  : flow - 
+// Output : int
+//-----------------------------------------------------------------------------
+int CNetChan::GetTotalPackets(int flow) const
+{
+	return this->m_DataFlow[flow].totalpackets;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the netchannel sequence number
+// Input  : flow - 
+// Output : int
+//-----------------------------------------------------------------------------
+int CNetChan::GetSequenceNr(int flow) const
+{
+	if (flow == FLOW_OUTGOING)
 	{
-		return;
+		return this->m_nOutSequenceNr;
+	}
+	else if (flow == FLOW_INCOMING)
+	{
+		return this->m_nInSequenceNr;
 	}
 
-	NET_Shutdown(pClient->GetNetChan(), szReason, unk1, unk2); // Shutdown netchan.
-	pClient->SetNetChan(nullptr);                              // Null netchan.
-	CBaseClient_Clear(pClient);                                // Reset CClient instance for client.
-	g_bIsPersistenceVarSet[nIndex] = false;                    // Reset Persistence var.
-#endif // !CLIENT_DLL
+	return NULL;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-void CNetChan_Attach()
+//-----------------------------------------------------------------------------
+// Purpose: gets the netchannel connect time
+// Output : double
+//-----------------------------------------------------------------------------
+double CNetChan::GetConnectTime(void) const
 {
-	DetourAttach((LPVOID*)&NET_PrintFunc, &HNET_PrintFunc);
-#ifndef DEDICATED
-	DetourAttach((LPVOID*)&NET_Shutdown, &HNET_ShutDown);
-#endif
+	return this->connect_time;
 }
 
-void CNetChan_Detach()
+//-----------------------------------------------------------------------------
+// Purpose: gets the netchannel timeout
+// Output : float
+//-----------------------------------------------------------------------------
+float CNetChan::GetTimeoutSeconds(void) const
 {
-	DetourDetach((LPVOID*)&NET_PrintFunc, &HNET_PrintFunc);
-#ifndef DEDICATED
-	DetourDetach((LPVOID*)&NET_Shutdown, &HNET_ShutDown);
-#endif
+	return this->m_Timeout;
 }
 
-void CNetChan_Trace_Attach()
+//-----------------------------------------------------------------------------
+// Purpose: gets the netchannel socket
+// Output : int
+//-----------------------------------------------------------------------------
+int CNetChan::GetSocket(void) const
 {
-	DetourAttach((LPVOID*)&NET_ReceiveDatagram, &HNET_ReceiveDatagram);
-	DetourAttach((LPVOID*)&NET_SendDatagram, &HNET_SendDatagram);
+	return this->m_Socket;
 }
 
-void CNetChan_Trace_Detach()
+//-----------------------------------------------------------------------------
+// Purpose: checks if the reliable stream is overflowed
+// Output : true if overflowed, false otherwise
+//-----------------------------------------------------------------------------
+bool CNetChan::IsOverflowed(void) const
 {
-	DetourDetach((LPVOID*)&NET_ReceiveDatagram, &HNET_ReceiveDatagram);
-	DetourDetach((LPVOID*)&NET_SendDatagram, &HNET_SendDatagram);
+	return this->m_StreamReliable.IsOverflowed();
 }
-
-///////////////////////////////////////////////////////////////////////////////
-std::string g_szNetKey = "WDNWLmJYQ2ZlM0VoTid3Yg==";
-std::uintptr_t g_pNetKey = g_mGameDll.StringSearch("client:NetEncryption_NewKey").FindPatternSelf("48 8D ? ? ? ? ? 48 3B", ADDRESS::Direction::UP, 300).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr();

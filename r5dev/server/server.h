@@ -1,15 +1,15 @@
 #pragma once
+#include "tier1/NetAdr2.h"
 #include "networksystem/r5net.h"
 
 struct user_creds
 {
-	std::uint8_t  gap0[16];
-	std::uint32_t m_nIpAddr;
-	std::uint8_t  gap1[4];
-	std::int32_t  m_nProtocolVer;
-	std::uint8_t  gap2[12];
-	std::int64_t  m_nNucleusID;
-	std::int64_t  m_nUserID;
+	v_netadr_t m_nAddr;
+	int32_t  m_nProtocolVer;
+	int32_t  m_nchallenge;
+	uint8_t  gap2[8];
+	int64_t  m_nNucleusID;
+	int64_t  m_nUserID;
 };
 
 namespace
