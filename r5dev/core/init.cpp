@@ -34,10 +34,10 @@
 #include "vguimatsurface/MatSystemSurface.h"
 #include "client/cdll_engine_int.h"
 #endif // !DEDICATED
-#include "client/IVEngineClient.h"
+#include "client/vengineclient_impl.h"
 #ifndef CLIENT_DLL
 #include "server/server.h"
-#include "server/IVEngineServer.h"
+#include "server/vengineserver_impl.h"
 #endif // !CLIENT_DLL
 #include "squirrel/sqinit.h"
 #include "squirrel/sqapi.h"

@@ -28,7 +28,7 @@ History:
 #include "squirrel/sqinit.h"
 #include "squirrel/sqapi.h"
 #include "server/server.h"
-#include "client/IVEngineClient.h"
+#include "client/vengineclient_impl.h"
 #include "vpc/keyvalues.h"
 #include "vpklib/packedstore.h"
 #include "gameui/IBrowser.h"

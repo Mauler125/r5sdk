@@ -35,7 +35,7 @@ struct netframe_t
 };
 
 //-----------------------------------------------------------------------------
-struct __declspec(align(8)) netflow_t
+struct netflow_t
 {
 	float nextcompute;
 	float avgbytespersec;
@@ -51,7 +51,7 @@ struct __declspec(align(8)) netflow_t
 };
 
 //-----------------------------------------------------------------------------
-struct __declspec(align(4)) dataFragments_t
+struct dataFragments_t
 {
 	char* data;
 	int64_t block_size;
@@ -75,7 +75,7 @@ enum EBufType
 };
 
 //-----------------------------------------------------------------------------
-class __declspec(align(8)) CNetChan
+class CNetChan
 {
 public:
 	const char* GetName(void) const;

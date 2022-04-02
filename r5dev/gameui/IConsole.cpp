@@ -19,7 +19,7 @@ History:
 #include "windows/id3dx.h"
 #include "windows/console.h"
 #include "gameui/IConsole.h"
-#include "client/IVEngineClient.h"
+#include "client/vengineclient_impl.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 

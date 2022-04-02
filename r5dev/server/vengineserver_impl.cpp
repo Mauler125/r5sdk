@@ -9,7 +9,7 @@
 #include "common/protocol.h"
 #include "engine/sys_utils.h"
 #include "engine/baseclient.h"
-#include "server/IVEngineServer.h"
+#include "server/vengineserver_impl.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: sets the persistence var in the CClient instance to 'ready'

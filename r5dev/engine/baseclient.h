@@ -1,7 +1,8 @@
 #pragma once
+#include "vpc/keyvalues.h"
 #include "common/protocol.h"
 #include "engine/net_chan.h"
-#include "server/IVEngineServer.h"
+#include "server/vengineserver_impl.h"
 
 //-----------------------------------------------------------------------------
 // Forward declarations
@@ -16,13 +17,13 @@ class CBaseClient
 {
 public:
 	CBaseClient* GetClient(int nIndex) const;
-	std::int32_t GetUserID(void) const;
-	std::int64_t GetOriginID(void) const;
+	int32_t GetUserID(void) const;
+	int64_t GetOriginID(void) const;
 	SIGNONSTATE GetSignonState(void) const;
 	PERSISTENCE GetPersistenceState(void) const;
 	CNetChan* GetNetChan(void) const;
-	void SetUserID(std::int32_t nUserID);
-	void SetOriginID(std::int64_t nOriginID);
+	void SetUserID(int32_t nUserID);
+	void SetOriginID(int64_t nOriginID);
 	void SetSignonState(SIGNONSTATE nSignonState);
 	void SetPersistenceState(PERSISTENCE nPersistenceState);
 	void SetNetChan(CNetChan* pNetChan); // !TODO: HACK!
@@ -39,17 +40,17 @@ public:
 private:
 	// [ PIXIE ]: AMOS PLEASE VERIFY STRUCT INTEGRITY FOR EARLIER SEASONS. THERE WAS A PADDING AFTER ORIGINID BEFORE.
 	char pad_0000[16];               //0x0000
-	std::int32_t m_nUserID;          //0x0010
+	int32_t m_nUserID;               //0x0010
 	char pad_0014[844];              //0x0014
-	void* m_ConVars;                 //0x0360 This is a KeyValue*!
+	KeyValues* m_ConVars;            //0x0360
 	char pad_0368[8];                //0x0368
 	CBaseServer* m_Server;           //0x0370
 	char pad_0378[40];               //0x0378
 	CNetChan* m_NetChannel;          //0x03A0
 	char pad_03A8[8];                //0x03A8
 	SIGNONSTATE m_nSignonState;      //0x03B0
-	std::int32_t m_nDeltaTick;       //0x03B4
-	std::int64_t m_nOriginID;        //0x03B8
+	int32_t m_nDeltaTick;            //0x03B4
+	int64_t m_nOriginID;             //0x03B8
 	char pad_03C0[480];              //0x03C0
 	bool m_bFakePlayer;              //0x05A0
 	bool m_bReceivedPacket;          //0x05A1
@@ -58,7 +59,7 @@ private:
 	char pad_05A4[24];               //0x05A4
 	PERSISTENCE m_nPersistenceState; //0x05BC
 	char pad_05C0[302676];           //0x05C0
-	std::int32_t m_LastMovementTick; //0x4A414
+	int32_t m_LastMovementTick;      //0x4A414
 	char pad_4A418[168];             //0x4A418
 };
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)

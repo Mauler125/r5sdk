@@ -159,12 +159,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\client\client.cpp">
-      <Filter>sdk\client</Filter>
-    </ClCompile>
-    <ClCompile Include="..\client\IVEngineClient.cpp">
-      <Filter>sdk\client</Filter>
-    </ClCompile>
     <ClCompile Include="..\client\cdll_engine_int.cpp">
       <Filter>sdk\client</Filter>
     </ClCompile>
@@ -393,15 +387,12 @@
     <ClCompile Include="..\tier1\bitbuf.cpp">
       <Filter>sdk\tier1</Filter>
     </ClCompile>
+    <ClCompile Include="..\client\vengineclient_impl.cpp">
+      <Filter>sdk\client</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
-      <Filter>sdk\client</Filter>
-    </ClInclude>
-    <ClInclude Include="..\client\client.h">
-      <Filter>sdk\client</Filter>
-    </ClInclude>
-    <ClInclude Include="..\client\IVEngineClient.h">
       <Filter>sdk\client</Filter>
     </ClInclude>
     <ClInclude Include="..\common\protocol.h">
@@ -1138,6 +1129,9 @@
     </ClInclude>
     <ClInclude Include="..\tier1\bitbuf.h">
       <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\client\vengineclient_impl.h">
+      <Filter>sdk\client</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

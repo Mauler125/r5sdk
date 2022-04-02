@@ -124,7 +124,7 @@
     <ClInclude Include="..\appframework\iappsystem.h" />
     <ClInclude Include="..\bsplib\bsplib.h" />
     <ClInclude Include="..\client\cdll_engine_int.h" />
-    <ClInclude Include="..\client\IVEngineClient.h" />
+    <ClInclude Include="..\client\vengineclient_impl.h" />
     <ClInclude Include="..\common\igameserverdata.h" />
     <ClInclude Include="..\common\netmessages.h" />
     <ClInclude Include="..\common\opcodes.h" />
@@ -192,7 +192,7 @@
     <ClInclude Include="..\rtech\rtech_utils.h" />
     <ClInclude Include="..\rtech\rtech_game.h" />
     <ClInclude Include="..\rtech\stryder\stryder.h" />
-    <ClInclude Include="..\server\IVEngineServer.h" />
+    <ClInclude Include="..\server\vengineserver_impl.h" />
     <ClInclude Include="..\server\server.h" />
     <ClInclude Include="..\squirrel\sqapi.h" />
     <ClInclude Include="..\squirrel\sqinit.h" />
@@ -353,7 +353,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\bsplib\bsplib.cpp" />
-    <ClCompile Include="..\client\IVEngineClient.cpp" />
+    <ClCompile Include="..\client\vengineclient_impl.cpp" />
     <ClCompile Include="..\common\opcodes.cpp" />
     <ClCompile Include="..\core\dllmain.cpp" />
     <ClCompile Include="..\core\init.cpp" />
@@ -405,7 +405,7 @@
     <ClCompile Include="..\rtech\rtech_utils.cpp" />
     <ClCompile Include="..\rtech\rtech_game.cpp" />
     <ClCompile Include="..\rtech\stryder\stryder.cpp" />
-    <ClCompile Include="..\server\IVEngineServer.cpp" />
+    <ClCompile Include="..\server\vengineserver_impl.cpp" />
     <ClCompile Include="..\server\server.cpp" />
     <ClCompile Include="..\squirrel\sqapi.cpp" />
     <ClCompile Include="..\squirrel\sqinit.cpp" />

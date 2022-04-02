@@ -1,5 +1,8 @@
 #pragma once
 #include "squirrel/sqtype.h"
+#ifndef DEDICATED
+#include "client/cdll_engine_int.h"
+#endif // !DEDICATED
 
 namespace
 {
@@ -51,10 +54,10 @@ namespace
 #endif
 #if !defined (DEDICATED) && defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
 	ADDRESS p_SQVM_CreateClientVM = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x83\xEC\x58\x48\x83\x3D\x00\x00\x00\x00\x00\x74\x05", "xxxxxxx?????xx");
-	SQBool(*SQVM_CreateClientVM)(void* chlclient) = (SQBool(*)(void*))p_SQVM_CreateClientVM.GetPtr(); /*48 83 EC 58 48 83 3D ? ? ? ? ? 74 05*/
+	SQBool(*SQVM_CreateClientVM)(CHLClient* hlclient) = (SQBool(*)(CHLClient*))p_SQVM_CreateClientVM.GetPtr(); /*48 83 EC 58 48 83 3D ? ? ? ? ? 74 05*/
 #elif !defined (DEDICATED) && defined (GAMEDLL_S3)
 	ADDRESS p_SQVM_CreateClientVM = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x41\x57\x48\x83\xEC\x68\x48\x83\x3D\x00\x00\x00\x00\x00", "xxxxxxxxxxx?????");
-	SQBool(*SQVM_CreateClientVM)(void* chlclient) = (SQBool(*)(void*))p_SQVM_CreateClientVM.GetPtr(); /*40 53 41 57 48 83 EC 68 48 83 3D ? ? ? ? ?*/
+	SQBool(*SQVM_CreateClientVM)(CHLClient* hlclient) = (SQBool(*)(CHLClient*))p_SQVM_CreateClientVM.GetPtr(); /*40 53 41 57 48 83 EC 68 48 83 3D ? ? ? ? ?*/
 #endif
 #if !defined (DEDICATED)
 	ADDRESS p_SQVM_CreateUIVM = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x48\x83\xEC\x20\x48\x8B\x1D\x00\x00\x00\x00\xC6\x05\x00\x00\x00\x00\x00", "xxxxxxxxx????xx?????");
@@ -86,7 +89,9 @@ SQInteger HSQVM_InitializeCLGlobalScriptStructs(SQVM* sqvm, SQCONTEXT context);
 void HSQVM_InitializeSVGlobalScriptStructs(SQVM* sqvm);
 
 SQBool HSQVM_CreateServerVM();
-SQBool HSQVM_CreateClientVM(void* chlclient);
+#ifndef DEDICATED
+SQBool HSQVM_CreateClientVM(CHLClient* hlclient);
+#endif // !DEDICATED
 SQBool HSQVM_CreateUIVM();
 
 const SQChar* SQVM_GetContextName(SQCONTEXT context);

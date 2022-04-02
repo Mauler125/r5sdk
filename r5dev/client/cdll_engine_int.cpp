@@ -3,7 +3,7 @@
 #include "tier0/IConVar.h"
 #include "tier0/cvar.h"
 #include "tier0/commandline.h"
-#include "client/IVEngineClient.h"
+#include "client/vengineclient_impl.h"
 #include "client/cdll_engine_int.h"
 #include "engine/net_chan.h"
 #include "engine/cl_rcon.h"

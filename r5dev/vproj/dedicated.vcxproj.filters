@@ -138,9 +138,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\client\IVEngineClient.h">
-      <Filter>sdk\client</Filter>
-    </ClInclude>
     <ClInclude Include="..\common\opcodes.h">
       <Filter>sdk\common</Filter>
     </ClInclude>
@@ -210,7 +207,7 @@
     <ClInclude Include="..\rtech\rtech_utils.h">
       <Filter>sdk\rtech</Filter>
     </ClInclude>
-    <ClInclude Include="..\server\IVEngineServer.h">
+    <ClInclude Include="..\server\vengineserver_impl.h">
       <Filter>sdk\server</Filter>
     </ClInclude>
     <ClInclude Include="..\squirrel\sqapi.h">
@@ -828,11 +825,11 @@
     <ClInclude Include="..\tier1\bitbuf.h">
       <Filter>sdk\tier1</Filter>
     </ClInclude>
+    <ClInclude Include="..\client\vengineclient_impl.h">
+      <Filter>sdk\client</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\client\IVEngineClient.cpp">
-      <Filter>sdk\client</Filter>
-    </ClCompile>
     <ClCompile Include="..\common\opcodes.cpp">
       <Filter>sdk\common</Filter>
     </ClCompile>
@@ -878,7 +875,7 @@
     <ClCompile Include="..\rtech\rtech_utils.cpp">
       <Filter>sdk\rtech</Filter>
     </ClCompile>
-    <ClCompile Include="..\server\IVEngineServer.cpp">
+    <ClCompile Include="..\server\vengineserver_impl.cpp">
       <Filter>sdk\server</Filter>
     </ClCompile>
     <ClCompile Include="..\squirrel\sqapi.cpp">
@@ -1033,6 +1030,9 @@
     </ClCompile>
     <ClCompile Include="..\tier1\bitbuf.cpp">
       <Filter>sdk\tier1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\client\vengineclient_impl.cpp">
+      <Filter>sdk\client</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

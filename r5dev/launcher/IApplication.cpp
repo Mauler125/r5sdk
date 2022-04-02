@@ -12,7 +12,7 @@
 #include "engine/sys_dll2.h"
 #include "engine/sv_main.h"
 #include "engine/host_cmd.h"
-#include "server/IVEngineServer.h"
+#include "server/vengineserver_impl.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 

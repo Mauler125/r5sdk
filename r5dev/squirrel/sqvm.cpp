@@ -12,9 +12,11 @@
 #include "engine/sys_utils.h"
 #ifdef DEDICATED
 #include "engine/sv_rcon.h"
-#endif // DEDICATED
+#else // DEDICATED
+#include "client/cdll_engine_int.h"
 #include "vgui/vgui_debugpanel.h"
 #include "gameui/IConsole.h"
+#endif
 #include "squirrel/sqtype.h"
 #include "squirrel/sqvm.h"
 #include "squirrel/sqinit.h"
@@ -368,9 +370,9 @@ SQBool HSQVM_CreateServerVM()
 // Input  : *chlclient - 
 // Output : True on success, false on failure
 //---------------------------------------------------------------------------------
-SQBool HSQVM_CreateClientVM(void* chlclient)
+SQBool HSQVM_CreateClientVM(CHLClient* hlclient)
 {
-	bool results = SQVM_CreateClientVM(chlclient);
+	bool results = SQVM_CreateClientVM(hlclient);
 	if (results)
 		DevMsg(eDLL_T::CLIENT, "Created CLIENT VM: '%p'\n", g_pClientVM.GetValue<HSQUIRRELVM>());
 	else

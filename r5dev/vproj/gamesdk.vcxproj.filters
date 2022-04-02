@@ -168,7 +168,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\client\IVEngineClient.cpp">
+    <ClCompile Include="..\client\vengineclient_impl.cpp">
       <Filter>sdk\client</Filter>
     </ClCompile>
     <ClCompile Include="..\client\cdll_engine_int.cpp">
@@ -219,7 +219,7 @@
     <ClCompile Include="..\launcher\IApplication.cpp">
       <Filter>sdk\launcher</Filter>
     </ClCompile>
-    <ClCompile Include="..\server\IVEngineServer.cpp">
+    <ClCompile Include="..\server\vengineserver_impl.cpp">
       <Filter>sdk\server</Filter>
     </ClCompile>
     <ClCompile Include="..\squirrel\sqvm.cpp">
@@ -425,7 +425,7 @@
     <ClInclude Include="..\client\cdll_engine_int.h">
       <Filter>sdk\client</Filter>
     </ClInclude>
-    <ClInclude Include="..\client\IVEngineClient.h">
+    <ClInclude Include="..\client\vengineclient_impl.h">
       <Filter>sdk\client</Filter>
     </ClInclude>
     <ClInclude Include="..\common\protocol.h">
@@ -494,7 +494,7 @@
     <ClInclude Include="..\networksystem\sm_protocol.h">
       <Filter>sdk\networksystem</Filter>
     </ClInclude>
-    <ClInclude Include="..\server\IVEngineServer.h">
+    <ClInclude Include="..\server\vengineserver_impl.h">
       <Filter>sdk\server</Filter>
     </ClInclude>
     <ClInclude Include="..\squirrel\sqapi.h">

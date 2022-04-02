@@ -31,7 +31,7 @@
 #ifndef DEDICATED
 #include "vgui/vgui_baseui_interface.h"
 #endif // DEDICATED
-#include "client/IVEngineClient.h"
+#include "client/vengineclient_impl.h"
 #include "networksystem/pylon.h"
 #include "public/include/bansystem.h"
 #include "public/include/edict.h"
