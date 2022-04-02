@@ -13,6 +13,7 @@
 
 #include "core/stdafx.h"
 #include "engine/sys_utils.h"
+#include "engine/baseserver.h"
 #include "squirrel/sqtype.h"
 #include "squirrel/sqapi.h"
 #include "squirrel/sqinit.h"
@@ -47,6 +48,23 @@ namespace VSquirrel
 #ifndef CLIENT_DLL
     namespace SERVER
     {
+        //-----------------------------------------------------------------------------
+        // Purpose: gets the number of real players on this server
+        //-----------------------------------------------------------------------------
+        SQRESULT GetNumHumanPlayers(HSQUIRRELVM v)
+        {
+            sq_pushinteger(v, g_pServer->GetNumHumanPlayers());
+            return SQ_OK;
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: gets the number of fake players on this server
+        //-----------------------------------------------------------------------------
+        SQRESULT GetNumFakeClients(HSQUIRRELVM v)
+        {
+            sq_pushinteger(v, g_pServer->GetNumFakeClients());
+            return SQ_OK;
+        }
     }
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
@@ -129,37 +147,37 @@ namespace VSquirrel
             {
             case R5RPromoData::PromoLargeTitle:
             {
-                svPromo = "Welcome To R5Reloaded!";
+                svPromo = "#PROMO_LARGE_TITLE";
                 break;
             }
             case R5RPromoData::PromoLargeDesc:
             {
-                svPromo = "Make sure to join the discord! discord.gg/r5reloaded";
+                svPromo = "#PROMO_LARGE_DESCRIPTION";
                 break;
             }
             case R5RPromoData::PromoLeftTitle:
             {
-                svPromo = "Yes";
+                svPromo = "#PROMO_LEFT_TITLE";
                 break;
             }
             case R5RPromoData::PromoLeftDesc:
             {
-                svPromo = "Your ad could be here";
+                svPromo = "#PROMO_LEFT_DESCRIPTION";
                 break;
             }
             case R5RPromoData::PromoRightTitle:
             {
-                svPromo = "Yes2";
+                svPromo = "#PROMO_RIGHT_TITLE";
                 break;
             }
             case R5RPromoData::PromoRightDesc:
             {
-                svPromo = "Yes3";
+                svPromo = "#PROMO_RIGHT_DESCRIPTION";
                 break;
             }
             default:
             {
-                svPromo = "You should not see this.";
+                svPromo = "#PROMO_SDK_ERROR";
                 break;
             }
             }

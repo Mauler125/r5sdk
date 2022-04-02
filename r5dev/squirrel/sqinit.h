@@ -21,9 +21,13 @@ namespace VSquirrel
 		SQRESULT SDKNativeTest(HSQUIRRELVM v);
 		SQRESULT GetSDKVersion(HSQUIRRELVM v);
 	}
+#ifndef CLIENT_DLL
 	namespace SERVER
 	{
+		SQRESULT GetNumHumanPlayers(HSQUIRRELVM v);
+		SQRESULT GetNumFakeClients(HSQUIRRELVM v);
 	}
+#endif // !CLIENT_DLL
 #ifndef DEDICATED
 	namespace CLIENT
 	{
