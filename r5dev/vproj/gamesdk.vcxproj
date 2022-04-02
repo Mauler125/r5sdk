@@ -68,7 +68,6 @@
     </ClCompile>
     <ClCompile Include="..\public\bansystem.cpp" />
     <ClCompile Include="..\public\binstream.cpp" />
-    <ClCompile Include="..\public\inetchannel.cpp" />
     <ClCompile Include="..\public\utility.cpp" />
     <ClCompile Include="..\rtech\rtech_utils.cpp" />
     <ClCompile Include="..\rtech\rtech_game.cpp" />
