@@ -68,7 +68,7 @@ void bf_write::SetOverflowFlag()
 {
 	if (this->m_bAssertOnOverflow)
 	{
-		Assert(false);
+		assert(false);
 	}
 
 	this->m_bOverflow = true;

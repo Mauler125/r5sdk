@@ -133,7 +133,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	DevMsg(eDLL_T::SERVER, " |-- Calculated linkcount: '%d'\n", nCalculatedLinkcount);
 
 	nCalculatedLinkcount /= 2;
-	if (ai_dumpAINfileFromLoad->GetBool())
+	if (ai_ainDumpOnLoad->GetBool())
 	{
 		if (pNetwork->m_iNumLinks != nCalculatedLinkcount)
 		{
@@ -303,7 +303,7 @@ void HCAI_NetworkManager__LoadNetworkGraph(void* aimanager, void* buf, const cha
 	CAI_NetworkManager__LoadNetworkGraph(aimanager, buf, filename);
 #endif
 
-	if (ai_dumpAINfileFromLoad->GetBool())
+	if (ai_ainDumpOnLoad->GetBool())
 	{
 		DevMsg(eDLL_T::SERVER, "Running BuildAINFile for loaded file '%s'\n", filename);
 		CAI_NetworkBuilder::SaveNetworkGraph(*(CAI_Network**)(reinterpret_cast<char*>(aimanager) + AINETWORK_OFFSET));

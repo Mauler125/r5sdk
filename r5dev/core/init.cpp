@@ -171,6 +171,7 @@ void Systems_Init()
 
 #ifndef CLIENT_DLL
 	CAI_Utility_Attach();
+	CAI_Network_Attach();
 	CAI_NetworkManager_Attach();
 #endif // !#ifndef CLIENT_DLL
 	// Patch instructions
@@ -271,6 +272,7 @@ void Systems_Shutdown()
 
 #ifndef CLIENT_DLL
 	CAI_Utility_Detach();
+	CAI_Network_Detach();
 	CAI_NetworkManager_Detach();
 #endif // !CLIENT_DLL
 

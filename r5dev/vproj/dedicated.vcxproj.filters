@@ -1034,6 +1034,9 @@
     <ClCompile Include="..\client\vengineclient_impl.cpp">
       <Filter>sdk\client</Filter>
     </ClCompile>
+    <ClCompile Include="..\game\server\ai_network.cpp">
+      <Filter>sdk\game\server</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Dedicated.def" />

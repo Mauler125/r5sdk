@@ -26,7 +26,8 @@ extern ConVar* rcon_address;
 extern ConVar* rcon_password;
 //-------------------------------------------------------------------------
 // SERVER                                                                 |
-extern ConVar* ai_dumpAINfileFromLoad;
+extern ConVar* ai_ainDumpOnLoad;
+extern ConVar* ai_ainDebugConnect;
 extern ConVar* navmesh_always_reachable;
 extern ConVar* sv_showconnecting;
 extern ConVar* sv_pylonvisibility;

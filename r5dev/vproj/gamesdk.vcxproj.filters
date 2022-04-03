@@ -420,6 +420,9 @@
     <ClCompile Include="..\tier1\bitbuf.cpp">
       <Filter>sdk\tier1</Filter>
     </ClCompile>
+    <ClCompile Include="..\game\server\ai_network.cpp">
+      <Filter>sdk\game\server</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">

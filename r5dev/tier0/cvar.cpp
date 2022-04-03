@@ -14,7 +14,8 @@ ConVar* rcon_address                       = nullptr;
 ConVar* rcon_password                      = nullptr;
 //-----------------------------------------------------------------------------
 // SERVER                                                                     |
-ConVar* ai_dumpAINfileFromLoad             = nullptr;
+ConVar* ai_ainDumpOnLoad                   = nullptr;
+ConVar* ai_ainDebugConnect                 = nullptr;
 ConVar* navmesh_always_reachable           = nullptr;
 
 ConVar* sv_showconnecting                  = nullptr;
