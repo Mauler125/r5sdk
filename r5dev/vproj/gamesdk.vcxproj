@@ -147,6 +147,7 @@
     <ClInclude Include="..\engine\sys_utils.h" />
     <ClInclude Include="..\gameui\IConsole.h" />
     <ClInclude Include="..\gameui\IBrowser.h" />
+    <ClInclude Include="..\game\client\c_baseentity.h" />
     <ClInclude Include="..\game\server\ai_network.h" />
     <ClInclude Include="..\game\server\ai_networkmanager.h" />
     <ClInclude Include="..\game\server\ai_node.h" />

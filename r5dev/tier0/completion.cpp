@@ -13,6 +13,7 @@
 #include "engine/cl_rcon.h"
 #endif // !DEDICATED
 #include "engine/net.h"
+#include "engine/net_chan.h"
 #include "engine/sys_utils.h"
 #include "engine/baseclient.h"
 #include "rtech/rtech_game.h"
@@ -66,31 +67,26 @@ void _Kick_f_CompletionFunc(const CCommand& args)
 
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
-		CBaseClient* client = g_pClient->GetClient(i);
-		if (!client)
+		CBaseClient* pClient = g_pClient->GetClient(i);
+		CNetChan* pNetChan = pClient->GetNetChan();
+		if (!pClient || !pNetChan)
 		{
 			continue;
 		}
 
-		if (!client->GetNetChan())
+		std::string svClientName(pNetChan->GetName(), NET_CHANNELNAME_MAXLEN); // Get full name.
+
+		if (svClientName.empty())
 		{
 			continue;
 		}
 
-		void* clientNamePtr = (void**)(((std::uintptr_t)client->GetNetChan()) + 0x1A8D); // Get client name from netchan.
-		std::string clientName((char*)clientNamePtr, 32); // Get full name.
-
-		if (clientName.empty())
+		if (strcmp(args.Arg(1), svClientName.c_str()) != 0) // Our wanted name?
 		{
 			continue;
 		}
 
-		if (strcmp(args.Arg(1), clientName.c_str()) != 0) // Our wanted name?
-		{
-			continue;
-		}
-
-		NET_DisconnectClient(client, i, "Kicked from Server", 0, 1);
+		NET_DisconnectClient(pClient, i, "Kicked from Server", 0, 1);
 	}
 }
 
@@ -183,7 +179,7 @@ void _Ban_f_CompletionFunc(const CCommand& args)
 			continue;
 		}
 
-		std::string svClientName(pNetChan->GetName(), NET_LEN_CHANNELNAME); // Get full name.
+		std::string svClientName(pNetChan->GetName(), NET_CHANNELNAME_MAXLEN); // Get full name.
 
 		if (svClientName.empty())
 		{

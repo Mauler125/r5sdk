@@ -15,7 +15,7 @@
 #include "public/include/inetchannel.h"
 
 #define NET_FRAMES_BACKUP 128
-#define NET_LEN_CHANNELNAME 32
+#define NET_CHANNELNAME_MAXLEN 32
 #define NET_FRAMES_MASK   (NET_FRAMES_BACKUP-1)
 
 //-----------------------------------------------------------------------------
@@ -160,7 +160,7 @@ private:
 	int                 m_nSequencesSkipped_MAYBE;
 	int                 m_nSessionRecvs;
 	uint32_t            m_nLiftimeRecvs;
-	char                m_Name[NET_LEN_CHANNELNAME];
+	char                m_Name[NET_CHANNELNAME_MAXLEN];
 	uint8_t             m_bRetrySendLong;
 	v_netadr_t          remote_address;
 };

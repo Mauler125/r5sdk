@@ -157,6 +157,12 @@
     <Filter Include="sdk\rtech\stryder">
       <UniqueIdentifier>{cbbed3bf-8879-4269-a518-c526199d95af}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\game">
+      <UniqueIdentifier>{45d6a508-a869-4d81-8701-9e4125ed1f7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\game\client">
+      <UniqueIdentifier>{0b043c41-b53e-44f5-9cbe-7501fcf22478}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\cdll_engine_int.cpp">
@@ -1132,6 +1138,9 @@
     </ClInclude>
     <ClInclude Include="..\client\vengineclient_impl.h">
       <Filter>sdk\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\client\c_baseentity.h">
+      <Filter>sdk\game\client</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

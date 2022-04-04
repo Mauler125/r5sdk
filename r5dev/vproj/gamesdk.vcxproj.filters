@@ -166,6 +166,9 @@
     <Filter Include="sdk\rtech\stryder">
       <UniqueIdentifier>{2535a97c-967a-40af-bb52-02033747b4f0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\game\client">
+      <UniqueIdentifier>{be813705-b786-4439-b785-eff6bb5f194f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\vengineclient_impl.cpp">
@@ -1198,6 +1201,9 @@
     </ClInclude>
     <ClInclude Include="..\tier1\bitbuf.h">
       <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\client\c_baseentity.h">
+      <Filter>sdk\game\client</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
