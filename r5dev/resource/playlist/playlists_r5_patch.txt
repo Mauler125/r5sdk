@@ -726,6 +726,8 @@
 				"PROMO_RIGHT_TITLE"              "Yes2"
 				"PROMO_RIGHT_DESCRIPTION"        "Yes3"
 				"PROMO_SDK_ERROR"                "You should not see this."
+
+				"DISCONNECT_BANNED"              "The client's game account has been banned: Banned"
 			}
 		}
 	}

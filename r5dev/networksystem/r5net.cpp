@@ -318,7 +318,7 @@ bool R5Net::Client::GetClientIsBanned(const std::string svIpAddress, std::int64_
         {
             if (jsResultBody["isBanned"].is_boolean() && jsResultBody["isBanned"].get<bool>())
             {
-                svOutErrCl = jsResultBody.value("errCl", "Generic error (code:gen). Contact R5Reloaded developers.");
+                svOutErrCl = jsResultBody.value("errCl", "#DISCONNECT_BANNED");
                 return true;
             }
         }
