@@ -74,7 +74,7 @@ void _Kick_f_CompletionFunc(const CCommand& args)
 			continue;
 		}
 
-		std::string svClientName(pNetChan->GetName(), NET_CHANNELNAME_MAXLEN); // Get full name.
+		std::string svClientName = pNetChan->GetName(); // Get full name.
 
 		if (svClientName.empty())
 		{
@@ -179,7 +179,7 @@ void _Ban_f_CompletionFunc(const CCommand& args)
 			continue;
 		}
 
-		std::string svClientName(pNetChan->GetName(), NET_CHANNELNAME_MAXLEN); // Get full name.
+		std::string svClientName = pNetChan->GetName(); // Get full name.
 
 		if (svClientName.empty())
 		{

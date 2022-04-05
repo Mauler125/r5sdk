@@ -23,7 +23,7 @@ bool HIVEngineServer__PersistenceAvailable(void* entidx, int clientidx)
 	{
 		CNetChan* pNetChan = pClient->GetNetChan();
 
-		string svClientName(pNetChan->GetName(), NET_CHANNELNAME_MAXLEN);
+		string svClientName = pNetChan->GetName();
 		string svIpAddress = pNetChan->GetAddress();
 		int64_t nOriginID = pClient->GetOriginID();
 

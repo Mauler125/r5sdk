@@ -14,7 +14,7 @@
 // Purpose: constructor (use this when string contains <[IP]:PORT>).
 // Input  : svInAdr - 
 //-----------------------------------------------------------------------------
-CNetAdr2::CNetAdr2(std::string svInAdr)
+CNetAdr2::CNetAdr2(string svInAdr)
 {
 	SetIPAndPort(svInAdr);
 }
@@ -24,7 +24,7 @@ CNetAdr2::CNetAdr2(std::string svInAdr)
 // Input  : svInAdr - 
 //			svInPort - 
 //-----------------------------------------------------------------------------
-CNetAdr2::CNetAdr2(std::string svInAdr, std::string svInPort)
+CNetAdr2::CNetAdr2(string svInAdr, string svInPort)
 {
 	SetType(netadrtype_t::NA_IP);
 
@@ -66,7 +66,7 @@ CNetAdr2::~CNetAdr2(void)
 // Purpose: sets the IP address.
 // Input  : *svInAdr - 
 //-----------------------------------------------------------------------------
-void CNetAdr2::SetIP(const std::string& svInAdr)
+void CNetAdr2::SetIP(const string& svInAdr)
 {
 	m_svip = "[" + svInAdr + "]";
 }
@@ -75,7 +75,7 @@ void CNetAdr2::SetIP(const std::string& svInAdr)
 // Purpose: sets the port.
 // Input  : *svInPort - 
 //-----------------------------------------------------------------------------
-void CNetAdr2::SetPort(const std::string& svInPort)
+void CNetAdr2::SetPort(const string& svInPort)
 {
 	m_svip += ":" + svInPort;
 }
@@ -84,7 +84,7 @@ void CNetAdr2::SetPort(const std::string& svInPort)
 // Purpose: sets the IP address and port.
 // Input  : *svInAdr - 
 //-----------------------------------------------------------------------------
-void CNetAdr2::SetIPAndPort(std::string svInAdr)
+void CNetAdr2::SetIPAndPort(string svInAdr)
 {
 	SetType(netadrtype_t::NA_IP);
 	if (strstr(svInAdr.c_str(), "loopback") || strstr(svInAdr.c_str(), "::1"))
@@ -115,7 +115,7 @@ void CNetAdr2::SetIPAndPort(std::string svInAdr)
 // Input  : *svInAdr - 
 //			*svInPort - 
 //-----------------------------------------------------------------------------
-void CNetAdr2::SetIPAndPort(std::string svInAdr, std::string svInPort)
+void CNetAdr2::SetIPAndPort(string svInAdr, string svInPort)
 {
 	SetType(netadrtype_t::NA_IP);
 
@@ -223,9 +223,9 @@ bool CNetAdr2::SetFromSockadr(sockaddr_storage* s)
 //-----------------------------------------------------------------------------
 // Purpose: removes brackets and port from IP address.
 //-----------------------------------------------------------------------------
-std::string CNetAdr2::GetBase(void) const
+string CNetAdr2::GetBase(void) const
 {
-	std::string svIpAdr = m_svip;
+	string svIpAdr = m_svip;
 	static std::regex rx("\\].*");
 	svIpAdr.erase(0, 1);
 	svIpAdr = std::regex_replace(svIpAdr, rx, "");
@@ -237,7 +237,7 @@ std::string CNetAdr2::GetBase(void) const
 // Purpose: removes brackets and port from IP address.
 // Input  : svInAdr - 
 //-----------------------------------------------------------------------------
-std::string CNetAdr2::GetBase(std::string svInAdr) const
+string CNetAdr2::GetBase(string svInAdr) const
 {
 	static std::regex rx("\\].*");
 	svInAdr.erase(0, 1);
@@ -250,7 +250,7 @@ std::string CNetAdr2::GetBase(std::string svInAdr) const
 // Purpose: gets the IP address.
 // Input  : bBaseOnly - 
 //-----------------------------------------------------------------------------
-std::string CNetAdr2::GetIP(bool bBaseOnly = false) const
+string CNetAdr2::GetIP(bool bBaseOnly = false) const
 {
 	if (GetType() == netadrtype_t::NA_LOOPBACK)
 	{
@@ -276,9 +276,9 @@ std::string CNetAdr2::GetIP(bool bBaseOnly = false) const
 //-----------------------------------------------------------------------------
 // Purpose: removes brackets and IP address from port.
 //-----------------------------------------------------------------------------
-std::string CNetAdr2::GetPort(void) const
+string CNetAdr2::GetPort(void) const
 {
-	std::string svport = m_svip;
+	string svport = m_svip;
 	static std::regex rx(".*\\]:");
 	svport = std::regex_replace(svport, rx, "");
 
@@ -293,7 +293,7 @@ std::string CNetAdr2::GetPort(void) const
 // Purpose: removes brackets and IP address from port.
 // Input  : svInPort - 
 //-----------------------------------------------------------------------------
-std::string CNetAdr2::GetPort(std::string svInPort) const
+string CNetAdr2::GetPort(string svInPort) const
 {
 	static std::regex rx(".*\\]:");
 	svInPort = std::regex_replace(svInPort, rx, "");
@@ -308,7 +308,7 @@ std::string CNetAdr2::GetPort(std::string svInPort) const
 //-----------------------------------------------------------------------------
 // Purpose: returns the IP address and port.
 //-----------------------------------------------------------------------------
-std::string CNetAdr2::GetIPAndPort(void) const
+string CNetAdr2::GetIPAndPort(void) const
 {
 	return m_svip;
 }
@@ -333,9 +333,9 @@ netadrversion_t CNetAdr2::GetVersion(void) const
 // Purpose: splits IP address into parts by their delimiters.
 // Output : string vector containing IP parts.
 //-----------------------------------------------------------------------------
-std::vector<std::string> CNetAdr2::GetParts(void) const
+vector<string> CNetAdr2::GetParts(void) const
 {
-	std::vector<std::string> results;
+	vector<string> results;
 
 	// Make sure we have a valid address.
 	if (m_version == netadrversion_t::NA_INVALID || m_type != netadrtype_t::NA_IP)
@@ -344,8 +344,8 @@ std::vector<std::string> CNetAdr2::GetParts(void) const
 		return results;
 	}
 
-	std::string svIpAdr = m_svip, svDelim;
-	std::string::size_type prev_pos = 0, curr_pos = 0;
+	string svIpAdr = m_svip, svDelim;
+	string::size_type prev_pos = 0, curr_pos = 0;
 
 	// 000.000.000.000 -> vparts.
 	if (m_version == netadrversion_t::NA_V4)
@@ -359,9 +359,9 @@ std::vector<std::string> CNetAdr2::GetParts(void) const
 		StringReplace(svIpAdr, "::", ":");
 	}
 
-	while ((curr_pos = svIpAdr.find(svDelim, curr_pos)) != std::string::npos)
+	while ((curr_pos = svIpAdr.find(svDelim, curr_pos)) != string::npos)
 	{
-		std::string substr(svIpAdr.substr(prev_pos, curr_pos - prev_pos));
+		string substr(svIpAdr.substr(prev_pos, curr_pos - prev_pos));
 
 		results.push_back(substr);
 		prev_pos = ++curr_pos;
@@ -494,7 +494,7 @@ void CNetAdr2::ToAdrinfo(addrinfo* pHint) const
 //-----------------------------------------------------------------------------
 // Purpose: returns true if this is a valid port string.
 //-----------------------------------------------------------------------------
-bool CNetAdr2::IsValidPort(const std::string& svInPort) const
+bool CNetAdr2::IsValidPort(const string& svInPort) const
 {
 	for (char const& c : svInPort)
 	{
@@ -534,7 +534,7 @@ bool CNetAdr2::IsReservedAdr(void) const
 
 	if (GetType() == netadrtype_t::NA_IP)
 	{
-		std::vector<std::string> ip_parts = GetParts();
+		vector<string> ip_parts = GetParts();
 
 		int n0 = stoi(ip_parts[0]);
 		int n1 = stoi(ip_parts[1]);
@@ -609,8 +609,8 @@ bool CNetAdr2::CompareClassBAdr(const CNetAdr2& netAdr2) const
 
 	if (GetType() == netadrtype_t::NA_IP)
 	{
-		std::vector<std::string> v0 = netAdr2.GetParts();
-		std::vector<std::string> v1 = GetParts();
+		vector<string> v0 = netAdr2.GetParts();
+		vector<string> v1 = GetParts();
 
 		if (strcmp(v0[0].c_str(), v1[0].c_str()) == 0 && 
 			strcmp(v0[1].c_str(), v1[1].c_str()) == 0)
@@ -646,8 +646,8 @@ bool CNetAdr2::CompareClassCAdr(const CNetAdr2& netAdr2) const
 
 	if (GetType() == netadrtype_t::NA_IP)
 	{
-		std::vector<std::string> v0 = netAdr2.GetParts();
-		std::vector<std::string> v1 = GetParts();
+		vector<string> v0 = netAdr2.GetParts();
+		vector<string> v1 = GetParts();
 
 		if (strcmp(v0[0].c_str(), v1[0].c_str()) == 0 && 
 			strcmp(v0[1].c_str(), v1[1].c_str()) == 0 && 

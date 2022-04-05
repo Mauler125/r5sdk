@@ -78,8 +78,8 @@ enum EBufType
 class CNetChan
 {
 public:
-	const char* GetName(void) const;
-	const char* GetAddress(void) const;
+	string      GetName(void) const;
+	string      GetAddress(void) const;
 	int         GetDataRate(void) const;
 	int         GetBufferSize(void) const;
 

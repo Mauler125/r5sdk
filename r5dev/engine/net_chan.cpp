@@ -5,26 +5,36 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
+#include "tier0/cvar.h"
+#include "engine/sys_utils.h"
+#include "engine/net.h"
 #include "engine/net_chan.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: gets the netchannel name
 // Output : const char*
 //-----------------------------------------------------------------------------
-const char* CNetChan::GetName(void) const
+string CNetChan::GetName(void) const
 {
 	// [0x1A8D + 0x1] (first char in array is a null character!).
-	return this->m_Name + 1;
+	const char* pszName = this->m_Name + 1;
+	return string(pszName, NET_CHANNELNAME_MAXLEN);
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: gets the netchannel address
 // Output : const char*
 //-----------------------------------------------------------------------------
-const char* CNetChan::GetAddress(void) const
+string CNetChan::GetAddress(void) const
 {
 	char szAdr[INET6_ADDRSTRLEN]{};
-	inet_ntop(AF_INET6, &this->remote_address.adr, szAdr, INET6_ADDRSTRLEN);
+	if (!inet_ntop(AF_INET6, &this->remote_address.adr, szAdr, INET6_ADDRSTRLEN))
+	{
+		if (sv_showconnecting->GetBool())
+		{
+			Warning(eDLL_T::ENGINE, "%s - Address conversion failed: %s", __FUNCTION__, NET_ErrorString(WSAGetLastError()));
+		}
+	}
 	return szAdr;
 }
 

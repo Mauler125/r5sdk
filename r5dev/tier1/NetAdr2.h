@@ -10,15 +10,15 @@ typedef struct __declspec(align(8)) netpacket_s
 	char          byte17;
 	DWORD         source;
 	double        received;
-	std::uint8_t* data;
-	std::uint64_t label;
+	uint8_t*      data;
+	uint64_t      label;
 	BYTE          byte38;
-	std::uint64_t qword40;
-	std::uint64_t qword48;
+	uint64_t      qword40;
+	uint64_t      qword48;
 	BYTE          gap50[8];
-	std::uint64_t qword58;
-	std::uint64_t qword60;
-	std::uint64_t qword68;
+	uint64_t      qword58;
+	uint64_t      qword60;
+	uint64_t      qword68;
 	int           less_than_12;
 	DWORD         wiresize;
 	BYTE          gap78[8];
@@ -96,10 +96,11 @@ public:
 	{
 		return this->type;
 	}
-	inline const char* GetAddress(void) const
+	inline string GetAddress(void) const
 	{
 		char szAdr[INET6_ADDRSTRLEN]{};
 		inet_ntop(AF_INET6, &this->adr, szAdr, INET6_ADDRSTRLEN);
+
 		return szAdr;
 	}
 	inline uint16_t GetPort(void) const
