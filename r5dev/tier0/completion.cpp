@@ -460,8 +460,8 @@ void _RTech_Decompress_f_CompletionFunc(const CCommand& args)
 	DevMsg(eDLL_T::RTECH, "______________________________________________________________\n");
 	DevMsg(eDLL_T::RTECH, "] HEADER_DETAILS ---------------------------------------------\n");
 	DevMsg(eDLL_T::RTECH, "] Magic    : '%08X'\n", rheader->m_nMagic);
-	DevMsg(eDLL_T::RTECH, "] Version  : '%u'\n", (rheader->m_nVersion));
-	DevMsg(eDLL_T::RTECH, "] Flags    : '%04X'\n", (flags));
+	DevMsg(eDLL_T::RTECH, "] Version  : '%u'\n", rheader->m_nVersion);
+	DevMsg(eDLL_T::RTECH, "] Flags    : '%04X'\n", flags);
 	DevMsg(eDLL_T::RTECH, "] Hash     : '%llu'\n", rheader->m_nHash);
 	DevMsg(eDLL_T::RTECH, "] Entries  : '%zu'\n", rheader->m_nAssetEntryCount);
 	DevMsg(eDLL_T::RTECH, "______________________________________________________________\n");
@@ -482,7 +482,7 @@ void _RTech_Decompress_f_CompletionFunc(const CCommand& args)
 	}
 	if (rheader->m_nSizeDisk != upak.size())
 	{
-		Error(eDLL_T::RTECH, "Error: pak file '%s' decompressed size '%u' doesn't match expected value '%u'!\n", pakNameIn.c_str(), upak.size(), rheader->m_nSizeMemory);
+		Error(eDLL_T::RTECH, "Error: pak file '%s' decompressed size '%zu' doesn't match expected value '%zu'!\n", pakNameIn.c_str(), upak.size(), rheader->m_nSizeMemory);
 		return;
 	}
 
