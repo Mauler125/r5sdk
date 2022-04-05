@@ -20,11 +20,6 @@ class CClockSpeed
 public:
 	CClockSpeed(void)
 	{
-		Init();
-	}
-
-	void Init(void)
-	{
 		const CPUInformation& pi = GetCPUInformation();
 		m_nClockSpeed = pi.m_Speed;
 		m_dwClockSpeed = (unsigned long)m_nClockSpeed;
