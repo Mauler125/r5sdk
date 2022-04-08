@@ -133,26 +133,26 @@ public:
 namespace
 {
 	/* ==== COMMAND_BUFFER ================================================================================================================================================== */
-	ADDRESS p_Cbuf_AddText = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\x48\x63\xD9\x41\x8B\xF8\x48\x8D\x0D\x00\x00\x00\x00\x48\x8B\xF2\xFF\x15\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x41\xB9\x00\x00\x00\x00", "xxxx?xxxx?xxxxxxxxxxxxxx????xxxxx????xxx????xx????");
+	ADDRESS p_Cbuf_AddText = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\x48\x63\xD9\x41\x8B\xF8\x48\x8D\x0D\x00\x00\x00\x00\x48\x8B\xF2\xFF\x15\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x41\xB9\x00\x00\x00\x00"), "xxxx?xxxx?xxxxxxxxxxxxxx????xxxxx????xxx????xx????");
 	void (*Cbuf_AddText)(ECommandTarget_t eTarget, const char* pText, cmd_source_t cmdSource) = (void (*)(ECommandTarget_t, const char*, cmd_source_t))p_Cbuf_AddText.GetPtr(); /*48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 63 D9 41 8B F8 48 8D 0D ? ? ? ? 48 8B F2 FF 15 ? ? ? ? 48 8D 05 ? ? ? ? 41 B9 ? ? ? ?*/
 
-	ADDRESS p_Cbuf_Execute = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\xFF\x15\x00\x00\x00\x00", "xxxx?xxxx?xxxx?xxxxxxx????");
+	ADDRESS p_Cbuf_Execute = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\xFF\x15\x00\x00\x00\x00"), "xxxx?xxxx?xxxx?xxxxxxx????");
 	void (*Cbuf_Execute)(void) = (void (*)(void))p_Cbuf_Execute.GetPtr(); /*48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 20 FF 15 ? ? ? ?*/
 
 	/* ==== CONCOMMAND ====================================================================================================================================================== */
-	ADDRESS p_ConCommandBase_IsFlagSet = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x85\x51\x38\x0F\x95\xC0\xC3", "xxxxxxx");
+	ADDRESS p_ConCommandBase_IsFlagSet = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x85\x51\x38\x0F\x95\xC0\xC3"), "xxxxxxx");
 	bool (*ConCommandBase_IsFlagSet)(ConCommandBase* cmd, int flag) = (bool (*)(ConCommandBase*, int))p_ConCommandBase_IsFlagSet.GetPtr(); /*85 51 38 0F 95 C0 C3*/
 
-	ADDRESS p_ConCommand_CMaterialSystemCmdInit = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8B\xEC\x48\x83\xEC\x50\x48\x8B\x15\x00\x00\x00\x00", "xxxx?xxxx?xxxx?xxxxxxxxxxxxxxxxxxx????");
+	ADDRESS p_ConCommand_CMaterialSystemCmdInit = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8B\xEC\x48\x83\xEC\x50\x48\x8B\x15\x00\x00\x00\x00"), "xxxx?xxxx?xxxx?xxxxxxxxxxxxxxxxxxx????");
 	ConCommand*(*ConCommand_CMaterialSystemCmdInit)() = (ConCommand* (*)())p_ConCommand_CMaterialSystemCmdInit.GetPtr();
 
-	ADDRESS p_ConCommand_RegisterConCommand = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x8B\xD1\x48\x8B\x0D\x00\x00\x00\x00\x48\x85\xC9\x74\x06", "xxxxxx????xxxxx");
+	ADDRESS p_ConCommand_RegisterConCommand = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xD1\x48\x8B\x0D\x00\x00\x00\x00\x48\x85\xC9\x74\x06"), "xxxxxx????xxxxx");
 	void* (*ConCommand_RegisterConCommand)(ConCommand* pCommand) = (void* (*)(ConCommand*))p_ConCommand_RegisterConCommand.GetPtr(); /*48 8B D1 48 8B 0D ?? ?? ?? ?? 48 85 C9 74 06*/
 
-	ADDRESS p_NullSub = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\xC2\x00\x00\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x40\x53\x48\x83\xEC\x20\x48\x8D\x05\x00\x00\x00\x00", "xxxxxxxxxxxxxxxxxxxxxxxxx????");
+	ADDRESS p_NullSub = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xC2\x00\x00\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x40\x53\x48\x83\xEC\x20\x48\x8D\x05\x00\x00\x00\x00"), "xxxxxxxxxxxxxxxxxxxxxxxxx????");
 	void (*NullSub)() = (void (*)())p_NullSub.GetPtr(); /*C2 00 00 CC CC CC CC CC CC CC CC CC CC CC CC CC 40 53 48 83 EC 20 48 8D 05 ?? ?? ?? ??*/
 
-	ADDRESS p_CallbackStub = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x33\xC0\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x80\x49\x68\x08", "xxxxxxxxxxxxxxxxxxxx");
+	ADDRESS p_CallbackStub = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x33\xC0\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x80\x49\x68\x08"), "xxxxxxxxxxxxxxxxxxxx");
 	void* (*CallbackStub)(struct _exception* _exc) = (void* (*)(struct _exception*))p_CallbackStub.GetPtr(); /*33 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC 80 49 68 08*/ /*UserMathErrorFunction*/
 
 	static ADDRESS g_pConCommandVtable = p_ConCommand_CMaterialSystemCmdInit.FindPatternSelf("4C 8D 25", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);

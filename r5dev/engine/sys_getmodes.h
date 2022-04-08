@@ -6,10 +6,10 @@ namespace
 	// CGAME
 	//-------------------------------------------------------------------------
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	ADDRESS p_CVideoMode_Common__CreateGameWindow = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x56\x57\x48\x83\xEC\x38\x48\x8B\xF9\xE8\x00\x00\x00\x00", "xxxxxxxxxxx????");
+	ADDRESS p_CVideoMode_Common__CreateGameWindow = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x56\x57\x48\x83\xEC\x38\x48\x8B\xF9\xE8\x00\x00\x00\x00"), "xxxxxxxxxxx????");
 	bool (*CVideoMode_Common__CreateGameWindow)(int* pnRect) = (bool (*)(int*))p_CVideoMode_Common__CreateGameWindow.GetPtr(); /*40 56 57 48 83 EC 38 48 8B F9 E8 ? ? ? ?*/
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	ADDRESS p_CVideoMode_Common__CreateGameWindow = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x56\x57\x48\x83\xEC\x28\x48\x8B\xF9\xE8\x00\x00\x00\x00\x48\x8B\xF0", "xxxxxxxxxxx????xxx");
+	ADDRESS p_CVideoMode_Common__CreateGameWindow = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x56\x57\x48\x83\xEC\x28\x48\x8B\xF9\xE8\x00\x00\x00\x00\x48\x8B\xF0"), "xxxxxxxxxxx????xxx");
 	bool (*CVideoMode_Common__CreateGameWindow)(int* pnRect) = (bool (*)(int*))p_CVideoMode_Common__CreateGameWindow.GetPtr(); /*40 56 57 48 83 EC 28 48 8B F9 E8 ? ? ? ? 48 8B F0*/
 #endif
 }

@@ -24,28 +24,28 @@ namespace
 {
 	/* ==== KEYVALUES ======================================================================================================================================================= */
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	ADDRESS p_KeyValues_Init = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x48\x83\xEC\x20\x48\x8B\xD9\xC7\x44\x24\x30\xFF\xFF\xFF", "xxxxxxxxxxxxxxxx"); /*40 53 48 83 EC 20 48 8B D9 C7 44 24 30 FF FF FF*/
+	ADDRESS p_KeyValues_Init = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x48\x8B\xD9\xC7\x44\x24\x30\xFF\xFF\xFF"), "xxxxxxxxxxxxxxxx"); /*40 53 48 83 EC 20 48 8B D9 C7 44 24 30 FF FF FF*/
 	std::int64_t(*KeyValues_Init)(std::int64_t a1, std::int64_t a2, std::int64_t a3, std::int64_t a4) = (std::int64_t(*)(std::int64_t, std::int64_t, std::int64_t, std::int64_t))p_KeyValues_Init.GetPtr();
 
-	ADDRESS p_KeyValues_FindKey = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x5C\x24\x10\x48\x89\x6C\x24\x18\x48\x89\x74\x24\x20\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x81\xEC\x20\x01\x00\x00\x45", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+	ADDRESS p_KeyValues_FindKey = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x10\x48\x89\x6C\x24\x18\x48\x89\x74\x24\x20\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x81\xEC\x20\x01\x00\x00\x45"), "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 	void* (*KeyValues_FindKey)(void* a1, const char* a2, bool a3) = (void* (*)(void*, const char*, bool))p_KeyValues_FindKey.GetPtr(); /*48 89 5C 24 10 48 89 6C 24 18 48 89 74 24 20 57 41 54 41 55 41 56 41 57 48 81 EC 20 01 00 00 45*/
 
-	ADDRESS p_KeyValues_GetCurrentPlaylist = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x8B\x0D\x00\x00\x00\x00\x48\x85\xC9\x75\x08\x48\x8D\x05\x00\x00\x00\x00", "xxx????xxxxxxxx????");
+	ADDRESS p_KeyValues_GetCurrentPlaylist = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\x0D\x00\x00\x00\x00\x48\x85\xC9\x75\x08\x48\x8D\x05\x00\x00\x00\x00"), "xxx????xxxxxxxx????");
 	const char* (*KeyValues_GetCurrentPlaylist)() = (const char* (*)())p_KeyValues_GetCurrentPlaylist.GetPtr(); /*48 8B 0D ? ? ? ? 48 85 C9 75 08 48 8D 05 ? ? ? ?*/
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	ADDRESS p_KeyValues_Init = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x48\x83\xEC\x20\x48\x8B\x05\x00\x00\x00\x01\x48\x8B\xD9\x4C\x8B\xC2", "xxxxxxxxx???xxxxxxx"); /*40 53 48 83 EC 20 48 8B 05 ?? ?? ?? 01 48 8B D9 4C 8B C2*/
+	ADDRESS p_KeyValues_Init = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x48\x8B\x05\x00\x00\x00\x01\x48\x8B\xD9\x4C\x8B\xC2"), "xxxxxxxxx???xxxxxxx"); /*40 53 48 83 EC 20 48 8B 05 ?? ?? ?? 01 48 8B D9 4C 8B C2*/
 	void* (*KeyValues_Init)(std::int64_t a1, std::int64_t a2, std::int64_t a3, std::int64_t a4) = (void* (*)(std::int64_t, std::int64_t, std::int64_t, std::int64_t))p_KeyValues_Init.GetPtr();
 
-	ADDRESS p_KeyValues_FindKey = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x56\x57\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x45", "xxxxxxxx????x");
+	ADDRESS p_KeyValues_FindKey = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x56\x57\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x45"), "xxxxxxxx????x");
 	void* (*KeyValues_FindKey)(void* a1, const char* a2, bool a3) = (void* (*)(void*, const char*, bool))p_KeyValues_FindKey.GetPtr(); /*40 56 57 41 57 48 81 EC 30 01 00 00 45 0F B6 F8*/
 
-	ADDRESS p_KeyValues_GetCurrentPlaylist = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x8B\x05\x00\x00\x00\x00\x48\x85\xC0\x75\x08\x48\x8D\x05\x00\x00\x00\x00\xC3\x0F\xB7\x50\x2A", "xxx????xxxxxxxx????xxxxx");
+	ADDRESS p_KeyValues_GetCurrentPlaylist = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\x05\x00\x00\x00\x00\x48\x85\xC0\x75\x08\x48\x8D\x05\x00\x00\x00\x00\xC3\x0F\xB7\x50\x2A"), "xxx????xxxxxxxx????xxxxx");
 	const char* (*KeyValues_GetCurrentPlaylist)() = (const char* (*)())p_KeyValues_GetCurrentPlaylist.GetPtr(); /*48 8B 05 ? ? ? ? 48 85 C0 75 08 48 8D 05 ? ? ? ? C3 0F B7 50 2A*/
 #endif
-	ADDRESS p_KeyValues_GetMemPool = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x8B\x05\x00\x00\x00\x00\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x48\x85\xD2", "xxx????xxxxxxxxxxxx");
+	ADDRESS p_KeyValues_GetMemPool = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\x05\x00\x00\x00\x00\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x48\x85\xD2"), "xxx????xxxxxxxxxxxx");
 	void* (*KeyValues_GetMemPool)() = (void* (*)())p_KeyValues_GetMemPool.GetPtr(); /*48 8B 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 48 85 D2*/
 
-	ADDRESS p_KeyValues_LoadPlaylist = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\xE8\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x74\x0C", "x????xx?????xx").FollowNearCallSelf().GetPtr();
+	ADDRESS p_KeyValues_LoadPlaylist = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x74\x0C"), "x????xx?????xx").FollowNearCallSelf().GetPtr();
 	bool (*KeyValues_LoadPlaylist)(const char* source) = (bool (*)(const char*))p_KeyValues_LoadPlaylist.GetPtr(); /*E8 ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 74 0C*/
 
 	std::uintptr_t g_pKeyValuesMemPool = p_KeyValues_GetMemPool.ResolveRelativeAddressSelf(0x3, 0x7).GetPtr();

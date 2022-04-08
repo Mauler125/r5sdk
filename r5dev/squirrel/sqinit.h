@@ -3,10 +3,10 @@
 
 namespace
 {
-	ADDRESS p_Script_Remote_BeginRegisteringFunctions = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x83\xEC\x28\x83\x3D\x00\x00\x00\x00\x00\x74\x10", "xxxxxx?????xx");
+	ADDRESS p_Script_Remote_BeginRegisteringFunctions = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x83\x3D\x00\x00\x00\x00\x00\x74\x10"), "xxxxxx?????xx");
 	void* Script_Remote_BeginRegisteringFunctions = (void*)p_Script_Remote_BeginRegisteringFunctions.GetPtr(); /*48 83 EC 28 83 3D ?? ?? ?? ?? ?? 74 10*/
 
-	ADDRESS p_RestoreRemoteChecksumsFromSaveGame = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x48\x89\x4C\x24\x00\x41\x54\x48\x83\xEC\x40", "xxxx?xxxxxx");
+	ADDRESS p_RestoreRemoteChecksumsFromSaveGame = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x4C\x24\x00\x41\x54\x48\x83\xEC\x40"), "xxxx?xxxxxx");
 	void* (*RestoreRemoteChecksumsFromSaveGame)(void* a1, void* a2) = (void* (*)(void*, void*))p_RestoreRemoteChecksumsFromSaveGame.GetPtr(); /*48 89 4C 24 ? 41 54 48 83 EC 40*/
 
 	/* CHANGE THIS WHEN SWITCHING TO PYLONV2 TO UNSIGNED AGAIN!*/

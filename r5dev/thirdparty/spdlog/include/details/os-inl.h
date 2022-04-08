@@ -416,7 +416,7 @@ SPDLOG_INLINE bool is_color_terminal() SPDLOG_NOEXCEPT
         }
 
         static constexpr std::array<const char *, 16> terms = {{"ansi", "color", "console", "cygwin", "gnome", "konsole", "kterm", "linux",
-            "msys", "putty", "rxvt", "screen", "vt100", "xterm", "alacritty", "vt102"}};
+            "msys", "putty", "rxvt", "screen", "vt100"), "xterm", "alacritty", "vt102"}};
 
         const char *env_term_p = std::getenv("TERM");
         if (env_term_p == nullptr)

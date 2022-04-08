@@ -33,7 +33,7 @@ public:
 
 namespace
 {
-	CFileSystem_Stdio* g_pFileSystem_Stdio = g_mGameDll.FindPatternSIMD((uint8_t*)"\x40\x53\x48\x83\xEC\x20\x48\x8B\xD9\xFF\x15\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00", "xxxxxxxxxxx????xxx????")
+	CFileSystem_Stdio* g_pFileSystem_Stdio = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x48\x8B\xD9\xFF\x15\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00"), "xxxxxxxxxxx????xxx????")
 		.FindPatternSelf("48 8D", ADDRESS::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CFileSystem_Stdio*>();
 }
 
