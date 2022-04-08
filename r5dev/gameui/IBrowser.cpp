@@ -546,7 +546,7 @@ void IBrowser::HostServerSection(void)
         if (ImGui::Button("Reload Scripts##ServerHost_ReloadServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
             DevMsg(eDLL_T::ENGINE, "Recompiling scripts\n");
-            ProcessCommand("reparse_weapons");
+            ProcessCommand("weapon_reparse");
             ProcessCommand("reload");
         }
 
