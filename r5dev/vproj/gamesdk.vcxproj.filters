@@ -169,6 +169,9 @@
     <Filter Include="sdk\game\client">
       <UniqueIdentifier>{be813705-b786-4439-b785-eff6bb5f194f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\filesystem">
+      <UniqueIdentifier>{9fbd3a16-56a4-4794-bfa6-680f41002c24}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\vengineclient_impl.cpp">
@@ -256,9 +259,6 @@
       <Filter>sdk\vpc</Filter>
     </ClCompile>
     <ClCompile Include="..\vpc\keyvalues.cpp">
-      <Filter>sdk\vpc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\vpc\basefilesystem.cpp">
       <Filter>sdk\vpc</Filter>
     </ClCompile>
     <ClCompile Include="..\vphysics\QHull.cpp">
@@ -425,6 +425,12 @@
     </ClCompile>
     <ClCompile Include="..\game\server\ai_network.cpp">
       <Filter>sdk\game\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\filesystem\filesystem.cpp">
+      <Filter>sdk\filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\filesystem\basefilesystem.cpp">
+      <Filter>sdk\filesystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -869,9 +875,6 @@
     <ClInclude Include="..\vpc\keyvalues.h">
       <Filter>sdk\vpc</Filter>
     </ClInclude>
-    <ClInclude Include="..\vpc\basefilesystem.h">
-      <Filter>sdk\vpc</Filter>
-    </ClInclude>
     <ClInclude Include="..\vphysics\QHull.h">
       <Filter>sdk\vphysics</Filter>
     </ClInclude>
@@ -1204,6 +1207,15 @@
     </ClInclude>
     <ClInclude Include="..\game\client\c_baseentity.h">
       <Filter>sdk\game\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\filesystem\filesystem.h">
+      <Filter>sdk\filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\filesystem\basefilesystem.h">
+      <Filter>sdk\filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\sdktypes.h">
+      <Filter>core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,17 +1,17 @@
 #pragma once
+#include "filesystem/filesystem.h"
 
-typedef void* FileHandle_t;
 
-enum class FileWarningLevel_t : int
+class CBaseFileSystem
 {
-	FILESYSTEM_WARNING = -1,                        // A problem!
-	FILESYSTEM_WARNING_QUIET = 0,                   // Don't print anything
-	FILESYSTEM_WARNING_REPORTUNCLOSED,              // On shutdown, report names of files left unclosed
-	FILESYSTEM_WARNING_REPORTUSAGE,                 // Report number of times a file was opened, closed
-	FILESYSTEM_WARNING_REPORTALLACCESSES,           // Report all open/close events to console ( !slow! )
-	FILESYSTEM_WARNING_REPORTALLACCESSES_READ,      // Report all open/close/read events to the console ( !slower! )
-	FILESYSTEM_WARNING_REPORTALLACCESSES_READWRITE, // Report all open/close/read/write events to the console ( !slower! )
-	FILESYSTEM_WARNING_REPORTALLACCESSES_ASYNC      // Report all open/close/read/write events and all async I/O file events to the console ( !slower(est)! )
+public:
+	int Read(void* pOutput, int nSize, FileHandle_t hFile);
+	FileHandle_t Open(const char* pFileName, const char* pOptions, const char* pPathID, int64_t unknown);
+	void Close(FileHandle_t file);
+	bool FileExists(const char* pFileName, const char* pPathID);
+	static void Warning(CBaseFileSystem* pFileSystem, FileWarningLevel_t level, const char* fmt, ...);
+	static FileHandle_t ReadFromVPK(CBaseFileSystem* pVpk, std::int64_t* pResults, char* pszFilePath);
+	static bool ReadFromCache(CBaseFileSystem* pFileSystem, char* pszFilePath, void* pResults);
 };
 
 namespace
@@ -25,6 +25,9 @@ namespace
 
 	ADDRESS p_CBaseFileSystem_LoadFromCache = g_mGameDll.FindPatternSIMD((std::uint8_t*)"\x40\x53\x48\x81\xEC\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x49\x8B\xD8", "xxxxx????xx?????xxx");
 	bool(*CBaseFileSystem_LoadFromCache)(void* pFileSystem, char* pszAssetName, void* pResults) = (bool(*)(void*, char*, void*))p_CBaseFileSystem_LoadFromCache.GetPtr(); /*40 53 48 81 EC ? ? ? ? 80 3D ? ? ? ? ? 49 8B D8*/
+
+	CBaseFileSystem* g_pFileSystem = g_mGameDll.FindPatternSIMD((uint8_t*)"\x48\x83\xEC\x28\xE8\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00", "xxxxx????xxx????")
+		.Offset(0x20).FindPatternSelf("48 89 05", ADDRESS::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CBaseFileSystem*>();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -36,9 +39,10 @@ class HBaseFileSystem : public IDetour
 {
 	virtual void debugp()
 	{
-		std::cout << "| FUN: CBaseFileSystem::Warning             : 0x" << std::hex << std::uppercase << p_CBaseFileSystem_Warning.GetPtr()     << std::setw(npad)   << " |" << std::endl;
-		std::cout << "| FUN: CBaseFileSystem::LoadFromVPK         : 0x" << std::hex << std::uppercase << p_CBaseFileSystem_LoadFromVPK.GetPtr() << std::setw(npad)   << " |" << std::endl;
-		std::cout << "| FUN: CBaseFileSystem::LoadFromCache       : 0x" << std::hex << std::uppercase << p_CBaseFileSystem_LoadFromCache.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: CBaseFileSystem::Warning             : 0x" << std::hex << std::uppercase << p_CBaseFileSystem_Warning.GetPtr()       << std::setw(npad)   << " |" << std::endl;
+		std::cout << "| FUN: CBaseFileSystem::LoadFromVPK         : 0x" << std::hex << std::uppercase << p_CBaseFileSystem_LoadFromVPK.GetPtr()   << std::setw(npad)   << " |" << std::endl;
+		std::cout << "| FUN: CBaseFileSystem::LoadFromCache       : 0x" << std::hex << std::uppercase << p_CBaseFileSystem_LoadFromCache.GetPtr() << std::setw(npad)   << " |" << std::endl;
+		std::cout << "| VAR: g_pFileSystem                        : 0x" << std::hex << std::uppercase << g_pFileSystem                            << std::setw(0)      << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 };

@@ -42,6 +42,8 @@
     <ClCompile Include="..\engine\sys_engine.cpp" />
     <ClCompile Include="..\engine\sys_getmodes.cpp" />
     <ClCompile Include="..\engine\sys_utils.cpp" />
+    <ClCompile Include="..\filesystem\basefilesystem.cpp" />
+    <ClCompile Include="..\filesystem\filesystem.cpp" />
     <ClCompile Include="..\gameui\IConsole.cpp" />
     <ClCompile Include="..\gameui\IBrowser.cpp" />
     <ClCompile Include="..\game\server\ai_network.cpp" />
@@ -95,7 +97,6 @@
     <ClCompile Include="..\vgui\vgui_baseui_interface.cpp" />
     <ClCompile Include="..\vgui\vgui_debugpanel.cpp" />
     <ClCompile Include="..\vgui\vgui_fpspanel.cpp" />
-    <ClCompile Include="..\vpc\basefilesystem.cpp" />
     <ClCompile Include="..\vpc\IAppSystem.cpp" />
     <ClCompile Include="..\vpc\interfaces.cpp" />
     <ClCompile Include="..\vpc\keyvalues.cpp" />
@@ -117,6 +118,7 @@
     <ClInclude Include="..\common\opcodes.h" />
     <ClInclude Include="..\common\protocol.h" />
     <ClInclude Include="..\common\pseudodefs.h" />
+    <ClInclude Include="..\common\sdktypes.h" />
     <ClInclude Include="..\core\assert.h" />
     <ClInclude Include="..\core\init.h" />
     <ClInclude Include="..\core\logdef.h" />
@@ -145,6 +147,8 @@
     <ClInclude Include="..\engine\sys_engine.h" />
     <ClInclude Include="..\engine\sys_getmodes.h" />
     <ClInclude Include="..\engine\sys_utils.h" />
+    <ClInclude Include="..\filesystem\basefilesystem.h" />
+    <ClInclude Include="..\filesystem\filesystem.h" />
     <ClInclude Include="..\gameui\IConsole.h" />
     <ClInclude Include="..\gameui\IBrowser.h" />
     <ClInclude Include="..\game\client\c_baseentity.h" />
@@ -356,7 +360,6 @@
     <ClInclude Include="..\vgui\vgui_debugpanel.h" />
     <ClInclude Include="..\vgui\vgui.h" />
     <ClInclude Include="..\vgui\vgui_fpspanel.h" />
-    <ClInclude Include="..\vpc\basefilesystem.h" />
     <ClInclude Include="..\vpc\IAppSystem.h" />
     <ClInclude Include="..\vpc\interfaces.h" />
     <ClInclude Include="..\vpc\keyvalues.h" />

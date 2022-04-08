@@ -37,14 +37,14 @@ void CPackedStore::InitLzDecompParams(void)
 //-----------------------------------------------------------------------------
 // Purpose: obtains archive chunk path for specific file
 //-----------------------------------------------------------------------------
-std::string CPackedStore::GetPackChunkFile(std::string svPackDirFile, int iArchiveIndex)
+string CPackedStore::GetPackChunkFile(string svPackDirFile, int iArchiveIndex)
 {
 	/*| ARCHIVES ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
-	std::string svPackChunkFile = StripLocalePrefix(svPackDirFile);
-	std::ostringstream oss;
+	string svPackChunkFile = StripLocalePrefix(svPackDirFile);
+	ostringstream oss;
 
 	oss << std::setw(3) << std::setfill('0') << iArchiveIndex;
-	std::string svPackChunkIndex = "pak000_" + oss.str();
+	string svPackChunkIndex = "pak000_" + oss.str();
 
 	StringReplace(svPackChunkFile, "pak000_dir", svPackChunkIndex);
 	return svPackChunkFile;
@@ -53,7 +53,7 @@ std::string CPackedStore::GetPackChunkFile(std::string svPackDirFile, int iArchi
 //-----------------------------------------------------------------------------
 // Purpose: returns populated pack dir struct for specified pack dir file
 //-----------------------------------------------------------------------------
-vpk_dir_h CPackedStore::GetPackDirFile(std::string svPackDirFile)
+VPKDir_t CPackedStore::GetPackDirFile(string svPackDirFile)
 {
 	/*| PACKDIRFILE |||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
 	std::regex rgArchiveRegex("pak000_([0-9]{3})");
@@ -73,7 +73,7 @@ vpk_dir_h CPackedStore::GetPackDirFile(std::string svPackDirFile)
 				{
 					if (strstr(svPackDirFile.c_str(), DIR_LIBRARY_PREFIX[j].c_str()))
 					{
-						std::string svPackDirPrefix = DIR_LOCALE_PREFIX[i] + DIR_LOCALE_PREFIX[i];
+						string svPackDirPrefix = DIR_LOCALE_PREFIX[i] + DIR_LOCALE_PREFIX[i];
 						StringReplace(svPackDirFile, DIR_LOCALE_PREFIX[i].c_str(), svPackDirPrefix.c_str());
 						goto escape;
 					}
@@ -82,26 +82,26 @@ vpk_dir_h CPackedStore::GetPackDirFile(std::string svPackDirFile)
 		}escape:;
 	}
 
-	vpk_dir_h vpk_dir(svPackDirFile);
+	VPKDir_t vpk_dir(svPackDirFile);
 	return vpk_dir;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: obtains and returns the entry block to the vector
 //-----------------------------------------------------------------------------
-std::vector<vpk_entry_block> CPackedStore::GetEntryBlocks(CIOStream* reader)
+vector<VPKEntryBlock_t> CPackedStore::GetEntryBlocks(CIOStream* reader)
 {
 	/*| ENTRYBLOCKS |||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
-	std::string svName, svPath, svExtension;
-	std::vector<vpk_entry_block> vBlocks;
+	string svName, svPath, svExtension;
+	vector<VPKEntryBlock_t> vBlocks;
 	while (!(svExtension = reader->readString()).empty())
 	{
 		while (!(svPath = reader->readString()).empty())
 		{
 			while (!(svName = reader->readString()).empty())
 			{
-				std::string svFilePath = FormatBlockPath(svName, svPath, svExtension);
-				vBlocks.push_back(vpk_entry_block(reader, svFilePath));
+				string svFilePath = FormatBlockPath(svName, svPath, svExtension);
+				vBlocks.push_back(VPKEntryBlock_t(reader, svFilePath));
 			}
 		}
 	}
@@ -111,7 +111,7 @@ std::vector<vpk_entry_block> CPackedStore::GetEntryBlocks(CIOStream* reader)
 //-----------------------------------------------------------------------------
 // Purpose: formats the entry block path
 //-----------------------------------------------------------------------------
-std::string CPackedStore::FormatBlockPath(std::string svName, std::string svPath, std::string svExtension)
+string CPackedStore::FormatBlockPath(string svName, string svPath, string svExtension)
 {
 	if (!svPath.empty())
 	{
@@ -123,10 +123,10 @@ std::string CPackedStore::FormatBlockPath(std::string svName, std::string svPath
 //-----------------------------------------------------------------------------
 // Purpose: strips locale prefix from file path
 //-----------------------------------------------------------------------------
-std::string CPackedStore::StripLocalePrefix(std::string svPackDirFile)
+string CPackedStore::StripLocalePrefix(string svPackDirFile)
 {
 	std::filesystem::path fspPackDirFile(svPackDirFile);
-	std::string svFileName = fspPackDirFile.filename().u8string();
+	string svFileName = fspPackDirFile.filename().u8string();
 
 	for (int i = 0; i < LANGUAGE_PACKS; i++)
 	{
@@ -142,14 +142,14 @@ std::string CPackedStore::StripLocalePrefix(std::string svPackDirFile)
 //-----------------------------------------------------------------------------
 // Purpose: validates extraction result with precomputed ADLER32 hash
 //-----------------------------------------------------------------------------
-void CPackedStore::ValidateAdler32PostDecomp(std::string svAssetFile)
+void CPackedStore::ValidateAdler32PostDecomp(string svAssetFile)
 {
 	uint32_t adler_init = {};
-	std::ifstream istream(svAssetFile, std::fstream::binary);
+	ifstream istream(svAssetFile, fstream::binary);
 
-	istream.seekg(0, std::fstream::end);
+	istream.seekg(0, fstream::end);
 	m_vHashBuffer.resize(istream.tellg());
-	istream.seekg(0, std::fstream::beg);
+	istream.seekg(0, fstream::beg);
 	istream.read((char*)m_vHashBuffer.data(), m_vHashBuffer.size());
 
 	m_nAdler32 = adler32::update(adler_init, m_vHashBuffer.data(), m_vHashBuffer.size());
@@ -168,14 +168,14 @@ void CPackedStore::ValidateAdler32PostDecomp(std::string svAssetFile)
 //-----------------------------------------------------------------------------
 // Purpose: validates extraction result with precomputed CRC32 hash
 //-----------------------------------------------------------------------------
-void CPackedStore::ValidateCRC32PostDecomp(std::string svDirAsset)
+void CPackedStore::ValidateCRC32PostDecomp(string svDirAsset)
 {
 	uint32_t crc32_init = {};
-	std::ifstream istream(svDirAsset, std::fstream::binary);
+	ifstream istream(svDirAsset, fstream::binary);
 
-	istream.seekg(0, std::fstream::end);
+	istream.seekg(0, fstream::end);
 	m_vHashBuffer.resize(istream.tellg());
-	istream.seekg(0, std::fstream::beg);
+	istream.seekg(0, fstream::beg);
 	istream.read((char*)m_vHashBuffer.data(), m_vHashBuffer.size());
 
 	m_nCrc32 = crc32::update(crc32_init, m_vHashBuffer.data(), m_vHashBuffer.size());
@@ -194,29 +194,29 @@ void CPackedStore::ValidateCRC32PostDecomp(std::string svDirAsset)
 //-----------------------------------------------------------------------------
 // Purpose: extracts all files from specified vpk file
 //-----------------------------------------------------------------------------
-void CPackedStore::UnpackAll(vpk_dir_h vpk_dir, std::string svPathOut)
+void CPackedStore::UnpackAll(VPKDir_t vpk_dir, string svPathOut)
 {
 	for (int i = 0; i < vpk_dir.m_vsvArchives.size(); i++)
 	{
 		std::filesystem::path fspVpkPath(vpk_dir.m_svDirPath);
-		std::string svPath = fspVpkPath.parent_path().u8string() + "\\" + vpk_dir.m_vsvArchives[i];
-		std::ifstream packChunkStream(svPath, std::ios_base::binary); // Create stream to read from each archive.
+		string svPath = fspVpkPath.parent_path().u8string() + "\\" + vpk_dir.m_vsvArchives[i];
+		ifstream packChunkStream(svPath, std::ios_base::binary); // Create stream to read from each archive.
 
-		for ( vpk_entry_block block : vpk_dir.m_vvEntryBlocks)
+		for ( VPKEntryBlock_t block : vpk_dir.m_vvEntryBlocks)
 		{
 			// Escape if block archive index is not part of the extracting archive chunk index.
 			if (block.m_iArchiveIndex != i) { goto escape; }
 			else
 			{
-				std::string svFilePath = CreateDirectories(svPathOut + "\\" + block.m_svBlockPath);
-				std::ofstream outFileStream(svFilePath, std::ios_base::binary | std::ios_base::out);
+				string svFilePath = CreateDirectories(svPathOut + "\\" + block.m_svBlockPath);
+				ofstream outFileStream(svFilePath, std::ios_base::binary | std::ios_base::out);
 
 				if (!outFileStream.is_open())
 				{
 					Error(eDLL_T::FS, "Error: unable to access file '%s'!\n", svFilePath.c_str());
 				}
 				outFileStream.clear(); // Make sure file is empty before writing.
-				for (vpk_entry_h entry : block.m_vvEntries)
+				for (VPKEntryDescr_t entry : block.m_vvEntries)
 				{
 					char* pCompressedData = new char[entry.m_nCompressedSize];
 					memset(pCompressedData, 0, entry.m_nCompressedSize); // Compressed region.
@@ -288,7 +288,7 @@ void CPackedStore::UnpackAll(vpk_dir_h vpk_dir, std::string svPathOut)
 //-----------------------------------------------------------------------------
 // Purpose: 'vpk_entry_block' constructor
 //-----------------------------------------------------------------------------
-vpk_entry_block::vpk_entry_block(CIOStream* reader, std::string svPath)
+VPKEntryBlock_t::VPKEntryBlock_t(CIOStream* reader, string svPath)
 {
 	std::replace(svPath.begin(), svPath.end(), '/', '\\'); // Flip forward slashes in filepath to windows-style backslash.
 
@@ -299,7 +299,7 @@ vpk_entry_block::vpk_entry_block(CIOStream* reader, std::string svPath)
 
 	do // Loop through all entries in the block and push them to the vector.
 	{
-		vpk_entry_h entry(reader);
+		VPKEntryDescr_t entry(reader);
 		this->m_vvEntries.push_back(entry);
 	} while (reader->readR<uint16_t>() != 65535);
 }
@@ -307,7 +307,7 @@ vpk_entry_block::vpk_entry_block(CIOStream* reader, std::string svPath)
 //-----------------------------------------------------------------------------
 // Purpose: 'vpk_entry_h' constructor
 //-----------------------------------------------------------------------------
-vpk_entry_h::vpk_entry_h(CIOStream* reader)
+VPKEntryDescr_t::VPKEntryDescr_t(CIOStream* reader)
 {
 	reader->read<uint32_t>(this->m_nEntryFlags);       //
 	reader->read<uint16_t>(this->m_nTextureFlags);     //
@@ -320,7 +320,7 @@ vpk_entry_h::vpk_entry_h(CIOStream* reader)
 //-----------------------------------------------------------------------------
 // Purpose: 'vpk_dir_h' constructor
 //-----------------------------------------------------------------------------
-vpk_dir_h::vpk_dir_h(std::string svPath)
+VPKDir_t::VPKDir_t(string svPath)
 {
 	CIOStream reader;
 
@@ -349,7 +349,7 @@ vpk_dir_h::vpk_dir_h(std::string svPath)
 	this->m_vvEntryBlocks = g_pPackedStore->GetEntryBlocks(&reader);
 	this->m_svDirPath = svPath; // Set path to vpk_dir file.
 
-	for (vpk_entry_block block : this->m_vvEntryBlocks)
+	for (VPKEntryBlock_t block : this->m_vvEntryBlocks)
 	{
 		if (block.m_iArchiveIndex > this->m_iArchiveCount)
 		{
@@ -362,7 +362,7 @@ vpk_dir_h::vpk_dir_h(std::string svPath)
 
 	for (int i = 0; i < this->m_iArchiveCount + 1; i++)
 	{
-		std::string svArchivePath = g_pPackedStore->GetPackChunkFile(svPath, i);
+		string svArchivePath = g_pPackedStore->GetPackChunkFile(svPath, i);
 		DevMsg(eDLL_T::FS, "] '%s'\n", svArchivePath.c_str());
 		this->m_vsvArchives.push_back(svArchivePath);
 	}

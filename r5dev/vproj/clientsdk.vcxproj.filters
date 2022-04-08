@@ -163,6 +163,9 @@
     <Filter Include="sdk\game\client">
       <UniqueIdentifier>{0b043c41-b53e-44f5-9cbe-7501fcf22478}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\filesystem">
+      <UniqueIdentifier>{a61ad720-d7da-4aee-a9ca-f87f827423ea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\cdll_engine_int.cpp">
@@ -244,9 +247,6 @@
       <Filter>sdk\vpc</Filter>
     </ClCompile>
     <ClCompile Include="..\vpc\keyvalues.cpp">
-      <Filter>sdk\vpc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\vpc\basefilesystem.cpp">
       <Filter>sdk\vpc</Filter>
     </ClCompile>
     <ClCompile Include="..\vphysics\QHull.cpp">
@@ -395,6 +395,12 @@
     </ClCompile>
     <ClCompile Include="..\client\vengineclient_impl.cpp">
       <Filter>sdk\client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\filesystem\filesystem.cpp">
+      <Filter>sdk\filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\filesystem\basefilesystem.cpp">
+      <Filter>sdk\filesystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -833,9 +839,6 @@
     <ClInclude Include="..\vpc\keyvalues.h">
       <Filter>sdk\vpc</Filter>
     </ClInclude>
-    <ClInclude Include="..\vpc\basefilesystem.h">
-      <Filter>sdk\vpc</Filter>
-    </ClInclude>
     <ClInclude Include="..\vphysics\QHull.h">
       <Filter>sdk\vphysics</Filter>
     </ClInclude>
@@ -1141,6 +1144,15 @@
     </ClInclude>
     <ClInclude Include="..\game\client\c_baseentity.h">
       <Filter>sdk\game\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\filesystem\filesystem.h">
+      <Filter>sdk\filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\filesystem\basefilesystem.h">
+      <Filter>sdk\filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\sdktypes.h">
+      <Filter>sdk\common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

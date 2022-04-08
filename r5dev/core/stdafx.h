@@ -63,10 +63,7 @@
 #include "tier0/basetypes.h"
 #include "tier0/platform.h"
 #include "common/pseudodefs.h"
-
-// Common type declarations to reduce code verbosity.
-using std::string;
-using std::vector;
+#include "common/sdktypes.h"
 
 #if !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
 namespace
@@ -80,6 +77,7 @@ namespace
 	MODULE g_mGameDll = MODULE("r5apex_ds.exe");
 #endif // !DEDICATED
 }
+#define VAR_NAME(varName)  #varName
 
 #define MEMBER_AT_OFFSET(varType, varName, offset)             \
 	varType& varName()                                         \

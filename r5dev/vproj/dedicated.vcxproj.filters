@@ -136,6 +136,9 @@
     <Filter Include="sdk\materialsystem">
       <UniqueIdentifier>{3e3725c1-9a0d-44c7-86dc-8e146bb38eca}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\filesystem">
+      <UniqueIdentifier>{ac641995-20c7-43a8-ae66-809b349b1de7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\opcodes.h">
@@ -534,9 +537,6 @@
     <ClInclude Include="..\vpc\keyvalues.h">
       <Filter>sdk\vpc</Filter>
     </ClInclude>
-    <ClInclude Include="..\vpc\basefilesystem.h">
-      <Filter>sdk\vpc</Filter>
-    </ClInclude>
     <ClInclude Include="..\vphysics\QHull.h">
       <Filter>sdk\vphysics</Filter>
     </ClInclude>
@@ -828,6 +828,15 @@
     <ClInclude Include="..\client\vengineclient_impl.h">
       <Filter>sdk\client</Filter>
     </ClInclude>
+    <ClInclude Include="..\filesystem\basefilesystem.h">
+      <Filter>sdk\filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\filesystem\filesystem.h">
+      <Filter>sdk\filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\sdktypes.h">
+      <Filter>sdk\common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -900,9 +909,6 @@
       <Filter>sdk\vpc</Filter>
     </ClCompile>
     <ClCompile Include="..\vpc\keyvalues.cpp">
-      <Filter>sdk\vpc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\vpc\basefilesystem.cpp">
       <Filter>sdk\vpc</Filter>
     </ClCompile>
     <ClCompile Include="..\vphysics\QHull.cpp">
@@ -1036,6 +1042,12 @@
     </ClCompile>
     <ClCompile Include="..\game\server\ai_network.cpp">
       <Filter>sdk\game\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\filesystem\filesystem.cpp">
+      <Filter>sdk\filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\filesystem\basefilesystem.cpp">
+      <Filter>sdk\filesystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -120,40 +120,41 @@ void ConCommand::Init(void)
 {
 	//-------------------------------------------------------------------------
 	// SERVER DLL                                                             |
-	ConCommand* script           = new ConCommand("script", "Run input code as SERVER script on the VM.", FCVAR_GAMEDLL | FCVAR_CHEAT, _SQVM_ServerScript_f_CompletionFunc, nullptr);
-	ConCommand* sv_kick          = new ConCommand("sv_kick", "Kick a client from the server by name. | Usage: kick \"<name>\".", FCVAR_RELEASE, _Kick_f_CompletionFunc, nullptr);
-	ConCommand* sv_kickid        = new ConCommand("sv_kickid", "Kick a client from the server by UserID or OriginID | Usage: kickid \"<OriginID>\"/\"<UserID>\".", FCVAR_RELEASE, _KickID_f_CompletionFunc, nullptr);
-	ConCommand* sv_ban           = new ConCommand("sv_ban", "Bans a client from the server by name. | Usage: ban <name>.", FCVAR_RELEASE, _Ban_f_CompletionFunc, nullptr);
-	ConCommand* sv_banid         = new ConCommand("sv_banid", "Bans a client from the server by OriginID, UserID or IPAddress | Usage: banid \"<OriginID>\"/\"<IPAddress>/<UserID>\".", FCVAR_RELEASE, _BanID_f_CompletionFunc, nullptr);
-	ConCommand* sv_unban         = new ConCommand("sv_unban", "Unbans a client from the Server by IPAddress or OriginID | Usage: unban \"<OriginID>\"/\"<IPAddress>\".", FCVAR_RELEASE, _Unban_f_CompletionFunc, nullptr);
-	ConCommand* sv_reloadbanlist = new ConCommand("sv_reloadbanlist", "Reloads the ban list from the disk.", FCVAR_RELEASE, _ReloadBanList_f_CompletionFunc, nullptr);
+	new ConCommand("script", "Run input code as SERVER script on the VM.", FCVAR_GAMEDLL | FCVAR_CHEAT, _SQVM_ServerScript_f_CompletionFunc, nullptr);
+	new ConCommand("sv_kick", "Kick a client from the server by name. | Usage: kick \"<name>\".", FCVAR_RELEASE, _Kick_f_CompletionFunc, nullptr);
+	new ConCommand("sv_kickid", "Kick a client from the server by UserID or OriginID | Usage: kickid \"<OriginID>\"/\"<UserID>\".", FCVAR_RELEASE, _KickID_f_CompletionFunc, nullptr);
+	new ConCommand("sv_ban", "Bans a client from the server by name. | Usage: ban <name>.", FCVAR_RELEASE, _Ban_f_CompletionFunc, nullptr);
+	new ConCommand("sv_banid", "Bans a client from the server by OriginID, UserID or IPAddress | Usage: banid \"<OriginID>\"/\"<IPAddress>/<UserID>\".", FCVAR_RELEASE, _BanID_f_CompletionFunc, nullptr);
+	new ConCommand("sv_unban", "Unbans a client from the Server by IPAddress or OriginID | Usage: unban \"<OriginID>\"/\"<IPAddress>\".", FCVAR_RELEASE, _Unban_f_CompletionFunc, nullptr);
+	new ConCommand("sv_reloadbanlist", "Reloads the ban list from the disk.", FCVAR_RELEASE, _ReloadBanList_f_CompletionFunc, nullptr);
 #ifndef DEDICATED
 	//-------------------------------------------------------------------------
 	// CLIENT DLL                                                             |
-	ConCommand* script_client   = new ConCommand("script_client", "Run input code as CLIENT script on the VM.", FCVAR_CLIENTDLL | FCVAR_CHEAT, _SQVM_ClientScript_f_CompletionFunc, nullptr);
-	ConCommand* cl_showconsole  = new ConCommand("cl_showconsole", "Opens the game console.", FCVAR_CLIENTDLL | FCVAR_RELEASE, _CGameConsole_f_CompletionFunc, nullptr);
-	ConCommand* cl_showbrowser  = new ConCommand("cl_showbrowser", "Opens the server browser.", FCVAR_CLIENTDLL | FCVAR_RELEASE, _CCompanion_f_CompletionFunc, nullptr);
-	ConCommand* rcon            = new ConCommand("rcon", "Forward RCON query to remote server. | Usage: rcon \"<query>\".", FCVAR_CLIENTDLL | FCVAR_RELEASE, _RCON_CmdQuery_f_CompletionFunc, nullptr);
-	ConCommand* rcon_disconnect = new ConCommand("rcon_disconnect", "Disconnect from RCON server.", FCVAR_CLIENTDLL | FCVAR_RELEASE, _RCON_Disconnect_f_CompletionFunc, nullptr);
+	new ConCommand("script_client", "Run input code as CLIENT script on the VM.", FCVAR_CLIENTDLL | FCVAR_CHEAT, _SQVM_ClientScript_f_CompletionFunc, nullptr);
+	new ConCommand("cl_showconsole", "Opens the game console.", FCVAR_CLIENTDLL | FCVAR_RELEASE, _CGameConsole_f_CompletionFunc, nullptr);
+	new ConCommand("cl_showbrowser", "Opens the server browser.", FCVAR_CLIENTDLL | FCVAR_RELEASE, _CCompanion_f_CompletionFunc, nullptr);
+	new ConCommand("rcon", "Forward RCON query to remote server. | Usage: rcon \"<query>\".", FCVAR_CLIENTDLL | FCVAR_RELEASE, _RCON_CmdQuery_f_CompletionFunc, nullptr);
+	new ConCommand("rcon_disconnect", "Disconnect from RCON server.", FCVAR_CLIENTDLL | FCVAR_RELEASE, _RCON_Disconnect_f_CompletionFunc, nullptr);
 	//-------------------------------------------------------------------------
 	// UI DLL                                                                 |
-	ConCommand* script_ui = new ConCommand("script_ui", "Run input code as UI script on the VM.", FCVAR_CLIENTDLL | FCVAR_CHEAT, _SQVM_UIScript_f_CompletionFunc, nullptr);
+	new ConCommand("script_ui", "Run input code as UI script on the VM.", FCVAR_CLIENTDLL | FCVAR_CHEAT, _SQVM_UIScript_f_CompletionFunc, nullptr);
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// FILESYSTEM API                                                         |
-	ConCommand* fs_decompress_pak = new ConCommand("fs_decompress_pak", "Decompresses user specified 'vpk_dir' file.", FCVAR_DEVELOPMENTONLY, _VPK_Decompress_f_CompletionFunc, nullptr);
+	new ConCommand("fs_unpack_vpk", "Unpacks all files from user specified VPK file.", FCVAR_DEVELOPMENTONLY, _VPK_Unpack_f_CompletionFunc, nullptr);
+	new ConCommand("fs_mount_vpk", "Mounts user specified VPK file for FileSystem usage.", FCVAR_DEVELOPMENTONLY, _VPK_Mount_f_CompletionFunc, nullptr);
 	//-------------------------------------------------------------------------
 	// RTECH API                                                              |
-	ConCommand* rtech_strtoguid   = new ConCommand("rtech_strtoguid", "Calculates the GUID from input data.", FCVAR_DEVELOPMENTONLY, _RTech_StringToGUID_f_CompletionFunc, nullptr);
-	ConCommand* pak_requestload   = new ConCommand("pak_requestload", "Requests asynchronous load for specified RPAK file.", FCVAR_DEVELOPMENTONLY, _Pak_RequestLoad_f_CompletionFunc, nullptr);
-	ConCommand* pak_requestunload = new ConCommand("pak_requestunload", "Requests unload for specified RPAK by ID.", FCVAR_DEVELOPMENTONLY, _Pak_RequestUnload_f_CompletionFunc, nullptr);
-	ConCommand* pak_decompress    = new ConCommand("pak_decompress", "Decompresses the specified RPAK file.", FCVAR_DEVELOPMENTONLY, _RTech_Decompress_f_CompletionFunc, nullptr);
-	ConCommand* pak_listpaks      = new ConCommand("pak_listpaks", "Display a list of the loaded Pak files.", FCVAR_DEVELOPMENTONLY, _Pak_ListPaks_f_CompletionFunc, nullptr);
+	new ConCommand("rtech_strtoguid", "Calculates the GUID from input data.", FCVAR_DEVELOPMENTONLY, _RTech_StringToGUID_f_CompletionFunc, nullptr);
+	new ConCommand("pak_requestload", "Requests asynchronous load for specified RPAK file.", FCVAR_DEVELOPMENTONLY, _Pak_RequestLoad_f_CompletionFunc, nullptr);
+	new ConCommand("pak_requestunload", "Requests unload for specified RPAK by ID.", FCVAR_DEVELOPMENTONLY, _Pak_RequestUnload_f_CompletionFunc, nullptr);
+	new ConCommand("pak_decompress", "Decompresses the specified RPAK file.", FCVAR_DEVELOPMENTONLY, _RTech_Decompress_f_CompletionFunc, nullptr);
+	new ConCommand("pak_listpaks", "Display a list of the loaded Pak files.", FCVAR_DEVELOPMENTONLY, _Pak_ListPaks_f_CompletionFunc, nullptr);
 	//-------------------------------------------------------------------------
 	// NETCHANNEL                                                             |
-	ConCommand* net_toggletrace = new ConCommand("net_toggletrace", "Logs the sending and receiving datagram to a file on the disk.", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, _NET_TraceNetChan_f_CompletionFunc, nullptr);
-	ConCommand* net_setkey      = new ConCommand("net_setkey", "Sets user specified base64 net key.", FCVAR_RELEASE, _NET_SetKey_f_CompletionFunc, nullptr);
-	ConCommand* net_generatekey = new ConCommand("net_generatekey", "Generates and sets a random base64 net key.", FCVAR_RELEASE, _NET_GenerateKey_f_CompletionFunc, nullptr);
+	new ConCommand("net_toggletrace", "Logs the sending and receiving datagram to a file on the disk.", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, _NET_TraceNetChan_f_CompletionFunc, nullptr);
+	new ConCommand("net_setkey", "Sets user specified base64 net key.", FCVAR_RELEASE, _NET_SetKey_f_CompletionFunc, nullptr);
+	new ConCommand("net_generatekey", "Generates and sets a random base64 net key.", FCVAR_RELEASE, _NET_GenerateKey_f_CompletionFunc, nullptr);
 #ifndef DEDICATED
 	//-------------------------------------------------------------------------
 	// MATERIAL SYSTEM

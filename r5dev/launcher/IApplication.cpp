@@ -6,6 +6,7 @@
 
 #include "core/stdafx.h"
 #include "tier0/cvar.h"
+#include "vpc/interfaces.h"
 #include "launcher/IApplication.h"
 #include "ebisusdk/EbisuSDK.h"
 #include "engine/sys_engine.h"
@@ -47,7 +48,6 @@ int HModAppSystemGroup_Main(CModAppSystemGroup* modAppSystemGroup)
 			SV_ShutdownGameDLL();
 		}
 	}
-
 	return nRunResult;
 #endif
 }
@@ -61,13 +61,14 @@ bool HModAppSystemGroup_Create(CModAppSystemGroup* modAppSystemGroup)
 	* g_bDedicated = true;
 #endif // DEDICATED
 	g_pConCommand->Init();
+	g_pFactory->GetFactoriesFromRegister();
 
 	for (auto& map : g_pCVar->DumpToMap())
 	{
 		g_vsvCommandBases.push_back(map.first.c_str());
 	}
-	g_bAppSystemInit = true;
 
+	g_bAppSystemInit = true;
 	return CModAppSystemGroup_Create(modAppSystemGroup);
 }
 

@@ -458,7 +458,7 @@ public:
 		return ADDRESS(latestOccurence);
 	}
 
-	ADDRESS FindPatternSIMD(std::uint8_t* szPattern, const char* szMask)
+	ADDRESS FindPatternSIMD(const std::uint8_t* szPattern, const char* szMask)
 	{
 		ModuleSections mInfo = GetSectionByName(".text"); // Get the .text section.
 		if (!mInfo.IsSectionValid())

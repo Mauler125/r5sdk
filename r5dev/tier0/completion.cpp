@@ -18,6 +18,8 @@
 #include "engine/baseclient.h"
 #include "rtech/rtech_game.h"
 #include "rtech/rtech_utils.h"
+#include "filesystem/basefilesystem.h"
+#include "filesystem/filesystem.h"
 #include "vpklib/packedstore.h"
 #include "squirrel/sqvm.h"
 #ifndef DEDICATED
@@ -599,7 +601,7 @@ _VPK_Decompress_f_CompletionFunc
   dumps the output to '<mod>\vpk'.
 =====================
 */
-void _VPK_Decompress_f_CompletionFunc(const CCommand& args)
+void _VPK_Unpack_f_CompletionFunc(const CCommand& args)
 {
 	if (args.ArgC() < 2)
 	{
@@ -612,7 +614,7 @@ void _VPK_Decompress_f_CompletionFunc(const CCommand& args)
 	DevMsg(eDLL_T::FS, "] FS_DECOMPRESS ----------------------------------------------\n");
 	DevMsg(eDLL_T::FS, "] Processing: '%s'\n", args.Arg(1));
 
-	vpk_dir_h vpk = g_pPackedStore->GetPackDirFile(args.Arg(1));
+	VPKDir_t vpk = g_pPackedStore->GetPackDirFile(args.Arg(1));
 	g_pPackedStore->InitLzDecompParams();
 
 	std::thread th([&] { g_pPackedStore->UnpackAll(vpk, szPathOut); });
@@ -626,6 +628,39 @@ void _VPK_Decompress_f_CompletionFunc(const CCommand& args)
 	DevMsg(eDLL_T::FS, "] Time elapsed: '%.3f' seconds\n", (duration / 1000));
 	DevMsg(eDLL_T::FS, "] Decompressed vpk to: '%s'\n", szPathOut.c_str());
 	DevMsg(eDLL_T::FS, "--------------------------------------------------------------\n");
+}
+
+/*
+=====================
+_VPK_Mount_f_CompletionFunc
+
+  Mounts input VPK file for
+  internal FileSystem usage
+=====================
+*/
+void _VPK_Mount_f_CompletionFunc(const CCommand& args)
+{
+	if (args.ArgC() < 2)
+	{
+		return;
+	}
+
+	if (g_pFileSystem_Stdio)
+	{
+		VPKData_t* pPakData = g_pFileSystem_Stdio->MountVPK(args.Arg(1));
+		if (pPakData)
+		{
+			DevMsg(eDLL_T::FS, "Mounted VPK file '%s' with handle '%d'\n", args.Arg(1), pPakData->m_nHandle);
+		}
+		else
+		{
+			Warning(eDLL_T::FS, "Unable to mount VPK file '%s': non-existent VPK file\n", args.Arg(1));
+		}
+	}
+	else
+	{
+		Warning(eDLL_T::FS, "Unable to mount VPK file '%s': '%s' is not initalized\n", args.Arg(1), VAR_NAME(g_pFileSystem));
+	}
 }
 
 /*
