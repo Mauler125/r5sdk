@@ -71,10 +71,10 @@ static_assert(sizeof(CBaseClient) == 0x4A4C0);
 
 /* ==== CBASECLIENT ===================================================================================================================================================== */
 inline ADDRESS p_CBaseClient_Connect = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74"), "xxxxxxxxxxxxxxxx"); /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
-inline bool (*CBaseClient_Connect)(CBaseClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize) = (bool (*)(CBaseClient*, const char*, void*, bool, void*, char*, int))p_CBaseClient_Connect.GetPtr();
+inline auto CBaseClient_Connect = p_CBaseClient_Connect.RCast<bool (*)(CBaseClient* thisptr, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize)>();
 
 inline ADDRESS p_CBaseClient_Clear = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74"), "xxxxxxxxxxxxxxxx");
-inline void (*CBaseClient_Clear)(CBaseClient* pClient) = (void (*)(CBaseClient*))p_CBaseClient_Clear.GetPtr(); /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
+inline auto CBaseClient_Clear = p_CBaseClient_Clear.RCast<void (*)(CBaseClient* thisptr)>(); /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
 
 inline ADDRESS g_pClientBuffer = p_IVEngineServer__PersistenceAvailable.FindPatternSelf("48 8D 0D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
 

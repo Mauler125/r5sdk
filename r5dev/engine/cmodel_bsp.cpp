@@ -16,18 +16,18 @@
 // Purpose: loads required pakfile assets for specified BSP
 // Input  : svSetFile - 
 //-----------------------------------------------------------------------------
-void MOD_PreloadPak(const std::string& svSetFile)
+void MOD_PreloadPak(const string& svSetFile)
 {
-	std::ostringstream ostream;
+	ostringstream ostream;
 	ostream << "platform\\scripts\\levels\\settings\\" << g_pHostState->m_levelName << ".json";
 
-	std::filesystem::path fsPath = std::filesystem::current_path() /= ostream.str();
+	fs::path fsPath = std::filesystem::current_path() /= ostream.str();
 	if (FileExists(fsPath.string().c_str()))
 	{
 		nlohmann::json jsIn;
 		try
 		{
-			std::ifstream iPakLoadDefFile(fsPath, std::ios::binary); // Parse prerequisites file.
+			ifstream iPakLoadDefFile(fsPath, std::ios::binary); // Parse prerequisites file.
 			iPakLoadDefFile >> jsIn;
 			iPakLoadDefFile.close();
 
@@ -39,8 +39,8 @@ void MOD_PreloadPak(const std::string& svSetFile)
 					{
 						if (it.value().is_string())
 						{
-							std::string svToLoad = it.value().get<std::string>() + ".rpak";
-							std::uint32_t nPakId = RTech_AsyncLoad((void*)svToLoad.c_str(), g_pMallocPool.GetPtr(), 4, 0);
+							string svToLoad = it.value().get<string>() + ".rpak";
+							uint32_t nPakId = RTech_AsyncLoad((void*)svToLoad.c_str(), g_pMallocPool.GetPtr(), 4, 0);
 
 							if (nPakId == -1)
 							{

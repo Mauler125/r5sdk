@@ -79,7 +79,7 @@ void __fastcall HFrameStageNotify(CHLClient* rcx, ClientFrameStage_t frameStage)
 	}
 	g_pIConsole->Think();
 	g_pRConClient->RunFrame();
-	CHLClient_FrameStageNotify(rcx, (int)frameStage);
+	CHLClient_FrameStageNotify(rcx, frameStage);
 }
 
 //-----------------------------------------------------------------------------

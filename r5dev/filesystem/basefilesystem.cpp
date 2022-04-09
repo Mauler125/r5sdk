@@ -109,7 +109,7 @@ void CBaseFileSystem::Warning(CBaseFileSystem* pFileSystem, FileWarningLevel_t l
 //			*pszFilePath - 
 // Output : Handle to file on success, NULL on failure
 //---------------------------------------------------------------------------------
-FileHandle_t CBaseFileSystem::ReadFromVPK(CBaseFileSystem* pVpk, std::int64_t* pResults, char* pszFilePath)
+FileHandle_t CBaseFileSystem::ReadFromVPK(CBaseFileSystem* pFileSystem, std::int64_t* pResults, char* pszFilePath)
 {
 	std::string svFilePath = ConvertToWinPath(pszFilePath);
 
@@ -127,7 +127,7 @@ FileHandle_t CBaseFileSystem::ReadFromVPK(CBaseFileSystem* pVpk, std::int64_t* p
 		*pResults = -1;
 		return (void*)pResults;
 	}
-	return CBaseFileSystem_LoadFromVPK(pVpk, pResults, pszFilePath);
+	return CBaseFileSystem_LoadFromVPK(pFileSystem, pResults, pszFilePath);
 }
 
 //---------------------------------------------------------------------------------

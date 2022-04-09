@@ -2,10 +2,10 @@
 #include "squirrel/sqapi.h"
 
 inline ADDRESS p_Script_Remote_BeginRegisteringFunctions = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x83\x3D\x00\x00\x00\x00\x00\x74\x10"), "xxxxxx?????xx");
-inline void* Script_Remote_BeginRegisteringFunctions = (void*)p_Script_Remote_BeginRegisteringFunctions.GetPtr(); /*48 83 EC 28 83 3D ?? ?? ?? ?? ?? 74 10*/
+inline auto Script_Remote_BeginRegisteringFunctions = p_Script_Remote_BeginRegisteringFunctions.RCast<void* (*)(void)>(); /*48 83 EC 28 83 3D ?? ?? ?? ?? ?? 74 10*/
 
 inline ADDRESS p_RestoreRemoteChecksumsFromSaveGame = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x4C\x24\x00\x41\x54\x48\x83\xEC\x40"), "xxxx?xxxxxx");
-inline void* (*RestoreRemoteChecksumsFromSaveGame)(void* a1, void* a2) = (void* (*)(void*, void*))p_RestoreRemoteChecksumsFromSaveGame.GetPtr(); /*48 89 4C 24 ? 41 54 48 83 EC 40*/
+inline auto RestoreRemoteChecksumsFromSaveGame = p_RestoreRemoteChecksumsFromSaveGame.RCast<void* (*)(void* a1, void* a2)>(); /*48 89 4C 24 ? 41 54 48 83 EC 40*/
 
 /* CHANGE THESE WHEN SWITCHING TO PYLONV2 TO UNSIGNED AGAIN!*/
 #ifndef CLIENT_DLL
@@ -57,8 +57,12 @@ class HSqInit : public IDetour
 	{
 		std::cout << "| FUN: Remote_BeginRegisteringFunctions     : 0x" << std::hex << std::uppercase << p_Script_Remote_BeginRegisteringFunctions.GetPtr() << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: RestoreRemoteChecksumsFromSaveGame   : 0x" << std::hex << std::uppercase << p_RestoreRemoteChecksumsFromSaveGame.GetPtr()      << std::setw(npad) << " |" << std::endl;
+#ifndef CLIENT_DLL
 		std::cout << "| VAR: g_nServerRemoteChecksum              : 0x" << std::hex << std::uppercase << g_nServerRemoteChecksum                            << std::setw(0)    << " |" << std::endl;
+#endif // !CLIENT_DLL
+#ifndef DEDICATED
 		std::cout << "| VAR: g_nClientRemoteChecksum              : 0x" << std::hex << std::uppercase << g_nClientRemoteChecksum                            << std::setw(0)    << " |" << std::endl;
+#endif // !DEDICATED
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 };

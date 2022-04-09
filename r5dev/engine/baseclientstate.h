@@ -1,18 +1,6 @@
 #pragma once
 #include "engine/debugoverlay.h"
 
-/* ==== CCLIENTSTATE ==================================================================================================================================================== */
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-//inline ADDRESS p_CClientState__CheckForResend = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x56\x57\x41\x57\x00\x81\xEC\x20\x04\x00\x00\x45\x0F\xB6\xF9\x00\x00\x00\x00\x8B\xF1\x48"), "xxxx?xxxx?xxxx?xxxxx????xxx"); /*48 89 5C 24 ?? 56 57 41 57 ?? 81 EC 20 04 ?? 00 45 0F B6 F9 ?? ?? ?? ?? 8B F1 48*/
-//inline void (*CClientState__CheckForResend)(std::int64_t a1, const char* a2, std::int64_t a3, char a4, int a5, std::uint8_t* a6) = (void(*)(std::int64_t, const char*, std::int64_t, char, int, std::uint8_t*))p_CClientState__CheckForResend.GetPtr();
-#elif defined (GAMEDLL_S2)
-//inline ADDRESS p_CClientState__CheckForResend = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x81\xEC\x00\x00\x00\x00\x45\x0F\xB6"), "xxxx?xxxx?xxxx?xxxxx????xxx"); /*48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC ?? ?? ?? ?? 45 0F B6*/
-//inline void (*CClientState__CheckForResend)(std::int64_t a1, const char* a2, std::int64_t a3, char a4, int a5, std::uint8_t* a6) = (void(*)(std::int64_t, const char*, std::int64_t, char, int, std::uint8_t*))p_CClientState__CheckForResend.GetPtr();
-#elif defined (GAMEDLL_S3)
-//inline ADDRESS p_CClientState__CheckForResend = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x32"), "xxxx?xxxx?xxxx?xxxxx????xxx"); /*48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC ?? ?? ?? ?? 48 8B 32*/
-//inline void (*CClientState__CheckForResend)(std::int64_t a1, const char* a2, std::int64_t a3, char a4, int a5, std::uint8_t* a6) = (void(*)(std::int64_t, const char*, std::int64_t, char, int, std::uint8_t*))p_CClientState__CheckForResend.GetPtr();
-#endif
-
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 inline bool* cl_m_bPaused = p_DrawAllOverlays.Offset(0x90).FindPatternSelf("80 3D ? ? ? 0B ?", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x2).RCast<bool*>();
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
@@ -32,8 +20,19 @@ public:
 	int GetClientTickCount() const;	// Get the client tick count.
 	void SetClientTickCount(int tick); // Set the client tick count.
 };
-
 extern CBaseClientState* g_pBaseClientState;
+
+/* ==== CCLIENTSTATE ==================================================================================================================================================== */
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+//inline ADDRESS p_CClientState__CheckForResend = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x56\x57\x41\x57\x00\x81\xEC\x20\x04\x00\x00\x45\x0F\xB6\xF9\x00\x00\x00\x00\x8B\xF1\x48"), "xxxx?xxxx?xxxx?xxxxx????xxx"); /*48 89 5C 24 ?? 56 57 41 57 ?? 81 EC 20 04 ?? 00 45 0F B6 F9 ?? ?? ?? ?? 8B F1 48*/
+//inline auto CClientState__CheckForResend = p_CClientState__CheckForResend.RCast<void(*)(CBaseClientState* thisptr, const char* a2, std::int64_t a3, char a4, int a5, std::uint8_t* a6)>();
+#elif defined (GAMEDLL_S2)
+//inline ADDRESS p_CClientState__CheckForResend = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x81\xEC\x00\x00\x00\x00\x45\x0F\xB6"), "xxxx?xxxx?xxxx?xxxxx????xxx"); /*48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC ?? ?? ?? ?? 45 0F B6*/
+//inline auto CClientState__CheckForResend = p_CClientState__CheckForResend.RCast<void(*)(CBaseClientState* thisptr, const char* a2, std::int64_t a3, char a4, int a5, std::uint8_t* a6)>();
+#elif defined (GAMEDLL_S3)
+//inline ADDRESS p_CClientState__CheckForResend = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x32"), "xxxx?xxxx?xxxx?xxxxx????xxx"); /*48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC ?? ?? ?? ?? 48 8B 32*/
+//inline auto CClientState__CheckForResend = p_CClientState__CheckForResend.RCast<void(*)(CBaseClientState* thisptr, const char* a2, std::int64_t a3, char a4, int a5, std::uint8_t* a6)>();
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 class HClientState : public IDetour

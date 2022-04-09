@@ -14,19 +14,19 @@ struct user_creds
 
 /* ==== CSERVER ========================================================================================================================================================= */
 inline ADDRESS p_CServer_Think = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00"), "xxxx?xxxx?xxxx????xx?????");
-inline void (*CServer_Think)(bool check_clock_drift, bool bIsSimulating) = (void (*)(bool, bool))p_CServer_Think.GetPtr(); /*48 89 5C 24 ? 48 89 74 24 ? 57 48 81 EC ? ? ? ? 80 3D ? ? ? ? ?*/
+inline auto CServer_Think = p_CServer_Think.RCast<void (*)(bool bCheckClockDrift, bool bIsSimulating)>(); /*48 89 5C 24 ? 48 89 74 24 ? 57 48 81 EC ? ? ? ? 80 3D ? ? ? ? ?*/
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 inline ADDRESS p_CServer_Authenticate = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x44\x89\x44\x24\x00\x55\x56\x57\x48\x8D\xAC\x24\x00\x00\x00\x00"), "xxxx?xxxxxxx????");
-inline void* (*CServer_Authenticate)(void* cserver, user_creds* creds) = (void* (*)(void* cserver, user_creds * creds))p_CServer_Authenticate.GetPtr(); /*44 89 44 24 ?? 55 56 57 48 8D AC 24 ?? ?? ?? ??*/
+inline auto CServer_Authenticate = p_CServer_Authenticate.RCast<void* (*)(void* pServer, user_creds* pCreds)>(); /*44 89 44 24 ?? 55 56 57 48 8D AC 24 ?? ?? ?? ??*/
 #elif defined (GAMEDLL_S2)
 inline ADDRESS p_CServer_Authenticate = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x44\x89\x44\x24\x00\x56\x57\x48\x81\xEC\x00\x00\x00\x00"), "xxxx?xxxxx????");
-inline void* (*CServer_Authenticate)(void* cserver, user_creds* creds) = (void* (*)(void* cserver, user_creds * creds))p_CServer_Authenticate.GetPtr(); /*44 89 44 24 ?? 56 57 48 81 EC ?? ?? ?? ??*/
+inline auto CServer_Authenticate = p_CServer_Authenticate.RCast<void* (*)(void* pServer, user_creds* pCreds)>(); /*44 89 44 24 ?? 56 57 48 81 EC ?? ?? ?? ??*/
 #else
 inline ADDRESS p_CServer_Authenticate = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x55\x57\x41\x55\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00"), "xxxxxxxxxxx????");
-inline void* (*CServer_Authenticate)(void* cserver, user_creds* creds) = (void* (*)(void* cserver, user_creds * creds))p_CServer_Authenticate.GetPtr(); /*40 55 57 41 55 41 57 48 8D AC 24 ?? ?? ?? ??*/
+inline auto CServer_Authenticate = p_CServer_Authenticate.RCast<void* (*)(void* pServer, user_creds* pCreds)>(); /*40 55 57 41 55 41 57 48 8D AC 24 ?? ?? ?? ??*/
 #endif
 inline ADDRESS p_CServer_RejectConnection = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x89\x4C\x24\x00\x53\x55\x56\x57\x48\x81\xEC\x00\x00\x00\x00\x49\x8B\xD9"), "xxxx?xxxxxxx????xxx");
-inline void* (*CServer_RejectConnection)(void* pServer, unsigned int a2, user_creds* pCreds, const char* szMessage) = (void* (*)(void*, unsigned int, user_creds*, const char*))p_CServer_RejectConnection.GetPtr(); /*4C 89 4C 24 ?? 53 55 56 57 48 81 EC ?? ?? ?? ?? 49 8B D9*/
+inline auto CServer_RejectConnection = p_CServer_RejectConnection.RCast<void* (*)(void* pServer, unsigned int a2, user_creds* pCreds, const char* szMessage)>(); /*4C 89 4C 24 ?? 53 55 56 57 48 81 EC ?? ?? ?? ?? 49 8B D9*/
 
 inline int* sv_m_nTickCount = p_CServer_Think.Offset(0xB0).FindPatternSelf("8B 15", ADDRESS::Direction::DOWN).ResolveRelativeAddressSelf(0x2, 0x6).RCast<int*>();
 
