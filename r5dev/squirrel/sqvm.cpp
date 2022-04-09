@@ -6,9 +6,9 @@
 
 #include "core/stdafx.h"
 #include "core/logdef.h"
-#include "tier0/cvar.h"
-#include "tier0/IConVar.h"
 #include "tier0/commandline.h"
+#include "tier1/cvar.h"
+#include "tier1/IConVar.h"
 #include "engine/sys_utils.h"
 #ifdef DEDICATED
 #include "engine/sv_rcon.h"

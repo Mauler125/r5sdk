@@ -5,7 +5,7 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#include "tier0/cvar.h"
+#include "tier1/cvar.h"
 #include "vpc/interfaces.h"
 #include "launcher/IApplication.h"
 #include "ebisusdk/EbisuSDK.h"

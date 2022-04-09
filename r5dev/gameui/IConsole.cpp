@@ -14,8 +14,8 @@ History:
 
 #include "core/stdafx.h"
 #include "core/init.h"
-#include "tier0/cvar.h"
 #include "tier0/commandline.h"
+#include "tier1/cvar.h"
 #include "windows/id3dx.h"
 #include "windows/console.h"
 #include "gameui/IConsole.h"

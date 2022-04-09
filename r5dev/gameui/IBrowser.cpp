@@ -14,10 +14,9 @@ History:
 #include "core/stdafx.h"
 #include "core/init.h"
 #include "core/resource.h"
-#include "tier0/IConVar.h"
-#include "tier0/cvar.h"
 #include "tier0/commandline.h"
-#include "tier0/completion.h"
+#include "tier1/IConVar.h"
+#include "tier1/cvar.h"
 #include "windows/id3dx.h"
 #include "windows/console.h"
 #include "engine/net.h"
@@ -30,6 +29,7 @@ History:
 #include "server/server.h"
 #include "client/vengineclient_impl.h"
 #include "vpc/keyvalues.h"
+#include "vstdlib/completion.h"
 #include "vpklib/packedstore.h"
 #include "gameui/IBrowser.h"
 
@@ -574,7 +574,7 @@ void IBrowser::HostServerSection(void)
         if (ImGui::Button("Reload Playlist from Disk##ServerHost_ReloadPlaylist", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
             DownloadPlaylists_f_CompletionFunc();
-            CKeyValueSystem_InitPlaylist(); // Re-Init playlist.
+            KeyValues::InitPlaylist(); // Re-Init playlist.
         }
     }
 #endif // !CLIENT_DLL

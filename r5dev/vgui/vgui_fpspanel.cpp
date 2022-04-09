@@ -6,7 +6,7 @@
 //===========================================================================//
 
 #include "core/stdafx.h"
-#include "tier0/cvar.h"
+#include "tier1/cvar.h"
 #include "vgui/vgui_fpspanel.h"
 #include "vgui/vgui_debugpanel.h"
 

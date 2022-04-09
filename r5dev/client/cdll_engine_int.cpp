@@ -1,8 +1,8 @@
 #include "core/stdafx.h"
 /*****************************************************************************/
-#include "tier0/IConVar.h"
-#include "tier0/cvar.h"
+#include "tier1/cvar.h"
 #include "tier0/commandline.h"
+#include "tier1/IConVar.h"
 #include "client/vengineclient_impl.h"
 #include "client/cdll_engine_int.h"
 #include "engine/net_chan.h"
@@ -27,7 +27,7 @@ void __fastcall HFrameStageNotify(CHLClient* rcx, ClientFrameStage_t frameStage)
 #ifdef GAMEDLL_S3
 				g_pConVar->ClearHostNames();
 #endif // GAMEDLL_S3
-				CKeyValueSystem_Init();
+				KeyValues::Init();
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2) // !TEMP UNTIL CHOSTSTATE IS BUILD AGNOSTIC! //
 				if (!g_pCmdLine->CheckParm("-devsdk"))
 				{

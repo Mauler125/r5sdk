@@ -1,5 +1,5 @@
 #pragma once
-#include "IConVar.h"
+#include "tier1/IConVar.h"
 
 /* ==== CONCOMMANDCALLBACK ============================================================================================================================================== */
 #if defined (GAMEDLL_S1)

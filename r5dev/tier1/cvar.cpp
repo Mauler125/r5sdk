@@ -1,6 +1,6 @@
 #include "core/stdafx.h"
-#include "tier0/cvar.h"
-#include "tier0/IConVar.h"
+#include "tier1/cvar.h"
+#include "tier1/IConVar.h"
 #include "engine/sys_dll2.h"
 
 //-----------------------------------------------------------------------------

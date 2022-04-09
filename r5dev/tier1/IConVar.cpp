@@ -5,8 +5,8 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#include "tier0/cvar.h"
-#include "tier0/IConVar.h"
+#include "tier1/IConVar.h"
+#include "tier1/cvar.h"
 #include "engine/sys_utils.h"
 #include "engine/sys_dll2.h"
 #include "mathlib/bits.h"

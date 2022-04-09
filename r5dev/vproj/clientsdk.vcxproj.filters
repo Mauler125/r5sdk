@@ -166,6 +166,9 @@
     <Filter Include="sdk\filesystem">
       <UniqueIdentifier>{a61ad720-d7da-4aee-a9ca-f87f827423ea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\vstdlib">
+      <UniqueIdentifier>{fd290792-d36d-400c-9f4d-366a9ce57427}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\cdll_engine_int.cpp">
@@ -221,18 +224,6 @@
     </ClCompile>
     <ClCompile Include="..\squirrel\sqapi.cpp">
       <Filter>sdk\squirrel</Filter>
-    </ClCompile>
-    <ClCompile Include="..\tier0\completion.cpp">
-      <Filter>sdk\tier0</Filter>
-    </ClCompile>
-    <ClCompile Include="..\tier0\cvar.cpp">
-      <Filter>sdk\tier0</Filter>
-    </ClCompile>
-    <ClCompile Include="..\tier0\IConVar.cpp">
-      <Filter>sdk\tier0</Filter>
-    </ClCompile>
-    <ClCompile Include="..\tier0\cmd.cpp">
-      <Filter>sdk\tier0</Filter>
     </ClCompile>
     <ClCompile Include="..\vgui\vgui_fpspanel.cpp">
       <Filter>sdk\vgui</Filter>
@@ -401,6 +392,21 @@
     </ClCompile>
     <ClCompile Include="..\filesystem\basefilesystem.cpp">
       <Filter>sdk\filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier1\IConVar.cpp">
+      <Filter>sdk\tier1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier1\cmd.cpp">
+      <Filter>sdk\tier1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier1\cvar.cpp">
+      <Filter>sdk\tier1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vstdlib\completion.cpp">
+      <Filter>sdk\vstdlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vstdlib\keyvaluessystem.cpp">
+      <Filter>sdk\vstdlib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -803,19 +809,7 @@
     <ClInclude Include="..\thirdparty\spdlog\include\cfg\argv.h">
       <Filter>thirdparty\spdlog\include\cfg</Filter>
     </ClInclude>
-    <ClInclude Include="..\tier0\completion.h">
-      <Filter>sdk\tier0</Filter>
-    </ClInclude>
-    <ClInclude Include="..\tier0\cvar.h">
-      <Filter>sdk\tier0</Filter>
-    </ClInclude>
-    <ClInclude Include="..\tier0\IConVar.h">
-      <Filter>sdk\tier0</Filter>
-    </ClInclude>
     <ClInclude Include="..\tier0\basetypes.h">
-      <Filter>sdk\tier0</Filter>
-    </ClInclude>
-    <ClInclude Include="..\tier0\cmd.h">
       <Filter>sdk\tier0</Filter>
     </ClInclude>
     <ClInclude Include="..\vgui\vgui_fpspanel.h">
@@ -1153,6 +1147,21 @@
     </ClInclude>
     <ClInclude Include="..\common\sdktypes.h">
       <Filter>sdk\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\IConVar.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\cmd.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\cvar.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vstdlib\completion.h">
+      <Filter>sdk\vstdlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vstdlib\keyvaluessystem.h">
+      <Filter>sdk\vstdlib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

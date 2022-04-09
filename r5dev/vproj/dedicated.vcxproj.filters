@@ -139,6 +139,9 @@
     <Filter Include="sdk\filesystem">
       <UniqueIdentifier>{ac641995-20c7-43a8-ae66-809b349b1de7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\vstdlib">
+      <UniqueIdentifier>{f6e1bcba-3548-4849-918d-9adea1603b0b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\opcodes.h">
@@ -513,19 +516,7 @@
     <ClInclude Include="..\thirdparty\spdlog\include\cfg\argv.h">
       <Filter>thirdparty\spdlog\include\cfg</Filter>
     </ClInclude>
-    <ClInclude Include="..\tier0\completion.h">
-      <Filter>sdk\tier0</Filter>
-    </ClInclude>
-    <ClInclude Include="..\tier0\cvar.h">
-      <Filter>sdk\tier0</Filter>
-    </ClInclude>
-    <ClInclude Include="..\tier0\IConVar.h">
-      <Filter>sdk\tier0</Filter>
-    </ClInclude>
     <ClInclude Include="..\tier0\basetypes.h">
-      <Filter>sdk\tier0</Filter>
-    </ClInclude>
-    <ClInclude Include="..\tier0\cmd.h">
       <Filter>sdk\tier0</Filter>
     </ClInclude>
     <ClInclude Include="..\vpc\IAppSystem.h">
@@ -837,6 +828,21 @@
     <ClInclude Include="..\common\sdktypes.h">
       <Filter>sdk\common</Filter>
     </ClInclude>
+    <ClInclude Include="..\tier1\cmd.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\IConVar.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\cvar.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vstdlib\completion.h">
+      <Filter>sdk\vstdlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vstdlib\keyvaluessystem.h">
+      <Filter>sdk\vstdlib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -892,18 +898,6 @@
     </ClCompile>
     <ClCompile Include="..\squirrel\sqvm.cpp">
       <Filter>sdk\squirrel</Filter>
-    </ClCompile>
-    <ClCompile Include="..\tier0\completion.cpp">
-      <Filter>sdk\tier0</Filter>
-    </ClCompile>
-    <ClCompile Include="..\tier0\cvar.cpp">
-      <Filter>sdk\tier0</Filter>
-    </ClCompile>
-    <ClCompile Include="..\tier0\IConVar.cpp">
-      <Filter>sdk\tier0</Filter>
-    </ClCompile>
-    <ClCompile Include="..\tier0\cmd.cpp">
-      <Filter>sdk\tier0</Filter>
     </ClCompile>
     <ClCompile Include="..\vpc\IAppSystem.cpp">
       <Filter>sdk\vpc</Filter>
@@ -1048,6 +1042,21 @@
     </ClCompile>
     <ClCompile Include="..\filesystem\basefilesystem.cpp">
       <Filter>sdk\filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier1\IConVar.cpp">
+      <Filter>sdk\tier1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier1\cmd.cpp">
+      <Filter>sdk\tier1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier1\cvar.cpp">
+      <Filter>sdk\tier1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vstdlib\completion.cpp">
+      <Filter>sdk\vstdlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vstdlib\keyvaluessystem.cpp">
+      <Filter>sdk\vstdlib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

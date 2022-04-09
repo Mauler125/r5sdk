@@ -8,8 +8,8 @@
 #include "engine/net.h"
 #ifndef NETCONSOLE
 #include "core/logdef.h"
-#include "tier0/cvar.h"
-#include "tier0/completion.h"
+#include "tier1/cvar.h"
+#include "vstdlib/completion.h"
 #include "mathlib/color.h"
 #include "engine/sys_utils.h"
 #include "engine/net.h"

@@ -1,6 +1,6 @@
 #include "core/stdafx.h"
 #include "core/logdef.h"
-#include "tier0/cvar.h"
+#include "tier1/cvar.h"
 #include "filesystem/basefilesystem.h"
 #include "filesystem/filesystem.h"
 #ifndef DEDICATED

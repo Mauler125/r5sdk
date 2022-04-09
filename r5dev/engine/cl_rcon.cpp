@@ -5,9 +5,9 @@
 //===========================================================================//
 
 #include "core/stdafx.h"
-#include "tier0/IConVar.h"
-#include "tier0/cmd.h"
-#include "tier0/cvar.h"
+#include "tier1/IConVar.h"
+#include "tier1/cmd.h"
+#include "tier1/cvar.h"
 #include "protoc/sv_rcon.pb.h"
 #include "protoc/cl_rcon.pb.h"
 #include "engine/cl_rcon.h"

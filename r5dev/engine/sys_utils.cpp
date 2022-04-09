@@ -6,8 +6,8 @@
 
 #include "core/stdafx.h"
 #include "core/logdef.h"
-#include "tier0/cvar.h"
 #include "tier0/commandline.h"
+#include "tier1/cvar.h"
 #include "engine/common.h"
 #include "engine/host_state.h"
 #include "engine/sys_utils.h"

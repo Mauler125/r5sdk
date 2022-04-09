@@ -6,9 +6,8 @@
 
 #include "core/stdafx.h"
 #include "windows/id3dx.h"
-#include "tier0/cvar.h"
-#include "tier0/IConVar.h"
-#include "tier0/completion.h"
+#include "tier1/cvar.h"
+#include "tier1/IConVar.h"
 #ifndef DEDICATED
 #include "engine/cl_rcon.h"
 #endif // !DEDICATED
@@ -28,6 +27,7 @@
 #endif // !DEDICATED
 #include "public/include/bansystem.h"
 #include "mathlib/crc32.h"
+#include "vstdlib/completion.h"
 #ifndef DEDICATED
 #include "materialsystem/cmaterialglue.h"
 #endif // !DEDICATED

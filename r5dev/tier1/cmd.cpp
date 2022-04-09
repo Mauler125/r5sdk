@@ -1,7 +1,7 @@
 #include "core/stdafx.h"
-#include "tier0/cmd.h"
-#include "tier0/cvar.h"
-#include "tier0/completion.h"
+#include "tier1/cmd.h"
+#include "tier1/cvar.h"
+#include "vstdlib/completion.h"
 #include "engine/sys_utils.h"
 
 //-----------------------------------------------------------------------------

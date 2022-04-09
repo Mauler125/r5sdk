@@ -2,7 +2,7 @@
 #ifndef DEDICATED // This file should not be compiled for DEDICATED!
 //------------------------------
 #define STB_IMAGE_IMPLEMENTATION
-#include "tier0/cvar.h"
+#include "tier1/cvar.h"
 #include "windows/id3dx.h"
 #include "windows/input.h"
 #include "gameui/IConsole.h"

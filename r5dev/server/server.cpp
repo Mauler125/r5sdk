@@ -1,5 +1,5 @@
 #include "core/stdafx.h"
-#include "tier0/cvar.h"
+#include "tier1/cvar.h"
 #include "engine/sys_utils.h"
 #include "server/server.h"
 #include "engine/baseclient.h"

@@ -6,7 +6,7 @@
 //=====================================================================================//
 
 #include <core/stdafx.h>
-#include <tier0/cvar.h>
+#include <tier1/cvar.h>
 #include <engine/net.h>
 #include <engine/host_state.h>
 #include <engine/sys_utils.h>

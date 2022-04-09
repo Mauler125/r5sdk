@@ -6,7 +6,7 @@
 //===========================================================================//
 
 #include <core/stdafx.h>
-#include <tier0/cvar.h>
+#include <tier1/cvar.h>
 #include <windows/id3dx.h>
 #include <vpc/keyvalues.h>
 #include <mathlib/color.h>

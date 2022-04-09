@@ -1,5 +1,5 @@
 #pragma once
-#include "tier0/completion.h"
+#include "vstdlib/completion.h"
 #include "public/include/utility.h"
 
 //#ifdef DEDICATED

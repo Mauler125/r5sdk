@@ -7,7 +7,7 @@
 #include "core/stdafx.h"
 #include "core/init.h"
 #include "core/logdef.h"
-#include "tier0/cmd.h"
+#include "tier1/cmd.h"
 #ifndef DEDICATED
 #include "windows/id3dx.h"
 #endif // !DEDICATED

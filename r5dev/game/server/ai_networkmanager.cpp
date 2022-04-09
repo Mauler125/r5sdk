@@ -5,9 +5,9 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#include "tier0/cvar.h"
-#include "tier0/cmd.h"
 #include "tier0/fasttimer.h"
+#include "tier1/cvar.h"
+#include "tier1/cmd.h"
 #include "mathlib/crc32.h"
 #include "public/include/edict.h"
 #include "public/include/utility.h"

@@ -1,5 +1,5 @@
 #pragma once
-#include "tier0/IConVar.h"
+#include "tier1/IConVar.h"
 
 //-------------------------------------------------------------------------
 // ENGINE                                                                 |

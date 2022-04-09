@@ -9,7 +9,7 @@
 #ifndef DEDICATED
 
 #include "rui.h"
-#include <tier0/cvar.h>
+#include "tier1/cvar.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: Probably responsible to decide if rUI is allowed to draw.

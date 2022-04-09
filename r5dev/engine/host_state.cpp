@@ -5,10 +5,10 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#include "tier0/cmd.h"
-#include "tier0/cvar.h"
 #include "tier0/commandline.h"
 #include "tier0/fasttimer.h"
+#include "tier1/cmd.h"
+#include "tier1/cvar.h"
 #include "tier1/NetAdr2.h"
 #include "tier2/socketcreator.h"
 #include "vpc/keyvalues.h"

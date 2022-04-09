@@ -1,5 +1,5 @@
 #include "core/stdafx.h"
-#include "tier0/cvar.h"
+#include "tier1/cvar.h"
 #include "common/pseudodefs.h"
 #include "bsplib/bsplib.h"
 #include "engine/host_state.h"

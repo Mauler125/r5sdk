@@ -5,7 +5,7 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#include "tier0/cvar.h"
+#include "tier1/cvar.h"
 #include "common/protocol.h"
 #include "engine/sys_utils.h"
 #include "engine/baseclient.h"

@@ -5,8 +5,8 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#include "tier0/cvar.h"
 #include "tier0/commandline.h"
+#include "tier1/cvar.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: Create a command line from the passed in string

@@ -6,7 +6,7 @@
 //===========================================================================//
 
 #include <core/stdafx.h>
-#include "tier0/cvar.h"
+#include <tier1/cvar.h>
 #include <engine/sys_utils.h>
 #include <vgui/vgui_debugpanel.h>
 #include <vgui/vgui_baseui_interface.h>

@@ -1,14 +1,12 @@
 #pragma once
 
-#define MAKE_3_BYTES_FROM_1_AND_2( x1, x2 ) (( (( std::uint16_t )x2) << 8 ) | (std::uint8_t)(x1))
-extern std::vector<std::string> g_szAllPlaylists;
-typedef int HKeySymbol;
+#define MAKE_3_BYTES_FROM_1_AND_2( x1, x2 ) (( (( uint16_t )x2) << 8 ) | (uint8_t)(x1))
+extern vector<string> g_szAllPlaylists;
 
 //---------------------------------------------------------------------------------
 // Purpose: Forward declarations
 //---------------------------------------------------------------------------------
 class KeyValues;
-class CKeyValuesSystem;
 
 /* ==== KEYVALUES ======================================================================================================================================================= */
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
@@ -33,11 +31,6 @@ inline auto KeyValues_GetCurrentPlaylist = p_KeyValues_GetCurrentPlaylist.RCast<
 inline ADDRESS p_KeyValues_LoadPlaylist = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x74\x0C"), "x????xx?????xx").FollowNearCallSelf().GetPtr();
 inline auto KeyValues_LoadPlaylist = p_KeyValues_LoadPlaylist.RCast<bool (*)(const char* pszPlaylist)>(); /*E8 ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 74 0C*/
 
-inline ADDRESS p_KeyValues_GetMemPool = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\x05\x00\x00\x00\x00\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x48\x85\xD2"), "xxx????xxxxxxxxxxxx");
-inline auto KeyValues_GetMemPool = p_KeyValues_GetMemPool.RCast<void* (*)(void)>(); /*48 8B 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 48 85 D2*/
-
-inline uintptr_t g_pKeyValuesMemPool = p_KeyValues_GetMemPool.ResolveRelativeAddressSelf(0x3, 0x7).GetPtr();
-
 enum KeyValuesTypes
 {
 	TYPE_NONE              = 0x0,
@@ -54,161 +47,19 @@ enum KeyValuesTypes
 	TYPE_NUMTYPES          = 0xB,
 };
 
-class CKeyValuesSystem // VTABLE @ 0x1413AA1E8 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
-{
-public:
-
-	void RegisterSizeofKeyValues(std::int64_t size) //@0x1413AA1F0 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
-	{
-		static int index = 0;
-		CallVFunc<void>(index, this, size);
-	}
-
-	void* AllocKeyValuesMemory(std::int64_t size) // @0x1413AA1F8 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
-	{
-		static int index = 1;
-		return CallVFunc<void*>(index, this, size);
-	}
-
-	void FreeKeyValuesMemory(void* pMem) // @0x1413AA200 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
-	{
-		static int index = 2;
-		CallVFunc<void>(index, this, pMem);
-	}
-
-	HKeySymbol GetSymbolForString(const char* name, bool bCreate) // @0x1413AA208 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
-	{
-		static int index = 3;
-		return CallVFunc<HKeySymbol>(index, this, name, bCreate);
-	}
-
-	const char* GetStringForSymbol(HKeySymbol symbol) // @0x1413AA210 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
-	{
-		static int index = 4;
-		return CallVFunc<const char*>(index, this, symbol);
-	}
-
-	//	void __fastcall CKeyValuesSystem::FreeKeyValuesMemory(CKeyValuesSystem* this_arg, void* ptr_mem_arg)
-	//	{
-	//		__int64* v2; // rax
-	//		__int64 v4; // rax
-	//		__int64* v5; // rax
-	// 
-	//		v2 = qword_14D40B538;
-	//		if (!qword_14D40B538)
-	//		{
-	//			v2 = sub_140462930();
-	//			qword_14D40B538 = v2;
-	//		}
-	//		v4 = (*(*v2 + 48))(v2, ptr_mem_arg);
-	//		if (v4 > 0)
-	//			CKeyValuesSystem::m_pMemPool -= v4;
-	//		v5 = qword_14D40B538;
-	//		if (!qword_14D40B538)
-	//		{
-	//			v5 = sub_140462930();
-	//			qword_14D40B538 = v5;
-	//		}
-	//		(*(*v5 + 40))(v5, ptr_mem_arg);
-	//	}
-
-	// GetMemPool return a global variable called m_pMemPool it gets modified by AllocKeyValuesMemory and FreeKeyValuesMemory above you can see where the find it in FreeKeyValuesMemory.
-	void* GetMemPool() // @0x1413AA228 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
-	{
-		return reinterpret_cast<void*>(g_pKeyValuesMemPool); // May need to dereference this once more not sure right now.
-	}
-
-	void SetKeyValuesExpressionSymbol(const char* name, bool bValue) // @0x1413AA230 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
-	{
-		static int index = 8;
-		CallVFunc<void>(index, this, name, bValue);
-	}
-
-	bool GetKeyValuesExpressionSymbol(const char* name) // @0x1413AA238 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
-	{
-		static int index = 9;
-		return CallVFunc<bool>(index, this, name);
-	}
-
-	HKeySymbol GetSymbolForStringCaseSensitive(HKeySymbol& hCaseInsensitiveSymbol, const char* name, bool bCreate) // @0x1413AA240 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
-	{
-		static int index = 10;
-		return CallVFunc<HKeySymbol>(index, this, hCaseInsensitiveSymbol, name, bCreate);
-	}
-
-// Datatypes aren't accurate. But full fill the actual byte distance.
-public:
-	void*        vtable;                     // 0x0000
-	std::int64_t m_iMaxKeyValuesSize;        // 0x0008
-private:
-	char         gap10[240];                 // 0x0010
-public:
-	int          m_KvConditionalSymbolTable; // 0x0100
-private:
-	char         gap104[4];                  // 0x0104
-public:
-	std::int64_t field_108;                  // 0x0108
-private:
-	char         gap110[32];                 // 0x0110
-public:
-	int          m_mutex;                    // 0x0130
-};
-
 class KeyValues
 {
 public:
 
-	KeyValues* FindKey(const char* keyName, bool bCreate)
-	{
-		static auto func = reinterpret_cast<KeyValues * (__thiscall*)(KeyValues*, const char*, bool)>(KeyValues_FindKey);
-		return func(this, keyName, bCreate);
-	}
+	static void Init(void);
+	KeyValues* FindKey(const char* pKeyName, bool bCreate);
+	const char* GetName(void) const;
+	int GetInt(const char* pKeyName, int nDefaultValue);
+	void SetInt(const char* pKeyName, int iValue);
+	void SetFloat(const char* keyName, float flValue);
 
-	const char* GetName();
-
-	int GetInt(const char* keyName, int defaultValue)
-	{
-		KeyValues* dat = FindKey(keyName, false);
-
-		if (!dat)
-			return defaultValue;
-
-		switch (dat->m_iDataType)
-		{
-			case TYPE_STRING:
-				return atoi(dat->m_sValue);
-			case TYPE_FLOAT:
-				return static_cast<int>(m_flValue());
-			case TYPE_WSTRING:
-				return _wtoi(dat->m_wsValue);
-			case TYPE_UINT64:
-				return 0;
-		default:
-			return dat->m_iValue();
-		}
-
-		return defaultValue;
-	}
-
-	void SetInt(const char* keyName, int iValue)
-	{
-		KeyValues* dat = FindKey(keyName, true);
-		if (dat)
-		{
-			dat->m_iValue() = iValue;
-			dat->m_iDataType = TYPE_INT;
-		}
-	}
-
-	void SetFloat(const char* keyName, float flValue)
-	{
-		KeyValues* dat = FindKey(keyName, true);
-		if (dat)
-		{
-			dat->m_flValue() = flValue;
-			dat->m_iDataType = TYPE_FLOAT;
-		}
-	}
+	static void InitPlaylist(void);
+	static bool LoadPlaylist(const char* szPlaylist);
 
 	// Compiler makes it so m_Value shares the offset spot with m_flValue that why we cast it like this.
 	MEMBER_AT_OFFSET(float, m_flValue, 0x18);
@@ -231,15 +82,10 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-void CKeyValueSystem_InitPlaylist();
-void CKeyValueSystem_Init();
-bool HKeyValues_LoadPlaylist(const char* playlist);
-
 void CKeyValueSystem_Attach();
 void CKeyValueSystem_Detach();
 
 ///////////////////////////////////////////////////////////////////////////////
-extern CKeyValuesSystem* g_pKeyValuesSystem;
 extern KeyValues** g_pPlaylistKeyValues;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -249,11 +95,8 @@ class HKeyValues : public IDetour
 	{
 		std::cout << "| FUN: KeyValues::Init                      : 0x" << std::hex << std::uppercase << p_KeyValues_Init.GetPtr()               << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: KeyValues::FindKey                   : 0x" << std::hex << std::uppercase << p_KeyValues_FindKey.GetPtr()            << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: KeyValues::GetMemPool                : 0x" << std::hex << std::uppercase << p_KeyValues_GetMemPool.GetPtr()         << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: KeyValues::LoadPlaylist              : 0x" << std::hex << std::uppercase << p_KeyValues_LoadPlaylist.GetPtr()       << std::setw(npad) << " |" << std::endl;
 		std::cout << "| FUN: KeyValues::GetCurrentPlaylist        : 0x" << std::hex << std::uppercase << p_KeyValues_GetCurrentPlaylist.GetPtr() << std::setw(npad) << " |" << std::endl;
-		std::cout << "| VAR: g_pKeyValuesMemPool                  : 0x" << std::hex << std::uppercase << g_pKeyValuesMemPool                     << std::setw(npad) << " |" << std::endl;
-		std::cout << "| VAR: g_pKeyValuesSystem                   : 0x" << std::hex << std::uppercase << g_pKeyValuesSystem                      << std::setw(0)    << " |" << std::endl;
 		std::cout << "| VAR: g_pPlaylistKeyValues                 : 0x" << std::hex << std::uppercase << g_pPlaylistKeyValues                    << std::setw(0)    << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
