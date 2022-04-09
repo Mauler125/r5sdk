@@ -14,7 +14,7 @@ namespace R5Net
 		std::vector<ServerListing> GetServersList(std::string& svOutMessage);
 		bool PostServerHost(std::string& svOutMessage, std::string& svOutToken, const ServerListing& slServerListing);
 		bool GetServerByToken(ServerListing& slOutServer, std::string& svOutMessage, const std::string svToken);
-		bool GetClientIsBanned(std::string svIpAddress, std::int64_t nOriginID, std::string& svOutErrCl);
+		bool GetClientIsBanned(std::string svIpAddress, int64_t nOriginID, std::string& svOutErrCl);
 		std::string GetSDKVersion();
 
 		Client* pR5net = nullptr;

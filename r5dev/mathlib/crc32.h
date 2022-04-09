@@ -1,9 +1,6 @@
 #pragma once
 #include <stdint.h>
 
-namespace
-{
-}
 class crc32
 {
 	static inline uint32_t s_crc32[16] =

@@ -66,17 +66,15 @@
 #include "common/sdktypes.h"
 
 #if !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
-namespace
-{
 #if !defined (DEDICATED)
-	MODULE g_mGameDll = MODULE("r5apex.exe");
-	MODULE g_mRadVideoToolsDll   = MODULE("bink2w64.dll");
-	MODULE g_mRadAudioDecoderDll = MODULE("binkawin64.dll");
-	MODULE g_mRadAudioSystemDll  = MODULE("mileswin64.dll");
+inline MODULE g_mGameDll = MODULE("r5apex.exe");
+inline MODULE g_mRadVideoToolsDll   = MODULE("bink2w64.dll");
+inline MODULE g_mRadAudioDecoderDll = MODULE("binkawin64.dll");
+inline MODULE g_mRadAudioSystemDll  = MODULE("mileswin64.dll");
 #else // No DirectX and Miles imports.
-	MODULE g_mGameDll = MODULE("r5apex_ds.exe");
+inline MODULE g_mGameDll = MODULE("r5apex_ds.exe");
 #endif // !DEDICATED
-}
+
 #define VAR_NAME(varName)  #varName
 
 #define MEMBER_AT_OFFSET(varType, varName, offset)             \

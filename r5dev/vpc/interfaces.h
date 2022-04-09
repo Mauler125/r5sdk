@@ -87,12 +87,9 @@ private:
 };
 extern CFactory* g_pFactory;
 
-namespace
-{
-	/* ==== s_pInterfaceRegs ==================================================================================================================================================== */
-	ADDRESS s_pInterfacesRegs = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE9\x00\x00\x00\x00\xCC\xCC\x89\x91\x00\x00\x00\x00"), "x????xxxx????")
-		.FollowNearCallSelf().FindPatternSelf("48 8B 1D", ADDRESS::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7);
-}
+/* ==== s_pInterfaceRegs ==================================================================================================================================================== */
+inline ADDRESS s_pInterfacesRegs = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE9\x00\x00\x00\x00\xCC\xCC\x89\x91\x00\x00\x00\x00"), "x????xxxx????")
+	.FollowNearCallSelf().FindPatternSelf("48 8B 1D", ADDRESS::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7);
 
 ///////////////////////////////////////////////////////////////////////////////
 class HFactory : public IDetour

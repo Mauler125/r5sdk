@@ -4,74 +4,71 @@
 #include "client/cdll_engine_int.h"
 #endif // !DEDICATED
 
-namespace
-{
-	/* ==== SQUIRREL ======================================================================================================================================================== */
-	ADDRESS p_SQVM_PrintFunc = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x89\x50\x10\x4C\x89\x40\x18\x4C\x89\x48\x20\x53\x56\x57\x48\x81\xEC\x30\x08\x00\x00\x48\x8B\xDA\x48\x8D\x70\x18\x48\x8B\xF9\xE8\x00\x00\x00\xFF\x48\x89\x74\x24\x28\x48\x8D\x54\x24\x30\x33"), "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx???xxxxxxxxxxxx");
-	SQRESULT (*SQVM_PrintFunc)(HSQUIRRELVM v, SQChar* fmt, ...) = (SQRESULT (*)(HSQUIRRELVM, SQChar*, ...))p_SQVM_PrintFunc.GetPtr(); /*48 8B C4 48 89 50 10 4C 89 40 18 4C 89 48 20 53 56 57 48 81 EC 30 08 00 00 48 8B DA 48 8D 70 18 48 8B F9 E8 ?? ?? ?? FF 48 89 74 24 28 48 8D 54 24 30 33*/
+/* ==== SQUIRREL ======================================================================================================================================================== */
+inline ADDRESS p_SQVM_PrintFunc = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x89\x50\x10\x4C\x89\x40\x18\x4C\x89\x48\x20\x53\x56\x57\x48\x81\xEC\x30\x08\x00\x00\x48\x8B\xDA\x48\x8D\x70\x18\x48\x8B\xF9\xE8\x00\x00\x00\xFF\x48\x89\x74\x24\x28\x48\x8D\x54\x24\x30\x33"), "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx???xxxxxxxxxxxx");
+inline SQRESULT (*SQVM_PrintFunc)(HSQUIRRELVM v, SQChar* fmt, ...) = (SQRESULT (*)(HSQUIRRELVM, SQChar*, ...))p_SQVM_PrintFunc.GetPtr(); /*48 8B C4 48 89 50 10 4C 89 40 18 4C 89 48 20 53 56 57 48 81 EC 30 08 00 00 48 8B DA 48 8D 70 18 48 8B F9 E8 ?? ?? ?? FF 48 89 74 24 28 48 8D 54 24 30 33*/
 
-	ADDRESS p_SQVM_WarningFunc = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x89\x4C\x24\x20\x44\x89\x44\x24\x18\x89\x54\x24\x10\x53\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x00\x48\x8B"), "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx?xx");
-	SQRESULT (*SQVM_WarningFunc)(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* nStringSize, SQChar** ppString) = (SQRESULT (*)(HSQUIRRELVM, SQInteger, SQInteger, SQInteger*, SQChar**))p_SQVM_WarningFunc.GetPtr(); /*4C 89 4C 24 20 44 89 44 24 18 89 54 24 10 53 55 56 57 41 54 41 55 41 56 41 57 48 83 EC ?? 48 8B*/
+inline ADDRESS p_SQVM_WarningFunc = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x89\x4C\x24\x20\x44\x89\x44\x24\x18\x89\x54\x24\x10\x53\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x00\x48\x8B"), "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx?xx");
+inline SQRESULT (*SQVM_WarningFunc)(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* nStringSize, SQChar** ppString) = (SQRESULT (*)(HSQUIRRELVM, SQInteger, SQInteger, SQInteger*, SQChar**))p_SQVM_WarningFunc.GetPtr(); /*4C 89 4C 24 20 44 89 44 24 18 89 54 24 10 53 55 56 57 41 54 41 55 41 56 41 57 48 83 EC ?? 48 8B*/
 
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	ADDRESS p_SQVM_GetErrorLine = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x83\x65\x90\xFC"), "xxxx?xxxx?xxxx?xxxxxxxxxxxxx????xxx????xxxx");
-	size_t (*SQVM_GetErrorLine)(const SQChar* pszFile, SQInteger nLine, SQChar* pszContextBuf, SQInteger nBufLen) = (size_t (*)(const SQChar*, SQInteger, SQChar*, SQInteger))p_SQVM_GetErrorLine.GetPtr(); /*48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 55 41 54 41 55 41 56 41 57 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ? 83 65 90 FC*/
+inline ADDRESS p_SQVM_GetErrorLine = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x83\x65\x90\xFC"), "xxxx?xxxx?xxxx?xxxxxxxxxxxxx????xxx????xxxx");
+inline size_t (*SQVM_GetErrorLine)(const SQChar* pszFile, SQInteger nLine, SQChar* pszContextBuf, SQInteger nBufLen) = (size_t (*)(const SQChar*, SQInteger, SQChar*, SQInteger))p_SQVM_GetErrorLine.GetPtr(); /*48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 55 41 54 41 55 41 56 41 57 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ? 83 65 90 FC*/
 
-	ADDRESS p_SQVM_LoadScript = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x10\x48\x89\x74\x24\x18\x48\x89\x7C\x24\x20\x48\x89\x4C\x24\x08\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C"), "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-	SQBool (*SQVM_LoadScript)(HSQUIRRELVM v, const SQChar* szScriptPath, const SQChar* szScriptName, SQInteger nFlag) = (SQBool (*)(HSQUIRRELVM, const SQChar*, const SQChar*, SQInteger))p_SQVM_LoadScript.GetPtr(); /*48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 48 89 4C 24 08 55 41 54 41 55 41 56 41 57 48 8D 6C*/
+inline ADDRESS p_SQVM_LoadScript = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x10\x48\x89\x74\x24\x18\x48\x89\x7C\x24\x20\x48\x89\x4C\x24\x08\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C"), "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+inline SQBool (*SQVM_LoadScript)(HSQUIRRELVM v, const SQChar* szScriptPath, const SQChar* szScriptName, SQInteger nFlag) = (SQBool (*)(HSQUIRRELVM, const SQChar*, const SQChar*, SQInteger))p_SQVM_LoadScript.GetPtr(); /*48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 48 89 4C 24 08 55 41 54 41 55 41 56 41 57 48 8D 6C*/
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	ADDRESS p_SQVM_GetErrorLine = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x55\x56\x48\x8D\xA8\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x83\x65\x90\xFC"), "xxxxxxxx????xxx????xxxx");
-	size_t (*SQVM_GetErrorLine)(const SQChar* pszFile, SQInteger nLine, SQChar* pszContextBuf, SQInteger nBufLen) = (size_t (*)(const SQChar*, SQInteger, SQChar*, SQInteger))p_SQVM_GetErrorLine.GetPtr(); /*48 8B C4 55 56 48 8D A8 ? ? ? ? 48 81 EC ? ? ? ? 83 65 90 FC*/
+inline ADDRESS p_SQVM_GetErrorLine = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x55\x56\x48\x8D\xA8\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x83\x65\x90\xFC"), "xxxxxxxx????xxx????xxxx");
+inline size_t (*SQVM_GetErrorLine)(const SQChar* pszFile, SQInteger nLine, SQChar* pszContextBuf, SQInteger nBufLen) = (size_t (*)(const SQChar*, SQInteger, SQChar*, SQInteger))p_SQVM_GetErrorLine.GetPtr(); /*48 8B C4 55 56 48 8D A8 ? ? ? ? 48 81 EC ? ? ? ? 83 65 90 FC*/
 
-	ADDRESS p_SQVM_LoadScript = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x89\x48\x08\x55\x41\x56\x48\x8D\x68"), "xxxxxxxxxxxxx"); /*48 8B C4 48 89 48 08 55 41 56 48 8D 68*/
-	SQBool (*SQVM_LoadScript)(HSQUIRRELVM v, const SQChar* szScriptPath, const SQChar* szScriptName, SQInteger nFlag) = (SQBool (*)(HSQUIRRELVM, const SQChar*, const SQChar*, SQInteger))p_SQVM_LoadScript.GetPtr();
+inline ADDRESS p_SQVM_LoadScript = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x89\x48\x08\x55\x41\x56\x48\x8D\x68"), "xxxxxxxxxxxxx"); /*48 8B C4 48 89 48 08 55 41 56 48 8D 68*/
+inline SQBool (*SQVM_LoadScript)(HSQUIRRELVM v, const SQChar* szScriptPath, const SQChar* szScriptName, SQInteger nFlag) = (SQBool (*)(HSQUIRRELVM, const SQChar*, const SQChar*, SQInteger))p_SQVM_LoadScript.GetPtr();
 #endif
-	ADDRESS p_SQVM_LoadRson = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x8B\xDC\x49\x89\x5B\x08\x57\x48\x81\xEC\xA0\x00\x00\x00\x33"), "xxxxxxxxxxxxxxxx");
-	SQInteger (*SQVM_LoadRson)(const SQChar* szRsonName) = (SQInteger (*)(const SQChar*))p_SQVM_LoadRson.GetPtr(); /*4C 8B DC 49 89 5B 08 57 48 81 EC A0 00 00 00 33*/
+inline ADDRESS p_SQVM_LoadRson = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x8B\xDC\x49\x89\x5B\x08\x57\x48\x81\xEC\xA0\x00\x00\x00\x33"), "xxxxxxxxxxxxxxxx");
+inline SQInteger (*SQVM_LoadRson)(const SQChar* szRsonName) = (SQInteger (*)(const SQChar*))p_SQVM_LoadRson.GetPtr(); /*4C 8B DC 49 89 5B 08 57 48 81 EC A0 00 00 00 33*/
 
-	ADDRESS p_SQVM_WarningCmd = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x30\x33\xDB\x48\x8D\x44\x24\x00\x4C\x8D\x4C\x24\x00"), "xxxxxxxxxxxx?xxxx?");
-	SQRESULT (*SQVM_WarningCmd)(HSQUIRRELVM v, SQInteger a2) = (SQRESULT (*)(HSQUIRRELVM, SQInteger))p_SQVM_WarningCmd.GetPtr(); /*40 53 48 83 EC 30 33 DB 48 8D 44 24 ?? 4C 8D 4C 24 ??*/
+inline ADDRESS p_SQVM_WarningCmd = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x30\x33\xDB\x48\x8D\x44\x24\x00\x4C\x8D\x4C\x24\x00"), "xxxxxxxxxxxx?xxxx?");
+inline SQRESULT (*SQVM_WarningCmd)(HSQUIRRELVM v, SQInteger a2) = (SQRESULT (*)(HSQUIRRELVM, SQInteger))p_SQVM_WarningCmd.GetPtr(); /*40 53 48 83 EC 30 33 DB 48 8D 44 24 ?? 4C 8D 4C 24 ??*/
 
-	ADDRESS p_SQVM_RegisterFunc = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x38\x45\x0F\xB6\xC8"), "xxxxxxxx"); /*48 83 EC 38 45 0F B6 C8*/
-	SQRESULT (*SQVM_RegisterFunc)(HSQUIRRELVM v, SQFuncRegistration* sqFunc, SQInteger a1) = (SQRESULT (*)(HSQUIRRELVM, SQFuncRegistration*, SQInteger))p_SQVM_RegisterFunc.GetPtr();
+inline ADDRESS p_SQVM_RegisterFunc = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x38\x45\x0F\xB6\xC8"), "xxxxxxxx"); /*48 83 EC 38 45 0F B6 C8*/
+inline SQRESULT (*SQVM_RegisterFunc)(HSQUIRRELVM v, SQFuncRegistration* sqFunc, SQInteger a1) = (SQRESULT (*)(HSQUIRRELVM, SQFuncRegistration*, SQInteger))p_SQVM_RegisterFunc.GetPtr();
 
-	ADDRESS p_SQVM_CompileError = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xD9\x4C\x8B\xF2"), "xxxx?xxxx?xxxx?xxxx?xxxxx????xxxxxx");
-	void (*SQVM_CompileError)(HSQUIRRELVM v, const SQChar* pszError, const SQChar* pszFile, SQUnsignedInteger nLine, SQInteger nColumn) = (void (*)(HSQUIRRELVM, const SQChar*, const SQChar*, SQUnsignedInteger, SQInteger))p_SQVM_CompileError.GetPtr(); /*48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 81 EC ? ? ? ? 48 8B D9 4C 8B F2*/
+inline ADDRESS p_SQVM_CompileError = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xD9\x4C\x8B\xF2"), "xxxx?xxxx?xxxx?xxxx?xxxxx????xxxxxx");
+inline void (*SQVM_CompileError)(HSQUIRRELVM v, const SQChar* pszError, const SQChar* pszFile, SQUnsignedInteger nLine, SQInteger nColumn) = (void (*)(HSQUIRRELVM, const SQChar*, const SQChar*, SQUnsignedInteger, SQInteger))p_SQVM_CompileError.GetPtr(); /*48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 81 EC ? ? ? ? 48 8B D9 4C 8B F2*/
 #if !defined (CLIENT_DLL)
-	ADDRESS p_SQVM_InitializeSVGlobalScriptStructs = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x30\x48\x8B\x3D\x00\x00\x00\x00\x48\x8B\xF1"), "xxxx?xxxxxxxx????xxx");
-	void (*SQVM_InitializeSVGlobalScriptStructs)(SQVM* vtable) = (void (*)(SQVM*))p_SQVM_InitializeSVGlobalScriptStructs.GetPtr(); /*48 89 74 24 ? 57 48 83 EC 30 48 8B 3D ? ? ? ? 48 8B F1*/
+inline ADDRESS p_SQVM_InitializeSVGlobalScriptStructs = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x30\x48\x8B\x3D\x00\x00\x00\x00\x48\x8B\xF1"), "xxxx?xxxxxxxx????xxx");
+inline void (*SQVM_InitializeSVGlobalScriptStructs)(SQVM* vtable) = (void (*)(SQVM*))p_SQVM_InitializeSVGlobalScriptStructs.GetPtr(); /*48 89 74 24 ? 57 48 83 EC 30 48 8B 3D ? ? ? ? 48 8B F1*/
 #endif // !CLIENT_DLL
 #if !defined (DEDICATED)
-	ADDRESS p_SQVM_InitializeCLGlobalScriptStructs = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x83\xEC\x30\x48\x63\xC2\x48\x8D\x3D\x00\x00\x00\x00"), "xxxx?xxxx?xxxxxxxxxxxx????");
-	SQRESULT (*SQVM_InitializeCLGlobalScriptStructs)(SQVM* vtable, SQCONTEXT context) = (SQRESULT (*)(SQVM*, SQCONTEXT))p_SQVM_InitializeCLGlobalScriptStructs.GetPtr(); /*48 89 74 24 ? 48 89 7C 24 ? 41 56 48 83 EC 30 48 63 C2 48 8D 3D ? ? ? ?*/
+inline ADDRESS p_SQVM_InitializeCLGlobalScriptStructs = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x83\xEC\x30\x48\x63\xC2\x48\x8D\x3D\x00\x00\x00\x00"), "xxxx?xxxx?xxxxxxxxxxxx????");
+inline SQRESULT (*SQVM_InitializeCLGlobalScriptStructs)(SQVM* vtable, SQCONTEXT context) = (SQRESULT (*)(SQVM*, SQCONTEXT))p_SQVM_InitializeCLGlobalScriptStructs.GetPtr(); /*48 89 74 24 ? 48 89 7C 24 ? 41 56 48 83 EC 30 48 63 C2 48 8D 3D ? ? ? ?*/
 #endif // !DEDICATED
 #if !defined (CLIENT_DLL) && defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	ADDRESS p_SQVM_CreateServerVM = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x50\x48\x8D\x0D\x00\x00\x00\x00"), "xxxxxxxxx????");
-	SQBool (*SQVM_CreateServerVM)() = (SQBool(*)())p_SQVM_CreateServerVM.GetPtr(); /*40 53 48 83 EC 50 48 8D 0D ? ? ? ?*/
+inline ADDRESS p_SQVM_CreateServerVM = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x50\x48\x8D\x0D\x00\x00\x00\x00"), "xxxxxxxxx????");
+inline SQBool (*SQVM_CreateServerVM)() = (SQBool(*)())p_SQVM_CreateServerVM.GetPtr(); /*40 53 48 83 EC 50 48 8D 0D ? ? ? ?*/
 #elif !defined (CLIENT_DLL) && defined (GAMEDLL_S3) || defined (GAMEDLL_S2)
-	ADDRESS p_SQVM_CreateServerVM = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x56\x48\x83\xEC\x48\x48\x8D\x0D\x00\x00\x00\x00"), "xxxxxxxxxx????");
-	SQBool(*SQVM_CreateServerVM)() = (SQBool(*)())p_SQVM_CreateServerVM.GetPtr(); /*40 53 56 48 83 EC 48 48 8D 0D ? ? ? ?*/
+inline ADDRESS p_SQVM_CreateServerVM = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x56\x48\x83\xEC\x48\x48\x8D\x0D\x00\x00\x00\x00"), "xxxxxxxxxx????");
+inline SQBool(*SQVM_CreateServerVM)() = (SQBool(*)())p_SQVM_CreateServerVM.GetPtr(); /*40 53 56 48 83 EC 48 48 8D 0D ? ? ? ?*/
 #endif
 #if !defined (DEDICATED) && defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
-	ADDRESS p_SQVM_CreateClientVM = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x58\x48\x83\x3D\x00\x00\x00\x00\x00\x74\x05"), "xxxxxxx?????xx");
-	SQBool(*SQVM_CreateClientVM)(CHLClient* hlclient) = (SQBool(*)(CHLClient*))p_SQVM_CreateClientVM.GetPtr(); /*48 83 EC 58 48 83 3D ? ? ? ? ? 74 05*/
+inline ADDRESS p_SQVM_CreateClientVM = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x58\x48\x83\x3D\x00\x00\x00\x00\x00\x74\x05"), "xxxxxxx?????xx");
+inline SQBool(*SQVM_CreateClientVM)(CHLClient* hlclient) = (SQBool(*)(CHLClient*))p_SQVM_CreateClientVM.GetPtr(); /*48 83 EC 58 48 83 3D ? ? ? ? ? 74 05*/
 #elif !defined (DEDICATED) && defined (GAMEDLL_S3)
-	ADDRESS p_SQVM_CreateClientVM = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x57\x48\x83\xEC\x68\x48\x83\x3D\x00\x00\x00\x00\x00"), "xxxxxxxxxxx?????");
-	SQBool(*SQVM_CreateClientVM)(CHLClient* hlclient) = (SQBool(*)(CHLClient*))p_SQVM_CreateClientVM.GetPtr(); /*40 53 41 57 48 83 EC 68 48 83 3D ? ? ? ? ?*/
+inline ADDRESS p_SQVM_CreateClientVM = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x57\x48\x83\xEC\x68\x48\x83\x3D\x00\x00\x00\x00\x00"), "xxxxxxxxxxx?????");
+inline SQBool(*SQVM_CreateClientVM)(CHLClient* hlclient) = (SQBool(*)(CHLClient*))p_SQVM_CreateClientVM.GetPtr(); /*40 53 41 57 48 83 EC 68 48 83 3D ? ? ? ? ?*/
 #endif
 #if !defined (DEDICATED)
-	ADDRESS p_SQVM_CreateUIVM = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x48\x8B\x1D\x00\x00\x00\x00\xC6\x05\x00\x00\x00\x00\x00"), "xxxxxxxxx????xx?????");
-	SQBool(*SQVM_CreateUIVM)() = (SQBool(*)())p_SQVM_CreateUIVM.GetPtr(); /*40 53 48 83 EC 20 48 8B 1D ? ? ? ? C6 05 ? ? ? ? ?*/
+inline ADDRESS p_SQVM_CreateUIVM = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x48\x8B\x1D\x00\x00\x00\x00\xC6\x05\x00\x00\x00\x00\x00"), "xxxxxxxxx????xx?????");
+inline SQBool(*SQVM_CreateUIVM)() = (SQBool(*)())p_SQVM_CreateUIVM.GetPtr(); /*40 53 48 83 EC 20 48 8B 1D ? ? ? ? C6 05 ? ? ? ? ?*/
 #endif // !DEDICATED
 
 #if !defined (CLIENT_DLL)
-	ADDRESS g_pServerVM = p_SQVM_CreateServerVM.FindPatternSelf("48 89 1D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
+inline ADDRESS g_pServerVM = p_SQVM_CreateServerVM.FindPatternSelf("48 89 1D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
 #endif // !CLIENT_DLL
 #if !defined (DEDICATED)
-	ADDRESS g_pClientVM = p_SQVM_CreateClientVM.FindPatternSelf("48 83 3D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x8);
-	ADDRESS g_pUIVM = p_SQVM_CreateUIVM.FindPatternSelf("48 8B 1D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
+inline ADDRESS g_pClientVM = p_SQVM_CreateClientVM.FindPatternSelf("48 83 3D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x8);
+inline ADDRESS g_pUIVM = p_SQVM_CreateUIVM.FindPatternSelf("48 8B 1D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
 #endif // !DEDICATED
-}
 
 SQRESULT HSQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...);
 SQRESULT HSQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* nStringSize, SQChar** ppString);

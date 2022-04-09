@@ -1,18 +1,19 @@
 #pragma once
 #include "squirrel/sqapi.h"
 
-namespace
-{
-	ADDRESS p_Script_Remote_BeginRegisteringFunctions = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x83\x3D\x00\x00\x00\x00\x00\x74\x10"), "xxxxxx?????xx");
-	void* Script_Remote_BeginRegisteringFunctions = (void*)p_Script_Remote_BeginRegisteringFunctions.GetPtr(); /*48 83 EC 28 83 3D ?? ?? ?? ?? ?? 74 10*/
+inline ADDRESS p_Script_Remote_BeginRegisteringFunctions = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x83\x3D\x00\x00\x00\x00\x00\x74\x10"), "xxxxxx?????xx");
+inline void* Script_Remote_BeginRegisteringFunctions = (void*)p_Script_Remote_BeginRegisteringFunctions.GetPtr(); /*48 83 EC 28 83 3D ?? ?? ?? ?? ?? 74 10*/
 
-	ADDRESS p_RestoreRemoteChecksumsFromSaveGame = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x4C\x24\x00\x41\x54\x48\x83\xEC\x40"), "xxxx?xxxxxx");
-	void* (*RestoreRemoteChecksumsFromSaveGame)(void* a1, void* a2) = (void* (*)(void*, void*))p_RestoreRemoteChecksumsFromSaveGame.GetPtr(); /*48 89 4C 24 ? 41 54 48 83 EC 40*/
+inline ADDRESS p_RestoreRemoteChecksumsFromSaveGame = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x4C\x24\x00\x41\x54\x48\x83\xEC\x40"), "xxxx?xxxxxx");
+inline void* (*RestoreRemoteChecksumsFromSaveGame)(void* a1, void* a2) = (void* (*)(void*, void*))p_RestoreRemoteChecksumsFromSaveGame.GetPtr(); /*48 89 4C 24 ? 41 54 48 83 EC 40*/
 
-	/* CHANGE THIS WHEN SWITCHING TO PYLONV2 TO UNSIGNED AGAIN!*/
-	std::int32_t* g_nServerRemoteChecksum = reinterpret_cast<std::int32_t*>(p_RestoreRemoteChecksumsFromSaveGame.Offset(0x1C0).FindPatternSelf("48 8D 15", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr());
-	std::int32_t* g_nClientRemoteChecksum = reinterpret_cast<std::int32_t*>(p_Script_Remote_BeginRegisteringFunctions.Offset(0x0).FindPatternSelf("89 05", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).GetPtr());
-}
+/* CHANGE THESE WHEN SWITCHING TO PYLONV2 TO UNSIGNED AGAIN!*/
+#ifndef CLIENT_DLL
+inline int32_t* g_nServerRemoteChecksum = reinterpret_cast<int32_t*>(p_RestoreRemoteChecksumsFromSaveGame.Offset(0x1C0).FindPatternSelf("48 8D 15", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr());
+#endif // !CLIENT_DLL
+#ifndef DEDICATED
+inline int32_t* g_nClientRemoteChecksum = reinterpret_cast<int32_t*>(p_Script_Remote_BeginRegisteringFunctions.Offset(0x0).FindPatternSelf("89 05", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).GetPtr());
+#endif // !DEDICATED
 
 namespace VSquirrel
 {

@@ -10,7 +10,6 @@ enum
 enum
 {
 	c2s_connect = 1,
-
 	c2s_num_messages
 };
 

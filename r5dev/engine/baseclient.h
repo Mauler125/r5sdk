@@ -69,24 +69,22 @@ static_assert(sizeof(CBaseClient) == 0x4A4C0);
 #endif
 
 
-namespace
-{
-	/* ==== CBASECLIENT ===================================================================================================================================================== */
-	ADDRESS p_CBaseClient_Connect = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74"), "xxxxxxxxxxxxxxxx"); /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
-	bool (*CBaseClient_Connect)(CBaseClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize) = (bool (*)(CBaseClient*, const char*, void*, bool, void*, char*, int))p_CBaseClient_Connect.GetPtr();
+/* ==== CBASECLIENT ===================================================================================================================================================== */
+inline ADDRESS p_CBaseClient_Connect = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74"), "xxxxxxxxxxxxxxxx"); /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
+inline bool (*CBaseClient_Connect)(CBaseClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize) = (bool (*)(CBaseClient*, const char*, void*, bool, void*, char*, int))p_CBaseClient_Connect.GetPtr();
 
-	ADDRESS p_CBaseClient_Clear = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74"), "xxxxxxxxxxxxxxxx");
-	void (*CBaseClient_Clear)(CBaseClient* pClient) = (void (*)(CBaseClient*))p_CBaseClient_Clear.GetPtr(); /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
+inline ADDRESS p_CBaseClient_Clear = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74"), "xxxxxxxxxxxxxxxx");
+inline void (*CBaseClient_Clear)(CBaseClient* pClient) = (void (*)(CBaseClient*))p_CBaseClient_Clear.GetPtr(); /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
 
-	static ADDRESS g_pClientBuffer = p_IVEngineServer__PersistenceAvailable.FindPatternSelf("48 8D 0D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
+inline ADDRESS g_pClientBuffer = p_IVEngineServer__PersistenceAvailable.FindPatternSelf("48 8D 0D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
 
-	// Notes for earlier seasons.
+// Notes for earlier seasons.
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	const std::uintptr_t g_dwCClientSize = 0x4A440;
-	const std::uintptr_t g_dwPersistenceVar = 0x5B4;
-	const std::uintptr_t g_dwCClientPadding = 0x49E88;
+inline const std::uintptr_t g_dwCClientSize = 0x4A440;
+inline const std::uintptr_t g_dwPersistenceVar = 0x5B4;
+inline const std::uintptr_t g_dwCClientPadding = 0x49E88;
 #endif
-}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 void CBaseClient_Attach();

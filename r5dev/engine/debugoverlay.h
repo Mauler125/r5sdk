@@ -99,41 +99,38 @@ void DrawOverlay(OverlayBase_t* pOverlay);
 void DebugOverlays_Attach();
 void DebugOverlays_Detach();
 
-namespace
-{
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	ADDRESS p_DrawAllOverlays = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x55\x48\x83\xEC\x50\x48\x8B\x05\x00\x00\x00\x00"), "xxxxxxxxx????");
-	void (*DrawAllOverlays)(char a1) = (void (*)(char))p_DrawAllOverlays.GetPtr(); /*40 55 48 83 EC 50 48 8B 05 ? ? ? ?*/
+inline ADDRESS p_DrawAllOverlays = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x55\x48\x83\xEC\x50\x48\x8B\x05\x00\x00\x00\x00"), "xxxxxxxxx????");
+inline void (*DrawAllOverlays)(char a1) = (void (*)(char))p_DrawAllOverlays.GetPtr(); /*40 55 48 83 EC 50 48 8B 05 ? ? ? ?*/
 
-	ADDRESS p_RenderBox = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x44\x89\x4C\x24\x00"), "xxxx?xxxx?xxxx?"); /*48 89 5C 24 ? 48 89 6C 24 ? 44 89 4C 24 ?*/
-	void* (*RenderBox)(Vector3 origin, QAngle angles, Vector3 vMins, Vector3 vMaxs, Color color, bool bZBuffer) = (void* (*)(Vector3, QAngle, Vector3, Vector3, Color, bool))p_RenderBox.GetPtr();
+inline ADDRESS p_RenderBox = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x44\x89\x4C\x24\x00"), "xxxx?xxxx?xxxx?"); /*48 89 5C 24 ? 48 89 6C 24 ? 44 89 4C 24 ?*/
+inline void* (*RenderBox)(Vector3 origin, QAngle angles, Vector3 vMins, Vector3 vMaxs, Color color, bool bZBuffer) = (void* (*)(Vector3, QAngle, Vector3, Vector3, Color, bool))p_RenderBox.GetPtr();
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	ADDRESS p_DrawAllOverlays = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x55\x48\x83\xEC\x30\x48\x8B\x05\x00\x00\x00\x00\x0F\xB6\xE9"), "xxxxxxxxx????xxx");
-	void (*DrawAllOverlays)(char a1) = (void (*)(char))p_DrawAllOverlays.GetPtr(); /*40 55 48 83 EC 30 48 8B 05 ? ? ? ? 0F B6 E9*/
+inline ADDRESS p_DrawAllOverlays = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x55\x48\x83\xEC\x30\x48\x8B\x05\x00\x00\x00\x00\x0F\xB6\xE9"), "xxxxxxxxx????xxx");
+inline void (*DrawAllOverlays)(char a1) = (void (*)(char))p_DrawAllOverlays.GetPtr(); /*40 55 48 83 EC 30 48 8B 05 ? ? ? ? 0F B6 E9*/
 
-	ADDRESS p_RenderBox = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x44\x89\x4C\x24\x00"), "xxxx?xxxx?xxxx?"); /*48 89 5C 24 ? 48 89 6C 24 ? 44 89 4C 24 ?*/
-	void* (*RenderBox)(Vector3 origin, QAngle angles, Vector3 vMins, Vector3 vMaxs, Color color, bool bZBuffer) = (void* (*)(Vector3, QAngle, Vector3, Vector3, Color, bool))p_RenderBox.GetPtr();
+inline ADDRESS p_RenderBox = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x44\x89\x4C\x24\x00"), "xxxx?xxxx?xxxx?"); /*48 89 5C 24 ? 48 89 6C 24 ? 44 89 4C 24 ?*/
+inline void* (*RenderBox)(Vector3 origin, QAngle angles, Vector3 vMins, Vector3 vMaxs, Color color, bool bZBuffer) = (void* (*)(Vector3, QAngle, Vector3, Vector3, Color, bool))p_RenderBox.GetPtr();
 #endif
-	ADDRESS p_RenderLine = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x74\x24\x00\x44\x89\x44\x24\x00\x57\x41\x56"), "xxxx?xxxx?xxx"); /*48 89 74 24 ? 44 89 44 24 ? 57 41 56*/
-	void* (*RenderLine)(Vector3 origin, Vector3 dest, Color color, bool bZBuffer) = (void* (*)(Vector3, Vector3, Color, bool))p_RenderLine.GetPtr();
+inline ADDRESS p_RenderLine = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x74\x24\x00\x44\x89\x44\x24\x00\x57\x41\x56"), "xxxx?xxxx?xxx"); /*48 89 74 24 ? 44 89 44 24 ? 57 41 56*/
+inline void* (*RenderLine)(Vector3 origin, Vector3 dest, Color color, bool bZBuffer) = (void* (*)(Vector3, Vector3, Color, bool))p_RenderLine.GetPtr();
 
-	ADDRESS p_DestroyOverlay = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x48\x8B\xD9\x48\x8D\x0D\x00\x00\x00\x00\xFF\x15\x00\x00\x00\x00\x48\x63\x03"), "xxxxxxxxxxxx????xx????xxx");
-	void (*DestroyOverlay)(void* pOverlay) = (void (*)(void*))p_DestroyOverlay.GetPtr(); /*40 53 48 83 EC 20 48 8B D9 48 8D 0D ? ? ? ? FF 15 ? ? ? ? 48 63 03 */
+inline ADDRESS p_DestroyOverlay = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x48\x8B\xD9\x48\x8D\x0D\x00\x00\x00\x00\xFF\x15\x00\x00\x00\x00\x48\x63\x03"), "xxxxxxxxxxxx????xx????xxx");
+inline void (*DestroyOverlay)(void* pOverlay) = (void (*)(void*))p_DestroyOverlay.GetPtr(); /*40 53 48 83 EC 20 48 8B D9 48 8D 0D ? ? ? ? FF 15 ? ? ? ? 48 63 03 */
 
-	int* client_debugdraw_int_unk = p_DrawAllOverlays.Offset(0xC0).FindPatternSelf("F3 0F 59", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x4, 0x8).RCast<int*>();
-	float* client_debugdraw_float_unk = p_DrawAllOverlays.Offset(0xD0).FindPatternSelf("F3 0F 10", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x4, 0x8).RCast<float*>();
+inline int* client_debugdraw_int_unk = p_DrawAllOverlays.Offset(0xC0).FindPatternSelf("F3 0F 59", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x4, 0x8).RCast<int*>();
+inline float* client_debugdraw_float_unk = p_DrawAllOverlays.Offset(0xD0).FindPatternSelf("F3 0F 10", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x4, 0x8).RCast<float*>();
 
-	OverlayBase_t** s_pOverlays = p_DrawAllOverlays.Offset(0x10).FindPatternSelf("48 8B 3D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).RCast<OverlayBase_t**>();
-	LPCRITICAL_SECTION s_OverlayMutex = p_DrawAllOverlays.Offset(0x10).FindPatternSelf("48 8D 0D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).RCast<LPCRITICAL_SECTION>();
+inline OverlayBase_t** s_pOverlays = p_DrawAllOverlays.Offset(0x10).FindPatternSelf("48 8B 3D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).RCast<OverlayBase_t**>();
+inline LPCRITICAL_SECTION s_OverlayMutex = p_DrawAllOverlays.Offset(0x10).FindPatternSelf("48 8D 0D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).RCast<LPCRITICAL_SECTION>();
 
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	int* render_tickcount = p_DrawAllOverlays.Offset(0x80).FindPatternSelf("3B 0D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).RCast<int*>();
-	int* overlay_tickcount = p_DrawAllOverlays.Offset(0x70).FindPatternSelf("3B 0D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).RCast<int*>();
+inline int* render_tickcount = p_DrawAllOverlays.Offset(0x80).FindPatternSelf("3B 0D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).RCast<int*>();
+inline int* overlay_tickcount = p_DrawAllOverlays.Offset(0x70).FindPatternSelf("3B 0D", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).RCast<int*>();
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	int* render_tickcount = p_DrawAllOverlays.Offset(0x50).FindPatternSelf("3B 05", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).RCast<int*>();
-	int* overlay_tickcount = p_DrawAllOverlays.Offset(0x70).FindPatternSelf("3B 05", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).RCast<int*>();
+inline int* render_tickcount = p_DrawAllOverlays.Offset(0x50).FindPatternSelf("3B 05", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).RCast<int*>();
+inline int* overlay_tickcount = p_DrawAllOverlays.Offset(0x70).FindPatternSelf("3B 05", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).RCast<int*>();
 #endif
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 class HDebugOverlay : public IDetour

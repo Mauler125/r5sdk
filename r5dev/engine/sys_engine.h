@@ -52,15 +52,12 @@ private:
 	char          field_39;
 };
 
-namespace
-{
-	/* ==== CENGINE ======================================================================================================================================================= */
+/* ==== CENGINE ======================================================================================================================================================= */
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	static ADDRESS g_pEngineBuffer = p_CModAppSystemGroup_Main.Offset(0x0).FindPatternSelf("48 8D ?? ?? ?? ?? 01", ADDRESS::Direction::DOWN, 300).ResolveRelativeAddressSelf(0x3, 0x7);
+inline static ADDRESS g_pEngineBuffer = p_CModAppSystemGroup_Main.Offset(0x0).FindPatternSelf("48 8D ?? ?? ?? ?? 01", ADDRESS::Direction::DOWN, 300).ResolveRelativeAddressSelf(0x3, 0x7);
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	static ADDRESS g_pEngineBuffer = p_CModAppSystemGroup_Main.Offset(0x0).FindPatternSelf("48 8B ?? ?? ?? ?? 01", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
+inline static ADDRESS g_pEngineBuffer = p_CModAppSystemGroup_Main.Offset(0x0).FindPatternSelf("48 8B ?? ?? ?? ?? 01", ADDRESS::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
 #endif
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 

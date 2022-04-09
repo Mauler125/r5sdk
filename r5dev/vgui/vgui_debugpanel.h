@@ -45,7 +45,7 @@ public:
 
 private:
 	Color GetLogColorForType(LogType_t type) const;
-	std::vector<LogMsg_t> m_vLogs{};
+	vector<LogMsg_t> m_vLogs{};
 	int m_nFontHeight = 16;
 
 public:

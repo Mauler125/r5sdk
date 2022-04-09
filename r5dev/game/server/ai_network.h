@@ -47,11 +47,8 @@ public:
 void CAI_Network_Attach();
 void CAI_Network_Detach();
 
-namespace
-{
-	ADDRESS p_CAI_Network__DebugConnectMsg = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x89\x4C\x24\x00\x48\x83\xEC\x18"), "xxxx?xxxx");
-	void (*v_CAI_Network__DebugConnectMsg)(int node1, int node2, const char* pszFormat, ...) = (void (*)(int, int, const char*, ...))p_CAI_Network__DebugConnectMsg.GetPtr(); /*4C 89 4C 24 ? 48 83 EC 18*/
-}
+inline ADDRESS p_CAI_Network__DebugConnectMsg = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x89\x4C\x24\x00\x48\x83\xEC\x18"), "xxxx?xxxx");
+inline void (*v_CAI_Network__DebugConnectMsg)(int node1, int node2, const char* pszFormat, ...) = (void (*)(int, int, const char*, ...))p_CAI_Network__DebugConnectMsg.GetPtr(); /*4C 89 4C 24 ? 48 83 EC 18*/
 
 ///////////////////////////////////////////////////////////////////////////////
 class HAI_Network : public IDetour

@@ -1,10 +1,5 @@
 #pragma once
 
-namespace
-{
-
-}
-
 class CBaseServer
 {
 public:

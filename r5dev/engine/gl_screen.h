@@ -1,28 +1,23 @@
 #pragma once
 
 ///////////////////////////////////////////////////////////////////////////////
-namespace
-{
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	ADDRESS SCR_BeginLoadingPlaque = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x30\x0F\x29\x74\x24\x00\x48\x8B\xF9"), "xxxx?xxxx?xxxxxxxxx?xxx");
+inline ADDRESS SCR_BeginLoadingPlaque = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x30\x0F\x29\x74\x24\x00\x48\x8B\xF9"), "xxxx?xxxx?xxxxxxxxx?xxx");
 	// 0x14022A4A0 // 48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 30 0F 29 74 24 ? 48 8B F9 //
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	ADDRESS SCR_BeginLoadingPlaque = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x38\x0F\x29\x74\x24\x00\x48\x89\x5C\x24\x00"), "xxxxxxxx?xxxx?");
+inline ADDRESS SCR_BeginLoadingPlaque = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x38\x0F\x29\x74\x24\x00\x48\x89\x5C\x24\x00"), "xxxxxxxx?xxxx?");
 	// 0x14022A4A0 // 48 83 EC 38 0F 29 74 24 ? 48 89 5C 24 ? //
 #endif
-}
+
 
 ///////////////////////////////////////////////////////////////////////////////
-namespace
-{
-	bool* scr_drawloading = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x0F\xB6\x05\x00\x00\x00\x00\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x48\x83\xEC\x28"), "xxx????xxxxxxxxxxxxx")
+inline bool* scr_drawloading = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x0F\xB6\x05\x00\x00\x00\x00\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x48\x83\xEC\x28"), "xxx????xxxxxxxxxxxxx")
 		.ResolveRelativeAddressSelf(0x3, 0x7).RCast<bool*>();
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	char* scr_engineevent_loadingstarted = SCR_BeginLoadingPlaque.Offset(0x130).FindPatternSelf("C6 05 ?? ?? ?? ?? 01", ADDRESS::Direction::DOWN).ResolveRelativeAddress(0x2, 0x7).RCast<char*>();
+inline char* scr_engineevent_loadingstarted = SCR_BeginLoadingPlaque.Offset(0x130).FindPatternSelf("C6 05 ?? ?? ?? ?? 01", ADDRESS::Direction::DOWN).ResolveRelativeAddress(0x2, 0x7).RCast<char*>();
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	bool* scr_engineevent_loadingstarted = SCR_BeginLoadingPlaque.Offset(0x60).FindPatternSelf("C6 05 ?? ?? ?? ?? 01", ADDRESS::Direction::DOWN).ResolveRelativeAddress(0x2, 0x7).RCast<bool*>();
+inline bool* scr_engineevent_loadingstarted = SCR_BeginLoadingPlaque.Offset(0x60).FindPatternSelf("C6 05 ?? ?? ?? ?? 01", ADDRESS::Direction::DOWN).ResolveRelativeAddress(0x2, 0x7).RCast<bool*>();
 #endif
-}
 
 void SCR_EndLoadingPlaque(void);
 
