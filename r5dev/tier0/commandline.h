@@ -23,11 +23,16 @@ extern CCommandLine* g_pCmdLine;
 ///////////////////////////////////////////////////////////////////////////////
 class HCommandLine : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
 		std::cout << "| VAR: g_pCmdLine                           : 0x" << std::hex << std::uppercase << g_pCmdLine << std::setw(0) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

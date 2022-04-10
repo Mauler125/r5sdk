@@ -140,13 +140,18 @@ inline auto CCVar_GetCommandLineValue = p_CCVar_GetCommandLineValue.RCast<const 
 ///////////////////////////////////////////////////////////////////////////////
 class HCvar : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CCVar::Disconnect                    : 0x" << std::hex << std::uppercase << p_CCVar_Disconnect.GetPtr()          << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: CCVar::GetCommandLineValue           : 0x" << std::hex << std::uppercase << p_CCVar_GetCommandLineValue.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: CCVar::Disconnect                    : 0x" << std::hex << std::uppercase << p_CCVar_Disconnect.GetPtr()          << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: CCVar::GetCommandLineValue           : 0x" << std::hex << std::uppercase << p_CCVar_GetCommandLineValue.GetPtr() << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| VAR: g_pCVar                              : 0x" << std::hex << std::uppercase << g_pCVar                              << std::setw(0)    << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

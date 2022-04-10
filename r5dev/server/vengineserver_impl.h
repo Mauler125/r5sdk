@@ -27,15 +27,20 @@ extern bool g_bIsPersistenceVarSet[MAX_PLAYERS];
 ///////////////////////////////////////////////////////////////////////////////
 class HVEngineServer : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: IVEngineServer::PersistenceAvailable : 0x" << std::hex << std::uppercase << p_IVEngineServer__PersistenceAvailable.GetPtr() << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: IVEngineServer::IsDedicatedServer    : 0x" << std::hex << std::uppercase << p_IVEngineServer__IsDedicatedServer.GetPtr()    << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: IVEngineServer::GetNumHumanPlayers   : 0x" << std::hex << std::uppercase << p_IVEngineServer__GetNumHumanPlayers.GetPtr()   << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: IVEngineServer::GetNumFakeClients    : 0x" << std::hex << std::uppercase << p_IVEngineServer__GetNumFakeClients.GetPtr()    << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: IVEngineServer::PersistenceAvailable : 0x" << std::hex << std::uppercase << p_IVEngineServer__PersistenceAvailable.GetPtr() << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: IVEngineServer::IsDedicatedServer    : 0x" << std::hex << std::uppercase << p_IVEngineServer__IsDedicatedServer.GetPtr()    << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: IVEngineServer::GetNumHumanPlayers   : 0x" << std::hex << std::uppercase << p_IVEngineServer__GetNumHumanPlayers.GetPtr()   << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: IVEngineServer::GetNumFakeClients    : 0x" << std::hex << std::uppercase << p_IVEngineServer__GetNumFakeClients.GetPtr()    << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| VAR: g_bDedicated                         : 0x" << std::hex << std::uppercase << g_bDedicated                                    << std::setw(0) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

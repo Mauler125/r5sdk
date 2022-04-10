@@ -41,14 +41,19 @@ extern bool g_bCheckCompBanDB;
 ///////////////////////////////////////////////////////////////////////////////
 class HServer : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CServer::Think                       : 0x" << std::hex << std::uppercase << p_CServer_Think.GetPtr()            << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: CServer::Authenticate                : 0x" << std::hex << std::uppercase << p_CServer_Authenticate.GetPtr()     << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: CServer::RejectConnection            : 0x" << std::hex << std::uppercase << p_CServer_RejectConnection.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: CServer::Think                       : 0x" << std::hex << std::uppercase << p_CServer_Think.GetPtr()            << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: CServer::Authenticate                : 0x" << std::hex << std::uppercase << p_CServer_Authenticate.GetPtr()     << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: CServer::RejectConnection            : 0x" << std::hex << std::uppercase << p_CServer_RejectConnection.GetPtr() << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| VAR: sv_m_nTickCount                      : 0x" << std::hex << std::uppercase << sv_m_nTickCount                     << std::setw(0)    << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

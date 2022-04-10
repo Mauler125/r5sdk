@@ -53,11 +53,16 @@ inline auto v_CAI_Network__DebugConnectMsg = p_CAI_Network__DebugConnectMsg.RCas
 ///////////////////////////////////////////////////////////////////////////////
 class HAI_Network : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CAI_Network::DebugConnectMsg         : 0x" << std::hex << std::uppercase << p_CAI_Network__DebugConnectMsg.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: CAI_Network::DebugConnectMsg         : 0x" << std::hex << std::uppercase << p_CAI_Network__DebugConnectMsg.GetPtr() << std::setw(nPad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

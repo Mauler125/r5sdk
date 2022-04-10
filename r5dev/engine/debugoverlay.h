@@ -135,12 +135,12 @@ inline int* overlay_tickcount = p_DrawAllOverlays.Offset(0x70).FindPatternSelf("
 ///////////////////////////////////////////////////////////////////////////////
 class HDebugOverlay : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: DrawAllOverlays                      : 0x" << std::hex << std::uppercase << p_DrawAllOverlays.GetPtr() << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: RenderBox                            : 0x" << std::hex << std::uppercase << p_RenderBox.GetPtr()       << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: RenderLine                           : 0x" << std::hex << std::uppercase << p_RenderLine.GetPtr()      << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: DestroyOverlay                       : 0x" << std::hex << std::uppercase << p_DestroyOverlay.GetPtr()  << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: DrawAllOverlays                      : 0x" << std::hex << std::uppercase << p_DrawAllOverlays.GetPtr() << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: RenderBox                            : 0x" << std::hex << std::uppercase << p_RenderBox.GetPtr()       << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: RenderLine                           : 0x" << std::hex << std::uppercase << p_RenderLine.GetPtr()      << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: DestroyOverlay                       : 0x" << std::hex << std::uppercase << p_DestroyOverlay.GetPtr()  << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| VAR: s_pOverlays                          : 0x" << std::hex << std::uppercase << s_pOverlays                << std::setw(0) << " |" << std::endl;
 		std::cout << "| VAR: s_OverlayMutex                       : 0x" << std::hex << std::uppercase << s_OverlayMutex             << std::setw(0) << " |" << std::endl;
 		std::cout << "| VAR: client_debugdraw_int_unk             : 0x" << std::hex << std::uppercase << client_debugdraw_int_unk   << std::setw(0) << " |" << std::endl;
@@ -149,6 +149,11 @@ class HDebugOverlay : public IDetour
 		std::cout << "| VAR: render_tickcount                     : 0x" << std::hex << std::uppercase << render_tickcount           << std::setw(0) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

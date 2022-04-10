@@ -7,11 +7,16 @@ inline CMemory p_WASAPI_GetAudioDevice = g_mRadAudioSystemDll.FindPatternSIMD(re
 ///////////////////////////////////////////////////////////////////////////////
 class HWASAPIServiceThread : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
 		std::cout << "| FUN: WASAPI_GetAudioDevice                : 0x" << std::hex << std::uppercase << p_WASAPI_GetAudioDevice.GetPtr() << std::setw(6) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

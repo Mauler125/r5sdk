@@ -16,12 +16,17 @@ void SysDll_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 class HSys_Dll : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: Sys_Error_Internal                   : 0x" << std::hex << std::uppercase << p_Sys_Error_Internal.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: Sys_Error_Internal                   : 0x" << std::hex << std::uppercase << p_Sys_Error_Internal.GetPtr() << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| VAR: gfExtendedError                      : 0x" << std::hex << std::uppercase << gfExtendedError               << std::setw(0)    << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

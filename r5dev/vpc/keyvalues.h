@@ -91,15 +91,20 @@ extern KeyValues** g_pPlaylistKeyValues;
 ///////////////////////////////////////////////////////////////////////////////
 class HKeyValues : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: KeyValues::Init                      : 0x" << std::hex << std::uppercase << p_KeyValues_Init.GetPtr()               << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: KeyValues::FindKey                   : 0x" << std::hex << std::uppercase << p_KeyValues_FindKey.GetPtr()            << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: KeyValues::LoadPlaylist              : 0x" << std::hex << std::uppercase << p_KeyValues_LoadPlaylist.GetPtr()       << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: KeyValues::GetCurrentPlaylist        : 0x" << std::hex << std::uppercase << p_KeyValues_GetCurrentPlaylist.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: KeyValues::Init                      : 0x" << std::hex << std::uppercase << p_KeyValues_Init.GetPtr()               << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: KeyValues::FindKey                   : 0x" << std::hex << std::uppercase << p_KeyValues_FindKey.GetPtr()            << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: KeyValues::LoadPlaylist              : 0x" << std::hex << std::uppercase << p_KeyValues_LoadPlaylist.GetPtr()       << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: KeyValues::GetCurrentPlaylist        : 0x" << std::hex << std::uppercase << p_KeyValues_GetCurrentPlaylist.GetPtr() << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| VAR: g_pPlaylistKeyValues                 : 0x" << std::hex << std::uppercase << g_pPlaylistKeyValues                    << std::setw(0)    << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

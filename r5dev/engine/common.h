@@ -7,11 +7,16 @@ inline auto COM_ExplainDisconnection = p_COM_ExplainDisconnection.RCast<void* (*
 ///////////////////////////////////////////////////////////////////////////////
 class HCommon : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: COM_ExplainDisconnection             : 0x" << std::hex << std::uppercase << p_COM_ExplainDisconnection.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: COM_ExplainDisconnection             : 0x" << std::hex << std::uppercase << p_COM_ExplainDisconnection.GetPtr() << std::setw(nPad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

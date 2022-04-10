@@ -22,11 +22,16 @@ extern CInputSystem* g_pInputSystem
 ///////////////////////////////////////////////////////////////////////////////
 class HInputSystem : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
 		std::cout << "| VAR: g_pInputSystem                       : 0x" << std::hex << std::uppercase << g_pInputSystem << std::setw(0) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -525,7 +525,7 @@ void DirectX_Shutdown()
 	ImGui_ImplDX11_Shutdown();
 }
 
-void HIDXGI::debugp()
+void HIDXGI::GetAdr(void) const
 {
 	///////////////////////////////////////////////////////////////////////////////
 	std::cout << "| VAR: ID3D11DeviceContext                  : " << std::hex << std::uppercase << g_pDeviceContext          << std::setw(4) << " |" << std::endl;

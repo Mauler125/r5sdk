@@ -178,15 +178,20 @@ extern ConVar* g_pConVar;
 ///////////////////////////////////////////////////////////////////////////////
 class HConVar : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: IConVar::IsFlagSet                   : 0x" << std::hex << std::uppercase << p_IConVar_IsFlagSet.GetPtr() << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: IConVar::SetInfo                     : 0x" << std::hex << std::uppercase << p_ConVar_SetInfo.GetPtr()    << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: IConVar::Register                    : 0x" << std::hex << std::uppercase << p_ConVar_Register.GetPtr()   << std::setw(npad) << " |" << std::endl;
-		std::cout << "| VAR: g_pConVarVtable                      : 0x" << std::hex << std::uppercase << g_pConVarVtable.GetPtr()     << std::setw(npad) << " |" << std::endl;
-		std::cout << "| VAR: g_pIConVarVtable                     : 0x" << std::hex << std::uppercase << g_pIConVarVtable.GetPtr()    << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: IConVar::IsFlagSet                   : 0x" << std::hex << std::uppercase << p_IConVar_IsFlagSet.GetPtr() << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: IConVar::SetInfo                     : 0x" << std::hex << std::uppercase << p_ConVar_SetInfo.GetPtr()    << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: IConVar::Register                    : 0x" << std::hex << std::uppercase << p_ConVar_Register.GetPtr()   << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| VAR: g_pConVarVtable                      : 0x" << std::hex << std::uppercase << g_pConVarVtable.GetPtr()     << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| VAR: g_pIConVarVtable                     : 0x" << std::hex << std::uppercase << g_pIConVarVtable.GetPtr()    << std::setw(nPad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

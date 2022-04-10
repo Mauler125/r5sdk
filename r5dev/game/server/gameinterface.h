@@ -20,11 +20,16 @@ extern CServerGameDLL* g_pServerGameDLL;
 ///////////////////////////////////////////////////////////////////////////////
 class HServerGameDLL : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
 		std::cout << "| VAR: g_pServerGameDLL                     : 0x" << std::hex << std::uppercase << g_pServerGameDLL << std::setw(0) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

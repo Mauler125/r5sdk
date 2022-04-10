@@ -66,11 +66,16 @@ inline static CMemory g_pEngineBuffer = p_CModAppSystemGroup_Main.Offset(0x0).Fi
 ///////////////////////////////////////////////////////////////////////////////
 class HEngine : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
-		std::cout << "| VAR: g_pEngine                            : 0x" << std::hex << std::uppercase << g_pEngineBuffer.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| VAR: g_pEngine                            : 0x" << std::hex << std::uppercase << g_pEngineBuffer.GetPtr() << std::setw(nPad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

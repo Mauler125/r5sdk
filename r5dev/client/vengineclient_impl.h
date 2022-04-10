@@ -11,12 +11,17 @@ extern bool* m_bRestrictServerCommands;
 ///////////////////////////////////////////////////////////////////////////////
 class HVEngineClient : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: IVEngineClient::CommandExecute       : 0x" << std::hex << std::uppercase << p_IVEngineClient_CommandExecute.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: IVEngineClient::CommandExecute       : 0x" << std::hex << std::uppercase << p_IVEngineClient_CommandExecute.GetPtr() << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| VAR: m_bRestrictServerCommands            : 0x" << std::hex << std::uppercase << m_bRestrictServerCommands                << std::setw(0)    << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

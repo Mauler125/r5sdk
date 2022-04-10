@@ -94,11 +94,16 @@ inline CMemory s_pInterfacesRegs = g_mGameDll.FindPatternSIMD(reinterpret_cast<r
 ///////////////////////////////////////////////////////////////////////////////
 class HFactory : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
-		std::cout << "| VAR: s_pInterfacesRegs                    : 0x" << std::hex << std::uppercase << s_pInterfacesRegs.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| VAR: s_pInterfacesRegs                    : 0x" << std::hex << std::uppercase << s_pInterfacesRegs.GetPtr() << std::setw(nPad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

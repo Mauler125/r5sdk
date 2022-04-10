@@ -52,17 +52,22 @@ extern uintptr_t g_pNetKey;
 ///////////////////////////////////////////////////////////////////////////////
 class HNetChan : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: NET_Init                             : 0x" << std::hex << std::uppercase << p_NET_Init.GetPtr()            << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: NET_Shutdown                         : 0x" << std::hex << std::uppercase << p_NET_Shutdown.GetPtr()        << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: NET_SetKey                           : 0x" << std::hex << std::uppercase << p_NET_SetKey.GetPtr()          << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: NET_ReceiveDatagram                  : 0x" << std::hex << std::uppercase << p_NET_ReceiveDatagram.GetPtr() << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: NET_SendDatagram                     : 0x" << std::hex << std::uppercase << p_NET_SendDatagram.GetPtr()    << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: NET_PrintFunc                        : 0x" << std::hex << std::uppercase << p_NET_PrintFunc.GetPtr()       << std::setw(npad) << " |" << std::endl;
-		std::cout << "| VAR: g_pNetKey                            : 0x" << std::hex << std::uppercase << g_pNetKey << std::setw(npad)   << " |" << std::endl;
+		std::cout << "| FUN: NET_Init                             : 0x" << std::hex << std::uppercase << p_NET_Init.GetPtr()            << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: NET_Shutdown                         : 0x" << std::hex << std::uppercase << p_NET_Shutdown.GetPtr()        << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: NET_SetKey                           : 0x" << std::hex << std::uppercase << p_NET_SetKey.GetPtr()          << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: NET_ReceiveDatagram                  : 0x" << std::hex << std::uppercase << p_NET_ReceiveDatagram.GetPtr() << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: NET_SendDatagram                     : 0x" << std::hex << std::uppercase << p_NET_SendDatagram.GetPtr()    << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: NET_PrintFunc                        : 0x" << std::hex << std::uppercase << p_NET_PrintFunc.GetPtr()       << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| VAR: g_pNetKey                            : 0x" << std::hex << std::uppercase << g_pNetKey << std::setw(nPad)   << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 REGISTER(HNetChan);

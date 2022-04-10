@@ -15,12 +15,17 @@ void QHull_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 class HQHull : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: QHull_PrintFunc                      : 0x" << std::hex << std::uppercase << p_QHull_PrintFunc.GetPtr() << std::setw(npad) << " |" << std::endl;
-		//std::cout << "| FUN: speex_warning_int                    : 0x" << std::hex << std::uppercase << p_speex_warning_int.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: QHull_PrintFunc                      : 0x" << std::hex << std::uppercase << p_QHull_PrintFunc.GetPtr() << std::setw(nPad) << " |" << std::endl;
+		//std::cout << "| FUN: speex_warning_int                    : 0x" << std::hex << std::uppercase << p_speex_warning_int.GetPtr() << std::setw(nPad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

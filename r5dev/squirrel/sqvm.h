@@ -101,38 +101,43 @@ void SQVM_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 class HSQVM : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: SQVM_PrintFunc                       : 0x" << std::hex << std::uppercase << p_SQVM_PrintFunc.GetPtr()           << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: SQVM_WarningFunc                     : 0x" << std::hex << std::uppercase << p_SQVM_WarningFunc.GetPtr()         << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: SQVM_GetErrorLine                    : 0x" << std::hex << std::uppercase << p_SQVM_GetErrorLine.GetPtr()        << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: SQVM_LoadScript                      : 0x" << std::hex << std::uppercase << p_SQVM_LoadScript.GetPtr()          << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: SQVM_LoadRson                        : 0x" << std::hex << std::uppercase << p_SQVM_LoadRson.GetPtr()            << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: SQVM_WarningCmd                      : 0x" << std::hex << std::uppercase << p_SQVM_WarningCmd.GetPtr()          << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: SQVM_RegisterFunc                    : 0x" << std::hex << std::uppercase << p_SQVM_RegisterFunc.GetPtr()        << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: SQVM_CompileError                    : 0x" << std::hex << std::uppercase << p_SQVM_CompileError.GetPtr()        << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: SQVM_PrintFunc                       : 0x" << std::hex << std::uppercase << p_SQVM_PrintFunc.GetPtr()           << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: SQVM_WarningFunc                     : 0x" << std::hex << std::uppercase << p_SQVM_WarningFunc.GetPtr()         << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: SQVM_GetErrorLine                    : 0x" << std::hex << std::uppercase << p_SQVM_GetErrorLine.GetPtr()        << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: SQVM_LoadScript                      : 0x" << std::hex << std::uppercase << p_SQVM_LoadScript.GetPtr()          << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: SQVM_LoadRson                        : 0x" << std::hex << std::uppercase << p_SQVM_LoadRson.GetPtr()            << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: SQVM_WarningCmd                      : 0x" << std::hex << std::uppercase << p_SQVM_WarningCmd.GetPtr()          << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: SQVM_RegisterFunc                    : 0x" << std::hex << std::uppercase << p_SQVM_RegisterFunc.GetPtr()        << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: SQVM_CompileError                    : 0x" << std::hex << std::uppercase << p_SQVM_CompileError.GetPtr()        << std::setw(nPad) << " |" << std::endl;
 #ifndef CLIENT_DLL
-		std::cout << "| FUN: SQVM_InitializeSVGlobalScriptStructs : 0x" << std::hex << std::uppercase << p_SQVM_InitializeSVGlobalScriptStructs.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: SQVM_InitializeSVGlobalScriptStructs : 0x" << std::hex << std::uppercase << p_SQVM_InitializeSVGlobalScriptStructs.GetPtr() << std::setw(nPad) << " |" << std::endl;
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
-		std::cout << "| FUN: SQVM_InitializeCLGlobalScriptStructs : 0x" << std::hex << std::uppercase << p_SQVM_InitializeCLGlobalScriptStructs.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: SQVM_InitializeCLGlobalScriptStructs : 0x" << std::hex << std::uppercase << p_SQVM_InitializeCLGlobalScriptStructs.GetPtr() << std::setw(nPad) << " |" << std::endl;
 #endif // !DEDICATED
 #ifndef CLIENT_DLL
-		std::cout << "| FUN: SQVM_CreateServerVM                  : 0x" << std::hex << std::uppercase << p_SQVM_CreateServerVM.GetPtr()      << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: SQVM_CreateServerVM                  : 0x" << std::hex << std::uppercase << p_SQVM_CreateServerVM.GetPtr()      << std::setw(nPad) << " |" << std::endl;
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
-		std::cout << "| FUN: SQVM_CreateClientVM                  : 0x" << std::hex << std::uppercase << p_SQVM_CreateClientVM.GetPtr()      << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: SQVM_CreateUIVM                      : 0x" << std::hex << std::uppercase << p_SQVM_CreateUIVM.GetPtr()          << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: SQVM_CreateClientVM                  : 0x" << std::hex << std::uppercase << p_SQVM_CreateClientVM.GetPtr()      << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: SQVM_CreateUIVM                      : 0x" << std::hex << std::uppercase << p_SQVM_CreateUIVM.GetPtr()          << std::setw(nPad) << " |" << std::endl;
 #endif // !DEDICATED
 #ifndef CLIENT_DLL
-		std::cout << "| VAR: g_pServerVM                          : 0x" << std::hex << std::uppercase << g_pServerVM.GetPtr()                << std::setw(npad) << " |" << std::endl;
+		std::cout << "| VAR: g_pServerVM                          : 0x" << std::hex << std::uppercase << g_pServerVM.GetPtr()                << std::setw(nPad) << " |" << std::endl;
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
-		std::cout << "| VAR: g_pClientVM                          : 0x" << std::hex << std::uppercase << g_pClientVM.GetPtr()                << std::setw(npad) << " |" << std::endl;
-		std::cout << "| VAR: g_pUIVM                              : 0x" << std::hex << std::uppercase << g_pUIVM.GetPtr()                    << std::setw(npad) << " |" << std::endl;
+		std::cout << "| VAR: g_pClientVM                          : 0x" << std::hex << std::uppercase << g_pClientVM.GetPtr()                << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| VAR: g_pUIVM                              : 0x" << std::hex << std::uppercase << g_pUIVM.GetPtr()                    << std::setw(nPad) << " |" << std::endl;
 #endif // !DEDICATED
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

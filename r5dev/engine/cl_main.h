@@ -10,13 +10,18 @@ inline CMemory CL_ClearState = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_
 ///////////////////////////////////////////////////////////////////////////////
 class HCL_Main : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
 #if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		std::cout << "| FUN: CL_ClearState                        : 0x" << std::hex << std::uppercase << CL_ClearState.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: CL_ClearState                        : 0x" << std::hex << std::uppercase << CL_ClearState.GetPtr() << std::setw(nPad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 #endif // GAMEDLL_S2 || GAMEDLL_S3
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

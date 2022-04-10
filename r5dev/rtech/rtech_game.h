@@ -61,18 +61,23 @@ extern std::vector<int> g_nLoadedPakFileId;
 ///////////////////////////////////////////////////////////////////////////////
 class HRTechGame : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: RTech_UnloadAsset                    : 0x" << std::hex << std::uppercase << p_RTech_UnloadAsset.GetPtr()   << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: RTech_AsyncLoad                      : 0x" << std::hex << std::uppercase << p_RTech_AsyncLoad.GetPtr()     << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: RTech_UnloadAsset                    : 0x" << std::hex << std::uppercase << p_RTech_UnloadAsset.GetPtr()   << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: RTech_AsyncLoad                      : 0x" << std::hex << std::uppercase << p_RTech_AsyncLoad.GetPtr()     << std::setw(nPad) << " |" << std::endl;
 #if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		std::cout << "| FUN: RTech_LoadPak                        : 0x" << std::hex << std::uppercase << p_RTech_LoadPak.GetPtr()       << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: RTech_LoadMapPak                     : 0x" << std::hex << std::uppercase << p_RTech_LoadMapPak.GetPtr()    << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: RTech_UnloadPak                      : 0x" << std::hex << std::uppercase << p_RTech_UnloadPak.GetPtr()     << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: JT_HelpWithAnything                  : 0x" << std::hex << std::uppercase << p_JT_HelpWithAnything.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: RTech_LoadPak                        : 0x" << std::hex << std::uppercase << p_RTech_LoadPak.GetPtr()       << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: RTech_LoadMapPak                     : 0x" << std::hex << std::uppercase << p_RTech_LoadMapPak.GetPtr()    << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: RTech_UnloadPak                      : 0x" << std::hex << std::uppercase << p_RTech_UnloadPak.GetPtr()     << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: JT_HelpWithAnything                  : 0x" << std::hex << std::uppercase << p_JT_HelpWithAnything.GetPtr() << std::setw(nPad) << " |" << std::endl;
 #endif // GAMEDLL_S2 || GAMEDLL_S3
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

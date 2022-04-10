@@ -22,16 +22,21 @@ void CMaterialSystem_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 class HMaterialSystem : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CMaterialSystem::Init                : 0x" << std::hex << std::uppercase << CMaterialSystem__Init.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: CMaterialSystem::Init                : 0x" << std::hex << std::uppercase << CMaterialSystem__Init.GetPtr() << std::setw(nPad) << " |" << std::endl;
 #ifndef DEDICATED
-		std::cout << "| FUN: DrawStreamOverlay                    : 0x" << std::hex << std::uppercase << p_DrawStreamOverlay.GetPtr()   << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: StreamDB_Init                        : 0x" << std::hex << std::uppercase << p_StreamDB_Init.GetPtr()       << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: DrawStreamOverlay                    : 0x" << std::hex << std::uppercase << p_DrawStreamOverlay.GetPtr()   << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: StreamDB_Init                        : 0x" << std::hex << std::uppercase << p_StreamDB_Init.GetPtr()       << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| VAR: g_pMaterialSystem                    : 0x" << std::hex << std::uppercase << g_pMaterialSystem              << std::setw(0)    << " |" << std::endl;
 #endif // !DEDICATED
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -48,7 +48,7 @@ inline CGlobalVarsBase* g_ClientGlobalVariables = p_CModAppSystemGroup_Create.Of
 ///////////////////////////////////////////////////////////////////////////////
 class HEdict : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
 #ifndef CLIENT_DLL
 		std::cout << "| VAR: g_ServerGlobalVariables              : 0x" << std::hex << std::uppercase << g_ServerGlobalVariables << std::setw(0) << " |" << std::endl;
@@ -58,6 +58,11 @@ class HEdict : public IDetour
 #endif // !DEDICATED
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

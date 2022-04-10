@@ -34,11 +34,16 @@ void BspLib_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 class HBspLib : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CalcPropStaticFrustumCulling         : 0x" << std::hex << std::uppercase << p_CalcPropStaticFrustumCulling.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: CalcPropStaticFrustumCulling         : 0x" << std::hex << std::uppercase << p_CalcPropStaticFrustumCulling.GetPtr() << std::setw(nPad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

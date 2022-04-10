@@ -46,12 +46,17 @@ inline CKeyValuesSystem* g_pKeyValuesSystem = g_mGameDll.FindPatternSIMD(
 ///////////////////////////////////////////////////////////////////////////////
 class HKeyValuesSystem : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
-		std::cout << "| VAR: g_pKeyValuesMemPool                  : 0x" << std::hex << std::uppercase << g_pKeyValuesMemPool << std::setw(npad) << " |" << std::endl;
+		std::cout << "| VAR: g_pKeyValuesMemPool                  : 0x" << std::hex << std::uppercase << g_pKeyValuesMemPool << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| VAR: g_pKeyValuesSystem                   : 0x" << std::hex << std::uppercase << g_pKeyValuesSystem  << std::setw(0)    << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

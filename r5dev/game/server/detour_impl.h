@@ -16,13 +16,18 @@ inline auto dtNavMesh__isPolyReachable = p_dtNavMesh__isPolyReachable.RCast<bool
 ///////////////////////////////////////////////////////////////////////////////
 class HRecast : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: dtNavMesh::Init                      : 0x" << std::hex << std::uppercase << p_dtNavMesh__Init.GetPtr()            << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: dtNavMesh::addTile                   : 0x" << std::hex << std::uppercase << p_dtNavMesh__addTile.GetPtr()         << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: dtNavMesh::isPolyReachable           : 0x" << std::hex << std::uppercase << p_dtNavMesh__isPolyReachable.GetPtr() << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: dtNavMesh::Init                      : 0x" << std::hex << std::uppercase << p_dtNavMesh__Init.GetPtr()            << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: dtNavMesh::addTile                   : 0x" << std::hex << std::uppercase << p_dtNavMesh__addTile.GetPtr()         << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: dtNavMesh::isPolyReachable           : 0x" << std::hex << std::uppercase << p_dtNavMesh__isPolyReachable.GetPtr() << std::setw(nPad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

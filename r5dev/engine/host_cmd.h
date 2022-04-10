@@ -39,15 +39,20 @@ inline static CMemory g_pEngineParmsBuffer = p_CModAppSystemGroup_Main.Offset(0x
 ///////////////////////////////////////////////////////////////////////////////
 class HHostCmd : public IDetour
 {
-	virtual void debugp()
+	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: Host_Init                            : 0x" << std::hex << std::uppercase << p_Host_Init.GetPtr()          << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: Host_NewGame                         : 0x" << std::hex << std::uppercase << p_Host_NewGame.GetPtr()       << std::setw(npad) << " |" << std::endl;
-		std::cout << "| FUN: malloc_internal                      : 0x" << std::hex << std::uppercase << p_malloc_internal.GetPtr()    << std::setw(npad) << " |" << std::endl;
-		std::cout << "| VAR: g_pEngineParms                       : 0x" << std::hex << std::uppercase << g_pEngineParmsBuffer.GetPtr() << std::setw(npad) << " |" << std::endl;
-		std::cout << "| VAR: g_pMallocPool                        : 0x" << std::hex << std::uppercase << g_pMallocPool.GetPtr()        << std::setw(npad) << " |" << std::endl;
+		std::cout << "| FUN: Host_Init                            : 0x" << std::hex << std::uppercase << p_Host_Init.GetPtr()          << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: Host_NewGame                         : 0x" << std::hex << std::uppercase << p_Host_NewGame.GetPtr()       << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: malloc_internal                      : 0x" << std::hex << std::uppercase << p_malloc_internal.GetPtr()    << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| VAR: g_pEngineParms                       : 0x" << std::hex << std::uppercase << g_pEngineParmsBuffer.GetPtr() << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| VAR: g_pMallocPool                        : 0x" << std::hex << std::uppercase << g_pMallocPool.GetPtr()        << std::setw(nPad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
 

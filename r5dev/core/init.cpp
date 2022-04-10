@@ -6,6 +6,7 @@
 
 #include "core/stdafx.h"
 #include "core/init.h"
+#include "tier0/cpu.h"
 #include "tier0/commandline.h"
 #include "tier1/cmd.h"
 #include "tier1/IConVar.h"
@@ -104,13 +105,17 @@
 
 void Systems_Init()
 {
-	// Initialize winsock system
-	WSAData wsaData{};
-	int nError = ::WSAStartup(MAKEWORD(2, 2), &wsaData);
-	if (nError != 0)
+	CheckCPU();
+	for (IDetour* pdetour : vDetour)
 	{
-		std::cerr << "Failed to start Winsock via WSAStartup: (" << NET_ErrorString(WSAGetLastError()) << ")" << std::endl;
+		pdetour->GetFun();
+		pdetour->GetVar();
+		pdetour->GetCon();
 	}
+
+	// Initialize WinSock system.
+	WS_Init();
+
 	// Begin the detour transaction to hook the the process
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
@@ -206,12 +211,8 @@ void Systems_Init()
 
 void Systems_Shutdown()
 {
-	// Shutdown winsock system
-	int nError = ::WSACleanup();
-	if (nError != 0)
-	{
-		std::cerr << "Failed to stop winsock via WSACleanup: (" << NET_ErrorString(WSAGetLastError()) << ")" << std::endl;
-	}
+	// Shutdown WinSock system.
+	WS_Shutdown();
 
 	// Begin the detour transaction to unhook the the process
 	DetourTransactionBegin();
@@ -282,22 +283,51 @@ void Systems_Shutdown()
 	DetourTransactionCommit();
 }
 
-//////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////
 //
-// ██████╗ ███████╗███████╗██╗   ██╗██╗  ████████╗███████╗
-// ██╔══██╗██╔════╝██╔════╝██║   ██║██║  ╚══██╔══╝██╔════╝
-// ██████╔╝█████╗  ███████╗██║   ██║██║     ██║   ███████╗
-// ██╔══██╗██╔══╝  ╚════██║██║   ██║██║     ██║   ╚════██║
-// ██║  ██║███████╗███████║╚██████╔╝███████╗██║   ███████║
-// ╚═╝  ╚═╝╚══════╝╚══════╝ ╚═════╝ ╚══════╝╚═╝   ╚══════╝
+// ██╗   ██╗████████╗██╗██╗     ██╗████████╗██╗   ██╗
+// ██║   ██║╚══██╔══╝██║██║     ██║╚══██╔══╝╚██╗ ██╔╝
+// ██║   ██║   ██║   ██║██║     ██║   ██║    ╚████╔╝ 
+// ██║   ██║   ██║   ██║██║     ██║   ██║     ╚██╔╝  
+// ╚██████╔╝   ██║   ██║███████╗██║   ██║      ██║   
+//  ╚═════╝    ╚═╝   ╚═╝╚══════╝╚═╝   ╚═╝      ╚═╝  
 //
-//////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////
 
+void WS_Init()
+{
+	WSAData wsaData{};
+	int nError = ::WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (nError != 0)
+	{
+		std::cerr << "Failed to start Winsock via WSAStartup: (" << NET_ErrorString(WSAGetLastError()) << ")" << std::endl;
+	}
+}
+void WS_Shutdown()
+{
+	int nError = ::WSACleanup();
+	if (nError != 0)
+	{
+		std::cerr << "Failed to stop winsock via WSACleanup: (" << NET_ErrorString(WSAGetLastError()) << ")" << std::endl;
+	}
+}
+void CheckCPU()
+{
+	const CPUInformation& pi = GetCPUInformation();
+
+	if ((pi.m_bSSE && pi.m_bSSE2))
+	{
+		if (MessageBoxA(NULL, "SSE and SSE2 are required.", "SDK Error", MB_ICONERROR | MB_OK))
+		{
+			TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
+		}
+	}
+}
 void PrintHAddress() // Test the sigscan results
 {
 	std::cout << "+----------------------------------------------------------------+" << std::endl;
-	for (IDetour* pdetour : vdetour)
+	for (IDetour* pdetour : vDetour)
 	{
-		pdetour->debugp();
+		pdetour->GetAdr();
 	}
 }
