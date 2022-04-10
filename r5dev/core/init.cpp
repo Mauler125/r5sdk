@@ -6,6 +6,7 @@
 
 #include "core/stdafx.h"
 #include "core/init.h"
+#include "tier0/fasttimer.h"
 #include "tier0/cpu.h"
 #include "tier0/commandline.h"
 #include "tier1/cmd.h"
@@ -315,7 +316,7 @@ void CheckCPU()
 {
 	const CPUInformation& pi = GetCPUInformation();
 
-	if ((pi.m_bSSE && pi.m_bSSE2))
+	if (!(pi.m_bSSE && pi.m_bSSE2))
 	{
 		if (MessageBoxA(NULL, "SSE and SSE2 are required.", "SDK Error", MB_ICONERROR | MB_OK))
 		{
