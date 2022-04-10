@@ -39,10 +39,10 @@ public:
 }; // Size 0x0098
 
 #ifndef CLIENT_DLL
-inline CGlobalVars* g_ServerGlobalVariables = p_SV_InitGameDLL.Offset(0x0).FindPatternSelf("48 8D ?? ?? ?? ?? 01", ADDRESS::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CGlobalVars*>();
+inline CGlobalVars* g_ServerGlobalVariables = p_SV_InitGameDLL.Offset(0x0).FindPatternSelf("48 8D ?? ?? ?? ?? 01", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CGlobalVars*>();
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
-inline CGlobalVarsBase* g_ClientGlobalVariables = p_CModAppSystemGroup_Create.Offset(0x0).FindPatternSelf("4C 8D ?? ?? ?? ?? 01", ADDRESS::Direction::DOWN, 8000).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CGlobalVarsBase*>();
+inline CGlobalVarsBase* g_ClientGlobalVariables = p_CModAppSystemGroup_Create.Offset(0x0).FindPatternSelf("4C 8D ?? ?? ?? ?? 01", CMemory::Direction::DOWN, 8000).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CGlobalVarsBase*>();
 #endif // !DEDICATED
 
 ///////////////////////////////////////////////////////////////////////////////

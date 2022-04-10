@@ -161,10 +161,10 @@ public:
 
 /* ==== RTECH =========================================================================================================================================================== */
 #ifdef GAMEDLL_S3
-inline ADDRESS UnloadRoutine = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x30\x8B\xC1"), "xxxx?xxxx?xxxxxxx"); /*48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 30 8B C1*/
+inline CMemory UnloadRoutine = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x30\x8B\xC1"), "xxxx?xxxx?xxxxxxx"); /*48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 30 8B C1*/
 
-inline RPakLoadedInfo_t* g_pLoadedPakInfo = UnloadRoutine.FindPatternSelf("48 8D 05", ADDRESS::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakLoadedInfo_t*>();
-inline std::int16_t* s_pLoadedPakCount = UnloadRoutine.FindPatternSelf("66 89", ADDRESS::Direction::DOWN, 450).ResolveRelativeAddressSelf(0x3, 0x7).RCast<std::int16_t*>();
+inline RPakLoadedInfo_t* g_pLoadedPakInfo = UnloadRoutine.FindPatternSelf("48 8D 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakLoadedInfo_t*>();
+inline std::int16_t* s_pLoadedPakCount = UnloadRoutine.FindPatternSelf("66 89", CMemory::Direction::DOWN, 450).ResolveRelativeAddressSelf(0x3, 0x7).RCast<std::int16_t*>();
 #endif // GAMEDLL_S3
 
 class RTech

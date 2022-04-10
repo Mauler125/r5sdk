@@ -86,20 +86,20 @@ __int64 __fastcall HCalcPropStaticFrustumCulling(__int64 a1, __int64 a2, unsigne
     __int64 v84; // [rsp+298h] [rbp+190h]
     __int64 v85; // [rsp+2A8h] [rbp+1A0h]
 
-    static auto g_MdlCache = ADDRESS(0x14D40B328).RCast<void*>();
-    static auto dword_1696A9D20 = *ADDRESS(0x1696A9D20).RCast<std::uint32_t*>();
-    static auto sub_1404365A0 = ADDRESS(0x1404365A0).RCast<void**(*)(__m128*, const __m128i*, unsigned int*, double)>();
-    static auto qword_141744EA8 = *ADDRESS(0x141744EA8).RCast<std::int64_t*>();
-    static auto sub_140270130 = ADDRESS(0x140270130).RCast<__m128(*)(__m128*)>();
-    static auto off_141731448 = ADDRESS(0x141731448).RCast<void*>();
-    static auto sub_14028F170 = ADDRESS(0x14028F170).RCast<const __m128i* (*)(__int64, __int64, __m128*, const __m128i*, const __m128i*)>();
-    static auto qword_141744EA0 = *ADDRESS(0x141744EA0).RCast<std::int64_t*>();
-    static auto dword_141744EBC = *ADDRESS(0x141744EBC).RCast<std::int32_t*>();
-    static auto qword_141744E88 = *ADDRESS(0x141744E88).RCast<std::int32_t*>();
-    static auto dword_141744EE8 = *ADDRESS(0x141744EE8).RCast<std::int32_t*>();
-    static auto off_141744E70 = ADDRESS(0x141744E70).RCast<void*>();
-    static auto sub_1401E7900 = ADDRESS(0x1401E7900).RCast<__int64(*)(void*, unsigned __int16, __int64)>();
-    static auto sub_140257F20 = ADDRESS(0x140257F20).RCast<__int64(*)(void*, __int64, __m128i*, __int8*)>();
+    static auto g_MdlCache = CMemory(0x14D40B328).RCast<void*>();
+    static auto dword_1696A9D20 = *CMemory(0x1696A9D20).RCast<std::uint32_t*>();
+    static auto sub_1404365A0 = CMemory(0x1404365A0).RCast<void**(*)(__m128*, const __m128i*, unsigned int*, double)>();
+    static auto qword_141744EA8 = *CMemory(0x141744EA8).RCast<std::int64_t*>();
+    static auto sub_140270130 = CMemory(0x140270130).RCast<__m128(*)(__m128*)>();
+    static auto off_141731448 = CMemory(0x141731448).RCast<void*>();
+    static auto sub_14028F170 = CMemory(0x14028F170).RCast<const __m128i* (*)(__int64, __int64, __m128*, const __m128i*, const __m128i*)>();
+    static auto qword_141744EA0 = *CMemory(0x141744EA0).RCast<std::int64_t*>();
+    static auto dword_141744EBC = *CMemory(0x141744EBC).RCast<std::int32_t*>();
+    static auto qword_141744E88 = *CMemory(0x141744E88).RCast<std::int32_t*>();
+    static auto dword_141744EE8 = *CMemory(0x141744EE8).RCast<std::int32_t*>();
+    static auto off_141744E70 = CMemory(0x141744E70).RCast<void*>();
+    static auto sub_1401E7900 = CMemory(0x1401E7900).RCast<__int64(*)(void*, unsigned __int16, __int64)>();
+    static auto sub_140257F20 = CMemory(0x140257F20).RCast<__int64(*)(void*, __int64, __m128i*, __int8*)>();
 
     v9 = 1.0;
     v10 = a4;

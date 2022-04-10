@@ -10,25 +10,25 @@ class KeyValues;
 
 /* ==== KEYVALUES ======================================================================================================================================================= */
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-inline ADDRESS p_KeyValues_Init = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x48\x8B\xD9\xC7\x44\x24\x30\xFF\xFF\xFF"), "xxxxxxxxxxxxxxxx");
+inline CMemory p_KeyValues_Init = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x48\x8B\xD9\xC7\x44\x24\x30\xFF\xFF\xFF"), "xxxxxxxxxxxxxxxx");
 inline auto KeyValues_Init = p_KeyValues_Init.RCast<void* (*)(KeyValues* thisptr, const char* pSymbol, int64_t a3, bool bCreate)>(); /*40 53 48 83 EC 20 48 8B D9 C7 44 24 30 FF FF FF*/
 
-inline ADDRESS p_KeyValues_FindKey = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x10\x48\x89\x6C\x24\x18\x48\x89\x74\x24\x20\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x81\xEC\x20\x01\x00\x00\x45"), "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+inline CMemory p_KeyValues_FindKey = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x10\x48\x89\x6C\x24\x18\x48\x89\x74\x24\x20\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x81\xEC\x20\x01\x00\x00\x45"), "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 inline auto KeyValues_FindKey = p_KeyValues_FindKey.RCast<void* (*)(KeyValues* thisptr, const char* pkeyName, bool bCreate)>(); /*48 89 5C 24 10 48 89 6C 24 18 48 89 74 24 20 57 41 54 41 55 41 56 41 57 48 81 EC 20 01 00 00 45*/
 
-inline ADDRESS p_KeyValues_GetCurrentPlaylist = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\x0D\x00\x00\x00\x00\x48\x85\xC9\x75\x08\x48\x8D\x05\x00\x00\x00\x00"), "xxx????xxxxxxxx????");
+inline CMemory p_KeyValues_GetCurrentPlaylist = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\x0D\x00\x00\x00\x00\x48\x85\xC9\x75\x08\x48\x8D\x05\x00\x00\x00\x00"), "xxx????xxxxxxxx????");
 inline auto KeyValues_GetCurrentPlaylist = p_KeyValues_GetCurrentPlaylist.RCast<const char* (*)(void)>(); /*48 8B 0D ? ? ? ? 48 85 C9 75 08 48 8D 05 ? ? ? ?*/
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-inline ADDRESS p_KeyValues_Init = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x48\x8B\x05\x00\x00\x00\x01\x48\x8B\xD9\x4C\x8B\xC2"), "xxxxxxxxx???xxxxxxx"); /*40 53 48 83 EC 20 48 8B 05 ?? ?? ?? 01 48 8B D9 4C 8B C2*/
+inline CMemory p_KeyValues_Init = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x48\x8B\x05\x00\x00\x00\x01\x48\x8B\xD9\x4C\x8B\xC2"), "xxxxxxxxx???xxxxxxx"); /*40 53 48 83 EC 20 48 8B 05 ?? ?? ?? 01 48 8B D9 4C 8B C2*/
 inline auto KeyValues_Init = p_KeyValues_Init.RCast<void* (*)(KeyValues* thisptr, const char* pSymbol, int64_t a3, bool bCreate)>();
 
-inline ADDRESS p_KeyValues_FindKey = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x56\x57\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x45"), "xxxxxxxx????x");
+inline CMemory p_KeyValues_FindKey = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x56\x57\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x45"), "xxxxxxxx????x");
 inline auto KeyValues_FindKey = p_KeyValues_FindKey.RCast<void* (*)(KeyValues* thisptr, const char* pkeyName, bool bCreate)>(); /*40 56 57 41 57 48 81 EC 30 01 00 00 45 0F B6 F8*/
 
-inline ADDRESS p_KeyValues_GetCurrentPlaylist = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\x05\x00\x00\x00\x00\x48\x85\xC0\x75\x08\x48\x8D\x05\x00\x00\x00\x00\xC3\x0F\xB7\x50\x2A"), "xxx????xxxxxxxx????xxxxx");
+inline CMemory p_KeyValues_GetCurrentPlaylist = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\x05\x00\x00\x00\x00\x48\x85\xC0\x75\x08\x48\x8D\x05\x00\x00\x00\x00\xC3\x0F\xB7\x50\x2A"), "xxx????xxxxxxxx????xxxxx");
 inline auto KeyValues_GetCurrentPlaylist = p_KeyValues_GetCurrentPlaylist.RCast<const char* (*)(void)>(); /*48 8B 05 ? ? ? ? 48 85 C0 75 08 48 8D 05 ? ? ? ? C3 0F B7 50 2A*/
 #endif
-inline ADDRESS p_KeyValues_LoadPlaylist = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x74\x0C"), "x????xx?????xx").FollowNearCallSelf().GetPtr();
+inline CMemory p_KeyValues_LoadPlaylist = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x74\x0C"), "x????xx?????xx").FollowNearCallSelf().GetPtr();
 inline auto KeyValues_LoadPlaylist = p_KeyValues_LoadPlaylist.RCast<bool (*)(const char* pszPlaylist)>(); /*E8 ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 74 0C*/
 
 enum KeyValuesTypes

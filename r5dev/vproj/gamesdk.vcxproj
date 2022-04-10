@@ -71,6 +71,8 @@
     </ClCompile>
     <ClCompile Include="..\public\bansystem.cpp" />
     <ClCompile Include="..\public\binstream.cpp" />
+    <ClCompile Include="..\public\memaddr.cpp" />
+    <ClCompile Include="..\public\module.cpp" />
     <ClCompile Include="..\public\utility.cpp" />
     <ClCompile Include="..\rtech\rtech_utils.cpp" />
     <ClCompile Include="..\rtech\rtech_game.cpp" />
@@ -119,7 +121,8 @@
     <ClInclude Include="..\common\opcodes.h" />
     <ClInclude Include="..\common\protocol.h" />
     <ClInclude Include="..\common\pseudodefs.h" />
-    <ClInclude Include="..\common\sdktypes.h" />
+    <ClInclude Include="..\common\sdkdefs.h" />
+    <ClInclude Include="..\common\x86defs.h" />
     <ClInclude Include="..\core\assert.h" />
     <ClInclude Include="..\core\init.h" />
     <ClInclude Include="..\core\logdef.h" />
@@ -189,6 +192,7 @@
     <ClInclude Include="..\public\include\binstream.h" />
     <ClInclude Include="..\public\include\httplib.h" />
     <ClInclude Include="..\public\include\json.hpp" />
+    <ClInclude Include="..\public\include\module.h" />
     <ClInclude Include="..\public\include\stb_image.h" />
     <ClInclude Include="..\public\include\utility.h" />
     <ClInclude Include="..\core\resource.h" />
@@ -489,7 +493,7 @@
       <CreateHotpatchableImage>
       </CreateHotpatchableImage>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalOptions>/D GAMESDK /D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D GAMESDK /D _CRT_SECURE_NO_WARNINGS /arch:AVX2 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

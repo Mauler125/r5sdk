@@ -46,7 +46,7 @@ static_assert(sizeof(CMaterialGlue) == 0x130);
 #pragma pack(pop)
 
 /* ==== CMATERIALGLUE ================================================================================================================================================== */
-inline ADDRESS p_GetMaterialAtCrossHair = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x83\xEC\x58\x48\x83\x3D\x00\x00\x00\x00\x00"), "xxxxxxxxxx?????");
+inline CMemory p_GetMaterialAtCrossHair = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x83\xEC\x58\x48\x83\x3D\x00\x00\x00\x00\x00"), "xxxxxxxxxx?????");
 inline auto GetMaterialAtCrossHair = p_GetMaterialAtCrossHair.RCast<CMaterialGlue* (*)(void)>(); /*48 8B C4 48 83 EC 58 48 83 3D ? ? ? ? ?*/
 
 void CMaterialGlue_Attach();

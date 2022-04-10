@@ -1,7 +1,9 @@
-#ifndef SDKTYPES_H
-#define SDKTYPES_H
+#ifndef SDKDEFS_H
+#define SDKDEFS_H
 
 // Common type declarations to reduce code verbosity.
+using std::pair;
+using std::regex;
 using std::string;
 using std::vector;
 using std::fstream;
@@ -12,4 +14,4 @@ using std::ostringstream;
 namespace fs = std::filesystem;
 typedef const unsigned char* rsig_t;
 
-#endif // SDKTYPES_H
+#endif // SDKDEFS_H

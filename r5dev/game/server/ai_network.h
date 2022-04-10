@@ -47,7 +47,7 @@ public:
 void CAI_Network_Attach();
 void CAI_Network_Detach();
 
-inline ADDRESS p_CAI_Network__DebugConnectMsg = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x89\x4C\x24\x00\x48\x83\xEC\x18"), "xxxx?xxxx");
+inline CMemory p_CAI_Network__DebugConnectMsg = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x89\x4C\x24\x00\x48\x83\xEC\x18"), "xxxx?xxxx");
 inline auto v_CAI_Network__DebugConnectMsg = p_CAI_Network__DebugConnectMsg.RCast<void (*)(int node1, int node2, const char* pszformat, ...)>(); /*4C 89 4C 24 ? 48 83 EC 18*/
 
 ///////////////////////////////////////////////////////////////////////////////

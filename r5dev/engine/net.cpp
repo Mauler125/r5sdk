@@ -61,8 +61,9 @@ void* NET_SendDatagram(SOCKET s, const char* szPayload, int iLenght, int nFlags)
 
 //-----------------------------------------------------------------------------
 // Purpose: sets the user specified encryption key
+// Input  : *svNetKey - 
 //-----------------------------------------------------------------------------
-void NET_SetKey(std::string svNetKey)
+void NET_SetKey(const string& svNetKey)
 {
 	g_szNetKey.clear();
 	g_szNetKey = svNetKey;
@@ -235,6 +236,6 @@ void NET_Trace_Detach()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-std::string g_szNetKey = "WDNWLmJYQ2ZlM0VoTid3Yg==";
-std::uintptr_t g_pNetKey = g_mGameDll.StringSearch("client:NetEncryption_NewKey").FindPatternSelf("48 8D ? ? ? ? ? 48 3B", ADDRESS::Direction::UP, 300).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr();
+string g_szNetKey = "WDNWLmJYQ2ZlM0VoTid3Yg==";
+uintptr_t g_pNetKey = g_mGameDll.FindString("client:NetEncryption_NewKey").FindPatternSelf("48 8D ? ? ? ? ? 48 3B", CMemory::Direction::UP, 300).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr();
 #endif // !NETCONSOLE

@@ -176,8 +176,8 @@ void CKeyValueSystem_Detach()
 
 ///////////////////////////////////////////////////////////////////////////////
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-inline KeyValues** g_pPlaylistKeyValues = reinterpret_cast<KeyValues**>(p_Stryder_StitchRequest.FindPatternSelf("48 8B 2D", ADDRESS::Direction::DOWN, 100).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr()); // Get the KeyValue for the playlist file.
+inline KeyValues** g_pPlaylistKeyValues = reinterpret_cast<KeyValues**>(p_Stryder_StitchRequest.FindPatternSelf("48 8B 2D", CMemory::Direction::DOWN, 100).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr()); // Get the KeyValue for the playlist file.
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-inline KeyValues** g_pPlaylistKeyValues = reinterpret_cast<KeyValues**>(p_Stryder_StitchRequest.FindPatternSelf("48 8B 0D", ADDRESS::Direction::DOWN, 100).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr()); // Get the KeyValue for the playlist file.
+inline KeyValues** g_pPlaylistKeyValues = reinterpret_cast<KeyValues**>(p_Stryder_StitchRequest.FindPatternSelf("48 8B 0D", CMemory::Direction::DOWN, 100).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr()); // Get the KeyValue for the playlist file.
 #endif
 vector<string> g_szAllPlaylists = { "<<null>>" };

@@ -10,7 +10,7 @@
 // For checking if a specific file exists.
 BOOL FileExists(const char* szPath)
 {
-    return std::filesystem::exists(szPath);
+    return fs::exists(szPath);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -190,8 +190,15 @@ void HexDump(const char* szHeader, int nFunc, const void* pData, int nSize)
         if (i % nSize == 0) { logger->trace(" 0x{:04X}  ", i); }
         logger->trace("{:02x} ", ((unsigned char*)pData)[i]);
 
-        if (((unsigned char*)pData)[i] >= ' ' && ((unsigned char*)pData)[i] <= '~') { szAscii[i % 16] = ((unsigned char*)pData)[i]; }
-        else { szAscii[i % 16] = '.'; }
+        if ((reinterpret_cast<rsig_t>(pData))[i] >= ' ' && 
+            (reinterpret_cast<rsig_t>(pData))[i] <= '~')
+        {
+            szAscii[i % 16] = (reinterpret_cast<rsig_t>(pData))[i];
+        }
+        else
+        {
+            szAscii[i % 16] = '.';
+        }
 
         if ((i + 1) % 8 == 0 || i + 1 == nSize)
         {
@@ -234,13 +241,47 @@ void HexDump(const char* szHeader, int nFunc, const void* pData, int nSize)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// For encoding data in base64.
-std::string Base64Encode(const std::string& in)
+// For creating directories for output streams.
+string CreateDirectories(string svInput)
 {
-    std::string results;
+    fs::path fspPathOut(svInput);
+    string results = fspPathOut.u8string();
+
+    StringReplace(svInput, "\\ \\", "\\");
+    fspPathOut = fspPathOut.parent_path();
+
+    fs::create_directories(fspPathOut);
+
+    return results;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// For converting filepaths to windows filepaths.
+string ConvertToWinPath(const string& svInput)
+{
+    char szFilePath[MAX_PATH] = { 0 };
+    string results;
+    sprintf_s(szFilePath, MAX_PATH, "%s", svInput.c_str());
+
+    // Flip forward slashes in filepath to windows-style backslash
+    for (int i = 0; i < strlen(szFilePath); i++)
+    {
+        if (szFilePath[i] == '/')
+        {
+            szFilePath[i] = '\\';
+        }
+    }
+    return results = szFilePath;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// For encoding data in base64.
+string Base64Encode(const string& svInput)
+{
+    string results;
     int val = 0, valb = -6;
 
-    for (unsigned char c : in)
+    for (unsigned char c : svInput)
     {
         val = (val << 8) + c;
         valb += 8;
@@ -263,18 +304,18 @@ std::string Base64Encode(const std::string& in)
 
 ///////////////////////////////////////////////////////////////////////////////
 // For decoding data in base64.
-std::string Base64Decode(const std::string& in)
+string Base64Decode(const string& svInput)
 {
-    std::string results;
+    string results;
     int val = 0, valb = -8;
 
-    std::vector<int> T(256, -1);
+    vector<int> T(256, -1);
     for (int i = 0; i < 64; i++)
     {
         T["ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[i]] = i;
     }
 
-    for (unsigned char c : in)
+    for (unsigned char c : svInput)
     {
         if (T[c] == -1)
         {
@@ -293,59 +334,25 @@ std::string Base64Decode(const std::string& in)
 
 ///////////////////////////////////////////////////////////////////////////////
 // For replacing parts of a given string.
-bool StringReplace(std::string& str, const std::string& from, const std::string& to)
+bool StringReplace(string& svInput, const string& svFrom, const string& svTo)
 {
-    size_t start_pos = str.find(from);
-    if (start_pos == std::string::npos)
+    size_t start_pos = svInput.find(svFrom);
+    if (start_pos == string::npos)
     {
         return false;
     }
 
-    str.replace(start_pos, from.length(), to);
+    svInput.replace(start_pos, svFrom.length(), svTo);
     return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// For creating directories for output streams.
-std::string CreateDirectories(std::string svFilePath)
-{
-    std::filesystem::path fspPathOut(svFilePath);
-    std::string results = fspPathOut.u8string();
-
-    StringReplace(svFilePath, "\\ \\", "\\");
-    fspPathOut = fspPathOut.parent_path();
-
-    std::filesystem::create_directories(fspPathOut);
-
-    return results;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// For converting filepaths to windows filepaths.
-std::string ConvertToWinPath(const std::string& input)
-{
-    char szFilePath[MAX_PATH] = { 0 };
-    std::string results;
-    sprintf_s(szFilePath, MAX_PATH, "%s", input.c_str());
-
-    // Flip forward slashes in filepath to windows-style backslash
-    for (int i = 0; i < strlen(szFilePath); i++)
-    {
-        if (szFilePath[i] == '/')
-        {
-            szFilePath[i] = '\\';
-        }
-    }
-    return results = szFilePath;
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // For escaping special characters in a string.
-std::string StringEscape(const std::string& input)
+string StringEscape(const string& svInput)
 {
-    std::string results;
-    results.reserve(input.size());
-    for (const char c : input)
+    string results;
+    results.reserve(svInput.size());
+    for (const char c : svInput)
     {
         switch (c)
         {
@@ -365,11 +372,11 @@ std::string StringEscape(const std::string& input)
 
 ///////////////////////////////////////////////////////////////////////////////
 // For unescaping special characters in a string.
-std::string StringUnescape(const std::string& input)
+string StringUnescape(const string& svInput)
 {
-    std::string results;
-    results.reserve(input.size());
-    for (const char c : input)
+    string results;
+    results.reserve(svInput.size());
+    for (const char c : svInput)
     {
         switch (c)
         {
@@ -386,3 +393,51 @@ std::string StringUnescape(const std::string& input)
     }
     return results;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// For converting a string to an array of bytes.
+vector<int> StringToBytes(const string& svInput, bool bNullTerminator)
+{
+    char* pszStringStart = const_cast<char*>(svInput.c_str());
+    char* pszStringEnd = pszStringStart + strlen(svInput.c_str());
+    vector<int> vBytes = vector<int>{ };
+
+    for (char* pszCurrentByte = pszStringStart; pszCurrentByte < pszStringEnd; ++pszCurrentByte)
+    {
+        // Dereference character and push back the byte.
+        vBytes.push_back(*pszCurrentByte);
+    }
+
+    if (bNullTerminator)
+    {
+        vBytes.push_back(0x0);
+    }
+    return vBytes;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// For converting a string pattern with wildcards to an array of bytes.
+vector<int> PatternToBytes(const string& svInput)
+{
+    char* pszPatternStart = const_cast<char*>(svInput.c_str());
+    char* pszPatternEnd = pszPatternStart + strlen(svInput.c_str());
+    vector<int> vBytes = vector<int>{ };
+
+    for (char* pszCurrentByte = pszPatternStart; pszCurrentByte < pszPatternEnd; ++pszCurrentByte)
+    {
+        if (*pszCurrentByte == '?')
+        {
+            ++pszCurrentByte;
+            if (*pszCurrentByte == '?')
+            {
+                ++pszCurrentByte; // Skip double wildcard.
+            }
+            vBytes.push_back(-1); // Push the byte back as invalid.
+        }
+        else
+        {
+            vBytes.push_back(strtoul(pszCurrentByte, &pszCurrentByte, 16));
+        }
+    }
+    return vBytes;
+};

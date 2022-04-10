@@ -48,25 +48,25 @@ public:
 };
 
 /* ==== CHOSTSTATE ====================================================================================================================================================== */
-inline ADDRESS p_CHostState_FrameUpdate = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x08\x48\x89\x6C\x24\x20\xF3\x0F\x11\x54\x24\x18"), "xxxxxxxxxxxxxxxx");
+inline CMemory p_CHostState_FrameUpdate = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x08\x48\x89\x6C\x24\x20\xF3\x0F\x11\x54\x24\x18"), "xxxxxxxxxxxxxxxx");
 inline auto CHostState_FrameUpdate = p_CHostState_FrameUpdate.RCast<void(*)(void* rcx, void* rdx, float time)>(); /*48 89 5C 24 08 48 89 6C 24 20 F3 0F 11 54 24 18*/
 
 namespace // !TEMP
 {
-	static auto setjmpFn            = ADDRESS(0x141205460).RCast<std::int64_t(*)(jmp_buf, void*)>();
-	static auto host_abortserver    = ADDRESS(0x14B37C700).RCast<jmp_buf*>();
-	static auto CHostState_InitFn   = ADDRESS(0x14023E7D0).RCast<void(*)(CHostState*)>();
-	static auto g_ServerAbortServer = ADDRESS(0x14B37CA22).RCast<char*>();
-	static auto State_RunFn         = ADDRESS(0x14023E870).RCast<void(*)(HostStates_t*, void*, float)>();
-	static auto g_ServerGameClients = ADDRESS(0x14B383428).RCast<std::int64_t*>();
-	static auto SV_InitGameDLLFn    = ADDRESS(0x140308B90).RCast<void(*)()>();
-	static auto g_CModelLoader      = ADDRESS(0x14173B210).RCast<void*>();
-	static auto CModelLoader_Map_IsValidFn = ADDRESS(0x1402562F0).RCast<bool(*)(void*, const char*)>();
-	static auto Host_NewGameFn             = ADDRESS(0x140238DA0).RCast<bool(*)(char*, char*, bool, bool, void*)>();
-	static auto Host_Game_ShutdownFn       = ADDRESS(0x14023EDA0).RCast<void(*)(CHostState*)>();
-	static auto Host_ChangelevelFn             = ADDRESS(0x1402387B0).RCast<void(*)(bool, const char*, const char*)>();
-	static auto CL_EndMovieFn                  = ADDRESS(0x1402C03D0).RCast<void(*)()>();
-	static auto SendOfflineRequestToStryderFn  = ADDRESS(0x14033D380).RCast<void(*)()>();
+	static auto setjmpFn            = CMemory(0x141205460).RCast<std::int64_t(*)(jmp_buf, void*)>();
+	static auto host_abortserver    = CMemory(0x14B37C700).RCast<jmp_buf*>();
+	static auto CHostState_InitFn   = CMemory(0x14023E7D0).RCast<void(*)(CHostState*)>();
+	static auto g_ServerAbortServer = CMemory(0x14B37CA22).RCast<char*>();
+	static auto State_RunFn         = CMemory(0x14023E870).RCast<void(*)(HostStates_t*, void*, float)>();
+	static auto g_ServerGameClients = CMemory(0x14B383428).RCast<std::int64_t*>();
+	static auto SV_InitGameDLLFn    = CMemory(0x140308B90).RCast<void(*)()>();
+	static auto g_CModelLoader      = CMemory(0x14173B210).RCast<void*>();
+	static auto CModelLoader_Map_IsValidFn = CMemory(0x1402562F0).RCast<bool(*)(void*, const char*)>();
+	static auto Host_NewGameFn             = CMemory(0x140238DA0).RCast<bool(*)(char*, char*, bool, bool, void*)>();
+	static auto Host_Game_ShutdownFn       = CMemory(0x14023EDA0).RCast<void(*)(CHostState*)>();
+	static auto Host_ChangelevelFn             = CMemory(0x1402387B0).RCast<void(*)(bool, const char*, const char*)>();
+	static auto CL_EndMovieFn                  = CMemory(0x1402C03D0).RCast<void(*)()>();
+	static auto SendOfflineRequestToStryderFn  = CMemory(0x14033D380).RCast<void(*)()>();
 }
 
 extern bool g_bLevelResourceInitialized;

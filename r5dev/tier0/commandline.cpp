@@ -129,4 +129,4 @@ void CCommandLine::SetParm(int nIndex, char const* pParm)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-CCommandLine* g_pCmdLine = reinterpret_cast<CCommandLine*>(p_CCVar_GetCommandLineValue.FindPatternSelf("48 8D 0D", ADDRESS::Direction::DOWN, 250).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr());
+CCommandLine* g_pCmdLine = reinterpret_cast<CCommandLine*>(p_CCVar_GetCommandLineValue.FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 250).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr());

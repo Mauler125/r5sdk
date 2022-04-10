@@ -61,9 +61,9 @@ void HRTech_AsyncLoad(std::string svPakFileName)
 void* HJT_HelpWithAnything(bool bShouldLoadPak)
 {
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	static void* retaddr = reinterpret_cast<void*>(p_Host_NewGame.Offset(0x400).FindPatternSelf("48 8B ?? ?? ?? ?? 01", ADDRESS::Direction::DOWN).GetPtr());
+	static void* retaddr = reinterpret_cast<void*>(p_Host_NewGame.Offset(0x400).FindPatternSelf("48 8B ?? ?? ?? ?? 01", CMemory::Direction::DOWN).GetPtr());
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	static void* retaddr = reinterpret_cast<void*>(p_Host_NewGame.Offset(0x4A0).FindPatternSelf("48 8B ?? ?? ?? ?? 01", ADDRESS::Direction::DOWN).GetPtr());
+	static void* retaddr = reinterpret_cast<void*>(p_Host_NewGame.Offset(0x4A0).FindPatternSelf("48 8B ?? ?? ?? ?? 01", CMemory::Direction::DOWN).GetPtr());
 #endif
 	void* results = JT_HelpWithAnything(bShouldLoadPak);
 

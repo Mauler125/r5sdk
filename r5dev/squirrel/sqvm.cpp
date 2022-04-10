@@ -125,7 +125,7 @@ SQRESULT HSQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 //---------------------------------------------------------------------------------
 SQRESULT HSQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* nStringSize, SQChar** ppString)
 {
-	static void* retaddr = reinterpret_cast<void*>(p_SQVM_WarningCmd.Offset(0x10).FindPatternSelf("85 ?? ?? 99", ADDRESS::Direction::DOWN).GetPtr());
+	static void* retaddr = reinterpret_cast<void*>(p_SQVM_WarningCmd.Offset(0x10).FindPatternSelf("85 ?? ?? 99", CMemory::Direction::DOWN).GetPtr());
 	SQRESULT result = SQVM_WarningFunc(v, a2, a3, nStringSize, ppString);
 
 	if (retaddr != _ReturnAddress()) // Check if its SQVM_Warning calling.

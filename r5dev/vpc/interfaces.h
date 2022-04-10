@@ -58,7 +58,7 @@ struct InterfaceGlobals_t
 
 struct FactoryInfo
 {
-	ADDRESS m_pFactoryPtr;
+	CMemory m_pFactoryPtr;
 	string m_szFactoryFullName;
 	string m_szFactoryName;
 	string m_szFactoryVersion;
@@ -80,7 +80,7 @@ public:
 	void AddFactory(FactoryInfo factoryInfo);
 	int GetVersionIndex(const string& svInterfaceName) const;
 	void GetFactoriesFromRegister(void);
-	ADDRESS GetFactoryPtr(const string& factoryName, bool versionLess = true) const;
+	CMemory GetFactoryPtr(const string& factoryName, bool versionLess = true) const;
 
 private:
 	vector<FactoryInfo> m_vFactories;
@@ -88,8 +88,8 @@ private:
 extern CFactory* g_pFactory;
 
 /* ==== s_pInterfaceRegs ==================================================================================================================================================== */
-inline ADDRESS s_pInterfacesRegs = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE9\x00\x00\x00\x00\xCC\xCC\x89\x91\x00\x00\x00\x00"), "x????xxxx????")
-	.FollowNearCallSelf().FindPatternSelf("48 8B 1D", ADDRESS::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7);
+inline CMemory s_pInterfacesRegs = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE9\x00\x00\x00\x00\xCC\xCC\x89\x91\x00\x00\x00\x00"), "x????xxxx????")
+	.FollowNearCallSelf().FindPatternSelf("48 8B 1D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7);
 
 ///////////////////////////////////////////////////////////////////////////////
 class HFactory : public IDetour

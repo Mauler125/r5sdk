@@ -148,7 +148,7 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	{
 		CEngineVGui__Shutdown.Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 });                                  // FUN --> RET | Cannot shutdown CEngineVGui if its never initialized.
-		CEngineVGui__ActivateGameUI.FindPatternSelf("74 08", ADDRESS::Direction::DOWN).Patch({ 0x90, 0x90 }); // JZ  --> NOP | Remove condition to return early when engine attempts to activate UI on the server.
+		CEngineVGui__ActivateGameUI.FindPatternSelf("74 08", CMemory::Direction::DOWN).Patch({ 0x90, 0x90 }); // JZ  --> NOP | Remove condition to return early when engine attempts to activate UI on the server.
 	}
 
 	//-------------------------------------------------------------------------
@@ -187,11 +187,11 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	{
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		Host_Shutdown.Offset(0x3B0).FindPatternSelf("0F 84", ADDRESS::Direction::DOWN).Patch({ 0x0F, 0x85 });      // JE  --> JNE | Cannot shutdown ClientDLL if its never initialized.
-		Host_Shutdown.Offset(0x9D0).FindPatternSelf("0F 84", ADDRESS::Direction::DOWN, 300).Patch({ 0x0F, 0x85 }); // JE  --> JNE | Cannot shutdown EngineVGui if its never initialized.
+		Host_Shutdown.Offset(0x3B0).FindPatternSelf("0F 84", CMemory::Direction::DOWN).Patch({ 0x0F, 0x85 });      // JE  --> JNE | Cannot shutdown ClientDLL if its never initialized.
+		Host_Shutdown.Offset(0x9D0).FindPatternSelf("0F 84", CMemory::Direction::DOWN, 300).Patch({ 0x0F, 0x85 }); // JE  --> JNE | Cannot shutdown EngineVGui if its never initialized.
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		Host_Shutdown.Offset(0x2B0).FindPatternSelf("0F 84", ADDRESS::Direction::DOWN, 300).Patch({ 0x0F, 0x85 }); // JE  --> JNE | Cannot shutdown ClientDLL if its never initialized.
-		Host_Shutdown.Offset(0x5C0).FindPatternSelf("0F 84", ADDRESS::Direction::DOWN, 300).Patch({ 0x0F, 0x85 }); // JE  --> JNE | Cannot shutdown EngineVGui if its never initialized.
+		Host_Shutdown.Offset(0x2B0).FindPatternSelf("0F 84", CMemory::Direction::DOWN, 300).Patch({ 0x0F, 0x85 }); // JE  --> JNE | Cannot shutdown ClientDLL if its never initialized.
+		Host_Shutdown.Offset(0x5C0).FindPatternSelf("0F 84", CMemory::Direction::DOWN, 300).Patch({ 0x0F, 0x85 }); // JE  --> JNE | Cannot shutdown EngineVGui if its never initialized.
 #endif
 	}
 
@@ -216,7 +216,7 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	{
 #if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		Host_Disconnect.Offset(0x4A).FindPatternSelf("FF 90 80", ADDRESS::Direction::DOWN, 300).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, }); // CAL --> RET | This seems to call 'CEngineVGui::GetGameUIInputContext()'.
+		Host_Disconnect.Offset(0x4A).FindPatternSelf("FF 90 80", CMemory::Direction::DOWN, 300).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, }); // CAL --> RET | This seems to call 'CEngineVGui::GetGameUIInputContext()'.
 #endif
 	}
 
@@ -225,7 +225,7 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	{
 #if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_RTech_LoadPak.Offset(0x890).FindPatternSelf("75", ADDRESS::Direction::DOWN, 200).Patch({ 0xEB });       // JNZ --> JMP | Disable error handling for missing streaming files on the server. The server does not need streamed data from the starpak files.
+		p_RTech_LoadPak.Offset(0x890).FindPatternSelf("75", CMemory::Direction::DOWN, 200).Patch({ 0xEB });       // JNZ --> JMP | Disable error handling for missing streaming files on the server. The server does not need streamed data from the starpak files.
 #endif
 	}
 
@@ -233,14 +233,14 @@ void Dedicated_Init()
 	// RUNTIME: EBISUSDK
 	//-------------------------------------------------------------------------
 	{
-		p_EbisuSDK_SetState.Offset(0x0).FindPatternSelf("0F 84", ADDRESS::Direction::DOWN).Patch({ 0x0F, 0x85 }); // JE  --> JNZ | Prevent EbisuSDK from initializing on the engine and server.
+		p_EbisuSDK_SetState.Offset(0x0).FindPatternSelf("0F 84", CMemory::Direction::DOWN).Patch({ 0x0F, 0x85 }); // JE  --> JNZ | Prevent EbisuSDK from initializing on the engine and server.
 	}
 
 	//-------------------------------------------------------------------------
 	// RUNTIME: FAIRFIGHT
 	//-------------------------------------------------------------------------
 	{
-		FairFight_Init.Offset(0x0).FindPatternSelf("0F 87", ADDRESS::Direction::DOWN, 200).Patch({ 0x0F, 0x85 }); // JA  --> JNZ | Prevent 'FairFight' anti-cheat from initializing on the server by comparing RAX against 0x0 instead. Init will crash since the plugins aren't shipped.
+		FairFight_Init.Offset(0x0).FindPatternSelf("0F 87", CMemory::Direction::DOWN, 200).Patch({ 0x0F, 0x85 }); // JA  --> JNZ | Prevent 'FairFight' anti-cheat from initializing on the server by comparing RAX against 0x0 instead. Init will crash since the plugins aren't shipped.
 	}
 
 	//-------------------------------------------------------------------------
@@ -294,18 +294,18 @@ void Dedicated_Init()
 void RuntimePtc_Init() /* .TEXT */
 {
 #ifndef DEDICATED
-	p_WASAPI_GetAudioDevice.Offset(0x410).FindPattern("FF 15 ?? ?? 01 00", ADDRESS::Direction::DOWN, 100).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0xEB }); // CAL --> NOP | Disable debugger check when miles searches for audio device to allow attaching the debugger to the game upon launch.
-	FairFight_Init.Offset(0x0).FindPatternSelf("0F 87", ADDRESS::Direction::DOWN, 200).Patch({ 0x0F, 0x85 });                      // JA  --> JNZ | Prevent 'FairFight' anti-cheat from initializing on the server by comparing RAX against 0x0 instead. Init will crash since the plugins aren't shipped.
-	SCR_BeginLoadingPlaque.Offset(0x1AD).FindPatternSelf("75 27", ADDRESS::Direction::DOWN).Patch({ 0xEB, 0x27 });                 // JNE --> JMP | Prevent connect command from crashing by invalid call to UI function.
-	p_SQVM_CompileError.Offset(0x0).FindPatternSelf("41 B0 01", ADDRESS::Direction::DOWN, 400).Patch({ 0x41, 0xB0, 0x00 });        // MOV --> MOV | Set script error level to 0 (not severe): 'mov r8b, 0'.
-	p_SQVM_CompileError.Offset(0xE0).FindPatternSelf("E8", ADDRESS::Direction::DOWN, 200).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | TODO: causes errors on client script error. Research required (same function as soft error but that one doesn't crash).
+	p_WASAPI_GetAudioDevice.Offset(0x410).FindPattern("FF 15 ?? ?? 01 00", CMemory::Direction::DOWN, 100).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0xEB }); // CAL --> NOP | Disable debugger check when miles searches for audio device to allow attaching the debugger to the game upon launch.
+	FairFight_Init.Offset(0x0).FindPatternSelf("0F 87", CMemory::Direction::DOWN, 200).Patch({ 0x0F, 0x85 });                      // JA  --> JNZ | Prevent 'FairFight' anti-cheat from initializing on the server by comparing RAX against 0x0 instead. Init will crash since the plugins aren't shipped.
+	SCR_BeginLoadingPlaque.Offset(0x1AD).FindPatternSelf("75 27", CMemory::Direction::DOWN).Patch({ 0xEB, 0x27 });                 // JNE --> JMP | Prevent connect command from crashing by invalid call to UI function.
+	p_SQVM_CompileError.Offset(0x0).FindPatternSelf("41 B0 01", CMemory::Direction::DOWN, 400).Patch({ 0x41, 0xB0, 0x00 });        // MOV --> MOV | Set script error level to 0 (not severe): 'mov r8b, 0'.
+	p_SQVM_CompileError.Offset(0xE0).FindPatternSelf("E8", CMemory::Direction::DOWN, 200).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | TODO: causes errors on client script error. Research required (same function as soft error but that one doesn't crash).
 #else
-	p_SQVM_CompileError.Offset(0xE0).FindPatternSelf("E8", ADDRESS::Direction::DOWN, 200).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | For dedicated we should not perform post-error events such as telemetry / showing 'COM_ExplainDisconnection' UI etc.
+	p_SQVM_CompileError.Offset(0xE0).FindPatternSelf("E8", CMemory::Direction::DOWN, 200).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | For dedicated we should not perform post-error events such as telemetry / showing 'COM_ExplainDisconnection' UI etc.
 #endif // !DEDICATED
 
 #if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	p_CAI_NetworkManager__ShouldRebuild.Offset(0xA0).FindPatternSelf("FF ?? ?? ?? 00 00", ADDRESS::Direction::DOWN, 200).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | Virtual call to restart when building AIN (which clears the AIN memory). Remove this once writing to file works.
-	Detour_LevelInit.Offset(0x100).FindPatternSelf("74", ADDRESS::Direction::DOWN, 600).Patch({ 0xEB });                                                                // JE  --> JMP | Do while loop setting fields to -1 in navmesh is writing out of bounds (!TODO).
+	p_CAI_NetworkManager__ShouldRebuild.Offset(0xA0).FindPatternSelf("FF ?? ?? ?? 00 00", CMemory::Direction::DOWN, 200).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | Virtual call to restart when building AIN (which clears the AIN memory). Remove this once writing to file works.
+	Detour_LevelInit.Offset(0x100).FindPatternSelf("74", CMemory::Direction::DOWN, 600).Patch({ 0xEB });                                                                // JE  --> JMP | Do while loop setting fields to -1 in navmesh is writing out of bounds (!TODO).
 #endif
 #ifndef CLIENT_DLL
 	Server_S2C_CONNECT_1.Offset(0x7).Patch({ 0xEB }); // JZ --> JMP | Prevent entitlement check to kick player from server on S2C_CONNECT Packet if it does not match the servers one.

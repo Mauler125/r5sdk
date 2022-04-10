@@ -30,7 +30,7 @@ struct VecNetDataFragments
 //-------------------------------------------------------------------------
 // MM_HEARTBEAT
 //-------------------------------------------------------------------------
-inline ADDRESS MM_Heartbeat__ToString = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x38\xE8\x00\x00\x00\x00\x3B\x05\x00\x00\x00\x00"), "xxxxx????xx????"); // server HeartBeat? (baseserver.cpp).
+inline CMemory MM_Heartbeat__ToString = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x38\xE8\x00\x00\x00\x00\x3B\x05\x00\x00\x00\x00"), "xxxxx????xx????"); // server HeartBeat? (baseserver.cpp).
 // 0x1402312A0 // 48 83 EC 38 E8 ? ? ? ? 3B 05 ? ? ? ? //
 
 ///////////////////////////////////////////////////////////////////////////////

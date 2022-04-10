@@ -825,9 +825,6 @@
     <ClInclude Include="..\filesystem\filesystem.h">
       <Filter>sdk\filesystem</Filter>
     </ClInclude>
-    <ClInclude Include="..\common\sdktypes.h">
-      <Filter>sdk\common</Filter>
-    </ClInclude>
     <ClInclude Include="..\tier1\cmd.h">
       <Filter>sdk\tier1</Filter>
     </ClInclude>
@@ -842,6 +839,15 @@
     </ClInclude>
     <ClInclude Include="..\vstdlib\keyvaluessystem.h">
       <Filter>sdk\vstdlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\module.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\x86defs.h">
+      <Filter>sdk\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\sdkdefs.h">
+      <Filter>sdk\common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1057,6 +1063,12 @@
     </ClCompile>
     <ClCompile Include="..\vstdlib\keyvaluessystem.cpp">
       <Filter>sdk\vstdlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\memaddr.cpp">
+      <Filter>sdk\public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\module.cpp">
+      <Filter>sdk\public</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

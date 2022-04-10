@@ -13,6 +13,7 @@
 #include <intrin.h>
 #include <emmintrin.h>
 #include <cmath>
+#include <regex>
 #include <thread>
 #include <vector>
 #include <string>
@@ -53,8 +54,13 @@
 #include "thirdparty/spdlog/include/sinks/ansicolor_sink.h"
 #include "thirdparty/spdlog/include/sinks/rotating_file_sink.h"
 
+#include "common/pseudodefs.h"
+#include "common/x86defs.h"
+#include "common/sdkdefs.h"
+
 #include "public/include/utility.h"
 #include "public/include/memaddr.h"
+#include "public/include/module.h"
 #include "public/include/httplib.h"
 #include "public/include/json.hpp"
 
@@ -62,17 +68,15 @@
 #include "core/termutil.h"
 #include "tier0/basetypes.h"
 #include "tier0/platform.h"
-#include "common/pseudodefs.h"
-#include "common/sdktypes.h"
 
 #if !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
 #if !defined (DEDICATED)
-inline MODULE g_mGameDll = MODULE("r5apex.exe");
-inline MODULE g_mRadVideoToolsDll   = MODULE("bink2w64.dll");
-inline MODULE g_mRadAudioDecoderDll = MODULE("binkawin64.dll");
-inline MODULE g_mRadAudioSystemDll  = MODULE("mileswin64.dll");
+inline CModule g_mGameDll = CModule("r5apex.exe");
+inline CModule g_mRadVideoToolsDll   = CModule("bink2w64.dll");
+inline CModule g_mRadAudioDecoderDll = CModule("binkawin64.dll");
+inline CModule g_mRadAudioSystemDll  = CModule("mileswin64.dll");
 #else // No DirectX and Miles imports.
-inline MODULE g_mGameDll = MODULE("r5apex_ds.exe");
+inline CModule g_mGameDll = CModule("r5apex_ds.exe");
 #endif // !DEDICATED
 
 #define VAR_NAME(varName)  #varName

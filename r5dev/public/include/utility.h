@@ -13,12 +13,17 @@ DWORD64 FindPatternSIMD(const char* szModule, const unsigned char* szPattern, co
 void DbgPrint(LPCSTR sFormat, ...);
 void PrintLastError(void);
 void HexDump(const char* szHeader, int nFunc, const void* pData, int nSize);
-std::string Base64Encode(const std::string& in);
-std::string Base64Decode(const std::string& in);
-bool StringReplace(std::string& str, const std::string& from, const std::string& to);
-std::string CreateDirectories(std::string svFilePath);
-std::string ConvertToWinPath(const std::string& input);
-std::string StringEscape(const std::string& input);
-std::string StringUnescape(const std::string& input);
+
+string CreateDirectories(string svFilePath);
+string ConvertToWinPath(const string& svInput);
+
+string Base64Encode(const string& svInput);
+string Base64Decode(const string& svInput);
+
+bool StringReplace(string& svInput, const string& svFrom, const string& svTo);
+string StringEscape(const string& svInput);
+string StringUnescape(const string& svInput);
+vector<int> StringToBytes(const string& svInput, bool bNullTerminator);
+vector<int> PatternToBytes(const string& svInput);
 
 /////////////////////////////////////////////////////////////////////////////

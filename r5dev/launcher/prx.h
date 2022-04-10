@@ -1,7 +1,7 @@
 #pragma once
 
 /* ==== PRX ============================================================================================================================================================= */
-inline ADDRESS p_exit_or_terminate_process = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x8B\xD9\xE8\x00\x00\x00\x00\x84\xC0"), "xxxxxxxxx????xx");
+inline CMemory p_exit_or_terminate_process = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x8B\xD9\xE8\x00\x00\x00\x00\x84\xC0"), "xxxxxxxxx????xx");
 inline void (*exit_or_terminate_process)(UINT uExitCode) = (void (*)(UINT))p_exit_or_terminate_process.GetPtr(); /*40 53 48 83 EC 20 8B D9 E8 ? ? ? ? 84 C0 */
 
 void PRX_Attach();

@@ -69,9 +69,9 @@ void CFactory::GetFactoriesFromRegister(void)
 // Purpose: get factory pointer with factoryname input from factories vector
 // Input  : svFactoryName - 
 //			bVersionLess - 
-// Output : ADDRESS
+// Output : CModule
 //---------------------------------------------------------------------------------
-ADDRESS CFactory::GetFactoryPtr(const string& svFactoryName, bool bVersionLess) const
+CMemory CFactory::GetFactoryPtr(const string& svFactoryName, bool bVersionLess) const
 {
 	for (auto& it : m_vFactories) // Loop through the whole vector.
 	{
@@ -87,7 +87,7 @@ ADDRESS CFactory::GetFactoryPtr(const string& svFactoryName, bool bVersionLess) 
 		}
 	}
 
-	return ADDRESS();
+	return CMemory();
 }
 
 CFactory* g_pFactory = new CFactory();
