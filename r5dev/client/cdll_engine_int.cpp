@@ -1,3 +1,8 @@
+//=============================================================================
+//
+//
+//=============================================================================
+
 #include "core/stdafx.h"
 /*****************************************************************************/
 #include "tier1/cvar.h"
@@ -15,7 +20,7 @@
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void __fastcall HFrameStageNotify(CHLClient* rcx, ClientFrameStage_t frameStage)
+void CHLClient::FrameStageNotify(CHLClient* pHLClient, ClientFrameStage_t frameStage)
 {
 	switch (frameStage)
 	{
@@ -69,7 +74,7 @@ void __fastcall HFrameStageNotify(CHLClient* rcx, ClientFrameStage_t frameStage)
 		case ClientFrameStage_t::FRAME_NET_UPDATE_POSTDATAUPDATE_END:
 		{
 			g_pBanSystem->BanListCheck();
-			PatchNetVarConVar();
+			g_pHLClient->PatchNetVarConVar();
 			break;
 		}
 		default:
@@ -79,49 +84,66 @@ void __fastcall HFrameStageNotify(CHLClient* rcx, ClientFrameStage_t frameStage)
 	}
 	g_pIConsole->Think();
 	g_pRConClient->RunFrame();
-	CHLClient_FrameStageNotify(rcx, frameStage);
+	CHLClient_FrameStageNotify(pHLClient, frameStage);
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void PatchNetVarConVar()
+void CHLClient::PatchNetVarConVar(void) const
 {
-	CHAR sConvarPtr[] = "\x72\x3a\x73\x76\x72\x75\x73\x7a\x7a\x03\x04";
-	PCHAR curr = sConvarPtr;
-	while (*curr)
+#ifdef GAMEDLL_S3
+	static bool bASLR = true;
+	static bool bInit = false;
+	static void* pCVar = 0;
+
+	if (!bASLR && !bInit)
 	{
-		*curr ^= 'B';
-		++curr;
+		CHAR sConVarPtr[] = "\x72\x3a\x73\x76\x72\x75\x73\x7a\x7a\x03\x04";
+		PCHAR curr = sConVarPtr;
+		while (*curr)
+		{
+			*curr ^= 'B';
+			++curr;
+		}
+
+		stringstream ss;
+		ss << std::hex << string(sConVarPtr);
+		ss >> pCVar;
+		bInit = true;
+	}
+	else if (!bInit)
+	{
+		CMemory mCVar = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xF3\x0F\x11\x83\x8C\x21\x00\x00"), "xxxxxxxx");
+		pCVar = mCVar.RCast<void*>();
+		bInit = true;
 	}
 
-	std::int64_t nCvarAddr = 0;
-	std::stringstream ss;
-	ss << std::hex << std::string(sConvarPtr);
-	ss >> nCvarAddr;
-	void* pCvar = reinterpret_cast<void*>(nCvarAddr);
-
-	if (*reinterpret_cast<std::uint8_t*>(pCvar) == 144)
+	if (*reinterpret_cast<uint8_t*>(pCVar) == 144)
 	{
-		std::uint8_t padding[] =
+		uint8_t padding[] =
 		{
-			0x48, 0x8B, 0x45, 0x58, 0xC7, 0x00, 0x00, 0x00, 0x00, 0x00
+			0x48, 0x8B, 0x45, 
+			0x58, 0xC7, 0x00, 
+			0x00, 0x00, 0x00, 
+			0x00
 		};
 
 		void* pCallback = nullptr;
 		VirtualAlloc(pCallback, 10, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
-		memcpy(pCallback, (void*)padding, 9);
+		memcpy(pCallback, reinterpret_cast<void*>(padding), 9);
 		reinterpret_cast<void(*)()>(pCallback)();
 	}
+#endif // GAMEDLL_S3
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void CHLClient_Attach()
 {
-	DetourAttach((LPVOID*)&CHLClient_FrameStageNotify, &HFrameStageNotify);
+	DetourAttach((LPVOID*)&CHLClient_FrameStageNotify, &CHLClient::FrameStageNotify);
 }
 
 void CHLClient_Detach()
 {
-	DetourDetach((LPVOID*)&CHLClient_FrameStageNotify, &HFrameStageNotify);
+	DetourDetach((LPVOID*)&CHLClient_FrameStageNotify, &CHLClient::FrameStageNotify);
 }

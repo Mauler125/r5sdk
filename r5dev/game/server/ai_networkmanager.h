@@ -41,16 +41,13 @@ inline CMemory p_CAI_NetworkBuilder__Build = g_mGameDll.FindPatternSIMD(reinterp
 inline auto CAI_NetworkBuilder__Build = p_CAI_NetworkBuilder__Build.RCast<void* (*)(void* thisptr, CAI_Network* pNetwork, void* a3, int a4)>(); /*48 89 54 24 ? 48 89 4C 24 ? 53 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 38 8B B2 ? ? ? ?*/
 #endif
 
+inline int                 * g_nAiNodeClusters       = nullptr;
+inline AINodeClusters    *** g_pppAiNodeClusters     = nullptr;
+inline int                 * g_nAiNodeClusterLinks   = nullptr;
+inline AINodeClusterLinks*** g_pppAiNodeClusterLinks = nullptr;
+
 void CAI_NetworkManager_Attach();
 void CAI_NetworkManager_Detach();
-
-namespace // !TODO: [AMOS] don't hardocde.
-{
-	int* g_nAiNodeClusters = CMemory(0x165DAD808).RCast<int*>();
-	AINodeClusters*** g_pppAiNodeClusters = CMemory(0x165DAD7F0).RCast<AINodeClusters***>();
-	int* g_nAiNodeClusterLinks = CMemory(0x165DB18E8).RCast<int*>();
-	AINodeClusterLinks*** g_pppAiNodeClusterLinks = CMemory(0x165DB18D0).RCast<AINodeClusterLinks***>();
-}
 
 //-----------------------------------------------------------------------------
 // CAI_NetworkBuilder
@@ -65,6 +62,7 @@ public:
 	static void SaveNetworkGraph(CAI_Network* pNetwork);
 };
 
+
 ///////////////////////////////////////////////////////////////////////////////
 class HCAI_NetworkManager : public IDetour
 {
@@ -73,10 +71,24 @@ class HCAI_NetworkManager : public IDetour
 		std::cout << "| FUN: CAI_NetworkManager::LoadNetworkGraph : 0x" << std::hex << std::uppercase << p_CAI_NetworkManager__ShouldRebuild.GetPtr() << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| FUN: CAI_NetworkManager::ShouldRebuild    : 0x" << std::hex << std::uppercase << p_CAI_NetworkManager__ShouldRebuild.GetPtr() << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| FUN: CAI_NetworkBuilder::Build            : 0x" << std::hex << std::uppercase << p_CAI_NetworkBuilder__Build.GetPtr()         << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| VAR: g_nAiNodeClusters                    : 0x" << std::hex << std::uppercase << g_nAiNodeClusters                            << std::setw(0)    << " |" << std::endl;
+		std::cout << "| VAR: g_pppAiNodeClusters                  : 0x" << std::hex << std::uppercase << g_pppAiNodeClusters                          << std::setw(0)    << " |" << std::endl;
+		std::cout << "| VAR: g_nAiNodeClusterLinks                : 0x" << std::hex << std::uppercase << g_nAiNodeClusterLinks                        << std::setw(0)    << " |" << std::endl;
+		std::cout << "| VAR: g_pppAiNodeClusterLinks              : 0x" << std::hex << std::uppercase << g_pppAiNodeClusterLinks                      << std::setw(0)    << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 	virtual void GetFun(void) const { }
-	virtual void GetVar(void) const { }
+	virtual void GetVar(void) const
+	{
+		g_nAiNodeClusters = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x0F\xBF\x12"), "xxxx")
+			.FindPatternSelf("83 3D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x2, 0x7).RCast<int*>();
+		g_pppAiNodeClusters = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xF3\x0F\x10\x52\x00\x4C\x8B\xCA"), "xxxx?xxx")
+			.FindPatternSelf("48 8B 35", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<AINodeClusters***>();
+		g_nAiNodeClusterLinks = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x49\xFF\xC0\x48\x83\xC2\x04\x4D\x3B\xC2\x7C\xD4"), "xxxxxxxxxxxx")
+			.FindPatternSelf("8B 3D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x2, 0x6).RCast<int*>();
+		g_pppAiNodeClusterLinks = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xF3\x0F\x10\x52\x00\x4C\x8B\xCA"), "xxxx?xxx")
+			.FindPatternSelf("4C 8B 1D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<AINodeClusterLinks***>();
+	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }

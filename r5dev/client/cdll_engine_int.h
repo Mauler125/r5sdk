@@ -25,11 +25,8 @@ enum class ClientFrameStage_t : int
 class CHLClient
 {
 public:
-	void FrameStageNotify(ClientFrameStage_t curStage) // @0x1405C0740 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
-	{
-		static int index = 58;
-		CallVFunc<void>(index, this, curStage); /*48 83 EC 28 89 15 ?? ?? ?? ??*/
-	}
+	static void FrameStageNotify(CHLClient* pHLClient, ClientFrameStage_t curStage);
+	void PatchNetVarConVar(void) const;
 
 	void* /* CUserCmd* */ GetUserCmd(int sequenceNumber) // @0x1405BB020 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	{
@@ -62,12 +59,12 @@ inline auto CHLClient_FrameStageNotify = p_CHLClient_FrameStageNotify.RCast<void
 inline CMemory p_CHLClient_HudProcessInput = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x0F\xB6\x0D\x00\x00\x00\x00\x88\x15\x00\x00\x00\x00"), "xxxxxxx????xx????");
 inline auto CHLClient_HudProcessInput = p_CHLClient_HudProcessInput.RCast<void(*)(void* thisptr, bool bActive)>(); /*48 83 EC 28 0F B6 0D ? ? ? ? 88 15 ? ? ? ?*/
 
+inline CHLClient* g_pHLClient = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>
+	("\x48\x8D\x05\x00\x00\x00\x00\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x30\x48\x8B\xF9"), 
+	"xxx????xxxxxxxxxxxxx?xxxxxxxx").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CHLClient*>();
 inline bool* cl_time_use_host_tickcount = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x80\x3D\x00\x00\x00\x00\x00\x74\x14\x66\x0F\x6E\x05\x00\x00\x00\x00"), "xx?????xxxxxx????").ResolveRelativeAddress(0x2, 0x7).RCast<bool*>();
 
 ///////////////////////////////////////////////////////////////////////////////
-void __fastcall HFrameStageNotify(CHLClient* rcx, ClientFrameStage_t frameStage);
-void PatchNetVarConVar();
-
 void CHLClient_Attach();
 void CHLClient_Detach();
 
@@ -81,6 +78,7 @@ class HDll_Engine_Int : public IDetour
 		std::cout << "| FUN: CHLClient::HudProcessInput           : 0x" << std::hex << std::uppercase << p_CHLClient_HudProcessInput.GetPtr()  << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| FUN: CHLClient::FrameStageNotify          : 0x" << std::hex << std::uppercase << p_CHLClient_FrameStageNotify.GetPtr() << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| VAR: cl_time_use_host_tickcount           : 0x" << std::hex << std::uppercase << cl_time_use_host_tickcount            << std::setw(0)    << " |" << std::endl;
+		std::cout << "| VAR: g_pHLClient                          : 0x" << std::hex << std::uppercase << g_pHLClient                           << std::setw(0)    << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 	virtual void GetFun(void) const { }

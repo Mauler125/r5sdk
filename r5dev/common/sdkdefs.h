@@ -9,6 +9,7 @@ using std::vector;
 using std::fstream;
 using std::ifstream;
 using std::ofstream;
+using std::stringstream;
 using std::ostringstream;
 
 namespace fs = std::filesystem;
