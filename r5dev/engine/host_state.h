@@ -25,7 +25,7 @@ public:
 	FORCEINLINE void Think(void) const;
 
 	FORCEINLINE void GameShutDown(void);
-	FORCEINLINE void UnloadPakFile(void);
+	FORCEINLINE void UnloadPakFile(void) const;
 
 	FORCEINLINE void State_NewGame(void);
 	FORCEINLINE void State_ChangeLevelSP(void);

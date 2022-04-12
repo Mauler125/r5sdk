@@ -248,8 +248,8 @@ FORCEINLINE void CHostState::Think(void) const
 #endif // DEDICATED
 		if (statsTimer.GetDurationInProgress().GetSeconds() > sv_statusRefreshInterval->GetDouble())
 		{
-			std::string svCurrentPlaylist = KeyValues_GetCurrentPlaylist();
-			std::int64_t nPlayerCount = g_pServer->GetNumHumanPlayers();
+			string svCurrentPlaylist = KeyValues_GetCurrentPlaylist();
+			int32_t nPlayerCount = g_pServer->GetNumHumanPlayers();
 
 			SetConsoleTitleA(fmt::format("{} - {}/{} Players ({} on {})",
 				hostname->GetString(), nPlayerCount, g_ServerGlobalVariables->m_nMaxClients, svCurrentPlaylist.c_str(), m_levelName).c_str());
@@ -315,7 +315,7 @@ FORCEINLINE void CHostState::GameShutDown(void)
 //-----------------------------------------------------------------------------
 // Purpose: unloads all pakfiles loaded by the SDK
 //-----------------------------------------------------------------------------
-FORCEINLINE void CHostState::UnloadPakFile(void)
+FORCEINLINE void CHostState::UnloadPakFile(void) const
 {
 	for (auto& it : g_nLoadedPakFileId)
 	{
