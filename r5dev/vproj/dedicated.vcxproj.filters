@@ -849,6 +849,9 @@
     <ClInclude Include="..\common\sdkdefs.h">
       <Filter>sdk\common</Filter>
     </ClInclude>
+    <ClInclude Include="..\engine\host.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">

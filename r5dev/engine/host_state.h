@@ -16,9 +16,11 @@ enum class HostStates_t : int
 class CHostState
 {
 public:
-	FORCEINLINE static void FrameUpdate(void* rcx, void* rdx, float time);
+
+	FORCEINLINE static void FrameUpdate(CHostState* rcx, void* rdx, float time);
 	FORCEINLINE void LoadConfig(void) const;
 
+	FORCEINLINE void Init(void);
 	FORCEINLINE void Setup(void) const;
 	FORCEINLINE void Think(void) const;
 
@@ -48,26 +50,14 @@ public:
 };
 
 /* ==== CHOSTSTATE ====================================================================================================================================================== */
-inline CMemory p_CHostState_FrameUpdate = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x08\x48\x89\x6C\x24\x20\xF3\x0F\x11\x54\x24\x18"), "xxxxxxxxxxxxxxxx");
-inline auto CHostState_FrameUpdate = p_CHostState_FrameUpdate.RCast<void(*)(void* rcx, void* rdx, float time)>(); /*48 89 5C 24 08 48 89 6C 24 20 F3 0F 11 54 24 18*/
+inline CMemory p_CHostState_FrameUpdate = nullptr; /*48 89 5C 24 08 48 89 6C 24 20 F3 0F 11 54 24 18*/
+inline auto CHostState_FrameUpdate = p_CHostState_FrameUpdate.RCast<void(*)(CHostState* rcx, void* rdx, float time)>();
 
-namespace // !TEMP
-{
-	static auto setjmpFn            = CMemory(0x141205460).RCast<std::int64_t(*)(jmp_buf, void*)>();
-	static auto host_abortserver    = CMemory(0x14B37C700).RCast<jmp_buf*>();
-	static auto CHostState_InitFn   = CMemory(0x14023E7D0).RCast<void(*)(CHostState*)>();
-	static auto g_ServerAbortServer = CMemory(0x14B37CA22).RCast<char*>();
-	static auto State_RunFn         = CMemory(0x14023E870).RCast<void(*)(HostStates_t*, void*, float)>();
-	static auto g_ServerGameClients = CMemory(0x14B383428).RCast<std::int64_t*>();
-	static auto SV_InitGameDLLFn    = CMemory(0x140308B90).RCast<void(*)()>();
-	static auto g_CModelLoader      = CMemory(0x14173B210).RCast<void*>();
-	static auto CModelLoader_Map_IsValidFn = CMemory(0x1402562F0).RCast<bool(*)(void*, const char*)>();
-	static auto Host_NewGameFn             = CMemory(0x140238DA0).RCast<bool(*)(char*, char*, bool, bool, void*)>();
-	static auto Host_Game_ShutdownFn       = CMemory(0x14023EDA0).RCast<void(*)(CHostState*)>();
-	static auto Host_ChangelevelFn             = CMemory(0x1402387B0).RCast<void(*)(bool, const char*, const char*)>();
-	static auto CL_EndMovieFn                  = CMemory(0x1402C03D0).RCast<void(*)()>();
-	static auto SendOfflineRequestToStryderFn  = CMemory(0x14033D380).RCast<void(*)()>();
-}
+inline CMemory p_CHostState_State_Run = nullptr; /*48 8B C4 48 89 58 10 48 89 70 18 48 89 78 20 55 41 54 41 55 41 56 41 57 48 8D A8 ? ? ? ? 48 81 EC ? ? ? ? 0F 29 70 C8 45 33 E4*/
+inline auto CHostState_State_Run = p_CHostState_State_Run.RCast<void(*)(HostStates_t* pState, void* pUnused, float flFrameTime)>();
+
+inline CMemory p_CHostState_GameShutDown = nullptr; /*48 89 5C 24 ? 57 48 83 EC 20 48 8B D9 E8 ? ? ? ? 48 8B 0D ? ? ? ?*/
+inline auto CHostState_GameShutDown = p_CHostState_GameShutDown.RCast<void(*)(CHostState* thisptr)>();
 
 extern bool g_bLevelResourceInitialized;
 ///////////////////////////////////////////////////////////////////////////////
@@ -77,18 +67,37 @@ void CHostState_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 extern CHostState* g_pHostState;
 
-
+//48 8B C4 ?? 41 54 41 ?? 48 81 EC ? ? ? ? F2 0F 10 05 ? ? ? ?, xxx?xxx?xxx????xxxx????
 ///////////////////////////////////////////////////////////////////////////////
 class HHostState : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CHostState::FrameUpdate              : 0x" << std::hex << std::uppercase << p_CHostState_FrameUpdate.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: g_pHostState                         : 0x" << std::hex << std::uppercase << g_pHostState                      << std::setw(0)    << " |" << std::endl;
+		std::cout << "| FUN: CHostState::FrameUpdate              : 0x" << std::hex << std::uppercase << p_CHostState_FrameUpdate.GetPtr()  << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: CHostState::State_Run                : 0x" << std::hex << std::uppercase << p_CHostState_State_Run.GetPtr()    << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: CHostState::GameShutDown             : 0x" << std::hex << std::uppercase << p_CHostState_GameShutDown.GetPtr() << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| VAR: g_pHostState                         : 0x" << std::hex << std::uppercase << g_pHostState                       << std::setw(0)    << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
-	virtual void GetFun(void) const { }
-	virtual void GetVar(void) const { }
+	virtual void GetFun(void) const
+	{
+		p_CHostState_FrameUpdate = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x08\x48\x89\x6C\x24\x20\xF3\x0F\x11\x54\x24\x18"), "xxxxxxxxxxxxxxxx");
+		CHostState_FrameUpdate = p_CHostState_FrameUpdate.RCast<void(*)(CHostState*, void*, float)>();
+		p_CHostState_State_Run = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x89\x58\x10\x48\x89\x70\x18\x48\x89\x78\x20\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xA8\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x0F\x29\x70\xC8\x45\x33\xE4"), "xxxxxxxxxxxxxxxxxxxxxxxxxxx????xxx????xxxxxxx");
+		CHostState_State_Run = p_CHostState_State_Run.RCast<void(*)(HostStates_t*, void*, float)>();
+
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+		p_CHostState_GameShutDown = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x56\x48\x83\xEC\x20\x8B\x05\x00\x00\x00\x00\x48\x8B\xF1"), "xxxx?xxxxxxx????xxx");
+		CHostState_GameShutDown = p_CHostState_GameShutDown.RCast<void(*)(CHostState* thisptr)>();
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+		p_CHostState_GameShutDown = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\xD9\xE8\x00\x00\x00\x00\x48\x8B\x0D\x00\x00\x00\x00"), "xxxx?xxxxxxxxx????xxx????");
+		CHostState_GameShutDown = p_CHostState_GameShutDown.RCast<void(*)(CHostState* thisptr)>();
+#endif
+	}
+	virtual void GetVar(void) const
+	{
+		g_pHostState = p_CHostState_FrameUpdate.FindPatternSelf("48 8D ?? ?? ?? ?? 01", CMemory::Direction::DOWN, 100).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CHostState*>();
+	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }

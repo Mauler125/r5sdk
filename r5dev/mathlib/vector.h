@@ -303,6 +303,11 @@ public:
         x = X; y = Y; z = Z;
     }
 
+    inline void Init(float ix = 0.0f, float iy = 0.0f, float iz = 0.0f)
+    {
+        x = ix; y = iy; z = iz;
+    }
+
     inline void Clear()
     {
         x = y = z = 0.0f;

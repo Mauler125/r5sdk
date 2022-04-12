@@ -5,6 +5,7 @@
 #include <windows.h>
 #include <WinSock2.h>
 #include <comdef.h>
+#include <setjmp.h>
 #include <tchar.h>
 #include <stdio.h>
 #include <Psapi.h>

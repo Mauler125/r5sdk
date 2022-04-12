@@ -57,4 +57,5 @@ float CServerGameDLL::GetTickInterval(void)
 }
 
 // Pointer to CServerGameDLL virtual function table.
-CServerGameDLL* g_pServerGameDLL = reinterpret_cast<CServerGameDLL*>(p_SV_CreateBaseline.Offset(0x0).FindPatternSelf("48 8B", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).Deref().GetPtr());
+CServerGameDLL* g_pServerGameDLL = nullptr;
+CServerGameClients* g_pServerGameClients = nullptr;

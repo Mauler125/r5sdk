@@ -4,7 +4,7 @@
 
 /* ==== SV_MAIN ======================================================================================================================================================= */
 inline CMemory p_SV_InitGameDLL = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x81\xEC\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x0F\x85\x00\x00\x00\x00"), "xxx????x????xx?????xx????");
-inline auto SV_InitGameDLL = p_SV_InitGameDLL.RCast<void(*)(float a1)>(); /*48 81 EC ? ? ? ? E8 ? ? ? ? 80 3D ? ? ? ? ? 0F 85 ? ? ? ?*/
+inline auto SV_InitGameDLL = p_SV_InitGameDLL.RCast<void(*)(void)>(); /*48 81 EC ? ? ? ? E8 ? ? ? ? 80 3D ? ? ? ? ? 0F 85 ? ? ? ?*/
 
 inline CMemory p_SV_ShutdownGameDLL = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x80\x3D\x00\x00\x00\x00\x00\x0F\x84\x00\x00\x00\x00\x48\x8B\x0D\x00\x00\x00\x00\x48\x89\x5C\x24\x00"), "xxxxxx?????xx????xxx????xxxx?");
 inline auto SV_ShutdownGameDLL = p_SV_ShutdownGameDLL.RCast<void(*)(void)>(); /*48 83 EC 28 80 3D ? ? ? ? ? 0F 84 ? ? ? ? 48 8B 0D ? ? ? ? 48 89 5C 24 ?*/

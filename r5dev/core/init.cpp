@@ -58,6 +58,7 @@
 #endif // !CLIENT_DLL
 #include "engine/common.h"
 #include "engine/cmodel_bsp.h"
+#include "engine/host.h"
 #include "engine/host_cmd.h"
 #include "engine/host_state.h"
 #include "engine/modelloader.h"
@@ -107,12 +108,18 @@
 void Systems_Init()
 {
 	CheckCPU();
+	CFastTimer masterTimer;
+
+	masterTimer.Start();
 	for (IDetour* pdetour : vDetour)
 	{
 		pdetour->GetFun();
 		pdetour->GetVar();
 		pdetour->GetCon();
 	}
+	masterTimer.End();
+
+	//printf("DLL initialization took %f seconds\n", masterTimer.GetDuration().GetSeconds());
 
 	// Initialize WinSock system.
 	WS_Init();

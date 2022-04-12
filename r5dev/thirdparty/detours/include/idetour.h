@@ -31,7 +31,7 @@ class HDetour : public IDetour
 
 namespace
 {
-	std::int32_t nPad = 9;
+	std::int32_t nPad = 6;
 	std::vector<IDetour*> vDetour;
 	std::size_t AddDetour(IDetour* pDetour)
 	{

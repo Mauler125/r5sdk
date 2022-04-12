@@ -1238,6 +1238,9 @@
     <ClInclude Include="..\common\sdkdefs.h">
       <Filter>sdk\common</Filter>
     </ClInclude>
+    <ClInclude Include="..\engine\host.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\shared\resource\lockedserver.png">

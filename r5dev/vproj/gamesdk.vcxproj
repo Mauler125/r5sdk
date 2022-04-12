@@ -140,6 +140,7 @@
     <ClInclude Include="..\engine\debugoverlay.h" />
     <ClInclude Include="..\engine\gl_matsysiface.h" />
     <ClInclude Include="..\engine\gl_screen.h" />
+    <ClInclude Include="..\engine\host.h" />
     <ClInclude Include="..\engine\host_cmd.h" />
     <ClInclude Include="..\engine\host_state.h" />
     <ClInclude Include="..\engine\modelloader.h" />

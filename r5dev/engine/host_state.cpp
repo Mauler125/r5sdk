@@ -16,18 +16,23 @@
 #include "engine/sv_rcon.h"
 #else // 
 #include "engine/cl_rcon.h"
+#include "engine/cl_main.h"
 #endif // DEDICATED
 #include "engine/net.h"
 #include "engine/gl_screen.h"
+#include "engine/host.h"
+#include "engine/host_cmd.h"
 #include "engine/host_state.h"
 #include "engine/sys_engine.h"
 #include "engine/sys_utils.h"
+#include "engine/modelloader.h"
 #include "engine/cmodel_bsp.h"
 #ifndef CLIENT_DLL
 #include "engine/baseserver.h"
 #endif // !CLIENT_DLL
 #include "rtech/rtech_game.h"
 #include "rtech/rtech_utils.h"
+#include "rtech/stryder/stryder.h"
 #ifndef DEDICATED
 #include "vgui/vgui_baseui_interface.h"
 #endif // DEDICATED
@@ -43,7 +48,7 @@ bool g_bLevelResourceInitialized = false;
 //-----------------------------------------------------------------------------
 // Purpose: state machine's main processing loop
 //-----------------------------------------------------------------------------
-FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
+FORCEINLINE void CHostState::FrameUpdate(CHostState* rcx, void* rdx, float time)
 {
 	static bool bInitialized = false;
 	static ConVar* single_frame_shutdown_for_reload = g_pCVar->FindVar("single_frame_shutdown_for_reload");
@@ -59,16 +64,15 @@ FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 #endif // DEDICATED
 
 	HostStates_t oldState{};
-	void* placeHolder = nullptr;
-	if (setjmpFn(*host_abortserver, placeHolder))
+	if (setjmp(*host_abortserver))
 	{
-		CHostState_InitFn(g_pHostState);
+		g_pHostState->Init();
 		return;
 	}
 	else
 	{
 #ifndef CLIENT_DLL
-		*g_ServerAbortServer = true;
+		*g_bAbortServerSet = true;
 #endif // !CLIENT_DLL
 		do
 		{
@@ -97,7 +101,7 @@ FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 			}
 			case HostStates_t::HS_RUN:
 			{
-				State_RunFn(&g_pHostState->m_iCurrentState, nullptr, time);
+				CHostState_State_Run(&g_pHostState->m_iCurrentState, nullptr, time);
 				break;
 			}
 			case HostStates_t::HS_GAME_SHUTDOWN:
@@ -105,7 +109,7 @@ FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 				DevMsg(eDLL_T::ENGINE, "%s - Shutdown host game\n", "CHostState::FrameUpdate");
 
 				g_bLevelResourceInitialized = false;
-				Host_Game_ShutdownFn(g_pHostState);
+				CHostState_GameShutDown(g_pHostState);
 				g_pHostState->UnloadPakFile(); 
 				break;
 			}
@@ -114,9 +118,9 @@ FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 				DevMsg(eDLL_T::ENGINE, "%s - Restarting state machine\n", "CHostState::FrameUpdate");
 				g_bLevelResourceInitialized = false;
 #ifndef DEDICATED
-				CL_EndMovieFn();
+				CL_EndMovie();
 #endif // !DEDICATED
-				SendOfflineRequestToStryderFn(); // We have hostnames nulled anyway.
+				Stryder_SendOfflineRequest(); // We have hostnames nulled anyway.
 				g_pEngine->SetNextState(EngineState_t::DLL_RESTART);
 				break;
 			}
@@ -125,9 +129,9 @@ FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 				DevMsg(eDLL_T::ENGINE, "%s - Shutdown state machine\n", "CHostState::FrameUpdate");
 				g_bLevelResourceInitialized = false;
 #ifndef DEDICATED
-				CL_EndMovieFn();
+				CL_EndMovie();
 #endif // !DEDICATED
-				SendOfflineRequestToStryderFn(); // We have hostnames nulled anyway.
+				Stryder_SendOfflineRequest(); // We have hostnames nulled anyway.
 				g_pEngine->SetNextState(EngineState_t::DLL_CLOSE);
 				break;
 			}
@@ -144,7 +148,37 @@ FORCEINLINE void CHostState::FrameUpdate(void* rcx, void* rdx, float time)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: setup state machine
+// Purpose: state machine initialization
+//-----------------------------------------------------------------------------
+FORCEINLINE void CHostState::Init(void)
+{
+	static ConVar* single_frame_shutdown_for_reload = g_pCVar->FindVar("single_frame_shutdown_for_reload");
+
+	if (m_iNextState != HostStates_t::HS_SHUTDOWN)
+	{
+		if (m_iNextState == HostStates_t::HS_GAME_SHUTDOWN)
+		{
+			CHostState_GameShutDown(this);
+		}
+		else
+		{
+			m_iCurrentState = HostStates_t::HS_RUN;
+			if (m_iNextState != HostStates_t::HS_SHUTDOWN || !single_frame_shutdown_for_reload->GetInt())
+				m_iNextState = HostStates_t::HS_RUN;
+		}
+	}
+	m_flShortFrameTime = 1.0;
+	m_levelName[0] = 0;
+	m_landMarkName[0] = 0;
+	m_mapGroupName[0] = 0;
+	m_bSplitScreenConnect = 256;
+	m_vecLocation.Init();
+	m_angLocation.Init();
+	m_iCurrentState = HostStates_t::HS_NEW_GAME;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: state machine setup
 //-----------------------------------------------------------------------------
 FORCEINLINE void CHostState::Setup(void) const
 {
@@ -305,15 +339,17 @@ FORCEINLINE void CHostState::UnloadPakFile(void)
 //-----------------------------------------------------------------------------
 FORCEINLINE void CHostState::State_NewGame(void)
 {
+	LARGE_INTEGER time{};
+
 	g_bLevelResourceInitialized = false;
 	m_bSplitScreenConnect = false;
-	if (!g_ServerGameClients) // Init Game if it ain't valid.
+	if (!g_pServerGameClients) // Init Game if it ain't valid.
 	{
-		SV_InitGameDLLFn();
+		SV_InitGameDLL();
 	}
 
-	if (!CModelLoader_Map_IsValidFn(g_CModelLoader, m_levelName) // Check if map is valid and if we can start a new game.
-		|| !Host_NewGameFn(m_levelName, nullptr, m_bBackgroundLevel, m_bSplitScreenConnect, nullptr) || !g_ServerGameClients)
+	if (!CModelLoader__Map_IsValid(g_pModelLoader, m_levelName) // Check if map is valid and if we can start a new game.
+		|| !Host_NewGame(m_levelName, nullptr, m_bBackgroundLevel, m_bSplitScreenConnect, time) || !g_pServerGameClients)
 	{
 		Error(eDLL_T::ENGINE, "%s - Error: Map not valid\n", "CHostState::State_NewGame");
 #ifndef DEDICATED
@@ -340,9 +376,9 @@ FORCEINLINE void CHostState::State_ChangeLevelSP(void)
 	m_flShortFrameTime = 1.5; // Set frame time.
 	g_bLevelResourceInitialized = false;
 
-	if (CModelLoader_Map_IsValidFn(g_CModelLoader, m_levelName)) // Check if map is valid and if we can start a new game.
+	if (CModelLoader__Map_IsValid(g_pModelLoader, m_levelName)) // Check if map is valid and if we can start a new game.
 	{
-		Host_ChangelevelFn(true, m_levelName, m_mapGroupName); // Call change level as singleplayer level.
+		Host_ChangeLevel(true, m_levelName, m_mapGroupName); // Call change level as singleplayer level.
 	}
 	else
 	{
@@ -370,13 +406,13 @@ FORCEINLINE void CHostState::State_ChangeLevelMP(void)
 #ifndef CLIENT_DLL
 	g_pServerGameDLL->LevelShutdown();
 #endif // !CLIENT_DLL
-	if (CModelLoader_Map_IsValidFn(g_CModelLoader, m_levelName)) // Check if map is valid and if we can start a new game.
+	if (CModelLoader__Map_IsValid(g_pModelLoader, m_levelName)) // Check if map is valid and if we can start a new game.
 	{
 #ifndef DEDICATED
 		using EnabledProgressBarForNextLoadFn = void(*)(void*);
 		(*reinterpret_cast<EnabledProgressBarForNextLoadFn**>(g_pEngineVGui))[31](g_pEngineVGui); // EnabledProgressBarForNextLoad
 #endif // !DEDICATED
-		Host_ChangelevelFn(false, m_levelName, m_mapGroupName); // Call change level as multiplayer level.
+		Host_ChangeLevel(false, m_levelName, m_mapGroupName); // Call change level as multiplayer level.
 	}
 	else
 	{
@@ -404,4 +440,4 @@ void CHostState_Detach()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-CHostState* g_pHostState = reinterpret_cast<CHostState*>(p_CHostState_FrameUpdate.FindPatternSelf("48 8D ?? ?? ?? ?? 01", CMemory::Direction::DOWN, 100).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr());
+CHostState* g_pHostState = nullptr;
