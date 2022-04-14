@@ -11,6 +11,7 @@ using std::ifstream;
 using std::ofstream;
 using std::stringstream;
 using std::ostringstream;
+using std::unordered_map;
 
 namespace fs = std::filesystem;
 typedef const unsigned char* rsig_t;

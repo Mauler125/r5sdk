@@ -78,13 +78,6 @@ inline CMemory Host_Disconnect = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsi
 #endif // 0x14023CCA0 // 40 53 48 83 EC 30 0F B6 D9 //
 
 //-------------------------------------------------------------------------
-// RUNTIME: _HOST_RUNFRAME
-//-------------------------------------------------------------------------
-inline CMemory _Host_RunFrame = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x89\x58\x18\x48\x89\x70\x20\xF3\x0F\x11\x48\x00"), "xxxxxxxxxxxxxxx?"); // _Host_RunFrame() with inlined CFrameTimer::MarkFrame()?
-// 0x140231C00 // 48 8B C4 48 89 58 18 48 89 70 20 F3 0F 11 48 ? //
-
-
-//-------------------------------------------------------------------------
 // RUNTIME: DETOUR_LEVELINIT
 //-------------------------------------------------------------------------
 inline CMemory Detour_LevelInit = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x45\x33\xE4"), "xxxx?xxxx?xxxx?xxxxxxxxxxxxx????xxx????xxx");
@@ -101,17 +94,29 @@ inline CMemory Server_S2C_CONNECT_1 = g_mGameDll.FindPatternSIMD(reinterpret_cas
 //-------------------------------------------------------------------------
 inline CMemory UpdateCurrentVideoConfig = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x55\x00\x41\x56\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x4C\x8B\xF1"), "xx?xxxxxx????xxx????xxx????xxx");
 inline CMemory HandleConfigFile = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x56\x48\x81\xEC\x00\x00\x00\x00\x8B\xF1"), "xxxxx????xx");
-inline 	CMemory ResetPreviousGameState = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x44\x89\x3D\x00\x00\x00\x00\x00\x8B\x00\x24\x00"), "x????xxx?????x?x?").ResolveRelativeAddressSelf(0x1, 0x5);
+inline CMemory ResetPreviousGameState = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x44\x89\x3D\x00\x00\x00\x00\x00\x8B\x00\x24\x00"), "x????xxx?????x?x?").ResolveRelativeAddressSelf(0x1, 0x5);
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
+inline CMemory LoadPlayerConfig = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x81\xEC\x00\x00\x00\x00\x48\x83\x3D\x00\x00\x00\x00\x00\x75\x0C"), "xxx????xxx?????xx");
+#elif defined (GAMEDLL_S3)
+inline CMemory LoadPlayerConfig = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x89\x4C\x24\x08\x48\x81\xEC\x00\x00\x00\x00\x48\x83\x3D\x00\x00\x00\x00\x00"), "xxxxxxx????xxx?????");
+#endif
+inline CMemory Community_Frame = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x8B\x0D\x00\x00\x00\x00\x48\x85\xC9\x0F\x84\x00\x00\x00\x00\x48\x8B\x01"), "x????x????xxx????xxxxx????xxx").FollowNearCallSelf();
+
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+inline CMemory GetEngineClientThread = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x65\x48\x8B\x04\x25\x00\x00\x00\x00\x48\x8B\xD9\xB9\x00\x00\x00\x00\x48\x8B\x10\x8B\x04\x11\x39\x05\x00\x00\x00\x00\x7F\x15"), "xxxxxxxxxxx????xxxx????xxxxxxxx????xx");
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+inline CMemory GetEngineClientThread = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x65\x48\x8B\x04\x25\x00\x00\x00\x00\x48\x8B\xD9\xB9\x00\x00\x00\x00\x48\x8B\x10\x8B\x04\x11\x39\x05\x00\x00\x00\x00\x7F\x21"), "xxxxxxxxxxx????xxxx????xxxxxxxx????xx");
+#endif
 
 //-------------------------------------------------------------------------
 // .RDATA
 //-------------------------------------------------------------------------
-inline CMemory g_pClientVPKDir    = g_mGameDll.FindStringReadOnly("vpk/%sclient_%s.bsp.pak000%s", true);
-inline CMemory g_pClientBSP       = g_mGameDll.FindStringReadOnly("vpk/client_%s.bsp", true);
-inline CMemory g_pClientCommonBSP = g_mGameDll.FindStringReadOnly("vpk/client_mp_common.bsp", true);
-inline CMemory g_pClientMPLobby   = g_mGameDll.FindStringReadOnly("vpk/client_mp_lobby", true);
-inline CMemory g_pClientMP        = g_mGameDll.FindStringReadOnly("vpk/client_mp_", true);
-inline CMemory g_pClientSP        = g_mGameDll.FindStringReadOnly("vpk/client_sp_", true);
+inline CMemory g_pClientVPKDir;
+inline CMemory g_pClientBSP;
+inline CMemory g_pClientCommonBSP;
+inline CMemory g_pClientMPLobby;
+inline CMemory g_pClientMP;
+inline CMemory g_pClientSP;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -132,12 +137,12 @@ class HOpcodes : public IDetour
 		std::cout << "| FUN: Host_Init_1                          : 0x" << std::hex << std::uppercase << gHost_Init_1.GetPtr()                        << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| FUN: Host_Init_2                          : 0x" << std::hex << std::uppercase << gHost_Init_2.GetPtr()                        << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| FUN: Host_Disconnect                      : 0x" << std::hex << std::uppercase << Host_Disconnect.GetPtr()                     << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: _Host_RunFrame                       : 0x" << std::hex << std::uppercase << _Host_RunFrame.GetPtr()                      << std::setw(nPad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 		std::cout << "| FUN: Server_S2C_CONNECT_1                 : 0x" << std::hex << std::uppercase << Server_S2C_CONNECT_1.GetPtr()                << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| FUN: UpdateCurrentVideoConfig             : 0x" << std::hex << std::uppercase << UpdateCurrentVideoConfig.GetPtr()            << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| FUN: HandleConfigFile                     : 0x" << std::hex << std::uppercase << HandleConfigFile.GetPtr()                    << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| FUN: ResetPreviousGameState               : 0x" << std::hex << std::uppercase << ResetPreviousGameState.GetPtr()              << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: LoadPlayerConfig                     : 0x" << std::hex << std::uppercase << LoadPlayerConfig.GetPtr()                    << std::setw(nPad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 		std::cout << "| CON: g_pClientVPKDir                      : 0x" << std::hex << std::uppercase << g_pClientVPKDir.GetPtr()                     << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| CON: g_pClientBSP                         : 0x" << std::hex << std::uppercase << g_pClientBSP.GetPtr()                        << std::setw(nPad) << " |" << std::endl;
@@ -149,7 +154,15 @@ class HOpcodes : public IDetour
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const { }
-	virtual void GetCon(void) const { }
+	virtual void GetCon(void) const
+	{
+		g_pClientVPKDir    = g_mGameDll.FindStringReadOnly("vpk/%sclient_%s.bsp.pak000%s", true);
+		g_pClientBSP       = g_mGameDll.FindStringReadOnly("vpk/client_%s.bsp", true);
+		g_pClientCommonBSP = g_mGameDll.FindStringReadOnly("vpk/client_mp_common.bsp", true);
+		g_pClientMPLobby   = g_mGameDll.FindStringReadOnly("vpk/client_mp_lobby", true);
+		g_pClientMP        = g_mGameDll.FindStringReadOnly("vpk/client_mp_", true);
+		g_pClientSP        = g_mGameDll.FindStringReadOnly("vpk/client_sp_", true);
+	}
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }
 };

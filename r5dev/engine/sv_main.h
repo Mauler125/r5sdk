@@ -18,6 +18,9 @@ inline CMemory CGameServer__SpawnServer = g_mGameDll.FindPatternSIMD(reinterpret
 inline CMemory CGameServer__SpawnServer = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x53\x55\x56\x57\x41\x54\x41\x55\x41\x57"), "xxxxxxxxxxxxx");
 	// 0x140312D80 // 48 8B C4 53 55 56 57 41 54 41 55 41 57 //
 #endif
+inline bool* s_bDedicated = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
+	"\x48\x89\x4C\x24\x00\x48\x89\x54\x24\x00\x4C\x89\x44\x24\x00\x4C\x89\x4C\x24\x00\x53\x57\xB8\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x2B\xE0\x48\x8B\xD9\x48\x8D\xBC\x24\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x89\x7C\x24\x00\x48\x8D\x54\x24\x00\x33\xFF"),
+	"xxxx?xxxx?xxxx?xxxx?xxx????x????xxxxxxxxxx????x????xxxx?xxxx?xx").FindPatternSelf("40 38 3D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<bool*>();
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -32,6 +35,7 @@ class HSV_Main : public IDetour
 		std::cout << "| FUN: SV_ShutdownGameDLL                   : 0x" << std::hex << std::uppercase << p_SV_ShutdownGameDLL.GetPtr()     << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| FUN: SV_CreateBaseline                    : 0x" << std::hex << std::uppercase << p_SV_CreateBaseline.GetPtr()      << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| FUN: CGameServer::SpawnServer             : 0x" << std::hex << std::uppercase << CGameServer__SpawnServer.GetPtr() << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| VAR: s_bDedicated                         : 0x" << std::hex << std::uppercase << s_bDedicated                      << std::setw(0)    << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 	virtual void GetFun(void) const { }

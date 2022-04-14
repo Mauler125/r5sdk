@@ -3,6 +3,14 @@
 
 //-------------------------------------------------------------------------
 // ENGINE                                                                 |
+extern ConVar* single_frame_shutdown_for_reload;
+
+extern ConVar* hostname;
+extern ConVar* hostport;
+extern ConVar* host_hasIrreversibleShutdown;
+
+extern ConVar* mp_gamemode;
+
 extern ConVar* cm_debug_cmdquery;
 extern ConVar* cm_return_false_cmdquery_all;
 extern ConVar* cm_return_false_cmdquery_cheats;
@@ -93,6 +101,7 @@ extern ConVar* sq_showvmwarning;
 //-------------------------------------------------------------------------
 // NETCHANNEL                                                             |
 extern ConVar* net_userandomkey;
+extern ConVar* net_usesocketsforloopback;
 extern ConVar* r5net_matchmaking_hostname;
 extern ConVar* r5net_show_debug;
 //-------------------------------------------------------------------------
@@ -115,11 +124,13 @@ public:
 class CCVar
 {
 public:
+	ConCommandBase* RegisterConCommand(ConCommandBase* pCommandToAdd);
+	ConCommandBase* UnregisterConCommand(ConCommandBase* pCommandToRemove);
 	ConCommandBase* FindCommandBase(const char* pszCommandName); // @0x1405983A0 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	ConVar* FindVar(const char* pszVarName);                     // @0x1405983B0 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	ConCommand* FindCommand(const char* pszCommandName);
-	CCVarIteratorInternal* FactoryInternalIterator();
-	std::unordered_map<string, ConCommandBase*> DumpToMap();
+	CCVarIteratorInternal* FactoryInternalIterator(void);
+	unordered_map<string, ConCommandBase*> DumpToMap(void);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -26,7 +26,7 @@
 void NET_ShutDown(void* thisptr, const char* szReason, std::uint8_t a1, char a2)
 {
 #if !defined (GAMEDLL_S0) || !defined (GAMEDLL_S1) // !TEMP UNTIL CHOSTSTATE IS BUILD AGNOSTIC! //
-	DownloadPlaylists_f_CompletionFunc(); // Re-load playlist from disk after getting disconnected from the server.
+	_DownloadPlaylists_f_CompletionFunc(); // Re-load playlist from disk after getting disconnected from the server.
 #endif // !GAMEDLL_S0 || !GAMEDLL_S1
 	v_NET_Shutdown(thisptr, szReason, a1, a2);
 }

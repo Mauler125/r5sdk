@@ -5,6 +5,7 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
+#include "vstdlib/callback.h"
 #include "tier1/IConVar.h"
 #include "tier1/cvar.h"
 #include "engine/sys_utils.h"
@@ -39,7 +40,7 @@ ConVar::~ConVar(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: register ConVar
+// Purpose: initialize ConVar's
 //-----------------------------------------------------------------------------
 void ConVar::Init(void) const
 {
@@ -149,6 +150,21 @@ void ConVar::Init(void) const
 	rui_drawEnable = new ConVar("rui_drawEnable", "1", FCVAR_RELEASE, "Draws the RUI, 1 = Draw, 0 = No Draw.", false, 0.f, false, 0.f, nullptr, nullptr);
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: initialize shipped ConVar's
+//-----------------------------------------------------------------------------
+void ConVar::InitShipped(void) const
+{
+	single_frame_shutdown_for_reload = g_pCVar->FindVar("single_frame_shutdown_for_reload");
+	mp_gamemode                      = g_pCVar->FindVar("mp_gamemode");
+	hostname                         = g_pCVar->FindVar("hostname");
+	hostport                         = g_pCVar->FindVar("hostport");
+	host_hasIrreversibleShutdown     = g_pCVar->FindVar("host_hasIrreversibleShutdown");
+	net_usesocketsforloopback        = g_pCVar->FindVar("net_usesocketsforloopback");
+
+	mp_gamemode->SetCallback(&MP_GameMode_Changed_f);
 }
 
 //-----------------------------------------------------------------------------
@@ -482,6 +498,15 @@ void ConVar::SetDefault(const char* pszDefault)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: sets the ConVar callback.
+// Input  : *pCallback -
+//-----------------------------------------------------------------------------
+void ConVar::SetCallback(void* pCallback)
+{
+	*m_Callback.m_ppCallback = *&pCallback;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: changes the ConVar string value.
 // Input  : *pszTempVal - flOldValue
 //-----------------------------------------------------------------------------
@@ -678,7 +703,7 @@ void ConVar::ClearHostNames(void)
 		const char* pszName = pszHostnameArray[i];
 		ConVar* pCVar = g_pCVar->FindVar(pszName);
 
-		if (pCVar != nullptr)
+		if (pCVar)
 		{
 			pCVar->m_Value.m_pszString = "0.0.0.0";
 		}

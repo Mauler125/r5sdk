@@ -5,6 +5,13 @@
 
 //-----------------------------------------------------------------------------
 // ENGINE                                                                     |
+ConVar* single_frame_shutdown_for_reload   = nullptr;
+
+ConVar* hostname                           = nullptr;
+ConVar* hostport                           = nullptr;
+ConVar* host_hasIrreversibleShutdown       = nullptr;
+ConVar* mp_gamemode                        = nullptr;
+
 ConVar* cm_debug_cmdquery                  = nullptr;
 ConVar* cm_return_false_cmdquery_all       = nullptr;
 ConVar* cm_return_false_cmdquery_cheats    = nullptr;
@@ -97,6 +104,7 @@ ConVar* sq_showvmwarning                   = nullptr;
 //-----------------------------------------------------------------------------
 // NETCHANNEL                                                                 |
 ConVar* net_userandomkey                   = nullptr;
+ConVar* net_usesocketsforloopback          = nullptr;
 ConVar* r5net_matchmaking_hostname         = nullptr;
 ConVar* r5net_show_debug                   = nullptr;
 //-----------------------------------------------------------------------------
@@ -106,6 +114,26 @@ ConVar* r5net_show_debug                   = nullptr;
 #ifndef DEDICATED
 ConVar* rui_drawEnable                     = nullptr;
 #endif // !DEDICATED
+
+//-----------------------------------------------------------------------------
+// Purpose: registers input commands.
+// Input  : *pszCommandName - 
+//-----------------------------------------------------------------------------
+ConCommandBase* CCVar::RegisterConCommand(ConCommandBase* pCommandToRemove)
+{
+	static int index = 9;
+	return CallVFunc<ConCommandBase*>(index, this, pCommandToRemove);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: unregisters input commands.
+// Input  : *pszCommandName - 
+//-----------------------------------------------------------------------------
+ConCommandBase* CCVar::UnregisterConCommand(ConCommandBase* pCommandToRemove)
+{
+	static int index = 10;
+	return CallVFunc<ConCommandBase*>(index, this, pCommandToRemove);
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: finds base commands.
@@ -140,7 +168,7 @@ ConCommand* CCVar::FindCommand(const char* pszCommandName)
 //-----------------------------------------------------------------------------
 // Purpose: iterates over all ConVars
 //-----------------------------------------------------------------------------
-CCVarIteratorInternal* CCVar::FactoryInternalIterator()
+CCVarIteratorInternal* CCVar::FactoryInternalIterator(void)
 {
 	static int index = 41;
 	return CallVFunc<CCVarIteratorInternal*>(index, this);
@@ -149,12 +177,12 @@ CCVarIteratorInternal* CCVar::FactoryInternalIterator()
 //-----------------------------------------------------------------------------
 // Purpose: returns all ConVars
 //-----------------------------------------------------------------------------
-std::unordered_map<std::string, ConCommandBase*> CCVar::DumpToMap()
+unordered_map<string, ConCommandBase*> CCVar::DumpToMap(void)
 {
-	std::stringstream ss;
+	stringstream ss;
 	CCVarIteratorInternal* itint = FactoryInternalIterator(); // Allocate new InternalIterator.
 
-	std::unordered_map<std::string, ConCommandBase*> allConVars;
+	unordered_map<string, ConCommandBase*> allConVars;
 
 	for (itint->SetFirst(); itint->IsValid(); itint->Next()) // Loop through all instances.
 	{
@@ -167,5 +195,5 @@ std::unordered_map<std::string, ConCommandBase*> CCVar::DumpToMap()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-std::vector<std::string> g_vsvCommandBases;
+vector<string> g_vsvCommandBases;
 CCVar* g_pCVar = reinterpret_cast<CCVar*>(p_CEngineAPI_Connect.FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 40).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr());

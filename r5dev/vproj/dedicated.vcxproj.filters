@@ -852,6 +852,12 @@
     <ClInclude Include="..\engine\host.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
+    <ClInclude Include="..\client\client.h">
+      <Filter>sdk\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vstdlib\callback.h">
+      <Filter>sdk\vstdlib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1072,6 +1078,9 @@
     </ClCompile>
     <ClCompile Include="..\public\module.cpp">
       <Filter>sdk\public</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vstdlib\callback.cpp">
+      <Filter>sdk\vstdlib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

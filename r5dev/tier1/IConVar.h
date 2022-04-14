@@ -91,6 +91,7 @@ public:
 	~ConVar(void);
 
 	void Init(void) const;
+	void InitShipped(void) const;
 
 	void AddFlags(int nFlags);
 	void RemoveFlags(int nFlags);
@@ -123,6 +124,8 @@ public:
 	const char* GetDefault(void) const;
 	void SetDefault(const char* pszDefault);
 
+	void SetCallback(void* pCallback);
+
 	void ChangeStringValue(const char* pszTempValue, float flOldValue);
 	bool SetColorFromString(const char* pszValue);
 	bool ClampValue(float& value);
@@ -140,6 +143,13 @@ public:
 		float       m_fValue;
 		int         m_nValue;
 	};
+	struct CVCallback_t
+	{
+		void**      m_ppCallback;
+		int64_t     m_iFlags;
+		char        m_Pad[8];
+		int64_t     m_iTimesChanged;
+	};
 
 	void*          m_pIConVarVTable {}; //0x0040
 	ConVar*        m_pParent        {}; //0x0048
@@ -149,7 +159,7 @@ public:
 	float          m_fMinVal        {}; //0x0074
 	bool           m_bHasMax        {}; //0x0078
 	float          m_fMaxVal        {}; //0x007C
-	char           pad_0080[32]     {}; //0x0080
+	CVCallback_t   m_Callback       {}; //0x0080
 }; //Size: 0x00A0
 
 /* ==== ICONVAR ========================================================================================================================================================= */

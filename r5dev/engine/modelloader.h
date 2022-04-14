@@ -18,6 +18,9 @@ inline auto CModelLoader__Map_LoadModelGuts = p_CModelLoader__Map_LoadModelGuts.
 
 inline CMemory p_CModelLoader__Map_IsValid = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x53\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xDA"), "xxxxxxx????xxx");
 inline auto CModelLoader__Map_IsValid = p_CModelLoader__Map_IsValid.RCast<bool(*)(void* thisptr, const char* pszMapName)>(); /*48 8B C4 53 48 81 EC ? ? ? ? 48 8B DA*/
+
+inline CMemory p_GetSpriteInfo = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x30\x4C\x8B\xAC\x24\x00\x00\x00\x00\xBE\x00\x00\x00\x00"), "xxxx?xxxx?xxxx?xxxxxxxxxxxxxxxxx????x????");
+inline auto GetSpriteInfo = p_GetSpriteInfo.RCast<void* (*)(const char* pName, bool bIsAVI, bool bIsBIK, int& nWidth, int& nHeight, int& nFrameCount, void* a7)>();
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 inline CMemory p_CModelLoader__FindModel = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x55\x41\x57\x48\x83\xEC\x48\x80\x3A\x2A"), "xxxxxxxxxxx");
 inline auto CModelLoader__FindModel = p_CModelLoader__FindModel.RCast<void* (*)(void* thisptr, const char* pszModelName)>(); /*40 55 41 57 48 83 EC 48 80 3A 2A*/
@@ -36,7 +39,12 @@ inline auto CModelLoader__Map_LoadModelGuts = p_CModelLoader__Map_LoadModelGuts.
 
 inline CMemory p_CModelLoader__Map_IsValid = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xDA\x48\x85\xD2\x0F\x84\x00\x00\x00\x00\x80\x3A\x00\x0F\x84\x00\x00\x00\x00\x4C\x8B\xCA"), "xxxxx????xxxxxxxx????xxxxx????xxx");
 inline auto CModelLoader__Map_IsValid = p_CModelLoader__Map_IsValid.RCast<bool(*)(void* thisptr, const char* pszMapName)>(); /*40 53 48 81 EC ? ? ? ? 48 8B DA 48 85 D2 0F 84 ? ? ? ? 80 3A 00 0F 84 ? ? ? ? 4C 8B CA*/
+
+inline CMemory p_GetSpriteInfo = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x30\x4C\x8B\xBC\x24\x00\x00\x00\x00"), "xxxx?xxxx?xxxx?xxxxxxxxxxxxxxxxx????");
+inline auto GetSpriteInfo = p_GetSpriteInfo.RCast<void* (*)(const char* pName, bool bIsAVI, bool bIsBIK, int& nWidth, int& nHeight, int& nFrameCount, void* a7)>();
 #endif
+inline CMemory p_BuildSpriteLoadName = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x81\xEC\x00\x00\x00\x00\x4D\x8B\xF1\x48\x8B\xF2"), "xxxx?xxxx?xxxx?xxxx?xxxxx????xxxxxx");
+inline auto BuildSpriteLoadName = p_BuildSpriteLoadName.RCast<void* (*)(const char* pName, char* pOut, int outLen, bool& bIsAVI, bool& bIsBIK)>();
 
 inline void* g_pModelLoader = g_mGameDll.FindPatternSIMD(
 	reinterpret_cast<rsig_t>("\x48\x89\x4C\x24\x00\x53\x55\x56\x41\x54\x41\x55\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00"),
@@ -56,6 +64,8 @@ class HModelLoader : public IDetour
 		std::cout << "| FUN: CModelLoader::Map_LoadModelGuts      : 0x" << std::hex << std::uppercase << p_CModelLoader__Map_LoadModelGuts.GetPtr() << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| FUN: CModelLoader::Map_IsValid            : 0x" << std::hex << std::uppercase << p_CModelLoader__Map_IsValid.GetPtr()       << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| FUN: CModelLoader::Studio_LoadModel       : 0x" << std::hex << std::uppercase << p_CModelLoader__Studio_LoadModel.GetPtr()  << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: GetSpriteInfo                        : 0x" << std::hex << std::uppercase << p_GetSpriteInfo.GetPtr()                   << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: BuildSpriteLoadName                  : 0x" << std::hex << std::uppercase << p_BuildSpriteLoadName.GetPtr()             << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| VAR: g_pModelLoader                       : 0x" << std::hex << std::uppercase << g_pModelLoader                             << std::setw(0)    << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}

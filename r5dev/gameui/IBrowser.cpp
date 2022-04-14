@@ -573,7 +573,7 @@ void IBrowser::HostServerSection(void)
     {
         if (ImGui::Button("Reload Playlist from Disk##ServerHost_ReloadPlaylist", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
-            DownloadPlaylists_f_CompletionFunc();
+            _DownloadPlaylists_f_CompletionFunc();
             KeyValues::InitPlaylist(); // Re-Init playlist.
         }
     }
@@ -640,9 +640,6 @@ void IBrowser::UpdateHostingStatus(void)
 void IBrowser::SendHostingPostRequest(void)
 {
 #ifndef CLIENT_DLL
-    static ConVar* hostport = g_pCVar->FindVar("hostport");
-    static ConVar* mp_gamemode = g_pCVar->FindVar("mp_gamemode");
-
     m_szHostToken = std::string();
     bool result = g_pR5net->PostServerHost(m_szHostRequestMessage, m_szHostToken,
         ServerListing

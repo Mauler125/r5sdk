@@ -32,8 +32,6 @@ void CRConServer::Init(void)
 		return;
 	}
 
-	static ConVar* hostport = g_pCVar->FindVar("hostport");
-
 	m_pAdr2 = new CNetAdr2(rcon_address->GetString(), hostport->GetString());
 	m_pSocket->CreateListenSocket(*m_pAdr2, false);
 	m_svPasswordHash = sha256(rcon_password->GetString());

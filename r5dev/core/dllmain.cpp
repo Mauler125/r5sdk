@@ -21,8 +21,15 @@ void R5Dev_Init()
 #else
     Console_Init();
 #endif // !DEDICATED
-
     SpdLog_Init();
+    spdlog::info("\n");
+    for (int i = 0; i < (&R5R_EMBLEM)[1] - R5R_EMBLEM; i++)
+    {
+        std::string svEscaped = StringEscape(R5R_EMBLEM[i]);
+        spdlog::info("{}{}{}\n", g_svRedF.c_str(), svEscaped.c_str(), g_svReset.c_str());
+    }
+    spdlog::info("\n");
+
     Systems_Init();
     WinSys_Attach();
 
@@ -30,14 +37,6 @@ void R5Dev_Init()
     Input_Init();
     DirectX_Init();
 #endif // !DEDICATED
-
-    spdlog::info("\n");
-    for (int i = 0; i < (&R5R_LOGO)[1] - R5R_LOGO; i++)
-    {
-        std::string svEscaped = StringEscape(R5R_LOGO[i]);
-        spdlog::info("{}{}{}\n", g_svRedF.c_str(), svEscaped.c_str(), g_svReset.c_str());
-    }
-    spdlog::info("\n");
 }
 
 //#############################################################################

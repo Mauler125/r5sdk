@@ -124,6 +124,7 @@
     <ClInclude Include="..\appframework\iappsystem.h" />
     <ClInclude Include="..\bsplib\bsplib.h" />
     <ClInclude Include="..\client\cdll_engine_int.h" />
+    <ClInclude Include="..\client\client.h" />
     <ClInclude Include="..\client\vengineclient_impl.h" />
     <ClInclude Include="..\common\igameserverdata.h" />
     <ClInclude Include="..\common\netmessages.h" />
@@ -352,6 +353,7 @@
     <ClInclude Include="..\vpc\keyvalues.h" />
     <ClInclude Include="..\vphysics\QHull.h" />
     <ClInclude Include="..\vpklib\packedstore.h" />
+    <ClInclude Include="..\vstdlib\callback.h" />
     <ClInclude Include="..\vstdlib\completion.h" />
     <ClInclude Include="..\vstdlib\keyvaluessystem.h" />
     <ClInclude Include="..\windows\console.h" />
@@ -436,6 +438,7 @@
     <ClCompile Include="..\vpc\keyvalues.cpp" />
     <ClCompile Include="..\vphysics\QHull.cpp" />
     <ClCompile Include="..\vpklib\packedstore.cpp" />
+    <ClCompile Include="..\vstdlib\callback.cpp" />
     <ClCompile Include="..\vstdlib\completion.cpp" />
     <ClCompile Include="..\vstdlib\keyvaluessystem.cpp" />
     <ClCompile Include="..\windows\console.cpp" />

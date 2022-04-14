@@ -554,7 +554,7 @@ void _NET_TraceNetChan_f_CompletionFunc(const CCommand& args)
 	static bool bTraceNetChannel = false;
 	if (!bTraceNetChannel)
 	{
-		g_pCVar->FindVar("net_usesocketsforloopback")->SetValue(1);
+		net_usesocketsforloopback->SetValue(1);
 		DevMsg(eDLL_T::ENGINE, "\n");
 		DevMsg(eDLL_T::ENGINE, "+--------------------------------------------------------+\n");
 		DevMsg(eDLL_T::ENGINE, "|>>>>>>>>>>>>>| NETCHANNEL TRACE ACTIVATED |<<<<<<<<<<<<<|\n");

@@ -74,7 +74,7 @@ void CHLClient::FrameStageNotify(CHLClient* pHLClient, ClientFrameStage_t frameS
 		case ClientFrameStage_t::FRAME_NET_UPDATE_POSTDATAUPDATE_END:
 		{
 			g_pBanSystem->BanListCheck();
-			g_pHLClient->PatchNetVarConVar();
+			gHLClient->PatchNetVarConVar();
 			break;
 		}
 		default:

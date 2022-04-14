@@ -35,6 +35,7 @@ public:
 	}
 };
 
+//#ifndef DEDICATED
 /* ==== CHLCLIENT ======================================================================================================================================================= */
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 inline CMemory p_CHLClient_PostInit = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\x3D\x00\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00"), "xxx?????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????");
@@ -59,10 +60,16 @@ inline auto CHLClient_FrameStageNotify = p_CHLClient_FrameStageNotify.RCast<void
 inline CMemory p_CHLClient_HudProcessInput = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x0F\xB6\x0D\x00\x00\x00\x00\x88\x15\x00\x00\x00\x00"), "xxxxxxx????xx????");
 inline auto CHLClient_HudProcessInput = p_CHLClient_HudProcessInput.RCast<void(*)(void* thisptr, bool bActive)>(); /*48 83 EC 28 0F B6 0D ? ? ? ? 88 15 ? ? ? ?*/
 
-inline CHLClient* g_pHLClient = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>
-	("\x48\x8D\x05\x00\x00\x00\x00\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x30\x48\x8B\xF9"), 
-	"xxx????xxxxxxxxxxxxx?xxxxxxxx").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CHLClient*>();
 inline bool* cl_time_use_host_tickcount = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x80\x3D\x00\x00\x00\x00\x00\x74\x14\x66\x0F\x6E\x05\x00\x00\x00\x00"), "xx?????xxxxxx????").ResolveRelativeAddress(0x2, 0x7).RCast<bool*>();
+//#endif // !DEDICATED
+
+inline CHLClient* gHLClient = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>
+	("\x48\x8D\x05\x00\x00\x00\x00\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x30\x48\x8B\xF9"),
+	"xxx????xxxxxxxxxxxxx?xxxxxxxx").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CHLClient*>();
+
+inline CHLClient* g_pHLClient = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>
+	("\x41\x55\x48\x83\xEC\x00\x4C\x63\x91\x00\x00\x00\x00"),
+	"xxxxx?xxx????").FindPatternSelf("4C 8B", CMemory::Direction::DOWN, 512, 2).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CHLClient*>();
 
 ///////////////////////////////////////////////////////////////////////////////
 void CHLClient_Attach();
@@ -73,12 +80,15 @@ class HDll_Engine_Int : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
+#ifndef DEDICATED
 		std::cout << "| FUN: CHLClient::PostInit                  : 0x" << std::hex << std::uppercase << p_CHLClient_PostInit.GetPtr()         << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| FUN: CHLClient::LevelShutdown             : 0x" << std::hex << std::uppercase << p_CHLClient_LevelShutdown.GetPtr()    << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| FUN: CHLClient::HudProcessInput           : 0x" << std::hex << std::uppercase << p_CHLClient_HudProcessInput.GetPtr()  << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| FUN: CHLClient::FrameStageNotify          : 0x" << std::hex << std::uppercase << p_CHLClient_FrameStageNotify.GetPtr() << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| VAR: cl_time_use_host_tickcount           : 0x" << std::hex << std::uppercase << cl_time_use_host_tickcount            << std::setw(0)    << " |" << std::endl;
-		std::cout << "| VAR: g_pHLClient                          : 0x" << std::hex << std::uppercase << g_pHLClient                           << std::setw(0)    << " |" << std::endl;
+#endif // !DEDICATED
+		std::cout << "| VAR: gHLClient                            : 0x" << std::hex << std::uppercase << gHLClient                             << std::setw(0)    << " |" << std::endl;
+		std::cout << "| VAR: g_pHLClient                          : 0x" << std::hex << std::uppercase << g_pHLClient                             << std::setw(0)    << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 	virtual void GetFun(void) const { }

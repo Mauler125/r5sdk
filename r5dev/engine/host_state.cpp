@@ -51,7 +51,6 @@ bool g_bLevelResourceInitialized = false;
 FORCEINLINE void CHostState::FrameUpdate(CHostState* rcx, void* rdx, float time)
 {
 	static bool bInitialized = false;
-	static ConVar* single_frame_shutdown_for_reload = g_pCVar->FindVar("single_frame_shutdown_for_reload");
 	if (!bInitialized)
 	{
 		g_pHostState->Setup();
@@ -109,7 +108,7 @@ FORCEINLINE void CHostState::FrameUpdate(CHostState* rcx, void* rdx, float time)
 				DevMsg(eDLL_T::ENGINE, "%s - Shutdown host game\n", "CHostState::FrameUpdate");
 
 				g_bLevelResourceInitialized = false;
-				CHostState_GameShutDown(g_pHostState);
+				CHostState_State_GameShutDown(g_pHostState);
 				g_pHostState->UnloadPakFile(); 
 				break;
 			}
@@ -152,13 +151,11 @@ FORCEINLINE void CHostState::FrameUpdate(CHostState* rcx, void* rdx, float time)
 //-----------------------------------------------------------------------------
 FORCEINLINE void CHostState::Init(void)
 {
-	static ConVar* single_frame_shutdown_for_reload = g_pCVar->FindVar("single_frame_shutdown_for_reload");
-
 	if (m_iNextState != HostStates_t::HS_SHUTDOWN)
 	{
 		if (m_iNextState == HostStates_t::HS_GAME_SHUTDOWN)
 		{
-			CHostState_GameShutDown(this);
+			CHostState_State_GameShutDown(this);
 		}
 		else
 		{
@@ -196,7 +193,7 @@ FORCEINLINE void CHostState::Setup(void) const
 	*m_bRestrictServerCommands = true; // Restrict commands.
 	ConCommandBase* disconnect = g_pCVar->FindCommandBase("disconnect");
 	disconnect->AddFlags(FCVAR_SERVER_CAN_EXECUTE); // Make sure server is not restricted to this.
-	g_pCVar->FindVar("net_usesocketsforloopback")->SetValue(1);
+	net_usesocketsforloopback->SetValue(1);
 
 	if (net_userandomkey->GetBool())
 	{
@@ -220,7 +217,6 @@ FORCEINLINE void CHostState::Think(void) const
 	static CFastTimer banListTimer;
 	static CFastTimer pylonTimer;
 	static CFastTimer statsTimer;
-	static ConVar* hostname = g_pCVar->FindVar("hostname");
 
 	for (;;) // Loop running at 20-tps.
 	{
@@ -361,7 +357,7 @@ FORCEINLINE void CHostState::State_NewGame(void)
 	m_iCurrentState = HostStates_t::HS_RUN; // Set current state to run.
 
 	// If our next state isn't a shutdown or its a forced shutdown then set next state to run.
-	if (m_iNextState != HostStates_t::HS_SHUTDOWN || !g_pCVar->FindVar("host_hasIrreversibleShutdown")->GetBool())
+	if (m_iNextState != HostStates_t::HS_SHUTDOWN || !host_hasIrreversibleShutdown->GetBool())
 	{
 		m_iNextState = HostStates_t::HS_RUN;
 	}
@@ -388,7 +384,7 @@ FORCEINLINE void CHostState::State_ChangeLevelSP(void)
 	m_iCurrentState = HostStates_t::HS_RUN; // Set current state to run.
 
 	// If our next state isn't a shutdown or its a forced shutdown then set next state to run.
-	if (m_iNextState != HostStates_t::HS_SHUTDOWN || !g_pCVar->FindVar("host_hasIrreversibleShutdown")->GetBool())
+	if (m_iNextState != HostStates_t::HS_SHUTDOWN || !host_hasIrreversibleShutdown->GetBool())
 	{
 		m_iNextState = HostStates_t::HS_RUN;
 	}
@@ -422,7 +418,7 @@ FORCEINLINE void CHostState::State_ChangeLevelMP(void)
 	m_iCurrentState = HostStates_t::HS_RUN; // Set current state to run.
 
 	// If our next state isn't a shutdown or its a forced shutdown then set next state to run.
-	if (m_iNextState != HostStates_t::HS_SHUTDOWN || !g_pCVar->FindVar("host_hasIrreversibleShutdown")->GetBool())
+	if (m_iNextState != HostStates_t::HS_SHUTDOWN || !host_hasIrreversibleShutdown->GetBool())
 	{
 		m_iNextState = HostStates_t::HS_RUN;
 	}

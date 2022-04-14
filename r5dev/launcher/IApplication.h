@@ -22,7 +22,20 @@ enum
 class CModAppSystemGroup
 {
 public:
-	MEMBER_AT_OFFSET(bool, m_bIsServerOnly, 0xA8);
+	static int Main(CModAppSystemGroup* pModAppSystemGroup);
+	static bool Create(CModAppSystemGroup* pModAppSystemGroup);
+
+	bool IsServerOnly(void) const
+	{
+		return m_bServerOnly;
+	}
+	void SetServerOnly(void)
+	{
+		m_bServerOnly = true;
+	}
+private:
+	char pad[0xA8];
+	bool m_bServerOnly;
 };
 
 //-------------------------------------------------------------------------
@@ -49,9 +62,6 @@ inline CMemory p_CSourceAppSystemGroup__Create = g_mGameDll.FindPatternSIMD(rein
 inline auto CSourceAppSystemGroup__Create = p_CSourceAppSystemGroup__Create.RCast<bool(*)(CModAppSystemGroup* pModAppSystemGroup)>(); /*48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B F9 E8 ? ? ? ? 33 C9*/
 
 ///////////////////////////////////////////////////////////////////////////////
-int HModAppSystemGroup_Main(CModAppSystemGroup* modAppSystemGroup);
-bool HModAppSystemGroup_Create(CModAppSystemGroup* modAppSystemGroup);
-
 void IApplication_Attach();
 void IApplication_Detach();
 

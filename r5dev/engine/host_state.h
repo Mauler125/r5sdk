@@ -56,8 +56,8 @@ inline auto CHostState_FrameUpdate = p_CHostState_FrameUpdate.RCast<void(*)(CHos
 inline CMemory p_CHostState_State_Run = nullptr; /*48 8B C4 48 89 58 10 48 89 70 18 48 89 78 20 55 41 54 41 55 41 56 41 57 48 8D A8 ? ? ? ? 48 81 EC ? ? ? ? 0F 29 70 C8 45 33 E4*/
 inline auto CHostState_State_Run = p_CHostState_State_Run.RCast<void(*)(HostStates_t* pState, void* pUnused, float flFrameTime)>();
 
-inline CMemory p_CHostState_GameShutDown = nullptr; /*48 89 5C 24 ? 57 48 83 EC 20 48 8B D9 E8 ? ? ? ? 48 8B 0D ? ? ? ?*/
-inline auto CHostState_GameShutDown = p_CHostState_GameShutDown.RCast<void(*)(CHostState* thisptr)>();
+inline CMemory p_CHostState_State_GameShutDown = nullptr; /*48 89 5C 24 ? 57 48 83 EC 20 48 8B D9 E8 ? ? ? ? 48 8B 0D ? ? ? ?*/
+inline auto CHostState_State_GameShutDown = p_CHostState_State_GameShutDown.RCast<void(*)(CHostState* thisptr)>();
 
 extern bool g_bLevelResourceInitialized;
 ///////////////////////////////////////////////////////////////////////////////
@@ -73,10 +73,10 @@ class HHostState : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CHostState::FrameUpdate              : 0x" << std::hex << std::uppercase << p_CHostState_FrameUpdate.GetPtr()  << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CHostState::State_Run                : 0x" << std::hex << std::uppercase << p_CHostState_State_Run.GetPtr()    << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CHostState::GameShutDown             : 0x" << std::hex << std::uppercase << p_CHostState_GameShutDown.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: g_pHostState                         : 0x" << std::hex << std::uppercase << g_pHostState                       << std::setw(0)    << " |" << std::endl;
+		std::cout << "| FUN: CHostState::FrameUpdate              : 0x" << std::hex << std::uppercase << p_CHostState_FrameUpdate.GetPtr()        << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: CHostState::State_Run                : 0x" << std::hex << std::uppercase << p_CHostState_State_Run.GetPtr()          << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: CHostState::State_GameShutDown       : 0x" << std::hex << std::uppercase << p_CHostState_State_GameShutDown.GetPtr() << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| VAR: g_pHostState                         : 0x" << std::hex << std::uppercase << g_pHostState                             << std::setw(0)    << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 	virtual void GetFun(void) const
@@ -90,8 +90,8 @@ class HHostState : public IDetour
 		p_CHostState_GameShutDown = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x56\x48\x83\xEC\x20\x8B\x05\x00\x00\x00\x00\x48\x8B\xF1"), "xxxx?xxxxxxx????xxx");
 		CHostState_GameShutDown = p_CHostState_GameShutDown.RCast<void(*)(CHostState* thisptr)>();
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_CHostState_GameShutDown = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\xD9\xE8\x00\x00\x00\x00\x48\x8B\x0D\x00\x00\x00\x00"), "xxxx?xxxxxxxxx????xxx????");
-		CHostState_GameShutDown = p_CHostState_GameShutDown.RCast<void(*)(CHostState* thisptr)>();
+		p_CHostState_State_GameShutDown = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\xD9\xE8\x00\x00\x00\x00\x48\x8B\x0D\x00\x00\x00\x00"), "xxxx?xxxxxxxxx????xxx????");
+		CHostState_State_GameShutDown = p_CHostState_State_GameShutDown.RCast<void(*)(CHostState* thisptr)>();
 #endif
 	}
 	virtual void GetVar(void) const

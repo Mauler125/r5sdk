@@ -9,7 +9,7 @@ __declspec(dllexport) void DummyExport()
     // Required for detours.
 }
 
-const std::string R5R_LOGO[] =
+const std::string R5R_EMBLEM[] =
 {
     R"(+-------------------------------------------------------------------+)",
     R"(|  ___ ___ ___     _              _        _        ___   __  _ _   |)",

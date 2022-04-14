@@ -155,11 +155,70 @@ void ConCommand::Init(void)
 	new ConCommand("net_toggletrace", "Logs the sending and receiving datagram to a file on the disk.", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, _NET_TraceNetChan_f_CompletionFunc, nullptr);
 	new ConCommand("net_setkey", "Sets user specified base64 net key.", FCVAR_RELEASE, _NET_SetKey_f_CompletionFunc, nullptr);
 	new ConCommand("net_generatekey", "Generates and sets a random base64 net key.", FCVAR_RELEASE, _NET_GenerateKey_f_CompletionFunc, nullptr);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: shipped ConCommand initialization
+//-----------------------------------------------------------------------------
+void ConCommand::InitShipped(void)
+{
 #ifndef DEDICATED
 	//-------------------------------------------------------------------------
 	// MATERIAL SYSTEM
 	g_pCVar->FindCommand("mat_crosshair")->m_pCommandCallback = _CMaterial_GetMaterialAtCrossHair_f_ComplectionFunc; // Patch completion function to working callback.
 #endif // !DEDICATED
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: unregister unused ConCommand's for dedicated.
+//-----------------------------------------------------------------------------
+void ConCommand::PurgeShipped(void) const
+{
+	const char* pszCommandToRemove[] =
+	{
+		"bind",
+		"bind_held",
+		"bind_list",
+		"bind_list_abilities",
+		"bind_US_standard",
+		"bind_held_US_standard",
+		"connect",
+		"gameui_activate",
+		"gameui_hide",
+		"weaponSelectOrdnance",
+		"weaponSelectPrimary0",
+		"weaponSelectPrimary1",
+		"weaponSelectPrimary2",
+		"silent_connect",
+		"+scriptCommand1",
+		"-scriptCommand1",
+		"+scriptCommand2",
+		"-scriptCommand2",
+		"+scriptCommand3",
+		"-scriptCommand3",
+		"+scriptCommand4",
+		"-scriptCommand4",
+		"+scriptCommand5",
+		"-scriptCommand5",
+		"+scriptCommand6",
+		"-scriptCommand6",
+		"+scriptCommand7",
+		"-scriptCommand7",
+		"+scriptCommand8",
+		"-scriptCommand8",
+		"+scriptCommand9",
+		"-scriptCommand9",
+	};
+
+	for (int i = 0; i < (&pszCommandToRemove)[1] - pszCommandToRemove; i++)
+	{
+		ConCommandBase* pCommandBase = g_pCVar->FindCommandBase(pszCommandToRemove[i]);
+
+		if (pCommandBase)
+		{
+			g_pCVar->UnregisterConCommand(pCommandBase);
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -274,6 +333,15 @@ int ConCommandBase::GetFlags(void) const
 ConCommandBase* ConCommandBase::GetNext(void) const
 {
 	return m_pNext;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns the ConCommandBase name.
+// Output : const char*
+//-----------------------------------------------------------------------------
+const char* ConCommandBase::GetName(void) const
+{
+	return m_pszName;
 }
 
 //-----------------------------------------------------------------------------

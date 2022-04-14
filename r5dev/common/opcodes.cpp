@@ -7,6 +7,7 @@
 #include "common/opcodes.h"
 #include "common/netmessages.h"
 #include "engine/cmodel_bsp.h"
+#include "engine/host.h"
 #include "engine/host_cmd.h"
 #include "engine/gl_screen.h"
 #include "engine/gl_matsysiface.h"
@@ -17,6 +18,7 @@
 #include "game/server/ai_networkmanager.h"
 #include "game/server/fairfight_impl.h"
 #include "rtech/rtech_game.h"
+#include "client/client.h"
 #include "client/cdll_engine_int.h"
 #include "materialsystem/cmaterialsystem.h"
 #include "studiorender/studiorendercontext.h"
@@ -33,9 +35,7 @@
  //-------------------------------------------------------------------------
 void Dedicated_Init()
 {
-	*(uintptr_t*)0x14D415040 = 0x1417304E8; // g_pEngineClient.
-	*(uintptr_t*)0x14B3800D7 = 0x1;         // bool bDedicated = true.
-
+	*s_bDedicated = true;
 	//-------------------------------------------------------------------------
 	// CGAME
 	//-------------------------------------------------------------------------
@@ -44,11 +44,22 @@ void Dedicated_Init()
 	}
 
 	//-------------------------------------------------------------------------
-	// CHLClIENT
+	// CHLCLIENT
 	//-------------------------------------------------------------------------
 	{
 		p_CHLClient_LevelShutdown.Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 }); // FUN --> RET | Return early in 'CHLClient::LevelShutdown()' during DLL shutdown.
 		p_CHLClient_HudProcessInput.Patch({ 0xC3 });                             // FUN --> RET | Return early in 'CHLClient::HudProcessInput()' to prevent infinite loop.
+
+		// MOV --> JMP | Skip virtual call during settings layout parsing (S0/S1/S2/S3).
+		g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x41\x85\xC8\x0F\x84"), "xxxxx").Offset(0x40).Patch({ 0xEB, 0x23 });
+
+	}
+
+	//-------------------------------------------------------------------------
+	// CCLIENTSTATE
+	//-------------------------------------------------------------------------
+	{
+		CClientState__RunFrame.Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 }); // FUN --> RET | Always return false for pending client snapshots (inline CClientState call in '_Host_RunFrame()')
 	}
 
 	//-------------------------------------------------------------------------
@@ -125,6 +136,9 @@ void Dedicated_Init()
 		p_CModelLoader__Map_LoadModelGuts.Offset(0xEEB).Patch({ 0xE9, 0x3D, 0x01, 0x00, 0x00 });       // JLE --> JMP | Exception 0x57 in while trying to dereference [R15 + R14 *8 + 0x10].
 		p_CModelLoader__Map_LoadModelGuts.Offset(0x61B).Patch({ 0xE9, 0xE2, 0x02, 0x00, 0x00 });       // JZ  --> JMP | Prevent call to 'CMod_LoadTextures()'.
 		p_CModelLoader__Map_LoadModelGuts.Offset(0x1045).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });      // CAL --> NOP | Prevent call to 'Mod_LoadCubemapSamples()'.
+
+		p_BuildSpriteLoadName.Patch({ 0xC3 });                                                         // FUN --> RET | Return early in 'BuildSpriteLoadName()'.
+		p_GetSpriteInfo.Patch({ 0xC3 });                                                               // FUN --> RET | Return early in 'GetSpriteInfo()'.
 	}
 
 	//-------------------------------------------------------------------------
@@ -187,28 +201,34 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	{
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		Host_Shutdown.Offset(0x3B0).FindPatternSelf("0F 84", CMemory::Direction::DOWN).Patch({ 0x0F, 0x85 });      // JE  --> JNE | Cannot shutdown ClientDLL if its never initialized.
-		Host_Shutdown.Offset(0x9D0).FindPatternSelf("0F 84", CMemory::Direction::DOWN, 300).Patch({ 0x0F, 0x85 }); // JE  --> JNE | Cannot shutdown EngineVGui if its never initialized.
+		Host_Shutdown.Offset(0x1F0).FindPatternSelf("7E", CMemory::Direction::DOWN).Patch({ 0xE9, 0x01, 0x08, 0x00, 0x00 }); // JNE --> JMP | Jump over inline 'Host_ShutdownClient()' ('Host_ShutdownServer' in now inline with 'Host_Shutdown()')
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		Host_Shutdown.Offset(0x2B0).FindPatternSelf("0F 84", CMemory::Direction::DOWN, 300).Patch({ 0x0F, 0x85 }); // JE  --> JNE | Cannot shutdown ClientDLL if its never initialized.
-		Host_Shutdown.Offset(0x5C0).FindPatternSelf("0F 84", CMemory::Direction::DOWN, 300).Patch({ 0x0F, 0x85 }); // JE  --> JNE | Cannot shutdown EngineVGui if its never initialized.
-#endif
+		Host_Shutdown.Offset(0x1F0).FindPatternSelf("7E", CMemory::Direction::DOWN).Patch({ 0xE9, 0xF9, 0x04, 0x00, 0x00 }); // JNE --> JMP | Jump over inline 'Host_ShutdownClient()' ('Host_ShutdownServer' in now inline with 'Host_Shutdown()')
+#endif // 0x700
 	}
 
 	//-------------------------------------------------------------------------
 	// RUNTIME: HOST_NEWGAME
 	//-------------------------------------------------------------------------
 	{
-		p_Host_NewGame.Offset(0x4E0).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });
-		p_Host_NewGame.Offset(0x637).Patch({ 0xE9, 0xC1, 0x00, 0x00, 0x00 });      // JNE --> JMP | Prevent connect localhost from being executed in Host_NewGame.
+		p_Host_NewGame.Offset(0x50).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | Invalid CHLClient virtual call 'g_pHLClient->nullsub()'.
+		p_Host_NewGame.Offset(0x4E0).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });                        // CAL --> NOP | Matsys 'JT_HelpWithAnything()'.
+	}
+
+	//-------------------------------------------------------------------------
+	// RUNTIME: HOST_CHANGELEVEL
+	//-------------------------------------------------------------------------
+	{
+		p_Host_ChangeLevel.Offset(0x5D).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | Invalid CHLClient virtual call 'g_pHLClient->nullsub()'.
 	}
 
 	//-------------------------------------------------------------------------
 	// RUNTIME: _HOST_RUNFRAME
 	//-------------------------------------------------------------------------
 	{
-		_Host_RunFrame.Offset(0xFB0).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 });    // CAL --> NOP | NOP call to unused VGUI code to prevent crash at SIGNONSTATE_PRESPAWN.
-		_Host_RunFrame.Offset(0x1023).Patch({ 0x90, 0x90, 0x90 });               // CAL --> NOP | NOP NULL call as client is never initialized.
+		p_Host_RunFrame.Offset(0xB85).Patch({ 0xEB, 0x6F });    // CMP --> JMP | Jump over inline '_Host_RunFrame_Client()'
+		p_Host_RunFrame_Render.Patch({ 0xC3 });                 // FUN --> RET | Extraneous function for Dedicated.
+		p_VCR_EnterPausedState.Patch({ 0xC3 });                 // FUN --> RET | Extraneous function for Dedicated.
 	}
 
 	//-------------------------------------------------------------------------
@@ -256,10 +276,7 @@ void Dedicated_Init()
 	// RUNTIME: GL_SCREEN
 	//-------------------------------------------------------------------------
 	{
-		SCR_BeginLoadingPlaque.Offset(0x5B).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | virtual call to 'CHLClient::MilesQueueEvent'.
-		SCR_BeginLoadingPlaque.Offset(0x82).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | virtual call to 'CHLClient::CHudMessage'.
-		SCR_BeginLoadingPlaque.Offset(0xA4).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | virtual call to 'CEngineVGui::OnLevelLoadingStarted'.
-		SCR_BeginLoadingPlaque.Offset(0x1D6).Patch({ 0xEB, 0x27 });                        // JNE --> JMP | Prevent connect command from crashing by invalid call to UI function.
+		SCR_BeginLoadingPlaque.Patch({ 0xC3 });                                            // FUN --> RET | Return early to prevent execution of 'SCR_BeginLoadingPlaque()'.
 	}
 
 	//-------------------------------------------------------------------------
@@ -267,7 +284,7 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 #if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 	{
-		CL_ClearState.Offset(0x0).Patch({ 0xC3 });                                         // FUN --> RET | Invalid 'CL_ClearState()' call from Host_Shutdown causing segfault.
+		p_CL_ClearState.Offset(0x0).Patch({ 0xC3 });                                       // FUN --> RET | Invalid 'CL_ClearState()' call from Host_Shutdown causing segfault.
 	}
 #endif
 	//-------------------------------------------------------------------------
@@ -276,6 +293,13 @@ void Dedicated_Init()
 	UpdateCurrentVideoConfig.Offset(0x0).Patch({ 0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3 });    // FUN --> RET | Return early to prevent the server from writing a videoconfig.txt file to the disk (overwriting the existing one).
 	HandleConfigFile.Offset(0x0).Patch({ 0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3 });            // FUN --> RET | Return early to prevent the server from writing various input and ConVar config files to the disk (overwriting the existing one).
 	ResetPreviousGameState.Offset(0x0).Patch({ 0xC3 });                                    // FUN --> RET | Return early to prevent the server from writing a previousgamestate.txt file to the disk (overwriting the existing one).
+	LoadPlayerConfig.Offset(0x0).Patch({ 0xC3 });                                          // FUN --> RET | Return early to prevent the server from executing 'config_default_pc.cfg' (execPlayerConfig) and (only for >S3) running 'chat_wheel' code.
+
+	//-------------------------------------------------------------------------
+	// RUNTIME: COMMUNITIES
+	//-------------------------------------------------------------------------
+	Community_Frame.Offset(0x0).Patch({ 0xC3 });                                           // FUN --> RET | Return early to prevent 'Community_Frame()' from being ran every frame on the server (CLIENT ONLY).
+	//GetEngineClientThread.Offset(0x0).Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 });       // FUN --> RET | Return nullptr for mp_gamemode thread assignment during registration callback.
 
 	// This mandatory pak file should only exist on the client.
 	if (!FileExists("vpk\\client_frontend.bsp.pak000_000.vpk"))

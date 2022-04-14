@@ -59,7 +59,7 @@ public:
 	CCommand() = delete;
 
 	int MaxCommandLength();
-	std::int64_t ArgC(void) const;
+	int64_t ArgC(void) const;
 	const char** ArgV(void) const;
 	const char* ArgS(void) const;
 	const char* GetCommandString(void) const;
@@ -71,7 +71,7 @@ public:
 private:
 	int          m_nQueuedVal;
 	int          m_nArgc;
-	std::int64_t m_nArgv0Size;
+	int64_t      m_nArgv0Size;
 	char         m_pArgSBuffer[COMMAND_MAX_LENGTH];
 	char         m_pArgvBuffer[COMMAND_MAX_LENGTH];
 	const char*  m_ppArgv[COMMAND_MAX_ARGC];
@@ -93,6 +93,7 @@ public:
 
 	int GetFlags(void) const;
 	ConCommandBase* GetNext(void) const;
+	const char* GetName(void) const;
 	const char* GetHelpText(void) const;
 	const char* GetUsageText(void) const;
 
@@ -120,6 +121,8 @@ public:
 	ConCommand(void) {};
 	ConCommand(const char* szName, const char* szHelpString, int nFlags, void* pCallback, void* pCommandCompletionCallback);
 	void Init(void);
+	void InitShipped(void);
+	void PurgeShipped(void) const;
 	bool IsCommand(void) const;
 
 	void*          m_nNullCallBack      {}; //0x0040

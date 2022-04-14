@@ -15,6 +15,7 @@
 #include "vpc/IAppSystem.h"
 #include "vpc/keyvalues.h"
 #include "vpc/interfaces.h"
+#include "vstdlib/callback.h"
 #include "vstdlib/completion.h"
 #include "vstdlib/keyvaluessystem.h"
 #include "common/opcodes.h"
@@ -36,8 +37,9 @@
 #include "vgui/vgui_debugpanel.h"
 #include "vgui/vgui_fpspanel.h"
 #include "vguimatsurface/MatSystemSurface.h"
-#include "client/cdll_engine_int.h"
 #endif // !DEDICATED
+#include "client/client.h"
+#include "client/cdll_engine_int.h"
 #include "client/vengineclient_impl.h"
 #ifndef CLIENT_DLL
 #include "server/server.h"

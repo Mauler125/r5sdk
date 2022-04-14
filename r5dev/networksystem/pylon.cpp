@@ -22,10 +22,6 @@ void KeepAliveToPylon()
 {
 	if (g_pHostState->m_bActiveGame && sv_pylonvisibility->GetBool()) // Check for active game.
 	{
-		static ConVar* hostname = g_pCVar->FindVar("hostname");
-		static ConVar* hostport = g_pCVar->FindVar("hostport");
-		static ConVar* mp_gamemode = g_pCVar->FindVar("mp_gamemode");
-
 		std::string m_szHostToken = std::string();
 		std::string m_szHostRequestMessage = std::string();
 
