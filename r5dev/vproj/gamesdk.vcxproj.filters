@@ -1250,6 +1250,9 @@
     <ClInclude Include="..\vstdlib\callback.h">
       <Filter>sdk\vstdlib</Filter>
     </ClInclude>
+    <ClInclude Include="..\tier0\tslist.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\shared\resource\lockedserver.png">

@@ -50,11 +50,8 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 #ifdef DEDICATED
 	pModAppSystemGroup->SetServerOnly();
 	*g_bDedicated = true;
-	g_pConCommand->PurgeShipped();
 #endif // DEDICATED
 	g_pConCommand->Init();
-	g_pConCommand->InitShipped();
-	g_pConVar->InitShipped();
 	g_pFactory->GetFactoriesFromRegister();
 
 	for (auto& map : g_pCVar->DumpToMap())

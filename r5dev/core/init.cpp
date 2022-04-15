@@ -6,6 +6,7 @@
 
 #include "core/stdafx.h"
 #include "core/init.h"
+#include "tier0/tslist.h"
 #include "tier0/fasttimer.h"
 #include "tier0/cpu.h"
 #include "tier0/commandline.h"
@@ -179,6 +180,7 @@ void Systems_Init()
 #endif // !DEDICATED
 
 	SysDll_Attach();
+	SysDll2_Attach();
 	SysUtils_Attach();
 
 #ifndef DEDICATED
@@ -276,6 +278,7 @@ void Systems_Shutdown()
 #endif // !DEDICATED
 
 	SysDll_Detach();
+	SysDll2_Detach();
 	SysUtils_Detach();
 
 #ifndef DEDICATED

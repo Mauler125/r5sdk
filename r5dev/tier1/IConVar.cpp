@@ -5,12 +5,13 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#include "vstdlib/callback.h"
+#include "tier0/tslist.h"
 #include "tier1/IConVar.h"
 #include "tier1/cvar.h"
 #include "engine/sys_utils.h"
 #include "engine/sys_dll2.h"
 #include "mathlib/bits.h"
+#include "vstdlib/callback.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: construct/allocate
@@ -165,6 +166,68 @@ void ConVar::InitShipped(void) const
 	net_usesocketsforloopback        = g_pCVar->FindVar("net_usesocketsforloopback");
 
 	mp_gamemode->SetCallback(&MP_GameMode_Changed_f);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: unregister/disable unused ConVar's for dedicated.
+//-----------------------------------------------------------------------------
+void ConVar::PurgeShipped(void) const
+{
+	const char* pszToPurge[] =
+	{
+		"bink_materials_enabled",
+		"communities_enabled",
+		"ime_enabled",
+		"origin_igo_mutes_sound_enabled",
+		"voice_enabled",
+	};
+
+	for (int i = 0; i < (&pszToPurge)[1] - pszToPurge; i++)
+	{
+		ConVar* pCVar = g_pCVar->FindVar(pszToPurge[i]);
+
+		if (pCVar)
+		{
+			pCVar->SetValue(0);
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: clear all hostname ConVar's.
+//-----------------------------------------------------------------------------
+void ConVar::PurgeHostNames(void) const
+{
+	const char* pszHostNames[] =
+	{
+		"pin_telemetry_hostname",
+		"assetdownloads_hostname",
+		"users_hostname",
+		"persistence_hostname",
+		"speechtotexttoken_hostname",
+		"communities_hostname",
+		"persistenceDef_hostname",
+		"party_hostname",
+		"speechtotext_hostname",
+		"serverReports_hostname",
+		"subscription_hostname",
+		"steamlink_hostname",
+		"staticfile_hostname",
+		"matchmaking_hostname",
+		"skill_hostname",
+		"publication_hostname",
+		"stats_hostname"
+	};
+
+	for (int i = 0; i < (&pszHostNames)[1] - pszHostNames; i++)
+	{
+		ConVar* pCVar = g_pCVar->FindVar(pszHostNames[i]);
+
+		if (pCVar)
+		{
+			pCVar->ChangeStringValueUnsafe("0.0.0.0");
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -337,33 +400,8 @@ bool ConVar::HasMax(void) const
 //-----------------------------------------------------------------------------
 void ConVar::SetValue(int nValue)
 {
-	if (nValue == m_Value.m_nValue)
-	{
-		return;
-	}
-
-	// Only valid for root ConVars.
-	assert(m_pParent == this);
-
-	float flValue = static_cast<float>(nValue);
-
-	// Check bounds.
-	if (ClampValue(flValue))
-	{
-		nValue = static_cast<int>(flValue);
-	}
-
-	// Redetermine value.
-	float flOldValue = m_Value.m_fValue;
-	m_Value.m_fValue = flValue;
-	m_Value.m_fValue = nValue;
-
-	if (!(m_nFlags & FCVAR_NEVER_AS_STRING))
-	{
-		char szTempValue[32];
-		snprintf(szTempValue, sizeof(szTempValue), "%d", m_Value.m_nValue);
-		ChangeStringValue(szTempValue, flOldValue);
-	}
+	ConVar* pCVar = reinterpret_cast<ConVar*>(m_pParent);
+	pCVar->InternalSetIntValue(nValue);
 }
 
 //-----------------------------------------------------------------------------
@@ -372,28 +410,8 @@ void ConVar::SetValue(int nValue)
 //-----------------------------------------------------------------------------
 void ConVar::SetValue(float flValue)
 {
-	if (flValue == m_Value.m_fValue)
-	{
-		return;
-	}
-
-	// Only valid for root ConVars.
-	assert(m_pParent == this);
-
-	// Check bounds.
-	ClampValue(flValue);
-
-	// Redetermine value.
-	float flOldValue = m_Value.m_fValue;
-	m_Value.m_fValue = flValue;
-	m_Value.m_nValue = static_cast<int>(m_Value.m_fValue);
-
-	if (!(m_nFlags & FCVAR_NEVER_AS_STRING))
-	{
-		char szTempValue[32];
-		snprintf(szTempValue, sizeof(szTempValue), "%f", m_Value.m_fValue);
-		ChangeStringValue(szTempValue, flOldValue);
-	}
+	ConVar* pCVar = reinterpret_cast<ConVar*>(m_pParent);
+	pCVar->InternalSetFloatValue(flValue);
 }
 
 //-----------------------------------------------------------------------------
@@ -401,6 +419,26 @@ void ConVar::SetValue(float flValue)
 // Input  : *szValue - 
 //-----------------------------------------------------------------------------
 void ConVar::SetValue(const char* pszValue)
+{
+	ConVar* pCVar = reinterpret_cast<ConVar*>(m_pParent);
+	pCVar->InternalSetValue(pszValue);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: sets the ConVar color value.
+// Input  : value - 
+//-----------------------------------------------------------------------------
+void ConVar::SetValue(Color value)
+{
+	ConVar* pCVar = reinterpret_cast<ConVar*>(m_pParent);
+	pCVar->InternalSetColorValue(value);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : *pszValue - 
+//-----------------------------------------------------------------------------
+void ConVar::InternalSetValue(const char* pszValue)
 {
 	if (strcmp(this->m_pParent->m_Value.m_pszString, pszValue) == 0)
 	{
@@ -427,7 +465,7 @@ void ConVar::SetValue(const char* pszValue)
 		float flNewValue = static_cast<float>(atof(pszValue));
 		if (!IsFinite(flNewValue))
 		{
-			Warning(eDLL_T::ENGINE ,"Warning: ConVar '%s' = '%s' is infinite, clamping value.\n", GetBaseName(), pszValue);
+			Warning(eDLL_T::ENGINE, "Warning: ConVar '%s' = '%s' is infinite, clamping value.\n", GetBaseName(), pszValue);
 			flNewValue = FLT_MAX;
 		}
 
@@ -449,32 +487,109 @@ void ConVar::SetValue(const char* pszValue)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: sets the ConVar color value.
-// Input  : clValue - 
+// Purpose: 
+// Input  : *nValue - 
 //-----------------------------------------------------------------------------
-void ConVar::SetValue(Color clValue)
+void ConVar::InternalSetIntValue(int nValue)
 {
-	std::string svResult = "";
+	if (nValue == m_Value.m_nValue)
+		return;
 
-	for (int i = 0; i < 4; i++)
+	assert(m_pParent == this); // Only valid for root convars.
+
+	float fValue = static_cast<float>(nValue);
+	if (ClampValue(fValue))
 	{
-		if (!(clValue.GetValue(i) == 0 && svResult.size() == 0))
-		{
-			svResult += std::to_string(clValue.GetValue(i));
-			svResult.append(" ");
-		}
+		nValue = static_cast<int>(fValue);
 	}
 
-	this->m_pParent->m_Value.m_pszString = svResult.c_str();
+	// Redetermine value
+	float flOldValue = m_Value.m_fValue;
+	m_Value.m_fValue = fValue;
+	m_Value.m_nValue = nValue;
+
+	if (!(m_nFlags & FCVAR_NEVER_AS_STRING))
+	{
+		char szTempVal[32];
+		snprintf(szTempVal, sizeof(szTempVal), "%d", nValue);
+		ChangeStringValue(szTempVal, flOldValue);
+	}
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : *flValue - 
+//-----------------------------------------------------------------------------
+void ConVar::InternalSetFloatValue(float flValue)
+{
+	if (flValue == m_Value.m_fValue)
+		return;
+
+	assert(m_pParent == this); // Only valid for root convars.
+
+	// Check bounds
+	ClampValue(flValue);
+
+	// Redetermine value
+	float flOldValue = m_Value.m_fValue;
+	m_Value.m_fValue = flValue;
+	m_Value.m_nValue = static_cast<int>(flValue);
+
+	if (!(m_nFlags & FCVAR_NEVER_AS_STRING))
+	{
+		char szTempVal[32];
+		snprintf(szTempVal, sizeof(szTempVal), "%f", flValue);
+		ChangeStringValue(szTempVal, flOldValue);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : *value - 
+//-----------------------------------------------------------------------------
+void ConVar::InternalSetColorValue(Color value)
+{
+	// Stuff color values into an int
+	int nValue = 0;
+
+	unsigned char* pColorElement = (reinterpret_cast<unsigned char*>(&nValue));
+	pColorElement[0] = value[0];
+	pColorElement[1] = value[1];
+	pColorElement[2] = value[2];
+	pColorElement[3] = value[3];
+
+	// Call the int internal set
+	InternalSetIntValue(nValue);
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Reset to default value.
 //-----------------------------------------------------------------------------
 void ConVar::Revert(void)
 {
-	this->SetValue(this->m_pszDefaultValue);
+	SetValue(m_pszDefaultValue);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Check whether to clamp and then perform clamp.
+// Input  : flValue - 
+// Output : Returns true if value changed.
+//-----------------------------------------------------------------------------
+bool ConVar::ClampValue(float& flValue)
+{
+	if (m_bHasMin && (flValue < m_fMinVal))
+	{
+		flValue = m_fMinVal;
+		return true;
+	}
+
+	if (m_bHasMax && (flValue > m_fMaxVal))
+	{
+		flValue = m_fMaxVal;
+		return true;
+	}
+
+	return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -504,45 +619,6 @@ void ConVar::SetDefault(const char* pszDefault)
 void ConVar::SetCallback(void* pCallback)
 {
 	*m_Callback.m_ppCallback = *&pCallback;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: changes the ConVar string value.
-// Input  : *pszTempVal - flOldValue
-//-----------------------------------------------------------------------------
-void ConVar::ChangeStringValue(const char* pszTempVal, float flOldValue)
-{
-	assert(!(m_nFlags & FCVAR_NEVER_AS_STRING));
-
-	char* pszOldValue = reinterpret_cast<char*>(_malloca(m_Value.m_iStringLength));
-	if (pszOldValue != NULL)
-	{
-		memcpy(pszOldValue, m_Value.m_pszString, m_Value.m_iStringLength);
-	}
-
-	if (pszTempVal)
-	{
-		int len = strlen(pszTempVal) + 1;
-
-		if (len > m_Value.m_iStringLength)
-		{
-			if (m_Value.m_pszString)
-			{
-				delete[] m_Value.m_pszString;
-			}
-
-			m_Value.m_pszString = new char[len];
-			m_Value.m_iStringLength = len;
-		}
-
-		memcpy(const_cast<char*>(m_Value.m_pszString), pszTempVal, len);
-	}
-	else
-	{
-		m_Value.m_pszString = NULL;
-	}
-
-	pszOldValue = NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -592,25 +668,51 @@ bool ConVar::SetColorFromString(const char* pszValue)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Check whether to clamp and then perform clamp.
-// Input  : flValue - 
-// Output : Returns true if value changed.
+// Purpose: changes the ConVar string value.
+// Input  : *pszTempVal - flOldValue
 //-----------------------------------------------------------------------------
-bool ConVar::ClampValue(float& flValue)
+void ConVar::ChangeStringValue(const char* pszTempVal, float flOldValue)
 {
-	if (m_bHasMin && (flValue < m_fMinVal))
+	assert(!(m_nFlags & FCVAR_NEVER_AS_STRING));
+
+	char* pszOldValue = reinterpret_cast<char*>(_malloca(m_Value.m_iStringLength));
+	if (pszOldValue != NULL)
 	{
-		flValue = m_fMinVal;
-		return true;
+		memcpy(pszOldValue, m_Value.m_pszString, m_Value.m_iStringLength);
 	}
 
-	if (m_bHasMax && (flValue > m_fMaxVal))
+	if (pszTempVal)
 	{
-		flValue = m_fMaxVal;
-		return true;
+		int len = strlen(pszTempVal) + 1;
+
+		if (len > m_Value.m_iStringLength)
+		{
+			if (m_Value.m_pszString)
+			{
+				delete[] m_Value.m_pszString;
+			}
+
+			m_Value.m_pszString = new char[len];
+			m_Value.m_iStringLength = len;
+		}
+
+		memcpy(const_cast<char*>(m_Value.m_pszString), pszTempVal, len);
+	}
+	else
+	{
+		m_Value.m_pszString = NULL;
 	}
 
-	return false;
+	pszOldValue = NULL;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: changes the ConVar string value (unsafe).
+// Input  : *pszTempVal - flOldValue
+//-----------------------------------------------------------------------------
+void ConVar::ChangeStringValueUnsafe(const char* pszNewValue)
+{
+	m_Value.m_pszString = pszNewValue;
 }
 
 //-----------------------------------------------------------------------------
@@ -670,44 +772,6 @@ bool ConVar::IsFlagSet(ConVar* pConVar, int nFlags)
 	}
 	// Return false on every FCVAR_DEVELOPMENTONLY query.
 	return pConVar->HasFlags(nFlags) != 0;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: clear all hostname ConVar's.
-//-----------------------------------------------------------------------------
-void ConVar::ClearHostNames(void)
-{
-	const char* pszHostnameArray[] =
-	{
-		"pin_telemetry_hostname",
-		"assetdownloads_hostname",
-		"users_hostname",
-		"persistence_hostname",
-		"speechtotexttoken_hostname",
-		"communities_hostname",
-		"persistenceDef_hostname",
-		"party_hostname",
-		"speechtotext_hostname",
-		"serverReports_hostname",
-		"subscription_hostname",
-		"steamlink_hostname",
-		"staticfile_hostname",
-		"matchmaking_hostname",
-		"skill_hostname",
-		"publication_hostname",
-		"stats_hostname"
-	};
-
-	for (int i = 0; i < (&pszHostnameArray)[1] - pszHostnameArray; i++)
-	{
-		const char* pszName = pszHostnameArray[i];
-		ConVar* pCVar = g_pCVar->FindVar(pszName);
-
-		if (pCVar)
-		{
-			pCVar->m_Value.m_pszString = "0.0.0.0";
-		}
-	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

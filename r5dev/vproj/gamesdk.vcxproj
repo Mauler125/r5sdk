@@ -354,6 +354,7 @@
     <ClInclude Include="..\tier0\fasttimer.h" />
     <ClInclude Include="..\tier0\interface.h" />
     <ClInclude Include="..\tier0\platform.h" />
+    <ClInclude Include="..\tier0\tslist.h" />
     <ClInclude Include="..\tier1\bitbuf.h" />
     <ClInclude Include="..\tier1\cmd.h" />
     <ClInclude Include="..\tier1\cvar.h" />

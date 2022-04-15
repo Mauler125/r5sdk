@@ -1,4 +1,5 @@
 #include "core/stdafx.h"
+#include "tier0/tslist.h"
 #include "tier1/cmd.h"
 #include "tier1/cvar.h"
 #include "vstdlib/completion.h"

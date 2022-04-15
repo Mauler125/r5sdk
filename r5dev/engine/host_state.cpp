@@ -180,7 +180,7 @@ FORCEINLINE void CHostState::Init(void)
 FORCEINLINE void CHostState::Setup(void) const
 {
 	g_pHostState->LoadConfig();
-	g_pConVar->ClearHostNames();
+	g_pConVar->PurgeHostNames();
 #ifdef DEDICATED
 	g_pRConServer->Init();
 #else // 
@@ -190,11 +190,7 @@ FORCEINLINE void CHostState::Setup(void) const
 	std::thread think(&CHostState::Think, this);
 	think.detach();
 
-	*m_bRestrictServerCommands = true; // Restrict commands.
-	ConCommandBase* disconnect = g_pCVar->FindCommandBase("disconnect");
-	disconnect->AddFlags(FCVAR_SERVER_CAN_EXECUTE); // Make sure server is not restricted to this.
 	net_usesocketsforloopback->SetValue(1);
-
 	if (net_userandomkey->GetBool())
 	{
 		NET_GenerateKey();

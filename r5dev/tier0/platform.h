@@ -70,7 +70,39 @@ struct CPUInformation
 	uint32_t m_nL3CacheSizeKb;
 	uint32_t m_nL3CacheDesc;
 
-	CPUInformation() : m_Size(0) {}
+	CPUInformation() : m_Size(0)
+	{
+		m_Size = 0;
+
+		m_nLogicalProcessors = 0;
+		m_nPhysicalProcessors = 0;
+
+		m_bRDTSC = false;
+		m_bCMOV = false;
+		m_bCMOV = false;
+		m_bFCMOV = false;
+		m_bSSE = false;
+		m_bSSE2 = false;
+		m_b3DNow = false;
+		m_bMMX = false;
+		m_bHT = false;
+
+		m_Speed = 0i64;
+
+		m_szProcessorID = nullptr;
+		m_szProcessorBrand = nullptr;
+
+		m_nModel = 0;
+		m_nFeatures[0] = 0;
+		m_nFeatures[1] = 0;
+		m_nFeatures[2] = 0;
+		m_nL1CacheSizeKb = 0;
+		m_nL1CacheDesc = 0;
+		m_nL2CacheSizeKb = 0;
+		m_nL2CacheDesc = 0;
+		m_nL3CacheSizeKb = 0;
+		m_nL3CacheDesc = 0;
+	}
 };
 
 #endif /* PLATFORM_H */

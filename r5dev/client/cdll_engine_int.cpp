@@ -29,9 +29,6 @@ void CHLClient::FrameStageNotify(CHLClient* pHLClient, ClientFrameStage_t frameS
 			static bool bInitialized = false;
 			if (!bInitialized)
 			{
-#ifdef GAMEDLL_S3
-				g_pConVar->ClearHostNames();
-#endif // GAMEDLL_S3
 				KeyValues::Init();
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2) // !TEMP UNTIL CHOSTSTATE IS BUILD AGNOSTIC! //
 				if (!g_pCmdLine->CheckParm("-devsdk"))
@@ -55,10 +52,6 @@ void CHLClient::FrameStageNotify(CHLClient* pHLClient, ClientFrameStage_t frameS
 					Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_dev.cfg\"", cmd_source_t::kCommandSrcCode);
 				}
 				Cbuf_Execute();
-
-				*(bool*)m_bRestrictServerCommands = true; // Restrict commands.
-				ConCommandBase* disconnect = (ConCommandBase*)g_pCVar->FindCommand("disconnect");
-				disconnect->AddFlags(FCVAR_SERVER_CAN_EXECUTE); // Make sure server is not restricted to this.
 
 				if (net_userandomkey->GetBool())
 				{

@@ -93,6 +93,9 @@ public:
 	void Init(void) const;
 	void InitShipped(void) const;
 
+	void PurgeShipped(void) const;
+	void PurgeHostNames(void) const;
+
 	void AddFlags(int nFlags);
 	void RemoveFlags(int nFlags);
 
@@ -119,22 +122,25 @@ public:
 	void SetValue(const char* pszValue);
 	void SetValue(Color clValue);
 
+	void InternalSetValue(const char* pszValue);
+	void InternalSetIntValue(int nValue);
+	void InternalSetFloatValue(float flValue);
+	void InternalSetColorValue(Color value);
+
 	void Revert(void);
+	bool ClampValue(float& flValue);
 
 	const char* GetDefault(void) const;
 	void SetDefault(const char* pszDefault);
-
 	void SetCallback(void* pCallback);
+	bool SetColorFromString(const char* pszValue);
 
 	void ChangeStringValue(const char* pszTempValue, float flOldValue);
-	bool SetColorFromString(const char* pszValue);
-	bool ClampValue(float& value);
+	void ChangeStringValueUnsafe(const char* pszNewValue);
 
 	bool IsRegistered(void) const;
 	bool IsCommand(void) const;
 	static bool IsFlagSet(ConVar* pConVar, int nFlags);
-
-	void ClearHostNames(void);
 
 	struct CVValue_t
 	{

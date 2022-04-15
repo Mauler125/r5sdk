@@ -858,6 +858,9 @@
     <ClInclude Include="..\vstdlib\callback.h">
       <Filter>sdk\vstdlib</Filter>
     </ClInclude>
+    <ClInclude Include="..\tier0\tslist.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
