@@ -171,10 +171,11 @@ void ConCommand::InitShipped(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: unregister unused ConCommand's for dedicated.
+// Purpose: unregister extraneous ConCommand's.
 //-----------------------------------------------------------------------------
 void ConCommand::PurgeShipped(void) const
 {
+#ifdef DEDICATED
 	const char* pszCommandToRemove[] =
 	{
 		"bind",
@@ -183,14 +184,24 @@ void ConCommand::PurgeShipped(void) const
 		"bind_list_abilities",
 		"bind_US_standard",
 		"bind_held_US_standard",
+		"unbind",
+		"unbind_US_standard",
+		"unbindall",
+		"unbind_all_gamepad",
+		"unbindall_ignoreGamepad",
+		"unbind_batch",
+		"unbind_held",
+		"unbind_held_US_standard",
+		"getpos_bind",
 		"connect",
+		"silent_connect",
+		"ping",
 		"gameui_activate",
 		"gameui_hide",
 		"weaponSelectOrdnance",
 		"weaponSelectPrimary0",
 		"weaponSelectPrimary1",
 		"weaponSelectPrimary2",
-		"silent_connect",
 		"+scriptCommand1",
 		"-scriptCommand1",
 		"+scriptCommand2",
@@ -220,6 +231,7 @@ void ConCommand::PurgeShipped(void) const
 			g_pCVar->UnregisterConCommand(pCommandBase);
 		}
 	}
+#endif // DEDICATED
 }
 
 //-----------------------------------------------------------------------------

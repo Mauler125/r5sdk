@@ -88,13 +88,11 @@ const char* CCommandLine::ParmValue(const char* psz, const char* pDefaultVal)
 	static int index = 7;
 	return CallVFunc<const char*>(index, this, psz, pDefaultVal);
 }
-
 int CCommandLine::ParmValue(const char* psz, int nDefaultVal)
 {
 	static int index = 8;
 	return CallVFunc<int>(index, this, psz, nDefaultVal);
 }
-
 float CCommandLine::ParmValue(const char* psz, float flDefaultVal)
 {
 	static int index = 9;
@@ -124,9 +122,17 @@ const char* CCommandLine::GetParm(int nIndex)
 
 void CCommandLine::SetParm(int nIndex, char const* pParm)
 {
-	static int index = 13;
+	static int index = 14;
 	CallVFunc<void>(index, this, nIndex, pParm);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 CCommandLine* g_pCmdLine = reinterpret_cast<CCommandLine*>(p_CCVar_GetCommandLineValue.FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 250).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr());
+
+//-----------------------------------------------------------------------------
+// Instance singleton and expose interface to rest of code
+//-----------------------------------------------------------------------------
+CCommandLine* CommandLine(void)
+{
+	return g_pCmdLine;
+}

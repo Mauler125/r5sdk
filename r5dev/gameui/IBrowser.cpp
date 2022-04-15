@@ -734,7 +734,7 @@ void IBrowser::SetStyleVar(void)
     ImGuiStyle& style                     = ImGui::GetStyle();
     ImVec4* colors                        = style.Colors;
 
-    if (!g_pCmdLine->CheckParm("-imgui_default_theme"))
+    if (!CommandLine()->CheckParm("-imgui_default_theme"))
     {
         colors[ImGuiCol_Text]                 = ImVec4(0.81f, 0.81f, 0.81f, 1.00f);
         colors[ImGuiCol_TextDisabled]         = ImVec4(0.56f, 0.56f, 0.56f, 1.00f);

@@ -1,4 +1,4 @@
-LIBRARY r5apexsdkd64
+LIBRARY gamesdk
 
 EXPORTS
     DummyExport @1

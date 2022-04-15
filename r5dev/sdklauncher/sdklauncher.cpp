@@ -11,11 +11,11 @@ bool LaunchR5Apex(eLaunchMode lMode, eLaunchState lState)
 {
     ///////////////////////////////////////////////////////////////////////////
     // Initialize strings.
-    std::string WorkerDll            = std::string();
-    std::string GameDirectory        = std::string();
-    std::string CommandLineArguments = std::string();
-    std::string StartupCommandLine   = std::string();
-    std::string currentDirectory     = std::filesystem::current_path().u8string();
+    std::string svWorkerDll                = std::string();
+    std::string svGameDir                  = std::string();
+    std::string svCmdLineArgs              = std::string();
+    std::string svStartCmdLine             = std::string();
+    std::string svCurrentDir               = std::filesystem::current_path().u8string();
 
     ///////////////////////////////////////////////////////////////////////////
     // Determine launch mode.
@@ -28,8 +28,8 @@ bool LaunchR5Apex(eLaunchMode lMode, eLaunchState lState)
             if (cfgFile.good() && cfgFile)  // Does the cfg file exist?
             {
                 std::stringstream ss;
-                ss << cfgFile.rdbuf();           // Read ifstream buffer into stringstream.
-                CommandLineArguments = ss.str(); // Get all the contents of the cfg file.
+                ss << cfgFile.rdbuf();                  // Read ifstream buffer into stringstream.
+                svCmdLineArgs = ss.str() + "-launcher"; // Get all the contents of the cfg file.
             }
             else
             {
@@ -39,9 +39,9 @@ bool LaunchR5Apex(eLaunchMode lMode, eLaunchState lState)
             }
             cfgFile.close(); // Close cfg file.
 
-            WorkerDll           = currentDirectory + "\\r5apexsdkd64.dll";                   // Get path to worker dll.
-            GameDirectory       = currentDirectory + "\\r5apex.exe";                         // Get path to game executeable.
-            StartupCommandLine  = currentDirectory + "\\r5apex.exe " + CommandLineArguments; // Setup startup command line string.
+            svWorkerDll     = svCurrentDir + "\\gamesdk.dll";                 // Get path to worker dll.
+            svGameDir       = svCurrentDir + "\\r5apex.exe";                  // Get path to game executeable.
+            svStartCmdLine  = svCurrentDir + "\\r5apex.exe " + svCmdLineArgs; // Setup startup command line string.
 
             spdlog::info("*** LAUNCHING GAME [DEBUG] ***\n");
             break;
@@ -53,8 +53,8 @@ bool LaunchR5Apex(eLaunchMode lMode, eLaunchState lState)
             if (cfgFile.good() && cfgFile)  // Does the cfg file exist?
             {
                 std::stringstream ss;
-                ss << cfgFile.rdbuf();           // Read ifstream buffer into stringstream.
-                CommandLineArguments = ss.str(); // Get all the contents of the cfg file.
+                ss << cfgFile.rdbuf();                  // Read ifstream buffer into stringstream.
+                svCmdLineArgs = ss.str() + "-launcher"; // Get all the contents of the cfg file.
             }
             else
             {
@@ -64,9 +64,9 @@ bool LaunchR5Apex(eLaunchMode lMode, eLaunchState lState)
             }
             cfgFile.close(); // Close cfg file.
 
-            WorkerDll          = currentDirectory + "\\r5apexsdkd64.dll";                   // Get path to worker dll.
-            GameDirectory      = currentDirectory + "\\r5apex.exe";                         // Get path to game executeable.
-            StartupCommandLine = currentDirectory + "\\r5apex.exe " + CommandLineArguments; // Setup startup command line string.
+            svWorkerDll    = svCurrentDir + "\\gamesdk.dll";                 // Get path to worker dll.
+            svGameDir      = svCurrentDir + "\\r5apex.exe";                  // Get path to game executeable.
+            svStartCmdLine = svCurrentDir + "\\r5apex.exe " + svCmdLineArgs; // Setup startup command line string.
 
             spdlog::info("*** LAUNCHING GAME [RELEASE] ***\n");
             break;
@@ -78,8 +78,8 @@ bool LaunchR5Apex(eLaunchMode lMode, eLaunchState lState)
             if (cfgFile.good() && cfgFile)  // Does the cfg file exist?
             {
                 std::stringstream ss;
-                ss << cfgFile.rdbuf();           // Read ifstream buffer into stringstream.
-                CommandLineArguments = ss.str(); // Get all the contents of the cfg file.
+                ss << cfgFile.rdbuf();                  // Read ifstream buffer into stringstream.
+                svCmdLineArgs = ss.str() + "-launcher"; // Get all the contents of the cfg file.
             }
             else
             {
@@ -89,9 +89,9 @@ bool LaunchR5Apex(eLaunchMode lMode, eLaunchState lState)
             }
             cfgFile.close(); // Close cfg file.
 
-            WorkerDll          = currentDirectory + "\\dedicated.dll";                         // Get path to worker dll.
-            GameDirectory      = currentDirectory + "\\r5apex_ds.exe";                         // Get path to game executeable.
-            StartupCommandLine = currentDirectory + "\\r5apex_ds.exe " + CommandLineArguments; // Setup startup command line string.
+            svWorkerDll    = svCurrentDir + "\\dedicated.dll";                  // Get path to worker dll.
+            svGameDir      = svCurrentDir + "\\r5apex_ds.exe";                  // Get path to game executeable.
+            svStartCmdLine = svCurrentDir + "\\r5apex_ds.exe " + svCmdLineArgs; // Setup startup command line string.
 
             spdlog::info("*** LAUNCHING DEDICATED [DEBUG] ***\n");
             break;
@@ -103,8 +103,8 @@ bool LaunchR5Apex(eLaunchMode lMode, eLaunchState lState)
             if (cfgFile.good() && cfgFile)  // Does the cfg file exist?
             {
                 std::stringstream ss;
-                ss << cfgFile.rdbuf();           // Read ifstream buffer into stringstream.
-                CommandLineArguments = ss.str(); // Get all the contents of the cfg file.
+                ss << cfgFile.rdbuf();    // Read ifstream buffer into stringstream.
+                svCmdLineArgs = ss.str(); // Get all the contents of the cfg file.
             }
             else
             {
@@ -114,9 +114,9 @@ bool LaunchR5Apex(eLaunchMode lMode, eLaunchState lState)
             }
             cfgFile.close(); // Close cfg file.
 
-            WorkerDll          = currentDirectory + "\\dedicated.dll";                         // Get path to worker dll.
-            GameDirectory      = currentDirectory + "\\r5apex_ds.exe";                         // Get path to game executeable.
-            StartupCommandLine = currentDirectory + "\\r5apex_ds.exe " + CommandLineArguments; // Setup startup command line string.
+            svWorkerDll    = svCurrentDir + "\\dedicated.dll";                  // Get path to worker dll.
+            svGameDir      = svCurrentDir + "\\r5apex_ds.exe";                  // Get path to game executeable.
+            svStartCmdLine = svCurrentDir + "\\r5apex_ds.exe " + svCmdLineArgs; // Setup startup command line string.
 
             spdlog::info("*** LAUNCHING DEDICATED [RELEASE] ***\n");
             break;
@@ -131,17 +131,17 @@ bool LaunchR5Apex(eLaunchMode lMode, eLaunchState lState)
     ///////////////////////////////////////////////////////////////////////////
     // Print the file paths and arguments.
     std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
-    spdlog::debug("- CWD: {}\n", currentDirectory);
-    spdlog::debug("- EXE: {}\n", GameDirectory);
-    spdlog::debug("- DLL: {}\n", WorkerDll);
-    spdlog::debug("- CLI: {}\n", CommandLineArguments);
+    spdlog::debug("- CWD: {}\n", svCurrentDir);
+    spdlog::debug("- EXE: {}\n", svGameDir);
+    spdlog::debug("- DLL: {}\n", svWorkerDll);
+    spdlog::debug("- CLI: {}\n", svCmdLineArgs);
     std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
 
     ///////////////////////////////////////////////////////////////////////////
     // Build our list of dlls to inject.
     LPCSTR DllsToInject[1] =
     {
-        WorkerDll.c_str()
+        svWorkerDll.c_str()
     };
 
     STARTUPINFOA StartupInfo = { 0 };
@@ -154,14 +154,14 @@ bool LaunchR5Apex(eLaunchMode lMode, eLaunchState lState)
     // Create the game process in a suspended state with our dll.
     BOOL result = DetourCreateProcessWithDllsA
     (
-        GameDirectory.c_str(),                         // lpApplicationName
-        (LPSTR)StartupCommandLine.c_str(),             // lpCommandLine
+        svGameDir.c_str(),                             // lpApplicationName
+        (LPSTR)svStartCmdLine.c_str(),                 // lpCommandLine
         NULL,                                          // lpProcessAttributes
         NULL,                                          // lpThreadAttributes
         FALSE,                                         // bInheritHandles
         CREATE_SUSPENDED,                              // dwCreationFlags
         NULL,                                          // lpEnvironment
-        currentDirectory.c_str(),                      // lpCurrentDirectory
+        svCurrentDir.c_str(),                          // lpCurrentDirectory
         &StartupInfo,                                  // lpStartupInfo
         &ProcInfo,                                     // lpProcessInformation
         sizeof(DllsToInject) / sizeof(LPCSTR),         // nDlls

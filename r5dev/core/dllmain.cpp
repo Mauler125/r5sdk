@@ -9,6 +9,7 @@
 #endif // !DEDICATED
 #include "windows/console.h"
 #include "windows/system.h"
+#include "launcher/launcher.h"
 
 //#############################################################################
 // INITIALIZATION
@@ -16,8 +17,19 @@
 
 void R5Dev_Init()
 {
+    if (strstr(GetCommandLineA(), "-launcher"))
+    {
+        g_svCmdLine = GetCommandLineA();
+    }
+    else
+    {
+        g_svCmdLine = LoadConfigFile(SDK_DEFAULT_CFG);
+    }
 #ifndef DEDICATED
-    if (strstr(GetCommandLineA(), "-wconsole")) { Console_Init(); }
+    if (strstr(g_svCmdLine.c_str(), "-wconsole"))
+    {
+        Console_Init();
+    }
 #else
     Console_Init();
 #endif // !DEDICATED

@@ -861,6 +861,9 @@
     <ClInclude Include="..\tier0\tslist.h">
       <Filter>sdk\tier0</Filter>
     </ClInclude>
+    <ClInclude Include="..\launcher\launcher.h">
+      <Filter>sdk\launcher</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1084,6 +1087,9 @@
     </ClCompile>
     <ClCompile Include="..\vstdlib\callback.cpp">
       <Filter>sdk\vstdlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\launcher\launcher.cpp">
+      <Filter>sdk\launcher</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -21,8 +21,9 @@
 #include "vstdlib/keyvaluessystem.h"
 #include "common/opcodes.h"
 #include "common/netmessages.h"
-#include "launcher/IApplication.h"
 #include "launcher/prx.h"
+#include "launcher/launcher.h"
+#include "launcher/IApplication.h"
 #include "filesystem/basefilesystem.h"
 #include "filesystem/filesystem.h"
 #include "ebisusdk/EbisuSDK.h"
@@ -132,6 +133,7 @@ void Systems_Init()
 	DetourUpdateThread(GetCurrentThread());
 
 	// Hook functions
+	Launcher_Attatch();
 	IApplication_Attach();
 #ifdef DEDICATED
 	//PRX_Attach();
@@ -231,6 +233,7 @@ void Systems_Shutdown()
 	DetourUpdateThread(GetCurrentThread());
 
 	// Unhook functions
+	Launcher_Detatch();
 	IApplication_Detach();
 #ifdef DEDICATED
 	//PRX_Detach();

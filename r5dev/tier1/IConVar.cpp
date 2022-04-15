@@ -169,10 +169,11 @@ void ConVar::InitShipped(void) const
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: unregister/disable unused ConVar's for dedicated.
+// Purpose: unregister/disable extraneous ConVar's.
 //-----------------------------------------------------------------------------
 void ConVar::PurgeShipped(void) const
 {
+#ifdef DEDICATED
 	const char* pszToPurge[] =
 	{
 		"bink_materials_enabled",
@@ -191,6 +192,7 @@ void ConVar::PurgeShipped(void) const
 			pCVar->SetValue(0);
 		}
 	}
+#endif // DEDICATED
 }
 
 //-----------------------------------------------------------------------------

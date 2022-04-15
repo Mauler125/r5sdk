@@ -13,7 +13,9 @@ std::string g_svGreenB  = "";
 std::string g_svBlueB   = "";
 std::string g_svYellowB = "";
 
-std::string g_svReset  = "";
+std::string g_svReset   = "";
+
+std::string g_svCmdLine;
 
 //-----------------------------------------------------------------------------
 // Purpose: sets the global ansi escape sequences.

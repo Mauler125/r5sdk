@@ -2,14 +2,13 @@
 
 #ifdef DEDICATED
 inline const char* g_szGameDll = "r5apex_ds.exe";
+void Dedicated_Init();
 #else
 inline const char* g_szGameDll = "r5apex.exe";
 #endif // DEDICATED
 
-void Dedicated_Init();
 void RuntimePtc_Init();
 void RuntimePtc_Toggle();
-
 #ifdef GAMEDLL_S3
 /* -------------- OTHER ------------------------------------------------------------------------------------------------------------------------------------------------- */
 inline CMemory dst007 = /*0x14028F3B0*/ FindPatternSIMD(g_szGameDll, reinterpret_cast<rsig_t>("\x48\x8B\xC4\x44\x89\x40\x18\x48\x89\x50\x10\x55\x53\x56\x57\x41"), "xxxxxxxxxxxxxxxx");

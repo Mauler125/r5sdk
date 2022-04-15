@@ -256,7 +256,7 @@ FORCEINLINE void CHostState::Think(void) const
 //-----------------------------------------------------------------------------
 FORCEINLINE void CHostState::LoadConfig(void) const
 {
-	if (!g_pCmdLine->CheckParm("-devsdk"))
+	if (!CommandLine()->CheckParm("-devsdk"))
 	{
 #ifndef CLIENT_DLL
 		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_server.cfg\"", cmd_source_t::kCommandSrcCode);

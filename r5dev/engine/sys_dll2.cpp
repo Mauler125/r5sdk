@@ -1,4 +1,4 @@
-//====== Copyright  1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -10,6 +10,7 @@
 #include "tier1/cvar.h"
 #include "engine/sys_dll.h"
 #include "engine/sys_dll2.h"
+#include "engine/sys_utils.h"
 #include "client/vengineclient_impl.h"
 
 //-----------------------------------------------------------------------------
@@ -30,7 +31,8 @@ static bool IsValveMod(const char* pModName)
 //-----------------------------------------------------------------------------
 static bool IsRespawnMod(const char* pModName)
 {
-	return (_stricmp(pModName, "r1") == 0 ||
+	return (_stricmp(pModName, "platform") == 0 ||
+		_stricmp(pModName, "r1") == 0 ||
 		_stricmp(pModName, "r2") == 0 ||
 		_stricmp(pModName, "r5") == 0);
 }

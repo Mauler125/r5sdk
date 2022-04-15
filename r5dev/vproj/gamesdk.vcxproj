@@ -52,6 +52,7 @@
     <ClCompile Include="..\game\server\gameinterface.cpp" />
     <ClCompile Include="..\inputsystem\inputsystem.cpp" />
     <ClCompile Include="..\launcher\IApplication.cpp" />
+    <ClCompile Include="..\launcher\launcher.cpp" />
     <ClCompile Include="..\materialsystem\cmaterialglue.cpp" />
     <ClCompile Include="..\materialsystem\cmaterialsystem.cpp" />
     <ClCompile Include="..\mathlib\adler32.cpp" />
@@ -169,6 +170,7 @@
     <ClInclude Include="..\inputsystem\ButtonCode.h" />
     <ClInclude Include="..\inputsystem\inputsystem.h" />
     <ClInclude Include="..\launcher\IApplication.h" />
+    <ClInclude Include="..\launcher\launcher.h" />
     <ClInclude Include="..\materialsystem\cmaterialglue.h" />
     <ClInclude Include="..\materialsystem\cmaterialsystem.h" />
     <ClInclude Include="..\mathlib\adler32.h" />
@@ -432,7 +434,7 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
     <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
-    <TargetName>r5apexsdkd64</TargetName>
+    <TargetName>gamesdk</TargetName>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
     <ReferencePath>$(VC_ReferencesPath_x64);</ReferencePath>
@@ -441,7 +443,7 @@
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
     <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
-    <TargetName>r5apexsdkd64</TargetName>
+    <TargetName>gamesdk</TargetName>
     <ReferencePath>$(VC_ReferencesPath_x64);</ReferencePath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
@@ -469,7 +471,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\r5apexsdkd64.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
+      <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\gamesdk.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -511,7 +513,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\r5apexsdkd64.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
+      <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\gamesdk.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>

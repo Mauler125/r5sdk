@@ -31,7 +31,7 @@ void SpdLog_Init(void)
 		auto wconsole = spdlog::stdout_logger_mt("win_console");
 
 		// Determine if user wants ansi-color logging in the terminal.
-		if (strstr(GetCommandLineA(), "-ansiclr"))
+		if (strstr(g_svCmdLine.c_str(), "-ansiclr"))
 		{
 			wconsole->set_pattern("[%S.%e] %v\u001b[0m");
 			g_bSpdLog_UseAnsiClr = true;

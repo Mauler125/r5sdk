@@ -97,7 +97,7 @@ void Console_Init()
 		CloseHandle(hThread);
 	}
 
-	if (strstr(GetCommandLineA(), "-ansiclr"))
+	if (strstr(g_svCmdLine.c_str(), "-ansiclr"))
 	{
 		GetConsoleMode(hOutput, &dwMode);
 		dwMode |= ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING;

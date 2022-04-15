@@ -18,14 +18,14 @@ public:
 	const char* GetParm(int nIndex);
 	void SetParm(int nIndex, char const* pParm);
 };
-extern CCommandLine* g_pCmdLine;
+CCommandLine* CommandLine(void);
 
 ///////////////////////////////////////////////////////////////////////////////
 class HCommandLine : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| VAR: g_pCmdLine                           : 0x" << std::hex << std::uppercase << g_pCmdLine << std::setw(0) << " |" << std::endl;
+		std::cout << "| VAR: g_pCmdLine                           : 0x" << std::hex << std::uppercase << CommandLine() << std::setw(0) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 	virtual void GetFun(void) const { }

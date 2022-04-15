@@ -31,7 +31,7 @@ void CHLClient::FrameStageNotify(CHLClient* pHLClient, ClientFrameStage_t frameS
 			{
 				KeyValues::Init();
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2) // !TEMP UNTIL CHOSTSTATE IS BUILD AGNOSTIC! //
-				if (!g_pCmdLine->CheckParm("-devsdk"))
+				if (!CommandLine()->CheckParm("-devsdk"))
 				{
 					Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_server.cfg\"", cmd_source_t::kCommandSrcCode);
 					Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"rcon_server.cfg\"", cmd_source_t::kCommandSrcCode);
