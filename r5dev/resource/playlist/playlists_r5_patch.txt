@@ -1,7 +1,7 @@
 ﻿playlists
 {
 	version stable
-	versionNum 214
+	versionNum 215
 	Gamemodes
 	{
 		defaults
@@ -55,10 +55,8 @@
 				///////////////////////////////////////////////////////////////////////////////////
 				//// Character Configurations
 				///////////////////////////////////////////////////////////////////////////////////
-				character_dummie                               hide
 				//character_wattson                              lock
 				//character_crypto                               lock
-				//character_random                               lock
 				//============= Hide from Normal Use ============//
 
 
@@ -256,6 +254,8 @@
 				season03_start_unixtime                        1626656230
 				season03_finish_unixtime                       1637272618
 				season03_hide_unixtime                         1637272618
+				ranked_period_02_start_unixtime                1630749435
+				s03e01_start_unixtime                          1630749435
 
 
 				///////////////////////////////////////////////////////////////////////////////////
@@ -300,6 +300,7 @@
 				max_players                                    20
 				min_players                                    1
 				num_squads_in_staging                          1
+
 				waiting_for_players_spawning_enabled           1
 				jump_from_plane_enabled                        0
 				wait_for_players_forever                       1
@@ -308,15 +309,24 @@
 				airdrop_enabled                                0
 				num_static_loot_ticks_to_spawn                 0
 				loot_preprocessing_should_be_skipped           1
+				
+				// Skip intros:
+				waiting_for_players_spawning_enabled           1
+				waiting_for_players_countdown_seconds          0
+				waiting_for_players_timeout_seconds            1
+				character_select_time_max                      0.0
+				character_select_time_min                      0.0
+				survival_enable_gladiator_intros               0
+				jump_from_plane_enabled                        0
+				
+				// No circle:
+				sur_circle_start_paused                        1
 
 				charge_pylons_raise_time_override              15 //Shorter time in training
 
 				survival_staging_area_enabled                  1
-
+				battlechatter_enabled                          1
 				make_room_for_new_players                      1
-
-				//Reconnect is disabled in firing range!
-				reconnect_disabled                             1
 			}
 			gamemodes { survival { maps {
 				mp_rr_canyonlands_staging                      1
@@ -325,7 +335,7 @@
 
 		survival_training
 		{
-			inherit survival_firingrange
+			inherit survival_staging_baseline
 			vars
 			{
 				visible                                        1
@@ -431,7 +441,7 @@
 		}
 
 		///////////////////////////////////
-		/////////// CANYONLANDS ///////////
+		////////////// RANKED /////////////
 		///////////////////////////////////
 
 		defaults
@@ -469,12 +479,7 @@
 				skydive_ziplines_enabled                       1
 			}
 			gamemodes { survival { maps {
-				mp_rr_canyonlands_64k_x_64k                    1
-				mp_rr_canyonlands_mu1                          1
 				mp_rr_desertlands_64k_x_64k                    1
-				mp_rr_desertlands_64k_x_64k_nx                 0
-				mp_rr_canyonlands_mu1_night                    1
-				mp_rr_canyonlands_staging                      1
 			} } }
 		}
 
@@ -506,6 +511,8 @@
 				player_revive_enabled                          0
 				battlechatter_enabled                          1
 				showLTMAboutButton                             1
+				lootbin_spiders_chance                         50
+				lootbin_infected_chance                        50
 				character_select_time_max                      4.0
 				character_select_time_min                      4.0
 			}
@@ -549,8 +556,100 @@
 				mp_rr_canyonlands_mu1                          1
 				mp_rr_desertlands_64k_x_64k                    1
 				mp_rr_desertlands_64k_x_64k_nx                 1
-				mp_rr_canyonlands_mu1_night                    0
-				mp_rr_canyonlands_staging                      1
+				mp_rr_canyonlands_mu1_night                    1
+			} } }
+		}
+		
+		iron_crown
+		{
+			inherit survival
+			vars
+			{
+				name                                           #PL_CAN_SOLO
+				description                                    #PL_CAN_SOLO_SHORT
+				abbreviation                                   #PL_CAN_SOLO_LONG
+				image                                          solo_iron_crown
+				video                                          solo_iron_crown
+				enable_nessies                                 1
+				max_teams                                      60
+				max_players                                    60
+				min_players                                    55
+				visible                                        1
+				solo_mode                                      1
+				solo_mode_intro_presentation                   1
+				solo_mode_ingame_presentation                  1
+				solo_mode_postgame_presentation                1
+				showLTMAboutButton                             1
+				ui_slot                                        ltm
+				waiting_for_players_timeout_seconds            120
+
+				waiting_for_players_has_black_screen           0
+				
+				character_select_time_max                      4.0
+				character_select_time_min                      4.0
+			}
+			gamemodes { survival { maps {
+				mp_rr_canyonlands_mu1                          1
+			} } }
+		}
+		
+		elite
+		{
+			inherit survival
+			vars
+			{
+				name                                           #CAN_ELITE
+				description                                    #PL_survival_elite_desc
+				abbreviation                                   #PL_survival_elite_desc
+				image                                          apex_elite
+				video                                          apex_elite
+				enable_nessies                                 1
+				elite_enabled                                  1
+				visible                                        1
+				showLTMAboutButton                             1
+				//ui_slot                                      ltm
+			}
+			gamemodes { survival { maps {
+				mp_rr_canyonlands_64k_x_64k                    1
+			} } }
+		}
+		
+		armed_and_dangerous
+		{
+			inherit survival
+			vars
+			{
+				name                                           #SHOTGUNS_AND_SNIPERS
+				description                                    #SHOTGUNS_AND_SNIPERS_DESC
+				abbreviation                                   #SHOTGUNS_AND_SNIPERS_DESC
+				image                                          shotguns_and_snipers
+				video                                          shotguns_and_snipers
+				enable_nessies                                 1
+				shotguns_and_snipers_mode                      1
+				visible                                        1
+				showLTMAboutButton                             1
+
+				//ui_slot                                      ltm
+			}
+			gamemodes { survival { maps {
+				mp_rr_desertlands_64k_x_64k                    1
+			} } }
+		}
+		
+		wead
+		{
+			inherit survival
+			vars
+			{
+				name                                           #WORLDS_EDGE_NIGHT
+				description                                    #WORLDS_EDGE_NIGHT_DESC
+				abbreviation                                   #WORLDS_EDGE_NIGHT_DESC
+				image                                          worlds_edge_after_dark
+				video                                          worlds_edge_after_dark
+				//ui_slot                                      ltm
+			}
+			gamemodes { survival { maps {
+				mp_rr_desertlands_64k_x_64k_nx 1
 			} } }
 		}
 		
@@ -559,7 +658,7 @@
 			inherit defaults
 			vars
 			{
-				//ui_slot                                      regular_2
+				//ui_slot                                        regular_2
 				image                                          worlds_edge
 				video                                          worlds_edge
 				panel_image                                    panel_worlds_edge
@@ -572,34 +671,49 @@
 
 				pin_match_type                                 survival
 				enable_nessies                                 0
-				max_teams                                      2
-				max_players                                    12
-				min_players                                    6
-
+				max_teams                                      3
+				max_players                                    3
+				min_players                                    1
+				wait_for_players_forever                       0
 				survival_shields                               1
 				skydive_ziplines_enabled                       0
-				
-				//TDM Settings
+
+				dev_loadout_changeable_at_any_time             1
+				sur_dev_unrestricted_character_changes         1
+				character_reselect_enabled                     1
+				charselect_enabled                             1
+				solo_mode                                      1
+				solo_mode_intro_presentation                   1
+				solo_mode_ingame_presentation                  1
+				solo_mode_postgame_presentation                1
+				respawn_kit_enabled                            1
+				respawn_kit_primary_weapon                     "mp_weapon_volt_smg energy_mag_l3 barrel_stabilizer_l4_flash_hider optic_cq_hcog_bruiser"
+				respawn_kit_secondary_weapon                   "mp_weapon_volt_smg energy_mag_l3 barrel_stabilizer_l4_flash_hider"
+				respawn_kit_tactical                           "mp_ability_3dash"
+				respawn_kit_ultimate                           "mp_ability_phase_walk"
+
 				survival_jumpkit_enabled                       1
 				survival_wallrun_enabled                       1
 				survival_infinite_ammo                         1
 				survival_custom_deploy                         1
-				replay_enabled                                 1
-				replay_delay                                   2
-				default_shield_hp                              75
+				
 				ground_loot_enable                             0
 				lootbin_loot_enable                            0
 
-				//whitelisted_weapon_0                         "mp_weapon_mastiff"
+				character_select_time_max                      4.0
+				character_select_time_min                      4.0
 
-				// Intro Settings:
-				character_select_time_min                      3
-				character_select_time_max                      3
 				charselect_picking_delay_after_all             0
+
 				survival_enable_squad_intro                    0
 				survival_enable_gladiator_intros               0
-
+				minified_unitframes_enabled                    1
 				jump_from_plane_enabled                        0
+
+				replay_enabled                                 1
+				replay_delay                                   2
+
+				
 				match_ending_enabled                           0
 				sur_circle_start_paused                        1
 
@@ -608,62 +722,105 @@
 			gamemodes { custom_tdm { maps {
 				mp_rr_canyonlands_64k_x_64k                    1
 				mp_rr_canyonlands_mu1                          1
-				mp_rr_desertlands_64k_x_64k                    1
-				mp_rr_desertlands_64k_x_64k_nx                 0
-				mp_rr_canyonlands_mu1_night                    1
-				mp_rr_canyonlands_staging                      1
+				mp_rr_ashs_redemption                          0
+				mp_rr_desertlands_64k_x_64k_nx                 1
 			} } }
 		}
 		
-		custom_tdm_tps
+		tdm_gg
 		{
 			inherit custom_tdm
 			vars
 			{
-				thirdperson_match                              1
+				tdm_gungame                                    1
+				respawn_delay                                  1
+				replay_enabled                                 0
+				intro_cutscene_num_spawns                      2
+				GG_Drop_Guns                                   1
+				respawn_kit_enabled                            1
+				respawn_kit_primary_weapon                     ""
+				respawn_kit_secondary_weapon                   ""
+				respawn_kit_tactical                           "mp_ability_3dash"
+				respawn_kit_ultimate                           "mp_ability_phase_walk"
+				tgive_enabled                                  0
 			}
 			gamemodes { custom_tdm { maps {
 				mp_rr_canyonlands_64k_x_64k                    1
-				mp_rr_canyonlands_mu1                          1
-				mp_rr_desertlands_64k_x_64k                    1
-				mp_rr_desertlands_64k_x_64k_nx                 0
-				mp_rr_canyonlands_mu1_night                    1
-				mp_rr_canyonlands_staging                      1
 			} } }
 		}
 		
+		tdm_gg_double
+		{
+			inherit tdm_gg
+			vars
+			{
+				tdm_gungame                                    1
+				respawn_delay                                  1
+				replay_enabled                                 0
+				intro_cutscene_num_spawns                      2
+				GG_Drop_Guns                                   1
+				double_weapon                                  1
+				respawn_kit_enabled                            1
+				respawn_kit_tactical                           "mp_ability_3dash"
+				respawn_kit_ultimate                           "mp_ability_phase_walk"
+			}
+			gamemodes { custom_tdm { maps {
+				mp_rr_canyonlands_64k_x_64k                    1
+			} } }
+		}
+
 		survival_dev
 		{
 			inherit survival
 			vars
 			{
 				// Skip intros:
-				waiting_for_players_spawning_enabled           1
-				waiting_for_players_countdown_seconds          0
-				waiting_for_players_timeout_seconds            1
-				character_select_time_max                      0.0
-				character_select_time_min                      0.0
-				survival_enable_gladiator_intros               0
-				jump_from_plane_enabled                        0
+				waiting_for_players_spawning_enabled        1
+				waiting_for_players_countdown_seconds       0
+				waiting_for_players_timeout_seconds         1
+				character_select_time_max                   0.0
+				character_select_time_min                   0.0
+				survival_enable_gladiator_intros            0
+				jump_from_plane_enabled                     0
+
 				// No circle:
-				sur_circle_start_paused                        1
+				sur_circle_start_paused                     1
+
 				// Can change loadouts:
-				dev_loadout_changeable_at_any_time             1
-				sur_dev_unrestricted_character_changes         1
+				dev_loadout_changeable_at_any_time          1
+				sur_dev_unrestricted_character_changes      1
+
 				// Bots:
-				sur_bots_spawn_with_random_weapons             1
-				match_ending_enabled                           0
+				sur_bots_spawn_with_random_weapons          1
+				match_ending_enabled                        0
+				max_teams                                   1
+				max_players                                 2
+				min_players                                 1
+				enable_nessies                              1
+
 			}
 			gamemodes { survival { maps {
-				mp_rr_canyonlands_64k_x_64k                    1
-				mp_rr_canyonlands_mu1                          1
-				mp_rr_desertlands_64k_x_64k                    1
-				mp_rr_desertlands_64k_x_64k_nx                 0
-				mp_rr_canyonlands_mu1_night                    1
-				mp_rr_canyonlands_staging                      1
+				mp_rr_canyonlands_mu1                       1
+				mp_rr_desertlands_64k_x_64k                 1
+			} } }
+		}
+		menufall
+		{
+			vars
+			{
+				menu_fall_ltm                               1
+			}
+
+			gamemodes { survival { maps {
+				mp_lobby                                    1
 			} } }
 		}
 
+// END OF MP GAMEMODES LINE ----------------------------------------------------
+
+		///////////////////////////////////
+		//////////////  DEV  //////////////
+		///////////////////////////////////
 		dev_default
 		{
 			inherit survival_dev
@@ -683,51 +840,36 @@
 				mp_rr_canyonlands_staging                      1
 			} } }
 		}
-		
-		menufall
-		{
-			vars
-			{
-				menu_fall_ltm                                  1
-			}
-
-			gamemodes { survival { maps {
-				mp_lobby                                       1
-			} } }
-		}
-
-// END OF MP GAMEMODES LINE ----------------------------------------------------
-
-		///////////////////////////////////
-		//////////////  DEV  //////////////
-		///////////////////////////////////
 	}
 	"LocalizedStrings"
 	{
-	  "lang"
+		"lang"
 		{
 			"Language" "english"
 			"Tokens"
 			{
-				"MP_RR_DESERTLANDS_64K_X_64K_NX" "World's Edge After Dark"
-				"WORLDS_EDGE_NIGHT"              "SHADOWFALL WORLD'S EDGE"
-				"WORLDS_EDGE_NIGHT_DESC"         "Dead Legends respawn as Shadows.\nSurvive and escape with final 10 Legends."
-				"Kings_Canyon_OG"                "Kings Canyon"
-				"KC_MU1"                         "Kings Canyon Season 2"
-				"KCAD"                           "Kings Canyon After Dark"
-				"Playtest"                       "Playtest"
-				"Playtest_Only"                  "Playtest"
-				"BETA_BUILD_WATERMARK"           "R5Reloaded v2.4-rc"
+				"MP_RR_DESERTLANDS_64K_X_64K_NX"      "World's Edge After Dark"
+				"MP_RR_DESERTLANDS_64K_X_64K"         "World's Edge"
+				"WORLDS_EDGE_NIGHT"                   "SHADOWFALL WORLD'S EDGE"
+				"WORLDS_EDGE_NIGHT_DESC"              "Dead Legends respawn as Shadows.\nSurvive and escape with final 10 Legends."
+				"Kings_Canyon_OG"                     "Kings Canyon"
+				"KC_MU1"                              "Kings Canyon Season 2"
+				"KCAD"                                "Kings Canyon After Dark"
+				"Playtest"                            "Playtest"
+				"Playtest_Only"                       "Playtest"
+				"MP_RR_ASHS_REDEMPTION"               "Ash's Redemption"
+				"MP_RR_AQUEDUCT"                      "Overflow"
+				"BETA_BUILD_WATERMARK"                "R5Reloaded v2.4-rc"
 
-				"PROMO_LARGE_TITLE"              "Welcome To R5Reloaded!"
-				"PROMO_LARGE_DESCRIPTION"        "Make sure to join the discord! discord.gg/r5reloaded"
-				"PROMO_LEFT_TITLE"               "Yes"
-				"PROMO_LEFT_DESCRIPTION"         "Your ad could be here"
-				"PROMO_RIGHT_TITLE"              "Yes2"
-				"PROMO_RIGHT_DESCRIPTION"        "Yes3"
-				"PROMO_SDK_ERROR"                "You should not see this."
+				"PROMO_LARGE_TITLE"                   "Welcome To R5Reloaded!"
+				"PROMO_LARGE_DESCRIPTION"             "Make sure to join the discord! discord.gg/r5reloaded"
+				"PROMO_LEFT_TITLE"                    "Yes"
+				"PROMO_LEFT_DESCRIPTION"              "Your ad could be here"
+				"PROMO_RIGHT_TITLE"                   "Yes2"
+				"PROMO_RIGHT_DESCRIPTION"             "Yes3"
+				"PROMO_SDK_ERROR"                     "You should not see this."
 
-				"DISCONNECT_BANNED"              "The client's game account has been banned: Banned"
+				"DISCONNECT_BANNED"                   "The client's game account has been banned: Banned"
 			}
 		}
 	}
