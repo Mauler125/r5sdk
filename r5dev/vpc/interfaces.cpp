@@ -9,7 +9,8 @@
 
 //---------------------------------------------------------------------------------
 // Purpose: add a factory to the factories vector
-// Inout  : factoryInfo - 
+// Input  : svFactoryName - 
+//          pFactory - 
 //---------------------------------------------------------------------------------
 void CFactory::AddFactory(const string& svFactoryName, void* pFactory)
 {
@@ -22,7 +23,7 @@ void CFactory::AddFactory(const string& svFactoryName, void* pFactory)
 
 //---------------------------------------------------------------------------------
 // Purpose: add a factory to the factories vector
-// Inout  : factoryInfo - 
+// Input  : factoryInfo - 
 //---------------------------------------------------------------------------------
 void CFactory::AddFactory(FactoryInfo factoryInfo)
 {
@@ -69,7 +70,7 @@ void CFactory::GetFactoriesFromRegister(void)
 // Purpose: get factory pointer with factoryname input from factories vector
 // Input  : svFactoryName - 
 //			bVersionLess - 
-// Output : CModule
+// Output : CMemory
 //---------------------------------------------------------------------------------
 CMemory CFactory::GetFactoryPtr(const string& svFactoryName, bool bVersionLess) const
 {
