@@ -153,7 +153,7 @@ const char* ExitCodeToString(int nCode)
 	case EXIT_SUCCESS:
 		return "EXIT_SUCCESS";
 	case EXIT_FAILURE:
-		return "EXIT_SUCCESS";
+		return "EXIT_FAILURE";
 	default:
 		return "";
 	}
