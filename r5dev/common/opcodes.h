@@ -107,6 +107,13 @@ inline CMemory GetEngineClientThread = g_mGameDll.FindPatternSIMD(reinterpret_ca
 inline CMemory GetEngineClientThread = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x65\x48\x8B\x04\x25\x00\x00\x00\x00\x48\x8B\xD9\xB9\x00\x00\x00\x00\x48\x8B\x10\x8B\x04\x11\x39\x05\x00\x00\x00\x00\x7F\x21"), "xxxxxxxxxxx????xxxx????xxxxxxxx????xx");
 #endif
 
+inline CMemory CWin32Surface_initStaticData = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\xE8\x00\x00\x00\x00\x48\x8D\x0D\x00\x00\x00\x00\x48\x83\xC4\x28\xE9\x00\x00\x00\x00\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x33\xC9"), "xxxxx????xxx????xxxxx????xxxxxxxxx");
+// 48 83 EC 28 E8 ? ? ? ? 48 8D 0D ? ? ? ? 48 83 C4 28 E9 ? ? ? ? CC CC CC CC CC CC CC 33 C9 
+#if !defined (GAMEDLL_S0) || !defined (GAMEDLL_S1)
+inline CMemory KeyboardLayout_Init = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x33\xC9\xFF\x15\x00\x00\x00\x00\x48\x8D\x0D\x00\x00\x00\x00"), "xxxxxxxx????xxx????");
+#endif //48 83 EC 28 33 C9 FF 15 ? ? ? ? 48 8D 0D ? ? ? ?
+
+
 //-------------------------------------------------------------------------
 // .RDATA
 //-------------------------------------------------------------------------
@@ -138,10 +145,16 @@ class HOpcodes : public IDetour
 		std::cout << "| FUN: Host_Disconnect                      : 0x" << std::hex << std::uppercase << Host_Disconnect.GetPtr()                     << std::setw(nPad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 		std::cout << "| FUN: Server_S2C_CONNECT_1                 : 0x" << std::hex << std::uppercase << Server_S2C_CONNECT_1.GetPtr()                << std::setw(nPad) << " |" << std::endl;
+		std::cout << "+----------------------------------------------------------------+" << std::endl;
 		std::cout << "| FUN: UpdateCurrentVideoConfig             : 0x" << std::hex << std::uppercase << UpdateCurrentVideoConfig.GetPtr()            << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| FUN: HandleConfigFile                     : 0x" << std::hex << std::uppercase << HandleConfigFile.GetPtr()                    << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| FUN: ResetPreviousGameState               : 0x" << std::hex << std::uppercase << ResetPreviousGameState.GetPtr()              << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| FUN: LoadPlayerConfig                     : 0x" << std::hex << std::uppercase << LoadPlayerConfig.GetPtr()                    << std::setw(nPad) << " |" << std::endl;
+		std::cout << "+----------------------------------------------------------------+" << std::endl;
+#if !defined (GAMEDLL_S0) || !defined (GAMEDLL_S1)
+		std::cout << "| FUN: CWin32Surface::initStaticData        : 0x" << std::hex << std::uppercase << CWin32Surface_initStaticData.GetPtr()        << std::setw(nPad) << " |" << std::endl;
+#endif
+		std::cout << "| FUN: KeyboardLayout_Init                  : 0x" << std::hex << std::uppercase << KeyboardLayout_Init.GetPtr()                 << std::setw(nPad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 		std::cout << "| CON: g_pClientVPKDir                      : 0x" << std::hex << std::uppercase << g_pClientVPKDir.GetPtr()                     << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| CON: g_pClientBSP                         : 0x" << std::hex << std::uppercase << g_pClientBSP.GetPtr()                        << std::setw(nPad) << " |" << std::endl;

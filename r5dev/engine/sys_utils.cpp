@@ -373,7 +373,7 @@ void* HSys_LoadAssetHelper(const CHAR* lpFileName, std::int64_t a2, LARGE_INTEGE
 
 void SysUtils_Attach()
 {
-	DetourAttach((LPVOID*)&Sys_Error, &HSys_Error);
+	//DetourAttach((LPVOID*)&Sys_Error, &HSys_Error);
 	DetourAttach((LPVOID*)&Sys_Warning, &HSys_Warning);
 	DetourAttach((LPVOID*)&Sys_LoadAssetHelper, &HSys_LoadAssetHelper);
 #ifndef DEDICATED
@@ -383,7 +383,7 @@ void SysUtils_Attach()
 
 void SysUtils_Detach()
 {
-	DetourDetach((LPVOID*)&Sys_Error, &HSys_Error);
+	//DetourDetach((LPVOID*)&Sys_Error, &HSys_Error);
 	DetourDetach((LPVOID*)&Sys_Warning, &HSys_Warning);
 	DetourDetach((LPVOID*)&Sys_LoadAssetHelper, &HSys_LoadAssetHelper);
 #ifndef DEDICATED

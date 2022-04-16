@@ -302,6 +302,13 @@ void Dedicated_Init()
 	Community_Frame.Offset(0x0).Patch({ 0xC3 });                                           // FUN --> RET | Return early to prevent 'Community_Frame()' from being ran every frame on the server (CLIENT ONLY).
 	//GetEngineClientThread.Offset(0x0).Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 });       // FUN --> RET | Return nullptr for mp_gamemode thread assignment during registration callback.
 
+	{
+		CWin32Surface_initStaticData.Patch({ 0xC3 });                                      // FUN --> RET | Prevent 'CWin32Surface::initStaticData()' from being ran in CInit.
+#if !defined (GAMEDLL_S0) || !defined (GAMEDLL_S1)
+		KeyboardLayout_Init.Patch({ 0xC3 });                                               // FUN --> RET | Prevent keyboard layout initialization for IME in CInit.
+#endif
+	}
+
 	// This mandatory pak file should only exist on the client.
 	if (!FileExists("vpk\\client_frontend.bsp.pak000_000.vpk"))
 	{
