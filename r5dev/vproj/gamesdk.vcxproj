@@ -500,7 +500,7 @@
       <CreateHotpatchableImage>
       </CreateHotpatchableImage>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalOptions>/D GAMESDK /D _CRT_SECURE_NO_WARNINGS /arch:AVX2 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D GAMESDK /D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
