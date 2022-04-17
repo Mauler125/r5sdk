@@ -35,5 +35,11 @@
 #define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
 #endif
 
+struct vrect_t
+{
+	int      x, y, width, height;
+	vrect_t* pnext;
+};
+
 constexpr int MAX_NETCONSOLE_INPUT_LEN = 4096;
 constexpr int MSG_NOSIGNAL             = 0;

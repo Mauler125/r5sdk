@@ -40,7 +40,8 @@ void Dedicated_Init()
 	// CGAME
 	//-------------------------------------------------------------------------
 	{
-		p_CVideoMode_Common__CreateGameWindow.Offset(0x2C).Patch({ 0xE9, 0x9A, 0x00, 0x00, 0x00 }); // PUS --> XOR | Prevent ShowWindow and CreateGameWindow from being initialized (STGS RPak datatype is registered here).
+		p_CVideoMode_Common__CreateGameWindow.Offset(0x2C).Patch({ 0xE9, 0x9A, 0x00, 0x00, 0x00 });       // PUS --> XOR | Prevent ShowWindow and CreateGameWindow from being initialized (STGS RPak datatype is registered here).
+		p_CVideoMode_Common__CreateWindowClass.Offset(0x0).Patch({ 0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3 }); // FUN --> RET | Prevent CreateWindowClass from being initialized (returned true to satisy condition that checks window handle).
 	}
 
 	//-------------------------------------------------------------------------
