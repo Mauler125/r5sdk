@@ -458,6 +458,7 @@ void CConsole::FindFromPartial(void)
         }
         else { break; }
     }
+    std::sort(m_vsvSuggest.begin(), m_vsvSuggest.end(), CheckStringLexicographically);
 }
 
 //-----------------------------------------------------------------------------

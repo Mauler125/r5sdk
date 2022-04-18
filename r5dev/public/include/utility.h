@@ -25,5 +25,6 @@ string StringEscape(const string& svInput);
 string StringUnescape(const string& svInput);
 vector<int> StringToBytes(const string& svInput, bool bNullTerminator);
 vector<int> PatternToBytes(const string& svInput);
+bool CheckStringLexicographically(const string& svA, const string& svB);
 
 /////////////////////////////////////////////////////////////////////////////

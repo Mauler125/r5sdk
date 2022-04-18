@@ -441,3 +441,10 @@ vector<int> PatternToBytes(const string& svInput)
     }
     return vBytes;
 };
+
+///////////////////////////////////////////////////////////////////////////////
+// For comparing input strings lexicographically
+bool CheckStringLexicographically(const string& svA, const string& svB)
+{
+    return svA < svB;
+}
