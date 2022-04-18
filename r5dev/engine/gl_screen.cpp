@@ -18,12 +18,10 @@ void SCR_EndLoadingPlaque(void)
 	if (*scr_drawloading)
 	{
 		*scr_engineevent_loadingstarted = 0;
-		using HideLoadingPlaqueFn = void(*)(void*);
-		(*reinterpret_cast<HideLoadingPlaqueFn**>(g_pEngineVGui))[36](g_pEngineVGui); // (*((void(__fastcall**)(void**))g_CEngineVGui + 36))(&g_CEngineVGui);// HideLoadingPlaque
+		g_pEngineVGui->HideLoadingPlaque();
 	}
 	else if (*gfExtendedError)
 	{
-		using ShowErrorMessageFn = void(*)(void*);
-		(*reinterpret_cast<ShowErrorMessageFn**>(g_pEngineVGui))[35](g_pEngineVGui); // (*((void(__fastcall**)(void**))g_CEngineVGui + 35))(&g_CEngineVGui);// ShowErrorMessage
+		g_pEngineVGui->ShowErrorMessage();
 	}
 }
