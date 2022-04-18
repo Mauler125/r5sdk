@@ -53,7 +53,7 @@ class HKeyValuesSystem : public IDetour
 	{
 		g_pKeyValuesSystem = g_mGameDll.FindPatternSIMD(
 			reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x56\x57\x41\x56\x48\x83\xEC\x40\x48\x8B\xF1"), "xxxx?xxxx?xxxxxxxxxxx")
-			.FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 100).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CKeyValuesSystem*>();
+			.FindPatternSelf("48 8D 0D ?? ?? ?? 01", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CKeyValuesSystem*>();
 
 		g_pKeyValuesMemPool = g_mGameDll.FindPatternSIMD(
 			reinterpret_cast<rsig_t>("\x48\x8B\x05\x00\x00\x00\x00\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x48\x85\xD2"), "xxx????xxxxxxxxxxxx").

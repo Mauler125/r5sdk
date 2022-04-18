@@ -46,8 +46,13 @@ class HHost : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+		g_bAbortServerSet = p_Host_Error.FindPattern("40 38 3D", CMemory::Direction::DOWN, 512, 2).ResolveRelativeAddress(3, 7).RCast<bool*>();
+		host_abortserver = p_Host_Error.FindPattern("48 8D 0D", CMemory::Direction::DOWN, 512, 3).ResolveRelativeAddress(3, 7).RCast<jmp_buf*>();
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		g_bAbortServerSet = p_Host_Error.FindPattern("40 38 3D", CMemory::Direction::DOWN, 512, 4).ResolveRelativeAddress(3, 7).RCast<bool*>();
 		host_abortserver = p_Host_Error.FindPattern("48 8D 0D", CMemory::Direction::DOWN, 512, 5).ResolveRelativeAddress(3, 7).RCast<jmp_buf*>();
+#endif
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

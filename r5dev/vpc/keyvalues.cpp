@@ -111,7 +111,7 @@ void KeyValues::InitPlaylist(void)
 {
 	while (true)
 	{
-		if ((*g_pPlaylistKeyValues))
+		if (*g_pPlaylistKeyValues)
 		{
 			KeyValues* playlists = (*g_pPlaylistKeyValues)->FindKey("Playlists", false);
 			if (playlists)

@@ -49,7 +49,7 @@ SQRESULT HSQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 #ifdef GAMEDLL_S3
 		context = *reinterpret_cast<SQCONTEXT*>(reinterpret_cast<std::uintptr_t>(v) + 0x18);
 #else // TODO [ AMOS ]: nothing equal to 'rdx + 18h' exist in the vm structs for anything below S3.
-		vmIdx = 3;
+		context = SQCONTEXT::NONE;
 #endif
 		break;
 	}
@@ -205,7 +205,7 @@ void HSQVM_CompileError(HSQUIRRELVM v, const SQChar* pszError, const SQChar* psz
 #ifdef GAMEDLL_S3
 	context = *reinterpret_cast<SQCONTEXT*>(reinterpret_cast<std::uintptr_t>(v) + 0x18);
 #else // TODO [ AMOS ]: nothing equal to 'rdx + 18h' exist in the vm structs for anything below S3.
-	vmIdx = 3;
+	context = SQCONTEXT::NONE;
 #endif
 
 	SQVM_GetErrorLine(pszFile, nLine, szContextBuf, sizeof(szContextBuf));

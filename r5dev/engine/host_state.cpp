@@ -202,6 +202,7 @@ FORCEINLINE void CHostState::Setup(void) const
 	const char* szNoMap = "main_menu";
 #endif
 	snprintf(const_cast<char*>(m_levelName), sizeof(m_levelName), szNoMap);
+	KeyValues::Init();
 }
 
 //-----------------------------------------------------------------------------

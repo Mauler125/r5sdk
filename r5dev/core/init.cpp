@@ -163,10 +163,7 @@ void Systems_Init()
 	CServer_Attach(); // S1 and S2 CServer functions require work.
 #endif // !CLIENT_DLL && GAMEDLL_S3
 
-// !TEMP UNTIL CHOSTSTATE IS BUILD AGNOSTIC! //
-#if defined (DEDICATED) || defined (GAMEDLL_S3)
 	CHostState_Attach();
-#endif // DEDICATED || GAMEDLL_S3
 	//CModelLoader_Attach();
 
 	NET_Attach();
@@ -270,10 +267,7 @@ void Systems_Shutdown()
 	CServer_Detach(); // S1 and S2 CServer functions require work.
 #endif // !CLIENT_DLL && GAMEDLL_S3
 
-// !TEMP UNTIL CHOSTSTATE IS BUILD AGNOSTIC! //
-#if defined (DEDICATED) || defined (GAMEDLL_S3)
-	CHostState_Detach(); // Dedicated only for now until backwards compatible with S1.
-#endif // DEDICATED || GAMEDLL_S3
+	CHostState_Detach();
 	//CModelLoader_Detach();
 
 	NET_Detach();

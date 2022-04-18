@@ -163,7 +163,7 @@ void Launcher_Attatch()
 {
 	DetourAttach((LPVOID*)&v_WinMain, &HWinMain);
 	DetourAttach((LPVOID*)&v_LauncherMain, &LauncherMain);
-#if !defined (GAMEDLL_S0) || !defined (GAMEDLL_S1)
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 	DetourAttach((LPVOID*)&v_RemoveSpuriousGameParameters, &RemoveSpuriousGameParameters);
 #endif
 }
@@ -172,7 +172,7 @@ void Launcher_Detatch()
 {
 	DetourDetach((LPVOID*)&v_WinMain, &HWinMain);
 	DetourDetach((LPVOID*)&v_LauncherMain, &LauncherMain);
-#if !defined (GAMEDLL_S0) || !defined (GAMEDLL_S1)
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 	DetourDetach((LPVOID*)&v_RemoveSpuriousGameParameters, &RemoveSpuriousGameParameters);
 #endif
 }

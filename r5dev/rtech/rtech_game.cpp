@@ -26,7 +26,7 @@ void HPakFile_UnloadAsset(int64_t a1, int64_t a2) // This ain't related to RTech
 		return;
 	}
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	return RTech_UnloadAsset(a1);
+	return CPakFile_UnloadAsset(a1);
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 	return CPakFile_UnloadAsset(a1, a2);
 #endif

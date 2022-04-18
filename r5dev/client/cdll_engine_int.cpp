@@ -26,47 +26,10 @@ void CHLClient::FrameStageNotify(CHLClient* pHLClient, ClientFrameStage_t frameS
 	{
 		case ClientFrameStage_t::FRAME_START: // FrameStageNotify gets called every frame by CEngine::Frame with the stage being FRAME_START. We can use this to check/set global variables.
 		{
-			static bool bInitialized = false;
-			if (!bInitialized)
-			{
-				KeyValues::Init();
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2) // !TEMP UNTIL CHOSTSTATE IS BUILD AGNOSTIC! //
-				if (!CommandLine()->CheckParm("-devsdk"))
-				{
-					Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_server.cfg\"", cmd_source_t::kCommandSrcCode);
-					Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"rcon_server.cfg\"", cmd_source_t::kCommandSrcCode);
-#ifndef DEDICATED
-					Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_client.cfg\"", cmd_source_t::kCommandSrcCode);
-					Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"rcon_client.cfg\"", cmd_source_t::kCommandSrcCode);
-#endif // !DEDICATED
-					Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec.cfg\"", cmd_source_t::kCommandSrcCode);
-				}
-				else // Development configs.
-				{
-					Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_server_dev.cfg\"", cmd_source_t::kCommandSrcCode);
-					Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"rcon_server_dev.cfg\"", cmd_source_t::kCommandSrcCode);
-#ifndef DEDICATED
-					Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_client_dev.cfg\"", cmd_source_t::kCommandSrcCode);
-					Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"rcon_client_dev.cfg\"", cmd_source_t::kCommandSrcCode);
-#endif // !DEDICATED
-					Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_dev.cfg\"", cmd_source_t::kCommandSrcCode);
-				}
-				Cbuf_Execute();
-
-				if (net_userandomkey->GetBool())
-				{
-					HNET_GenerateKey();
-				}
-				g_pCVar->FindVar("net_usesocketsforloopback")->SetValue(1);
-				g_pRConClient->Init();
-#endif // GAMEDLL_S0 || GAMEDLL_S1 || GAMEDLL_S2
-				bInitialized = true;
-			}
 			break;
 		}
 		case ClientFrameStage_t::FRAME_NET_UPDATE_POSTDATAUPDATE_END:
 		{
-			g_pBanSystem->BanListCheck();
 			gHLClient->PatchNetVarConVar();
 			break;
 		}
@@ -76,7 +39,6 @@ void CHLClient::FrameStageNotify(CHLClient* pHLClient, ClientFrameStage_t frameS
 		}
 	}
 	g_pIConsole->Think();
-	g_pRConClient->RunFrame();
 	CHLClient_FrameStageNotify(pHLClient, frameStage);
 }
 

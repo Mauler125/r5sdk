@@ -79,7 +79,7 @@ class HModelLoader : public IDetour
 	{
 		g_pModelLoader = g_mGameDll.FindPatternSIMD(
 			reinterpret_cast<rsig_t>("\x48\x89\x4C\x24\x00\x53\x55\x56\x41\x54\x41\x55\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00"),
-			"xxxx?xxxxxxxxxxxxxx????").FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(3, 7);
+			"xxxx?xxxxxxxxxxxxxx????").FindPatternSelf("48 ?? 0D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(3, 7);
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

@@ -34,7 +34,7 @@ class HGL_Screen : public IDetour
 		scr_drawloading = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x0F\xB6\x05\x00\x00\x00\x00\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x48\x83\xEC\x28"), "xxx????xxxxxxxxxxxxx")
 			.ResolveRelativeAddressSelf(0x3, 0x7).RCast<bool*>();
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		scr_engineevent_loadingstarted = SCR_BeginLoadingPlaque.Offset(0x130).FindPatternSelf("C6 05 ?? ?? ?? ?? 01", CMemory::Direction::DOWN).ResolveRelativeAddress(0x2, 0x7).RCast<char*>();
+		scr_engineevent_loadingstarted = SCR_BeginLoadingPlaque.Offset(0x130).FindPatternSelf("C6 05 ?? ?? ?? ?? 01", CMemory::Direction::DOWN).ResolveRelativeAddress(0x2, 0x7).RCast<bool*>();
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		scr_engineevent_loadingstarted = SCR_BeginLoadingPlaque.Offset(0x60).FindPatternSelf("C6 05 ?? ?? ?? ?? 01", CMemory::Direction::DOWN).ResolveRelativeAddress(0x2, 0x7).RCast<bool*>();
 #endif

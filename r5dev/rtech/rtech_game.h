@@ -24,7 +24,7 @@ enum class ePakStatus : int
 
 /* ==== RTECH_GAME ====================================================================================================================================================== */
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-inline CMemory p_RTech_UnloadAsset;
+inline CMemory p_CPakFile_UnloadAsset;
 inline auto CPakFile_UnloadAsset = p_CPakFile_UnloadAsset.RCast<void (*)(int64_t a1)>();
 
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)

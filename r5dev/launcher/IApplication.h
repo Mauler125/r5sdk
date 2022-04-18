@@ -81,7 +81,7 @@ class HApplication : public IDetour
 		p_CModAppSystemGroup_Create = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8B\xEC\x48\x83\xEC\x60"), "xxxxxxxxxxxxxxxxxxx");
 #endif
 		p_CSourceAppSystemGroup__PreInit = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x74\x24\x00\x55\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00"), "xxxx?xxxxx????xxx????xxx????");
-		p_CSourceAppSystemGroup__Create  = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\xF9\xE8\x00\x00\x00\x00\x33\xC9"), "xxxx?xxxx?xxxxxxxxx????xx");
+		p_CSourceAppSystemGroup__Create  = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\xF9\xE8\x00\x00\x00\x00\x33\xC9"), "xxxx?xxxx?xxxx?xxxxxxxxx????xx");
 
 		CModAppSystemGroup_Main        = p_CModAppSystemGroup_Main.RCast<int(*)(CModAppSystemGroup*)>();         /*40 53 48 83 EC 20 80 B9 ?? ?? ?? ?? ?? BB ?? ?? ?? ??*/
 		CModAppSystemGroup_Create      = p_CModAppSystemGroup_Create.RCast<bool(*)(CModAppSystemGroup*)>();      /*48 8B C4 55 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 60*/

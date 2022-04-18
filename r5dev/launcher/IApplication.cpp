@@ -25,7 +25,7 @@ int CModAppSystemGroup::Main(CModAppSystemGroup* pModAppSystemGroup)
 	HEbisuSDK_Init(); // Not here in retail. We init EbisuSDK here though.
 
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) // !TODO: rebuild does not work for S1 (CModAppSystemGroup and CEngine member offsets do align with all other builds).
-	return CModAppSystemGroup_Main(modAppSystemGroup);
+	return CModAppSystemGroup_Main(pModAppSystemGroup);
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 
 	g_pEngine->SetQuitting(EngineDllQuitting_t::QUIT_NOTQUITTING);
