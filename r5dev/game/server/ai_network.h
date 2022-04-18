@@ -47,8 +47,8 @@ public:
 void CAI_Network_Attach();
 void CAI_Network_Detach();
 
-inline CMemory p_CAI_Network__DebugConnectMsg = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x89\x4C\x24\x00\x48\x83\xEC\x18"), "xxxx?xxxx");
-inline auto v_CAI_Network__DebugConnectMsg = p_CAI_Network__DebugConnectMsg.RCast<void (*)(int node1, int node2, const char* pszformat, ...)>(); /*4C 89 4C 24 ? 48 83 EC 18*/
+inline CMemory p_CAI_Network__DebugConnectMsg;
+inline auto v_CAI_Network__DebugConnectMsg = p_CAI_Network__DebugConnectMsg.RCast<void (*)(int node1, int node2, const char* pszformat, ...)>();
 
 ///////////////////////////////////////////////////////////////////////////////
 class HAI_Network : public IDetour
@@ -58,7 +58,11 @@ class HAI_Network : public IDetour
 		std::cout << "| FUN: CAI_Network::DebugConnectMsg         : 0x" << std::hex << std::uppercase << p_CAI_Network__DebugConnectMsg.GetPtr() << std::setw(nPad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
-	virtual void GetFun(void) const { }
+	virtual void GetFun(void) const
+	{
+		p_CAI_Network__DebugConnectMsg = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x89\x4C\x24\x00\x48\x83\xEC\x18"), "xxxx?xxxx");
+		v_CAI_Network__DebugConnectMsg = p_CAI_Network__DebugConnectMsg.RCast<void (*)(int, int, const char*, ...)>(); /*4C 89 4C 24 ?? 48 83 EC 18*/
+	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

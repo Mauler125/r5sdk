@@ -1,12 +1,12 @@
 #pragma once
 
-inline CMemory p_Host_RunFrame; /*48 8B C4 48 89 58 18 48 89 70 20 F3 0F 11 48 ?*/
+inline CMemory p_Host_RunFrame;
 inline auto _Host_RunFrame = p_Host_RunFrame.RCast<void(*)(void* unused, float time)>();
 
-inline CMemory p_Host_RunFrame_Render; /*40 53 48 83 EC 20 48 8B 0D ? ? ? ? 48 85 C9 75 34*/
+inline CMemory p_Host_RunFrame_Render;
 inline auto _Host_RunFrame_Render = p_Host_RunFrame_Render.RCast<void(*)(void)>();
 
-inline CMemory p_Host_Error; /*48 89 4C 24 ? 48 89 54 24 ? 4C 89 44 24 ? 4C 89 4C 24 ? 53 57 48 81 EC ? ? ? ?*/
+inline CMemory p_Host_Error;
 inline auto Host_Error = p_Host_Error.RCast<int(*)(char* error, ...)>();
 
 inline CMemory p_VCR_EnterPausedState;

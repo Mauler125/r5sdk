@@ -50,13 +50,13 @@ public:
 };
 
 /* ==== CHOSTSTATE ====================================================================================================================================================== */
-inline CMemory p_CHostState_FrameUpdate = nullptr; /*48 89 5C 24 08 48 89 6C 24 20 F3 0F 11 54 24 18*/
+inline CMemory p_CHostState_FrameUpdate;
 inline auto CHostState_FrameUpdate = p_CHostState_FrameUpdate.RCast<void(*)(CHostState* rcx, void* rdx, float time)>();
 
-inline CMemory p_CHostState_State_Run = nullptr; /*48 8B C4 48 89 58 10 48 89 70 18 48 89 78 20 55 41 54 41 55 41 56 41 57 48 8D A8 ? ? ? ? 48 81 EC ? ? ? ? 0F 29 70 C8 45 33 E4*/
+inline CMemory p_CHostState_State_Run;
 inline auto CHostState_State_Run = p_CHostState_State_Run.RCast<void(*)(HostStates_t* pState, void* pUnused, float flFrameTime)>();
 
-inline CMemory p_CHostState_State_GameShutDown = nullptr; /*48 89 5C 24 ? 57 48 83 EC 20 48 8B D9 E8 ? ? ? ? 48 8B 0D ? ? ? ?*/
+inline CMemory p_CHostState_State_GameShutDown;
 inline auto CHostState_State_GameShutDown = p_CHostState_State_GameShutDown.RCast<void(*)(CHostState* thisptr)>();
 
 extern bool g_bLevelResourceInitialized;
@@ -67,7 +67,6 @@ void CHostState_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 extern CHostState* g_pHostState;
 
-//48 8B C4 ?? 41 54 41 ?? 48 81 EC ? ? ? ? F2 0F 10 05 ? ? ? ?, xxx?xxx?xxx????xxxx????
 ///////////////////////////////////////////////////////////////////////////////
 class HHostState : public IDetour
 {
@@ -81,22 +80,22 @@ class HHostState : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		p_CHostState_FrameUpdate = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x08\x48\x89\x6C\x24\x20\xF3\x0F\x11\x54\x24\x18"), "xxxxxxxxxxxxxxxx");
-		CHostState_FrameUpdate = p_CHostState_FrameUpdate.RCast<void(*)(CHostState*, void*, float)>();
-		p_CHostState_State_Run = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x89\x58\x10\x48\x89\x70\x18\x48\x89\x78\x20\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xA8\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x0F\x29\x70\xC8\x45\x33\xE4"), "xxxxxxxxxxxxxxxxxxxxxxxxxxx????xxx????xxxxxxx");
-		CHostState_State_Run = p_CHostState_State_Run.RCast<void(*)(HostStates_t*, void*, float)>();
-
+		p_CHostState_FrameUpdate  = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x08\x48\x89\x6C\x24\x20\xF3\x0F\x11\x54\x24\x18"), "xxxxxxxxxxxxxxxx");
+		p_CHostState_State_Run    = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x89\x58\x10\x48\x89\x70\x18\x48\x89\x78\x20\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xA8\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x0F\x29\x70\xC8\x45\x33\xE4"), "xxxxxxxxxxxxxxxxxxxxxxxxxxx????xxx????xxxxxxx");
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 		p_CHostState_GameShutDown = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x56\x48\x83\xEC\x20\x8B\x05\x00\x00\x00\x00\x48\x8B\xF1"), "xxxx?xxxxxxx????xxx");
-		CHostState_GameShutDown = p_CHostState_GameShutDown.RCast<void(*)(CHostState* thisptr)>();
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		p_CHostState_State_GameShutDown = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\xD9\xE8\x00\x00\x00\x00\x48\x8B\x0D\x00\x00\x00\x00"), "xxxx?xxxxxxxxx????xxx????");
-		CHostState_State_GameShutDown = p_CHostState_State_GameShutDown.RCast<void(*)(CHostState* thisptr)>();
 #endif
+
+		CHostState_FrameUpdate        = p_CHostState_FrameUpdate.RCast<void(*)(CHostState*, void*, float)>();  /*48 89 5C 24 08 48 89 6C 24 20 F3 0F 11 54 24 18*/
+		CHostState_State_Run          = p_CHostState_State_Run.RCast<void(*)(HostStates_t*, void*, float)>();  /*48 8B C4 48 89 58 10 48 89 70 18 48 89 78 20 55 41 54 41 55 41 56 41 57 48 8D A8 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 0F 29 70 C8 45 33 E4*/
+		CHostState_State_GameShutDown = p_CHostState_State_GameShutDown.RCast<void(*)(CHostState* thisptr)>(); /*48 89 5C 24 ?? 57 48 83 EC 20 48 8B D9 E8 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ??*/
+
 	}
 	virtual void GetVar(void) const
 	{
-		g_pHostState = p_CHostState_FrameUpdate.FindPatternSelf("48 8D ?? ?? ?? ?? 01", CMemory::Direction::DOWN, 100).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CHostState*>();
+		g_pHostState = p_CHostState_FrameUpdate.FindPattern("48 8D ?? ?? ?? ?? 01", CMemory::Direction::DOWN, 100).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CHostState*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

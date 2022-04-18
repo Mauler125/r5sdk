@@ -420,6 +420,9 @@
     <ClCompile Include="..\launcher\launcher.cpp">
       <Filter>sdk\launcher</Filter>
     </ClCompile>
+    <ClCompile Include="..\tier0\jobthread.cpp">
+      <Filter>sdk\tier0</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1195,6 +1198,9 @@
     </ClInclude>
     <ClInclude Include="..\launcher\launcher.h">
       <Filter>sdk\launcher</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\jobthread.h">
+      <Filter>sdk\tier0</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

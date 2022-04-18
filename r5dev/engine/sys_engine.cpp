@@ -2,7 +2,7 @@
 #include "sys_engine.h"
 
 ///////////////////////////////////////////////////////////////////////////////
-CEngine* g_pEngine = reinterpret_cast<CEngine*>(g_pEngineBuffer.GetPtr());
+CEngine* g_pEngine = nullptr;
 
 //-----------------------------------------------------------------------------
 // Purpose: Start initializing the engine.

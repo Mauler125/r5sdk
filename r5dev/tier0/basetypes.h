@@ -16,7 +16,7 @@
 
 #define MAX_PLAYERS 128 // Max R5 players.
 
-#define SDK_VERSION "VGameSDK001" // Increment this with every /breaking/ SDK change (i.e. security/backend changes breaking compatibility).
+#define SDK_VERSION "beta 1.6" // Increment this with every /breaking/ SDK change (i.e. security/backend changes breaking compatibility).
 
 #ifndef DEDICATED
 #define SDK_DEFAULT_CFG "platform\\cfg\\startup_default.cfg"

@@ -567,7 +567,7 @@
     <ClInclude Include="..\bsplib\bsplib.h">
       <Filter>sdk\bsplib</Filter>
     </ClInclude>
-    <ClInclude Include="..\common\psuedodefs.h">
+    <ClInclude Include="..\common\pseudodefs.h">
       <Filter>sdk\common</Filter>
     </ClInclude>
     <ClInclude Include="..\engine\host_cmd.h">
@@ -864,6 +864,9 @@
     <ClInclude Include="..\launcher\launcher.h">
       <Filter>sdk\launcher</Filter>
     </ClInclude>
+    <ClInclude Include="..\tier0\jobthread.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1090,6 +1093,9 @@
     </ClCompile>
     <ClCompile Include="..\launcher\launcher.cpp">
       <Filter>sdk\launcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier0\jobthread.cpp">
+      <Filter>sdk\tier0</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

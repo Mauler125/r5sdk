@@ -497,6 +497,9 @@ std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::
 	return result;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: gets information about loaded pak file
+//-----------------------------------------------------------------------------
 RPakLoadedInfo_t RTech::GetPakLoadedInfo(int nPakId)
 {
 #ifdef GAMEDLL_S3

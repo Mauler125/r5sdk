@@ -89,6 +89,7 @@
     <ClCompile Include="..\tier0\cpu.cpp" />
     <ClCompile Include="..\tier0\cputopology.cpp" />
     <ClCompile Include="..\tier0\fasttimer.cpp" />
+    <ClCompile Include="..\tier0\jobthread.cpp" />
     <ClCompile Include="..\tier1\bitbuf.cpp" />
     <ClCompile Include="..\tier1\cmd.cpp" />
     <ClCompile Include="..\tier1\cvar.cpp" />
@@ -355,6 +356,7 @@
     <ClInclude Include="..\tier0\cputopology.h" />
     <ClInclude Include="..\tier0\fasttimer.h" />
     <ClInclude Include="..\tier0\interface.h" />
+    <ClInclude Include="..\tier0\jobthread.h" />
     <ClInclude Include="..\tier0\platform.h" />
     <ClInclude Include="..\tier0\tslist.h" />
     <ClInclude Include="..\tier1\bitbuf.h" />

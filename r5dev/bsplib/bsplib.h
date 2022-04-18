@@ -21,10 +21,10 @@ namespace
 	//static auto sub_1404365A0 = CMemory(0x1404365A0).RCast<void** (*)(__m128*, long long, long long, double)>(); // Prototype is most likely incorrect: 'local variable allocation has failed, the output may be wrong!'
 	//static auto sub_140270130 = CMemory(0x140270130).RCast<__m128 (*)(__m128*)>();
 	//static auto sub_14028F170 = CMemory(0x14028F170).RCast<const __m128i* (*)(__int64, __int64, __m128*, const __m128i*, const __m128i*)>();
-
-	CMemory p_CalcPropStaticFrustumCulling = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x44\x89\x40\x18\x48\x89\x50\x10\x55"), "xxxxxxxxxxxx");
-	__int64 (*CalcPropStaticFrustumCulling)(__int64 a1, __int64 a2, unsigned int a3, unsigned int a4, __int64 a5, __int64 a6, __int64 a7) = (__int64 (*)(__int64 a1, __int64 a2, unsigned int a3, unsigned int a4, __int64 a5, __int64 a6, __int64 a7))p_CalcPropStaticFrustumCulling.GetPtr(); /*48 8B C4 44 89 40 18 48 89 50 10 55*/
 }
+
+inline CMemory p_CalcPropStaticFrustumCulling;
+inline auto CalcPropStaticFrustumCulling = p_CalcPropStaticFrustumCulling.RCast<__int64(*)(__int64 a1, __int64 a2, unsigned int a3, unsigned int a4, __int64 a5, __int64 a6, __int64 a7)>();
 
 __int64 __fastcall HCalcPropStaticFrustumCulling(__int64 a1, __int64 a2, unsigned int a3, unsigned int a4, __int64 a5, __int64 a6, __int64 a7);
 
@@ -39,7 +39,11 @@ class HBspLib : public IDetour
 		std::cout << "| FUN: CalcPropStaticFrustumCulling         : 0x" << std::hex << std::uppercase << p_CalcPropStaticFrustumCulling.GetPtr() << std::setw(nPad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
-	virtual void GetFun(void) const { }
+	virtual void GetFun(void) const
+	{
+		p_CalcPropStaticFrustumCulling = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x44\x89\x40\x18\x48\x89\x50\x10\x55"), "xxxxxxxxxxxx"); /*48 8B C4 44 89 40 18 48 89 50 10 55*/
+		CalcPropStaticFrustumCulling = p_CalcPropStaticFrustumCulling.RCast<__int64(*)(__int64, __int64, unsigned int, unsigned int, __int64, __int64, __int64)>();
+	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

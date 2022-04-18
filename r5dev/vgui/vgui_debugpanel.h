@@ -53,7 +53,6 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-int HCEngineVGui_Paint(void* thisptr, int nMode);
 void CEngineVGui_Attach();
 void CEngineVGui_Detach();
 

@@ -237,5 +237,5 @@ void NET_Trace_Detach()
 
 ///////////////////////////////////////////////////////////////////////////////
 string g_szNetKey = "WDNWLmJYQ2ZlM0VoTid3Yg==";
-uintptr_t g_pNetKey = g_mGameDll.FindString("client:NetEncryption_NewKey").FindPatternSelf("48 8D ? ? ? ? ? 48 3B", CMemory::Direction::UP, 300).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr();
+uintptr_t g_pNetKey = NULL;
 #endif // !NETCONSOLE

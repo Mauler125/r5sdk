@@ -1,18 +1,18 @@
 #pragma once
 #include "squirrel/sqapi.h"
 
-inline CMemory p_Script_Remote_BeginRegisteringFunctions = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x83\x3D\x00\x00\x00\x00\x00\x74\x10"), "xxxxxx?????xx");
-inline auto Script_Remote_BeginRegisteringFunctions = p_Script_Remote_BeginRegisteringFunctions.RCast<void* (*)(void)>(); /*48 83 EC 28 83 3D ?? ?? ?? ?? ?? 74 10*/
+inline CMemory p_Script_Remote_BeginRegisteringFunctions;
+inline auto Script_Remote_BeginRegisteringFunctions = p_Script_Remote_BeginRegisteringFunctions.RCast<void* (*)(void)>();
 
-inline CMemory p_RestoreRemoteChecksumsFromSaveGame = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x4C\x24\x00\x41\x54\x48\x83\xEC\x40"), "xxxx?xxxxxx");
-inline auto RestoreRemoteChecksumsFromSaveGame = p_RestoreRemoteChecksumsFromSaveGame.RCast<void* (*)(void* a1, void* a2)>(); /*48 89 4C 24 ? 41 54 48 83 EC 40*/
+inline CMemory p_RestoreRemoteChecksumsFromSaveGame;
+inline auto RestoreRemoteChecksumsFromSaveGame = p_RestoreRemoteChecksumsFromSaveGame.RCast<void* (*)(void* a1, void* a2)>();
 
 /* CHANGE THESE WHEN SWITCHING TO PYLONV2 TO UNSIGNED AGAIN!*/
 #ifndef CLIENT_DLL
-inline int32_t* g_nServerRemoteChecksum = reinterpret_cast<int32_t*>(p_RestoreRemoteChecksumsFromSaveGame.Offset(0x1C0).FindPatternSelf("48 8D 15", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr());
+inline int32_t* g_nServerRemoteChecksum = nullptr;
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
-inline int32_t* g_nClientRemoteChecksum = reinterpret_cast<int32_t*>(p_Script_Remote_BeginRegisteringFunctions.Offset(0x0).FindPatternSelf("89 05", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).GetPtr());
+inline int32_t* g_nClientRemoteChecksum = nullptr;
 #endif // !DEDICATED
 
 namespace VSquirrel
@@ -65,8 +65,23 @@ class HSqInit : public IDetour
 #endif // !DEDICATED
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
-	virtual void GetFun(void) const { }
-	virtual void GetVar(void) const { }
+	virtual void GetFun(void) const
+	{
+		p_Script_Remote_BeginRegisteringFunctions = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x83\x3D\x00\x00\x00\x00\x00\x74\x10"), "xxxxxx?????xx");
+		p_RestoreRemoteChecksumsFromSaveGame      = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x4C\x24\x00\x41\x54\x48\x83\xEC\x40"), "xxxx?xxxxxx");
+
+		Script_Remote_BeginRegisteringFunctions = p_Script_Remote_BeginRegisteringFunctions.RCast<void* (*)(void)>();          /*48 83 EC 28 83 3D ?? ?? ?? ?? ?? 74 10*/
+		RestoreRemoteChecksumsFromSaveGame      = p_RestoreRemoteChecksumsFromSaveGame.RCast<void* (*)(void* a1, void* a2)>(); /*48 89 4C 24 ?? 41 54 48 83 EC 40*/
+	}
+	virtual void GetVar(void) const
+	{
+#ifndef CLIENT_DLL
+		g_nServerRemoteChecksum = p_RestoreRemoteChecksumsFromSaveGame.Offset(0x1C0).FindPatternSelf("48 8D 15", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).RCast<int32_t*>();
+#endif // !CLIENT_DLL
+#ifndef DEDICATED
+		g_nClientRemoteChecksum = p_Script_Remote_BeginRegisteringFunctions.Offset(0x0).FindPatternSelf("89 05", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).RCast<int32_t*>();
+#endif // !DEDICATED
+	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }

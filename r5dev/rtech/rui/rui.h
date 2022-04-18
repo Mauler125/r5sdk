@@ -3,8 +3,8 @@
 #ifndef DEDICATED
 
 /* ==== RUI ====================================================================================================================================================== */
-inline CMemory p_RuiDraw = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x40\x4C\x8B\x5A\x18"), "xxxxxxxxxx"); /* 40 53 48 83 EC 40 4C 8B 5A 18 */
-inline bool (__fastcall* RuiDraw)(__int64* a1, __m128* a2, const __m128i* a3, __int64 a4, __m128* a5) = (bool (__fastcall*)(__int64*, __m128*, const __m128i*, __int64, __m128*))p_RuiDraw.GetPtr();
+inline CMemory p_RuiDraw;
+inline auto v_RuiDraw = p_RuiDraw.RCast<bool(*)(__int64* a1, __m128* a2, const __m128i* a3, __int64 a4, __m128* a5)>();
 
 
 void Rui_Attach();
@@ -18,7 +18,11 @@ class HRui : public IDetour
 		std::cout << "| FUN: RuiDraw                              : 0x" << std::hex << std::uppercase << p_RuiDraw.GetPtr() << std::setw(nPad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
-	virtual void GetFun(void) const { }
+	virtual void GetFun(void) const
+	{
+		p_RuiDraw = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x40\x4C\x8B\x5A\x18"), "xxxxxxxxxx");
+		v_RuiDraw = p_RuiDraw.RCast<bool(*)(__int64*, __m128*, const __m128i*, __int64, __m128*)>(); /* 40 53 48 83 EC 40 4C 8B 5A 18 */
+	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

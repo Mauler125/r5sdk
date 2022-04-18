@@ -130,7 +130,7 @@
     <ClInclude Include="..\common\netmessages.h" />
     <ClInclude Include="..\common\opcodes.h" />
     <ClInclude Include="..\common\protocol.h" />
-    <ClInclude Include="..\common\psuedodefs.h" />
+    <ClInclude Include="..\common\pseudodefs.h" />
     <ClInclude Include="..\common\sdkdefs.h" />
     <ClInclude Include="..\common\x86defs.h" />
     <ClInclude Include="..\core\assert.h" />
@@ -340,6 +340,7 @@
     <ClInclude Include="..\tier0\cputopology.h" />
     <ClInclude Include="..\tier0\fasttimer.h" />
     <ClInclude Include="..\tier0\interface.h" />
+    <ClInclude Include="..\tier0\jobthread.h" />
     <ClInclude Include="..\tier0\platform.h" />
     <ClInclude Include="..\tier0\tslist.h" />
     <ClInclude Include="..\tier1\bitbuf.h" />
@@ -430,6 +431,7 @@
     <ClCompile Include="..\tier0\cpu.cpp" />
     <ClCompile Include="..\tier0\cputopology.cpp" />
     <ClCompile Include="..\tier0\fasttimer.cpp" />
+    <ClCompile Include="..\tier0\jobthread.cpp" />
     <ClCompile Include="..\tier1\bitbuf.cpp" />
     <ClCompile Include="..\tier1\cmd.cpp" />
     <ClCompile Include="..\tier1\cvar.cpp" />

@@ -40,7 +40,7 @@ void MOD_PreloadPak(const string& svSetFile)
 						if (it.value().is_string())
 						{
 							string svToLoad = it.value().get<string>() + ".rpak";
-							uint32_t nPakId = RTech_AsyncLoad((void*)svToLoad.c_str(), g_pMallocPool.GetPtr(), 4, 0);
+							uint32_t nPakId = CPakFile_AsyncLoad((void*)svToLoad.c_str(), g_pMallocPool.GetPtr(), 4, 0);
 
 							if (nPakId == -1)
 							{
@@ -48,7 +48,7 @@ void MOD_PreloadPak(const string& svSetFile)
 							}
 							else
 							{
-								g_nLoadedPakFileId.push_back(nPakId);
+								g_LoadedPakHandle.push_back(nPakId);
 							}
 						}
 					}

@@ -46,8 +46,8 @@ static_assert(sizeof(CMaterialGlue) == 0x130);
 #pragma pack(pop)
 
 /* ==== CMATERIALGLUE ================================================================================================================================================== */
-inline CMemory p_GetMaterialAtCrossHair = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x83\xEC\x58\x48\x83\x3D\x00\x00\x00\x00\x00"), "xxxxxxxxxx?????");
-inline auto GetMaterialAtCrossHair = p_GetMaterialAtCrossHair.RCast<CMaterialGlue* (*)(void)>(); /*48 8B C4 48 83 EC 58 48 83 3D ? ? ? ? ?*/
+inline CMemory p_GetMaterialAtCrossHair;
+inline auto GetMaterialAtCrossHair = p_GetMaterialAtCrossHair.RCast<CMaterialGlue* (*)(void)>();
 
 void CMaterialGlue_Attach();
 void CMaterialGlue_Detach();
@@ -59,7 +59,11 @@ class HCMaterialGlue : public IDetour
 		std::cout << "| FUN: CMaterialGlue::GetMaterialAtCrossHair: 0x" << std::hex << std::uppercase << p_GetMaterialAtCrossHair.GetPtr() << std::setw(nPad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
-	virtual void GetFun(void) const { }
+	virtual void GetFun(void) const
+	{
+		p_GetMaterialAtCrossHair = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x83\xEC\x58\x48\x83\x3D\x00\x00\x00\x00\x00"), "xxxxxxxxxx?????");
+		GetMaterialAtCrossHair = p_GetMaterialAtCrossHair.RCast<CMaterialGlue* (*)(void)>(); /*48 8B C4 48 83 EC 58 48 83 3D ? ? ? ? ?*/
+	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

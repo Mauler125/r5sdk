@@ -1,12 +1,8 @@
 #pragma once
 #include "engine/debugoverlay.h"
 
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-inline bool* cl_m_bPaused = p_DrawAllOverlays.Offset(0x90).FindPatternSelf("80 3D ? ? ? 0B ?", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x2).RCast<bool*>();
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-inline bool* cl_m_bPaused = p_DrawAllOverlays.Offset(0x70).FindPatternSelf("80 3D ? ? ? 01 ?", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x7).RCast<bool*>();
-#endif
-inline int* cl_host_tickcount = p_DrawAllOverlays.Offset(0xC0).FindPatternSelf("66 0F 6E", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x4, 0x8).RCast<int*>();
+inline bool* cl_m_bPaused = nullptr;
+inline int* cl_host_tickcount = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
 class CBaseClientState
@@ -41,11 +37,32 @@ class HClientState : public IDetour
 	{
 		//std::cout << "| FUN: CClientState::CheckForResend         : 0x" << std::hex << std::uppercase << p_CClientState__CheckForResend.GetPtr() << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| VAR: cl_m_bPaused                         : 0x" << std::hex << std::uppercase << cl_m_bPaused      << std::setw(0) << " |" << std::endl;
-		std::cout << "| FUN: cl_host_tickcount                    : 0x" << std::hex << std::uppercase << cl_host_tickcount << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: cl_host_tickcount                    : 0x" << std::hex << std::uppercase << cl_host_tickcount << std::setw(0) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 	virtual void GetFun(void) const { }
-	virtual void GetVar(void) const { }
+	virtual void GetVar(void) const
+	{
+
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+		CMemory localRef = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
+			"\x40\x55\x48\x83\xEC\x50\x48\x8B\x05\x00\x00\x00\x00"), "xxxxxxxxx????");
+
+		cl_m_bPaused = localRef.Offset(0x90)
+			.FindPatternSelf("80 3D ? ? ? 0B ?", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x2).RCast<bool*>();
+		cl_host_tickcount = localRef.Offset(0xC0)
+			.FindPatternSelf("66 0F 6E", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x4, 0x8).RCast<int*>();
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+
+		CMemory localRef = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
+			"\x40\x55\x48\x83\xEC\x30\x48\x8B\x05\x00\x00\x00\x00\x0F\xB6\xE9"), "xxxxxxxxx????xxx");
+
+		cl_m_bPaused = localRef.Offset(0x70)
+			.FindPatternSelf("80 3D ? ? ? 01 ?", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x7).RCast<bool*>();
+		cl_host_tickcount = localRef.Offset(0xC0)
+			.FindPatternSelf("66 0F 6E", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x4, 0x8).RCast<int*>();
+#endif
+	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }

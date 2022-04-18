@@ -88,8 +88,7 @@ private:
 extern CFactory* g_pFactory;
 
 /* ==== s_pInterfaceRegs ==================================================================================================================================================== */
-inline CMemory s_pInterfacesRegs = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE9\x00\x00\x00\x00\xCC\xCC\x89\x91\x00\x00\x00\x00"), "x????xxxx????")
-	.FollowNearCallSelf().FindPatternSelf("48 8B 1D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7);
+inline CMemory s_pInterfacesRegs;
 
 ///////////////////////////////////////////////////////////////////////////////
 class HFactory : public IDetour
@@ -100,7 +99,11 @@ class HFactory : public IDetour
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 	virtual void GetFun(void) const { }
-	virtual void GetVar(void) const { }
+	virtual void GetVar(void) const
+	{
+		s_pInterfacesRegs = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE9\x00\x00\x00\x00\xCC\xCC\x89\x91\x00\x00\x00\x00"), "x????xxxx????")
+			.FollowNearCallSelf().FindPatternSelf("48 8B 1D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7);
+	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }

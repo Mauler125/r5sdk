@@ -309,7 +309,7 @@ FORCEINLINE void CHostState::GameShutDown(void)
 //-----------------------------------------------------------------------------
 FORCEINLINE void CHostState::UnloadPakFile(void) const
 {
-	for (auto& it : g_nLoadedPakFileId)
+	for (auto& it : g_LoadedPakHandle)
 	{
 		if (it >= 0)
 		{
@@ -320,10 +320,10 @@ FORCEINLINE void CHostState::UnloadPakFile(void) const
 				DevMsg(eDLL_T::RTECH, "%s - Unloading PakFile '%s'\n", "CHostState::UnloadPakFile", pakInfo.m_pszFileName);
 			}
 #endif // GAMEDLL_S3
-			RTech_UnloadPak(it);
+			CPakFile_UnloadPak(it);
 		}
 	}
-	g_nLoadedPakFileId.clear();
+	g_LoadedPakHandle.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -401,8 +401,7 @@ FORCEINLINE void CHostState::State_ChangeLevelMP(void)
 	if (CModelLoader__Map_IsValid(g_pModelLoader, m_levelName)) // Check if map is valid and if we can start a new game.
 	{
 #ifndef DEDICATED
-		using EnabledProgressBarForNextLoadFn = void(*)(void*);
-		(*reinterpret_cast<EnabledProgressBarForNextLoadFn**>(g_pEngineVGui))[31](g_pEngineVGui); // EnabledProgressBarForNextLoad
+		g_pEngineVGui->EnabledProgressBarForNextLoad();
 #endif // !DEDICATED
 		Host_ChangeLevel(false, m_levelName, m_mapGroupName); // Call change level as multiplayer level.
 	}

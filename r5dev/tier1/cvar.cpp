@@ -196,4 +196,4 @@ unordered_map<string, ConCommandBase*> CCVar::DumpToMap(void)
 
 ///////////////////////////////////////////////////////////////////////////////
 vector<string> g_vsvCommandBases;
-CCVar* g_pCVar = reinterpret_cast<CCVar*>(p_CEngineAPI_Connect.FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 40).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr());
+CCVar* g_pCVar = nullptr;

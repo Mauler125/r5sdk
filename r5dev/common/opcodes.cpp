@@ -51,8 +51,8 @@ void Dedicated_Init()
 		p_CHLClient_LevelShutdown.Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 }); // FUN --> RET | Return early in 'CHLClient::LevelShutdown()' during DLL shutdown.
 		p_CHLClient_HudProcessInput.Patch({ 0xC3 });                             // FUN --> RET | Return early in 'CHLClient::HudProcessInput()' to prevent infinite loop.
 
-		// MOV --> JMP | Skip virtual call during settings layout parsing (S0/S1/S2/S3).
-		g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x41\x85\xC8\x0F\x84"), "xxxxx").Offset(0x40).Patch({ 0xEB, 0x23 });
+		g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(                     // MOV --> JMP | Skip virtual call during settings layout parsing (S0/S1/S2/S3).
+			"\x41\x85\xC8\x0F\x84"), "xxxxx").Offset(0x40).Patch({ 0xEB, 0x23 });
 
 	}
 
@@ -91,8 +91,8 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	{
 		//gCMaterialSystem__MatsysMode_Init.Offset(0x22).Patch({ 0xEB, 0x66 });        // JE  --> JMP | Matsys mode init (CMaterialSystem). // TODO: Needed?
-		CMaterialSystem__Init.Offset(0x406).Patch({ 0xE9, 0x55, 0x05, 0x00, 0x00 }); // MOV --> JMP | Jump over material KeyValue definitions and 'CMatRenderContextBase::sm_RenderData([x])'.
-		InitMaterialSystem.Offset(0x7D).Patch({ 0xC3 });                             // JMP --> RET | Return early to prevent 'InitDebugMaterials' from being executed. // RESEARCH NEEDED.
+		p_CMaterialSystem__Init.Offset(0x406).Patch({ 0xE9, 0x55, 0x05, 0x00, 0x00 }); // MOV --> JMP | Jump over material KeyValue definitions and 'CMatRenderContextBase::sm_RenderData([x])'.
+		p_InitMaterialSystem.Patch({ 0xC3 });                                          // FUN --> RET | Return early to prevent 'InitDebugMaterials' from being executed. // RESEARCH NEEDED.
 	}
 
 	//-------------------------------------------------------------------------
@@ -147,8 +147,8 @@ void Dedicated_Init()
 	// CGAMESERVER
 	//-------------------------------------------------------------------------
 	{
-		CGameServer__SpawnServer.Offset(0x43).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | Prevent call to unknown material/shader code.
-		CGameServer__SpawnServer.Offset(0x48).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | TODO: Research 'CIVDebugOverlay'.
+		p_CGameServer__SpawnServer.Offset(0x43).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | Prevent call to unknown material/shader code.
+		p_CGameServer__SpawnServer.Offset(0x48).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | TODO: Research 'CIVDebugOverlay'.
 	}
 
 	//-------------------------------------------------------------------------
@@ -156,7 +156,7 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	{
 		/*MOV EAX, 0*/
-		CVGui__RunFrame.Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 });                 // FUN --> RET | 'CVGui::RunFrame()' gets called on DLL shutdown.
+		CVGui__RunFrame.Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 });                   // FUN --> RET | 'CVGui::RunFrame()' gets called on DLL shutdown.
 	}
 
 	//-------------------------------------------------------------------------
@@ -247,7 +247,7 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	{
 #if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_RTech_LoadPak.Offset(0x890).FindPatternSelf("75", CMemory::Direction::DOWN, 200).Patch({ 0xEB });       // JNZ --> JMP | Disable error handling for missing streaming files on the server. The server does not need streamed data from the starpak files.
+		p_CPakFile_LoadPak.Offset(0x890).FindPatternSelf("75", CMemory::Direction::DOWN, 200).Patch({ 0xEB });   // JNZ --> JMP | Disable error handling for missing streaming files on the server. The server does not need streamed data from the starpak files.
 #endif
 	}
 

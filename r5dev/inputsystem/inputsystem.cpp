@@ -36,4 +36,4 @@ bool CInputSystem::IsButtonDown(ButtonCode_t Button)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-CInputSystem* g_pInputSystem = reinterpret_cast<CInputSystem*>(p_IAppSystem_LoadLibrary.FindPatternSelf("48 89 05", CMemory::Direction::DOWN, 40).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr());
+CInputSystem* g_pInputSystem = nullptr;

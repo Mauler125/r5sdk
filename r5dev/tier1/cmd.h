@@ -134,29 +134,29 @@ public:
 };
 
 /* ==== COMMAND_BUFFER ================================================================================================================================================== */
-inline CMemory p_Cbuf_AddText = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\x48\x63\xD9\x41\x8B\xF8\x48\x8D\x0D\x00\x00\x00\x00\x48\x8B\xF2\xFF\x15\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x41\xB9\x00\x00\x00\x00"), "xxxx?xxxx?xxxxxxxxxxxxxx????xxxxx????xxx????xx????");
-inline auto Cbuf_AddText = p_Cbuf_AddText.RCast<void (*)(ECommandTarget_t eTarget, const char* pText, cmd_source_t cmdSource)>(); /*48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 63 D9 41 8B F8 48 8D 0D ? ? ? ? 48 8B F2 FF 15 ? ? ? ? 48 8D 05 ? ? ? ? 41 B9 ? ? ? ?*/
+inline CMemory p_Cbuf_AddText;
+inline auto Cbuf_AddText = p_Cbuf_AddText.RCast<void (*)(ECommandTarget_t eTarget, const char* pText, cmd_source_t cmdSource)>();
 
-inline CMemory p_Cbuf_Execute = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\xFF\x15\x00\x00\x00\x00"), "xxxx?xxxx?xxxx?xxxxxxx????");
-inline auto Cbuf_Execute = p_Cbuf_Execute.RCast<void (*)(void)>(); /*48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 20 FF 15 ? ? ? ?*/
+inline CMemory p_Cbuf_Execute;
+inline auto Cbuf_Execute = p_Cbuf_Execute.RCast<void (*)(void)>();
 
 /* ==== CONCOMMAND ====================================================================================================================================================== */
-inline CMemory p_ConCommandBase_IsFlagSet = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x85\x51\x38\x0F\x95\xC0\xC3"), "xxxxxxx");
-inline auto ConCommandBase_IsFlagSet = p_ConCommandBase_IsFlagSet.RCast<bool (*)(ConCommandBase* pCommand, int nFlag)>(); /*85 51 38 0F 95 C0 C3*/
+inline CMemory p_ConCommandBase_IsFlagSet;
+inline auto ConCommandBase_IsFlagSet = p_ConCommandBase_IsFlagSet.RCast<bool (*)(ConCommandBase* pCommand, int nFlag)>();
 
-inline CMemory p_ConCommand_CMaterialSystemCmdInit = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8B\xEC\x48\x83\xEC\x50\x48\x8B\x15\x00\x00\x00\x00"), "xxxx?xxxx?xxxx?xxxxxxxxxxxxxxxxxxx????");
+inline CMemory p_ConCommand_CMaterialSystemCmdInit;
 inline auto ConCommand_CMaterialSystemCmdInit = p_ConCommand_CMaterialSystemCmdInit.RCast<ConCommand* (*)(void)>();
 
-inline CMemory p_ConCommand_RegisterConCommand = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xD1\x48\x8B\x0D\x00\x00\x00\x00\x48\x85\xC9\x74\x06"), "xxxxxx????xxxxx");
-inline auto ConCommand_RegisterConCommand = p_ConCommand_RegisterConCommand.RCast<void* (*)(ConCommand* pCommand)>(); /*48 8B D1 48 8B 0D ?? ?? ?? ?? 48 85 C9 74 06*/
+inline CMemory p_ConCommand_RegisterConCommand;
+inline auto ConCommand_RegisterConCommand = p_ConCommand_RegisterConCommand.RCast<void* (*)(ConCommand* pCommand)>();
 
-inline CMemory p_NullSub = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xC2\x00\x00\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x40\x53\x48\x83\xEC\x20\x48\x8D\x05\x00\x00\x00\x00"), "xxxxxxxxxxxxxxxxxxxxxxxxx????");
-inline auto NullSub = p_NullSub.RCast<void(*)(void)>(); /*C2 00 00 CC CC CC CC CC CC CC CC CC CC CC CC CC 40 53 48 83 EC 20 48 8D 05 ?? ?? ?? ??*/
+inline CMemory p_NullSub;
+inline auto NullSub = p_NullSub.RCast<void(*)(void)>();
 
-inline CMemory p_CallbackStub = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x33\xC0\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x80\x49\x68\x08"), "xxxxxxxxxxxxxxxxxxxx");
-inline auto CallbackStub = p_CallbackStub.RCast<void* (*)(struct _exception* _exc)>(); /*33 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC 80 49 68 08*/ /*UserMathErrorFunction*/
+inline CMemory p_CallbackStub;
+inline auto CallbackStub = p_CallbackStub.RCast<void* (*)(struct _exception* _exc)>();
 
-inline CMemory g_pConCommandVtable = p_ConCommand_CMaterialSystemCmdInit.FindPatternSelf("4C 8D 25", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
+inline CMemory g_pConCommandVtable;
 
 ///////////////////////////////////////////////////////////////////////////////
 ECommandTarget_t Cbuf_GetCurrentPlayer(void);
@@ -184,8 +184,28 @@ class HConCommand : public IDetour
 		std::cout << "| VAR: g_pConCommandVtable                  : 0x" << std::hex << std::uppercase << g_pConCommandVtable.GetPtr()                 << std::setw(nPad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
-	virtual void GetFun(void) const { }
-	virtual void GetVar(void) const { }
+	virtual void GetFun(void) const
+	{
+		p_Cbuf_AddText                      = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\x48\x63\xD9\x41\x8B\xF8\x48\x8D\x0D\x00\x00\x00\x00\x48\x8B\xF2\xFF\x15\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x41\xB9\x00\x00\x00\x00"), "xxxx?xxxx?xxxxxxxxxxxxxx????xxxxx????xxx????xx????");
+		p_Cbuf_Execute                      = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\xFF\x15\x00\x00\x00\x00"), "xxxx?xxxx?xxxx?xxxxxxx????");
+		p_ConCommandBase_IsFlagSet          = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x85\x51\x38\x0F\x95\xC0\xC3"), "xxxxxxx");
+		p_ConCommand_CMaterialSystemCmdInit = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8B\xEC\x48\x83\xEC\x50\x48\x8B\x15\x00\x00\x00\x00"), "xxxx?xxxx?xxxx?xxxxxxxxxxxxxxxxxxx????");
+		p_ConCommand_RegisterConCommand     = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xD1\x48\x8B\x0D\x00\x00\x00\x00\x48\x85\xC9\x74\x06"), "xxxxxx????xxxxx");
+		p_NullSub                           = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xC2\x00\x00\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x40\x53\x48\x83\xEC\x20\x48\x8D\x05\x00\x00\x00\x00"), "xxxxxxxxxxxxxxxxxxxxxxxxx????");
+		p_CallbackStub                      = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x33\xC0\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x80\x49\x68\x08"), "xxxxxxxxxxxxxxxxxxxx");
+
+		Cbuf_AddText = p_Cbuf_AddText.RCast<void (*)(ECommandTarget_t eTarget, const char* pText, cmd_source_t cmdSource)>();  /*48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 63 D9 41 8B F8 48 8D 0D ?? ?? ?? ?? 48 8B F2 FF 15 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 41 B9 ?? ?? ?? ??*/
+		Cbuf_Execute = p_Cbuf_Execute.RCast<void (*)(void)>();                                                                 /*48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 FF 15 ?? ?? ?? ??*/
+		ConCommandBase_IsFlagSet          = p_ConCommandBase_IsFlagSet.RCast<bool (*)(ConCommandBase* pCommand, int nFlag)>(); /*85 51 38 0F 95 C0 C3*/
+		ConCommand_CMaterialSystemCmdInit = p_ConCommand_CMaterialSystemCmdInit.RCast<ConCommand* (*)(void)>();                /*48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 50 48 8B 15 ?? ?? ?? ??*/
+		ConCommand_RegisterConCommand     = p_ConCommand_RegisterConCommand.RCast<void* (*)(ConCommand* pCommand)>();          /*48 8B D1 48 8B 0D ?? ?? ?? ?? 48 85 C9 74 06*/
+		NullSub                           = p_NullSub.RCast<void(*)(void)>();                                                  /*C2 00 00 CC CC CC CC CC CC CC CC CC CC CC CC CC 40 53 48 83 EC 20 48 8D 05 ?? ?? ?? ??*/
+		CallbackStub                      = p_CallbackStub.RCast<void* (*)(struct _exception* _exc)>();                        /*33 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC 80 49 68 08*/ /*UserMathErrorFunction*/
+	}
+	virtual void GetVar(void) const
+	{
+		g_pConCommandVtable = p_ConCommand_CMaterialSystemCmdInit.FindPatternSelf("4C 8D 25", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
+	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }

@@ -1,12 +1,5 @@
 #pragma once
 #include <launcher/IApplication.h>
-//-----------------------------------------------------------------------------
-// Forward declarations
-//-----------------------------------------------------------------------------
-class CEngine;
-
-///////////////////////////////////////////////////////////////////////////////
-extern CEngine* g_pEngine;
 
 enum class EngineState_t : int
 {
@@ -53,11 +46,7 @@ private:
 };
 
 /* ==== CENGINE ======================================================================================================================================================= */
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-inline static CModule g_pEngineBuffer = p_CModAppSystemGroup_Main.Offset(0x0).FindPatternSelf("48 8D ?? ?? ?? ?? 01", CMemory::Direction::DOWN, 300).ResolveRelativeAddressSelf(0x3, 0x7);
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-inline static CMemory g_pEngineBuffer = p_CModAppSystemGroup_Main.Offset(0x0).FindPatternSelf("48 8B ?? ?? ?? ?? 01", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
-#endif
+extern CEngine* g_pEngine;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -68,11 +57,18 @@ class HEngine : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| VAR: g_pEngine                            : 0x" << std::hex << std::uppercase << g_pEngineBuffer.GetPtr() << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| VAR: g_pEngine                            : 0x" << std::hex << std::uppercase << g_pEngine << std::setw(0) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 	virtual void GetFun(void) const { }
-	virtual void GetVar(void) const { }
+	virtual void GetVar(void) const
+	{
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+		g_pEngine = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x80\xB9\x00\x00\x00\x00\x00\x48\x8B\x15\x00\x00\x00\x00"), "xxxxxx?????xxx????").FindPatternSelf("48 8D ?? ?? ?? ?? 01", CMemory::Direction::DOWN, 300).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CEngine*>();
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+		g_pEngine = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x80\xB9\x00\x00\x00\x00\x00\xBB\x00\x00\x00\x00"), "xxxxxxxx?????x????").FindPatternSelf("48 8B ?? ?? ?? ?? 01", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CEngine*>();
+#endif
+	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }

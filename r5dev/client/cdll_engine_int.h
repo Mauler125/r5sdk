@@ -37,39 +37,23 @@ public:
 
 //#ifndef DEDICATED
 /* ==== CHLCLIENT ======================================================================================================================================================= */
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-inline CMemory p_CHLClient_PostInit = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\x3D\x00\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00"), "xxx?????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????");
-inline auto CHLClient_PostInit = p_CHLClient_PostInit.RCast<void*(*)(void)>(); /*48 83 3D ? ? ? ? ? 48 8D 05 ? ? ? ? 48 89 05 ? ? ? ? 48 8D 05 ? ? ? ? 48 89 05 ? ? ? ? 48 8D 05 ? ? ? ? 48 89 05 ? ? ? ? 48 8D 05 ? ? ? ? 48 89 05 ? ? ? ? 48 8D 05 ? ? ? ? 48 89 05 ? ? ? ? 48 8D 05 ? ? ? ? 48 89 05 ? ? ? ? 48 8D 05 ? ? ? ? 48 89 05 ? ? ? ? 48 8D 05 ? ? ? ? 48 89 05 ? ? ? ? 48 8D 05 ? ? ? ?*/
+inline CMemory p_CHLClient_PostInit;
+inline auto CHLClient_PostInit = p_CHLClient_PostInit.RCast<void*(*)(void)>();
 
-inline CMemory p_CHLClient_LevelShutdown = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x56\x41\x54\x41\x56\x48\x83\xEC\x28\x48\x8B\xF1"), "xxxxxxxxxxxxxx");
-inline auto CHLClient_LevelShutdown = p_CHLClient_LevelShutdown.RCast<void*(*)(void* thisptr)>(); /*40 53 56 41 54 41 56 48 83 EC 28 48 8B F1*/
+inline CMemory p_CHLClient_LevelShutdown;
+inline auto CHLClient_LevelShutdown = p_CHLClient_LevelShutdown.RCast<void* (*)(CHLClient* thisptr)>();
 
-inline CMemory p_CHLClient_FrameStageNotify = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x38\x89\x15\x00\x00\x00\x00"), "xxxxxx????");
-inline auto CHLClient_FrameStageNotify = p_CHLClient_FrameStageNotify.RCast<void(*)(void* rcx, ClientFrameStage_t frameStage)>(); /*48 83 EC 38 89 15 ?? ?? ?? ??*/
+inline CMemory p_CHLClient_FrameStageNotify;
+inline auto CHLClient_FrameStageNotify = p_CHLClient_FrameStageNotify.RCast<void(*)(CHLClient* thisptr, ClientFrameStage_t frameStage)>();
 
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-inline CMemory p_CHLClient_PostInit = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x48\x83\x3D\x00\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00"), "xxxxxxx?????xxx????");
-inline auto CHLClient_PostInit = p_CHLClient_PostInit.RCast<void*(*)(void)>(); /*48 83 EC 28 48 83 3D ? ? ? ? ? 48 8D 05 ? ? ? ?*/
+inline CMemory p_CHLClient_HudProcessInput;
+inline auto CHLClient_HudProcessInput = p_CHLClient_HudProcessInput.RCast<void(*)(CHLClient* thisptr, bool bActive)>();
 
-inline CMemory p_CHLClient_LevelShutdown = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\xF9\x48\x8D\x0D\x00\x00\x00\x00"), "xxxx?xxxx?xxxx?xxxxxxxxxxx????");
-inline auto CHLClient_LevelShutdown = p_CHLClient_LevelShutdown.RCast<void* (*)(void* thisptr)>(); /*48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B F9 48 8D 0D ? ? ? ?*/
-
-inline CMemory p_CHLClient_FrameStageNotify = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x89\x15\x00\x00\x00\x00"), "xxxxxx????");
-inline auto CHLClient_FrameStageNotify = p_CHLClient_FrameStageNotify.RCast<void(*)(void* thisptr, ClientFrameStage_t frameStage)>(); /*48 83 EC 28 89 15 ?? ?? ?? ??*/
-#endif
-inline CMemory p_CHLClient_HudProcessInput = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x0F\xB6\x0D\x00\x00\x00\x00\x88\x15\x00\x00\x00\x00"), "xxxxxxx????xx????");
-inline auto CHLClient_HudProcessInput = p_CHLClient_HudProcessInput.RCast<void(*)(void* thisptr, bool bActive)>(); /*48 83 EC 28 0F B6 0D ? ? ? ? 88 15 ? ? ? ?*/
-
-inline bool* cl_time_use_host_tickcount = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x80\x3D\x00\x00\x00\x00\x00\x74\x14\x66\x0F\x6E\x05\x00\x00\x00\x00"), "xx?????xxxxxx????").ResolveRelativeAddress(0x2, 0x7).RCast<bool*>();
+inline bool* cl_time_use_host_tickcount = nullptr;
 //#endif // !DEDICATED
 
-inline CHLClient* gHLClient = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>
-	("\x48\x8D\x05\x00\x00\x00\x00\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x30\x48\x8B\xF9"),
-	"xxx????xxxxxxxxxxxxx?xxxxxxxx").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CHLClient*>();
-
-inline CHLClient* g_pHLClient = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>
-	("\x41\x55\x48\x83\xEC\x00\x4C\x63\x91\x00\x00\x00\x00"),
-	"xxxxx?xxx????").FindPatternSelf("4C 8B", CMemory::Direction::DOWN, 512, 2).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CHLClient*>();
+inline CHLClient* gHLClient = nullptr;
+inline CHLClient* g_pHLClient = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
 void CHLClient_Attach();
@@ -91,8 +75,37 @@ class HDll_Engine_Int : public IDetour
 		std::cout << "| VAR: g_pHLClient                          : 0x" << std::hex << std::uppercase << g_pHLClient                             << std::setw(0)    << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
-	virtual void GetFun(void) const { }
-	virtual void GetVar(void) const { }
+	virtual void GetFun(void) const
+	{
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+		p_CHLClient_PostInit         = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\x3D\x00\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00"), "xxx?????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????xxx????");
+		p_CHLClient_LevelShutdown    = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x56\x41\x54\x41\x56\x48\x83\xEC\x28\x48\x8B\xF1"), "xxxxxxxxxxxxxx");
+		p_CHLClient_FrameStageNotify = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x38\x89\x15\x00\x00\x00\x00"), "xxxxxx????");
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+		p_CHLClient_PostInit         = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x48\x83\x3D\x00\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00"), "xxxxxxx?????xxx????");
+		p_CHLClient_LevelShutdown    = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\xF9\x48\x8D\x0D\x00\x00\x00\x00"), "xxxx?xxxx?xxxx?xxxxxxxxxxx????");
+		p_CHLClient_FrameStageNotify = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x89\x15\x00\x00\x00\x00"), "xxxxxx????");
+#endif
+		p_CHLClient_HudProcessInput = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x0F\xB6\x0D\x00\x00\x00\x00\x88\x15\x00\x00\x00\x00"), "xxxxxxx????xx????");
+
+		CHLClient_PostInit         = p_CHLClient_PostInit.RCast<void* (*)(void)>();                                 /*48 83 EC 28 48 83 3D ?? ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ??*/
+		CHLClient_LevelShutdown    = p_CHLClient_LevelShutdown.RCast<void* (*)(CHLClient*)>();                      /*48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B F9 48 8D 0D ?? ?? ?? ??*/
+		CHLClient_FrameStageNotify = p_CHLClient_FrameStageNotify.RCast<void(*)(CHLClient*, ClientFrameStage_t)>(); /*48 83 EC 28 89 15 ?? ?? ?? ??*/
+		CHLClient_HudProcessInput  = p_CHLClient_HudProcessInput.RCast<void(*)(CHLClient*, bool)>();                /*48 83 EC 28 0F B6 0D ?? ?? ?? ?? 88 15 ?? ?? ?? ??*/
+		//#endif // !DEDICATED
+	}
+	virtual void GetVar(void) const
+	{
+		cl_time_use_host_tickcount = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x80\x3D\x00\x00\x00\x00\x00\x74\x14\x66\x0F\x6E\x05\x00\x00\x00\x00"), "xx?????xxxxxx????").ResolveRelativeAddress(0x2, 0x7).RCast<bool*>();
+
+		gHLClient = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>
+			("\x48\x8D\x05\x00\x00\x00\x00\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x30\x48\x8B\xF9"),
+			"xxx????xxxxxxxxxxxxx?xxxxxxxx").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CHLClient*>();
+
+		g_pHLClient = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>
+			("\x41\x55\x48\x83\xEC\x00\x4C\x63\x91\x00\x00\x00\x00"),
+			"xxxxx?xxx????").FindPatternSelf("4C 8B", CMemory::Direction::DOWN, 512, 2).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CHLClient*>();
+	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }

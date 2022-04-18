@@ -208,4 +208,4 @@ void CBaseClient_Detach()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-CBaseClient* g_pClient = reinterpret_cast<CBaseClient*>(g_pClientBuffer.GetPtr());
+CBaseClient* g_pClient = nullptr;

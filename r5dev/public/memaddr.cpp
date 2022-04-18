@@ -46,7 +46,7 @@ void CMemory::Patch(vector<uint8_t> vOpcodes) const
 	}
 
 	dwSize = vOpcodes.size();
-	VirtualProtect((void*)ptr, dwSize, oldProt, &oldProt); // Restore protection.
+	VirtualProtect(reinterpret_cast<void*>(ptr), dwSize, oldProt, &oldProt); // Restore protection.
 }
 
 //-----------------------------------------------------------------------------

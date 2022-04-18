@@ -370,7 +370,7 @@ void _Pak_RequestUnload_f_CompletionFunc(const CCommand& args)
 			int nPakId = std::stoi(args.Arg(1));
 			RPakLoadedInfo_t pakInfo = g_pRTech->GetPakLoadedInfo(nPakId);
 			pakInfo.m_pszFileName ? DevMsg(eDLL_T::RTECH, "Requested Pak Unload for '%s'\n", pakInfo.m_pszFileName) : DevMsg(eDLL_T::RTECH, "Requested Pak Unload for '%d'\n", nPakId);
-			RTech_UnloadPak(nPakId);
+			CPakFile_UnloadPak(nPakId);
 		}
 		else
 		{
@@ -392,7 +392,7 @@ _Pak_RequestLoad_f_CompletionFunc
 */
 void _Pak_RequestLoad_f_CompletionFunc(const CCommand& args)
 {
-	HRTech_AsyncLoad(args.Arg(1));
+	HPakFile_AsyncLoad(args.Arg(1));
 }
 
 /*

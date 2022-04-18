@@ -2,15 +2,11 @@
 #include "tier1/IConVar.h"
 
 /* ==== CONCOMMANDCALLBACK ============================================================================================================================================== */
-#if defined (GAMEDLL_S1)
-inline CMemory p_Host_Map_f_CompletionFunc = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x18\x55\x41\x56\x41\x00\x00\x00\x00\x40\x02"), "xxxxxxxxx????xx");
-inline auto _Host_Map_f_CompletionFunc = p_Host_Map_f_CompletionFunc.RCast<void (*)(CCommand* pCommand, char a2)>(); /*48 89 5C 24 18 55 41 56 41 ?? ?? ?? ?? 40 02*/
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-inline CMemory p_Host_Map_f_CompletionFunc = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x55\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x83\x3D"), "xxxxxxxxx????xx");
-inline auto _Host_Map_f_CompletionFunc = p_Host_Map_f_CompletionFunc.RCast<void (*)(CCommand* pCommand, char a2)>(); /*40 55 41 56 41 57 48 81 EC ?? ?? ?? ?? 83 3D*/
-#endif
-inline CMemory p_DownloadPlaylists_f_CompletionFunc = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x33\xC9\xC6\x05\x00\x00\x00\x00\x00\xE9\x00\x00\x00\x00"), "xxxx?????x????");
-inline auto _DownloadPlaylists_f_CompletionFunc = p_DownloadPlaylists_f_CompletionFunc.RCast<void(*)(void)>(); /*33 C9 C6 05 ?? ?? ?? ?? ?? E9 ?? ?? ?? ??*/
+inline CMemory p_Host_Map_f_CompletionFunc;
+inline auto _Host_Map_f_CompletionFunc = p_Host_Map_f_CompletionFunc.RCast<void (*)(CCommand* pCommand, char a2)>();
+
+inline CMemory p_DownloadPlaylists_f_CompletionFunc;
+inline auto _DownloadPlaylists_f_CompletionFunc = p_DownloadPlaylists_f_CompletionFunc.RCast<void(*)(void)>();
 
 ///////////////////////////////////////////////////////////////////////////////
 #ifndef DEDICATED
@@ -53,7 +49,18 @@ class HCompletion : public IDetour
 		std::cout << "| FUN: DownloadPlaylist_f_CompletionFunc    : 0x" << std::hex << std::uppercase << p_DownloadPlaylists_f_CompletionFunc.GetPtr() << std::setw(nPad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
-	virtual void GetFun(void) const { }
+	virtual void GetFun(void) const
+	{
+#if defined (GAMEDLL_S1)
+		p_Host_Map_f_CompletionFunc = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x18\x55\x41\x56\x41\x00\x00\x00\x00\x40\x02"), "xxxxxxxxx????xx");
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+		p_Host_Map_f_CompletionFunc = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x55\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x83\x3D"), "xxxxxxxxx????xx");
+#endif
+		p_DownloadPlaylists_f_CompletionFunc = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x33\xC9\xC6\x05\x00\x00\x00\x00\x00\xE9\x00\x00\x00\x00"), "xxxx?????x????");
+
+		_Host_Map_f_CompletionFunc = p_Host_Map_f_CompletionFunc.RCast<void (*)(CCommand* pCommand, char a2)>(); /*40 55 41 56 41 57 48 81 EC ?? ?? ?? ?? 83 3D*/
+		_DownloadPlaylists_f_CompletionFunc = p_DownloadPlaylists_f_CompletionFunc.RCast<void(*)(void)>();       /*33 C9 C6 05 ?? ?? ?? ?? ?? E9 ?? ?? ?? ??*/
+	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

@@ -15,10 +15,10 @@ void h_exit_or_terminate_process(UINT uExitCode)
 
 void PRX_Attach()
 {
-	DetourAttach((LPVOID*)&exit_or_terminate_process, &h_exit_or_terminate_process);
+	DetourAttach((LPVOID*)&v_exit_or_terminate_process, &h_exit_or_terminate_process);
 }
 
 void PRX_Detach()
 {
-	DetourAttach((LPVOID*)&exit_or_terminate_process, &h_exit_or_terminate_process);
+	DetourAttach((LPVOID*)&v_exit_or_terminate_process, &h_exit_or_terminate_process);
 }

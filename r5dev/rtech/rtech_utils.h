@@ -160,12 +160,8 @@ public:
 }; //Size: 0x00B8
 
 /* ==== RTECH =========================================================================================================================================================== */
-#ifdef GAMEDLL_S3
-inline CMemory UnloadRoutine = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x30\x8B\xC1"), "xxxx?xxxx?xxxxxxx"); /*48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 30 8B C1*/
-
-inline RPakLoadedInfo_t* g_pLoadedPakInfo = UnloadRoutine.FindPatternSelf("48 8D 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakLoadedInfo_t*>();
-inline std::int16_t* s_pLoadedPakCount = UnloadRoutine.FindPatternSelf("66 89", CMemory::Direction::DOWN, 450).ResolveRelativeAddressSelf(0x3, 0x7).RCast<std::int16_t*>();
-#endif // GAMEDLL_S3
+inline RPakLoadedInfo_t* g_pLoadedPakInfo;
+inline std::int16_t* s_pLoadedPakCount;
 
 class RTech
 {
@@ -176,5 +172,31 @@ public:
 	RPakLoadedInfo_t GetPakLoadedInfo(int nPakId);
 };
 
+
 ///////////////////////////////////////////////////////////////////////////////
 extern RTech* g_pRTech;
+
+///////////////////////////////////////////////////////////////////////////////
+class HPakFile : public IDetour
+{
+	virtual void GetAdr(void) const
+	{
+		std::cout << "| VAR: g_pLoadedPakInfo                     : 0x" << std::hex << std::uppercase << g_pLoadedPakInfo << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| VAR: s_pLoadedPakCount                    : 0x" << std::hex << std::uppercase << s_pLoadedPakCount << std::setw(nPad) << " |" << std::endl;
+		std::cout << "+----------------------------------------------------------------+" << std::endl;
+	}
+	virtual void GetFun(void) const { }
+	virtual void GetVar(void) const
+	{
+		CMemory localRef = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x30\x8B\xC1"), "xxxx?xxxx?xxxxxxx");
+
+		g_pLoadedPakInfo = localRef.FindPattern("48 8D 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakLoadedInfo_t*>();
+		s_pLoadedPakCount = localRef.FindPattern("66 89", CMemory::Direction::DOWN, 450).ResolveRelativeAddressSelf(0x3, 0x7).RCast<std::int16_t*>();
+	}
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
+};
+///////////////////////////////////////////////////////////////////////////////
+
+REGISTER(HPakFile);

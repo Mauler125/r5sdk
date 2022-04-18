@@ -70,13 +70,14 @@ static_assert(sizeof(CBaseClient) == 0x4A4C0);
 
 
 /* ==== CBASECLIENT ===================================================================================================================================================== */
-inline CMemory p_CBaseClient_Connect = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74"), "xxxxxxxxxxxxxxxx"); /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
+inline CMemory p_CBaseClient_Connect;
 inline auto CBaseClient_Connect = p_CBaseClient_Connect.RCast<bool (*)(CBaseClient* thisptr, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize)>();
 
-inline CMemory p_CBaseClient_Clear = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74"), "xxxxxxxxxxxxxxxx");
-inline auto CBaseClient_Clear = p_CBaseClient_Clear.RCast<void (*)(CBaseClient* thisptr)>(); /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
+inline CMemory p_CBaseClient_Clear;
+inline auto CBaseClient_Clear = p_CBaseClient_Clear.RCast<void (*)(CBaseClient* thisptr)>();
 
-inline CMemory g_pClientBuffer = p_IVEngineServer__PersistenceAvailable.FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
+inline CMemory g_pClientBuffer;
+extern CBaseClient* g_pClient;
 
 // Notes for earlier seasons.
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
@@ -100,8 +101,20 @@ class HBaseClient : public IDetour
 		std::cout << "| FUN: CBaseClient::Clear                   : 0x" << std::hex << std::uppercase << p_CBaseClient_Clear.GetPtr()   << std::setw(nPad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
-	virtual void GetFun(void) const { }
-	virtual void GetVar(void) const { }
+	virtual void GetFun(void) const
+	{
+		p_CBaseClient_Connect = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74"), "xxxxxxxxxxxxxxxx");
+		p_CBaseClient_Clear   = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74"), "xxxxxxxxxxxxxxxx");
+
+		CBaseClient_Connect = p_CBaseClient_Connect.RCast<bool (*)(CBaseClient*, const char*, void*, bool, void*, char*, int)>(); /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
+		CBaseClient_Clear   = p_CBaseClient_Clear.RCast<void (*)(CBaseClient*)>();                                                /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
+	}
+	virtual void GetVar(void) const
+	{
+		g_pClientBuffer = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x3B\x15\x00\x00\x00\x00\x7D\x33"), "xx????xx")
+			.FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
+		g_pClient = g_pClientBuffer.RCast<CBaseClient*>();
+	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }
