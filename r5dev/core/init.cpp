@@ -6,6 +6,7 @@
 
 #include "core/stdafx.h"
 #include "core/init.h"
+#include "tier0/jobthread.h"
 #include "tier0/tslist.h"
 #include "tier0/fasttimer.h"
 #include "tier0/cpu.h"
@@ -32,8 +33,8 @@
 #endif // !DEDICATED
 #include "vphysics/QHull.h"
 #include "bsplib/bsplib.h"
-#ifndef DEDICATED
 #include "materialsystem/cmaterialsystem.h"
+#ifndef DEDICATED
 #include "materialsystem/cmaterialglue.h"
 #include "vgui/vgui_baseui_interface.h"
 #include "vgui/vgui_debugpanel.h"
@@ -57,6 +58,7 @@
 #include "rtech/rui/rui.h"
 #endif // !DEDICATED
 #include "engine/baseclient.h"
+#include "engine/baseclientstate.h"
 #ifndef CLIENT_DLL
 #include "engine/baseserver.h"
 #endif // !CLIENT_DLL
@@ -111,19 +113,22 @@
 
 void Systems_Init()
 {
-	CheckCPU();
-	CFastTimer masterTimer;
+	spdlog::info("+-------------------------------------------------------------+\n");
+	QueryCPUInfo();
+	CFastTimer initTimer;
 
-	masterTimer.Start();
-	for (IDetour* pdetour : vDetour)
+	initTimer.Start();
+	for (IDetour* pDetour : vDetour)
 	{
-		pdetour->GetFun();
-		pdetour->GetVar();
-		pdetour->GetCon();
+		pDetour->GetFun();
+		pDetour->GetVar();
+		pDetour->GetCon();
 	}
-	masterTimer.End();
+	initTimer.End();
+	spdlog::info("+-------------------------------------------------------------+\n");
+	spdlog::info("Detour->Init()   '{:03.6f}' seconds ('{:12d}' clocks)\n", initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
 
-	//printf("DLL initialization took %f seconds\n", masterTimer.GetDuration().GetSeconds());
+	initTimer.Start();
 
 	// Initialize WinSock system.
 	WS_Init();
@@ -205,6 +210,10 @@ void Systems_Init()
 		TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
 	}
 
+	initTimer.End();
+	spdlog::info("Detour->Attach() '{:03.6f}' seconds ('{:12d}' clocks)\n", initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
+	spdlog::info("+-------------------------------------------------------------+\n");
+
 	g_pConVar->Init();
 
 #ifdef DEDICATED
@@ -225,6 +234,9 @@ void Systems_Init()
 
 void Systems_Shutdown()
 {
+	CFastTimer shutdownTimer;
+	shutdownTimer.Start();
+
 	// Shutdown WinSock system.
 	WS_Shutdown();
 
@@ -297,6 +309,10 @@ void Systems_Shutdown()
 
 	// Commit the transaction
 	DetourTransactionCommit();
+
+	shutdownTimer.End();
+	spdlog::info("Detour->Detach() '{:03.6f}' seconds ('{:12d}' clocks)\n", shutdownTimer.GetDuration().GetSeconds(), shutdownTimer.GetDuration().GetCycles());
+	spdlog::info("+-------------------------------------------------------------+\n");
 }
 
 /////////////////////////////////////////////////////
@@ -306,7 +322,7 @@ void Systems_Shutdown()
 // ██║   ██║   ██║   ██║██║     ██║   ██║    ╚████╔╝ 
 // ██║   ██║   ██║   ██║██║     ██║   ██║     ╚██╔╝  
 // ╚██████╔╝   ██║   ██║███████╗██║   ██║      ██║   
-//  ╚═════╝    ╚═╝   ╚═╝╚══════╝╚═╝   ╚═╝      ╚═╝  
+//  ╚═════╝    ╚═╝   ╚═╝╚══════╝╚═╝   ╚═╝      ╚═╝   
 //
 /////////////////////////////////////////////////////
 
@@ -327,23 +343,34 @@ void WS_Shutdown()
 		std::cerr << "Failed to stop winsock via WSACleanup: (" << NET_ErrorString(WSAGetLastError()) << ")" << std::endl;
 	}
 }
-void CheckCPU()
+void QueryCPUInfo()
 {
 	const CPUInformation& pi = GetCPUInformation();
 
 	if (!(pi.m_bSSE && pi.m_bSSE2))
 	{
-		if (MessageBoxA(NULL, "SSE and SSE2 are required.", "SDK Error", MB_ICONERROR | MB_OK))
+		if (MessageBoxA(NULL, "SSE and SSE2 are required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
 		{
 			TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
 		}
 	}
+
+	spdlog::info("CPU Vendor ID       '{:s}'\n", pi.m_szProcessorID);
+	spdlog::info("Logical processors  '{:d}'\n", pi.m_nLogicalProcessors);
+	spdlog::info("Physical processors '{:d}'\n", pi.m_nPhysicalProcessors);
+	spdlog::info("L1 cache   (KiB)    '{:d}'\n", pi.m_nL1CacheSizeKb);
+	spdlog::info("L1 cache   (Dsc)    '0x{:x}'\n", pi.m_nL1CacheDesc);
+	spdlog::info("L2 cache   (KiB)    '{:d}'\n", pi.m_nL2CacheSizeKb);
+	spdlog::info("L2 cache   (Dsc)    '0x{:x}'\n", pi.m_nL2CacheDesc);
+	spdlog::info("L3 cache   (KiB)    '{:d}'\n", pi.m_nL3CacheSizeKb);
+	spdlog::info("L3 cache   (Dsc)    '0x{:x}'\n", pi.m_nL3CacheDesc);
+	spdlog::info("Clock rate (CPS)    '{:d}'\n", pi.m_Speed);
 }
 void PrintHAddress() // Test the sigscan results
 {
 	std::cout << "+----------------------------------------------------------------+" << std::endl;
-	for (IDetour* pdetour : vDetour)
+	for (IDetour* pDetour : vDetour)
 	{
-		pdetour->GetAdr();
+		pDetour->GetAdr();
 	}
 }
