@@ -84,7 +84,9 @@ class HHostState : public IDetour
 		p_CHostState_State_Run    = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x89\x58\x10\x48\x89\x70\x18\x48\x89\x78\x20\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xA8\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x0F\x29\x70\xC8\x45\x33\xE4"), "xxxxxxxxxxxxxxxxxxxxxxxxxxx????xxx????xxxxxxx");
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 		p_CHostState_GameShutDown = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x56\x48\x83\xEC\x20\x8B\x05\x00\x00\x00\x00\x48\x8B\xF1"), "xxxx?xxxxxxx????xxx");
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+#elif defined (GAMEDLL_S2)
+		p_CHostState_State_GameShutDown = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\x8B\x05\x00\x00\x00\x00\x33\xFF\x48\x8B\xF1"), "xxxx?xxxx?xxxxxxx????xxxxx");
+#elif defined (GAMEDLL_S3)
 		p_CHostState_State_GameShutDown = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\xD9\xE8\x00\x00\x00\x00\x48\x8B\x0D\x00\x00\x00\x00"), "xxxx?xxxxxxxxx????xxx????");
 #endif
 
