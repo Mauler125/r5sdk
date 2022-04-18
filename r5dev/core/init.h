@@ -13,5 +13,5 @@ void Systems_Shutdown();
 
 void WS_Init();
 void WS_Shutdown();
-void QueryCPUInfo();
+void QuerySystemInfo();
 void PrintHAddress();

@@ -114,7 +114,7 @@
 void Systems_Init()
 {
 	spdlog::info("+-------------------------------------------------------------+\n");
-	QueryCPUInfo();
+	QuerySystemInfo();
 	CFastTimer initTimer;
 
 	initTimer.Start();
@@ -343,7 +343,7 @@ void WS_Shutdown()
 		std::cerr << "Failed to stop winsock via WSACleanup: (" << NET_ErrorString(WSAGetLastError()) << ")" << std::endl;
 	}
 }
-void QueryCPUInfo()
+void QuerySystemInfo()
 {
 	const CPUInformation& pi = GetCPUInformation();
 
@@ -355,17 +355,35 @@ void QueryCPUInfo()
 		}
 	}
 
-	spdlog::info("CPU Vendor ID       '{:s}'\n", pi.m_szProcessorID);
-	spdlog::info("Logical processors  '{:d}'\n", pi.m_nLogicalProcessors);
-	spdlog::info("Physical processors '{:d}'\n", pi.m_nPhysicalProcessors);
-	spdlog::info("L1 cache   (KiB)    '{:d}'\n", pi.m_nL1CacheSizeKb);
-	spdlog::info("L1 cache   (Dsc)    '0x{:x}'\n", pi.m_nL1CacheDesc);
-	spdlog::info("L2 cache   (KiB)    '{:d}'\n", pi.m_nL2CacheSizeKb);
-	spdlog::info("L2 cache   (Dsc)    '0x{:x}'\n", pi.m_nL2CacheDesc);
-	spdlog::info("L3 cache   (KiB)    '{:d}'\n", pi.m_nL3CacheSizeKb);
-	spdlog::info("L3 cache   (Dsc)    '0x{:x}'\n", pi.m_nL3CacheDesc);
-	spdlog::info("Clock rate (CPS)    '{:d}'\n", pi.m_Speed);
+	spdlog::info("CPU model identifier     : '{:s}'\n", pi.m_szProcessorBrand);
+	spdlog::info("CPU vendor identifier    : '{:s}'\n", pi.m_szProcessorID);
+	spdlog::info("CPU core count           : '{:10d}' ({:s})\n", pi.m_nPhysicalProcessors, "Physical");
+	spdlog::info("CPU core count           : '{:10d}' ({:s})\n", pi.m_nLogicalProcessors, "Logical");
+	spdlog::info("L1 cache            (KiB): '{:10d}'\n", pi.m_nL1CacheSizeKb);
+	spdlog::info("L1 cache            (Dsc): '{:#10x}'\n" , pi.m_nL1CacheDesc);
+	spdlog::info("L2 cache            (KiB): '{:10d}'\n", pi.m_nL2CacheSizeKb);
+	spdlog::info("L2 cache            (Dsc): '{:#10x}'\n" , pi.m_nL2CacheDesc);
+	spdlog::info("L3 cache            (KiB): '{:10d}'\n", pi.m_nL3CacheSizeKb);
+	spdlog::info("L3 cache            (Dsc): '{:#10x}'\n" , pi.m_nL3CacheDesc);
+	spdlog::info("Clock speed         (CPS): '{:10d}'\n", pi.m_Speed);
+
+	MEMORYSTATUSEX statex{};
+	statex.dwLength = sizeof(statex);
+
+	if (GlobalMemoryStatusEx(&statex))
+	{
+		spdlog::info("Total system memory (MiB): '{:10d}' ({:s})\n", (statex.ullTotalPhys / 1024) / 1024, "Physical");
+		spdlog::info("Avail system memory (MiB): '{:10d}' ({:s})\n", (statex.ullAvailPhys / 1024) / 1024, "Physical");
+		spdlog::info("Total system memory (MiB): '{:10d}' ({:s})\n", (statex.ullTotalVirtual / 1024) / 1024, "Virtual");
+		spdlog::info("Avail system memory (MiB): '{:10d}' ({:s})\n", (statex.ullAvailVirtual / 1024) / 1024, "Virtual");
+	}
+	else
+	{
+		spdlog::error("Unable to retrieve system memory information: {:s}\n", 
+			std::system_category().message(static_cast<int>(::GetLastError())));
+	}
 }
+
 void PrintHAddress() // Test the sigscan results
 {
 	std::cout << "+----------------------------------------------------------------+" << std::endl;

@@ -333,6 +333,26 @@ string Base64Decode(const string& svInput)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For comparing input strings alphabetically
+bool CompareStringAlphabetically(const string& svA, const string& svB)
+{
+    int i = 0;
+    while (svA[i] != '\0' && svA[i] == svB[i])
+    {
+        i++;
+    }
+
+    return (svA[i] - svB[i]) < 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// For comparing input strings lexicographically
+bool CompareStringLexicographically(const string& svA, const string& svB)
+{
+    return svA < svB;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For replacing parts of a given string.
 bool StringReplace(string& svInput, const string& svFrom, const string& svTo)
 {
@@ -443,8 +463,14 @@ vector<int> PatternToBytes(const string& svInput)
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// For comparing input strings lexicographically
-bool CheckStringLexicographically(const string& svA, const string& svB)
+// For converting a integer into digits
+vector<int> IntToDigits(int value)
 {
-    return svA < svB;
+    vector<int> vDigits;
+    for (; value > 0; value /= 10)
+    {
+        vDigits.push_back(value % 10);
+    }
+    std::reverse(vDigits.begin(), vDigits.end());
+    return vDigits;
 }

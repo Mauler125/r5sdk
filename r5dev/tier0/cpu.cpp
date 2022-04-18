@@ -274,7 +274,7 @@ const char* GetProcessorVendorId(void)
 	return s_CpuVendorID;
 }
 
-const char* GetProcessorBrand(void)
+const char* GetProcessorBrand(bool bRemovePadding = true)
 {
 	if (s_bCpuBrandInitialized)
 	{
@@ -282,12 +282,12 @@ const char* GetProcessorBrand(void)
 	}
 	s_bCpuBrandInitialized = true;
 
-	memset(&s_CpuBrand, 0, sizeof(s_CpuBrand));
+	memset(&s_CpuBrand, '\0', sizeof(s_CpuBrand));
 
 	const char* pchVendor = GetProcessorVendorId();
-	if (0 == _stricmp(pchVendor, "GenuineIntel"))
+	if (0 == _stricmp(pchVendor, "AuthenticAMD") || 0 == _stricmp(pchVendor, "GenuineIntel"))
 	{
-		// Intel brand string.
+		// AMD/Intel brand string.
 		if (cpuid(0x80000000).eax >= 0x80000004)
 		{
 			s_CpuBrand.cpuid[0] = cpuid(0x80000002);
@@ -295,6 +295,21 @@ const char* GetProcessorBrand(void)
 			s_CpuBrand.cpuid[2] = cpuid(0x80000004);
 		}
 	}
+
+	if (bRemovePadding)
+	{
+		for (int i = 0; i < sizeof(s_CpuBrand.name) - 1; i++)
+		{
+			if (s_CpuBrand.name[i] == ' ')
+			{
+				if (s_CpuBrand.name[i + 1] == ' ')
+				{
+					s_CpuBrand.name[i] = '\0';
+				}
+			}
+		}
+	}
+
 	return s_CpuBrand.name;
 }
 
@@ -429,17 +444,8 @@ const CPUInformation& GetCPUInformation(void)
 	// This is contrary to MSDN documentation on GetSystemInfo().
 	pi.m_nLogicalProcessors = si.dwNumberOfProcessors;
 
-	if (bAuthenticAMD)
-	{
-		// Quick fix for AMD Phenom: it reports 3 logical cores and 4 physical cores;
-		// No AMD CPUs by the end of 2009 have HT, so we'll override HT detection here.
-		pi.m_nPhysicalProcessors = pi.m_nLogicalProcessors;
-	}
-	else
-	{
-		CpuTopology topo;
-		pi.m_nPhysicalProcessors = topo.NumberOfSystemCores();
-	}
+	CpuTopology topo;
+	pi.m_nPhysicalProcessors = topo.NumberOfSystemCores();
 
 	// Make sure I always report at least one, when running WinXP with the /ONECPU switch, 
 	// it likes to report 0 processors for some reason.

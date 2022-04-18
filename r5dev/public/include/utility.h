@@ -20,11 +20,14 @@ string ConvertToWinPath(const string& svInput);
 string Base64Encode(const string& svInput);
 string Base64Decode(const string& svInput);
 
+bool CompareStringAlphabetically(const string& svA, const string& svB);
+bool CompareStringLexicographically(const string& svA, const string& svB);
+
 bool StringReplace(string& svInput, const string& svFrom, const string& svTo);
 string StringEscape(const string& svInput);
 string StringUnescape(const string& svInput);
 vector<int> StringToBytes(const string& svInput, bool bNullTerminator);
 vector<int> PatternToBytes(const string& svInput);
-bool CheckStringLexicographically(const string& svA, const string& svB);
+vector<int> IntToDigits(int value);
 
 /////////////////////////////////////////////////////////////////////////////

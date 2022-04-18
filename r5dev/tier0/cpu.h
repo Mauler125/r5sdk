@@ -14,7 +14,7 @@ bool CheckSSE42Technology(void);
 bool CheckSSE4aTechnology(void);
 
 const char* GetProcessorVendorId(void);
-const char* GetProcessorBrand(void);
+const char* GetProcessorBrand(bool bRemovePadding);
 
 const CPUInformation& GetCPUInformation(void);
 
