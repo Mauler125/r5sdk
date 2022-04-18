@@ -122,7 +122,7 @@ inline static IntelCacheDesc_t s_IntelL3DataCacheDesc[] = {
 static bool cpuid(unsigned long function, CpuIdResult_t& out)
 {
 	int pCPUInfo[4];
-	__cpuid(pCPUInfo, (int)function);
+	__cpuid(pCPUInfo, static_cast<int>(function));
 	out.eax = pCPUInfo[0];
 	out.ebx = pCPUInfo[1];
 	out.ecx = pCPUInfo[2];
@@ -134,7 +134,7 @@ static bool cpuid(unsigned long function, CpuIdResult_t& out)
 static bool cpuidex(unsigned long function, unsigned long subfunction, CpuIdResult_t& out)
 {
 	int pCPUInfo[4];
-	__cpuidex(pCPUInfo, (int)function, (int)subfunction);
+	__cpuidex(pCPUInfo, static_cast<int>(function), static_cast<int>(subfunction));
 	out.eax = pCPUInfo[0];
 	out.ebx = pCPUInfo[1];
 	out.ecx = pCPUInfo[2];
@@ -355,7 +355,7 @@ static uint8_t LogicalProcessorsPerPackage(void)
 		return 1;
 	}
 
-	return (uint8_t)((cpuid(1).ebx & NUM_LOGICAL_BITS) >> 16);
+	return static_cast<uint8_t>(((cpuid(1).ebx & NUM_LOGICAL_BITS) >> 16));
 }
 
 // Measure the processor clock speed by sampling the cycle count, waiting
@@ -463,20 +463,20 @@ const CPUInformation& GetCPUInformation(void)
 		uint32_t bFPU = cpuid1.edx & 1; // This should always be on on anything we support.
 		// Determine Processor Features:
 		pi.m_bRDTSC = (cpuid1.edx >> 4) & 1;
-		pi.m_bCMOV = (cpuid1.edx >> 15) & 1;
+		pi.m_bCMOV  = (cpuid1.edx >> 15) & 1;
 		pi.m_bFCMOV = (pi.m_bCMOV && bFPU) ? 1 : 0;
-		pi.m_bMMX = (cpuid1.edx >> 23) & 1;
-		pi.m_bSSE = (cpuid1.edx >> 25) & 1;
-		pi.m_bSSE2 = (cpuid1.edx >> 26) & 1;
-		pi.m_bSSE3 = cpuid1.ecx & 1;
-		pi.m_bSSSE3 = (cpuid1.ecx >> 9) & 1;;
+		pi.m_bMMX   = (cpuid1.edx >> 23) & 1;
+		pi.m_bSSE   = (cpuid1.edx >> 25) & 1;
+		pi.m_bSSE2  = (cpuid1.edx >> 26) & 1;
+		pi.m_bSSE3  = cpuid1.ecx & 1;
+		pi.m_bSSSE3 = (cpuid1.ecx >> 9) & 1;
 		pi.m_bSSE4a = CheckSSE4aTechnology();
 		pi.m_bSSE41 = (cpuid1.ecx >> 19) & 1;
 		pi.m_bSSE42 = (cpuid1.ecx >> 20) & 1;
 		pi.m_b3DNow = Check3DNowTechnology();
-		pi.m_bAVX = (cpuid1.ecx >> 28) & 1;
-		pi.m_szProcessorID = (char*)GetProcessorVendorId();
-		pi.m_szProcessorBrand = (char*)GetProcessorBrand();
+		pi.m_bAVX   = (cpuid1.ecx >> 28) & 1;
+		pi.m_szProcessorID = const_cast<char*>(GetProcessorVendorId());
+		pi.m_szProcessorBrand = const_cast<char*>(GetProcessorBrand());
 		pi.m_bHT = (pi.m_nPhysicalProcessors < pi.m_nLogicalProcessors); //HTSupported();
 
 		pi.m_nModel = cpuid1.eax; // Full CPU model info.
@@ -490,7 +490,7 @@ const CPUInformation& GetCPUInformation(void)
 			{
 				// We have CPUID.4, use it to find all the cache parameters.
 				const uint32_t nCachesToQuery = 4; // Level 0 is not used.
-				uint32_t nCacheSizeKiB[nCachesToQuery];
+				uint32_t nCacheSizeKiB[nCachesToQuery]{};
 				for (uint32_t i = 0; i < nCachesToQuery; ++i)
 				{
 					nCacheSizeKiB[i] = 0;
@@ -510,11 +510,11 @@ const CPUInformation& GetCPUInformation(void)
 						uint32_t nCacheLevel = (cpuid4.eax >> 5) & 7;
 						if (nCacheLevel < nCachesToQuery)
 						{
-							uint32_t nCacheWays = 1 + ((cpuid4.ebx >> 22) & 0x3F);
-							uint32_t nCachePartitions = 1 + ((cpuid4.ebx >> 12) & 0x3F);
-							uint32_t nCacheLineSize = 1 + (cpuid4.ebx & 0xFF);
-							uint32_t nCacheSets = 1 + cpuid4.ecx;
-							uint32_t nCacheSizeBytes = nCacheWays * nCachePartitions * nCacheLineSize * nCacheSets;
+							uint32_t nCacheWays        = 1 + ((cpuid4.ebx >> 22) & 0x3F);
+							uint32_t nCachePartitions  = 1 + ((cpuid4.ebx >> 12) & 0x3F);
+							uint32_t nCacheLineSize    = 1 + (cpuid4.ebx & 0xFF);
+							uint32_t nCacheSets        = 1 + cpuid4.ecx;
+							uint32_t nCacheSizeBytes   = nCacheWays * nCachePartitions * nCacheLineSize * nCacheSets;
 							nCacheSizeKiB[nCacheLevel] = nCacheSizeBytes >> 10;
 						}
 					}
