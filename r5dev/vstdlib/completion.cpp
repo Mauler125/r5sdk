@@ -799,12 +799,15 @@ _SQVM_ServerScript_f_CompletionFunc
 */
 void _SQVM_ServerScript_f_CompletionFunc(const CCommand& args)
 {
-	if (args.ArgC() < 2)
+	if (args.ArgC() >= 2)
 	{
-		return;
+		string svBuf;
+		for (int i = 1; i < args.ArgC(); i++)
+		{
+			svBuf.append(args.Arg(i));
+		}
+		SQVM_Execute(svBuf.c_str(), SQCONTEXT::SERVER);
 	}
-
-	SQVM_Execute(args.Arg(1), SQCONTEXT::SERVER);
 }
 
 #ifndef DEDICATED
@@ -818,12 +821,15 @@ _SQVM_ClientScript_f_CompletionFunc
 */
 void _SQVM_ClientScript_f_CompletionFunc(const CCommand& args)
 {
-	if (args.ArgC() < 2)
+	if (args.ArgC() >= 2)
 	{
-		return;
+		string svBuf;
+		for (int i = 1; i < args.ArgC(); i++)
+		{
+			svBuf.append(args.Arg(i));
+		}
+		SQVM_Execute(svBuf.c_str(), SQCONTEXT::CLIENT);
 	}
-
-	SQVM_Execute(args.Arg(1), SQCONTEXT::CLIENT);
 }
 
 /*
@@ -836,12 +842,15 @@ _SQVM_UIScript_f_CompletionFunc
 */
 void _SQVM_UIScript_f_CompletionFunc(const CCommand& args)
 {
-	if (args.ArgC() < 2)
+	if (args.ArgC() >= 2)
 	{
-		return;
+		string svBuf;
+		for (int i = 1; i < args.ArgC(); i++)
+		{
+			svBuf.append(args.Arg(i));
+		}
+		SQVM_Execute(svBuf.c_str(), SQCONTEXT::UI);
 	}
-
-	SQVM_Execute(args.Arg(1), SQCONTEXT::UI);
 }
 
 /*
