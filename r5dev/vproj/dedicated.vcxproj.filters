@@ -142,6 +142,9 @@
     <Filter Include="sdk\vstdlib">
       <UniqueIdentifier>{f6e1bcba-3548-4849-918d-9adea1603b0b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\rtech\rui">
+      <UniqueIdentifier>{cc54d9ba-f73a-48af-af6a-3b2064710e61}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\opcodes.h">
@@ -866,6 +869,9 @@
     </ClInclude>
     <ClInclude Include="..\tier0\jobthread.h">
       <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rtech\rui\rui.h">
+      <Filter>sdk\rtech\rui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

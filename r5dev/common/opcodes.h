@@ -81,7 +81,6 @@ inline CMemory CWin32Surface_initStaticData;
 inline CMemory KeyboardLayout_Init;
 #endif
 
-
 //-------------------------------------------------------------------------
 // .RDATA
 //-------------------------------------------------------------------------

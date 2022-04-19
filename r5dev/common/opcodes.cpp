@@ -18,6 +18,7 @@
 #include "game/server/ai_networkmanager.h"
 #include "game/server/fairfight_impl.h"
 #include "rtech/rtech_game.h"
+#include "rtech/rui/rui.h"
 #include "client/client.h"
 #include "client/cdll_engine_int.h"
 #include "materialsystem/cmaterialsystem.h"
@@ -60,6 +61,7 @@ void Dedicated_Init()
 	// CCLIENTSTATE
 	//-------------------------------------------------------------------------
 	{
+		/*MOV EAX, 0*/
 		CClientState__RunFrame.Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 }); // FUN --> RET | Always return false for pending client snapshots (inline CClientState call in '_Host_RunFrame()')
 	}
 
@@ -157,6 +159,13 @@ void Dedicated_Init()
 	{
 		/*MOV EAX, 0*/
 		CVGui__RunFrame.Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 });                   // FUN --> RET | 'CVGui::RunFrame()' gets called on DLL shutdown.
+	}
+	//-------------------------------------------------------------------------
+	// CRUI
+	//-------------------------------------------------------------------------
+	{
+		/*MOV EAX, 0*/
+		p_RuiLoadAsset.Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 });                    // FUN --> RET | Return early in RuiLoadAsset() to prevent error while attempting to load RUI assets after applying player settings.
 	}
 
 	//-------------------------------------------------------------------------

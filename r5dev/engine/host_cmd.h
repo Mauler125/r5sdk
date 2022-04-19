@@ -20,7 +20,6 @@ inline auto Host_NewGame = p_Host_NewGame.RCast<bool (*)(char* pszMapName, char*
 inline CMemory p_Host_ChangeLevel;
 inline auto Host_ChangeLevel = p_Host_ChangeLevel.RCast<bool (*)(bool bLoadFromSavedGame, const char* pszMapName, const char* pszMapGroup)>();
 
-inline CMemory g_pMallocPool;
 inline CMemory g_pEngineParmsBuffer;
 extern EngineParms_t* g_pEngineParms;
 
@@ -34,7 +33,6 @@ class HHostCmd : public IDetour
 		std::cout << "| FUN: Host_NewGame                         : 0x" << std::hex << std::uppercase << p_Host_NewGame.GetPtr()       << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| FUN: Host_ChangeLevel                     : 0x" << std::hex << std::uppercase << p_Host_ChangeLevel.GetPtr()   << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| VAR: g_pEngineParms                       : 0x" << std::hex << std::uppercase << g_pEngineParmsBuffer.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: g_pMallocPool                        : 0x" << std::hex << std::uppercase << g_pMallocPool.GetPtr()        << std::setw(nPad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 	virtual void GetFun(void) const
@@ -55,10 +53,8 @@ class HHostCmd : public IDetour
 	virtual void GetVar(void) const
 	{
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		g_pMallocPool = p_Host_Init.Offset(0x600).FindPatternSelf("48 8D 15 ?? ?? ?? 01", CMemory::Direction::DOWN, 100).ResolveRelativeAddressSelf(0x3, 0x7);
 		g_pEngineParmsBuffer = p_CModAppSystemGroup_Main.Offset(0x0).FindPatternSelf("48 8B", CMemory::Direction::DOWN, 100).ResolveRelativeAddress(0x3, 0x7);
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		g_pMallocPool = p_Host_Init.Offset(0x130).FindPatternSelf("48 8D 15 ?? ?? ?? 01", CMemory::Direction::DOWN, 100).ResolveRelativeAddressSelf(0x3, 0x7);
 		g_pEngineParmsBuffer = p_CModAppSystemGroup_Main.Offset(0x0).FindPatternSelf("4C 8B", CMemory::Direction::DOWN, 100).ResolveRelativeAddress(0x3, 0x7);
 #endif
 		g_pEngineParms = g_pEngineParmsBuffer.RCast<EngineParms_t*>();

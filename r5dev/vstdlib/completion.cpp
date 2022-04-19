@@ -392,7 +392,7 @@ _Pak_RequestLoad_f_CompletionFunc
 */
 void _Pak_RequestLoad_f_CompletionFunc(const CCommand& args)
 {
-	HPakFile_AsyncLoad(args.Arg(1));
+	g_pakLoadApi->AsyncLoad(args.Arg(1));
 }
 
 /*

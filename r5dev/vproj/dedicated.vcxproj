@@ -199,6 +199,7 @@
     <ClInclude Include="..\public\include\utility.h" />
     <ClInclude Include="..\rtech\rtech_utils.h" />
     <ClInclude Include="..\rtech\rtech_game.h" />
+    <ClInclude Include="..\rtech\rui\rui.h" />
     <ClInclude Include="..\rtech\stryder\stryder.h" />
     <ClInclude Include="..\server\vengineserver_impl.h" />
     <ClInclude Include="..\server\server.h" />

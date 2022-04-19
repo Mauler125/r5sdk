@@ -29,7 +29,7 @@ int HWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
 int LauncherMain(HINSTANCE hInstance)
 {
 	int results = v_LauncherMain(hInstance);
-	printf("LauncherMain returned %s\n", ExitCodeToString(results));
+	spdlog::info("LauncherMain: {:s}\n", ExitCodeToString(results));
 	return results;
 }
 
