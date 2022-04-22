@@ -103,7 +103,7 @@ public:
 	void buildAllTiles();
 	void removeAllTiles();
 
-	void build_n_SaveAllHulls();
+	void buildAllHulls();
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
 	Sample_TileMesh(const Sample_TileMesh&);

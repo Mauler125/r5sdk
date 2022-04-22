@@ -32,6 +32,8 @@ struct hulldef
 	float tile_size;
 	//TODO: voxel size, tile size
 };
+extern hulldef hulls[5];
+
 /// Tool types.
 enum SampleToolType
 {
@@ -147,7 +149,7 @@ protected:
 	void saveAll(std::string path,dtNavMesh* mesh);
 
 public:
-	std::string m_model_name;
+	std::string m_modelName;
 
 	Sample();
 	virtual ~Sample();
@@ -194,7 +196,7 @@ public:
 	void handleCommonSettings();
 
 	//don't do this kids, this is bad cpp
-	bool* is_tf2=nullptr;
+	bool* is_tf2 = nullptr;
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
 	Sample(const Sample&);

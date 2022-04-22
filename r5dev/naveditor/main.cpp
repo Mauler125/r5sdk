@@ -128,7 +128,7 @@ void generate_points(float* pts, int count, float dx, float dy, float dz)
 	}
 }
 
-void do_auto_load(const char* path, BuildContext& ctx,Sample* sample,InputGeom*& geom, string& meshName,bool& tf2_transforms)
+void auto_load(const char* path, BuildContext& ctx, Sample*& sample,InputGeom*& geom, string& meshName,bool& tf2_transforms)
 {
 	string geom_path = std::string(path);
 	meshName = geom_path.substr(geom_path.rfind("\\") + 1);
@@ -149,7 +149,7 @@ void do_auto_load(const char* path, BuildContext& ctx,Sample* sample,InputGeom*&
 	if (sample && geom)
 	{
 		sample->handleMeshChanged(geom);
-		sample->m_model_name = meshName.substr(0, meshName.size() - 4);
+		sample->m_modelName = meshName.substr(0, meshName.size() - 4);
 	}
 }
 
@@ -171,6 +171,69 @@ void update_camera(const float* bmin, const float* bmax,float* cameraPos,float* 
 	glFogf(GL_FOG_START, camr * 0.1f);
 	glFogf(GL_FOG_END, camr * 1.25f);
 }
+
+bool sdl_init(SDL_Window*& window, SDL_Renderer*& renderer, int &width, int &height, bool presentationMode)
+{
+	// Init SDL
+	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
+	{
+		printf("Could not initialise SDL.\n");
+		printf("Error: %s\n", SDL_GetError());
+		return false;
+	}
+
+	// Enable depth buffer.
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
+	// Set color channel depth.
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+
+	// 4x MSAA.
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+
+	SDL_DisplayMode displayMode;
+	SDL_GetCurrentDisplayMode(0, &displayMode);
+
+	Uint32 flags = SDL_WINDOW_OPENGL | SDL_RENDERER_PRESENTVSYNC;
+	if (presentationMode)
+	{
+		// Create a fullscreen window at the native resolution.
+		width = displayMode.w;
+		height = displayMode.h;
+		flags |= SDL_WINDOW_FULLSCREEN;
+	}
+	else
+	{
+		float aspect = 16.0f / 9.0f;
+		width = rcMin(displayMode.w, static_cast<int>((displayMode.h * aspect))) - 80;
+		height = displayMode.h - 80;
+	}
+
+	int errorCode = SDL_CreateWindowAndRenderer(width, height, flags, &window, &renderer);
+
+	if (errorCode != 0 || !window || !renderer)
+	{
+		printf("Could not initialise SDL OpenGL.\n");
+		printf("Error: %s\n", SDL_GetError());
+		return false;
+	}
+
+	SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+	SDL_GL_CreateContext(window);
+
+	if (!imguiRenderGLInit(droidsans_data))
+	{
+		printf("Could not initialise GUI renderer.\n");
+		SDL_Quit();
+		return false;
+	}
+}
+
 #if 1
 int main(int argc, char** argv)
 #else
@@ -289,82 +352,29 @@ int main(int argc, char** argv)
 int not_main(int argc, char** argv)
 #endif
 {
-	// Init SDL
-	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
-	{
-		printf("Could not initialise SDL.\nError: %s\n", SDL_GetError());
-		return -1;
-	}
-
-	// Enable depth buffer.
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-	
-	// Set color channel depth.
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-	
-	// 4x MSAA.
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
-
-	SDL_DisplayMode displayMode;
-	SDL_GetCurrentDisplayMode(0, &displayMode);
-
+	const char* autoLoad = nullptr;
+	bool commandLine = false;
 	bool presentationMode = false;
-	Uint32 flags = SDL_WINDOW_OPENGL | SDL_RENDERER_PRESENTVSYNC;
-	int width;
-	int height;
-	if (presentationMode)
-	{
-		// Create a fullscreen window at the native resolution.
-		width = displayMode.w;
-		height = displayMode.h;
-		flags |= SDL_WINDOW_FULLSCREEN;
-	}
-	else
-	{
-		float aspect = 16.0f / 9.0f;
-		width = rcMin(displayMode.w, (int)(displayMode.h * aspect)) - 80;
-		height = displayMode.h - 80;
-	}
-	
-	SDL_Window* window;
-	SDL_Renderer* renderer;
-	int errorCode = SDL_CreateWindowAndRenderer(width, height, flags, &window, &renderer);
+	int width = 0;
+	int height = 0;
+	SDL_Window* window = nullptr;
+	SDL_Renderer* renderer = nullptr;
 
-	if (errorCode != 0 || !window || !renderer)
-	{
-		printf("Could not initialise SDL OpenGL\nError: %s\n", SDL_GetError());
-		return -1;
-	}
-
-	SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-	SDL_GL_CreateContext(window);
-
-	if (!imguiRenderGLInit(droidsans_data))
-	{
-		printf("Could not initialise GUI renderer.\n");
-		SDL_Quit();
-		return -1;
-	}
-
-	const char* auto_load = nullptr;
 	if (argc > 1)
 	{
 		if (strcmp(argv[1], "-console") == 0)
 		{
 			if (argc > 2)
 			{
-				auto_load = argv[2];
+				autoLoad = argv[2];
+				commandLine = true;
 			}
 		}
 		else
 		{
 			FreeConsole();
-			auto_load = argv[1];
+			autoLoad = argv[1];
+			commandLine = true;
 		}
 	}
 	else
@@ -372,54 +382,32 @@ int not_main(int argc, char** argv)
 		FreeConsole();
 	}
 
-	float t = 0.0f;
-	float timeAcc = 0.0f;
-	Uint32 prevFrameTime = SDL_GetTicks();
-	int mousePos[2] = {0, 0};
-	int origMousePos[2] = {0, 0}; // Used to compute mouse movement totals across frames.
-	
+	if (!commandLine)
+	{
+		if (!sdl_init(window, renderer, width, height, presentationMode))
+		{
+			return EXIT_FAILURE;
+		}
+	}
+
 	float cameraEulers[] = {45, 45};
 	float cameraPos[] = {0, 0, 0};
 	float camr = 1000;
 	float origCameraEulers[] = {0, 0}; // Used to compute rotational changes across frames.
 	
-	float moveFront = 0.0f, moveBack = 0.0f, moveLeft = 0.0f, moveRight = 0.0f, moveUp = 0.0f, moveDown = 0.0f;
-	
-	float scrollZoom = 0;
-	bool rotate = false;
-	bool movedDuringRotate = false;
-	float rayStart[3];
-	float rayEnd[3];
-	bool mouseOverMenu = false;
-	
-	bool showMenu = !presentationMode;
-	bool showLog = false;
-	bool showTools = true;
-	bool showLevels = false;
-	bool showSample = false;
-	bool showTestCases = false;
-
-	// Window scroll positions.
-	int propScroll = 0;
-	int logScroll = 0;
-	int toolsScroll = 0;
-	
 	string sampleName = "Choose Sample...";
-	
 	vector<string> files;
 	const string meshesFolder = "Levels";
 	string meshName = "Choose Level...";
+	const string testCasesFolder = "TestCases";
 	
 	float markerPosition[3] = {0, 0, 0};
 	bool markerPositionSet = false;
 	
-	InputGeom* geom = 0;
-	Sample* sample = 0;
 	bool tf2_transforms = false;
-
-	const string testCasesFolder = "TestCases";
-	TestCase* test = 0;
-
+	InputGeom* geom = nullptr;
+	Sample* sample = nullptr;
+	TestCase* test = nullptr;
 	BuildContext ctx;
 	
 	//Load tiled sample
@@ -432,9 +420,9 @@ int not_main(int argc, char** argv)
 	{
 		sample->handleMeshChanged(geom);
 	}
-	if (auto_load)
+	if (autoLoad)
 	{
-		do_auto_load(auto_load, ctx, sample, geom, meshName, tf2_transforms);
+		auto_load(autoLoad, ctx, sample, geom, meshName, tf2_transforms);
 		if (geom || sample)
 		{
 			const float* bmin = 0;
@@ -444,13 +432,16 @@ int not_main(int argc, char** argv)
 				bmin = geom->getNavMeshBoundsMin();
 				bmax = geom->getNavMeshBoundsMax();
 			}
-			update_camera(bmin, bmax, cameraPos, cameraEulers, camr);
+			if (!commandLine)
+			{
+				update_camera(bmin, bmax, cameraPos, cameraEulers, camr);
+			}
 		}
 		if (argc > 2)
 		{
 			auto ts = dynamic_cast<Sample_TileMesh*>(sample);
-			ts->build_n_SaveAllHulls();
-			return 0;
+			ts->buildAllHulls();
+			return EXIT_SUCCESS;
 		}
 	}
 	// Fog.
@@ -460,9 +451,36 @@ int not_main(int argc, char** argv)
 	glFogf(GL_FOG_START, camr * 0.1f);
 	glFogf(GL_FOG_END, camr * 1.25f);
 	glFogfv(GL_FOG_COLOR, fogColor);
-	
+
 	glEnable(GL_CULL_FACE);
 	glDepthFunc(GL_LEQUAL);
+
+	float moveFront = 0.0f, moveBack = 0.0f, moveLeft = 0.0f, moveRight = 0.0f, moveUp = 0.0f, moveDown = 0.0f;
+
+	float rayStart[3] = { 0.0f };
+	float rayEnd[3] = { 0.0f };
+	float scrollZoom = 0;
+	bool rotate = false;
+	bool movedDuringRotate = false;
+	bool mouseOverMenu = false;
+
+	bool showMenu = !presentationMode;
+	bool showLog = false;
+	bool showTools = true;
+	bool showLevels = false;
+	bool showSample = false;
+	bool showTestCases = false;
+
+	// Window scroll positions.
+	int propScroll = 0;
+	int logScroll = 0;
+	int toolsScroll = 0;
+
+	float t = 0.0f;
+	float timeAcc = 0.0f;
+	Uint32 prevFrameTime = SDL_GetTicks();
+	int mousePos[2] = { 0, 0 };
+	int origMousePos[2] = { 0, 0 }; // Used to compute mouse movement totals across frames.
 
 	bool done = false;
 	while(!done)
@@ -753,13 +771,13 @@ int not_main(int argc, char** argv)
 		float movey = (moveBack - moveFront) * keybSpeed * dt + scrollZoom * 2.0f;
 		scrollZoom = 0;
 		
-		cameraPos[0] += movex * (float)modelviewMatrix[0];
-		cameraPos[1] += movex * (float)modelviewMatrix[4];
-		cameraPos[2] += movex * (float)modelviewMatrix[8];
-		
-		cameraPos[0] += movey * (float)modelviewMatrix[2];
-		cameraPos[1] += movey * (float)modelviewMatrix[6];
-		cameraPos[2] += movey * (float)modelviewMatrix[10];
+		cameraPos[0] += movex * static_cast<float>(modelviewMatrix[0]);
+		cameraPos[1] += movex * static_cast<float>(modelviewMatrix[4]);
+		cameraPos[2] += movex * static_cast<float>(modelviewMatrix[8]);
+
+		cameraPos[0] += movey * static_cast<float>(modelviewMatrix[2]);
+		cameraPos[1] += movey * static_cast<float>(modelviewMatrix[6]);
+		cameraPos[2] += movey * static_cast<float>(modelviewMatrix[10]);
 
 		cameraPos[1] += (moveUp - moveDown) * keybSpeed * dt;
 
@@ -786,11 +804,12 @@ int not_main(int argc, char** argv)
 		
 		if (sample)
 		{
-			sample->handleRenderOverlay((double*)projectionMatrix, (double*)modelviewMatrix, (int*)viewport);
+			sample->handleRenderOverlay(reinterpret_cast<double*>(projectionMatrix), 
+				reinterpret_cast<double*>(modelviewMatrix), reinterpret_cast<int*>(viewport));
 		}
 		if (test)
 		{
-			if (test->handleRenderOverlay((double*)projectionMatrix, (double*)modelviewMatrix, (int*)viewport))
+			if (test->handleRenderOverlay(reinterpret_cast<double*>(projectionMatrix), reinterpret_cast<double*>(modelviewMatrix), reinterpret_cast<int*>(viewport)))
 				mouseOverMenu = true;
 		}
 
@@ -1022,7 +1041,7 @@ int not_main(int argc, char** argv)
 			if (sample && geom)
 			{
 				sample->handleMeshChanged(geom);
-				sample->m_model_name = meshName.substr(0, meshName.size() - 4);
+				sample->m_modelName = meshName.substr(0, meshName.size() - 4);
 			}
 
 			if (geom || sample)
@@ -1114,7 +1133,7 @@ int not_main(int argc, char** argv)
 					if (sample && geom)
 					{
 						sample->handleMeshChanged(geom);
-						sample->m_model_name = meshName.substr(0, meshName.size() - 4);
+						sample->m_modelName = meshName.substr(0, meshName.size() - 4);
 					}
 
 					// This will ensure that tile & poly bits are updated in tiled sample.
@@ -1173,7 +1192,8 @@ int not_main(int argc, char** argv)
 		}
 		
 		// Marker
-		if (markerPositionSet && gluProject((GLdouble)markerPosition[0], (GLdouble)markerPosition[1], (GLdouble)markerPosition[2],
+		if (markerPositionSet && gluProject(static_cast<GLdouble>(markerPosition[0]), 
+			static_cast<GLdouble>(markerPosition[1]), static_cast<GLdouble>(markerPosition[2]),
 								  modelviewMatrix, projectionMatrix, viewport, &x, &y, &z))
 		{
 			// Draw marker circle
@@ -1207,5 +1227,5 @@ int not_main(int argc, char** argv)
 	delete sample;
 	delete geom;
 	
-	return 0;
+	return EXIT_SUCCESS;
 }
