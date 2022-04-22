@@ -801,12 +801,7 @@ void _SQVM_ServerScript_f_CompletionFunc(const CCommand& args)
 {
 	if (args.ArgC() >= 2)
 	{
-		string svBuf;
-		for (int i = 1; i < args.ArgC(); i++)
-		{
-			svBuf.append(args.Arg(i));
-		}
-		SQVM_Execute(svBuf.c_str(), SQCONTEXT::SERVER);
+		SQVM_Execute(args.ArgS(), SQCONTEXT::SERVER);
 	}
 }
 
@@ -823,12 +818,7 @@ void _SQVM_ClientScript_f_CompletionFunc(const CCommand& args)
 {
 	if (args.ArgC() >= 2)
 	{
-		string svBuf;
-		for (int i = 1; i < args.ArgC(); i++)
-		{
-			svBuf.append(args.Arg(i));
-		}
-		SQVM_Execute(svBuf.c_str(), SQCONTEXT::CLIENT);
+		SQVM_Execute(args.ArgS(), SQCONTEXT::CLIENT);
 	}
 }
 
@@ -844,12 +834,7 @@ void _SQVM_UIScript_f_CompletionFunc(const CCommand& args)
 {
 	if (args.ArgC() >= 2)
 	{
-		string svBuf;
-		for (int i = 1; i < args.ArgC(); i++)
-		{
-			svBuf.append(args.Arg(i));
-		}
-		SQVM_Execute(svBuf.c_str(), SQCONTEXT::UI);
+		SQVM_Execute(args.ArgS(), SQCONTEXT::UI);
 	}
 }
 

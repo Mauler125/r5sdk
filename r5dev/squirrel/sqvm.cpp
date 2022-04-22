@@ -451,17 +451,11 @@ void SQVM_Execute(const SQChar* code, SQCONTEXT context)
 	HSQUIRRELVM v = SQVM_GetVM(context);
 	if (!v)
 	{
-		Error(eDLL_T::ENGINE, "Attempted to execute %s script while VM isn't initialized\n", SQVM_GetContextName(context));
+		Error(eDLL_T::ENGINE, "Attempted to run %s script while VM isn't initialized\n", SQVM_GetContextName(context));
 		return;
 	}
 
 	SQVM* vTable = v->GetVTable();
-	if (!vTable)
-	{
-		Error(eDLL_T::ENGINE, "Attempted to execute %s script while VM isn't initialized\n", SQVM_GetContextName(context));
-		return;
-	}
-
 	SQRESULT compileResult{};
 	SQBufState bufState = SQBufState(code);
 

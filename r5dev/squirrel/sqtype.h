@@ -33,11 +33,11 @@ struct SQBufState
 	const SQChar* bufTail;
 	const SQChar* bufCopy;
 
-	SQBufState(const std::string& code)
+	SQBufState(const SQChar* code)
 	{
-		buf = code.c_str();
-		bufTail = code.c_str() + code.size();
-		bufCopy = code.c_str();
+		buf = code;
+		bufTail = code + strlen(code);
+		bufCopy = code;
 	}
 };
 
