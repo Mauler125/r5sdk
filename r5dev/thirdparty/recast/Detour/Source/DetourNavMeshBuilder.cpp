@@ -440,10 +440,9 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 						 detailMeshesSize + detailVertsSize + detailTrisSize +
 						 bvTreeSize + offMeshConsSize+ sthSize;
 
-	printf("%i %i %i %i(%i links) %i %i %i %i %i\n", headerSize, vertsSize, polysSize, linksSize, maxLinkCount, detailMeshesSize, detailVertsSize, detailTrisSize, bvTreeSize, offMeshConsSize);
+	//printf("%i %i %i %i(%i links) %i %i %i %i %i\n", headerSize, vertsSize, polysSize, linksSize, maxLinkCount, detailMeshesSize, detailVertsSize, detailTrisSize, bvTreeSize, offMeshConsSize);
+	//printf("%i\n", dataSize);
 
-
-	printf("%i\n", dataSize);
 	unsigned char* data = (unsigned char*)dtAlloc(sizeof(unsigned char)*dataSize, DT_ALLOC_PERM);
 	if (!data)
 	{

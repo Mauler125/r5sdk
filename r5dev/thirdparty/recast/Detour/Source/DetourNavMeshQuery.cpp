@@ -223,7 +223,7 @@ dtStatus dtNavMeshQuery::findRandomPoint(const dtQueryFilter* filter, float (*fr
 {
 	dtAssert(m_nav);
 
-	if (!filter || !frand || !randomRef || !randomPt)
+	if (!m_nav || !filter || !frand || !randomRef || !randomPt)
 		return DT_FAILURE | DT_INVALID_PARAM;
 
 	// Randomly pick one tile. Assume that all tiles cover roughly the same area.
