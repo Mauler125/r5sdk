@@ -244,7 +244,7 @@ FORCEINLINE void CHostState::Think(void) const
 			string svCurrentPlaylist = KeyValues_GetCurrentPlaylist();
 			int32_t nPlayerCount = g_pServer->GetNumHumanPlayers();
 
-			SetConsoleTitleA(fmt::format("{} - {}/{} Players ({} on {})",
+			SetConsoleTitleA(fmt::format("{:s} - {:d}/{:d} Players ({:s} on {:s})",
 				hostname->GetString(), nPlayerCount, g_ServerGlobalVariables->m_nMaxClients, svCurrentPlaylist.c_str(), m_levelName).c_str());
 			statsTimer.Start();
 		}

@@ -159,7 +159,7 @@ void PrintLastError(void)
 
 ///////////////////////////////////////////////////////////////////////////////
 // For dumping data from a buffer to a file on the disk
-void HexDump(const char* szHeader, int nFunc, const void* pData, int nSize)
+void HexDump(const char* szHeader, const char* szLogger, const void* pData, int nSize)
 {
     static unsigned char szAscii[17] = {};
     static std::atomic<int> i = {}, j = {}, k = {};
@@ -171,8 +171,15 @@ void HexDump(const char* szHeader, int nFunc, const void* pData, int nSize)
     k = 1;
     szAscii[16] = '\0';
 
-    // Add new loggers here to replace the placeholder.
-    if (nFunc == 0) { logger = spdlog::get("netchan_packet_logger"); }
+    if (szLogger)
+    {
+        logger = spdlog::get(szLogger);
+        if (!logger)
+        {
+            assert(logger == nullptr);
+            return;
+        }
+    }
 
     // Add timestamp.
     logger->set_level(spdlog::level::trace);
@@ -181,7 +188,7 @@ void HexDump(const char* szHeader, int nFunc, const void* pData, int nSize)
 
     // Disable EOL and create block header.
     logger->set_pattern("%v");
-    logger->trace("{:s} ---- LEN BYTES: {}\n:\n", szHeader, nSize);
+    logger->trace("{:s} ---- LEN BYTES: {:d}\n:\n", szHeader, nSize);
     logger->trace("--------  0  1  2  3  4  5  6  7   8  9  A  B  C  D  E  F  0123456789ABCDEF\n");
 
     // Output the buffer to the file.

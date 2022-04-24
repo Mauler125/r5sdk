@@ -21,40 +21,39 @@
 
 #ifndef NETCONSOLE
 //-----------------------------------------------------------------------------
-// Purpose: shutdown netchannel
-//-----------------------------------------------------------------------------
-void NET_ShutDown(void* thisptr, const char* szReason, std::uint8_t a1, char a2)
-{
-#if !defined (GAMEDLL_S0) || !defined (GAMEDLL_S1) // !TEMP UNTIL CHOSTSTATE IS BUILD AGNOSTIC! //
-	_DownloadPlaylists_f_CompletionFunc(); // Re-load playlist from disk after getting disconnected from the server.
-#endif // !GAMEDLL_S0 || !GAMEDLL_S1
-	v_NET_Shutdown(thisptr, szReason, a1, a2);
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: hook and log the receive datagram
+// Input  : iSocket - 
+//			*pInpacket - 
+//			bEncrypted - 
+// Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool NET_ReceiveDatagram(int iSocket, netpacket_s* pInpacket, bool bRaw)
+bool NET_ReceiveDatagram(int iSocket, netpacket_s* pInpacket, bool bEncrypted)
 {
-	bool result = v_NET_ReceiveDatagram(iSocket, pInpacket, bRaw);
+	bool result = v_NET_ReceiveDatagram(iSocket, pInpacket, bEncrypted);
 	if (result)
 	{
 		// Log received packet data.
-		HexDump("[+] NET_ReceiveDatagram", 0, &pInpacket->data[NULL], pInpacket->wiresize);
+		HexDump("[+] NET_ReceiveDatagram", "netchan_packet_logger", &pInpacket->data[NULL], pInpacket->wiresize);
 	}
 	return result;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: hook and log the send datagram
+// Input  : s - 
+//			*pPayload - 
+//			iLenght - 
+//			*pAdr - 
+//			bEncrypted - 
+// Output : outgoing sequence number for this packet
 //-----------------------------------------------------------------------------
-void* NET_SendDatagram(SOCKET s, const char* szPayload, int iLenght, int nFlags)
+int NET_SendDatagram(SOCKET s, void* pPayload, int iLenght, v_netadr_t* pAdr, bool bEncrypted)
 {
-	void* result = v_NET_SendDatagram(s, szPayload, iLenght, nFlags);
+	int result = v_NET_SendDatagram(s, pPayload, iLenght, pAdr, bEncrypted);
 	if (result)
 	{
 		// Log transmitted packet data.
-		HexDump("[+] NET_SendDatagram", 0, szPayload, iLenght);
+		HexDump("[+] NET_SendDatagram", "netchan_packet_logger", pPayload, iLenght);
 	}
 	return result;
 }
@@ -114,6 +113,8 @@ void NET_GenerateKey()
 
 //-----------------------------------------------------------------------------
 // Purpose: hook and log the client's signonstate to the console
+// Input  : *fmt - 
+//			... - 
 //-----------------------------------------------------------------------------
 void NET_PrintFunc(const char* fmt, ...)
 {
@@ -131,9 +132,27 @@ void NET_PrintFunc(const char* fmt, ...)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: disconnect the client and shutdown netchannel
+// Purpose: shutdown netchannel
+// Input  : *this - 
+//			*szReason - 
+//			a3 - 
+//			bRemoveNow - 
 //-----------------------------------------------------------------------------
-void NET_DisconnectClient(CBaseClient* pClient, int nIndex, const char* szReason, uint8_t unk1, char unk2)
+void NET_Shutdown(void* thisptr, const char* szReason, uint8_t a1, bool bRemoveNow)
+{
+	_DownloadPlaylists_f_CompletionFunc(); // Re-load playlist from disk after getting disconnected from the server.
+	v_NET_Shutdown(thisptr, szReason, a1, bRemoveNow);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: disconnect the client and shutdown netchannel
+// Input  : *pClient - 
+//			nIndex - 
+//			*szReason - 
+//			unk1 - 
+//			unk2 - 
+//-----------------------------------------------------------------------------
+void NET_DisconnectClient(CBaseClient* pClient, int nIndex, const char* szReason, uint8_t unk1, bool bRemoveNow)
 {
 #ifndef CLIENT_DLL
 	if (!pClient || std::strlen(szReason) == NULL || !pClient->GetNetChan())
@@ -141,10 +160,10 @@ void NET_DisconnectClient(CBaseClient* pClient, int nIndex, const char* szReason
 		return;
 	}
 
-	v_NET_Shutdown(pClient->GetNetChan(), szReason, unk1, unk2); // Shutdown netchan.
-	pClient->SetNetChan(nullptr);                              // Null netchan.
-	CBaseClient_Clear(pClient);                                // Reset CClient instance for client.
-	g_bIsPersistenceVarSet[nIndex] = false;                    // Reset Persistence var.
+	v_NET_Shutdown(pClient->GetNetChan(), szReason, unk1, bRemoveNow); // Shutdown netchan.
+	pClient->SetNetChan(nullptr);                                      // Null netchan.
+	CBaseClient_Clear(pClient);                                        // Reset CClient instance for client.
+	g_bIsPersistenceVarSet[nIndex] = false;                            // Reset Persistence var.
 #endif // !CLIENT_DLL
 }
 #endif // !NETCONSOLE
@@ -211,7 +230,7 @@ void NET_Attach()
 {
 	DetourAttach((LPVOID*)&v_NET_PrintFunc, &NET_PrintFunc);
 #ifndef DEDICATED
-	DetourAttach((LPVOID*)&v_NET_Shutdown, &NET_ShutDown);
+	DetourAttach((LPVOID*)&v_NET_Shutdown, &NET_Shutdown);
 #endif
 }
 
@@ -219,7 +238,7 @@ void NET_Detach()
 {
 	DetourDetach((LPVOID*)&v_NET_PrintFunc, &NET_PrintFunc);
 #ifndef DEDICATED
-	DetourDetach((LPVOID*)&v_NET_Shutdown, &NET_ShutDown);
+	DetourDetach((LPVOID*)&v_NET_Shutdown, &NET_Shutdown);
 #endif
 }
 

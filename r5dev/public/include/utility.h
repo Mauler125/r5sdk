@@ -12,7 +12,7 @@ DWORD64 FindPatternSIMD(const char* szModule, const unsigned char* szPattern, co
 // Utility
 void DbgPrint(LPCSTR sFormat, ...);
 void PrintLastError(void);
-void HexDump(const char* szHeader, int nFunc, const void* pData, int nSize);
+void HexDump(const char* szHeader, const char* szLogger, const void* pData, int nSize);
 
 string CreateDirectories(string svFilePath);
 string ConvertToWinPath(const string& svInput);
