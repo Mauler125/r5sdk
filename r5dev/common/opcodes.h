@@ -71,6 +71,7 @@ inline CMemory Server_S2C_CONNECT_1;
 // RUNTIME: GAME_CFG
 //-------------------------------------------------------------------------
 inline CMemory UpdateCurrentVideoConfig;
+inline CMemory UpdateMaterialSystemConfig;
 inline CMemory HandleConfigFile;
 inline CMemory ResetPreviousGameState;
 inline CMemory LoadPlayerConfig;
@@ -113,6 +114,7 @@ class HOpcodes : public IDetour
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 		std::cout << "| FUN: Server_S2C_CONNECT_1                 : 0x" << std::hex << std::uppercase << Server_S2C_CONNECT_1.GetPtr()                << std::setw(nPad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		std::cout << "| FUN: UpdateMaterialSystemConfig           : 0x" << std::hex << std::uppercase << UpdateMaterialSystemConfig.GetPtr()          << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| FUN: UpdateCurrentVideoConfig             : 0x" << std::hex << std::uppercase << UpdateCurrentVideoConfig.GetPtr()            << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| FUN: HandleConfigFile                     : 0x" << std::hex << std::uppercase << HandleConfigFile.GetPtr()                    << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| FUN: ResetPreviousGameState               : 0x" << std::hex << std::uppercase << ResetPreviousGameState.GetPtr()              << std::setw(nPad) << " |" << std::endl;
@@ -197,6 +199,7 @@ class HOpcodes : public IDetour
 #endif // !CLIENT_DLL
 
 		//-------------------------------------------------------------------------
+		UpdateMaterialSystemConfig = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x20\x80\x3D\x00\x00\x00\x00\x00\x0F\x84\x00\x00\x00\x00"), "xxxx?xxxxxxx?????xx????");
 		UpdateCurrentVideoConfig = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x55\x00\x41\x56\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x4C\x8B\xF1"), "xx?xxxxxx????xxx????xxx????xxx");
 		HandleConfigFile = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x56\x48\x81\xEC\x00\x00\x00\x00\x8B\xF1"), "xxxxx????xx");
 		ResetPreviousGameState = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x44\x89\x3D\x00\x00\x00\x00\x00\x8B\x00\x24\x00"), "x????xxx?????x?x?").ResolveRelativeAddressSelf(0x1, 0x5);

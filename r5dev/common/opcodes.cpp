@@ -301,6 +301,7 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	// RUNTIME: GAME_CFG
 	//-------------------------------------------------------------------------
+	UpdateMaterialSystemConfig.Offset(0x0).Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 });  // FUN --> RET | Return early to prevent the server from updating material system configurations.
 	UpdateCurrentVideoConfig.Offset(0x0).Patch({ 0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3 });    // FUN --> RET | Return early to prevent the server from writing a videoconfig.txt file to the disk (overwriting the existing one).
 	HandleConfigFile.Offset(0x0).Patch({ 0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3 });            // FUN --> RET | Return early to prevent the server from writing various input and ConVar config files to the disk (overwriting the existing one).
 	ResetPreviousGameState.Offset(0x0).Patch({ 0xC3 });                                    // FUN --> RET | Return early to prevent the server from writing a previousgamestate.txt file to the disk (overwriting the existing one).
