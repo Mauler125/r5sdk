@@ -6,6 +6,8 @@
 #include "core/stdafx.h"
 #include "engine/host_cmd.h"
 #include "engine/sys_utils.h"
+#include "engine/host_state.h"
+#include "engine/cmodel_bsp.h"
 #include "rtech/rtech_game.h"
 
 vector<RPakHandle_t> g_LoadedPakHandle{ };
@@ -38,6 +40,24 @@ RPakHandle_t CPakFile::AsyncLoad(const char* szPakFileName, uintptr_t pMalloc, i
 		return pakHandle;
 	}
 #endif // DEDICATED
+
+	if (g_pHostState)
+	{
+		string svLevelName = g_pHostState->m_levelName;
+		string svMapPakName = svLevelName + ".rpak";
+		static bool bBasePaksLoaded = false;
+
+		if (!g_bLevelResourceInitialized && !g_pHostState->m_bActiveGame &&
+			bBasePaksLoaded || !strcmp(szPakFileName, "mp_lobby.rpak"))
+		{
+			// Attempt to load level dependencies if they exist.
+			MOD_PreloadPak(svLevelName);
+
+			// By the time mp_lobby.rpak is loaded, all the base paks are loaded as well and we can load anything else.
+			bBasePaksLoaded = true;
+			g_bLevelResourceInitialized = true;
+		}
+	}
 
 	string svPakFilePathMod = "paks\\Win32\\" + string(szPakFileName);
 	string svPakFilePathBase = "paks\\Win64\\" + string(szPakFileName);
