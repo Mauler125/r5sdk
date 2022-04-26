@@ -61,7 +61,7 @@ bool CConsole::Setup(void)
     SetStyleVar();
 
     int k = 0; // Get all image resources for displaying flags.
-    for (int i = IDB_PNG3; i <= IDB_PNG17; i++)
+    for (int i = IDB_PNG3; i <= IDB_PNG18; i++)
     {
         m_vFlagIcons.push_back(MODULERESOURCE());
         m_vFlagIcons[k] = GetModuleResource(i);
@@ -601,18 +601,20 @@ int CConsole::ColorCodeFlags(int nFlags) const
         return 7;
     case FCVAR_DEVELOPMENTONLY | FCVAR_CLIENTDLL:
         return 8;
-    case FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED:
+    case FCVAR_DEVELOPMENTONLY | FCVAR_HIDDEN:
         return 9;
-    case FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT:
+    case FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED:
         return 10;
-    case FCVAR_REPLICATED | FCVAR_CHEAT:
+    case FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT:
         return 11;
-    case FCVAR_REPLICATED | FCVAR_RELEASE:
+    case FCVAR_REPLICATED | FCVAR_CHEAT:
         return 12;
-    case FCVAR_GAMEDLL | FCVAR_CHEAT:
+    case FCVAR_REPLICATED | FCVAR_RELEASE:
         return 13;
-    case FCVAR_CLIENTDLL | FCVAR_CHEAT:
+    case FCVAR_GAMEDLL | FCVAR_CHEAT:
         return 14;
+    case FCVAR_CLIENTDLL | FCVAR_CHEAT:
+        return 15;
     default:
         return 0;
     }
