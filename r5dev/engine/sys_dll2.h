@@ -1,5 +1,5 @@
 #pragma once
-#include "tier0/interface.h"
+#include "vpc/interfaces.h"
 
 class CEngineAPI
 {

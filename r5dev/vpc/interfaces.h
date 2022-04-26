@@ -47,6 +47,7 @@ enum class InterfaceStatus_t : int
 //-----------------------------------------------------------------------------
 // Mapping of interface string to globals
 //-----------------------------------------------------------------------------
+typedef void* (*CreateInterfaceFn)(const char* pName, int* pReturnCode);
 typedef void* (*InstantiateInterfaceFn)();
 struct InterfaceGlobals_t
 {
