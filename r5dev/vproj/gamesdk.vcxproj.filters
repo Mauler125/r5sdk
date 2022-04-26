@@ -935,9 +935,6 @@
     <ClInclude Include="..\server\server.h">
       <Filter>sdk\server</Filter>
     </ClInclude>
-    <ClInclude Include="..\tier0\interface.h">
-      <Filter>sdk\tier0</Filter>
-    </ClInclude>
     <ClInclude Include="..\mathlib\crc32.h">
       <Filter>sdk\mathlib</Filter>
     </ClInclude>

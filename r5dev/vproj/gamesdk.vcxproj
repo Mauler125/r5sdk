@@ -355,7 +355,6 @@
     <ClInclude Include="..\tier0\cpu.h" />
     <ClInclude Include="..\tier0\cputopology.h" />
     <ClInclude Include="..\tier0\fasttimer.h" />
-    <ClInclude Include="..\tier0\interface.h" />
     <ClInclude Include="..\tier0\jobthread.h" />
     <ClInclude Include="..\tier0\platform.h" />
     <ClInclude Include="..\tier0\tslist.h" />
