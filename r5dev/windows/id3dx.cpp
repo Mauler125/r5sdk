@@ -440,7 +440,7 @@ bool LoadTextureBuffer(unsigned char* buffer, int len, ID3D11ShaderResourceView*
 	desc.Height                       = image_height;
 	desc.MipLevels                    = 1;
 	desc.ArraySize                    = 1;
-	desc.Format                       = DXGI_FORMAT_R8G8B8A8_UNORM;
+	desc.Format                       = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	desc.SampleDesc.Count             = 1;
 	desc.Usage                        = D3D11_USAGE_DEFAULT;
 	desc.BindFlags                    = D3D11_BIND_SHADER_RESOURCE;
@@ -454,7 +454,7 @@ bool LoadTextureBuffer(unsigned char* buffer, int len, ID3D11ShaderResourceView*
 
 	// Create texture view
 	ZeroMemory(&srvDesc, sizeof(srvDesc));
-	srvDesc.Format                    = DXGI_FORMAT_R8G8B8A8_UNORM;
+	srvDesc.Format                    = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	srvDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels       = desc.MipLevels;
 	srvDesc.Texture2D.MostDetailedMip = 0;

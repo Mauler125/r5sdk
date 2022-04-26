@@ -12,8 +12,9 @@ extern ConVar* host_hasIrreversibleShutdown;
 extern ConVar* mp_gamemode;
 
 extern ConVar* cm_debug_cmdquery;
-extern ConVar* cm_return_false_cmdquery_all;
-extern ConVar* cm_return_false_cmdquery_cheats;
+extern ConVar* cm_unset_all_cmdquery;
+extern ConVar* cm_unset_dev_cmdquery;
+extern ConVar* cm_unset_cheat_cmdquery;
 extern ConVar* r_debug_overlay_nodecay;
 
 extern ConVar* rcon_address;
@@ -80,7 +81,9 @@ extern ConVar* cl_gpustats_offset_y;
 
 extern ConVar* con_max_size_logvector;
 extern ConVar* con_suggestion_limit;
-extern ConVar* con_suggestion_helptext;
+extern ConVar* con_suggestion_showhelptext;
+extern ConVar* con_suggestion_showflags;
+extern ConVar* con_suggestion_flags_realtime;
 #endif // !DEDICATED
 //-------------------------------------------------------------------------
 // FILESYSTEM                                                             |
@@ -100,6 +103,7 @@ extern ConVar* sq_showvmoutput;
 extern ConVar* sq_showvmwarning;
 //-------------------------------------------------------------------------
 // NETCHANNEL                                                             |
+extern ConVar* net_encryptpacket;
 extern ConVar* net_userandomkey;
 extern ConVar* net_usesocketsforloopback;
 extern ConVar* r5net_matchmaking_hostname;
@@ -134,7 +138,6 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-extern vector<string> g_vsvCommandBases;
 extern CCVar* g_pCVar;
 
 /* ==== CCVAR =========================================================================================================================================================== */

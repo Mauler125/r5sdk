@@ -47,10 +47,11 @@ void ConVar::Init(void) const
 {
 	//-------------------------------------------------------------------------
 	// ENGINE                                                                 |
-	cm_debug_cmdquery               = new ConVar("cm_debug_cmdquery"              , "0", FCVAR_DEVELOPMENTONLY, "Prints the flags of each ConVar/ConCommand query to the console ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
-	cm_return_false_cmdquery_all    = new ConVar("cm_return_false_cmdquery_all"   , "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Returns false on every ConVar/ConCommand query ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
-	cm_return_false_cmdquery_cheats = new ConVar("cm_return_false_cmdquery_cheats", "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Returns false on all FCVAR_DEVELOPMENTONLY and FCVAR_CHEAT ConVar/ConCommand queries ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
-	r_debug_overlay_nodecay         = new ConVar("r_debug_overlay_nodecay"        , "0", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT     , "Keeps all debug overlays alive regardless of their lifetime. Use command 'clear_debug_overlays' to clear everything.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cm_debug_cmdquery       = new ConVar("cm_debug_cmdquery"      , "0", FCVAR_DEVELOPMENTONLY, "Prints the flags of each ConVar/ConCommand query to the console ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	cm_unset_all_cmdquery   = new ConVar("cm_unset_all_cmdquery"  , "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Returns false on every ConVar/ConCommand query ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	cm_unset_dev_cmdquery   = new ConVar("cm_unset_dev_cmdquery"  , "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Returns false on all FCVAR_DEVELOPMENTONLY ConVar/ConCommand queries ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	cm_unset_cheat_cmdquery = new ConVar("cm_unset_cheat_cmdquery", "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Returns false on all FCVAR_DEVELOPMENTONLY and FCVAR_CHEAT ConVar/ConCommand queries ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	r_debug_overlay_nodecay = new ConVar("r_debug_overlay_nodecay", "0", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT     , "Keeps all debug overlays alive regardless of their lifetime. Use command 'clear_debug_overlays' to clear everything.", false, 0.f, false, 0.f, nullptr, nullptr);
 
 	// TODO: RconPasswordChanged_f
 	rcon_address  = new ConVar("rcon_address",  "::", FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Remote server access address.", false, 0.f, false, 0.f, nullptr, nullptr);
@@ -118,9 +119,11 @@ void ConVar::Init(void) const
 	cl_gpustats_offset_x      = new ConVar("cl_gpustats_offset_x"     , "650", FCVAR_DEVELOPMENTONLY, "X offset for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_gpustats_offset_y      = new ConVar("cl_gpustats_offset_y"     , "105", FCVAR_DEVELOPMENTONLY, "Y offset for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 
-	con_max_size_logvector  = new ConVar("con_max_size_logvector", "1000", FCVAR_DEVELOPMENTONLY, "Maximum number of logs in the console until cleanup starts.", false, 0.f, false, 0.f, nullptr, nullptr);
-	con_suggestion_limit    = new ConVar("con_suggestion_limit"  , "120" , FCVAR_DEVELOPMENTONLY, "Maximum number of suggestions the autocomplete window will show for the console.", false, 0.f, false, 0.f, nullptr, nullptr);
-	con_suggestion_helptext = new ConVar("con_suggestion_helptext", "1"  , FCVAR_DEVELOPMENTONLY, "Show ConVar help text in autocomplete window.", false, 0.f, false, 0.f, nullptr, nullptr);
+	con_max_size_logvector        = new ConVar("con_max_size_logvector"        , "1000", FCVAR_DEVELOPMENTONLY, "Maximum number of logs in the console until cleanup starts.", false, 0.f, false, 0.f, nullptr, nullptr);
+	con_suggestion_limit          = new ConVar("con_suggestion_limit"          , "120" , FCVAR_DEVELOPMENTONLY, "Maximum number of suggestions the autocomplete window will show for the console.", false, 0.f, false, 0.f, nullptr, nullptr);
+	con_suggestion_showhelptext   = new ConVar("con_suggestion_showhelptext"   , "1"   , FCVAR_DEVELOPMENTONLY, "Show CommandBase help text in autocomplete window.", false, 0.f, false, 0.f, nullptr, nullptr);
+	con_suggestion_showflags      = new ConVar("con_suggestion_showflags"      , "1"   , FCVAR_DEVELOPMENTONLY, "Show CommandBase flags in autocomplete window.", false, 0.f, false, 0.f, nullptr, nullptr);
+	con_suggestion_flags_realtime = new ConVar("con_suggestion_flags_realtime" , "0"   , FCVAR_DEVELOPMENTONLY, "Whether to show compile-time or run-time CommandBase flags.", false, 0.f, false, 0.f, nullptr, nullptr);
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// FILESYSTEM                                                             |
@@ -140,7 +143,8 @@ void ConVar::Init(void) const
 	sq_showvmwarning     = new ConVar("sq_showvmwarning"    , "0", FCVAR_DEVELOPMENTONLY, "Prints the VM warning output to the console. 1 = Log to file. 2 = 1 + log to console.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// NETCHANNEL                                                             |
-	net_userandomkey           = new ConVar("net_userandomkey"          , "1"                        , FCVAR_RELEASE        , "If set to 1, the netchannel generates and sets a random base64 netkey.", false, 0.f, false, 0.f, nullptr, nullptr);
+	net_encryptpacket          = new ConVar("net_encryptpacket"         , "1"                        , FCVAR_DEVELOPMENTONLY, "Use encrpytion for in/out packets if set.", false, 0.f, false, 0.f, nullptr, nullptr);
+	net_userandomkey           = new ConVar("net_userandomkey"          , "1"                        , FCVAR_RELEASE        , "Generates and sets a random base64 netkey for netchannel if set.", false, 0.f, false, 0.f, nullptr, nullptr);
 	r5net_matchmaking_hostname = new ConVar("r5net_matchmaking_hostname", "r5a-comp-sv.herokuapp.com", FCVAR_RELEASE        , "Holds the R5Net matchmaking hostname.", false, 0.f, false, 0.f, nullptr, nullptr);
 	r5net_show_debug           = new ConVar("r5net_show_debug"          , "1"                        , FCVAR_DEVELOPMENTONLY, "Shows debug output for R5Net.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
@@ -747,12 +751,12 @@ bool ConVar::IsFlagSet(ConVar* pConVar, int nFlags)
 		printf("--------------------------------------------------\n");
 		printf(" Flaged: %08X\n", pConVar->m_nFlags);
 	}
-	if (cm_return_false_cmdquery_cheats->GetBool())
+	if (cm_unset_cheat_cmdquery->GetBool())
 	{
 		// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY.
 		pConVar->RemoveFlags(FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT);
 	}
-	else // Mask off FCVAR_DEVELOPMENTONLY.
+	else if(cm_unset_dev_cmdquery->GetBool())// Mask off FCVAR_DEVELOPMENTONLY.
 	{
 		pConVar->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	}
@@ -762,17 +766,17 @@ bool ConVar::IsFlagSet(ConVar* pConVar, int nFlags)
 		printf(" Verify: %08X\n", nFlags);
 		printf("--------------------------------------------------\n");
 	}
-	if (nFlags & FCVAR_RELEASE && !cm_return_false_cmdquery_all->GetBool())
+	if (nFlags & FCVAR_RELEASE && !cm_unset_all_cmdquery->GetBool())
 	{
 		// Default retail behaviour.
 		return IConVar_IsFlagSet(pConVar, nFlags);
 	}
-	if (cm_return_false_cmdquery_all->GetBool())
+	if (cm_unset_all_cmdquery->GetBool())
 	{
 		// Returning false on all queries may cause problems.
 		return false;
 	}
-	// Return false on every FCVAR_DEVELOPMENTONLY query.
+	// Default behavior.
 	return pConVar->HasFlags(nFlags) != 0;
 }
 

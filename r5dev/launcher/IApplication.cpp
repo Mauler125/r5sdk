@@ -15,6 +15,9 @@
 #include "engine/host_cmd.h"
 #include "server/vengineserver_impl.h"
 #include "client/cdll_engine_int.h"
+#ifndef DEDICATED
+#include "gameui/IConsole.h"
+#endif // !DEDICATED
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -54,10 +57,13 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 	g_pConCommand->Init();
 	g_pFactory->GetFactoriesFromRegister();
 
+#ifndef DEDICATED
 	for (auto& map : g_pCVar->DumpToMap())
 	{
-		g_vsvCommandBases.push_back(map.first.c_str());
+		g_pIConsole->m_vsvCommandBases.push_back(
+			CSuggest(map.first.c_str(), map.second->GetFlags()));
 	}
+#endif // !DEDICATED
 	if (pModAppSystemGroup->IsServerOnly())
 	{
 		memset(gHLClient, '\0', sizeof(void*));

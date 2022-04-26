@@ -19,6 +19,7 @@ History:
 #include "tier1/cvar.h"
 #include "windows/id3dx.h"
 #include "windows/console.h"
+#include "windows/resource.h"
 #include "engine/net.h"
 #include "engine/sys_utils.h"
 #include "engine/host_state.h"
@@ -72,18 +73,7 @@ IBrowser::IBrowser(void)
 
     hostingServerRequestThread.detach();
 #endif // !CLIENT_DLL
-
-    /* Obtain handle to module */
-    static HGLOBAL rcData = NULL;
-    HMODULE handle;
-    GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)"unnamed", &handle);
-    HRSRC rc = FindResource(handle, MAKEINTRESOURCE(IDB_PNG1), MAKEINTRESOURCE(PNG));
-    /* Obtain assets from 'rsrc' */
-    if (rc != NULL)
-    { rcData = LoadResource(handle, rc); }
-    else { assert(rc == NULL); }
-    if (rcData != NULL) { m_vucLockedIconBlob = (std::vector<unsigned char>*)LockResource(rcData); }
-    else { assert(rcData == NULL); }
+    m_rLockedIconBlob = GetModuleResource(IDB_PNG2);
 }
 
 //-----------------------------------------------------------------------------
@@ -368,14 +358,15 @@ void IBrowser::HiddenServersModal(void)
 
         if (!m_idLockedIcon)
         {
-            bool ret = LoadTextureBuffer((unsigned char*)m_vucLockedIconBlob, 0x1000 /*TODO [ AMOS ]: Calculate size dynamically*/, &m_idLockedIcon, &m_nLockedIconWidth, &m_nLockedIconHeight);
+            bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_rLockedIconBlob.m_pData), static_cast<int>(m_rLockedIconBlob.m_nSize),
+                &m_idLockedIcon, &m_rLockedIconBlob.m_nWidth, &m_rLockedIconBlob.m_nHeight);
             IM_ASSERT(ret);
         }
 
         ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.00f, 0.00f, 0.00f, 0.00f)); // Override the style color for child bg.
 
-        ImGui::BeginChild("##HiddenServersConnectModal_IconParent", ImVec2(m_nLockedIconWidth, m_nLockedIconHeight));
-        ImGui::Image(m_idLockedIcon, ImVec2(m_nLockedIconWidth, m_nLockedIconHeight)); // Display texture.
+        ImGui::BeginChild("##HiddenServersConnectModal_IconParent", ImVec2(m_rLockedIconBlob.m_nWidth, m_rLockedIconBlob.m_nHeight));
+        ImGui::Image(m_idLockedIcon, ImVec2(m_rLockedIconBlob.m_nWidth, m_rLockedIconBlob.m_nHeight)); // Display texture.
         ImGui::EndChild();
 
         ImGui::PopStyleColor(); // Pop the override for the child bg.

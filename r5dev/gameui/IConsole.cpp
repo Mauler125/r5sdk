@@ -14,10 +14,12 @@ History:
 
 #include "core/stdafx.h"
 #include "core/init.h"
+#include "core/resource.h"
 #include "tier0/commandline.h"
 #include "tier1/cvar.h"
 #include "windows/id3dx.h"
 #include "windows/console.h"
+#include "windows/resource.h"
 #include "gameui/IConsole.h"
 #include "client/vengineclient_impl.h"
 
@@ -51,6 +53,32 @@ CConsole::~CConsole(void)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: game console setup
+// Output : true on success, false otherwise
+//-----------------------------------------------------------------------------
+bool CConsole::Setup(void)
+{
+    SetStyleVar();
+
+    int k = 0; // Get all image resources for displaying flags.
+    for (int i = IDB_PNG3; i <= IDB_PNG17; i++)
+    {
+        m_vFlagIcons.push_back(MODULERESOURCE());
+        m_vFlagIcons[k] = GetModuleResource(i);
+
+        bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_vFlagIcons[k].m_pData), static_cast<int>(m_vFlagIcons[k].m_nSize),
+            &m_vFlagIcons[k].m_idIcon, &m_vFlagIcons[k].m_nWidth, &m_vFlagIcons[k].m_nHeight);
+        if (!ret)
+        {
+            IM_ASSERT(ret);
+            return false;
+        }
+        k++;
+    }
+    return true;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: game console main render loop
 // Input  : *pszTitle - 
 //          *bDraw - 
@@ -59,9 +87,9 @@ void CConsole::Draw(const char* pszTitle, bool* bDraw)
 {
     if (!m_bInitialized)
     {
-        SetStyleVar();
-        m_bInitialized = true;
+        Setup();
         m_pszConsoleTitle = pszTitle;
+        m_bInitialized = true;
     }
 
     {
@@ -217,7 +245,7 @@ void CConsole::BasePanel(bool* bDraw)
         if (m_nSuggestPos != -1)
         {
             // Remove the default value from ConVar before assigning it to the input buffer.
-            std::string svConVar = m_vsvSuggest[m_nSuggestPos].substr(0, m_vsvSuggest[m_nSuggestPos].find(' ')) + " ";
+            string svConVar = m_vsvSuggest[m_nSuggestPos].m_svName.substr(0, m_vsvSuggest[m_nSuggestPos].m_svName.find(' ')) + " ";
             memmove(m_szInputBuf, svConVar.c_str(), svConVar.size() + 1);
 
             ResetAutoComplete();
@@ -252,7 +280,7 @@ void CConsole::BasePanel(bool* bDraw)
     }
     m_vecSuggestWindowPos = ImGui::GetItemRectMin();
     m_vecSuggestWindowPos.y += ImGui::GetItemRectSize().y;
-    m_vecSuggestWindowSize = ImVec2(600, nPad + std::clamp(static_cast<int>(m_vsvSuggest.size()) * 18, 37, 122));
+    m_vecSuggestWindowSize = ImVec2(600, nPad + std::clamp(static_cast<float>(m_vsvSuggest.size()) * 13.0f, 37.0f, 127.5f));
 
     ImGui::SameLine();
     if (ImGui::Button("Submit"))
@@ -317,31 +345,43 @@ void CConsole::SuggestPanel(void)
     for (int i = 0; i < m_vsvSuggest.size(); i++)
     {
         bool bIsIndexActive = m_nSuggestPos == i;
-
         ImGui::PushID(i);
-        if (ImGui::Selectable(m_vsvSuggest[i].c_str(), bIsIndexActive))
+
+        if (con_suggestion_showflags->GetBool())
+        {
+            int k = ColorCodeFlags(m_vsvSuggest[i].m_nFlags);
+            ImGui::Image(m_vFlagIcons[k].m_idIcon, ImVec2(m_vFlagIcons[k].m_nWidth, m_vFlagIcons[k].m_nHeight));
+            ImGui::SameLine();
+        }
+
+        if (ImGui::Selectable(m_vsvSuggest[i].m_svName.c_str(), bIsIndexActive))
         {
             ImGui::Separator();
 
             // Remove the default value from ConVar before assigning it to the input buffer.
-            std::string svConVar = m_vsvSuggest[i].substr(0, m_vsvSuggest[i].find(' ')) + " ";
+            string svConVar = m_vsvSuggest[i].m_svName.substr(0, m_vsvSuggest[i].m_svName.find(' ')) + " ";
             memmove(m_szInputBuf, svConVar.c_str(), svConVar.size() + 1);
 
             ResetAutoComplete();
         }
         ImGui::PopID();
 
-        if (bIsIndexActive)
+        // Make sure we bring the currently 'active' item into view.
+        if (m_bSuggestMoved && bIsIndexActive)
         {
-            // Make sure we bring the currently 'active' item into view.
-            if (m_bSuggestMoved)
-            {
-                ImGuiWindow* pWindow = ImGui::GetCurrentWindow();
-                ImRect imRect = ImGui::GetCurrentContext()->LastItemData.Rect;
+            ImGuiWindow* pWindow = ImGui::GetCurrentWindow();
+            ImRect imRect = ImGui::GetCurrentContext()->LastItemData.Rect;
 
-                ImGui::ScrollToBringRectIntoView(pWindow, imRect);
-                m_bSuggestMoved = false;
-            }
+            // Reset to keep flag in display.
+            imRect.Min.x = pWindow->InnerRect.Min.x;
+            imRect.Max.x = pWindow->InnerRect.Min.x; // Set to Min.x on purpose!
+
+            // Eliminate jiggle when going up/down in the menu.
+            imRect.Min.y += 1;
+            imRect.Max.y -= 1;
+
+            ImGui::ScrollToRect(pWindow, imRect);
+            m_bSuggestMoved = false;
         }
 
         if (m_bSuggestUpdate)
@@ -411,18 +451,20 @@ void CConsole::FindFromPartial(void)
     m_bSuggestUpdate = true;
     m_vsvSuggest.clear();
 
-    for (int i = 0; i < g_vsvCommandBases.size(); i++)
+    for (int i = 0; i < m_vsvCommandBases.size(); i++)
     {
         if (m_vsvSuggest.size() < con_suggestion_limit->GetInt())
         {
-            if (g_vsvCommandBases[i].find(m_szInputBuf) != std::string::npos)
+            if (m_vsvCommandBases[i].m_svName.find(m_szInputBuf) != string::npos)
             {
-                if (std::find(m_vsvSuggest.begin(), m_vsvSuggest.end(), g_vsvCommandBases[i]) == m_vsvSuggest.end())
+                if (std::find(m_vsvSuggest.begin(), m_vsvSuggest.end(), 
+                    m_vsvCommandBases[i].m_svName) == m_vsvSuggest.end())
                 {
-                    std::string svValue;
-                    ConCommandBase* pCommandBase = g_pCVar->FindCommandBase(g_vsvCommandBases[i].c_str());
+                    int nFlags{};
+                    string svValue;
+                    ConCommandBase* pCommandBase = g_pCVar->FindCommandBase(m_vsvCommandBases[i].m_svName.c_str());
 
-                    if (pCommandBase != nullptr)
+                    if (pCommandBase)
                     {
                         if (!pCommandBase->IsCommand())
                         {
@@ -432,11 +474,11 @@ void CConsole::FindFromPartial(void)
                             svValue.append(pConVar->GetString());
                             svValue.append("]");
                         }
-                        if (con_suggestion_helptext->GetBool())
+                        if (con_suggestion_showhelptext->GetBool())
                         {
                             if (pCommandBase->GetHelpText())
                             {
-                                std::string svHelpText = pCommandBase->GetHelpText();
+                                string svHelpText = pCommandBase->GetHelpText();
                                 if (!svHelpText.empty())
                                 {
                                     svValue.append(" - \"" + svHelpText + "\"");
@@ -444,21 +486,32 @@ void CConsole::FindFromPartial(void)
                             }
                             if (pCommandBase->GetUsageText())
                             {
-                                std::string svUsageText = pCommandBase->GetUsageText();
+                                string svUsageText = pCommandBase->GetUsageText();
                                 if (!svUsageText.empty())
                                 {
                                     svValue.append(" - \"" + svUsageText + "\"");
                                 }
                             }
                         }
+                        if (con_suggestion_showflags->GetBool())
+                        {
+                            if (con_suggestion_flags_realtime->GetBool())
+                            {
+                                nFlags = pCommandBase->GetFlags();
+                            }
+                            else // Display compile-time flags instead.
+                            {
+                                nFlags = m_vsvCommandBases[i].m_nFlags;
+                            }
+                        }
                     }
-                    m_vsvSuggest.push_back(g_vsvCommandBases[i] + svValue);
+                    m_vsvSuggest.push_back(CSuggest(m_vsvCommandBases[i].m_svName + svValue, nFlags));
                 }
             }
         }
         else { break; }
     }
-    std::sort(m_vsvSuggest.begin(), m_vsvSuggest.end(), CompareStringLexicographically);
+    std::sort(m_vsvSuggest.begin(), m_vsvSuggest.end());
 }
 
 //-----------------------------------------------------------------------------
@@ -522,6 +575,47 @@ void CConsole::ProcessCommand(const char* pszCommand)
     }
 
     m_bScrollToBottom = true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: returns flag image index for CommandBase (must be aligned with resource.h!)
+// Input  : nFlags - 
+//-----------------------------------------------------------------------------
+int CConsole::ColorCodeFlags(int nFlags) const
+{
+    switch (nFlags)
+    {
+    case FCVAR_NONE:
+        return 1;
+    case FCVAR_DEVELOPMENTONLY:
+        return 2;
+    case FCVAR_GAMEDLL:
+        return 3;
+    case FCVAR_CLIENTDLL:
+        return 4;
+    case FCVAR_CHEAT:
+        return 5;
+    case FCVAR_RELEASE:
+        return 6;
+    case FCVAR_DEVELOPMENTONLY | FCVAR_GAMEDLL:
+        return 7;
+    case FCVAR_DEVELOPMENTONLY | FCVAR_CLIENTDLL:
+        return 8;
+    case FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED:
+        return 9;
+    case FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT:
+        return 10;
+    case FCVAR_REPLICATED | FCVAR_CHEAT:
+        return 11;
+    case FCVAR_REPLICATED | FCVAR_RELEASE:
+        return 12;
+    case FCVAR_GAMEDLL | FCVAR_CHEAT:
+        return 13;
+    case FCVAR_CLIENTDLL | FCVAR_CHEAT:
+        return 14;
+    default:
+        return 0;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -593,7 +687,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
             }
             if (nPrevHistoryPos != m_nHistoryPos)
             {
-                std::string svHistory = (m_nHistoryPos >= 0) ? m_vsvHistory[m_nHistoryPos] : "";
+                string svHistory = (m_nHistoryPos >= 0) ? m_vsvHistory[m_nHistoryPos] : "";
 
                 if (!svHistory.empty())
                 {

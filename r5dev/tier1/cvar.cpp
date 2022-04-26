@@ -13,8 +13,9 @@ ConVar* host_hasIrreversibleShutdown       = nullptr;
 ConVar* mp_gamemode                        = nullptr;
 
 ConVar* cm_debug_cmdquery                  = nullptr;
-ConVar* cm_return_false_cmdquery_all       = nullptr;
-ConVar* cm_return_false_cmdquery_cheats    = nullptr;
+ConVar* cm_unset_all_cmdquery              = nullptr;
+ConVar* cm_unset_dev_cmdquery              = nullptr;
+ConVar* cm_unset_cheat_cmdquery            = nullptr;
 ConVar* r_debug_overlay_nodecay            = nullptr;
 
 ConVar* rcon_address                       = nullptr;
@@ -83,7 +84,9 @@ ConVar* cl_gpustats_offset_y               = nullptr;
 
 ConVar* con_max_size_logvector             = nullptr;
 ConVar* con_suggestion_limit               = nullptr;
-ConVar* con_suggestion_helptext            = nullptr;
+ConVar* con_suggestion_showhelptext        = nullptr;
+ConVar* con_suggestion_showflags           = nullptr;
+ConVar* con_suggestion_flags_realtime      = nullptr;
 #endif // !DEDICATED
 //-----------------------------------------------------------------------------
 // FILESYSTEM                                                                 |
@@ -103,6 +106,7 @@ ConVar* sq_showvmoutput                    = nullptr;
 ConVar* sq_showvmwarning                   = nullptr;
 //-----------------------------------------------------------------------------
 // NETCHANNEL                                                                 |
+ConVar* net_encryptpacket                  = nullptr;
 ConVar* net_userandomkey                   = nullptr;
 ConVar* net_usesocketsforloopback          = nullptr;
 ConVar* r5net_matchmaking_hostname         = nullptr;
@@ -195,5 +199,4 @@ unordered_map<string, ConCommandBase*> CCVar::DumpToMap(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-vector<string> g_vsvCommandBases;
 CCVar* g_pCVar = nullptr;

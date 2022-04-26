@@ -28,7 +28,7 @@ bool HIVEngineServer__PersistenceAvailable(void* entidx, int clientidx)
 		int64_t nOriginID = pClient->GetOriginID();
 
 		DevMsg(eDLL_T::SERVER, "______________________________________________________________\n");
-		DevMsg(eDLL_T::SERVER, "+- NetChannel details\n");
+		DevMsg(eDLL_T::SERVER, "+- NetChannel:\n");
 		DevMsg(eDLL_T::SERVER, " |- IDX : | '#%d'\n", clientidx);
 		DevMsg(eDLL_T::SERVER, " |- UID : | '%s'\n", svClientName.c_str());
 		DevMsg(eDLL_T::SERVER, " |- OID : | '%lld'\n", nOriginID);

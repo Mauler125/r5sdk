@@ -51,20 +51,6 @@ MODULEINFO GetModuleInfo(const char* szModule)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// For finding a byte pattern in memory of the process.
-BOOL Compare(const unsigned char* pData, const unsigned char* szPattern, const char* szMask)
-{
-    for (; *szMask; ++szMask, ++pData, ++szPattern)
-    {
-        if (*szMask == 'x' && *pData != *szPattern)
-        {
-            return false;
-        }
-    }
-    return (*szMask) == NULL;
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // For finding a pattern in memory of the process with SIMD.
 DWORD64 FindPatternSIMD(const char* szModule, const unsigned char* szPattern, const char* szMask)
 {

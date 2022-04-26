@@ -1,6 +1,6 @@
 // Microsoft Visual C++ generated resource script.
 //
-#include "core/resource.h"
+#include "../core/resource.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
 1 TEXTINCLUDE 
 BEGIN
-    "core/resource.h\0"
+    "../core/resource.h\0"
 END
 
 2 TEXTINCLUDE 
@@ -44,13 +44,32 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// DEV
+//
+IDB_PNG1                DEV                     "png\\debugempty.png"
+IDB_PNG2                DEV                     "png\\lockedserver.png"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // PNG
 //
-
-IDB_PNG1                PNG                     "resource\\png\\lockedserver.png"
+IDB_PNG3                PNG                     "png\\vf_default.png"
+IDB_PNG4                PNG                     "png\\vf_none.png"
+IDB_PNG5                PNG                     "png\\vf_developmentonly.png"
+IDB_PNG6                PNG                     "png\\vf_gamedll.png"
+IDB_PNG7                PNG                     "png\\vf_clientdll.png"
+IDB_PNG8                PNG                     "png\\vf_cheat.png"
+IDB_PNG9                PNG                     "png\\vf_release.png"
+IDB_PNG10               PNG                     "png\\vf_developmentonly_gamedll.png"
+IDB_PNG11               PNG                     "png\\vf_developmentonly_clientdll.png"
+IDB_PNG12               PNG                     "png\\vf_developmentonly_cheat.png"
+IDB_PNG13               PNG                     "png\\vf_developmentonly_replicated.png"
+IDB_PNG14               PNG                     "png\\vf_replicated_cheat.png"
+IDB_PNG15               PNG                     "png\\vf_replicated_release.png"
+IDB_PNG16               PNG                     "png\\vf_gamedll_cheat.png"
+IDB_PNG17               PNG                     "png\\vf_clientdll_cheat.png"
 
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////

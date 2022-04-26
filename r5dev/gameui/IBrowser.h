@@ -1,5 +1,7 @@
 #pragma once
 #ifndef DEDICATED
+#include "common/sdkdefs.h"
+#include "windows/resource.h"
 #include "networksystem/serverlisting.h"
 #include "networksystem/r5net.h"
 
@@ -115,9 +117,7 @@ public:
 
     /* Texture */
     ID3D11ShaderResourceView* m_idLockedIcon = nullptr;
-    std::vector<unsigned char>* m_vucLockedIconBlob;
-    int m_nLockedIconWidth  = 0;
-    int m_nLockedIconHeight = 0;
+    MODULERESOURCE m_rLockedIconBlob;
 
     void SetSection(eSection section)
     {

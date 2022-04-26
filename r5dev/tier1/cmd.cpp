@@ -274,11 +274,11 @@ bool ConCommandBase::IsFlagSet(ConCommandBase* pCommandBase, int nFlags)
 		printf(" Flaged: %08X\n", pCommandBase->m_nFlags);
 	}
 	// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY.
-	if (cm_return_false_cmdquery_cheats->GetBool())
+	if (cm_unset_cheat_cmdquery->GetBool())
 	{
 		pCommandBase->RemoveFlags(FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT);
 	}
-	else // Mask off FCVAR_DEVELOPMENTONLY.
+	else if (cm_unset_dev_cmdquery->GetBool())// Mask off FCVAR_DEVELOPMENTONLY.
 	{
 		pCommandBase->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	}
@@ -288,17 +288,17 @@ bool ConCommandBase::IsFlagSet(ConCommandBase* pCommandBase, int nFlags)
 		printf(" Verify: %08X\n", nFlags);
 		printf("--------------------------------------------------\n");
 	}
-	if (nFlags & FCVAR_RELEASE && !cm_return_false_cmdquery_all->GetBool())
+	if (nFlags & FCVAR_RELEASE && !cm_unset_all_cmdquery->GetBool())
 	{
 		// Default retail behaviour.
 		return ConCommandBase_IsFlagSet(pCommandBase, nFlags);
 	}
-	if (cm_return_false_cmdquery_all->GetBool())
+	if (cm_unset_all_cmdquery->GetBool())
 	{
 		// Returning false on all queries may cause problems.
 		return false;
 	}
-	// Return false on every FCVAR_DEVELOPMENTONLY || FCVAR_CHEAT query.
+	// Default behavior.
 	return pCommandBase->HasFlags(nFlags) != 0;
 }
 
