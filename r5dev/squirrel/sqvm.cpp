@@ -273,6 +273,7 @@ SQRESULT HSQVM_RegisterFunction(HSQUIRRELVM v, const SQChar* szName, const SQCha
 	return SQVM_RegisterFunc(v, sqFunc, 1);
 }
 
+#ifndef CLIENT_DLL
 //---------------------------------------------------------------------------------
 // Purpose: registers script functions in SERVER context
 // Input  : *sqvm - 
@@ -284,6 +285,7 @@ void SQVM_RegisterServerScriptFunctions(HSQUIRRELVM v)
 	HSQVM_RegisterFunction(v, "GetNumHumanPlayers", "Gets the number of human players on the server", "int", "", &VSquirrel::SERVER::GetNumHumanPlayers);
 	HSQVM_RegisterFunction(v, "GetNumFakeClients", "Gets the number of bot players on the server", "int", "", &VSquirrel::SERVER::GetNumFakeClients);
 }
+#endif // !CLIENT_DLL
 
 #ifndef DEDICATED
 //---------------------------------------------------------------------------------

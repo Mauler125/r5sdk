@@ -112,7 +112,9 @@ class HOpcodes : public IDetour
 		std::cout << "| FUN: Host_Init_2                          : 0x" << std::hex << std::uppercase << gHost_Init_2.GetPtr()                        << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| FUN: Host_Disconnect                      : 0x" << std::hex << std::uppercase << Host_Disconnect.GetPtr()                     << std::setw(nPad) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
-		std::cout << "| FUN: Server_S2C_CONNECT_1                 : 0x" << std::hex << std::uppercase << Server_S2C_CONNECT_1.GetPtr()                << std::setw(nPad) << " |" << std::endl;
+#ifndef CLIENT_DLL
+		std::cout << "| FUN: Server_S2C_CONNECT_1                 : 0x" << std::hex << std::uppercase << Server_S2C_CONNECT_1.GetPtr() << std::setw(nPad) << " |" << std::endl;
+#endif // !CLIENT_DLL
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 		std::cout << "| FUN: UpdateMaterialSystemConfig           : 0x" << std::hex << std::uppercase << UpdateMaterialSystemConfig.GetPtr()          << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| FUN: UpdateCurrentVideoConfig             : 0x" << std::hex << std::uppercase << UpdateCurrentVideoConfig.GetPtr()            << std::setw(nPad) << " |" << std::endl;
