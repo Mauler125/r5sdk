@@ -426,6 +426,9 @@
     <ClCompile Include="..\windows\resource.cpp">
       <Filter>windows</Filter>
     </ClCompile>
+    <ClCompile Include="..\common\netmessages.cpp">
+      <Filter>sdk\common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">

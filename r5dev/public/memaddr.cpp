@@ -230,3 +230,34 @@ CMemory CMemory::ResolveRelativeAddressSelf(ptrdiff_t registerOffset, ptrdiff_t 
 	ptr = nextInstruction + relativeAddress;
 	return *this;
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: patch virtual method to point to a user set function
+// Input  : virtualTable - 
+//			pHookMethod - 
+//          methodIndex -
+//          pOriginalMethod -
+// Output : void** via pOriginalMethod
+//-----------------------------------------------------------------------------
+void CMemory::HookVirtualMethod(uintptr_t virtualTable, void* pHookMethod, void** pOriginalMethod, ptrdiff_t methodIndex)
+{
+	DWORD oldProt = NULL;
+
+	// Calculate delta to next virtual method.
+	uintptr_t virtualMethod = virtualTable + (methodIndex * sizeof(ptrdiff_t));
+
+	// Preserve original function.
+	uintptr_t originalFunction = *reinterpret_cast<uintptr_t*>(virtualMethod);
+
+	// Set page for current virtual method to execute n read n write.
+	VirtualProtect(reinterpret_cast<void*>(virtualMethod), sizeof(virtualMethod), PAGE_EXECUTE_READWRITE, &oldProt);
+
+	// Set virtual method to our hook.
+	*reinterpret_cast<uintptr_t*>(virtualMethod) = reinterpret_cast<uintptr_t>(pHookMethod);
+
+	// Restore original page.
+	VirtualProtect(reinterpret_cast<void*>(virtualMethod), sizeof(virtualMethod), oldProt, &oldProt);
+
+	// Move original function into argument.
+	*pOriginalMethod = reinterpret_cast<void*>(originalFunction);
+}

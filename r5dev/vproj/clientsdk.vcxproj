@@ -14,6 +14,7 @@
     <ClCompile Include="..\bsplib\bsplib.cpp" />
     <ClCompile Include="..\client\cdll_engine_int.cpp" />
     <ClCompile Include="..\client\vengineclient_impl.cpp" />
+    <ClCompile Include="..\common\netmessages.cpp" />
     <ClCompile Include="..\common\opcodes.cpp" />
     <ClCompile Include="..\core\dllmain.cpp" />
     <ClCompile Include="..\core\init.cpp" />

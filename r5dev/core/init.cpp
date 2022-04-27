@@ -165,6 +165,10 @@ void Systems_Init()
 	CHostState_Attach();
 	//CModelLoader_Attach();
 
+#if !defined(DEDICATED) && defined (GAMEDLL_S3)
+	CNetMessages_Attach(); // S1 and S2 require certification.
+#endif // !DEDICATED && GAMEDLL_S3
+
 	NET_Attach();
 	ConCommand_Attach();
 	IConVar_Attach();
@@ -268,6 +272,10 @@ void Systems_Shutdown()
 
 	CHostState_Detach();
 	//CModelLoader_Detach();
+
+#if !defined(DEDICATED) && defined (GAMEDLL_S3)
+	CNetMessages_Detach(); // S1 and S2 require certification.
+#endif // !DEDICATED && GAMEDLL_S3
 
 	NET_Detach();
 	ConCommand_Detach();
