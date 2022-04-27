@@ -17,6 +17,8 @@ public:
 	char padding[8];
 	const char* m_szText;
 
+	bool Process();
+
 private:
 	char m_szTextBuffer[2048];
 };
