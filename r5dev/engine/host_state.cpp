@@ -191,7 +191,7 @@ FORCEINLINE void CHostState::Setup(void) const
 	think.detach();
 
 	net_usesocketsforloopback->SetValue(1);
-	if (net_userandomkey->GetBool())
+	if (net_useRandomKey->GetBool())
 	{
 		NET_GenerateKey();
 	}

@@ -6,7 +6,7 @@ struct ServerListing
 	std::string svMapName = "mp_rr_canyonlands_staging";
 	std::string svIpAddress;
 	std::string svPort;
-	std::string svPlaylist = "survival_dev";
+	std::string svPlaylist = "dev_default";
 	bool bHidden{};
 	std::string svRemoteChecksum;
 	std::string svVersion;

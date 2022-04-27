@@ -106,8 +106,9 @@ ConVar* sq_showvmoutput                    = nullptr;
 ConVar* sq_showvmwarning                   = nullptr;
 //-----------------------------------------------------------------------------
 // NETCHANNEL                                                                 |
-ConVar* net_encryptpacket                  = nullptr;
-ConVar* net_userandomkey                   = nullptr;
+ConVar* net_tracePayload                   = nullptr;
+ConVar* net_encryptionEnable               = nullptr;
+ConVar* net_useRandomKey                   = nullptr;
 ConVar* net_usesocketsforloopback          = nullptr;
 ConVar* r5net_matchmaking_hostname         = nullptr;
 ConVar* r5net_show_debug                   = nullptr;

@@ -36,8 +36,6 @@ void NET_DisconnectClient(CBaseClient* pClient, int nIndex, const char* szReason
 
 void NET_Attach();
 void NET_Detach();
-void NET_Trace_Attach();
-void NET_Trace_Detach();
 
 ///////////////////////////////////////////////////////////////////////////////
 extern string g_szNetKey;

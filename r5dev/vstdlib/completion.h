@@ -26,7 +26,6 @@ void _RTech_StringToGUID_f_CompletionFunc(const CCommand& args);
 void _RTech_Decompress_f_CompletionFunc(const CCommand& args);
 void _VPK_Unpack_f_CompletionFunc(const CCommand& args);
 void _VPK_Mount_f_CompletionFunc(const CCommand& args);
-void _NET_TraceNetChan_f_CompletionFunc(const CCommand& args);
 void _NET_SetKey_f_CompletionFunc(const CCommand& args);
 void _NET_GenerateKey_f_CompletionFunc(const CCommand& args);
 #ifndef DEDICATED

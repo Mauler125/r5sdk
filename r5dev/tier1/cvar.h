@@ -103,8 +103,9 @@ extern ConVar* sq_showvmoutput;
 extern ConVar* sq_showvmwarning;
 //-------------------------------------------------------------------------
 // NETCHANNEL                                                             |
-extern ConVar* net_encryptpacket;
-extern ConVar* net_userandomkey;
+extern ConVar* net_tracePayload;
+extern ConVar* net_encryptionEnable;
+extern ConVar* net_useRandomKey;
 extern ConVar* net_usesocketsforloopback;
 extern ConVar* r5net_matchmaking_hostname;
 extern ConVar* r5net_show_debug;

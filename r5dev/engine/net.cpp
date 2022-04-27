@@ -29,8 +29,8 @@
 //-----------------------------------------------------------------------------
 bool NET_ReceiveDatagram(int iSocket, netpacket_s* pInpacket, bool bEncrypted)
 {
-	bool result = v_NET_ReceiveDatagram(iSocket, pInpacket, bEncrypted);
-	if (result)
+	bool result = v_NET_ReceiveDatagram(iSocket, pInpacket, net_encryptionEnable->GetBool());
+	if (result && net_tracePayload->GetBool())
 	{
 		// Log received packet data.
 		HexDump("[+] NET_ReceiveDatagram", "netchan_packet_logger", &pInpacket->data[NULL], pInpacket->wiresize);
@@ -44,13 +44,13 @@ bool NET_ReceiveDatagram(int iSocket, netpacket_s* pInpacket, bool bEncrypted)
 //			*pPayload - 
 //			iLenght - 
 //			*pAdr - 
-//			bEncrypted - 
+//			bEncrypt - 
 // Output : outgoing sequence number for this packet
 //-----------------------------------------------------------------------------
-int NET_SendDatagram(SOCKET s, void* pPayload, int iLenght, v_netadr_t* pAdr, bool bEncrypted)
+int NET_SendDatagram(SOCKET s, void* pPayload, int iLenght, v_netadr_t* pAdr, bool bEncrypt)
 {
-	int result = v_NET_SendDatagram(s, pPayload, iLenght, pAdr, bEncrypted);
-	if (result)
+	int result = v_NET_SendDatagram(s, pPayload, iLenght, pAdr, net_encryptionEnable->GetBool());
+	if (result && net_tracePayload->GetBool())
 	{
 		// Log transmitted packet data.
 		HexDump("[+] NET_SendDatagram", "netchan_packet_logger", pPayload, iLenght);
@@ -81,7 +81,7 @@ void NET_SetKey(const string& svNetKey)
 void NET_GenerateKey()
 {
 	g_szNetKey.clear();
-	net_userandomkey->SetValue(1);
+	net_useRandomKey->SetValue(1);
 
 	BCRYPT_ALG_HANDLE hAlgorithm;
 	if (BCryptOpenAlgorithmProvider(&hAlgorithm, L"RNG", 0, 0) < 0)
@@ -228,6 +228,8 @@ const char* NET_ErrorString(int iCode)
 ///////////////////////////////////////////////////////////////////////////////
 void NET_Attach()
 {
+	DetourAttach((LPVOID*)&v_NET_ReceiveDatagram, &NET_ReceiveDatagram);
+	DetourAttach((LPVOID*)&v_NET_SendDatagram, &NET_SendDatagram);
 	DetourAttach((LPVOID*)&v_NET_PrintFunc, &NET_PrintFunc);
 #ifndef DEDICATED
 	DetourAttach((LPVOID*)&v_NET_Shutdown, &NET_Shutdown);
@@ -236,22 +238,12 @@ void NET_Attach()
 
 void NET_Detach()
 {
+	DetourDetach((LPVOID*)&v_NET_ReceiveDatagram, &NET_ReceiveDatagram);
+	DetourDetach((LPVOID*)&v_NET_SendDatagram, &NET_SendDatagram);
 	DetourDetach((LPVOID*)&v_NET_PrintFunc, &NET_PrintFunc);
 #ifndef DEDICATED
 	DetourDetach((LPVOID*)&v_NET_Shutdown, &NET_Shutdown);
 #endif
-}
-
-void NET_Trace_Attach()
-{
-	DetourAttach((LPVOID*)&v_NET_ReceiveDatagram, &NET_ReceiveDatagram);
-	DetourAttach((LPVOID*)&v_NET_SendDatagram, &NET_SendDatagram);
-}
-
-void NET_Trace_Detach()
-{
-	DetourDetach((LPVOID*)&v_NET_ReceiveDatagram, &NET_ReceiveDatagram);
-	DetourDetach((LPVOID*)&v_NET_SendDatagram, &NET_SendDatagram);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

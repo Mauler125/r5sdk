@@ -12,7 +12,6 @@
 #include "engine/cl_rcon.h"
 #endif // !DEDICATED
 #include "engine/net.h"
-#include "engine/net_chan.h"
 #include "engine/sys_utils.h"
 #include "engine/baseclient.h"
 #include "rtech/rtech_game.h"
@@ -538,59 +537,6 @@ void _RTech_Decompress_f_CompletionFunc(const CCommand& args)
 	DevMsg(eDLL_T::RTECH, "--------------------------------------------------------------\n");
 
 	outBlock.close();
-}
-
-/*
-=====================
-_NET_TraceNetChan_f_CompletionFunc
-
-  Logs all data transmitted and received
-  over the UDP socket to a file on the disk.
-  File: '<mod\logs\net_trace.log>'.
-=====================
-*/
-void _NET_TraceNetChan_f_CompletionFunc(const CCommand& args)
-{
-	static bool bTraceNetChannel = false;
-	if (!bTraceNetChannel)
-	{
-		net_usesocketsforloopback->SetValue(1);
-		DevMsg(eDLL_T::ENGINE, "\n");
-		DevMsg(eDLL_T::ENGINE, "+--------------------------------------------------------+\n");
-		DevMsg(eDLL_T::ENGINE, "|>>>>>>>>>>>>>| NETCHANNEL TRACE ACTIVATED |<<<<<<<<<<<<<|\n");
-		DevMsg(eDLL_T::ENGINE, "+--------------------------------------------------------+\n");
-		DevMsg(eDLL_T::ENGINE, "\n");
-
-		// Begin the detour transaction to hook the the process.
-		DetourTransactionBegin();
-		DetourUpdateThread(GetCurrentThread());
-
-		NET_Trace_Attach();
-		// Commit the transaction.
-		if (DetourTransactionCommit() != NO_ERROR)
-		{
-			// Failed to hook into the process, terminate.
-			TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
-		}
-	}
-	else
-	{
-		DevMsg(eDLL_T::ENGINE, "\n");
-		DevMsg(eDLL_T::ENGINE, "+--------------------------------------------------------+\n");
-		DevMsg(eDLL_T::ENGINE, "|>>>>>>>>>>>>| NETCHANNEL TRACE DEACTIVATED |<<<<<<<<<<<<|\n");
-		DevMsg(eDLL_T::ENGINE, "+--------------------------------------------------------+\n");
-		DevMsg(eDLL_T::ENGINE, "\n");
-
-		// Begin the detour transaction to hook the the process.
-		DetourTransactionBegin();
-		DetourUpdateThread(GetCurrentThread());
-
-		NET_Trace_Detach();
-
-		// Commit the transaction.
-		DetourTransactionCommit();
-	}
-	bTraceNetChannel = !bTraceNetChannel;
 }
 
 /*
