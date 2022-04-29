@@ -106,8 +106,8 @@ public:
 	bool CheckOpCodes(const vector<uint8_t> vOpcodeArray) const;
 	void Patch(vector<uint8_t> vOpcodes) const;
 	void PatchString(const string& svString) const;
-	CMemory FindPattern(const string& svPattern, const Direction searchDirect, const int opCodesToScan = 512, const ptrdiff_t occurence = 1) const;
-	CMemory FindPatternSelf(const string& svPattern, const Direction searchDirect, const int opCodesToScan = 512, const ptrdiff_t occurence = 1);
+	CMemory FindPattern(const string& svPattern, const Direction searchDirect = Direction::DOWN, const int opCodesToScan = 512, const ptrdiff_t occurence = 1) const;
+	CMemory FindPatternSelf(const string& svPattern, const Direction searchDirect = Direction::DOWN, const int opCodesToScan = 512, const ptrdiff_t occurence = 1);
 	CMemory FollowNearCall(ptrdiff_t opcodeOffset = 0x1, ptrdiff_t nextInstructionOffset = 0x5) const;
 	CMemory FollowNearCallSelf(ptrdiff_t opcodeOffset = 0x1, ptrdiff_t nextInstructionOffset = 0x5);
 	CMemory ResolveRelativeAddress(ptrdiff_t registerOffset = 0x0, ptrdiff_t nextInstructionOffset = 0x4) const;

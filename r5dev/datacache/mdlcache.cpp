@@ -161,7 +161,15 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, vo
     return v17;
 }
 
-studiohdr_t* CMDLCache::GetStudioHdr(CMDLCache* pMDLCache, MDLHandle_t handle)
+//-----------------------------------------------------------------------------
+// Purpose: gets the studiohdr from cache pool by handle
+// Input  : *this - 
+//          handle - 
+//          *a3 - 
+//          *a4
+// Output : a pointer to the studiohdr_t object
+//-----------------------------------------------------------------------------
+studiohdr_t* CMDLCache::GetStudioHDR(CMDLCache* pMDLCache, MDLHandle_t handle)
 {
     __int64 v2; // rbx
     __int64 v3; // rbx
@@ -183,20 +191,61 @@ studiohdr_t* CMDLCache::GetStudioHdr(CMDLCache* pMDLCache, MDLHandle_t handle)
     v4 = *(_QWORD*)(*(_QWORD*)(*(_QWORD*)v3 + 8i64) + 24i64);
     result = (studiohdr_t*)(v4 + 16);
     if (!v4)
-        result = nullptr;;
+        result = nullptr;
     return result;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the studio hardware data reference from cache pool by handle
+// Input  : *this - 
+//          handle - 
+//          *a3 - 
+//          *a4
+// Output : a pointer to the CStudioHWDataRef object
+//-----------------------------------------------------------------------------
+CStudioHWDataRef* CMDLCache::GetStudioHardwareRef(CMDLCache* cache, MDLHandle_t handle)
+{
+    __int64 v2; // rbx
+    __int64 v3; // rdi
+    __int64 v4; // rbx
+    __int64 result; // rax
+
+    v2 = handle;
+    EnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
+    v3 = *(_QWORD*)(m_MDLDict.Deref().GetPtr() + 24 * v2 + 16);
+    LeaveCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
+
+    if (!v3)
+    {
+        return nullptr;
+    }
+
+    if (*(_QWORD*)v3)
+    {
+        v4 = *(_QWORD*)(*(_QWORD*)v3 + 8i64);
+        AcquireSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&*m_MDLLock));
+        v_CStudioHWDataRef__SetFlags(reinterpret_cast<CStudioHWDataRef*>(v4), 1i64); // !!! DECLARED INLINE IN < S3 !!!
+        ReleaseSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&*m_MDLLock));
+    }
+    if ((*(_BYTE*)(v3 + 18) & 1) != 0)
+        result = *(_QWORD*)(v3 + 0x20) + 16i64;
+    else
+        result = 0i64;
+    return reinterpret_cast<CStudioHWDataRef*>(result);
 }
 
 void MDLCache_Attach()
 {
     DetourAttach((LPVOID*)&v_CMDLCache__FindMDL, &CMDLCache::FindMDL);
     DetourAttach((LPVOID*)&v_CMDLCache__FindUncachedMDL, &CMDLCache::FindUncachedMDL);
-    //DetourAttach((LPVOID*)&v_CMDLCache__GetStudioHdr, &CMDLCache::GetStudioHdr);
+    DetourAttach((LPVOID*)&v_CMDLCache__GetStudioHardwareRef, &CMDLCache::GetStudioHardwareRef);
+    //DetourAttach((LPVOID*)&v_CMDLCache__GetStudioHdr, &CMDLCache::GetStudioHDR);
 }
 
 void MDLCache_Detach()
 {
     DetourDetach((LPVOID*)&v_CMDLCache__FindMDL, &CMDLCache::FindMDL);
     DetourDetach((LPVOID*)&v_CMDLCache__FindUncachedMDL, &CMDLCache::FindUncachedMDL);
-    //DetourDetach((LPVOID*)&v_CMDLCache__GetStudioHdr, &CMDLCache::GetStudioHdr);
+    DetourDetach((LPVOID*)&v_CMDLCache__GetStudioHardwareRef, &CMDLCache::GetStudioHardwareRef);
+    //DetourDetach((LPVOID*)&v_CMDLCache__GetStudioHdr, &CMDLCache::GetStudioHDR);
 }
