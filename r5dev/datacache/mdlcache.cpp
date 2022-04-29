@@ -174,10 +174,12 @@ studiohdr_t* CMDLCache::GetStudioHDR(CMDLCache* pMDLCache, MDLHandle_t handle)
     __int64 v2; // rbx
     __int64 v3; // rbx
     __int64 v4; // rdx
-    studiohdr_t* result; // rax
+    __int64 v5; // rdi
+    studiohdr_t* result = nullptr; // rax
 
     if (!handle)
     {
+        LABEL_ERROR:
         if (!g_pMDLFallback->m_hErrorMDL)
             Error(eDLL_T::ENGINE, "Model with handle \"%hu\" not found and \"%s\" couldn't be loaded.\n", handle, ERROR_MODEL);
 
@@ -188,10 +190,13 @@ studiohdr_t* CMDLCache::GetStudioHDR(CMDLCache* pMDLCache, MDLHandle_t handle)
     EnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
     v3 = *(_QWORD*)(m_MDLDict.Deref().GetPtr() + 24 * v2 + 16);
     LeaveCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
-    v4 = *(_QWORD*)(*(_QWORD*)(*(_QWORD*)v3 + 8i64) + 24i64);
-    result = (studiohdr_t*)(v4 + 16);
-    if (!v4)
-        result = nullptr;
+    v4 = *(_QWORD*)(v3);
+    if (v4)
+    {
+        v5 = *(_QWORD*)(*(_QWORD*)(*(_QWORD*)v3 + 8i64) + 24i64);
+        if (v5)
+            result = (studiohdr_t*)(v5 + 16);
+    }
     return result;
 }
 
@@ -239,7 +244,7 @@ void MDLCache_Attach()
     DetourAttach((LPVOID*)&v_CMDLCache__FindMDL, &CMDLCache::FindMDL);
     DetourAttach((LPVOID*)&v_CMDLCache__FindUncachedMDL, &CMDLCache::FindUncachedMDL);
     DetourAttach((LPVOID*)&v_CMDLCache__GetStudioHardwareRef, &CMDLCache::GetStudioHardwareRef);
-    //DetourAttach((LPVOID*)&v_CMDLCache__GetStudioHdr, &CMDLCache::GetStudioHDR);
+    DetourAttach((LPVOID*)&v_CMDLCache__GetStudioHDR, &CMDLCache::GetStudioHDR);
 }
 
 void MDLCache_Detach()
@@ -247,5 +252,5 @@ void MDLCache_Detach()
     DetourDetach((LPVOID*)&v_CMDLCache__FindMDL, &CMDLCache::FindMDL);
     DetourDetach((LPVOID*)&v_CMDLCache__FindUncachedMDL, &CMDLCache::FindUncachedMDL);
     DetourDetach((LPVOID*)&v_CMDLCache__GetStudioHardwareRef, &CMDLCache::GetStudioHardwareRef);
-    //DetourDetach((LPVOID*)&v_CMDLCache__GetStudioHdr, &CMDLCache::GetStudioHDR);
+    DetourDetach((LPVOID*)&v_CMDLCache__GetStudioHDR, &CMDLCache::GetStudioHDR);
 }
