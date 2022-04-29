@@ -326,6 +326,7 @@ FORCEINLINE void CHostState::UnloadPakFile(void) const
 		}
 	}
 	g_LoadedPakHandle.clear();
+	g_vBadMDLHandles.clear();
 }
 
 //-----------------------------------------------------------------------------

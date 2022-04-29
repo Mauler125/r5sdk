@@ -144,11 +144,15 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, vo
         }
         else
         {
-            LABEL_ERROR:
-            if (g_pMDLFallback->m_hErrorMDL)
-                Error(eDLL_T::ENGINE, "Model \"%s\" not found; replacing with \"%s\".\n", v8, ERROR_MODEL);
-            else
-                Error(eDLL_T::ENGINE, "Model \"%s\" not found and \"%s\" couldn't be loaded.\n", v8, ERROR_MODEL);
+        LABEL_ERROR:
+            if (std::find(g_vBadMDLHandles.begin(), g_vBadMDLHandles.end(), handle) == g_vBadMDLHandles.end())
+            {
+                if (g_pMDLFallback->m_hErrorMDL)
+                    Error(eDLL_T::ENGINE, "Model \"%s\" not found; replacing with \"%s\".\n", v8, ERROR_MODEL);
+                else
+                    Error(eDLL_T::ENGINE, "Model \"%s\" not found and \"%s\" couldn't be loaded.\n", v8, ERROR_MODEL);
+                g_vBadMDLHandles.push_back(handle);
+            }
             v17 = g_pMDLFallback->m_pErrorHDR;
         }
     }
