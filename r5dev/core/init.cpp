@@ -27,6 +27,7 @@
 #include "launcher/IApplication.h"
 #include "filesystem/basefilesystem.h"
 #include "filesystem/filesystem.h"
+#include "datacache/mdlcache.h"
 #include "ebisusdk/EbisuSDK.h"
 #ifndef DEDICATED
 #include "milessdk/win64_rrthreads.h"
@@ -145,6 +146,8 @@ void Systems_Init()
 	CBaseClient_Attach();
 	CBaseFileSystem_Attach();
 
+	MDLCache_Attach();
+
 #ifndef DEDICATED
 	CMaterialSystem_Attach();
 #endif // !DEDICATED
@@ -163,7 +166,7 @@ void Systems_Init()
 #endif // !CLIENT_DLL && GAMEDLL_S3
 
 	CHostState_Attach();
-	//CModelLoader_Attach();
+	CModelLoader_Attach();
 
 #if !defined(DEDICATED) && defined (GAMEDLL_S3)
 	CNetMessages_Attach(); // S1 and S2 require certification.
@@ -253,6 +256,8 @@ void Systems_Shutdown()
 	CBaseClient_Detach();
 	CBaseFileSystem_Detach();
 
+	MDLCache_Detach();
+
 #ifndef DEDICATED
 	CMaterialSystem_Detach();
 #endif // !DEDICATED
@@ -271,7 +276,7 @@ void Systems_Shutdown()
 #endif // !CLIENT_DLL && GAMEDLL_S3
 
 	CHostState_Detach();
-	//CModelLoader_Detach();
+	CModelLoader_Detach();
 
 #if !defined(DEDICATED) && defined (GAMEDLL_S3)
 	CNetMessages_Detach(); // S1 and S2 require certification.

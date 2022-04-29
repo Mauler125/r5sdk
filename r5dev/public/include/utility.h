@@ -16,6 +16,7 @@ void HexDump(const char* szHeader, const char* szLogger, const void* pData, int 
 
 string CreateDirectories(string svFilePath);
 string ConvertToWinPath(const string& svInput);
+string ConvertToUnixPath(const string& svInput);
 
 string Base64Encode(const string& svInput);
 string Base64Decode(const string& svInput);

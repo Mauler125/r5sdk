@@ -169,6 +169,12 @@
     <Filter Include="sdk\vstdlib">
       <UniqueIdentifier>{fd290792-d36d-400c-9f4d-366a9ce57427}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\datacache">
+      <UniqueIdentifier>{99b7722c-1c10-431d-b86d-bc4d03655aee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\public\avi">
+      <UniqueIdentifier>{05663bd0-2f29-41e4-acd3-4e3580f16549}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\cdll_engine_int.cpp">
@@ -428,6 +434,12 @@
     </ClCompile>
     <ClCompile Include="..\common\netmessages.cpp">
       <Filter>sdk\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\datacache\mdlcache.cpp">
+      <Filter>sdk\datacache</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\client\spritemodel.cpp">
+      <Filter>sdk\game\client</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1210,6 +1222,39 @@
     </ClInclude>
     <ClInclude Include="..\windows\resource.h">
       <Filter>windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\studio.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\gl_model_private.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\qlimits.h">
+      <Filter>sdk\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\model_types.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\client\enginesprite.h">
+      <Filter>sdk\game\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\datacache\imdlcache.h">
+      <Filter>sdk\datacache</Filter>
+    </ClInclude>
+    <ClInclude Include="..\datacache\mdlcache.h">
+      <Filter>sdk\datacache</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\client\hud.h">
+      <Filter>sdk\game\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\avi\iavi.h">
+      <Filter>sdk\public\avi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\avi\ibik.h">
+      <Filter>sdk\public\avi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\const.h">
+      <Filter>sdk\public\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

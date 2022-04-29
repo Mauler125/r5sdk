@@ -268,6 +268,25 @@ string ConvertToWinPath(const string& svInput)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For converting filepaths to unix filepaths.
+string ConvertToUnixPath(const string& svInput)
+{
+    char szFilePath[MAX_PATH] = { 0 };
+    string results;
+    sprintf_s(szFilePath, MAX_PATH, "%s", svInput.c_str());
+
+    // Flip forward slashes in filepath to windows-style backslash
+    for (int i = 0; i < strlen(szFilePath); i++)
+    {
+        if (szFilePath[i] == '\\')
+        {
+            szFilePath[i] = '/';
+        }
+    }
+    return results = szFilePath;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For encoding data in base64.
 string Base64Encode(const string& svInput)
 {

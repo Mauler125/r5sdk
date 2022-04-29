@@ -145,6 +145,9 @@
     <Filter Include="sdk\rtech\rui">
       <UniqueIdentifier>{cc54d9ba-f73a-48af-af6a-3b2064710e61}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\datacache">
+      <UniqueIdentifier>{4573ce75-0337-41b1-a43e-e9c17773b127}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\opcodes.h">
@@ -873,6 +876,27 @@
     <ClInclude Include="..\rtech\rui\rui.h">
       <Filter>sdk\rtech\rui</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\include\studio.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\gl_model_private.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\qlimits.h">
+      <Filter>sdk\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\model_types.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\datacache\imdlcache.h">
+      <Filter>sdk\datacache</Filter>
+    </ClInclude>
+    <ClInclude Include="..\datacache\mdlcache.h">
+      <Filter>sdk\datacache</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\const.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1102,6 +1126,9 @@
     </ClCompile>
     <ClCompile Include="..\tier0\jobthread.cpp">
       <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="..\datacache\mdlcache.cpp">
+      <Filter>sdk\datacache</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

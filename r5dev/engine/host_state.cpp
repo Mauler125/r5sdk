@@ -12,6 +12,7 @@
 #include "tier1/NetAdr2.h"
 #include "tier2/socketcreator.h"
 #include "vpc/keyvalues.h"
+#include "datacache/mdlcache.h"
 #ifdef DEDICATED
 #include "engine/sv_rcon.h"
 #else // 
