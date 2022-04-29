@@ -32,6 +32,7 @@
     <ClCompile Include="..\engine\cl_rcon.cpp" />
     <ClCompile Include="..\engine\cmodel_bsp.cpp" />
     <ClCompile Include="..\engine\common.cpp" />
+    <ClCompile Include="..\engine\gl_rsurf.cpp" />
     <ClCompile Include="..\engine\gl_screen.cpp" />
     <ClCompile Include="..\engine\host_cmd.cpp" />
     <ClCompile Include="..\engine\host_state.cpp" />
@@ -151,6 +152,7 @@
     <ClInclude Include="..\engine\debugoverlay.h" />
     <ClInclude Include="..\engine\gl_matsysiface.h" />
     <ClInclude Include="..\engine\gl_model_private.h" />
+    <ClInclude Include="..\engine\gl_rsurf.h" />
     <ClInclude Include="..\engine\gl_screen.h" />
     <ClInclude Include="..\engine\host.h" />
     <ClInclude Include="..\engine\host_cmd.h" />
@@ -206,6 +208,7 @@
     <ClInclude Include="..\public\include\edict.h" />
     <ClInclude Include="..\public\include\globalvars_base.h" />
     <ClInclude Include="..\public\include\inetchannel.h" />
+    <ClInclude Include="..\public\include\ivrenderview.h" />
     <ClInclude Include="..\public\include\memaddr.h" />
     <ClInclude Include="..\public\include\bansystem.h" />
     <ClInclude Include="..\public\include\binstream.h" />

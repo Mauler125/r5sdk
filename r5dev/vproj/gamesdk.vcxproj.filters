@@ -471,6 +471,9 @@
     <ClCompile Include="..\game\client\spritemodel.cpp">
       <Filter>sdk\game\client</Filter>
     </ClCompile>
+    <ClCompile Include="..\engine\gl_rsurf.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1315,6 +1318,12 @@
     </ClInclude>
     <ClInclude Include="..\game\client\hud.h">
       <Filter>sdk\game\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\gl_rsurf.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\ivrenderview.h">
+      <Filter>sdk\public\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

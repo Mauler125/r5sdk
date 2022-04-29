@@ -82,6 +82,7 @@
 #include "engine/gl_matsysiface.h"
 #include "engine/gl_screen.h"
 #ifndef DEDICATED
+#include "engine/gl_rsurf.h"
 #include "engine/debugoverlay.h"
 #endif // !DEDICATED
 #ifndef CLIENT_DLL
@@ -196,6 +197,7 @@ void Systems_Init()
 #ifndef DEDICATED
 	HCVideoMode_Common_Attach();
 	//DebugOverlays_Attach();
+	RSurf_Attach();
 #endif // !DEDICATED
 
 #ifndef CLIENT_DLL
@@ -305,6 +307,7 @@ void Systems_Shutdown()
 #ifndef DEDICATED
 	HCVideoMode_Common_Detach();
 	//DebugOverlays_Detach();
+	RSurf_Detach();
 #endif // !DEDICATED
 
 #ifndef CLIENT_DLL

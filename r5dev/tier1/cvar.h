@@ -15,10 +15,14 @@ extern ConVar* cm_debug_cmdquery;
 extern ConVar* cm_unset_all_cmdquery;
 extern ConVar* cm_unset_dev_cmdquery;
 extern ConVar* cm_unset_cheat_cmdquery;
-extern ConVar* r_debug_overlay_nodecay;
 
 extern ConVar* rcon_address;
 extern ConVar* rcon_password;
+
+extern ConVar* r_debug_overlay_nodecay;
+extern ConVar* r_drawWorldMeshes;
+extern ConVar* r_drawWorldMeshesDepthOnly;
+extern ConVar* r_drawWorldMeshesDepthAtTheEnd;
 //-------------------------------------------------------------------------
 // SERVER                                                                 |
 extern ConVar* ai_ainDumpOnLoad;

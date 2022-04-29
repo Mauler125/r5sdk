@@ -16,10 +16,14 @@ ConVar* cm_debug_cmdquery                  = nullptr;
 ConVar* cm_unset_all_cmdquery              = nullptr;
 ConVar* cm_unset_dev_cmdquery              = nullptr;
 ConVar* cm_unset_cheat_cmdquery            = nullptr;
-ConVar* r_debug_overlay_nodecay            = nullptr;
 
 ConVar* rcon_address                       = nullptr;
 ConVar* rcon_password                      = nullptr;
+
+ConVar* r_debug_overlay_nodecay            = nullptr;
+ConVar* r_drawWorldMeshes                  = nullptr;
+ConVar* r_drawWorldMeshesDepthOnly         = nullptr;
+ConVar* r_drawWorldMeshesDepthAtTheEnd     = nullptr;
 //-----------------------------------------------------------------------------
 // SERVER                                                                     |
 ConVar* ai_ainDumpOnLoad                   = nullptr;
