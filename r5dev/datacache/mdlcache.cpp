@@ -174,7 +174,6 @@ studiohdr_t* CMDLCache::GetStudioHDR(CMDLCache* pMDLCache, MDLHandle_t handle)
     __int64 v2; // rbx
     __int64 v3; // rbx
     __int64 v4; // rdx
-    __int64 v5; // rdi
     studiohdr_t* result = nullptr; // rax
 
     if (!handle)
@@ -190,12 +189,11 @@ studiohdr_t* CMDLCache::GetStudioHDR(CMDLCache* pMDLCache, MDLHandle_t handle)
     EnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
     v3 = *(_QWORD*)(m_MDLDict.Deref().GetPtr() + 24 * v2 + 16);
     LeaveCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
-    v4 = *(_QWORD*)(v3);
-    if (v4)
+    if (*(_QWORD*)(v3))
     {
-        v5 = *(_QWORD*)(*(_QWORD*)(*(_QWORD*)v3 + 8i64) + 24i64);
-        if (v5)
-            result = (studiohdr_t*)(v5 + 16);
+        v4 = *(_QWORD*)(*(_QWORD*)(*(_QWORD*)v3 + 8i64) + 24i64);
+        if (v4)
+            result = (studiohdr_t*)(v4 + 16);
     }
     return result;
 }
@@ -222,7 +220,12 @@ CStudioHWDataRef* CMDLCache::GetStudioHardwareRef(CMDLCache* cache, MDLHandle_t 
 
     if (!v3)
     {
-        return nullptr;
+        if (!g_pMDLFallback->m_hErrorMDL)
+        {
+            Error(eDLL_T::ENGINE, "Studio hardware with handle \"%hu\" not found and \"%s\" couldn't be loaded.\n", handle, ERROR_MODEL);
+            return nullptr;
+        }
+        v3 = *(_QWORD*)(m_MDLDict.Deref().GetPtr() + 24 * g_pMDLFallback->m_hErrorMDL + 16);
     }
 
     if (*(_QWORD*)v3)
