@@ -148,6 +148,9 @@
     <Filter Include="sdk\datacache">
       <UniqueIdentifier>{4573ce75-0337-41b1-a43e-e9c17773b127}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\game\shared">
+      <UniqueIdentifier>{c56a77b8-efc3-4d5c-8f4a-564134beceee}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\opcodes.h">
@@ -900,6 +903,9 @@
     <ClInclude Include="..\tier0\threadtools.h">
       <Filter>sdk\tier0</Filter>
     </ClInclude>
+    <ClInclude Include="..\game\shared\animation.h">
+      <Filter>sdk\game\shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1132,6 +1138,9 @@
     </ClCompile>
     <ClCompile Include="..\datacache\mdlcache.cpp">
       <Filter>sdk\datacache</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\shared\animation.cpp">
+      <Filter>sdk\game\shared</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
