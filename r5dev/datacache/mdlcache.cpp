@@ -6,6 +6,8 @@
 //=====================================================================================//
 
 #include "core/stdafx.h"
+#include "tier0/threadtools.h"
+#include "tier1/cvar.h"
 #include "datacache/mdlcache.h"
 #include "datacache/imdlcache.h"
 #include "engine/sys_utils.h"
@@ -87,9 +89,22 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* pMDLCache, MDLHandle_t handle, void* 
 //          *a2 - 
 //          *a3 - 
 //-----------------------------------------------------------------------------
-void CMDLCache::FindCachedMDL(CMDLCache* pMDLCache, void* a2, void* a3)
+void CMDLCache::FindCachedMDL(CMDLCache* cache, void* a2, void* a3)
 {
-    v_CMDLCache__FindCachedMDL(pMDLCache, a2, a3);
+    __int64 v6; // rax
+
+    if (a3)
+    {
+        CThreadFastMutex::WaitForLock((CThreadFastMutex*)a2 + 128);
+        *(_QWORD*)((int64_t)a3 + 2176) = *(_QWORD*)((int64_t)a2 + 88);
+        v6 = *(_QWORD*)((int64_t)a2 + 88);
+        if (v6)
+            *(_QWORD*)(v6 + 2168) = (int64_t)a3;
+        *(_QWORD*)((int64_t)a2 + 88) = (int64_t)a3;
+        *(_QWORD*)((int64_t)a3 + 2160) = (int64_t)cache;
+        *(_WORD*)((int64_t)a3 + 2184) = *(_WORD*)((int64_t)a2 + 20);
+        CThreadFastMutex::ReleaseWaiter((CThreadFastMutex*)a2 + 128);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -97,7 +112,7 @@ void CMDLCache::FindCachedMDL(CMDLCache* pMDLCache, void* a2, void* a3)
 // Input  : *this - 
 //          handle - 
 //          *a3 - 
-//          *a4
+//          *a4 - 
 // Output : a pointer to the studiohdr_t object
 //-----------------------------------------------------------------------------
 studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, void* a3, void* a4)
@@ -113,7 +128,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, vo
     studiohdr_t*  v17; // rdi
     studiohdr_t** v18; // rax
 
-    //CThreadFastMutexSlow::WaitForLock(a3 + 0x80);
+    CThreadFastMutex::WaitForLock((CThreadFastMutex*)a3 + 0x80);
     EnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
     void* modelCache = cache->m_pModelCacheSection;
     v8 = (const char*)(*(_QWORD*)((int64)modelCache + 24 * static_cast<int64>(handle) + 8));
@@ -152,8 +167,10 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, vo
                 else
                     Error(eDLL_T::ENGINE, "Model \"%s\" not found and \"%s\" couldn't be loaded.\n", v8, ERROR_MODEL);
                 g_vBadMDLHandles.push_back(handle);
+
             }
             v17 = g_pMDLFallback->m_pErrorHDR;
+            old_gather_props->SetValue(true); // mdl/error.rmdl fallback is not supported (yet) in the new GatherProps solution!
         }
     }
     else
@@ -161,7 +178,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, vo
         v_CMDLCache__FindCachedMDL(cache, a3, a4);
         v17 = **(studiohdr_t***)a3;
     }
-    //CThreadFastMutexSlow::ReleaseWaiter(a3 + 128);
+    CThreadFastMutex::ReleaseWaiter((CThreadFastMutex*)a3 + 128);
     return v17;
 }
 
@@ -169,8 +186,6 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, vo
 // Purpose: gets the studiohdr from cache pool by handle
 // Input  : *this - 
 //          handle - 
-//          *a3 - 
-//          *a4
 // Output : a pointer to the studiohdr_t object
 //-----------------------------------------------------------------------------
 studiohdr_t* CMDLCache::GetStudioHDR(CMDLCache* pMDLCache, MDLHandle_t handle)
@@ -206,8 +221,6 @@ studiohdr_t* CMDLCache::GetStudioHDR(CMDLCache* pMDLCache, MDLHandle_t handle)
 // Purpose: gets the studio hardware data reference from cache pool by handle
 // Input  : *this - 
 //          handle - 
-//          *a3 - 
-//          *a4
 // Output : a pointer to the CStudioHWDataRef object
 //-----------------------------------------------------------------------------
 CStudioHWDataRef* CMDLCache::GetStudioHardwareRef(CMDLCache* cache, MDLHandle_t handle)
@@ -249,6 +262,7 @@ CStudioHWDataRef* CMDLCache::GetStudioHardwareRef(CMDLCache* cache, MDLHandle_t 
 void MDLCache_Attach()
 {
     DetourAttach((LPVOID*)&v_CMDLCache__FindMDL, &CMDLCache::FindMDL);
+    DetourAttach((LPVOID*)&v_CMDLCache__FindCachedMDL, &CMDLCache::FindCachedMDL);
     DetourAttach((LPVOID*)&v_CMDLCache__FindUncachedMDL, &CMDLCache::FindUncachedMDL);
     DetourAttach((LPVOID*)&v_CMDLCache__GetStudioHardwareRef, &CMDLCache::GetStudioHardwareRef);
     DetourAttach((LPVOID*)&v_CMDLCache__GetStudioHDR, &CMDLCache::GetStudioHDR);
@@ -257,6 +271,7 @@ void MDLCache_Attach()
 void MDLCache_Detach()
 {
     DetourDetach((LPVOID*)&v_CMDLCache__FindMDL, &CMDLCache::FindMDL);
+    DetourDetach((LPVOID*)&v_CMDLCache__FindCachedMDL, &CMDLCache::FindCachedMDL);
     DetourDetach((LPVOID*)&v_CMDLCache__FindUncachedMDL, &CMDLCache::FindUncachedMDL);
     DetourDetach((LPVOID*)&v_CMDLCache__GetStudioHardwareRef, &CMDLCache::GetStudioHardwareRef);
     DetourDetach((LPVOID*)&v_CMDLCache__GetStudioHDR, &CMDLCache::GetStudioHDR);

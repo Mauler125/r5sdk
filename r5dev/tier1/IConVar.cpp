@@ -168,6 +168,7 @@ void ConVar::Init(void) const
 void ConVar::InitShipped(void) const
 {
 	single_frame_shutdown_for_reload = g_pCVar->FindVar("single_frame_shutdown_for_reload");
+	old_gather_props                 = g_pCVar->FindVar("old_gather_props");
 	mp_gamemode                      = g_pCVar->FindVar("mp_gamemode");
 	hostname                         = g_pCVar->FindVar("hostname");
 	hostport                         = g_pCVar->FindVar("hostport");

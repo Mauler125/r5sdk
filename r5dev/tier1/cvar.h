@@ -4,6 +4,7 @@
 //-------------------------------------------------------------------------
 // ENGINE                                                                 |
 extern ConVar* single_frame_shutdown_for_reload;
+extern ConVar* old_gather_props;
 
 extern ConVar* hostname;
 extern ConVar* hostport;

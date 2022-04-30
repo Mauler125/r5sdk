@@ -7,6 +7,7 @@
 #include "core/stdafx.h"
 #include "core/init.h"
 #include "tier0/jobthread.h"
+#include "tier0/threadtools.h"
 #include "tier0/tslist.h"
 #include "tier0/fasttimer.h"
 #include "tier0/cpu.h"

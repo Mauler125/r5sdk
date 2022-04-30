@@ -53,9 +53,6 @@ public:
 	// TODO..
 };
 
-extern studiohdr_t* pErrorStudioHDR;
-extern MDLHandle_t hErrorMDL;
-
 inline CMemory p_CMDLCache__FindMDL;
 inline auto v_CMDLCache__FindMDL = p_CMDLCache__FindMDL.RCast<studiohdr_t* (*)(CMDLCache* pCache, void* a2, void* a3)>();
 
@@ -87,14 +84,16 @@ class HMDLCache : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CMDLCache::FindMDL                   : 0x" << std::hex << std::uppercase << p_CMDLCache__FindMDL.GetPtr()         << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CMDLCache::FindCachedMDL             : 0x" << std::hex << std::uppercase << p_CMDLCache__FindCachedMDL.GetPtr()   << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CMDLCache::FindUncachedMDL           : 0x" << std::hex << std::uppercase << p_CMDLCache__FindUncachedMDL.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CMDLCache::GetStudioHdr              : 0x" << std::hex << std::uppercase << p_CMDLCache__GetStudioHDR.GetPtr()    << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: m_MDLMutex                           : 0x" << std::hex << std::uppercase << m_MDLMutex                            << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: m_MDLLock                            : 0x" << std::hex << std::uppercase << m_MDLLock                             << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: m_MDLDict                            : 0x" << std::hex << std::uppercase << m_MDLDict.GetPtr()                    << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: g_MDLCache                           : 0x" << std::hex << std::uppercase << g_MDLCache                            << std::setw(0)    << " |" << std::endl;
+		std::cout << "| FUN: CMDLCache::FindMDL                   : 0x" << std::hex << std::uppercase << p_CMDLCache__FindMDL.GetPtr()              << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: CMDLCache::FindCachedMDL             : 0x" << std::hex << std::uppercase << p_CMDLCache__FindCachedMDL.GetPtr()        << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: CMDLCache::FindUncachedMDL           : 0x" << std::hex << std::uppercase << p_CMDLCache__FindUncachedMDL.GetPtr()      << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: CMDLCache::GetStudioHDR              : 0x" << std::hex << std::uppercase << p_CMDLCache__GetStudioHDR.GetPtr()         << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: CMDLCache::GetStudioHardwareRef      : 0x" << std::hex << std::uppercase << p_CMDLCache__GetStudioHardwareRef.GetPtr() << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: CStudioHWDataRef::SetFlags           : 0x" << std::hex << std::uppercase << p_CStudioHWDataRef__SetFlags.GetPtr()      << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| VAR: m_MDLMutex                           : 0x" << std::hex << std::uppercase << m_MDLMutex                                 << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| VAR: m_MDLLock                            : 0x" << std::hex << std::uppercase << m_MDLLock                                  << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| VAR: m_MDLDict                            : 0x" << std::hex << std::uppercase << m_MDLDict.GetPtr()                         << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| VAR: g_MDLCache                           : 0x" << std::hex << std::uppercase << g_MDLCache                                 << std::setw(0)    << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 	virtual void GetFun(void) const

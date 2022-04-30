@@ -897,6 +897,9 @@
     <ClInclude Include="..\public\include\const.h">
       <Filter>sdk\public\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\tier0\threadtools.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
