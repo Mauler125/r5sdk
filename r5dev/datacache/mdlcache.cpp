@@ -127,6 +127,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, vo
     bool          v16; // zf
     studiohdr_t*  v17; // rdi
     studiohdr_t** v18; // rax
+    bool    bOldModel  {};
 
     CThreadFastMutex::WaitForLock((CThreadFastMutex*)a3 + 0x80);
     EnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
@@ -143,7 +144,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, vo
         (_stricmp(&v8[v9 - 5], ".rrig") != 0) &&
         (_stricmp(&v8[v9 - 5], ".rpak") != 0))
     {
-        Error(eDLL_T::ENGINE, "Attempted to load old model \"%s\"; replace with rmdl.\n", v8);
+        bOldModel = true;
         goto LABEL_ERROR;
     }
 
@@ -162,12 +163,17 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, vo
         LABEL_ERROR:
             if (std::find(g_vBadMDLHandles.begin(), g_vBadMDLHandles.end(), handle) == g_vBadMDLHandles.end())
             {
-                if (g_pMDLFallback->m_hErrorMDL)
-                    Error(eDLL_T::ENGINE, "Model \"%s\" not found; replacing with \"%s\".\n", v8, ERROR_MODEL);
+                if (!bOldModel)
+                {
+                    if (g_pMDLFallback->m_hErrorMDL)
+                        Error(eDLL_T::ENGINE, "Model \"%s\" not found; replacing with \"%s\".\n", v8, ERROR_MODEL);
+                    else
+                        Error(eDLL_T::ENGINE, "Model \"%s\" not found and \"%s\" couldn't be loaded.\n", v8, ERROR_MODEL);
+                }
                 else
-                    Error(eDLL_T::ENGINE, "Model \"%s\" not found and \"%s\" couldn't be loaded.\n", v8, ERROR_MODEL);
-                g_vBadMDLHandles.push_back(handle);
+                    Error(eDLL_T::ENGINE, "Attempted to load old model \"%s\"; replace with rmdl.\n", v8);
 
+                g_vBadMDLHandles.push_back(handle);
             }
             v17 = g_pMDLFallback->m_pErrorHDR;
             old_gather_props->SetValue(true); // mdl/error.rmdl fallback is not supported (yet) in the new GatherProps solution!
