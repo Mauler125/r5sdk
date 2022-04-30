@@ -67,4 +67,15 @@ struct studiohdr_t
 };
 #pragma pack(pop)
 
+class CStudioHdr
+{
+public:
+	static int LookupSequence(CStudioHdr* pStudio, const char* pszName);
+
+	int64_t m_nUnk0;
+	studiohdr_t* m_pStudioHdr;
+	uint8_t m_Pad[0x85A]; // Compatible between S0 - S3.
+	void* m_pMdlCacheVTable;
+};
+
 #endif // STUDIO_H

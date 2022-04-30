@@ -86,6 +86,7 @@
 #include "engine/gl_rsurf.h"
 #include "engine/debugoverlay.h"
 #endif // !DEDICATED
+#include "game/shared/animation.h"
 #ifndef CLIENT_DLL
 #include "game/server/ai_node.h"
 #include "game/server/ai_network.h"
@@ -201,6 +202,7 @@ void Systems_Init()
 	RSurf_Attach();
 #endif // !DEDICATED
 
+	Animation_Attach();
 #ifndef CLIENT_DLL
 	CAI_Utility_Attach();
 	CAI_Network_Attach();
@@ -311,6 +313,7 @@ void Systems_Shutdown()
 	RSurf_Detach();
 #endif // !DEDICATED
 
+	Animation_Detach();
 #ifndef CLIENT_DLL
 	CAI_Utility_Detach();
 	CAI_Network_Detach();

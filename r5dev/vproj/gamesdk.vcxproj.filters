@@ -181,6 +181,9 @@
     <Filter Include="sdk\public\avi">
       <UniqueIdentifier>{67444ecb-b115-4231-a33b-aab424f785fc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\game\shared">
+      <UniqueIdentifier>{bb7fbc8a-906a-4322-b8d6-04a495e69a12}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\vengineclient_impl.cpp">
@@ -473,6 +476,9 @@
     </ClCompile>
     <ClCompile Include="..\engine\gl_rsurf.cpp">
       <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\shared\animation.cpp">
+      <Filter>sdk\game\shared</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1327,6 +1333,9 @@
     </ClInclude>
     <ClInclude Include="..\tier0\threadtools.h">
       <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\shared\animation.h">
+      <Filter>sdk\game\shared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
