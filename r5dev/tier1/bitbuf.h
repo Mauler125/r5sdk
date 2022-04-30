@@ -9,9 +9,61 @@ typedef enum
 	BITBUFERROR_NUM_ERRORS
 } BitBufErrorType;
 
+#define LittleDWord(val) (val)
+
 //-----------------------------------------------------------------------------
 // Used for serialization
 //-----------------------------------------------------------------------------
+#pragma pack(push,1)
+class CBitBuffer
+{
+public:
+	CBitBuffer(void);
+	void SetDebugName(const char* pName);
+	const char* GetDebugName();
+	bool IsOverflowed();
+	void SetOverflowFlag();
+
+	////////////////////////////////////
+	const char* m_pDebugName;
+	uint8_t m_bOverflow;
+	char gap_0x11[7];
+	size_t m_nDataBits;
+	size_t m_nDataBytes;
+};
+#pragma pack(pop)
+
+class CBitRead : public CBitBuffer
+{
+public:
+	void GrabNextDWord(bool bOverFlowImmediately = false);
+	void FetchNext();
+
+	int ReadSBitLong(int numbits);
+	uint32 ReadUBitLong(int numbits);
+
+	int ReadByte();
+	int ReadChar();
+	bool ReadString(char* pStr, int bufLen, bool bLine = false, int* pOutNumChars = nullptr);
+
+	void StartReading(const void* pData, int nBytes, int iStartBit = 0, int nBits = -1);
+
+	bool Seek(int nPosition);
+
+	////////////////////////////////////
+	uint32_t m_nInBufWord;
+	uint32_t m_nBitsAvail;
+	const uint32* m_pDataIn;
+	const uint32* m_pBufferEnd;
+	const uint32* m_pData;
+};
+
+class bf_read : public CBitRead
+{
+public:
+
+};
+
 struct bf_write
 {
 public:
