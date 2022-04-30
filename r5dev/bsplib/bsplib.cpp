@@ -3,13 +3,16 @@
 #include "common/pseudodefs.h"
 #include "bsplib/bsplib.h"
 #include "engine/host_state.h"
+#include "engine/modelloader.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: calculates the view frustum culling data per static prop
 //-----------------------------------------------------------------------------
 __int64 __fastcall HCalcPropStaticFrustumCulling(__int64 a1, __int64 a2, unsigned int a3, unsigned int a4, __int64 a5, __int64 a6, __int64 a7)
 {
-    /*
+    if (staticProp_defaultBuildFrustum->GetBool())
+        return CalcPropStaticFrustumCulling(a1, a2, a3, a4, a5, a6, a7);
+
     float v9; // xmm6_4
     char v10; // r13
     double v11; // xmm7_8
@@ -95,11 +98,12 @@ __int64 __fastcall HCalcPropStaticFrustumCulling(__int64 a1, __int64 a2, unsigne
     static auto sub_14028F170 = CMemory(0x14028F170).RCast<const __m128i* (*)(__int64, __int64, __m128*, const __m128i*, const __m128i*)>();
     static auto qword_141744EA0 = *CMemory(0x141744EA0).RCast<std::int64_t*>();
     static auto dword_141744EBC = *CMemory(0x141744EBC).RCast<std::int32_t*>();
-    static auto qword_141744E88 = *CMemory(0x141744E88).RCast<std::int32_t*>();
+    static auto qword_141744E88 = *CMemory(0x141744E88).RCast<uint64_t*>();
     static auto dword_141744EE8 = *CMemory(0x141744EE8).RCast<std::int32_t*>();
     static auto off_141744E70 = CMemory(0x141744E70).RCast<void*>();
     static auto sub_1401E7900 = CMemory(0x1401E7900).RCast<__int64(*)(void*, unsigned __int16, __int64)>();
     static auto sub_140257F20 = CMemory(0x140257F20).RCast<__int64(*)(void*, __int64, __m128i*, __int8*)>();
+    static auto sub_1401E7080 = CMemory(0x1401E7080).RCast<__int64(*)(void*, unsigned __int16 a2)>();
 
     v9 = 1.0;
     v10 = a4;
@@ -111,7 +115,6 @@ __int64 __fastcall HCalcPropStaticFrustumCulling(__int64 a1, __int64 a2, unsigne
     *(float*)(a1 + 12) = 1.0 / (float)(*(float*)&v11 * *(float*)&v11);
     v13 = *(unsigned __int16*)(a7 + 320);
     *(_WORD*)a1 = v13;
-//    v14 = (*(__int64(__fastcall**)(void*, __int64, _QWORD))(*(_QWORD*)g_MdlCache + 104i64))(g_MdlCache, v13, 0i64);
     v14 = sub_1401E7900(g_MdlCache, v13, 0i64);
     v84 = v14;
     if ((*(_BYTE*)(v14 + 156) & 0x10) == 0 && dword_1696A9D20 < 100)
@@ -119,7 +122,7 @@ __int64 __fastcall HCalcPropStaticFrustumCulling(__int64 a1, __int64 a2, unsigne
     v15 = *(_BYTE*)(a5 + 30);
     if (v15 > 2u && (unsigned __int8)(v15 - 6) > 2u)
     {
-        v16 = (const char*)(*((__int64(__fastcall**)(void**, __int64))g_CModelLoader + 4))(&g_CModelLoader, a7);
+        v16 = (const char*)(*((__int64(__fastcall**)(CModelLoader**, __int64))g_pModelLoader + 4))(&g_pModelLoader, a7);
 #pragma warning( push )
 #pragma warning( disable : 4996)
         strncpy(Destination, v16, 0x104ui64);
@@ -257,12 +260,11 @@ __int64 __fastcall HCalcPropStaticFrustumCulling(__int64 a1, __int64 a2, unsigne
         v9 = g_pCVar->FindVar("staticProp_no_fade_scalar")->GetFloat();
     v53 = 0;
     *(float*)(qword_141744E88 + 8i64 * a3) = v9 * (float)(1.0 / (float)(v52 * g_pCVar->FindVar("staticProp_gather_size_weight")->GetFloat()));
-    v54 = qword_141744E88;
     *(_BYTE*)(qword_141744E88 + 8i64 * a3 + 4) &= 0xFEu;
-    *(_BYTE*)(v54 + 8i64 * a3 + 4) |= v44 >= 227023.363449684;
-    v55 = *(_QWORD*)(*(__int64(__fastcall**)(void*, _QWORD))(*(_QWORD*)g_MdlCache + 160i64))(g_MdlCache, *(unsigned __int16*)(a7 + 320));
+    *(_BYTE*)(qword_141744E88 + 8i64 * a3 + 4) |= v44 >= 227023.363449684;
+    v55 = sub_1401E7080(g_MdlCache, *(unsigned __int16*)(a7 + 320)); // Gets some object containing pointer to 2 CMaterialGlue vtables.
     v56 = *(unsigned __int16*)(a5 + 0x20);
-    v76 = v55;
+    v76 = *(__int64*)v55;
     v57 = v84 + *(int*)(v84 + 232) + 2i64 * v56 * *(_DWORD*)(v84 + 224);
     v58 = 0;
     v85 = v57;
@@ -344,9 +346,6 @@ __int64 __fastcall HCalcPropStaticFrustumCulling(__int64 a1, __int64 a2, unsigne
     if (v53)
         *(_BYTE*)(a1 + 5) &= 0x7Fu;
     return result;
-    */
-
-    return NULL;
 }
 
 void BspLib_Attach()

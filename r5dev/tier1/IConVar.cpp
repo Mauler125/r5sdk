@@ -47,6 +47,8 @@ void ConVar::Init(void) const
 {
 	//-------------------------------------------------------------------------
 	// ENGINE                                                                 |
+	staticProp_defaultBuildFrustum = new ConVar("staticProp_defaultBuildFrustum", "0", FCVAR_DEVELOPMENTONLY, "Use the old solution for building static prop frustum culling map.", false, 0.f, false, 0.f, nullptr, nullptr);;
+
 	cm_debug_cmdquery       = new ConVar("cm_debug_cmdquery"      , "0", FCVAR_DEVELOPMENTONLY, "Prints the flags of each ConVar/ConCommand query to the console ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	cm_unset_all_cmdquery   = new ConVar("cm_unset_all_cmdquery"  , "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Returns false on every ConVar/ConCommand query ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	cm_unset_dev_cmdquery   = new ConVar("cm_unset_dev_cmdquery"  , "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Returns false on all FCVAR_DEVELOPMENTONLY ConVar/ConCommand queries ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);

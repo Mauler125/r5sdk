@@ -156,7 +156,7 @@ void Systems_Init()
 #endif // !DEDICATED
 
 	QHull_Attach();
-	//BspLib_Attach();
+	BspLib_Attach();
 
 #ifndef DEDICATED
 	CEngineVGui_Attach();
@@ -268,7 +268,7 @@ void Systems_Shutdown()
 #endif // !DEDICATED
 
 	QHull_Detach();
-	//BspLib_Detach();
+	BspLib_Detach();
 
 #ifndef DEDICATED
 	CEngineVGui_Detach();
