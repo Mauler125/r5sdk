@@ -221,8 +221,8 @@ __int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigne
                         + (float)((float)(*(float*)&v71.m128i_i32[2] - *((float*)&v72 + 1)) * (float)(*(float*)&v71.m128i_i32[2] - *((float*)&v72 + 1))))
                         * 0.5)
                         * *(float*)&v11)
-                    * g_pCVar->FindVar("model_defaultFadeDistScale")->GetFloat(),
-                    g_pCVar->FindVar("model_defaultFadeDistMin")->GetFloat());
+                    * model_defaultFadeDistScale->GetFloat(),
+                    model_defaultFadeDistMin->GetFloat());
             else
                 v41 = v43 * *(float*)&v11;
         }
@@ -249,9 +249,9 @@ __int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigne
     v51 = *(float*)(*qword_141744EA0 + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1)) - *(float*)(*qword_141744EA0 + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 12);
     v52 = (float)((float)(v50 * v50) + (float)(v51 * v51)) + (float)(v49 * v49);
     if (v44 >= 227023.363449684)
-        v9 = g_pCVar->FindVar("staticProp_no_fade_scalar")->GetFloat();
+        v9 = staticProp_no_fade_scalar->GetFloat();
     v53 = 0;
-    *(float*)(*qword_141744E88 + 8i64 * a3) = v9 * (float)(1.0 / (float)(v52 * g_pCVar->FindVar("staticProp_gather_size_weight")->GetFloat()));
+    *(float*)(*qword_141744E88 + 8i64 * a3) = v9 * (float)(1.0 / (float)(v52 * staticProp_gather_size_weight->GetFloat()));
     *(_BYTE*)(*qword_141744E88 + 8i64 * a3 + 4) &= 0xFEu;
     *(_BYTE*)(*qword_141744E88 + 8i64 * a3 + 4) |= v44 >= 227023.363449684;
     v55 = (__int64)CMDLCache::GetStudioMaterialGlue(g_MDLCache, *(unsigned __int16*)(a7 + 320)); // Gets some object containing pointer to 2 CMaterialGlue vtables.
