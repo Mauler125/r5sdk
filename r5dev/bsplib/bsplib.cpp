@@ -109,8 +109,8 @@ __int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigne
     *(_WORD*)a1 = v13;
     v14 = (__int64)CMDLCache::FindMDL(g_MDLCache, v13, 0i64);
     v84 = v14;
-    if ((*(_BYTE*)(v14 + 156) & 0x10) == 0 && *dword_1696A9D20 < 100)
-        ++*dword_1696A9D20;
+    if ((*(_BYTE*)(v14 + 156) & 0x10) == 0 && (*dword_1696A9D20) < 100)
+        ++(*dword_1696A9D20);
     v15 = *(_BYTE*)(a5 + 30);
     if (v15 > 2u && (unsigned __int8)(v15 - 6) > 2u)
     {
@@ -151,7 +151,7 @@ __int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigne
     v24 = v77[1];
     v25 = v77[2];
     v26 = (unsigned __int64)(unsigned int)v12 << 6;
-    *(__m128*)(v26 + *qword_141744EA8) = v77[0];
+    *(__m128*)(v26 + (*qword_141744EA8)) = v77[0];
     *(__m128*)(v26 + v22 + 16) = v24;
     *(__m128*)(v26 + v22 + 32) = v25;
     auto m1 = _mm_set_ps(0.003922, 0.003922, 0.003922, 0.003922);
@@ -159,15 +159,15 @@ __int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigne
     __m128i m3 = { 0 };
     v74 = _mm_mul_ps(_mm_cvtepi32_ps(_mm_unpacklo_epi16(_mm_unpacklo_epi8(_mm_cvtsi32_si128(*(_DWORD*)(a5 + 52)), m2), m3)), m1);
     v27 = sub_140270130(&v74);
-    *(__m128*)(v26 + *qword_141744EA8 + 48) = v27;
-    sub_140257F20(&off_141731448, a7, &v71, &v71.m128i_i8[12]);
+    *(__m128*)(v26 + (*qword_141744EA8) + 48) = v27;
+    sub_140257F20(&*(void**)off_141731448, a7, &v71, &v71.m128i_i8[12]);
     sub_14028F170((__int64)&v74, (__int64)&v74.m128_i64[1] + 4, v77, &v71, (const __m128i*) & v71.m128i_i8[12]);
     v72 = v71.m128i_i8[12]; // may be wrong
     v28 = *qword_141744EA0;
     v29 = 3 * v12;
     v75 = (__int64)&v74.m128_i64[1] + 4; // may be wrong.
     v30 = v75;
-    *(__m128*)(*qword_141744EA0 + 8 * v29) = v74;
+    *(__m128*)((*qword_141744EA0) + 8 * v29) = v74;
     *(_QWORD*)(v28 + 8 * v29 + 16) = v30;
     if ((v10 & 1) != 0)
     {
@@ -179,23 +179,23 @@ __int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigne
         v33 = 3i64 * (unsigned int)(v31 + v12);
         v34 = (unsigned __int64)(unsigned int)(v31 + v12) << 6;
         v35 = *qword_141744EA0;
-        *(__m128i*)(*qword_141744EA0 + 8 * v33) = v32;
+        *(__m128i*)((*qword_141744EA0) + 8 * v33) = v32;
         *(_QWORD*)(v35 + 8 * v33 + 16) = v72;
-        v36 = *qword_141744EA8;
+        v36 = (*qword_141744EA8);
         v37 = (unsigned __int64)(unsigned int)(v12 + 2 * v31) << 6;
-        *(__m128*)(v34 + *qword_141744EA8) = v23;
+        *(__m128*)(v34 + (*qword_141744EA8)) = v23;
         *(__m128*)(v34 + v36 + 16) = v24;
         *(__m128*)(v34 + v36 + 32) = v25;
-        *(__m128*)(v34 + *qword_141744EA8 + 48) = v27;
+        *(__m128*)(v34 + (*qword_141744EA8) + 48) = v27;
         v38 = *qword_141744EA8;
-        *(__m128*)(v37 + *qword_141744EA8) = v23;
+        *(__m128*)(v37 + (*qword_141744EA8)) = v23;
         *(__m128*)(v37 + v38 + 16) = v24;
         *(__m128*)(v37 + v38 + 32) = v25;
-        *(__m128*)(v37 + *qword_141744EA8 + 48) = v27;
+        *(__m128*)(v37 + (*qword_141744EA8) + 48) = v27;
         v39 = (unsigned __int64)(unsigned int)(v31 + v12 + 2 * v31) << 6;
-        *(__m128*)(v39 + *qword_141744EA8 + 48) = v27;
+        *(__m128*)(v39 + (*qword_141744EA8) + 48) = v27;
         v40 = *qword_141744EA8;
-        *(__m128*)(v39 + *qword_141744EA8) = *(__m128*)a6; //*(_OWORD*)(v39 + qword_141744EA8) = *(_OWORD*)a6;
+        *(__m128*)(v39 + (*qword_141744EA8)) = *(__m128*)a6; //*(_OWORD*)(v39 + qword_141744EA8) = *(_OWORD*)a6;
         *(__m128*)(v39 + v40 + 16) = *(__m128*)(a6 + 16); //*(_OWORD*)(v39 + v40 + 16) = *(_OWORD*)(a6 + 16);
         *(__m128*)(v39 + v40 + 32) = *(__m128*)(a6 + 32); //*(__m128*)(v40 + v41 + 32) = *(__m128*)(a6 + 32);
     }
@@ -241,16 +241,16 @@ __int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigne
         v48 = (unsigned int)(_mm_cvtsi128_si32(v47) - 1065351168) >> 12;
     }
     *(_WORD*)(a1 + 6) = v48;
-    v49 = *(float*)(*qword_141744EA0 + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 8) - *(float*)(*qword_141744EA0 + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 20);
-    v50 = *(float*)(*qword_141744EA0 + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 4) - *(float*)(*qword_141744EA0 + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 16);
-    v51 = *(float*)(*qword_141744EA0 + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1)) - *(float*)(*qword_141744EA0 + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 12);
+    v49 = *(float*)((*qword_141744EA0) + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 8) - *(float*)((*qword_141744EA0) + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 20);
+    v50 = *(float*)((*qword_141744EA0) + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 4) - *(float*)((*qword_141744EA0) + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 16);
+    v51 = *(float*)((*qword_141744EA0) + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1)) - *(float*)((*qword_141744EA0) + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 12);
     v52 = (float)((float)(v50 * v50) + (float)(v51 * v51)) + (float)(v49 * v49);
     if (v44 >= 227023.363449684)
         v9 = staticProp_no_fade_scalar->GetFloat();
     v53 = 0;
-    *(float*)(*qword_141744E88 + 8i64 * a3) = v9 * (float)(1.0 / (float)(v52 * staticProp_gather_size_weight->GetFloat()));
-    *(_BYTE*)(*qword_141744E88 + 8i64 * a3 + 4) &= 0xFEu;
-    *(_BYTE*)(*qword_141744E88 + 8i64 * a3 + 4) |= v44 >= 227023.363449684;
+    *(float*)((*qword_141744E88) + 8i64 * a3) = v9 * (float)(1.0 / (float)(v52 * staticProp_gather_size_weight->GetFloat()));
+    *(_BYTE*)((*qword_141744E88) + 8i64 * a3 + 4) &= 0xFEu;
+    *(_BYTE*)((*qword_141744E88) + 8i64 * a3 + 4) |= v44 >= 227023.363449684;
     v55 = (__int64)CMDLCache::GetStudioMaterialGlue(g_MDLCache, *(unsigned __int16*)(a7 + 320)); // Gets some object containing pointer to 2 CMaterialGlue vtables.
     v56 = *(unsigned __int16*)(a5 + 0x20);
     v76 = *(__int64*)v55;
@@ -285,7 +285,7 @@ __int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigne
                     {
                         v68 = *(void**)(v66 + 8i64 * *(__int16*)(v57 + 2i64 * *(int*)(v67 + *(int*)(v65 + 80) + v65)));
 
-                        if (v68 > (void*)0x160000000 && v68 < (void*)0x180000000) // ??? HACK ??? CHANGE ASAP ???
+                        //if (v68 > (void*)0x10000 && v68 < (void*)0xFFFFFFFFF) // ??? HACK ??? CHANGE ASAP ???
                         {
                             if (!(*(unsigned __int8(__fastcall**)(void*))(*(_QWORD*)v68 + 688i64))(v68))
                             {
@@ -294,17 +294,22 @@ __int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigne
                                     v69 = 0i64;
                                     if (*dword_141744EE8)
                                     {
-                                        while (*(&off_141744E70 + v69 + 16) != v68)
+                                        // Compares equality of pointers to the CMaterial object
+                                        // between the current offset [v69] in the CStaticPropMgr buffer
+                                        // and that of v68 (obtained via operation in parent loop).
+
+                                        while (*(&*(void**)off_141744E70 + v69 + 16) != v68)
                                         {
-                                            v69 = (unsigned int)(v69 + 1);
-                                            if ((unsigned int)v69 >= *dword_141744EE8)
+                                            v69++;// = (unsigned int)(v69 + 1);
+
+                                            if (static_cast<int32_t>(v69) >= *dword_141744EE8)
                                                 goto LABEL_42;
                                         }
                                     }
                                     else
                                     {
                                     LABEL_42:
-                                        *(&off_141744E70 + (unsigned int)*dword_141744EE8++ + 16) = v68;
+                                        *(&*(void**)off_141744E70 + (*dword_141744EE8)++ + 16) = v68;
                                     }
                                 }
                                 if ((*(unsigned __int8(__fastcall**)(void*))(*(_QWORD*)v68 + 168i64))(v68) && (*(unsigned int(__fastcall**)(void*, __int64))(*(_QWORD*)v68 + 144i64))(v68, 1i64))

@@ -5,7 +5,13 @@
 // ENGINE                                                                 |
 extern ConVar* single_frame_shutdown_for_reload;
 extern ConVar* old_gather_props;
+
 extern ConVar* staticProp_defaultBuildFrustum;
+extern ConVar* staticProp_no_fade_scalar;
+extern ConVar* staticProp_gather_size_weight;
+
+extern ConVar* model_defaultFadeDistScale;
+extern ConVar* model_defaultFadeDistMin;
 
 extern ConVar* hostname;
 extern ConVar* hostport;

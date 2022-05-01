@@ -7,7 +7,13 @@
 // ENGINE                                                                     |
 ConVar* single_frame_shutdown_for_reload   = nullptr;
 ConVar* old_gather_props                   = nullptr;
+
 ConVar* staticProp_defaultBuildFrustum     = nullptr;
+ConVar* staticProp_no_fade_scalar          = nullptr;
+ConVar* staticProp_gather_size_weight      = nullptr;
+
+ConVar* model_defaultFadeDistScale         = nullptr;
+ConVar* model_defaultFadeDistMin           = nullptr;
 
 ConVar* hostname                           = nullptr;
 ConVar* hostport                           = nullptr;
