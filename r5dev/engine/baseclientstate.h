@@ -8,8 +8,8 @@ inline int* cl_host_tickcount = nullptr;
 class CBaseClientState
 {
 public:
-	bool* m_bPaused = cl_m_bPaused; // pauzes the client side simulation in apex.
-	int* host_tickcount = cl_host_tickcount; // client simulation tick count.
+	bool** m_bPaused = &cl_m_bPaused; // pauses the client side simulation in apex.
+	int** host_tickcount = &cl_host_tickcount; // client simulation tick count.
 
 	bool IsPaused();
 	float GetClientTime();
@@ -37,7 +37,7 @@ class HClientState : public IDetour
 	{
 		//std::cout << "| FUN: CClientState::CheckForResend         : 0x" << std::hex << std::uppercase << p_CClientState__CheckForResend.GetPtr() << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| VAR: cl_m_bPaused                         : 0x" << std::hex << std::uppercase << cl_m_bPaused      << std::setw(0) << " |" << std::endl;
-		std::cout << "| FUN: cl_host_tickcount                    : 0x" << std::hex << std::uppercase << cl_host_tickcount << std::setw(0) << " |" << std::endl;
+		std::cout << "| VAR: cl_host_tickcount                    : 0x" << std::hex << std::uppercase << cl_host_tickcount << std::setw(0) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 	virtual void GetFun(void) const { }
