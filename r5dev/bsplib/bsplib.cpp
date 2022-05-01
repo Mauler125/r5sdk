@@ -115,10 +115,7 @@ __int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigne
     if (v15 > 2u && (unsigned __int8)(v15 - 6) > 2u)
     {
         v16 = (const char*)(*((__int64(__fastcall**)(CModelLoader**, __int64))g_pModelLoader + 4))(&g_pModelLoader, a7);
-#pragma warning( push )
-#pragma warning( disable : 4996)
         strncpy(Destination, v16, 0x104ui64);
-#pragma warning( pop ) 
         v15 = 0;
     }
     v17 = *(unsigned __int8*)(a5 + 32);
