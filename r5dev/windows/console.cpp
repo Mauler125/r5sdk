@@ -130,7 +130,6 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 
 		//-- Debug toggles
 		if (sCommand == "pattern test") { PrintHAddress(); continue; }
-		if (sCommand == "opcodes test") { RuntimePtc_Toggle(); continue; }
 
 		// Execute the command in the r5 SQVM
 		Cbuf_AddText(Cbuf_GetCurrentPlayer(), sCommand.c_str(), cmd_source_t::kCommandSrcCode);

@@ -45,6 +45,7 @@ public:
 	static studiohdr_t* FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, void* a3, void* a4);
 	static studiohdr_t* GetStudioHDR(CMDLCache* cache, MDLHandle_t handle);
 	static CStudioHWDataRef* GetStudioHardwareRef(CMDLCache* cache, MDLHandle_t handle);
+	static void* GetStudioMaterialGlue(CMDLCache* cache, MDLHandle_t handle);
 
 	CMDLCache* m_pVTable;
 	void* m_pStrCmp;             // string compare func;

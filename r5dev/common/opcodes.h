@@ -8,7 +8,6 @@ inline const char* g_szGameDll = "r5apex.exe";
 #endif // DEDICATED
 
 void RuntimePtc_Init();
-void RuntimePtc_Toggle();
 #ifdef GAMEDLL_S3
 /* -------------- OTHER ------------------------------------------------------------------------------------------------------------------------------------------------- */
 inline CMemory dst007;

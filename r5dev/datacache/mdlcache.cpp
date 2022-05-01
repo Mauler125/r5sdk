@@ -127,13 +127,20 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, vo
     bool          v16; // zf
     studiohdr_t*  v17; // rdi
     studiohdr_t** v18; // rax
-    bool    bOldModel  {};
+    bool    bOldModel     {};
+    bool    bInvalidHandle{};
 
     CThreadFastMutex::WaitForLock((CThreadFastMutex*)a3 + 0x80);
     EnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
     void* modelCache = cache->m_pModelCacheSection;
     v8 = (const char*)(*(_QWORD*)((int64)modelCache + 24 * static_cast<int64>(handle) + 8));
     LeaveCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
+    if (IsBadReadPtrV2((void*)v8))
+    {
+        bInvalidHandle = true;
+        goto LABEL_ERROR;
+    }
+
     v9 = -1i64;
     do
         ++v9;
@@ -163,15 +170,17 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, vo
         LABEL_ERROR:
             if (std::find(g_vBadMDLHandles.begin(), g_vBadMDLHandles.end(), handle) == g_vBadMDLHandles.end())
             {
-                if (!bOldModel)
+                if (bInvalidHandle)
+                    Error(eDLL_T::ENGINE, "Model with handle \"hu\" not found; replacing with \"%s\".\n", handle, ERROR_MODEL);
+                else if (bOldModel)
+                    Error(eDLL_T::ENGINE, "Attempted to load old model \"%s\"; replace with rmdl.\n", v8);
+                else
                 {
                     if (g_pMDLFallback->m_hErrorMDL)
                         Error(eDLL_T::ENGINE, "Model \"%s\" not found; replacing with \"%s\".\n", v8, ERROR_MODEL);
                     else
                         Error(eDLL_T::ENGINE, "Model \"%s\" not found and \"%s\" couldn't be loaded.\n", v8, ERROR_MODEL);
                 }
-                else
-                    Error(eDLL_T::ENGINE, "Attempted to load old model \"%s\"; replace with rmdl.\n", v8);
 
                 g_vBadMDLHandles.push_back(handle);
             }
@@ -263,6 +272,24 @@ CStudioHWDataRef* CMDLCache::GetStudioHardwareRef(CMDLCache* cache, MDLHandle_t 
     else
         result = 0i64;
     return reinterpret_cast<CStudioHWDataRef*>(result);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets the studio material glue from cache pool by handle
+// Input  : *this - 
+//          handle - 
+// Output : a pointer to the CMaterialGlue object
+//-----------------------------------------------------------------------------
+void* CMDLCache::GetStudioMaterialGlue(CMDLCache* cache, MDLHandle_t handle)
+{
+    __int64 v2; // rbx
+    __int64 v3; // rbx
+
+    v2 = handle;
+    EnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
+    v3 = *(_QWORD*)(m_MDLDict.Deref().GetPtr() + 24 * v2 + 16);
+    LeaveCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
+    return (char*)v3 + 40;
 }
 
 void MDLCache_Attach()

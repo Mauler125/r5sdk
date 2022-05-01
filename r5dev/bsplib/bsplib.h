@@ -1,50 +1,76 @@
 #pragma once
 
-namespace
-{
-	//static auto g_CModelLoader = CMemory(0x14173B210).RCast<void*>();
 
-	//static auto dword_1696A9D20 = CMemory(0x14D40B328).RCast<std::uint32_t>();
-	//static auto dword_141744EE8 = CMemory(0x141744EE8).RCast<std::uint32_t>();
-	//static auto dword_141744EBC = CMemory(0x141744EBC).RCast<std::uint32_t>();
+inline CMemory p_BuildPropStaticFrustumCullMap;
+inline auto v_BuildPropStaticFrustumCullMap = p_BuildPropStaticFrustumCullMap.RCast<__int64(*)(__int64 a1, __int64 a2, unsigned int a3, unsigned int a4, __int64 a5, __int64 a6, __int64 a7)>();
 
-	//static auto qword_14D40B328 = CMemory(0x14D40B328).RCast<std::uint32_t>();
-	//static auto qword_141744EA8 = CMemory(0x141744EA8).RCast<std::uint32_t>();
-	//static auto qword_141744EA0 = CMemory(0x141744EA0).RCast<std::uint32_t>();
-	//static auto qword_141744E88 = CMemory(0x141744E88).RCast<std::uint32_t>();
+inline void** (*sub_1404365A0)(__m128*, const __m128i*, unsigned int*, double);
+inline __m128 (*sub_140270130)(__m128*);
+inline const __m128i* (*sub_14028F170)(__int64, __int64, __m128*, const __m128i*, const __m128i*);
+inline int64_t(*sub_140257F20)(void*, __int64, __m128i*, __int8*);
 
-	//static auto off_141744E70 = CMemory(0x141744E70).RCast<void**>();
-	//static auto off_141731448 = CMemory(0x141744EA8).RCast<void**>();
+inline uint32_t* dword_1696A9D20;
+inline int32_t* dword_141744EBC;
+inline int32_t* dword_141744EE8;
 
-	//__m128 xmmword_1415BD270 = _mm_castsi128_ps(_mm_set_epi32(0x3B808081, 0x3B808081, 0x3B808081, 0x3B808081)); // xmmword_1415BD270
+inline int64_t* qword_141744EA8;
+inline int64_t* qword_141744EA0;
+inline uint64_t* qword_141744E88;
 
-	//static auto sub_1404365A0 = CMemory(0x1404365A0).RCast<void** (*)(__m128*, long long, long long, double)>(); // Prototype is most likely incorrect: 'local variable allocation has failed, the output may be wrong!'
-	//static auto sub_140270130 = CMemory(0x140270130).RCast<__m128 (*)(__m128*)>();
-	//static auto sub_14028F170 = CMemory(0x14028F170).RCast<const __m128i* (*)(__int64, __int64, __m128*, const __m128i*, const __m128i*)>();
-}
+inline void* off_141744E70;
+inline void* off_141731448;
 
-inline CMemory p_CalcPropStaticFrustumCulling;
-inline auto CalcPropStaticFrustumCulling = p_CalcPropStaticFrustumCulling.RCast<__int64(*)(__int64 a1, __int64 a2, unsigned int a3, unsigned int a4, __int64 a5, __int64 a6, __int64 a7)>();
-
-__int64 __fastcall HCalcPropStaticFrustumCulling(__int64 a1, __int64 a2, unsigned int a3, unsigned int a4, __int64 a5, __int64 a6, __int64 a7);
+__int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigned int a3, unsigned int a4, __int64 a5, __int64 a6, __int64 a7);
 
 void BspLib_Attach();
 void BspLib_Detach();
-
 ///////////////////////////////////////////////////////////////////////////////
 class HBspLib : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CalcPropStaticFrustumCulling         : 0x" << std::hex << std::uppercase << p_CalcPropStaticFrustumCulling.GetPtr() << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: BuildPropStaticFrustumCullMap        : 0x" << std::hex << std::uppercase << p_BuildPropStaticFrustumCullMap.GetPtr() << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: sub_1404365A0                        : 0x" << std::hex << std::uppercase << sub_1404365A0 << std::setw(0) << " |" << std::endl;
+		std::cout << "| FUN: sub_140270130                        : 0x" << std::hex << std::uppercase << sub_140270130 << std::setw(0) << " |" << std::endl;
+		std::cout << "| FUN: sub_14028F170                        : 0x" << std::hex << std::uppercase << sub_14028F170 << std::setw(0) << " |" << std::endl;
+		std::cout << "| FUN: sub_140257F20                        : 0x" << std::hex << std::uppercase << sub_140257F20 << std::setw(0) << " |" << std::endl;
+		std::cout << "| VAR: dword_1696A9D20                      : 0x" << std::hex << std::uppercase << dword_1696A9D20 << std::setw(0) << " |" << std::endl;
+		std::cout << "| VAR: dword_141744EBC                      : 0x" << std::hex << std::uppercase << dword_141744EBC << std::setw(0) << " |" << std::endl;
+		std::cout << "| VAR: dword_141744EE8                      : 0x" << std::hex << std::uppercase << dword_141744EE8 << std::setw(0) << " |" << std::endl;
+		std::cout << "| VAR: qword_141744EA8                      : 0x" << std::hex << std::uppercase << qword_141744EA8 << std::setw(0) << " |" << std::endl;
+		std::cout << "| VAR: qword_141744EA0                      : 0x" << std::hex << std::uppercase << qword_141744EA0 << std::setw(0) << " |" << std::endl;
+		std::cout << "| VAR: qword_141744E88                      : 0x" << std::hex << std::uppercase << qword_141744E88 << std::setw(0) << " |" << std::endl;
+		std::cout << "| VAR: off_141744E70                        : 0x" << std::hex << std::uppercase << off_141744E70 << std::setw(0) << " |" << std::endl;
+		std::cout << "| VAR: off_141731448                        : 0x" << std::hex << std::uppercase << off_141731448 << std::setw(0) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 	virtual void GetFun(void) const
 	{
-		p_CalcPropStaticFrustumCulling = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x44\x89\x40\x18\x48\x89\x50\x10\x55"), "xxxxxxxxxxxx"); /*48 8B C4 44 89 40 18 48 89 50 10 55*/
-		CalcPropStaticFrustumCulling = p_CalcPropStaticFrustumCulling.RCast<__int64(*)(__int64, __int64, unsigned int, unsigned int, __int64, __int64, __int64)>();
+		p_BuildPropStaticFrustumCullMap = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x44\x89\x40\x18\x48\x89\x50\x10\x55"), "xxxxxxxxxxxx"); /*48 8B C4 44 89 40 18 48 89 50 10 55*/
+		v_BuildPropStaticFrustumCullMap = p_BuildPropStaticFrustumCullMap.RCast<__int64(*)(__int64, __int64, unsigned int, unsigned int, __int64, __int64, __int64)>();
+
+		sub_1404365A0 = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x83\xEC\x78\xF3\x41\x0F\x10\x48\x00"), "xxxxxxxxxxxx?").RCast<void** (*)(__m128*, const __m128i*, unsigned int*, double)>();
+		sub_140270130 = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x66\x0F\x6F\x15\x00\x00\x00\x00"), "xxxxxxxx????").RCast<__m128(*)(__m128*)>();
+		sub_14028F170 = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x58\xF3\x41\x0F\x7E\x11"), "xxxxxxxxx").RCast<const __m128i* (*)(__int64, __int64, __m128*, const __m128i*, const __m128i*)>();
+		sub_140257F20 = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x20\x49\x8B\xD9\x49\x8B\xF8\x48\x85\xD2"), "xxxx?xxxxxxxxxxxxxx").RCast<__int64(*)(void*, __int64, __m128i*, __int8*)>();
 	}
-	virtual void GetVar(void) const { }
+	virtual void GetVar(void) const
+	{
+		dword_1696A9D20 = p_BuildPropStaticFrustumCullMap.FindPattern("89 0D").ResolveRelativeAddressSelf(0x2, 0x6).RCast<uint32_t*>();
+		dword_141744EBC = p_BuildPropStaticFrustumCullMap.Offset(0x200).FindPattern("44 8B").ResolveRelativeAddressSelf(0x3, 0x7).RCast<int32_t*>();
+		dword_141744EE8 = p_BuildPropStaticFrustumCullMap.Offset(0x550).FindPattern("8B 15").ResolveRelativeAddressSelf(0x2, 0x6).RCast<int32_t*>();
+
+		qword_141744EA8 = p_BuildPropStaticFrustumCullMap.Offset(0x150).FindPattern("48 8B").ResolveRelativeAddressSelf(0x3, 0x7).RCast<int64_t*>();
+		qword_141744EA0 = p_BuildPropStaticFrustumCullMap.Offset(0x220).FindPattern("48 8B").ResolveRelativeAddressSelf(0x3, 0x7).RCast<int64_t*>();
+		qword_141744E88 = p_BuildPropStaticFrustumCullMap.Offset(0x4E0).FindPattern("48 8B").ResolveRelativeAddressSelf(0x3, 0x7).RCast<uint64_t*>();
+
+		off_141744E70 = p_BuildPropStaticFrustumCullMap.Offset(0x550).FindPattern("4C 8D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void*>();
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+		off_141731448 = p_CalcPropStaticFrustumCulling.Offset(0x1F0).FindPattern("48 ?? ?? ?? ?? ?? 01").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void*>();
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+		off_141731448 = p_BuildPropStaticFrustumCullMap.Offset(0x200).FindPattern("48 ?? ?? ?? ?? ?? 01").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void*>();
+#endif
+	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }

@@ -1,17 +1,25 @@
 #include "core/stdafx.h"
 #include "tier1/cvar.h"
+#include "datacache/mdlcache.h"
 #include "common/pseudodefs.h"
-#include "bsplib/bsplib.h"
+#include "materialsystem/cmaterialglue.h"
 #include "engine/host_state.h"
 #include "engine/modelloader.h"
+#include "bsplib/bsplib.h"
+
+struct CStaticPropMaterialGlue
+{
+    void* m_pVTable0;
+    void* m_pVTable1;
+};
 
 //-----------------------------------------------------------------------------
 // Purpose: calculates the view frustum culling data per static prop
 //-----------------------------------------------------------------------------
-__int64 __fastcall HCalcPropStaticFrustumCulling(__int64 a1, __int64 a2, unsigned int a3, unsigned int a4, __int64 a5, __int64 a6, __int64 a7)
+__int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigned int a3, unsigned int a4, __int64 a5, __int64 a6, __int64 a7)
 {
     if (staticProp_defaultBuildFrustum->GetBool())
-        return CalcPropStaticFrustumCulling(a1, a2, a3, a4, a5, a6, a7);
+        return v_BuildPropStaticFrustumCullMap(a1, a2, a3, a4, a5, a6, a7);
 
     float v9; // xmm6_4
     char v10; // r13
@@ -89,22 +97,6 @@ __int64 __fastcall HCalcPropStaticFrustumCulling(__int64 a1, __int64 a2, unsigne
     __int64 v84; // [rsp+298h] [rbp+190h]
     __int64 v85; // [rsp+2A8h] [rbp+1A0h]
 
-    static auto g_MdlCache = CMemory(0x14D40B328).RCast<void*>();
-    static auto dword_1696A9D20 = *CMemory(0x1696A9D20).RCast<std::uint32_t*>();
-    static auto sub_1404365A0 = CMemory(0x1404365A0).RCast<void**(*)(__m128*, const __m128i*, unsigned int*, double)>();
-    static auto qword_141744EA8 = *CMemory(0x141744EA8).RCast<std::int64_t*>();
-    static auto sub_140270130 = CMemory(0x140270130).RCast<__m128(*)(__m128*)>();
-    static auto off_141731448 = CMemory(0x141731448).RCast<void*>();
-    static auto sub_14028F170 = CMemory(0x14028F170).RCast<const __m128i* (*)(__int64, __int64, __m128*, const __m128i*, const __m128i*)>();
-    static auto qword_141744EA0 = *CMemory(0x141744EA0).RCast<std::int64_t*>();
-    static auto dword_141744EBC = *CMemory(0x141744EBC).RCast<std::int32_t*>();
-    static auto qword_141744E88 = *CMemory(0x141744E88).RCast<uint64_t*>();
-    static auto dword_141744EE8 = *CMemory(0x141744EE8).RCast<std::int32_t*>();
-    static auto off_141744E70 = CMemory(0x141744E70).RCast<void*>();
-    static auto sub_1401E7900 = CMemory(0x1401E7900).RCast<__int64(*)(void*, unsigned __int16, __int64)>();
-    static auto sub_140257F20 = CMemory(0x140257F20).RCast<__int64(*)(void*, __int64, __m128i*, __int8*)>();
-    static auto sub_1401E7080 = CMemory(0x1401E7080).RCast<__int64(*)(void*, unsigned __int16 a2)>();
-
     v9 = 1.0;
     v10 = a4;
     *(_QWORD*)(a1 + 20) = *(_QWORD*)a5;
@@ -115,10 +107,10 @@ __int64 __fastcall HCalcPropStaticFrustumCulling(__int64 a1, __int64 a2, unsigne
     *(float*)(a1 + 12) = 1.0 / (float)(*(float*)&v11 * *(float*)&v11);
     v13 = *(unsigned __int16*)(a7 + 320);
     *(_WORD*)a1 = v13;
-    v14 = sub_1401E7900(g_MdlCache, v13, 0i64);
+    v14 = (__int64)CMDLCache::FindMDL(g_MDLCache, v13, 0i64);
     v84 = v14;
-    if ((*(_BYTE*)(v14 + 156) & 0x10) == 0 && dword_1696A9D20 < 100)
-        ++dword_1696A9D20;
+    if ((*(_BYTE*)(v14 + 156) & 0x10) == 0 && *dword_1696A9D20 < 100)
+        ++*dword_1696A9D20;
     v15 = *(_BYTE*)(a5 + 30);
     if (v15 > 2u && (unsigned __int8)(v15 - 6) > 2u)
     {
@@ -157,12 +149,12 @@ __int64 __fastcall HCalcPropStaticFrustumCulling(__int64 a1, __int64 a2, unsigne
         v21 = *(_WORD*)(a5 + 34);
     *(_WORD*)(a1 + 2) = v21;
     sub_1404365A0(v77, (const __m128i*)a5, (unsigned int*)(a5 + 12), v11);
-    v22 = qword_141744EA8;
+    v22 = *qword_141744EA8;
     v23 = v77[0];
     v24 = v77[1];
     v25 = v77[2];
     v26 = (unsigned __int64)(unsigned int)v12 << 6;
-    *(__m128*)(v26 + qword_141744EA8) = v77[0];
+    *(__m128*)(v26 + *qword_141744EA8) = v77[0];
     *(__m128*)(v26 + v22 + 16) = v24;
     *(__m128*)(v26 + v22 + 32) = v25;
     auto m1 = _mm_set_ps(0.003922, 0.003922, 0.003922, 0.003922);
@@ -170,43 +162,43 @@ __int64 __fastcall HCalcPropStaticFrustumCulling(__int64 a1, __int64 a2, unsigne
     __m128i m3 = { 0 };
     v74 = _mm_mul_ps(_mm_cvtepi32_ps(_mm_unpacklo_epi16(_mm_unpacklo_epi8(_mm_cvtsi32_si128(*(_DWORD*)(a5 + 52)), m2), m3)), m1);
     v27 = sub_140270130(&v74);
-    *(__m128*)(v26 + qword_141744EA8 + 48) = v27;
+    *(__m128*)(v26 + *qword_141744EA8 + 48) = v27;
     sub_140257F20(&off_141731448, a7, &v71, &v71.m128i_i8[12]);
     sub_14028F170((__int64)&v74, (__int64)&v74.m128_i64[1] + 4, v77, &v71, (const __m128i*) & v71.m128i_i8[12]);
     v72 = v71.m128i_i8[12]; // may be wrong
-    v28 = qword_141744EA0;
+    v28 = *qword_141744EA0;
     v29 = 3 * v12;
     v75 = (__int64)&v74.m128_i64[1] + 4; // may be wrong.
     v30 = v75;
-    *(__m128*)(qword_141744EA0 + 8 * v29) = v74;
+    *(__m128*)(*qword_141744EA0 + 8 * v29) = v74;
     *(_QWORD*)(v28 + 8 * v29 + 16) = v30;
     if ((v10 & 1) != 0)
     {
-        v31 = dword_141744EBC;
+        v31 = *dword_141744EBC;
         v32 = v71;
         *(_DWORD*)a2 = *(_DWORD*)(a6 + 48);
         *(_DWORD*)(a2 + 4) = *(_DWORD*)(a6 + 52);
         *(_QWORD*)(a2 + 8) = 0i64;
         v33 = 3i64 * (unsigned int)(v31 + v12);
         v34 = (unsigned __int64)(unsigned int)(v31 + v12) << 6;
-        v35 = qword_141744EA0;
-        *(__m128i*)(qword_141744EA0 + 8 * v33) = v32;
+        v35 = *qword_141744EA0;
+        *(__m128i*)(*qword_141744EA0 + 8 * v33) = v32;
         *(_QWORD*)(v35 + 8 * v33 + 16) = v72;
-        v36 = qword_141744EA8;
+        v36 = *qword_141744EA8;
         v37 = (unsigned __int64)(unsigned int)(v12 + 2 * v31) << 6;
-        *(__m128*)(v34 + qword_141744EA8) = v23;
+        *(__m128*)(v34 + *qword_141744EA8) = v23;
         *(__m128*)(v34 + v36 + 16) = v24;
         *(__m128*)(v34 + v36 + 32) = v25;
-        *(__m128*)(v34 + qword_141744EA8 + 48) = v27;
-        v38 = qword_141744EA8;
-        *(__m128*)(v37 + qword_141744EA8) = v23;
+        *(__m128*)(v34 + *qword_141744EA8 + 48) = v27;
+        v38 = *qword_141744EA8;
+        *(__m128*)(v37 + *qword_141744EA8) = v23;
         *(__m128*)(v37 + v38 + 16) = v24;
         *(__m128*)(v37 + v38 + 32) = v25;
-        *(__m128*)(v37 + qword_141744EA8 + 48) = v27;
+        *(__m128*)(v37 + *qword_141744EA8 + 48) = v27;
         v39 = (unsigned __int64)(unsigned int)(v31 + v12 + 2 * v31) << 6;
-        *(__m128*)(v39 + qword_141744EA8 + 48) = v27;
-        v40 = qword_141744EA8;
-        *(__m128*)(v39 + qword_141744EA8) = *(__m128*)a6; //*(_OWORD*)(v39 + qword_141744EA8) = *(_OWORD*)a6;
+        *(__m128*)(v39 + *qword_141744EA8 + 48) = v27;
+        v40 = *qword_141744EA8;
+        *(__m128*)(v39 + *qword_141744EA8) = *(__m128*)a6; //*(_OWORD*)(v39 + qword_141744EA8) = *(_OWORD*)a6;
         *(__m128*)(v39 + v40 + 16) = *(__m128*)(a6 + 16); //*(_OWORD*)(v39 + v40 + 16) = *(_OWORD*)(a6 + 16);
         *(__m128*)(v39 + v40 + 32) = *(__m128*)(a6 + 32); //*(__m128*)(v40 + v41 + 32) = *(__m128*)(a6 + 32);
     }
@@ -252,17 +244,17 @@ __int64 __fastcall HCalcPropStaticFrustumCulling(__int64 a1, __int64 a2, unsigne
         v48 = (unsigned int)(_mm_cvtsi128_si32(v47) - 1065351168) >> 12;
     }
     *(_WORD*)(a1 + 6) = v48;
-    v49 = *(float*)(qword_141744EA0 + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 8) - *(float*)(qword_141744EA0 + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 20);
-    v50 = *(float*)(qword_141744EA0 + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 4) - *(float*)(qword_141744EA0 + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 16);
-    v51 = *(float*)(qword_141744EA0 + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1)) - *(float*)(qword_141744EA0 + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 12);
+    v49 = *(float*)(*qword_141744EA0 + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 8) - *(float*)(*qword_141744EA0 + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 20);
+    v50 = *(float*)(*qword_141744EA0 + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 4) - *(float*)(*qword_141744EA0 + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 16);
+    v51 = *(float*)(*qword_141744EA0 + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1)) - *(float*)(*qword_141744EA0 + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 12);
     v52 = (float)((float)(v50 * v50) + (float)(v51 * v51)) + (float)(v49 * v49);
     if (v44 >= 227023.363449684)
         v9 = g_pCVar->FindVar("staticProp_no_fade_scalar")->GetFloat();
     v53 = 0;
-    *(float*)(qword_141744E88 + 8i64 * a3) = v9 * (float)(1.0 / (float)(v52 * g_pCVar->FindVar("staticProp_gather_size_weight")->GetFloat()));
-    *(_BYTE*)(qword_141744E88 + 8i64 * a3 + 4) &= 0xFEu;
-    *(_BYTE*)(qword_141744E88 + 8i64 * a3 + 4) |= v44 >= 227023.363449684;
-    v55 = sub_1401E7080(g_MdlCache, *(unsigned __int16*)(a7 + 320)); // Gets some object containing pointer to 2 CMaterialGlue vtables.
+    *(float*)(*qword_141744E88 + 8i64 * a3) = v9 * (float)(1.0 / (float)(v52 * g_pCVar->FindVar("staticProp_gather_size_weight")->GetFloat()));
+    *(_BYTE*)(*qword_141744E88 + 8i64 * a3 + 4) &= 0xFEu;
+    *(_BYTE*)(*qword_141744E88 + 8i64 * a3 + 4) |= v44 >= 227023.363449684;
+    v55 = (__int64)CMDLCache::GetStudioMaterialGlue(g_MDLCache, *(unsigned __int16*)(a7 + 320)); // Gets some object containing pointer to 2 CMaterialGlue vtables.
     v56 = *(unsigned __int16*)(a5 + 0x20);
     v76 = *(__int64*)v55;
     v57 = v84 + *(int*)(v84 + 232) + 2i64 * v56 * *(_DWORD*)(v84 + 224);
@@ -295,31 +287,35 @@ __int64 __fastcall HCalcPropStaticFrustumCulling(__int64 a1, __int64 a2, unsigne
                     do
                     {
                         v68 = *(void**)(v66 + 8i64 * *(__int16*)(v57 + 2i64 * *(int*)(v67 + *(int*)(v65 + 80) + v65)));
-                        if (!(*(unsigned __int8(__fastcall**)(void*))(*(_QWORD*)v68 + 688i64))(v68))
+
+                        if (v68 > (void*)0x160000000 && v68 < (void*)0x180000000) // ??? HACK ??? CHANGE ASAP ???
                         {
-                            if (!(*(unsigned __int8(__fastcall**)(void*))(*(_QWORD*)v68 + 256i64))(v68) && (*(unsigned __int8(__fastcall**)(void*))(*(_QWORD*)v68 + 248i64))(v68))
+                            if (!(*(unsigned __int8(__fastcall**)(void*))(*(_QWORD*)v68 + 688i64))(v68))
                             {
-                                v69 = 0i64;
-                                if (dword_141744EE8)
+                                if (!(*(unsigned __int8(__fastcall**)(void*))(*(_QWORD*)v68 + 256i64))(v68) && (*(unsigned __int8(__fastcall**)(void*))(*(_QWORD*)v68 + 248i64))(v68))
                                 {
-                                    while (*(&off_141744E70 + v69 + 16) != v68)
+                                    v69 = 0i64;
+                                    if (*dword_141744EE8)
                                     {
-                                        v69 = (unsigned int)(v69 + 1);
-                                        if ((unsigned int)v69 >= dword_141744EE8)
-                                            goto LABEL_42;
+                                        while (*(&off_141744E70 + v69 + 16) != v68)
+                                        {
+                                            v69 = (unsigned int)(v69 + 1);
+                                            if ((unsigned int)v69 >= *dword_141744EE8)
+                                                goto LABEL_42;
+                                        }
+                                    }
+                                    else
+                                    {
+                                    LABEL_42:
+                                        *(&off_141744E70 + (unsigned int)*dword_141744EE8++ + 16) = v68;
                                     }
                                 }
-                                else
-                                {
-                                LABEL_42:
-                                    *(&off_141744E70 + (unsigned int)dword_141744EE8++ + 16) = v68;
-                                }
+                                if ((*(unsigned __int8(__fastcall**)(void*))(*(_QWORD*)v68 + 168i64))(v68) && (*(unsigned int(__fastcall**)(void*, __int64))(*(_QWORD*)v68 + 144i64))(v68, 1i64))
+                                    *(_BYTE*)(a1 + 5) |= 0x80u;
+                                if (!(*(unsigned __int8(__fastcall**)(void*))(*(_QWORD*)v68 + 384i64))(v68) && (*(unsigned int(__fastcall**)(void*, __int64))(*(_QWORD*)v68 + 144i64))(v68, 21844i64))
+                                    v53 |= 2u;
+                                v53 |= (*(unsigned __int8(__fastcall**)(void*))(*(_QWORD*)v68 + 384i64))(v68) != 0;
                             }
-                            if ((*(unsigned __int8(__fastcall**)(void*))(*(_QWORD*)v68 + 168i64))(v68) && (*(unsigned int(__fastcall**)(void*, __int64))(*(_QWORD*)v68 + 144i64))(v68, 1i64))
-                                *(_BYTE*)(a1 + 5) |= 0x80u;
-                            if (!(*(unsigned __int8(__fastcall**)(void*))(*(_QWORD*)v68 + 384i64))(v68) && (*(unsigned int(__fastcall**)(void*, __int64))(*(_QWORD*)v68 + 144i64))(v68, 21844i64))
-                                v53 |= 2u;
-                            v53 |= (*(unsigned __int8(__fastcall**)(void*))(*(_QWORD*)v68 + 384i64))(v68) != 0;
                         }
                         v57 = v85;
                         ++v64;
@@ -350,10 +346,10 @@ __int64 __fastcall HCalcPropStaticFrustumCulling(__int64 a1, __int64 a2, unsigne
 
 void BspLib_Attach()
 {
-    DetourAttach((LPVOID*)&CalcPropStaticFrustumCulling, &HCalcPropStaticFrustumCulling);
+    DetourAttach((LPVOID*)&v_BuildPropStaticFrustumCullMap, &BuildPropStaticFrustumCullMap);
 }
 
 void BspLib_Detach()
 {
-    DetourDetach((LPVOID*)&CalcPropStaticFrustumCulling, &HCalcPropStaticFrustumCulling);
+    DetourDetach((LPVOID*)&v_BuildPropStaticFrustumCullMap, &BuildPropStaticFrustumCullMap);
 }
