@@ -7,9 +7,7 @@
 // A growable array class that maintains a free list and keeps elements
 // in the same location
 //===========================================================================//
-
-#ifndef UTLVECTOR_H
-#define UTLVECTOR_H
+#pragma once
 
 #include "tier1/utlmemory.h"
 
@@ -20,4 +18,4 @@ struct __declspec(align(4)) CUtlVector
 	int m_Size;
 };
 
-#endif // CCVECTOR_H
+

@@ -1277,6 +1277,9 @@
     <ClInclude Include="..\game\shared\animation.h">
       <Filter>sdk\game\shared</Filter>
     </ClInclude>
+    <ClInclude Include="..\tier1\utldict.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\shared\resource\lockedserver.png">

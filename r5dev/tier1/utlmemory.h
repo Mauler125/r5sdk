@@ -6,9 +6,7 @@
 //
 // A growable memory class.
 //===========================================================================//
-
-#ifndef UTLMEMORY_H
-#define UTLMEMORY_H
+#pragma once
 
 struct __declspec(align(8)) CUtlMemory
 {
@@ -17,4 +15,3 @@ struct __declspec(align(8)) CUtlMemory
 	int64_t m_nGrowSize;
 };
 
-#endif // UTLMEMORY_H

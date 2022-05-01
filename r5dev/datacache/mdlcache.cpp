@@ -13,6 +13,7 @@
 #include "engine/sys_utils.h"
 #include "rtech/rtech_utils.h"
 #include "public/include/studio.h"
+#include "tier1/utldict.h"
 
 
 //-----------------------------------------------------------------------------
@@ -31,6 +32,11 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* pMDLCache, MDLHandle_t handle, void* 
 
     v4 = handle;
     EnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
+
+    // Example usage.
+    // auto mdlDict = CUtlDict<__int64, MDLHandle_t>(m_MDLDict.Deref().GetPtr()); // __int64 is studiodata_t*
+    // v6 = mdlDict.Find(v4);
+
     v6 = *(_QWORD*)(m_MDLDict.Deref().GetPtr() + 24 * v4 + 16);
     LeaveCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
 

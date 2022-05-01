@@ -209,6 +209,7 @@
     <ClInclude Include="..\public\include\const.h" />
     <ClInclude Include="..\public\include\edict.h" />
     <ClInclude Include="..\public\include\globalvars_base.h" />
+    <ClInclude Include="..\public\include\icliententitylist.h" />
     <ClInclude Include="..\public\include\inetchannel.h" />
     <ClInclude Include="..\public\include\ivrenderview.h" />
     <ClInclude Include="..\public\include\memaddr.h" />
@@ -384,6 +385,7 @@
     <ClInclude Include="..\tier1\cvar.h" />
     <ClInclude Include="..\tier1\IConVar.h" />
     <ClInclude Include="..\tier1\NetAdr2.h" />
+    <ClInclude Include="..\tier1\utldict.h" />
     <ClInclude Include="..\tier1\utlmemory.h" />
     <ClInclude Include="..\tier1\utlvector.h" />
     <ClInclude Include="..\tier2\socketcreator.h" />
