@@ -8,8 +8,8 @@ inline int* cl_host_tickcount = nullptr;
 class CBaseClientState
 {
 public:
-	bool* m_bPaused = cl_m_bPaused; // pauzes the client side simulation in apex.
-	int* host_tickcount = cl_host_tickcount; // client simulation tick count.
+	bool** m_bPaused = &cl_m_bPaused; // pauzes the client side simulation in apex.
+	int** host_tickcount = &cl_host_tickcount; // client simulation tick count.
 
 	bool IsPaused();
 	float GetClientTime();
@@ -61,6 +61,8 @@ class HClientState : public IDetour
 			.FindPatternSelf("80 3D ? ? ? 01 ?", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x7).RCast<bool*>();
 		cl_host_tickcount = localRef.Offset(0xC0)
 			.FindPatternSelf("66 0F 6E", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x4, 0x8).RCast<int*>();
+
+		bool test = g_pBaseClientState->IsPaused();
 #endif
 	}
 	virtual void GetCon(void) const { }

@@ -15,7 +15,7 @@
 //------------------------------------------------------------------------------
 bool CBaseClientState::IsPaused()
 {
-	return *m_bPaused;
+	return **m_bPaused;
 }
 
 //------------------------------------------------------------------------------
@@ -26,7 +26,7 @@ float CBaseClientState::GetClientTime()
 {
     if (*cl_time_use_host_tickcount)
     {
-        return (float)(int)*host_tickcount * (float)*client_debugdraw_int_unk;
+        return (float)(int)**host_tickcount * (float)*client_debugdraw_int_unk;
     }
     else
     {
@@ -39,7 +39,7 @@ float CBaseClientState::GetClientTime()
 //------------------------------------------------------------------------------
 int CBaseClientState::GetClientTickCount() const
 {
-    return *host_tickcount;
+    return **host_tickcount;
 }
 
 //------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ int CBaseClientState::GetClientTickCount() const
 //------------------------------------------------------------------------------
 void CBaseClientState::SetClientTickCount(int tick)
 {
-    *host_tickcount = tick;
+    **host_tickcount = tick;
 }
 
 CBaseClientState* g_pBaseClientState = new CBaseClientState();
