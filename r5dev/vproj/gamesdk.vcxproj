@@ -206,6 +206,7 @@
     <ClInclude Include="..\protoc\sv_rcon.pb.h" />
     <ClInclude Include="..\public\avi\iavi.h" />
     <ClInclude Include="..\public\avi\ibik.h" />
+    <ClInclude Include="..\public\include\client_class.h" />
     <ClInclude Include="..\public\include\const.h" />
     <ClInclude Include="..\public\include\edict.h" />
     <ClInclude Include="..\public\include\globalvars_base.h" />

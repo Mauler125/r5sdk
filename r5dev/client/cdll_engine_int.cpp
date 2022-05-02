@@ -43,6 +43,16 @@ void CHLClient::FrameStageNotify(CHLClient* pHLClient, ClientFrameStage_t frameS
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Get g_pClientClassHead Pointer for all ClientClasses.
+// Input  :
+// Output : ClientClass*
+//-----------------------------------------------------------------------------
+ClientClass* CHLClient::GetAllClasses()
+{
+	return CHLClient_GetAllClasses();
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CHLClient::PatchNetVarConVar(void) const
