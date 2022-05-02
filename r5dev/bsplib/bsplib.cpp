@@ -222,7 +222,7 @@ __int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigne
         }
     }
     v44 = fmaxf(v41, 100.0f);
-    *(float*)(a1 + 16) = v44 * v44;
+    *(float*)(a1 + 16) = v44 * v44; // <-- Data written here is incorrect [v41 used in the 'fmaxf' operation is most likely computed wrong]!
     v45 = _mm_castps_si128(_mm_load_ss(&v84->gatherSize));
     if (*(float*)v45.m128i_i32 <= 0.0f)
     {
