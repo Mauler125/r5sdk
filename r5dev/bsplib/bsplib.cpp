@@ -97,14 +97,14 @@ __int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigne
     studiohdr_t* v84; // [rsp+298h] [rbp+190h]
     __int64 v85; // [rsp+2A8h] [rbp+1A0h]
 
-    v9 = 1.0;
+    v9 = 1.0f;
     v10 = a4;
     *(_QWORD*)(a1 + 20) = *(_QWORD*)a5;
     *(_DWORD*)(a1 + 28) = *(_DWORD*)(a5 + 8);
     *(_DWORD*)(a1 + 8) = a4;
     *(_QWORD*)&v11 = *(unsigned int*)(a5 + 24);
     v12 = a4 >> 1;
-    *(float*)(a1 + 12) = 1.0 / (float)(*(float*)&v11 * *(float*)&v11);
+    *(float*)(a1 + 12) = 1.0f / (float)(*(float*)&v11 * *(float*)&v11);
     mdlhandle = *(unsigned __int16*)(a7 + 0x140);
     *(MDLHandle_t*)a1 = mdlhandle;
     studio = CMDLCache::FindMDL(g_MDLCache, mdlhandle, nullptr);
@@ -198,18 +198,18 @@ __int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigne
     }
     v41 = *(float*)(a5 + 36);
     v42 = v84;
-    if (v41 <= 0.0)
+    if (v41 <= 0.0f)
     {
         if ((v84->flags & STUDIOHDR_FLAGS_NO_FORCED_FADE) != 0)
         {
-            v41 = 227023.36;
+            v41 = 227023.36f;
         }
         else
         {
             v43 = v84->fadeDist;
-            if (v43 <= 0.0)
+            if (v43 <= 0.0f)
                 v41 = fmaxf(
-                    (float)((float)(sqrt(
+                    (float)((float)(sqrtf(
                         (float)((float)((float)(*(float*)v71.m128i_i32 - *(float*)&v71.m128i_i32[3]) * (float)(*(float*)v71.m128i_i32 - *(float*)&v71.m128i_i32[3]))
                             + (float)((float)(*(float*)&v71.m128i_i32[1] - *(float*)&v72) * (float)(*(float*)&v71.m128i_i32[1] - *(float*)&v72)))
                         + (float)((float)(*(float*)&v71.m128i_i32[2] - *((float*)&v72 + 1)) * (float)(*(float*)&v71.m128i_i32[2] - *((float*)&v72 + 1))))
@@ -221,10 +221,10 @@ __int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigne
                 v41 = v43 * *(float*)&v11;
         }
     }
-    v44 = fmaxf(v41, 100.0);
+    v44 = fmaxf(v41, 100.0f);
     *(float*)(a1 + 16) = v44 * v44;
     v45 = _mm_loadu_si32(&v84->gatherSize);
-    if (*(float*)v45.m128i_i32 <= 0.0)
+    if (*(float*)v45.m128i_i32 <= 0.0f)
     {
         LOWORD(v48) = 0;
     }
@@ -232,9 +232,9 @@ __int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigne
     {
         *(float*)v45.m128i_i32 = *(float*)v45.m128i_i32 * *(float*)v45.m128i_i32;
         v46 = v45;
-        *(float*)v46.m128i_i32 = fmaxf(*(float*)v45.m128i_i32, 1.0004883);
+        *(float*)v46.m128i_i32 = fmaxf(*(float*)v45.m128i_i32, 1.0004883f);
         v47 = v46;
-        *(float*)v47.m128i_i32 = fminf(*(float*)v46.m128i_i32, 4293918700.0);
+        *(float*)v47.m128i_i32 = fminf(*(float*)v46.m128i_i32, 4293918700.0f);
         v48 = (unsigned int)(_mm_cvtsi128_si32(v47) - 1065351168) >> 12;
     }
     *(_WORD*)(a1 + 6) = v48;
@@ -242,13 +242,13 @@ __int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigne
     v50 = *(float*)((*qword_141744EA0) + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 4) - *(float*)((*qword_141744EA0) + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 16);
     v51 = *(float*)((*qword_141744EA0) + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1)) - *(float*)((*qword_141744EA0) + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 12);
     v52 = (float)((float)(v50 * v50) + (float)(v51 * v51)) + (float)(v49 * v49);
-    if (v44 >= 227023.363449684)
+    if (v44 >= 227023.363449684f)
         v9 = staticProp_no_fade_scalar->GetFloat();
     v53 = 0;
-    *(float*)((*qword_141744E88) + 8i64 * a3) = v9 * (float)(1.0 / (float)(v52 * staticProp_gather_size_weight->GetFloat()));
+    *(float*)((*qword_141744E88) + 8i64 * a3) = v9 * (float)(1.0f / (float)(v52 * staticProp_gather_size_weight->GetFloat()));
     v54 = *qword_141744E88;
     *(_BYTE*)((*qword_141744E88) + 8i64 * a3 + 4) &= 0xFEu;
-    *(_BYTE*)(v54 + 8i64 * a3 + 4) |= v44 >= 227023.363449684;
+    *(_BYTE*)(v54 + 8i64 * a3 + 4) |= v44 >= 227023.363449684f;
     v55 = (__int64)CMDLCache::GetStudioMaterialGlue(g_MDLCache, *(unsigned __int16*)(a7 + 320)); // Gets some object containing pointer to 2 CMaterialGlue vtables.
     v56 = *(unsigned __int16*)(a5 + 0x20);
     v76 = *(__int64*)v55;
