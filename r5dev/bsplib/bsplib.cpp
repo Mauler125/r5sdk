@@ -223,7 +223,7 @@ __int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigne
     }
     v44 = fmaxf(v41, 100.0f);
     *(float*)(a1 + 16) = v44 * v44;
-    v45 = _mm_loadu_si32(&v84->gatherSize);
+    v45 = _mm_castps_si128(_mm_load_ss(&v84->gatherSize));
     if (*(float*)v45.m128i_i32 <= 0.0f)
     {
         LOWORD(v48) = 0;
@@ -237,7 +237,7 @@ __int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigne
         *(float*)v47.m128i_i32 = fminf(*(float*)v46.m128i_i32, 4293918700.0f);
         v48 = (unsigned int)(_mm_cvtsi128_si32(v47) - 1065351168) >> 12;
     }
-    *(_WORD*)(a1 + 6) = v48;
+    *(_WORD*)(a1 + 6) = v48; // <-- DEBUG!
     v49 = *(float*)((*qword_141744EA0) + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 8) - *(float*)((*qword_141744EA0) + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 20);
     v50 = *(float*)((*qword_141744EA0) + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 4) - *(float*)((*qword_141744EA0) + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 16);
     v51 = *(float*)((*qword_141744EA0) + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1)) - *(float*)((*qword_141744EA0) + 24 * ((unsigned __int64)*(unsigned int*)(a1 + 8) >> 1) + 12);
