@@ -7,7 +7,7 @@
 #include "engine/modelloader.h"
 #include "bsplib/bsplib.h"
 
-//__int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigned int a3, unsigned int a4, __int64 a5, __int64 a6, __int64 a7)
+//void* __fastcall BuildPropStaticFrustumCullMap(int64_t a1, int64_t a2, unsigned int a3, unsigned int a4, int64_t a5, int64_t a6, int64_t a7)
 //{
 //    if (staticProp_defaultBuildFrustum->GetBool())
 //        return v_BuildPropStaticFrustumCullMap(a1, a2, a3, a4, a5, a6, a7);
@@ -73,7 +73,7 @@
 //    __int64 v67; // r15
 //    void* v68; // rbx
 //    int32_t v69; // rcx
-//    __int64 result; // rax
+//    void* result; // rax
 //    __m128i v71; // [rsp+38h] [rbp-D0h] BYREF
 //    __int64 v72{}; // [rsp+48h] [rbp-C0h]
 //    __int64 v73; // [rsp+50h] [rbp-B8h]
@@ -273,6 +273,13 @@
 //                    do
 //                    {
 //                        v68 = *(void**)(v66 + 8i64 * *(__int16*)(v57 + 2i64 * *(int*)(v67 + *(int*)(v65 + 80) + v65)));
+//
+//                        static CModule::ModuleSections_t mData = g_mGameDll.GetSectionByName(".data");
+//                        static CModule::ModuleSections_t mPData = g_mGameDll.GetSectionByName(".pdata");
+//                        if (reinterpret_cast<uintptr_t>(v68) < mData.m_pSectionBase ||
+//                            reinterpret_cast<uintptr_t>(v68) > mPData.m_pSectionBase) // Check bounds (data could only be within the '.data' segment.
+//                            continue;
+//
 //                        if (!(*(unsigned __int8(__fastcall**)(void*))(*(_QWORD*)v68 + 688i64))(v68))
 //                        {
 //                            if (!(*(unsigned __int8(__fastcall**)(void*))(*(_QWORD*)v68 + 256i64))(v68) && (*(unsigned __int8(__fastcall**)(void*))(*(_QWORD*)v68 + 248i64))(v68))
@@ -325,7 +332,7 @@
 //        v83 = v58;
 //        v73 += 16i64;
 //    } while (v58 < v42->numbodyparts);
-//    result = v53;
+//    result = (void*)v53;
 //    if (v53)
 //        *(_BYTE*)(a1 + 5) &= 0x7Fu;
 //    return result;
@@ -341,6 +348,7 @@ void* __fastcall BuildPropStaticFrustumCullMap(int64_t a1, int64_t a2, unsigned 
 
     MDLHandle_t  handle; // dx
     studiohdr_t *studio; // rbx
+    double          v54; // xmm7_8
     int64_t         v55; // rcx
     int             v56; // eax
     int64_t         v57; // rcx
@@ -355,12 +363,13 @@ void* __fastcall BuildPropStaticFrustumCullMap(int64_t a1, int64_t a2, unsigned 
     int64_t         v67; // r15
     void           *v68; // rbx
     int64_t         v73; // [rsp+50h] [rbp-B8h]
+    bool error  = false;
 
     handle = *reinterpret_cast<uint16_t*>(a7 + 0x140);
-    studio = CMDLCache::FindMDL(g_MDLCache, handle, nullptr);
-    v55 = *reinterpret_cast<int64_t*>(CMDLCache::GetStudioMaterialGlue(g_MDLCache, *reinterpret_cast<uint16_t*>((a7 + 320)))); // Gets some object containing pointer to 2 CMaterialGlue vtables.
+    studio = g_MDLCache->FindMDL(g_MDLCache, handle, nullptr);
+    v55 = *reinterpret_cast<int64_t*>(g_MDLCache->GetStudioMaterialGlue(g_MDLCache, *reinterpret_cast<uint16_t*>((a7 + 320)))); // Gets some object containing pointer to 2 CMaterialGlue vtables.
     v56 = *reinterpret_cast<uint16_t*>(a5 + 0x20);
-    v57 = reinterpret_cast<int64_t>(studio) + 2 * v56 * studio->numskinref + studio->skinindex;
+    v57 = reinterpret_cast<int64_t>(studio) + 2i64 * v56 * studio->numskinref + studio->skinindex;
     v58 = 0;
     if (studio->numbodyparts <= 0)
         return nullptr;
@@ -384,15 +393,17 @@ void* __fastcall BuildPropStaticFrustumCullMap(int64_t a1, int64_t a2, unsigned 
                     do
                     {
                         v68 = *(void**)(v55 + 8i64 * *(__int16*)(v57 + 2i64 * *(int*)(v67 + *(int*)(v65 + 80) + v65)));
+                        ++v64;
+                        v67 += 92i64;
 
                         static CModule::ModuleSections_t mData = g_mGameDll.GetSectionByName(".data");
                         static CModule::ModuleSections_t mPData = g_mGameDll.GetSectionByName(".pdata");
-                        if (reinterpret_cast<uintptr_t>(v68) < mData.m_pSectionBase || 
-                            reinterpret_cast<uintptr_t>(v68) > mPData.m_pSectionBase) // Check bounds (data could only be within the '.data' segment.
-                            return nullptr;
-
-                        ++v64;
-                        v67 += 92i64;
+                        if (reinterpret_cast<uintptr_t>(v68) < mData.m_pSectionBase  ||
+                            reinterpret_cast<uintptr_t>(v68) > mPData.m_pSectionBase || error) // Check bounds (data could only be within the '.data' segment.
+                        {
+                            error = true;
+                            continue;
+                        }
                     }           while (v64 < *((int*)v65 + 19));
                 }
                 ++v61;
@@ -403,6 +414,19 @@ void* __fastcall BuildPropStaticFrustumCullMap(int64_t a1, int64_t a2, unsigned 
         v59 = v73 + 16;
         v73 += 16i64;
     }   while (v58 < studio->numbodyparts);
+
+    if (error) // Don't use engine's implementation if batch contains errors!
+    {
+        *(MDLHandle_t*)a1 = handle;
+        *(_QWORD*)&v54 = *(unsigned int*)(a5 + 24);
+        *(_DWORD*)(a1 + 8) = a4;
+        *(float*)(a1 + 12) = 1.0f / (float)(*(float*)&v54 * *(float*)&v54);
+        *(float*)(a1 + 16) = 227023.36f * 227023.36f; // STUDIOHDR_FLAGS_NO_FORCED_FADE
+        *(_QWORD*)(a1 + 20) = *(_QWORD*)a5;
+        *(_DWORD*)(a1 + 28) = *(_DWORD*)(a5 + 8);
+
+        return nullptr;
+    }
     return v_BuildPropStaticFrustumCullMap(a1, a2, a3, a4, a5, a6, a7);
 }
 

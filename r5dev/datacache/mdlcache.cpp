@@ -72,7 +72,7 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* pMDLCache, MDLHandle_t handle, void* 
         {
             if (a3)
             {
-                CMDLCache::FindCachedMDL(pMDLCache, (void*)v6, a3);
+                FindCachedMDL(pMDLCache, (void*)v6, a3);
                 v7 = *(__int64**)v6;
             }
         LABEL_6:
@@ -80,13 +80,13 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* pMDLCache, MDLHandle_t handle, void* 
             if (result)
                 return result;
 
-            return CMDLCache::FindUncachedMDL(pMDLCache, v4, (void*)v6, a3);
+            return FindUncachedMDL(pMDLCache, v4, (void*)v6, a3);
         }
         v7 = *(__int64**)(v6 + 8);
         if (v7)
             goto LABEL_6;
     }
-    return CMDLCache::FindUncachedMDL(pMDLCache, v4, (void*)v6, a3);
+    return FindUncachedMDL(pMDLCache, v4, (void*)v6, a3);
 }
 
 //-----------------------------------------------------------------------------
