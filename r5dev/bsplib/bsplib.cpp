@@ -7,12 +7,6 @@
 #include "engine/modelloader.h"
 #include "bsplib/bsplib.h"
 
-struct CStaticPropMaterialGlue
-{
-    void* m_pVTable0;
-    void* m_pVTable1;
-};
-
 //__int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigned int a3, unsigned int a4, __int64 a5, __int64 a6, __int64 a7)
 //{
 //    if (staticProp_defaultBuildFrustum->GetBool())
@@ -397,8 +391,6 @@ __int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigne
                         static CModule::ModuleSections_t mData = g_mGameDll.GetSectionByName(".data");
                         static CModule::ModuleSections_t mPData = g_mGameDll.GetSectionByName(".pdata");
                         if ((uintptr_t)v68 < mData.m_pSectionBase || (uintptr_t)v68 > mPData.m_pSectionBase)
-                            return 0i64;
-                        if (*(void**)v68 != g_pMaterialGlueVTable)
                             return 0i64;
 
                         ++v64;
