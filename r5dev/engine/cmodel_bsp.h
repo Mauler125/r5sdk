@@ -3,7 +3,7 @@
 inline CMemory p_CollisionBSPData_LinkPhysics;
 inline auto CollisionBSPData_LinkPhysics = p_CollisionBSPData_LinkPhysics.RCast<uint64_t(*)(void* thisptr)>();
 
-void MOD_PreloadPak(const string& svSetFile);
+void MOD_PreloadPak();
 ///////////////////////////////////////////////////////////////////////////////
 class HModel_BSP : public IDetour
 {

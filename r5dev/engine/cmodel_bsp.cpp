@@ -16,7 +16,7 @@
 // Purpose: loads required pakfile assets for specified BSP
 // Input  : svSetFile - 
 //-----------------------------------------------------------------------------
-void MOD_PreloadPak(const string& svSetFile)
+void MOD_PreloadPak()
 {
 	ostringstream ostream;
 	ostream << "platform\\scripts\\levels\\settings\\" << g_pHostState->m_levelName << ".json";
@@ -27,29 +27,26 @@ void MOD_PreloadPak(const string& svSetFile)
 		nlohmann::json jsIn;
 		try
 		{
-			ifstream iPakLoadDefFile(fsPath, std::ios::binary); // Parse prerequisites file.
-			iPakLoadDefFile >> jsIn;
+			ifstream iPakLoadDefFile(fsPath.string().c_str(), std::ios::binary); // Load prerequisites file.
+
+			jsIn = nlohmann::json::parse(iPakLoadDefFile);
 			iPakLoadDefFile.close();
 
 			if (!jsIn.is_null())
 			{
 				if (!jsIn["rpak"].is_null())
 				{
-					for (auto it = jsIn["rpak"].begin(); it != jsIn["rpak"].end(); ++it)
+					for (auto& it : jsIn["rpak"])
 					{
-						if (it.value().is_string())
+						if (it.is_string())
 						{
-							string svToLoad = it.value().get<string>() + ".rpak";
-							uint32_t nPakId = g_pakLoadApi->AsyncLoad(svToLoad.c_str(), g_pMallocPool.GetPtr(), 4, 0);
+							string svToLoad = it.get<string>() + ".rpak";
+							RPakHandle_t nPakId = g_pakLoadApi->AsyncLoad(svToLoad.c_str(), g_pMallocPool.GetPtr(), 4, 0);
 
 							if (nPakId == -1)
-							{
-								Error(eDLL_T::RTECH, "RTech_AsyncLoad: failed read '%s' results '%u'\n", fsPath.string().c_str(), nPakId);
-							}
+								Error(eDLL_T::ENGINE, "%s: unable to load pak '%s' results '%d'\n", __FUNCTION__, svToLoad.c_str(), nPakId);
 							else
-							{
 								g_LoadedPakHandle.push_back(nPakId);
-							}
 						}
 					}
 				}

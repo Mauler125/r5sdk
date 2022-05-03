@@ -40,23 +40,14 @@ RPakHandle_t CPakFile::AsyncLoad(const char* szPakFileName, uintptr_t pMalloc, i
 		return pakHandle;
 	}
 #endif // DEDICATED
+	static bool bBasePaksLoaded = false;
 
-	if (g_pHostState)
+	if (strcmp(szPakFileName, "mp_lobby.rpak") == 0 || !g_bLevelResourceInitialized && !g_pHostState->m_bActiveGame &&
+		bBasePaksLoaded)
 	{
-		string svLevelName = g_pHostState->m_levelName;
-		string svMapPakName = svLevelName + ".rpak";
-		static bool bBasePaksLoaded = false;
-
-		if (!g_bLevelResourceInitialized && !g_pHostState->m_bActiveGame &&
-			bBasePaksLoaded || !strcmp(szPakFileName, "mp_lobby.rpak"))
-		{
-			// Attempt to load level dependencies if they exist.
-			MOD_PreloadPak(svLevelName);
-
-			// By the time mp_lobby.rpak is loaded, all the base paks are loaded as well and we can load anything else.
-			bBasePaksLoaded = true;
-			g_bLevelResourceInitialized = true;
-		}
+		bBasePaksLoaded = true; // By the time mp_lobby.rpak is loaded, all the base paks are loaded as well and we can load anything else.
+		g_bLevelResourceInitialized = true;
+		MOD_PreloadPak();
 	}
 
 	string svPakFilePathMod = "paks\\Win32\\" + string(szPakFileName);
