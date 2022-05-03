@@ -334,34 +334,33 @@
 //-----------------------------------------------------------------------------
 // Purpose: calculates the view frustum culling data per static prop
 //-----------------------------------------------------------------------------
-void* __fastcall BuildPropStaticFrustumCullMap(__int64 a1, int64_t a2, unsigned int a3, unsigned int a4, int64_t a5, int64_t a6, int64_t a7)
+void* __fastcall BuildPropStaticFrustumCullMap(int64_t a1, int64_t a2, unsigned int a3, unsigned int a4, int64_t a5, int64_t a6, int64_t a7)
 {
     if (staticProp_defaultBuildFrustum->GetBool())
         return v_BuildPropStaticFrustumCullMap(a1, a2, a3, a4, a5, a6, a7);
 
-    MDLHandle_t mdlhandle; // dx
-    studiohdr_t* studio; // rbx
-    int64_t v55; // rcx
-    int v56; // eax
-    int64_t v57; // rcx
-    int v58; // edx
-    int64_t v59; // rax
-    int64_t v60; // r13
-    int v61; // eax
-    char* v62; // r13
-    int64_t v63; // rdx
-    int v64; // er14
-    char* v65; // rdi
-    int64_t v67; // r15
-    void* v68; // rbx
-    int64_t v73; // [rsp+50h] [rbp-B8h]
-    __m128 v74{}; // [rsp+58h] [rbp-B0h] BYREF
+    MDLHandle_t  handle; // dx
+    studiohdr_t *studio; // rbx
+    int64_t         v55; // rcx
+    int             v56; // eax
+    int64_t         v57; // rcx
+    int             v58; // edx
+    int64_t         v59; // rax
+    int64_t         v60; // r13
+    int             v61; // eax
+    char           *v62; // r13
+    int64_t         v63; // rdx
+    int             v64; // er14
+    char           *v65; // rdi
+    int64_t         v67; // r15
+    void           *v68; // rbx
+    int64_t         v73; // [rsp+50h] [rbp-B8h]
 
-    mdlhandle = *(unsigned __int16*)(a7 + 0x140);
-    studio = CMDLCache::FindMDL(g_MDLCache, mdlhandle, nullptr);
-    v55 = *(int64_t*)CMDLCache::GetStudioMaterialGlue(g_MDLCache, *(unsigned __int16*)(a7 + 320)); // Gets some object containing pointer to 2 CMaterialGlue vtables.
-    v56 = *(unsigned __int16*)(a5 + 0x20);
-    v57 = (int64_t)studio + 2 * v56 * studio->numskinref + studio->skinindex;
+    handle = *reinterpret_cast<uint16_t*>(a7 + 0x140);
+    studio = CMDLCache::FindMDL(g_MDLCache, handle, nullptr);
+    v55 = *reinterpret_cast<int64_t*>(CMDLCache::GetStudioMaterialGlue(g_MDLCache, *reinterpret_cast<uint16_t*>((a7 + 320)))); // Gets some object containing pointer to 2 CMaterialGlue vtables.
+    v56 = *reinterpret_cast<uint16_t*>(a5 + 0x20);
+    v57 = reinterpret_cast<int64_t>(studio) + 2 * v56 * studio->numskinref + studio->skinindex;
     v58 = 0;
     if (studio->numbodyparts <= 0)
         return nullptr;
@@ -371,8 +370,7 @@ void* __fastcall BuildPropStaticFrustumCullMap(__int64 a1, int64_t a2, unsigned 
     {
         v60 = v59 + studio->bodypartindex;
         v61 = 0;
-        v62 = (char*)studio + v60;
-        v74.m128_u64[0] = (uint64_t)v62;
+        v62 = reinterpret_cast<char*>(studio) + v60;
         if (*((int*)v62 + 1) > 0)
         {
             v63 = 0i64;
@@ -387,16 +385,15 @@ void* __fastcall BuildPropStaticFrustumCullMap(__int64 a1, int64_t a2, unsigned 
                     {
                         v68 = *(void**)(v55 + 8i64 * *(__int16*)(v57 + 2i64 * *(int*)(v67 + *(int*)(v65 + 80) + v65)));
 
-                        // Check bounds (data could only be within the '.data' segment.
                         static CModule::ModuleSections_t mData = g_mGameDll.GetSectionByName(".data");
                         static CModule::ModuleSections_t mPData = g_mGameDll.GetSectionByName(".pdata");
-                        if ((uintptr_t)v68 < mData.m_pSectionBase || (uintptr_t)v68 > mPData.m_pSectionBase)
+                        if (reinterpret_cast<uintptr_t>(v68) < mData.m_pSectionBase || 
+                            reinterpret_cast<uintptr_t>(v68) > mPData.m_pSectionBase) // Check bounds (data could only be within the '.data' segment.
                             return nullptr;
 
                         ++v64;
                         v67 += 92i64;
                     }           while (v64 < *((int*)v65 + 19));
-                    v62 = (char*)v74.m128_u64[0];
                 }
                 ++v61;
                 v63 += 136i64;
