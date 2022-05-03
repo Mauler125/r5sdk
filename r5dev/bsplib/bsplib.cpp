@@ -334,37 +334,37 @@
 //-----------------------------------------------------------------------------
 // Purpose: calculates the view frustum culling data per static prop
 //-----------------------------------------------------------------------------
-__int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigned int a3, unsigned int a4, __int64 a5, __int64 a6, __int64 a7)
+void* __fastcall BuildPropStaticFrustumCullMap(__int64 a1, int64_t a2, unsigned int a3, unsigned int a4, int64_t a5, int64_t a6, int64_t a7)
 {
     if (staticProp_defaultBuildFrustum->GetBool())
         return v_BuildPropStaticFrustumCullMap(a1, a2, a3, a4, a5, a6, a7);
 
     MDLHandle_t mdlhandle; // dx
     studiohdr_t* studio; // rbx
-    __int64 v55; // rcx
+    int64_t v55; // rcx
     int v56; // eax
-    __int64 v57; // rcx
+    int64_t v57; // rcx
     int v58; // edx
-    __int64 v59; // rax
-    __int64 v60; // r13
+    int64_t v59; // rax
+    int64_t v60; // r13
     int v61; // eax
     char* v62; // r13
-    __int64 v63; // rdx
+    int64_t v63; // rdx
     int v64; // er14
     char* v65; // rdi
-    __int64 v67; // r15
+    int64_t v67; // r15
     void* v68; // rbx
-    __int64 v73; // [rsp+50h] [rbp-B8h]
+    int64_t v73; // [rsp+50h] [rbp-B8h]
     __m128 v74{}; // [rsp+58h] [rbp-B0h] BYREF
 
     mdlhandle = *(unsigned __int16*)(a7 + 0x140);
     studio = CMDLCache::FindMDL(g_MDLCache, mdlhandle, nullptr);
-    v55 = *(__int64*)CMDLCache::GetStudioMaterialGlue(g_MDLCache, *(unsigned __int16*)(a7 + 320)); // Gets some object containing pointer to 2 CMaterialGlue vtables.
+    v55 = *(int64_t*)CMDLCache::GetStudioMaterialGlue(g_MDLCache, *(unsigned __int16*)(a7 + 320)); // Gets some object containing pointer to 2 CMaterialGlue vtables.
     v56 = *(unsigned __int16*)(a5 + 0x20);
-    v57 = (__int64)studio + 2 * v56 * studio->numskinref + studio->skinindex;
+    v57 = (int64_t)studio + 2 * v56 * studio->numskinref + studio->skinindex;
     v58 = 0;
     if (studio->numbodyparts <= 0)
-        return 0i64;
+        return nullptr;
     v59 = 0i64;
     v73 = 0i64;
     do
@@ -372,7 +372,7 @@ __int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigne
         v60 = v59 + studio->bodypartindex;
         v61 = 0;
         v62 = (char*)studio + v60;
-        v74.m128_u64[0] = (unsigned __int64)v62;
+        v74.m128_u64[0] = (uint64_t)v62;
         if (*((int*)v62 + 1) > 0)
         {
             v63 = 0i64;
@@ -391,16 +391,16 @@ __int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigne
                         static CModule::ModuleSections_t mData = g_mGameDll.GetSectionByName(".data");
                         static CModule::ModuleSections_t mPData = g_mGameDll.GetSectionByName(".pdata");
                         if ((uintptr_t)v68 < mData.m_pSectionBase || (uintptr_t)v68 > mPData.m_pSectionBase)
-                            return 0i64;
+                            return nullptr;
 
                         ++v64;
                         v67 += 92i64;
-                    }           while (v64 < *((_DWORD*)v65 + 19));
+                    }           while (v64 < *((int*)v65 + 19));
                     v62 = (char*)v74.m128_u64[0];
                 }
                 ++v61;
                 v63 += 136i64;
-            }       while (v61 < *((_DWORD*)v62 + 1));
+            }       while (v61 < *((int*)v62 + 1));
         }
         ++v58;
         v59 = v73 + 16;

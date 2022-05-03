@@ -2,7 +2,7 @@
 
 
 inline CMemory p_BuildPropStaticFrustumCullMap;
-inline auto v_BuildPropStaticFrustumCullMap = p_BuildPropStaticFrustumCullMap.RCast<__int64(*)(__int64 a1, __int64 a2, unsigned int a3, unsigned int a4, __int64 a5, __int64 a6, __int64 a7)>();
+inline auto v_BuildPropStaticFrustumCullMap = p_BuildPropStaticFrustumCullMap.RCast<void*(*)(__int64 a1, __int64 a2, unsigned int a3, unsigned int a4, __int64 a5, __int64 a6, __int64 a7)>();
 
 inline void** (*sub_1404365A0)(__m128*, const __m128i*, __m128i*, double) = nullptr;
 inline __m128 (*sub_140270130)(__m128*) = nullptr;
@@ -22,7 +22,7 @@ inline __m128* xmmword_1415BD270 = nullptr;
 inline void* off_141744E70 = nullptr;
 inline void* off_141731448 = nullptr;
 
-__int64 __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigned int a3, unsigned int a4, __int64 a5, __int64 a6, __int64 a7);
+void* __fastcall BuildPropStaticFrustumCullMap(__int64 a1, __int64 a2, unsigned int a3, unsigned int a4, __int64 a5, __int64 a6, __int64 a7);
 
 void BspLib_Attach();
 void BspLib_Detach();
@@ -50,7 +50,7 @@ class HBspLib : public IDetour
 	virtual void GetFun(void) const
 	{
 		p_BuildPropStaticFrustumCullMap = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x44\x89\x40\x18\x48\x89\x50\x10\x55"), "xxxxxxxxxxxx"); /*48 8B C4 44 89 40 18 48 89 50 10 55*/
-		v_BuildPropStaticFrustumCullMap = p_BuildPropStaticFrustumCullMap.RCast<__int64(*)(__int64, __int64, unsigned int, unsigned int, __int64, __int64, __int64)>();
+		v_BuildPropStaticFrustumCullMap = p_BuildPropStaticFrustumCullMap.RCast<void*(*)(__int64, __int64, unsigned int, unsigned int, __int64, __int64, __int64)>();
 
 		sub_1404365A0 = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x83\xEC\x78\xF3\x41\x0F\x10\x48\x00"), "xxxxxxxxxxxx?").RCast<void** (*)(__m128*, const __m128i*, __m128i*, double)>();
 		sub_140270130 = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x66\x0F\x6F\x15\x00\x00\x00\x00"), "xxxxxxxx????").RCast<__m128(*)(__m128*)>();
