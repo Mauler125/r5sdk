@@ -29,6 +29,8 @@
 #include <d3d11.h>
 #endif // !DEDICATED && !SDKLAUNCHER && !NETCONSOLE
 
+#include "thirdparty/nlohmann/json.hpp"
+
 #include "thirdparty/detours/include/detours.h"
 #include "thirdparty/detours/include/idetour.h"
 
@@ -63,7 +65,6 @@
 #include "public/include/memaddr.h"
 #include "public/include/module.h"
 #include "public/include/httplib.h"
-#include "public/include/json.hpp"
 
 #include "core/assert.h"
 #include "core/termutil.h"
