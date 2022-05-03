@@ -259,6 +259,14 @@ uintptr_t CModule::GetModuleBase(void) const
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: returns the module size
+//-----------------------------------------------------------------------------
+DWORD CModule::GetModuleSize(void) const
+{
+	return m_nModuleSize;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: returns the module name
 //-----------------------------------------------------------------------------
 string CModule::GetModuleName(void) const

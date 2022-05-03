@@ -29,6 +29,7 @@ public:
 	CMemory          GetExportedFunction(const string& svFunctionName) const;
 	ModuleSections_t GetSectionByName(const string& svSectionName) const;
 	uintptr_t        GetModuleBase(void) const;
+	DWORD            GetModuleSize(void) const;
 	string           GetModuleName(void) const;
 
 private:
