@@ -38,7 +38,6 @@ class HThreadTools : public IDetour
 
 		v_MutexInternal_WaitForLock   = p_MutexInternal_WaitForLock.RCast<int (*)(void*)>();   /*48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B D9 FF 15 ?? ?? ?? ??*/
 		v_MutexInternal_ReleaseWaiter = p_MutexInternal_ReleaseWaiter.RCast<int (*)(void*)>(); /*40 53 48 83 EC 20 8B 41 04 48 8B D9 83 E8 01*/
-
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

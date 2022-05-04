@@ -197,7 +197,15 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, vo
     else
     {
         v_CMDLCache__FindCachedMDL(cache, a3, a4);
-        v17 = **(studiohdr_t***)a3;
+        if ((__int64)*(studiohdr_t**)a3)
+        {
+            if ((__int64)*(studiohdr_t**)a3 == 0xDEADFEEDDEADFEED)
+                v17 = g_pMDLFallback->m_pErrorHDR;
+            else
+                v17 = **(studiohdr_t***)a3;
+        }
+        else
+            v17 = g_pMDLFallback->m_pErrorHDR;
     }
     CThreadFastMutex::ReleaseWaiter((CThreadFastMutex*)a3 + 128);
     return v17;
@@ -263,11 +271,14 @@ CStudioHWDataRef* CMDLCache::GetStudioHardwareRef(CMDLCache* cache, MDLHandle_t 
             Error(eDLL_T::ENGINE, "Studio hardware with handle \"%hu\" not found and \"%s\" couldn't be loaded.\n", handle, ERROR_MODEL);
             return nullptr;
         }
-        v3 = *(_QWORD*)(m_MDLDict.Deref().GetPtr() + 24 * g_pMDLFallback->m_hErrorMDL + 16);
+        v3 = *(_QWORD*)(m_MDLDict.Deref().GetPtr() + 24i64 * g_pMDLFallback->m_hErrorMDL + 16);
     }
 
     if (*(_QWORD*)v3)
     {
+        if (*(_QWORD*)v3 == 0xDEADFEEDDEADFEED)
+            return nullptr;
+
         v4 = *(_QWORD*)(*(_QWORD*)v3 + 8i64);
         AcquireSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&*m_MDLLock));
         v_CStudioHWDataRef__SetFlags(reinterpret_cast<CStudioHWDataRef*>(v4), 1i64); // !!! DECLARED INLINE IN < S3 !!!
