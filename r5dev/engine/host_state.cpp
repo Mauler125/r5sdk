@@ -5,6 +5,7 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
+#include "tier0/jobthread.h"
 #include "tier0/commandline.h"
 #include "tier0/fasttimer.h"
 #include "tier1/cmd.h"
@@ -46,6 +47,8 @@
 #endif // !CLIENT_DLL
 
 bool g_bLevelResourceInitialized = false;
+bool g_bBasePaksInitialized = false;
+string g_svPrevLevelName;
 //-----------------------------------------------------------------------------
 // Purpose: state machine's main processing loop
 //-----------------------------------------------------------------------------
@@ -107,10 +110,8 @@ FORCEINLINE void CHostState::FrameUpdate(CHostState* rcx, void* rdx, float time)
 			case HostStates_t::HS_GAME_SHUTDOWN:
 			{
 				DevMsg(eDLL_T::ENGINE, "%s - Shutdown host game\n", "CHostState::FrameUpdate");
-
 				g_bLevelResourceInitialized = false;
 				CHostState_State_GameShutDown(g_pHostState);
-				g_pHostState->UnloadPakFile(); 
 				break;
 			}
 			case HostStates_t::HS_RESTART:
@@ -173,12 +174,13 @@ FORCEINLINE void CHostState::Init(void)
 	m_vecLocation.Init();
 	m_angLocation.Init();
 	m_iCurrentState = HostStates_t::HS_NEW_GAME;
+	g_svPrevLevelName = m_levelName;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: state machine setup
 //-----------------------------------------------------------------------------
-FORCEINLINE void CHostState::Setup(void) const
+FORCEINLINE void CHostState::Setup(void) 
 {
 	g_pHostState->LoadConfig();
 	g_pConVar->PurgeHostNames();
@@ -196,13 +198,7 @@ FORCEINLINE void CHostState::Setup(void) const
 	{
 		NET_GenerateKey();
 	}
-
-#ifdef DEDICATED
-	const char* szNoMap = "server_idle";
-#else // DEDICATED
-	const char* szNoMap = "main_menu";
-#endif
-	snprintf(const_cast<char*>(m_levelName), sizeof(m_levelName), szNoMap);
+	ResetLevelName();
 	KeyValues::Init();
 }
 
@@ -297,12 +293,8 @@ FORCEINLINE void CHostState::GameShutDown(void)
 		g_pServerGameDLL->GameShutdown();
 #endif // !CLIENT_DLL
 		m_bActiveGame = 0;
-#ifdef DEDICATED
-		const char* szNoMap = "server_idle";
-#else // DEDICATED
-		const char* szNoMap = "main_menu";
-#endif
-		snprintf(const_cast<char*>(m_levelName), sizeof(m_levelName), szNoMap);
+
+		ResetLevelName();
 	}
 }
 
@@ -311,6 +303,9 @@ FORCEINLINE void CHostState::GameShutDown(void)
 //-----------------------------------------------------------------------------
 FORCEINLINE void CHostState::UnloadPakFile(void) const
 {
+	if (g_pHostState->m_iCurrentState != HostStates_t::HS_SHUTDOWN && !LevelHasChanged())
+		return; // Do not issue unload if we reload the same level.
+
 	for (auto& it : g_LoadedPakHandle)
 	{
 		if (it >= 0)
@@ -326,7 +321,7 @@ FORCEINLINE void CHostState::UnloadPakFile(void) const
 		}
 	}
 	g_LoadedPakHandle.clear();
-	g_vBadMDLHandles.clear();
+	g_BadMDLHandles.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -360,6 +355,7 @@ FORCEINLINE void CHostState::State_NewGame(void)
 	{
 		m_iNextState = HostStates_t::HS_RUN;
 	}
+	g_svPrevLevelName = m_levelName;
 }
 
 //-----------------------------------------------------------------------------
@@ -387,6 +383,7 @@ FORCEINLINE void CHostState::State_ChangeLevelSP(void)
 	{
 		m_iNextState = HostStates_t::HS_RUN;
 	}
+	g_svPrevLevelName = m_levelName;
 }
 
 //-----------------------------------------------------------------------------
@@ -420,6 +417,29 @@ FORCEINLINE void CHostState::State_ChangeLevelMP(void)
 	{
 		m_iNextState = HostStates_t::HS_RUN;
 	}
+	g_svPrevLevelName = m_levelName;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: resets the level name
+//-----------------------------------------------------------------------------
+FORCEINLINE void CHostState::ResetLevelName(void)
+{
+#ifdef DEDICATED
+	const char* szNoMap = "server_idle";
+#else // DEDICATED
+	const char* szNoMap = "main_menu";
+#endif
+	snprintf(const_cast<char*>(m_levelName), sizeof(m_levelName), szNoMap);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: checks if level has changed
+// Output : true if level name deviates from previous level
+//-----------------------------------------------------------------------------
+FORCEINLINE bool CHostState::LevelHasChanged(void) const
+{
+	return (strcmp(m_levelName, g_svPrevLevelName.c_str()) != 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

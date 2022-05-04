@@ -169,6 +169,8 @@ void Systems_Init()
 #endif // !CLIENT_DLL && GAMEDLL_S3
 
 	CHostState_Attach();
+
+	CModelBsp_Attach();
 	CModelLoader_Attach();
 
 #if !defined(DEDICATED) && defined (GAMEDLL_S3)
@@ -281,6 +283,8 @@ void Systems_Shutdown()
 #endif // !CLIENT_DLL && GAMEDLL_S3
 
 	CHostState_Detach();
+
+	CModelBsp_Detach();
 	CModelLoader_Detach();
 
 #if !defined(DEDICATED) && defined (GAMEDLL_S3)

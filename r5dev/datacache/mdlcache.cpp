@@ -174,7 +174,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, vo
         else
         {
         LABEL_ERROR:
-            if (std::find(g_vBadMDLHandles.begin(), g_vBadMDLHandles.end(), handle) == g_vBadMDLHandles.end())
+            if (std::find(g_BadMDLHandles.begin(), g_BadMDLHandles.end(), handle) == g_BadMDLHandles.end())
             {
                 if (bInvalidHandle)
                     Error(eDLL_T::ENGINE, "Model with handle \"hu\" not found; replacing with \"%s\".\n", handle, ERROR_MODEL);
@@ -188,7 +188,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, vo
                         Error(eDLL_T::ENGINE, "Model \"%s\" not found and \"%s\" couldn't be loaded.\n", v8, ERROR_MODEL);
                 }
 
-                g_vBadMDLHandles.push_back(handle);
+                g_BadMDLHandles.push_back(handle);
             }
             v17 = g_pMDLFallback->m_pErrorHDR;
             old_gather_props->SetValue(true); // mdl/error.rmdl fallback is not supported (yet) in the new GatherProps solution!

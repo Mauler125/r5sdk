@@ -35,7 +35,7 @@ struct CMDLFallBack
 	}
 };
 inline CMDLFallBack* g_pMDLFallback = new CMDLFallBack();
-inline vector<MDLHandle_t> g_vBadMDLHandles;
+inline vector<MDLHandle_t> g_BadMDLHandles;
 
 class CMDLCache
 {
