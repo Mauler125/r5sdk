@@ -432,10 +432,14 @@ void* __fastcall BuildPropStaticFrustumCullMap(int64_t a1, int64_t a2, unsigned 
 
 void BspLib_Attach()
 {
+#ifndef DEDICATED
     DetourAttach((LPVOID*)&v_BuildPropStaticFrustumCullMap, &BuildPropStaticFrustumCullMap);
+#endif // !DEDICATED
 }
 
 void BspLib_Detach()
 {
+#ifndef DEDICATED
     DetourDetach((LPVOID*)&v_BuildPropStaticFrustumCullMap, &BuildPropStaticFrustumCullMap);
+#endif // !DEDICATED
 }

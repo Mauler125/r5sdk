@@ -11,14 +11,14 @@ typedef IClientNetworkable* (*CreateEventFn)();
 class ClientClass
 {
 public:
-	const char* GetName()
+	const char* GetName(void) const
 	{
 		return m_pNetworkName;
 	}
 
 public:
 	CreateClientClassFn m_pCreateFn;
-	CreateEventFn	    m_pCreateEventFn;
+	CreateEventFn       m_pCreateEventFn;
 	char*               m_pNetworkName;
 	void*               m_pRecvTable; // CRecvTable*
 	ClientClass*        m_pNext;
