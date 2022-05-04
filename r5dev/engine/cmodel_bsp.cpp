@@ -85,69 +85,6 @@ bool MOD_LoadPakForMap(void* pBuffer)
 	}
 
 	return v_MOD_LoadPakForMap(pBuffer);
-
-	//void* v1; // r8
-	//const char* append_rpak_var; // rdx
-	//char* result; // rax
-	//int v4; // ecx
-	//int v5; // edx
-	//__int64 v6; // rax
-	//char v7; // cl
-	//int v8; // ebx
-	//char rpak_name_var[272]; // [rsp+20h] [rbp-118h] BYREF
-
-	//static auto unk_14D475233 = CMemory(0x141744E70).RCast<void*>();
-	//static auto byte_14D475220 = CMemory(0x14D475220).RCast<char(*)[19]>();
-	//static auto byte_1666ECF20 = CMemory(0x1666ECF20).RCast<char*>();
-	//static auto dword_141717BB8 = CMemory(0x141717BB8).RCast<int*>();
-
-	//static auto sub_14023BDD0 = CMemory(0x14023BDD0).RCast<__int64(*)()>();
-	//static auto sub_1404418A0 = CMemory(0x1404418A0).RCast<__int64(*)(int)>();
-	//static auto sub_140441520 = CMemory(0x140441520).RCast<__int64(*)(int, void*)>();
-
-	//v1 = &*(void**)unk_14D475233;
-	//append_rpak_var = "%s.rpak";
-	//if (!*byte_14D475220[0])
-	//	v1 = pBuffer;
-	//if (!*byte_14D475220[0])
-	//	append_rpak_var = "%s_loadscreen.rpak";
-	//sprintf(rpak_name_var, append_rpak_var, v1);
-	//result = byte_1666ECF20;
-	//do
-	//{
-	//	v4 = (unsigned __int8)result[rpak_name_var - byte_1666ECF20];
-	//	v5 = (unsigned __int8)*result - v4;
-	//	if (v5)
-	//		break;
-	//	++result;
-	//} while (v4);
-	//if (v5)
-	//{
-	//	v6 = 0i64;                                  // copying rpak name into byte buffer
-	//	do
-	//	{
-	//		v7 = rpak_name_var[v6];
-	//		byte_1666ECF20[v6++] = v7;
-	//	} while (v7);
-	//	sub_14023BDD0();
-	//	if (*dword_141717BB8 != -1)
-	//		sub_1404418A0(*dword_141717BB8);
-
-	//	if (!g_bLevelResourceInitialized &&
-	//		g_bBasePaksInitialized)
-	//		MOD_PreloadPak();
-	//	result = (char*)g_pakLoadApi->AsyncLoad(rpak_name_var);
-
-	//	v8 = (int)result;
-	//	if ((_DWORD)result != -1)
-	//	{
-	//		result = (char*)sub_140441520((unsigned int)result, nullptr);
-	//		if (!(_BYTE)result)
-	//			v8 = -1;
-	//	}
-	//	*dword_141717BB8 = v8;
-	//}
-	//return result;
 }
 
 
