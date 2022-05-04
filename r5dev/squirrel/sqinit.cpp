@@ -296,7 +296,7 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT GetAvailableMaps(HSQUIRRELVM v)
         {
-            std::vector<std::string> vsvMapList = g_pIBrowser->m_vszMapFileNameList;
+            std::vector<std::string> vsvMapList = g_pIBrowser->m_vszMapsList;
 
             if (vsvMapList.empty())
             {

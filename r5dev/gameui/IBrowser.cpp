@@ -41,16 +41,28 @@ IBrowser::IBrowser(void)
 {
     memset(m_chServerConnStringBuffer, 0, sizeof(m_chServerConnStringBuffer));
 
-    std::string path = "stbsp";
-    for (const auto& entry : std::filesystem::directory_iterator(path))
-    {
-        std::string filename = entry.path().string();
-        int slashPos = filename.rfind("\\", std::string::npos);
-        filename = filename.substr(static_cast<std::basic_string<char, std::char_traits<char>, std::allocator<char>>::size_type>(slashPos) + 1, std::string::npos);
-        filename = filename.substr(0, filename.size() - 6);
+    std::regex rgArchiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
+    std::smatch smRegexMatches;
 
-        m_vszMapsList.push_back(filename);
-        m_vszMapFileNameList.push_back(filename);
+    for (const auto& dEntry : std::filesystem::directory_iterator("vpk"))
+    {
+        std::string svFileName = dEntry.path().string();
+        std::regex_search(svFileName, smRegexMatches, rgArchiveRegex);
+
+        if (smRegexMatches.size() > 0)
+        {
+            if (strcmp(smRegexMatches[1].str().c_str(), "frontend") == 0)
+            {
+                continue;
+            }
+            else if (strcmp(smRegexMatches[1].str().c_str(), "mp_common") == 0)
+            {
+                m_vszMapsList.push_back("mp_lobby");
+                continue;
+            }
+
+            m_vszMapsList.push_back(smRegexMatches[1].str());
+        }
     }
 
 #ifndef CLIENT_DLL
