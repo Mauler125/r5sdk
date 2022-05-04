@@ -49,15 +49,7 @@ IBrowser::IBrowser(void)
         filename = filename.substr(static_cast<std::basic_string<char, std::char_traits<char>, std::allocator<char>>::size_type>(slashPos) + 1, std::string::npos);
         filename = filename.substr(0, filename.size() - 6);
 
-        auto it = mapArray.find(filename); // Find MapName in mapArray.
-        if (it != mapArray.end())
-        {
-            m_vszMapsList.push_back(it->second);
-        }
-        else
-        {
-            m_vszMapsList.push_back(filename);
-        }
+        m_vszMapsList.push_back(filename);
         m_vszMapFileNameList.push_back(filename);
     }
 
@@ -442,13 +434,6 @@ void IBrowser::HostServerSection(void)
             if (ImGui::Selectable(item.c_str(), item == m_Server.svMapName))
             {
                 m_Server.svMapName = item;
-                for (auto it = mapArray.begin(); it != mapArray.end(); ++it)
-                {
-                    if (it->second.compare(m_Server.svMapName) == NULL)
-                    {
-                        m_Server.svMapName = it->first;
-                    }
-                }
             }
         }
         ImGui::EndCombo();

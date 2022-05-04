@@ -82,17 +82,6 @@ public:
     char m_chServerEncKeyBuffer[30]      = { 0 };
     std::string m_szServerListMessage    = std::string();
 
-    std::map<std::string, std::string> mapArray =
-    {
-        { "mp_rr_canyonlands_64k_x_64k", "King's Canyon Season 0" },
-        { "mp_rr_desertlands_64k_x_64k", "World's Edge Season 3" },
-        { "mp_rr_canyonlands_mu1", "King's Canyon Season 2" },
-        { "mp_rr_canyonlands_mu1_night", "King's Canyon Season 2 After Dark" },
-        { "mp_rr_desertlands_64k_x_64k_nx", "World's Edge Season 3 After Dark" },
-        { "mp_lobby", "Lobby Season 3" },
-        { "mp_rr_canyonlands_staging", "King's Canyon Firing Range" }
-    };
-
     ////////////////////
     //    Settings    //
     ////////////////////
