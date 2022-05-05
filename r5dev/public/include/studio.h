@@ -181,4 +181,11 @@ public:
 	void* m_pMdlCacheVTable;
 };
 
+class CStudioHWDataRef
+{
+public:
+	bool IsDataRef(void) const { return true; }
+	uint8_t m_pUnknown[0x90]{};
+};
+
 #endif // STUDIO_H

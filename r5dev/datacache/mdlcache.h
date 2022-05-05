@@ -3,13 +3,6 @@
 #include "public/include/studio.h"
 #include "datacache/imdlcache.h"
 
-class CStudioHWDataRef
-{
-public:
-	bool IsDataRef(void) const { return true; }
-	uint8_t m_pUnknown[0x90]{};
-};
-
 struct RStaticProp_t
 {
 	studiohdr_t* m_pStudioHDR{};
@@ -34,6 +27,23 @@ struct CMDLFallBack
 		m_hEmptyMDL = NULL;
 	}
 };
+
+// only models with type "mod_studio" have this data
+struct studiodata_t
+{
+	void* m_MDLCache;
+	void* Unk0;
+	unsigned short m_nRefCount;
+	unsigned short m_nFlags;
+	MDLHandle_t m_Handle;
+	void* Unk3; // ptr to flags and model string.
+	CStudioHWDataRef* m_HardwareData;
+	void* Unk4; // contains material stuff (CMaterialGlue).
+	bool Unk5;
+	// !TODO: the rest..
+	// they where empty in the current debug session (size 0xA0 in S3)
+};
+
 inline CMDLFallBack* g_pMDLFallback = new CMDLFallBack();
 inline vector<MDLHandle_t> g_BadMDLHandles;
 

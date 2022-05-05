@@ -23,26 +23,20 @@
 //          *a3 - 
 // Output : a pointer to the studiohdr_t object
 //-----------------------------------------------------------------------------
-studiohdr_t* CMDLCache::FindMDL(CMDLCache* pMDLCache, MDLHandle_t handle, void* a3)
+studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
 {
-    __int64          v4; // rbp
-    __int64          v6; // rbx
-    __int64*         v7; // rax
-    studiohdr_t* result; // rax
+    studiodata_t* pStudioData; // rbx
+    void*         pMDLCache;   // rax
+    studiohdr_t*  result;      // rax
 
-    v4 = handle;
     EnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
-
-    // Example usage.
-    // auto mdlDict = CUtlDict<__int64, MDLHandle_t>(m_MDLDict.Deref().GetPtr()); // __int64 is studiodata_t*
-    // v6 = mdlDict.Find(v4);
-
-    v6 = *(_QWORD*)(m_MDLDict.Deref().GetPtr() + 24 * v4 + 16);
+    auto mdlDict = CUtlDict<studiodata_t*, MDLHandle_t>(m_MDLDict.Deref().GetPtr());
+    pStudioData = mdlDict.Find(static_cast<int64>(handle));
     LeaveCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
 
     if (!g_pMDLFallback->m_hErrorMDL || !g_pMDLFallback->m_hEmptyMDL)
     {
-        studiohdr_t* pStudioHDR = **(studiohdr_t***)v6;
+        studiohdr_t* pStudioHDR = **reinterpret_cast<studiohdr_t***>(pStudioData);
         string svStudio = ConvertToUnixPath(string(pStudioHDR->name));
 
         if (strcmp(svStudio.c_str(), ERROR_MODEL) == 0)
@@ -57,7 +51,7 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* pMDLCache, MDLHandle_t handle, void* 
         }
     }
 
-    if (!v6)
+    if (!pStudioData)
     {
         if (!g_pMDLFallback->m_hErrorMDL)
             Error(eDLL_T::ENGINE, "Model with handle \"%hu\" not found and \"%s\" couldn't be loaded.\n", handle, ERROR_MODEL);
@@ -65,28 +59,28 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* pMDLCache, MDLHandle_t handle, void* 
         return g_pMDLFallback->m_pErrorHDR;
     }
 
-    if ((*(_WORD*)(v6 + 18) & 0x600) != 0)
+    if ((pStudioData->m_nFlags & STUDIOHDR_FLAGS_NEEDS_DEFERRED_ADDITIVE | STUDIOHDR_FLAGS_OBSOLETE) != 0)
     {
-        v7 = *(__int64**)v6;
-        if (*(_QWORD*)v6)
+        pMDLCache = *reinterpret_cast<void**>(pStudioData);
+        if (pStudioData->m_MDLCache)
         {
             if (a3)
             {
-                FindCachedMDL(pMDLCache, (void*)v6, a3);
-                v7 = *(__int64**)v6;
+                FindCachedMDL(cache, pStudioData, a3);
+                pMDLCache = *reinterpret_cast<void**>(pStudioData);
             }
         LABEL_6:
-            result = (studiohdr_t*)*v7;
+            result = *reinterpret_cast<studiohdr_t**>(pMDLCache);
             if (result)
                 return result;
 
-            return FindUncachedMDL(pMDLCache, v4, (void*)v6, a3);
+            return FindUncachedMDL(cache, handle, pStudioData, a3);
         }
-        v7 = *(__int64**)(v6 + 8);
-        if (v7)
+        pMDLCache = pStudioData->Unk0;
+        if (pMDLCache)
             goto LABEL_6;
     }
-    return FindUncachedMDL(pMDLCache, v4, (void*)v6, a3);
+    return FindUncachedMDL(cache, handle, pStudioData, a3);
 }
 
 //-----------------------------------------------------------------------------
