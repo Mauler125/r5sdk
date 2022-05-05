@@ -27,7 +27,7 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
 {
     studiodata_t* pStudioData; // rbx
     void*         pMDLCache;   // rax
-    studiohdr_t*  result;      // rax
+    studiohdr_t*  pStudioHdr;  // rax
 
     EnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
     auto mdlDict = CUtlDict<studiodata_t*, MDLHandle_t>(m_MDLDict.Deref().GetPtr());
@@ -59,7 +59,8 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
         return g_pMDLFallback->m_pErrorHDR;
     }
 
-    if ((pStudioData->m_nFlags & STUDIOHDR_FLAGS_NEEDS_DEFERRED_ADDITIVE | STUDIOHDR_FLAGS_OBSOLETE) != 0)
+    int nFlags = STUDIOHDR_FLAGS_NEEDS_DEFERRED_ADDITIVE | STUDIOHDR_FLAGS_OBSOLETE;
+    if ((pStudioData->m_nFlags & nFlags))
     {
         pMDLCache = *reinterpret_cast<void**>(pStudioData);
         if (pStudioData->m_MDLCache)
@@ -70,9 +71,9 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
                 pMDLCache = *reinterpret_cast<void**>(pStudioData);
             }
         LABEL_6:
-            result = *reinterpret_cast<studiohdr_t**>(pMDLCache);
-            if (result)
-                return result;
+            pStudioHdr = *reinterpret_cast<studiohdr_t**>(pMDLCache);
+            if (pStudioHdr)
+                return pStudioHdr;
 
             return FindUncachedMDL(cache, handle, pStudioData, a3);
         }
