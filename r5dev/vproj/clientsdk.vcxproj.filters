@@ -178,6 +178,36 @@
     <Filter Include="sdk\game\shared">
       <UniqueIdentifier>{0b44d683-b59c-4523-8d93-0c0f1145412c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="thirdparty\nlohmann">
+      <UniqueIdentifier>{8b98d10d-9c3f-4678-aa38-c993bc75eec3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\nlohmann\detail">
+      <UniqueIdentifier>{74c19c99-a527-48d8-b350-6e9977c039b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\nlohmann\detail\conversions">
+      <UniqueIdentifier>{0b0265b0-50cc-4bf4-a0b0-babef5e2b21d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\nlohmann\detail\input">
+      <UniqueIdentifier>{2088224b-de01-49e6-a58b-2452a2d9a0cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\nlohmann\detail\iterators">
+      <UniqueIdentifier>{906a4214-75b0-4441-9ef9-42b99112724f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\nlohmann\detail\meta">
+      <UniqueIdentifier>{2c8a1020-0875-4f62-8b80-a483c52b31df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\nlohmann\detail\meta\call_std">
+      <UniqueIdentifier>{e527117c-1cf6-4095-8b85-680efdbb82f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\nlohmann\detail\output">
+      <UniqueIdentifier>{e4697807-e13b-4bd8-a697-d3c156e73ef9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\nlohmann\thirdparty">
+      <UniqueIdentifier>{ad75bd37-3a84-4f8b-9cd1-544bcf5758d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\nlohmann\thirdparty\hedley">
+      <UniqueIdentifier>{21ddddef-3a13-4f1d-9aa9-29c6b1bb24e1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\cdll_engine_int.cpp">
@@ -492,9 +522,6 @@
       <Filter>sdk\public\include</Filter>
     </ClInclude>
     <ClInclude Include="..\public\include\httplib.h">
-      <Filter>sdk\public\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\public\include\json.hpp">
       <Filter>sdk\public\include</Filter>
     </ClInclude>
     <ClInclude Include="..\public\include\utility.h">
@@ -1282,6 +1309,129 @@
     </ClInclude>
     <ClInclude Include="..\public\include\client_class.h">
       <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\datacache\idatacache.h">
+      <Filter>sdk\datacache</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\byte_container_with_subtype.hpp">
+      <Filter>thirdparty\nlohmann</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\json.hpp">
+      <Filter>thirdparty\nlohmann</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\json_fwd.hpp">
+      <Filter>thirdparty\nlohmann</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\ordered_map.hpp">
+      <Filter>thirdparty\nlohmann</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\adl_serializer.hpp">
+      <Filter>thirdparty\nlohmann</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\macro_unscope.hpp">
+      <Filter>thirdparty\nlohmann\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\string_concat.hpp">
+      <Filter>thirdparty\nlohmann\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\string_escape.hpp">
+      <Filter>thirdparty\nlohmann\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\value_t.hpp">
+      <Filter>thirdparty\nlohmann\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\exceptions.hpp">
+      <Filter>thirdparty\nlohmann\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\hash.hpp">
+      <Filter>thirdparty\nlohmann\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\json_pointer.hpp">
+      <Filter>thirdparty\nlohmann\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\json_ref.hpp">
+      <Filter>thirdparty\nlohmann\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\macro_scope.hpp">
+      <Filter>thirdparty\nlohmann\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\conversions\from_json.hpp">
+      <Filter>thirdparty\nlohmann\detail\conversions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\conversions\to_chars.hpp">
+      <Filter>thirdparty\nlohmann\detail\conversions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\conversions\to_json.hpp">
+      <Filter>thirdparty\nlohmann\detail\conversions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\input\input_adapters.hpp">
+      <Filter>thirdparty\nlohmann\detail\input</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\input\json_sax.hpp">
+      <Filter>thirdparty\nlohmann\detail\input</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\input\lexer.hpp">
+      <Filter>thirdparty\nlohmann\detail\input</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\input\parser.hpp">
+      <Filter>thirdparty\nlohmann\detail\input</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\input\position_t.hpp">
+      <Filter>thirdparty\nlohmann\detail\input</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\input\binary_reader.hpp">
+      <Filter>thirdparty\nlohmann\detail\input</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\iterators\iteration_proxy.hpp">
+      <Filter>thirdparty\nlohmann\detail\iterators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\iterators\iterator_traits.hpp">
+      <Filter>thirdparty\nlohmann\detail\iterators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\iterators\json_reverse_iterator.hpp">
+      <Filter>thirdparty\nlohmann\detail\iterators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\iterators\primitive_iterator.hpp">
+      <Filter>thirdparty\nlohmann\detail\iterators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\iterators\internal_iterator.hpp">
+      <Filter>thirdparty\nlohmann\detail\iterators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\iterators\iter_impl.hpp">
+      <Filter>thirdparty\nlohmann\detail\iterators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\meta\detected.hpp">
+      <Filter>thirdparty\nlohmann\detail\meta</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\meta\identity_tag.hpp">
+      <Filter>thirdparty\nlohmann\detail\meta</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\meta\is_sax.hpp">
+      <Filter>thirdparty\nlohmann\detail\meta</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\meta\type_traits.hpp">
+      <Filter>thirdparty\nlohmann\detail\meta</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\meta\void_t.hpp">
+      <Filter>thirdparty\nlohmann\detail\meta</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\meta\cpp_future.hpp">
+      <Filter>thirdparty\nlohmann\detail\meta</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\meta\call_std\end.hpp">
+      <Filter>thirdparty\nlohmann\detail\meta\call_std</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\meta\call_std\begin.hpp">
+      <Filter>thirdparty\nlohmann\detail\meta\call_std</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\output\output_adapters.hpp">
+      <Filter>thirdparty\nlohmann\detail\output</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\output\serializer.hpp">
+      <Filter>thirdparty\nlohmann\detail\output</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\nlohmann\detail\output\binary_writer.hpp">
+      <Filter>thirdparty\nlohmann\detail\output</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
