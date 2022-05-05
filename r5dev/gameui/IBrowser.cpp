@@ -669,7 +669,7 @@ void IBrowser::SendHostingPostRequest(void)
 //-----------------------------------------------------------------------------
 void IBrowser::ProcessCommand(const char* pszCommand)
 {
-    std::thread t(IVEngineClient_CommandExecute, this, pszCommand);
+    std::thread t(CEngineClient_CommandExecute, this, pszCommand);
     t.detach(); // Detach from render thread.
 
     // This is to avoid a race condition.

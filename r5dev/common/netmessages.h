@@ -69,13 +69,13 @@ inline CMemory MM_Heartbeat__ToString; // server HeartBeat? (baseserver.cpp).
 // SVC_Print
 //-------------------------------------------------------------------------
 inline auto SVC_Print_Process = CMemory().RCast<bool(*)(SVC_Print* thisptr)>();
-inline void* g_pSVC_Print_VTable;
+inline void* g_pSVC_Print_VTable = nullptr;
 
 //-------------------------------------------------------------------------
 // SVC_UserMessage
 //-------------------------------------------------------------------------
 inline auto SVC_UserMessage_Process = CMemory().RCast<bool(*)(SVC_UserMessage* thisptr)>();
-inline void* g_pSVC_UserMessage_VTable;
+inline void* g_pSVC_UserMessage_VTable = nullptr;
 
 void CNetMessages_Attach();
 void CNetMessages_Detach();

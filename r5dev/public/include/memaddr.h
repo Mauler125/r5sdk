@@ -103,6 +103,18 @@ public:
 		return *this;
 	}
 
+	inline CMemory WalkVTable(ptrdiff_t vfuncIndex)
+	{
+		ptr += (8 * vfuncIndex);
+		return CMemory(this);
+	}
+
+	inline CMemory WalkVTableSelf(ptrdiff_t vfuncIndex)
+	{
+		ptr += (8 * vfuncIndex);
+		return *this;
+	}
+
 	bool CheckOpCodes(const vector<uint8_t> vOpcodeArray) const;
 	void Patch(vector<uint8_t> vOpcodes) const;
 	void PatchString(const string& svString) const;

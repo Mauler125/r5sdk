@@ -123,9 +123,9 @@ void Systems_Init()
 	initTimer.Start();
 	for (IDetour* pDetour : vDetour)
 	{
+		pDetour->GetCon();
 		pDetour->GetFun();
 		pDetour->GetVar();
-		pDetour->GetCon();
 	}
 	initTimer.End();
 	spdlog::info("+-------------------------------------------------------------+\n");

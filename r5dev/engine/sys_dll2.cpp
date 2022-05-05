@@ -50,7 +50,7 @@ bool CEngineAPI::ModInit(CEngineAPI* pEngineAPI, const char* pModName, const cha
 	bool results = CEngineAPI_ModInit(pEngineAPI, pModName, pGameDir);
 	if (!IsValveMod(pModName) && IsRespawnMod(pModName))
 	{
-		*m_bRestrictServerCommands = true; // Restrict commands.
+		(*g_ppEngineClient)->SetRestrictServerCommands(true); // Restrict commands.
 
 		ConCommandBase* disconnect = g_pCVar->FindCommandBase("disconnect");
 		disconnect->AddFlags(FCVAR_SERVER_CAN_EXECUTE); // Make sure server is not restricted to this.
