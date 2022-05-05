@@ -110,6 +110,9 @@ FORCEINLINE void CHostState::FrameUpdate(CHostState* rcx, void* rdx, float time)
 			case HostStates_t::HS_GAME_SHUTDOWN:
 			{
 				DevMsg(eDLL_T::ENGINE, "%s - Shutdown host game\n", "CHostState::FrameUpdate");
+				if (g_pHostState->m_bActiveGame) {
+					g_pHostState->ResetLevelName();
+				}
 				g_bLevelResourceInitialized = false;
 				CHostState_State_GameShutDown(g_pHostState);
 				break;
