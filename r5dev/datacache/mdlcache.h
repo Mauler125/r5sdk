@@ -132,7 +132,7 @@ class HMDLCache : public IDetour
 		m_MDLMutex = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\xBA\x00\x00\x00\x00\x48\x8D\x0D\x00\x00\x00\x00\xFF\x15\x00\x00\x00\x00\x0F\xB6\x05\x00\x00\x00\x00"), "xxxxx????xxx????xx????xxx????")
 			.FindPatternSelf("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<LPCRITICAL_SECTION*>();
 
-		m_MDLLock = p_CMDLCache__GetStudioHardwareRef.Offset(0x35).FindPatternSelf("48 8D").ResolveRelativeAddressSelf(0x2, 0x7).RCast<PSRWLOCK*>();
+		m_MDLLock = p_CMDLCache__GetStudioHardwareRef.Offset(0x35).FindPatternSelf("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<PSRWLOCK*>();
 
 		m_MDLDict = p_CMDLCache__FindMDL.FindPattern("48 8B 05").ResolveRelativeAddressSelf(0x3, 0x7);
 
