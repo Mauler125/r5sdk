@@ -118,53 +118,49 @@ void CMDLCache::FindCachedMDL(CMDLCache* cache, studiodata_t* pStudioData, void*
 //-----------------------------------------------------------------------------
 studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, studiodata_t* pStudioData, void* a4)
 {
-    const char*    v8; // rdi
-    __int64        v9; // rax
-    int           v10; // eax
-    const char*   v11; // r11
-    int           v12; // eax
-    const char*   v13; // r11
-    int           v14; // eax
-    bool          v16; // zf
-    studiohdr_t*  v17; // rdi
-    studiohdr_t** v18; // rax
-    bool    bOldModel     {};
-    bool    bInvalidHandle{};
+    const char*   szModelName; // rdi
+    int64_t  nExtensionOffset; // rax
+    studiohdr_t*   pStudioHdr; // rdi
+    studiohdr_t** ppStudioHdr; // rax
+    void*         pModelCache;
+    bool          bOldModel{};
+    bool     bInvalidHandle{};
 
     pStudioData->m_Mutex.WaitForLock();
     EnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
-    void* modelCache = cache->m_pModelCacheSection;
-    v8 = (const char*)(*(_QWORD*)((int64)modelCache + 24 * static_cast<int64>(handle) + 8));
+    pModelCache = cache->m_pModelCacheSection;
+    szModelName = (const char*)(*(_QWORD*)((int64)pModelCache + 24 * static_cast<int64>(handle) + 8));
     LeaveCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
-    if (IsBadReadPtrV2((void*)v8))
+    if (IsBadReadPtrV2((void*)szModelName))
     {
         bInvalidHandle = true;
         goto LABEL_ERROR;
     }
 
-    v9 = -1i64;
+    nExtensionOffset = -1i64;
     do
-        ++v9;
-    while (v8[v9]);
+        ++nExtensionOffset;
+    while (szModelName[nExtensionOffset]);
 
-    if (v9 < 5 ||
-        (_stricmp(&v8[v9 - 5], ".rmdl") != 0) &&
-        (_stricmp(&v8[v9 - 5], ".rrig") != 0) &&
-        (_stricmp(&v8[v9 - 5], ".rpak") != 0))
+    if (nExtensionOffset < 5 ||
+        (_stricmp(&szModelName[nExtensionOffset - 5], ".rmdl") != 0) &&
+        (_stricmp(&szModelName[nExtensionOffset - 5], ".rrig") != 0) &&
+        (_stricmp(&szModelName[nExtensionOffset - 5], ".rpak") != 0))
     {
         bOldModel = true;
         goto LABEL_ERROR;
     }
 
-    g_pRTech->StringToGuid(v8);
-    v16 = *(_QWORD*)pStudioData == 0i64;
-    *(_BYTE*)((int64)pStudioData + 152) = 0;
-    if (v16)
+    LOBYTE(pStudioData->m_nGuidLock) = 1;
+    g_pRTech->StringToGuid(szModelName);
+    LOBYTE(pStudioData->m_nGuidLock) = 0;
+
+    if (!pStudioData->m_MDLCache)
     {
-        v18 = *(studiohdr_t***)((int64)pStudioData + 8);
-        if (v18)
+        ppStudioHdr = (studiohdr_t**)pStudioData->m_pAnimData;
+        if (ppStudioHdr)
         {
-            v17 = *v18;
+            pStudioHdr = *ppStudioHdr;
         }
         else
         {
@@ -174,18 +170,18 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
                 if (bInvalidHandle)
                     Error(eDLL_T::ENGINE, "Model with handle \"hu\" not found; replacing with \"%s\".\n", handle, ERROR_MODEL);
                 else if (bOldModel)
-                    Error(eDLL_T::ENGINE, "Attempted to load old model \"%s\"; replace with rmdl.\n", v8);
+                    Error(eDLL_T::ENGINE, "Attempted to load old model \"%s\"; replace with rmdl.\n", szModelName);
                 else
                 {
                     if (g_pMDLFallback->m_hErrorMDL)
-                        Error(eDLL_T::ENGINE, "Model \"%s\" not found; replacing with \"%s\".\n", v8, ERROR_MODEL);
+                        Error(eDLL_T::ENGINE, "Model \"%s\" not found; replacing with \"%s\".\n", szModelName, ERROR_MODEL);
                     else
-                        Error(eDLL_T::ENGINE, "Model \"%s\" not found and \"%s\" couldn't be loaded.\n", v8, ERROR_MODEL);
+                        Error(eDLL_T::ENGINE, "Model \"%s\" not found and \"%s\" couldn't be loaded.\n", szModelName, ERROR_MODEL);
                 }
 
                 g_BadMDLHandles.push_back(handle);
             }
-            v17 = g_pMDLFallback->m_pErrorHDR;
+            pStudioHdr = g_pMDLFallback->m_pErrorHDR;
             old_gather_props->SetValue(true); // mdl/error.rmdl fallback is not supported (yet) in the new GatherProps solution!
         }
     }
@@ -195,15 +191,15 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
         if ((__int64)*(studiohdr_t**)pStudioData)
         {
             if ((__int64)*(studiohdr_t**)pStudioData == 0xDEADFEEDDEADFEED)
-                v17 = g_pMDLFallback->m_pErrorHDR;
+                pStudioHdr = g_pMDLFallback->m_pErrorHDR;
             else
-                v17 = **(studiohdr_t***)pStudioData;
+                pStudioHdr = **(studiohdr_t***)pStudioData;
         }
         else
-            v17 = g_pMDLFallback->m_pErrorHDR;
+            pStudioHdr = g_pMDLFallback->m_pErrorHDR;
     }
     pStudioData->m_Mutex.ReleaseWaiter();
-    return v17;
+    return pStudioHdr;
 }
 
 //-----------------------------------------------------------------------------
