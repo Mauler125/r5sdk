@@ -2,6 +2,7 @@
 #define MDLCACHE_H
 #include "public/include/studio.h"
 #include "datacache/imdlcache.h"
+#include "tier0/threadtools.h"
 
 struct RStaticProp_t
 {
@@ -32,16 +33,21 @@ struct CMDLFallBack
 struct studiodata_t
 {
 	void* m_MDLCache;
-	void* Unk0;
+	void* m_pAnimData; // !TODO: reverse struct.
 	unsigned short m_nRefCount;
 	unsigned short m_nFlags;
 	MDLHandle_t m_Handle;
+#ifndef GAMEDLL_S3
+	void* Unk1; // TODO: unverified!
+	void* Unk2; // TODO: unverified!
+#endif // !GAMEDLL_S3
 	void* Unk3; // ptr to flags and model string.
 	CStudioHWDataRef* m_HardwareData;
 	void* Unk4; // contains material stuff (CMaterialGlue).
-	bool Unk5;
-	// !TODO: the rest..
-	// they where empty in the current debug session (size 0xA0 in S3)
+	int Unk5;
+	char pad[72];
+	CThreadFastMutex m_Mutex;
+	int m_nGuidLock; // always -1, set to 1 and 0 in CMDLCache::FindUncachedMDL.
 };
 
 inline CMDLFallBack* g_pMDLFallback = new CMDLFallBack();
@@ -51,8 +57,8 @@ class CMDLCache
 {
 public:
 	static studiohdr_t* FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3);
-	static void FindCachedMDL(CMDLCache* cache, void* a2, void* a3);
-	static studiohdr_t* FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, void* a3, void* a4);
+	static void FindCachedMDL(CMDLCache* cache, studiodata_t* pStudioData, void* a3);
+	static studiohdr_t* FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, studiodata_t* pStudioData, void* a4);
 	static studiohdr_t* GetStudioHDR(CMDLCache* cache, MDLHandle_t handle);
 	static CStudioHWDataRef* GetStudioHardwareRef(CMDLCache* cache, MDLHandle_t handle);
 	static void* GetStudioMaterialGlue(CMDLCache* cache, MDLHandle_t handle);

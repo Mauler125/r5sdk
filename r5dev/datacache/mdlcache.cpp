@@ -77,7 +77,7 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
 
             return FindUncachedMDL(cache, handle, pStudioData, a3);
         }
-        pMDLCache = pStudioData->Unk0;
+        pMDLCache = pStudioData->m_pAnimData;
         if (pMDLCache)
             goto LABEL_6;
     }
@@ -90,21 +90,21 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
 //          *a2 - 
 //          *a3 - 
 //-----------------------------------------------------------------------------
-void CMDLCache::FindCachedMDL(CMDLCache* cache, void* a2, void* a3)
+void CMDLCache::FindCachedMDL(CMDLCache* cache, studiodata_t* pStudioData, void* a3)
 {
     __int64 v6; // rax
 
     if (a3)
     {
-        CThreadFastMutex::WaitForLock((CThreadFastMutex*)a2 + 128);
-        *(_QWORD*)((int64_t)a3 + 2176) = *(_QWORD*)((int64_t)a2 + 88);
-        v6 = *(_QWORD*)((int64_t)a2 + 88);
+        pStudioData->m_Mutex.WaitForLock();
+        *(_QWORD*)((int64_t)a3 + 0x880) = *(_QWORD*)&pStudioData->pad[0x24];
+        v6 = *(_QWORD*)&pStudioData->pad[0x24];
         if (v6)
-            *(_QWORD*)(v6 + 2168) = (int64_t)a3;
-        *(_QWORD*)((int64_t)a2 + 88) = (int64_t)a3;
-        *(_QWORD*)((int64_t)a3 + 2160) = (int64_t)cache;
-        *(_WORD*)((int64_t)a3 + 2184) = *(_WORD*)((int64_t)a2 + 20);
-        CThreadFastMutex::ReleaseWaiter((CThreadFastMutex*)a2 + 128);
+            *(_QWORD*)(v6 + 0x878) = (int64_t)a3;
+        *(_QWORD*)&pStudioData->pad[0x24] = (int64_t)a3;
+        *(_QWORD*)((int64_t)a3 + 0x870) = (int64_t)cache;
+        *(_WORD*)((int64_t)a3 + 0x888) = pStudioData->m_Handle;
+        pStudioData->m_Mutex.ReleaseWaiter();
     }
 }
 
@@ -116,7 +116,7 @@ void CMDLCache::FindCachedMDL(CMDLCache* cache, void* a2, void* a3)
 //          *a4 - 
 // Output : a pointer to the studiohdr_t object
 //-----------------------------------------------------------------------------
-studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, void* a3, void* a4)
+studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, studiodata_t* pStudioData, void* a4)
 {
     const char*    v8; // rdi
     __int64        v9; // rax
@@ -131,7 +131,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, vo
     bool    bOldModel     {};
     bool    bInvalidHandle{};
 
-    CThreadFastMutex::WaitForLock((CThreadFastMutex*)a3 + 0x80);
+    pStudioData->m_Mutex.WaitForLock();
     EnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
     void* modelCache = cache->m_pModelCacheSection;
     v8 = (const char*)(*(_QWORD*)((int64)modelCache + 24 * static_cast<int64>(handle) + 8));
@@ -157,11 +157,11 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, vo
     }
 
     g_pRTech->StringToGuid(v8);
-    v16 = *(_QWORD*)a3 == 0i64;
-    *(_BYTE*)((int64)a3 + 152) = 0;
+    v16 = *(_QWORD*)pStudioData == 0i64;
+    *(_BYTE*)((int64)pStudioData + 152) = 0;
     if (v16)
     {
-        v18 = *(studiohdr_t***)((int64)a3 + 8);
+        v18 = *(studiohdr_t***)((int64)pStudioData + 8);
         if (v18)
         {
             v17 = *v18;
@@ -191,18 +191,18 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, vo
     }
     else
     {
-        v_CMDLCache__FindCachedMDL(cache, a3, a4);
-        if ((__int64)*(studiohdr_t**)a3)
+        v_CMDLCache__FindCachedMDL(cache, pStudioData, a4);
+        if ((__int64)*(studiohdr_t**)pStudioData)
         {
-            if ((__int64)*(studiohdr_t**)a3 == 0xDEADFEEDDEADFEED)
+            if ((__int64)*(studiohdr_t**)pStudioData == 0xDEADFEEDDEADFEED)
                 v17 = g_pMDLFallback->m_pErrorHDR;
             else
-                v17 = **(studiohdr_t***)a3;
+                v17 = **(studiohdr_t***)pStudioData;
         }
         else
             v17 = g_pMDLFallback->m_pErrorHDR;
     }
-    CThreadFastMutex::ReleaseWaiter((CThreadFastMutex*)a3 + 128);
+    pStudioData->m_Mutex.ReleaseWaiter();
     return v17;
 }
 
