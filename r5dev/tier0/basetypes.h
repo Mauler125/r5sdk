@@ -35,6 +35,8 @@
 #define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
 #endif
 
+#define FORWARD_DECLARE_HANDLE(name) typedef struct name##__ *name
+
 struct vrect_t
 {
 	int      x, y, width, height;

@@ -102,6 +102,23 @@
 // models when we change materials.
 #define STUDIOHDR_BAKED_VERTEX_LIGHTING_IS_INDIRECT_ONLY	( 1 << 27 )
 
+enum
+{
+	STUDIODATA_FLAGS_STUDIOMESH_LOADED = 0x0001,
+	STUDIODATA_FLAGS_VCOLLISION_LOADED = 0x0002,
+	STUDIODATA_ERROR_MODEL = 0x0004,
+	STUDIODATA_FLAGS_NO_STUDIOMESH = 0x0008,
+	STUDIODATA_FLAGS_NO_VERTEX_DATA = 0x0010,
+	//										= 0x0020,	// unused
+	STUDIODATA_FLAGS_PHYSICS2COLLISION_LOADED = 0x0040,
+	STUDIODATA_FLAGS_VCOLLISION_SCANNED = 0x0080,
+
+	STUDIODATA_FLAGS_COMBINED_PLACEHOLDER = 0x0100,
+	STUDIODATA_FLAGS_COMBINED = 0x0200,
+	STUDIODATA_FLAGS_COMBINED_UNAVAILABLE = 0x0400,
+	STUDIODATA_FLAGS_COMBINED_ASSET = 0x0800,
+};
+
 #pragma pack(push, 1)
 struct studiohdr_t
 {
@@ -170,6 +187,28 @@ struct studiohdr_t
 };
 #pragma pack(pop)
 
+// studio model data
+struct studiomeshdata_t
+{
+	int   m_NumGroup;
+	void* m_pMeshGroup; // studiomeshgroup_t
+};
+
+struct studioloddata_t
+{
+	studiomeshdata_t* m_pMeshData;
+	// !TODO:
+};
+
+struct studiohwdata_t
+{
+	int                   m_RootLOD; // calced and clamped, nonzero for lod culling
+	int                   m_NumLODs;
+	studioloddata_t*        m_pLODs;
+	int           m_NumStudioMeshes;
+	// !TODO:
+};
+
 class CStudioHdr
 {
 public:
@@ -185,7 +224,10 @@ class CStudioHWDataRef
 {
 public:
 	bool IsDataRef(void) const { return true; }
-	uint8_t m_pUnknown[0x90]{};
+
+	CStudioHWDataRef* m_pVTable;
+	uint8_t pad0[0x8];
+	studiohwdata_t m_HardwareData;
 };
 
 #endif // STUDIO_H
