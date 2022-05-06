@@ -181,8 +181,8 @@ class HPakFile : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| VAR: g_pLoadedPakInfo                     : 0x" << std::hex << std::uppercase << g_pLoadedPakInfo << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: s_pLoadedPakCount                    : 0x" << std::hex << std::uppercase << s_pLoadedPakCount << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| VAR: g_pLoadedPakInfo                     : 0x" << std::hex << std::uppercase << g_pLoadedPakInfo  << std::setw(0) << " |" << std::endl;
+		std::cout << "| VAR: s_pLoadedPakCount                    : 0x" << std::hex << std::uppercase << s_pLoadedPakCount << std::setw(0) << " |" << std::endl;
 		std::cout << "+----------------------------------------------------------------+" << std::endl;
 	}
 	virtual void GetFun(void) const { }

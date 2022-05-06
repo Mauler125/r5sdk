@@ -31,8 +31,7 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
     studiohdr_t*  pStudioHdr;  // rax
 
     EnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
-    auto mdlDict = CUtlDict<studiodata_t*, MDLHandle_t>(m_MDLDict.Deref().GetPtr());
-    pStudioData = mdlDict.Find(static_cast<int64>(handle));
+    pStudioData = m_MDLDict->Find(handle);
     LeaveCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
 
     if (!g_pMDLFallback->m_hErrorMDL || !g_pMDLFallback->m_hEmptyMDL)
@@ -93,13 +92,11 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
 //-----------------------------------------------------------------------------
 void CMDLCache::FindCachedMDL(CMDLCache* cache, studiodata_t* pStudioData, void* a3)
 {
-    __int64 v6; // rax
-
     if (a3)
     {
         pStudioData->m_Mutex.WaitForLock();
         *(_QWORD*)((int64_t)a3 + 0x880) = *(_QWORD*)&pStudioData->pad[0x24];
-        v6 = *(_QWORD*)&pStudioData->pad[0x24];
+        int64_t v6 = *(_QWORD*)&pStudioData->pad[0x24];
         if (v6)
             *(_QWORD*)(v6 + 0x878) = (int64_t)a3;
         *(_QWORD*)&pStudioData->pad[0x24] = (int64_t)a3;
@@ -212,7 +209,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
 studiohdr_t* CMDLCache::GetStudioHDR(CMDLCache* pMDLCache, MDLHandle_t handle)
 {
     __int64 v2; // rbx
-    __int64 v3; // rbx
+    studiodata_t* pStudioData; // rbx
     __int64 v4; // rdx
     studiohdr_t* result = nullptr; // rax
 
@@ -227,11 +224,11 @@ studiohdr_t* CMDLCache::GetStudioHDR(CMDLCache* pMDLCache, MDLHandle_t handle)
 
     v2 = handle;
     EnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
-    v3 = *(_QWORD*)(m_MDLDict.Deref().GetPtr() + 24 * v2 + 16);
+    pStudioData = m_MDLDict->Find(handle);
     LeaveCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
-    if (*(_QWORD*)(v3))
+    if (*(_QWORD*)(pStudioData))
     {
-        v4 = *(_QWORD*)(*(_QWORD*)(*(_QWORD*)v3 + 8i64) + 24i64);
+        v4 = *(_QWORD*)(*(_QWORD*)(*(_QWORD*)pStudioData + 8i64) + 24i64);
         if (v4)
             result = (studiohdr_t*)(v4 + 16);
     }
@@ -244,14 +241,10 @@ studiohdr_t* CMDLCache::GetStudioHDR(CMDLCache* pMDLCache, MDLHandle_t handle)
 //          handle - 
 // Output : a pointer to the studiohwdata_t object
 //-----------------------------------------------------------------------------
-studiohwdata_t* CMDLCache::GetStudioHardware(CMDLCache* cache, MDLHandle_t handle)
+studiohwdata_t* CMDLCache::GetHardwareData(CMDLCache* cache, MDLHandle_t handle)
 {
-    studiodata_t* pStudioData; // rdi
-    void* pAnimData; // rbx
-    studiohwdata_t* result; // rax
-
     EnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
-    pStudioData = *(studiodata_t**)(m_MDLDict.Deref().GetPtr() + 24 * static_cast<int64_t>(handle) + 16);
+    studiodata_t* pStudioData = m_MDLDict->Find(handle);
     LeaveCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
 
     if (!pStudioData)
@@ -261,7 +254,7 @@ studiohwdata_t* CMDLCache::GetStudioHardware(CMDLCache* cache, MDLHandle_t handl
             Error(eDLL_T::ENGINE, "Studio hardware with handle \"%hu\" not found and \"%s\" couldn't be loaded.\n", handle, ERROR_MODEL);
             return nullptr;
         }
-        pStudioData = *(studiodata_t**)(m_MDLDict.Deref().GetPtr() + 24i64 * g_pMDLFallback->m_hErrorMDL + 16);
+        pStudioData = m_MDLDict->Find(g_pMDLFallback->m_hErrorMDL);
     }
 
     if (pStudioData->m_MDLCache)
@@ -269,16 +262,16 @@ studiohwdata_t* CMDLCache::GetStudioHardware(CMDLCache* cache, MDLHandle_t handl
         if (reinterpret_cast<int64_t>(pStudioData->m_MDLCache) == 0xDEADFEEDDEADFEED)
             return nullptr;
 
-        pAnimData = (void*)*((_QWORD*)pStudioData->m_MDLCache + 1);
+        void* pAnimData = (void*)*((_QWORD*)pStudioData->m_MDLCache + 1);
+
         AcquireSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&*m_MDLLock));
         v_CStudioHWDataRef__SetFlags(reinterpret_cast<CStudioHWDataRef*>(pAnimData), 1i64); // !!! DECLARED INLINE IN < S3 !!!
         ReleaseSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&*m_MDLLock));
     }
     if ((pStudioData->m_nFlags & STUDIODATA_FLAGS_STUDIOMESH_LOADED))
-        result = &pStudioData->m_pHardwareRef->m_HardwareData;
+        return &pStudioData->m_pHardwareRef->m_HardwareData;
     else
-        result = nullptr;
-    return result;
+        return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -287,16 +280,13 @@ studiohwdata_t* CMDLCache::GetStudioHardware(CMDLCache* cache, MDLHandle_t handl
 //          handle - 
 // Output : a pointer to the CMaterialGlue object
 //-----------------------------------------------------------------------------
-void* CMDLCache::GetStudioMaterialGlue(CMDLCache* cache, MDLHandle_t handle)
+void* CMDLCache::GetMaterialTable(CMDLCache* cache, MDLHandle_t handle)
 {
-    __int64 v2; // rbx
-    __int64 v3; // rbx
-
-    v2 = handle;
     EnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
-    v3 = *(_QWORD*)(m_MDLDict.Deref().GetPtr() + 24 * v2 + 16);
+    studiodata_t* pStudioData = m_MDLDict->Find(handle);
     LeaveCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
-    return (char*)v3 + 40;
+
+    return &pStudioData->m_pMaterialTable;
 }
 
 void MDLCache_Attach()
@@ -304,7 +294,7 @@ void MDLCache_Attach()
     DetourAttach((LPVOID*)&v_CMDLCache__FindMDL, &CMDLCache::FindMDL);
     DetourAttach((LPVOID*)&v_CMDLCache__FindCachedMDL, &CMDLCache::FindCachedMDL);
     DetourAttach((LPVOID*)&v_CMDLCache__FindUncachedMDL, &CMDLCache::FindUncachedMDL);
-    DetourAttach((LPVOID*)&v_CMDLCache__GetStudioHardware, &CMDLCache::GetStudioHardware);
+    DetourAttach((LPVOID*)&v_CMDLCache__GetHardwareData, &CMDLCache::GetHardwareData);
     DetourAttach((LPVOID*)&v_CMDLCache__GetStudioHDR, &CMDLCache::GetStudioHDR);
 }
 
@@ -313,6 +303,6 @@ void MDLCache_Detach()
     DetourDetach((LPVOID*)&v_CMDLCache__FindMDL, &CMDLCache::FindMDL);
     DetourDetach((LPVOID*)&v_CMDLCache__FindCachedMDL, &CMDLCache::FindCachedMDL);
     DetourDetach((LPVOID*)&v_CMDLCache__FindUncachedMDL, &CMDLCache::FindUncachedMDL);
-    DetourDetach((LPVOID*)&v_CMDLCache__GetStudioHardware, &CMDLCache::GetStudioHardware);
+    DetourDetach((LPVOID*)&v_CMDLCache__GetHardwareData, &CMDLCache::GetHardwareData);
     DetourDetach((LPVOID*)&v_CMDLCache__GetStudioHDR, &CMDLCache::GetStudioHDR);
 }
