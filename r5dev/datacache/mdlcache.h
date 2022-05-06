@@ -64,6 +64,8 @@ public:
 	static studiohdr_t* GetStudioHDR(CMDLCache* cache, MDLHandle_t handle);
 	static studiohwdata_t* GetHardwareData(CMDLCache* cache, MDLHandle_t handle);
 	static void* GetMaterialTable(CMDLCache* cache, MDLHandle_t handle);
+	static studiohdr_t* GetErrorModel(void);
+	static bool IsKnownBadModel(MDLHandle_t handle);
 
 	CMDLCache* m_pVTable;
 	void* m_pStrCmp;             // string compare func;
