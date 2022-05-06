@@ -54,9 +54,22 @@ void CAI_NetworkManager_Detach();
 class CAI_NetworkBuilder
 {
 public:
+	static void Build(CAI_NetworkBuilder* pBuilder, CAI_Network* pAINetwork, void* a3, int a4);
 	static void SaveNetworkGraph(CAI_Network* pNetwork);
 };
 
+//-----------------------------------------------------------------------------
+// CAI_NetworkManager
+//
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+class CAI_NetworkManager
+{
+public:
+	static void LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager, void* pBuffer, const char* szAIGraphFile);
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 class HCAI_NetworkManager : public IDetour

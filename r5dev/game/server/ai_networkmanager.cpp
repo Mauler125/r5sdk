@@ -31,11 +31,11 @@ CAI_NetworkBuilder::BuildFile
 */
 void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 {
-	std::string svMeshDir = "maps\\navmesh\\";
-	std::string svGraphDir = "maps\\graphs\\";
+	string svMeshDir = "maps\\navmesh\\";
+	string svGraphDir = "maps\\graphs\\";
 
-	std::filesystem::path fsMeshPath(svMeshDir + g_pHostState->m_levelName + "_" + HULL_SIZE[3] + ".nm");
-	std::filesystem::path fsGraphPath(svGraphDir + g_pHostState->m_levelName + ".ain");
+	fs::path fsMeshPath(svMeshDir + g_pHostState->m_levelName + "_" + HULL_SIZE[3] + ".nm");
+	fs::path fsGraphPath(svGraphDir + g_pHostState->m_levelName + ".ain");
 
 	CFastTimer masterTimer;
 	CFastTimer timer;
@@ -53,7 +53,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 
 	CreateDirectories(svGraphDir);
 
-	std::ofstream writeStream(fsGraphPath, std::ofstream::binary);
+	ofstream writeStream(fsGraphPath, ofstream::binary);
 	DevMsg(eDLL_T::SERVER, " |-- AINet version: '%d'\n", AINET_VERSION_NUMBER);
 	writeStream.write(reinterpret_cast<const char*>(&AINET_VERSION_NUMBER), sizeof(int));
 
@@ -61,14 +61,14 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	DevMsg(eDLL_T::SERVER, " |-- Map version: '%d'\n", nMapVersion);
 	writeStream.write(reinterpret_cast<char*>(&nMapVersion), sizeof(int));
 
-	std::ifstream iNavMesh(fsMeshPath, std::fstream::binary);
-	std::vector<std::uint8_t> uNavMesh;
-	std::uint32_t nNavMeshHash = NULL;
+	ifstream iNavMesh(fsMeshPath, fstream::binary);
+	vector<uint8_t> uNavMesh;
+	uint32_t nNavMeshHash = NULL;
 	if (iNavMesh.good())
 	{
-		iNavMesh.seekg(0, std::fstream::end);
+		iNavMesh.seekg(0, fstream::end);
 		uNavMesh.resize(iNavMesh.tellg());
-		iNavMesh.seekg(0, std::fstream::beg);
+		iNavMesh.seekg(0, fstream::beg);
 		iNavMesh.read((char*)uNavMesh.data(), uNavMesh.size());
 
 		nNavMeshHash = crc32::update(NULL, uNavMesh.data(), uNavMesh.size());
@@ -117,7 +117,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 			memcpy(diskNode.unk6, pNetwork->m_pAInode[i]->unk10, sizeof(diskNode.unk6));
 
 
-			DevMsg(eDLL_T::SERVER, " |-- Copying node '#%d' from '%p' to '0x%llx'\n", pNetwork->m_pAInode[i]->m_nIndex, reinterpret_cast<void*>(pNetwork->m_pAInode[i]), static_cast<size_t>(writeStream.tellp()));
+			DevMsg(eDLL_T::SERVER, " |-- Copying node '#%d' from '0x%p' to '0x%llX'\n", pNetwork->m_pAInode[i]->m_nIndex, reinterpret_cast<void*>(pNetwork->m_pAInode[i]), static_cast<size_t>(writeStream.tellp()));
 			writeStream.write(reinterpret_cast<char*>(&diskNode), sizeof(CAI_NodeDisk));
 
 			nCalculatedLinkcount += pNetwork->m_pAInode[i]->m_nNumLinks;
@@ -161,7 +161,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 				diskLink.unk0 = pNetwork->m_pAInode[i]->links[j]->unk1;
 				memcpy(diskLink.m_bHulls, pNetwork->m_pAInode[i]->links[j]->m_bHulls, sizeof(diskLink.m_bHulls));
 
-				DevMsg(eDLL_T::SERVER, "  |-- Writing link '%d' => '%d' to '0x%llx'\n", diskLink.m_iSrcID, diskLink.m_iDestID, static_cast<size_t>(writeStream.tellp()));
+				DevMsg(eDLL_T::SERVER, "  |-- Writing link '%d' => '%d' to '0x%llX'\n", diskLink.m_iSrcID, diskLink.m_iDestID, static_cast<size_t>(writeStream.tellp()));
 				writeStream.write(reinterpret_cast<char*>(&diskLink), sizeof(CAI_NodeLinkDisk));
 			}
 		}
@@ -173,7 +173,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	timer.Start();
 	DevMsg(eDLL_T::SERVER, "+- Writing hull data...\n");
 	// Don't know what this is, it's likely a block from tf1 that got deprecated? should just be 1 int per node.
-	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' bytes for unknown block at '0x%llx'\n", pNetwork->m_iNumNodes * sizeof(uint32_t), static_cast<size_t>(writeStream.tellp()));
+	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' bytes for unknown block at '0x%llX'\n", pNetwork->m_iNumNodes * sizeof(uint32_t), static_cast<size_t>(writeStream.tellp()));
 
 	if (static_cast<int>(pNetwork->m_iNumNodes) > 0)
 	{
@@ -185,12 +185,12 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 
 	// TODO: This is traverse nodes i think? these aren't used in r2 ains so we can get away with just writing count=0 and skipping
 	// but ideally should actually dump these.
-	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' traversal nodes at '0x%llx'\n", 0, static_cast<size_t>(writeStream.tellp()));
+	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' traversal nodes at '0x%llX'\n", 0, static_cast<size_t>(writeStream.tellp()));
 	short traverseNodeCount = 0; // Only write count since count=0 means we don't have to actually do anything here.
 	writeStream.write(reinterpret_cast<char*>(&traverseNodeCount), sizeof(short));
 
 	// TODO: Ideally these should be actually dumped, but they're always 0 in r2 from what i can tell.
-	DevMsg(eDLL_T::SERVER, " |-- Writing '%lld' bytes for unknown hull block at '0x%llx'\n", MAX_HULLS * 8, static_cast<size_t>(writeStream.tellp()));
+	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' bytes for unknown hull block at '0x%llX'\n", MAX_HULLS * 8, static_cast<size_t>(writeStream.tellp()));
 	char* unkHullBlock = new char[MAX_HULLS * 8];
 	memset(unkHullBlock, '\0', MAX_HULLS * 8);
 	writeStream.write(unkHullBlock, MAX_HULLS * 8);
@@ -295,35 +295,107 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	writeStream.close();
 }
 
-void HCAI_NetworkManager__LoadNetworkGraph(void* aimanager, void* buf, const char* filename)
+/*
+==============================
+CAI_NetworkManager::LoadNetworkGraph
+
+  Load network from the disk
+  and validate status
+==============================
+*/
+void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager, void* pBuffer, const char* szAIGraphFile)
 {
+	string svMeshDir = "maps\\navmesh\\";
+	string svGraphDir = "maps\\graphs\\";
+
+	fs::path fsMeshPath(svMeshDir + g_pHostState->m_levelName + "_" + HULL_SIZE[3] + ".nm");
+	fs::path fsGraphPath(svGraphDir + g_pHostState->m_levelName + ".ain");
+
+	int nAiNetVersion = NULL;
+	int nAiMapVersion = NULL;
+
+	uint32_t nAiGraphHash = NULL;
+	uint32_t nNavMeshHash = NULL;
+
+	ifstream iAIGraph(fsGraphPath, fstream::binary);
+	if (iAIGraph.good())
+	{
+		iAIGraph.read(reinterpret_cast<char*>(&nAiNetVersion), sizeof(int));
+		iAIGraph.read(reinterpret_cast<char*>(&nAiMapVersion), sizeof(int));
+		iAIGraph.read(reinterpret_cast<char*>(&nAiGraphHash), sizeof(uint32_t));
+
+		if (nAiNetVersion > AINET_VERSION_NUMBER)
+		{
+			Warning(eDLL_T::SERVER, "AI node graph '%s' deviates expectations (net version: '%d' expected: '%d')\n", 
+				fsGraphPath.string().c_str(), nAiNetVersion, AINET_VERSION_NUMBER);
+		}
+		else if (nAiMapVersion != g_ServerGlobalVariables->m_nMapVersion)
+		{
+			Warning(eDLL_T::SERVER, "AI node graph '%s' is out of date (map version: '%d' expected: '%d')\n", 
+				fsGraphPath.string().c_str(), nAiMapVersion, g_ServerGlobalVariables->m_nMapVersion);
+		}
+		else
+		{
+			ifstream iNavMesh(fsMeshPath, fstream::binary);
+			if (iNavMesh.good())
+			{
+				vector<uint8_t> uNavMesh;
+
+				iNavMesh.seekg(0, fstream::end);
+				uNavMesh.resize(iNavMesh.tellg());
+				iNavMesh.seekg(0, fstream::beg);
+				iNavMesh.read((char*)uNavMesh.data(), uNavMesh.size());
+
+				nNavMeshHash = crc32::update(NULL, uNavMesh.data(), uNavMesh.size());
+
+				if (nNavMeshHash != nAiGraphHash)
+				{
+					Warning(eDLL_T::SERVER, "AI node graph '%s' is out of date (%s NavMesh checksum: '0x%X' expected: '0x%X')\n",
+						fsGraphPath.string().c_str(), HULL_SIZE[3].c_str(), nNavMeshHash, nAiGraphHash);
+				}
+
+				iNavMesh.close();
+			}
+		}
+
+		iAIGraph.close();
+	}
+
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-	CAI_NetworkManager__LoadNetworkGraph(aimanager, buf, filename, NULL);
+	CAI_NetworkManager__LoadNetworkGraph(pAINetworkManager, pBuffer, szAIGraphFile, NULL);
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	CAI_NetworkManager__LoadNetworkGraph(aimanager, buf, filename);
+	CAI_NetworkManager__LoadNetworkGraph(pAINetworkManager, pBuffer, szAIGraphFile);
 #endif
 
 	if (ai_ainDumpOnLoad->GetBool())
 	{
-		DevMsg(eDLL_T::SERVER, "Running BuildAINFile for loaded file '%s'\n", filename);
-		CAI_NetworkBuilder::SaveNetworkGraph(*(CAI_Network**)(reinterpret_cast<char*>(aimanager) + AINETWORK_OFFSET));
+		DevMsg(eDLL_T::SERVER, "Running BuildAINFile for loaded AI node graph '%s'\n", szAIGraphFile);
+		CAI_NetworkBuilder::SaveNetworkGraph(*(CAI_Network**)(reinterpret_cast<char*>(pAINetworkManager) + AINETWORK_OFFSET));
 	}
 }
 
-void HCAI_NetworkBuilder__Build(void* builder, CAI_Network* aiNetwork, void* a3, int a4)
+/*
+==============================
+CAI_NetworkBuilder::Build
+
+  builds network in-memory
+  during level load
+==============================
+*/
+void CAI_NetworkBuilder::Build(CAI_NetworkBuilder* pBuilder, CAI_Network* pAINetwork, void* a3, int a4)
 {
-	CAI_NetworkBuilder__Build(builder, aiNetwork, a3, a4);
-	CAI_NetworkBuilder::SaveNetworkGraph(aiNetwork);
+	CAI_NetworkBuilder__Build(pBuilder, pAINetwork, a3, a4);
+	CAI_NetworkBuilder::SaveNetworkGraph(pAINetwork);
 }
 
 void CAI_NetworkManager_Attach()
 {
-	DetourAttach((LPVOID*)&CAI_NetworkManager__LoadNetworkGraph, &HCAI_NetworkManager__LoadNetworkGraph);
-	DetourAttach((LPVOID*)&CAI_NetworkBuilder__Build, &HCAI_NetworkBuilder__Build);
+	DetourAttach((LPVOID*)&CAI_NetworkManager__LoadNetworkGraph, &CAI_NetworkManager::LoadNetworkGraph);
+	DetourAttach((LPVOID*)&CAI_NetworkBuilder__Build, &CAI_NetworkBuilder::Build);
 }
 
 void CAI_NetworkManager_Detach()
 {
-	DetourDetach((LPVOID*)&CAI_NetworkManager__LoadNetworkGraph, &HCAI_NetworkManager__LoadNetworkGraph);
-	DetourDetach((LPVOID*)&CAI_NetworkBuilder__Build, &HCAI_NetworkBuilder__Build);
+	DetourDetach((LPVOID*)&CAI_NetworkManager__LoadNetworkGraph, &CAI_NetworkManager::LoadNetworkGraph);
+	DetourDetach((LPVOID*)&CAI_NetworkBuilder__Build, &CAI_NetworkBuilder::Build);
 }
