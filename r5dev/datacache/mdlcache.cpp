@@ -26,12 +26,10 @@
 //-----------------------------------------------------------------------------
 studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
 {
-    studiodata_t* pStudioData; // rbx
-    void*         pMDLCache;   // rax
     studiohdr_t*  pStudioHdr;  // rax
 
     EnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
-    pStudioData = m_MDLDict->Find(handle);
+    studiodata_t* pStudioData = m_MDLDict->Find(handle);
     LeaveCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
 
     if (!g_pMDLFallback->m_hErrorMDL || !g_pMDLFallback->m_hEmptyMDL)
@@ -71,7 +69,7 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
     int nFlags = STUDIOHDR_FLAGS_NEEDS_DEFERRED_ADDITIVE | STUDIOHDR_FLAGS_OBSOLETE;
     if ((pStudioData->m_nFlags & nFlags))
     {
-        pMDLCache = *reinterpret_cast<void**>(pStudioData);
+        void* pMDLCache = *reinterpret_cast<void**>(pStudioData);
         if (pStudioData->m_MDLCache)
         {
             if (a3)
@@ -138,7 +136,6 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
     if (IsBadReadPtrV2(reinterpret_cast<void*>(szModelName)))
     {
         pStudioHdr = GetErrorModel();
-
         if (!IsKnownBadModel(handle))
         {
             if (!pStudioHdr)
