@@ -161,9 +161,9 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
         if (!IsKnownBadModel(handle))
         {
             if (!pStudioHdr)
-                Error(eDLL_T::ENGINE, "Attempted to load old model \"%s\" and \"%s\" couldn't be loaded.\n", szModelName);
+                Error(eDLL_T::ENGINE, "Attempted to load old model \"%s\" and \"%s\" couldn't be loaded.\n", szModelName, ERROR_MODEL);
             else
-                Error(eDLL_T::ENGINE, "Attempted to load old model \"%s\"; replacing with \"%s\".\n", szModelName);
+                Error(eDLL_T::ENGINE, "Attempted to load old model \"%s\"; replacing with \"%s\".\n", szModelName, ERROR_MODEL);
 
             g_BadMDLHandles.push_back(handle);
         }
