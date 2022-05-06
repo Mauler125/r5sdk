@@ -205,7 +205,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	writeStream.write(reinterpret_cast<char*>(g_nAiNodeClusters), sizeof(*g_nAiNodeClusters));
 	for (int i = 0; i < *g_nAiNodeClusters; i++)
 	{
-		DevMsg(eDLL_T::SERVER, " |-- Writing cluster '#%d' at '0x%llx'\n", i, static_cast<size_t>(writeStream.tellp()));
+		DevMsg(eDLL_T::SERVER, " |-- Writing cluster '#%d' at '0x%llX'\n", i, static_cast<size_t>(writeStream.tellp()));
 		AINodeClusters* nodeClusters = (*g_pppAiNodeClusters)[i];
 
 		writeStream.write(reinterpret_cast<char*>(&nodeClusters->m_nIndex), sizeof(nodeClusters->m_nIndex));
@@ -242,7 +242,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	for (int i = 0; i < *g_nAiNodeClusterLinks; i++)
 	{
 		// Disk and memory structs are literally identical here so just directly write.
-		DevMsg(eDLL_T::SERVER, " |-- Writing cluster link '#%d' at '0x%llx'\n", i, static_cast<size_t>(writeStream.tellp()));
+		DevMsg(eDLL_T::SERVER, " |-- Writing cluster link '#%d' at '0x%llX'\n", i, static_cast<size_t>(writeStream.tellp()));
 		writeStream.write(reinterpret_cast<char*>((*g_pppAiNodeClusterLinks)[i]), sizeof(*(*g_pppAiNodeClusterLinks)[i]));
 	}
 
@@ -260,7 +260,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	for (int i = 0; i < pNetwork->m_iNumScriptNodes; i++)
 	{
 		// Disk and memory structs for script nodes are identical.
-		DevMsg(eDLL_T::SERVER, " |-- Writing script node '#%d' at '0x%llx'\n", i, static_cast<size_t>(writeStream.tellp()));
+		DevMsg(eDLL_T::SERVER, " |-- Writing script node '#%d' at '0x%llX'\n", i, static_cast<size_t>(writeStream.tellp()));
 		if (!IsBadReadPtrV2(reinterpret_cast<char*>(&pNetwork->m_ScriptNode[i])))
 		{
 			writeStream.write(reinterpret_cast<char*>(&pNetwork->m_ScriptNode[i]), sizeof(CAI_ScriptNode));
@@ -280,7 +280,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	writeStream.write(reinterpret_cast<char*>(&pNetwork->m_iNumHints), sizeof(pNetwork->m_iNumHints));
 	for (int i = 0; i < pNetwork->m_iNumHints; i++)
 	{
-		DevMsg(eDLL_T::SERVER, " |-- Writing hint data '#%d' at '0x%llx'\n", i, static_cast<size_t>(writeStream.tellp()));
+		DevMsg(eDLL_T::SERVER, " |-- Writing hint data '#%d' at '0x%llX'\n", i, static_cast<size_t>(writeStream.tellp()));
 		writeStream.write(reinterpret_cast<char*>(&pNetwork->m_Hints[i]), sizeof(pNetwork->m_Hints[i]));
 	}
 
