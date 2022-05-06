@@ -367,7 +367,7 @@ void* __fastcall BuildPropStaticFrustumCullMap(int64_t a1, int64_t a2, unsigned 
 
     handle = *reinterpret_cast<uint16_t*>(a7 + 0x140);
     studio = g_MDLCache->FindMDL(g_MDLCache, handle, nullptr);
-    v55 = *reinterpret_cast<int64_t*>(g_MDLCache->GetStudioMaterialGlue(g_MDLCache, *reinterpret_cast<uint16_t*>((a7 + 320)))); // Gets some object containing pointer to 2 CMaterialGlue vtables.
+    v55 = *reinterpret_cast<int64_t*>(g_MDLCache->GetMaterialTable(g_MDLCache, *reinterpret_cast<uint16_t*>((a7 + 320)))); // Gets some object containing pointer to 2 CMaterialGlue vtables.
     v56 = *reinterpret_cast<uint16_t*>(a5 + 0x20);
     v57 = reinterpret_cast<int64_t>(studio) + 2i64 * v56 * studio->numskinref + studio->skinindex;
     v58 = 0;

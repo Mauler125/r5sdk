@@ -208,29 +208,26 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
 //-----------------------------------------------------------------------------
 studiohdr_t* CMDLCache::GetStudioHDR(CMDLCache* pMDLCache, MDLHandle_t handle)
 {
-    __int64 v2; // rbx
-    studiodata_t* pStudioData; // rbx
-    __int64 v4; // rdx
+    studiodata_t*pStudioData;      // rbx
     studiohdr_t* result = nullptr; // rax
+    void* v4;                      // rdx
 
     if (!handle)
     {
-        LABEL_ERROR:
         if (!g_pMDLFallback->m_hErrorMDL)
             Error(eDLL_T::ENGINE, "Model with handle \"%hu\" not found and \"%s\" couldn't be loaded.\n", handle, ERROR_MODEL);
 
         return g_pMDLFallback->m_pErrorHDR;
     }
 
-    v2 = handle;
     EnterCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
     pStudioData = m_MDLDict->Find(handle);
     LeaveCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
     if (*(_QWORD*)(pStudioData))
     {
-        v4 = *(_QWORD*)(*(_QWORD*)(*(_QWORD*)pStudioData + 8i64) + 24i64);
+        v4 = *(void**)(*((_QWORD*)pStudioData->m_MDLCache + 1) + 24i64);
         if (v4)
-            result = (studiohdr_t*)(v4 + 16);
+            result = (studiohdr_t*)((char*)v4 + 0x10);
     }
     return result;
 }
