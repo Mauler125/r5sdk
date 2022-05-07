@@ -75,7 +75,7 @@ void _Kick_f_CompletionFunc(const CCommand& args)
 			continue;
 		}
 
-		std::string svClientName = pNetChan->GetName(); // Get full name.
+		string svClientName = pNetChan->GetName(); // Get full name.
 
 		if (svClientName.empty())
 		{
@@ -116,14 +116,14 @@ void _KickID_f_CompletionFunc(const CCommand& args)
 				continue;
 			}
 
-			std::string svIpAddress = pNetChan->GetAddress(); // If this stays null they modified the packet somehow.
+			string svIpAddress = pNetChan->GetAddress(); // If this stays null they modified the packet somehow.
 
 			if (bOnlyDigits)
 			{
-				std::int64_t nTargetID = static_cast<std::int64_t>(std::stoll(args.Arg(1)));
+				int64_t nTargetID = static_cast<int64_t>(std::stoll(args.Arg(1)));
 				if (nTargetID > MAX_PLAYERS) // Is it a possible originID?
 				{
-					std::int64_t nOriginID = pClient->GetOriginID();
+					int64_t nOriginID = pClient->GetOriginID();
 					if (nOriginID != nTargetID)
 					{
 						continue;
@@ -131,7 +131,7 @@ void _KickID_f_CompletionFunc(const CCommand& args)
 				}
 				else // If its not try by userID.
 				{
-					std::int64_t nClientID = static_cast<std::int64_t>(pClient->GetUserID() + 1); // Get userID + 1.
+					int64_t nClientID = static_cast<int64_t>(pClient->GetUserID() + 1); // Get userID + 1.
 					if (nClientID != nTargetID)
 					{
 						continue;
@@ -142,7 +142,7 @@ void _KickID_f_CompletionFunc(const CCommand& args)
 			}
 			else
 			{
-				if (std::string(args.Arg(1)).compare(svIpAddress) != NULL)
+				if (string(args.Arg(1)).compare(svIpAddress) != NULL)
 				{
 					continue;
 				}
@@ -180,7 +180,7 @@ void _Ban_f_CompletionFunc(const CCommand& args)
 			continue;
 		}
 
-		std::string svClientName = pNetChan->GetName(); // Get full name.
+		string svClientName = pNetChan->GetName(); // Get full name.
 
 		if (svClientName.empty())
 		{
@@ -192,7 +192,7 @@ void _Ban_f_CompletionFunc(const CCommand& args)
 			continue;
 		}
 
-		std::string svIpAddress = pNetChan->GetAddress(); // If this stays empty they modified the packet somehow.
+		string svIpAddress = pNetChan->GetAddress(); // If this stays empty they modified the packet somehow.
 
 		g_pBanSystem->AddEntry(svIpAddress, pClient->GetOriginID());
 		g_pBanSystem->Save();
@@ -225,14 +225,14 @@ void _BanID_f_CompletionFunc(const CCommand& args)
 				continue;
 			}
 
-			std::string svIpAddress = pNetChan->GetAddress(); // If this stays empty they modified the packet somehow.
+			string svIpAddress = pNetChan->GetAddress(); // If this stays empty they modified the packet somehow.
 
 			if (bOnlyDigits)
 			{
-				std::int64_t nTargetID = static_cast<std::int64_t>(std::stoll(args.Arg(1)));
+				int64_t nTargetID = static_cast<int64_t>(std::stoll(args.Arg(1)));
 				if (nTargetID > MAX_PLAYERS) // Is it a possible originID?
 				{
-					std::int64_t nOriginID = pClient->GetOriginID();
+					int64_t nOriginID = pClient->GetOriginID();
 					if (nOriginID != nTargetID)
 					{
 						continue;
@@ -240,7 +240,7 @@ void _BanID_f_CompletionFunc(const CCommand& args)
 				}
 				else // If its not try by userID.
 				{
-					std::int64_t nClientID = static_cast<std::int64_t>(pClient->GetUserID() + 1); // Get UserID + 1.
+					int64_t nClientID = static_cast<int64_t>(pClient->GetUserID() + 1); // Get UserID + 1.
 					if (nClientID != nTargetID)
 					{
 						continue;
@@ -253,7 +253,7 @@ void _BanID_f_CompletionFunc(const CCommand& args)
 			}
 			else
 			{
-				if (std::string(args.Arg(1)).compare(svIpAddress) != NULL)
+				if (string(args.Arg(1)).compare(svIpAddress) != NULL)
 				{
 					continue;
 				}
@@ -324,7 +324,7 @@ void _Pak_ListPaks_f_CompletionFunc(const CCommand& args)
 	DevMsg(eDLL_T::RTECH, "| id | name                                               | status                               | asset count |\n");
 	DevMsg(eDLL_T::RTECH, "|----|----------------------------------------------------|--------------------------------------|-------------|\n");
 
-	std::uint32_t nActuallyLoaded = 0;
+	uint32_t nActuallyLoaded = 0;
 
 	for (int i = 0; i < *s_pLoadedPakCount; ++i)
 	{
@@ -333,7 +333,7 @@ void _Pak_ListPaks_f_CompletionFunc(const CCommand& args)
 		if (info.m_nStatus == RPakStatus_t::PAK_STATUS_FREED)
 			continue;
 
-		std::string rpakStatus = "RPAK_CREATED_A_NEW_STATUS_SOMEHOW";
+		string rpakStatus = "RPAK_CREATED_A_NEW_STATUS_SOMEHOW";
 
 		auto it = RPakStatusToString.find(info.m_nStatus);
 		if (it != RPakStatusToString.end())
@@ -428,16 +428,16 @@ void _RTech_Decompress_f_CompletionFunc(const CCommand& args)
 		return;
 	}
 
-	const std::string modDir = "paks\\Win32\\";
-	const std::string baseDir = "paks\\Win64\\";
+	const string modDir = "paks\\Win32\\";
+	const string baseDir = "paks\\Win64\\";
 
-	std::string pakNameOut = modDir + args.Arg(1) + ".rpak";
-	std::string pakNameIn = baseDir + args.Arg(1) + ".rpak";
+	string pakNameOut = modDir + args.Arg(1);
+	string pakNameIn = baseDir + args.Arg(1);
 
 	CreateDirectories(pakNameOut);
 
 	DevMsg(eDLL_T::RTECH, "______________________________________________________________\n");
-	DevMsg(eDLL_T::RTECH, "] RTECH_DECOMPRESS -------------------------------------------\n");
+	DevMsg(eDLL_T::RTECH, "-+ RTech decompress-------------------------------------------\n");
 
 	if (!FileExists(pakNameIn.c_str()))
 	{
@@ -445,31 +445,29 @@ void _RTech_Decompress_f_CompletionFunc(const CCommand& args)
 		return;
 	}
 
-	DevMsg(eDLL_T::RTECH, "] Processing: '%s'\n", pakNameIn.c_str());
+	DevMsg(eDLL_T::RTECH, " |-+ Processing: '%s'\n", pakNameIn.c_str());
 
-	std::vector<std::uint8_t> upak; // Compressed region.
-	std::ifstream ipak(pakNameIn, std::fstream::binary);
+	vector<uint8_t> upak; // Compressed region.
+	ifstream ipak(pakNameIn, fstream::binary);
 
-	ipak.seekg(0, std::fstream::end);
+	ipak.seekg(0, fstream::end);
 	upak.resize(ipak.tellg());
-	ipak.seekg(0, std::fstream::beg);
-	ipak.read((char*)upak.data(), upak.size());
+	ipak.seekg(0, fstream::beg);
+	ipak.read(reinterpret_cast<char*>(upak.data()), upak.size());
 
 	RPakHeader_t* rheader = (RPakHeader_t*)upak.data();
 	uint16_t flags = (rheader->m_nFlags[0] << 8) | rheader->m_nFlags[1];
 
-	DevMsg(eDLL_T::RTECH, "______________________________________________________________\n");
-	DevMsg(eDLL_T::RTECH, "] HEADER_DETAILS ---------------------------------------------\n");
-	DevMsg(eDLL_T::RTECH, "] Magic    : '%08X'\n", rheader->m_nMagic);
-	DevMsg(eDLL_T::RTECH, "] Version  : '%u'\n", rheader->m_nVersion);
-	DevMsg(eDLL_T::RTECH, "] Flags    : '%04X'\n", flags);
-	DevMsg(eDLL_T::RTECH, "] Hash     : '%llu'\n", rheader->m_nHash);
-	DevMsg(eDLL_T::RTECH, "] Entries  : '%zu'\n", rheader->m_nAssetEntryCount);
-	DevMsg(eDLL_T::RTECH, "______________________________________________________________\n");
-	DevMsg(eDLL_T::RTECH, "] COMPRESSION_DETAILS ----------------------------------------\n");
-	DevMsg(eDLL_T::RTECH, "] Size disk: '%lld'\n", rheader->m_nSizeDisk);
-	DevMsg(eDLL_T::RTECH, "] Size decp: '%lld'\n", rheader->m_nSizeMemory);
-	DevMsg(eDLL_T::RTECH, "] Ratio    : '%.02f'\n", (rheader->m_nSizeDisk * 100.f) / rheader->m_nSizeMemory);
+	DevMsg(eDLL_T::RTECH, " | |-+ Header ------------------------------------------------\n");
+	DevMsg(eDLL_T::RTECH, " | | |-- Magic    : '%08X'\n", rheader->m_nMagic);
+	DevMsg(eDLL_T::RTECH, " | | |-- Version  : '%u'\n", rheader->m_nVersion);
+	DevMsg(eDLL_T::RTECH, " | | |-- Flags    : '%04X'\n", flags);
+	DevMsg(eDLL_T::RTECH, " | | |-- Hash     : '%llu'\n", rheader->m_nHash);
+	DevMsg(eDLL_T::RTECH, " | | |-- Entries  : '%zu'\n", rheader->m_nAssetEntryCount);
+	DevMsg(eDLL_T::RTECH, " | |-+ Compression -------------------------------------------\n");
+	DevMsg(eDLL_T::RTECH, " | | |-- Size disk: '%lld'\n", rheader->m_nSizeDisk);
+	DevMsg(eDLL_T::RTECH, " | | |-- Size decp: '%lld'\n", rheader->m_nSizeMemory);
+	DevMsg(eDLL_T::RTECH, " | | |-- Ratio    : '%.02f'\n", (rheader->m_nSizeDisk * 100.f) / rheader->m_nSizeMemory);
 
 	if (rheader->m_nMagic != 'kaPR')
 	{
@@ -488,7 +486,7 @@ void _RTech_Decompress_f_CompletionFunc(const CCommand& args)
 	}
 
 	RPakDecompState_t state;
-	std::uint32_t decompSize = g_pRTech->DecompressPakFileInit(&state, upak.data(), upak.size(), 0, PAK_HEADER_SIZE);
+	uint32_t decompSize = g_pRTech->DecompressPakFileInit(&state, upak.data(), upak.size(), 0, PAK_HEADER_SIZE);
 
 	if (decompSize == rheader->m_nSizeDisk)
 	{
@@ -497,15 +495,15 @@ void _RTech_Decompress_f_CompletionFunc(const CCommand& args)
 	}
 	else
 	{
-		DevMsg(eDLL_T::RTECH, "] Calculated size: '%zu'\n", decompSize);
+		DevMsg(eDLL_T::RTECH, " | | |-- Calculated size: '%zu'\n", decompSize);
 	}
 
-	std::vector<std::uint8_t> pakBuf(rheader->m_nSizeMemory, 0);
+	vector<uint8_t> pakBuf(rheader->m_nSizeMemory, 0);
 
 	state.m_nOutMask = UINT64_MAX;
 	state.m_nOut = uint64_t(pakBuf.data());
 
-	std::uint8_t decompResult = g_pRTech->DecompressPakFile(&state, upak.size(), pakBuf.size());
+	uint8_t decompResult = g_pRTech->DecompressPakFile(&state, upak.size(), pakBuf.size());
 	if (decompResult != 1)
 	{
 		Error(eDLL_T::RTECH, "Error: decompression failed for '%s' return value: '%u'!\n", pakNameIn.c_str(), +decompResult);
@@ -515,25 +513,25 @@ void _RTech_Decompress_f_CompletionFunc(const CCommand& args)
 	rheader->m_nFlags[1] = 0x0; // Set compressed flag to false for the decompressed pak file.
 	rheader->m_nSizeDisk = rheader->m_nSizeMemory; // Equal compressed size with decompressed.
 
-	std::ofstream outBlock(pakNameOut, std::fstream::binary);
+	ofstream outBlock(pakNameOut, fstream::binary);
 
 	if (rheader->m_nPatchIndex > 0) // Check if its an patch rpak.
 	{
 		// Loop through all the structs and patch their compress size.
 		for (int i = 1, patch_offset = 0x88; i <= rheader->m_nPatchIndex; i++, patch_offset += sizeof(RPakPatchCompressedHeader_t))
 		{
-			RPakPatchCompressedHeader_t* patch_header = (RPakPatchCompressedHeader_t*)((std::uintptr_t)pakBuf.data() + patch_offset);
+			RPakPatchCompressedHeader_t* patch_header = (RPakPatchCompressedHeader_t*)((uintptr_t)pakBuf.data() + patch_offset);
 			patch_header->m_nSizeDisk = patch_header->m_nSizeMemory; // Fix size for decompress.
 		}
 	}
 
-	memcpy_s(pakBuf.data(), state.m_nDecompSize, ((std::uint8_t*)rheader), PAK_HEADER_SIZE); // Overwrite first 0x80 bytes which are NULL with the header data.
+	memcpy_s(pakBuf.data(), state.m_nDecompSize, ((uint8_t*)rheader), PAK_HEADER_SIZE); // Overwrite first 0x80 bytes which are NULL with the header data.
 
 	outBlock.write((char*)pakBuf.data(), state.m_nDecompSize);
 
 	uint32_t crc32_init = {};
-	DevMsg(eDLL_T::RTECH, "] CRC32          : '%08X'\n", crc32::update(crc32_init, pakBuf.data(), state.m_nDecompSize));
-	DevMsg(eDLL_T::RTECH, "] Decompressed rpak to: '%s'\n", pakNameOut.c_str());
+	DevMsg(eDLL_T::RTECH, " | | |-- CRC32          : '%08X'\n", crc32::update(crc32_init, pakBuf.data(), state.m_nDecompSize));
+	DevMsg(eDLL_T::RTECH, " |-+ Decompressed rpak to: '%s'\n", pakNameOut.c_str());
 	DevMsg(eDLL_T::RTECH, "--------------------------------------------------------------\n");
 
 	outBlock.close();
@@ -553,7 +551,7 @@ void _VPK_Unpack_f_CompletionFunc(const CCommand& args)
 	{
 		return;
 	}
-	std::string szPathOut = "platform\\vpk";
+	string szPathOut = "platform\\vpk";
 	std::chrono::milliseconds msStart = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 
 	DevMsg(eDLL_T::FS, "______________________________________________________________\n");
@@ -672,7 +670,7 @@ void _RCON_CmdQuery_f_CompletionFunc(const CCommand& args)
 			{
 				if (strcmp(args.Arg(1), "PASS") == 0) // Auth with RCON server using rcon_password ConVar value.
 				{
-					std::string svCmdQuery = g_pRConClient->Serialize(args.Arg(1), rcon_password->GetString(), cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+					string svCmdQuery = g_pRConClient->Serialize(args.Arg(1), rcon_password->GetString(), cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
 					g_pRConClient->Send(svCmdQuery);
 					break;
 				}
@@ -682,7 +680,7 @@ void _RCON_CmdQuery_f_CompletionFunc(const CCommand& args)
 					break;
 				}
 
-				std::string svCmdQuery = g_pRConClient->Serialize(args.Arg(1), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+				string svCmdQuery = g_pRConClient->Serialize(args.Arg(1), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
 				g_pRConClient->Send(svCmdQuery);
 				break;
 			}
@@ -699,12 +697,12 @@ void _RCON_CmdQuery_f_CompletionFunc(const CCommand& args)
 			{
 				if (strcmp(args.Arg(1), "PASS") == 0) // Auth with RCON server.
 				{
-					std::string svCmdQuery = g_pRConClient->Serialize(args.Arg(1), args.Arg(2), cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+					string svCmdQuery = g_pRConClient->Serialize(args.Arg(1), args.Arg(2), cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
 					g_pRConClient->Send(svCmdQuery);
 					break;
 				}
 
-				std::string svCmdQuery = g_pRConClient->Serialize(args.Arg(1), args.Arg(2), cl_rcon::request_t::SERVERDATA_REQUEST_SETVALUE);
+				string svCmdQuery = g_pRConClient->Serialize(args.Arg(1), args.Arg(2), cl_rcon::request_t::SERVERDATA_REQUEST_SETVALUE);
 				g_pRConClient->Send(svCmdQuery);
 				break;
 			}
@@ -798,88 +796,38 @@ void _CMaterial_GetMaterialAtCrossHair_f_ComplectionFunc(const CCommand& args)
 	if (material)
 	{
 		DevMsg(eDLL_T::MS, "______________________________________________________________\n");
-		DevMsg(eDLL_T::MS, "] MATERIAL DETAILS -------------------------------------------\n");
-		DevMsg(eDLL_T::MS, "] ADDR: '%llX'\n", material);
-		DevMsg(eDLL_T::MS, "] GUID: '%llX'\n", material->m_GUID);
-		DevMsg(eDLL_T::MS, "] UnknownSignature: '%d'\n", material->m_UnknownSignature);
-		DevMsg(eDLL_T::MS, "] Material Width: '%d'\n", material->m_iWidth);
-		DevMsg(eDLL_T::MS, "] Material Height: '%d'\n", material->m_iHeight);
-		DevMsg(eDLL_T::MS, "] Flags: '%llX'\n", material->m_iFlags);
+		DevMsg(eDLL_T::MS, "-+ Material --------------------------------------------------\n");
+		DevMsg(eDLL_T::MS, " |-- ADDR: '%llX'\n", material);
+		DevMsg(eDLL_T::MS, " |-- GUID: '%llX'\n", material->m_GUID);
+		DevMsg(eDLL_T::MS, " |-- UnknownSignature: '%d'\n", material->m_UnknownSignature);
+		DevMsg(eDLL_T::MS, " |-- Material Width: '%d'\n", material->m_iWidth);
+		DevMsg(eDLL_T::MS, " |-- Material Height: '%d'\n", material->m_iHeight);
+		DevMsg(eDLL_T::MS, " |-- Flags: '%llX'\n", material->m_iFlags);
 
 		std::function<void(CMaterialGlue*, const char*)> fnPrintChild = [](CMaterialGlue* material, const char* print)
 		{
-			DevMsg(eDLL_T::MS, "  ]___________________________________________________________\n");
-			DevMsg(eDLL_T::MS, "  ] CHILD DETAILS --------------------------------------------\n");
+			DevMsg(eDLL_T::MS, " |-+\n");
+			DevMsg(eDLL_T::MS, " | |-+ Child material ------------------------------------------\n");
 			DevMsg(eDLL_T::MS, print, material);
-			DevMsg(eDLL_T::MS, "    ] GUID: '%llX'\n", material->m_GUID);
-			if (material->m_pszName)
-			{
-				DevMsg(eDLL_T::MS, "    ] Material Name: '%s'\n", material->m_pszName);
-			}
-			else
-			{
-				DevMsg(eDLL_T::MS, "    ] Material Name: 'NULL'\n");
-			}
-
-			DevMsg(eDLL_T::MS, "  ]___________________________________________________________\n");
+			DevMsg(eDLL_T::MS, " |     |-- GUID: '%llX'\n", material->m_GUID);
+			DevMsg(eDLL_T::MS, " |     |-- Material Name: '%s'\n", material->m_pszName);
 		};
 
-		if (material->m_pszName)
-		{
-			DevMsg(eDLL_T::MS, "] Material Name: '%s'\n", material->m_pszName);
-		}
-		else
-		{
-			DevMsg(eDLL_T::MS, "] Material Name: 'NULL'\n");
-		}
+		DevMsg(eDLL_T::MS, " |-- Material Name: '%s'\n", material->m_pszName);
+		DevMsg(eDLL_T::MS, " |-- Material Surface Name 1: '%s'\n", material->m_pszSurfaceName1);
+		DevMsg(eDLL_T::MS, " |-- Material Surface Name 2: '%s'\n", material->m_pszSurfaceName2);
+		DevMsg(eDLL_T::MS, " |-- DX Texture 1: '%llX'\n", material->m_ppDXTexture1);
+		DevMsg(eDLL_T::MS, " |-- DX Texture 2: '%llX'\n", material->m_ppDXTexture2);
 
-		if (material->m_pszSurfaceName1)
-		{
-			DevMsg(eDLL_T::MS, "] Material Surface Name 1: '%s'\n", material->m_pszSurfaceName1);
-		}
-		else
-		{
-			DevMsg(eDLL_T::MS, "] Material Surface Name 1: 'NULL'\n");
-		}
+		material->m_pDepthShadow  ? fnPrintChild(material->m_pDepthShadow,  " |   |-+ DepthShadow Addr: '%llX'\n")      : DevMsg(eDLL_T::MS, " |   |-+ DepthShadow Addr: 'NULL'\n");
+		material->m_pDepthPrepass ? fnPrintChild(material->m_pDepthPrepass, " |   |-+ DepthPrepass Addr: '%llX'\n")     : DevMsg(eDLL_T::MS, " |   |-+ DepthPrepass Addr: 'NULL'\n");
+		material->m_pDepthVSM     ? fnPrintChild(material->m_pDepthVSM,     " |   |-+ DepthVSM Addr: '%llX'\n")         : DevMsg(eDLL_T::MS, " |   |-+ DepthVSM Addr: 'NULL'\n");
+		material->m_pDepthShadow  ? fnPrintChild(material->m_pDepthShadow,  " |   |-+ DepthShadowTight Addr: '%llX'\n") : DevMsg(eDLL_T::MS, " |   |-+ DepthShadowTight Addr: 'NULL'\n");
+		material->m_pColPass      ? fnPrintChild(material->m_pColPass,      " |   |-+ ColPass Addr: '%llX'\n")          : DevMsg(eDLL_T::MS, " |   |-+ ColPass Addr: 'NULL'\n");
 
-		if (material->m_pszSurfaceName2)
-		{
-			DevMsg(eDLL_T::MS, "] Material Surface Name 2: '%s'\n", material->m_pszSurfaceName2);
-		}
-		else
-		{
-			DevMsg(eDLL_T::MS, "] Material Surface Name 2: 'NULL'\n");
-		}
-
-		if (material->m_ppDXTexture1)
-		{
-			DevMsg(eDLL_T::MS, "] DX Texture 1: '%llX'\n", material->m_ppDXTexture1);
-		}
-		else
-		{
-			DevMsg(eDLL_T::MS, "] DX Texture 1: 'NULL'\n");
-		}
-
-		if (material->m_ppDXTexture2)
-		{
-			DevMsg(eDLL_T::MS, "] DX Texture 2: '%llX'\n", material->m_ppDXTexture2);
-		}
-		else
-		{
-			DevMsg(eDLL_T::MS, "] DX Texture 2: 'NULL'\n");
-		}
-
-		material->m_pDepthShadow  ? fnPrintChild(material->m_pDepthShadow,  "  ] DepthShadow Addr: '%llX'\n")      : DevMsg(eDLL_T::MS, "] DepthShadow Addr: 'NULL'\n");
-		material->m_pDepthPrepass ? fnPrintChild(material->m_pDepthPrepass, "  ] DepthPrepass Addr: '%llX'\n")     : DevMsg(eDLL_T::MS, "] DepthPrepass Addr: 'NULL'\n");
-		material->m_pDepthVSM     ? fnPrintChild(material->m_pDepthVSM,     "  ] DepthVSM Addr: '%llX'\n")         : DevMsg(eDLL_T::MS, "] DepthVSM Addr: 'NULL'\n");
-		material->m_pDepthShadow  ? fnPrintChild(material->m_pDepthShadow,  "  ] DepthShadowTight Addr: '%llX'\n") : DevMsg(eDLL_T::MS, "] DepthShadowTight Addr: 'NULL'\n");
-		material->m_pColPass      ? fnPrintChild(material->m_pColPass,      "  ] ColPass Addr: '%llX'\n")          : DevMsg(eDLL_T::MS, "] ColPass Addr: 'NULL'\n");
-
-		DevMsg(eDLL_T::MS, "  ]___________________________________________________________\n");
-		DevMsg(eDLL_T::MS, "  ] TEXTURE GUID MAP DETAILS ---------------------------------\n");
-		material->m_pTextureGUID1 ? DevMsg(eDLL_T::MS, "    ] TextureMap 1 Addr: '%llX'\n", material->m_pTextureGUID1) : DevMsg(eDLL_T::MS, "   ] TextureMap 1 Addr: 'NULL'\n");
-		material->m_pTextureGUID2 ? DevMsg(eDLL_T::MS, "    ] TextureMap 2 Addr: '%llX'\n", material->m_pTextureGUID2) : DevMsg(eDLL_T::MS, "   ] TextureMap 2 Addr: 'NULL'\n");
-		DevMsg(eDLL_T::MS, "  ]___________________________________________________________\n");
+		DevMsg(eDLL_T::MS, "-+ Texture GUID map ------------------------------------------\n");
+		material->m_pTextureGUID1 ? DevMsg(eDLL_T::MS, " |-- TextureMap 1 Addr: '%llX'\n", material->m_pTextureGUID1) : DevMsg(eDLL_T::MS, " |-- TextureMap 1 Addr: 'NULL'\n");
+		material->m_pTextureGUID2 ? DevMsg(eDLL_T::MS, " |-- TextureMap 2 Addr: '%llX'\n", material->m_pTextureGUID2) : DevMsg(eDLL_T::MS, " |-- TextureMap 2 Addr: 'NULL'\n");
 
 		DevMsg(eDLL_T::MS, "--------------------------------------------------------------\n");
 	}

@@ -341,8 +341,8 @@ VPKDir_t::VPKDir_t(string svPath)
 	DevMsg(eDLL_T::FS, "______________________________________________________________\n");
 	DevMsg(eDLL_T::FS, "] HEADER_DETAILS ---------------------------------------------\n");
 	DevMsg(eDLL_T::FS, "] File Magic     : '%lu'\n", this->m_nFileMagic);
-	DevMsg(eDLL_T::FS, "] Major Version  : '%hu'\n", (this->m_nMajorVersion));
-	DevMsg(eDLL_T::FS, "] Minor Version  : '%hu'\n", (this->m_nMinorVersion));
+	DevMsg(eDLL_T::FS, "] Major Version  : '%hu'\n", this->m_nMajorVersion);
+	DevMsg(eDLL_T::FS, "] Minor Version  : '%hu'\n", this->m_nMinorVersion);
 	DevMsg(eDLL_T::FS, "] Tree Size      : '%lu'\n", this->m_nTreeSize);
 	DevMsg(eDLL_T::FS, "] File Data Size : '%lu'\n", this->m_nFileDataSize);
 
