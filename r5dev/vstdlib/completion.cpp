@@ -646,72 +646,45 @@ _RCON_CmdQuery_f_CompletionFunc
 */
 void _RCON_CmdQuery_f_CompletionFunc(const CCommand& args)
 {
-	switch (args.ArgC())
+
+	if (args.ArgC() < 2)
 	{
-		case 0:
-		case 1:
+		if (g_pRConClient->IsInitialized()
+			&& !g_pRConClient->IsConnected()
+			&& strlen(rcon_address->GetString()) > 0)
 		{
-			if (g_pRConClient->IsInitialized()
-				&& !g_pRConClient->IsConnected()
-				&& strlen(rcon_address->GetString()) > 0)
-			{
-				g_pRConClient->Connect();
-			}
-			break;
+			g_pRConClient->Connect();
 		}
-		case 2:
+	}
+	else
+	{
+		if (!g_pRConClient->IsInitialized())
 		{
-			if (!g_pRConClient->IsInitialized())
-			{
-				Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: uninitialized\n");
-				break;
-			}
-			else if (g_pRConClient->IsConnected())
-			{
-				if (strcmp(args.Arg(1), "PASS") == 0) // Auth with RCON server using rcon_password ConVar value.
-				{
-					string svCmdQuery = g_pRConClient->Serialize(args.Arg(1), rcon_password->GetString(), cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
-					g_pRConClient->Send(svCmdQuery);
-					break;
-				}
-				else if (strcmp(args.Arg(1), "disconnect") == 0) // Disconnect from RCON server.
-				{
-					g_pRConClient->Disconnect();
-					break;
-				}
-
-				string svCmdQuery = g_pRConClient->Serialize(args.Arg(1), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
-				g_pRConClient->Send(svCmdQuery);
-				break;
-			}
-			else
-			{
-				Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: unconnected\n");
-				break;
-			}
-			break;
+			Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: uninitialized\n");
+			return;
 		}
-		case 3:
+		else if (g_pRConClient->IsConnected())
 		{
-			if (g_pRConClient->IsConnected())
+			if (strcmp(args.Arg(1), "PASS") == 0) // Auth with RCON server using rcon_password ConVar value.
 			{
-				if (strcmp(args.Arg(1), "PASS") == 0) // Auth with RCON server.
-				{
-					string svCmdQuery = g_pRConClient->Serialize(args.Arg(1), args.Arg(2), cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
-					g_pRConClient->Send(svCmdQuery);
-					break;
-				}
-
-				string svCmdQuery = g_pRConClient->Serialize(args.Arg(1), args.Arg(2), cl_rcon::request_t::SERVERDATA_REQUEST_SETVALUE);
+				string svCmdQuery = g_pRConClient->Serialize(rcon_password->GetString(), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
 				g_pRConClient->Send(svCmdQuery);
-				break;
+				return;
 			}
-			else
+			else if (strcmp(args.Arg(1), "disconnect") == 0) // Disconnect from RCON server.
 			{
-				Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: unconnected\n");
-				break;
+				g_pRConClient->Disconnect();
+				return;
 			}
-			break;
+
+			string svCmdQuery = g_pRConClient->Serialize(args.ArgS(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+			g_pRConClient->Send(svCmdQuery);
+			return;
+		}
+		else
+		{
+			Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: unconnected\n");
+			return;
 		}
 	}
 }

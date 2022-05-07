@@ -237,9 +237,9 @@ void CRConServer::Authenticate(const cl_rcon::request& cl_request, CConnectedNet
 	{
 		return;
 	}
-	else if (strcmp(cl_request.requestbuf().c_str(), "PASS") == 0)
+	else
 	{
-		if (this->Comparator(cl_request.requestval()))
+		if (this->Comparator(cl_request.requestbuf()))
 		{
 			pData->m_bAuthorized = true;
 			m_pSocket->CloseListenSocket();
@@ -386,9 +386,7 @@ void CRConServer::Execute(const cl_rcon::request& cl_request) const
 	}
 	else // Execute command with "<val>".
 	{
-		std::string svExec = cl_request.requestbuf() + " \"" + cl_request.requestval() + "\"";
-
-		Cbuf_AddText(Cbuf_GetCurrentPlayer(), svExec.c_str(), cmd_source_t::kCommandSrcCode);
+		Cbuf_AddText(Cbuf_GetCurrentPlayer(), cl_request.requestbuf().c_str(), cmd_source_t::kCommandSrcCode);
 		Cbuf_Execute();
 	}
 }

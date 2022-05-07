@@ -119,24 +119,25 @@ void CNetCon::UserInput(void)
 				&& nPos < svInput.size() 
 				&& nPos != svInput.size())
 			{
-				std::string svReqVal = svInput.substr(nPos + 1);
-				std::string svReqBuf = svInput.erase(svInput.find(" "));
+				std::string svSecondArg = svInput.substr(nPos + 1);
+				std::string svFirstArg = svInput;
+				svFirstArg = svFirstArg.erase(svFirstArg.find(" "));
 
-				if (strcmp(svReqBuf.c_str(), "PASS") == 0) // Auth with RCON server.
+				if (strcmp(svFirstArg.c_str(), "PASS") == 0) // Auth with RCON server.
 				{
-					std::string svSerialized = this->Serialize(svReqBuf, svReqVal, cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+					std::string svSerialized = this->Serialize(svSecondArg, "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
 					this->Send(svSerialized);
 				}
-				else // This is a ConVar.
+				else if (strcmp(svFirstArg.c_str(), "SET") == 0) // Set value query.
 				{
-					std::string svSerialized = this->Serialize(svReqBuf, svReqVal, cl_rcon::request_t::SERVERDATA_REQUEST_SETVALUE);
+					std::string svSerialized = this->Serialize(svFirstArg, svSecondArg, cl_rcon::request_t::SERVERDATA_REQUEST_SETVALUE);
 					this->Send(svSerialized);
 				}
-			}
-			else // This is a ConCommand.
-			{
-				std::string svSerialized = this->Serialize(svInput, "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
-				this->Send(svSerialized);
+				else // Execute command query.
+				{
+					std::string svSerialized = this->Serialize(svInput.c_str(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+					this->Send(svSerialized);
+				}
 			}
 		}
 		else // Setup connection from input.
