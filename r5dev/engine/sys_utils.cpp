@@ -15,6 +15,7 @@
 #include "vgui/vgui_debugpanel.h"
 #include "gameui/IConsole.h"
 #endif // !DEDICATED
+static std::mutex m;
 
 //-----------------------------------------------------------------------------
 // Purpose: Exit engine with error
@@ -106,6 +107,7 @@ void DevMsg(eDLL_T idx, const char* fmt, ...)
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
 	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("dev_message_logger");
 
+	m.lock();
 	{/////////////////////////////
 		va_list args{};
 		va_start(args, fmt);
@@ -164,6 +166,7 @@ void DevMsg(eDLL_T idx, const char* fmt, ...)
 	g_spd_sys_w_oss.str("");
 	g_spd_sys_w_oss.clear();
 #endif // !DEDICATED
+	m.unlock();
 }
 
 //-----------------------------------------------------------------------------
@@ -184,6 +187,7 @@ void Warning(eDLL_T idx, const char* fmt, ...)
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
 	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("warn_message_logger");
 
+	m.lock();
 	{/////////////////////////////
 		va_list args{};
 		va_start(args, fmt);
@@ -240,6 +244,7 @@ void Warning(eDLL_T idx, const char* fmt, ...)
 	g_spd_sys_w_oss.str("");
 	g_spd_sys_w_oss.clear();
 #endif // !DEDICATED
+	m.unlock();
 }
 
 //-----------------------------------------------------------------------------
@@ -260,6 +265,7 @@ void Error(eDLL_T idx, const char* fmt, ...)
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
 	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("error_message_logger");
 
+	m.lock();
 	{/////////////////////////////
 		va_list args{};
 		va_start(args, fmt);
@@ -316,6 +322,7 @@ void Error(eDLL_T idx, const char* fmt, ...)
 	g_spd_sys_w_oss.str("");
 	g_spd_sys_w_oss.clear();
 #endif // !DEDICATED
+	m.unlock();
 }
 
 //-----------------------------------------------------------------------------
