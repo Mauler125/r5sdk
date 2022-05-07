@@ -32,6 +32,7 @@ typedef BOOL(WINAPI* IPostMessageW)(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM l
 static BOOL                     g_bInitMenu                 = false;
 static BOOL                     g_bInitialized              = false;
 static BOOL                     g_bPresentHooked            = false;
+static BOOL                     g_bImGuiInitialized         = false;
 
 ///////////////////////////////////////////////////////////////////////////////////
 static WNDPROC                  g_oWndProc                  = NULL;
@@ -262,6 +263,8 @@ void SetupImGui()
 	///////////////////////////////////////////////////////////////////////////////
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_IsSRGB;
+
+	g_bImGuiInitialized = true;
 }
 
 void DrawImGui()
@@ -521,8 +524,12 @@ void DirectX_Shutdown()
 
 	///////////////////////////////////////////////////////////////////////////////
 	// Shutdown ImGui
-	ImGui_ImplWin32_Shutdown();
-	ImGui_ImplDX11_Shutdown();
+	if (g_bImGuiInitialized)
+	{
+		ImGui_ImplWin32_Shutdown();
+		ImGui_ImplDX11_Shutdown();
+		g_bImGuiInitialized = false;
+	}
 }
 
 void HIDXGI::GetAdr(void) const
