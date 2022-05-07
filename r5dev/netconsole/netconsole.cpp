@@ -139,6 +139,11 @@ void CNetCon::UserInput(void)
 					this->Send(svSerialized);
 				}
 			}
+			else // Single arg command query.
+			{
+				std::string svSerialized = this->Serialize(svInput.c_str(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+				this->Send(svSerialized);
+			}
 		}
 		else // Setup connection from input.
 		{

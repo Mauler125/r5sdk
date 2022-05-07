@@ -646,7 +646,6 @@ _RCON_CmdQuery_f_CompletionFunc
 */
 void _RCON_CmdQuery_f_CompletionFunc(const CCommand& args)
 {
-
 	if (args.ArgC() < 2)
 	{
 		if (g_pRConClient->IsInitialized()
