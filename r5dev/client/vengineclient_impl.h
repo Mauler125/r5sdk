@@ -29,7 +29,7 @@ class HVEngineClient : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: IVEngineClient::CommandExecute       : 0x" << std::hex << std::uppercase << p_CEngineClient_CommandExecute.GetPtr() << std::setw(nPad) << " |" << std::endl;
+		std::cout << "| FUN: IVEngineClient::CommandExecute       : 0x" << std::hex << std::uppercase << p_CEngineClient_CommandExecute.GetPtr()  << std::setw(nPad) << " |" << std::endl;
 		std::cout << "| VAR: m_bRestrictServerCommands            : 0x" << std::hex << std::uppercase << m_bRestrictServerCommands                << std::setw(0)    << " |" << std::endl;
 		std::cout << "| VAR: m_bRestrictClientCommands            : 0x" << std::hex << std::uppercase << m_bRestrictClientCommands                << std::setw(0)    << " |" << std::endl;
 		std::cout << "| CON: g_ppEngineClient                     : 0x" << std::hex << std::uppercase << g_ppEngineClient                         << std::setw(0)    << " |" << std::endl;

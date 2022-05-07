@@ -52,7 +52,6 @@ bool CEngineClient::GetRestrictClientCommands() const
 	return *m_bRestrictClientCommands;
 }
 
-
 //---------------------------------------------------------------------------------
 // Purpose: get local player
 // Input  :

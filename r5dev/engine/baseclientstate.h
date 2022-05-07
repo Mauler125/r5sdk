@@ -8,9 +8,6 @@ inline int* cl_host_tickcount = nullptr;
 class CBaseClientState
 {
 public:
-	bool** m_bPaused = &cl_m_bPaused; // pauses the client side simulation in apex.
-	int** host_tickcount = &cl_host_tickcount; // client simulation tick count.
-
 	bool IsPaused();
 	float GetClientTime();
 	int GetClientTickCount() const;	// Get the client tick count.
@@ -63,7 +60,10 @@ class HClientState : public IDetour
 			.FindPatternSelf("66 0F 6E", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x4, 0x8).RCast<int*>();
 #endif
 	}
-	virtual void GetCon(void) const { }
+	virtual void GetCon(void) const
+	{
+		g_pBaseClientState = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x0F\x84\x00\x00\x00\x00\x48\x8D\x0D\x00\x00\x00\x00\x48\x83\xC4\x28"), "xx????xxx????xxxx").FindPatternSelf("48 8D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CBaseClientState*>(); /*0F 84 ? ? ? ? 48 8D 0D ? ? ? ? 48 83 C4 28*/
+	}
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }
 };
