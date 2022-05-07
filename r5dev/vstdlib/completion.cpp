@@ -437,7 +437,7 @@ void _RTech_Decompress_f_CompletionFunc(const CCommand& args)
 	CreateDirectories(pakNameOut);
 
 	DevMsg(eDLL_T::RTECH, "______________________________________________________________\n");
-	DevMsg(eDLL_T::RTECH, "-+ RTech decompress-------------------------------------------\n");
+	DevMsg(eDLL_T::RTECH, "-+ RTech decompress ------------------------------------------\n");
 
 	if (!FileExists(pakNameIn.c_str()))
 	{
