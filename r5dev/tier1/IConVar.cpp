@@ -153,7 +153,7 @@ void ConVar::Init(void) const
 	net_encryptionEnable       = new ConVar("net_encryptionEnable"      , "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED     , "Use AES encryption on game packets.", false, 0.f, false, 0.f, nullptr, nullptr);
 	net_useRandomKey           = new ConVar("net_useRandomKey"          , "1"                        , FCVAR_RELEASE        , "Use random base64 netkey for game packets.", false, 0.f, false, 0.f, nullptr, nullptr);
 	r5net_matchmaking_hostname = new ConVar("r5net_matchmaking_hostname", "r5a-comp-sv.herokuapp.com", FCVAR_RELEASE        , "Holds the R5Net matchmaking hostname.", false, 0.f, false, 0.f, nullptr, nullptr);
-	r5net_show_debug           = new ConVar("r5net_show_debug"          , "1"                        , FCVAR_DEVELOPMENTONLY, "Shows debug output for R5Net.", false, 0.f, false, 0.f, nullptr, nullptr);
+	r5net_show_debug           = new ConVar("r5net_show_debug"          , "0"                        , FCVAR_DEVELOPMENTONLY, "Shows debug output for R5Net.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// RTECH API                                                              |
 	//-------------------------------------------------------------------------
