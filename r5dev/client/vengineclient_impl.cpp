@@ -27,7 +27,7 @@ void CEngineClient::SetRestrictServerCommands(bool bRestricted)
 // Input  :
 // Output : bool
 //---------------------------------------------------------------------------------
-bool CEngineClient::GetRestrictServerCommands()
+bool CEngineClient::GetRestrictServerCommands() const
 {
 	return *m_bRestrictServerCommands;
 }
@@ -47,7 +47,7 @@ void CEngineClient::SetRestrictClientCommands(bool bRestricted)
 // Input  :
 // Output : bool
 //---------------------------------------------------------------------------------
-bool CEngineClient::GetRestrictClientCommands()
+bool CEngineClient::GetRestrictClientCommands() const
 {
 	return *m_bRestrictClientCommands;
 }

@@ -4,9 +4,9 @@ class CEngineClient
 {
 public:
 	void SetRestrictServerCommands(bool bRestrict);
-	bool GetRestrictServerCommands();
+	bool GetRestrictServerCommands() const;
 	void SetRestrictClientCommands(bool bRestrict);
-	bool GetRestrictClientCommands();
+	bool GetRestrictClientCommands() const;
 	void* GetLocalPlayer(); // Is actually C_Player.
 };
 
