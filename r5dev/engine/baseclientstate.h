@@ -62,7 +62,9 @@ class HClientState : public IDetour
 	}
 	virtual void GetCon(void) const
 	{
+#ifndef DEDICATED
 		g_pBaseClientState = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x0F\x84\x00\x00\x00\x00\x48\x8D\x0D\x00\x00\x00\x00\x48\x83\xC4\x28"), "xx????xxx????xxxx").FindPatternSelf("48 8D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CBaseClientState*>(); /*0F 84 ? ? ? ? 48 8D 0D ? ? ? ? 48 83 C4 28*/
+#endif
 	}
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }
