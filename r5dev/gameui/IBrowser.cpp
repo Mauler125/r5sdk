@@ -183,12 +183,12 @@ void IBrowser::ServerBrowserSection(void)
     ImGui::Separator();
 
     const float fFooterHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-    ImGui::BeginChild("ServerListChild", { 0, -fFooterHeight }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+    ImGui::BeginChild("##ServerBrowser_ServerList", { 0, -fFooterHeight }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
     if (m_bDefaultTheme) { ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 8.f, 0.f }); }
     else { ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.f, 0.f)); }
 
-    if (ImGui::BeginTable("##ServerBrowser_ServerList", 5, ImGuiTableFlags_Resizable))
+    if (ImGui::BeginTable("##ServerBrowser_ServerListTable", 5, ImGuiTableFlags_Resizable))
     {
         ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 25);
         ImGui::TableSetupColumn("Map", ImGuiTableColumnFlags_WidthStretch, 20);
@@ -245,15 +245,15 @@ void IBrowser::ServerBrowserSection(void)
         ImGui::InputTextWithHint("##ServerBrowser_ServerEncKey", "Enter encryption key", m_chServerEncKeyBuffer, IM_ARRAYSIZE(m_chServerEncKeyBuffer));
 
         ImGui::SameLine();
-        if (ImGui::Button("Connect##ServerBrowser_ConnectByIp", ImVec2(ImGui::GetWindowContentRegionWidth() / 4.2, 18.5)))
+        if (ImGui::Button("Connect", ImVec2(ImGui::GetWindowContentRegionWidth() / 4.2, 18.5)))
         {
             ConnectToServer(m_chServerConnStringBuffer, m_chServerEncKeyBuffer);
         }
 
         ImGui::SameLine();
-        if (ImGui::Button("Private Servers##ServerBrowser_HiddenServersButton", ImVec2(ImGui::GetWindowContentRegionWidth() / 4.2, 18.5)))
+        if (ImGui::Button("Private Servers", ImVec2(ImGui::GetWindowContentRegionWidth() / 4.2, 18.5)))
         {
-            ImGui::OpenPopup("Connect to Private Server##HiddenServersConnectModal");
+            ImGui::OpenPopup("Connect to Private Server");
         }
         HiddenServersModal();
     }
@@ -330,7 +330,7 @@ void IBrowser::ConnectToServer(const std::string& svServer, const std::string& s
 void IBrowser::LaunchServer(void)
 {
 #ifndef CLIENT_DLL
-    DevMsg(eDLL_T::ENGINE, "Starting Server with name '%s', map '%s' and playlist '%s'\n", m_Server.svServerName.c_str(), m_Server.svMapName.c_str(), m_Server.svPlaylist.c_str());
+    DevMsg(eDLL_T::ENGINE, "Starting server with name: \"%s\" map: \"%s\" playlist: \"%s\"\n", m_Server.svServerName.c_str(), m_Server.svMapName.c_str(), m_Server.svPlaylist.c_str());
 
     /*
     * Playlist gets parsed in two instances, first in LoadPlaylist all the neccessary values.
@@ -387,7 +387,7 @@ void IBrowser::HiddenServersModal(void)
         ImGui::TextColored(m_ivHiddenServerMessageColor, m_szHiddenServerRequestMessage.c_str());
         ImGui::Separator();
 
-        if (ImGui::Button("Connect##HiddenServersConnectModal_ConnectButton", ImVec2(ImGui::GetWindowContentRegionWidth() / 2, 24)))
+        if (ImGui::Button("Connect", ImVec2(ImGui::GetWindowContentRegionWidth() / 2, 24)))
         {
             m_szHiddenServerRequestMessage.clear();
             ServerListing server;
@@ -407,7 +407,7 @@ void IBrowser::HiddenServersModal(void)
         }
 
         ImGui::SameLine();
-        if (ImGui::Button("Close##HiddenServersConnectModal_CloseButton", ImVec2(ImGui::GetWindowContentRegionWidth() / 2, 24)))
+        if (ImGui::Button("Close", ImVec2(ImGui::GetWindowContentRegionWidth() / 2, 24)))
         {
             ImGui::CloseCurrentPopup();
         }
@@ -427,7 +427,7 @@ void IBrowser::HostServerSection(void)
     ImGui::InputTextWithHint("##ServerHost_ServerName", "Server Name (Required)", &m_Server.svServerName);
     ImGui::Spacing();
 
-    if (ImGui::BeginCombo("Playlist##ServerHost_PlaylistBox", m_Server.svPlaylist.c_str()))
+    if (ImGui::BeginCombo("Playlist", m_Server.svPlaylist.c_str()))
     {
         for (auto& item : g_szAllPlaylists)
         {
@@ -451,21 +451,21 @@ void IBrowser::HostServerSection(void)
         ImGui::EndCombo();
     }
 
-    ImGui::Checkbox("Load Global Ban List##ServerHost_CheckCompBanDBCheckbox", &g_bCheckCompBanDB);
+    ImGui::Checkbox("Load Global Ban List", &g_bCheckCompBanDB);
     ImGui::Spacing();
 
     ImGui::SameLine();
     ImGui::Text("Server Visiblity");
 
-    if (ImGui::SameLine(); ImGui::RadioButton("Offline##ServerHost_ServerChoice1", eServerVisibility == EServerVisibility::OFFLINE))
+    if (ImGui::SameLine(); ImGui::RadioButton("Offline", eServerVisibility == EServerVisibility::OFFLINE))
     {
         eServerVisibility = EServerVisibility::OFFLINE;
     }
-    if (ImGui::SameLine(); ImGui::RadioButton("Hidden##ServerHost_ServerChoice2", eServerVisibility == EServerVisibility::HIDDEN))
+    if (ImGui::SameLine(); ImGui::RadioButton("Hidden", eServerVisibility == EServerVisibility::HIDDEN))
     {
         eServerVisibility = EServerVisibility::HIDDEN;
     }
-    if (ImGui::SameLine(); ImGui::RadioButton("Public##ServerHost_ServerChoice2", eServerVisibility == EServerVisibility::PUBLIC))
+    if (ImGui::SameLine(); ImGui::RadioButton("Public", eServerVisibility == EServerVisibility::PUBLIC))
     {
         eServerVisibility = EServerVisibility::PUBLIC;
     }
@@ -475,7 +475,7 @@ void IBrowser::HostServerSection(void)
 
     if (!g_pHostState->m_bActiveGame)
     {
-        if (ImGui::Button("Start Server##ServerHost_StartServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
+        if (ImGui::Button("Start Server", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
             svServerNameErr.clear();
             if (!m_Server.svServerName.empty() && !m_Server.svPlaylist.empty() && !m_Server.svMapName.empty())
@@ -501,7 +501,7 @@ void IBrowser::HostServerSection(void)
         }
     }
 
-    if (ImGui::Button("Force Start##ServerHost_ForceStart", ImVec2(ImGui::GetWindowSize().x, 32)))
+    if (ImGui::Button("Force Start", ImVec2(ImGui::GetWindowSize().x, 32)))
     {
         svServerNameErr.clear();
         if (!m_Server.svPlaylist.empty() && !m_Server.svMapName.empty())
@@ -531,14 +531,14 @@ void IBrowser::HostServerSection(void)
 
     if (g_pHostState->m_bActiveGame)
     {
-        if (ImGui::Button("Reload Scripts##ServerHost_ReloadServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
+        if (ImGui::Button("Weapon Reparse", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
-            DevMsg(eDLL_T::ENGINE, "Recompiling scripts\n");
+            DevMsg(eDLL_T::ENGINE, "Reparsing weapon data on %s\n", "server and client");
             ProcessCommand("weapon_reparse");
             ProcessCommand("reload");
         }
 
-        if (ImGui::Button("Change Level##ServerHost_ChangeLevel", ImVec2(ImGui::GetWindowSize().x, 32)))
+        if (ImGui::Button("Change Level", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
             if (!m_Server.svMapName.empty())
             {
@@ -551,7 +551,7 @@ void IBrowser::HostServerSection(void)
             }
         }
 
-        if (ImGui::Button("Stop Server##ServerHost_StopServerButton", ImVec2(ImGui::GetWindowSize().x, 32)))
+        if (ImGui::Button("Stop Server", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
             ProcessCommand("LeaveMatch"); // TODO: use script callback instead.
             g_pHostState->m_iNextState = HostStates_t::HS_GAME_SHUTDOWN; // Force CHostState::FrameUpdate to shutdown the server for dedicated.
@@ -559,7 +559,7 @@ void IBrowser::HostServerSection(void)
     }
     else
     {
-        if (ImGui::Button("Reload Playlist from Disk##ServerHost_ReloadPlaylist", ImVec2(ImGui::GetWindowSize().x, 32)))
+        if (ImGui::Button("Reload Playlist", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
             _DownloadPlaylists_f_CompletionFunc();
             KeyValues::InitPlaylist(); // Re-Init playlist.
@@ -681,7 +681,7 @@ void IBrowser::ProcessCommand(const char* pszCommand)
 //-----------------------------------------------------------------------------
 void IBrowser::SettingsSection(void)
 {
-    ImGui::InputTextWithHint("Hostname##MatchmakingServerString", "Matchmaking Server String", &m_szMatchmakingHostName);
+    ImGui::InputTextWithHint("Hostname", "Matchmaking Server String", &m_szMatchmakingHostName);
     if (ImGui::Button("Update Hostname"))
     {
         r5net_matchmaking_hostname->SetValue(m_szMatchmakingHostName.c_str());
@@ -691,8 +691,8 @@ void IBrowser::SettingsSection(void)
             g_pR5net = new R5Net::Client(r5net_matchmaking_hostname->GetString());
         }
     }
-    ImGui::InputText("Netkey##SettingsSection_EncKey", (char*)g_szNetKey.c_str(), ImGuiInputTextFlags_ReadOnly);
-    if (ImGui::Button("Regenerate Encryption Key##SettingsSection_RegenEncKey"))
+    ImGui::InputText("Netkey", (char*)g_szNetKey.c_str(), ImGuiInputTextFlags_ReadOnly);
+    if (ImGui::Button("Regenerate Encryption Key"))
     {
         RegenerateEncryptionKey();
     }
