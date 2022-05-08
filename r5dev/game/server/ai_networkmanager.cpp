@@ -69,7 +69,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 		iNavMesh.seekg(0, fstream::end);
 		uNavMesh.resize(iNavMesh.tellg());
 		iNavMesh.seekg(0, fstream::beg);
-		iNavMesh.read((char*)uNavMesh.data(), uNavMesh.size());
+		iNavMesh.read(reinterpret_cast<char*>(uNavMesh.data()), uNavMesh.size());
 
 		nNavMeshHash = crc32::update(NULL, uNavMesh.data(), uNavMesh.size());
 	}
@@ -80,7 +80,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 
 	// Large NavMesh CRC.
 	DevMsg(eDLL_T::SERVER, " |-- NavMesh CRC: '%lx'\n", nNavMeshHash);
-	writeStream.write(reinterpret_cast<const char*>(&nNavMeshHash), sizeof(int));
+	writeStream.write(reinterpret_cast<char*>(&nNavMeshHash), sizeof(int));
 
 	// Path nodes.
 	DevMsg(eDLL_T::SERVER, " |-- Nodecount: '%d'\n", pNetwork->m_iNumNodes);
@@ -344,7 +344,7 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager,
 				iNavMesh.seekg(0, fstream::end);
 				uNavMesh.resize(iNavMesh.tellg());
 				iNavMesh.seekg(0, fstream::beg);
-				iNavMesh.read((char*)uNavMesh.data(), uNavMesh.size());
+				iNavMesh.read(reinterpret_cast<char*>(uNavMesh.data()), uNavMesh.size());
 
 				nNavMeshHash = crc32::update(NULL, uNavMesh.data(), uNavMesh.size());
 
