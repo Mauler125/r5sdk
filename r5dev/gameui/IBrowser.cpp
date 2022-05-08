@@ -356,7 +356,7 @@ void IBrowser::LaunchServer(void)
 void IBrowser::HiddenServersModal(void)
 {
     bool modalOpen = true;
-    if (ImGui::BeginPopupModal("Connect to Private Server##HiddenServersConnectModal", &modalOpen))
+    if (ImGui::BeginPopupModal("Connect to Private Server", &modalOpen))
     {
         ImGui::SetWindowSize(ImVec2(400.f, 200.f), ImGuiCond_Always);
 
