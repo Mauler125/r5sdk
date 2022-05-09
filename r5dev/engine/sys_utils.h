@@ -12,7 +12,9 @@ inline auto Sys_LoadAssetHelper = p_Sys_LoadAssetHelper.RCast<void* (*)(const CH
 
 inline CMemory p_Con_NPrintf;
 inline auto Con_NPrintf = p_Con_NPrintf.RCast<void (*)(int pos, const char* fmt, ...)>();
-	/* ==== ------- ========================================================================================================================================================= */
+
+inline std::mutex s_LogMutex;
+/* ==== ------- ========================================================================================================================================================= */
 
 enum class eDLL_T : int
 {

@@ -766,7 +766,7 @@ void CConsole::AddLog(const char* fmt, ...) IM_FMTARGS(2)
     vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
     buf[IM_ARRAYSIZE(buf) - 1] = 0;
     va_end(args);
-    m_ivConLog.push_back(Strdup(buf));
+    m_ivConLog.push_back(CConLog(Strdup(buf), ImVec4(1.00f, 0.80f, 0.60f, 1.00f)));
 }
 
 //-----------------------------------------------------------------------------
@@ -774,7 +774,7 @@ void CConsole::AddLog(const char* fmt, ...) IM_FMTARGS(2)
 //-----------------------------------------------------------------------------
 void CConsole::ClearLog(void)
 {
-    for (int i = 0; i < m_ivConLog.size(); i++) { free(m_ivConLog[i]); }
+    //for (int i = 0; i < m_ivConLog.size(); i++) { free(m_ivConLog[i]); }
     m_ivConLog.clear();
 }
 
@@ -785,68 +785,29 @@ void CConsole::ColorLog(void) const
 {
     for (int i = 0; i < m_ivConLog.size(); i++)
     {
-        const char* pszConLog = m_ivConLog[i];
-        if (!m_itFilter.PassFilter(pszConLog))
+        if (!m_itFilter.PassFilter(m_ivConLog[i].m_svConLog.c_str()))
         {
             continue;
         }
         ///////////////////////////////////////////////////////////////////////
-        ImVec4 imColor;
+        ImVec4 imColor = m_ivConLog[i].m_imColor;
 
-        // General
-        if (strstr(pszConLog, ""))            { imColor = ImVec4(0.81f, 0.81f, 0.81f, 1.00f); true; }
-        if (strstr(pszConLog, "[INFO]"))      { imColor = ImVec4(1.00f, 1.00f, 1.00f, 0.70f); true; }
-        if (strstr(pszConLog, "[ERROR]"))     { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
-        if (strstr(pszConLog, "[DEBUG]"))     { imColor = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); true; }
-        if (strstr(pszConLog, "[WARNING]"))   { imColor = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); true; }
-        if (strncmp(pszConLog, "# ", 2) == 0) { imColor = ImVec4(1.00f, 0.80f, 0.60f, 1.00f); true; }
+        //// General
+        if (strstr(m_ivConLog[i].m_svConLog.c_str(), "[INFO]"))       { imColor = ImVec4(1.00f, 1.00f, 1.00f, 0.70f); true; }
+        if (strstr(m_ivConLog[i].m_svConLog.c_str(), "[ERROR]"))      { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
+        if (strstr(m_ivConLog[i].m_svConLog.c_str(), "[DEBUG]"))      { imColor = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); true; }
+        if (strstr(m_ivConLog[i].m_svConLog.c_str(), "[WARNING]"))    { imColor = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); true; }
+        if (strncmp(m_ivConLog[i].m_svConLog.c_str(), "# ", 2) == 0)  { imColor = ImVec4(1.00f, 0.80f, 0.60f, 1.00f); true; }
 
-        // Script virtual machines per game dll
-        if (strstr(pszConLog, "Script(S):")) { imColor = ImVec4(0.59f, 0.58f, 0.73f, 1.00f); true; }
-        if (strstr(pszConLog, "Script(C):")) { imColor = ImVec4(0.59f, 0.58f, 0.63f, 1.00f); true; }
-        if (strstr(pszConLog, "Script(U):")) { imColor = ImVec4(0.59f, 0.48f, 0.53f, 1.00f); true; }
-        if (strstr(pszConLog, "Script(X):")) { imColor = ImVec4(0.59f, 0.58f, 0.63f, 1.00f); true; }
-
-        // Native per game dll
-        if (strstr(pszConLog, "Native(S):")) { imColor = ImVec4(0.23f, 0.47f, 0.85f, 1.00f); true; }
-        if (strstr(pszConLog, "Native(C):")) { imColor = ImVec4(0.46f, 0.46f, 0.46f, 1.00f); true; }
-        if (strstr(pszConLog, "Native(U):")) { imColor = ImVec4(0.59f, 0.35f, 0.46f, 1.00f); true; }
-
-        // Native per sys dll
-        if (strstr(pszConLog, "Native(E):")) { imColor = ImVec4(0.70f, 0.70f, 0.70f, 1.00f); true; }
-        if (strstr(pszConLog, "Native(F):")) { imColor = ImVec4(0.32f, 0.64f, 0.72f, 1.00f); true; }
-        if (strstr(pszConLog, "Native(R):")) { imColor = ImVec4(0.36f, 0.70f, 0.35f, 1.00f); true; }
-        if (strstr(pszConLog, "Native(M):")) { imColor = ImVec4(0.75f, 0.41f, 0.67f, 1.00f); true; }
-
-        // Callbacks
-        //if (strstr(item, "CodeCallback_"))  { color = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); has_color = true; }
-
-        // Squirrel VM script errors
-        if (strstr(pszConLog, ".gnut"))          { imColor = ImVec4(1.00f, 1.00f, 1.00f, 0.60f); true; }
-        if (strstr(pszConLog, ".nut"))           { imColor = ImVec4(1.00f, 1.00f, 1.00f, 0.60f); true; }
-        if (strstr(pszConLog, "[CLIENT]"))       { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
-        if (strstr(pszConLog, "[SERVER]"))       { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
-        if (strstr(pszConLog, "[UI]"))           { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
-        if (strstr(pszConLog, "SCRIPT ERROR"))   { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
-        if (strstr(pszConLog, "SCRIPT COMPILE")) { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
-        if (strstr(pszConLog, ".gnut #"))        { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
-        if (strstr(pszConLog, ".nut #"))         { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
-        if (strstr(pszConLog, "): -> "))         { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
-        if (strstr(pszConLog, "):Warning:"))     { imColor = ImVec4(1.00f, 1.00f, 0.00f, 1.00f); true; }
-
-        // Squirrel VM script debug
-        if (strstr(pszConLog, "CALLSTACK"))   { imColor = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); true; }
-        if (strstr(pszConLog, "LOCALS"))      { imColor = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); true; }
-        if (strstr(pszConLog, "*FUNCTION"))   { imColor = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); true; }
-        if (strstr(pszConLog, "DIAGPRINTS"))  { imColor = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); true; }
-        if (strstr(pszConLog, " File : "))    { imColor = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); true; }
-        if (strstr(pszConLog, "<><>GRX<><>")) { imColor = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); true; }
-
-        // Filters
-        //if (strstr(item, ") -> "))          { color = ImVec4(1.00f, 1.00f, 1.00f, 0.70f); has_color = true; }
+        //// Squirrel VM script debug
+        if (strstr(m_ivConLog[i].m_svConLog.c_str(), "CALLSTACK"))    { imColor = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); true; }
+        if (strstr(m_ivConLog[i].m_svConLog.c_str(), "LOCALS"))       { imColor = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); true; }
+        if (strstr(m_ivConLog[i].m_svConLog.c_str(), "DIAGPRINTS"))   { imColor = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); true; }
+        if (strstr(m_ivConLog[i].m_svConLog.c_str(), "SCRIPT ERROR")) { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
+        if (strstr(m_ivConLog[i].m_svConLog.c_str(), "<><>GRX<><>"))  { imColor = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); true; }
 
         ImGui::PushStyleColor(ImGuiCol_Text, imColor);
-        ImGui::TextWrapped(pszConLog);
+        ImGui::TextWrapped(m_ivConLog[i].m_svConLog.c_str());
         ImGui::PopStyleColor();
     }
 }

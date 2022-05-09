@@ -15,7 +15,7 @@
 #include "vgui/vgui_debugpanel.h"
 #include "gameui/IConsole.h"
 #endif // !DEDICATED
-static std::mutex m;
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Exit engine with error
@@ -35,7 +35,7 @@ void HSys_Error(char* fmt, ...)
 	buf[sizeof(buf) -1] = 0;
 	va_end(args);
 
-	DevMsg(eDLL_T::ENGINE, "%s\n", buf);
+	Error(eDLL_T::ENGINE, "%s\n", buf);
 	return Sys_Error(buf);
 }
 
@@ -58,7 +58,7 @@ void* HSys_Warning(int level, char* fmt, ...)
 		va_end(args);
 	}/////////////////////////////
 
-	Warning(eDLL_T::NONE, "Warning(%d):%s\n", level, buf); // TODO: Color
+	Warning(eDLL_T::NONE, "Warning(%d):%s\n", level, buf);
 	return Sys_Warning(level, buf);
 }
 
@@ -107,7 +107,7 @@ void DevMsg(eDLL_T idx, const char* fmt, ...)
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
 	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("dev_message_logger");
 
-	m.lock();
+	s_LogMutex.lock();
 	{/////////////////////////////
 		va_list args{};
 		va_start(args, fmt);
@@ -155,18 +155,45 @@ void DevMsg(eDLL_T idx, const char* fmt, ...)
 
 #ifndef DEDICATED
 	iconsole->info(svOut);
-	std::string s = g_spd_sys_w_oss.str();
 
 	int nLog = static_cast<int>(idx) + 3; // RUI log enum is shifted by 3 for scripts.
 	LogType_t tLog = static_cast<LogType_t>(nLog);
 
-	g_pLogSystem.AddLog(tLog, s);
-	g_pIConsole->m_ivConLog.push_back(Strdup(s.c_str()));
+	ImVec4 color;
+	switch (idx)
+	{
+	case eDLL_T::SERVER:
+		color = ImVec4(0.23f, 0.47f, 0.85f, 1.00f);
+		break;
+	case eDLL_T::CLIENT:
+		color = ImVec4(0.46f, 0.46f, 0.46f, 1.00f);
+		break;
+	case eDLL_T::UI:
+		color = ImVec4(0.59f, 0.35f, 0.46f, 1.00f);
+		break;
+	case eDLL_T::ENGINE:
+		color = ImVec4(0.70f, 0.70f, 0.70f, 1.00f);
+		break;
+	case eDLL_T::FS:
+		color = ImVec4(0.32f, 0.64f, 0.72f, 1.00f);
+		break;
+	case eDLL_T::RTECH:
+		color = ImVec4(0.36f, 0.70f, 0.35f, 1.00f);
+		break;
+	case eDLL_T::MS:
+		color = ImVec4(0.75f, 0.41f, 0.67f, 1.00f);
+		break;
+	default:
+		break;
+	}
+
+	g_pIConsole->m_ivConLog.push_back(CConLog(g_spd_sys_w_oss.str().c_str(), color));
+	g_pLogSystem.AddLog(tLog, g_spd_sys_w_oss.str());
 
 	g_spd_sys_w_oss.str("");
 	g_spd_sys_w_oss.clear();
 #endif // !DEDICATED
-	m.unlock();
+	s_LogMutex.unlock();
 }
 
 //-----------------------------------------------------------------------------
@@ -187,7 +214,7 @@ void Warning(eDLL_T idx, const char* fmt, ...)
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
 	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("warn_message_logger");
 
-	m.lock();
+	s_LogMutex.lock();
 	{/////////////////////////////
 		va_list args{};
 		va_start(args, fmt);
@@ -236,15 +263,14 @@ void Warning(eDLL_T idx, const char* fmt, ...)
 
 #ifndef DEDICATED
 	iconsole->info(svOut);
-	std::string s = g_spd_sys_w_oss.str();
 
-	g_pLogSystem.AddLog(LogType_t::WARNING_C, s);
-	g_pIConsole->m_ivConLog.push_back(Strdup(s.c_str()));
+	g_pLogSystem.AddLog(LogType_t::WARNING_C, g_spd_sys_w_oss.str());
+	g_pIConsole->m_ivConLog.push_back(CConLog(g_spd_sys_w_oss.str(), ImVec4(1.00f, 1.00f, 0.00f, 0.80f)));
 
 	g_spd_sys_w_oss.str("");
 	g_spd_sys_w_oss.clear();
 #endif // !DEDICATED
-	m.unlock();
+	s_LogMutex.unlock();
 }
 
 //-----------------------------------------------------------------------------
@@ -265,7 +291,7 @@ void Error(eDLL_T idx, const char* fmt, ...)
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
 	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("error_message_logger");
 
-	m.lock();
+	s_LogMutex.lock();
 	{/////////////////////////////
 		va_list args{};
 		va_start(args, fmt);
@@ -314,15 +340,14 @@ void Error(eDLL_T idx, const char* fmt, ...)
 
 #ifndef DEDICATED
 	iconsole->info(svOut);
-	std::string s = g_spd_sys_w_oss.str();
 
-	g_pLogSystem.AddLog(LogType_t::ERROR_C, s);
-	g_pIConsole->m_ivConLog.push_back(Strdup(s.c_str()));
+	g_pLogSystem.AddLog(LogType_t::ERROR_C, g_spd_sys_w_oss.str());
+	g_pIConsole->m_ivConLog.push_back(CConLog(g_spd_sys_w_oss.str(), ImVec4(1.00f, 0.00f, 0.00f, 1.00f)));
 
 	g_spd_sys_w_oss.str("");
 	g_spd_sys_w_oss.clear();
 #endif // !DEDICATED
-	m.unlock();
+	s_LogMutex.unlock();
 }
 
 //-----------------------------------------------------------------------------

@@ -350,8 +350,8 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager,
 
 				if (nNavMeshHash != nAiGraphHash)
 				{
-					Warning(eDLL_T::SERVER, "AI node graph '%s' is out of date (%s NavMesh checksum: '0x%X' expected: '0x%X')\n",
-						fsGraphPath.string().c_str(), HULL_SIZE[3].c_str(), nNavMeshHash, nAiGraphHash);
+					Warning(eDLL_T::SERVER, "AI node graph '%s' is out of date (checksum: '0x%X' expected: '0x%X')\n",
+						fsGraphPath.string().c_str(), nNavMeshHash, nAiGraphHash);
 				}
 
 				iNavMesh.close();

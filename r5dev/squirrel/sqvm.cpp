@@ -60,6 +60,7 @@ SQRESULT HSQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
 	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sqvm_print_logger");
 
+	s_LogMutex.lock();
 	{/////////////////////////////
 		va_list args{};
 		va_start(args, fmt);
@@ -102,16 +103,33 @@ SQRESULT HSQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 
 		if (sq_showvmoutput->GetInt() > 2)
 		{
-			std::string s = g_spd_sys_w_oss.str();
+			ImVec4 color;
+			switch (context)
+			{
+			case SQCONTEXT::SERVER:
+				color = ImVec4(0.59f, 0.58f, 0.73f, 1.00f);
+				break;
+			case SQCONTEXT::CLIENT:
+				color = ImVec4(0.59f, 0.58f, 0.63f, 1.00f);
+				break;
+			case SQCONTEXT::UI:
+				color = ImVec4(0.59f, 0.48f, 0.53f, 1.00f);
+				break;
+			default:
+				color = ImVec4(0.59f, 0.58f, 0.63f, 1.00f);
+				break;
+			}
 
-			g_pIConsole->m_ivConLog.push_back(Strdup(s.c_str()));
-			g_pLogSystem.AddLog(static_cast<LogType_t>(context), s);
+			g_pIConsole->m_ivConLog.push_back(CConLog(g_spd_sys_w_oss.str(), color));
+			g_pLogSystem.AddLog(static_cast<LogType_t>(context), g_spd_sys_w_oss.str());
 
 			g_spd_sys_w_oss.str("");
 			g_spd_sys_w_oss.clear();
 		}
 #endif // !DEDICATED
 	}
+
+	s_LogMutex.unlock();
 	return SQ_OK;
 }
 
@@ -128,11 +146,12 @@ SQRESULT HSQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger*
 	static void* retaddr = reinterpret_cast<void*>(p_SQVM_WarningCmd.Offset(0x10).FindPatternSelf("85 ?? ?? 99", CMemory::Direction::DOWN).GetPtr());
 	SQRESULT result = SQVM_WarningFunc(v, a2, a3, nStringSize, ppString);
 
-	if (retaddr != _ReturnAddress()) // Check if its SQVM_Warning calling.
+	if (retaddr != _ReturnAddress() || !sq_showvmwarning->GetBool()) // Check if its SQVM_Warning calling.
 	{
 		return result;
 	}
 
+	s_LogMutex.lock();
 #ifdef GAMEDLL_S3
 	SQCONTEXT context = *reinterpret_cast<SQCONTEXT*>(reinterpret_cast<std::uintptr_t>(v) + 0x18);
 #else // TODO [ AMOS ]: nothing equal to 'rdx + 18h' exist in the vm structs for anything below S3.
@@ -144,13 +163,10 @@ SQRESULT HSQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger*
 	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sqvm_warn_logger");
 
 	std::string vmStr = SQVM_WARNING_LOG_T[static_cast<int>(context)].c_str();
-	std::string svConstructor((char*)*ppString, *nStringSize); // Get string from memory via std::string constructor.
+	std::string svConstructor(*ppString, *nStringSize); // Get string from memory via std::string constructor.
 	vmStr.append(svConstructor);
 
-	if (sq_showvmwarning->GetInt() > 0)
-	{
-		sqlogger->debug(vmStr); // Emit to file.
-	}
+	sqlogger->debug(vmStr); // Emit to file.
 	if (sq_showvmwarning->GetInt() > 1)
 	{
 		if (!g_bSpdLog_UseAnsiClr)
@@ -171,21 +187,17 @@ SQRESULT HSQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger*
 		}
 
 #ifndef DEDICATED
-		g_spd_sys_w_oss.str("");
-		g_spd_sys_w_oss.clear();
-
 		iconsole->debug(vmStr); // Emit to in-game console.
 
-		std::string s = g_spd_sys_w_oss.str();
-		g_pIConsole->m_ivConLog.push_back(Strdup(s.c_str()));
+		g_pIConsole->m_ivConLog.push_back(CConLog(g_spd_sys_w_oss.str(), ImVec4(1.00f, 1.00f, 0.00f, 0.80f)));
+		g_pLogSystem.AddLog(LogType_t::WARNING_C, g_spd_sys_w_oss.str());
 
-		if (sq_showvmwarning->GetInt() > 2)
-		{
-			g_pLogSystem.AddLog(LogType_t::WARNING_C, s);
-			g_pIConsole->m_ivConLog.push_back(Strdup(s.c_str()));
-		}
+		g_spd_sys_w_oss.str("");
+		g_spd_sys_w_oss.clear();
 #endif // !DEDICATED
 	}
+
+	s_LogMutex.unlock();
 	return result;
 }
 

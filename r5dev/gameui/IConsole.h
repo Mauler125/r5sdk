@@ -1,8 +1,8 @@
 #pragma once
+#ifndef DEDICATED
 #include "common/sdkdefs.h"
 #include "windows/resource.h"
 
-#ifndef DEDICATED
 struct CSuggest
 {
     CSuggest(const string& svName, int nFlags)
@@ -20,6 +20,17 @@ struct CSuggest
     }
     string m_svName;
     int m_nFlags;
+};
+
+struct CConLog
+{
+    CConLog(const string& svConLog, const ImVec4& imColor)
+    {
+        m_svConLog = svConLog;
+        m_imColor = imColor;
+    }
+    string m_svConLog;
+    ImVec4 m_imColor;
 };
 
 class CConsole
@@ -71,7 +82,7 @@ private:
 
 public:
     bool             m_bActivate = false;
-    ImVector<char*>  m_ivConLog;
+    vector<CConLog>  m_ivConLog;
     vector<CSuggest> m_vsvCommandBases;
 
     ///////////////////////////////////////////////////////////////////////////

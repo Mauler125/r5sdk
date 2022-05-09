@@ -63,7 +63,7 @@ void CBaseFileSystem::Close(FileHandle_t file)
 //---------------------------------------------------------------------------------
 void CBaseFileSystem::Warning(CBaseFileSystem* pFileSystem, FileWarningLevel_t level, const char* pFmt, ...)
 {
-	if (fs_warning_level_sdk->GetInt() < (int)level)
+	if (fs_warning_level_sdk->GetInt() < static_cast<int>(level))
 	{
 		return;
 	}
@@ -90,14 +90,11 @@ void CBaseFileSystem::Warning(CBaseFileSystem* pFileSystem, FileWarningLevel_t l
 	{
 		wconsole->debug(szBuf);
 #ifndef DEDICATED
+		iconsole->debug(szBuf);
+		g_pIConsole->m_ivConLog.push_back(CConLog(g_spd_sys_w_oss.str(), ImVec4(1.00f, 1.00f, 0.00f, 1.00f)));
+
 		g_spd_sys_w_oss.str("");
 		g_spd_sys_w_oss.clear();
-
-		iconsole->debug(szBuf);
-
-		std::string s = g_spd_sys_w_oss.str();
-
-		g_pIConsole->m_ivConLog.push_back(Strdup(s.c_str()));
 #endif // !DEDICATED
 	}
 }
@@ -122,7 +119,7 @@ FileHandle_t CBaseFileSystem::ReadFromVPK(CBaseFileSystem* pFileSystem, std::int
 	// TODO: obtain 'mod' SearchPath's instead.
 	svFilePath.insert(0, "platform\\");
 
-	if (::FileExists(svFilePath.c_str()) /*|| ::FileExists(pszFilePath)*/)
+	if (::FileExists(svFilePath.c_str()) || ::FileExists(pszFilePath))
 	{
 		*pResults = -1;
 		return (void*)pResults;
@@ -150,7 +147,7 @@ bool CBaseFileSystem::ReadFromCache(CBaseFileSystem* pFileSystem, char* pszFileP
 	// TODO: obtain 'mod' SearchPath's instead.
 	svFilePath.insert(0, "platform\\");
 
-	if (::FileExists(svFilePath.c_str()) /*|| ::FileExists(pszFilePath)*/)
+	if (::FileExists(svFilePath.c_str()) || ::FileExists(pszFilePath))
 	{
 		return false;
 	}
