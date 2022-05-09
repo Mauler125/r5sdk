@@ -183,6 +183,7 @@ void ConCommand::PurgeShipped(void) const
 		"bind_list_abilities",
 		"bind_US_standard",
 		"bind_held_US_standard",
+		"uiscript_reset",
 		"unbind",
 		"unbind_US_standard",
 		"unbindall",
