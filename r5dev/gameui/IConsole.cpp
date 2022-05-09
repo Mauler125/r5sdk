@@ -799,13 +799,6 @@ void CConsole::ColorLog(void) const
         if (strstr(m_ivConLog[i].m_svConLog.c_str(), "[WARNING]"))    { imColor = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); true; }
         if (strncmp(m_ivConLog[i].m_svConLog.c_str(), "# ", 2) == 0)  { imColor = ImVec4(1.00f, 0.80f, 0.60f, 1.00f); true; }
 
-        //// Squirrel VM script debug
-        if (strstr(m_ivConLog[i].m_svConLog.c_str(), "CALLSTACK"))    { imColor = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); true; }
-        if (strstr(m_ivConLog[i].m_svConLog.c_str(), "LOCALS"))       { imColor = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); true; }
-        if (strstr(m_ivConLog[i].m_svConLog.c_str(), "DIAGPRINTS"))   { imColor = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); true; }
-        if (strstr(m_ivConLog[i].m_svConLog.c_str(), "SCRIPT ERROR")) { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
-        if (strstr(m_ivConLog[i].m_svConLog.c_str(), "<><>GRX<><>"))  { imColor = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); true; }
-
         ImGui::PushStyleColor(ImGuiCol_Text, imColor);
         ImGui::TextWrapped(m_ivConLog[i].m_svConLog.c_str());
         ImGui::PopStyleColor();

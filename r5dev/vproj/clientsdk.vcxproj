@@ -80,6 +80,7 @@
     <ClCompile Include="..\rtech\stryder\stryder.cpp" />
     <ClCompile Include="..\squirrel\sqapi.cpp" />
     <ClCompile Include="..\squirrel\sqinit.cpp" />
+    <ClCompile Include="..\squirrel\sqstdaux.cpp" />
     <ClCompile Include="..\squirrel\sqvm.cpp" />
     <ClCompile Include="..\thirdparty\imgui\src\imgui_utility.cpp" />
     <ClCompile Include="..\tier0\commandline.cpp" />
@@ -212,6 +213,7 @@
     <ClInclude Include="..\rtech\stryder\stryder.h" />
     <ClInclude Include="..\squirrel\sqapi.h" />
     <ClInclude Include="..\squirrel\sqinit.h" />
+    <ClInclude Include="..\squirrel\sqstdaux.h" />
     <ClInclude Include="..\squirrel\sqtype.h" />
     <ClInclude Include="..\squirrel\sqvm.h" />
     <ClInclude Include="..\studiorender\studiorendercontext.h" />

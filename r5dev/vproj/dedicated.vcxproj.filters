@@ -1062,6 +1062,9 @@
     <ClInclude Include="..\thirdparty\nlohmann\detail\macro_scope.hpp">
       <Filter>thirdparty\nlohmann\detail</Filter>
     </ClInclude>
+    <ClInclude Include="..\squirrel\sqstdaux.h">
+      <Filter>sdk\squirrel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1297,6 +1300,9 @@
     </ClCompile>
     <ClCompile Include="..\game\shared\animation.cpp">
       <Filter>sdk\game\shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\squirrel\sqstdaux.cpp">
+      <Filter>sdk\squirrel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

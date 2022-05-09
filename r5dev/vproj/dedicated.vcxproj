@@ -214,6 +214,7 @@
     <ClInclude Include="..\server\server.h" />
     <ClInclude Include="..\squirrel\sqapi.h" />
     <ClInclude Include="..\squirrel\sqinit.h" />
+    <ClInclude Include="..\squirrel\sqstdaux.h" />
     <ClInclude Include="..\squirrel\sqtype.h" />
     <ClInclude Include="..\squirrel\sqvm.h" />
     <ClInclude Include="..\studiorender\studiorendercontext.h" />
@@ -480,6 +481,7 @@
     <ClCompile Include="..\server\server.cpp" />
     <ClCompile Include="..\squirrel\sqapi.cpp" />
     <ClCompile Include="..\squirrel\sqinit.cpp" />
+    <ClCompile Include="..\squirrel\sqstdaux.cpp" />
     <ClCompile Include="..\squirrel\sqvm.cpp" />
     <ClCompile Include="..\tier0\commandline.cpp" />
     <ClCompile Include="..\tier0\cpu.cpp" />

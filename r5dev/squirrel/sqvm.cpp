@@ -20,6 +20,7 @@
 #include "squirrel/sqtype.h"
 #include "squirrel/sqvm.h"
 #include "squirrel/sqinit.h"
+#include "squirrel/sqstdaux.h"
 
 //---------------------------------------------------------------------------------
 // Purpose: prints the output of each VM to the console
@@ -74,12 +75,12 @@ SQRESULT HSQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 	std::string vmStr = SQVM_LOG_T[static_cast<SQInteger>(context)].c_str();
 	vmStr.append(buf);
 
-	if (sq_showvmoutput->GetInt() > 0)
-	{
+	if (sq_showvmoutput->GetInt() > 0) {
 		sqlogger->debug(vmStr);
 	}
 	if (sq_showvmoutput->GetInt() > 1)
 	{
+		bool bError = false;
 		if (!g_bSpdLog_UseAnsiClr)
 		{
 			wconsole->debug(vmStr);
@@ -89,7 +90,21 @@ SQRESULT HSQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 		}
 		else
 		{
-			std::string vmStrAnsi = SQVM_ANSI_LOG_T[static_cast<SQInteger>(context)].c_str();
+			std::string vmStrAnsi;
+			if (g_bSQAuxError)
+			{
+				if (strstr(buf, "SCRIPT ERROR:") || strstr(buf, " -> "))
+				{
+					bError = true;
+					vmStrAnsi = SQVM_ERROR_ANSI_LOG_T[static_cast<SQInteger>(context)].c_str();
+				}
+				else {
+					vmStrAnsi = SQVM_WARNING_ANSI_LOG_T[static_cast<SQInteger>(context)].c_str();
+				}
+			}
+			else {
+				vmStrAnsi = SQVM_ANSI_LOG_T[static_cast<SQInteger>(context)].c_str();
+			}
 			vmStrAnsi.append(buf);
 			wconsole->debug(vmStrAnsi);
 #ifdef DEDICATED
@@ -104,20 +119,32 @@ SQRESULT HSQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 		if (sq_showvmoutput->GetInt() > 2)
 		{
 			ImVec4 color;
-			switch (context)
+			if (g_bSQAuxError)
 			{
-			case SQCONTEXT::SERVER:
-				color = ImVec4(0.59f, 0.58f, 0.73f, 1.00f);
-				break;
-			case SQCONTEXT::CLIENT:
-				color = ImVec4(0.59f, 0.58f, 0.63f, 1.00f);
-				break;
-			case SQCONTEXT::UI:
-				color = ImVec4(0.59f, 0.48f, 0.53f, 1.00f);
-				break;
-			default:
-				color = ImVec4(0.59f, 0.58f, 0.63f, 1.00f);
-				break;
+				if (bError) {
+					color = ImVec4(1.00f, 0.00f, 0.00f, 0.80f);
+				}
+				else {
+					color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f);
+				}
+			}
+			else
+			{
+				switch (context)
+				{
+				case SQCONTEXT::SERVER:
+					color = ImVec4(0.59f, 0.58f, 0.73f, 1.00f);
+					break;
+				case SQCONTEXT::CLIENT:
+					color = ImVec4(0.59f, 0.58f, 0.63f, 1.00f);
+					break;
+				case SQCONTEXT::UI:
+					color = ImVec4(0.59f, 0.48f, 0.53f, 1.00f);
+					break;
+				default:
+					color = ImVec4(0.59f, 0.58f, 0.63f, 1.00f);
+					break;
+				}
 			}
 
 			g_pIConsole->m_ivConLog.push_back(CConLog(g_spd_sys_w_oss.str(), color));

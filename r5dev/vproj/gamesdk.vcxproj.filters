@@ -510,6 +510,9 @@
     <ClCompile Include="..\game\shared\animation.cpp">
       <Filter>sdk\game\shared</Filter>
     </ClCompile>
+    <ClCompile Include="..\squirrel\sqstdaux.cpp">
+      <Filter>sdk\squirrel</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1495,6 +1498,9 @@
     </ClInclude>
     <ClInclude Include="..\thirdparty\nlohmann\detail\output\binary_writer.hpp">
       <Filter>thirdparty\nlohmann\detail\output</Filter>
+    </ClInclude>
+    <ClInclude Include="..\squirrel\sqstdaux.h">
+      <Filter>sdk\squirrel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
