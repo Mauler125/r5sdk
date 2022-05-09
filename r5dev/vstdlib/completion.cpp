@@ -779,7 +779,7 @@ void _CMaterial_GetMaterialAtCrossHair_f_ComplectionFunc(const CCommand& args)
 		std::function<void(CMaterialGlue*, const char*)> fnPrintChild = [](CMaterialGlue* material, const char* print)
 		{
 			DevMsg(eDLL_T::MS, " |-+\n");
-			DevMsg(eDLL_T::MS, " | |-+ Child material ------------------------------------------\n");
+			DevMsg(eDLL_T::MS, " | |-+ Child material ----------------------------------------\n");
 			DevMsg(eDLL_T::MS, print, material);
 			DevMsg(eDLL_T::MS, " |     |-- GUID: '%llX'\n", material->m_GUID);
 			DevMsg(eDLL_T::MS, " |     |-- Material Name: '%s'\n", material->m_pszName);
