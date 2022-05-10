@@ -108,7 +108,7 @@ public:
     static int TextEditCallbackStub(ImGuiInputTextCallbackData* pData);
 
     ///////////////////////////////////////////////////////////////////////////
-    void AddLog(const char* fmt, ...) IM_FMTARGS(2);
+    void AddLog(ImVec4 color, const char* fmt, ...) IM_FMTARGS(2);
     void ClearLog(void);
     void ColorLog(void) const;
 

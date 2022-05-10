@@ -184,6 +184,7 @@ void DevMsg(eDLL_T idx, const char* fmt, ...)
 		color = ImVec4(0.75f, 0.41f, 0.67f, 1.00f);
 		break;
 	default:
+		color = ImVec4(0.81f, 0.81f, 0.81f, 1.00f);
 		break;
 	}
 

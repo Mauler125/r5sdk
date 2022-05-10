@@ -520,7 +520,7 @@ void CConsole::FindFromPartial(void)
 //-----------------------------------------------------------------------------
 void CConsole::ProcessCommand(const char* pszCommand)
 {
-    AddLog("# %s\n", pszCommand);
+    AddLog(ImVec4(1.00f, 0.80f, 0.60f, 1.00f), "# %s\n", pszCommand);
 
     std::thread t(CEngineClient_CommandExecute, this, pszCommand);
     t.detach(); // Detach from render thread.
@@ -545,32 +545,32 @@ void CConsole::ProcessCommand(const char* pszCommand)
     }
     else if (Stricmp(pszCommand, "HELP") == 0)
     {
-        AddLog("Commands:");
+        AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "Commands:");
         for (int i = 0; i < static_cast<int>(m_vsvCommands.size()); i++)
         {
-            AddLog("- %s", m_vsvCommands[i].c_str());
+            AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "- %s", m_vsvCommands[i].c_str());
         }
 
-        AddLog("Log types:");
-        AddLog("Script(S): = Server DLL (Script VM)");
-        AddLog("Script(C): = Client DLL (Script VM)");
-        AddLog("Script(U): = UI DLL (Script VM)");
+        AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "Log types:");
+        AddLog(ImVec4(0.59f, 0.58f, 0.73f, 1.00f), "Script(S): = Server DLL (Script VM)");
+        AddLog(ImVec4(0.59f, 0.58f, 0.63f, 1.00f), "Script(C): = Client DLL (Script VM)");
+        AddLog(ImVec4(0.59f, 0.48f, 0.53f, 1.00f), "Script(U): = UI DLL (Script VM)");
 
-        AddLog("Native(S): = Server DLL (Code)");
-        AddLog("Native(C): = Client DLL (Code)");
-        AddLog("Native(U): = UI DLL (Code)");
+        AddLog(ImVec4(0.23f, 0.47f, 0.85f, 1.00f), "Native(S): = Server DLL (Code)");
+        AddLog(ImVec4(0.46f, 0.46f, 0.46f, 1.00f), "Native(C): = Client DLL (Code)");
+        AddLog(ImVec4(0.59f, 0.35f, 0.46f, 1.00f), "Native(U): = UI DLL (Code)");
 
-        AddLog("Native(E): = Engine DLL (Code)");
-        AddLog("Native(F): = FileSys DLL (Code)");
-        AddLog("Native(R): = RTech DLL (Code)");
-        AddLog("Native(M): = MatSys DLL (Code)");
+        AddLog(ImVec4(0.70f, 0.70f, 0.70f, 1.00f), "Native(E): = Engine DLL (Code)");
+        AddLog(ImVec4(0.32f, 0.64f, 0.72f, 1.00f), "Native(F): = FileSys DLL (Code)");
+        AddLog(ImVec4(0.36f, 0.70f, 0.35f, 1.00f), "Native(R): = RTech DLL (Code)");
+        AddLog(ImVec4(0.75f, 0.41f, 0.67f, 1.00f), "Native(M): = MatSys DLL (Code)");
     }
     else if (Stricmp(pszCommand, "HISTORY") == 0)
     {
         int nFirst = static_cast<int>(m_vsvHistory.size()) - 10;
         for (int i = nFirst > 0 ? nFirst : 0; i < static_cast<int>(m_vsvHistory.size()); i++)
         {
-            AddLog("%3d: %s\n", i, m_vsvHistory[i].c_str());
+            AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "%3d: %s\n", i, m_vsvHistory[i].c_str());
         }
     }
 
@@ -758,7 +758,7 @@ int CConsole::TextEditCallbackStub(ImGuiInputTextCallbackData* iData)
 // Input  : *fmt - 
 //          ... - 
 //-----------------------------------------------------------------------------
-void CConsole::AddLog(const char* fmt, ...) IM_FMTARGS(2)
+void CConsole::AddLog(ImVec4 color, const char* fmt, ...) IM_FMTARGS(2)
 {
     char buf[1024];
     va_list args{};
@@ -789,19 +789,11 @@ void CConsole::ColorLog(void) const
         {
             continue;
         }
-        ///////////////////////////////////////////////////////////////////////
-        ImVec4 imColor = m_ivConLog[i].m_imColor;
 
-        //// General
-        if (strstr(m_ivConLog[i].m_svConLog.c_str(), "[INFO]"))       { imColor = ImVec4(1.00f, 1.00f, 1.00f, 0.70f); true; }
-        if (strstr(m_ivConLog[i].m_svConLog.c_str(), "[ERROR]"))      { imColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f); true; }
-        if (strstr(m_ivConLog[i].m_svConLog.c_str(), "[DEBUG]"))      { imColor = ImVec4(0.00f, 0.30f, 1.00f, 1.00f); true; }
-        if (strstr(m_ivConLog[i].m_svConLog.c_str(), "[WARNING]"))    { imColor = ImVec4(1.00f, 1.00f, 0.00f, 0.80f); true; }
-        if (strncmp(m_ivConLog[i].m_svConLog.c_str(), "# ", 2) == 0)  { imColor = ImVec4(1.00f, 0.80f, 0.60f, 1.00f); true; }
-
-        ImGui::PushStyleColor(ImGuiCol_Text, imColor);
+        ImGui::PushStyleColor(ImGuiCol_Text, m_ivConLog[i].m_imColor);
         ImGui::TextWrapped(m_ivConLog[i].m_svConLog.c_str());
         ImGui::PopStyleColor();
+        ///////////////////////////////////////////////////////////////////////
     }
 }
 
