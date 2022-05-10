@@ -188,7 +188,7 @@ void DevMsg(eDLL_T idx, const char* fmt, ...)
 		break;
 	}
 
-	g_pIConsole->m_ivConLog.push_back(CConLog(g_spd_sys_w_oss.str().c_str(), color));
+	g_pIConsole->m_ivConLog.push_back(CConLog(PrintPercentageEscape(g_spd_sys_w_oss.str()), color));
 	g_pLogSystem.AddLog(tLog, g_spd_sys_w_oss.str());
 
 	g_spd_sys_w_oss.str("");
@@ -265,8 +265,8 @@ void Warning(eDLL_T idx, const char* fmt, ...)
 #ifndef DEDICATED
 	iconsole->info(svOut);
 
+	g_pIConsole->m_ivConLog.push_back(CConLog(PrintPercentageEscape(g_spd_sys_w_oss.str()), ImVec4(1.00f, 1.00f, 0.00f, 0.80f)));
 	g_pLogSystem.AddLog(LogType_t::WARNING_C, g_spd_sys_w_oss.str());
-	g_pIConsole->m_ivConLog.push_back(CConLog(g_spd_sys_w_oss.str(), ImVec4(1.00f, 1.00f, 0.00f, 0.80f)));
 
 	g_spd_sys_w_oss.str("");
 	g_spd_sys_w_oss.clear();
@@ -342,8 +342,8 @@ void Error(eDLL_T idx, const char* fmt, ...)
 #ifndef DEDICATED
 	iconsole->info(svOut);
 
+	g_pIConsole->m_ivConLog.push_back(CConLog(PrintPercentageEscape(g_spd_sys_w_oss.str()), ImVec4(1.00f, 0.00f, 0.00f, 1.00f)));
 	g_pLogSystem.AddLog(LogType_t::ERROR_C, g_spd_sys_w_oss.str());
-	g_pIConsole->m_ivConLog.push_back(CConLog(g_spd_sys_w_oss.str(), ImVec4(1.00f, 0.00f, 0.00f, 1.00f)));
 
 	g_spd_sys_w_oss.str("");
 	g_spd_sys_w_oss.clear();

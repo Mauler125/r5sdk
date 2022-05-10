@@ -520,7 +520,7 @@ void CConsole::FindFromPartial(void)
 //-----------------------------------------------------------------------------
 void CConsole::ProcessCommand(const char* pszCommand)
 {
-    AddLog(ImVec4(1.00f, 0.80f, 0.60f, 1.00f), "# %s\n", pszCommand);
+    AddLog(ImVec4(1.00f, 0.80f, 0.60f, 1.00f), "# %s\n", PrintPercentageEscape(pszCommand).c_str());
 
     std::thread t(CEngineClient_CommandExecute, this, pszCommand);
     t.detach(); // Detach from render thread.

@@ -144,7 +144,7 @@ void PrintLastError(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// For dumping data from a buffer to a file on the disk
+// For dumping data from a buffer to a file on the disk.
 void HexDump(const char* szHeader, const char* szLogger, const void* pData, int nSize)
 {
     static unsigned char szAscii[17] = {};
@@ -345,7 +345,7 @@ string Base64Decode(const string& svInput)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// For comparing input strings alphabetically
+// For comparing input strings alphabetically.
 bool CompareStringAlphabetically(const string& svA, const string& svB)
 {
     int i = 0;
@@ -358,7 +358,7 @@ bool CompareStringAlphabetically(const string& svA, const string& svB)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// For comparing input strings lexicographically
+// For comparing input strings lexicographically.
 bool CompareStringLexicographically(const string& svA, const string& svB)
 {
     return svA < svB;
@@ -384,6 +384,7 @@ string StringEscape(const string& svInput)
 {
     string results;
     results.reserve(svInput.size());
+
     for (const char c : svInput)
     {
         switch (c)
@@ -408,6 +409,7 @@ string StringUnescape(const string& svInput)
 {
     string results;
     results.reserve(svInput.size());
+
     for (const char c : svInput)
     {
         switch (c)
@@ -475,7 +477,7 @@ vector<int> PatternToBytes(const string& svInput)
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// For converting a integer into digits
+// For converting a integer into digits.
 vector<int> IntToDigits(int value)
 {
     vector<int> vDigits;
@@ -485,4 +487,22 @@ vector<int> IntToDigits(int value)
     }
     std::reverse(vDigits.begin(), vDigits.end());
     return vDigits;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// For escaping the '%' character for *rintf.
+string PrintPercentageEscape(const string& svInput)
+{
+    string results;
+    results.reserve(svInput.size());
+
+    for (const char c : svInput)
+    {
+        switch (c)
+        {
+        case '%':  results += "%%";  break;
+        default:   results += c;     break;
+        }
+    }
+    return results;
 }
