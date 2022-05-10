@@ -189,7 +189,7 @@ SQRESULT HSQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger*
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
 	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sqvm_warn_logger");
 
-	std::string vmStr = SQVM_WARNING_LOG_T[static_cast<int>(context)].c_str();
+	std::string vmStr = SQVM_LOG_T[static_cast<int>(context)].c_str();
 	std::string svConstructor(*ppString, *nStringSize); // Get string from memory via std::string constructor.
 	vmStr.append(svConstructor);
 

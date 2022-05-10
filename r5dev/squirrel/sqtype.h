@@ -92,14 +92,6 @@ const static std::string SQVM_LOG_T[4] =
 	"Script(X):"
 };
 
-const static std::string SQVM_WARNING_LOG_T[4] =
-{
-	"Script(S):",
-	"Script(C):",
-	"Script(U):",
-	"Script(X):"
-};
-
 const static std::string SQVM_ANSI_LOG_T[4] =
 {
 	"\033[38;2;151;149;187mScript(S):",
