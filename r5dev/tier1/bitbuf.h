@@ -20,8 +20,8 @@ class CBitBuffer
 public:
 	CBitBuffer(void);
 	void SetDebugName(const char* pName);
-	const char* GetDebugName();
-	bool IsOverflowed();
+	const char* GetDebugName() const;
+	bool IsOverflowed() const;
 	void SetOverflowFlag();
 
 	////////////////////////////////////

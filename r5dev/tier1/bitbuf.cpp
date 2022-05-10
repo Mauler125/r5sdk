@@ -58,12 +58,12 @@ void CBitBuffer::SetDebugName(const char* pName)
 	m_pDebugName = pName;
 }
 
-const char* CBitBuffer::GetDebugName()
+const char* CBitBuffer::GetDebugName() const
 {
 	return m_pDebugName;
 }
 
-bool CBitBuffer::IsOverflowed()
+bool CBitBuffer::IsOverflowed() const
 {
 	return m_bOverflow;
 }
