@@ -109,7 +109,7 @@ string LoadConfigFile(const string& svConfig)
 	}
 	else
 	{
-		spdlog::error("{}: '{}' does not exist!\n", __FUNCTION__, svConfig.c_str());
+		spdlog::error("{:s}: '{:s}' does not exist!\n", __FUNCTION__, svConfig.c_str());
 		cfgFile.close();
 		return "";
 	}
