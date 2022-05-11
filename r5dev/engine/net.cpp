@@ -135,13 +135,13 @@ void NET_PrintFunc(const char* fmt, ...)
 // Purpose: shutdown netchannel
 // Input  : *this - 
 //			*szReason - 
-//			a3 - 
+//			bBadRep - 
 //			bRemoveNow - 
 //-----------------------------------------------------------------------------
-void NET_Shutdown(void* thisptr, const char* szReason, uint8_t a1, bool bRemoveNow)
+void NET_Shutdown(void* thisptr, const char* szReason, uint8_t bBadRep, bool bRemoveNow)
 {
 	_DownloadPlaylists_f_CompletionFunc(); // Re-load playlist from disk after getting disconnected from the server.
-	v_NET_Shutdown(thisptr, szReason, a1, bRemoveNow);
+	v_NET_Shutdown(thisptr, szReason, bBadRep, bRemoveNow);
 }
 
 //-----------------------------------------------------------------------------
@@ -149,10 +149,10 @@ void NET_Shutdown(void* thisptr, const char* szReason, uint8_t a1, bool bRemoveN
 // Input  : *pClient - 
 //			nIndex - 
 //			*szReason - 
-//			unk1 - 
-//			unk2 - 
+//			bBadRep - 
+//			bRemoveNow - 
 //-----------------------------------------------------------------------------
-void NET_DisconnectClient(CBaseClient* pClient, int nIndex, const char* szReason, uint8_t unk1, bool bRemoveNow)
+void NET_DisconnectClient(CBaseClient* pClient, int nIndex, const char* szReason, uint8_t bBadRep, bool bRemoveNow)
 {
 #ifndef CLIENT_DLL
 	if (!pClient || std::strlen(szReason) == NULL || !pClient->GetNetChan())
@@ -160,7 +160,7 @@ void NET_DisconnectClient(CBaseClient* pClient, int nIndex, const char* szReason
 		return;
 	}
 
-	v_NET_Shutdown(pClient->GetNetChan(), szReason, unk1, bRemoveNow); // Shutdown netchan.
+	v_NET_Shutdown(pClient->GetNetChan(), szReason, bBadRep, bRemoveNow); // Shutdown netchan.
 	pClient->SetNetChan(nullptr);                                      // Null netchan.
 	CBaseClient_Clear(pClient);                                        // Reset CClient instance for client.
 	g_bIsPersistenceVarSet[nIndex] = false;                            // Reset Persistence var.
