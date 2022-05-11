@@ -520,7 +520,7 @@ void CConsole::FindFromPartial(void)
 //-----------------------------------------------------------------------------
 void CConsole::ProcessCommand(const char* pszCommand)
 {
-    AddLog(ImVec4(1.00f, 0.80f, 0.60f, 1.00f), "# %s\n", pszCommand);
+    AddLog(ImVec4(1.00f, 0.80f, 0.60f, 1.00f), "# %s\n", PrintPercentageEscape(pszCommand).c_str());
 
     std::thread t(CEngineClient_CommandExecute, this, pszCommand);
     t.detach(); // Detach from render thread.
@@ -552,9 +552,9 @@ void CConsole::ProcessCommand(const char* pszCommand)
         }
 
         AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "Log types:");
-        AddLog(ImVec4(0.59f, 0.58f, 0.73f, 1.00f), "Script(S): = Server DLL (Script VM)");
-        AddLog(ImVec4(0.59f, 0.58f, 0.63f, 1.00f), "Script(C): = Client DLL (Script VM)");
-        AddLog(ImVec4(0.59f, 0.48f, 0.53f, 1.00f), "Script(U): = UI DLL (Script VM)");
+        AddLog(ImVec4(0.59f, 0.58f, 0.73f, 1.00f), "Script(S): = Server DLL (Script)");
+        AddLog(ImVec4(0.59f, 0.58f, 0.63f, 1.00f), "Script(C): = Client DLL (Script)");
+        AddLog(ImVec4(0.59f, 0.48f, 0.53f, 1.00f), "Script(U): = UI DLL (Script)");
 
         AddLog(ImVec4(0.23f, 0.47f, 0.85f, 1.00f), "Native(S): = Server DLL (Code)");
         AddLog(ImVec4(0.46f, 0.46f, 0.46f, 1.00f), "Native(C): = Client DLL (Code)");
@@ -766,7 +766,7 @@ void CConsole::AddLog(ImVec4 color, const char* fmt, ...) IM_FMTARGS(2)
     vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
     buf[IM_ARRAYSIZE(buf) - 1] = 0;
     va_end(args);
-    m_ivConLog.push_back(CConLog(Strdup(buf), ImVec4(1.00f, 0.80f, 0.60f, 1.00f)));
+    m_ivConLog.push_back(CConLog(Strdup(buf), color));
 }
 
 //-----------------------------------------------------------------------------

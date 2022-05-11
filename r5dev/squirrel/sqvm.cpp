@@ -147,7 +147,7 @@ SQRESULT HSQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 				}
 			}
 
-			g_pIConsole->m_ivConLog.push_back(CConLog(g_spd_sys_w_oss.str(), color));
+			g_pIConsole->m_ivConLog.push_back(CConLog(PrintPercentageEscape(g_spd_sys_w_oss.str()), color));
 			g_pLogSystem.AddLog(static_cast<LogType_t>(context), g_spd_sys_w_oss.str());
 
 			g_spd_sys_w_oss.str("");
@@ -189,7 +189,7 @@ SQRESULT HSQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger*
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
 	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sqvm_warn_logger");
 
-	std::string vmStr = SQVM_WARNING_LOG_T[static_cast<int>(context)].c_str();
+	std::string vmStr = SQVM_LOG_T[static_cast<int>(context)].c_str();
 	std::string svConstructor(*ppString, *nStringSize); // Get string from memory via std::string constructor.
 	vmStr.append(svConstructor);
 
@@ -216,7 +216,7 @@ SQRESULT HSQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger*
 #ifndef DEDICATED
 		iconsole->debug(vmStr); // Emit to in-game console.
 
-		g_pIConsole->m_ivConLog.push_back(CConLog(g_spd_sys_w_oss.str(), ImVec4(1.00f, 1.00f, 0.00f, 0.80f)));
+		g_pIConsole->m_ivConLog.push_back(CConLog(PrintPercentageEscape(g_spd_sys_w_oss.str()), ImVec4(1.00f, 1.00f, 0.00f, 0.80f)));
 		g_pLogSystem.AddLog(LogType_t::WARNING_C, g_spd_sys_w_oss.str());
 
 		g_spd_sys_w_oss.str("");

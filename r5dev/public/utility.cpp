@@ -144,7 +144,7 @@ void PrintLastError(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// For dumping data from a buffer to a file on the disk
+// For dumping data from a buffer to a file on the disk.
 void HexDump(const char* szHeader, const char* szLogger, const void* pData, int nSize)
 {
     static unsigned char szAscii[17] = {};
@@ -345,7 +345,7 @@ string Base64Decode(const string& svInput)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// For comparing input strings alphabetically
+// For comparing input strings alphabetically.
 bool CompareStringAlphabetically(const string& svA, const string& svB)
 {
     int i = 0;
@@ -358,7 +358,7 @@ bool CompareStringAlphabetically(const string& svA, const string& svB)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// For comparing input strings lexicographically
+// For comparing input strings lexicographically.
 bool CompareStringLexicographically(const string& svA, const string& svB)
 {
     return svA < svB;
@@ -384,6 +384,7 @@ string StringEscape(const string& svInput)
 {
     string results;
     results.reserve(svInput.size());
+
     for (const char c : svInput)
     {
         switch (c)
@@ -408,6 +409,7 @@ string StringUnescape(const string& svInput)
 {
     string results;
     results.reserve(svInput.size());
+
     for (const char c : svInput)
     {
         switch (c)
@@ -475,7 +477,7 @@ vector<int> PatternToBytes(const string& svInput)
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// For converting a integer into digits
+// For converting a integer into digits.
 vector<int> IntToDigits(int value)
 {
     vector<int> vDigits;
@@ -485,4 +487,51 @@ vector<int> IntToDigits(int value)
     }
     std::reverse(vDigits.begin(), vDigits.end());
     return vDigits;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// For printing __m128i datatypes.
+void PrintM128i8(__m128i in)
+{
+    alignas(16) uint8_t v[16];
+    _mm_store_si128(reinterpret_cast<__m128i*>(v), in);
+    printf("v16_u8: %x %x %x %x | %x %x %x %x | %x %x %x %x | %x %x %x %x\n",
+        v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7],
+        v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15]);
+}
+void PrintM128i16(__m128i in)
+{
+    alignas(16) uint16_t v[8];
+    _mm_store_si128(reinterpret_cast<__m128i*>(v), in);
+    printf("v8_u16: %x %x %x %x,  %x %x %x %x\n", v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]);
+}
+void PrintM128i32(__m128i in)
+{
+    alignas(16) uint32_t v[4];
+    _mm_store_si128(reinterpret_cast<__m128i*>(v), in);
+    printf("v4_u32: %x %x %x %x\n", v[0], v[1], v[2], v[3]);
+}
+void PrintM128i64(__m128i in)
+{
+    alignas(16) uint64_t v[2];  // uint64_t might give format-string warnings with %llx; it's just long in some ABIs
+    _mm_store_si128(reinterpret_cast<__m128i*>(v), in);
+    printf("v2_u64: %llx %llx\n", v[0], v[1]);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// For escaping the '%' character for *rintf.
+string PrintPercentageEscape(const string& svInput)
+{
+    string results;
+    results.reserve(svInput.size());
+
+    for (const char c : svInput)
+    {
+        switch (c)
+        {
+        case '%':  results += "%%";  break;
+        default:   results += c;     break;
+        }
+    }
+    return results;
 }

@@ -27,8 +27,16 @@ bool CompareStringLexicographically(const string& svA, const string& svB);
 bool StringReplace(string& svInput, const string& svFrom, const string& svTo);
 string StringEscape(const string& svInput);
 string StringUnescape(const string& svInput);
+
 vector<int> StringToBytes(const string& svInput, bool bNullTerminator);
 vector<int> PatternToBytes(const string& svInput);
 vector<int> IntToDigits(int value);
+
+void PrintM128i8(__m128i in);
+void PrintM128i16(__m128i in);
+void PrintM128i32(__m128i in);
+void PrintM128i64(__m128i in);
+
+string PrintPercentageEscape(const string& svInput);
 
 /////////////////////////////////////////////////////////////////////////////
