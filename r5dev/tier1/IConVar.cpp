@@ -69,7 +69,7 @@ void ConVar::Init(void) const
 	navmesh_always_reachable = new ConVar("navmesh_always_reachable" , "1", FCVAR_DEVELOPMENTONLY, "Marks poly from agent to target on navmesh as reachable regardless of table data ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr); // !TODO: Default to '0' once the reachability table gets properly parsed.
 
 	sv_showconnecting  = new ConVar("sv_showconnecting" , "1", FCVAR_RELEASE, "Logs information about the connecting client to the console.", false, 0.f, false, 0.f, nullptr, nullptr);
-	sv_pylonvisibility = new ConVar("sv_pylonvisibility", "0", FCVAR_RELEASE, "Determines the visiblity to the Pylon Master Server, 0 = Not visible, 1 = Visible, 2 = Hidden !TODO: not implemented yet.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sv_pylonvisibility = new ConVar("sv_pylonvisibility", "0", FCVAR_RELEASE, "Determines the visiblity to the Pylon master server, 0 = Not visible, 1 = Visible, 2 = Hidden !TODO: not implemented yet.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_pylonRefreshInterval   = new ConVar("sv_pylonRefreshInterval"  , "5.0", FCVAR_RELEASE, "Pylon server host request post update interval (seconds).", true, 2.f, true, 8.f, nullptr, nullptr);
 	sv_banlistRefreshInterval = new ConVar("sv_banlistRefreshInterval", "1.0", FCVAR_RELEASE, "Banlist refresh interval (seconds).", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_statusRefreshInterval  = new ConVar("sv_statusRefreshInterval" , "0.5", FCVAR_RELEASE, "Server status bar update interval (seconds).", false, 0.f, false, 0.f, nullptr, nullptr);

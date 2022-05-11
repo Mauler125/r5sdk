@@ -46,11 +46,11 @@ void* HCServer_Authenticate(void* pServer, user_creds* pInpacket)
 	{
 		if (g_pBanSystem->IsBanned(svIpAddress, pInpacket->m_nNucleusID)) // Is the client trying to connect banned?
 		{
-			CServer_RejectConnection(pServer, *(unsigned int*)((std::uintptr_t)pServer + 0xC), pInpacket, "You have been banned from this Server."); // RejectConnection for the client.
+			CServer_RejectConnection(pServer, *(unsigned int*)((std::uintptr_t)pServer + 0xC), pInpacket, "You have been banned from this server."); // RejectConnection for the client.
 
 			if (sv_showconnecting->GetBool())
 			{
-				Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%lld' is banned from this Server!)\n", svIpAddress.c_str(), pInpacket->m_nNucleusID);
+				Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%lld' is banned from this server!)\n", svIpAddress.c_str(), pInpacket->m_nNucleusID);
 			}
 			return nullptr;
 		}

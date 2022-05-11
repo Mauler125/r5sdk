@@ -216,7 +216,7 @@ void CBanSystem::BanListCheck(void)
 
 				std::string svIpAddress = pNetChan->GetAddress();
 
-				Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%lld' is banned from this Server!)\n", svIpAddress.c_str(), pClient->GetOriginID());
+				Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%lld' is banned from this server!)\n", svIpAddress.c_str(), pClient->GetOriginID());
 				AddEntry(svIpAddress, pClient->GetOriginID()); // Add local entry to reserve a non needed request.
 				Save(); // Save banlist to file.
 				NET_DisconnectClient(pClient, c, vsvrefuseList[i].first.c_str(), 0, 1);

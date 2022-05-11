@@ -123,10 +123,10 @@ void ConCommand::Init(void)
 	// SERVER DLL                                                             |
 	new ConCommand("script", "Run input code as SERVER script on the VM.", FCVAR_GAMEDLL | FCVAR_CHEAT, _SQVM_ServerScript_f_CompletionFunc, nullptr);
 	new ConCommand("sv_kick", "Kick a client from the server by name. | Usage: kick \"<name>\".", FCVAR_RELEASE, _Kick_f_CompletionFunc, nullptr);
-	new ConCommand("sv_kickid", "Kick a client from the server by UserID or OriginID | Usage: kickid \"<OriginID>\"/\"<UserID>\".", FCVAR_RELEASE, _KickID_f_CompletionFunc, nullptr);
+	new ConCommand("sv_kickid", "Kick a client from the server by UserID or OriginID | Usage: kickid \"<UserID>\"/\"<OriginID>\".", FCVAR_RELEASE, _KickID_f_CompletionFunc, nullptr);
 	new ConCommand("sv_ban", "Bans a client from the server by name. | Usage: ban <name>.", FCVAR_RELEASE, _Ban_f_CompletionFunc, nullptr);
-	new ConCommand("sv_banid", "Bans a client from the server by OriginID, UserID or IPAddress | Usage: banid \"<OriginID>\"/\"<IPAddress>/<UserID>\".", FCVAR_RELEASE, _BanID_f_CompletionFunc, nullptr);
-	new ConCommand("sv_unban", "Unbans a client from the Server by IPAddress or OriginID | Usage: unban \"<OriginID>\"/\"<IPAddress>\".", FCVAR_RELEASE, _Unban_f_CompletionFunc, nullptr);
+	new ConCommand("sv_banid", "Bans a client from the server by UserID, OriginID or IPAddress | Usage: banid \"<UserID>\"/\"<OriginID>/<IPAddress>\".", FCVAR_RELEASE, _BanID_f_CompletionFunc, nullptr);
+	new ConCommand("sv_unban", "Unbans a client from the server by OriginID or IPAddress | Usage: unban \"<OriginID>\"/\"<IPAddress>\".", FCVAR_RELEASE, _Unban_f_CompletionFunc, nullptr);
 	new ConCommand("sv_reloadbanlist", "Reloads the ban list from the disk.", FCVAR_RELEASE, _ReloadBanList_f_CompletionFunc, nullptr);
 #ifndef DEDICATED
 	//-------------------------------------------------------------------------

@@ -87,7 +87,7 @@ void _Kick_f_CompletionFunc(const CCommand& args)
 			continue;
 		}
 
-		NET_DisconnectClient(pClient, i, "Kicked from Server", 0, 1);
+		NET_DisconnectClient(pClient, i, "Kicked from server", 0, 1);
 	}
 }
 
@@ -138,7 +138,7 @@ void _KickID_f_CompletionFunc(const CCommand& args)
 					}
 				}
 
-				NET_DisconnectClient(pClient, i, "Kicked from Server", 0, 1);
+				NET_DisconnectClient(pClient, i, "Kicked from server", 0, 1);
 			}
 			else
 			{
@@ -147,7 +147,7 @@ void _KickID_f_CompletionFunc(const CCommand& args)
 					continue;
 				}
 
-				NET_DisconnectClient(pClient, i, "Kicked from Server", 0, 1);
+				NET_DisconnectClient(pClient, i, "Kicked from server", 0, 1);
 			}
 		}
 	}
@@ -196,7 +196,7 @@ void _Ban_f_CompletionFunc(const CCommand& args)
 
 		g_pBanSystem->AddEntry(svIpAddress, pClient->GetOriginID());
 		g_pBanSystem->Save();
-		NET_DisconnectClient(pClient, i, "Banned from Server", 0, 1);
+		NET_DisconnectClient(pClient, i, "Banned from server", 0, 1);
 	}
 }
 
@@ -249,7 +249,7 @@ void _BanID_f_CompletionFunc(const CCommand& args)
 
 				g_pBanSystem->AddEntry(svIpAddress, pClient->GetOriginID());
 				g_pBanSystem->Save();
-				NET_DisconnectClient(pClient, i, "Banned from Server", 0, 1);
+				NET_DisconnectClient(pClient, i, "Banned from server", 0, 1);
 			}
 			else
 			{
@@ -260,7 +260,7 @@ void _BanID_f_CompletionFunc(const CCommand& args)
 
 				g_pBanSystem->AddEntry(svIpAddress, pClient->GetOriginID());
 				g_pBanSystem->Save();
-				NET_DisconnectClient(pClient, i, "Banned from Server", 0, 1);
+				NET_DisconnectClient(pClient, i, "Banned from server", 0, 1);
 			}
 		}
 	}
