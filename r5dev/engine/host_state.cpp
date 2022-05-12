@@ -239,6 +239,7 @@ FORCEINLINE void CHostState::Think(void) const
 			pylonTimer.Start();
 		}
 #endif // DEDICATED
+#ifndef CLIENT_DLL
 		if (statsTimer.GetDurationInProgress().GetSeconds() > sv_statusRefreshInterval->GetDouble())
 		{
 			string svCurrentPlaylist = KeyValues_GetCurrentPlaylist();
@@ -249,6 +250,7 @@ FORCEINLINE void CHostState::Think(void) const
 			statsTimer.Start();
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+#endif // !CLIENT_DLL
 	}
 }
 
@@ -336,11 +338,14 @@ FORCEINLINE void CHostState::State_NewGame(void)
 
 	g_bLevelResourceInitialized = false;
 	m_bSplitScreenConnect = false;
+#ifndef CLIENT_DLL
 	if (!g_pServerGameClients) // Init Game if it ain't valid.
 	{
 		SV_InitGameDLL();
 	}
+#endif // !CLIENT_DLL
 
+#ifndef CLIENT_DLL
 	if (!CModelLoader__Map_IsValid(g_pModelLoader, m_levelName) // Check if map is valid and if we can start a new game.
 		|| !Host_NewGame(m_levelName, nullptr, m_bBackgroundLevel, m_bSplitScreenConnect, time) || !g_pServerGameClients)
 	{
@@ -350,6 +355,7 @@ FORCEINLINE void CHostState::State_NewGame(void)
 #endif // !DEDICATED
 		GameShutDown();
 	}
+#endif // !CLIENT_DLL
 
 	m_iCurrentState = HostStates_t::HS_RUN; // Set current state to run.
 
