@@ -57,7 +57,7 @@ bool CEngineClient::GetRestrictClientCommands() const
 // Input  :
 // Output : void* (C_Player)
 //---------------------------------------------------------------------------------
-void* CEngineClient::GetLocalPlayer()
+void* CEngineClient::GetLocalPlayer() const
 {
 	return CEngineClient_GetLocalPlayer();
 }

@@ -14,14 +14,14 @@ inline auto V_DrawWorldMeshesDepthAtTheEnd = P_DrawWorldMeshesDepthAtTheEnd.RCas
 void RSurf_Attach();
 void RSurf_Detach();
 ///////////////////////////////////////////////////////////////////////////////
-class HGL_RSurf : public IDetour
+class VGL_RSurf : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: R_DrawWorldMeshes                    : 0x" << std::hex << std::uppercase << P_DrawWorldMeshes.GetPtr()              << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: R_DrawWorldMeshesDepthOnly           : 0x" << std::hex << std::uppercase << P_DrawWorldMeshesDepthOnly.GetPtr()     << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: R_DrawWorldMeshesDepthAtTheEnd       : 0x" << std::hex << std::uppercase << P_DrawWorldMeshesDepthAtTheEnd.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: R_DrawWorldMeshes                    : {:#18x} |\n", P_DrawWorldMeshes.GetPtr());
+		spdlog::debug("| FUN: R_DrawWorldMeshesDepthOnly           : {:#18x} |\n", P_DrawWorldMeshesDepthOnly.GetPtr());
+		spdlog::debug("| FUN: R_DrawWorldMeshesDepthAtTheEnd       : {:#18x} |\n", P_DrawWorldMeshesDepthAtTheEnd.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -44,6 +44,6 @@ class HGL_RSurf : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HGL_RSurf);
+REGISTER(VGL_RSurf);
 
 #endif // GL_RSURF_H

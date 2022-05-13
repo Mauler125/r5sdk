@@ -92,12 +92,12 @@ extern CFactory* g_pFactory;
 inline CMemory s_pInterfacesRegs;
 
 ///////////////////////////////////////////////////////////////////////////////
-class HFactory : public IDetour
+class VFactory : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| VAR: s_pInterfacesRegs                    : 0x" << std::hex << std::uppercase << s_pInterfacesRegs.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| VAR: s_pInterfacesRegs                    : {:#18x} |\n", s_pInterfacesRegs.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
@@ -111,4 +111,4 @@ class HFactory : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HFactory);
+REGISTER(VFactory);

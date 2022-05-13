@@ -10,14 +10,14 @@ inline bool* scr_engineevent_loadingstarted = nullptr;
 void SCR_EndLoadingPlaque(void);
 
 ///////////////////////////////////////////////////////////////////////////////
-class HGL_Screen : public IDetour
+class VGL_Screen : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: SCR_BeginLoadingPlaque               : 0x" << std::hex << std::uppercase << SCR_BeginLoadingPlaque.GetPtr()         << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: scr_drawloading                      : 0x" << std::hex << std::uppercase << scr_drawloading                         << std::setw(0) << " |" << std::endl;
-		std::cout << "| VAR: scr_engineevent_loadingstarted       : 0x" << std::hex << std::uppercase << scr_engineevent_loadingstarted          << std::setw(0) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: SCR_BeginLoadingPlaque               : {:#18x} |\n", SCR_BeginLoadingPlaque.GetPtr());
+		spdlog::debug("| VAR: scr_drawloading                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(scr_drawloading));
+		spdlog::debug("| VAR: scr_engineevent_loadingstarted       : {:#18x} |\n", reinterpret_cast<uintptr_t>(scr_engineevent_loadingstarted));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -46,4 +46,4 @@ class HGL_Screen : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HGL_Screen);
+REGISTER(VGL_Screen);

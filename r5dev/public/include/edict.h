@@ -46,17 +46,17 @@ inline CGlobalVarsBase* g_ClientGlobalVariables = nullptr;
 #endif // !DEDICATED
 
 ///////////////////////////////////////////////////////////////////////////////
-class HEdict : public IDetour
+class VEdict : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
 #ifndef CLIENT_DLL
-		std::cout << "| VAR: g_ServerGlobalVariables              : 0x" << std::hex << std::uppercase << g_ServerGlobalVariables << std::setw(0) << " |" << std::endl;
+		spdlog::debug("| VAR: g_ServerGlobalVariables              : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_ServerGlobalVariables));
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
-		std::cout << "| VAR: g_ClientGlobalVariables              : 0x" << std::hex << std::uppercase << g_ClientGlobalVariables << std::setw(0) << " |" << std::endl;
+		spdlog::debug("| VAR: g_ClientGlobalVariables              : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_ClientGlobalVariables));
 #endif // !DEDICATED
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
@@ -84,4 +84,4 @@ class HEdict : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HEdict);
+REGISTER(VEdict);

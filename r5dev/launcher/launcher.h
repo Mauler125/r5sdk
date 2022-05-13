@@ -21,16 +21,16 @@ void Launcher_Attatch();
 void Launcher_Detatch();
 
 ///////////////////////////////////////////////////////////////////////////////
-class HLauncher : public IDetour
+class VLauncher : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: WinMain                              : 0x" << std::hex << std::uppercase << p_WinMain.GetPtr()                        << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: LauncherMain                         : 0x" << std::hex << std::uppercase << p_LauncherMain.GetPtr()                   << std::setw(nPad) << " |" << std::endl;
+		spdlog::debug("| FUN: WinMain                              : {:#18x} |\n", p_WinMain.GetPtr());
+		spdlog::debug("| FUN: LauncherMain                         : {:#18x} |\n", p_LauncherMain.GetPtr());
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
-		std::cout << "| FUN: RemoveSpuriousGameParameters         : 0x" << std::hex << std::uppercase << p_RemoveSpuriousGameParameters.GetPtr()   << std::setw(nPad) << " |" << std::endl;
+		spdlog::debug("| FUN: RemoveSpuriousGameParameters         : {:#18x} |\n", p_RemoveSpuriousGameParameters.GetPtr());
 #endif // !GAMEDLL_S0 || !GAMEDLL_S1
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -52,5 +52,5 @@ class HLauncher : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HLauncher);
+REGISTER(VLauncher);
 #endif // LAUNCHER_H

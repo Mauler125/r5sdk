@@ -101,21 +101,21 @@ inline CMDLCache* g_MDLCache = nullptr;
 void MDLCache_Attach();
 void MDLCache_Detach();
 ///////////////////////////////////////////////////////////////////////////////
-class HMDLCache : public IDetour
+class VMDLCache : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CMDLCache::FindMDL                   : 0x" << std::hex << std::uppercase << p_CMDLCache__FindMDL.GetPtr()         << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CMDLCache::FindCachedMDL             : 0x" << std::hex << std::uppercase << p_CMDLCache__FindCachedMDL.GetPtr()   << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CMDLCache::FindUncachedMDL           : 0x" << std::hex << std::uppercase << p_CMDLCache__FindUncachedMDL.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CMDLCache::GetStudioHDR              : 0x" << std::hex << std::uppercase << p_CMDLCache__GetStudioHDR.GetPtr()    << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CMDLCache::GetHardwareData           : 0x" << std::hex << std::uppercase << p_CMDLCache__GetHardwareData.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CStudioHWDataRef::SetFlags           : 0x" << std::hex << std::uppercase << p_CStudioHWDataRef__SetFlags.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: m_MDLMutex                           : 0x" << std::hex << std::uppercase << m_MDLMutex                            << std::setw(0) << " |" << std::endl;
-		std::cout << "| VAR: m_MDLLock                            : 0x" << std::hex << std::uppercase << m_MDLLock                             << std::setw(0) << " |" << std::endl;
-		std::cout << "| VAR: m_MDLDict                            : 0x" << std::hex << std::uppercase << m_MDLDict                             << std::setw(0) << " |" << std::endl;
-		std::cout << "| VAR: g_MDLCache                           : 0x" << std::hex << std::uppercase << g_MDLCache                            << std::setw(0) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: CMDLCache::FindMDL                   : {:#18x} |\n", p_CMDLCache__FindMDL.GetPtr());
+		spdlog::debug("| FUN: CMDLCache::FindCachedMDL             : {:#18x} |\n", p_CMDLCache__FindCachedMDL.GetPtr());
+		spdlog::debug("| FUN: CMDLCache::FindUncachedMDL           : {:#18x} |\n", p_CMDLCache__FindUncachedMDL.GetPtr());
+		spdlog::debug("| FUN: CMDLCache::GetStudioHDR              : {:#18x} |\n", p_CMDLCache__GetStudioHDR.GetPtr());
+		spdlog::debug("| FUN: CMDLCache::GetHardwareData           : {:#18x} |\n", p_CMDLCache__GetHardwareData.GetPtr());
+		spdlog::debug("| FUN: CStudioHWDataRef::SetFlags           : {:#18x} |\n", p_CStudioHWDataRef__SetFlags.GetPtr());
+		spdlog::debug("| VAR: m_MDLMutex                           : {:#18x} |\n", reinterpret_cast<uintptr_t>(m_MDLMutex));
+		spdlog::debug("| VAR: m_MDLLock                            : {:#18x} |\n", reinterpret_cast<uintptr_t>(m_MDLLock));
+		spdlog::debug("| VAR: m_MDLDict                            : {:#18x} |\n", reinterpret_cast<uintptr_t>(m_MDLDict));
+		spdlog::debug("| VAR: g_MDLCache                           : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_MDLCache));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -155,7 +155,5 @@ class HMDLCache : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef GAMEDLL_S3
-REGISTER(HMDLCache);
-#endif // GAMEDLL_S3
+REGISTER(VMDLCache);
 #endif // MDLCACHE_H

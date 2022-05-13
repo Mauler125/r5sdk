@@ -40,13 +40,13 @@ void _CMaterial_GetMaterialAtCrossHair_f_ComplectionFunc(const CCommand& args);
 #endif // !DEDICATED
 
 ///////////////////////////////////////////////////////////////////////////////
-class HCompletion : public IDetour
+class VCompletion : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: Host_Map_f_CompletionFunc            : 0x" << std::hex << std::uppercase << p_Host_Map_f_CompletionFunc.GetPtr()               << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: DownloadPlaylist_f_CompletionFunc    : 0x" << std::hex << std::uppercase << p_DownloadPlaylists_f_CompletionFunc.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: Host_Map_f_CompletionFunc            : {:#18x} |\n", p_Host_Map_f_CompletionFunc.GetPtr());
+		spdlog::debug("| FUN: DownloadPlaylist_f_CompletionFunc    : {:#18x} |\n", p_DownloadPlaylists_f_CompletionFunc.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -67,4 +67,4 @@ class HCompletion : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HCompletion);
+REGISTER(VCompletion);

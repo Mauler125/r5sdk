@@ -11,13 +11,13 @@ inline auto CL_EndMovie = p_CL_EndMovie.RCast<int(*)(void)>();
 
 
 ///////////////////////////////////////////////////////////////////////////////
-class HCL_Main : public IDetour
+class VCL_Main : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CL_EndMovie                          : 0x" << std::hex << std::uppercase << p_CL_EndMovie.GetPtr()   << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CL_ClearState                        : 0x" << std::hex << std::uppercase << p_CL_ClearState.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: CL_EndMovie                          : {:#18x} |\n", p_CL_EndMovie.GetPtr());
+		spdlog::debug("| FUN: CL_ClearState                        : {:#18x} |\n", p_CL_ClearState.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -38,4 +38,4 @@ class HCL_Main : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HCL_Main);
+REGISTER(VCL_Main);

@@ -4,12 +4,12 @@
 inline CMemory p_WASAPI_GetAudioDevice;
 
 ///////////////////////////////////////////////////////////////////////////////
-class HWASAPIServiceThread : public IDetour
+class VWASAPIServiceThread : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: WASAPI_GetAudioDevice                : 0x" << std::hex << std::uppercase << p_WASAPI_GetAudioDevice.GetPtr() << std::setw(6) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: WASAPI_GetAudioDevice                : {:#18x} |\n", p_WASAPI_GetAudioDevice.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -23,4 +23,4 @@ class HWASAPIServiceThread : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HWASAPIServiceThread);
+REGISTER(VWASAPIServiceThread);

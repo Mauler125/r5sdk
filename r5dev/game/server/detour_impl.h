@@ -14,14 +14,14 @@ inline auto dtNavMesh__addTile = p_dtNavMesh__addTile.RCast<dtStatus(*)(dtNavMes
 inline CMemory p_dtNavMesh__isPolyReachable;
 inline auto dtNavMesh__isPolyReachable = p_dtNavMesh__isPolyReachable.RCast<bool(*)(dtNavMesh* thisptr, dtPolyRef poly_1, dtPolyRef poly_2, int hull_type)>();
 ///////////////////////////////////////////////////////////////////////////////
-class HRecast : public IDetour
+class VRecast : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: dtNavMesh::Init                      : 0x" << std::hex << std::uppercase << p_dtNavMesh__Init.GetPtr()            << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: dtNavMesh::addTile                   : 0x" << std::hex << std::uppercase << p_dtNavMesh__addTile.GetPtr()         << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: dtNavMesh::isPolyReachable           : 0x" << std::hex << std::uppercase << p_dtNavMesh__isPolyReachable.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: dtNavMesh::Init                      : {:#18x} |\n", p_dtNavMesh__Init.GetPtr());
+		spdlog::debug("| FUN: dtNavMesh::addTile                   : {:#18x} |\n", p_dtNavMesh__addTile.GetPtr());
+		spdlog::debug("| FUN: dtNavMesh::isPolyReachable           : {:#18x} |\n", p_dtNavMesh__isPolyReachable.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -40,4 +40,4 @@ class HRecast : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HRecast);
+REGISTER(VRecast);

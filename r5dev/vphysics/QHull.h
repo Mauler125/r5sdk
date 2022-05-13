@@ -13,13 +13,13 @@ void QHull_Attach();
 void QHull_Detach();
 
 ///////////////////////////////////////////////////////////////////////////////
-class HQHull : public IDetour
+class VQHull : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: QHull_PrintFunc                      : 0x" << std::hex << std::uppercase << p_QHull_PrintFunc.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		//std::cout << "| FUN: speex_warning_int                    : 0x" << std::hex << std::uppercase << p_speex_warning_int.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: QHull_PrintFunc                      : {:#18x} |\n", p_QHull_PrintFunc.GetPtr());
+		//spdlog::debug("| FUN: speex_warning_int                    : {:#18x} |\n", p_speex_warning_int.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -36,4 +36,4 @@ class HQHull : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HQHull);
+REGISTER(VQHull);

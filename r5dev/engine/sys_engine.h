@@ -53,12 +53,12 @@ extern CEngine* g_pEngine;
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
-class HEngine : public IDetour
+class VEngine : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| VAR: g_pEngine                            : 0x" << std::hex << std::uppercase << g_pEngine << std::setw(0) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| VAR: g_pEngine                            : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pEngine));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
@@ -75,4 +75,4 @@ class HEngine : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HEngine);
+REGISTER(VEngine);

@@ -80,20 +80,20 @@ void CModelLoader_Attach();
 void CModelLoader_Detach();
 
 ///////////////////////////////////////////////////////////////////////////////
-class HModelLoader : public IDetour
+class VModelLoader : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CModelLoader::FindModel              : 0x" << std::hex << std::uppercase << p_CModelLoader__FindModel.GetPtr()         << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CModelLoader::LoadModel              : 0x" << std::hex << std::uppercase << p_CModelLoader__LoadModel.GetPtr()         << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CModelLoader::UnloadModel            : 0x" << std::hex << std::uppercase << p_CModelLoader__UnloadModel.GetPtr()       << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CModelLoader::Map_LoadModelGuts      : 0x" << std::hex << std::uppercase << p_CModelLoader__Map_LoadModelGuts.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CModelLoader::Map_IsValid            : 0x" << std::hex << std::uppercase << p_CModelLoader__Map_IsValid.GetPtr()       << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CModelLoader::Studio_LoadModel       : 0x" << std::hex << std::uppercase << p_CModelLoader__Studio_LoadModel.GetPtr()  << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: GetSpriteInfo                        : 0x" << std::hex << std::uppercase << p_GetSpriteInfo.GetPtr()                   << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: BuildSpriteLoadName                  : 0x" << std::hex << std::uppercase << p_BuildSpriteLoadName.GetPtr()             << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: g_pModelLoader                       : 0x" << std::hex << std::uppercase << g_pModelLoader                             << std::setw(0)    << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: CModelLoader::FindModel              : {:#18x} |\n", p_CModelLoader__FindModel.GetPtr());
+		spdlog::debug("| FUN: CModelLoader::LoadModel              : {:#18x} |\n", p_CModelLoader__LoadModel.GetPtr());
+		spdlog::debug("| FUN: CModelLoader::UnloadModel            : {:#18x} |\n", p_CModelLoader__UnloadModel.GetPtr());
+		spdlog::debug("| FUN: CModelLoader::Map_LoadModelGuts      : {:#18x} |\n", p_CModelLoader__Map_LoadModelGuts.GetPtr());
+		spdlog::debug("| FUN: CModelLoader::Map_IsValid            : {:#18x} |\n", p_CModelLoader__Map_IsValid.GetPtr());
+		spdlog::debug("| FUN: CModelLoader::Studio_LoadModel       : {:#18x} |\n", p_CModelLoader__Studio_LoadModel.GetPtr());
+		spdlog::debug("| FUN: GetSpriteInfo                        : {:#18x} |\n", p_GetSpriteInfo.GetPtr());
+		spdlog::debug("| FUN: BuildSpriteLoadName                  : {:#18x} |\n", p_BuildSpriteLoadName.GetPtr());
+		spdlog::debug("| VAR: g_pModelLoader                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pModelLoader));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -137,4 +137,4 @@ class HModelLoader : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HModelLoader);
+REGISTER(VModelLoader);

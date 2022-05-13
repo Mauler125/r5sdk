@@ -66,23 +66,23 @@ inline CMemory p_sq_call;
 inline auto v_sq_call = p_sq_call.RCast<SQRESULT(*)(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBool raiseerror)>();
 
 ///////////////////////////////////////////////////////////////////////////////
-class HSqapi : public IDetour
+class VSqapi : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: sq_pushroottable                     : 0x" << std::hex << std::uppercase << p_sq_pushroottable.GetPtr()      << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: sq_pushbool                          : 0x" << std::hex << std::uppercase << p_sq_pushbool.GetPtr()      << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: sq_pushstring                        : 0x" << std::hex << std::uppercase << p_sq_pushstring.GetPtr()    << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: sq_pushinteger                       : 0x" << std::hex << std::uppercase << p_sq_pushinteger.GetPtr()   << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: sq_pushconstant                      : 0x" << std::hex << std::uppercase << p_sq_pushconstant.GetPtr()  << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: sq_newarray                          : 0x" << std::hex << std::uppercase << p_sq_newarray.GetPtr()      << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: sq_arrayappend                       : 0x" << std::hex << std::uppercase << p_sq_arrayappend.GetPtr()   << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: sq_newtable                          : 0x" << std::hex << std::uppercase << p_sq_newtable.GetPtr()      << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: sq_newslot                           : 0x" << std::hex << std::uppercase << p_sq_newslot.GetPtr()       << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: sq_pushstructure                     : 0x" << std::hex << std::uppercase << p_sq_pushstructure.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: sq_compilebuffer                     : 0x" << std::hex << std::uppercase << p_sq_compilebuffer.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: sq_call                              : 0x" << std::hex << std::uppercase << p_sq_call.GetPtr()          << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: sq_pushroottable                     : {:#18x} |\n", p_sq_pushroottable.GetPtr());
+		spdlog::debug("| FUN: sq_pushbool                          : {:#18x} |\n", p_sq_pushbool.GetPtr());
+		spdlog::debug("| FUN: sq_pushstring                        : {:#18x} |\n", p_sq_pushstring.GetPtr());
+		spdlog::debug("| FUN: sq_pushinteger                       : {:#18x} |\n", p_sq_pushinteger.GetPtr());
+		spdlog::debug("| FUN: sq_pushconstant                      : {:#18x} |\n", p_sq_pushconstant.GetPtr());
+		spdlog::debug("| FUN: sq_newarray                          : {:#18x} |\n", p_sq_newarray.GetPtr());
+		spdlog::debug("| FUN: sq_arrayappend                       : {:#18x} |\n", p_sq_arrayappend.GetPtr());
+		spdlog::debug("| FUN: sq_newtable                          : {:#18x} |\n", p_sq_newtable.GetPtr());
+		spdlog::debug("| FUN: sq_newslot                           : {:#18x} |\n", p_sq_newslot.GetPtr());
+		spdlog::debug("| FUN: sq_pushstructure                     : {:#18x} |\n", p_sq_pushstructure.GetPtr());
+		spdlog::debug("| FUN: sq_compilebuffer                     : {:#18x} |\n", p_sq_compilebuffer.GetPtr());
+		spdlog::debug("| FUN: sq_call                              : {:#18x} |\n", p_sq_call.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -128,4 +128,4 @@ class HSqapi : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HSqapi);
+REGISTER(VSqapi);

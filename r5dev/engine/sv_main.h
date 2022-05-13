@@ -26,12 +26,12 @@ class HSV_Main : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: SV_InitGameDLL                       : 0x" << std::hex << std::uppercase << p_SV_ShutdownGameDLL.GetPtr()       << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: SV_ShutdownGameDLL                   : 0x" << std::hex << std::uppercase << p_SV_ShutdownGameDLL.GetPtr()       << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: SV_CreateBaseline                    : 0x" << std::hex << std::uppercase << p_SV_CreateBaseline.GetPtr()        << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CGameServer::SpawnServer             : 0x" << std::hex << std::uppercase << p_CGameServer__SpawnServer.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: s_bDedicated                         : 0x" << std::hex << std::uppercase << s_bDedicated                        << std::setw(0)    << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: SV_InitGameDLL                       : {:#18x} |\n", p_SV_ShutdownGameDLL.GetPtr());
+		spdlog::debug("| FUN: SV_ShutdownGameDLL                   : {:#18x} |\n", p_SV_ShutdownGameDLL.GetPtr());
+		spdlog::debug("| FUN: SV_CreateBaseline                    : {:#18x} |\n", p_SV_CreateBaseline.GetPtr());
+		spdlog::debug("| FUN: CGameServer::SpawnServer             : {:#18x} |\n", p_CGameServer__SpawnServer.GetPtr());
+		spdlog::debug("| VAR: s_bDedicated                         : {:#18x} |\n", reinterpret_cast<uintptr_t>(s_bDedicated));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{

@@ -15,13 +15,13 @@ void MOD_PreloadPak();
 void CModelBsp_Attach();
 void CModelBsp_Detach();
 ///////////////////////////////////////////////////////////////////////////////
-class HModel_BSP : public IDetour
+class VModel_BSP : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CollisionBSPData_LinkPhysics         : 0x" << std::hex << std::uppercase << p_CollisionBSPData_LinkPhysics.GetPtr()  << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: MOD_LoadPakForMap                    : 0x" << std::hex << std::uppercase << p_MOD_LoadPakForMap.GetPtr()  << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: CollisionBSPData_LinkPhysics         : {:#18x} |\n", p_CollisionBSPData_LinkPhysics.GetPtr());
+		spdlog::debug("| FUN: MOD_LoadPakForMap                    : {:#18x} |\n", p_MOD_LoadPakForMap.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -46,4 +46,4 @@ class HModel_BSP : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HModel_BSP);
+REGISTER(VModel_BSP);

@@ -11,13 +11,13 @@ void Rui_Attach();
 void Rui_Detach();
 
 ///////////////////////////////////////////////////////////////////////////////
-class HRui : public IDetour
+class VRui : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: RuiDraw                              : 0x" << std::hex << std::uppercase << p_RuiDraw.GetPtr()      << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: RuiLoadAsset                         : 0x" << std::hex << std::uppercase << p_RuiLoadAsset.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: RuiDraw                              : {:#18x} |\n", p_RuiDraw.GetPtr());
+		spdlog::debug("| FUN: RuiLoadAsset                         : {:#18x} |\n", p_RuiLoadAsset.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -34,4 +34,4 @@ class HRui : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HRui);
+REGISTER(VRui);

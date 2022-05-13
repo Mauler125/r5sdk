@@ -6,12 +6,12 @@
 inline CMemory FairFight_Init;
 
 ///////////////////////////////////////////////////////////////////////////////
-class HFairFight : public IDetour
+class VFairFight : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: FairFight_Init                       : 0x" << std::hex << std::uppercase << FairFight_Init.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: FairFight_Init                       : {:#18x} |\n", FairFight_Init.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -28,4 +28,4 @@ class HFairFight : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HFairFight);
+REGISTER(VFairFight);

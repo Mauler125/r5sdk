@@ -92,14 +92,14 @@ void CBaseClient_Attach();
 void CBaseClient_Detach();
 
 ///////////////////////////////////////////////////////////////////////////////
-class HBaseClient : public IDetour
+class VBaseClient : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| VAR: g_pClient                            : 0x" << std::hex << std::uppercase << g_pClient << std::setw(0) << " |" << std::endl;
-		std::cout << "| FUN: CBaseClient::Connect                 : 0x" << std::hex << std::uppercase << p_CBaseClient_Connect.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CBaseClient::Clear                   : 0x" << std::hex << std::uppercase << p_CBaseClient_Clear.GetPtr()   << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: CBaseClient::Connect                 : {:#18x} |\n", p_CBaseClient_Connect.GetPtr());
+		spdlog::debug("| FUN: CBaseClient::Clear                   : {:#18x} |\n", p_CBaseClient_Clear.GetPtr());
+		spdlog::debug("| VAR: g_pClient                            : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pClient));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -121,4 +121,4 @@ class HBaseClient : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HBaseClient);
+REGISTER(VBaseClient);

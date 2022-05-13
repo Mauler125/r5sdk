@@ -33,12 +33,12 @@ public:
 extern CFileSystem_Stdio* g_pFileSystem_Stdio;
 
 ///////////////////////////////////////////////////////////////////////////////
-class HFileSystem_Stdio : public IDetour
+class VFileSystem_Stdio : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| VAR: g_pFileSystem_Stdio                  : 0x" << std::hex << std::uppercase << g_pFileSystem_Stdio << std::setw(0) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| VAR: g_pFileSystem_Stdio                  : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pFileSystem_Stdio));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
@@ -52,5 +52,5 @@ class HFileSystem_Stdio : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HFileSystem_Stdio);
+REGISTER(VFileSystem_Stdio);
 #endif // !FILESYSTEM_H

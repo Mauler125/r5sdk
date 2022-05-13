@@ -188,16 +188,16 @@ void IConVar_Detach();
 extern ConVar* g_pConVar;
 
 ///////////////////////////////////////////////////////////////////////////////
-class HConVar : public IDetour
+class VConVar : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: IConVar::IsFlagSet                   : 0x" << std::hex << std::uppercase << p_IConVar_IsFlagSet.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: IConVar::SetInfo                     : 0x" << std::hex << std::uppercase << p_ConVar_SetInfo.GetPtr()    << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: IConVar::Register                    : 0x" << std::hex << std::uppercase << p_ConVar_Register.GetPtr()   << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: g_pConVarVtable                      : 0x" << std::hex << std::uppercase << g_pConVarVtable.GetPtr()     << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: g_pIConVarVtable                     : 0x" << std::hex << std::uppercase << g_pIConVarVtable.GetPtr()    << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: IConVar::IsFlagSet                   : {:#18x} |\n", p_IConVar_IsFlagSet.GetPtr());
+		spdlog::debug("| FUN: IConVar::SetInfo                     : {:#18x} |\n", p_ConVar_SetInfo.GetPtr());
+		spdlog::debug("| FUN: IConVar::Register                    : {:#18x} |\n", p_ConVar_Register.GetPtr());
+		spdlog::debug("| VAR: g_pConVarVtable                      : {:#18x} |\n", g_pConVarVtable.GetPtr());
+		spdlog::debug("| VAR: g_pIConVarVtable                     : {:#18x} |\n", g_pIConVarVtable.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -224,4 +224,4 @@ class HConVar : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HConVar);
+REGISTER(VConVar);

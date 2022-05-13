@@ -8,13 +8,13 @@ inline auto CMatSystemSurface_DrawColoredText = p_CMatSystemSurface_DrawColoredT
 inline CMemory g_pMatSystemSurface;
 
 ///////////////////////////////////////////////////////////////////////////////
-class HMatSystemSurface : public IDetour
+class VMatSystemSurface : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CMatSystemSurface::DrawColoredText   : 0x" << std::hex << std::uppercase << p_CMatSystemSurface_DrawColoredText.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: g_pMatSystemSurface                  : 0x" << std::hex << std::uppercase << g_pMatSystemSurface.GetPtr()                 << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: CMatSystemSurface::DrawColoredText   : {:#18x} |\n", p_CMatSystemSurface_DrawColoredText.GetPtr());
+		spdlog::debug("| VAR: g_pMatSystemSurface                  : {:#18x} |\n", g_pMatSystemSurface.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -39,4 +39,4 @@ class HMatSystemSurface : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HMatSystemSurface);
+REGISTER(VMatSystemSurface);

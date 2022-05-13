@@ -23,12 +23,12 @@ extern CCommandLine* g_pCmdLine;
 CCommandLine* CommandLine(void);
 
 ///////////////////////////////////////////////////////////////////////////////
-class HCommandLine : public IDetour
+class VCommandLine : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| VAR: g_pCmdLine                           : 0x" << std::hex << std::uppercase << CommandLine() << std::setw(0) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| VAR: g_pCmdLine                           : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pCmdLine));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
@@ -43,4 +43,4 @@ class HCommandLine : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HCommandLine);
+REGISTER(VCommandLine);

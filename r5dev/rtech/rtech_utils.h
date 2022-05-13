@@ -177,13 +177,13 @@ public:
 extern RTech* g_pRTech;
 
 ///////////////////////////////////////////////////////////////////////////////
-class HPakFile : public IDetour
+class VPakFile : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| VAR: g_pLoadedPakInfo                     : 0x" << std::hex << std::uppercase << g_pLoadedPakInfo  << std::setw(0) << " |" << std::endl;
-		std::cout << "| VAR: s_pLoadedPakCount                    : 0x" << std::hex << std::uppercase << s_pLoadedPakCount << std::setw(0) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| VAR: g_pLoadedPakInfo                     : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pLoadedPakInfo ));
+		spdlog::debug("| VAR: s_pLoadedPakCount                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(s_pLoadedPakCount));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
@@ -199,4 +199,4 @@ class HPakFile : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HPakFile);
+REGISTER(VPakFile);

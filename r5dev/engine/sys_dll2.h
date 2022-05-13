@@ -26,16 +26,16 @@ inline CMemory g_pMapVPKCache;
 void SysDll2_Attach();
 void SysDll2_Detach();
 ///////////////////////////////////////////////////////////////////////////////
-class HSys_Dll2 : public IDetour
+class VSys_Dll2 : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CEngineAPI::Connect                  : 0x" << std::hex << std::uppercase << p_CEngineAPI_Connect.GetPtr()  << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CEngineAPI::ModInit                  : 0x" << std::hex << std::uppercase << p_CEngineAPI_ModInit.GetPtr()  << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CEngineAPI::MainLoop                 : 0x" << std::hex << std::uppercase << p_CEngineAPI_MainLoop.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: PakFile_Init                         : 0x" << std::hex << std::uppercase << p_PakFile_Init.GetPtr()        << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: g_pMapVPKCache                       : 0x" << std::hex << std::uppercase << g_pMapVPKCache.GetPtr()        << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: CEngineAPI::Connect                  : {:#18x} |\n", p_CEngineAPI_Connect.GetPtr());
+		spdlog::debug("| FUN: CEngineAPI::ModInit                  : {:#18x} |\n", p_CEngineAPI_ModInit.GetPtr());
+		spdlog::debug("| FUN: CEngineAPI::MainLoop                 : {:#18x} |\n", p_CEngineAPI_MainLoop.GetPtr());
+		spdlog::debug("| FUN: PakFile_Init                         : {:#18x} |\n", p_PakFile_Init.GetPtr());
+		spdlog::debug("| VAR: g_pMapVPKCache                       : {:#18x} |\n", g_pMapVPKCache.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -68,4 +68,4 @@ class HSys_Dll2 : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HSys_Dll2);
+REGISTER(VSys_Dll2);

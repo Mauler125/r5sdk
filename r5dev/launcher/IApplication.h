@@ -61,15 +61,15 @@ void IApplication_Detach();
 inline bool g_bAppSystemInit = false;
 
 ///////////////////////////////////////////////////////////////////////////////
-class HApplication : public IDetour
+class VApplication : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CModAppSystemGroup::Main             : 0x" << std::hex << std::uppercase << p_CModAppSystemGroup_Main.GetPtr()        << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CModAppSystemGroup::Create           : 0x" << std::hex << std::uppercase << p_CModAppSystemGroup_Create.GetPtr()      << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CSourceAppSystemGroup::Create        : 0x" << std::hex << std::uppercase << p_CSourceAppSystemGroup__Create.GetPtr()  << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CSourceAppSystemGroup::PreInit       : 0x" << std::hex << std::uppercase << p_CSourceAppSystemGroup__PreInit.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: CModAppSystemGroup::Main             : {:#18x} |\n", p_CModAppSystemGroup_Main.GetPtr());
+		spdlog::debug("| FUN: CModAppSystemGroup::Create           : {:#18x} |\n", p_CModAppSystemGroup_Create.GetPtr());
+		spdlog::debug("| FUN: CSourceAppSystemGroup::Create        : {:#18x} |\n", p_CSourceAppSystemGroup__Create.GetPtr());
+		spdlog::debug("| FUN: CSourceAppSystemGroup::PreInit       : {:#18x} |\n", p_CSourceAppSystemGroup__PreInit.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -99,4 +99,4 @@ class HApplication : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HApplication);
+REGISTER(VApplication);

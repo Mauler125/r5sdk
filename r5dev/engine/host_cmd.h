@@ -25,15 +25,15 @@ extern EngineParms_t* g_pEngineParms;
 
 
 ///////////////////////////////////////////////////////////////////////////////
-class HHostCmd : public IDetour
+class VHostCmd : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: Host_Init                            : 0x" << std::hex << std::uppercase << p_Host_Init.GetPtr()          << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: Host_NewGame                         : 0x" << std::hex << std::uppercase << p_Host_NewGame.GetPtr()       << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: Host_ChangeLevel                     : 0x" << std::hex << std::uppercase << p_Host_ChangeLevel.GetPtr()   << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: g_pEngineParms                       : 0x" << std::hex << std::uppercase << g_pEngineParmsBuffer.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: Host_Init                            : {:#18x} |\n", p_Host_Init.GetPtr());
+		spdlog::debug("| FUN: Host_NewGame                         : {:#18x} |\n", p_Host_NewGame.GetPtr());
+		spdlog::debug("| FUN: Host_ChangeLevel                     : {:#18x} |\n", p_Host_ChangeLevel.GetPtr());
+		spdlog::debug("| VAR: g_pEngineParms                       : {:#18x} |\n", g_pEngineParmsBuffer.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -65,4 +65,4 @@ class HHostCmd : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HHostCmd);
+REGISTER(VHostCmd);

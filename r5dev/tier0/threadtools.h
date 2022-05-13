@@ -33,13 +33,13 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-class HThreadTools : public IDetour
+class VThreadTools : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CThreadFastMutex::WaitForLock        : 0x" << std::hex << std::uppercase << p_MutexInternal_WaitForLock.GetPtr()   << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CThreadFastMutex::ReleaseWaiter      : 0x" << std::hex << std::uppercase << p_MutexInternal_ReleaseWaiter.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: CThreadFastMutex::WaitForLock        : {:#18x} |\n", p_MutexInternal_WaitForLock.GetPtr());
+		spdlog::debug("| FUN: CThreadFastMutex::ReleaseWaiter      : {:#18x} |\n", p_MutexInternal_ReleaseWaiter.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -56,6 +56,6 @@ class HThreadTools : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HThreadTools);
+REGISTER(VThreadTools);
 
 #endif // THREADTOOLS_H

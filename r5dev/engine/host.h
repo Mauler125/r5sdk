@@ -16,17 +16,17 @@ inline bool* g_bAbortServerSet = nullptr;
 inline jmp_buf* host_abortserver = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
-class HHost : public IDetour
+class VHost : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: _Host_RunFrame                       : 0x" << std::hex << std::uppercase << p_Host_RunFrame.GetPtr()        << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: _Host_RunFrame_Render                : 0x" << std::hex << std::uppercase << p_Host_RunFrame_Render.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: Host_Error                           : 0x" << std::hex << std::uppercase << p_Host_Error.GetPtr()           << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: VCR_EnterPausedState                 : 0x" << std::hex << std::uppercase << p_VCR_EnterPausedState.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: host_abortserver                     : 0x" << std::hex << std::uppercase << host_abortserver                << std::setw(0)    << " |" << std::endl;
-		std::cout << "| VAR: g_bAbortServerSet                    : 0x" << std::hex << std::uppercase << g_bAbortServerSet               << std::setw(0)    << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: _Host_RunFrame                       : {:#18x} |\n", p_Host_RunFrame.GetPtr());
+		spdlog::debug("| FUN: _Host_RunFrame_Render                : {:#18x} |\n", p_Host_RunFrame_Render.GetPtr());
+		spdlog::debug("| FUN: Host_Error                           : {:#18x} |\n", p_Host_Error.GetPtr());
+		spdlog::debug("| FUN: VCR_EnterPausedState                 : {:#18x} |\n", p_VCR_EnterPausedState.GetPtr());
+		spdlog::debug("| VAR: host_abortserver                     : {:#18x} |\n", reinterpret_cast<uintptr_t>(host_abortserver));
+		spdlog::debug("| VAR: g_bAbortServerSet                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_bAbortServerSet));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -60,4 +60,4 @@ class HHost : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HHost);
+REGISTER(VHost);

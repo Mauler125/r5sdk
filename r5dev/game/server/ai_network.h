@@ -51,12 +51,12 @@ inline CMemory p_CAI_Network__DebugConnectMsg;
 inline auto v_CAI_Network__DebugConnectMsg = p_CAI_Network__DebugConnectMsg.RCast<void (*)(int node1, int node2, const char* pszformat, ...)>();
 
 ///////////////////////////////////////////////////////////////////////////////
-class HAI_Network : public IDetour
+class VAI_Network : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CAI_Network::DebugConnectMsg         : 0x" << std::hex << std::uppercase << p_CAI_Network__DebugConnectMsg.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: CAI_Network::DebugConnectMsg         : {:#18x} |\n", p_CAI_Network__DebugConnectMsg.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -70,4 +70,4 @@ class HAI_Network : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HAI_Network);
+REGISTER(VAI_Network);

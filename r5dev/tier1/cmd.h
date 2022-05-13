@@ -167,22 +167,22 @@ void ConCommand_Detach();
 extern ConCommand* g_pConCommand;
 
 ///////////////////////////////////////////////////////////////////////////////
-class HConCommand : public IDetour
+class VConCommand : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: Cbuf_AddText                         : 0x" << std::hex << std::uppercase << p_Cbuf_AddText.GetPtr()                      << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: Cbuf_Execute                         : 0x" << std::hex << std::uppercase << p_Cbuf_Execute.GetPtr()                      << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
-		std::cout << "| FUN: ConCommandBase::IsFlagSet            : 0x" << std::hex << std::uppercase << p_ConCommandBase_IsFlagSet.GetPtr()          << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: ConCommand::CMaterialSystemCmdInit   : 0x" << std::hex << std::uppercase << p_ConCommand_CMaterialSystemCmdInit.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: ConCommand::RegisterConCommand       : 0x" << std::hex << std::uppercase << p_ConCommand_RegisterConCommand.GetPtr()     << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
-		std::cout << "| FUN: CallbackStub                         : 0x" << std::hex << std::uppercase << p_CallbackStub.GetPtr()                      << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: NullSub                              : 0x" << std::hex << std::uppercase << p_NullSub.GetPtr()                           << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
-		std::cout << "| VAR: g_pConCommandVtable                  : 0x" << std::hex << std::uppercase << g_pConCommandVtable.GetPtr()                 << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: Cbuf_AddText                         : {:#18x} |\n", p_Cbuf_AddText.GetPtr());
+		spdlog::debug("| FUN: Cbuf_Execute                         : {:#18x} |\n", p_Cbuf_Execute.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
+		spdlog::debug("| FUN: ConCommandBase::IsFlagSet            : {:#18x} |\n", p_ConCommandBase_IsFlagSet.GetPtr());
+		spdlog::debug("| FUN: ConCommand::CMaterialSystemCmdInit   : {:#18x} |\n", p_ConCommand_CMaterialSystemCmdInit.GetPtr());
+		spdlog::debug("| FUN: ConCommand::RegisterConCommand       : {:#18x} |\n", p_ConCommand_RegisterConCommand.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
+		spdlog::debug("| FUN: CallbackStub                         : {:#18x} |\n", p_CallbackStub.GetPtr());
+		spdlog::debug("| FUN: NullSub                              : {:#18x} |\n", p_NullSub.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
+		spdlog::debug("| VAR: g_pConCommandVtable                  : {:#18x} |\n", g_pConCommandVtable.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -212,4 +212,4 @@ class HConCommand : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HConCommand);
+REGISTER(VConCommand);

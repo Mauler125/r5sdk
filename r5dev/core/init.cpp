@@ -406,7 +406,7 @@ void QuerySystemInfo()
 
 void PrintHAddress() // Test the sigscan results
 {
-	std::cout << "+----------------------------------------------------------------+" << std::endl;
+	spdlog::debug("+----------------------------------------------------------------+\n");
 	for (IDetour* pDetour : vDetour)
 	{
 		pDetour->GetAdr();

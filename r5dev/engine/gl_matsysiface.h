@@ -6,12 +6,12 @@ inline auto v_InitMaterialSystem = p_InitMaterialSystem.RCast<void* (*)(void)>()
 // 0x14024B390 // 48 83 EC 28 48 8B 0D ? ? ? ? 48 8D 15 ? ? ? ? 48 8B 01 FF 90 ? ? ? ? 48 8B 0D ? ? ? ? 48 8D 15 ? ? ? ? 48 8B 01 FF 90 ? ? ? ? //
 
 ///////////////////////////////////////////////////////////////////////////////
-class HGL_MatSysIFace : public IDetour
+class VGL_MatSysIFace : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: InitMaterialSystem                   : 0x" << std::hex << std::uppercase << p_InitMaterialSystem.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: InitMaterialSystem                   : {:#18x} |\n", p_InitMaterialSystem.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -27,4 +27,4 @@ class HGL_MatSysIFace : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HGL_MatSysIFace);
+REGISTER(VGL_MatSysIFace);

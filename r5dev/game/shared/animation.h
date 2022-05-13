@@ -7,12 +7,12 @@ inline auto v_CStudioHdr__LookupSequence = p_CStudioHdr__LookupSequence.RCast<in
 void Animation_Attach();
 void Animation_Detach();
 ///////////////////////////////////////////////////////////////////////////////
-class HAnimation : public IDetour
+class VAnimation : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CStudioHdr::LookupSequence           : 0x" << std::hex << std::uppercase << p_CStudioHdr__LookupSequence.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: CStudioHdr::LookupSequence           : {:#18x} |\n", p_CStudioHdr__LookupSequence.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -26,6 +26,6 @@ class HAnimation : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HAnimation);
+REGISTER(VAnimation);
 
 #endif // ANIMATION_H

@@ -5,12 +5,12 @@ inline CMemory p_IAppSystem_LoadLibrary; // C initializers/terminators
 inline auto IAppSystem_LoadLibrary = p_IAppSystem_LoadLibrary.RCast<void* (*)(void)>();
 
 ///////////////////////////////////////////////////////////////////////////////
-class HAppSystem : public IDetour
+class VAppSystem : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: IAppSystem::LoadLibrary              : 0x" << std::hex << std::uppercase << p_IAppSystem_LoadLibrary.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: IAppSystem::LoadLibrary              : {:#18x} |\n", p_IAppSystem_LoadLibrary.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -24,4 +24,4 @@ class HAppSystem : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HAppSystem);
+REGISTER(VAppSystem);

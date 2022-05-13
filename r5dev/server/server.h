@@ -33,15 +33,15 @@ void* HCServer_Authenticate(void* cserver, user_creds* inpacket);
 extern bool g_bCheckCompBanDB;
 
 ///////////////////////////////////////////////////////////////////////////////
-class HServer : public IDetour
+class VServer : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CServer::Think                       : 0x" << std::hex << std::uppercase << p_CServer_Think.GetPtr()            << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CServer::Authenticate                : 0x" << std::hex << std::uppercase << p_CServer_Authenticate.GetPtr()     << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CServer::RejectConnection            : 0x" << std::hex << std::uppercase << p_CServer_RejectConnection.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: sv_m_nTickCount                      : 0x" << std::hex << std::uppercase << sv_m_nTickCount                     << std::setw(0)    << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: CServer::Think                       : {:#18x} |\n", p_CServer_Think.GetPtr());
+		spdlog::debug("| FUN: CServer::Authenticate                : {:#18x} |\n", p_CServer_Authenticate.GetPtr());
+		spdlog::debug("| FUN: CServer::RejectConnection            : {:#18x} |\n", p_CServer_RejectConnection.GetPtr());
+		spdlog::debug("| VAR: sv_m_nTickCount                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(sv_m_nTickCount));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -69,4 +69,4 @@ class HServer : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HServer);
+REGISTER(VServer);

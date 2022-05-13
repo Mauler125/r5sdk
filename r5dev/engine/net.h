@@ -42,18 +42,18 @@ extern string g_szNetKey;
 extern uintptr_t g_pNetKey;
 
 ///////////////////////////////////////////////////////////////////////////////
-class HNetChan : public IDetour
+class VNetChan : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: NET_Init                             : 0x" << std::hex << std::uppercase << p_NET_Init.GetPtr()            << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: NET_Shutdown                         : 0x" << std::hex << std::uppercase << p_NET_Shutdown.GetPtr()        << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: NET_SetKey                           : 0x" << std::hex << std::uppercase << p_NET_SetKey.GetPtr()          << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: NET_ReceiveDatagram                  : 0x" << std::hex << std::uppercase << p_NET_ReceiveDatagram.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: NET_SendDatagram                     : 0x" << std::hex << std::uppercase << p_NET_SendDatagram.GetPtr()    << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: NET_PrintFunc                        : 0x" << std::hex << std::uppercase << p_NET_PrintFunc.GetPtr()       << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: g_pNetKey                            : 0x" << std::hex << std::uppercase << g_pNetKey << std::setw(nPad)   << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: NET_Init                             : {:#18x} |\n", p_NET_Init.GetPtr());
+		spdlog::debug("| FUN: NET_Shutdown                         : {:#18x} |\n", p_NET_Shutdown.GetPtr());
+		spdlog::debug("| FUN: NET_SetKey                           : {:#18x} |\n", p_NET_SetKey.GetPtr());
+		spdlog::debug("| FUN: NET_ReceiveDatagram                  : {:#18x} |\n", p_NET_ReceiveDatagram.GetPtr());
+		spdlog::debug("| FUN: NET_SendDatagram                     : {:#18x} |\n", p_NET_SendDatagram.GetPtr());
+		spdlog::debug("| FUN: NET_PrintFunc                        : {:#18x} |\n", p_NET_PrintFunc.GetPtr());
+		spdlog::debug("| VAR: g_pNetKey                            : {:#18x} |\n", g_pNetKey);
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -86,7 +86,7 @@ class HNetChan : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-REGISTER(HNetChan);
+REGISTER(VNetChan);
 #endif // !NETCONSOLE
 
 const char* NET_ErrorString(int iCode);

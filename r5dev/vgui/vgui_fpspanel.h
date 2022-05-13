@@ -9,12 +9,12 @@ void CFPSPanel_Attach();
 void CFPSPanel_Detach();
 
 ///////////////////////////////////////////////////////////////////////////////
-class HFPSPanel : public IDetour
+class VFPSPanel : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CFPSPanel::Paint                     : 0x" << std::hex << std::uppercase << p_CFPSPanel_Paint.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: CFPSPanel::Paint                     : {:#18x} |\n", p_CFPSPanel_Paint.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -28,4 +28,4 @@ class HFPSPanel : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HFPSPanel);
+REGISTER(VFPSPanel);

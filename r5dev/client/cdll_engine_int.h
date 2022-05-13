@@ -65,23 +65,23 @@ void CHLClient_Attach();
 void CHLClient_Detach();
 
 ///////////////////////////////////////////////////////////////////////////////
-class HDll_Engine_Int : public IDetour
+class VDll_Engine_Int : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
 #ifndef DEDICATED
-		std::cout << "| FUN: CHLClient::PostInit                  : 0x" << std::hex << std::uppercase << p_CHLClient_PostInit.GetPtr()         << std::setw(nPad) << " |" << std::endl;
+		spdlog::debug("| FUN: CHLClient::PostInit                  : {:#18x} |\n", p_CHLClient_PostInit.GetPtr());
 #endif // !DEDICATED
-		std::cout << "| FUN: CHLClient::LevelShutdown             : 0x" << std::hex << std::uppercase << p_CHLClient_LevelShutdown.GetPtr()    << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CHLClient::HudProcessInput           : 0x" << std::hex << std::uppercase << p_CHLClient_HudProcessInput.GetPtr()  << std::setw(nPad) << " |" << std::endl;
+		spdlog::debug("| FUN: CHLClient::LevelShutdown             : {:#18x} |\n", p_CHLClient_LevelShutdown.GetPtr());
+		spdlog::debug("| FUN: CHLClient::HudProcessInput           : {:#18x} |\n", p_CHLClient_HudProcessInput.GetPtr());
 #ifndef DEDICATED
-		std::cout << "| FUN: CHLClient::FrameStageNotify          : 0x" << std::hex << std::uppercase << p_CHLClient_FrameStageNotify.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CHLClient::GetAllClasses             : 0x" << std::hex << std::uppercase << p_CHLClient_GetAllClasses.GetPtr()    << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: cl_time_use_host_tickcount           : 0x" << std::hex << std::uppercase << cl_time_use_host_tickcount            << std::setw(0)    << " |" << std::endl;
+		spdlog::debug("| FUN: CHLClient::FrameStageNotify          : {:#18x} |\n", p_CHLClient_FrameStageNotify.GetPtr());
+		spdlog::debug("| FUN: CHLClient::GetAllClasses             : {:#18x} |\n", p_CHLClient_GetAllClasses.GetPtr());
+		spdlog::debug("| VAR: cl_time_use_host_tickcount           : {:#18x} |\n", reinterpret_cast<uintptr_t>(cl_time_use_host_tickcount));
 #endif // !DEDICATED
-		std::cout << "| VAR: gHLClient                            : 0x" << std::hex << std::uppercase << gHLClient                             << std::setw(0)    << " |" << std::endl;
-		std::cout << "| VAR: g_pHLClient                          : 0x" << std::hex << std::uppercase << g_pHLClient                           << std::setw(0)    << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| VAR: gHLClient                            : {:#18x} |\n", reinterpret_cast<uintptr_t>(gHLClient));
+		spdlog::debug("| VAR: g_pHLClient                          : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pHLClient));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -128,4 +128,4 @@ class HDll_Engine_Int : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HDll_Engine_Int);
+REGISTER(VDll_Engine_Int);

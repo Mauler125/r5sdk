@@ -51,19 +51,19 @@ namespace VSquirrel
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-class HSqInit : public IDetour
+class VSqInit : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: Remote_BeginRegisteringFunctions     : 0x" << std::hex << std::uppercase << p_Script_Remote_BeginRegisteringFunctions.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: RestoreRemoteChecksumsFromSaveGame   : 0x" << std::hex << std::uppercase << p_RestoreRemoteChecksumsFromSaveGame.GetPtr()      << std::setw(nPad) << " |" << std::endl;
+		spdlog::debug("| FUN: Remote_BeginRegisteringFunctions     : {:#18x} |\n", p_Script_Remote_BeginRegisteringFunctions.GetPtr());
+		spdlog::debug("| FUN: RestoreRemoteChecksumsFromSaveGame   : {:#18x} |\n", p_RestoreRemoteChecksumsFromSaveGame.GetPtr());
 #ifndef CLIENT_DLL
-		std::cout << "| VAR: g_nServerRemoteChecksum              : 0x" << std::hex << std::uppercase << g_nServerRemoteChecksum                            << std::setw(0)    << " |" << std::endl;
+		spdlog::debug("| VAR: g_nServerRemoteChecksum              : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_nServerRemoteChecksum));
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
-		std::cout << "| VAR: g_nClientRemoteChecksum              : 0x" << std::hex << std::uppercase << g_nClientRemoteChecksum                            << std::setw(0)    << " |" << std::endl;
+		spdlog::debug("| VAR: g_nClientRemoteChecksum              : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_nClientRemoteChecksum));
 #endif // !DEDICATED
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -88,4 +88,4 @@ class HSqInit : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HSqInit);
+REGISTER(VSqInit);

@@ -8,12 +8,12 @@ void PRX_Attach();
 void PRX_Detach();
 
 ///////////////////////////////////////////////////////////////////////////////
-class HPRX : public IDetour
+class VPRX : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: exit_or_terminate_process            : 0x" << std::hex << std::uppercase << p_exit_or_terminate_process.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: exit_or_terminate_process            : {:#18x} |\n", p_exit_or_terminate_process.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -27,4 +27,4 @@ class HPRX : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HPRX);
+REGISTER(VPRX);

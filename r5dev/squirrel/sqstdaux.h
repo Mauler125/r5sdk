@@ -10,12 +10,12 @@ inline auto v_sqstd_aux_printerror = p_sqstd_aux_printerror.RCast<SQInteger(*)(H
 void SQAUX_Attach();
 void SQAUX_Detach();
 ///////////////////////////////////////////////////////////////////////////////
-class HSqStdAux : public IDetour
+class VSqStdAux : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: sqstd_aux_printerror                 : 0x" << std::hex << std::uppercase << p_sqstd_aux_printerror.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: sqstd_aux_printerror                 : {:#18x} |\n", p_sqstd_aux_printerror.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -34,4 +34,4 @@ class HSqStdAux : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HSqStdAux);
+REGISTER(VSqStdAux);

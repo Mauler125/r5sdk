@@ -7,7 +7,7 @@ public:
 	bool GetRestrictServerCommands() const;
 	void SetRestrictClientCommands(bool bRestrict);
 	bool GetRestrictClientCommands() const;
-	void* GetLocalPlayer(); // Is actually C_Player.
+	void* GetLocalPlayer() const; // Is actually C_Player.
 };
 
 /* ==== CVENGINECLIENT ================================================================================================================================================== */
@@ -29,12 +29,12 @@ class HVEngineClient : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: IVEngineClient::CommandExecute       : 0x" << std::hex << std::uppercase << p_CEngineClient_CommandExecute.GetPtr()  << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: m_bRestrictServerCommands            : 0x" << std::hex << std::uppercase << m_bRestrictServerCommands                << std::setw(0)    << " |" << std::endl;
-		std::cout << "| VAR: m_bRestrictClientCommands            : 0x" << std::hex << std::uppercase << m_bRestrictClientCommands                << std::setw(0)    << " |" << std::endl;
-		std::cout << "| CON: g_ppEngineClient                     : 0x" << std::hex << std::uppercase << g_ppEngineClient                         << std::setw(0)    << " |" << std::endl;
-		std::cout << "| CON: g_pEngineClient_VTable               : 0x" << std::hex << std::uppercase << g_pEngineClient_VTable.GetPtr()          << std::setw(0) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: IVEngineClient::CommandExecute       : {:#18x} |\n", p_CEngineClient_CommandExecute.GetPtr());
+		spdlog::debug("| VAR: m_bRestrictServerCommands            : {:#18x} |\n", reinterpret_cast<uintptr_t>(m_bRestrictServerCommands));
+		spdlog::debug("| VAR: m_bRestrictClientCommands            : {:#18x} |\n", reinterpret_cast<uintptr_t>(m_bRestrictClientCommands));
+		spdlog::debug("| CON: g_ppEngineClient                     : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_ppEngineClient));
+		spdlog::debug("| CON: g_pEngineClient_VTable               : {:#18x} |\n", g_pEngineClient_VTable.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{

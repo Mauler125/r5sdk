@@ -17,9 +17,9 @@ class HVideoMode_Common : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CVideoMode_Common::CreateGameWindow  : 0x" << std::hex << std::uppercase << p_CVideoMode_Common__CreateGameWindow.GetPtr()  << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CVideoMode_Common::CreateWindowClass : 0x" << std::hex << std::uppercase << p_CVideoMode_Common__CreateWindowClass.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: CVideoMode_Common::CreateGameWindow  : {:#18x} |\n", p_CVideoMode_Common__CreateGameWindow.GetPtr());
+		spdlog::debug("| FUN: CVideoMode_Common::CreateWindowClass : {:#18x} |\n", p_CVideoMode_Common__CreateWindowClass.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{

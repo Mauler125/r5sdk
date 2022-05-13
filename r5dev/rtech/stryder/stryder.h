@@ -8,13 +8,13 @@ inline CMemory p_Stryder_SendOfflineRequest;
 inline auto Stryder_SendOfflineRequest = p_Stryder_SendOfflineRequest.RCast<bool(*)(void)>();
 
 ///////////////////////////////////////////////////////////////////////////////
-class HStryder : public IDetour
+class VStryder : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: Stryder_StitchRequest                : 0x" << std::hex << std::uppercase << p_Stryder_StitchRequest.GetPtr()      << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: Stryder_SendOfflineRequest           : 0x" << std::hex << std::uppercase << p_Stryder_SendOfflineRequest.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: Stryder_StitchRequest                : {:#18x} |\n", p_Stryder_StitchRequest.GetPtr());
+		spdlog::debug("| FUN: Stryder_SendOfflineRequest           : {:#18x} |\n", p_Stryder_SendOfflineRequest.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -35,4 +35,4 @@ class HStryder : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HStryder);
+REGISTER(VStryder);

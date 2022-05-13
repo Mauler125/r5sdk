@@ -535,12 +535,12 @@ void DirectX_Shutdown()
 void HIDXGI::GetAdr(void) const
 {
 	///////////////////////////////////////////////////////////////////////////////
-	std::cout << "| VAR: ID3D11DeviceContext                  : " << std::hex << std::uppercase << g_pDeviceContext          << std::setw(4) << " |" << std::endl;
-	std::cout << "| VAR: ID3D11Device                         : " << std::hex << std::uppercase << g_pDevice                 << std::setw(4) << " |" << std::endl;
-	std::cout << "| VAR: ID3D11RenderTargetView               : " << std::hex << std::uppercase << g_pRenderTargetView       << std::setw(4) << " |" << std::endl;
-	std::cout << "| VAR: IDXGISwapChain                       : " << std::hex << std::uppercase << g_pSwapChain              << std::setw(4) << " |" << std::endl;
-	std::cout << "| VAR: IDXGISwapChainPresent                : " << std::hex << std::uppercase << g_fnIDXGISwapChainPresent << std::setw(4) << " |" << std::endl;
-	std::cout << "+----------------------------------------------------------------+" << std::endl;
+	spdlog::debug("| VAR: ID3D11DeviceContext                  : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pDeviceContext)         );
+	spdlog::debug("| VAR: ID3D11Device                         : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pDevice)                );
+	spdlog::debug("| VAR: ID3D11RenderTargetView               : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pRenderTargetView)      );
+	spdlog::debug("| VAR: IDXGISwapChain                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pSwapChain)             );
+	spdlog::debug("| VAR: IDXGISwapChainPresent                : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_fnIDXGISwapChainPresent));
+	spdlog::debug("+----------------------------------------------------------------+\n");
 }
 
 //#################################################################################

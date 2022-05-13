@@ -13,15 +13,15 @@ inline auto CTSListBase_Wrapper = p_CTSListBase_Wrapper.RCast<void* (*)(void)>()
 inline CMemory g_pMallocPool;
 
 ///////////////////////////////////////////////////////////////////////////////
-class HTSListBase : public IDetour
+class VTSListBase : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: MemAlloc_Internal                    : 0x" << std::hex << std::uppercase << p_MemAlloc_Internal.GetPtr()   << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: MemAlloc_Wrapper                     : 0x" << std::hex << std::uppercase << p_MemAlloc_Wrapper.GetPtr()    << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CTSListBase_Wrapper                  : 0x" << std::hex << std::uppercase << p_CTSListBase_Wrapper.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: g_pMallocPool                        : 0x" << std::hex << std::uppercase << g_pMallocPool.GetPtr()         << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: MemAlloc_Internal                    : {:#18x} |\n", p_MemAlloc_Internal.GetPtr());
+		spdlog::debug("| FUN: MemAlloc_Wrapper                     : {:#18x} |\n", p_MemAlloc_Wrapper.GetPtr());
+		spdlog::debug("| FUN: CTSListBase_Wrapper                  : {:#18x} |\n", p_CTSListBase_Wrapper.GetPtr());
+		spdlog::debug("| VAR: g_pMallocPool                        : {:#18x} |\n", g_pMallocPool.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -57,6 +57,6 @@ class HTSListBase : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HTSListBase);
+REGISTER(VTSListBase);
 
 #endif // TSLIST_H

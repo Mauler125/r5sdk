@@ -30,15 +30,15 @@ void CBaseFileSystem_Attach();
 void CBaseFileSystem_Detach();
 
 ///////////////////////////////////////////////////////////////////////////////
-class HBaseFileSystem : public IDetour
+class VBaseFileSystem : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CBaseFileSystem::Warning             : 0x" << std::hex << std::uppercase << p_CBaseFileSystem_Warning.GetPtr()       << std::setw(nPad)   << " |" << std::endl;
-		std::cout << "| FUN: CBaseFileSystem::LoadFromVPK         : 0x" << std::hex << std::uppercase << p_CBaseFileSystem_LoadFromVPK.GetPtr()   << std::setw(nPad)   << " |" << std::endl;
-		std::cout << "| FUN: CBaseFileSystem::LoadFromCache       : 0x" << std::hex << std::uppercase << p_CBaseFileSystem_LoadFromCache.GetPtr() << std::setw(nPad)   << " |" << std::endl;
-		std::cout << "| VAR: g_pFileSystem                        : 0x" << std::hex << std::uppercase << g_pFileSystem                            << std::setw(0)      << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: CBaseFileSystem::Warning             : {:#18x} |\n", p_CBaseFileSystem_Warning.GetPtr());
+		spdlog::debug("| FUN: CBaseFileSystem::LoadFromVPK         : {:#18x} |\n", p_CBaseFileSystem_LoadFromVPK.GetPtr());
+		spdlog::debug("| FUN: CBaseFileSystem::LoadFromCache       : {:#18x} |\n", p_CBaseFileSystem_LoadFromCache.GetPtr());
+		spdlog::debug("| VAR: g_pFileSystem                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pFileSystem));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -61,4 +61,4 @@ class HBaseFileSystem : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HBaseFileSystem);
+REGISTER(VBaseFileSystem);

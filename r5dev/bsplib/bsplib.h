@@ -27,25 +27,25 @@ void* __fastcall BuildPropStaticFrustumCullMap(int64_t a1, int64_t a2, unsigned 
 void BspLib_Attach();
 void BspLib_Detach();
 ///////////////////////////////////////////////////////////////////////////////
-class HBspLib : public IDetour
+class VBspLib : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: BuildPropStaticFrustumCullMap        : 0x" << std::hex << std::uppercase << p_BuildPropStaticFrustumCullMap.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		//std::cout << "| FUN: sub_1404365A0                        : 0x" << std::hex << std::uppercase << sub_1404365A0 << std::setw(0) << " |" << std::endl;
-		//std::cout << "| FUN: sub_140270130                        : 0x" << std::hex << std::uppercase << sub_140270130 << std::setw(0) << " |" << std::endl;
-		//std::cout << "| FUN: sub_14028F170                        : 0x" << std::hex << std::uppercase << sub_14028F170 << std::setw(0) << " |" << std::endl;
-		//std::cout << "| FUN: sub_140257F20                        : 0x" << std::hex << std::uppercase << sub_140257F20 << std::setw(0) << " |" << std::endl;
-		//std::cout << "| VAR: dword_1696A9D20                      : 0x" << std::hex << std::uppercase << dword_1696A9D20 << std::setw(0) << " |" << std::endl;
-		//std::cout << "| VAR: dword_141744EBC                      : 0x" << std::hex << std::uppercase << dword_141744EBC << std::setw(0) << " |" << std::endl;
-		//std::cout << "| VAR: dword_141744EE8                      : 0x" << std::hex << std::uppercase << dword_141744EE8 << std::setw(0) << " |" << std::endl;
-		//std::cout << "| VAR: qword_141744EA8                      : 0x" << std::hex << std::uppercase << qword_141744EA8 << std::setw(0) << " |" << std::endl;
-		//std::cout << "| VAR: qword_141744EA0                      : 0x" << std::hex << std::uppercase << qword_141744EA0 << std::setw(0) << " |" << std::endl;
-		//std::cout << "| VAR: qword_141744E88                      : 0x" << std::hex << std::uppercase << qword_141744E88 << std::setw(0) << " |" << std::endl;
-		//std::cout << "| VAR: xmmword_1415BD270                    : 0x" << std::hex << std::uppercase << xmmword_1415BD270 << std::setw(0) << " |" << std::endl;
-		//std::cout << "| VAR: off_141744E70                        : 0x" << std::hex << std::uppercase << off_141744E70 << std::setw(0) << " |" << std::endl;
-		//std::cout << "| VAR: off_141731448                        : 0x" << std::hex << std::uppercase << off_141731448 << std::setw(0) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: BuildPropStaticFrustumCullMap        : {:#18x} |\n", p_BuildPropStaticFrustumCullMap.GetPtr());
+		//spdlog::debug("| FUN: sub_1404365A0                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(sub_1404365A0));
+		//spdlog::debug("| FUN: sub_140270130                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(sub_140270130));
+		//spdlog::debug("| FUN: sub_14028F170                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(sub_14028F170));
+		//spdlog::debug("| FUN: sub_140257F20                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(sub_140257F20));
+		//spdlog::debug("| VAR: dword_1696A9D20                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(dword_1696A9D20));
+		//spdlog::debug("| VAR: dword_141744EBC                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(dword_141744EBC));
+		//spdlog::debug("| VAR: dword_141744EE8                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(dword_141744EE8));
+		//spdlog::debug("| VAR: qword_141744EA8                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(qword_141744EA8));
+		//spdlog::debug("| VAR: qword_141744EA0                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(qword_141744EA0));
+		//spdlog::debug("| VAR: qword_141744E88                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(qword_141744E88));
+		//spdlog::debug("| VAR: xmmword_1415BD270                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(xmmword_1415BD270));
+		//spdlog::debug("| VAR: off_141744E70                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(off_141744E70));
+		//spdlog::debug("| VAR: off_141731448                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(off_141731448));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -82,4 +82,4 @@ class HBspLib : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HBspLib);
+REGISTER(VBspLib);

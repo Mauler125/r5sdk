@@ -18,7 +18,7 @@ public:
 	virtual void Detach(void) const = 0;
 };
 
-class HDetour : public IDetour
+class VDetour : public IDetour
 {
 	virtual void GetAdr(void) const { }
 	virtual void GetFun(void) const { }
@@ -31,7 +31,6 @@ class HDetour : public IDetour
 
 namespace
 {
-	std::int32_t nPad = 6;
 	std::vector<IDetour*> vDetour;
 	std::size_t AddDetour(IDetour* pDetour)
 	{
@@ -40,5 +39,5 @@ namespace
 	}
 }
 
-REGISTER(HDetour);
+REGISTER(VDetour);
 #endif // IDETOUR_H

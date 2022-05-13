@@ -26,19 +26,17 @@ void EbisuSDK_Detach();
 
 
 ///////////////////////////////////////////////////////////////////////////////
-class HEbisuSDK : public IDetour
+class VEbisuSDK : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-#ifdef DEDICATED
-		std::cout << "| FUN: EbisuSDK_Init_Tier0                  : 0x" << std::hex << std::uppercase << p_EbisuSDK_Init_Tier0.GetPtr()       << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: EbisuSDK_CVar_Init                   : 0x" << std::hex << std::uppercase << p_EbisuSDK_CVar_Init.GetPtr()        << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: EbisuSDK_SetState                    : 0x" << std::hex << std::uppercase << p_EbisuSDK_SetState.GetPtr()        << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: g_bEbisuSDKInitialized               : 0x" << std::hex << std::uppercase << g_bEbisuSDKInitialized     << std::setw(0) << " |" << std::endl;
-		std::cout << "| VAR: g_bEbisuSDKCvarInitialized           : 0x" << std::hex << std::uppercase << g_bEbisuSDKCvarInitialized << std::setw(0) << " |" << std::endl;
-		std::cout << "| VAR: g_qEbisuSDKCvarInitialized           : 0x" << std::hex << std::uppercase << g_qEbisuSDKCvarInitialized << std::setw(0) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
-#endif // DEDICATED
+		spdlog::debug("| FUN: EbisuSDK_Init_Tier0                  : {:#18x} |\n", p_EbisuSDK_Init_Tier0.GetPtr());
+		spdlog::debug("| FUN: EbisuSDK_CVar_Init                   : {:#18x} |\n", p_EbisuSDK_CVar_Init.GetPtr());
+		spdlog::debug("| FUN: EbisuSDK_SetState                    : {:#18x} |\n", p_EbisuSDK_SetState.GetPtr());
+		spdlog::debug("| VAR: g_bEbisuSDKInitialized               : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_bEbisuSDKInitialized));
+		spdlog::debug("| VAR: g_bEbisuSDKCvarInitialized           : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_bEbisuSDKCvarInitialized));
+		spdlog::debug("| VAR: g_qEbisuSDKCvarInitialized           : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_qEbisuSDKCvarInitialized));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -63,4 +61,4 @@ class HEbisuSDK : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HEbisuSDK);
+REGISTER(VEbisuSDK);

@@ -93,46 +93,46 @@ inline CMemory g_pClientSP;
 
 
 ///////////////////////////////////////////////////////////////////////////////
-class HOpcodes : public IDetour
+class VOpcodes : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CShaderSystem::Init                  : 0x" << std::hex << std::uppercase << CShaderSystem__Init.GetPtr()                 << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
-		std::cout << "| FUN: CVGui::RunFrame                      : 0x" << std::hex << std::uppercase << CVGui__RunFrame.GetPtr()                     << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
-		std::cout << "| FUN: CEngineVGui::Shutdown                : 0x" << std::hex << std::uppercase << CEngineVGui__Shutdown.GetPtr()               << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CEngineVGui::ActivateGameUI          : 0x" << std::hex << std::uppercase << CEngineVGui__ActivateGameUI.GetPtr()         << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
-		std::cout << "| FUN: Sys_InitGame                         : 0x" << std::hex << std::uppercase << Sys_InitGame.GetPtr()                        << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
-		std::cout << "| FUN: Host_Init_0                          : 0x" << std::hex << std::uppercase << gHost_Init_0.GetPtr()                        << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: Host_Init_1                          : 0x" << std::hex << std::uppercase << gHost_Init_1.GetPtr()                        << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: Host_Init_2                          : 0x" << std::hex << std::uppercase << gHost_Init_2.GetPtr()                        << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: Host_Disconnect                      : 0x" << std::hex << std::uppercase << Host_Disconnect.GetPtr()                     << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: CShaderSystem::Init                  : {:#18x} |\n", CShaderSystem__Init.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
+		spdlog::debug("| FUN: CVGui::RunFrame                      : {:#18x} |\n", CVGui__RunFrame.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
+		spdlog::debug("| FUN: CEngineVGui::Shutdown                : {:#18x} |\n", CEngineVGui__Shutdown.GetPtr());
+		spdlog::debug("| FUN: CEngineVGui::ActivateGameUI          : {:#18x} |\n", CEngineVGui__ActivateGameUI.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
+		spdlog::debug("| FUN: Sys_InitGame                         : {:#18x} |\n", Sys_InitGame.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
+		spdlog::debug("| FUN: Host_Init_0                          : {:#18x} |\n", gHost_Init_0.GetPtr());
+		spdlog::debug("| FUN: Host_Init_1                          : {:#18x} |\n", gHost_Init_1.GetPtr());
+		spdlog::debug("| FUN: Host_Init_2                          : {:#18x} |\n", gHost_Init_2.GetPtr());
+		spdlog::debug("| FUN: Host_Disconnect                      : {:#18x} |\n", Host_Disconnect.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 #ifndef CLIENT_DLL
-		std::cout << "| FUN: Server_S2C_CONNECT_1                 : 0x" << std::hex << std::uppercase << Server_S2C_CONNECT_1.GetPtr() << std::setw(nPad) << " |" << std::endl;
+		spdlog::debug("| FUN: Server_S2C_CONNECT_1                 : {:#18x} |\n", Server_S2C_CONNECT_1.GetPtr());
 #endif // !CLIENT_DLL
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
-		std::cout << "| FUN: UpdateMaterialSystemConfig           : 0x" << std::hex << std::uppercase << UpdateMaterialSystemConfig.GetPtr()          << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: UpdateCurrentVideoConfig             : 0x" << std::hex << std::uppercase << UpdateCurrentVideoConfig.GetPtr()            << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: HandleConfigFile                     : 0x" << std::hex << std::uppercase << HandleConfigFile.GetPtr()                    << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: ResetPreviousGameState               : 0x" << std::hex << std::uppercase << ResetPreviousGameState.GetPtr()              << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: LoadPlayerConfig                     : 0x" << std::hex << std::uppercase << LoadPlayerConfig.GetPtr()                    << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("+----------------------------------------------------------------+\n");
+		spdlog::debug("| FUN: UpdateMaterialSystemConfig           : {:#18x} |\n", UpdateMaterialSystemConfig.GetPtr());
+		spdlog::debug("| FUN: UpdateCurrentVideoConfig             : {:#18x} |\n", UpdateCurrentVideoConfig.GetPtr());
+		spdlog::debug("| FUN: HandleConfigFile                     : {:#18x} |\n", HandleConfigFile.GetPtr());
+		spdlog::debug("| FUN: ResetPreviousGameState               : {:#18x} |\n", ResetPreviousGameState.GetPtr());
+		spdlog::debug("| FUN: LoadPlayerConfig                     : {:#18x} |\n", LoadPlayerConfig.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 #if !defined (GAMEDLL_S0) || !defined (GAMEDLL_S1)
-		std::cout << "| FUN: CWin32Surface::initStaticData        : 0x" << std::hex << std::uppercase << CWin32Surface_initStaticData.GetPtr()        << std::setw(nPad) << " |" << std::endl;
+		spdlog::debug("| FUN: CWin32Surface::initStaticData        : {:#18x} |\n", CWin32Surface_initStaticData.GetPtr());
 #endif
-		std::cout << "| FUN: KeyboardLayout_Init                  : 0x" << std::hex << std::uppercase << KeyboardLayout_Init.GetPtr()                 << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
-		std::cout << "| CON: g_pClientVPKDir                      : 0x" << std::hex << std::uppercase << g_pClientVPKDir.GetPtr()                     << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| CON: g_pClientBSP                         : 0x" << std::hex << std::uppercase << g_pClientBSP.GetPtr()                        << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| CON: g_pClientCommonBSP                   : 0x" << std::hex << std::uppercase << g_pClientCommonBSP.GetPtr()                  << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| CON: g_pClientMPLobby                     : 0x" << std::hex << std::uppercase << g_pClientMPLobby.GetPtr()                    << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| CON: g_pClientMP                          : 0x" << std::hex << std::uppercase << g_pClientMP.GetPtr()                         << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| CON: g_pClientSP                          : 0x" << std::hex << std::uppercase << g_pClientSP.GetPtr()                         << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: KeyboardLayout_Init                  : {:#18x} |\n", KeyboardLayout_Init.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
+		spdlog::debug("| CON: g_pClientVPKDir                      : {:#18x} |\n", g_pClientVPKDir.GetPtr());
+		spdlog::debug("| CON: g_pClientBSP                         : {:#18x} |\n", g_pClientBSP.GetPtr());
+		spdlog::debug("| CON: g_pClientCommonBSP                   : {:#18x} |\n", g_pClientCommonBSP.GetPtr());
+		spdlog::debug("| CON: g_pClientMPLobby                     : {:#18x} |\n", g_pClientMPLobby.GetPtr());
+		spdlog::debug("| CON: g_pClientMP                          : {:#18x} |\n", g_pClientMP.GetPtr());
+		spdlog::debug("| CON: g_pClientSP                          : {:#18x} |\n", g_pClientSP.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
@@ -237,4 +237,4 @@ class HOpcodes : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HOpcodes);
+REGISTER(VOpcodes);

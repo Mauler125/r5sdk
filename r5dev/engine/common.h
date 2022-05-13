@@ -5,12 +5,12 @@ inline CMemory p_COM_ExplainDisconnection;
 inline auto COM_ExplainDisconnection = p_COM_ExplainDisconnection.RCast<void* (*)(uint64_t level, const char* fmt, ...)>();
 
 ///////////////////////////////////////////////////////////////////////////////
-class HCommon : public IDetour
+class VCommon : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: COM_ExplainDisconnection             : 0x" << std::hex << std::uppercase << p_COM_ExplainDisconnection.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: COM_ExplainDisconnection             : {:#18x} |\n", p_COM_ExplainDisconnection.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -24,4 +24,4 @@ class HCommon : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HCommon);
+REGISTER(VCommon);

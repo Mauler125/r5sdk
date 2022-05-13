@@ -10,13 +10,13 @@ inline auto JT_AcquireFifoLock = p_JT_AcquireFifoLock.RCast<void* (*)(void)>();
 void JT_Attach();
 void JT_Detach();
 ///////////////////////////////////////////////////////////////////////////////
-class HJobThread : public IDetour
+class VJobThread : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: JT_HelpWithAnything                  : 0x" << std::hex << std::uppercase << p_JT_HelpWithAnything.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: JT_AcquireFifoLock                   : 0x" << std::hex << std::uppercase << p_JT_AcquireFifoLock.GetPtr()  << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: JT_HelpWithAnything                  : {:#18x} |\n", p_JT_HelpWithAnything.GetPtr());
+		spdlog::debug("| FUN: JT_AcquireFifoLock                   : {:#18x} |\n", p_JT_AcquireFifoLock.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -37,6 +37,6 @@ class HJobThread : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HJobThread);
+REGISTER(VJobThread);
 
 #endif // JOBTHREAD_H

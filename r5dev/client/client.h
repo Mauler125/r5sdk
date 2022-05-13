@@ -3,12 +3,12 @@
 
 inline CMemory CClientState__RunFrame;
 ///////////////////////////////////////////////////////////////////////////////
-class HClient : public IDetour
+class VClient : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CClientState::RunFrame               : 0x" << std::hex << std::uppercase << CClientState__RunFrame.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: CClientState::RunFrame               : {:#18x} |\n", CClientState__RunFrame.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -25,5 +25,5 @@ class HClient : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HClient);
+REGISTER(VClient);
 #endif // CLIENT_H

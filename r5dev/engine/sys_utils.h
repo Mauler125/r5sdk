@@ -65,15 +65,15 @@ void SysUtils_Attach();
 void SysUtils_Detach();
 
 ///////////////////////////////////////////////////////////////////////////////
-class HSys_Utils : public IDetour
+class VSys_Utils : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: Sys_Error                            : 0x" << std::hex << std::uppercase << p_Sys_Error.GetPtr()           << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: Sys_Warning                          : 0x" << std::hex << std::uppercase << p_Warning.GetPtr()             << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: Sys_LoadAssetHelper                  : 0x" << std::hex << std::uppercase << p_Sys_LoadAssetHelper.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: Con_NPrintf                          : 0x" << std::hex << std::uppercase << p_Con_NPrintf.GetPtr()         << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: Sys_Error                            : {:#18X} |\n", p_Sys_Error.GetPtr());
+		spdlog::debug("| FUN: Sys_Warning                          : {:#18X} |\n", p_Warning.GetPtr());
+		spdlog::debug("| FUN: Sys_LoadAssetHelper                  : {:#18X} |\n", p_Sys_LoadAssetHelper.GetPtr());
+		spdlog::debug("| FUN: Con_NPrintf                          : {:#18X} |\n", p_Con_NPrintf.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -94,4 +94,4 @@ class HSys_Utils : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HSys_Utils);
+REGISTER(VSys_Utils);

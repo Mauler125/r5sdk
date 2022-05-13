@@ -7,13 +7,13 @@ inline CMemory CStudioRenderContext__LoadModel;
 inline CMemory CStudioRenderContext__LoadMaterials;
 
 ///////////////////////////////////////////////////////////////////////////////
-class HStudioRenderContext : public IDetour
+class VStudioRenderContext : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CStudioRenderContext::LoadModel      : 0x" << std::hex << std::uppercase << CStudioRenderContext__LoadModel.GetPtr()     << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CStudioRenderContext::LoadMaterials  : 0x" << std::hex << std::uppercase << CStudioRenderContext__LoadMaterials.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: CStudioRenderContext::LoadModel      : {:#18x} |\n", CStudioRenderContext__LoadModel.GetPtr());
+		spdlog::debug("| FUN: CStudioRenderContext::LoadMaterials  : {:#18x} |\n", CStudioRenderContext__LoadMaterials.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -38,4 +38,4 @@ class HStudioRenderContext : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HStudioRenderContext);
+REGISTER(VStudioRenderContext);

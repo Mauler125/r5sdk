@@ -20,12 +20,12 @@ public:
 extern CInputSystem* g_pInputSystem
 ;
 ///////////////////////////////////////////////////////////////////////////////
-class HInputSystem : public IDetour
+class VInputSystem : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| VAR: g_pInputSystem                       : 0x" << std::hex << std::uppercase << g_pInputSystem << std::setw(0) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| VAR: g_pInputSystem                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pInputSystem));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
@@ -40,4 +40,4 @@ class HInputSystem : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HInputSystem);
+REGISTER(VInputSystem);

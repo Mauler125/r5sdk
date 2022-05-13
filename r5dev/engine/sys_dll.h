@@ -14,13 +14,13 @@ void SysDll_Attach();
 void SysDll_Detach();
 
 ///////////////////////////////////////////////////////////////////////////////
-class HSys_Dll : public IDetour
+class VSys_Dll : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: Sys_Error_Internal                   : 0x" << std::hex << std::uppercase << p_Sys_Error_Internal.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: gfExtendedError                      : 0x" << std::hex << std::uppercase << gfExtendedError               << std::setw(0)    << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: Sys_Error_Internal                   : {:#18x} |\n", p_Sys_Error_Internal.GetPtr());
+		spdlog::debug("| VAR: gfExtendedError                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(gfExtendedError));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -37,4 +37,4 @@ class HSys_Dll : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HSys_Dll);
+REGISTER(VSys_Dll);

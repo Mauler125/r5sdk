@@ -36,7 +36,7 @@ public:
 };
 
 /* ==== KEYVALUESSYSTEM ================================================================================================================================================= */
-inline uintptr_t g_pKeyValuesMemPool = NULL;
+inline void* g_pKeyValuesMemPool = nullptr;
 inline CKeyValuesSystem* g_pKeyValuesSystem = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -44,9 +44,9 @@ class HKeyValuesSystem : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| VAR: g_pKeyValuesMemPool                  : 0x" << std::hex << std::uppercase << g_pKeyValuesMemPool << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: g_pKeyValuesSystem                   : 0x" << std::hex << std::uppercase << g_pKeyValuesSystem  << std::setw(0)    << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| VAR: g_pKeyValuesMemPool                  : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pKeyValuesMemPool));
+		spdlog::debug("| VAR: g_pKeyValuesSystem                   : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pKeyValuesSystem));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
@@ -57,7 +57,7 @@ class HKeyValuesSystem : public IDetour
 
 		g_pKeyValuesMemPool = g_mGameDll.FindPatternSIMD(
 			reinterpret_cast<rsig_t>("\x48\x8B\x05\x00\x00\x00\x00\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x48\x85\xD2"), "xxx????xxxxxxxxxxxx").
-			ResolveRelativeAddressSelf(0x3, 0x7).GetPtr();
+			ResolveRelativeAddressSelf(0x3, 0x7).RCast<void*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

@@ -98,7 +98,7 @@ void CKeyValuesSystem::FreeKeyValuesMemory(CKeyValuesSystem* thisptr, void* pMem
 //-----------------------------------------------------------------------------
 void* CKeyValuesSystem::GetMemPool(void) const
 {
-	return reinterpret_cast<void*>(g_pKeyValuesMemPool); // May need to dereference this once more not sure right now.
+	return g_pKeyValuesMemPool; // May need to dereference this once more not sure right now.
 }
 
 //-----------------------------------------------------------------------------

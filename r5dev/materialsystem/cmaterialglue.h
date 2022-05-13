@@ -54,13 +54,13 @@ inline auto GetMaterialAtCrossHair = p_GetMaterialAtCrossHair.RCast<CMaterialGlu
 void CMaterialGlue_Attach();
 void CMaterialGlue_Detach();
 ///////////////////////////////////////////////////////////////////////////////
-class HCMaterialGlue : public IDetour
+class VMaterialGlue : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CMaterialGlue::GetMaterialAtCrossHair: 0x" << std::hex << std::uppercase << p_GetMaterialAtCrossHair.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| CON: g_pMaterialGlueVTable                : 0x" << std::hex << std::uppercase << g_pMaterialGlueVTable             << std::setw(0)    << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: CMaterialGlue::GetMaterialAtCrossHair: {:#18x} |\n", p_GetMaterialAtCrossHair.GetPtr());
+		spdlog::debug("| CON: g_pMaterialGlueVTable                : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pMaterialGlueVTable));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -78,4 +78,4 @@ class HCMaterialGlue : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HCMaterialGlue);
+REGISTER(VMaterialGlue);

@@ -28,14 +28,14 @@ extern CBaseClientState* g_pBaseClientState;
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
-class HClientState : public IDetour
+class VBaseClientState : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		//std::cout << "| FUN: CClientState::CheckForResend         : 0x" << std::hex << std::uppercase << p_CClientState__CheckForResend.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: cl_m_bPaused                         : 0x" << std::hex << std::uppercase << cl_m_bPaused      << std::setw(0) << " |" << std::endl;
-		std::cout << "| VAR: cl_host_tickcount                    : 0x" << std::hex << std::uppercase << cl_host_tickcount << std::setw(0) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		//spdlog::debug("| FUN: CClientState::CheckForResend         : {:#18x} |\n", p_CClientState__CheckForResend.GetPtr());
+		spdlog::debug("| VAR: cl_m_bPaused                         : {:#18x} |\n", reinterpret_cast<uintptr_t>(cl_m_bPaused));
+		spdlog::debug("| VAR: cl_host_tickcount                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(cl_host_tickcount));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
@@ -71,4 +71,4 @@ class HClientState : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HClientState);
+REGISTER(VBaseClientState);

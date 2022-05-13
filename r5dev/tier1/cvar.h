@@ -161,14 +161,14 @@ inline CMemory p_CCVar_GetCommandLineValue;
 inline auto CCVar_GetCommandLineValue = p_CCVar_GetCommandLineValue.RCast<const char* (*)(CCVar* thisptr, const char* pVariableName)>();
 
 ///////////////////////////////////////////////////////////////////////////////
-class HCvar : public IDetour
+class VCVar : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CCVar::Disconnect                    : 0x" << std::hex << std::uppercase << p_CCVar_Disconnect.GetPtr()          << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CCVar::GetCommandLineValue           : 0x" << std::hex << std::uppercase << p_CCVar_GetCommandLineValue.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: g_pCVar                              : 0x" << std::hex << std::uppercase << g_pCVar                              << std::setw(0)    << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: CCVar::Disconnect                    : {:#18x} |\n", p_CCVar_Disconnect.GetPtr());
+		spdlog::debug("| FUN: CCVar::GetCommandLineValue           : {:#18x} |\n", p_CCVar_GetCommandLineValue.GetPtr());
+		spdlog::debug("| VAR: g_pCVar                              : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pCVar));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -194,4 +194,4 @@ class HCvar : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HCvar);
+REGISTER(VCVar);

@@ -85,10 +85,10 @@ class HMM_Heartbeat : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: MM_Heartbeat::ToString               : 0x" << std::hex << std::uppercase << MM_Heartbeat__ToString.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: SVC_Print_VTable                     : 0x" << std::hex << std::uppercase << g_pSVC_Print_VTable             << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: SVC_UserMessage_VTable               : 0x" << std::hex << std::uppercase << g_pSVC_UserMessage_VTable       << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: MM_Heartbeat::ToString               : {:#18x} |\n", MM_Heartbeat__ToString.GetPtr());
+		spdlog::debug("| VAR: SVC_Print_VTable                     : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pSVC_Print_VTable));
+		spdlog::debug("| VAR: SVC_UserMessage_VTable               : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pSVC_UserMessage_VTable));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{

@@ -38,14 +38,14 @@ inline auto CEngineVGui_Unknown = p_CEngineVGui_Unknown.RCast<void** (*)(void* t
 inline CEngineVGui* g_pEngineVGui = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
-class HEngineVGui : public IDetour
+class VEngineVGui : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CEngineVGui::Paint                   : 0x" << std::hex << std::uppercase << p_CEngineVGui_Paint.GetPtr()   << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CEngineVGui::Unknown                 : 0x" << std::hex << std::uppercase << p_CEngineVGui_Unknown.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: g_pEngineVGui                        : 0x" << std::hex << std::uppercase << g_pEngineVGui                  << std::setw(0)    << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: CEngineVGui::Paint                   : {:#18x} |\n", p_CEngineVGui_Paint.GetPtr());
+		spdlog::debug("| FUN: CEngineVGui::Unknown                 : {:#18x} |\n", p_CEngineVGui_Unknown.GetPtr());
+		spdlog::debug("| VAR: g_pEngineVGui                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pEngineVGui));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -75,4 +75,4 @@ class HEngineVGui : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HEngineVGui);
+REGISTER(VEngineVGui);

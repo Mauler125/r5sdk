@@ -22,13 +22,13 @@ extern CServerGameDLL* g_pServerGameDLL;
 extern CServerGameClients* g_pServerGameClients;
 
 ///////////////////////////////////////////////////////////////////////////////
-class HServerGameDLL : public IDetour
+class VServerGameDLL : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| VAR: g_pServerGameDLL                     : 0x" << std::hex << std::uppercase << g_pServerGameDLL     << std::setw(0) << " |" << std::endl;
-		std::cout << "| VAR: g_pServerGameClients                 : 0x" << std::hex << std::uppercase << g_pServerGameClients << std::setw(0) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| VAR: g_pServerGameDLL                     : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pServerGameDLL));
+		spdlog::debug("| VAR: g_pServerGameClients                 : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pServerGameClients));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
@@ -43,4 +43,4 @@ class HServerGameDLL : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HServerGameDLL);
+REGISTER(VServerGameDLL);

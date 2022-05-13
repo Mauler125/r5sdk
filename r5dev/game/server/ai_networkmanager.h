@@ -72,18 +72,18 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-class HCAI_NetworkManager : public IDetour
+class VAI_NetworkManager : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CAI_NetworkManager::LoadNetworkGraph : 0x" << std::hex << std::uppercase << p_CAI_NetworkManager__ShouldRebuild.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CAI_NetworkManager::ShouldRebuild    : 0x" << std::hex << std::uppercase << p_CAI_NetworkManager__ShouldRebuild.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CAI_NetworkBuilder::Build            : 0x" << std::hex << std::uppercase << p_CAI_NetworkBuilder__Build.GetPtr()         << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: g_nAiNodeClusters                    : 0x" << std::hex << std::uppercase << g_nAiNodeClusters                            << std::setw(0)    << " |" << std::endl;
-		std::cout << "| VAR: g_pppAiNodeClusters                  : 0x" << std::hex << std::uppercase << g_pppAiNodeClusters                          << std::setw(0)    << " |" << std::endl;
-		std::cout << "| VAR: g_nAiNodeClusterLinks                : 0x" << std::hex << std::uppercase << g_nAiNodeClusterLinks                        << std::setw(0)    << " |" << std::endl;
-		std::cout << "| VAR: g_pppAiNodeClusterLinks              : 0x" << std::hex << std::uppercase << g_pppAiNodeClusterLinks                      << std::setw(0)    << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: CAI_NetworkManager::LoadNetworkGraph : {:#18x} |\n", p_CAI_NetworkManager__ShouldRebuild.GetPtr());
+		spdlog::debug("| FUN: CAI_NetworkManager::ShouldRebuild    : {:#18x} |\n", p_CAI_NetworkManager__ShouldRebuild.GetPtr());
+		spdlog::debug("| FUN: CAI_NetworkBuilder::Build            : {:#18x} |\n", p_CAI_NetworkBuilder__Build.GetPtr()        );
+		spdlog::debug("| VAR: g_nAiNodeClusters                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_nAiNodeClusters      ));
+		spdlog::debug("| VAR: g_pppAiNodeClusters                  : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pppAiNodeClusters    ));
+		spdlog::debug("| VAR: g_nAiNodeClusterLinks                : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_nAiNodeClusterLinks  ));
+		spdlog::debug("| VAR: g_pppAiNodeClusterLinks              : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pppAiNodeClusterLinks));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -121,4 +121,4 @@ class HCAI_NetworkManager : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HCAI_NetworkManager);
+REGISTER(VAI_NetworkManager);

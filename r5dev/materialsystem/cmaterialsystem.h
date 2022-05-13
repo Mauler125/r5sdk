@@ -29,19 +29,19 @@ inline int* unusable_streaming_tex_memory = nullptr;
 void CMaterialSystem_Attach();
 void CMaterialSystem_Detach();
 ///////////////////////////////////////////////////////////////////////////////
-class HMaterialSystem : public IDetour
+class VMaterialSystem : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CMaterialSystem::Init                : 0x" << std::hex << std::uppercase << p_CMaterialSystem__Init.GetPtr() << std::setw(nPad) << " |" << std::endl;
+		spdlog::debug("| FUN: CMaterialSystem::Init                : {:#18x} |\n", p_CMaterialSystem__Init.GetPtr());
 #ifndef DEDICATED
-		std::cout << "| FUN: DispatchDrawCall                     : 0x" << std::hex << std::uppercase << p_DispatchDrawCall.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: DrawStreamOverlay                    : 0x" << std::hex << std::uppercase << p_DrawStreamOverlay.GetPtr()   << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: s_pRenderContext                     : 0x" << std::hex << std::uppercase << s_pRenderContext.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: StreamDB_Init                        : 0x" << std::hex << std::uppercase << p_StreamDB_Init.GetPtr()       << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: g_pMaterialSystem                    : 0x" << std::hex << std::uppercase << g_pMaterialSystem              << std::setw(0)    << " |" << std::endl;
+		spdlog::debug("| FUN: DispatchDrawCall                     : {:#18x} |\n", p_DispatchDrawCall.GetPtr());
+		spdlog::debug("| FUN: DrawStreamOverlay                    : {:#18x} |\n", p_DrawStreamOverlay.GetPtr());
+		spdlog::debug("| VAR: s_pRenderContext                     : {:#18x} |\n", s_pRenderContext.GetPtr());
+		spdlog::debug("| FUN: StreamDB_Init                        : {:#18x} |\n", p_StreamDB_Init.GetPtr());
+		spdlog::debug("| VAR: g_pMaterialSystem                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pMaterialSystem));
 #endif // !DEDICATED
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -80,4 +80,4 @@ class HMaterialSystem : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HMaterialSystem);
+REGISTER(VMaterialSystem);

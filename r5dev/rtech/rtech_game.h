@@ -50,17 +50,17 @@ void RTech_Game_Detach();
 
 extern vector<RPakHandle_t> g_LoadedPakHandle;
 ///////////////////////////////////////////////////////////////////////////////
-class HRTechGame : public IDetour
+class VRTechGame : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: CPakFile::AsyncLoad                  : 0x" << std::hex << std::uppercase << p_CPakFile_AsyncLoad.GetPtr()     << std::setw(nPad) << " |" << std::endl;
+		spdlog::debug("| FUN: CPakFile::AsyncLoad                  : {:#18x} |\n", p_CPakFile_AsyncLoad.GetPtr());
 #if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		std::cout << "| FUN: CPakFile::LoadPak                    : 0x" << std::hex << std::uppercase << p_CPakFile_LoadPak.GetPtr()       << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CPakFile::LoadMapPak                 : 0x" << std::hex << std::uppercase << p_CPakFile_LoadMapPak.GetPtr()    << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: CPakFile::UnloadPak                  : 0x" << std::hex << std::uppercase << p_CPakFile_UnloadPak.GetPtr()     << std::setw(nPad) << " |" << std::endl;
+		spdlog::debug("| FUN: CPakFile::LoadPak                    : {:#18x} |\n", p_CPakFile_LoadPak.GetPtr());
+		spdlog::debug("| FUN: CPakFile::LoadMapPak                 : {:#18x} |\n", p_CPakFile_LoadMapPak.GetPtr());
+		spdlog::debug("| FUN: CPakFile::UnloadPak                  : {:#18x} |\n", p_CPakFile_UnloadPak.GetPtr());
 #endif // GAMEDLL_S2 || GAMEDLL_S3
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -89,4 +89,4 @@ class HRTechGame : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HRTechGame);
+REGISTER(VRTechGame);

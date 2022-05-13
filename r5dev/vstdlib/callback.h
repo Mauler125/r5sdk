@@ -6,12 +6,12 @@ inline auto SetupGamemode = p_SetupGamemode.RCast<bool(*)(const char* pszPlayLis
 
 bool MP_GameMode_Changed_f(ConVar* pVTable);
 ///////////////////////////////////////////////////////////////////////////////
-class HCallback : public IDetour
+class VCallback : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: SetupGamemode                        : 0x" << std::hex << std::uppercase << p_SetupGamemode.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: SetupGamemode                        : {:#18x} |\n", p_SetupGamemode.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -25,4 +25,4 @@ class HCallback : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HCallback);
+REGISTER(VCallback);

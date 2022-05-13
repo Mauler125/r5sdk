@@ -121,21 +121,21 @@ inline int* render_tickcount = nullptr;
 inline int* overlay_tickcount = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
-class HDebugOverlay : public IDetour
+class VDebugOverlay : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		std::cout << "| FUN: DrawAllOverlays                      : 0x" << std::hex << std::uppercase << p_DrawAllOverlays.GetPtr() << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: RenderBox                            : 0x" << std::hex << std::uppercase << p_RenderBox.GetPtr()       << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: RenderLine                           : 0x" << std::hex << std::uppercase << p_RenderLine.GetPtr()      << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| FUN: DestroyOverlay                       : 0x" << std::hex << std::uppercase << p_DestroyOverlay.GetPtr()  << std::setw(nPad) << " |" << std::endl;
-		std::cout << "| VAR: s_pOverlays                          : 0x" << std::hex << std::uppercase << s_pOverlays                << std::setw(0) << " |" << std::endl;
-		std::cout << "| VAR: s_OverlayMutex                       : 0x" << std::hex << std::uppercase << s_OverlayMutex             << std::setw(0) << " |" << std::endl;
-		std::cout << "| VAR: client_debugdraw_int_unk             : 0x" << std::hex << std::uppercase << client_debugdraw_int_unk   << std::setw(0) << " |" << std::endl;
-		std::cout << "| VAR: client_debugdraw_float_unk           : 0x" << std::hex << std::uppercase << client_debugdraw_float_unk << std::setw(0) << " |" << std::endl;
-		std::cout << "| VAR: overlay_tickcount                    : 0x" << std::hex << std::uppercase << overlay_tickcount          << std::setw(0) << " |" << std::endl;
-		std::cout << "| VAR: render_tickcount                     : 0x" << std::hex << std::uppercase << render_tickcount           << std::setw(0) << " |" << std::endl;
-		std::cout << "+----------------------------------------------------------------+" << std::endl;
+		spdlog::debug("| FUN: DrawAllOverlays                      : {:#18x} |\n", p_DrawAllOverlays.GetPtr());
+		spdlog::debug("| FUN: RenderBox                            : {:#18x} |\n", p_RenderBox.GetPtr());
+		spdlog::debug("| FUN: RenderLine                           : {:#18x} |\n", p_RenderLine.GetPtr());
+		spdlog::debug("| FUN: DestroyOverlay                       : {:#18x} |\n", p_DestroyOverlay.GetPtr());
+		spdlog::debug("| VAR: s_pOverlays                          : {:#18x} |\n", reinterpret_cast<uintptr_t>(s_pOverlays));
+		spdlog::debug("| VAR: s_OverlayMutex                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(s_OverlayMutex));
+		spdlog::debug("| VAR: client_debugdraw_int_unk             : {:#18x} |\n", reinterpret_cast<uintptr_t>(client_debugdraw_int_unk));
+		spdlog::debug("| VAR: client_debugdraw_float_unk           : {:#18x} |\n", reinterpret_cast<uintptr_t>(client_debugdraw_float_unk));
+		spdlog::debug("| VAR: overlay_tickcount                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(overlay_tickcount));
+		spdlog::debug("| VAR: render_tickcount                     : {:#18x} |\n", reinterpret_cast<uintptr_t>(render_tickcount));
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -176,4 +176,4 @@ class HDebugOverlay : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HDebugOverlay);
+REGISTER(VDebugOverlay);

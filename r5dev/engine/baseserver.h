@@ -9,11 +9,11 @@ public:
 extern CBaseServer* g_pServer;
 
 ///////////////////////////////////////////////////////////////////////////////
-class HBaseServer : public IDetour
+class VBaseServer : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		//std::cout << "+----------------------------------------------------------------+" << std::endl;
+		//spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const { }
@@ -23,4 +23,4 @@ class HBaseServer : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HBaseServer);
+REGISTER(VBaseServer);
