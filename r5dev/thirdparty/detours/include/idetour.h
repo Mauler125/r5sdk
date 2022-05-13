@@ -9,7 +9,7 @@ class IDetour
 {
 public:
 	virtual ~IDetour() { ; }
-	virtual void GetAdr(void) const = 0; 
+	virtual void GetAdr(void) const = 0;
 	virtual void GetFun(void) const = 0;
 	virtual void GetVar(void) const = 0;
 	virtual void GetCon(void) const = 0;

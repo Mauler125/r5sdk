@@ -45,7 +45,7 @@ public:
 static_assert(sizeof(CMaterialGlue) == 0x130);
 #pragma pack(pop)
 
-inline void* g_pMaterialGlueVTable = nullptr;;
+inline void* g_pMaterialGlueVTable = nullptr;
 
 /* ==== CMATERIALGLUE ================================================================================================================================================== */
 inline CMemory p_GetMaterialAtCrossHair;
