@@ -260,6 +260,7 @@ void CRConServer::Authenticate(const cl_rcon::request& cl_request, CConnectedNet
 			::send(pData->m_hSocket, svWrongPass.c_str(), static_cast<int>(svWrongPass.size()), MSG_NOSIGNAL);
 
 			pData->m_bAuthorized = false;
+			pData->m_bValidated = false;
 			pData->m_nFailedAttempts++;
 		}
 	}
@@ -338,6 +339,7 @@ void CRConServer::ProcessMessage(const cl_rcon::request& cl_request)
 		std::string svMessage = this->Serialize(s_pszNoAuthMessage, "", sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH);
 		::send(pData->m_hSocket, svMessage.c_str(), static_cast<int>(svMessage.size()), MSG_NOSIGNAL);
 
+		pData->m_bValidated = false;
 		pData->m_nIgnoredMessage++;
 		return;
 	}
@@ -397,6 +399,12 @@ void CRConServer::Execute(const cl_rcon::request& cl_request) const
 //-----------------------------------------------------------------------------
 bool CRConServer::CheckForBan(CConnectedNetConsoleData* pData)
 {
+	if (pData->m_bValidated)
+	{
+		return false;
+	}
+
+	pData->m_bValidated = true;
 	CNetAdr2 netAdr2 = m_pSocket->GetAcceptedSocketAddress(m_nConnIndex);
 
 	// Check if IP is in the ban vector.

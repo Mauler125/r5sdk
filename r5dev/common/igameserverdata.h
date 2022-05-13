@@ -33,6 +33,7 @@ public:
 	SocketHandle_t m_hSocket                               {};
 	int  m_nCharsInCommandBuffer                           {};
 	char m_pszInputCommandBuffer[MAX_NETCONSOLE_INPUT_LEN] {};
+	bool m_bValidated                                      {}; // Revalidates netconsole if false.
 	bool m_bAuthorized                                     {}; // Set to true after netconsole successfully authed.
 	bool m_bInputOnly                                      {}; // If set, don't send spew to this net console.
 	int  m_nFailedAttempts                                 {}; // Num failed authentication attempts.
