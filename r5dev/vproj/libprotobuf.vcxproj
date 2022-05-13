@@ -126,6 +126,10 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj /D _CRT_SECURE_NO_WARNINGS </AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -158,6 +162,10 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>%(AdditionalOptions) /utf-8 /bigobj /D _CRT_SECURE_NO_WARNINGS </AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
