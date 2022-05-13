@@ -225,12 +225,18 @@ bool CNetAdr2::SetFromSockadr(sockaddr_storage* s)
 //-----------------------------------------------------------------------------
 string CNetAdr2::GetBase(void) const
 {
-	string svIpAdr = m_svip;
-	static std::regex rx("\\].*");
-	svIpAdr.erase(0, 1);
-	svIpAdr = std::regex_replace(svIpAdr, rx, "");
+	static std::regex rx("[^\\[]*.(.*)(\\]).*");
+	std::smatch smRegexMatches;
+	std::regex_search(m_svip, smRegexMatches, rx);
 
-	return svIpAdr;
+	if (smRegexMatches.size() > 0)
+	{
+		return smRegexMatches[1].str();
+	}
+	else
+	{
+		return "127.0.0.1";
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -239,11 +245,18 @@ string CNetAdr2::GetBase(void) const
 //-----------------------------------------------------------------------------
 string CNetAdr2::GetBase(string svInAdr) const
 {
-	static std::regex rx("\\].*");
-	svInAdr.erase(0, 1);
-	svInAdr = std::regex_replace(svInAdr, rx, "");
+	static std::regex rx("[^\\[]*.(.*)(\\]).*");
+	std::smatch smRegexMatches;
+	std::regex_search(svInAdr, smRegexMatches, rx);
 
-	return svInAdr;
+	if (smRegexMatches.size() > 0)
+	{
+		return smRegexMatches[1].str();
+	}
+	else
+	{
+		return "127.0.0.1";
+	}
 }
 
 //-----------------------------------------------------------------------------
