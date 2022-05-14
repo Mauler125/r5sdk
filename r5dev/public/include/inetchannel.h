@@ -10,4 +10,18 @@ struct INetChannelHandler
 {
 	void* iNetMessageHandlerVTable /*VFT*/;
 };
+
+typedef struct netpacket_s netpacket_t;
+typedef struct __declspec(align(8)) netpacket_s
+{
+	v_netadr_t from;
+	int source;
+	double received;
+	uint8_t* pData;
+	bf_read message;
+	int size;
+	int wiresize;
+	char stream;
+	netpacket_s* pNext;
+} netpacket_t;
 #endif // !INETCHANNEL_H

@@ -81,7 +81,7 @@ public:
 	bool IsOverflowed() const;
 	void SetOverflowFlag();
 private:
-	unsigned __int8* m_pData;
+	uint8_t* m_pData;
 	int m_nDataBytes;
 	int m_nDataBits;
 	int m_iCurBit;

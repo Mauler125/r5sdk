@@ -1,29 +1,5 @@
 #pragma once
-
-typedef struct netpacket_s netpacket_t;
-typedef struct __declspec(align(8)) netpacket_s
-{
-	DWORD         family_maybe;
-	sockaddr_in   sin;
-	WORD          sin_port;
-	char          gap16;
-	char          byte17;
-	DWORD         source;
-	double        received;
-	uint8_t*      data;
-	uint64_t      label;
-	BYTE          byte38;
-	uint64_t      qword40;
-	uint64_t      qword48;
-	BYTE          gap50[8];
-	uint64_t      qword58;
-	uint64_t      qword60;
-	uint64_t      qword68;
-	int           less_than_12;
-	DWORD         wiresize;
-	BYTE          gap78[8];
-	struct netpacket_s* pNext;
-} netpacket_t;
+#include "tier1/bitbuf.h"
 
 enum class netadrtype_t
 {
