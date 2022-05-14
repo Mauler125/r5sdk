@@ -29,6 +29,7 @@
     <ClCompile Include="..\engine\baseclient.cpp" />
     <ClCompile Include="..\engine\baseclientstate.cpp" />
     <ClCompile Include="..\engine\baseserver.cpp" />
+    <ClCompile Include="..\engine\clockdriftmgr.cpp" />
     <ClCompile Include="..\engine\cl_rcon.cpp" />
     <ClCompile Include="..\engine\cmodel_bsp.cpp" />
     <ClCompile Include="..\engine\common.cpp" />
@@ -148,11 +149,14 @@
     <ClInclude Include="..\engine\baseclient.h" />
     <ClInclude Include="..\engine\baseclientstate.h" />
     <ClInclude Include="..\engine\baseserver.h" />
+    <ClInclude Include="..\engine\clockdriftmgr.h" />
     <ClInclude Include="..\engine\cl_main.h" />
     <ClInclude Include="..\engine\cl_rcon.h" />
     <ClInclude Include="..\engine\cmodel_bsp.h" />
     <ClInclude Include="..\engine\common.h" />
+    <ClInclude Include="..\engine\datablock.h" />
     <ClInclude Include="..\engine\debugoverlay.h" />
+    <ClInclude Include="..\engine\framesnapshot.h" />
     <ClInclude Include="..\engine\gl_matsysiface.h" />
     <ClInclude Include="..\engine\gl_model_private.h" />
     <ClInclude Include="..\engine\gl_rsurf.h" />
@@ -163,6 +167,7 @@
     <ClInclude Include="..\engine\modelloader.h" />
     <ClInclude Include="..\engine\net.h" />
     <ClInclude Include="..\engine\net_chan.h" />
+    <ClInclude Include="..\engine\packed_entity.h" />
     <ClInclude Include="..\engine\sv_main.h" />
     <ClInclude Include="..\engine\sys_dll.h" />
     <ClInclude Include="..\engine\sys_dll2.h" />
@@ -214,6 +219,7 @@
     <ClInclude Include="..\public\include\globalvars_base.h" />
     <ClInclude Include="..\public\include\icliententitylist.h" />
     <ClInclude Include="..\public\include\inetchannel.h" />
+    <ClInclude Include="..\public\include\inetmsghandler.h" />
     <ClInclude Include="..\public\include\ivrenderview.h" />
     <ClInclude Include="..\public\include\memaddr.h" />
     <ClInclude Include="..\public\include\bansystem.h" />
@@ -427,6 +433,7 @@
     <ClInclude Include="..\tier1\cmd.h" />
     <ClInclude Include="..\tier1\cvar.h" />
     <ClInclude Include="..\tier1\IConVar.h" />
+    <ClInclude Include="..\tier1\mempool.h" />
     <ClInclude Include="..\tier1\NetAdr2.h" />
     <ClInclude Include="..\tier1\utldict.h" />
     <ClInclude Include="..\tier1\utlmemory.h" />

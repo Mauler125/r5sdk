@@ -1065,6 +1065,24 @@
     <ClInclude Include="..\squirrel\sqstdaux.h">
       <Filter>sdk\squirrel</Filter>
     </ClInclude>
+    <ClInclude Include="..\engine\framesnapshot.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\datablock.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\clockdriftmgr.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\packed_entity.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\inetmsghandler.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\mempool.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1303,6 +1321,9 @@
     </ClCompile>
     <ClCompile Include="..\squirrel\sqstdaux.cpp">
       <Filter>sdk\squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\clockdriftmgr.cpp">
+      <Filter>sdk\engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
