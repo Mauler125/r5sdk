@@ -9,6 +9,7 @@
 #include "engine/host_state.h"
 #include "engine/cmodel_bsp.h"
 #include "rtech/rtech_game.h"
+#include "rtech/rtech_utils.h"
 
 vector<RPakHandle_t> g_LoadedPakHandle{ };
 
@@ -41,20 +42,6 @@ RPakHandle_t CPakFile::AsyncLoad(const char* szPakFileName, uintptr_t pMalloc, i
 	}
 #endif // DEDICATED
 
-	if (strcmp(szPakFileName, "mp_lobby.rpak") == 0)
-		g_bBasePaksInitialized = true;
-
-	static bool bOnce = false;
-	if (g_bBasePaksInitialized && !g_bLevelResourceInitialized
-		&& !bOnce)
-	{
-		g_bLevelResourceInitialized = true;
-		bOnce = true;
-
-		if (g_pHostState->LevelHasChanged())
-			MOD_PreloadPak();
-	}
-
 	string svPakFilePathMod = "paks\\Win32\\" + string(szPakFileName);
 	string svPakFilePathBase = "paks\\Win64\\" + string(szPakFileName);
 
@@ -73,6 +60,25 @@ RPakHandle_t CPakFile::AsyncLoad(const char* szPakFileName, uintptr_t pMalloc, i
 	}
 
 	return pakHandle;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: unloads loaded pak files
+// Input  : handle - 
+//-----------------------------------------------------------------------------
+void CPakFile::Unload(RPakHandle_t handle)
+{
+	RPakLoadedInfo_t pakInfo = g_pRTech->GetPakLoadedInfo(handle);
+
+	if (pakInfo.m_pszFileName)
+	{
+		DevMsg(eDLL_T::RTECH, "%s - Unloading PakFile '%s'\n", __FUNCTION__, pakInfo.m_pszFileName);
+
+		if (strcmp(pakInfo.m_pszFileName, "mp_lobby.rpak") == 0)
+			s_bBasePaksInitialized = false;
+	}
+
+	CPakFile_UnloadPak(handle);
 }
 
 void RTech_Game_Attach()

@@ -25,14 +25,12 @@ public:
 	FORCEINLINE void Think(void) const;
 
 	FORCEINLINE void GameShutDown(void);
-	FORCEINLINE void UnloadPakFile(void) const;
-
 	FORCEINLINE void State_NewGame(void);
+
 	FORCEINLINE void State_ChangeLevelSP(void);
 	FORCEINLINE void State_ChangeLevelMP(void);
 
 	FORCEINLINE void ResetLevelName(void);
-	FORCEINLINE bool LevelHasChanged(void) const;
 
 public:
 	HostStates_t m_iCurrentState;                    //0x0000
@@ -62,8 +60,6 @@ inline auto CHostState_State_Run = p_CHostState_State_Run.RCast<void(*)(HostStat
 inline CMemory p_CHostState_State_GameShutDown;
 inline auto CHostState_State_GameShutDown = p_CHostState_State_GameShutDown.RCast<void(*)(CHostState* thisptr)>();
 
-extern bool g_bLevelResourceInitialized;
-extern bool g_bBasePaksInitialized;
 ///////////////////////////////////////////////////////////////////////////////
 void CHostState_Attach();
 void CHostState_Detach();

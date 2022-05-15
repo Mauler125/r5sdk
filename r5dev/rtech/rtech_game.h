@@ -36,12 +36,13 @@ inline CMemory p_CPakFile_AsyncLoad;
 inline auto CPakFile_AsyncLoad = p_CPakFile_AsyncLoad.RCast<RPakHandle_t(*)(const char* svPakFileName, uintptr_t pMalloc, int nIdx, bool bUnk)>();
 
 inline CMemory p_CPakFile_UnloadPak;
-inline auto CPakFile_UnloadPak = p_CPakFile_UnloadPak.RCast<void* (*)(RPakHandle_t handle)>();
+inline auto CPakFile_UnloadPak = p_CPakFile_UnloadPak.RCast<void (*)(RPakHandle_t handle)>();
 
 class CPakFile
 {
 public:
 	static RPakHandle_t AsyncLoad(const char* szPakFileName, uintptr_t pMalloc = g_pMallocPool.GetPtr(), int nIdx = NULL, bool bUnk = false);
+	static void Unload(RPakHandle_t handle);
 };
 extern CPakFile* g_pakLoadApi;
 
@@ -80,7 +81,7 @@ class VRTechGame : public IDetour
 		CPakFile_AsyncLoad = p_CPakFile_AsyncLoad.RCast<RPakHandle_t(*)(const char*, uintptr_t, int, bool)>(); /*40 53 48 83 EC 40 48 89 6C 24 ? 41 0F B6 E9*/
 #endif
 		p_CPakFile_UnloadPak = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x30\x8B\xC1"), "xxxx?xxxx?xxxxxxx");
-		CPakFile_UnloadPak = p_CPakFile_UnloadPak.RCast<void* (*)(RPakHandle_t)>(); /*48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 30 8B C1*/
+		CPakFile_UnloadPak = p_CPakFile_UnloadPak.RCast<void (*)(RPakHandle_t)>(); /*48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 30 8B C1*/
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
