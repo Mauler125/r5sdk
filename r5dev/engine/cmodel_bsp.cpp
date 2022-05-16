@@ -205,7 +205,7 @@ void MOD_ProcessPakQueue()
             }       while (v19);
             if (!v20)
                 goto LABEL_37;
-            sub_1401F9C10(v17, *((char**)v15 + 34), 260i64);
+            MOD_GetQueuedPakHandle(v17, *((char**)v15 + 34), 260i64);
             if (v15[5])
                 break;
             *(_DWORD*)v15 = -1;

@@ -26,7 +26,6 @@ inline int64_t* qword_14045C070;
 inline DWORD* dword_1641E443C;
 inline bool* byte_167208B0C;
 
-inline auto sub_1401F9C10 = p_MOD_ProcessPakQueue.RCast<__int64(*)(char* a1, char* a2, __int64 a3)>();
 inline auto sub_14045BAC0 = p_MOD_ProcessPakQueue.RCast<__int64(*)(__int64(__fastcall* a1)(__int64, _DWORD*, __int64, _QWORD*), __int64 a2, __int64 a3, __int64 a4)>();
 inline auto sub_14045A1D0 = p_MOD_ProcessPakQueue.RCast<__int64(*)(unsigned __int8(__fastcall* a1)(_QWORD), __int64 a2, __int64 a3, __int64 a4, volatile signed __int64* a5, char a6)>();
 inline auto sub_140441220 = p_MOD_ProcessPakQueue.RCast<void(*)(__int64 a1, __int64 a2)>();
@@ -49,7 +48,6 @@ class VModel_BSP : public IDetour
 		spdlog::debug("| FUN: MOD_LoadPakForMap                    : {:#18x} |\n", p_MOD_LoadPakForMap.GetPtr());
 		spdlog::debug("| FUN: MOD_ProcessPakQueue                  : {:#18x} |\n", p_MOD_ProcessPakQueue.GetPtr());
 		spdlog::debug("+----------------------------------------------------------------+\n");
-		spdlog::debug("| FUN: sub_1401F9C10                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(sub_1401F9C10));
 		spdlog::debug("| FUN: sub_14045BAC0                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(sub_14045BAC0));
 		spdlog::debug("| FUN: sub_14045A1D0                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(sub_14045A1D0));
 		spdlog::debug("| FUN: sub_140441220                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(sub_140441220));
@@ -89,7 +87,6 @@ class VModel_BSP : public IDetour
 		p_MOD_ProcessPakQueue = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x00\xF3\x0F\x10\x05\x00\x00\x00\x00\x32\xDB"), "xxxxx?xxxx????xx");
 		v_MOD_ProcessPakQueue = p_MOD_ProcessPakQueue.RCast<void(*)(void)>(); /*40 53 48 83 EC ?? F3 0F 10 05 ? ? ? ? 32 DB*/
 
-		sub_1401F9C10 = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x0F\xB6\x02\x45\x33\xDB"), "xxxxxx").RCast<__int64(*)(char* a1, char* a2, __int64 a3)>();
 		sub_14045BAC0 = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x4C\x89\x4C\x24\x00\x4C\x89\x44\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x60"), "xxxx?xxxx?xxxx?xxxxxxxxxxxxxxx").RCast<__int64(*)(__int64(__fastcall* a1)(__int64, _DWORD*, __int64, _QWORD*), __int64 a2, __int64 a3, __int64 a4)>();
 		sub_14045A1D0 = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x89\x4C\x24\x00\x4C\x89\x44\x24\x00\x48\x89\x54\x24\x00\x48\x89\x4C\x24\x00\x55\x53\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00"), "xxxx?xxxx?xxxx?xxxx?xxxxxxxxxxxxxxxx?").RCast<__int64(*)(unsigned __int8(__fastcall* a1)(_QWORD), __int64 a2, __int64 a3, __int64 a4, volatile signed __int64* a5, char a6)>();
 		sub_140441220 = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\x33\xED\x48\x8D\x35\x00\x00\x00\x00\x48\x39\x2D\x00\x00\x00\x00"), "xxxx?xxxx?xxxx?xxxxxxxxxx????xxx????").RCast<void(*)(__int64 a1, __int64 a2)>();
