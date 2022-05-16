@@ -14,10 +14,8 @@ inline int32_t * dword_1634F445C;
 inline void** qword_167ED7BB8;
 inline void** qword_14180A098;
 inline bool* byte_16709DDDF;
-inline int64_t * g_FileSystem;
 inline char** off_141874660;
 inline void** unk_141874555;
-inline void** unk_167D40B70;
 inline void** unk_1418749B0;
 inline void** unk_141874550;
 inline int64_t* qword_1671061C8;
@@ -25,7 +23,7 @@ inline int64_t* qword_167ED7BC0;
 inline int64_t* qword_167ED7C68;
 inline int64_t* qword_167ED7BE0;
 inline int64_t* qword_14045C070;
-inline int32_t* dword_1641E443C;
+inline DWORD* dword_1641E443C;
 inline bool* byte_167208B0C;
 
 inline auto sub_1401F9C10 = p_MOD_ProcessPakQueue.RCast<__int64(*)(char* a1, char* a2, __int64 a3)>();
@@ -60,10 +58,8 @@ class VModel_BSP : public IDetour
 		spdlog::debug("| VAR: qword_167ED7BB8                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(qword_167ED7BB8));
 		spdlog::debug("| VAR: qword_14180A098                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(qword_14180A098));
 		spdlog::debug("| VAR: byte_16709DDDF                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(byte_16709DDDF));
-		spdlog::debug("| VAR: g_FileSystem                         : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_FileSystem));
 		spdlog::debug("| VAR: off_141874660                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(off_141874660));
 		spdlog::debug("| VAR: unk_141874555                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(unk_141874555));
-		spdlog::debug("| VAR: unk_167D40B70                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(unk_167D40B70));
 		spdlog::debug("| VAR: unk_1418749B0                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(unk_1418749B0));
 		spdlog::debug("| VAR: unk_141874550                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(unk_141874550));
 		spdlog::debug("| VAR: qword_1671061C8                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(qword_1671061C8));
@@ -105,10 +101,8 @@ class VModel_BSP : public IDetour
 		qword_167ED7BB8 = p_MOD_ProcessPakQueue.Offset(0x10).FindPattern("48 83").ResolveRelativeAddressSelf(0x3, 0x8).RCast<void**>();
 		qword_14180A098 = p_MOD_ProcessPakQueue.Offset(0x20).FindPattern("83 3D").ResolveRelativeAddressSelf(0x2, 0x7).RCast<void**>();
 		byte_16709DDDF = p_MOD_ProcessPakQueue.Offset(0x20).FindPattern("88 1D").ResolveRelativeAddressSelf(0x2, 0x6).RCast<bool*>();
-		g_FileSystem = p_MOD_ProcessPakQueue.Offset(0x20).FindPattern("48 8B").ResolveRelativeAddressSelf(0x3, 0x7).RCast<int64_t*>();
 		off_141874660 = p_MOD_ProcessPakQueue.Offset(0x40).FindPattern("4C 8D 15").ResolveRelativeAddressSelf(0x3, 0x7).RCast<char**>();
 		unk_141874555 = p_MOD_ProcessPakQueue.Offset(0x40).FindPattern("4C 8D 1D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void**>();
-		unk_167D40B70 = p_MOD_ProcessPakQueue.Offset(0xA0).FindPattern("4C 8D 35").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void**>();
 		unk_1418749B0 = p_MOD_ProcessPakQueue.Offset(0xA0).FindPattern("48 8D 1D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void**>();
 		unk_141874550 = p_MOD_ProcessPakQueue.Offset(0x150).FindPattern("48 8D 2D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void**>();
 		qword_1671061C8 = p_MOD_ProcessPakQueue.Offset(0x200).FindPattern("48 8B 1D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<int64_t*>();
@@ -116,7 +110,7 @@ class VModel_BSP : public IDetour
 		qword_167ED7C68 = p_MOD_ProcessPakQueue.Offset(0x200).FindPattern("0F B7 05").ResolveRelativeAddressSelf(0x3, 0x7).RCast<int64_t*>();
 		qword_167ED7BE0 = p_MOD_ProcessPakQueue.Offset(0x250).FindPattern("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<int64_t*>();
 		qword_14045C070 = p_MOD_ProcessPakQueue.Offset(0x2A0).FindPattern("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<int64_t*>();
-		dword_1641E443C = p_MOD_ProcessPakQueue.Offset(0x2A0).FindPattern("3B 05").ResolveRelativeAddressSelf(0x2, 0x6).RCast<int32_t*>();
+		dword_1641E443C = p_MOD_ProcessPakQueue.Offset(0x2A0).FindPattern("3B 05").ResolveRelativeAddressSelf(0x2, 0x6).RCast<DWORD*>();
 		byte_167208B0C = p_MOD_ProcessPakQueue.Offset(0x2A0).FindPattern("C6 05").ResolveRelativeAddressSelf(0x2, 0x7).RCast<bool*>();
 
 		(*((char**)(&qword_167ED7C68))) -= 6;

@@ -372,13 +372,8 @@ void* HSys_LoadAssetHelper(const CHAR* lpFileName, std::int64_t a2, LARGE_INTEGE
 		if (FileExists(mod_file.c_str()))
 		{
 			// Load decompressed pak files from 'mod_dir'.
-			DevMsg(eDLL_T::RTECH, "Loading pak: '%s'\n", mod_file.c_str());
 			return Sys_LoadAssetHelper(mod_file.c_str(), a2, a3);
 		}
-	}
-	if (strstr(lpFileName, base_dir.c_str()))
-	{
-		DevMsg(eDLL_T::RTECH, "Loading pak: '%s'\n", lpFileName);
 	}
 	return Sys_LoadAssetHelper(lpFileName, a2, a3);
 }

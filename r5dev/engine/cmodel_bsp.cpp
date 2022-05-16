@@ -13,6 +13,7 @@
 #include "rtech/rtech_utils.h"
 #include "rtech/rtech_game.h"
 #include "datacache/mdlcache.h"
+#include "filesystem/filesystem.h"
 
 string g_svLevelName;
 bool s_bLevelResourceInitialized = false;
@@ -127,7 +128,7 @@ void MOD_ProcessPakQueue()
     {
         return;
     }
-    if ((*(unsigned __int8(__fastcall**)(__int64))(*(_QWORD*)*g_FileSystem + 696i64))(*g_FileSystem) && !*dword_1634F445C)
+    if ((*(unsigned __int8(__fastcall**)(__int64))(*(_QWORD*)*(_QWORD*)g_pFileSystem_Stdio + 696i64))(*(_QWORD*)g_pFileSystem_Stdio) && !*dword_1634F445C)
     {
         v1 = &*off_141874660;
         for (i = 0; i < 5; ++i)
@@ -163,9 +164,9 @@ void MOD_ProcessPakQueue()
                     v11 = *(_DWORD*)v10;
                     v12 = *(_DWORD*)v10 & 0x1FF;
                     v10[4] = 1;
-                    if (*((_DWORD*)&*unk_167D40B70 + 46 * v12) == v11)
+                    if (*((_DWORD*)&*g_pLoadedPakInfo + 46 * v12) == v11)
                     {
-                        v13 = *((_DWORD*)&*unk_167D40B70 + 46 * v12 + 1);
+                        v13 = *((_DWORD*)&*g_pLoadedPakInfo + 46 * v12 + 1);
                         v14 = v10[4];
                     }
                     else
@@ -240,8 +241,8 @@ void MOD_ProcessPakQueue()
                                 JT_ReleaseFifoLock((JobFifoLock_s*)&*qword_167ED7BE0);
                                 v23 = *qword_1671061C8;
                             }
-                            (*(void(__fastcall**)(__int64, __int64))(*(_QWORD*)*g_FileSystem + 656i64))(*g_FileSystem, 256i64);
-                            (*(void(__fastcall**)(__int64, __int64))(*(_QWORD*)*g_FileSystem + 648i64))(*g_FileSystem, v23);
+                            (*(void(__fastcall**)(__int64, __int64))(*(_QWORD*)*(_QWORD*)g_pFileSystem_Stdio + 656i64))(*(_QWORD*)g_pFileSystem_Stdio, 256i64);
+                            (*(void(__fastcall**)(__int64, __int64))(*(_QWORD*)*(_QWORD*)g_pFileSystem_Stdio + 648i64))(*(_QWORD*)g_pFileSystem_Stdio, v23);
                         }
                     }
                 }
@@ -264,7 +265,7 @@ void MOD_ProcessPakQueue()
         if (*(_DWORD*)v15 != -1)
         {
             v22 = 184i64 * (v21 & 0x1FF);
-            if (*(_DWORD*)((char*)&*unk_167D40B70 + v22) != v21 || ((*(_DWORD*)((char*)&*unk_167D40B70 + v22 + 4) - 9) & 0xFFFFFFFB) != 0)
+            if (*(_DWORD*)((char*)&*g_pLoadedPakInfo + v22) != v21 || ((*(_DWORD*)((char*)&*g_pLoadedPakInfo + v22 + 4) - 9) & 0xFFFFFFFB) != 0)
             {
                 *byte_16709DDDF = 0;                return;
             }
@@ -274,14 +275,14 @@ void MOD_ProcessPakQueue()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: load assets for level with fifolock (still not reliable enough).
+// Purpose: load assets for level with fifolock.
 // Input  : *szLevelName - 
 // Output : true on success, false on failure
 //-----------------------------------------------------------------------------
 bool MOD_LoadPakForMap(const char* szLevelName)
 {
-    if (MOD_LevelHasChanged(szLevelName))
-        s_bLevelResourceInitialized = false;
+	if (MOD_LevelHasChanged(szLevelName))
+		s_bLevelResourceInitialized = false;
 
 	g_svLevelName = szLevelName;
 	return v_MOD_LoadPakForMap(szLevelName);

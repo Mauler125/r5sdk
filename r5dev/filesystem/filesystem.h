@@ -43,8 +43,8 @@ class VFileSystem_Stdio : public IDetour
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
-		g_pFileSystem_Stdio = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x48\x8B\xD9\xFF\x15\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00"),
-			"xxxxxxxxxxx????xxx????").FindPatternSelf("48 8D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CFileSystem_Stdio*>();
+		g_pFileSystem_Stdio = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\x0D\x00\x00\x00\x00\x45\x33\xC0\x48\x83\xC1\x08\x48\x8B\x01"),
+			"xxx????xxxxxxxxxx").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CFileSystem_Stdio*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

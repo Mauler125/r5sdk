@@ -366,7 +366,7 @@ void _Pak_RequestUnload_f_CompletionFunc(const CCommand& args)
 	{
 		if (args.HasOnlyDigits(1))
 		{
-			int nPakId = std::stoi(args.Arg(1));
+			RPakHandle_t nPakId = std::stoi(args.Arg(1));
 			RPakLoadedInfo_t pakInfo = g_pRTech->GetPakLoadedInfo(nPakId);
 			pakInfo.m_pszFileName ? DevMsg(eDLL_T::RTECH, "Requested Pak Unload for '%s'\n", pakInfo.m_pszFileName) : DevMsg(eDLL_T::RTECH, "Requested Pak Unload for '%d'\n", nPakId);
 			g_pakLoadApi->Unload(nPakId);

@@ -47,6 +47,7 @@ RPakHandle_t CPakFile::AsyncLoad(const char* szPakFileName, uintptr_t pMalloc, i
 
 	if (FileExists(svPakFilePathMod.c_str()) || FileExists(svPakFilePathBase.c_str()))
 	{
+		DevMsg(eDLL_T::RTECH, "Loading pak file: '%s'\n", szPakFileName);
 		pakHandle = CPakFile_AsyncLoad(szPakFileName, pMalloc, nIdx, bUnk);
 
 		if (pakHandle == -1)
@@ -72,23 +73,25 @@ void CPakFile::Unload(RPakHandle_t handle)
 
 	if (pakInfo.m_pszFileName)
 	{
-		DevMsg(eDLL_T::RTECH, "%s - Unloading PakFile '%s'\n", __FUNCTION__, pakInfo.m_pszFileName);
+		DevMsg(eDLL_T::RTECH, "Unloading pak file: '%s'\n", pakInfo.m_pszFileName);
 
 		if (strcmp(pakInfo.m_pszFileName, "mp_lobby.rpak") == 0)
 			s_bBasePaksInitialized = false;
 	}
 
-	CPakFile_UnloadPak(handle);
+	CPakFile_Unload(handle);
 }
 
 void RTech_Game_Attach()
 {
 	DetourAttach((LPVOID*)&CPakFile_AsyncLoad, &CPakFile::AsyncLoad);
+	DetourAttach((LPVOID*)&CPakFile_Unload, &CPakFile::Unload);
 }
 
 void RTech_Game_Detach()
 {
 	DetourDetach((LPVOID*)&CPakFile_AsyncLoad, &CPakFile::AsyncLoad);
+	DetourDetach((LPVOID*)&CPakFile_Unload, &CPakFile::Unload);
 }
 
 // Symbols taken from R2 dll's.
