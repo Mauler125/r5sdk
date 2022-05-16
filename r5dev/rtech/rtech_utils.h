@@ -153,11 +153,14 @@ public:
 	std::uint32_t m_nUnk2; //0x0010
 	std::uint32_t m_nAssetCount; //0x0014
 	char* m_pszFileName; //0x0018
-	void* m_pUnk1; //0x0020
+	void* m_pMalloc; //0x0020
 	std::uint64_t* m_pAssetGuids; //0x0028 size of the array is m_nAssetCount
 	char pad_0030[128]; //0x0030
+#ifndef GAMEDLL_S3
+	char pad_00B0[48];
+#endif // !GAMEDLL_S3
 	std::uint64_t m_nUnkEnd; //0x00B0
-}; //Size: 0x00B8
+}; //Size: 0x00B8/0x00E8
 
 /* ==== RTECH =========================================================================================================================================================== */
 inline RPakLoadedInfo_t* g_pLoadedPakInfo;

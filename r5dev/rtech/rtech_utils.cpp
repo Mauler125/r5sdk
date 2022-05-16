@@ -502,7 +502,6 @@ std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::
 //-----------------------------------------------------------------------------
 RPakLoadedInfo_t RTech::GetPakLoadedInfo(int nPakId)
 {
-#ifdef GAMEDLL_S3
 	for (int i = 0; i < *s_pLoadedPakCount; ++i)
 	{
 		RPakLoadedInfo_t info = g_pLoadedPakInfo[i];
@@ -514,8 +513,6 @@ RPakLoadedInfo_t RTech::GetPakLoadedInfo(int nPakId)
 	}
 
 	Warning(eDLL_T::RTECH, "%s - Failed getting RPakLoadInfo_t for PakId '%d'\n", __FUNCTION__, nPakId);
-#endif // GAMEDLL_S3
-
 	return RPakLoadedInfo_t();
 }
 ///////////////////////////////////////////////////////////////////////////////
