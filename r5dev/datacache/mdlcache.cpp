@@ -263,9 +263,12 @@ studiohdr_t* CMDLCache::GetStudioHDR(CMDLCache* pMDLCache, MDLHandle_t handle)
     LeaveCriticalSection(reinterpret_cast<LPCRITICAL_SECTION>(&*m_MDLMutex));
     if (*(_QWORD*)(pStudioData))
     {
-        void* v4 = *(void**)(*((_QWORD*)pStudioData->m_MDLCache + 1) + 24i64);
-        if (v4)
-            pStudioHdr = (studiohdr_t*)((char*)v4 + 0x10);
+        if (reinterpret_cast<int64_t>(pStudioData->m_MDLCache) != 0xDEADFEEDDEADFEED)
+        {
+            void* v4 = *(void**)(*((_QWORD*)pStudioData->m_MDLCache + 1) + 24i64);
+            if (v4)
+                pStudioHdr = (studiohdr_t*)((char*)v4 + 0x10);
+        }
     }
     return pStudioHdr;
 }
