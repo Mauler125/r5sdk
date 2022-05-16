@@ -160,6 +160,7 @@ void HexDump(const char* szHeader, const char* szLogger, const void* pData, int 
         logger = spdlog::get(szLogger);
         if (!logger)
         {
+            m.unlock();
             assert(logger == nullptr);
             return;
         }
@@ -501,13 +502,13 @@ void PrintM128i16(__m128i in)
 {
     alignas(16) uint16_t v[8];
     _mm_store_si128(reinterpret_cast<__m128i*>(v), in);
-    printf("v8_u16: %x %x %x %x,  %x %x %x %x\n", v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]);
+    printf("v8_u16: %x %x | %x %x | %x %x | %x %x\n", v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]);
 }
 void PrintM128i32(__m128i in)
 {
     alignas(16) uint32_t v[4];
     _mm_store_si128(reinterpret_cast<__m128i*>(v), in);
-    printf("v4_u32: %x %x %x %x\n", v[0], v[1], v[2], v[3]);
+    printf("v4_u32: %x | %x | %x | %x\n", v[0], v[1], v[2], v[3]);
 }
 void PrintM128i64(__m128i in)
 {
