@@ -33,7 +33,7 @@ inline CMemory p_CPakFile_LoadMapPak;
 inline auto CPakFile_LoadMapPak = p_CPakFile_LoadMapPak.RCast<bool (*)(const char* szPakFile)>();
 #endif
 inline CMemory p_CPakFile_AsyncLoad;
-inline auto CPakFile_AsyncLoad = p_CPakFile_AsyncLoad.RCast<RPakHandle_t(*)(const char* svPakFileName, uintptr_t pMalloc, int nIdx, bool bUnk)>();
+inline auto CPakFile_AsyncLoad = p_CPakFile_AsyncLoad.RCast<RPakHandle_t(*)(const char* szPakFileName, uintptr_t pMalloc, int nIdx, bool bUnk)>();
 
 inline CMemory p_CPakFile_UnloadPak;
 inline auto CPakFile_Unload = p_CPakFile_UnloadPak.RCast<void (*)(RPakHandle_t handle)>();

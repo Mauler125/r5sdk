@@ -31,7 +31,7 @@ RPakHandle_t CPakFile::AsyncLoad(const char* szPakFileName, uintptr_t pMalloc, i
 		static const char* szReplacement = "common_empty.rpak";
 		// Returning -1 (invalid handle) triggers engine error, call is inline.
 		// Replacing the ui.rpak file here with a stub to avoid having to patch.
-		Warning(eDLL_T::RTECH, "Replacing '%s' with '%s'\n", szPakFileName, szReplacement);
+		DevMsg(eDLL_T::RTECH, "Loading pak file: '%s' for '%s'\n", szReplacement, szPakFileName);
 		return pakHandle = CPakFile_AsyncLoad(szReplacement, pMalloc, nIdx, bUnk);
 	}
 	else if (strstr(szPakFileName, "ui")
