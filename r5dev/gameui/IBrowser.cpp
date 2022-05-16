@@ -44,7 +44,7 @@ IBrowser::IBrowser(void)
     std::regex rgArchiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
     std::smatch smRegexMatches;
 
-    for (const auto& dEntry : std::filesystem::directory_iterator("vpk"))
+    for (const auto& dEntry : fs::directory_iterator("vpk"))
     {
         std::string svFileName = dEntry.path().string();
         std::regex_search(svFileName, smRegexMatches, rgArchiveRegex);

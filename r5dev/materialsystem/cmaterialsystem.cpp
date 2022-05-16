@@ -17,7 +17,7 @@ void HStreamDB_Init(const char* pszStreamDBFile)
 {
 	std::ostringstream ostream;
 	ostream << "platform\\scripts\\levels\\settings\\" << pszStreamDBFile << ".json";
-	std::filesystem::path fsPath = std::filesystem::current_path() /= ostream.str();
+	fs::path fsPath = fs::current_path() /= ostream.str();
 
 	if (FileExists(fsPath.string().c_str()))
 	{

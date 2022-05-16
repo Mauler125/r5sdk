@@ -44,10 +44,10 @@ void Strtrim(char* s)
 
 void ImGuiConfig::Load()
 {
-    std::filesystem::path fsPath = "platform\\imgui.json";
+    fs::path fsPath = "platform\\imgui.json";
     DevMsg(eDLL_T::MS, "Loading ImGui config file '%s'\n", fsPath.relative_path().string().c_str());
 
-    if (std::filesystem::exists(fsPath))
+    if (fs::exists(fsPath))
     {
         try
         {
@@ -91,7 +91,7 @@ void ImGuiConfig::Save()
     jsOut["config"]["IBrowser"]["bind0"] = IBrowser_Config.m_nBind0;
     jsOut["config"]["IBrowser"]["bind1"] = IBrowser_Config.m_nBind1;
 
-    std::filesystem::path fsPath = "platform\\imgui.json";
+    fs::path fsPath = "platform\\imgui.json";
 
     DevMsg(eDLL_T::MS, "Saving ImGui config file '%s'\n", fsPath.string().c_str());
     std::ofstream outFile(fsPath, std::ios::out | std::ios::trunc); // Write config file.

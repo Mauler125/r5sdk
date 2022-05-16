@@ -297,7 +297,7 @@ void MOD_PreloadPakFile(const string& svLevelName)
 	ostringstream ostream;
 	ostream << "platform\\scripts\\levels\\settings\\" << svLevelName << ".json";
 
-	fs::path fsPath = std::filesystem::current_path() /= ostream.str();
+	fs::path fsPath = fs::current_path() /= ostream.str();
 	if (FileExists(fsPath.string().c_str()))
 	{
 		nlohmann::json jsIn;

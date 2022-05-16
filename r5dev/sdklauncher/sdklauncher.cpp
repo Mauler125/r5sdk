@@ -23,7 +23,7 @@ bool LaunchR5Apex(eLaunchMode lMode, eLaunchState lState)
     {
         case eLaunchMode::LM_DEBUG_GAME:
         {
-            std::filesystem::path cfgPath = std::filesystem::current_path() /= "platform\\cfg\\startup_debug.cfg"; // Get cfg path for debug startup.
+            fs::path cfgPath = fs::current_path() /= "platform\\cfg\\startup_debug.cfg"; // Get cfg path for debug startup.
             std::ifstream cfgFile(cfgPath); // Read the cfg file.
             if (cfgFile.good() && cfgFile)  // Does the cfg file exist?
             {
@@ -48,7 +48,7 @@ bool LaunchR5Apex(eLaunchMode lMode, eLaunchState lState)
         }
         case eLaunchMode::LM_RELEASE_GAME:
         {
-            std::filesystem::path cfgPath = std::filesystem::current_path() /= "platform\\cfg\\startup_retail.cfg"; // Get cfg path for release startup.
+            fs::path cfgPath = fs::current_path() /= "platform\\cfg\\startup_retail.cfg"; // Get cfg path for release startup.
             std::ifstream cfgFile(cfgPath); // Read the cfg file.
             if (cfgFile.good() && cfgFile)  // Does the cfg file exist?
             {
@@ -73,7 +73,7 @@ bool LaunchR5Apex(eLaunchMode lMode, eLaunchState lState)
         }
         case eLaunchMode::LM_DEBUG_DEDI:
         {
-            std::filesystem::path cfgPath = std::filesystem::current_path() /= "platform\\cfg\\startup_dedi_debug.cfg"; // Get cfg path for dedicated startup.
+            fs::path cfgPath = fs::current_path() /= "platform\\cfg\\startup_dedi_debug.cfg"; // Get cfg path for dedicated startup.
             std::ifstream cfgFile(cfgPath); // Read the cfg file.
             if (cfgFile.good() && cfgFile)  // Does the cfg file exist?
             {
@@ -98,7 +98,7 @@ bool LaunchR5Apex(eLaunchMode lMode, eLaunchState lState)
         }
         case eLaunchMode::LM_RELEASE_DEDI:
         {
-            std::filesystem::path cfgPath = std::filesystem::current_path() /= "platform\\cfg\\startup_dedi_retail.cfg"; // Get cfg path for dedicated startup.
+            fs::path cfgPath = fs::current_path() /= "platform\\cfg\\startup_dedi_retail.cfg"; // Get cfg path for dedicated startup.
             std::ifstream cfgFile(cfgPath); // Read the cfg file.
             if (cfgFile.good() && cfgFile)  // Does the cfg file exist?
             {

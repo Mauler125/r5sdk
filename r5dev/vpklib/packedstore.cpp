@@ -125,7 +125,7 @@ string CPackedStore::FormatBlockPath(string svName, string svPath, string svExte
 //-----------------------------------------------------------------------------
 string CPackedStore::StripLocalePrefix(string svPackDirFile)
 {
-	std::filesystem::path fspPackDirFile(svPackDirFile);
+	fs::path fspPackDirFile(svPackDirFile);
 	string svFileName = fspPackDirFile.filename().u8string();
 
 	for (int i = 0; i < LANGUAGE_PACKS; i++)
@@ -198,7 +198,7 @@ void CPackedStore::UnpackAll(VPKDir_t vpk_dir, string svPathOut)
 {
 	for (int i = 0; i < vpk_dir.m_vsvArchives.size(); i++)
 	{
-		std::filesystem::path fspVpkPath(vpk_dir.m_svDirPath);
+		fs::path fspVpkPath(vpk_dir.m_svDirPath);
 		string svPath = fspVpkPath.parent_path().u8string() + "\\" + vpk_dir.m_vsvArchives[i];
 		ifstream packChunkStream(svPath, std::ios_base::binary); // Create stream to read from each archive.
 
