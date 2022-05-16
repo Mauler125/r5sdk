@@ -8,7 +8,7 @@
 #include "tier0/tslist.h"
 #include "tier1/cmd.h"
 #include "tier1/cvar.h"
-#include "vstdlib/completion.h"
+#include "vstdlib/callback.h"
 #include "engine/sys_utils.h"
 
 //-----------------------------------------------------------------------------
@@ -127,40 +127,40 @@ void ConCommand::Init(void)
 {
 	//-------------------------------------------------------------------------
 	// SERVER DLL                                                             |
-	new ConCommand("script", "Run input code as SERVER script on the VM.", FCVAR_GAMEDLL | FCVAR_CHEAT, _SQVM_ServerScript_f_CompletionFunc, nullptr);
-	new ConCommand("sv_kick", "Kick a client from the server by name. | Usage: kick \"<name>\".", FCVAR_RELEASE, _Kick_f_CompletionFunc, nullptr);
-	new ConCommand("sv_kickid", "Kick a client from the server by UserID or OriginID | Usage: kickid \"<UserID>\"/\"<OriginID>\".", FCVAR_RELEASE, _KickID_f_CompletionFunc, nullptr);
-	new ConCommand("sv_ban", "Bans a client from the server by name. | Usage: ban <name>.", FCVAR_RELEASE, _Ban_f_CompletionFunc, nullptr);
-	new ConCommand("sv_banid", "Bans a client from the server by UserID, OriginID or IPAddress | Usage: banid \"<UserID>\"/\"<OriginID>/<IPAddress>\".", FCVAR_RELEASE, _BanID_f_CompletionFunc, nullptr);
-	new ConCommand("sv_unban", "Unbans a client from the server by OriginID or IPAddress | Usage: unban \"<OriginID>\"/\"<IPAddress>\".", FCVAR_RELEASE, _Unban_f_CompletionFunc, nullptr);
-	new ConCommand("sv_reloadbanlist", "Reloads the ban list from the disk.", FCVAR_RELEASE, _ReloadBanList_f_CompletionFunc, nullptr);
+	new ConCommand("script", "Run input code as SERVER script on the VM.", FCVAR_GAMEDLL | FCVAR_CHEAT, SQVM_ServerScript_f, nullptr);
+	new ConCommand("sv_kick", "Kick a client from the server by name. | Usage: kick \"<name>\".", FCVAR_RELEASE, Host_Kick_f, nullptr);
+	new ConCommand("sv_kickid", "Kick a client from the server by UserID or OriginID | Usage: kickid \"<UserID>\"/\"<OriginID>\".", FCVAR_RELEASE, Host_KickID_f, nullptr);
+	new ConCommand("sv_ban", "Bans a client from the server by name. | Usage: ban <name>.", FCVAR_RELEASE, Host_Ban_f, nullptr);
+	new ConCommand("sv_banid", "Bans a client from the server by UserID, OriginID or IPAddress | Usage: banid \"<UserID>\"/\"<OriginID>/<IPAddress>\".", FCVAR_RELEASE, Host_BanID_f, nullptr);
+	new ConCommand("sv_unban", "Unbans a client from the server by OriginID or IPAddress | Usage: unban \"<OriginID>\"/\"<IPAddress>\".", FCVAR_RELEASE, Host_Unban_f, nullptr);
+	new ConCommand("sv_reloadbanlist", "Reloads the ban list from the disk.", FCVAR_RELEASE, Host_ReloadBanList_f, nullptr);
 #ifndef DEDICATED
 	//-------------------------------------------------------------------------
 	// CLIENT DLL                                                             |
-	new ConCommand("script_client", "Run input code as CLIENT script on the VM.", FCVAR_CLIENTDLL | FCVAR_CHEAT, _SQVM_ClientScript_f_CompletionFunc, nullptr);
-	new ConCommand("cl_showconsole", "Opens the game console.", FCVAR_CLIENTDLL | FCVAR_RELEASE, _CGameConsole_f_CompletionFunc, nullptr);
-	new ConCommand("cl_showbrowser", "Opens the server browser.", FCVAR_CLIENTDLL | FCVAR_RELEASE, _CCompanion_f_CompletionFunc, nullptr);
-	new ConCommand("rcon", "Forward RCON query to remote server. | Usage: rcon \"<query>\".", FCVAR_CLIENTDLL | FCVAR_RELEASE, _RCON_CmdQuery_f_CompletionFunc, nullptr);
-	new ConCommand("rcon_disconnect", "Disconnect from RCON server.", FCVAR_CLIENTDLL | FCVAR_RELEASE, _RCON_Disconnect_f_CompletionFunc, nullptr);
+	new ConCommand("script_client", "Run input code as CLIENT script on the VM.", FCVAR_CLIENTDLL | FCVAR_CHEAT, SQVM_ClientScript_f, nullptr);
+	new ConCommand("cl_showconsole", "Opens the game console.", FCVAR_CLIENTDLL | FCVAR_RELEASE, GameConsole_Invoke_f, nullptr);
+	new ConCommand("cl_showbrowser", "Opens the server browser.", FCVAR_CLIENTDLL | FCVAR_RELEASE, ServerBrowser_Invoke_f, nullptr);
+	new ConCommand("rcon", "Forward RCON query to remote server. | Usage: rcon \"<query>\".", FCVAR_CLIENTDLL | FCVAR_RELEASE, RCON_CmdQuery_f, nullptr);
+	new ConCommand("rcon_disconnect", "Disconnect from RCON server.", FCVAR_CLIENTDLL | FCVAR_RELEASE, RCON_Disconnect_f, nullptr);
 	//-------------------------------------------------------------------------
 	// UI DLL                                                                 |
-	new ConCommand("script_ui", "Run input code as UI script on the VM.", FCVAR_CLIENTDLL | FCVAR_CHEAT, _SQVM_UIScript_f_CompletionFunc, nullptr);
+	new ConCommand("script_ui", "Run input code as UI script on the VM.", FCVAR_CLIENTDLL | FCVAR_CHEAT, SQVM_UIScript_f, nullptr);
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// FILESYSTEM API                                                         |
-	new ConCommand("fs_unpack_vpk", "Unpacks all files from user specified VPK file.", FCVAR_DEVELOPMENTONLY, _VPK_Unpack_f_CompletionFunc, nullptr);
-	new ConCommand("fs_mount_vpk", "Mounts user specified VPK file for FileSystem usage.", FCVAR_DEVELOPMENTONLY, _VPK_Mount_f_CompletionFunc, nullptr);
+	new ConCommand("fs_unpack_vpk", "Unpacks all files from user specified VPK file.", FCVAR_DEVELOPMENTONLY, VPK_Unpack_f, nullptr);
+	new ConCommand("fs_mount_vpk", "Mounts user specified VPK file for FileSystem usage.", FCVAR_DEVELOPMENTONLY, VPK_Mount_f, nullptr);
 	//-------------------------------------------------------------------------
 	// RTECH API                                                              |
-	new ConCommand("rtech_strtoguid", "Calculates the GUID from input data.", FCVAR_DEVELOPMENTONLY, _RTech_StringToGUID_f_CompletionFunc, nullptr);
-	new ConCommand("pak_requestload", "Requests asynchronous load for specified RPAK file.", FCVAR_DEVELOPMENTONLY, _Pak_RequestLoad_f_CompletionFunc, nullptr);
-	new ConCommand("pak_requestunload", "Requests unload for specified RPAK by ID.", FCVAR_DEVELOPMENTONLY, _Pak_RequestUnload_f_CompletionFunc, nullptr);
-	new ConCommand("pak_decompress", "Decompresses the specified RPAK file.", FCVAR_DEVELOPMENTONLY, _RTech_Decompress_f_CompletionFunc, nullptr);
-	new ConCommand("pak_listpaks", "Display a list of the loaded Pak files.", FCVAR_DEVELOPMENTONLY, _Pak_ListPaks_f_CompletionFunc, nullptr);
+	new ConCommand("rtech_strtoguid", "Calculates the GUID from input data.", FCVAR_DEVELOPMENTONLY, RTech_StringToGUID_f, nullptr);
+	new ConCommand("pak_requestload", "Requests asynchronous load for specified RPAK file.", FCVAR_DEVELOPMENTONLY, Pak_RequestLoad_f, nullptr);
+	new ConCommand("pak_requestunload", "Requests unload for specified RPAK by ID.", FCVAR_DEVELOPMENTONLY, Pak_RequestUnload_f, nullptr);
+	new ConCommand("pak_decompress", "Decompresses the specified RPAK file.", FCVAR_DEVELOPMENTONLY, RTech_Decompress_f, nullptr);
+	new ConCommand("pak_listpaks", "Display a list of the loaded Pak files.", FCVAR_DEVELOPMENTONLY, Pak_ListPaks_f, nullptr);
 	//-------------------------------------------------------------------------
 	// NETCHANNEL                                                             |
-	new ConCommand("net_setkey", "Sets user specified base64 net key.", FCVAR_RELEASE, _NET_SetKey_f_CompletionFunc, nullptr);
-	new ConCommand("net_generatekey", "Generates and sets a random base64 net key.", FCVAR_RELEASE, _NET_GenerateKey_f_CompletionFunc, nullptr);
+	new ConCommand("net_setkey", "Sets user specified base64 net key.", FCVAR_RELEASE, NET_SetKey_f, nullptr);
+	new ConCommand("net_generatekey", "Generates and sets a random base64 net key.", FCVAR_RELEASE, NET_GenerateKey_f, nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -171,7 +171,7 @@ void ConCommand::InitShipped(void)
 #ifndef DEDICATED
 	//-------------------------------------------------------------------------
 	// MATERIAL SYSTEM
-	g_pCVar->FindCommand("mat_crosshair")->m_pCommandCallback = _CMaterial_GetMaterialAtCrossHair_f_ComplectionFunc; // Patch completion function to working callback.
+	g_pCVar->FindCommand("mat_crosshair")->m_pCommandCallback = Mat_CrossHair_f; // Patch callback function to working callback.
 #endif // !DEDICATED
 }
 

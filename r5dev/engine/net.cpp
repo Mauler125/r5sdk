@@ -9,7 +9,7 @@
 #ifndef NETCONSOLE
 #include "core/logdef.h"
 #include "tier1/cvar.h"
-#include "vstdlib/completion.h"
+#include "vstdlib/callback.h"
 #include "mathlib/color.h"
 #include "engine/sys_utils.h"
 #include "engine/net.h"
@@ -140,7 +140,7 @@ void NET_PrintFunc(const char* fmt, ...)
 //-----------------------------------------------------------------------------
 void NET_Shutdown(void* thisptr, const char* szReason, uint8_t bBadRep, bool bRemoveNow)
 {
-	_DownloadPlaylists_f_CompletionFunc(); // Re-load playlist from disk after getting disconnected from the server.
+	_DownloadPlaylists_f(); // Re-load playlist from disk after getting disconnected from the server.
 	v_NET_Shutdown(thisptr, szReason, bBadRep, bRemoveNow);
 }
 

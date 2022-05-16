@@ -30,7 +30,7 @@ History:
 #include "server/server.h"
 #include "client/vengineclient_impl.h"
 #include "vpc/keyvalues.h"
-#include "vstdlib/completion.h"
+#include "vstdlib/callback.h"
 #include "vpklib/packedstore.h"
 #include "gameui/IBrowser.h"
 
@@ -561,7 +561,7 @@ void IBrowser::HostServerSection(void)
     {
         if (ImGui::Button("Reload Playlist", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
-            _DownloadPlaylists_f_CompletionFunc();
+            _DownloadPlaylists_f();
             KeyValues::InitPlaylist(); // Re-Init playlist.
         }
     }
