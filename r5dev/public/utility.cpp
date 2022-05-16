@@ -148,13 +148,11 @@ void PrintLastError(void)
 void HexDump(const char* szHeader, const char* szLogger, const void* pData, int nSize)
 {
     static unsigned char szAscii[17] = {};
+    static std::mutex m;
     static std::atomic<int> i = {}, j = {}, k = {};
     static std::shared_ptr<spdlog::logger> logger = spdlog::get("default_logger");
 
-    // Loop until the function returned to the first caller.
-    while (k == 1) { /*Sleep(75);*/ }
-
-    k = 1;
+    m.lock();
     szAscii[16] = '\0';
 
     if (szLogger)
@@ -229,7 +227,7 @@ void HexDump(const char* szHeader, const char* szLogger, const void* pData, int 
             }
         }
     }
-    k = 0;
+    m.unlock();
     ///////////////////////////////////////////////////////////////////////////
 }
 
