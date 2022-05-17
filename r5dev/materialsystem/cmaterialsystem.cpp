@@ -51,7 +51,7 @@ void HStreamDB_Init(const char* pszStreamDBFile)
 // Purpose: draw frame
 //---------------------------------------------------------------------------------
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-void* __fastcall DispatchDrawCall(int64_t a1, uint64_t a2, int a3, int a4, char a5, int a6, uint_8t a7, int64_t a8, uint32_t a9, uint32_t a10, __m128* a11, int a12)
+void* __fastcall DispatchDrawCall(int64_t a1, uint64_t a2, int a3, int a4, char a5, int a6, uint8_t a7, int64_t a8, uint32_t a9, uint32_t a10, __m128* a11, int a12)
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 void* __fastcall DispatchDrawCall(int64_t a1, uint64_t a2, int a3, int a4, int64_t a5, int a6, uint8_t a7, int64_t a8, uint32_t a9, uint32_t a10, int a11, __m128* a12, int a13, int64_t a14)
 #endif
