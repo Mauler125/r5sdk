@@ -13,7 +13,11 @@ class CBaseClient;
 ///////////////////////////////////////////////////////////////////////////////
 extern CBaseClient* g_pClient;
 
-class CBaseClient
+char pad_0014[84];
+int64_t m_nReputation;
+char pad_0060[752];
+
+class CBaseClient : INetChannelHandler, IClientMessageHandler
 {
 public:
 	CBaseClient* GetClient(int nIndex) const;
@@ -39,9 +43,10 @@ public:
 
 private:
 	// [ PIXIE ]: AMOS PLEASE VERIFY STRUCT INTEGRITY FOR EARLIER SEASONS. THERE WAS A PADDING AFTER ORIGINID BEFORE.
-	char pad_0000[16];               //0x0000
 	int32_t m_nUserID;               //0x0010
-	char pad_0014[844];              //0x0014
+	char pad_0014[68];               //0x0014
+	int64_t m_nReputation;           //0x0058
+	char pad_0015[768];              //0x0060
 	KeyValues* m_ConVars;            //0x0360
 	char pad_0368[8];                //0x0368
 	CBaseServer* m_Server;           //0x0370
@@ -51,7 +56,9 @@ private:
 	SIGNONSTATE m_nSignonState;      //0x03B0
 	int32_t m_nDeltaTick;            //0x03B4
 	int64_t m_nOriginID;             //0x03B8
-	char pad_03C0[480];              //0x03C0
+	int32_t m_nStringTableAckTick;   //0x03BC
+	int32_t m_nSignonTick;           //0x03C0
+	char pad_03C0[472];              //0x03C4
 	bool m_bFakePlayer;              //0x05A0
 	bool m_bReceivedPacket;          //0x05A1
 	bool m_bLowViolence;             //0x05A2

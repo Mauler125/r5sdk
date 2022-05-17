@@ -6,6 +6,11 @@
 #define FLOW_INCOMING     1
 #define MAX_FLOWS         2 // in & out
 
+struct IClientMessageHandler
+{
+	void* __vftable /*VFT*/;
+};
+
 struct INetChannelHandler
 {
 	void* __vftable /*VFT*/;
