@@ -13,10 +13,6 @@ class CBaseClient;
 ///////////////////////////////////////////////////////////////////////////////
 extern CBaseClient* g_pClient;
 
-char pad_0014[84];
-int64_t m_nReputation;
-char pad_0060[752];
-
 class CBaseClient : INetChannelHandler, IClientMessageHandler
 {
 public:
