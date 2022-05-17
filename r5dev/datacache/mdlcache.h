@@ -76,13 +76,13 @@ public:
 
 inline CMemory p_CMDLCache__FindMDL;
 inline auto v_CMDLCache__FindMDL = p_CMDLCache__FindMDL.RCast<studiohdr_t* (*)(CMDLCache* pCache, void* a2, void* a3)>();
-
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
 inline CMemory p_CMDLCache__FindCachedMDL;
 inline auto v_CMDLCache__FindCachedMDL = p_CMDLCache__FindCachedMDL.RCast<void(*)(CMDLCache* pCache, void* a2, void* a3)>();
 
 inline CMemory p_CMDLCache__FindUncachedMDL;
 inline auto v_CMDLCache__FindUncachedMDL = p_CMDLCache__FindUncachedMDL.RCast<studiohdr_t* (*)(CMDLCache* pCache, MDLHandle_t handle, void* a3, void* a4)>();
-
+#endif
 inline CMemory p_CMDLCache__GetStudioHDR;
 inline auto v_CMDLCache__GetStudioHDR = p_CMDLCache__GetStudioHDR.RCast<studiohdr_t* (*)(CMDLCache* pCache, MDLHandle_t handle)>();
 
@@ -106,8 +106,10 @@ class VMDLCache : public IDetour
 	virtual void GetAdr(void) const
 	{
 		spdlog::debug("| FUN: CMDLCache::FindMDL                   : {:#18x} |\n", p_CMDLCache__FindMDL.GetPtr());
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
 		spdlog::debug("| FUN: CMDLCache::FindCachedMDL             : {:#18x} |\n", p_CMDLCache__FindCachedMDL.GetPtr());
 		spdlog::debug("| FUN: CMDLCache::FindUncachedMDL           : {:#18x} |\n", p_CMDLCache__FindUncachedMDL.GetPtr());
+#endif
 		spdlog::debug("| FUN: CMDLCache::GetStudioHDR              : {:#18x} |\n", p_CMDLCache__GetStudioHDR.GetPtr());
 		spdlog::debug("| FUN: CMDLCache::GetHardwareData           : {:#18x} |\n", p_CMDLCache__GetHardwareData.GetPtr());
 		spdlog::debug("| FUN: CStudioHWDataRef::SetFlags           : {:#18x} |\n", p_CStudioHWDataRef__SetFlags.GetPtr());
@@ -119,6 +121,10 @@ class VMDLCache : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
+		p_CMDLCache__FindMDL = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x83\xEC\x20\x4C\x8B\xF1\x0F\xB7\xDA"), "xxxx?xxxx?xxxx?xxxx?xxxxxxxxxxxx");
+		v_CMDLCache__FindMDL = p_CMDLCache__FindMDL.RCast<studiohdr_t* (*)(CMDLCache*, void*, void*)>(); /*48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 83 EC 20 4C 8B F1 0F B7 DA*/
+#else
 		p_CMDLCache__FindMDL = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\xF1\x0F\xB7\xEA"), "xxxx?xxxx?xxxx?xxxxxxxxxxx");
 		v_CMDLCache__FindMDL = p_CMDLCache__FindMDL.RCast<studiohdr_t* (*)(CMDLCache*, void*, void*)>(); /*48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B F1 0F B7 EA*/
 
@@ -126,8 +132,8 @@ class VMDLCache : public IDetour
 		v_CMDLCache__FindCachedMDL = p_CMDLCache__FindCachedMDL.RCast<void(*)(CMDLCache*, void*, void*)>(); /*4D 85 C0 74 7A 48 89 6C 24 ?*/
 
 		p_CMDLCache__FindUncachedMDL = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x83\xEC\x20\x48\x8B\xE9\x0F\xB7\xFA"), "xxxx?xxxx?xxxx?xxxx?xxxxxxxxxxxx");
-		v_CMDLCache__FindUncachedMDL = p_CMDLCache__FindUncachedMDL.RCast<studiohdr_t* (*)(CMDLCache*, MDLHandle_t , void*, void*)>(); /*48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 83 EC 20 48 8B E9 0F B7 FA*/
-
+		v_CMDLCache__FindUncachedMDL = p_CMDLCache__FindUncachedMDL.RCast<studiohdr_t* (*)(CMDLCache*, MDLHandle_t, void*, void*)>(); /*48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 83 EC 20 48 8B E9 0F B7 FA*/
+#endif
 		p_CMDLCache__GetStudioHDR = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x48\x8D\x0D\x00\x00\x00\x00\x0F\xB7\xDA\xFF\x15\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x8D\x14\x5B\x48\x8D\x0D\x00\x00\x00\x00\x48\x8B\x5C\xD0\x00\xFF\x15\x00\x00\x00\x00\x48\x8B\x03\x48\x8B\x48\x08"), "xxxxxxxxx????xxxxx????xxx????xxxxxxx????xxxx?xx????xxxxxxx");
 		v_CMDLCache__GetStudioHDR = p_CMDLCache__GetStudioHDR.RCast<studiohdr_t* (*)(CMDLCache*, MDLHandle_t)>(); /*40 53 48 83 EC 20 48 8D 0D ? ? ? ? 0F B7 DA FF 15 ? ? ? ? 48 8B 05 ? ? ? ? 48 8D 14 5B 48 8D 0D ? ? ? ? 48 8B 5C D0 ? FF 15 ? ? ? ? 48 8B 03 48 8B 48 08*/
 

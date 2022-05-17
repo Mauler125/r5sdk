@@ -1,4 +1,9 @@
 #pragma once
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
+constexpr int64_t FSTDIO_OFS = 16i64;
+#else
+constexpr int64_t FSTDIO_OFS = 0i64;
+#endif
 
 inline CMemory p_CollisionBSPData_LinkPhysics;
 inline auto CollisionBSPData_LinkPhysics = p_CollisionBSPData_LinkPhysics.RCast<uint64_t(*)(void* thisptr)>();

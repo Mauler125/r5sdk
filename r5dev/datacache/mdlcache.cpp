@@ -94,7 +94,7 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
 //-----------------------------------------------------------------------------
 // Purpose: finds an MDL cached
 // Input  : *this - 
-//          *a2 - 
+//          *pStudioData - 
 //          *a3 - 
 //-----------------------------------------------------------------------------
 void CMDLCache::FindCachedMDL(CMDLCache* cache, studiodata_t* pStudioData, void* a3)
@@ -117,7 +117,7 @@ void CMDLCache::FindCachedMDL(CMDLCache* cache, studiodata_t* pStudioData, void*
 // Purpose: finds an MDL uncached
 // Input  : *this - 
 //          handle - 
-//          *a3 - 
+//          *pStudioData - 
 //          *a4 - 
 // Output : a pointer to the studiohdr_t object
 //-----------------------------------------------------------------------------
@@ -202,7 +202,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
     }
     else
     {
-        v_CMDLCache__FindCachedMDL(cache, pStudioData, a4);
+        FindCachedMDL(cache, pStudioData, a4);
         if ((__int64)*(studiohdr_t**)pStudioData)
         {
             if ((__int64)*(studiohdr_t**)pStudioData == 0xDEADFEEDDEADFEED)
@@ -333,7 +333,7 @@ void* CMDLCache::GetMaterialTable(CMDLCache* cache, MDLHandle_t handle)
 //-----------------------------------------------------------------------------
 studiohdr_t* CMDLCache::GetErrorModel(void)
 {
-    old_gather_props->SetValue(true); // mdl/error.rmdl fallback is not supported (yet) in the new GatherProps solution!
+    old_gather_props->SetValue(true); // !TODO [AMOS]: mdl/error.rmdl fallback is not supported (yet) in the new GatherProps solution!
     return g_pMDLFallback->m_pErrorHDR;
 }
 
@@ -350,17 +350,25 @@ bool CMDLCache::IsKnownBadModel(MDLHandle_t handle)
 void MDLCache_Attach()
 {
     DetourAttach((LPVOID*)&v_CMDLCache__FindMDL, &CMDLCache::FindMDL);
+#ifdef GAMEDLL_S3 // !!! DECLARED INLINE IN < S3 !!!
     DetourAttach((LPVOID*)&v_CMDLCache__FindCachedMDL, &CMDLCache::FindCachedMDL);
     DetourAttach((LPVOID*)&v_CMDLCache__FindUncachedMDL, &CMDLCache::FindUncachedMDL);
+#endif // GAMEDLL_S3
+#ifdef GAMEDLL_S3 // !TODO:
     DetourAttach((LPVOID*)&v_CMDLCache__GetHardwareData, &CMDLCache::GetHardwareData);
     DetourAttach((LPVOID*)&v_CMDLCache__GetStudioHDR, &CMDLCache::GetStudioHDR);
+#endif
 }
 
 void MDLCache_Detach()
 {
     DetourDetach((LPVOID*)&v_CMDLCache__FindMDL, &CMDLCache::FindMDL);
+#ifdef GAMEDLL_S3 // !!! DECLARED INLINE IN < S3 !!!
     DetourDetach((LPVOID*)&v_CMDLCache__FindCachedMDL, &CMDLCache::FindCachedMDL);
     DetourDetach((LPVOID*)&v_CMDLCache__FindUncachedMDL, &CMDLCache::FindUncachedMDL);
+#endif // GAMEDLL_S3
+#ifdef GAMEDLL_S3 // !TODO:
     DetourDetach((LPVOID*)&v_CMDLCache__GetHardwareData, &CMDLCache::GetHardwareData);
     DetourDetach((LPVOID*)&v_CMDLCache__GetStudioHDR, &CMDLCache::GetStudioHDR);
+#endif
 }

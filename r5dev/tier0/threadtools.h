@@ -20,14 +20,14 @@ public:
 		return v_MutexInternal_ReleaseWaiter(this);
 	}
 
-	uint32  GetOwnerId(void)   const { return m_ownerID; }
-	int     GetDepth(void)     const { return m_depth; }
-	int     GetAddend(void)    const { return m_lAddend; }
-	HANDLE  GetSemaphore(void) const { return m_hSemaphore; }
+	inline uint32  GetOwnerId(void)   const { return m_nOwnerID; }
+	inline int     GetDepth(void)     const { return m_nDepth; }
+	inline int     GetAddend(void)    const { return m_lAddend; }
+	inline HANDLE  GetSemaphore(void) const { return m_hSemaphore; }
 
 private:
-	volatile uint32_t m_ownerID;
-	int                 m_depth;
+	volatile uint32_t m_nOwnerID;
+	int                 m_nDepth;
 	volatile int      m_lAddend;
 	HANDLE         m_hSemaphore;
 };
