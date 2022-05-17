@@ -3,6 +3,8 @@
 /* ==== MATERIALSYSTEM ================================================================================================================================================== */
 inline CMemory p_CMaterialSystem__Init;
 inline auto CMaterialSystem__Init = p_CMaterialSystem__Init.RCast<void* (*)(void* thisptr)>();
+
+inline void* g_pMaterialSystem = nullptr;
 #ifndef DEDICATED
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 inline CMemory P_DrawFrame;
@@ -20,7 +22,6 @@ inline auto StreamDB_Init = p_StreamDB_Init.RCast<void (*)(const char* pszStream
 
 inline CMemory s_pRenderContext;
 
-inline void* g_pMaterialSystem            = nullptr;
 inline int* total_streaming_tex_memory    = nullptr;
 inline int* unfree_streaming_tex_memory   = nullptr;
 inline int* unusable_streaming_tex_memory = nullptr;
@@ -37,10 +38,10 @@ class VMaterialSystem : public IDetour
 #ifndef DEDICATED
 		spdlog::debug("| FUN: DispatchDrawCall                     : {:#18x} |\n", p_DispatchDrawCall.GetPtr());
 		spdlog::debug("| FUN: DrawStreamOverlay                    : {:#18x} |\n", p_DrawStreamOverlay.GetPtr());
-		spdlog::debug("| VAR: s_pRenderContext                     : {:#18x} |\n", s_pRenderContext.GetPtr());
 		spdlog::debug("| FUN: StreamDB_Init                        : {:#18x} |\n", p_StreamDB_Init.GetPtr());
-		spdlog::debug("| VAR: g_pMaterialSystem                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pMaterialSystem));
+		spdlog::debug("| VAR: s_pRenderContext                     : {:#18x} |\n", s_pRenderContext.GetPtr());
 #endif // !DEDICATED
+		spdlog::debug("| VAR: g_pMaterialSystem                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pMaterialSystem));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
@@ -64,10 +65,10 @@ class VMaterialSystem : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-#ifndef DEDICATED
-		s_pRenderContext = p_DispatchDrawCall.FindPattern("48 8B ?? ?? ?? ?? 01").ResolveRelativeAddressSelf(0x3, 0x7);
 		g_pMaterialSystem = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
 			"\x48\x8B\x0D\x00\x00\x00\x00\x48\x85\xC9\x74\x11\x48\x8B\x01\x48\x8D\x15\x00\x00\x00\x00"), "xxx????xxxxxxxxxxx????").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void*>();
+#ifndef DEDICATED
+		s_pRenderContext = p_DispatchDrawCall.FindPattern("48 8B ?? ?? ?? ?? 01").ResolveRelativeAddressSelf(0x3, 0x7);
 
 		total_streaming_tex_memory = p_DrawStreamOverlay.Offset(0x0).FindPatternSelf("48 8B 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<int*>();
 		unfree_streaming_tex_memory = p_DrawStreamOverlay.Offset(0x20).FindPatternSelf("48 8B 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<int*>();
