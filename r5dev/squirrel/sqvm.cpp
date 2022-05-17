@@ -59,7 +59,7 @@ SQRESULT HSQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 
 	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
-	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sqvm_print_logger");
+	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sqvm_info");
 
 	s_LogMutex.lock();
 	{/////////////////////////////
@@ -187,7 +187,7 @@ SQRESULT HSQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger*
 
 	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
-	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sqvm_warn_logger");
+	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sqvm_warn");
 
 	std::string vmStr = SQVM_LOG_T[static_cast<int>(context)].c_str();
 	std::string svConstructor(*ppString, *nStringSize); // Get string from memory via std::string constructor.

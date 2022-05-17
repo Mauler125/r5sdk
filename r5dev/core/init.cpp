@@ -142,7 +142,9 @@ void Systems_Init()
 	DetourUpdateThread(GetCurrentThread());
 
 	// Hook functions
-	Launcher_Attatch();
+	//TSList_Attach();
+
+	Launcher_Attach();
 	IApplication_Attach();
 #ifdef DEDICATED
 	//PRX_Attach();
@@ -257,7 +259,9 @@ void Systems_Shutdown()
 	DetourUpdateThread(GetCurrentThread());
 
 	// Unhook functions
-	Launcher_Detatch();
+	//TSList_Detach();
+
+	Launcher_Detach();
 	IApplication_Detach();
 #ifdef DEDICATED
 	//PRX_Detach();

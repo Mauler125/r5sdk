@@ -72,7 +72,7 @@ void CBaseFileSystem::Warning(CBaseFileSystem* pFileSystem, FileWarningLevel_t l
 
 	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
-	static std::shared_ptr<spdlog::logger> fslogger = spdlog::get("filesystem_warn_logger");
+	static std::shared_ptr<spdlog::logger> fslogger = spdlog::get("fs_warn");
 
 	{/////////////////////////////
 		va_list args{};

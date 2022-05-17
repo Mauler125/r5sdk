@@ -33,7 +33,7 @@ bool NET_ReceiveDatagram(int iSocket, netpacket_s* pInpacket, bool bEncrypted)
 	if (result && net_tracePayload->GetBool())
 	{
 		// Log received packet data.
-		HexDump("[+] NET_ReceiveDatagram", "netchan_packet_logger", &pInpacket->pData[NULL], pInpacket->wiresize);
+		HexDump("[+] NET_ReceiveDatagram", "net_trace", &pInpacket->pData[NULL], pInpacket->wiresize);
 	}
 	return result;
 }
@@ -53,7 +53,7 @@ int NET_SendDatagram(SOCKET s, void* pPayload, int iLenght, v_netadr_t* pAdr, bo
 	if (result && net_tracePayload->GetBool())
 	{
 		// Log transmitted packet data.
-		HexDump("[+] NET_SendDatagram", "netchan_packet_logger", pPayload, iLenght);
+		HexDump("[+] NET_SendDatagram", "net_trace", pPayload, iLenght);
 	}
 	return result;
 }

@@ -105,7 +105,7 @@ void DevMsg(eDLL_T idx, const char* fmt, ...)
 
 	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
-	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("dev_message_logger");
+	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sdk_info");
 
 	s_LogMutex.lock();
 	{/////////////////////////////
@@ -213,7 +213,7 @@ void Warning(eDLL_T idx, const char* fmt, ...)
 
 	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
-	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("warn_message_logger");
+	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sdk_warn");
 
 	s_LogMutex.lock();
 	{/////////////////////////////
@@ -290,7 +290,7 @@ void Error(eDLL_T idx, const char* fmt, ...)
 
 	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
-	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("error_message_logger");
+	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sdk_error");
 
 	s_LogMutex.lock();
 	{/////////////////////////////

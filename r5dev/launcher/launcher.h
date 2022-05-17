@@ -17,8 +17,8 @@ string LoadConfigFile(const string& svConfig);
 void ParseAndApplyConfigFile(const string& svConfig);
 const char* ExitCodeToString(int nCode);
 
-void Launcher_Attatch();
-void Launcher_Detatch();
+void Launcher_Attach();
+void Launcher_Detach();
 
 ///////////////////////////////////////////////////////////////////////////////
 class VLauncher : public IDetour

@@ -18,8 +18,8 @@
 //-----------------------------------------------------------------------------
 ConVar::ConVar(const char* pszName, const char* pszDefaultValue, int nFlags, const char* pszHelpString, bool bMin, float fMin, bool bMax, float fMax, void* pCallback, const char* pszUsageString)
 {
-	ConVar* pNewConVar = reinterpret_cast<ConVar*>(MemAlloc_Wrapper(sizeof(ConVar))); // Allocate new memory with StdMemAlloc else we crash.
-	memset(pNewConVar, '\0', sizeof(ConVar));                                         // Set all to null.
+	ConVar* pNewConVar = reinterpret_cast<ConVar*>(v_MemAlloc_Wrapper(sizeof(ConVar))); // Allocate new memory with StdMemAlloc else we crash.
+	memset(pNewConVar, '\0', sizeof(ConVar));                                           // Set all to null.
 
 	pNewConVar->m_pConCommandBaseVTable = g_pConVarVtable.RCast<void*>();
 	pNewConVar->m_pIConVarVTable = g_pIConVarVtable.RCast<void*>();

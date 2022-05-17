@@ -78,8 +78,10 @@ void AppendSDKParametersPreInit()
 	CommandLine()->AppendParm("-collate", "");
 	CommandLine()->AppendParm("-multiple", "");
 	CommandLine()->AppendParm("-noorigin", "");
+	CommandLine()->AppendParm("-nodiscord", "");
 	CommandLine()->AppendParm("-novid", "");
 	CommandLine()->AppendParm("-noshaderapi", "");
+	CommandLine()->AppendParm("-nobakedparticles", "");
 	CommandLine()->AppendParm("-nosound", "");
 	CommandLine()->AppendParm("-nojoy", "");
 	CommandLine()->AppendParm("-nomouse", "");
@@ -159,7 +161,7 @@ const char* ExitCodeToString(int nCode)
 	}
 }
 
-void Launcher_Attatch()
+void Launcher_Attach()
 {
 	DetourAttach((LPVOID*)&v_WinMain, &HWinMain);
 	DetourAttach((LPVOID*)&v_LauncherMain, &LauncherMain);
@@ -168,7 +170,7 @@ void Launcher_Attatch()
 #endif
 }
 
-void Launcher_Detatch()
+void Launcher_Detach()
 {
 	DetourDetach((LPVOID*)&v_WinMain, &HWinMain);
 	DetourDetach((LPVOID*)&v_LauncherMain, &LauncherMain);

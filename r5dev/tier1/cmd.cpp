@@ -98,7 +98,7 @@ bool CCommand::HasOnlyDigits(int nIndex) const
 //-----------------------------------------------------------------------------
 ConCommand::ConCommand(const char* pszName, const char* pszHelpString, int nFlags, void* pCallback, void* pCommandCompletionCallback)
 {
-	ConCommand* pCommand = reinterpret_cast<ConCommand*>(MemAlloc_Wrapper(sizeof(ConCommand))); // Allocate new memory with StdMemAlloc else we crash.
+	ConCommand* pCommand = reinterpret_cast<ConCommand*>(v_MemAlloc_Wrapper(sizeof(ConCommand))); // Allocate new memory with StdMemAlloc else we crash.
 	memset(pCommand, '\0', sizeof(ConCommand)); // Set all to null.
 
 	pCommand->m_pConCommandBaseVTable = g_pConCommandVtable.RCast<void*>();

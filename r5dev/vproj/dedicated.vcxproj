@@ -101,6 +101,7 @@
       <StringPooling>true</StringPooling>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <OmitFramePointers>false</OmitFramePointers>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -496,6 +497,7 @@
     <ClCompile Include="..\tier0\cputopology.cpp" />
     <ClCompile Include="..\tier0\fasttimer.cpp" />
     <ClCompile Include="..\tier0\jobthread.cpp" />
+    <ClCompile Include="..\tier0\tslist.cpp" />
     <ClCompile Include="..\tier1\bitbuf.cpp" />
     <ClCompile Include="..\tier1\cmd.cpp" />
     <ClCompile Include="..\tier1\cvar.cpp" />

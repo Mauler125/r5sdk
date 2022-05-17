@@ -15,7 +15,7 @@ int HQHull_PrintFunc(const char* fmt, ...)
 
 	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
-	static std::shared_ptr<spdlog::logger> qhlogger = spdlog::get("qhull_debug_logger");
+	static std::shared_ptr<spdlog::logger> qhlogger = spdlog::get("qhull_info");
 
 	s_LogMutex.lock();
 	{/////////////////////////////
