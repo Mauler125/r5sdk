@@ -42,7 +42,6 @@ public:
 	static void Clear(CBaseClient* pBaseClient);
 
 private:
-	// [ PIXIE ]: AMOS PLEASE VERIFY STRUCT INTEGRITY FOR EARLIER SEASONS. THERE WAS A PADDING AFTER ORIGINID BEFORE.
 	int32_t m_nUserID;               //0x0010
 	char pad_0014[68];               //0x0014
 	int64_t m_nReputation;           //0x0058
@@ -58,7 +57,10 @@ private:
 	int64_t m_nOriginID;             //0x03B8
 	int32_t m_nStringTableAckTick;   //0x03BC
 	int32_t m_nSignonTick;           //0x03C0
-	char pad_03C0[472];              //0x03C4
+	char pad_03C0[464];              //0x03C4
+#if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+	char pad_0598[8];                //0x0598
+#endif
 	bool m_bFakePlayer;              //0x05A0
 	bool m_bReceivedPacket;          //0x05A1
 	bool m_bLowViolence;             //0x05A2
@@ -67,7 +69,10 @@ private:
 	PERSISTENCE m_nPersistenceState; //0x05BC
 	char pad_05C0[302676];           //0x05C0
 	int32_t m_LastMovementTick;      //0x4A414
-	char pad_4A418[168];             //0x4A418
+#if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+	char pad_4A418[120];             //0x4A418
+#endif
+	char pad_4A440[48];              //0x4A440
 };
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 static_assert(sizeof(CBaseClient) == 0x4A440);
