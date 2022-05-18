@@ -88,10 +88,10 @@ inline auto v_CMDLCache__GetStudioHDR = p_CMDLCache__GetStudioHDR.RCast<studiohd
 
 inline CMemory p_CMDLCache__GetHardwareData;
 inline auto v_CMDLCache__GetHardwareData = p_CMDLCache__GetHardwareData.RCast<studiohwdata_t* (*)(CMDLCache* pCache, MDLHandle_t handle)>();
-
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
 inline CMemory p_CStudioHWDataRef__SetFlags; // Probably incorrect.
 inline auto v_CStudioHWDataRef__SetFlags = p_CStudioHWDataRef__SetFlags.RCast<bool (*)(CStudioHWDataRef* ref, int64_t flags)>();
-
+#endif
 inline CUtlDict<studiodata_t*, MDLHandle_t>* m_MDLDict;
 inline LPCRITICAL_SECTION* m_MDLMutex = nullptr;
 inline PSRWLOCK* m_MDLLock = nullptr;
@@ -112,7 +112,9 @@ class VMDLCache : public IDetour
 #endif
 		spdlog::debug("| FUN: CMDLCache::GetStudioHDR              : {:#18x} |\n", p_CMDLCache__GetStudioHDR.GetPtr());
 		spdlog::debug("| FUN: CMDLCache::GetHardwareData           : {:#18x} |\n", p_CMDLCache__GetHardwareData.GetPtr());
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
 		spdlog::debug("| FUN: CStudioHWDataRef::SetFlags           : {:#18x} |\n", p_CStudioHWDataRef__SetFlags.GetPtr());
+#endif
 		spdlog::debug("| VAR: m_MDLMutex                           : {:#18x} |\n", reinterpret_cast<uintptr_t>(m_MDLMutex));
 		spdlog::debug("| VAR: m_MDLLock                            : {:#18x} |\n", reinterpret_cast<uintptr_t>(m_MDLLock));
 		spdlog::debug("| VAR: m_MDLDict                            : {:#18x} |\n", reinterpret_cast<uintptr_t>(m_MDLDict));
@@ -124,6 +126,17 @@ class VMDLCache : public IDetour
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
 		p_CMDLCache__FindMDL = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x83\xEC\x20\x4C\x8B\xF1\x0F\xB7\xDA"), "xxxx?xxxx?xxxx?xxxx?xxxxxxxxxxxx");
 		v_CMDLCache__FindMDL = p_CMDLCache__FindMDL.RCast<studiohdr_t* (*)(CMDLCache*, void*, void*)>(); /*48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 83 EC 20 4C 8B F1 0F B7 DA*/
+
+		p_CMDLCache__GetStudioHDR = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\xF1\x0F\xB7\xFA\x48\x8D\x0D\x00\x00\x00\x00"), "xxxx?xxxx?xxxxxxxxxxxxxx????");
+		v_CMDLCache__GetStudioHDR = p_CMDLCache__GetStudioHDR.RCast<studiohdr_t* (*)(CMDLCache*, MDLHandle_t)>(); /*48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B F1 0F B7 FA 48 8D 0D ? ? ? ?*/
+
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+		p_CMDLCache__GetHardwareData = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x56\x48\x83\xEC\x20\x48\x89\x5C\x24\x00\x48\x8D\x0D\x00\x00\x00\x00"), "xxxxxxxxxx?xxx????");
+		v_CMDLCache__GetHardwareData = p_CMDLCache__GetHardwareData.RCast<studiohwdata_t* (*)(CMDLCache*, MDLHandle_t)>(); /*40 56 48 83 EC 20 48 89 5C 24 ? 48 8D 0D ? ? ? ?*/
+#else
+		p_CMDLCache__GetHardwareData = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x20\x48\x8D\x0D\x00\x00\x00\x00\x0F\xB7\xDA\xFF\x15\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x8D\x14\x5B\x48\x8D\x0D\x00\x00\x00\x00\x48\x8B\x7C\xD0\x00\xFF\x15\x00\x00\x00\x00\x48\x8B\x1F"), "xxxx?xxxxxxxx????xxxxx????xxx????xxxxxxx????xxxx?xx????xxx");
+		v_CMDLCache__GetHardwareData = p_CMDLCache__GetHardwareData.RCast<studiohwdata_t* (*)(CMDLCache*, MDLHandle_t)>(); /*48 89 5C 24 ? 57 48 83 EC 20 48 8D 0D ? ? ? ? 0F B7 DA FF 15 ? ? ? ? 48 8B 05 ? ? ? ? 48 8D 14 5B 48 8D 0D ? ? ? ? 48 8B 7C D0 ? FF 15 ? ? ? ? 48 8B 1F*/
+#endif
 #else
 		p_CMDLCache__FindMDL = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\xF1\x0F\xB7\xEA"), "xxxx?xxxx?xxxx?xxxxxxxxxxx");
 		v_CMDLCache__FindMDL = p_CMDLCache__FindMDL.RCast<studiohdr_t* (*)(CMDLCache*, void*, void*)>(); /*48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B F1 0F B7 EA*/
@@ -133,7 +146,7 @@ class VMDLCache : public IDetour
 
 		p_CMDLCache__FindUncachedMDL = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x83\xEC\x20\x48\x8B\xE9\x0F\xB7\xFA"), "xxxx?xxxx?xxxx?xxxx?xxxxxxxxxxxx");
 		v_CMDLCache__FindUncachedMDL = p_CMDLCache__FindUncachedMDL.RCast<studiohdr_t* (*)(CMDLCache*, MDLHandle_t, void*, void*)>(); /*48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 83 EC 20 48 8B E9 0F B7 FA*/
-#endif
+
 		p_CMDLCache__GetStudioHDR = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x48\x8D\x0D\x00\x00\x00\x00\x0F\xB7\xDA\xFF\x15\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x8D\x14\x5B\x48\x8D\x0D\x00\x00\x00\x00\x48\x8B\x5C\xD0\x00\xFF\x15\x00\x00\x00\x00\x48\x8B\x03\x48\x8B\x48\x08"), "xxxxxxxxx????xxxxx????xxx????xxxxxxx????xxxx?xx????xxxxxxx");
 		v_CMDLCache__GetStudioHDR = p_CMDLCache__GetStudioHDR.RCast<studiohdr_t* (*)(CMDLCache*, MDLHandle_t)>(); /*40 53 48 83 EC 20 48 8D 0D ? ? ? ? 0F B7 DA FF 15 ? ? ? ? 48 8B 05 ? ? ? ? 48 8D 14 5B 48 8D 0D ? ? ? ? 48 8B 5C D0 ? FF 15 ? ? ? ? 48 8B 03 48 8B 48 08*/
 
@@ -142,6 +155,7 @@ class VMDLCache : public IDetour
 
 		p_CStudioHWDataRef__SetFlags = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x08\x4C\x8D\x14\x12"), "xxxxxxxx");
 		v_CStudioHWDataRef__SetFlags = p_CStudioHWDataRef__SetFlags.RCast<bool (*)(CStudioHWDataRef*, int64_t)>(); /*48 83 EC 08 4C 8D 14 12*/
+#endif
 	}
 	virtual void GetVar(void) const
 	{

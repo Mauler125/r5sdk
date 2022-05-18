@@ -34,18 +34,23 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
 
     if (!g_pMDLFallback->m_hErrorMDL || !g_pMDLFallback->m_hEmptyMDL)
     {
-        studiohdr_t* pStudioHDR = **reinterpret_cast<studiohdr_t***>(pStudioData);
-        string svStudio = ConvertToUnixPath(string(pStudioHDR->name));
-
-        if (strcmp(svStudio.c_str(), ERROR_MODEL) == 0)
+        if (pStudioData->m_MDLCache)
         {
-            g_pMDLFallback->m_pErrorHDR = pStudioHDR;
-            g_pMDLFallback->m_hErrorMDL = handle;
-        }
-        if (strcmp(svStudio.c_str(), EMPTY_MODEL) == 0)
-        {
-            g_pMDLFallback->m_pEmptyHDR = pStudioHDR;
-            g_pMDLFallback->m_hEmptyMDL = handle;
+            studiohdr_t* pStudioHDR = **reinterpret_cast<studiohdr_t***>(pStudioData);
+            if (pStudioHDR)
+            {
+                string svStudio = ConvertToUnixPath(string(pStudioHDR->name));
+                if (strcmp(svStudio.c_str(), ERROR_MODEL) == 0)
+                {
+                    g_pMDLFallback->m_pErrorHDR = pStudioHDR;
+                    g_pMDLFallback->m_hErrorMDL = handle;
+                }
+                if (strcmp(svStudio.c_str(), EMPTY_MODEL) == 0)
+                {
+                    g_pMDLFallback->m_pEmptyHDR = pStudioHDR;
+                    g_pMDLFallback->m_hEmptyMDL = handle;
+                }
+            }
         }
     }
 
@@ -303,7 +308,9 @@ studiohwdata_t* CMDLCache::GetHardwareData(CMDLCache* cache, MDLHandle_t handle)
         void* pAnimData = (void*)*((_QWORD*)pStudioData->m_MDLCache + 1);
 
         AcquireSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&*m_MDLLock));
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
         v_CStudioHWDataRef__SetFlags(reinterpret_cast<CStudioHWDataRef*>(pAnimData), 1i64); // !!! DECLARED INLINE IN < S3 !!!
+#endif
         ReleaseSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&*m_MDLLock));
     }
     if ((pStudioData->m_nFlags & STUDIODATA_FLAGS_STUDIOMESH_LOADED))
