@@ -498,22 +498,48 @@ std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: gets information about loaded pak file
+// Purpose: gets copied information about loaded pak file via pak ID
 //-----------------------------------------------------------------------------
-RPakLoadedInfo_t RTech::GetPakLoadedInfo(int nPakId)
+RPakLoadedInfo_t* RTech::GetPakLoadedInfo(int nPakId)
 {
 	for (int i = 0; i < *s_pLoadedPakCount; ++i)
 	{
-		RPakLoadedInfo_t info = g_pLoadedPakInfo[i];
+		RPakLoadedInfo_t* info = &g_pLoadedPakInfo[i];
+		if (!info)
+			continue;
 
-		if (info.m_nPakId != nPakId)
+		if (info->m_nPakId != nPakId)
 			continue;
 
 		return info;
 	}
 
 	Warning(eDLL_T::RTECH, "%s - Failed getting RPakLoadInfo_t for PakId '%d'\n", __FUNCTION__, nPakId);
-	return RPakLoadedInfo_t();
+	return nullptr;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets copied information about loaded pak file via pak name
+//-----------------------------------------------------------------------------
+RPakLoadedInfo_t* RTech::GetPakLoadedInfo(const char* szPakName)
+{
+	for (int i = 0; i < *s_pLoadedPakCount; ++i)
+	{
+		RPakLoadedInfo_t* info = &g_pLoadedPakInfo[i];
+		if (!info)
+			continue;
+
+		if (!info->m_pszFileName || !*info->m_pszFileName)
+			continue;
+
+		if (strcmp(szPakName, info->m_pszFileName) != 0)
+			continue;
+
+		return info;
+	}
+
+	Warning(eDLL_T::RTECH, "%s - Failed getting RPakLoadInfo_t for Pak '%s'\n", __FUNCTION__, szPakName);
+	return nullptr;
 }
 ///////////////////////////////////////////////////////////////////////////////
 RTech* g_pRTech = new RTech();

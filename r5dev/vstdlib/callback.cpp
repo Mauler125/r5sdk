@@ -378,18 +378,31 @@ void Pak_RequestUnload_f(const CCommand& args)
 		if (args.HasOnlyDigits(1))
 		{
 			RPakHandle_t nPakId = std::stoi(args.Arg(1));
-			RPakLoadedInfo_t pakInfo = g_pRTech->GetPakLoadedInfo(nPakId);
-			pakInfo.m_pszFileName ? DevMsg(eDLL_T::RTECH, "Requested Pak Unload for '%s'\n", pakInfo.m_pszFileName) : DevMsg(eDLL_T::RTECH, "Requested Pak Unload for '%d'\n", nPakId);
+			RPakLoadedInfo_t* pakInfo = g_pRTech->GetPakLoadedInfo(nPakId);
+			if (!pakInfo)
+			{
+				throw std::exception("Found no Pak entry for specified ID.");
+			}
+
+			string pakName = pakInfo->m_pszFileName;
+			!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested Pak Unload for '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested Pak Unload for '%d'\n", nPakId);
 			g_pakLoadApi->Unload(nPakId);
 		}
 		else
 		{
-			throw std::exception("Please provide a number as an arg.");
+			RPakLoadedInfo_t* pakInfo = g_pRTech->GetPakLoadedInfo(args.Arg(1));
+			if (!pakInfo)
+			{
+				throw std::exception("Found no Pak entry for specified name.");
+			}
+
+			DevMsg(eDLL_T::RTECH, "Requested Pak Unload for '%s'\n", args.Arg(1));
+			g_pakLoadApi->Unload(pakInfo->m_nPakId);
 		}
 	}
 	catch (std::exception& e)
 	{
-		Error(eDLL_T::RTECH, "RequestUnload Error: %s", e.what());
+		Error(eDLL_T::RTECH, "%s - %s", __FUNCTION__, e.what());
 		return;
 	}
 #endif // GAMEDLL_S3
@@ -403,6 +416,61 @@ Pak_RequestLoad_f
 void Pak_RequestLoad_f(const CCommand& args)
 {
 	g_pakLoadApi->AsyncLoad(args.Arg(1));
+}
+
+
+/*
+=====================
+Pak_Swap_f
+=====================
+*/
+void Pak_Swap_f(const CCommand& args)
+{
+#ifdef GAMEDLL_S3
+	try
+	{
+		RPakHandle_t nPakId = 0;
+		RPakLoadedInfo_t* pakInfo = nullptr;
+		string pakName = std::string();
+
+		if (args.HasOnlyDigits(1))
+		{
+			nPakId = std::stoi(args.Arg(1));
+			pakInfo = g_pRTech->GetPakLoadedInfo(nPakId);
+			if (!pakInfo)
+			{
+				throw std::exception("Found no Pak entry for specified ID.");
+			}
+
+			pakName = pakInfo->m_pszFileName;
+		}
+		else
+		{
+			pakName = args.Arg(1);
+			pakInfo = g_pRTech->GetPakLoadedInfo(args.Arg(1));
+			if (!pakInfo)
+			{
+				throw std::exception("Found no Pak entry for specified name.");
+			}
+
+			nPakId = pakInfo->m_nPakId;
+		}
+
+		!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested Pak Swap for '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested Pak Swap for '%d'\n", nPakId);
+
+		g_pakLoadApi->Unload(nPakId);
+
+		while (pakInfo->m_nStatus != RPakStatus_t::PAK_STATUS_FREED) // Wait till this slot gets free'd.
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+
+		g_pakLoadApi->AsyncLoad(pakName.c_str());
+	}
+	catch (std::exception& e)
+	{
+		Error(eDLL_T::RTECH, "%s - %s", __FUNCTION__, e.what());
+		return;
+	}
+#endif// GAMEDLL_S3
 }
 
 /*

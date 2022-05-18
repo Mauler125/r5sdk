@@ -26,6 +26,7 @@ void Host_ReloadBanList_f(const CCommand& args);
 void Pak_ListPaks_f(const CCommand& args);
 void Pak_RequestUnload_f(const CCommand& args);
 void Pak_RequestLoad_f(const CCommand& args);
+void Pak_Swap_f(const CCommand& args);
 void RTech_StringToGUID_f(const CCommand& args);
 void RTech_Decompress_f(const CCommand& args);
 void VPK_Unpack_f(const CCommand& args);

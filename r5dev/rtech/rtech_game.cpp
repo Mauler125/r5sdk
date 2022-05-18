@@ -69,14 +69,17 @@ RPakHandle_t CPakFile::AsyncLoad(const char* szPakFileName, uintptr_t pMalloc, i
 //-----------------------------------------------------------------------------
 void CPakFile::Unload(RPakHandle_t handle)
 {
-	RPakLoadedInfo_t pakInfo = g_pRTech->GetPakLoadedInfo(handle);
+	RPakLoadedInfo_t* pakInfo = g_pRTech->GetPakLoadedInfo(handle);
 
-	if (pakInfo.m_pszFileName)
+	if (pakInfo)
 	{
-		DevMsg(eDLL_T::RTECH, "Unloading pak file: '%s'\n", pakInfo.m_pszFileName);
+		if (pakInfo->m_pszFileName)
+		{
+			DevMsg(eDLL_T::RTECH, "Unloading pak file: '%s'\n", pakInfo->m_pszFileName);
 
-		if (strcmp(pakInfo.m_pszFileName, "mp_lobby.rpak") == 0)
-			s_bBasePaksInitialized = false;
+			if (strcmp(pakInfo->m_pszFileName, "mp_lobby.rpak") == 0)
+				s_bBasePaksInitialized = false;
+		}
 	}
 
 	CPakFile_Unload(handle);

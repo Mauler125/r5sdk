@@ -172,7 +172,8 @@ public:
 	std::uint64_t __fastcall StringToGuid(const char* pData);
 	std::uint8_t __fastcall DecompressPakFile(RPakDecompState_t* state, std::uint64_t inLen, std::uint64_t outLen);
 	std::uint32_t __fastcall DecompressPakFileInit(RPakDecompState_t* state, std::uint8_t* fileBuffer, std::int64_t fileSize, std::int64_t offNoHeader, std::int64_t headerSize);
-	RPakLoadedInfo_t GetPakLoadedInfo(int nPakId);
+	RPakLoadedInfo_t* GetPakLoadedInfo(int nPakId);
+	RPakLoadedInfo_t* GetPakLoadedInfo(const char* szPakName);
 };
 
 
