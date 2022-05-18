@@ -498,7 +498,7 @@ std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: gets copied information about loaded pak file via pak ID
+// Purpose: gets information about loaded pak file via pak ID
 //-----------------------------------------------------------------------------
 RPakLoadedInfo_t* RTech::GetPakLoadedInfo(int nPakId)
 {
@@ -519,7 +519,7 @@ RPakLoadedInfo_t* RTech::GetPakLoadedInfo(int nPakId)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: gets copied information about loaded pak file via pak name
+// Purpose: gets information about loaded pak file via pak name
 //-----------------------------------------------------------------------------
 RPakLoadedInfo_t* RTech::GetPakLoadedInfo(const char* szPakName)
 {
