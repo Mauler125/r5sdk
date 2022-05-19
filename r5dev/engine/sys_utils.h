@@ -69,10 +69,10 @@ class VSys_Utils : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: Sys_Error                            : {:#18X} |\n", p_Sys_Error.GetPtr());
-		spdlog::debug("| FUN: Sys_Warning                          : {:#18X} |\n", p_Warning.GetPtr());
-		spdlog::debug("| FUN: Sys_LoadAssetHelper                  : {:#18X} |\n", p_Sys_LoadAssetHelper.GetPtr());
-		spdlog::debug("| FUN: Con_NPrintf                          : {:#18X} |\n", p_Con_NPrintf.GetPtr());
+		spdlog::debug("| FUN: Sys_Error                            : {:#18x} |\n", p_Sys_Error.GetPtr());
+		spdlog::debug("| FUN: Sys_Warning                          : {:#18x} |\n", p_Warning.GetPtr());
+		spdlog::debug("| FUN: Sys_LoadAssetHelper                  : {:#18x} |\n", p_Sys_LoadAssetHelper.GetPtr());
+		spdlog::debug("| FUN: Con_NPrintf                          : {:#18x} |\n", p_Con_NPrintf.GetPtr());
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
