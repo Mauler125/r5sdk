@@ -227,7 +227,7 @@ void CRConClient::ProcessMessage(const sv_rcon::response& sv_response) const
 		// !TODO: Network the enum for this.
 		if (strstr(svOut.c_str(), SQVM_LOG_T[0].c_str()))
 		{
-			HSQVM_PrintFunc(nullptr, const_cast<char*>("%s"), svOut.c_str());
+			SQVM_PrintFunc(nullptr, const_cast<char*>("%s"), svOut.c_str());
 		}
 		else // This has to be done for RUI color logging.
 		{

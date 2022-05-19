@@ -1083,6 +1083,9 @@
     <ClInclude Include="..\tier1\mempool.h">
       <Filter>sdk\tier1</Filter>
     </ClInclude>
+    <ClInclude Include="..\squirrel\sqstate.h">
+      <Filter>sdk\squirrel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">

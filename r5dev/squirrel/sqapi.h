@@ -1,5 +1,6 @@
 #pragma once
 #include "squirrel/sqtype.h"
+#include "squirrel/sqvm.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 SQRESULT sq_pushroottable(HSQUIRRELVM v);

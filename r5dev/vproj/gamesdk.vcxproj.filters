@@ -1526,6 +1526,9 @@
     <ClInclude Include="..\public\include\inetmsghandler.h">
       <Filter>sdk\public\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\squirrel\sqstate.h">
+      <Filter>sdk\squirrel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\shared\resource\lockedserver.png">

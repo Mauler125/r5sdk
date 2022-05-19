@@ -240,6 +240,7 @@
     <ClInclude Include="..\server\server.h" />
     <ClInclude Include="..\squirrel\sqapi.h" />
     <ClInclude Include="..\squirrel\sqinit.h" />
+    <ClInclude Include="..\squirrel\sqstate.h" />
     <ClInclude Include="..\squirrel\sqstdaux.h" />
     <ClInclude Include="..\squirrel\sqtype.h" />
     <ClInclude Include="..\squirrel\sqvm.h" />
