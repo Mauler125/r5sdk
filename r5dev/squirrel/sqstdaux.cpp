@@ -10,6 +10,7 @@
 #include "squirrel/sqstdaux.h"
 
 bool g_bSQAuxError = false;
+bool g_bSQAuxBadIndex = false;
 SQInteger sqstd_aux_printerror(HSQUIRRELVM v)
 {
     g_bSQAuxError = true;
@@ -18,12 +19,21 @@ SQInteger sqstd_aux_printerror(HSQUIRRELVM v)
     return results;
 }
 
+SQInteger sqstd_aux_badindex(HSQUIRRELVM v, __m128i* a2, __m128i* a3)
+{
+    g_bSQAuxBadIndex = true;
+    SQInteger results = v_sqstd_aux_badindex(v, a2, a3);
+    return results;
+}
+
 void SQAUX_Attach()
 {
     DetourAttach((LPVOID*)&v_sqstd_aux_printerror, &sqstd_aux_printerror);
+    DetourAttach((LPVOID*)&v_sqstd_aux_badindex, &sqstd_aux_badindex);
 }
 
 void SQAUX_Detach()
 {
     DetourDetach((LPVOID*)&v_sqstd_aux_printerror, &sqstd_aux_printerror);
+    DetourDetach((LPVOID*)&v_sqstd_aux_badindex, &sqstd_aux_badindex);
 }
