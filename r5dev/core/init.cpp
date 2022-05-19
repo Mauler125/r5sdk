@@ -130,7 +130,7 @@ void Systems_Init()
 	}
 	initTimer.End();
 	spdlog::info("+-------------------------------------------------------------+\n");
-	spdlog::info("Detour->Init()   '{:03.6f}' seconds ('{:12d}' clocks)\n", initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
+	spdlog::info("Detour->Init()   '{:10.6f}' seconds ('{:12d}' clocks)\n", initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
 
 	initTimer.Start();
 
@@ -225,7 +225,7 @@ void Systems_Init()
 	}
 
 	initTimer.End();
-	spdlog::info("Detour->Attach() '{:03.6f}' seconds ('{:12d}' clocks)\n", initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
+	spdlog::info("Detour->Attach() '{:10.6f}' seconds ('{:12d}' clocks)\n", initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
 	spdlog::info("+-------------------------------------------------------------+\n");
 
 	g_pConVar->Init();
@@ -335,7 +335,7 @@ void Systems_Shutdown()
 	DetourTransactionCommit();
 
 	shutdownTimer.End();
-	spdlog::info("Detour->Detach() '{:03.6f}' seconds ('{:12d}' clocks)\n", shutdownTimer.GetDuration().GetSeconds(), shutdownTimer.GetDuration().GetCycles());
+	spdlog::info("Detour->Detach() '{:10.6f}' seconds ('{:12d}' clocks)\n", shutdownTimer.GetDuration().GetSeconds(), shutdownTimer.GetDuration().GetCycles());
 	spdlog::info("+-------------------------------------------------------------+\n");
 }
 
