@@ -842,7 +842,6 @@ Mat_CrossHair_f
 */
 void Mat_CrossHair_f(const CCommand& args)
 {
-#if defined (GAMEDLL_S3) // [ PIXIE ]: Verification needed for earlier seasons if CMaterialGlue matches.
 	CMaterialGlue* material = GetMaterialAtCrossHair();
 	if (material)
 	{
@@ -886,6 +885,5 @@ void Mat_CrossHair_f(const CCommand& args)
 	{
 		DevMsg(eDLL_T::MS, "No Material found >:(\n");
 	}
-#endif
 }
 #endif // !DEDICATED
