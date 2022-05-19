@@ -7,23 +7,6 @@
 
 struct SQVM
 {
-	char pad0[0x8];
-	SQVM* _vftable;
-	_BYTE gap0[12];
-#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
-	_BYTE gap1[4];
-	SQCONTEXT _contextidx;
-	_BYTE gap2[8];
-#endif
-	_BYTE gap3[30];
-	void* _callstack;
-	void* unk0;
-	SQInteger _stackbase;
-	SQInteger unk5c;
-	SQSharedState* _sharedstate;
-	char gap4[16];
-	int _top;
-
 	SQVM* GetVTable() const
 	{
 		return _vftable;
@@ -34,6 +17,23 @@ struct SQVM
 		return _contextidx;
 	}
 #endif
+
+	char pad0[0x8];
+	SQVM* _vftable;
+	_BYTE gap0[12];
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
+	_BYTE gap1[4];
+	SQCONTEXT _contextidx;
+	_BYTE gap2[8];
+#endif
+	_BYTE gap3[22];
+	void* _callstack;
+	void* unk0;
+	SQInteger _stackbase;
+	SQInteger unk5c;
+	SQSharedState* _sharedstate;
+	char gap4[16];
+	int _top;
 };
 typedef SQVM* HSQUIRRELVM;
 
