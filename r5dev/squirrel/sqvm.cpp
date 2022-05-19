@@ -104,12 +104,12 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 					vmStrAnsi = SQVM_WARNING_ANSI_LOG_T[static_cast<SQInteger>(context)].c_str();
 				}
 			}
-			else if (g_bSQAuxBadIndex)
+			else if (g_bSQAuxBadLogic)
 			{
 				if (strstr(buf, "There was a problem processing game logic."))
 				{
 					bError = true;
-					g_bSQAuxBadIndex = false;
+					g_bSQAuxBadLogic = false;
 					vmStrAnsi = SQVM_ERROR_ANSI_LOG_T[static_cast<SQInteger>(context)].c_str();
 				}
 				else
