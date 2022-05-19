@@ -24,14 +24,9 @@ enum class ePakStatus : int
 };
 
 /* ==== RTECH_GAME ====================================================================================================================================================== */
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 inline CMemory p_CPakFile_LoadPak;
 inline auto CPakFile_LoadPak = p_CPakFile_LoadPak.RCast<unsigned int (*)(void* thisptr, void* a2, uint64_t a3)>();
 
-inline CMemory p_CPakFile_LoadMapPak;
-inline auto CPakFile_LoadMapPak = p_CPakFile_LoadMapPak.RCast<bool (*)(const char* szPakFile)>();
-#endif
 inline CMemory p_CPakFile_AsyncLoad;
 inline auto CPakFile_AsyncLoad = p_CPakFile_AsyncLoad.RCast<RPakHandle_t(*)(const char* szPakFileName, uintptr_t pMalloc, int nIdx, bool bUnk)>();
 
@@ -56,22 +51,18 @@ class VRTechGame : public IDetour
 	virtual void GetAdr(void) const
 	{
 		spdlog::debug("| FUN: CPakFile::AsyncLoad                  : {:#18x} |\n", p_CPakFile_AsyncLoad.GetPtr());
-#if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		spdlog::debug("| FUN: CPakFile::LoadPak                    : {:#18x} |\n", p_CPakFile_LoadPak.GetPtr());
-		spdlog::debug("| FUN: CPakFile::LoadMapPak                 : {:#18x} |\n", p_CPakFile_LoadMapPak.GetPtr());
 		spdlog::debug("| FUN: CPakFile::UnloadPak                  : {:#18x} |\n", p_CPakFile_UnloadPak.GetPtr());
-#endif // GAMEDLL_S2 || GAMEDLL_S3
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+		p_CPakFile_LoadPak = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x4C\x24\x00\x56\x41\x55\x48\x81\xEC\x00\x00\x00\x00\x4C\x8B\x69\x60"), "xxxx?xxxxxx????xxxx");
+		CPakFile_LoadPak = p_CPakFile_LoadPak.RCast<unsigned int (*)(void*, void*, uint64_t)>(); /*48 89 4C 24 ? 56 41 55 48 81 EC ? ? ? ? 4C 8B 69 60*/
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		p_CPakFile_LoadPak = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x4C\x24\x00\x56\x41\x55"), "xxxx?xxx"); /*48 89 4C 24 ? 56 41 55*/
 		CPakFile_LoadPak = p_CPakFile_LoadPak.RCast<unsigned int (*)(void*, void*, uint64_t)>();
-
-		p_CPakFile_LoadMapPak = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x81\xEC\x00\x00\x00\x00\x0F\xB6\x05\x00\x00\x00\x00\x4C\x8D\x05\x00\x00\x00\x00\x84\xC0"), "xxx????xxx????xxx????xx");
-		CPakFile_LoadMapPak = p_CPakFile_LoadMapPak.RCast<bool (*)(const char*)>(); /*48 81 EC ? ? ? ? 0F B6 05 ? ? ? ? 4C 8D 05 ? ? ? ? 84 C0*/
 #endif
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
 		p_CPakFile_AsyncLoad = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x40\x48\x89\x6C\x24\x00\x41\x8B\xE8"), "xxxxxxxxxx?xxx");

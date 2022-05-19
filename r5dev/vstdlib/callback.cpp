@@ -331,7 +331,6 @@ Pak_ListPaks_f
 */
 void Pak_ListPaks_f(const CCommand& args)
 {
-#ifdef GAMEDLL_S3
 	DevMsg(eDLL_T::RTECH, "| id | name                                               | status                               | asset count |\n");
 	DevMsg(eDLL_T::RTECH, "|----|----------------------------------------------------|--------------------------------------|-------------|\n");
 
@@ -357,7 +356,6 @@ void Pak_ListPaks_f(const CCommand& args)
 	DevMsg(eDLL_T::RTECH, "|----|----------------------------------------------------|--------------------------------------|-------------|\n");
 	DevMsg(eDLL_T::RTECH, "| %16i loaded paks.                                                                                |\n", nActuallyLoaded);
 	DevMsg(eDLL_T::RTECH, "|----|----------------------------------------------------|--------------------------------------|-------------|\n");
-#endif // GAMEDLL_S3
 }
 
 /*
@@ -367,7 +365,6 @@ Pak_RequestUnload_f
 */
 void Pak_RequestUnload_f(const CCommand& args)
 {
-#ifdef GAMEDLL_S3
 	if (args.ArgC() < 2)
 	{
 		return;
@@ -405,7 +402,6 @@ void Pak_RequestUnload_f(const CCommand& args)
 		Error(eDLL_T::RTECH, "%s - %s", __FUNCTION__, e.what());
 		return;
 	}
-#endif // GAMEDLL_S3
 }
 
 /*
@@ -426,7 +422,6 @@ Pak_Swap_f
 */
 void Pak_Swap_f(const CCommand& args)
 {
-#ifdef GAMEDLL_S3
 	try
 	{
 		RPakHandle_t nPakId = 0;
@@ -470,7 +465,6 @@ void Pak_Swap_f(const CCommand& args)
 		Error(eDLL_T::RTECH, "%s - %s", __FUNCTION__, e.what());
 		return;
 	}
-#endif// GAMEDLL_S3
 }
 
 /*
