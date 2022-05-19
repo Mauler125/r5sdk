@@ -26,7 +26,7 @@ class HSV_Main : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: SV_InitGameDLL                       : {:#18x} |\n", p_SV_ShutdownGameDLL.GetPtr());
+		spdlog::debug("| FUN: SV_InitGameDLL                       : {:#18x} |\n", p_SV_InitGameDLL.GetPtr());
 		spdlog::debug("| FUN: SV_ShutdownGameDLL                   : {:#18x} |\n", p_SV_ShutdownGameDLL.GetPtr());
 		spdlog::debug("| FUN: SV_CreateBaseline                    : {:#18x} |\n", p_SV_CreateBaseline.GetPtr());
 		spdlog::debug("| FUN: CGameServer::SpawnServer             : {:#18x} |\n", p_CGameServer__SpawnServer.GetPtr());
@@ -36,7 +36,7 @@ class HSV_Main : public IDetour
 	virtual void GetFun(void) const
 	{
 		p_SV_InitGameDLL     = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x81\xEC\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x0F\x85\x00\x00\x00\x00"), "xxx????x????xx?????xx????");
-		p_SV_ShutdownGameDLL = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x80\x3D\x00\x00\x00\x00\x00\x0F\x84\x00\x00\x00\x00\x48\x8B\x0D\x00\x00\x00\x00\x48\x89\x5C\x24\x00"), "xxxxxx?????xx????xxx????xxxx?");
+		p_SV_ShutdownGameDLL = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x80\x3D\x00\x00\x00\x00\x00\x0F\x84\x00\x00\x00\x00\x48\x8B\x0D\x00\x00\x00\x00\x48"), "xxxxxx?????xx????xxx????x");
 		p_SV_CreateBaseline  = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x48\x8B\x0D\x00\x00\x00\x00\x48\x85\xC9\x75\x07"), "xxxxxxx????xxxxx");
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 		p_CGameServer__SpawnServer = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x55\x56\x57\x41\x55\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00"), "xxxxxxxxxxxxxx????");
