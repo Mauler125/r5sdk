@@ -15,6 +15,7 @@
 #include "engine/cl_main.h"
 #include "engine/sv_main.h"
 #include "engine/sys_getmodes.h"
+#include "engine/baseclientstate.h"
 #include "game/server/ai_networkmanager.h"
 #include "game/server/fairfight_impl.h"
 #include "rtech/rtech_game.h"
@@ -62,7 +63,8 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	{
 		/*MOV EAX, 0*/
-		CClientState__RunFrame.Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 }); // FUN --> RET | Always return false for pending client snapshots (inline CClientState call in '_Host_RunFrame()')
+		p_CClientState__RunFrame.Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 });   // FUN --> RET | Always return false for pending client snapshots (inline CClientState call in '_Host_RunFrame()')
+		p_CClientState__Disconnect.Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 }); // FUN --> RET | Always return false for keeping client persistent data after disconnect (CLIENT ONLY).
 	}
 
 	//-------------------------------------------------------------------------
