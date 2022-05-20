@@ -37,7 +37,7 @@ struct SQVM
 };
 typedef SQVM* HSQUIRRELVM;
 
-struct SQFuncRegistration
+struct ScriptFunctionBinding_t
 {
 	const SQChar* m_szScriptName; // 00
 	const SQChar* m_szNativeName; // 08
@@ -57,9 +57,9 @@ struct SQFuncRegistration
 	std::int32_t padding3;        // 5C
 	void* m_pFunction;            // 60
 
-	SQFuncRegistration()
+	ScriptFunctionBinding_t()
 	{
-		memset(this, '\0', sizeof(SQFuncRegistration));
+		memset(this, '\0', sizeof(ScriptFunctionBinding_t));
 		this->padding2 = 6;
 	}
 };
@@ -91,7 +91,7 @@ inline CMemory p_SQVM_WarningCmd;
 inline auto v_SQVM_WarningCmd = p_SQVM_WarningCmd.RCast<SQRESULT(*)(HSQUIRRELVM v, SQInteger a2)>();
 
 inline CMemory p_SQVM_RegisterFunc;
-inline auto v_SQVM_RegisterFunc = p_SQVM_RegisterFunc.RCast<SQRESULT(*)(HSQUIRRELVM v, SQFuncRegistration* sqFunc, SQInteger a1)>();
+inline auto v_SQVM_RegisterFunc = p_SQVM_RegisterFunc.RCast<SQRESULT(*)(HSQUIRRELVM v, ScriptFunctionBinding_t* sqFunc, SQInteger a1)>();
 
 inline CMemory p_SQVM_CompileError;
 inline auto v_SQVM_CompileError = p_SQVM_CompileError.RCast<void (*)(HSQUIRRELVM v, const SQChar* pszError, const SQChar* pszFile, SQUnsignedInteger nLine, SQInteger nColumn)>();
@@ -234,7 +234,7 @@ class HSQVM : public IDetour
 		v_SQVM_LoadScript   = p_SQVM_LoadScript.RCast<SQBool(*)(HSQUIRRELVM, const SQChar*, const SQChar*, SQInteger)>();                     /*48 8B C4 48 89 48 08 55 41 56 48 8D 68*/
 		v_SQVM_LoadRson     = p_SQVM_LoadRson.RCast<SQInteger(*)(const SQChar*)>();                                                           /*4C 8B DC 49 89 5B 08 57 48 81 EC A0 00 00 00 33*/
 		v_SQVM_WarningCmd   = p_SQVM_WarningCmd.RCast<SQRESULT(*)(HSQUIRRELVM, SQInteger)>();                                                 /*40 53 48 83 EC 30 33 DB 48 8D 44 24 ?? 4C 8D 4C 24 ??*/
-		v_SQVM_RegisterFunc = p_SQVM_RegisterFunc.RCast<SQRESULT(*)(HSQUIRRELVM, SQFuncRegistration*, SQInteger)>();                          /*48 83 EC 38 45 0F B6 C8*/
+		v_SQVM_RegisterFunc = p_SQVM_RegisterFunc.RCast<SQRESULT(*)(HSQUIRRELVM, ScriptFunctionBinding_t*, SQInteger)>();                          /*48 83 EC 38 45 0F B6 C8*/
 		v_SQVM_CompileError = p_SQVM_CompileError.RCast<void (*)(HSQUIRRELVM, const SQChar*, const SQChar*, SQUnsignedInteger, SQInteger)>(); /*48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 81 EC ? ? ? ? 48 8B D9 4C 8B F2*/
 #if !defined (CLIENT_DLL)
 		v_SQVM_InitializeSVGlobalScriptStructs = p_SQVM_InitializeSVGlobalScriptStructs.RCast<SQRESULT(*)(SQVM*)>();            /*48 89 74 24 ?? 57 48 83 EC 30 48 8B 3D ?? ?? ?? ?? 48 8B F1*/

@@ -318,7 +318,7 @@ SQBool SQVM_LoadScript(HSQUIRRELVM v, const SQChar* szScriptPath, const SQChar* 
 //---------------------------------------------------------------------------------
 SQRESULT SQVM_RegisterFunction(HSQUIRRELVM v, const SQChar* szName, const SQChar* szHelpString, const SQChar* szRetValType, const SQChar* szArgTypes, void* pFunction)
 {
-	SQFuncRegistration* sqFunc = new SQFuncRegistration();
+	ScriptFunctionBinding_t* sqFunc = new ScriptFunctionBinding_t();
 
 	sqFunc->m_szScriptName = szName;
 	sqFunc->m_szNativeName = szName;
