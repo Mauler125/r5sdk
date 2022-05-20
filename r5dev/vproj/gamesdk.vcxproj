@@ -38,6 +38,7 @@
     <ClCompile Include="..\engine\host_state.cpp" />
     <ClCompile Include="..\engine\modelloader.cpp" />
     <ClCompile Include="..\engine\net.cpp" />
+    <ClCompile Include="..\engine\networkstringtable.cpp" />
     <ClCompile Include="..\engine\net_chan.cpp" />
     <ClCompile Include="..\engine\server\server.cpp" />
     <ClCompile Include="..\engine\server\sv_main.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="..\engine\host_state.h" />
     <ClInclude Include="..\engine\modelloader.h" />
     <ClInclude Include="..\engine\net.h" />
+    <ClInclude Include="..\engine\networkstringtable.h" />
     <ClInclude Include="..\engine\net_chan.h" />
     <ClInclude Include="..\engine\packed_entity.h" />
     <ClInclude Include="..\engine\server\server.h" />
@@ -219,6 +221,7 @@
     <ClInclude Include="..\public\include\icliententitylist.h" />
     <ClInclude Include="..\public\include\inetchannel.h" />
     <ClInclude Include="..\public\include\inetmsghandler.h" />
+    <ClInclude Include="..\public\include\iserver.h" />
     <ClInclude Include="..\public\include\ivrenderview.h" />
     <ClInclude Include="..\public\include\memaddr.h" />
     <ClInclude Include="..\public\include\bansystem.h" />

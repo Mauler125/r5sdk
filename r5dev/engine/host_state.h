@@ -37,7 +37,7 @@ public:
 	HostStates_t m_iNextState;                       //0x0004
 	Vector3      m_vecLocation;                      //0x0008
 	QAngle       m_angLocation;                      //0x0014
-	char         m_levelName[MAX_LEVELNAME_LEN];     //0x0020
+	char         m_levelName[MAX_MAP_NAME_HOST];     //0x0020
 	char         m_mapGroupName[256];                //0x0060
 	char         m_landMarkName[256];                //0x0160
 	float        m_flShortFrameTime;                 //0x0260

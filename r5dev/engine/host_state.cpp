@@ -3,7 +3,9 @@
 // Purpose: Runs the state machine for the host & server.
 //
 //=============================================================================//
-
+// host_state.cpp: methods are declared inline to prevent stack corruption.
+//
+/////////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
 #include "tier0/jobthread.h"
 #include "tier0/commandline.h"

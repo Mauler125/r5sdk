@@ -17,10 +17,11 @@
 #define MAX_PLAYERS 128 // Max R5 players.
 
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
-#define MAX_LEVELNAME_LEN 64
+#define MAX_MAP_NAME_HOST 64
 #else
-#define MAX_LEVELNAME_LEN 32
+#define MAX_MAP_NAME_HOST 32
 #endif // Max BSP file name len.
+#define MAX_MAP_NAME 64
 
 #define SDK_VERSION "beta 1.6"/*"VGameSDK001"*/ // Increment this with every /breaking/ SDK change (i.e. security/backend changes breaking compatibility).
 

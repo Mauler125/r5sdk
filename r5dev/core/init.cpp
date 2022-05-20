@@ -61,9 +61,6 @@
 #include "engine/client/cl_main.h"
 #include "engine/client/client.h"
 #include "engine/client/clientstate.h"
-#ifndef CLIENT_DLL
-#include "engine/server/server.h"
-#endif // !CLIENT_DLL
 #include "engine/common.h"
 #include "engine/cmodel_bsp.h"
 #include "engine/host.h"

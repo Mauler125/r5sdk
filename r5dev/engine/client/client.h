@@ -2,7 +2,6 @@
 #include "vpc/keyvalues.h"
 #include "common/protocol.h"
 #include "engine/net_chan.h"
-#include "server/vengineserver_impl.h"
 
 //-----------------------------------------------------------------------------
 // Forward declarations

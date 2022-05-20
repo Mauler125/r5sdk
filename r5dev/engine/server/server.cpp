@@ -14,7 +14,6 @@
 #include "engine/sys_utils.h"
 #include "engine/server/sv_main.h"
 #include "engine/server/server.h"
-#include "engine/client/client.h"
 #include "networksystem/r5net.h"
 #include "public/include/edict.h"
 #include "public/include/bansystem.h"
@@ -59,13 +58,13 @@ int CServer::GetNumFakeClients(void) const
 	return nBots;
 }
 
-//-----------------------------------------------------------------------------
+//---------------------------------------------------------------------------------
 // Purpose: client to server authentication
 // Input  : *this - 
 //			*pInpacket - 
 // Output : pointer to client instance on success, nullptr on failure
-//-----------------------------------------------------------------------------
-CClient* CServer::Authenticate(CServer* pServer, user_creds* pInpacket)
+//---------------------------------------------------------------------------------
+CClient* CServer::Authenticate(CServer* pServer, user_creds_s* pInpacket)
 {
 	std::string svIpAddress = pInpacket->m_nAddr.GetAddress();
 	if (sv_showconnecting->GetBool())
@@ -122,4 +121,4 @@ void CServer_Detach()
 
 ///////////////////////////////////////////////////////////////////////////////
 bool g_bCheckCompBanDB = true;
-CServer* g_pServer = new CServer(); // !TODO: Replace with engine global if found.
+CServer* g_pServer = nullptr;

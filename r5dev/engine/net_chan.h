@@ -116,11 +116,11 @@ private:
 	int                 m_nLastRecvFlags;
 	RTL_SRWLOCK         LOCK;
 	bf_write            m_StreamReliable;
-	CUtlMemory          m_ReliableDataBuffer;
+	CUtlMemory<byte>    m_ReliableDataBuffer;
 	bf_write            m_StreamUnreliable;
-	CUtlMemory          m_UnreliableDataBuffer;
+	CUtlMemory<byte>    m_UnreliableDataBuffer;
 	bf_write            m_StreamVoice;
-	CUtlMemory          m_VoiceDataBuffer;
+	CUtlMemory<byte>    m_VoiceDataBuffer;
 	int                 m_Socket;
 	int                 m_MaxReliablePayloadSize;
 	double              last_received;

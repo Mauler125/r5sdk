@@ -133,7 +133,7 @@ void CLogSystem::DrawSimStats(void) const
 	static Color c = { 255, 255, 255, 255 };
 	static const char* szLogbuf[4096]{};
 	snprintf((char*)szLogbuf, 4096, "Server Frame: (%d) Client Frame: (%d) Render Frame: (%d)\n",
-	*sv_m_nTickCount, *cl_host_tickcount, *render_tickcount);
+	g_pServer->GetTick(), g_pClientState->GetClientTickCount(), *render_tickcount);
 
 	if (cl_simstats_invert_rect_x->GetBool())
 	{

@@ -15,6 +15,7 @@
 #include "engine/net.h"
 #include "engine/net_chan.h"
 #ifndef CLIENT_DLL
+#include "engine/server/server.h"
 #include "engine/client/client.h"
 #endif // !CLIENT_DLL
 #endif // !NETCONSOLE

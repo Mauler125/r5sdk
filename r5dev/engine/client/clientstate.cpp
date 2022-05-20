@@ -19,7 +19,7 @@
 //------------------------------------------------------------------------------
 bool CClientState::IsPaused()
 {
-	return *cl_m_bPaused;
+	return m_bPaused;
 }
 
 //------------------------------------------------------------------------------
@@ -30,7 +30,7 @@ float CClientState::GetClientTime()
 {
     if (*cl_time_use_host_tickcount)
     {
-        return (float)(int)*cl_host_tickcount * (float)*client_debugdraw_int_unk;
+        return (float)(int)m_ClockDriftMgr.m_nClientTick * (float)*client_debugdraw_int_unk;
     }
     else
     {
@@ -43,7 +43,7 @@ float CClientState::GetClientTime()
 //------------------------------------------------------------------------------
 int CClientState::GetClientTickCount() const
 {
-    return *cl_host_tickcount;
+    return m_ClockDriftMgr.m_nClientTick;
 }
 
 //------------------------------------------------------------------------------
@@ -51,7 +51,8 @@ int CClientState::GetClientTickCount() const
 //------------------------------------------------------------------------------
 void CClientState::SetClientTickCount(int tick)
 {
-    *cl_host_tickcount = tick;
+    m_ClockDriftMgr.m_nClientTick = tick;
 }
 
-CClientState* g_pBaseClientState = nullptr;
+/////////////////////////////////////////////////////////////////////////////////
+CClientState* g_pClientState = nullptr;

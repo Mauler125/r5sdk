@@ -1086,6 +1086,12 @@
     <ClInclude Include="..\engine\server\sv_rcon.h">
       <Filter>sdk\engine\server</Filter>
     </ClInclude>
+    <ClInclude Include="..\engine\networkstringtable.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\iserver.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1327,6 +1333,9 @@
     </ClCompile>
     <ClCompile Include="..\engine\server\server.cpp">
       <Filter>sdk\engine\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\networkstringtable.cpp">
+      <Filter>sdk\engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -2,8 +2,21 @@
 #include "tier1/NetAdr2.h"
 #include "networksystem/r5net.h"
 #include "engine/client/client.h"
+#include "engine/networkstringtable.h"
+#include "public/include/iserver.h"
+#ifndef CLIENT_DLL
+#include "server/vengineserver_impl.h"
+#endif // !CLIENT_DLL
 
-struct user_creds
+enum class server_state_t
+{
+	ss_dead = 0,	// Dead
+	ss_loading,		// Spawning
+	ss_active,		// Running
+	ss_paused,		// Running, but paused
+};
+
+struct user_creds_s
 {
 	v_netadr_t m_nAddr;
 	int32_t  m_nProtocolVer;
@@ -13,12 +26,49 @@ struct user_creds
 	int64_t  m_nUserID;
 };
 
-class CServer
+class CServer : public IServer
 {
 public:
+	int	GetTick(void) const { return m_nTickCount; }
+#ifndef CLIENT_DLL // Only the connectionless packet handler is implemented on the client via the IServer base class.
 	int GetNumHumanPlayers(void) const;
 	int GetNumFakeClients(void) const;
-	static CClient* Authenticate(CServer* pServer, user_creds* pInpacket);
+	const char* GetMapName(void) const { return m_szMapname; }
+	const char* GetMapGroupName(void) const { return m_szMapGroupName; }
+	int GetNumClasses(void) const { return serverclasses; }
+	int GetClassBits(void) const { return serverclassbits; }
+	bool IsActive(void) const { return m_State >= server_state_t::ss_active; }
+	bool IsLoading(void) const { return m_State == server_state_t::ss_loading; }
+	bool IsDedicated(void) const { return g_bDedicated; }
+	static CClient* Authenticate(CServer* pServer, user_creds_s* pInpacket);
+#endif // !CLIENT_DLL
+
+private:
+	server_state_t                m_State;                       // some actions are only valid during load
+	int                           m_Socket;                      // network socket 
+	int                           m_nTickCount;                  // current server tick
+	bool                          m_bResetMaxTeams;              // reset max players on the server
+	char                          m_szMapname[MAX_MAP_NAME];     // map name and path without extension
+	char                          m_szMapGroupName[64];          // map group name
+	char                          m_szPassword[32];              // server password
+	uint32_t                      worldmapCRC;                   // for detecting that client has a hacked local copy of map, the client will be dropped if this occurs.
+	uint32_t                      clientDllCRC;                  // the dll that this server is expecting clients to be using.
+	CNetworkStringTableContainer* m_StringTables;                // network string table container
+	CNetworkStringTable*          m_pInstanceBaselineTable;      // instancebaseline
+	CNetworkStringTable*          m_pLightStyleTable;            // lightstyles
+	CNetworkStringTable*          m_pUserInfoTable;              // userinfo
+	CNetworkStringTable*          m_pServerQueryTable;           // server_query_inf
+	bool                          m_bReplay;                     // MAYBE
+	bool                          m_bUpdateFrame;                // perform snapshot update
+	bool                          m_bUseReputation;              // use of player reputation on the server
+	bool                          m_bSimulating;                 // are we simulating or not
+	int                           m_nPad;                        // padding
+	bf_write                      m_Signon;                      // signon bitbuf
+	CUtlMemory<byte>              m_SignonBuffer;                // signon memory
+	int                           serverclasses;                 // number of unique server classes
+	int                           serverclassbits;               // log2 of serverclasses
+	char                          m_szHostInfo[128];             // see '[r5apex_ds.exe + 0x237740]' for more details. fmt: '[IPv6]:PORT:TIMEi64u'
+	// TODO: Reverse the rest.
 };
 extern CServer* g_pServer;
 
@@ -27,17 +77,13 @@ inline CMemory p_CServer_Think;
 inline auto v_CServer_Think = p_CServer_Think.RCast<void (*)(bool bCheckClockDrift, bool bIsSimulating)>();
 
 inline CMemory p_CServer_Authenticate;
-inline auto v_CServer_Authenticate = p_CServer_Authenticate.RCast<CClient* (*)(CServer* pServer, user_creds* pCreds)>();
+inline auto v_CServer_Authenticate = p_CServer_Authenticate.RCast<CClient* (*)(CServer* pServer, user_creds_s* pCreds)>();
 
 inline CMemory p_CServer_RejectConnection;
-inline auto v_CServer_RejectConnection = p_CServer_RejectConnection.RCast<void* (*)(CServer* pServer, unsigned int a2, user_creds* pCreds, const char* szMessage)>();
-
-inline int* sv_m_nTickCount = nullptr;
+inline auto v_CServer_RejectConnection = p_CServer_RejectConnection.RCast<void* (*)(CServer* pServer, unsigned int a2, user_creds_s* pCreds, const char* szMessage)>();
 
 void CServer_Attach();
 void CServer_Detach();
-
-void SV_IsClientBanned(R5Net::Client* r5net, const std::string ipaddr, std::int64_t nucleus_id);
 
 extern bool g_bCheckCompBanDB;
 
@@ -49,7 +95,7 @@ class VServer : public IDetour
 		spdlog::debug("| FUN: CServer::Think                       : {:#18x} |\n", p_CServer_Think.GetPtr());
 		spdlog::debug("| FUN: CServer::Authenticate                : {:#18x} |\n", p_CServer_Authenticate.GetPtr());
 		spdlog::debug("| FUN: CServer::RejectConnection            : {:#18x} |\n", p_CServer_RejectConnection.GetPtr());
-		spdlog::debug("| VAR: sv_m_nTickCount                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(sv_m_nTickCount));
+		spdlog::debug("| VAR: g_pServer                            : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pServer));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
@@ -64,13 +110,14 @@ class VServer : public IDetour
 #endif
 		p_CServer_RejectConnection = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x89\x4C\x24\x00\x53\x55\x56\x57\x48\x81\xEC\x00\x00\x00\x00\x49\x8B\xD9"), "xxxx?xxxxxxx????xxx");
 
-		v_CServer_Think = p_CServer_Think.RCast<void (*)(bool bCheckClockDrift, bool bIsSimulating)>();                                                /*48 89 5C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ??*/
-		v_CServer_Authenticate = p_CServer_Authenticate.RCast<CClient* (*)(CServer* pServer, user_creds* pCreds)>();                                          /*40 55 57 41 55 41 57 48 8D AC 24 ?? ?? ?? ??*/
-		v_CServer_RejectConnection = p_CServer_RejectConnection.RCast<void* (*)(CServer* pServer, unsigned int a2, user_creds* pCreds, const char* szMessage)>(); /*4C 89 4C 24 ?? 53 55 56 57 48 81 EC ?? ?? ?? ?? 49 8B D9*/
+		v_CServer_Think = p_CServer_Think.RCast<void (*)(bool bCheckClockDrift, bool bIsSimulating)>();                                                             /*48 89 5C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ??*/
+		v_CServer_Authenticate = p_CServer_Authenticate.RCast<CClient* (*)(CServer* pServer, user_creds_s* pCreds)>();                                              /*40 55 57 41 55 41 57 48 8D AC 24 ?? ?? ?? ??*/
+		v_CServer_RejectConnection = p_CServer_RejectConnection.RCast<void* (*)(CServer* pServer, unsigned int a2, user_creds_s* pCreds, const char* szMessage)>(); /*4C 89 4C 24 ?? 53 55 56 57 48 81 EC ?? ?? ?? ?? 49 8B D9*/
 	}
 	virtual void GetVar(void) const
 	{
-		sv_m_nTickCount = p_CServer_Think.Offset(0xB0).FindPatternSelf("8B 15", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x2, 0x6).RCast<int*>();
+		g_pServer = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x20\x48\x0F\xBF\xD1"), "xxxx?xxxxxxxxx")
+			.FindPatternSelf("48 8D 3D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CServer*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

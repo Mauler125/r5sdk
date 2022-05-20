@@ -10,7 +10,6 @@
 ///////////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
 #include "engine/client/client.h"
-#include "engine/server/server.h"
 
 //---------------------------------------------------------------------------------
 // Purpose: gets the client from buffer by index
@@ -23,7 +22,7 @@ CClient* CClient::GetClient(int nIndex) const
 //---------------------------------------------------------------------------------
 // Purpose: gets the userID of this client
 //---------------------------------------------------------------------------------
-std::int32_t CClient::GetUserID(void) const
+int32_t CClient::GetUserID(void) const
 {
 	return m_nUserID;
 }
@@ -31,7 +30,7 @@ std::int32_t CClient::GetUserID(void) const
 //---------------------------------------------------------------------------------
 // Purpose: gets the userID of this client
 //---------------------------------------------------------------------------------
-std::int64_t CClient::GetOriginID(void) const
+int64_t CClient::GetOriginID(void) const
 {
 	return m_nOriginID;
 }

@@ -10,9 +10,6 @@
 #include "engine/framesnapshot.h"
 #include "engine/packed_entity.h"
 
-inline bool* cl_m_bPaused = nullptr;
-inline int* cl_host_tickcount = nullptr;
-
 struct __declspec(align(8)) CClientSnapshotManager
 {
 	void* __vftable /*VFT*/;
@@ -170,7 +167,9 @@ public:
 	char byte34A38;
 	char field_34A39[7];
 };
-extern CClientState* g_pBaseClientState;
+#ifndef DEDICATED
+extern CClientState* g_pClientState;
+#endif // DEDICATED
 
 /* ==== CCLIENTSTATE ==================================================================================================================================================== */
 inline CMemory p_CClientState__RunFrame;
@@ -191,8 +190,9 @@ class VClientState : public IDetour
 		spdlog::debug("| FUN: CClientState::RunFrame               : {:#18x} |\n", p_CClientState__RunFrame.GetPtr());
 		spdlog::debug("| FUN: CClientState::Disconnect             : {:#18x} |\n", p_CClientState__Disconnect.GetPtr());
 		spdlog::debug("| FUN: CClientState::CheckForResend         : {:#18x} |\n", p_CClientState__CheckForResend.GetPtr());
-		spdlog::debug("| VAR: cl_m_bPaused                         : {:#18x} |\n", reinterpret_cast<uintptr_t>(cl_m_bPaused));
-		spdlog::debug("| VAR: cl_host_tickcount                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(cl_host_tickcount));
+#ifndef DEDICATED
+		spdlog::debug("| VAR: g_pClientState                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pClientState));
+#endif // DEDICATED
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
@@ -223,32 +223,11 @@ class VClientState : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		CMemory localRef = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
-			"\x40\x55\x48\x83\xEC\x50\x48\x8B\x05\x00\x00\x00\x00"), "xxxxxxxxx????");
-
-		cl_m_bPaused = localRef.Offset(0x90)
-			.FindPatternSelf("80 3D ? ? ? 0B ?", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x2).RCast<bool*>();
-		cl_host_tickcount = localRef.Offset(0xC0)
-			.FindPatternSelf("66 0F 6E", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x4, 0x8).RCast<int*>();
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-
-		CMemory localRef = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
-			"\x40\x55\x48\x83\xEC\x30\x48\x8B\x05\x00\x00\x00\x00\x0F\xB6\xE9"), "xxxxxxxxx????xxx");
-
-		cl_m_bPaused = localRef.Offset(0x70)
-			.FindPatternSelf("80 3D ? ? ? 01 ?", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x7).RCast<bool*>();
-		cl_host_tickcount = localRef.Offset(0xC0)
-			.FindPatternSelf("66 0F 6E", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x4, 0x8).RCast<int*>();
-#endif
-	}
-	virtual void GetCon(void) const
-	{
 #ifndef DEDICATED
-		g_pBaseClientState = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x0F\x84\x00\x00\x00\x00\x48\x8D\x0D\x00\x00\x00\x00\x48\x83\xC4\x28"), "xx????xxx????xxxx").FindPatternSelf("48 8D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CClientState*>(); /*0F 84 ? ? ? ? 48 8D 0D ? ? ? ? 48 83 C4 28*/
-#endif
+		g_pClientState = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x0F\x84\x00\x00\x00\x00\x48\x8D\x0D\x00\x00\x00\x00\x48\x83\xC4\x28"), "xx????xxx????xxxx").FindPatternSelf("48 8D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CClientState*>(); /*0F 84 ? ? ? ? 48 8D 0D ? ? ? ? 48 83 C4 28*/
+#endif // DEDICATED
 	}
+	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }
 };

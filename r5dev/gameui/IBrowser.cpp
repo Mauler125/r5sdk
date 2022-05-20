@@ -23,7 +23,9 @@ History:
 #include "engine/net.h"
 #include "engine/sys_utils.h"
 #include "engine/host_state.h"
+#ifndef CLIENT_DLL
 #include "engine/server/server.h"
+#endif // CLIENT_DLL
 #include "networksystem/serverlisting.h"
 #include "networksystem/r5net.h"
 #include "squirrel/sqinit.h"

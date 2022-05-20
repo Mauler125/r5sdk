@@ -492,6 +492,9 @@
     <ClCompile Include="..\engine\client\cl_rcon.cpp">
       <Filter>sdk\engine\client</Filter>
     </ClCompile>
+    <ClCompile Include="..\engine\networkstringtable.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1465,6 +1468,9 @@
     </ClInclude>
     <ClInclude Include="..\engine\client\cl_rcon.h">
       <Filter>sdk\engine\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\networkstringtable.h">
+      <Filter>sdk\engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
