@@ -181,6 +181,12 @@
     <Filter Include="thirdparty\nlohmann\detail\meta\call_std">
       <UniqueIdentifier>{ec4e73bc-3627-4184-afaa-47535aa00982}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\engine\server">
+      <UniqueIdentifier>{b8f37659-c83d-4b75-81ea-5a4cafeea264}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\engine\client">
+      <UniqueIdentifier>{98975892-5379-4f6c-8c7e-35d92d2bc5e5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\opcodes.h">
@@ -217,9 +223,6 @@
       <Filter>sdk\engine</Filter>
     </ClInclude>
     <ClInclude Include="..\engine\sys_utils.h">
-      <Filter>sdk\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\engine\baseclient.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
     <ClInclude Include="..\launcher\IApplication.h">
@@ -582,9 +585,6 @@
     <ClInclude Include="..\squirrel\sqinit.h">
       <Filter>sdk\squirrel</Filter>
     </ClInclude>
-    <ClInclude Include="..\server\server.h">
-      <Filter>sdk\server</Filter>
-    </ClInclude>
     <ClInclude Include="..\tier0\interface.h">
       <Filter>sdk\tier0</Filter>
     </ClInclude>
@@ -633,12 +633,6 @@
     <ClInclude Include="..\engine\sys_engine.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
-    <ClInclude Include="..\engine\sv_main.h">
-      <Filter>sdk\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\engine\sv_rcon.h">
-      <Filter>sdk\engine</Filter>
-    </ClInclude>
     <ClInclude Include="..\tier2\socketcreator.h">
       <Filter>sdk\tier2</Filter>
     </ClInclude>
@@ -683,9 +677,6 @@
     </ClInclude>
     <ClInclude Include="..\studiorender\studiorendercontext.h">
       <Filter>sdk\studiorender</Filter>
-    </ClInclude>
-    <ClInclude Include="..\engine\cl_main.h">
-      <Filter>sdk\engine</Filter>
     </ClInclude>
     <ClInclude Include="..\engine\sys_getmodes.h">
       <Filter>sdk\engine</Filter>
@@ -831,9 +822,6 @@
     <ClInclude Include="..\rtech\stryder\stryder.h">
       <Filter>sdk\rtech\stryder</Filter>
     </ClInclude>
-    <ClInclude Include="..\engine\baseserver.h">
-      <Filter>sdk\engine</Filter>
-    </ClInclude>
     <ClInclude Include="..\materialsystem\cmaterialsystem.h">
       <Filter>sdk\materialsystem</Filter>
     </ClInclude>
@@ -887,9 +875,6 @@
     </ClInclude>
     <ClInclude Include="..\engine\host.h">
       <Filter>sdk\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\client\client.h">
-      <Filter>sdk\client</Filter>
     </ClInclude>
     <ClInclude Include="..\vstdlib\callback.h">
       <Filter>sdk\vstdlib</Filter>
@@ -1086,6 +1071,21 @@
     <ClInclude Include="..\squirrel\sqstate.h">
       <Filter>sdk\squirrel</Filter>
     </ClInclude>
+    <ClInclude Include="..\engine\client\client.h">
+      <Filter>sdk\engine\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\client\cl_main.h">
+      <Filter>sdk\engine\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\server\server.h">
+      <Filter>sdk\engine\server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\server\sv_main.h">
+      <Filter>sdk\engine\server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\server\sv_rcon.h">
+      <Filter>sdk\engine\server</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1116,9 +1116,6 @@
       <Filter>sdk\engine</Filter>
     </ClCompile>
     <ClCompile Include="..\engine\sys_utils.cpp">
-      <Filter>sdk\engine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\engine\baseclient.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
     <ClCompile Include="..\launcher\IApplication.cpp">
@@ -1163,9 +1160,6 @@
     <ClCompile Include="..\squirrel\sqinit.cpp">
       <Filter>sdk\squirrel</Filter>
     </ClCompile>
-    <ClCompile Include="..\server\server.cpp">
-      <Filter>sdk\server</Filter>
-    </ClCompile>
     <ClCompile Include="..\vpklib\packedstore.cpp">
       <Filter>sdk\vpklib</Filter>
     </ClCompile>
@@ -1206,12 +1200,6 @@
       <Filter>sdk\vpc</Filter>
     </ClCompile>
     <ClCompile Include="..\engine\sys_engine.cpp">
-      <Filter>sdk\engine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\engine\sv_main.cpp">
-      <Filter>sdk\engine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\engine\sv_rcon.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
     <ClCompile Include="..\tier2\socketcreator.cpp">
@@ -1267,9 +1255,6 @@
     </ClCompile>
     <ClCompile Include="..\rtech\stryder\stryder.cpp">
       <Filter>sdk\rtech\stryder</Filter>
-    </ClCompile>
-    <ClCompile Include="..\engine\baseserver.cpp">
-      <Filter>sdk\engine</Filter>
     </ClCompile>
     <ClCompile Include="..\tier1\bitbuf.cpp">
       <Filter>sdk\tier1</Filter>
@@ -1330,6 +1315,18 @@
     </ClCompile>
     <ClCompile Include="..\tier0\tslist.cpp">
       <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\client\client.cpp">
+      <Filter>sdk\engine\client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\server\sv_main.cpp">
+      <Filter>sdk\engine\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\server\sv_rcon.cpp">
+      <Filter>sdk\engine\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\server\server.cpp">
+      <Filter>sdk\engine\server</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

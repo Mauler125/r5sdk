@@ -27,7 +27,7 @@ struct CS_INetChannelHandler : INetChannelHandler
 
 
 ///////////////////////////////////////////////////////////////////////////////
-class CBaseClientState : CS_INetChannelHandler, IConnectionlessPacketHandler, IServerMessageHandler, CClientSnapshotManager
+class CClientState : CS_INetChannelHandler, IConnectionlessPacketHandler, IServerMessageHandler, CClientSnapshotManager
 {
 public:
 	bool IsPaused();
@@ -170,21 +170,21 @@ public:
 	char byte34A38;
 	char field_34A39[7];
 };
-extern CBaseClientState* g_pBaseClientState;
+extern CClientState* g_pBaseClientState;
 
 /* ==== CCLIENTSTATE ==================================================================================================================================================== */
 inline CMemory p_CClientState__RunFrame;
-inline auto CClientState__RunFrame = p_CClientState__RunFrame.RCast<void(*)(CBaseClientState* thisptr)>();
+inline auto CClientState__RunFrame = p_CClientState__RunFrame.RCast<void(*)(CClientState* thisptr)>();
 
 inline CMemory p_CClientState__CheckForResend; /*48 89 5C 24 ?? 56 57 41 57 ?? 81 EC 20 04 ?? 00 45 0F B6 F9 ?? ?? ?? ?? 8B F1 48*/
-inline auto CClientState__CheckForResend = p_CClientState__CheckForResend.RCast<void(*)(CBaseClientState* thisptr, const char* a2, std::int64_t a3, char a4, int a5, std::uint8_t* a6)>();
+inline auto CClientState__CheckForResend = p_CClientState__CheckForResend.RCast<void(*)(CClientState* thisptr, const char* a2, std::int64_t a3, char a4, int a5, std::uint8_t* a6)>();
 
 inline CMemory p_CClientState__Disconnect; /*48 89 5C 24 ?? 55 57 41 56 48 83 EC 30 0F B6 EA*/
-inline auto CClientState__Disconnect = p_CClientState__Disconnect.RCast<void(*)(CBaseClientState* thisptr, bool bSendTrackingContext)>();
+inline auto CClientState__Disconnect = p_CClientState__Disconnect.RCast<void(*)(CClientState* thisptr, bool bSendTrackingContext)>();
 
 
 ///////////////////////////////////////////////////////////////////////////////
-class VBaseClientState : public IDetour
+class VClientState : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
@@ -199,26 +199,26 @@ class VBaseClientState : public IDetour
 	{
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 		p_CClientState__RunFrame = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x4C\x24\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x83\xB9\x00\x00\x00\x00\x00"), "xxxx?xxxx????xx?????");
-		CClientState__RunFrame = p_CClientState__RunFrame.RCast<void(*)(CBaseClientState* thisptr)>();
+		CClientState__RunFrame = p_CClientState__RunFrame.RCast<void(*)(CClientState* thisptr)>();
 
 		p_CClientState__CheckForResend = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x56\x57\x41\x57\x00\x81\xEC\x20\x04\x00\x00\x45\x0F\xB6\xF9\x00\x00\x00\x00\x8B\xF1\x48"), "xxxx?xxxx?xxxx?xxxxx????xxx");
-		CClientState__CheckForResend = p_CClientState__CheckForResend.RCast<void(*)(CBaseClientState* thisptr, const char* a2, std::int64_t a3, char a4, int a5, std::uint8_t* a6)>(); /*48 89 5C 24 ?? 56 57 41 57 ?? 81 EC 20 04 ?? 00 45 0F B6 F9 ?? ?? ?? ?? 8B F1 48*/
+		CClientState__CheckForResend = p_CClientState__CheckForResend.RCast<void(*)(CClientState* thisptr, const char* a2, std::int64_t a3, char a4, int a5, std::uint8_t* a6)>(); /*48 89 5C 24 ?? 56 57 41 57 ?? 81 EC 20 04 ?? 00 45 0F B6 F9 ?? ?? ?? ?? 8B F1 48*/
 
 		p_CClientState__Disconnect = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x55\x57\x41\x56\x48\x83\xEC\x30\x0F\xB6\xEA"), "xxxx?xxxxxxxxxxx");
-		CClientState__Disconnect = p_CClientState__Disconnect.RCast<void(*)(CBaseClientState* thisptr, bool bSendTrackingContext)>(); /*48 89 5C 24 ?? 55 57 41 56 48 83 EC 30 0F B6 EA*/
+		CClientState__Disconnect = p_CClientState__Disconnect.RCast<void(*)(CClientState* thisptr, bool bSendTrackingContext)>(); /*48 89 5C 24 ?? 55 57 41 56 48 83 EC 30 0F B6 EA*/
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		p_CClientState__RunFrame = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x81\xEC\x00\x00\x00\x00\x83\xB9\x00\x00\x00\x00\x00\x48\x8B\xD9\x7D\x0B"), "xxxxx????xx?????xxxxx");
-		CClientState__RunFrame = p_CClientState__RunFrame.RCast<void(*)(CBaseClientState* thisptr)>();
+		CClientState__RunFrame = p_CClientState__RunFrame.RCast<void(*)(CClientState* thisptr)>();
 
 		p_CClientState__Disconnect = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x56\x57\x41\x54\x41\x55\x41\x57\x48\x83\xEC\x30\x44\x0F\xB6\xFA"), "xxxxxxxxxxxxxxxxx");
-		CClientState__Disconnect = p_CClientState__Disconnect.RCast<void(*)(CBaseClientState* thisptr, bool bSendTrackingContext)>(); /*40 56 57 41 54 41 55 41 57 48 83 EC 30 44 0F B6 FA*/
+		CClientState__Disconnect = p_CClientState__Disconnect.RCast<void(*)(CClientState* thisptr, bool bSendTrackingContext)>(); /*40 56 57 41 54 41 55 41 57 48 83 EC 30 44 0F B6 FA*/
 #endif
 #if defined (GAMEDLL_S2)
 		p_CClientState__CheckForResend = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x81\xEC\x00\x00\x00\x00\x45\x0F\xB6"), "xxxx?xxxx?xxxx?xxxxx????xxx");
-		CClientState__CheckForResend = p_CClientState__CheckForResend.RCast<void(*)(CBaseClientState* thisptr, const char* a2, std::int64_t a3, char a4, int a5, std::uint8_t* a6)>(); /*48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC ?? ?? ?? ?? 45 0F B6*/
+		CClientState__CheckForResend = p_CClientState__CheckForResend.RCast<void(*)(CClientState* thisptr, const char* a2, std::int64_t a3, char a4, int a5, std::uint8_t* a6)>(); /*48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC ?? ?? ?? ?? 45 0F B6*/
 #elif defined (GAMEDLL_S3)
 		p_CClientState__CheckForResend = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x32"), "xxxx?xxxx?xxxx?xxxxx????xxx");
-		CClientState__CheckForResend = p_CClientState__CheckForResend.RCast<void(*)(CBaseClientState* thisptr, const char* a2, std::int64_t a3, char a4, int a5, std::uint8_t* a6)>(); /*48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC ?? ?? ?? ?? 48 8B 32*/
+		CClientState__CheckForResend = p_CClientState__CheckForResend.RCast<void(*)(CClientState* thisptr, const char* a2, std::int64_t a3, char a4, int a5, std::uint8_t* a6)>(); /*48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC ?? ?? ?? ?? 48 8B 32*/
 #endif
 	}
 	virtual void GetVar(void) const
@@ -246,7 +246,7 @@ class VBaseClientState : public IDetour
 	virtual void GetCon(void) const
 	{
 #ifndef DEDICATED
-		g_pBaseClientState = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x0F\x84\x00\x00\x00\x00\x48\x8D\x0D\x00\x00\x00\x00\x48\x83\xC4\x28"), "xx????xxx????xxxx").FindPatternSelf("48 8D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CBaseClientState*>(); /*0F 84 ? ? ? ? 48 8D 0D ? ? ? ? 48 83 C4 28*/
+		g_pBaseClientState = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x0F\x84\x00\x00\x00\x00\x48\x8D\x0D\x00\x00\x00\x00\x48\x83\xC4\x28"), "xx????xxx????xxxx").FindPatternSelf("48 8D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CClientState*>(); /*0F 84 ? ? ? ? 48 8D 0D ? ? ? ? 48 83 C4 28*/
 #endif
 	}
 	virtual void Attach(void) const { }
@@ -254,4 +254,4 @@ class VBaseClientState : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(VBaseClientState);
+REGISTER(VClientState);

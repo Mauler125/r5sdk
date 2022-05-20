@@ -208,6 +208,9 @@
     <Filter Include="thirdparty\nlohmann\thirdparty\hedley">
       <UniqueIdentifier>{21ddddef-3a13-4f1d-9aa9-29c6b1bb24e1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\engine\client">
+      <UniqueIdentifier>{01d3645a-16c3-4910-ac95-049e112cd2b8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\cdll_engine_int.cpp">
@@ -229,12 +232,6 @@
       <Filter>sdk\engine</Filter>
     </ClCompile>
     <ClCompile Include="..\engine\sys_utils.cpp">
-      <Filter>sdk\engine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\engine\baseclient.cpp">
-      <Filter>sdk\engine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\engine\baseclientstate.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
     <ClCompile Include="..\gameui\IBrowser.cpp">
@@ -352,9 +349,6 @@
       <Filter>sdk\vpc</Filter>
     </ClCompile>
     <ClCompile Include="..\engine\sys_engine.cpp">
-      <Filter>sdk\engine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\engine\cl_rcon.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
     <ClCompile Include="..\tier2\socketcreator.cpp">
@@ -489,6 +483,15 @@
     <ClCompile Include="..\tier0\tslist.cpp">
       <Filter>sdk\tier0</Filter>
     </ClCompile>
+    <ClCompile Include="..\engine\client\client.cpp">
+      <Filter>sdk\engine\client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\client\clientstate.cpp">
+      <Filter>sdk\engine\client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\client\cl_rcon.cpp">
+      <Filter>sdk\engine\client</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -499,9 +502,6 @@
     </ClInclude>
     <ClInclude Include="..\ebisusdk\EbisuSDK.h">
       <Filter>sdk\ebisusdk</Filter>
-    </ClInclude>
-    <ClInclude Include="..\engine\baseclientstate.h">
-      <Filter>sdk\engine</Filter>
     </ClInclude>
     <ClInclude Include="..\engine\host_state.h">
       <Filter>sdk\engine</Filter>
@@ -516,9 +516,6 @@
       <Filter>sdk\engine</Filter>
     </ClInclude>
     <ClInclude Include="..\engine\sys_utils.h">
-      <Filter>sdk\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\engine\baseclient.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
     <ClInclude Include="..\gameui\IBrowser.h">
@@ -1016,9 +1013,6 @@
     <ClInclude Include="..\engine\sys_engine.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
-    <ClInclude Include="..\engine\cl_rcon.h">
-      <Filter>sdk\engine</Filter>
-    </ClInclude>
     <ClInclude Include="..\mathlib\swap.h">
       <Filter>sdk\mathlib</Filter>
     </ClInclude>
@@ -1063,9 +1057,6 @@
     </ClInclude>
     <ClInclude Include="..\studiorender\studiorendercontext.h">
       <Filter>sdk\studiorender</Filter>
-    </ClInclude>
-    <ClInclude Include="..\engine\cl_main.h">
-      <Filter>sdk\engine</Filter>
     </ClInclude>
     <ClInclude Include="..\engine\sys_getmodes.h">
       <Filter>sdk\engine</Filter>
@@ -1249,9 +1240,6 @@
     </ClInclude>
     <ClInclude Include="..\engine\host.h">
       <Filter>sdk\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\client\client.h">
-      <Filter>sdk\client</Filter>
     </ClInclude>
     <ClInclude Include="..\vstdlib\callback.h">
       <Filter>sdk\vstdlib</Filter>
@@ -1465,6 +1453,18 @@
     </ClInclude>
     <ClInclude Include="..\squirrel\sqstate.h">
       <Filter>sdk\squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\client\client.h">
+      <Filter>sdk\engine\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\client\clientstate.h">
+      <Filter>sdk\engine\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\client\cl_main.h">
+      <Filter>sdk\engine\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\client\cl_rcon.h">
+      <Filter>sdk\engine\client</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -6,7 +6,7 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#include "engine/sv_main.h"
+#include "engine/server/sv_main.h"
 #include "game/server/gameinterface.h"
 
 //-----------------------------------------------------------------------------

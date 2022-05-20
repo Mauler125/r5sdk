@@ -11,7 +11,7 @@
 #include "tier1/IConVar.h"
 #include "engine/sys_utils.h"
 #ifdef DEDICATED
-#include "engine/sv_rcon.h"
+#include "engine/server/sv_rcon.h"
 #else // DEDICATED
 #include "client/cdll_engine_int.h"
 #include "vgui/vgui_debugpanel.h"

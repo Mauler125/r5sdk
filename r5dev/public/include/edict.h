@@ -4,7 +4,7 @@
 #endif // !DEDICATED
 #include "public/include/globalvars_base.h"
 #ifndef CLIENT_DLL
-#include "engine/sv_main.h"
+#include "engine/server/sv_main.h"
 #endif // !CLIENT_DLL
 
 

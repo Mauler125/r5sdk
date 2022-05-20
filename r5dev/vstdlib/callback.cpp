@@ -9,11 +9,11 @@
 #include "tier1/cvar.h"
 #include "tier1/IConVar.h"
 #ifndef DEDICATED
-#include "engine/cl_rcon.h"
+#include "engine/client/cl_rcon.h"
 #endif // !DEDICATED
+#include "engine/client/client.h"
 #include "engine/net.h"
 #include "engine/sys_utils.h"
-#include "engine/baseclient.h"
 #include "rtech/rtech_game.h"
 #include "rtech/rtech_utils.h"
 #include "filesystem/basefilesystem.h"
@@ -79,7 +79,7 @@ void Host_Kick_f(const CCommand& args)
 
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
-		CBaseClient* pClient = g_pClient->GetClient(i);
+		CClient* pClient = g_pClient->GetClient(i);
 		CNetChan* pNetChan = pClient->GetNetChan();
 		if (!pClient || !pNetChan)
 		{
@@ -119,7 +119,7 @@ void Host_KickID_f(const CCommand& args)
 		bool bOnlyDigits = args.HasOnlyDigits(1);
 		for (int i = 0; i < MAX_PLAYERS; i++)
 		{
-			CBaseClient* pClient = g_pClient->GetClient(i);
+			CClient* pClient = g_pClient->GetClient(i);
 			CNetChan* pNetChan = pClient->GetNetChan();
 
 			if (!pClient || !pNetChan)
@@ -183,7 +183,7 @@ void Host_Ban_f(const CCommand& args)
 
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
-		CBaseClient* pClient = g_pClient->GetClient(i);
+		CClient* pClient = g_pClient->GetClient(i);
 		CNetChan* pNetChan = pClient->GetNetChan();
 
 		if (!pClient || !pNetChan)
@@ -228,7 +228,7 @@ void Host_BanID_f(const CCommand& args)
 		bool bOnlyDigits = args.HasOnlyDigits(1);
 		for (int i = 0; i < MAX_PLAYERS; i++)
 		{
-			CBaseClient* pClient = g_pClient->GetClient(i);
+			CClient* pClient = g_pClient->GetClient(i);
 			CNetChan* pNetChan = pClient->GetNetChan();
 
 			if (!pClient || !pNetChan)
@@ -378,11 +378,11 @@ void Pak_RequestUnload_f(const CCommand& args)
 			RPakLoadedInfo_t* pakInfo = g_pRTech->GetPakLoadedInfo(nPakId);
 			if (!pakInfo)
 			{
-				throw std::exception("Found no Pak entry for specified ID.");
+				throw std::exception("Found no pak entry for specified ID.");
 			}
 
 			string pakName = pakInfo->m_pszFileName;
-			!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested Pak Unload for '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested Pak Unload for '%d'\n", nPakId);
+			!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested pak unload for '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested Pak Unload for '%d'\n", nPakId);
 			g_pakLoadApi->Unload(nPakId);
 		}
 		else
@@ -390,10 +390,10 @@ void Pak_RequestUnload_f(const CCommand& args)
 			RPakLoadedInfo_t* pakInfo = g_pRTech->GetPakLoadedInfo(args.Arg(1));
 			if (!pakInfo)
 			{
-				throw std::exception("Found no Pak entry for specified name.");
+				throw std::exception("Found no pak entry for specified name.");
 			}
 
-			DevMsg(eDLL_T::RTECH, "Requested Pak Unload for '%s'\n", args.Arg(1));
+			DevMsg(eDLL_T::RTECH, "Requested pak unload for '%s'\n", args.Arg(1));
 			g_pakLoadApi->Unload(pakInfo->m_nPakId);
 		}
 	}
@@ -434,7 +434,7 @@ void Pak_Swap_f(const CCommand& args)
 			pakInfo = g_pRTech->GetPakLoadedInfo(nPakId);
 			if (!pakInfo)
 			{
-				throw std::exception("Found no Pak entry for specified ID.");
+				throw std::exception("Found no pak entry for specified ID.");
 			}
 
 			pakName = pakInfo->m_pszFileName;
@@ -445,13 +445,13 @@ void Pak_Swap_f(const CCommand& args)
 			pakInfo = g_pRTech->GetPakLoadedInfo(args.Arg(1));
 			if (!pakInfo)
 			{
-				throw std::exception("Found no Pak entry for specified name.");
+				throw std::exception("Found no pak entry for specified name.");
 			}
 
 			nPakId = pakInfo->m_nPakId;
 		}
 
-		!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested Pak Swap for '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested Pak Swap for '%d'\n", nPakId);
+		!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested pak swap for '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested pak swap for '%d'\n", nPakId);
 
 		g_pakLoadApi->Unload(nPakId);
 

@@ -5,25 +5,25 @@
 // $NoKeywords: $
 //
 //===============================================================================//
-// baseclient.cpp: implementation of the CBaseClient class.
+// client.cpp: implementation of the CClient class.
 //
 ///////////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
-#include "engine/baseclient.h"
-#include "engine/baseserver.h"
+#include "engine/client/client.h"
+#include "engine/server/server.h"
 
 //---------------------------------------------------------------------------------
 // Purpose: gets the client from buffer by index
 //---------------------------------------------------------------------------------
-CBaseClient* CBaseClient::GetClient(int nIndex) const
+CClient* CClient::GetClient(int nIndex) const
 {
-	return (CBaseClient*)(std::uintptr_t)(g_pClientBuffer.GetPtr() + (nIndex * sizeof(CBaseClient)));
+	return (CClient*)(std::uintptr_t)(g_pClientBuffer.GetPtr() + (nIndex * sizeof(CClient)));
 }
 
 //---------------------------------------------------------------------------------
 // Purpose: gets the userID of this client
 //---------------------------------------------------------------------------------
-std::int32_t CBaseClient::GetUserID(void) const
+std::int32_t CClient::GetUserID(void) const
 {
 	return m_nUserID;
 }
@@ -31,7 +31,7 @@ std::int32_t CBaseClient::GetUserID(void) const
 //---------------------------------------------------------------------------------
 // Purpose: gets the userID of this client
 //---------------------------------------------------------------------------------
-std::int64_t CBaseClient::GetOriginID(void) const
+std::int64_t CClient::GetOriginID(void) const
 {
 	return m_nOriginID;
 }
@@ -39,7 +39,7 @@ std::int64_t CBaseClient::GetOriginID(void) const
 //---------------------------------------------------------------------------------
 // Purpose: gets the signon state of this client
 //---------------------------------------------------------------------------------
-SIGNONSTATE CBaseClient::GetSignonState(void) const
+SIGNONSTATE CClient::GetSignonState(void) const
 {
 	return m_nSignonState;
 }
@@ -47,7 +47,7 @@ SIGNONSTATE CBaseClient::GetSignonState(void) const
 //---------------------------------------------------------------------------------
 // Purpose: gets the persistence state of this client
 //---------------------------------------------------------------------------------
-PERSISTENCE CBaseClient::GetPersistenceState(void) const
+PERSISTENCE CClient::GetPersistenceState(void) const
 {
 	return m_nPersistenceState;
 }
@@ -55,7 +55,7 @@ PERSISTENCE CBaseClient::GetPersistenceState(void) const
 //---------------------------------------------------------------------------------
 // Purpose: gets the net channel of this client
 //---------------------------------------------------------------------------------
-CNetChan* CBaseClient::GetNetChan(void) const
+CNetChan* CClient::GetNetChan(void) const
 {
 	return m_NetChannel;
 }
@@ -63,7 +63,7 @@ CNetChan* CBaseClient::GetNetChan(void) const
 //---------------------------------------------------------------------------------
 // Purpose: sets the userID of this client
 //---------------------------------------------------------------------------------
-void CBaseClient::SetUserID(std::int32_t nUserID)
+void CClient::SetUserID(std::int32_t nUserID)
 {
 	m_nUserID = nUserID;
 }
@@ -71,7 +71,7 @@ void CBaseClient::SetUserID(std::int32_t nUserID)
 //---------------------------------------------------------------------------------
 // Purpose: sets the originID of this client
 //---------------------------------------------------------------------------------
-void CBaseClient::SetOriginID(std::int64_t nOriginID)
+void CClient::SetOriginID(std::int64_t nOriginID)
 {
 	m_nOriginID = nOriginID;
 }
@@ -79,7 +79,7 @@ void CBaseClient::SetOriginID(std::int64_t nOriginID)
 //---------------------------------------------------------------------------------
 // Purpose: sets the signon state of this client
 //---------------------------------------------------------------------------------
-void CBaseClient::SetSignonState(SIGNONSTATE nSignonState)
+void CClient::SetSignonState(SIGNONSTATE nSignonState)
 {
 	m_nSignonState = nSignonState;
 }
@@ -87,7 +87,7 @@ void CBaseClient::SetSignonState(SIGNONSTATE nSignonState)
 //---------------------------------------------------------------------------------
 // Purpose: sets the persistence state of this client
 //---------------------------------------------------------------------------------
-void CBaseClient::SetPersistenceState(PERSISTENCE nPersistenceState)
+void CClient::SetPersistenceState(PERSISTENCE nPersistenceState)
 {
 	m_nPersistenceState = nPersistenceState;
 }
@@ -96,7 +96,7 @@ void CBaseClient::SetPersistenceState(PERSISTENCE nPersistenceState)
 // Purpose: sets the net channel of this client
 // !TODO  : Remove this and rebuild INetChannel
 //---------------------------------------------------------------------------------
-void CBaseClient::SetNetChan(CNetChan* pNetChan)
+void CClient::SetNetChan(CNetChan* pNetChan)
 {
 	m_NetChannel = pNetChan;
 }
@@ -105,7 +105,7 @@ void CBaseClient::SetNetChan(CNetChan* pNetChan)
 // Purpose: checks if client is connected to server
 // Output : true if connected, false otherwise
 //---------------------------------------------------------------------------------
-bool CBaseClient::IsConnected(void) const
+bool CClient::IsConnected(void) const
 {
 	return m_nSignonState >= SIGNONSTATE::SIGNONSTATE_CONNECTED;
 }
@@ -114,7 +114,7 @@ bool CBaseClient::IsConnected(void) const
 // Purpose: checks if client is spawned to server
 // Output : true if connected, false otherwise
 //---------------------------------------------------------------------------------
-bool CBaseClient::IsSpawned(void) const
+bool CClient::IsSpawned(void) const
 {
 	return m_nSignonState >= SIGNONSTATE::SIGNONSTATE_NEW;
 }
@@ -123,7 +123,7 @@ bool CBaseClient::IsSpawned(void) const
 // Purpose: checks if client is active to server
 // Output : true if connected, false otherwise
 //---------------------------------------------------------------------------------
-bool CBaseClient::IsActive(void) const
+bool CClient::IsActive(void) const
 {
 	return m_nSignonState == SIGNONSTATE::SIGNONSTATE_FULL;
 }
@@ -132,7 +132,7 @@ bool CBaseClient::IsActive(void) const
 // Purpose: checks if client's persistence data is available
 // Output : true if available, false otherwise
 //---------------------------------------------------------------------------------
-bool CBaseClient::IsPersistenceAvailable(void) const
+bool CClient::IsPersistenceAvailable(void) const
 {
 	return m_nPersistenceState >= PERSISTENCE::PERSISTENCE_AVAILABLE;
 }
@@ -141,7 +141,7 @@ bool CBaseClient::IsPersistenceAvailable(void) const
 // Purpose: checks if client's persistence data is ready
 // Output : true if ready, false otherwise
 //---------------------------------------------------------------------------------
-bool CBaseClient::IsPersistenceReady(void) const
+bool CClient::IsPersistenceReady(void) const
 {
 	return m_nPersistenceState == PERSISTENCE::PERSISTENCE_READY;
 }
@@ -150,7 +150,7 @@ bool CBaseClient::IsPersistenceReady(void) const
 // Purpose: checks if client is a fake client
 // Output : true if connected, false otherwise
 //---------------------------------------------------------------------------------
-bool CBaseClient::IsFakeClient(void) const
+bool CClient::IsFakeClient(void) const
 {
 	return m_bFakePlayer;
 }
@@ -159,7 +159,7 @@ bool CBaseClient::IsFakeClient(void) const
 // Purpose: checks if this client is an actual human player
 // Output : true if human, false otherwise
 //---------------------------------------------------------------------------------
-bool CBaseClient::IsHumanPlayer(void) const
+bool CClient::IsHumanPlayer(void) const
 {
 	if (!IsConnected())
 		return false;
@@ -174,7 +174,7 @@ bool CBaseClient::IsHumanPlayer(void) const
 // Purpose: throw away any residual garbage in the channel
 // Input  : *pBaseClient - 
 //---------------------------------------------------------------------------------
-void CBaseClient::Clear(CBaseClient* pBaseClient)
+void CClient::Clear(CClient* pBaseClient)
 {
 	CBaseClient_Clear(pBaseClient);
 }
@@ -190,7 +190,7 @@ void CBaseClient::Clear(CBaseClient* pBaseClient)
 //			nMessageSize - 
 // Output : true if connection was succesfull, false otherwise
 //---------------------------------------------------------------------------------
-bool CBaseClient::Connect(CBaseClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize)
+bool CClient::Connect(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize)
 {
 	return CBaseClient_Connect(pClient, szName, pNetChannel, bFakePlayer, a5, szMessage, nMessageSize);
 }
@@ -198,14 +198,14 @@ bool CBaseClient::Connect(CBaseClient* pClient, const char* szName, void* pNetCh
 ///////////////////////////////////////////////////////////////////////////////////
 void CBaseClient_Attach()
 {
-	DetourAttach((LPVOID*)&CBaseClient_Clear, &CBaseClient::Clear);
-	DetourAttach((LPVOID*)&CBaseClient_Connect, &CBaseClient::Connect);
+	DetourAttach((LPVOID*)&CBaseClient_Clear, &CClient::Clear);
+	DetourAttach((LPVOID*)&CBaseClient_Connect, &CClient::Connect);
 }
 void CBaseClient_Detach()
 {
-	DetourDetach((LPVOID*)&CBaseClient_Clear, &CBaseClient::Clear);
-	DetourDetach((LPVOID*)&CBaseClient_Connect, &CBaseClient::Connect);
+	DetourDetach((LPVOID*)&CBaseClient_Clear, &CClient::Clear);
+	DetourDetach((LPVOID*)&CBaseClient_Connect, &CClient::Connect);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-CBaseClient* g_pClient = nullptr;
+CClient* g_pClient = nullptr;

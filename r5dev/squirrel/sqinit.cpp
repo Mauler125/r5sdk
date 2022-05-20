@@ -13,7 +13,7 @@
 
 #include "core/stdafx.h"
 #include "engine/sys_utils.h"
-#include "engine/baseserver.h"
+#include "engine/server/server.h"
 #include "squirrel/sqtype.h"
 #include "squirrel/sqapi.h"
 #include "squirrel/sqinit.h"

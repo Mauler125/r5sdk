@@ -214,6 +214,12 @@
     <Filter Include="thirdparty\nlohmann\thirdparty\hedley">
       <UniqueIdentifier>{205ae17f-10d4-4628-a794-066c81984b6f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\engine\server">
+      <UniqueIdentifier>{8ce676f2-dc88-4fb5-b747-6eb863033d07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\engine\client">
+      <UniqueIdentifier>{b7e33427-fd37-44b1-8530-651ae5f4fde1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\vengineclient_impl.cpp">
@@ -238,12 +244,6 @@
       <Filter>sdk\engine</Filter>
     </ClCompile>
     <ClCompile Include="..\engine\sys_utils.cpp">
-      <Filter>sdk\engine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\engine\baseclient.cpp">
-      <Filter>sdk\engine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\engine\baseclientstate.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
     <ClCompile Include="..\gameui\IBrowser.cpp">
@@ -324,9 +324,6 @@
     <ClCompile Include="..\squirrel\sqinit.cpp">
       <Filter>sdk\squirrel</Filter>
     </ClCompile>
-    <ClCompile Include="..\server\server.cpp">
-      <Filter>sdk\server</Filter>
-    </ClCompile>
     <ClCompile Include="..\vpklib\packedstore.cpp">
       <Filter>sdk\vpklib</Filter>
     </ClCompile>
@@ -366,13 +363,7 @@
     <ClCompile Include="..\vpc\interfaces.cpp">
       <Filter>sdk\vpc</Filter>
     </ClCompile>
-    <ClCompile Include="..\engine\sv_main.cpp">
-      <Filter>sdk\engine</Filter>
-    </ClCompile>
     <ClCompile Include="..\engine\sys_engine.cpp">
-      <Filter>sdk\engine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\engine\cl_rcon.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
     <ClCompile Include="..\tier2\socketcreator.cpp">
@@ -447,9 +438,6 @@
     <ClCompile Include="..\rtech\stryder\stryder.cpp">
       <Filter>sdk\rtech\stryder</Filter>
     </ClCompile>
-    <ClCompile Include="..\engine\baseserver.cpp">
-      <Filter>sdk\engine</Filter>
-    </ClCompile>
     <ClCompile Include="..\tier1\bitbuf.cpp">
       <Filter>sdk\tier1</Filter>
     </ClCompile>
@@ -519,6 +507,21 @@
     <ClCompile Include="..\tier0\tslist.cpp">
       <Filter>sdk\tier0</Filter>
     </ClCompile>
+    <ClCompile Include="..\engine\server\sv_main.cpp">
+      <Filter>sdk\engine\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\server\server.cpp">
+      <Filter>sdk\engine\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\client\client.cpp">
+      <Filter>sdk\engine\client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\client\clientstate.cpp">
+      <Filter>sdk\engine\client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\client\cl_rcon.cpp">
+      <Filter>sdk\engine\client</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -533,9 +536,6 @@
     <ClInclude Include="..\ebisusdk\EbisuSDK.h">
       <Filter>sdk\ebisusdk</Filter>
     </ClInclude>
-    <ClInclude Include="..\engine\baseclientstate.h">
-      <Filter>sdk\engine</Filter>
-    </ClInclude>
     <ClInclude Include="..\engine\host_state.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
@@ -549,9 +549,6 @@
       <Filter>sdk\engine</Filter>
     </ClInclude>
     <ClInclude Include="..\engine\sys_utils.h">
-      <Filter>sdk\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\engine\baseclient.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
     <ClInclude Include="..\gameui\IBrowser.h">
@@ -995,9 +992,6 @@
     <ClInclude Include="..\core\resource.h">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="..\server\server.h">
-      <Filter>sdk\server</Filter>
-    </ClInclude>
     <ClInclude Include="..\mathlib\crc32.h">
       <Filter>sdk\mathlib</Filter>
     </ClInclude>
@@ -1049,13 +1043,7 @@
     <ClInclude Include="..\core\termutil.h">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="..\engine\sv_main.h">
-      <Filter>sdk\engine</Filter>
-    </ClInclude>
     <ClInclude Include="..\engine\sys_engine.h">
-      <Filter>sdk\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\engine\cl_rcon.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
     <ClInclude Include="..\mathlib\swap.h">
@@ -1102,9 +1090,6 @@
     </ClInclude>
     <ClInclude Include="..\studiorender\studiorendercontext.h">
       <Filter>sdk\studiorender</Filter>
-    </ClInclude>
-    <ClInclude Include="..\engine\cl_main.h">
-      <Filter>sdk\engine</Filter>
     </ClInclude>
     <ClInclude Include="..\engine\sys_getmodes.h">
       <Filter>sdk\engine</Filter>
@@ -1256,9 +1241,6 @@
     <ClInclude Include="..\rtech\stryder\stryder.h">
       <Filter>sdk\rtech\stryder</Filter>
     </ClInclude>
-    <ClInclude Include="..\engine\baseserver.h">
-      <Filter>sdk\engine</Filter>
-    </ClInclude>
     <ClInclude Include="..\squirrel\sqtype.h">
       <Filter>sdk\squirrel</Filter>
     </ClInclude>
@@ -1309,9 +1291,6 @@
     </ClInclude>
     <ClInclude Include="..\engine\host.h">
       <Filter>sdk\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\client\client.h">
-      <Filter>sdk\client</Filter>
     </ClInclude>
     <ClInclude Include="..\vstdlib\callback.h">
       <Filter>sdk\vstdlib</Filter>
@@ -1528,6 +1507,24 @@
     </ClInclude>
     <ClInclude Include="..\squirrel\sqstate.h">
       <Filter>sdk\squirrel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\server\sv_main.h">
+      <Filter>sdk\engine\server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\server\server.h">
+      <Filter>sdk\engine\server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\client\cl_rcon.h">
+      <Filter>sdk\engine\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\client\client.h">
+      <Filter>sdk\engine\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\client\clientstate.h">
+      <Filter>sdk\engine\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\client\cl_main.h">
+      <Filter>sdk\engine\client</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

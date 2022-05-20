@@ -11,7 +11,7 @@
 #include "tier1/NetAdr2.h"
 #include "tier2/socketcreator.h"
 #include "engine/sys_utils.h"
-#include "engine/sv_rcon.h"
+#include "engine/server/sv_rcon.h"
 #include "protoc/sv_rcon.pb.h"
 #include "protoc/cl_rcon.pb.h"
 #include "mathlib/sha256.h"

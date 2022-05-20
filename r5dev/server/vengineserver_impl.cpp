@@ -8,18 +8,18 @@
 #include "tier1/cvar.h"
 #include "common/protocol.h"
 #include "engine/sys_utils.h"
-#include "engine/baseclient.h"
+#include "engine/client/client.h"
 #include "server/vengineserver_impl.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: sets the persistence var in the CClient instance to 'ready'
 //-----------------------------------------------------------------------------
-bool HIVEngineServer__PersistenceAvailable(void* entidx, int clientidx)
+bool HIVEngineServer__PersistenceAvailable(void* entidx, int clienthandle)
 {
-	CBaseClient* pClient = g_pClient->GetClient(clientidx);       // Get client instance.
+	CClient* pClient = g_pClient->GetClient(clienthandle);        // Get client instance.
 	pClient->SetPersistenceState(PERSISTENCE::PERSISTENCE_READY); // Set the client instance to 'ready'.
 
-	if (!g_bIsPersistenceVarSet[clientidx] && sv_showconnecting->GetBool())
+	if (!g_bIsPersistenceVarSet[clienthandle] && sv_showconnecting->GetBool())
 	{
 		CNetChan* pNetChan = pClient->GetNetChan();
 
@@ -29,16 +29,16 @@ bool HIVEngineServer__PersistenceAvailable(void* entidx, int clientidx)
 
 		DevMsg(eDLL_T::SERVER, "______________________________________________________________\n");
 		DevMsg(eDLL_T::SERVER, "+- NetChannel:\n");
-		DevMsg(eDLL_T::SERVER, " |- IDX : | '#%d'\n", clientidx);
+		DevMsg(eDLL_T::SERVER, " |- IDX : | '#%d'\n", clienthandle);
 		DevMsg(eDLL_T::SERVER, " |- UID : | '%s'\n", svClientName.c_str());
 		DevMsg(eDLL_T::SERVER, " |- OID : | '%lld'\n", nOriginID);
 		DevMsg(eDLL_T::SERVER, " |- ADR : | '%s'\n", svIpAddress.c_str());
 		DevMsg(eDLL_T::SERVER, " -------------------------------------------------------------\n");
 
-		g_bIsPersistenceVarSet[clientidx] = true;
+		g_bIsPersistenceVarSet[clienthandle] = true;
 	}
 	///////////////////////////////////////////////////////////////////////////
-	return IVEngineServer__PersistenceAvailable(entidx, clientidx);
+	return IVEngineServer__PersistenceAvailable(entidx, clienthandle);
 }
 
 void IVEngineServer_Attach()

@@ -15,7 +15,7 @@
 #include "engine/net.h"
 #include "engine/net_chan.h"
 #ifndef CLIENT_DLL
-#include "engine/baseclient.h"
+#include "engine/client/client.h"
 #endif // !CLIENT_DLL
 #endif // !NETCONSOLE
 
@@ -152,7 +152,7 @@ void NET_Shutdown(void* thisptr, const char* szReason, uint8_t bBadRep, bool bRe
 //			bBadRep - 
 //			bRemoveNow - 
 //-----------------------------------------------------------------------------
-void NET_DisconnectClient(CBaseClient* pClient, int nIndex, const char* szReason, uint8_t bBadRep, bool bRemoveNow)
+void NET_DisconnectClient(CClient* pClient, int nIndex, const char* szReason, uint8_t bBadRep, bool bRemoveNow)
 {
 #ifndef CLIENT_DLL
 	if (!pClient || std::strlen(szReason) == NULL || !pClient->GetNetChan())

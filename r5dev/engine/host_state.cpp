@@ -15,10 +15,10 @@
 #include "vpc/keyvalues.h"
 #include "datacache/mdlcache.h"
 #ifdef DEDICATED
-#include "engine/sv_rcon.h"
+#include "engine/server/sv_rcon.h"
 #else // 
-#include "engine/cl_rcon.h"
-#include "engine/cl_main.h"
+#include "engine/client/cl_rcon.h"
+#include "engine/client/cl_main.h"
 #endif // DEDICATED
 #include "engine/net.h"
 #include "engine/gl_screen.h"
@@ -30,7 +30,7 @@
 #include "engine/modelloader.h"
 #include "engine/cmodel_bsp.h"
 #ifndef CLIENT_DLL
-#include "engine/baseserver.h"
+#include "engine/server/server.h"
 #endif // !CLIENT_DLL
 #include "rtech/rtech_game.h"
 #include "rtech/rtech_utils.h"

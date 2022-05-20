@@ -32,7 +32,7 @@ void NET_SetKey(const string& svNetKey);
 void NET_GenerateKey();
 void NET_PrintFunc(const char* fmt, ...);
 void NET_Shutdown(void* thisptr, const char* szReason, uint8_t bBadRep, bool bRemoveNow);
-void NET_DisconnectClient(CBaseClient* pClient, int nIndex, const char* szReason, uint8_t unk1, bool bRemoveNow);
+void NET_DisconnectClient(CClient* pClient, int nIndex, const char* szReason, uint8_t unk1, bool bRemoveNow);
 
 void NET_Attach();
 void NET_Detach();

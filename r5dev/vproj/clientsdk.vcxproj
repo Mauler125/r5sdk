@@ -26,10 +26,10 @@
     <ClCompile Include="..\core\termutil.cpp" />
     <ClCompile Include="..\datacache\mdlcache.cpp" />
     <ClCompile Include="..\ebisusdk\EbisuSDK.cpp" />
-    <ClCompile Include="..\engine\baseclient.cpp" />
-    <ClCompile Include="..\engine\baseclientstate.cpp" />
+    <ClCompile Include="..\engine\client\client.cpp" />
+    <ClCompile Include="..\engine\client\clientstate.cpp" />
+    <ClCompile Include="..\engine\client\cl_rcon.cpp" />
     <ClCompile Include="..\engine\clockdriftmgr.cpp" />
-    <ClCompile Include="..\engine\cl_rcon.cpp" />
     <ClCompile Include="..\engine\cmodel_bsp.cpp" />
     <ClCompile Include="..\engine\common.cpp" />
     <ClCompile Include="..\engine\gl_rsurf.cpp" />
@@ -119,7 +119,6 @@
     <ClInclude Include="..\appframework\iappsystem.h" />
     <ClInclude Include="..\bsplib\bsplib.h" />
     <ClInclude Include="..\client\cdll_engine_int.h" />
-    <ClInclude Include="..\client\client.h" />
     <ClInclude Include="..\client\vengineclient_impl.h" />
     <ClInclude Include="..\common\igameserverdata.h" />
     <ClInclude Include="..\common\netmessages.h" />
@@ -139,11 +138,11 @@
     <ClInclude Include="..\datacache\imdlcache.h" />
     <ClInclude Include="..\datacache\mdlcache.h" />
     <ClInclude Include="..\ebisusdk\EbisuSDK.h" />
-    <ClInclude Include="..\engine\baseclient.h" />
-    <ClInclude Include="..\engine\baseclientstate.h" />
+    <ClInclude Include="..\engine\client\client.h" />
+    <ClInclude Include="..\engine\client\clientstate.h" />
+    <ClInclude Include="..\engine\client\cl_main.h" />
+    <ClInclude Include="..\engine\client\cl_rcon.h" />
     <ClInclude Include="..\engine\clockdriftmgr.h" />
-    <ClInclude Include="..\engine\cl_main.h" />
-    <ClInclude Include="..\engine\cl_rcon.h" />
     <ClInclude Include="..\engine\cmodel_bsp.h" />
     <ClInclude Include="..\engine\common.h" />
     <ClInclude Include="..\engine\datablock.h" />

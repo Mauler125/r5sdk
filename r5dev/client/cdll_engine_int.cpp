@@ -11,7 +11,7 @@
 #include "client/vengineclient_impl.h"
 #include "client/cdll_engine_int.h"
 #include "engine/net_chan.h"
-#include "engine/cl_rcon.h"
+#include "engine/client/cl_rcon.h"
 #include "public/include/bansystem.h"
 #include "vpc/keyvalues.h"
 #include "gameui/IConsole.h"

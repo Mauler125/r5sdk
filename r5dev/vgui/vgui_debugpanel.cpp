@@ -14,8 +14,8 @@
 #include <vguimatsurface/MatSystemSurface.h>
 #include <materialsystem/cmaterialsystem.h>
 #include <engine/debugoverlay.h>
-#include <engine/baseclientstate.h>
-#include <server/server.h>
+#include <engine/client/clientstate.h>
+#include <engine/server/server.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: 

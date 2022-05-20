@@ -43,11 +43,10 @@
 #include "vgui/vgui_fpspanel.h"
 #include "vguimatsurface/MatSystemSurface.h"
 #endif // !DEDICATED
-#include "client/client.h"
 #include "client/cdll_engine_int.h"
 #include "client/vengineclient_impl.h"
 #ifndef CLIENT_DLL
-#include "server/server.h"
+#include "engine/server/server.h"
 #include "server/vengineserver_impl.h"
 #endif // !CLIENT_DLL
 #include "squirrel/sqinit.h"
@@ -59,10 +58,11 @@
 #include "rtech/rtech_utils.h"
 #include "rtech/stryder/stryder.h"
 #include "rtech/rui/rui.h"
-#include "engine/baseclient.h"
-#include "engine/baseclientstate.h"
+#include "engine/client/cl_main.h"
+#include "engine/client/client.h"
+#include "engine/client/clientstate.h"
 #ifndef CLIENT_DLL
-#include "engine/baseserver.h"
+#include "engine/server/server.h"
 #endif // !CLIENT_DLL
 #include "engine/common.h"
 #include "engine/cmodel_bsp.h"
@@ -72,9 +72,8 @@
 #include "engine/modelloader.h"
 #include "engine/net.h"
 #include "engine/net_chan.h"
-#include "engine/cl_main.h"
 #ifndef CLIENT_DLL
-#include "engine/sv_main.h"
+#include "engine/server/sv_main.h"
 #endif // !CLIENT_DLL
 #include "engine/sys_dll.h"
 #include "engine/sys_dll2.h"

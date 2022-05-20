@@ -10,7 +10,7 @@
 #include "tier1/cvar.h"
 #include "engine/sys_utils.h"
 #ifdef DEDICATED
-#include "engine/sv_rcon.h"
+#include "engine/server/sv_rcon.h"
 #else
 #include "vgui/vgui_debugpanel.h"
 #include "gameui/IConsole.h"

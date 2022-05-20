@@ -1,5 +1,5 @@
 #pragma once
-#include <engine/sv_main.h>
+#include <engine/server/sv_main.h>
 
 enum class PaintMode_t
 {

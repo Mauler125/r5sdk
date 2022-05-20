@@ -8,7 +8,7 @@
 #include "core/stdafx.h"
 #include "engine/net.h"
 #include "engine/sys_utils.h"
-#include "engine/baseclient.h"
+#include "engine/client/client.h"
 #include "public/include/bansystem.h"
 
 //-----------------------------------------------------------------------------
@@ -201,7 +201,7 @@ void CBanSystem::BanListCheck(void)
 		{
 			for (int c = 0; c < MAX_PLAYERS; c++) // Loop through all possible client instances.
 			{
-				CBaseClient* pClient = g_pClient->GetClient(c);
+				CClient* pClient = g_pClient->GetClient(c);
 				CNetChan* pNetChan = pClient->GetNetChan();
 
 				if (!pClient || !pNetChan)

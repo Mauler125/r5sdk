@@ -11,8 +11,8 @@
 #include "ebisusdk/EbisuSDK.h"
 #include "engine/sys_engine.h"
 #include "engine/sys_dll2.h"
-#include "engine/sv_main.h"
 #include "engine/host_cmd.h"
+#include "engine/server/sv_main.h"
 #include "server/vengineserver_impl.h"
 #include "client/cdll_engine_int.h"
 #ifndef DEDICATED
