@@ -82,6 +82,7 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 	if (sq_showvmoutput->GetInt() > 1)
 	{
 		bool bError = false;
+		bool bColorOverride = false;
 		if (!g_bSpdLog_UseAnsiClr)
 		{
 			wconsole->debug(vmStr);
@@ -94,13 +95,13 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 			std::string vmStrAnsi;
 			if (g_bSQAuxError)
 			{
+				bColorOverride = true;
 				if (strstr(buf, "SCRIPT ERROR:") || strstr(buf, " -> "))
 				{
 					bError = true;
 					vmStrAnsi = SQVM_ERROR_ANSI_LOG_T[static_cast<SQInteger>(context)].c_str();
 				}
-				else
-				{
+				else {
 					vmStrAnsi = SQVM_WARNING_ANSI_LOG_T[static_cast<SQInteger>(context)].c_str();
 				}
 			}
@@ -109,16 +110,15 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 				if (strstr(buf, "There was a problem processing game logic."))
 				{
 					bError = true;
+					bColorOverride = true;
 					g_bSQAuxBadLogic = false;
 					vmStrAnsi = SQVM_ERROR_ANSI_LOG_T[static_cast<SQInteger>(context)].c_str();
 				}
-				else
-				{
+				else {
 					vmStrAnsi = SQVM_ANSI_LOG_T[static_cast<SQInteger>(context)].c_str();
 				}
 			}
-			else
-			{
+			else {
 				vmStrAnsi = SQVM_ANSI_LOG_T[static_cast<SQInteger>(context)].c_str();
 			}
 			vmStrAnsi.append(buf);
@@ -135,7 +135,7 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 		if (sq_showvmoutput->GetInt() > 2)
 		{
 			ImVec4 color;
-			if (g_bSQAuxError)
+			if (bColorOverride)
 			{
 				if (bError) {
 					color = ImVec4(1.00f, 0.00f, 0.00f, 0.80f);
