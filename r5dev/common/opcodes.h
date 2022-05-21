@@ -33,6 +33,11 @@ inline CMemory CEngineVGui__Shutdown;
 inline CMemory CEngineVGui__ActivateGameUI;
 
 //-------------------------------------------------------------------------
+// CENGINEVGUI
+//-------------------------------------------------------------------------
+inline CMemory CInputSystem__RunFrameIME;
+
+//-------------------------------------------------------------------------
 // RUNTIME: SYS_INITGAME
 //-------------------------------------------------------------------------
 inline CMemory Sys_InitGame;
@@ -104,6 +109,8 @@ class VOpcodes : public IDetour
 		spdlog::debug("| FUN: CEngineVGui::Shutdown                : {:#18x} |\n", CEngineVGui__Shutdown.GetPtr());
 		spdlog::debug("| FUN: CEngineVGui::ActivateGameUI          : {:#18x} |\n", CEngineVGui__ActivateGameUI.GetPtr());
 		spdlog::debug("+----------------------------------------------------------------+\n");
+		spdlog::debug("| FUN: CInputSystem::RunFrameIME            : {:#18x} |\n", CInputSystem__RunFrameIME.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 		spdlog::debug("| FUN: Sys_InitGame                         : {:#18x} |\n", Sys_InitGame.GetPtr());
 		spdlog::debug("+----------------------------------------------------------------+\n");
 		spdlog::debug("| FUN: Host_Init_0                          : {:#18x} |\n", gHost_Init_0.GetPtr());
@@ -120,6 +127,8 @@ class VOpcodes : public IDetour
 		spdlog::debug("| FUN: HandleConfigFile                     : {:#18x} |\n", HandleConfigFile.GetPtr());
 		spdlog::debug("| FUN: ResetPreviousGameState               : {:#18x} |\n", ResetPreviousGameState.GetPtr());
 		spdlog::debug("| FUN: LoadPlayerConfig                     : {:#18x} |\n", LoadPlayerConfig.GetPtr());
+		spdlog::debug("| FUN: GetEngineClientThread                : {:#18x} |\n", GetEngineClientThread.GetPtr());
+		spdlog::debug("| FUN: MatchMaking_Frame                    : {:#18x} |\n", MatchMaking_Frame.GetPtr());
 		spdlog::debug("+----------------------------------------------------------------+\n");
 #if !defined (GAMEDLL_S0) || !defined (GAMEDLL_S1)
 		spdlog::debug("| FUN: CWin32Surface::initStaticData        : {:#18x} |\n", CWin32Surface_initStaticData.GetPtr());
@@ -164,6 +173,13 @@ class VOpcodes : public IDetour
 #endif // 0x140282C90 // 48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 80 3D ? ? ? ? ? 48 8B D9 //
 		CEngineVGui__ActivateGameUI = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\xF6\x81\x00\x00\x00\x00\x00\x48\x8B\xD9\x74\x08"), "xxxxxxxx?????xxxxx");
 		// 
+
+		//-------------------------------------------------------------------------
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+		CInputSystem__RunFrameIME = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x57\x41\x55"), "xxxxxx");
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+		CInputSystem__RunFrameIME = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x57\x41\x54\x41\x55\x48\x83\xEC\x70"), "xxxxxxxxxx");
+#endif
 
 		//-------------------------------------------------------------------------
 		Sys_InitGame = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x41\x8B\xD8"), "xxxx?xxxx????xx?????xxx");
