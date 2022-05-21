@@ -62,8 +62,7 @@ namespace Drawing
 		auto Result = std::make_unique<Icon>();
 		auto Exe = System::Environment::GetApplication();
 
-		Result->_IconHandleLg = ExtractIconA(GetModuleHandle(NULL), (const char*)Exe, 0);
-		Result->_IconHandleSm = Result->_IconHandleLg;
+		ExtractIconExA(Exe, 0, &Result->_IconHandleLg, &Result->_IconHandleSm, 1);
 
 		return Result;
 	}
