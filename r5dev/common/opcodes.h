@@ -74,7 +74,7 @@ inline CMemory UpdateMaterialSystemConfig;
 inline CMemory HandleConfigFile;
 inline CMemory ResetPreviousGameState;
 inline CMemory LoadPlayerConfig;
-inline CMemory Community_Frame;
+inline CMemory MatchMaking_Frame;
 inline CMemory GetEngineClientThread;
 inline CMemory CWin32Surface_initStaticData;
 #if !defined (GAMEDLL_S0) || !defined (GAMEDLL_S1)
@@ -209,13 +209,19 @@ class VOpcodes : public IDetour
 #elif defined (GAMEDLL_S3)
 		LoadPlayerConfig = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x89\x4C\x24\x08\x48\x81\xEC\x00\x00\x00\x00\x48\x83\x3D\x00\x00\x00\x00\x00"), "xxxxxxx????xxx?????");
 #endif
-		Community_Frame = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x8B\x0D\x00\x00\x00\x00\x48\x85\xC9\x0F\x84\x00\x00\x00\x00\x48\x8B\x01"), "x????x????xxx????xxxxx????xxx").FollowNearCallSelf();
-
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 		GetEngineClientThread = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x65\x48\x8B\x04\x25\x00\x00\x00\x00\x48\x8B\xD9\xB9\x00\x00\x00\x00\x48\x8B\x10\x8B\x04\x11\x39\x05\x00\x00\x00\x00\x7F\x15"), "xxxxxxxxxxx????xxxx????xxxxxxxx????xx");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		GetEngineClientThread = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x65\x48\x8B\x04\x25\x00\x00\x00\x00\x48\x8B\xD9\xB9\x00\x00\x00\x00\x48\x8B\x10\x8B\x04\x11\x39\x05\x00\x00\x00\x00\x7F\x21"), "xxxxxxxxxxx????xxxx????xxxxxxxx????xx");
 #endif
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+		MatchMaking_Frame = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x55\x56\x41\x54\x41\x55\x48\x8D\xAC\x24\x00\x00\x00\x00"), "xxxxxxxxxxx????");
+#elif defined (GAMEDLL_S2)
+		MatchMaking_Frame = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x74\x24\x00\x55\x41\x54\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00"), "xxxx?xxxxxxxxx????");
+#elif defined (GAMEDLL_S3)
+		MatchMaking_Frame = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x55\x48\x8D\xA8\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x89\x78\x18"), "xxxxxxx????xxx????xxxx");
+#endif
+
 
 		CWin32Surface_initStaticData = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\xE8\x00\x00\x00\x00\x48\x8D\x0D\x00\x00\x00\x00\x48\x83\xC4\x28\xE9\x00\x00\x00\x00\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x33\xC9"), "xxxxx????xxx????xxxxx????xxxxxxxxx");
 		// 48 83 EC 28 E8 ? ? ? ? 48 8D 0D ? ? ? ? 48 83 C4 28 E9 ? ? ? ? CC CC CC CC CC CC CC 33 C9 

@@ -313,8 +313,16 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	// RUNTIME: COMMUNITIES
 	//-------------------------------------------------------------------------
-	Community_Frame.Offset(0x0).Patch({ 0xC3 });                                           // FUN --> RET | Return early to prevent 'Community_Frame()' from being ran every frame on the server (CLIENT ONLY).
-	//GetEngineClientThread.Offset(0x0).Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 });       // FUN --> RET | Return nullptr for mp_gamemode thread assignment during registration callback.
+	{
+		//GetEngineClientThread.Offset(0x0).Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 });       // FUN --> RET | Return nullptr for mp_gamemode thread assignment during registration callback.
+	}
+
+	//-------------------------------------------------------------------------
+	// RUNTIME: MATCHMAKING
+	//-------------------------------------------------------------------------
+	{
+		MatchMaking_Frame.Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 });                   // FUN --> RET | Return early for 'MatchMaking_Frame()'.
+	}
 
 	{
 		CWin32Surface_initStaticData.Patch({ 0xC3 });                                      // FUN --> RET | Prevent 'CWin32Surface::initStaticData()' from being ran in CInit.

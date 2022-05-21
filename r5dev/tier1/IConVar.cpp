@@ -194,8 +194,10 @@ void ConVar::PurgeShipped(void) const
 	{
 		"bink_materials_enabled",
 		"communities_enabled",
+		"community_frame_run",
 		"ime_enabled",
 		"origin_igo_mutes_sound_enabled",
+		"twitch_shouldQuery",
 		"voice_enabled",
 	};
 
