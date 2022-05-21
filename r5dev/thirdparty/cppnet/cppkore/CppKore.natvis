@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="List&lt;*&gt;">
+    <Expand>
+      <Item Name="[size]">_StoreSize</Item>
+      <Item Name="[capacity]">_BufferSize</Item>
+      <ArrayItems>
+        <Size>_StoreSize</Size>
+        <ValuePointer>_Buffer</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  <Type Name="StringBase&lt;*&gt;">
+    <DisplayString Condition="_Buffer == nullptr">empty</DisplayString>
+    <DisplayString>{_Buffer}</DisplayString>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">_StoreSize</Item>
+      <Item Name="[capacity]" ExcludeView="simple">_BufferSize</Item>
+      <Item Name="[value]">_Buffer</Item>
+    </Expand>
+  </Type>
+  <Type Name="Dictionary&lt;*&gt;">
+    <Expand>
+      <Item Name="[size]">_Count</Item>
+      <Item Name="[capacity]">_BucketLength</Item>
+      <ArrayItems>
+        <Size>_Count</Size>
+        <ValuePointer>_Entries._Mypair._Myval2</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  <Type Name="Assets::Texture">
+    <Expand>
+      <Item Name="Width">((DirectX::ScratchImage*)DirectXImage)->m_metadata.width</Item>
+      <Item Name="Height">((DirectX::ScratchImage*)DirectXImage)->m_metadata.height</Item>
+      <Item Name="MipLevels">((DirectX::ScratchImage*)DirectXImage)->m_metadata.mipLevels</Item>
+      <Item Name="Format">((DirectX::ScratchImage*)DirectXImage)->m_metadata.format</Item>
+      <Item Name="Dimensions">((DirectX::ScratchImage*)DirectXImage)->m_metadata.dimension</Item>
+      <Item Name="DirectX Image">((DirectX::ScratchImage*)DirectXImage)</Item>
+    </Expand>
+  </Type>
+</AutoVisualizer>

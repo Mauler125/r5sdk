@@ -77,6 +77,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "clientsdk", "r5dev\vproj\cl
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{3363D141-5FD1-4569-B1B0-EC59ABBA5FAC}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libcppkore", "r5dev\vproj\libcppkore.vcxproj", "{88BC2D60-A093-4E61-B194-59AB8BE4E33E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -213,6 +215,14 @@ Global
 		{8FC77C68-CE93-45CE-B753-68ABE36BCDDB}.Release|x64.Build.0 = Release|x64
 		{8FC77C68-CE93-45CE-B753-68ABE36BCDDB}.Release|x86.ActiveCfg = Release|x64
 		{8FC77C68-CE93-45CE-B753-68ABE36BCDDB}.Release|x86.Build.0 = Release|x64
+		{88BC2D60-A093-4E61-B194-59AB8BE4E33E}.Debug|x64.ActiveCfg = Debug|x64
+		{88BC2D60-A093-4E61-B194-59AB8BE4E33E}.Debug|x64.Build.0 = Debug|x64
+		{88BC2D60-A093-4E61-B194-59AB8BE4E33E}.Debug|x86.ActiveCfg = Debug|Win32
+		{88BC2D60-A093-4E61-B194-59AB8BE4E33E}.Debug|x86.Build.0 = Debug|Win32
+		{88BC2D60-A093-4E61-B194-59AB8BE4E33E}.Release|x64.ActiveCfg = Release|x64
+		{88BC2D60-A093-4E61-B194-59AB8BE4E33E}.Release|x64.Build.0 = Release|x64
+		{88BC2D60-A093-4E61-B194-59AB8BE4E33E}.Release|x86.ActiveCfg = Release|Win32
+		{88BC2D60-A093-4E61-B194-59AB8BE4E33E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -234,6 +244,7 @@ Global
 		{0E701104-CD9A-45C0-8E32-3284DBDEAF5E} = {EB0E2713-EB72-4F68-B6CF-F076D68ECA40}
 		{81CE8DAF-EBB2-4761-8E45-B71ABCCA8C68} = {9D2825F8-4BEC-4D0A-B125-6390B554D519}
 		{1942083A-03D9-4D76-B644-A3FA2A118A35} = {3363D141-5FD1-4569-B1B0-EC59ABBA5FAC}
+		{88BC2D60-A093-4E61-B194-59AB8BE4E33E} = {9D2825F8-4BEC-4D0A-B125-6390B554D519}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5E5FE02E-6BCE-4BAF-9948-C56476039C3C}
