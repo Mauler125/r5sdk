@@ -25,7 +25,7 @@ public:
 	void SetOriginID(int64_t nOriginID);
 	void SetSignonState(SIGNONSTATE nSignonState);
 	void SetPersistenceState(PERSISTENCE nPersistenceState);
-	void SetNetChan(CNetChan* pNetChan); // !TODO: HACK!
+	void SetNetChan(CNetChan* pNetChan);
 	bool IsConnected(void) const;
 	bool IsSpawned(void) const;
 	bool IsActive(void) const;
@@ -33,8 +33,10 @@ public:
 	bool IsPersistenceReady(void) const;
 	bool IsFakeClient(void) const;
 	bool IsHumanPlayer(void) const;
-	static bool Connect(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize);
-	static void Clear(CClient* pBaseClient);
+	bool Connect(const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize);
+	static bool VConnect(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize);
+	void Clear(void);
+	static void VClear(CClient* pBaseClient);
 
 private:
 	int32_t m_nUserID;               //0x0010
@@ -70,18 +72,18 @@ private:
 	char pad_4A440[48];              //0x4A440
 };
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-static_assert(sizeof(CBaseClient) == 0x4A440);
+static_assert(sizeof(CClient) == 0x4A440);
 #else
 static_assert(sizeof(CClient) == 0x4A4C0);
 #endif
 
 
 /* ==== CBASECLIENT ===================================================================================================================================================== */
-inline CMemory p_CBaseClient_Connect;
-inline auto CBaseClient_Connect = p_CBaseClient_Connect.RCast<bool (*)(CClient* thisptr, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize)>();
+inline CMemory p_CClient_Connect;
+inline auto v_CClient_Connect = p_CClient_Connect.RCast<bool (*)(CClient* thisptr, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize)>();
 
-inline CMemory p_CBaseClient_Clear;
-inline auto CBaseClient_Clear = p_CBaseClient_Clear.RCast<void (*)(CClient* thisptr)>();
+inline CMemory p_CClient_Clear;
+inline auto v_CClient_Clear = p_CClient_Clear.RCast<void (*)(CClient* thisptr)>();
 
 inline CMemory g_pClientBuffer;
 extern CClient* g_pClient;
@@ -95,18 +97,18 @@ class VClient : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CClient::Connect                     : {:#18x} |\n", p_CBaseClient_Connect.GetPtr());
-		spdlog::debug("| FUN: CClient::Clear                       : {:#18x} |\n", p_CBaseClient_Clear.GetPtr());
+		spdlog::debug("| FUN: CClient::Connect                     : {:#18x} |\n", p_CClient_Connect.GetPtr());
+		spdlog::debug("| FUN: CClient::Clear                       : {:#18x} |\n", p_CClient_Clear.GetPtr());
 		spdlog::debug("| VAR: g_pClient                            : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pClient));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
-		p_CBaseClient_Connect = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74"), "xxxxxxxxxxxxxxxx");
-		p_CBaseClient_Clear   = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74"), "xxxxxxxxxxxxxxxx");
+		p_CClient_Connect = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74"), "xxxxxxxxxxxxxxxx");
+		p_CClient_Clear   = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74"), "xxxxxxxxxxxxxxxx");
 
-		CBaseClient_Connect = p_CBaseClient_Connect.RCast<bool (*)(CClient*, const char*, void*, bool, void*, char*, int)>(); /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
-		CBaseClient_Clear   = p_CBaseClient_Clear.RCast<void (*)(CClient*)>();                                                /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
+		v_CClient_Connect = p_CClient_Connect.RCast<bool (*)(CClient*, const char*, void*, bool, void*, char*, int)>(); /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
+		v_CClient_Clear   = p_CClient_Clear.RCast<void (*)(CClient*)>();                                                /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
 	}
 	virtual void GetVar(void) const
 	{

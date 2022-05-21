@@ -162,8 +162,7 @@ void NET_DisconnectClient(CClient* pClient, int nIndex, const char* szReason, ui
 	}
 
 	v_NET_Shutdown(pClient->GetNetChan(), szReason, bBadRep, bRemoveNow); // Shutdown netchan.
-	pClient->SetNetChan(nullptr);                                         // Null netchan.
-	CBaseClient_Clear(pClient);                                           // Reset CClient instance for client.
+	pClient->Clear();                                                     // Reset CClient instance for client.
 	g_bIsPersistenceVarSet[nIndex] = false;                               // Reset Persistence var.
 #endif // !CLIENT_DLL
 }

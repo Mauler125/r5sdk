@@ -171,11 +171,34 @@ bool CClient::IsHumanPlayer(void) const
 
 //---------------------------------------------------------------------------------
 // Purpose: throw away any residual garbage in the channel
+//---------------------------------------------------------------------------------
+void CClient::Clear(void)
+{
+	v_CClient_Clear(this);
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: throw away any residual garbage in the channel
 // Input  : *pBaseClient - 
 //---------------------------------------------------------------------------------
-void CClient::Clear(CClient* pBaseClient)
+void CClient::VClear(CClient* pBaseClient)
 {
-	CBaseClient_Clear(pBaseClient);
+	v_CClient_Clear(pBaseClient);
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: connect new client
+// Input  : *szName - 
+//			*pNetChannel - 
+//			bFakePlayer - 
+//			*a5 - 
+//			*szMessage -
+//			nMessageSize - 
+// Output : true if connection was succesfull, false otherwise
+//---------------------------------------------------------------------------------
+bool CClient::Connect(const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize)
+{
+	return v_CClient_Connect(this, szName, pNetChannel, bFakePlayer, a5, szMessage, nMessageSize);
 }
 
 //---------------------------------------------------------------------------------
@@ -189,21 +212,21 @@ void CClient::Clear(CClient* pBaseClient)
 //			nMessageSize - 
 // Output : true if connection was succesfull, false otherwise
 //---------------------------------------------------------------------------------
-bool CClient::Connect(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize)
+bool CClient::VConnect(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize)
 {
-	return CBaseClient_Connect(pClient, szName, pNetChannel, bFakePlayer, a5, szMessage, nMessageSize);
+	return v_CClient_Connect(pClient, szName, pNetChannel, bFakePlayer, a5, szMessage, nMessageSize);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
 void CBaseClient_Attach()
 {
-	DetourAttach((LPVOID*)&CBaseClient_Clear, &CClient::Clear);
-	DetourAttach((LPVOID*)&CBaseClient_Connect, &CClient::Connect);
+	DetourAttach((LPVOID*)&v_CClient_Clear, &CClient::VClear);
+	DetourAttach((LPVOID*)&v_CClient_Connect, &CClient::VConnect);
 }
 void CBaseClient_Detach()
 {
-	DetourDetach((LPVOID*)&CBaseClient_Clear, &CClient::Clear);
-	DetourDetach((LPVOID*)&CBaseClient_Connect, &CClient::Connect);
+	DetourDetach((LPVOID*)&v_CClient_Clear, &CClient::VClear);
+	DetourDetach((LPVOID*)&v_CClient_Connect, &CClient::VConnect);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

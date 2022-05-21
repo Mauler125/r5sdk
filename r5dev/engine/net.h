@@ -42,7 +42,7 @@ extern string g_szNetKey;
 extern uintptr_t g_pNetKey;
 
 ///////////////////////////////////////////////////////////////////////////////
-class VNetChan : public IDetour
+class VNet : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
@@ -86,7 +86,7 @@ class VNetChan : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-REGISTER(VNetChan);
+REGISTER(VNet);
 #endif // !NETCONSOLE
 
 const char* NET_ErrorString(int iCode);

@@ -190,3 +190,11 @@ bool CNetChan::IsOverflowed(void) const
 {
 	return this->m_StreamReliable.IsOverflowed();
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: clears the netchannel
+//-----------------------------------------------------------------------------
+void CNetChan::Clear(bool bStopProcessing)
+{
+	v_NetChan_Clear(this, bStopProcessing);
+}

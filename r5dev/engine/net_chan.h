@@ -99,6 +99,7 @@ public:
 	int         GetSocket(void) const;
 
 	bool        IsOverflowed(void) const;
+	void        Clear(bool bStopProcessing);
 	//-----------------------------------------------------------------------------
 private:
 	bool                m_bProcessingMessages;
@@ -169,5 +170,28 @@ static_assert(sizeof(CNetChan) == 0x1AD0);
 #else
 static_assert(sizeof(CNetChan) == 0x1AC8);
 #endif
+
+inline CMemory p_NetChan_Clear;
+inline auto v_NetChan_Clear = p_NetChan_Clear.RCast<void (*)(CNetChan* pChannel, bool bStopProcessing)>();
+///////////////////////////////////////////////////////////////////////////////
+class VNetChannel : public IDetour
+{
+	virtual void GetAdr(void) const
+	{
+		spdlog::debug("| FUN: CNetChan::Clear                      : {:#18x} |\n", p_NetChan_Clear.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
+	}
+	virtual void GetFun(void) const
+	{
+		p_NetChan_Clear = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x88\x54\x24\x10\x53\x55\x57"), "xxxxxxx");
+		v_NetChan_Clear = p_NetChan_Clear.RCast<void (*)(CNetChan*, bool)>(); /*88 54 24 10 53 55 57*/
+	}
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
+};
+///////////////////////////////////////////////////////////////////////////////
+REGISTER(VNetChannel);
 
 #endif // NET_CHAN_H
