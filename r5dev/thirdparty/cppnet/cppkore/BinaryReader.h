@@ -39,26 +39,26 @@ namespace IO
 		uint64_t Read(void* Buffer, uint64_t Index, uint64_t Count);
 
 		// Reads a null-terminated string from the stream
-		string ReadCString();
+		String ReadCString();
 		// Reads a wide null-terminated string from the stream
-		wstring ReadWCString();
+		WString ReadWCString();
 		// Reads a size-string from the stream
-		string ReadSizeString(uint64_t Size);
+		String ReadSizeString(uint64_t Size);
 		// Reads a .NET string from the stream
-		string ReadNetString();
+		String ReadNetString();
 
 		// Reads an integer encoded into 7 bits, top bit = read more
 		uint32_t ReadVarInt();
 
 		// Scan the stream for a given signature
-		int64_t SignatureScan(const string& Signature);
+		int64_t SignatureScan(const String& Signature);
 		// Scan the stream for a given signature
-		int64_t SignatureScan(const string& Signature, uint64_t Offset, uint64_t Count);
+		int64_t SignatureScan(const String& Signature, uint64_t Offset, uint64_t Count);
 
 		// Scan the process for a given signature (All occurences)
-		List<int64_t> SignatureScanAll(const string& Signature);
+		List<int64_t> SignatureScanAll(const String& Signature);
 		// Scan the process for a given signature (All occurences)
-		List<int64_t> SignatureScanAll(const string& Signature, uint64_t Offset, uint64_t Count);
+		List<int64_t> SignatureScanAll(const String& Signature, uint64_t Offset, uint64_t Count);
 
 		// Get the underlying stream
 		Stream* GetBaseStream() const;

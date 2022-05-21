@@ -26,31 +26,31 @@ namespace Win32
 		// Flush all pending changes to the disk
 		void Flush();
 		// Creates a new subkey
-		RegistryKey CreateSubKey(const string& SubKey);
+		RegistryKey CreateSubKey(const String& SubKey);
 		// Deletes a subkey
-		void DeleteSubKey(const string& SubKey, bool ThrowOnMissingSubKey = false);
+		void DeleteSubKey(const String& SubKey, bool ThrowOnMissingSubKey = false);
 		// Deletes a subkey and all nested values
-		void DeleteSubKeyTree(const string& SubKey, bool ThrowOnMissingSubKey = false);
+		void DeleteSubKeyTree(const String& SubKey, bool ThrowOnMissingSubKey = false);
 		// Deletes a value
-		void DeleteValue(const string& Name, bool ThrowOnMissingSubKey = false);
+		void DeleteValue(const String& Name, bool ThrowOnMissingSubKey = false);
 		// Opens a subkey of this instance
-		RegistryKey OpenSubKey(const string& Name, bool Writable = true);
+		RegistryKey OpenSubKey(const String& Name, bool Writable = true);
 		// Returns a value
 		template<RegistryValueType T>
-		auto GetValue(const string& Name);
+		auto GetValue(const String& Name);
 		// Returns a list of value names
-		List<string> GetValueNames();
+		List<String> GetValueNames();
 		// Returns the type of value this key is
-		RegistryValueType GetValueKind(const string& Name);
+		RegistryValueType GetValueKind(const String& Name);
 		// Sets a value
 		template<RegistryValueType T, typename Tval>
-		void SetValue(const string& Name, const Tval& Value);
+		void SetValue(const String& Name, const Tval& Value);
 		// Returns the count of subkeys
 		uint32_t GetSubKeyCount();
 		// Returns the count of values
 		uint32_t GetValueCount();
 		// Returns the subkey names
-		List<string> GetSubKeyNames();
+		List<String> GetSubKeyNames();
 
 		// Opens one of the base registry hives on the system
 		static RegistryKey OpenBaseKey(RegistryHive Hive, RegistryView View);
@@ -62,7 +62,7 @@ namespace Win32
 		HKEY _Handle;
 		uint32_t _State;
 		RegistryView _View;
-		string _KeyName;
+		String _KeyName;
 
 		// Helper routines
 		bool IsDirty();
@@ -70,26 +70,26 @@ namespace Win32
 		bool IsWritable();
 
 		// Internal routine to create a subkeu
-		RegistryKey CreateSubKeyInternal(const string& SubKey);
+		RegistryKey CreateSubKeyInternal(const String& SubKey);
 		// Internal routine to delete a subkey tree
-		void DeleteSubKeyTreeInternal(const string& SubKey);
+		void DeleteSubKeyTreeInternal(const String& SubKey);
 		// Internal routine to open a subkey
-		RegistryKey InternalOpenSubKey(const string& SubKey, bool Writable);
+		RegistryKey InternalOpenSubKey(const String& SubKey, bool Writable);
 		// Internal routine to get a value
-		std::unique_ptr<uint8_t[]> InternalGetValue(const string& Name, uint64_t& ValueSize);
+		std::unique_ptr<uint8_t[]> InternalGetValue(const String& Name, uint64_t& ValueSize);
 		// Internal routine to set a value
-		void InternalSetValue(const string& Name, uint32_t ValueType, uint8_t* Buffer, uint64_t BufferSize);
+		void InternalSetValue(const String& Name, uint32_t ValueType, uint8_t* Buffer, uint64_t BufferSize);
 		// Internal routine to get subkey count
 		uint32_t InternalSubKeyCount();
 		// Internal routine to get value count
 		uint32_t InternalValueCount();
 		// Internal routine to get subkey names
-		List<string> InternalGetSubKeyNames();
+		List<String> InternalGetSubKeyNames();
 		
 		// Cleans up a key name
-		static string FixupName(string Name);
+		static String FixupName(String Name);
 		// Cleans up a key path
-		static void FixupPath(string& Path);
+		static void FixupPath(String& Path);
 
 		// Internal key states
 		constexpr static uint32_t STATE_DIRTY = 0x1;
@@ -114,7 +114,7 @@ namespace Win32
 	};
 
 	template<RegistryValueType T>
-	inline auto RegistryKey::GetValue(const string& Name)
+	inline auto RegistryKey::GetValue(const String& Name)
 	{
 		uint64_t BufferSize = 0;
 		auto Buffer = this->InternalGetValue(Name, BufferSize);
@@ -133,18 +133,18 @@ namespace Win32
 		}
 		else if constexpr (T == RegistryValueType::String)
 		{
-			return string((const char*)Buffer.get());
+			return String((const char*)Buffer.get());
 		}
 		else if constexpr (T == RegistryValueType::MultiString)
 		{
-			auto Result = List<string>();
+			auto Result = List<String>();
 			uint64_t Position = 0;
 
-			// We must parse each string as we go, and ensure we haven't reached the buffer size
+			// We must parse each String as we go, and ensure we haven't reached the buffer size
 			while (Position < BufferSize)
 			{
 				// Read the str with strlen() because it doesn't store the size of each one
-				auto cStr = string((const char*)(Buffer.get() + Position));
+				auto cStr = String((const char*)(Buffer.get() + Position));
 
 				// Shift based on the size + null char...
 				Position += cStr.Length() + sizeof(char);
@@ -169,7 +169,7 @@ namespace Win32
 	}
 
 	template<RegistryValueType T, typename Tval>
-	inline void RegistryKey::SetValue(const string& Name, const Tval& Value)
+	inline void RegistryKey::SetValue(const String& Name, const Tval& Value)
 	{
 		if constexpr (T == RegistryValueType::Dword)
 		{

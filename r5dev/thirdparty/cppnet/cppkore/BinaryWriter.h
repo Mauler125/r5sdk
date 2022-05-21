@@ -35,13 +35,13 @@ namespace IO
 		void Write(void* Buffer, uint64_t Index, uint64_t Count);
 
 		// Writes a null-terminated string to the stream
-		void WriteCString(const string& Value);
+		void WriteCString(const String& Value);
 		// Writes a wide null-terminated string to the stream
-		void WriteWCString(const wstring& Value);
+		void WriteWCString(const WString& Value);
 		// Writes a already predetermined size string to the stream
-		void WriteSizeString(const string& Value);
+		void WriteSizeString(const String& Value);
 		// Writes a .NET string to the stream
-		void WriteNetString(const string& Value);
+		void WriteNetString(const String& Value);
 		
 		// Writes an integer encoded into 7 bits, top bit = read more
 		void WriteVarInt(uint32_t Value);

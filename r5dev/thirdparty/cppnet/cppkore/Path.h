@@ -23,27 +23,27 @@ namespace IO
 		constexpr static char VolumeSeparatorChar = ':';
 
 		// Changes the extension of a file path
-		static string ChangeExtension(const string& FilePath, const string& Extension);
+		static String ChangeExtension(const String& FilePath, const String& Extension);
 		// Returns the directory path of a file path
-		static string GetDirectoryName(const string& Path);
+		static String GetDirectoryName(const String& Path);
 		// Returns the extension of the given path
-		static string GetExtension(const string& FilePath);
+		static String GetExtension(const String& FilePath);
 		// Returns the name and extension parts of the given path
-		static string GetFileName(const string& FilePath);
+		static String GetFileName(const String& FilePath);
 		// Returns the name without the extension of the given path
-		static string GetFileNameWithoutExtension(const string& FilePath);
+		static String GetFileNameWithoutExtension(const String& FilePath);
 		// Returns the root portion of the given path
-		static string GetPathRoot(const string& Path);
+		static String GetPathRoot(const String& Path);
 		// Returns a temporary folder path
-		static string GetTempPath();
+		static String GetTempPath();
 		// Returns a temporary file name
-		static string GetTempFileName();
+		static String GetTempFileName();
 		// Checks if the file name has an extension
-		static bool HasExtension(const string& FilePath);
+		static bool HasExtension(const String& FilePath);
 		// Checks if the given path contains a root
-		static bool IsPathRooted(const string& Path);
+		static bool IsPathRooted(const String& Path);
 		// Combine two paths
-		static string Combine(const string& Path1, const string& Path2);
+		static String Combine(const String& Path1, const String& Path2);
 
 		// Returns a list of all the bad path characters
 		constexpr static std::array<char, 36> GetInvalidPathChars()
@@ -81,6 +81,6 @@ namespace IO
 		// Internal helper routines
 		//
 
-		static uint32_t GetRootLength(const string& Path);
+		static uint32_t GetRootLength(const String& Path);
 	};
 }

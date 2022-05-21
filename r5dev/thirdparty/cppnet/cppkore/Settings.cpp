@@ -11,7 +11,7 @@ namespace System
 	{
 	}
 
-	SettingsObject::SettingsObject(string Key, SettingType Type, uint8_t* Value)
+	SettingsObject::SettingsObject(String Key, SettingType Type, uint8_t* Value)
 		: Key(Key), Type(Type), Values()
 	{
 		switch (Type)
@@ -42,7 +42,7 @@ namespace System
 			delete[] Values.String;
 	}
 
-	void Settings::Load(const string& Path)
+	void Settings::Load(const String& Path)
 	{
 		auto Reader = IO::BinaryReader(IO::File::OpenRead(Path));
 
@@ -101,7 +101,7 @@ namespace System
 		}
 	}
 
-	void Settings::Save(const string& Path)
+	void Settings::Save(const String& Path)
 	{
 		auto Writer = IO::BinaryWriter(IO::File::Create(Path));
 
@@ -130,7 +130,7 @@ namespace System
 				break;
 			case SettingType::ProtectedString:
 			{
-				auto Value = string(Setting.Values.String);
+				auto Value = String(Setting.Values.String);
 				auto ValueLen = Value.Length();
 
 				for (uint32_t i = 0; i < ValueLen; i++)

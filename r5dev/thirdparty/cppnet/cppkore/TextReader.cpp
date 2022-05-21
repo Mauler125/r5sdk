@@ -20,11 +20,11 @@ namespace IO
 		return n;
 	}
 
-	string TextReader::ReadToEnd()
+	String TextReader::ReadToEnd()
 	{
 		char Buffer[4097]{};
 		uint32_t Length = 0;
-		auto Result = string();
+		auto Result = String();
 
 		while ((Length = Read(Buffer, 0, 4096)) != 0)
 			Result.Append(Buffer, Length);
@@ -32,9 +32,9 @@ namespace IO
 		return std::move(Result);
 	}
 
-	string TextReader::ReadLine()
+	String TextReader::ReadLine()
 	{
-		auto Result = string();
+		auto Result = String();
 
 		while (true)
 		{

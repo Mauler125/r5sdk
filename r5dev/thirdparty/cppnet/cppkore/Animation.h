@@ -26,19 +26,19 @@ namespace Assets
 		Animation(uint32_t BoneCount, float FrameRate);
 
 		// The name of the animation
-		string Name;
+		String Name;
 
 		// A collection of 3D bones for this animation. (May or may not represent the actual skeleton)
 		List<Bone> Bones;
 		// The collection of curves that make up this animation.
-		Dictionary<string, List<Curve>> Curves;
+		Dictionary<String, List<Curve>> Curves;
 		// A collection of notifications that may occur.
-		Dictionary<string, List<uint32_t>> Notificiations;
+		Dictionary<String, List<uint32_t>> Notificiations;
 
 		// Gets a reference to a list of node curves.
-		List<Curve>& GetNodeCurves(const string& NodeName);
+		List<Curve>& GetNodeCurves(const String& NodeName);
 		// Adds a notification to the animation.
-		void AddNotification(const string& Name, uint32_t Frame);
+		void AddNotification(const String& Name, uint32_t Frame);
 
 		// Gets the count of frames in the animation.
 		const uint32_t FrameCount(bool Legacy = false) const;

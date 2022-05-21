@@ -7,12 +7,12 @@
 
 namespace Assets::Exporters
 {
-	bool WavefrontOBJ::ExportAnimation(const Animation& Animation, const string& Path)
+	bool WavefrontOBJ::ExportAnimation(const Animation& Animation, const String& Path)
 	{
 		return false;
 	}
 
-	bool WavefrontOBJ::ExportModel(const Model& Model, const string& Path)
+	bool WavefrontOBJ::ExportModel(const Model& Model, const String& Path)
 	{
 		auto Writer = IO::StreamWriter(IO::File::Create(Path));
 		auto MaterialPath = IO::Path::ChangeExtension(Path, ".mtl");

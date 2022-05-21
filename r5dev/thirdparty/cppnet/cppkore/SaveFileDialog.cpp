@@ -5,9 +5,9 @@
 
 namespace Forms
 {
-	const string BuildSaveFileFilter(const string& Filter)
+	const String BuildSaveFileFilter(const String& Filter)
 	{
-		string InitialFilter = (string::IsNullOrWhiteSpace(Filter)) ? string(" |*.*") : Filter;
+		String InitialFilter = (String::IsNullOrWhiteSpace(Filter)) ? String(" |*.*") : Filter;
 		auto Buffer = std::make_unique<int8_t[]>((size_t)InitialFilter.Length() + 2);	// Final filter has two null chars
 		auto BufferMask = (char*)Buffer.get();
 
@@ -21,10 +21,10 @@ namespace Forms
 
 		BufferMask[InitialFilter.Length() + 1] = (char)0;
 
-		return string((char*)Buffer.get(), (size_t)InitialFilter.Length() + 1);
+		return String((char*)Buffer.get(), (size_t)InitialFilter.Length() + 1);
 	}
 
-	string SaveFileDialog::ShowFileDialog(const string& Title, const string& BasePath, const string& Filter, Control* Owner)
+	String SaveFileDialog::ShowFileDialog(const String& Title, const String& BasePath, const String& Filter, Control* Owner)
 	{
 		HWND OwnerHandle = (Owner != nullptr) ? Owner->GetHandle() : NULL;
 		char Buffer[MAX_PATH]{};
@@ -43,7 +43,7 @@ namespace Forms
 
 		// Open the dialog with the config and then return result
 		if (GetSaveFileNameA(&oFileDialog))
-			return string(Buffer);
+			return String(Buffer);
 
 		// We need nothing as a default because we don't get a return value
 		return "";

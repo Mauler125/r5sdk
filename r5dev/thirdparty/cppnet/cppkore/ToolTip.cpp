@@ -165,7 +165,7 @@ namespace Forms
 
 			if (GetState(ControlStates::StateCreated))
 			{
-				string Title = !string::IsNullOrEmpty(_ToolTipTitle) ? _ToolTipTitle : string(" ");
+				String Title = !String::IsNullOrEmpty(_ToolTipTitle) ? _ToolTipTitle : String(" ");
 
 				SendMessageA(this->_Handle, TTM_SETTITLEA, (WPARAM)Value, (LPARAM)(char*)Title);
 				SendMessageA(this->_Handle, TTM_UPDATE, NULL, NULL);
@@ -173,12 +173,12 @@ namespace Forms
 		}
 	}
 
-	string ToolTip::ToolTipTitle()
+	String ToolTip::ToolTipTitle()
 	{
 		return this->_ToolTipTitle;
 	}
 
-	void ToolTip::SetToolTipTitle(const string& Value)
+	void ToolTip::SetToolTipTitle(const String& Value)
 	{
 		if (_ToolTipTitle != Value)
 		{
@@ -220,7 +220,7 @@ namespace Forms
 		}
 	}
 
-	void ToolTip::SetToolTip(Control* Ctrl, const string& Caption)
+	void ToolTip::SetToolTip(Control* Ctrl, const String& Caption)
 	{
 		if (Ctrl->GetState(ControlStates::StateCreated))
 		{
@@ -292,9 +292,9 @@ namespace Forms
 		SendMessageA(this->_Handle, TTM_SETTIPBKCOLOR, Drawing::ColorToWin32(this->BackColor()), NULL);
 		SendMessageA(this->_Handle, TTM_SETTIPTEXTCOLOR, Drawing::ColorToWin32(this->ForeColor()), NULL);
 
-		if ((int)_ToolTipIcon > 0 || !string::IsNullOrEmpty(_ToolTipTitle))
+		if ((int)_ToolTipIcon > 0 || !String::IsNullOrEmpty(_ToolTipTitle))
 		{
-			string Title = !string::IsNullOrEmpty(_ToolTipTitle) ? _ToolTipTitle : string(" ");
+			String Title = !String::IsNullOrEmpty(_ToolTipTitle) ? _ToolTipTitle : String(" ");
 			SendMessageA(this->_Handle, TTM_SETTITLEA, (WPARAM)_ToolTipIcon, (LPARAM)(char*)Title);
 		}
 	}

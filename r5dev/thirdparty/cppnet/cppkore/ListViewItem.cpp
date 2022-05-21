@@ -8,14 +8,14 @@ namespace Forms
 	{
 	}
 
-	ListViewItem::ListViewItem(std::initializer_list<string> SubItems)
-		: _SubItems(std::make_unique<string[]>(SubItems.size())), _SubItemStyles(std::make_unique<ListViewItemStyle[]>(SubItems.size())), Index(-1), _SubItemCount((uint32_t)SubItems.size())
+	ListViewItem::ListViewItem(std::initializer_list<String> SubItems)
+		: _SubItems(std::make_unique<String[]>(SubItems.size())), _SubItemStyles(std::make_unique<ListViewItemStyle[]>(SubItems.size())), Index(-1), _SubItemCount((uint32_t)SubItems.size())
 	{
 		std::copy(SubItems.begin(), SubItems.end(), _SubItems.get());
 	}
 
-	ListViewItem::ListViewItem(std::initializer_list<string> SubItems, std::initializer_list<ListViewItemStyle> SubItemStyles)
-		: _SubItems(std::make_unique<string[]>(SubItems.size())), _SubItemStyles(std::make_unique<ListViewItemStyle[]>(SubItemStyles.size())), Index(-1), _SubItemCount((uint32_t)SubItems.size())
+	ListViewItem::ListViewItem(std::initializer_list<String> SubItems, std::initializer_list<ListViewItemStyle> SubItemStyles)
+		: _SubItems(std::make_unique<String[]>(SubItems.size())), _SubItemStyles(std::make_unique<ListViewItemStyle[]>(SubItemStyles.size())), Index(-1), _SubItemCount((uint32_t)SubItems.size())
 	{
 		std::copy(SubItems.begin(), SubItems.end(), _SubItems.get());
 		std::copy(SubItemStyles.begin(), SubItemStyles.end(), _SubItemStyles.get());
@@ -25,7 +25,7 @@ namespace Forms
 	{
 		this->_SubItemCount = Rhs._SubItemCount;
 
-		this->_SubItems = std::make_unique<string[]>(_SubItemCount);
+		this->_SubItems = std::make_unique<String[]>(_SubItemCount);
 		this->_SubItemStyles = std::make_unique<ListViewItemStyle[]>(_SubItemCount);
 
 		std::copy(Rhs._SubItems.get(), Rhs._SubItems.get() + _SubItemCount, this->_SubItems.get());
@@ -36,7 +36,7 @@ namespace Forms
 	{
 		this->_SubItemCount = Rhs._SubItemCount;
 
-		this->_SubItems = std::make_unique<string[]>(_SubItemCount);
+		this->_SubItems = std::make_unique<String[]>(_SubItemCount);
 		this->_SubItemStyles = std::make_unique<ListViewItemStyle[]>(_SubItemCount);
 
 		std::copy(Rhs._SubItems.get(), Rhs._SubItems.get() + _SubItemCount, this->_SubItems.get());
@@ -45,7 +45,7 @@ namespace Forms
 		return *this;
 	}
 
-	const string& ListViewItem::Text() const
+	const String& ListViewItem::Text() const
 	{
 		return _SubItems[0];
 	}
@@ -55,7 +55,7 @@ namespace Forms
 		return _SubItemStyles[0];
 	}
 
-	const string& ListViewItem::SubItem(uint32_t Index) const
+	const String& ListViewItem::SubItem(uint32_t Index) const
 	{
 		return _SubItems[Index];
 	}

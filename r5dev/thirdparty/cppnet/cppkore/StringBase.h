@@ -127,9 +127,9 @@ public:
 	constexpr bool Contains(std::basic_string_view<Tchar> Rhs) const;
 
 	// Returns a substring of this string
-	constexpr StringBase<Tchar> Substring(uint32_t StartIndex) const;
+	constexpr StringBase<Tchar> SubString(uint32_t StartIndex) const;
 	// Returns a substring of this string
-	constexpr StringBase<Tchar> Substring(uint32_t StartIndex, uint32_t Length) const;
+	constexpr StringBase<Tchar> SubString(uint32_t StartIndex, uint32_t Length) const;
 
 	// Appends a character to this string
 	constexpr void Append(Tchar Rhs);
@@ -467,14 +467,14 @@ inline constexpr List<StringBase<Tchar>> StringBase<Tchar>::Split(const Tchar De
 	// Optimized for large strings and lots of occurences
 	while ((LocatedPosition = this->IndexOf(Delimiter, CurrentIndex)) != StringBase<Tchar>::InvalidPosition)
 	{
-		Result.Emplace(this->Substring(CurrentIndex, LocatedPosition - CurrentIndex));
+		Result.Emplace(this->SubString(CurrentIndex, LocatedPosition - CurrentIndex));
 
 		// Advance past the size of old and the position
 		CurrentIndex = LocatedPosition + 1;
 	}
 
 	if (CurrentIndex != this->_StoreSize)
-		Result.Emplace(this->Substring(CurrentIndex, this->_StoreSize - CurrentIndex));
+		Result.Emplace(this->SubString(CurrentIndex, this->_StoreSize - CurrentIndex));
 
 	return Result;
 }
@@ -495,14 +495,14 @@ inline constexpr List<StringBase<Tchar>> StringBase<Tchar>::Split(const Tchar* S
 	// Optimized for large strings and lots of occurences
 	while ((LocatedPosition = this->IndexOf(Separator, CurrentIndex)) != StringBase<Tchar>::InvalidPosition)
 	{
-		Result.Emplace(this->Substring(CurrentIndex, LocatedPosition - CurrentIndex));
+		Result.Emplace(this->SubString(CurrentIndex, LocatedPosition - CurrentIndex));
 
 		// Advance past the size of old and the position
 		CurrentIndex = LocatedPosition + LhsSize;
 	}
 
 	if (CurrentIndex != this->_StoreSize)
-		Result.Emplace(this->Substring(CurrentIndex, this->_StoreSize - CurrentIndex));
+		Result.Emplace(this->SubString(CurrentIndex, this->_StoreSize - CurrentIndex));
 
 	return Result;
 }
@@ -519,14 +519,14 @@ inline constexpr List<StringBase<Tchar>> StringBase<Tchar>::Split(const StringBa
 	// Optimized for large strings and lots of occurences
 	while ((LocatedPosition = this->IndexOf(Separator, CurrentIndex)) != StringBase<Tchar>::InvalidPosition)
 	{
-		Result.Emplace(this->Substring(CurrentIndex, LocatedPosition - CurrentIndex));
+		Result.Emplace(this->SubString(CurrentIndex, LocatedPosition - CurrentIndex));
 
 		// Advance past the size of old and the position
 		CurrentIndex = LocatedPosition + LhsSize;
 	}
 
 	if (CurrentIndex != this->_StoreSize)
-		Result.Emplace(this->Substring(CurrentIndex, this->_StoreSize - CurrentIndex));
+		Result.Emplace(this->SubString(CurrentIndex, this->_StoreSize - CurrentIndex));
 
 	return Result;
 }
@@ -543,14 +543,14 @@ inline constexpr List<StringBase<Tchar>> StringBase<Tchar>::Split(const std::bas
 	// Optimized for large strings and lots of occurences
 	while ((LocatedPosition = this->IndexOf(Separator, CurrentIndex)) != StringBase<Tchar>::InvalidPosition)
 	{
-		Result.Emplace(this->Substring(CurrentIndex, LocatedPosition - CurrentIndex));
+		Result.Emplace(this->SubString(CurrentIndex, LocatedPosition - CurrentIndex));
 
 		// Advance past the size of old and the position
 		CurrentIndex = LocatedPosition + LhsSize;
 	}
 
 	if (CurrentIndex != this->_StoreSize)
-		Result.Emplace(this->Substring(CurrentIndex, this->_StoreSize - CurrentIndex));
+		Result.Emplace(this->SubString(CurrentIndex, this->_StoreSize - CurrentIndex));
 
 	return Result;
 }
@@ -1073,7 +1073,7 @@ inline constexpr StringBase<Tchar> StringBase<Tchar>::Replace(const Tchar* Old, 
 	// Optimized for large strings and lots of occurences
 	while ((LocatedPosition = this->IndexOf(Old, CurrentIndex)) != StringBase<Tchar>::InvalidPosition)
 	{
-		Result += this->Substring(CurrentIndex, LocatedPosition - CurrentIndex);
+		Result += this->SubString(CurrentIndex, LocatedPosition - CurrentIndex);
 		Result += New;
 
 		// Advance past the size of old and the position
@@ -1081,7 +1081,7 @@ inline constexpr StringBase<Tchar> StringBase<Tchar>::Replace(const Tchar* Old, 
 	}
 
 	if (CurrentIndex != this->_StoreSize)
-		Result += this->Substring(CurrentIndex, this->_StoreSize - CurrentIndex);
+		Result += this->SubString(CurrentIndex, this->_StoreSize - CurrentIndex);
 
 	return std::move(Result);
 }
@@ -1097,7 +1097,7 @@ inline constexpr StringBase<Tchar> StringBase<Tchar>::Replace(const StringBase<T
 	// Optimized for large strings and lots of occurences
 	while ((LocatedPosition = this->IndexOf(Old, CurrentIndex)) != StringBase<Tchar>::InvalidPosition)
 	{
-		Result += this->Substring(CurrentIndex, LocatedPosition - CurrentIndex);
+		Result += this->SubString(CurrentIndex, LocatedPosition - CurrentIndex);
 		Result += New;
 
 		// Advance past the size of old and the position
@@ -1105,7 +1105,7 @@ inline constexpr StringBase<Tchar> StringBase<Tchar>::Replace(const StringBase<T
 	}
 
 	if (CurrentIndex != this->_StoreSize)
-		Result += this->Substring(CurrentIndex, this->_StoreSize - CurrentIndex);
+		Result += this->SubString(CurrentIndex, this->_StoreSize - CurrentIndex);
 
 	return std::move(Result);
 }
@@ -1121,7 +1121,7 @@ inline constexpr StringBase<Tchar> StringBase<Tchar>::Replace(std::basic_string_
 	// Optimized for large strings and lots of occurences
 	while ((LocatedPosition = this->IndexOf(Old, CurrentIndex)) != StringBase<Tchar>::InvalidPosition)
 	{
-		Result += this->Substring(CurrentIndex, LocatedPosition - CurrentIndex);
+		Result += this->SubString(CurrentIndex, LocatedPosition - CurrentIndex);
 		Result += New;
 
 		// Advance past the size of old and the position
@@ -1129,7 +1129,7 @@ inline constexpr StringBase<Tchar> StringBase<Tchar>::Replace(std::basic_string_
 	}
 
 	if (CurrentIndex != this->_StoreSize)
-		Result += this->Substring(CurrentIndex, this->_StoreSize - CurrentIndex);
+		Result += this->SubString(CurrentIndex, this->_StoreSize - CurrentIndex);
 
 	return std::move(Result);
 }
@@ -1235,13 +1235,13 @@ inline constexpr bool StringBase<Tchar>::Contains(std::basic_string_view<Tchar> 
 }
 
 template<class Tchar>
-inline constexpr StringBase<Tchar> StringBase<Tchar>::Substring(uint32_t StartIndex) const
+inline constexpr StringBase<Tchar> StringBase<Tchar>::SubString(uint32_t StartIndex) const
 {
-	return this->Substring(StartIndex, this->_StoreSize - StartIndex);
+	return this->SubString(StartIndex, this->_StoreSize - StartIndex);
 }
 
 template<class Tchar>
-inline constexpr StringBase<Tchar> StringBase<Tchar>::Substring(uint32_t StartIndex, uint32_t Length) const
+inline constexpr StringBase<Tchar> StringBase<Tchar>::SubString(uint32_t StartIndex, uint32_t Length) const
 {
 	if (Length > 0 && StartIndex < this->_StoreSize && (StartIndex + Length) <= this->_StoreSize)
 	{
@@ -1635,7 +1635,5 @@ constexpr inline void StringBase<Tchar>::EnsureCapacity(uint32_t Capacity)
 // Predefiend string types
 //
 
-using string = StringBase<char>;
 using String = StringBase<char>;
-using wstring = StringBase<wchar_t>;
 using WString = StringBase<wchar_t>;

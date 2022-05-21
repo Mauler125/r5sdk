@@ -127,7 +127,7 @@ namespace Forms
 		return 0;
 	}
 
-	DialogResult MessageBox::ShowCore(const string& Text, const string& Caption, MessageBoxButtons Buttons, MessageBoxIcon Icon, MessageBoxDefaultButton DefaultButton, MessageBoxOptions Options, bool ShowHelp, Control* Owner)
+	DialogResult MessageBox::ShowCore(const String& Text, const String& Caption, MessageBoxButtons Buttons, MessageBoxIcon Icon, MessageBoxDefaultButton DefaultButton, MessageBoxOptions Options, bool ShowHelp, Control* Owner)
 	{
 		uint32_t Style = (ShowHelp) ? HELP_BUTTON : 0;
 		Style |= (int)Buttons | (int)Icon | (int)DefaultButton | (int)Options;
@@ -164,37 +164,37 @@ namespace Forms
 		return Win32ToDialogResult(Result);
 	}
 
-	DialogResult MessageBox::Show(const string& Text)
+	DialogResult MessageBox::Show(const String& Text)
 	{
 		return ShowCore(Text, "", MessageBoxButtons::OK, MessageBoxIcon::None, MessageBoxDefaultButton::Button1, (MessageBoxOptions)0, false, nullptr);
 	}
 
-	DialogResult MessageBox::Show(const string& Text, const string& Caption)
+	DialogResult MessageBox::Show(const String& Text, const String& Caption)
 	{
 		return ShowCore(Text, Caption, MessageBoxButtons::OK, MessageBoxIcon::None, MessageBoxDefaultButton::Button1, (MessageBoxOptions)0, false, nullptr);
 	}
 
-	DialogResult MessageBox::Show(const string& Text, const string& Caption, MessageBoxButtons Buttons)
+	DialogResult MessageBox::Show(const String& Text, const String& Caption, MessageBoxButtons Buttons)
 	{
 		return ShowCore(Text, Caption, Buttons, MessageBoxIcon::None, MessageBoxDefaultButton::Button1, (MessageBoxOptions)0, false, nullptr);
 	}
 
-	DialogResult MessageBox::Show(const string& Text, const string& Caption, MessageBoxButtons Buttons, MessageBoxIcon Icon)
+	DialogResult MessageBox::Show(const String& Text, const String& Caption, MessageBoxButtons Buttons, MessageBoxIcon Icon)
 	{
 		return ShowCore(Text, Caption, Buttons, Icon, MessageBoxDefaultButton::Button1, (MessageBoxOptions)0, false, nullptr);
 	}
 
-	DialogResult MessageBox::Show(Control* Owner, const string& Text, const string& Caption, MessageBoxButtons Buttons, MessageBoxIcon Icon)
+	DialogResult MessageBox::Show(Control* Owner, const String& Text, const String& Caption, MessageBoxButtons Buttons, MessageBoxIcon Icon)
 	{
 		return ShowCore(Text, Caption, Buttons, Icon, MessageBoxDefaultButton::Button1, (MessageBoxOptions)0, false, Owner);
 	}
 
-	DialogResult MessageBox::Show(Control* Owner, const string& Text, const string& Caption, MessageBoxButtons Buttons, MessageBoxIcon Icon, MessageBoxDefaultButton DefaultButton)
+	DialogResult MessageBox::Show(Control* Owner, const String& Text, const String& Caption, MessageBoxButtons Buttons, MessageBoxIcon Icon, MessageBoxDefaultButton DefaultButton)
 	{
 		return ShowCore(Text, Caption, Buttons, Icon, DefaultButton, (MessageBoxOptions)0, false, Owner);
 	}
 
-	DialogResult MessageBox::Show(Control* Owner, const string& Text, const string& Caption, MessageBoxButtons Buttons, MessageBoxIcon Icon, MessageBoxDefaultButton DefaultButton, MessageBoxOptions Options)
+	DialogResult MessageBox::Show(Control* Owner, const String& Text, const String& Caption, MessageBoxButtons Buttons, MessageBoxIcon Icon, MessageBoxDefaultButton DefaultButton, MessageBoxOptions Options)
 	{
 		return ShowCore(Text, Caption, Buttons, Icon, DefaultButton, Options, false, Owner);
 	}

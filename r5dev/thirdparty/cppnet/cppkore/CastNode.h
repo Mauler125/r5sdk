@@ -116,14 +116,14 @@ namespace Assets::Exporters
 		void AddVector3(Math::Vector3 Value);
 		void AddVector4(Math::Quaternion Value);
 
-		void SetString(const string& Value);
+		void SetString(const String& Value);
 
 		CastPropertyId Identifier;
-		string Name;
+		String Name;
 
 	private:
 		List<CastPropertyUnion> IntegralValues;
-		string StringValue;
+		String StringValue;
 	};
 
 	class CastNode

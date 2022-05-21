@@ -18,7 +18,7 @@ namespace Hashing
 		}
 
 		// Computes the hash code of the input string using CRC32 algo.
-		static uint32_t HashString(const string& Input, uint32_t Seed = 0);
+		static uint32_t HashString(const String& Input, uint32_t Seed = 0);
 
 		// Computes the hash code using the CRC32 algo.
 		static uint32_t ComputeHash(uint8_t* Input, uint64_t InputOffset, uint64_t InputLength, uint32_t Seed = 0);

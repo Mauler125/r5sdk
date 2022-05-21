@@ -17,12 +17,12 @@ namespace Assets
 		// Loads a font from the provided LZ4 compressed buffer
 		void LoadFont(const uint8_t* Buffer, uint64_t BufferLength);
 		// Loads a font from the provided file path.
-		void LoadFont(const string& FontPath);
+		void LoadFont(const String& FontPath);
 
 		// Renders a string to the current opengl context.
 		void RenderString(const char* Text, float X, float Y, float Scale = 1.f);
 		// Renders a string to the current opengl context.
-		void RenderString(const string& Text, float X, float Y, float Scale = 1.f);
+		void RenderString(const String& Text, float X, float Y, float Scale = 1.f);
 
 	private:
 

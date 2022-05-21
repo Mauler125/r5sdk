@@ -23,9 +23,9 @@ namespace Assets::Exporters
 	{
 	public:
 		// Exports the given animation to the provided path.
-		virtual bool ExportAnimation(const Animation& Animation, const string& Path) = 0;
+		virtual bool ExportAnimation(const Animation& Animation, const String& Path) = 0;
 		// Exports the given model to the provided path.
-		virtual bool ExportModel(const Model& Model, const string& Path) = 0;
+		virtual bool ExportModel(const Model& Model, const String& Path) = 0;
 
 		// Gets the file extension for this exporters model format.
 		virtual imstring ModelExtension() = 0;

@@ -15,10 +15,10 @@ namespace IO
 	class FileStream : public Stream
 	{
 	public:
-		FileStream(const string& Path, FileMode Mode);
-		FileStream(const string& Path, FileMode Mode, FileAccess Access);
-		FileStream(const string& Path, FileMode Mode, FileAccess Access, FileShare Share);
-		FileStream(const string& Path, FileMode Mode, FileAccess Access, FileShare Share, uint32_t BufferSize);
+		FileStream(const String& Path, FileMode Mode);
+		FileStream(const String& Path, FileMode Mode, FileAccess Access);
+		FileStream(const String& Path, FileMode Mode, FileAccess Access, FileShare Share);
+		FileStream(const String& Path, FileMode Mode, FileAccess Access, FileShare Share, uint32_t BufferSize);
 		virtual ~FileStream();
 
 		// Implement Getters and Setters
@@ -71,7 +71,7 @@ namespace IO
 		uint64_t ReadCore(uint8_t* Buffer, uint64_t Offset, uint64_t Count);
 
 		// Sets up the FileStream
-		void SetupStream(const string& Path, FileMode Mode, FileAccess Access, FileShare Share, uint32_t BufferSize);
+		void SetupStream(const String& Path, FileMode Mode, FileAccess Access, FileShare Share, uint32_t BufferSize);
 
 		// Internal buffer size default 4k
 		constexpr static uint32_t DefaultBufferSize = 4096;

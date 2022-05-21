@@ -31,7 +31,7 @@ namespace Assets
 		~Model() = default;
 
 		// The name of the model
-		string Name;
+		String Name;
 
 		// Ensure that our model is not copied or assigned to for performance reasons.
 		Model(const Model&) = delete;
@@ -46,7 +46,7 @@ namespace Assets
 
 		// Adds a material to the collection if it doesn't already exist, returning it's index.
 		template<typename T>
-		uint32_t AddMaterial(const string& MaterialName, const T& SourceMap = T())
+		uint32_t AddMaterial(const String& MaterialName, const T& SourceMap = T())
 		{
 			auto MaterialHashCode = Hashing::XXHash::HashString(MaterialName);
 

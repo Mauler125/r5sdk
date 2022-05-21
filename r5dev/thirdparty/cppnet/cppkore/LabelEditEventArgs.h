@@ -10,11 +10,11 @@ namespace Forms
 	{
 	public:
 		LabelEditEventArgs(int32_t Item);
-		LabelEditEventArgs(int32_t Item, const string& Label);
+		LabelEditEventArgs(int32_t Item, const String& Label);
 		~LabelEditEventArgs() = default;
 
 		// The new text for the item.
-		string Label;
+		String Label;
 		// The index of the item being edited.
 		int32_t Item;
 		// Whether or not to cancel the changes.

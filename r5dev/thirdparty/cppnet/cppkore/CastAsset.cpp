@@ -18,7 +18,7 @@ namespace Assets::Exporters
 	static_assert(sizeof(CastHeader) == 0x10, "Cast header size mismatch");
 	
 
-	bool CastAsset::ExportAnimation(const Animation& Animation, const string& Path)
+	bool CastAsset::ExportAnimation(const Animation& Animation, const String& Path)
 	{
 		auto Writer = IO::BinaryWriter(IO::File::Create(Path));
 
@@ -194,7 +194,7 @@ namespace Assets::Exporters
 		return true;
 	}
 
-	bool CastAsset::ExportModel(const Model& Model, const string& Path)
+	bool CastAsset::ExportModel(const Model& Model, const String& Path)
 	{
 		auto Writer = IO::BinaryWriter(IO::File::Create(Path));
 
@@ -271,7 +271,7 @@ namespace Assets::Exporters
 
 		for (auto& Mesh : Model.Meshes)
 		{
-			auto& MeshNode = ModelNode.Children.Emplace(CastId::Mesh, Hashing::XXHash::HashString(string::Format("mesh%02d", MeshIndex++)));
+			auto& MeshNode = ModelNode.Children.Emplace(CastId::Mesh, Hashing::XXHash::HashString(String::Format("mesh%02d", MeshIndex++)));
 			
 			MeshNode.Properties.EmplaceBack(CastPropertyId::Vector3, "vp");
 			MeshNode.Properties.EmplaceBack(CastPropertyId::Vector3, "vn");
@@ -302,7 +302,7 @@ namespace Assets::Exporters
 			List<CastProperty*> UVLayers;
 
 			for (uint8_t i = 0; i < Mesh.Vertices.UVLayerCount(); i++)
-				MeshNode.Properties.EmplaceBack(CastPropertyId::Vector2, string::Format("u%d", i));
+				MeshNode.Properties.EmplaceBack(CastPropertyId::Vector2, String::Format("u%d", i));
 
 			auto& VertexPositions = MeshNode.Properties[0];
 			auto& VertexNormals = MeshNode.Properties[1];

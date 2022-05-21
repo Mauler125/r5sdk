@@ -75,9 +75,9 @@ namespace Forms
 		void SetSelectedIndex(int32_t Value);
 
 		// Gets the selected text in the edit component of the ComboBox.
-		string SelectedText();
+		String SelectedText();
 		// Sets the selected text in the edit component of the ComboBox.
-		void SetSelectedText(const string& Value);
+		void SetSelectedText(const String& Value);
 
 		// Gets length, in characters, of the selection in the editbox.
 		int32_t SelectionLength();
@@ -121,13 +121,13 @@ namespace Forms
 			uint32_t Count();
 
 			// Iterater classes
-			string* begin() const;
-			string* end() const;
+			String* begin() const;
+			String* end() const;
 
 		protected:
 			// Internal references
 			ComboBox* _Owner;
-			List<string> _Items;
+			List<String> _Items;
 		} Items;
 
 		// We must define control event bases here

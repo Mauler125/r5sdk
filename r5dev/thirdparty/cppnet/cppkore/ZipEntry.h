@@ -20,7 +20,7 @@ namespace Compression
 		// Compression method
 		ZipCompressionMethod Method;
 		// Full path and filename as stored in ZipArchive
-		string FileNameInZip;
+		String FileNameInZip;
 		// Original file size
 		uint64_t FileSize;
 		// Compressed file size
@@ -34,7 +34,7 @@ namespace Compression
 		// The CRC32 checksum of the entire file
 		uint32_t Crc32;
 		// User comment for the file
-		string Comment;
+		String Comment;
 		// True if UTF8 encoding for filename and comments
 		bool EncodeUTF8;
 	};

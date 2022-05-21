@@ -50,7 +50,7 @@ namespace Assets::Exporters
 	{
 		auto& Texture = ObjectsNode.Children.Emplace("Texture");
 
-		auto TextureName = Material.Name + "_c" + string("\u0000\u0001Texture", 9);
+		auto TextureName = Material.Name + "_c" + String("\u0000\u0001Texture", 9);
 
 		Texture.AddPropertyInteger64(TextureId);
 		Texture.AddPropertyString(TextureName);
@@ -92,9 +92,9 @@ namespace Assets::Exporters
 			Prop.AddPropertyInteger32(1);
 		}
 
-		Texture.Children.Emplace("Media").AddPropertyString(Material.Name + "_c" + string("\u0000\u0001Video", 7));
+		Texture.Children.Emplace("Media").AddPropertyString(Material.Name + "_c" + String("\u0000\u0001Video", 7));
 
-		string DiffuseMap = "";
+		String DiffuseMap = "";
 		if (Material.Slots.ContainsKey(MaterialSlotType::Albedo))
 			DiffuseMap = Material.Slots[MaterialSlotType::Albedo].first;
 		else if (Material.Slots.ContainsKey(MaterialSlotType::Diffuse))
@@ -109,7 +109,7 @@ namespace Assets::Exporters
 		auto& SkinDeformer = ObjectsNode.Children.Emplace("Deformer");
 
 		SkinDeformer.AddPropertyInteger64(DeformerId);
-		SkinDeformer.AddPropertyString(string::Format("KoreLibMesh%02d", SubmeshIndex) + string("\u0000\u0001Deformer", 10));
+		SkinDeformer.AddPropertyString(String::Format("KoreLibMesh%02d", SubmeshIndex) + String("\u0000\u0001Deformer", 10));
 		SkinDeformer.AddPropertyString("Skin");
 
 		SkinDeformer.Children.Emplace("Version").AddPropertyInteger32(101);
@@ -123,7 +123,7 @@ namespace Assets::Exporters
 		auto& SubDeformer = ObjectsNode.Children.Emplace("Deformer");
 
 		SubDeformer.AddPropertyInteger64(DeformerId);
-		SubDeformer.AddPropertyString(string::Format("KoreLibMesh%02d_Bone%02d", SubmeshIndex, BoneIndex) + string("\u0000\u0001SubDeformer", 13));
+		SubDeformer.AddPropertyString(String::Format("KoreLibMesh%02d_Bone%02d", SubmeshIndex, BoneIndex) + String("\u0000\u0001SubDeformer", 13));
 		SubDeformer.AddPropertyString("Cluster");
 
 		SubDeformer.Children.Emplace("Version").AddPropertyInteger32(100);
@@ -146,12 +146,12 @@ namespace Assets::Exporters
 		}
 	}
 
-	bool KaydaraFBX::ExportAnimation(const Animation& Animation, const string& Path)
+	bool KaydaraFBX::ExportAnimation(const Animation& Animation, const String& Path)
 	{
 		return false;
 	}
 
-	bool KaydaraFBX::ExportModel(const Model& Model, const string& Path)
+	bool KaydaraFBX::ExportModel(const Model& Model, const String& Path)
 	{
 		auto Writer = IO::BinaryWriter(IO::File::Create(Path));
 		auto FileName = IO::Path::GetFileNameWithoutExtension(Path);
@@ -175,7 +175,7 @@ namespace Assets::Exporters
 		auto& RootJointsNode = ObjectsNode.Children.Emplace("Model");
 
 		RootModelNode.AddPropertyInteger64(RootModelId);
-		RootModelNode.AddPropertyString(FileName + string("\u0000\u0001Model", 7));
+		RootModelNode.AddPropertyString(FileName + String("\u0000\u0001Model", 7));
 		RootModelNode.AddPropertyString("Null");
 
 		RootJointsNode.AddPropertyInteger64(RootJointsId);
@@ -215,7 +215,7 @@ namespace Assets::Exporters
 			auto Rotation = Bone.LocalRotation().ToEulerAngles();
 
 			JointModelNode.AddPropertyInteger64(UniqueId);
-			JointModelNode.AddPropertyString(Bone.Name() + string("\u0000\u0001Model", 7));
+			JointModelNode.AddPropertyString(Bone.Name() + String("\u0000\u0001Model", 7));
 			JointModelNode.AddPropertyString("LimbNode");
 
 			JointModelNode.Children.Emplace("Version").AddPropertyInteger32(232);
@@ -314,7 +314,7 @@ namespace Assets::Exporters
 			auto& MaterialNode = ObjectsNode.Children.Emplace("Material");
 
 			MaterialNode.AddPropertyInteger64(UniqueId);
-			MaterialNode.AddPropertyString(Mat.Name + string("\u0000\u0001Material", 10));
+			MaterialNode.AddPropertyString(Mat.Name + String("\u0000\u0001Material", 10));
 			MaterialNode.AddPropertyString("");
 
 			MaterialNode.Children.Emplace("Version").AddPropertyInteger32(102);
@@ -326,13 +326,13 @@ namespace Assets::Exporters
 			UniqueId++;
 			MatIndex++;
 
-			string DiffuseMap = "";
+			String DiffuseMap = "";
 			if (Mat.Slots.ContainsKey(MaterialSlotType::Albedo))
 				DiffuseMap = Mat.Slots[MaterialSlotType::Albedo].first;
 			else if (Mat.Slots.ContainsKey(MaterialSlotType::Diffuse))
 				DiffuseMap = Mat.Slots[MaterialSlotType::Diffuse].first;
 
-			if (!string::IsNullOrWhiteSpace(DiffuseMap))
+			if (!String::IsNullOrWhiteSpace(DiffuseMap))
 			{
 				InitializeMaterialTexture(ObjectsNode, Mat, UniqueId);
 				AddObjectPropertyConnection(ConnectionsNode, UniqueId, UniqueId - 1, "DiffuseColor");
@@ -346,7 +346,7 @@ namespace Assets::Exporters
 			auto& MeshModelNode = ObjectsNode.Children.Emplace("Model");
 
 			MeshModelNode.AddPropertyInteger64(ModelId);
-			MeshModelNode.AddPropertyString(string::Format("KoreLibMesh%02d", SubmeshIndex) + string("\u0000\u0001Model", 7));
+			MeshModelNode.AddPropertyString(String::Format("KoreLibMesh%02d", SubmeshIndex) + String("\u0000\u0001Model", 7));
 			MeshModelNode.AddPropertyString("Mesh");
 
 			MeshModelNode.Children.Emplace("Version").AddPropertyInteger32(232);
@@ -389,7 +389,7 @@ namespace Assets::Exporters
 			auto& MeshNode = ObjectsNode.Children.Emplace("Geometry");
 
 			MeshNode.AddPropertyInteger64(UniqueId);
-			MeshNode.AddPropertyString(string::Format("KoreLibMesh%02d", SubmeshIndex) + string("\u0000\u0001Geometry", 10));
+			MeshNode.AddPropertyString(String::Format("KoreLibMesh%02d", SubmeshIndex) + String("\u0000\u0001Geometry", 10));
 			MeshNode.AddPropertyString("Mesh");
 
 			MeshNode.Children.EmplaceBack("Properties70");
@@ -442,7 +442,7 @@ namespace Assets::Exporters
 				LayerUVs.AddPropertyInteger32(i);
 
 				LayerUVs.Children.Emplace("Version").AddPropertyInteger32(101);
-				LayerUVs.Children.Emplace("Name").AddPropertyString(string::Format("map%d", i + 1));
+				LayerUVs.Children.Emplace("Name").AddPropertyString(String::Format("map%d", i + 1));
 				LayerUVs.Children.Emplace("MappingInformationType").AddPropertyString("ByVertice");
 				LayerUVs.Children.Emplace("ReferenceInformationType").AddPropertyString("Direct");
 

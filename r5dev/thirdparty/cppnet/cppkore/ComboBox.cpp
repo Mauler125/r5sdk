@@ -170,15 +170,15 @@ namespace Forms
 		OnSelectedItemChanged();
 	}
 
-	string ComboBox::SelectedText()
+	String ComboBox::SelectedText()
 	{
 		if (_DropDownStyle == ComboBoxStyle::DropDownList)
 			return "";
 
-		return Text().Substring(SelectionStart(), SelectionLength());
+		return Text().SubString(SelectionStart(), SelectionLength());
 	}
 
-	void ComboBox::SetSelectedText(const string& Value)
+	void ComboBox::SetSelectedText(const String& Value)
 	{
 		if (_DropDownStyle != ComboBoxStyle::DropDownList)
 		{
@@ -377,14 +377,14 @@ namespace Forms
 
 	void ComboBox::NativeClear()
 	{
-		string Saved;
+		String Saved;
 
 		if (_DropDownStyle != ComboBoxStyle::DropDownList)
 			Saved = this->WindowText();
 
 		SendMessageA(this->_Handle, CB_RESETCONTENT, NULL, NULL);
 
-		if (!string::IsNullOrEmpty(Saved))
+		if (!String::IsNullOrEmpty(Saved))
 			this->SetWindowText(Saved);
 	}
 
@@ -454,10 +454,10 @@ namespace Forms
 
 	int32_t ComboBox::ComboBoxItemCollection::IndexOf(const imstring& Value)
 	{
-		auto Str = string(Value);
+		auto Str = String(Value);
 		auto Res = _Items.IndexOf(Str);
 
-		if (Res == List<string>::InvalidPosition)
+		if (Res == List<String>::InvalidPosition)
 			return -1;
 
 		return Res;
@@ -484,12 +484,12 @@ namespace Forms
 		return _Items.Count();
 	}
 
-	string* ComboBox::ComboBoxItemCollection::begin() const
+	String* ComboBox::ComboBoxItemCollection::begin() const
 	{
 		return _Items.begin();
 	}
 
-	string* ComboBox::ComboBoxItemCollection::end() const
+	String* ComboBox::ComboBoxItemCollection::end() const
 	{
 		return _Items.end();
 	}

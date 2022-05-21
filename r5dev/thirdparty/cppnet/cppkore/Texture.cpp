@@ -194,7 +194,7 @@ namespace Assets
 		}
 	}
 
-	void Texture::Save(const string& File)
+	void Texture::Save(const String& File)
 	{
 		if (File.EndsWith(".dds"))
 			this->Save(File, SaveFileType::Dds);
@@ -218,7 +218,7 @@ namespace Assets
 			throw std::exception("Unknown image file extension");
 	}
 
-	void Texture::Save(const string& File, SaveFileType Type)
+	void Texture::Save(const String& File, SaveFileType Type)
 	{
 		this->EnsureFormatForType(Type);
 		HRESULT SaveResult = 0;
@@ -310,7 +310,7 @@ namespace Assets
 		std::memcpy(Buffer, TemporaryBuffer.GetBufferPointer(), min(TemporaryBuffer.GetBufferSize(), BufferLength));
 	}
 
-	Texture Texture::FromFile(const string& File)
+	Texture Texture::FromFile(const String& File)
 	{
 		Texture Result;
 		DirectX::TexMetadata MetaData;
@@ -339,7 +339,7 @@ namespace Assets
 		return std::move(Result);
 	}
 
-	Texture Texture::FromFile(const string& File, TextureType Type)
+	Texture Texture::FromFile(const String& File, TextureType Type)
 	{
 		Texture Result;
 		DirectX::TexMetadata MetaData;

@@ -13,11 +13,11 @@ namespace Forms
 	class DrawListViewItemEventArgs
 	{
 	public:
-		DrawListViewItemEventArgs(HDC Dc, const string& Text, const ListViewItemStyle Style, Drawing::Rectangle Bounds, int32_t ItemIndex, ListViewItemStates State);
+		DrawListViewItemEventArgs(HDC Dc, const String& Text, const ListViewItemStyle Style, Drawing::Rectangle Bounds, int32_t ItemIndex, ListViewItemStates State);
 		~DrawListViewItemEventArgs() = default;
 
 		// Gets the text of the item to draw.
-		const string Text;
+		const String Text;
 		// Gets the style of the item to draw.
 		const ListViewItemStyle Style;
 		// Gets the state of the item to draw.

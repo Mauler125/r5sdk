@@ -18,7 +18,7 @@ namespace Assets
 	{
 	}
 
-	List<Curve>& Animation::GetNodeCurves(const string& NodeName)
+	List<Curve>& Animation::GetNodeCurves(const String& NodeName)
 	{
 		if (Curves.ContainsKey(NodeName))
 			return Curves[NodeName];
@@ -27,7 +27,7 @@ namespace Assets
 		return Curves[NodeName];
 	}
 
-	void Animation::AddNotification(const string& Name, uint32_t Frame)
+	void Animation::AddNotification(const String& Name, uint32_t Frame)
 	{
 		if (Notificiations.ContainsKey(Name))
 			Notificiations[Name].EmplaceBack(Frame);

@@ -625,12 +625,12 @@ namespace Forms
 		return Drawing::Rectangle(Rc.left, Rc.top, (Rc.right - Rc.left), (Rc.bottom - Rc.top));
 	}
 
-	string Control::Text()
+	String Control::Text()
 	{
 		return this->WindowText();
 	}
 
-	void Control::SetText(const string& Value)
+	void Control::SetText(const String& Value)
 	{
 		this->SetWindowText(Value);
 		OnTextChanged();
@@ -1627,20 +1627,20 @@ namespace Forms
 		this->_RequiredScalingEnabled = Value;
 	}
 
-	string Control::WindowText()
+	String Control::WindowText()
 	{
 		if (!GetState(ControlStates::StateCreated))
 			return _Text;
 
 		auto Length = GetWindowTextLengthA(this->_Handle);
-		auto Result = string(Length);
+		auto Result = String(Length);
 
 		GetWindowTextA(this->_Handle, (char*)Result, Length + 1);
 
 		return Result;
 	}
 
-	void Control::SetWindowText(const string& Value)
+	void Control::SetWindowText(const String& Value)
 	{
 		if (GetState(ControlStates::StateCreated))
 			SetWindowTextA(this->_Handle, (char*)Value);
@@ -2670,7 +2670,7 @@ namespace Forms
 		return ((Ctrl->GetStyle(ControlStyles::ContainerControl) && Ctrl->IsContainerControl()));
 	}
 
-	string Control::RegisterWndClass(const char* ClassName, DWORD ClassStyle, bool& Subclass)
+	String Control::RegisterWndClass(const char* ClassName, DWORD ClassStyle, bool& Subclass)
 	{
 		// Check for a built-in class name...
 		WNDCLASSEXA ExInfo{};
@@ -2712,7 +2712,7 @@ namespace Forms
 				return ClassName;
 
 			// We need to make a modified class, using the ClassName + Style
-			auto nClassName = string(ClassName) + string::Format(".%x", ClassStyle);
+			auto nClassName = String(ClassName) + String::Format(".%x", ClassStyle);
 
 			ExInfo.style = ClassStyle;
 			ExInfo.lpszClassName = (const char*)nClassName;
@@ -2738,7 +2738,7 @@ namespace Forms
 			
 			RegisterClassExA(&ExInfo);
 
-			return string(ClassName);
+			return String(ClassName);
 		}
 	}
 }

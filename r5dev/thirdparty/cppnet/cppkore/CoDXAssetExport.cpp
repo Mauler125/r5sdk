@@ -8,12 +8,12 @@
 
 namespace Assets::Exporters
 {
-	bool CoDXAssetExport::ExportAnimation(const Animation& Animation, const string& Path)
+	bool CoDXAssetExport::ExportAnimation(const Animation& Animation, const String& Path)
 	{
 		return false;
 	}
 
-	bool CoDXAssetExport::ExportModel(const Model& Model, const string& Path)
+	bool CoDXAssetExport::ExportModel(const Model& Model, const String& Path)
 	{
 		auto Writer = IO::StreamWriter(IO::File::Create(Path));
 

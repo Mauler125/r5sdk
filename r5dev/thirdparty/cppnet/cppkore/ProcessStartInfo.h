@@ -16,13 +16,13 @@ namespace Diagnostics
 	struct ProcessStartInfo
 	{
 		// Sets the application, document, or URL that is to be launched.
-		string FileName;
+		String FileName;
 		// Specifies the set of command line arguments to use when starting the application.
-		string Arguments;
+		String Arguments;
 		// Sets the initial directory for the process that is started.
-		string WorkingDirectory;
+		String WorkingDirectory;
 		// Specifies the verb to use when opening the filename.
-		string Verb;
+		String Verb;
 
 		// Whether or not to allow window creation.
 		bool CreateNoWindow;
@@ -32,12 +32,12 @@ namespace Diagnostics
 		// Sets the style of window that should be used for the newly created process.
 		ProcessWindowStyle WindowStyle;
 
-		ProcessStartInfo(const string& FileName)
+		ProcessStartInfo(const String& FileName)
 			: FileName(FileName), UseShellExecute(true), CreateNoWindow(false), WindowStyle(ProcessWindowStyle::Normal)
 		{
 		}
 
-		ProcessStartInfo(const string& FileName, const string& Arguments)
+		ProcessStartInfo(const String& FileName, const String& Arguments)
 			: FileName(FileName), Arguments(Arguments), UseShellExecute(true), CreateNoWindow(false), WindowStyle(ProcessWindowStyle::Normal)
 		{
 		}

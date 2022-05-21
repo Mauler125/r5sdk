@@ -27,7 +27,7 @@ namespace Hashing
 		}
 
 		// Computes the hash code of the input string using XXHash algo.
-		static uint64_t HashString(const string& Input, XXHashVersion Version = XXHashVersion::XX64, uint64_t Seed = 0);
+		static uint64_t HashString(const String& Input, XXHashVersion Version = XXHashVersion::XX64, uint64_t Seed = 0);
 
 		// Computes the hash code using the XXHash algo.
 		static uint64_t ComputeHash(uint8_t* Input, uint64_t InputOffset, uint64_t InputLength, XXHashVersion Version = XXHashVersion::XX64, uint64_t Seed = 0);

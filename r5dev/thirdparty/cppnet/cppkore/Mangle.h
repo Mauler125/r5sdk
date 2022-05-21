@@ -127,7 +127,7 @@ typedef void(__stdcall* FnGenBuffers)(GLsizei n, const GLuint* buffers);
 typedef void(__stdcall* FnBindBuffer)(GLenum target, GLuint buffer);
 typedef void(__stdcall* FnBindBufferBase)(GLenum target, GLuint index, GLuint buffer);
 typedef void(__stdcall* FnBufferData)(GLenum target, GLsizeiptr size, const void* data, GLenum usage);
-typedef void(__stdcall* FnShaderSource)(GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length);
+typedef void(__stdcall* FnShaderSource)(GLuint shader, GLsizei count, const GLchar* const* String, const GLint* length);
 typedef void(__stdcall* FnUniformMatrix4fv)(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value);
 typedef void(__stdcall* FnVertexAttribPointer)(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* pointer);
 typedef void(__stdcall* FnBindVertexArray)(GLuint array);

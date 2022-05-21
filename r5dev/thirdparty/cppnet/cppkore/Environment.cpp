@@ -5,14 +5,14 @@
 
 namespace System
 {
-	const string Environment::NewLine = "\r\n";
+	const String Environment::NewLine = "\r\n";
 
 	void Environment::Exit(int32_t ExitCode)
 	{
 		std::exit(ExitCode);
 	}
 
-	string Environment::GetFolderPath(SpecialFolder Folder)
+	String Environment::GetFolderPath(SpecialFolder Folder)
 	{
 		char Buffer[MAX_PATH + 1]{};
 		auto Result = SHGetFolderPathA(NULL, (int)Folder, NULL, SHGFP_TYPE_CURRENT, Buffer);
@@ -20,10 +20,10 @@ namespace System
 		if (Result < 0)
 			return "";
 
-		return string(Buffer);
+		return String(Buffer);
 	}
 
-	string Environment::GetApplicationPath()
+	String Environment::GetApplicationPath()
 	{
 		char Buffer[MAX_PATH + 1]{};
 		auto mResult = GetModuleFileNameA(NULL, Buffer, MAX_PATH);
@@ -34,7 +34,7 @@ namespace System
 		return "";
 	}
 
-	string Environment::GetApplication()
+	String Environment::GetApplication()
 	{
 		char Buffer[MAX_PATH + 1]{};
 		auto mResult = GetModuleFileNameA(NULL, Buffer, MAX_PATH);
@@ -45,14 +45,14 @@ namespace System
 		return "";
 	}
 
-	string Environment::GetCommandLine()
+	String Environment::GetCommandLine()
 	{
-		return string(GetCommandLineA());
+		return String(GetCommandLineA());
 	}
 
-	List<string> Environment::GetCommandLineArgs()
+	List<String> Environment::GetCommandLineArgs()
 	{
-		auto Result = List<string>();
+		auto Result = List<String>();
 
 		int nArgs = 0;
 		auto szArgList = CommandLineToArgvW(GetCommandLineW(), &nArgs);
@@ -60,28 +60,28 @@ namespace System
 			return Result;
 
 		for (int i = 0; i < nArgs; i++)
-			Result.EmplaceBack(std::move(wstring(szArgList[i]).ToString()));
+			Result.EmplaceBack(std::move(WString(szArgList[i]).ToString()));
 
 		LocalFree(szArgList);
 		return Result;
 	}
 
-	string Environment::GetUserName()
+	String Environment::GetUserName()
 	{
 		char Buffer[1024]{};
 		DWORD BufferSize = 1024;
 		GetUserNameA(Buffer, &BufferSize);
 
-		return string(Buffer);
+		return String(Buffer);
 	}
 
-	string Environment::GetComputerName()
+	String Environment::GetComputerName()
 	{
 		char Buffer[MAX_COMPUTERNAME_LENGTH + 1]{};
 		DWORD BufferSize = MAX_COMPUTERNAME_LENGTH;
 		GetComputerNameA(Buffer, &BufferSize);
 
-		return string(Buffer);
+		return String(Buffer);
 	}
 
 	uint64_t Environment::GetTickCount()
@@ -89,7 +89,7 @@ namespace System
 		return GetTickCount64();
 	}
 
-	void Environment::SetEnvironmentVariable(const string& Key, const string& Value)
+	void Environment::SetEnvironmentVariable(const String& Key, const String& Value)
 	{
 		if (Key.Length() == 0 || Value.Length() == 0)
 			return;
@@ -97,22 +97,22 @@ namespace System
 		SetEnvironmentVariableA((const char*)Key, (const char*)Value);
 	}
 
-	string Environment::GetEnvironmentVariable(const string& Key)
+	String Environment::GetEnvironmentVariable(const String& Key)
 	{
 		char Buffer[1024]{};
 		GetEnvironmentVariableA((const char*)Key, Buffer, 1024);
 
-		return string(Buffer);
+		return String(Buffer);
 	}
 
-	string Environment::ExpandEnvironmentVariables(const string& Path)
+	String Environment::ExpandEnvironmentVariables(const String& Path)
 	{
 		char Buffer[4096]{};
 		ExpandEnvironmentStringsA((const char*)Path, Buffer, 4096);
 
 		// In theory, this should be ok, since, most paths will be used for actual file paths, < 260 chars anyways...
 
-		return string(Buffer);
+		return String(Buffer);
 	}
 
 	constexpr bool Environment::Is64BitProcess()

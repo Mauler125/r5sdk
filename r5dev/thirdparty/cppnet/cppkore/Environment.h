@@ -20,33 +20,33 @@ namespace System
 		static void Exit(int32_t ExitCode);
 
 		// Gets the path to the specific system file folder
-		static string GetFolderPath(SpecialFolder Folder);
+		static String GetFolderPath(SpecialFolder Folder);
 		// Returns the application path
-		static string GetApplicationPath();
+		static String GetApplicationPath();
 		// Returns the application
-		static string GetApplication();
+		static String GetApplication();
 		// Rethrns the full command line string
-		static string GetCommandLine();
+		static String GetCommandLine();
 		// Returns a list of command line arguments
-		static List<string> GetCommandLineArgs();
+		static List<String> GetCommandLineArgs();
 		// Returns the current users account name
-		static string GetUserName();
+		static String GetUserName();
 		// Returns the current computer name
-		static string GetComputerName();
+		static String GetComputerName();
 		// Returns the total tick count since startup
 		static uint64_t GetTickCount();
 
 		// Sets an environment variable to the specified value
-		static void SetEnvironmentVariable(const string& Key, const string& Value);
+		static void SetEnvironmentVariable(const String& Key, const String& Value);
 		// Gets an environment variable from the specified key
-		static string GetEnvironmentVariable(const string& Key);
+		static String GetEnvironmentVariable(const String& Key);
 		// Expands environment variables in the given path
-		static string ExpandEnvironmentVariables(const string& Path);
+		static String ExpandEnvironmentVariables(const String& Path);
 
 		// Returns whether or not we are a 64bit process
 		constexpr static bool Is64BitProcess();
 
 		// Returns a newline string for the environment
-		const static string NewLine;
+		const static String NewLine;
 	};
 }

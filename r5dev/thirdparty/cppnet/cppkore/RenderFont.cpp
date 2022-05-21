@@ -55,7 +55,7 @@ namespace Assets
 		Initialized = true;
 	}
 
-	void RenderFont::LoadFont(const string& FontPath)
+	void RenderFont::LoadFont(const String& FontPath)
 	{
 		this->Dispose();
 
@@ -95,7 +95,7 @@ namespace Assets
 		RenderStringInternal(Text, (uint32_t)strlen(Text), X, Y, Scale);
 	}
 
-	void RenderFont::RenderString(const string & Text, float X, float Y, float Scale)
+	void RenderFont::RenderString(const String & Text, float X, float Y, float Scale)
 	{
 		RenderStringInternal((const char*)Text, Text.Length(), X, Y, Scale);
 	}

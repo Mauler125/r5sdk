@@ -15,7 +15,7 @@ namespace Assets
 		// Compiles the release shader, internal use only.
 		void LoadShader(const char* VertSource, const char* FragSource);
 		// Compiles the debug shader.
-		void LoadShader(const string& VertPath, const string& FragPath);
+		void LoadShader(const String& VertPath, const String& FragPath);
 
 		// Sets this shader as current.
 		void Use();

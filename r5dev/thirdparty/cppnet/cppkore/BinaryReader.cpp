@@ -61,12 +61,12 @@ namespace IO
 		return this->BaseStream->Read((uint8_t*)Buffer, Index, Count);
 	}
 
-	string BinaryReader::ReadCString()
+	String BinaryReader::ReadCString()
 	{
 		if (!this->BaseStream)
 			IOError::StreamBaseStream();
 
-		string Buffer = "";
+		String Buffer = "";
 		
 		char Cur = this->Read<char>();
 		while ((uint8_t)Cur > 0)
@@ -78,12 +78,12 @@ namespace IO
 		return std::move(Buffer);
 	}
 
-	wstring BinaryReader::ReadWCString()
+	WString BinaryReader::ReadWCString()
 	{
 		if (!this->BaseStream)
 			IOError::StreamBaseStream();
 
-		wstring Buffer = L"";
+		WString Buffer = L"";
 
 		wchar_t Cur = this->Read<wchar_t>();
 		while (Cur != (wchar_t)'\0')
@@ -95,23 +95,23 @@ namespace IO
 		return std::move(Buffer);
 	}
 
-	string BinaryReader::ReadSizeString(uint64_t Size)
+	String BinaryReader::ReadSizeString(uint64_t Size)
 	{
 		if (!this->BaseStream)
 			IOError::StreamBaseStream();
 
-		auto Buffer = string((uint32_t)Size, '\0');
+		auto Buffer = String((uint32_t)Size, '\0');
 		this->BaseStream->Read((uint8_t*)&Buffer[0], 0, Size);
 
 		return std::move(Buffer);
 	}
 
-	string BinaryReader::ReadNetString()
+	String BinaryReader::ReadNetString()
 	{
 		if (!this->BaseStream)
 			IOError::StreamBaseStream();
 
-		auto Buffer = string(this->ReadVarInt(), '\0');
+		auto Buffer = String(this->ReadVarInt(), '\0');
 		this->BaseStream->Read((uint8_t*)&Buffer[0], 0, (uint64_t)Buffer.Length());
 
 		return std::move(Buffer);
@@ -135,7 +135,7 @@ namespace IO
 		return Count;
 	}
 
-	int64_t BinaryReader::SignatureScan(const string& Signature)
+	int64_t BinaryReader::SignatureScan(const String& Signature)
 	{
 		if (!this->BaseStream)
 			IOError::StreamBaseStream();
@@ -166,7 +166,7 @@ namespace IO
 		return SearchResult;
 	}
 
-	int64_t BinaryReader::SignatureScan(const string& Signature, uint64_t Offset, uint64_t Count)
+	int64_t BinaryReader::SignatureScan(const String& Signature, uint64_t Offset, uint64_t Count)
 	{
 		if (!this->BaseStream)
 			IOError::StreamBaseStream();
@@ -184,7 +184,7 @@ namespace IO
 		return SearchResult;
 	}
 
-	List<int64_t> BinaryReader::SignatureScanAll(const string & Signature)
+	List<int64_t> BinaryReader::SignatureScanAll(const String & Signature)
 	{
 		if (!this->BaseStream)
 			IOError::StreamBaseStream();
@@ -217,7 +217,7 @@ namespace IO
 		return ResultList;
 	}
 
-	List<int64_t> BinaryReader::SignatureScanAll(const string & Signature, uint64_t Offset, uint64_t Count)
+	List<int64_t> BinaryReader::SignatureScanAll(const String & Signature, uint64_t Offset, uint64_t Count)
 	{
 		if (!this->BaseStream)
 			IOError::StreamBaseStream();

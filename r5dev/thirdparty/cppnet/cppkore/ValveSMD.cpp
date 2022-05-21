@@ -23,12 +23,12 @@ namespace Assets::Exporters
 		Writer.Write("\n");
 	}
 
-	bool ValveSMD::ExportAnimation(const Animation& Animation, const string& Path)
+	bool ValveSMD::ExportAnimation(const Animation& Animation, const String& Path)
 	{
 		return false;
 	}
 
-	bool ValveSMD::ExportModel(const Model& Model, const string& Path)
+	bool ValveSMD::ExportModel(const Model& Model, const String& Path)
 	{
 		auto Writer = IO::StreamWriter(IO::File::Create(Path));
 

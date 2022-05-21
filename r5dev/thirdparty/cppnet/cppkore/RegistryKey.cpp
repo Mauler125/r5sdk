@@ -36,12 +36,12 @@ namespace Win32
 			RegFlushKey(this->_Handle);
 	}
 
-	RegistryKey RegistryKey::CreateSubKey(const string& SubKey)
+	RegistryKey RegistryKey::CreateSubKey(const String& SubKey)
 	{
 		return this->CreateSubKeyInternal(SubKey);
 	}
 
-	void RegistryKey::DeleteSubKey(const string& SubKey, bool ThrowOnMissingSubKey)
+	void RegistryKey::DeleteSubKey(const String& SubKey, bool ThrowOnMissingSubKey)
 	{
 		auto kPath = FixupName(SubKey); // Remove multiple slashes to a single slash
 
@@ -67,7 +67,7 @@ namespace Win32
 		}
 	}
 
-	void RegistryKey::DeleteSubKeyTree(const string& SubKey, bool ThrowOnMissingSubKey)
+	void RegistryKey::DeleteSubKeyTree(const String& SubKey, bool ThrowOnMissingSubKey)
 	{
 		if (SubKey.Length() == 0 && IsSystemKey())
 			throw Win32Error::RegSubKeyMalformed();
@@ -96,7 +96,7 @@ namespace Win32
 		RegDeleteKeyExA(this->_Handle, (const char*)kPath, (int)this->_View, NULL);
 	}
 
-	void RegistryKey::DeleteValue(const string& Name, bool ThrowOnMissingSubKey)
+	void RegistryKey::DeleteValue(const String& Name, bool ThrowOnMissingSubKey)
 	{
 		auto hResult = RegDeleteValueA(this->_Handle, (const char*)Name);
 
@@ -105,7 +105,7 @@ namespace Win32
 				throw Win32Error::RegSubKeyMissing();
 	}
 
-	RegistryKey RegistryKey::OpenSubKey(const string& Name, bool Writable)
+	RegistryKey RegistryKey::OpenSubKey(const String& Name, bool Writable)
 	{
 		HKEY hHandle = nullptr;
 		auto hAccess = (Writable) ? (KEY_READ | KEY_WRITE) : KEY_READ;
@@ -123,10 +123,10 @@ namespace Win32
 		throw Win32Error::SystemError(GetLastError());
 	}
 
-	List<string> RegistryKey::GetValueNames()
+	List<String> RegistryKey::GetValueNames()
 	{
 		auto nValues = this->InternalValueCount();
-		auto Result = List<string>();
+		auto Result = List<String>();
 
 		for (uint32_t i = 0; i < nValues; i++)
 		{
@@ -141,7 +141,7 @@ namespace Win32
 		return Result;
 	}
 
-	RegistryValueType RegistryKey::GetValueKind(const string& Name)
+	RegistryValueType RegistryKey::GetValueKind(const String& Name)
 	{
 		DWORD Type = 0, DataSize = 0;
 		auto qResult = RegQueryValueExA(this->_Handle, (const char*)Name, NULL, &Type, NULL, &DataSize);
@@ -183,7 +183,7 @@ namespace Win32
 		return this->InternalValueCount();
 	}
 
-	List<string> RegistryKey::GetSubKeyNames()
+	List<String> RegistryKey::GetSubKeyNames()
 	{
 		return this->InternalGetSubKeyNames();
 	}
@@ -218,7 +218,7 @@ namespace Win32
 		return (this->_State & RegistryKey::STATE_WRITEACCESS) != 0;
 	}
 
-	RegistryKey RegistryKey::CreateSubKeyInternal(const string& SubKey)
+	RegistryKey RegistryKey::CreateSubKeyInternal(const String& SubKey)
 	{
 		auto kPath = FixupName(SubKey);	// Remove multiple slashes to a single slash
 
@@ -250,7 +250,7 @@ namespace Win32
 		throw Win32Error::SystemError(GetLastError());
 	}
 
-	void RegistryKey::DeleteSubKeyTreeInternal(const string& SubKey)
+	void RegistryKey::DeleteSubKeyTreeInternal(const String& SubKey)
 	{
 		try
 		{
@@ -273,7 +273,7 @@ namespace Win32
 		RegDeleteKeyExA(this->_Handle, (const char*)SubKey, (int)this->_View, NULL);
 	}
 
-	RegistryKey RegistryKey::InternalOpenSubKey(const string& Name, bool Writable)
+	RegistryKey RegistryKey::InternalOpenSubKey(const String& Name, bool Writable)
 	{
 		HKEY hHandle = nullptr;
 		auto hAccess = (Writable) ? (KEY_READ | KEY_WRITE) : KEY_READ;
@@ -290,7 +290,7 @@ namespace Win32
 		throw Win32Error::SystemError(GetLastError());
 	}
 
-	std::unique_ptr<uint8_t[]> RegistryKey::InternalGetValue(const string& Name, uint64_t& ValueSize)
+	std::unique_ptr<uint8_t[]> RegistryKey::InternalGetValue(const String& Name, uint64_t& ValueSize)
 	{
 		DWORD Type = 0, DataSize = 0;
 		auto qResult = RegQueryValueExA(this->_Handle, (const char*)Name, NULL, &Type, NULL, &DataSize);
@@ -306,7 +306,7 @@ namespace Win32
 		return ResultBuffer;
 	}
 
-	void RegistryKey::InternalSetValue(const string& Name, uint32_t ValueType, uint8_t* Buffer, uint64_t BufferSize)
+	void RegistryKey::InternalSetValue(const String& Name, uint32_t ValueType, uint8_t* Buffer, uint64_t BufferSize)
 	{
 		auto hResult = RegSetValueExA(this->_Handle, (const char*)Name, NULL, ValueType, Buffer, (DWORD)BufferSize);
 		if (hResult != ERROR_SUCCESS)
@@ -329,9 +329,9 @@ namespace Win32
 		return (uint32_t)Values;
 	}
 
-	List<string> RegistryKey::InternalGetSubKeyNames()
+	List<String> RegistryKey::InternalGetSubKeyNames()
 	{
-		auto Result = List<string>();
+		auto Result = List<String>();
 		auto sCount = this->InternalSubKeyCount();
 
 		char Buffer[RegistryKey::MaxKeyLength + 1]{};
@@ -349,18 +349,18 @@ namespace Win32
 		return Result;
 	}
 
-	string RegistryKey::FixupName(string Name)
+	String RegistryKey::FixupName(String Name)
 	{
 		RegistryKey::FixupPath(Name);
 
 		auto eChar = Name.Length() - 1;
 		if (eChar >= 0 && Name[eChar] == '\\')
-			return Name.Substring(0, eChar);
+			return Name.SubString(0, eChar);
 
 		return Name;
 	}
 
-	void RegistryKey::FixupPath(string& Path)
+	void RegistryKey::FixupPath(String& Path)
 	{
 		// Replace double slash with single slashes
 		Path = Path.Replace("\\\\", "\\");

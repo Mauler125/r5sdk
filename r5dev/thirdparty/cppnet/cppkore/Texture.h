@@ -107,18 +107,18 @@ namespace Assets
 ;		void Transcode(TranscodeType Type);
 
 		// Saves the texture to the specified file path
-		void Save(const string& File);
+		void Save(const String& File);
 		// Saves the texture to the specified path with the specified file type
-		void Save(const string& File, SaveFileType Type);
+		void Save(const String& File, SaveFileType Type);
 		// Saves the texture to the specified stream
 		void Save(IO::Stream& Stream, SaveFileType Type = SaveFileType::Dds);
 		// Saves the texture to the specified buffer
 		void Save(uint8_t* Buffer, uint64_t BufferLength, SaveFileType Type = SaveFileType::Dds);
 
 		// Loads a texture from the specified file path
-		static Texture FromFile(const string& File);
+		static Texture FromFile(const String& File);
 		// Loads a texture from the specified file path with the specified type
-		static Texture FromFile(const string& File, TextureType Type);
+		static Texture FromFile(const String& File, TextureType Type);
 		// Loads a texture from the specified stream
 		static Texture FromStream(IO::Stream& Stream, TextureType Type = TextureType::DDS);
 		// Loads a texture from the specified buffer

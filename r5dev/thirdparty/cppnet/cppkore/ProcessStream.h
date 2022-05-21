@@ -13,7 +13,7 @@ namespace IO
 	public:
 		ProcessStream();
 		ProcessStream(uint32_t PID);
-		ProcessStream(const string& ProcessName);
+		ProcessStream(const String& ProcessName);
 		ProcessStream(HANDLE ProcessHandle);
 		ProcessStream(HANDLE ProcessHandle, bool LeaveOpen);
 		virtual ~ProcessStream();

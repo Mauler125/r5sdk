@@ -9,17 +9,17 @@ namespace Forms
 	{
 	}
 
-	ColumnHeader::ColumnHeader(const string& Text)
+	ColumnHeader::ColumnHeader(const String& Text)
 		: ColumnHeader(Text, 60)
 	{
 	}
 
-	ColumnHeader::ColumnHeader(const string& Text, int32_t Width)
+	ColumnHeader::ColumnHeader(const String& Text, int32_t Width)
 		: ColumnHeader(Text, Width, HorizontalAlignment::Left)
 	{
 	}
 
-	ColumnHeader::ColumnHeader(const string& Text, int32_t Width, HorizontalAlignment Alignment)
+	ColumnHeader::ColumnHeader(const String& Text, int32_t Width, HorizontalAlignment Alignment)
 		: _Text(Text), _Width(Width), _TextAlign(Alignment), _OwnerListView(nullptr), _IndexInternal(-1)
 	{
 	}
@@ -78,12 +78,12 @@ namespace Forms
 		this->_IndexInternal = Value;
 	}
 
-	const string& ColumnHeader::Text() const
+	const String& ColumnHeader::Text() const
 	{
 		return this->_Text;
 	}
 
-	void ColumnHeader::SetText(const string& Value)
+	void ColumnHeader::SetText(const String& Value)
 	{
 		_Text = Value;
 

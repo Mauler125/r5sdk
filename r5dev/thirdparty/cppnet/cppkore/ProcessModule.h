@@ -19,8 +19,8 @@ namespace Diagnostics
 		uint64_t EntryPointAddress;
 
 		// Returns the name of the Module.
-		string ModuleName;
+		String ModuleName;
 		// Returns the full file path for the location of the module.
-		string FileName;
+		String FileName;
 	};
 }

@@ -26,12 +26,12 @@ namespace Compression
 		List<ZipEntry> ReadEntries();
 
 		// Add a file into the ZipArchive.
-		ZipEntry AddFile(ZipCompressionMethod Method, const string& Path, const string& FileNameInZip, const string& Comment = "");
+		ZipEntry AddFile(ZipCompressionMethod Method, const String& Path, const String& FileNameInZip, const String& Comment = "");
 		// Add a stream into the ZipArchive.
-		ZipEntry AddStream(ZipCompressionMethod Method, const string& FileNameInZip, IO::Stream* Stream, const string& Comment = "");
+		ZipEntry AddStream(ZipCompressionMethod Method, const String& FileNameInZip, IO::Stream* Stream, const String& Comment = "");
 
 		// Extract the entry to the provided file path.
-		void ExtractFile(ZipEntry& Entry, const string& FileName);
+		void ExtractFile(ZipEntry& Entry, const String& FileName);
 		// Extract the entry to the provided stream.
 		void ExtractFile(ZipEntry& Entry, IO::Stream* Stream);
 		// Extract the entry to the provided stream.
@@ -56,7 +56,7 @@ namespace Compression
 		// Internal helper routine to read extra info.
 		void ReadExtraInfo(uint64_t i, ZipEntry& Entry);
 		// Internal helper routine to clean a file name
-		string NormalizeFileName(const string& FileName);
+		String NormalizeFileName(const String& FileName);
 		// Internal routine to calculate crc and sizes
 		void UpdateCrcAndSizes(ZipEntry& Entry);
 		// Internal routine to write the file header

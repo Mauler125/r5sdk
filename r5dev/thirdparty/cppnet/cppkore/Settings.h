@@ -25,10 +25,10 @@ namespace System
 	{
 	public:
 		SettingsObject();
-		SettingsObject(string Key, SettingType Type, uint8_t* Value);
+		SettingsObject(String Key, SettingType Type, uint8_t* Value);
 		~SettingsObject();
 
-		string Key;
+		String Key;
 		SettingType Type;
 		
 		union ValueUn
@@ -118,7 +118,7 @@ namespace System
 						if (Setting.Values.String != NULL)
 							delete[] Setting.Values.String;
 
-						if constexpr (std::is_same<V, string>::value)
+						if constexpr (std::is_same<V, String>::value)
 						{
 							Setting.Values.String = new char[Value.Length() + 1]{};
 							std::memcpy(Setting.Values.String, (const char*)Value, Value.Length());
@@ -246,16 +246,16 @@ namespace System
 			else if constexpr (T == SettingType::String || T == SettingType::ProtectedString)
 			{
 				if (Value)
-					return (string)Value->Values.String;
+					return (String)Value->Values.String;
 
-				return (string)"";
+				return (String)"";
 			}
 		}
 
 		// Load the config file from the specified path.
-		void Load(const string& Path);
+		void Load(const String& Path);
 		// Save the config file to the specified path.
-		void Save(const string& Path);
+		void Save(const String& Path);
 
 	private:
 		// Internal cached settings

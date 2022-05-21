@@ -72,9 +72,9 @@ namespace Forms
 		void SetToolTipIcon(ToolTipIcon Value);
 
 		//  Gets or sets the title of the tooltip.
-		string ToolTipTitle();
+		String ToolTipTitle();
 		//  Gets or sets the title of the tooltip.
-		void SetToolTipTitle(const string& Value);
+		void SetToolTipTitle(const String& Value);
 
 		// When set to true, animations are used when tooltip is shown or hidden.
 		bool UseAnimation();
@@ -87,7 +87,7 @@ namespace Forms
 		void SetUseFading(bool Value);
 
 		// Associates tooltip text with the specified control.
-		void SetToolTip(Control* Ctrl, const string& Caption);
+		void SetToolTip(Control* Ctrl, const String& Caption);
 
 		// Removes all tooltips from the currently setup controls.
 		void RemoveAll();
@@ -120,10 +120,10 @@ namespace Forms
 		std::bitset<10> _Flags;
 		uint32_t _DelayTimes[4];
 		ToolTipIcon _ToolTipIcon;
-		string _ToolTipTitle;
+		String _ToolTipTitle;
 
 		// Internal cache dictionary
-		Dictionary<uintptr_t, string> _ControlCache;
+		Dictionary<uintptr_t, String> _ControlCache;
 
 		// We must define each window message handler here...
 		void WmShow();

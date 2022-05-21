@@ -40,22 +40,22 @@ namespace IO
 		uint64_t Read(void* Buffer, uint64_t Index, uint64_t Count, uint64_t Address);
 
 		// Reads a null-terminated string from the stream
-		string ReadCString(uint64_t Address);
+		String ReadCString(uint64_t Address);
 		// Reads a size-string from the stream
-		string ReadSizeString(uint64_t Size, uint64_t Address);
+		String ReadSizeString(uint64_t Size, uint64_t Address);
 
 		// Reads an integer encoded into 7 bits, top bit = read more
 		uint32_t ReadVarInt(uint64_t Address);
 
 		// Scan the process for a given signature
-		int64_t SignatureScan(const string& Signature, bool ScanAllMemory = false);
+		int64_t SignatureScan(const String& Signature, bool ScanAllMemory = false);
 		// Scan the process for a given signature
-		int64_t SignatureScan(const string& Signature, uint64_t Address, uint64_t Count);
+		int64_t SignatureScan(const String& Signature, uint64_t Address, uint64_t Count);
 
 		// Scan the process for a given signature (All occurences)
-		List<int64_t> SignatureScanAll(const string& Signature, bool ScanAllMemory = false);
+		List<int64_t> SignatureScanAll(const String& Signature, bool ScanAllMemory = false);
 		// Scan the process for a given signature (All occurences)
-		List<int64_t> SignatureScanAll(const string& Signature, uint64_t Address, uint64_t Count);
+		List<int64_t> SignatureScanAll(const String& Signature, uint64_t Address, uint64_t Count);
 
 		// Whether or not the process is running
 		bool IsRunning() const;

@@ -3,7 +3,7 @@
 
 namespace IO
 {
-	void Directory::CreateDirectory(const string& Path)
+	void Directory::CreateDirectory(const String& Path)
 	{
 		if (Path.Length() == 0)
 			return;
@@ -18,14 +18,14 @@ namespace IO
 			fLength--;
 
 		// A list of directories to make
-		auto DirectoryStack = List<string>();
+		auto DirectoryStack = List<String>();
 
 		if (fLength > rLength)
 		{
 			int32_t i = fLength - 1;
 			while (i >= rLength)
 			{
-				DirectoryStack.EmplaceBack(std::move(Path.Substring(0, i + 1)));
+				DirectoryStack.EmplaceBack(std::move(Path.SubString(0, i + 1)));
 
 				while (i > rLength && Path[i] != Path::DirectorySeparatorChar && Path[1] != Path::AltDirectorySeparatorChar)
 					i--;
@@ -39,7 +39,7 @@ namespace IO
 			CreateDirectoryA((const char*)DirectoryStack[i], NULL);
 	}
 
-	bool Directory::Exists(const string& Path)
+	bool Directory::Exists(const String& Path)
 	{
 		if (Path.Length() == 0)
 			return false;
@@ -54,14 +54,14 @@ namespace IO
 		return false;
 	}
 
-	List<string> Directory::GetFiles(const string& Path)
+	List<String> Directory::GetFiles(const String& Path)
 	{
 		return Directory::GetFiles(Path, "*");
 	}
 
-	List<string> Directory::GetFiles(const string& Path, const string& SearchPattern)
+	List<String> Directory::GetFiles(const String& Path, const String& SearchPattern)
 	{
-		auto Result = List<string>();
+		auto Result = List<String>();
 
 		auto sQuery = (Path[Path.Length() - 1] == Path::DirectorySeparatorChar || Path[Path.Length() - 1] == Path::AltDirectorySeparatorChar) ? Path + SearchPattern : Path + Path::DirectorySeparatorChar + SearchPattern;
 
@@ -93,9 +93,9 @@ namespace IO
 		return Result;
 	}
 
-	List<string> Directory::GetDirectories(const string& Path)
+	List<String> Directory::GetDirectories(const String& Path)
 	{
-		auto Result = List<string>();
+		auto Result = List<String>();
 
 		auto sQuery = (Path[Path.Length() - 1] == Path::DirectorySeparatorChar || Path[Path.Length() - 1] == Path::AltDirectorySeparatorChar) ? Path + "*" : Path + Path::DirectorySeparatorChar + "*";
 
@@ -127,9 +127,9 @@ namespace IO
 		return Result;
 	}
 
-	List<string> Directory::GetLogicalDrives()
+	List<String> Directory::GetLogicalDrives()
 	{
-		auto Result = List<string>();
+		auto Result = List<String>();
 
 		auto dCount = ::GetLogicalDrives();
 		if (dCount == 0)
@@ -141,7 +141,7 @@ namespace IO
 		while (d != 0)
 		{
 			if ((d & 1) != 0)
-				Result.EmplaceBack(std::move(string(Root, 3)));
+				Result.EmplaceBack(std::move(String(Root, 3)));
 
 			d >>= 1;
 			Root[0]++;
@@ -150,7 +150,7 @@ namespace IO
 		return Result;
 	}
 
-	string Directory::GetCurrentDirectory()
+	String Directory::GetCurrentDirectory()
 	{
 		char Buffer[MAX_PATH + 1]{};
 		if (!GetCurrentDirectoryA(MAX_PATH, (char*)Buffer))
@@ -170,7 +170,7 @@ namespace IO
 		return Buffer;
 	}
 
-	void Directory::SetCurrentDirectory(const string& Path)
+	void Directory::SetCurrentDirectory(const String& Path)
 	{
 		auto Result = SetCurrentDirectoryA((const char*)Path);
 		if (!Result)
@@ -192,7 +192,7 @@ namespace IO
 		}
 	}
 
-	void Directory::Move(const string& SourcePath, const string& DestinationPath)
+	void Directory::Move(const String& SourcePath, const String& DestinationPath)
 	{
 		// Ensure that the roots are the same
 		if (Path::GetPathRoot(SourcePath).ToLower() != Path::GetPathRoot(DestinationPath).ToLower())
@@ -218,7 +218,7 @@ namespace IO
 		}
 	}
 
-	void Directory::Copy(const string& SourcePath, const string& DestinationPath, bool OverWrite)
+	void Directory::Copy(const String& SourcePath, const String& DestinationPath, bool OverWrite)
 	{
 		auto Result = CopyFileA((const char*)SourcePath, (const char*)DestinationPath, !OverWrite);
 		if (!Result)
@@ -243,7 +243,7 @@ namespace IO
 		}
 	}
 
-	bool Directory::Delete(const string& Path, bool Recursive)
+	bool Directory::Delete(const String& Path, bool Recursive)
 	{
 		if (Path.Length() == 0)
 			return false;
@@ -278,7 +278,7 @@ namespace IO
 				}
 				else if (bReparse && fInfo.dwReserved0 == IO_REPARSE_TAG_MOUNT_POINT)
 				{
-					if (!DeleteVolumeMountPointA((const char*)Path::Combine(Path, string(fInfo.cFileName) + Path::DirectorySeparatorChar)))
+					if (!DeleteVolumeMountPointA((const char*)Path::Combine(Path, String(fInfo.cFileName) + Path::DirectorySeparatorChar)))
 						return false;
 				}
 			}

@@ -133,7 +133,7 @@ namespace Diagnostics
 		::WaitForInputIdle(this->_Handle, INFINITE);
 	}
 
-	bool Process::InjectModule(const string& ModulePath)
+	bool Process::InjectModule(const String& ModulePath)
 	{
 		if (!this->AquireProcessHandle())
 			return false;
@@ -163,7 +163,7 @@ namespace Diagnostics
 		return true;
 	}
 
-	const string& Process::GetProcessName() const
+	const String& Process::GetProcessName() const
 	{
 		return this->_ProcessInfo.ProcessName;
 	}
@@ -246,7 +246,7 @@ namespace Diagnostics
 		return this->GetProcessMainWindowHandle();
 	}
 
-	const string Process::GetMainWindowTitle()
+	const String Process::GetMainWindowTitle()
 	{
 		auto mHandle = this->GetProcessMainWindowHandle();
 		if (!mHandle)
@@ -255,7 +255,7 @@ namespace Diagnostics
 		char Buffer[MAX_PATH + 1]{};
 		auto mResult = GetWindowTextA(mHandle, Buffer, MAX_PATH);
 
-		return string(Buffer, mResult);
+		return String(Buffer, mResult);
 	}
 
 	const uint32_t Process::GetExitCode()
@@ -295,11 +295,11 @@ namespace Diagnostics
 
 			char Buffer[1024]{};
 			GetModuleBaseNameA(this->_Handle, ModHandles[i], Buffer, 1024);
-			ModuleInfo.ModuleName = string(Buffer);
+			ModuleInfo.ModuleName = String(Buffer);
 
 			std::memset(Buffer, 0, 1024);
 			GetModuleFileNameExA(this->_Handle, ModHandles[i], Buffer, 1024);
-			ModuleInfo.FileName = string(Buffer);
+			ModuleInfo.FileName = String(Buffer);
 
 			Result.EmplaceBack(std::move(ModuleInfo));
 		}
@@ -368,7 +368,7 @@ namespace Diagnostics
 		return Process(ProcessInfo[0]);
 	}
 
-	List<Process> Process::GetProcessesByName(const string& Name)
+	List<Process> Process::GetProcessesByName(const String& Name)
 	{
 		auto ProcessInfos = Process::GetProcessInfos({});
 		auto Result = List<Process>();
@@ -404,12 +404,12 @@ namespace Diagnostics
 		return Process(Process::GetProcessInfos({ OurId })[0]);
 	}
 
-	Process Process::Start(const string& FileName)
+	Process Process::Start(const String& FileName)
 	{
 		return Process::Start(ProcessStartInfo(FileName));
 	}
 
-	Process Process::Start(const string& FileName, const string& Arguments)
+	Process Process::Start(const String& FileName, const String& Arguments)
 	{
 		return Process::Start(ProcessStartInfo(FileName, Arguments));
 	}
@@ -460,13 +460,13 @@ namespace Diagnostics
 			STARTUPINFOA StartInfo{};
 			PROCESS_INFORMATION ProcessInfo{};
 
-			string CommandLine;
+			String CommandLine;
 			if (Start.FileName.StartsWith("\"") && Start.FileName.EndsWith("\""))
 				CommandLine += Start.FileName;
 			else
 				CommandLine = "\"" + Start.FileName + "\"";
 
-			if (!string::IsNullOrWhiteSpace(Start.Arguments))
+			if (!String::IsNullOrWhiteSpace(Start.Arguments))
 			{
 				CommandLine += " " + Start.Arguments;
 			}
@@ -517,7 +517,7 @@ namespace Diagnostics
 		return !(*this == Rhs);
 	}
 
-	void Process::SetPrivilage(const string& PrivilegeName, bool Enabled)
+	void Process::SetPrivilage(const String& PrivilegeName, bool Enabled)
 	{
 		HANDLE hToken = nullptr;
 		if (!OpenProcessToken(::GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
@@ -614,12 +614,12 @@ namespace Diagnostics
 				}
 				else
 				{
-					Pi.ProcessName = string::Format("Process_%d", NProcessId);
+					Pi.ProcessName = String::Format("Process_%d", NProcessId);
 				}
 			}
 			else
 			{
-				Pi.ProcessName = Process::GetProcessShortName(wstring(NProcessInfo->ImageName.Buffer, NProcessInfo->ImageName.Length / sizeof(WCHAR)).ToString());
+				Pi.ProcessName = Process::GetProcessShortName(WString(NProcessInfo->ImageName.Buffer, NProcessInfo->ImageName.Length / sizeof(WCHAR)).ToString());
 			}
 
 			if (!ProcessIdMatch.Empty() && ProcessIdMatch.Contains(NProcessId))
@@ -636,7 +636,7 @@ namespace Diagnostics
 		return Result;
 	}
 
-	string Process::GetProcessShortName(const string& Name)
+	String Process::GetProcessShortName(const String& Name)
 	{
 		int32_t Slash = -1, Period = -1;
 
@@ -652,7 +652,7 @@ namespace Diagnostics
 			Period = Name.Length() - 1;
 		else
 		{
-			auto Ext = Name.Substring(Period);
+			auto Ext = Name.SubString(Period);
 			if (Ext.ToLower() == ".exe")
 				Period--;
 			else
@@ -664,7 +664,7 @@ namespace Diagnostics
 		else
 			Slash++;
 
-		return Name.Substring(Slash, Period - Slash + 1);
+		return Name.SubString(Slash, Period - Slash + 1);
 	}
 
 	LPTHREAD_START_ROUTINE Process::ResolveInjectionAddress(BOOL Is32BitProcess)

@@ -68,7 +68,7 @@ namespace Assets::Exporters
 	};
 #pragma pack(pop)
 
-	bool UnrealEngine::ExportAnimation(const Animation& Animation, const string& Path)
+	bool UnrealEngine::ExportAnimation(const Animation& Animation, const String& Path)
 	{
 		auto Writer = IO::BinaryWriter(IO::File::Create(Path));
 
@@ -135,7 +135,7 @@ namespace Assets::Exporters
 		return true;
 	}
 
-	bool UnrealEngine::ExportModel(const Model& Model, const string& Path)
+	bool UnrealEngine::ExportModel(const Model& Model, const String& Path)
 	{
 		auto Writer = IO::BinaryWriter(IO::File::Create(Path));
 

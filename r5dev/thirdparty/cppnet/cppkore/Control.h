@@ -173,9 +173,9 @@ namespace Forms
 		Drawing::Rectangle RectangleToClient(const Drawing::Rectangle& Rect);
 
 		// Gets the current text associated with this control.
-		virtual string Text();
+		virtual String Text();
 		// Sets the current text associated with this control.
-		virtual void SetText(const string& Value);
+		virtual void SetText(const String& Value);
 
 		// Brings this control to the front of the z-order.
 		void BringToFront();
@@ -365,7 +365,7 @@ namespace Forms
 		uint32_t _MinimumHeight;
 
 		// Internal text caching
-		string _Text;
+		String _Text;
 
 		// Contains the anchor information...
 		struct AnchorDeltasCache
@@ -439,9 +439,9 @@ namespace Forms
 		uintptr_t BackColorBrush();
 
 		// Gets the current text of the Window
-		virtual string WindowText();
+		virtual String WindowText();
 		// Sets the current text of the Window
-		virtual void SetWindowText(const string& Value);
+		virtual void SetWindowText(const String& Value);
 
 		// Updates the control styles...
 		void UpdateStyles();
@@ -569,6 +569,6 @@ namespace Forms
 		static bool IsFocusManagingContainerControl(Control* Ctrl);
 
 		// Internal routine to make sure a class is registered
-		static string RegisterWndClass(const char* ClassName, DWORD ClassStyle, bool& Subclass);
+		static String RegisterWndClass(const char* ClassName, DWORD ClassStyle, bool& Subclass);
 	};
 }

@@ -3,22 +3,22 @@
 
 namespace IO
 {
-	FileStream::FileStream(const string& Path, FileMode Mode)
+	FileStream::FileStream(const String& Path, FileMode Mode)
 		: FileStream(Path, Mode, (Mode == FileMode::Append ? FileAccess::Write : FileAccess::ReadWrite), FileShare::Read)
 	{
 	}
 
-	FileStream::FileStream(const string& Path, FileMode Mode, FileAccess Access)
+	FileStream::FileStream(const String& Path, FileMode Mode, FileAccess Access)
 		: FileStream(Path, Mode, Access, FileShare::Read)
 	{
 	}
 
-	FileStream::FileStream(const string& Path, FileMode Mode, FileAccess Access, FileShare Share)
+	FileStream::FileStream(const String& Path, FileMode Mode, FileAccess Access, FileShare Share)
 		: FileStream(Path, Mode, Access, Share, FileStream::DefaultBufferSize)
 	{
 	}
 
-	FileStream::FileStream(const string & Path, FileMode Mode, FileAccess Access, FileShare Share, uint32_t BufferSize)
+	FileStream::FileStream(const String & Path, FileMode Mode, FileAccess Access, FileShare Share, uint32_t BufferSize)
 	{
 		this->SetupStream(Path, Mode, Access, Share, BufferSize);
 	}
@@ -421,7 +421,7 @@ namespace IO
 		return TotalRead;
 	}
 
-	void FileStream::SetupStream(const string& Path, FileMode Mode, FileAccess Access, FileShare Share, uint32_t BufferSize)
+	void FileStream::SetupStream(const String& Path, FileMode Mode, FileAccess Access, FileShare Share, uint32_t BufferSize)
 	{
 		// Easy way to make sure we have a fresh stream
 		this->Close();

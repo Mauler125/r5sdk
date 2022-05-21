@@ -18,15 +18,15 @@ namespace Assets
 		// Initialize a blank 3D bone.
 		Bone();
 		// Initialize a 3D bone with it's tag name.
-		Bone(const string& Name);
+		Bone(const String& Name);
 		// Initialize a 3D bone with it's tag name, and parent index.
-		Bone(const string& Name, int32_t ParentIndex);
+		Bone(const String& Name, int32_t ParentIndex);
 		// Initialize a 3D bone with it's tag name, parent index, and transposition matrix.
-		Bone(const string& Name, int32_t ParentIndex, Vector3 Position, Quaternion Rotation, BoneFlags Flags = BoneFlags::HasLocalSpaceMatrices);
+		Bone(const String& Name, int32_t ParentIndex, Vector3 Position, Quaternion Rotation, BoneFlags Flags = BoneFlags::HasLocalSpaceMatrices);
 		// Initialize a 3D bone with it's tag name, parent index, transposition matrix, and scale transform.
-		Bone(const string& Name, int32_t ParentIndex, Vector3 Position, Quaternion Rotation, Vector3 Scale, BoneFlags Flags = (BoneFlags::HasLocalSpaceMatrices | BoneFlags::HasScale));
+		Bone(const String& Name, int32_t ParentIndex, Vector3 Position, Quaternion Rotation, Vector3 Scale, BoneFlags Flags = (BoneFlags::HasLocalSpaceMatrices | BoneFlags::HasScale));
 		// Initialize a 3D bone with it's tag name, parent index, local and global transposition matrix, and scale transform.
-		Bone(const string& Name, int32_t ParentIndex, Vector3 LocalPosition, Quaternion LocalRotation, Vector3 GlobalPosition, Quaternion GlobalRotation, Vector3 Scale, BoneFlags Flags = (BoneFlags::HasGlobalSpaceMatrices | BoneFlags::HasLocalSpaceMatrices | BoneFlags::HasScale));
+		Bone(const String& Name, int32_t ParentIndex, Vector3 LocalPosition, Quaternion LocalRotation, Vector3 GlobalPosition, Quaternion GlobalRotation, Vector3 Scale, BoneFlags Flags = (BoneFlags::HasGlobalSpaceMatrices | BoneFlags::HasLocalSpaceMatrices | BoneFlags::HasScale));
 		// Destroy all 3D bone resources.
 		~Bone() = default;
 
@@ -39,9 +39,9 @@ namespace Assets
 		void SetFlag(BoneFlags Flags, bool Value);
 
 		// Gets the tag name assigned to the bone.
-		const string& Name() const;
+		const String& Name() const;
 		// Sets the tag name assigned to the bone.
-		void SetName(const string& Value);
+		void SetName(const String& Value);
 
 		// Gets the parent bone index.
 		const int32_t& Parent() const;
@@ -75,7 +75,7 @@ namespace Assets
 
 	private:
 		// Internal tag name
-		string _Name;
+		String _Name;
 
 		// Internal parent index
 		int32_t _Parent;

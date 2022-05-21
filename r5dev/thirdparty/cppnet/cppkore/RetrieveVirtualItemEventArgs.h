@@ -18,7 +18,7 @@ namespace Forms
 		// The sub item index.
 		const int32_t SubItemIndex;
 		// The text of the item.
-		string Text;
+		String Text;
 		// The style of the item.
 		ListViewItemStyle Style;
 	};

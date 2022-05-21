@@ -37,9 +37,9 @@ namespace Data
 		}
 
 		// Returns a decoded version of the encoded string
-		string GetDecoded() const
+		String GetDecoded() const
 		{
-			auto Result = string(_Buffer, (uint32_t)Size);
+			auto Result = String(_Buffer, (uint32_t)Size);
 			auto Key = Size * 2;
 			
 			for (auto& Ch : Result)
@@ -48,9 +48,9 @@ namespace Data
 			return Result;
 		}
 
-		constexpr operator string(void) const
+		constexpr operator String(void) const
 		{
-			auto Result = string(_Buffer, (uint32_t)Size);
+			auto Result = String(_Buffer, (uint32_t)Size);
 			auto Key = Size * 2;
 
 			for (auto& Ch : Result)
@@ -66,7 +66,7 @@ namespace Data
 
 template<size_t Size>
 // Creates a new compile-time encrypted string
-static constexpr auto sstring(const char(&String)[Size])
+static constexpr auto sString(const char(&String)[Size])
 {
 	return Data::SecureString(String);
 }

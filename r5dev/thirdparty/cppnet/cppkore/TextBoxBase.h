@@ -45,9 +45,9 @@ namespace Forms
 		void SetHideSelection(bool Value);
 
 		// Gets the lines of text in an text box control.
-		List<string> Lines();
+		List<String> Lines();
 		// Sets the lines of text in an text box control.
-		void SetLines(const List<string>& Value);
+		void SetLines(const List<String>& Value);
 
 		// Gets the maximum number of characters the user can type into the text box control.
 		virtual uint32_t MaxLength();
@@ -75,9 +75,9 @@ namespace Forms
 		void SetReadOnly(bool Value);
 
 		// Gets the currently selected text in the control.
-		virtual string SelectedText();
+		virtual String SelectedText();
 		// Sets the currently selected text in the control.
-		virtual void SetSelectedText(const string& Value);
+		virtual void SetSelectedText(const String& Value);
 
 		// Gets the number of characters selected in the text box.
 		virtual int32_t SelectionLength();
@@ -90,9 +90,9 @@ namespace Forms
 		void SetSelectionStart(int32_t Value);
 
 		// Gets the current text in the text box.
-		virtual string Text();
+		virtual String Text();
 		// Sets the current text in the text box.
-		virtual void SetText(const string& Value);
+		virtual void SetText(const String& Value);
 
 		// Gets the length of the text in the control.
 		virtual uint32_t TextLength();
@@ -103,7 +103,7 @@ namespace Forms
 		void SetWordWrap(bool Value);
 
 		// Append text to the current text of the text box.
-		void AppendText(const string& Text);
+		void AppendText(const String& Text);
 
 		// Clears all the text from the text box control.
 		void Clear();
@@ -157,14 +157,14 @@ namespace Forms
 		virtual CreateParams GetCreateParams();
 
 		// Sets the current text of the Window
-		virtual void SetWindowText(const string& Value);
+		virtual void SetWindowText(const String& Value);
 
 		// Whether or not this control can raise the text changed event.
 		virtual bool CanRaiseTextChangedEvent();
 		// Updates the controls max length property.
 		virtual void UpdateMaxLength();
 		// Internal routine to set the selected text.
-		virtual void SetSelectedTextInternal(const string& Text, bool ClearUndo);
+		virtual void SetSelectedTextInternal(const String& Text, bool ClearUndo);
 		// Internal routine to perform actual selection.
 		virtual void SelectInternal(int32_t Start, int32_t Length, int32_t TextLen);
 

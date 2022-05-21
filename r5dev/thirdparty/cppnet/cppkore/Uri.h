@@ -12,21 +12,21 @@ namespace Net
 	{
 	public:
 		explicit Uri(const char* Url);
-		Uri(const string& Url);
+		Uri(const String& Url);
 
 		// Returns the internet port of the Uri
 		InternetPortType InternetPort;
 		// Returns the host name of the Uri
-		string Host;
+		String Host;
 		// Returns the full path and query of the Uri
-		string Path;
+		String Path;
 
 		// Returns the fully built url of the Uri components
-		string GetUrl();
+		String GetUrl();
 
 	private:
 
 		// Internal routine to parse a Uri
-		void ParseUri(const string& Url);
+		void ParseUri(const String& Url);
 	};
 }

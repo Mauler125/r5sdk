@@ -51,7 +51,7 @@ namespace Hashing
 		0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d
 	};
 
-	uint32_t CRC32::HashString(const string& Input, uint32_t Seed)
+	uint32_t CRC32::HashString(const String& Input, uint32_t Seed)
 	{
 		return ComputeHash((uint8_t*)(char*)Input, 0, Input.Length(), Seed);
 	}

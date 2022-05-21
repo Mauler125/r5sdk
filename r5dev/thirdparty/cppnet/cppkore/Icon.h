@@ -21,7 +21,7 @@ namespace Drawing
 		HICON SmallHandle();
 
 		// Loads an icon resouce from a file.
-		static std::unique_ptr<Icon> FromFile(const string& File);
+		static std::unique_ptr<Icon> FromFile(const String& File);
 		// Loads an icon resource from a resource.
 		static std::unique_ptr<Icon> FromResource(const int32_t ID);
 		// Loads the application defined icon.

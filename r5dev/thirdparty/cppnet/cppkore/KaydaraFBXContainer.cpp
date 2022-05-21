@@ -127,9 +127,9 @@ namespace Assets::Exporters
 
 	void KaydaraFBXDocument::InitializeGenerics()
 	{
-		string s1(HeaderFileIdNode.second);
-		string s2(HeaderCreationTimeNode.second);
-		string s3(HeaderExtensionCreatorProperty.second);
+		String s1(HeaderFileIdNode.second);
+		String s2(HeaderCreationTimeNode.second);
+		String s3(HeaderExtensionCreatorProperty.second);
 		this->Nodes.Emplace(HeaderFileIdNode.first).Properties.EmplaceBack('R', &s1);
 		this->Nodes.Emplace(HeaderCreationTimeNode.first).Properties.EmplaceBack('S', &s2);
 		this->Nodes.Emplace(HeaderExtensionCreatorProperty.first).Properties.EmplaceBack('S', &s3);
@@ -232,7 +232,7 @@ namespace Assets::Exporters
 
 		case 'R':
 		case 'S':
-			_StringValue = *(string*)Data;
+			_StringValue = *(String*)Data;
 			break;
 		}
 	}
@@ -402,7 +402,7 @@ namespace Assets::Exporters
 		return this->_IntegralValue;
 	}
 
-	KaydaraFBXNode::KaydaraFBXNode(const string& Name)
+	KaydaraFBXNode::KaydaraFBXNode(const String& Name)
 		: Name(Name)
 	{
 	}
@@ -484,32 +484,32 @@ namespace Assets::Exporters
 		this->Properties.EmplaceBack('D', &Value);
 	}
 
-	void KaydaraFBXNode::AddPropertyString(const string& Value)
+	void KaydaraFBXNode::AddPropertyString(const String& Value)
 	{
 		this->Properties.EmplaceBack('S', &Value);
 	}
 
 	void KaydaraFBXNode::AddPropertyString(const char* Value)
 	{
-		string s(Value);
+		String s(Value);
 		this->Properties.EmplaceBack('S', &s);
 	}
 
 	void KaydaraFBXNode::AddPropertyString(const char* Value, const uint32_t Length)
 	{
-		string s(Value, Length);
+		String s(Value, Length);
 		this->Properties.EmplaceBack('S', &s);
 	}
 
 	void KaydaraFBXNode::AddPropertyRaw(const char* Value)
 	{
-		string s(Value);
+		String s(Value);
 		this->Properties.EmplaceBack('R', &s);
 	}
 
 	void KaydaraFBXNode::AddPropertyRaw(const char* Value, const uint32_t Length)
 	{
-		string s(Value, Length);
+		String s(Value, Length);
 		this->Properties.EmplaceBack('R', &s);
 	}
 

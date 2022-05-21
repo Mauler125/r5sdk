@@ -151,9 +151,9 @@ namespace Forms
 		}
 	}
 
-	List<string> TextBoxBase::Lines()
+	List<String> TextBoxBase::Lines()
 	{
-		List<string> Result;
+		List<String> Result;
 
 		auto Buffer = this->Text();
 		uint32_t LineStart = 0;
@@ -168,7 +168,7 @@ namespace Forms
 					break;
 			}
 
-			Result.EmplaceBack(Buffer.Substring(LineStart, LineEnd - LineStart));
+			Result.EmplaceBack(Buffer.SubString(LineStart, LineEnd - LineStart));
 
 			// Treat "\r", "\r\n", and "\n" as new lines
 			if (LineEnd < Buffer.Length() && Buffer[LineEnd] == '\r')
@@ -185,9 +185,9 @@ namespace Forms
 		return Result;
 	}
 
-	void TextBoxBase::SetLines(const List<string>& Value)
+	void TextBoxBase::SetLines(const List<String>& Value)
 	{
-		string Result = "";
+		String Result = "";
 
 		for (auto& Line : Value)
 		{
@@ -212,12 +212,12 @@ namespace Forms
 		}
 	}
 
-	string TextBoxBase::Text()
+	String TextBoxBase::Text()
 	{
 		return Control::Text();
 	}
 
-	void TextBoxBase::SetText(const string& Value)
+	void TextBoxBase::SetText(const String& Value)
 	{
 		if (Value != Control::Text())
 		{
@@ -250,7 +250,7 @@ namespace Forms
 		}
 	}
 
-	void TextBoxBase::AppendText(const string& Text)
+	void TextBoxBase::AppendText(const String& Text)
 	{
 		int32_t SelStart, SelLength;
 		GetSelectionStartAndLength(SelStart, SelLength);
@@ -369,7 +369,7 @@ namespace Forms
 		return Cp;
 	}
 
-	void TextBoxBase::SetWindowText(const string& Value)
+	void TextBoxBase::SetWindowText(const String& Value)
 	{
 		// Override to prevent double OnTextChanged events
 		if (this->WindowText() != Value)
@@ -391,7 +391,7 @@ namespace Forms
 			SendMessageA(this->_Handle, EM_LIMITTEXT, (WPARAM)this->_MaxLength, NULL);
 	}
 
-	void TextBoxBase::SetSelectedTextInternal(const string& Text, bool ClearUndo)
+	void TextBoxBase::SetSelectedTextInternal(const String& Text, bool ClearUndo)
 	{
 		SendMessageA(this->_Handle, EM_LIMITTEXT, 0, 0);
 
@@ -552,15 +552,15 @@ namespace Forms
 		}
 	}
 
-	string TextBoxBase::SelectedText()
+	String TextBoxBase::SelectedText()
 	{
 		int32_t SelStart, SelLength;
 		GetSelectionStartAndLength(SelStart, SelLength);
 
-		return Text().Substring(SelStart, SelLength);
+		return Text().SubString(SelStart, SelLength);
 	}
 
-	void TextBoxBase::SetSelectedText(const string& Value)
+	void TextBoxBase::SetSelectedText(const String& Value)
 	{
 		SetSelectedTextInternal(Value, true);
 	}

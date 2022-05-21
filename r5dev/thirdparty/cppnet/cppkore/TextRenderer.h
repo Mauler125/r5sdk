@@ -19,8 +19,8 @@ namespace Drawing
 	public:
 
 		// Draws the specified text at the specified bounds using the provided color and format flags.
-		static void DrawText(HDC hDC, const string& Text, Font& Font, Rectangle Bounds, Color ForeColor, TextFormatFlags Flags = TextFormatFlags::Default);
+		static void DrawText(HDC hDC, const String& Text, Font& Font, Rectangle Bounds, Color ForeColor, TextFormatFlags Flags = TextFormatFlags::Default);
 		// Draws the specified text at the specified bounds using the provided color and format flags.
-		static void DrawText(std::unique_ptr<Drawing::Graphics>& Graphics, const string& Text, Font& Font, Rectangle Bounds, Color ForeColor, TextFormatFlags Flags = TextFormatFlags::Default);
+		static void DrawText(std::unique_ptr<Drawing::Graphics>& Graphics, const String& Text, Font& Font, Rectangle Bounds, Color ForeColor, TextFormatFlags Flags = TextFormatFlags::Default);
 	};
 }

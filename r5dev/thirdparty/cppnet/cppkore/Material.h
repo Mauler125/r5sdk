@@ -44,20 +44,20 @@ namespace Assets
 		// Initialize a new default material.
 		Material();
 		// Initialize a new material.
-		Material(const string& Name, const uint64_t Hash);
+		Material(const String& Name, const uint64_t Hash);
 		// Destroy all material info.
 		~Material() = default;
 
 		// The unique name for this material.
-		string Name;
+		String Name;
 
 		// Name of the source identifier for this material.
-		string SourceString;
+		String SourceString;
 		// Hash of the source identifier for this material.
 		uint64_t SourceHash;
 		
 		// The material texture slots
-		Dictionary<MaterialSlotType, std::pair<string, uint64_t>> Slots;
+		Dictionary<MaterialSlotType, std::pair<String, uint64_t>> Slots;
 
 		// The unique hash identifier for this material.
 		uint64_t Hash;

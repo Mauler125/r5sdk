@@ -145,7 +145,7 @@ namespace Assets
 		this->Invalidate();
 	}
 
-	void AssetRenderer::SetAssetName(const string& Name)
+	void AssetRenderer::SetAssetName(const String& Name)
 	{
 		this->_DrawInformation.AssetName = Name;
 		this->Redraw();
@@ -629,15 +629,15 @@ namespace Assets
 
 			glColor4f(35 / 255.f, 206 / 255.f, 107 / 255.f, 1);
 
-			_RenderFont.RenderString(string((this->_ShowBones) ? "Hide Bones (b), " : "Draw Bones (b), ") + string((this->_ShowMaterials) ? "Shaded View (t), " : "Material View (t), ") + string((this->_UseWireframe) ? "Hide Wireframe (w)" : "Draw Wireframe (w)"), 22, this->_Height - 44.f, FontScale);
+			_RenderFont.RenderString(String((this->_ShowBones) ? "Hide Bones (b), " : "Draw Bones (b), ") + String((this->_ShowMaterials) ? "Shaded View (t), " : "Material View (t), ") + String((this->_UseWireframe) ? "Hide Wireframe (w)" : "Draw Wireframe (w)"), 22, this->_Height - 44.f, FontScale);
 
 			glColor4f(0.9f, 0.9f, 0.9f, 1);
 
-			_RenderFont.RenderString((this->_DrawInformation.AssetName == "") ? string("N/A") : this->_DrawInformation.AssetName, 96, 22, FontScale);
-			_RenderFont.RenderString(string::Format("%d", this->_DrawInformation.MeshCount), 96, 38, FontScale);
-			_RenderFont.RenderString(string::Format("%d", this->_DrawInformation.VertexCount), 96, 54, FontScale);
-			_RenderFont.RenderString(string::Format("%d", this->_DrawInformation.TriangleCount), 96, 70, FontScale);
-			_RenderFont.RenderString(string::Format("%d", this->_DrawInformation.BoneCount), 96, 86, FontScale);
+			_RenderFont.RenderString((this->_DrawInformation.AssetName == "") ? String("N/A") : this->_DrawInformation.AssetName, 96, 22, FontScale);
+			_RenderFont.RenderString(String::Format("%d", this->_DrawInformation.MeshCount), 96, 38, FontScale);
+			_RenderFont.RenderString(String::Format("%d", this->_DrawInformation.VertexCount), 96, 54, FontScale);
+			_RenderFont.RenderString(String::Format("%d", this->_DrawInformation.TriangleCount), 96, 70, FontScale);
+			_RenderFont.RenderString(String::Format("%d", this->_DrawInformation.BoneCount), 96, 86, FontScale);
 			break;
 		case DrawMode::Texture:
 			glColor4f(3 / 255.f, 169 / 255.f, 244 / 255.f, 1);
@@ -649,10 +649,10 @@ namespace Assets
 
 			glColor4f(0.9f, 0.9f, 0.9f, 1);
 
-			_RenderFont.RenderString((this->_DrawInformation.AssetName == "") ? string("N/A") : this->_DrawInformation.AssetName, 96, 22, FontScale);
-			_RenderFont.RenderString(string::Format("%d", this->_DrawInformation.Width), 96, 38, FontScale);
-			_RenderFont.RenderString(string::Format("%d", this->_DrawInformation.Height), 96, 54, FontScale);
-			_RenderFont.RenderString(string::Format("%d%%", this->_DrawInformation.Scale), 96, 70, FontScale);
+			_RenderFont.RenderString((this->_DrawInformation.AssetName == "") ? String("N/A") : this->_DrawInformation.AssetName, 96, 22, FontScale);
+			_RenderFont.RenderString(String::Format("%d", this->_DrawInformation.Width), 96, 38, FontScale);
+			_RenderFont.RenderString(String::Format("%d", this->_DrawInformation.Height), 96, 54, FontScale);
+			_RenderFont.RenderString(String::Format("%d%%", this->_DrawInformation.Scale), 96, 70, FontScale);
 			break;
 		}
 	}

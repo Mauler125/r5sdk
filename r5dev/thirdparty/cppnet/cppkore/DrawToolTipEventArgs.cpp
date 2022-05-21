@@ -3,7 +3,7 @@
 
 namespace Forms
 {
-	DrawToolTipEventArgs::DrawToolTipEventArgs(HDC Dc, Control* Window, Control* Ctrl, Drawing::Rectangle Bounds, const string& Text, Drawing::Color BackColor, Drawing::Color ForeColor, Drawing::Font* Font)
+	DrawToolTipEventArgs::DrawToolTipEventArgs(HDC Dc, Control* Window, Control* Ctrl, Drawing::Rectangle Bounds, const String& Text, Drawing::Color BackColor, Drawing::Color ForeColor, Drawing::Font* Font)
 		: _Dc(Dc), AssociatedWindow(Window), AssociatedControl(Ctrl), Bounds(Bounds), ToolTipText(Text), BackColor(BackColor), ForeColor(ForeColor), Font(Font)
 	{
 		this->Graphics = std::make_unique<Drawing::Graphics>(Dc);

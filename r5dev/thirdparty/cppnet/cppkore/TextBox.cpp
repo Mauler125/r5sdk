@@ -73,7 +73,7 @@ namespace Forms
 		}
 	}
 
-	void TextBox::SetText(const string& Value)
+	void TextBox::SetText(const String& Value)
 	{
 		TextBoxBase::SetText(Value);
 		_SelectionSet = false;

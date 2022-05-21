@@ -66,11 +66,11 @@ namespace Assets
 	{
 	public:
 		Curve();
-		Curve(const string& Name, CurveProperty Property);
-		Curve(const string& Name, CurveProperty Property, AnimationCurveMode Mode);
+		Curve(const String& Name, CurveProperty Property);
+		Curve(const String& Name, CurveProperty Property, AnimationCurveMode Mode);
 
 		// The node name of this curve.
-		string Name;
+		String Name;
 		// The property of the node for the curve.
 		CurveProperty Property;
 

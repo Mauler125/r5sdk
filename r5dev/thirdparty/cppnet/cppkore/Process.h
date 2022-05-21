@@ -38,14 +38,14 @@ namespace Diagnostics
 		// Waits for the process to enter an idle state
 		void WaitForInputIdle();
 		// Injects a module into the given process
-		bool InjectModule(const string& ModulePath);
+		bool InjectModule(const String& ModulePath);
 
 		//
 		// Getters
 		//
 
 		// Returns the name of the process
-		const string& GetProcessName() const;
+		const String& GetProcessName() const;
 		// Returns the process base priority
 		const uint32_t GetBasePriority() const;
 		// Returns the process id
@@ -87,7 +87,7 @@ namespace Diagnostics
 		// Returns the main window handle
 		const HWND GetMainWindowHandle();
 		// Returns the main window title
-		const string GetMainWindowTitle();
+		const String GetMainWindowTitle();
 		// Returns the process exit code, if any
 		const uint32_t GetExitCode();
 		// Returns a list of process modules
@@ -98,16 +98,16 @@ namespace Diagnostics
 		// Attempts to get a process by the process id
 		static Process GetProcessById(uint32_t Pid);
 		// Attempts to get processes with a specific name
-		static List<Process> GetProcessesByName(const string& Name);
+		static List<Process> GetProcessesByName(const String& Name);
 		// Gets all processes running on the current system
 		static List<Process> GetProcesses();
 		// Gets the current process
 		static Process GetCurrentProcess();
 
 		// Creates a new process with the given information
-		static Process Start(const string& FileName);
+		static Process Start(const String& FileName);
 		// Creates a new process with the given information
-		static Process Start(const string& FileName, const string& Arguments);
+		static Process Start(const String& FileName, const String& Arguments);
 		// Creates a new process with the given information
 		static Process Start(const ProcessStartInfo& Start);
 
@@ -138,12 +138,12 @@ namespace Diagnostics
 		LPTHREAD_START_ROUTINE ResolveInjectionAddress(BOOL Is32BitProcess);
 
 		// Internal routine to set a process token privilege
-		static void SetPrivilage(const string& PrivilegeName, bool Enabled);
+		static void SetPrivilage(const String& PrivilegeName, bool Enabled);
 
 		// Internal routine to get a list of processes on the current machines info
 		static List<ProcessInfo> GetProcessInfos(const List<uint32_t>& ProcessIdMatch);
 		// Internal routine to transform the process name
-		static string GetProcessShortName(const string& Name);
+		static String GetProcessShortName(const String& Name);
 
 		// Internal constant that matches STATUS_INFO_LENGTH_MISMATCH from ntstatus.h
 		static constexpr uint32_t StatusInfoLengthMismatch = 0xC0000004;

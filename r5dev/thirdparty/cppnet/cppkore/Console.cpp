@@ -212,7 +212,7 @@ namespace System
 		SetCurrentConsoleFontEx(hStdOut, false, &cFont);
 	}
 
-	void Console::SetTitle(const string& Value)
+	void Console::SetTitle(const String& Value)
 	{
 		SetConsoleTitleA((const char*)Value);
 	}
@@ -384,12 +384,12 @@ namespace System
 		SetConsoleScreenBufferInfoEx(hStdOut, &cBuffer);
 	}
 
-	string Console::GetTitle()
+	String Console::GetTitle()
 	{
 		char Buffer[2048]{};
 		GetConsoleTitleA(Buffer, 2048);	// Honestly it would be too big at 256...
 
-		return string(Buffer);
+		return String(Buffer);
 	}
 
 	bool Console::GetCursorVisible()
@@ -451,7 +451,7 @@ namespace System
 		ConsoleInstance.Out.Write("\r");
 		Console::Header(Heading, Color);
 
-		string Buffer(Width + 2, '\0', false);
+		String Buffer(Width + 2, '\0', false);
 		Buffer.Append("[");
 
 		uint32_t Blocks = min((uint32_t)((Progress / 100.f) * Width), Width);
@@ -521,7 +521,7 @@ namespace System
 		return ConsoleKeyInfo((char)iRecord.Event.KeyEvent.uChar.AsciiChar, (ConsoleKey)iRecord.Event.KeyEvent.wVirtualKeyCode, Shift, Alt, Control);
 	}
 
-	string Console::ReadLine()
+	String Console::ReadLine()
 	{
 		return ConsoleInstance.In.ReadLine();
 	}

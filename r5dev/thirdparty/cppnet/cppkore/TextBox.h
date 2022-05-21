@@ -48,7 +48,7 @@ namespace Forms
 		void SetScrollBars(ScrollBars Value);
 
 		// Sets the current text in the text box.
-		virtual void SetText(const string& Value);
+		virtual void SetText(const String& Value);
 
 		// Gets how text is aligned in a TextBox control.
 		HorizontalAlignment TextAlign();

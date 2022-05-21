@@ -8,8 +8,8 @@ namespace Forms
 	// A structure that contains the CreateWindow parameters for this control.
 	struct CreateParams
 	{
-		string ClassName;
-		string Caption;
+		String ClassName;
+		String Caption;
 
 		uint32_t Style;
 		uint32_t ExStyle;

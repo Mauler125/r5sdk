@@ -14,9 +14,9 @@ namespace Forms
 	{
 	public:
 		ColumnHeader();
-		ColumnHeader(const string& Text);
-		ColumnHeader(const string& Text, int32_t Width);
-		ColumnHeader(const string& Text, int32_t Width, HorizontalAlignment Alignment);
+		ColumnHeader(const String& Text);
+		ColumnHeader(const String& Text, int32_t Width);
+		ColumnHeader(const String& Text, int32_t Width, HorizontalAlignment Alignment);
 		~ColumnHeader() = default;
 
 		// The index of this column.
@@ -31,9 +31,9 @@ namespace Forms
 		void SetDisplayIndexInternal(int32_t Value);
 
 		// The text displayed in the column header.
-		const string& Text() const;
+		const String& Text() const;
 		// The text displayed in the column header.
-		void SetText(const string& Value);
+		void SetText(const String& Value);
 
 		// The width of the column in pixels.
 		int32_t Width() const;
@@ -62,7 +62,7 @@ namespace Forms
 		int32_t _IndexInternal;
 
 		// Text to display
-		string _Text;
+		String _Text;
 		HorizontalAlignment _TextAlign;
 
 		// Set the display indices of the ListView columns.

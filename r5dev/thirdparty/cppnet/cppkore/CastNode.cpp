@@ -128,7 +128,7 @@ namespace Assets::Exporters
 		this->IntegralValues.EmplaceBack(Value);
 	}
 
-	void CastProperty::SetString(const string& Value)
+	void CastProperty::SetString(const String& Value)
 	{
 		this->StringValue = Value;
 	}

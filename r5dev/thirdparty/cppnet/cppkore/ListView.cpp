@@ -859,7 +859,7 @@ namespace Forms
 		return (int32_t)SendMessageA(this->_Handle, LVM_GETITEMSTATE, (WPARAM)Index, LVIS_FOCUSED | LVIS_SELECTED | LVIS_CUT | LVIS_DROPHILITED | LVIS_OVERLAYMASK | LVIS_STATEIMAGEMASK);
 	}
 
-	std::pair<string, ListViewItemStyle> ListView::GetSubItem(int32_t Index, int32_t SubItem)
+	std::pair<String, ListViewItemStyle> ListView::GetSubItem(int32_t Index, int32_t SubItem)
 	{
 		if (!VirtualMode())
 		{
@@ -867,13 +867,13 @@ namespace Forms
 			auto& Text = Item.SubItem(SubItem);
 			auto& Style = Item.SubItemStyle(SubItem);
 
-			return std::pair<string, ListViewItemStyle>(Text, Style);
+			return std::pair<String, ListViewItemStyle>(Text, Style);
 		}
 
 		auto EventArgs = std::make_unique<RetrieveVirtualItemEventArgs>(Index, SubItem);
 		OnRetrieveVirtualItem(EventArgs);
 
-		return std::pair<string, ListViewItemStyle>(EventArgs->Text, EventArgs->Style);
+		return std::pair<String, ListViewItemStyle>(EventArgs->Text, EventArgs->Style);
 	}
 
 	void ListView::SetColumnInfo(int32_t Mask, ColumnHeader& Header)

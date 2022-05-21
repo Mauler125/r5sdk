@@ -53,7 +53,7 @@ namespace Assets::Exporters
 		List<KaydaraFBXIntegralProperty> _IntegralArrayValues;
 
 		// Internal value for string and raw types
-		string _StringValue;
+		String _StringValue;
 	};
 
 	// Represents a node of an FBXDocument.
@@ -61,7 +61,7 @@ namespace Assets::Exporters
 	{
 	public:
 		KaydaraFBXNode() = default;
-		KaydaraFBXNode(const string& Name);
+		KaydaraFBXNode(const String& Name);
 		explicit KaydaraFBXNode(const char* Name);
 
 		// Prepares a new node.
@@ -76,7 +76,7 @@ namespace Assets::Exporters
 		void AddPropertyInteger64(uint64_t Value);
 		void AddPropertyFloat32(float Value);
 		void AddPropertyFloat64(double Value);
-		void AddPropertyString(const string& Value);
+		void AddPropertyString(const String& Value);
 		void AddPropertyString(const char* Value);
 		void AddPropertyString(const char* Value, const uint32_t Length);
 		void AddPropertyRaw(const char* Value);
@@ -93,7 +93,7 @@ namespace Assets::Exporters
 		// A list of child nodes.
 		List<KaydaraFBXNode> Children;
 		// The name of this node.
-		string Name;
+		String Name;
 	};
 
 	// Represents the root of an FBX container.

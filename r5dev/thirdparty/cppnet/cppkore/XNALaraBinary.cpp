@@ -7,12 +7,12 @@
 
 namespace Assets::Exporters
 {
-	bool XNALaraBinary::ExportAnimation(const Animation& Animation, const string& Path)
+	bool XNALaraBinary::ExportAnimation(const Animation& Animation, const String& Path)
 	{
 		return false;
 	}
 
-	bool XNALaraBinary::ExportModel(const Model& Model, const string& Path)
+	bool XNALaraBinary::ExportModel(const Model& Model, const String& Path)
 	{
 		auto Writer = IO::BinaryWriter(IO::File::Create(Path));
 
@@ -31,13 +31,13 @@ namespace Assets::Exporters
 
 		for (auto& Submesh : Model.Meshes)
 		{
-			Writer.WriteNetString(string::Format("KoreMesh%02d", SubmeshIndex));
+			Writer.WriteNetString(String::Format("KoreMesh%02d", SubmeshIndex));
 			Writer.Write<uint32_t>(Submesh.Vertices.UVLayerCount());
 			Writer.Write<uint32_t>(Submesh.Vertices.UVLayerCount());
 
 			for (uint8_t i = 0; i < Submesh.Vertices.UVLayerCount(); i++)
 			{
-				Writer.WriteNetString(Submesh.MaterialIndices[i] > -1 ? Model.Materials[Submesh.MaterialIndices[i]].Name : string("default_material"));
+				Writer.WriteNetString(Submesh.MaterialIndices[i] > -1 ? Model.Materials[Submesh.MaterialIndices[i]].Name : String("default_material"));
 				Writer.Write<uint32_t>(i);
 			}
 

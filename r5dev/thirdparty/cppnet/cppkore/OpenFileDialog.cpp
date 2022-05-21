@@ -6,9 +6,9 @@
 
 namespace Forms
 {
-	const string BuildOpenFileFilter(const string& Filter)
+	const String BuildOpenFileFilter(const String& Filter)
 	{
-		string InitialFilter = (string::IsNullOrWhiteSpace(Filter)) ? string(" |*.*") : Filter;
+		String InitialFilter = (String::IsNullOrWhiteSpace(Filter)) ? String(" |*.*") : Filter;
 		auto Buffer = std::make_unique<int8_t[]>((size_t)InitialFilter.Length() + 2);	// Final filter has two null chars
 		auto BufferMask = (char*)Buffer.get();
 
@@ -22,10 +22,10 @@ namespace Forms
 
 		BufferMask[InitialFilter.Length() + 1] = (char)0;
 
-		return string((char*)Buffer.get(), (size_t)InitialFilter.Length() + 1);
+		return String((char*)Buffer.get(), (size_t)InitialFilter.Length() + 1);
 	}
 
-	string OpenFileDialog::ShowFolderDialog(const string& Title, const string& BasePath, Control* Owner)
+	String OpenFileDialog::ShowFolderDialog(const String& Title, const String& BasePath, Control* Owner)
 	{
 		HWND OwnerHandle = (Owner != nullptr) ? Owner->GetHandle() : NULL;
 
@@ -41,13 +41,13 @@ namespace Forms
 		bi.lParam = 0;
 		LPITEMIDLIST pidl = SHBrowseForFolderA(&bi);
 		if (pidl != NULL && SHGetPathFromIDListA(pidl, path))
-			return string(path);
+			return String(path);
 
 		// We need nothing as a default because we don't get a return value
 		return "";
 	}
 
-	string OpenFileDialog::ShowFileDialog(const string& Title, const string& BasePath, const string& Filter, Control* Owner)
+	String OpenFileDialog::ShowFileDialog(const String& Title, const String& BasePath, const String& Filter, Control* Owner)
 	{
 		HWND OwnerHandle = (Owner != nullptr) ? Owner->GetHandle() : NULL;
 		char Buffer[MAX_PATH]{};
@@ -67,13 +67,13 @@ namespace Forms
 
 		// Open the dialog with the config and then return result
 		if (GetOpenFileNameA(&oFileDialog))
-			return string(Buffer);
+			return String(Buffer);
 
 		// We need nothing as a default because we don't get a return value
 		return "";
 	}
 
-	List<string> OpenFileDialog::ShowMultiFileDialog(const string& Title, const string& BasePath, const string& Filter, Control* Owner)
+	List<String> OpenFileDialog::ShowMultiFileDialog(const String& Title, const String& BasePath, const String& Filter, Control* Owner)
 	{
 		HWND OwnerHandle = (Owner != nullptr) ? Owner->GetHandle() : NULL;
 		char Buffer[0x2000]{};
@@ -93,14 +93,14 @@ namespace Forms
 		oFileDialog.lpstrTitle = Title.ToCString();
 		oFileDialog.Flags = OFN_ALLOWMULTISELECT | OFN_HIDEREADONLY | OFN_EXPLORER;
 
-		List<string> ResultList;
+		List<String> ResultList;
 
 		// Open the dialog and parse each result
 		if (GetOpenFileNameA(&oFileDialog))
 		{
 			const char* Path = oFileDialog.lpstrFile;
 
-			auto BasePath = string(Path);
+			auto BasePath = String(Path);
 
 			while (*Path)
 			{
@@ -110,7 +110,7 @@ namespace Forms
 					bFileLessPath = true;
 				}
 
-				auto FileName = string(Path);
+				auto FileName = String(Path);
 				ResultList.EmplaceBack(IO::Path::Combine(BasePath, FileName));
 				Path += ((size_t)FileName.Length() + 1);
 			}

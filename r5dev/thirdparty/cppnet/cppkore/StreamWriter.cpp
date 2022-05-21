@@ -68,12 +68,12 @@ namespace IO
 		this->BaseStream->Write((uint8_t*)&Buffer[0], Index, Count);
 	}
 
-	void StreamWriter::Write(const string& Value)
+	void StreamWriter::Write(const String& Value)
 	{
 		this->Write((const char*)Value, 0, Value.Length());
 	}
 
-	void StreamWriter::WriteLine(const string& Value)
+	void StreamWriter::WriteLine(const String& Value)
 	{
 		TextWriter::WriteLine((const char*)Value, 0, Value.Length());
 	}

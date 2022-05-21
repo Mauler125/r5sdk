@@ -3,15 +3,15 @@
 
 namespace IO
 {
-	string Path::ChangeExtension(const string& FilePath, const string& Extension)
+	String Path::ChangeExtension(const String& FilePath, const String& Extension)
 	{
-		string Base;
+		String Base;
 		for (int32_t i = FilePath.Length(); --i >= 0;)
 		{
 			auto& Ch = FilePath[i];
 			if (Ch == '.')
 			{
-				Base = FilePath.Substring(0, i);
+				Base = FilePath.SubString(0, i);
 				break;
 			}
 
@@ -36,7 +36,7 @@ namespace IO
 		return Base;
 	}
 
-	string Path::GetDirectoryName(const string& Path)
+	String Path::GetDirectoryName(const String& Path)
 	{
 		// Cache the full length and root length
 		int32_t cLength = (int32_t)Path.Length();
@@ -44,16 +44,16 @@ namespace IO
 
 		if (cLength > rLength)
 		{
-			// Iterate while not modifying the string for performance
+			// Iterate while not modifying the String for performance
 			while (cLength > rLength && Path[--cLength] != DirectorySeparatorChar && Path[cLength] != AltDirectorySeparatorChar);
 
-			return Path.Substring(0, cLength);
+			return Path.SubString(0, cLength);
 		}
 
 		return "";
 	}
 
-	string Path::GetExtension(const string& FilePath)
+	String Path::GetExtension(const String& FilePath)
 	{
 		// Cache full length
 		int32_t cLength = (int32_t)FilePath.Length();
@@ -64,7 +64,7 @@ namespace IO
 			if (Ch == '.')
 			{
 				if (i != cLength - 1)
-					return FilePath.Substring(i, cLength - i);
+					return FilePath.SubString(i, cLength - i);
 				else
 					return "";
 			}
@@ -77,7 +77,7 @@ namespace IO
 		return "";
 	}
 
-	string Path::GetFileName(const string& FilePath)
+	String Path::GetFileName(const String& FilePath)
 	{
 		int32_t cLength = (int32_t)FilePath.Length();
 		for (int32_t i = cLength; --i >= 0;)
@@ -85,29 +85,29 @@ namespace IO
 			auto& Ch = FilePath[i];
 
 			if (Ch == DirectorySeparatorChar || Ch == AltDirectorySeparatorChar || Ch == VolumeSeparatorChar)
-				return FilePath.Substring(i + 1, cLength - i - 1);
+				return FilePath.SubString(i + 1, cLength - i - 1);
 		}
 
 		return FilePath;
 	}
 
-	string Path::GetFileNameWithoutExtension(const string& FilePath)
+	String Path::GetFileNameWithoutExtension(const String& FilePath)
 	{
 		auto fPath = Path::GetFileName(FilePath);
 		auto fExt = fPath.LastIndexOf('.');
 
-		if (fExt != string::InvalidPosition)
-			return fPath.Substring(0, fExt);
+		if (fExt != String::InvalidPosition)
+			return fPath.SubString(0, fExt);
 		else
 			return fPath;
 	}
 
-	string Path::GetPathRoot(const string& Path)
+	String Path::GetPathRoot(const String& Path)
 	{
-		return Path.Substring(0, Path::GetRootLength(Path));
+		return Path.SubString(0, Path::GetRootLength(Path));
 	}
 
-	string Path::GetTempPath()
+	String Path::GetTempPath()
 	{
 		char Buffer[MAX_PATH + 1]{};
 		GetTempPathA(MAX_PATH, Buffer);
@@ -115,7 +115,7 @@ namespace IO
 		return Buffer;
 	}
 
-	string Path::GetTempFileName()
+	String Path::GetTempFileName()
 	{
 		auto BasePath = Path::GetTempPath();
 
@@ -125,7 +125,7 @@ namespace IO
 		return Buffer;
 	}
 
-	bool Path::HasExtension(const string& FilePath)
+	bool Path::HasExtension(const String& FilePath)
 	{
 		auto cLength = FilePath.Length();
 
@@ -148,7 +148,7 @@ namespace IO
 		return false;
 	}
 
-	bool Path::IsPathRooted(const string& Path)
+	bool Path::IsPathRooted(const String& Path)
 	{
 		auto cLength = Path.Length();
 		if ((cLength >= 1 && (Path[0] == DirectorySeparatorChar || Path[0] == AltDirectorySeparatorChar)) || (cLength >= 2 && Path[1] == VolumeSeparatorChar))
@@ -157,7 +157,7 @@ namespace IO
 		return false;
 	}
 
-	string Path::Combine(const string& Path1, const string& Path2)
+	String Path::Combine(const String& Path1, const String& Path2)
 	{
 		if (Path2.Length() == 0)
 			return Path1;
@@ -174,7 +174,7 @@ namespace IO
 		return Path1 + Path2;
 	}
 
-	uint32_t Path::GetRootLength(const string& Path)
+	uint32_t Path::GetRootLength(const String& Path)
 	{
 		int32_t i = 0, cLength = Path.Length();
 

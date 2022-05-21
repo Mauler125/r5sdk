@@ -4,24 +4,24 @@
 namespace Net
 {
 	Uri::Uri(const char* Url)
-		: Uri(string(Url))
+		: Uri(String(Url))
 	{
 	}
 
-	Uri::Uri(const string& Url)
+	Uri::Uri(const String& Url)
 		: InternetPort(InternetPortType::Default), Host(""), Path("")
 	{
 		this->ParseUri(Url);
 	}
 
-	string Uri::GetUrl()
+	String Uri::GetUrl()
 	{
 		auto Base = (InternetPort == InternetPortType::Http) ? "http://" : "https://";
 
 		return Base + Host + Path;
 	}
 
-	void Uri::ParseUri(const string& Url)
+	void Uri::ParseUri(const String& Url)
 	{
 		auto LowerCaseUrl = Url.ToLower();
 		uint32_t ParsePoint = 0;
@@ -43,14 +43,14 @@ namespace Net
 
 		auto PathStart = Url.IndexOf("/", ParsePoint);
 
-		if (PathStart != string::InvalidPosition)
+		if (PathStart != String::InvalidPosition)
 		{
-			this->Host = Url.Substring(ParsePoint, PathStart - ParsePoint);
-			this->Path = Url.Substring(PathStart + 1);
+			this->Host = Url.SubString(ParsePoint, PathStart - ParsePoint);
+			this->Path = Url.SubString(PathStart + 1);
 		}
 		else
 		{
-			this->Host = Url.Substring(ParsePoint);
+			this->Host = Url.SubString(ParsePoint);
 		}
 	}
 }

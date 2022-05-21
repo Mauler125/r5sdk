@@ -56,7 +56,7 @@ namespace IO
 		this->BaseStream->Write((uint8_t*)Buffer, Index, Count);
 	}
 
-	void BinaryWriter::WriteCString(const string& Value)
+	void BinaryWriter::WriteCString(const String& Value)
 	{
 		if (!this->BaseStream)
 			IOError::StreamBaseStream();
@@ -70,7 +70,7 @@ namespace IO
 			this->BaseStream->Write(&NullBuffer, 0, 1);
 	}
 
-	void BinaryWriter::WriteWCString(const wstring& Value)
+	void BinaryWriter::WriteWCString(const WString& Value)
 	{
 		if (!this->BaseStream)
 			IOError::StreamBaseStream();
@@ -84,7 +84,7 @@ namespace IO
 			this->BaseStream->Write((uint8_t*)&NullBuffer, 0, sizeof(uint16_t));
 	}
 
-	void BinaryWriter::WriteSizeString(const string& Value)
+	void BinaryWriter::WriteSizeString(const String& Value)
 	{
 		if (!this->BaseStream)
 			IOError::StreamBaseStream();
@@ -92,7 +92,7 @@ namespace IO
 		this->BaseStream->Write((uint8_t*)Value.begin(), 0, Value.Length());
 	}
 
-	void BinaryWriter::WriteNetString(const string& Value)
+	void BinaryWriter::WriteNetString(const String& Value)
 	{
 		if (!this->BaseStream)
 			IOError::StreamBaseStream();

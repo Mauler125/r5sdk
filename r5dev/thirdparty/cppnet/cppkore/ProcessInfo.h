@@ -9,7 +9,7 @@ namespace Diagnostics
 	struct ProcessInfo
 	{
 		uint32_t BasePriority;
-		string ProcessName;
+		String ProcessName;
 		uint32_t ProcessId;
 		uint32_t HandleCount;
 		uint64_t PoolPagedBytes;

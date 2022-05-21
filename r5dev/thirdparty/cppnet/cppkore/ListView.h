@@ -301,7 +301,7 @@ namespace Forms
 		int32_t GetItemState(int32_t Index);
 
 		// Internal routine to get a sub item
-		std::pair<string, ListViewItemStyle> GetSubItem(int32_t Index, int32_t SubItem);
+		std::pair<String, ListViewItemStyle> GetSubItem(int32_t Index, int32_t SubItem);
 
 		// Internal routine to set column indices
 		void SetDisplayIndices(const std::unique_ptr<int32_t[]>& Indices, int32_t Count);

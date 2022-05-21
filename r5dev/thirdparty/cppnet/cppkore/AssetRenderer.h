@@ -56,7 +56,7 @@ namespace Assets
 		virtual ~AssetRenderer();
 
 		// Special function to stream in a material image
-		using MaterialStreamCallback = std::function<std::unique_ptr<Texture>(const string, const uint64_t)>;
+		using MaterialStreamCallback = std::function<std::unique_ptr<Texture>(const String, const uint64_t)>;
 
 		// Clears the current model, if any, and assigns the new one
 		void SetViewModel(const Model& Model);
@@ -72,7 +72,7 @@ namespace Assets
 		void ClearViewTexture();
 
 		// Sets the name of the model
-		void SetAssetName(const string& Name);
+		void SetAssetName(const String& Name);
 
 		// Enable or disable wireframe rendering
 		void SetUseWireframe(bool Value);
@@ -121,7 +121,7 @@ namespace Assets
 
 			int32_t Scale;
 
-			string AssetName;
+			String AssetName;
 
 			uint32_t BoneCount;
 		} _DrawInformation;

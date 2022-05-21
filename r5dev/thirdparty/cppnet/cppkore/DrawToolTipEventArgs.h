@@ -13,7 +13,7 @@ namespace Forms
 	{
 	public:
 		DrawToolTipEventArgs() = default;
-		DrawToolTipEventArgs(HDC Dc, Control* Window, Control* Ctrl, Drawing::Rectangle Bounds, const string& Text, Drawing::Color BackColor, Drawing::Color ForeColor, Drawing::Font* Font);
+		DrawToolTipEventArgs(HDC Dc, Control* Window, Control* Ctrl, Drawing::Rectangle Bounds, const String& Text, Drawing::Color BackColor, Drawing::Color ForeColor, Drawing::Font* Font);
 		~DrawToolTipEventArgs() = default;
 
 		// The graphics object used to paint during this event
@@ -21,7 +21,7 @@ namespace Forms
 		// The bounds used for painting during this event
 		Drawing::Rectangle Bounds;
 		// The text that should be drawn
-		string ToolTipText;
+		String ToolTipText;
 		// The font used to draw tooltip text
 		Drawing::Font* Font;
 

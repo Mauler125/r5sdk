@@ -12,7 +12,7 @@ struct HashComparer
 			return Hashing::XXHash::HashValue(Value);
 		else if constexpr (std::is_enum<TType>::value)
 			return Hashing::XXHash::HashValue((uint32_t)Value);
-		else if constexpr (std::is_same<TType, string>::value)
+		else if constexpr (std::is_same<TType, String>::value)
 			return Hashing::XXHash::HashString(Value);
 	}
 

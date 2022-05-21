@@ -44,7 +44,7 @@ namespace Assets
 		glDeleteShader(FragShaderID);
 	}
 
-	void RenderShader::LoadShader(const string& VertPath, const string& FragPath)
+	void RenderShader::LoadShader(const String& VertPath, const String& FragPath)
 	{
 		auto VertShaderID = glCreateShader(GL_VERTEX_SHADER);
 		auto FragShaderID = glCreateShader(GL_FRAGMENT_SHADER);

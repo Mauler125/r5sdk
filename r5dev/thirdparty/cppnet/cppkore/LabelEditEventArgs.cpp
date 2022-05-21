@@ -8,7 +8,7 @@ namespace Forms
 	{
 	}
 
-	LabelEditEventArgs::LabelEditEventArgs(int32_t Item, const string& Label)
+	LabelEditEventArgs::LabelEditEventArgs(int32_t Item, const String& Label)
 		: Item(Item), Label(Label), CancelEdit(false)
 	{
 	}

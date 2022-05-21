@@ -8,12 +8,12 @@ namespace Assets
 	{
 	}
 
-	Curve::Curve(const string& Name, CurveProperty Property)
+	Curve::Curve(const String& Name, CurveProperty Property)
 		: Curve(Name, Property, AnimationCurveMode::Absolute)
 	{
 	}
 
-	Curve::Curve(const string& Name, CurveProperty Property, AnimationCurveMode Mode)
+	Curve::Curve(const String& Name, CurveProperty Property, AnimationCurveMode Mode)
 		: Name(Name), Property(Property), Mode(Mode), _IsFrameIntegral(true)
 	{
 	}

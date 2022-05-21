@@ -11,7 +11,7 @@
 
 namespace Hashing
 {
-	uint64_t XXHash::HashString(const string& Input, XXHashVersion Version, uint64_t Seed)
+	uint64_t XXHash::HashString(const String& Input, XXHashVersion Version, uint64_t Seed)
 	{
 		return ComputeHash((uint8_t*)(char*)Input, 0, Input.Length(), Version, Seed);
 	}

@@ -12,11 +12,11 @@ namespace Forms
 	class OpenFileDialog
 	{
 	public:
-		static string ShowFolderDialog(const string& Title, const string& BasePath = "", Control* Owner = nullptr);
+		static String ShowFolderDialog(const String& Title, const String& BasePath = "", Control* Owner = nullptr);
 
 		// Opens the dialog and allows the user to select one file
-		static string ShowFileDialog(const string& Title, const string& BasePath = "", const string& Filter = " |*.*", Control* Owner = nullptr);
+		static String ShowFileDialog(const String& Title, const String& BasePath = "", const String& Filter = " |*.*", Control* Owner = nullptr);
 		// Opens the dialog and allows the user to select multiple files
-		static List<string> ShowMultiFileDialog(const string& Title, const string& BasePath = "", const string& Filter = " |*.*", Control* Owner = nullptr);
+		static List<String> ShowMultiFileDialog(const String& Title, const String& BasePath = "", const String& Filter = " |*.*", Control* Owner = nullptr);
 	};
 }

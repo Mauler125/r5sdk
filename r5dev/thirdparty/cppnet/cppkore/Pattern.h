@@ -10,7 +10,7 @@ namespace Data
 	class Pattern
 	{
 	public:
-		constexpr Pattern(const string& Signature)
+		constexpr Pattern(const String& Signature)
 			: _PatternLength(0)
 		{
 			// Process the signature into a data / mask combo for later scanning

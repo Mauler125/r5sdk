@@ -37,7 +37,7 @@ namespace Drawing
 		return this->_IconHandleSm;
 	}
 
-	std::unique_ptr<Icon> Icon::FromFile(const string& File)
+	std::unique_ptr<Icon> Icon::FromFile(const String& File)
 	{
 		auto Result = std::make_unique<Icon>();
 

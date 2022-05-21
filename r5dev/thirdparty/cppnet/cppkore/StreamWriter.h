@@ -25,9 +25,9 @@ namespace IO
 		virtual void Write(const char* Buffer, uint32_t Index, uint32_t Count);
 
 		// Writes a string to the file
-		void Write(const string& Value);
+		void Write(const String& Value);
 		// Writes a string to the file and ends the line
-		void WriteLine(const string& Value);
+		void WriteLine(const String& Value);
 
 		// Writes a null-terminated string to the file
 		void Write(const char* Value);

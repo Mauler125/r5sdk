@@ -8,17 +8,17 @@ namespace Assets
 	{
 	}
 
-	Bone::Bone(const string& Name)
+	Bone::Bone(const String& Name)
 		: Bone(Name, -1, { 0, 0, 0 }, { 0, 0, 0, 1 }, { 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, BoneFlags::HasLocalSpaceMatrices)
 	{
 	}
 
-	Bone::Bone(const string& Name, int32_t ParentIndex)
+	Bone::Bone(const String& Name, int32_t ParentIndex)
 		: Bone(Name, ParentIndex, { 0, 0, 0 }, { 0, 0, 0, 1 }, { 0, 0, 0 }, { 0, 0, 0, 1 }, { 1, 1, 1 }, BoneFlags::HasLocalSpaceMatrices)
 	{
 	}
 
-	Bone::Bone(const string& Name, int32_t ParentIndex, Vector3 Position, Quaternion Rotation, BoneFlags Flags)
+	Bone::Bone(const String& Name, int32_t ParentIndex, Vector3 Position, Quaternion Rotation, BoneFlags Flags)
 		: Bone(Name, ParentIndex)
 	{
 		if (((int)Flags & (int)BoneFlags::HasLocalSpaceMatrices) == (int)BoneFlags::HasLocalSpaceMatrices)
@@ -35,7 +35,7 @@ namespace Assets
 		this->_Flags = Flags;
 	}
 
-	Bone::Bone(const string & Name, int32_t ParentIndex, Vector3 Position, Quaternion Rotation, Vector3 Scale, BoneFlags Flags)
+	Bone::Bone(const String & Name, int32_t ParentIndex, Vector3 Position, Quaternion Rotation, Vector3 Scale, BoneFlags Flags)
 		: Bone(Name, ParentIndex)
 	{
 		if (((int)Flags & (int)BoneFlags::HasLocalSpaceMatrices) == (int)BoneFlags::HasLocalSpaceMatrices)
@@ -53,7 +53,7 @@ namespace Assets
 		this->_Flags = Flags;
 	}
 
-	Bone::Bone(const string& Name, int32_t ParentIndex, Vector3 LocalPosition, Quaternion LocalRotation, Vector3 GlobalPosition, Quaternion GlobalRotation, Vector3 Scale, BoneFlags Flags)
+	Bone::Bone(const String& Name, int32_t ParentIndex, Vector3 LocalPosition, Quaternion LocalRotation, Vector3 GlobalPosition, Quaternion GlobalRotation, Vector3 Scale, BoneFlags Flags)
 		: _Name(Name), _Parent(ParentIndex), _LocalSpacePosition(LocalPosition), _LocalSpaceRotation(LocalRotation), _GlobalSpacePosition(GlobalPosition), _GlobalSpaceRotation(GlobalRotation), _Scale(Scale), _Flags(Flags)
 	{
 	}
@@ -68,12 +68,12 @@ namespace Assets
 		this->_Flags = Value ? (BoneFlags)((int)this->_Flags | (int)Flags) : (BoneFlags)((int)this->_Flags & ~(int)Flags);
 	}
 
-	const string& Bone::Name() const
+	const String& Bone::Name() const
 	{
 		return this->_Name;
 	}
 
-	void Bone::SetName(const string& Value)
+	void Bone::SetName(const String& Value)
 	{
 		this->_Name = Value;
 	}

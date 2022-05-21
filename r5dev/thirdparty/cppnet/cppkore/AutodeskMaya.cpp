@@ -9,12 +9,12 @@
 
 namespace Assets::Exporters
 {
-	bool AutodeskMaya::ExportAnimation(const Animation& Animation, const string& Path)
+	bool AutodeskMaya::ExportAnimation(const Animation& Animation, const String& Path)
 	{
 		return false;
 	}
 
-	bool AutodeskMaya::ExportModel(const Model& Model, const string& Path)
+	bool AutodeskMaya::ExportModel(const Model& Model, const String& Path)
 	{
 		auto Writer = IO::StreamWriter(IO::File::Create(Path));
 		auto FileName = IO::Path::GetFileNameWithoutExtension(Path);
@@ -207,7 +207,7 @@ namespace Assets::Exporters
 					"createNode file -n \"%sFILE\";\n"
 					"setAttr \".ftn\" -type \"string\" \"%s\";",
 					MaterialName,
-					(char*)string(Material.Slots[DiffuseTexture].first).Replace("\\", "\\\\")
+					(char*)String(Material.Slots[DiffuseTexture].first).Replace("\\", "\\\\")
 				);
 			}
 		}
@@ -401,7 +401,7 @@ namespace Assets::Exporters
 			uint32_t BoneMapIndex = 0;
 			Dictionary<uint32_t, uint8_t> BoneMap;
 			Dictionary<uint32_t, uint32_t> ReverseBoneMap;
-			List<string> BoneNames;
+			List<String> BoneNames;
 
 			for (auto& Vertex : Submesh.Vertices)
 			{

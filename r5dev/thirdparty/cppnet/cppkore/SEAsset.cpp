@@ -72,7 +72,7 @@ namespace Assets::Exporters
 		SEANIM_PRESENCE_CUSTOM = 1 << 7,
 	};
 
-	bool SEAsset::ExportAnimation(const Animation& Animation, const string& Path)
+	bool SEAsset::ExportAnimation(const Animation& Animation, const String& Path)
 	{
 		auto Writer = IO::BinaryWriter(IO::File::Create(Path));
 
@@ -85,10 +85,10 @@ namespace Assets::Exporters
 		uint32_t Slots[3] = { 0, 0, 0 };
 
 		// This is a traditional map of bones for the format
-		List<string> Bones;
+		List<String> Bones;
 
 		{
-			Dictionary<string, uint32_t> SEBones;
+			Dictionary<String, uint32_t> SEBones;
 
 			for (auto& Kvp : Animation.Curves)
 			{
@@ -371,7 +371,7 @@ namespace Assets::Exporters
 		return true;
 	}
 
-	bool SEAsset::ExportModel(const Model& Model, const string& Path)
+	bool SEAsset::ExportModel(const Model& Model, const String& Path)
 	{
 		auto Writer = IO::BinaryWriter(IO::File::Create(Path));
 

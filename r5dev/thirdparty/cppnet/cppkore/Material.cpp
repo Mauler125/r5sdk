@@ -9,7 +9,7 @@ namespace Assets
 	{
 	}
 
-	Material::Material(const string& Name, const uint64_t Hash)
+	Material::Material(const String& Name, const uint64_t Hash)
 		: Name(Name), Hash(Hash), SourceHash((uint64_t)-1), SourceString("")
 	{
 	}

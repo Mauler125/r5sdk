@@ -7,12 +7,12 @@
 
 namespace Assets::Exporters
 {
-	bool XNALaraAscii::ExportAnimation(const Animation& Animation, const string& Path)
+	bool XNALaraAscii::ExportAnimation(const Animation& Animation, const String& Path)
 	{
 		return false;
 	}
 
-	bool XNALaraAscii::ExportModel(const Model& Model, const string& Path)
+	bool XNALaraAscii::ExportModel(const Model& Model, const String& Path)
 	{
 		auto Writer = IO::StreamWriter(IO::File::Create(Path));
 

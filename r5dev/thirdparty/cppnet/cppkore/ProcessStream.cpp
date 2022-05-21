@@ -14,7 +14,7 @@ namespace IO
 		this->SetupStream(OpenProcess(PROCESS_ALL_ACCESS, FALSE, PID), false);
 	}
 
-	ProcessStream::ProcessStream(const string& ProcessName)
+	ProcessStream::ProcessStream(const String& ProcessName)
 	{
 		DWORD aProcesses[1024], cbNeeded, cProcesses;
 		EnumProcesses(aProcesses, sizeof(aProcesses), &cbNeeded);

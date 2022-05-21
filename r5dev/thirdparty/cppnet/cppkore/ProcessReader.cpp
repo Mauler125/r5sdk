@@ -67,7 +67,7 @@ namespace IO
 		return Read((uint8_t*)Buffer, Index, Count, Address);
 	}
 
-	string ProcessReader::ReadCString(uint64_t Address)
+	String ProcessReader::ReadCString(uint64_t Address)
 	{
 		if (!this->BaseStream)
 			IOError::StreamBaseStream();
@@ -78,15 +78,15 @@ namespace IO
 
 		if (nCharPos != nullptr)
 		{
-			return std::move(string(iBuffer, (char*)nCharPos - &iBuffer[0]));
+			return std::move(String(iBuffer, (char*)nCharPos - &iBuffer[0]));
 		}
 		else if (Result != sizeof(iBuffer))
 		{
-			return std::move(string(iBuffer));
+			return std::move(String(iBuffer));
 		}
 
 		Address += 0x100;
-		string Buffer(iBuffer, sizeof(iBuffer));
+		String Buffer(iBuffer, sizeof(iBuffer));
 
 		auto tChar = this->Read<char>(Address++);
 		while ((uint8_t)tChar > 0)
@@ -98,12 +98,12 @@ namespace IO
 		return std::move(Buffer);
 	}
 
-	string ProcessReader::ReadSizeString(uint64_t Size, uint64_t Address)
+	String ProcessReader::ReadSizeString(uint64_t Size, uint64_t Address)
 	{
 		if (!this->BaseStream)
 			IOError::StreamBaseStream();
 
-		auto Buffer = string((uint32_t)Size, '\0');
+		auto Buffer = String((uint32_t)Size, '\0');
 		this->BaseStream->Read((uint8_t*)&Buffer[0], 0, Size, Address);
 
 		return std::move(Buffer);
@@ -127,7 +127,7 @@ namespace IO
 		return Count;
 	}
 
-	int64_t ProcessReader::SignatureScan(const string& Signature, bool ScanAllMemory)
+	int64_t ProcessReader::SignatureScan(const String& Signature, bool ScanAllMemory)
 	{
 		auto BaseAddress = this->GetBaseAddress();
 		auto ScanSize = (ScanAllMemory) ? this->GetMemorySize() : this->GetSizeOfCode();
@@ -135,7 +135,7 @@ namespace IO
 		return this->SignatureScan(Signature, BaseAddress, ScanSize);
 	}
 
-	int64_t ProcessReader::SignatureScan(const string& Signature, uint64_t Address, uint64_t Count)
+	int64_t ProcessReader::SignatureScan(const String& Signature, uint64_t Address, uint64_t Count)
 	{
 		if (!this->BaseStream)
 			IOError::StreamBaseStream();
@@ -159,7 +159,7 @@ namespace IO
 		return SearchResult;
 	}
 
-	List<int64_t> ProcessReader::SignatureScanAll(const string & Signature, bool ScanAllMemory)
+	List<int64_t> ProcessReader::SignatureScanAll(const String & Signature, bool ScanAllMemory)
 	{
 		auto BaseAddress = this->GetBaseAddress();
 		auto ScanSize = (ScanAllMemory) ? this->GetMemorySize() : this->GetSizeOfCode();
@@ -167,7 +167,7 @@ namespace IO
 		return this->SignatureScanAll(Signature, BaseAddress, ScanSize);
 	}
 
-	List<int64_t> ProcessReader::SignatureScanAll(const string & Signature, uint64_t Address, uint64_t Count)
+	List<int64_t> ProcessReader::SignatureScanAll(const String & Signature, uint64_t Address, uint64_t Count)
 	{
 		if (!this->BaseStream)
 			IOError::StreamBaseStream();

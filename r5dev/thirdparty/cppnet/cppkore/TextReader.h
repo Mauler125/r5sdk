@@ -21,10 +21,10 @@ namespace IO
 		virtual int32_t Read(char* Buffer, uint32_t Index, uint32_t Count);
 		// Reads all characters from the current position to the end of the 
 		// TextReader, and returns them as one string.
-		virtual string ReadToEnd();
+		virtual String ReadToEnd();
 		// Reads a line. A line is defined as a sequence of characters followed by
 		// a carriage return ('\r'), a line feed ('\n'), or a carriage return
 		// immediately followed by a line feed.
-		virtual string ReadLine();
+		virtual String ReadLine();
 	};
 }

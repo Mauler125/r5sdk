@@ -3,7 +3,7 @@
 
 namespace IO
 {
-	void File::Copy(const string& SourceFileName, const string& DestinationFileName, bool OverWrite)
+	void File::Copy(const String& SourceFileName, const String& DestinationFileName, bool OverWrite)
 	{
 		auto Result = CopyFileA((const char*)SourceFileName, (const char*)DestinationFileName, !OverWrite);
 		if (!Result)
@@ -21,7 +21,7 @@ namespace IO
 		}
 	}
 
-	void File::Delete(const string& FilePath)
+	void File::Delete(const String& FilePath)
 	{
 		auto Result = DeleteFileA((const char*)FilePath);
 		if (!Result)
@@ -39,7 +39,7 @@ namespace IO
 		}
 	}
 
-	void File::Decrypt(const string& FilePath)
+	void File::Decrypt(const String& FilePath)
 	{
 		auto Result = DecryptFileA((const char*)FilePath, 0);
 		if (!Result)
@@ -57,7 +57,7 @@ namespace IO
 		}
 	}
 
-	void File::Encrypt(const string& FilePath)
+	void File::Encrypt(const String& FilePath)
 	{
 		auto Result = EncryptFileA((const char*)FilePath);
 		if (!Result)
@@ -75,7 +75,7 @@ namespace IO
 		}
 	}
 
-	bool File::Exists(const string& FilePath)
+	bool File::Exists(const String& FilePath)
 	{
 		if (FilePath.Length() == 0)
 			return false;
@@ -90,7 +90,7 @@ namespace IO
 		return false;
 	}
 
-	void File::Move(const string& SourceFileName, const string& DestinationFileName, bool OverWrite)
+	void File::Move(const String& SourceFileName, const String& DestinationFileName, bool OverWrite)
 	{
 		if (File::Exists(DestinationFileName))
 		{
@@ -116,47 +116,47 @@ namespace IO
 		}
 	}
 
-	std::unique_ptr<FileStream> File::Create(const string& FilePath)
+	std::unique_ptr<FileStream> File::Create(const String& FilePath)
 	{
 		return std::make_unique<FileStream>(FilePath, FileMode::Create, FileAccess::ReadWrite, FileShare::None);
 	}
 	
-	std::unique_ptr<FileStream> File::Open(const string& FilePath, FileMode Mode)
+	std::unique_ptr<FileStream> File::Open(const String& FilePath, FileMode Mode)
 	{
 		return File::Open(FilePath, Mode, (Mode == FileMode::Append ? FileAccess::Write : FileAccess::ReadWrite), FileShare::None);
 	}
 
-	std::unique_ptr<FileStream> File::Open(const string& FilePath, FileMode Mode, FileAccess Access)
+	std::unique_ptr<FileStream> File::Open(const String& FilePath, FileMode Mode, FileAccess Access)
 	{
 		return File::Open(FilePath, Mode, Access, FileShare::None);
 	}
 
-	std::unique_ptr<FileStream> File::Open(const string& FilePath, FileMode Mode, FileAccess Access, FileShare Share)
+	std::unique_ptr<FileStream> File::Open(const String& FilePath, FileMode Mode, FileAccess Access, FileShare Share)
 	{
 		return std::make_unique<FileStream>(FilePath, Mode, Access, Share);
 	}
 
-	std::unique_ptr<FileStream> File::OpenRead(const string& FilePath)
+	std::unique_ptr<FileStream> File::OpenRead(const String& FilePath)
 	{
 		return std::make_unique<FileStream>(FilePath, FileMode::Open, FileAccess::Read, FileShare::Read);
 	}
 
-	std::unique_ptr<FileStream> File::OpenWrite(const string& FilePath)
+	std::unique_ptr<FileStream> File::OpenWrite(const String& FilePath)
 	{
 		return std::make_unique<FileStream>(FilePath, FileMode::OpenOrCreate, FileAccess::Write, FileShare::None);
 	}
 
-	std::unique_ptr<FileStream> File::OpenAppend(const string & FilePath)
+	std::unique_ptr<FileStream> File::OpenAppend(const String & FilePath)
 	{
 		return std::make_unique<FileStream>(FilePath, FileMode::Append, FileAccess::Write, FileShare::None);
 	}
 
-	string File::ReadAllText(const string& FilePath)
+	String File::ReadAllText(const String& FilePath)
 	{
 		return StreamReader(File::OpenRead(FilePath)).ReadToEnd();
 	}
 
-	List<uint8_t> File::ReadAllBytes(const string& FilePath)
+	List<uint8_t> File::ReadAllBytes(const String& FilePath)
 	{
 		auto FileReader = BinaryReader(File::OpenRead(FilePath));
 		auto FileLength = FileReader.GetBaseStream()->GetLength();
@@ -168,9 +168,9 @@ namespace IO
 		return Result;
 	}
 
-	List<string> File::ReadAllLines(const string& FilePath)
+	List<String> File::ReadAllLines(const String& FilePath)
 	{
-		auto Result = List<string>();
+		auto Result = List<String>();
 		auto FileReader = StreamReader(File::OpenRead(FilePath));
 		auto BaseStream = FileReader.GetBaseStream();
 
@@ -180,22 +180,22 @@ namespace IO
 		return Result;
 	}
 
-	void File::WriteAllText(const string& FilePath, const string& Text)
+	void File::WriteAllText(const String& FilePath, const String& Text)
 	{
 		StreamWriter(File::Create(FilePath)).Write(Text);
 	}
 
-	void File::WriteAllBytes(const string& FilePath, const List<uint8_t>& Bytes)
+	void File::WriteAllBytes(const String& FilePath, const List<uint8_t>& Bytes)
 	{
 		BinaryWriter(File::Create(FilePath)).Write((uint8_t*)Bytes, 0, Bytes.Count());
 	}
 
-	void File::WriteAllBytes(const string& FilePath, const uint8_t* Bytes, uint64_t Count)
+	void File::WriteAllBytes(const String& FilePath, const uint8_t* Bytes, uint64_t Count)
 	{
 		BinaryWriter(File::Create(FilePath)).Write((uint8_t*)Bytes, 0, Count);
 	}
 
-	void File::WriteAllLines(const string& FilePath, const List<string>& Lines)
+	void File::WriteAllLines(const String& FilePath, const List<String>& Lines)
 	{
 		auto Writer = StreamWriter(File::Create(FilePath));
 

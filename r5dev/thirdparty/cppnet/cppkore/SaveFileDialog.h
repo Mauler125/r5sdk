@@ -13,6 +13,6 @@ namespace Forms
 	{
 	public:
 		// Opens the dialog and allows the user to save one file
-		static string ShowFileDialog(const string& Title, const string& BasePath = "", const string& Filter = " |*.*", Control* Owner = nullptr);
+		static String ShowFileDialog(const String& Title, const String& BasePath = "", const String& Filter = " |*.*", Control* Owner = nullptr);
 	};
 }

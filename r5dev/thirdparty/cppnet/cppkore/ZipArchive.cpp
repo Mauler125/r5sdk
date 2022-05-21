@@ -81,7 +81,7 @@ namespace Compression
 			auto Entry = ZipEntry();
 
 			Entry.Method = (ZipCompressionMethod)Method;
-			Entry.FileNameInZip = string((const char*)&Buffer[i + 46], (size_t)FileNameSize);
+			Entry.FileNameInZip = String((const char*)&Buffer[i + 46], (size_t)FileNameSize);
 			Entry.FileOffset = GetFileOffset(HeaderOffset);
 			Entry.FileSize = FileSize;
 			Entry.CompressedSize = CompressedSize;
@@ -91,7 +91,7 @@ namespace Compression
 			Entry.EncodeUTF8 = EncodeUTF8;
 
 			if (CommentSize > 0)
-				Entry.Comment = string((const char*)&Buffer[i + 46 + FileNameSize + ExtraSize], (size_t)CommentSize);
+				Entry.Comment = String((const char*)&Buffer[i + 46 + FileNameSize + ExtraSize], (size_t)CommentSize);
 
 			if (ExtraSize > 0)
 				this->ReadExtraInfo(i + 46 + FileNameSize, Entry);
@@ -104,13 +104,13 @@ namespace Compression
 		return Result;
 	}
 
-	ZipEntry ZipArchive::AddFile(ZipCompressionMethod Method, const string& Path, const string& FileNameInZip, const string& Comment)
+	ZipEntry ZipArchive::AddFile(ZipCompressionMethod Method, const String& Path, const String& FileNameInZip, const String& Comment)
 	{
 		auto Fs = IO::File::OpenRead(Path);
 		return std::move(AddStream(Method, FileNameInZip, Fs.get(), Comment));
 	}
 
-	ZipEntry ZipArchive::AddStream(ZipCompressionMethod Method, const string& FileNameInZip, IO::Stream* Stream, const string& Comment)
+	ZipEntry ZipArchive::AddStream(ZipCompressionMethod Method, const String& FileNameInZip, IO::Stream* Stream, const String& Comment)
 	{
 		auto Entry = ZipEntry();
 
@@ -134,7 +134,7 @@ namespace Compression
 		return std::move(Entry);
 	}
 
-	void ZipArchive::ExtractFile(ZipEntry& Entry, const string& FileName)
+	void ZipArchive::ExtractFile(ZipEntry& Entry, const String& FileName)
 	{
 		auto Path = IO::Path::GetDirectoryName(FileName);
 
@@ -345,20 +345,20 @@ namespace Compression
 		}
 	}
 
-	string ZipArchive::NormalizeFileName(const string& FileName)
+	String ZipArchive::NormalizeFileName(const String& FileName)
 	{
 		auto Name = FileName.Replace("\\", "/");
 
 		auto Pos = Name.IndexOf(":");
-		if (Pos != string::InvalidPosition)
-			Name = Name.Substring(Pos + 1);
+		if (Pos != String::InvalidPosition)
+			Name = Name.SubString(Pos + 1);
 
 		if (Name.Length() > 2 && Name[0] == '/' && Name[Name.Length() - 1] == '/')
-			return Name.Substring(1, Name.Length() - 2);
+			return Name.SubString(1, Name.Length() - 2);
 		else if (Name.Length() > 1 && Name[0] == '/')
-			return Name.Substring(1);
+			return Name.SubString(1);
 		else if (Name.Length() > 1 && Name[Name.Length() - 1] == '/')
-			return Name.Substring(0, Name.Length() - 1);
+			return Name.SubString(0, Name.Length() - 1);
 
 		return Name;
 	}

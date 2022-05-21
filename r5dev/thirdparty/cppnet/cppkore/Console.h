@@ -42,7 +42,7 @@ namespace System
 		// Changes the font of the console window
 		static void SetFontSize(uint32_t Width, uint32_t Height, uint32_t Weight);
 		// Sets the window title
-		static void SetTitle(const string& Value);
+		static void SetTitle(const String& Value);
 		// Sets the window title
 		static void SetTitle(const char* Value);
 		// Sets whether or not the cursor is visible
@@ -67,7 +67,7 @@ namespace System
 		static void RemapAllConsoleColors(std::initializer_list<System::ConsoleColor> Colors);
 
 		// Gets the window title
-		static string GetTitle();
+		static String GetTitle();
 		// Gets whether or not the cursor is visible
 		static bool GetCursorVisible();
 		// Gets the current foreground color
@@ -92,7 +92,7 @@ namespace System
 		// Reads a key
 		static ConsoleKeyInfo ReadKey(bool Intercept = false);
 		// Reads a line from the console
-		static string ReadLine();
+		static String ReadLine();
 
 	private:
 
