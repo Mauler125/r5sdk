@@ -73,7 +73,7 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 		va_end(args);
 	}/////////////////////////////
 
-	std::string vmStr = SQVM_LOG_T[static_cast<SQInteger>(context)].c_str();
+	std::string vmStr = SQVM_LOG_T[static_cast<SQInteger>(context)];
 	vmStr.append(buf);
 
 	if (sq_showvmoutput->GetInt() > 0) {
@@ -87,7 +87,7 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 		{
 			wconsole->debug(vmStr);
 #ifdef DEDICATED
-			g_pRConServer->Send(vmStr.c_str());
+			g_pRConServer->Send(vmStr);
 #endif // DEDICATED
 		}
 		else
@@ -99,10 +99,10 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 				if (strstr(buf, "SCRIPT ERROR:") || strstr(buf, " -> "))
 				{
 					bError = true;
-					vmStrAnsi = SQVM_ERROR_ANSI_LOG_T[static_cast<SQInteger>(context)].c_str();
+					vmStrAnsi = SQVM_ERROR_ANSI_LOG_T[static_cast<SQInteger>(context)];
 				}
 				else {
-					vmStrAnsi = SQVM_WARNING_ANSI_LOG_T[static_cast<SQInteger>(context)].c_str();
+					vmStrAnsi = SQVM_WARNING_ANSI_LOG_T[static_cast<SQInteger>(context)];
 				}
 			}
 			else if (g_bSQAuxBadLogic)
@@ -112,19 +112,19 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 					bError = true;
 					bColorOverride = true;
 					g_bSQAuxBadLogic = false;
-					vmStrAnsi = SQVM_ERROR_ANSI_LOG_T[static_cast<SQInteger>(context)].c_str();
+					vmStrAnsi = SQVM_ERROR_ANSI_LOG_T[static_cast<SQInteger>(context)];
 				}
 				else {
-					vmStrAnsi = SQVM_ANSI_LOG_T[static_cast<SQInteger>(context)].c_str();
+					vmStrAnsi = SQVM_ANSI_LOG_T[static_cast<SQInteger>(context)];
 				}
 			}
 			else {
-				vmStrAnsi = SQVM_ANSI_LOG_T[static_cast<SQInteger>(context)].c_str();
+				vmStrAnsi = SQVM_ANSI_LOG_T[static_cast<SQInteger>(context)];
 			}
 			vmStrAnsi.append(buf);
 			wconsole->debug(vmStrAnsi);
 #ifdef DEDICATED
-			g_pRConServer->Send(vmStrAnsi.c_str());
+			g_pRConServer->Send(vmStrAnsi);
 #endif // DEDICATED
 		}
 
@@ -206,7 +206,7 @@ SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* 
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
 	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sqvm_warn");
 
-	std::string vmStr = SQVM_LOG_T[static_cast<int>(context)].c_str();
+	std::string vmStr = SQVM_LOG_T[static_cast<int>(context)];
 	std::string svConstructor(*ppString, *nStringSize); // Get string from memory via std::string constructor.
 	vmStr.append(svConstructor);
 
@@ -222,7 +222,7 @@ SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* 
 		}
 		else
 		{
-			std::string vmStrAnsi = SQVM_WARNING_ANSI_LOG_T[static_cast<int>(context)].c_str();
+			std::string vmStrAnsi = SQVM_WARNING_ANSI_LOG_T[static_cast<int>(context)];
 			vmStrAnsi.append(svConstructor);
 			wconsole->debug(vmStrAnsi);
 #ifdef DEDICATED
@@ -498,19 +498,19 @@ const SQCONTEXT SQVM_GetContextIndex(HSQUIRRELVM v)
 // Input  : context - 
 // Output : SQVM* 
 //---------------------------------------------------------------------------------
-HSQUIRRELVM SQVM_GetVM(SQCONTEXT context)
+CSquirrelVM* SQVM_GetContextObject(SQCONTEXT context)
 {
 	switch (context)
 	{
 #ifndef CLIENT_DLL
 	case SQCONTEXT::SERVER:
-		return g_pServerVM.GetValue<HSQUIRRELVM>();
+		return g_pServerVM.GetValue<CSquirrelVM*>();
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 	case SQCONTEXT::CLIENT:
-		return g_pClientVM.GetValue<HSQUIRRELVM>();
+		return g_pClientVM.GetValue<CSquirrelVM*>();
 	case SQCONTEXT::UI:
-		return g_pUIVM.GetValue<HSQUIRRELVM>();
+		return g_pUIVM.GetValue<CSquirrelVM*>();
 #endif // !DEDICATED
 	default:
 		return nullptr;
@@ -524,22 +524,21 @@ HSQUIRRELVM SQVM_GetVM(SQCONTEXT context)
 //---------------------------------------------------------------------------------
 void SQVM_Execute(const SQChar* code, SQCONTEXT context)
 {
-	HSQUIRRELVM v = SQVM_GetVM(context);
+	HSQUIRRELVM v = SQVM_GetContextObject(context)->GetVM();
 	if (!v)
 	{
 		Error(eDLL_T::ENGINE, "Attempted to run %s script while VM isn't initialized\n", SQVM_GetContextName(context));
 		return;
 	}
 
-	SQVM* vTable = v->GetVTable();
 	SQRESULT compileResult{};
 	SQBufState bufState = SQBufState(code);
 
-	compileResult = sq_compilebuffer(vTable, &bufState, "console", -1);
+	compileResult = sq_compilebuffer(v, &bufState, "console", -1);
 	if (compileResult >= 0)
 	{
-		sq_pushroottable(vTable);
-		SQRESULT callResult = sq_call(vTable, 1, false, false);
+		sq_pushroottable(v);
+		SQRESULT callResult = sq_call(v, 1, false, false);
 	}
 }
 

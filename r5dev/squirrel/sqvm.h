@@ -18,24 +18,38 @@ struct SQVM
 	}
 #endif
 
-	char pad0[0x8];
 	SQVM* _vftable;
-	_BYTE gap0[12];
+	_BYTE gap000[16];
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
-	_BYTE gap1[4];
 	SQCONTEXT _contextidx;
-	_BYTE gap2[8];
+	_BYTE gap001[8];
 #endif
-	_BYTE gap3[22];
+	_BYTE gap002[4];
+	void* _ncvftable;
+	void* _table;
+	_BYTE gap003[14];
 	void* _callstack;
-	void* unk0;
+	__int64 _unk;
 	SQInteger _stackbase;
 	SQInteger unk5c;
 	SQSharedState* _sharedstate;
-	char gap4[16];
+	char gap004[16];
 	int _top;
 };
 typedef SQVM* HSQUIRRELVM;
+
+class CSquirrelVM
+{
+public:
+	HSQUIRRELVM GetVM() const
+	{
+		return _vm;
+	}
+
+private:
+	char pad0[0x8];
+	HSQUIRRELVM _vm;
+};
 
 struct ScriptFunctionBinding_t
 {
@@ -153,7 +167,7 @@ SQBool SQVM_CreateUIVM();
 
 const SQChar* SQVM_GetContextName(SQCONTEXT context);
 const SQCONTEXT SQVM_GetContextIndex(HSQUIRRELVM v);
-HSQUIRRELVM SQVM_GetVM(SQCONTEXT context);
+CSquirrelVM* SQVM_GetContextObject(SQCONTEXT context);
 void SQVM_Execute(const SQChar* code, SQCONTEXT context);
 
 void SQVM_Attach();
@@ -234,20 +248,20 @@ class HSQVM : public IDetour
 		v_SQVM_LoadScript   = p_SQVM_LoadScript.RCast<SQBool(*)(HSQUIRRELVM, const SQChar*, const SQChar*, SQInteger)>();                     /*48 8B C4 48 89 48 08 55 41 56 48 8D 68*/
 		v_SQVM_LoadRson     = p_SQVM_LoadRson.RCast<SQInteger(*)(const SQChar*)>();                                                           /*4C 8B DC 49 89 5B 08 57 48 81 EC A0 00 00 00 33*/
 		v_SQVM_WarningCmd   = p_SQVM_WarningCmd.RCast<SQRESULT(*)(HSQUIRRELVM, SQInteger)>();                                                 /*40 53 48 83 EC 30 33 DB 48 8D 44 24 ?? 4C 8D 4C 24 ??*/
-		v_SQVM_RegisterFunc = p_SQVM_RegisterFunc.RCast<SQRESULT(*)(HSQUIRRELVM, ScriptFunctionBinding_t*, SQInteger)>();                          /*48 83 EC 38 45 0F B6 C8*/
+		v_SQVM_RegisterFunc = p_SQVM_RegisterFunc.RCast<SQRESULT(*)(HSQUIRRELVM, ScriptFunctionBinding_t*, SQInteger)>();                     /*48 83 EC 38 45 0F B6 C8*/
 		v_SQVM_CompileError = p_SQVM_CompileError.RCast<void (*)(HSQUIRRELVM, const SQChar*, const SQChar*, SQUnsignedInteger, SQInteger)>(); /*48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 81 EC ? ? ? ? 48 8B D9 4C 8B F2*/
 #if !defined (CLIENT_DLL)
-		v_SQVM_InitializeSVGlobalScriptStructs = p_SQVM_InitializeSVGlobalScriptStructs.RCast<SQRESULT(*)(SQVM*)>();            /*48 89 74 24 ?? 57 48 83 EC 30 48 8B 3D ?? ?? ?? ?? 48 8B F1*/
+		v_SQVM_InitializeSVGlobalScriptStructs = p_SQVM_InitializeSVGlobalScriptStructs.RCast<SQRESULT(*)(SQVM*)>();                          /*48 89 74 24 ?? 57 48 83 EC 30 48 8B 3D ?? ?? ?? ?? 48 8B F1*/
 #endif // !CLIENT_DLL
 #if !defined (DEDICATED)
-		v_SQVM_InitializeCLGlobalScriptStructs = p_SQVM_InitializeCLGlobalScriptStructs.RCast<SQRESULT(*)(SQVM*, SQCONTEXT)>(); /*48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC 30 48 63 C2 48 8D 3D ?? ?? ?? ??*/
+		v_SQVM_InitializeCLGlobalScriptStructs = p_SQVM_InitializeCLGlobalScriptStructs.RCast<SQRESULT(*)(SQVM*, SQCONTEXT)>();               /*48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC 30 48 63 C2 48 8D 3D ?? ?? ?? ??*/
 #endif // !DEDICATED
 #if !defined (CLIENT_DLL)
-		v_SQVM_CreateServerVM = p_SQVM_CreateServerVM.RCast<SQBool(*)(void)>();               /*40 53 56 48 83 EC 48 48 8D 0D ?? ?? ?? ??*/
+		v_SQVM_CreateServerVM = p_SQVM_CreateServerVM.RCast<SQBool(*)(void)>();                                                               /*40 53 56 48 83 EC 48 48 8D 0D ?? ?? ?? ??*/
 #endif // !CLIENT_DLL
 #if !defined (DEDICATED)
-		v_SQVM_CreateClientVM = p_SQVM_CreateClientVM.RCast<SQBool(*)(CHLClient* pClient)>(); /*40 53 41 57 48 83 EC 68 48 83 3D ?? ?? ?? ?? ??*/
-		v_SQVM_CreateUIVM     = p_SQVM_CreateUIVM.RCast<SQBool(*)(void)>();                   /*40 53 48 83 EC 20 48 8B 1D ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ??*/
+		v_SQVM_CreateClientVM = p_SQVM_CreateClientVM.RCast<SQBool(*)(CHLClient*)>();                                                         /*40 53 41 57 48 83 EC 68 48 83 3D ?? ?? ?? ?? ??*/
+		v_SQVM_CreateUIVM     = p_SQVM_CreateUIVM.RCast<SQBool(*)(void)>();                                                                   /*40 53 48 83 EC 20 48 8B 1D ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ??*/
 #endif // !DEDICATED
 	}
 	virtual void GetVar(void) const
