@@ -35,8 +35,8 @@ public:
 	int GetNumFakeClients(void) const;
 	const char* GetMapName(void) const { return m_szMapname; }
 	const char* GetMapGroupName(void) const { return m_szMapGroupName; }
-	int GetNumClasses(void) const { return serverclasses; }
-	int GetClassBits(void) const { return serverclassbits; }
+	int GetNumClasses(void) const { return m_nServerClasses; }
+	int GetClassBits(void) const { return m_nServerClassBits; }
 	bool IsActive(void) const { return m_State >= server_state_t::ss_active; }
 	bool IsLoading(void) const { return m_State == server_state_t::ss_loading; }
 	bool IsDedicated(void) const { return g_bDedicated; }
@@ -51,8 +51,8 @@ private:
 	char                          m_szMapname[MAX_MAP_NAME];     // map name and path without extension
 	char                          m_szMapGroupName[64];          // map group name
 	char                          m_szPassword[32];              // server password
-	uint32_t                      worldmapCRC;                   // for detecting that client has a hacked local copy of map, the client will be dropped if this occurs.
-	uint32_t                      clientDllCRC;                  // the dll that this server is expecting clients to be using.
+	uint32_t                      m_WorldmapCRC;                 // for detecting that client has a hacked local copy of map, the client will be dropped if this occurs.
+	uint32_t                      m_ClientDllCRC;                // the dll that this server is expecting clients to be using.
 	CNetworkStringTableContainer* m_StringTables;                // network string table container
 	CNetworkStringTable*          m_pInstanceBaselineTable;      // instancebaseline
 	CNetworkStringTable*          m_pLightStyleTable;            // lightstyles
@@ -65,8 +65,8 @@ private:
 	int                           m_nPad;                        // padding
 	bf_write                      m_Signon;                      // signon bitbuf
 	CUtlMemory<byte>              m_SignonBuffer;                // signon memory
-	int                           serverclasses;                 // number of unique server classes
-	int                           serverclassbits;               // log2 of serverclasses
+	int                           m_nServerClasses;              // number of unique server classes
+	int                           m_nServerClassBits;            // log2 of serverclasses
 	char                          m_szHostInfo[128];             // see '[r5apex_ds.exe + 0x237740]' for more details. fmt: '[IPv6]:PORT:TIMEi64u'
 	// TODO: Reverse the rest.
 };
