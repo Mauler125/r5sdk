@@ -31,7 +31,7 @@
 //---------------------------------------------------------------------------------
 SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 {
-	static SQCONTEXT context{};
+	SQCONTEXT context;
 	// We use the sqvm pointer as index for SDK usage as the function prototype has to match assembly.
 	switch (static_cast<SQCONTEXT>(reinterpret_cast<int>(v)))
 	{
@@ -49,7 +49,7 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 		break;
 	default:
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
-		context = *reinterpret_cast<SQCONTEXT*>(reinterpret_cast<std::uintptr_t>(v) + 0x18);
+		context = v->GetContext();
 #else // Nothing equal to 'rdx + 18h' exist in the vm structs for anything below S3.
 		context = SQVM_GetContextIndex(v);
 #endif
@@ -187,7 +187,7 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* nStringSize, SQChar** ppString)
 {
 	static void* retaddr = reinterpret_cast<void*>(p_SQVM_WarningCmd.Offset(0x10).FindPatternSelf("85 ?? ?? 99", CMemory::Direction::DOWN).GetPtr());
-	static SQCONTEXT context{};
+	SQCONTEXT context;
 	SQRESULT result = v_SQVM_WarningFunc(v, a2, a3, nStringSize, ppString);
 
 	if (retaddr != _ReturnAddress() || !sq_showvmwarning->GetBool()) // Check if its SQVM_Warning calling.
@@ -197,7 +197,7 @@ SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* 
 
 	s_LogMutex.lock();
 #ifdef GAMEDLL_S3
-	context = *reinterpret_cast<SQCONTEXT*>(reinterpret_cast<std::uintptr_t>(v) + 0x18);
+	context = v->GetContext();
 #else // Nothing equal to 'rdx + 18h' exist in the vm structs for anything below S3.
 	context = SQVM_GetContextIndex(v);
 #endif
@@ -259,7 +259,7 @@ void SQVM_CompileError(HSQUIRRELVM v, const SQChar* pszError, const SQChar* pszF
 	static char szContextBuf[256]{};
 
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
-	context = *reinterpret_cast<SQCONTEXT*>(reinterpret_cast<std::uintptr_t>(v) + 0x18);
+	context = v->GetContext();
 #else // Nothing equal to 'rdx + 18h' exist in the vm structs for anything below S3.
 	context = SQVM_GetContextIndex(v);
 #endif

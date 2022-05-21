@@ -27,9 +27,9 @@ public:
 
 private:
 	volatile uint32_t m_nOwnerID;
-	int                 m_nDepth;
+	int               m_nDepth;
 	volatile int      m_lAddend;
-	HANDLE         m_hSemaphore;
+	HANDLE            m_hSemaphore;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
