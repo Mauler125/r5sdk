@@ -33,18 +33,18 @@ namespace Themes
 	const static auto HeaderBrush = Drawing::Color(46, 53, 84);*/
 
 	// New Theme, saving for anyone else who wants to help.
-	const static auto BorderBrush = Drawing::Color(113, 156, 235);
-	const static auto DarkBorderBrush = Drawing::Color(113, 156, 235);
-	const static auto DisabledBorderBrush = Drawing::Color(160, 160, 160);
+	const static auto BorderBrush = Drawing::Color(20, 20, 20);
+	const static auto DarkBorderBrush = Drawing::Color(20, 20, 20);
+	const static auto DisabledBorderBrush = Drawing::Color(20, 20, 20);
 
-	const static auto BackgroundBrush = Drawing::Color(33, 33, 33);
-	const static auto BackgroundLightBrush = Drawing::Color(39, 39, 39);
+	const static auto BackgroundBrush = Drawing::Color(36, 41, 46);
+	const static auto BackgroundLightBrush = Drawing::Color(47, 54, 61);
 
-	const static auto BackgroundGrad1 = Drawing::Color(45, 45, 45);
-	const static auto BackgroundGrad2 = Drawing::Color(36, 36, 36);
+	const static auto BackgroundGrad1 = Drawing::Color(47, 54, 61);
+	const static auto BackgroundGrad2 = Drawing::Color(47, 54, 61);
 
-	const static auto BackgroundOverGrad1 = Drawing::Color(49, 49, 49);
-	const static auto BackgroundOverGrad2 = Drawing::Color(40, 40, 40);
+	const static auto BackgroundOverGrad1 = Drawing::Color(68, 77, 86);
+	const static auto BackgroundOverGrad2 = Drawing::Color(68, 77, 86);
 
 	const static auto TextEnabledBrush = Drawing::Color(Drawing::Color::White);
 	const static auto TextDisabledBrush = Drawing::Color(Drawing::Color::Gray);
@@ -345,20 +345,20 @@ namespace Themes
 		Drawing::PointF Lines[] =
 		{
 			// Top-left
-			{0, TextSize.Height / 2.f},
-			{12, TextSize.Height / 2.f},
+			{0, 0},
+			{12, 0},
 			// Left
-			{0, TextSize.Height / 2.f},
+			{0, 0},
 			{0, Rect.Height - 1.f},
 			// Bottom
 			{0, Rect.Height - 1.f},
 			{Rect.Width - 1.f, Rect.Height - 1.f},
 			// Right
 			{Rect.Width - 1.f, Rect.Height - 1.f},
-			{Rect.Width - 1.f, TextSize.Height / 2.f},
+			{Rect.Width - 1.f, 0},
 			// Top-right
-			{TextSize.Width + 11.f, TextSize.Height / 2.f},
-			{Rect.Width - 1.f, TextSize.Height / 2.f}
+			{TextSize.Width + 11.f, 0},
+			{Rect.Width - 1.f, 0}
 		};
 
 		auto pen = Drawing::Pen(&OutlineBrush);
