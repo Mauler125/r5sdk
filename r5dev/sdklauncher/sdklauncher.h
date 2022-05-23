@@ -22,3 +22,22 @@ enum class eLaunchState : int
     LS_CHEATS,   // Enable cheats
     LS_DEBUG     // Enable debug
 };
+
+class CLauncher
+{
+public:
+    CLauncher()
+    {
+        m_svCurrentDir = fs::current_path().u8string();
+    }
+
+    bool Setup(eLaunchMode lMode, eLaunchState lState);
+    bool Launch();
+
+private:
+    string m_svWorkerDll;
+    string m_svGameExe;
+    string m_svCmdLine;
+    string m_svCurrentDir;
+};
+inline CLauncher* g_pLauncher = new CLauncher();

@@ -30,6 +30,9 @@
     <ClCompile Include="..\public\utility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\sdklauncher\basepanel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resource\sdklauncher.rc">
@@ -56,6 +59,9 @@
       <Filter>Detours Files\include</Filter>
     </ClInclude>
     <ClInclude Include="..\public\include\utility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sdklauncher\basepanel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
