@@ -22,6 +22,11 @@ private:
 		SERVER,
 		CLIENT,
 	};
+	enum class eVisibility
+	{
+		PUBLIC,
+		HIDDEN,
+	};
 
 	UIX::UIXTextBox* m_WidthTextBox;
 	UIX::UIXTextBox* m_HeightTextBox;
@@ -41,6 +46,7 @@ private:
 	UIX::UIXLabel* m_ResolutionLabel;
 	UIX::UIXLabel* m_PlaylistFileLabel;
 	UIX::UIXLabel* m_HostNameLabel;
+	UIX::UIXLabel* m_VisibilityLabel;
 	UIX::UIXLabel* m_LaunchArgsLabel;
 	// Boxes
 	UIX::UIXGroupBox* m_GameGroup;
@@ -68,6 +74,7 @@ private:
 	UIX::UIXComboBox* m_MapCombo;
 	UIX::UIXComboBox* m_PlaylistCombo;
 	UIX::UIXComboBox* m_ModeCombo;
+	UIX::UIXComboBox* m_VisibilityCombo;
 	// Buttons
 	UIX::UIXButton* m_CleanSDK;
 	UIX::UIXButton* m_UpdateSDK;

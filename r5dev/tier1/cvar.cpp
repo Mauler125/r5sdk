@@ -39,7 +39,7 @@ ConVar* ai_ainDebugConnect                 = nullptr;
 ConVar* navmesh_always_reachable           = nullptr;
 
 ConVar* sv_showconnecting                  = nullptr;
-ConVar* sv_pylonvisibility                 = nullptr;
+ConVar* sv_pylonVisibility                 = nullptr;
 ConVar* sv_pylonRefreshInterval            = nullptr;
 ConVar* sv_banlistRefreshInterval          = nullptr;
 ConVar* sv_statusRefreshInterval           = nullptr;

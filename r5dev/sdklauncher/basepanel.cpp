@@ -202,9 +202,29 @@ void CUIBasePanel::Init()
 	this->m_HostNameLabel->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_MainGroup->AddControl(this->m_HostNameLabel);
 
+	this->m_VisibilityCombo = new UIX::UIXComboBox();
+	this->m_VisibilityCombo->SetSize({ 82, 25 });
+	this->m_VisibilityCombo->SetLocation({ 15, 50 });
+	this->m_VisibilityCombo->SetTabIndex(0);
+	this->m_VisibilityCombo->SetSelectedIndex(0);
+	this->m_VisibilityCombo->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
+	this->m_VisibilityCombo->SetDropDownStyle(Forms::ComboBoxStyle::DropDownList);
+	this->m_VisibilityCombo->Items.Add("Public");
+	this->m_VisibilityCombo->Items.Add("Hidden");
+	this->m_VisibilityCombo->Items.Add("Offline");
+	this->m_MainGroup->AddControl(this->m_VisibilityCombo);
+
+	this->m_VisibilityLabel = new UIX::UIXLabel();
+	this->m_VisibilityLabel->SetSize({ 70, 21 });
+	this->m_VisibilityLabel->SetLocation({ 100, 53 });
+	this->m_VisibilityLabel->SetTabIndex(0);
+	this->m_VisibilityLabel->SetText("Visibility");
+	this->m_VisibilityLabel->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
+	this->m_MainGroup->AddControl(this->m_VisibilityLabel);
+
 	this->m_LaunchArgsTextBox = new UIX::UIXTextBox();
-	this->m_LaunchArgsTextBox->SetSize({ 215, 21 });
-	this->m_LaunchArgsTextBox->SetLocation({ 15, 50 });
+	this->m_LaunchArgsTextBox->SetSize({ 80, 21 });
+	this->m_LaunchArgsTextBox->SetLocation({ 150, 50 });
 	this->m_LaunchArgsTextBox->SetTabIndex(0);
 	this->m_LaunchArgsTextBox->SetText("");
 	this->m_LaunchArgsTextBox->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
@@ -427,7 +447,7 @@ void CUIBasePanel::Init()
 	//	
 	// #################################################################################################
 	this->m_ConsoleGroup = new UIX::UIXGroupBox();
-	this->m_ConsoleGroup->SetSize({ 429, 181 });
+	this->m_ConsoleGroup->SetSize({ 429, 182 });
 	this->m_ConsoleGroup->SetLocation({ 359, 158 });
 	this->m_ConsoleGroup->SetTabIndex(0);
 	this->m_ConsoleGroup->SetText("Console");
@@ -435,7 +455,7 @@ void CUIBasePanel::Init()
 	this->AddControl(this->m_ConsoleGroup);
 
 	this->m_ConsoleListView = new UIX::UIXListView();
-	this->m_ConsoleListView->SetSize({ 427, 165 });
+	this->m_ConsoleListView->SetSize({ 427, 166 });
 	this->m_ConsoleListView->SetLocation({ 1, 15 });
 	this->m_ConsoleListView->SetTabIndex(0);
 	this->m_ConsoleListView->SetText("0");
@@ -473,6 +493,14 @@ eLaunchMode CUIBasePanel::BuildParameter(string& svParameter)
 	case eMode::HOST:
 	{
 		// GAME ############################################################################################
+		if (!String::IsNullOrEmpty(this->m_MapCombo->Text()))
+		{
+			svParameter.append("+map \"" + this->m_MapCombo->Text() + "\" ");
+		}
+		if (!String::IsNullOrEmpty(this->m_PlaylistCombo->Text()))
+		{
+			svParameter.append("+launchplaylist \"" + this->m_PlaylistCombo->Text() + "\" ");
+		}
 		if (this->m_DevelopmentToggle->Checked())
 		{
 			svParameter.append("+exec \"autoexec_server_dev.cfg\" ");
@@ -519,29 +547,29 @@ eLaunchMode CUIBasePanel::BuildParameter(string& svParameter)
 		if (this->m_NoAsyncJobsToggle->Checked())
 		{
 			svParameter.append("-noasync ");
-			svParameter.append("async_serialize \"0\" ");
-			svParameter.append("buildcubemaps_async \"0\" ");
-			svParameter.append("sv_asyncAIInit \"0\" ");
-			svParameter.append("sv_asyncSendSnapshot \"0\" ");
-			svParameter.append("sv_scriptCompileAsync \"0\" ");
-			svParameter.append("cl_async_bone_setup \"0\" ");
-			svParameter.append("cl_updatedirty_async \"0\" ");
-			svParameter.append("mat_syncGPU \"1\" ");
-			svParameter.append("mat_sync_rt \"1\" ");
-			svParameter.append("mat_sync_rt_flushes_gpu \"1\" ");
-			svParameter.append("net_async_sendto \"0\" ");
-			svParameter.append("physics_async_sv \"0\" ");
-			svParameter.append("physics_async_cl \"0\" ");
+			svParameter.append("+async_serialize \"0\" ");
+			svParameter.append("+buildcubemaps_async \"0\" ");
+			svParameter.append("+sv_asyncAIInit \"0\" ");
+			svParameter.append("+sv_asyncSendSnapshot \"0\" ");
+			svParameter.append("+sv_scriptCompileAsync \"0\" ");
+			svParameter.append("+cl_async_bone_setup \"0\" ");
+			svParameter.append("+cl_updatedirty_async \"0\" ");
+			svParameter.append("+mat_syncGPU \"1\" ");
+			svParameter.append("+mat_sync_rt \"1\" ");
+			svParameter.append("+mat_sync_rt_flushes_gpu \"1\" ");
+			svParameter.append("+net_async_sendto \"0\" ");
+			svParameter.append("+physics_async_sv \"0\" ");
+			svParameter.append("+physics_async_cl \"0\" ");
 		}
 
 		if (this->m_NetEncryptionToggle->Checked())
-			svParameter.append("net_encryptionEnable \"1\" ");
+			svParameter.append("+net_encryptionEnable \"1\" ");
 
 		if (this->m_NetRandomKeyToggle->Checked())
-			svParameter.append("net_useRandomKey \"1\" ");
+			svParameter.append("+net_useRandomKey \"1\" ");
 
 		if (this->m_NoQueuedPacketThread->Checked())
-			svParameter.append("net_queued_packet_thread \"0\" ");
+			svParameter.append("+net_queued_packet_thread \"0\" ");
 
 		if (this->m_NoTimeOutToggle->Checked())
 			svParameter.append("-notimeout ");
@@ -564,13 +592,39 @@ eLaunchMode CUIBasePanel::BuildParameter(string& svParameter)
 		// MAIN ############################################################################################
 		if (!String::IsNullOrEmpty(this->m_HostNameTextBox->Text()))
 		{
-			svParameter.append("+sv_pylonVisibility \"1\" ");
 			svParameter.append("+sv_pylonHostName \"" + this->m_HostNameTextBox->Text() + "\" ");
+
+			switch (static_cast<eVisibility>(this->m_VisibilityCombo->SelectedIndex()))
+			{
+			case eVisibility::PUBLIC:
+			{
+				svParameter.append("+sv_pylonVisibility \"2\" ");
+				break;
+			}
+			case eVisibility::HIDDEN:
+			{
+				svParameter.append("+sv_pylonVisibility \"1\" ");
+				break;
+			}
+			default:
+			{
+				svParameter.append("+sv_pylonVisibility \"0\" ");
+				break;
+			}
+			}
 		}
 		if (!String::IsNullOrEmpty(this->m_LaunchArgsTextBox->Text()))
 			svParameter.append(this->m_LaunchArgsTextBox->Text());
 
 		return results;
+	}
+	case eMode::SERVER:
+	{
+
+	}
+	case eMode::CLIENT:
+	{
+
 	}
 	default:
 		return results;
