@@ -1,6 +1,7 @@
 #include "core/stdafx.h"
-#include "sdklauncher.h"
 #include "basepanel.h"
+#include "sdklauncher_const.h"
+#include "sdklauncher.h"
 #include <objidl.h>
 #include "gdiplus.h"
 #include "shellapi.h"
@@ -11,6 +12,8 @@ using namespace Gdiplus;
 #pragma comment (lib,"Gdi32.lib")
 #pragma comment (lib,"Gdiplus.lib")
 #pragma comment (lib,"Advapi32.lib")
+
+#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 //-----------------------------------------------------------------------------
 // Purpose switch case:
@@ -26,7 +29,7 @@ bool CLauncher::Setup(eLaunchMode lMode, eLaunchState lState)
     ///////////////////////////////////////////////////////////////////////////
     switch (lMode)
     {
-    case eLaunchMode::LM_DEBUG_GAME:
+    case eLaunchMode::LM_HOST_DEBUG:
     {
         fs::path cfgPath = fs::current_path() /= "platform\\cfg\\startup_debug.cfg";
         std::ifstream cfgFile(cfgPath);
@@ -51,7 +54,7 @@ bool CLauncher::Setup(eLaunchMode lMode, eLaunchState lState)
         spdlog::info("*** LAUNCHING GAME [DEBUG] ***\n");
         break;
     }
-    case eLaunchMode::LM_RELEASE_GAME:
+    case eLaunchMode::LM_HOST:
     {
         fs::path cfgPath = fs::current_path() /= "platform\\cfg\\startup_retail.cfg";
         std::ifstream cfgFile(cfgPath);
@@ -76,7 +79,7 @@ bool CLauncher::Setup(eLaunchMode lMode, eLaunchState lState)
         spdlog::info("*** LAUNCHING GAME [RELEASE] ***\n");
         break;
     }
-    case eLaunchMode::LM_DEBUG_DEDI:
+    case eLaunchMode::LM_SERVER_DEBUG:
     {
         fs::path cfgPath = fs::current_path() /= "platform\\cfg\\startup_dedi_debug.cfg";
         std::ifstream cfgFile(cfgPath);
@@ -101,7 +104,7 @@ bool CLauncher::Setup(eLaunchMode lMode, eLaunchState lState)
         spdlog::info("*** LAUNCHING DEDICATED [DEBUG] ***\n");
         break;
     }
-    case eLaunchMode::LM_RELEASE_DEDI:
+    case eLaunchMode::LM_SERVER:
     {
         fs::path cfgPath = fs::current_path() /= "platform\\cfg\\startup_dedi_retail.cfg";
         std::ifstream cfgFile(cfgPath);
@@ -140,6 +143,68 @@ bool CLauncher::Setup(eLaunchMode lMode, eLaunchState lState)
     spdlog::debug("- EXE: {}\n", m_svGameExe);
     spdlog::debug("- DLL: {}\n", m_svWorkerDll);
     spdlog::debug("- CLI: {}\n", svCmdLineArgs);
+    std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
+
+    return true;
+}
+
+bool CLauncher::Setup(eLaunchMode lMode, const string& svCommandLine)
+{
+    ///////////////////////////////////////////////////////////////////////////
+
+    ///////////////////////////////////////////////////////////////////////////
+    switch (lMode)
+    {
+    case eLaunchMode::LM_HOST_DEBUG:
+    {
+        m_svWorkerDll = m_svCurrentDir + "\\gamesdk.dll";
+        m_svGameExe = m_svCurrentDir + "\\r5apex.exe";
+        m_svCmdLine = m_svCurrentDir + "\\r5apex.exe " + svCommandLine;
+
+        spdlog::info("*** LAUNCHER SETUP FOR HOST [DEBUG] ***\n");
+        break;
+    }
+    case eLaunchMode::LM_HOST:
+    {
+        m_svWorkerDll = m_svCurrentDir + "\\gamesdk.dll";
+        m_svGameExe = m_svCurrentDir + "\\r5apex.exe";
+        m_svCmdLine = m_svCurrentDir + "\\r5apex.exe " + svCommandLine;
+
+        spdlog::info("*** LAUNCHER SETUP FOR HOST [RELEASE] ***\n");
+        break;
+    }
+    case eLaunchMode::LM_SERVER_DEBUG:
+    {
+        m_svWorkerDll = m_svCurrentDir + "\\dedicated.dll";
+        m_svGameExe = m_svCurrentDir + "\\r5apex_ds.exe";
+        m_svCmdLine = m_svCurrentDir + "\\r5apex_ds.exe " + svCommandLine;
+
+        spdlog::info("*** LAUNCHER SETUP FOR DEDICATED [DEBUG] ***\n");
+        break;
+    }
+    case eLaunchMode::LM_SERVER:
+    {
+        m_svWorkerDll = m_svCurrentDir + "\\dedicated.dll";
+        m_svGameExe = m_svCurrentDir + "\\r5apex_ds.exe";
+        m_svCmdLine = m_svCurrentDir + "\\r5apex_ds.exe " + svCommandLine;
+
+        spdlog::info("*** LAUNCHER SETUP FOR DEDICATED [RELEASE] ***\n");
+        break;
+    }
+    default:
+    {
+        spdlog::error("*** INVALID LAUNCH MODE SPECIFIED ***\n");
+        return false;
+    }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Print the file paths and arguments.
+    std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
+    spdlog::debug("- CWD: {}\n", m_svCurrentDir);
+    spdlog::debug("- EXE: {}\n", m_svGameExe);
+    spdlog::debug("- DLL: {}\n", m_svWorkerDll);
+    spdlog::debug("- CLI: {}\n", svCommandLine);
     std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
 
     return true;
@@ -212,8 +277,8 @@ int main(int argc, char* argv[], char* envp[])
         Forms::Application::EnableVisualStyles();
         UIX::UIXTheme::InitializeRenderer(new Themes::KoreTheme());
 
-        CUIBasePanel* mainUI = new CUIBasePanel();
-        Forms::Application::Run(mainUI);
+        g_pLauncher->m_pMainUI = new CUIBasePanel();
+        Forms::Application::Run(g_pLauncher->m_pMainUI);
         UIX::UIXTheme::ShutdownRenderer();
     }
     else
@@ -223,7 +288,7 @@ int main(int argc, char* argv[], char* envp[])
             std::string arg = argv[i];
             if ((arg == "-debug") || (arg == "-dbg"))
             {
-                if (g_pLauncher->Setup(eLaunchMode::LM_DEBUG_GAME, eLaunchState::LS_CHEATS))
+                if (g_pLauncher->Setup(eLaunchMode::LM_HOST_DEBUG, eLaunchState::LS_CHEATS))
                 {
                     if (g_pLauncher->Launch())
                     {
@@ -237,7 +302,7 @@ int main(int argc, char* argv[], char* envp[])
             }
             if ((arg == "-release") || (arg == "-rel"))
             {
-                if (g_pLauncher->Setup(eLaunchMode::LM_RELEASE_GAME, eLaunchState::LS_CHEATS))
+                if (g_pLauncher->Setup(eLaunchMode::LM_HOST, eLaunchState::LS_CHEATS))
                 {
                     if (g_pLauncher->Launch())
                     {
@@ -251,7 +316,7 @@ int main(int argc, char* argv[], char* envp[])
             }
             if ((arg == "-dedicated_dev") || (arg == "-dedid"))
             {
-                if (g_pLauncher->Setup(eLaunchMode::LM_DEBUG_DEDI, eLaunchState::LS_CHEATS))
+                if (g_pLauncher->Setup(eLaunchMode::LM_SERVER_DEBUG, eLaunchState::LS_CHEATS))
                 {
                     if (g_pLauncher->Launch())
                     {
@@ -265,7 +330,7 @@ int main(int argc, char* argv[], char* envp[])
             }
             if ((arg == "-dedicated") || (arg == "-dedi"))
             {
-                if (g_pLauncher->Setup(eLaunchMode::LM_RELEASE_DEDI, eLaunchState::LS_CHEATS))
+                if (g_pLauncher->Setup(eLaunchMode::LM_SERVER, eLaunchState::LS_CHEATS))
                 {
                     if (g_pLauncher->Launch())
                     {
@@ -284,15 +349,19 @@ int main(int argc, char* argv[], char* envp[])
         spdlog::warn("All FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY ConVar's/ConCommand's will be enabled.\n");
         spdlog::warn("Connected clients will be able to set and execute anything flagged FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY.\n");
         std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
-        spdlog::warn("Use DEBUG GAME        [1] for research and development purposes.\n");
-        spdlog::warn("Use RELEASE GAME      [2] for playing the game and creating servers.\n");
-        spdlog::warn("Use DEBUG DEDICATED   [3] for research and development purposes.\n");
-        spdlog::warn("Use RELEASE DEDICATED [4] for running and hosting dedicated servers.\n");
+        spdlog::warn("Use DEBUG HOST        [1] for research and development purposes.\n");
+        spdlog::warn("Use RELEASE HOST      [2] for playing the game and creating servers.\n");
+        spdlog::warn("Use DEBUG SERVER      [3] for research and development purposes.\n");
+        spdlog::warn("Use RELEASE SERVER    [4] for running and hosting dedicated servers.\n");
+        spdlog::warn("Use DEBUG CLIENT      [5] for research and development purposes.\n");
+        spdlog::warn("Use RELEASE CLIENT    [6] for running client only builds against remote servers.\n");
         std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
-        spdlog::info("Enter '1' for 'DEBUG GAME'.\n");
-        spdlog::info("Enter '2' for 'RELEASE GAME'.\n");
-        spdlog::info("Enter '3' for 'DEBUG DEDICATED'.\n");
-        spdlog::info("Enter '4' for 'RELEASE DEDICATED'.\n");
+        spdlog::info("Enter '1' for 'DEBUG HOST'.\n");
+        spdlog::info("Enter '2' for 'RELEASE HOST'.\n");
+        spdlog::info("Enter '3' for 'DEBUG SERVER'.\n");
+        spdlog::info("Enter '4' for 'RELEASE SERVER'.\n");
+        spdlog::info("Enter '5' for 'DEBUG CLIENT'.\n");
+        spdlog::info("Enter '6' for 'RELEASE CLIENT'.\n");
         std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
         std::cout << "User input: ";
 
@@ -304,9 +373,9 @@ int main(int argc, char* argv[], char* envp[])
                 eLaunchMode mode = (eLaunchMode)std::stoi(input);
                 switch (mode)
                 {
-                case eLaunchMode::LM_DEBUG_GAME:
+                case eLaunchMode::LM_HOST_DEBUG:
                 {
-                    if (g_pLauncher->Setup(eLaunchMode::LM_DEBUG_GAME, eLaunchState::LS_CHEATS))
+                    if (g_pLauncher->Setup(eLaunchMode::LM_HOST_DEBUG, eLaunchState::LS_CHEATS))
                     {
                         if (g_pLauncher->Launch())
                         {
@@ -318,9 +387,9 @@ int main(int argc, char* argv[], char* envp[])
                     Sleep(2000);
                     return EXIT_FAILURE;
                 }
-                case eLaunchMode::LM_RELEASE_GAME:
+                case eLaunchMode::LM_HOST:
                 {
-                    if (g_pLauncher->Setup(eLaunchMode::LM_RELEASE_GAME, eLaunchState::LS_CHEATS))
+                    if (g_pLauncher->Setup(eLaunchMode::LM_HOST, eLaunchState::LS_CHEATS))
                     {
                         if (g_pLauncher->Launch())
                         {
@@ -332,9 +401,9 @@ int main(int argc, char* argv[], char* envp[])
                     Sleep(2000);
                     return EXIT_FAILURE;
                 }
-                case eLaunchMode::LM_DEBUG_DEDI:
+                case eLaunchMode::LM_SERVER_DEBUG:
                 {
-                    if (g_pLauncher->Setup(eLaunchMode::LM_DEBUG_DEDI, eLaunchState::LS_CHEATS))
+                    if (g_pLauncher->Setup(eLaunchMode::LM_SERVER_DEBUG, eLaunchState::LS_CHEATS))
                     {
                         if (g_pLauncher->Launch())
                         {
@@ -346,9 +415,9 @@ int main(int argc, char* argv[], char* envp[])
                     Sleep(2000);
                     return EXIT_FAILURE;
                 }
-                case eLaunchMode::LM_RELEASE_DEDI:
+                case eLaunchMode::LM_SERVER:
                 {
-                    if (g_pLauncher->Setup(eLaunchMode::LM_RELEASE_DEDI, eLaunchState::LS_CHEATS))
+                    if (g_pLauncher->Setup(eLaunchMode::LM_SERVER, eLaunchState::LS_CHEATS))
                     {
                         if (g_pLauncher->Launch())
                         {

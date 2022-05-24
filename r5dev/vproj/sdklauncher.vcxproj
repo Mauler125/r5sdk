@@ -142,6 +142,7 @@
     <ClInclude Include="..\public\include\utility.h" />
     <ClInclude Include="..\sdklauncher\basepanel.h" />
     <ClInclude Include="..\sdklauncher\sdklauncher.h" />
+    <ClInclude Include="..\sdklauncher\sdklauncher_const.h" />
     <ClInclude Include="..\sdklauncher\sdklauncher_res.h" />
     <ClInclude Include="..\thirdparty\detours\include\detours.h" />
     <ClInclude Include="..\thirdparty\detours\include\detver.h" />

@@ -82,7 +82,7 @@ const char* CCommand::operator[](int nIndex) const
 //-----------------------------------------------------------------------------
 bool CCommand::HasOnlyDigits(int nIndex) const
 {
-	std::string svString = Arg(nIndex);
+	string svString = Arg(nIndex);
 	for (const char& character : svString)
 	{
 		if (std::isdigit(character) == 0)

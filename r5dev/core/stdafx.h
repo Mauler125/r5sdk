@@ -5,10 +5,12 @@
 #include <windows.h>
 #include <WinSock2.h>
 #include <comdef.h>
+#include <gdiplus.h>
+#include <shellapi.h>
+#include <Psapi.h>
 #include <setjmp.h>
 #include <tchar.h>
 #include <stdio.h>
-#include <Psapi.h>
 #include <shlobj.h>
 #include <objbase.h>
 #include <intrin.h>
@@ -33,6 +35,20 @@
 
 #include "thirdparty/detours/include/detours.h"
 #include "thirdparty/detours/include/idetour.h"
+
+#if defined(SDKLAUNCHER)
+#include "thirdparty/cppnet/cppkore/Kore.h"
+#include "thirdparty/cppnet/cppkore/UIXTheme.h"
+#include "thirdparty/cppnet/cppkore/UIXLabel.h"
+#include "thirdparty/cppnet/cppkore/UIXListView.h"
+#include "thirdparty/cppnet/cppkore/UIXCheckBox.h"
+#include "thirdparty/cppnet/cppkore/UIXComboBox.h"
+#include "thirdparty/cppnet/cppkore/UIXTextBox.h"
+#include "thirdparty/cppnet/cppkore/UIXGroupBox.h"
+#include "thirdparty/cppnet/cppkore/UIXButton.h"
+#include "thirdparty/cppnet/cppkore/UIXRadioButton.h"
+#include "thirdparty/cppnet/cppkore/KoreTheme.h"
+#endif // SDKLAUNCHER
 
 #if !defined(DEDICATED) && !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
 #include "thirdparty/imgui/include/imgui.h"

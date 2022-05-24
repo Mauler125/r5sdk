@@ -213,8 +213,10 @@ public:
 	//
 
 	// Whether or not the string is initialized and not blank
+	constexpr bool IsNullOrEmpty();
 	static constexpr bool IsNullOrEmpty(const StringBase<Tchar>& Rhs);
 	// Whether or not the string is initialized and not whitespace
+	constexpr bool IsNullOrWhiteSpace();
 	static constexpr bool IsNullOrWhiteSpace(const StringBase<Tchar>& Rhs);
 
 	// Formats a string based on the provided input
@@ -1534,9 +1536,38 @@ inline constexpr bool StringBase<Tchar>::operator!=(std::basic_string_view<Tchar
 }
 
 template<class Tchar>
+inline constexpr bool StringBase<Tchar>::IsNullOrEmpty()
+{
+	return (_Buffer == nullptr || _StoreSize == 0);
+}
+
+template<class Tchar>
 inline constexpr bool StringBase<Tchar>::IsNullOrEmpty(const StringBase<Tchar>& Rhs)
 {
 	return (Rhs._Buffer == nullptr || Rhs._StoreSize == 0);
+}
+
+template<class Tchar>
+inline constexpr bool StringBase<Tchar>::IsNullOrWhiteSpace()
+{
+	if (_Buffer == nullptr)
+		return true;
+
+	for (uint32_t i = 0; i < _StoreSize; i++)
+	{
+		if constexpr (sizeof(Tchar) == sizeof(char))
+		{
+			if (!::isspace(_Buffer[i]))
+				return false;
+		}
+		else if constexpr (sizeof(Tchar) == sizeof(wchar_t))
+		{
+			if (!::iswspace(_Buffer[i]))
+				return false;
+		}
+	}
+
+	return true;
 }
 
 template<class Tchar>

@@ -1,27 +1,5 @@
 #pragma once
-
-//-----------------------------------------------------------------------------
-// Launch and inject specified dll based on launchmode
-//-----------------------------------------------------------------------------
-enum class eLaunchMode : int
-{
-    LM_NULL,
-    LM_DEBUG_GAME,   // Debug worker DLL.
-    LM_RELEASE_GAME, // Release worker DLL.
-    LM_DEBUG_DEDI,   // Debug dedicated DLL.
-    LM_RELEASE_DEDI  // Release dedicated DLL.
-};
-
-//-----------------------------------------------------------------------------
-// [TODO] Launch with FCVAR_DEVELOPMENTONLY and FCVAR_CHEATS disabled/enabled
-//-----------------------------------------------------------------------------
-enum class eLaunchState : int
-{
-    LS_NULL,
-    LS_NOCHEATS, // Disabled cheats
-    LS_CHEATS,   // Enable cheats
-    LS_DEBUG     // Enable debug
-};
+#include "basepanel.h"
 
 class CLauncher
 {
@@ -29,12 +7,22 @@ public:
     CLauncher()
     {
         m_svCurrentDir = fs::current_path().u8string();
+        //m_pMainUI = new CUIBasePanel();
+    }
+    ~CLauncher()
+    {
+        delete[] m_pMainUI;
     }
 
     bool Setup(eLaunchMode lMode, eLaunchState lState);
+    bool Setup(eLaunchMode lMode, const string& svCommandLine);
     bool Launch();
+    CUIBasePanel* GetMainSurface() const { return m_pMainUI; }
+
+    CUIBasePanel* m_pMainUI;
 
 private:
+
     string m_svWorkerDll;
     string m_svGameExe;
     string m_svCmdLine;

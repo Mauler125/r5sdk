@@ -1,12 +1,11 @@
 
 #include "core/stdafx.h"
+#include "sdklauncher.h"
 #include "basepanel.h"
-#include <objidl.h>
-#include "gdiplus.h"
-#include "shellapi.h"
 
 void CUIBasePanel::Init()
 {
+	// START DESIGNER CODE
 	const INT WindowX = 800;
 	const INT WindowY = 350;
 
@@ -52,6 +51,7 @@ void CUIBasePanel::Init()
 	this->m_MapCombo->SetSize({ 347, 25 });
 	this->m_MapCombo->SetLocation({ 15, 25 });
 	this->m_MapCombo->SetTabIndex(0);
+	this->m_MapCombo->SetSelectedIndex(0);
 	this->m_MapCombo->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_MapCombo->SetDropDownStyle(Forms::ComboBoxStyle::DropDownList);
 	std::regex rgArchiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
@@ -92,6 +92,7 @@ void CUIBasePanel::Init()
 	this->m_PlaylistCombo->SetSize({ 347, 25 });
 	this->m_PlaylistCombo->SetLocation({ 15, 50 });
 	this->m_PlaylistCombo->SetTabIndex(0);
+	this->m_PlaylistCombo->SetSelectedIndex(0);
 	this->m_PlaylistCombo->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_PlaylistCombo->SetDropDownStyle(Forms::ComboBoxStyle::DropDownList);
 	this->m_GameGroup->AddControl(this->m_PlaylistCombo);
@@ -168,6 +169,7 @@ void CUIBasePanel::Init()
 	this->m_ModeCombo->SetSize({ 82, 25 });
 	this->m_ModeCombo->SetLocation({ 15, 25 });
 	this->m_ModeCombo->SetTabIndex(0);
+	this->m_ModeCombo->SetSelectedIndex(0);
 	this->m_ModeCombo->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_ModeCombo->SetDropDownStyle(Forms::ComboBoxStyle::DropDownList);
 	this->m_ModeCombo->Items.Add("Host");
@@ -184,21 +186,21 @@ void CUIBasePanel::Init()
 	this->m_ModeLabel->SetTextAlign(Drawing::ContentAlignment::TopLeft);
 	this->m_MainGroup->AddControl(this->m_ModeLabel);
 
-	this->m_CustomDllTextBox = new UIX::UIXTextBox();
-	this->m_CustomDllTextBox->SetSize({ 80, 21 });
-	this->m_CustomDllTextBox->SetLocation({ 150, 25 });
-	this->m_CustomDllTextBox->SetTabIndex(0);
-	this->m_CustomDllTextBox->SetText("");
-	this->m_CustomDllTextBox->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
-	this->m_MainGroup->AddControl(this->m_CustomDllTextBox);
+	this->m_HostNameTextBox = new UIX::UIXTextBox();
+	this->m_HostNameTextBox->SetSize({ 80, 21 });
+	this->m_HostNameTextBox->SetLocation({ 150, 25 });
+	this->m_HostNameTextBox->SetTabIndex(0);
+	this->m_HostNameTextBox->SetText("");
+	this->m_HostNameTextBox->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
+	this->m_MainGroup->AddControl(this->m_HostNameTextBox);
 
-	this->m_CustomDllLabel = new UIX::UIXLabel();
-	this->m_CustomDllLabel->SetSize({ 70, 21 });
-	this->m_CustomDllLabel->SetLocation({ 233, 28 });
-	this->m_CustomDllLabel->SetTabIndex(0);
-	this->m_CustomDllLabel->SetText("Additional dll's");
-	this->m_CustomDllLabel->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
-	this->m_MainGroup->AddControl(this->m_CustomDllLabel);
+	this->m_HostNameLabel = new UIX::UIXLabel();
+	this->m_HostNameLabel->SetSize({ 70, 21 });
+	this->m_HostNameLabel->SetLocation({ 233, 28 });
+	this->m_HostNameLabel->SetTabIndex(0);
+	this->m_HostNameLabel->SetText("Host name");
+	this->m_HostNameLabel->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
+	this->m_MainGroup->AddControl(this->m_HostNameLabel);
 
 	this->m_LaunchArgsTextBox = new UIX::UIXTextBox();
 	this->m_LaunchArgsTextBox->SetSize({ 215, 21 });
@@ -212,7 +214,7 @@ void CUIBasePanel::Init()
 	this->m_LaunchArgsLabel->SetSize({ 70, 21 });
 	this->m_LaunchArgsLabel->SetLocation({ 233, 53 });
 	this->m_LaunchArgsLabel->SetTabIndex(0);
-	this->m_LaunchArgsLabel->SetText("Launch flags");
+	this->m_LaunchArgsLabel->SetText("Command line");
 	this->m_LaunchArgsLabel->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_MainGroup->AddControl(this->m_LaunchArgsLabel);
 
@@ -228,6 +230,7 @@ void CUIBasePanel::Init()
 	this->m_UpdateSDK->SetSize({ 110, 18 });
 	this->m_UpdateSDK->SetLocation({ 15, 30 });
 	this->m_UpdateSDK->SetTabIndex(0);
+	this->m_UpdateSDK->SetEnabled(false);
 	this->m_UpdateSDK->SetText("Update SDK");
 	this->m_UpdateSDK->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_MainGroupExt->AddControl(this->m_UpdateSDK);
@@ -239,6 +242,7 @@ void CUIBasePanel::Init()
 	this->m_LaunchSDK->SetText("Launch game");
 	this->m_LaunchSDK->SetBackColor(Drawing::Color(3, 102, 214));
 	this->m_LaunchSDK->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
+	this->m_LaunchSDK->Click += &LaunchGame;
 	this->m_MainGroupExt->AddControl(this->m_LaunchSDK);
 
 	// #################################################################################################
@@ -339,21 +343,21 @@ void CUIBasePanel::Init()
 	this->m_EngineNetworkGroup->AddControl(this->m_NetRandomKeyToggle);
 
 
-	this->m_QueuedPacketThread = new UIX::UIXCheckBox();
-	this->m_QueuedPacketThread->SetSize({ 125, 18 });
-	this->m_QueuedPacketThread->SetLocation({ 15, 30 });
-	this->m_QueuedPacketThread->SetTabIndex(2);
-	this->m_QueuedPacketThread->SetText("No queued packets");
-	this->m_QueuedPacketThread->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
-	this->m_EngineNetworkGroup->AddControl(this->m_QueuedPacketThread);
+	this->m_NoQueuedPacketThread = new UIX::UIXCheckBox();
+	this->m_NoQueuedPacketThread->SetSize({ 125, 18 });
+	this->m_NoQueuedPacketThread->SetLocation({ 15, 30 });
+	this->m_NoQueuedPacketThread->SetTabIndex(2);
+	this->m_NoQueuedPacketThread->SetText("No queued packets");
+	this->m_NoQueuedPacketThread->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
+	this->m_EngineNetworkGroup->AddControl(this->m_NoQueuedPacketThread);
 
-	this->m_NoTimeOut = new UIX::UIXCheckBox();
-	this->m_NoTimeOut->SetSize({ 125, 18 });
-	this->m_NoTimeOut->SetLocation({ 155, 30 });
-	this->m_NoTimeOut->SetTabIndex(0);
-	this->m_NoTimeOut->SetText("No time out");
-	this->m_NoTimeOut->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
-	this->m_EngineNetworkGroup->AddControl(this->m_NoTimeOut);
+	this->m_NoTimeOutToggle = new UIX::UIXCheckBox();
+	this->m_NoTimeOutToggle->SetSize({ 125, 18 });
+	this->m_NoTimeOutToggle->SetLocation({ 155, 30 });
+	this->m_NoTimeOutToggle->SetTabIndex(0);
+	this->m_NoTimeOutToggle->SetText("No time out");
+	this->m_NoTimeOutToggle->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
+	this->m_EngineNetworkGroup->AddControl(this->m_NoTimeOutToggle);
 
 
 	this->m_WindowedToggle = new UIX::UIXCheckBox();
@@ -365,13 +369,13 @@ void CUIBasePanel::Init()
 	this->m_WindowedToggle->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_EngineVideoGroup->AddControl(this->m_WindowedToggle);
 
-	this->m_BorderlessToggle = new UIX::UIXCheckBox();
-	this->m_BorderlessToggle->SetSize({ 150, 18 });
-	this->m_BorderlessToggle->SetLocation({ 155, 7 });
-	this->m_BorderlessToggle->SetTabIndex(0);
-	this->m_BorderlessToggle->SetText("No border");
-	this->m_BorderlessToggle->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
-	this->m_EngineVideoGroup->AddControl(this->m_BorderlessToggle);
+	this->m_NoBorderToggle = new UIX::UIXCheckBox();
+	this->m_NoBorderToggle->SetSize({ 150, 18 });
+	this->m_NoBorderToggle->SetLocation({ 155, 7 });
+	this->m_NoBorderToggle->SetTabIndex(0);
+	this->m_NoBorderToggle->SetText("No border");
+	this->m_NoBorderToggle->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
+	this->m_EngineVideoGroup->AddControl(this->m_NoBorderToggle);
 
 	this->m_FpsTextBox = new UIX::UIXTextBox();
 	this->m_FpsTextBox->SetSize({ 25, 18 });
@@ -443,12 +447,138 @@ void CUIBasePanel::Init()
 	this->PerformLayout();
 	// END DESIGNER CODE
 
-	this->SetBackColor({ 47, 54, 61 });
+	this->SetBackColor(Drawing::Color(47, 54, 61));
+}
+
+void CUIBasePanel::LaunchGame(Forms::Control* pSender)
+{
+	string svParameter = "-launcher \"1\" -dev ";
+	eLaunchMode launchMode = eLaunchMode::LM_NULL;
+
+	launchMode = g_pLauncher->GetMainSurface()->BuildParameter(svParameter);
+
+	printf("%s\n", svParameter.c_str());
+	printf("launchMode %d\n", launchMode);
+
+	g_pLauncher->Setup(launchMode, svParameter);
+	g_pLauncher->Launch();
+}
+
+eLaunchMode CUIBasePanel::BuildParameter(string& svParameter)
+{
+	eLaunchMode results = eLaunchMode::LM_NULL;
+
+	switch (static_cast<eMode>(this->m_ModeCombo->SelectedIndex()))
+	{
+	case eMode::HOST:
+	{
+		// GAME ############################################################################################
+		if (this->m_DevelopmentToggle->Checked())
+		{
+			svParameter.append("+exec \"autoexec_server_dev.cfg\" ");
+			svParameter.append("+exec \"autoexec_client_dev.cfg\" ");
+			svParameter.append("+exec \"autoexec_dev.cfg\" ");
+			svParameter.append("+exec \"rcon_server_dev.cfg\" ");
+			svParameter.append("+exec \"rcon_client_dev.cfg\" ");
+			results = eLaunchMode::LM_HOST_DEBUG;
+		}
+		else
+		{
+			svParameter.append("+exec \"autoexec_server.cfg\" ");
+			svParameter.append("+exec \"autoexec_client.cfg\" ");
+			svParameter.append("+exec \"autoexec.cfg\" ");
+			svParameter.append("+exec \"rcon_server.cfg\" ");
+			svParameter.append("+exec \"rcon_client.cfg\" ");
+			results = eLaunchMode::LM_HOST;
+		}
+
+		if (this->m_CheatsToggle->Checked())
+			svParameter.append("+sv_cheats \"1\" ");
+
+		if (this->m_ConsoleToggle->Checked())
+			svParameter.append("-wconsole ");
+
+		if (this->m_ColorConsoleToggle->Checked())
+			svParameter.append("-ansiclr ");
+
+		if (!String::IsNullOrEmpty(this->m_PlaylistFileTextBox->Text()))
+			svParameter.append("-playlistfile \"" + this->m_PlaylistFileTextBox->Text() + "\" ");
+
+		// ENGINE ##########################################################################################
+		if (StringIsDigit(this->m_ReservedCoresTextBox->Text().ToCString()))
+			svParameter.append("-numreservedcores \"" + this->m_ReservedCoresTextBox->Text() + "\" ");
+		//else error;
+
+		if (StringIsDigit(this->m_WorkerThreadsTextBox->Text().ToCString()))
+			svParameter.append("-numworkerthreads \"" + this->m_WorkerThreadsTextBox->Text() + "\" ");
+		//else error;
+
+		if (this->m_SingleCoreDediToggle->Checked())
+			svParameter.append("+sv_single_core_dedi \"1\" ");
+
+		if (this->m_NoAsyncJobsToggle->Checked())
+		{
+			svParameter.append("-noasync ");
+			svParameter.append("async_serialize \"0\" ");
+			svParameter.append("buildcubemaps_async \"0\" ");
+			svParameter.append("sv_asyncAIInit \"0\" ");
+			svParameter.append("sv_asyncSendSnapshot \"0\" ");
+			svParameter.append("sv_scriptCompileAsync \"0\" ");
+			svParameter.append("cl_async_bone_setup \"0\" ");
+			svParameter.append("cl_updatedirty_async \"0\" ");
+			svParameter.append("mat_syncGPU \"1\" ");
+			svParameter.append("mat_sync_rt \"1\" ");
+			svParameter.append("mat_sync_rt_flushes_gpu \"1\" ");
+			svParameter.append("net_async_sendto \"0\" ");
+			svParameter.append("physics_async_sv \"0\" ");
+			svParameter.append("physics_async_cl \"0\" ");
+		}
+
+		if (this->m_NetEncryptionToggle->Checked())
+			svParameter.append("net_encryptionEnable \"1\" ");
+
+		if (this->m_NetRandomKeyToggle->Checked())
+			svParameter.append("net_useRandomKey \"1\" ");
+
+		if (this->m_NoQueuedPacketThread->Checked())
+			svParameter.append("net_queued_packet_thread \"0\" ");
+
+		if (this->m_NoTimeOutToggle->Checked())
+			svParameter.append("-notimeout ");
+
+		if (this->m_WindowedToggle->Checked())
+			svParameter.append("-windowed ");
+
+		if (this->m_NoBorderToggle->Checked())
+			svParameter.append("-noborder ");
+
+		if (StringIsDigit(this->m_FpsTextBox->Text().ToCString()))
+			svParameter.append("+fps_max \"" + this->m_FpsTextBox->Text() + "\" ");
+
+		if (!String::IsNullOrEmpty(this->m_WidthTextBox->Text()))
+			svParameter.append("-w \"" + this->m_WidthTextBox->Text() + "\" ");
+
+		if (!String::IsNullOrEmpty(this->m_HeightTextBox->Text()))
+			svParameter.append("-h \"" + this->m_HeightTextBox->Text() + "\" ");
+
+		// MAIN ############################################################################################
+		if (!String::IsNullOrEmpty(this->m_HostNameTextBox->Text()))
+		{
+			svParameter.append("+sv_pylonVisibility \"1\" ");
+			svParameter.append("+sv_pylonHostName \"" + this->m_HostNameTextBox->Text() + "\" ");
+		}
+		if (!String::IsNullOrEmpty(this->m_LaunchArgsTextBox->Text()))
+			svParameter.append(this->m_LaunchArgsTextBox->Text());
+
+		return results;
+	}
+	default:
+		return results;
+	}
 }
 
 CUIBasePanel::CUIBasePanel() : Forms::Form()
 {
-	g_pMainUI = this;
 	this->Init();
 }
 CUIBasePanel* g_pMainUI;
