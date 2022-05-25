@@ -11,7 +11,6 @@
 #include "datacache/mdlcache.h"
 #include "datacache/imdlcache.h"
 #include "datacache/idatacache.h"
-#include "engine/sys_utils.h"
 #include "rtech/rtech_utils.h"
 #include "public/include/studio.h"
 #include "tier1/utldict.h"

@@ -12,7 +12,6 @@
 #include "public/include/edict.h"
 #include "public/include/utility.h"
 #include "engine/host_state.h"
-#include "engine/sys_utils.h"
 #include "game/server/ai_node.h"
 #include "game/server/ai_network.h"
 #include "game/server/ai_networkmanager.h"

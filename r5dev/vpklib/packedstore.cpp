@@ -11,7 +11,6 @@
 #include "tier1/cvar.h"
 #include "mathlib/adler32.h"
 #include "mathlib/crc32.h"
-#include "engine/sys_utils.h"
 #include "vpklib/packedstore.h"
 
 //-----------------------------------------------------------------------------

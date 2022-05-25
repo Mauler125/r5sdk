@@ -10,7 +10,6 @@
 #include "tier1/cvar.h"
 #include "engine/sys_dll.h"
 #include "engine/sys_dll2.h"
-#include "engine/sys_utils.h"
 #include "client/vengineclient_impl.h"
 
 //-----------------------------------------------------------------------------

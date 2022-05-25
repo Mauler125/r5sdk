@@ -21,7 +21,6 @@ History:
 #include "windows/console.h"
 #include "windows/resource.h"
 #include "engine/net.h"
-#include "engine/sys_utils.h"
 #include "engine/host_state.h"
 #ifndef CLIENT_DLL
 #include "engine/server/server.h"

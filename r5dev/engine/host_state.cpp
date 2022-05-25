@@ -28,7 +28,6 @@
 #include "engine/host_cmd.h"
 #include "engine/host_state.h"
 #include "engine/sys_engine.h"
-#include "engine/sys_utils.h"
 #include "engine/modelloader.h"
 #include "engine/cmodel_bsp.h"
 #ifndef CLIENT_DLL

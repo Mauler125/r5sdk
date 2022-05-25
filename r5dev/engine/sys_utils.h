@@ -12,55 +12,10 @@ inline auto Sys_LoadAssetHelper = p_Sys_LoadAssetHelper.RCast<void* (*)(const CH
 
 inline CMemory p_Con_NPrintf;
 inline auto Con_NPrintf = p_Con_NPrintf.RCast<void (*)(int pos, const char* fmt, ...)>();
-
-inline std::mutex s_LogMutex;
 /* ==== ------- ========================================================================================================================================================= */
-
-enum class eDLL_T : int
-{
-	SERVER = 0, // Game DLL
-	CLIENT = 1, // Game DLL
-	UI     = 2, // Game DLL
-	ENGINE = 3, // Wrapper
-	FS     = 4, // File System
-	RTECH  = 5, // RTech API
-	MS     = 6, // Material System
-	NETCON = 7, // Net Console
-	NONE   = 8
-};
-
-const string sDLL_T[9] = 
-{
-	"Native(S):",
-	"Native(C):",
-	"Native(U):",
-	"Native(E):",
-	"Native(F):",
-	"Native(R):",
-	"Native(M):",
-	"Netcon(X):",
-	""
-};
-
-const static string sANSI_DLL_T[9] = 
-{
-	"\033[38;2;059;120;218mNative(S):",
-	"\033[38;2;118;118;118mNative(C):",
-	"\033[38;2;151;090;118mNative(U):",
-	"\033[38;2;204;204;204mNative(E):",
-	"\033[38;2;097;214;214mNative(F):",
-	"\033[38;2;092;181;089mNative(R):",
-	"\033[38;2;192;105;173mNative(M):",
-	"\033[38;2;204;204;204mNetcon(X):",
-	""
-};
 
 ///////////////////////////////////////////////////////////////////////////////
 void HSys_Error(char* fmt, ...);
-void DevMsg(eDLL_T idx, const char* fmt, ...);
-void Warning(eDLL_T idx, const char* fmt, ...);
-void Error(eDLL_T idx, const char* fmt, ...);
-
 void SysUtils_Attach();
 void SysUtils_Detach();
 

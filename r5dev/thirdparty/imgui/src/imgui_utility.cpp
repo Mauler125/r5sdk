@@ -3,7 +3,6 @@
  *-----------------------------------------------------------------------------*/
 
 #include "core/stdafx.h"
-#include "engine/sys_utils.h"
 #include "thirdparty/imgui/include/imgui_utility.h"
 
 int Stricmp(const char* s1, const char* s2)

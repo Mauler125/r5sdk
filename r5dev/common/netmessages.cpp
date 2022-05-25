@@ -10,7 +10,6 @@
 ///////////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
 #include "common/netmessages.h"
-#include "engine/sys_utils.h"
 
 bool SVC_Print::Process()
 {

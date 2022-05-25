@@ -9,7 +9,6 @@
 #include "tier1/cmd.h"
 #include "tier1/cvar.h"
 #include "vstdlib/callback.h"
-#include "engine/sys_utils.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: returns max command lenght

@@ -13,7 +13,6 @@
 #endif // !DEDICATED
 #include "engine/client/client.h"
 #include "engine/net.h"
-#include "engine/sys_utils.h"
 #include "rtech/rtech_game.h"
 #include "rtech/rtech_utils.h"
 #include "filesystem/basefilesystem.h"

@@ -8,8 +8,6 @@
 #include "tier0/tslist.h"
 #include "tier1/IConVar.h"
 #include "tier1/cvar.h"
-#include "engine/sys_utils.h"
-#include "engine/sys_dll2.h"
 #include "mathlib/bits.h"
 #include "vstdlib/callback.h"
 

@@ -86,6 +86,7 @@
 #include "core/termutil.h"
 #include "tier0/basetypes.h"
 #include "tier0/platform.h"
+#include "tier0/dbg.h"
 
 #if !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
 #if !defined (DEDICATED)

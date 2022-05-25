@@ -12,7 +12,6 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#include "engine/sys_utils.h"
 #ifndef CLIENT_DLL
 #include "engine/server/server.h"
 #endif // CLIENT_DLL

@@ -6,7 +6,6 @@
 
 #include "core/stdafx.h"
 #include "tier1/cvar.h"
-#include "engine/sys_utils.h"
 #include "engine/net.h"
 #include "engine/net_chan.h"
 

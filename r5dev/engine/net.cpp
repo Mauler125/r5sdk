@@ -11,7 +11,6 @@
 #include "tier1/cvar.h"
 #include "vstdlib/callback.h"
 #include "mathlib/color.h"
-#include "engine/sys_utils.h"
 #include "engine/net.h"
 #include "engine/net_chan.h"
 #ifndef CLIENT_DLL

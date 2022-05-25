@@ -1,7 +1,6 @@
 #include "core/stdafx.h"
 #include "core/logdef.h"
 #include "vphysics/QHull.h"
-#include "engine/sys_utils.h"
 #ifndef DEDICATED
 #include "gameui/IConsole.h"
 #endif // !DEDICATED
