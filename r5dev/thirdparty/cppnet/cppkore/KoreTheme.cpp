@@ -49,8 +49,8 @@ namespace Themes
 	const static auto TextEnabledBrush = Drawing::Color(Drawing::Color::White);
 	const static auto TextDisabledBrush = Drawing::Color(Drawing::Color::Gray);
 
-	const static auto ProgressGrad1 = Drawing::Color(113, 156, 235);
-	const static auto ProgressGrad2 = Drawing::Color(113, 156, 235);
+	const static auto ProgressGrad1 = Drawing::Color(0, 120, 215);
+	const static auto ProgressGrad2 = Drawing::Color(0, 120, 215);
 
 	const static auto HeaderBrush = Drawing::Color(54, 54, 54);
 	

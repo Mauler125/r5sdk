@@ -252,7 +252,7 @@ FORCEINLINE void CHostState::Think(void) const
 //-----------------------------------------------------------------------------
 FORCEINLINE void CHostState::LoadConfig(void) const
 {
-	if (CommandLine()->ParmValue("-launcher", 0) < 1) // Launcher level 1 indicates everything is set from the sdk launcher.
+	if (CommandLine()->ParmValue("-launcher", 0) < 1) // Launcher level 1 indicates everything is handled from the commandline/launcher.
 	{
 		if (!CommandLine()->CheckParm("-devsdk"))
 		{

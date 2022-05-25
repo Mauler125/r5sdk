@@ -11,6 +11,117 @@
 //#define GAMEDLL_S4 /*[i]*/
 //#define GAMEDLL_S7 /*[i]*/
 
+//-----------------------------------------------------------------------------
+// Set up platform defines.
+//-----------------------------------------------------------------------------
+#ifdef _WIN32
+#define IsPlatformLinux()	0
+#define IsPlatformPosix()	0
+#define IsPlatformOSX()		0
+#define IsOSXOpenGL()		0
+#define IsPlatformPS3()		0
+#define IsPlatformPS3_PPU()	0
+#define IsPlatformPS3_SPU()	0
+#define PLATFORM_WINDOWS	1
+#define PLATFORM_OPENGL 0
+
+#ifndef _X360
+#define IsPlatformX360() 0
+#define IsPlatformWindowsPC() 1
+#define PLATFORM_WINDOWS_PC 1
+
+#ifdef _WIN64
+#define IsPlatformWindowsPC64() 1
+#define IsPlatformWindowsPC32() 0
+#define PLATFORM_WINDOWS_PC64 1
+#else
+#define IsPlatformWindowsPC64() 0
+#define IsPlatformWindowsPC32() 1
+#define PLATFORM_WINDOWS_PC32 1
+#endif
+
+#else // _X360
+
+#define IsPlatformWindowsPC()	0
+#define IsPlatformWindowsPC64() 0
+#define IsPlatformWindowsPC32() 0
+#define IsPlatformX360()		1
+#define PLATFORM_X360 1
+
+#endif // _X360
+#elif defined(_PS3)
+
+// Adding IsPlatformOpenGL() to help fix a bunch of code that was using IsPosix() to infer if the DX->GL translation layer was being used.
+#if defined( DX_TO_GL_ABSTRACTION )
+#define IsPlatformOpenGL() true
+#else
+#define IsPlatformOpenGL() false
+#endif
+
+#define IsPlatformX360()		0
+#define IsPlatformPS3()			1
+#ifdef SPU
+#define IsPlatformPS3_PPU()		0
+#define IsPlatformPS3_SPU()		1
+#else
+#define IsPlatformPS3_PPU()		1
+#define IsPlatformPS3_SPU()		0
+#endif
+#define IsPlatformWindowsPC()	0
+#define IsPlatformWindowsPC64()	0
+#define IsPlatformWindowsPC32()	0
+#define IsPlatformPosix()		1
+#define PLATFORM_POSIX 1
+#define PLATFORM_OPENGL 0
+
+#define IsPlatformLinux() 0
+#define IsPlatformOSX() 0
+#define IsOSXOpenGL() 0
+
+
+#elif defined(POSIX)
+#define IsPlatformX360()		0
+#define IsPlatformPS3()			0
+#define IsPlatformPS3_PPU()		0
+#define IsPlatformPS3_SPU()		0
+#define IsPlatformWindowsPC()	0
+#define IsPlatformWindowsPC64()	0
+#define IsPlatformWindowsPC32()	0
+#define IsPlatformPosix()		1
+#define PLATFORM_POSIX 1
+
+#if defined( LINUX ) && !defined( OSX ) // for havok we define both symbols, so don't let the osx build wander down here
+#define IsPlatformLinux() 1
+#define IsPlatformOSX() 0
+#define IsOSXOpenGL() 0
+#define PLATFORM_OPENGL 0
+#define PLATFORM_LINUX 1
+#elif defined ( OSX )
+#define IsPlatformLinux() 0
+#define IsPlatformOSX() 1
+#define IsOSXOpenGL() 1
+#define PLATFORM_OSX 1
+#define PLATFORM_OPENGL 1
+#else
+#define IsPlatformLinux() 0
+#define IsPlatformOSX() 0
+#define IsOSXOpenGL() 0
+#define PLATFORM_OPENGL 0
+#endif
+
+#else
+#error
+#endif
+
+//-----------------------------------------------------------------------------
+// Old-school defines we're going to support since much code uses them
+//-----------------------------------------------------------------------------
+#define IsLinux()	IsPlatformLinux() 
+#define IsOSX()		IsPlatformOSX()
+#define IsPosix()	IsPlatformPosix()
+#define IsX360()	IsPlatformX360()
+#define IsPS3()		IsPlatformPS3()
+
 #define MAX_SPLITSCREEN_CLIENT_BITS 2 // Max 2 player splitscreen in portal (don't merge this back), saves a bunch of memory [8/31/2010 tom]
 #define MAX_SPLITSCREEN_CLIENTS	( 1 << MAX_SPLITSCREEN_CLIENT_BITS ) // 4 // this should == MAX_JOYSTICKS in InputEnums.h
 
@@ -43,6 +154,16 @@
 #endif
 
 #define FORWARD_DECLARE_HANDLE(name) typedef struct name##__ *name
+
+#ifndef NOTE_UNUSED
+#define NOTE_UNUSED(x)	(void)(x)	// for pesky compiler / lint warnings
+#endif
+
+typedef float				vec_t;
+typedef float				vec3_t[3];
+
+typedef float				float32;
+typedef double				float64;
 
 struct vrect_t
 {
