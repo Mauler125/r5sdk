@@ -30,8 +30,8 @@ CAI_NetworkBuilder::BuildFile
 */
 void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 {
-	string svMeshDir = "maps\\navmesh\\";
-	string svGraphDir = "maps\\graphs\\";
+	const string svMeshDir = "maps\\navmesh\\";
+	const string svGraphDir = "maps\\graphs\\";
 
 	fs::path fsMeshPath(svMeshDir + g_pHostState->m_levelName + "_" + HULL_SIZE[3] + ".nm");
 	fs::path fsGraphPath(svGraphDir + g_pHostState->m_levelName + ".ain");
