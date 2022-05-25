@@ -277,8 +277,8 @@ int main(int argc, char* argv[], char* envp[])
         Forms::Application::EnableVisualStyles();
         UIX::UIXTheme::InitializeRenderer(new Themes::KoreTheme());
 
-        g_pLauncher->m_pMainUI = new CUIBasePanel();
-        Forms::Application::Run(g_pLauncher->m_pMainUI);
+        g_pLauncher->m_pSurface = new CUIBaseSurface();
+        Forms::Application::Run(g_pLauncher->m_pSurface);
         UIX::UIXTheme::ShutdownRenderer();
     }
     else

@@ -1,9 +1,16 @@
-
+//=============================================================================//
+//
+// Purpose:
+//
+//=============================================================================//
 #include "core/stdafx.h"
 #include "sdklauncher.h"
 #include "basepanel.h"
 
-void CUIBasePanel::Init()
+//-----------------------------------------------------------------------------
+// Purpose: creates the surface layout
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::Init()
 {
 	// START DESIGNER CODE
 	const INT WindowX = 800;
@@ -18,10 +25,11 @@ void CUIBasePanel::Init()
 	this->SetStartPosition(Forms::FormStartPosition::CenterParent);
 	this->SetMinimizeBox(false);
 	this->SetMaximizeBox(false);
+	this->SetBackColor(Drawing::Color(47, 54, 61));
 
-	// #################################################################################################
-	//	
-	// #################################################################################################
+	// ########################################################################
+	//	GAME
+	// ########################################################################
 	this->m_GameGroup = new UIX::UIXGroupBox();
 	this->m_GameGroup->SetSize({ 458, 84 });
 	this->m_GameGroup->SetLocation({ 12, 10 });
@@ -54,29 +62,6 @@ void CUIBasePanel::Init()
 	this->m_MapCombo->SetSelectedIndex(0);
 	this->m_MapCombo->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_MapCombo->SetDropDownStyle(Forms::ComboBoxStyle::DropDownList);
-	std::regex rgArchiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
-	std::smatch smRegexMatches;
-
-	for (const auto& dEntry : fs::directory_iterator("vpk"))
-	{
-		std::string svFileName = dEntry.path().string();
-		std::regex_search(svFileName, smRegexMatches, rgArchiveRegex);
-
-		if (smRegexMatches.size() > 0)
-		{
-			if (strcmp(smRegexMatches[1].str().c_str(), "frontend") == 0)
-			{
-				continue;
-			}
-			else if (strcmp(smRegexMatches[1].str().c_str(), "mp_common") == 0)
-			{
-				this->m_MapCombo->Items.Add("mp_lobby");
-				continue;
-			}
-
-			this->m_MapCombo->Items.Add(smRegexMatches[1].str().c_str());
-		}
-	}
 	this->m_GameGroup->AddControl(this->m_MapCombo);
 
 	this->m_PlaylistLabel = new UIX::UIXLabel();
@@ -136,6 +121,7 @@ void CUIBasePanel::Init()
 	this->m_PlaylistFileTextBox->SetTabIndex(0);
 	this->m_PlaylistFileTextBox->SetText("playlists_r5_patch.txt");
 	this->m_PlaylistFileTextBox->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
+	this->m_PlaylistFileTextBox->LostFocus += &ReloadPlaylists;
 	this->m_GameGroupExt->AddControl(this->m_PlaylistFileTextBox);
 
 	this->m_PlaylistFileLabel = new UIX::UIXLabel();
@@ -146,9 +132,9 @@ void CUIBasePanel::Init()
 	this->m_PlaylistFileLabel->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left);
 	this->m_GameGroupExt->AddControl(this->m_PlaylistFileLabel);
 
-	// #################################################################################################
-	//	
-	// #################################################################################################
+	// ########################################################################
+	//	MAIN
+	// ########################################################################
 	this->m_MainGroup = new UIX::UIXGroupBox();
 	this->m_MainGroup->SetSize({ 308, 84 });
 	this->m_MainGroup->SetLocation({ 480, 10 });
@@ -172,9 +158,6 @@ void CUIBasePanel::Init()
 	this->m_ModeCombo->SetSelectedIndex(0);
 	this->m_ModeCombo->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_ModeCombo->SetDropDownStyle(Forms::ComboBoxStyle::DropDownList);
-	this->m_ModeCombo->Items.Add("Host");
-	this->m_ModeCombo->Items.Add("Server");
-	this->m_ModeCombo->Items.Add("Client");
 	this->m_MainGroup->AddControl(this->m_ModeCombo);
 
 	this->m_ModeLabel = new UIX::UIXLabel();
@@ -209,9 +192,6 @@ void CUIBasePanel::Init()
 	this->m_VisibilityCombo->SetSelectedIndex(0);
 	this->m_VisibilityCombo->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_VisibilityCombo->SetDropDownStyle(Forms::ComboBoxStyle::DropDownList);
-	this->m_VisibilityCombo->Items.Add("Public");
-	this->m_VisibilityCombo->Items.Add("Hidden");
-	this->m_VisibilityCombo->Items.Add("Offline");
 	this->m_MainGroup->AddControl(this->m_VisibilityCombo);
 
 	this->m_VisibilityLabel = new UIX::UIXLabel();
@@ -265,9 +245,9 @@ void CUIBasePanel::Init()
 	this->m_LaunchSDK->Click += &LaunchGame;
 	this->m_MainGroupExt->AddControl(this->m_LaunchSDK);
 
-	// #################################################################################################
-	//	
-	// #################################################################################################
+	// ########################################################################
+	//	ENGINE
+	// ########################################################################
 	this->m_EngineBaseGroup = new UIX::UIXGroupBox();
 	this->m_EngineBaseGroup->SetSize({ 337, 73 });
 	this->m_EngineBaseGroup->SetLocation({ 12, 158 });
@@ -443,9 +423,9 @@ void CUIBasePanel::Init()
 	this->m_ResolutionLabel->SetTextAlign(Drawing::ContentAlignment::TopLeft);
 	this->m_EngineVideoGroup->AddControl(this->m_ResolutionLabel);
 
-	// #################################################################################################
-	//	
-	// #################################################################################################
+	// ########################################################################
+	//	CONSOLE
+	// ########################################################################
 	this->m_ConsoleGroup = new UIX::UIXGroupBox();
 	this->m_ConsoleGroup->SetSize({ 429, 181 });
 	this->m_ConsoleGroup->SetLocation({ 359, 158 });
@@ -466,322 +446,414 @@ void CUIBasePanel::Init()
 	this->ResumeLayout(false);
 	this->PerformLayout();
 	// END DESIGNER CODE
-
-	this->SetBackColor(Drawing::Color(47, 54, 61));
 }
 
-void CUIBasePanel::LaunchGame(Forms::Control* pSender)
+//-----------------------------------------------------------------------------
+// Purpose: post-init surface setup
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::Setup()
+{
+	this->ParseMaps();
+	this->ParsePlaylists();
+
+	this->m_ModeCombo->Items.Add("Host");
+	this->m_ModeCombo->Items.Add("Server");
+	this->m_ModeCombo->Items.Add("Client");
+
+	this->m_VisibilityCombo->Items.Add("Public");
+	this->m_VisibilityCombo->Items.Add("Hidden");
+	this->m_VisibilityCombo->Items.Add("Offline");
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: parses all available maps from the main vpk directory
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::ParseMaps()
+{
+	std::regex rgArchiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
+	std::smatch smRegexMatches;
+	for (const auto& dEntry : fs::directory_iterator("vpk"))
+	{
+		std::string svFileName = dEntry.path().string();
+		std::regex_search(svFileName, smRegexMatches, rgArchiveRegex);
+
+		if (smRegexMatches.size() > 0)
+		{
+			if (strcmp(smRegexMatches[1].str().c_str(), "frontend") == 0)
+			{
+				continue;
+			}
+			else if (strcmp(smRegexMatches[1].str().c_str(), "mp_common") == 0)
+			{
+				this->m_MapCombo->Items.Add("mp_lobby");
+				continue;
+			}
+
+			this->m_MapCombo->Items.Add(smRegexMatches[1].str().c_str());
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: parses all playlists from user selected playlist file
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::ParsePlaylists()
+{
+	const string svBaseDir = "platform\\";
+	fs::path fsPlaylistPath(svBaseDir + this->m_PlaylistFileTextBox->Text().ToCString());
+
+	if (fs::exists(fsPlaylistPath))
+	{
+		bool bOk{ };
+		std::ifstream iFile(fsPlaylistPath);
+		vdf::object vRoot = vdf::read(iFile, &bOk);
+
+		if (bOk)
+		{
+			const auto& vcPlaylists = vRoot.childs.at("Playlists");
+			for (auto [id, it] = std::tuple{ 1, vcPlaylists->childs.begin()}; it != vcPlaylists->childs.end(); id++, it++)
+			{
+				this->m_PlaylistCombo->Items.Add(it->first.c_str());
+				if (strcmp(it->first.c_str(), "dev_default"))
+				{
+					this->m_PlaylistCombo->SetSelectedIndex(id);
+				}
+			}
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: launches the game with the SDK
+// Input  : *pSender - 
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::LaunchGame(Forms::Control* pSender)
 {
 	string svParameter = "-launcher -dev ";
-	eLaunchMode launchMode = eLaunchMode::LM_NULL;
+	eLaunchMode launchMode = eLaunchMode::LM_NONE;
 
 	launchMode = g_pLauncher->GetMainSurface()->BuildParameter(svParameter);
-
-	printf("%s\n", svParameter.c_str());
-	printf("launchMode %d\n", launchMode);
 
 	g_pLauncher->Setup(launchMode, svParameter);
 	g_pLauncher->Launch();
 }
 
-eLaunchMode CUIBasePanel::BuildParameter(string& svParameter)
+//-----------------------------------------------------------------------------
+// Purpose: clears the form and reloads the playlist
+// Input  : *pSender - 
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::ReloadPlaylists(Forms::Control* pSender)
 {
-	eLaunchMode results = eLaunchMode::LM_NULL;
+	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+
+	pSurface->m_PlaylistCombo->Items.Clear();
+	pSurface->m_PlaylistCombo->OnSizeChanged();
+	pSurface->ParsePlaylists();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: clears the form and reloads the playlist
+// Input  : &svParameters - 
+// Output : eLaunchMode [HOST - SERVER - CLIENT - NONE]
+//-----------------------------------------------------------------------------
+eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
+{
+	eLaunchMode results = eLaunchMode::LM_NONE;
 
 	switch (static_cast<eMode>(this->m_ModeCombo->SelectedIndex()))
 	{
 	case eMode::HOST:
 	{
-		// GAME ############################################################################################
+		// GAME ###############################################################
 		if (!String::IsNullOrEmpty(this->m_MapCombo->Text()))
 		{
-			svParameter.append("+map \"" + this->m_MapCombo->Text() + "\" ");
+			svParameters.append("+map \"" + this->m_MapCombo->Text() + "\" ");
 		}
 		if (!String::IsNullOrEmpty(this->m_PlaylistCombo->Text()))
 		{
-			svParameter.append("+launchplaylist \"" + this->m_PlaylistCombo->Text() + "\" ");
+			svParameters.append("+launchplaylist \"" + this->m_PlaylistCombo->Text() + "\" ");
 		}
 		if (this->m_DevelopmentToggle->Checked())
 		{
-			svParameter.append("-devsdk ");
+			svParameters.append("-devsdk ");
 			results = eLaunchMode::LM_HOST_DEBUG;
 		}
 		else
 			results = eLaunchMode::LM_HOST;
 
 		if (this->m_CheatsToggle->Checked())
-			svParameter.append("+sv_cheats \"1\" ");
+			svParameters.append("+sv_cheats \"1\" ");
 
 		if (this->m_ConsoleToggle->Checked())
-			svParameter.append("-wconsole ");
+			svParameters.append("-wconsole ");
 
 		if (this->m_ColorConsoleToggle->Checked())
-			svParameter.append("-ansiclr ");
+			svParameters.append("-ansiclr ");
 
 		if (!String::IsNullOrEmpty(this->m_PlaylistFileTextBox->Text()))
-			svParameter.append("-playlistfile \"" + this->m_PlaylistFileTextBox->Text() + "\" ");
+			svParameters.append("-playlistfile \"" + this->m_PlaylistFileTextBox->Text() + "\" ");
 
-		// ENGINE ##########################################################################################
+		// ENGINE ###############################################################
 		if (StringIsDigit(this->m_ReservedCoresTextBox->Text().ToCString()))
-			svParameter.append("-numreservedcores \"" + this->m_ReservedCoresTextBox->Text() + "\" ");
+			svParameters.append("-numreservedcores \"" + this->m_ReservedCoresTextBox->Text() + "\" ");
 		//else error;
 
 		if (StringIsDigit(this->m_WorkerThreadsTextBox->Text().ToCString()))
-			svParameter.append("-numworkerthreads \"" + this->m_WorkerThreadsTextBox->Text() + "\" ");
+			svParameters.append("-numworkerthreads \"" + this->m_WorkerThreadsTextBox->Text() + "\" ");
 		//else error;
 
 		if (this->m_SingleCoreDediToggle->Checked())
-			svParameter.append("+sv_single_core_dedi \"1\" ");
+			svParameters.append("+sv_single_core_dedi \"1\" ");
 
 		if (this->m_NoAsyncJobsToggle->Checked())
 		{
-			svParameter.append("-noasync ");
-			svParameter.append("+async_serialize \"0\" ");
-			svParameter.append("+buildcubemaps_async \"0\" ");
-			svParameter.append("+sv_asyncAIInit \"0\" ");
-			svParameter.append("+sv_asyncSendSnapshot \"0\" ");
-			svParameter.append("+sv_scriptCompileAsync \"0\" ");
-			svParameter.append("+cl_scriptCompileAsync \"0\" ");
-			svParameter.append("+cl_async_bone_setup \"0\" ");
-			svParameter.append("+cl_updatedirty_async \"0\" ");
-			svParameter.append("+mat_syncGPU \"1\" ");
-			svParameter.append("+mat_sync_rt \"1\" ");
-			svParameter.append("+mat_sync_rt_flushes_gpu \"1\" ");
-			svParameter.append("+net_async_sendto \"0\" ");
-			svParameter.append("+physics_async_sv \"0\" ");
-			svParameter.append("+physics_async_cl \"0\" ");
+			svParameters.append("-noasync ");
+			svParameters.append("+async_serialize \"0\" ");
+			svParameters.append("+buildcubemaps_async \"0\" ");
+			svParameters.append("+sv_asyncAIInit \"0\" ");
+			svParameters.append("+sv_asyncSendSnapshot \"0\" ");
+			svParameters.append("+sv_scriptCompileAsync \"0\" ");
+			svParameters.append("+cl_scriptCompileAsync \"0\" ");
+			svParameters.append("+cl_async_bone_setup \"0\" ");
+			svParameters.append("+cl_updatedirty_async \"0\" ");
+			svParameters.append("+mat_syncGPU \"1\" ");
+			svParameters.append("+mat_sync_rt \"1\" ");
+			svParameters.append("+mat_sync_rt_flushes_gpu \"1\" ");
+			svParameters.append("+net_async_sendto \"0\" ");
+			svParameters.append("+physics_async_sv \"0\" ");
+			svParameters.append("+physics_async_cl \"0\" ");
 		}
 
 		if (this->m_NetEncryptionToggle->Checked())
-			svParameter.append("+net_encryptionEnable \"1\" ");
+			svParameters.append("+net_encryptionEnable \"1\" ");
 
 		if (this->m_NetRandomKeyToggle->Checked())
-			svParameter.append("+net_useRandomKey \"1\" ");
+			svParameters.append("+net_useRandomKey \"1\" ");
 
 		if (this->m_NoQueuedPacketThread->Checked())
-			svParameter.append("+net_queued_packet_thread \"0\" ");
+			svParameters.append("+net_queued_packet_thread \"0\" ");
 
 		if (this->m_NoTimeOutToggle->Checked())
-			svParameter.append("-notimeout ");
+			svParameters.append("-notimeout ");
 
 		if (this->m_WindowedToggle->Checked())
-			svParameter.append("-windowed ");
+			svParameters.append("-windowed ");
 
 		if (this->m_NoBorderToggle->Checked())
-			svParameter.append("-noborder ");
+			svParameters.append("-noborder ");
 
 		if (StringIsDigit(this->m_FpsTextBox->Text().ToCString()))
-			svParameter.append("+fps_max \"" + this->m_FpsTextBox->Text() + "\" ");
+			svParameters.append("+fps_max \"" + this->m_FpsTextBox->Text() + "\" ");
 
 		if (!String::IsNullOrEmpty(this->m_WidthTextBox->Text()))
-			svParameter.append("-w \"" + this->m_WidthTextBox->Text() + "\" ");
+			svParameters.append("-w \"" + this->m_WidthTextBox->Text() + "\" ");
 
 		if (!String::IsNullOrEmpty(this->m_HeightTextBox->Text()))
-			svParameter.append("-h \"" + this->m_HeightTextBox->Text() + "\" ");
+			svParameters.append("-h \"" + this->m_HeightTextBox->Text() + "\" ");
 
-		// MAIN ############################################################################################
+		// MAIN ###############################################################
 		if (!String::IsNullOrEmpty(this->m_HostNameTextBox->Text()))
 		{
-			svParameter.append("+sv_pylonHostName \"" + this->m_HostNameTextBox->Text() + "\" ");
+			svParameters.append("+sv_pylonHostName \"" + this->m_HostNameTextBox->Text() + "\" ");
 
 			switch (static_cast<eVisibility>(this->m_VisibilityCombo->SelectedIndex()))
 			{
 			case eVisibility::PUBLIC:
 			{
-				svParameter.append("+sv_pylonVisibility \"2\" ");
+				svParameters.append("+sv_pylonVisibility \"2\" ");
 				break;
 			}
 			case eVisibility::HIDDEN:
 			{
-				svParameter.append("+sv_pylonVisibility \"1\" ");
+				svParameters.append("+sv_pylonVisibility \"1\" ");
 				break;
 			}
 			default:
 			{
-				svParameter.append("+sv_pylonVisibility \"0\" ");
+				svParameters.append("+sv_pylonVisibility \"0\" ");
 				break;
 			}
 			}
 		}
 		if (!String::IsNullOrEmpty(this->m_LaunchArgsTextBox->Text()))
-			svParameter.append(this->m_LaunchArgsTextBox->Text());
+			svParameters.append(this->m_LaunchArgsTextBox->Text());
 
 		return results;
 	}
 	case eMode::SERVER:
 	{
-		// GAME ############################################################################################
+		// GAME ###############################################################
 		if (!String::IsNullOrEmpty(this->m_MapCombo->Text()))
 		{
-			svParameter.append("+map \"" + this->m_MapCombo->Text() + "\" ");
+			svParameters.append("+map \"" + this->m_MapCombo->Text() + "\" ");
 		}
 		if (!String::IsNullOrEmpty(this->m_PlaylistCombo->Text()))
 		{
-			svParameter.append("+launchplaylist \"" + this->m_PlaylistCombo->Text() + "\" ");
+			svParameters.append("+launchplaylist \"" + this->m_PlaylistCombo->Text() + "\" ");
 		}
 		if (this->m_DevelopmentToggle->Checked())
 		{
-			svParameter.append("-devsdk ");
+			svParameters.append("-devsdk ");
 			results = eLaunchMode::LM_SERVER_DEBUG;
 		}
 		else
 			results = eLaunchMode::LM_SERVER;
 
 		if (this->m_CheatsToggle->Checked())
-			svParameter.append("+sv_cheats \"1\" ");
+			svParameters.append("+sv_cheats \"1\" ");
 
 		if (this->m_ConsoleToggle->Checked())
-			svParameter.append("-wconsole ");
+			svParameters.append("-wconsole ");
 
 		if (this->m_ColorConsoleToggle->Checked())
-			svParameter.append("-ansiclr ");
+			svParameters.append("-ansiclr ");
 
 		if (!String::IsNullOrEmpty(this->m_PlaylistFileTextBox->Text()))
-			svParameter.append("-playlistfile \"" + this->m_PlaylistFileTextBox->Text() + "\" ");
+			svParameters.append("-playlistfile \"" + this->m_PlaylistFileTextBox->Text() + "\" ");
 
-		// ENGINE ##########################################################################################
+		// ENGINE ###############################################################
 		if (StringIsDigit(this->m_ReservedCoresTextBox->Text().ToCString()))
-			svParameter.append("-numreservedcores \"" + this->m_ReservedCoresTextBox->Text() + "\" ");
+			svParameters.append("-numreservedcores \"" + this->m_ReservedCoresTextBox->Text() + "\" ");
 		//else error;
 
 		if (StringIsDigit(this->m_WorkerThreadsTextBox->Text().ToCString()))
-			svParameter.append("-numworkerthreads \"" + this->m_WorkerThreadsTextBox->Text() + "\" ");
+			svParameters.append("-numworkerthreads \"" + this->m_WorkerThreadsTextBox->Text() + "\" ");
 		//else error;
 
 		if (this->m_SingleCoreDediToggle->Checked())
-			svParameter.append("+sv_single_core_dedi \"1\" ");
+			svParameters.append("+sv_single_core_dedi \"1\" ");
 
 		if (this->m_NoAsyncJobsToggle->Checked())
 		{
-			svParameter.append("-noasync ");
-			svParameter.append("+async_serialize \"0\" ");
-			svParameter.append("+sv_asyncAIInit \"0\" ");
-			svParameter.append("+sv_asyncSendSnapshot \"0\" ");
-			svParameter.append("+sv_scriptCompileAsync \"0\" ");
-			svParameter.append("+physics_async_sv \"0\" ");
+			svParameters.append("-noasync ");
+			svParameters.append("+async_serialize \"0\" ");
+			svParameters.append("+sv_asyncAIInit \"0\" ");
+			svParameters.append("+sv_asyncSendSnapshot \"0\" ");
+			svParameters.append("+sv_scriptCompileAsync \"0\" ");
+			svParameters.append("+physics_async_sv \"0\" ");
 		}
 
 		if (this->m_NetEncryptionToggle->Checked())
-			svParameter.append("+net_encryptionEnable \"1\" ");
+			svParameters.append("+net_encryptionEnable \"1\" ");
 
 		if (this->m_NetRandomKeyToggle->Checked())
-			svParameter.append("+net_useRandomKey \"1\" ");
+			svParameters.append("+net_useRandomKey \"1\" ");
 
 		if (this->m_NoQueuedPacketThread->Checked())
-			svParameter.append("+net_queued_packet_thread \"0\" ");
+			svParameters.append("+net_queued_packet_thread \"0\" ");
 
 		if (this->m_NoTimeOutToggle->Checked())
-			svParameter.append("-notimeout ");
+			svParameters.append("-notimeout ");
 
-		// MAIN ############################################################################################
+		// MAIN ###############################################################
 		if (!String::IsNullOrEmpty(this->m_HostNameTextBox->Text()))
 		{
-			svParameter.append("+sv_pylonHostName \"" + this->m_HostNameTextBox->Text() + "\" ");
+			svParameters.append("+sv_pylonHostName \"" + this->m_HostNameTextBox->Text() + "\" ");
 
 			switch (static_cast<eVisibility>(this->m_VisibilityCombo->SelectedIndex()))
 			{
 			case eVisibility::PUBLIC:
 			{
-				svParameter.append("+sv_pylonVisibility \"2\" ");
+				svParameters.append("+sv_pylonVisibility \"2\" ");
 				break;
 			}
 			case eVisibility::HIDDEN:
 			{
-				svParameter.append("+sv_pylonVisibility \"1\" ");
+				svParameters.append("+sv_pylonVisibility \"1\" ");
 				break;
 			}
 			default:
 			{
-				svParameter.append("+sv_pylonVisibility \"0\" ");
+				svParameters.append("+sv_pylonVisibility \"0\" ");
 				break;
 			}
 			}
 		}
 		if (!String::IsNullOrEmpty(this->m_LaunchArgsTextBox->Text()))
-			svParameter.append(this->m_LaunchArgsTextBox->Text());
+			svParameters.append(this->m_LaunchArgsTextBox->Text());
 
 		return results;
 	}
 	case eMode::CLIENT:
 	{
-		// GAME ############################################################################################
+		// GAME ###############################################################
 		if (this->m_DevelopmentToggle->Checked())
 		{
-			svParameter.append("-devsdk ");
+			svParameters.append("-devsdk ");
 			results = eLaunchMode::LM_CLIENT_DEBUG;
 		}
 		else
 			results = eLaunchMode::LM_CLIENT;
 
 		if (this->m_CheatsToggle->Checked())
-			svParameter.append("+sv_cheats \"1\" ");
+			svParameters.append("+sv_cheats \"1\" ");
 
 		if (this->m_ConsoleToggle->Checked())
-			svParameter.append("-wconsole ");
+			svParameters.append("-wconsole ");
 
 		if (this->m_ColorConsoleToggle->Checked())
-			svParameter.append("-ansiclr ");
+			svParameters.append("-ansiclr ");
 
 		if (!String::IsNullOrEmpty(this->m_PlaylistFileTextBox->Text()))
-			svParameter.append("-playlistfile \"" + this->m_PlaylistFileTextBox->Text() + "\" ");
+			svParameters.append("-playlistfile \"" + this->m_PlaylistFileTextBox->Text() + "\" ");
 
-		// ENGINE ##########################################################################################
+		// ENGINE ###############################################################
 		if (StringIsDigit(this->m_ReservedCoresTextBox->Text().ToCString()))
-			svParameter.append("-numreservedcores \"" + this->m_ReservedCoresTextBox->Text() + "\" ");
+			svParameters.append("-numreservedcores \"" + this->m_ReservedCoresTextBox->Text() + "\" ");
 		//else error;
 
 		if (StringIsDigit(this->m_WorkerThreadsTextBox->Text().ToCString()))
-			svParameter.append("-numworkerthreads \"" + this->m_WorkerThreadsTextBox->Text() + "\" ");
+			svParameters.append("-numworkerthreads \"" + this->m_WorkerThreadsTextBox->Text() + "\" ");
 		//else error;
 
 		if (this->m_SingleCoreDediToggle->Checked())
-			svParameter.append("+sv_single_core_dedi \"1\" ");
+			svParameters.append("+sv_single_core_dedi \"1\" ");
 
 		if (this->m_NoAsyncJobsToggle->Checked())
 		{
-			svParameter.append("-noasync ");
-			svParameter.append("+async_serialize \"0\" ");
-			svParameter.append("+buildcubemaps_async \"0\" ");
-			svParameter.append("+cl_scriptCompileAsync \"0\" ");
-			svParameter.append("+cl_async_bone_setup \"0\" ");
-			svParameter.append("+cl_updatedirty_async \"0\" ");
-			svParameter.append("+mat_syncGPU \"1\" ");
-			svParameter.append("+mat_sync_rt \"1\" ");
-			svParameter.append("+mat_sync_rt_flushes_gpu \"1\" ");
-			svParameter.append("+net_async_sendto \"0\" ");
-			svParameter.append("+physics_async_cl \"0\" ");
+			svParameters.append("-noasync ");
+			svParameters.append("+async_serialize \"0\" ");
+			svParameters.append("+buildcubemaps_async \"0\" ");
+			svParameters.append("+cl_scriptCompileAsync \"0\" ");
+			svParameters.append("+cl_async_bone_setup \"0\" ");
+			svParameters.append("+cl_updatedirty_async \"0\" ");
+			svParameters.append("+mat_syncGPU \"1\" ");
+			svParameters.append("+mat_sync_rt \"1\" ");
+			svParameters.append("+mat_sync_rt_flushes_gpu \"1\" ");
+			svParameters.append("+net_async_sendto \"0\" ");
+			svParameters.append("+physics_async_cl \"0\" ");
 		}
 
 		if (this->m_NetEncryptionToggle->Checked())
-			svParameter.append("+net_encryptionEnable \"1\" ");
+			svParameters.append("+net_encryptionEnable \"1\" ");
 
 		if (this->m_NetRandomKeyToggle->Checked())
-			svParameter.append("+net_useRandomKey \"1\" ");
+			svParameters.append("+net_useRandomKey \"1\" ");
 
 		if (this->m_NoQueuedPacketThread->Checked())
-			svParameter.append("+net_queued_packet_thread \"0\" ");
+			svParameters.append("+net_queued_packet_thread \"0\" ");
 
 		if (this->m_NoTimeOutToggle->Checked())
-			svParameter.append("-notimeout ");
+			svParameters.append("-notimeout ");
 
 		if (this->m_WindowedToggle->Checked())
-			svParameter.append("-windowed ");
+			svParameters.append("-windowed ");
 
 		if (this->m_NoBorderToggle->Checked())
-			svParameter.append("-noborder ");
+			svParameters.append("-noborder ");
 
 		if (StringIsDigit(this->m_FpsTextBox->Text().ToCString()))
-			svParameter.append("+fps_max \"" + this->m_FpsTextBox->Text() + "\" ");
+			svParameters.append("+fps_max \"" + this->m_FpsTextBox->Text() + "\" ");
 
 		if (!String::IsNullOrEmpty(this->m_WidthTextBox->Text()))
-			svParameter.append("-w \"" + this->m_WidthTextBox->Text() + "\" ");
+			svParameters.append("-w \"" + this->m_WidthTextBox->Text() + "\" ");
 
 		if (!String::IsNullOrEmpty(this->m_HeightTextBox->Text()))
-			svParameter.append("-h \"" + this->m_HeightTextBox->Text() + "\" ");
+			svParameters.append("-h \"" + this->m_HeightTextBox->Text() + "\" ");
 
-		// MAIN ############################################################################################
+		// MAIN ###############################################################
 		if (!String::IsNullOrEmpty(this->m_LaunchArgsTextBox->Text()))
-			svParameter.append(this->m_LaunchArgsTextBox->Text());
+			svParameters.append(this->m_LaunchArgsTextBox->Text());
 
 		return results;
 	}
@@ -790,8 +862,12 @@ eLaunchMode CUIBasePanel::BuildParameter(string& svParameter)
 	}
 }
 
-CUIBasePanel::CUIBasePanel() : Forms::Form()
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CUIBaseSurface::CUIBaseSurface() : Forms::Form()
 {
 	this->Init();
+	this->Setup();
 }
-CUIBasePanel* g_pMainUI;
+CUIBaseSurface* g_pMainUI;

@@ -15,7 +15,7 @@
 
 enum class eLaunchMode : int
 {
-    LM_NULL = -1,
+    LM_NONE = -1,
     LM_HOST_DEBUG,
     LM_HOST,
     LM_SERVER_DEBUG,

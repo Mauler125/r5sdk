@@ -81,12 +81,15 @@
 #include "public/include/memaddr.h"
 #include "public/include/module.h"
 #include "public/include/httplib.h"
+#include "public/include/vdf_parser.h"
 
 #include "core/assert.h"
 #include "core/termutil.h"
 #include "tier0/basetypes.h"
 #include "tier0/platform.h"
+#if !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
 #include "tier0/dbg.h"
+#endif // !SDKLAUNCHER && !NETCONSOLE
 
 #if !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
 #if !defined (DEDICATED)

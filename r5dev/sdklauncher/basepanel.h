@@ -1,17 +1,21 @@
 #pragma once
 #include "sdklauncher_const.h"
 
-class CUIBasePanel : public Forms::Form
+class CUIBaseSurface : public Forms::Form
 {
 public:
-    CUIBasePanel();
-    virtual ~CUIBasePanel() = default;
+	CUIBaseSurface();
+	virtual ~CUIBaseSurface() = default;
 
 private:
-    void Init();
+	void Init();
+	void Setup();
+	void ParseMaps();
+	void ParsePlaylists();
 
 
 	static void LaunchGame(Forms::Control* pSender);
+	static void ReloadPlaylists(Forms::Control* pSender);
 	eLaunchMode BuildParameter(string& svParameter);
 
 

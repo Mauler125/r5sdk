@@ -11,15 +11,15 @@ public:
     }
     ~CLauncher()
     {
-        delete[] m_pMainUI;
+        delete[] m_pSurface;
     }
 
     bool Setup(eLaunchMode lMode, eLaunchState lState);
     bool Setup(eLaunchMode lMode, const string& svCommandLine);
     bool Launch();
-    CUIBasePanel* GetMainSurface() const { return m_pMainUI; }
+    CUIBaseSurface* GetMainSurface() const { return m_pSurface; }
 
-    CUIBasePanel* m_pMainUI;
+    CUIBaseSurface* m_pSurface;
 
 private:
 
