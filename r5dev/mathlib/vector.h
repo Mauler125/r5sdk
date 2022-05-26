@@ -2,8 +2,6 @@
 
 class Vector3;
 class QAngle;
-typedef float vec_t;
-typedef float vec3_t[3];
 
 /*-----------------------------------------------------------------------------
  * _vector.h

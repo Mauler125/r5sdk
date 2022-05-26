@@ -9,7 +9,6 @@
 #include "tier1/cmd.h"
 #include "tier1/cvar.h"
 #include "vstdlib/callback.h"
-#include "engine/sys_utils.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: returns max command lenght
@@ -82,7 +81,7 @@ const char* CCommand::operator[](int nIndex) const
 //-----------------------------------------------------------------------------
 bool CCommand::HasOnlyDigits(int nIndex) const
 {
-	std::string svString = Arg(nIndex);
+	string svString = Arg(nIndex);
 	for (const char& character : svString)
 	{
 		if (std::isdigit(character) == 0)

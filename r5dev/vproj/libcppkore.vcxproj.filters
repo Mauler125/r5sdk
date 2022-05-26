@@ -1,0 +1,1280 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\IO">
+      <UniqueIdentifier>{d96abbd0-aa31-4b1c-ba39-aeb04f6c443d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\IO">
+      <UniqueIdentifier>{eabba284-5560-4089-9f57-37bf6c7d451f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Data">
+      <UniqueIdentifier>{b84aef37-f23a-485e-ae6d-3b197fe20e3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Data">
+      <UniqueIdentifier>{164a360e-4c3f-403d-8580-dd9b0f81a232}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Threading">
+      <UniqueIdentifier>{bde97faa-f1dd-4c3b-acc6-55fe7bdb1ce4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Threading">
+      <UniqueIdentifier>{35c8b5d5-d9b7-4827-8d20-4b5754ea8070}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Diagnostics">
+      <UniqueIdentifier>{fc8281e8-ddf3-45e1-8aaa-e20c621f1db3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Diagnostics">
+      <UniqueIdentifier>{7ed7c84e-47c3-41f8-885a-13344e98b713}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\System">
+      <UniqueIdentifier>{9c5f7aac-affd-4512-97a4-0a5d048a02e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\System">
+      <UniqueIdentifier>{aa5da805-ec43-4f92-8b5f-4b00b8e7bd2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Math">
+      <UniqueIdentifier>{ce07f034-8d05-4bfe-ab76-95e14b672c5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Math">
+      <UniqueIdentifier>{d7f0ece7-f3fc-468f-8b9c-8949f8ee495f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Win32">
+      <UniqueIdentifier>{816f9384-501c-4174-add5-a914d6aa66e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Win32">
+      <UniqueIdentifier>{a13074c4-3469-4489-b9d1-21348f5b3e88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Compression">
+      <UniqueIdentifier>{374ef221-c5aa-48c9-b7e9-5fa7e662c8db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Compression">
+      <UniqueIdentifier>{4781918a-7243-4750-a76b-394d3bca0267}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Forms">
+      <UniqueIdentifier>{b3f9ae8f-54a1-433b-850d-2dace70a1439}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Forms">
+      <UniqueIdentifier>{27a79727-7e95-46f7-af7d-00203d1b2467}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Drawing">
+      <UniqueIdentifier>{1302f91e-8460-4751-a1c4-66a234d77be9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Forms\EventArgs">
+      <UniqueIdentifier>{f5c7a2b0-b080-4416-b23c-6a97296e07f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Forms\EventArgs">
+      <UniqueIdentifier>{7749b0ed-b23c-45de-99fb-85ca33d00793}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Drawing">
+      <UniqueIdentifier>{55e4197d-9b85-4410-bdac-e27fd91d46be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Assets">
+      <UniqueIdentifier>{4afecb02-c985-41b4-adb2-26f3d5c90552}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Assets">
+      <UniqueIdentifier>{c1bdba66-5788-4c22-99d8-fab0836cbff6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Assets\Exporters">
+      <UniqueIdentifier>{3d66bc92-7d2e-47ed-a18d-1af3fec5d2e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Assets\Exporters">
+      <UniqueIdentifier>{b1907ef1-dedc-4ec2-916a-aec6de1d2715}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Hashing">
+      <UniqueIdentifier>{bcfb9225-7966-41c7-bf52-4c817c907953}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Hashing">
+      <UniqueIdentifier>{d5a3e68c-fac0-4c43-a9a3-4cffd224132f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\MGL">
+      <UniqueIdentifier>{48d0df58-f9c7-4c3e-af45-b5a44ba780d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MGL">
+      <UniqueIdentifier>{af4d46a3-fb46-4bab-8140-bb0b3f06ac04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Natvis Files">
+      <UniqueIdentifier>{a7d14d19-0af3-48cb-82a4-84471f5b5971}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UIX">
+      <UniqueIdentifier>{4b826953-8d4d-486a-bae9-cb7bfa06d1f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UIX">
+      <UniqueIdentifier>{8d414705-c0f8-4918-b24f-dfd5d4e6d5e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\MGL\Fonts">
+      <UniqueIdentifier>{bc22a61f-cd16-4ef6-9305-94ecd0c67e21}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\MGL\Shaders">
+      <UniqueIdentifier>{5df6e022-9307-438b-88ed-81433c6fe778}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UIX\Images">
+      <UniqueIdentifier>{a07c1a9f-1774-4279-8e76-fd5843e18df5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Net">
+      <UniqueIdentifier>{61ad359c-9f84-4e6a-8515-7214a11d6cb1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Net">
+      <UniqueIdentifier>{aa21e46f-59af-4f5e-908b-63d84d67bc55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UIX\Themes">
+      <UniqueIdentifier>{0d459ee9-9191-44d0-bfc6-b2ebf3e87d20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UIX\Themes">
+      <UniqueIdentifier>{96d3895a-4359-4887-8baa-3b11259c392f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Jobs">
+      <UniqueIdentifier>{483322b8-289e-49e6-8674-c5fc249d76a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Jobs">
+      <UniqueIdentifier>{6a6efd51-9e66-4743-9230-ca30f9e8f648}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Clipboard">
+      <UniqueIdentifier>{397d58cc-16d7-4d29-98f1-9fd4d17b1ed1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Clipboard">
+      <UniqueIdentifier>{27d34575-ed65-4358-abfe-15a2b3247727}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Stream.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\SeekOrigin.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\FileStream.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\FileMode.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\FileAccess.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\FileShare.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\BinaryReader.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\MemoryStream.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\BinaryWriter.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\IOError.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ProcessStream.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ProcessReader.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Pattern.h">
+      <Filter>Header Files\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Path.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\StringBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ListBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Kore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\stdext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\File.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Directory.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\TextReader.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\StreamReader.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\TextWriter.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Thread.h">
+      <Filter>Header Files\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ThreadStart.h">
+      <Filter>Header Files\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Task.h">
+      <Filter>Header Files\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\StreamWriter.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Process.h">
+      <Filter>Header Files\Diagnostics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ProcessInfo.h">
+      <Filter>Header Files\Diagnostics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Environment.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\SpecialFolder.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ProcessStartInfo.h">
+      <Filter>Header Files\Diagnostics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ProcessModule.h">
+      <Filter>Header Files\Diagnostics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ProcessThread.h">
+      <Filter>Header Files\Diagnostics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Vector2.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Vector3.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\SecureString.h">
+      <Filter>Header Files\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Quaternion.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Matrix.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\RegistryKey.h">
+      <Filter>Header Files\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\RegistryView.h">
+      <Filter>Header Files\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Win32Error.h">
+      <Filter>Header Files\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\RegistryHive.h">
+      <Filter>Header Files\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\RegistryValueType.h">
+      <Filter>Header Files\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Registry.h">
+      <Filter>Header Files\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Console.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ConsoleKey.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ConsoleKeyInfo.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ConsoleStream.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\__ConsoleInit.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ConsoleColor.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\LZ4Stream.h">
+      <Filter>Header Files\Compression</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CompressionMode.h">
+      <Filter>Header Files\Compression</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\LZ4Codec.h">
+      <Filter>Header Files\Compression</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Application.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Form.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Control.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Button.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Message.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\MouseButtons.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ControlStyles.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ControlStates.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DrawingBase.h">
+      <Filter>Header Files\Drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\PaintEventArgs.h">
+      <Filter>Header Files\Forms\EventArgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\BufferedGraphics.h">
+      <Filter>Header Files\Drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CreateParams.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\EventBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\MouseEventArgs.h">
+      <Filter>Header Files\Forms\EventArgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\InvalidateEventArgs.h">
+      <Filter>Header Files\Forms\EventArgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\HandledMouseEventArgs.h">
+      <Filter>Header Files\Forms\EventArgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\AnchorStyles.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ControlCollection.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ButtonBase.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ButtonFlags.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ContentAlignment.h">
+      <Filter>Header Files\Drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\FlatStyle.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DialogResult.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CheckBox.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Keys.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\KeyEventArgs.h">
+      <Filter>Header Files\Forms\EventArgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\KeyPressEventArgs.h">
+      <Filter>Header Files\Forms\EventArgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Appearence.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CheckState.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Font.h">
+      <Filter>Header Files\Drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Label.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\BorderStyle.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Action.h">
+      <Filter>Header Files\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\RadioButton.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ControlTypes.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\GroupBox.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ProgressBar.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ProgressBarStyle.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\TextBoxBase.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\TextBoxFlags.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\MessageBox.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\MessageBoxButtons.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\MessageBoxIcon.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\MessageBoxDefaultButton.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\MessageBoxOptions.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Model.h">
+      <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Bone.h">
+      <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\BoneFlags.h">
+      <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Mesh.h">
+      <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Face.h">
+      <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Vertex.h">
+      <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\VertexBuffer.h">
+      <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Material.h">
+      <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Exporter.h">
+      <Filter>Header Files\Assets\Exporters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ImmutableStringBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\WavefrontOBJ.h">
+      <Filter>Header Files\Assets\Exporters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\XXHash.h">
+      <Filter>Header Files\Hashing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ValveSMD.h">
+      <Filter>Header Files\Assets\Exporters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\XNALaraAscii.h">
+      <Filter>Header Files\Assets\Exporters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\XNALaraBinary.h">
+      <Filter>Header Files\Assets\Exporters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Half.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CoDXAssetExport.h">
+      <Filter>Header Files\Assets\Exporters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\AutodeskMaya.h">
+      <Filter>Header Files\Assets\Exporters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CRC32.h">
+      <Filter>Header Files\Hashing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\OpenGLViewport.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\RenderViewCamera.h">
+      <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\MathHelper.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\RenderShader.h">
+      <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Mangler.h">
+      <Filter>Header Files\MGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Mangle.h">
+      <Filter>Header Files\MGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\TextBox.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CharacterCasing.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ScrollBars.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\HorizontalAlignment.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\FormBorderStyle.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\FormWindowState.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CloseReason.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\FormStartPosition.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CancelEventArgs.h">
+      <Filter>Header Files\Forms\EventArgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\FormClosingEventArgs.h">
+      <Filter>Header Files\Forms\EventArgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\FormClosedEventArgs.h">
+      <Filter>Header Files\Forms\EventArgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Panel.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\PaintFrameEventArgs.h">
+      <Filter>Header Files\Forms\EventArgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Icon.h">
+      <Filter>Header Files\Drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DropTarget.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DragDropEffects.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DragEventArgs.h">
+      <Filter>Header Files\Forms\EventArgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Settings.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ComboBox.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DrawMode.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ComboBoxStyle.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ListView.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ListViewFlags.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ItemActivation.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ListViewAlignment.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ColumnHeaderStyle.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\SortOrder.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\View.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ColumnHeader.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ListViewItem.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\LabelEditEventArgs.h">
+      <Filter>Header Files\Forms\EventArgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CacheVirtualItemsEventArgs.h">
+      <Filter>Header Files\Forms\EventArgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\RetrieveVirtualItemEventArgs.h">
+      <Filter>Header Files\Forms\EventArgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\LZHAMCodec.h">
+      <Filter>Header Files\Compression</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ListViewVirtualItemsSelectionRangeChangedEventArgs.h">
+      <Filter>Header Files\Forms\EventArgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ListViewItemStates.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DrawListViewItemEventArgs.h">
+      <Filter>Header Files\Forms\EventArgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DrawListViewSubItemEventArgs.h">
+      <Filter>Header Files\Forms\EventArgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DrawListViewColumnHeaderEventArgs.h">
+      <Filter>Header Files\Forms\EventArgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ColumnClickEventArgs.h">
+      <Filter>Header Files\Forms\EventArgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ToolTip.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ToolTipIcon.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DDS.h">
+      <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DictionaryBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\HashHelpers.h">
+      <Filter>Header Files\Hashing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\HashComparer.h">
+      <Filter>Header Files\Hashing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\SEAsset.h">
+      <Filter>Header Files\Assets\Exporters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Animation.h">
+      <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXButton.h">
+      <Filter>Header Files\UIX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UnrealEngine.h">
+      <Filter>Header Files\Assets\Exporters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ZLibCodec.h">
+      <Filter>Header Files\Compression</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DeflateCodec.h">
+      <Filter>Header Files\Compression</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\LZO1XCodec.h">
+      <Filter>Header Files\Compression</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Texture.h">
+      <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\TextureGPUDecoder.h">
+      <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ContainerControl.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\PopupEventArgs.h">
+      <Filter>Header Files\Forms\EventArgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DrawToolTipEventArgs.h">
+      <Filter>Header Files\Forms\EventArgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\FontArial.h">
+      <Filter>Header Files\MGL\Fonts</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\RenderFont.h">
+      <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ModelVertexShader.h">
+      <Filter>Header Files\MGL\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ModelFragmentShader.h">
+      <Filter>Header Files\MGL\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXTheme.h">
+      <Filter>Header Files\UIX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXRadioButton.h">
+      <Filter>Header Files\UIX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXProgressBar.h">
+      <Filter>Header Files\UIX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\KaydaraFBXContainer.h">
+      <Filter>Header Files\Assets\Exporters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\KaydaraFBX.h">
+      <Filter>Header Files\Assets\Exporters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXCheckBox.h">
+      <Filter>Header Files\UIX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CheckBoxImage.h">
+      <Filter>Header Files\UIX\Images</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXComboBox.h">
+      <Filter>Header Files\UIX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXGroupBox.h">
+      <Filter>Header Files\UIX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXTextBox.h">
+      <Filter>Header Files\UIX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ZipArchive.h">
+      <Filter>Header Files\Compression</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ZipEntry.h">
+      <Filter>Header Files\Compression</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DeflateStream.h">
+      <Filter>Header Files\Compression</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Uri.h">
+      <Filter>Header Files\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\InternetPortType.h">
+      <Filter>Header Files\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXListView.h">
+      <Filter>Header Files\UIX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXRenderer.h">
+      <Filter>Header Files\UIX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\WraithTheme.h">
+      <Filter>Header Files\UIX\Themes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXLabel.h">
+      <Filter>Header Files\UIX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXListViewHeader.h">
+      <Filter>Header Files\UIX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\KoreTheme.h">
+      <Filter>Header Files\UIX\Themes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXToolTip.h">
+      <Filter>Header Files\UIX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\OpenFileDialog.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\SaveFileDialog.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\WAV.h">
+      <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\TextRenderer.h">
+      <Filter>Header Files\Drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\TextFormatFlags.h">
+      <Filter>Header Files\Drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ParallelTask.h">
+      <Filter>Header Files\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\AssetRenderer.h">
+      <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CastAsset.h">
+      <Filter>Header Files\Assets\Exporters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CastNode.h">
+      <Filter>Header Files\Assets\Exporters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\AnimationTypes.h">
+      <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Curve.h">
+      <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\JobManager.h">
+      <Filter>Header Files\Jobs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Job.h">
+      <Filter>Header Files\Jobs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\JobWorker.h">
+      <Filter>Header Files\Jobs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\AtomicQueueBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\AutoScaleMode.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\BoundsSpecified.h">
+      <Filter>Header Files\Forms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXControls.h">
+      <Filter>Header Files\UIX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\AtomicListBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Adler32.h">
+      <Filter>Header Files\Hashing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\clipboard\clip.h">
+      <Filter>Header Files\Clipboard</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\clipboard\clip_lock_impl.h">
+      <Filter>Header Files\Clipboard</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\FileStream.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\BinaryReader.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\MemoryStream.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\BinaryWriter.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\IOError.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ProcessStream.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ProcessReader.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Pattern.cpp">
+      <Filter>Source Files\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Path.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\File.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Directory.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\TextReader.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\StreamReader.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Thread.cpp">
+      <Filter>Source Files\Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\TextWriter.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\StreamWriter.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Process.cpp">
+      <Filter>Source Files\Diagnostics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Environment.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Vector2.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Vector3.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Quaternion.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Matrix.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\RegistryKey.cpp">
+      <Filter>Source Files\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Win32Error.cpp">
+      <Filter>Source Files\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Registry.cpp">
+      <Filter>Source Files\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Console.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ConsoleStream.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\__ConsoleInit.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ConsoleColor.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\LZ4Stream.cpp">
+      <Filter>Source Files\Compression</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\LZ4Codec.cpp">
+      <Filter>Source Files\Compression</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Application.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Form.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Control.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Button.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\PaintEventArgs.cpp">
+      <Filter>Source Files\Forms\EventArgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\MouseEventArgs.cpp">
+      <Filter>Source Files\Forms\EventArgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\InvalidateEventArgs.cpp">
+      <Filter>Source Files\Forms\EventArgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\HandledMouseEventArgs.cpp">
+      <Filter>Source Files\Forms\EventArgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ControlCollection.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\BufferedGraphics.cpp">
+      <Filter>Source Files\Drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ButtonBase.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\KeyEventArgs.cpp">
+      <Filter>Source Files\Forms\EventArgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\KeyPressEventArgs.cpp">
+      <Filter>Source Files\Forms\EventArgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\CheckBox.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Font.cpp">
+      <Filter>Source Files\Drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Label.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\RadioButton.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\GroupBox.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ProgressBar.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\MessageBox.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\TextBoxBase.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Bone.cpp">
+      <Filter>Source Files\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Model.cpp">
+      <Filter>Source Files\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Face.cpp">
+      <Filter>Source Files\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Mesh.cpp">
+      <Filter>Source Files\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\VertexBuffer.cpp">
+      <Filter>Source Files\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Vertex.cpp">
+      <Filter>Source Files\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Material.cpp">
+      <Filter>Source Files\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\WavefrontOBJ.cpp">
+      <Filter>Source Files\Assets\Exporters</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\XXHash.cpp">
+      <Filter>Source Files\Hashing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ValveSMD.cpp">
+      <Filter>Source Files\Assets\Exporters</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\XNALaraAscii.cpp">
+      <Filter>Source Files\Assets\Exporters</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\XNALaraBinary.cpp">
+      <Filter>Source Files\Assets\Exporters</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Half.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\CoDXAssetExport.cpp">
+      <Filter>Source Files\Assets\Exporters</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\AutodeskMaya.cpp">
+      <Filter>Source Files\Assets\Exporters</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\CRC32.cpp">
+      <Filter>Source Files\Hashing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\OpenGLViewport.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\RenderViewCamera.cpp">
+      <Filter>Source Files\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Mangler.cpp">
+      <Filter>Source Files\MGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Mangle.cpp">
+      <Filter>Source Files\MGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\RenderShader.cpp">
+      <Filter>Source Files\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\TextBox.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\CancelEventArgs.cpp">
+      <Filter>Source Files\Forms\EventArgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\FormClosingEventArgs.cpp">
+      <Filter>Source Files\Forms\EventArgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\FormClosedEventArgs.cpp">
+      <Filter>Source Files\Forms\EventArgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\PaintFrameEventArgs.cpp">
+      <Filter>Source Files\Forms\EventArgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Icon.cpp">
+      <Filter>Source Files\Drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\DropTarget.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\DragEventArgs.cpp">
+      <Filter>Source Files\Forms\EventArgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Settings.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Panel.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ComboBox.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ListView.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ColumnHeader.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ListViewItem.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\LabelEditEventArgs.cpp">
+      <Filter>Source Files\Forms\EventArgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\CacheVirtualItemsEventArgs.cpp">
+      <Filter>Source Files\Forms\EventArgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\RetrieveVirtualItemEventArgs.cpp">
+      <Filter>Source Files\Forms\EventArgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\LZHAMCodec.cpp">
+      <Filter>Source Files\Compression</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ListViewVirtualItemsSelectionRangeChangedEventArgs.cpp">
+      <Filter>Source Files\Forms\EventArgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\DrawListViewItemEventArgs.cpp">
+      <Filter>Source Files\Forms\EventArgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\DrawListViewSubItemEventArgs.cpp">
+      <Filter>Source Files\Forms\EventArgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\DrawListViewColumnHeaderEventArgs.cpp">
+      <Filter>Source Files\Forms\EventArgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ColumnClickEventArgs.cpp">
+      <Filter>Source Files\Forms\EventArgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ToolTip.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\DDS.cpp">
+      <Filter>Source Files\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\SEAsset.cpp">
+      <Filter>Source Files\Assets\Exporters</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Animation.cpp">
+      <Filter>Source Files\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UnrealEngine.cpp">
+      <Filter>Source Files\Assets\Exporters</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXButton.cpp">
+      <Filter>Source Files\UIX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ZLibCodec.cpp">
+      <Filter>Source Files\Compression</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\DeflateCodec.cpp">
+      <Filter>Source Files\Compression</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\LZO1XCodec.cpp">
+      <Filter>Source Files\Compression</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Texture.cpp">
+      <Filter>Source Files\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\TextureGPUDecoder.cpp">
+      <Filter>Source Files\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ContainerControl.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\PopupEventArgs.cpp">
+      <Filter>Source Files\Forms\EventArgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\DrawToolTipEventArgs.cpp">
+      <Filter>Source Files\Drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\RenderFont.cpp">
+      <Filter>Source Files\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXTheme.cpp">
+      <Filter>Source Files\UIX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXRadioButton.cpp">
+      <Filter>Source Files\UIX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXProgressBar.cpp">
+      <Filter>Source Files\UIX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\KaydaraFBXContainer.cpp">
+      <Filter>Source Files\Assets\Exporters</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\KaydaraFBX.cpp">
+      <Filter>Source Files\Assets\Exporters</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXCheckBox.cpp">
+      <Filter>Source Files\UIX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXComboBox.cpp">
+      <Filter>Source Files\UIX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXGroupBox.cpp">
+      <Filter>Source Files\UIX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXTextBox.cpp">
+      <Filter>Source Files\UIX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ZipArchive.cpp">
+      <Filter>Source Files\Compression</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\DeflateStream.cpp">
+      <Filter>Source Files\Compression</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Uri.cpp">
+      <Filter>Source Files\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXListView.cpp">
+      <Filter>Source Files\UIX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\WraithTheme.cpp">
+      <Filter>Source Files\UIX\Themes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXLabel.cpp">
+      <Filter>Source Files\UIX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXListViewHeader.cpp">
+      <Filter>Source Files\UIX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\KoreTheme.cpp">
+      <Filter>Source Files\UIX\Themes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXToolTip.cpp">
+      <Filter>Source Files\UIX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\OpenFileDialog.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\SaveFileDialog.cpp">
+      <Filter>Source Files\Forms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\WAV.cpp">
+      <Filter>Source Files\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\TextRenderer.cpp">
+      <Filter>Source Files\Drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\AssetRenderer.cpp">
+      <Filter>Source Files\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\CastNode.cpp">
+      <Filter>Source Files\Assets\Exporters</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\CastAsset.cpp">
+      <Filter>Source Files\Assets\Exporters</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Curve.cpp">
+      <Filter>Source Files\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\JobManager.cpp">
+      <Filter>Source Files\Jobs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\JobWorker.cpp">
+      <Filter>Source Files\Jobs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Job.cpp">
+      <Filter>Source Files\Jobs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Adler32.cpp">
+      <Filter>Source Files\Hashing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\clipboard\clip.cpp">
+      <Filter>Source Files\Clipboard</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\clipboard\clip_win.cpp">
+      <Filter>Source Files\Clipboard</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="CppKore.natvis" />
+  </ItemGroup>
+</Project>

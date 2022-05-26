@@ -11,7 +11,6 @@
 #include "protoc/sv_rcon.pb.h"
 #include "protoc/cl_rcon.pb.h"
 #include "engine/client/cl_rcon.h"
-#include "engine/sys_utils.h"
 #include "squirrel/sqvm.h"
 #include "common/igameserverdata.h"
 

@@ -21,6 +21,7 @@ string ConvertToUnixPath(const string& svInput);
 string Base64Encode(const string& svInput);
 string Base64Decode(const string& svInput);
 
+bool StringIsDigit(const string& svInput);
 bool CompareStringAlphabetically(const string& svA, const string& svB);
 bool CompareStringLexicographically(const string& svA, const string& svB);
 

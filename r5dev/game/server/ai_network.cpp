@@ -5,7 +5,6 @@
 //=============================================================================//
 #include "core/stdafx.h"
 #include "tier1/cvar.h"
-#include "engine/sys_utils.h"
 #include "game/server/ai_network.h"
 
 int g_DebugConnectNode1 = -1;

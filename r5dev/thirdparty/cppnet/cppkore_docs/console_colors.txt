@@ -1,0 +1,19 @@
+Console::RemapAllConsoleColors(
+	{
+		{0, 0, 0},		// Black
+		{0, 122, 204},	// Dark Blue
+		{86, 168, 60},	// Dark Green
+		{0, 150, 136},	// Dark Cyan
+		{183, 28, 28},	// Dark Red
+		{197, 17, 98},	// Dark Magenta
+		{255, 171, 0},	// Dark Yellow
+		{255, 255, 255},// Gray
+		{32, 32, 32},	// Dark Gray
+		{3, 169, 244},	// Blue
+		{0, 200, 83},	// Green
+		{0, 188, 212},	// Cyan
+		{244, 67, 54},	// Red
+		{233, 30, 99},	// Magenta
+		{255, 193, 7},	// Yellow
+		{255, 255, 255},// White
+	});

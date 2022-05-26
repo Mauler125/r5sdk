@@ -79,7 +79,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libdetours_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcppkore_x64.lib;libdetours_x64.lib;shell32.lib;gdi32.lib;gdiplus.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -113,7 +113,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libdetours_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcppkore_x64.lib;libdetours_x64.lib;shell32.lib;gdi32.lib;gdiplus.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <SetChecksum>true</SetChecksum>
     </Link>
@@ -127,6 +127,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\public\utility.cpp" />
+    <ClCompile Include="..\sdklauncher\basepanel.cpp" />
     <ClCompile Include="..\sdklauncher\sdklauncher.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -139,7 +140,9 @@
   <ItemGroup>
     <ClInclude Include="..\core\stdafx.h" />
     <ClInclude Include="..\public\include\utility.h" />
+    <ClInclude Include="..\sdklauncher\basepanel.h" />
     <ClInclude Include="..\sdklauncher\sdklauncher.h" />
+    <ClInclude Include="..\sdklauncher\sdklauncher_const.h" />
     <ClInclude Include="..\sdklauncher\sdklauncher_res.h" />
     <ClInclude Include="..\thirdparty\detours\include\detours.h" />
     <ClInclude Include="..\thirdparty\detours\include\detver.h" />

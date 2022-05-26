@@ -344,6 +344,20 @@ string Base64Decode(const string& svInput)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For checking if a string is a number.
+bool StringIsDigit(const string& svInput)
+{
+    for (char const& c : svInput)
+    {
+        if (std::isdigit(c) == 0)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For comparing input strings alphabetically.
 bool CompareStringAlphabetically(const string& svA, const string& svB)
 {

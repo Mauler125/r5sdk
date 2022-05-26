@@ -5,7 +5,6 @@
 //=============================================================================//
 #include "core/stdafx.h"
 #include "engine/host_cmd.h"
-#include "engine/sys_utils.h"
 #include "engine/host_state.h"
 #include "engine/cmodel_bsp.h"
 #include "rtech/rtech_game.h"

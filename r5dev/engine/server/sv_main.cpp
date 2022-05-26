@@ -1,5 +1,4 @@
 #include "core/stdafx.h"
-#include "engine/sys_utils.h"
 #include "engine/server/sv_main.h"
 #include "networksystem/r5net.h"
 #include "public/include/bansystem.h"

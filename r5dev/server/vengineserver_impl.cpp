@@ -7,7 +7,6 @@
 #include "core/stdafx.h"
 #include "tier1/cvar.h"
 #include "common/protocol.h"
-#include "engine/sys_utils.h"
 #include "engine/client/client.h"
 #include "server/vengineserver_impl.h"
 

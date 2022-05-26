@@ -88,6 +88,7 @@
     <ClCompile Include="..\tier0\commandline.cpp" />
     <ClCompile Include="..\tier0\cpu.cpp" />
     <ClCompile Include="..\tier0\cputopology.cpp" />
+    <ClCompile Include="..\tier0\dbg.cpp" />
     <ClCompile Include="..\tier0\fasttimer.cpp" />
     <ClCompile Include="..\tier0\jobthread.cpp" />
     <ClCompile Include="..\tier0\tslist.cpp" />
@@ -407,12 +408,17 @@
     <ClInclude Include="..\tier0\commandline.h" />
     <ClInclude Include="..\tier0\cpu.h" />
     <ClInclude Include="..\tier0\cputopology.h" />
+    <ClInclude Include="..\tier0\dbg.h" />
+    <ClInclude Include="..\tier0\dbgflag.h" />
     <ClInclude Include="..\tier0\fasttimer.h" />
     <ClInclude Include="..\tier0\interface.h" />
     <ClInclude Include="..\tier0\jobthread.h" />
     <ClInclude Include="..\tier0\platform.h" />
     <ClInclude Include="..\tier0\threadtools.h" />
     <ClInclude Include="..\tier0\tslist.h" />
+    <ClInclude Include="..\tier0\valve_off.h" />
+    <ClInclude Include="..\tier0\valve_on.h" />
+    <ClInclude Include="..\tier0\wchartypes.h" />
     <ClInclude Include="..\tier1\bitbuf.h" />
     <ClInclude Include="..\tier1\cmd.h" />
     <ClInclude Include="..\tier1\cvar.h" />

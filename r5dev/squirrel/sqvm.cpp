@@ -9,7 +9,6 @@
 #include "tier0/commandline.h"
 #include "tier1/cvar.h"
 #include "tier1/IConVar.h"
-#include "engine/sys_utils.h"
 #ifdef DEDICATED
 #include "engine/server/sv_rcon.h"
 #else // DEDICATED

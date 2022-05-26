@@ -7,7 +7,6 @@
 
 #include "core/stdafx.h"
 #include "engine/net.h"
-#include "engine/sys_utils.h"
 #include "engine/client/client.h"
 #include "public/include/bansystem.h"
 

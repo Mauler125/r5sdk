@@ -7,3 +7,4 @@
 #define IM_FMTARGS(FMT) __attribute__((format(printf, FMT, FMT+1)))
 #define IM_FMTARGS(FMT) __attribute__((format(gnu_printf, FMT, FMT+1)))
 #define IM_FMTARGS(FMT)
+#define PLATFORM_INTERFACE

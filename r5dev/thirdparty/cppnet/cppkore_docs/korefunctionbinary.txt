@@ -1,0 +1,16 @@
+#pragma pack(push, 1)
+	struct KoreFunctionBinary
+	{
+		uint32_t Magic;
+		uint16_t Version;
+		uint32_t CodeSize;
+	};
+#pragma pack(pop)
+
+	DWORD Old = 0;
+	auto Reader = IO::BinaryReader(IO::File::OpenRead("D:\\imakewins.kfn"));
+	auto Header = Reader.Read<KoreFunctionBinary>();
+
+	auto CodeBuffer = VirtualAlloc(NULL, Header.CodeSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+	Reader.Read(CodeBuffer, 0, Header.CodeSize);
+	VirtualProtect(CodeBuffer, Header.CodeSize, PAGE_EXECUTE_READ, &Old);

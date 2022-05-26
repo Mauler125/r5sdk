@@ -1,6 +1,5 @@
 #include "core/stdafx.h"
 #include "ebisusdk/EbisuSDK.h"
-#include "engine/sys_utils.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: sets the EbisuSDK globals for dedicated to satisfy command callbacks

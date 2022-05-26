@@ -37,7 +37,7 @@ extern ConVar* ai_ainDumpOnLoad;
 extern ConVar* ai_ainDebugConnect;
 extern ConVar* navmesh_always_reachable;
 extern ConVar* sv_showconnecting;
-extern ConVar* sv_pylonvisibility;
+extern ConVar* sv_pylonVisibility;
 extern ConVar* sv_pylonRefreshInterval;
 extern ConVar* sv_banlistRefreshInterval;
 extern ConVar* sv_statusRefreshInterval;

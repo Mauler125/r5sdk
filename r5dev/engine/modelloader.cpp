@@ -9,7 +9,6 @@
 #include "engine/cmodel_bsp.h"
 #include "engine/modelloader.h"
 #include "datacache/mdlcache.h"
-#include "engine/sys_utils.h"
 
 model_t* pErrorMDL = nullptr;
 

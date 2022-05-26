@@ -1,5 +1,4 @@
 #include "core/stdafx.h"
-#include "engine/sys_utils.h"
 #include "rtech/rtech_utils.h"
 
 /******************************************************************************

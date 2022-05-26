@@ -1,0 +1,590 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{88BC2D60-A093-4E61-B194-59AB8BE4E33E}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>cppkore</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>libcppkore</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)lib\$(Configuration)\</OutDir>
+    <TargetName>libcppkore_x86</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+    <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)lib\$(Configuration)\</OutDir>
+    <TargetName>libcppkore_x64</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)lib\$(Configuration)\</OutDir>
+    <TargetName>libcppkore_x86</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+    <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)lib\$(Configuration)\</OutDir>
+    <TargetName>libcppkore_x64</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalOptions>/std:c++17 %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_LIB;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalOptions>/std:c++17 %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalOptions>/std:c++17 %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_LIB;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalOptions>/std:c++17 %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Action.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Adler32.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\AnchorStyles.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Animation.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\AnimationTypes.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Appearence.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Application.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\AtomicListBase.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\AtomicQueueBase.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\AutodeskMaya.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\AutoScaleMode.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\BinaryReader.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\BinaryWriter.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Bone.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\BoneFlags.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\BorderStyle.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\BoundsSpecified.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\BufferedGraphics.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Button.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ButtonBase.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ButtonFlags.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CacheVirtualItemsEventArgs.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CancelEventArgs.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CastAsset.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CastNode.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CharacterCasing.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CheckBox.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CheckBoxImage.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CheckState.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\clipboard\clip.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\clipboard\clip_lock_impl.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CloseReason.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CoDXAssetExport.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ColumnClickEventArgs.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ColumnHeader.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ColumnHeaderStyle.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ComboBox.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ComboBoxStyle.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CompressionMode.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Console.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ConsoleColor.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ConsoleKey.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ConsoleKeyInfo.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ConsoleStream.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ContainerControl.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ContentAlignment.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Control.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ControlCollection.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ControlTypes.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ControlStates.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ControlStyles.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CRC32.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\CreateParams.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Curve.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DDS.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DeflateCodec.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DeflateStream.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DialogResult.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DictionaryBase.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Directory.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DragDropEffects.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DragEventArgs.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DrawingBase.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DrawListViewColumnHeaderEventArgs.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DrawListViewItemEventArgs.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DrawListViewSubItemEventArgs.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DrawMode.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DrawToolTipEventArgs.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\DropTarget.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Environment.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\EventBase.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Exporter.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Face.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\File.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\FileAccess.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\FileMode.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\FileShare.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\FileStream.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\FlatStyle.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Font.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\FontArial.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\InternetPortType.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Job.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\JobManager.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\JobWorker.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\KaydaraFBX.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\KaydaraFBXContainer.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\KoreTheme.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ModelFragmentShader.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ModelVertexShader.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\OpenFileDialog.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ParallelTask.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\RenderFont.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Form.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\FormBorderStyle.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\FormClosedEventArgs.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\FormClosingEventArgs.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\FormStartPosition.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\FormWindowState.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\GroupBox.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Half.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\HandledMouseEventArgs.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\HashComparer.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\HashHelpers.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\HorizontalAlignment.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Icon.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\PopupEventArgs.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\resource.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\SaveFileDialog.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\TextFormatFlags.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\TextRenderer.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Texture.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ImmutableStringBase.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\InvalidateEventArgs.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\IOError.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ItemActivation.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\KeyEventArgs.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\KeyPressEventArgs.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Keys.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Kore.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Label.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\LabelEditEventArgs.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ListBase.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ListView.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ListViewAlignment.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ListViewFlags.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ListViewItem.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ListViewItemStates.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ListViewVirtualItemsSelectionRangeChangedEventArgs.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\LZ4Codec.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\LZ4Stream.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\LZHAMCodec.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\LZO1XCodec.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Mangle.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Mangler.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Material.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\MathHelper.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Matrix.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\MemoryStream.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Mesh.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Message.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\MessageBox.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\MessageBoxButtons.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\MessageBoxDefaultButton.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\MessageBoxIcon.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\MessageBoxOptions.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Model.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\AssetRenderer.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\MouseButtons.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\MouseEventArgs.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\OpenGLViewport.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\PaintEventArgs.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\PaintFrameEventArgs.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Panel.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Process.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ProcessInfo.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ProcessModule.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ProcessStartInfo.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ProcessThread.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ProgressBar.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ProgressBarStyle.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Quaternion.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\RadioButton.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Registry.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\RegistryHive.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\RegistryKey.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\RegistryValueType.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\RegistryView.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\RenderShader.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\RenderViewCamera.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\RetrieveVirtualItemEventArgs.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ScrollBars.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\SEAsset.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\SecureString.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Settings.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\SortOrder.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\SpecialFolder.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\stdext.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Path.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Pattern.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ProcessReader.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ProcessStream.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\SeekOrigin.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\stdafx.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Stream.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\StreamReader.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\StreamWriter.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\StringBase.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Task.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\TextBox.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\TextBoxBase.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\TextBoxFlags.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\TextReader.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\TextureGPUDecoder.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\TextWriter.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Thread.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ThreadStart.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ToolTip.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ToolTipIcon.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXButton.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXCheckBox.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXComboBox.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXControls.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXGroupBox.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXLabel.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXListView.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXListViewHeader.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXProgressBar.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXRadioButton.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXRenderer.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXTextBox.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXTheme.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UIXToolTip.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\UnrealEngine.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Uri.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ValveSMD.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Vector2.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Vector3.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Vertex.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\VertexBuffer.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\View.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\WAV.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\WavefrontOBJ.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\Win32Error.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\WraithTheme.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\XNALaraAscii.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\XNALaraBinary.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\XXHash.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ZipArchive.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ZipEntry.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\ZLibCodec.h" />
+    <ClInclude Include="..\thirdparty\cppnet\cppkore\__ConsoleInit.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Adler32.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Animation.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Application.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\AutodeskMaya.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\BinaryReader.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\BinaryWriter.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Bone.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\BufferedGraphics.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Button.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ButtonBase.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\CacheVirtualItemsEventArgs.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\CancelEventArgs.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\CastAsset.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\CastNode.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\CheckBox.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\clipboard\clip.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../stdafx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../stdafx.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\clipboard\clip_win.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../stdafx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../stdafx.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\CoDXAssetExport.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ColumnClickEventArgs.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ColumnHeader.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ComboBox.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Console.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ConsoleColor.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ConsoleStream.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ContainerControl.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Control.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ControlCollection.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\CRC32.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Curve.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\DDS.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\DeflateCodec.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\DeflateStream.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Directory.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\DragEventArgs.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\DrawListViewColumnHeaderEventArgs.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\DrawListViewItemEventArgs.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\DrawListViewSubItemEventArgs.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\DrawToolTipEventArgs.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\DropTarget.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Environment.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Face.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\File.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\FileStream.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Font.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Form.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\FormClosedEventArgs.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\FormClosingEventArgs.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\GroupBox.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Half.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\HandledMouseEventArgs.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Icon.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Job.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\JobManager.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\JobWorker.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\KaydaraFBX.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\KaydaraFBXContainer.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\KoreTheme.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\OpenFileDialog.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\PopupEventArgs.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\RenderFont.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\SaveFileDialog.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\TextRenderer.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Texture.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\InvalidateEventArgs.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\IOError.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\KeyEventArgs.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\KeyPressEventArgs.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Label.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\LabelEditEventArgs.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ListView.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ListViewItem.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ListViewVirtualItemsSelectionRangeChangedEventArgs.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\LZ4Codec.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\LZ4Stream.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\LZHAMCodec.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\LZO1XCodec.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Mangle.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Mangler.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Material.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Matrix.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\MemoryStream.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Mesh.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\MessageBox.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Model.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\AssetRenderer.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\MouseEventArgs.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\OpenGLViewport.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\PaintEventArgs.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\PaintFrameEventArgs.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Panel.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Path.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Pattern.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Process.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ProcessReader.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ProcessStream.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ProgressBar.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Quaternion.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\RadioButton.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Registry.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\RegistryKey.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\RenderShader.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\RenderViewCamera.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\RetrieveVirtualItemEventArgs.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\SEAsset.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Settings.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\StreamReader.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\StreamWriter.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\TextBox.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\TextBoxBase.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\TextReader.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\TextureGPUDecoder.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\TextWriter.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Thread.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ToolTip.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXButton.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXCheckBox.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXComboBox.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXGroupBox.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXLabel.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXListView.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXListViewHeader.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXProgressBar.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXRadioButton.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXTextBox.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXTheme.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UIXToolTip.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\UnrealEngine.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Uri.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ValveSMD.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Vector2.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Vector3.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Vertex.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\VertexBuffer.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\WAV.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\WavefrontOBJ.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\Win32Error.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\WraithTheme.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\XNALaraAscii.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\XNALaraBinary.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\XXHash.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ZipArchive.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\ZLibCodec.cpp" />
+    <ClCompile Include="..\thirdparty\cppnet\cppkore\__ConsoleInit.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="CppKore.natvis" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

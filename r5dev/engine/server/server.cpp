@@ -11,7 +11,6 @@
 #include "core/stdafx.h"
 #include "common/protocol.h"
 #include "tier1/cvar.h"
-#include "engine/sys_utils.h"
 #include "engine/server/sv_main.h"
 #include "engine/server/server.h"
 #include "networksystem/r5net.h"

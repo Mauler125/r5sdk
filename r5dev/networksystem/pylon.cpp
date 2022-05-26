@@ -21,7 +21,7 @@
 void KeepAliveToPylon()
 {
 #ifndef CLIENT_DLL
-	if (g_pHostState->m_bActiveGame && sv_pylonvisibility->GetBool()) // Check for active game.
+	if (g_pHostState->m_bActiveGame && sv_pylonVisibility->GetBool()) // Check for active game.
 	{
 		std::string m_szHostToken = std::string();
 		std::string m_szHostRequestMessage = std::string();

@@ -8,7 +8,6 @@
 #include "core/stdafx.h"
 #include "tier0/jobthread.h"
 #include "engine/host_cmd.h"
-#include "engine/sys_utils.h"
 #include "engine/cmodel_bsp.h"
 #include "rtech/rtech_utils.h"
 #include "rtech/rtech_game.h"

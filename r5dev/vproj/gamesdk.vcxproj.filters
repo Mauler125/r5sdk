@@ -525,6 +525,9 @@
     <ClCompile Include="..\engine\networkstringtable.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
+    <ClCompile Include="..\tier0\dbg.cpp">
+      <Filter>sdk\tier0</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1534,6 +1537,21 @@
     </ClInclude>
     <ClInclude Include="..\public\include\iserver.h">
       <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\wchartypes.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\valve_off.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\valve_on.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\dbg.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\dbgflag.h">
+      <Filter>sdk\tier0</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

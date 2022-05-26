@@ -3,7 +3,6 @@
 
 #include "core/stdafx.h"
 #include "tier1/cvar.h"
-#include "engine/sys_utils.h"
 #include "networksystem/r5net.h"
 
 //-----------------------------------------------------------------------------
