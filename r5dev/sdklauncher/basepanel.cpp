@@ -598,7 +598,7 @@ void CUIBaseSurface::VirtualItemToClipboard(const std::unique_ptr<MouseEventArgs
 
 	string svClipBoard;
 	for (uint32_t i = 0; i < lSelected.Count(); i++)
-		svClipBoard.append(pSurface->m_LogList[i].m_svText);
+		svClipBoard.append(pSurface->m_LogList[lSelected[i]].m_svText);
 
 	clip::set_text(svClipBoard);
 }
