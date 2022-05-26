@@ -249,6 +249,12 @@ void MOD_ProcessPakQueue()
                 return;
             }
         }
+        if (strcmp(v17, "common_sp.rpak") == 0 || strcmp(v17, "common_mp.rpak") == 0)
+        {
+            RPakHandle_t pakId = g_pakLoadApi->AsyncLoad("common_sdk.rpak");
+            if (pakId != -1)
+                g_LoadedPakHandle.push_back(pakId);
+        }
         if (strcmp(v17, "mp_lobby.rpak") == 0)
             s_bBasePaksInitialized = true;
 
