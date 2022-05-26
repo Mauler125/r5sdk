@@ -249,12 +249,6 @@ void MOD_ProcessPakQueue()
                 return;
             }
         }
-        if (strcmp(v17, "common_sp.rpak") == 0 || strcmp(v17, "common_mp.rpak") == 0)
-        {
-            RPakHandle_t pakId = g_pakLoadApi->AsyncLoad("common_sdk.rpak");
-            if (pakId != -1)
-                g_LoadedPakHandle.push_back(pakId);
-        }
         if (strcmp(v17, "mp_lobby.rpak") == 0)
             s_bBasePaksInitialized = true;
 
@@ -263,8 +257,20 @@ void MOD_ProcessPakQueue()
             s_bLevelResourceInitialized = true;
             MOD_PreloadPakFile(g_svLevelName);
         }
-
         *(_DWORD*)v15 = g_pakLoadApi->AsyncLoad(v17, g_pMallocPool.GetPtr(), 4, 0);
+
+        if (strcmp(v17, "common_mp.rpak") == 0 || strcmp(v17, "common_sp.rpak") == 0 || strcmp(v17, "common_pve.rpak") == 0)
+        {
+            RPakHandle_t pakHandle = g_pakLoadApi->AsyncLoad("common_sdk.rpak", g_pMallocPool.GetPtr(), 4, 0);
+            if (pakHandle != -1)
+                g_LoadedPakHandle.push_back(pakHandle);
+        }
+        if (strcmp(v17, "ui_mp.rpak") == 0)
+        {
+            RPakHandle_t pakHandle = g_pakLoadApi->AsyncLoad("ui_sdk.rpak", g_pMallocPool.GetPtr(), 4, 0);
+            if (pakHandle != -1)
+                g_LoadedPakHandle.push_back(pakHandle);
+        }
 
     LABEL_37:
         v21 = *(_DWORD*)v15;
