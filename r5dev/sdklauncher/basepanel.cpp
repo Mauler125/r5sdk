@@ -224,13 +224,14 @@ void CUIBaseSurface::Init()
 	this->m_CleanSDK->SetTabIndex(0);
 	this->m_CleanSDK->SetText("Clean SDK");
 	this->m_CleanSDK->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
+	this->m_CleanSDK->Click += &CleanSDK;
 	this->m_MainGroupExt->AddControl(this->m_CleanSDK);
 
 	this->m_UpdateSDK = new UIX::UIXButton();
 	this->m_UpdateSDK->SetSize({ 110, 18 });
 	this->m_UpdateSDK->SetLocation({ 15, 30 });
 	this->m_UpdateSDK->SetTabIndex(0);
-	this->m_UpdateSDK->SetEnabled(false);
+	this->m_UpdateSDK->SetEnabled(false); // !TODO: Implement updater
 	this->m_UpdateSDK->SetText("Update SDK");
 	this->m_UpdateSDK->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_MainGroupExt->AddControl(this->m_UpdateSDK);
@@ -427,24 +428,39 @@ void CUIBaseSurface::Init()
 	//	CONSOLE
 	// ########################################################################
 	this->m_ConsoleGroup = new UIX::UIXGroupBox();
-	this->m_ConsoleGroup->SetSize({ 429, 181 });
+	this->m_ConsoleGroup->SetSize({ 429, 15 });
 	this->m_ConsoleGroup->SetLocation({ 359, 158 });
 	this->m_ConsoleGroup->SetTabIndex(0);
 	this->m_ConsoleGroup->SetText("Console");
 	this->m_ConsoleGroup->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
 	this->AddControl(this->m_ConsoleGroup);
 
+	this->m_ConsoleGroupExt = new UIX::UIXGroupBox();
+	this->m_ConsoleGroupExt->SetSize({ 429, 167 });
+	this->m_ConsoleGroupExt->SetLocation({ 359, 172 });
+	this->m_ConsoleGroupExt->SetTabIndex(0);
+	this->m_ConsoleGroupExt->SetText("");
+	this->m_ConsoleGroupExt->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->AddControl(this->m_ConsoleGroupExt);
+
 	this->m_ConsoleListView = new UIX::UIXListView();
-	this->m_ConsoleListView->SetSize({ 427, 165 });
-	this->m_ConsoleListView->SetLocation({ 1, 15 });
+	this->m_ConsoleListView->SetSize({ 427, 189 });
+	this->m_ConsoleListView->SetLocation({ 1, -23 }); // Hide columns
 	this->m_ConsoleListView->SetTabIndex(0);
-	this->m_ConsoleListView->SetText("0");
 	this->m_ConsoleListView->SetBackColor(Drawing::Color(29, 33, 37));
-	this->m_ConsoleListView->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
-	this->m_ConsoleGroup->AddControl(this->m_ConsoleListView);
+	this->m_ConsoleListView->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->m_ConsoleListView->SetView(Forms::View::Details);
+	this->m_ConsoleListView->SetVirtualMode(true);
+	this->m_ConsoleListView->SetFullRowSelect(true);
+	this->m_ConsoleGroupExt->AddControl(this->m_ConsoleListView);
+	this->m_ConsoleListView->Columns.Add({ "index", 40 });
+	this->m_ConsoleListView->Columns.Add({ "buffer", 387 });
+	this->m_ConsoleListView->MouseClick += &VirtualItemToClipboard;
+	this->m_ConsoleListView->RetrieveVirtualItem += &GetVirtualItem;
 
 	this->ResumeLayout(false);
 	this->PerformLayout();
+
 	// END DESIGNER CODE
 }
 
@@ -463,6 +479,34 @@ void CUIBaseSurface::Setup()
 	this->m_VisibilityCombo->Items.Add("Public");
 	this->m_VisibilityCombo->Items.Add("Hidden");
 	this->m_VisibilityCombo->Items.Add("Offline");
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: removes redundant files from the game install
+// Input  : *pSender - 
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::CleanSDK(Forms::Control* pSender)
+{
+	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+	pSurface->m_LogList.push_back(LogList_t(spdlog::level::info, "Running cleaner for SDK installation\n"));
+	pSurface->m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(pSurface->m_LogList.size()));
+
+	std::system("platform\\clean_sdk.bat");
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: launches the game with the SDK
+// Input  : *pSender - 
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::LaunchGame(Forms::Control* pSender)
+{
+	string svParameter = "-launcher -dev ";
+	eLaunchMode launchMode = eLaunchMode::LM_NONE;
+
+	launchMode = g_pLauncher->GetMainSurface()->BuildParameter(svParameter);
+
+	if (g_pLauncher->Setup(launchMode, svParameter))
+		g_pLauncher->Launch();
 }
 
 //-----------------------------------------------------------------------------
@@ -524,21 +568,6 @@ void CUIBaseSurface::ParsePlaylists()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: launches the game with the SDK
-// Input  : *pSender - 
-//-----------------------------------------------------------------------------
-void CUIBaseSurface::LaunchGame(Forms::Control* pSender)
-{
-	string svParameter = "-launcher -dev ";
-	eLaunchMode launchMode = eLaunchMode::LM_NONE;
-
-	launchMode = g_pLauncher->GetMainSurface()->BuildParameter(svParameter);
-
-	g_pLauncher->Setup(launchMode, svParameter);
-	g_pLauncher->Launch();
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: clears the form and reloads the playlist
 // Input  : *pSender - 
 //-----------------------------------------------------------------------------
@@ -549,6 +578,77 @@ void CUIBaseSurface::ReloadPlaylists(Forms::Control* pSender)
 	pSurface->m_PlaylistCombo->Items.Clear();
 	pSurface->m_PlaylistCombo->OnSizeChanged();
 	pSurface->ParsePlaylists();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: copies selected virtual items to clipboard
+// Input  : &pEventArgs - 
+// Input  : *pSender - 
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::VirtualItemToClipboard(const std::unique_ptr<MouseEventArgs>& pEventArgs, Forms::Control* pSender)
+{
+	if (pEventArgs->Button != Forms::MouseButtons::Right)
+		return;
+
+	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+	List<uint32_t> lSelected = pSurface->m_ConsoleListView->SelectedIndices();
+
+	if (!lSelected.Count())
+		return;
+
+	string svClipBoard;
+	for (uint32_t i = 0; i < lSelected.Count(); i++)
+		svClipBoard.append(pSurface->m_LogList[i].m_svText);
+
+	clip::set_text(svClipBoard);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets and handles the virtual item
+// Input  : &pEventArgs - 
+//			*pSender - 
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::GetVirtualItem(const std::unique_ptr<Forms::RetrieveVirtualItemEventArgs>& pEventArgs, Forms::Control* pSender)
+{
+	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+	if (static_cast<int>(pSurface->m_LogList.size()) <= 0)
+		return;
+
+	pEventArgs->Style.ForeColor = Drawing::Color::White;
+	pEventArgs->Style.BackColor = pSender->BackColor();
+	pSurface->m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(pSurface->m_LogList.size()));
+
+	static const Drawing::Color cColor[] =
+	{
+		Drawing::Color(255, 255, 255), // Trace
+		Drawing::Color(0, 120, 215),   // Debug
+		Drawing::Color(92, 236, 89),   // Info
+		Drawing::Color(236, 203, 0),   // Warn
+		Drawing::Color(236, 28, 0),    // Error
+		Drawing::Color(236, 28, 0),    // Critical
+		Drawing::Color(255, 255, 255), // General
+	};
+	static const String svLevel[] =
+	{
+		"trace",
+		"debug",
+		"info",
+		"warning",
+		"error",
+		"critical",
+		"general",
+	};
+
+	switch (pEventArgs->SubItemIndex)
+	{
+	case 0:
+		pEventArgs->Style.ForeColor = cColor[pSurface->m_LogList[pEventArgs->ItemIndex].m_nLevel];
+		pEventArgs->Text = svLevel[pSurface->m_LogList[pEventArgs->ItemIndex].m_nLevel];
+		break;
+	case 1:
+		pEventArgs->Text = pSurface->m_LogList[pEventArgs->ItemIndex].m_svText;
+		break;
+	}
 }
 
 //-----------------------------------------------------------------------------

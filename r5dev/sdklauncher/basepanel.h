@@ -1,11 +1,26 @@
 #pragma once
 #include "sdklauncher_const.h"
 
+struct LogList_t
+{
+	LogList_t(spdlog::level::level_enum nLevel, String svText)
+	{
+		m_nLevel = nLevel;
+		m_svText = svText;
+	}
+
+	spdlog::level::level_enum m_nLevel;
+	String m_svText;
+};
+
 class CUIBaseSurface : public Forms::Form
 {
 public:
 	CUIBaseSurface();
 	virtual ~CUIBaseSurface() = default;
+
+	std::vector<LogList_t> m_LogList;
+	UIX::UIXListView* m_ConsoleListView;
 
 private:
 	void Init();
@@ -13,11 +28,12 @@ private:
 	void ParseMaps();
 	void ParsePlaylists();
 
-
 	static void LaunchGame(Forms::Control* pSender);
+	static void CleanSDK(Forms::Control* pSender);
 	static void ReloadPlaylists(Forms::Control* pSender);
+	static void VirtualItemToClipboard(const std::unique_ptr<MouseEventArgs>& pEventArgs, Forms::Control* pSender);
+	static void GetVirtualItem(const std::unique_ptr<Forms::RetrieveVirtualItemEventArgs>& pEventArgs, Forms::Control* pSender);
 	eLaunchMode BuildParameter(string& svParameter);
-
 
 	enum class eMode
 	{
@@ -57,6 +73,7 @@ private:
 	UIX::UIXGroupBox* m_MainGroup;
 	UIX::UIXGroupBox* m_GameGroupExt;
 	UIX::UIXGroupBox* m_MainGroupExt;
+	UIX::UIXGroupBox* m_ConsoleGroupExt;
 	UIX::UIXGroupBox* m_ConsoleGroup;
 	UIX::UIXGroupBox* m_EngineBaseGroup;
 	UIX::UIXGroupBox* m_EngineNetworkGroup;
@@ -83,6 +100,4 @@ private:
 	UIX::UIXButton* m_CleanSDK;
 	UIX::UIXButton* m_UpdateSDK;
 	UIX::UIXButton* m_LaunchSDK;
-
-	UIX::UIXListView* m_ConsoleListView;
 };

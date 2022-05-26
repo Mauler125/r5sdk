@@ -7,35 +7,10 @@
 namespace Themes
 {
 	// Constants for brushes
-	/*const static auto BorderBrush = Drawing::Color(219, 56, 80);
-	const static auto DisabledBorderBrush = Drawing::Color(30, 32, 55);
-
-
-	const static auto BackgroundBrush = Drawing::Color(30, 32, 55);
-	const static auto BackgroundLightBrush = Drawing::Color(31, 37, 62);
-
-
-	const static auto BackgroundGrad1 = Drawing::Color(30, 32, 55);
-	const static auto BackgroundGrad2 = Drawing::Color(30, 32, 55);
-
-
-	const static auto BackgroundOverGrad1 = Drawing::Color(30, 32, 55);
-	const static auto BackgroundOverGrad2 = Drawing::Color(30, 32, 55);
-
-
-	const static auto TextEnabledBrush = Drawing::Color(Drawing::Color::White);
-	const static auto TextDisabledBrush = Drawing::Color(Drawing::Color::Gray);
-
-
-	const static auto ProgressGrad1 = Drawing::Color(219, 56, 80);
-	const static auto ProgressGrad2 = Drawing::Color(219, 56, 80);
-
-	const static auto HeaderBrush = Drawing::Color(46, 53, 84);*/
-
-	// New Theme, saving for anyone else who wants to help.
 	const static auto BorderBrush = Drawing::Color(20, 20, 20);
 	const static auto DarkBorderBrush = Drawing::Color(20, 20, 20);
 	const static auto DisabledBorderBrush = Drawing::Color(20, 20, 20);
+	const static auto ControlBrushSelected = Drawing::Color(0, 120, 215);
 
 	const static auto BackgroundBrush = Drawing::Color(36, 41, 46);
 	const static auto BackgroundLightBrush = Drawing::Color(47, 54, 61);
@@ -52,7 +27,7 @@ namespace Themes
 	const static auto ProgressGrad1 = Drawing::Color(0, 120, 215);
 	const static auto ProgressGrad2 = Drawing::Color(0, 120, 215);
 
-	const static auto HeaderBrush = Drawing::Color(54, 54, 54);
+	const static auto HeaderBrush = Drawing::Color(47, 54, 61);
 	
 	// Constants for images
 	static Drawing::Image* CheckBoxImage = nullptr;
@@ -423,7 +398,7 @@ namespace Themes
 		auto State = SendMessageA(Ctrl->GetHandle(), LVM_GETITEMSTATE, (WPARAM)EventArgs->ItemIndex, (LPARAM)LVIS_SELECTED);
 
 		// Fetch color from style
-		Drawing::SolidBrush BackBrush((State == LVIS_SELECTED) ? BorderBrush : EventArgs->Style.BackColor);
+		Drawing::SolidBrush BackBrush((State == LVIS_SELECTED) ? ControlBrushSelected : EventArgs->Style.BackColor);
 
 		// Build text layout rect
 		Drawing::Rectangle TextLayoutRect(SubItemBounds);
