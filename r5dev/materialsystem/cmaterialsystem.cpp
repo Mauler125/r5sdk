@@ -12,9 +12,9 @@
 // (overrides level name if stbsp field has value in prerequisites file)
 // Input  : *pszStreamDBFile - 
 //---------------------------------------------------------------------------------
-void HStreamDB_Init(const char* pszStreamDBFile)
+void StreamDB_Init(const char* pszStreamDBFile)
 {
-	std::ostringstream ostream;
+	ostringstream ostream;
 	ostream << "platform\\scripts\\levels\\settings\\" << pszStreamDBFile << ".json";
 	fs::path fsPath = fs::current_path() /= ostream.str();
 
@@ -23,7 +23,7 @@ void HStreamDB_Init(const char* pszStreamDBFile)
 		nlohmann::json jsIn;
 		try
 		{
-			std::ifstream iPakLoadDefFile(fsPath, std::ios::binary); // Parse prerequisites file.
+			ifstream iPakLoadDefFile(fsPath, std::ios::binary); // Parse prerequisites file.
 			iPakLoadDefFile >> jsIn;
 			iPakLoadDefFile.close();
 
@@ -31,19 +31,19 @@ void HStreamDB_Init(const char* pszStreamDBFile)
 			{
 				if (!jsIn["stbsp"].is_null())
 				{
-					std::string svStreamDBFile = jsIn["stbsp"].get<std::string>();
-					DevMsg(eDLL_T::MS, "StreamDB_Init: Loading override STBSP file '%s.stbsp'\n", svStreamDBFile.c_str(), pszStreamDBFile);
-					StreamDB_Init(svStreamDBFile.c_str());
+					string svStreamDBFile = jsIn["stbsp"].get<string>();
+					DevMsg(eDLL_T::MS, "%s: Loading override STBSP file '%s.stbsp'\n", __FUNCTION__, svStreamDBFile.c_str(), pszStreamDBFile);
+					v_StreamDB_Init(svStreamDBFile.c_str());
 					return;
 				}
 			}
 		}
 		catch (const std::exception& ex)
 		{
-			DevMsg(eDLL_T::MS, "StreamDB_Init: Exception while parsing STBSP override: '%s'\n", ex.what());
+			DevMsg(eDLL_T::MS, "%s: Exception while parsing STBSP override: '%s'\n", __FUNCTION__, ex.what());
 		}
 	}
-	StreamDB_Init(pszStreamDBFile);
+	v_StreamDB_Init(pszStreamDBFile);
 }
 
 //---------------------------------------------------------------------------------
@@ -70,12 +70,12 @@ void* __fastcall DispatchDrawCall(int64_t a1, uint64_t a2, int a3, int a4, int64
 ///////////////////////////////////////////////////////////////////////////////
 void CMaterialSystem_Attach()
 {
-	DetourAttach((LPVOID*)&StreamDB_Init, &HStreamDB_Init);
+	DetourAttach((LPVOID*)&v_StreamDB_Init, &StreamDB_Init);
 	DetourAttach((LPVOID*)&v_DispatchDrawCall, &DispatchDrawCall);
 }
 
 void CMaterialSystem_Detach()
 {
-	DetourDetach((LPVOID*)&StreamDB_Init, &HStreamDB_Init);
+	DetourDetach((LPVOID*)&v_StreamDB_Init, &StreamDB_Init);
 	DetourDetach((LPVOID*)&v_DispatchDrawCall, &DispatchDrawCall);
 }

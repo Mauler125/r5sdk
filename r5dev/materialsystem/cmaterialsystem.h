@@ -18,7 +18,7 @@ inline CMemory p_DrawStreamOverlay;
 inline auto DrawStreamOverlay = p_DrawStreamOverlay.RCast<const char* (*)(void* thisptr, uint8_t* a2, void* unused, void* a4)>();
 
 inline CMemory p_StreamDB_Init;
-inline auto StreamDB_Init = p_StreamDB_Init.RCast<void (*)(const char* pszStreamDbFile)>();
+inline auto v_StreamDB_Init = p_StreamDB_Init.RCast<void (*)(const char* pszStreamDbFile)>();
 
 inline CMemory s_pRenderContext;
 
@@ -60,7 +60,7 @@ class VMaterialSystem : public IDetour
 		DrawStreamOverlay = p_DrawStreamOverlay.RCast<const char* (*)(void*, uint8_t*, void*, void*)>(); // 41 56 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 C6 02 00 //
 
 		p_StreamDB_Init = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x54\x41\x56\x41\x57\x48\x83\xEC\x40\x48\x8B\xE9"), "xxxx?xxxx?xxxx?xxxx?xxxxxxxxxxxxx");
-		StreamDB_Init = p_StreamDB_Init.RCast<void (*)(const char*)>(); /*48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 54 41 56 41 57 48 83 EC 40 48 8B E9*/
+		v_StreamDB_Init = p_StreamDB_Init.RCast<void (*)(const char*)>(); /*48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 54 41 56 41 57 48 83 EC 40 48 8B E9*/
 #endif // !DEDICATED
 	}
 	virtual void GetVar(void) const
