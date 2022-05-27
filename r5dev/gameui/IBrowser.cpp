@@ -39,7 +39,7 @@ History:
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-IBrowser::IBrowser(void)
+CBrowser::CBrowser(void)
 {
     memset(m_szServerAddressBuffer, '\0', sizeof(m_szServerAddressBuffer));
 #ifndef CLIENT_DLL
@@ -60,7 +60,7 @@ IBrowser::IBrowser(void)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-IBrowser::~IBrowser(void)
+CBrowser::~CBrowser(void)
 {
     //delete r5net;
 }
@@ -68,7 +68,7 @@ IBrowser::~IBrowser(void)
 //-----------------------------------------------------------------------------
 // Purpose: draws the main browser front-end
 //-----------------------------------------------------------------------------
-void IBrowser::Draw(const char* pszTitle, bool* bDraw)
+void CBrowser::Draw(const char* pszTitle, bool* bDraw)
 {
     if (!m_bInitialized)
     {
@@ -123,7 +123,7 @@ void IBrowser::Draw(const char* pszTitle, bool* bDraw)
 //-----------------------------------------------------------------------------
 // Purpose: draws the compmenu
 //-----------------------------------------------------------------------------
-void IBrowser::CompMenu(void)
+void CBrowser::CompMenu(void)
 {
     ImGui::BeginTabBar("CompMenu");
     if (ImGui::TabItemButton("Server Browser"))
@@ -146,7 +146,7 @@ void IBrowser::CompMenu(void)
 //-----------------------------------------------------------------------------
 // Purpose: draws the server browser section
 //-----------------------------------------------------------------------------
-void IBrowser::ServerBrowserSection(void)
+void CBrowser::ServerBrowserSection(void)
 {
     ImGui::BeginGroup();
     m_imServerBrowserFilter.Draw();
@@ -240,7 +240,7 @@ void IBrowser::ServerBrowserSection(void)
 //-----------------------------------------------------------------------------
 // Purpose: refreshes the server browser list with available servers
 //-----------------------------------------------------------------------------
-void IBrowser::RefreshServerList(void)
+void CBrowser::RefreshServerList(void)
 {
     static bool bThreadLocked = false;
 
@@ -264,7 +264,7 @@ void IBrowser::RefreshServerList(void)
 //-----------------------------------------------------------------------------
 // Purpose: get server list from pylon.
 //-----------------------------------------------------------------------------
-void IBrowser::GetServerList(void)
+void CBrowser::GetServerList(void)
 {
     m_vServerList.clear();
     m_svServerListMessage.clear();
@@ -274,7 +274,7 @@ void IBrowser::GetServerList(void)
 //-----------------------------------------------------------------------------
 // Purpose: connects to specified server
 //-----------------------------------------------------------------------------
-void IBrowser::ConnectToServer(const string& svIp, const string& svPort, const string& svNetKey)
+void CBrowser::ConnectToServer(const string& svIp, const string& svPort, const string& svNetKey)
 {
     if (!svNetKey.empty())
     {
@@ -289,7 +289,7 @@ void IBrowser::ConnectToServer(const string& svIp, const string& svPort, const s
 //-----------------------------------------------------------------------------
 // Purpose: connects to specified server
 //-----------------------------------------------------------------------------
-void IBrowser::ConnectToServer(const string& svServer, const string& svNetKey)
+void CBrowser::ConnectToServer(const string& svServer, const string& svNetKey)
 {
     if (!svNetKey.empty())
     {
@@ -304,7 +304,7 @@ void IBrowser::ConnectToServer(const string& svServer, const string& svNetKey)
 //-----------------------------------------------------------------------------
 // Purpose: Launch server with given parameters
 //-----------------------------------------------------------------------------
-void IBrowser::LaunchServer(void)
+void CBrowser::LaunchServer(void)
 {
 #ifndef CLIENT_DLL
     DevMsg(eDLL_T::ENGINE, "Starting server with name: \"%s\" map: \"%s\" playlist: \"%s\"\n", m_Server.svServerName.c_str(), m_Server.svMapName.c_str(), m_Server.svPlaylist.c_str());
@@ -330,7 +330,7 @@ void IBrowser::LaunchServer(void)
 //-----------------------------------------------------------------------------
 // Purpose: draws the hidden private server modal
 //-----------------------------------------------------------------------------
-void IBrowser::HiddenServersModal(void)
+void CBrowser::HiddenServersModal(void)
 {
     bool modalOpen = true;
     if (ImGui::BeginPopupModal("Connect to Private Server", &modalOpen))
@@ -396,7 +396,7 @@ void IBrowser::HiddenServersModal(void)
 //-----------------------------------------------------------------------------
 // Purpose: draws the host section
 //-----------------------------------------------------------------------------
-void IBrowser::HostServerSection(void)
+void CBrowser::HostServerSection(void)
 {
 #ifndef CLIENT_DLL
     static string svServerNameErr = "";
@@ -548,7 +548,7 @@ void IBrowser::HostServerSection(void)
 //-----------------------------------------------------------------------------
 // Purpose: updates the hoster's status
 //-----------------------------------------------------------------------------
-void IBrowser::UpdateHostingStatus(void)
+void CBrowser::UpdateHostingStatus(void)
 {
 #ifndef CLIENT_DLL
     if (!g_pHostState || !g_pCVar)
@@ -602,7 +602,7 @@ void IBrowser::UpdateHostingStatus(void)
 //-----------------------------------------------------------------------------
 // Purpose: sends the hosting POST request to the comp server
 //-----------------------------------------------------------------------------
-void IBrowser::SendHostingPostRequest(void)
+void CBrowser::SendHostingPostRequest(void)
 {
 #ifndef CLIENT_DLL
     m_svHostToken.clear();
@@ -644,7 +644,7 @@ void IBrowser::SendHostingPostRequest(void)
 //-----------------------------------------------------------------------------
 // Purpose: executes submitted commands in a separate thread
 //-----------------------------------------------------------------------------
-void IBrowser::ProcessCommand(const char* pszCommand)
+void CBrowser::ProcessCommand(const char* pszCommand)
 {
     std::thread t(CEngineClient_CommandExecute, this, pszCommand);
     t.detach(); // Detach from render thread.
@@ -656,7 +656,7 @@ void IBrowser::ProcessCommand(const char* pszCommand)
 //-----------------------------------------------------------------------------
 // Purpose: draws the settings section
 //-----------------------------------------------------------------------------
-void IBrowser::SettingsSection(void)
+void CBrowser::SettingsSection(void)
 {
     ImGui::InputTextWithHint("Hostname", "Matchmaking Server String", &m_szMatchmakingHostName);
     if (ImGui::Button("Update Hostname"))
@@ -678,7 +678,7 @@ void IBrowser::SettingsSection(void)
 //-----------------------------------------------------------------------------
 // Purpose: regenerates encryption key
 //-----------------------------------------------------------------------------
-void IBrowser::RegenerateEncryptionKey(void) const
+void CBrowser::RegenerateEncryptionKey(void) const
 {
     NET_GenerateKey();
 }
@@ -686,7 +686,7 @@ void IBrowser::RegenerateEncryptionKey(void) const
 //-----------------------------------------------------------------------------
 // Purpose: changes encryption key to specified one
 //-----------------------------------------------------------------------------
-void IBrowser::ChangeEncryptionKeyTo(const string& svNetKey) const
+void CBrowser::ChangeEncryptionKeyTo(const string& svNetKey) const
 {
     NET_SetKey(svNetKey);
 }
@@ -694,7 +694,7 @@ void IBrowser::ChangeEncryptionKeyTo(const string& svNetKey) const
 //-----------------------------------------------------------------------------
 // Purpose: sets the browser front-end style
 //-----------------------------------------------------------------------------
-void IBrowser::SetStyleVar(void)
+void CBrowser::SetStyleVar(void)
 {
     ImGuiStyle& style                     = ImGui::GetStyle();
     ImVec4* colors                        = style.Colors;
@@ -807,4 +807,4 @@ void IBrowser::SetStyleVar(void)
     style.WindowMinSize     = ImVec2(750, 510);
 }
 
-IBrowser* g_pIBrowser = new IBrowser();
+CBrowser* g_pBrowser = new CBrowser();

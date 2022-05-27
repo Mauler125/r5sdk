@@ -117,7 +117,7 @@ namespace VSquirrel
         SQRESULT GetServerName(HSQUIRRELVM v)
         {
             int iServerIndex = sq_getinteger(v, 1);
-            std::string svServerName = g_pIBrowser->m_vServerList[iServerIndex].svServerName;
+            std::string svServerName = g_pBrowser->m_vServerList[iServerIndex].svServerName;
 
             sq_pushstring(v, svServerName.c_str(), -1);
 
@@ -130,7 +130,7 @@ namespace VSquirrel
         SQRESULT GetServerPlaylist(HSQUIRRELVM v)
         {
             int iServerIndex = sq_getinteger(v, 1);
-            std::string svServerPlaylist = g_pIBrowser->m_vServerList[iServerIndex].svPlaylist;
+            std::string svServerPlaylist = g_pBrowser->m_vServerList[iServerIndex].svPlaylist;
 
             sq_pushstring(v, svServerPlaylist.c_str(), -1);
 
@@ -143,7 +143,7 @@ namespace VSquirrel
         SQRESULT GetServerMap(HSQUIRRELVM v)
         {
             int iServerIndex = sq_getinteger(v, 1);
-            std::string svServerMapName = g_pIBrowser->m_vServerList[iServerIndex].svMapName;
+            std::string svServerMapName = g_pBrowser->m_vServerList[iServerIndex].svMapName;
 
             sq_pushstring(v, svServerMapName.c_str(), -1);
 
@@ -155,9 +155,9 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT GetServerCount(HSQUIRRELVM v)
         {
-            g_pIBrowser->GetServerList(); // Refresh svListing list.
+            g_pBrowser->GetServerList(); // Refresh svListing list.
 
-            sq_pushinteger(v, g_pIBrowser->m_vServerList.size());
+            sq_pushinteger(v, g_pBrowser->m_vServerList.size());
 
             return SQ_OK;
         }
@@ -233,7 +233,7 @@ namespace VSquirrel
             int iServerIndex = sq_getinteger(v, 1);
 
             // !TODO: Create glue class instead.
-            g_pIBrowser->ConnectToServer(g_pIBrowser->m_vServerList[iServerIndex].svIpAddress, g_pIBrowser->m_vServerList[iServerIndex].svPort, g_pIBrowser->m_vServerList[iServerIndex].svEncryptionKey);
+            g_pBrowser->ConnectToServer(g_pBrowser->m_vServerList[iServerIndex].svIpAddress, g_pBrowser->m_vServerList[iServerIndex].svPort, g_pBrowser->m_vServerList[iServerIndex].svEncryptionKey);
 
             return SQ_OK;
         }
@@ -252,13 +252,13 @@ namespace VSquirrel
                 return SQ_OK;
 
             // Adjust browser settings.
-            g_pIBrowser->m_Server.svPlaylist = svServerPlaylist;
-            g_pIBrowser->m_Server.svMapName = svServerMapName;
-            g_pIBrowser->m_Server.svServerName = svServerName;
-            g_pIBrowser->eServerVisibility = eServerVisibility;
+            g_pBrowser->m_Server.svPlaylist = svServerPlaylist;
+            g_pBrowser->m_Server.svMapName = svServerMapName;
+            g_pBrowser->m_Server.svServerName = svServerName;
+            g_pBrowser->eServerVisibility = eServerVisibility;
 
             // Launch server.
-            g_pIBrowser->LaunchServer();
+            g_pBrowser->LaunchServer();
 
             return SQ_OK;
         }
@@ -276,7 +276,7 @@ namespace VSquirrel
             bool result = g_pR5net->GetServerByToken(svListing, svHiddenServerRequestMessage, svToken); // Send szToken connect request.
             if (result)
             {
-                g_pIBrowser->ConnectToServer(svListing.svIpAddress, svListing.svPort, svListing.svEncryptionKey);
+                g_pBrowser->ConnectToServer(svListing.svIpAddress, svListing.svPort, svListing.svEncryptionKey);
             }
 
             return SQ_OK;
@@ -324,7 +324,7 @@ namespace VSquirrel
 
             DevMsg(eDLL_T::UI, "Connecting to server with ip-address '%s' and encryption key '%s'\n", svIpAddr.c_str(), svEncKey.c_str());
 
-            g_pIBrowser->ConnectToServer(svIpAddr, svEncKey);
+            g_pBrowser->ConnectToServer(svIpAddr, svEncKey);
 
             return SQ_OK;
         }

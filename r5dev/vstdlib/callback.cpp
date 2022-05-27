@@ -60,7 +60,7 @@ ServerBrowser_Invoke_f
 */
 void ServerBrowser_Invoke_f(const CCommand& args)
 {
-	g_pIBrowser->m_bActivate = !g_pIBrowser->m_bActivate;
+	g_pBrowser->m_bActivate = !g_pBrowser->m_bActivate;
 }
 #endif // !DEDICATED
 

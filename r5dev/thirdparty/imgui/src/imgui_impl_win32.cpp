@@ -186,7 +186,7 @@ void    ImGui_ImplWin32_Shutdown()
 static bool ImGui_ImplWin32_UpdateMouseCursor()
 {
     // These have to be here to prevent the mouse in-game from flickering when '::SetCursor(...)' is called.
-    if (g_pIBrowser->m_bActivate || g_pIConsole->m_bActivate)
+    if (g_pBrowser->m_bActivate || g_pIConsole->m_bActivate)
     {
         ImGuiIO& io = ImGui::GetIO();
         if (io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)

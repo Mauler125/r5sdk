@@ -25,7 +25,7 @@ enum class EServerVisibility
     PUBLIC
 };
 
-class IBrowser
+class CBrowser
 {
 private:
     bool m_bInitialized = false;
@@ -42,8 +42,8 @@ public:
     ////////////////////
     //     Funcs      //
     ////////////////////
-    IBrowser(void);
-    ~IBrowser(void);
+    CBrowser(void);
+    ~CBrowser(void);
 
     void Draw(const char* pszTitle, bool* bDraw);
     void CompMenu(void);
@@ -112,5 +112,5 @@ public:
     }
 };
 
-extern IBrowser* g_pIBrowser;
+extern CBrowser* g_pBrowser;
 #endif
