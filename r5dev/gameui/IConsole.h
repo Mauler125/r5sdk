@@ -37,9 +37,9 @@ class CConsole
 {
 private:
     ///////////////////////////////////////////////////////////////////////////
-    char                           m_szInputBuf[512]     = { 0 };
-    char                           m_szSummary[256]      = { 0 };
-    const char*                    m_pszConsoleTitle     = { 0 };
+    char                           m_szInputBuf[512]     = { '\0' };
+    char                           m_szSummary[256]      = { '\0' };
+    const char*                    m_pszConsoleTitle     = { '\0' };
 
     vector<string>                 m_vsvCommands;
     vector<string>                 m_vsvHistory;
