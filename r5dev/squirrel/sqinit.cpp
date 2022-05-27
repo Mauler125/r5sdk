@@ -229,7 +229,7 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT SetEncKeyAndConnect(HSQUIRRELVM v)
         {
-            int iServerIndex = sq_getinteger(v, 1);
+            SQInteger iServerIndex = sq_getinteger(v, 1);
 
             // !TODO: Create glue class instead.
             g_pBrowser->ConnectToServer(g_pBrowser->m_vServerList[iServerIndex].svIpAddress, g_pBrowser->m_vServerList[iServerIndex].svPort, g_pBrowser->m_vServerList[iServerIndex].svEncryptionKey);
