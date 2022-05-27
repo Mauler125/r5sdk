@@ -52,8 +52,8 @@ public:
     void RefreshServerList(void);
     void GetServerList(void);
 
-    void ConnectToServer(const std::string& svIp, const std::string& svPort, const std::string& svNetKey);
-    void ConnectToServer(const std::string& svServer, const std::string& svNetKey);
+    void ConnectToServer(const string& svIp, const string& svPort, const string& svNetKey);
+    void ConnectToServer(const string& svServer, const string& svNetKey);
 
     void HiddenServersModal(void);
     void HostServerSection(void);
@@ -76,30 +76,30 @@ public:
 public:
     bool m_bActivate = false;
 
-    std::vector<ServerListing> m_vServerList;
+    vector<ServerListing> m_vServerList;
     ImGuiTextFilter m_imServerBrowserFilter;
-    char m_chServerConnStringBuffer[256] = { 0 };
-    char m_chServerEncKeyBuffer[30]      = { 0 };
-    std::string m_szServerListMessage    = std::string();
+    char m_szServerAddressBuffer[256] = { '\0' };
+    char m_szServerEncKeyBuffer[30]   = { '\0' };
+    string m_svServerListMessage;
 
     ////////////////////
     //    Settings    //
     ////////////////////
-    std::string m_szMatchmakingHostName;
+    string m_szMatchmakingHostName;
 
     ////////////////////
     //   Host Server  //
     ////////////////////
     ServerListing m_Server;
-    std::string m_szHostRequestMessage  = "";
-    std::string m_szHostToken           = "";
+    string m_svHostRequestMessage;
+    string m_svHostToken;
     ImVec4 m_iv4HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
 
     ////////////////////
     // Private Server //
     ////////////////////
-    std::string m_szHiddenServerToken          = "";
-    std::string m_szHiddenServerRequestMessage = "";
+    string m_svHiddenServerToken;
+    string m_svHiddenServerRequestMessage;
     ImVec4 m_ivHiddenServerMessageColor        = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
 
     /* Texture */

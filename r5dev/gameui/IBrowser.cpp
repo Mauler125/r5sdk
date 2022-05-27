@@ -41,7 +41,7 @@ History:
 //-----------------------------------------------------------------------------
 IBrowser::IBrowser(void)
 {
-    memset(m_chServerConnStringBuffer, 0, sizeof(m_chServerConnStringBuffer));
+    memset(m_szServerAddressBuffer, '\0', sizeof(m_szServerAddressBuffer));
 #ifndef CLIENT_DLL
     static std::thread hostingServerRequestThread([this]()
     {
@@ -156,7 +156,7 @@ void IBrowser::ServerBrowserSection(void)
         RefreshServerList();
     }
     ImGui::EndGroup();
-    ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), m_szServerListMessage.c_str());
+    ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), m_svServerListMessage.c_str());
     ImGui::Separator();
 
     const float fFooterHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
@@ -198,8 +198,8 @@ void IBrowser::ServerBrowserSection(void)
                 ImGui::Text(pszPlaylist);
 
                 ImGui::TableNextColumn();
-                std::string svConnectBtn = "Connect##";
-                svConnectBtn += (server.svServerName + server.svIpAddress + server.svMapName);
+                string svConnectBtn = "Connect##";
+                svConnectBtn.append(server.svServerName + server.svIpAddress + server.svMapName);
 
                 if (ImGui::Button(svConnectBtn.c_str()))
                 {
@@ -216,15 +216,15 @@ void IBrowser::ServerBrowserSection(void)
     ImGui::Separator();
     ImGui::PushItemWidth(ImGui::GetWindowContentRegionWidth() / 4);
     {
-        ImGui::InputTextWithHint("##ServerBrowser_ServerConnString", "Enter IP address or \"localhost\"", m_chServerConnStringBuffer, IM_ARRAYSIZE(m_chServerConnStringBuffer));
+        ImGui::InputTextWithHint("##ServerBrowser_ServerConnString", "Enter IP address or \"localhost\"", m_szServerAddressBuffer, IM_ARRAYSIZE(m_szServerAddressBuffer));
 
         ImGui::SameLine();
-        ImGui::InputTextWithHint("##ServerBrowser_ServerEncKey", "Enter encryption key", m_chServerEncKeyBuffer, IM_ARRAYSIZE(m_chServerEncKeyBuffer));
+        ImGui::InputTextWithHint("##ServerBrowser_ServerEncKey", "Enter encryption key", m_szServerEncKeyBuffer, IM_ARRAYSIZE(m_szServerEncKeyBuffer));
 
         ImGui::SameLine();
         if (ImGui::Button("Connect", ImVec2(ImGui::GetWindowContentRegionWidth() / 4.2, 18.5)))
         {
-            ConnectToServer(m_chServerConnStringBuffer, m_chServerEncKeyBuffer);
+            ConnectToServer(m_szServerAddressBuffer, m_szServerEncKeyBuffer);
         }
 
         ImGui::SameLine();
@@ -245,7 +245,7 @@ void IBrowser::RefreshServerList(void)
     static bool bThreadLocked = false;
 
     m_vServerList.clear();
-    m_szServerListMessage.clear();
+    m_svServerListMessage.clear();
 
     if (!bThreadLocked)
     {
@@ -253,7 +253,7 @@ void IBrowser::RefreshServerList(void)
             {
                 DevMsg(eDLL_T::CLIENT, "Refreshing server list with matchmaking host '%s'\n", r5net_matchmaking_hostname->GetString());
                 bThreadLocked = true;
-                m_vServerList = g_pR5net->GetServersList(m_szServerListMessage);
+                m_vServerList = g_pR5net->GetServersList(m_svServerListMessage);
                 bThreadLocked = false;
             });
 
@@ -267,38 +267,38 @@ void IBrowser::RefreshServerList(void)
 void IBrowser::GetServerList(void)
 {
     m_vServerList.clear();
-    m_szServerListMessage.clear();
-    m_vServerList = g_pR5net->GetServersList(m_szServerListMessage);
+    m_svServerListMessage.clear();
+    m_vServerList = g_pR5net->GetServersList(m_svServerListMessage);
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: connects to specified server
 //-----------------------------------------------------------------------------
-void IBrowser::ConnectToServer(const std::string& svIp, const std::string& svPort, const std::string& svNetKey)
+void IBrowser::ConnectToServer(const string& svIp, const string& svPort, const string& svNetKey)
 {
     if (!svNetKey.empty())
     {
         ChangeEncryptionKeyTo(svNetKey);
     }
 
-    std::stringstream cmd;
-    cmd << "connect " << svIp << ":" << svPort;
-    ProcessCommand(cmd.str().c_str());
+    stringstream ssCommand;
+    ssCommand << "connect " << svIp << ":" << svPort;
+    ProcessCommand(ssCommand.str().c_str());
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: connects to specified server
 //-----------------------------------------------------------------------------
-void IBrowser::ConnectToServer(const std::string& svServer, const std::string& svNetKey)
+void IBrowser::ConnectToServer(const string& svServer, const string& svNetKey)
 {
     if (!svNetKey.empty())
     {
         ChangeEncryptionKeyTo(svNetKey);
     }
 
-    std::stringstream cmd;
-    cmd << "connect " << svServer;
-    ProcessCommand(cmd.str().c_str());
+    stringstream ssCommand;
+    ssCommand << "connect " << svServer;
+    ProcessCommand(ssCommand.str().c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -314,16 +314,16 @@ void IBrowser::LaunchServer(void)
     * Then when you would normally call launchplaylist which calls StartPlaylist it would cmd call mp_gamemode which parses the gamemode specific part of the playlist..
     */
     KeyValues_LoadPlaylist(m_Server.svPlaylist.c_str());
-    std::stringstream cgmd;
-    cgmd << "mp_gamemode " << m_Server.svPlaylist;
-    ProcessCommand(cgmd.str().c_str());
+    stringstream ssModeCommand;
+    ssModeCommand << "mp_gamemode " << m_Server.svPlaylist;
+    ProcessCommand(ssModeCommand.str().c_str());
 
     // This is to avoid a race condition.
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-    std::stringstream cmd;
-    cmd << "map " << m_Server.svMapName;
-    ProcessCommand(cmd.str().c_str());
+    stringstream ssMapCommand;
+    ssMapCommand << "map " << m_Server.svMapName;
+    ProcessCommand(ssMapCommand.str().c_str());
 #endif // !CLIENT_DLL
 }
 
@@ -356,29 +356,29 @@ void IBrowser::HiddenServersModal(void)
         ImGui::Text("Enter the token to connect");
 
         ImGui::PushItemWidth(ImGui::GetWindowContentRegionWidth()); // Override item width.
-        ImGui::InputTextWithHint("##HiddenServersConnectModal_TokenInput", "Token", &m_szHiddenServerToken);
+        ImGui::InputTextWithHint("##HiddenServersConnectModal_TokenInput", "Token", &m_svHiddenServerToken);
         ImGui::PopItemWidth();
 
         ImGui::Dummy(ImVec2(ImGui::GetWindowContentRegionWidth(), 19.f)); // Place a dummy, basically making space inserting a blank element.
 
-        ImGui::TextColored(m_ivHiddenServerMessageColor, m_szHiddenServerRequestMessage.c_str());
+        ImGui::TextColored(m_ivHiddenServerMessageColor, m_svHiddenServerRequestMessage.c_str());
         ImGui::Separator();
 
         if (ImGui::Button("Connect", ImVec2(ImGui::GetWindowContentRegionWidth() / 2, 24)))
         {
-            m_szHiddenServerRequestMessage.clear();
+            m_svHiddenServerRequestMessage.clear();
             ServerListing server;
-            bool result = g_pR5net->GetServerByToken(server, m_szHiddenServerRequestMessage, m_szHiddenServerToken); // Send token connect request.
+            bool result = g_pR5net->GetServerByToken(server, m_svHiddenServerRequestMessage, m_svHiddenServerToken); // Send token connect request.
             if (!server.svServerName.empty())
             {
                 ConnectToServer(server.svIpAddress, server.svPort, server.svEncryptionKey); // Connect to the server
-                m_szHiddenServerRequestMessage = "Found Server: " + server.svServerName;
+                m_svHiddenServerRequestMessage = "Found Server: " + server.svServerName;
                 m_ivHiddenServerMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
                 ImGui::CloseCurrentPopup();
             }
             else
             {
-                m_szHiddenServerRequestMessage = "Error: " + m_szHiddenServerRequestMessage;
+                m_svHiddenServerRequestMessage = "Error: " + m_svHiddenServerRequestMessage;
                 m_ivHiddenServerMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
             }
         }
@@ -399,7 +399,7 @@ void IBrowser::HiddenServersModal(void)
 void IBrowser::HostServerSection(void)
 {
 #ifndef CLIENT_DLL
-    static std::string svServerNameErr = "";
+    static string svServerNameErr = "";
 
     ImGui::InputTextWithHint("##ServerHost_ServerName", "Server Name (Required)", &m_Server.svServerName);
     ImGui::Spacing();
@@ -500,10 +500,10 @@ void IBrowser::HostServerSection(void)
     }
 
     ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), svServerNameErr.c_str());
-    ImGui::TextColored(m_iv4HostRequestMessageColor, m_szHostRequestMessage.c_str());
-    if (!m_szHostToken.empty())
+    ImGui::TextColored(m_iv4HostRequestMessageColor, m_svHostRequestMessage.c_str());
+    if (!m_svHostToken.empty())
     {
-        ImGui::InputText("##ServerHost_HostToken", &m_szHostToken, ImGuiInputTextFlags_ReadOnly);
+        ImGui::InputText("##ServerHost_HostToken", &m_svHostToken, ImGuiInputTextFlags_ReadOnly);
     }
 
     if (g_pHostState->m_bActiveGame)
@@ -561,7 +561,7 @@ void IBrowser::UpdateHostingStatus(void)
     {
     case eHostStatus::NOT_HOSTING:
     {
-        m_szHostRequestMessage.clear();
+        m_svHostRequestMessage.clear();
         m_iv4HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
         break;
     }
@@ -605,19 +605,19 @@ void IBrowser::UpdateHostingStatus(void)
 void IBrowser::SendHostingPostRequest(void)
 {
 #ifndef CLIENT_DLL
-    m_szHostToken = std::string();
-    bool result = g_pR5net->PostServerHost(m_szHostRequestMessage, m_szHostToken,
+    m_svHostToken.clear();
+    bool result = g_pR5net->PostServerHost(m_svHostRequestMessage, m_svHostToken,
         ServerListing
         {
             m_Server.svServerName.c_str(),
-            std::string(g_pHostState->m_levelName),
+            string(g_pHostState->m_levelName),
             "",
             hostport->GetString(),
             mp_gamemode->GetString(),
             m_Server.bHidden,
             std::to_string(*g_nClientRemoteChecksum),
 
-            std::string(),
+            string(),
             g_svNetKey.c_str()
         }
     );
@@ -625,14 +625,14 @@ void IBrowser::SendHostingPostRequest(void)
     if (result)
     {
         m_iv4HostRequestMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
-        std::stringstream msg;
-        msg << "Broadcasting! ";
-        if (!m_szHostToken.empty())
+        stringstream ssMessage;
+        ssMessage << "Broadcasting! ";
+        if (!m_svHostToken.empty())
         {
-            msg << "Share the following token for clients to connect: ";
+            ssMessage << "Share the following token for clients to connect: ";
         }
-        m_szHostRequestMessage = msg.str().c_str();
-        DevMsg(eDLL_T::CLIENT, "PostServerHost replied with: %s\n", m_szHostRequestMessage.c_str());
+        m_svHostRequestMessage = ssMessage.str().c_str();
+        DevMsg(eDLL_T::CLIENT, "PostServerHost replied with: %s\n", m_svHostRequestMessage.c_str());
     }
     else
     {
@@ -686,7 +686,7 @@ void IBrowser::RegenerateEncryptionKey(void) const
 //-----------------------------------------------------------------------------
 // Purpose: changes encryption key to specified one
 //-----------------------------------------------------------------------------
-void IBrowser::ChangeEncryptionKeyTo(const std::string& svNetKey) const
+void IBrowser::ChangeEncryptionKeyTo(const string& svNetKey) const
 {
     NET_SetKey(svNetKey);
 }
