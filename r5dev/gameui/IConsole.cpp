@@ -137,11 +137,11 @@ void CConsole::Draw(const char* pszTitle, bool* bDraw)
             if (m_bDefaultTheme)
             {
                 static ImGuiStyle& style = ImGui::GetStyle();
-                m_vecSuggestWindowPos.y = m_vecSuggestWindowPos.y + style.WindowPadding.y + 1.5f;
+                m_ivSuggestWindowPos.y = m_ivSuggestWindowPos.y + style.WindowPadding.y + 1.5f;
             }
 
-            ImGui::SetNextWindowPos(m_vecSuggestWindowPos);
-            ImGui::SetNextWindowSize(m_vecSuggestWindowSize);
+            ImGui::SetNextWindowPos(m_ivSuggestWindowPos);
+            ImGui::SetNextWindowSize(m_ivSuggestWindowSize);
 
             ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);
             ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(500, 37));
@@ -240,7 +240,7 @@ void CConsole::BasePanel(bool* bDraw)
     ImGui::PushItemWidth(footer_width_to_reserve - 80);
     if (ImGui::IsWindowAppearing()) { ImGui::SetKeyboardFocusHere(); }
 
-    if (ImGui::InputText("##input", m_szInputBuf, IM_ARRAYSIZE(m_szInputBuf), input_text_flags, &TextEditCallbackStub, reinterpret_cast<void*>(this)))
+    if (ImGui::InputText("##input", m_szInputBuf, IM_ARRAYSIZE(m_szInputBuf), m_nInputFlags, &TextEditCallbackStub, reinterpret_cast<void*>(this)))
     {
         if (m_nSuggestPos != -1)
         {
@@ -278,9 +278,9 @@ void CConsole::BasePanel(bool* bDraw)
         // Pad with 18 to keep all items in view.
         nPad = 18;
     }
-    m_vecSuggestWindowPos = ImGui::GetItemRectMin();
-    m_vecSuggestWindowPos.y += ImGui::GetItemRectSize().y;
-    m_vecSuggestWindowSize = ImVec2(600, nPad + std::clamp(static_cast<float>(m_vsvSuggest.size()) * 13.0f, 37.0f, 127.5f));
+    m_ivSuggestWindowPos = ImGui::GetItemRectMin();
+    m_ivSuggestWindowPos.y += ImGui::GetItemRectSize().y;
+    m_ivSuggestWindowSize = ImVec2(600, nPad + std::clamp(static_cast<float>(m_vsvSuggest.size()) * 13.0f, 37.0f, 127.5f));
 
     ImGui::SameLine();
     if (ImGui::Button("Submit"))
@@ -339,7 +339,7 @@ void CConsole::OptionsPanel(void)
 //-----------------------------------------------------------------------------
 void CConsole::SuggestPanel(void)
 {
-    ImGui::Begin("##suggest", nullptr, popup_window_flags);
+    ImGui::Begin("##suggest", nullptr, m_nSuggestFlags);
     ImGui::PushAllowKeyboardFocus(false);
 
     for (int i = 0; i < m_vsvSuggest.size(); i++)

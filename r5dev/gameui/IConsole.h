@@ -60,10 +60,10 @@ private:
     vector<CSuggest>               m_vsvSuggest;
     vector<MODULERESOURCE>         m_vFlagIcons;
 
-    ImVec2                         m_vecSuggestWindowPos;
-    ImVec2                         m_vecSuggestWindowSize;
+    ImVec2                         m_ivSuggestWindowPos;
+    ImVec2                         m_ivSuggestWindowSize;
 
-    ImGuiInputTextFlags input_text_flags = 
+    ImGuiInputTextFlags m_nInputFlags = 
         ImGuiInputTextFlags_AutoCaretEnd       |
         ImGuiInputTextFlags_CallbackCompletion |
         ImGuiInputTextFlags_CallbackHistory    |
@@ -71,12 +71,11 @@ private:
         ImGuiInputTextFlags_CallbackEdit       |
         ImGuiInputTextFlags_EnterReturnsTrue;
 
-    ImGuiWindowFlags popup_window_flags = 
+    ImGuiWindowFlags m_nSuggestFlags = 
         ImGuiWindowFlags_NoMove                    |
         ImGuiWindowFlags_NoTitleBar                |
         ImGuiWindowFlags_NoSavedSettings           |
         ImGuiWindowFlags_NoFocusOnAppearing        |
-        ImGuiWindowFlags_NoBringToFrontOnFocus     |
         ImGuiWindowFlags_AlwaysVerticalScrollbar   |
         ImGuiWindowFlags_AlwaysHorizontalScrollbar;
 
