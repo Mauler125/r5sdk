@@ -23,8 +23,8 @@ struct SQVM
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
 	SQCONTEXT _contextidx;
 	_BYTE gap001[8];
-#endif
 	_BYTE gap002[4];
+#endif
 	void* _ncvftable;
 	void* _table;
 	_BYTE gap003[14];

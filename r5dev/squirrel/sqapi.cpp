@@ -11,17 +11,13 @@
 //---------------------------------------------------------------------------------
 SQChar* sq_getstring(HSQUIRRELVM v, SQInteger i)
 {
-	std::uintptr_t thisptr = reinterpret_cast<std::uintptr_t>(v);
-
-	return *(char**)(*(std::int64_t*)(thisptr + 0x58) + 0x10 * i + 0x8) + 0x40;
+	return *(char**)(*(std::int64_t*)(v->_stackbase) + 0x10 * i + 0x8) + 0x40;
 }
 
 //---------------------------------------------------------------------------------
 SQInteger sq_getinteger(HSQUIRRELVM v, SQInteger i)
 {
-	std::uintptr_t thisptr = reinterpret_cast<std::uintptr_t>(v);
-
-	return *(SQInteger*)(*(std::int64_t*)(thisptr + 0x58) + 0x10 * i + 0x8);
+	return *(SQInteger*)(*(std::int64_t*)(v->_stackbase) + 0x10 * i + 0x8);
 }
 
 //---------------------------------------------------------------------------------
