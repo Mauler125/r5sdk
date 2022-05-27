@@ -167,3 +167,4 @@ void CBaseFileSystem_Detach()
 	DetourDetach((LPVOID*)&CBaseFileSystem_LoadFromVPK, &CBaseFileSystem::ReadFromVPK);
 	DetourDetach((LPVOID*)&CBaseFileSystem_LoadFromCache, &CBaseFileSystem::ReadFromCache);
 }
+CBaseFileSystem* g_pFileSystem = nullptr;

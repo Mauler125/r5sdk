@@ -23,7 +23,7 @@ inline auto CBaseFileSystem_LoadFromVPK = p_CBaseFileSystem_LoadFromVPK.RCast<Fi
 inline CMemory p_CBaseFileSystem_LoadFromCache;
 inline auto CBaseFileSystem_LoadFromCache = p_CBaseFileSystem_LoadFromCache.RCast<bool(*)(CBaseFileSystem* thisptr, char* pszAssetName, void* pResults)>();
 
-inline CBaseFileSystem* g_pFileSystem = nullptr;
+extern CBaseFileSystem* g_pFileSystem;
 
 ///////////////////////////////////////////////////////////////////////////////
 void CBaseFileSystem_Attach();
@@ -52,8 +52,8 @@ class VBaseFileSystem : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		g_pFileSystem = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\xE8\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00"), "xxxxx????xxx????")
-			.Offset(0x20).FindPatternSelf("48 89 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CBaseFileSystem*>();
+		g_pFileSystem = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x0D\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\xE9\x00\x00\x00\x00"),
+			"xxx????xxx????xxx????xxx????xxx????x????").FindPattern("48 89", CMemory::Direction::DOWN, 512, 2).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CBaseFileSystem*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

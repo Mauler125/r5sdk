@@ -8,7 +8,7 @@
 //			*pPathID - 
 //			addType - 
 //-----------------------------------------------------------------------------
-void CFileSystem_Stdio::AddSearchPath(const char* pPath, const char* pPathID, SearchPathAdd_t addType)
+void IFileSystem::AddSearchPath(const char* pPath, const char* pPathID, SearchPathAdd_t addType)
 {
 	static int index = 12;
 	CallVFunc<void>(index, this, pPath, pPathID, addType);
@@ -20,7 +20,7 @@ void CFileSystem_Stdio::AddSearchPath(const char* pPath, const char* pPathID, Se
 //			*pResult - 
 // Output : true if exists, false otherwise.
 //-----------------------------------------------------------------------------
-bool CFileSystem_Stdio::ReadFromCache(const char* pPath, void* pResult)
+bool IFileSystem::ReadFromCache(const char* pPath, void* pResult)
 {
 	static int index = 76;
 	return CallVFunc<bool>(index, this, pPath, pResult);
@@ -31,11 +31,12 @@ bool CFileSystem_Stdio::ReadFromCache(const char* pPath, void* pResult)
 // Input  : *pPath - 
 // Output : *VPKData_t (information about mounted VPK file)
 //-----------------------------------------------------------------------------
-VPKData_t* CFileSystem_Stdio::MountVPK(const char* pPath)
+VPKData_t* IFileSystem::MountVPK(const char* pPath)
 {
 	static int index = 92;
 	return CallVFunc<VPKData_t*>(index, this, pPath);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+IFileSystem* g_pFullFileSystem = nullptr;
 CFileSystem_Stdio* g_pFileSystem_Stdio = nullptr;

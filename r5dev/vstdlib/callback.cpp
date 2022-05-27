@@ -661,9 +661,9 @@ void VPK_Mount_f(const CCommand& args)
 		return;
 	}
 
-	if (g_pFileSystem_Stdio)
+	if (g_pFullFileSystem)
 	{
-		VPKData_t* pPakData = g_pFileSystem_Stdio->MountVPK(args.Arg(1));
+		VPKData_t* pPakData = g_pFullFileSystem->MountVPK(args.Arg(1));
 		if (pPakData)
 		{
 			DevMsg(eDLL_T::FS, "Mounted VPK file '%s' with handle '%d'\n", args.Arg(1), pPakData->m_nHandle);

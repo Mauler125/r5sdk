@@ -161,7 +161,7 @@ void MOD_ProcessPakQueue()
     {
         return;
     }
-    if ((*(unsigned __int8(__fastcall**)(__int64))(*(_QWORD*)*(_QWORD*)g_pFileSystem_Stdio + 696i64 - FSTDIO_OFS))(*(_QWORD*)g_pFileSystem_Stdio) && !*dword_1634F445C)
+    if ((*(unsigned __int8(__fastcall**)(__int64))(*(_QWORD*)*(_QWORD*)g_pFullFileSystem + 696i64 - FSTDIO_OFS))(*(_QWORD*)g_pFullFileSystem) && !*dword_1634F445C)
     {
         v1 = &*off_141874660;
         for (i = 0; i < 5; ++i)
@@ -274,8 +274,8 @@ void MOD_ProcessPakQueue()
                                 JT_ReleaseFifoLock((JobFifoLock_s*)&*qword_167ED7BE0);
                                 v23 = *qword_1671061C8;
                             }
-                            (*(void(__fastcall**)(__int64, __int64))(*(_QWORD*)*(_QWORD*)g_pFileSystem_Stdio + 656i64 - FSTDIO_OFS))(*(_QWORD*)g_pFileSystem_Stdio, 256i64);
-                            (*(void(__fastcall**)(__int64, __int64))(*(_QWORD*)*(_QWORD*)g_pFileSystem_Stdio + 648i64 - FSTDIO_OFS))(*(_QWORD*)g_pFileSystem_Stdio, v23);
+                            (*(void(__fastcall**)(__int64, __int64))(*(_QWORD*)*(_QWORD*)g_pFullFileSystem + 656i64 - FSTDIO_OFS))(*(_QWORD*)g_pFullFileSystem, 256i64);
+                            (*(void(__fastcall**)(__int64, __int64))(*(_QWORD*)*(_QWORD*)g_pFullFileSystem + 648i64 - FSTDIO_OFS))(*(_QWORD*)g_pFullFileSystem, v23);
                         }
                     }
                 }
