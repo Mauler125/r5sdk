@@ -116,8 +116,8 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT GetServerName(HSQUIRRELVM v)
         {
-            int iServerIndex = sq_getinteger(v, 1);
-            std::string svServerName = g_pBrowser->m_vServerList[iServerIndex].svServerName;
+            SQInteger iServerIndex = sq_getinteger(v, 1);
+            string svServerName = g_pBrowser->m_vServerList[iServerIndex].svServerName;
 
             sq_pushstring(v, svServerName.c_str(), -1);
 
@@ -129,8 +129,8 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT GetServerPlaylist(HSQUIRRELVM v)
         {
-            int iServerIndex = sq_getinteger(v, 1);
-            std::string svServerPlaylist = g_pBrowser->m_vServerList[iServerIndex].svPlaylist;
+            SQInteger iServerIndex = sq_getinteger(v, 1);
+            string svServerPlaylist = g_pBrowser->m_vServerList[iServerIndex].svPlaylist;
 
             sq_pushstring(v, svServerPlaylist.c_str(), -1);
 
@@ -142,8 +142,8 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT GetServerMap(HSQUIRRELVM v)
         {
-            int iServerIndex = sq_getinteger(v, 1);
-            std::string svServerMapName = g_pBrowser->m_vServerList[iServerIndex].svMapName;
+            SQInteger iServerIndex = sq_getinteger(v, 1);
+            string svServerMapName = g_pBrowser->m_vServerList[iServerIndex].svMapName;
 
             sq_pushstring(v, svServerMapName.c_str(), -1);
 
@@ -156,7 +156,6 @@ namespace VSquirrel
         SQRESULT GetServerCount(HSQUIRRELVM v)
         {
             g_pBrowser->GetServerList(); // Refresh svListing list.
-
             sq_pushinteger(v, g_pBrowser->m_vServerList.size());
 
             return SQ_OK;
@@ -167,7 +166,7 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT GetPromoData(HSQUIRRELVM v)
         {
-            enum class R5RPromoData : int
+            enum class R5RPromoData : SQInteger
             {
                 PromoLargeTitle,
                 PromoLargeDesc,
@@ -177,9 +176,9 @@ namespace VSquirrel
                 PromoRightDesc
             };
 
-            R5RPromoData ePromoIndex = (R5RPromoData)sq_getinteger(v, 1);
+            R5RPromoData ePromoIndex = static_cast<R5RPromoData>(sq_getinteger(v, 1));
 
-            std::string svPromo = std::string();
+            string svPromo;
 
             switch (ePromoIndex)
             {
@@ -243,10 +242,10 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT CreateServerFromMenu(HSQUIRRELVM v)
         {
-            std::string svServerName = sq_getstring(v, 1);
-            std::string svServerMapName = sq_getstring(v, 2);
-            std::string svServerPlaylist = sq_getstring(v, 3);
-            EServerVisibility eServerVisibility = (EServerVisibility)sq_getinteger(v, 4);
+            string svServerName = sq_getstring(v, 1);
+            string svServerMapName = sq_getstring(v, 2);
+            string svServerPlaylist = sq_getstring(v, 3);
+            EServerVisibility eServerVisibility = static_cast<EServerVisibility>(sq_getinteger(v, 4));
 
             if (svServerName.empty() || svServerMapName.empty() || svServerPlaylist.empty())
                 return SQ_OK;
@@ -268,9 +267,8 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT JoinPrivateServerFromMenu(HSQUIRRELVM v)
         {
-            std::string svHiddenServerRequestMessage = std::string();
-
-            std::string svToken = sq_getstring(v, 1);
+            string svHiddenServerRequestMessage;
+            string svToken = sq_getstring(v, 1);
 
             ServerListing svListing;
             bool result = g_pR5net->GetServerByToken(svListing, svHiddenServerRequestMessage, svToken); // Send szToken connect request.
@@ -287,22 +285,19 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT GetPrivateServerMessage(HSQUIRRELVM v)
         {
-            std::string svHiddenServerRequestMessage = std::string();
-
-            std::string svToken = sq_getstring(v, 1);
+            string svHiddenServerRequestMessage;
+            string svToken = sq_getstring(v, 1);
 
             ServerListing serverListing;
             bool result = g_pR5net->GetServerByToken(serverListing, svHiddenServerRequestMessage, svToken); // Send szToken connect request.
             if (!serverListing.svServerName.empty())
             {
                 svHiddenServerRequestMessage = "Found Server: " + serverListing.svServerName;
-
                 sq_pushstring(v, svHiddenServerRequestMessage.c_str(), -1);
             }
             else
             {
                 svHiddenServerRequestMessage = "Error: Server Not Found";
-
                 sq_pushstring(v, svHiddenServerRequestMessage.c_str(), -1);
             }
 
@@ -316,14 +311,13 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT ConnectToIPFromMenu(HSQUIRRELVM v)
         {
-            std::string svIpAddr = sq_getstring(v, 1);
-            std::string svEncKey = sq_getstring(v, 2);
+            string svIpAddr = sq_getstring(v, 1);
+            string svEncKey = sq_getstring(v, 2);
 
             if (svIpAddr.empty() || svEncKey.empty())
                 return SQ_OK;
 
             DevMsg(eDLL_T::UI, "Connecting to server with ip-address '%s' and encryption key '%s'\n", svIpAddr.c_str(), svEncKey.c_str());
-
             g_pBrowser->ConnectToServer(svIpAddr, svEncKey);
 
             return SQ_OK;

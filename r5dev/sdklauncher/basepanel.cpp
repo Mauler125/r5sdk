@@ -449,11 +449,11 @@ void CUIBaseSurface::Init()
 	this->m_ConsoleListView->SetView(Forms::View::Details);
 	this->m_ConsoleListView->SetVirtualMode(true);
 	this->m_ConsoleListView->SetFullRowSelect(true);
-	this->m_ConsoleGroupExt->AddControl(this->m_ConsoleListView);
 	this->m_ConsoleListView->Columns.Add({ "index", 40 });
 	this->m_ConsoleListView->Columns.Add({ "buffer", 387 });
 	this->m_ConsoleListView->MouseClick += &VirtualItemToClipboard;
 	this->m_ConsoleListView->RetrieveVirtualItem += &GetVirtualItem;
+	this->m_ConsoleGroupExt->AddControl(this->m_ConsoleListView);
 
 	this->ResumeLayout(false);
 	this->PerformLayout();
