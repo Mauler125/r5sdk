@@ -64,15 +64,15 @@ int NET_SendDatagram(SOCKET s, void* pPayload, int iLenght, v_netadr_t* pAdr, bo
 //-----------------------------------------------------------------------------
 void NET_SetKey(const string& svNetKey)
 {
-	g_szNetKey.clear();
-	g_szNetKey = svNetKey;
+	g_svNetKey.clear();
+	g_svNetKey = svNetKey;
 
 	DevMsg(eDLL_T::ENGINE, "______________________________________________________________\n");
 	DevMsg(eDLL_T::ENGINE, "] NET_KEY ----------------------------------------------------\n");
-	DevMsg(eDLL_T::ENGINE, "] BASE64: %s%s%s\n", g_svGreyB.c_str(), g_szNetKey.c_str(), g_svReset.c_str());
+	DevMsg(eDLL_T::ENGINE, "] BASE64: %s%s%s\n", g_svGreyB.c_str(), g_svNetKey.c_str(), g_svReset.c_str());
 	DevMsg(eDLL_T::ENGINE, "--------------------------------------------------------------\n");
 
-	v_NET_SetKey(g_pNetKey, g_szNetKey.c_str());
+	v_NET_SetKey(g_pNetKey, g_svNetKey.c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -80,7 +80,7 @@ void NET_SetKey(const string& svNetKey)
 //-----------------------------------------------------------------------------
 void NET_GenerateKey()
 {
-	g_szNetKey.clear();
+	g_svNetKey.clear();
 	net_useRandomKey->SetValue(1);
 
 	BCRYPT_ALG_HANDLE hAlgorithm;
@@ -98,17 +98,17 @@ void NET_GenerateKey()
 
 	for (int i = 0; i < 0x10u; i++)
 	{
-		g_szNetKey += pBuffer[i];
+		g_svNetKey += pBuffer[i];
 	}
 
-	g_szNetKey = Base64Encode(g_szNetKey);
+	g_svNetKey = Base64Encode(g_svNetKey);
 
 	DevMsg(eDLL_T::ENGINE, "______________________________________________________________\n");
 	DevMsg(eDLL_T::ENGINE, "] NET_KEY ----------------------------------------------------\n");
-	DevMsg(eDLL_T::ENGINE, "] BASE64: %s%s%s\n", g_svGreyB.c_str(), g_szNetKey.c_str(), g_svReset.c_str());
+	DevMsg(eDLL_T::ENGINE, "] BASE64: %s%s%s\n", g_svGreyB.c_str(), g_svNetKey.c_str(), g_svReset.c_str());
 	DevMsg(eDLL_T::ENGINE, "--------------------------------------------------------------\n");
 
-	v_NET_SetKey(g_pNetKey, g_szNetKey.c_str());
+	v_NET_SetKey(g_pNetKey, g_svNetKey.c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -246,6 +246,6 @@ void NET_Detach()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-string g_szNetKey = "WDNWLmJYQ2ZlM0VoTid3Yg==";
+string g_svNetKey = "WDNWLmJYQ2ZlM0VoTid3Yg==";
 uintptr_t g_pNetKey = NULL;
 #endif // !NETCONSOLE

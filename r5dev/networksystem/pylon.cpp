@@ -36,7 +36,7 @@ void KeepAliveToPylon()
 				false,
 				std::to_string(*g_nServerRemoteChecksum),
 				std::string(),
-				g_szNetKey.c_str()
+				g_svNetKey.c_str()
 			}
 		);
 	}

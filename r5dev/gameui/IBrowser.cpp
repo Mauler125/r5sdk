@@ -618,7 +618,7 @@ void IBrowser::SendHostingPostRequest(void)
             std::to_string(*g_nClientRemoteChecksum),
 
             std::string(),
-            g_szNetKey.c_str()
+            g_svNetKey.c_str()
         }
     );
 
@@ -668,7 +668,7 @@ void IBrowser::SettingsSection(void)
             g_pR5net = new R5Net::Client(r5net_matchmaking_hostname->GetString());
         }
     }
-    ImGui::InputText("Netkey", (char*)g_szNetKey.c_str(), ImGuiInputTextFlags_ReadOnly);
+    ImGui::InputText("Netkey", (char*)g_svNetKey.c_str(), ImGuiInputTextFlags_ReadOnly);
     if (ImGui::Button("Regenerate Encryption Key"))
     {
         RegenerateEncryptionKey();
