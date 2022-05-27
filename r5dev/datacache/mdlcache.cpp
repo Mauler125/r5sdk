@@ -64,7 +64,7 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
             else
                 Error(eDLL_T::ENGINE, "Model with handle \"hu\" not found; replacing with \"%s\".\n", handle, ERROR_MODEL);
 
-            g_BadMDLHandles.push_back(handle);
+            g_vBadMDLHandles.push_back(handle);
         }
 
         return pStudioHdr;
@@ -147,7 +147,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
             else
                 Error(eDLL_T::ENGINE, "Model with handle \"hu\" not found; replacing with \"%s\".\n", handle, ERROR_MODEL);
 
-            g_BadMDLHandles.push_back(handle);
+            g_vBadMDLHandles.push_back(handle);
         }
 
         pStudioData->m_Mutex.ReleaseWaiter();
@@ -169,7 +169,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
             else
                 Error(eDLL_T::ENGINE, "Attempted to load old model \"%s\"; replacing with \"%s\".\n", szModelName, ERROR_MODEL);
 
-            g_BadMDLHandles.push_back(handle);
+            g_vBadMDLHandles.push_back(handle);
         }
 
         pStudioData->m_Mutex.ReleaseWaiter();
@@ -197,7 +197,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
                 else
                     Error(eDLL_T::ENGINE, "Model \"%s\" not found and \"%s\" couldn't be loaded.\n", szModelName, ERROR_MODEL);
 
-                g_BadMDLHandles.push_back(handle);
+                g_vBadMDLHandles.push_back(handle);
             }
 
             pStudioData->m_Mutex.ReleaseWaiter();
@@ -219,7 +219,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
                     else
                         Error(eDLL_T::ENGINE, "Model \"%s\" has bad studio data; replacing with \"%s\".\n", szModelName, ERROR_MODEL);
 
-                    g_BadMDLHandles.push_back(handle);
+                    g_vBadMDLHandles.push_back(handle);
                 }
             }
             else
@@ -235,7 +235,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
                 else
                     Error(eDLL_T::ENGINE, "Model \"%s\" has no studio data; replacing with \"%s\".\n", szModelName, ERROR_MODEL);
 
-                g_BadMDLHandles.push_back(handle);
+                g_vBadMDLHandles.push_back(handle);
             }
         }
     }
@@ -350,7 +350,7 @@ studiohdr_t* CMDLCache::GetErrorModel(void)
 //-----------------------------------------------------------------------------
 bool CMDLCache::IsKnownBadModel(MDLHandle_t handle)
 {
-    return std::find(g_BadMDLHandles.begin(), g_BadMDLHandles.end(), handle) != g_BadMDLHandles.end();
+    return std::find(g_vBadMDLHandles.begin(), g_vBadMDLHandles.end(), handle) != g_vBadMDLHandles.end();
 }
 
 void MDLCache_Attach()

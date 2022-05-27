@@ -10,7 +10,7 @@
 #include "rtech/rtech_game.h"
 #include "rtech/rtech_utils.h"
 
-vector<RPakHandle_t> g_LoadedPakHandle{ };
+vector<RPakHandle_t> g_vLoadedPakHandle;
 
 //-----------------------------------------------------------------------------
 // Purpose: load user-requested pak files on-demand

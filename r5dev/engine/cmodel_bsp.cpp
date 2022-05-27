@@ -296,13 +296,13 @@ void MOD_ProcessPakQueue()
         {
             RPakHandle_t pakHandle = g_pakLoadApi->AsyncLoad("common_sdk.rpak", g_pMallocPool.GetPtr(), 4, 0);
             if (pakHandle != -1)
-                g_LoadedPakHandle.push_back(pakHandle);
+                g_vLoadedPakHandle.push_back(pakHandle);
         }
         if (strcmp(v17, "ui_mp.rpak") == 0)
         {
             RPakHandle_t pakHandle = g_pakLoadApi->AsyncLoad("ui_sdk.rpak", g_pMallocPool.GetPtr(), 4, 0);
             if (pakHandle != -1)
-                g_LoadedPakHandle.push_back(pakHandle);
+                g_vLoadedPakHandle.push_back(pakHandle);
         }
 
     LABEL_37:
@@ -371,7 +371,7 @@ void MOD_PreloadPakFile(const string& svLevelName)
 							if (nPakId == -1)
 								Error(eDLL_T::ENGINE, "%s: unable to load pak '%s' results '%d'\n", __FUNCTION__, svToLoad.c_str(), nPakId);
 							else
-								g_LoadedPakHandle.push_back(nPakId);
+								g_vLoadedPakHandle.push_back(nPakId);
 						}
 					}
 				}
@@ -390,15 +390,15 @@ void MOD_PreloadPakFile(const string& svLevelName)
 //-----------------------------------------------------------------------------
 void MOD_UnloadPakFile(void)
 {
-	for (auto& it : g_LoadedPakHandle)
+	for (auto& it : g_vLoadedPakHandle)
 	{
 		if (it >= 0)
 		{
 			g_pakLoadApi->Unload(it);
 		}
 	}
-	g_LoadedPakHandle.clear();
-	g_BadMDLHandles.clear();
+	g_vLoadedPakHandle.clear();
+	g_vBadMDLHandles.clear();
 }
 
 void CModelBsp_Attach()

@@ -44,7 +44,7 @@ extern CPakFile* g_pakLoadApi;
 void RTech_Game_Attach();
 void RTech_Game_Detach();
 
-extern vector<RPakHandle_t> g_LoadedPakHandle;
+extern vector<RPakHandle_t> g_vLoadedPakHandle;
 ///////////////////////////////////////////////////////////////////////////////
 class VRTechGame : public IDetour
 {
