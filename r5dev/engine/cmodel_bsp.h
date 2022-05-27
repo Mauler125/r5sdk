@@ -37,8 +37,10 @@ inline auto sub_140441220 = p_MOD_ProcessPakQueue.RCast<void(*)(__int64 a1, __in
 
 extern bool s_bBasePaksInitialized;
 extern string g_svLevelName;
+extern vector<string> g_vAllMaps;
 
 bool MOD_LevelHasChanged(const string& svLevelName);
+void MOD_GetAllInstalledMaps();
 void MOD_PreloadPakFile(const string& svLevelName);
 void MOD_UnloadPakFile(void);
 

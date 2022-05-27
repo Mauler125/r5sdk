@@ -343,7 +343,6 @@ void CUIBaseSurface::Init()
 	this->m_NetRandomKeyToggle->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_EngineNetworkGroup->AddControl(this->m_NetRandomKeyToggle);
 
-
 	this->m_NoQueuedPacketThread = new UIX::UIXCheckBox();
 	this->m_NoQueuedPacketThread->SetSize({ 125, 18 });
 	this->m_NoQueuedPacketThread->SetLocation({ 15, 30 });
@@ -359,7 +358,6 @@ void CUIBaseSurface::Init()
 	this->m_NoTimeOutToggle->SetText("No time out");
 	this->m_NoTimeOutToggle->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_EngineNetworkGroup->AddControl(this->m_NoTimeOutToggle);
-
 
 	this->m_WindowedToggle = new UIX::UIXCheckBox();
 	this->m_WindowedToggle->SetSize({ 105, 18 });
@@ -395,7 +393,6 @@ void CUIBaseSurface::Init()
 	this->m_FpsLabel->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_FpsLabel->SetTextAlign(Drawing::ContentAlignment::TopLeft);
 	this->m_EngineVideoGroup->AddControl(this->m_FpsLabel);
-
 
 	this->m_WidthTextBox = new UIX::UIXTextBox();
 	this->m_WidthTextBox->SetSize({ 50, 18 });

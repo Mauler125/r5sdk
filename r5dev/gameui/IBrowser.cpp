@@ -21,6 +21,7 @@ History:
 #include "windows/console.h"
 #include "windows/resource.h"
 #include "engine/net.h"
+#include "engine/cmodel_bsp.h"
 #include "engine/host_state.h"
 #ifndef CLIENT_DLL
 #include "engine/server/server.h"
@@ -41,31 +42,6 @@ History:
 IBrowser::IBrowser(void)
 {
     memset(m_chServerConnStringBuffer, 0, sizeof(m_chServerConnStringBuffer));
-
-    std::regex rgArchiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
-    std::smatch smRegexMatches;
-
-    for (const auto& dEntry : fs::directory_iterator("vpk"))
-    {
-        std::string svFileName = dEntry.path().string();
-        std::regex_search(svFileName, smRegexMatches, rgArchiveRegex);
-
-        if (smRegexMatches.size() > 0)
-        {
-            if (strcmp(smRegexMatches[1].str().c_str(), "frontend") == 0)
-            {
-                continue;
-            }
-            else if (strcmp(smRegexMatches[1].str().c_str(), "mp_common") == 0)
-            {
-                m_vszMapsList.push_back("mp_lobby");
-                continue;
-            }
-
-            m_vszMapsList.push_back(smRegexMatches[1].str());
-        }
-    }
-
 #ifndef CLIENT_DLL
     static std::thread hostingServerRequestThread([this]()
     {
@@ -430,7 +406,7 @@ void IBrowser::HostServerSection(void)
 
     if (ImGui::BeginCombo("Playlist", m_Server.svPlaylist.c_str()))
     {
-        for (auto& item : g_szAllPlaylists)
+        for (auto& item : g_vAllPlaylists)
         {
             if (ImGui::Selectable(item.c_str(), item == m_Server.svPlaylist))
             {
@@ -442,7 +418,7 @@ void IBrowser::HostServerSection(void)
 
     if (ImGui::BeginCombo("Map##ServerHost_MapListBox", m_Server.svMapName.c_str()))
     {
-        for (auto& item : m_vszMapsList)
+        for (auto& item : g_vAllMaps)
         {
             if (ImGui::Selectable(item.c_str(), item == m_Server.svMapName))
             {

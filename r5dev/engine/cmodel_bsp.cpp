@@ -15,6 +15,7 @@
 #include "filesystem/filesystem.h"
 
 string g_svLevelName;
+vector<string> g_vAllMaps;
 bool s_bLevelResourceInitialized = false;
 bool s_bBasePaksInitialized = false;
 //-----------------------------------------------------------------------------
@@ -25,6 +26,39 @@ bool s_bBasePaksInitialized = false;
 bool MOD_LevelHasChanged(const string& svLevelName)
 {
 	return (strcmp(svLevelName.c_str(), g_svLevelName.c_str()) != 0);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets all installed maps
+//-----------------------------------------------------------------------------
+void MOD_GetAllInstalledMaps()
+{
+    if (!g_vAllMaps.empty())
+        return;
+
+    std::regex rgArchiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
+    std::smatch smRegexMatches;
+
+    for (const auto& dEntry : fs::directory_iterator("vpk"))
+    {
+        std::string svFileName = dEntry.path().string();
+        std::regex_search(svFileName, smRegexMatches, rgArchiveRegex);
+
+        if (smRegexMatches.size() > 0)
+        {
+            if (strcmp(smRegexMatches[1].str().c_str(), "frontend") == 0)
+            {
+                continue;
+            }
+            else if (strcmp(smRegexMatches[1].str().c_str(), "mp_common") == 0)
+            {
+                g_vAllMaps.push_back("mp_lobby");
+                continue;
+            }
+
+            g_vAllMaps.push_back(smRegexMatches[1].str());
+        }
+    }
 }
 
 //-----------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 #pragma once
 
 #define MAKE_3_BYTES_FROM_1_AND_2( x1, x2 ) (( (( uint16_t )x2) << 8 ) | (uint8_t)(x1))
-extern vector<string> g_szAllPlaylists;
+extern vector<string> g_vAllPlaylists;
 
 //---------------------------------------------------------------------------------
 // Purpose: Forward declarations
@@ -40,7 +40,6 @@ enum KeyValuesTypes
 class KeyValues
 {
 public:
-
 	static void Init(void);
 	KeyValues* FindKey(const char* pKeyName, bool bCreate);
 	const char* GetName(void) const;
@@ -51,19 +50,19 @@ public:
 	static void InitPlaylist(void);
 	static bool LoadPlaylist(const char* szPlaylist);
 
-	// Compiler makes it so m_Value shares the offset spot with m_flValue that why we cast it like this.
-	MEMBER_AT_OFFSET(float, m_flValue, 0x18);
-	MEMBER_AT_OFFSET(int, m_iValue, 0x18);
-
 public:
 	uint32_t m_iKeyName              : 24;         // 0x0000
 	uint32_t m_iKeyNameCaseSensitive : 8;          // 0x0003
 	char*            m_sValue;                     // 0x0008
 	wchar_t*         m_wsValue;                    // 0x0010
-	int              m_nValue;                     // 0x0018
-private:
-	char             gap1C[12];                    // 0x0020
-public:
+	union                                          // 0x0018
+	{
+		int m_iValue;
+		float m_flValue;
+		void* m_pValue;
+		unsigned char m_Color[4];
+	};
+	char             m_szShortName[8];             // 0x0020
 	char             m_iDataType;                  // 0x0028
 	uint16_t         m_iKeyNameCaseSensitive2;     // 0x002A
 	KeyValues*       m_pPeer;                      // 0x0030

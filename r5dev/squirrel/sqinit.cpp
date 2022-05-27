@@ -15,6 +15,7 @@
 #ifndef CLIENT_DLL
 #include "engine/server/server.h"
 #endif // CLIENT_DLL
+#include "engine/cmodel_bsp.h"
 #include "squirrel/sqtype.h"
 #include "squirrel/sqapi.h"
 #include "squirrel/sqinit.h"
@@ -43,6 +44,42 @@ namespace VSquirrel
         SQRESULT GetSDKVersion(HSQUIRRELVM v)
         {
             sq_pushstring(v, g_pR5net->GetSDKVersion().c_str(), -1);
+            return SQ_OK;
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: return all available maps
+        //-----------------------------------------------------------------------------
+        SQRESULT GetAvailableMaps(HSQUIRRELVM v)
+        {
+            if (g_vAllMaps.empty())
+                return SQ_OK;
+
+            sq_newarray(v, 0);
+            for (auto& it : g_vAllMaps)
+            {
+                sq_pushstring(v, it.c_str(), -1);
+                sq_arrayappend(v, -2);
+            }
+
+            return SQ_OK;
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: return all available playlists
+        //-----------------------------------------------------------------------------
+        SQRESULT GetAvailablePlaylists(HSQUIRRELVM v)
+        {
+            if (g_vAllPlaylists.empty())
+                return SQ_OK;
+
+            sq_newarray(v, 0);
+            for (auto& it : g_vAllPlaylists)
+            {
+                sq_pushstring(v, it.c_str(), -1);
+                sq_arrayappend(v, -2);
+            }
+
             return SQ_OK;
         }
     }
@@ -288,32 +325,6 @@ namespace VSquirrel
             DevMsg(eDLL_T::UI, "Connecting to server with ip-address '%s' and encryption key '%s'\n", svIpAddr.c_str(), svEncKey.c_str());
 
             g_pIBrowser->ConnectToServer(svIpAddr, svEncKey);
-
-            return SQ_OK;
-        }
-
-        //-----------------------------------------------------------------------------
-        // Purpose: return all available maps
-        //-----------------------------------------------------------------------------
-        SQRESULT GetAvailableMaps(HSQUIRRELVM v)
-        {
-            std::vector<std::string> vsvMapList = g_pIBrowser->m_vszMapsList;
-
-            if (vsvMapList.empty())
-            {
-                Warning(eDLL_T::UI, "%s: Available maps is empty!\n", __FUNCTION__);
-                return SQ_OK;
-            }
-
-            DevMsg(eDLL_T::UI, "Requesting an array of '%i' available maps from script\n", vsvMapList.size());
-
-            sq_newarray(v, 0);
-
-            for (auto& it : vsvMapList)
-            {
-                sq_pushstring(v, it.c_str(), -1);
-                sq_arrayappend(v, -2);
-            }
 
             return SQ_OK;
         }

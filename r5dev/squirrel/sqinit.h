@@ -21,6 +21,8 @@ namespace VSquirrel
 	{
 		SQRESULT SDKNativeTest(HSQUIRRELVM v);
 		SQRESULT GetSDKVersion(HSQUIRRELVM v);
+		SQRESULT GetAvailableMaps(HSQUIRRELVM v);
+		SQRESULT GetAvailablePlaylists(HSQUIRRELVM v);
 	}
 #ifndef CLIENT_DLL
 	namespace SERVER
@@ -45,7 +47,6 @@ namespace VSquirrel
 		SQRESULT JoinPrivateServerFromMenu(HSQUIRRELVM v);
 		SQRESULT GetPrivateServerMessage(HSQUIRRELVM v);
 		SQRESULT ConnectToIPFromMenu(HSQUIRRELVM v);
-		SQRESULT GetAvailableMaps(HSQUIRRELVM v);
 	}
 #endif // !DEDICATED
 }

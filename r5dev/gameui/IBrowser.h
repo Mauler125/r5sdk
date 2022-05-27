@@ -91,7 +91,6 @@ public:
     //   Host Server  //
     ////////////////////
     ServerListing m_Server;
-    std::vector<std::string> m_vszMapsList;
     std::string m_szHostRequestMessage  = "";
     std::string m_szHostToken           = "";
     ImVec4 m_iv4HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);

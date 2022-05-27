@@ -62,13 +62,13 @@ int KeyValues::GetInt(const char* pKeyName, int nDefaultValue)
 	case TYPE_STRING:
 		return atoi(dat->m_sValue);
 	case TYPE_FLOAT:
-		return static_cast<int>(m_flValue());
+		return static_cast<int>(m_flValue);
 	case TYPE_WSTRING:
 		return _wtoi(dat->m_wsValue);
 	case TYPE_UINT64:
 		return 0;
 	default:
-		return dat->m_iValue();
+		return dat->m_iValue;
 	}
 
 	return nDefaultValue;
@@ -84,7 +84,7 @@ void KeyValues::SetInt(const char* pKeyName, int iValue)
 	KeyValues* dat = FindKey(pKeyName, true);
 	if (dat)
 	{
-		dat->m_iValue() = iValue;
+		dat->m_iValue = iValue;
 		dat->m_iDataType = TYPE_INT;
 	}
 }
@@ -99,7 +99,7 @@ void KeyValues::SetFloat(const char* pKeyName, float flValue)
 	KeyValues* dat = FindKey(pKeyName, true);
 	if (dat)
 	{
-		dat->m_flValue() = flValue;
+		dat->m_flValue = flValue;
 		dat->m_iDataType = TYPE_FLOAT;
 	}
 }
@@ -116,10 +116,10 @@ void KeyValues::InitPlaylist(void)
 			KeyValues* playlists = (*g_pPlaylistKeyValues)->FindKey("Playlists", false);
 			if (playlists)
 			{
-				g_szAllPlaylists.clear();
+				g_vAllPlaylists.clear();
 				for (KeyValues* dat = playlists->m_pSub; dat != nullptr; dat = dat->m_pPeer) // Parse through all sub keys.
 				{
-					g_szAllPlaylists.push_back(dat->GetName()); // Get all playlist names.
+					g_vAllPlaylists.push_back(dat->GetName()); // Get all playlist names.
 				}
 
 				break; // Break if playlist got filled.
@@ -176,4 +176,4 @@ void CKeyValueSystem_Detach()
 
 ///////////////////////////////////////////////////////////////////////////////
 inline KeyValues** g_pPlaylistKeyValues = nullptr; // Get the KeyValue for the playlist file.
-vector<string> g_szAllPlaylists = { "<<null>>" };
+vector<string> g_vAllPlaylists = { "<<null>>" };

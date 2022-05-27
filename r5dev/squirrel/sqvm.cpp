@@ -340,6 +340,8 @@ void SQVM_RegisterServerScriptFunctions(HSQUIRRELVM v)
 	SQVM_RegisterFunction(v, "GetSDKVersion", "Gets the SDK version as a string", "string", "", &VSquirrel::SHARED::GetSDKVersion);
 	SQVM_RegisterFunction(v, "GetNumHumanPlayers", "Gets the number of human players on the server", "int", "", &VSquirrel::SERVER::GetNumHumanPlayers);
 	SQVM_RegisterFunction(v, "GetNumFakeClients", "Gets the number of bot players on the server", "int", "", &VSquirrel::SERVER::GetNumFakeClients);
+	SQVM_RegisterFunction(v, "GetAvailableMaps", "Gets an array of all available maps", "array<string>", "", &VSquirrel::SHARED::GetAvailableMaps);
+	SQVM_RegisterFunction(v, "GetAvailablePlaylists", "Gets an array of all available playlists", "array<string>", "", &VSquirrel::SHARED::GetAvailablePlaylists);
 }
 #endif // !CLIENT_DLL
 
@@ -352,6 +354,8 @@ void SQVM_RegisterClientScriptFunctions(HSQUIRRELVM v)
 {
 	SQVM_RegisterFunction(v, "SDKNativeTest", "Native CLIENT test function", "void", "", &VSquirrel::SHARED::SDKNativeTest);
 	SQVM_RegisterFunction(v, "GetSDKVersion", "Gets the SDK version as a string", "string", "", &VSquirrel::SHARED::GetSDKVersion);
+	SQVM_RegisterFunction(v, "GetAvailableMaps", "Gets an array of all available maps", "array<string>", "", &VSquirrel::SHARED::GetAvailableMaps);
+	SQVM_RegisterFunction(v, "GetAvailablePlaylists", "Gets an array of all available playlists", "array<string>", "", &VSquirrel::SHARED::GetAvailablePlaylists);
 }
 
 //---------------------------------------------------------------------------------
@@ -377,9 +381,10 @@ void SQVM_RegisterUIScriptFunctions(HSQUIRRELVM v)
 	SQVM_RegisterFunction(v, "SetEncKeyAndConnect", "Set the encryption key to that of the specified server and connects to it", "void", "int", &VSquirrel::UI::SetEncKeyAndConnect);
 	SQVM_RegisterFunction(v, "JoinPrivateServerFromMenu", "Joins private server by token", "void", "string", &VSquirrel::UI::JoinPrivateServerFromMenu);
 	SQVM_RegisterFunction(v, "GetPrivateServerMessage", "Gets private server join status message", "string", "string", &VSquirrel::UI::GetPrivateServerMessage);
-	SQVM_RegisterFunction(v, "ConnectToIPFromMenu", "Joins server by ip and encryption key", "void", "string,string", &VSquirrel::UI::ConnectToIPFromMenu);
+	SQVM_RegisterFunction(v, "ConnectToIPFromMenu", "Joins server by ip address and encryption key", "void", "string,string", &VSquirrel::UI::ConnectToIPFromMenu);
 
-	SQVM_RegisterFunction(v, "GetAvailableMaps", "Gets an array of all the available maps that can be used to host a server", "array<string>", "", &VSquirrel::UI::GetAvailableMaps);
+	SQVM_RegisterFunction(v, "GetAvailableMaps", "Gets an array of all available maps", "array<string>", "", &VSquirrel::SHARED::GetAvailableMaps);
+	SQVM_RegisterFunction(v, "GetAvailablePlaylists", "Gets an array of all available playlists", "array<string>", "", &VSquirrel::SHARED::GetAvailablePlaylists);
 }
 
 //---------------------------------------------------------------------------------
