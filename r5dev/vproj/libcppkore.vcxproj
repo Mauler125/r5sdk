@@ -582,7 +582,7 @@
     <ClCompile Include="..\thirdparty\cppnet\cppkore\__ConsoleInit.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Natvis Include="CppKore.natvis" />
+    <Natvis Include="..\thirdparty\cppnet\cppkore\CppKore.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

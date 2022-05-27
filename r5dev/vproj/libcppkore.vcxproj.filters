@@ -1275,6 +1275,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Natvis Include="CppKore.natvis" />
+    <Natvis Include="..\thirdparty\cppnet\cppkore\CppKore.natvis" />
   </ItemGroup>
 </Project>
