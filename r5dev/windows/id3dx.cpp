@@ -68,7 +68,7 @@ LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		if (wParam == g_pImGuiConfig->IConsole_Config.m_nBind0 || wParam == g_pImGuiConfig->IConsole_Config.m_nBind1)
 		{
-			g_pIConsole->m_bActivate = !g_pIConsole->m_bActivate;
+			g_pConsole->m_bActivate = !g_pConsole->m_bActivate;
 		}
 
 		if (wParam == g_pImGuiConfig->IBrowser_Config.m_nBind0 || wParam == g_pImGuiConfig->IBrowser_Config.m_nBind1)
@@ -77,7 +77,7 @@ LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 	}
 
-	if (g_pIConsole->m_bActivate || g_pBrowser->m_bActivate)
+	if (g_pConsole->m_bActivate || g_pBrowser->m_bActivate)
 	{//////////////////////////////////////////////////////////////////////////////
 		g_bBlockInput = true;
 
@@ -278,12 +278,12 @@ void DrawImGui()
 		g_pInputSystem->EnableInput(false); // Disable input to game when browser is drawn.
 		g_pBrowser->Draw("Server Browser", &g_pBrowser->m_bActivate);
 	}
-	if (g_pIConsole->m_bActivate)
+	if (g_pConsole->m_bActivate)
 	{
 		g_pInputSystem->EnableInput(false); // Disable input to game when console is drawn.
-		g_pIConsole->Draw("Console", &g_pIConsole->m_bActivate);
+		g_pConsole->Draw("Console", &g_pConsole->m_bActivate);
 	}
-	if (!g_pIConsole->m_bActivate && !g_pBrowser->m_bActivate)
+	if (!g_pConsole->m_bActivate && !g_pBrowser->m_bActivate)
 	{
 		g_pInputSystem->EnableInput(true); // Enable input to game when both are not drawn.
 	}
@@ -369,7 +369,7 @@ HRESULT GetDeviceAndCtxFromSwapchain(IDXGISwapChain* pSwapChain, ID3D11Device** 
 
 HRESULT __stdcall GetResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount, UINT nWidth, UINT nHeight, DXGI_FORMAT dxFormat, UINT nSwapChainFlags)
 {
-	g_pIConsole->m_bActivate = false;
+	g_pConsole->m_bActivate = false;
 	g_pBrowser->m_bActivate = false;
 	g_bInitialized    = false;
 	g_bPresentHooked  = false;

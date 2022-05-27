@@ -62,7 +62,7 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 #ifndef DEDICATED
 	for (auto& map : g_pCVar->DumpToMap())
 	{
-		g_pIConsole->m_vsvCommandBases.push_back(
+		g_pConsole->m_vsvCommandBases.push_back(
 			CSuggest(map.first.c_str(), map.second->GetFlags()));
 	}
 #endif // !DEDICATED

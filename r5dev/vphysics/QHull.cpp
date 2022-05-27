@@ -32,7 +32,7 @@ int HQHull_PrintFunc(const char* fmt, ...)
 
 #ifndef DEDICATED
 	iconsole->debug(buf);
-	g_pIConsole->m_ivConLog.push_back(CConLog(g_spd_sys_w_oss.str(), ImVec4(0.81f, 0.81f, 0.81f, 1.00f)));
+	g_pConsole->m_ivConLog.push_back(CConLog(g_spd_sys_w_oss.str(), ImVec4(0.81f, 0.81f, 0.81f, 1.00f)));
 
 	g_spd_sys_w_oss.str("");
 	g_spd_sys_w_oss.clear();

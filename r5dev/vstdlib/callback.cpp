@@ -50,7 +50,7 @@ GameConsole_Invoke_f
 */
 void GameConsole_Invoke_f(const CCommand& args)
 {
-	g_pIConsole->m_bActivate = !g_pIConsole->m_bActivate;
+	g_pConsole->m_bActivate = !g_pConsole->m_bActivate;
 }
 
 /*

@@ -38,7 +38,7 @@ void CHLClient::FrameStageNotify(CHLClient* pHLClient, ClientFrameStage_t frameS
 			break;
 		}
 	}
-	g_pIConsole->Think();
+	g_pConsole->Think();
 	CHLClient_FrameStageNotify(pHLClient, frameStage);
 }
 

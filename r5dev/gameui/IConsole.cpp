@@ -913,4 +913,4 @@ void CConsole::SetStyleVar(void)
     style.WindowMinSize = ImVec2(618, 518);
 }
 
-CConsole* g_pIConsole = new CConsole();
+CConsole* g_pConsole = new CConsole();
