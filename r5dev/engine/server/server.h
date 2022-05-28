@@ -68,8 +68,16 @@ private:
 	int                           m_nServerClasses;              // number of unique server classes
 	int                           m_nServerClassBits;            // log2 of serverclasses
 	char                          m_szHostInfo[128];             // see '[r5apex_ds.exe + 0x237740]' for more details. fmt: '[IPv6]:PORT:TIMEi64u'
-	// TODO: Reverse the rest.
+	char                          m_nGap0[0x4A290];              // TODO: Reverse the rest in this gap.
+#if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+	char                          m_nGap1[0x80];
+#endif
 };
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+static_assert(sizeof(CServer) == 0x4A440);
+#else
+static_assert(sizeof(CServer) == 0x4A4C0);
+#endif
 extern CServer* g_pServer;
 
 /* ==== CSERVER ========================================================================================================================================================= */
