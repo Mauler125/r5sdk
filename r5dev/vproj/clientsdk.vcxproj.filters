@@ -501,6 +501,9 @@
     <ClCompile Include="..\tier1\strtools.cpp">
       <Filter>sdk\tier1</Filter>
     </ClCompile>
+    <ClCompile Include="..\squirrel\sqscript.cpp">
+      <Filter>sdk\squirrel</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1501,6 +1504,9 @@
     </ClInclude>
     <ClInclude Include="..\vpc\kvleaktrace.h">
       <Filter>sdk\vpc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\squirrel\sqscript.h">
+      <Filter>sdk\squirrel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

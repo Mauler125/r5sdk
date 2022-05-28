@@ -18,7 +18,7 @@
 #include "filesystem/basefilesystem.h"
 #include "filesystem/filesystem.h"
 #include "vpklib/packedstore.h"
-#include "squirrel/sqvm.h"
+#include "squirrel/sqscript.h"
 #ifndef DEDICATED
 #include "gameui/IBrowser.h"
 #include "gameui/IConsole.h"
@@ -789,7 +789,7 @@ void SQVM_ServerScript_f(const CCommand& args)
 {
 	if (args.ArgC() >= 2)
 	{
-		SQVM_Execute(args.ArgS(), SQCONTEXT::SERVER);
+		Script_Execute(args.ArgS(), SQCONTEXT::SERVER);
 	}
 }
 
@@ -806,7 +806,7 @@ void SQVM_ClientScript_f(const CCommand& args)
 {
 	if (args.ArgC() >= 2)
 	{
-		SQVM_Execute(args.ArgS(), SQCONTEXT::CLIENT);
+		Script_Execute(args.ArgS(), SQCONTEXT::CLIENT);
 	}
 }
 
@@ -822,7 +822,7 @@ void SQVM_UIScript_f(const CCommand& args)
 {
 	if (args.ArgC() >= 2)
 	{
-		SQVM_Execute(args.ArgS(), SQCONTEXT::UI);
+		Script_Execute(args.ArgS(), SQCONTEXT::UI);
 	}
 }
 

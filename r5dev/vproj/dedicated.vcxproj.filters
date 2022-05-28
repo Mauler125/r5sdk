@@ -1116,6 +1116,9 @@
     <ClInclude Include="..\vpc\kvleaktrace.h">
       <Filter>sdk\vpc</Filter>
     </ClInclude>
+    <ClInclude Include="..\squirrel\sqscript.h">
+      <Filter>sdk\squirrel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1366,6 +1369,9 @@
     </ClCompile>
     <ClCompile Include="..\tier1\strtools.cpp">
       <Filter>sdk\tier1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\squirrel\sqscript.cpp">
+      <Filter>sdk\squirrel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

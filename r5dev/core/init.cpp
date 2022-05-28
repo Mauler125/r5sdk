@@ -52,6 +52,7 @@
 #include "squirrel/sqinit.h"
 #include "squirrel/sqapi.h"
 #include "squirrel/sqvm.h"
+#include "squirrel/sqscript.h"
 #include "squirrel/sqstdaux.h"
 #include "studiorender/studiorendercontext.h"
 #include "rtech/rtech_game.h"
@@ -187,6 +188,7 @@ void Systems_Init()
 
 	SQAPI_Attach();
 	SQVM_Attach();
+	SQScript_Attach();
 	SQAUX_Attach();
 
 	RTech_Game_Attach();
@@ -303,6 +305,7 @@ void Systems_Shutdown()
 #endif // !CLIENT_DLL
 	SQAPI_Detach();
 	SQVM_Detach();
+	SQScript_Detach();
 	SQAUX_Detach();
 
 	RTech_Game_Detach();
