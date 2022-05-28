@@ -65,40 +65,13 @@ const char* CKeyValuesSystem::GetStringForSymbol(HKeySymbol symbol)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: frees a KeyValues object from the shared mempool
-// Input  : *pMem - 
-//-----------------------------------------------------------------------------
-void CKeyValuesSystem::FreeKeyValuesMemory(CKeyValuesSystem* thisptr, void* pMem)
-{
-	//__int64* v2; // rax
-	//__int64 v4; // rax
-	//__int64* v5; // rax
-
-	//v2 = qword_14D40B538;
-	//if (!qword_14D40B538)
-	//{
-	//	v2 = sub_140462930();
-	//	qword_14D40B538 = v2;
-	//}
-	//v4 = (*(*v2 + 48))(v2, pMem);
-	//if (v4 > 0)
-	//	CKeyValuesSystem::m_pMemPool -= v4;
-	//v5 = qword_14D40B538;
-	//if (!qword_14D40B538)
-	//{
-	//	v5 = sub_140462930();
-	//	qword_14D40B538 = v5;
-	//}
-	//(*(*v5 + 40))(v5, pMem);
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: gets the global KeyValues memory pool
 // Output : *g_pKeyValuesMemPool - 
 //-----------------------------------------------------------------------------
-void* CKeyValuesSystem::GetMemPool(void) const
+void* CKeyValuesSystem::GetMemPool(void)
 {
-	return g_pKeyValuesMemPool; // May need to dereference this once more not sure right now.
+	static int index = 7;
+	return CallVFunc<void*>(index, this);
 }
 
 //-----------------------------------------------------------------------------

@@ -11,9 +11,8 @@ public:
 	void FreeKeyValuesMemory(void* pMem);
 	HKeySymbol GetSymbolForString(const char* name, bool bCreate);
 	const char* GetStringForSymbol(HKeySymbol symbol);
-	void __fastcall FreeKeyValuesMemory(CKeyValuesSystem* this_arg, void* ptr_mem_arg);
 
-	void* GetMemPool(void) const; // GetMemPool returns a global variable called m_pMemPool, it gets modified by AllocKeyValuesMemory and with FreeKeyValuesMemory you can see where to find it in FreeKeyValuesMemory.
+	void* GetMemPool(void); // GetMemPool returns a global variable called m_pMemPool, it gets modified by AllocKeyValuesMemory and with FreeKeyValuesMemory you can see where to find it in FreeKeyValuesMemory.
 	void SetKeyValuesExpressionSymbol(const char* name, bool bValue);
 	bool GetKeyValuesExpressionSymbol(const char* name);
 	HKeySymbol GetSymbolForStringCaseSensitive(HKeySymbol& hCaseInsensitiveSymbol, const char* name, bool bCreate);
