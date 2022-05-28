@@ -12,6 +12,8 @@ constexpr const char* NETCON_VERSION = "2.0.0.1";
 class CNetCon
 {
 public:
+	~CNetCon() { delete m_pNetAdr2; delete m_pSocket; }
+
 	bool Init(void);
 	bool Shutdown(void);
 

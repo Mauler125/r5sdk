@@ -30,7 +30,10 @@ SQRESULT Script_RegisterFunction(CSquirrelVM* pSquirrelVM, const SQChar* szScrip
 	sqFunc->m_szArgTypes = szArgTypes;
 	sqFunc->m_pFunction = pFunction;
 
-	return v_Script_RegisterFunction(pSquirrelVM, sqFunc, 1);
+	SQRESULT results = v_Script_RegisterFunction(pSquirrelVM, sqFunc, 1);
+	delete sqFunc;
+
+	return results;
 }
 
 #ifndef CLIENT_DLL

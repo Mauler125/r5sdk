@@ -8,7 +8,7 @@ class CRConClient
 {
 public:
 	CRConClient(void){};
-	~CRConClient(void){};
+	~CRConClient(void) { delete m_pNetAdr2; delete m_pSocket; };
 
 	void Init(void);
 	void Shutdown(void);

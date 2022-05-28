@@ -31,7 +31,7 @@ void CRConServer::Init(void)
 		return;
 	}
 
-	m_pAdr2 = new CNetAdr2(rcon_address->GetString(), hostport->GetString());
+	m_pAdr2->SetIPAndPort(rcon_address->GetString(), hostport->GetString());
 	m_pSocket->CreateListenSocket(*m_pAdr2, false);
 	m_svPasswordHash = sha256(rcon_password->GetString());
 
@@ -453,7 +453,6 @@ void CRConServer::CloseConnection(void) // NETMGR
 void CRConServer::CloseNonAuthConnection(void)
 {
 	int nCount = m_pSocket->GetAcceptedSocketCount();
-
 	for (int i = nCount - 1; i >= 0; i--)
 	{
 		CConnectedNetConsoleData* pData = m_pSocket->GetAcceptedSocketData(i);
