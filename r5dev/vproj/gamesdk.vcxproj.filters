@@ -1562,6 +1562,9 @@
     <ClInclude Include="..\tier0\commonmacros.h">
       <Filter>sdk\tier0</Filter>
     </ClInclude>
+    <ClInclude Include="..\vpc\kvleaktrace.h">
+      <Filter>sdk\vpc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\shared\resource\lockedserver.png">

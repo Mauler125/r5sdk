@@ -1113,6 +1113,9 @@
     <ClInclude Include="..\tier1\strtools.h">
       <Filter>sdk\tier1</Filter>
     </ClInclude>
+    <ClInclude Include="..\vpc\kvleaktrace.h">
+      <Filter>sdk\vpc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">

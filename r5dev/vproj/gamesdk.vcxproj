@@ -458,6 +458,7 @@
     <ClInclude Include="..\vpc\IAppSystem.h" />
     <ClInclude Include="..\vpc\interfaces.h" />
     <ClInclude Include="..\vpc\keyvalues.h" />
+    <ClInclude Include="..\vpc\kvleaktrace.h" />
     <ClInclude Include="..\vphysics\QHull.h" />
     <ClInclude Include="..\vpklib\packedstore.h" />
     <ClInclude Include="..\vstdlib\callback.h" />
