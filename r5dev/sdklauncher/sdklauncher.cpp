@@ -537,7 +537,7 @@ bool CLauncher::Setup(eLaunchMode lMode, const string& svCommandLine)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Purpose: launhes the game with results from the setup
+// Purpose: launches the game with results from the setup
 // Output : true on success, false otherwise
 ///////////////////////////////////////////////////////////////////////////////
 bool CLauncher::Launch() const
