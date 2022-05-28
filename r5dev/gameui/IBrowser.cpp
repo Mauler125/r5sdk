@@ -539,7 +539,7 @@ void CBrowser::HostServerSection(void)
         if (ImGui::Button("Reload Playlist", ImVec2(ImGui::GetWindowSize().x, 32)))
         {
             _DownloadPlaylists_f();
-            KeyValues::InitPlaylist(); // Re-Init playlist.
+            KeyValues::InitPlaylists(); // Re-Init playlist.
         }
     }
 #endif // !CLIENT_DLL

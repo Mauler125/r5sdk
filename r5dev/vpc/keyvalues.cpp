@@ -16,7 +16,7 @@
 //-----------------------------------------------------------------------------
 void KeyValues::Init(void)
 {
-	std::thread t1(KeyValues::InitPlaylist); // Start thread to grab playlists.
+	std::thread t1(KeyValues::InitPlaylists); // Start thread to grab playlists.
 	t1.detach(); // Detach thread from current one.
 }
 
@@ -107,19 +107,20 @@ void KeyValues::SetFloat(const char* pKeyName, float flValue)
 //-----------------------------------------------------------------------------
 // Purpose: Initializes the playlist
 //-----------------------------------------------------------------------------
-void KeyValues::InitPlaylist(void)
+void KeyValues::InitPlaylists(void)
 {
 	while (true)
 	{
 		if (*g_pPlaylistKeyValues)
 		{
-			KeyValues* playlists = (*g_pPlaylistKeyValues)->FindKey("Playlists", false);
-			if (playlists)
+			KeyValues* pPlaylists = (*g_pPlaylistKeyValues)->FindKey("Playlists", false);
+			if (pPlaylists)
 			{
 				g_vAllPlaylists.clear();
-				for (KeyValues* dat = playlists->m_pSub; dat != nullptr; dat = dat->m_pPeer) // Parse through all sub keys.
+				for (KeyValues* dat = pPlaylists->m_pSub; dat != nullptr; dat = dat->m_pPeer) // Parse through all sub keys.
 				{
-					g_vAllPlaylists.push_back(dat->GetName()); // Get all playlist names.
+					printf("%s\n", dat->GetName());
+					g_vAllPlaylists.push_back(dat->GetName()); // Get all playlists.
 				}
 
 				break; // Break if playlist got filled.
@@ -127,6 +128,34 @@ void KeyValues::InitPlaylist(void)
 			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Initializes the filesystem paths
+//-----------------------------------------------------------------------------
+void KeyValues::InitFileSystem(void)
+{
+	KeyValues* pMainFile = KeyValues::ReadKeyValuesFile(g_pFileSystem_Stdio, "GameInfo.txt");
+	if (pMainFile)
+	{
+		KeyValues* pFileSystemInfo = pMainFile->FindKey("FileSystem", false);
+		if (pFileSystemInfo)
+		{
+			KeyValues* pSearchPaths = pFileSystemInfo->FindKey("SearchPaths", false);
+			if (pSearchPaths)
+			{
+				g_vAllSearchPaths.clear();
+				for (KeyValues* dat = pSearchPaths->m_pSub; dat != nullptr; dat = dat->m_pPeer) // Parse through all sub keys.
+				{
+					string svValue = dat->m_sValue;
+					StringReplace(svValue, GAMEINFOPATH_TOKEN, "");
+					StringReplace(svValue, BASESOURCEPATHS_TOKEN, "");
+
+					g_vAllSearchPaths.push_back(svValue); // Get all SearchPaths
+				}
+			}
+		}
 	}
 }
 
@@ -163,17 +192,37 @@ bool KeyValues::LoadPlaylist(const char* szPlaylist)
 	return KeyValues_LoadPlaylist(szPlaylist); // Parse playlist.
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: reads a keyvalues file
+// Input  : *pFileSystem - 
+//			* pFileName - 
+// Output : pointer to KeyValues object
+//-----------------------------------------------------------------------------
+KeyValues* KeyValues::ReadKeyValuesFile(CFileSystem_Stdio* pFileSystem, const char* pFileName)
+{
+	static bool bInit{};
+	if (!bInit)
+	{
+		bInit = true;
+		KeyValues::InitFileSystem();
+	}
+	return KeyValues_ReadKeyValuesFile(pFileSystem, pFileName);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 void CKeyValueSystem_Attach()
 {
 	DetourAttach((LPVOID*)&KeyValues_LoadPlaylist, &KeyValues::LoadPlaylist);
+	DetourAttach((LPVOID*)&KeyValues_ReadKeyValuesFile, &KeyValues::ReadKeyValuesFile);
 }
 
 void CKeyValueSystem_Detach()
 {
 	DetourDetach((LPVOID*)&KeyValues_LoadPlaylist, &KeyValues::LoadPlaylist);
+	DetourDetach((LPVOID*)&KeyValues_ReadKeyValuesFile, &KeyValues::ReadKeyValuesFile);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 inline KeyValues** g_pPlaylistKeyValues = nullptr; // Get the KeyValue for the playlist file.
-vector<string> g_vAllPlaylists = { "<<null>>" };
+vector<string> g_vAllPlaylists   = { "<<null>>" };
+vector<string> g_vAllSearchPaths = { "\\" };

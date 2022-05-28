@@ -15,6 +15,19 @@ void IFileSystem::AddSearchPath(const char* pPath, const char* pPathID, SearchPa
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: removes the search path.
+// Input  : *pPath - 
+//			*pPathID - 
+//			addType - 
+// Output : true on success, false otherwise.
+//-----------------------------------------------------------------------------
+bool IFileSystem::RemoveSearchPath(const char* pPath, const char* pPathID)
+{
+	static int index = 13;
+	CallVFunc<void>(index, this, pPath, pPathID);
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: read file from cache.
 // Input  : *pPath - 
 //			*pResult - 

@@ -128,7 +128,7 @@ bool CKeyValuesSystem::GetKeyValuesExpressionSymbol(const char* szName)
 // Input  : *hCaseInsensitiveSymbol - 
 //			*szName - 
 //			bCreate - 
-// Output : handle to KeyValue symbol on success, -1 on failure
+// Output : handle to KeyValue symbol on success, INVALID_KEY_SYMBOL on failure
 //-----------------------------------------------------------------------------
 HKeySymbol CKeyValuesSystem::GetSymbolForStringCaseSensitive(HKeySymbol& hCaseInsensitiveSymbol, const char* szName, bool bCreate)
 {

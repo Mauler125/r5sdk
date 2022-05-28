@@ -35,6 +35,16 @@ FileHandle_t CBaseFileSystem::Open(const char* pFileName, const char* pOptions, 
 }
 
 //---------------------------------------------------------------------------------
+// Purpose: close file by handle
+// Input  : file - 
+//---------------------------------------------------------------------------------
+void CBaseFileSystem::Close(FileHandle_t file)
+{
+	int index = 3;
+	CallVFunc<void>(index, this, file);
+}
+
+//---------------------------------------------------------------------------------
 // Purpose: checks if file exists in all searchpaths and pak files
 // Input  : *pFileName - 
 //			*pPathID - 
@@ -46,15 +56,6 @@ bool CBaseFileSystem::FileExists(const char* pFileName, const char* pPathID)
 	return CallVFunc<bool>(index, this, pFileName, pPathID);
 }
 
-//---------------------------------------------------------------------------------
-// Purpose: close file by handle
-// Input  : file - 
-//---------------------------------------------------------------------------------
-void CBaseFileSystem::Close(FileHandle_t file)
-{
-	int index = 3;
-	CallVFunc<void>(index, this, file);
-}
 //---------------------------------------------------------------------------------
 // Purpose: prints the output of the filesystem based on the warning level
 // Input  : *this - 
@@ -154,11 +155,36 @@ bool CBaseFileSystem::ReadFromCache(CBaseFileSystem* pFileSystem, char* pszFileP
 	return CBaseFileSystem_LoadFromCache(pFileSystem, pszFilePath, pResults);
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: create the search path.
+// Input  : *pPath - 
+//			*pPathID - 
+//			addType - 
+//-----------------------------------------------------------------------------
+void CBaseFileSystem::AddSearchPath(CBaseFileSystem* pFileSystem, const char* pPath, const char* pPathID, SearchPathAdd_t addType)
+{
+	CBaseFileSystem_AddSearchPath(pFileSystem, pPath, pPathID, addType);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: remove the search path.
+// Input  : *pPath - 
+//			*pPathID - 
+//			addType - 
+// Output : true on success, false otherwise.
+//-----------------------------------------------------------------------------
+bool CBaseFileSystem::RemoveSearchPath(CBaseFileSystem* pFileSystem, const char* pPath, const char* pPathID)
+{
+	return CBaseFileSystem_RemoveSearchPath(pFileSystem, pPath, pPathID);
+}
+
 void CBaseFileSystem_Attach()
 {
 	DetourAttach((LPVOID*)&CBaseFileSystem_Warning, &CBaseFileSystem::Warning);
 	DetourAttach((LPVOID*)&CBaseFileSystem_LoadFromVPK, &CBaseFileSystem::ReadFromVPK);
 	DetourAttach((LPVOID*)&CBaseFileSystem_LoadFromCache, &CBaseFileSystem::ReadFromCache);
+	DetourAttach((LPVOID*)&CBaseFileSystem_AddSearchPath, &CBaseFileSystem::AddSearchPath);
+	DetourAttach((LPVOID*)&CBaseFileSystem_RemoveSearchPath, &CBaseFileSystem::RemoveSearchPath);
 }
 
 void CBaseFileSystem_Detach()
@@ -166,5 +192,7 @@ void CBaseFileSystem_Detach()
 	DetourDetach((LPVOID*)&CBaseFileSystem_Warning, &CBaseFileSystem::Warning);
 	DetourDetach((LPVOID*)&CBaseFileSystem_LoadFromVPK, &CBaseFileSystem::ReadFromVPK);
 	DetourDetach((LPVOID*)&CBaseFileSystem_LoadFromCache, &CBaseFileSystem::ReadFromCache);
+	DetourDetach((LPVOID*)&CBaseFileSystem_AddSearchPath, &CBaseFileSystem::AddSearchPath);
+	DetourDetach((LPVOID*)&CBaseFileSystem_RemoveSearchPath, &CBaseFileSystem::RemoveSearchPath);
 }
 CBaseFileSystem* g_pFileSystem = nullptr;

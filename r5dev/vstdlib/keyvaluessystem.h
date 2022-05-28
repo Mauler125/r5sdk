@@ -1,6 +1,7 @@
 #pragma once
 
 typedef int HKeySymbol;
+#define INVALID_KEY_SYMBOL (-1)
 
 class CKeyValuesSystem // VTABLE @ 0x1413AA1E8 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 {

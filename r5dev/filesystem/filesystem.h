@@ -2,6 +2,9 @@
 #define FILESYSTEM_H
 #include "vpklib/packedstore.h"
 
+#define GAMEINFOPATH_TOKEN		"|gameinfo_path|"
+#define BASESOURCEPATHS_TOKEN	"|all_source_engine_paths|"
+
 typedef void* FileHandle_t;
 
 enum class SearchPathAdd_t : int
@@ -27,6 +30,7 @@ class IFileSystem
 {
 public:
 	void AddSearchPath(const char* pPath, const char* pathID, SearchPathAdd_t addType);
+	bool RemoveSearchPath(const char* pPath, const char* pPathID);
 	bool ReadFromCache(const char* pPath, void* pResult);
 	VPKData_t* MountVPK(const char* vpkPath);
 };
