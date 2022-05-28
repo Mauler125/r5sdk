@@ -1,6 +1,6 @@
 #ifndef KVLEAKTRACE_H
 #define KVLEAKTRACE_H
-#include "tier1/utlvector.h"
+//#include "tier1/utlvector.h"
 
 #ifdef LEAKTRACK
 class CLeakTrack

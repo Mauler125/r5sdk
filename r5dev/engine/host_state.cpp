@@ -194,7 +194,7 @@ FORCEINLINE void CHostState::Setup(void)
 		NET_GenerateKey();
 	}
 	ResetLevelName();
-	KeyValues::Init();
+	KeyValues::Setup();
 }
 
 //-----------------------------------------------------------------------------
