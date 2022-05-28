@@ -24,7 +24,7 @@ void IFileSystem::AddSearchPath(const char* pPath, const char* pPathID, SearchPa
 bool IFileSystem::RemoveSearchPath(const char* pPath, const char* pPathID)
 {
 	static int index = 13;
-	CallVFunc<void>(index, this, pPath, pPathID);
+	return CallVFunc<bool>(index, this, pPath, pPathID);
 }
 
 //-----------------------------------------------------------------------------
