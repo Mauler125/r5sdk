@@ -310,10 +310,10 @@ void CBrowser::LaunchServer(void)
     DevMsg(eDLL_T::ENGINE, "Starting server with name: \"%s\" map: \"%s\" playlist: \"%s\"\n", m_Server.svServerName.c_str(), m_Server.svMapName.c_str(), m_Server.svPlaylist.c_str());
 
     /*
-    * Playlist gets parsed in two instances, first in LoadPlaylist all the neccessary values.
+    * Playlist gets parsed in two instances, first in KeyValues::ParsePlaylists with all the neccessary values.
     * Then when you would normally call launchplaylist which calls StartPlaylist it would cmd call mp_gamemode which parses the gamemode specific part of the playlist..
     */
-    KeyValues_LoadPlaylist(m_Server.svPlaylist.c_str());
+    KeyValues_ParsePlaylists(m_Server.svPlaylist.c_str());
     stringstream ssModeCommand;
     ssModeCommand << "mp_gamemode " << m_Server.svPlaylist;
     ProcessCommand(ssModeCommand.str().c_str());

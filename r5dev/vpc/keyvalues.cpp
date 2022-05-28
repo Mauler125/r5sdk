@@ -1215,36 +1215,21 @@ KeyValues* KeyValues::MakeCopy(void) const
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void KeyValues::Setup(void)
-{
-	std::thread t1(KeyValues::InitPlaylists); // Start thread to grab playlists.
-	t1.detach(); // Detach thread from current one.
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: Initializes the playlist
 //-----------------------------------------------------------------------------
 void KeyValues::InitPlaylists(void)
 {
-	while (true)
+	if (*g_pPlaylistKeyValues)
 	{
-		if (*g_pPlaylistKeyValues)
+		KeyValues* pPlaylists = (*g_pPlaylistKeyValues)->FindKey("Playlists", false);
+		if (pPlaylists)
 		{
-			KeyValues* pPlaylists = (*g_pPlaylistKeyValues)->FindKey("Playlists", false);
-			if (pPlaylists)
+			g_vAllPlaylists.clear();
+			for (KeyValues* pSubKey = pPlaylists->GetFirstTrueSubKey(); pSubKey != nullptr; pSubKey = pSubKey->GetNextTrueSubKey())
 			{
-				g_vAllPlaylists.clear();
-				for (KeyValues* pSubKey = pPlaylists->GetFirstTrueSubKey(); pSubKey != nullptr; pSubKey = pSubKey->GetNextTrueSubKey())
-				{
-					g_vAllPlaylists.push_back(pSubKey->GetName()); // Get all playlists.
-				}
-				break; // Break if playlist got filled.
+				g_vAllPlaylists.push_back(pSubKey->GetName()); // Get all playlists.
 			}
-			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
 }
 
@@ -1277,10 +1262,24 @@ void KeyValues::InitFileSystem(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: loads the playlist
+// Purpose: loads the playlists
 // Input  : *szPlaylist - 
+// Output : true on success, false on failure
 //-----------------------------------------------------------------------------
-bool KeyValues::LoadPlaylist(const char* szPlaylist)
+bool KeyValues::LoadPlaylists(const char* pszPlaylist)
+{
+	bool bResults = KeyValues_LoadPlaylists(pszPlaylist);
+	KeyValues::InitPlaylists();
+
+	return bResults;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: parses the playlists
+// Input  : *szPlaylist - 
+// Output : true on success, false on failure
+//-----------------------------------------------------------------------------
+bool KeyValues::ParsePlaylists(const char* pszPlaylist)
 {
 	memset(g_pMapVPKCache, '\0', 0x40); // Clear VPK cache to prevent crash while loading playlist.
 
@@ -1294,7 +1293,7 @@ bool KeyValues::LoadPlaylist(const char* szPlaylist)
 
 	if (FileExists(sPlaylistPath))
 	{
-		std::uint8_t verifyPlaylistIntegrity[] = // Very hacky way for alternative inline assembly for x64..
+		uint8_t verifyPlaylistIntegrity[] = // Very hacky way for alternative inline assembly for x64..
 		{
 			0x48, 0x8B, 0x45, 0x58,       // mov rcx, playlist
 			0xC7, 0x00, 0x00, 0x00, 0x00, // test playlist, playlist
@@ -1302,11 +1301,11 @@ bool KeyValues::LoadPlaylist(const char* szPlaylist)
 		};
 		void* verifyPlaylistIntegrityFn = nullptr;
 		VirtualAlloc(verifyPlaylistIntegrity, 10, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
-		memcpy(&verifyPlaylistIntegrityFn, (const void*)verifyPlaylistIntegrity, 9);
+		memcpy(&verifyPlaylistIntegrityFn, reinterpret_cast<const void*>(verifyPlaylistIntegrity), 9);
 		reinterpret_cast<void(*)()>(verifyPlaylistIntegrityFn)();
 	}
 
-	return KeyValues_LoadPlaylist(szPlaylist); // Parse playlist.
+	return KeyValues_ParsePlaylists(pszPlaylist); // Parse playlist.
 }
 
 //-----------------------------------------------------------------------------
@@ -1317,10 +1316,10 @@ bool KeyValues::LoadPlaylist(const char* szPlaylist)
 //-----------------------------------------------------------------------------
 KeyValues* KeyValues::ReadKeyValuesFile(CFileSystem_Stdio* pFileSystem, const char* pFileName)
 {
-	static bool bInit{};
-	if (!bInit)
+	static bool bInitFileSystem{};
+	if (!bInitFileSystem)
 	{
-		bInit = true;
+		bInitFileSystem = true;
 		KeyValues::InitFileSystem();
 	}
 	return KeyValues_ReadKeyValuesFile(pFileSystem, pFileName);
@@ -1329,13 +1328,15 @@ KeyValues* KeyValues::ReadKeyValuesFile(CFileSystem_Stdio* pFileSystem, const ch
 ///////////////////////////////////////////////////////////////////////////////
 void CKeyValueSystem_Attach()
 {
-	DetourAttach((LPVOID*)&KeyValues_LoadPlaylist, &KeyValues::LoadPlaylist);
+	DetourAttach((LPVOID*)&KeyValues_LoadPlaylists, &KeyValues::LoadPlaylists);
+	DetourAttach((LPVOID*)&KeyValues_ParsePlaylists, &KeyValues::ParsePlaylists);
 	DetourAttach((LPVOID*)&KeyValues_ReadKeyValuesFile, &KeyValues::ReadKeyValuesFile);
 }
 
 void CKeyValueSystem_Detach()
 {
-	DetourDetach((LPVOID*)&KeyValues_LoadPlaylist, &KeyValues::LoadPlaylist);
+	DetourDetach((LPVOID*)&KeyValues_LoadPlaylists, &KeyValues::LoadPlaylists);
+	DetourDetach((LPVOID*)&KeyValues_ParsePlaylists, &KeyValues::ParsePlaylists);
 	DetourDetach((LPVOID*)&KeyValues_ReadKeyValuesFile, &KeyValues::ReadKeyValuesFile);
 }
 

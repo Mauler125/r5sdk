@@ -20,8 +20,11 @@ inline auto KeyValues_Init = p_KeyValues_Init.RCast<void* (*)(KeyValues* thisptr
 inline CMemory p_KeyValues_FindKey;
 inline auto KeyValues_FindKey = p_KeyValues_FindKey.RCast<void* (*)(KeyValues* thisptr, const char* pkeyName, bool bCreate)>();
 
-inline CMemory p_KeyValues_LoadPlaylist;
-inline auto KeyValues_LoadPlaylist = p_KeyValues_LoadPlaylist.RCast<bool (*)(const char* pszPlaylist)>();
+inline CMemory p_KeyValues_LoadPlaylists;
+inline auto KeyValues_LoadPlaylists = p_KeyValues_LoadPlaylists.RCast<bool (*)(const char* pszPlaylist)>();
+
+inline CMemory p_KeyValues_ParsePlaylists;
+inline auto KeyValues_ParsePlaylists = p_KeyValues_ParsePlaylists.RCast<bool (*)(const char* pszPlaylist)>();
 
 inline CMemory p_KeyValues_GetCurrentPlaylist;
 inline auto KeyValues_GetCurrentPlaylist = p_KeyValues_GetCurrentPlaylist.RCast<const char* (*)(void)>();
@@ -137,10 +140,10 @@ public:
 	KeyValues* MakeCopy(void) const;
 
 	// Initialization
-	static void Setup(void);
 	static void InitPlaylists(void);
 	static void InitFileSystem(void);
-	static bool LoadPlaylist(const char* szPlaylist);
+	static bool LoadPlaylists(const char* szPlaylist);
+	static bool ParsePlaylists(const char* szPlaylist);
 	static KeyValues* ReadKeyValuesFile(CFileSystem_Stdio* pFileSystem, const char* pFileName);
 
 public:
@@ -178,7 +181,8 @@ class VKeyValues : public IDetour
 	{
 		spdlog::debug("| FUN: KeyValues::Init                      : {:#18x} |\n", p_KeyValues_Init.GetPtr());
 		spdlog::debug("| FUN: KeyValues::FindKey                   : {:#18x} |\n", p_KeyValues_FindKey.GetPtr());
-		spdlog::debug("| FUN: KeyValues::LoadPlaylist              : {:#18x} |\n", p_KeyValues_LoadPlaylist.GetPtr());
+		spdlog::debug("| FUN: KeyValues::LoadPlaylists             : {:#18x} |\n", p_KeyValues_LoadPlaylists.GetPtr());
+		spdlog::debug("| FUN: KeyValues::ParsePlaylists            : {:#18x} |\n", p_KeyValues_ParsePlaylists.GetPtr());
 		spdlog::debug("| FUN: KeyValues::GetCurrentPlaylist        : {:#18x} |\n", p_KeyValues_GetCurrentPlaylist.GetPtr());
 		spdlog::debug("| FUN: KeyValues::ReadKeyValuesFile         : {:#18x} |\n", p_KeyValues_ReadKeyValuesFile.GetPtr());
 		spdlog::debug("| VAR: g_pPlaylistKeyValues                 : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pPlaylistKeyValues));
@@ -197,11 +201,13 @@ class VKeyValues : public IDetour
 		p_KeyValues_GetCurrentPlaylist = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\x05\x00\x00\x00\x00\x48\x85\xC0\x75\x08\x48\x8D\x05\x00\x00\x00\x00\xC3\x0F\xB7\x50\x2A"), "xxx????xxxxxxxx????xxxxx");
 		p_KeyValues_ReadKeyValuesFile  = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x55\x53\x57\x41\x54\x48\x8D\x68\xA1"), "xxxxxxxxxxxx");
 #endif
-		p_KeyValues_LoadPlaylist       = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x74\x0C"), "x????xx?????xx").FollowNearCallSelf().GetPtr();
+		p_KeyValues_LoadPlaylists        = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x56\x57\x41\x56\x48\x83\xEC\x40\x48\x8B\xF1"), "xxxx?xxxx?xxxxxxxxxxx");
+		p_KeyValues_ParsePlaylists       = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x74\x0C"), "x????xx?????xx").FollowNearCallSelf();
 
 		KeyValues_Init               = p_KeyValues_Init.RCast<void* (*)(KeyValues*, const char*, int64_t, bool)>();            /*40 53 48 83 EC 20 48 8B 05 ?? ?? ?? 01 48 8B D9 4C 8B C2*/
 		KeyValues_FindKey            = p_KeyValues_FindKey.RCast<void* (*)(KeyValues*, const char*, bool)>();                  /*40 56 57 41 57 48 81 EC 30 01 00 00 45 0F B6 F8*/
-		KeyValues_LoadPlaylist       = p_KeyValues_LoadPlaylist.RCast<bool (*)(const char*)>();                                /*E8 ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 74 0C*/
+		KeyValues_LoadPlaylists      = p_KeyValues_ParsePlaylists.RCast<bool (*)(const char*)>();                              /*48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 40 48 8B F1*/
+		KeyValues_ParsePlaylists     = p_KeyValues_ParsePlaylists.RCast<bool (*)(const char*)>();                              /*E8 ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 74 0C*/
 		KeyValues_GetCurrentPlaylist = p_KeyValues_GetCurrentPlaylist.RCast<const char* (*)(void)>();                          /*48 8B 05 ?? ?? ?? ?? 48 85 C0 75 08 48 8D 05 ?? ?? ?? ?? C3 0F B7 50 2A*/
 		KeyValues_ReadKeyValuesFile  = p_KeyValues_ReadKeyValuesFile.RCast<KeyValues* (*)(CFileSystem_Stdio*, const char*)>(); /*48 8B C4 55 53 57 41 54 48 8D 68 A1*/
 	}
