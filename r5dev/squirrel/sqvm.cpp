@@ -338,10 +338,14 @@ void SQVM_RegisterServerScriptFunctions(HSQUIRRELVM v)
 {
 	SQVM_RegisterFunction(v, "SDKNativeTest", "Native SERVER test function", "void", "", &VSquirrel::SHARED::SDKNativeTest);
 	SQVM_RegisterFunction(v, "GetSDKVersion", "Gets the SDK version as a string", "string", "", &VSquirrel::SHARED::GetSDKVersion);
+
 	SQVM_RegisterFunction(v, "GetNumHumanPlayers", "Gets the number of human players on the server", "int", "", &VSquirrel::SERVER::GetNumHumanPlayers);
 	SQVM_RegisterFunction(v, "GetNumFakeClients", "Gets the number of bot players on the server", "int", "", &VSquirrel::SERVER::GetNumFakeClients);
+
 	SQVM_RegisterFunction(v, "GetAvailableMaps", "Gets an array of all available maps", "array<string>", "", &VSquirrel::SHARED::GetAvailableMaps);
 	SQVM_RegisterFunction(v, "GetAvailablePlaylists", "Gets an array of all available playlists", "array<string>", "", &VSquirrel::SHARED::GetAvailablePlaylists);
+
+	SQVM_RegisterFunction(v, "ShutdownHostGame", "Shuts down the local host game", "void", "", &VSquirrel::SHARED::ShutdownHostGame);
 }
 #endif // !CLIENT_DLL
 
@@ -354,8 +358,11 @@ void SQVM_RegisterClientScriptFunctions(HSQUIRRELVM v)
 {
 	SQVM_RegisterFunction(v, "SDKNativeTest", "Native CLIENT test function", "void", "", &VSquirrel::SHARED::SDKNativeTest);
 	SQVM_RegisterFunction(v, "GetSDKVersion", "Gets the SDK version as a string", "string", "", &VSquirrel::SHARED::GetSDKVersion);
+
 	SQVM_RegisterFunction(v, "GetAvailableMaps", "Gets an array of all available maps", "array<string>", "", &VSquirrel::SHARED::GetAvailableMaps);
 	SQVM_RegisterFunction(v, "GetAvailablePlaylists", "Gets an array of all available playlists", "array<string>", "", &VSquirrel::SHARED::GetAvailablePlaylists);
+
+	SQVM_RegisterFunction(v, "ShutdownHostGame", "Shuts down the local host game", "void", "", &VSquirrel::SHARED::ShutdownHostGame);
 }
 
 //---------------------------------------------------------------------------------
@@ -385,6 +392,8 @@ void SQVM_RegisterUIScriptFunctions(HSQUIRRELVM v)
 
 	SQVM_RegisterFunction(v, "GetAvailableMaps", "Gets an array of all available maps", "array<string>", "", &VSquirrel::SHARED::GetAvailableMaps);
 	SQVM_RegisterFunction(v, "GetAvailablePlaylists", "Gets an array of all available playlists", "array<string>", "", &VSquirrel::SHARED::GetAvailablePlaylists);
+
+	SQVM_RegisterFunction(v, "ShutdownHostGame", "Shuts down the local host game", "void", "", &VSquirrel::SHARED::ShutdownHostGame);
 }
 
 //---------------------------------------------------------------------------------

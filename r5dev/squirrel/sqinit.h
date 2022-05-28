@@ -23,6 +23,7 @@ namespace VSquirrel
 		SQRESULT GetSDKVersion(HSQUIRRELVM v);
 		SQRESULT GetAvailableMaps(HSQUIRRELVM v);
 		SQRESULT GetAvailablePlaylists(HSQUIRRELVM v);
+		SQRESULT ShutdownHostGame(HSQUIRRELVM v);
 	}
 #ifndef CLIENT_DLL
 	namespace SERVER

@@ -16,6 +16,7 @@
 #include "engine/server/server.h"
 #endif // CLIENT_DLL
 #include "engine/cmodel_bsp.h"
+#include "engine/host_state.h"
 #include "squirrel/sqtype.h"
 #include "squirrel/sqapi.h"
 #include "squirrel/sqinit.h"
@@ -79,6 +80,17 @@ namespace VSquirrel
                 sq_pushstring(v, it.c_str(), -1);
                 sq_arrayappend(v, -2);
             }
+
+            return SQ_OK;
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: shutdown local game (host only)
+        //-----------------------------------------------------------------------------
+        SQRESULT ShutdownHostGame(HSQUIRRELVM v)
+        {
+            if (g_pHostState->m_bActiveGame)
+                g_pHostState->m_iNextState = HostStates_t::HS_GAME_SHUTDOWN;
 
             return SQ_OK;
         }
