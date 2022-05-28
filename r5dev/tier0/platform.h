@@ -142,7 +142,7 @@
 #endif // CROSS_PLATFORM_VERSION < 2
 
 //-----------------------------------------------------------------------------
-// 
+// Time stamp counter
 //-----------------------------------------------------------------------------
 inline uint64_t Plat_Rdtsc()
 {
@@ -168,6 +168,19 @@ inline uint64_t Plat_Rdtsc()
 #else
 #error
 #endif
+}
+
+//-----------------------------------------------------------------------------
+// Silences a number of warnings on 360 compiles
+//-----------------------------------------------------------------------------
+inline uint64 CastPtrToUint64(const void* p)
+{
+	return (uint64)((uintptr_t)p);
+}
+
+inline int64 CastPtrToInt64(const void* p)
+{
+	return (int64)((uintptr_t)p);
 }
 
 //-----------------------------------------------------------------------------

@@ -97,6 +97,7 @@
     <ClCompile Include="..\tier1\cvar.cpp" />
     <ClCompile Include="..\tier1\IConVar.cpp" />
     <ClCompile Include="..\tier1\NetAdr2.cpp" />
+    <ClCompile Include="..\tier1\strtools.cpp" />
     <ClCompile Include="..\tier2\socketcreator.cpp" />
     <ClCompile Include="..\vguimatsurface\MatSystemSurface.cpp" />
     <ClCompile Include="..\vgui\vgui_baseui_interface.cpp" />
@@ -406,6 +407,7 @@
     <ClInclude Include="..\thirdparty\spdlog\include\version.h" />
     <ClInclude Include="..\tier0\basetypes.h" />
     <ClInclude Include="..\tier0\commandline.h" />
+    <ClInclude Include="..\tier0\commonmacros.h" />
     <ClInclude Include="..\tier0\cpu.h" />
     <ClInclude Include="..\tier0\cputopology.h" />
     <ClInclude Include="..\tier0\dbg.h" />
@@ -425,6 +427,7 @@
     <ClInclude Include="..\tier1\IConVar.h" />
     <ClInclude Include="..\tier1\mempool.h" />
     <ClInclude Include="..\tier1\NetAdr2.h" />
+    <ClInclude Include="..\tier1\strtools.h" />
     <ClInclude Include="..\tier1\utldict.h" />
     <ClInclude Include="..\tier1\utlmemory.h" />
     <ClInclude Include="..\tier1\utlvector.h" />

@@ -498,6 +498,9 @@
     <ClCompile Include="..\tier0\dbg.cpp">
       <Filter>sdk\tier0</Filter>
     </ClCompile>
+    <ClCompile Include="..\tier1\strtools.cpp">
+      <Filter>sdk\tier1</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1489,6 +1492,12 @@
     </ClInclude>
     <ClInclude Include="..\tier0\wchartypes.h">
       <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\commonmacros.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\strtools.h">
+      <Filter>sdk\tier1</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
