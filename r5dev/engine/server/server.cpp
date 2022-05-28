@@ -81,7 +81,7 @@ CClient* CServer::Authenticate(CServer* pServer, user_creds_s* pInpacket)
 	{
 		if (g_pBanSystem->IsBanned(svIpAddress, pInpacket->m_nNucleusID)) // Is the client trying to connect banned?
 		{
-			v_CServer_RejectConnection(pServer, *(unsigned int*)((std::uintptr_t)pServer + 0xC), pInpacket, "You have been banned from this server."); // RejectConnection for the client.
+			v_CServer_RejectConnection(pServer, pServer->m_Socket, pInpacket, "You have been banned from this server."); // RejectConnection for the client.
 
 			if (sv_showconnecting->GetBool())
 			{
