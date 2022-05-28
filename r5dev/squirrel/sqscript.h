@@ -100,7 +100,8 @@ inline CMemory g_pClientVM;
 inline CMemory g_pUIVM;
 #endif // !DEDICATED
 
-SQRESULT Script_RegisterFunction(CSquirrelVM* pSquirrelVM, const SQChar* szName, const SQChar* szHelpString, const SQChar* szRetValType, const SQChar* szArgTypes, void* pFunction);
+SQRESULT Script_RegisterFunction(CSquirrelVM* pSquirrelVM, const SQChar* szScriptName, const SQChar* szNativeName,
+	const SQChar* szHelpString, const SQChar* szRetValType, const SQChar* szArgTypes, void* pFunction);
 void Script_RegisterServerFunctions(CSquirrelVM* pSquirrelVM);
 void Script_RegisterClientFunctions(CSquirrelVM* pSquirrelVM);
 void Script_RegisterUIFunctions(CSquirrelVM* pSquirrelVM);

@@ -18,12 +18,13 @@
 //			*szArgTypes - 
 //			*pFunction - 
 //---------------------------------------------------------------------------------
-SQRESULT Script_RegisterFunction(CSquirrelVM* pSquirrelVM, const SQChar* szName, const SQChar* szHelpString, const SQChar* szRetValType, const SQChar* szArgTypes, void* pFunction)
+SQRESULT Script_RegisterFunction(CSquirrelVM* pSquirrelVM, const SQChar* szScriptName,const SQChar* szNativeName, 
+	const SQChar* szHelpString, const SQChar* szRetValType, const SQChar* szArgTypes, void* pFunction)
 {
 	ScriptFunctionBinding_t* sqFunc = new ScriptFunctionBinding_t();
 
-	sqFunc->m_szScriptName = szName;
-	sqFunc->m_szNativeName = szName;
+	sqFunc->m_szScriptName = szScriptName;
+	sqFunc->m_szNativeName = szNativeName;
 	sqFunc->m_szHelpString = szHelpString;
 	sqFunc->m_szRetValType = szRetValType;
 	sqFunc->m_szArgTypes = szArgTypes;
@@ -39,16 +40,16 @@ SQRESULT Script_RegisterFunction(CSquirrelVM* pSquirrelVM, const SQChar* szName,
 //---------------------------------------------------------------------------------
 void Script_RegisterServerFunctions(CSquirrelVM* pSquirrelVM)
 {
-	Script_RegisterFunction(pSquirrelVM, "SDKNativeTest", "Native SERVER test function", "void", "", &VSquirrel::SHARED::SDKNativeTest);
-	Script_RegisterFunction(pSquirrelVM, "GetSDKVersion", "Gets the SDK version as a string", "string", "", &VSquirrel::SHARED::GetSDKVersion);
+	Script_RegisterFunction(pSquirrelVM, "SDKNativeTest", "Script_SDKNativeTest", "Native SERVER test function", "void", "", &VSquirrel::SHARED::SDKNativeTest);
+	Script_RegisterFunction(pSquirrelVM, "GetSDKVersion", "Script_GetSDKVersion", "Gets the SDK version as a string", "string", "", &VSquirrel::SHARED::GetSDKVersion);
 
-	Script_RegisterFunction(pSquirrelVM, "GetNumHumanPlayers", "Gets the number of human players on the server", "int", "", &VSquirrel::SERVER::GetNumHumanPlayers);
-	Script_RegisterFunction(pSquirrelVM, "GetNumFakeClients", "Gets the number of bot players on the server", "int", "", &VSquirrel::SERVER::GetNumFakeClients);
+	Script_RegisterFunction(pSquirrelVM, "GetNumHumanPlayers", "Script_GetNumHumanPlayers", "Gets the number of human players on the server", "int", "", &VSquirrel::SERVER::GetNumHumanPlayers);
+	Script_RegisterFunction(pSquirrelVM, "GetNumFakeClients", "Script_GetNumFakeClients", "Gets the number of bot players on the server", "int", "", &VSquirrel::SERVER::GetNumFakeClients);
 
-	Script_RegisterFunction(pSquirrelVM, "GetAvailableMaps", "Gets an array of all available maps", "array<string>", "", &VSquirrel::SHARED::GetAvailableMaps);
-	Script_RegisterFunction(pSquirrelVM, "GetAvailablePlaylists", "Gets an array of all available playlists", "array<string>", "", &VSquirrel::SHARED::GetAvailablePlaylists);
+	Script_RegisterFunction(pSquirrelVM, "GetAvailableMaps", "Script_GetAvailableMaps", "Gets an array of all available maps", "array<string>", "", &VSquirrel::SHARED::GetAvailableMaps);
+	Script_RegisterFunction(pSquirrelVM, "GetAvailablePlaylists", "Script_GetAvailablePlaylists", "Gets an array of all available playlists", "array<string>", "", &VSquirrel::SHARED::GetAvailablePlaylists);
 
-	Script_RegisterFunction(pSquirrelVM, "ShutdownHostGame", "Shuts down the local host game", "void", "", &VSquirrel::SHARED::ShutdownHostGame);
+	Script_RegisterFunction(pSquirrelVM, "ShutdownHostGame", "Script_ShutdownHostGame", "Shuts down the local host game", "void", "", &VSquirrel::SHARED::ShutdownHostGame);
 }
 #endif // !CLIENT_DLL
 
@@ -59,13 +60,13 @@ void Script_RegisterServerFunctions(CSquirrelVM* pSquirrelVM)
 //---------------------------------------------------------------------------------
 void Script_RegisterClientFunctions(CSquirrelVM* pSquirrelVM)
 {
-	Script_RegisterFunction(pSquirrelVM, "SDKNativeTest", "Native CLIENT test function", "void", "", &VSquirrel::SHARED::SDKNativeTest);
-	Script_RegisterFunction(pSquirrelVM, "GetSDKVersion", "Gets the SDK version as a string", "string", "", &VSquirrel::SHARED::GetSDKVersion);
+	Script_RegisterFunction(pSquirrelVM, "SDKNativeTest", "Script_SDKNativeTest", "Native CLIENT test function", "void", "", &VSquirrel::SHARED::SDKNativeTest);
+	Script_RegisterFunction(pSquirrelVM, "GetSDKVersion", "Script_GetSDKVersion", "Gets the SDK version as a string", "string", "", &VSquirrel::SHARED::GetSDKVersion);
 
-	Script_RegisterFunction(pSquirrelVM, "GetAvailableMaps", "Gets an array of all available maps", "array<string>", "", &VSquirrel::SHARED::GetAvailableMaps);
-	Script_RegisterFunction(pSquirrelVM, "GetAvailablePlaylists", "Gets an array of all available playlists", "array<string>", "", &VSquirrel::SHARED::GetAvailablePlaylists);
+	Script_RegisterFunction(pSquirrelVM, "GetAvailableMaps", "Script_GetAvailableMaps", "Gets an array of all available maps", "array<string>", "", &VSquirrel::SHARED::GetAvailableMaps);
+	Script_RegisterFunction(pSquirrelVM, "GetAvailablePlaylists", "Script_GetAvailablePlaylists", "Gets an array of all available playlists", "array<string>", "", &VSquirrel::SHARED::GetAvailablePlaylists);
 
-	Script_RegisterFunction(pSquirrelVM, "ShutdownHostGame", "Shuts down the local host game", "void", "", &VSquirrel::SHARED::ShutdownHostGame);
+	Script_RegisterFunction(pSquirrelVM, "ShutdownHostGame", "Script_ShutdownHostGame", "Shuts down the local host game", "void", "", &VSquirrel::SHARED::ShutdownHostGame);
 }
 
 //---------------------------------------------------------------------------------
@@ -74,29 +75,29 @@ void Script_RegisterClientFunctions(CSquirrelVM* pSquirrelVM)
 //---------------------------------------------------------------------------------
 void Script_RegisterUIFunctions(CSquirrelVM* pSquirrelVM)
 {
-	Script_RegisterFunction(pSquirrelVM, "SDKNativeTest", "Native UI test function", "void", "", &VSquirrel::SHARED::SDKNativeTest);
+	Script_RegisterFunction(pSquirrelVM, "SDKNativeTest", "Script_SDKNativeTest", "Native UI test function", "void", "", &VSquirrel::SHARED::SDKNativeTest);
 
 	// Functions for retrieving server browser data
-	Script_RegisterFunction(pSquirrelVM, "GetServerName", "Gets the name of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerName);
-	Script_RegisterFunction(pSquirrelVM, "GetServerPlaylist", "Gets the playlist of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerPlaylist);
-	Script_RegisterFunction(pSquirrelVM, "GetServerMap", "Gets the map of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerMap);
-	Script_RegisterFunction(pSquirrelVM, "GetServerCount", "Gets the number of public servers", "int", "", &VSquirrel::UI::GetServerCount);
+	Script_RegisterFunction(pSquirrelVM, "GetServerName", "Script_GetServerName", "Gets the name of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerName);
+	Script_RegisterFunction(pSquirrelVM, "GetServerPlaylist", "Script_GetServerPlaylist", "Gets the playlist of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerPlaylist);
+	Script_RegisterFunction(pSquirrelVM, "GetServerMap", "Script_GetServerMap", "Gets the map of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerMap);
+	Script_RegisterFunction(pSquirrelVM, "GetServerCount", "Script_GetServerCount", "Gets the number of public servers", "int", "", &VSquirrel::UI::GetServerCount);
 
 	// Misc main menu functions
-	Script_RegisterFunction(pSquirrelVM, "GetSDKVersion", "Gets the SDK version as a string", "string", "", &VSquirrel::SHARED::GetSDKVersion);
-	Script_RegisterFunction(pSquirrelVM, "GetPromoData", "Gets promo data for specified slot type", "string", "int", &VSquirrel::UI::GetPromoData);
+	Script_RegisterFunction(pSquirrelVM, "GetSDKVersion", "Script_GetSDKVersion", "Gets the SDK version as a string", "string", "", &VSquirrel::SHARED::GetSDKVersion);
+	Script_RegisterFunction(pSquirrelVM, "GetPromoData", "Script_GetPromoData", "Gets promo data for specified slot type", "string", "int", &VSquirrel::UI::GetPromoData);
 
 	// Functions for connecting to servers
-	Script_RegisterFunction(pSquirrelVM, "CreateServer", "Start server with the specified settings", "void", "string,string,string,int", &VSquirrel::UI::CreateServerFromMenu);
-	Script_RegisterFunction(pSquirrelVM, "SetEncKeyAndConnect", "Set the encryption key to that of the specified server and connects to it", "void", "int", &VSquirrel::UI::SetEncKeyAndConnect);
-	Script_RegisterFunction(pSquirrelVM, "JoinPrivateServerFromMenu", "Joins private server by token", "void", "string", &VSquirrel::UI::JoinPrivateServerFromMenu);
-	Script_RegisterFunction(pSquirrelVM, "GetPrivateServerMessage", "Gets private server join status message", "string", "string", &VSquirrel::UI::GetPrivateServerMessage);
-	Script_RegisterFunction(pSquirrelVM, "ConnectToIPFromMenu", "Joins server by ip address and encryption key", "void", "string,string", &VSquirrel::UI::ConnectToIPFromMenu);
+	Script_RegisterFunction(pSquirrelVM, "CreateServer", "Script_CreateServer", "Start server with the specified settings", "void", "string,string,string,int", &VSquirrel::UI::CreateServerFromMenu);
+	Script_RegisterFunction(pSquirrelVM, "SetEncKeyAndConnect", "Script_SetEncKeyAndConnect", "Set the encryption key to that of the specified server and connects to it", "void", "int", &VSquirrel::UI::SetEncKeyAndConnect);
+	Script_RegisterFunction(pSquirrelVM, "JoinPrivateServerFromMenu", "Script_JoinPrivateServerFromMenu", "Joins private server by token", "void", "string", &VSquirrel::UI::JoinPrivateServerFromMenu);
+	Script_RegisterFunction(pSquirrelVM, "GetPrivateServerMessage", "Script_GetPrivateServerMessage", "Gets private server join status message", "string", "string", &VSquirrel::UI::GetPrivateServerMessage);
+	Script_RegisterFunction(pSquirrelVM, "ConnectToIPFromMenu", "Script_ConnectToIPFromMenu", "Joins server by ip address and encryption key", "void", "string,string", &VSquirrel::UI::ConnectToIPFromMenu);
 
-	Script_RegisterFunction(pSquirrelVM, "GetAvailableMaps", "Gets an array of all available maps", "array<string>", "", &VSquirrel::SHARED::GetAvailableMaps);
-	Script_RegisterFunction(pSquirrelVM, "GetAvailablePlaylists", "Gets an array of all available playlists", "array<string>", "", &VSquirrel::SHARED::GetAvailablePlaylists);
+	Script_RegisterFunction(pSquirrelVM, "GetAvailableMaps", "Script_GetAvailableMaps", "Gets an array of all available maps", "array<string>", "", &VSquirrel::SHARED::GetAvailableMaps);
+	Script_RegisterFunction(pSquirrelVM, "GetAvailablePlaylists", "Script_GetAvailablePlaylists", "Gets an array of all available playlists", "array<string>", "", &VSquirrel::SHARED::GetAvailablePlaylists);
 
-	Script_RegisterFunction(pSquirrelVM, "ShutdownHostGame", "Shuts down the local host game", "void", "", &VSquirrel::SHARED::ShutdownHostGame);
+	Script_RegisterFunction(pSquirrelVM, "ShutdownHostGame", "Script_ShutdownHostGame", "Shuts down the local host game", "void", "", &VSquirrel::SHARED::ShutdownHostGame);
 }
 
 //---------------------------------------------------------------------------------
