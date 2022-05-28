@@ -9,6 +9,14 @@
 #include "vstdlib/keyvaluessystem.h"
 
 //-----------------------------------------------------------------------------
+// Instance singleton and expose interface to rest of code
+//-----------------------------------------------------------------------------
+CKeyValuesSystem* KeyValuesSystem()
+{
+	return &(*g_pKeyValuesSystem);
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: registers the size of the KeyValues in the specified instance
 //			so it can build a properly sized memory pool for the KeyValues objects
 //			the sizes will usually never differ but this is for versioning safety
