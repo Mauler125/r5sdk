@@ -148,7 +148,7 @@ SQBool Script_CreateServerVM()
 #ifndef DEDICATED
 //---------------------------------------------------------------------------------
 // Purpose: Creates the CLIENT Squirrel VM
-// Input  : *chlclient - 
+// Input  : *hlclient - 
 // Output : True on success, false on failure
 //---------------------------------------------------------------------------------
 SQBool Script_CreateClientVM(CHLClient* hlclient)
