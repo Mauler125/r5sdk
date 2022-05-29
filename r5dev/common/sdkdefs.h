@@ -6,6 +6,8 @@ using std::pair;
 using std::regex;
 using std::string;
 using std::wstring;
+using std::u16string;
+using std::u32string;
 using std::vector;
 using std::fstream;
 using std::ifstream;
