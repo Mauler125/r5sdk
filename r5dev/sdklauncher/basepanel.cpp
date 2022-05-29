@@ -815,7 +815,7 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 		// MAIN ###############################################################
 		if (!String::IsNullOrEmpty(this->m_HostNameTextBox->Text()))
 		{
-			svParameters.append("+sv_pylonHostName \"" + this->m_HostNameTextBox->Text() + "\" ");
+			svParameters.append("+hostname \"" + this->m_HostNameTextBox->Text() + "\" ");
 
 			switch (static_cast<eVisibility>(this->m_VisibilityCombo->SelectedIndex()))
 			{
@@ -909,7 +909,7 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 		// MAIN ###############################################################
 		if (!String::IsNullOrEmpty(this->m_HostNameTextBox->Text()))
 		{
-			svParameters.append("+sv_pylonHostName \"" + this->m_HostNameTextBox->Text() + "\" ");
+			svParameters.append("+hostname \"" + this->m_HostNameTextBox->Text() + "\" ");
 
 			switch (static_cast<eVisibility>(this->m_VisibilityCombo->SelectedIndex()))
 			{
