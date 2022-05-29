@@ -12,6 +12,7 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
+#include "vpc/keyvalues.h"
 #ifndef CLIENT_DLL
 #include "engine/server/server.h"
 #endif // CLIENT_DLL
