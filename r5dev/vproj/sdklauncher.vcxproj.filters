@@ -26,6 +26,9 @@
     <Filter Include="thirdparty\detours\include">
       <UniqueIdentifier>{dc968871-7ca2-452b-a5b1-350a12dd54aa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="mods">
+      <UniqueIdentifier>{28b0118c-a764-4027-b77c-e53fa7221c89}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\core\stdafx.cpp">
@@ -73,6 +76,9 @@
     </ClInclude>
     <ClInclude Include="..\sdklauncher\sdklauncher_const.h">
       <Filter>launcher</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sdklauncher\modManager.h">
+      <Filter>mods</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

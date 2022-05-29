@@ -27,6 +27,9 @@ private:
 	void Setup();
 	void ParseMaps();
 	void ParsePlaylists();
+	void ReadModJson();
+
+	void logText(spdlog::level::level_enum color, std::string text);
 
 	static void LaunchGame(Forms::Control* pSender);
 	static void CleanSDK(Forms::Control* pSender);

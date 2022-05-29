@@ -6,6 +6,7 @@
 #include "core/stdafx.h"
 #include "sdklauncher.h"
 #include "basepanel.h"
+#include "modManager.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: creates the surface layout
@@ -264,7 +265,7 @@ void CUIBaseSurface::Init()
 	this->m_EngineNetworkGroup->SetText("");
 	this->m_EngineNetworkGroup->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->AddControl(this->m_EngineNetworkGroup);
-
+	
 	this->m_EngineVideoGroup = new UIX::UIXGroupBox();
 	this->m_EngineVideoGroup->SetSize({ 337, 55 });
 	this->m_EngineVideoGroup->SetLocation({ 12, 284 });
@@ -468,6 +469,7 @@ void CUIBaseSurface::Setup()
 {
 	this->ParseMaps();
 	this->ParsePlaylists();
+	this->ReadModJson();
 
 	this->m_ModeCombo->Items.Add("Host");
 	this->m_ModeCombo->Items.Add("Server");
@@ -488,7 +490,9 @@ void CUIBaseSurface::CleanSDK(Forms::Control* pSender)
 	pSurface->m_LogList.push_back(LogList_t(spdlog::level::info, "Running cleaner for SDK installation\n"));
 	pSurface->m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(pSurface->m_LogList.size()));
 
-	std::system("platform\\clean_sdk.bat");
+	if (fs::exists("platform\\clean_sdk.bat")) {
+		std::system("platform\\clean_sdk.bat");
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -513,26 +517,91 @@ void CUIBaseSurface::ParseMaps()
 {
 	std::regex rgArchiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
 	std::smatch smRegexMatches;
-	for (const auto& dEntry : fs::directory_iterator("vpk"))
-	{
-		std::string svFileName = dEntry.path().string();
-		std::regex_search(svFileName, smRegexMatches, rgArchiveRegex);
-
-		if (smRegexMatches.size() > 0)
+	if (fs::exists("vpk")) {
+		for (const auto& dEntry : fs::directory_iterator("vpk"))
 		{
-			if (strcmp(smRegexMatches[1].str().c_str(), "frontend") == 0)
-			{
-				continue;
-			}
-			else if (strcmp(smRegexMatches[1].str().c_str(), "mp_common") == 0)
-			{
-				this->m_MapCombo->Items.Add("mp_lobby");
-				continue;
-			}
+			std::string svFileName = dEntry.path().string();
+			std::regex_search(svFileName, smRegexMatches, rgArchiveRegex);
 
-			this->m_MapCombo->Items.Add(smRegexMatches[1].str().c_str());
+			if (smRegexMatches.size() > 0)
+			{
+				if (strcmp(smRegexMatches[1].str().c_str(), "frontend") == 0)
+				{
+					continue;
+				}
+				else if (strcmp(smRegexMatches[1].str().c_str(), "mp_common") == 0)
+				{
+					this->m_MapCombo->Items.Add("mp_lobby");
+					continue;
+				}
+
+				this->m_MapCombo->Items.Add(smRegexMatches[1].str().c_str());
+			}
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: convert modObject to a string
+//-----------------------------------------------------------------------------
+std::string objectToString(modObject object) {
+	std::string string;
+	string.append(object.appid + " " + object.name + " " + object.description + " ");
+	for (auto& a : object.authors)
+		string.append(a + " ");
+	for (auto& c : object.contacts)
+		string.append(c + " ");
+	string.append(object.version + " ");
+	if (object.toggled == true)
+		string.append("true ");
+	if (object.toggled == false)
+		string.append("false ");
+
+	return string;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: reads mod's folder
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::ReadModJson() {
+	logText(spdlog::level::level_enum::info, "Reading mod.json's");
+	if (fs::exists("mods")) {
+		for (const auto& mEntry : fs::directory_iterator("mods")) {
+			std::string path = mEntry.path().string();
+			std::string modJson = path + "\\mod.json";
+
+			if (fs::exists(modJson)) {
+				std::ifstream stream(modJson);
+				if (stream.good()) {
+					std::stringstream contents;
+					contents << stream.rdbuf();
+
+					//logText(spdlog::level::level_enum::info, contents.str());
+
+					modObject object(contents.str());
+
+					//logText(spdlog::level::level_enum::info, objectToString(object));
+				}
+				else {
+					logText(spdlog::level::level_enum::err, "Error. Unable to read " + modJson);
+				}
+				stream.close();
+			}
+			else {
+				logText(spdlog::level::level_enum::err, "Error. Unable to find mod.json for mod: " + path);
+			}
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: log's to console. for debugging purpose's (at least mainly)
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::logText(spdlog::level::level_enum color, std::string text) {
+	std::string newText = text + "\n";
+	m_LogList.push_back(LogList_t(color, newText.c_str()));
+	m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(m_LogList.size()));
+	m_ConsoleListView->Refresh();
 }
 
 //-----------------------------------------------------------------------------
