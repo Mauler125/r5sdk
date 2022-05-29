@@ -6,8 +6,6 @@ using json = nlohmann::json;
 
 class modObject;
 
-std::vector<modObject> mods;
-
 //-----------------------------------------------------------------------------
 // Purpose: class for each script
 //-----------------------------------------------------------------------------
@@ -18,7 +16,9 @@ class customScript {
 		std::string clcb;
 		std::string sercb;
 
-
+		//-----------------------------------------------------------------------------
+		// Purpose: constructs each custom script object. each one is added to a vector in modObject
+		//-----------------------------------------------------------------------------
 		customScript(json object) {
 			path = object["Path"];
 			runon = object["RunOn"];
@@ -35,9 +35,11 @@ class customScript {
 //-----------------------------------------------------------------------------
 class modObject {
 	public:
+		bool invalid = false;
 		std::string appid = "Placeholder";
 		std::string name = "Placeholder";
 		std::string description = "Placeholder";
+		std::string modJsonLoc;
 		std::vector<std::string> authors;
 		std::vector<std::string> contacts;
 		std::string version;
@@ -46,7 +48,46 @@ class modObject {
 		bool toggled = true;
 		json object;
 
-		modObject(std::string content) {
+		//-----------------------------------------------------------------------------
+		// Purpose: switch's mod state
+		//-----------------------------------------------------------------------------
+		void switchStates() {
+			toggled = !toggled;
+
+			object["enabled"] = toggled;
+
+			if (fs::exists(modJsonLoc)) {
+				std::ofstream stream(modJsonLoc, std::ofstream::trunc);
+				if (stream.good()) {
+					stream << object.dump(1, 9);
+				}
+			}
+		}
+
+		//-----------------------------------------------------------------------------
+		// Purpose: convert object contents to string
+		//-----------------------------------------------------------------------------
+		std::string string() {
+			std::string string;
+			string.append(appid + " " + name + " " + description + " ");
+			for (auto& a : authors)
+				string.append(a + " ");
+			for (auto& c : contacts)
+				string.append(c + " ");
+			string.append(version + " ");
+			if (toggled == true)
+				string.append("true ");
+			if (toggled == false)
+				string.append("false ");
+
+			return string;
+		}
+
+		//-----------------------------------------------------------------------------
+		// Purpose: constructs mod object by adding name, appid, description, etc. to the object
+		//-----------------------------------------------------------------------------
+		modObject(std::string content, std::string modJson) {
+			modJsonLoc = modJson;
 			if (!content.empty()) {
 				try {
 					object = json::parse(content);
@@ -91,11 +132,80 @@ class modObject {
 					}
 					else {
 						// TODO: Something messed up message
+						invalid = true;
 					}
 				}
 				catch (json::parse_error& e) {
 					/// TODO: Tell the user it failed to parse
+					invalid = true;
 				}
 			}
 		};
+};
+
+
+//-----------------------------------------------------------------------------
+// Purpose: allMods log type
+//-----------------------------------------------------------------------------
+enum modType {
+	all,
+	enabled,
+	disabled,
+	invalid,
+	valid
+};
+
+//-----------------------------------------------------------------------------
+// Purpose: class to manage mods
+//-----------------------------------------------------------------------------
+class modManager {
+public:
+	std::vector<modObject> mods;
+
+	void addMod(std::string contents, std::string modJson) {
+		modObject object(contents, modJson);
+		mods.push_back(object);
+	}
+
+	std::string modsList(modType modtype = modType::all) {
+		std::string string;
+
+		switch (modtype) {
+		case modType::all:
+			for (auto& i : mods) {
+				string.append(i.name + " ");
+			}
+			break;
+		case modType::enabled:
+			for (auto& i : mods) {
+				if (i.toggled) {
+					string.append(i.name + " ");
+				}
+			}
+			break;
+		case modType::disabled:
+			for (auto& i : mods) {
+				if (!i.toggled) {
+					string.append(i.name + " ");
+				}
+			}
+			break;
+		case modType::invalid:
+			for (auto& i : mods) {
+				if (i.invalid) {
+					string.append(i.name + " ");
+				}
+			}
+			break;
+		case modType::valid:
+			for (auto& i : mods) {
+				if (!i.invalid) {
+					string.append(i.name + " ");
+				}
+			}
+			break;
+		}
+
+		return string;
+	}
 };

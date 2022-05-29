@@ -542,28 +542,11 @@ void CUIBaseSurface::ParseMaps()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: convert modObject to a string
-//-----------------------------------------------------------------------------
-std::string objectToString(modObject object) {
-	std::string string;
-	string.append(object.appid + " " + object.name + " " + object.description + " ");
-	for (auto& a : object.authors)
-		string.append(a + " ");
-	for (auto& c : object.contacts)
-		string.append(c + " ");
-	string.append(object.version + " ");
-	if (object.toggled == true)
-		string.append("true ");
-	if (object.toggled == false)
-		string.append("false ");
-
-	return string;
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: reads mod's folder
 //-----------------------------------------------------------------------------
 void CUIBaseSurface::ReadModJson() {
+	modManager manager;
+	bool ran = false;
 	logText(spdlog::level::level_enum::info, "Reading mod.json's");
 	if (fs::exists("mods")) {
 		for (const auto& mEntry : fs::directory_iterator("mods")) {
@@ -578,9 +561,11 @@ void CUIBaseSurface::ReadModJson() {
 
 					//logText(spdlog::level::level_enum::info, contents.str());
 
-					modObject object(contents.str());
+					manager.addMod(contents.str(), modJson);
 
-					//logText(spdlog::level::level_enum::info, objectToString(object));
+					//modObject object(contents.str(), modJson);
+
+					//logText(spdlog::level::level_enum::info, objectToString(object)
 				}
 				else {
 					logText(spdlog::level::level_enum::err, "Error. Unable to read " + modJson);
@@ -591,6 +576,16 @@ void CUIBaseSurface::ReadModJson() {
 				logText(spdlog::level::level_enum::err, "Error. Unable to find mod.json for mod: " + path);
 			}
 		}
+		bool wereInvalid = false;
+		logText(spdlog::level::level_enum::warn, "The following mods are invalid:");
+		for (auto& invalid : manager.mods) {
+			if (invalid.invalid) {
+				logText(spdlog::level::level_enum::warn, invalid.name);
+				wereInvalid = true;
+			}
+		}
+		if (!wereInvalid)
+			logText(spdlog::level::level_enum::warn, "Jk. It's fine");
 	}
 }
 
