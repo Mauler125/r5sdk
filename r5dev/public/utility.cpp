@@ -233,6 +233,74 @@ void HexDump(const char* szHeader, const char* szLogger, const void* pData, int 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For removing file names from the extension.
+string GetExtension(const string& svInput)
+{
+    string::size_type nPos = svInput.rfind('.');
+    if (nPos != std::string::npos)
+    {
+       return svInput.substr(nPos + 1);
+    }
+    return "";
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// For removing extensions from file names.
+string RemoveExtension(const string& svInput)
+{
+    string::size_type nPos = svInput.find_last_of(".");
+    if (nPos == string::npos)
+    {
+        return svInput;
+    }
+    return svInput.substr(0, nPos);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// For removing the path from file names.
+string GetFileName(const string& svInput, bool bRemoveExtension, bool bWindows)
+{
+    string::size_type nPos;
+    if (bWindows)
+    {
+        nPos = svInput.rfind('\\');
+    }
+    else
+    {
+        nPos = svInput.rfind('/');
+    }
+    if (nPos != std::string::npos)
+    {
+        if (bRemoveExtension)
+        {
+            return RemoveExtension(svInput.substr(nPos + 1));
+        }
+        return svInput.substr(nPos + 1);
+    }
+    return "";
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// For removing file names from the path.
+string RemoveFileName(const string& svInput, bool bWindows)
+{
+    string::size_type nPos;
+    if (bWindows)
+    {
+        nPos = svInput.find_last_of("\\");
+    }
+    else
+    {
+        nPos = svInput.find_last_of("/");
+    }
+    if (nPos == string::npos)
+    {
+        return svInput;
+    }
+    return svInput.substr(0, nPos);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For creating directories for output streams.
 string CreateDirectories(string svInput)
 {
@@ -286,7 +354,7 @@ string ConvertToUnixPath(const string& svInput)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// For encoding data in base64.
+// For encoding data in Base64.
 string Base64Encode(const string& svInput)
 {
     string results;
@@ -314,7 +382,7 @@ string Base64Encode(const string& svInput)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// For decoding data in base64.
+// For decoding data in Base64.
 string Base64Decode(const string& svInput)
 {
     string results;
@@ -341,6 +409,33 @@ string Base64Decode(const string& svInput)
         }
     }
     return results;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// For encoding data in UTF8.
+string UTF8Encode(const wstring& wsvInput)
+{
+    string results;
+    int nLen = WideCharToMultiByte(CP_UTF8, 0, wsvInput.c_str(), wsvInput.length(), NULL, 0, NULL, NULL);
+    if (nLen > 0)
+    {
+        results.resize(nLen);
+        WideCharToMultiByte(CP_UTF8, 0, wsvInput.c_str(), wsvInput.length(), &results[0], nLen, NULL, NULL);
+    }
+    return results;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// For decoding data in UTF8.
+u32string UTF8Decode(const string& svInput)
+{
+    //struct destructible_codecvt : public std::codecvt<char32_t, char, std::mbstate_t>
+    //{
+    //    using std::codecvt<char32_t, char, std::mbstate_t>::codecvt;
+    //    ~destructible_codecvt() = default;
+    //};
+    //std::wstring_convert<destructible_codecvt, char32_t> utf32_converter;
+    //return utf32_converter.from_bytes(svInput);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -381,13 +476,13 @@ bool CompareStringLexicographically(const string& svA, const string& svB)
 // For replacing parts of a given string.
 bool StringReplace(string& svInput, const string& svFrom, const string& svTo)
 {
-    size_t start_pos = svInput.find(svFrom);
-    if (start_pos == string::npos)
+    string::size_type nPos = svInput.find(svFrom);
+    if (nPos == string::npos)
     {
         return false;
     }
 
-    svInput.replace(start_pos, svFrom.length(), svTo);
+    svInput.replace(nPos, svFrom.length(), svTo);
     return true;
 }
 
@@ -491,12 +586,12 @@ vector<int> PatternToBytes(const string& svInput)
 
 ///////////////////////////////////////////////////////////////////////////////
 // For converting a integer into digits.
-vector<int> IntToDigits(int value)
+vector<int> IntToDigits(int iValue)
 {
     vector<int> vDigits;
-    for (; value > 0; value /= 10)
+    for (; iValue > 0; iValue /= 10)
     {
-        vDigits.push_back(value % 10);
+        vDigits.push_back(iValue % 10);
     }
     std::reverse(vDigits.begin(), vDigits.end());
     return vDigits;

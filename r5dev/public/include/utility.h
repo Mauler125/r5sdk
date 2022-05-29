@@ -14,12 +14,21 @@ void DbgPrint(LPCSTR sFormat, ...);
 void PrintLastError(void);
 void HexDump(const char* szHeader, const char* szLogger, const void* pData, int nSize);
 
-string CreateDirectories(string svFilePath);
+string GetExtension(const string& svInput);
+string RemoveExtension(const string& svInput);
+
+string GetFileName(const string& svInput, bool bRemoveExtension = false, bool bWindows = true);
+string RemoveFileName(const string& svInput, bool bWindows = true);
+
+string CreateDirectories(string svInput);
 string ConvertToWinPath(const string& svInput);
 string ConvertToUnixPath(const string& svInput);
 
 string Base64Encode(const string& svInput);
 string Base64Decode(const string& svInput);
+
+string UTF8Encode(const wstring& wsvInput);
+u32string UTF8Decode(const string& svInput);
 
 bool StringIsDigit(const string& svInput);
 bool CompareStringAlphabetically(const string& svA, const string& svB);
@@ -31,7 +40,7 @@ string StringUnescape(const string& svInput);
 
 vector<int> StringToBytes(const string& svInput, bool bNullTerminator);
 vector<int> PatternToBytes(const string& svInput);
-vector<int> IntToDigits(int value);
+vector<int> IntToDigits(int iValue);
 
 void PrintM128i8(__m128i in);
 void PrintM128i16(__m128i in);
