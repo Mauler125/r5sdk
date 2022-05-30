@@ -147,8 +147,9 @@ void ConCommand::Init(void)
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// FILESYSTEM API                                                         |
-	new ConCommand("fs_unpack_vpk", "Unpacks all files from user specified VPK file.", FCVAR_DEVELOPMENTONLY, VPK_Unpack_f, nullptr);
 	new ConCommand("fs_mount_vpk", "Mounts user specified VPK file for FileSystem usage.", FCVAR_DEVELOPMENTONLY, VPK_Mount_f, nullptr);
+	new ConCommand("fs_pack_vpk", "Packs all specified files into a VPK file.", FCVAR_DEVELOPMENTONLY, VPK_Pack_f, nullptr);
+	new ConCommand("fs_unpack_vpk", "Unpacks all files from user specified VPK file.", FCVAR_DEVELOPMENTONLY, VPK_Unpack_f, nullptr);
 	//-------------------------------------------------------------------------
 	// RTECH API                                                              |
 	new ConCommand("rtech_strtoguid", "Calculates the GUID from input data.", FCVAR_DEVELOPMENTONLY, RTech_StringToGUID_f, nullptr);
