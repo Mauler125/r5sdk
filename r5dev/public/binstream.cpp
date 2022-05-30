@@ -2,11 +2,15 @@
 #include "public/include/binstream.h"
 
 //-----------------------------------------------------------------------------
-// Purpose: CIOStream constructor
+// Purpose: CIOStream constructors
 //-----------------------------------------------------------------------------
 CIOStream::CIOStream()
 {
 	eCurrentMode = eStreamFileMode::NONE;
+}
+CIOStream::CIOStream(const string& svFileFullPath, eStreamFileMode eMode)
+{
+	Open(svFileFullPath, eMode);
 }
 
 //-----------------------------------------------------------------------------
@@ -30,7 +34,7 @@ CIOStream::~CIOStream()
 // Input  : fileFullPath - mode
 // Output : true if operation is successfull
 //-----------------------------------------------------------------------------
-bool CIOStream::open(std::string svFileFullPath, eStreamFileMode eMode)
+bool CIOStream::Open(const string& svFileFullPath, eStreamFileMode eMode)
 {
 	svFilePath = svFileFullPath;
 
@@ -47,7 +51,7 @@ bool CIOStream::open(std::string svFileFullPath, eStreamFileMode eMode)
 		writer.open(svFilePath.c_str(), std::ios::binary);
 		if (!writer.is_open())
 		{
-			DevMsg(eDLL_T::FS, "Error opening file '%s' for write operation!\n", svFilePath.c_str());
+			Error(eDLL_T::FS, "Error opening file '%s' for write operation!\n", svFilePath.c_str());
 			eCurrentMode = eStreamFileMode::NONE;
 		}
 	}
@@ -65,7 +69,7 @@ bool CIOStream::open(std::string svFileFullPath, eStreamFileMode eMode)
 		reader.open(svFilePath.c_str(), std::ios::binary);
 		if (!reader.is_open())
 		{
-			DevMsg(eDLL_T::FS, "Error opening file '%s' for read operation!\n", svFilePath.c_str());
+			Error(eDLL_T::FS, "Error opening file '%s' for read operation!\n", svFilePath.c_str());
 			eCurrentMode = eStreamFileMode::NONE;
 		}
 	}
@@ -75,9 +79,9 @@ bool CIOStream::open(std::string svFileFullPath, eStreamFileMode eMode)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: closes the file
+// Purpose: closes the stream
 //-----------------------------------------------------------------------------
-void CIOStream::close()
+void CIOStream::Close()
 {
 	if (eCurrentMode == eStreamFileMode::WRITE)
 	{
@@ -90,9 +94,47 @@ void CIOStream::close()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: checks if we are able to read the file
+// Purpose: gets the possition of the current character in the stream
 //-----------------------------------------------------------------------------
-bool CIOStream::checkReadabilityStatus()
+size_t CIOStream::GetPosition()
+{
+	switch (eCurrentMode)
+	{
+	case eStreamFileMode::READ:
+		return reader.tellg();
+		break;
+	case eStreamFileMode::WRITE:
+		return writer.tellp();
+		break;
+	default:
+		return 0i64;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: sets the possition of the current character in the stream
+// Input  : nOffset - 
+//-----------------------------------------------------------------------------
+void CIOStream::SetPosition(int64_t nOffset)
+{
+	switch (eCurrentMode)
+	{
+	case eStreamFileMode::READ:
+		reader.seekg(nOffset);
+		break;
+	case eStreamFileMode::WRITE:
+		writer.seekp(nOffset);
+		break;
+	default:
+		break;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: checks if we are able to read the file
+// Output : true on success, false otherwise
+//-----------------------------------------------------------------------------
+bool CIOStream::IsReadable()
 {
 	if (eCurrentMode != eStreamFileMode::READ)
 	{
@@ -113,8 +155,9 @@ bool CIOStream::checkReadabilityStatus()
 
 //-----------------------------------------------------------------------------
 // Purpose: checks if we are able to write to file
+// Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CIOStream::checkWritabilityStatus()
+bool CIOStream::IsWritable() const
 {
 	if (eCurrentMode != eStreamFileMode::WRITE)
 	{
@@ -126,22 +169,24 @@ bool CIOStream::checkWritabilityStatus()
 
 //-----------------------------------------------------------------------------
 // Purpose: checks if we hit the end of file
+// Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CIOStream::eof()
+bool CIOStream::IsEof() const
 {
 	return reader.eof();
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: reads a string from the file and returns it
+// Output : string
 //-----------------------------------------------------------------------------
-std::string CIOStream::readString()
+string CIOStream::ReadString()
 {
-	if (checkReadabilityStatus())
+	if (IsReadable())
 	{
 		char c;
-		std::string result = "";
-		while (!reader.eof() && (c = readR<char>()) != '\0')
+		string result = "";
+		while (!reader.eof() && (c = read<char>()) != '\0')
 		{
 			result += c;
 		}
@@ -154,17 +199,17 @@ std::string CIOStream::readString()
 //-----------------------------------------------------------------------------
 // Purpose: writes a string to the file
 //-----------------------------------------------------------------------------
-void CIOStream::writeString(std::string str)
+void CIOStream::WriteString(string svInput)
 {
-	if (!checkWritabilityStatus())
+	if (!IsWritable())
 	{
 		return;
 	}
 
-	str += '\0'; // null-terminate the string.
+	svInput += '\0'; // null-terminate the string.
 
-	char* text = (char*)(str.c_str());
-	size_t size = str.size();
+	char* szText = const_cast<char*>(svInput.c_str());
+	size_t nSize = svInput.size();
 
-	writer.write((const char*)text, size);
+	writer.write(reinterpret_cast<const char*>(szText), nSize);
 }

@@ -9,32 +9,36 @@ enum class eStreamFileMode
 
 class CIOStream
 {
-	std::ofstream writer; // Output file stream.
-	std::ifstream reader; // Input file stream.
-	std::string svFilePath = ""; // Filepath.
-	eStreamFileMode eCurrentMode = eStreamFileMode::NONE; // Current active mode.
+	ofstream writer;              // Output file stream.
+	ifstream reader;              // Input file stream.
+	string svFilePath;            // Filepath.
+	eStreamFileMode eCurrentMode; // Current active mode.
 
 public:
 	CIOStream();
+	CIOStream(const string& svFileFullPath, eStreamFileMode eMode);
 	~CIOStream();
 
-	bool open(std::string fileFullPath, eStreamFileMode mode);
-	void close();
+	bool Open(const string& svFileFullPath, eStreamFileMode eMode);
+	void Close();
 
-	bool checkWritabilityStatus();
-	bool checkReadabilityStatus();
+	size_t GetPosition();
+	void SetPosition(int64_t nOffset);
 
-	bool eof();
+	bool IsReadable();
+	bool IsWritable() const;
+
+	bool IsEof() const;
 
 	//-----------------------------------------------------------------------------
 	// Purpose: reads any value from the file (for strings use 'readString(...)' instead)
 	//-----------------------------------------------------------------------------
 	template<typename T>
-	void read(T& value) // Template functions have to be in the header!
+	void Read(T& tValue) // Template functions have to be in the header!
 	{
-		if (checkReadabilityStatus())
+		if (IsReadable())
 		{
-			reader.read((char*)&value, sizeof(value));
+			reader.read(reinterpret_cast<char*>(&tValue), sizeof(tValue));
 		}
 	}
 
@@ -42,27 +46,27 @@ public:
 	// Purpose: reads any value from the file and returns it (for strings use 'readString(...)' instead)
 	//-----------------------------------------------------------------------------
 	template<typename T>
-	T readR() // Template functions have to be in the header!
+	T Read() // Template functions have to be in the header!
 	{
-		checkReadabilityStatus();
+		IsReadable();
 
 		T value;
-		reader.read((char*)&value, sizeof(value));
+		reader.read(reinterpret_cast<char*>(&value), sizeof(value));
 		return value;
 	}
-	std::string readString();
+	string ReadString();
 
 	//-----------------------------------------------------------------------------
 	// Purpose: writes any value to the file (for strings use 'writeString(...)' instead)
 	//-----------------------------------------------------------------------------
 	template<typename T>
-	void write(T& value) // Template functions have to be in the header!
+	void Write(T tValue) // Template functions have to be in the header!
 	{
-		if (!checkWritabilityStatus())
+		if (!IsWritable())
 		{
 			return;
 		}
-		writer.write((const char*)&value, sizeof(value));
+		writer.write(reinterpret_cast<const char*>(&tValue), sizeof(tValue));
 	}
-	void writeString(std::string str);
+	void WriteString(string svInput);
 };
