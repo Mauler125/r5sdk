@@ -30,6 +30,7 @@ private:
 	void ReadModJson();
 
 	void logText(spdlog::level::level_enum color, std::string text);
+	void logText(std::string text);
 
 	static void LaunchGame(Forms::Control* pSender);
 	static void CleanSDK(Forms::Control* pSender);

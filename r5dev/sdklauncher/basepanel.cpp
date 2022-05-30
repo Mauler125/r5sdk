@@ -545,11 +545,15 @@ void CUIBaseSurface::ParseMaps()
 // Purpose: reads mod's folder
 //-----------------------------------------------------------------------------
 void CUIBaseSurface::ReadModJson() {
+	// Removes compiled_mods folder when closed
+	atexit(compiledModsRemove);
 	modManager manager;
 	bool ran = false;
 	logText(spdlog::level::level_enum::info, "Reading mod.json's");
 	if (fs::exists("mods")) {
 		for (const auto& mEntry : fs::directory_iterator("mods")) {
+			if (mEntry.path() == "mods\\compiled_mods")
+				continue;
 			std::string path = mEntry.path().string();
 			std::string modJson = path + "\\mod.json";
 
@@ -561,7 +565,7 @@ void CUIBaseSurface::ReadModJson() {
 
 					//logText(spdlog::level::level_enum::info, contents.str());
 
-					manager.addMod(contents.str(), modJson);
+					manager.addMod(contents.str(), path);
 
 					//modObject object(contents.str(), modJson);
 
@@ -587,6 +591,14 @@ void CUIBaseSurface::ReadModJson() {
 		if (!wereInvalid)
 			logText(spdlog::level::level_enum::warn, "Jk. It's fine");
 	}
+
+	logText(spdlog::level::level_enum::debug, manager.mods[0].modJsonLoc);
+
+	manager.mods[0].switchStates();
+
+	manager.moveEnabled();
+
+	logText(manager.scriptRson);
 }
 
 //-----------------------------------------------------------------------------
@@ -595,6 +607,16 @@ void CUIBaseSurface::ReadModJson() {
 void CUIBaseSurface::logText(spdlog::level::level_enum color, std::string text) {
 	std::string newText = text + "\n";
 	m_LogList.push_back(LogList_t(color, newText.c_str()));
+	m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(m_LogList.size()));
+	m_ConsoleListView->Refresh();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: overwrite without type
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::logText(std::string text) {
+	std::string newText = text + "\n";
+	m_LogList.push_back(LogList_t(spdlog::level::level_enum::info, newText.c_str()));
 	m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(m_LogList.size()));
 	m_ConsoleListView->Refresh();
 }
