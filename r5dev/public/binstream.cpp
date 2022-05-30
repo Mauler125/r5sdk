@@ -186,7 +186,7 @@ string CIOStream::ReadString()
 	{
 		char c;
 		string result = "";
-		while (!reader.eof() && (c = read<char>()) != '\0')
+		while (!reader.eof() && (c = Read<char>()) != '\0')
 		{
 			result += c;
 		}
