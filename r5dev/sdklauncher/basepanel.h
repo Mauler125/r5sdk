@@ -33,6 +33,7 @@ private:
 	static void ReloadPlaylists(Forms::Control* pSender);
 	static void VirtualItemToClipboard(const std::unique_ptr<MouseEventArgs>& pEventArgs, Forms::Control* pSender);
 	static void GetVirtualItem(const std::unique_ptr<Forms::RetrieveVirtualItemEventArgs>& pEventArgs, Forms::Control* pSender);
+	static void ForwardCommandToGame(Forms::Control* pSender);
 	eLaunchMode BuildParameter(string& svParameter);
 
 	enum class eMode
@@ -56,6 +57,7 @@ private:
 	UIX::UIXTextBox* m_PlaylistFileTextBox;
 	UIX::UIXTextBox* m_HostNameTextBox;
 	UIX::UIXTextBox* m_LaunchArgsTextBox;
+	UIX::UIXTextBox* m_ConsoleCommandTextBox;
 	// Labels
 	UIX::UIXLabel* m_WorkerThreadsLabel;
 	UIX::UIXLabel* m_ReservedCoresLabel;
@@ -100,4 +102,5 @@ private:
 	UIX::UIXButton* m_CleanSDK;
 	UIX::UIXButton* m_UpdateSDK;
 	UIX::UIXButton* m_LaunchSDK;
+	UIX::UIXButton* m_ConsoleSendCommand;
 };

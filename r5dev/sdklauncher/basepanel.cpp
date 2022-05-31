@@ -441,7 +441,7 @@ void CUIBaseSurface::Init()
 	this->AddControl(this->m_ConsoleGroupExt);
 
 	this->m_ConsoleListView = new UIX::UIXListView();
-	this->m_ConsoleListView->SetSize({ 427, 189 });
+	this->m_ConsoleListView->SetSize({ 427, 172 });
 	this->m_ConsoleListView->SetLocation({ 1, -23 }); // Hide columns
 	this->m_ConsoleListView->SetTabIndex(0);
 	this->m_ConsoleListView->SetBackColor(Drawing::Color(29, 33, 37));
@@ -454,6 +454,26 @@ void CUIBaseSurface::Init()
 	this->m_ConsoleListView->MouseClick += &VirtualItemToClipboard;
 	this->m_ConsoleListView->RetrieveVirtualItem += &GetVirtualItem;
 	this->m_ConsoleGroupExt->AddControl(this->m_ConsoleListView);
+
+	
+	this->m_ConsoleCommandTextBox = new UIX::UIXTextBox();
+	this->m_ConsoleCommandTextBox->SetSize({ 350, 18 });
+	this->m_ConsoleCommandTextBox->SetLocation({ 0, 149 });
+	this->m_ConsoleCommandTextBox->SetTabIndex(0);
+	this->m_ConsoleCommandTextBox->SetReadOnly(false);
+	this->m_ConsoleCommandTextBox->SetText("");
+	this->m_ConsoleCommandTextBox->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left);
+	this->m_ConsoleGroupExt->AddControl(this->m_ConsoleCommandTextBox);
+
+	this->m_ConsoleSendCommand = new UIX::UIXButton();
+	this->m_ConsoleSendCommand->SetSize({ 79, 18 });
+	this->m_ConsoleSendCommand->SetLocation({ 350, 149 });
+	this->m_ConsoleSendCommand->SetTabIndex(0);
+	this->m_ConsoleSendCommand->SetText("Send");
+	this->m_ConsoleSendCommand->SetBackColor(Drawing::Color(3, 102, 214));
+	this->m_ConsoleSendCommand->SetAnchor(Forms::AnchorStyles::None);
+	this->m_ConsoleSendCommand->Click += &ForwardCommandToGame;
+	this->m_ConsoleGroupExt->AddControl(this->m_ConsoleSendCommand);
 
 	this->ResumeLayout(false);
 	this->PerformLayout();
@@ -645,6 +665,32 @@ void CUIBaseSurface::GetVirtualItem(const std::unique_ptr<Forms::RetrieveVirtual
 	case 1:
 		pEventArgs->Text = pSurface->m_LogList[pEventArgs->ItemIndex].m_svText;
 		break;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: forward input command to the game
+// Input  : *pSender - 
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::ForwardCommandToGame(Forms::Control* pSender)
+{
+	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+
+	const HWND hWindow = FindWindowA("Respawn001", NULL);
+	if (hWindow)
+	{
+		String kzCommand = pSurface->m_ConsoleCommandTextBox->Text();
+		const char* szCommand = kzCommand.ToCString();
+		COPYDATASTRUCT cData = { 0, strnlen_s(szCommand, 259) + 1, (void*)szCommand };
+
+		bool bProcessingMessage = SendMessageA(hWindow, WM_COPYDATA, NULL, (LPARAM)&cData); // WM_COPYDATA will only return 0 or 1, that's why we use a boolean.
+		if (bProcessingMessage)
+		{
+			pSurface->m_ConsoleCommandTextBox->SetText("");
+			pSurface->m_LogList.push_back(LogList_t((spdlog::level::level_enum)2, kzCommand));
+			pSurface->m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(pSurface->m_LogList.size()));
+			pSurface->m_ConsoleListView->Refresh();
+		}
 	}
 }
 
