@@ -29,6 +29,9 @@ int HWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
 int LauncherMain(HINSTANCE hInstance)
 {
 	int results = v_LauncherMain(hInstance);
+
+	//g_pFullFileSystem->AddSearchPath("mods\\compiled_mods", "Mod", SearchPathAdd_t::PATH_ADD_TO_HEAD);
+
 	spdlog::info("LauncherMain: {:s}\n", ExitCodeToString(results));
 	return results;
 }

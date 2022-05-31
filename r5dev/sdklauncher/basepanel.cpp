@@ -601,6 +601,8 @@ void CUIBaseSurface::ReadModJson() {
 	logText(manager.scriptRson);
 }
 
+
+
 //-----------------------------------------------------------------------------
 // Purpose: log's to console. for debugging purpose's (at least mainly)
 //-----------------------------------------------------------------------------
