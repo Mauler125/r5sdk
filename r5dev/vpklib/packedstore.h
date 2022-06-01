@@ -88,7 +88,6 @@ struct VPKDir_t
 
 class CPackedStore
 {
-	vector<uint8_t>              m_vHashBuffer      {}; // Buffer for post decomp file validation.
 	size_t                       m_nEntryCount      {}; // Entry per-block incrementor.
 	lzham_uint32                 m_nAdler32_Internal{}; // Internal operation Adler32 file checksum.
 	lzham_uint32                 m_nAdler32         {}; // Pre/post operation Adler32 file checksum.
@@ -105,12 +104,13 @@ public:
 	VPKDir_t GetPackDirFile(string svPackDirFile);
 	string GetPackChunkFile(string svPackDirFile, int iArchiveIndex);
 	vector<VPKEntryBlock_t> GetEntryBlocks(CIOStream* reader);
+	vector<string> GetEntryPaths(const string& svPathIn) const;
 	string FormatBlockPath(string svName, string svPath, string svExtension);
 	string StripLocalePrefix(string svPackDirFile);
 	void PackAll(string svDirIn, string svPathOut = "");
 	void UnpackAll(VPKDir_t vpk, string svPathOut = "");
-	void ValidateAdler32PostDecomp(string svDirAsset);
-	void ValidateCRC32PostDecomp(string svDirAsset);
+	void ValidateAdler32PostDecomp(const string& svDirAsset);
+	void ValidateCRC32PostDecomp(const string& svDirAsset);
 };
 ///////////////////////////////////////////////////////////////////////////////
 extern CPackedStore* g_pPackedStore;

@@ -20,8 +20,8 @@ void CPackedStore::InitLzCompParams(void)
 {
 	/*| PARAMETERS ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
 	m_lzCompParams.m_dict_size_log2     = RVPK_DICT_SIZE;
-	m_lzCompParams.m_level              = lzham_compress_level::LZHAM_COMP_LEVEL_UBER;
-	m_lzCompParams.m_compress_flags     = lzham_compress_flags::LZHAM_COMP_FLAG_DETERMINISTIC_PARSING | lzham_compress_flags::LZHAM_COMP_FLAG_TRADEOFF_DECOMPRESSION_RATE_FOR_COMP_RATIO;
+	m_lzCompParams.m_level              = lzham_compress_level::LZHAM_COMP_LEVEL_FASTER;
+	//m_lzCompParams.m_compress_flags     = lzham_compress_flags::LZHAM_COMP_FLAG_DETERMINISTIC_PARSING | lzham_compress_flags::LZHAM_COMP_FLAG_TRADEOFF_DECOMPRESSION_RATE_FOR_COMP_RATIO;
 	m_lzCompParams.m_max_helper_threads = -1;
 }
 
@@ -111,6 +111,22 @@ vector<VPKEntryBlock_t> CPackedStore::GetEntryBlocks(CIOStream* pReader)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: scans the input directory and returns the paths to the vector
+//-----------------------------------------------------------------------------
+vector<string> CPackedStore::GetEntryPaths(const string& svPathIn) const
+{
+	vector<string> vPaths;
+	for (const fs::directory_entry& dirEntry : fs::recursive_directory_iterator(fs_packedstore_workspace->GetString()))
+	{
+		if (!GetExtension(dirEntry.path().u8string()).empty())
+		{
+			vPaths.push_back(ConvertToUnixPath(dirEntry.path().u8string()));
+		}
+	}
+	return vPaths;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: formats the entry block path
 //-----------------------------------------------------------------------------
 string CPackedStore::FormatBlockPath(string svName, string svPath, string svExtension)
@@ -144,17 +160,10 @@ string CPackedStore::StripLocalePrefix(string svPackDirFile)
 //-----------------------------------------------------------------------------
 // Purpose: validates extraction result with precomputed ADLER32 hash
 //-----------------------------------------------------------------------------
-void CPackedStore::ValidateAdler32PostDecomp(string svAssetFile)
+void CPackedStore::ValidateAdler32PostDecomp(const string& svAssetFile)
 {
-	uint32_t adler_init = {};
-	ifstream istream(svAssetFile, fstream::binary);
-
-	istream.seekg(0, fstream::end);
-	m_vHashBuffer.resize(istream.tellg());
-	istream.seekg(0, fstream::beg);
-	istream.read((char*)m_vHashBuffer.data(), m_vHashBuffer.size());
-
-	m_nAdler32 = adler32::update(adler_init, m_vHashBuffer.data(), m_vHashBuffer.size());
+	CIOStream reader(svAssetFile, CIOStream::Mode_t::READ);
+	m_nAdler32 = adler32::update(m_nAdler32, reader.GetData(), reader.GetSize());
 
 	if (m_nAdler32 != m_nAdler32_Internal)
 	{
@@ -162,82 +171,67 @@ void CPackedStore::ValidateAdler32PostDecomp(string svAssetFile)
 		m_nAdler32          = 0;
 		m_nAdler32_Internal = 0;
 	}
-
-	istream.close();
-	m_vHashBuffer.clear();
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: validates extraction result with precomputed CRC32 hash
 //-----------------------------------------------------------------------------
-void CPackedStore::ValidateCRC32PostDecomp(string svDirAsset)
+void CPackedStore::ValidateCRC32PostDecomp(const string& svAssetFile)
 {
-	uint32_t crc32_init = {};
-	ifstream istream(svDirAsset, fstream::binary);
-
-	istream.seekg(0, fstream::end);
-	m_vHashBuffer.resize(istream.tellg());
-	istream.seekg(0, fstream::beg);
-	istream.read((char*)m_vHashBuffer.data(), m_vHashBuffer.size());
-
-	m_nCrc32 = crc32::update(crc32_init, m_vHashBuffer.data(), m_vHashBuffer.size());
+	CIOStream reader(svAssetFile, CIOStream::Mode_t::READ);
+	m_nCrc32 = crc32::update(m_nCrc32, reader.GetData(), reader.GetSize());
 
 	if (m_nCrc32 != m_nCrc32_Internal)
 	{
-		Warning(eDLL_T::FS, "Warning: CRC32 checksum mismatch for entry '%s' computed value '0x%lX' doesn't match expected value '0x%lX'. File may be corrupt!\n", svDirAsset.c_str(), m_nCrc32, m_nCrc32_Internal);
+		Warning(eDLL_T::FS, "Warning: CRC32 checksum mismatch for entry '%s' computed value '0x%lX' doesn't match expected value '0x%lX'. File may be corrupt!\n", svAssetFile.c_str(), m_nCrc32, m_nCrc32_Internal);
 		m_nCrc32          = 0;
 		m_nCrc32_Internal = 0;
 	}
-
-	istream.close();
-	m_vHashBuffer.clear();
 }
 
 void CPackedStore::PackAll(string svDirIn, string svPathOut)
 {
-	vector<uint8_t> uData; // Raw file data
+	CIOStream writer("client_mp_rr_arena_divinity.bsp.pak000_000.vpk", CIOStream::Mode_t::WRITE);
+
 	vector<VPKEntryBlock_t> vEntryBlocks;
+	vector<string> vPaths = GetEntryPaths(svDirIn);
 
-	ifstream iData(svDirIn, fstream::binary);
-
-	iData.seekg(0, fstream::end);
-	uData.resize(iData.tellg());
-	iData.seekg(0, fstream::beg);
-	iData.read(reinterpret_cast<char*>(uData.data()), uData.size());
-
-	ofstream oBlock(svDirIn, fstream::binary);
-	vEntryBlocks.push_back(VPKEntryBlock_t(uData, oBlock.tellp(), 0, 0x101, 0, svDirIn));
-
-	for (size_t i = 0; i < vEntryBlocks.size(); i++)
+	for (size_t i = 0; i < vPaths.size(); i++)
 	{
-		for (VPKEntryDescriptor_t& entry : vEntryBlocks.at(i).m_vvEntries)
+		CIOStream reader(vPaths[i], CIOStream::Mode_t::READ);
+		if (reader.IsReadable())
 		{
-			uint8_t* pSrc = new uint8_t[entry.m_nUncompressedSize];
-			uint8_t* pDest = new uint8_t[entry.m_nUncompressedSize];
-
-			iData.seekg(entry.m_nArchiveOffset);       // Seek to entry offset in archive.
-			iData.read(reinterpret_cast<char*>(pSrc), entry.m_nUncompressedSize); // Read compressed data from archive.
-
-			m_lzCompStatus = lzham_compress_memory(&m_lzCompParams, pDest, &entry.m_nCompressedSize, pSrc, entry.m_nUncompressedSize, &m_nAdler32_Internal, &m_nCrc32_Internal);
-
-			if (m_lzCompStatus != lzham_compress_status_t::LZHAM_COMP_STATUS_SUCCESS)
+			vEntryBlocks.push_back(VPKEntryBlock_t(reader.GetVector(), writer.GetPosition(), 0, 0x101, 0, StringReplaceC(vPaths[i], fs_packedstore_workspace->GetString(), "")));
+			for (size_t j = 0; j < vEntryBlocks[i].m_vvEntries.size(); j++)
 			{
-				Error(eDLL_T::FS, "Error: failed compression for an entry within block '%s' for archive '%d'\n", vEntryBlocks.at(i).m_svBlockPath.c_str(), i);
-				Error(eDLL_T::FS, "'lzham::lzham_lib_compress_memory' returned with status '%d'.\n", m_lzCompStatus);
+				uint8_t* pSrc = new uint8_t[vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize];
+				uint8_t* pDest = new uint8_t[DECOMP_MAX_BUF];
+
+				reader.Read(*pSrc, vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize);
+				vEntryBlocks[i].m_vvEntries[j].m_nArchiveOffset = writer.GetPosition();
+
+				m_lzCompStatus = lzham_compress_memory(&m_lzCompParams, pDest, &vEntryBlocks[i].m_vvEntries[j].m_nCompressedSize, pSrc, vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize, &m_nAdler32_Internal, &m_nCrc32_Internal);
+				if (m_lzCompStatus != lzham_compress_status_t::LZHAM_COMP_STATUS_SUCCESS)
+				{
+					Error(eDLL_T::FS, "Error: failed compression for an entry within block '%s' for archive '%d'\n", vEntryBlocks.at(i).m_svBlockPath.c_str(), vEntryBlocks.at(i).m_iArchiveIndex);
+					Error(eDLL_T::FS, "'lzham::lzham_lib_compress_memory' returned with status '%d' (file will be packed without compression.)\n", m_lzCompStatus);
+
+					vEntryBlocks[i].m_vvEntries[j].m_nCompressedSize = vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize;
+					writer.Write(pSrc, vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize);
+				}
+				else
+					writer.Write(pDest, vEntryBlocks[i].m_vvEntries[j].m_nCompressedSize);
+
+				vEntryBlocks[i].m_vvEntries[j].m_bIsCompressed = vEntryBlocks[i].m_vvEntries[j].m_nCompressedSize != vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize;
+
+				delete[] pSrc;
+				delete[] pDest;
 			}
-
-			entry.m_nArchiveOffset = oBlock.tellp();
-			entry.m_bIsCompressed = entry.m_nCompressedSize != entry.m_nUncompressedSize;
-
-			oBlock.write(reinterpret_cast<char*>(pDest), entry.m_nCompressedSize);
-
-			delete[] pSrc;
-			delete[] pDest;
 		}
 	}
 
 	VPKDir_t vDir = VPKDir_t();
-	vDir.Build("englishclient_mp_rr_test.bsp.pak000_dir.vpk", vEntryBlocks); // [!!! <<DEVELOPMENT>> !!!]
+	vDir.Build("englishclient_mp_rr_arena_divinity.bsp.pak000_dir.vpk", vEntryBlocks); // [!!! <<DEVELOPMENT>> !!!]
 }
 
 //-----------------------------------------------------------------------------
@@ -355,24 +349,22 @@ VPKEntryBlock_t::VPKEntryBlock_t(CIOStream* reader, string svPath)
 		this->m_vvEntries.push_back(entry);
 	} while (reader->Read<uint16_t>() != 0xFFFF);
 }
-
+#undef min
 VPKEntryBlock_t::VPKEntryBlock_t(const vector<uint8_t> &vData, int64_t nOffset, uint16_t nArchiveIndex, uint32_t nEntryFlags, uint16_t nTextureFlags, string svBlockPath)
 {
-	m_nCrc32 = crc32::update(NULL, vData.data(), vData.size());
+	m_nCrc32 = crc32::update(m_nCrc32, vData.data(), vData.size());
 	m_nPreloadBytes = 0;
 	m_iArchiveIndex = nArchiveIndex;
 	m_svBlockPath = svBlockPath;
 
 	int nEntryCount = (vData.size() + RVPK_MAX_BLOCK - 1) / RVPK_MAX_BLOCK;
-	m_vvEntries = vector<VPKEntryDescriptor_t>(nEntryCount);
-
-	int64_t nDataSize = vData.size();
+	uint64_t nDataSize = vData.size();
 	int64_t nCurrentOffset = nOffset;
 	for (int i = 0; i < nEntryCount; i++)
 	{
-		int64_t nSize = min(RVPK_MAX_BLOCK, nDataSize);
+		uint64_t nSize = std::min<uint64_t>(RVPK_MAX_BLOCK, nDataSize);
 		nDataSize -= nSize;
-		m_vvEntries[i] = VPKEntryDescriptor_t(nEntryFlags, nTextureFlags, nCurrentOffset, nSize, nSize);
+		m_vvEntries.push_back(VPKEntryDescriptor_t(nEntryFlags, nTextureFlags, nCurrentOffset, nSize, nSize));
 		nCurrentOffset += nSize;
 	}
 }
@@ -406,9 +398,7 @@ VPKEntryDescriptor_t::VPKEntryDescriptor_t(CIOStream* pReader)
 //-----------------------------------------------------------------------------
 VPKDir_t::VPKDir_t(const string& svPath)
 {
-	CIOStream reader;
-
-	reader.Open(svPath, eStreamFileMode::READ);
+	CIOStream reader(svPath, CIOStream::Mode_t::READ);
 	reader.Read<uint32_t>(this->m_vHeader.m_nFileMagic);
 
 	if (this->m_vHeader.m_nFileMagic != RVPK_DIR_MAGIC)
@@ -459,7 +449,7 @@ VPKDir_t::VPKDir_t(const string& svPath)
 //-----------------------------------------------------------------------------
 void VPKDir_t::Build(const string& svFileName, const vector<VPKEntryBlock_t>& vEntryBlocks)
 {
-	CIOStream writer(svFileName, eStreamFileMode::WRITE);
+	CIOStream writer(svFileName, CIOStream::Mode_t::WRITE);
 	auto vMap = std::map<string, std::map<string, std::list<VPKEntryBlock_t>>>();
 
 	writer.Write<uint32_t>(this->m_vHeader.m_nFileMagic);
@@ -471,9 +461,13 @@ void VPKDir_t::Build(const string& svFileName, const vector<VPKEntryBlock_t>& vE
 	for (VPKEntryBlock_t vBlock : vEntryBlocks)
 	{
 		string svExtension = GetExtension(vBlock.m_svBlockPath);
-		string svFileName = GetFileName(vBlock.m_svBlockPath);
+		string svFileName = GetFileName(vBlock.m_svBlockPath, true);
 		string svFilePath = RemoveFileName(vBlock.m_svBlockPath);
 
+		if (svFilePath.empty())
+		{
+			svFilePath = " "; // Has to be padded with a space character if empty.
+		}
 		if (!vMap.count(svExtension))
 		{
 			vMap.insert({ svExtension, std::map<string, std::list<VPKEntryBlock_t>>() });
@@ -521,12 +515,12 @@ void VPKDir_t::Build(const string& svFileName, const vector<VPKEntryBlock_t>& vE
 						}
 					}
 				}
-				writer.Write<uint8_t>('\0');
 			}
 			writer.Write<uint8_t>('\0');
 		}
 		writer.Write<uint8_t>('\0');
 	}
+	writer.Write<uint8_t>('\0');
 	m_vHeader.m_nTreeSize = static_cast<uint32_t>(writer.GetPosition() - sizeof(VPKHeader_t));
 
 	writer.SetPosition(offsetof(VPKDir_t, m_vHeader.m_nTreeSize));
