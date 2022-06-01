@@ -22,6 +22,14 @@ public:
 	std::vector<LogList_t> m_LogList;
 	UIX::UIXListView* m_ConsoleListView;
 
+	//Drawing::Color traceColor = Drawing::Color(255, 255, 255);
+	//Drawing::Color debugColor = Drawing::Color(0, 120, 215);
+	//Drawing::Color infoColor = Drawing::Color(92, 236, 89);
+	//Drawing::Color warnColor = Drawing::Color(236, 203, 0);
+	//Drawing::Color errorColor = Drawing::Color(236, 28, 0);
+	//Drawing::Color criticalColor = Drawing::Color(236, 28, 0);
+	//Drawing::Color generalColor = Drawing::Color(255, 255, 255);
+
 private:
 	void Init();
 	void Setup();
@@ -39,6 +47,8 @@ private:
 	static void GetVirtualItem(const std::unique_ptr<Forms::RetrieveVirtualItemEventArgs>& pEventArgs, Forms::Control* pSender);
 	static void ForwardCommandToGame(Forms::Control* pSender);
 	eLaunchMode BuildParameter(string& svParameter);
+
+	static void readConfig();
 
 	enum class eMode
 	{

@@ -8,6 +8,11 @@
 #include "basepanel.h"
 #include "modManager.h"
 
+Drawing::Color bgColor = Drawing::Color(47, 54, 61);
+Drawing::Color tickColor = Drawing::Color(3, 102, 214);
+Drawing::Color logListColor = Drawing::Color(29, 33, 37);
+Drawing::Color tickColor2 = Drawing::Color(3, 102, 214);
+
 //-----------------------------------------------------------------------------
 // Purpose: creates the surface layout
 //-----------------------------------------------------------------------------
@@ -26,7 +31,7 @@ void CUIBaseSurface::Init()
 	this->SetStartPosition(Forms::FormStartPosition::CenterParent);
 	this->SetMinimizeBox(false);
 	this->SetMaximizeBox(false);
-	this->SetBackColor(Drawing::Color(47, 54, 61));
+	this->SetBackColor(bgColor);
 
 	// ########################################################################
 	//	GAME
@@ -242,7 +247,7 @@ void CUIBaseSurface::Init()
 	this->m_LaunchSDK->SetLocation({ 130, 7 });
 	this->m_LaunchSDK->SetTabIndex(0);
 	this->m_LaunchSDK->SetText("Launch game");
-	this->m_LaunchSDK->SetBackColor(Drawing::Color(3, 102, 214));
+	this->m_LaunchSDK->SetBackColor(tickColor);
 	this->m_LaunchSDK->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_LaunchSDK->Click += &LaunchGame;
 	this->m_MainGroupExt->AddControl(this->m_LaunchSDK);
@@ -445,7 +450,7 @@ void CUIBaseSurface::Init()
 	this->m_ConsoleListView->SetSize({ 427, 172 });
 	this->m_ConsoleListView->SetLocation({ 1, -23 }); // Hide columns
 	this->m_ConsoleListView->SetTabIndex(0);
-	this->m_ConsoleListView->SetBackColor(Drawing::Color(29, 33, 37));
+	this->m_ConsoleListView->SetBackColor(logListColor);
 	this->m_ConsoleListView->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
 	this->m_ConsoleListView->SetView(Forms::View::Details);
 	this->m_ConsoleListView->SetVirtualMode(true);
@@ -471,7 +476,7 @@ void CUIBaseSurface::Init()
 	this->m_ConsoleSendCommand->SetLocation({ 350, 149 });
 	this->m_ConsoleSendCommand->SetTabIndex(0);
 	this->m_ConsoleSendCommand->SetText("Send");
-	this->m_ConsoleSendCommand->SetBackColor(Drawing::Color(3, 102, 214));
+	this->m_ConsoleSendCommand->SetBackColor(tickColor2);
 	this->m_ConsoleSendCommand->SetAnchor(Forms::AnchorStyles::None);
 	this->m_ConsoleSendCommand->Click += &ForwardCommandToGame;
 	this->m_ConsoleGroupExt->AddControl(this->m_ConsoleSendCommand);
@@ -641,6 +646,46 @@ void CUIBaseSurface::logText(std::string text) {
 	m_LogList.push_back(LogList_t(spdlog::level::level_enum::info, newText.c_str()));
 	m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(m_LogList.size()));
 	m_ConsoleListView->Refresh();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: read config.json from mod folder
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::readConfig() {
+	const std::string config = "mods\\config.json";
+
+	if (fs::exists(config)) {
+		std::stringstream contents;
+		std::ifstream configFile(config);
+
+		contents << configFile.rdbuf();
+
+		try {
+			json object = json::parse(contents);
+
+			if (object.contains("color")) {
+				if (object["color"].contains("bg")) {
+					json j = object["color"]["bg"];
+					bgColor = Drawing::Color(j["r"], j["g"], j["b"]);
+				}
+				if (object["color"].contains("tick")) {
+					json j = object["color"]["tick"];
+					tickColor = Drawing::Color(j["r"], j["g"], j["b"]);
+				}
+				if (object["color"].contains("tick2")) {
+					json j = object["color"]["tick2"];
+					tickColor2 = Drawing::Color(j["r"], j["g"], j["b"]);
+				}
+				if (object["color"].contains("logList")) {
+					json j = object["color"]["logList"];
+					logListColor = Drawing::Color(j["r"], j["g"], j["b"]);
+				}
+			}
+		}
+		catch (json::parse_error& e) {
+			// Error message for failure
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
