@@ -1,29 +1,28 @@
 #pragma once
 
-enum class eStreamFileMode
-{
-	NONE = 0,
-	READ,
-	WRITE
-};
-
 class CIOStream
 {
-	ofstream writer;              // Output file stream.
-	ifstream reader;              // Input file stream.
-	string svFilePath;            // Filepath.
-	eStreamFileMode eCurrentMode; // Current active mode.
-
 public:
+	enum class Mode_t
+	{
+		NONE = 0,
+		READ,
+		WRITE
+	};
+
 	CIOStream();
-	CIOStream(const string& svFileFullPath, eStreamFileMode eMode);
+	CIOStream(const string& svFileFullPath, Mode_t eMode);
 	~CIOStream();
 
-	bool Open(const string& svFileFullPath, eStreamFileMode eMode);
+	bool Open(const string& svFileFullPath, Mode_t eMode);
 	void Close();
 
 	size_t GetPosition();
 	void SetPosition(int64_t nOffset);
+
+	const vector<uint8_t>& GetVector() const;
+	const uint8_t* GetData() const;
+	const size_t GetSize() const;
 
 	bool IsReadable();
 	bool IsWritable() const;
@@ -31,42 +30,75 @@ public:
 	bool IsEof() const;
 
 	//-----------------------------------------------------------------------------
-	// Purpose: reads any value from the file (for strings use 'readString(...)' instead)
+	// Purpose: reads any value from the file
 	//-----------------------------------------------------------------------------
 	template<typename T>
 	void Read(T& tValue) // Template functions have to be in the header!
 	{
 		if (IsReadable())
-		{
-			reader.read(reinterpret_cast<char*>(&tValue), sizeof(tValue));
-		}
+			m_iStream.read(reinterpret_cast<char*>(&tValue), sizeof(tValue));
+		else
+			printf("TEST\n");
+
+		printf("%d\n", tValue);
 	}
 
 	//-----------------------------------------------------------------------------
-	// Purpose: reads any value from the file and returns it (for strings use 'readString(...)' instead)
+	// Purpose: reads any value from the file with specified size
+	//-----------------------------------------------------------------------------
+	template<typename T>
+	void Read(T& tValue, size_t nSize) // Template functions have to be in the header!
+	{
+		if (IsReadable())
+			m_iStream.read(reinterpret_cast<char*>(&tValue), nSize);
+	}
+
+	//-----------------------------------------------------------------------------
+	// Purpose: reads any value from the file and returns it
 	//-----------------------------------------------------------------------------
 	template<typename T>
 	T Read() // Template functions have to be in the header!
 	{
-		IsReadable();
+		T value{};
+		if (!IsReadable())
+			return value;
 
-		T value;
-		reader.read(reinterpret_cast<char*>(&value), sizeof(value));
+		m_iStream.read(reinterpret_cast<char*>(&value), sizeof(value));
 		return value;
 	}
 	string ReadString();
 
 	//-----------------------------------------------------------------------------
-	// Purpose: writes any value to the file (for strings use 'writeString(...)' instead)
+	// Purpose: writes any value to the file
 	//-----------------------------------------------------------------------------
 	template<typename T>
 	void Write(T tValue) // Template functions have to be in the header!
 	{
 		if (!IsWritable())
-		{
 			return;
-		}
-		writer.write(reinterpret_cast<const char*>(&tValue), sizeof(tValue));
+
+		m_oStream.write(reinterpret_cast<const char*>(&tValue), sizeof(tValue));
+	}
+
+	//-----------------------------------------------------------------------------
+	// Purpose: writes any value to the file with specified size
+	//-----------------------------------------------------------------------------
+	template<typename T>
+	void Write(T tValue, size_t nSize) // Template functions have to be in the header!
+	{
+		if (!IsWritable())
+			return;
+
+		m_oStream.write(reinterpret_cast<const char*>(tValue), nSize);
+		m_oStream.flush();
 	}
 	void WriteString(string svInput);
+
+private:
+
+	ofstream        m_oStream;      // Output file stream.
+	ifstream        m_iStream;      // Input file stream.
+	string          m_svFilePath;   // Filepath.
+	vector<uint8_t> m_vData;        // Data vector
+	Mode_t          m_eCurrentMode; // Current active mode.
 };

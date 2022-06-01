@@ -6,9 +6,9 @@
 //-----------------------------------------------------------------------------
 CIOStream::CIOStream()
 {
-	eCurrentMode = eStreamFileMode::NONE;
+	m_eCurrentMode = Mode_t::NONE;
 }
-CIOStream::CIOStream(const string& svFileFullPath, eStreamFileMode eMode)
+CIOStream::CIOStream(const string& svFileFullPath, Mode_t eMode)
 {
 	Open(svFileFullPath, eMode);
 }
@@ -18,15 +18,10 @@ CIOStream::CIOStream(const string& svFileFullPath, eStreamFileMode eMode)
 //-----------------------------------------------------------------------------
 CIOStream::~CIOStream()
 {
-	if (writer.is_open())
-	{
-		writer.close();
-	}
-
-	if (reader.is_open())
-	{
-		reader.close();
-	}
+	if (m_oStream.is_open())
+		m_oStream.close();
+	if (m_iStream.is_open())
+		m_iStream.close();
 }
 
 //-----------------------------------------------------------------------------
@@ -34,48 +29,62 @@ CIOStream::~CIOStream()
 // Input  : fileFullPath - mode
 // Output : true if operation is successfull
 //-----------------------------------------------------------------------------
-bool CIOStream::Open(const string& svFileFullPath, eStreamFileMode eMode)
+bool CIOStream::Open(const string& svFilePath, Mode_t eMode)
 {
-	svFilePath = svFileFullPath;
+	m_svFilePath = svFilePath;
+	m_eCurrentMode = eMode;
 
-	if (eMode == eStreamFileMode::WRITE)
+	switch (m_eCurrentMode)
 	{
-		eCurrentMode = eMode;
-
-		// check if we had a previously opened file to close it
-		if (writer.is_open())
+	case Mode_t::READ:
+		if (m_iStream.is_open())
 		{
-			writer.close();
+			m_iStream.close();
 		}
-
-		writer.open(svFilePath.c_str(), std::ios::binary);
-		if (!writer.is_open())
+		m_iStream.open(m_svFilePath.c_str(), std::ios::binary);
+		if (!m_iStream.is_open())
 		{
-			Error(eDLL_T::FS, "Error opening file '%s' for write operation!\n", svFilePath.c_str());
-			eCurrentMode = eStreamFileMode::NONE;
+			Error(eDLL_T::FS, "Error opening file '%s' for read operation.\n", m_svFilePath.c_str());
+			m_eCurrentMode = Mode_t::NONE;
 		}
+		if (!m_iStream.good())
+		{
+			Error(eDLL_T::FS, "Error opening file '%s' for read operation.\n", m_svFilePath.c_str());
+			m_eCurrentMode = Mode_t::NONE;
+			return false;
+		}
+		m_iStream.seekg(0, fstream::end);
+		m_vData.resize(m_iStream.tellg());
+		m_iStream.seekg(0, fstream::beg);
+		m_iStream.read(reinterpret_cast<char*>(m_vData.data()), m_vData.size());
+		m_iStream.seekg(0);
+		m_iStream.clear();
+		return true;
+
+	case Mode_t::WRITE:
+		if (m_oStream.is_open())
+		{
+			m_oStream.close();
+		}
+		m_oStream.open(m_svFilePath.c_str(), std::ios::binary);
+		if (!m_oStream.is_open())
+		{
+			Error(eDLL_T::FS, "Error opening file '%s' for write operation.\n", m_svFilePath.c_str());
+			m_eCurrentMode = Mode_t::NONE;
+			return false;
+		}
+		if (!m_oStream.good())
+		{
+			Error(eDLL_T::FS, "Error opening file '%s' for write operation.\n", m_svFilePath.c_str());
+			m_eCurrentMode = Mode_t::NONE;
+			return false;
+		}
+		return true;
+
+	default:
+		m_eCurrentMode = Mode_t::NONE;
+		return false;
 	}
-	// Read mode
-	else if (eMode == eStreamFileMode::READ)
-	{
-		eCurrentMode = eMode;
-
-		// check if we had a previously opened file to close it
-		if (reader.is_open())
-		{
-			reader.close();
-		}
-
-		reader.open(svFilePath.c_str(), std::ios::binary);
-		if (!reader.is_open())
-		{
-			Error(eDLL_T::FS, "Error opening file '%s' for read operation!\n", svFilePath.c_str());
-			eCurrentMode = eStreamFileMode::NONE;
-		}
-	}
-
-	// if the mode is still the NONE -> we failed
-	return eCurrentMode == eStreamFileMode::NONE ? false : true;
 }
 
 //-----------------------------------------------------------------------------
@@ -83,13 +92,14 @@ bool CIOStream::Open(const string& svFileFullPath, eStreamFileMode eMode)
 //-----------------------------------------------------------------------------
 void CIOStream::Close()
 {
-	if (eCurrentMode == eStreamFileMode::WRITE)
+	switch (m_eCurrentMode)
 	{
-		writer.close();
-	}
-	else if (eCurrentMode == eStreamFileMode::READ)
-	{
-		reader.close();
+	case Mode_t::READ:
+		m_iStream.close();
+		return;
+	case Mode_t::WRITE:
+		m_oStream.close();
+		return;
 	}
 }
 
@@ -98,16 +108,16 @@ void CIOStream::Close()
 //-----------------------------------------------------------------------------
 size_t CIOStream::GetPosition()
 {
-	switch (eCurrentMode)
+	switch (m_eCurrentMode)
 	{
-	case eStreamFileMode::READ:
-		return reader.tellg();
+	case Mode_t::READ:
+		return m_iStream.tellg();
 		break;
-	case eStreamFileMode::WRITE:
-		return writer.tellp();
+	case Mode_t::WRITE:
+		return m_oStream.tellp();
 		break;
 	default:
-		return 0i64;
+		return static_cast<size_t>(NULL);
 	}
 }
 
@@ -117,17 +127,41 @@ size_t CIOStream::GetPosition()
 //-----------------------------------------------------------------------------
 void CIOStream::SetPosition(int64_t nOffset)
 {
-	switch (eCurrentMode)
+	switch (m_eCurrentMode)
 	{
-	case eStreamFileMode::READ:
-		reader.seekg(nOffset);
+	case Mode_t::READ:
+		m_iStream.seekg(nOffset);
 		break;
-	case eStreamFileMode::WRITE:
-		writer.seekp(nOffset);
+	case Mode_t::WRITE:
+		m_oStream.seekp(nOffset);
 		break;
 	default:
 		break;
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: returns the vector (ifstream only)
+//-----------------------------------------------------------------------------
+const vector<uint8_t>& CIOStream::GetVector() const
+{
+	return m_vData;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: returns the data (ifstream only)
+//-----------------------------------------------------------------------------
+const uint8_t* CIOStream::GetData() const
+{
+	return m_vData.data();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: returns the data size (ifstream only)
+//-----------------------------------------------------------------------------
+const size_t CIOStream::GetSize() const
+{
+	return m_vData.size();
 }
 
 //-----------------------------------------------------------------------------
@@ -136,18 +170,14 @@ void CIOStream::SetPosition(int64_t nOffset)
 //-----------------------------------------------------------------------------
 bool CIOStream::IsReadable()
 {
-	if (eCurrentMode != eStreamFileMode::READ)
-	{
-		Error(eDLL_T::FS, "Error: StreamFileMode doesn't match required mode for read operation.\n");
+	if (m_eCurrentMode != Mode_t::READ)
 		return false;
-	}
 
 	// check if we hit the end of the file.
-	if (reader.eof())
+	if (m_iStream.eof())
 	{
-		Error(eDLL_T::FS, "Error: trying to read past EOF.\n");
-		reader.close();
-		eCurrentMode = eStreamFileMode::NONE;
+		m_iStream.close();
+		m_eCurrentMode = Mode_t::NONE;
 		return false;
 	}
 	return true;
@@ -159,11 +189,9 @@ bool CIOStream::IsReadable()
 //-----------------------------------------------------------------------------
 bool CIOStream::IsWritable() const
 {
-	if (eCurrentMode != eStreamFileMode::WRITE)
-	{
-		Error(eDLL_T::FS, "Error: StreamFileMode doesn't match required mode for write operation.\n");
+	if (m_eCurrentMode != Mode_t::WRITE)
 		return false;
-	}
+
 	return true;
 }
 
@@ -173,7 +201,7 @@ bool CIOStream::IsWritable() const
 //-----------------------------------------------------------------------------
 bool CIOStream::IsEof() const
 {
-	return reader.eof();
+	return m_iStream.eof();
 }
 
 //-----------------------------------------------------------------------------
@@ -186,10 +214,8 @@ string CIOStream::ReadString()
 	{
 		char c;
 		string result = "";
-		while (!reader.eof() && (c = Read<char>()) != '\0')
-		{
+		while (!m_iStream.eof() && (c = Read<char>()) != '\0')
 			result += c;
-		}
 
 		return result;
 	}
@@ -202,14 +228,12 @@ string CIOStream::ReadString()
 void CIOStream::WriteString(string svInput)
 {
 	if (!IsWritable())
-	{
 		return;
-	}
 
 	svInput += '\0'; // null-terminate the string.
 
 	char* szText = const_cast<char*>(svInput.c_str());
 	size_t nSize = svInput.size();
 
-	writer.write(reinterpret_cast<const char*>(szText), nSize);
+	m_oStream.write(reinterpret_cast<const char*>(szText), nSize);
 }
