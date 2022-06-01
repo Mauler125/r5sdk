@@ -243,7 +243,15 @@ SQBool Script_LoadScript(HSQUIRRELVM v, const SQChar* szScriptPath, const SQChar
 //---------------------------------------------------------------------------------
 void Script_Execute(const SQChar* code, SQCONTEXT context)
 {
-	HSQUIRRELVM v = Script_GetContextObject(context)->GetVM();
+	CSquirrelVM* scriptVM = Script_GetContextObject(context);
+
+	if (!scriptVM)
+	{
+		Error(eDLL_T::ENGINE, "Attempted to run %s script while VM isn't initialized\n", SQVM_GetContextName(context));
+		return;
+	}
+
+	HSQUIRRELVM v = scriptVM->GetVM();
 	if (!v)
 	{
 		Error(eDLL_T::ENGINE, "Attempted to run %s script while VM isn't initialized\n", SQVM_GetContextName(context));
