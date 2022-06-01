@@ -17,8 +17,8 @@ void HexDump(const char* szHeader, const char* szLogger, const void* pData, int 
 string GetExtension(const string& svInput);
 string RemoveExtension(const string& svInput);
 
-string GetFileName(const string& svInput, bool bRemoveExtension = false, bool bWindows = true);
-string RemoveFileName(const string& svInput, bool bWindows = true);
+string GetFileName(const string& svInput, bool bRemoveExtension, bool bWindows = false);
+string RemoveFileName(const string& svInput, bool bWindows = false);
 
 string CreateDirectories(string svInput);
 string ConvertToWinPath(const string& svInput);
@@ -35,6 +35,7 @@ bool CompareStringAlphabetically(const string& svA, const string& svB);
 bool CompareStringLexicographically(const string& svA, const string& svB);
 
 bool StringReplace(string& svInput, const string& svFrom, const string& svTo);
+string StringReplaceC(const string& svInput, const string& svFrom, const string& svTo);
 string StringEscape(const string& svInput);
 string StringUnescape(const string& svInput);
 

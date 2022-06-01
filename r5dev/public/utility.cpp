@@ -277,7 +277,14 @@ string GetFileName(const string& svInput, bool bRemoveExtension, bool bWindows)
         }
         return svInput.substr(nPos + 1);
     }
-    return "";
+    else // File name is not within path.
+    {
+        if (bRemoveExtension)
+        {
+            return RemoveExtension(svInput);
+        }
+    }
+    return svInput;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -295,7 +302,7 @@ string RemoveFileName(const string& svInput, bool bWindows)
     }
     if (nPos == string::npos)
     {
-        return svInput;
+        return "";
     }
     return svInput.substr(0, nPos);
 }
@@ -473,7 +480,7 @@ bool CompareStringLexicographically(const string& svA, const string& svB)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// For replacing parts of a given string.
+// For replacing parts of a given string by reference.
 bool StringReplace(string& svInput, const string& svFrom, const string& svTo)
 {
     string::size_type nPos = svInput.find(svFrom);
@@ -484,6 +491,22 @@ bool StringReplace(string& svInput, const string& svFrom, const string& svTo)
 
     svInput.replace(nPos, svFrom.length(), svTo);
     return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// For replacing parts of a given string by value.
+string StringReplaceC(const string& svInput, const string& svFrom, const string& svTo)
+{
+    string results = svInput;
+    string::size_type nPos = results.find(svFrom);
+
+    if (nPos == string::npos)
+    {
+        return results;
+    }
+
+    results.replace(nPos, svFrom.length(), svTo);
+    return results;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
