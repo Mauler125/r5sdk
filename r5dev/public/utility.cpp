@@ -138,7 +138,7 @@ void PrintLastError(void)
         size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
             NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
 
-        spdlog::error("{}\n", messageBuffer);
+        spdlog::error("{:s}\n", messageBuffer);
         LocalFree(messageBuffer);
     }
 }
@@ -248,7 +248,7 @@ string GetExtension(const string& svInput)
 // For removing extensions from file names.
 string RemoveExtension(const string& svInput)
 {
-    string::size_type nPos = svInput.find_last_of(".");
+    string::size_type nPos = svInput.find_last_of('.');
     if (nPos == string::npos)
     {
         return svInput;
@@ -269,7 +269,7 @@ string GetFileName(const string& svInput, bool bRemoveExtension, bool bWindows)
     {
         nPos = svInput.rfind('/');
     }
-    if (nPos != std::string::npos)
+    if (nPos != string::npos)
     {
         if (bRemoveExtension)
         {
@@ -294,11 +294,11 @@ string RemoveFileName(const string& svInput, bool bWindows)
     string::size_type nPos;
     if (bWindows)
     {
-        nPos = svInput.find_last_of("\\");
+        nPos = svInput.find_last_of('\\');
     }
     else
     {
-        nPos = svInput.find_last_of("/");
+        nPos = svInput.find_last_of('/');
     }
     if (nPos == string::npos)
     {

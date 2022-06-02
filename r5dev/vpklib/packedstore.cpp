@@ -21,7 +21,7 @@ void CPackedStore::InitLzCompParams(void)
 	/*| PARAMETERS ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
 	m_lzCompParams.m_dict_size_log2     = RVPK_DICT_SIZE;
 	m_lzCompParams.m_level              = lzham_compress_level::LZHAM_COMP_LEVEL_FASTER;
-	//m_lzCompParams.m_compress_flags     = lzham_compress_flags::LZHAM_COMP_FLAG_DETERMINISTIC_PARSING | lzham_compress_flags::LZHAM_COMP_FLAG_TRADEOFF_DECOMPRESSION_RATE_FOR_COMP_RATIO;
+	m_lzCompParams.m_compress_flags     = lzham_compress_flags::LZHAM_COMP_FLAG_DETERMINISTIC_PARSING | lzham_compress_flags::LZHAM_COMP_FLAG_TRADEOFF_DECOMPRESSION_RATE_FOR_COMP_RATIO;
 	m_lzCompParams.m_max_helper_threads = -1;
 }
 
@@ -34,22 +34,6 @@ void CPackedStore::InitLzDecompParams(void)
 	m_lzDecompParams.m_dict_size_log2   = RVPK_DICT_SIZE;
 	m_lzDecompParams.m_decompress_flags = lzham_decompress_flags::LZHAM_DECOMP_FLAG_OUTPUT_UNBUFFERED | lzham_decompress_flags::LZHAM_DECOMP_FLAG_COMPUTE_CRC32;
 	m_lzDecompParams.m_struct_size      = sizeof(lzham_decompress_params);
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: obtains archive chunk path for specific file
-//-----------------------------------------------------------------------------
-string CPackedStore::GetPackChunkFile(string svPackDirFile, int iArchiveIndex)
-{
-	/*| ARCHIVES ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
-	string svPackChunkFile = StripLocalePrefix(svPackDirFile);
-	ostringstream oss;
-
-	oss << std::setw(3) << std::setfill('0') << iArchiveIndex;
-	string svPackChunkIndex = "pak000_" + oss.str();
-
-	StringReplace(svPackChunkFile, "pak000_dir", svPackChunkIndex);
-	return svPackChunkFile;
 }
 
 //-----------------------------------------------------------------------------
@@ -89,6 +73,22 @@ VPKDir_t CPackedStore::GetPackDirFile(string svPackDirFile)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: obtains archive chunk path for specific file
+//-----------------------------------------------------------------------------
+string CPackedStore::GetPackChunkFile(const string& svPackDirFile, int iArchiveIndex)
+{
+	/*| ARCHIVES ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
+	string svPackChunkFile = StripLocalePrefix(svPackDirFile);
+	ostringstream oss;
+
+	oss << std::setw(3) << std::setfill('0') << iArchiveIndex;
+	string svPackChunkIndex = "pak000_" + oss.str();
+
+	StringReplace(svPackChunkFile, "pak000_dir", svPackChunkIndex);
+	return svPackChunkFile;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: obtains and returns the entry block to the vector
 //-----------------------------------------------------------------------------
 vector<VPKEntryBlock_t> CPackedStore::GetEntryBlocks(CIOStream* pReader)
@@ -102,7 +102,7 @@ vector<VPKEntryBlock_t> CPackedStore::GetEntryBlocks(CIOStream* pReader)
 		{
 			while (!(svName = pReader->ReadString()).empty())
 			{
-				string svFilePath = FormatBlockPath(svName, svPath, svExtension);
+				string svFilePath = FormatBlockPath(svPath, svName, svExtension);
 				vBlocks.push_back(VPKEntryBlock_t(pReader, svFilePath));
 			}
 		}
@@ -129,7 +129,7 @@ vector<string> CPackedStore::GetEntryPaths(const string& svPathIn) const
 //-----------------------------------------------------------------------------
 // Purpose: formats the entry block path
 //-----------------------------------------------------------------------------
-string CPackedStore::FormatBlockPath(string svName, string svPath, string svExtension)
+string CPackedStore::FormatBlockPath(string svPath, const string& svName, const string& svExtension)
 {
 	if (!svPath.empty())
 	{
@@ -141,7 +141,7 @@ string CPackedStore::FormatBlockPath(string svName, string svPath, string svExte
 //-----------------------------------------------------------------------------
 // Purpose: strips locale prefix from file path
 //-----------------------------------------------------------------------------
-string CPackedStore::StripLocalePrefix(string svPackDirFile)
+string CPackedStore::StripLocalePrefix(const string& svPackDirFile)
 {
 	fs::path fspPackDirFile(svPackDirFile);
 	string svFileName = fspPackDirFile.filename().u8string();
@@ -189,7 +189,7 @@ void CPackedStore::ValidateCRC32PostDecomp(const string& svAssetFile)
 	}
 }
 
-void CPackedStore::PackAll(string svDirIn, string svPathOut)
+void CPackedStore::PackAll(const string& svDirIn, const string& svPathOut)
 {
 	CIOStream writer("client_mp_rr_canyonlands_staging.bsp.pak000_000.vpk", CIOStream::Mode_t::WRITE);
 
@@ -237,7 +237,7 @@ void CPackedStore::PackAll(string svDirIn, string svPathOut)
 //-----------------------------------------------------------------------------
 // Purpose: extracts all files from specified vpk file
 //-----------------------------------------------------------------------------
-void CPackedStore::UnpackAll(VPKDir_t vpkDir, string svPathOut)
+void CPackedStore::UnpackAll(VPKDir_t vpkDir, const string& svPathOut)
 {
 	for (int i = 0; i < vpkDir.m_vsvArchives.size(); i++)
 	{
@@ -461,7 +461,6 @@ void VPKDir_t::Build(const string& svFileName, const vector<VPKEntryBlock_t>& vE
 	for (VPKEntryBlock_t vBlock : vEntryBlocks)
 	{
 		string svExtension = GetExtension(vBlock.m_svBlockPath);
-		string svFileName = GetFileName(vBlock.m_svBlockPath, true);
 		string svFilePath = RemoveFileName(vBlock.m_svBlockPath);
 
 		if (svFilePath.empty())
