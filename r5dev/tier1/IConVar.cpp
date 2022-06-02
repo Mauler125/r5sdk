@@ -131,9 +131,10 @@ void ConVar::Init(void) const
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// FILESYSTEM                                                             |
-	fs_warning_level_sdk            = new ConVar("fs_warning_level_sdk"           , "0", FCVAR_DEVELOPMENTONLY, "Set the SDK filesystem warning level.", false, 0.f, false, 0.f, nullptr, nullptr);
-	fs_show_warning_output          = new ConVar("fs_show_warning_output"         , "0", FCVAR_DEVELOPMENTONLY, "Logs the filesystem warnings to the console, filtered by 'fs_warning_level_native' ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
-	fs_packedstore_entryblock_stats = new ConVar("fs_packedstore_entryblock_stats", "0", FCVAR_DEVELOPMENTONLY, "If set to 1, prints the stats of each file entry in the VPK during decompression ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	fs_warning_level_sdk            = new ConVar("fs_warning_level_sdk"                , "0", FCVAR_DEVELOPMENTONLY, "Set the SDK filesystem warning level.", false, 0.f, false, 0.f, nullptr, nullptr);
+	fs_show_warning_output          = new ConVar("fs_show_warning_output"              , "0", FCVAR_DEVELOPMENTONLY, "Logs the filesystem warnings to the console, filtered by 'fs_warning_level_native' ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	fs_packedstore_entryblock_stats = new ConVar("fs_packedstore_entryblock_stats"     , "0", FCVAR_DEVELOPMENTONLY, "If set to 1, prints the stats of each file entry in the VPK during decompression ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	fs_packedstore_workspace        = new ConVar("fs_packedstore_workspace", "platform/vpk/", FCVAR_DEVELOPMENTONLY, "Determines the current VPK workspace.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// MATERIALSYSTEM                                                         |
 #ifndef DEDICATED
