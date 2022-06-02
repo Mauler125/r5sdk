@@ -434,7 +434,7 @@ string UTF8Encode(const wstring& wsvInput)
 
 ///////////////////////////////////////////////////////////////////////////////
 // For decoding data in UTF8.
-u32string UTF8Decode(const string& svInput)
+string UTF8Decode(const string& svInput)
 {
     //struct destructible_codecvt : public std::codecvt<char32_t, char, std::mbstate_t>
     //{
@@ -443,6 +443,7 @@ u32string UTF8Decode(const string& svInput)
     //};
     //std::wstring_convert<destructible_codecvt, char32_t> utf32_converter;
     //return utf32_converter.from_bytes(svInput);
+    return "";
 }
 
 ///////////////////////////////////////////////////////////////////////////////
