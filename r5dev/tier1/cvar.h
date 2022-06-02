@@ -102,6 +102,7 @@ extern ConVar* con_suggestion_flags_realtime;
 extern ConVar* fs_warning_level_sdk;
 extern ConVar* fs_show_warning_output;
 extern ConVar* fs_packedstore_entryblock_stats;
+extern ConVar* fs_packedstore_workspace;
 //-------------------------------------------------------------------------
 // MATERIALSYSTEM                                                         |
 #ifndef DEDICATED

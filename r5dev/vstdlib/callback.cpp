@@ -611,7 +611,34 @@ void RTech_Decompress_f(const CCommand& args)
 
 /*
 =====================
-VPK_Decompress_f
+VPK_Pack_f
+
+  Compresses new VPK files and
+  dumps the output to '\vpk'.
+=====================
+*/
+void VPK_Pack_f(const CCommand& args)
+{
+	if (args.ArgC() < 2)
+	{
+		return;
+	}
+	string szPathOut = "platform\\vpk";
+	std::chrono::milliseconds msStart = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+
+	//VPKDir_t vpk = g_pPackedStore->GetPackDirFile(args.Arg(1));
+	g_pPackedStore->InitLzCompParams();
+
+	std::thread th([&] { g_pPackedStore->PackAll(args.Arg(1), szPathOut); });
+	th.join();
+
+	std::chrono::milliseconds msEnd = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+	float duration = msEnd.count() - msStart.count();
+}
+
+/*
+=====================
+VPK_Unpack_f
 
   Decompresses input VPK files and
   dumps the output to '<mod>\vpk'.

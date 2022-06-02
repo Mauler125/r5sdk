@@ -105,6 +105,7 @@ ConVar* con_suggestion_flags_realtime      = nullptr;
 ConVar* fs_warning_level_sdk               = nullptr;
 ConVar* fs_show_warning_output             = nullptr;
 ConVar* fs_packedstore_entryblock_stats    = nullptr;
+ConVar* fs_packedstore_workspace           = nullptr;
 //-----------------------------------------------------------------------------
 // MATERIALSYSTEM                                                             |
 #ifndef DEDICATED
