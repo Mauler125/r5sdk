@@ -29,6 +29,7 @@ void Pak_RequestLoad_f(const CCommand& args);
 void Pak_Swap_f(const CCommand& args);
 void RTech_StringToGUID_f(const CCommand& args);
 void RTech_Decompress_f(const CCommand& args);
+void VPK_Pack_f(const CCommand& args);
 void VPK_Unpack_f(const CCommand& args);
 void VPK_Mount_f(const CCommand& args);
 void NET_SetKey_f(const CCommand& args);

@@ -725,7 +725,10 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 			results = eLaunchMode::LM_HOST;
 
 		if (this->m_CheatsToggle->Checked())
+		{
 			svParameters.append("+sv_cheats \"1\" ");
+			svParameters.append("-showdevmenu ");
+		}
 
 		if (this->m_ConsoleToggle->Checked())
 			svParameters.append("-wconsole ");
@@ -929,7 +932,10 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 			results = eLaunchMode::LM_CLIENT;
 
 		if (this->m_CheatsToggle->Checked())
+		{
 			svParameters.append("+sv_cheats \"1\" ");
+			svParameters.append("-showdevmenu ");
+		}
 
 		if (this->m_ConsoleToggle->Checked())
 			svParameters.append("-wconsole ");
