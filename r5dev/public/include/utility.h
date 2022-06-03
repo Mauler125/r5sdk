@@ -20,7 +20,7 @@ string RemoveExtension(const string& svInput);
 string GetFileName(const string& svInput, bool bRemoveExtension, bool bWindows = false);
 string RemoveFileName(const string& svInput, bool bWindows = false);
 
-string CreateDirectories(string svInput);
+string CreateDirectories(string svInput, bool bWindows = false);
 string ConvertToWinPath(const string& svInput);
 string ConvertToUnixPath(const string& svInput);
 

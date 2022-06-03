@@ -37,10 +37,6 @@ public:
 	{
 		if (IsReadable())
 			m_iStream.read(reinterpret_cast<char*>(&tValue), sizeof(tValue));
-		else
-			printf("TEST\n");
-
-		printf("%d\n", tValue);
 	}
 
 	//-----------------------------------------------------------------------------

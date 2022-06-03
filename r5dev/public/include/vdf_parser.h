@@ -216,7 +216,6 @@ namespace vdf
     };
 
     //forward decls
-    //forward decl
     template <typename OutputT, typename iStreamT>
     OutputT read(iStreamT& inStream, const Options& opt = Options{});
 
@@ -257,15 +256,15 @@ namespace vdf
         }
 
         /** \brief Read VDF formatted sequences defined by the range [first, last).
-        If the file is mailformatted, parser will try to read it until it can.
+        If the file is mallformed, parser will read the file until no longer possible.
         @param first            begin iterator
         @param end              end iterator
         @param exclude_files    list of files which cant be included anymore.
                                 prevents circular includes
 
-        can thow:
+        can throw:
                 - "std::runtime_error" if a parsing error occured
-                - "std::bad_alloc" if not enough memory coup be allocated
+                - "std::bad_alloc" if not enough memory could be allocated
         */
         template <typename OutputT, typename IterT>
         std::vector<std::unique_ptr<OutputT>> read_internal(IterT first, const IterT last,
@@ -309,7 +308,7 @@ namespace vdf
             };
 
             // function for skipping a comment block
-            // iter: iterator poition to the position after a '/'
+            // iter: itterate position past a '/' character
             auto skip_comments = [&comment_end_str](IterT iter, const IterT& last) -> IterT {
                 ++iter;
                 if (iter != last)
@@ -345,7 +344,7 @@ namespace vdf
                         --last_esc;
                 } while (!(std::distance(last_esc, iter) % 2));
                 if (iter == last)
-                    throw std::runtime_error{ "quote was opened but not closed." };
+                    throw std::runtime_error{ "Quote was opened but never closed" };
                 return iter;
             };
 
@@ -364,7 +363,7 @@ namespace vdf
                         --last_esc;
                 } while (!(std::distance(last_esc, iter) % 2));
                 //if (iter == last)
-                //	throw std::runtime_error{ "word wasnt properly ended" };
+                //	throw std::runtime_error{ "Word wasn't properly ended" };
                 return iter;
             };
 
@@ -454,10 +453,10 @@ namespace vdf
 
                         curIter = skip_comments(curIter, last);
                         if (curIter == last || *curIter == '}')
-                            throw std::runtime_error{ "key declared, but no value" };
+                            throw std::runtime_error{ "Key declared without value" };
                         curIter = skip_whitespaces(curIter, last);
                         if (curIter == last || *curIter == '}')
-                            throw std::runtime_error{ "key declared, but no value" };
+                            throw std::runtime_error{ "Key declared without value" };
                     }
                     // get value
                     if (*curIter != '{')
@@ -534,7 +533,7 @@ namespace vdf
     } // namespace detail
 
     /** \brief Read VDF formatted sequences defined by the range [first, last).
-    If the file is mailformatted, parser will try to read it until it can.
+    If the file is mallformed, parser will read the file until no longer possible.
     @param first begin iterator
     @param end end iterator
 
@@ -561,13 +560,13 @@ namespace vdf
     }
 
     /** \brief Read VDF formatted sequences defined by the range [first, last).
-    If the file is mailformatted, parser will try to read it until it can.
+    If the file is mallformed, parser will read the file until no longer possible.
     @param first begin iterator
     @param end end iterator
     @param ec output bool. 0 if ok, otherwise, holds an system error code
 
     Possible error codes:
-    std::errc::protocol_error: file is mailformatted
+    std::errc::protocol_error: file is mallformed
     std::errc::not_enough_memory: not enough space
     std::errc::invalid_argument: iterators throws e.g. out of range
     */
@@ -597,7 +596,7 @@ namespace vdf
     }
 
     /** \brief Read VDF formatted sequences defined by the range [first, last).
-    If the file is mailformatted, parser will try to read it until it can.
+    If the file is mallformed, parser will read the file until no longer possible.
     @param first begin iterator
     @param end end iterator
     @param ok output bool. true, if parser successed, false, if parser failed
