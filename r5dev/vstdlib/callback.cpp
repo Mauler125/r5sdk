@@ -619,17 +619,17 @@ VPK_Pack_f
 */
 void VPK_Pack_f(const CCommand& args)
 {
-	if (args.ArgC() < 2)
+	if (args.ArgC() < 4)
 	{
 		return;
 	}
-	string szPathOut = "platform\\vpk";
-	std::chrono::milliseconds msStart = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+	bool bManifestOnly = (args.ArgC() > 4);
 
-	//VPKDir_t vpk = g_pPackedStore->GetPackDirFile(args.Arg(1));
+	std::chrono::milliseconds msStart = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 	g_pPackedStore->InitLzCompParams();
 
-	std::thread th([&] { g_pPackedStore->PackAll(args.Arg(1), szPathOut); });
+	VPKPair_t vPair = g_pPackedStore->BuildFileName(args.Arg(1), args.Arg(2), args.Arg(3), NULL);
+	std::thread th([&] { g_pPackedStore->PackAll(vPair, fs_packedstore_workspace->GetString(), "vpk/", bManifestOnly); });
 	th.join();
 
 	std::chrono::milliseconds msEnd = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
@@ -650,7 +650,6 @@ void VPK_Unpack_f(const CCommand& args)
 	{
 		return;
 	}
-	string szPathOut = "platform\\vpk";
 	std::chrono::milliseconds msStart = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 
 	DevMsg(eDLL_T::FS, "______________________________________________________________\n");
@@ -660,7 +659,7 @@ void VPK_Unpack_f(const CCommand& args)
 	VPKDir_t vpk = g_pPackedStore->GetPackDirFile(args.Arg(1));
 	g_pPackedStore->InitLzDecompParams();
 
-	std::thread th([&] { g_pPackedStore->UnpackAll(vpk, szPathOut); });
+	std::thread th([&] { g_pPackedStore->UnpackAll(vpk, ConvertToWinPath(fs_packedstore_workspace->GetString())); });
 	th.join();
 
 	std::chrono::milliseconds msEnd = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
@@ -669,7 +668,7 @@ void VPK_Unpack_f(const CCommand& args)
 	DevMsg(eDLL_T::FS, "______________________________________________________________\n");
 	DevMsg(eDLL_T::FS, "] OPERATION_DETAILS ------------------------------------------\n");
 	DevMsg(eDLL_T::FS, "] Time elapsed: '%.3f' seconds\n", (duration / 1000));
-	DevMsg(eDLL_T::FS, "] Decompressed vpk to: '%s'\n", szPathOut.c_str());
+	DevMsg(eDLL_T::FS, "] Decompressed vpk to: '%s'\n", fs_packedstore_workspace->GetString());
 	DevMsg(eDLL_T::FS, "--------------------------------------------------------------\n");
 }
 

@@ -17,6 +17,7 @@ using std::ostringstream;
 using std::unordered_map;
 
 namespace fs = std::filesystem;
+namespace js = nlohmann;
 typedef const unsigned char* rsig_t;
 
 #endif // SDKDEFS_H

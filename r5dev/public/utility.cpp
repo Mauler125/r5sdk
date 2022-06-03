@@ -277,7 +277,7 @@ string GetFileName(const string& svInput, bool bRemoveExtension, bool bWindows)
         }
         return svInput.substr(nPos + 1);
     }
-    else // File name is not within path.
+    else // File name is not within a path.
     {
         if (bRemoveExtension)
         {
@@ -309,14 +309,21 @@ string RemoveFileName(const string& svInput, bool bWindows)
 
 ///////////////////////////////////////////////////////////////////////////////
 // For creating directories for output streams.
-string CreateDirectories(string svInput)
+string CreateDirectories(string svInput, bool bWindows)
 {
+    if (bWindows)
+    {
+        StringReplace(svInput, "\\ \\", "\\");
+    }
+    else
+    {
+        StringReplace(svInput, "/ /", "/");
+    }
+
     fs::path fspPathOut(svInput);
     string results = fspPathOut.u8string();
 
-    StringReplace(svInput, "\\ \\", "\\");
     fspPathOut = fspPathOut.parent_path();
-
     fs::create_directories(fspPathOut);
 
     return results;
