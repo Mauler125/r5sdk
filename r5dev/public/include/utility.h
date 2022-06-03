@@ -28,7 +28,7 @@ string Base64Encode(const string& svInput);
 string Base64Decode(const string& svInput);
 
 string UTF8Encode(const wstring& wsvInput);
-u32string UTF8Decode(const string& svInput);
+string UTF8Decode(const string& svInput);
 
 bool StringIsDigit(const string& svInput);
 bool CompareStringAlphabetically(const string& svA, const string& svB);
