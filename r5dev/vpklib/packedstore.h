@@ -102,13 +102,13 @@ public:
 	void InitLzCompParams(void);
 	void InitLzDecompParams(void);
 	VPKDir_t GetPackDirFile(string svPackDirFile);
-	string GetPackChunkFile(string svPackDirFile, int iArchiveIndex);
+	string GetPackChunkFile(const string& svPackDirFile, int iArchiveIndex);
 	vector<VPKEntryBlock_t> GetEntryBlocks(CIOStream* reader);
 	vector<string> GetEntryPaths(const string& svPathIn) const;
-	string FormatBlockPath(string svName, string svPath, string svExtension);
-	string StripLocalePrefix(string svPackDirFile);
-	void PackAll(string svDirIn, string svPathOut = "");
-	void UnpackAll(VPKDir_t vpk, string svPathOut = "");
+	string FormatBlockPath(string svName, const string& svPath, const string& svExtension);
+	string StripLocalePrefix(const string& svPackDirFile);
+	void PackAll(const string& svDirIn, const string& svPathOut = "");
+	void UnpackAll(VPKDir_t vpk, const string& svPathOut = "");
 	void ValidateAdler32PostDecomp(const string& svDirAsset);
 	void ValidateCRC32PostDecomp(const string& svDirAsset);
 };
