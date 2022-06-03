@@ -166,7 +166,6 @@ vector<string> CPackedStore::GetEntryPaths(const string& svPathIn, const js::jso
 					string svBlockPath = ConvertToUnixPath(dir->path().u8string());
 					if (jManifest.contains(StringReplaceC(svBlockPath, svPathIn, "")))
 					{
-						printf("%s\n", svBlockPath.c_str());
 						vPaths.push_back(svBlockPath);
 					}
 				}
@@ -205,9 +204,6 @@ js::json CPackedStore::GetManifest(const string& svWorkSpace, const string& svMa
 	ostringstream ostream;
 	ostream << svWorkSpace << "manifest/" << svManifestName << ".json";
 	fs::path fsPath = fs::current_path() /= ostream.str();
-
-
-	printf("%s\n", fsPath.string().c_str());
 
 	if (fs::exists(fsPath))
 	{
@@ -548,7 +544,7 @@ VPKEntryBlock_t::VPKEntryBlock_t(CIOStream* pReader, string svBlockPath)
 
 	this->m_svBlockPath = svBlockPath; // Set path of block.
 	pReader->Read<uint32_t>(this->m_nCrc32);        //
-	pReader->Read<uint16_t>(this->m_nPreloadData); //
+	pReader->Read<uint16_t>(this->m_nPreloadData);  //
 	pReader->Read<uint16_t>(this->m_iArchiveIndex); //
 
 	do // Loop through all entries in the block and push them to the vector.
