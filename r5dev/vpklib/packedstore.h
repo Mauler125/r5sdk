@@ -128,9 +128,9 @@ public:
 	string GetPackChunkFile(const string& svPackDirFile, int iArchiveIndex) const;
 	vector<VPKEntryBlock_t> GetEntryBlocks(CIOStream* reader) const;
 	vector<string> GetEntryPaths(const string& svPathIn) const;
-	vector<string> GetEntryPaths(const string& svPathIn, const js::json& jManifest) const;
+	vector<string> GetEntryPaths(const string& svPathIn, const nlohmann::json& jManifest) const;
 	string GetLevelName(const string& svDirectoryName) const;
-	js::json GetManifest(const string& svWorkSpace, const string& svManifestName) const;
+	nlohmann::json GetManifest(const string& svWorkSpace, const string& svManifestName) const;
 
 	string FormatBlockPath(string svName, const string& svPath, const string& svExtension) const;
 	string StripLocalePrefix(const string& svPackDirFile) const;

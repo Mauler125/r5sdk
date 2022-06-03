@@ -147,7 +147,7 @@ vector<string> CPackedStore::GetEntryPaths(const string& svPathIn) const
 //          &jManifest - 
 // Output : vector<string>
 //-----------------------------------------------------------------------------
-vector<string> CPackedStore::GetEntryPaths(const string& svPathIn, const js::json& jManifest) const
+vector<string> CPackedStore::GetEntryPaths(const string& svPathIn, const nlohmann::json& jManifest) const
 {
 	vector<string> vPaths;
 	fs::recursive_directory_iterator dir(svPathIn), end;
@@ -199,7 +199,7 @@ string CPackedStore::GetLevelName(const string& svDirectoryName) const
 // Input  : &svManifestName - 
 // Output : json
 //-----------------------------------------------------------------------------
-js::json CPackedStore::GetManifest(const string& svWorkSpace, const string& svManifestName) const
+nlohmann::json CPackedStore::GetManifest(const string& svWorkSpace, const string& svManifestName) const
 {
 	ostringstream ostream;
 	ostream << svWorkSpace << "manifest/" << svManifestName << ".json";
@@ -207,11 +207,11 @@ js::json CPackedStore::GetManifest(const string& svWorkSpace, const string& svMa
 
 	if (fs::exists(fsPath))
 	{
-		js::json jsOut;
+		nlohmann::json jsOut;
 		try
 		{
 			ifstream iManifest(fsPath.string().c_str(), std::ios::binary);
-			jsOut = js::json::parse(iManifest);
+			jsOut = nlohmann::json::parse(iManifest);
 
 			return jsOut;
 		}
@@ -294,7 +294,7 @@ VPKPair_t CPackedStore::BuildFileName(string svLanguage, string svContext, const
 //-----------------------------------------------------------------------------
 void CPackedStore::BuildManifest(const vector<VPKEntryBlock_t>& vBlock, const string& svWorkSpace, const string& svManifestName) const
 {
-	js::json jEntry;
+	nlohmann::json jEntry;
 
 	for (size_t i = 0; i < vBlock.size(); i++)
 	{
@@ -362,7 +362,7 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 	string svLevelName = GetLevelName(vPair.m_svDirectoryName);
 	vector<string> vPaths;
 	vector<VPKEntryBlock_t> vEntryBlocks;
-	js::json jManifest = GetManifest(svPathIn, svLevelName);
+	nlohmann::json jManifest = GetManifest(svPathIn, svLevelName);
 
 	if (bManifestOnly)
 	{
@@ -387,7 +387,7 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 			{
 				try
 				{
-					js::json jEntry = jManifest[StringReplaceC(vPaths[i], svPathIn, "")];
+					nlohmann::json jEntry = jManifest[StringReplaceC(vPaths[i], svPathIn, "")];
 					if (!jEntry.is_null())
 					{
 						nPreloadData    = jEntry.at("preloadData").get<uint32_t>();
