@@ -104,6 +104,15 @@ void CIOStream::Close()
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: flushes the ofstream
+//-----------------------------------------------------------------------------
+void CIOStream::Flush()
+{
+	if (IsWritable())
+		m_oStream.flush();
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: gets the possition of the current character in the stream
 //-----------------------------------------------------------------------------
 size_t CIOStream::GetPosition()

@@ -119,6 +119,7 @@ class CPackedStore
 	lzham_compress_status_t      m_lzCompStatus     {}; // LZham compression status.
 	lzham_decompress_params      m_lzDecompParams   {}; // LZham decompression parameters.
 	lzham_decompress_status_t    m_lzDecompStatus   {}; // LZham decompression status.
+	std::unordered_map<string, VPKEntryDescriptor_t> m_mEntryHasMap{};
 
 public:
 	void InitLzCompParams(void);

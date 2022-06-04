@@ -11,6 +11,7 @@
 #include "tier1/cvar.h"
 #include "mathlib/adler32.h"
 #include "mathlib/crc32.h"
+#include "mathlib/sha1.h"
 #include "vpklib/packedstore.h"
 
 //-----------------------------------------------------------------------------
@@ -300,10 +301,11 @@ void CPackedStore::BuildManifest(const vector<VPKEntryBlock_t>& vBlock, const st
 	{
 		jEntry[vBlock[i].m_svBlockPath] =
 		{
-			{ "preloadData", vBlock[i].m_nPreloadData},
-			{ "entryFlags", vBlock[i].m_vvEntries[0].m_nEntryFlags},
-			{ "textureFlags", vBlock[i].m_vvEntries[0].m_nTextureFlags},
-			{ "useCompression", vBlock[i].m_vvEntries[0].m_nCompressedSize != vBlock[i].m_vvEntries[0].m_nUncompressedSize}
+			{ "preloadData", vBlock[i].m_nPreloadData },
+			{ "entryFlags", vBlock[i].m_vvEntries[0].m_nEntryFlags },
+			{ "textureFlags", vBlock[i].m_vvEntries[0].m_nTextureFlags },
+			{ "useCompression", vBlock[i].m_vvEntries[0].m_nCompressedSize != vBlock[i].m_vvEntries[0].m_nUncompressedSize },
+			{ "useDataSharing", true }
 		};
 	}
 
@@ -378,10 +380,12 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 		CIOStream reader(vPaths[i], CIOStream::Mode_t::READ);
 		if (reader.IsReadable())
 		{
-			uint16_t nPreloadData = 0i16;
-			uint32_t nEntryFlags = static_cast<uint32_t>(EPackedEntryFlags::ENTRY_VISIBLE) | static_cast<uint32_t>(EPackedEntryFlags::ENTRY_CACHE);
+			uint16_t nPreloadData  = 0i16;
+			uint32_t nEntryFlags   = static_cast<uint32_t>(EPackedEntryFlags::ENTRY_VISIBLE) | static_cast<uint32_t>(EPackedEntryFlags::ENTRY_CACHE);
 			uint16_t nTextureFlags = static_cast<short>(EPackedTextureFlags::TEXTURE_DEFAULT); // !TODO: Reverse these.
-			bool bUseCompression = true;
+			bool bUseCompression   = true;
+			bool bUseDataSharing   = true;
+			string svEntryHash;
 
 			if (!jManifest.is_null())
 			{
@@ -394,6 +398,7 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 						nEntryFlags     = jEntry.at("entryFlags").get<uint32_t>();
 						nTextureFlags   = jEntry.at("textureFlags").get<uint16_t>();
 						bUseCompression = jEntry.at("useCompression").get<bool>();
+						bUseDataSharing = jEntry.at("useDataSharing").get<bool>();
 					}
 				}
 				catch (const std::exception& ex)
@@ -406,7 +411,10 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 			for (size_t j = 0; j < vEntryBlocks[i].m_vvEntries.size(); j++)
 			{
 				uint8_t* pSrc = new uint8_t[vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize];
-				uint8_t* pDest = new uint8_t[COMP_MAX];;
+				uint8_t* pDest = new uint8_t[COMP_MAX];
+
+				bool bShared = false;
+				bool bCompressed = bUseCompression;
 
 				reader.Read(*pSrc, vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize);
 				vEntryBlocks[i].m_vvEntries[j].m_nArchiveOffset = writer.GetPosition();
@@ -420,18 +428,35 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 						Warning(eDLL_T::FS, "'lzham::lzham_lib_compress_memory' returned with status '%d' (entry will be packed without compression).\n", m_lzCompStatus);
 
 						vEntryBlocks[i].m_vvEntries[j].m_nCompressedSize = vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize;
-						writer.Write(pSrc, vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize);
-					}
-					else
-					{
-						writer.Write(pDest, vEntryBlocks[i].m_vvEntries[j].m_nCompressedSize);
+						memmove(pDest, pSrc, vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize);
 					}
 				}
 				else // Write data uncompressed.
 				{
-					writer.Write(pSrc, vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize);
+					vEntryBlocks[i].m_vvEntries[j].m_nCompressedSize = vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize;
+					memmove(pDest, pSrc, vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize);
 				}
 				vEntryBlocks[i].m_vvEntries[j].m_bIsCompressed = vEntryBlocks[i].m_vvEntries[j].m_nCompressedSize != vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize;
+
+				if (bUseDataSharing)
+				{
+					svEntryHash = sha1(string(reinterpret_cast<char*>(pDest), vEntryBlocks[i].m_vvEntries[j].m_nCompressedSize));
+
+					if (auto it{ m_mEntryHasMap.find(svEntryHash) }; it != std::end(m_mEntryHasMap))
+					{
+						vEntryBlocks[i].m_vvEntries[j] = it->second;
+						bShared = true;
+					}
+					else
+					{
+						m_mEntryHasMap.insert({ svEntryHash, vEntryBlocks[i].m_vvEntries[j] });
+						bShared = false;
+					}
+				}
+				if (!bShared)
+				{
+					writer.Write(pDest, vEntryBlocks[i].m_vvEntries[j].m_nCompressedSize);
+				}
 
 				delete[] pDest;
 				delete[] pSrc;
@@ -439,6 +464,7 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 		}
 	}
 
+	m_mEntryHasMap.clear();
 	VPKDir_t vDir = VPKDir_t();
 	vDir.Build(svPathOut + vPair.m_svDirectoryName, vEntryBlocks);
 }
@@ -511,11 +537,12 @@ void CPackedStore::UnpackAll(const VPKDir_t& vpkDir, const string& svPathOut)
 
 				if (m_nEntryCount == vBlock.m_vvEntries.size()) // Only validate after last entry in block had been written.
 				{
+					m_nEntryCount = 0;
 					m_nCrc32_Internal = vBlock.m_nCrc32;
 
+					oStream.Flush();
 					ValidateCRC32PostDecomp(svFilePath);
 					//ValidateAdler32PostDecomp(svFilePath);
-					m_nEntryCount = 0;
 				}
 			}escape:;
 		}
