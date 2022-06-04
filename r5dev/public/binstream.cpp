@@ -41,7 +41,7 @@ bool CIOStream::Open(const string& svFilePath, Mode_t eMode)
 		{
 			m_iStream.close();
 		}
-		m_iStream.open(m_svFilePath.c_str(), std::ios::binary);
+		m_iStream.open(m_svFilePath.c_str(), std::ios::binary | std::ios::in);
 		if (!m_iStream.is_open())
 		{
 			Error(eDLL_T::FS, "Error opening file '%s' for read operation.\n", m_svFilePath.c_str());
@@ -66,7 +66,7 @@ bool CIOStream::Open(const string& svFilePath, Mode_t eMode)
 		{
 			m_oStream.close();
 		}
-		m_oStream.open(m_svFilePath.c_str(), std::ios::binary);
+		m_oStream.open(m_svFilePath.c_str(), std::ios::binary | std::ios::out);
 		if (!m_oStream.is_open())
 		{
 			Error(eDLL_T::FS, "Error opening file '%s' for write operation.\n", m_svFilePath.c_str());

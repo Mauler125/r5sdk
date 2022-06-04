@@ -6,6 +6,7 @@
 
 #include "core/stdafx.h"
 #include "windows/id3dx.h"
+#include "tier0/fasttimer.h"
 #include "tier1/cvar.h"
 #include "tier1/IConVar.h"
 #ifndef DEDICATED
@@ -623,17 +624,20 @@ void VPK_Pack_f(const CCommand& args)
 	{
 		return;
 	}
-	bool bManifestOnly = (args.ArgC() > 4);
-
 	std::chrono::milliseconds msStart = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-	g_pPackedStore->InitLzCompParams();
 
+	g_pPackedStore->InitLzCompParams();
 	VPKPair_t vPair = g_pPackedStore->BuildFileName(args.Arg(1), args.Arg(2), args.Arg(3), NULL);
-	std::thread th([&] { g_pPackedStore->PackAll(vPair, fs_packedstore_workspace->GetString(), "vpk/", bManifestOnly); });
+
+	DevMsg(eDLL_T::FS, "*** Starting VPK build command for: '%s'\n", vPair.m_svDirectoryName.c_str());
+
+	std::thread th([&] { g_pPackedStore->PackAll(vPair, fs_packedstore_workspace->GetString(), "vpk/", (args.ArgC() > 4)); });
 	th.join();
 
 	std::chrono::milliseconds msEnd = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 	float duration = msEnd.count() - msStart.count();
+
+	DevMsg(eDLL_T::FS, "*** Time elapsed: '%.3f' seconds\n", (duration / 1000));
 }
 
 /*
@@ -652,9 +656,7 @@ void VPK_Unpack_f(const CCommand& args)
 	}
 	std::chrono::milliseconds msStart = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 
-	DevMsg(eDLL_T::FS, "______________________________________________________________\n");
-	DevMsg(eDLL_T::FS, "] FS_DECOMPRESS ----------------------------------------------\n");
-	DevMsg(eDLL_T::FS, "] Processing: '%s'\n", args.Arg(1));
+	DevMsg(eDLL_T::FS, "*** Starting VPK extraction command for: '%s'\n", args.Arg(1));
 
 	VPKDir_t vpk = g_pPackedStore->GetPackDirFile(args.Arg(1));
 	g_pPackedStore->InitLzDecompParams();
@@ -665,11 +667,7 @@ void VPK_Unpack_f(const CCommand& args)
 	std::chrono::milliseconds msEnd = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 	float duration = msEnd.count() - msStart.count();
 
-	DevMsg(eDLL_T::FS, "______________________________________________________________\n");
-	DevMsg(eDLL_T::FS, "] OPERATION_DETAILS ------------------------------------------\n");
-	DevMsg(eDLL_T::FS, "] Time elapsed: '%.3f' seconds\n", (duration / 1000));
-	DevMsg(eDLL_T::FS, "] Decompressed vpk to: '%s'\n", fs_packedstore_workspace->GetString());
-	DevMsg(eDLL_T::FS, "--------------------------------------------------------------\n");
+	DevMsg(eDLL_T::FS, "*** Time elapsed: '%.3f' seconds\n", (duration / 1000));
 }
 
 /*

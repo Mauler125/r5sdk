@@ -321,7 +321,7 @@ void CPackedStore::BuildManifest(const vector<VPKEntryBlock_t>& vBlock, const st
 void CPackedStore::ValidateAdler32PostDecomp(const string& svAssetFile)
 {
 	CIOStream reader(svAssetFile, CIOStream::Mode_t::READ);
-	m_nAdler32 = adler32::update(m_nAdler32, reader.GetData(), reader.GetSize());
+	m_nAdler32 = adler32::update(NULL, reader.GetData(), reader.GetSize());
 
 	if (m_nAdler32 != m_nAdler32_Internal)
 	{
@@ -338,7 +338,7 @@ void CPackedStore::ValidateAdler32PostDecomp(const string& svAssetFile)
 void CPackedStore::ValidateCRC32PostDecomp(const string& svAssetFile)
 {
 	CIOStream reader(svAssetFile, CIOStream::Mode_t::READ);
-	m_nCrc32 = crc32::update(m_nCrc32, reader.GetData(), reader.GetSize());
+	m_nCrc32 = crc32::update(NULL, reader.GetData(), reader.GetSize());
 
 	if (m_nCrc32 != m_nCrc32_Internal)
 	{
@@ -416,7 +416,7 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 					m_lzCompStatus = lzham_compress_memory(&m_lzCompParams, pDest, &vEntryBlocks[i].m_vvEntries[j].m_nCompressedSize, pSrc, vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize, &m_nAdler32_Internal, &m_nCrc32_Internal);
 					if (m_lzCompStatus != lzham_compress_status_t::LZHAM_COMP_STATUS_SUCCESS)
 					{
-						Warning(eDLL_T::FS, "Failed compression for entry '%d' within block '%s' for archive '%d'\n", j, vEntryBlocks.at(i).m_svBlockPath.c_str(), vEntryBlocks.at(i).m_iArchiveIndex);
+						Warning(eDLL_T::FS, "Failed compression for entry '%d' within block '%s' for archive '%d'\n", j, vEntryBlocks[i].m_svBlockPath.c_str(), vEntryBlocks[i].m_iArchiveIndex);
 						Warning(eDLL_T::FS, "'lzham::lzham_lib_compress_memory' returned with status '%d' (entry will be packed without compression).\n", m_lzCompStatus);
 
 						vEntryBlocks[i].m_vvEntries[j].m_nCompressedSize = vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize;
@@ -456,72 +456,63 @@ void CPackedStore::UnpackAll(const VPKDir_t& vpkDir, const string& svPathOut)
 	{
 		fs::path fspVpkPath(vpkDir.m_svDirPath);
 		string svPath = fspVpkPath.parent_path().u8string() + '\\' + vpkDir.m_vsvArchives[i];
-		ifstream packChunkStream(svPath, std::ios_base::binary); // Create stream to read from each archive.
+		CIOStream iStream(svPath, CIOStream::Mode_t::READ); // Create stream to read from each archive.
 
-		for ( VPKEntryBlock_t block : vpkDir.m_vvEntryBlocks)
+		for ( VPKEntryBlock_t vBlock : vpkDir.m_vvEntryBlocks)
 		{
 			// Escape if block archive index is not part of the extracting archive chunk index.
-			if (block.m_iArchiveIndex != i) { goto escape; }
+			if (vBlock.m_iArchiveIndex != i)
+			{
+				goto escape;
+			}
 			else
 			{
-				string svFilePath = CreateDirectories(svPathOut + block.m_svBlockPath, true);
-				ofstream outFileStream(svFilePath, std::ios_base::binary | std::ios_base::out);
+				string svFilePath = CreateDirectories(svPathOut + vBlock.m_svBlockPath, true);
+				CIOStream oStream(svFilePath, CIOStream::Mode_t::WRITE);
 
-				if (!outFileStream.is_open())
+				if (!oStream.IsWritable())
 				{
-					Error(eDLL_T::FS, "Error: unable to access file '%s'!\n", svFilePath.c_str());
+					Error(eDLL_T::FS, "Unable to write file '%s'\n", svFilePath.c_str());
+					continue;
 				}
-				outFileStream.clear(); // Make sure file is empty before writing.
 
-				for (VPKEntryDescriptor_t entry : block.m_vvEntries)
+				for (VPKEntryDescriptor_t vEntry : vBlock.m_vvEntries)
 				{
-					char* pCompressedData = new char[entry.m_nCompressedSize];
-					memset(pCompressedData, '\0', entry.m_nCompressedSize); // Compressed region.
+					m_nEntryCount++;
 
-					packChunkStream.seekg(entry.m_nArchiveOffset);       // Seek to entry offset in archive.
-					packChunkStream.read(pCompressedData, entry.m_nCompressedSize); // Read compressed data from archive.
+					uint8_t* pCompressedData = new uint8_t[vEntry.m_nCompressedSize];
 
-					if (entry.m_bIsCompressed)
+					iStream.SetPosition(vEntry.m_nArchiveOffset);
+					iStream.Read(*pCompressedData, vEntry.m_nCompressedSize);
+
+					if (vEntry.m_bIsCompressed)
 					{
-						lzham_uint8* pLzOutputBuf = new lzham_uint8[entry.m_nUncompressedSize];
+						uint8_t* pLzOutputBuf = new uint8_t[vEntry.m_nUncompressedSize];
 						m_lzDecompStatus = lzham_decompress_memory(&m_lzDecompParams, pLzOutputBuf, 
-							(size_t*)&entry.m_nUncompressedSize, (lzham_uint8*)pCompressedData, 
-							entry.m_nCompressedSize, &m_nAdler32_Internal, &m_nCrc32_Internal);
-
-						if (block.m_vvEntries.size() == 1) // Internal checksum can only match block checksum if entry size is 1.
-						{
-							if (block.m_nCrc32 != m_nCrc32_Internal)
-							{
-								Warning(eDLL_T::FS, "Warning: CRC32 checksum mismatch for entry '%s' computed value '0x%lX' doesn't match expected value '0x%lX'. File may be corrupt!\n", block.m_svBlockPath.c_str(), m_nCrc32_Internal, block.m_nCrc32);
-							}
-						}
-						else { m_nEntryCount++; }
+							&vEntry.m_nUncompressedSize, pCompressedData, 
+							vEntry.m_nCompressedSize, &m_nAdler32_Internal, &m_nCrc32_Internal);
 
 						if (m_lzDecompStatus != lzham_decompress_status_t::LZHAM_DECOMP_STATUS_SUCCESS)
 						{
-							Error(eDLL_T::FS, "Failed decompression for an entry within block '%s' in archive '%d'!\n", block.m_svBlockPath.c_str(), i);
+							Error(eDLL_T::FS, "Failed decompression for entry '%lld' within block '%s' in chunk '%lld'!\n", m_nEntryCount, vBlock.m_svBlockPath.c_str(), i);
 							Error(eDLL_T::FS, "'lzham::lzham_lib_decompress_memory' returned with status '%d'.\n", m_lzDecompStatus);
 						}
-						else
+						else // If successfully decompressed, write to file.
 						{
-							// If successfully decompressed, write to file.
-							outFileStream.write((char*)pLzOutputBuf, entry.m_nUncompressedSize);
+							oStream.Write(pLzOutputBuf, vEntry.m_nUncompressedSize);
 						}
 						delete[] pLzOutputBuf;
 					}
-					else
+					else // If not compressed, write raw data into output file.
 					{
-						// If not compressed, write raw data into output file.
-						outFileStream.write(pCompressedData, entry.m_nUncompressedSize);
+						oStream.Write(pCompressedData, vEntry.m_nUncompressedSize);
 					}
 					delete[] pCompressedData;
 				}
 
-				outFileStream.close();
-				if (m_nEntryCount == block.m_vvEntries.size()) // Only validate after last entry in block had been written.
+				if (m_nEntryCount == vBlock.m_vvEntries.size()) // Only validate after last entry in block had been written.
 				{
-					// Set internal hash to precomputed entry hash for post decompress validation.
-					m_nCrc32_Internal = block.m_nCrc32;
+					m_nCrc32_Internal = vBlock.m_nCrc32;
 
 					ValidateCRC32PostDecomp(svFilePath);
 					//ValidateAdler32PostDecomp(svFilePath);
@@ -529,7 +520,6 @@ void CPackedStore::UnpackAll(const VPKDir_t& vpkDir, const string& svPathOut)
 				}
 			}escape:;
 		}
-		packChunkStream.close();
 	}
 }
 
