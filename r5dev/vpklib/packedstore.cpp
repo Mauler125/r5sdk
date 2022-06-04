@@ -416,7 +416,7 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 					m_lzCompStatus = lzham_compress_memory(&m_lzCompParams, pDest, &vEntryBlocks[i].m_vvEntries[j].m_nCompressedSize, pSrc, vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize, &m_nAdler32_Internal, &m_nCrc32_Internal);
 					if (m_lzCompStatus != lzham_compress_status_t::LZHAM_COMP_STATUS_SUCCESS)
 					{
-						Warning(eDLL_T::FS, "Failed compression for entry '%d' within block '%s' for archive '%d'\n", j, vEntryBlocks[i].m_svBlockPath.c_str(), vEntryBlocks[i].m_iArchiveIndex);
+						Warning(eDLL_T::FS, "Failed compression for entry '%llu' within block '%s' for chunk '%hu'\n", j, vEntryBlocks[i].m_svBlockPath.c_str(), vEntryBlocks[i].m_iArchiveIndex);
 						Warning(eDLL_T::FS, "'lzham::lzham_lib_compress_memory' returned with status '%d' (entry will be packed without compression).\n", m_lzCompStatus);
 
 						vEntryBlocks[i].m_vvEntries[j].m_nCompressedSize = vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize;
@@ -452,7 +452,7 @@ void CPackedStore::UnpackAll(const VPKDir_t& vpkDir, const string& svPathOut)
 {
 	BuildManifest(vpkDir.m_vvEntryBlocks, svPathOut, GetLevelName(vpkDir.m_svDirPath));
 
-	for (int i = 0; i < vpkDir.m_vsvArchives.size(); i++)
+	for (size_t i = 0; i < vpkDir.m_vsvArchives.size(); i++)
 	{
 		fs::path fspVpkPath(vpkDir.m_svDirPath);
 		string svPath = fspVpkPath.parent_path().u8string() + '\\' + vpkDir.m_vsvArchives[i];
@@ -460,12 +460,11 @@ void CPackedStore::UnpackAll(const VPKDir_t& vpkDir, const string& svPathOut)
 
 		for ( VPKEntryBlock_t vBlock : vpkDir.m_vvEntryBlocks)
 		{
-			// Escape if block archive index is not part of the extracting archive chunk index.
-			if (vBlock.m_iArchiveIndex != i)
+			if (vBlock.m_iArchiveIndex != static_cast<uint16_t>(i))
 			{
 				goto escape;
 			}
-			else
+			else // Chunk belongs to this block.
 			{
 				string svFilePath = CreateDirectories(svPathOut + vBlock.m_svBlockPath, true);
 				CIOStream oStream(svFilePath, CIOStream::Mode_t::WRITE);
@@ -494,7 +493,7 @@ void CPackedStore::UnpackAll(const VPKDir_t& vpkDir, const string& svPathOut)
 
 						if (m_lzDecompStatus != lzham_decompress_status_t::LZHAM_DECOMP_STATUS_SUCCESS)
 						{
-							Error(eDLL_T::FS, "Failed decompression for entry '%lld' within block '%s' in chunk '%lld'!\n", m_nEntryCount, vBlock.m_svBlockPath.c_str(), i);
+							Error(eDLL_T::FS, "Failed decompression for entry '%llu' within block '%s' in chunk '%llu'!\n", m_nEntryCount, vBlock.m_svBlockPath.c_str(), i);
 							Error(eDLL_T::FS, "'lzham::lzham_lib_decompress_memory' returned with status '%d'.\n", m_lzDecompStatus);
 						}
 						else // If successfully decompressed, write to file.
@@ -616,7 +615,7 @@ VPKDir_t::VPKDir_t(const string& svPath)
 
 	if (this->m_vHeader.m_nHeaderMarker != VPK_HEADER_MARKER)
 	{
-		Error(eDLL_T::FS, "Error: vpk_dir file '%s' has invalid magic!\n", svPath.c_str());
+		Error(eDLL_T::FS, "VPK directory file '%s' has invalid magic!\n", svPath.c_str());
 		return;
 	}
 
