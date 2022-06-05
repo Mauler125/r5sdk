@@ -468,6 +468,8 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 						nSharedTotal += it->second.m_nCompressedSize;
 						nSharedCount++;
 						bShared = true;
+
+						DevMsg(eDLL_T::FS, "Mapping block '%lld' to existing block at '0x%llx' ('%s')\n", i, it->second.m_nArchiveOffset, svEntryHash.c_str());
 					}
 					else // Add entry to hashmap.
 					{
@@ -514,7 +516,6 @@ void CPackedStore::UnpackAll(const VPKDir_t& vpkDir, const string& svPathOut)
 		string svPath = fspVpkPath.parent_path().u8string() + '\\' + vpkDir.m_vsvArchives[i];
 		CIOStream iStream(svPath, CIOStream::Mode_t::READ); // Create stream to read from each archive.
 
-		//for ( VPKEntryBlock_t vBlock : vpkDir.m_vvEntryBlocks)
 		for ( size_t j = 0; j < vpkDir.m_vvEntryBlocks.size(); j++)
 		{
 			if (vpkDir.m_vvEntryBlocks[j].m_iArchiveIndex != static_cast<uint16_t>(i))
@@ -588,7 +589,8 @@ void CPackedStore::UnpackAll(const VPKDir_t& vpkDir, const string& svPathOut)
 //-----------------------------------------------------------------------------
 VPKEntryBlock_t::VPKEntryBlock_t(CIOStream* pReader, string svBlockPath)
 {
-	std::replace(svBlockPath.begin(), svBlockPath.end(), '\\', '/'); // Flip windows-style backslash to forward slash.
+	StringReplace(svBlockPath, "\\", "/"); // Flip windows-style backslash to forward slash.
+	StringReplace(svBlockPath, " /", "" ); // Remove space character representing VPK root.
 
 	this->m_svBlockPath = svBlockPath; // Set path of block.
 	pReader->Read<uint32_t>(this->m_nCrc32);        //

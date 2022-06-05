@@ -638,6 +638,7 @@ void VPK_Pack_f(const CCommand& args)
 	float duration = msEnd.count() - msStart.count();
 
 	DevMsg(eDLL_T::FS, "*** Time elapsed: '%.3f' seconds\n", (duration / 1000));
+	DevMsg(eDLL_T::FS, "\n");
 }
 
 /*
@@ -668,6 +669,7 @@ void VPK_Unpack_f(const CCommand& args)
 	float duration = msEnd.count() - msStart.count();
 
 	DevMsg(eDLL_T::FS, "*** Time elapsed: '%.3f' seconds\n", (duration / 1000));
+	DevMsg(eDLL_T::FS, "\n");
 }
 
 /*
