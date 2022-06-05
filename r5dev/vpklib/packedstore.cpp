@@ -220,10 +220,10 @@ nlohmann::json CPackedStore::GetManifest(const string& svWorkSpace, const string
 	ostringstream ostream;
 	ostream << svWorkSpace << "manifest/" << svManifestName << ".json";
 	fs::path fsPath = fs::current_path() /= ostream.str();
+	nlohmann::json jsOut;
 
 	if (fs::exists(fsPath))
 	{
-		nlohmann::json jsOut;
 		try
 		{
 			ifstream iManifest(fsPath.string().c_str(), std::ios::binary);
@@ -237,6 +237,7 @@ nlohmann::json CPackedStore::GetManifest(const string& svWorkSpace, const string
 			return jsOut;
 		}
 	}
+	return jsOut;
 }
 
 //-----------------------------------------------------------------------------
@@ -621,13 +622,13 @@ VPKEntryBlock_t::VPKEntryBlock_t(const vector<uint8_t> &vData, int64_t nOffset, 
 	m_iArchiveIndex = nArchiveIndex;
 	m_svBlockPath = svBlockPath;
 
-	int nEntryCount = (vData.size() + ENTRY_MAX_LEN - 1) / ENTRY_MAX_LEN;
-	uint64_t nDataSize = vData.size();
+	size_t nEntryCount = (vData.size() + ENTRY_MAX_LEN - 1) / ENTRY_MAX_LEN;
+	size_t nDataSize = vData.size();
 	int64_t nCurrentOffset = nOffset;
 
 	for (int i = 0; i < nEntryCount; i++)
 	{
-		uint64_t nSize = std::min<uint64_t>(ENTRY_MAX_LEN, nDataSize);
+		size_t nSize = std::min<uint64_t>(ENTRY_MAX_LEN, nDataSize);
 		nDataSize -= nSize;
 		m_vvEntries.push_back(VPKEntryDescriptor_t(nEntryFlags, nTextureFlags, nCurrentOffset, nSize, nSize));
 		nCurrentOffset += nSize;
