@@ -782,7 +782,7 @@ void VPKDir_t::Build(const string& svDirectoryFile, const vector<VPKEntryBlock_t
 	writer.Write(this->m_vHeader.m_nDirectorySize);
 	writer.Write(0);
 
-	DevMsg(eDLL_T::FS, "*** Build directory file totalling '%llu' bytes with '%llu' entries\n", 
+	DevMsg(eDLL_T::FS, "*** Build directory file totalling '%llu' bytes with '%llu' blocks\n", 
 		sizeof(VPKDirHeader_t) + m_vHeader.m_nDirectorySize, vEntryBlocks.size());
 }
 ///////////////////////////////////////////////////////////////////////////////
