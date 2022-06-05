@@ -2,12 +2,11 @@
 #include "public/include/binstream.h"
 #include "thirdparty/lzham/include/lzham.h"
 
-constexpr unsigned int VPK_HEADER_MARKER = 0x55aa1234;
+constexpr unsigned int VPK_HEADER_MARKER = 0x55AA1234;
 constexpr unsigned int VPK_MAJOR_VERSION = 2;
 constexpr unsigned int VPK_MINOR_VERSION = 3;
-
-constexpr unsigned int RVPK_DICT_SIZE = 20;
-constexpr int ENTRY_MAX = 1024 * 1024;
+constexpr unsigned int VPK_DICT_SIZE = 20;
+constexpr int ENTRY_MAX_LEN = 1024 * 1024;
 
 const vector<string> DIR_CONTEXT = { "server", "client" };
 const vector<string> DIR_LOCALE  = { "english", "french", "german", "italian", "japanese", "korean", "polish", "portuguese", "russian", "spanish", "tchinese" };
@@ -41,12 +40,12 @@ struct VPKFileEntry_t
 
 struct VPKData_t
 {
-	int m_nHandle;
-	char pad[1];
-	char m_szPath[255];
-	uint8_t unknown2[0x134];
-	int32_t m_nEntries;
-	uint8_t unknown3[12];
+	int             m_nHandle;
+	char            pad[1];
+	char            m_szPath[255];
+	uint8_t         unknown2[0x134];
+	int32_t         m_nEntries;
+	uint8_t         unknown3[12];
 	VPKFileEntry_t* m_pEntries;
 };
 #pragma pack(pop)
@@ -125,7 +124,7 @@ public:
 	void InitLzDecompParams(void);
 
 	VPKDir_t GetPackDirFile(string svDirectoryFile) const;
-	string GetPackChunkFile(const string& svPackDirFile, int iArchiveIndex) const;
+	string GetPackChunkFile(const string& svPackDirFile, uint16_t iArchiveIndex) const;
 	vector<VPKEntryBlock_t> GetEntryBlocks(CIOStream* reader) const;
 	vector<string> GetEntryPaths(const string& svPathIn) const;
 	vector<string> GetEntryPaths(const string& svPathIn, const nlohmann::json& jManifest) const;

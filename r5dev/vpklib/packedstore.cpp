@@ -20,7 +20,7 @@
 void CPackedStore::InitLzCompParams(void)
 {
 	/*| PARAMETERS ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
-	m_lzCompParams.m_dict_size_log2     = RVPK_DICT_SIZE;
+	m_lzCompParams.m_dict_size_log2     = VPK_DICT_SIZE;
 	m_lzCompParams.m_level              = lzham_compress_level::LZHAM_COMP_LEVEL_UBER;
 	m_lzCompParams.m_compress_flags     = lzham_compress_flags::LZHAM_COMP_FLAG_DETERMINISTIC_PARSING | lzham_compress_flags::LZHAM_COMP_FLAG_TRADEOFF_DECOMPRESSION_RATE_FOR_COMP_RATIO;
 	m_lzCompParams.m_max_helper_threads = -1;
@@ -32,7 +32,7 @@ void CPackedStore::InitLzCompParams(void)
 void CPackedStore::InitLzDecompParams(void)
 {
 	/*| PARAMETERS ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
-	m_lzDecompParams.m_dict_size_log2   = RVPK_DICT_SIZE;
+	m_lzDecompParams.m_dict_size_log2   = VPK_DICT_SIZE;
 	m_lzDecompParams.m_decompress_flags = lzham_decompress_flags::LZHAM_DECOMP_FLAG_OUTPUT_UNBUFFERED | lzham_decompress_flags::LZHAM_DECOMP_FLAG_COMPUTE_CRC32;
 	m_lzDecompParams.m_struct_size      = sizeof(lzham_decompress_params);
 }
@@ -81,7 +81,7 @@ VPKDir_t CPackedStore::GetPackDirFile(string svPackDirFile) const
 //			iArchiveIndex - 
 // output : string
 //-----------------------------------------------------------------------------
-string CPackedStore::GetPackChunkFile(const string& svPackDirFile, int iArchiveIndex) const
+string CPackedStore::GetPackChunkFile(const string& svPackDirFile, uint16_t iArchiveIndex) const
 {
 	/*| ARCHIVES ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
 	string svPackChunkFile = StripLocalePrefix(svPackDirFile);
@@ -327,7 +327,7 @@ void CPackedStore::ValidateAdler32PostDecomp(const string& svAssetFile)
 
 	if (m_nAdler32 != m_nAdler32_Internal)
 	{
-		Warning(eDLL_T::FS, "ADLER32 checksum mismatch for entry '%s' computed value '0x%lX' doesn't match expected value '0x%lX'. File may be corrupt!\n", svAssetFile.c_str(), m_nAdler32, m_nAdler32_Internal);
+		Warning(eDLL_T::FS, "Computed checksum '0x%lX' doesn't match expected checksum '0x%lX'. File may be corrupt!\n", m_nAdler32, m_nAdler32_Internal);
 		m_nAdler32          = NULL;
 		m_nAdler32_Internal = NULL;
 	}
@@ -344,7 +344,7 @@ void CPackedStore::ValidateCRC32PostDecomp(const string& svAssetFile)
 
 	if (m_nCrc32 != m_nCrc32_Internal)
 	{
-		Warning(eDLL_T::FS, "CRC32 checksum mismatch for entry '%s' computed value '0x%lX' doesn't match expected value '0x%lX'. File may be corrupt!\n", svAssetFile.c_str(), m_nCrc32, m_nCrc32_Internal);
+		Warning(eDLL_T::FS, "Computed checksum '0x%lX' doesn't match expected checksum '0x%lX'. File may be corrupt!\n", m_nCrc32, m_nCrc32_Internal);
 		m_nCrc32          = NULL;
 		m_nCrc32_Internal = NULL;
 	}
@@ -370,7 +370,7 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 	{
 		vPaths = GetEntryPaths(svPathIn, jManifest);
 	}
-	else // Compress all files in workspace.
+	else // Pack all files in workspace.
 	{
 		vPaths = GetEntryPaths(svPathIn);
 	}
@@ -380,6 +380,7 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 		CIOStream reader(vPaths[i], CIOStream::Mode_t::READ);
 		if (reader.IsReadable())
 		{
+			string svDestPath = StringReplaceC(vPaths[i], svPathIn, "");
 			uint16_t nPreloadData  = 0i16;
 			uint32_t nEntryFlags   = static_cast<uint32_t>(EPackedEntryFlags::ENTRY_VISIBLE) | static_cast<uint32_t>(EPackedEntryFlags::ENTRY_CACHE);
 			uint16_t nTextureFlags = static_cast<short>(EPackedTextureFlags::TEXTURE_DEFAULT); // !TODO: Reverse these.
@@ -390,7 +391,7 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 			{
 				try
 				{
-					nlohmann::json jEntry = jManifest[StringReplaceC(vPaths[i], svPathIn, "")];
+					nlohmann::json jEntry = jManifest[svDestPath];
 					if (!jEntry.is_null())
 					{
 						nPreloadData    = jEntry.at("preloadData").get<uint32_t>();
@@ -405,8 +406,9 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 					Warning(eDLL_T::FS, "Exception while reading VPK manifest file: '%s'\n", ex.what());
 				}
 			}
+			DevMsg(eDLL_T::FS, "Processing file '%s'\n", svDestPath.c_str());
 
-			vEntryBlocks.push_back(VPKEntryBlock_t(reader.GetVector(), writer.GetPosition(), nPreloadData, 0, nEntryFlags, nTextureFlags, StringReplaceC(vPaths[i], svPathIn, "")));
+			vEntryBlocks.push_back(VPKEntryBlock_t(reader.GetVector(), writer.GetPosition(), nPreloadData, 0, nEntryFlags, nTextureFlags, svDestPath));
 			for (size_t j = 0; j < vEntryBlocks[i].m_vvEntries.size(); j++)
 			{
 				uint8_t* pSrc  = new uint8_t[vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize];
@@ -423,8 +425,7 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 					m_lzCompStatus = lzham_compress_memory(&m_lzCompParams, pDest, &vEntryBlocks[i].m_vvEntries[j].m_nCompressedSize, pSrc, vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize, &m_nAdler32_Internal, &m_nCrc32_Internal);
 					if (m_lzCompStatus != lzham_compress_status_t::LZHAM_COMP_STATUS_SUCCESS)
 					{
-						Warning(eDLL_T::FS, "Failed compression for entry '%llu' within block '%s' for chunk '%hu'\n", j, vEntryBlocks[i].m_svBlockPath.c_str(), vEntryBlocks[i].m_iArchiveIndex);
-						Warning(eDLL_T::FS, "'lzham::lzham_lib_compress_memory' returned with status '%d' (entry will be packed without compression).\n", m_lzCompStatus);
+						Warning(eDLL_T::FS, "Status '%d' for entry '%llu' within block '%llu' for chunk '%hu' (entry packed without compression)\n", m_lzCompStatus, j, i, vEntryBlocks[i].m_iArchiveIndex);
 
 						vEntryBlocks[i].m_vvEntries[j].m_nCompressedSize = vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize;
 						memmove(pDest, pSrc, vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize);
@@ -443,7 +444,7 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 
 					if (auto it{ m_mEntryHashMap.find(svEntryHash) }; it != std::end(m_mEntryHashMap))
 					{
-						vEntryBlocks[i].m_vvEntries[j] = it->second;
+						vEntryBlocks[i].m_vvEntries[j].m_nArchiveOffset = it->second.m_nArchiveOffset;
 						bShared = true;
 					}
 					else // Add entry to hashmap.
@@ -499,6 +500,7 @@ void CPackedStore::UnpackAll(const VPKDir_t& vpkDir, const string& svPathOut)
 					Error(eDLL_T::FS, "Unable to write file '%s'\n", svFilePath.c_str());
 					continue;
 				}
+				DevMsg(eDLL_T::FS, "Processing file '%s'\n", vBlock.m_svBlockPath.c_str());
 
 				for (VPKEntryDescriptor_t vEntry : vBlock.m_vvEntries)
 				{
@@ -518,8 +520,7 @@ void CPackedStore::UnpackAll(const VPKDir_t& vpkDir, const string& svPathOut)
 
 						if (m_lzDecompStatus != lzham_decompress_status_t::LZHAM_DECOMP_STATUS_SUCCESS)
 						{
-							Error(eDLL_T::FS, "Failed decompression for entry '%llu' within block '%s' in chunk '%llu'!\n", m_nEntryCount, vBlock.m_svBlockPath.c_str(), i);
-							Error(eDLL_T::FS, "'lzham::lzham_lib_decompress_memory' returned with status '%d'.\n", m_lzDecompStatus);
+							Error(eDLL_T::FS, "Status '%d' for entry '%llu' within block '%llu' for chunk '%hu' (entry not decompressed)\n", m_lzDecompStatus, m_nEntryCount, i, vBlock.m_iArchiveIndex);
 						}
 						else // If successfully decompressed, write to file.
 						{
@@ -586,12 +587,12 @@ VPKEntryBlock_t::VPKEntryBlock_t(const vector<uint8_t> &vData, int64_t nOffset, 
 	m_iArchiveIndex = nArchiveIndex;
 	m_svBlockPath = svBlockPath;
 
-	int nEntryCount = (vData.size() + ENTRY_MAX - 1) / ENTRY_MAX;
+	int nEntryCount = (vData.size() + ENTRY_MAX_LEN - 1) / ENTRY_MAX_LEN;
 	uint64_t nDataSize = vData.size();
 	int64_t nCurrentOffset = nOffset;
 	for (int i = 0; i < nEntryCount; i++)
 	{
-		uint64_t nSize = std::min<uint64_t>(ENTRY_MAX, nDataSize);
+		uint64_t nSize = std::min<uint64_t>(ENTRY_MAX_LEN, nDataSize);
 		nDataSize -= nSize;
 		m_vvEntries.push_back(VPKEntryDescriptor_t(nEntryFlags, nTextureFlags, nCurrentOffset, nSize, nSize));
 		nCurrentOffset += nSize;
@@ -661,7 +662,7 @@ VPKDir_t::VPKDir_t(const string& svPath)
 		}
 	}
 
-	for (int i = 0; i < this->m_iArchiveCount + 1; i++)
+	for (uint16_t i = 0; i < this->m_iArchiveCount + 1; i++)
 	{
 		string svArchivePath = g_pPackedStore->GetPackChunkFile(svPath, i);
 		this->m_vsvArchives.push_back(svArchivePath);
