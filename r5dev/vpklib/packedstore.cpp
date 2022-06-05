@@ -487,7 +487,7 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 			}
 		}
 	}
-	DevMsg(eDLL_T::FS, "*** Build chunk totalling '%llu' bytes with '%llu' shared bytes between '%lu' blocks\n", writer.GetPosition(), nSharedTotal, nSharedCount);
+	DevMsg(eDLL_T::FS, "*** Build chunk totalling '%llu' bytes with '%llu' shared bytes among '%lu' blocks\n", writer.GetPosition(), nSharedTotal, nSharedCount);
 	m_mEntryHashMap.clear();
 
 	VPKDir_t vDir = VPKDir_t();
@@ -707,6 +707,7 @@ void VPKDir_t::Build(const string& svDirectoryFile, const vector<VPKEntryBlock_t
 {
 	CIOStream writer(svDirectoryFile, CIOStream::Mode_t::WRITE);
 	auto vMap = std::map<string, std::map<string, std::list<VPKEntryBlock_t>>>();
+	uint64_t nDescriptors = 0i64;
 
 	writer.Write<uint32_t>(this->m_vHeader.m_nHeaderMarker);
 	writer.Write<uint16_t>(this->m_vHeader.m_nMajorVersion);
@@ -768,6 +769,7 @@ void VPKDir_t::Build(const string& svDirectoryFile, const vector<VPKEntryBlock_t
 							const ushort s = UINT16_MAX;
 							writer.Write(s);
 						}
+						nDescriptors++;
 					}
 				}
 			}
@@ -782,8 +784,8 @@ void VPKDir_t::Build(const string& svDirectoryFile, const vector<VPKEntryBlock_t
 	writer.Write(this->m_vHeader.m_nDirectorySize);
 	writer.Write(0);
 
-	DevMsg(eDLL_T::FS, "*** Build directory file totalling '%llu' bytes with '%llu' blocks\n", 
-		sizeof(VPKDirHeader_t) + m_vHeader.m_nDirectorySize, vEntryBlocks.size());
+	DevMsg(eDLL_T::FS, "*** Build directory totalling '%llu' bytes with '%llu' blocks and '%llu' descriptors\n", 
+		sizeof(VPKDirHeader_t) + m_vHeader.m_nDirectorySize, vEntryBlocks.size(), nDescriptors);
 }
 ///////////////////////////////////////////////////////////////////////////////
 CPackedStore* g_pPackedStore = new CPackedStore();
