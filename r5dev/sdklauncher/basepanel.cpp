@@ -493,6 +493,10 @@ void CUIBaseSurface::Setup()
 	this->m_ModeCombo->Items.Add("Server");
 	this->m_ModeCombo->Items.Add("Client");
 
+#ifdef DEDI_LAUNCHER
+	this->m_ModeCombo->SetSelectedIndex(1);
+#endif // DEDI_LAUNCHER
+
 	this->m_VisibilityCombo->Items.Add("Public");
 	this->m_VisibilityCombo->Items.Add("Hidden");
 	this->m_VisibilityCombo->Items.Add("Offline");

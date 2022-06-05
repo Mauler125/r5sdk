@@ -74,6 +74,9 @@
     <ClInclude Include="..\sdklauncher\sdklauncher_const.h">
       <Filter>launcher</Filter>
     </ClInclude>
+    <ClInclude Include="..\launcher\launcherdefs.h">
+      <Filter>launcher</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\resource\ico\sdklauncher_rel.ico">

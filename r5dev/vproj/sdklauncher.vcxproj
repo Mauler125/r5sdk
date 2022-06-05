@@ -139,6 +139,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\core\stdafx.h" />
+    <ClInclude Include="..\launcher\launcherdefs.h" />
     <ClInclude Include="..\public\include\utility.h" />
     <ClInclude Include="..\sdklauncher\basepanel.h" />
     <ClInclude Include="..\sdklauncher\sdklauncher.h" />

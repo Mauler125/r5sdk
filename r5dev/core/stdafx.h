@@ -48,6 +48,8 @@
 #include "thirdparty/cppnet/cppkore/UIXButton.h"
 #include "thirdparty/cppnet/cppkore/UIXRadioButton.h"
 #include "thirdparty/cppnet/cppkore/KoreTheme.h"
+
+#include "launcher/launcherdefs.h"
 #endif // SDKLAUNCHER
 
 #if !defined(DEDICATED) && !defined(SDKLAUNCHER) && !defined (NETCONSOLE)

@@ -1,9 +1,8 @@
 // Microsoft Visual C++ generated resource script.
 //
-#define USE_RES
-//#define RELEASE
-#ifdef USE_RES
 #include "sdklauncher/sdklauncher_res.h"
+//#define RELEASE
+#ifndef DEDI_LAUNCHER
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
@@ -75,5 +74,5 @@ IDI_ICON1               ICON                    "resource\\ico\\sdklauncher_dbg.
 #endif     // !APSTUDIO_INVOKED
 
 /////////////////////////////////////////////////////////////////////////////
-#endif     // !USE_RES
+#endif     // !DEDI_LAUNCHER
 
