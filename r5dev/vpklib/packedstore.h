@@ -8,7 +8,6 @@ constexpr unsigned int VPK_MINOR_VERSION = 3;
 
 constexpr unsigned int RVPK_DICT_SIZE = 20;
 constexpr int ENTRY_MAX = 1024 * 1024;
-constexpr int COMP_MAX  = 2024 * 2024;
 
 const vector<string> DIR_CONTEXT = { "server", "client" };
 const vector<string> DIR_LOCALE  = { "english", "french", "german", "italian", "japanese", "korean", "polish", "portuguese", "russian", "spanish", "tchinese" };
@@ -119,7 +118,7 @@ class CPackedStore
 	lzham_compress_status_t      m_lzCompStatus     {}; // LZham compression status.
 	lzham_decompress_params      m_lzDecompParams   {}; // LZham decompression parameters.
 	lzham_decompress_status_t    m_lzDecompStatus   {}; // LZham decompression status.
-	std::unordered_map<string, VPKEntryDescriptor_t> m_mEntryHasMap{};
+	std::unordered_map<string, VPKEntryDescriptor_t> m_mEntryHashMap{};
 
 public:
 	void InitLzCompParams(void);

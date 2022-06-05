@@ -385,7 +385,6 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 			uint16_t nTextureFlags = static_cast<short>(EPackedTextureFlags::TEXTURE_DEFAULT); // !TODO: Reverse these.
 			bool bUseCompression   = true;
 			bool bUseDataSharing   = true;
-			string svEntryHash;
 
 			if (!jManifest.is_null())
 			{
@@ -410,8 +409,8 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 			vEntryBlocks.push_back(VPKEntryBlock_t(reader.GetVector(), writer.GetPosition(), nPreloadData, 0, nEntryFlags, nTextureFlags, StringReplaceC(vPaths[i], svPathIn, "")));
 			for (size_t j = 0; j < vEntryBlocks[i].m_vvEntries.size(); j++)
 			{
-				uint8_t* pSrc = new uint8_t[vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize];
-				uint8_t* pDest = new uint8_t[COMP_MAX];
+				uint8_t* pSrc  = new uint8_t[vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize];
+				uint8_t* pDest = new uint8_t[vEntryBlocks[i].m_vvEntries[j].m_nUncompressedSize];
 
 				bool bShared = false;
 				bool bCompressed = bUseCompression;
@@ -440,16 +439,16 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 
 				if (bUseDataSharing)
 				{
-					svEntryHash = sha1(string(reinterpret_cast<char*>(pDest), vEntryBlocks[i].m_vvEntries[j].m_nCompressedSize));
+					string svEntryHash = sha1(string(reinterpret_cast<char*>(pDest), vEntryBlocks[i].m_vvEntries[j].m_nCompressedSize));
 
-					if (auto it{ m_mEntryHasMap.find(svEntryHash) }; it != std::end(m_mEntryHasMap))
+					if (auto it{ m_mEntryHashMap.find(svEntryHash) }; it != std::end(m_mEntryHashMap))
 					{
 						vEntryBlocks[i].m_vvEntries[j] = it->second;
 						bShared = true;
 					}
-					else
+					else // Add entry to hashmap.
 					{
-						m_mEntryHasMap.insert({ svEntryHash, vEntryBlocks[i].m_vvEntries[j] });
+						m_mEntryHashMap.insert({ svEntryHash, vEntryBlocks[i].m_vvEntries[j] });
 						bShared = false;
 					}
 				}
@@ -464,7 +463,7 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 		}
 	}
 
-	m_mEntryHasMap.clear();
+	m_mEntryHashMap.clear();
 	VPKDir_t vDir = VPKDir_t();
 	vDir.Build(svPathOut + vPair.m_svDirectoryName, vEntryBlocks);
 }

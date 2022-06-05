@@ -374,6 +374,13 @@ namespace lzham
       if (pCrc32)
           *pCrc32 = pCompressor->get_src_crc32();
 
+      if (comp_data.size() == dst_buf_size)
+      {
+          lzham_delete(pTP);
+          lzham_delete(pCompressor);
+          return LZHAM_COMP_STATUS_FAILED;
+      }
+
       if (comp_data.size() > dst_buf_size)
       {
          lzham_delete(pTP);
