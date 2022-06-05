@@ -469,7 +469,7 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 						nSharedCount++;
 						bShared = true;
 
-						DevMsg(eDLL_T::FS, "Mapping block '%lld' to existing block at '0x%llx' ('%s')\n", i, it->second.m_nArchiveOffset, svEntryHash.c_str());
+						DevMsg(eDLL_T::FS, "Mapping block '%lld' ('%s') to existing block at '0x%llx'\n", i, svEntryHash.c_str(), it->second.m_nArchiveOffset);
 					}
 					else // Add entry to hashmap.
 					{
@@ -782,7 +782,8 @@ void VPKDir_t::Build(const string& svDirectoryFile, const vector<VPKEntryBlock_t
 	writer.Write(this->m_vHeader.m_nDirectorySize);
 	writer.Write(0);
 
-	DevMsg(eDLL_T::FS, "*** Build directory file totalling '%llu' bytes with '%llu' entries\n", writer.GetPosition(), vEntryBlocks.size());
+	DevMsg(eDLL_T::FS, "*** Build directory file totalling '%llu' bytes with '%llu' entries\n", 
+		sizeof(VPKDirHeader_t) + m_vHeader.m_nDirectorySize, vEntryBlocks.size());
 }
 ///////////////////////////////////////////////////////////////////////////////
 CPackedStore* g_pPackedStore = new CPackedStore();
