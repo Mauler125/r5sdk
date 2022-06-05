@@ -123,7 +123,7 @@ vector<VPKEntryBlock_t> CPackedStore::GetEntryBlocks(CIOStream* pReader) const
 // Input  : &svPathIn - 
 // Output : vector<string>
 //-----------------------------------------------------------------------------
-vector<string> CPackedStore::GetEntryPaths(const string& svPathIn) const
+vector<string> CPackedStore::GetBlockPaths(const string& svPathIn) const
 {
 	vector<string> vPaths;
 	fs::recursive_directory_iterator dir(svPathIn), end;
@@ -148,7 +148,7 @@ vector<string> CPackedStore::GetEntryPaths(const string& svPathIn) const
 //          &jManifest - 
 // Output : vector<string>
 //-----------------------------------------------------------------------------
-vector<string> CPackedStore::GetEntryPaths(const string& svPathIn, const nlohmann::json& jManifest) const
+vector<string> CPackedStore::GetBlockPaths(const string& svPathIn, const nlohmann::json& jManifest) const
 {
 	vector<string> vPaths;
 	fs::recursive_directory_iterator dir(svPathIn), end;
@@ -382,11 +382,11 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 
 	if (bManifestOnly)
 	{
-		vPaths = GetEntryPaths(svPathIn, jManifest);
+		vPaths = GetBlockPaths(svPathIn, jManifest);
 	}
 	else // Pack all files in workspace.
 	{
-		vPaths = GetEntryPaths(svPathIn);
+		vPaths = GetBlockPaths(svPathIn);
 	}
 
 	uint64_t nSharedTotal = 0i64;

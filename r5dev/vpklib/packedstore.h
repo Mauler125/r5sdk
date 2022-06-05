@@ -126,8 +126,8 @@ public:
 	VPKDir_t GetPackDirFile(string svDirectoryFile) const;
 	string GetPackChunkFile(const string& svPackDirFile, uint16_t iArchiveIndex) const;
 	vector<VPKEntryBlock_t> GetEntryBlocks(CIOStream* reader) const;
-	vector<string> GetEntryPaths(const string& svPathIn) const;
-	vector<string> GetEntryPaths(const string& svPathIn, const nlohmann::json& jManifest) const;
+	vector<string> GetBlockPaths(const string& svPathIn) const;
+	vector<string> GetBlockPaths(const string& svPathIn, const nlohmann::json& jManifest) const;
 	string GetNameParts(const string& svDirectoryName, int nCaptureGroup) const;
 	string GetSourceName(const string& svDirectoryName) const;
 	nlohmann::json GetManifest(const string& svWorkSpace, const string& svManifestName) const;
