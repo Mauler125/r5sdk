@@ -314,10 +314,12 @@ string CreateDirectories(string svInput, bool bWindows)
     if (bWindows)
     {
         StringReplace(svInput, "\\ \\", "\\");
+        StringReplace(svInput, " \\", "");
     }
     else
     {
         StringReplace(svInput, "/ /", "/");
+        StringReplace(svInput, " /", "");
     }
 
     fs::path fspPathOut(svInput);

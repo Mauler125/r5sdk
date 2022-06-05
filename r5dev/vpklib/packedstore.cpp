@@ -523,7 +523,7 @@ void CPackedStore::UnpackAll(const VPKDir_t& vpkDir, const string& svPathOut)
 			}
 			else // Chunk belongs to this block.
 			{
-				string svFilePath = CreateDirectories(svPathOut + vpkDir.m_vvEntryBlocks[j].m_svBlockPath, true);
+				string svFilePath = CreateDirectories(svPathOut + vpkDir.m_vvEntryBlocks[j].m_svBlockPath);
 				CIOStream oStream(svFilePath, CIOStream::Mode_t::WRITE);
 
 				if (!oStream.IsWritable())
