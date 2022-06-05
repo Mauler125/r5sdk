@@ -309,7 +309,7 @@ void Host_Unban_f(const CCommand& args)
 	}
 	catch (std::exception& e)
 	{
-		Error(eDLL_T::SERVER, "Unban Error: %s", e.what());
+		Error(eDLL_T::SERVER, "Unban error: %s", e.what());
 		return;
 	}
 }

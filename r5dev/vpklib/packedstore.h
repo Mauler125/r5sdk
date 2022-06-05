@@ -94,8 +94,8 @@ struct VPKDir_t
 	vector<string>               m_vsvArchives  {}; // Vector of archive file names.
 	string                       m_svDirPath    {}; // Path to vpk_dir file.
 
-	VPKDir_t() { m_vHeader.m_nHeaderMarker = VPK_HEADER_MARKER; m_vHeader.m_nMajorVersion = VPK_MAJOR_VERSION; m_vHeader.m_nMinorVersion = VPK_MINOR_VERSION; };
 	VPKDir_t(const string& svPath);
+	VPKDir_t() { m_vHeader.m_nHeaderMarker = VPK_HEADER_MARKER; m_vHeader.m_nMajorVersion = VPK_MAJOR_VERSION; m_vHeader.m_nMinorVersion = VPK_MINOR_VERSION; };
 
 	void Build(const string& svDirectoryFile, const vector<VPKEntryBlock_t>& vEntryBlocks);
 };
@@ -128,7 +128,8 @@ public:
 	vector<VPKEntryBlock_t> GetEntryBlocks(CIOStream* reader) const;
 	vector<string> GetEntryPaths(const string& svPathIn) const;
 	vector<string> GetEntryPaths(const string& svPathIn, const nlohmann::json& jManifest) const;
-	string GetLevelName(const string& svDirectoryName) const;
+	string GetNameParts(const string& svDirectoryName, int nCaptureGroup) const;
+	string GetSourceName(const string& svDirectoryName) const;
 	nlohmann::json GetManifest(const string& svWorkSpace, const string& svManifestName) const;
 
 	string FormatBlockPath(string svName, const string& svPath, const string& svExtension) const;
