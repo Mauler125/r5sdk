@@ -659,7 +659,7 @@ void VPK_Unpack_f(const CCommand& args)
 
 	DevMsg(eDLL_T::FS, "*** Starting VPK extraction command for: '%s'\n", args.Arg(1));
 
-	VPKDir_t vpk = g_pPackedStore->GetPackDirFile(args.Arg(1));
+	VPKDir_t vpk = g_pPackedStore->GetDirectoryFile(args.Arg(1));
 	g_pPackedStore->InitLzDecompParams();
 
 	std::thread th([&] { g_pPackedStore->UnpackAll(vpk, ConvertToWinPath(fs_packedstore_workspace->GetString())); });

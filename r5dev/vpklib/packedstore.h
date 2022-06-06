@@ -11,15 +11,14 @@ constexpr int ENTRY_MAX_LEN = 1024 * 1024;
 const vector<string> DIR_CONTEXT = { "server", "client" };
 const vector<string> DIR_LOCALE  = { "english", "french", "german", "italian", "japanese", "korean", "polish", "portuguese", "russian", "spanish", "tchinese" };
 
-
-enum class EPackedEntryFlags : int
+enum class EPackedLoadFlags : int
 {
-	ENTRY_NONE,
-	ENTRY_VISIBLE      = 1 << 0,  // FileSystem visibility?
-	ENTRY_CACHE        = 1 << 8,  // Only set for assets not stored in the depot directory.
-	ENTRY_TEXTURE_UNK0 = 1 << 18,
-	ENTRY_TEXTURE_UNK1 = 1 << 19,
-	ENTRY_TEXTURE_UNK2 = 1 << 20,
+	LOAD_NONE,
+	LOAD_VISIBLE      = 1 << 0,  // FileSystem visibility?
+	LOAD_CACHE        = 1 << 8,  // Only set for assets not stored in the depot directory.
+	LOAD_TEXTURE_UNK0 = 1 << 18,
+	LOAD_TEXTURE_UNK1 = 1 << 19,
+	LOAD_TEXTURE_UNK2 = 1 << 20,
 };
 
 enum class EPackedTextureFlags : short
@@ -50,30 +49,30 @@ struct VPKData_t
 };
 #pragma pack(pop)
 
-struct VPKEntryDescriptor_t
+struct VPKChunkDescriptor_t
 {
-	uint32_t m_nEntryFlags      {}; // Entry flags.
+	uint32_t m_nLoadFlags       {}; // Load flags.
 	uint16_t m_nTextureFlags    {}; // Texture flags (only used if the entry is a vtf).
 	uint64_t m_nArchiveOffset   {}; // Offset in archive.
-	uint64_t m_nCompressedSize  {}; // Compressed size of entry.
-	uint64_t m_nUncompressedSize{}; // Uncompressed size of entry.
+	uint64_t m_nCompressedSize  {}; // Compressed size of chunk.
+	uint64_t m_nUncompressedSize{}; // Uncompressed size of chunk.
 	bool     m_bIsCompressed  = false;
 
-	VPKEntryDescriptor_t(){};
-	VPKEntryDescriptor_t(CIOStream* reader);
-	VPKEntryDescriptor_t(uint32_t nEntryFlags, uint16_t nTextureFlags, uint64_t nArchiveOffset, uint64_t nCompressedSize, uint64_t nUncompressedSize);
+	VPKChunkDescriptor_t(){};
+	VPKChunkDescriptor_t(CIOStream* pReader);
+	VPKChunkDescriptor_t(uint32_t nEntryFlags, uint16_t nTextureFlags, uint64_t nArchiveOffset, uint64_t nCompressedSize, uint64_t nUncompressedSize);
 };
 
 struct VPKEntryBlock_t
 {
-	uint32_t                     m_nCrc32       {}; // Crc32 for the uncompressed block.
-	uint16_t                     m_nPreloadData{}; // Preload bytes.
-	uint16_t                     m_iArchiveIndex{}; // Index of the archive that contains this block.
-	vector<VPKEntryDescriptor_t> m_vvEntries    {}; // Vector of all the entries of a given block (entries have a size limit of 1 MiB, so anything over is split into separate entries within the same block).
-	string                       m_svBlockPath  {}; // Path to block within vpk.
+	uint32_t                     m_nFileCRC      {}; // Crc32 for the uncompressed entry.
+	uint16_t                     m_iPreloadSize  {}; // Preload bytes.
+	uint16_t                     m_iPackFileIndex{}; // Index of the pack file that contains this entry.
+	vector<VPKChunkDescriptor_t> m_vChunks       {}; // Vector of all the chunks of a given entry (chunks have a size limit of 1 MiB, anything over this limit is fragmented into smaller chunks).
+	string                       m_svEntryPath   {}; // Path to entry within vpk.
 
-	VPKEntryBlock_t(CIOStream* pReader, string svBlockPath);
-	VPKEntryBlock_t(const vector<uint8_t>& vData, int64_t nOffset, uint16_t nPreloadData, uint16_t nArchiveIndex, uint32_t nEntryFlags, uint16_t nTextureFlags, const string& svBlockPath);
+	VPKEntryBlock_t(CIOStream* pReader, string svEntryPath);
+	VPKEntryBlock_t(const vector<uint8_t>& vData, int64_t nOffset, uint16_t nPreloadData, uint16_t nArchiveIndex, uint32_t nEntryFlags, uint16_t nTextureFlags, const string& svEntryPath);
 };
 
 struct VPKDirHeader_t
@@ -87,12 +86,12 @@ struct VPKDirHeader_t
 
 struct VPKDir_t
 {
-	VPKDirHeader_t               m_vHeader      {}; // Dir header.
-	uint32_t                     m_nFileDataSize{}; // File data section size.
-	vector<VPKEntryBlock_t>      m_vvEntryBlocks{}; // Vector of entry blocks.
-	uint16_t                     m_iArchiveCount{}; // Highest archive index (archive count-1).
-	vector<string>               m_vsvArchives  {}; // Vector of archive file names.
-	string                       m_svDirPath    {}; // Path to vpk_dir file.
+	VPKDirHeader_t               m_vHeader       {}; // Dir header.
+	uint32_t                     m_nFileDataSize {}; // File data section size.
+	vector<VPKEntryBlock_t>      m_vEntryBlocks  {}; // Vector of entry blocks.
+	uint16_t                     m_iPackFileCount{}; // Highest archive index (archive count-1).
+	vector<string>               m_vPackFile     {}; // Vector of archive file names.
+	string                       m_svDirPath     {}; // Path to vpk_dir file.
 
 	VPKDir_t(const string& svPath);
 	VPKDir_t() { m_vHeader.m_nHeaderMarker = VPK_HEADER_MARKER; m_vHeader.m_nMajorVersion = VPK_MAJOR_VERSION; m_vHeader.m_nMinorVersion = VPK_MINOR_VERSION; };
@@ -108,7 +107,35 @@ struct VPKPair_t
 
 class CPackedStore
 {
-	size_t                       m_nEntryCount      {}; // Entry per-block incrementor.
+public:
+	void InitLzCompParams(void);
+	void InitLzDecompParams(void);
+
+	VPKDir_t GetDirectoryFile(string svDirectoryFile) const;
+	string GetPackFile(const string& svPackDirFile, uint16_t iArchiveIndex) const;
+
+	vector<VPKEntryBlock_t> GetEntryBlocks(CIOStream* pReader) const;
+	vector<string> GetEntryPaths(const string& svPathIn) const;
+	vector<string> GetEntryPaths(const string& svPathIn, const nlohmann::json& jManifest) const;
+
+	string GetNameParts(const string& svDirectoryName, int nCaptureGroup) const;
+	string GetSourceName(const string& svDirectoryName) const;
+	nlohmann::json GetManifest(const string& svWorkSpace, const string& svManifestName) const;
+
+	string FormatEntryPath(string svName, const string& svPath, const string& svExtension) const;
+	string StripLocalePrefix(const string& svDirectoryFile) const;
+
+	VPKPair_t BuildFileName(string svLanguage, string svContext, const string& svPakName, int nPatch) const;
+	void BuildManifest(const vector<VPKEntryBlock_t>& vBlock, const string& svWorkSpace, const string& svManifestName) const;
+
+	void PackAll(const VPKPair_t& vPair, const string& svPathIn, const string& svPathOut, bool bManifestOnly);
+	void UnpackAll(const VPKDir_t& vDir, const string& svPathOut = "");
+
+	void ValidateAdler32PostDecomp(const string& svDirAsset);
+	void ValidateCRC32PostDecomp(const string& svDirAsset);
+
+private:
+	size_t                       m_nChunkCount      {}; // Entry per-block incrementor.
 	lzham_uint32                 m_nAdler32_Internal{}; // Internal operation Adler32 file checksum.
 	lzham_uint32                 m_nAdler32         {}; // Pre/post operation Adler32 file checksum.
 	lzham_uint32                 m_nCrc32_Internal  {}; // Internal operation Crc32 file checksum.
@@ -117,32 +144,7 @@ class CPackedStore
 	lzham_compress_status_t      m_lzCompStatus     {}; // LZham compression status.
 	lzham_decompress_params      m_lzDecompParams   {}; // LZham decompression parameters.
 	lzham_decompress_status_t    m_lzDecompStatus   {}; // LZham decompression status.
-	std::unordered_map<string, VPKEntryDescriptor_t> m_mEntryHashMap{};
-
-public:
-	void InitLzCompParams(void);
-	void InitLzDecompParams(void);
-
-	VPKDir_t GetPackDirFile(string svDirectoryFile) const;
-	string GetPackChunkFile(const string& svPackDirFile, uint16_t iArchiveIndex) const;
-	vector<VPKEntryBlock_t> GetEntryBlocks(CIOStream* reader) const;
-	vector<string> GetBlockPaths(const string& svPathIn) const;
-	vector<string> GetBlockPaths(const string& svPathIn, const nlohmann::json& jManifest) const;
-	string GetNameParts(const string& svDirectoryName, int nCaptureGroup) const;
-	string GetSourceName(const string& svDirectoryName) const;
-	nlohmann::json GetManifest(const string& svWorkSpace, const string& svManifestName) const;
-
-	string FormatBlockPath(string svName, const string& svPath, const string& svExtension) const;
-	string StripLocalePrefix(const string& svPackDirFile) const;
-
-	VPKPair_t BuildFileName(string svLanguage, string svContext, const string& svPakName, int nPatch) const;
-	void BuildManifest(const vector<VPKEntryBlock_t>& vBlock, const string& svWorkSpace, const string& svManifestName) const;
-
-	void PackAll(const VPKPair_t& vPair, const string& svPathIn, const string& svPathOut, bool bManifestOnly);
-	void UnpackAll(const VPKDir_t& vpkDir, const string& svPathOut = "");
-
-	void ValidateAdler32PostDecomp(const string& svDirAsset);
-	void ValidateCRC32PostDecomp(const string& svDirAsset);
+	std::unordered_map<string, VPKChunkDescriptor_t> m_mChunkHashMap{};
 };
 ///////////////////////////////////////////////////////////////////////////////
 extern CPackedStore* g_pPackedStore;
