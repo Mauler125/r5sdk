@@ -171,13 +171,16 @@ bool CIOStream::IsReadable()
 	if (m_eCurrentMode != Mode_t::READ)
 		return false;
 
-	// check if we hit the end of the file.
+	if (!m_iStream)
+		return false;
+
 	if (m_iStream.eof())
 	{
 		m_iStream.close();
 		m_eCurrentMode = Mode_t::NONE;
 		return false;
 	}
+
 	return true;
 }
 
@@ -188,6 +191,9 @@ bool CIOStream::IsReadable()
 bool CIOStream::IsWritable() const
 {
 	if (m_eCurrentMode != Mode_t::WRITE)
+		return false;
+
+	if (!m_oStream)
 		return false;
 
 	return true;

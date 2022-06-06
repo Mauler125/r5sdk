@@ -120,7 +120,9 @@ public:
 
 	string GetNameParts(const string& svDirectoryName, int nCaptureGroup) const;
 	string GetSourceName(const string& svDirectoryName) const;
+
 	nlohmann::json GetManifest(const string& svWorkSpace, const string& svManifestName) const;
+	vector<string> GetIgnoreList(const string& svWorkSpace) const;
 
 	string FormatEntryPath(string svName, const string& svPath, const string& svExtension) const;
 	string StripLocalePrefix(const string& svDirectoryFile) const;
