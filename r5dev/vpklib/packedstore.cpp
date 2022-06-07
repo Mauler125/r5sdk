@@ -592,7 +592,7 @@ void CPackedStore::UnpackAll(const VPKDir_t& vDir, const string& svPathOut)
 
 						if (m_lzDecompStatus != lzham_decompress_status_t::LZHAM_DECOMP_STATUS_SUCCESS)
 						{
-							Error(eDLL_T::FS, "Status '%d' for chunk '%llu' within entry '%llu' in block '%hu' (- not decompressed)\n", 
+							Error(eDLL_T::FS, "Status '%d' for chunk '%llu' within entry '%llu' in block '%hu' (chunk not decompressed)\n", 
 								m_lzDecompStatus, m_nChunkCount, i, vDir.m_vEntryBlocks[j].m_iPackFileIndex);
 						}
 						else // If successfully decompressed, write to file.
