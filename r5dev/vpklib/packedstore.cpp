@@ -351,7 +351,7 @@ void CPackedStore::BuildManifest(const vector<VPKEntryBlock_t>& vBlock, const st
 		jEntry[vBlock[i].m_svEntryPath] =
 		{
 			{ "preloadSize", vBlock[i].m_iPreloadSize },
-			{ "LoadFlags", vBlock[i].m_vChunks[0].m_nLoadFlags },
+			{ "loadFlags", vBlock[i].m_vChunks[0].m_nLoadFlags },
 			{ "textureFlags", vBlock[i].m_vChunks[0].m_nTextureFlags },
 			{ "useCompression", vBlock[i].m_vChunks[0].m_nCompressedSize != vBlock[i].m_vChunks[0].m_nUncompressedSize },
 			{ "useDataSharing", true }
