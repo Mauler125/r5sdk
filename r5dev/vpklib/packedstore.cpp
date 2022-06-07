@@ -267,7 +267,8 @@ vector<string> CPackedStore::GetIgnoreList(const string& svWorkSpace) const
 			string::size_type nPos = svIgnore.find("//");
 			if (nPos == string::npos)
 			{
-				if (!svIgnore.empty() && std::find(vIgnore.begin(), vIgnore.end(), svIgnore) == vIgnore.end())
+				if (!svIgnore.empty() && 
+					std::find(vIgnore.begin(), vIgnore.end(), svIgnore) == vIgnore.end())
 				{
 					vIgnore.push_back(svIgnore);
 				}
@@ -545,7 +546,7 @@ void CPackedStore::UnpackAll(const VPKDir_t& vDir, const string& svPathOut)
 		vDir.m_vHeader.m_nMajorVersion != VPK_MAJOR_VERSION ||
 		vDir.m_vHeader.m_nMinorVersion != VPK_MINOR_VERSION)
 	{
-		Error(eDLL_T::FS, "Invalid VPK directory file (header doesn't match criteria)\n");
+		Error(eDLL_T::FS, "Unsupported VPK directory file (invalid header criteria)\n");
 		return;
 	}
 	BuildManifest(vDir.m_vEntryBlocks, svPathOut, GetSourceName(vDir.m_svDirPath));
