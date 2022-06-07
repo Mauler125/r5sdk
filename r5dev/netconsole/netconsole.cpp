@@ -113,7 +113,7 @@ void CNetCon::UserInput(void)
 				this->Disconnect();
 				return;
 			}
-			size_t nPos = svInput.find(" ");
+			string::size_type nPos = svInput.find(' ');
 			if (!svInput.empty() 
 				&& nPos > 0 
 				&& nPos < svInput.size() 
@@ -147,14 +147,14 @@ void CNetCon::UserInput(void)
 		}
 		else // Setup connection from input.
 		{
-			size_t nPos = svInput.find(" ");
+			string::size_type nPos = svInput.find(' ');
 			if (!svInput.empty() 
 				&& nPos > 0 
 				&& nPos < svInput.size() 
 				&& nPos != svInput.size())
 			{
 				std::string svInPort = svInput.substr(nPos + 1);
-				std::string svInAdr = svInput.erase(svInput.find(" "));
+				std::string svInAdr = svInput.erase(svInput.find(' '));
 
 				if (!this->Connect(svInAdr, svInPort))
 				{

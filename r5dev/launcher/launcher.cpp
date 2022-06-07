@@ -129,14 +129,14 @@ void ParseAndApplyConfigFile(const string& svConfig)
 	{
 		while (std::getline(ss, svInput, '\n'))
 		{
-			size_t nPos = svInput.find(" ");
+			string::size_type nPos = svInput.find(' ');
 			if (!svInput.empty()
 				&& nPos > 0
 				&& nPos < svInput.size()
 				&& nPos != svInput.size())
 			{
 				string svValue = svInput.substr(nPos + 1);
-				string svArgument = svInput.erase(svInput.find(" "));
+				string svArgument = svInput.erase(svInput.find(' '));
 
 				CommandLine()->AppendParm(svArgument.c_str(), svValue.c_str());
 			}
