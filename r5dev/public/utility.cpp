@@ -233,13 +233,32 @@ void HexDump(const char* szHeader, const char* szLogger, const void* pData, int 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For checking if file name has a specific extension.
+bool HasExtension(const string& svInput, const string& svExtension)
+{
+    if (svInput.substr(svInput.find_last_of('.') + 1) == svExtension)
+    {
+        return true;
+    }
+    return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For removing file names from the extension.
-string GetExtension(const string& svInput)
+string GetExtension(const string& svInput, bool bReturnOriginal, bool bKeepDelimiter)
 {
     string::size_type nPos = svInput.rfind('.');
-    if (nPos != std::string::npos)
+    if (nPos != string::npos)
     {
-       return svInput.substr(nPos + 1);
+        if (!bKeepDelimiter)
+        {
+            nPos += 1;
+        }
+       return svInput.substr(nPos);
+    }
+    if (bReturnOriginal)
+    {
+        return svInput;
     }
     return "";
 }
@@ -254,6 +273,17 @@ string RemoveExtension(const string& svInput)
         return svInput;
     }
     return svInput.substr(0, nPos);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// For checking file names equality without extension.
+bool HasFileName(const string& svInput, const string& svFileName)
+{
+    if (RemoveExtension(svInput) == RemoveExtension(svFileName))
+    {
+        return true;
+    }
+    return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -340,7 +370,7 @@ string ConvertToWinPath(const string& svInput)
     sprintf_s(szFilePath, MAX_PATH, "%s", svInput.c_str());
 
     // Flip forward slashes in filepath to windows-style backslash
-    for (int i = 0; i < strlen(szFilePath); i++)
+    for (size_t i = 0; i < strlen(szFilePath); i++)
     {
         if (szFilePath[i] == '/')
         {
@@ -359,7 +389,7 @@ string ConvertToUnixPath(const string& svInput)
     sprintf_s(szFilePath, MAX_PATH, "%s", svInput.c_str());
 
     // Flip forward slashes in filepath to windows-style backslash
-    for (int i = 0; i < strlen(szFilePath); i++)
+    for (size_t i = 0; i < strlen(szFilePath); i++)
     {
         if (szFilePath[i] == '\\')
         {

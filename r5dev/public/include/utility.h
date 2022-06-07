@@ -1,5 +1,4 @@
 #pragma once
-#include <thirdparty/spdlog/include/sinks/basic_file_sink.h>
 
 /////////////////////////////////////////////////////////////////////////////
 // Internals
@@ -9,14 +8,18 @@ MODULEINFO GetModuleInfo(const char* szModule);
 DWORD64 FindPatternSIMD(const char* szModule, const unsigned char* szPattern, const char* szMask);
 
 /////////////////////////////////////////////////////////////////////////////
-// Utility
+// Debug
 void DbgPrint(LPCSTR sFormat, ...);
 void PrintLastError(void);
 void HexDump(const char* szHeader, const char* szLogger, const void* pData, int nSize);
 
-string GetExtension(const string& svInput);
+/////////////////////////////////////////////////////////////////////////////
+// String
+bool HasExtension(const string& svInput, const string& svExtension);
+string GetExtension(const string& svInput, bool bReturnOriginal = false, bool bKeepDelimiter = false);
 string RemoveExtension(const string& svInput);
 
+bool HasFileName(const string& svInput, const string& svFileName);
 string GetFileName(const string& svInput, bool bRemoveExtension, bool bWindows = false);
 string RemoveFileName(const string& svInput, bool bWindows = false);
 
@@ -43,6 +46,8 @@ vector<int> StringToBytes(const string& svInput, bool bNullTerminator);
 vector<int> PatternToBytes(const string& svInput);
 vector<int> IntToDigits(int iValue);
 
+/////////////////////////////////////////////////////////////////////////////
+// Print
 void PrintM128i8(__m128i in);
 void PrintM128i16(__m128i in);
 void PrintM128i32(__m128i in);

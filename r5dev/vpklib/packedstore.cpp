@@ -130,9 +130,11 @@ vector<string> CPackedStore::GetEntryPaths(const string& svPathIn) const
 	fs::recursive_directory_iterator dir(svPathIn), end;
 	while (dir != end)
 	{
-		if (std::find(vIgnore.begin(), vIgnore.end(), dir->path().filename()) != vIgnore.end())
+		vector<string>::iterator it = std::find(vIgnore.begin(), vIgnore.end(),
+			GetExtension(dir->path().filename().u8string(), true, true));
+		if (it != vIgnore.end())
 		{
-			dir.disable_recursion_pending(); // Skip all ignored folders.
+			dir.disable_recursion_pending(); // Skip all ignored folders and extensions.
 		}
 		if (!GetExtension(dir->path().u8string()).empty())
 		{
@@ -157,11 +159,13 @@ vector<string> CPackedStore::GetEntryPaths(const string& svPathIn, const nlohman
 	fs::recursive_directory_iterator dir(svPathIn), end;
 	while (dir != end)
 	{
-		if (std::find(vIgnore.begin(), vIgnore.end(), dir->path().filename()) != vIgnore.end())
+		vector<string>::iterator it = std::find(vIgnore.begin(), vIgnore.end(), 
+			GetExtension(dir->path().filename().u8string(), true, true));
+		if (it != vIgnore.end())
 		{
-			dir.disable_recursion_pending(); // Skip all ignored folders.
+			dir.disable_recursion_pending(); // Skip all ignored folders and extensions.
 		}
-		if (!GetExtension(dir->path().u8string()).empty())
+		else if (!GetExtension(dir->path().u8string()).empty())
 		{
 			if (!jManifest.is_null())
 			{
