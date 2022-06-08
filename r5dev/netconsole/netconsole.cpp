@@ -121,7 +121,7 @@ void CNetCon::UserInput(void)
 			{
 				std::string svSecondArg = svInput.substr(nPos + 1);
 				std::string svFirstArg = svInput;
-				svFirstArg = svFirstArg.erase(svFirstArg.find(" "));
+				svFirstArg = svFirstArg.erase(svFirstArg.find(' '));
 
 				if (strcmp(svFirstArg.c_str(), "PASS") == 0) // Auth with RCON server.
 				{

@@ -666,7 +666,7 @@ VPKEntryBlock_t::VPKEntryBlock_t(const vector<uint8_t> &vData, int64_t nOffset, 
 	size_t nDataSize = vData.size();
 	int64_t nCurrentOffset = nOffset;
 
-	for (size_t i = 0; i < nEntryCount; i++) // Fragment data into 1MiB chunks
+	for (size_t i = 0; i < nEntryCount; i++) // Fragment data into 1 MiB chunks
 	{
 		size_t nSize = std::min<uint64_t>(ENTRY_MAX_LEN, nDataSize);
 		nDataSize -= nSize;
