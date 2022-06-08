@@ -171,10 +171,10 @@ vector<string> CPackedStore::GetEntryPaths(const string& svPathIn, const nlohman
 			{
 				try
 				{
-					string svBlockPath = ConvertToUnixPath(dir->path().u8string());
-					if (jManifest.contains(StringReplaceC(svBlockPath, svPathIn, "")))
+					string svEntryPath = ConvertToUnixPath(dir->path().u8string());
+					if (jManifest.contains(StringReplaceC(svEntryPath, svPathIn, "")))
 					{
-						vPaths.push_back(svBlockPath);
+						vPaths.push_back(svEntryPath);
 					}
 				}
 				catch (const std::exception& ex)
