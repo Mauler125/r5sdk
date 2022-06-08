@@ -19,8 +19,8 @@ class CNetAdr2
 {
 public:
 	CNetAdr2(void) {};
-	CNetAdr2(string svInAdr);
-	CNetAdr2(string svInAdr, string svInPort);
+	CNetAdr2(const string& svInAdr);
+	CNetAdr2(const string& svInAdr, const string& svInPort);
 	~CNetAdr2(void);
 
 	void SetIP(const string& svInAdr);
@@ -39,7 +39,7 @@ public:
 	netadrtype_t GetType(void) const;
 	netadrversion_t GetVersion(void) const;
 	string GetBase(void) const;
-	string GetBase(string svInAdr) const;
+	string GetBase(const string& svInAdr) const;
 	vector<string> GetParts(void) const;
 	int GetSize(void) const;
 	int GetFamily(void) const;

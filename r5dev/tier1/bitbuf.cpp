@@ -299,14 +299,14 @@ int bf_write::GetNumBytesLeft() const
 	return this->GetNumBitsLeft() >> 3;
 }
 
-unsigned char* bf_write::GetData()
+unsigned char* bf_write::GetData() const
 {
 	return this->m_pData;
 }
 
-const unsigned char* bf_write::GetData() const
+const char* bf_write::GetDebugName() const
 {
-	return this->m_pData;
+	return this->m_pDebugName;
 }
 
 bool bf_write::CheckForOverflow(int nBits)
