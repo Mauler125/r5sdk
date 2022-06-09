@@ -104,7 +104,7 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 		va_end(args);
 	}/////////////////////////////
 
-	svOut = sDLL_T[static_cast<int>(context)].c_str();
+	svOut = sDLL_T[static_cast<int>(context)];
 	svOut.append(szBuf);
 	svOut = std::regex_replace(svOut, rxAnsiExp, "");
 
@@ -118,12 +118,12 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 	{
 		wconsole->debug(svOut);
 #ifdef DEDICATED
-		g_pRConServer->Send(svOut.c_str());
+		g_pRConServer->Send(svOut);
 #endif // DEDICATED
 	}
 	else
 	{
-		svAnsiOut = sANSI_DLL_T[static_cast<int>(context)].c_str();
+		svAnsiOut = sANSI_DLL_T[static_cast<int>(context)];
 		svAnsiOut.append(szBuf);
 
 		char szNewLine = svAnsiOut.back();
@@ -133,7 +133,7 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 		}
 		wconsole->debug(svAnsiOut);
 #ifdef DEDICATED
-		g_pRConServer->Send(svAnsiOut.c_str());
+		g_pRConServer->Send(svAnsiOut);
 #endif // DEDICATED
 	}
 
@@ -212,7 +212,7 @@ void Warning(eDLL_T context, const char* fmt, ...)
 		va_end(args);
 	}/////////////////////////////
 
-	svOut = sDLL_T[static_cast<int>(context)].c_str();
+	svOut = sDLL_T[static_cast<int>(context)];
 	svOut.append(szBuf);
 	svOut = std::regex_replace(svOut, rxAnsiExp, "");
 
@@ -226,13 +226,13 @@ void Warning(eDLL_T context, const char* fmt, ...)
 	{
 		wconsole->debug(svOut);
 #ifdef DEDICATED
-		g_pRConServer->Send(svOut.c_str());
+		g_pRConServer->Send(svOut);
 #endif // DEDICATED
 	}
 	else
 	{
-		svAnsiOut = sANSI_DLL_T[static_cast<int>(context)].c_str();
-		svAnsiOut.append(g_svYellowF.c_str());
+		svAnsiOut = sANSI_DLL_T[static_cast<int>(context)];
+		svAnsiOut.append(g_svYellowF);
 		svAnsiOut.append(szBuf);
 
 		char szNewLine = svAnsiOut.back();
@@ -242,7 +242,7 @@ void Warning(eDLL_T context, const char* fmt, ...)
 		}
 		wconsole->debug(svAnsiOut);
 #ifdef DEDICATED
-		g_pRConServer->Send(svAnsiOut.c_str());
+		g_pRConServer->Send(svAnsiOut);
 #endif // DEDICATED
 	}
 
@@ -289,7 +289,7 @@ void Error(eDLL_T context, const char* fmt, ...)
 		va_end(args);
 	}/////////////////////////////
 
-	svOut = sDLL_T[static_cast<int>(context)].c_str();
+	svOut = sDLL_T[static_cast<int>(context)];
 	svOut.append(szBuf);
 	svOut = std::regex_replace(svOut, rxAnsiExp, "");
 
@@ -303,13 +303,13 @@ void Error(eDLL_T context, const char* fmt, ...)
 	{
 		wconsole->debug(svOut);
 #ifdef DEDICATED
-		g_pRConServer->Send(svOut.c_str());
+		g_pRConServer->Send(svOut);
 #endif // DEDICATED
 	}
 	else
 	{
-		svAnsiOut = sANSI_DLL_T[static_cast<int>(context)].c_str();
-		svAnsiOut.append(g_svRedF.c_str());
+		svAnsiOut = sANSI_DLL_T[static_cast<int>(context)];
+		svAnsiOut.append(g_svRedF);
 		svAnsiOut.append(szBuf);
 
 		char szNewLine = svAnsiOut.back();
@@ -319,7 +319,7 @@ void Error(eDLL_T context, const char* fmt, ...)
 		}
 		wconsole->debug(svAnsiOut);
 #ifdef DEDICATED
-		g_pRConServer->Send(svAnsiOut.c_str());
+		g_pRConServer->Send(svAnsiOut);
 #endif // DEDICATED
 	}
 
