@@ -107,6 +107,8 @@ public:
 	float GetFloat(void) const;
 	double GetDouble(void) const;
 	int GetInt(void) const;
+	int64_t GetInt64(void) const;
+	size_t GetSizeT(void) const;
 	Color GetColor(void) const;
 	const char* GetString(void) const;
 

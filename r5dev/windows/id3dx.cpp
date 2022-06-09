@@ -276,12 +276,12 @@ void DrawImGui()
 	if (g_pBrowser->m_bActivate)
 	{
 		g_pInputSystem->EnableInput(false); // Disable input to game when browser is drawn.
-		g_pBrowser->Draw("Server Browser", &g_pBrowser->m_bActivate);
+		g_pBrowser->Draw();
 	}
 	if (g_pConsole->m_bActivate)
 	{
 		g_pInputSystem->EnableInput(false); // Disable input to game when console is drawn.
-		g_pConsole->Draw("Console", &g_pConsole->m_bActivate);
+		g_pConsole->Draw();
 	}
 	if (!g_pConsole->m_bActivate && !g_pBrowser->m_bActivate)
 	{

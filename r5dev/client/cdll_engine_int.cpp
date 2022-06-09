@@ -14,7 +14,6 @@
 #include "engine/client/cl_rcon.h"
 #include "public/include/bansystem.h"
 #include "vpc/keyvalues.h"
-#include "gameui/IConsole.h"
 /*****************************************************************************/
 
 //-----------------------------------------------------------------------------
@@ -38,7 +37,6 @@ void CHLClient::FrameStageNotify(CHLClient* pHLClient, ClientFrameStage_t frameS
 			break;
 		}
 	}
-	g_pConsole->Think();
 	CHLClient_FrameStageNotify(pHLClient, frameStage);
 }
 

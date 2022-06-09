@@ -35,12 +35,16 @@ CConsole::CConsole(void)
     m_bAutoScroll     = true;
     m_bScrollToBottom = false;
     m_bInitialized    = false;
+    m_pszConsoleTitle = "Console";
 
     m_vsvCommands.push_back("CLEAR");
     m_vsvCommands.push_back("HELP");
     m_vsvCommands.push_back("HISTORY");
 
     snprintf(m_szSummary, 256, "%llu history items", m_vsvHistory.size());
+
+    std::thread think(&CConsole::Think, this);
+    think.detach();
 }
 
 //-----------------------------------------------------------------------------
@@ -80,15 +84,12 @@ bool CConsole::Setup(void)
 
 //-----------------------------------------------------------------------------
 // Purpose: game console main render loop
-// Input  : *pszTitle - 
-//          *bDraw - 
 //-----------------------------------------------------------------------------
-void CConsole::Draw(const char* pszTitle, bool* bDraw)
+void CConsole::Draw(void)
 {
     if (!m_bInitialized)
     {
         Setup();
-        m_pszConsoleTitle = pszTitle;
         m_bInitialized = true;
     }
 
@@ -101,28 +102,27 @@ void CConsole::Draw(const char* pszTitle, bool* bDraw)
      * BASE PANEL SETUP       *
      **************************/
     {
-        static int nVars{};
-        if (!*bDraw)
+        int nVars{};
+        if (!m_bActivate)
         {
-            m_bActivate = false;
             return;
         }
         if (m_bDefaultTheme)
         {
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 8.f, 10.f });
-            nVars = 1;
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 8.f, 10.f }); nVars++;
+            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
         }
         else
         {
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 4.f, 6.f });
-            ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);
-            nVars = 2;
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 4.f, 6.f });  nVars++;
+            ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);              nVars++;
+            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
         }
 
         ImGui::SetNextWindowSize(ImVec2(1000, 600), ImGuiCond_FirstUseEver);
         ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
 
-        BasePanel(bDraw);
+        BasePanel();
 
         ImGui::PopStyleVar(nVars);
     }
@@ -158,28 +158,45 @@ void CConsole::Draw(const char* pszTitle, bool* bDraw)
 //-----------------------------------------------------------------------------
 void CConsole::Think(void)
 {
-   if (m_ivConLog.size() > con_max_size_logvector->GetInt())
-   {
-       while (m_ivConLog.size() > con_max_size_logvector->GetInt() / 4 * 3)
-       {
-           m_ivConLog.erase(m_ivConLog.begin());
-           m_nScrollBack++;
-       }
-   }
+    for (;;) // Loop running at 100-tps.
+    {
+        if (m_ivConLog.size() > con_max_size_logvector->GetSizeT())
+        {
+            while (m_ivConLog.size() > con_max_size_logvector->GetSizeT() / 4 * 3)
+            {
+                m_ivConLog.erase(m_ivConLog.begin());
+                m_nScrollBack++;
+            }
+        }
 
-   while (static_cast<int>(m_vsvHistory.size()) > 512)
-   {
-       m_vsvHistory.erase(m_vsvHistory.begin());
-   }
+        while (static_cast<int>(m_vsvHistory.size()) > 512)
+        {
+            m_vsvHistory.erase(m_vsvHistory.begin());
+        }
+
+        if (m_bActivate)
+        {
+            if (m_flFadeAlpha <= 1.f)
+            {
+                m_flFadeAlpha += 0.05;
+            }
+        }
+        else // Reset to full transparent.
+        {
+            m_flFadeAlpha = 0.f;
+            m_bReclaimFocus = true;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: draws the console's main surface
 // Input  : *bDraw - 
 //-----------------------------------------------------------------------------
-void CConsole::BasePanel(bool* bDraw)
+void CConsole::BasePanel(void)
 {
-    if (!ImGui::Begin(m_pszConsoleTitle, bDraw))
+    if (!ImGui::Begin(m_pszConsoleTitle, &m_bActivate))
     {
         ImGui::End();
         return;
@@ -238,8 +255,6 @@ void CConsole::BasePanel(bool* bDraw)
     ImGui::Separator();
 
     ImGui::PushItemWidth(footer_width_to_reserve - 80);
-    if (ImGui::IsWindowAppearing()) { ImGui::SetKeyboardFocusHere(); }
-
     if (ImGui::InputText("##input", m_szInputBuf, IM_ARRAYSIZE(m_szInputBuf), m_nInputFlags, &TextEditCallbackStub, reinterpret_cast<void*>(this)))
     {
         if (m_nSuggestPos != -1)

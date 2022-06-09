@@ -45,7 +45,9 @@ public:
     CBrowser(void);
     ~CBrowser(void);
 
-    void Draw(const char* pszTitle, bool* bDraw);
+    void Draw(void);
+    void Think(void);
+
     void CompMenu(void);
 
     void ServerBrowserSection(void);
@@ -75,6 +77,8 @@ public:
     ////////////////////
 public:
     bool m_bActivate = false;
+    float m_flFadeAlpha = 0.f;
+    const char* m_pszBrowserTitle = nullptr;
 
     vector<ServerListing> m_vServerList;
     ImGuiTextFilter m_imServerBrowserFilter;
