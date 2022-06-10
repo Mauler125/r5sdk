@@ -7,6 +7,7 @@
 #include "core/stdafx.h"
 #include "tier0/commandline.h"
 #include "launcher/launcher.h"
+#include "../filesystem/filesystem.h"
 
 int HWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
@@ -29,8 +30,6 @@ int HWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
 int LauncherMain(HINSTANCE hInstance)
 {
 	int results = v_LauncherMain(hInstance);
-
-	//g_pFullFileSystem->AddSearchPath("mods\\compiled_mods", "Mod", SearchPathAdd_t::PATH_ADD_TO_HEAD);
 
 	spdlog::info("LauncherMain: {:s}\n", ExitCodeToString(results));
 	return results;
@@ -81,10 +80,8 @@ void AppendSDKParametersPreInit()
 	CommandLine()->AppendParm("-collate", "");
 	CommandLine()->AppendParm("-multiple", "");
 	CommandLine()->AppendParm("-noorigin", "");
-	CommandLine()->AppendParm("-nodiscord", "");
 	CommandLine()->AppendParm("-novid", "");
 	CommandLine()->AppendParm("-noshaderapi", "");
-	CommandLine()->AppendParm("-nobakedparticles", "");
 	CommandLine()->AppendParm("-nosound", "");
 	CommandLine()->AppendParm("-nojoy", "");
 	CommandLine()->AppendParm("-nomouse", "");
@@ -114,7 +111,7 @@ string LoadConfigFile(const string& svConfig)
 	}
 	else
 	{
-		spdlog::error("{:s}: '{:s}' does not exist!\n", __FUNCTION__, svConfig.c_str());
+		spdlog::error("{}: '{}' does not exist!\n", __FUNCTION__, svConfig.c_str());
 		cfgFile.close();
 		return "";
 	}

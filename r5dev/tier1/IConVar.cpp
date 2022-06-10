@@ -169,16 +169,16 @@ void ConVar::Init(void) const
 void ConVar::InitShipped(void) const
 {
 	single_frame_shutdown_for_reload = g_pCVar->FindVar("single_frame_shutdown_for_reload");
-	model_defaultFadeDistScale       = g_pCVar->FindVar("model_defaultFadeDistScale");
-	model_defaultFadeDistMin         = g_pCVar->FindVar("model_defaultFadeDistMin");
-	staticProp_no_fade_scalar        = g_pCVar->FindVar("staticProp_no_fade_scalar");
-	staticProp_gather_size_weight    = g_pCVar->FindVar("staticProp_gather_size_weight");
-	old_gather_props                 = g_pCVar->FindVar("old_gather_props");
-	mp_gamemode                      = g_pCVar->FindVar("mp_gamemode");
-	hostname                         = g_pCVar->FindVar("hostname");
-	hostport                         = g_pCVar->FindVar("hostport");
-	host_hasIrreversibleShutdown     = g_pCVar->FindVar("host_hasIrreversibleShutdown");
-	net_usesocketsforloopback        = g_pCVar->FindVar("net_usesocketsforloopback");
+	model_defaultFadeDistScale = g_pCVar->FindVar("model_defaultFadeDistScale");
+	model_defaultFadeDistMin = g_pCVar->FindVar("model_defaultFadeDistMin");
+	staticProp_no_fade_scalar = g_pCVar->FindVar("staticProp_no_fade_scalar");
+	staticProp_gather_size_weight = g_pCVar->FindVar("staticProp_gather_size_weight");
+	old_gather_props = g_pCVar->FindVar("old_gather_props");
+	mp_gamemode = g_pCVar->FindVar("mp_gamemode");
+	hostname = g_pCVar->FindVar("hostname");
+	hostport = g_pCVar->FindVar("hostport");
+	host_hasIrreversibleShutdown = g_pCVar->FindVar("host_hasIrreversibleShutdown");
+	net_usesocketsforloopback = g_pCVar->FindVar("net_usesocketsforloopback");
 
 	mp_gamemode->SetCallback(&MP_GameMode_Changed_f);
 }

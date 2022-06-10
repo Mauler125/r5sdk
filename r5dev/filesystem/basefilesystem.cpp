@@ -6,6 +6,7 @@
 #ifndef DEDICATED
 #include "gameui/IConsole.h"
 #endif // !DEDICATED
+#include "../tier0/commandline.h"
 
 //---------------------------------------------------------------------------------
 // Purpose: reads data from memory
@@ -116,7 +117,7 @@ FileHandle_t CBaseFileSystem::ReadFromVPK(CBaseFileSystem* pFileSystem, std::int
 		// Erase '//*/'.
 		svFilePath.erase(0, 4);
 	}
-
+	
 	// TODO: obtain 'mod' SearchPath's instead.
 	svFilePath.insert(0, "platform\\");
 
@@ -152,6 +153,7 @@ bool CBaseFileSystem::ReadFromCache(CBaseFileSystem* pFileSystem, char* pszFileP
 	{
 		return false;
 	}
+
 	return CBaseFileSystem_LoadFromCache(pFileSystem, pszFilePath, pResults);
 }
 
