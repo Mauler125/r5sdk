@@ -16,6 +16,7 @@ public:
 
 	bool Open(const string& svFileFullPath, Mode_t eMode);
 	void Close();
+	void Flush();
 
 	size_t GetPosition();
 	void SetPosition(int64_t nOffset);
@@ -86,7 +87,6 @@ public:
 			return;
 
 		m_oStream.write(reinterpret_cast<const char*>(tValue), nSize);
-		m_oStream.flush();
 	}
 	void WriteString(string svInput);
 

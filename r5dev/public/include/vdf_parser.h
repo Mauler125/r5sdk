@@ -256,7 +256,7 @@ namespace vdf
         }
 
         /** \brief Read VDF formatted sequences defined by the range [first, last).
-        If the file is mallformed, parser will read the file until no longer possible.
+        If the file is malformed, parser will read the file until no longer possible.
         @param first            begin iterator
         @param end              end iterator
         @param exclude_files    list of files which cant be included anymore.
@@ -533,7 +533,7 @@ namespace vdf
     } // namespace detail
 
     /** \brief Read VDF formatted sequences defined by the range [first, last).
-    If the file is mallformed, parser will read the file until no longer possible.
+    If the file is malformed, parser will read the file until no longer possible.
     @param first begin iterator
     @param end end iterator
 
@@ -560,13 +560,13 @@ namespace vdf
     }
 
     /** \brief Read VDF formatted sequences defined by the range [first, last).
-    If the file is mallformed, parser will read the file until no longer possible.
+    If the file is malformed, parser will read the file until no longer possible.
     @param first begin iterator
     @param end end iterator
     @param ec output bool. 0 if ok, otherwise, holds an system error code
 
     Possible error codes:
-    std::errc::protocol_error: file is mallformed
+    std::errc::protocol_error: file is malformed
     std::errc::not_enough_memory: not enough space
     std::errc::invalid_argument: iterators throws e.g. out of range
     */
@@ -596,7 +596,7 @@ namespace vdf
     }
 
     /** \brief Read VDF formatted sequences defined by the range [first, last).
-    If the file is mallformed, parser will read the file until no longer possible.
+    If the file is malformed, parser will read the file until no longer possible.
     @param first begin iterator
     @param end end iterator
     @param ok output bool. true, if parser successed, false, if parser failed

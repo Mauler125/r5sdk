@@ -41,13 +41,8 @@ bool CIOStream::Open(const string& svFilePath, Mode_t eMode)
 		{
 			m_iStream.close();
 		}
-		m_iStream.open(m_svFilePath.c_str(), std::ios::binary);
-		if (!m_iStream.is_open())
-		{
-			Error(eDLL_T::FS, "Error opening file '%s' for read operation.\n", m_svFilePath.c_str());
-			m_eCurrentMode = Mode_t::NONE;
-		}
-		if (!m_iStream.good())
+		m_iStream.open(m_svFilePath.c_str(), std::ios::binary | std::ios::in);
+		if (!m_iStream.is_open() || !m_iStream.good())
 		{
 			Error(eDLL_T::FS, "Error opening file '%s' for read operation.\n", m_svFilePath.c_str());
 			m_eCurrentMode = Mode_t::NONE;
@@ -66,14 +61,8 @@ bool CIOStream::Open(const string& svFilePath, Mode_t eMode)
 		{
 			m_oStream.close();
 		}
-		m_oStream.open(m_svFilePath.c_str(), std::ios::binary);
-		if (!m_oStream.is_open())
-		{
-			Error(eDLL_T::FS, "Error opening file '%s' for write operation.\n", m_svFilePath.c_str());
-			m_eCurrentMode = Mode_t::NONE;
-			return false;
-		}
-		if (!m_oStream.good())
+		m_oStream.open(m_svFilePath.c_str(), std::ios::binary | std::ios::out);
+		if (!m_oStream.is_open() || !m_oStream.good())
 		{
 			Error(eDLL_T::FS, "Error opening file '%s' for write operation.\n", m_svFilePath.c_str());
 			m_eCurrentMode = Mode_t::NONE;
@@ -101,6 +90,15 @@ void CIOStream::Close()
 		m_oStream.close();
 		return;
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: flushes the ofstream
+//-----------------------------------------------------------------------------
+void CIOStream::Flush()
+{
+	if (IsWritable())
+		m_oStream.flush();
 }
 
 //-----------------------------------------------------------------------------
@@ -173,13 +171,16 @@ bool CIOStream::IsReadable()
 	if (m_eCurrentMode != Mode_t::READ)
 		return false;
 
-	// check if we hit the end of the file.
+	if (!m_iStream)
+		return false;
+
 	if (m_iStream.eof())
 	{
 		m_iStream.close();
 		m_eCurrentMode = Mode_t::NONE;
 		return false;
 	}
+
 	return true;
 }
 
@@ -190,6 +191,9 @@ bool CIOStream::IsReadable()
 bool CIOStream::IsWritable() const
 {
 	if (m_eCurrentMode != Mode_t::WRITE)
+		return false;
+
+	if (!m_oStream)
 		return false;
 
 	return true;

@@ -463,7 +463,7 @@ void CUIBaseSurface::Init()
 
 	
 	this->m_ConsoleCommandTextBox = new UIX::UIXTextBox();
-	this->m_ConsoleCommandTextBox->SetSize({ 350, 18 });
+	this->m_ConsoleCommandTextBox->SetSize({ 351, 18 });
 	this->m_ConsoleCommandTextBox->SetLocation({ 0, 149 });
 	this->m_ConsoleCommandTextBox->SetTabIndex(0);
 	this->m_ConsoleCommandTextBox->SetReadOnly(false);
@@ -499,6 +499,10 @@ void CUIBaseSurface::Setup()
 	this->m_ModeCombo->Items.Add("Host");
 	this->m_ModeCombo->Items.Add("Server");
 	this->m_ModeCombo->Items.Add("Client");
+
+#ifdef DEDI_LAUNCHER
+	this->m_ModeCombo->SetSelectedIndex(1);
+#endif // DEDI_LAUNCHER
 
 	this->m_VisibilityCombo->Items.Add("Public");
 	this->m_VisibilityCombo->Items.Add("Hidden");

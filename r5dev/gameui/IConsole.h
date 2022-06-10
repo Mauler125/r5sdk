@@ -45,6 +45,7 @@ private:
     vector<string>                 m_vsvHistory;
     int                            m_nHistoryPos      = -1;
     int                            m_nScrollBack      = 0;
+    float                          m_flFadeAlpha      = 0.f;
     ImGuiTextFilter                m_itFilter;
     bool                           m_bInitialized     = false;
     bool                           m_bDefaultTheme    = false;
@@ -89,10 +90,10 @@ public:
     ~CConsole(void);
 
     bool Setup(void);
-    void Draw(const char* pszTitle, bool* bDraw);
+    void Draw(void);
     void Think(void);
 
-    void BasePanel(bool* bDraw);
+    void BasePanel(void);
     void OptionsPanel(void);
     void SuggestPanel(void);
 

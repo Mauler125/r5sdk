@@ -216,7 +216,7 @@ SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* 
 		{
 			wconsole->debug(vmStr);
 #ifdef DEDICATED
-			g_pRConServer->Send(vmStr.c_str());
+			g_pRConServer->Send(vmStr);
 #endif // DEDICATED
 		}
 		else
@@ -225,7 +225,7 @@ SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* 
 			vmStrAnsi.append(svConstructor);
 			wconsole->debug(vmStrAnsi);
 #ifdef DEDICATED
-			g_pRConServer->Send(vmStrAnsi.c_str());
+			g_pRConServer->Send(vmStrAnsi);
 #endif // DEDICATED
 		}
 

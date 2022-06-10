@@ -331,6 +331,24 @@ int ConVar::GetInt(void) const
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Return ConVar value as an integer (64-bit).
+// Output : int
+//-----------------------------------------------------------------------------
+int64_t ConVar::GetInt64(void) const
+{
+	return static_cast<int64_t>(m_pParent->m_Value.m_nValue);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Return ConVar value as a size type.
+// Output : int
+//-----------------------------------------------------------------------------
+size_t ConVar::GetSizeT(void) const
+{
+	return static_cast<size_t>(m_pParent->m_Value.m_nValue);
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Return ConVar value as a color.
 // Output : Color
 //-----------------------------------------------------------------------------

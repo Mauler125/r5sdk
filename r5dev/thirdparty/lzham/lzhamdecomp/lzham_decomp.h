@@ -11,7 +11,7 @@ namespace lzham
 
    lzham_decompress_state_ptr LZHAM_CDECL lzham_lib_decompress_reinit(lzham_decompress_state_ptr pState, const lzham_decompress_params *pParams);
 
-   lzham_decompress_checksums* LZHAM_CDECL lzham_lib_decompress_deinit(lzham_decompress_state_ptr pState);
+   lzham_decompress_checksums LZHAM_CDECL lzham_lib_decompress_deinit(lzham_decompress_state_ptr pState);
 
    lzham_decompress_status_t LZHAM_CDECL lzham_lib_decompress(
       lzham_decompress_state_ptr pState,

@@ -161,7 +161,7 @@ extern "C" {
 
    // Deinitializes a compressor, releasing all allocated memory.
    // returns adler32 and crc32 of source data (valid only on success).
-   LZHAM_DLL_EXPORT lzham_compress_checksums* LZHAM_CDECL lzham_compress_deinit(lzham_compress_state_ptr pState);
+   LZHAM_DLL_EXPORT lzham_compress_checksums LZHAM_CDECL lzham_compress_deinit(lzham_compress_state_ptr pState);
 
    // Compresses an arbitrarily sized block of data, writing as much available compressed data as possible to the output buffer. 
    // This method may be called as many times as needed, but for best perf. try not to call it with tiny buffers.
@@ -282,7 +282,7 @@ extern "C" {
 
    // Deinitializes a decompressor.
    // returns adler32 of decompressed data if compute_adler32 was true, otherwise it returns the adler32 from the compressed stream.
-   LZHAM_DLL_EXPORT lzham_decompress_checksums* LZHAM_CDECL lzham_decompress_deinit(lzham_decompress_state_ptr pState);
+   LZHAM_DLL_EXPORT lzham_decompress_checksums LZHAM_CDECL lzham_decompress_deinit(lzham_decompress_state_ptr pState);
 
    // Decompresses an arbitrarily sized block of compressed data, writing as much available decompressed data as possible to the output buffer. 
    // This method is implemented as a coroutine so it may be called as many times as needed. However, for best perf. try not to call it with tiny buffers.
@@ -618,14 +618,14 @@ extern "C" {
 
    typedef lzham_compress_state_ptr (LZHAM_CDECL *lzham_compress_init_func)(const lzham_compress_params *pParams);
    typedef lzham_compress_state_ptr (LZHAM_CDECL *lzham_compress_reinit_func)(lzham_compress_state_ptr pState);
-   typedef lzham_compress_checksums* (LZHAM_CDECL *lzham_compress_deinit_func)(lzham_compress_state_ptr pState);
+   typedef lzham_compress_checksums (LZHAM_CDECL *lzham_compress_deinit_func)(lzham_compress_state_ptr pState);
    typedef lzham_compress_status_t (LZHAM_CDECL *lzham_compress_func)(lzham_compress_state_ptr pState, const lzham_uint8 *pIn_buf, size_t *pIn_buf_size, lzham_uint8 *pOut_buf, size_t *pOut_buf_size, lzham_bool no_more_input_bytes_flag);
    typedef lzham_compress_status_t (LZHAM_CDECL *lzham_compress2_func)(lzham_compress_state_ptr pState, const lzham_uint8 *pIn_buf, size_t *pIn_buf_size, lzham_uint8 *pOut_buf, size_t *pOut_buf_size, lzham_flush_t flush_type);
    typedef lzham_compress_status_t (LZHAM_CDECL *lzham_compress_memory_func)(const lzham_compress_params *pParams, lzham_uint8* pDst_buf, size_t *pDst_len, const lzham_uint8* pSrc_buf, size_t src_len, lzham_uint32 *pAdler32, lzham_uint32* pCrc32);
 
    typedef lzham_decompress_state_ptr (LZHAM_CDECL *lzham_decompress_init_func)(const lzham_decompress_params *pParams);
    typedef lzham_decompress_state_ptr (LZHAM_CDECL *lzham_decompress_reinit_func)(lzham_compress_state_ptr pState, const lzham_decompress_params *pParams);
-   typedef lzham_decompress_checksums* (LZHAM_CDECL *lzham_decompress_deinit_func)(lzham_decompress_state_ptr pState);
+   typedef lzham_decompress_checksums (LZHAM_CDECL *lzham_decompress_deinit_func)(lzham_decompress_state_ptr pState);
    typedef lzham_decompress_status_t (LZHAM_CDECL *lzham_decompress_func)(lzham_decompress_state_ptr pState, const lzham_uint8 *pIn_buf, size_t *pIn_buf_size, lzham_uint8 *pOut_buf, size_t *pOut_buf_size, lzham_bool no_more_input_bytes_flag);
    typedef lzham_decompress_status_t (LZHAM_CDECL *lzham_decompress_memory_func)(const lzham_decompress_params *pParams, lzham_uint8* pDst_buf, size_t *pDst_len, const lzham_uint8* pSrc_buf, size_t src_len, lzham_uint32 *pAdler32, lzham_uint32 *pCrc32);
 

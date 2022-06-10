@@ -9,7 +9,7 @@ namespace lzham
    
    lzham_compress_state_ptr LZHAM_CDECL lzham_lib_compress_reinit(lzham_compress_state_ptr p);
    
-   lzham_compress_checksums* LZHAM_CDECL lzham_lib_compress_deinit(lzham_compress_state_ptr p);
+   lzham_compress_checksums LZHAM_CDECL lzham_lib_compress_deinit(lzham_compress_state_ptr p);
    
    lzham_compress_status_t LZHAM_CDECL lzham_lib_compress(
       lzham_compress_state_ptr p,
