@@ -73,8 +73,8 @@ public:
 	int            GetMaxNumBits() const;
 	int            GetNumBitsLeft() const;
 	int            GetNumBytesLeft() const;
-	unsigned char* GetData();
-	const unsigned char* GetData() const;
+	unsigned char* GetData() const;
+	const char* GetDebugName() const;
 
 	// Has the buffer overflowed?
 	bool CheckForOverflow(int nBits);

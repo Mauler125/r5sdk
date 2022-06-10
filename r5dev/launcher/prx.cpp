@@ -20,5 +20,5 @@ void PRX_Attach()
 
 void PRX_Detach()
 {
-	DetourAttach((LPVOID*)&v_exit_or_terminate_process, &h_exit_or_terminate_process);
+	DetourDetach((LPVOID*)&v_exit_or_terminate_process, &h_exit_or_terminate_process);
 }

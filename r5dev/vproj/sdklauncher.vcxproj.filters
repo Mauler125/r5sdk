@@ -77,8 +77,13 @@
     <ClInclude Include="..\sdklauncher\sdklauncher_const.h">
       <Filter>launcher</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="..\sdklauncher\modManager.h">
       <Filter>mods</Filter>
+=======
+    <ClInclude Include="..\launcher\launcherdefs.h">
+      <Filter>launcher</Filter>
+>>>>>>> e07f59adbe72fdc3367946ac28f29a1f86737161
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

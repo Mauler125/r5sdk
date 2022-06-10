@@ -1119,6 +1119,9 @@
     <ClInclude Include="..\squirrel\sqscript.h">
       <Filter>sdk\squirrel</Filter>
     </ClInclude>
+    <ClInclude Include="..\mathlib\sha1.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1372,6 +1375,9 @@
     </ClCompile>
     <ClCompile Include="..\squirrel\sqscript.cpp">
       <Filter>sdk\squirrel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\sha1.cpp">
+      <Filter>sdk\mathlib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

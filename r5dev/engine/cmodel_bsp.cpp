@@ -52,11 +52,13 @@ void MOD_GetAllInstalledMaps()
             }
             else if (strcmp(smRegexMatches[1].str().c_str(), "mp_common") == 0)
             {
-                g_vAllMaps.push_back("mp_lobby");
+                if (std::find(g_vAllMaps.begin(), g_vAllMaps.end(), "mp_lobby") == g_vAllMaps.end())
+                    g_vAllMaps.push_back("mp_lobby");
                 continue;
             }
 
-            g_vAllMaps.push_back(smRegexMatches[1].str());
+            if (std::find(g_vAllMaps.begin(), g_vAllMaps.end(), smRegexMatches[1].str()) == g_vAllMaps.end())
+                g_vAllMaps.push_back(smRegexMatches[1].str());
         }
     }
 }

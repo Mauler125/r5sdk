@@ -60,9 +60,9 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
         if (!IsKnownBadModel(handle))
         {
             if (!pStudioHdr)
-                Error(eDLL_T::ENGINE, "Model with handle \"hu\" not found and \"%s\" couldn't be loaded.\n", handle, ERROR_MODEL);
+                Error(eDLL_T::ENGINE, "Model with handle \"%hu\" not found and \"%s\" couldn't be loaded.\n", handle, ERROR_MODEL);
             else
-                Error(eDLL_T::ENGINE, "Model with handle \"hu\" not found; replacing with \"%s\".\n", handle, ERROR_MODEL);
+                Error(eDLL_T::ENGINE, "Model with handle \"%hu\" not found; replacing with \"%s\".\n", handle, ERROR_MODEL);
 
             g_vBadMDLHandles.push_back(handle);
         }
@@ -143,9 +143,9 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
         if (!IsKnownBadModel(handle))
         {
             if (!pStudioHdr)
-                Error(eDLL_T::ENGINE, "Model with handle \"hu\" not found and \"%s\" couldn't be loaded.\n", handle, ERROR_MODEL);
+                Error(eDLL_T::ENGINE, "Model with handle \"%hu\" not found and \"%s\" couldn't be loaded.\n", handle, ERROR_MODEL);
             else
-                Error(eDLL_T::ENGINE, "Model with handle \"hu\" not found; replacing with \"%s\".\n", handle, ERROR_MODEL);
+                Error(eDLL_T::ENGINE, "Model with handle \"%hu\" not found; replacing with \"%s\".\n", handle, ERROR_MODEL);
 
             g_vBadMDLHandles.push_back(handle);
         }

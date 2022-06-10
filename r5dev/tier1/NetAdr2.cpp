@@ -14,17 +14,17 @@
 // Purpose: constructor (use this when string contains <[IP]:PORT>).
 // Input  : svInAdr - 
 //-----------------------------------------------------------------------------
-CNetAdr2::CNetAdr2(string svInAdr)
+CNetAdr2::CNetAdr2(const string& svInAdr)
 {
 	SetIPAndPort(svInAdr);
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: constructor (expects string format <IPv4/IPv6> <PORT>).
-// Input  : svInAdr - 
-//			svInPort - 
+// Input  : &svInAdr - 
+//			&svInPort - 
 //-----------------------------------------------------------------------------
-CNetAdr2::CNetAdr2(string svInAdr, string svInPort)
+CNetAdr2::CNetAdr2(const string& svInAdr, const string& svInPort)
 {
 	SetIPAndPort(svInAdr, svInPort);
 }
@@ -43,7 +43,7 @@ CNetAdr2::~CNetAdr2(void)
 //-----------------------------------------------------------------------------
 void CNetAdr2::SetIP(const string& svInAdr)
 {
-	m_svip = "[" + svInAdr + "]";
+	m_svip = '[' + svInAdr + ']';
 }
 
 //-----------------------------------------------------------------------------
@@ -52,7 +52,7 @@ void CNetAdr2::SetIP(const string& svInAdr)
 //-----------------------------------------------------------------------------
 void CNetAdr2::SetPort(const string& svInPort)
 {
-	m_svip += ":" + svInPort;
+	m_svip += ':' + svInPort;
 }
 
 //-----------------------------------------------------------------------------
@@ -217,7 +217,7 @@ string CNetAdr2::GetBase(void) const
 // Purpose: removes brackets and port from IP address.
 // Input  : svInAdr - 
 //-----------------------------------------------------------------------------
-string CNetAdr2::GetBase(string svInAdr) const
+string CNetAdr2::GetBase(const string& svInAdr) const
 {
 	static std::regex rx("[^\\[]*.(.*)(\\]).*");
 	std::smatch smRegexMatches;
@@ -337,12 +337,12 @@ vector<string> CNetAdr2::GetParts(void) const
 	// 000.000.000.000 -> vparts.
 	if (m_version == netadrversion_t::NA_V4)
 	{
-		svDelim = ".";
+		svDelim = '.';
 	}
 	// 0000:0000:0000:0000:0000:0000:0000:0000 -> vparts.
 	else if (m_version == netadrversion_t::NA_V6)
 	{
-		svDelim = ":";
+		svDelim = ':';
 		StringReplace(svIpAdr, "::", ":");
 	}
 

@@ -53,7 +53,12 @@ CBrowser::CBrowser(void)
     });
 
     hostingServerRequestThread.detach();
+
+    std::thread think(&CBrowser::Think, this);
+    think.detach();
 #endif // !CLIENT_DLL
+
+    m_pszBrowserTitle = "Server Browser";
     m_rLockedIconBlob = GetModuleResource(IDB_PNG2);
 }
 
@@ -68,7 +73,7 @@ CBrowser::~CBrowser(void)
 //-----------------------------------------------------------------------------
 // Purpose: draws the main browser front-end
 //-----------------------------------------------------------------------------
-void CBrowser::Draw(const char* pszTitle, bool* bDraw)
+void CBrowser::Draw(void)
 {
     if (!m_bInitialized)
     {
@@ -83,22 +88,20 @@ void CBrowser::Draw(const char* pszTitle, bool* bDraw)
         //ImGui::ShowDemoWindow();
     }
 
-    if (!ImGui::Begin(pszTitle, bDraw))
+    int nVars = 0;
+    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha); nVars++;
+    if (!ImGui::Begin(m_pszBrowserTitle, &m_bActivate))
     {
         ImGui::End();
+        ImGui::PopStyleVar(nVars);
         return;
     }
     ImGui::End();
 
-    if (*bDraw == NULL)
-    {
-        m_bActivate = false;
-    }
-
     ImGui::SetNextWindowSize(ImVec2(840, 600), ImGuiCond_FirstUseEver);
     ImGui::SetWindowPos(ImVec2(-500, 50), ImGuiCond_FirstUseEver);
 
-    ImGui::Begin(pszTitle, NULL, ImGuiWindowFlags_NoScrollbar);
+    ImGui::Begin(m_pszBrowserTitle, NULL, ImGuiWindowFlags_NoScrollbar);
     {
         CompMenu();
 
@@ -118,6 +121,29 @@ void CBrowser::Draw(const char* pszTitle, bool* bDraw)
         }
     }
     ImGui::End();
+    ImGui::PopStyleVar(nVars);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: runs tasks for the browser while not being drawn
+//-----------------------------------------------------------------------------
+void CBrowser::Think(void)
+{
+    for (;;) // Loop running at 100-tps.
+    {
+        if (m_bActivate)
+        {
+            if (m_flFadeAlpha <= 1.f)
+            {
+                m_flFadeAlpha += 0.05;
+            }
+        }
+        else // Reset to full transparent.
+        {
+            m_flFadeAlpha = 0.f;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -162,8 +188,15 @@ void CBrowser::ServerBrowserSection(void)
     const float fFooterHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
     ImGui::BeginChild("##ServerBrowser_ServerList", { 0, -fFooterHeight }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
-    if (m_bDefaultTheme) { ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 8.f, 0.f }); }
-    else { ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.f, 0.f)); }
+    int nVars = 0;
+    if (m_bDefaultTheme)
+    {
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 8.f, 0.f }); nVars++;
+    }
+    else
+    {
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.f, 0.f)); nVars++;
+    }
 
     if (ImGui::BeginTable("##ServerBrowser_ServerListTable", 5, ImGuiTableFlags_Resizable))
     {
@@ -208,8 +241,8 @@ void CBrowser::ServerBrowserSection(void)
             }
 
         }
+        ImGui::PopStyleVar(nVars);
         ImGui::EndTable();
-        ImGui::PopStyleVar(1);
     }
     ImGui::EndChild();
 

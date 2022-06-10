@@ -60,43 +60,45 @@ void CLogSystem::AddLog(LogType_t type, std::string svMessage)
 //-----------------------------------------------------------------------------
 void CLogSystem::DrawLog(void)
 {
-	if (m_vLogs.empty()) { return; }
-	for (int i = 0; i < m_vLogs.size(); ++i)
+	if (!m_vLogs.empty())
 	{
-		if (m_vLogs[i].m_nTicks >= 0)
+		for (size_t i = 0; i < m_vLogs.size(); ++i)
 		{
-			if (i < cl_consoleoverlay_lines->GetInt())
+			if (m_vLogs[i].m_nTicks >= 0)
 			{
-				float fadepct = fminf(static_cast<float>(m_vLogs[i].m_nTicks) / 255.f, 4.f); // TODO [ AMOS ]: register a ConVar for this!
-				float ptc = static_cast<int>(ceilf(fadepct * 100.f));
-				int alpha = static_cast<int>(ptc);
-				int x = cl_consoleoverlay_offset_x->GetInt();
-				int y = cl_consoleoverlay_offset_y->GetInt() + (m_nFontHeight * i);
-				Color c = GetLogColorForType(m_vLogs[i].m_type);
-
-				if (cl_consoleoverlay_invert_rect_x->GetBool())
+				if (i < cl_consoleoverlay_lines->GetSizeT())
 				{
-					x = g_nWindowWidth - cl_consoleoverlay_offset_x->GetInt();
+					float fadepct = fminf(static_cast<float>(m_vLogs[i].m_nTicks) / 255.f, 4.f); // TODO [ AMOS ]: register a ConVar for this!
+					float ptc = static_cast<int>(ceilf(fadepct * 100.f));
+					int alpha = static_cast<int>(ptc);
+					int x = cl_consoleoverlay_offset_x->GetInt();
+					int y = cl_consoleoverlay_offset_y->GetInt() + (m_nFontHeight * i);
+					Color c = GetLogColorForType(m_vLogs[i].m_type);
+
+					if (cl_consoleoverlay_invert_rect_x->GetBool())
+					{
+						x = g_nWindowWidth - cl_consoleoverlay_offset_x->GetInt();
+					}
+					if (cl_consoleoverlay_invert_rect_y->GetBool())
+					{
+						y = g_nWindowHeight - cl_consoleoverlay_offset_y->GetInt();
+						y += m_nFontHeight * i;
+					}
+
+					CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, x, y, c.r(), c.g(), c.b(), alpha, m_vLogs[i].m_svMessage.c_str());
 				}
-				if (cl_consoleoverlay_invert_rect_y->GetBool())
+				else
 				{
-					y = g_nWindowHeight - cl_consoleoverlay_offset_y->GetInt();
-					y += m_nFontHeight * i;
+					m_vLogs.erase(m_vLogs.begin());
+					continue;
 				}
 
-				CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, x, y, c.r(), c.g(), c.b(), alpha, m_vLogs[i].m_svMessage.c_str());
+				m_vLogs[i].m_nTicks--;
 			}
 			else
 			{
-				m_vLogs.erase(m_vLogs.begin());
-				continue;
+				m_vLogs.erase(m_vLogs.begin() + i);
 			}
-
-			m_vLogs[i].m_nTicks--;
-		}
-		else
-		{
-			m_vLogs.erase(m_vLogs.begin() + i);
 		}
 	}
 }

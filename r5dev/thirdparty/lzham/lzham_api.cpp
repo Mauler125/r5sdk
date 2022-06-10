@@ -24,7 +24,7 @@ extern "C" LZHAM_DLL_EXPORT lzham_decompress_state_ptr lzham_decompress_reinit(l
    return lzham::lzham_lib_decompress_reinit(p, pParams);
 }
 
-extern "C" LZHAM_DLL_EXPORT lzham_decompress_checksums* lzham_decompress_deinit(lzham_decompress_state_ptr p)
+extern "C" LZHAM_DLL_EXPORT lzham_decompress_checksums lzham_decompress_deinit(lzham_decompress_state_ptr p)
 {
    return lzham::lzham_lib_decompress_deinit(p);
 }
@@ -53,7 +53,7 @@ extern "C" LZHAM_DLL_EXPORT lzham_compress_state_ptr lzham_compress_reinit(lzham
    return lzham::lzham_lib_compress_reinit(p);
 }
 
-extern "C" LZHAM_DLL_EXPORT lzham_compress_checksums* lzham_compress_deinit(lzham_compress_state_ptr p)
+extern "C" LZHAM_DLL_EXPORT lzham_compress_checksums lzham_compress_deinit(lzham_compress_state_ptr p)
 {
    return lzham::lzham_lib_compress_deinit(p);
 }

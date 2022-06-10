@@ -2,9 +2,6 @@
 #include "basepanel.h"
 #include "sdklauncher_const.h"
 #include "sdklauncher.h"
-#include <objidl.h>
-#include "gdiplus.h"
-#include "shellapi.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Purpose: initializes the user interface
