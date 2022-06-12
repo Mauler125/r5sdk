@@ -107,7 +107,7 @@ void CBaseFileSystem::Warning(CBaseFileSystem* pFileSystem, FileWarningLevel_t l
 //			*pszFilePath - 
 // Output : Handle to file on success, NULL on failure
 //---------------------------------------------------------------------------------
-FileHandle_t CBaseFileSystem::ReadFromVPK(CBaseFileSystem* pFileSystem, FileHandle_t pResults, char* pszFilePath)
+FileHandle_t CBaseFileSystem::VReadFromVPK(CBaseFileSystem* pFileSystem, FileHandle_t pResults, char* pszFilePath)
 {
 	std::string svFilePath = ConvertToWinPath(pszFilePath);
 
@@ -125,7 +125,7 @@ FileHandle_t CBaseFileSystem::ReadFromVPK(CBaseFileSystem* pFileSystem, FileHand
 		*reinterpret_cast<int64_t*>(pResults) = -1;
 		return pResults;
 	}
-	return CBaseFileSystem_LoadFromVPK(pFileSystem, pResults, pszFilePath);
+	return CBaseFileSystem_VLoadFromVPK(pFileSystem, pResults, pszFilePath);
 }
 
 //---------------------------------------------------------------------------------
@@ -135,7 +135,7 @@ FileHandle_t CBaseFileSystem::ReadFromVPK(CBaseFileSystem* pFileSystem, FileHand
 //			*pResults - 
 // Output : true if file exists, false otherwise
 //---------------------------------------------------------------------------------
-bool CBaseFileSystem::ReadFromCache(CBaseFileSystem* pFileSystem, char* pszFilePath, void* pResults)
+bool CBaseFileSystem::VReadFromCache(CBaseFileSystem* pFileSystem, char* pszFilePath, void* pResults)
 {
 	std::string svFilePath = ConvertToWinPath(pszFilePath);
 
@@ -152,7 +152,7 @@ bool CBaseFileSystem::ReadFromCache(CBaseFileSystem* pFileSystem, char* pszFileP
 	{
 		return false;
 	}
-	return CBaseFileSystem_LoadFromCache(pFileSystem, pszFilePath, pResults);
+	return CBaseFileSystem_VLoadFromCache(pFileSystem, pszFilePath, pResults);
 }
 
 //-----------------------------------------------------------------------------
@@ -161,9 +161,9 @@ bool CBaseFileSystem::ReadFromCache(CBaseFileSystem* pFileSystem, char* pszFileP
 //			*pPathID - 
 //			addType - 
 //-----------------------------------------------------------------------------
-void CBaseFileSystem::AddSearchPath(CBaseFileSystem* pFileSystem, const char* pPath, const char* pPathID, SearchPathAdd_t addType)
+void CBaseFileSystem::VAddSearchPath(CBaseFileSystem* pFileSystem, const char* pPath, const char* pPathID, SearchPathAdd_t addType)
 {
-	CBaseFileSystem_AddSearchPath(pFileSystem, pPath, pPathID, addType);
+	CBaseFileSystem_VAddSearchPath(pFileSystem, pPath, pPathID, addType);
 }
 
 //-----------------------------------------------------------------------------
@@ -173,26 +173,26 @@ void CBaseFileSystem::AddSearchPath(CBaseFileSystem* pFileSystem, const char* pP
 //			addType - 
 // Output : true on success, false otherwise.
 //-----------------------------------------------------------------------------
-bool CBaseFileSystem::RemoveSearchPath(CBaseFileSystem* pFileSystem, const char* pPath, const char* pPathID)
+bool CBaseFileSystem::VRemoveSearchPath(CBaseFileSystem* pFileSystem, const char* pPath, const char* pPathID)
 {
-	return CBaseFileSystem_RemoveSearchPath(pFileSystem, pPath, pPathID);
+	return CBaseFileSystem_VRemoveSearchPath(pFileSystem, pPath, pPathID);
 }
 
 void CBaseFileSystem_Attach()
 {
 	DetourAttach((LPVOID*)&CBaseFileSystem_Warning, &CBaseFileSystem::Warning);
-	DetourAttach((LPVOID*)&CBaseFileSystem_LoadFromVPK, &CBaseFileSystem::ReadFromVPK);
-	DetourAttach((LPVOID*)&CBaseFileSystem_LoadFromCache, &CBaseFileSystem::ReadFromCache);
-	DetourAttach((LPVOID*)&CBaseFileSystem_AddSearchPath, &CBaseFileSystem::AddSearchPath);
-	DetourAttach((LPVOID*)&CBaseFileSystem_RemoveSearchPath, &CBaseFileSystem::RemoveSearchPath);
+	DetourAttach((LPVOID*)&CBaseFileSystem_VLoadFromVPK, &CBaseFileSystem::VReadFromVPK);
+	DetourAttach((LPVOID*)&CBaseFileSystem_VLoadFromCache, &CBaseFileSystem::VReadFromCache);
+	DetourAttach((LPVOID*)&CBaseFileSystem_VAddSearchPath, &CBaseFileSystem::VAddSearchPath);
+	DetourAttach((LPVOID*)&CBaseFileSystem_VRemoveSearchPath, &CBaseFileSystem::VRemoveSearchPath);
 }
 
 void CBaseFileSystem_Detach()
 {
 	DetourDetach((LPVOID*)&CBaseFileSystem_Warning, &CBaseFileSystem::Warning);
-	DetourDetach((LPVOID*)&CBaseFileSystem_LoadFromVPK, &CBaseFileSystem::ReadFromVPK);
-	DetourDetach((LPVOID*)&CBaseFileSystem_LoadFromCache, &CBaseFileSystem::ReadFromCache);
-	DetourDetach((LPVOID*)&CBaseFileSystem_AddSearchPath, &CBaseFileSystem::AddSearchPath);
-	DetourDetach((LPVOID*)&CBaseFileSystem_RemoveSearchPath, &CBaseFileSystem::RemoveSearchPath);
+	DetourDetach((LPVOID*)&CBaseFileSystem_VLoadFromVPK, &CBaseFileSystem::VReadFromVPK);
+	DetourDetach((LPVOID*)&CBaseFileSystem_VLoadFromCache, &CBaseFileSystem::VReadFromCache);
+	DetourDetach((LPVOID*)&CBaseFileSystem_VAddSearchPath, &CBaseFileSystem::VAddSearchPath);
+	DetourDetach((LPVOID*)&CBaseFileSystem_VRemoveSearchPath, &CBaseFileSystem::VRemoveSearchPath);
 }
 CBaseFileSystem* g_pFileSystem = nullptr;
