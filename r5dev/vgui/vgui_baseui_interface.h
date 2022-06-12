@@ -8,7 +8,6 @@ enum class PaintMode_t
 	PAINT_INGAMEPANELS = (1 << 1),
 };
 
-
 class CEngineVGui
 {
 public:

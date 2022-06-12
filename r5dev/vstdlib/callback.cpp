@@ -764,7 +764,15 @@ void RCON_CmdQuery_f(const CCommand& args)
 		{
 			if (strcmp(args.Arg(1), "PASS") == 0) // Auth with RCON server using rcon_password ConVar value.
 			{
-				string svCmdQuery = g_pRConClient->Serialize(rcon_password->GetString(), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+				string svCmdQuery;
+				if (args.ArgC() > 2)
+				{
+					svCmdQuery = g_pRConClient->Serialize(args.Arg(2), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+				}
+				else // Use 'rcon_password' ConVar as password.
+				{
+					svCmdQuery = g_pRConClient->Serialize(rcon_password->GetString(), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+				}
 				g_pRConClient->Send(svCmdQuery);
 				return;
 			}
