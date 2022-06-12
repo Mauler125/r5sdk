@@ -1,5 +1,6 @@
 #pragma once
 #include <engine/server/sv_main.h>
+#include <vguimatsurface/MatSystemSurface.h>
 
 enum class PaintMode_t
 {
@@ -11,6 +12,7 @@ enum class PaintMode_t
 class CEngineVGui
 {
 public:
+	static int Paint(CEngineVGui* thisptr, PaintMode_t mode);
 	void EnabledProgressBarForNextLoad(void)
 	{
 		int index = 31;
@@ -30,10 +32,13 @@ public:
 
 /* ==== CENGINEVGUI ===================================================================================================================================================== */
 inline CMemory p_CEngineVGui_Paint;
-inline auto CEngineVGui_Paint = p_CEngineVGui_Paint.RCast<int (*)(void* thisptr, PaintMode_t mode)>();
+inline auto CEngineVGui_Paint = p_CEngineVGui_Paint.RCast<int (*)(CEngineVGui* thisptr, PaintMode_t mode)>();
 
-inline CMemory p_CEngineVGui_Unknown;
-inline auto CEngineVGui_Unknown = p_CEngineVGui_Unknown.RCast<void** (*)(void* thisptr)>();
+inline CMemory p_CEngineVGui_RenderStart;
+inline auto CEngineVGui_RenderStart = p_CEngineVGui_RenderStart.RCast<void* (*)(CMatSystemSurface* pMatSystemSurface)>();
+
+inline CMemory p_CEngineVGui_RenderEnd;
+inline auto CEngineVGui_RenderEnd = p_CEngineVGui_RenderEnd.RCast<void* (*)(void)>();
 
 inline CEngineVGui* g_pEngineVGui = nullptr;
 
@@ -43,7 +48,8 @@ class VEngineVGui : public IDetour
 	virtual void GetAdr(void) const
 	{
 		spdlog::debug("| FUN: CEngineVGui::Paint                   : {:#18x} |\n", p_CEngineVGui_Paint.GetPtr());
-		spdlog::debug("| FUN: CEngineVGui::Unknown                 : {:#18x} |\n", p_CEngineVGui_Unknown.GetPtr());
+		spdlog::debug("| FUN: CEngineVGui::RenderStart             : {:#18x} |\n", p_CEngineVGui_RenderStart.GetPtr());
+		spdlog::debug("| FUN: CEngineVGui::RenderEnd               : {:#18x} |\n", p_CEngineVGui_RenderEnd.GetPtr());
 		spdlog::debug("| VAR: g_pEngineVGui                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pEngineVGui));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
@@ -51,17 +57,19 @@ class VEngineVGui : public IDetour
 	{
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 		p_CEngineVGui_Paint = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x89\x54\x24\x10\x55\x56\x41\x55\x48\x81\xEC\x00\x00\x00\x00"), "xxxxxxxxxxx????");
-		CEngineVGui_Paint = p_CEngineVGui_Paint.RCast<int (*)(void* thisptr, PaintMode_t mode)>(); /*41 55 41 56 48 83 EC 78 44 8B EA*/
+		CEngineVGui_Paint = p_CEngineVGui_Paint.RCast<int (*)(CEngineVGui* thisptr, PaintMode_t mode)>(); /*41 55 41 56 48 83 EC 78 44 8B EA*/
 
-		p_CEngineVGui_Unknown = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x8B\x81\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x4C\x3B\xC0\x74\x1F"), "xxx????xxx????xxxxx");
-		CEngineVGui_Unknown = p_CEngineVGui_Unknown.RCast<void** (*)(void* thisptr)>(); /*4C 8B 81 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 4C 3B C0 74 1F*/
+		p_CEngineVGui_RenderStart = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x53\x56\x57\x48\x81\xEC\x00\x00\x00\x00\x0F\x29\x70\xD8"), "xxxxxxxxx????xxxx");
+		CEngineVGui_RenderStart = p_CEngineVGui_RenderStart.RCast<void* (*)(CMatSystemSurface*)>(); /*48 8B C4 53 56 57 48 81 EC ?? ?? ?? ?? 0F 29 70 D8*/
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		p_CEngineVGui_Paint = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x41\x55\x41\x56\x48\x83\xEC\x78\x44\x8B\xEA"), "xxxxxxxxxxx");
-		CEngineVGui_Paint = p_CEngineVGui_Paint.RCast<int (*)(void* thisptr, PaintMode_t mode)>(); /*41 55 41 56 48 83 EC 78 44 8B EA*/
+		CEngineVGui_Paint = p_CEngineVGui_Paint.RCast<int (*)(CEngineVGui* thisptr, PaintMode_t mode)>(); /*41 55 41 56 48 83 EC 78 44 8B EA*/
 
-		p_CEngineVGui_Unknown = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x48\x8D\x05\x00\x00\x00\x00\x48\x8B\xD9\x48\x39\x81\x00\x00\x00\x00\x74\x29"), "xxxxxxxxx????xxxxxx????xx");
-		CEngineVGui_Unknown = p_CEngineVGui_Unknown.RCast<void** (*)(void* thisptr)>(); /*40 53 48 83 EC 20 48 8D 05 ?? ?? ?? ?? 48 8B D9 48 39 81 ?? ?? ?? ?? 74 29*/
+		p_CEngineVGui_RenderStart = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xF9"), "xxxxxx????xxx");
+		CEngineVGui_RenderStart = p_CEngineVGui_RenderStart.RCast<void* (*)(CMatSystemSurface*)>(); /*40 53 57 48 81 EC ?? ?? ?? ?? 48 8B F9*/
 #endif
+		p_CEngineVGui_RenderEnd = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x48\x8B\x0D\x00\x00\x00\x00\xC6\x05\x00\x00\x00\x00\x00\x48\x8B\x01"), "xxxxxxxxx????xx?????xxx");
+		CEngineVGui_RenderEnd = p_CEngineVGui_RenderEnd.RCast<void* (*)(void)>(); /*40 53 48 83 EC 20 48 8B 0D ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ?? 48 8B 01*/
 	}
 	virtual void GetVar(void) const
 	{
