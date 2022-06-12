@@ -339,7 +339,7 @@ void Dedicated_Init()
 	}
 
 	// This mandatory pak file should only exist on the client.
-	if (!FileExists("vpk\\client_frontend.bsp.pak000_000.vpk"))
+	if (FileExists("vpk\\server_mp_common.bsp.pak000_000.vpk"))
 	{
 		// Patch 'client' pak file string constants to 'server' if this is a standalone dedicated server.
 		g_pClientVPKDir.PatchString("vpk/%sserver_%s.bsp.pak000%s");
