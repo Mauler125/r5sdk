@@ -11,6 +11,8 @@
 #include "mathlib/bits.h"
 #include "vstdlib/callback.h"
 
+#include "../filesystem/filesystem.h"
+
 //-----------------------------------------------------------------------------
 // Purpose: construct/allocate
 //-----------------------------------------------------------------------------

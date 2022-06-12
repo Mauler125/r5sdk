@@ -32,6 +32,8 @@
 #include "materialsystem/cmaterialglue.h"
 #endif // !DEDICATED
 
+#include "../tier0/commandline.h"
+
 
 /*
 =====================
@@ -703,6 +705,24 @@ void VPK_Mount_f(const CCommand& args)
 	{
 		Warning(eDLL_T::FS, "Unable to mount VPK file '%s': '%s' is not initalized\n", args.Arg(1), VAR_NAME(g_pFileSystem));
 	}
+}
+
+/*
+=====================
+fs_addsp_h
+
+	Adds SearchPath to head
+*/
+void fs_addsp_h_g(const CCommand& args) {
+	if (args.ArgC() < 2)
+		return;
+
+	/*if (g_pFullFileSystem) {
+		DevMsg(eDLL_T::FS, "Added SearchPath '%s'\n", args.Arg(1));
+		g_pFullFileSystem->AddSearchPath(args.Arg(1), "Game", SearchPathAdd_t::PATH_ADD_TO_HEAD);
+	}*/
+
+	DevMsg(eDLL_T::FS, "Added SearchPath '%s' '%p'\n", args.Arg(1), g_pFullFileSystem);
 }
 
 /*

@@ -1,5 +1,6 @@
 #pragma once
 #include "sdklauncher_const.h"
+#include "modManager.h"
 
 struct LogList_t
 {
@@ -94,6 +95,7 @@ private:
 	UIX::UIXGroupBox* m_EngineBaseGroup;
 	UIX::UIXGroupBox* m_EngineNetworkGroup;
 	UIX::UIXGroupBox* m_EngineVideoGroup;
+	UIX::UIXGroupBox* m_ManagerGroup;
 	// Toggles
 	UIX::UIXCheckBox* m_CheatsToggle;
 	UIX::UIXCheckBox* m_DevelopmentToggle;
@@ -117,4 +119,8 @@ private:
 	UIX::UIXButton* m_UpdateSDK;
 	UIX::UIXButton* m_LaunchSDK;
 	UIX::UIXButton* m_ConsoleSendCommand;
+
+	// Manager
+	UIX::UIXListView* m_ManagerListView;
+	std::vector<modStruct> m_modsList;
 };

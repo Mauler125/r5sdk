@@ -16,6 +16,7 @@
 #include "engine/server/sv_main.h"
 #include "server/vengineserver_impl.h"
 #include "client/cdll_engine_int.h"
+
 #ifndef DEDICATED
 #include "gameui/IConsole.h"
 #endif // !DEDICATED
@@ -43,6 +44,7 @@ int CModAppSystemGroup::Main(CModAppSystemGroup* pModAppSystemGroup)
 		g_pEngine->Unload();
 		SV_ShutdownGameDLL();
 	}
+
 	return nRunResult;
 #endif
 }
@@ -75,6 +77,9 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 	}
 
 	g_bAppSystemInit = true;
+
+
+
 	return CModAppSystemGroup_Create(pModAppSystemGroup);
 }
 

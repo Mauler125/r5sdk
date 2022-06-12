@@ -156,6 +156,27 @@ class modObject {
 		};
 };
 
+struct modStruct {
+	// Enabled, AppId, Desc, Authors, Contacts, Version, Name
+	modStruct(bool toggled, std::string appid, std::string description, std::vector<std::string> authors, std::vector<std::string> contacts, std::string version, std::string name) {
+		m_toggled = toggled;
+		std::string m_appid = appid;
+		std::string m_name = name;
+		std::string m_description = description;
+		std::vector<std::string> m_authors = authors;
+		std::vector<std::string> m_contacts = contacts;
+		std::string m_version = version;
+	}
+
+	std::string m_appid;
+	std::string m_name;
+	std::string m_description;
+	std::vector<std::string> m_authors;
+	std::vector<std::string> m_contacts;
+	std::string m_version;
+	bool m_toggled;
+};
+
 
 //-----------------------------------------------------------------------------
 // Purpose: allMods log type
@@ -176,9 +197,10 @@ public:
 	std::vector<modObject> mods;
 	std::string scriptRson = "";
 
-	void addMod(std::string contents, std::string modJson) {
+	modObject addMod(std::string contents, std::string modJson) {
 		modObject object(contents, modJson);
 		mods.push_back(object);
+		return object;
 	}
 
 	// Generate a list of mods that are being moved into compiled_mods
@@ -302,8 +324,8 @@ public:
 //-----------------------------------------------------------------------------
 // Purpose: removes compiled_mods directory - ran with atexit
 //-----------------------------------------------------------------------------
-void compiledModsRemove() {
-	const std::string compMods = "mods\\compiled_mods";
-	if (fs::exists(compMods))
-		fs::remove_all(compMods);
-}
+//void compiledModsRemove() {
+//	const std::string compMods = "mods\\compiled_mods";
+//	if (fs::exists(compMods))
+//		fs::remove_all(compMods);
+//}

@@ -20,7 +20,7 @@ void CUIBaseSurface::Init()
 {
 	// START DESIGNER CODE
 	const INT WindowX = 800;
-	const INT WindowY = 350;
+	const INT WindowY = 550;
 
 	this->SuspendLayout();
 	this->SetAutoScaleDimensions({ 6, 13 });
@@ -481,6 +481,33 @@ void CUIBaseSurface::Init()
 	this->m_ConsoleSendCommand->Click += &ForwardCommandToGame;
 	this->m_ConsoleGroupExt->AddControl(this->m_ConsoleSendCommand);
 
+	// ########################################################################
+	//	MOD MANAGER
+	// ########################################################################
+	this->m_ManagerGroup = new UIX::UIXGroupBox();
+	this->m_ManagerGroup->SetSize({780, 185});
+	this->m_ManagerGroup->SetLocation({ 12, 350 });
+	this->m_ManagerGroup->SetTabIndex(0);
+	this->m_ManagerGroup->SetText("Mod Manager");
+	this->m_ManagerGroup->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->AddControl(this->m_ManagerGroup);
+
+	this->m_ManagerListView = new UIX::UIXListView();
+	this->m_ManagerListView->SetSize({780, 171});
+	this->m_ManagerListView->SetLocation({1, -14});
+	this->m_ManagerListView->SetTabIndex(0);
+	this->m_ManagerListView->SetBackColor(logListColor);
+	this->m_ManagerListView->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->m_ManagerListView->SetView(Forms::View::Details);
+	this->m_ManagerListView->SetVirtualMode(true);
+	this->m_ManagerListView->SetFullRowSelect(true);
+	this->m_ManagerListView->Columns.Add({"name", 40});
+	this->m_ManagerListView->Columns.Add({ "desc", 130});
+	this->m_ManagerListView->MouseClick += &VirtualItemToClipboard;
+	this->m_ManagerListView->RetrieveVirtualItem += &GetVirtualItem;
+	this->m_ManagerGroup->AddControl(this->m_ManagerListView);
+
+
 	this->ResumeLayout(false);
 	this->PerformLayout();
 
@@ -575,10 +602,10 @@ void CUIBaseSurface::ParseMaps()
 //-----------------------------------------------------------------------------
 void CUIBaseSurface::ReadModJson() {
 	// Removes compiled_mods folder when closed
-	atexit(compiledModsRemove);
+	//atexit(compiledModsRemove);
 	modManager manager;
 	bool ran = false;
-	logText(spdlog::level::level_enum::info, "Reading mod.json's");
+	logText(spdlog::level::level_enum::info, "Reading mod.json's.");
 	if (fs::exists("mods")) {
 		for (const auto& mEntry : fs::directory_iterator("mods")) {
 			if (mEntry.path() == "mods\\compiled_mods")
@@ -594,19 +621,23 @@ void CUIBaseSurface::ReadModJson() {
 
 					//logText(spdlog::level::level_enum::info, contents.str());
 
-					manager.addMod(contents.str(), path);
+					modObject object = manager.addMod(contents.str(), path);
 
+					m_modsList.push_back(modStruct(object.toggled, object.appid, object.description, object.authors, object.contacts, object.version, object.name));
+					m_ManagerListView->SetVirtualListSize(static_cast<int32_t>(m_modsList.size()));
+					m_ManagerListView->Refresh();
+					
 					//modObject object(contents.str(), modJson);
 
 					//logText(spdlog::level::level_enum::info, objectToString(object)
 				}
 				else {
-					logText(spdlog::level::level_enum::err, "Error. Unable to read " + modJson);
+					logText(spdlog::level::level_enum::err, "Unable to read " + modJson);
 				}
 				stream.close();
 			}
 			else {
-				logText(spdlog::level::level_enum::err, "Error. Unable to find mod.json for mod: " + path);
+				logText(spdlog::level::level_enum::err, "Unable to find mod.json for mod: " + path);
 			}
 		}
 		bool wereInvalid = false;
@@ -621,7 +652,7 @@ void CUIBaseSurface::ReadModJson() {
 			logText(spdlog::level::level_enum::warn, "Jk. It's fine");
 	}
 
-	logText(spdlog::level::level_enum::debug, manager.mods[0].modJsonLoc);
+	//logText(spdlog::level::level_enum::debug, manager.mods[0].modJsonLoc);
 
 	manager.mods[0].switchStates();
 
