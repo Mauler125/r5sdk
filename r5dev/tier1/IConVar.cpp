@@ -219,23 +219,22 @@ void ConVar::PurgeHostNames(void) const
 {
 	const char* pszHostNames[] =
 	{
-		"pin_telemetry_hostname",
 		"assetdownloads_hostname",
-		"users_hostname",
-		"persistence_hostname",
-		"speechtotexttoken_hostname",
 		"communities_hostname",
-		"persistenceDef_hostname",
-		"party_hostname",
-		"speechtotext_hostname",
-		"serverReports_hostname",
-		"subscription_hostname",
-		"steamlink_hostname",
-		"staticfile_hostname",
 		"matchmaking_hostname",
-		"skill_hostname",
+		"party_hostname",
+		"persistence_hostname",
+		"persistenceDef_hostname",
+		"pin_telemetry_hostname",
 		"publication_hostname",
-		"stats_hostname"
+		"serverReports_hostname",
+		"skill_hostname",
+		"speechtotext_hostname",
+		"staticfile_hostname",
+		"stats_hostname",
+		"steamlink_hostname",
+		"subscription_hostname",
+		"users_hostname"
 	};
 
 	for (int i = 0; i < (&pszHostNames)[1] - pszHostNames; i++)
@@ -720,7 +719,7 @@ void ConVar::ChangeStringValue(const char* pszTempVal, float flOldValue)
 
 	if (pszTempVal)
 	{
-		int len = strlen(pszTempVal) + 1;
+		size_t len = strlen(pszTempVal) + 1;
 
 		if (len > m_Value.m_iStringLength)
 		{
@@ -732,7 +731,11 @@ void ConVar::ChangeStringValue(const char* pszTempVal, float flOldValue)
 			m_Value.m_pszString = new char[len];
 			m_Value.m_iStringLength = len;
 		}
-
+		else if (!m_Value.m_pszString)
+		{
+			m_Value.m_pszString = new char[len];
+			m_Value.m_iStringLength = len;
+		}
 		memcpy(const_cast<char*>(m_Value.m_pszString), pszTempVal, len);
 	}
 	else

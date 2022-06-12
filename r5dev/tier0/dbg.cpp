@@ -108,8 +108,7 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 	svOut.append(szBuf);
 	svOut = std::regex_replace(svOut, rxAnsiExp, "");
 
-	char szNewLine = svOut.back();
-	if (szNewLine != '\n')
+	if (svOut.back() != '\n')
 	{
 		svOut.append("\n");
 	}
@@ -126,8 +125,7 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 		svAnsiOut = sANSI_DLL_T[static_cast<int>(context)];
 		svAnsiOut.append(szBuf);
 
-		char szNewLine = svAnsiOut.back();
-		if (szNewLine != '\n')
+		if (svAnsiOut.back() != '\n')
 		{
 			svAnsiOut.append("\n");
 		}
@@ -216,8 +214,7 @@ void Warning(eDLL_T context, const char* fmt, ...)
 	svOut.append(szBuf);
 	svOut = std::regex_replace(svOut, rxAnsiExp, "");
 
-	char szNewLine = svOut.back();
-	if (szNewLine != '\n')
+	if (svOut.back() != '\n')
 	{
 		svOut.append("\n");
 	}
@@ -235,8 +232,7 @@ void Warning(eDLL_T context, const char* fmt, ...)
 		svAnsiOut.append(g_svYellowF);
 		svAnsiOut.append(szBuf);
 
-		char szNewLine = svAnsiOut.back();
-		if (szNewLine != '\n')
+		if (svAnsiOut.back() != '\n')
 		{
 			svAnsiOut.append("\n");
 		}
@@ -293,8 +289,7 @@ void Error(eDLL_T context, const char* fmt, ...)
 	svOut.append(szBuf);
 	svOut = std::regex_replace(svOut, rxAnsiExp, "");
 
-	char szNewLine = svOut.back();
-	if (szNewLine != '\n')
+	if (svOut.back() != '\n')
 	{
 		svOut.append("\n");
 	}
@@ -312,8 +307,7 @@ void Error(eDLL_T context, const char* fmt, ...)
 		svAnsiOut.append(g_svRedF);
 		svAnsiOut.append(szBuf);
 
-		char szNewLine = svAnsiOut.back();
-		if (szNewLine != '\n')
+		if (svAnsiOut.back() != '\n')
 		{
 			svAnsiOut.append("\n");
 		}
