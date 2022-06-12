@@ -383,7 +383,7 @@ void Pak_RequestUnload_f(const CCommand& args)
 
 			string pakName = pakInfo->m_pszFileName;
 			!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested pak unload for '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested Pak Unload for '%d'\n", nPakId);
-			g_pakLoadApi->Unload(nPakId);
+			g_pakLoadApi->UnloadPak(nPakId);
 		}
 		else
 		{
@@ -394,7 +394,7 @@ void Pak_RequestUnload_f(const CCommand& args)
 			}
 
 			DevMsg(eDLL_T::RTECH, "Requested pak unload for '%s'\n", args.Arg(1));
-			g_pakLoadApi->Unload(pakInfo->m_nPakId);
+			g_pakLoadApi->UnloadPak(pakInfo->m_nPakId);
 		}
 	}
 	catch (std::exception& e)
@@ -411,7 +411,7 @@ Pak_RequestLoad_f
 */
 void Pak_RequestLoad_f(const CCommand& args)
 {
-	g_pakLoadApi->AsyncLoad(args.Arg(1));
+	g_pakLoadApi->LoadAsync(args.Arg(1));
 }
 
 
@@ -453,12 +453,12 @@ void Pak_Swap_f(const CCommand& args)
 
 		!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested pak swap for '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested pak swap for '%d'\n", nPakId);
 
-		g_pakLoadApi->Unload(nPakId);
+		g_pakLoadApi->UnloadPak(nPakId);
 
 		while (pakInfo->m_nStatus != RPakStatus_t::PAK_STATUS_FREED) // Wait till this slot gets free'd.
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 
-		g_pakLoadApi->AsyncLoad(pakName.c_str());
+		g_pakLoadApi->LoadAsync(pakName.c_str());
 	}
 	catch (std::exception& e)
 	{
@@ -512,7 +512,7 @@ void RTech_Decompress_f(const CCommand& args)
 	DevMsg(eDLL_T::RTECH, "______________________________________________________________\n");
 	DevMsg(eDLL_T::RTECH, "-+ RTech decompress ------------------------------------------\n");
 
-	if (!FileExists(pakNameIn.c_str()))
+	if (!FileExists(pakNameIn))
 	{
 		Error(eDLL_T::RTECH, "Error: pak file '%s' does not exist!\n", pakNameIn.c_str());
 		return;

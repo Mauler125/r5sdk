@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // Internals
 BOOL IsBadReadPtrV2(void* ptr);
-BOOL FileExists(const char* szPath);
+BOOL FileExists(const fs::path& svFilePath);
 MODULEINFO GetModuleInfo(const char* szModule);
 DWORD64 FindPatternSIMD(const char* szModule, const unsigned char* szPattern, const char* szMask);
 

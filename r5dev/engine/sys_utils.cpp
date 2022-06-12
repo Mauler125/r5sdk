@@ -107,7 +107,7 @@ void* HSys_LoadAssetHelper(const CHAR* lpFileName, std::int64_t a2, LARGE_INTEGE
 		base_file.erase(0, 11); // Erase 'base_dir'.
 		mod_file = mod_dir + base_file; // Prepend 'mod_dir'.
 
-		if (FileExists(mod_file.c_str()))
+		if (FileExists(mod_file))
 		{
 			// Load decompressed pak files from 'mod_dir'.
 			return Sys_LoadAssetHelper(mod_file.c_str(), a2, a3);

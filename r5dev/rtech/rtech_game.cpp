@@ -20,7 +20,7 @@ vector<RPakHandle_t> g_vLoadedPakHandle;
 //			bUnk - 
 // Output : pak file handle on success, -1 (INVALID_PAK_HANDLE) on failure
 //-----------------------------------------------------------------------------
-RPakHandle_t CPakFile::AsyncLoad(const char* szPakFileName, uintptr_t pMalloc, int nIdx, bool bUnk)
+RPakHandle_t CPakFile::LoadAsync(const char* szPakFileName, uintptr_t pMalloc, int nIdx, bool bUnk)
 {
 	RPakHandle_t pakHandle = -1;
 #ifdef DEDICATED
@@ -44,10 +44,10 @@ RPakHandle_t CPakFile::AsyncLoad(const char* szPakFileName, uintptr_t pMalloc, i
 	string svPakFilePathMod = "paks\\Win32\\" + string(szPakFileName);
 	string svPakFilePathBase = "paks\\Win64\\" + string(szPakFileName);
 
-	if (FileExists(svPakFilePathMod.c_str()) || FileExists(svPakFilePathBase.c_str()))
+	if (FileExists(svPakFilePathMod) || FileExists(svPakFilePathBase))
 	{
 		DevMsg(eDLL_T::RTECH, "Loading pak file: '%s'\n", szPakFileName);
-		pakHandle = CPakFile_AsyncLoad(szPakFileName, pMalloc, nIdx, bUnk);
+		pakHandle = CPakFile_LoadAsync(szPakFileName, pMalloc, nIdx, bUnk);
 
 		if (pakHandle == -1)
 		{
@@ -66,7 +66,7 @@ RPakHandle_t CPakFile::AsyncLoad(const char* szPakFileName, uintptr_t pMalloc, i
 // Purpose: unloads loaded pak files
 // Input  : handle - 
 //-----------------------------------------------------------------------------
-void CPakFile::Unload(RPakHandle_t handle)
+void CPakFile::UnloadPak(RPakHandle_t handle)
 {
 	RPakLoadedInfo_t* pakInfo = g_pRTech->GetPakLoadedInfo(handle);
 
@@ -81,19 +81,19 @@ void CPakFile::Unload(RPakHandle_t handle)
 		}
 	}
 
-	CPakFile_Unload(handle);
+	CPakFile_UnloadPak(handle);
 }
 
 void RTech_Game_Attach()
 {
-	DetourAttach((LPVOID*)&CPakFile_AsyncLoad, &CPakFile::AsyncLoad);
-	DetourAttach((LPVOID*)&CPakFile_Unload, &CPakFile::Unload);
+	DetourAttach((LPVOID*)&CPakFile_LoadAsync, &CPakFile::LoadAsync);
+	DetourAttach((LPVOID*)&CPakFile_UnloadPak, &CPakFile::UnloadPak);
 }
 
 void RTech_Game_Detach()
 {
-	DetourDetach((LPVOID*)&CPakFile_AsyncLoad, &CPakFile::AsyncLoad);
-	DetourDetach((LPVOID*)&CPakFile_Unload, &CPakFile::Unload);
+	DetourDetach((LPVOID*)&CPakFile_LoadAsync, &CPakFile::LoadAsync);
+	DetourDetach((LPVOID*)&CPakFile_UnloadPak, &CPakFile::UnloadPak);
 }
 
 // Symbols taken from R2 dll's.

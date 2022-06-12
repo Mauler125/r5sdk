@@ -120,7 +120,7 @@ FileHandle_t CBaseFileSystem::ReadFromVPK(CBaseFileSystem* pFileSystem, FileHand
 	// TODO: obtain 'mod' SearchPath's instead.
 	svFilePath.insert(0, "platform\\");
 
-	if (::FileExists(svFilePath.c_str()) /*|| ::FileExists(pszFilePath)*/)
+	if (::FileExists(svFilePath) /*|| ::FileExists(pszFilePath)*/)
 	{
 		*reinterpret_cast<int64_t*>(pResults) = -1;
 		return pResults;
@@ -148,7 +148,7 @@ bool CBaseFileSystem::ReadFromCache(CBaseFileSystem* pFileSystem, char* pszFileP
 	// TODO: obtain 'mod' SearchPath's instead.
 	svFilePath.insert(0, "platform\\");
 
-	if (::FileExists(svFilePath.c_str()) /*|| ::FileExists(pszFilePath)*/)
+	if (::FileExists(svFilePath) /*|| ::FileExists(pszFilePath)*/)
 	{
 		return false;
 	}

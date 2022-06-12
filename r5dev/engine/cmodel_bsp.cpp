@@ -211,7 +211,7 @@ void MOD_ProcessPakQueue()
                     }
                     if (!v14 || v13 == 9)
                     {
-                        g_pakLoadApi->Unload(*(_DWORD*)v10);
+                        g_pakLoadApi->UnloadPak(*(_DWORD*)v10);
                         MOD_UnloadPakFile();
                     }
                     if (v13 && (unsigned int)(v13 - 13) > 1)
@@ -292,17 +292,17 @@ void MOD_ProcessPakQueue()
             s_bLevelResourceInitialized = true;
             MOD_PreloadPakFile(g_svLevelName);
         }
-        *(_DWORD*)v15 = g_pakLoadApi->AsyncLoad(v17, g_pMallocPool.GetPtr(), 4, 0);
+        *(_DWORD*)v15 = g_pakLoadApi->LoadAsync(v17, g_pMallocPool.GetPtr(), 4, 0);
 
         if (strcmp(v17, "common_mp.rpak") == 0 || strcmp(v17, "common_sp.rpak") == 0 || strcmp(v17, "common_pve.rpak") == 0)
         {
-            RPakHandle_t pakHandle = g_pakLoadApi->AsyncLoad("common_sdk.rpak", g_pMallocPool.GetPtr(), 4, 0);
+            RPakHandle_t pakHandle = g_pakLoadApi->LoadAsync("common_sdk.rpak", g_pMallocPool.GetPtr(), 4, 0);
             if (pakHandle != -1)
                 g_vLoadedPakHandle.push_back(pakHandle);
         }
         if (strcmp(v17, "ui_mp.rpak") == 0)
         {
-            RPakHandle_t pakHandle = g_pakLoadApi->AsyncLoad("ui_sdk.rpak", g_pMallocPool.GetPtr(), 4, 0);
+            RPakHandle_t pakHandle = g_pakLoadApi->LoadAsync("ui_sdk.rpak", g_pMallocPool.GetPtr(), 4, 0);
             if (pakHandle != -1)
                 g_vLoadedPakHandle.push_back(pakHandle);
         }
@@ -349,7 +349,7 @@ void MOD_PreloadPakFile(const string& svLevelName)
 	ostream << "platform\\scripts\\levels\\settings\\" << svLevelName << ".json";
 
 	fs::path fsPath = fs::current_path() /= ostream.str();
-	if (FileExists(fsPath.string().c_str()))
+	if (FileExists(fsPath))
 	{
 		nlohmann::json jsIn;
 		try
@@ -368,7 +368,7 @@ void MOD_PreloadPakFile(const string& svLevelName)
 						if (it.is_string())
 						{
 							string svToLoad = it.get<string>() + ".rpak";
-							RPakHandle_t nPakId = g_pakLoadApi->AsyncLoad(svToLoad.c_str(), g_pMallocPool.GetPtr(), 4, 0);
+							RPakHandle_t nPakId = g_pakLoadApi->LoadAsync(svToLoad.c_str(), g_pMallocPool.GetPtr(), 4, 0);
 
 							if (nPakId == -1)
 								Error(eDLL_T::ENGINE, "%s: unable to load pak '%s' results '%d'\n", __FUNCTION__, svToLoad.c_str(), nPakId);
@@ -396,7 +396,7 @@ void MOD_UnloadPakFile(void)
 	{
 		if (it >= 0)
 		{
-			g_pakLoadApi->Unload(it);
+			g_pakLoadApi->UnloadPak(it);
 		}
 	}
 	g_vLoadedPakHandle.clear();
