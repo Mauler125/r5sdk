@@ -31,7 +31,7 @@ RPakHandle_t CPakFile::LoadAsync(const char* szPakFileName, uintptr_t pMalloc, i
 		// Returning -1 (invalid handle) triggers engine error, call is inline.
 		// Replacing the ui.rpak file here with a stub to avoid having to patch.
 		DevMsg(eDLL_T::RTECH, "Loading pak file: '%s' for '%s'\n", szReplacement, szPakFileName);
-		return pakHandle = CPakFile_AsyncLoad(szReplacement, pMalloc, nIdx, bUnk);
+		return pakHandle = CPakFile_LoadAsync(szReplacement, pMalloc, nIdx, bUnk);
 	}
 	else if (strstr(szPakFileName, "ui")
 		|| strstr(szPakFileName, "loadscreen")
