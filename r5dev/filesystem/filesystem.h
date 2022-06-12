@@ -1,43 +1,25 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 #include "vpklib/packedstore.h"
+#include "filesystem/basefilesystem.h"
 
 #define GAMEINFOPATH_TOKEN		"|gameinfo_path|"
 #define BASESOURCEPATHS_TOKEN	"|all_source_engine_paths|"
 
-typedef void* FileHandle_t;
-
-enum class SearchPathAdd_t : int
-{
-	PATH_ADD_TO_HEAD,         // First path searched
-	PATH_ADD_TO_TAIL,         // Last path searched
-	PATH_ADD_TO_TAIL_ATINDEX, // First path searched
-};
-
-enum class FileWarningLevel_t : int
-{
-	FILESYSTEM_WARNING = -1,                        // A problem!
-	FILESYSTEM_WARNING_QUIET = 0,                   // Don't print anything
-	FILESYSTEM_WARNING_REPORTUNCLOSED,              // On shutdown, report names of files left unclosed
-	FILESYSTEM_WARNING_REPORTUSAGE,                 // Report number of times a file was opened, closed
-	FILESYSTEM_WARNING_REPORTALLACCESSES,           // Report all open/close events to console ( !slow! )
-	FILESYSTEM_WARNING_REPORTALLACCESSES_READ,      // Report all open/close/read events to the console ( !slower! )
-	FILESYSTEM_WARNING_REPORTALLACCESSES_READWRITE, // Report all open/close/read/write events to the console ( !slower! )
-	FILESYSTEM_WARNING_REPORTALLACCESSES_ASYNC      // Report all open/close/read/write events and all async I/O file events to the console ( !slower(est)! )
-};
-
 class IFileSystem
 {
 public:
-	void AddSearchPath(const char* pPath, const char* pathID, SearchPathAdd_t addType);
+	void AddSearchPath(const char* pPath, const char* pPathID, SearchPathAdd_t addType);
 	bool RemoveSearchPath(const char* pPath, const char* pPathID);
 	bool ReadFromCache(const char* pPath, void* pResult);
-	VPKData_t* MountVPK(const char* vpkPath);
+	VPKData_t* MountVPK(const char* pVpkPath);
 };
-class CFileSystem_Stdio : public IFileSystem
+
+class CFileSystem_Stdio : public IFileSystem, public CBaseFileSystem
 {
 };
-extern IFileSystem* g_pFullFileSystem;
+
+extern IFileSystem* g_pFullFileSystem; // Ptr to g_pFileSystem_Stdio.
 extern CFileSystem_Stdio* g_pFileSystem_Stdio;
 
 ///////////////////////////////////////////////////////////////////////////////
