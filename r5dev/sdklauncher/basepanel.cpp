@@ -59,7 +59,7 @@ void CUIBaseSurface::Init()
 	this->m_MapCombo->SetSize({ 347, 25 });
 	this->m_MapCombo->SetLocation({ 15, 25 });
 	this->m_MapCombo->SetTabIndex(0);
-	this->m_MapCombo->SetSelectedIndex(0);
+	this->m_MapCombo->SetSelectedIndex(-1);
 	this->m_MapCombo->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_MapCombo->SetDropDownStyle(Forms::ComboBoxStyle::DropDownList);
 	this->m_GameGroup->AddControl(this->m_MapCombo);
@@ -77,7 +77,7 @@ void CUIBaseSurface::Init()
 	this->m_PlaylistCombo->SetSize({ 347, 25 });
 	this->m_PlaylistCombo->SetLocation({ 15, 50 });
 	this->m_PlaylistCombo->SetTabIndex(0);
-	this->m_PlaylistCombo->SetSelectedIndex(0);
+	this->m_PlaylistCombo->SetSelectedIndex(-1);
 	this->m_PlaylistCombo->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_PlaylistCombo->SetDropDownStyle(Forms::ComboBoxStyle::DropDownList);
 	this->m_GameGroup->AddControl(this->m_PlaylistCombo);
@@ -532,7 +532,7 @@ void CUIBaseSurface::LaunchGame(Forms::Control* pSender)
 	{
 		stringstream ss;
 		ss << cfgFile.rdbuf();
-		svParameter.append(ss.str());
+		svParameter.append(ss.str() + '\n');
 	}
 	else
 		pSurface->m_LogList.push_back(LogList_t(spdlog::level::warn, "Unable to load 'startup_launcher.cfg'\n"));
@@ -592,10 +592,6 @@ void CUIBaseSurface::ParsePlaylists()
 			for (auto [id, it] = std::tuple{ 1, vcPlaylists->childs.begin()}; it != vcPlaylists->childs.end(); id++, it++)
 			{
 				this->m_PlaylistCombo->Items.Add(it->first.c_str());
-				if (strcmp(it->first.c_str(), "dev_default"))
-				{
-					this->m_PlaylistCombo->SetSelectedIndex(id);
-				}
 			}
 		}
 	}
