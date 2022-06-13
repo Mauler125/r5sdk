@@ -396,10 +396,8 @@ void* __fastcall BuildPropStaticFrustumCullMap(int64_t a1, int64_t a2, unsigned 
                         ++v64;
                         v67 += 92i64;
 
-                        static CModule::ModuleSections_t mData = g_mGameDll.GetSectionByName(".data");
-                        static CModule::ModuleSections_t mPData = g_mGameDll.GetSectionByName(".pdata");
-                        if (reinterpret_cast<uintptr_t>(v68) < mData.m_pSectionBase  ||
-                            reinterpret_cast<uintptr_t>(v68) > mPData.m_pSectionBase || error) // Check bounds (data could only be within the '.data' segment.
+                        if (reinterpret_cast<uintptr_t>(v68) < g_mGameDll.m_RunTimeData.m_pSectionBase    || // Check bounds (data could only be within the '.data' segment.
+                            reinterpret_cast<uintptr_t>(v68) > g_mGameDll.m_ExceptionTable.m_pSectionBase || error)
                         {
                             error = true;
                             continue;

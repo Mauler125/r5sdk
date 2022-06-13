@@ -28,6 +28,11 @@ CModule::CModule(const string& svModuleName) : m_svModuleName(svModuleName)
 		m_vModuleSections.push_back(ModuleSections_t(string(reinterpret_cast<const char*>(hCurrentSection.Name)),
 			static_cast<uintptr_t>(m_pModuleBase + hCurrentSection.VirtualAddress), hCurrentSection.SizeOfRawData)); // Push back a struct with the section data.
 	}
+
+	m_ExecutableCode = GetSectionByName(".text");
+	m_ExceptionTable = GetSectionByName(".pdata");
+	m_RunTimeData = GetSectionByName(".data");
+	m_ReadOnlyData = GetSectionByName(".rdata");
 }
 
 //-----------------------------------------------------------------------------
@@ -38,14 +43,13 @@ CModule::CModule(const string& svModuleName) : m_svModuleName(svModuleName)
 //-----------------------------------------------------------------------------
 CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask) const
 {
-	ModuleSections_t mInfo = GetSectionByName(".text"); // Get the .text section.
-	if (!mInfo.IsSectionValid())
+	if (!m_ExecutableCode.IsSectionValid())
 	{
 		return CMemory();
 	}
 
-	uint64_t nBase = static_cast<uint64_t>(mInfo.m_pSectionBase);
-	uint64_t nSize = static_cast<uint64_t>(mInfo.m_nSectionSize);
+	uint64_t nBase = static_cast<uint64_t>(m_ExecutableCode.m_pSectionBase);
+	uint64_t nSize = static_cast<uint64_t>(m_ExecutableCode.m_nSectionSize);
 
 	const uint8_t* pData = reinterpret_cast<uint8_t*>(nBase);
 	const uint8_t* pEnd = pData + static_cast<uint32_t>(nSize) - strlen(szMask);
@@ -106,16 +110,15 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask) c
 //-----------------------------------------------------------------------------
 CMemory CModule::FindStringReadOnly(const string& svString, bool bNullTerminator) const
 {
-	ModuleSections_t rdataSection = GetSectionByName(".rdata");
-	if (!rdataSection.IsSectionValid())
+	if (!m_ReadOnlyData.IsSectionValid())
 		return CMemory();
 
 	vector<int> vBytes = StringToBytes(svString, bNullTerminator); // Convert our string to a byte array.
 	const pair bytesInfo = std::make_pair(vBytes.size(), vBytes.data()); // Get the size and data of our bytes.
 
-	uint8_t* pBase = reinterpret_cast<uint8_t*>(rdataSection.m_pSectionBase); // Get start of .rdata section.
+	uint8_t* pBase = reinterpret_cast<uint8_t*>(m_ReadOnlyData.m_pSectionBase); // Get start of .rdata section.
 
-	for (size_t i = 0ull; i < rdataSection.m_nSectionSize - bytesInfo.first; i++)
+	for (size_t i = 0ull; i < m_ReadOnlyData.m_nSectionSize - bytesInfo.first; i++)
 	{
 		bool bFound = true;
 
@@ -147,8 +150,7 @@ CMemory CModule::FindStringReadOnly(const string& svString, bool bNullTerminator
 //-----------------------------------------------------------------------------
 CMemory CModule::FindString(const string& svString, const ptrdiff_t nOccurence, bool bNullTerminator) const
 {
-	ModuleSections_t textSection = GetSectionByName(".text");
-	if (!textSection.IsSectionValid())
+	if (!m_ExecutableCode.IsSectionValid())
 		return CMemory();
 
 	CMemory stringAddress = FindStringReadOnly(svString, bNullTerminator); // Get Address for the string in the .rdata section.
@@ -156,15 +158,15 @@ CMemory CModule::FindString(const string& svString, const ptrdiff_t nOccurence, 
 		return CMemory();
 
 	uint8_t* pLatestOccurence = nullptr;
-	uint8_t* pTextStart = reinterpret_cast<uint8_t*>(textSection.m_pSectionBase); // Get the start of the .text section.
+	uint8_t* pTextStart = reinterpret_cast<uint8_t*>(m_ExecutableCode.m_pSectionBase); // Get the start of the .text section.
 	ptrdiff_t dOccurencesFound = 0;
 
-	for (size_t i = 0ull; i < textSection.m_nSectionSize - 0x5; i++)
+	for (size_t i = 0ull; i < m_ExecutableCode.m_nSectionSize - 0x5; i++)
 	{
 		byte byte = pTextStart[i];
 		if (byte == LEA)
 		{
-			CMemory skipOpCode = CMemory(reinterpret_cast<uintptr_t>(&pTextStart[i])).OffsetSelf(0x2); // Skip next 2 opcodes, those being the instruction and then the register.
+			CMemory skipOpCode = CMemory(reinterpret_cast<uintptr_t>(&pTextStart[i])).OffsetSelf(0x2); // Skip next 2 opcodes, those being the instruction and the register.
 			int32_t relativeAddress = skipOpCode.GetValue<int32_t>();                                  // Get 4-byte long string relative Address
 			uintptr_t nextInstruction = skipOpCode.Offset(0x4).GetPtr();                               // Get location of next instruction.
 			CMemory potentialLocation = CMemory(nextInstruction + relativeAddress);                    // Get potential string location.
