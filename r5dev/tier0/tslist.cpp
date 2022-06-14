@@ -1,7 +1,7 @@
 #include "core/stdafx.h"
 #include "tier0/tslist.h"
 
-void* MemAlloc_Internal(void* pPool, int64_t nSize)
+void* MemAlloc_Internal(void* pPool, size_t nSize)
 {
 	return v_MemAlloc_Internal(pPool, nSize);
 }

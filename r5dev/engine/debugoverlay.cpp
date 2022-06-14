@@ -58,24 +58,24 @@ bool OverlayBase_t::IsDead() const
 //------------------------------------------------------------------------------
 // Purpose: destroys the overlay
 //------------------------------------------------------------------------------
-void HDestroyOverlay(OverlayBase_t* pOverlay)
+void DestroyOverlay(OverlayBase_t* pOverlay)
 {
-    std::int64_t pOverlayType;
+    size_t pOverlaySize;
 
     EnterCriticalSection(&*s_OverlayMutex);
     switch (pOverlay->m_Type)
     {
     case OverlayType_t::OVERLAY_BOX:
-        pOverlayType = 128i64;
+        pOverlaySize = 128i64;
         goto LABEL_MALLOC;
     case OverlayType_t::OVERLAY_SPHERE:
-        pOverlayType = 72i64;
+        pOverlaySize = 72i64;
         goto LABEL_MALLOC;
     case OverlayType_t::OVERLAY_LINE:
-        pOverlayType = 80i64;
+        pOverlaySize = 80i64;
         goto LABEL_MALLOC;
     case OverlayType_t::OVERLAY_TRIANGLE:
-        pOverlayType = 6200i64;
+        pOverlaySize = 6200i64;
         goto LABEL_MALLOC;
     case OverlayType_t::OVERLAY_SWEPT_BOX:
         pOverlay->m_Type = OverlayType_t::OVERLAY_UNK1;
@@ -84,14 +84,14 @@ void HDestroyOverlay(OverlayBase_t* pOverlay)
     case OverlayType_t::OVERLAY_BOX2:
         break;
     case OverlayType_t::OVERLAY_CAPSULE:
-        pOverlayType = 112i64;
+        pOverlaySize = 112i64;
         break;
     case OverlayType_t::OVERLAY_UNK0:
-        pOverlayType = 88i64;
+        pOverlaySize = 88i64;
         goto LABEL_MALLOC;
     LABEL_MALLOC:
         pOverlay->m_Type = OverlayType_t::OVERLAY_UNK1;
-        v_MemAlloc_Internal(pOverlay, pOverlayType);
+        v_MemAlloc_Internal(pOverlay, pOverlaySize);
         break;
     default:
         break;
@@ -205,7 +205,7 @@ void DrawAllOverlays(char pOverlay)
             }
 
             pNextOverlay = pCurrOverlay->m_pNextOverlay;
-            v_DestroyOverlay(pCurrOverlay);
+            DestroyOverlay(pCurrOverlay);
             pCurrOverlay = pNextOverlay;
         }
         else

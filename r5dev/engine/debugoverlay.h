@@ -98,7 +98,7 @@ struct OverlaySphere_t : public OverlayBase_t
 	int             a{};
 };
 
-void HDestroyOverlay(OverlayBase_t* pOverlay);
+void DestroyOverlay(OverlayBase_t* pOverlay);
 void DrawOverlay(OverlayBase_t* pOverlay);
 void DebugOverlays_Attach();
 void DebugOverlays_Detach();
