@@ -8,7 +8,7 @@
 //-----------------------------------------------------------------------------
 // Purpose: returns the sdk version string.
 //-----------------------------------------------------------------------------
-std::string R5Net::Client::GetSDKVersion()
+string R5Net::Client::GetSDKVersion()
 {
     return SDK_VERSION;
 }
@@ -16,14 +16,14 @@ std::string R5Net::Client::GetSDKVersion()
 //-----------------------------------------------------------------------------
 // Purpose: returns a vector of hosted servers.
 //-----------------------------------------------------------------------------
-std::vector<ServerListing> R5Net::Client::GetServersList(std::string& svOutMessage)
+vector<ServerListing> R5Net::Client::GetServersList(string& svOutMessage)
 {
-    std::vector<ServerListing> vslList{};
+    vector<ServerListing> vslList{};
 
     nlohmann::json jsRequestBody = nlohmann::json::object();
     jsRequestBody["version"] = GetSDKVersion();
 
-    std::string svRequestBody = jsRequestBody.dump(4);
+    string svRequestBody = jsRequestBody.dump(4);
 
     if (r5net_show_debug->GetBool())
     {
@@ -64,7 +64,7 @@ std::vector<ServerListing> R5Net::Client::GetServersList(std::string& svOutMessa
         {
             if (jsResultBody["err"].is_string())
             {
-                svOutMessage = jsResultBody["err"].get<std::string>();
+                svOutMessage = jsResultBody["err"].get<string>();
             }
             else
             {
@@ -82,17 +82,17 @@ std::vector<ServerListing> R5Net::Client::GetServersList(std::string& svOutMessa
 
                 if (jsResultBody["err"].is_string())
                 {
-                    svOutMessage = jsResultBody["err"].get<std::string>();
+                    svOutMessage = jsResultBody["err"].get<string>();
                 }
                 else
                 {
-                    svOutMessage = std::string("Failed to reach comp-server ") + std::to_string(htResults->status);
+                    svOutMessage = string("Failed to reach comp-server ") + std::to_string(htResults->status);
                 }
 
                 return vslList;
             }
 
-            svOutMessage = std::string("Failed to reach comp-server ") + std::to_string(htResults->status);
+            svOutMessage = string("Failed to reach comp-server ") + std::to_string(htResults->status);
             return vslList;
         }
 
@@ -110,7 +110,7 @@ std::vector<ServerListing> R5Net::Client::GetServersList(std::string& svOutMessa
 //			&slServerListing - 
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
-bool R5Net::Client::PostServerHost(std::string& svOutMessage, std::string& svOutToken, const ServerListing& slServerListing)
+bool R5Net::Client::PostServerHost(string& svOutMessage, string& svOutToken, const ServerListing& slServerListing)
 {
     nlohmann::json jsRequestBody = nlohmann::json::object();
     jsRequestBody["name"] = slServerListing.svServerName;
@@ -122,7 +122,7 @@ bool R5Net::Client::PostServerHost(std::string& svOutMessage, std::string& svOut
     jsRequestBody["encKey"] = slServerListing.svEncryptionKey;
     jsRequestBody["hidden"] = slServerListing.bHidden;
 
-    std::string svRequestBody = jsRequestBody.dump(4);
+    string svRequestBody = jsRequestBody.dump(4);
 
     if (r5net_show_debug->GetBool())
     {
@@ -143,11 +143,11 @@ bool R5Net::Client::PostServerHost(std::string& svOutMessage, std::string& svOut
         {
             if (jsResultBody["token"].is_string())
             {
-                svOutToken = jsResultBody["token"].get<std::string>();
+                svOutToken = jsResultBody["token"].get<string>();
             }
             else
             {
-                svOutToken = std::string();
+                svOutToken = string();
             }
 
             return true;
@@ -156,7 +156,7 @@ bool R5Net::Client::PostServerHost(std::string& svOutMessage, std::string& svOut
         {
             if (jsResultBody["err"].is_string())
             {
-                svOutMessage = jsResultBody["err"].get<std::string>();
+                svOutMessage = jsResultBody["err"].get<string>();
             }
             else
             {
@@ -175,23 +175,23 @@ bool R5Net::Client::PostServerHost(std::string& svOutMessage, std::string& svOut
 
                 if (jsResultBody["err"].is_string())
                 {
-                    svOutMessage = jsResultBody["err"].get<std::string>();
+                    svOutMessage = jsResultBody["err"].get<string>();
                 }
                 else
                 {
-                    svOutMessage = std::string("Failed to reach comp-server ") + std::to_string(htResults->status);
+                    svOutMessage = string("Failed to reach comp-server ") + std::to_string(htResults->status);
                 }
 
-                svOutToken = std::string();
+                svOutToken = string();
                 return false;
             }
 
-            svOutToken = std::string();
-            svOutMessage = std::string("Failed to reach comp-server ") + std::to_string(htResults->status);
+            svOutToken = string();
+            svOutMessage = string("Failed to reach comp-server ") + std::to_string(htResults->status);
             return false;
         }
 
-        svOutToken = std::string();
+        svOutToken = string();
         svOutMessage = "Failed to reach comp-server. Unknown error code.";
         return false;
     }
@@ -206,12 +206,12 @@ bool R5Net::Client::PostServerHost(std::string& svOutMessage, std::string& svOut
 //			svToken - 
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
-bool R5Net::Client::GetServerByToken(ServerListing& slOutServer, std::string& svOutMessage, const std::string svToken)
+bool R5Net::Client::GetServerByToken(ServerListing& slOutServer, string& svOutMessage, const string& svToken)
 {
     nlohmann::json jsRequestBody = nlohmann::json::object();
     jsRequestBody["token"] = svToken;
 
-    std::string svRequestBody = jsRequestBody.dump(4);
+    string svRequestBody = jsRequestBody.dump(4);
 
     if (r5net_show_debug->GetBool())
     {
@@ -250,7 +250,7 @@ bool R5Net::Client::GetServerByToken(ServerListing& slOutServer, std::string& sv
             {
                 if (jsResultBody["err"].is_string())
                 {
-                    svOutMessage = jsResultBody["err"].get<std::string>();
+                    svOutMessage = jsResultBody["err"].get<string>();
                 }
                 else
                 {
@@ -272,17 +272,17 @@ bool R5Net::Client::GetServerByToken(ServerListing& slOutServer, std::string& sv
 
                 if (jsResultBody["err"].is_string())
                 {
-                    svOutMessage = jsResultBody["err"].get<std::string>();
+                    svOutMessage = jsResultBody["err"].get<string>();
                 }
                 else
                 {
-                    svOutMessage = std::string("Failed to reach comp-server ") + std::to_string(htResults->status);
+                    svOutMessage = string("Failed to reach comp-server ") + std::to_string(htResults->status);
                 }
 
                 return false;
             }
 
-            svOutMessage = std::string("Failed to reach comp-server ") + std::to_string(htResults->status);
+            svOutMessage = string("Failed to reach comp-server ") + std::to_string(htResults->status);
             return false;
         }
 
@@ -301,7 +301,7 @@ bool R5Net::Client::GetServerByToken(ServerListing& slOutServer, std::string& sv
 //			&svOutErrCl - 
 // Output : Returns true if banned, false if not banned.
 //-----------------------------------------------------------------------------
-bool R5Net::Client::GetClientIsBanned(const string svIpAddress, uint64_t nOriginID, string& svOutErrCl)
+bool R5Net::Client::GetClientIsBanned(const string& svIpAddress, uint64_t nOriginID, string& svOutErrCl)
 {
     nlohmann::json jsRequestBody = nlohmann::json::object();
     jsRequestBody["ip"] = svIpAddress;
