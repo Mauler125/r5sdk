@@ -16,11 +16,14 @@ class CClient : INetChannelHandler, IClientMessageHandler
 {
 public:
 	CClient* GetClient(int nIndex) const;
-	int32_t GetUserID(void) const;
+	uint16_t GetHandle(void) const;
+	uint32_t GetUserID(void) const;
 	uint64_t GetOriginID(void) const;
 	SIGNONSTATE GetSignonState(void) const;
 	PERSISTENCE GetPersistenceState(void) const;
 	CNetChan* GetNetChan(void) const;
+	const char* GetServerName(void) const;
+	const char* GetClientName(void) const;
 	void SetUserID(int32_t nUserID);
 	void SetOriginID(uint64_t nOriginID);
 	void SetSignonState(SIGNONSTATE nSignonState);
@@ -39,10 +42,13 @@ public:
 	static void VClear(CClient* pBaseClient);
 
 private:
-	int32_t m_nUserID;               //0x0010
-	char pad_0014[68];               //0x0014
+	uint32_t m_nUserID;              //0x0010
+	uint16_t m_nHandle;              //0x0014
+	char m_szServerName[64];         //0x0016
 	int64_t m_nReputation;           //0x0058
-	char pad_0015[768];              //0x0060
+	char pad_0014[182];              //0x0060
+	char m_szClientName[64];         //0x0116
+	char pad_0015[522];              //0x0156
 	KeyValues* m_ConVars;            //0x0360
 	char pad_0368[8];                //0x0368
 	CServer* m_pServer;              //0x0370

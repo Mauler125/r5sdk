@@ -22,7 +22,15 @@ CClient* CClient::GetClient(int nIndex) const
 //---------------------------------------------------------------------------------
 // Purpose: gets the userID of this client
 //---------------------------------------------------------------------------------
-int32_t CClient::GetUserID(void) const
+uint16_t CClient::GetHandle(void) const
+{
+	return m_nHandle;
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: gets the userID of this client
+//---------------------------------------------------------------------------------
+uint32_t CClient::GetUserID(void) const
 {
 	return m_nUserID;
 }
@@ -57,6 +65,22 @@ PERSISTENCE CClient::GetPersistenceState(void) const
 CNetChan* CClient::GetNetChan(void) const
 {
 	return m_NetChannel;
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: gets the server name of this client (name is managed by server!)
+//---------------------------------------------------------------------------------
+const char* CClient::GetServerName(void) const
+{
+	return m_szServerName;
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: gets the server name of this client (as obtained from the connectionless packet)
+//---------------------------------------------------------------------------------
+const char* CClient::GetClientName(void) const
+{
+	return m_szClientName;
 }
 
 //---------------------------------------------------------------------------------

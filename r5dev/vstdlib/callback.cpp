@@ -140,9 +140,9 @@ void Host_KickID_f(const CCommand& args)
 						continue;
 					}
 				}
-				else // If its not try by userID.
+				else // If its not try by handle.
 				{
-					int64_t nClientID = static_cast<int64_t>(pClient->GetUserID() + 1); // Get userID + 1.
+					uint64_t nClientID = static_cast<uint64_t>(pClient->GetHandle());
 					if (nClientID != nTargetID)
 					{
 						continue;
@@ -249,9 +249,9 @@ void Host_BanID_f(const CCommand& args)
 						continue;
 					}
 				}
-				else // If its not try by userID.
+				else // If its not try by handle.
 				{
-					int64_t nClientID = static_cast<int64_t>(pClient->GetUserID() + 1); // Get UserID + 1.
+					uint64_t nClientID = static_cast<uint64_t>(pClient->GetHandle());
 					if (nClientID != nTargetID)
 					{
 						continue;
