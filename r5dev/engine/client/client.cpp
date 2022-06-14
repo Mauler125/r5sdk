@@ -30,7 +30,7 @@ int32_t CClient::GetUserID(void) const
 //---------------------------------------------------------------------------------
 // Purpose: gets the userID of this client
 //---------------------------------------------------------------------------------
-int64_t CClient::GetOriginID(void) const
+uint64_t CClient::GetOriginID(void) const
 {
 	return m_nOriginID;
 }
@@ -70,7 +70,7 @@ void CClient::SetUserID(std::int32_t nUserID)
 //---------------------------------------------------------------------------------
 // Purpose: sets the originID of this client
 //---------------------------------------------------------------------------------
-void CClient::SetOriginID(std::int64_t nOriginID)
+void CClient::SetOriginID(uint64_t nOriginID)
 {
 	m_nOriginID = nOriginID;
 }

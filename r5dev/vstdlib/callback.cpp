@@ -131,10 +131,10 @@ void Host_KickID_f(const CCommand& args)
 
 			if (bOnlyDigits)
 			{
-				int64_t nTargetID = static_cast<int64_t>(std::stoll(args.Arg(1)));
+				uint64_t nTargetID = static_cast<int64_t>(std::stoll(args.Arg(1)));
 				if (nTargetID > MAX_PLAYERS) // Is it a possible originID?
 				{
-					int64_t nOriginID = pClient->GetOriginID();
+					uint64_t nOriginID = pClient->GetOriginID();
 					if (nOriginID != nTargetID)
 					{
 						continue;
@@ -240,10 +240,10 @@ void Host_BanID_f(const CCommand& args)
 
 			if (bOnlyDigits)
 			{
-				int64_t nTargetID = static_cast<int64_t>(std::stoll(args.Arg(1)));
-				if (nTargetID > MAX_PLAYERS) // Is it a possible originID?
+				uint64_t nTargetID = static_cast<uint64_t>(std::stoll(args.Arg(1)));
+				if (nTargetID > static_cast<uint64_t>(MAX_PLAYERS)) // Is it a possible originID?
 				{
-					int64_t nOriginID = pClient->GetOriginID();
+					uint64_t nOriginID = pClient->GetOriginID();
 					if (nOriginID != nTargetID)
 					{
 						continue;
@@ -303,7 +303,7 @@ void Host_Unban_f(const CCommand& args)
 		}
 		else
 		{
-			g_pBanSystem->DeleteEntry(args.Arg(1), 1); // Delete ban entry.
+			g_pBanSystem->DeleteEntry(args.Arg(1), 0); // Delete ban entry.
 			g_pBanSystem->Save(); // Save modified vector to file.
 		}
 	}

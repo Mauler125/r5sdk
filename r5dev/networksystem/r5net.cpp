@@ -301,7 +301,7 @@ bool R5Net::Client::GetServerByToken(ServerListing& slOutServer, std::string& sv
 //			&svOutErrCl - 
 // Output : Returns true if banned, false if not banned.
 //-----------------------------------------------------------------------------
-bool R5Net::Client::GetClientIsBanned(const std::string svIpAddress, std::int64_t nOriginID, std::string& svOutErrCl)
+bool R5Net::Client::GetClientIsBanned(const string svIpAddress, uint64_t nOriginID, string& svOutErrCl)
 {
     nlohmann::json jsRequestBody = nlohmann::json::object();
     jsRequestBody["ip"] = svIpAddress;
