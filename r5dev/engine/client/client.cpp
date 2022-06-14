@@ -68,7 +68,7 @@ CNetChan* CClient::GetNetChan(void) const
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: gets the server name of this client (name is managed by server!)
+// Purpose: gets the name of this client (managed by server)
 //---------------------------------------------------------------------------------
 const char* CClient::GetServerName(void) const
 {
@@ -76,7 +76,7 @@ const char* CClient::GetServerName(void) const
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: gets the server name of this client (as obtained from the connectionless packet)
+// Purpose: gets the name of this client (obtained from connectionless packet)
 //---------------------------------------------------------------------------------
 const char* CClient::GetClientName(void) const
 {
