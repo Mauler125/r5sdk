@@ -29,7 +29,6 @@ struct CUtlMemoryPool
 	int m_BlocksPerBlob;
 	int m_GrowMode;
 	int m_BlocksAllocated;
-	int unk;
 	CBlob m_BlobHead;
 };
 
