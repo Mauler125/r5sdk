@@ -131,7 +131,7 @@ void Host_KickID_f(const CCommand& args)
 
 			if (bOnlyDigits)
 			{
-				uint64_t nTargetID = static_cast<int64_t>(std::stoll(args.Arg(1)));
+				uint64_t nTargetID = static_cast<uint64_t>(std::stoll(args.Arg(1)));
 				if (nTargetID > MAX_PLAYERS) // Is it a possible originID?
 				{
 					uint64_t nOriginID = pClient->GetOriginID();
