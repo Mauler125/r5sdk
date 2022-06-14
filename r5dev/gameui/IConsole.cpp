@@ -131,7 +131,7 @@ void CConsole::Draw(void)
      * SUGGESTION PANEL SETUP *
      **************************/
     {
-        static int nVars = 2;
+        int nVars{};
         if (CanAutoComplete())
         {
             if (m_bDefaultTheme)
@@ -143,8 +143,9 @@ void CConsole::Draw(void)
             ImGui::SetNextWindowPos(m_ivSuggestWindowPos);
             ImGui::SetNextWindowSize(m_ivSuggestWindowSize);
 
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(500, 37));
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(500, 37)); nVars++;
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);         nVars++;
+            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);           nVars++;
 
             SuggestPanel();
 
