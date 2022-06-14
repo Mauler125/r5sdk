@@ -39,7 +39,7 @@ void MOD_GetAllInstalledMaps()
     std::regex rgArchiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
     std::smatch smRegexMatches;
 
-    for (const auto& dEntry : fs::directory_iterator("vpk"))
+    for (const fs::directory_entry& dEntry : fs::directory_iterator("vpk"))
     {
         std::string svFileName = dEntry.path().string();
         std::regex_search(svFileName, smRegexMatches, rgArchiveRegex);
