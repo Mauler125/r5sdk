@@ -13,7 +13,7 @@ public:
 	void DeleteEntry(string svIpAddress, uint64_t nOriginID);
 
 	void AddConnectionRefuse(string svError, uint64_t nOriginID);
-	void DeleteConnectionRefuse(uint64_t nUserID);
+	void DeleteConnectionRefuse(uint64_t nOriginID);
 
 	void BanListCheck(void);
 

@@ -23,7 +23,7 @@ struct user_creds_s
 	int32_t  m_nchallenge;
 	uint8_t  gap2[8];
 	uint64_t m_nNucleusID;
-	int64_t  m_nUserID;
+	uint8_t* m_nUserID;
 };
 
 class CServer : public IServer

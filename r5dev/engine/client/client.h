@@ -24,7 +24,8 @@ public:
 	CNetChan* GetNetChan(void) const;
 	const char* GetServerName(void) const;
 	const char* GetClientName(void) const;
-	void SetUserID(int32_t nUserID);
+	void SetHandle(uint16_t nHandle);
+	void SetUserID(uint32_t nUserID);
 	void SetOriginID(uint64_t nOriginID);
 	void SetSignonState(SIGNONSTATE nSignonState);
 	void SetPersistenceState(PERSISTENCE nPersistenceState);

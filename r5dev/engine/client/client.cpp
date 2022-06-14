@@ -20,7 +20,7 @@ CClient* CClient::GetClient(int nIndex) const
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: gets the userID of this client
+// Purpose: gets the handle of this client
 //---------------------------------------------------------------------------------
 uint16_t CClient::GetHandle(void) const
 {
@@ -36,7 +36,7 @@ uint32_t CClient::GetUserID(void) const
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: gets the userID of this client
+// Purpose: gets the originID of this client
 //---------------------------------------------------------------------------------
 uint64_t CClient::GetOriginID(void) const
 {
@@ -84,9 +84,17 @@ const char* CClient::GetClientName(void) const
 }
 
 //---------------------------------------------------------------------------------
+// Purpose: sets the handle of this client
+//---------------------------------------------------------------------------------
+void CClient::SetHandle(uint16_t nHandle)
+{
+	m_nHandle = nHandle;
+}
+
+//---------------------------------------------------------------------------------
 // Purpose: sets the userID of this client
 //---------------------------------------------------------------------------------
-void CClient::SetUserID(std::int32_t nUserID)
+void CClient::SetUserID(uint32_t nUserID)
 {
 	m_nUserID = nUserID;
 }
