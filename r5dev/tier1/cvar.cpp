@@ -7,6 +7,7 @@
 // ENGINE                                                                     |
 ConVar* single_frame_shutdown_for_reload   = nullptr;
 ConVar* old_gather_props                   = nullptr;
+ConVar* enable_debug_overlays              = nullptr;
 
 ConVar* staticProp_defaultBuildFrustum     = nullptr;
 ConVar* staticProp_no_fade_scalar          = nullptr;

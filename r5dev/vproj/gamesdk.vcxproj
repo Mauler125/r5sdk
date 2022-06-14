@@ -32,6 +32,7 @@
     <ClCompile Include="..\engine\clockdriftmgr.cpp" />
     <ClCompile Include="..\engine\cmodel_bsp.cpp" />
     <ClCompile Include="..\engine\common.cpp" />
+    <ClCompile Include="..\engine\debugoverlay.cpp" />
     <ClCompile Include="..\engine\gl_rsurf.cpp" />
     <ClCompile Include="..\engine\gl_screen.cpp" />
     <ClCompile Include="..\engine\host_cmd.cpp" />

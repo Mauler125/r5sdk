@@ -5,6 +5,7 @@
 // ENGINE                                                                 |
 extern ConVar* single_frame_shutdown_for_reload;
 extern ConVar* old_gather_props;
+extern ConVar* enable_debug_overlays;
 
 extern ConVar* staticProp_defaultBuildFrustum;
 extern ConVar* staticProp_no_fade_scalar;

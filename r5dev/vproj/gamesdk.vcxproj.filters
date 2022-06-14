@@ -537,6 +537,9 @@
     <ClCompile Include="..\mathlib\sha1.cpp">
       <Filter>sdk\mathlib</Filter>
     </ClCompile>
+    <ClCompile Include="..\engine\debugoverlay.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">

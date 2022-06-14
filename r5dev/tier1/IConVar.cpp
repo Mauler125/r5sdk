@@ -169,6 +169,7 @@ void ConVar::Init(void) const
 void ConVar::InitShipped(void) const
 {
 	single_frame_shutdown_for_reload = g_pCVar->FindVar("single_frame_shutdown_for_reload");
+	enable_debug_overlays            = g_pCVar->FindVar("enable_debug_overlays");
 	model_defaultFadeDistScale       = g_pCVar->FindVar("model_defaultFadeDistScale");
 	model_defaultFadeDistMin         = g_pCVar->FindVar("model_defaultFadeDistMin");
 	staticProp_no_fade_scalar        = g_pCVar->FindVar("staticProp_no_fade_scalar");
