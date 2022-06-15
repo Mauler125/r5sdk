@@ -7,8 +7,6 @@
 #include "sdklauncher.h"
 #include "basepanel.h"
 #include "modManager.h"
-#include "redicon.c"
-#include "grayicon.c"
 
 Drawing::Color bgColor = Drawing::Color(47, 54, 61);
 Drawing::Color tickColor = Drawing::Color(3, 102, 214);
@@ -560,6 +558,7 @@ void CUIBaseSurface::Init()
 	this->m_Thingi->Columns.Add({ "index", 50 });
 	this->m_Thingi->Columns.Add({ "buffer", 300 });
 	this->m_Thingi->MouseClick += &ModManagerClick;
+	this->m_Thingi->LostFocus += &UnfocusedManager;
 	this->m_Thingi->RetrieveVirtualItem += &GetVirtItemMod;
 	this->m_ManagerGroupExt->AddControl(this->m_Thingi);
 
@@ -1044,6 +1043,16 @@ void CUIBaseSurface::ModManagerClick(const std::unique_ptr<MouseEventArgs>& pEve
 		pSurface->m_ManagerEnabledLabel->SetText("Enabled");
 	else
 		pSurface->m_ManagerEnabledLabel->SetText("Disabled");
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: handles the user unfocusing a mod
+// Input  : *pSender - 
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::UnfocusedManager(Forms::Control* pSender) {
+	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+
+	pSurface->m_ManagerViewerCoverText->Show();
 }
 
 //-----------------------------------------------------------------------------

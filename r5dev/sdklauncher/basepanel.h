@@ -75,6 +75,7 @@ private:
 	static void ModManagerEnabledToggle(Forms::Control* pSender);
 	static void GetVirtualItem(const std::unique_ptr<Forms::RetrieveVirtualItemEventArgs>& pEventArgs, Forms::Control* pSender);
 	static void GetVirtItemMod(const std::unique_ptr<Forms::RetrieveVirtualItemEventArgs>& pEventArgs, Forms::Control* pSender);
+	static void UnfocusedManager(Forms::Control* pSender);
 	static void ForwardCommandToGame(Forms::Control* pSender);
 	eLaunchMode BuildParameter(string& svParameter);
 
