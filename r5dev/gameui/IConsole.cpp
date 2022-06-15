@@ -29,7 +29,7 @@ History:
 CConsole::CConsole(void)
 {
     ClearLog();
-    memset(m_szInputBuf, 0, sizeof(m_szInputBuf));
+    memset(m_szInputBuf, '\0', sizeof(m_szInputBuf));
 
     m_nHistoryPos     = -1;
     m_bAutoScroll     = true;
@@ -358,7 +358,7 @@ void CConsole::SuggestPanel(void)
     ImGui::Begin("##suggest", nullptr, m_nSuggestFlags);
     ImGui::PushAllowKeyboardFocus(false);
 
-    for (int i = 0; i < m_vsvSuggest.size(); i++)
+    for (size_t i = 0; i < m_vsvSuggest.size(); i++)
     {
         bool bIsIndexActive = m_nSuggestPos == i;
         ImGui::PushID(i);
@@ -467,7 +467,7 @@ void CConsole::FindFromPartial(void)
     m_bSuggestUpdate = true;
     m_vsvSuggest.clear();
 
-    for (int i = 0; i < m_vsvCommandBases.size(); i++)
+    for (size_t i = 0; i < m_vsvCommandBases.size(); i++)
     {
         if (m_vsvSuggest.size() < con_suggestion_limit->GetInt())
         {
