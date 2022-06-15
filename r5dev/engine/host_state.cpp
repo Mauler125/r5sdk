@@ -363,7 +363,7 @@ FORCEINLINE void CHostState::State_ChangeLevelSP(void)
 //-----------------------------------------------------------------------------
 FORCEINLINE void CHostState::State_ChangeLevelMP(void)
 {
-	DevMsg(eDLL_T::ENGINE, "%s - Changing multiplayer level to: '%s'\n", __FUNCTION__ m_levelName);
+	DevMsg(eDLL_T::ENGINE, "%s - Changing multiplayer level to: '%s'\n", __FUNCTION__, m_levelName);
 	m_flShortFrameTime = 0.5; // Set frame time.
 
 #ifndef CLIENT_DLL
