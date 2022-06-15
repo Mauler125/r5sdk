@@ -732,7 +732,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
             sprintf_s(szValue, sizeof(szValue), "%s", m_szInputBuf);
 
             // Remove space or semicolon before we call 'g_pCVar->FindVar(..)'.
-            for (int i = 0; i < strlen(szValue); i++)
+            for (size_t i = 0; i < strlen(szValue); i++)
             {
                 if (szValue[i] == ' ' || szValue[i] == ';')
                 {
@@ -741,7 +741,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
             }
 
             ConVar* pConVar = g_pCVar->FindVar(szValue);
-            if (pConVar != nullptr)
+            if (pConVar)
             {
                 // Display the current and default value of ConVar if found.
                 snprintf(m_szSummary, 256, "(\"%s\", default \"%s\")", pConVar->GetString(), pConVar->GetDefault());
