@@ -20,17 +20,25 @@ CClient* CClient::GetClient(int nIndex) const
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: gets the userID of this client
+// Purpose: gets the handle of this client
 //---------------------------------------------------------------------------------
-int32_t CClient::GetUserID(void) const
+uint16_t CClient::GetHandle(void) const
 {
-	return m_nUserID;
+	return m_nHandle;
 }
 
 //---------------------------------------------------------------------------------
 // Purpose: gets the userID of this client
 //---------------------------------------------------------------------------------
-int64_t CClient::GetOriginID(void) const
+uint32_t CClient::GetUserID(void) const
+{
+	return m_nUserID;
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: gets the originID of this client
+//---------------------------------------------------------------------------------
+uint64_t CClient::GetOriginID(void) const
 {
 	return m_nOriginID;
 }
@@ -60,9 +68,33 @@ CNetChan* CClient::GetNetChan(void) const
 }
 
 //---------------------------------------------------------------------------------
+// Purpose: gets the name of this client (managed by server)
+//---------------------------------------------------------------------------------
+const char* CClient::GetServerName(void) const
+{
+	return m_szServerName;
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: gets the name of this client (obtained from connectionless packet)
+//---------------------------------------------------------------------------------
+const char* CClient::GetClientName(void) const
+{
+	return m_szClientName;
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: sets the handle of this client
+//---------------------------------------------------------------------------------
+void CClient::SetHandle(uint16_t nHandle)
+{
+	m_nHandle = nHandle;
+}
+
+//---------------------------------------------------------------------------------
 // Purpose: sets the userID of this client
 //---------------------------------------------------------------------------------
-void CClient::SetUserID(std::int32_t nUserID)
+void CClient::SetUserID(uint32_t nUserID)
 {
 	m_nUserID = nUserID;
 }
@@ -70,7 +102,7 @@ void CClient::SetUserID(std::int32_t nUserID)
 //---------------------------------------------------------------------------------
 // Purpose: sets the originID of this client
 //---------------------------------------------------------------------------------
-void CClient::SetOriginID(std::int64_t nOriginID)
+void CClient::SetOriginID(uint64_t nOriginID)
 {
 	m_nOriginID = nOriginID;
 }

@@ -172,16 +172,17 @@ void ConVar::Init(void) const
 void ConVar::InitShipped(void) const
 {
 	single_frame_shutdown_for_reload = g_pCVar->FindVar("single_frame_shutdown_for_reload");
-	model_defaultFadeDistScale = g_pCVar->FindVar("model_defaultFadeDistScale");
-	model_defaultFadeDistMin = g_pCVar->FindVar("model_defaultFadeDistMin");
-	staticProp_no_fade_scalar = g_pCVar->FindVar("staticProp_no_fade_scalar");
-	staticProp_gather_size_weight = g_pCVar->FindVar("staticProp_gather_size_weight");
-	old_gather_props = g_pCVar->FindVar("old_gather_props");
-	mp_gamemode = g_pCVar->FindVar("mp_gamemode");
-	hostname = g_pCVar->FindVar("hostname");
-	hostport = g_pCVar->FindVar("hostport");
-	host_hasIrreversibleShutdown = g_pCVar->FindVar("host_hasIrreversibleShutdown");
-	net_usesocketsforloopback = g_pCVar->FindVar("net_usesocketsforloopback");
+	enable_debug_overlays            = g_pCVar->FindVar("enable_debug_overlays");
+	model_defaultFadeDistScale       = g_pCVar->FindVar("model_defaultFadeDistScale");
+	model_defaultFadeDistMin         = g_pCVar->FindVar("model_defaultFadeDistMin");
+	staticProp_no_fade_scalar        = g_pCVar->FindVar("staticProp_no_fade_scalar");
+	staticProp_gather_size_weight    = g_pCVar->FindVar("staticProp_gather_size_weight");
+	old_gather_props                 = g_pCVar->FindVar("old_gather_props");
+	mp_gamemode                      = g_pCVar->FindVar("mp_gamemode");
+	hostname                         = g_pCVar->FindVar("hostname");
+	hostport                         = g_pCVar->FindVar("hostport");
+	host_hasIrreversibleShutdown     = g_pCVar->FindVar("host_hasIrreversibleShutdown");
+	net_usesocketsforloopback        = g_pCVar->FindVar("net_usesocketsforloopback");
 
 	mp_gamemode->SetCallback(&MP_GameMode_Changed_f);
 }
@@ -222,23 +223,22 @@ void ConVar::PurgeHostNames(void) const
 {
 	const char* pszHostNames[] =
 	{
-		"pin_telemetry_hostname",
 		"assetdownloads_hostname",
-		"users_hostname",
-		"persistence_hostname",
-		"speechtotexttoken_hostname",
 		"communities_hostname",
-		"persistenceDef_hostname",
-		"party_hostname",
-		"speechtotext_hostname",
-		"serverReports_hostname",
-		"subscription_hostname",
-		"steamlink_hostname",
-		"staticfile_hostname",
 		"matchmaking_hostname",
-		"skill_hostname",
+		"party_hostname",
+		"persistence_hostname",
+		"persistenceDef_hostname",
+		"pin_telemetry_hostname",
 		"publication_hostname",
-		"stats_hostname"
+		"serverReports_hostname",
+		"skill_hostname",
+		"speechtotext_hostname",
+		"staticfile_hostname",
+		"stats_hostname",
+		"steamlink_hostname",
+		"subscription_hostname",
+		"users_hostname"
 	};
 
 	for (int i = 0; i < (&pszHostNames)[1] - pszHostNames; i++)
@@ -723,7 +723,7 @@ void ConVar::ChangeStringValue(const char* pszTempVal, float flOldValue)
 
 	if (pszTempVal)
 	{
-		int len = strlen(pszTempVal) + 1;
+		size_t len = strlen(pszTempVal) + 1;
 
 		if (len > m_Value.m_iStringLength)
 		{
@@ -735,7 +735,11 @@ void ConVar::ChangeStringValue(const char* pszTempVal, float flOldValue)
 			m_Value.m_pszString = new char[len];
 			m_Value.m_iStringLength = len;
 		}
-
+		else if (!m_Value.m_pszString)
+		{
+			m_Value.m_pszString = new char[len];
+			m_Value.m_iStringLength = len;
+		}
 		memcpy(const_cast<char*>(m_Value.m_pszString), pszTempVal, len);
 	}
 	else

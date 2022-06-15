@@ -65,14 +65,14 @@ int CServer::GetNumFakeClients(void) const
 //---------------------------------------------------------------------------------
 CClient* CServer::Authenticate(CServer* pServer, user_creds_s* pInpacket)
 {
-	std::string svIpAddress = pInpacket->m_nAddr.GetAddress();
+	string svIpAddress = pInpacket->m_nAddr.GetAddress();
 	if (sv_showconnecting->GetBool())
 	{
 		DevMsg(eDLL_T::SERVER, "\n");
 		DevMsg(eDLL_T::SERVER, "______________________________________________________________\n");
 		DevMsg(eDLL_T::SERVER, "] AUTHENTICATION ---------------------------------------------\n");
 		DevMsg(eDLL_T::SERVER, "] UID : | '%s'\n", pInpacket->m_nUserID);
-		DevMsg(eDLL_T::SERVER, "] OID : | '%lld'\n", pInpacket->m_nNucleusID);
+		DevMsg(eDLL_T::SERVER, "] OID : | '%llu'\n", pInpacket->m_nNucleusID);
 		DevMsg(eDLL_T::SERVER, "] ADR : | '%s'\n", svIpAddress.c_str());
 		DevMsg(eDLL_T::SERVER, "--------------------------------------------------------------\n");
 	}
@@ -85,7 +85,7 @@ CClient* CServer::Authenticate(CServer* pServer, user_creds_s* pInpacket)
 
 			if (sv_showconnecting->GetBool())
 			{
-				Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%lld' is banned from this server!)\n", svIpAddress.c_str(), pInpacket->m_nNucleusID);
+				Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%llu' is banned from this server!)\n", svIpAddress.c_str(), pInpacket->m_nNucleusID);
 			}
 			return nullptr;
 		}

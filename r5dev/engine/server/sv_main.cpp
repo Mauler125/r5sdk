@@ -6,18 +6,14 @@
 //-----------------------------------------------------------------------------
 // Purpose: checks if particular client is banned on the comp server
 //-----------------------------------------------------------------------------
-void SV_IsClientBanned(R5Net::Client* pR5net, const std::string svIPAddr, std::int64_t nNucleusID)
+void SV_IsClientBanned(R5Net::Client* pR5net, const string svIPAddr, uint64_t nNucleusID)
 {
-	std::string svError = std::string();
+	string svError = string();
+
 	bool bCompBanned = pR5net->GetClientIsBanned(svIPAddr, nNucleusID, svError);
 	if (bCompBanned)
 	{
-		DevMsg(eDLL_T::SERVER, "\n");
-		DevMsg(eDLL_T::SERVER, "______________________________________________________________\n");
-		DevMsg(eDLL_T::SERVER, "] PYLON_NOTICE -----------------------------------------------\n");
-		DevMsg(eDLL_T::SERVER, "] OriginID : | '%lld' IS PYLON BANNED.\n", nNucleusID);
-		DevMsg(eDLL_T::SERVER, "--------------------------------------------------------------\n");
-		DevMsg(eDLL_T::SERVER, "\n");
+		DevMsg(eDLL_T::SERVER, "Connection rejected for '%s' ('%llu' is banned from the master server!)\n", svIPAddr.c_str(), nNucleusID);
 		g_pBanSystem->AddConnectionRefuse(svError, nNucleusID); // Add to the vector.
 	}
 }

@@ -133,18 +133,18 @@ void Host_KickID_f(const CCommand& args)
 
 			if (bOnlyDigits)
 			{
-				int64_t nTargetID = static_cast<int64_t>(std::stoll(args.Arg(1)));
+				uint64_t nTargetID = static_cast<uint64_t>(std::stoll(args.Arg(1)));
 				if (nTargetID > MAX_PLAYERS) // Is it a possible originID?
 				{
-					int64_t nOriginID = pClient->GetOriginID();
+					uint64_t nOriginID = pClient->GetOriginID();
 					if (nOriginID != nTargetID)
 					{
 						continue;
 					}
 				}
-				else // If its not try by userID.
+				else // If its not try by handle.
 				{
-					int64_t nClientID = static_cast<int64_t>(pClient->GetUserID() + 1); // Get userID + 1.
+					uint64_t nClientID = static_cast<uint64_t>(pClient->GetHandle());
 					if (nClientID != nTargetID)
 					{
 						continue;
@@ -166,7 +166,7 @@ void Host_KickID_f(const CCommand& args)
 	}
 	catch (std::exception& e)
 	{
-		Error(eDLL_T::SERVER, "sv_kickid requires a UserID or OriginID. You can get the UserID with the 'status' command. Error: %s", e.what());
+		Error(eDLL_T::SERVER, "%s - sv_kickid requires a UserID or OriginID. You can get the UserID with the 'status' command. Error: %s", __FUNCTION__, e.what());
 		return;
 	}
 }
@@ -242,18 +242,18 @@ void Host_BanID_f(const CCommand& args)
 
 			if (bOnlyDigits)
 			{
-				int64_t nTargetID = static_cast<int64_t>(std::stoll(args.Arg(1)));
-				if (nTargetID > MAX_PLAYERS) // Is it a possible originID?
+				uint64_t nTargetID = static_cast<uint64_t>(std::stoll(args.Arg(1)));
+				if (nTargetID > static_cast<uint64_t>(MAX_PLAYERS)) // Is it a possible originID?
 				{
-					int64_t nOriginID = pClient->GetOriginID();
+					uint64_t nOriginID = pClient->GetOriginID();
 					if (nOriginID != nTargetID)
 					{
 						continue;
 					}
 				}
-				else // If its not try by userID.
+				else // If its not try by handle.
 				{
-					int64_t nClientID = static_cast<int64_t>(pClient->GetUserID() + 1); // Get UserID + 1.
+					uint64_t nClientID = static_cast<uint64_t>(pClient->GetHandle());
 					if (nClientID != nTargetID)
 					{
 						continue;
@@ -279,7 +279,7 @@ void Host_BanID_f(const CCommand& args)
 	}
 	catch (std::exception& e)
 	{
-		Error(eDLL_T::SERVER, "Banid Error: %s", e.what());
+		Error(eDLL_T::SERVER, "%s - Banid Error: %s", __FUNCTION__, e.what());
 		return;
 	}
 }
@@ -305,13 +305,13 @@ void Host_Unban_f(const CCommand& args)
 		}
 		else
 		{
-			g_pBanSystem->DeleteEntry(args.Arg(1), 1); // Delete ban entry.
+			g_pBanSystem->DeleteEntry(args.Arg(1), 0); // Delete ban entry.
 			g_pBanSystem->Save(); // Save modified vector to file.
 		}
 	}
 	catch (std::exception& e)
 	{
-		Error(eDLL_T::SERVER, "Unban error: %s", e.what());
+		Error(eDLL_T::SERVER, "%s - Unban error: %s", __FUNCTION__, e.what());
 		return;
 	}
 }
@@ -385,7 +385,7 @@ void Pak_RequestUnload_f(const CCommand& args)
 
 			string pakName = pakInfo->m_pszFileName;
 			!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested pak unload for '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested Pak Unload for '%d'\n", nPakId);
-			g_pakLoadApi->Unload(nPakId);
+			g_pakLoadApi->UnloadPak(nPakId);
 		}
 		else
 		{
@@ -396,7 +396,7 @@ void Pak_RequestUnload_f(const CCommand& args)
 			}
 
 			DevMsg(eDLL_T::RTECH, "Requested pak unload for '%s'\n", args.Arg(1));
-			g_pakLoadApi->Unload(pakInfo->m_nPakId);
+			g_pakLoadApi->UnloadPak(pakInfo->m_nPakId);
 		}
 	}
 	catch (std::exception& e)
@@ -413,7 +413,7 @@ Pak_RequestLoad_f
 */
 void Pak_RequestLoad_f(const CCommand& args)
 {
-	g_pakLoadApi->AsyncLoad(args.Arg(1));
+	g_pakLoadApi->LoadAsync(args.Arg(1));
 }
 
 
@@ -455,12 +455,12 @@ void Pak_Swap_f(const CCommand& args)
 
 		!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested pak swap for '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested pak swap for '%d'\n", nPakId);
 
-		g_pakLoadApi->Unload(nPakId);
+		g_pakLoadApi->UnloadPak(nPakId);
 
 		while (pakInfo->m_nStatus != RPakStatus_t::PAK_STATUS_FREED) // Wait till this slot gets free'd.
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 
-		g_pakLoadApi->AsyncLoad(pakName.c_str());
+		g_pakLoadApi->LoadAsync(pakName.c_str());
 	}
 	catch (std::exception& e)
 	{
@@ -514,9 +514,9 @@ void RTech_Decompress_f(const CCommand& args)
 	DevMsg(eDLL_T::RTECH, "______________________________________________________________\n");
 	DevMsg(eDLL_T::RTECH, "-+ RTech decompress ------------------------------------------\n");
 
-	if (!FileExists(pakNameIn.c_str()))
+	if (!FileExists(pakNameIn))
 	{
-		Error(eDLL_T::RTECH, "Error: pak file '%s' does not exist!\n", pakNameIn.c_str());
+		Error(eDLL_T::RTECH, "%s - pak file '%s' does not exist!\n", __FUNCTION__, pakNameIn.c_str());
 		return;
 	}
 
@@ -546,17 +546,17 @@ void RTech_Decompress_f(const CCommand& args)
 
 	if (rheader->m_nMagic != 'kaPR')
 	{
-		Error(eDLL_T::RTECH, "Error: pak file '%s' has invalid magic!\n", pakNameIn.c_str());
+		Error(eDLL_T::RTECH, "%s - pak file '%s' has invalid magic!\n", __FUNCTION__, pakNameIn.c_str());
 		return;
 	}
 	if ((rheader->m_nFlags[1] & 1) != 1)
 	{
-		Error(eDLL_T::RTECH, "Error: pak file '%s' already decompressed!\n", pakNameIn.c_str());
+		Error(eDLL_T::RTECH, "%s - pak file '%s' already decompressed!\n", __FUNCTION__, pakNameIn.c_str());
 		return;
 	}
 	if (rheader->m_nSizeDisk != upak.size())
 	{
-		Error(eDLL_T::RTECH, "Error: pak file '%s' decompressed size '%zu' doesn't match expected value '%zu'!\n", pakNameIn.c_str(), upak.size(), rheader->m_nSizeMemory);
+		Error(eDLL_T::RTECH, "%s - pak file '%s' decompressed size '%zu' doesn't match expected value '%zu'!\n", __FUNCTION__, pakNameIn.c_str(), upak.size(), rheader->m_nSizeMemory);
 		return;
 	}
 
@@ -565,7 +565,7 @@ void RTech_Decompress_f(const CCommand& args)
 
 	if (decompSize == rheader->m_nSizeDisk)
 	{
-		Error(eDLL_T::RTECH, "Error: calculated size: '%zu' expected: '%zu'!\n", decompSize, rheader->m_nSizeMemory);
+		Error(eDLL_T::RTECH, "%s - calculated size: '%zu' expected: '%zu'!\n", __FUNCTION__, decompSize, rheader->m_nSizeMemory);
 		return;
 	}
 	else
@@ -581,7 +581,7 @@ void RTech_Decompress_f(const CCommand& args)
 	uint8_t decompResult = g_pRTech->DecompressPakFile(&state, upak.size(), pakBuf.size());
 	if (decompResult != 1)
 	{
-		Error(eDLL_T::RTECH, "Error: decompression failed for '%s' return value: '%u'!\n", pakNameIn.c_str(), +decompResult);
+		Error(eDLL_T::RTECH, "%s - decompression failed for '%s' return value: '%u'!\n", __FUNCTION__, pakNameIn.c_str(), +decompResult);
 		return;
 	}
 
@@ -784,7 +784,15 @@ void RCON_CmdQuery_f(const CCommand& args)
 		{
 			if (strcmp(args.Arg(1), "PASS") == 0) // Auth with RCON server using rcon_password ConVar value.
 			{
-				string svCmdQuery = g_pRConClient->Serialize(rcon_password->GetString(), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+				string svCmdQuery;
+				if (args.ArgC() > 2)
+				{
+					svCmdQuery = g_pRConClient->Serialize(args.Arg(2), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+				}
+				else // Use 'rcon_password' ConVar as password.
+				{
+					svCmdQuery = g_pRConClient->Serialize(rcon_password->GetString(), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+				}
 				g_pRConClient->Send(svCmdQuery);
 				return;
 			}
@@ -922,7 +930,7 @@ void Mat_CrossHair_f(const CCommand& args)
 	}
 	else
 	{
-		DevMsg(eDLL_T::MS, "No Material found >:(\n");
+		DevMsg(eDLL_T::MS, "%s - No Material found >:(\n", __FUNCTION__);
 	}
 }
 #endif // !DEDICATED

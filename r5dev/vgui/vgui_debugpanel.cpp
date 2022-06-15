@@ -47,7 +47,7 @@ void CLogSystem::Update(void)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CLogSystem::AddLog(LogType_t type, std::string svMessage)
+void CLogSystem::AddLog(LogType_t type, string svMessage)
 {
 	if (svMessage.length() > 0)
 	{

@@ -22,7 +22,7 @@ enum class SQCONTEXT : SQInteger
 	NONE
 };
 
-const static std::string SQVM_TYPE_T[4] =
+const static string SQVM_TYPE_T[4] =
 {
 	"SERVER",
 	"CLIENT",
@@ -30,7 +30,7 @@ const static std::string SQVM_TYPE_T[4] =
 	"NONE"
 };
 
-const static std::string SQVM_LOG_T[4] =
+const static string SQVM_LOG_T[4] =
 {
 	"Script(S):",
 	"Script(C):",
@@ -38,7 +38,7 @@ const static std::string SQVM_LOG_T[4] =
 	"Script(X):"
 };
 
-const static std::string SQVM_ANSI_LOG_T[4] =
+const static string SQVM_ANSI_LOG_T[4] =
 {
 	"\033[38;2;151;149;187mScript(S):",
 	"\033[38;2;151;149;163mScript(C):",
@@ -46,7 +46,7 @@ const static std::string SQVM_ANSI_LOG_T[4] =
 	"\033[38;2;151;149;163mScript(X):"
 };
 
-const static std::string SQVM_WARNING_ANSI_LOG_T[4] =
+const static string SQVM_WARNING_ANSI_LOG_T[4] =
 {
 	"\033[38;2;151;149;187mScript(S):\033[38;2;255;255;000m",
 	"\033[38;2;151;149;163mScript(C):\033[38;2;255;255;000m",
@@ -54,7 +54,7 @@ const static std::string SQVM_WARNING_ANSI_LOG_T[4] =
 	"\033[38;2;151;149;163mScript(X):\033[38;2;255;255;000m"
 };
 
-const static std::string SQVM_ERROR_ANSI_LOG_T[4] =
+const static string SQVM_ERROR_ANSI_LOG_T[4] =
 {
 	"\033[38;2;151;149;187mScript(S):\033[38;2;255;000;000m",
 	"\033[38;2;151;149;163mScript(C):\033[38;2;255;000;000m",

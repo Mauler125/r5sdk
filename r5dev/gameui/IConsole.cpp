@@ -29,7 +29,7 @@ History:
 CConsole::CConsole(void)
 {
     ClearLog();
-    memset(m_szInputBuf, 0, sizeof(m_szInputBuf));
+    memset(m_szInputBuf, '\0', sizeof(m_szInputBuf));
 
     m_nHistoryPos     = -1;
     m_bAutoScroll     = true;
@@ -131,7 +131,7 @@ void CConsole::Draw(void)
      * SUGGESTION PANEL SETUP *
      **************************/
     {
-        static int nVars = 2;
+        int nVars{};
         if (CanAutoComplete())
         {
             if (m_bDefaultTheme)
@@ -143,8 +143,9 @@ void CConsole::Draw(void)
             ImGui::SetNextWindowPos(m_ivSuggestWindowPos);
             ImGui::SetNextWindowSize(m_ivSuggestWindowSize);
 
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(500, 37));
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(500, 37)); nVars++;
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);         nVars++;
+            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);           nVars++;
 
             SuggestPanel();
 
@@ -357,7 +358,7 @@ void CConsole::SuggestPanel(void)
     ImGui::Begin("##suggest", nullptr, m_nSuggestFlags);
     ImGui::PushAllowKeyboardFocus(false);
 
-    for (int i = 0; i < m_vsvSuggest.size(); i++)
+    for (size_t i = 0; i < m_vsvSuggest.size(); i++)
     {
         bool bIsIndexActive = m_nSuggestPos == i;
         ImGui::PushID(i);
@@ -466,7 +467,7 @@ void CConsole::FindFromPartial(void)
     m_bSuggestUpdate = true;
     m_vsvSuggest.clear();
 
-    for (int i = 0; i < m_vsvCommandBases.size(); i++)
+    for (size_t i = 0; i < m_vsvCommandBases.size(); i++)
     {
         if (m_vsvSuggest.size() < con_suggestion_limit->GetInt())
         {
@@ -731,7 +732,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
             sprintf_s(szValue, sizeof(szValue), "%s", m_szInputBuf);
 
             // Remove space or semicolon before we call 'g_pCVar->FindVar(..)'.
-            for (int i = 0; i < strlen(szValue); i++)
+            for (size_t i = 0; i < strlen(szValue); i++)
             {
                 if (szValue[i] == ' ' || szValue[i] == ';')
                 {
@@ -740,7 +741,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
             }
 
             ConVar* pConVar = g_pCVar->FindVar(szValue);
-            if (pConVar != nullptr)
+            if (pConVar)
             {
                 // Display the current and default value of ConVar if found.
                 snprintf(m_szSummary, 256, "(\"%s\", default \"%s\")", pConVar->GetString(), pConVar->GetDefault());
@@ -798,7 +799,7 @@ void CConsole::ClearLog(void)
 //-----------------------------------------------------------------------------
 void CConsole::ColorLog(void) const
 {
-    for (int i = 0; i < m_ivConLog.size(); i++)
+    for (size_t i = 0; i < m_ivConLog.size(); i++)
     {
         if (!m_itFilter.PassFilter(m_ivConLog[i].m_svConLog.c_str()))
         {

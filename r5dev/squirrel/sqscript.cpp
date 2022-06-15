@@ -210,7 +210,7 @@ SQInteger Script_LoadRson(const SQChar* szRsonName)
 	{
 		DevMsg(eDLL_T::ENGINE, "\n");
 		DevMsg(eDLL_T::ENGINE, "______________________________________________________________\n");
-		DevMsg(eDLL_T::ENGINE, "] RSON_SQVM --------------------------------------------------\n");
+		DevMsg(eDLL_T::ENGINE, "] RSON ]------------------------------------------------------\n");
 		DevMsg(eDLL_T::ENGINE, "] PATH: '%s'\n", szRsonName);
 		DevMsg(eDLL_T::ENGINE, "--------------------------------------------------------------\n");
 		DevMsg(eDLL_T::ENGINE, "\n");

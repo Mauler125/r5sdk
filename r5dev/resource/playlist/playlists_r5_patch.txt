@@ -1,7 +1,7 @@
 ﻿playlists
 {
 	version stable
-	versionNum 216
+	versionNum 217
 	Gamemodes
 	{
 		defaults
@@ -916,7 +916,7 @@
 				sur_bots_spawn_with_random_weapons             1
 				match_ending_enabled                           0
 				max_teams                                      1
-				max_players                                    2
+				max_players                                    128
 				min_players                                    1
 				enable_nessies                                 1
 
@@ -937,6 +937,9 @@
 			{
 				visible                                        0
 				menu_fall_ltm                                  1
+
+				// Sets the legend in the lobby.
+				set_legend                                     "character_wraith"
 			}
 
 			gamemodes { survival { maps {
@@ -978,7 +981,10 @@
 			"Tokens"
 			{
 				"MP_RR_DESERTLANDS_64K_X_64K_NX"      "World's Edge After Dark"
-				"MP_RR_DESERTLANDS_64K_X_64K"         "World's Edge"
+				"MP_RR_ASHS_REDEMPTION"               "Ash's Redemption"
+				"MP_RR_AQUEDUCT"                      "Overflow"
+				"MP_RR_AQUEDUCT_NIGHT"                "Overflow After Dark"
+
 				"WORLDS_EDGE_NIGHT"                   "SHADOWFALL WORLD'S EDGE"
 				"WORLDS_EDGE_NIGHT_DESC"              "Dead Legends respawn as Shadows.\nSurvive and escape with final 10 Legends."
 				"Kings_Canyon_OG"                     "Kings Canyon"
@@ -986,8 +992,6 @@
 				"KCAD"                                "Kings Canyon After Dark"
 				"Playtest"                            "Playtest"
 				"Playtest_Only"                       "Playtest"
-				"MP_RR_ASHS_REDEMPTION"               "Ash's Redemption"
-				"MP_RR_AQUEDUCT"                      "Overflow"
 				"BETA_BUILD_WATERMARK"                "R5Reloaded [v2.0.7-rc]"
 
 				"PROMO_LARGE_TITLE"                   "Welcome To R5Reloaded!"
