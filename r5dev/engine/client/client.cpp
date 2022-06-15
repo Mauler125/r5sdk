@@ -6,7 +6,6 @@
 //
 //===============================================================================//
 // client.cpp: implementation of the CClient class.
-// This is the server implementation, maybe we should move it to engine/server ?
 ///////////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
 #include "engine/client/client.h"
