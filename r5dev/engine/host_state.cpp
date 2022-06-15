@@ -84,7 +84,7 @@ FORCEINLINE void CHostState::FrameUpdate(CHostState* rcx, void* rdx, float time)
 			{
 			case HostStates_t::HS_NEW_GAME:
 			{
-				DevMsg(eDLL_T::ENGINE, "%s - Loading level: '%s'\n", __FUNCTION__, g_pHostState->m_levelName);
+				DevMsg(eDLL_T::ENGINE, "%s - Loading level: '%s'\n", "CHostState::FrameUpdate", g_pHostState->m_levelName);
 				g_pHostState->State_NewGame();
 				break;
 			}
@@ -105,7 +105,7 @@ FORCEINLINE void CHostState::FrameUpdate(CHostState* rcx, void* rdx, float time)
 			}
 			case HostStates_t::HS_GAME_SHUTDOWN:
 			{
-				DevMsg(eDLL_T::ENGINE, "%s - Shutdown host game\n", __FUNCTION__);
+				DevMsg(eDLL_T::ENGINE, "%s - Shutdown host game\n", "CHostState::FrameUpdate");
 				if (g_pHostState->m_bActiveGame) {
 					g_pHostState->ResetLevelName();
 				}
@@ -114,7 +114,7 @@ FORCEINLINE void CHostState::FrameUpdate(CHostState* rcx, void* rdx, float time)
 			}
 			case HostStates_t::HS_RESTART:
 			{
-				DevMsg(eDLL_T::ENGINE, "%s - Restarting state machine\n", __FUNCTION__);
+				DevMsg(eDLL_T::ENGINE, "%s - Restarting state machine\n", "CHostState::FrameUpdate");
 #ifndef DEDICATED
 				CL_EndMovie();
 #endif // !DEDICATED
@@ -124,7 +124,7 @@ FORCEINLINE void CHostState::FrameUpdate(CHostState* rcx, void* rdx, float time)
 			}
 			case HostStates_t::HS_SHUTDOWN:
 			{
-				DevMsg(eDLL_T::ENGINE, "%s - Shutdown state machine\n", __FUNCTION__);
+				DevMsg(eDLL_T::ENGINE, "%s - Shutdown state machine\n", "CHostState::FrameUpdate");
 #ifndef DEDICATED
 				CL_EndMovie();
 #endif // !DEDICATED
@@ -315,7 +315,7 @@ FORCEINLINE void CHostState::State_NewGame(void)
 	if (!CModelLoader__Map_IsValid(g_pModelLoader, m_levelName) // Check if map is valid and if we can start a new game.
 		|| !Host_NewGame(m_levelName, nullptr, m_bBackgroundLevel, m_bSplitScreenConnect, time) || !g_pServerGameClients)
 	{
-		Error(eDLL_T::ENGINE, "%s - Error: Map not valid\n", __FUNCTION__);
+		Error(eDLL_T::ENGINE, "%s - Error: Map not valid\n", "CHostState::State_NewGame");
 #ifndef DEDICATED
 		SCR_EndLoadingPlaque();
 #endif // !DEDICATED
@@ -337,7 +337,7 @@ FORCEINLINE void CHostState::State_NewGame(void)
 //-----------------------------------------------------------------------------
 FORCEINLINE void CHostState::State_ChangeLevelSP(void)
 {
-	DevMsg(eDLL_T::ENGINE, "%s - Changing singleplayer level to: '%s'\n", __FUNCTION__, m_levelName);
+	DevMsg(eDLL_T::ENGINE, "%s - Changing singleplayer level to: '%s'\n", "CHostState::State_ChangeLevelSP", m_levelName);
 	m_flShortFrameTime = 1.5; // Set frame time.
 
 	if (CModelLoader__Map_IsValid(g_pModelLoader, m_levelName)) // Check if map is valid and if we can start a new game.
@@ -346,7 +346,7 @@ FORCEINLINE void CHostState::State_ChangeLevelSP(void)
 	}
 	else
 	{
-		Error(eDLL_T::ENGINE, "%s - Error: Unable to find map: '%s'\n", __FUNCTION__, m_levelName);
+		Error(eDLL_T::ENGINE, "%s - Error: Unable to find map: '%s'\n", "CHostState::State_ChangeLevelSP", m_levelName);
 	}
 
 	m_iCurrentState = HostStates_t::HS_RUN; // Set current state to run.
@@ -363,7 +363,7 @@ FORCEINLINE void CHostState::State_ChangeLevelSP(void)
 //-----------------------------------------------------------------------------
 FORCEINLINE void CHostState::State_ChangeLevelMP(void)
 {
-	DevMsg(eDLL_T::ENGINE, "%s - Changing multiplayer level to: '%s'\n", __FUNCTION__, m_levelName);
+	DevMsg(eDLL_T::ENGINE, "%s - Changing multiplayer level to: '%s'\n", "CHostState::State_ChangeLevelMP", m_levelName);
 	m_flShortFrameTime = 0.5; // Set frame time.
 
 #ifndef CLIENT_DLL
@@ -378,7 +378,7 @@ FORCEINLINE void CHostState::State_ChangeLevelMP(void)
 	}
 	else
 	{
-		Error(eDLL_T::ENGINE, "%s - Error: Unable to find map: '%s'\n", __FUNCTION__, m_levelName);
+		Error(eDLL_T::ENGINE, "%s - Error: Unable to find map: '%s'\n", "CHostState::State_ChangeLevelMP", m_levelName);
 	}
 
 	m_iCurrentState = HostStates_t::HS_RUN; // Set current state to run.
