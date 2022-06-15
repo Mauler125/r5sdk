@@ -60,16 +60,18 @@ class modObject {
 		std::string version;
 		std::vector<customScript> customScripts;
 		std::string dumped = "";
-		bool toggled = true;
+		bool toggled;
 		json object;
 
+		modObject() {}
+		
 		//-----------------------------------------------------------------------------
 		// Purpose: switch's mod state
 		//-----------------------------------------------------------------------------
-		void switchStates() {
-			toggled = !toggled;
-
+		void updateJson() {
 			object["enabled"] = toggled;
+
+			modJsonLoc += "\\mod.json";
 
 			if (fs::exists(modJsonLoc)) {
 				std::ofstream stream(modJsonLoc, std::ofstream::trunc);
@@ -128,7 +130,7 @@ class modObject {
 							}
 						}
 						if (object.contains("Version")) {
-							version = object["Description"].get<std::string>();
+							version = object["Version"].get<std::string>();
 						}
 						if (object.contains("CustomScripts")) {
 							for (auto& i : object["CustomScripts"]) {
@@ -154,27 +156,6 @@ class modObject {
 				}
 			}
 		};
-};
-
-struct modStruct {
-	// Enabled, AppId, Desc, Authors, Contacts, Version, Name
-	modStruct(bool toggled, std::string appid, std::string description, std::vector<std::string> authors, std::vector<std::string> contacts, std::string version, std::string name) {
-		m_toggled = toggled;
-		std::string m_appid = appid;
-		std::string m_name = name;
-		std::string m_description = description;
-		std::vector<std::string> m_authors = authors;
-		std::vector<std::string> m_contacts = contacts;
-		std::string m_version = version;
-	}
-
-	std::string m_appid;
-	std::string m_name;
-	std::string m_description;
-	std::vector<std::string> m_authors;
-	std::vector<std::string> m_contacts;
-	std::string m_version;
-	bool m_toggled;
 };
 
 
@@ -272,52 +253,95 @@ public:
 			scriptRson.append("\n\t" + script.path);
 		scriptRson.append("\n]\n");
 
-		fs::create_directory("mods\\compiled_mods\\scripts\\vscripts");
-		std::ofstream stream("mods\\compiled_mods\\scripts\\vscripts\\scripts.rson");
-		stream << scriptRson;
-		stream.close();
+		if (fs::exists("mods\\compiled_mods\\scripts\\vscripts")) {
+				fs::create_directory("mods\\compiled_mods\\scripts\\vscripts");
+				std::ofstream stream("mods\\compiled_mods\\scripts\\vscripts\\scripts.rson");
+
+				stream << scriptRson;
+				stream.close();
+		}
 	}
 
-	std::string modsList(modType modtype = modType::all) {
-		std::string string;
+	std::vector<modObject> modsList(modType modtype = modType::all) {
+		std::vector<modObject> modObjectList;
 
 		switch (modtype) {
 		case all:
 			for (auto& i : mods) {
-				string.append(i.name + " ");
+				modObjectList.push_back(i);
 			}
 			break;
 		case enabled:
 			for (auto& i : mods) {
 				if (i.toggled) {
-					string.append(i.name + " ");
+					modObjectList.push_back(i);
 				}
 			}
 			break;
 		case disabled:
 			for (auto& i : mods) {
 				if (!i.toggled) {
-					string.append(i.name + " ");
+					modObjectList.push_back(i);
 				}
 			}
 			break;
 		case invalid:
 			for (auto& i : mods) {
 				if (i.invalid) {
-					string.append(i.name + " ");
+					modObjectList.push_back(i);
 				}
 			}
 			break;
 		case valid:
 			for (auto& i : mods) {
 				if (!i.invalid) {
-					string.append(i.name + " ");
+					modObjectList.push_back(i);
 				}
 			}
 			break;
 		}
 
-		return string;
+		return modObjectList;
+	}
+
+	int modsListNum(modType modtype = modType::all) {
+		int number = 0;
+
+		switch (modtype) {
+		case all:
+			number = mods.size();
+			break;
+		case enabled:
+			for (auto& i : mods) {
+				if (i.toggled) {
+					number++;
+				}
+			}
+			break;
+		case disabled:
+			for (auto& i : mods) {
+				if (!i.toggled) {
+					number++;
+				}
+			}
+			break;
+		case invalid:
+			for (auto& i : mods) {
+				if (i.invalid) {
+					number++;
+				}
+			}
+			break;
+		case valid:
+			for (auto& i : mods) {
+				if (!i.invalid) {
+					number++;
+				}
+			}
+			break;
+		}
+
+		return number;
 	}
 };
 

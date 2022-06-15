@@ -14,6 +14,25 @@ struct LogList_t
 	String m_svText;
 };
 
+enum test {
+	enabledM = 0,
+	disabledM = 1,
+	invalidM = 2,
+};
+
+struct modManager_t {	
+	modManager_t() {}
+
+	modManager_t(test nLevel, modObject object)
+	{
+		m_nLevel = nLevel;
+		m_object = object;
+	}
+
+	test m_nLevel;
+	modObject m_object;
+};
+
 class CUIBaseSurface : public Forms::Form
 {
 public:
@@ -22,6 +41,8 @@ public:
 
 	std::vector<LogList_t> m_LogList;
 	UIX::UIXListView* m_ConsoleListView;
+	std::vector<modManager_t> m_ThingiS;
+	UIX::UIXListView* m_Thingi;
 
 	//Drawing::Color traceColor = Drawing::Color(255, 255, 255);
 	//Drawing::Color debugColor = Drawing::Color(0, 120, 215);
@@ -32,11 +53,16 @@ public:
 	//Drawing::Color generalColor = Drawing::Color(255, 255, 255);
 
 private:
+	int validMods = 0;
+	int enabledMods = 0;
+	
 	void Init();
 	void Setup();
 	void ParseMaps();
 	void ParsePlaylists();
 	void ReadModJson();
+	void AdjustValues();
+	void LoadMods();
 
 	void logText(spdlog::level::level_enum color, std::string text);
 	void logText(std::string text);
@@ -45,7 +71,10 @@ private:
 	static void CleanSDK(Forms::Control* pSender);
 	static void ReloadPlaylists(Forms::Control* pSender);
 	static void VirtualItemToClipboard(const std::unique_ptr<MouseEventArgs>& pEventArgs, Forms::Control* pSender);
+	static void ModManagerClick(const std::unique_ptr<MouseEventArgs>& pEventArgs, Forms::Control* pSender);
+	static void ModManagerEnabledToggle(Forms::Control* pSender);
 	static void GetVirtualItem(const std::unique_ptr<Forms::RetrieveVirtualItemEventArgs>& pEventArgs, Forms::Control* pSender);
+	static void GetVirtItemMod(const std::unique_ptr<Forms::RetrieveVirtualItemEventArgs>& pEventArgs, Forms::Control* pSender);
 	static void ForwardCommandToGame(Forms::Control* pSender);
 	eLaunchMode BuildParameter(string& svParameter);
 
@@ -73,6 +102,10 @@ private:
 	UIX::UIXTextBox* m_HostNameTextBox;
 	UIX::UIXTextBox* m_LaunchArgsTextBox;
 	UIX::UIXTextBox* m_ConsoleCommandTextBox;
+	UIX::UIXTextBox* m_ManagerControlsValidText;
+	UIX::UIXTextBox* m_ManagerControlsEnabledText;
+	UIX::UIXTextBox* m_ManagerViewerDescText;
+	UIX::UIXTextBox* m_ManagerViewerCoverText;
 	// Labels
 	UIX::UIXLabel* m_WorkerThreadsLabel;
 	UIX::UIXLabel* m_ReservedCoresLabel;
@@ -85,6 +118,11 @@ private:
 	UIX::UIXLabel* m_HostNameLabel;
 	UIX::UIXLabel* m_VisibilityLabel;
 	UIX::UIXLabel* m_LaunchArgsLabel;
+	UIX::UIXLabel* m_ManagerViewerNameLabel;
+	UIX::UIXLabel* m_ManagerViewerAuthorLabel;
+	UIX::UIXLabel* m_ManagerViewerVersionLabel;
+	UIX::UIXLabel* m_ManagerViewerAppidLabel;
+	UIX::UIXLabel* m_ManagerEnabledLabel;
 	// Boxes
 	UIX::UIXGroupBox* m_GameGroup;
 	UIX::UIXGroupBox* m_MainGroup;
@@ -95,7 +133,12 @@ private:
 	UIX::UIXGroupBox* m_EngineBaseGroup;
 	UIX::UIXGroupBox* m_EngineNetworkGroup;
 	UIX::UIXGroupBox* m_EngineVideoGroup;
+	UIX::UIXGroupBox* m_ManagerSurroundingBox;
+	UIX::UIXGroupBox* m_ManagerGroupExt;
 	UIX::UIXGroupBox* m_ManagerGroup;
+	UIX::UIXGroupBox* m_ManagerControlsGroup;
+	UIX::UIXGroupBox* m_ManagerViewerBox;
+	UIX::UIXGroupBox* m_ManagerEnabledBox;
 	// Toggles
 	UIX::UIXCheckBox* m_CheatsToggle;
 	UIX::UIXCheckBox* m_DevelopmentToggle;
@@ -109,6 +152,8 @@ private:
 	UIX::UIXCheckBox* m_NoQueuedPacketThread;
 	UIX::UIXCheckBox* m_NoTimeOutToggle;
 	UIX::UIXCheckBox* m_ColorConsoleToggle;
+	UIX::UIXCheckBox* m_ManagerEnabledToggle;
+	UIX::UIXCheckBox* m_ManagerUseModsToggle;
 	// Combo
 	UIX::UIXComboBox* m_MapCombo;
 	UIX::UIXComboBox* m_PlaylistCombo;
@@ -119,8 +164,4 @@ private:
 	UIX::UIXButton* m_UpdateSDK;
 	UIX::UIXButton* m_LaunchSDK;
 	UIX::UIXButton* m_ConsoleSendCommand;
-
-	// Manager
-	UIX::UIXListView* m_ManagerListView;
-	std::vector<modStruct> m_modsList;
 };

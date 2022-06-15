@@ -48,6 +48,7 @@
 #include "thirdparty/cppnet/cppkore/UIXButton.h"
 #include "thirdparty/cppnet/cppkore/UIXRadioButton.h"
 #include "thirdparty/cppnet/cppkore/KoreTheme.h"
+#include "thirdparty/cppnet/cppkore/Icon.h"
 
 #include "launcher/launcherdefs.h"
 #endif // SDKLAUNCHER

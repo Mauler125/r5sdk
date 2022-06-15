@@ -7,11 +7,14 @@
 #include "sdklauncher.h"
 #include "basepanel.h"
 #include "modManager.h"
+#include "redicon.c"
+#include "grayicon.c"
 
 Drawing::Color bgColor = Drawing::Color(47, 54, 61);
 Drawing::Color tickColor = Drawing::Color(3, 102, 214);
 Drawing::Color logListColor = Drawing::Color(29, 33, 37);
 Drawing::Color tickColor2 = Drawing::Color(3, 102, 214);
+modManager manager;
 
 //-----------------------------------------------------------------------------
 // Purpose: creates the surface layout
@@ -20,7 +23,7 @@ void CUIBaseSurface::Init()
 {
 	// START DESIGNER CODE
 	const INT WindowX = 800;
-	const INT WindowY = 550;
+	const INT WindowY = 560;
 
 	this->SuspendLayout();
 	this->SetAutoScaleDimensions({ 6, 13 });
@@ -484,30 +487,175 @@ void CUIBaseSurface::Init()
 	// ########################################################################
 	//	MOD MANAGER
 	// ########################################################################
+	this->m_ManagerSurroundingBox = new UIX::UIXGroupBox();
+	this->m_ManagerSurroundingBox->SetSize({ 780, 205 });
+	this->m_ManagerSurroundingBox->SetLocation({ 12, 350 });
+	this->m_ManagerSurroundingBox->SetTabIndex(0);
+	this->m_ManagerSurroundingBox->SetText("Mod Manager");
+	this->m_ManagerSurroundingBox->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->AddControl(this->m_ManagerSurroundingBox);
+	
+	this->m_ManagerGroupExt = new UIX::UIXGroupBox();
+	this->m_ManagerGroupExt->SetSize({ 780, 172 });
+	this->m_ManagerGroupExt->SetLocation({ 0, 15 });
+	this->m_ManagerGroupExt->SetTabIndex(0);
+	this->m_ManagerGroupExt->SetText("");
+	this->m_ManagerGroupExt->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->m_ManagerSurroundingBox->AddControl(this->m_ManagerGroupExt);
+	
 	this->m_ManagerGroup = new UIX::UIXGroupBox();
-	this->m_ManagerGroup->SetSize({780, 185});
-	this->m_ManagerGroup->SetLocation({ 12, 350 });
+	this->m_ManagerGroup->SetSize({780, 190});
+	this->m_ManagerGroup->SetLocation({ 0, 15 });
 	this->m_ManagerGroup->SetTabIndex(0);
-	this->m_ManagerGroup->SetText("Mod Manager");
 	this->m_ManagerGroup->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
-	this->AddControl(this->m_ManagerGroup);
+	this->m_ManagerSurroundingBox->AddControl(this->m_ManagerGroup);
 
-	this->m_ManagerListView = new UIX::UIXListView();
-	this->m_ManagerListView->SetSize({780, 171});
-	this->m_ManagerListView->SetLocation({1, -14});
-	this->m_ManagerListView->SetTabIndex(0);
-	this->m_ManagerListView->SetBackColor(logListColor);
-	this->m_ManagerListView->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
-	this->m_ManagerListView->SetView(Forms::View::Details);
-	this->m_ManagerListView->SetVirtualMode(true);
-	this->m_ManagerListView->SetFullRowSelect(true);
-	this->m_ManagerListView->Columns.Add({"name", 40});
-	this->m_ManagerListView->Columns.Add({ "desc", 130});
-	this->m_ManagerListView->MouseClick += &VirtualItemToClipboard;
-	this->m_ManagerListView->RetrieveVirtualItem += &GetVirtualItem;
-	this->m_ManagerGroup->AddControl(this->m_ManagerListView);
+	this->m_ManagerControlsGroup = new UIX::UIXGroupBox();
+	this->m_ManagerControlsGroup->SetSize({ 779, 18 });
+	this->m_ManagerControlsGroup->SetLocation({ 1, 172 });
+	this->m_ManagerGroup->SetText("");
+	this->m_ManagerControlsGroup->SetTabIndex(0);
+	this->m_ManagerControlsGroup->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->m_ManagerGroup->AddControl(this->m_ManagerControlsGroup);
 
+	this->m_ManagerControlsValidText= new UIX::UIXTextBox();
+	this->m_ManagerControlsValidText->SetSize({ 80, 18 });
+	this->m_ManagerControlsValidText->SetLocation({ 0, 0 });
+	this->m_ManagerControlsValidText->SetTabIndex(0);
+	this->m_ManagerControlsValidText->SetReadOnly(true);
+	this->m_ManagerControlsValidText->SetForeColor(Drawing::Color(92, 236, 89));
+	this->m_ManagerControlsValidText->SetText(std::string("Valid Mods: " + std::to_string(validMods)).c_str());
+	this->m_ManagerControlsValidText->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->m_ManagerControlsGroup->AddControl(this->m_ManagerControlsValidText);
 
+	this->m_ManagerControlsEnabledText = new UIX::UIXTextBox();
+	this->m_ManagerControlsEnabledText->SetSize({ 93, 18 });
+	this->m_ManagerControlsEnabledText->SetLocation({ 79, 0 });
+	this->m_ManagerControlsEnabledText->SetTabIndex(0);
+	this->m_ManagerControlsEnabledText->SetReadOnly(true);
+	this->m_ManagerControlsEnabledText->SetForeColor(Drawing::Color(0, 120, 215));
+	this->m_ManagerControlsEnabledText->SetText(std::string("Enabled Mods: " + std::to_string(enabledMods)).c_str());
+	this->m_ManagerControlsEnabledText->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->m_ManagerControlsGroup->AddControl(this->m_ManagerControlsEnabledText);
+
+	this->m_ManagerUseModsToggle = new UIX::UIXCheckBox();
+	this->m_ManagerUseModsToggle->SetSize({ 80, 16 });
+	this->m_ManagerUseModsToggle->SetLocation({ 180, 1 });
+	this->m_ManagerUseModsToggle->SetTabIndex(0);
+	this->m_ManagerUseModsToggle->SetText("Use Mods");
+	this->m_ManagerUseModsToggle->SetChecked(true);
+	this->m_ManagerUseModsToggle->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->m_ManagerUseModsToggle->SetTextAlign(Drawing::ContentAlignment::MiddleLeft);
+	this->m_ManagerControlsGroup->AddControl(this->m_ManagerUseModsToggle);
+
+	this->m_Thingi = new UIX::UIXListView();
+	this->m_Thingi->SetSize({ 350, 194 });
+	this->m_Thingi->SetLocation({ 1, -24 }); // Hide columns
+	this->m_Thingi->SetTabIndex(0);
+	this->m_Thingi->SetBackColor(logListColor);
+	this->m_Thingi->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->m_Thingi->SetView(Forms::View::Details);
+	this->m_Thingi->SetVirtualMode(true);
+	this->m_Thingi->SetFullRowSelect(true);
+	this->m_Thingi->Columns.Add({ "index", 50 });
+	this->m_Thingi->Columns.Add({ "buffer", 300 });
+	this->m_Thingi->MouseClick += &ModManagerClick;
+	this->m_Thingi->RetrieveVirtualItem += &GetVirtItemMod;
+	this->m_ManagerGroupExt->AddControl(this->m_Thingi);
+
+	this->m_ManagerViewerBox = new UIX::UIXGroupBox();
+	this->m_ManagerViewerBox->SetSize({ 429, 194 });
+	this->m_ManagerViewerBox->SetLocation({ 351, 0 });
+	this->m_ManagerViewerBox->SetForeColor(bgColor);
+	this->m_ManagerGroupExt->AddControl(this->m_ManagerViewerBox);
+
+	HFONT boldFontHf = CreateFontA(36, 0, 0, 0, FW_BLACK, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, "Arial");
+	HFONT italicsFontHf = CreateFontA(18, 0, 0, 0, FW_MEDIUM, TRUE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, "Arial");
+	HFONT defaultFontHf = CreateFontA(16, 0, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, "Arial");
+	
+	Drawing::Font* boldFont = new Drawing::Font(this->GetHandle(), boldFontHf);
+	Drawing::Font* italicsFont = new Drawing::Font(this->GetHandle(), italicsFontHf);
+	Drawing::Font* defaultFont = new Drawing::Font(this->GetHandle(), defaultFontHf);
+	
+	this->m_ManagerViewerNameLabel = new UIX::UIXLabel();
+	this->m_ManagerViewerNameLabel->SetSize({ 420, 32 });
+	this->m_ManagerViewerNameLabel->SetLocation({ 5, 1 });
+	this->m_ManagerViewerNameLabel->SetTabIndex(0);
+	this->m_ManagerViewerNameLabel->SetText("Placeholder");
+	this->m_ManagerViewerNameLabel->SetFont(boldFont);
+	this->m_ManagerViewerBox->AddControl(this->m_ManagerViewerNameLabel);
+	
+	this->m_ManagerViewerDescText = new UIX::UIXTextBox();
+	this->m_ManagerViewerDescText->SetSize({ 410, 52 });
+	this->m_ManagerViewerDescText->SetLocation({ 8, 40 });
+	this->m_ManagerViewerDescText->SetTabIndex(0);
+	this->m_ManagerViewerDescText->SetText("Lorem ipsum dolor sit amet, consectetur adipiscing elit");
+	this->m_ManagerViewerDescText->SetWordWrap(true);
+	this->m_ManagerViewerDescText->SetMultiline(true);
+	this->m_ManagerViewerDescText->SetReadOnly(true);
+	this->m_ManagerViewerDescText->SetTextAlign(Forms::HorizontalAlignment::Left);
+	this->m_ManagerViewerDescText->SetBorderStyle(Forms::BorderStyle::None);
+	this->m_ManagerViewerDescText->SetFont(italicsFont);
+	this->m_ManagerViewerBox->AddControl(this->m_ManagerViewerDescText);
+
+	this->m_ManagerViewerAuthorLabel = new UIX::UIXLabel();
+	this->m_ManagerViewerAuthorLabel->SetSize({ 350, 18 });
+	this->m_ManagerViewerAuthorLabel->SetLocation({ 8, 112 });
+	this->m_ManagerViewerAuthorLabel->SetTabIndex(0);
+	this->m_ManagerViewerAuthorLabel->SetText("Authors: ");
+	this->m_ManagerViewerAuthorLabel->SetFont(defaultFont);
+	this->m_ManagerViewerBox->AddControl(this->m_ManagerViewerAuthorLabel);
+	
+	this->m_ManagerViewerVersionLabel = new UIX::UIXLabel();
+	this->m_ManagerViewerVersionLabel->SetSize({ 350, 18 });
+	this->m_ManagerViewerVersionLabel->SetLocation({ 8, 132 });
+	this->m_ManagerViewerVersionLabel->SetTabIndex(0);
+	this->m_ManagerViewerVersionLabel->SetText("Version: ");
+	this->m_ManagerViewerVersionLabel->SetFont(defaultFont);
+	this->m_ManagerViewerBox->AddControl(this->m_ManagerViewerVersionLabel);
+
+	this->m_ManagerViewerAppidLabel = new UIX::UIXLabel();
+	this->m_ManagerViewerAppidLabel->SetSize({ 350, 18 });
+	this->m_ManagerViewerAppidLabel->SetLocation({ 8, 152 });
+	this->m_ManagerViewerAppidLabel->SetTabIndex(0);
+	this->m_ManagerViewerAppidLabel->SetText("AppID: ");
+	this->m_ManagerViewerAppidLabel->SetFont(defaultFont);
+	this->m_ManagerViewerBox->AddControl(this->m_ManagerViewerAppidLabel);
+
+	this->m_ManagerEnabledBox = new UIX::UIXGroupBox();
+	this->m_ManagerEnabledBox->SetSize({ 60, 60 });
+	this->m_ManagerEnabledBox->SetLocation({ 369, 114 });
+	this->m_ManagerEnabledBox->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Right);
+	this->m_ManagerEnabledBox->BringToFront();
+	this->m_ManagerViewerBox->AddControl(this->m_ManagerEnabledBox);
+
+	this->m_ManagerEnabledToggle = new UIX::UIXCheckBox();
+	this->m_ManagerEnabledToggle->SetSize({ 34, 34 });
+	this->m_ManagerEnabledToggle->SetLocation({ 13, 5 });
+	this->m_ManagerEnabledToggle->SetTabIndex(0);
+	this->m_ManagerEnabledToggle->SetText("");
+	this->m_ManagerEnabledToggle->SetFlatStyle(Forms::FlatStyle::Flat);
+	this->m_ManagerEnabledToggle->Click += &ModManagerEnabledToggle;
+	this->m_ManagerEnabledBox->AddControl(this->m_ManagerEnabledToggle);
+
+	this->m_ManagerEnabledLabel = new UIX::UIXLabel();
+	this->m_ManagerEnabledLabel->SetSize({ 50, 18 });
+	this->m_ManagerEnabledLabel->SetLocation({ 6, 40 });
+	this->m_ManagerEnabledLabel->SetTabIndex(0);
+	this->m_ManagerEnabledLabel->SetText("Enabled");
+	this->m_ManagerEnabledLabel->SetBackColor(Drawing::Color(92, 236, 89));
+	this->m_ManagerEnabledLabel->SetFont(defaultFont);
+	this->m_ManagerEnabledBox->AddControl(this->m_ManagerEnabledLabel);
+
+	this->m_ManagerViewerCoverText = new UIX::UIXTextBox();
+	this->m_ManagerViewerCoverText->SetSize({ 429, 194 });
+	this->m_ManagerViewerCoverText->SetLocation({ 351, 0 });
+	this->m_ManagerViewerCoverText->SetTabIndex(0);
+	this->m_ManagerViewerCoverText->SetText("Select mod...");
+	this->m_ManagerViewerCoverText->SetReadOnly(true);
+	this->m_ManagerViewerCoverText->SetTextAlign(Forms::HorizontalAlignment::Center);
+	this->m_ManagerGroupExt->AddControl(this->m_ManagerViewerCoverText);
+	
 	this->ResumeLayout(false);
 	this->PerformLayout();
 
@@ -534,6 +682,56 @@ void CUIBaseSurface::Setup()
 	this->m_VisibilityCombo->Items.Add("Public");
 	this->m_VisibilityCombo->Items.Add("Hidden");
 	this->m_VisibilityCombo->Items.Add("Offline");
+}
+
+void CUIBaseSurface::LoadMods() {
+	//int index = 0;
+	//
+	//CLSID pngClsid;
+	//CLSIDFromString(L"{557CF406-1A04-11D3-9A73-0000F81EF32E}", &pngClsid);
+	//
+	//// Icon Boxes
+	//HGLOBAL hMem = ::GlobalAlloc(GMEM_MOVEABLE, sizeof(_acredIcon));
+	//LPVOID pImage = ::GlobalLock(hMem);
+	//memcpy(pImage, _acredIcon, sizeof(_acredIcon));
+	//
+	//IStream* pStream = NULL;
+	//::CreateStreamOnHGlobal(hMem, FALSE, &pStream);
+	//Gdiplus::Image *bmEn = Gdiplus::Image::FromStream(pStream, true);
+	//
+	//HGLOBAL hMemm = ::GlobalAlloc(GMEM_MOVEABLE, sizeof(_acgrayIcon));
+	//LPVOID pImagem = ::GlobalLock(hMemm);
+	//memcpy(pImagem, _acgrayIcon, sizeof(_acgrayIcon));
+	//
+	//IStream* pStreamm = NULL;
+	//::CreateStreamOnHGlobal(hMemm, FALSE, &pStreamm);
+	//Gdiplus::Image * bmDi = Gdiplus::Image::FromStream(pStream, TRUE);
+	//
+	//HFONT nameFontCreate = CreateFontA(0, 0, 0, 0, FW_BLACK, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, "Arial");
+	
+	//for (auto& i : manager.modsList()) {
+	//	// Surrounding Box
+	//	UIX::UIXGroupBox *modGroup = new UIX::UIXGroupBox();
+	//	modGroup->SetSize({ 780, 100 });
+	//	modGroup->SetLocation({ 0, 0 + (index * 100) });
+	//	this->m_ManagerGroup->AddControl(modGroup);
+	//	modGroup->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	//	// Name Box
+	//	UIX::UIXTextBox *modName = new UIX::UIXTextBox();
+	//	modName->SetSize({ 200, 40 });
+	//	modName->SetLocation({ 0, 0 });
+	//	modName->SetTabIndex(0);
+	//	modName->SetText(i.name.c_str());
+	//	Drawing::Font* nameFont = new Drawing::Font(modName->GetHandle(), nameFontCreate);
+	//	modName->SetFont(nameFont);
+	//	modName->SetReadOnly(true);
+	//	modName->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	//	modGroup->AddControl(modName);
+	//	// Icon Box
+	//	// TODO: Icons. Idk how to do them
+
+	//	index++;
+	//}
 }
 
 //-----------------------------------------------------------------------------
@@ -603,7 +801,8 @@ void CUIBaseSurface::ParseMaps()
 void CUIBaseSurface::ReadModJson() {
 	// Removes compiled_mods folder when closed
 	//atexit(compiledModsRemove);
-	modManager manager;
+	if (fs::exists("mods\\compiled_mods"))
+		fs::remove_all("mods/\\compiled_mods");
 	bool ran = false;
 	logText(spdlog::level::level_enum::info, "Reading mod.json's.");
 	if (fs::exists("mods")) {
@@ -622,10 +821,6 @@ void CUIBaseSurface::ReadModJson() {
 					//logText(spdlog::level::level_enum::info, contents.str());
 
 					modObject object = manager.addMod(contents.str(), path);
-
-					m_modsList.push_back(modStruct(object.toggled, object.appid, object.description, object.authors, object.contacts, object.version, object.name));
-					m_ManagerListView->SetVirtualListSize(static_cast<int32_t>(m_modsList.size()));
-					m_ManagerListView->Refresh();
 					
 					//modObject object(contents.str(), modJson);
 
@@ -652,16 +847,39 @@ void CUIBaseSurface::ReadModJson() {
 			logText(spdlog::level::level_enum::warn, "Jk. It's fine");
 	}
 
-	//logText(spdlog::level::level_enum::debug, manager.mods[0].modJsonLoc);
+	//manager.moveEnabled();
 
-	manager.mods[0].switchStates();
+	//this->LoadMods();
+	this->AdjustValues();
+	
+	/*m_ThingiS.push_back(modManager_t(test::invalidM, manager.modsList()[0]));
+	m_Thingi->SetVirtualListSize(static_cast<int32_t>(m_ThingiS.size()));
+	m_Thingi->Refresh();*/
 
-	manager.moveEnabled();
+	for (auto& mod : manager.modsList()) {
+		if (mod.invalid)
+			m_ThingiS.push_back(modManager_t(test::invalidM, mod));
+		else if (mod.toggled)
+			m_ThingiS.push_back(modManager_t(test::enabledM, mod));
+		else
+			m_ThingiS.push_back(modManager_t(test::disabledM, mod));
+		m_Thingi->SetVirtualListSize(static_cast<int32_t>(m_ThingiS.size()));
+		m_Thingi->Refresh();
+	}
 
-	logText(manager.scriptRson);
+	//logText(manager.scriptRson);
 }
 
-
+//-----------------------------------------------------------------------------
+// Refresh Mod Controls Text
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::AdjustValues() {
+	validMods = manager.modsListNum(modType::valid);
+	enabledMods = manager.modsListNum(modType::enabled);
+	
+	this->m_ManagerControlsEnabledText->SetText(std::string("Enabled Mods: " + std::to_string(enabledMods)).c_str());
+	this->m_ManagerControlsValidText->SetText(std::string("Valid Mods: " + std::to_string(validMods)).c_str());
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: log's to console. for debugging purpose's (at least mainly)
@@ -789,10 +1007,143 @@ void CUIBaseSurface::VirtualItemToClipboard(const std::unique_ptr<MouseEventArgs
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: changes currently showed mod
+// Input  : &pEventArgs - 
+//			*pSender - 
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::ModManagerClick(const std::unique_ptr<MouseEventArgs>& pEventArgs, Forms::Control* pSender) {
+	if (pEventArgs->Button != Forms::MouseButtons::Left) 
+		return;
+
+	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+	
+	List<uint32_t> lSelected = pSurface->m_Thingi->SelectedIndices();
+
+	if (!lSelected.Count())
+		return;
+
+	modObject object;
+	for (uint32_t i = 0; i < lSelected.Count(); i++)
+		object = pSurface->m_ThingiS[lSelected[i]].m_object;
+	
+	pSurface->m_ManagerViewerCoverText->Hide();
+	pSurface->m_ManagerViewerNameLabel->SetText(object.name.c_str());
+	pSurface->m_ManagerViewerDescText->SetText(object.description.c_str());
+	std::string authors = "Authors: ";
+	for (int i = 0; i < object.authors.size(); i++) {
+		authors.append(object.authors[i]);
+		if (i < object.authors.size() - 1)
+			authors += ", ";
+	}
+	pSurface->m_ManagerViewerAuthorLabel->SetText(authors.c_str());
+	pSurface->m_ManagerViewerAppidLabel->SetText(std::string("AppID: " + object.appid).c_str());
+	std::string version = "Version: " + object.version;
+	pSurface->m_ManagerViewerVersionLabel->SetText(version.c_str());
+	pSurface->m_ManagerEnabledToggle->SetChecked(object.toggled);
+	if (object.toggled)
+		pSurface->m_ManagerEnabledLabel->SetText("Enabled");
+	else
+		pSurface->m_ManagerEnabledLabel->SetText("Disabled");
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: handles toggling mod state
+// Input  : &pEventArgs - 
+//			*pSender - 
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::ModManagerEnabledToggle(Forms::Control* pSender) {
+	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+
+	List<uint32_t> lSelected = pSurface->m_Thingi->SelectedIndices();
+
+	if (!lSelected.Count())
+		return;
+
+	modObject object;
+	for (uint32_t i = 0; i < lSelected.Count(); i++) {
+		object = pSurface->m_ThingiS[lSelected[i]].m_object;
+		pSurface->m_ThingiS[lSelected[i]];
+	}
+
+	if (pSurface->m_ManagerEnabledToggle->Checked())
+		object.toggled = true;
+	else if (!pSurface->m_ManagerEnabledToggle->Checked())
+		object.toggled = false;
+
+	for (uint32_t i = 0; i < lSelected.Count(); i++) {
+		if (object.toggled) {
+			pSurface->m_ManagerEnabledLabel->SetText("Enabled");
+			pSurface->m_ThingiS[lSelected[i]].m_object = object;
+			pSurface->m_ThingiS[lSelected[i]].m_nLevel = test::enabledM;
+		}
+		else {
+			pSurface->m_ManagerEnabledLabel->SetText("Disabled");
+			pSurface->m_ThingiS[lSelected[i]].m_object = object;
+			pSurface->m_ThingiS[lSelected[i]].m_nLevel = test::disabledM;
+		}
+	}
+	
+	pSurface->m_Thingi->Refresh();
+
+	std::vector<modObject> vObjects = manager.mods;
+	for (int i = 0; i < vObjects.size(); i++) {
+		if (object.appid == vObjects[i].appid)
+			vObjects[i] = object;
+	}
+	manager.mods = vObjects;
+	for (uint32_t i = 0; i < lSelected.Count(); i++)
+		pSurface->m_ThingiS[lSelected[i]].m_object = object;
+
+	object.updateJson();
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: gets and handles the virtual item
 // Input  : &pEventArgs - 
 //			*pSender - 
 //-----------------------------------------------------------------------------
+void CUIBaseSurface::GetVirtItemMod(const std::unique_ptr<Forms::RetrieveVirtualItemEventArgs>& pEventArgs, Forms::Control* pSender)
+{
+	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+	if (static_cast<int>(pSurface->m_ThingiS.size()) <= 0)
+		return;
+
+	pEventArgs->Style.ForeColor = Drawing::Color::White;
+	pEventArgs->Style.BackColor = pSender->BackColor();
+	pSurface->m_Thingi->SetVirtualListSize(static_cast<int32_t>(pSurface->m_ThingiS.size()));
+
+	static const Drawing::Color cColor[] =
+	{
+		Drawing::Color(92, 236, 89),   // Enabled
+		Drawing::Color(236, 203, 0),   // Disabled
+		Drawing::Color(236, 28, 0),    // Invalid
+	};
+	static const String svLevel[] =
+	{
+		"Enabled",
+		"Disabled",
+		"Invalid",
+	};
+
+	switch (pEventArgs->SubItemIndex)
+	{
+	case 0:
+		pEventArgs->Style.ForeColor = cColor[pSurface->m_ThingiS[pEventArgs->ItemIndex].m_nLevel];
+		pEventArgs->Text = svLevel[pSurface->m_ThingiS[pEventArgs->ItemIndex].m_nLevel];
+		break;
+	case 1:
+		std::string text = "";
+		text = pSurface->m_ThingiS[pEventArgs->ItemIndex].m_object.name + " By ";
+		for (int i = 0; i < pSurface->m_ThingiS[pEventArgs->ItemIndex].m_object.authors.size(); i++) {
+			text += pSurface->m_ThingiS[pEventArgs->ItemIndex].m_object.authors[i];
+			if (i < pSurface->m_ThingiS[pEventArgs->ItemIndex].m_object.authors.size() - 1)
+				text += ", ";
+		}
+		pEventArgs->Text = text;
+		break;
+	}
+}
+
 void CUIBaseSurface::GetVirtualItem(const std::unique_ptr<Forms::RetrieveVirtualItemEventArgs>& pEventArgs, Forms::Control* pSender)
 {
 	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
@@ -898,6 +1249,8 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 			svParameters.append("-showdevmenu ");
 		}
 
+
+
 		if (this->m_ConsoleToggle->Checked())
 			svParameters.append("-wconsole ");
 
@@ -991,6 +1344,13 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 		}
 		if (!String::IsNullOrEmpty(this->m_LaunchArgsTextBox->Text()))
 			svParameters.append(this->m_LaunchArgsTextBox->Text());
+
+		if (this->m_ManagerUseModsToggle->Checked()) {
+			svParameters.append("-modded ");
+			manager.moveEnabled();
+		}
+
+		svParameters.append("-fnf ");
 
 		return results;
 	}

@@ -9,7 +9,7 @@
 class IFileSystem
 {
 public:
-	void AddSearchPath(const char* pPath, const char* pathID, SearchPathAdd_t addType);
+	void AddSearchPathP(const char* pPath, const char* pathID, SearchPathAdd_t addType);
 	bool RemoveSearchPath(const char* pPath, const char* pPathID);
 	bool ReadFromCache(const char* pPath, void* pResult);
 	VPKData_t* MountVPK(const char* pVpkPath);

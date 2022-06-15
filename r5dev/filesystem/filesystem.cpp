@@ -8,7 +8,7 @@
 //			*pPathID - 
 //			addType - 
 //-----------------------------------------------------------------------------
-void IFileSystem::AddSearchPath(const char* pPath, const char* pPathID, SearchPathAdd_t addType)
+void IFileSystem::AddSearchPathP(const char* pPath, const char* pPathID, SearchPathAdd_t addType)
 {
 	static int index = 12;
 	CallVFunc<void>(index, this, pPath, pPathID, addType);

@@ -32,7 +32,7 @@
 #include "materialsystem/cmaterialglue.h"
 #endif // !DEDICATED
 
-#include "../tier0/commandline.h"
+#include "tier0/commandline.h"
 
 
 /*
@@ -717,12 +717,12 @@ void fs_addsp_h_g(const CCommand& args) {
 	if (args.ArgC() < 2)
 		return;
 
-	/*if (g_pFullFileSystem) {
+	if (g_pFileSystem_Stdio) {
 		DevMsg(eDLL_T::FS, "Added SearchPath '%s'\n", args.Arg(1));
-		g_pFullFileSystem->AddSearchPath(args.Arg(1), "Game", SearchPathAdd_t::PATH_ADD_TO_HEAD);
-	}*/
+		g_pFileSystem_Stdio->AddSearchPathP(args.Arg(1), "Game", SearchPathAdd_t::PATH_ADD_TO_HEAD);
+	}
 
-	DevMsg(eDLL_T::FS, "Added SearchPath '%s' '%p'\n", args.Arg(1), g_pFullFileSystem);
+	//DevMsg(eDLL_T::FS, "Added SearchPath '%s' '%p'\n", args.Arg(1), g_pFullFileSystem);
 }
 
 /*
