@@ -799,7 +799,7 @@ void CConsole::ClearLog(void)
 //-----------------------------------------------------------------------------
 void CConsole::ColorLog(void) const
 {
-    for (int i = 0; i < m_ivConLog.size(); i++)
+    for (size_t i = 0; i < m_ivConLog.size(); i++)
     {
         if (!m_itFilter.PassFilter(m_ivConLog[i].m_svConLog.c_str()))
         {
