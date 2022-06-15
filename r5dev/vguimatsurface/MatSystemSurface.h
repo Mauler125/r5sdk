@@ -5,7 +5,12 @@
 inline CMemory p_CMatSystemSurface_DrawColoredText;
 inline auto CMatSystemSurface_DrawColoredText = p_CMatSystemSurface_DrawColoredText.RCast<void* (*)(void* thisptr, int font, int fontHeight, int offsetX, int offsetY, int red, int green, int blue, int alpha, const char* text, ...)>();
 
-inline CMemory g_pMatSystemSurface;
+class CMatSystemSurface
+{
+};
+
+inline CMatSystemSurface* g_pMatSystemSurface;
+inline CMatSystemSurface* g_pMatSystemSurfaceReference;
 
 ///////////////////////////////////////////////////////////////////////////////
 class VMatSystemSurface : public IDetour
@@ -13,7 +18,8 @@ class VMatSystemSurface : public IDetour
 	virtual void GetAdr(void) const
 	{
 		spdlog::debug("| FUN: CMatSystemSurface::DrawColoredText   : {:#18x} |\n", p_CMatSystemSurface_DrawColoredText.GetPtr());
-		spdlog::debug("| VAR: g_pMatSystemSurface                  : {:#18x} |\n", g_pMatSystemSurface.GetPtr());
+		spdlog::debug("| VAR: g_pMatSystemSurface                  : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pMatSystemSurface));
+		spdlog::debug("| VAR: g_pMatSystemSurfaceReference         : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pMatSystemSurfaceReference));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
@@ -30,8 +36,11 @@ class VMatSystemSurface : public IDetour
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		g_pMatSystemSurface = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
 			"\x48\x83\xEC\x28\x48\x83\x3D\x00\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00"), "xxxxxxx?????xxx????")
-			.Offset(0x0).FindPatternSelf("48 83 3D", CMemory::Direction::DOWN, 40).ResolveRelativeAddressSelf(0x3, 0x8).GetPtr();
+			.FindPatternSelf("48 83 3D", CMemory::Direction::DOWN, 40).ResolveRelativeAddressSelf(0x3, 0x8).RCast<CMatSystemSurface*>();
 #endif
+		g_pMatSystemSurfaceReference = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
+			"\x48\x8B\x05\x00\x00\x00\x00\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x48\x8B\x05\x00\x00\x00\x00\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x8B\x81\x00\x00\x00\x00"), "xxx????xxxxxxxxxxxx????xxxxxxxxxxx????")
+			.ResolveRelativeAddressSelf(0x3, 0x7).RCast<CMatSystemSurface*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

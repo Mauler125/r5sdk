@@ -28,10 +28,10 @@ public:
 	void Close(FileHandle_t file);
 	bool FileExists(const char* pFileName, const char* pPathID);
 	static void Warning(CBaseFileSystem* pFileSystem, FileWarningLevel_t level, const char* fmt, ...);
-	static FileHandle_t ReadFromVPK(CBaseFileSystem* pVpk, FileHandle_t pResults, char* pszFilePath);
-	static bool ReadFromCache(CBaseFileSystem* pFileSystem, char* pszFilePath, void* pResults);
-	static void AddSearchPath(CBaseFileSystem* pFileSystem, const char* pPath, const char* pPathID, SearchPathAdd_t addType);
-	static bool RemoveSearchPath(CBaseFileSystem* pFileSystem, const char* pPath, const char* pPathID);
+	static FileHandle_t VReadFromVPK(CBaseFileSystem* pVpk, FileHandle_t pResults, char* pszFilePath);
+	static bool VReadFromCache(CBaseFileSystem* pFileSystem, char* pszFilePath, void* pResults);
+	static void VAddSearchPath(CBaseFileSystem* pFileSystem, const char* pPath, const char* pPathID, SearchPathAdd_t addType);
+	static bool VRemoveSearchPath(CBaseFileSystem* pFileSystem, const char* pPath, const char* pPathID);
 };
 
 /* ==== CBASEFILESYSTEM ================================================================================================================================================= */
@@ -39,16 +39,16 @@ inline CMemory p_CBaseFileSystem_Warning;
 inline auto CBaseFileSystem_Warning = p_CBaseFileSystem_Warning.RCast<void(*)(CBaseFileSystem* thisptr, FileWarningLevel_t level, const char* fmt, ...)>();
 
 inline CMemory p_CBaseFileSystem_LoadFromVPK;
-inline auto CBaseFileSystem_LoadFromVPK = p_CBaseFileSystem_LoadFromVPK.RCast<FileHandle_t(*)(CBaseFileSystem* thisptr, FileHandle_t pResults, char* pszAssetName)>();
+inline auto CBaseFileSystem_VLoadFromVPK = p_CBaseFileSystem_LoadFromVPK.RCast<FileHandle_t(*)(CBaseFileSystem* thisptr, FileHandle_t pResults, char* pszAssetName)>();
 
 inline CMemory p_CBaseFileSystem_LoadFromCache;
-inline auto CBaseFileSystem_LoadFromCache = p_CBaseFileSystem_LoadFromCache.RCast<bool(*)(CBaseFileSystem* thisptr, char* pszAssetName, void* pResults)>();
+inline auto CBaseFileSystem_VLoadFromCache = p_CBaseFileSystem_LoadFromCache.RCast<bool(*)(CBaseFileSystem* thisptr, char* pszAssetName, void* pResults)>();
 
 inline CMemory p_CBaseFileSystem_AddSearchPath;
-inline auto CBaseFileSystem_AddSearchPath = p_CBaseFileSystem_AddSearchPath.RCast<void(*)(CBaseFileSystem* thisptr, const char* pPath, const char* pPathID, SearchPathAdd_t addType)>();
+inline auto CBaseFileSystem_VAddSearchPath = p_CBaseFileSystem_AddSearchPath.RCast<void(*)(CBaseFileSystem* thisptr, const char* pPath, const char* pPathID, SearchPathAdd_t addType)>();
 
 inline CMemory p_CBaseFileSystem_RemoveSearchPath;
-inline auto CBaseFileSystem_RemoveSearchPath = p_CBaseFileSystem_RemoveSearchPath.RCast<bool(*)(CBaseFileSystem* thisptr, const char* pPath, const char* pPathID)>();
+inline auto CBaseFileSystem_VRemoveSearchPath = p_CBaseFileSystem_RemoveSearchPath.RCast<bool(*)(CBaseFileSystem* thisptr, const char* pPath, const char* pPathID)>();
 
 extern CBaseFileSystem* g_pFileSystem;
 
@@ -78,10 +78,10 @@ class VBaseFileSystem : public IDetour
 		p_CBaseFileSystem_RemoveSearchPath = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x55\x56\x57\x41\x54\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\xC6\x44\x24\x00\x00"), "xxxxxxxxxxxxxx????xxx??");
 
 		CBaseFileSystem_Warning          = p_CBaseFileSystem_Warning.RCast<void(*)(CBaseFileSystem*, FileWarningLevel_t, const char*, ...)>();            /*4C 89 4C 24 20 C3 ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 48*/
-		CBaseFileSystem_LoadFromVPK      = p_CBaseFileSystem_LoadFromVPK.RCast<FileHandle_t(*)(CBaseFileSystem*, FileHandle_t, char*)>();                 /*48 89 5C 24 ?? 57 48 81 EC ?? ?? ?? ?? 49 8B C0 4C 8D 8C 24 ?? ?? ?? ??*/
-		CBaseFileSystem_LoadFromCache    = p_CBaseFileSystem_LoadFromCache.RCast<bool(*)(CBaseFileSystem*, char*, void*)>();                              /*40 53 48 81 EC ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 49 8B D8*/
-		CBaseFileSystem_AddSearchPath    = p_CBaseFileSystem_AddSearchPath.RCast<void(*)(CBaseFileSystem*, const char*, const char*, SearchPathAdd_t)>(); /*44 89 4C 24 ?? 48 89 4C 24 ?? 55 57*/
-		CBaseFileSystem_RemoveSearchPath = p_CBaseFileSystem_RemoveSearchPath.RCast<bool(*)(CBaseFileSystem*, const char*, const char*)>();               /*40 53 55 56 57 41 54 41 56 41 57 48 81 EC ?? ?? ?? ?? C6 44 24 ?? ??*/
+		CBaseFileSystem_VLoadFromVPK      = p_CBaseFileSystem_LoadFromVPK.RCast<FileHandle_t(*)(CBaseFileSystem*, FileHandle_t, char*)>();                 /*48 89 5C 24 ?? 57 48 81 EC ?? ?? ?? ?? 49 8B C0 4C 8D 8C 24 ?? ?? ?? ??*/
+		CBaseFileSystem_VLoadFromCache    = p_CBaseFileSystem_LoadFromCache.RCast<bool(*)(CBaseFileSystem*, char*, void*)>();                              /*40 53 48 81 EC ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 49 8B D8*/
+		CBaseFileSystem_VAddSearchPath    = p_CBaseFileSystem_AddSearchPath.RCast<void(*)(CBaseFileSystem*, const char*, const char*, SearchPathAdd_t)>(); /*44 89 4C 24 ?? 48 89 4C 24 ?? 55 57*/
+		CBaseFileSystem_VRemoveSearchPath = p_CBaseFileSystem_RemoveSearchPath.RCast<bool(*)(CBaseFileSystem*, const char*, const char*)>();               /*40 53 55 56 57 41 54 41 56 41 57 48 81 EC ?? ?? ?? ?? C6 44 24 ?? ??*/
 	}
 	virtual void GetVar(void) const
 	{

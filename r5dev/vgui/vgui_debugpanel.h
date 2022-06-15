@@ -22,13 +22,13 @@ enum class LogType_t : int
 
 struct LogMsg_t
 {
-	LogMsg_t(const std::string svMessage, const int nTicks, const LogType_t type)
+	LogMsg_t(const string svMessage, const int nTicks, const LogType_t type)
 	{
 		this->m_svMessage = svMessage;
 		this->m_nTicks    = nTicks;
 		this->m_type      = type;
 	}
-	std::string m_svMessage = "";
+	string      m_svMessage = "";
 	int         m_nTicks    = 1024;
 	LogType_t   m_type      = LogType_t::NONE;
 };
@@ -37,7 +37,7 @@ class CLogSystem
 {
 public:
 	void Update(void);
-	void AddLog(LogType_t type, std::string svText);
+	void AddLog(LogType_t type, string svText);
 	void DrawLog(void);
 	void DrawHostStats(void) const;
 	void DrawSimStats(void) const;

@@ -160,7 +160,7 @@ void Systems_Init()
 
 #ifndef DEDICATED
 	CEngineVGui_Attach();
-	CFPSPanel_Attach();
+	//CFPSPanel_Attach();
 	CHLClient_Attach();
 #endif // !DEDICATED
 
@@ -202,7 +202,7 @@ void Systems_Init()
 
 #ifndef DEDICATED
 	HCVideoMode_Common_Attach();
-	//DebugOverlays_Attach();
+	DebugOverlays_Attach();
 	RSurf_Attach();
 #endif // !DEDICATED
 
@@ -278,7 +278,7 @@ void Systems_Shutdown()
 
 #ifndef DEDICATED
 	CEngineVGui_Detach();
-	CFPSPanel_Detach();
+	//CFPSPanel_Detach();
 	CHLClient_Detach();
 #endif // !DEDICATED
 
@@ -319,7 +319,7 @@ void Systems_Shutdown()
 
 #ifndef DEDICATED
 	HCVideoMode_Common_Detach();
-	//DebugOverlays_Detach();
+	DebugOverlays_Detach();
 	RSurf_Detach();
 #endif // !DEDICATED
 

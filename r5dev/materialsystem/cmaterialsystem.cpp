@@ -18,7 +18,7 @@ void StreamDB_Init(const char* pszStreamDBFile)
 	ostream << "platform\\scripts\\levels\\settings\\" << pszStreamDBFile << ".json";
 	fs::path fsPath = fs::current_path() /= ostream.str();
 
-	if (FileExists(fsPath.string().c_str()))
+	if (FileExists(fsPath))
 	{
 		nlohmann::json jsIn;
 		try

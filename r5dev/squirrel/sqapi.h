@@ -29,13 +29,9 @@ inline auto v_sq_pushroottable = p_sq_pushroottable.RCast<SQRESULT(*)(HSQUIRRELV
 inline CMemory p_sq_pushbool;
 inline auto v_sq_pushbool = p_sq_pushbool.RCast<void (*)(HSQUIRRELVM v, SQBool b)>();
 
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
 inline CMemory p_sq_pushstring;
 inline auto v_sq_pushstring = p_sq_pushstring.RCast<void (*)(HSQUIRRELVM v, const SQChar* string, SQInteger len)>();
-#elif defined (GAMEDLL_S3)
-inline CMemory p_sq_pushstring;
-inline auto v_sq_pushstring = p_sq_pushstring.RCast<void (*)(HSQUIRRELVM v, const SQChar* string, SQInteger len)>();
-#endif
+
 inline CMemory p_sq_pushinteger;
 inline auto v_sq_pushinteger = p_sq_pushinteger.RCast<void (*)(HSQUIRRELVM v, SQInteger val)>();
 
@@ -53,13 +49,10 @@ inline auto v_sq_newslot = p_sq_newslot.RCast<SQRESULT(*)(HSQUIRRELVM v, SQInteg
 
 inline CMemory p_sq_arrayappend;
 inline auto v_sq_arrayappend = p_sq_arrayappend.RCast<SQRESULT(*)(HSQUIRRELVM v, SQInteger idx)>();
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
+
 inline CMemory p_sq_pushstructure;
 inline auto v_sq_pushstructure = p_sq_pushstructure.RCast<SQRESULT(*)(HSQUIRRELVM v, const SQChar* name, const SQChar* member, const SQChar* codeclass1, const SQChar* codeclass2)>();
-#elif defined (GAMEDLL_S3)
-inline CMemory p_sq_pushstructure;
-inline auto v_sq_pushstructure = p_sq_pushstructure.RCast<SQRESULT(*)(HSQUIRRELVM v, const SQChar* name, const SQChar* member, const SQChar* codeclass1, const SQChar* codeclass2)>();
-#endif
+
 inline CMemory p_sq_compilebuffer;
 inline auto v_sq_compilebuffer = p_sq_compilebuffer.RCast<SQRESULT(*)(HSQUIRRELVM v, SQBufState* bufferstate, const SQChar* buffer, SQInteger level)>();
 

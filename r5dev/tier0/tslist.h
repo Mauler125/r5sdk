@@ -2,10 +2,10 @@
 #define TSLIST_H
 
 inline CMemory p_MemAlloc_Internal;
-inline auto v_MemAlloc_Internal = p_MemAlloc_Internal.RCast<void* (*)(void* pPool, int64_t nSize)>();
+inline auto v_MemAlloc_Internal = p_MemAlloc_Internal.RCast<void* (*)(void* pPool, size_t nSize)>();
 
 inline CMemory p_MemAlloc_Wrapper;
-inline auto v_MemAlloc_Wrapper = p_MemAlloc_Wrapper.RCast<void* (*)(size_t)>();
+inline auto v_MemAlloc_Wrapper = p_MemAlloc_Wrapper.RCast<void* (*)(size_t nSize)>();
 
 inline CMemory p_CTSListBase_Wrapper;
 inline auto CTSListBase_Wrapper = p_CTSListBase_Wrapper.RCast<void* (*)(void)>();
@@ -37,9 +37,9 @@ class VTSListBase : public IDetour
 #endif
 		p_CTSListBase_Wrapper = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\xBB\x00\x00\x00\x00\x33\xC0"), "xxxxxxx????xx");
 
-		CTSListBase_Wrapper = p_CTSListBase_Wrapper.RCast<void* (*)(void)>();     /*40 53 48 83 EC 20 BB ?? ?? ?? ?? 33 C0*/
-		v_MemAlloc_Wrapper = p_MemAlloc_Wrapper.RCast<void* (*)(size_t)>();         /*40 53 48 83 EC 20 48 8B 05 6B 83 25 0D 48 8B D9*/
-		v_MemAlloc_Internal = p_MemAlloc_Internal.RCast<void* (*)(void*, int64_t)>(); /*E9 ?? ?? ?? ?? CC CC CC 40 53 48 83 EC 20 48 8D 05 ?? ?? ?? ??*/
+		CTSListBase_Wrapper = p_CTSListBase_Wrapper.RCast<void* (*)(void)>();        /*40 53 48 83 EC 20 BB ?? ?? ?? ?? 33 C0*/
+		v_MemAlloc_Wrapper = p_MemAlloc_Wrapper.RCast<void* (*)(size_t)>();          /*40 53 48 83 EC 20 48 8B 05 6B 83 25 0D 48 8B D9*/
+		v_MemAlloc_Internal = p_MemAlloc_Internal.RCast<void* (*)(void*, size_t)>(); /*E9 ?? ?? ?? ?? CC CC CC 40 53 48 83 EC 20 48 8D 05 ?? ?? ?? ??*/
 	}
 	virtual void GetVar(void) const
 	{
