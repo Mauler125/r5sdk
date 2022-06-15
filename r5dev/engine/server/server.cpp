@@ -87,6 +87,7 @@ CClient* CServer::Authenticate(CServer* pServer, user_creds_s* pInpacket)
 			{
 				Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%llu' is banned from this server!)\n", svIpAddress.c_str(), pInpacket->m_nNucleusID);
 			}
+
 			return nullptr;
 		}
 	}
@@ -119,5 +120,5 @@ void CServer_Detach()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-bool g_bCheckCompBanDB = true;
+bool g_bCheckCompBanDB = true; // Maybe make this a static method in CServer? It won't be added to the struct offsets then.
 CServer* g_pServer = nullptr;
