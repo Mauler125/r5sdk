@@ -1238,7 +1238,7 @@ void KeyValues::InitPlaylists(void)
 //-----------------------------------------------------------------------------
 void KeyValues::InitFileSystem(void)
 {
-	KeyValues* pMainFile = KeyValues::ReadKeyValuesFile(g_pFileSystem_Stdio, "GameInfo.txt");
+	KeyValues* pMainFile = KeyValues::ReadKeyValuesFile(FileSystem(), "GameInfo.txt");
 	if (pMainFile)
 	{
 		KeyValues* pFileSystemInfo = pMainFile->FindKey("FileSystem", false);

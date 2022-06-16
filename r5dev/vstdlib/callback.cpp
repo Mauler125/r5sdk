@@ -687,21 +687,14 @@ void VPK_Mount_f(const CCommand& args)
 		return;
 	}
 
-	if (g_pFullFileSystem) // Initialized when g_pFileSystem_Stdio is initialized (global engine pointer).
+	VPKData_t* pPakData = FileSystem()->MountVPK(args.Arg(1));
+	if (pPakData)
 	{
-		VPKData_t* pPakData = g_pFileSystem_Stdio->MountVPK(args.Arg(1));
-		if (pPakData)
-		{
-			DevMsg(eDLL_T::FS, "Mounted VPK file '%s' with handle '%i'\n", args.Arg(1), pPakData->m_nHandle);
-		}
-		else
-		{
-			Warning(eDLL_T::FS, "Unable to mount VPK file '%s': non-existent VPK file\n", args.Arg(1));
-		}
+		DevMsg(eDLL_T::FS, "Mounted VPK file '%s' with handle '%i'\n", args.Arg(1), pPakData->m_nHandle);
 	}
 	else
 	{
-		Warning(eDLL_T::FS, "Unable to mount VPK file '%s': '%s' is not initalized\n", args.Arg(1), VAR_NAME(g_pFullFileSystem));
+		Warning(eDLL_T::FS, "Unable to mount VPK file '%s': non-existent VPK file\n", args.Arg(1));
 	}
 }
 

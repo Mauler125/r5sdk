@@ -3,6 +3,14 @@
 #include "filesystem/filesystem.h"
 
 //-----------------------------------------------------------------------------
+// 
+//-----------------------------------------------------------------------------
+CFileSystem_Stdio* FileSystem()
+{
+	return *g_pFullFileSystem;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: create the search path.
 // Input  : *pPath - 
 //			*pPathID - 
@@ -51,5 +59,5 @@ VPKData_t* IFileSystem::MountVPK(const char* pPath)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-IFileSystem* g_pFullFileSystem = nullptr;
+CFileSystem_Stdio** g_pFullFileSystem  = nullptr;
 CFileSystem_Stdio* g_pFileSystem_Stdio = nullptr;
