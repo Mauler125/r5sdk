@@ -62,29 +62,29 @@ std::uint64_t __fastcall RTech::StringToGuid(const char* pData)
 //-----------------------------------------------------------------------------
 // Purpose: calculate 'decompressed' size and commit parameters
 //-----------------------------------------------------------------------------
-std::uint32_t __fastcall RTech::DecompressPakFileInit(RPakDecompState_t* state, std::uint8_t* fileBuffer, std::int64_t fileSize, std::int64_t offNoHeader, std::int64_t headerSize)
+std::uint64_t __fastcall RTech::DecompressPakFileInit(RPakDecompState_t* state, std::uint8_t* fileBuffer, std::uint64_t fileSize, std::uint64_t offNoHeader, std::uint64_t headerSize)
 {
-	std::int64_t input_byte_pos_init;        // r9
-	std::uint64_t byte_init;                 // r11
-	std::int32_t decompressed_size_bits;     // ecx
-	std::int64_t byte_1_low;                 // rdi
-	std::uint64_t input_byte_pos_1;          // r10
-	std::uint32_t bit_pos_final;             // ebp
-	std::uint64_t byte_1;                    // rdi
-	std::uint32_t brih_bits;                 // er11
-	std::uint64_t inv_mask_in;               // r8
-	std::uint64_t byte_final_full;           // rbx
-	std::uint64_t bit_pos_final_1;           // rax
-	std::int32_t byte_bit_offset_final;      // ebp
-	std::uint64_t input_byte_pos_final;      // r10
-	std::uint64_t byte_final;                // rbx
-	std::uint32_t brih_bytes;                // er11
-	std::int64_t byte_tmp;                   // rdx
-	std::int64_t stream_len_needed;          // r14
-	std::int64_t result;                     // rax
-	std::uint64_t inv_mask_out;              // r8
-	std::int64_t qw70;                       // rcx
-	std::int64_t stream_compressed_size_new; // rdx
+	std::int64_t input_byte_pos_init;         // r9
+	std::uint64_t byte_init;                  // r11
+	std::int32_t decompressed_size_bits;      // ecx
+	std::int64_t byte_1_low;                  // rdi
+	std::uint64_t input_byte_pos_1;           // r10
+	std::uint32_t bit_pos_final;              // ebp
+	std::uint64_t byte_1;                     // rdi
+	std::uint32_t brih_bits;                  // er11
+	std::uint64_t inv_mask_in;                // r8
+	std::uint64_t byte_final_full;            // rbx
+	std::uint64_t bit_pos_final_1;            // rax
+	std::int32_t byte_bit_offset_final;       // ebp
+	std::uint64_t input_byte_pos_final;       // r10
+	std::uint64_t byte_final;                 // rbx
+	std::uint32_t brih_bytes;                 // er11
+	std::uint64_t byte_tmp;                   // rdx
+	std::uint64_t stream_len_needed;          // r14
+	std::uint64_t result;                     // rax
+	std::uint64_t inv_mask_out;               // r8
+	std::uint64_t qw70;                       // rcx
+	std::uint64_t stream_compressed_size_new; // rdx
 
 	const std::uintptr_t mask = UINT64_MAX;
 	const std::uintptr_t file_buf = std::uintptr_t(fileBuffer);

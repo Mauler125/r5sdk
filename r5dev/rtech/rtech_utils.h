@@ -1,6 +1,5 @@
 #pragma once
 
-#define PAK_HEADER_SIZE   0x80
 #define PAK_PARAM_SIZE    0xB0
 #define DCMP_BUF_SIZE 0x400000
 
@@ -92,7 +91,8 @@ struct RPakHeader_t
 	std::uint32_t m_nMagic;                    // 'RPak'
 	std::uint16_t m_nVersion;                  // R2 = '7' R5 = '8'
 	std::uint8_t  m_nFlags[0x2];               //
-	std::uint8_t  m_nHash[0x10];               //
+	std::uint8_t  m_nHash0[0x8];               //
+	std::uint8_t  m_nHash1[0x8];               //
 	std::uint64_t m_nSizeDisk;                 // Compressed size
 	std::uint64_t m_nEmbeddedStarpakOffset;    //
 	std::uint8_t  unk0[0x8];                   //
@@ -171,7 +171,7 @@ class RTech
 public:
 	std::uint64_t __fastcall StringToGuid(const char* pData);
 	std::uint8_t __fastcall DecompressPakFile(RPakDecompState_t* state, std::uint64_t inLen, std::uint64_t outLen);
-	std::uint32_t __fastcall DecompressPakFileInit(RPakDecompState_t* state, std::uint8_t* fileBuffer, std::int64_t fileSize, std::int64_t offNoHeader, std::int64_t headerSize);
+	std::uint64_t __fastcall DecompressPakFileInit(RPakDecompState_t* state, std::uint8_t* fileBuffer, std::uint64_t fileSize, std::uint64_t offNoHeader, std::uint64_t headerSize);
 	RPakLoadedInfo_t* GetPakLoadedInfo(int nPakId);
 	RPakLoadedInfo_t* GetPakLoadedInfo(const char* szPakName);
 };

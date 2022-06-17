@@ -336,7 +336,7 @@ void Pak_ListPaks_f(const CCommand& args)
 
 	uint32_t nActuallyLoaded = 0;
 
-	for (int i = 0; i < *s_pLoadedPakCount; ++i)
+	for (int16_t i = 0; i < *s_pLoadedPakCount; ++i)
 	{
 		RPakLoadedInfo_t info = g_pLoadedPakInfo[i];
 
@@ -520,94 +520,84 @@ void RTech_Decompress_f(const CCommand& args)
 
 	DevMsg(eDLL_T::RTECH, " |-+ Processing: '%s'\n", pakNameIn.c_str());
 
-	vector<uint8_t> upak; // Compressed region.
-	ifstream ipak(pakNameIn, fstream::binary);
+	CIOStream reader(pakNameIn, CIOStream::Mode_t::READ);
 
-	ipak.seekg(0, fstream::end);
-	upak.resize(ipak.tellg());
-	ipak.seekg(0, fstream::beg);
-	ipak.read(reinterpret_cast<char*>(upak.data()), upak.size());
-
-	RPakHeader_t* rheader = (RPakHeader_t*)upak.data();
-	uint16_t flags = (rheader->m_nFlags[0] << 8) | rheader->m_nFlags[1];
+	RPakHeader_t rheader = reader.Read<RPakHeader_t>();
+	uint16_t flags = (rheader.m_nFlags[0] << 8) | rheader.m_nFlags[1];
 
 	DevMsg(eDLL_T::RTECH, " | |-+ Header ------------------------------------------------\n");
-	DevMsg(eDLL_T::RTECH, " | | |-- Magic    : '%08X'\n", rheader->m_nMagic);
-	DevMsg(eDLL_T::RTECH, " | | |-- Version  : '%u'\n", rheader->m_nVersion);
-	DevMsg(eDLL_T::RTECH, " | | |-- Flags    : '%04X'\n", flags);
-	DevMsg(eDLL_T::RTECH, " | | |-- Hash     : '%llu'\n", rheader->m_nHash);
-	DevMsg(eDLL_T::RTECH, " | | |-- Entries  : '%zu'\n", rheader->m_nAssetEntryCount);
+	DevMsg(eDLL_T::RTECH, " | | |-- Magic    : '%08X'\n", rheader.m_nMagic);
+	DevMsg(eDLL_T::RTECH, " | | |-- Version  : '%hu'\n", rheader.m_nVersion);
+	DevMsg(eDLL_T::RTECH, " | | |-- Flags    : '%04hX'\n", flags);
+	DevMsg(eDLL_T::RTECH, " | | |-- Hash     : '%llu%llu'\n", rheader.m_nHash0, rheader.m_nHash1);
+	DevMsg(eDLL_T::RTECH, " | | |-- Entries  : '%u'\n", rheader.m_nAssetEntryCount);
 	DevMsg(eDLL_T::RTECH, " | |-+ Compression -------------------------------------------\n");
-	DevMsg(eDLL_T::RTECH, " | | |-- Size disk: '%lld'\n", rheader->m_nSizeDisk);
-	DevMsg(eDLL_T::RTECH, " | | |-- Size decp: '%lld'\n", rheader->m_nSizeMemory);
-	DevMsg(eDLL_T::RTECH, " | | |-- Ratio    : '%.02f'\n", (rheader->m_nSizeDisk * 100.f) / rheader->m_nSizeMemory);
+	DevMsg(eDLL_T::RTECH, " | | |-- Size disk: '%llu'\n", rheader.m_nSizeDisk);
+	DevMsg(eDLL_T::RTECH, " | | |-- Size decp: '%llu'\n", rheader.m_nSizeMemory);
+	DevMsg(eDLL_T::RTECH, " | | |-- Ratio    : '%.02f'\n", (rheader.m_nSizeDisk * 100.f) / rheader.m_nSizeMemory);
 
-	if (rheader->m_nMagic != 'kaPR')
+	if (rheader.m_nMagic != 'kaPR')
 	{
 		Error(eDLL_T::RTECH, "%s - pak file '%s' has invalid magic!\n", __FUNCTION__, pakNameIn.c_str());
 		return;
 	}
-	if ((rheader->m_nFlags[1] & 1) != 1)
+	if ((rheader.m_nFlags[1] & 1) != 1)
 	{
 		Error(eDLL_T::RTECH, "%s - pak file '%s' already decompressed!\n", __FUNCTION__, pakNameIn.c_str());
 		return;
 	}
-	if (rheader->m_nSizeDisk != upak.size())
+	if (rheader.m_nSizeDisk != reader.GetSize())
 	{
-		Error(eDLL_T::RTECH, "%s - pak file '%s' decompressed size '%zu' doesn't match expected value '%zu'!\n", __FUNCTION__, pakNameIn.c_str(), upak.size(), rheader->m_nSizeMemory);
+		Error(eDLL_T::RTECH, "%s - pak file '%s' decompressed size '%zu' doesn't match expected value '%llu'!\n", __FUNCTION__, pakNameIn.c_str(), reader.GetSize(), rheader.m_nSizeMemory);
 		return;
 	}
 
 	RPakDecompState_t state;
-	uint32_t decompSize = g_pRTech->DecompressPakFileInit(&state, upak.data(), upak.size(), 0, PAK_HEADER_SIZE);
+	uint64_t decompSize = g_pRTech->DecompressPakFileInit(&state, const_cast<uint8_t*>(reader.GetData()), reader.GetSize(), NULL, sizeof(RPakHeader_t));
 
-	if (decompSize == rheader->m_nSizeDisk)
+	if (decompSize == rheader.m_nSizeDisk)
 	{
-		Error(eDLL_T::RTECH, "%s - calculated size: '%zu' expected: '%zu'!\n", __FUNCTION__, decompSize, rheader->m_nSizeMemory);
+		Error(eDLL_T::RTECH, "%s - calculated size: '%llu' expected: '%llu'!\n", __FUNCTION__, decompSize, rheader.m_nSizeMemory);
 		return;
 	}
 	else
 	{
-		DevMsg(eDLL_T::RTECH, " | | |-- Calculated size: '%zu'\n", decompSize);
+		DevMsg(eDLL_T::RTECH, " | | |-- Calculated size: '%llu'\n", decompSize);
 	}
 
-	vector<uint8_t> pakBuf(rheader->m_nSizeMemory, 0);
+	vector<uint8_t> pakBuf(rheader.m_nSizeMemory, 0);
 
 	state.m_nOutMask = UINT64_MAX;
 	state.m_nOut = uint64_t(pakBuf.data());
 
-	uint8_t decompResult = g_pRTech->DecompressPakFile(&state, upak.size(), pakBuf.size());
+	uint8_t decompResult = g_pRTech->DecompressPakFile(&state, reader.GetSize(), pakBuf.size());
 	if (decompResult != 1)
 	{
-		Error(eDLL_T::RTECH, "%s - decompression failed for '%s' return value: '%u'!\n", __FUNCTION__, pakNameIn.c_str(), +decompResult);
+		Error(eDLL_T::RTECH, "%s - decompression failed for '%s' return value: '%hu'!\n", __FUNCTION__, pakNameIn.c_str(), decompResult);
 		return;
 	}
 
-	rheader->m_nFlags[1] = 0x0; // Set compressed flag to false for the decompressed pak file.
-	rheader->m_nSizeDisk = rheader->m_nSizeMemory; // Equal compressed size with decompressed.
+	rheader.m_nFlags[1] = 0x0; // Set compressed flag to false for the decompressed pak file.
+	rheader.m_nSizeDisk = rheader.m_nSizeMemory; // Equal compressed size with decompressed.
 
-	ofstream outBlock(pakNameOut, fstream::binary);
+	CIOStream writer(pakNameOut, CIOStream::Mode_t::WRITE);
 
-	if (rheader->m_nPatchIndex > 0) // Check if its an patch rpak.
+	if (rheader.m_nPatchIndex > 0) // Check if its an patch rpak.
 	{
 		// Loop through all the structs and patch their compress size.
-		for (int i = 1, patch_offset = 0x88; i <= rheader->m_nPatchIndex; i++, patch_offset += sizeof(RPakPatchCompressedHeader_t))
+		for (uint32_t i = 1, patch_offset = 0x88; i <= rheader.m_nPatchIndex; i++, patch_offset += sizeof(RPakPatchCompressedHeader_t))
 		{
 			RPakPatchCompressedHeader_t* patch_header = (RPakPatchCompressedHeader_t*)((uintptr_t)pakBuf.data() + patch_offset);
 			patch_header->m_nSizeDisk = patch_header->m_nSizeMemory; // Fix size for decompress.
 		}
 	}
 
-	memcpy_s(pakBuf.data(), state.m_nDecompSize, ((uint8_t*)rheader), PAK_HEADER_SIZE); // Overwrite first 0x80 bytes which are NULL with the header data.
+	memcpy_s(pakBuf.data(), state.m_nDecompSize, &rheader, sizeof(RPakHeader_t)); // Overwrite first 0x80 bytes which are NULL with the header data.
+	writer.Write(pakBuf.data(), state.m_nDecompSize);
 
-	outBlock.write((char*)pakBuf.data(), state.m_nDecompSize);
-
-	uint32_t crc32_init = {};
-	DevMsg(eDLL_T::RTECH, " | | |-- CRC32          : '%08X'\n", crc32::update(crc32_init, pakBuf.data(), state.m_nDecompSize));
+	DevMsg(eDLL_T::RTECH, " | | |-- CRC32          : '%08X'\n", crc32::update(NULL, pakBuf.data(), state.m_nDecompSize));
 	DevMsg(eDLL_T::RTECH, " |-+ Decompressed rpak to: '%s'\n", pakNameOut.c_str());
 	DevMsg(eDLL_T::RTECH, "--------------------------------------------------------------\n");
-
-	outBlock.close();
 }
 
 /*
@@ -869,7 +859,7 @@ void Mat_CrossHair_f(const CCommand& args)
 		DevMsg(eDLL_T::MS, "-+ Material --------------------------------------------------\n");
 		DevMsg(eDLL_T::MS, " |-- ADDR: '%llX'\n", material);
 		DevMsg(eDLL_T::MS, " |-- GUID: '%llX'\n", material->m_GUID);
-		DevMsg(eDLL_T::MS, " |-- UnknownSignature: '%d'\n", material->m_UnknownSignature);
+		DevMsg(eDLL_T::MS, " |-- Signature: '%d'\n", material->m_UnknownSignature);
 		DevMsg(eDLL_T::MS, " |-- Material Width: '%d'\n", material->m_iWidth);
 		DevMsg(eDLL_T::MS, " |-- Material Height: '%d'\n", material->m_iHeight);
 		DevMsg(eDLL_T::MS, " |-- Flags: '%llX'\n", material->m_iFlags);
