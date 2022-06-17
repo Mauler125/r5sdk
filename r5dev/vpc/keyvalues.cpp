@@ -1295,9 +1295,9 @@ bool KeyValues::ParsePlaylists(const char* pszPlaylist)
 	{
 		uint8_t verifyPlaylistIntegrity[] = // Very hacky way for alternative inline assembly for x64..
 		{
-			0x48, 0x8B, 0x45, 0x58,       // mov rcx, playlist
-			0xC7, 0x00, 0x00, 0x00, 0x00, // test playlist, playlist
-			0x00
+			0x48, 0x8B, 0x45, 0x58, // mov rcx, playlist
+			0xC7, 0x00, 0x00, 0x00, // test playlist, playlist
+			0x00, 0x00
 		};
 		void* verifyPlaylistIntegrityFn = nullptr;
 		VirtualAlloc(verifyPlaylistIntegrity, 10, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
