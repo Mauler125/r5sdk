@@ -99,6 +99,7 @@ public:
 
     bool CanAutoComplete(void);
     void ResetAutoComplete(void);
+    void ClearAutoComplete(void);
 
     void FindFromPartial(void);
     void ProcessCommand(const char* pszCommand);
