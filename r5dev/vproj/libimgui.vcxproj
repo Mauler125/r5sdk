@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="..\thirdparty\imgui\include\imconfig.h" />
     <ClInclude Include="..\thirdparty\imgui\include\imgui.h" />
+    <ClInclude Include="..\thirdparty\imgui\include\imgui_editor.h" />
     <ClInclude Include="..\thirdparty\imgui\include\imgui_impl_dx11.h" />
     <ClInclude Include="..\thirdparty\imgui\include\imgui_impl_win32.h" />
     <ClInclude Include="..\thirdparty\imgui\include\imgui_internal.h" />
@@ -49,6 +50,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\thirdparty\imgui\src\imgui_editor.cpp" />
     <ClCompile Include="..\thirdparty\imgui\src\imgui_impl_dx11.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>

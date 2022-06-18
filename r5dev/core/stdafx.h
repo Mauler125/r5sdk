@@ -55,6 +55,7 @@
 #if !defined(DEDICATED) && !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
 #include "thirdparty/imgui/include/imgui.h"
 #include "thirdparty/imgui/include/imgui_stdlib.h"
+#include "thirdparty/imgui/include/imgui_editor.h"
 #include "thirdparty/imgui/include/imgui_utility.h"
 #include "thirdparty/imgui/include/imgui_internal.h"
 #include "thirdparty/imgui/include/imgui_impl_dx11.h"
