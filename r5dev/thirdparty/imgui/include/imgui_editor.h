@@ -186,13 +186,13 @@ public:
 	~TextEditor();
 
 	void SetLanguageDefinition(const LanguageDefinition& aLanguageDef);
-	const LanguageDefinition& GetLanguageDefinition() const { return mLanguageDefinition; }
+	const LanguageDefinition& GetLanguageDefinition() const { return m_LanguageDefinition; }
 
-	const Palette& GetPalette() const { return mPaletteBase; }
+	const Palette& GetPalette() const { return m_PaletteBase; }
 	void SetPalette(const Palette& aValue);
 
-	void SetErrorMarkers(const ErrorMarkers& aMarkers) { mErrorMarkers = aMarkers; }
-	void SetBreakpoints(const Breakpoints& aMarkers) { mBreakpoints = aMarkers; }
+	void SetErrorMarkers(const ErrorMarkers& aMarkers) { m_ErrorMarkers = aMarkers; }
+	void SetBreakpoints(const Breakpoints& aMarkers) { m_Breakpoints = aMarkers; }
 
 	void Render(const char* aTitle, const ImVec2& aSize = ImVec2(), bool aBorder = false);
 	void SetText(const std::string& aText);
@@ -204,34 +204,34 @@ public:
 	std::string GetSelectedText() const;
 	std::string GetCurrentLineText()const;
 
-	int GetTotalLines() const { return (int)mLines.size(); }
-	bool IsOverwrite() const { return mOverwrite; }
+	int GetTotalLines() const { return (int)m_Lines.size(); }
+	bool IsOverwrite() const { return m_Overwrite; }
 
 	void SetReadOnly(bool aValue);
-	bool IsReadOnly() const { return mReadOnly; }
-	bool IsTextChanged() const { return mTextChanged; }
-	bool IsCursorPositionChanged() const { return mCursorPositionChanged; }
+	bool IsReadOnly() const { return m_bReadOnly; }
+	bool IsTextChanged() const { return m_bTextChanged; }
+	bool IsCursorPositionChanged() const { return m_bCursorPositionChanged; }
 
-	bool IsColorizerEnabled() const { return mColorizerEnabled; }
+	bool IsColorizerEnabled() const { return m_bColorizerEnabled; }
 	void SetColorizerEnable(bool aValue);
 
 	Coordinates GetCursorPosition() const { return GetActualCursorCoordinates(); }
 	void SetCursorPosition(const Coordinates& aPosition);
 
-	inline void SetHandleMouseInputs    (bool aValue){ mHandleMouseInputs    = aValue;}
-	inline bool IsHandleMouseInputsEnabled() const { return mHandleKeyboardInputs; }
+	inline void SetHandleMouseInputs    (bool aValue){ m_bHandleMouseInputs    = aValue;}
+	inline bool IsHandleMouseInputsEnabled() const { return m_bHandleKeyboardInputs; }
 
-	inline void SetHandleKeyboardInputs (bool aValue){ mHandleKeyboardInputs = aValue;}
-	inline bool IsHandleKeyboardInputsEnabled() const { return mHandleKeyboardInputs; }
+	inline void SetHandleKeyboardInputs (bool aValue){ m_bHandleKeyboardInputs = aValue;}
+	inline bool IsHandleKeyboardInputsEnabled() const { return m_bHandleKeyboardInputs; }
 
-	inline void SetImGuiChildIgnored    (bool aValue){ mIgnoreImGuiChild     = aValue;}
-	inline bool IsImGuiChildIgnored() const { return mIgnoreImGuiChild; }
+	inline void SetImGuiChildIgnored    (bool aValue){ m_bIgnoreImGuiChild     = aValue;}
+	inline bool IsImGuiChildIgnored() const { return m_bIgnoreImGuiChild; }
 
-	inline void SetShowWhitespaces(bool aValue) { mShowWhitespaces = aValue; }
-	inline bool IsShowingWhitespaces() const { return mShowWhitespaces; }
+	inline void SetShowWhitespaces(bool aValue) { m_bShowWhitespaces = aValue; }
+	inline bool IsShowingWhitespaces() const { return m_bShowWhitespaces; }
 
 	void SetTabSize(int aValue);
-	inline int GetTabSize() const { return mTabSize; }
+	inline int GetTabSize() const { return m_nTabSize; }
 
 	void InsertText(const std::string& aValue);
 	void InsertText(const char* aValue);
@@ -271,9 +271,9 @@ private:
 
 	struct EditorState
 	{
-		Coordinates mSelectionStart;
-		Coordinates mSelectionEnd;
-		Coordinates mCursorPosition;
+		Coordinates m_SelectionStart;
+		Coordinates m_SelectionEnd;
+		Coordinates m_CursorPosition;
 	};
 
 	class UndoRecord
@@ -297,16 +297,16 @@ private:
 		void Undo(TextEditor* aEditor);
 		void Redo(TextEditor* aEditor);
 
-		std::string mAdded;
-		Coordinates mAddedStart;
-		Coordinates mAddedEnd;
+		std::string m_svAdded;
+		Coordinates m_AddedStart;
+		Coordinates m_AddedEnd;
 
-		std::string mRemoved;
-		Coordinates mRemovedStart;
-		Coordinates mRemovedEnd;
+		std::string m_svRemoved;
+		Coordinates m_RemovedStart;
+		Coordinates m_RemovedEnd;
 
-		EditorState mBefore;
-		EditorState mAfter;
+		EditorState m_Before;
+		EditorState m_After;
 	};
 
 	typedef std::vector<UndoRecord> UndoBuffer;
@@ -348,42 +348,44 @@ private:
 	void HandleMouseInputs();
 	void Render();
 
-	float mLineSpacing;
-	Lines mLines;
-	EditorState mState;
-	UndoBuffer mUndoBuffer;
-	int mUndoIndex;
+	float m_flLineSpacing;
+	Lines m_Lines;
+	EditorState m_State;
+	UndoBuffer m_UndoBuffer;
+	int m_nUndoIndex;
 
-	int mTabSize;
-	bool mOverwrite;
-	bool mReadOnly;
-	bool mWithinRender;
-	bool mScrollToCursor;
-	bool mScrollToTop;
-	bool mTextChanged;
-	bool mColorizerEnabled;
-	float mTextStart;                   // position (in pixels) where a code line starts relative to the left of the TextEditor.
-	int  mLeftMargin;
-	bool mCursorPositionChanged;
-	int mColorRangeMin, mColorRangeMax;
-	SelectionMode mSelectionMode;
-	bool mHandleKeyboardInputs;
-	bool mHandleMouseInputs;
-	bool mIgnoreImGuiChild;
-	bool mShowWhitespaces;
+	int m_nTabSize;
+	bool m_Overwrite;
+	bool m_bReadOnly;
+	bool m_bWithinRender;
+	bool m_bScrollToCursor;
+	bool m_bScrollToTop;
+	bool m_bTextChanged;
+	bool m_bColorizerEnabled;
+	float m_flTextStart;                   // position (in pixels) where a code line starts relative to the left of the TextEditor.
+	int  m_nLeftMargin;
+	bool m_bCursorPositionChanged;
+	int m_nColorRangeMin;
+	int m_nColorRangeMax;
+	SelectionMode m_SelectionMode;
+	bool m_bHandleKeyboardInputs;
+	bool m_bHandleMouseInputs;
+	bool m_bIgnoreImGuiChild;
+	bool m_bShowWhitespaces;
 
-	Palette mPaletteBase;
-	Palette mPalette;
-	LanguageDefinition mLanguageDefinition;
-	RegexList mRegexList;
+	Palette m_PaletteBase;
+	Palette m_Palette;
+	LanguageDefinition m_LanguageDefinition;
+	RegexList m_RegexList;
 
-	bool mCheckComments;
-	Breakpoints mBreakpoints;
-	ErrorMarkers mErrorMarkers;
-	ImVec2 mCharAdvance;
-	Coordinates mInteractiveStart, mInteractiveEnd;
-	std::string mLineBuffer;
-	uint64_t mStartTime;
+	bool m_bCheckComments;
+	Breakpoints m_Breakpoints;
+	ErrorMarkers m_ErrorMarkers;
+	ImVec2 m_CharAdvance;
+	Coordinates m_InteractiveStart;
+	Coordinates mInteractiveEnd;
+	std::string m__svLineBuffer;
+	uint64_t m_nStartTime;
 
-	float mLastClick;
+	float m_flLastClick;
 };
