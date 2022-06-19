@@ -67,9 +67,9 @@ public:
 	// because it is rendered as "    ABC" on the screen.
 	struct Coordinates
 	{
-		int mLine, mColumn;
-		Coordinates() : mLine(0), mColumn(0) {}
-		Coordinates(int aLine, int aColumn) : mLine(aLine), mColumn(aColumn)
+		int m_nLine, m_nColumn;
+		Coordinates() : m_nLine(0), m_nColumn(0) {}
+		Coordinates(int aLine, int aColumn) : m_nLine(aLine), m_nColumn(aColumn)
 		{
 			assert(aLine >= 0);
 			assert(aColumn >= 0);
@@ -79,50 +79,50 @@ public:
 		bool operator ==(const Coordinates& o) const
 		{
 			return
-				mLine == o.mLine &&
-				mColumn == o.mColumn;
+				m_nLine == o.m_nLine &&
+				m_nColumn == o.m_nColumn;
 		}
 
 		bool operator !=(const Coordinates& o) const
 		{
 			return
-				mLine != o.mLine ||
-				mColumn != o.mColumn;
+				m_nLine != o.m_nLine ||
+				m_nColumn != o.m_nColumn;
 		}
 
 		bool operator <(const Coordinates& o) const
 		{
-			if (mLine != o.mLine)
-				return mLine < o.mLine;
-			return mColumn < o.mColumn;
+			if (m_nLine != o.m_nLine)
+				return m_nLine < o.m_nLine;
+			return m_nColumn < o.m_nColumn;
 		}
 
 		bool operator >(const Coordinates& o) const
 		{
-			if (mLine != o.mLine)
-				return mLine > o.mLine;
-			return mColumn > o.mColumn;
+			if (m_nLine != o.m_nLine)
+				return m_nLine > o.m_nLine;
+			return m_nColumn > o.m_nColumn;
 		}
 
 		bool operator <=(const Coordinates& o) const
 		{
-			if (mLine != o.mLine)
-				return mLine < o.mLine;
-			return mColumn <= o.mColumn;
+			if (m_nLine != o.m_nLine)
+				return m_nLine < o.m_nLine;
+			return m_nColumn <= o.m_nColumn;
 		}
 
 		bool operator >=(const Coordinates& o) const
 		{
-			if (mLine != o.mLine)
-				return mLine > o.mLine;
-			return mColumn >= o.mColumn;
+			if (m_nLine != o.m_nLine)
+				return m_nLine > o.m_nLine;
+			return m_nColumn >= o.m_nColumn;
 		}
 	};
 
 	struct Identifier
 	{
-		Coordinates mLocation;
-		std::string mDeclaration;
+		Coordinates m_Location;
+		std::string m_svDeclaration;
 	};
 
 	typedef std::string String;
@@ -135,14 +135,14 @@ public:
 
 	struct Glyph
 	{
-		Char mChar;
-		PaletteIndex mColorIndex = PaletteIndex::Default;
-		bool mComment : 1;
-		bool mMultiLineComment : 1;
-		bool mPreprocessor : 1;
+		Char m_Char;
+		PaletteIndex m_ColorIndex = PaletteIndex::Default;
+		bool m_bComment : 1;
+		bool m_bMultiLineComment : 1;
+		bool m_bPreprocessor : 1;
 
-		Glyph(Char aChar, PaletteIndex aColorIndex) : mChar(aChar), mColorIndex(aColorIndex),
-			mComment(false), mMultiLineComment(false), mPreprocessor(false) {}
+		Glyph(Char aChar, PaletteIndex aColorIndex) : m_Char(aChar), m_ColorIndex(aColorIndex),
+			m_bComment(false), m_bMultiLineComment(false), m_bPreprocessor(false) {}
 	};
 
 	typedef std::vector<Glyph> Line;
@@ -154,22 +154,22 @@ public:
 		typedef std::vector<TokenRegexString> TokenRegexStrings;
 		typedef bool(*TokenizeCallback)(const char * in_begin, const char * in_end, const char *& out_begin, const char *& out_end, PaletteIndex & paletteIndex);
 
-		std::string mName;
-		Keywords mKeywords;
-		Identifiers mIdentifiers;
-		Identifiers mPreprocIdentifiers;
-		std::string mCommentStart, mCommentEnd, mSingleLineComment;
-		char mPreprocChar;
-		bool mAutoIndentation;
+		std::string m_svName;
+		Keywords m_Keywords;
+		Identifiers m_Identifiers;
+		Identifiers m_PreprocIdentifiers;
+		std::string m_svCommentStart, m_svCommentEnd, m_svSingleLineComment;
+		char m_PreprocChar;
+		bool m_bAutoIndentation;
 
-		TokenizeCallback mTokenize;
+		TokenizeCallback m_Tokenize;
 
-		TokenRegexStrings mTokenRegexStrings;
+		TokenRegexStrings m_TokenRegexStrings;
 
 		bool mCaseSensitive;
 
 		LanguageDefinition()
-			: mPreprocChar('#'), mAutoIndentation(true), mTokenize(nullptr), mCaseSensitive(true)
+			: m_PreprocChar('#'), m_bAutoIndentation(true), m_Tokenize(nullptr), mCaseSensitive(true)
 		{
 		}
 
