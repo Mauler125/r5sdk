@@ -1,5 +1,9 @@
 #include "core/stdafx.h"
 #include "rtech/rtech_utils.h"
+#ifndef DEDICATED
+#include "windows/id3dx.h"
+#endif // !DEDICATED
+
 
 /******************************************************************************
 -------------------------------------------------------------------------------
@@ -496,6 +500,160 @@ std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::
 	return result;
 }
 
+#if not defined DEDICATED && defined (GAMEDLL_S3)
+
+void RTech::CreateDXTexture(RPakTextureHeader_t* textureHeader, int64_t imageData)
+{
+	RPakTextureHeader_t* v2; // rbx
+	uint16_t v4; // cx
+	int v5; // esi
+	UINT v6; // edi
+	uint8_t v7; // r15
+	UINT v8; // er14
+	unsigned int v9; // er8
+	unsigned int v10; // er11
+	unsigned int v11; // er10
+	unsigned int v12; // er13
+	int v13; // ebx
+	int v14; // er12
+	int v15; // eax
+	int v16; // edx
+	int v17; // eax
+	unsigned int v18; // edx
+	int v19; // er11
+	int v20; // er8
+	UINT v21; // eax
+	unsigned int v22; // er8
+	__int64 v23; // rdx
+	__int64 v24; // rcx
+	unsigned int v25; // er8
+	DXGI_FORMAT v26; // esi
+	unsigned int v27; // edx
+	unsigned int v28; // er8
+	UINT v29; // eax
+	unsigned int v30; // edx
+	UINT v31; // eax
+	bool v32; // zf
+	int create_texture_err_var; // eax
+	uint8_t v34; // al
+	int v35; // ecx
+	int create_shader_resource_view_err; // eax
+	unsigned int v37; // [rsp+20h] [rbp-E0h]
+	unsigned int v38; // [rsp+24h] [rbp-DCh]
+	DXGI_FORMAT v39; // [rsp+28h] [rbp-D8h] BYREF
+	__int64 v40; // [rsp+2Ch] [rbp-D4h]
+	int v41; // [rsp+34h] [rbp-CCh]
+	int v42; // [rsp+38h] [rbp-C8h]
+	int v43; // [rsp+3Ch] [rbp-C4h]
+	D3D11_TEXTURE2D_DESC p_texture_desc_var; // [rsp+40h] [rbp-C0h] BYREF
+	D3D11_SUBRESOURCE_DATA p_initial_data_var; // [rsp+70h] [rbp-90h] BYREF
+	RPakTextureHeader_t* v46; // [rsp+80B0h] [rbp+7FB0h]
+	unsigned int v47; // [rsp+80C0h] [rbp+7FC0h]
+
+	ZeroMemory(&p_texture_desc_var, sizeof(p_texture_desc_var));
+	ZeroMemory(&p_initial_data_var, sizeof(p_initial_data_var));
+
+	v2 = textureHeader;
+	v4 = textureHeader->m_nFormat;
+	if (!v2->unk0 && v2->m_nHeight)
+	{
+		v5 = v2->m_nMipLevelsStreamedOpt + v2->m_nMipLevelsStreamed;
+		v6 = v2->m_nMipLevels;
+		v7 = v2->m_nArraySize;
+		v8 = v6 + v5;
+		if (v6 + v5 != v5)
+		{
+			v9 = v2->m_nWidth;
+			v10 = v2->m_nHeight;
+			v37 = v9;
+			v38 = v10;
+			v11 = HIBYTE(s_pBitsPerPixelWord[v4]);
+			v12 = v11 >> 1;
+			v47 = v11;
+			v13 = LOBYTE(s_pBitsPerPixelWord[v4]);
+			v14 = v13 * (v11 >> (v11 >> 1));
+			do
+			{
+				--v8;
+				v15 = 1;
+				if (v9 >> v8 > 1)
+					v15 = v9 >> v8;
+				v16 = v15 - 1;
+				v17 = 1;
+				v18 = (v11 + v16) >> v12;
+				if (v10 >> v8 > 1)
+					v17 = v10 >> v8;
+				v19 = v18 * v14;
+				v20 = v17 - 1;
+				v21 = v8;
+				v22 = v13 * v18 * ((v11 + v20) >> v12);
+				if (v7)
+				{
+					v23 = v7;
+					do
+					{
+						v24 = v21;
+						v21 += v6;
+						v24 *= 16i64;
+						*(const void**)((char*)&p_initial_data_var.pSysMem + v24) = (const void*)imageData;
+						imageData += (v22 + 15) & 0xFFFFFFF0;
+						*(UINT*)((char*)&p_initial_data_var.SysMemPitch + v24) = v19;
+						*(UINT*)((char*)&p_initial_data_var.SysMemSlicePitch + v24) = v22;
+						--v23;
+					} while (v23);
+					v11 = v47;
+				}
+				v9 = v37;
+				v10 = v38;
+			} while (v8 != v5);
+		}
+		LOBYTE(v2[1].m_nNameHash) = v6;
+		v25 = v2->m_nWidth;
+		p_texture_desc_var.MipLevels = v6;
+		v26 = rpakToDxgiFormat[v4];
+		v27 = v2->m_nHeight;
+		p_texture_desc_var.Format = v26;
+		v28 = v25 >> v8;
+		v29 = 1;
+		v30 = v27 >> v8;
+		p_texture_desc_var.SampleDesc.Count = 1;
+		if (v28 > 1)
+			v29 = v28;
+		*(_QWORD*)&p_texture_desc_var.BindFlags = 8;
+		p_texture_desc_var.Width = v29;
+		v31 = 1;
+		if (v30 > 1)
+			v31 = v30;
+		p_texture_desc_var.Height = v31;
+		v32 = v2->unk2 == 2;
+		p_texture_desc_var.ArraySize = v7;
+		p_texture_desc_var.MiscFlags = 0;
+		p_texture_desc_var.Usage = (D3D11_USAGE)!v32;
+		create_texture_err_var = (*g_ppGameDevice)->CreateTexture2D(&p_texture_desc_var, &p_initial_data_var + v8, &v2->m_ppTexture);
+		if (create_texture_err_var < 0)
+			Error(eDLL_T::RTECH, "Couldn't create texture \"%s\": error code %08x\n", *(const char**)&v2->m_nNameIndex, (unsigned int)create_texture_err_var);
+		v34 = v2->m_nArraySize;
+		v35 = LOBYTE(v2[1].m_nNameHash);
+		v39 = v26;
+		v41 = v35;
+		if (v34 <= 1u)
+		{
+			v40 = 4i64;
+		}
+		else
+		{
+			v43 = v34;
+			v40 = 5i64;
+			v42 = 0;
+		}
+		create_shader_resource_view_err = (*g_ppGameDevice)->CreateShaderResourceView((ID3D11Resource*)v2->m_ppTexture, (D3D11_SHADER_RESOURCE_VIEW_DESC*)&v39, &v2->m_ppShaderResourceView);
+		if (create_shader_resource_view_err < 0)
+			Error(eDLL_T::RTECH, "Couldn't create shader resource view for texture \"%s\": error code %08x\n", *(const char**)&v2->m_nNameIndex, (unsigned int)create_shader_resource_view_err);
+	}
+}
+
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: gets information about loaded pak file via pak ID
 //-----------------------------------------------------------------------------
@@ -540,5 +698,20 @@ RPakLoadedInfo_t* RTech::GetPakLoadedInfo(const char* szPakName)
 	Warning(eDLL_T::RTECH, "%s - Failed getting RPakLoadInfo_t for Pak '%s'\n", __FUNCTION__, szPakName);
 	return nullptr;
 }
+
+void RTech_Utils_Attach()
+{
+#ifndef DEDICATED
+	//DetourAttach((LPVOID*)&RTech_CreateDXTexture, &RTech::CreateDXTexture);
+#endif
+}
+
+void RTech_Utils_Detach()
+{
+#ifndef DEDICATED
+	//DetourDetach((LPVOID*)&RTech_CreateDXTexture, &RTech::CreateDXTexture);
+#endif
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 RTech* g_pRTech = new RTech();

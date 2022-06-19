@@ -112,11 +112,18 @@ enum class DXGISwapChainVTbl : short
 	GetLastPresentCount                  = 17,
 };
 
+inline CMemory p_gGameDevice;
+inline ID3D11Device** g_ppGameDevice = nullptr;
+
 class HIDXGI : public IDetour
 {
 	virtual void GetAdr(void) const;
 	virtual void GetFun(void) const { }
-	virtual void GetVar(void) const { }
+	virtual void GetVar(void) const
+	{
+		p_gGameDevice = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xD3\xEA\x48\x8B\x0D\x00\x00\x00\x00"), "xxxxx????").OffsetSelf(0x2).ResolveRelativeAddressSelf(0x3, 0x7);
+		g_ppGameDevice = p_gGameDevice.RCast<ID3D11Device**>(); /*D3 EA 48 8B 0D ? ? ? ?*/
+	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }

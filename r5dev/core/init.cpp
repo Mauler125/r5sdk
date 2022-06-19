@@ -192,6 +192,7 @@ void Systems_Init()
 	SQAUX_Attach();
 
 	RTech_Game_Attach();
+	RTech_Utils_Attach();
 #ifndef DEDICATED
 	Rui_Attach();
 #endif // !DEDICATED
@@ -309,6 +310,7 @@ void Systems_Shutdown()
 	SQAUX_Detach();
 
 	RTech_Game_Detach();
+	RTech_Utils_Detach();
 #ifndef DEDICATED
 	Rui_Detach();
 #endif // !DEDICATED
