@@ -82,7 +82,7 @@ PLATFORM_INTERFACE void AssertValidWStringPtr(const wchar_t* ptr, int maxchar/* 
 //-----------------------------------------------------------------------------
 void DevMsg(eDLL_T context, const char* fmt, ...)
 {
-	static char szBuf[2048] = {};
+	static char szBuf[4096] = {};
 
 	static std::string svOut;
 	static std::string svAnsiOut;
@@ -104,7 +104,8 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 		va_end(args);
 	}/////////////////////////////
 
-	svOut = sDLL_T[static_cast<int>(context)];
+	svOut = Plat_GetProcessUpTime();
+	svOut.append(sDLL_T[static_cast<int>(context)]);
 	svOut.append(szBuf);
 	svOut = std::regex_replace(svOut, rxAnsiExp, "");
 
@@ -122,7 +123,8 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 	}
 	else
 	{
-		svAnsiOut = sANSI_DLL_T[static_cast<int>(context)];
+		svAnsiOut = Plat_GetProcessUpTime();
+		svAnsiOut.append(sANSI_DLL_T[static_cast<int>(context)]);
 		svAnsiOut.append(szBuf);
 
 		if (svAnsiOut.back() != '\n')
@@ -188,7 +190,7 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 //-----------------------------------------------------------------------------
 void Warning(eDLL_T context, const char* fmt, ...)
 {
-	static char szBuf[2048] = {};
+	static char szBuf[4096] = {};
 
 	static std::string svOut;
 	static std::string svAnsiOut;
@@ -210,7 +212,8 @@ void Warning(eDLL_T context, const char* fmt, ...)
 		va_end(args);
 	}/////////////////////////////
 
-	svOut = sDLL_T[static_cast<int>(context)];
+	svOut = Plat_GetProcessUpTime();
+	svOut.append(sDLL_T[static_cast<int>(context)]);
 	svOut.append(szBuf);
 	svOut = std::regex_replace(svOut, rxAnsiExp, "");
 
@@ -228,7 +231,8 @@ void Warning(eDLL_T context, const char* fmt, ...)
 	}
 	else
 	{
-		svAnsiOut = sANSI_DLL_T[static_cast<int>(context)];
+		svAnsiOut = Plat_GetProcessUpTime();
+		svAnsiOut.append(sANSI_DLL_T[static_cast<int>(context)]);
 		svAnsiOut.append(g_svYellowF);
 		svAnsiOut.append(szBuf);
 
@@ -263,7 +267,7 @@ void Warning(eDLL_T context, const char* fmt, ...)
 //-----------------------------------------------------------------------------
 void Error(eDLL_T context, const char* fmt, ...)
 {
-	static char szBuf[2048] = {};
+	static char szBuf[4096] = {};
 
 	static std::string svOut;
 	static std::string svAnsiOut;
@@ -285,7 +289,8 @@ void Error(eDLL_T context, const char* fmt, ...)
 		va_end(args);
 	}/////////////////////////////
 
-	svOut = sDLL_T[static_cast<int>(context)];
+	svOut = Plat_GetProcessUpTime();
+	svOut.append(sDLL_T[static_cast<int>(context)]);
 	svOut.append(szBuf);
 	svOut = std::regex_replace(svOut, rxAnsiExp, "");
 
@@ -303,7 +308,8 @@ void Error(eDLL_T context, const char* fmt, ...)
 	}
 	else
 	{
-		svAnsiOut = sANSI_DLL_T[static_cast<int>(context)];
+		svAnsiOut = Plat_GetProcessUpTime();
+		svAnsiOut.append(sANSI_DLL_T[static_cast<int>(context)]);
 		svAnsiOut.append(g_svRedF);
 		svAnsiOut.append(szBuf);
 

@@ -54,7 +54,8 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 #endif
 		break;
 	}
-	static SQChar buf[1024] = {};
+	static SQChar buf[4096] = {};
+	static std::string vmStr;
 	static std::regex rxAnsiExp("\\\033\\[.*?m");
 
 	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
@@ -72,7 +73,8 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 		va_end(args);
 	}/////////////////////////////
 
-	std::string vmStr = SQVM_LOG_T[static_cast<SQInteger>(context)];
+	vmStr = Plat_GetProcessUpTime();
+	vmStr.append(SQVM_LOG_T[static_cast<SQInteger>(context)]);
 	vmStr.append(buf);
 
 	if (sq_showvmoutput->GetInt() > 0) {
@@ -91,17 +93,20 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 		}
 		else
 		{
-			std::string vmStrAnsi;
+			static std::string vmStrAnsi;
 			if (g_bSQAuxError)
 			{
 				bColorOverride = true;
 				if (strstr(buf, "SCRIPT ERROR:") || strstr(buf, " -> "))
 				{
 					bError = true;
-					vmStrAnsi = SQVM_ERROR_ANSI_LOG_T[static_cast<SQInteger>(context)];
+					vmStrAnsi = Plat_GetProcessUpTime();
+					vmStrAnsi.append(SQVM_ERROR_ANSI_LOG_T[static_cast<SQInteger>(context)]);
 				}
-				else {
-					vmStrAnsi = SQVM_WARNING_ANSI_LOG_T[static_cast<SQInteger>(context)];
+				else
+				{
+					vmStrAnsi = Plat_GetProcessUpTime();
+					vmStrAnsi.append(SQVM_WARNING_ANSI_LOG_T[static_cast<SQInteger>(context)]);
 				}
 			}
 			else if (g_bSQAuxBadLogic)
@@ -111,14 +116,20 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 					bError = true;
 					bColorOverride = true;
 					g_bSQAuxBadLogic = false;
-					vmStrAnsi = SQVM_ERROR_ANSI_LOG_T[static_cast<SQInteger>(context)];
+
+					vmStrAnsi = Plat_GetProcessUpTime();
+					vmStrAnsi.append(SQVM_ERROR_ANSI_LOG_T[static_cast<SQInteger>(context)]);
 				}
-				else {
-					vmStrAnsi = SQVM_ANSI_LOG_T[static_cast<SQInteger>(context)];
+				else
+				{
+					vmStrAnsi = Plat_GetProcessUpTime();
+					vmStrAnsi.append(SQVM_ANSI_LOG_T[static_cast<SQInteger>(context)]);
 				}
 			}
-			else {
-				vmStrAnsi = SQVM_ANSI_LOG_T[static_cast<SQInteger>(context)];
+			else
+			{
+				vmStrAnsi = vmStrAnsi = Plat_GetProcessUpTime();;
+				vmStrAnsi.append(SQVM_ANSI_LOG_T[static_cast<SQInteger>(context)]);
 			}
 			vmStrAnsi.append(buf);
 			wconsole->debug(vmStrAnsi);
@@ -205,7 +216,8 @@ SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* 
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
 	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sqvm_warn");
 
-	std::string vmStr = SQVM_LOG_T[static_cast<int>(context)];
+	std::string vmStr = Plat_GetProcessUpTime();
+	vmStr.append(SQVM_LOG_T[static_cast<int>(context)]);
 	std::string svConstructor(*ppString, *nStringSize); // Get string from memory via std::string constructor.
 	vmStr.append(svConstructor);
 
@@ -221,7 +233,8 @@ SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* 
 		}
 		else
 		{
-			std::string vmStrAnsi = SQVM_WARNING_ANSI_LOG_T[static_cast<int>(context)];
+			std::string vmStrAnsi = Plat_GetProcessUpTime();
+			vmStrAnsi.append(SQVM_WARNING_ANSI_LOG_T[static_cast<int>(context)]);
 			vmStrAnsi.append(svConstructor);
 			wconsole->debug(vmStrAnsi);
 #ifdef DEDICATED

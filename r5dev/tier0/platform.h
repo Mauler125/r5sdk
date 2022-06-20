@@ -171,6 +171,7 @@ inline uint64_t Plat_Rdtsc()
 }
 double Plat_FloatTime();
 uint64_t Plat_MSTime();
+const char* Plat_GetProcessUpTime();
 
 //-----------------------------------------------------------------------------
 // Silences a number of warnings on 360 compiles

@@ -5,6 +5,7 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
+#include "core/logdef.h"
 #include "core/init.h"
 #include "tier0/jobthread.h"
 #include "tier0/threadtools.h"
@@ -233,6 +234,8 @@ void Systems_Init()
 #ifdef DEDICATED
 	Dedicated_Init();
 #endif // DEDICATED
+
+	SpdLog_PostInit();
 }
 
 //////////////////////////////////////////////////////////////////////////
