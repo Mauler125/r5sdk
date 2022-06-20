@@ -25,7 +25,6 @@ CTextLogger::CTextLogger()
 	: m_flLineSpacing(1.0f)
 	, m_nTabSize(4)
 	, m_Overwrite(false)
-	, m_bReadOnly(false)
 	, m_bWithinRender(false)
 	, m_bScrollToCursor(false)
 	, m_flTextStart(0.f)
@@ -198,7 +197,6 @@ void CTextLogger::Advance(Coordinates & aCoordinates) const
 void CTextLogger::DeleteRange(const Coordinates & aStart, const Coordinates & aEnd)
 {
 	assert(aEnd >= aStart);
-	assert(!m_bReadOnly);
 
 	//printf("D(%d.%d)-(%d.%d)\n", aStart.mLine, aStart.mColumn, aEnd.mLine, aEnd.mColumn);
 
@@ -235,8 +233,6 @@ void CTextLogger::DeleteRange(const Coordinates & aStart, const Coordinates & aE
 
 int CTextLogger::InsertTextAt(Coordinates& /* inout */ aWhere, const char * aValue, ImVec4 aColor)
 {
-	assert(!m_bReadOnly);
-
 	int cindex = GetCharacterIndex(aWhere);
 	int totalLines = 0;
 
@@ -532,7 +528,6 @@ void CTextLogger::RemoveLine(int aStart, int aEnd)
 {
 	m_Mutex.lock();
 
-	assert(!m_bReadOnly);
 	assert(aEnd >= aStart);
 	assert(m_Lines.size() > (size_t)(aEnd - aStart));
 
@@ -546,7 +541,6 @@ void CTextLogger::RemoveLine(int aIndex)
 {
 	m_Mutex.lock();
 
-	assert(!m_bReadOnly);
 	assert(m_Lines.size() > 1);
 
 	m_Lines.erase(m_Lines.begin() + aIndex);
@@ -557,8 +551,6 @@ void CTextLogger::RemoveLine(int aIndex)
 
 CTextLogger::Line& CTextLogger::InsertLine(int aIndex)
 {
-	assert(!m_bReadOnly);
-
 	auto& result = *m_Lines.insert(m_Lines.begin() + aIndex, Line());
 	return result;
 }
@@ -962,11 +954,6 @@ void CTextLogger::SetTextLines(const std::vector<CConLog>& aLines)
 			}
 		}
 	}
-}
-
-void CTextLogger::SetReadOnly(bool aValue)
-{
-	m_bReadOnly = aValue;
 }
 
 void CTextLogger::SetCursorPosition(const Coordinates & aPosition)

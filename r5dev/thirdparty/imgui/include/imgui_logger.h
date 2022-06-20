@@ -126,8 +126,6 @@ public:
 	int GetTotalLines() const { return (int)m_Lines.size(); }
 	bool IsOverwrite() const { return m_Overwrite; }
 
-	void SetReadOnly(bool aValue);
-	bool IsReadOnly() const { return m_bReadOnly; }
 	bool IsCursorPositionChanged() const { return m_bCursorPositionChanged; }
 
 	Coordinates GetCursorPosition() const { return GetActualCursorCoordinates(); }
@@ -211,7 +209,6 @@ private:
 
 	int m_nTabSize;
 	bool m_Overwrite;
-	bool m_bReadOnly;
 	bool m_bWithinRender;
 	bool m_bScrollToCursor;
 	float m_flTextStart;                   // position (in pixels) where a code line starts relative to the left of the TextEditor.
