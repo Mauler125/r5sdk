@@ -274,7 +274,7 @@ int CTextLogger::InsertTextAt(Coordinates& /* inout */ aWhere, const char * aVal
 		{
 			auto& line = m_Lines[aWhere.m_nLine];
 			auto d = UTF8CharLength(*aValue);
-			while (d-- > 0 && *aValue != '\0' && *aValue != '\n' && *aValue != '\t')
+			while (d-- > 0 && *aValue != '\0')
 				line.insert(line.begin() + cindex++, Glyph(*aValue++, aColor));
 			++aWhere.m_nColumn;
 		}
@@ -530,21 +530,29 @@ bool CTextLogger::IsOnWordBoundary(const Coordinates & aAt) const
 
 void CTextLogger::RemoveLine(int aStart, int aEnd)
 {
+	m_Mutex.lock();
+
 	assert(!m_bReadOnly);
 	assert(aEnd >= aStart);
 	assert(m_Lines.size() > (size_t)(aEnd - aStart));
 
 	m_Lines.erase(m_Lines.begin() + aStart, m_Lines.begin() + aEnd);
 	assert(!m_Lines.empty());
+
+	m_Mutex.unlock();
 }
 
 void CTextLogger::RemoveLine(int aIndex)
 {
+	m_Mutex.lock();
+
 	assert(!m_bReadOnly);
 	assert(m_Lines.size() > 1);
 
 	m_Lines.erase(m_Lines.begin() + aIndex);
 	assert(!m_Lines.empty());
+
+	m_Mutex.unlock();
 }
 
 CTextLogger::Line& CTextLogger::InsertLine(int aIndex)
@@ -627,21 +635,6 @@ void CTextLogger::HandleKeyboardInputs()
 			Copy();
 		else if (ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_A)))
 			SelectAll();
-		else if (!IsReadOnly() && !ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter)))
-			EnterCharacter('\n', false);
-		else if (!IsReadOnly() && !ctrl && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Tab)))
-			EnterCharacter('\t', shift);
-
-		if (!IsReadOnly() && !io.InputQueueCharacters.empty())
-		{
-			for (int i = 0; i < io.InputQueueCharacters.Size; i++)
-			{
-				auto c = io.InputQueueCharacters[i];
-				if (c != 0 && (c == '\n' || c >= 32))
-					EnterCharacter(c, shift);
-			}
-			io.InputQueueCharacters.resize(0);
-		}
 	}
 }
 
@@ -971,133 +964,6 @@ void CTextLogger::SetTextLines(const std::vector<CConLog>& aLines)
 	}
 }
 
-void CTextLogger::EnterCharacter(ImWchar aChar, bool aShift)
-{
-	assert(!m_bReadOnly);
-	if (HasSelection())
-	{
-		if (aChar == '\t' && m_State.m_SelectionStart.m_nLine != m_State.m_SelectionEnd.m_nLine)
-		{
-
-			auto start = m_State.m_SelectionStart;
-			auto end = m_State.m_SelectionEnd;
-			auto originalEnd = end;
-
-			if (start > end)
-				std::swap(start, end);
-			start.m_nColumn = 0;
-			//			end.mColumn = end.mLine < mLines.size() ? mLines[end.mLine].size() : 0;
-			if (end.m_nColumn == 0 && end.m_nLine > 0)
-				--end.m_nLine;
-			if (end.m_nLine >= (int)m_Lines.size())
-				end.m_nLine = m_Lines.empty() ? 0 : (int)m_Lines.size() - 1;
-			end.m_nColumn = GetLineMaxColumn(end.m_nLine);
-
-			//if (end.mColumn >= GetLineMaxColumn(end.mLine))
-			//	end.mColumn = GetLineMaxColumn(end.mLine) - 1;
-
-			bool modified = false;
-
-			for (int i = start.m_nLine; i <= end.m_nLine; i++)
-			{
-				auto& line = m_Lines[i];
-				if (aShift)
-				{
-					if (!line.empty())
-					{
-						if (line.front().m_Char == '\t')
-						{
-							line.erase(line.begin());
-							modified = true;
-						}
-						else
-						{
-							for (int j = 0; j < m_nTabSize && !line.empty() && line.front().m_Char == ' '; j++)
-							{
-								line.erase(line.begin());
-								modified = true;
-							}
-						}
-					}
-				}
-				else
-				{
-					line.insert(line.begin(), Glyph('\t'));
-					modified = true;
-				}
-			}
-
-			if (modified)
-			{
-				start = Coordinates(start.m_nLine, GetCharacterColumn(start.m_nLine, 0));
-				Coordinates rangeEnd;
-				if (originalEnd.m_nColumn != 0)
-				{
-					end = Coordinates(end.m_nLine, GetLineMaxColumn(end.m_nLine));
-					rangeEnd = end;
-				}
-				else
-				{
-					end = Coordinates(originalEnd.m_nLine, 0);
-					rangeEnd = Coordinates(end.m_nLine - 1, GetLineMaxColumn(end.m_nLine - 1));
-				}
-
-				m_State.m_SelectionStart = start;
-				m_State.m_SelectionEnd = end;
-
-				EnsureCursorVisible();
-			}
-
-			return;
-		} // c == '\t'
-	} // HasSelection
-
-	auto coord = GetActualCursorCoordinates();
-	assert(!m_Lines.empty());
-
-	if (aChar == '\n')
-	{
-		InsertLine(coord.m_nLine + 1);
-		auto& line = m_Lines[coord.m_nLine];
-		auto& newLine = m_Lines[coord.m_nLine + 1];
-
-		const size_t whitespaceSize = newLine.size();
-		auto cindex = GetCharacterIndex(coord);
-		newLine.insert(newLine.end(), line.begin() + cindex, line.end());
-		line.erase(line.begin() + cindex, line.begin() + line.size());
-		SetCursorPosition(Coordinates(coord.m_nLine + 1, GetCharacterColumn(coord.m_nLine + 1, (int)whitespaceSize)));
-	}
-	else
-	{
-		char buf[7];
-		int e = ImTextCharToUtf8(buf, 7, aChar);
-		if (e > 0)
-		{
-			buf[e] = '\0';
-			auto& line = m_Lines[coord.m_nLine];
-			auto cindex = GetCharacterIndex(coord);
-
-			if (m_Overwrite && cindex < (int)line.size())
-			{
-				auto d = UTF8CharLength(line[cindex].m_Char);
-				while (d-- > 0 && cindex < (int)line.size())
-				{
-					line.erase(line.begin() + cindex);
-				}
-			}
-
-			for (auto p = buf; *p != '\0'; p++, ++cindex)
-				line.insert(line.begin() + cindex, Glyph(*p));
-
-			SetCursorPosition(Coordinates(coord.m_nLine, GetCharacterColumn(coord.m_nLine, cindex)));
-		}
-		else
-			return;
-	}
-
-	EnsureCursorVisible();
-}
-
 void CTextLogger::SetReadOnly(bool aValue)
 {
 	m_bReadOnly = aValue;
@@ -1172,15 +1038,19 @@ void CTextLogger::SetTabSize(int aValue)
 
 void CTextLogger::InsertText(const CConLog & aValue)
 {
-	if (aValue.m_svConLog.empty())
-		return;
+	m_Mutex.lock();
 
-	auto pos = GetActualLastLineCoordinates();
+	if (!aValue.m_svConLog.empty())
+	{
+		auto pos = GetActualLastLineCoordinates();
 
-	auto start = std::min(pos, m_State.m_SelectionStart);
-	int totalLines = pos.m_nLine - start.m_nLine;
+		auto start = std::min(pos, m_State.m_SelectionStart);
+		int totalLines = pos.m_nLine - start.m_nLine;
 
-	totalLines += InsertTextAt(pos, aValue.m_svConLog.c_str(), aValue.m_imColor);
+		totalLines += InsertTextAt(pos, aValue.m_svConLog.c_str(), aValue.m_imColor);
+	}
+
+	m_Mutex.unlock();
 }
 
 void CTextLogger::MoveUp(int aAmount, bool aSelect)

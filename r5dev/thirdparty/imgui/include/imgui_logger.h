@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <map>
 #include <regex>
+#include <thread>
+#include <mutex>
 #include "imgui.h"
 
 struct CConLog
@@ -195,7 +197,6 @@ private:
 	int GetLineMaxColumn(int aLine) const;
 	bool IsOnWordBoundary(const Coordinates& aAt) const;
 	Line& InsertLine(int aIndex);
-	void EnterCharacter(ImWchar aChar, bool aShift);
 	std::string GetWordUnderCursor() const;
 	std::string GetWordAt(const Coordinates& aCoords) const;
 	ImU32 GetGlyphColor(const Glyph& aGlyph) const;
@@ -206,6 +207,7 @@ private:
 	float m_flLineSpacing;
 	Lines m_Lines;
 	EditorState m_State;
+	std::mutex m_Mutex;
 
 	int m_nTabSize;
 	bool m_Overwrite;
