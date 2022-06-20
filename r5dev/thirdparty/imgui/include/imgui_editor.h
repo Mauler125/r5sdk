@@ -10,7 +10,7 @@
 #include <regex>
 #include "imgui.h"
 
-class TextEditor
+class CTextEditor
 {
 public:
 	enum class PaletteIndex
@@ -182,8 +182,8 @@ public:
 		static const LanguageDefinition& Lua();
 	};
 
-	TextEditor();
-	~TextEditor();
+	CTextEditor();
+	~CTextEditor();
 
 	void SetLanguageDefinition(const LanguageDefinition& aLanguageDef);
 	const LanguageDefinition& GetLanguageDefinition() const { return m_LanguageDefinition; }
@@ -284,18 +284,18 @@ private:
 
 		UndoRecord(
 			const std::string& aAdded,
-			const TextEditor::Coordinates aAddedStart,
-			const TextEditor::Coordinates aAddedEnd,
+			const CTextEditor::Coordinates aAddedStart,
+			const CTextEditor::Coordinates aAddedEnd,
 
 			const std::string& aRemoved,
-			const TextEditor::Coordinates aRemovedStart,
-			const TextEditor::Coordinates aRemovedEnd,
+			const CTextEditor::Coordinates aRemovedStart,
+			const CTextEditor::Coordinates aRemovedEnd,
 
-			TextEditor::EditorState& aBefore,
-			TextEditor::EditorState& aAfter);
+			CTextEditor::EditorState& aBefore,
+			CTextEditor::EditorState& aAfter);
 
-		void Undo(TextEditor* aEditor);
-		void Redo(TextEditor* aEditor);
+		void Undo(CTextEditor* aEditor);
+		void Redo(CTextEditor* aEditor);
 
 		std::string m_svAdded;
 		Coordinates m_AddedStart;
@@ -383,7 +383,7 @@ private:
 	ErrorMarkers m_ErrorMarkers;
 	ImVec2 m_CharAdvance;
 	Coordinates m_InteractiveStart;
-	Coordinates mInteractiveEnd;
+	Coordinates m_InteractiveEnd;
 	std::string m__svLineBuffer;
 	uint64_t m_nStartTime;
 
