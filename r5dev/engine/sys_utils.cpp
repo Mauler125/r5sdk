@@ -36,7 +36,7 @@ void HSys_Error(char* fmt, ...)
 	va_end(args);
 
 	Error(eDLL_T::ENGINE, "%s\n", buf);
-	return Sys_Error(buf);
+	return v_Sys_Error(buf);
 }
 
 //-----------------------------------------------------------------------------
@@ -59,7 +59,34 @@ void* HSys_Warning(int level, char* fmt, ...)
 	}/////////////////////////////
 
 	Warning(eDLL_T::NONE, "Warning(%d):%s\n", level, buf);
-	return Sys_Warning(level, buf);
+	return v_Sys_Warning(level, buf);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Load assets from a custom directory if file exists
+// Input  : *lpFileName - 
+//			a2 - *a3 - 
+// Output : void* Sys_LoadAssetHelper
+//-----------------------------------------------------------------------------
+void* HSys_LoadAssetHelper(const CHAR* lpFileName, std::int64_t a2, LARGE_INTEGER* a3)
+{
+	std::string mod_file;
+	std::string base_file = lpFileName;
+	static const std::string mod_dir = "paks\\Win32\\";
+	static const std::string base_dir = "paks\\Win64\\";
+
+	if (strstr(lpFileName, base_dir.c_str()))
+	{
+		base_file.erase(0, 11); // Erase 'base_dir'.
+		mod_file = mod_dir + base_file; // Prepend 'mod_dir'.
+
+		if (FileExists(mod_file))
+		{
+			// Load decompressed pak files from 'mod_dir'.
+			return v_Sys_LoadAssetHelper(mod_file.c_str(), a2, a3);
+		}
+	}
+	return v_Sys_LoadAssetHelper(lpFileName, a2, a3);
 }
 
 #ifndef DEDICATED
@@ -90,33 +117,6 @@ void HCon_NPrintf(int pos, const char* fmt, ...)
 #endif // !DEDICATED
 
 //-----------------------------------------------------------------------------
-// Purpose: Load assets from a custom directory if file exists
-// Input  : *lpFileName - 
-//			a2 - *a3 - 
-// Output : void* Sys_LoadAssetHelper
-//-----------------------------------------------------------------------------
-void* HSys_LoadAssetHelper(const CHAR* lpFileName, std::int64_t a2, LARGE_INTEGER* a3)
-{
-	std::string mod_file;
-	std::string base_file = lpFileName;
-	static const std::string mod_dir = "paks\\Win32\\";
-	static const std::string base_dir = "paks\\Win64\\";
-
-	if (strstr(lpFileName, base_dir.c_str()))
-	{
-		base_file.erase(0, 11); // Erase 'base_dir'.
-		mod_file = mod_dir + base_file; // Prepend 'mod_dir'.
-
-		if (FileExists(mod_file))
-		{
-			// Load decompressed pak files from 'mod_dir'.
-			return Sys_LoadAssetHelper(mod_file.c_str(), a2, a3);
-		}
-	}
-	return Sys_LoadAssetHelper(lpFileName, a2, a3);
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: Gets the process up time (input buffer should be at least 4096 bytes in size)
 // Input  : *szBuffer - 
 // Output : snprintf_s ret val
@@ -129,19 +129,19 @@ int Sys_GetProcessUpTime(char* szBuffer)
 void SysUtils_Attach()
 {
 	//DetourAttach((LPVOID*)&Sys_Error, &HSys_Error);
-	DetourAttach((LPVOID*)&Sys_Warning, &HSys_Warning);
-	DetourAttach((LPVOID*)&Sys_LoadAssetHelper, &HSys_LoadAssetHelper);
+	DetourAttach((LPVOID*)&v_Sys_Warning, &HSys_Warning);
+	DetourAttach((LPVOID*)&v_Sys_LoadAssetHelper, &HSys_LoadAssetHelper);
 #ifndef DEDICATED
-	DetourAttach((LPVOID*)&Con_NPrintf, &HCon_NPrintf);
+	DetourAttach((LPVOID*)&v_Con_NPrintf, &HCon_NPrintf);
 #endif // !DEDICATED
 }
 
 void SysUtils_Detach()
 {
 	//DetourDetach((LPVOID*)&Sys_Error, &HSys_Error);
-	DetourDetach((LPVOID*)&Sys_Warning, &HSys_Warning);
-	DetourDetach((LPVOID*)&Sys_LoadAssetHelper, &HSys_LoadAssetHelper);
+	DetourDetach((LPVOID*)&v_Sys_Warning, &HSys_Warning);
+	DetourDetach((LPVOID*)&v_Sys_LoadAssetHelper, &HSys_LoadAssetHelper);
 #ifndef DEDICATED
-	DetourDetach((LPVOID*)&Con_NPrintf, &HCon_NPrintf);
+	DetourDetach((LPVOID*)&v_Con_NPrintf, &HCon_NPrintf);
 #endif // !DEDICATED
 }
