@@ -546,21 +546,21 @@ void CUIBaseSurface::Init()
 	this->m_ManagerUseModsToggle->SetTextAlign(Drawing::ContentAlignment::MiddleLeft);
 	this->m_ManagerControlsGroup->AddControl(this->m_ManagerUseModsToggle);
 
-	this->m_Thingi = new UIX::UIXListView();
-	this->m_Thingi->SetSize({ 350, 194 });
-	this->m_Thingi->SetLocation({ 1, -24 }); // Hide columns
-	this->m_Thingi->SetTabIndex(0);
-	this->m_Thingi->SetBackColor(logListColor);
-	this->m_Thingi->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
-	this->m_Thingi->SetView(Forms::View::Details);
-	this->m_Thingi->SetVirtualMode(true);
-	this->m_Thingi->SetFullRowSelect(true);
-	this->m_Thingi->Columns.Add({ "index", 50 });
-	this->m_Thingi->Columns.Add({ "buffer", 300 });
-	this->m_Thingi->MouseClick += &ModManagerClick;
-	this->m_Thingi->LostFocus += &UnfocusedManager;
-	this->m_Thingi->RetrieveVirtualItem += &GetVirtItemMod;
-	this->m_ManagerGroupExt->AddControl(this->m_Thingi);
+	this->m_ModsListView = new UIX::UIXListView();
+	this->m_ModsListView->SetSize({ 350, 194 });
+	this->m_ModsListView->SetLocation({ 1, -24 }); // Hide columns
+	this->m_ModsListView->SetTabIndex(0);
+	this->m_ModsListView->SetBackColor(logListColor);
+	this->m_ModsListView->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->m_ModsListView->SetView(Forms::View::Details);
+	this->m_ModsListView->SetVirtualMode(true);
+	this->m_ModsListView->SetFullRowSelect(true);
+	this->m_ModsListView->Columns.Add({ "index", 50 });
+	this->m_ModsListView->Columns.Add({ "buffer", 300 });
+	this->m_ModsListView->MouseClick += &ModManagerClick;
+	this->m_ModsListView->LostFocus += &UnfocusedManager;
+	this->m_ModsListView->RetrieveVirtualItem += &GetVirtItemMod;
+	this->m_ManagerGroupExt->AddControl(this->m_ModsListView);
 
 	this->m_ManagerViewerBox = new UIX::UIXGroupBox();
 	this->m_ManagerViewerBox->SetSize({ 429, 194 });
@@ -695,7 +695,7 @@ void CUIBaseSurface::LoadMods() {
 	//memcpy(pImage, _acredIcon, sizeof(_acredIcon));
 	//
 	//IStream* pStream = NULL;
-	//::CreateStreamOnHGlobal(hMem, FALSE, &pStream);
+	//::Cream_modStatusLevelreamOnHGlobal(hMem, FALSE, &pStream);
 	//Gdiplus::Image *bmEn = Gdiplus::Image::FromStream(pStream, true);
 	//
 	//HGLOBAL hMemm = ::GlobalAlloc(GMEM_MOVEABLE, sizeof(_acgrayIcon));
@@ -703,7 +703,7 @@ void CUIBaseSurface::LoadMods() {
 	//memcpy(pImagem, _acgrayIcon, sizeof(_acgrayIcon));
 	//
 	//IStream* pStreamm = NULL;
-	//::CreateStreamOnHGlobal(hMemm, FALSE, &pStreamm);
+	//::Cream_modStatusLevelreamOnHGlobal(hMemm, FALSE, &pStreamm);
 	//Gdiplus::Image * bmDi = Gdiplus::Image::FromStream(pStream, TRUE);
 	//
 	//HFONT nameFontCreate = CreateFontA(0, 0, 0, 0, FW_BLACK, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, "Arial");
@@ -864,19 +864,19 @@ void CUIBaseSurface::ReadModJson() {
 	//this->LoadMods();
 	this->AdjustValues();
 	
-	/*m_ThingiS.push_back(modManager_t(test::invalidM, manager.modsList()[0]));
-	m_Thingi->SetVirtualListSize(static_cast<int32_t>(m_ThingiS.size()));
-	m_Thingi->Refresh();*/
+	/*m_ModList.push_back(modManager_t(m_modStatusLevel::invalidM, manager.modsList()[0]));
+	m_ModsListView->SetVirtualListSize(static_cast<int32_t>(m_ModList.size()));
+	m_ModsListView->Refresh();*/
 
 	for (auto& mod : manager.modsList()) {
 		if (mod.invalid)
-			m_ThingiS.push_back(modManager_t(test::invalidM, mod));
+			m_ModList.push_back(modManager_t(m_modStatusLevel::invalidM, mod));
 		else if (mod.toggled)
-			m_ThingiS.push_back(modManager_t(test::enabledM, mod));
+			m_ModList.push_back(modManager_t(m_modStatusLevel::enabledM, mod));
 		else
-			m_ThingiS.push_back(modManager_t(test::disabledM, mod));
-		m_Thingi->SetVirtualListSize(static_cast<int32_t>(m_ThingiS.size()));
-		m_Thingi->Refresh();
+			m_ModList.push_back(modManager_t(m_modStatusLevel::disabledM, mod));
+		m_ModsListView->SetVirtualListSize(static_cast<int32_t>(m_ModList.size()));
+		m_ModsListView->Refresh();
 	}
 
 	//logText(manager.scriptRson);
@@ -1025,14 +1025,14 @@ void CUIBaseSurface::ModManagerClick(const std::unique_ptr<MouseEventArgs>& pEve
 
 	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
 	
-	List<uint32_t> lSelected = pSurface->m_Thingi->SelectedIndices();
+	List<uint32_t> lSelected = pSurface->m_ModsListView->SelectedIndices();
 
 	if (!lSelected.Count())
 		return;
 
 	modObject object;
 	for (uint32_t i = 0; i < lSelected.Count(); i++)
-		object = pSurface->m_ThingiS[lSelected[i]].m_object;
+		object = pSurface->m_ModList[lSelected[i]].m_object;
 	
 	pSurface->m_ManagerViewerCoverText->Hide();
 	pSurface->m_ManagerViewerNameLabel->SetText(object.name.c_str());
@@ -1072,15 +1072,15 @@ void CUIBaseSurface::UnfocusedManager(Forms::Control* pSender) {
 void CUIBaseSurface::ModManagerEnabledToggle(Forms::Control* pSender) {
 	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
 
-	List<uint32_t> lSelected = pSurface->m_Thingi->SelectedIndices();
+	List<uint32_t> lSelected = pSurface->m_ModsListView->SelectedIndices();
 
 	if (!lSelected.Count())
 		return;
 
 	modObject object;
 	for (uint32_t i = 0; i < lSelected.Count(); i++) {
-		object = pSurface->m_ThingiS[lSelected[i]].m_object;
-		pSurface->m_ThingiS[lSelected[i]];
+		object = pSurface->m_ModList[lSelected[i]].m_object;
+		pSurface->m_ModList[lSelected[i]];
 	}
 
 	if (pSurface->m_ManagerEnabledToggle->Checked())
@@ -1091,17 +1091,17 @@ void CUIBaseSurface::ModManagerEnabledToggle(Forms::Control* pSender) {
 	for (uint32_t i = 0; i < lSelected.Count(); i++) {
 		if (object.toggled) {
 			pSurface->m_ManagerEnabledLabel->SetText("Enabled");
-			pSurface->m_ThingiS[lSelected[i]].m_object = object;
-			pSurface->m_ThingiS[lSelected[i]].m_nLevel = test::enabledM;
+			pSurface->m_ModList[lSelected[i]].m_object = object;
+			pSurface->m_ModList[lSelected[i]].m_nLevel = m_modStatusLevel::enabledM;
 		}
 		else {
 			pSurface->m_ManagerEnabledLabel->SetText("Disabled");
-			pSurface->m_ThingiS[lSelected[i]].m_object = object;
-			pSurface->m_ThingiS[lSelected[i]].m_nLevel = test::disabledM;
+			pSurface->m_ModList[lSelected[i]].m_object = object;
+			pSurface->m_ModList[lSelected[i]].m_nLevel = m_modStatusLevel::disabledM;
 		}
 	}
 	
-	pSurface->m_Thingi->Refresh();
+	pSurface->m_ModsListView->Refresh();
 
 	std::vector<modObject> vObjects = manager.mods;
 	for (int i = 0; i < vObjects.size(); i++) {
@@ -1110,7 +1110,7 @@ void CUIBaseSurface::ModManagerEnabledToggle(Forms::Control* pSender) {
 	}
 	manager.mods = vObjects;
 	for (uint32_t i = 0; i < lSelected.Count(); i++)
-		pSurface->m_ThingiS[lSelected[i]].m_object = object;
+		pSurface->m_ModList[lSelected[i]].m_object = object;
 
 	object.updateJson();
 }
@@ -1123,12 +1123,12 @@ void CUIBaseSurface::ModManagerEnabledToggle(Forms::Control* pSender) {
 void CUIBaseSurface::GetVirtItemMod(const std::unique_ptr<Forms::RetrieveVirtualItemEventArgs>& pEventArgs, Forms::Control* pSender)
 {
 	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
-	if (static_cast<int>(pSurface->m_ThingiS.size()) <= 0)
+	if (static_cast<int>(pSurface->m_ModList.size()) <= 0)
 		return;
 
 	pEventArgs->Style.ForeColor = Drawing::Color::White;
 	pEventArgs->Style.BackColor = pSender->BackColor();
-	pSurface->m_Thingi->SetVirtualListSize(static_cast<int32_t>(pSurface->m_ThingiS.size()));
+	pSurface->m_ModsListView->SetVirtualListSize(static_cast<int32_t>(pSurface->m_ModList.size()));
 
 	static const Drawing::Color cColor[] =
 	{
@@ -1146,15 +1146,15 @@ void CUIBaseSurface::GetVirtItemMod(const std::unique_ptr<Forms::RetrieveVirtual
 	switch (pEventArgs->SubItemIndex)
 	{
 	case 0:
-		pEventArgs->Style.ForeColor = cColor[pSurface->m_ThingiS[pEventArgs->ItemIndex].m_nLevel];
-		pEventArgs->Text = svLevel[pSurface->m_ThingiS[pEventArgs->ItemIndex].m_nLevel];
+		pEventArgs->Style.ForeColor = cColor[pSurface->m_ModList[pEventArgs->ItemIndex].m_nLevel];
+		pEventArgs->Text = svLevel[pSurface->m_ModList[pEventArgs->ItemIndex].m_nLevel];
 		break;
 	case 1:
 		std::string text = "";
-		text = pSurface->m_ThingiS[pEventArgs->ItemIndex].m_object.name + " By ";
-		for (int i = 0; i < pSurface->m_ThingiS[pEventArgs->ItemIndex].m_object.authors.size(); i++) {
-			text += pSurface->m_ThingiS[pEventArgs->ItemIndex].m_object.authors[i];
-			if (i < pSurface->m_ThingiS[pEventArgs->ItemIndex].m_object.authors.size() - 1)
+		text = pSurface->m_ModList[pEventArgs->ItemIndex].m_object.name + " By ";
+		for (int i = 0; i < pSurface->m_ModList[pEventArgs->ItemIndex].m_object.authors.size(); i++) {
+			text += pSurface->m_ModList[pEventArgs->ItemIndex].m_object.authors[i];
+			if (i < pSurface->m_ModList[pEventArgs->ItemIndex].m_object.authors.size() - 1)
 				text += ", ";
 		}
 		pEventArgs->Text = text;

@@ -14,7 +14,7 @@ struct LogList_t
 	String m_svText;
 };
 
-enum test {
+enum m_modStatusLevel {
 	enabledM = 0,
 	disabledM = 1,
 	invalidM = 2,
@@ -23,13 +23,13 @@ enum test {
 struct modManager_t {	
 	modManager_t() {}
 
-	modManager_t(test nLevel, modObject object)
+	modManager_t(m_modStatusLevel nLevel, modObject object)
 	{
 		m_nLevel = nLevel;
 		m_object = object;
 	}
 
-	test m_nLevel;
+	m_modStatusLevel m_nLevel;
 	modObject m_object;
 };
 
@@ -41,8 +41,8 @@ public:
 
 	std::vector<LogList_t> m_LogList;
 	UIX::UIXListView* m_ConsoleListView;
-	std::vector<modManager_t> m_ThingiS;
-	UIX::UIXListView* m_Thingi;
+	std::vector<modManager_t> m_ModList;
+	UIX::UIXListView* m_ModsListView;
 
 	//Drawing::Color traceColor = Drawing::Color(255, 255, 255);
 	//Drawing::Color debugColor = Drawing::Color(0, 120, 215);
