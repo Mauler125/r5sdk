@@ -384,13 +384,12 @@ CTextLogger::Coordinates CTextLogger::FindWordEnd(const Coordinates & aFrom) con
 		if (prevspace != !!isspace(c))
 		{
 			if (isspace(c))
-				while (cindex < (int)line.size() && isspace(line[cindex].m_Char))
+				while (cindex < (int)line.size() && !isspace(line[cindex].m_Char))
 					++cindex;
 			break;
 		}
 		cindex += d;
 	}
-	cindex--;
 
 	return Coordinates(aFrom.m_nLine, GetCharacterColumn(aFrom.m_nLine, cindex));
 }
