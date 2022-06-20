@@ -781,7 +781,7 @@ void CTextLogger::Render()
 			{
 				ImVec2 vstart(lineStartScreenPos.x + m_flTextStart + sstart, lineStartScreenPos.y);
 				ImVec2 vend(lineStartScreenPos.x + m_flTextStart + ssend, lineStartScreenPos.y + m_CharAdvance.y);
-				drawList->AddRectFilled(vstart, vend, 0x80a06020); // COLOR
+				drawList->AddRectFilled(vstart, vend, ImGui::GetColorU32(ImGuiCol_TextSelectedBg));
 			}
 
 			if (m_State.m_CursorPosition.m_nLine == lineNo)
@@ -790,12 +790,12 @@ void CTextLogger::Render()
 				ImVec2 start = ImVec2(lineStartScreenPos.x + scrollX, lineStartScreenPos.y);
 
 				// Highlight the current line (where the cursor is)
-				if (!HasSelection())
-				{
-					auto end = ImVec2(start.x + contentSize.x + scrollX, start.y + m_CharAdvance.y);
-					drawList->AddRectFilled(start, end, 0x40000000);
-					drawList->AddRect(start, end, 0x40000000, 1.0f);
-				}
+				//if (!HasSelection())
+				//{
+				//	auto end = ImVec2(start.x + contentSize.x + scrollX, start.y + m_CharAdvance.y);
+				//	drawList->AddRectFilled(start, end, 0x80a06020);
+				//	drawList->AddRect(start, end, 0x80a06020, 1.0f);
+				//}
 
 				// Render the cursor
 				if (focused)
