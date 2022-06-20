@@ -2,6 +2,7 @@
 #ifndef DEDICATED
 #include "common/sdkdefs.h"
 #include "windows/resource.h"
+#include "thirdparty/imgui/include/imgui_logger.h"
 
 struct CSuggest
 {
@@ -20,17 +21,6 @@ struct CSuggest
     }
     string m_svName;
     int m_nFlags;
-};
-
-struct CConLog
-{
-    CConLog(const string& svConLog, const ImVec4& imColor)
-    {
-        m_svConLog = svConLog;
-        m_imColor = imColor;
-    }
-    string m_svConLog;
-    ImVec4 m_imColor;
 };
 
 class CConsole
@@ -63,6 +53,7 @@ private:
 
     ImVec2                         m_ivSuggestWindowPos;
     ImVec2                         m_ivSuggestWindowSize;
+    CTextLogger                    m_Logger;
 
     ImGuiInputTextFlags m_nInputFlags = 
         ImGuiInputTextFlags_AutoCaretEnd       |
@@ -82,7 +73,6 @@ private:
 
 public:
     bool             m_bActivate = false;
-    vector<CConLog>  m_ivConLog;
     vector<CSuggest> m_vsvCommandBases;
 
     ///////////////////////////////////////////////////////////////////////////
@@ -109,9 +99,9 @@ public:
     static int TextEditCallbackStub(ImGuiInputTextCallbackData* pData);
 
     ///////////////////////////////////////////////////////////////////////////
-    void AddLog(ImVec4 color, const char* fmt, ...) IM_FMTARGS(2);
+    void AddLog(const CConLog& conLog);
+    void AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2);
     void ClearLog(void);
-    void ColorLog(void) const;
 
     ///////////////////////////////////////////////////////////////////////////
     void SetStyleVar(void);

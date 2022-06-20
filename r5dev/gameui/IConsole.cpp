@@ -28,7 +28,6 @@ History:
 //-----------------------------------------------------------------------------
 CConsole::CConsole(void)
 {
-    ClearLog();
     memset(m_szInputBuf, '\0', sizeof(m_szInputBuf));
 
     m_nHistoryPos     = -1;
@@ -161,16 +160,16 @@ void CConsole::Think(void)
 {
     for (;;) // Loop running at 100-tps.
     {
-        if (m_ivConLog.size() > con_max_size_logvector->GetSizeT())
+        if (m_Logger.GetTotalLines() > con_max_size_logvector->GetInt())
         {
-            while (m_ivConLog.size() > con_max_size_logvector->GetSizeT() / 4 * 3)
+            while (m_Logger.GetTotalLines() > con_max_size_logvector->GetInt() / 4 * 3)
             {
-                m_ivConLog.erase(m_ivConLog.begin());
+                m_Logger.RemoveLine(0);
                 m_nScrollBack++;
             }
         }
 
-        while (static_cast<int>(m_vsvHistory.size()) > 512)
+        while (m_vsvHistory.size() > 512)
         {
             m_vsvHistory.erase(m_vsvHistory.begin());
         }
@@ -227,10 +226,9 @@ void CConsole::BasePanel(void)
     ImGui::Separator();
 
     ///////////////////////////////////////////////////////////////////////
-    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -flFooterHeightReserve), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -flFooterHeightReserve), true, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysVerticalScrollbar);
+    m_Logger.Render();
 
-    if (m_bCopyToClipBoard) { ImGui::LogToClipboard(); }
-    ColorLog();
     if (m_bCopyToClipBoard)
     {
         ImGui::LogToClipboard();
@@ -779,10 +777,19 @@ int CConsole::TextEditCallbackStub(ImGuiInputTextCallbackData* iData)
 
 //-----------------------------------------------------------------------------
 // Purpose: adds logs to the vector
+// Input  : &conLog - 
+//-----------------------------------------------------------------------------
+void CConsole::AddLog(const CConLog& conLog)
+{
+    m_Logger.InsertText(conLog);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: adds logs to the vector
 // Input  : *fmt - 
 //          ... - 
 //-----------------------------------------------------------------------------
-void CConsole::AddLog(ImVec4 color, const char* fmt, ...) IM_FMTARGS(2)
+void CConsole::AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2)
 {
     char buf[1024];
     va_list args{};
@@ -790,35 +797,16 @@ void CConsole::AddLog(ImVec4 color, const char* fmt, ...) IM_FMTARGS(2)
     vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
     buf[IM_ARRAYSIZE(buf) - 1] = 0;
     va_end(args);
-    m_ivConLog.push_back(CConLog(Strdup(buf), color));
+
+    m_Logger.InsertText(CConLog(Strdup(buf), color));
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: clears the entire vector
+// Purpose: clears the entire log vector
 //-----------------------------------------------------------------------------
 void CConsole::ClearLog(void)
 {
-    //for (int i = 0; i < m_ivConLog.size(); i++) { free(m_ivConLog[i]); }
-    m_ivConLog.clear();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: colors important logs
-//-----------------------------------------------------------------------------
-void CConsole::ColorLog(void) const
-{
-    for (size_t i = 0; i < m_ivConLog.size(); i++)
-    {
-        if (!m_itFilter.PassFilter(m_ivConLog[i].m_svConLog.c_str()))
-        {
-            continue;
-        }
-
-        ImGui::PushStyleColor(ImGuiCol_Text, m_ivConLog[i].m_imColor);
-        ImGui::TextWrapped(m_ivConLog[i].m_svConLog.c_str());
-        ImGui::PopStyleColor();
-        ///////////////////////////////////////////////////////////////////////
-    }
+    m_Logger.RemoveLine(0, m_Logger.GetTotalLines());
 }
 
 //-----------------------------------------------------------------------------
