@@ -39,6 +39,9 @@
     <ClInclude Include="..\thirdparty\imgui\include\imgui_editor.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="..\thirdparty\imgui\include\imgui_logger.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\thirdparty\imgui\src\imgui.cpp" />
@@ -50,5 +53,6 @@
     <ClCompile Include="..\thirdparty\imgui\src\imgui_tables.cpp" />
     <ClCompile Include="..\thirdparty\imgui\src\imgui_widgets.cpp" />
     <ClCompile Include="..\thirdparty\imgui\src\imgui_editor.cpp" />
+    <ClCompile Include="..\thirdparty\imgui\src\imgui_logger.cpp" />
   </ItemGroup>
 </Project>
