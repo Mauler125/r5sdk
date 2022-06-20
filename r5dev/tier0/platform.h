@@ -169,6 +169,8 @@ inline uint64_t Plat_Rdtsc()
 #error
 #endif
 }
+double Plat_FloatTime();
+uint64_t Plat_MSTime();
 
 //-----------------------------------------------------------------------------
 // Silences a number of warnings on 360 compiles

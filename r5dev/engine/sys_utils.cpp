@@ -116,6 +116,16 @@ void* HSys_LoadAssetHelper(const CHAR* lpFileName, std::int64_t a2, LARGE_INTEGE
 	return Sys_LoadAssetHelper(lpFileName, a2, a3);
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Gets the process up time (input buffer should be at least 4096 bytes in size)
+// Input  : *szBuffer - 
+// Output : snprintf_s ret val
+//-----------------------------------------------------------------------------
+int Sys_GetProcessUpTime(char* szBuffer)
+{
+	return v_Sys_GetProcessUpTime(szBuffer);
+}
+
 void SysUtils_Attach()
 {
 	//DetourAttach((LPVOID*)&Sys_Error, &HSys_Error);
