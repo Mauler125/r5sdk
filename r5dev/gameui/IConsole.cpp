@@ -239,7 +239,7 @@ void CConsole::BasePanel(void)
 
     if (m_nScrollBack > 0)
     {
-        ImGui::SetScrollY(ImGui::GetScrollY() - m_nScrollBack * ImGui::GetTextLineHeightWithSpacing() - m_nScrollBack - 90);
+        ImGui::SetScrollY(ImGui::GetScrollY() - m_nScrollBack * ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, "#", nullptr, nullptr).y);
         m_nScrollBack = 0;
     }
 
