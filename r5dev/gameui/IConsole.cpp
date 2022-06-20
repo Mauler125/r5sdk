@@ -218,7 +218,7 @@ void CConsole::BasePanel(void)
     }
 
     ImGui::SameLine();
-    m_itFilter.Draw("Filter | ", flFooterWidthReserve - 500);
+    m_Logger.m_itFilter.Draw("Filter | ", flFooterWidthReserve - 500);
 
     ImGui::SameLine();
     ImGui::Text(m_szSummary);
@@ -806,7 +806,7 @@ void CConsole::AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2)
 //-----------------------------------------------------------------------------
 void CConsole::ClearLog(void)
 {
-    m_Logger.RemoveLine(0, m_Logger.GetTotalLines());
+    m_Logger.RemoveLine(0, m_Logger.GetTotalLines() - 1);
 }
 
 //-----------------------------------------------------------------------------

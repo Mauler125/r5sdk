@@ -739,165 +739,167 @@ void CTextLogger::Render()
 	auto lineMax = std::max(0, std::min((int)m_Lines.size() - 1, lineNo + (int)floor((scrollY + contentSize.y) / m_CharAdvance.y)));
 
 	//m_flTextStart = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, buf, nullptr, nullptr).x + m_nLeftMargin;
-
 	if (!m_Lines.empty())
 	{
 		float spaceSize = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, " ", nullptr, nullptr).x;
-
 		while (lineNo <= lineMax)
 		{
-			ImVec2 lineStartScreenPos = ImVec2(cursorScreenPos.x, cursorScreenPos.y + lineNo * m_CharAdvance.y);
-			ImVec2 textScreenPos = ImVec2(lineStartScreenPos.x + m_flTextStart, lineStartScreenPos.y);
-
 			auto& line = m_Lines[lineNo];
-			longest = std::max(m_flTextStart + TextDistanceToLineStart(Coordinates(lineNo, GetLineMaxColumn(lineNo))), longest);
-			auto columnNo = 0;
-			Coordinates lineStartCoord(lineNo, 0);
-			Coordinates lineEndCoord(lineNo, GetLineMaxColumn(lineNo));
-
-			// Draw selection for the current line
-			float sstart = -1.0f;
-			float ssend = -1.0f;
-
-			assert(m_State.m_SelectionStart <= m_State.m_SelectionEnd);
-			if (m_State.m_SelectionStart <= lineEndCoord)
-				sstart = m_State.m_SelectionStart > lineStartCoord ? TextDistanceToLineStart(m_State.m_SelectionStart) : 0.0f;
-			if (m_State.m_SelectionEnd > lineStartCoord)
-				ssend = TextDistanceToLineStart(m_State.m_SelectionEnd < lineEndCoord ? m_State.m_SelectionEnd : lineEndCoord);
-
-			if (m_State.m_SelectionEnd.m_nLine > lineNo)
-				ssend += m_CharAdvance.x;
-
-			if (sstart != -1 && ssend != -1 && sstart < ssend)
+			if (m_itFilter.PassFilter(GetTextFromLine(line).c_str()))
 			{
-				ImVec2 vstart(lineStartScreenPos.x + m_flTextStart + sstart, lineStartScreenPos.y);
-				ImVec2 vend(lineStartScreenPos.x + m_flTextStart + ssend, lineStartScreenPos.y + m_CharAdvance.y);
-				drawList->AddRectFilled(vstart, vend, ImGui::GetColorU32(ImGuiCol_TextSelectedBg));
-			}
+				ImVec2 lineStartScreenPos = ImVec2(cursorScreenPos.x, cursorScreenPos.y + lineNo * m_CharAdvance.y);
+				ImVec2 textScreenPos = ImVec2(lineStartScreenPos.x + m_flTextStart, lineStartScreenPos.y);
 
-			if (m_State.m_CursorPosition.m_nLine == lineNo)
-			{
-				bool focused = ImGui::IsWindowFocused();
-				ImVec2 start = ImVec2(lineStartScreenPos.x + scrollX, lineStartScreenPos.y);
+				longest = std::max(m_flTextStart + TextDistanceToLineStart(Coordinates(lineNo, GetLineMaxColumn(lineNo))), longest);
+				auto columnNo = 0;
+				Coordinates lineStartCoord(lineNo, 0);
+				Coordinates lineEndCoord(lineNo, GetLineMaxColumn(lineNo));
 
-				// Highlight the current line (where the cursor is)
-				//if (!HasSelection())
-				//{
-				//	auto end = ImVec2(start.x + contentSize.x + scrollX, start.y + m_CharAdvance.y);
-				//	drawList->AddRectFilled(start, end, 0x80a06020);
-				//	drawList->AddRect(start, end, 0x80a06020, 1.0f);
-				//}
+				// Draw selection for the current line
+				float sstart = -1.0f;
+				float ssend = -1.0f;
 
-				// Render the cursor
-				if (focused)
+				assert(m_State.m_SelectionStart <= m_State.m_SelectionEnd);
+				if (m_State.m_SelectionStart <= lineEndCoord)
+					sstart = m_State.m_SelectionStart > lineStartCoord ? TextDistanceToLineStart(m_State.m_SelectionStart) : 0.0f;
+				if (m_State.m_SelectionEnd > lineStartCoord)
+					ssend = TextDistanceToLineStart(m_State.m_SelectionEnd < lineEndCoord ? m_State.m_SelectionEnd : lineEndCoord);
+
+				if (m_State.m_SelectionEnd.m_nLine > lineNo)
+					ssend += m_CharAdvance.x;
+
+				if (sstart != -1 && ssend != -1 && sstart < ssend)
 				{
-					auto timeEnd = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-					auto elapsed = timeEnd - m_nStartTime;
-					if (elapsed > 400)
-					{
-						float width = 1.0f;
-						auto cindex = GetCharacterIndex(m_State.m_CursorPosition);
-						float cx = TextDistanceToLineStart(m_State.m_CursorPosition);
+					ImVec2 vstart(lineStartScreenPos.x + m_flTextStart + sstart, lineStartScreenPos.y);
+					ImVec2 vend(lineStartScreenPos.x + m_flTextStart + ssend, lineStartScreenPos.y + m_CharAdvance.y);
+					drawList->AddRectFilled(vstart, vend, ImGui::GetColorU32(ImGuiCol_TextSelectedBg));
+				}
 
-						if (m_Overwrite && cindex < (int)line.size())
+				if (m_State.m_CursorPosition.m_nLine == lineNo)
+				{
+					bool focused = ImGui::IsWindowFocused();
+					ImVec2 start = ImVec2(lineStartScreenPos.x + scrollX, lineStartScreenPos.y);
+
+					// Highlight the current line (where the cursor is)
+					//if (!HasSelection())
+					//{
+					//	auto end = ImVec2(start.x + contentSize.x + scrollX, start.y + m_CharAdvance.y);
+					//	drawList->AddRectFilled(start, end, 0x80a06020);
+					//	drawList->AddRect(start, end, 0x80a06020, 1.0f);
+					//}
+
+					// Render the cursor
+					if (focused)
+					{
+						auto timeEnd = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+						auto elapsed = timeEnd - m_nStartTime;
+						if (elapsed > 400)
 						{
-							auto c = line[cindex].m_Char;
-							if (c == '\t')
+							float width = 1.0f;
+							auto cindex = GetCharacterIndex(m_State.m_CursorPosition);
+							float cx = TextDistanceToLineStart(m_State.m_CursorPosition);
+
+							if (m_Overwrite && cindex < (int)line.size())
 							{
-								auto x = (1.0f + std::floor((1.0f + cx) / (float(m_nTabSize) * spaceSize))) * (float(m_nTabSize) * spaceSize);
-								width = x - cx;
+								auto c = line[cindex].m_Char;
+								if (c == '\t')
+								{
+									auto x = (1.0f + std::floor((1.0f + cx) / (float(m_nTabSize) * spaceSize))) * (float(m_nTabSize) * spaceSize);
+									width = x - cx;
+								}
+								else
+								{
+									char buf2[2];
+									buf2[0] = line[cindex].m_Char;
+									buf2[1] = '\0';
+									width = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, buf2).x;
+								}
 							}
-							else
-							{
-								char buf2[2];
-								buf2[0] = line[cindex].m_Char;
-								buf2[1] = '\0';
-								width = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, buf2).x;
-							}
+							ImVec2 cstart(textScreenPos.x + cx, lineStartScreenPos.y);
+							ImVec2 cend(textScreenPos.x + cx + width, lineStartScreenPos.y + m_CharAdvance.y);
+							drawList->AddRectFilled(cstart, cend, 0xffe0e0e0);
+							if (elapsed > 800)
+								m_nStartTime = timeEnd;
 						}
-						ImVec2 cstart(textScreenPos.x + cx, lineStartScreenPos.y);
-						ImVec2 cend(textScreenPos.x + cx + width, lineStartScreenPos.y + m_CharAdvance.y);
-						drawList->AddRectFilled(cstart, cend, 0xffe0e0e0);
-						if (elapsed > 800)
-							m_nStartTime = timeEnd;
 					}
 				}
-			}
 
-			// Render colorized text
-			//auto prevColor = GetGlyphColor(line[0]);
-			ImVec2 bufferOffset;
+				// Render colorized text
+				//auto prevColor = GetGlyphColor(line[0]);
+				ImVec2 bufferOffset;
 
-			for (size_t i = 0; i < line.size();)
-			{
-				auto& glyph = line[i];
-				auto color = GetGlyphColor(glyph);
+				for (size_t i = 0; i < line.size();)
+				{
+					auto& glyph = line[i];
+					auto color = GetGlyphColor(glyph);
 
-				if ((glyph.m_Char == '\t' || glyph.m_Char == '\n' || glyph.m_Char == ' ') && !m_svLineBuffer.empty())
+					if ((glyph.m_Char == '\t' || glyph.m_Char == '\n' || glyph.m_Char == ' ') && !m_svLineBuffer.empty())
+					{
+						const ImVec2 newOffset(textScreenPos.x + bufferOffset.x, textScreenPos.y + bufferOffset.y);
+						drawList->AddText(newOffset, color, m_svLineBuffer.c_str());
+						auto textSize = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, m_svLineBuffer.c_str(), nullptr, nullptr);
+						bufferOffset.x += textSize.x;
+						m_svLineBuffer.clear();
+					}
+
+					if (glyph.m_Char == '\t' || glyph.m_Char == '\n')
+					{
+						auto oldX = bufferOffset.x;
+						bufferOffset.x = (1.0f + std::floor((1.0f + bufferOffset.x) / (float(m_nTabSize) * spaceSize))) * (float(m_nTabSize) * spaceSize);
+						++i;
+
+						if (m_bShowWhiteSpaces)
+						{
+							const auto s = ImGui::GetFontSize();
+							const auto x1 = textScreenPos.x + oldX + 1.0f;
+							const auto x2 = textScreenPos.x + bufferOffset.x - 1.0f;
+							const auto y = textScreenPos.y + bufferOffset.y + s * 0.5f;
+							const ImVec2 p1(x1, y);
+							const ImVec2 p2(x2, y);
+							const ImVec2 p3(x2 - s * 0.2f, y - s * 0.2f);
+							const ImVec2 p4(x2 - s * 0.2f, y + s * 0.2f);
+							drawList->AddLine(p1, p2, 0x90909090);
+							drawList->AddLine(p2, p3, 0x90909090);
+							drawList->AddLine(p2, p4, 0x90909090);
+						}
+					}
+					else if (glyph.m_Char == ' ')
+					{
+						if (m_bShowWhiteSpaces)
+						{
+							const auto s = ImGui::GetFontSize();
+							const auto x = textScreenPos.x + bufferOffset.x + spaceSize * 0.5f;
+							const auto y = textScreenPos.y + bufferOffset.y + s * 0.5f;
+							drawList->AddCircleFilled(ImVec2(x, y), 1.5f, 0x80808080, 4);
+						}
+						bufferOffset.x += spaceSize;
+						i++;
+					}
+					else
+					{
+						m_svLineBuffer.push_back(line[i++].m_Char);
+						//auto l = UTF8CharLength(glyph.m_Char); // !TODO: (this currently causes crashes)
+						//while (l-- > 0)
+						//{
+						//	m_svLineBuffer.push_back(line[i++].m_Char);
+						//}
+					}
+					++columnNo;
+				}
+
+				if (!m_svLineBuffer.empty())
 				{
 					const ImVec2 newOffset(textScreenPos.x + bufferOffset.x, textScreenPos.y + bufferOffset.y);
-					drawList->AddText(newOffset, color, m_svLineBuffer.c_str());
-					auto textSize = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, m_svLineBuffer.c_str(), nullptr, nullptr);
-					bufferOffset.x += textSize.x;
+					drawList->AddText(newOffset, 0xffffffff, m_svLineBuffer.c_str()); // COLOR (obtain from glyph?)
 					m_svLineBuffer.clear();
 				}
-
-				if (glyph.m_Char == '\t' || glyph.m_Char == '\n')
-				{
-					auto oldX = bufferOffset.x;
-					bufferOffset.x = (1.0f + std::floor((1.0f + bufferOffset.x) / (float(m_nTabSize) * spaceSize))) * (float(m_nTabSize) * spaceSize);
-					++i;
-
-					if (m_bShowWhiteSpaces)
-					{
-						const auto s = ImGui::GetFontSize();
-						const auto x1 = textScreenPos.x + oldX + 1.0f;
-						const auto x2 = textScreenPos.x + bufferOffset.x - 1.0f;
-						const auto y = textScreenPos.y + bufferOffset.y + s * 0.5f;
-						const ImVec2 p1(x1, y);
-						const ImVec2 p2(x2, y);
-						const ImVec2 p3(x2 - s * 0.2f, y - s * 0.2f);
-						const ImVec2 p4(x2 - s * 0.2f, y + s * 0.2f);
-						drawList->AddLine(p1, p2, 0x90909090);
-						drawList->AddLine(p2, p3, 0x90909090);
-						drawList->AddLine(p2, p4, 0x90909090);
-					}
-				}
-				else if (glyph.m_Char == ' ')
-				{
-					if (m_bShowWhiteSpaces)
-					{
-						const auto s = ImGui::GetFontSize();
-						const auto x = textScreenPos.x + bufferOffset.x + spaceSize * 0.5f;
-						const auto y = textScreenPos.y + bufferOffset.y + s * 0.5f;
-						drawList->AddCircleFilled(ImVec2(x, y), 1.5f, 0x80808080, 4);
-					}
-					bufferOffset.x += spaceSize;
-					i++;
-				}
-				else
-				{
-					m_svLineBuffer.push_back(line[i++].m_Char);
-					//auto l = UTF8CharLength(glyph.m_Char); // !TODO: (this currently causes crashes)
-					//while (l-- > 0)
-					//{
-					//	m_svLineBuffer.push_back(line[i++].m_Char);
-					//}
-				}
-				++columnNo;
 			}
-
-			if (!m_svLineBuffer.empty())
-			{
-				const ImVec2 newOffset(textScreenPos.x + bufferOffset.x, textScreenPos.y + bufferOffset.y);
-				drawList->AddText(newOffset, 0xffffffff, m_svLineBuffer.c_str()); // COLOR (obtain from glyph?)
-				m_svLineBuffer.clear();
-			}
-
-			++lineNo;
+			if (m_itFilter.IsActive() && m_itFilter.PassFilter(GetTextFromLine(line).c_str()))
+				++lineNo;
+			else /*if (!m_itFilter.IsActive())*/
+				++lineNo;
 		}
 	}
-
 
 	ImGui::Dummy(ImVec2((longest + 2), m_Lines.size() * m_CharAdvance.y));
 
@@ -1370,6 +1372,37 @@ std::string CTextLogger::GetCurrentLineText()const
 	return GetText(
 		Coordinates(m_State.m_CursorPosition.m_nLine, 0),
 		Coordinates(m_State.m_CursorPosition.m_nLine, lineLength));
+}
+
+std::string CTextLogger::GetTextFromLine(const Line& aLine) const
+{
+	std::string result;
+	for (size_t i = 0; i < aLine.size(); i++)
+	{
+		result += (aLine[i].m_Char);
+	}
+	return result;
+}
+
+int CTextLogger::GetTotalFilterMatches() const
+{
+	if (!m_itFilter.IsActive())
+		return static_cast<int>(m_Lines.size());
+
+	int result = 0;
+	for (size_t i = 0; i < m_Lines.size(); i++)
+	{
+		std::string svLineBuffer;
+		for (size_t j = 0; j < m_Lines[i].size(); j++)
+		{
+			svLineBuffer += m_Lines[i][j].m_Char;
+		}
+		if (m_itFilter.PassFilter(svLineBuffer.c_str()))
+		{
+			result++;
+		}
+	}
+	return result;
 }
 
 float CTextLogger::TextDistanceToLineStart(const Coordinates& aFrom) const

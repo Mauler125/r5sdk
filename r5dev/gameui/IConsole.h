@@ -36,7 +36,6 @@ private:
     int                            m_nHistoryPos      = -1;
     int                            m_nScrollBack      = 0;
     float                          m_flFadeAlpha      = 0.f;
-    ImGuiTextFilter                m_itFilter;
     bool                           m_bInitialized     = false;
     bool                           m_bDefaultTheme    = false;
     bool                           m_bReclaimFocus    = false;

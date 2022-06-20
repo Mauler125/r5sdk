@@ -120,12 +120,15 @@ public:
 	void SetTextLines(const std::vector<CConLog>& aLines);
 	std::vector<std::string> GetTextLines() const;
 
+	ImGuiTextFilter GetFilter() const { return m_itFilter; };
 	std::string GetSelectedText() const;
-	std::string GetCurrentLineText()const;
+	std::string GetCurrentLineText() const;
+	std::string GetTextFromLine(const Line& aLine) const;
 
+	int GetTotalFilterMatches() const;
 	int GetTotalLines() const { return (int)m_Lines.size(); }
-	bool IsOverwrite() const { return m_Overwrite; }
 
+	bool IsOverwrite() const { return m_Overwrite; }
 	bool IsCursorPositionChanged() const { return m_bCursorPositionChanged; }
 
 	Coordinates GetCursorPosition() const { return GetActualCursorCoordinates(); }
@@ -167,7 +170,6 @@ public:
 	void Copy();
 
 private:
-
 	struct EditorState
 	{
 		Coordinates m_SelectionStart;
@@ -226,6 +228,8 @@ private:
 	Coordinates m_InteractiveEnd;
 	std::string m_svLineBuffer;
 	uint64_t m_nStartTime;
-
 	float m_flLastClick;
+
+public:
+	ImGuiTextFilter m_itFilter;
 };
