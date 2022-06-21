@@ -373,7 +373,7 @@ void CConsole::SuggestPanel(void)
             ImGui::Separator();
 
             // Remove the default value from ConVar before assigning it to the input buffer.
-            string svConVar = m_vsvSuggest[i].m_svName.substr(0, m_vsvSuggest[i].m_svName.find(' ')) + " ";
+            string svConVar = m_vsvSuggest[i].m_svName.substr(0, m_vsvSuggest[i].m_svName.find(' ')) + ' ';
             memmove(m_szInputBuf, svConVar.c_str(), svConVar.size() + 1);
 
             ResetAutoComplete();
@@ -567,25 +567,25 @@ void CConsole::ProcessCommand(const char* pszCommand)
     }
     else if (Stricmp(pszCommand, "HELP") == 0)
     {
-        AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "Commands:");
-        for (int i = 0; i < static_cast<int>(m_vsvCommands.size()); i++)
+        AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "Commands:\n");
+        for (size_t i = 0; i < m_vsvCommands.size(); i++)
         {
-            AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "- %s", m_vsvCommands[i].c_str());
+            AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "- %s\n", m_vsvCommands[i].c_str());
         }
 
-        AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "Log types:");
-        AddLog(ImVec4(0.59f, 0.58f, 0.73f, 1.00f), "Script(S): = Server DLL (Script)");
-        AddLog(ImVec4(0.59f, 0.58f, 0.63f, 1.00f), "Script(C): = Client DLL (Script)");
-        AddLog(ImVec4(0.59f, 0.48f, 0.53f, 1.00f), "Script(U): = UI DLL (Script)");
+        AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "Context:\n");
+        AddLog(ImVec4(0.59f, 0.58f, 0.73f, 1.00f), "- Script(S): = Server DLL (Script)\n");
+        AddLog(ImVec4(0.59f, 0.58f, 0.63f, 1.00f), "- Script(C): = Client DLL (Script)\n");
+        AddLog(ImVec4(0.59f, 0.48f, 0.53f, 1.00f), "- Script(U): = UI DLL (Script)\n");
 
-        AddLog(ImVec4(0.23f, 0.47f, 0.85f, 1.00f), "Native(S): = Server DLL (Code)");
-        AddLog(ImVec4(0.46f, 0.46f, 0.46f, 1.00f), "Native(C): = Client DLL (Code)");
-        AddLog(ImVec4(0.59f, 0.35f, 0.46f, 1.00f), "Native(U): = UI DLL (Code)");
+        AddLog(ImVec4(0.23f, 0.47f, 0.85f, 1.00f), "- Native(S): = Server DLL (Code)\n");
+        AddLog(ImVec4(0.46f, 0.46f, 0.46f, 1.00f), "- Native(C): = Client DLL (Code)\n");
+        AddLog(ImVec4(0.59f, 0.35f, 0.46f, 1.00f), "- Native(U): = UI DLL (Code)\n");
 
-        AddLog(ImVec4(0.70f, 0.70f, 0.70f, 1.00f), "Native(E): = Engine DLL (Code)");
-        AddLog(ImVec4(0.32f, 0.64f, 0.72f, 1.00f), "Native(F): = FileSys DLL (Code)");
-        AddLog(ImVec4(0.36f, 0.70f, 0.35f, 1.00f), "Native(R): = RTech DLL (Code)");
-        AddLog(ImVec4(0.75f, 0.41f, 0.67f, 1.00f), "Native(M): = MatSys DLL (Code)");
+        AddLog(ImVec4(0.70f, 0.70f, 0.70f, 1.00f), "- Native(E): = Engine DLL (Code)\n");
+        AddLog(ImVec4(0.32f, 0.64f, 0.72f, 1.00f), "- Native(F): = FileSystem (Code)\n");
+        AddLog(ImVec4(0.36f, 0.70f, 0.35f, 1.00f), "- Native(R): = PakLoadAPI (Code)\n");
+        AddLog(ImVec4(0.75f, 0.41f, 0.67f, 1.00f), "- Native(M): = MaterialSystem (Code)\n");
     }
     else if (Stricmp(pszCommand, "HISTORY") == 0)
     {

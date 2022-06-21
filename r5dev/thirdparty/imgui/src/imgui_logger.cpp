@@ -834,7 +834,12 @@ void CTextLogger::Render()
 				const Glyph& glyph = line[i];
 				ImU32 color = 0xff605040;
 
-				if (m_itFilter.PassFilter(GetTextFromLine(line).c_str()))
+				if (m_itFilter.IsActive())
+				{
+					if (m_itFilter.PassFilter(GetTextFromLine(line).c_str()))
+						color = GetGlyphColor(glyph);
+				}
+				else
 					color = GetGlyphColor(glyph);
 
 				if ((glyph.m_Char == '\t' || glyph.m_Char == '\n' || glyph.m_Char == ' ') && !m_svLineBuffer.empty())
@@ -1381,13 +1386,8 @@ std::string CTextLogger::GetCurrentLineText()const
 std::string CTextLogger::GetTextFromLine(const Line& aLine) const
 {
 	std::string result;
-	if (aLine.size() < 1)
-		return result;
-
-	for (size_t i = 0; i < aLine.size(); i++)
-	{
-		result += (aLine[i].m_Char);
-	}
+	for (const Glyph& glyph : aLine)
+		result += glyph.m_Char;
 	return result;
 }
 
