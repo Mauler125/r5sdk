@@ -113,6 +113,7 @@ public:
 	~CTextLogger();
 
 	void Render();
+	void Copy(bool aCopyAll = false);
 
 	void SetText(const CConLog& aText);
 	std::string GetText() const;
@@ -128,10 +129,10 @@ public:
 	int GetTotalFilterMatches() const;
 	int GetTotalLines() const { return (int)m_Lines.size(); }
 
-	bool IsCursorPositionChanged() const { return m_bCursorPositionChanged; }
-
 	Coordinates GetCursorPosition() const { return GetActualCursorCoordinates(); }
+
 	void SetCursorPosition(const Coordinates& aPosition);
+	bool IsCursorPositionChanged() const { return m_bCursorPositionChanged; }
 
 	inline void SetHandleMouseInputs    (bool aValue){ m_bHandleMouseInputs    = aValue;}
 	inline bool IsHandleMouseInputsEnabled() const { return m_bHandleKeyboardInputs; }
@@ -165,8 +166,6 @@ public:
 
 	void RemoveLine(int aStart, int aEnd, bool aInternal = false);
 	void RemoveLine(int aIndex, bool aInternal = false);
-
-	void Copy(bool aCopyAll = false);
 
 private:
 	struct EditorState
@@ -203,32 +202,33 @@ private:
 	void HandleKeyboardInputs();
 	void HandleMouseInputs();
 
-	float m_flLineSpacing;
-	Lines m_Lines;
-	EditorState m_State;
-	std::mutex m_Mutex;
-
-	int m_nTabSize;
-	bool m_bScrollToCursor;
-	float m_flTextStart;                   // position (in pixels) where a code line starts relative to the left of the TextEditor.
-	int  m_nLeftMargin;
-	bool m_bCursorPositionChanged;
-	int m_nColorRangeMin;
-	int m_nColorRangeMax;
-	SelectionMode m_SelectionMode;
-	bool m_bHandleKeyboardInputs;
-	bool m_bHandleMouseInputs;
-	bool m_bShowWhiteSpaces;
-
-	ImVec2 m_CharAdvance;
-	Coordinates m_InteractiveStart;
-	Coordinates m_InteractiveEnd;
-	std::string m_svLineBuffer;
-	uint64_t m_nStartTime;
-	float m_flLastClick;
-
 public:
 	bool m_bAutoScroll;
 	bool m_bScrollToBottom;
+private:
+	bool m_bHandleKeyboardInputs;
+	bool m_bHandleMouseInputs;
+	bool m_bShowWhiteSpaces;
+	bool m_bScrollToCursor;
+	bool m_bCursorPositionChanged;
+	float m_flTextStart;                   // position (in pixels) where a code line starts relative to the left of the TextLogger.
+	float m_flLineSpacing;
+	double m_flLastClick;
+	int m_nTabSize;
+	int m_nLeftMargin;
+	int m_nColorRangeMin;
+	int m_nColorRangeMax;
+	uint64_t m_nStartTime;
+
+	SelectionMode m_SelectionMode;
+	Coordinates m_InteractiveStart;
+	Coordinates m_InteractiveEnd;
+	ImVec2 m_CharAdvance;
+
+	Lines m_Lines;
+	EditorState m_State;
+	std::mutex m_Mutex;
+	std::string m_svLineBuffer;
+public:
 	ImGuiTextFilter m_itFilter;
 };
