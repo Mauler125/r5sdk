@@ -76,7 +76,6 @@ std::string CTextLogger::GetText(const Coordinates & aStart, const Coordinates &
 		{
 			istart = 0;
 			++lstart;
-			result += '\n';
 		}
 	}
 
@@ -1075,7 +1074,7 @@ void CTextLogger::MoveDown(int aAmount, bool aSelect)
 	assert(m_State.m_CursorPosition.m_nColumn >= 0);
 	Coordinates oldPos = m_State.m_CursorPosition;
 
-	m_State.m_CursorPosition.m_nLine = std::max(0, std::min((int)m_Lines.size() - 1, m_State.m_CursorPosition.m_nLine + aAmount));
+	m_State.m_CursorPosition.m_nLine = std::max(0, std::min(static_cast<int>(m_Lines.size() - 1), m_State.m_CursorPosition.m_nLine + aAmount));
 
 	if (m_State.m_CursorPosition != oldPos)
 	{
