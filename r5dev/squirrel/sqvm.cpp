@@ -173,7 +173,7 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 				}
 			}
 
-			g_pConsole->AddLog(CConLog(PrintPercentageEscape(g_spd_sys_w_oss.str()), color));
+			g_pConsole->AddLog(CConLog(g_spd_sys_w_oss.str(), color));
 			g_pLogSystem.AddLog(static_cast<LogType_t>(context), g_spd_sys_w_oss.str());
 
 			g_spd_sys_w_oss.str("");
@@ -245,7 +245,7 @@ SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* 
 #ifndef DEDICATED
 		iconsole->debug(vmStr); // Emit to in-game console.
 
-		g_pConsole->AddLog(CConLog(PrintPercentageEscape(g_spd_sys_w_oss.str()), ImVec4(1.00f, 1.00f, 0.00f, 0.80f)));
+		g_pConsole->AddLog(CConLog(g_spd_sys_w_oss.str(), ImVec4(1.00f, 1.00f, 0.00f, 0.80f)));
 		g_pLogSystem.AddLog(LogType_t::WARNING_C, g_spd_sys_w_oss.str());
 
 		g_spd_sys_w_oss.str("");
