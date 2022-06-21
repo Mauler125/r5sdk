@@ -39,8 +39,6 @@ private:
     bool                           m_bInitialized     = false;
     bool                           m_bDefaultTheme    = false;
     bool                           m_bReclaimFocus    = false;
-    bool                           m_bAutoScroll      = true;
-    bool                           m_bScrollToBottom  = false;
     bool                           m_bCopyToClipBoard = false;
 
     bool                           m_bSuggestActive   = false;

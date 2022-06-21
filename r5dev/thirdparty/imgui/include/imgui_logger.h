@@ -128,7 +128,6 @@ public:
 	int GetTotalFilterMatches() const;
 	int GetTotalLines() const { return (int)m_Lines.size(); }
 
-	bool IsOverwrite() const { return m_Overwrite; }
 	bool IsCursorPositionChanged() const { return m_bCursorPositionChanged; }
 
 	Coordinates GetCursorPosition() const { return GetActualCursorCoordinates(); }
@@ -164,10 +163,10 @@ public:
 	void SelectAll();
 	bool HasSelection() const;
 
-	void RemoveLine(int aStart, int aEnd);
-	void RemoveLine(int aIndex);
+	void RemoveLine(int aStart, int aEnd, bool aInternal = false);
+	void RemoveLine(int aIndex, bool aInternal = false);
 
-	void Copy();
+	void Copy(bool aCopyAll = false);
 
 private:
 	struct EditorState
@@ -210,8 +209,6 @@ private:
 	std::mutex m_Mutex;
 
 	int m_nTabSize;
-	bool m_Overwrite;
-	bool m_bWithinRender;
 	bool m_bScrollToCursor;
 	float m_flTextStart;                   // position (in pixels) where a code line starts relative to the left of the TextEditor.
 	int  m_nLeftMargin;
@@ -231,5 +228,7 @@ private:
 	float m_flLastClick;
 
 public:
+	bool m_bAutoScroll;
+	bool m_bScrollToBottom;
 	ImGuiTextFilter m_itFilter;
 };

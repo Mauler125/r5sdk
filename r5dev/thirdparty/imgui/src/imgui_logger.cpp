@@ -24,8 +24,8 @@ bool equals(InputIt1 first1, InputIt1 last1,
 CTextLogger::CTextLogger()
 	: m_flLineSpacing(1.0f)
 	, m_nTabSize(4)
-	, m_Overwrite(false)
-	, m_bWithinRender(false)
+	, m_bAutoScroll(true)
+	, m_bScrollToBottom(true)
 	, m_bScrollToCursor(false)
 	, m_flTextStart(0.f)
 	, m_nLeftMargin(0)
@@ -531,9 +531,10 @@ bool CTextLogger::IsOnWordBoundary(const Coordinates & aAt) const
 	return isspace(line[cindex].m_Char) != isspace(line[cindex - 1].m_Char);
 }
 
-void CTextLogger::RemoveLine(int aStart, int aEnd)
+void CTextLogger::RemoveLine(int aStart, int aEnd, bool aInternal)
 {
-	m_Mutex.lock();
+	if (!aInternal)
+		m_Mutex.lock();
 
 	assert(aEnd >= aStart);
 	assert(m_Lines.size() > (size_t)(aEnd - aStart));
@@ -541,19 +542,22 @@ void CTextLogger::RemoveLine(int aStart, int aEnd)
 	m_Lines.erase(m_Lines.begin() + aStart, m_Lines.begin() + aEnd);
 	assert(!m_Lines.empty());
 
-	m_Mutex.unlock();
+	if (!aInternal)
+		m_Mutex.unlock();
 }
 
-void CTextLogger::RemoveLine(int aIndex)
+void CTextLogger::RemoveLine(int aIndex, bool aInternal)
 {
-	m_Mutex.lock();
+	if (!aInternal)
+		m_Mutex.lock();
 
 	assert(m_Lines.size() > 1);
 
 	m_Lines.erase(m_Lines.begin() + aIndex);
 	assert(!m_Lines.empty());
 
-	m_Mutex.unlock();
+	if (!aInternal)
+		m_Mutex.unlock();
 }
 
 CTextLogger::Line& CTextLogger::InsertLine(int aIndex)
@@ -626,8 +630,6 @@ void CTextLogger::HandleKeyboardInputs()
 			MoveHome(shift);
 		else if (!ctrl && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_End)))
 			MoveEnd(shift);
-		else if (!ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Insert)))
-			m_Overwrite ^= true;
 		else if (ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Insert)))
 			Copy();
 		else if (ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_C)))
@@ -718,8 +720,6 @@ void CTextLogger::HandleMouseInputs()
 void CTextLogger::Render()
 {
 	m_Mutex.lock();
-
-	m_bWithinRender = true;
 	m_bCursorPositionChanged = false;
 
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
@@ -802,22 +802,6 @@ void CTextLogger::Render()
 						int cindex = GetCharacterIndex(m_State.m_CursorPosition);
 						float cx = TextDistanceToLineStart(m_State.m_CursorPosition);
 
-						if (m_Overwrite && cindex < (int)line.size())
-						{
-							Char c = line[cindex].m_Char;
-							if (c == '\t')
-							{
-								float x = (1.0f + std::floor((1.0f + cx) / (static_cast<float>(m_nTabSize) * spaceSize))) * (static_cast<float>(m_nTabSize) * spaceSize);
-								width = x - cx;
-							}
-							else
-							{
-								char buf2[2];
-								buf2[0] = line[cindex].m_Char;
-								buf2[1] = '\0';
-								width = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, buf2).x;
-							}
-						}
 						const ImVec2 cstart(textScreenPos.x + cx, lineStartScreenPos.y);
 						const ImVec2 cend(textScreenPos.x + cx + width, lineStartScreenPos.y + m_CharAdvance.y);
 
@@ -908,19 +892,17 @@ void CTextLogger::Render()
 
 	ImGui::Dummy(ImVec2((longest + 2), m_Lines.size() * m_CharAdvance.y));
 
-	if (m_bScrollToCursor)
+	if (m_bScrollToBottom || (!m_bScrollToCursor && m_bAutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY()))
 	{
-		EnsureCursorVisible();
-		ImGui::SetWindowFocus();
-		m_bScrollToCursor = false;
+		ImGui::SetScrollHereY(1.0f);
+		m_bScrollToBottom = false;
 	}
+	m_bScrollToCursor = false;
 
 	if (m_bHandleKeyboardInputs)
 		ImGui::PopAllowKeyboardFocus();
 
 	ImGui::PopStyleVar();
-	m_bWithinRender = false;
-
 	m_Mutex.unlock();
 }
 
@@ -1068,8 +1050,8 @@ void CTextLogger::MoveUp(int aAmount, bool aSelect)
 		}
 		else
 			m_InteractiveStart = m_InteractiveEnd = m_State.m_CursorPosition;
-		SetSelection(m_InteractiveStart, m_InteractiveEnd);
 
+		SetSelection(m_InteractiveStart, m_InteractiveEnd);
 		EnsureCursorVisible();
 	}
 }
@@ -1326,13 +1308,13 @@ bool CTextLogger::HasSelection() const
 	return m_State.m_SelectionEnd > m_State.m_SelectionStart;
 }
 
-void CTextLogger::Copy()
+void CTextLogger::Copy(bool aCopyAll)
 {
-	if (HasSelection())
+	if (!aCopyAll && HasSelection())
 	{
 		ImGui::SetClipboardText(GetSelectedText().c_str());
 	}
-	else
+	else if (!aCopyAll)
 	{
 		if (!m_Lines.empty())
 		{
@@ -1343,6 +1325,16 @@ void CTextLogger::Copy()
 
 			ImGui::SetClipboardText(str.c_str());
 		}
+	}
+	else // Copy all lines to clipboard.
+	{
+		std::string str;
+		for (const Line& line: m_Lines)
+		{
+			for (const Glyph& g : line)
+				str.push_back(g.m_Char);
+		}
+		ImGui::SetClipboardText(str.c_str());
 	}
 }
 
@@ -1387,7 +1379,8 @@ std::string CTextLogger::GetTextFromLine(const Line& aLine) const
 {
 	std::string result;
 	for (const Glyph& glyph : aLine)
-		result += glyph.m_Char;
+		result.push_back(glyph.m_Char);
+
 	return result;
 }
 
@@ -1443,11 +1436,7 @@ float CTextLogger::TextDistanceToLineStart(const Coordinates& aFrom) const
 
 void CTextLogger::EnsureCursorVisible()
 {
-	if (!m_bWithinRender)
-	{
-		m_bScrollToCursor = true;
-		return;
-	}
+	m_bScrollToCursor = true;
 
 	float scrollX = ImGui::GetScrollX();
 	float scrollY = ImGui::GetScrollY();

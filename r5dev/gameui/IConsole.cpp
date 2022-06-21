@@ -31,8 +31,6 @@ CConsole::CConsole(void)
     memset(m_szInputBuf, '\0', sizeof(m_szInputBuf));
 
     m_nHistoryPos     = -1;
-    m_bAutoScroll     = true;
-    m_bScrollToBottom = false;
     m_bInitialized    = false;
     m_pszConsoleTitle = "Console";
 
@@ -231,9 +229,7 @@ void CConsole::BasePanel(void)
 
     if (m_bCopyToClipBoard)
     {
-        ImGui::LogToClipboard();
-        ImGui::LogFinish();
-
+        m_Logger.Copy(true);
         m_bCopyToClipBoard = false;
     }
 
@@ -241,12 +237,6 @@ void CConsole::BasePanel(void)
     {
         ImGui::SetScrollY(ImGui::GetScrollY() - m_nScrollBack * ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, "#", nullptr, nullptr).y);
         m_nScrollBack = 0;
-    }
-
-    if (m_bScrollToBottom || (m_bAutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY()))
-    {
-        ImGui::SetScrollHereY(1.0f);
-        m_bScrollToBottom = false;
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -314,7 +304,7 @@ void CConsole::BasePanel(void)
 //-----------------------------------------------------------------------------
 void CConsole::OptionsPanel(void)
 {
-    ImGui::Checkbox("Auto-Scroll", &m_bAutoScroll);
+    ImGui::Checkbox("Auto-Scroll", &m_Logger.m_bAutoScroll);
 
     ImGui::SameLine();
     ImGui::PushItemWidth(100);
@@ -596,7 +586,7 @@ void CConsole::ProcessCommand(const char* pszCommand)
         }
     }
 
-    m_bScrollToBottom = true;
+    m_Logger.m_bScrollToBottom = true;
 }
 
 //-----------------------------------------------------------------------------
