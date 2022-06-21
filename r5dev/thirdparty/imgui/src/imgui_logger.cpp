@@ -50,10 +50,10 @@ std::string CTextLogger::GetText(const Coordinates & aStart, const Coordinates &
 {
 	std::string result;
 
-	auto lstart = aStart.m_nLine;
-	auto lend = aEnd.m_nLine;
-	auto istart = GetCharacterIndex(aStart);
-	auto iend = GetCharacterIndex(aEnd);
+	int lstart = aStart.m_nLine;
+	int lend = aEnd.m_nLine;
+	int istart = GetCharacterIndex(aStart);
+	int iend = GetCharacterIndex(aEnd);
 	size_t s = 0;
 
 	for (size_t i = lstart; i < lend; i++)
@@ -63,11 +63,11 @@ std::string CTextLogger::GetText(const Coordinates & aStart, const Coordinates &
 
 	while (istart < iend || lstart < lend)
 	{
-		if (lstart >= (int)m_Lines.size())
+		if (lstart >= static_cast<int>(m_Lines.size()))
 			break;
 
-		auto& line = m_Lines[lstart];
-		if (istart < (int)line.size())
+		const Line& line = m_Lines[lstart];
+		if (istart < static_cast<int>(line.size()))
 		{
 			result += line[istart].m_Char;
 			istart++;
@@ -95,9 +95,9 @@ CTextLogger::Coordinates CTextLogger::GetActualCursorCoordinates() const
 
 CTextLogger::Coordinates CTextLogger::SanitizeCoordinates(const Coordinates & aValue) const
 {
-	auto line = aValue.m_nLine;
-	auto column = aValue.m_nColumn;
-	if (line >= (int)m_Lines.size())
+	int line = aValue.m_nLine;
+	int column = aValue.m_nColumn;
+	if (line >= static_cast<int>(m_Lines.size()))
 	{
 		if (m_Lines.empty())
 		{
@@ -106,7 +106,7 @@ CTextLogger::Coordinates CTextLogger::SanitizeCoordinates(const Coordinates & aV
 		}
 		else
 		{
-			line = (int)m_Lines.size() - 1;
+			line = static_cast<int>(m_Lines.size() - 1);
 			column = GetLineMaxColumn(line);
 		}
 		return Coordinates(line, column);
@@ -177,13 +177,13 @@ void CTextLogger::Advance(Coordinates & aCoordinates) const
 {
 	if (aCoordinates.m_nLine < (int)m_Lines.size())
 	{
-		auto& line = m_Lines[aCoordinates.m_nLine];
-		auto cindex = GetCharacterIndex(aCoordinates);
+		const Line& line = m_Lines[aCoordinates.m_nLine];
+		int cindex = GetCharacterIndex(aCoordinates);
 
 		if (cindex + 1 < (int)line.size())
 		{
-			auto delta = UTF8CharLength(line[cindex].m_Char);
-			cindex = std::min(cindex + delta, (int)line.size() - 1);
+			int delta = UTF8CharLength(line[cindex].m_Char);
+			cindex = std::min(cindex + delta, static_cast<int>(line.size() - 1));
 		}
 		else
 		{
@@ -203,13 +203,13 @@ void CTextLogger::DeleteRange(const Coordinates & aStart, const Coordinates & aE
 	if (aEnd == aStart)
 		return;
 
-	auto start = GetCharacterIndex(aStart);
-	auto end = GetCharacterIndex(aEnd);
+	int start = GetCharacterIndex(aStart);
+	int end = GetCharacterIndex(aEnd);
 
 	if (aStart.m_nLine == aEnd.m_nLine)
 	{
-		auto& line = m_Lines[aStart.m_nLine];
-		auto n = GetLineMaxColumn(aStart.m_nLine);
+		Line& line = m_Lines[aStart.m_nLine];
+		int n = GetLineMaxColumn(aStart.m_nLine);
 		if (aEnd.m_nColumn >= n)
 			line.erase(line.begin() + start, line.end());
 		else
@@ -217,8 +217,8 @@ void CTextLogger::DeleteRange(const Coordinates & aStart, const Coordinates & aE
 	}
 	else
 	{
-		auto& firstLine = m_Lines[aStart.m_nLine];
-		auto& lastLine = m_Lines[aEnd.m_nLine];
+		Line& firstLine = m_Lines[aStart.m_nLine];
+		Line& lastLine = m_Lines[aEnd.m_nLine];
 
 		firstLine.erase(firstLine.begin() + start, firstLine.end());
 		lastLine.erase(lastLine.begin(), lastLine.begin() + end);
@@ -249,15 +249,15 @@ int CTextLogger::InsertTextAt(Coordinates& /* inout */ aWhere, const char * aVal
 		{
 			if (cindex < (int)m_Lines[aWhere.m_nLine].size())
 			{
-				auto& newLine = InsertLine(aWhere.m_nLine + 1);
-				auto& line = m_Lines[aWhere.m_nLine];
+				Line& newLine = InsertLine(aWhere.m_nLine + 1);
+				Line& line = m_Lines[aWhere.m_nLine];
 				newLine.insert(newLine.begin(), line.begin() + cindex, line.end());
 				line.erase(line.begin() + cindex, line.end());
 			}
 			else
 			{
-				auto& newLine = InsertLine(aWhere.m_nLine + 1);
-				auto& line = m_Lines[aWhere.m_nLine];
+				Line& newLine = InsertLine(aWhere.m_nLine + 1);
+				Line& line = m_Lines[aWhere.m_nLine];
 				line.insert(line.begin() + cindex, Glyph(*aValue, aColor));
 			}
 			++aWhere.m_nLine;
@@ -268,8 +268,8 @@ int CTextLogger::InsertTextAt(Coordinates& /* inout */ aWhere, const char * aVal
 		}
 		else
 		{
-			auto& line = m_Lines[aWhere.m_nLine];
-			auto d = UTF8CharLength(*aValue);
+			Line& line = m_Lines[aWhere.m_nLine];
+			int d = UTF8CharLength(*aValue);
 			while (d-- > 0 && *aValue != '\0')
 				line.insert(line.begin() + cindex++, Glyph(*aValue++, aColor));
 			++aWhere.m_nColumn;
@@ -290,7 +290,7 @@ CTextLogger::Coordinates CTextLogger::ScreenPosToCoordinates(const ImVec2& aPosi
 
 	if (lineNo >= 0 && lineNo < (int)m_Lines.size())
 	{
-		auto& line = m_Lines.at(lineNo);
+		const Line& line = m_Lines.at(lineNo);
 
 		int columnIndex = 0;
 		float columnX = 0.0f;
@@ -314,7 +314,7 @@ CTextLogger::Coordinates CTextLogger::ScreenPosToCoordinates(const ImVec2& aPosi
 			else
 			{
 				char buf[7];
-				auto d = UTF8CharLength(line[columnIndex].m_Char);
+				int d = UTF8CharLength(line[columnIndex].m_Char);
 				int i = 0;
 				while (i < 6 && d-- > 0)
 					buf[i++] = line[columnIndex++].m_Char;
@@ -337,10 +337,10 @@ CTextLogger::Coordinates CTextLogger::FindWordStart(const Coordinates & aFrom) c
 	if (at.m_nLine >= (int)m_Lines.size())
 		return at;
 
-	auto& line = m_Lines[at.m_nLine];
-	auto cindex = GetCharacterIndex(at);
+	const Line& line = m_Lines[at.m_nLine];
+	int cindex = GetCharacterIndex(at);
 
-	if (cindex >= (int)line.size())
+	if (cindex >= static_cast<int>(line.size()))
 		return at;
 
 	while (cindex > 0 && isspace(line[cindex].m_Char))
@@ -348,7 +348,7 @@ CTextLogger::Coordinates CTextLogger::FindWordStart(const Coordinates & aFrom) c
 
 	while (cindex > 0)
 	{
-		auto c = line[cindex].m_Char;
+		Char c = line[cindex].m_Char;
 		if ((c & 0xC0) != 0x80)	// not UTF code sequence 10xxxxxx
 		{
 			if (c <= 32 && isspace(c))
@@ -369,17 +369,17 @@ CTextLogger::Coordinates CTextLogger::FindWordEnd(const Coordinates & aFrom) con
 	if (at.m_nLine >= (int)m_Lines.size())
 		return at;
 
-	auto& line = m_Lines[at.m_nLine];
-	auto cindex = GetCharacterIndex(at);
+	const Line& line = m_Lines[at.m_nLine];
+	int cindex = GetCharacterIndex(at);
 
-	if (cindex >= (int)line.size())
+	if (cindex >= static_cast<int>(line.size()))
 		return at;
 
-	bool prevspace = (bool)isspace(line[cindex].m_Char);
-	while (cindex < (int)line.size())
+	bool prevspace = static_cast<bool>(isspace(line[cindex].m_Char));
+	while (cindex < static_cast<int>(line.size()))
 	{
-		auto c = line[cindex].m_Char;
-		auto d = UTF8CharLength(c);
+		Char c = line[cindex].m_Char;
+		int d = UTF8CharLength(c);
 
 		if (prevspace != !!isspace(c))
 		{
@@ -401,12 +401,12 @@ CTextLogger::Coordinates CTextLogger::FindNextWord(const Coordinates & aFrom) co
 		return at;
 
 	// skip to the next non-word character
-	auto cindex = GetCharacterIndex(aFrom);
+	int cindex = GetCharacterIndex(aFrom);
 	bool isword = false;
 	bool skip = false;
 	if (cindex < (int)m_Lines[at.m_nLine].size())
 	{
-		auto& line = m_Lines[at.m_nLine];
+		const Line& line = m_Lines[at.m_nLine];
 		isword = isalnum(line[cindex].m_Char);
 		skip = isword;
 	}
@@ -415,12 +415,12 @@ CTextLogger::Coordinates CTextLogger::FindNextWord(const Coordinates & aFrom) co
 	{
 		if (at.m_nLine >= m_Lines.size())
 		{
-			auto l = std::max(0, (int) m_Lines.size() - 1);
+			int l = std::max(0, static_cast<int>(m_Lines.size() - 1));
 			return Coordinates(l, GetLineMaxColumn(l));
 		}
 
-		auto& line = m_Lines[at.m_nLine];
-		if (cindex < (int)line.size())
+		const Line& line = m_Lines[at.m_nLine];
+		if (cindex < static_cast<int>(line.size()))
 		{
 			isword = isalnum(line[cindex].m_Char);
 
@@ -448,9 +448,11 @@ int CTextLogger::GetCharacterIndex(const Coordinates& aCoordinates) const
 {
 	if (aCoordinates.m_nLine >= m_Lines.size())
 		return -1;
-	auto& line = m_Lines[aCoordinates.m_nLine];
+
+	const Line& line = m_Lines[aCoordinates.m_nLine];
 	int c = 0;
 	int i = 0;
+
 	for (; i < static_cast<int>(line.size()) && c < aCoordinates.m_nColumn;)
 	{
 		if (line[i].m_Char == '\t')
@@ -467,9 +469,10 @@ int CTextLogger::GetCharacterColumn(int aLine, int aIndex) const
 	if (aLine >= static_cast<int>(m_Lines.size()))
 		return 0;
 
-	auto& line = m_Lines[aLine];
+	const Line& line = m_Lines[aLine];
 	int col = 0;
 	int i = 0;
+
 	while (i < aIndex && i < static_cast<int>(line.size()))
 	{
 		auto c = line[i].m_Char;
@@ -487,8 +490,10 @@ int CTextLogger::GetLineCharacterCount(int aLine) const
 	if (aLine >= static_cast<int>(m_Lines.size()))
 		return 0;
 
+	const Line& line = m_Lines[aLine];
 	int c = 0;
-	for (size_t i = 0; i < m_Lines[aLine].size(); c++)
+
+	for (size_t i = 0; i < line.size(); c++)
 		i += static_cast<size_t>(UTF8CharLength(m_Lines[aLine][i].m_Char));
 	return c;
 }
@@ -498,10 +503,12 @@ int CTextLogger::GetLineMaxColumn(int aLine) const
 	if (aLine >= static_cast<int>(m_Lines.size()))
 		return 0;
 
+	const Line& line = m_Lines[aLine];
 	int col = 0;
-	for (size_t i = 0; i < m_Lines[aLine].size(); )
+
+	for (size_t i = 0; i < line.size(); )
 	{
-		auto c = m_Lines[aLine][i].m_Char;
+		Char c = line[i].m_Char;
 		if (c == '\t')
 			col = (col / m_nTabSize) * m_nTabSize + m_nTabSize;
 		else
@@ -516,8 +523,9 @@ bool CTextLogger::IsOnWordBoundary(const Coordinates & aAt) const
 	if (aAt.m_nLine >= (int)m_Lines.size() || aAt.m_nColumn == 0)
 		return true;
 
-	auto& line = m_Lines[aAt.m_nLine];
+	const Line& line = m_Lines[aAt.m_nLine];
 	size_t cindex = static_cast<size_t>(GetCharacterIndex(aAt));
+
 	if (cindex >= line.size())
 		return true;
 
@@ -551,27 +559,27 @@ void CTextLogger::RemoveLine(int aIndex)
 
 CTextLogger::Line& CTextLogger::InsertLine(int aIndex)
 {
-	auto& result = *m_Lines.insert(m_Lines.begin() + aIndex, Line());
+	Line& result = *m_Lines.insert(m_Lines.begin() + aIndex, Line());
 	return result;
 }
 
 std::string CTextLogger::GetWordUnderCursor() const
 {
-	auto c = GetCursorPosition();
+	const Coordinates c = GetCursorPosition();
 	return GetWordAt(c);
 }
 
 std::string CTextLogger::GetWordAt(const Coordinates & aCoords) const
 {
-	auto start = FindWordStart(aCoords);
-	auto end = FindWordEnd(aCoords);
+	const Coordinates start = FindWordStart(aCoords);
+	const Coordinates end = FindWordEnd(aCoords);
 
 	std::string r;
 
-	auto istart = GetCharacterIndex(start);
-	auto iend = GetCharacterIndex(end);
+	int istart = GetCharacterIndex(start);
+	int iend = GetCharacterIndex(end);
 
-	for (auto it = istart; it < iend; ++it)
+	for (int it = istart; it < iend; ++it)
 		r.push_back(m_Lines[aCoords.m_nLine][it].m_Char);
 
 	return r;
@@ -586,9 +594,9 @@ ImU32 CTextLogger::GetGlyphColor(const Glyph & aGlyph) const
 void CTextLogger::HandleKeyboardInputs()
 {
 	ImGuiIO& io = ImGui::GetIO();
-	auto shift = io.KeyShift;
-	auto ctrl = io.ConfigMacOSXBehaviors ? io.KeySuper : io.KeyCtrl;
-	auto alt = io.ConfigMacOSXBehaviors ? io.KeyCtrl : io.KeyAlt;
+	bool shift = io.KeyShift;
+	bool ctrl = io.ConfigMacOSXBehaviors ? io.KeySuper : io.KeyCtrl;
+	bool alt = io.ConfigMacOSXBehaviors ? io.KeyCtrl : io.KeyAlt;
 
 	if (ImGui::IsWindowFocused())
 	{
@@ -633,18 +641,19 @@ void CTextLogger::HandleKeyboardInputs()
 void CTextLogger::HandleMouseInputs()
 {
 	ImGuiIO& io = ImGui::GetIO();
-	auto shift = io.KeyShift;
-	auto ctrl = io.ConfigMacOSXBehaviors ? io.KeySuper : io.KeyCtrl;
-	auto alt = io.ConfigMacOSXBehaviors ? io.KeyCtrl : io.KeyAlt;
+	bool shift = io.KeyShift;
+	bool ctrl = io.ConfigMacOSXBehaviors ? io.KeySuper : io.KeyCtrl;
+	bool alt = io.ConfigMacOSXBehaviors ? io.KeyCtrl : io.KeyAlt;
 
 	if (ImGui::IsWindowHovered())
 	{
 		if (!shift && !alt)
 		{
-			auto click = ImGui::IsMouseClicked(0);
-			auto doubleClick = ImGui::IsMouseDoubleClicked(0);
-			auto t = ImGui::GetTime();
-			auto tripleClick = click && !doubleClick && (m_flLastClick != -1.0f && (t - m_flLastClick) < io.MouseDoubleClickTime);
+			bool click = ImGui::IsMouseClicked(0);
+			bool doubleClick = ImGui::IsMouseDoubleClicked(0);
+
+			double t = ImGui::GetTime();
+			bool tripleClick = click && !doubleClick && (m_flLastClick != -1.0f && (t - m_flLastClick) < io.MouseDoubleClickTime);
 
 			/*
 			Left mouse button triple click
@@ -730,16 +739,16 @@ void CTextLogger::Render()
 
 	assert(m_svLineBuffer.empty());
 
-	auto contentSize = ImGui::GetWindowContentRegionMax();
-	auto drawList = ImGui::GetWindowDrawList();
+	ImVec2 contentSize = ImGui::GetWindowContentRegionMax();
+	ImDrawList* drawList = ImGui::GetWindowDrawList();
 	float longest(m_flTextStart);
 
 	ImVec2 cursorScreenPos = ImGui::GetCursorScreenPos();
-	auto scrollX = ImGui::GetScrollX();
-	auto scrollY = ImGui::GetScrollY();
+	float scrollX = ImGui::GetScrollX();
+	float scrollY = ImGui::GetScrollY();
 
-	auto lineNo = (int)floor(scrollY / m_CharAdvance.y);
-	auto lineMax = std::max(0, std::min((int)m_Lines.size() - 1, lineNo + (int)floor((scrollY + contentSize.y) / m_CharAdvance.y)));
+	int lineNo = static_cast<int>(floor(scrollY / m_CharAdvance.y));
+	int lineMax = std::max(0, std::min(static_cast<int>(m_Lines.size()) - 1, lineNo + static_cast<int>(floor((scrollY + contentSize.y) / m_CharAdvance.y))));
 
 	//m_flTextStart = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, buf, nullptr, nullptr).x + m_nLeftMargin;
 
@@ -752,9 +761,9 @@ void CTextLogger::Render()
 			ImVec2 lineStartScreenPos = ImVec2(cursorScreenPos.x, cursorScreenPos.y + lineNo * m_CharAdvance.y);
 			ImVec2 textScreenPos = ImVec2(lineStartScreenPos.x + m_flTextStart, lineStartScreenPos.y);
 
-			auto& line = m_Lines[lineNo];
+			const Line& line = m_Lines[lineNo];
 			longest = std::max(m_flTextStart + TextDistanceToLineStart(Coordinates(lineNo, GetLineMaxColumn(lineNo))), longest);
-			auto columnNo = 0;
+			int columnNo = 0;
 			Coordinates lineStartCoord(lineNo, 0);
 			Coordinates lineEndCoord(lineNo, GetLineMaxColumn(lineNo));
 
@@ -783,14 +792,6 @@ void CTextLogger::Render()
 				bool focused = ImGui::IsWindowFocused();
 				ImVec2 start = ImVec2(lineStartScreenPos.x + scrollX, lineStartScreenPos.y);
 
-				// Highlight the current line (where the cursor is)
-				//if (!HasSelection())
-				//{
-				//	auto end = ImVec2(start.x + contentSize.x + scrollX, start.y + m_CharAdvance.y);
-				//	drawList->AddRectFilled(start, end, 0x80a06020);
-				//	drawList->AddRect(start, end, 0x80a06020, 1.0f);
-				//}
-
 				// Render the cursor
 				if (focused)
 				{
@@ -799,15 +800,15 @@ void CTextLogger::Render()
 					if (elapsed > 400)
 					{
 						float width = 1.0f;
-						auto cindex = GetCharacterIndex(m_State.m_CursorPosition);
+						int cindex = GetCharacterIndex(m_State.m_CursorPosition);
 						float cx = TextDistanceToLineStart(m_State.m_CursorPosition);
 
 						if (m_Overwrite && cindex < (int)line.size())
 						{
-							auto c = line[cindex].m_Char;
+							Char c = line[cindex].m_Char;
 							if (c == '\t')
 							{
-								auto x = (1.0f + std::floor((1.0f + cx) / (float(m_nTabSize) * spaceSize))) * (float(m_nTabSize) * spaceSize);
+								float x = (1.0f + std::floor((1.0f + cx) / (static_cast<float>(m_nTabSize) * spaceSize))) * (static_cast<float>(m_nTabSize) * spaceSize);
 								width = x - cx;
 							}
 							else
@@ -818,8 +819,9 @@ void CTextLogger::Render()
 								width = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, buf2).x;
 							}
 						}
-						ImVec2 cstart(textScreenPos.x + cx, lineStartScreenPos.y);
-						ImVec2 cend(textScreenPos.x + cx + width, lineStartScreenPos.y + m_CharAdvance.y);
+						const ImVec2 cstart(textScreenPos.x + cx, lineStartScreenPos.y);
+						const ImVec2 cend(textScreenPos.x + cx + width, lineStartScreenPos.y + m_CharAdvance.y);
+
 						drawList->AddRectFilled(cstart, cend, 0xffe0e0e0);
 						if (elapsed > 800)
 							m_nStartTime = timeEnd;
@@ -827,13 +829,10 @@ void CTextLogger::Render()
 				}
 			}
 
-			// Render colorized text
-			//auto prevColor = GetGlyphColor(line[0]);
 			ImVec2 bufferOffset;
-
 			for (size_t i = 0; i < line.size();)
 			{
-				Glyph& glyph = line[i];
+				const Glyph& glyph = line[i];
 				ImU32 color = 0xff605040;
 
 				if (m_itFilter.PassFilter(GetTextFromLine(line).c_str()))
@@ -842,24 +841,25 @@ void CTextLogger::Render()
 				if ((glyph.m_Char == '\t' || glyph.m_Char == '\n' || glyph.m_Char == ' ') && !m_svLineBuffer.empty())
 				{
 					const ImVec2 newOffset(textScreenPos.x + bufferOffset.x, textScreenPos.y + bufferOffset.y);
+					const ImVec2 textSize = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, m_svLineBuffer.c_str(), nullptr, nullptr);
+
 					drawList->AddText(newOffset, color, m_svLineBuffer.c_str());
-					auto textSize = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, m_svLineBuffer.c_str(), nullptr, nullptr);
 					bufferOffset.x += textSize.x;
 					m_svLineBuffer.clear();
 				}
 
 				if (glyph.m_Char == '\t' || glyph.m_Char == '\n')
 				{
-					auto oldX = bufferOffset.x;
+					float oldX = bufferOffset.x;
 					bufferOffset.x = (1.0f + std::floor((1.0f + bufferOffset.x) / (float(m_nTabSize) * spaceSize))) * (float(m_nTabSize) * spaceSize);
 					++i;
 
 					if (m_bShowWhiteSpaces)
 					{
-						const auto s = ImGui::GetFontSize();
-						const auto x1 = textScreenPos.x + oldX + 1.0f;
-						const auto x2 = textScreenPos.x + bufferOffset.x - 1.0f;
-						const auto y = textScreenPos.y + bufferOffset.y + s * 0.5f;
+						const float s = ImGui::GetFontSize();
+						const float x1 = textScreenPos.x + oldX + 1.0f;
+						const float x2 = textScreenPos.x + bufferOffset.x - 1.0f;
+						const float y = textScreenPos.y + bufferOffset.y + s * 0.5f;
 						const ImVec2 p1(x1, y);
 						const ImVec2 p2(x2, y);
 						const ImVec2 p3(x2 - s * 0.2f, y - s * 0.2f);
@@ -873,9 +873,9 @@ void CTextLogger::Render()
 				{
 					if (m_bShowWhiteSpaces)
 					{
-						const auto s = ImGui::GetFontSize();
-						const auto x = textScreenPos.x + bufferOffset.x + spaceSize * 0.5f;
-						const auto y = textScreenPos.y + bufferOffset.y + s * 0.5f;
+						const float s = ImGui::GetFontSize();
+						const float x = textScreenPos.x + bufferOffset.x + spaceSize * 0.5f;
+						const float y = textScreenPos.y + bufferOffset.y + s * 0.5f;
 						drawList->AddCircleFilled(ImVec2(x, y), 1.5f, 0x80808080, 4);
 					}
 					bufferOffset.x += spaceSize;
@@ -883,12 +883,9 @@ void CTextLogger::Render()
 				}
 				else
 				{
-					if (line.size() > 0)
-					{
-						auto l = UTF8CharLength(glyph.m_Char); // !TODO: (this currently causes crashes)
-						while (l-- > 0)
-							m_svLineBuffer.push_back(line[i++].m_Char);
-					}
+					int l = UTF8CharLength(glyph.m_Char);
+					while (l-- > 0)
+						m_svLineBuffer.push_back(line[i++].m_Char);
 				}
 				++columnNo;
 			}
@@ -927,7 +924,7 @@ void CTextLogger::SetText(const CConLog& aText)
 {
 	m_Lines.clear();
 	m_Lines.emplace_back(Line());
-	for (auto chr : aText.m_svConLog)
+	for (char chr : aText.m_svConLog)
 	{
 		if (chr == '\r') // ignore the carriage return character
 			continue;
@@ -989,8 +986,8 @@ void CTextLogger::SetSelectionEnd(const Coordinates & aPosition)
 
 void CTextLogger::SetSelection(const Coordinates & aStart, const Coordinates & aEnd, SelectionMode aMode)
 {
-	auto oldSelStart = m_State.m_SelectionStart;
-	auto oldSelEnd = m_State.m_SelectionEnd;
+	Coordinates oldSelStart = m_State.m_SelectionStart;
+	Coordinates oldSelEnd = m_State.m_SelectionEnd;
 
 	m_State.m_SelectionStart = SanitizeCoordinates(aStart);
 	m_State.m_SelectionEnd = SanitizeCoordinates(aEnd);
@@ -1010,8 +1007,8 @@ void CTextLogger::SetSelection(const Coordinates & aStart, const Coordinates & a
 	}
 	case CTextLogger::SelectionMode::Line:
 	{
-		const auto lineNo = m_State.m_SelectionEnd.m_nLine;
-		const auto lineSize = (size_t)lineNo < m_Lines.size() ? m_Lines[lineNo].size() : 0;
+		const int lineNo = m_State.m_SelectionEnd.m_nLine;
+		const size_t lineSize = (size_t)lineNo < m_Lines.size() ? m_Lines[lineNo].size() : 0;
 		m_State.m_SelectionStart = Coordinates(m_State.m_SelectionStart.m_nLine, 0);
 		m_State.m_SelectionEnd = Coordinates(lineNo, GetLineMaxColumn(lineNo));
 		break;
@@ -1036,9 +1033,9 @@ void CTextLogger::InsertText(const CConLog & aValue)
 
 	if (!aValue.m_svConLog.empty())
 	{
-		auto pos = GetActualLastLineCoordinates();
+		Coordinates pos = GetActualLastLineCoordinates();
 
-		auto start = std::min(pos, m_State.m_SelectionStart);
+		const Coordinates &start = std::min(pos, m_State.m_SelectionStart);
 		int totalLines = pos.m_nLine - start.m_nLine;
 
 		totalLines += InsertTextAt(pos, aValue.m_svConLog.c_str(), aValue.m_imColor);
@@ -1049,7 +1046,7 @@ void CTextLogger::InsertText(const CConLog & aValue)
 
 void CTextLogger::MoveUp(int aAmount, bool aSelect)
 {
-	auto oldPos = m_State.m_CursorPosition;
+	const Coordinates oldPos = m_State.m_CursorPosition;
 	m_State.m_CursorPosition.m_nLine = std::max(0, m_State.m_CursorPosition.m_nLine - aAmount);
 	if (oldPos != m_State.m_CursorPosition)
 	{
@@ -1076,7 +1073,8 @@ void CTextLogger::MoveUp(int aAmount, bool aSelect)
 void CTextLogger::MoveDown(int aAmount, bool aSelect)
 {
 	assert(m_State.m_CursorPosition.m_nColumn >= 0);
-	auto oldPos = m_State.m_CursorPosition;
+	Coordinates oldPos = m_State.m_CursorPosition;
+
 	m_State.m_CursorPosition.m_nLine = std::max(0, std::min((int)m_Lines.size() - 1, m_State.m_CursorPosition.m_nLine + aAmount));
 
 	if (m_State.m_CursorPosition != oldPos)
@@ -1095,8 +1093,8 @@ void CTextLogger::MoveDown(int aAmount, bool aSelect)
 		}
 		else
 			m_InteractiveStart = m_InteractiveEnd = m_State.m_CursorPosition;
-		SetSelection(m_InteractiveStart, m_InteractiveEnd);
 
+		SetSelection(m_InteractiveStart, m_InteractiveEnd);
 		EnsureCursorVisible();
 	}
 }
@@ -1111,10 +1109,11 @@ void CTextLogger::MoveLeft(int aAmount, bool aSelect, bool aWordMode)
 	if (m_Lines.empty())
 		return;
 
-	auto oldPos = m_State.m_CursorPosition;
+	const Coordinates oldPos = m_State.m_CursorPosition;
 	m_State.m_CursorPosition = GetActualCursorCoordinates();
-	auto line = m_State.m_CursorPosition.m_nLine;
-	auto cindex = GetCharacterIndex(m_State.m_CursorPosition);
+
+	int line = m_State.m_CursorPosition.m_nLine;
+	int cindex = GetCharacterIndex(m_State.m_CursorPosition);
 
 	while (aAmount-- > 0)
 	{
@@ -1123,8 +1122,8 @@ void CTextLogger::MoveLeft(int aAmount, bool aSelect, bool aWordMode)
 			if (line > 0)
 			{
 				--line;
-				if ((int)m_Lines.size() > line)
-					cindex = (int)m_Lines[line].size();
+				if (static_cast<int>(m_Lines.size()) > line)
+					cindex = static_cast<int>(m_Lines[line].size());
 				else
 					cindex = 0;
 			}
@@ -1134,7 +1133,7 @@ void CTextLogger::MoveLeft(int aAmount, bool aSelect, bool aWordMode)
 			--cindex;
 			if (cindex > 0)
 			{
-				if ((int)m_Lines.size() > line)
+				if (static_cast<int>(m_Lines.size()) > line)
 				{
 					while (cindex > 0 && IsUTFSequence(m_Lines[line][cindex].m_Char))
 						--cindex;
@@ -1174,18 +1173,18 @@ void CTextLogger::MoveLeft(int aAmount, bool aSelect, bool aWordMode)
 
 void CTextLogger::MoveRight(int aAmount, bool aSelect, bool aWordMode)
 {
-	auto oldPos = m_State.m_CursorPosition;
+	const Coordinates oldPos = m_State.m_CursorPosition;
 
 	if (m_Lines.empty() || oldPos.m_nLine >= m_Lines.size())
 		return;
 
-	auto cindex = GetCharacterIndex(m_State.m_CursorPosition);
+	int cindex = GetCharacterIndex(m_State.m_CursorPosition);
 	while (aAmount-- > 0)
 	{
-		auto lindex = m_State.m_CursorPosition.m_nLine;
-		auto& line = m_Lines[lindex];
+		int lindex = m_State.m_CursorPosition.m_nLine;
+		const Line& line = m_Lines[lindex];
 
-		if (cindex >= line.size())
+		if (cindex >= line.size()) // !CAST: SIZE_T
 		{
 			if (m_State.m_CursorPosition.m_nLine < m_Lines.size() - 1)
 			{
@@ -1225,7 +1224,7 @@ void CTextLogger::MoveRight(int aAmount, bool aSelect, bool aWordMode)
 
 void CTextLogger::MoveTop(bool aSelect)
 {
-	auto oldPos = m_State.m_CursorPosition;
+	const Coordinates oldPos = m_State.m_CursorPosition;
 	SetCursorPosition(Coordinates(0, 0));
 
 	if (m_State.m_CursorPosition != oldPos)
@@ -1243,8 +1242,9 @@ void CTextLogger::MoveTop(bool aSelect)
 
 void CTextLogger::MoveBottom(bool aSelect)
 {
-	auto oldPos = GetCursorPosition();
-	auto newPos = Coordinates((int)m_Lines.size() - 1, 0);
+	const Coordinates oldPos = GetCursorPosition();
+	const Coordinates newPos = Coordinates(static_cast<int>(m_Lines.size()) - 1, 0);
+
 	SetCursorPosition(newPos);
 	if (aSelect)
 	{
@@ -1258,7 +1258,7 @@ void CTextLogger::MoveBottom(bool aSelect)
 
 void CTextLogger::MoveHome(bool aSelect)
 {
-	auto oldPos = m_State.m_CursorPosition;
+	const Coordinates oldPos = m_State.m_CursorPosition;
 	SetCursorPosition(Coordinates(m_State.m_CursorPosition.m_nLine, 0));
 
 	if (m_State.m_CursorPosition != oldPos)
@@ -1283,7 +1283,7 @@ void CTextLogger::MoveHome(bool aSelect)
 
 void CTextLogger::MoveEnd(bool aSelect)
 {
-	auto oldPos = m_State.m_CursorPosition;
+	const Coordinates oldPos = m_State.m_CursorPosition;
 	SetCursorPosition(Coordinates(m_State.m_CursorPosition.m_nLine, GetLineMaxColumn(oldPos.m_nLine)));
 
 	if (m_State.m_CursorPosition != oldPos)
@@ -1308,7 +1308,7 @@ void CTextLogger::MoveEnd(bool aSelect)
 
 void CTextLogger::SelectWordUnderCursor()
 {
-	auto c = GetCursorPosition();
+	const Coordinates c = GetCursorPosition();
 	SetSelection(FindWordStart(c), FindWordEnd(c));
 }
 
@@ -1333,9 +1333,10 @@ void CTextLogger::Copy()
 		if (!m_Lines.empty())
 		{
 			std::string str;
-			auto& line = m_Lines[GetActualCursorCoordinates().m_nLine];
-			for (auto& g : line)
+			const Line& line = m_Lines[GetActualCursorCoordinates().m_nLine];
+			for (const Glyph& g : line)
 				str.push_back(g.m_Char);
+
 			ImGui::SetClipboardText(str.c_str());
 		}
 	}
@@ -1349,13 +1350,11 @@ std::string CTextLogger::GetText() const
 std::vector<std::string> CTextLogger::GetTextLines() const
 {
 	std::vector<std::string> result;
-
 	result.reserve(m_Lines.size());
 
-	for (auto & line : m_Lines)
+	for (const Line& line : m_Lines)
 	{
 		std::string text;
-
 		text.resize(line.size());
 
 		for (size_t i = 0; i < line.size(); ++i)
@@ -1374,7 +1373,7 @@ std::string CTextLogger::GetSelectedText() const
 
 std::string CTextLogger::GetCurrentLineText()const
 {
-	auto lineLength = GetLineMaxColumn(m_State.m_CursorPosition.m_nLine);
+	int lineLength = GetLineMaxColumn(m_State.m_CursorPosition.m_nLine);
 	return GetText(
 		Coordinates(m_State.m_CursorPosition.m_nLine, 0),
 		Coordinates(m_State.m_CursorPosition.m_nLine, lineLength));
@@ -1416,7 +1415,7 @@ int CTextLogger::GetTotalFilterMatches() const
 
 float CTextLogger::TextDistanceToLineStart(const Coordinates& aFrom) const
 {
-	auto& line = m_Lines[aFrom.m_nLine];
+	const Line& line = m_Lines[aFrom.m_nLine];
 	float distance = 0.0f;
 	float spaceSize = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, " ", nullptr, nullptr).x;
 	int colIndex = GetCharacterIndex(aFrom);
@@ -1429,10 +1428,10 @@ float CTextLogger::TextDistanceToLineStart(const Coordinates& aFrom) const
 		}
 		else
 		{
-			auto d = UTF8CharLength(line[it].m_Char);
+			int d = UTF8CharLength(line[it].m_Char);
 			char tempCString[7];
 			int i = 0;
-			for (; i < 6 && d-- > 0 && it < (int)line.size(); i++, it++)
+			for (; i < 6 && d-- > 0 && it < static_cast<int>(line.size()); i++, it++)
 				tempCString[i] = line[it].m_Char;
 
 			tempCString[i] = '\0';
@@ -1454,17 +1453,17 @@ void CTextLogger::EnsureCursorVisible()
 	float scrollX = ImGui::GetScrollX();
 	float scrollY = ImGui::GetScrollY();
 
-	auto height = ImGui::GetWindowHeight();
-	auto width = ImGui::GetWindowWidth();
+	float height = ImGui::GetWindowHeight();
+	float width = ImGui::GetWindowWidth();
 
-	auto top = 1 + (int)ceil(scrollY / m_CharAdvance.y);
-	auto bottom = (int)ceil((scrollY + height) / m_CharAdvance.y);
+	int top = 1 + (int)ceil(scrollY / m_CharAdvance.y);
+	int bottom = (int)ceil((scrollY + height) / m_CharAdvance.y);
 
-	auto left = (int)ceil(scrollX / m_CharAdvance.x);
-	auto right = (int)ceil((scrollX + width) / m_CharAdvance.x);
+	int left = (int)ceil(scrollX / m_CharAdvance.x);
+	int right = (int)ceil((scrollX + width) / m_CharAdvance.x);
 
-	auto pos = GetActualCursorCoordinates();
-	auto len = TextDistanceToLineStart(pos);
+	Coordinates pos = GetActualCursorCoordinates();
+	float len = TextDistanceToLineStart(pos);
 
 	if (pos.m_nLine < top)
 		ImGui::SetScrollY(std::max(0.0f, (pos.m_nLine - 1) * m_CharAdvance.y));
@@ -1478,6 +1477,6 @@ void CTextLogger::EnsureCursorVisible()
 
 int CTextLogger::GetPageSize() const
 {
-	auto height = ImGui::GetWindowHeight() - 20.0f;
-	return (int)floor(height / m_CharAdvance.y);
+	float height = ImGui::GetWindowHeight() - 20.0f;
+	return static_cast<int>(floor(height / m_CharAdvance.y));
 }
