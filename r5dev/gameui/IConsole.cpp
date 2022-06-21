@@ -863,18 +863,18 @@ void CConsole::SetStyleVar(void)
     else
     {
         colors[ImGuiCol_TextSelectedBg]         = ImVec4(0.13f, 0.38f, 0.63f, 0.50f);
-        colors[ImGuiCol_WindowBg]               = ImVec4(0.12f, 0.14f, 0.19f, 1.00f);
-        colors[ImGuiCol_ChildBg]                = ImVec4(0.03f, 0.05f, 0.09f, 1.00f);
+        colors[ImGuiCol_WindowBg]               = ImVec4(0.13f, 0.15f, 0.18f, 1.00f);
+        colors[ImGuiCol_ChildBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.78f);
         colors[ImGuiCol_PopupBg]                = ImVec4(0.11f, 0.13f, 0.17f, 1.00f);
         colors[ImGuiCol_Border]                 = ImVec4(0.61f, 0.61f, 0.61f, 0.50f);
         colors[ImGuiCol_BorderShadow]           = ImVec4(0.04f, 0.04f, 0.04f, 0.00f);
-        colors[ImGuiCol_FrameBg]                = ImVec4(0.03f, 0.05f, 0.09f, 1.00f);
+        colors[ImGuiCol_FrameBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.78f);
         colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.04f, 0.06f, 0.10f, 1.00f);
         colors[ImGuiCol_FrameBgActive]          = ImVec4(0.04f, 0.07f, 0.12f, 1.00f);
         colors[ImGuiCol_TitleBg]                = ImVec4(0.26f, 0.51f, 0.78f, 1.00f);
         colors[ImGuiCol_TitleBgActive]          = ImVec4(0.26f, 0.51f, 0.78f, 1.00f);
         colors[ImGuiCol_MenuBarBg]              = ImVec4(0.11f, 0.13f, 0.17f, 1.00f);
-        colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.14f, 0.19f, 0.24f, 1.00f);
+        colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.16f, 0.20f, 0.24f, 1.00f);
         colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.23f, 0.36f, 0.51f, 1.00f);
         colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.30f, 0.46f, 0.65f, 1.00f);
         colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.31f, 0.49f, 0.69f, 1.00f);
