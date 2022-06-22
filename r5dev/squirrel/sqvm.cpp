@@ -6,6 +6,7 @@
 
 #include "core/stdafx.h"
 #include "core/logdef.h"
+#include "tier0/platform_internal.h"
 #include "tier0/commandline.h"
 #include "tier1/cvar.h"
 #include "tier1/IConVar.h"
@@ -284,6 +285,19 @@ void SQVM_CompileError(HSQUIRRELVM v, const SQChar* pszError, const SQChar* pszF
 }
 
 //---------------------------------------------------------------------------------
+// Purpose: prints the logic error and context to the console
+// Input  : bPrompt - 
+//---------------------------------------------------------------------------------
+void SQVM_LogicError(SQBool bPrompt)
+{
+	if (*g_flErrorTimeStamp > 0.0 && (bPrompt || Plat_FloatTime() > *g_flErrorTimeStamp + 0.0))
+	{
+		g_bSQAuxBadLogic = true;
+	}
+	v_SQVM_LogicError(bPrompt);
+}
+
+//---------------------------------------------------------------------------------
 // Purpose: Returns the VM name by context
 // Input  : context - 
 // Output : const SQChar* 
@@ -326,6 +340,7 @@ void SQVM_Attach()
 	DetourAttach((LPVOID*)&v_SQVM_PrintFunc, &SQVM_PrintFunc);
 	DetourAttach((LPVOID*)&v_SQVM_WarningFunc, &SQVM_WarningFunc);
 	DetourAttach((LPVOID*)&v_SQVM_CompileError, &SQVM_CompileError);
+	DetourAttach((LPVOID*)&v_SQVM_LogicError, &SQVM_LogicError);
 }
 //---------------------------------------------------------------------------------
 void SQVM_Detach()
@@ -333,4 +348,5 @@ void SQVM_Detach()
 	DetourDetach((LPVOID*)&v_SQVM_PrintFunc, &SQVM_PrintFunc);
 	DetourDetach((LPVOID*)&v_SQVM_WarningFunc, &SQVM_WarningFunc);
 	DetourDetach((LPVOID*)&v_SQVM_CompileError, &SQVM_CompileError);
+	DetourDetach((LPVOID*)&v_SQVM_LogicError, &SQVM_LogicError);
 }

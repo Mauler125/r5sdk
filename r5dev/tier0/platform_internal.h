@@ -7,6 +7,7 @@ inline auto v_Plat_FloatTime = p_Plat_FloatTime.RCast<double(*)(void)>();
 inline CMemory p_Plat_MSTime;
 inline auto v_Plat_MSTime = p_Plat_MSTime.RCast<uint64_t(*)(void)>();
 
+inline double* g_flErrorTimeStamp = nullptr;
 ///////////////////////////////////////////////////////////////////////////////
 class VPlatform : public IDetour
 {
@@ -14,6 +15,7 @@ class VPlatform : public IDetour
 	{
 		spdlog::debug("| FUN: Plat_FloatTime                       : {:#18x} |\n", p_Plat_FloatTime.GetPtr());
 		spdlog::debug("| FUN: Plat_MSTime                          : {:#18x} |\n", p_Plat_MSTime.GetPtr());
+		spdlog::debug("| VAR: g_flErrorTimeStamp                   : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_flErrorTimeStamp));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
@@ -24,7 +26,10 @@ class VPlatform : public IDetour
 		v_Plat_FloatTime = p_Plat_FloatTime.RCast<double(*)(void)>(); /*48 83 EC 28 80 3D ? ? ? ? ? 75 05 E8 ? ? ? ? 80 3D ? ? ? ? ? 74 1D*/
 		v_Plat_MSTime    = p_Plat_MSTime.RCast<uint64_t(*)(void)>();  /*48 83 EC 28 80 3D ? ? ? ? ? 75 05 E8 ? ? ? ? 80 3D ? ? ? ? ? 74 2A*/
 	}
-	virtual void GetVar(void) const { }
+	virtual void GetVar(void) const
+	{
+		g_flErrorTimeStamp = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x0F\x57\xC0\xF2\x0F\x11\x05\x00\x00\x00\x00\xC3"), "xxxxxxx????x").FindPatternSelf("F2 0F").ResolveRelativeAddressSelf(0x4, 0x8).RCast<double*>();
+	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }
