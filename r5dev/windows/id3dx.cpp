@@ -68,12 +68,12 @@ LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		if (wParam == g_pImGuiConfig->IConsole_Config.m_nBind0 || wParam == g_pImGuiConfig->IConsole_Config.m_nBind1)
 		{
-			g_pConsole->m_bActivate = !g_pConsole->m_bActivate;
+			g_pConsole->m_bActivate ^= true;
 		}
 
 		if (wParam == g_pImGuiConfig->IBrowser_Config.m_nBind0 || wParam == g_pImGuiConfig->IBrowser_Config.m_nBind1)
 		{
-			g_pBrowser->m_bActivate = !g_pBrowser->m_bActivate;
+			g_pBrowser->m_bActivate ^= true;
 		}
 	}
 
