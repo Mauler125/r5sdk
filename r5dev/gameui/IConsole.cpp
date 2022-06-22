@@ -34,11 +34,11 @@ CConsole::CConsole(void)
     m_bInitialized    = false;
     m_pszConsoleTitle = "Console";
 
-    m_vsvCommands.push_back("CLEAR");
-    m_vsvCommands.push_back("HELP");
-    m_vsvCommands.push_back("HISTORY");
+    m_vCommands.push_back("CLEAR");
+    m_vCommands.push_back("HELP");
+    m_vCommands.push_back("HISTORY");
 
-    snprintf(m_szSummary, 256, "%zu history items", m_vsvHistory.size());
+    snprintf(m_szSummary, 256, "%zu history items", m_vHistory.size());
 
     std::thread think(&CConsole::Think, this);
     think.detach();
@@ -50,7 +50,7 @@ CConsole::CConsole(void)
 CConsole::~CConsole(void)
 {
     ClearLog();
-    m_vsvHistory.clear();
+    m_vHistory.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -129,7 +129,7 @@ void CConsole::Draw(void)
      **************************/
     {
         int nVars = 0;
-        if (CanAutoComplete())
+        if (AutoComplete())
         {
             if (m_bDefaultTheme)
             {
@@ -167,9 +167,9 @@ void CConsole::Think(void)
             }
         }
 
-        while (m_vsvHistory.size() > 512)
+        while (m_vHistory.size() > 512)
         {
-            m_vsvHistory.erase(m_vsvHistory.begin());
+            m_vHistory.erase(m_vHistory.begin());
         }
 
         if (m_bActivate)
@@ -204,6 +204,7 @@ void CConsole::BasePanel(void)
     const float flFooterHeightReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
     const float flFooterWidthReserve  = ImGui::GetStyle().ItemSpacing.y + ImGui::GetWindowWidth();
 
+    ImVec2 fontSize = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, "#", nullptr, nullptr);
     ///////////////////////////////////////////////////////////////////////
     ImGui::Separator();
     if (ImGui::BeginPopup("Options"))
@@ -224,7 +225,7 @@ void CConsole::BasePanel(void)
     ImGui::Separator();
 
     ///////////////////////////////////////////////////////////////////////
-    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -flFooterHeightReserve), true, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysVerticalScrollbar);
+    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -flFooterHeightReserve), true, m_nLoggingFlags);
     m_Logger.Render();
 
     if (m_bCopyToClipBoard)
@@ -235,7 +236,7 @@ void CConsole::BasePanel(void)
 
     if (m_nScrollBack > 0)
     {
-        ImGui::SetScrollY(ImGui::GetScrollY() - m_nScrollBack * ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, "#", nullptr, nullptr).y);
+        ImGui::SetScrollY(ImGui::GetScrollY() - m_nScrollBack * fontSize.y);
         m_nScrollBack = 0;
     }
 
@@ -249,10 +250,11 @@ void CConsole::BasePanel(void)
         if (m_nSuggestPos != -1)
         {
             // Remove the default value from ConVar before assigning it to the input buffer.
-            string svConVar = m_vsvSuggest[m_nSuggestPos].m_svName.substr(0, m_vsvSuggest[m_nSuggestPos].m_svName.find(' ')) + ' ';
+            string svConVar = m_vSuggest[m_nSuggestPos].m_svName.substr(0, m_vSuggest[m_nSuggestPos].m_svName.find(' ')) + ' ';
             memmove(m_szInputBuf, svConVar.c_str(), svConVar.size() + 1);
 
             ResetAutoComplete();
+            BuildSummary(svConVar);
         }
         else
         {
@@ -263,6 +265,7 @@ void CConsole::BasePanel(void)
             }
 
             ResetAutoComplete();
+            BuildSummary();
         }
     }
 
@@ -276,15 +279,15 @@ void CConsole::BasePanel(void)
         m_bReclaimFocus = false;
     }
 
-    int nPad = 0;
-    if (static_cast<int>(m_vsvSuggest.size()) > 1)
+    float nPad = 0.f;
+    if (m_vSuggest.size() > 1)
     {
         // Pad with 18 to keep all items in view.
-        nPad = 18;
+        nPad = ImGui::GetItemRectSize().y - 3;
     }
     m_ivSuggestWindowPos = ImGui::GetItemRectMin();
     m_ivSuggestWindowPos.y += ImGui::GetItemRectSize().y;
-    m_ivSuggestWindowSize = ImVec2(600, nPad + std::clamp(static_cast<float>(m_vsvSuggest.size()) * 13.0f, 37.0f, 127.5f));
+    m_ivSuggestWindowSize = ImVec2(600, nPad + std::clamp(static_cast<float>(m_vSuggest.size()) * fontSize.y, 37.0f, 127.5f));
 
     ImGui::SameLine();
     if (ImGui::Button("Submit"))
@@ -295,6 +298,7 @@ void CConsole::BasePanel(void)
             memset(m_szInputBuf, '\0', 1);
         }
         ResetAutoComplete();
+        BuildSummary();
     }
     ImGui::End();
 }
@@ -346,27 +350,28 @@ void CConsole::SuggestPanel(void)
     ImGui::Begin("##suggest", nullptr, m_nSuggestFlags);
     ImGui::PushAllowKeyboardFocus(false);
 
-    for (size_t i = 0; i < m_vsvSuggest.size(); i++)
+    for (size_t i = 0; i < m_vSuggest.size(); i++)
     {
         bool bIsIndexActive = m_nSuggestPos == i;
         ImGui::PushID(i);
 
         if (con_suggestion_showflags->GetBool())
         {
-            int k = ColorCodeFlags(m_vsvSuggest[i].m_nFlags);
+            int k = ColorCodeFlags(m_vSuggest[i].m_nFlags);
             ImGui::Image(m_vFlagIcons[k].m_idIcon, ImVec2(m_vFlagIcons[k].m_nWidth, m_vFlagIcons[k].m_nHeight));
             ImGui::SameLine();
         }
 
-        if (ImGui::Selectable(m_vsvSuggest[i].m_svName.c_str(), bIsIndexActive))
+        if (ImGui::Selectable(m_vSuggest[i].m_svName.c_str(), bIsIndexActive))
         {
             ImGui::Separator();
 
             // Remove the default value from ConVar before assigning it to the input buffer.
-            string svConVar = m_vsvSuggest[i].m_svName.substr(0, m_vsvSuggest[i].m_svName.find(' ')) + ' ';
+            string svConVar = m_vSuggest[i].m_svName.substr(0, m_vSuggest[i].m_svName.find(' ')) + ' ';
             memmove(m_szInputBuf, svConVar.c_str(), svConVar.size() + 1);
 
             ResetAutoComplete();
+            BuildSummary(svConVar);
         }
         ImGui::PopID();
 
@@ -400,21 +405,20 @@ void CConsole::SuggestPanel(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: checks if the console can autocomplete based on input
-// Output : true to perform autocomplete, false otherwise
+// Purpose: runs the autocomplete for the console
+// Output : true if autocomplete is performed, false otherwise
 //-----------------------------------------------------------------------------
-bool CConsole::CanAutoComplete(void)
+bool CConsole::AutoComplete(void)
 {
     // Show ConVar/ConCommand suggestions when at least 2 characters have been entered.
     if (strlen(m_szInputBuf) > 1)
     {
-        static char szCurInputBuf[512]{};
-        if (strcmp(m_szInputBuf, szCurInputBuf) != 0) // Update suggestions if input buffer changed.
+        if (m_bCanAutoComplete)
         {
-            memmove(szCurInputBuf, m_szInputBuf, strlen(m_szInputBuf) + 1);
+            m_bCanAutoComplete = false;
             FindFromPartial();
         }
-        if (static_cast<int>(m_vsvSuggest.size()) <= 0)
+        if (m_vSuggest.empty())
         {
             m_nSuggestPos = -1;
             return false;
@@ -441,6 +445,7 @@ bool CConsole::CanAutoComplete(void)
 //-----------------------------------------------------------------------------
 void CConsole::ResetAutoComplete(void)
 {
+    m_bCanAutoComplete = false;
     m_bSuggestActive = false;
     m_nSuggestPos = -1;
     m_bReclaimFocus = true;
@@ -451,9 +456,10 @@ void CConsole::ResetAutoComplete(void)
 //-----------------------------------------------------------------------------
 void CConsole::ClearAutoComplete(void)
 {
+    m_bCanAutoComplete = false;
     m_nSuggestPos = -1;
     m_bSuggestUpdate = true;
-    m_vsvSuggest.clear();
+    m_vSuggest.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -465,12 +471,12 @@ void CConsole::FindFromPartial(void)
 
     for (size_t i = 0; i < m_vsvCommandBases.size(); i++)
     {
-        if (m_vsvSuggest.size() < con_suggestion_limit->GetInt())
+        if (m_vSuggest.size() < con_suggestion_limit->GetInt())
         {
             if (m_vsvCommandBases[i].m_svName.find(m_szInputBuf) != string::npos)
             {
-                if (std::find(m_vsvSuggest.begin(), m_vsvSuggest.end(), 
-                    m_vsvCommandBases[i].m_svName) == m_vsvSuggest.end())
+                if (std::find(m_vSuggest.begin(), m_vSuggest.end(), 
+                    m_vsvCommandBases[i].m_svName) == m_vSuggest.end())
                 {
                     int nFlags = 0;
                     string svValue;
@@ -517,13 +523,13 @@ void CConsole::FindFromPartial(void)
                             }
                         }
                     }
-                    m_vsvSuggest.push_back(CSuggest(m_vsvCommandBases[i].m_svName + svValue, nFlags));
+                    m_vSuggest.push_back(CSuggest(m_vsvCommandBases[i].m_svName + svValue, nFlags));
                 }
             }
         }
         else { break; }
     }
-    std::sort(m_vsvSuggest.begin(), m_vsvSuggest.end());
+    std::sort(m_vSuggest.begin(), m_vSuggest.end());
 }
 
 //-----------------------------------------------------------------------------
@@ -541,16 +547,16 @@ void CConsole::ProcessCommand(const char* pszCommand)
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
     m_nHistoryPos = -1;
-    for (int i = static_cast<int>(m_vsvHistory.size()) - 1; i >= 0; i--)
+    for (int i = static_cast<int>(m_vHistory.size()) - 1; i >= 0; i--)
     {
-        if (m_vsvHistory[i].compare(pszCommand) == 0)
+        if (m_vHistory[i].compare(pszCommand) == 0)
         {
-            m_vsvHistory.erase(m_vsvHistory.begin() + i);
+            m_vHistory.erase(m_vHistory.begin() + i);
             break;
         }
     }
 
-    m_vsvHistory.push_back(Strdup(pszCommand));
+    m_vHistory.push_back(Strdup(pszCommand));
     if (Stricmp(pszCommand, "CLEAR") == 0)
     {
         ClearLog();
@@ -558,12 +564,12 @@ void CConsole::ProcessCommand(const char* pszCommand)
     else if (Stricmp(pszCommand, "HELP") == 0)
     {
         AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "Commands:\n");
-        for (size_t i = 0; i < m_vsvCommands.size(); i++)
+        for (size_t i = 0; i < m_vCommands.size(); i++)
         {
-            AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "- %s\n", m_vsvCommands[i].c_str());
+            AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "- %s\n", m_vCommands[i].c_str());
         }
 
-        AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "Context:\n");
+        AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "Contexts:\n");
         AddLog(ImVec4(0.59f, 0.58f, 0.73f, 1.00f), "- Script(S): = Server DLL (Script)\n");
         AddLog(ImVec4(0.59f, 0.58f, 0.63f, 1.00f), "- Script(C): = Client DLL (Script)\n");
         AddLog(ImVec4(0.59f, 0.48f, 0.53f, 1.00f), "- Script(U): = UI DLL (Script)\n");
@@ -579,10 +585,10 @@ void CConsole::ProcessCommand(const char* pszCommand)
     }
     else if (Stricmp(pszCommand, "HISTORY") == 0)
     {
-        int nFirst = static_cast<int>(m_vsvHistory.size()) - 10;
-        for (int i = nFirst > 0 ? nFirst : 0; i < static_cast<int>(m_vsvHistory.size()); i++)
+        int nFirst = static_cast<int>(m_vHistory.size()) - 10;
+        for (int i = nFirst > 0 ? nFirst : 0; i < static_cast<int>(m_vHistory.size()); i++)
         {
-            AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "%3d: %s\n", i, m_vsvHistory[i].c_str());
+            AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "%3d: %s\n", i, m_vHistory[i].c_str());
         }
     }
 
@@ -633,6 +639,40 @@ int CConsole::ColorCodeFlags(int nFlags) const
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: builds the console summary
+// Input  : svConVar - 
+//-----------------------------------------------------------------------------
+void CConsole::BuildSummary(string svConVar)
+{
+    if (!svConVar.empty())
+    {
+        for (size_t i = 0; i < svConVar.size(); i++)
+        {
+            if (svConVar[i] == ' ' || svConVar[i] == ';')
+            {
+                svConVar[i] = '\0'; // Remove space or semicolon before we call 'g_pCVar->FindVar(..)'.
+            }
+        }
+
+        ConVar* pConVar = g_pCVar->FindVar(svConVar.c_str());
+        if (pConVar)
+        {
+            // Display the current and default value of ConVar if found.
+            snprintf(m_szSummary, sizeof(m_szSummary), "(\"%s\", default \"%s\")", pConVar->GetString(), pConVar->GetDefault());
+        }
+        else
+        {
+            // Display amount of history items if ConVar cannot be found.
+            snprintf(m_szSummary, sizeof(m_szSummary), "%zu history items", m_vHistory.size());
+        }
+    }
+    else // Default or empty param.
+    {
+        snprintf(m_szSummary, sizeof(m_szSummary), "%zu history items", m_vHistory.size());
+    }
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: console input box callback
 // Input  : *iData - 
 // Output : 
@@ -668,7 +708,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
             }
             else if (iData->EventKey == ImGuiKey_DownArrow)
             {
-                if (m_nSuggestPos < static_cast<int>(m_vsvSuggest.size()) - 1)
+                if (m_nSuggestPos < static_cast<int>(m_vSuggest.size()) - 1)
                 {
                     m_nSuggestPos++;
                     m_bSuggestMoved = true;
@@ -682,7 +722,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
             {
                 if (m_nHistoryPos == -1)
                 {
-                    m_nHistoryPos = static_cast<int>(m_vsvHistory.size()) - 1;
+                    m_nHistoryPos = static_cast<int>(m_vHistory.size()) - 1;
                 }
                 else if (m_nHistoryPos > 0)
                 {
@@ -693,7 +733,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
             {
                 if (m_nHistoryPos != -1)
                 {
-                    if (++m_nHistoryPos >= static_cast<int>(m_vsvHistory.size()))
+                    if (++m_nHistoryPos >= static_cast<int>(m_vHistory.size()))
                     {
                         m_nHistoryPos = -1;
                     }
@@ -701,11 +741,11 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
             }
             if (nPrevHistoryPos != m_nHistoryPos)
             {
-                string svHistory = (m_nHistoryPos >= 0) ? m_vsvHistory[m_nHistoryPos] : "";
+                string svHistory = (m_nHistoryPos >= 0) ? m_vHistory[m_nHistoryPos] : "";
 
                 if (!svHistory.empty())
                 {
-                    if (m_vsvHistory[m_nHistoryPos].find(" ") == string::npos)
+                    if (m_vHistory[m_nHistoryPos].find(' ') == string::npos)
                     {
                         // Append whitespace to previous entered command if absent or no parameters where passed.
                         svHistory.append(" ");
@@ -716,39 +756,14 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
                 iData->InsertChars(0, svHistory.c_str());
             }
         }
+        BuildSummary(iData->Buf);
         break;
     }
-    case ImGuiInputTextFlags_CallbackAlways:
+    case ImGuiInputTextFlags_CallbackEdit:
     {
-        static char szCurInputBuf[512]{};
-        if (strcmp(m_szInputBuf, szCurInputBuf) != 0) // Only run if changed.
-        {
-            char szValue[512]{};
-            memmove(szCurInputBuf, m_szInputBuf, strlen(m_szInputBuf) + 1);
-            sprintf_s(szValue, sizeof(szValue), "%s", m_szInputBuf);
-
-            // Remove space or semicolon before we call 'g_pCVar->FindVar(..)'.
-            for (size_t i = 0; i < strlen(szValue); i++)
-            {
-                if (szValue[i] == ' ' || szValue[i] == ';')
-                {
-                    szValue[i] = '\0';
-                }
-            }
-
-            ConVar* pConVar = g_pCVar->FindVar(szValue);
-            if (pConVar)
-            {
-                // Display the current and default value of ConVar if found.
-                snprintf(m_szSummary, 256, "(\"%s\", default \"%s\")", pConVar->GetString(), pConVar->GetDefault());
-            }
-            else
-            {
-                // Display amount of history items if ConVar cannot be found.
-                snprintf(m_szSummary, 256, "%zu history items", m_vsvHistory.size());
-            }
-            break;
-        }
+        m_bCanAutoComplete = true;
+        BuildSummary(iData->Buf);
+        break;
     }
     }
     return NULL;

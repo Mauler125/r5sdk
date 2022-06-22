@@ -31,8 +31,8 @@ private:
     char                           m_szSummary[256]      = { '\0' };
     const char*                    m_pszConsoleTitle     = nullptr;
 
-    vector<string>                 m_vsvCommands;
-    vector<string>                 m_vsvHistory;
+    vector<string>                 m_vCommands;
+    vector<string>                 m_vHistory;
     int                            m_nHistoryPos      = -1;
     int                            m_nScrollBack      = 0;
     float                          m_flFadeAlpha      = 0.f;
@@ -41,11 +41,12 @@ private:
     bool                           m_bReclaimFocus    = false;
     bool                           m_bCopyToClipBoard = false;
 
+    bool                           m_bCanAutoComplete = false;
     bool                           m_bSuggestActive   = false;
     bool                           m_bSuggestMoved    = false;
     bool                           m_bSuggestUpdate   = false;
     int                            m_nSuggestPos      = -1;
-    vector<CSuggest>               m_vsvSuggest;
+    vector<CSuggest>               m_vSuggest;
     vector<MODULERESOURCE>         m_vFlagIcons;
 
     ImVec2                         m_ivSuggestWindowPos;
@@ -68,6 +69,11 @@ private:
         ImGuiWindowFlags_AlwaysVerticalScrollbar   |
         ImGuiWindowFlags_AlwaysHorizontalScrollbar;
 
+    ImGuiWindowFlags m_nLoggingFlags = 
+        ImGuiWindowFlags_NoMove              | 
+        ImGuiWindowFlags_HorizontalScrollbar | 
+        ImGuiWindowFlags_AlwaysVerticalScrollbar;
+
 public:
     bool             m_bActivate = false;
     vector<CSuggest> m_vsvCommandBases;
@@ -84,13 +90,14 @@ public:
     void OptionsPanel(void);
     void SuggestPanel(void);
 
-    bool CanAutoComplete(void);
+    bool AutoComplete(void);
     void ResetAutoComplete(void);
     void ClearAutoComplete(void);
 
     void FindFromPartial(void);
     void ProcessCommand(const char* pszCommand);
     int ColorCodeFlags(int nFlags) const;
+    void BuildSummary(string svConVar = "");
 
     int TextEditCallback(ImGuiInputTextCallbackData* pData);
     static int TextEditCallbackStub(ImGuiInputTextCallbackData* pData);
