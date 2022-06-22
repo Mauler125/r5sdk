@@ -629,7 +629,7 @@ void RTech::CreateDXTexture(RPakTextureHeader_t* textureHeader, int64_t imageDat
 		p_texture_desc_var.ArraySize = v7;
 		p_texture_desc_var.MiscFlags = 0;
 		p_texture_desc_var.Usage = (D3D11_USAGE)!v32;
-		create_texture_err_var = (*g_ppGameDevice)->CreateTexture2D(&p_texture_desc_var, NULL, &v2->m_ppTexture);
+		create_texture_err_var = (*g_ppGameDevice)->CreateTexture2D(&p_texture_desc_var, &p_initial_data_var + v8, &v2->m_ppTexture);
 		if (create_texture_err_var < 0)
 			Error(eDLL_T::RTECH, "Couldn't create texture \"%s\": error code %08x\n", *(const char**)&v2->m_nNameIndex, (unsigned int)create_texture_err_var);
 		v34 = v2->m_nArraySize;
@@ -646,10 +646,7 @@ void RTech::CreateDXTexture(RPakTextureHeader_t* textureHeader, int64_t imageDat
 			*(_QWORD*)&v39.ViewDimension = 5i64;
 			v39.Texture1DArray.FirstArraySlice = 0;
 		}
-		create_shader_resource_view_err = (*g_ppGameDevice)->CreateShaderResourceView(
-			v2->m_ppTexture,
-			&v39,
-			&v2->m_ppShaderResourceView);
+		create_shader_resource_view_err = (*g_ppGameDevice)->CreateShaderResourceView(v2->m_ppTexture, &v39, &v2->m_ppShaderResourceView);
 		if (create_shader_resource_view_err < 0)
 			Error(eDLL_T::RTECH, "Couldn't create shader resource view for texture \"%s\": error code %08x\n", *(const char**)&v2->m_nNameIndex, (unsigned int)create_shader_resource_view_err);
 	}
