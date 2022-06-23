@@ -505,7 +505,6 @@ std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::
 void RTech::CreateDXTexture(RPakTextureHeader_t* textureHeader, int64_t imageData)
 {
 	RPakTextureHeader_t* v2; // rbx
-	uint16_t v4; // cx
 	int v5; // esi
 	UINT v6; // edi
 	uint8_t v7; // r15
@@ -526,9 +525,7 @@ void RTech::CreateDXTexture(RPakTextureHeader_t* textureHeader, int64_t imageDat
 	unsigned int v22; // er8
 	__int64 v23; // rdx
 	__int64 v24; // rcx
-	unsigned int v25; // er8
-	DXGI_FORMAT v26; // esi
-	unsigned int v27; // edx
+	DXGI_FORMAT dxgiFormat; // esi
 	unsigned int v28; // er8
 	UINT v29; // eax
 	unsigned int v30; // edx
@@ -541,20 +538,14 @@ void RTech::CreateDXTexture(RPakTextureHeader_t* textureHeader, int64_t imageDat
 	unsigned int v37; // [rsp+20h] [rbp-E0h]
 	unsigned int v38; // [rsp+24h] [rbp-DCh]
 	D3D11_SHADER_RESOURCE_VIEW_DESC v39; // [rsp+28h] [rbp-D8h] BYREF
-	__int64 v40; // [rsp+2Ch] [rbp-D4h]
-	int v41; // [rsp+34h] [rbp-CCh]
-	int v42; // [rsp+38h] [rbp-C8h]
-	int v43; // [rsp+3Ch] [rbp-C4h]
 	D3D11_TEXTURE2D_DESC p_texture_desc_var; // [rsp+40h] [rbp-C0h] BYREF
 	D3D11_SUBRESOURCE_DATA p_initial_data_var; // [rsp+70h] [rbp-90h] BYREF
-	RPakTextureHeader_t* v46; // [rsp+80B0h] [rbp+7FB0h]
 	unsigned int v47; // [rsp+80C0h] [rbp+7FC0h]
 	
 	ZeroMemory(&p_texture_desc_var, sizeof(p_texture_desc_var));
 	ZeroMemory(&p_initial_data_var, sizeof(p_initial_data_var));
 
 	v2 = textureHeader;
-	v4 = textureHeader->m_nFormat;
 	if (!v2->unk0 && v2->m_nHeight)
 	{
 		v5 = v2->m_nMipLevelsStreamedOpt + v2->m_nMipLevelsStreamed;
@@ -567,10 +558,10 @@ void RTech::CreateDXTexture(RPakTextureHeader_t* textureHeader, int64_t imageDat
 			v10 = v2->m_nHeight;
 			v37 = v9;
 			v38 = v10;
-			v11 = HIBYTE(s_pBitsPerPixelWord[v4]);
+			v11 = HIBYTE(s_pBitsPerPixelWord[textureHeader->m_nFormat]);
 			v12 = v11 >> 1;
 			v47 = v11;
-			v13 = LOBYTE(s_pBitsPerPixelWord[v4]);
+			v13 = LOBYTE(s_pBitsPerPixelWord[textureHeader->m_nFormat]);
 			v14 = v13 * (v11 >> (v11 >> 1));
 			do
 			{
@@ -607,34 +598,32 @@ void RTech::CreateDXTexture(RPakTextureHeader_t* textureHeader, int64_t imageDat
 				v10 = v38;
 			} while (v8 != v5);
 		}
-		LOBYTE(v2[1].m_nNameHash) = v6;
-		v25 = v2->m_nWidth;
-		p_texture_desc_var.MipLevels = v6;
-		v26 = rpakToDxgiFormat[v4];
-		v27 = v2->m_nHeight;
-		p_texture_desc_var.Format = v26;
-		v28 = v25 >> v8;
+		LOBYTE(v2[1].m_nNameHash) = v6; // Seems kinda wrong
+		p_texture_desc_var.MipLevels = v6; // v6 is MipLevels
+		dxgiFormat = rpakToDxgiFormat[textureHeader->m_nFormat]; // Get dxgi format
+		p_texture_desc_var.Format = dxgiFormat;
+		v28 = v2->m_nWidth >> v8; // Offseted by mips?
 		v29 = 1;
-		v30 = v27 >> v8;
+		v30 = v2->m_nHeight >> v8; // Offseted by mips?
 		p_texture_desc_var.SampleDesc.Count = 1;
 		if (v28 > 1)
 			v29 = v28;
 		*(_QWORD*)&p_texture_desc_var.BindFlags = 8;
-		p_texture_desc_var.Width = v29;
+		p_texture_desc_var.Width = v29; // Final width
 		v31 = 1;
 		if (v30 > 1)
 			v31 = v30;
-		p_texture_desc_var.Height = v31;
+		p_texture_desc_var.Height = v31; // Final height
 		v32 = v2->unk2 == 2;
-		p_texture_desc_var.ArraySize = v7;
+		p_texture_desc_var.ArraySize = v7; // v7 is arraysiye
 		p_texture_desc_var.MiscFlags = 0;
 		p_texture_desc_var.Usage = (D3D11_USAGE)!v32;
 		create_texture_err_var = (*g_ppGameDevice)->CreateTexture2D(&p_texture_desc_var, &p_initial_data_var + v8, &v2->m_ppTexture);
 		if (create_texture_err_var < 0)
 			Error(eDLL_T::RTECH, "Couldn't create texture \"%s\": error code %08x\n", *(const char**)&v2->m_nNameIndex, (unsigned int)create_texture_err_var);
 		v34 = v2->m_nArraySize;
-		v35 = LOBYTE(v2[1].m_nNameHash);
-		v39.Format = v26;
+		v35 = LOBYTE(v2[1].m_nNameHash); // Buffer num elements?
+		v39.Format = dxgiFormat;
 		v39.Buffer.NumElements = v35;
 		if (v34 <= 1u)
 		{
