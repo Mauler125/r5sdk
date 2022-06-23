@@ -44,24 +44,6 @@ public:
 	bf_write	m_DataOut;
 };
 
-struct VecNetMessages
-{
-	CNetMessage** items;
-	int64_t m_nAllocationCount;
-	int64_t m_nGrowSize;
-	int m_Size;
-	int padding_;
-};
-
-struct VecNetDataFragments
-{
-	void** items;
-	int64_t m_nAllocationCount;
-	int64_t m_nGrowSize;
-	int m_Size;
-	int padding_;
-};
-
 //-------------------------------------------------------------------------
 // MM_HEARTBEAT
 //-------------------------------------------------------------------------
