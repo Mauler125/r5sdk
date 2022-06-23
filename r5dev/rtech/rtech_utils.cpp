@@ -538,13 +538,8 @@ void RTech::CreateDXTexture(RPakTextureHeader_t* textureHeader, int64_t imageDat
 	unsigned int v37; // [rsp+20h] [rbp-E0h]
 	unsigned int v38; // [rsp+24h] [rbp-DCh]
 	D3D11_SHADER_RESOURCE_VIEW_DESC v39; // [rsp+28h] [rbp-D8h] BYREF
-	__int64 v40; // [rsp+2Ch] [rbp-D4h]
-	int v41; // [rsp+34h] [rbp-CCh]
-	int v42; // [rsp+38h] [rbp-C8h]
-	int v43; // [rsp+3Ch] [rbp-C4h]
 	D3D11_TEXTURE2D_DESC p_texture_desc_var; // [rsp+40h] [rbp-C0h] BYREF
 	D3D11_SUBRESOURCE_DATA p_initial_data_var; // [rsp+70h] [rbp-90h] BYREF
-	RPakTextureHeader_t* v46; // [rsp+80B0h] [rbp+7FB0h]
 	unsigned int v47; // [rsp+80C0h] [rbp+7FC0h]
 	
 	ZeroMemory(&p_texture_desc_var, sizeof(p_texture_desc_var));
