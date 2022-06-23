@@ -28,7 +28,6 @@ class CHLClient
 public:
 	static void FrameStageNotify(CHLClient* pHLClient, ClientFrameStage_t curStage);
 	ClientClass* GetAllClasses();
-	void PatchNetVarConVar(void) const;
 
 	void* /* CUserCmd* */ GetUserCmd(int sequenceNumber) // @0x1405BB020 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	{
