@@ -1,41 +1,43 @@
 #pragma once
 #include "tier1/bitbuf.h"
+#include "public/include/inetmsghandler.h"
 
 enum class UserMessages : int
 {
 	TextMsg = 0x2
 };
 
-class CNetMessage
+class INetMessage
+{
+	void* __vftable /*VFT*/;
+};
+
+class CNetMessage : public INetMessage
 {
 public:
-	void* iNetMessageVTable;
 	int m_nGroup;
 	bool m_bReliable;
 	char padding[3];
 	void* m_NetChannel;
 };
 
-class SVC_Print : public CNetMessage
+class SVC_Print : public CNetMessage, IServerMessageHandler
 {
 public:
 	bool Process();
 
-	void* m_pMessageHandler;
 	char padding[8];
 	const char* m_szText;
 private:
 	char m_szTextBuffer[2048];
 };
 
-class SVC_UserMessage : public CNetMessage
+class SVC_UserMessage : public CNetMessage, IServerMessageHandler
 {
 public:
 
 	bool Process();
 
-	void* m_pMessageHandler;
-	char padding[8];
 	int			m_nMsgType;
 	int			m_nLength;	// data length in bits
 	bf_read		m_DataIn;
