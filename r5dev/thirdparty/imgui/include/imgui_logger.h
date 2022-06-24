@@ -199,8 +199,8 @@ private:
 	std::string GetWordAt(const Coordinates& aCoords) const;
 	ImU32 GetGlyphColor(const Glyph& aGlyph) const;
 
-	void HandleKeyboardInputs();
-	void HandleMouseInputs();
+	void HandleKeyboardInputs(bool bHoveredScrollbar, bool bActiveScrollbar);
+	void HandleMouseInputs(bool bHoveredScrollbar, bool bActiveScrollbar);
 
 public:
 	bool m_bAutoScroll;

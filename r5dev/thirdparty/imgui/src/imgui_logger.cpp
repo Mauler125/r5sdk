@@ -7,7 +7,8 @@
 #include "thirdparty/imgui/include/imgui_logger.h"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
-#include "thirdparty/imgui/include/imgui.h" // for imGui::GetCurrentWindow()
+#include "thirdparty/imgui/include/imgui.h"
+#include "thirdparty/imgui/include/imgui_internal.h"
 
 template<class InputIt1, class InputIt2, class BinaryPredicate>
 bool equals(InputIt1 first1, InputIt1 last1,
@@ -555,18 +556,17 @@ ImU32 CTextLogger::GetGlyphColor(const Glyph & aGlyph) const
 	return ImGui::ColorConvertFloat4ToU32(color);
 }
 
-void CTextLogger::HandleKeyboardInputs()
+void CTextLogger::HandleKeyboardInputs(bool bHoveredScrollbar, bool bActiveScrollbar)
 {
 	ImGuiIO& io = ImGui::GetIO();
 	bool shift = io.KeyShift;
 	bool ctrl = io.ConfigMacOSXBehaviors ? io.KeySuper : io.KeyCtrl;
 	bool alt = io.ConfigMacOSXBehaviors ? io.KeyCtrl : io.KeyAlt;
 
-	if (ImGui::IsWindowFocused())
+	if (!bActiveScrollbar && ImGui::IsWindowFocused())
 	{
-		if (ImGui::IsWindowHovered())
+		if (!bHoveredScrollbar && ImGui::IsWindowHovered())
 			ImGui::SetMouseCursor(ImGuiMouseCursor_TextInput);
-		//ImGui::CaptureKeyboardFromApp(true);
 
 		io.WantCaptureKeyboard = true;
 		io.WantTextInput = true;
@@ -600,16 +600,17 @@ void CTextLogger::HandleKeyboardInputs()
 	}
 }
 
-void CTextLogger::HandleMouseInputs()
+void CTextLogger::HandleMouseInputs(bool bHoveredScrollbar, bool bActiveScrollbar)
 {
 	ImGuiIO& io = ImGui::GetIO();
-	bool shift = io.KeyShift;
-	bool ctrl = io.ConfigMacOSXBehaviors ? io.KeySuper : io.KeyCtrl;
-	bool alt = io.ConfigMacOSXBehaviors ? io.KeyCtrl : io.KeyAlt;
 
-	if (ImGui::IsWindowFocused())
+	bool bShift = io.KeyShift;
+	bool bCtrl = io.ConfigMacOSXBehaviors ? io.KeySuper : io.KeyCtrl;
+	bool bAlt = io.ConfigMacOSXBehaviors ? io.KeyCtrl : io.KeyAlt;
+
+	if (!bHoveredScrollbar && !bActiveScrollbar && ImGui::IsWindowFocused())
 	{
-		if (!shift && !alt)
+		if (!bShift && !bAlt)
 		{
 			bool click = ImGui::IsMouseClicked(0);
 			bool doubleClick = ImGui::IsMouseDoubleClicked(0);
@@ -623,7 +624,7 @@ void CTextLogger::HandleMouseInputs()
 
 			if (tripleClick)
 			{
-				if (!ctrl)
+				if (!bCtrl)
 				{
 					m_State.m_CursorPosition = m_InteractiveStart = m_InteractiveEnd = ScreenPosToCoordinates(ImGui::GetMousePos());
 					m_SelectionMode = SelectionMode::Line;
@@ -639,7 +640,7 @@ void CTextLogger::HandleMouseInputs()
 
 			else if (doubleClick)
 			{
-				if (!ctrl)
+				if (!bCtrl)
 				{
 					m_State.m_CursorPosition = m_InteractiveStart = m_InteractiveEnd = ScreenPosToCoordinates(ImGui::GetMousePos());
 
@@ -659,7 +660,7 @@ void CTextLogger::HandleMouseInputs()
 			else if (click)
 			{
 				m_State.m_CursorPosition = m_InteractiveStart = m_InteractiveEnd = ScreenPosToCoordinates(ImGui::GetMousePos());
-				if (ctrl)
+				if (bCtrl)
 					m_SelectionMode = SelectionMode::Word;
 				else
 					m_SelectionMode = SelectionMode::Normal;
@@ -684,14 +685,21 @@ void CTextLogger::Render()
 	m_bCursorPositionChanged = false;
 
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
+
+	ImGuiWindow* pWindow = ImGui::GetCurrentWindow();
+	ImGuiID activeID = ImGui::GetActiveID();
+	ImGuiID hoveredID = ImGui::GetHoveredID();
+	bool bHoveredScrollbar = hoveredID && (hoveredID == ImGui::GetWindowScrollbarID(pWindow, ImGuiAxis_X) || hoveredID == ImGui::GetWindowScrollbarID(pWindow, ImGuiAxis_Y));
+	bool bActiveScrollbar = activeID && (activeID == ImGui::GetWindowScrollbarID(pWindow, ImGuiAxis_X) || activeID == ImGui::GetWindowScrollbarID(pWindow, ImGuiAxis_Y));
+
 	if (m_bHandleKeyboardInputs)
 	{
-		HandleKeyboardInputs();
+		HandleKeyboardInputs(bHoveredScrollbar, bActiveScrollbar);
 		ImGui::PushAllowKeyboardFocus(true);
 	}
 
 	if (m_bHandleMouseInputs)
-		HandleMouseInputs();
+		HandleMouseInputs(bHoveredScrollbar, bActiveScrollbar);
 
 	/* Compute mCharAdvance regarding to scaled font size (Ctrl + mouse wheel)*/
 	const float fontSize = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, "#", nullptr, nullptr).x;
