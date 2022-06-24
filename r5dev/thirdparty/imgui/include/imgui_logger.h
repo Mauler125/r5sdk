@@ -205,6 +205,7 @@ private:
 public:
 	bool m_bAutoScroll;
 	bool m_bScrollToBottom;
+	bool m_bScrolledToMax;
 private:
 	bool m_bHandleKeyboardInputs;
 	bool m_bHandleMouseInputs;

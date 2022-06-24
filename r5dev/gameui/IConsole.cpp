@@ -214,11 +214,12 @@ void CConsole::BasePanel(void)
         m_bCopyToClipBoard = false;
     }
 
-    if (m_nScrollBack > 0)
+    if (!m_Logger.m_bScrolledToMax && m_nScrollBack > 0)
     {
         ImGui::SetScrollY(ImGui::GetScrollY() - m_nScrollBack * fontSize.y);
         m_nScrollBack = 0;
     }
+    m_nScrollBack = 0;
 
     ///////////////////////////////////////////////////////////////////////
     ImGui::EndChild();

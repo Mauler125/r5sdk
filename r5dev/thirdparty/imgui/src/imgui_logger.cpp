@@ -28,6 +28,7 @@ CTextLogger::CTextLogger()
 	, m_bAutoScroll(true)
 	, m_bScrollToBottom(true)
 	, m_bScrollToCursor(false)
+	, m_bScrolledToMax(false)
 	, m_flTextStart(0.0f)
 	, m_nLeftMargin(0)
 	, m_bCursorPositionChanged(false)
@@ -860,8 +861,9 @@ void CTextLogger::Render()
 
 
 	ImGui::Dummy(ImVec2((longest + 2), m_Lines.size() * m_CharAdvance.y));
+	m_bScrolledToMax = ImGui::GetScrollY() >= ImGui::GetScrollMaxY();
 
-	if (m_bScrollToBottom || (!m_bScrollToCursor && m_bAutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY()))
+	if (m_bScrollToBottom || (!m_bScrollToCursor && m_bAutoScroll && m_bScrolledToMax))
 	{
 		ImGui::SetScrollHereY(1.0f);
 		m_bScrollToBottom = false;
