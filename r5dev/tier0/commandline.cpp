@@ -83,20 +83,20 @@ void CCommandLine::AppendParm(const char* pszParm, const char* pszValues)
 //-----------------------------------------------------------------------------
 // Purpose: returns the argument after the one specified, or the default if not found
 //-----------------------------------------------------------------------------
-const char* CCommandLine::ParmValue(const char* psz, const char* pDefaultVal)
+float CCommandLine::ParmValue(const char* psz, float flDefaultVal)
 {
 	static int index = 7;
-	return CallVFunc<const char*>(index, this, psz, pDefaultVal);
+	return CallVFunc<float>(index, this, psz, flDefaultVal);
 }
 int CCommandLine::ParmValue(const char* psz, int nDefaultVal)
 {
 	static int index = 8;
 	return CallVFunc<int>(index, this, psz, nDefaultVal);
 }
-float CCommandLine::ParmValue(const char* psz, float flDefaultVal)
+const char* CCommandLine::ParmValue(const char* psz, const char* pDefaultVal)
 {
 	static int index = 9;
-	return CallVFunc<float>(index, this, psz, flDefaultVal);
+	return CallVFunc<const char*>(index, this, psz, pDefaultVal);
 }
 
 //-----------------------------------------------------------------------------

@@ -1,6 +1,7 @@
 #pragma once
+#include "public/include/icommandline.h"
 
-class CCommandLine // VTABLE @0x141369C78 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
+class CCommandLine : public ICommandLine // VTABLE @0x141369C78 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 {
 public:
 	void CreateCmdLine(const char* pszCommandline);
@@ -17,6 +18,18 @@ public:
 	int FindParm(const char* psz);
 	const char* GetParm(int nIndex);
 	void SetParm(int nIndex, char const* pParm);
+
+private:
+	enum
+	{
+		MAX_PARAMETER_LEN = 128,
+		MAX_PARAMETERS = 256,
+	};
+
+	char* m_pszCmdLine;
+	char m_Pad[0x18];
+	int m_nParmCount;
+	char* m_ppParms[MAX_PARAMETERS];
 };
 
 extern CCommandLine* g_pCmdLine;

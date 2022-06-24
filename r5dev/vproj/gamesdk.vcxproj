@@ -226,6 +226,7 @@
     <ClInclude Include="..\public\include\edict.h" />
     <ClInclude Include="..\public\include\globalvars_base.h" />
     <ClInclude Include="..\public\include\icliententitylist.h" />
+    <ClInclude Include="..\public\include\icommandline.h" />
     <ClInclude Include="..\public\include\inetchannel.h" />
     <ClInclude Include="..\public\include\inetmsghandler.h" />
     <ClInclude Include="..\public\include\iserver.h" />
