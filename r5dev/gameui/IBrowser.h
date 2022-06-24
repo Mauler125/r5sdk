@@ -29,7 +29,7 @@ class CBrowser
 {
 private:
     bool m_bInitialized = false;
-    bool m_bDefaultTheme = false;
+    bool m_bModernTheme = false;
 public:
     ////////////////////
     //   Enum Vars    //
@@ -68,7 +68,7 @@ public:
 
     void SettingsSection(void);
     void RegenerateEncryptionKey(void) const;
-    void ChangeEncryptionKeyTo(const std::string& svNetKey) const;
+    void ChangeEncryptionKey(const std::string& svNetKey) const;
 
     void SetStyleVar(void);
 

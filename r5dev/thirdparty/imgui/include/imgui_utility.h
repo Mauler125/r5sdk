@@ -24,6 +24,7 @@ public:
 
     void Load();
     void Save();
+    int InitStyle() const;
 };
 
 extern ImGuiConfig* g_pImGuiConfig;

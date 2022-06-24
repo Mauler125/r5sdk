@@ -33,11 +33,11 @@ private:
 
     vector<string>                 m_vCommands;
     vector<string>                 m_vHistory;
-    int                            m_nHistoryPos      = -1;
+    ssize_t                        m_nHistoryPos      = -1;
     int                            m_nScrollBack      = 0;
     float                          m_flFadeAlpha      = 0.f;
     bool                           m_bInitialized     = false;
-    bool                           m_bDefaultTheme    = false;
+    bool                           m_bModernTheme     = false;
     bool                           m_bReclaimFocus    = false;
     bool                           m_bCopyToClipBoard = false;
 
@@ -45,7 +45,7 @@ private:
     bool                           m_bSuggestActive   = false;
     bool                           m_bSuggestMoved    = false;
     bool                           m_bSuggestUpdate   = false;
-    int                            m_nSuggestPos      = -1;
+    ssize_t                        m_nSuggestPos      = -1;
     vector<CSuggest>               m_vSuggest;
     vector<MODULERESOURCE>         m_vFlagIcons;
 
@@ -96,8 +96,10 @@ public:
 
     void FindFromPartial(void);
     void ProcessCommand(const char* pszCommand);
-    int ColorCodeFlags(int nFlags) const;
     void BuildSummary(string svConVar = "");
+
+    bool LoadFlagIcons(void);
+    int ColorCodeFlags(int nFlags) const;
 
     int TextEditCallback(ImGuiInputTextCallbackData* pData);
     static int TextEditCallbackStub(ImGuiInputTextCallbackData* pData);
