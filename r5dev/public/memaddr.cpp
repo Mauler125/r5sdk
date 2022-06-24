@@ -239,7 +239,7 @@ CMemory CMemory::ResolveRelativeAddressSelf(ptrdiff_t registerOffset, ptrdiff_t 
 //          pOriginalMethod -
 // Output : void** via pOriginalMethod
 //-----------------------------------------------------------------------------
-void CMemory::HookVirtualMethod(uintptr_t virtualTable, void* pHookMethod, void** pOriginalMethod, ptrdiff_t methodIndex)
+void CMemory::HookVirtualMethod(uintptr_t virtualTable, void* pHookMethod, void** ppOriginalMethod, ptrdiff_t methodIndex)
 {
 	DWORD oldProt = NULL;
 
@@ -259,5 +259,5 @@ void CMemory::HookVirtualMethod(uintptr_t virtualTable, void* pHookMethod, void*
 	VirtualProtect(reinterpret_cast<void*>(virtualMethod), sizeof(virtualMethod), oldProt, &oldProt);
 
 	// Move original function into argument.
-	*pOriginalMethod = reinterpret_cast<void*>(originalFunction);
+	*ppOriginalMethod = reinterpret_cast<void*>(originalFunction);
 }
