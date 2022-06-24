@@ -9,6 +9,24 @@
 #include "tier1/cvar.h"
 
 //-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CCommandLine::CCommandLine(void)
+{
+	m_pszCmdLine = NULL;
+	m_nParmCount = 0;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CCommandLine::~CCommandLine(void)
+{
+	CleanUpParms();
+	delete[] m_pszCmdLine;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Create a command line from the passed in string
 // Note that if you pass in a @filename, then the routine will read settings
 // from a file instead of the command line
@@ -126,8 +144,18 @@ void CCommandLine::SetParm(int nIndex, char const* pParm)
 	CallVFunc<void>(index, this, nIndex, pParm);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-CCommandLine* g_pCmdLine = nullptr;
+//-----------------------------------------------------------------------------
+// Individual command line arguments
+//-----------------------------------------------------------------------------
+void CCommandLine::CleanUpParms(void)
+{
+	for (int i = 0; i < m_nParmCount; ++i)
+	{
+		delete[] m_ppParms[i];
+		m_ppParms[i] = NULL;
+	}
+	m_nParmCount = 0;
+}
 
 //-----------------------------------------------------------------------------
 // Instance singleton and expose interface to rest of code
@@ -136,3 +164,6 @@ CCommandLine* CommandLine(void)
 {
 	return g_pCmdLine;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+CCommandLine* g_pCmdLine = nullptr;
