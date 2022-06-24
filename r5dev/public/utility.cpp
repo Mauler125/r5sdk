@@ -486,6 +486,23 @@ string UTF8Decode(const string& svInput)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For obtaining UTF8 character length.
+size_t UTF8CharLength(const uint8_t cInput)
+{
+    if ((cInput & 0xFE) == 0xFC)
+        return 6;
+    if ((cInput & 0xFC) == 0xF8)
+        return 5;
+    if ((cInput & 0xF8) == 0xF0)
+        return 4;
+    else if ((cInput & 0xF0) == 0xE0)
+        return 3;
+    else if ((cInput & 0xE0) == 0xC0)
+        return 2;
+    return 1;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For checking if a string is a number.
 bool StringIsDigit(const string& svInput)
 {
