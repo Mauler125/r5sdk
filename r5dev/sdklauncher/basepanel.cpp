@@ -563,11 +563,16 @@ void CUIBaseSurface::ParseMaps()
 			}
 			else if (strcmp(smRegexMatches[1].str().c_str(), "mp_common") == 0)
 			{
-				this->m_MapCombo->Items.Add("mp_lobby");
+				if (!this->m_MapCombo->Items.Contains("mp_lobby"))
+				{
+					this->m_MapCombo->Items.Add("mp_lobby");
+				}
 				continue;
 			}
-
-			this->m_MapCombo->Items.Add(smRegexMatches[1].str().c_str());
+			else if (!this->m_MapCombo->Items.Contains(smRegexMatches[1].str().c_str()))
+			{
+				this->m_MapCombo->Items.Add(smRegexMatches[1].str().c_str());
+			}
 		}
 	}
 }
@@ -591,7 +596,10 @@ void CUIBaseSurface::ParsePlaylists()
 			const auto& vcPlaylists = vRoot.childs.at("Playlists");
 			for (auto [id, it] = std::tuple{ 1, vcPlaylists->childs.begin()}; it != vcPlaylists->childs.end(); id++, it++)
 			{
-				this->m_PlaylistCombo->Items.Add(it->first.c_str());
+				if (!this->m_PlaylistCombo->Items.Contains(it->first.c_str()))
+				{
+					this->m_PlaylistCombo->Items.Add(it->first.c_str());
+				}
 			}
 		}
 	}
