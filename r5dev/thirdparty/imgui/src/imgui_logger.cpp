@@ -607,7 +607,7 @@ void CTextLogger::HandleMouseInputs()
 	bool ctrl = io.ConfigMacOSXBehaviors ? io.KeySuper : io.KeyCtrl;
 	bool alt = io.ConfigMacOSXBehaviors ? io.KeyCtrl : io.KeyAlt;
 
-	if (ImGui::IsWindowHovered())
+	if (ImGui::IsWindowFocused())
 	{
 		if (!shift && !alt)
 		{
