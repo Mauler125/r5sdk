@@ -765,6 +765,20 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
     }
     case ImGuiInputTextFlags_CallbackEdit:
     {
+        for (size_t i = 0, n = strlen(iData->Buf);  i < n; i++)
+        {
+            if (iData->Buf[i] != '~' 
+                && iData->Buf[i] != '`' 
+                && iData->Buf[i] != ' ')
+            {
+                break;
+            }
+            else if (i == (n - 1))
+            {
+                iData->DeleteChars(0, n);
+            }
+        }
+
         m_bCanAutoComplete = true;
         BuildSummary(iData->Buf);
         break;
