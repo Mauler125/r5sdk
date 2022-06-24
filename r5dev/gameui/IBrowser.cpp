@@ -92,6 +92,11 @@ void CBrowser::Draw(void)
     ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);                   nVars++;
     ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(750, 510));        nVars++;
 
+    if (!m_bModernTheme)
+    {
+        ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);              nVars++;
+    }
+
     if (!ImGui::Begin(m_pszBrowserTitle, &m_bActivate))
     {
         ImGui::End();

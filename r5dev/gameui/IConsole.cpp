@@ -95,11 +95,10 @@ void CConsole::Draw(void)
         }
         else
         {
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 4.f, 6.f });  nVars++;
-            ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);              nVars++;
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 6.f, 6.f });  nVars++;
             ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
         }
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(618, 518));        nVars++;
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(618, 524));        nVars++;
 
         BasePanel();
         ImGui::PopStyleVar(nVars);
@@ -829,7 +828,7 @@ void CConsole::SetStyleVar(void)
         m_bModernTheme = true;
     }
 
-    ImGui::SetNextWindowSize(ImVec2(1200, 518), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(1200, 524), ImGuiCond_FirstUseEver);
     ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
 }
 
