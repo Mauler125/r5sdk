@@ -672,7 +672,7 @@ pair<vector<uint8_t>, string> PatternToBytesAndMask(const string& svInput)
     char* pszPatternStart = const_cast<char*>(svInput.c_str());
     char* pszPatternEnd = pszPatternStart + strlen(svInput.c_str());
     vector<uint8_t> vBytes = vector<uint8_t>{ };
-    string szMask = string();
+    string svMask = string();
 
     for (char* pszCurrentByte = pszPatternStart; pszCurrentByte < pszPatternEnd; ++pszCurrentByte)
     {
@@ -684,15 +684,15 @@ pair<vector<uint8_t>, string> PatternToBytesAndMask(const string& svInput)
                 ++pszCurrentByte; // Skip double wildcard.
             }
             vBytes.push_back(0); // Push the byte back as invalid.
-            szMask.append("?");
+            svMask.append("?");
         }
         else
         {
             vBytes.push_back(strtoul(pszCurrentByte, &pszCurrentByte, 16));
-            szMask.append("x");
+            svMask.append("x");
         }
     }
-    return make_pair(vBytes, szMask);
+    return make_pair(vBytes, svMask);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
