@@ -23,6 +23,7 @@ public:
 	CModule(void) = default;
 	CModule(const string& moduleName);
 	CMemory FindPatternSIMD(const uint8_t* szPattern, const char* szMask) const;
+	CMemory FindPatternSIMD(const string& svPattern) const;
 	CMemory FindString(const string& string, const ptrdiff_t occurence = 1, bool nullTerminator = false) const;
 	CMemory FindStringReadOnly(const string& svString, bool nullTerminator) const;
 

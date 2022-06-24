@@ -45,6 +45,7 @@ string StringUnescape(const string& svInput);
 
 vector<int> StringToBytes(const string& svInput, bool bNullTerminator);
 vector<int> PatternToBytes(const string& svInput);
+pair<vector<uint8_t>, string> PatternToBytesAndMask(const string& svInput);
 vector<int> IntToDigits(int iValue);
 
 /////////////////////////////////////////////////////////////////////////////

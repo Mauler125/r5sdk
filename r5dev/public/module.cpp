@@ -102,6 +102,18 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask) c
 	return CMemory();
 }
 
+
+//-----------------------------------------------------------------------------
+// Purpose: find array of bytes in process memory using SIMD instructions
+// Input  : *szPattern
+// Output : CMemory
+//-----------------------------------------------------------------------------
+CMemory CModule::FindPatternSIMD(const string& svPattern) const
+{
+	const pair patternInfo = PatternToBytesAndMask(svPattern);
+	return FindPatternSIMD(patternInfo.first.data(), patternInfo.second.c_str());
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: find address of input string constant in read only memory
 // Input  : *svString - 
