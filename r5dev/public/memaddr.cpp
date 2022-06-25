@@ -75,31 +75,30 @@ void CMemory::PatchString(const string& svString) const
 // Purpose: find array of bytes in process memory
 // Input  : *szPattern - 
 //			searchDirect - 
-//			nSize - 
+//			opCodesToScan - 
 //			occurence - 
 // Output : CMemory
 //-----------------------------------------------------------------------------
-CMemory CMemory::FindPattern(const string& svPattern, const Direction searchDirect, const int nSize, const ptrdiff_t occurence) const
+CMemory CMemory::FindPattern(const string& svPattern, const Direction searchDirect, const int opCodesToScan, const ptrdiff_t occurence) const
 {
-	uint8_t* ScanBytes = reinterpret_cast<uint8_t*>(ptr); // Get the base of the module.
+	uint8_t* pScanBytes = reinterpret_cast<uint8_t*>(ptr); // Get the base of the module.
 
 	const vector<int> PatternBytes = PatternToBytes(svPattern); // Convert our pattern to a byte array.
-	const pair BytesInfo = std::make_pair(PatternBytes.size(), PatternBytes.data()); // Get the size and data of our bytes.
+	const pair bytesInfo = std::make_pair(PatternBytes.size(), PatternBytes.data()); // Get the size and data of our bytes.
 	ptrdiff_t occurences = 0;
 
-	for (long i = 01; i < nSize + BytesInfo.first; i++)
+	for (long i = 01; i < opCodesToScan + bytesInfo.first; i++)
 	{
 		bool bFound = true;
+		int nMemOffset = searchDirect == Direction::DOWN ? i : -i;
 
-		int memOffset = searchDirect == Direction::DOWN ? i : -i;
-
-		for (DWORD j = 0ul; j < BytesInfo.first; j++)
+		for (DWORD j = 0ul; j < bytesInfo.first; j++)
 		{
 			// If either the current byte equals to the byte in our pattern or our current byte in the pattern is a wildcard
 			// our if clause will be false.
-			uint8_t currentByte = *(ScanBytes + memOffset + j);
-			_mm_prefetch(reinterpret_cast<const char*>(currentByte + 64), _MM_HINT_T0); // precache some data in L1.
-			if (currentByte != BytesInfo.second[j] && BytesInfo.second[j] != -1)
+			uint8_t currentByte = *(pScanBytes + nMemOffset + j);
+			_mm_prefetch(reinterpret_cast<const char*>(currentByte + nMemOffset + 64), _MM_HINT_T0); // precache some data in L1.
+			if (currentByte != bytesInfo.second[j] && bytesInfo.second[j] != -1)
 			{
 				bFound = false;
 				break;
@@ -111,7 +110,7 @@ CMemory CMemory::FindPattern(const string& svPattern, const Direction searchDire
 			occurences++;
 			if (occurence == occurences)
 			{
-				return CMemory(&*(ScanBytes + memOffset));
+				return CMemory(&*(pScanBytes + nMemOffset));
 			}
 		}
 	}
@@ -123,7 +122,7 @@ CMemory CMemory::FindPattern(const string& svPattern, const Direction searchDire
 // Purpose: find array of bytes in process memory starting from current address
 // Input  : *szPattern - 
 //			searchDirect - 
-//			nSize - 
+//			opCodesToScan - 
 //			occurence - 
 // Output : CMemory
 //-----------------------------------------------------------------------------
@@ -145,7 +144,7 @@ CMemory CMemory::FindPatternSelf(const string& svPattern, const Direction search
 			// If either the current byte equals to the byte in our pattern or our current byte in the pattern is a wildcard
 			// our if clause will be false.
 			uint8_t currentByte = *(pScanBytes + nMemOffset + j);
-			_mm_prefetch(reinterpret_cast<const char*>(currentByte + 64), _MM_HINT_T0); // precache some data in L1.
+			_mm_prefetch(reinterpret_cast<const char*>(currentByte + nMemOffset + 64), _MM_HINT_T0); // precache some data in L1.
 			if (currentByte != bytesInfo.second[j] && bytesInfo.second[j] != -1)
 			{
 				bFound = false;
