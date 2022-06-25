@@ -98,6 +98,7 @@ CMemory CMemory::FindPattern(const string& svPattern, const Direction searchDire
 			// If either the current byte equals to the byte in our pattern or our current byte in the pattern is a wildcard
 			// our if clause will be false.
 			uint8_t currentByte = *(ScanBytes + memOffset + j);
+			_mm_prefetch(reinterpret_cast<const char*>(currentByte + 64), _MM_HINT_T0); // precache some data in L1.
 			if (currentByte != BytesInfo.second[j] && BytesInfo.second[j] != -1)
 			{
 				bFound = false;
@@ -144,6 +145,7 @@ CMemory CMemory::FindPatternSelf(const string& svPattern, const Direction search
 			// If either the current byte equals to the byte in our pattern or our current byte in the pattern is a wildcard
 			// our if clause will be false.
 			uint8_t currentByte = *(pScanBytes + nMemOffset + j);
+			_mm_prefetch(reinterpret_cast<const char*>(currentByte + 64), _MM_HINT_T0); // precache some data in L1.
 			if (currentByte != bytesInfo.second[j] && bytesInfo.second[j] != -1)
 			{
 				bFound = false;
