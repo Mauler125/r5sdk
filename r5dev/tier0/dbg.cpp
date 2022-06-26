@@ -174,7 +174,7 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 		break;
 	}
 
-	g_pConsole->AddLog(CConLog(g_spd_sys_w_oss.str(), color));
+	g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), color));
 	g_pLogSystem.AddLog(tLog, g_spd_sys_w_oss.str());
 
 	g_spd_sys_w_oss.str("");
@@ -251,7 +251,7 @@ void Warning(eDLL_T context, const char* fmt, ...)
 #ifndef DEDICATED
 	iconsole->info(svOut);
 
-	g_pConsole->AddLog(CConLog(g_spd_sys_w_oss.str(), ImVec4(1.00f, 1.00f, 0.00f, 0.80f)));
+	g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), ImVec4(1.00f, 1.00f, 0.00f, 0.80f)));
 	g_pLogSystem.AddLog(LogType_t::WARNING_C, g_spd_sys_w_oss.str());
 
 	g_spd_sys_w_oss.str("");
@@ -328,7 +328,7 @@ void Error(eDLL_T context, const char* fmt, ...)
 #ifndef DEDICATED
 	iconsole->info(svOut);
 
-	g_pConsole->AddLog(CConLog(g_spd_sys_w_oss.str(), ImVec4(1.00f, 0.00f, 0.00f, 1.00f)));
+	g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), ImVec4(1.00f, 0.00f, 0.00f, 1.00f)));
 	g_pLogSystem.AddLog(LogType_t::ERROR_C, g_spd_sys_w_oss.str());
 
 	g_spd_sys_w_oss.str("");

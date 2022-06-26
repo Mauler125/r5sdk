@@ -913,7 +913,7 @@ void CTextLogger::Copy(bool aCopyAll)
 	}
 }
 
-void CTextLogger::SetText(const CConLog& aText)
+void CTextLogger::SetText(const ConLog_t& aText)
 {
 	m_Lines.clear();
 	m_Lines.emplace_back(Line());
@@ -928,7 +928,7 @@ void CTextLogger::SetText(const CConLog& aText)
 	}
 }
 
-void CTextLogger::SetTextLines(const std::vector<CConLog>& aLines)
+void CTextLogger::SetTextLines(const std::vector<ConLog_t>& aLines)
 {
 	m_Lines.clear();
 
@@ -1045,7 +1045,7 @@ void CTextLogger::SetTabSize(int aValue)
 	m_nTabSize = std::max(0, std::min(32, aValue));
 }
 
-void CTextLogger::InsertText(const CConLog & aValue)
+void CTextLogger::InsertText(const ConLog_t & aValue)
 {
 	m_Mutex.lock();
 

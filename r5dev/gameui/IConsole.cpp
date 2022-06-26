@@ -814,7 +814,7 @@ int CConsole::TextEditCallbackStub(ImGuiInputTextCallbackData* iData)
 // Purpose: adds logs to the vector
 // Input  : &conLog - 
 //-----------------------------------------------------------------------------
-void CConsole::AddLog(const CConLog& conLog)
+void CConsole::AddLog(const ConLog_t& conLog)
 {
     m_Logger.InsertText(conLog);
 }
@@ -833,7 +833,7 @@ void CConsole::AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2)
     buf[IM_ARRAYSIZE(buf) - 1] = 0;
     va_end(args);
 
-    m_Logger.InsertText(CConLog(Strdup(buf), color));
+    m_Logger.InsertText(ConLog_t(Strdup(buf), color));
 }
 
 //-----------------------------------------------------------------------------

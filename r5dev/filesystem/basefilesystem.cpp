@@ -92,7 +92,7 @@ void CBaseFileSystem::Warning(CBaseFileSystem* pFileSystem, FileWarningLevel_t l
 		wconsole->debug(szBuf);
 #ifndef DEDICATED
 		iconsole->debug(szBuf);
-		g_pConsole->AddLog(CConLog(g_spd_sys_w_oss.str(), ImVec4(1.00f, 1.00f, 0.00f, 1.00f)));
+		g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), ImVec4(1.00f, 1.00f, 0.00f, 1.00f)));
 
 		g_spd_sys_w_oss.str("");
 		g_spd_sys_w_oss.clear();

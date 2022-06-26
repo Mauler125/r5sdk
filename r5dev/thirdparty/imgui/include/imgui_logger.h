@@ -12,9 +12,9 @@
 #include <mutex>
 #include "imgui.h"
 
-struct CConLog
+struct ConLog_t
 {
-	CConLog(const std::string& svConLog, const ImVec4& imColor)
+	ConLog_t(const std::string& svConLog, const ImVec4& imColor)
 	{
 		m_svConLog = svConLog;
 		m_imColor = imColor;
@@ -115,10 +115,10 @@ public:
 	void Render();
 	void Copy(bool aCopyAll = false);
 
-	void SetText(const CConLog& aText);
+	void SetText(const ConLog_t& aText);
 	std::string GetText() const;
 
-	void SetTextLines(const std::vector<CConLog>& aLines);
+	void SetTextLines(const std::vector<ConLog_t>& aLines);
 	std::vector<std::string> GetTextLines() const;
 
 	ImGuiTextFilter GetFilter() const { return m_itFilter; };
@@ -146,7 +146,7 @@ public:
 	void SetTabSize(int aValue);
 	inline int GetTabSize() const { return m_nTabSize; }
 
-	void InsertText(const CConLog& aValue);
+	void InsertText(const ConLog_t& aValue);
 
 	void MoveUp(int aAmount = 1, bool aSelect = false);
 	void MoveDown(int aAmount = 1, bool aSelect = false);
