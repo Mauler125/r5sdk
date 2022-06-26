@@ -664,10 +664,9 @@ vector<int> PatternToBytes(const string& svInput)
     return vBytes;
 };
 
-
 ///////////////////////////////////////////////////////////////////////////////
 // For converting a string pattern with wildcards to an array of bytes and mask.
-pair<vector<uint8_t>, string> PatternToBytesAndMask(const string& svInput)
+pair<vector<uint8_t>, string> PatternToMaskedBytes(const string& svInput)
 {
     char* pszPatternStart = const_cast<char*>(svInput.c_str());
     char* pszPatternEnd = pszPatternStart + strlen(svInput.c_str());

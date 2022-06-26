@@ -110,7 +110,7 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask) c
 //-----------------------------------------------------------------------------
 CMemory CModule::FindPatternSIMD(const string& svPattern) const
 {
-	const pair patternInfo = PatternToBytesAndMask(svPattern);
+	const pair patternInfo = PatternToMaskedBytes(svPattern);
 	return FindPatternSIMD(patternInfo.first.data(), patternInfo.second.c_str());
 }
 
