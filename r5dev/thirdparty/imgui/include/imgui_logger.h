@@ -131,8 +131,8 @@ public:
 
 	Coordinates GetCursorPosition() const { return GetActualCursorCoordinates(); }
 
+	void MoveCursor(int aLines, bool aForward = true);
 	void SetCursorPosition(const Coordinates& aPosition);
-	bool IsCursorPositionChanged() const { return m_bCursorPositionChanged; }
 
 	inline void SetHandleMouseInputs    (bool aValue){ m_bHandleMouseInputs    = aValue;}
 	inline bool IsHandleMouseInputsEnabled() const { return m_bHandleKeyboardInputs; }
@@ -163,12 +163,13 @@ public:
 	void SelectWordUnderCursor();
 	void SelectAll();
 	bool HasSelection() const;
+	void MoveSelection(int aLines, bool aForward = true);
 
 	void RemoveLine(int aStart, int aEnd, bool aInternal = false);
 	void RemoveLine(int aIndex, bool aInternal = false);
 
 private:
-	struct EditorState
+	struct LoggerState_t
 	{
 		Coordinates m_SelectionStart;
 		Coordinates m_SelectionEnd;
@@ -205,13 +206,13 @@ private:
 public:
 	bool m_bAutoScroll;
 	bool m_bScrollToBottom;
+	bool m_bScrollToCursor;
 	bool m_bScrolledToMax;
 private:
 	bool m_bHandleKeyboardInputs;
 	bool m_bHandleMouseInputs;
+	bool m_bWithinLoggingRect;
 	bool m_bShowWhiteSpaces;
-	bool m_bScrollToCursor;
-	bool m_bCursorPositionChanged;
 	float m_flTextStart;                   // position (in pixels) where a code line starts relative to the left of the TextLogger.
 	float m_flLineSpacing;
 	double m_flLastClick;
@@ -227,7 +228,7 @@ private:
 	ImVec2 m_CharAdvance;
 
 	Lines m_Lines;
-	EditorState m_State;
+	LoggerState_t m_State;
 	std::mutex m_Mutex;
 	std::string m_svLineBuffer;
 public:

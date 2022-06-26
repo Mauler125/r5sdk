@@ -28,13 +28,18 @@ class CConsole
 private:
     ///////////////////////////////////////////////////////////////////////////
     char                           m_szInputBuf[512]     = { '\0' };
-    char                           m_szSummary[256]      = { '\0' };
-    const char*                    m_pszConsoleTitle     = nullptr;
+    char                           m_szSummary[512]      = { '\0' };
+    char                           m_szWindowLabel[512]  = { '\0' };
+    const char*                    m_pszConsoleLabel     = nullptr;
+    const char*                    m_pszLoggingLabel     = nullptr;
 
     vector<string>                 m_vCommands;
     vector<string>                 m_vHistory;
     ssize_t                        m_nHistoryPos      = -1;
     int                            m_nScrollBack      = 0;
+    int                            m_nSelectBack      = 0;
+    float                          m_flScrollX        = 0.f;
+    float                          m_flScrollY        = 0.f;
     float                          m_flFadeAlpha      = 0.f;
     bool                           m_bInitialized     = false;
     bool                           m_bModernTheme     = false;

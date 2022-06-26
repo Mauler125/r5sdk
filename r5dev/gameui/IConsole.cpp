@@ -32,13 +32,14 @@ CConsole::CConsole(void)
 
     m_nHistoryPos     = -1;
     m_bInitialized    = false;
-    m_pszConsoleTitle = "Console";
+    m_pszConsoleLabel = "Console";
+    m_pszLoggingLabel = "LoggingRegion";
 
     m_vCommands.push_back("CLEAR");
     m_vCommands.push_back("HELP");
     m_vCommands.push_back("HISTORY");
 
-    snprintf(m_szSummary, 256, "%zu history items", m_vHistory.size());
+    snprintf(m_szSummary, sizeof(m_szSummary), "%zu history items", m_vHistory.size());
 
     std::thread think(&CConsole::Think, this);
     think.detach();
@@ -119,6 +120,11 @@ void CConsole::Draw(void)
 
             ImGui::SetNextWindowPos(m_ivSuggestWindowPos);
             ImGui::SetNextWindowSize(m_ivSuggestWindowSize);
+            if (m_bSuggestUpdate)
+            {
+                ImGui::SetNextWindowScroll(ImVec2(0.f, 0.f));
+                m_bSuggestUpdate = false;
+            }
 
             ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(500, 37)); nVars++;
             ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);         nVars++;
@@ -140,11 +146,15 @@ void CConsole::Think(void)
     {
         if (m_Logger.GetTotalLines() > con_max_size_logvector->GetInt())
         {
-            while (m_Logger.GetTotalLines() > con_max_size_logvector->GetInt() / 4 * 3)
+            while (m_Logger.GetTotalLines() > con_max_size_logvector->GetInt())
             {
                 m_Logger.RemoveLine(0);
                 m_nScrollBack++;
+                m_nSelectBack++;
             }
+            m_Logger.MoveSelection(m_nSelectBack, false);
+            m_Logger.MoveCursor(m_nSelectBack, false);
+            m_nSelectBack = 0;
         }
 
         while (m_vHistory.size() > 512)
@@ -174,7 +184,7 @@ void CConsole::Think(void)
 //-----------------------------------------------------------------------------
 void CConsole::BasePanel(void)
 {
-    if (!ImGui::Begin(m_pszConsoleTitle, &m_bActivate))
+    if (!ImGui::Begin(m_pszConsoleLabel, &m_bActivate))
     {
         ImGui::End();
         return;
@@ -205,7 +215,18 @@ void CConsole::BasePanel(void)
     ImGui::Separator();
 
     ///////////////////////////////////////////////////////////////////////
-    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -flFooterHeightReserve), true, m_nLoggingFlags);
+    if (!m_Logger.m_bScrolledToMax && m_nScrollBack > 0)
+    {
+        ImGuiWindow* pWindow = ImGui::GetCurrentWindow();
+        ImGuiID nID = pWindow->GetID(m_pszLoggingLabel);
+
+        snprintf(m_szWindowLabel, sizeof(m_szWindowLabel), "%s/%s_%08X", m_pszConsoleLabel, m_pszLoggingLabel, nID);
+        ImGui::SetWindowScrollY(m_szWindowLabel, m_flScrollY - m_nScrollBack * fontSize.y);
+    }
+    m_nScrollBack = 0;
+
+    ///////////////////////////////////////////////////////////////////////
+    ImGui::BeginChild(m_pszLoggingLabel, ImVec2(0, -flFooterHeightReserve), true, m_nLoggingFlags);
     m_Logger.Render();
 
     if (m_bCopyToClipBoard)
@@ -214,12 +235,8 @@ void CConsole::BasePanel(void)
         m_bCopyToClipBoard = false;
     }
 
-    if (!m_Logger.m_bScrolledToMax && m_nScrollBack > 0)
-    {
-        ImGui::SetScrollY(ImGui::GetScrollY() - m_nScrollBack * fontSize.y);
-        m_nScrollBack = 0;
-    }
-    m_nScrollBack = 0;
+    m_flScrollX = ImGui::GetScrollX();
+    m_flScrollY = ImGui::GetScrollY();
 
     ///////////////////////////////////////////////////////////////////////
     ImGui::EndChild();
@@ -372,12 +389,6 @@ void CConsole::SuggestPanel(void)
 
             ImGui::ScrollToRect(pWindow, imRect);
             m_bSuggestMoved = false;
-        }
-
-        if (m_bSuggestUpdate)
-        {
-            ImGui::SetScrollHereY(0.f);
-            m_bSuggestUpdate = false;
         }
     }
 

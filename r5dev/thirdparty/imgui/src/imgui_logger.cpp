@@ -23,23 +23,23 @@ bool equals(InputIt1 first1, InputIt1 last1,
 }
 
 CTextLogger::CTextLogger()
-	: m_flLineSpacing(1.0f)
-	, m_nTabSize(4)
-	, m_bAutoScroll(true)
+	: m_bAutoScroll(true)
 	, m_bScrollToBottom(true)
 	, m_bScrollToCursor(false)
 	, m_bScrolledToMax(false)
-	, m_flTextStart(0.0f)
-	, m_nLeftMargin(0)
-	, m_bCursorPositionChanged(false)
-	, m_nColorRangeMin(0)
-	, m_nColorRangeMax(0)
-	, m_SelectionMode(SelectionMode::Normal)
-	, m_flLastClick(-1.0)
 	, m_bHandleKeyboardInputs(true)
 	, m_bHandleMouseInputs(true)
+	, m_bWithinLoggingRect(false)
 	, m_bShowWhiteSpaces(false)
+	, m_flTextStart(0.0f)
+	, m_flLineSpacing(1.0f)
+	, m_flLastClick(-1.0)
+	, m_nTabSize(4)
+	, m_nLeftMargin(0)
+	, m_nColorRangeMin(0)
+	, m_nColorRangeMax(0)
 	, m_nStartTime(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count())
+	, m_SelectionMode(SelectionMode::Normal)
 {
 	m_Lines.push_back(Line());
 }
@@ -609,7 +609,17 @@ void CTextLogger::HandleMouseInputs(bool bHoveredScrollbar, bool bActiveScrollba
 	bool bCtrl = io.ConfigMacOSXBehaviors ? io.KeySuper : io.KeyCtrl;
 	bool bAlt = io.ConfigMacOSXBehaviors ? io.KeyCtrl : io.KeyAlt;
 
-	if (!bHoveredScrollbar && !bActiveScrollbar && ImGui::IsWindowFocused())
+
+	if (ImGui::IsMouseClicked(0) && ImGui::IsWindowHovered())
+	{
+		m_bWithinLoggingRect = true;
+	}
+	if (ImGui::IsMouseReleased(0))
+	{
+		m_bWithinLoggingRect = false;
+	}
+
+	if (!bHoveredScrollbar && !bActiveScrollbar && m_bWithinLoggingRect)
 	{
 		if (!bShift && !bAlt)
 		{
@@ -675,6 +685,7 @@ void CTextLogger::HandleMouseInputs(bool bHoveredScrollbar, bool bActiveScrollba
 				io.WantCaptureMouse = true;
 				m_State.m_CursorPosition = m_InteractiveEnd = ScreenPosToCoordinates(ImGui::GetMousePos());
 				SetSelection(m_InteractiveStart, m_InteractiveEnd, m_SelectionMode);
+				EnsureCursorVisible();
 			}
 		}
 	}
@@ -683,7 +694,6 @@ void CTextLogger::HandleMouseInputs(bool bHoveredScrollbar, bool bActiveScrollba
 void CTextLogger::Render()
 {
 	m_Mutex.lock();
-	m_bCursorPositionChanged = false;
 
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
 
@@ -947,12 +957,41 @@ void CTextLogger::SetTextLines(const std::vector<CConLog>& aLines)
 	}
 }
 
+void CTextLogger::MoveCursor(int aLines, bool aForward)
+{
+	Coordinates newStart;
+
+	if (aForward)
+	{
+		newStart = m_State.m_CursorPosition;
+		newStart.m_nLine += aLines;
+
+		if (newStart.m_nLine >= static_cast<int>(m_Lines.size()))
+		{
+			newStart.m_nLine = static_cast<int>(m_Lines.size()) - 1;
+			newStart.m_nColumn = GetLineMaxColumn(newStart.m_nLine);
+		}
+	}
+	else
+	{
+		newStart = m_State.m_CursorPosition;
+		newStart.m_nLine -= aLines;
+
+		if (newStart.m_nLine < 0)
+		{
+			newStart.m_nLine = 0;
+			newStart.m_nColumn = 0;
+		}
+	}
+
+	m_State.m_CursorPosition = newStart;
+}
+
 void CTextLogger::SetCursorPosition(const Coordinates & aPosition)
 {
 	if (m_State.m_CursorPosition != aPosition)
 	{
 		m_State.m_CursorPosition = aPosition;
-		m_bCursorPositionChanged = true;
 		EnsureCursorVisible();
 	}
 }
@@ -1003,10 +1042,6 @@ void CTextLogger::SetSelection(const Coordinates & aStart, const Coordinates & a
 	default:
 		break;
 	}
-
-	if (m_State.m_SelectionStart != oldSelStart ||
-		m_State.m_SelectionEnd != oldSelEnd)
-		m_bCursorPositionChanged = true;
 }
 
 void CTextLogger::SetTabSize(int aValue)
@@ -1309,6 +1344,60 @@ bool CTextLogger::HasSelection() const
 	return m_State.m_SelectionEnd > m_State.m_SelectionStart;
 }
 
+void CTextLogger::MoveSelection(int aLines, bool aForward)
+{
+	assert(aLines > 0);
+
+	if (aLines < 1)
+		return;
+
+	if (HasSelection())
+	{
+		Coordinates newStart;
+		Coordinates newEnd;
+
+		if (aForward)
+		{
+			newStart = m_State.m_SelectionStart;
+			newStart.m_nLine += aLines;
+			newEnd = m_State.m_SelectionEnd;
+			newEnd.m_nLine += aLines;
+
+			if (newStart.m_nLine >= static_cast<int>(m_Lines.size()))
+			{
+				newStart.m_nLine = static_cast<int>(m_Lines.size()) - 1;
+				newStart.m_nColumn = GetLineMaxColumn(newStart.m_nLine);
+			}
+			if (newEnd.m_nLine >= static_cast<int>(m_Lines.size()))
+			{
+				newEnd.m_nLine = static_cast<int>(m_Lines.size()) - 1;
+				newEnd.m_nColumn = GetLineMaxColumn(newStart.m_nLine);
+			}
+		}
+		else
+		{
+			newStart = m_State.m_SelectionStart;
+			newStart.m_nLine -= aLines;
+			newEnd = m_State.m_SelectionEnd;
+			newEnd.m_nLine -= aLines;
+
+			if (newStart.m_nLine < 0)
+			{
+				newStart.m_nLine = 0;
+				newStart.m_nColumn = 0;
+			}
+			if (newEnd.m_nLine < 0)
+			{
+				newEnd.m_nLine = 0;
+				newEnd.m_nColumn = 0;
+			}
+		}
+
+		SetSelectionStart(newStart);
+		SetSelectionEnd(newEnd);
+	}
+}
+
 std::string CTextLogger::GetText() const
 {
 	return GetText(Coordinates(), Coordinates(static_cast<int>(m_Lines.size()), 0));
@@ -1408,12 +1497,13 @@ float CTextLogger::TextDistanceToLineStart(const Coordinates& aFrom) const
 void CTextLogger::EnsureCursorVisible()
 {
 	m_bScrollToCursor = true;
+	Coordinates pos = GetActualCursorCoordinates();
 
 	float scrollX = ImGui::GetScrollX();
 	float scrollY = ImGui::GetScrollY();
 
-	float height = ImGui::GetWindowHeight();
 	float width = ImGui::GetWindowWidth();
+	float height = ImGui::GetWindowHeight();
 
 	int top = 1 + static_cast<int>(ceil(scrollY / m_CharAdvance.y));
 	int bottom = static_cast<int>(ceil((scrollY + height) / m_CharAdvance.y));
@@ -1421,17 +1511,14 @@ void CTextLogger::EnsureCursorVisible()
 	int left = static_cast<int>(ceil(scrollX / m_CharAdvance.x));
 	int right = static_cast<int>(ceil((scrollX + width) / m_CharAdvance.x));
 
-	Coordinates pos = GetActualCursorCoordinates();
-	float len = TextDistanceToLineStart(pos);
-
+	if (pos.m_nColumn < left)
+		ImGui::SetScrollX(std::max(0.0f, (pos.m_nColumn) * m_CharAdvance.x));
+	if (pos.m_nColumn > right - 3)
+		ImGui::SetScrollX(std::max(0.0f, (pos.m_nColumn + 3) * m_CharAdvance.x - width));
 	if (pos.m_nLine < top)
-		ImGui::SetScrollY(std::max(0.0f, (pos.m_nLine - 1) * m_CharAdvance.y));
-	if (pos.m_nLine > bottom - 4)
-		ImGui::SetScrollY(std::max(0.0f, (pos.m_nLine + 4) * m_CharAdvance.y - height));
-	if (len + m_flTextStart < left + 4)
-		ImGui::SetScrollX(std::max(0.0f, len + m_flTextStart - 4));
-	if (len + m_flTextStart > right - 4)
-		ImGui::SetScrollX(std::max(0.0f, len + m_flTextStart + 4 - width));
+		ImGui::SetScrollY(std::max(0.0f, (pos.m_nLine) * m_CharAdvance.y));
+	if (pos.m_nLine > bottom - 2)
+		ImGui::SetScrollY(std::max(0.0f, (pos.m_nLine + 2) * m_CharAdvance.y - height));
 }
 
 int CTextLogger::GetPageSize() const
