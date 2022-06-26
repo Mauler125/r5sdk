@@ -64,7 +64,8 @@ private:
         ImGuiInputTextFlags_CallbackHistory    |
         ImGuiInputTextFlags_CallbackAlways     |
         ImGuiInputTextFlags_CallbackEdit       |
-        ImGuiInputTextFlags_EnterReturnsTrue;
+        ImGuiInputTextFlags_EnterReturnsTrue   |
+        ImGuiInputTextFlags_NoUndoRedo;
 
     ImGuiWindowFlags m_nSuggestFlags = 
         ImGuiWindowFlags_NoMove                    |
