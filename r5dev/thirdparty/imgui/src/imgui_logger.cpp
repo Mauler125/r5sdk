@@ -611,13 +611,9 @@ void CTextLogger::HandleMouseInputs(bool bHoveredScrollbar, bool bActiveScrollba
 
 
 	if (ImGui::IsMouseClicked(0) && ImGui::IsWindowHovered())
-	{
 		m_bWithinLoggingRect = true;
-	}
-	if (ImGui::IsMouseReleased(0))
-	{
+	else if (ImGui::IsMouseReleased(0))
 		m_bWithinLoggingRect = false;
-	}
 
 	if (!bHoveredScrollbar && !bActiveScrollbar && m_bWithinLoggingRect)
 	{
