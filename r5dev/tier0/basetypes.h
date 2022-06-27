@@ -134,7 +134,7 @@
 #endif // Max BSP file name len.
 #define MAX_MAP_NAME 64
 
-#define SDK_VERSION "beta 1.6"/*"VGameSDK001"*/ // Increment this with every /breaking/ SDK change (i.e. security/backend changes breaking compatibility).
+#define SDK_VERSION "VGameSDK001" // Increment this with every /breaking/ SDK change (i.e. security/backend changes breaking compatibility).
 
 #ifndef DEDICATED
 #define SDK_DEFAULT_CFG "platform\\cfg\\startup_default.cfg"

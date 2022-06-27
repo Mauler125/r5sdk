@@ -31,11 +31,12 @@ vector<NetGameServer_t> R5Net::Client::GetServersList(string& svOutMessage)
        DevMsg(eDLL_T::ENGINE, "%s - Sending server list request to comp-server:\n%s\n", __FUNCTION__, svRequestBody.c_str());
     }
 
-    httplib::Result htResults = m_HttpClient.Post("/servers", jsRequestBody.dump().c_str(), jsRequestBody.dump().length(), "application/json");
+    //httplib::Result htResults = m_HttpClient.Post("/api/game_servers/list", jsRequestBody.dump(4).c_str(), jsRequestBody.dump(4).length(), "application/json");
+    httplib::Result htResults = m_HttpClient.Get("/api/game_servers/list");
 
     if (htResults && r5net_show_debug->GetBool())
     {
-        DevMsg(eDLL_T::ENGINE, "GetServerList replied with '%d'.\n", htResults->status);
+        DevMsg(eDLL_T::ENGINE, "%s - replied with '%d'.\n", __FUNCTION__, htResults->status);
     }
 
     if (htResults && htResults->status == 200) // STATUS_OK
@@ -46,16 +47,23 @@ vector<NetGameServer_t> R5Net::Client::GetServersList(string& svOutMessage)
             for (auto &obj : jsResultBody["servers"])
             {
                 vslList.push_back(
-                    NetGameServer_t{
+                    NetGameServer_t
+                    {
                         obj.value("name",""),
-                        obj.value("map", ""),
-                        obj.value("ip", ""),
-                        obj.value("port", ""),
-                        obj.value("gamemode", ""),
-                        obj.value("hidden", "false") == "true",
-                        obj.value("remote_checksum", ""),
+                        obj.value("description",""),
+                        obj.value("password",""),
+                        obj.value("hidden","false") == "true",
+                        obj.value("map",""),
+                        obj.value("playlist",""),
+                        obj.value("ip",""),
+                        obj.value("port", 0),
+                        obj.value("key",""),
+                        obj.value("checksum",""),
                         obj.value("version", GetSDKVersion()),
-                        obj.value("encKey", "")
+                        obj.value("publicRef", ""),
+                        obj.value("playerCount", 0),
+                        obj.value("maxPlayers", 0),
+                        obj.value("lastHeartbeat", 0),
                     }
                 );
             }
@@ -86,17 +94,17 @@ vector<NetGameServer_t> R5Net::Client::GetServersList(string& svOutMessage)
                 }
                 else
                 {
-                    svOutMessage = string("Failed to reach comp-server ") + std::to_string(htResults->status);
+                    svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResults->status);
                 }
 
                 return vslList;
             }
 
-            svOutMessage = string("Failed to reach comp-server ") + std::to_string(htResults->status);
+            svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResults->status);
             return vslList;
         }
 
-        svOutMessage = "Failed to reach comp-server. Unknown error code.";
+        svOutMessage = "Failed to reach comp-server: Unknown error code";
         return vslList;
     }
 
@@ -110,17 +118,23 @@ vector<NetGameServer_t> R5Net::Client::GetServersList(string& svOutMessage)
 //			&slServerListing - 
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
-bool R5Net::Client::PostServerHost(string& svOutMessage, string& svOutToken, const NetGameServer_t& slServerListing)
+bool R5Net::Client::PostServerHost(string& svOutMessage, string& svOutToken, const NetGameServer_t& slServerListing) // isBanned
 {
     nlohmann::json jsRequestBody = nlohmann::json::object();
-    jsRequestBody["name"] = slServerListing.svServerName;
-    jsRequestBody["map"] = slServerListing.svMapName;
-    jsRequestBody["port"] = slServerListing.svPort;
-    jsRequestBody["remote_checksum"] = slServerListing.svRemoteChecksum;
+    jsRequestBody["name"] = slServerListing.m_svHostName;
+    jsRequestBody["description"] = slServerListing.m_svDescription;
+    jsRequestBody["password"] = slServerListing.m_svPassword;
+    jsRequestBody["hidden"] = slServerListing.m_bHidden;
+    jsRequestBody["map"] = slServerListing.m_svMapName;
+    jsRequestBody["playlist"] = slServerListing.m_svPlaylist;
+    jsRequestBody["ip"] = slServerListing.m_svIpAddress;
+    jsRequestBody["port"] = slServerListing.m_nGamePort;
+    jsRequestBody["key"] = slServerListing.m_svEncryptionKey;
+    jsRequestBody["checksum"] = slServerListing.m_svRemoteChecksum;
     jsRequestBody["version"] = GetSDKVersion();
-    jsRequestBody["gamemode"] = slServerListing.svPlaylist;
-    jsRequestBody["encKey"] = slServerListing.svEncryptionKey;
-    jsRequestBody["hidden"] = slServerListing.bHidden;
+    jsRequestBody["playerCount"] = slServerListing.m_nPlayerCount;
+    jsRequestBody["maxPlayers"] = slServerListing.m_nMaxPlayers;
+    jsRequestBody["lastHeartbeat"] = slServerListing.m_nLastPing;
 
     string svRequestBody = jsRequestBody.dump(4);
 
@@ -129,7 +143,7 @@ bool R5Net::Client::PostServerHost(string& svOutMessage, string& svOutToken, con
         DevMsg(eDLL_T::ENGINE, "%s - Sending post host request to comp-server:\n%s\n", __FUNCTION__, svRequestBody.c_str());
     }
 
-    httplib::Result htResults = m_HttpClient.Post("/servers/add", svRequestBody.c_str(), svRequestBody.length(), "application/json");
+    httplib::Result htResults = m_HttpClient.Post("/api/game_servers/update", svRequestBody.c_str(), svRequestBody.length(), "application/json");
 
     if (htResults && r5net_show_debug->GetBool())
     {
@@ -187,12 +201,12 @@ bool R5Net::Client::PostServerHost(string& svOutMessage, string& svOutToken, con
             }
 
             svOutToken = string();
-            svOutMessage = string("Failed to reach comp-server ") + std::to_string(htResults->status);
+            svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResults->status);
             return false;
         }
 
         svOutToken = string();
-        svOutMessage = "Failed to reach comp-server. Unknown error code.";
+        svOutMessage = "Failed to reach comp-server: Unknown error code";
         return false;
     }
 
@@ -218,7 +232,7 @@ bool R5Net::Client::GetServerByToken(NetGameServer_t& slOutServer, string& svOut
         DevMsg(eDLL_T::ENGINE, "%s - Sending token connect request to comp-server:\n%s\n", __FUNCTION__, svRequestBody.c_str());
     }
 
-    httplib::Result htResults = m_HttpClient.Post("/server/byToken", jsRequestBody.dump().c_str(), jsRequestBody.dump().length(), "application/json");
+    httplib::Result htResults = m_HttpClient.Post("/api/game_servers/game_server_private_info", jsRequestBody.dump(4).c_str(), jsRequestBody.dump(4).length(), "application/json");
 
     if (r5net_show_debug->GetBool())
     {
@@ -233,16 +247,23 @@ bool R5Net::Client::GetServerByToken(NetGameServer_t& slOutServer, string& svOut
 
             if (htResults && jsResultBody["success"].is_boolean() && jsResultBody["success"])
             {
-                slOutServer = NetGameServer_t{
+                slOutServer = NetGameServer_t
+                {
                         jsResultBody["server"].value("name",""),
-                        jsResultBody["server"].value("map", ""),
-                        jsResultBody["server"].value("ip", ""),
-                        jsResultBody["server"].value("port", ""),
-                        jsResultBody["server"].value("gamemode", ""),
-                        jsResultBody["server"].value("hidden", "false") == "true",
-                        jsResultBody["server"].value("remote_checksum", ""),
+                        jsResultBody["server"].value("description",""),
+                        jsResultBody["server"].value("password",""),
+                        jsResultBody["server"].value("hidden","false") == "true",
+                        jsResultBody["server"].value("map",""),
+                        jsResultBody["server"].value("playlist",""),
+                        jsResultBody["server"].value("ip",""),
+                        jsResultBody["server"].value("port", 0),
+                        jsResultBody["server"].value("key",""),
+                        jsResultBody["server"].value("checksum",""),
                         jsResultBody["server"].value("version", GetSDKVersion()),
-                        jsResultBody["server"].value("encKey", "")
+                        jsResultBody["server"].value("publicRef", ""),
+                        jsResultBody["server"].value("playerCount", 0),
+                        jsResultBody["server"].value("maxPlayers", 0),
+                        jsResultBody["server"].value("lastHeartbeat", 0),
                 };
                 return true;
             }
@@ -276,17 +297,17 @@ bool R5Net::Client::GetServerByToken(NetGameServer_t& slOutServer, string& svOut
                 }
                 else
                 {
-                    svOutMessage = string("Failed to reach comp-server ") + std::to_string(htResults->status);
+                    svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResults->status);
                 }
 
                 return false;
             }
 
-            svOutMessage = string("Failed to reach comp-server ") + std::to_string(htResults->status);
+            svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResults->status);
             return false;
         }
 
-        svOutMessage = "Failed to reach comp-server. Unknown error code.";
+        svOutMessage = "Failed to reach comp-server: Unknown error code";
         slOutServer = NetGameServer_t{};
         return false;
     }
@@ -304,10 +325,10 @@ bool R5Net::Client::GetServerByToken(NetGameServer_t& slOutServer, string& svOut
 bool R5Net::Client::GetClientIsBanned(const string& svIpAddress, uint64_t nOriginID, string& svOutErrCl)
 {
     nlohmann::json jsRequestBody = nlohmann::json::object();
+    jsRequestBody["oid"] = nOriginID;
     jsRequestBody["ip"] = svIpAddress;
-    jsRequestBody["orid"] = nOriginID;
 
-    httplib::Result htResults = m_HttpClient.Post("/banlist/isBanned", jsRequestBody.dump().c_str(), jsRequestBody.dump().length(), "application/json");
+    httplib::Result htResults = m_HttpClient.Post("/api/ban_system/is_user_banned", jsRequestBody.dump(4).c_str(), jsRequestBody.dump(4).length(), "application/json");
 
     if (htResults && htResults->status == 200)
     {
@@ -315,7 +336,7 @@ bool R5Net::Client::GetClientIsBanned(const string& svIpAddress, uint64_t nOrigi
 
         if (jsResultBody["success"].is_boolean() && jsResultBody["success"].get<bool>())
         {
-            if (jsResultBody["isBanned"].is_boolean() && jsResultBody["isBanned"].get<bool>())
+            if (jsResultBody["banned"].is_boolean() && jsResultBody["banned"].get<bool>())
             {
                 svOutErrCl = jsResultBody.value("errCl", "#DISCONNECT_BANNED");
                 return true;

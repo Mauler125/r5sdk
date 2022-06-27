@@ -67,7 +67,7 @@ void ConVar::Init(void) const
 	navmesh_always_reachable = new ConVar("navmesh_always_reachable" , "1", FCVAR_DEVELOPMENTONLY, "Marks poly from agent to target on navmesh as reachable regardless of table data ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr); // !TODO: Default to '0' once the reachability table gets properly parsed.
 
 	sv_showconnecting  = new ConVar("sv_showconnecting" , "1", FCVAR_RELEASE, "Logs information about the connecting client to the console.", false, 0.f, false, 0.f, nullptr, nullptr);
-	sv_pylonVisibility = new ConVar("sv_pylonVisibility", "0", FCVAR_RELEASE, "Determines the visiblity to the Pylon master server, 0 = Not visible, 1 = Hidden, 2 = Visible !TODO: not implemented yet.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sv_pylonVisibility = new ConVar("sv_pylonVisibility", "0", FCVAR_RELEASE, "Determines the visiblity to the Pylon master server, 0 = Offline, 1 = Hidden, 2 = Public.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_pylonRefreshInterval   = new ConVar("sv_pylonRefreshInterval"  , "5.0", FCVAR_RELEASE, "Pylon server host request post update interval (seconds).", true, 2.f, true, 8.f, nullptr, nullptr);
 	sv_banlistRefreshInterval = new ConVar("sv_banlistRefreshInterval", "1.0", FCVAR_RELEASE, "Banlist refresh interval (seconds).", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_statusRefreshInterval  = new ConVar("sv_statusRefreshInterval" , "0.5", FCVAR_RELEASE, "Server status bar update interval (seconds).", false, 0.f, false, 0.f, nullptr, nullptr);
@@ -151,7 +151,7 @@ void ConVar::Init(void) const
 	net_tracePayload           = new ConVar("net_tracePayload"          , "0", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT          , "Log the payload of the send/recv datagram to a file on the disk.", false, 0.f, false, 0.f, nullptr, nullptr);
 	net_encryptionEnable       = new ConVar("net_encryptionEnable"      , "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED     , "Use AES encryption on game packets.", false, 0.f, false, 0.f, nullptr, nullptr);
 	net_useRandomKey           = new ConVar("net_useRandomKey"          , "1"                        , FCVAR_RELEASE        , "Use random base64 netkey for game packets.", false, 0.f, false, 0.f, nullptr, nullptr);
-	r5net_matchmaking_hostname = new ConVar("r5net_matchmaking_hostname", "r5a-comp-sv.herokuapp.com", FCVAR_RELEASE        , "Holds the R5Net matchmaking hostname.", false, 0.f, false, 0.f, nullptr, nullptr);
+	r5net_matchmaking_hostname = new ConVar("r5net_matchmaking_hostname", "127.0.0.1:3000"           , FCVAR_RELEASE        , "Holds the R5Net matchmaking hostname.", false, 0.f, false, 0.f, nullptr, nullptr);
 	r5net_show_debug           = new ConVar("r5net_show_debug"          , "0"                        , FCVAR_DEVELOPMENTONLY, "Shows debug output for R5Net.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// RTECH API                                                              |
@@ -177,6 +177,7 @@ void ConVar::InitShipped(void) const
 	old_gather_props                 = g_pCVar->FindVar("old_gather_props");
 	mp_gamemode                      = g_pCVar->FindVar("mp_gamemode");
 	hostname                         = g_pCVar->FindVar("hostname");
+	hostip                           = g_pCVar->FindVar("hostip");
 	hostport                         = g_pCVar->FindVar("hostport");
 	host_hasIrreversibleShutdown     = g_pCVar->FindVar("host_hasIrreversibleShutdown");
 	net_usesocketsforloopback        = g_pCVar->FindVar("net_usesocketsforloopback");

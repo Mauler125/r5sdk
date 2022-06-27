@@ -17,6 +17,7 @@ ConVar* model_defaultFadeDistScale         = nullptr;
 ConVar* model_defaultFadeDistMin           = nullptr;
 
 ConVar* hostname                           = nullptr;
+ConVar* hostip                             = nullptr;
 ConVar* hostport                           = nullptr;
 ConVar* host_hasIrreversibleShutdown       = nullptr;
 ConVar* mp_gamemode                        = nullptr;

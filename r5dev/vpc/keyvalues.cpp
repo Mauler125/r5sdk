@@ -1343,4 +1343,4 @@ void CKeyValueSystem_Detach()
 ///////////////////////////////////////////////////////////////////////////////
 inline KeyValues** g_pPlaylistKeyValues = nullptr; // Get the KeyValue for the playlist file.
 vector<string> g_vAllPlaylists          = { "<<null>>" };
-vector<string> g_vGameInfoPaths         = { "\\" };
+vector<string> g_vGameInfoPaths         = { "/" };

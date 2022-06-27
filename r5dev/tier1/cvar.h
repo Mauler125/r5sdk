@@ -15,6 +15,7 @@ extern ConVar* model_defaultFadeDistScale;
 extern ConVar* model_defaultFadeDistMin;
 
 extern ConVar* hostname;
+extern ConVar* hostip;
 extern ConVar* hostport;
 extern ConVar* host_hasIrreversibleShutdown;
 
