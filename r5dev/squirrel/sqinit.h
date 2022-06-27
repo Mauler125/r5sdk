@@ -7,7 +7,6 @@ inline auto Script_Remote_BeginRegisteringFunctions = p_Script_Remote_BeginRegis
 inline CMemory p_RestoreRemoteChecksumsFromSaveGame;
 inline auto RestoreRemoteChecksumsFromSaveGame = p_RestoreRemoteChecksumsFromSaveGame.RCast<void* (*)(void* a1, void* a2)>();
 
-/* CHANGE THESE WHEN SWITCHING TO PYLONV2 TO UNSIGNED AGAIN!*/
 #ifndef CLIENT_DLL
 inline uint32_t* g_nServerRemoteChecksum = nullptr;
 #endif // !CLIENT_DLL
