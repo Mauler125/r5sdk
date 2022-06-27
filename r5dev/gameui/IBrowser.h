@@ -5,13 +5,6 @@
 #include "networksystem/serverlisting.h"
 #include "networksystem/r5net.h"
 
-enum class eSection
-{
-    SERVER_BROWSER,
-    HOST_SERVER,
-    SETTINGS
-};
-
 enum class eHostStatus
 {
     NOT_HOSTING,
@@ -37,7 +30,6 @@ public:
     //   Enum Vars    //
     ////////////////////
 
-    eSection eCurrentSection = eSection::SERVER_BROWSER;
     eHostStatus eHostingStatus = eHostStatus::NOT_HOSTING;
     EServerVisibility eServerVisibility = EServerVisibility::OFFLINE;
 public:
@@ -50,9 +42,9 @@ public:
     void Draw(void);
     void Think(void);
 
-    void CompMenu(void);
+    void BasePanel(void);
 
-    void ServerBrowserSection(void);
+    void BrowserPanel(void);
     void RefreshServerList(void);
     void GetServerList(void);
 
@@ -60,7 +52,7 @@ public:
     void ConnectToServer(const string& svServer, const string& svNetKey);
 
     void HiddenServersModal(void);
-    void HostServerSection(void);
+    void HostPanel(void);
 
     void UpdateHostingStatus(void);
     void SendHostingPostRequest(void);
@@ -68,7 +60,7 @@ public:
     void ProcessCommand(const char* pszCommand);
     void LaunchServer(void);
 
-    void SettingsSection(void);
+    void SettingsPanel(void);
     void RegenerateEncryptionKey(void) const;
     void ChangeEncryptionKey(const std::string& svNetKey) const;
 
@@ -111,11 +103,6 @@ public:
     /* Texture */
     ID3D11ShaderResourceView* m_idLockedIcon = nullptr;
     MODULERESOURCE m_rLockedIconBlob;
-
-    void SetSection(eSection section)
-    {
-        eCurrentSection = section;
-    }
 };
 
 extern CBrowser* g_pBrowser;

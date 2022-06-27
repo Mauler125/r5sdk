@@ -107,22 +107,7 @@ void CBrowser::Draw(void)
 
     ImGui::Begin(m_pszBrowserTitle, NULL, ImGuiWindowFlags_NoScrollbar);
     {
-        CompMenu();
-
-        switch (eCurrentSection)
-        {
-        case eSection::SERVER_BROWSER:
-            ServerBrowserSection();
-            break;
-        case eSection::HOST_SERVER:
-            HostServerSection();
-            break;
-        case eSection::SETTINGS:
-            SettingsSection();
-            break;
-        default:
-            break;
-        }
+        BasePanel();
     }
     ImGui::End();
     ImGui::PopStyleVar(nVars);
@@ -153,22 +138,25 @@ void CBrowser::Think(void)
 //-----------------------------------------------------------------------------
 // Purpose: draws the compmenu
 //-----------------------------------------------------------------------------
-void CBrowser::CompMenu(void)
+void CBrowser::BasePanel(void)
 {
     ImGui::BeginTabBar("CompMenu");
-    if (ImGui::TabItemButton("Server Browser"))
+    if (ImGui::BeginTabItem("Server Browser"))
     {
-        SetSection(eSection::SERVER_BROWSER);
+        BrowserPanel();
+        ImGui::EndTabItem();
     }
 #ifndef CLIENT_DLL
-    if (ImGui::TabItemButton("Host Server"))
+    if (ImGui::BeginTabItem("Host Server"))
     {
-        SetSection(eSection::HOST_SERVER);
+        HostPanel();
+        ImGui::EndTabItem();
     }
 #endif // !CLIENT_DLL
-    if (ImGui::TabItemButton("Settings"))
+    if (ImGui::BeginTabItem("Settings"))
     {
-        SetSection(eSection::SETTINGS);
+        SettingsPanel();
+        ImGui::EndTabItem();
     }
     ImGui::EndTabBar();
 }
@@ -176,7 +164,7 @@ void CBrowser::CompMenu(void)
 //-----------------------------------------------------------------------------
 // Purpose: draws the server browser section
 //-----------------------------------------------------------------------------
-void CBrowser::ServerBrowserSection(void)
+void CBrowser::BrowserPanel(void)
 {
     ImGui::BeginGroup();
     m_imServerBrowserFilter.Draw();
@@ -433,7 +421,7 @@ void CBrowser::HiddenServersModal(void)
 //-----------------------------------------------------------------------------
 // Purpose: draws the host section
 //-----------------------------------------------------------------------------
-void CBrowser::HostServerSection(void)
+void CBrowser::HostPanel(void)
 {
 #ifndef CLIENT_DLL
     static string svServerNameErr = "";
@@ -693,7 +681,7 @@ void CBrowser::ProcessCommand(const char* pszCommand)
 //-----------------------------------------------------------------------------
 // Purpose: draws the settings section
 //-----------------------------------------------------------------------------
-void CBrowser::SettingsSection(void)
+void CBrowser::SettingsPanel(void)
 {
     ImGui::InputTextWithHint("Hostname", "Matchmaking Server String", &m_szMatchmakingHostName);
     if (ImGui::Button("Update Hostname"))
