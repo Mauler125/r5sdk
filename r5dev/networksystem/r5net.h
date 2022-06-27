@@ -11,9 +11,9 @@ namespace R5Net
 			m_HttpClient.set_connection_timeout(10);
 		}
 	
-		vector<ServerListing> GetServersList(string& svOutMessage);
-		bool PostServerHost(string& svOutMessage, string& svOutToken, const ServerListing& slServerListing);
-		bool GetServerByToken(ServerListing& slOutServer, string& svOutMessage, const string& svToken);
+		vector<NetGameServer_t> GetServersList(string& svOutMessage);
+		bool PostServerHost(string& svOutMessage, string& svOutToken, const NetGameServer_t& slServerListing);
+		bool GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage, const string& svToken);
 		bool GetClientIsBanned(const string& svIpAddress, uint64_t nOriginID, string& svOutErrCl);
 		string GetSDKVersion();
 

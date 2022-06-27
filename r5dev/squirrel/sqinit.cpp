@@ -283,7 +283,7 @@ namespace VSquirrel
             string svHiddenServerRequestMessage;
             string svToken = sq_getstring(v, 1);
 
-            ServerListing svListing;
+            NetGameServer_t svListing;
             bool result = g_pR5net->GetServerByToken(svListing, svHiddenServerRequestMessage, svToken); // Send szToken connect request.
             if (result)
             {
@@ -301,7 +301,7 @@ namespace VSquirrel
             string svHiddenServerRequestMessage;
             string svToken = sq_getstring(v, 1);
 
-            ServerListing serverListing;
+            NetGameServer_t serverListing;
             bool result = g_pR5net->GetServerByToken(serverListing, svHiddenServerRequestMessage, svToken); // Send szToken connect request.
             if (!serverListing.svServerName.empty())
             {

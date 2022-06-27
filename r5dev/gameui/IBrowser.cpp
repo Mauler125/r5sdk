@@ -90,25 +90,20 @@ void CBrowser::Draw(void)
 
     int nVars = 0;
     ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);                   nVars++;
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(750, 510));        nVars++;
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(750, 524));        nVars++;
 
     if (!m_bModernTheme)
     {
         ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);              nVars++;
     }
 
-    if (!ImGui::Begin(m_pszBrowserTitle, &m_bActivate))
+    if (!ImGui::Begin(m_pszBrowserTitle, &m_bActivate, ImGuiWindowFlags_NoScrollbar))
     {
         ImGui::End();
         ImGui::PopStyleVar(nVars);
         return;
     }
-    ImGui::End();
-
-    ImGui::Begin(m_pszBrowserTitle, NULL, ImGuiWindowFlags_NoScrollbar);
-    {
-        BasePanel();
-    }
+    BasePanel();
     ImGui::End();
     ImGui::PopStyleVar(nVars);
 }
@@ -141,13 +136,13 @@ void CBrowser::Think(void)
 void CBrowser::BasePanel(void)
 {
     ImGui::BeginTabBar("CompMenu");
-    if (ImGui::BeginTabItem("Server Browser"))
+    if (ImGui::BeginTabItem("Browsing"))
     {
         BrowserPanel();
         ImGui::EndTabItem();
     }
 #ifndef CLIENT_DLL
-    if (ImGui::BeginTabItem("Host Server"))
+    if (ImGui::BeginTabItem("Hosting"))
     {
         HostPanel();
         ImGui::EndTabItem();
@@ -194,17 +189,18 @@ void CBrowser::BrowserPanel(void)
     {
         ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 25);
         ImGui::TableSetupColumn("Map", ImGuiTableColumnFlags_WidthStretch, 20);
-        ImGui::TableSetupColumn("Port", ImGuiTableColumnFlags_WidthStretch, 5);
         ImGui::TableSetupColumn("Playlist", ImGuiTableColumnFlags_WidthStretch, 10);
-        ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch, 5);
+        ImGui::TableSetupColumn("Players", ImGuiTableColumnFlags_WidthStretch, 5);
+        ImGui::TableSetupColumn("Port", ImGuiTableColumnFlags_WidthStretch, 5);
         ImGui::TableHeadersRow();
 
-        for (ServerListing& server : m_vServerList)
+        for (NetGameServer_t& server : m_vServerList)
         {
             const char* pszHostName = server.svServerName.c_str();
             const char* pszHostMap  = server.svMapName.c_str();
             const char* pszHostPort = server.svPort.c_str();
             const char* pszPlaylist = server.svPlaylist.c_str();
+            const char* pszPlayers  = server.svPlaylist.c_str();
 
             if (m_imServerBrowserFilter.PassFilter(pszHostName)
                 || m_imServerBrowserFilter.PassFilter(pszHostMap)
@@ -217,10 +213,13 @@ void CBrowser::BrowserPanel(void)
                 ImGui::Text(pszHostMap);
 
                 ImGui::TableNextColumn();
+                ImGui::Text(pszPlaylist);
+
+                ImGui::TableNextColumn();
                 ImGui::Text(pszHostPort);
 
                 ImGui::TableNextColumn();
-                ImGui::Text(pszPlaylist);
+                ImGui::Text(pszPlayers);
 
                 ImGui::TableNextColumn();
                 string svConnectBtn = "Connect##";
@@ -338,7 +337,7 @@ void CBrowser::LaunchServer(void)
     * Playlist gets parsed in two instances, first in KeyValues::ParsePlaylists with all the neccessary values.
     * Then when you would normally call launchplaylist which calls StartPlaylist it would cmd call mp_gamemode which parses the gamemode specific part of the playlist..
     */
-    KeyValues_ParsePlaylists(m_Server.svPlaylist.c_str());
+    KeyValues::ParsePlaylists(m_Server.svPlaylist.c_str());
     stringstream ssModeCommand;
     ssModeCommand << "mp_gamemode " << m_Server.svPlaylist;
     ProcessCommand(ssModeCommand.str().c_str());
@@ -392,7 +391,7 @@ void CBrowser::HiddenServersModal(void)
         if (ImGui::Button("Connect", ImVec2(ImGui::GetWindowContentRegionWidth() / 2, 24)))
         {
             m_svHiddenServerRequestMessage.clear();
-            ServerListing server;
+            NetGameServer_t server;
             bool result = g_pR5net->GetServerByToken(server, m_svHiddenServerRequestMessage, m_svHiddenServerToken); // Send token connect request.
             if (!server.svServerName.empty())
             {
@@ -525,7 +524,7 @@ void CBrowser::HostPanel(void)
     }
 
     ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), svServerNameErr.c_str());
-    ImGui::TextColored(m_iv4HostRequestMessageColor, m_svHostRequestMessage.c_str());
+    ImGui::TextColored(m_HostRequestMessageColor, m_svHostRequestMessage.c_str());
     if (!m_svHostToken.empty())
     {
         ImGui::InputText("##ServerHost_HostToken", &m_svHostToken, ImGuiInputTextFlags_ReadOnly);
@@ -587,7 +586,7 @@ void CBrowser::UpdateHostingStatus(void)
     case eHostStatus::NOT_HOSTING:
     {
         m_svHostRequestMessage.clear();
-        m_iv4HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+        m_HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
         break;
     }
     case eHostStatus::HOSTING:
@@ -632,7 +631,7 @@ void CBrowser::SendHostingPostRequest(void)
 #ifndef CLIENT_DLL
     m_svHostToken.clear();
     bool result = g_pR5net->PostServerHost(m_svHostRequestMessage, m_svHostToken,
-        ServerListing
+        NetGameServer_t
         {
             m_Server.svServerName.c_str(),
             string(g_pHostState->m_levelName),
@@ -649,7 +648,7 @@ void CBrowser::SendHostingPostRequest(void)
 
     if (result)
     {
-        m_iv4HostRequestMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
+        m_HostRequestMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
         stringstream ssMessage;
         ssMessage << "Broadcasting! ";
         if (!m_svHostToken.empty())
@@ -661,7 +660,7 @@ void CBrowser::SendHostingPostRequest(void)
     }
     else
     {
-        m_iv4HostRequestMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+        m_HostRequestMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
     }
 #endif // !CLIENT_DLL
 }
@@ -693,7 +692,7 @@ void CBrowser::SettingsPanel(void)
             g_pR5net = new R5Net::Client(r5net_matchmaking_hostname->GetString());
         }
     }
-    ImGui::InputText("Netkey", (char*)g_svNetKey.c_str(), ImGuiInputTextFlags_ReadOnly);
+    ImGui::InputText("Netkey", const_cast<char*>(g_svNetKey.c_str()), ImGuiInputTextFlags_ReadOnly);
     if (ImGui::Button("Regenerate Encryption Key"))
     {
         RegenerateEncryptionKey();

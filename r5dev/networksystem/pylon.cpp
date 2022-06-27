@@ -27,7 +27,7 @@ void KeepAliveToPylon()
 		std::string m_szHostRequestMessage = std::string();
 
 		bool result = g_pR5net->PostServerHost(m_szHostRequestMessage, m_szHostToken,
-			ServerListing{
+			NetGameServer_t{
 				hostname->GetString(),
 				std::string(g_pHostState->m_levelName),
 				"",

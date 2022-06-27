@@ -74,7 +74,7 @@ public:
     float m_flFadeAlpha = 0.f;
     const char* m_pszBrowserTitle = nullptr;
 
-    vector<ServerListing> m_vServerList;
+    vector<NetGameServer_t> m_vServerList;
     ImGuiTextFilter m_imServerBrowserFilter;
     char m_szServerAddressBuffer[256] = { '\0' };
     char m_szServerEncKeyBuffer[30]   = { '\0' };
@@ -88,10 +88,10 @@ public:
     ////////////////////
     //   Host Server  //
     ////////////////////
-    ServerListing m_Server;
+    NetGameServer_t m_Server;
     string m_svHostRequestMessage;
     string m_svHostToken;
-    ImVec4 m_iv4HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+    ImVec4 m_HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
 
     ////////////////////
     // Private Server //

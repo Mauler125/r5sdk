@@ -16,9 +16,9 @@ string R5Net::Client::GetSDKVersion()
 //-----------------------------------------------------------------------------
 // Purpose: returns a vector of hosted servers.
 //-----------------------------------------------------------------------------
-vector<ServerListing> R5Net::Client::GetServersList(string& svOutMessage)
+vector<NetGameServer_t> R5Net::Client::GetServersList(string& svOutMessage)
 {
-    vector<ServerListing> vslList{};
+    vector<NetGameServer_t> vslList{};
 
     nlohmann::json jsRequestBody = nlohmann::json::object();
     jsRequestBody["version"] = GetSDKVersion();
@@ -46,7 +46,7 @@ vector<ServerListing> R5Net::Client::GetServersList(string& svOutMessage)
             for (auto &obj : jsResultBody["servers"])
             {
                 vslList.push_back(
-                    ServerListing{
+                    NetGameServer_t{
                         obj.value("name",""),
                         obj.value("map", ""),
                         obj.value("ip", ""),
@@ -110,7 +110,7 @@ vector<ServerListing> R5Net::Client::GetServersList(string& svOutMessage)
 //			&slServerListing - 
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
-bool R5Net::Client::PostServerHost(string& svOutMessage, string& svOutToken, const ServerListing& slServerListing)
+bool R5Net::Client::PostServerHost(string& svOutMessage, string& svOutToken, const NetGameServer_t& slServerListing)
 {
     nlohmann::json jsRequestBody = nlohmann::json::object();
     jsRequestBody["name"] = slServerListing.svServerName;
@@ -206,7 +206,7 @@ bool R5Net::Client::PostServerHost(string& svOutMessage, string& svOutToken, con
 //			svToken - 
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
-bool R5Net::Client::GetServerByToken(ServerListing& slOutServer, string& svOutMessage, const string& svToken)
+bool R5Net::Client::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage, const string& svToken)
 {
     nlohmann::json jsRequestBody = nlohmann::json::object();
     jsRequestBody["token"] = svToken;
@@ -233,7 +233,7 @@ bool R5Net::Client::GetServerByToken(ServerListing& slOutServer, string& svOutMe
 
             if (htResults && jsResultBody["success"].is_boolean() && jsResultBody["success"])
             {
-                slOutServer = ServerListing{
+                slOutServer = NetGameServer_t{
                         jsResultBody["server"].value("name",""),
                         jsResultBody["server"].value("map", ""),
                         jsResultBody["server"].value("ip", ""),
@@ -257,7 +257,7 @@ bool R5Net::Client::GetServerByToken(ServerListing& slOutServer, string& svOutMe
                     svOutMessage = "";
                 }
 
-                slOutServer = ServerListing{};
+                slOutServer = NetGameServer_t{};
                 return false;
             }
         }
@@ -287,7 +287,7 @@ bool R5Net::Client::GetServerByToken(ServerListing& slOutServer, string& svOutMe
         }
 
         svOutMessage = "Failed to reach comp-server. Unknown error code.";
-        slOutServer = ServerListing{};
+        slOutServer = NetGameServer_t{};
         return false;
     }
 
@@ -325,4 +325,4 @@ bool R5Net::Client::GetClientIsBanned(const string& svIpAddress, uint64_t nOrigi
     return false;
 }
 ///////////////////////////////////////////////////////////////////////////////
-R5Net::Client* g_pR5net(new R5Net::Client("r5a-comp-sv.herokuapp.com"));
+R5Net::Client* g_pR5net(new R5Net::Client("127.0.0.1:3000"));
