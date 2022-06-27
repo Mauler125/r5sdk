@@ -28,8 +28,10 @@ enum class EServerVisibility
 class CBrowser
 {
 private:
-    bool m_bInitialized = false;
-    bool m_bModernTheme = false;
+    bool m_bInitialized  = false;
+    bool m_bModernTheme  = false;
+    bool m_bLegacyTheme  = false;
+    bool m_bDefaultTheme = false;
 public:
     ////////////////////
     //   Enum Vars    //

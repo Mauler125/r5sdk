@@ -849,10 +849,11 @@ void CConsole::ClearLog(void)
 //-----------------------------------------------------------------------------
 void CConsole::SetStyleVar(void)
 {
-    if (g_pImGuiConfig->InitStyle() == 0)
-    {
-        m_bModernTheme = true;
-    }
+    int nStyle = g_pImGuiConfig->InitStyle();
+
+    m_bModernTheme  = nStyle == 0;
+    m_bLegacyTheme  = nStyle == 1;
+    m_bDefaultTheme = nStyle == 2;
 
     ImGui::SetNextWindowSize(ImVec2(1200, 524), ImGuiCond_FirstUseEver);
     ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);

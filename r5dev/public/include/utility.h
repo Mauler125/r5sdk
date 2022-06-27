@@ -43,6 +43,8 @@ string StringReplaceC(const string& svInput, const string& svFrom, const string&
 string StringEscape(const string& svInput);
 string StringUnescape(const string& svInput);
 
+/////////////////////////////////////////////////////////////////////////////
+// Bytes
 vector<int> StringToBytes(const string& svInput, bool bNullTerminator);
 vector<int> PatternToBytes(const string& svInput);
 pair<vector<uint8_t>, string> PatternToMaskedBytes(const string& svInput);

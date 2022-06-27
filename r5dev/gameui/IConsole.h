@@ -41,8 +41,12 @@ private:
     float                          m_flScrollX        = 0.f;
     float                          m_flScrollY        = 0.f;
     float                          m_flFadeAlpha      = 0.f;
-    bool                           m_bInitialized     = false;
+
     bool                           m_bModernTheme     = false;
+    bool                           m_bLegacyTheme     = false;
+    bool                           m_bDefaultTheme    = false;
+
+    bool                           m_bInitialized     = false;
     bool                           m_bReclaimFocus    = false;
     bool                           m_bCopyToClipBoard = false;
 

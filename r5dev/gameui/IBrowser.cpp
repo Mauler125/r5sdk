@@ -259,13 +259,13 @@ void CBrowser::ServerBrowserSection(void)
         ImGui::InputTextWithHint("##ServerBrowser_ServerEncKey", "Enter encryption key", m_szServerEncKeyBuffer, IM_ARRAYSIZE(m_szServerEncKeyBuffer));
 
         ImGui::SameLine();
-        if (ImGui::Button("Connect", ImVec2(ImGui::GetWindowContentRegionWidth() / 4.2, 18.5)))
+        if (ImGui::Button("Connect", ImVec2(ImGui::GetWindowContentRegionWidth() / 4.3, ImGui::GetFrameHeight())))
         {
             ConnectToServer(m_szServerAddressBuffer, m_szServerEncKeyBuffer);
         }
 
         ImGui::SameLine();
-        if (ImGui::Button("Private Servers", ImVec2(ImGui::GetWindowContentRegionWidth() / 4.2, 18.5)))
+        if (ImGui::Button("Private Servers", ImVec2(ImGui::GetWindowContentRegionWidth() / 4.3, ImGui::GetFrameHeight())))
         {
             ImGui::OpenPopup("Connect to Private Server");
         }
@@ -501,15 +501,15 @@ void CBrowser::HostServerSection(void)
             {
                 if (m_Server.svServerName.empty())
                 {
-                    svServerNameErr = "No Server Name assigned.";
+                    svServerNameErr = "No server name assigned.";
                 }
                 else if (m_Server.svPlaylist.empty())
                 {
-                    svServerNameErr = "No Playlist assigned.";
+                    svServerNameErr = "No playlist assigned.";
                 }
                 else if (m_Server.svMapName.empty())
                 {
-                    svServerNameErr = "'levelname' was empty.";
+                    svServerNameErr = "No level name assigned.";
                 }
             }
         }
@@ -527,11 +527,11 @@ void CBrowser::HostServerSection(void)
         {
             if (m_Server.svPlaylist.empty())
             {
-                svServerNameErr = "No Playlist assigned.";
+                svServerNameErr = "No playlist assigned.";
             }
             else if (m_Server.svMapName.empty())
             {
-                svServerNameErr = "'levelname' was empty.";
+                svServerNameErr = "No level name assigned.";
             }
         }
     }
@@ -733,12 +733,13 @@ void CBrowser::ChangeEncryptionKey(const string& svNetKey) const
 //-----------------------------------------------------------------------------
 void CBrowser::SetStyleVar(void)
 {
-    if (g_pImGuiConfig->InitStyle() == 0)
-    {
-        m_bModernTheme = true;
-    }
+    int nStyle = g_pImGuiConfig->InitStyle();
 
-    ImGui::SetNextWindowSize(ImVec2(840, 600), ImGuiCond_FirstUseEver);
+    m_bModernTheme  = nStyle == 0;
+    m_bLegacyTheme  = nStyle == 1;
+    m_bDefaultTheme = nStyle == 2;
+
+    ImGui::SetNextWindowSize(ImVec2(910, 524), ImGuiCond_FirstUseEver);
     ImGui::SetWindowPos(ImVec2(-500, 50), ImGuiCond_FirstUseEver);
 }
 

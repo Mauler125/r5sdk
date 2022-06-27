@@ -241,7 +241,7 @@ int ImGuiConfig::InitStyle() const
         colors[ImGuiCol_Header]                 = ImVec4(0.35f, 0.37f, 0.39f, 1.00f);
         colors[ImGuiCol_HeaderHovered]          = ImVec4(0.45f, 0.47f, 0.49f, 1.00f);
         colors[ImGuiCol_HeaderActive]           = ImVec4(0.53f, 0.55f, 0.57f, 1.00f);
-        colors[ImGuiCol_Separator]              = ImVec4(0.08f, 0.10f, 0.12f, 1.00f);
+        colors[ImGuiCol_Separator]              = ImVec4(0.08f, 0.10f, 0.12f, 0.00f);
         colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.53f, 0.55f, 0.57f, 1.00f);
         colors[ImGuiCol_SeparatorActive]        = ImVec4(0.63f, 0.65f, 0.67f, 1.00f);
         colors[ImGuiCol_ResizeGrip]             = ImVec4(0.41f, 0.43f, 0.45f, 1.00f);
@@ -263,14 +263,15 @@ int ImGuiConfig::InitStyle() const
         style.WindowRounding    = 4.0f;
         style.FrameRounding     = 1.0f;
         style.ChildRounding     = 2.0f;
-        style.PopupRounding     = 3.0f;
+        style.PopupRounding     = 4.0f;
         style.TabRounding       = 1.0f;
+        style.GrabRounding      = 1.0f;
         style.ScrollbarRounding = 1.0f;
 
         result = 2;
     }
 
-    style.ItemSpacing       = ImVec2(4, 4);
+    style.ItemSpacing       = ImVec2(5, 4);
     style.FramePadding      = ImVec2(4, 4);
     style.WindowPadding     = ImVec2(5, 5);
     style.WindowMinSize = ImVec2(750, 510);
