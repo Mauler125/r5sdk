@@ -11,11 +11,13 @@
 
 #include "tier1/utlmemory.h"
 
-struct __declspec(align(4)) CUtlVector
+template< class T, class A = CUtlMemory<T> >
+class CUtlVector
 {
-	void* vtable;
-	CUtlMemory m_Memory;
+	typedef A CAllocator;
+public:
+	typedef T ElemType_t;
+protected:
+	CAllocator m_Memory;
 	int m_Size;
 };
-
-

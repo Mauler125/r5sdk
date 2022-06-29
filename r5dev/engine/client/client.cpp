@@ -6,6 +6,7 @@
 //
 //===============================================================================//
 // client.cpp: implementation of the CClient class.
+//
 ///////////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
 #include "engine/client/client.h"
@@ -15,7 +16,8 @@
 //---------------------------------------------------------------------------------
 CClient* CClient::GetClient(int nIndex) const
 {
-	return (CClient*)(std::uintptr_t)(g_pClientBuffer.GetPtr() + (nIndex * sizeof(CClient)));
+	return reinterpret_cast<CClient*>(
+		(reinterpret_cast<uintptr_t>(g_pClient) + (nIndex * sizeof(CClient))));
 }
 
 //---------------------------------------------------------------------------------

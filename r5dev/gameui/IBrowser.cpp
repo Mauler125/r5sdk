@@ -89,7 +89,14 @@ void CBrowser::Draw(void)
     }
 
     int nVars = 0;
-    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha); nVars++;
+    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);                   nVars++;
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(750, 510));        nVars++;
+
+    if (!m_bModernTheme)
+    {
+        ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);              nVars++;
+    }
+
     if (!ImGui::Begin(m_pszBrowserTitle, &m_bActivate))
     {
         ImGui::End();
@@ -98,27 +105,9 @@ void CBrowser::Draw(void)
     }
     ImGui::End();
 
-    ImGui::SetNextWindowSize(ImVec2(840, 600), ImGuiCond_FirstUseEver);
-    ImGui::SetWindowPos(ImVec2(-500, 50), ImGuiCond_FirstUseEver);
-
     ImGui::Begin(m_pszBrowserTitle, NULL, ImGuiWindowFlags_NoScrollbar);
     {
-        CompMenu();
-
-        switch (eCurrentSection)
-        {
-        case eSection::SERVER_BROWSER:
-            ServerBrowserSection();
-            break;
-        case eSection::HOST_SERVER:
-            HostServerSection();
-            break;
-        case eSection::SETTINGS:
-            SettingsSection();
-            break;
-        default:
-            break;
-        }
+        BasePanel();
     }
     ImGui::End();
     ImGui::PopStyleVar(nVars);
@@ -149,22 +138,25 @@ void CBrowser::Think(void)
 //-----------------------------------------------------------------------------
 // Purpose: draws the compmenu
 //-----------------------------------------------------------------------------
-void CBrowser::CompMenu(void)
+void CBrowser::BasePanel(void)
 {
     ImGui::BeginTabBar("CompMenu");
-    if (ImGui::TabItemButton("Server Browser"))
+    if (ImGui::BeginTabItem("Server Browser"))
     {
-        SetSection(eSection::SERVER_BROWSER);
+        BrowserPanel();
+        ImGui::EndTabItem();
     }
 #ifndef CLIENT_DLL
-    if (ImGui::TabItemButton("Host Server"))
+    if (ImGui::BeginTabItem("Host Server"))
     {
-        SetSection(eSection::HOST_SERVER);
+        HostPanel();
+        ImGui::EndTabItem();
     }
 #endif // !CLIENT_DLL
-    if (ImGui::TabItemButton("Settings"))
+    if (ImGui::BeginTabItem("Settings"))
     {
-        SetSection(eSection::SETTINGS);
+        SettingsPanel();
+        ImGui::EndTabItem();
     }
     ImGui::EndTabBar();
 }
@@ -172,7 +164,7 @@ void CBrowser::CompMenu(void)
 //-----------------------------------------------------------------------------
 // Purpose: draws the server browser section
 //-----------------------------------------------------------------------------
-void CBrowser::ServerBrowserSection(void)
+void CBrowser::BrowserPanel(void)
 {
     ImGui::BeginGroup();
     m_imServerBrowserFilter.Draw();
@@ -189,7 +181,7 @@ void CBrowser::ServerBrowserSection(void)
     ImGui::BeginChild("##ServerBrowser_ServerList", { 0, -fFooterHeight }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
     int nVars = 0;
-    if (m_bDefaultTheme)
+    if (m_bModernTheme)
     {
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 8.f, 0.f }); nVars++;
     }
@@ -255,13 +247,13 @@ void CBrowser::ServerBrowserSection(void)
         ImGui::InputTextWithHint("##ServerBrowser_ServerEncKey", "Enter encryption key", m_szServerEncKeyBuffer, IM_ARRAYSIZE(m_szServerEncKeyBuffer));
 
         ImGui::SameLine();
-        if (ImGui::Button("Connect", ImVec2(ImGui::GetWindowContentRegionWidth() / 4.2, 18.5)))
+        if (ImGui::Button("Connect", ImVec2(ImGui::GetWindowContentRegionWidth() / 4.3, ImGui::GetFrameHeight())))
         {
             ConnectToServer(m_szServerAddressBuffer, m_szServerEncKeyBuffer);
         }
 
         ImGui::SameLine();
-        if (ImGui::Button("Private Servers", ImVec2(ImGui::GetWindowContentRegionWidth() / 4.2, 18.5)))
+        if (ImGui::Button("Private Servers", ImVec2(ImGui::GetWindowContentRegionWidth() / 4.3, ImGui::GetFrameHeight())))
         {
             ImGui::OpenPopup("Connect to Private Server");
         }
@@ -311,7 +303,7 @@ void CBrowser::ConnectToServer(const string& svIp, const string& svPort, const s
 {
     if (!svNetKey.empty())
     {
-        ChangeEncryptionKeyTo(svNetKey);
+        ChangeEncryptionKey(svNetKey);
     }
 
     stringstream ssCommand;
@@ -326,7 +318,7 @@ void CBrowser::ConnectToServer(const string& svServer, const string& svNetKey)
 {
     if (!svNetKey.empty())
     {
-        ChangeEncryptionKeyTo(svNetKey);
+        ChangeEncryptionKey(svNetKey);
     }
 
     stringstream ssCommand;
@@ -429,7 +421,7 @@ void CBrowser::HiddenServersModal(void)
 //-----------------------------------------------------------------------------
 // Purpose: draws the host section
 //-----------------------------------------------------------------------------
-void CBrowser::HostServerSection(void)
+void CBrowser::HostPanel(void)
 {
 #ifndef CLIENT_DLL
     static string svServerNameErr = "";
@@ -497,15 +489,15 @@ void CBrowser::HostServerSection(void)
             {
                 if (m_Server.svServerName.empty())
                 {
-                    svServerNameErr = "No Server Name assigned.";
+                    svServerNameErr = "No server name assigned.";
                 }
                 else if (m_Server.svPlaylist.empty())
                 {
-                    svServerNameErr = "No Playlist assigned.";
+                    svServerNameErr = "No playlist assigned.";
                 }
                 else if (m_Server.svMapName.empty())
                 {
-                    svServerNameErr = "'levelname' was empty.";
+                    svServerNameErr = "No level name assigned.";
                 }
             }
         }
@@ -523,11 +515,11 @@ void CBrowser::HostServerSection(void)
         {
             if (m_Server.svPlaylist.empty())
             {
-                svServerNameErr = "No Playlist assigned.";
+                svServerNameErr = "No playlist assigned.";
             }
             else if (m_Server.svMapName.empty())
             {
-                svServerNameErr = "'levelname' was empty.";
+                svServerNameErr = "No level name assigned.";
             }
         }
     }
@@ -689,7 +681,7 @@ void CBrowser::ProcessCommand(const char* pszCommand)
 //-----------------------------------------------------------------------------
 // Purpose: draws the settings section
 //-----------------------------------------------------------------------------
-void CBrowser::SettingsSection(void)
+void CBrowser::SettingsPanel(void)
 {
     ImGui::InputTextWithHint("Hostname", "Matchmaking Server String", &m_szMatchmakingHostName);
     if (ImGui::Button("Update Hostname"))
@@ -719,7 +711,7 @@ void CBrowser::RegenerateEncryptionKey(void) const
 //-----------------------------------------------------------------------------
 // Purpose: changes encryption key to specified one
 //-----------------------------------------------------------------------------
-void CBrowser::ChangeEncryptionKeyTo(const string& svNetKey) const
+void CBrowser::ChangeEncryptionKey(const string& svNetKey) const
 {
     NET_SetKey(svNetKey);
 }
@@ -729,115 +721,14 @@ void CBrowser::ChangeEncryptionKeyTo(const string& svNetKey) const
 //-----------------------------------------------------------------------------
 void CBrowser::SetStyleVar(void)
 {
-    ImGuiStyle& style                     = ImGui::GetStyle();
-    ImVec4* colors                        = style.Colors;
+    int nStyle = g_pImGuiConfig->InitStyle();
 
-    if (!CommandLine()->CheckParm("-imgui_default_theme"))
-    {
-        colors[ImGuiCol_Text]                 = ImVec4(0.81f, 0.81f, 0.81f, 1.00f);
-        colors[ImGuiCol_TextDisabled]         = ImVec4(0.56f, 0.56f, 0.56f, 1.00f);
-        colors[ImGuiCol_WindowBg]             = ImVec4(0.27f, 0.27f, 0.27f, 1.00f);
-        colors[ImGuiCol_ChildBg]              = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-        colors[ImGuiCol_PopupBg]              = ImVec4(0.27f, 0.27f, 0.27f, 1.00f);
-        colors[ImGuiCol_Border]               = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
-        colors[ImGuiCol_BorderShadow]         = ImVec4(0.04f, 0.04f, 0.04f, 0.64f);
-        colors[ImGuiCol_FrameBg]              = ImVec4(0.13f, 0.13f, 0.13f, 1.00f);
-        colors[ImGuiCol_FrameBgHovered]       = ImVec4(0.19f, 0.19f, 0.19f, 1.00f);
-        colors[ImGuiCol_FrameBgActive]        = ImVec4(0.24f, 0.24f, 0.24f, 1.00f);
-        colors[ImGuiCol_TitleBg]              = ImVec4(0.22f, 0.22f, 0.22f, 1.00f);
-        colors[ImGuiCol_TitleBgActive]        = ImVec4(0.27f, 0.27f, 0.27f, 1.00f);
-        colors[ImGuiCol_TitleBgCollapsed]     = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-        colors[ImGuiCol_MenuBarBg]            = ImVec4(0.22f, 0.22f, 0.22f, 1.00f);
-        colors[ImGuiCol_ScrollbarBg]          = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
-        colors[ImGuiCol_ScrollbarGrab]        = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
-        colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.53f, 0.53f, 0.53f, 1.00f);
-        colors[ImGuiCol_ScrollbarGrabActive]  = ImVec4(0.63f, 0.63f, 0.63f, 1.00f);
-        colors[ImGuiCol_CheckMark]            = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
-        colors[ImGuiCol_SliderGrab]           = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
-        colors[ImGuiCol_SliderGrabActive]     = ImVec4(0.53f, 0.53f, 0.53f, 1.00f);
-        colors[ImGuiCol_Button]               = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
-        colors[ImGuiCol_ButtonHovered]        = ImVec4(0.45f, 0.45f, 0.45f, 1.00f);
-        colors[ImGuiCol_ButtonActive]         = ImVec4(0.52f, 0.52f, 0.52f, 1.00f);
-        colors[ImGuiCol_Header]               = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
-        colors[ImGuiCol_HeaderHovered]        = ImVec4(0.45f, 0.45f, 0.45f, 1.00f);
-        colors[ImGuiCol_HeaderActive]         = ImVec4(0.53f, 0.53f, 0.53f, 1.00f);
-        colors[ImGuiCol_Separator]            = ImVec4(0.53f, 0.53f, 0.57f, 1.00f);
-        colors[ImGuiCol_SeparatorHovered]     = ImVec4(0.53f, 0.53f, 0.53f, 1.00f);
-        colors[ImGuiCol_SeparatorActive]      = ImVec4(0.63f, 0.63f, 0.63f, 1.00f);
-        colors[ImGuiCol_ResizeGrip]           = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
-        colors[ImGuiCol_ResizeGripHovered]    = ImVec4(0.52f, 0.52f, 0.52f, 1.00f);
-        colors[ImGuiCol_ResizeGripActive]     = ImVec4(0.63f, 0.63f, 0.63f, 1.00f);
-        colors[ImGuiCol_Tab]                  = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
-        colors[ImGuiCol_TabHovered]           = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
-        colors[ImGuiCol_TabActive]            = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
+    m_bModernTheme  = nStyle == 0;
+    m_bLegacyTheme  = nStyle == 1;
+    m_bDefaultTheme = nStyle == 2;
 
-        style.WindowBorderSize  = 0.0f;
-        style.FrameBorderSize   = 1.0f;
-        style.ChildBorderSize   = 1.0f;
-        style.PopupBorderSize   = 1.0f;
-        style.TabBorderSize     = 1.0f;
-        
-        style.WindowRounding    = 4.0f;
-        style.FrameRounding     = 1.0f;
-        style.ChildRounding     = 1.0f;
-        style.PopupRounding     = 3.0f;
-        style.TabRounding       = 1.0f;
-        style.ScrollbarRounding = 1.0f;
-    }
-    else
-    {
-        colors[ImGuiCol_WindowBg]               = ImVec4(0.11f, 0.13f, 0.17f, 1.00f);
-        colors[ImGuiCol_ChildBg]                = ImVec4(0.02f, 0.04f, 0.06f, 1.00f);
-        colors[ImGuiCol_PopupBg]                = ImVec4(0.11f, 0.13f, 0.17f, 1.00f);
-        colors[ImGuiCol_Border]                 = ImVec4(0.41f, 0.41f, 0.41f, 0.50f);
-        colors[ImGuiCol_BorderShadow]           = ImVec4(0.04f, 0.04f, 0.04f, 0.00f);
-        colors[ImGuiCol_FrameBg]                = ImVec4(0.02f, 0.04f, 0.06f, 1.00f);
-        colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.04f, 0.06f, 0.10f, 1.00f);
-        colors[ImGuiCol_FrameBgActive]          = ImVec4(0.04f, 0.07f, 0.12f, 1.00f);
-        colors[ImGuiCol_TitleBg]                = ImVec4(0.26f, 0.51f, 0.78f, 1.00f);
-        colors[ImGuiCol_TitleBgActive]          = ImVec4(0.26f, 0.51f, 0.78f, 1.00f);
-        colors[ImGuiCol_MenuBarBg]              = ImVec4(0.11f, 0.13f, 0.17f, 1.00f);
-        colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.14f, 0.19f, 0.24f, 1.00f);
-        colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.23f, 0.36f, 0.51f, 1.00f);
-        colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.30f, 0.46f, 0.65f, 1.00f);
-        colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.31f, 0.49f, 0.69f, 1.00f);
-        colors[ImGuiCol_SliderGrab]             = ImVec4(0.31f, 0.43f, 0.43f, 1.00f);
-        colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.41f, 0.56f, 0.57f, 1.00f);
-        colors[ImGuiCol_Button]                 = ImVec4(0.31f, 0.43f, 0.43f, 1.00f);
-        colors[ImGuiCol_ButtonHovered]          = ImVec4(0.38f, 0.52f, 0.53f, 1.00f);
-        colors[ImGuiCol_ButtonActive]           = ImVec4(0.41f, 0.56f, 0.57f, 1.00f);
-        colors[ImGuiCol_Header]                 = ImVec4(0.31f, 0.43f, 0.43f, 1.00f);
-        colors[ImGuiCol_HeaderHovered]          = ImVec4(0.38f, 0.53f, 0.53f, 1.00f);
-        colors[ImGuiCol_HeaderActive]           = ImVec4(0.41f, 0.56f, 0.57f, 1.00f);
-        colors[ImGuiCol_Separator]              = ImVec4(0.53f, 0.53f, 0.57f, 0.00f);
-        colors[ImGuiCol_ResizeGrip]             = ImVec4(0.41f, 0.41f, 0.41f, 0.50f);
-        colors[ImGuiCol_Tab]                    = ImVec4(0.31f, 0.43f, 0.43f, 1.00f);
-        colors[ImGuiCol_TabHovered]             = ImVec4(0.38f, 0.53f, 0.53f, 1.00f);
-        colors[ImGuiCol_TabActive]              = ImVec4(0.41f, 0.56f, 0.57f, 1.00f);
-        colors[ImGuiCol_TableHeaderBg]          = ImVec4(0.14f, 0.19f, 0.24f, 1.00f);
-        colors[ImGuiCol_TableBorderStrong]      = ImVec4(0.20f, 0.26f, 0.33f, 1.00f);
-        colors[ImGuiCol_TableBorderLight]       = ImVec4(0.22f, 0.29f, 0.37f, 1.00f);
-
-        style.WindowBorderSize  = 1.0f;
-        style.FrameBorderSize   = 0.0f;
-        style.ChildBorderSize   = 0.0f;
-        style.PopupBorderSize   = 1.0f;
-        style.TabBorderSize     = 1.0f;
-
-        style.WindowRounding    = 4.0f;
-        style.FrameRounding     = 1.0f;
-        style.ChildRounding     = 1.0f;
-        style.PopupRounding     = 3.0f;
-        style.TabRounding       = 1.0f;
-        style.ScrollbarRounding = 3.0f;
-
-        m_bDefaultTheme = true;
-    }
-
-    style.ItemSpacing       = ImVec2(4, 4);
-    style.FramePadding      = ImVec2(4, 4);
-    style.WindowPadding     = ImVec2(5, 5);
-    style.WindowMinSize     = ImVec2(750, 510);
+    ImGui::SetNextWindowSize(ImVec2(910, 524), ImGuiCond_FirstUseEver);
+    ImGui::SetWindowPos(ImVec2(-500, 50), ImGuiCond_FirstUseEver);
 }
 
 CBrowser* g_pBrowser = new CBrowser();

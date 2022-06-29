@@ -5,6 +5,7 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
+#include "core/logdef.h"
 #include "core/init.h"
 #include "tier0/jobthread.h"
 #include "tier0/threadtools.h"
@@ -12,6 +13,7 @@
 #include "tier0/fasttimer.h"
 #include "tier0/cpu.h"
 #include "tier0/commandline.h"
+#include "tier0/platform_internal.h"
 #include "tier1/cmd.h"
 #include "tier1/IConVar.h"
 #include "tier1/cvar.h"
@@ -192,6 +194,7 @@ void Systems_Init()
 	SQAUX_Attach();
 
 	RTech_Game_Attach();
+	RTech_Utils_Attach();
 #ifndef DEDICATED
 	Rui_Attach();
 #endif // !DEDICATED
@@ -231,6 +234,8 @@ void Systems_Init()
 #ifdef DEDICATED
 	Dedicated_Init();
 #endif // DEDICATED
+
+	SpdLog_PostInit();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -309,6 +314,7 @@ void Systems_Shutdown()
 	SQAUX_Detach();
 
 	RTech_Game_Detach();
+	RTech_Utils_Detach();
 #ifndef DEDICATED
 	Rui_Detach();
 #endif // !DEDICATED

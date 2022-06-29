@@ -82,7 +82,7 @@ PLATFORM_INTERFACE void AssertValidWStringPtr(const wchar_t* ptr, int maxchar/* 
 //-----------------------------------------------------------------------------
 void DevMsg(eDLL_T context, const char* fmt, ...)
 {
-	static char szBuf[2048] = {};
+	static char szBuf[4096] = {};
 
 	static std::string svOut;
 	static std::string svAnsiOut;
@@ -104,7 +104,8 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 		va_end(args);
 	}/////////////////////////////
 
-	svOut = sDLL_T[static_cast<int>(context)];
+	svOut = Plat_GetProcessUpTime();
+	svOut.append(sDLL_T[static_cast<int>(context)]);
 	svOut.append(szBuf);
 	svOut = std::regex_replace(svOut, rxAnsiExp, "");
 
@@ -122,7 +123,8 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 	}
 	else
 	{
-		svAnsiOut = sANSI_DLL_T[static_cast<int>(context)];
+		svAnsiOut = Plat_GetProcessUpTime();
+		svAnsiOut.append(sANSI_DLL_T[static_cast<int>(context)]);
 		svAnsiOut.append(szBuf);
 
 		if (svAnsiOut.back() != '\n')
@@ -172,7 +174,7 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 		break;
 	}
 
-	g_pConsole->m_ivConLog.push_back(CConLog(PrintPercentageEscape(g_spd_sys_w_oss.str()), color));
+	g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), color));
 	g_pLogSystem.AddLog(tLog, g_spd_sys_w_oss.str());
 
 	g_spd_sys_w_oss.str("");
@@ -188,7 +190,7 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 //-----------------------------------------------------------------------------
 void Warning(eDLL_T context, const char* fmt, ...)
 {
-	static char szBuf[2048] = {};
+	static char szBuf[4096] = {};
 
 	static std::string svOut;
 	static std::string svAnsiOut;
@@ -210,7 +212,8 @@ void Warning(eDLL_T context, const char* fmt, ...)
 		va_end(args);
 	}/////////////////////////////
 
-	svOut = sDLL_T[static_cast<int>(context)];
+	svOut = Plat_GetProcessUpTime();
+	svOut.append(sDLL_T[static_cast<int>(context)]);
 	svOut.append(szBuf);
 	svOut = std::regex_replace(svOut, rxAnsiExp, "");
 
@@ -228,7 +231,8 @@ void Warning(eDLL_T context, const char* fmt, ...)
 	}
 	else
 	{
-		svAnsiOut = sANSI_DLL_T[static_cast<int>(context)];
+		svAnsiOut = Plat_GetProcessUpTime();
+		svAnsiOut.append(sANSI_DLL_T[static_cast<int>(context)]);
 		svAnsiOut.append(g_svYellowF);
 		svAnsiOut.append(szBuf);
 
@@ -247,7 +251,7 @@ void Warning(eDLL_T context, const char* fmt, ...)
 #ifndef DEDICATED
 	iconsole->info(svOut);
 
-	g_pConsole->m_ivConLog.push_back(CConLog(PrintPercentageEscape(g_spd_sys_w_oss.str()), ImVec4(1.00f, 1.00f, 0.00f, 0.80f)));
+	g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), ImVec4(1.00f, 1.00f, 0.00f, 0.80f)));
 	g_pLogSystem.AddLog(LogType_t::WARNING_C, g_spd_sys_w_oss.str());
 
 	g_spd_sys_w_oss.str("");
@@ -263,7 +267,7 @@ void Warning(eDLL_T context, const char* fmt, ...)
 //-----------------------------------------------------------------------------
 void Error(eDLL_T context, const char* fmt, ...)
 {
-	static char szBuf[2048] = {};
+	static char szBuf[4096] = {};
 
 	static std::string svOut;
 	static std::string svAnsiOut;
@@ -285,7 +289,8 @@ void Error(eDLL_T context, const char* fmt, ...)
 		va_end(args);
 	}/////////////////////////////
 
-	svOut = sDLL_T[static_cast<int>(context)];
+	svOut = Plat_GetProcessUpTime();
+	svOut.append(sDLL_T[static_cast<int>(context)]);
 	svOut.append(szBuf);
 	svOut = std::regex_replace(svOut, rxAnsiExp, "");
 
@@ -303,7 +308,8 @@ void Error(eDLL_T context, const char* fmt, ...)
 	}
 	else
 	{
-		svAnsiOut = sANSI_DLL_T[static_cast<int>(context)];
+		svAnsiOut = Plat_GetProcessUpTime();
+		svAnsiOut.append(sANSI_DLL_T[static_cast<int>(context)]);
 		svAnsiOut.append(g_svRedF);
 		svAnsiOut.append(szBuf);
 
@@ -322,7 +328,7 @@ void Error(eDLL_T context, const char* fmt, ...)
 #ifndef DEDICATED
 	iconsole->info(svOut);
 
-	g_pConsole->m_ivConLog.push_back(CConLog(PrintPercentageEscape(g_spd_sys_w_oss.str()), ImVec4(1.00f, 0.00f, 0.00f, 1.00f)));
+	g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), ImVec4(1.00f, 0.00f, 0.00f, 1.00f)));
 	g_pLogSystem.AddLog(LogType_t::ERROR_C, g_spd_sys_w_oss.str());
 
 	g_spd_sys_w_oss.str("");

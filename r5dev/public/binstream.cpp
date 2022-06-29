@@ -8,7 +8,7 @@ CIOStream::CIOStream()
 {
 	m_eCurrentMode = Mode_t::NONE;
 }
-CIOStream::CIOStream(const string& svFileFullPath, Mode_t eMode)
+CIOStream::CIOStream(const fs::path& svFileFullPath, Mode_t eMode)
 {
 	Open(svFileFullPath, eMode);
 }
@@ -29,9 +29,8 @@ CIOStream::~CIOStream()
 // Input  : fileFullPath - mode
 // Output : true if operation is successfull
 //-----------------------------------------------------------------------------
-bool CIOStream::Open(const string& svFilePath, Mode_t eMode)
+bool CIOStream::Open(const fs::path& fsFilePath, Mode_t eMode)
 {
-	m_svFilePath = svFilePath;
 	m_eCurrentMode = eMode;
 
 	switch (m_eCurrentMode)
@@ -41,10 +40,9 @@ bool CIOStream::Open(const string& svFilePath, Mode_t eMode)
 		{
 			m_iStream.close();
 		}
-		m_iStream.open(m_svFilePath.c_str(), std::ios::binary | std::ios::in);
+		m_iStream.open(fsFilePath, std::ios::binary | std::ios::in);
 		if (!m_iStream.is_open() || !m_iStream.good())
 		{
-			Error(eDLL_T::FS, "Error opening file '%s' for read operation.\n", m_svFilePath.c_str());
 			m_eCurrentMode = Mode_t::NONE;
 			return false;
 		}
@@ -61,10 +59,9 @@ bool CIOStream::Open(const string& svFilePath, Mode_t eMode)
 		{
 			m_oStream.close();
 		}
-		m_oStream.open(m_svFilePath.c_str(), std::ios::binary | std::ios::out);
+		m_oStream.open(fsFilePath, std::ios::binary | std::ios::out);
 		if (!m_oStream.is_open() || !m_oStream.good())
 		{
-			Error(eDLL_T::FS, "Error opening file '%s' for write operation.\n", m_svFilePath.c_str());
 			m_eCurrentMode = Mode_t::NONE;
 			return false;
 		}

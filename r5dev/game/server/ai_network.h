@@ -40,7 +40,7 @@ public:
 
 	char pad0[0x14];              // +0x1054 <-- !TODO
 
-	int64_t m_iNumNodes;          // +0x1070
+	int m_iNumNodes;              // +0x1070
 	CAI_Node** m_pAInode;         // +0x1078
 };
 

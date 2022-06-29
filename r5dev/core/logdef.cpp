@@ -60,3 +60,18 @@ void SpdLog_Init(void)
 
 	bInitialized = true;
 }
+
+void SpdLog_PostInit()
+{
+	std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
+	std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
+
+	iconsole->set_pattern("%v");
+
+	if (strstr(g_svCmdLine.c_str(), "-ansiclr"))
+	{
+		wconsole->set_pattern("%v\u001b[0m");
+		g_bSpdLog_UseAnsiClr = true;
+	}
+	else { wconsole->set_pattern("%v"); }
+}

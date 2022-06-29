@@ -79,7 +79,7 @@ class CFactory
 public:
 	void AddFactory(const string& svFactoryName, void* pFactory);
 	void AddFactory(FactoryInfo factoryInfo);
-	int GetVersionIndex(const string& svInterfaceName) const;
+	size_t GetVersionIndex(const string& svInterfaceName) const;
 	void GetFactoriesFromRegister(void);
 	CMemory GetFactoryPtr(const string& factoryName, bool versionLess = true) const;
 

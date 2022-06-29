@@ -1,5 +1,9 @@
 #include "core/stdafx.h"
 #include "rtech/rtech_utils.h"
+#ifndef DEDICATED
+#include "windows/id3dx.h"
+#endif // !DEDICATED
+
 
 /******************************************************************************
 -------------------------------------------------------------------------------
@@ -62,29 +66,29 @@ std::uint64_t __fastcall RTech::StringToGuid(const char* pData)
 //-----------------------------------------------------------------------------
 // Purpose: calculate 'decompressed' size and commit parameters
 //-----------------------------------------------------------------------------
-std::uint32_t __fastcall RTech::DecompressPakFileInit(RPakDecompState_t* state, std::uint8_t* fileBuffer, std::int64_t fileSize, std::int64_t offNoHeader, std::int64_t headerSize)
+std::uint64_t __fastcall RTech::DecompressPakFileInit(RPakDecompState_t* state, std::uint8_t* fileBuffer, std::uint64_t fileSize, std::uint64_t offNoHeader, std::uint64_t headerSize)
 {
-	std::int64_t input_byte_pos_init;        // r9
-	std::uint64_t byte_init;                 // r11
-	std::int32_t decompressed_size_bits;     // ecx
-	std::int64_t byte_1_low;                 // rdi
-	std::uint64_t input_byte_pos_1;          // r10
-	std::uint32_t bit_pos_final;             // ebp
-	std::uint64_t byte_1;                    // rdi
-	std::uint32_t brih_bits;                 // er11
-	std::uint64_t inv_mask_in;               // r8
-	std::uint64_t byte_final_full;           // rbx
-	std::uint64_t bit_pos_final_1;           // rax
-	std::int32_t byte_bit_offset_final;      // ebp
-	std::uint64_t input_byte_pos_final;      // r10
-	std::uint64_t byte_final;                // rbx
-	std::uint32_t brih_bytes;                // er11
-	std::int64_t byte_tmp;                   // rdx
-	std::int64_t stream_len_needed;          // r14
-	std::int64_t result;                     // rax
-	std::uint64_t inv_mask_out;              // r8
-	std::int64_t qw70;                       // rcx
-	std::int64_t stream_compressed_size_new; // rdx
+	std::int64_t input_byte_pos_init;         // r9
+	std::uint64_t byte_init;                  // r11
+	std::int32_t decompressed_size_bits;      // ecx
+	std::int64_t byte_1_low;                  // rdi
+	std::uint64_t input_byte_pos_1;           // r10
+	std::uint32_t bit_pos_final;              // ebp
+	std::uint64_t byte_1;                     // rdi
+	std::uint32_t brih_bits;                  // er11
+	std::uint64_t inv_mask_in;                // r8
+	std::uint64_t byte_final_full;            // rbx
+	std::uint64_t bit_pos_final_1;            // rax
+	std::int32_t byte_bit_offset_final;       // ebp
+	std::uint64_t input_byte_pos_final;       // r10
+	std::uint64_t byte_final;                 // rbx
+	std::uint32_t brih_bytes;                 // er11
+	std::uint64_t byte_tmp;                   // rdx
+	std::uint64_t stream_len_needed;          // r14
+	std::uint64_t result;                     // rax
+	std::uint64_t inv_mask_out;               // r8
+	std::uint64_t qw70;                       // rcx
+	std::uint64_t stream_compressed_size_new; // rdx
 
 	const std::uintptr_t mask = UINT64_MAX;
 	const std::uintptr_t file_buf = std::uintptr_t(fileBuffer);
@@ -496,6 +500,149 @@ std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::
 	return result;
 }
 
+#if not defined DEDICATED && defined (GAMEDLL_S3)
+
+void RTech::CreateDXTexture(RPakTextureHeader_t* textureHeader, int64_t imageData)
+{
+	RPakTextureHeader_t* v2; // rbx
+	int v5; // esi
+	UINT v6; // edi
+	uint8_t v7; // r15
+	UINT v8; // er14
+	unsigned int v9; // er8
+	unsigned int v10; // er11
+	unsigned int v11; // er10
+	unsigned int v12; // er13
+	int v13; // ebx
+	int v14; // er12
+	int v15; // eax
+	int v16; // edx
+	int v17; // eax
+	unsigned int v18; // edx
+	int v19; // er11
+	int v20; // er8
+	UINT v21; // eax
+	unsigned int v22; // er8
+	__int64 v23; // rdx
+	__int64 v24; // rcx
+	DXGI_FORMAT dxgiFormat; // esi
+	unsigned int v28; // er8
+	UINT v29; // eax
+	unsigned int v30; // edx
+	UINT v31; // eax
+	bool v32; // zf
+	int create_texture_err_var; // eax
+	uint8_t v34; // al
+	int v35; // ecx
+	int create_shader_resource_view_err; // eax
+	unsigned int v37; // [rsp+20h] [rbp-E0h]
+	unsigned int v38; // [rsp+24h] [rbp-DCh]
+	D3D11_SHADER_RESOURCE_VIEW_DESC v39; // [rsp+28h] [rbp-D8h] BYREF
+	D3D11_TEXTURE2D_DESC p_texture_desc_var; // [rsp+40h] [rbp-C0h] BYREF
+	D3D11_SUBRESOURCE_DATA p_initial_data_var; // [rsp+70h] [rbp-90h] BYREF
+	unsigned int v47; // [rsp+80C0h] [rbp+7FC0h]
+	
+	ZeroMemory(&p_texture_desc_var, sizeof(p_texture_desc_var));
+	ZeroMemory(&p_initial_data_var, sizeof(p_initial_data_var));
+
+	v2 = textureHeader;
+	if (!v2->unk0 && v2->m_nHeight)
+	{
+		v5 = v2->m_nMipLevelsStreamedOpt + v2->m_nMipLevelsStreamed;
+		v6 = v2->m_nMipLevels;
+		v7 = v2->m_nArraySize;
+		v8 = v6 + v5;
+		if (v6 + v5 != v5)
+		{
+			v9 = v2->m_nWidth;
+			v10 = v2->m_nHeight;
+			v37 = v9;
+			v38 = v10;
+			v11 = HIBYTE(s_pBitsPerPixelWord[textureHeader->m_nFormat]);
+			v12 = v11 >> 1;
+			v47 = v11;
+			v13 = LOBYTE(s_pBitsPerPixelWord[textureHeader->m_nFormat]);
+			v14 = v13 * (v11 >> (v11 >> 1));
+			do
+			{
+				--v8;
+				v15 = 1;
+				if (v9 >> v8 > 1)
+					v15 = v9 >> v8;
+				v16 = v15 - 1;
+				v17 = 1;
+				v18 = (v11 + v16) >> v12;
+				if (v10 >> v8 > 1)
+					v17 = v10 >> v8;
+				v19 = v18 * v14;
+				v20 = v17 - 1;
+				v21 = v8;
+				v22 = v13 * v18 * ((v11 + v20) >> v12);
+				if (v7)
+				{
+					v23 = v7;
+					do
+					{
+						v24 = v21;
+						v21 += v6;
+						v24 *= 16i64;
+						*(const void**)((char*)&p_initial_data_var.pSysMem + v24) = (const void*)imageData;
+						imageData += (v22 + 15) & 0xFFFFFFF0;
+						*(UINT*)((char*)&p_initial_data_var.SysMemPitch + v24) = v19;
+						*(UINT*)((char*)&p_initial_data_var.SysMemSlicePitch + v24) = v22;
+						--v23;
+					} while (v23);
+					v11 = v47;
+				}
+				v9 = v37;
+				v10 = v38;
+			} while (v8 != v5);
+		}
+		LOBYTE(v2[1].m_nNameHash) = v6; // Seems kinda wrong
+		p_texture_desc_var.MipLevels = v6; // v6 is MipLevels
+		dxgiFormat = rpakToDxgiFormat[textureHeader->m_nFormat]; // Get dxgi format
+		p_texture_desc_var.Format = dxgiFormat;
+		v28 = v2->m_nWidth >> v8; // Offseted by mips?
+		v29 = 1;
+		v30 = v2->m_nHeight >> v8; // Offseted by mips?
+		p_texture_desc_var.SampleDesc.Count = 1;
+		if (v28 > 1)
+			v29 = v28;
+		*(_QWORD*)&p_texture_desc_var.BindFlags = 8;
+		p_texture_desc_var.Width = v29; // Final width
+		v31 = 1;
+		if (v30 > 1)
+			v31 = v30;
+		p_texture_desc_var.Height = v31; // Final height
+		v32 = v2->unk2 == 2;
+		p_texture_desc_var.ArraySize = v7; // v7 is arraysiye
+		p_texture_desc_var.MiscFlags = 0;
+		p_texture_desc_var.Usage = (D3D11_USAGE)!v32;
+		create_texture_err_var = (*g_ppGameDevice)->CreateTexture2D(&p_texture_desc_var, &p_initial_data_var + v8, &v2->m_ppTexture);
+		if (create_texture_err_var < 0)
+			Error(eDLL_T::RTECH, "Couldn't create texture \"%s\": error code %08x\n", *(const char**)&v2->m_nNameIndex, (unsigned int)create_texture_err_var);
+		v34 = v2->m_nArraySize;
+		v35 = LOBYTE(v2[1].m_nNameHash); // Buffer num elements?
+		v39.Format = dxgiFormat;
+		v39.Buffer.NumElements = v35;
+		if (v34 <= 1u)
+		{
+			*(_QWORD*)&v39.ViewDimension = 4i64;
+		}
+		else
+		{
+			v39.Texture1DArray.ArraySize = v34;
+			*(_QWORD*)&v39.ViewDimension = 5i64;
+			v39.Texture1DArray.FirstArraySlice = 0;
+		}
+		create_shader_resource_view_err = (*g_ppGameDevice)->CreateShaderResourceView(v2->m_ppTexture, &v39, &v2->m_ppShaderResourceView);
+		if (create_shader_resource_view_err < 0)
+			Error(eDLL_T::RTECH, "Couldn't create shader resource view for texture \"%s\": error code %08x\n", *(const char**)&v2->m_nNameIndex, (unsigned int)create_shader_resource_view_err);
+	}
+}
+
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: gets information about loaded pak file via pak ID
 //-----------------------------------------------------------------------------
@@ -540,5 +687,20 @@ RPakLoadedInfo_t* RTech::GetPakLoadedInfo(const char* szPakName)
 	Warning(eDLL_T::RTECH, "%s - Failed getting RPakLoadInfo_t for Pak '%s'\n", __FUNCTION__, szPakName);
 	return nullptr;
 }
+
+void RTech_Utils_Attach()
+{
+#ifndef DEDICATED
+	//DetourAttach((LPVOID*)&RTech_CreateDXTexture, &RTech::CreateDXTexture);
+#endif
+}
+
+void RTech_Utils_Detach()
+{
+#ifndef DEDICATED
+	//DetourDetach((LPVOID*)&RTech_CreateDXTexture, &RTech::CreateDXTexture);
+#endif
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 RTech* g_pRTech = new RTech();

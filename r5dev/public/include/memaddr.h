@@ -124,7 +124,7 @@ public:
 	CMemory FollowNearCallSelf(ptrdiff_t opcodeOffset = 0x1, ptrdiff_t nextInstructionOffset = 0x5);
 	CMemory ResolveRelativeAddress(ptrdiff_t registerOffset = 0x0, ptrdiff_t nextInstructionOffset = 0x4) const;
 	CMemory ResolveRelativeAddressSelf(ptrdiff_t registerOffset = 0x0, ptrdiff_t nextInstructionOffset = 0x4);
-	static void HookVirtualMethod(uintptr_t virtualTable, void* pHookMethod, void** pOriginalMethod, ptrdiff_t methodIndex);
+	static void HookVirtualMethod(uintptr_t virtualTable, void* pHookMethod, void** ppOriginalMethod, ptrdiff_t methodIndex);
 
 private:
 	uintptr_t ptr = 0;

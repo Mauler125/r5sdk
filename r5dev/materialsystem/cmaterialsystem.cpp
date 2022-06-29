@@ -10,12 +10,12 @@
 //---------------------------------------------------------------------------------
 // Purpose: loads and processes STBSP files
 // (overrides level name if stbsp field has value in prerequisites file)
-// Input  : *pszStreamDBFile - 
+// Input  : *pszLevelName - 
 //---------------------------------------------------------------------------------
-void StreamDB_Init(const char* pszStreamDBFile)
+void StreamDB_Init(const char* pszLevelName)
 {
 	ostringstream ostream;
-	ostream << "platform\\scripts\\levels\\settings\\" << pszStreamDBFile << ".json";
+	ostream << "platform\\scripts\\levels\\settings\\" << pszLevelName << ".json";
 	fs::path fsPath = fs::current_path() /= ostream.str();
 
 	if (FileExists(fsPath))
@@ -32,7 +32,7 @@ void StreamDB_Init(const char* pszStreamDBFile)
 				if (!jsIn["stbsp"].is_null())
 				{
 					string svStreamDBFile = jsIn["stbsp"].get<string>();
-					DevMsg(eDLL_T::MS, "%s: Loading override STBSP file '%s.stbsp'\n", __FUNCTION__, svStreamDBFile.c_str(), pszStreamDBFile);
+					DevMsg(eDLL_T::MS, "%s: Loading override STBSP file '%s.stbsp'\n", __FUNCTION__, svStreamDBFile.c_str());
 					v_StreamDB_Init(svStreamDBFile.c_str());
 					return;
 				}
@@ -40,10 +40,11 @@ void StreamDB_Init(const char* pszStreamDBFile)
 		}
 		catch (const std::exception& ex)
 		{
-			DevMsg(eDLL_T::MS, "%s: Exception while parsing STBSP override: '%s'\n", __FUNCTION__, ex.what());
+			Warning(eDLL_T::MS, "%s: Exception while parsing STBSP override: '%s'\n", __FUNCTION__, ex.what());
 		}
 	}
-	v_StreamDB_Init(pszStreamDBFile);
+	DevMsg(eDLL_T::MS, "%s: Loading STBSP file '%s.stbsp'\n", __FUNCTION__, pszLevelName);
+	v_StreamDB_Init(pszLevelName);
 }
 
 //---------------------------------------------------------------------------------

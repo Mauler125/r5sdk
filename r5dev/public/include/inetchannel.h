@@ -16,10 +16,8 @@ struct INetChannelHandler
 	void* __vftable /*VFT*/;
 };
 
-struct INetMessageHandler
-{
-	void* __vftable /*VFT*/;
-};
+struct CS_INetChannelHandler : INetChannelHandler
+{};
 
 typedef struct netpacket_s netpacket_t;
 typedef struct __declspec(align(8)) netpacket_s

@@ -972,7 +972,10 @@ void CUIBaseSurface::ParsePlaylists()
 			const auto& vcPlaylists = vRoot.childs.at("Playlists");
 			for (auto [id, it] = std::tuple{ 1, vcPlaylists->childs.begin()}; it != vcPlaylists->childs.end(); id++, it++)
 			{
-				this->m_PlaylistCombo->Items.Add(it->first.c_str());
+				if (!this->m_PlaylistCombo->Items.Contains(it->first.c_str()))
+				{
+					this->m_PlaylistCombo->Items.Add(it->first.c_str());
+				}
 			}
 		}
 	}

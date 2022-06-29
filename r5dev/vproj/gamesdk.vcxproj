@@ -101,6 +101,7 @@
     <ClCompile Include="..\tier0\dbg.cpp" />
     <ClCompile Include="..\tier0\fasttimer.cpp" />
     <ClCompile Include="..\tier0\jobthread.cpp" />
+    <ClCompile Include="..\tier0\platform.cpp" />
     <ClCompile Include="..\tier0\tslist.cpp" />
     <ClCompile Include="..\tier1\bitbuf.cpp" />
     <ClCompile Include="..\tier1\cmd.cpp" />
@@ -225,6 +226,7 @@
     <ClInclude Include="..\public\include\edict.h" />
     <ClInclude Include="..\public\include\globalvars_base.h" />
     <ClInclude Include="..\public\include\icliententitylist.h" />
+    <ClInclude Include="..\public\include\icommandline.h" />
     <ClInclude Include="..\public\include\inetchannel.h" />
     <ClInclude Include="..\public\include\inetmsghandler.h" />
     <ClInclude Include="..\public\include\iserver.h" />
@@ -439,6 +441,7 @@
     <ClInclude Include="..\tier0\fasttimer.h" />
     <ClInclude Include="..\tier0\jobthread.h" />
     <ClInclude Include="..\tier0\platform.h" />
+    <ClInclude Include="..\tier0\platform_internal.h" />
     <ClInclude Include="..\tier0\threadtools.h" />
     <ClInclude Include="..\tier0\tslist.h" />
     <ClInclude Include="..\tier0\valve_off.h" />

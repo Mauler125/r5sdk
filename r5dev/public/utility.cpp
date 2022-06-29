@@ -486,6 +486,23 @@ string UTF8Decode(const string& svInput)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For obtaining UTF8 character length.
+size_t UTF8CharLength(const uint8_t cInput)
+{
+    if ((cInput & 0xFE) == 0xFC)
+        return 6;
+    if ((cInput & 0xFC) == 0xF8)
+        return 5;
+    if ((cInput & 0xF8) == 0xF0)
+        return 4;
+    else if ((cInput & 0xF0) == 0xE0)
+        return 3;
+    else if ((cInput & 0xE0) == 0xC0)
+        return 2;
+    return 1;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For checking if a string is a number.
 bool StringIsDigit(const string& svInput)
 {
@@ -645,6 +662,36 @@ vector<int> PatternToBytes(const string& svInput)
         }
     }
     return vBytes;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// For converting a string pattern with wildcards to an array of bytes and mask.
+pair<vector<uint8_t>, string> PatternToMaskedBytes(const string& svInput)
+{
+    char* pszPatternStart = const_cast<char*>(svInput.c_str());
+    char* pszPatternEnd = pszPatternStart + strlen(svInput.c_str());
+    vector<uint8_t> vBytes = vector<uint8_t>{ };
+    string svMask = string();
+
+    for (char* pszCurrentByte = pszPatternStart; pszCurrentByte < pszPatternEnd; ++pszCurrentByte)
+    {
+        if (*pszCurrentByte == '?')
+        {
+            ++pszCurrentByte;
+            if (*pszCurrentByte == '?')
+            {
+                ++pszCurrentByte; // Skip double wildcard.
+            }
+            vBytes.push_back(0); // Push the byte back as invalid.
+            svMask.append("?");
+        }
+        else
+        {
+            vBytes.push_back(strtoul(pszCurrentByte, &pszCurrentByte, 16));
+            svMask.append("x");
+        }
+    }
+    return make_pair(vBytes, svMask);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

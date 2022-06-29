@@ -2,6 +2,7 @@
 #ifndef DEDICATED
 #include "common/sdkdefs.h"
 #include "windows/resource.h"
+#include "thirdparty/imgui/include/imgui_logger.h"
 
 struct CSuggest
 {
@@ -22,47 +23,44 @@ struct CSuggest
     int m_nFlags;
 };
 
-struct CConLog
-{
-    CConLog(const string& svConLog, const ImVec4& imColor)
-    {
-        m_svConLog = svConLog;
-        m_imColor = imColor;
-    }
-    string m_svConLog;
-    ImVec4 m_imColor;
-};
-
 class CConsole
 {
 private:
     ///////////////////////////////////////////////////////////////////////////
     char                           m_szInputBuf[512]     = { '\0' };
-    char                           m_szSummary[256]      = { '\0' };
-    const char*                    m_pszConsoleTitle     = nullptr;
+    char                           m_szSummary[512]      = { '\0' };
+    char                           m_szWindowLabel[512]  = { '\0' };
+    const char*                    m_pszConsoleLabel     = nullptr;
+    const char*                    m_pszLoggingLabel     = nullptr;
 
-    vector<string>                 m_vsvCommands;
-    vector<string>                 m_vsvHistory;
-    int                            m_nHistoryPos      = -1;
+    vector<string>                 m_vCommands;
+    vector<string>                 m_vHistory;
+    ssize_t                        m_nHistoryPos      = -1;
     int                            m_nScrollBack      = 0;
+    int                            m_nSelectBack      = 0;
+    float                          m_flScrollX        = 0.f;
+    float                          m_flScrollY        = 0.f;
     float                          m_flFadeAlpha      = 0.f;
-    ImGuiTextFilter                m_itFilter;
-    bool                           m_bInitialized     = false;
+
+    bool                           m_bModernTheme     = false;
+    bool                           m_bLegacyTheme     = false;
     bool                           m_bDefaultTheme    = false;
+
+    bool                           m_bInitialized     = false;
     bool                           m_bReclaimFocus    = false;
-    bool                           m_bAutoScroll      = true;
-    bool                           m_bScrollToBottom  = false;
     bool                           m_bCopyToClipBoard = false;
 
+    bool                           m_bCanAutoComplete = false;
     bool                           m_bSuggestActive   = false;
     bool                           m_bSuggestMoved    = false;
     bool                           m_bSuggestUpdate   = false;
-    int                            m_nSuggestPos      = -1;
-    vector<CSuggest>               m_vsvSuggest;
+    ssize_t                        m_nSuggestPos      = -1;
+    vector<CSuggest>               m_vSuggest;
     vector<MODULERESOURCE>         m_vFlagIcons;
 
     ImVec2                         m_ivSuggestWindowPos;
     ImVec2                         m_ivSuggestWindowSize;
+    CTextLogger                    m_Logger;
 
     ImGuiInputTextFlags m_nInputFlags = 
         ImGuiInputTextFlags_AutoCaretEnd       |
@@ -70,7 +68,8 @@ private:
         ImGuiInputTextFlags_CallbackHistory    |
         ImGuiInputTextFlags_CallbackAlways     |
         ImGuiInputTextFlags_CallbackEdit       |
-        ImGuiInputTextFlags_EnterReturnsTrue;
+        ImGuiInputTextFlags_EnterReturnsTrue   |
+        ImGuiInputTextFlags_NoUndoRedo;
 
     ImGuiWindowFlags m_nSuggestFlags = 
         ImGuiWindowFlags_NoMove                    |
@@ -80,9 +79,13 @@ private:
         ImGuiWindowFlags_AlwaysVerticalScrollbar   |
         ImGuiWindowFlags_AlwaysHorizontalScrollbar;
 
+    ImGuiWindowFlags m_nLoggingFlags = 
+        ImGuiWindowFlags_NoMove              | 
+        ImGuiWindowFlags_HorizontalScrollbar | 
+        ImGuiWindowFlags_AlwaysVerticalScrollbar;
+
 public:
     bool             m_bActivate = false;
-    vector<CConLog>  m_ivConLog;
     vector<CSuggest> m_vsvCommandBases;
 
     ///////////////////////////////////////////////////////////////////////////
@@ -97,20 +100,24 @@ public:
     void OptionsPanel(void);
     void SuggestPanel(void);
 
-    bool CanAutoComplete(void);
+    bool AutoComplete(void);
     void ResetAutoComplete(void);
+    void ClearAutoComplete(void);
 
     void FindFromPartial(void);
     void ProcessCommand(const char* pszCommand);
+    void BuildSummary(string svConVar = "");
+
+    bool LoadFlagIcons(void);
     int ColorCodeFlags(int nFlags) const;
 
     int TextEditCallback(ImGuiInputTextCallbackData* pData);
     static int TextEditCallbackStub(ImGuiInputTextCallbackData* pData);
 
     ///////////////////////////////////////////////////////////////////////////
-    void AddLog(ImVec4 color, const char* fmt, ...) IM_FMTARGS(2);
+    void AddLog(const ConLog_t& conLog);
+    void AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2);
     void ClearLog(void);
-    void ColorLog(void) const;
 
     ///////////////////////////////////////////////////////////////////////////
     void SetStyleVar(void);

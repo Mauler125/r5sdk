@@ -9,6 +9,24 @@
 #include "tier1/cvar.h"
 
 //-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CCommandLine::CCommandLine(void)
+{
+	m_pszCmdLine = NULL;
+	m_nParmCount = 0;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CCommandLine::~CCommandLine(void)
+{
+	CleanUpParms();
+	delete[] m_pszCmdLine;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Create a command line from the passed in string
 // Note that if you pass in a @filename, then the routine will read settings
 // from a file instead of the command line
@@ -83,20 +101,20 @@ void CCommandLine::AppendParm(const char* pszParm, const char* pszValues)
 //-----------------------------------------------------------------------------
 // Purpose: returns the argument after the one specified, or the default if not found
 //-----------------------------------------------------------------------------
-const char* CCommandLine::ParmValue(const char* psz, const char* pDefaultVal)
+float CCommandLine::ParmValue(const char* psz, float flDefaultVal)
 {
 	static int index = 7;
-	return CallVFunc<const char*>(index, this, psz, pDefaultVal);
+	return CallVFunc<float>(index, this, psz, flDefaultVal);
 }
 int CCommandLine::ParmValue(const char* psz, int nDefaultVal)
 {
 	static int index = 8;
 	return CallVFunc<int>(index, this, psz, nDefaultVal);
 }
-float CCommandLine::ParmValue(const char* psz, float flDefaultVal)
+const char* CCommandLine::ParmValue(const char* psz, const char* pDefaultVal)
 {
 	static int index = 9;
-	return CallVFunc<float>(index, this, psz, flDefaultVal);
+	return CallVFunc<const char*>(index, this, psz, pDefaultVal);
 }
 
 //-----------------------------------------------------------------------------
@@ -126,8 +144,18 @@ void CCommandLine::SetParm(int nIndex, char const* pParm)
 	CallVFunc<void>(index, this, nIndex, pParm);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-CCommandLine* g_pCmdLine = nullptr;
+//-----------------------------------------------------------------------------
+// Individual command line arguments
+//-----------------------------------------------------------------------------
+void CCommandLine::CleanUpParms(void)
+{
+	for (int i = 0; i < m_nParmCount; ++i)
+	{
+		delete[] m_ppParms[i];
+		m_ppParms[i] = NULL;
+	}
+	m_nParmCount = 0;
+}
 
 //-----------------------------------------------------------------------------
 // Instance singleton and expose interface to rest of code
@@ -136,3 +164,6 @@ CCommandLine* CommandLine(void)
 {
 	return g_pCmdLine;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+CCommandLine* g_pCmdLine = nullptr;

@@ -18,4 +18,12 @@ struct IConnectionlessPacketHandler
 	void* __vftable /*VFT*/;
 };
 
+struct INetMessageHandler
+{
+	void* __vftable /*VFT*/;
+};
+
+struct IServerMessageHandler : INetMessageHandler
+{};
+
 #endif // INETMSGHANDLER_H

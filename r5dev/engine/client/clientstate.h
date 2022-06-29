@@ -17,12 +17,6 @@ struct __declspec(align(8)) CClientSnapshotManager
 	CUtlMemoryPool m_ClientFramePool;
 };
 
-struct IServerMessageHandler : INetMessageHandler
-{};
-struct CS_INetChannelHandler : INetChannelHandler
-{};
-
-
 ///////////////////////////////////////////////////////////////////////////////
 class CClientState : CS_INetChannelHandler, IConnectionlessPacketHandler, IServerMessageHandler, CClientSnapshotManager
 {

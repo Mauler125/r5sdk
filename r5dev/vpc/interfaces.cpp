@@ -14,7 +14,7 @@
 //---------------------------------------------------------------------------------
 void CFactory::AddFactory(const string& svFactoryName, void* pFactory)
 {
-	int nVersionIndex = GetVersionIndex(svFactoryName);
+	size_t nVersionIndex = GetVersionIndex(svFactoryName);
 	FactoryInfo factoryInfo = FactoryInfo(svFactoryName, svFactoryName.substr(0, nVersionIndex),
 		svFactoryName.substr(nVersionIndex), reinterpret_cast<uintptr_t>(pFactory));
 
@@ -35,10 +35,10 @@ void CFactory::AddFactory(FactoryInfo factoryInfo)
 // Input  : svInterfaceName - 
 // Output : index of version in input interface string
 //---------------------------------------------------------------------------------
-int CFactory::GetVersionIndex(const string& svInterfaceName) const
+size_t CFactory::GetVersionIndex(const string& svInterfaceName) const
 {
-	int nVersionIndex = 0;
-	for (int i = 0; i < svInterfaceName.length(); i++) // Loop through each charater to find the start of interface version.
+	size_t nVersionIndex = 0;
+	for (size_t i = 0; i < svInterfaceName.length(); i++) // Loop through each charater to find the start of interface version.
 	{
 		if (std::isdigit(svInterfaceName[i]))
 		{
@@ -58,7 +58,7 @@ void CFactory::GetFactoriesFromRegister(void)
 		it; it = it->m_pNextInterfacePtr) // Loop till we go out of scope.
 	{
 		string svInterfaceName = it->m_pInterfaceName; // Get copy of the name.
-		int nVersionIndex = GetVersionIndex(svInterfaceName);
+		size_t nVersionIndex = GetVersionIndex(svInterfaceName);
 
 		// Push back the interface.
 		AddFactory(FactoryInfo(svInterfaceName, svInterfaceName.substr(0, nVersionIndex), 

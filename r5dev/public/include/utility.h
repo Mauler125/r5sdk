@@ -32,6 +32,7 @@ string Base64Decode(const string& svInput);
 
 string UTF8Encode(const wstring& wsvInput);
 string UTF8Decode(const string& svInput);
+size_t UTF8CharLength(const uint8_t cInput);
 
 bool StringIsDigit(const string& svInput);
 bool CompareStringAlphabetically(const string& svA, const string& svB);
@@ -42,8 +43,11 @@ string StringReplaceC(const string& svInput, const string& svFrom, const string&
 string StringEscape(const string& svInput);
 string StringUnescape(const string& svInput);
 
+/////////////////////////////////////////////////////////////////////////////
+// Bytes
 vector<int> StringToBytes(const string& svInput, bool bNullTerminator);
 vector<int> PatternToBytes(const string& svInput);
+pair<vector<uint8_t>, string> PatternToMaskedBytes(const string& svInput);
 vector<int> IntToDigits(int iValue);
 
 /////////////////////////////////////////////////////////////////////////////

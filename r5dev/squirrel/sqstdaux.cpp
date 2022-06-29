@@ -21,7 +21,6 @@ SQInteger sqstd_aux_printerror(HSQUIRRELVM v)
 
 SQInteger sqstd_aux_badlogic(HSQUIRRELVM v, __m128i* a2, __m128i* a3)
 {
-    g_bSQAuxBadLogic = true;
     SQInteger results = v_sqstd_aux_badlogic(v, a2, a3);
     return results;
 }

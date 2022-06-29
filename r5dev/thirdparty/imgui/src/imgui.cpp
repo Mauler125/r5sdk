@@ -7148,6 +7148,26 @@ void ImGui::SetWindowSize(const char* name, const ImVec2& size, ImGuiCond cond)
         SetWindowSize(window, size, cond);
 }
 
+void ImGui::SetWindowScrollX(const char* name, float scroll_x)
+{
+    if (ImGuiWindow* window = FindWindowByName(name))
+    {
+        window->DC.CursorMaxPos.x += window->Scroll.x;
+        window->Scroll.x = scroll_x;
+        window->DC.CursorMaxPos.x -= window->Scroll.x;
+    }
+}
+
+void ImGui::SetWindowScrollY(const char* name, float scroll_y)
+{
+    if (ImGuiWindow* window = FindWindowByName(name))
+    {
+        window->DC.CursorMaxPos.y += window->Scroll.y;
+        window->Scroll.y = scroll_y;
+        window->DC.CursorMaxPos.y -= window->Scroll.y;
+    }
+}
+
 void ImGui::SetWindowCollapsed(ImGuiWindow* window, bool collapsed, ImGuiCond cond)
 {
     // Test condition (NB: bit 0 is always true) and clear flags for next time
