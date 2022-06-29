@@ -31,11 +31,6 @@ ConVar::ConVar(const char* pszName, const char* pszDefaultValue, int nFlags, con
 //-----------------------------------------------------------------------------
 ConVar::~ConVar(void)
 {
-	if (m_Value.m_pszString)
-	{
-		delete[] m_Value.m_pszString;
-		m_Value.m_pszString = NULL;
-	}
 }
 
 //-----------------------------------------------------------------------------
