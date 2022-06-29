@@ -37,10 +37,10 @@ ClientClass* CHLClient::GetAllClasses()
 ///////////////////////////////////////////////////////////////////////////////
 void CHLClient_Attach()
 {
-	DetourAttach((LPVOID*)&CHLClient_FrameStageNotify, &CHLClient::FrameStageNotify);
+	//DetourAttach((LPVOID*)&CHLClient_FrameStageNotify, &CHLClient::FrameStageNotify);
 }
 
 void CHLClient_Detach()
 {
-	DetourDetach((LPVOID*)&CHLClient_FrameStageNotify, &CHLClient::FrameStageNotify);
+	//DetourDetach((LPVOID*)&CHLClient_FrameStageNotify, &CHLClient::FrameStageNotify);
 }
