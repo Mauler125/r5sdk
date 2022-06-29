@@ -21,7 +21,7 @@ int CCommand::MaxCommandLength(void)
 //-----------------------------------------------------------------------------
 // Purpose: returns argument count
 //-----------------------------------------------------------------------------
-std::int64_t CCommand::ArgC(void) const
+int64_t CCommand::ArgC(void) const
 {
 	return m_nArgc;
 }
