@@ -1,6 +1,8 @@
 #pragma once
 #include "sdklauncher_const.h"
 
+struct ModManager_t;
+
 struct LogList_t
 {
 	LogList_t(spdlog::level::level_enum nLevel, String svText)
