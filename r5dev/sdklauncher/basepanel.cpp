@@ -6,7 +6,7 @@
 #include "core/stdafx.h"
 #include "modManager.h"
 #include "sdklauncher.h"
-#include "basepanel.h"
+//#include "basepanel.h"
 
 Drawing::Color bgColor = Drawing::Color(47, 54, 61);
 Drawing::Color tickColor = Drawing::Color(3, 102, 214);

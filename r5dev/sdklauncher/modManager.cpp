@@ -96,13 +96,13 @@ ModObject::ModObject(std::string content, std::string modJson, CUIBaseSurface* w
 			else {
 				// TODO: Something messed up message
 				invalid = true;
-				//this->window->logText(spdlog::level::level_enum::err, "Error. Invalid mod.json for mod: " + modJsonLoc);
+				window->logText(spdlog::level::level_enum::err, "Error. Invalid mod.json for mod: " + modJsonLoc);
 			}
 		}
 		catch (json::parse_error& e) {
 			/// TODO: Tell the user it failed to parse
 			invalid = true;
-			//this->window->logText(spdlog::level::level_enum::err, "Error. Invalid mod.json for mod: " + modJsonLoc);
+			window->logText(spdlog::level::level_enum::err, "Error. Invalid mod.json for mod: " + modJsonLoc);
 		}
 	}
 };
