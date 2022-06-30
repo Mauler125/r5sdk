@@ -1094,7 +1094,7 @@ void CUIBaseSurface::ModManagerEnabledToggle(Forms::Control* pSender) {
 	ModObject object;
 	for (uint32_t i = 0; i < lSelected.Count(); i++) {
 		object = pSurface->ModList[lSelected[i]].m_object;
-		pSurface->ModList[lSelected[i]];
+		//pSurface->ModList[lSelected[i]];
 	}
 
 	if (pSurface->m_ManagerEnabledToggle->Checked())

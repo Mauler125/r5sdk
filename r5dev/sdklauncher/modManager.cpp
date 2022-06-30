@@ -1,4 +1,5 @@
 #include "core/stdafx.h"
+#include "basepanel.h"
 #include "modManager.h"
 
 using json = nlohmann::json;

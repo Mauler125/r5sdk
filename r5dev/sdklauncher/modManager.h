@@ -1,5 +1,5 @@
 #pragma once
-#include "basepanel.h"
+//#include "basepanel.h"
 
 enum ModStatusLevel_t {
 	enabledM = 0,
@@ -114,7 +114,7 @@ public:
 //}
 
 struct ModManager_t {
-	//ModManager_t() {}
+	ModManager_t() {}
 
 	ModManager_t(ModStatusLevel_t nLevel, ModObject object)
 	{
