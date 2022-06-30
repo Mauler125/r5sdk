@@ -11,7 +11,7 @@
 //---------------------------------------------------------------------------------
 SQChar* sq_getstring(HSQUIRRELVM v, SQInteger i)
 {
-	return *reinterpret_cast<char**>(*reinterpret_cast<int64_t*>(&v->_stackbase) + 0x10i64 * i + 0x8) + 0x40;
+	return *reinterpret_cast<SQChar**>(*reinterpret_cast<int64_t*>(&v->_stackbase) + 0x10i64 * i + 0x8) + 0x40;
 }
 
 //---------------------------------------------------------------------------------
