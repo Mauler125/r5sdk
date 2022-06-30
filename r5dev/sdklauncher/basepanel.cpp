@@ -4,11 +4,6 @@
 //
 //=============================================================================//
 #include "core/stdafx.h"
-class CUIBaseSurface;
-class ModManager;
-class ModObject;
-class CustomScript;
-struct ModManager_t;
 #include "modManager.h"
 #include "sdklauncher.h"
 #include "basepanel.h"

@@ -1,4 +1,6 @@
 #pragma once
+// Forward declatartion because errors otherwise
+class CUIBaseSurface;
 //#include "basepanel.h"
 
 enum ModStatusLevel_t {
