@@ -558,7 +558,7 @@ void CUIBaseSurface::Init()
 	this->ModsListView->Columns.Add({ "index", 50 });
 	this->ModsListView->Columns.Add({ "buffer", 300 });
 	this->ModsListView->MouseClick += &ModManagerClick;
-	this->ModsListView->LostFocus += &UnfocusedManager;
+	//this->ModsListView->LostFocus += &UnfocusedManager;
 	this->ModsListView->RetrieveVirtualItem += &GetVirtItemMod;
 	this->m_ManagerGroupExt->AddControl(this->ModsListView);
 
