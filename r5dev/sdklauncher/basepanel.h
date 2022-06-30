@@ -13,25 +13,6 @@ struct LogList_t
 	String m_svText;
 };
 
-enum ModStatusLevel_t {
-	enabledM = 0,
-	disabledM = 1,
-	invalidM = 2,
-};
-
-struct ModManager_t {	
-	ModManager_t() {}
-
-	ModManager_t(ModStatusLevel_t nLevel, ModObject object)
-	{
-		m_nLevel = nLevel;
-		m_object = object;
-	}
-
-	ModStatusLevel_t m_nLevel;
-	ModObject m_object;
-};
-
 class CUIBaseSurface : public Forms::Form
 {
 public:
