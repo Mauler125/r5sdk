@@ -1,10 +1,7 @@
 #include "core/stdafx.h"
 #include "modManager.h"
-#include "basepanel.h"
 
 using json = nlohmann::json;
-
-class ModObject;
 
 CustomScript::CustomScript(json object) {
 	path = object["Path"];
@@ -55,7 +52,7 @@ ModObject::ModObject() {};
 
 ModObject::ModObject(std::string content, std::string modJson, CUIBaseSurface* windowP) {
 	modJsonLoc = modJson;
-	window = windowP;
+	window = windowP;	
 	if (!content.empty()) {
 		try {
 			object = json::parse(content);
@@ -188,7 +185,7 @@ void ModManager::generateRson(std::vector<ModObject> compiledMods) {
 	}
 }
 
-std::vector<ModObject> ModManager::modsList(ModType modtype = all) {
+std::vector<ModObject> ModManager::modsList(ModType modtype) {
 	std::vector<ModObject> modObjectList;
 
 	switch (modtype) {
@@ -230,7 +227,7 @@ std::vector<ModObject> ModManager::modsList(ModType modtype = all) {
 	return modObjectList;
 }
 
-int ModManager::modsListNum(ModType modtype = all) {
+int ModManager::modsListNum(ModType modtype) {
 	int number = 0;
 
 	switch (modtype) {

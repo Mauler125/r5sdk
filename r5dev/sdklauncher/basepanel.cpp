@@ -4,9 +4,14 @@
 //
 //=============================================================================//
 #include "core/stdafx.h"
+class CUIBaseSurface;
+class ModManager;
+class ModObject;
+class CustomScript;
+struct ModManager_t;
+#include "modManager.h"
 #include "sdklauncher.h"
 #include "basepanel.h"
-#include "modManager.h"
 
 Drawing::Color bgColor = Drawing::Color(47, 54, 61);
 Drawing::Color tickColor = Drawing::Color(3, 102, 214);
