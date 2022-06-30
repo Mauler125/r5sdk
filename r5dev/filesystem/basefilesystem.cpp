@@ -6,7 +6,6 @@
 #ifndef DEDICATED
 #include "gameui/IConsole.h"
 #endif // !DEDICATED
-#include "../tier0/commandline.h"
 
 //---------------------------------------------------------------------------------
 // Purpose: reads data from memory

@@ -21,22 +21,6 @@
 //-----------------------------------------------------------------------------
 void CHLClient::FrameStageNotify(CHLClient* pHLClient, ClientFrameStage_t frameStage)
 {
-	switch (frameStage)
-	{
-	case ClientFrameStage_t::FRAME_START: // FrameStageNotify gets called every frame by CEngine::Frame with the stage being FRAME_START. We can use this to check/set global variables.
-	{
-		break;
-	}
-	case ClientFrameStage_t::FRAME_NET_UPDATE_POSTDATAUPDATE_END:
-	{
-		gHLClient->PatchNetVarConVar();
-		break;
-	}
-	default:
-	{
-		break;
-	}
-	}
 	CHLClient_FrameStageNotify(pHLClient, frameStage);
 }
 

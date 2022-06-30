@@ -16,7 +16,6 @@
 #include "engine/server/sv_main.h"
 #include "server/vengineserver_impl.h"
 #include "client/cdll_engine_int.h"
-
 #ifndef DEDICATED
 #include "gameui/IConsole.h"
 #endif // !DEDICATED
@@ -75,10 +74,7 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 		memset(g_pHLClient, '\0', sizeof(void*));
 		g_pHLClient = nullptr;
 	}
-
 	g_bAppSystemInit = true;
-
-
 
 	return CModAppSystemGroup_Create(pModAppSystemGroup);
 }

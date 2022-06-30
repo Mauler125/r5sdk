@@ -1,6 +1,5 @@
 #pragma once
 #include "sdklauncher_const.h"
-#include "modManager.h"
 
 struct LogList_t
 {
@@ -14,23 +13,23 @@ struct LogList_t
 	String m_svText;
 };
 
-enum m_modStatusLevel {
+enum ModStatusLevel_t {
 	enabledM = 0,
 	disabledM = 1,
 	invalidM = 2,
 };
 
-struct modManager_t {	
-	modManager_t() {}
+struct ModManager_t {	
+	ModManager_t() {}
 
-	modManager_t(m_modStatusLevel nLevel, modObject object)
+	ModManager_t(ModStatusLevel_t nLevel, ModObject object)
 	{
 		m_nLevel = nLevel;
 		m_object = object;
 	}
 
-	m_modStatusLevel m_nLevel;
-	modObject m_object;
+	ModStatusLevel_t m_nLevel;
+	ModObject m_object;
 };
 
 class CUIBaseSurface : public Forms::Form
@@ -41,8 +40,11 @@ public:
 
 	std::vector<LogList_t> m_LogList;
 	UIX::UIXListView* m_ConsoleListView;
-	std::vector<modManager_t> m_ModList;
-	UIX::UIXListView* m_ModsListView;
+	std::vector<ModManager_t> ModList;
+	UIX::UIXListView* ModsListView;
+
+	void logText(spdlog::level::level_enum color, std::string text);
+	void logText(std::string text);
 
 	//Drawing::Color traceColor = Drawing::Color(255, 255, 255);
 	//Drawing::Color debugColor = Drawing::Color(0, 120, 215);
@@ -64,9 +66,6 @@ private:
 	void AdjustValues();
 	void LoadMods();
 
-	void logText(spdlog::level::level_enum color, std::string text);
-	void logText(std::string text);
-
 	static void LaunchGame(Forms::Control* pSender);
 	static void CleanSDK(Forms::Control* pSender);
 	static void ReloadPlaylists(Forms::Control* pSender);
@@ -79,7 +78,7 @@ private:
 	static void ForwardCommandToGame(Forms::Control* pSender);
 	eLaunchMode BuildParameter(string& svParameter);
 
-	static void readConfig();
+	static void ReadConfig();
 
 	enum class eMode
 	{

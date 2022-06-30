@@ -692,17 +692,30 @@ void VPK_Mount_f(const CCommand& args)
 
 /*
 =====================
-fs_addsp_h
+fs_searchpath_add
 
-	Adds SearchPath to head
+	Adds SearchPath to user defined area.
 */
-void fs_addsp_h_g(const CCommand& args) {
+void SP_Add(const CCommand& args) {
 	if (args.ArgC() < 2)
 		return;
 
+	SearchPathAdd_t spLocation;
+
+	if (args.ArgC() == 3) {
+		if (_strcmpi(args.Arg(2), "head"))
+			spLocation = SearchPathAdd_t::PATH_ADD_TO_HEAD;
+		else if (_strcmpi(args.Arg(2), "tail"))
+			spLocation = SearchPathAdd_t::PATH_ADD_TO_TAIL;
+		else if (_strcmpi(args.Arg(2), "tailIn"))
+			spLocation = SearchPathAdd_t::PATH_ADD_TO_TAIL_ATINDEX;
+		else 
+			spLocation = SearchPathAdd_t::PATH_ADD_TO_HEAD;
+	}
+
 	if (g_pFileSystem_Stdio) {
-		DevMsg(eDLL_T::FS, "Added SearchPath '%s'\n", args.Arg(1));
-		g_pFileSystem_Stdio->AddSearchPathP(args.Arg(1), "Game", SearchPathAdd_t::PATH_ADD_TO_HEAD);
+		DevMsg(eDLL_T::FS, "Added SearchPath '%s'\n to %s", args.Arg(1), args.Arg(2));
+		g_pFileSystem_Stdio->AddSearchPath(args.Arg(1), "Game", spLocation);
 	}
 
 	//DevMsg(eDLL_T::FS, "Added SearchPath '%s' '%p'\n", args.Arg(1), g_pFullFileSystem);

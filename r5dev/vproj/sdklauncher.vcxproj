@@ -128,6 +128,7 @@
     </ClCompile>
     <ClCompile Include="..\public\utility.cpp" />
     <ClCompile Include="..\sdklauncher\basepanel.cpp" />
+    <ClCompile Include="..\sdklauncher\modManager.cpp" />
     <ClCompile Include="..\sdklauncher\sdklauncher.cpp" />
   </ItemGroup>
   <ItemGroup>

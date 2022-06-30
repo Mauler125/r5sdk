@@ -80,8 +80,10 @@ void AppendSDKParametersPreInit()
 	CommandLine()->AppendParm("-collate", "");
 	CommandLine()->AppendParm("-multiple", "");
 	CommandLine()->AppendParm("-noorigin", "");
+	CommandLine()->AppendParm("-nodiscord", "");
 	CommandLine()->AppendParm("-novid", "");
 	CommandLine()->AppendParm("-noshaderapi", "");
+	CommandLine()->AppendParm("-nobakedparticles", "");
 	CommandLine()->AppendParm("-nosound", "");
 	CommandLine()->AppendParm("-nojoy", "");
 	CommandLine()->AppendParm("-nomouse", "");
@@ -111,7 +113,7 @@ string LoadConfigFile(const string& svConfig)
 	}
 	else
 	{
-		spdlog::error("{}: '{}' does not exist!\n", __FUNCTION__, svConfig.c_str());
+		spdlog::error("{}: '{}' does not exist!\n", __FUNCTION__, svConfig);
 		cfgFile.close();
 		return "";
 	}

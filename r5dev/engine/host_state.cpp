@@ -198,7 +198,7 @@ FORCEINLINE void CHostState::Setup(void)
 	if (CommandLine()->CheckParm("-modded")) {
 		//DevMsg(eDLL_T::ENGINE, "Modded Param Found");
 		if (g_pFileSystem_Stdio) {
-			g_pFileSystem_Stdio->AddSearchPathP("mods/compiled_mods", "Game", SearchPathAdd_t::PATH_ADD_TO_HEAD);
+			g_pFileSystem_Stdio->AddSearchPath("mods/compiled_mods", "Game", SearchPathAdd_t::PATH_ADD_TO_HEAD);
 			//DevMsg(eDLL_T::ENGINE, "SP Added");
 		}
 	}
