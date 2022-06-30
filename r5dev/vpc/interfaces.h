@@ -77,11 +77,11 @@ struct FactoryInfo
 class CFactory
 {
 public:
-	void AddFactory(const string& svFactoryName, void* pFactory);
-	void AddFactory(FactoryInfo factoryInfo);
-	size_t GetVersionIndex(const string& svInterfaceName) const;
-	void GetFactoriesFromRegister(void);
-	CMemory GetFactoryPtr(const string& factoryName, bool versionLess = true) const;
+	virtual void AddFactory(const string& svFactoryName, void* pFactory);
+	virtual void AddFactory(FactoryInfo factoryInfo);
+	virtual size_t GetVersionIndex(const string& svInterfaceName) const;
+	virtual void GetFactoriesFromRegister(void);
+	virtual CMemory GetFactoryPtr(const string& svFactoryName, bool versionLess = true) const;
 
 private:
 	vector<FactoryInfo> m_vFactories;

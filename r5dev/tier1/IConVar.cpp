@@ -31,11 +31,6 @@ ConVar::ConVar(const char* pszName, const char* pszDefaultValue, int nFlags, con
 //-----------------------------------------------------------------------------
 ConVar::~ConVar(void)
 {
-	if (m_Value.m_pszString)
-	{
-		delete[] m_Value.m_pszString;
-		m_Value.m_pszString = NULL;
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -202,7 +197,7 @@ void ConVar::PurgeShipped(void) const
 		"voice_enabled",
 	};
 
-	for (int i = 0; i < (&pszToPurge)[1] - pszToPurge; i++)
+	for (int i = 0; i < SDK_ARRAYSIZE(pszToPurge); i++)
 	{
 		ConVar* pCVar = g_pCVar->FindVar(pszToPurge[i]);
 
@@ -239,7 +234,7 @@ void ConVar::PurgeHostNames(void) const
 		"users_hostname"
 	};
 
-	for (int i = 0; i < (&pszHostNames)[1] - pszHostNames; i++)
+	for (int i = 0; i < SDK_ARRAYSIZE(pszHostNames); i++)
 	{
 		ConVar* pCVar = g_pCVar->FindVar(pszHostNames[i]);
 
