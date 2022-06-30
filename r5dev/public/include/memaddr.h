@@ -116,15 +116,15 @@ public:
 	}
 
 	bool CheckOpCodes(const vector<uint8_t> vOpcodeArray) const;
-	void Patch(vector<uint8_t> vOpcodes) const;
+	void Patch(const vector<uint8_t> vOpcodeArray) const;
 	void PatchString(const string& svString) const;
 	CMemory FindPattern(const string& svPattern, const Direction searchDirect = Direction::DOWN, const int opCodesToScan = 512, const ptrdiff_t occurence = 1) const;
 	CMemory FindPatternSelf(const string& svPattern, const Direction searchDirect = Direction::DOWN, const int opCodesToScan = 512, const ptrdiff_t occurence = 1);
-	CMemory FollowNearCall(ptrdiff_t opcodeOffset = 0x1, ptrdiff_t nextInstructionOffset = 0x5) const;
-	CMemory FollowNearCallSelf(ptrdiff_t opcodeOffset = 0x1, ptrdiff_t nextInstructionOffset = 0x5);
-	CMemory ResolveRelativeAddress(ptrdiff_t registerOffset = 0x0, ptrdiff_t nextInstructionOffset = 0x4) const;
-	CMemory ResolveRelativeAddressSelf(ptrdiff_t registerOffset = 0x0, ptrdiff_t nextInstructionOffset = 0x4);
-	static void HookVirtualMethod(uintptr_t virtualTable, void* pHookMethod, void** ppOriginalMethod, ptrdiff_t methodIndex);
+	CMemory FollowNearCall(const ptrdiff_t opcodeOffset = 0x1, const ptrdiff_t nextInstructionOffset = 0x5) const;
+	CMemory FollowNearCallSelf(const ptrdiff_t opcodeOffset = 0x1, const ptrdiff_t nextInstructionOffset = 0x5);
+	CMemory ResolveRelativeAddress(const ptrdiff_t registerOffset = 0x0, const ptrdiff_t nextInstructionOffset = 0x4) const;
+	CMemory ResolveRelativeAddressSelf(const ptrdiff_t registerOffset = 0x0, const ptrdiff_t nextInstructionOffset = 0x4);
+	static void HookVirtualMethod(const uintptr_t virtualTable, const void* pHookMethod, const ptrdiff_t methodIndex, void** ppOriginalMethod);
 
 private:
 	uintptr_t ptr = 0;

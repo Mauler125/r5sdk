@@ -33,19 +33,19 @@ bool CMemory::CheckOpCodes(const vector<uint8_t> vOpcodeArray) const
 // Purpose: patch array of opcodes starting from current address
 // Input  : vOpcodeArray - 
 //-----------------------------------------------------------------------------
-void CMemory::Patch(vector<uint8_t> vOpcodes) const
+void CMemory::Patch(const vector<uint8_t> vOpcodeArray) const
 {
 	DWORD oldProt = NULL;
 
-	SIZE_T dwSize = vOpcodes.size();
+	SIZE_T dwSize = vOpcodeArray.size();
 	VirtualProtect(reinterpret_cast<void*>(ptr), dwSize, PAGE_EXECUTE_READWRITE, &oldProt); // Patch page to be able to read and write to it.
 
-	for (int i = 0; i < vOpcodes.size(); i++)
+	for (int i = 0; i < vOpcodeArray.size(); i++)
 	{
-		*reinterpret_cast<uint8_t*>(ptr + i) = vOpcodes[i]; // Write opcodes to Address.
+		*reinterpret_cast<uint8_t*>(ptr + i) = vOpcodeArray[i]; // Write opcodes to Address.
 	}
 
-	dwSize = vOpcodes.size();
+	dwSize = vOpcodeArray.size();
 	VirtualProtect(reinterpret_cast<void*>(ptr), dwSize, oldProt, &oldProt); // Restore protection.
 }
 
@@ -173,7 +173,7 @@ CMemory CMemory::FindPatternSelf(const string& svPattern, const Direction search
 //			nextInstructionOffset - 
 // Output : CMemory
 //-----------------------------------------------------------------------------
-CMemory CMemory::FollowNearCall(ptrdiff_t opcodeOffset, ptrdiff_t nextInstructionOffset) const
+CMemory CMemory::FollowNearCall(const ptrdiff_t opcodeOffset, const ptrdiff_t nextInstructionOffset) const
 {
 	return ResolveRelativeAddress(opcodeOffset, nextInstructionOffset);
 }
@@ -184,7 +184,7 @@ CMemory CMemory::FollowNearCall(ptrdiff_t opcodeOffset, ptrdiff_t nextInstructio
 //			nextInstructionOffset - 
 // Output : CMemory
 //-----------------------------------------------------------------------------
-CMemory CMemory::FollowNearCallSelf(ptrdiff_t opcodeOffset, ptrdiff_t nextInstructionOffset)
+CMemory CMemory::FollowNearCallSelf(const ptrdiff_t opcodeOffset, const ptrdiff_t nextInstructionOffset)
 {
 	return ResolveRelativeAddressSelf(opcodeOffset, nextInstructionOffset);
 }
@@ -195,7 +195,7 @@ CMemory CMemory::FollowNearCallSelf(ptrdiff_t opcodeOffset, ptrdiff_t nextInstru
 //			nextInstructionOffset - 
 // Output : CMemory
 //-----------------------------------------------------------------------------
-CMemory CMemory::ResolveRelativeAddress(ptrdiff_t registerOffset, ptrdiff_t nextInstructionOffset) const
+CMemory CMemory::ResolveRelativeAddress(const ptrdiff_t registerOffset, const ptrdiff_t nextInstructionOffset) const
 {
 	// Skip register.
 	uintptr_t skipRegister = ptr + registerOffset;
@@ -216,7 +216,7 @@ CMemory CMemory::ResolveRelativeAddress(ptrdiff_t registerOffset, ptrdiff_t next
 //			nextInstructionOffset - 
 // Output : CMemory
 //-----------------------------------------------------------------------------
-CMemory CMemory::ResolveRelativeAddressSelf(ptrdiff_t registerOffset, ptrdiff_t nextInstructionOffset)
+CMemory CMemory::ResolveRelativeAddressSelf(const ptrdiff_t registerOffset, const ptrdiff_t nextInstructionOffset)
 {
 	// Skip register.
 	uintptr_t skipRegister = ptr + registerOffset;
@@ -240,7 +240,7 @@ CMemory CMemory::ResolveRelativeAddressSelf(ptrdiff_t registerOffset, ptrdiff_t 
 //          pOriginalMethod -
 // Output : void** via pOriginalMethod
 //-----------------------------------------------------------------------------
-void CMemory::HookVirtualMethod(uintptr_t virtualTable, void* pHookMethod, void** ppOriginalMethod, ptrdiff_t methodIndex)
+void CMemory::HookVirtualMethod(const uintptr_t virtualTable, const void* pHookMethod, const ptrdiff_t methodIndex, void** ppOriginalMethod)
 {
 	DWORD oldProt = NULL;
 
