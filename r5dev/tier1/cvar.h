@@ -95,6 +95,8 @@ extern ConVar* cl_gpustats_offset_x;
 extern ConVar* cl_gpustats_offset_y;
 
 extern ConVar* cl_showmaterialinfo;
+extern ConVar* cl_materialinfo_offset_x;
+extern ConVar* cl_materialinfo_offset_y;
 
 extern ConVar* con_max_size_logvector;
 extern ConVar* con_suggestion_limit;

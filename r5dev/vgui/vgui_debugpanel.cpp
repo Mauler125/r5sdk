@@ -189,6 +189,9 @@ void CLogSystem::DrawCrosshairMaterial(void) const
 	if (!material)
 		return;
 
+	int nOffsetX = cl_materialinfo_offset_x->GetInt();
+	int nOffsetY = cl_materialinfo_offset_y->GetInt();
+
 	static const char* szLogbuf[4096]{};
 	snprintf((char*)szLogbuf, 4096, "name: %s\nguid: %llx\ndimensions: %d x %d\nsurface: %s/%s\nflags: %llx",
 		material->m_pszName,
@@ -197,7 +200,7 @@ void CLogSystem::DrawCrosshairMaterial(void) const
 		material->m_pszSurfaceName1, material->m_pszSurfaceName2,
 		material->m_iFlags);
 
-	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, 0, g_nWindowHeight * 0.2916, c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, nOffsetX, nOffsetY, c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
 }
 
 //-----------------------------------------------------------------------------
