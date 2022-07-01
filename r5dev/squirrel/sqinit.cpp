@@ -58,7 +58,7 @@ namespace VSquirrel
                 return SQ_OK;
 
             sq_newarray(v, 0);
-            for (auto& it : g_vAllMaps)
+            for (const string& it : g_vAllMaps)
             {
                 sq_pushstring(v, it.c_str(), -1);
                 sq_arrayappend(v, -2);
@@ -76,7 +76,7 @@ namespace VSquirrel
                 return SQ_OK;
 
             sq_newarray(v, 0);
-            for (auto& it : g_vAllPlaylists)
+            for (const string& it : g_vAllPlaylists)
             {
                 sq_pushstring(v, it.c_str(), -1);
                 sq_arrayappend(v, -2);
@@ -129,10 +129,35 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT GetServerName(HSQUIRRELVM v)
         {
-            SQInteger iServerIndex = sq_getinteger(v, 1);
-            string svServerName = g_pBrowser->m_vServerList[iServerIndex].m_svHostName;
+            SQInteger iServer = sq_getinteger(v, 1);
+            if (iServer >= static_cast<SQInteger>(g_pBrowser->m_vServerList.size()))
+            {
+                v_SQVM_RaiseError(v, "Index must be less than %i.\n",
+                    static_cast<SQInteger>(g_pBrowser->m_vServerList.size()));
+                return SQ_ERROR;
+            }
 
+            string svServerName = g_pBrowser->m_vServerList[iServer].m_svHostName;
             sq_pushstring(v, svServerName.c_str(), -1);
+
+            return SQ_OK;
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: get server's current description from serverlist index
+        //-----------------------------------------------------------------------------
+        SQRESULT GetServerDescription(HSQUIRRELVM v)
+        {
+            SQInteger iServer = sq_getinteger(v, 1);
+            if (iServer >= static_cast<SQInteger>(g_pBrowser->m_vServerList.size()))
+            {
+                v_SQVM_RaiseError(v, "Index must be less than %i.\n",
+                    static_cast<SQInteger>(g_pBrowser->m_vServerList.size()));
+                return SQ_ERROR;
+            }
+
+            string svServerDescription = g_pBrowser->m_vServerList[iServer].m_svDescription;
+            sq_pushstring(v, svServerDescription.c_str(), -1);
 
             return SQ_OK;
         }
@@ -142,9 +167,15 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT GetServerPlaylist(HSQUIRRELVM v)
         {
-            SQInteger iServerIndex = sq_getinteger(v, 1);
-            string svServerPlaylist = g_pBrowser->m_vServerList[iServerIndex].m_svPlaylist;
+            SQInteger iServer = sq_getinteger(v, 1);
+            if (iServer >= static_cast<SQInteger>(g_pBrowser->m_vServerList.size()))
+            {
+                v_SQVM_RaiseError(v, "Index must be less than %i.\n",
+                    static_cast<SQInteger>(g_pBrowser->m_vServerList.size()));
+                return SQ_ERROR;
+            }
 
+            string svServerPlaylist = g_pBrowser->m_vServerList[iServer].m_svPlaylist;
             sq_pushstring(v, svServerPlaylist.c_str(), -1);
 
             return SQ_OK;
@@ -155,10 +186,52 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT GetServerMap(HSQUIRRELVM v)
         {
-            SQInteger iServerIndex = sq_getinteger(v, 1);
-            string svServerMapName = g_pBrowser->m_vServerList[iServerIndex].m_svMapName;
+            SQInteger iServer = sq_getinteger(v, 1);
+            if (iServer >= static_cast<SQInteger>(g_pBrowser->m_vServerList.size()))
+            {
+                v_SQVM_RaiseError(v, "Index must be less than %i.\n",
+                    static_cast<SQInteger>(g_pBrowser->m_vServerList.size()));
+                return SQ_ERROR;
+            }
 
+            string svServerMapName = g_pBrowser->m_vServerList[iServer].m_svMapName;
             sq_pushstring(v, svServerMapName.c_str(), -1);
+
+            return SQ_OK;
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: get server's current player count via serverlist index
+        //-----------------------------------------------------------------------------
+        SQRESULT GetServerCurrentPlayers(HSQUIRRELVM v)
+        {
+            SQInteger iServer = sq_getinteger(v, 1);
+            if (iServer >= static_cast<SQInteger>(g_pBrowser->m_vServerList.size()))
+            {
+                v_SQVM_RaiseError(v, "Index must be less than %i.\n",
+                    static_cast<SQInteger>(g_pBrowser->m_vServerList.size()));
+                return SQ_ERROR;
+            }
+
+            sq_pushinteger(v, strtol(g_pBrowser->m_vServerList[iServer].m_svPlayerCount.c_str(), NULL, NULL));
+
+            return SQ_OK;
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: get server's current player count via serverlist index
+        //-----------------------------------------------------------------------------
+        SQRESULT GetServerMaxPlayers(HSQUIRRELVM v)
+        {
+            SQInteger iServer = sq_getinteger(v, 1);
+            if (iServer >= static_cast<SQInteger>(g_pBrowser->m_vServerList.size()))
+            {
+                v_SQVM_RaiseError(v, "Index must be less than %i.\n",
+                    static_cast<SQInteger>(g_pBrowser->m_vServerList.size()));
+                return SQ_ERROR;
+            }
+
+            sq_pushinteger(v, strtol(g_pBrowser->m_vServerList[iServer].m_svMaxPlayers.c_str(), NULL, NULL));
 
             return SQ_OK;
         }
@@ -242,12 +315,18 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT SetEncKeyAndConnect(HSQUIRRELVM v)
         {
-            SQInteger iServerIndex = sq_getinteger(v, 1);
+            SQInteger iServer = sq_getinteger(v, 1);
+            if (iServer >= static_cast<SQInteger>(g_pBrowser->m_vServerList.size()))
+            {
+                v_SQVM_RaiseError(v, "Index must be less than %i.\n",
+                    static_cast<SQInteger>(g_pBrowser->m_vServerList.size()));
+                return SQ_ERROR;
+            }
 
             // !TODO: Create glue class instead.
-            g_pBrowser->ConnectToServer(g_pBrowser->m_vServerList[iServerIndex].m_svIpAddress,
-                g_pBrowser->m_vServerList[iServerIndex].m_svGamePort, 
-                g_pBrowser->m_vServerList[iServerIndex].m_svEncryptionKey);
+            g_pBrowser->ConnectToServer(g_pBrowser->m_vServerList[iServer].m_svIpAddress,
+                g_pBrowser->m_vServerList[iServer].m_svGamePort, 
+                g_pBrowser->m_vServerList[iServer].m_svEncryptionKey);
 
             return SQ_OK;
         }
@@ -258,17 +337,19 @@ namespace VSquirrel
         SQRESULT CreateServerFromMenu(HSQUIRRELVM v)
         {
             string svServerName = sq_getstring(v, 1);
-            string svServerMapName = sq_getstring(v, 2);
-            string svServerPlaylist = sq_getstring(v, 3);
-            EServerVisibility eServerVisibility = static_cast<EServerVisibility>(sq_getinteger(v, 4));
+            string svServerDescription = sq_getstring(v, 2);
+            string svServerMapName = sq_getstring(v, 3);
+            string svServerPlaylist = sq_getstring(v, 4);
+            EServerVisibility eServerVisibility = static_cast<EServerVisibility>(sq_getinteger(v, 5));
 
             if (svServerName.empty() || svServerMapName.empty() || svServerPlaylist.empty())
                 return SQ_OK;
 
             // Adjust browser settings.
-            g_pBrowser->m_Server.m_svPlaylist = svServerPlaylist;
-            g_pBrowser->m_Server.m_svMapName = svServerMapName;
             g_pBrowser->m_Server.m_svHostName = svServerName;
+            g_pBrowser->m_Server.m_svDescription = svServerDescription;
+            g_pBrowser->m_Server.m_svMapName = svServerMapName;
+            g_pBrowser->m_Server.m_svPlaylist = svServerPlaylist;
             g_pBrowser->eServerVisibility = eServerVisibility;
 
             // Launch server.

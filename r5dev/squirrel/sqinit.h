@@ -38,8 +38,11 @@ namespace VSquirrel
 	namespace UI
 	{
 		SQRESULT GetServerName(HSQUIRRELVM v);
+		SQRESULT GetServerDescription(HSQUIRRELVM v);
 		SQRESULT GetServerPlaylist(HSQUIRRELVM v);
 		SQRESULT GetServerMap(HSQUIRRELVM v);
+		SQRESULT GetServerCurrentPlayers(HSQUIRRELVM v);
+		SQRESULT GetServerMaxPlayers(HSQUIRRELVM v);
 		SQRESULT GetServerCount(HSQUIRRELVM v);
 		SQRESULT GetPromoData(HSQUIRRELVM v);
 		SQRESULT SetEncKeyAndConnect(HSQUIRRELVM v);

@@ -82,8 +82,11 @@ void Script_RegisterUIFunctions(CSquirrelVM* pSquirrelVM)
 
 	// Functions for retrieving server browser data
 	Script_RegisterFunction(pSquirrelVM, "GetServerName", "Script_GetServerName", "Gets the name of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerName);
+	Script_RegisterFunction(pSquirrelVM, "GetServerDescription", "Script_GetServerDescription", "Gets the description of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerDescription);
 	Script_RegisterFunction(pSquirrelVM, "GetServerPlaylist", "Script_GetServerPlaylist", "Gets the playlist of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerPlaylist);
 	Script_RegisterFunction(pSquirrelVM, "GetServerMap", "Script_GetServerMap", "Gets the map of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerMap);
+	Script_RegisterFunction(pSquirrelVM, "GetServerCurrentPlayers", "Script_GetServerCurrentPlayers", "Gets the current player count of the server at the specified index of the server list", "int", "int", &VSquirrel::UI::GetServerCurrentPlayers);
+	Script_RegisterFunction(pSquirrelVM, "GetServerMaxPlayers", "Script_GetServerMaxPlayers", "Gets the max player count of the server at the specified index of the server list", "int", "int", &VSquirrel::UI::GetServerMaxPlayers);
 	Script_RegisterFunction(pSquirrelVM, "GetServerCount", "Script_GetServerCount", "Gets the number of public servers", "int", "", &VSquirrel::UI::GetServerCount);
 
 	// Misc main menu functions
@@ -91,7 +94,7 @@ void Script_RegisterUIFunctions(CSquirrelVM* pSquirrelVM)
 	Script_RegisterFunction(pSquirrelVM, "GetPromoData", "Script_GetPromoData", "Gets promo data for specified slot type", "string", "int", &VSquirrel::UI::GetPromoData);
 
 	// Functions for connecting to servers
-	Script_RegisterFunction(pSquirrelVM, "CreateServer", "Script_CreateServer", "Start server with the specified settings", "void", "string, string, string, int", &VSquirrel::UI::CreateServerFromMenu);
+	Script_RegisterFunction(pSquirrelVM, "CreateServer", "Script_CreateServer", "Start server with the specified settings", "void", "string, string, string, string, int", &VSquirrel::UI::CreateServerFromMenu);
 	Script_RegisterFunction(pSquirrelVM, "SetEncKeyAndConnect", "Script_SetEncKeyAndConnect", "Set the encryption key to that of the specified server and connects to it", "void", "int", &VSquirrel::UI::SetEncKeyAndConnect);
 	Script_RegisterFunction(pSquirrelVM, "JoinPrivateServerFromMenu", "Script_JoinPrivateServerFromMenu", "Joins private server by token", "void", "string", &VSquirrel::UI::JoinPrivateServerFromMenu);
 	Script_RegisterFunction(pSquirrelVM, "GetPrivateServerMessage", "Script_GetPrivateServerMessage", "Gets private server join status message", "string", "string", &VSquirrel::UI::GetPrivateServerMessage);
