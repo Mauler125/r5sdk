@@ -540,6 +540,9 @@
     <ClCompile Include="..\tier0\platform.cpp">
       <Filter>sdk\tier0</Filter>
     </ClCompile>
+    <ClCompile Include="..\materialsystem\cshaderglue.cpp">
+      <Filter>sdk\materialsystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1582,6 +1585,9 @@
     </ClInclude>
     <ClInclude Include="..\public\include\icommandline.h">
       <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\materialsystem\cshaderglue.h">
+      <Filter>sdk\materialsystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
