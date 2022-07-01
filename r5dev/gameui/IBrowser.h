@@ -3,7 +3,7 @@
 #include "common/sdkdefs.h"
 #include "windows/resource.h"
 #include "networksystem/serverlisting.h"
-#include "networksystem/r5net.h"
+#include "networksystem/pylon.h"
 
 enum class eHostStatus
 {

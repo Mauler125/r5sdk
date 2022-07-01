@@ -21,7 +21,7 @@
 #include "squirrel/sqtype.h"
 #include "squirrel/sqapi.h"
 #include "squirrel/sqinit.h"
-#include "networksystem/r5net.h"
+#include "networksystem/pylon.h"
 
 #ifndef DEDICATED
 #include "gameui/IBrowser.h" // TODO: create dedicated class for exposing server utils to ImGui and UI VM.
@@ -286,7 +286,7 @@ namespace VSquirrel
             string svToken = sq_getstring(v, 1);
 
             NetGameServer_t svListing;
-            bool result = g_pR5net->GetServerByToken(svListing, svHiddenServerRequestMessage, svToken); // Send szToken connect request.
+            bool result = g_pMasterServer->GetServerByToken(svListing, svHiddenServerRequestMessage, svToken); // Send szToken connect request.
             if (result)
             {
                 g_pBrowser->ConnectToServer(svListing.m_svIpAddress, svListing.m_svGamePort, svListing.m_svEncryptionKey);
@@ -304,7 +304,7 @@ namespace VSquirrel
             string svToken = sq_getstring(v, 1);
 
             NetGameServer_t serverListing;
-            bool result = g_pR5net->GetServerByToken(serverListing, svHiddenServerRequestMessage, svToken); // Send token connect request.
+            bool result = g_pMasterServer->GetServerByToken(serverListing, svHiddenServerRequestMessage, svToken); // Send token connect request.
             if (!serverListing.m_svHostName.empty())
             {
                 svHiddenServerRequestMessage = "Found Server: " + serverListing.m_svHostName;

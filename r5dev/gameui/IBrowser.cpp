@@ -27,7 +27,7 @@ History:
 #include "engine/server/server.h"
 #endif // CLIENT_DLL
 #include "networksystem/serverlisting.h"
-#include "networksystem/r5net.h"
+#include "networksystem/pylon.h"
 #include "squirrel/sqinit.h"
 #include "squirrel/sqapi.h"
 #include "client/vengineclient_impl.h"
@@ -79,7 +79,7 @@ void CBrowser::Draw(void)
     if (!m_bInitialized)
     {
         SetStyleVar();
-        m_szMatchmakingHostName = r5net_matchmaking_hostname->GetString();
+        m_szMatchmakingHostName = pylon_matchmaking_hostname->GetString();
 
         m_bInitialized = true;
     }
@@ -277,9 +277,9 @@ void CBrowser::RefreshServerList(void)
     {
         std::thread t([this]()
             {
-                DevMsg(eDLL_T::CLIENT, "Refreshing server list with matchmaking host '%s'\n", r5net_matchmaking_hostname->GetString());
+                DevMsg(eDLL_T::CLIENT, "Refreshing server list with matchmaking host '%s'\n", pylon_matchmaking_hostname->GetString());
                 bThreadLocked = true;
-                m_vServerList = g_pR5net->GetServersList(m_svServerListMessage);
+                m_vServerList = g_pMasterServer->GetServersList(m_svServerListMessage);
                 bThreadLocked = false;
             });
 
@@ -294,7 +294,7 @@ void CBrowser::GetServerList(void)
 {
     m_vServerList.clear();
     m_svServerListMessage.clear();
-    m_vServerList = g_pR5net->GetServersList(m_svServerListMessage);
+    m_vServerList = g_pMasterServer->GetServersList(m_svServerListMessage);
 }
 
 //-----------------------------------------------------------------------------
@@ -394,7 +394,7 @@ void CBrowser::HiddenServersModal(void)
         {
             m_svHiddenServerRequestMessage.clear();
             NetGameServer_t server;
-            bool result = g_pR5net->GetServerByToken(server, m_svHiddenServerRequestMessage, m_svHiddenServerToken); // Send token connect request.
+            bool result = g_pMasterServer->GetServerByToken(server, m_svHiddenServerRequestMessage, m_svHiddenServerToken); // Send token connect request.
             if (!server.m_svHostName.empty())
             {
                 ConnectToServer(server.m_svIpAddress, server.m_svGamePort, server.m_svEncryptionKey); // Connect to the server
@@ -633,7 +633,7 @@ void CBrowser::SendHostingPostRequest(void)
 {
 #ifndef CLIENT_DLL
     m_svHostToken.clear();
-    bool result = g_pR5net->PostServerHost(m_svHostRequestMessage, m_svHostToken,
+    bool result = g_pMasterServer->PostServerHost(m_svHostRequestMessage, m_svHostToken,
         NetGameServer_t
         {
             m_Server.m_svHostName,
@@ -693,11 +693,11 @@ void CBrowser::SettingsPanel(void)
     ImGui::InputTextWithHint("Hostname", "Matchmaking Server String", &m_szMatchmakingHostName);
     if (ImGui::Button("Update Hostname"))
     {
-        r5net_matchmaking_hostname->SetValue(m_szMatchmakingHostName.c_str());
-        if (g_pR5net)
+        pylon_matchmaking_hostname->SetValue(m_szMatchmakingHostName.c_str());
+        if (g_pMasterServer)
         {
-            delete g_pR5net;
-            g_pR5net = new R5Net::Client(r5net_matchmaking_hostname->GetString());
+            delete g_pMasterServer;
+            g_pMasterServer = new CPylon(pylon_matchmaking_hostname->GetString());
         }
     }
     ImGui::InputText("Netkey", const_cast<char*>(g_svNetKey.c_str()), ImGuiInputTextFlags_ReadOnly);

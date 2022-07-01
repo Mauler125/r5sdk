@@ -126,8 +126,8 @@ ConVar* net_tracePayload                   = nullptr;
 ConVar* net_encryptionEnable               = nullptr;
 ConVar* net_useRandomKey                   = nullptr;
 ConVar* net_usesocketsforloopback          = nullptr;
-ConVar* r5net_matchmaking_hostname         = nullptr;
-ConVar* r5net_show_debug                   = nullptr;
+ConVar* pylon_matchmaking_hostname         = nullptr;
+ConVar* pylon_showdebug                   = nullptr;
 //-----------------------------------------------------------------------------
 // RTECH API                                                                  |
 //-----------------------------------------------------------------------------

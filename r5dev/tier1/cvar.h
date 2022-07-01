@@ -123,8 +123,8 @@ extern ConVar* net_tracePayload;
 extern ConVar* net_encryptionEnable;
 extern ConVar* net_useRandomKey;
 extern ConVar* net_usesocketsforloopback;
-extern ConVar* r5net_matchmaking_hostname;
-extern ConVar* r5net_show_debug;
+extern ConVar* pylon_matchmaking_hostname;
+extern ConVar* pylon_showdebug;
 //-------------------------------------------------------------------------
 // RTECH API                                                              |
 //-------------------------------------------------------------------------
