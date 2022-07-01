@@ -43,7 +43,6 @@ void CLogSystem::Update(void)
 	{
 		DrawHostStats();
 	}
-
 	if (cl_showmaterialinfo->GetBool())
 	{
 		DrawCrosshairMaterial();
@@ -182,16 +181,11 @@ void CLogSystem::DrawGPUStats(void) const
 
 void CLogSystem::DrawCrosshairMaterial(void) const
 {
-	static Color c = { 255, 255, 255, 255 };
-
 	CMaterialGlue* material = GetMaterialAtCrossHair();
-
-	if (!material)
+	if (material)
 		return;
 
-	int nOffsetX = cl_materialinfo_offset_x->GetInt();
-	int nOffsetY = cl_materialinfo_offset_y->GetInt();
-
+	static Color c = { 255, 255, 255, 255 };
 	static const char* szLogbuf[4096]{};
 	snprintf((char*)szLogbuf, 4096, "name: %s\nguid: %llx\ndimensions: %d x %d\nsurface: %s/%s\nsig: %i",
 		material->m_pszName,
@@ -200,7 +194,7 @@ void CLogSystem::DrawCrosshairMaterial(void) const
 		material->m_pszSurfaceName1, material->m_pszSurfaceName2,
 		material->m_UnknownSignature);
 
-	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, nOffsetX, nOffsetY, c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, cl_materialinfo_offset_x->GetInt(), cl_materialinfo_offset_y->GetInt(), c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
 }
 
 //-----------------------------------------------------------------------------
