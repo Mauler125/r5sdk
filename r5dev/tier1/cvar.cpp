@@ -97,6 +97,10 @@ ConVar* cl_gpustats_invert_rect_y          = nullptr;
 ConVar* cl_gpustats_offset_x               = nullptr;
 ConVar* cl_gpustats_offset_y               = nullptr;
 
+ConVar* cl_showmaterialinfo                = nullptr;
+ConVar* cl_materialinfo_offset_x           = nullptr;
+ConVar* cl_materialinfo_offset_y           = nullptr;
+
 ConVar* con_max_size_logvector             = nullptr;
 ConVar* con_suggestion_limit               = nullptr;
 ConVar* con_suggestion_showhelptext        = nullptr;
