@@ -16,6 +16,7 @@
 #include <engine/debugoverlay.h>
 #include <engine/client/clientstate.h>
 #include <engine/server/server.h>
+#include <materialsystem/cmaterialglue.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -41,6 +42,10 @@ void CLogSystem::Update(void)
 	if (cl_showhoststats->GetBool())
 	{
 		DrawHostStats();
+	}
+	if (cl_showmaterialinfo->GetBool())
+	{
+		DrawCrosshairMaterial();
 	}
 }
 
@@ -172,6 +177,24 @@ void CLogSystem::DrawGPUStats(void) const
 	}
 
 	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
+}
+
+void CLogSystem::DrawCrosshairMaterial(void) const
+{
+	CMaterialGlue* material = GetMaterialAtCrossHair();
+	if (material)
+		return;
+
+	static Color c = { 255, 255, 255, 255 };
+	static const char* szLogbuf[4096]{};
+	snprintf((char*)szLogbuf, 4096, "name: %s\nguid: %llx\ndimensions: %d x %d\nsurface: %s/%s\nsig: %i",
+		material->m_pszName,
+		material->m_GUID,
+		material->m_iWidth, material->m_iHeight,
+		material->m_pszSurfaceName1, material->m_pszSurfaceName2,
+		material->m_UnknownSignature);
+
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, cl_materialinfo_offset_x->GetInt(), cl_materialinfo_offset_y->GetInt(), c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
 }
 
 //-----------------------------------------------------------------------------
