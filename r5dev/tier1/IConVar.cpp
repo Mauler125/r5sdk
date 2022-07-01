@@ -119,6 +119,8 @@ void ConVar::Init(void) const
 	cl_gpustats_offset_x      = new ConVar("cl_gpustats_offset_x"     , "650", FCVAR_DEVELOPMENTONLY, "X offset for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_gpustats_offset_y      = new ConVar("cl_gpustats_offset_y"     , "105", FCVAR_DEVELOPMENTONLY, "Y offset for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 
+	cl_showmaterialinfo = new ConVar("cl_showmaterialinfo", "0", FCVAR_DEVELOPMENTONLY, "Draw info for the material under the crosshair on screen", false, 0.f, false, 0.f, nullptr, nullptr);
+
 	con_max_size_logvector        = new ConVar("con_max_size_logvector"        , "1000", FCVAR_DEVELOPMENTONLY, "Maximum number of logs in the console until cleanup starts.", false, 0.f, false, 0.f, nullptr, nullptr);
 	con_suggestion_limit          = new ConVar("con_suggestion_limit"          , "120" , FCVAR_DEVELOPMENTONLY, "Maximum number of suggestions the autocomplete window will show for the console.", false, 0.f, false, 0.f, nullptr, nullptr);
 	con_suggestion_showhelptext   = new ConVar("con_suggestion_showhelptext"   , "1"   , FCVAR_DEVELOPMENTONLY, "Show CommandBase help text in autocomplete window.", false, 0.f, false, 0.f, nullptr, nullptr);

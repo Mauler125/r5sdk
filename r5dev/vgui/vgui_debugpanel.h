@@ -42,6 +42,7 @@ public:
 	void DrawHostStats(void) const;
 	void DrawSimStats(void) const;
 	void DrawGPUStats(void) const;
+	void DrawCrosshairMaterial(void) const;
 
 private:
 	Color GetLogColorForType(LogType_t type) const;
