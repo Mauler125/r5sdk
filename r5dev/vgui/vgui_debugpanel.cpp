@@ -182,7 +182,7 @@ void CLogSystem::DrawGPUStats(void) const
 void CLogSystem::DrawCrosshairMaterial(void) const
 {
 	CMaterialGlue* material = GetMaterialAtCrossHair();
-	if (material)
+	if (!material)
 		return;
 
 	static Color c = { 255, 255, 255, 255 };
