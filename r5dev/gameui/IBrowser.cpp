@@ -91,7 +91,7 @@ void CBrowser::Draw(void)
 
     int nVars = 0;
     ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);                   nVars++;
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(750, 524));        nVars++;
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(910, 524));        nVars++;
 
     if (!m_bModernTheme)
     {
@@ -176,23 +176,24 @@ void CBrowser::BrowserPanel(void)
     const float fFooterHeight = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
     ImGui::BeginChild("##ServerBrowser_ServerList", { 0, -fFooterHeight }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
-    int nVars = 0;
-    if (m_bModernTheme)
+    if (ImGui::BeginTable("##ServerBrowser_ServerListTable", 6, ImGuiTableFlags_Resizable))
     {
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 8.f, 0.f }); nVars++;
-    }
-    else
-    {
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.f, 0.f)); nVars++;
-    }
+        int nVars = 0;
+        if (m_bModernTheme)
+        {
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 8.f, 0.f }); nVars++;
+        }
+        else
+        {
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.f, 0.f)); nVars++;
+        }
 
-    if (ImGui::BeginTable("##ServerBrowser_ServerListTable", 5, ImGuiTableFlags_Resizable))
-    {
         ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 25);
         ImGui::TableSetupColumn("Map", ImGuiTableColumnFlags_WidthStretch, 20);
         ImGui::TableSetupColumn("Playlist", ImGuiTableColumnFlags_WidthStretch, 10);
         ImGui::TableSetupColumn("Players", ImGuiTableColumnFlags_WidthStretch, 5);
         ImGui::TableSetupColumn("Port", ImGuiTableColumnFlags_WidthStretch, 5);
+        ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch, 5);
         ImGui::TableHeadersRow();
 
         for (NetGameServer_t& server : m_vServerList)
@@ -200,8 +201,7 @@ void CBrowser::BrowserPanel(void)
             const char* pszHostName = server.m_svHostName.c_str();
             const char* pszHostMap  = server.m_svMapName.c_str();
             const char* pszPlaylist = server.m_svPlaylist.c_str();
-            const char* pszHostPort = std::to_string(server.m_nGamePort).c_str();
-            const char* pszPlayers  = std::to_string(server.m_nPlayerCount).c_str();
+            const char* pszHostPort = server.m_svGamePort.c_str();
 
             if (m_imServerBrowserFilter.PassFilter(pszHostName)
                 || m_imServerBrowserFilter.PassFilter(pszHostMap)
@@ -217,10 +217,10 @@ void CBrowser::BrowserPanel(void)
                 ImGui::Text(pszPlaylist);
 
                 ImGui::TableNextColumn();
-                ImGui::Text(pszHostPort);
+                ImGui::Text(fmt::format("{:3d}/{:3d}", strtol(server.m_svPlayerCount.c_str(), NULL, NULL), strtol(server.m_svMaxPlayers.c_str(), NULL, NULL)).c_str());
 
                 ImGui::TableNextColumn();
-                ImGui::Text(pszPlayers);
+                ImGui::Text(pszHostPort);
 
                 ImGui::TableNextColumn();
                 string svConnectBtn = "Connect##";
@@ -233,9 +233,10 @@ void CBrowser::BrowserPanel(void)
             }
 
         }
-        ImGui::PopStyleVar(nVars);
         ImGui::EndTable();
+        ImGui::PopStyleVar(nVars);
     }
+
     ImGui::EndChild();
 
     ImGui::Separator();
@@ -396,7 +397,7 @@ void CBrowser::HiddenServersModal(void)
             bool result = g_pR5net->GetServerByToken(server, m_svHiddenServerRequestMessage, m_svHiddenServerToken); // Send token connect request.
             if (!server.m_svHostName.empty())
             {
-                ConnectToServer(server.m_svIpAddress, std::to_string(server.m_nGamePort), server.m_svEncryptionKey); // Connect to the server
+                ConnectToServer(server.m_svIpAddress, server.m_svGamePort, server.m_svEncryptionKey); // Connect to the server
                 m_svHiddenServerRequestMessage = "Found Server: " + server.m_svHostName;
                 m_ivHiddenServerMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
                 ImGui::CloseCurrentPopup();
@@ -427,6 +428,7 @@ void CBrowser::HostPanel(void)
     static string svServerNameErr = "";
 
     ImGui::InputTextWithHint("##ServerHost_ServerName", "Server Name (Required)", &m_Server.m_svHostName);
+    ImGui::InputTextWithHint("##ServerHost_ServerDesc", "Server Description (Optional)", &m_Server.m_svDescription);
     ImGui::Spacing();
 
     if (ImGui::BeginCombo("Playlist", m_Server.m_svPlaylist.c_str()))
@@ -634,20 +636,21 @@ void CBrowser::SendHostingPostRequest(void)
     bool result = g_pR5net->PostServerHost(m_svHostRequestMessage, m_svHostToken,
         NetGameServer_t
         {
-            m_Server.m_svHostName.c_str(),
-            "", // description.
-            "", // password.
+            m_Server.m_svHostName,
+            m_Server.m_svDescription,
             m_Server.m_bHidden,
             g_pHostState->m_levelName,
             mp_gamemode->GetString(),
             hostip->GetString(),
-            hostport->GetInt(),
-            g_svNetKey.c_str(),
+            hostport->GetString(),
+            g_svNetKey,
             std::to_string(*g_nServerRemoteChecksum),
             SDK_VERSION,
-            "",
-            g_pServer->GetNumHumanPlayers() + g_pServer->GetNumFakeClients(),
-            g_ServerGlobalVariables->m_nMaxClients
+            std::to_string(g_pServer->GetNumHumanPlayers() + g_pServer->GetNumFakeClients()),
+            std::to_string(g_ServerGlobalVariables->m_nMaxClients),
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::system_clock::now().time_since_epoch()
+                ).count()
         }
     );
 
@@ -660,7 +663,7 @@ void CBrowser::SendHostingPostRequest(void)
         {
             ssMessage << "Share the following token for clients to connect: ";
         }
-        m_svHostRequestMessage = ssMessage.str().c_str();
+        m_svHostRequestMessage = ssMessage.str();
         DevMsg(eDLL_T::CLIENT, "PostServerHost replied with: %s\n", m_svHostRequestMessage.c_str());
     }
     else

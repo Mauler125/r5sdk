@@ -15,7 +15,6 @@ namespace R5Net
 		bool PostServerHost(string& svOutMessage, string& svOutToken, const NetGameServer_t& slServerListing);
 		bool GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage, const string& svToken);
 		bool GetClientIsBanned(const string& svIpAddress, uint64_t nOriginID, string& svOutErrCl);
-		string GetSDKVersion();
 
 		Client* pR5net = nullptr;
 		Client* GetR5Net() { return pR5net; }

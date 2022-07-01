@@ -45,7 +45,7 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT GetSDKVersion(HSQUIRRELVM v)
         {
-            sq_pushstring(v, g_pR5net->GetSDKVersion().c_str(), -1);
+            sq_pushstring(v, SDK_VERSION, -1);
             return SQ_OK;
         }
 
@@ -246,7 +246,7 @@ namespace VSquirrel
 
             // !TODO: Create glue class instead.
             g_pBrowser->ConnectToServer(g_pBrowser->m_vServerList[iServerIndex].m_svIpAddress,
-                std::to_string(g_pBrowser->m_vServerList[iServerIndex].m_nGamePort), 
+                g_pBrowser->m_vServerList[iServerIndex].m_svGamePort, 
                 g_pBrowser->m_vServerList[iServerIndex].m_svEncryptionKey);
 
             return SQ_OK;
@@ -289,7 +289,7 @@ namespace VSquirrel
             bool result = g_pR5net->GetServerByToken(svListing, svHiddenServerRequestMessage, svToken); // Send szToken connect request.
             if (result)
             {
-                g_pBrowser->ConnectToServer(svListing.m_svIpAddress, std::to_string(svListing.m_nGamePort), svListing.m_svEncryptionKey);
+                g_pBrowser->ConnectToServer(svListing.m_svIpAddress, svListing.m_svGamePort, svListing.m_svEncryptionKey);
             }
 
             return SQ_OK;

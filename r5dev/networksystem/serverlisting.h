@@ -15,25 +15,24 @@ struct NetGameServer_t
 {
 	string m_svHostName;
 	string m_svDescription;
-
-	string m_svPassword;
 	bool m_bHidden;
 
 	string m_svMapName = "mp_lobby";
 	string m_svPlaylist = "dev_default";
 
 	string m_svIpAddress;
-	int m_nGamePort;
-
+	string m_svGamePort;
 	string m_svEncryptionKey;
+
 	string m_svRemoteChecksum;
-
 	string m_svSDKVersion;
-	string m_svPublicRef;
 
-	int m_nPlayerCount;
-	int m_nMaxPlayers;
-	int m_nLastPing = -1;
+	string m_svPlayerCount;
+	string m_svMaxPlayers;
+	int64_t m_nTimeStamp = -1;
+
+	string m_svPublicRef;
+	string m_svCachedID;
 
 	//vector<NetGameMod_t> m_vMods;
 };

@@ -6,14 +6,6 @@
 #include "networksystem/r5net.h"
 
 //-----------------------------------------------------------------------------
-// Purpose: returns the sdk version string.
-//-----------------------------------------------------------------------------
-string R5Net::Client::GetSDKVersion()
-{
-    return SDK_VERSION;
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: returns a vector of hosted servers.
 //-----------------------------------------------------------------------------
 vector<NetGameServer_t> R5Net::Client::GetServersList(string& svOutMessage)
@@ -21,19 +13,16 @@ vector<NetGameServer_t> R5Net::Client::GetServersList(string& svOutMessage)
     vector<NetGameServer_t> vslList{};
 
     nlohmann::json jsRequestBody = nlohmann::json::object();
-    jsRequestBody["version"] = GetSDKVersion();
+    jsRequestBody["version"] = SDK_VERSION;
 
     string svRequestBody = jsRequestBody.dump(4);
 
     if (r5net_show_debug->GetBool())
     {
-       DevMsg(eDLL_T::ENGINE, "Sending GetServerList post.\n");
        DevMsg(eDLL_T::ENGINE, "%s - Sending server list request to comp-server:\n%s\n", __FUNCTION__, svRequestBody.c_str());
     }
 
-    //httplib::Result htResults = m_HttpClient.Post("/api/game_servers/list", jsRequestBody.dump(4).c_str(), jsRequestBody.dump(4).length(), "application/json");
-    httplib::Result htResults = m_HttpClient.Get("/api/game_servers/list");
-
+    httplib::Result htResults = m_HttpClient.Post("/servers", jsRequestBody.dump(4).c_str(), jsRequestBody.dump(4).length(), "application/json");
     if (htResults && r5net_show_debug->GetBool())
     {
         DevMsg(eDLL_T::ENGINE, "%s - replied with '%d'.\n", __FUNCTION__, htResults->status);
@@ -51,19 +40,19 @@ vector<NetGameServer_t> R5Net::Client::GetServersList(string& svOutMessage)
                     {
                         obj.value("name",""),
                         obj.value("description",""),
-                        obj.value("password",""),
                         obj.value("hidden","false") == "true",
                         obj.value("map",""),
                         obj.value("playlist",""),
                         obj.value("ip",""),
-                        obj.value("port", 0),
+                        obj.value("port", ""),
                         obj.value("key",""),
                         obj.value("checksum",""),
-                        obj.value("version", GetSDKVersion()),
+                        obj.value("version", SDK_VERSION),
+                        obj.value("playerCount", ""),
+                        obj.value("maxPlayers", ""),
+                        obj.value("timeStamp", 0),
                         obj.value("publicRef", ""),
-                        obj.value("playerCount", 0),
-                        obj.value("maxPlayers", 0),
-                        obj.value("lastHeartbeat", 0),
+                        obj.value("cachedID", ""),
                     }
                 );
             }
@@ -118,33 +107,32 @@ vector<NetGameServer_t> R5Net::Client::GetServersList(string& svOutMessage)
 //			&slServerListing - 
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
-bool R5Net::Client::PostServerHost(string& svOutMessage, string& svOutToken, const NetGameServer_t& slServerListing) // isBanned
+bool R5Net::Client::PostServerHost(string& svOutMessage, string& svOutToken, const NetGameServer_t& slServerListing)
 {
     nlohmann::json jsRequestBody = nlohmann::json::object();
     jsRequestBody["name"] = slServerListing.m_svHostName;
     jsRequestBody["description"] = slServerListing.m_svDescription;
-    jsRequestBody["password"] = slServerListing.m_svPassword;
     jsRequestBody["hidden"] = slServerListing.m_bHidden;
     jsRequestBody["map"] = slServerListing.m_svMapName;
     jsRequestBody["playlist"] = slServerListing.m_svPlaylist;
     jsRequestBody["ip"] = slServerListing.m_svIpAddress;
-    jsRequestBody["port"] = slServerListing.m_nGamePort;
+    jsRequestBody["port"] = slServerListing.m_svGamePort;
     jsRequestBody["key"] = slServerListing.m_svEncryptionKey;
     jsRequestBody["checksum"] = slServerListing.m_svRemoteChecksum;
-    jsRequestBody["version"] = GetSDKVersion();
-    jsRequestBody["playerCount"] = slServerListing.m_nPlayerCount;
-    jsRequestBody["maxPlayers"] = slServerListing.m_nMaxPlayers;
-    jsRequestBody["lastHeartbeat"] = slServerListing.m_nLastPing;
+    jsRequestBody["version"] = slServerListing.m_svSDKVersion;
+    jsRequestBody["playerCount"] = slServerListing.m_svPlayerCount;
+    jsRequestBody["maxPlayers"] = slServerListing.m_svMaxPlayers;
+    jsRequestBody["timeStamp"] = slServerListing.m_nTimeStamp;
+    jsRequestBody["publicRef"] = slServerListing.m_svPublicRef;
+    jsRequestBody["cachedID"] = slServerListing.m_svCachedID;
 
     string svRequestBody = jsRequestBody.dump(4);
-
     if (r5net_show_debug->GetBool())
     {
         DevMsg(eDLL_T::ENGINE, "%s - Sending post host request to comp-server:\n%s\n", __FUNCTION__, svRequestBody.c_str());
     }
 
-    httplib::Result htResults = m_HttpClient.Post("/api/game_servers/update", svRequestBody.c_str(), svRequestBody.length(), "application/json");
-
+    httplib::Result htResults = m_HttpClient.Post("/servers/add", svRequestBody.c_str(), svRequestBody.length(), "application/json");
     if (htResults && r5net_show_debug->GetBool())
     {
         DevMsg(eDLL_T::ENGINE, "%s - Comp-server replied with '%d'\n", __FUNCTION__, htResults->status);
@@ -232,7 +220,7 @@ bool R5Net::Client::GetServerByToken(NetGameServer_t& slOutServer, string& svOut
         DevMsg(eDLL_T::ENGINE, "%s - Sending token connect request to comp-server:\n%s\n", __FUNCTION__, svRequestBody.c_str());
     }
 
-    httplib::Result htResults = m_HttpClient.Post("/api/game_servers/game_server_private_info", jsRequestBody.dump(4).c_str(), jsRequestBody.dump(4).length(), "application/json");
+    httplib::Result htResults = m_HttpClient.Post("/server/byToken", jsRequestBody.dump(4).c_str(), jsRequestBody.dump(4).length(), "application/json");
 
     if (r5net_show_debug->GetBool())
     {
@@ -251,19 +239,19 @@ bool R5Net::Client::GetServerByToken(NetGameServer_t& slOutServer, string& svOut
                 {
                         jsResultBody["server"].value("name",""),
                         jsResultBody["server"].value("description",""),
-                        jsResultBody["server"].value("password",""),
                         jsResultBody["server"].value("hidden","false") == "true",
                         jsResultBody["server"].value("map",""),
                         jsResultBody["server"].value("playlist",""),
                         jsResultBody["server"].value("ip",""),
-                        jsResultBody["server"].value("port", 0),
+                        jsResultBody["server"].value("port", ""),
                         jsResultBody["server"].value("key",""),
                         jsResultBody["server"].value("checksum",""),
-                        jsResultBody["server"].value("version", GetSDKVersion()),
+                        jsResultBody["server"].value("version", SDK_VERSION),
+                        jsResultBody["server"].value("playerCount", ""),
+                        jsResultBody["server"].value("maxPlayers", ""),
+                        jsResultBody["server"].value("timeStamp", 0),
                         jsResultBody["server"].value("publicRef", ""),
-                        jsResultBody["server"].value("playerCount", 0),
-                        jsResultBody["server"].value("maxPlayers", 0),
-                        jsResultBody["server"].value("lastHeartbeat", 0),
+                        jsResultBody["server"].value("cachedID", ""),
                 };
                 return true;
             }
@@ -328,12 +316,10 @@ bool R5Net::Client::GetClientIsBanned(const string& svIpAddress, uint64_t nOrigi
     jsRequestBody["oid"] = nOriginID;
     jsRequestBody["ip"] = svIpAddress;
 
-    httplib::Result htResults = m_HttpClient.Post("/api/ban_system/is_user_banned", jsRequestBody.dump(4).c_str(), jsRequestBody.dump(4).length(), "application/json");
-
+    httplib::Result htResults = m_HttpClient.Post("/banlist/isBanned", jsRequestBody.dump(4).c_str(), jsRequestBody.dump(4).length(), "application/json");
     if (htResults && htResults->status == 200)
     {
         nlohmann::json jsResultBody = nlohmann::json::parse(htResults->body);
-
         if (jsResultBody["success"].is_boolean() && jsResultBody["success"].get<bool>())
         {
             if (jsResultBody["banned"].is_boolean() && jsResultBody["banned"].get<bool>())

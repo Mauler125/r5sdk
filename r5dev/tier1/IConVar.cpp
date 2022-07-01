@@ -40,6 +40,7 @@ void ConVar::Init(void) const
 {
 	//-------------------------------------------------------------------------
 	// ENGINE                                                                 |
+	hostdesc = new ConVar("hostdesc", "", FCVAR_RELEASE, "Host game server description.", false, 0.f, false, 0.f, nullptr, nullptr);
 	staticProp_defaultBuildFrustum = new ConVar("staticProp_defaultBuildFrustum", "0", FCVAR_DEVELOPMENTONLY, "Use the old solution for building static prop frustum culling.", false, 0.f, false, 0.f, nullptr, nullptr);
 
 	cm_debug_cmdquery       = new ConVar("cm_debug_cmdquery"      , "0", FCVAR_DEVELOPMENTONLY, "Prints the flags of each ConVar/ConCommand query to the console ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);

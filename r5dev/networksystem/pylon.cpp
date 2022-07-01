@@ -29,23 +29,24 @@ void KeepAliveToPylon()
 		std::string m_szHostRequestMessage = std::string();
 
 		bool result = g_pR5net->PostServerHost(m_szHostRequestMessage, m_szHostToken,
-            NetGameServer_t
-            {
-                hostname->GetString(),
-                "", // description.
-                "", // password.
-                sv_pylonVisibility->GetInt() == 1,
-                g_pHostState->m_levelName,
-                mp_gamemode->GetString(),
-                hostip->GetString(),
-                hostport->GetInt(),
-                g_svNetKey.c_str(),
-                std::to_string(*g_nServerRemoteChecksum),
-                SDK_VERSION,
-                "",
-                g_pServer->GetNumHumanPlayers() + g_pServer->GetNumFakeClients(),
-                g_ServerGlobalVariables->m_nMaxClients
-            }
+			NetGameServer_t
+			{
+				hostname->GetString(),
+				hostdesc->GetString(),
+				sv_pylonVisibility->GetInt() == 1,
+				g_pHostState->m_levelName,
+				mp_gamemode->GetString(),
+				hostip->GetString(),
+				hostport->GetString(),
+				g_svNetKey,
+				std::to_string(*g_nServerRemoteChecksum),
+				SDK_VERSION,
+				std::to_string(g_pServer->GetNumHumanPlayers() + g_pServer->GetNumFakeClients()),
+				std::to_string(g_ServerGlobalVariables->m_nMaxClients),
+				std::chrono::duration_cast<std::chrono::milliseconds>(
+					std::chrono::system_clock::now().time_since_epoch()
+					).count()
+			}
 		);
 	}
 #endif // !CLIENT_DLL
