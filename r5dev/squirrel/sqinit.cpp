@@ -163,25 +163,6 @@ namespace VSquirrel
         }
 
         //-----------------------------------------------------------------------------
-        // Purpose: get server's current playlist via serverlist index
-        //-----------------------------------------------------------------------------
-        SQRESULT GetServerPlaylist(HSQUIRRELVM v)
-        {
-            SQInteger iServer = sq_getinteger(v, 1);
-            if (iServer >= static_cast<SQInteger>(g_pBrowser->m_vServerList.size()))
-            {
-                v_SQVM_RaiseError(v, "Index must be less than %i.\n",
-                    static_cast<SQInteger>(g_pBrowser->m_vServerList.size()));
-                return SQ_ERROR;
-            }
-
-            string svServerPlaylist = g_pBrowser->m_vServerList[iServer].m_svPlaylist;
-            sq_pushstring(v, svServerPlaylist.c_str(), -1);
-
-            return SQ_OK;
-        }
-
-        //-----------------------------------------------------------------------------
         // Purpose: get server's current map via serverlist index
         //-----------------------------------------------------------------------------
         SQRESULT GetServerMap(HSQUIRRELVM v)
@@ -196,6 +177,25 @@ namespace VSquirrel
 
             string svServerMapName = g_pBrowser->m_vServerList[iServer].m_svMapName;
             sq_pushstring(v, svServerMapName.c_str(), -1);
+
+            return SQ_OK;
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: get server's current playlist via serverlist index
+        //-----------------------------------------------------------------------------
+        SQRESULT GetServerPlaylist(HSQUIRRELVM v)
+        {
+            SQInteger iServer = sq_getinteger(v, 1);
+            if (iServer >= static_cast<SQInteger>(g_pBrowser->m_vServerList.size()))
+            {
+                v_SQVM_RaiseError(v, "Index must be less than %i.\n",
+                    static_cast<SQInteger>(g_pBrowser->m_vServerList.size()));
+                return SQ_ERROR;
+            }
+
+            string svServerPlaylist = g_pBrowser->m_vServerList[iServer].m_svPlaylist;
+            sq_pushstring(v, svServerPlaylist.c_str(), -1);
 
             return SQ_OK;
         }
