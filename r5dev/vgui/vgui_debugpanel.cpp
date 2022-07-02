@@ -19,7 +19,7 @@
 #include <materialsystem/cmaterialglue.h>
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: proceed a log update
 //-----------------------------------------------------------------------------
 void CLogSystem::Update(void)
 {
@@ -50,7 +50,7 @@ void CLogSystem::Update(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: add a log to the vector.
 //-----------------------------------------------------------------------------
 void CLogSystem::AddLog(LogType_t type, string svMessage)
 {
@@ -61,7 +61,7 @@ void CLogSystem::AddLog(LogType_t type, string svMessage)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: draw log on screen.
 //-----------------------------------------------------------------------------
 void CLogSystem::DrawLog(void)
 {
@@ -109,7 +109,7 @@ void CLogSystem::DrawLog(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: draw current host stats on screen.
 //-----------------------------------------------------------------------------
 void CLogSystem::DrawHostStats(void) const
 {
@@ -130,7 +130,7 @@ void CLogSystem::DrawHostStats(void) const
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: draw current simulation stats on screen.
 //-----------------------------------------------------------------------------
 void CLogSystem::DrawSimStats(void) const
 {
@@ -155,7 +155,7 @@ void CLogSystem::DrawSimStats(void) const
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: draw current gpu stats on screen.
 //-----------------------------------------------------------------------------
 void CLogSystem::DrawGPUStats(void) const
 {
@@ -179,6 +179,9 @@ void CLogSystem::DrawGPUStats(void) const
 	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: draw currently traced material info on screen.
+//-----------------------------------------------------------------------------
 void CLogSystem::DrawCrosshairMaterial(void) const
 {
 	CMaterialGlue* material = GetMaterialAtCrossHair();
@@ -198,7 +201,7 @@ void CLogSystem::DrawCrosshairMaterial(void) const
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: get log color for passed type.
 //-----------------------------------------------------------------------------
 Color CLogSystem::GetLogColorForType(LogType_t type) const
 {
