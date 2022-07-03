@@ -10,6 +10,7 @@
 #include <windows/id3dx.h>
 #include <vpc/keyvalues.h>
 #include <mathlib/color.h>
+#include <rtech/rui/rui.h>
 #include <vgui/vgui_debugpanel.h>
 #include <vguimatsurface/MatSystemSurface.h>
 #include <materialsystem/cmaterialsystem.h>
@@ -90,7 +91,7 @@ void CLogSystem::DrawLog(void)
 						y += m_nFontHeight * i;
 					}
 
-					CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, x, y, c.r(), c.g(), c.b(), alpha, m_vLogs[i].m_svMessage.c_str());
+					CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, x, y, c.r(), c.g(), c.b(), alpha, m_vLogs[i].m_svMessage.c_str());
 				}
 				else
 				{
@@ -126,7 +127,7 @@ void CLogSystem::DrawHostStats(void) const
 		nHeight = g_nWindowHeight - nHeight;
 	}
 
-	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), (char*)m_pszCon_NPrintf_Buf);
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), (char*)m_pszCon_NPrintf_Buf);
 }
 
 //-----------------------------------------------------------------------------
@@ -151,7 +152,7 @@ void CLogSystem::DrawSimStats(void) const
 		nHeight = g_nWindowHeight - nHeight;
 	}
 
-	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
 }
 
 //-----------------------------------------------------------------------------
@@ -176,7 +177,7 @@ void CLogSystem::DrawGPUStats(void) const
 		nHeight = g_nWindowHeight - nHeight;
 	}
 
-	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
 }
 
 //-----------------------------------------------------------------------------
@@ -197,7 +198,7 @@ void CLogSystem::DrawCrosshairMaterial(void) const
 		material->m_pszSurfaceName1, material->m_pszSurfaceName2,
 		material->m_UnknownSignature);
 
-	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, cl_materialinfo_offset_x->GetInt(), cl_materialinfo_offset_y->GetInt(), c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, cl_materialinfo_offset_x->GetInt(), cl_materialinfo_offset_y->GetInt(), c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
 }
 
 //-----------------------------------------------------------------------------
