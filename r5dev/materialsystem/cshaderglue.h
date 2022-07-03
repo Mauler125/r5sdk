@@ -7,7 +7,7 @@ public:
 	virtual uint64_t TryBlockMap_getpDC() = 0;
 	virtual uint64_t nullsub() = 0;
 	virtual void* sub_1403B3710() = 0;
-	virtual uint64_t nullsub() = 0;
+	virtual uint64_t nullsub1() = 0;
 	virtual int SetupShader(uint64_t nCount, uint64_t a3, void* pRawMaterialGlueWithoutVTable) = 0;
 
 	char pad_0008[8]; //0x0008 Dispatcher Context, Some SEH try and catch thing.
