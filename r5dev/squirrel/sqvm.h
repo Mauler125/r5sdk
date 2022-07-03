@@ -35,6 +35,11 @@ struct SQVM
 	SQSharedState* _sharedstate;
 	char gap004[16];
 	int _top;
+	char gap005[148];
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
+	char gap006[30];
+#endif
+	SQInteger _nnativecalls;
 };
 typedef SQVM* HSQUIRRELVM;
 
