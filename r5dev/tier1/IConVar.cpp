@@ -204,11 +204,9 @@ void ConVar::PurgeShipped(void) const
 		"voice_enabled",
 	};
 
-	for (int i = 0; i < SDK_ARRAYSIZE(pszToPurge); i++)
+	for (size_t i = 0; i < SDK_ARRAYSIZE(pszToPurge); i++)
 	{
-		ConVar* pCVar = g_pCVar->FindVar(pszToPurge[i]);
-
-		if (pCVar)
+		if (ConVar* pCVar = g_pCVar->FindVar(pszToPurge[i]))
 		{
 			pCVar->SetValue(0);
 		}
@@ -241,11 +239,9 @@ void ConVar::PurgeHostNames(void) const
 		"users_hostname"
 	};
 
-	for (int i = 0; i < SDK_ARRAYSIZE(pszHostNames); i++)
+	for (size_t i = 0; i < SDK_ARRAYSIZE(pszHostNames); i++)
 	{
-		ConVar* pCVar = g_pCVar->FindVar(pszHostNames[i]);
-
-		if (pCVar)
+		if (ConVar* pCVar = g_pCVar->FindVar(pszHostNames[i]))
 		{
 			pCVar->ChangeStringValueUnsafe("0.0.0.0");
 		}
