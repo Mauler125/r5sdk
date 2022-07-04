@@ -342,6 +342,10 @@ public:
 #if not defined DEDICATED && defined (GAMEDLL_S3)
 	static void __fastcall CreateDXTexture(RPakTextureHeader_t* textureHeader, int64_t cpuArg);
 #endif
+
+#ifndef DEDICATED
+	void** LoadShaderSet(void** VTablePtr);
+#endif
 };
 
 void RTech_Utils_Attach();

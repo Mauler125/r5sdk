@@ -6,7 +6,6 @@
 #include "core/stdafx.h"
 #include "materialsystem/cmaterialglue.h"
 
-
 ///////////////////////////////////////////////////////////////////////////////
 void CMaterialGlue_Attach()
 {

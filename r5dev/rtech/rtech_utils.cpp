@@ -2,6 +2,7 @@
 #include "rtech/rtech_utils.h"
 #ifndef DEDICATED
 #include "windows/id3dx.h"
+#include "materialsystem/cshaderglue.h"
 #endif // !DEDICATED
 
 
@@ -641,6 +642,14 @@ void RTech::CreateDXTexture(RPakTextureHeader_t* textureHeader, int64_t imageDat
 	}
 }
 
+#endif
+
+#ifndef DEDICATED
+void** RTech::LoadShaderSet(void** VTablePtr)
+{
+	*VTablePtr = &g_pCShaderGlue_VTable;
+	return &g_pCShaderGlue_VTable;
+}
 #endif
 
 //-----------------------------------------------------------------------------
