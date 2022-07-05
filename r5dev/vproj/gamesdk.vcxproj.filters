@@ -318,9 +318,6 @@
     <ClCompile Include="..\mathlib\IceKey.cpp">
       <Filter>sdk\mathlib</Filter>
     </ClCompile>
-    <ClCompile Include="..\networksystem\r5net.cpp">
-      <Filter>sdk\networksystem</Filter>
-    </ClCompile>
     <ClCompile Include="..\squirrel\sqinit.cpp">
       <Filter>sdk\squirrel</Filter>
     </ClCompile>
@@ -542,6 +539,9 @@
     </ClCompile>
     <ClCompile Include="..\tier0\platform.cpp">
       <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="..\materialsystem\cshaderglue.cpp">
+      <Filter>sdk\materialsystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -994,9 +994,6 @@
     </ClInclude>
     <ClInclude Include="..\mathlib\IceKey.H">
       <Filter>sdk\mathlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\networksystem\r5net.h">
-      <Filter>sdk\networksystem</Filter>
     </ClInclude>
     <ClInclude Include="..\networksystem\serverlisting.h">
       <Filter>sdk\networksystem</Filter>
@@ -1588,6 +1585,9 @@
     </ClInclude>
     <ClInclude Include="..\public\include\icommandline.h">
       <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\materialsystem\cshaderglue.h">
+      <Filter>sdk\materialsystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

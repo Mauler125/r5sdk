@@ -58,7 +58,7 @@ std::string CTextLogger::GetText(const Coordinates & aStart, const Coordinates &
 	int iend = GetCharacterIndex(aEnd);
 	size_t s = 0;
 
-	for (size_t i = lstart; i < lend; i++)
+	for (int i = lstart; i < lend; i++)
 		s += m_Lines[i].size();
 
 	result.reserve(s + s / 8);

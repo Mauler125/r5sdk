@@ -10,15 +10,17 @@
 #include <windows/id3dx.h>
 #include <vpc/keyvalues.h>
 #include <mathlib/color.h>
+#include <rtech/rui/rui.h>
 #include <vgui/vgui_debugpanel.h>
 #include <vguimatsurface/MatSystemSurface.h>
 #include <materialsystem/cmaterialsystem.h>
 #include <engine/debugoverlay.h>
 #include <engine/client/clientstate.h>
 #include <engine/server/server.h>
+#include <materialsystem/cmaterialglue.h>
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: proceed a log update
 //-----------------------------------------------------------------------------
 void CLogSystem::Update(void)
 {
@@ -42,10 +44,14 @@ void CLogSystem::Update(void)
 	{
 		DrawHostStats();
 	}
+	if (cl_showmaterialinfo->GetBool())
+	{
+		DrawCrosshairMaterial();
+	}
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: add a log to the vector.
 //-----------------------------------------------------------------------------
 void CLogSystem::AddLog(LogType_t type, string svMessage)
 {
@@ -56,7 +62,7 @@ void CLogSystem::AddLog(LogType_t type, string svMessage)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: draw log on screen.
 //-----------------------------------------------------------------------------
 void CLogSystem::DrawLog(void)
 {
@@ -85,7 +91,7 @@ void CLogSystem::DrawLog(void)
 						y += m_nFontHeight * i;
 					}
 
-					CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, x, y, c.r(), c.g(), c.b(), alpha, m_vLogs[i].m_svMessage.c_str());
+					CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, x, y, c.r(), c.g(), c.b(), alpha, m_vLogs[i].m_svMessage.c_str());
 				}
 				else
 				{
@@ -104,7 +110,7 @@ void CLogSystem::DrawLog(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: draw current host stats on screen.
 //-----------------------------------------------------------------------------
 void CLogSystem::DrawHostStats(void) const
 {
@@ -121,11 +127,11 @@ void CLogSystem::DrawHostStats(void) const
 		nHeight = g_nWindowHeight - nHeight;
 	}
 
-	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), (char*)m_pszCon_NPrintf_Buf);
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), (char*)m_pszCon_NPrintf_Buf);
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: draw current simulation stats on screen.
 //-----------------------------------------------------------------------------
 void CLogSystem::DrawSimStats(void) const
 {
@@ -135,7 +141,7 @@ void CLogSystem::DrawSimStats(void) const
 	static Color c = { 255, 255, 255, 255 };
 	static const char* szLogbuf[4096]{};
 	snprintf((char*)szLogbuf, 4096, "Server Frame: (%d) Client Frame: (%d) Render Frame: (%d)\n",
-	g_pServer->GetTick(), g_pClientState->GetClientTickCount(), *render_tickcount);
+	g_pServer->GetTick(), g_pClientState->GetTick(), *render_tickcount);
 
 	if (cl_simstats_invert_rect_x->GetBool())
 	{
@@ -146,11 +152,11 @@ void CLogSystem::DrawSimStats(void) const
 		nHeight = g_nWindowHeight - nHeight;
 	}
 
-	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: draw current gpu stats on screen.
 //-----------------------------------------------------------------------------
 void CLogSystem::DrawGPUStats(void) const
 {
@@ -171,11 +177,32 @@ void CLogSystem::DrawGPUStats(void) const
 		nHeight = g_nWindowHeight - nHeight;
 	}
 
-	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, 0x13, m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: draw currently traced material info on screen.
+//-----------------------------------------------------------------------------
+void CLogSystem::DrawCrosshairMaterial(void) const
+{
+	CMaterialGlue* material = GetMaterialAtCrossHair();
+	if (!material)
+		return;
+
+	static Color c = { 255, 255, 255, 255 };
+	static const char* szLogbuf[4096]{};
+	snprintf((char*)szLogbuf, 4096, "name: %s\nguid: %llx\ndimensions: %d x %d\nsurface: %s/%s\nsig: %i",
+		material->m_pszName,
+		material->m_GUID,
+		material->m_iWidth, material->m_iHeight,
+		material->m_pszSurfaceName1, material->m_pszSurfaceName2,
+		material->m_UnknownSignature);
+
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, cl_materialinfo_offset_x->GetInt(), cl_materialinfo_offset_y->GetInt(), c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: get log color for passed type.
 //-----------------------------------------------------------------------------
 Color CLogSystem::GetLogColorForType(LogType_t type) const
 {

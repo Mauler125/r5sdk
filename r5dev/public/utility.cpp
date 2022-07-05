@@ -51,62 +51,6 @@ MODULEINFO GetModuleInfo(const char* szModule)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// For finding a pattern in memory of the process with SIMD.
-DWORD64 FindPatternSIMD(const char* szModule, const unsigned char* szPattern, const char* szMask)
-{
-    MODULEINFO mInfo = GetModuleInfo(szModule);
-    DWORD64 dwBase = (DWORD64)mInfo.lpBaseOfDll;
-    DWORD64 dwSize = (DWORD64)mInfo.SizeOfImage;
-
-    unsigned char* pData = (unsigned char*)dwBase;
-    unsigned int length  = (unsigned int)dwSize;
-
-    const unsigned char* end = pData + length - strlen(szMask);
-    int num_masks = (int)ceil((float)strlen(szMask) / (float)16);
-    int masks[64]; // 64*16 = enough masks for 1024 bytes.
-    memset(masks, 0, num_masks * sizeof(int));
-    for (int i = 0; i < num_masks; ++i)
-    {
-        for (int j = strnlen(szMask + i * 16, 16) - 1; j >= 0; --j)
-        {
-            if (szMask[i * 16 + j] == 'x')
-            {
-                masks[i] |= 1 << j;
-            }
-        }
-    }
-    __m128i xmm1 = _mm_loadu_si128((const __m128i*) szPattern);
-    __m128i xmm2, xmm3, msks;
-    for (; pData != end; _mm_prefetch((const char*)(++pData + 64), _MM_HINT_NTA))
-    {
-        if (szPattern[0] == pData[0])
-        {
-            xmm2 = _mm_loadu_si128((const __m128i*) pData);
-            msks = _mm_cmpeq_epi8(xmm1, xmm2);
-            if ((_mm_movemask_epi8(msks) & masks[0]) == masks[0])
-            {
-                for (DWORD64 i = 1; i < num_masks; ++i)
-                {
-                    xmm2 = _mm_loadu_si128((const __m128i*) (pData + i * 16));
-                    xmm3 = _mm_loadu_si128((const __m128i*) (szPattern + i * 16));
-                    msks = _mm_cmpeq_epi8(xmm2, xmm3);
-                    if ((_mm_movemask_epi8(msks) & masks[i]) == masks[i])
-                    {
-                        if ((i + 1) == num_masks)
-                        {
-                            return (DWORD64)pData;
-                        }
-                    }
-                    else goto cont;
-                }
-                return (DWORD64)pData;
-            }
-        }cont:;
-    }
-    return NULL;
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // For printing output to the debugger.
 void DbgPrint(LPCSTR sFormat, ...)
 {

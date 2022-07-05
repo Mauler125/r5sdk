@@ -7,12 +7,11 @@ inline auto Script_Remote_BeginRegisteringFunctions = p_Script_Remote_BeginRegis
 inline CMemory p_RestoreRemoteChecksumsFromSaveGame;
 inline auto RestoreRemoteChecksumsFromSaveGame = p_RestoreRemoteChecksumsFromSaveGame.RCast<void* (*)(void* a1, void* a2)>();
 
-/* CHANGE THESE WHEN SWITCHING TO PYLONV2 TO UNSIGNED AGAIN!*/
 #ifndef CLIENT_DLL
-inline int32_t* g_nServerRemoteChecksum = nullptr;
+inline uint32_t* g_nServerRemoteChecksum = nullptr;
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
-inline int32_t* g_nClientRemoteChecksum = nullptr;
+inline uint32_t* g_nClientRemoteChecksum = nullptr;
 #endif // !DEDICATED
 
 namespace VSquirrel
@@ -39,8 +38,11 @@ namespace VSquirrel
 	namespace UI
 	{
 		SQRESULT GetServerName(HSQUIRRELVM v);
-		SQRESULT GetServerPlaylist(HSQUIRRELVM v);
+		SQRESULT GetServerDescription(HSQUIRRELVM v);
 		SQRESULT GetServerMap(HSQUIRRELVM v);
+		SQRESULT GetServerPlaylist(HSQUIRRELVM v);
+		SQRESULT GetServerCurrentPlayers(HSQUIRRELVM v);
+		SQRESULT GetServerMaxPlayers(HSQUIRRELVM v);
 		SQRESULT GetServerCount(HSQUIRRELVM v);
 		SQRESULT GetPromoData(HSQUIRRELVM v);
 		SQRESULT SetEncKeyAndConnect(HSQUIRRELVM v);
@@ -78,10 +80,10 @@ class VSqInit : public IDetour
 	virtual void GetVar(void) const
 	{
 #ifndef CLIENT_DLL
-		g_nServerRemoteChecksum = p_RestoreRemoteChecksumsFromSaveGame.Offset(0x1C0).FindPatternSelf("48 8D 15", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).RCast<int32_t*>();
+		g_nServerRemoteChecksum = p_RestoreRemoteChecksumsFromSaveGame.Offset(0x1C0).FindPatternSelf("48 8D 15", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).RCast<uint32_t*>();
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
-		g_nClientRemoteChecksum = p_Script_Remote_BeginRegisteringFunctions.Offset(0x0).FindPatternSelf("89 05", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).RCast<int32_t*>();
+		g_nClientRemoteChecksum = p_Script_Remote_BeginRegisteringFunctions.Offset(0x0).FindPatternSelf("89 05", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x6).RCast<uint32_t*>();
 #endif // !DEDICATED
 	}
 	virtual void GetCon(void) const { }

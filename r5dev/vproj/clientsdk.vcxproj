@@ -64,7 +64,6 @@
     <ClCompile Include="..\mathlib\sha1.cpp" />
     <ClCompile Include="..\mathlib\sha256.cpp" />
     <ClCompile Include="..\networksystem\pylon.cpp" />
-    <ClCompile Include="..\networksystem\r5net.cpp" />
     <ClCompile Include="..\protoc\cl_rcon.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
@@ -198,7 +197,6 @@
     <ClInclude Include="..\mathlib\vector.h" />
     <ClInclude Include="..\milessdk\win64_rrthreads.h" />
     <ClInclude Include="..\networksystem\pylon.h" />
-    <ClInclude Include="..\networksystem\r5net.h" />
     <ClInclude Include="..\networksystem\serverlisting.h" />
     <ClInclude Include="..\networksystem\sm_protocol.h" />
     <ClInclude Include="..\protoc\cl_rcon.pb.h" />

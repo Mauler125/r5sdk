@@ -233,6 +233,34 @@ CMemory CMemory::ResolveRelativeAddressSelf(const ptrdiff_t registerOffset, cons
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: resolve all 'call' references to ptr 
+// (This is very slow only use for mass patching.)
+// Input  : sectionBase - 
+//			sectionSize - 
+// Output : vector<CMemory>
+//-----------------------------------------------------------------------------
+vector<CMemory> CMemory::FindAllCallReferences(const uintptr_t sectionBase, const size_t sectionSize)
+{
+	vector <CMemory> referencesInfo = {};
+
+	uint8_t* pTextStart = reinterpret_cast<uint8_t*>(sectionBase);
+	for (size_t i = 0ull; i < sectionSize - 0x5; i++, _mm_prefetch(reinterpret_cast<const char*>(pTextStart + 64), _MM_HINT_NTA))
+	{
+		if (pTextStart[i] == CALL)
+		{
+			CMemory memAddr = CMemory(&pTextStart[i]);
+			if (!memAddr.Offset(0x1).CheckOpCodes({ 0x00, 0x00, 0x00, 0x00 })) // Check if its not a dynamic resolved call.
+			{
+				if (memAddr.FollowNearCall() == *this)
+					referencesInfo.push_back(memAddr);
+			}
+		}
+	}
+
+	return referencesInfo;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: patch virtual method to point to a user set function
 // Input  : virtualTable - 
 //			pHookMethod - 

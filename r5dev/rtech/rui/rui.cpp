@@ -12,24 +12,24 @@
 #include "tier1/cvar.h"
 
 //-----------------------------------------------------------------------------
-// Purpose: Probably responsible to decide if rUI is allowed to draw.
+// Purpose: draw RUI frame
 //-----------------------------------------------------------------------------
-bool __fastcall HRuiDraw(__int64* a1, __m128* a2, const __m128i* a3, __int64 a4, __m128* a5)
+bool __fastcall Rui_Draw(__int64* a1, __m128* a2, const __m128i* a3, __int64 a4, __m128* a5)
 {
 	if (!rui_drawEnable->GetBool())
 		return false;
 
-	return v_RuiDraw(a1, a2, a3, a4, a5);
+	return v_Rui_Draw(a1, a2, a3, a4, a5);
 }
 
 void Rui_Attach()
 {
-	DetourAttach((LPVOID*)&v_RuiDraw, &HRuiDraw);
+	DetourAttach((LPVOID*)&v_Rui_Draw, &Rui_Draw);
 }
 
 void Rui_Detach()
 {
-	DetourDetach((LPVOID*)&v_RuiDraw, &HRuiDraw);
+	DetourDetach((LPVOID*)&v_Rui_Draw, &Rui_Draw);
 }
 
 #endif // !DEDICATED

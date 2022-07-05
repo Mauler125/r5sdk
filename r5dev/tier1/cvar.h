@@ -15,6 +15,8 @@ extern ConVar* model_defaultFadeDistScale;
 extern ConVar* model_defaultFadeDistMin;
 
 extern ConVar* hostname;
+extern ConVar* hostdesc;
+extern ConVar* hostip;
 extern ConVar* hostport;
 extern ConVar* host_hasIrreversibleShutdown;
 
@@ -92,6 +94,10 @@ extern ConVar* cl_gpustats_invert_rect_y;
 extern ConVar* cl_gpustats_offset_x;
 extern ConVar* cl_gpustats_offset_y;
 
+extern ConVar* cl_showmaterialinfo;
+extern ConVar* cl_materialinfo_offset_x;
+extern ConVar* cl_materialinfo_offset_y;
+
 extern ConVar* con_max_size_logvector;
 extern ConVar* con_suggestion_limit;
 extern ConVar* con_suggestion_showhelptext;
@@ -121,8 +127,8 @@ extern ConVar* net_tracePayload;
 extern ConVar* net_encryptionEnable;
 extern ConVar* net_useRandomKey;
 extern ConVar* net_usesocketsforloopback;
-extern ConVar* r5net_matchmaking_hostname;
-extern ConVar* r5net_show_debug;
+extern ConVar* pylon_matchmaking_hostname;
+extern ConVar* pylon_showdebug;
 //-------------------------------------------------------------------------
 // RTECH API                                                              |
 //-------------------------------------------------------------------------

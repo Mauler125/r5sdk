@@ -573,9 +573,6 @@
     <ClInclude Include="..\windows\console.h">
       <Filter>windows</Filter>
     </ClInclude>
-    <ClInclude Include="..\networksystem\r5net.h">
-      <Filter>sdk\networksystem</Filter>
-    </ClInclude>
     <ClInclude Include="..\mathlib\IceKey.H">
       <Filter>sdk\mathlib</Filter>
     </ClInclude>
@@ -1192,9 +1189,6 @@
     </ClCompile>
     <ClCompile Include="..\windows\console.cpp">
       <Filter>windows</Filter>
-    </ClCompile>
-    <ClCompile Include="..\networksystem\r5net.cpp">
-      <Filter>sdk\networksystem</Filter>
     </ClCompile>
     <ClCompile Include="..\mathlib\IceKey.cpp">
       <Filter>sdk\mathlib</Filter>
