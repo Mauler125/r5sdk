@@ -50,6 +50,21 @@
 #include "thirdparty/cppnet/cppkore/KoreTheme.h"
 
 #include "launcher/launcherdefs.h"
+
+#include "thirdparty/Libtorrent/add_torrent_params.hpp"
+#include "thirdparty/Libtorrent/alert_types.hpp"
+#include "thirdparty/Libtorrent/session.hpp"
+#include "thirdparty/Libtorrent/create_torrent.hpp"
+#include "thirdparty/Libtorrent/magnet_uri.hpp"
+
+#include "thirdparty/curlpp/cURLpp.hpp"
+#include "thirdparty/curlpp/Easy.hpp"
+#include "thirdparty/curlpp/Options.hpp"
+#include "thirdparty/curlpp/Infos.hpp"
+
+#include "thirdparty/libzippp/libzippp.h"
+
+#include "thirdparty/simpleini/SimpleIni.h"
 #endif // SDKLAUNCHER
 
 #if !defined(DEDICATED) && !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
