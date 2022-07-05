@@ -49,7 +49,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);</IncludePath>
+    <IncludePath>$(SolutionDir)r5dev\;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
     <TargetName>launcher</TargetName>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
@@ -67,7 +67,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;TORRENT_DEBUG;TORRENT_NO_DECPERATE;TORRENT_USE_LIBCRYPTO;CURL_STATICLIB;LIBSSH_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <DisableSpecificWarnings>
       </DisableSpecificWarnings>
@@ -79,7 +79,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libcppkore_x64.lib;libdetours_x64.lib;shell32.lib;gdi32.lib;gdiplus.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shell32.lib;gdi32.lib;gdiplus.lib;advapi32.lib;ws2_32.lib;crypt32.lib;Bcrypt.lib;Dbghelp.lib;Iphlpapi.lib;Wldap32.lib;libcppkore_x64.lib;libdetours_x64.lib;libcrypto_static.lib;torrent-rasterbar.lib;libssl.lib;libcurl.lib;libcurlpp.lib;libzippp_static.lib;zip.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -143,6 +143,7 @@
     <ClInclude Include="..\launcher\launcherdefs.h" />
     <ClInclude Include="..\public\include\utility.h" />
     <ClInclude Include="..\sdklauncher\basepanel.h" />
+    <ClInclude Include="..\sdklauncher\gameFilesLoc.h" />
     <ClInclude Include="..\sdklauncher\modManager.h" />
     <ClInclude Include="..\sdklauncher\sdklauncher.h" />
     <ClInclude Include="..\sdklauncher\sdklauncher_const.h" />

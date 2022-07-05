@@ -15,6 +15,15 @@ struct LogList_t
 	String m_svText;
 };
 
+enum sdkDownloadState {
+	idle,
+	downloading,
+	download_complete,
+	download_failed,
+	download_cancelled,
+	download_paused, // Idk how the user will pause it, but hey. It's here
+};
+
 class CUIBaseSurface : public Forms::Form
 {
 public:
@@ -29,6 +38,12 @@ public:
 	void logText(spdlog::level::level_enum color, std::string text);
 	void logText(std::string text);
 
+	sdkDownloadState sdkDownState = idle;
+	std::string sdkDownloadLocation = "";
+
+	std::vector<fs::path> GameFileDiff;
+	std::vector<fs::path> RootEntries{ ".", "audio", "bin", "cfg", "materials", "media", "paks", "platform", "stbsp", "vpk"};
+
 	//Drawing::Color traceColor = Drawing::Color(255, 255, 255);
 	//Drawing::Color debugColor = Drawing::Color(0, 120, 215);
 	//Drawing::Color infoColor = Drawing::Color(92, 236, 89);
@@ -40,14 +55,20 @@ public:
 private:
 	int validMods = 0;
 	int enabledMods = 0;
-	
+	bool bInstallGame = false;
+	bool bSdkChecked = false;
+	std::string newVersion = "";
+	std::vector < std::pair < std::string, std::string >> v_LauncherValues{ {"version", ""} };
+
 	void Init();
 	void Setup();
 	void ParseMaps();
 	void ParsePlaylists();
 	void ReadModJson();
 	void AdjustValues();
-	void LoadMods();
+	void InstallGameCheck();
+	std::string GetConfigCFG(std::string first);
+	void SetConfigCFG(std::string first, std::string second);
 
 	static void LaunchGame(Forms::Control* pSender);
 	static void CleanSDK(Forms::Control* pSender);
@@ -60,8 +81,15 @@ private:
 	static void UnfocusedManager(Forms::Control* pSender);
 	static void ForwardCommandToGame(Forms::Control* pSender);
 	eLaunchMode BuildParameter(string& svParameter);
+	
+	static void InstallGame(Forms::Control* pSender);
+	static void MoveGameFiles(Forms::Control* pSender);
+	static void LatestSDKCompare(Forms::Control* pSender);
+	static void UpdateSDKChecker(Forms::Control* pSender);
+	static void DownloadSDK(Forms::Control* pSender);
+	static size_t ProgressCallback(CUIBaseSurface* pSurface, double dltotal, double dlnow, double ultotal, double ulnow);
 
-	static void ReadConfig();
+	CSimpleIniA* ini;
 
 	enum class eMode
 	{
