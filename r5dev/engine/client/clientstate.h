@@ -23,8 +23,14 @@ class CClientState : CS_INetChannelHandler, IConnectionlessPacketHandler, IServe
 public:
 	bool IsPaused();
 	float GetClientTime();
+
+	int GetTick() const;
+
+	int GetServerTickCount() const;	// Get the server tick count.
+	void SetServerTickCount(int tick);
+
 	int GetClientTickCount() const;	// Get the client tick count.
-	void SetClientTickCount(int tick); // Set the client tick count.
+	void SetClientTickCount(int tick);
 
 	int m_Socket;
 	int _padding_maybe;

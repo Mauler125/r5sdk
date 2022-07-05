@@ -35,10 +35,10 @@ void R5Dev_Init()
 #endif // !DEDICATED
     SpdLog_Init();
     spdlog::info("\n");
-    for (int i = 0; i < (&R5R_EMBLEM)[1] - R5R_EMBLEM; i++)
+    for (size_t i = 0; i < SDK_ARRAYSIZE(R5R_EMBLEM); i++)
     {
         std::string svEscaped = StringEscape(R5R_EMBLEM[i]);
-        spdlog::info("{}{}{}\n", g_svRedF.c_str(), svEscaped.c_str(), g_svReset.c_str());
+        spdlog::info("{:s}{:s}{:s}\n", g_svRedF.c_str(), svEscaped.c_str(), g_svReset.c_str());
     }
     spdlog::info("\n");
 

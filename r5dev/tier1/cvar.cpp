@@ -17,6 +17,8 @@ ConVar* model_defaultFadeDistScale         = nullptr;
 ConVar* model_defaultFadeDistMin           = nullptr;
 
 ConVar* hostname                           = nullptr;
+ConVar* hostdesc                           = nullptr;
+ConVar* hostip                             = nullptr;
 ConVar* hostport                           = nullptr;
 ConVar* host_hasIrreversibleShutdown       = nullptr;
 ConVar* mp_gamemode                        = nullptr;
@@ -95,6 +97,10 @@ ConVar* cl_gpustats_invert_rect_y          = nullptr;
 ConVar* cl_gpustats_offset_x               = nullptr;
 ConVar* cl_gpustats_offset_y               = nullptr;
 
+ConVar* cl_showmaterialinfo                = nullptr;
+ConVar* cl_materialinfo_offset_x           = nullptr;
+ConVar* cl_materialinfo_offset_y           = nullptr;
+
 ConVar* con_max_size_logvector             = nullptr;
 ConVar* con_suggestion_limit               = nullptr;
 ConVar* con_suggestion_showhelptext        = nullptr;
@@ -124,8 +130,8 @@ ConVar* net_tracePayload                   = nullptr;
 ConVar* net_encryptionEnable               = nullptr;
 ConVar* net_useRandomKey                   = nullptr;
 ConVar* net_usesocketsforloopback          = nullptr;
-ConVar* r5net_matchmaking_hostname         = nullptr;
-ConVar* r5net_show_debug                   = nullptr;
+ConVar* pylon_matchmaking_hostname         = nullptr;
+ConVar* pylon_showdebug                   = nullptr;
 //-----------------------------------------------------------------------------
 // RTECH API                                                                  |
 //-----------------------------------------------------------------------------

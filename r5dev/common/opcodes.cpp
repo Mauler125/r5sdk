@@ -167,7 +167,7 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	{
 		/*MOV EAX, 0*/
-		p_RuiLoadAsset.Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 });                    // FUN --> RET | Return early in RuiLoadAsset() to prevent error while attempting to load RUI assets after applying player settings.
+		p_Rui_LoadAsset.Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 });                    // FUN --> RET | Return early in RuiLoadAsset() to prevent error while attempting to load RUI assets after applying player settings.
 	}
 
 	//-------------------------------------------------------------------------

@@ -376,14 +376,6 @@ void QuerySystemInfo()
 {
 	const CPUInformation& pi = GetCPUInformation();
 
-	if (!(pi.m_bSSE && pi.m_bSSE2))
-	{
-		if (MessageBoxA(NULL, "SSE and SSE2 are required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
-		{
-			TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
-		}
-	}
-
 	spdlog::info("CPU model identifier     : '{:s}'\n", pi.m_szProcessorBrand);
 	spdlog::info("CPU vendor identifier    : '{:s}'\n", pi.m_szProcessorID);
 	spdlog::info("CPU core count           : '{:12d}' ({:s})\n", pi.m_nPhysicalProcessors, "Physical");
@@ -410,6 +402,14 @@ void QuerySystemInfo()
 	{
 		spdlog::error("Unable to retrieve system memory information: {:s}\n", 
 			std::system_category().message(static_cast<int>(::GetLastError())));
+	}
+
+	if (!(pi.m_bSSE && pi.m_bSSE2))
+	{
+		if (MessageBoxA(NULL, "SSE and SSE2 are required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
+		{
+			TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
+		}
 	}
 }
 
