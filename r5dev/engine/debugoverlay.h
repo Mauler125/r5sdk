@@ -51,6 +51,7 @@ struct OverlayBase_t
 	int             m_nServerCount {}; // Latch server count, too
 	OverlayBase_t*  m_pNextOverlay {}; // 16
 	int             m_nOverlayTick {}; // 24
+	int             m_nFlags{}; // Maybe
 };
 
 struct OverlayLine_t : public OverlayBase_t
@@ -106,8 +107,8 @@ void DebugOverlays_Detach();
 inline CMemory p_DrawAllOverlays;
 inline auto v_DrawAllOverlays = p_DrawAllOverlays.RCast<void (*)(char a1)>();
 
-inline CMemory p_RenderWireframeBox;
-inline auto v_RenderWireframeBox = p_RenderWireframeBox.RCast<void* (*)(Vector3 origin, QAngle angles, Vector3 vMins, Vector3 vMaxs, Color color, bool bZBuffer)>();
+inline CMemory p_RenderWireframeBox; // one of the vector parameters is probably the angles, vmins might no longer be used.
+inline auto v_RenderWireframeBox = p_RenderWireframeBox.RCast<void* (*)(Vector3 origin, Vector3 vMins, Vector3 vMaxs, Color color, bool bZBuffer)>();
 
 inline CMemory p_RenderLine;
 inline auto v_RenderLine = p_RenderLine.RCast<void* (*)(Vector3 origin, Vector3 dest, Color color, bool bZBuffer)>();
@@ -160,7 +161,7 @@ class VDebugOverlay : public IDetour
 
 		v_DrawAllOverlays = p_DrawAllOverlays.RCast<void (*)(char)>();                                                  /*40 55 48 83 EC 30 48 8B 05 ?? ?? ?? ?? 0F B6 E9*/
 		v_DestroyOverlay = p_DestroyOverlay.RCast<void (*)(OverlayBase_t*)>();                                          /*40 53 48 83 EC 20 48 8B D9 48 8D 0D ?? ?? ?? ?? FF 15 ?? ?? ?? ?? 48 63 03 */
-		v_RenderWireframeBox = p_RenderWireframeBox.RCast<void* (*)(Vector3, QAngle, Vector3, Vector3, Color, bool)>(); /*48 89 5C 24 ?? 48 89 6C 24 ?? 44 89 4C 24 ??*/
+		v_RenderWireframeBox = p_RenderWireframeBox.RCast<void* (*)(Vector3, Vector3, Vector3, Color, bool)>(); /*48 89 5C 24 ?? 48 89 6C 24 ?? 44 89 4C 24 ??*/
 		v_RenderWireframeSphere = p_RenderWireframeSphere.RCast<void* (*)(Vector3, float, int, int, Color, bool)>();    /*40 56 41 54 41 55 48 81 EC ?? ?? ?? ??*/
 		v_RenderLine = p_RenderLine.RCast<void* (*)(Vector3, Vector3, Color, bool)>();                                  /*48 89 74 24 ?? 44 89 44 24 ?? 57 41 56*/
 	}

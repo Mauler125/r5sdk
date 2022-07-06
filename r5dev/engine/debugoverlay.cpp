@@ -100,6 +100,23 @@ void DestroyOverlay(OverlayBase_t* pOverlay)
     LeaveCriticalSection(&*s_OverlayMutex);
 }
 
+struct Vector8
+{
+    vec_t x, y, z, w, a, s, d;
+};
+
+void DrawBoxTest(OverlayBox_t* pBox) // written in 10 sec, not an actual box..
+{
+    v_RenderLine({ pBox->origin_X -100, pBox->origin_Y -100, pBox->origin_Z -100 }, { pBox->origin_X +100, pBox->origin_Y +100, pBox->origin_Z + pBox->maxs.z  +100 }, Color(pBox->r, pBox->g, pBox->b, 255), false);
+    v_RenderLine({ pBox->origin_X +100, pBox->origin_Y -100, pBox->origin_Z -100 }, { pBox->origin_X +100, pBox->origin_Y +100, pBox->origin_Z + pBox->maxs.z  -100 }, Color(pBox->r, pBox->g, pBox->b, 255), false);
+    v_RenderLine({ pBox->origin_X +100, pBox->origin_Y -100, pBox->origin_Z +100 }, { pBox->origin_X -100, pBox->origin_Y +100, pBox->origin_Z + pBox->maxs.z  -100 }, Color(pBox->r, pBox->g, pBox->b, 255), false);
+    v_RenderLine({ pBox->origin_X -100, pBox->origin_Y -100, pBox->origin_Z +100 }, { pBox->origin_X -100, pBox->origin_Y +100, pBox->origin_Z + pBox->maxs.z  +100 }, Color(pBox->r, pBox->g, pBox->b, 255), false);
+    v_RenderLine({ pBox->origin_X -100, pBox->origin_Y +100, pBox->origin_Z +100 }, { pBox->origin_X -100, pBox->origin_Y -100, pBox->origin_Z + pBox->maxs.z  +100 }, Color(pBox->r, pBox->g, pBox->b, 255), false);
+    v_RenderLine({ pBox->origin_X -100, pBox->origin_Y +100, pBox->origin_Z -100 }, { pBox->origin_X +100, pBox->origin_Y -100, pBox->origin_Z + pBox->maxs.z  +100 }, Color(pBox->r, pBox->g, pBox->b, 255), false);
+    v_RenderLine({ pBox->origin_X +100, pBox->origin_Y +100, pBox->origin_Z -100 }, { pBox->origin_X +100, pBox->origin_Y -100, pBox->origin_Z + pBox->maxs.z  -100 }, Color(pBox->r, pBox->g, pBox->b, 255), false);
+    v_RenderLine({ pBox->origin_X +100, pBox->origin_Y +100, pBox->origin_Z +100 }, { pBox->origin_X -100, pBox->origin_Y -100, pBox->origin_Z + pBox->maxs.z  -100 }, Color(pBox->r, pBox->g, pBox->b, 255), false);
+}
+
 //------------------------------------------------------------------------------
 // Purpose: draws a generic overlay
 //------------------------------------------------------------------------------
@@ -116,11 +133,15 @@ void DrawOverlay(OverlayBase_t* pOverlay)
     {
     case OverlayType_t::OVERLAY_BOX:
     {
-        OverlayBox_t* pBox = static_cast<OverlayBox_t*>(pOverlay); // TODO: debug this since it doesn't work but does compute something..
+        //printf("%p\n", pOverlay);
 
+        OverlayBox_t* pBox = static_cast<OverlayBox_t*>(pOverlay); // TODO: debug this since it doesn't work but does compute something..
         // for testing, since RenderWireframeBox doesn't seem to work properly
-        //RenderWireframeSphere({ pBox->origin_X, pBox->origin_Y, pBox->origin_Z }, pBox->maxs.x, 8, 8, Color(pBox->r, pBox->g, pBox->b, 255), false);
-        //RenderLine({ pBox->origin_X, pBox->origin_Y, pBox->origin_Z }, { pBox->origin_X, pBox->origin_Y, pBox->origin_Z+pBox->maxs.z }, Color(pBox->r, pBox->g, pBox->b, 255), false);
+        //v_RenderWireframeBox({ pBox->origin_X, pBox->origin_Y, pBox->origin_Z }, pBox->maxs, {0,0,0}, Color(pBox->r, pBox->g, pBox->b, 255), false); // <-- currently broken!
+        //v_RenderWireframeSphere({ pBox->origin_X, pBox->origin_Y, pBox->origin_Z }, pBox->maxs.x, 8, 8, Color(pBox->r, pBox->g, pBox->b, 255), false);
+        //v_RenderLine({ pBox->origin_X, pBox->origin_Y, pBox->origin_Z }, { pBox->origin_X, pBox->origin_Y, pBox->origin_Z+pBox->maxs.z }, Color(pBox->r, pBox->g, pBox->b, 255), false);
+
+        //DrawBoxTest(pBox);
 
         //if (pBox->a < 255)
         //{
@@ -245,11 +266,6 @@ void DrawAllOverlays(char pOverlay)
 ///////////////////////////////////////////////////////////////////////////////
 void DebugOverlays_Attach()
 {
-//#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-//    p_DrawAllOverlays.Offset(0x189).Patch({ 0x83, 0x3F, 0x02 });  // Default value in memory is 0x2, condition is 0x4. Patch to fullfill condition.
-//#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-//    p_DrawAllOverlays.Offset(0x188).Patch({ 0x83, 0x3F, 0x02 });  // Default value in memory is 0x2, condition is 0x4. Patch to fullfill condition.
-//#endif
     DetourAttach((LPVOID*)&v_DrawAllOverlays, &DrawAllOverlays);
 }
 
