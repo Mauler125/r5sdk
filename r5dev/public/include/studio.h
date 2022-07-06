@@ -131,12 +131,12 @@ struct studiohdr_t
 
 	int length;              // size of data
 
-	Vector3 eyeposition;     // ideal eye position
-	Vector3 illumposition;   // illumination center
-	Vector3 hull_min;        // ideal movement hull size
-	Vector3 hull_max;
-	Vector3 view_bbmin;      // clipping bounding box
-	Vector3 view_bbmax;
+	Vector3D eyeposition;     // ideal eye position
+	Vector3D illumposition;   // illumination center
+	Vector3D hull_min;        // ideal movement hull size
+	Vector3D hull_max;
+	Vector3D view_bbmin;      // clipping bounding box
+	Vector3D view_bbmax;
 
 	int flags;
 

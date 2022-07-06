@@ -543,6 +543,33 @@
     <ClCompile Include="..\materialsystem\cshaderglue.cpp">
       <Filter>sdk\materialsystem</Filter>
     </ClCompile>
+    <ClCompile Include="..\mathlib\mathlib_base.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vstdlib\random.cpp">
+      <Filter>sdk\vstdlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\powsse.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\randsse.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\vmatrix.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vphysics\physics_collide.cpp">
+      <Filter>sdk\vphysics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\halton.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\sseconst.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\color_conversion.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1588,6 +1615,45 @@
     </ClInclude>
     <ClInclude Include="..\materialsystem\cshaderglue.h">
       <Filter>sdk\materialsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\mathlib.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\vector2d.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\math_pfns.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vstdlib\random.h">
+      <Filter>sdk\vstdlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\ssemath.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\ssenoise.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\noisedata.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\vmatrix.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\vector4d.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\vplane.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\almostequal.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\halton.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\ssequaternion.h">
+      <Filter>sdk\mathlib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

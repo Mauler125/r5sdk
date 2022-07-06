@@ -10,6 +10,7 @@
 #define Assert assert
 #include "tier0/dbgflag.h"
 
+bool HushAsserts();
 //-----------------------------------------------------------------------------
 enum class eDLL_T : int
 {

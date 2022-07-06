@@ -24,6 +24,19 @@
 std::mutex s_LogMutex;
 
 //-----------------------------------------------------------------------------
+// True if -hushasserts was passed on command line.
+//-----------------------------------------------------------------------------
+bool HushAsserts()
+{
+#ifdef DBGFLAG_ASSERT
+	static bool s_bHushAsserts = !!CommandLine()->FindParm("-hushasserts");
+	return s_bHushAsserts;
+#else
+	return true;
+#endif
+}
+
+//-----------------------------------------------------------------------------
 // Templates to assist in validating pointers:
 //-----------------------------------------------------------------------------
 PLATFORM_INTERFACE void _AssertValidReadPtr(void* ptr, int count/* = 1*/)

@@ -154,11 +154,33 @@
 #define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
 #endif
 
+// MSVC CRT uses 0x7fff while gcc uses MAX_INT, leading to mismatches between platforms
+// As a result, we pick the least common denominator here.  This should be used anywhere
+// you might typically want to use RAND_MAX
+#define VALVE_RAND_MAX 0x7fff
+
 #define FORWARD_DECLARE_HANDLE(name) typedef struct name##__ *name
 
 #ifndef NOTE_UNUSED
 #define NOTE_UNUSED(x)	(void)(x)	// for pesky compiler / lint warnings
 #endif
+
+#ifndef M_PI
+	#define M_PI		3.14159265358979323846	// matches value in gcc v2 math.h
+#endif
+
+#define M_PI_F		((float)(M_PI))	// Shouldn't collide with anything.
+
+// NJS: Inlined to prevent floats from being autopromoted to doubles, as with the old system.
+#ifndef RAD2DEG
+	#define RAD2DEG( x  )  ( (float)(x) * (float)(180.f / M_PI_F) )
+#endif
+
+#ifndef DEG2RAD
+	#define DEG2RAD( x  )  ( (float)(x) * (float)(M_PI_F / 180.f) )
+#endif
+
+typedef int qboolean;
 
 typedef float				vec_t;
 typedef float				vec3_t[3];

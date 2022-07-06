@@ -55,7 +55,7 @@ struct model_t // !! CONFIRMED !!
 	int					flags;			// MODELFLAG_???
 
 	// volume occupied by the model graphics
-	Vector3				mins, maxs;
+	Vector3D			mins, maxs;
 	float				radius;
 	KeyValues* m_pKeyValues;
 	union

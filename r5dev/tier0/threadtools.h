@@ -1,5 +1,43 @@
 #ifndef THREADTOOLS_H
 #define THREADTOOLS_H
+
+inline bool ThreadInterlockedAssignIf(LONG volatile* p, int32 value, int32 comperand)
+{
+	Assert((size_t)p % 4 == 0);
+	return _InterlockedCompareExchange(p, comperand, value);
+}
+inline void ThreadSleep(unsigned nMilliseconds)
+{
+#ifdef _WIN32
+
+#ifdef PLATFORM_WINDOWS_PC // This is performed by the game module!
+	//static bool bInitialized = false;
+	//if (!bInitialized)
+	//{
+	//	bInitialized = true;
+	//	// Set the timer resolution to 1 ms (default is 10.0, 15.6, 2.5, 1.0 or
+	//	// some other value depending on hardware and software) so that we can
+	//	// use Sleep( 1 ) to avoid wasting CPU time without missing our frame
+	//	// rate.
+	//	timeBeginPeriod(1);
+	//}
+#endif
+
+	Sleep(nMilliseconds);
+#elif PLATFORM_PS3
+	if (nMilliseconds == 0)
+	{
+		// sys_ppu_thread_yield doesn't seem to function properly, so sleep instead.
+		sys_timer_usleep(60);
+	}
+	else
+	{
+		sys_timer_usleep(nMilliseconds * 1000);
+	}
+#elif defined(POSIX)
+	usleep(nMilliseconds * 1000);
+#endif
+}
 //=============================================================================
 class CThreadFastMutex;
 

@@ -39,7 +39,7 @@ struct CAI_NodeLinkDisk
 struct CAI_Node
 {
 	int m_nIndex; // Not present on disk
-	Vector3 m_vOrigin;
+	Vector3D m_vOrigin;
 	float m_fHulls[MAX_HULLS];
 	float m_flYaw;
 
@@ -68,7 +68,7 @@ struct CAI_Node
 //=============================================================================
 struct CAI_NodeDisk // The way CAI_Nodes are represented in on-disk ain files
 {
-	Vector3 m_vOrigin;
+	Vector3D m_vOrigin;
 
 	float m_flYaw;
 	float hulls[MAX_HULLS];
@@ -87,7 +87,7 @@ struct CAI_NodeDisk // The way CAI_Nodes are represented in on-disk ain files
 //=============================================================================
 struct CAI_ScriptNode
 {
-	Vector3 m_vOrigin;
+	Vector3D m_vOrigin;
 	uint64_t scriptdata;
 };
 
@@ -98,7 +98,7 @@ struct AINodeClusters
 	char unk1;	  // Maps to unk1 on disk
 	char pad0[2]; // Padding to +8
 
-	Vector3 m_vOrigin;
+	Vector3D m_vOrigin;
 
 	char pad5[4];
 	int* unk2;     // Maps to unk5 on disk;

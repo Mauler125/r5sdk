@@ -1125,6 +1125,42 @@
     <ClInclude Include="..\public\include\icommandline.h">
       <Filter>sdk\public\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\mathlib\noisedata.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\ssemath.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\ssenoise.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\ssequaternion.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\vector2d.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\vector4d.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\vmatrix.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\vplane.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\halton.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\math_pfns.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\mathlib.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vstdlib\random.h">
+      <Filter>sdk\vstdlib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1381,6 +1417,36 @@
     </ClCompile>
     <ClCompile Include="..\tier0\platform.cpp">
       <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\mathlib_base.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\powsse.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\randsse.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\sseconst.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\vmatrix.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\almostequal.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\color_conversion.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\halton.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vphysics\physics_collide.cpp">
+      <Filter>sdk\vphysics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vstdlib\random.cpp">
+      <Filter>sdk\vstdlib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

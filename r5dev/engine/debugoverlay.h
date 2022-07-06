@@ -58,8 +58,8 @@ struct OverlayLine_t : public OverlayBase_t
 {
 	OverlayLine_t(void) { m_Type = OverlayType_t::OVERLAY_LINE; }
 
-	Vector3         origin{};
-	Vector3         dest{};
+	Vector3D         origin{};
+	Vector3D        dest{};
 	int             r{};
 	int             g{};
 	int             b{};
@@ -73,12 +73,12 @@ struct OverlayBox_t : public OverlayBase_t
 
 	QAngle angles{};  //0x0020 - this isn't angles but idrk where it is
 	float origin_X{}; //0x002C
-	Vector3 unk30{};  //0x0030
+	Vector3D unk30{}; //0x0030
 	float origin_Y{}; //0x003C
-	Vector3 unk40{};  //0x0040
+	Vector3D unk40{}; //0x0040
 	float origin_Z{}; //0x004C
-	Vector3 mins{};   //0x0050
-	Vector3 maxs{};   //0x005C
+	Vector3D mins{};  //0x0050
+	Vector3D maxs{};  //0x005C
 	int             r{};
 	int             g{};
 	int             b{};
@@ -89,7 +89,7 @@ struct OverlaySphere_t : public OverlayBase_t
 {
 	OverlaySphere_t(void) { m_Type = OverlayType_t::OVERLAY_SPHERE; }
 
-	Vector3         vOrigin{};
+	Vector3D        vOrigin{};
 	float           flRadius{};
 	int             nTheta{};
 	int             nPhi{};
@@ -108,13 +108,13 @@ inline CMemory p_DrawAllOverlays;
 inline auto v_DrawAllOverlays = p_DrawAllOverlays.RCast<void (*)(char a1)>();
 
 inline CMemory p_RenderWireframeBox; // one of the vector parameters is probably the angles, vmins might no longer be used.
-inline auto v_RenderWireframeBox = p_RenderWireframeBox.RCast<void* (*)(Vector3 origin, Vector3 vMins, Vector3 vMaxs, Color color, bool bZBuffer)>();
+inline auto v_RenderWireframeBox = p_RenderWireframeBox.RCast<void* (*)(Vector3D origin, Vector3D vMins, Vector3D vMaxs, Color color, bool bZBuffer)>();
 
 inline CMemory p_RenderLine;
-inline auto v_RenderLine = p_RenderLine.RCast<void* (*)(Vector3 origin, Vector3 dest, Color color, bool bZBuffer)>();
+inline auto v_RenderLine = p_RenderLine.RCast<void* (*)(Vector3D origin, Vector3D dest, Color color, bool bZBuffer)>();
 
 inline CMemory p_RenderWireframeSphere;
-inline auto v_RenderWireframeSphere = p_RenderWireframeSphere.RCast<void* (*)(Vector3 vCenter, float flRadius, int nTheta, int nPhi, Color c, bool bZBuffer)>();
+inline auto v_RenderWireframeSphere = p_RenderWireframeSphere.RCast<void* (*)(Vector3D vCenter, float flRadius, int nTheta, int nPhi, Color c, bool bZBuffer)>();
 
 inline CMemory p_DestroyOverlay;
 inline auto v_DestroyOverlay = p_DestroyOverlay.RCast<void (*)(OverlayBase_t* pOverlay)>();
@@ -159,11 +159,11 @@ class VDebugOverlay : public IDetour
 		p_RenderWireframeSphere = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x56\x41\x54\x41\x55\x48\x81\xEC\x00\x00\x00\x00"), "xxxxxxxxx????");
 		p_RenderLine     = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x74\x24\x00\x44\x89\x44\x24\x00\x57\x41\x56"), "xxxx?xxxx?xxx");
 
-		v_DrawAllOverlays = p_DrawAllOverlays.RCast<void (*)(char)>();                                                  /*40 55 48 83 EC 30 48 8B 05 ?? ?? ?? ?? 0F B6 E9*/
-		v_DestroyOverlay = p_DestroyOverlay.RCast<void (*)(OverlayBase_t*)>();                                          /*40 53 48 83 EC 20 48 8B D9 48 8D 0D ?? ?? ?? ?? FF 15 ?? ?? ?? ?? 48 63 03 */
-		v_RenderWireframeBox = p_RenderWireframeBox.RCast<void* (*)(Vector3, Vector3, Vector3, Color, bool)>(); /*48 89 5C 24 ?? 48 89 6C 24 ?? 44 89 4C 24 ??*/
-		v_RenderWireframeSphere = p_RenderWireframeSphere.RCast<void* (*)(Vector3, float, int, int, Color, bool)>();    /*40 56 41 54 41 55 48 81 EC ?? ?? ?? ??*/
-		v_RenderLine = p_RenderLine.RCast<void* (*)(Vector3, Vector3, Color, bool)>();                                  /*48 89 74 24 ?? 44 89 44 24 ?? 57 41 56*/
+		v_DrawAllOverlays = p_DrawAllOverlays.RCast<void (*)(char)>();                                                /*40 55 48 83 EC 30 48 8B 05 ?? ?? ?? ?? 0F B6 E9*/
+		v_DestroyOverlay = p_DestroyOverlay.RCast<void (*)(OverlayBase_t*)>();                                        /*40 53 48 83 EC 20 48 8B D9 48 8D 0D ?? ?? ?? ?? FF 15 ?? ?? ?? ?? 48 63 03 */
+		v_RenderWireframeBox = p_RenderWireframeBox.RCast<void* (*)(Vector3D, Vector3D, Vector3D, Color, bool)>();    /*48 89 5C 24 ?? 48 89 6C 24 ?? 44 89 4C 24 ??*/
+		v_RenderWireframeSphere = p_RenderWireframeSphere.RCast<void* (*)(Vector3D, float, int, int, Color, bool)>(); /*40 56 41 54 41 55 48 81 EC ?? ?? ?? ??*/
+		v_RenderLine = p_RenderLine.RCast<void* (*)(Vector3D, Vector3D, Color, bool)>();                              /*48 89 74 24 ?? 44 89 44 24 ?? 57 41 56*/
 	}
 	virtual void GetVar(void) const
 	{

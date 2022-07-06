@@ -32,6 +32,8 @@
 #define IsPlatformWindowsPC64() 1
 #define IsPlatformWindowsPC32() 0
 #define PLATFORM_WINDOWS_PC64 1
+
+#define COMPILER_MSVC64 1
 #else
 #define IsPlatformWindowsPC64() 0
 #define IsPlatformWindowsPC32() 1
@@ -140,6 +142,59 @@
 #endif
 
 #endif // CROSS_PLATFORM_VERSION < 2
+
+#if defined( GNUC )	&& !defined( COMPILER_PS3 ) // use pre-align on PS3
+// gnuc has the align decoration at the end
+#define ALIGN4
+#define ALIGN8 
+#define ALIGN16
+#define ALIGN32
+#define ALIGN128
+
+#undef ALIGN16_POST
+#define ALIGN4_POST DECL_ALIGN(4)
+#define ALIGN8_POST DECL_ALIGN(8)
+#define ALIGN16_POST DECL_ALIGN(16)
+#define ALIGN32_POST DECL_ALIGN(32)
+#define ALIGN128_POST DECL_ALIGN(128)
+#else
+// MSVC has the align at the start of the struct
+// PS3 SNC supports both
+#define ALIGN4 DECL_ALIGN(4)
+#define ALIGN8 DECL_ALIGN(8)
+#define ALIGN16 DECL_ALIGN(16)
+#define ALIGN32 DECL_ALIGN(32)
+#define ALIGN128 DECL_ALIGN(128)
+
+#define ALIGN4_POST
+#define ALIGN8_POST
+#define ALIGN16_POST
+#define ALIGN32_POST
+#define ALIGN128_POST
+#endif
+
+//-----------------------------------------------------------------------------
+// Generally useful platform-independent macros (move to another file?)
+//-----------------------------------------------------------------------------
+
+// need macro for constant expression
+#define ALIGN_VALUE( val, alignment ) ( ( val + alignment - 1 ) & ~( alignment - 1 ) ) 
+
+// Force a function call site -not- to inlined. (useful for profiling)
+#define DONT_INLINE(a) (((int)(a)+1)?(a):(a))
+
+// Marks the codepath from here until the next branch entry point as unreachable,
+// and asserts if any attempt is made to execute it.
+#define UNREACHABLE() { Assert(0); HINT(0); }
+
+// In cases where no default is present or appropriate, this causes MSVC to generate
+// as little code as possible, and throw an assertion in debug.
+#define NO_DEFAULT default: UNREACHABLE();
+
+// Defines MAX_PATH
+#ifndef MAX_PATH
+#define MAX_PATH  260
+#endif
 
 //-----------------------------------------------------------------------------
 // Time stamp counter
