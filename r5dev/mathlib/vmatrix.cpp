@@ -1006,13 +1006,6 @@ void MatrixBuildRotation(VMatrix& dst, const Vector3D& initialDirection, const V
 	}
 
 	MatrixBuildRotationAboutAxis(dst, axis, angle);
-
-#ifdef _DEBUG
-	Vector test;
-	Vector3DMultiply(dst, initialDirection, test);
-	test -= finalDirection;
-	Assert(test.LengthSqr() < 1e-3);
-#endif
 }
 
 //-----------------------------------------------------------------------------

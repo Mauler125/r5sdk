@@ -28,12 +28,7 @@ std::mutex s_LogMutex;
 //-----------------------------------------------------------------------------
 bool HushAsserts()
 {
-#ifdef DBGFLAG_ASSERT
-	static bool s_bHushAsserts = !!CommandLine()->FindParm("-hushasserts");
-	return s_bHushAsserts;
-#else
 	return true;
-#endif
 }
 
 //-----------------------------------------------------------------------------
