@@ -570,6 +570,12 @@
     <ClCompile Include="..\mathlib\color_conversion.cpp">
       <Filter>sdk\mathlib</Filter>
     </ClCompile>
+    <ClCompile Include="..\tier2\renderutils.cpp">
+      <Filter>sdk\tier2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier2\meshutils.cpp">
+      <Filter>sdk\tier2</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1654,6 +1660,12 @@
     </ClInclude>
     <ClInclude Include="..\mathlib\ssequaternion.h">
       <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier2\renderutils.h">
+      <Filter>sdk\tier2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier2\meshutils.h">
+      <Filter>sdk\tier2</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -71,11 +71,11 @@ struct OverlayBox_t : public OverlayBase_t
 {
 	OverlayBox_t(void) { m_Type = OverlayType_t::OVERLAY_BOX; }
 
-	QAngle angles{};  //0x0020 - this isn't angles but idrk where it is
+	RadianEuler angles{};  //0x0020 - this isn't angles but idrk where it is
 	float origin_X{}; //0x002C
-	Vector3D unk30{}; //0x0030
+	RadianEuler unk30{}; //0x0030
 	float origin_Y{}; //0x003C
-	Vector3D unk40{}; //0x0040
+	RadianEuler unk40{}; //0x0040
 	float origin_Z{}; //0x004C
 	Vector3D mins{};  //0x0050
 	Vector3D maxs{};  //0x005C
@@ -97,6 +97,51 @@ struct OverlaySphere_t : public OverlayBase_t
 	int             g{};
 	int             b{};
 	int             a{};
+};
+
+struct OverlayTriangle_t : public OverlayBase_t
+{
+	OverlayTriangle_t() { m_Type = OverlayType_t::OVERLAY_TRIANGLE; }
+
+	Vector3D		p1;
+	Vector3D		p2;
+	Vector3D		p3;
+	int				r;
+	int				g;
+	int				b;
+	int				a;
+	bool			noDepthTest;
+};
+
+struct OverlaySweptBox_t : public OverlayBase_t
+{
+	OverlaySweptBox_t() { m_Type = OverlayType_t::OVERLAY_SWEPT_BOX; }
+
+	Vector3D		start;
+	Vector3D		end;
+	Vector3D		mins;
+	Vector3D		maxs;
+	QAngle			angles;
+	int				r;
+	int				g;
+	int				b;
+	int				a;
+};
+
+struct OverlayCapsule_t : public OverlayBase_t
+{
+	OverlayCapsule_t() { m_Type = OverlayType_t::OVERLAY_CAPSULE; }
+
+	Vector3D start;
+	Vector3D end;
+	Vector3D radius;
+	Vector3D top;
+	Vector3D bottom;
+	int r;
+	int g;
+	int b;
+	int a;
+	bool m_bWireframe;
 };
 
 void DestroyOverlay(OverlayBase_t* pOverlay);

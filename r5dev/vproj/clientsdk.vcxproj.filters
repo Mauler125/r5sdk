@@ -540,6 +540,12 @@
     <ClCompile Include="..\vstdlib\random.cpp">
       <Filter>sdk\vstdlib</Filter>
     </ClCompile>
+    <ClCompile Include="..\tier2\renderutils.cpp">
+      <Filter>sdk\tier2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier2\meshutils.cpp">
+      <Filter>sdk\tier2</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1585,6 +1591,12 @@
     </ClInclude>
     <ClInclude Include="..\vstdlib\random.h">
       <Filter>sdk\vstdlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier2\renderutils.h">
+      <Filter>sdk\tier2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier2\meshutils.h">
+      <Filter>sdk\tier2</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

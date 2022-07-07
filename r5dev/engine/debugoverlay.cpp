@@ -5,14 +5,16 @@
 //============================================================================//
 
 #include "core/stdafx.h"
+#include "common/pseudodefs.h"
 #include "tier0/tslist.h"
 #include "tier0/basetypes.h"
 #include "tier1/cvar.h"
-#include "common/pseudodefs.h"
+#include "tier2/renderutils.h"
 #include "engine/client/clientstate.h"
 #include "engine/host_cmd.h"
 #include "engine/debugoverlay.h"
 #include "materialsystem/cmaterialsystem.h"
+#include "mathlib/mathlib.h"
 
 
 //------------------------------------------------------------------------------
@@ -82,7 +84,8 @@ void DestroyOverlay(OverlayBase_t* pOverlay)
         LeaveCriticalSection(&*s_OverlayMutex);
         return;
     case OverlayType_t::OVERLAY_BOX2:
-        break;
+        pOverlaySize = 88i64;
+        goto LABEL_MALLOC;
     case OverlayType_t::OVERLAY_CAPSULE:
         pOverlaySize = 112i64;
         break;
@@ -100,46 +103,12 @@ void DestroyOverlay(OverlayBase_t* pOverlay)
     LeaveCriticalSection(&*s_OverlayMutex);
 }
 
-//script_client DrawAngledBox(<0,0,0>, <10,10,10>, <0,0,0>, <1000,1000,1000>, 20, 200, 220, true, 10)
-
-void DrawBoxTest(OverlayBox_t* pBox) // FIXME: center within box and angles.
-{
-
-    //Vector3D test = Vector3D(10, 10, 10).ToForward();
-    //printf("<%f, %f, %f>\n", test.x, test.y, test.z);
-
-    //v_RenderLine({ pBox->origin_X + pBox->maxs.x, pBox->origin_Y, pBox->origin_Z }, { pBox->origin_X, pBox->origin_Y, pBox->origin_Z + pBox->maxs.z }, Color(pBox->r, pBox->g, pBox->b, pBox->a), false); // WIREFRAME
-
-    // Vertical
-    v_RenderLine({ pBox->origin_X, pBox->origin_Y, pBox->origin_Z }, { pBox->origin_X, pBox->origin_Y, pBox->origin_Z + pBox->maxs.z }, Color(pBox->r, pBox->g, pBox->b, pBox->a), false);
-    v_RenderLine({ pBox->origin_X + pBox->maxs.x, pBox->origin_Y, pBox->origin_Z }, { pBox->origin_X + pBox->maxs.x, pBox->origin_Y, pBox->origin_Z + pBox->maxs.z }, Color(pBox->r, pBox->g, pBox->b, pBox->a), false);
-    v_RenderLine({ pBox->origin_X, pBox->origin_Y + pBox->maxs.y, pBox->origin_Z }, { pBox->origin_X, pBox->origin_Y + pBox->maxs.y, pBox->origin_Z + pBox->maxs.z }, Color(pBox->r, pBox->g, pBox->b, pBox->a), false);
-    v_RenderLine({ pBox->origin_X + pBox->maxs.x, pBox->origin_Y + pBox->maxs.y, pBox->origin_Z }, { pBox->origin_X + pBox->maxs.x, pBox->origin_Y + pBox->maxs.y, pBox->origin_Z + pBox->maxs.z }, Color(pBox->r, pBox->g, pBox->b, pBox->a), false);
-
-    // Lower horizontal
-    v_RenderLine({ pBox->origin_X, pBox->origin_Y, pBox->origin_Z }, { pBox->origin_X + pBox->maxs.x, pBox->origin_Y, pBox->origin_Z }, Color(pBox->r, pBox->g, pBox->b, pBox->a), false);
-    v_RenderLine({ pBox->origin_X, pBox->origin_Y, pBox->origin_Z }, { pBox->origin_X, pBox->origin_Y + pBox->maxs.y, pBox->origin_Z }, Color(pBox->r, pBox->g, pBox->b, pBox->a), false);
-    v_RenderLine({ pBox->origin_X + pBox->maxs.x, pBox->origin_Y + pBox->maxs.y, pBox->origin_Z }, { pBox->origin_X + pBox->maxs.x, pBox->origin_Y, pBox->origin_Z }, Color(pBox->r, pBox->g, pBox->b, pBox->a), false);
-    v_RenderLine({ pBox->origin_X + pBox->maxs.x, pBox->origin_Y + pBox->maxs.y, pBox->origin_Z }, { pBox->origin_X, pBox->origin_Y + pBox->maxs.y, pBox->origin_Z }, Color(pBox->r, pBox->g, pBox->b, pBox->a), false);
-
-    // Upper horizontal
-    v_RenderLine({ pBox->origin_X, pBox->origin_Y + pBox->maxs.y, pBox->origin_Z + pBox->maxs.z }, { pBox->origin_X, pBox->origin_Y, pBox->origin_Z + pBox->maxs.z }, Color(pBox->r, pBox->g, pBox->b, pBox->a), false);
-    v_RenderLine({ pBox->origin_X + pBox->maxs.x, pBox->origin_Y, pBox->origin_Z + pBox->maxs.z }, { pBox->origin_X, pBox->origin_Y, pBox->origin_Z + pBox->maxs.z }, Color(pBox->r, pBox->g, pBox->b, pBox->a), false);
-    v_RenderLine({ pBox->origin_X + pBox->maxs.x, pBox->origin_Y + pBox->maxs.y, pBox->origin_Z + pBox->maxs.z }, { pBox->origin_X + pBox->maxs.x, pBox->origin_Y, pBox->origin_Z + pBox->maxs.z }, Color(pBox->r, pBox->g, pBox->b, pBox->a), false);
-    v_RenderLine({ pBox->origin_X + pBox->maxs.x, pBox->origin_Y + pBox->maxs.y, pBox->origin_Z + pBox->maxs.z }, { pBox->origin_X, pBox->origin_Y + pBox->maxs.y, pBox->origin_Z + pBox->maxs.z }, Color(pBox->r, pBox->g, pBox->b, pBox->a), false);
-}
-
 //------------------------------------------------------------------------------
 // Purpose: draws a generic overlay
 //------------------------------------------------------------------------------
 void DrawOverlay(OverlayBase_t* pOverlay)
 {
-    //void* pRenderContext = nullptr; // ptr to CMatQueuedRenderContext vtable.
-
     EnterCriticalSection(&*s_OverlayMutex);
-
-    //pRenderContext = (*(void*(__fastcall**)(void*))(**(std::int64_t**)g_pMaterialSystem + MATERIALSYSTEM_VCALL_OFF_0))((void*)g_pMaterialSystem);
-    //(*(void(__fastcall**)(void*, std::int64_t))(*(std::int64_t*)pRenderContext + CMATQUEUEDRENDERCONTEXT_VCALL_OFS_0))((void*)pRenderContext, 0x1);
 
     switch (pOverlay->m_Type)
     {
@@ -147,24 +116,11 @@ void DrawOverlay(OverlayBase_t* pOverlay)
     {
         //printf("%p\n", pOverlay);
 
-        OverlayBox_t* pBox = static_cast<OverlayBox_t*>(pOverlay); // TODO: debug this since it doesn't work but does compute something..
-        // for testing, since RenderWireframeBox doesn't seem to work properly
-        //v_RenderWireframeBox({ pBox->origin_X, pBox->origin_Y, pBox->origin_Z }, pBox->maxs, {0,0,0}, Color(pBox->r, pBox->g, pBox->b, 255), false); // <-- currently broken!
-        //v_RenderWireframeSphere({ pBox->origin_X, pBox->origin_Y, pBox->origin_Z }, pBox->maxs.x, 8, 8, Color(pBox->r, pBox->g, pBox->b, 255), false);
-        //v_RenderLine({ pBox->origin_X, pBox->origin_Y, pBox->origin_Z }, { pBox->origin_X, pBox->origin_Y, pBox->origin_Z+pBox->maxs.z }, Color(pBox->r, pBox->g, pBox->b, 255), false);
-
-
+        OverlayBox_t* pBox = static_cast<OverlayBox_t*>(pOverlay);
         if (pBox->a < 1)
             pBox->a = 255;
-        DrawBoxTest(pBox);
 
-        //if (pBox->a < 255)
-        //{
-        //    RenderWireframeBox({ pBox->origin_X, pBox->origin_Y, pBox->origin_Z }, pBox->angles, pBox->maxs, Color(pBox->r, pBox->g, pBox->b, 255), false);
-        //}
-        //else {
-        //    RenderBox({ pBox->origin_X, pBox->origin_Y, pBox->origin_Z }, pBox->angles, pBox->mins, pBox->maxs, Color(pBox->r, pBox->g, pBox->b, pBox->a), false);
-        //}
+        DrawAngledBox({ pBox->origin_X, pBox->origin_Y, pBox->origin_Z }, { 0,0,0 }, pBox->mins, pBox->maxs, pBox->r, pBox->g, pBox->b, pBox->a, false);
         break;
     }
     case OverlayType_t::OVERLAY_SPHERE:
@@ -181,31 +137,35 @@ void DrawOverlay(OverlayBase_t* pOverlay)
     }
     case OverlayType_t::OVERLAY_TRIANGLE:
     {
+        //printf("TRIANGLE %p\n", pOverlay);
         break;
     }
     case OverlayType_t::OVERLAY_SWEPT_BOX:
     {
+        //printf("SBOX %p\n", pOverlay);
         break;
     }
     case OverlayType_t::OVERLAY_BOX2:
     {
+        //printf("BOX2 %p\n", pOverlay);
         break;
     }
     case OverlayType_t::OVERLAY_CAPSULE:
     {
+        //printf("CAPSULE %p\n", pOverlay);
         break;
     }
     case OverlayType_t::OVERLAY_UNK0:
     {
+        //printf("UNK0 %p\n", pOverlay);
         break;
     }
     case OverlayType_t::OVERLAY_UNK1:
     {
+        //printf("UNK1 %p\n", pOverlay);
         break;
     }
     }
-    //(*(void(__fastcall**)(void*))(*(_QWORD*)pRenderContext + CMATQUEUEDRENDERCONTEXT_VCALL_OFS_1))(pRenderContext);
-    //(*(void(__fastcall**)(void*))(*(_QWORD*)pRenderContext + CMATQUEUEDRENDERCONTEXT_VCALL_OFS_2))(pRenderContext);
 
     LeaveCriticalSection(&*s_OverlayMutex);
 }
