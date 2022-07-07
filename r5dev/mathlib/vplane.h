@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+﻿//========= Copyright � 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -24,7 +24,6 @@ typedef int SideType;
 #define	SIDE_ON		2
 
 #define VP_EPSILON	0.01f
-
 
 class VPlane
 {
@@ -63,7 +62,7 @@ public:
 #endif
 
 public:
-	Vector3D	m_Normal;
+	Vector3D		m_Normal;
 	vec_t		m_Dist;
 
 #ifdef VECTOR_NO_SLOW_OPERATIONS
@@ -175,8 +174,5 @@ inline SideType VPlane::BoxOnPlaneSide(const Vector3D& vMin, const Vector3D& vMa
 	// Ok, they're all on the same side, return that.
 	return firstSide;
 }
-
-
-
 
 #endif // VPLANE_H

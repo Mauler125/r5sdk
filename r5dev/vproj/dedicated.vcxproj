@@ -188,6 +188,7 @@
     <ClInclude Include="..\mathlib\bits.h" />
     <ClInclude Include="..\mathlib\color.h" />
     <ClInclude Include="..\mathlib\crc32.h" />
+    <ClInclude Include="..\mathlib\fltx4.h" />
     <ClInclude Include="..\mathlib\halton.h" />
     <ClInclude Include="..\mathlib\IceKey.H" />
     <ClInclude Include="..\mathlib\mathlib.h" />
@@ -197,9 +198,9 @@
     <ClInclude Include="..\mathlib\sha1.h" />
     <ClInclude Include="..\mathlib\sha256.h" />
     <ClInclude Include="..\mathlib\ssemath.h" />
-    <ClInclude Include="..\mathlib\ssenoise.h" />
     <ClInclude Include="..\mathlib\ssequaternion.h" />
     <ClInclude Include="..\mathlib\swap.h" />
+    <ClInclude Include="..\mathlib\transform.h" />
     <ClInclude Include="..\mathlib\vector.h" />
     <ClInclude Include="..\mathlib\vector2d.h" />
     <ClInclude Include="..\mathlib\vector4d.h" />
@@ -448,6 +449,7 @@
     <ClInclude Include="..\windows\system.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\bonesetup\bone_utils.cpp" />
     <ClCompile Include="..\bsplib\bsplib.cpp" />
     <ClCompile Include="..\client\vengineclient_impl.cpp" />
     <ClCompile Include="..\common\opcodes.cpp" />
@@ -501,6 +503,8 @@
     <ClCompile Include="..\mathlib\sha1.cpp" />
     <ClCompile Include="..\mathlib\sha256.cpp" />
     <ClCompile Include="..\mathlib\sseconst.cpp" />
+    <ClCompile Include="..\mathlib\ssenoise.cpp" />
+    <ClCompile Include="..\mathlib\transform.cpp" />
     <ClCompile Include="..\mathlib\vmatrix.cpp" />
     <ClCompile Include="..\networksystem\pylon.cpp" />
     <ClCompile Include="..\protoc\cl_rcon.pb.cc">
@@ -532,6 +536,7 @@
     <ClCompile Include="..\tier0\fasttimer.cpp" />
     <ClCompile Include="..\tier0\jobthread.cpp" />
     <ClCompile Include="..\tier0\platform.cpp" />
+    <ClCompile Include="..\tier0\threadtools.cpp" />
     <ClCompile Include="..\tier0\tslist.cpp" />
     <ClCompile Include="..\tier1\bitbuf.cpp" />
     <ClCompile Include="..\tier1\cmd.cpp" />

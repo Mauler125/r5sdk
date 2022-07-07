@@ -8,9 +8,10 @@
 
 #include "core/stdafx.h"
 #include "core/logdef.h"
+#include "tier0/dbg.h"
 #include "tier0/platform.h"
 #include "tier0/threadtools.h"
-#include "tier0/dbg.h"
+#include <tier0/commandline.h>
 #ifndef DEDICATED
 #include "vgui/vgui_debugpanel.h"
 #include "gameui/IConsole.h"
@@ -28,7 +29,12 @@ std::mutex s_LogMutex;
 //-----------------------------------------------------------------------------
 bool HushAsserts()
 {
+#ifdef DBGFLAG_ASSERT
+	static bool s_bHushAsserts = !!CommandLine()->FindParm("-hushasserts");
+	return s_bHushAsserts;
+#else
 	return true;
+#endif
 }
 
 //-----------------------------------------------------------------------------

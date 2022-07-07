@@ -8,7 +8,6 @@
 
 #ifndef VECTOR_H
 #define VECTOR_H
-#define NO_MALLOC_OVERRIDE
 
 #ifdef _WIN32
 #pragma once
@@ -23,7 +22,7 @@
 #if defined( _PS3 )
 //#include <ssemath.h>
 #include <vectormath/c/vectormath_aos.h>
-#include "platform.h"
+#include "tier0/platform.h"
 #include "mathlib/math_pfns.h"
 #endif
 
@@ -36,16 +35,19 @@
 #define ALIGN16_POST
 #endif
 
+#define NO_MALLOC_OVERRIDE
 #if !defined(NO_MALLOC_OVERRIDE)
 #include "tier0/memalloc.h"
 #endif // !NO_MALLOC_OVERRIDE
 #include "tier0/dbg.h"
 #include "tier0/platform.h"
+#if !defined( __SPU__ )
 #include "tier0/threadtools.h"
+#endif
 #include "mathlib/vector2d.h"
 #include "mathlib/math_pfns.h"
-#include "mathlib/bits.h"
 #include "vstdlib/random.h"
+
 // Uncomment this to add extra Asserts to check for NANs, uninitialized vecs, etc.
 //#define VECTOR_PARANOIA	1
 
@@ -92,6 +94,7 @@ public:
 
    // Got any nasty NAN's?
 	bool IsValid() const;
+	bool IsReasonable(float range = 1000000) const;		///< Check for reasonably-sized values (if used as a game world position)
 	void Invalidate();
 
 	// array access...
@@ -157,13 +160,15 @@ public:
 	inline bool IsZeroFast() const RESTRICT
 	{
 		static_assert(sizeof(vec_t) == sizeof(int));
-		return (*(const int*)(&x) == 0 &&
-			*(const int*)(&y) == 0 &&
-			*(const int*)(&z) == 0);
+		return (*reinterpret_cast<const int*>(&x) == 0 &&
+			*reinterpret_cast<const int*>(&y) == 0 &&
+			*reinterpret_cast<const int*>(&z) == 0);
 	}
 
-	vec_t	NormalizeInPlace();
-	Vector3D	Normalized() const;
+	vec_t	NormalizeInPlace();								///< Normalize all components
+	vec_t	NormalizeInPlaceSafe(const Vector3D& vFallback);///< Normalize all components
+	Vector3D	Normalized() const;								///< Return normalized vector
+	Vector3D	NormalizedSafe(const Vector3D& vFallback)const;		///< Return normalized vector, falling back to vFallback if the length of this is 0
 	bool	IsLengthGreaterThan(float val) const;
 	bool	IsLengthLessThan(float val) const;
 
@@ -203,6 +208,9 @@ public:
 
 	// returns 0, 1, 2 corresponding to the component with the largest absolute value
 	inline int LargestComponent() const;
+	inline vec_t LargestComponentValue() const;
+	inline int SmallestComponent() const;
+	inline vec_t SmallestComponentValue() const;
 
 	// 2d
 	vec_t	Length2D(void) const;
@@ -243,7 +251,8 @@ private:
 #endif
 };
 
-
+// Zero the object -- necessary for CNetworkVar and possibly other cases.
+inline void EnsureValidValue(Vector3D& x) { x.Zero(); }
 
 #define USE_M64S defined( PLATFORM_WINDOWS_PC )
 
@@ -608,7 +617,13 @@ Vector3D RandomVector(vec_t minVal, vec_t maxVal);
 #endif
 
 float RandomVectorInUnitSphere(Vector3D* pVector);
+Vector3D RandomVectorInUnitSphere();
+Vector3D RandomVectorInUnitSphere(IUniformRandomStream* pRnd);
+
 float RandomVectorInUnitCircle(Vector2D* pVector);
+
+Vector3D RandomVectorOnUnitSphere();
+Vector3D RandomVectorOnUnitSphere(IUniformRandomStream* pRnd);
 
 
 //-----------------------------------------------------------------------------
@@ -666,6 +681,7 @@ inline void Vector3D::Init(vec_t ix, vec_t iy, vec_t iz)
 	CHECK_VALID(*this);
 }
 
+#if !defined(__SPU__)
 inline void Vector3D::Random(vec_t minVal, vec_t maxVal)
 {
 	x = RandomFloat(minVal, maxVal);
@@ -673,6 +689,7 @@ inline void Vector3D::Random(vec_t minVal, vec_t maxVal)
 	z = RandomFloat(minVal, maxVal);
 	CHECK_VALID(*this);
 }
+#endif
 
 // This should really be a single opcode on the PowerPC (move r0 onto the vec reg)
 inline void Vector3D::Zero()
@@ -747,6 +764,14 @@ inline const Vector2D& Vector3D::AsVector2D() const
 inline bool Vector3D::IsValid() const
 {
 	return IsFinite(x) && IsFinite(y) && IsFinite(z);
+}
+
+//-----------------------------------------------------------------------------
+// IsReasonable?
+//-----------------------------------------------------------------------------
+inline bool Vector3D::IsReasonable(float range) const
+{
+	return (Length() < range);
 }
 
 //-----------------------------------------------------------------------------
@@ -1290,9 +1315,10 @@ inline Vector3D VectorLerp(const Vector3D& src1, const Vector3D& src2, vec_t t)
 //-----------------------------------------------------------------------------
 // Temporary storage for vector results so const Vector& results can be returned
 //-----------------------------------------------------------------------------
-/*inline Vector& AllocTempVector()
+#if !defined(__SPU__)
+inline Vector3D& AllocTempVector()
 {
-	static Vector s_vecTemp[128];
+	static Vector3D s_vecTemp[128];
 	static CInterlockedInt s_nIndex;
 
 	int nIndex;
@@ -1307,9 +1333,9 @@ inline Vector3D VectorLerp(const Vector3D& src1, const Vector3D& src2, vec_t t)
 		}
 		ThreadPause();
 	}
-	return s_vecTemp[nIndex & 0xffff];
-}*/
-
+	return s_vecTemp[nIndex];
+}
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -1344,6 +1370,40 @@ inline int Vector3D::LargestComponent() const
 		return Y_INDEX;
 	return Z_INDEX;
 }
+
+inline int Vector3D::SmallestComponent() const
+{
+	float flAbsx = fabs(x);
+	float flAbsy = fabs(y);
+	float flAbsz = fabs(z);
+	if (flAbsx < flAbsy)
+	{
+		if (flAbsx < flAbsz)
+			return X_INDEX;
+		return Z_INDEX;
+	}
+	if (flAbsy < flAbsz)
+		return Y_INDEX;
+	return Z_INDEX;
+}
+
+
+inline float Vector3D::LargestComponentValue() const
+{
+	float flAbsX = fabs(x);
+	float flAbsY = fabs(y);
+	float flAbsZ = fabs(z);
+	return MAX(MAX(flAbsX, flAbsY), flAbsZ);
+}
+
+inline float Vector3D::SmallestComponentValue() const
+{
+	float flAbsX = fabs(x);
+	float flAbsY = fabs(y);
+	float flAbsZ = fabs(z);
+	return MIN(MIN(flAbsX, flAbsY), flAbsZ);
+}
+
 
 inline void CrossProduct(const Vector3D& a, const Vector3D& b, Vector3D& result)
 {
@@ -1390,9 +1450,9 @@ inline vec_t Vector3D::Length(void) const
 // Normalization
 //-----------------------------------------------------------------------------
 
-
+/*
 // FIXME: Can't use until we're un-macroed in mathlib.h
-inline vec_t VectorNormalize( Vector3D& v )
+inline vec_t VectorNormalize( Vector& v )
 {
 	Assert( v.IsValid() );
 	vec_t l = v.Length();
@@ -1408,7 +1468,7 @@ inline vec_t VectorNormalize( Vector3D& v )
 	}
 	return l;
 }
-
+*/
 
 
 // check a point against a box
@@ -1430,6 +1490,35 @@ inline vec_t Vector3D::DistTo(const Vector3D& vOther) const
 	VectorSubtract(*this, vOther, delta);
 	return delta.Length();
 }
+
+
+//-----------------------------------------------------------------------------
+// Float equality with tolerance
+//-----------------------------------------------------------------------------
+inline bool FloatsAreEqual(float f1, float f2, float flTolerance)
+{
+	// Sergiy: the implementation in Source2 is very inefficient, trying to start with a clean slate here, hopefully will reintegrate back to Source2
+	const float flAbsToleranceThreshold = 0.000003814697265625; // 2 ^ -FLOAT_EQUALITY_NOISE_CUTOFF, 
+	return fabsf(f1 - f2) <= flTolerance * (fabsf(f1) + fabsf(f2)) + flAbsToleranceThreshold;
+}
+
+
+//-----------------------------------------------------------------------------
+// Vector equality with percentage tolerance
+// are all components within flPercentageTolerance (expressed as a percentage of the larger component, per component)?
+// and all components have the same sign
+//-----------------------------------------------------------------------------
+inline bool VectorsAreWithinPercentageTolerance(const Vector3D& src1, const Vector3D& src2, float flPercentageTolerance)
+{
+	if (!FloatsAreEqual(src1.x, src2.x, flPercentageTolerance))
+		return false;
+
+	if (!FloatsAreEqual(src1.y, src2.y, flPercentageTolerance))
+		return false;
+
+	return (FloatsAreEqual(src1.z, src2.z, flPercentageTolerance));
+}
+
 
 
 //-----------------------------------------------------------------------------
@@ -1473,6 +1562,11 @@ inline void VectorAbs(const Vector3D& src, Vector3D& dst)
 	dst.x = FloatMakePositive(src.x);
 	dst.y = FloatMakePositive(src.y);
 	dst.z = FloatMakePositive(src.z);
+}
+
+inline Vector3D VectorAbs(const Vector3D& src)
+{
+	return Vector3D(fabsf(src.x), fabsf(src.y), fabsf(src.z));
 }
 
 
@@ -1620,6 +1714,7 @@ inline float ComputeVolume(const Vector3D& vecMins, const Vector3D& vecMaxs)
 	return DotProduct(vecDelta, vecDelta);
 }
 
+#if !defined(__SPU__)
 // Get a random vector.
 inline Vector3D RandomVector(float minVal, float maxVal)
 {
@@ -1627,6 +1722,7 @@ inline Vector3D RandomVector(float minVal, float maxVal)
 	random.Random(minVal, maxVal);
 	return random;
 }
+#endif
 
 #endif //slow
 
@@ -1668,6 +1764,13 @@ inline bool operator!=(const Vector3D& v, float const* f)
 // you won't get an "u
 void VectorPerpendicularToVector(Vector3D const& in, Vector3D* pvecOut);
 
+inline const Vector3D VectorPerpendicularToVector(const Vector3D& in)
+{
+	Vector3D out;
+	VectorPerpendicularToVector(in, &out);
+	return out;
+}
+
 //-----------------------------------------------------------------------------
 // AngularImpulse
 //-----------------------------------------------------------------------------
@@ -1676,12 +1779,14 @@ typedef Vector3D AngularImpulse;
 
 #ifndef VECTOR_NO_SLOW_OPERATIONS
 
+#if !defined(__SPU__)
 inline AngularImpulse RandomAngularImpulse(float minVal, float maxVal)
 {
 	AngularImpulse	angImp;
 	angImp.Random(minVal, maxVal);
 	return angImp;
 }
+#endif
 
 #endif
 
@@ -1691,6 +1796,8 @@ inline AngularImpulse RandomAngularImpulse(float minVal, float maxVal)
 //-----------------------------------------------------------------------------
 
 class RadianEuler;
+class DegreeEuler;
+class QAngle;
 
 class Quaternion				// same data-layout as engine's vec4_t,
 {								//		which is a vec_t[4]
@@ -1705,9 +1812,11 @@ public:
 #endif
 	}
 	inline Quaternion(vec_t ix, vec_t iy, vec_t iz, vec_t iw) : x(ix), y(iy), z(iz), w(iw) { }
-	inline Quaternion(RadianEuler const& angle);	// evil auto type promotion!!!
+	inline explicit Quaternion(RadianEuler const& angle);
+	inline explicit Quaternion(DegreeEuler const& angle);
 
 	inline void Init(vec_t ix = 0.0f, vec_t iy = 0.0f, vec_t iz = 0.0f, vec_t iw = 0.0f) { x = ix; y = iy; z = iz; w = iw; }
+	inline void Init(const Vector3D& vImaginaryPart, float flRealPart) { x = vImaginaryPart.x; y = vImaginaryPart.y; z = vImaginaryPart.z; w = flRealPart; }
 
 	bool IsValid() const;
 	void Invalidate();
@@ -1717,18 +1826,46 @@ public:
 
 	inline Quaternion Conjugate() const { return Quaternion(-x, -y, -z, w); }
 
+	// 
+	const Vector3D GetForward()const;
+	const Vector3D GetLeft()const;
+	const Vector3D GetUp()const;
+
 	vec_t* Base() { return (vec_t*)this; }
 	const vec_t* Base() const { return (vec_t*)this; }
 
 	// convenience for debugging
 	inline void Print() const;
 
+	// Imaginary part
+	Vector3D& ImaginaryPart() { return *(Vector3D*)this; }
+	const Vector3D& ImaginaryPart() const { return *(Vector3D*)this; }
+	float& RealPart() { return w; }
+	float RealPart() const { return w; }
+	inline QAngle ToQAngle() const;
+	inline struct matrix3x4_t ToMatrix() const;
+
 	// array access...
 	vec_t operator[](int i) const;
 	vec_t& operator[](int i);
 
+	inline Quaternion operator+(void) const { return *this; }
+	inline Quaternion operator-(void) const { return Quaternion(-x, -y, -z, -w); }
+
 	vec_t x, y, z, w;
 };
+
+// Random Quaternion that is UNIFORMLY distributed over the S^3
+// should be good for random generation of orientation for unit tests and for game
+// NOTE: Nothing trivial like Quaternion(RandomAngle(0,180)) will do the trick , 
+//       one needs to take special care to generate a uniformly distributed quaternion.
+const Quaternion RandomQuaternion();
+const Quaternion RandomQuaternion();
+inline const Quaternion Conjugate(const Quaternion& q)
+{
+	return Quaternion(-q.x, -q.y, -q.z, q.w);
+}
+
 
 
 //-----------------------------------------------------------------------------
@@ -1767,9 +1904,44 @@ inline bool Quaternion::operator!=(const Quaternion& src) const
 void Quaternion::Print() const
 {
 #ifndef _CERT
+#if !defined(__SPU__)
 	DevMsg(eDLL_T::ENGINE, "q{ %.3fi + %.3fj + %.3fk + %.3f }", x, y, z, w);
 #endif
+#endif
 }
+
+
+
+
+//-----------------------------------------------------------------------------
+// Binaray operators
+//-----------------------------------------------------------------------------
+inline Quaternion operator+(const Quaternion& q1, const Quaternion& q2)
+{
+	return Quaternion(q1.x + q2.x, q1.y + q2.y, q1.z + q2.z, q1.w + q2.w);
+}
+
+inline Quaternion operator-(const Quaternion& q1, const Quaternion& q2)
+{
+	return Quaternion(q1.x - q2.x, q1.y - q2.y, q1.z - q2.z, q1.w - q2.w);
+}
+
+inline Quaternion operator*(float s, const Quaternion& q)
+{
+	return Quaternion(s * q.x, s * q.y, s * q.z, s * q.w);
+}
+
+inline Quaternion operator*(const Quaternion& q, float s)
+{
+	return Quaternion(q.x * s, q.y * s, q.z * s, q.w * s);
+}
+
+inline Quaternion operator/(const Quaternion& q, float s)
+{
+	Assert(s != 0.0f);
+	return Quaternion(q.x / s, q.y / s, q.z / s, q.w / s);
+}
+
 
 //-----------------------------------------------------------------------------
 // Quaternion equality with tolerance
@@ -1898,17 +2070,35 @@ public:
 #endif
 } ALIGN16_POST;
 
+
+//-----------------------------------------------------------------------------
+// Src data hasn't changed, but work data is of a form more friendly for SPU
+//-----------------------------------------------------------------------------
+#if defined( _PS3 )
+//typedef Vector		BoneVector;
+typedef VectorAligned		BoneVector;
+typedef QuaternionAligned	BoneQuaternion;
+typedef QuaternionAligned	BoneQuaternionAligned;
+#else
+typedef Vector3D				BoneVector;
+typedef Quaternion			BoneQuaternion;
+typedef QuaternionAligned	BoneQuaternionAligned;
+#endif
+
 //-----------------------------------------------------------------------------
 // Radian Euler angle aligned to axis (NOT ROLL/PITCH/YAW)
 //-----------------------------------------------------------------------------
 class QAngle;
+#define VEC_DEG2RAD( a ) (a) * (3.14159265358979323846f / 180.0f)
+#define VEC_RAD2DEG( a ) (a) * (180.0f / 3.14159265358979323846f)
 class RadianEuler
 {
 public:
 	inline RadianEuler(void) { }
 	inline RadianEuler(vec_t X, vec_t Y, vec_t Z) { x = X; y = Y; z = Z; }
-	inline RadianEuler(Quaternion const& q);	// evil auto type promotion!!!
-	inline RadianEuler(QAngle const& angles);	// evil auto type promotion!!!
+	inline explicit RadianEuler(Quaternion const& q);
+	inline explicit RadianEuler(QAngle const& angles);
+	inline explicit RadianEuler(DegreeEuler const& angles);
 
 	// Initialization
 	inline void Init(vec_t ix = 0.0f, vec_t iy = 0.0f, vec_t iz = 0.0f) { x = ix; y = iy; z = iz; }
@@ -1939,6 +2129,18 @@ inline Quaternion::Quaternion(RadianEuler const& angle)
 inline bool Quaternion::IsValid() const
 {
 	return IsFinite(x) && IsFinite(y) && IsFinite(z) && IsFinite(w);
+}
+
+
+FORCEINLINE float QuaternionLength(const Quaternion& q)
+{
+	return sqrtf(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
+}
+
+FORCEINLINE bool QuaternionIsNormalized(const Quaternion& q, float  flTolerance = 1e-6f)
+{
+	float flLen = QuaternionLength(q);
+	return (fabs(flLen - 1.0) < flTolerance);
 }
 
 inline void Quaternion::Invalidate()
@@ -2004,6 +2206,116 @@ inline vec_t RadianEuler::operator[](int i) const
 
 
 //-----------------------------------------------------------------------------
+// Degree Euler angle aligned to axis (NOT ROLL/PITCH/YAW)
+//-----------------------------------------------------------------------------
+class DegreeEuler
+{
+public:
+	///\name Initialization 
+	//@{
+	inline DegreeEuler(void) ///< Create with un-initialized components. If VECTOR_PARANOIA is set, will init with NANS.
+	{
+		// Initialize to NAN to catch errors
+#ifdef VECTOR_PARANOIA
+		x = y = z = VEC_T_NAN;
+#endif
+	}
+	inline DegreeEuler(vec_t X, vec_t Y, vec_t Z) { x = X; y = Y; z = Z; }
+	inline explicit DegreeEuler(Quaternion const& q);
+	inline explicit DegreeEuler(QAngle const& angles);
+	inline explicit DegreeEuler(RadianEuler const& angles);
+
+	// Initialization
+	inline void Init(vec_t ix = 0.0f, vec_t iy = 0.0f, vec_t iz = 0.0f) { x = ix; y = iy; z = iz; }
+
+	inline QAngle ToQAngle() const;
+
+	//	conversion to qangle
+	bool IsValid() const;
+	void Invalidate();
+
+	inline vec_t* Base() { return &x; }
+	inline const vec_t* Base() const { return &x; }
+
+	// array access...
+	vec_t operator[](int i) const;
+	vec_t& operator[](int i);
+
+	vec_t x, y, z;
+};
+
+
+//-----------------------------------------------------------------------------
+// DegreeEuler equality with tolerance
+//-----------------------------------------------------------------------------
+inline bool DegreeEulersAreEqual(const DegreeEuler& src1, const DegreeEuler& src2, float tolerance = 0.0f)
+{
+	if (FloatMakePositive(src1.x - src2.x) > tolerance)
+		return false;
+	if (FloatMakePositive(src1.y - src2.y) > tolerance)
+		return false;
+	return (FloatMakePositive(src1.z - src2.z) <= tolerance);
+}
+
+/*
+extern void AngleQuaternion( DegreeEuler const &angles, Quaternion &qt );
+extern void QuaternionAngles( Quaternion const &q, DegreeEuler &angles );
+extern void QuaternionVectorsFLU( Quaternion const &q, Vector *pForward, Vector *pLeft, Vector *pUp );
+*/
+
+inline Quaternion::Quaternion(DegreeEuler const& angles)
+{
+	RadianEuler radians(angles);
+	AngleQuaternion(radians, *this);
+}
+
+inline DegreeEuler::DegreeEuler(RadianEuler const& angles)
+{
+	Init(VEC_RAD2DEG(angles.x), VEC_RAD2DEG(angles.y), VEC_RAD2DEG(angles.z));
+}
+
+inline RadianEuler::RadianEuler(DegreeEuler const& angles)
+{
+	Init(VEC_DEG2RAD(angles.x), VEC_DEG2RAD(angles.y), VEC_DEG2RAD(angles.z));
+}
+
+inline DegreeEuler::DegreeEuler(Quaternion const& q)
+{
+	RadianEuler radians(q);
+	Init(VEC_RAD2DEG(radians.x), VEC_RAD2DEG(radians.y), VEC_RAD2DEG(radians.z));
+}
+
+inline bool DegreeEuler::IsValid() const
+{
+	return IsFinite(x) && IsFinite(y) && IsFinite(z);
+}
+
+inline void DegreeEuler::Invalidate()
+{
+	//#ifdef VECTOR_PARANOIA
+	x = y = z = VEC_T_NAN;
+	//#endif
+}
+
+
+//-----------------------------------------------------------------------------
+// Array access
+//-----------------------------------------------------------------------------
+inline vec_t& DegreeEuler::operator[](int i)
+{
+	Assert((i >= 0) && (i < 3));
+	return ((vec_t*)this)[i];
+}
+
+inline vec_t DegreeEuler::operator[](int i) const
+{
+	Assert((i >= 0) && (i < 3));
+	return ((vec_t*)this)[i];
+}
+
+
+
+//-----------------------------------------------------------------------------
 // Degree Euler QAngle pitch, yaw, roll
 //-----------------------------------------------------------------------------
 class QAngleByValue;
@@ -2061,6 +2373,12 @@ public:
 	// No assignment operators either...
 	QAngle& operator=(const QAngle& src);
 
+	void Normalize();
+	void NormalizePositive();
+
+	inline struct matrix3x4_t ToMatrix() const;
+	inline Quaternion ToQuaternion() const;
+
 #ifndef VECTOR_NO_SLOW_OPERATIONS
 	// copy constructors
 
@@ -2079,6 +2397,9 @@ private:
 
 #endif
 };
+
+// Zero the object -- necessary for CNetworkVar and possibly other cases.
+inline void EnsureValidValue(QAngle& x) { x.Init(); }
 
 //-----------------------------------------------------------------------------
 // Allows us to specifically pass the vector by value when we need to
@@ -2141,6 +2462,26 @@ inline void QAngle::Init(vec_t ix, vec_t iy, vec_t iz)
 	CHECK_VALID(*this);
 }
 
+
+extern float AngleNormalize(float angle);
+extern float AngleNormalizePositive(float angle);
+
+inline void QAngle::Normalize()
+{
+	x = AngleNormalize(x);
+	y = AngleNormalize(y);
+	z = AngleNormalize(z);
+}
+
+inline void QAngle::NormalizePositive()
+{
+	x = AngleNormalizePositive(x);
+	y = AngleNormalizePositive(y);
+	z = AngleNormalizePositive(z);
+}
+
+
+#if !defined(__SPU__)
 inline void QAngle::Random(vec_t minVal, vec_t maxVal)
 {
 	x = RandomFloat(minVal, maxVal);
@@ -2148,9 +2489,11 @@ inline void QAngle::Random(vec_t minVal, vec_t maxVal)
 	z = RandomFloat(minVal, maxVal);
 	CHECK_VALID(*this);
 }
+#endif
 
 #ifndef VECTOR_NO_SLOW_OPERATIONS
 
+#if !defined(__SPU__)
 inline QAngle RandomAngle(float minVal, float maxVal)
 {
 	Vector3D random;
@@ -2158,6 +2501,7 @@ inline QAngle RandomAngle(float minVal, float maxVal)
 	QAngle ret(random.x, random.y, random.z);
 	return ret;
 }
+#endif
 
 #endif
 
@@ -2169,16 +2513,21 @@ inline RadianEuler::RadianEuler(QAngle const& angles)
 		angles.y * 3.14159265358979323846f / 180.f);
 }
 
-
-
+inline DegreeEuler::DegreeEuler(QAngle const& angles)
+{
+	Init(angles.z, angles.x, angles.y);
+}
 
 inline QAngle RadianEuler::ToQAngle(void) const
 {
-	return QAngle(
-		y * 180.f / 3.14159265358979323846f,
-		z * 180.f / 3.14159265358979323846f,
-		x * 180.f / 3.14159265358979323846f);
+	return QAngle(VEC_RAD2DEG(y), VEC_RAD2DEG(z), VEC_RAD2DEG(x));
 }
+
+inline QAngle DegreeEuler::ToQAngle() const
+{
+	return QAngle(y, z, x);
+}
+
 
 //-----------------------------------------------------------------------------
 // assignment
@@ -2415,6 +2764,15 @@ inline void AngularImpulseToQAngle(const AngularImpulse& impulse, QAngle& angles
 	angles.z = impulse.x;
 }
 
+inline QAngle Quaternion::ToQAngle() const
+{
+	extern void QuaternionAngles(const Quaternion & q, QAngle & angles);
+
+	QAngle anglesOut;
+	QuaternionAngles(*this, anglesOut);
+	return anglesOut;
+}
+
 #if !defined( _X360 ) && !defined( _PS3 )
 
 FORCEINLINE vec_t InvRSquared(const float* v)
@@ -2430,7 +2788,11 @@ FORCEINLINE vec_t InvRSquared(const Vector3D& v)
 #else
 
 // call directly
+#if defined(__SPU__)
+FORCEINLINE float _VMX_InvRSquared(Vector& v)
+#else
 FORCEINLINE float _VMX_InvRSquared(const Vector& v)
+#endif
 {
 #if !defined (_PS3)
 	XMVECTOR xmV = XMVector3ReciprocalLength(XMLoadVector3(v.Base()));
@@ -2616,12 +2978,31 @@ inline vec_t Vector3D::NormalizeInPlace()
 	return VectorNormalize(*this);
 }
 
+inline vec_t Vector3D::NormalizeInPlaceSafe(const Vector3D& vFallback)
+{
+	float flLength = VectorNormalize(*this);
+	if (flLength == 0.0f)
+	{
+		*this = vFallback;
+	}
+	return flLength;
+}
+
 inline Vector3D Vector3D::Normalized() const
 {
 	Vector3D norm = *this;
 	VectorNormalize(norm);
 	return norm;
 }
+
+
+inline Vector3D Vector3D::NormalizedSafe(const Vector3D& vFallback)const
+{
+	Vector3D vNorm = *this;
+	float flLength = VectorNormalize(vNorm);
+	return (flLength != 0.0f) ? vNorm : vFallback;
+}
+
 
 inline bool Vector3D::IsLengthGreaterThan(float val) const
 {
@@ -2631,6 +3012,69 @@ inline bool Vector3D::IsLengthGreaterThan(float val) const
 inline bool Vector3D::IsLengthLessThan(float val) const
 {
 	return LengthSqr() < val * val;
+}
+
+
+inline const Vector3D ScaleVector(const Vector3D& a, const Vector3D& b)
+{
+	return Vector3D(a.x * b.x, a.y * b.y, a.z * b.z);
+}
+
+
+
+inline const Quaternion Exp(const Vector3D& v)
+{
+	float theta = v.Length();
+	if (theta < 0.001f)
+	{
+		// limit case, cos(theta)       ~= 1 - theta^2/2 + theta^4/24
+		//             sin(theta)/theta ~= 1 - theta^2/6 + theta^4/120
+		float theta2_2 = theta * theta * 0.5f, theta4_24 = theta2_2 * theta2_2 * (1.0f / 6.0f);
+		float k = 1.0f - theta2_2 * (1.0f / 3.0f) + theta4_24 * 0.05f;
+		return Quaternion(k * v.x, k * v.y, k * v.z, 1 - theta2_2 + theta4_24);
+	}
+	else
+	{
+		float k = sinf(theta) / theta;
+		return Quaternion(k * v.x, k * v.y, k * v.z, cosf(theta));
+	}
+}
+
+
+inline const Vector3D QuaternionLog(const Quaternion& q)
+{
+	Vector3D axis = q.ImaginaryPart();
+	float sinTheta = axis.Length(), factor;
+	if (sinTheta > 0.001f)
+	{
+		// there's some substantial rotation; if w < 0, it's an over-180-degree rotation (in real space)
+		float theta = asinf(MIN(sinTheta, 1.0f));
+		factor = (q.w < 0.0f ? M_PI_F - theta : theta) / sinTheta;
+	}
+	else
+	{
+		// ArcSin[x]/x = 1 + x^2/6 + x^4 * 3/40 + o( x^5 )
+		float sinTheta2 = sinTheta * sinTheta;
+		float sinTheta4 = sinTheta2 * sinTheta2;
+		factor = (1 + sinTheta2 * (1.0f / 6.0f) + sinTheta4 * (3.0f / 40.0f));
+		if (q.w < 0)
+		{
+			factor = -factor; // because the axis of rotation is not defined, we'll just consider this rotation to be close enough to identity
+		}
+	}
+	return axis * factor;
+}
+
+
+
+inline float Snap(float a, float flSnap)
+{
+	return floorf(a / flSnap + 0.5f) * flSnap;
+}
+
+inline  const Vector3D Snap(const Vector3D& a, float flSnap)
+{
+	return Vector3D(Snap(a.x, flSnap), Snap(a.y, flSnap), Snap(a.z, flSnap));
 }
 
 #endif

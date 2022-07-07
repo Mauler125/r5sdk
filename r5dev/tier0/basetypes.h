@@ -154,6 +154,78 @@
 #define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
 #endif
 
+#ifdef __cplusplus
+
+template< class T, class Y, class X >
+inline T clamp(T const& val, Y const& minVal, X const& maxVal)
+{
+	if (val < minVal)
+		return minVal;
+	else if (val > maxVal)
+		return maxVal;
+	else
+		return val;
+}
+
+// This is the preferred clamp operator. Using the clamp macro can lead to
+// unexpected side-effects or more expensive code. Even the clamp (all
+// lower-case) function can generate more expensive code because of the
+// mixed types involved.
+template< class T >
+T Clamp(T const& val, T const& minVal, T const& maxVal)
+{
+	if (val < minVal)
+		return minVal;
+	else if (val > maxVal)
+		return maxVal;
+	else
+		return val;
+}
+
+// This is the preferred Min operator. Using the MIN macro can lead to unexpected
+// side-effects or more expensive code.
+template< class T >
+T Min(T const& val1, T const& val2)
+{
+	return val1 < val2 ? val1 : val2;
+}
+
+// This is the preferred Max operator. Using the MAX macro can lead to unexpected
+// side-effects or more expensive code.
+template< class T >
+T Max(T const& val1, T const& val2)
+{
+	return val1 > val2 ? val1 : val2;
+}
+
+template <typename T>
+void Swap(T& a, T& b)
+{
+	T temp = a;
+	a = b;
+	b = temp;
+}
+
+#else
+
+#define clamp(val, min, max) (((val) > (max)) ? (max) : (((val) < (min)) ? (min) : (val)))
+
+#endif
+
+#define fsel(c,x,y) ( (c) >= 0 ? (x) : (y) )
+
+// integer conditional move
+// if a >= 0, return x, else y
+#define isel(a,x,y) ( ((a) >= 0) ? (x) : (y) )
+
+// if x = y, return a, else b
+#define ieqsel(x,y,a,b) (( (x) == (y) ) ? (a) : (b))
+
+// if the nth bit of a is set (counting with 0 = LSB),
+// return x, else y
+// this is fast if nbit is a compile-time immediate 
+#define ibitsel(a, nbit, x, y) ( ( ((a) & (1 << (nbit))) != 0 ) ? (x) : (y) )
+
 // MSVC CRT uses 0x7fff while gcc uses MAX_INT, leading to mismatches between platforms
 // As a result, we pick the least common denominator here.  This should be used anywhere
 // you might typically want to use RAND_MAX

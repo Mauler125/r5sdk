@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+﻿//========= Copyright � 1996-2006, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: generates 4 randum numbers in the range 0..1 quickly, using SIMD
 //
@@ -6,7 +6,7 @@
 
 #include "core/stdafx.h"
 #include "tier0/dbg.h"
-#include "tier0/basetypes.h"
+#include "tier0/threadtools.h"
 #include "mathlib/mathlib.h"
 #include "mathlib/vector.h"
 #include "mathlib/ssemath.h"
@@ -43,7 +43,7 @@ public:
 		fltx4 retval = AddSIMD(*m_pRand_K, *m_pRand_J);
 
 		// if ( ret>=1.0) ret-=1.0
-		fltx4 overflow_mask = CmpGeSIMD(retval, Four_Ones);
+		bi32x4 overflow_mask = CmpGeSIMD(retval, Four_Ones);
 		retval = SubSIMD(retval, AndSIMD(Four_Ones, overflow_mask));
 
 		*m_pRand_K = retval;
@@ -86,6 +86,7 @@ int GetSIMDRandContext(void)
 				// try to take it!
 				if (ThreadInterlockedAssignIf(&(s_nRandContextsInUse[i]), 1, 0))
 				{
+					ThreadMemoryBarrier();
 					return i;								// done!
 				}
 			}
@@ -97,6 +98,7 @@ int GetSIMDRandContext(void)
 
 void ReleaseSIMDRandContext(int nContext)
 {
+	ThreadMemoryBarrier();
 	s_nRandContextsInUse[nContext] = 0;
 }
 

@@ -9,11 +9,36 @@
 
 #include <limits>
 
+// YUP_ACTIVE is from Source2. It's (obviously) not supported on this branch, just including it here to help merge camera.cpp/.h and the CSM shadow code.
+//#define YUP_ACTIVE 1
+
+enum MatrixAxisType_t
+{
+#ifdef YUP_ACTIVE
+	FORWARD_AXIS = 2,
+	LEFT_AXIS = 0,
+	UP_AXIS = 1,
+#else
+	FORWARD_AXIS = 0,
+	LEFT_AXIS = 1,
+	UP_AXIS = 2,
+#endif
+
+	X_AXIS = 0,
+	Y_AXIS = 1,
+	Z_AXIS = 2,
+	ORIGIN = 3,
+	PROJECTIVE = 3,
+};
+
 #if defined( _X360 )
 #include <xboxmath.h>
 #elif defined(_PS3)
 
-#ifndef SPU
+#ifdef SPU
+#include <vectormath/c/vectormath_aos.h>
+#include <spu_intrinsics.h>
+#else
 #include <ppu_asm_intrinsics.h>
 #endif
 
@@ -53,17 +78,19 @@
 
 #include <xmmintrin.h>
 
+
+
 // These globals are initialized by mathlib and redirected based on available fpu features
 
 // The following are not declared as macros because they are often used in limiting situations,
 // and sometimes the compiler simply refuses to inline them for some reason
-FORCEINLINE float FastSqrt(float x)
+FORCEINLINE float VECTORCALL FastSqrt(float x)
 {
 	__m128 root = _mm_sqrt_ss(_mm_load_ss(&x));
 	return *(reinterpret_cast<float*>(&root));
 }
 
-FORCEINLINE float FastRSqrtFast(float x)
+FORCEINLINE float VECTORCALL FastRSqrtFast(float x)
 {
 	// use intrinsics
 	__m128 rroot = _mm_rsqrt_ss(_mm_load_ss(&x));
@@ -72,7 +99,7 @@ FORCEINLINE float FastRSqrtFast(float x)
 // Single iteration NewtonRaphson reciprocal square root:
 // 0.5 * rsqrtps * (3 - x * rsqrtps(x) * rsqrtps(x)) 	
 // Very low error, and fine to use in place of 1.f / sqrtf(x).	
-FORCEINLINE float FastRSqrt(float x)
+FORCEINLINE float VECTORCALL FastRSqrt(float x)
 {
 	float rroot = FastRSqrtFast(x);
 	return (0.5f * rroot) * (3.f - (x * rroot) * rroot);
@@ -136,6 +163,7 @@ inline double FastSqrtEst(double x) { return __frsqrte(x) * x; }
 
 #endif // !defined( PLATFORM_PPC ) && !defined(_SPU)
 
+
 // if x is infinite, return FLT_MAX
 inline float FastClampInfinity(float x)
 {
@@ -146,7 +174,19 @@ inline float FastClampInfinity(float x)
 #endif
 }
 
-#if defined (_PS3) && !defined(SPU)
+#if defined (_PS3) 
+
+#if defined(__SPU__)
+
+inline int _rotl(int a, int count)
+{
+	vector signed int vi;
+	vi = spu_promote(a, 0);
+	vi = spu_rl(vi, count);
+	return spu_extract(vi, 0);
+}
+
+#else
 
 // extern float cosvf(float);      /* single precision cosine      */
 // extern float sinvf(float);      /* single precision sine        */
@@ -164,63 +204,6 @@ inline int64 _rotl64(int64 x, int c)
 	return __rldicl(x, c, 0);
 }
 
-//-----------------------------------------------------------------
-// Vector Unions
-//-----------------------------------------------------------------
-
-//-----------------------------------------------------------------
-// Floats
-//-----------------------------------------------------------------
-typedef union
-{
-	vector float vf;
-	float f[4];
-} vector_float_union;
-
-//-----------------------------------------------------------------
-// Ints
-//-----------------------------------------------------------------
-typedef union
-{
-	vector int vi;
-	int i[4];
-} vector_int4_union;
-
-typedef union
-{
-	vector unsigned int vui;
-	unsigned int ui[4];
-} vector_uint4_union;
-
-//-----------------------------------------------------------------
-// Shorts
-//-----------------------------------------------------------------
-typedef union
-{
-	vector signed short vs;
-	signed short s[8];
-} vector_short8_union;
-
-typedef union
-{
-	vector unsigned short vus;
-	unsigned short us[8];
-} vector_ushort8_union;
-
-//-----------------------------------------------------------------
-// Chars
-//-----------------------------------------------------------------
-typedef union
-{
-	vector signed char vc;
-	signed char c[16];
-} vector_char16_union;
-
-typedef union
-{
-	vector unsigned char vuc;
-	unsigned char uc[16];
-} vector_uchar16_union;
 
 /*
 FORCEINLINE float _VMX_Sqrt( float x )
@@ -277,6 +260,95 @@ FORCEINLINE float _VMX_Cos(float a)
 #define FastSinCos(x,s,c)	_VMX_SinCos(x,s,c)
 #define FastCos(x)			_VMX_Cos(x)
 */
+
+#endif
+
+
+#if defined(__SPU__)
+
+// do we need these optimized yet?
+
+FORCEINLINE float FastSqrt(float x)
+{
+	return sqrtf(x);
+}
+
+FORCEINLINE float FastRSqrt(float x)
+{
+	float rroot = 1.f / (sqrtf(x) + FLT_EPSILON);
+	return rroot;
+}
+
+
+#define FastRSqrtFast(x)	FastRSqrt(x)
+
+
+#endif
+
+
+
+//-----------------------------------------------------------------
+// Vector Unions
+//-----------------------------------------------------------------
+
+//-----------------------------------------------------------------
+// Floats
+//-----------------------------------------------------------------
+typedef union
+{
+	vector float vf;
+	float f[4];
+} vector_float_union;
+
+#if !defined(__SPU__)
+//-----------------------------------------------------------------
+// Ints
+//-----------------------------------------------------------------
+typedef union
+{
+	vector int vi;
+	int i[4];
+} vector_int4_union;
+
+typedef union
+{
+	vector unsigned int vui;
+	unsigned int ui[4];
+} vector_uint4_union;
+
+//-----------------------------------------------------------------
+// Shorts
+//-----------------------------------------------------------------
+typedef union
+{
+	vector signed short vs;
+	signed short s[8];
+} vector_short8_union;
+
+typedef union
+{
+	vector unsigned short vus;
+	unsigned short us[8];
+} vector_ushort8_union;
+
+//-----------------------------------------------------------------
+// Chars
+//-----------------------------------------------------------------
+typedef union
+{
+	vector signed char vc;
+	signed char c[16];
+} vector_char16_union;
+
+typedef union
+{
+	vector unsigned char vuc;
+	unsigned char uc[16];
+} vector_uchar16_union;
+#endif
+
+
+
 #endif	// _PS3
 #endif	// #ifndef SPU
 

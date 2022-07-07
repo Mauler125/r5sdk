@@ -35,6 +35,7 @@
 #ifndef DEDICATED
 #include "milessdk/win64_rrthreads.h"
 #endif // !DEDICATED
+#include "mathlib/mathlib.h"
 #include "vphysics/QHull.h"
 #include "bsplib/bsplib.h"
 #include "materialsystem/cmaterialsystem.h"
@@ -118,9 +119,10 @@ void Systems_Init()
 {
 	spdlog::info("+-------------------------------------------------------------+\n");
 	QuerySystemInfo();
-	CFastTimer initTimer;
 
+	CFastTimer initTimer;
 	initTimer.Start();
+
 	for (IDetour* pDetour : vDetour)
 	{
 		pDetour->GetCon();
@@ -128,13 +130,14 @@ void Systems_Init()
 		pDetour->GetVar();
 	}
 	initTimer.End();
+
 	spdlog::info("+-------------------------------------------------------------+\n");
 	spdlog::info("Detour->Init()   '{:10.6f}' seconds ('{:12d}' clocks)\n", initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
 
 	initTimer.Start();
 
-	// Initialize WinSock system.
-	WS_Init();
+	WS_Init();      // Initialize WinSock.
+	MathLib_Init(); // Initialize MathLib.
 
 	// Begin the detour transaction to hook the the process
 	DetourTransactionBegin();
@@ -404,11 +407,14 @@ void QuerySystemInfo()
 			std::system_category().message(static_cast<int>(::GetLastError())));
 	}
 
-	if (!(pi.m_bSSE && pi.m_bSSE2))
+	if (!s_bMathlibInitialized)
 	{
-		if (MessageBoxA(NULL, "SSE and SSE2 are required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
+		if (!(pi.m_bSSE && pi.m_bSSE2))
 		{
-			TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
+			if (MessageBoxA(NULL, "SSE and SSE2 are required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
+			{
+				TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
+			}
 		}
 	}
 }

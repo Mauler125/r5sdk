@@ -187,6 +187,9 @@
     <Filter Include="sdk\engine\client">
       <UniqueIdentifier>{98975892-5379-4f6c-8c7e-35d92d2bc5e5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\bonesetup">
+      <UniqueIdentifier>{d49ec580-58c2-49e7-8e83-957da576febd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\opcodes.h">
@@ -1131,9 +1134,6 @@
     <ClInclude Include="..\mathlib\ssemath.h">
       <Filter>sdk\mathlib</Filter>
     </ClInclude>
-    <ClInclude Include="..\mathlib\ssenoise.h">
-      <Filter>sdk\mathlib</Filter>
-    </ClInclude>
     <ClInclude Include="..\mathlib\ssequaternion.h">
       <Filter>sdk\mathlib</Filter>
     </ClInclude>
@@ -1160,6 +1160,12 @@
     </ClInclude>
     <ClInclude Include="..\vstdlib\random.h">
       <Filter>sdk\vstdlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\fltx4.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\transform.h">
+      <Filter>sdk\mathlib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1447,6 +1453,18 @@
     </ClCompile>
     <ClCompile Include="..\vstdlib\random.cpp">
       <Filter>sdk\vstdlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\bonesetup\bone_utils.cpp">
+      <Filter>sdk\bonesetup</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\ssenoise.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\transform.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier0\threadtools.cpp">
+      <Filter>sdk\tier0</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

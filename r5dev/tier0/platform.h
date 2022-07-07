@@ -141,6 +141,12 @@
 #define IS_WINDOWS_PC 1
 #endif
 
+#if _MSC_VER >= 1800
+#define	VECTORCALL __vectorcall 
+#else 
+#define	VECTORCALL 
+#endif
+
 #endif // CROSS_PLATFORM_VERSION < 2
 
 #if defined( GNUC )	&& !defined( COMPILER_PS3 ) // use pre-align on PS3
@@ -281,6 +287,8 @@ inline int64 CastPtrToInt64(const void* p)
 #define mallocsize( _p )		( _msize( _p ) )
 
 #endif
+
+#define NO_MALLOC_OVERRIDE
 
 //-----------------------------------------------------------------------------
 // Various compiler-specific keywords

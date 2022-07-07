@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//========= Copyright (c) 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -6,18 +6,19 @@
 //
 //=============================================================================//
 #include "core/stdafx.h"
+#include "tier0/dbg.h"
 
 #if !defined(_STATIC_LINKED) || defined(_SHARED_LIB)
-#include "tier0/dbg.h"
-#include "tier0/basetypes.h"
+
 #include "mathlib/vmatrix.h"
 #include "mathlib/mathlib.h"
 #include "mathlib/vector4d.h"
+#include "mathlib/ssemath.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 //#include "tier0/memdbgon.h"
 
-//#pragma warning (disable : 4700) // local variable 'x' used without having been initialized
+#pragma warning (disable : 4700) // local variable 'x' used without having been initialized
 
 // ------------------------------------------------------------------------------------------- //
 // Helper functions.
@@ -120,7 +121,7 @@ VMatrix SetupMatrixProjection(const Vector3D& vOrigin, const VPlane& thePlane)
 
 VMatrix SetupMatrixAxisRot(const Vector3D& vAxis, vec_t fDegrees)
 {
-	vec_t s, c, t;
+	vec_t s, c, t; // sin, cos, 1-cos
 	vec_t tx, ty, tz;
 	vec_t sx, sy, sz;
 	vec_t fRadians;
@@ -142,6 +143,43 @@ VMatrix SetupMatrixAxisRot(const Vector3D& vAxis, vec_t fDegrees)
 		0.0f, 0.0f, 0.0f, 1.0f);
 }
 
+
+// Basically takes a cross product and then does the same thing as SetupMatrixAxisRot
+// above, but takes advantage of the fact that the sin angle is precomputed.
+VMatrix	SetupMatrixAxisToAxisRot(const Vector3D& vFromAxis, const Vector3D& vToAxis)
+{
+	Assert(vFromAxis.LengthSqr() == 1); // these axes
+	Assert(vToAxis.LengthSqr() == 1); // must be normal.
+
+	vec_t s, c, t; // sin(theta), cos(theta), 1-cos
+	vec_t tx, ty, tz;
+	vec_t sx, sy, sz;
+
+	Vector3D vAxis = vFromAxis.Cross(vToAxis);
+
+	s = vAxis.Length();
+	c = vFromAxis.Dot(vToAxis);
+	t = 1.0f - c;
+
+	if (s > 0)
+	{
+		vAxis *= 1.0 / s;
+
+		tx = t * vAxis.x;	ty = t * vAxis.y;	tz = t * vAxis.z;
+		sx = s * vAxis.x;	sy = s * vAxis.y;	sz = s * vAxis.z;
+
+		return VMatrix(
+			tx * vAxis.x + c, tx * vAxis.y - sz, tx * vAxis.z + sy, 0.0f,
+			tx * vAxis.y + sz, ty * vAxis.y + c, ty * vAxis.z - sx, 0.0f,
+			tx * vAxis.z - sy, ty * vAxis.z + sx, tz * vAxis.z + c, 0.0f,
+			0.0f, 0.0f, 0.0f, 1.0f);
+	}
+	else
+	{
+		return SetupMatrixIdentity();
+	}
+}
+
 VMatrix SetupMatrixAngles(const QAngle& vAngles)
 {
 	VMatrix mRet;
@@ -158,8 +196,19 @@ VMatrix SetupMatrixOrgAngles(const Vector3D& origin, const QAngle& vAngles)
 
 #endif // VECTOR_NO_SLOW_OPERATIONS
 
-
+#if 1
 bool PlaneIntersection(const VPlane& vp1, const VPlane& vp2, const VPlane& vp3, Vector3D& vOut)
+{
+	Vector3D v2Cross3 = CrossProduct(vp2.m_Normal, vp3.m_Normal);
+	float flDenom = DotProduct(vp1.m_Normal, v2Cross3);
+	if (fabs(flDenom) < FLT_EPSILON)
+		return false;
+	Vector3D vRet = vp1.m_Dist * v2Cross3 + vp2.m_Dist * CrossProduct(vp3.m_Normal, vp1.m_Normal) + vp3.m_Dist * CrossProduct(vp1.m_Normal, vp2.m_Normal);
+	vOut = vRet * (1.0 / flDenom);
+	return true;
+}
+#else  // old slow innaccurate code
+bool PlaneIntersection(const VPlane& vp1, const VPlane& vp2, const VPlane& vp3, Vector& vOut)
 {
 	VMatrix mMat, mInverse;
 
@@ -169,7 +218,6 @@ bool PlaneIntersection(const VPlane& vp1, const VPlane& vp2, const VPlane& vp3, 
 		vp3.m_Normal.x, vp3.m_Normal.y, vp3.m_Normal.z, -vp3.m_Dist,
 		0.0f, 0.0f, 0.0f, 1.0f
 	);
-
 	if (mMat.InverseGeneral(mInverse))
 	{
 		//vOut = mInverse * Vector(0.0f, 0.0f, 0.0f);
@@ -181,7 +229,7 @@ bool PlaneIntersection(const VPlane& vp1, const VPlane& vp2, const VPlane& vp3, 
 		return false;
 	}
 }
-
+#endif
 
 
 // ------------------------------------------------------------------------------------------- //
@@ -303,7 +351,7 @@ bool MatrixInverseGeneral(const VMatrix& src, VMatrix& dst)
 	for (iRow = 0; iRow < 4; iRow++)
 	{
 		// Find the row with the largest element in this column.
-		fLargest = 0.00001f;
+		fLargest = 1e-6f;
 		iLargest = -1;
 		for (iTest = iRow; iTest < 4; iTest++)
 		{
@@ -506,7 +554,7 @@ bool VMatrix::IsRotationMatrix() const
 		FloatMakePositive(v2.Dot(v3)) < 0.01f;
 }
 
-static void SetupMatrixAnglesInternal(vec_t m[4][4], const QAngle& vAngles)
+void VMatrix::SetupMatrixOrgAngles(const Vector3D& origin, const QAngle& vAngles)
 {
 	float		sr, sp, sy, cr, cp, cy;
 
@@ -527,31 +575,11 @@ static void SetupMatrixAnglesInternal(vec_t m[4][4], const QAngle& vAngles)
 	m[0][3] = 0.f;
 	m[1][3] = 0.f;
 	m[2][3] = 0.f;
-}
-
-void VMatrix::SetupMatrixOrgAngles(const Vector3D& origin, const QAngle& vAngles)
-{
-	SetupMatrixAnglesInternal(m, vAngles);
 
 	// Add translation
 	m[0][3] = origin.x;
 	m[1][3] = origin.y;
 	m[2][3] = origin.z;
-	m[3][0] = 0.0f;
-	m[3][1] = 0.0f;
-	m[3][2] = 0.0f;
-	m[3][3] = 1.0f;
-}
-
-
-void	VMatrix::SetupMatrixAngles(const QAngle& vAngles)
-{
-	SetupMatrixAnglesInternal(m, vAngles);
-
-	// Zero everything else
-	m[0][3] = 0.0f;
-	m[1][3] = 0.0f;
-	m[2][3] = 0.0f;
 	m[3][0] = 0.0f;
 	m[3][1] = 0.0f;
 	m[3][2] = 0.0f;
@@ -745,7 +773,7 @@ void Vector4DMultiplyPosition(const VMatrix& src1, Vector3D const& src2, Vector4
 {
 	// Make sure it works if src2 == dst
 	Vector3D tmp;
-	Vector3D const& v = (&src2 == &dst.AsVector3D()) ? static_cast<const Vector3D&>(tmp) : src2;
+	Vector3D const& v = (&src2 == &dst.AsVector3D()) ? static_cast<const Vector3D>(tmp) : src2;
 
 	if (&src2 == &dst.AsVector3D())
 	{
@@ -768,7 +796,7 @@ void Vector3DMultiply(const VMatrix& src1, const Vector3D& src2, Vector3D& dst)
 {
 	// Make sure it works if src2 == dst
 	Vector3D tmp;
-	const Vector3D& v = (&src2 == &dst) ? static_cast<const Vector3D&>(tmp) : src2;
+	const Vector3D& v = (&src2 == &dst) ? static_cast<const Vector3D>(tmp) : src2;
 
 	if (&src2 == &dst)
 	{
@@ -789,7 +817,7 @@ void Vector3DMultiplyPositionProjective(const VMatrix& src1, const Vector3D& src
 {
 	// Make sure it works if src2 == dst
 	Vector3D tmp;
-	const Vector3D& v = (&src2 == &dst) ? static_cast<const Vector3D&>(tmp) : src2;
+	const Vector3D& v = (&src2 == &dst) ? static_cast<const Vector3D>(tmp) : src2;
 	if (&src2 == &dst)
 	{
 		VectorCopy(src2, tmp);
@@ -816,7 +844,7 @@ void Vector3DMultiplyProjective(const VMatrix& src1, const Vector3D& src2, Vecto
 {
 	// Make sure it works if src2 == dst
 	Vector3D tmp;
-	const Vector3D& v = (&src2 == &dst) ? static_cast<const Vector3D&>(tmp) : src2;
+	const Vector3D& v = (&src2 == &dst) ? static_cast<const Vector3D>(tmp) : src2;
 	if (&src2 == &dst)
 	{
 		VectorCopy(src2, tmp);
@@ -869,7 +897,7 @@ void Vector3DMultiplyTranspose(const VMatrix& src1, const Vector3D& src2, Vector
 	bool srcEqualsDst = (&src2 == &dst);
 
 	Vector3D tmp;
-	const Vector3D& v = srcEqualsDst ? static_cast<const Vector3D&>(tmp) : src2;
+	const Vector3D& v = srcEqualsDst ? static_cast<const Vector3D>(tmp) : src2;
 
 	if (srcEqualsDst)
 	{
@@ -954,7 +982,7 @@ void MatrixBuildTranslation(VMatrix& dst, const Vector3D& translation)
 //-----------------------------------------------------------------------------
 void MatrixBuildRotationAboutAxis(VMatrix& dst, const Vector3D& vAxisOfRot, float angleDegrees)
 {
-	MatrixBuildRotationAboutAxis(vAxisOfRot, angleDegrees, const_cast<matrix3x4_t&> (dst.As3x4()));
+	MatrixBuildRotationAboutAxis(vAxisOfRot, angleDegrees, dst.As3x4());
 	dst[3][0] = 0;
 	dst[3][1] = 0;
 	dst[3][2] = 0;
@@ -1006,6 +1034,13 @@ void MatrixBuildRotation(VMatrix& dst, const Vector3D& initialDirection, const V
 	}
 
 	MatrixBuildRotationAboutAxis(dst, axis, angle);
+
+#ifdef _DEBUG
+	Vector3D test;
+	Vector3DMultiply(dst, initialDirection, test);
+	test -= finalDirection;
+	Assert(test.LengthSqr() < 1e-3);
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1163,8 +1198,7 @@ void CalculateSphereFromProjectionMatrix(const VMatrix& worldToVolume, Vector3D*
 }
 
 
-static inline void FrustumPlanesFromMatrixHelper(const VMatrix& shadowToWorld, const Vector3D& p1, const Vector3D& p2, const Vector3D& p3,
-	Vector3D& normal, float& dist)
+static inline void FrustumPlanesFromMatrixHelper(const VMatrix& shadowToWorld, const Vector3D& p1, const Vector3D& p2, const Vector3D& p3, VPlane& plane)
 {
 	Vector3D world1, world2, world3;
 	Vector3DMultiplyPositionProjective(shadowToWorld, p1, world1);
@@ -1175,41 +1209,37 @@ static inline void FrustumPlanesFromMatrixHelper(const VMatrix& shadowToWorld, c
 	VectorSubtract(world2, world1, v1);
 	VectorSubtract(world3, world1, v2);
 
-	CrossProduct(v1, v2, normal);
-	VectorNormalize(normal);
-	dist = DotProduct(normal, world1);
+	CrossProduct(v1, v2, plane.m_Normal);
+	VectorNormalize(plane.m_Normal);
+	plane.m_Dist = DotProduct(plane.m_Normal, world1);
 }
 
 void FrustumPlanesFromMatrix(const VMatrix& clipToWorld, Frustum_t& frustum)
 {
-	Vector3D normal;
-	float dist;
+	VPlane planes[6];
 
 	FrustumPlanesFromMatrixHelper(clipToWorld,
-		Vector3D(0.0f, 0.0f, 0.0f), Vector3D(1.0f, 0.0f, 0.0f), Vector3D(0.0f, 1.0f, 0.0f), normal, dist);
-	frustum.SetPlane(FRUSTUM_NEARZ, PLANE_ANYZ, normal, dist);
+		Vector3D(0.0f, 0.0f, 0.0f), Vector3D(1.0f, 0.0f, 0.0f), Vector3D(0.0f, 1.0f, 0.0f), planes[FRUSTUM_NEARZ]);
 
 	FrustumPlanesFromMatrixHelper(clipToWorld,
-		Vector3D(0.0f, 0.0f, 1.0f), Vector3D(0.0f, 1.0f, 1.0f), Vector3D(1.0f, 0.0f, 1.0f), normal, dist);
-	frustum.SetPlane(FRUSTUM_FARZ, PLANE_ANYZ, normal, dist);
+		Vector3D(0.0f, 0.0f, 1.0f), Vector3D(0.0f, 1.0f, 1.0f), Vector3D(1.0f, 0.0f, 1.0f), planes[FRUSTUM_FARZ]);
 
 	FrustumPlanesFromMatrixHelper(clipToWorld,
-		Vector3D(1.0f, 0.0f, 0.0f), Vector3D(1.0f, 1.0f, 1.0f), Vector3D(1.0f, 1.0f, 0.0f), normal, dist);
-	frustum.SetPlane(FRUSTUM_RIGHT, PLANE_ANYZ, normal, dist);
+		Vector3D(1.0f, 0.0f, 0.0f), Vector3D(1.0f, 1.0f, 1.0f), Vector3D(1.0f, 1.0f, 0.0f), planes[FRUSTUM_RIGHT]);
 
 	FrustumPlanesFromMatrixHelper(clipToWorld,
-		Vector3D(0.0f, 0.0f, 0.0f), Vector3D(0.0f, 1.0f, 1.0f), Vector3D(0.0f, 0.0f, 1.0f), normal, dist);
-	frustum.SetPlane(FRUSTUM_LEFT, PLANE_ANYZ, normal, dist);
+		Vector3D(0.0f, 0.0f, 0.0f), Vector3D(0.0f, 1.0f, 1.0f), Vector3D(0.0f, 0.0f, 1.0f), planes[FRUSTUM_LEFT]);
 
 	FrustumPlanesFromMatrixHelper(clipToWorld,
-		Vector3D(1.0f, 1.0f, 0.0f), Vector3D(1.0f, 1.0f, 1.0f), Vector3D(0.0f, 1.0f, 1.0f), normal, dist);
-	frustum.SetPlane(FRUSTUM_TOP, PLANE_ANYZ, normal, dist);
+		Vector3D(1.0f, 1.0f, 0.0f), Vector3D(1.0f, 1.0f, 1.0f), Vector3D(0.0f, 1.0f, 1.0f), planes[FRUSTUM_TOP]);
 
 	FrustumPlanesFromMatrixHelper(clipToWorld,
-		Vector3D(1.0f, 0.0f, 0.0f), Vector3D(0.0f, 0.0f, 1.0f), Vector3D(1.0f, 0.0f, 1.0f), normal, dist);
-	frustum.SetPlane(FRUSTUM_BOTTOM, PLANE_ANYZ, normal, dist);
+		Vector3D(1.0f, 0.0f, 0.0f), Vector3D(0.0f, 0.0f, 1.0f), Vector3D(1.0f, 0.0f, 1.0f), planes[FRUSTUM_BOTTOM]);
+
+	frustum.SetPlanes(planes);
 }
 
+// BEWARE: top/bottom are FLIPPED relative to D3DXMatrixOrthoOffCenterRH().
 void MatrixBuildOrtho(VMatrix& dst, double left, double top, double right, double bottom, double zNear, double zFar)
 {
 	// FIXME: This is being used incorrectly! Should read:
@@ -1243,29 +1273,19 @@ void MatrixBuildOrtho(VMatrix& dst, double left, double top, double right, doubl
 		0.0f, 0.0f, 0.0f, 1.0f);
 }
 
-void MatrixBuildPerspectiveZRange(VMatrix& dst, double flZNear, double flZFar)
-{
-	dst.m[2][0] = 0.0f;
-	dst.m[2][1] = 0.0f;
-	dst.m[2][2] = flZFar / (flZNear - flZFar);
-	dst.m[2][3] = flZNear * flZFar / (flZNear - flZFar);
-}
-
 void MatrixBuildPerspectiveX(VMatrix& dst, double flFovX, double flAspect, double flZNear, double flZFar)
 {
-	float flWidthScale = 1.0f / tanf(flFovX * M_PI / 360.0f);
-	float flHeightScale = flAspect * flWidthScale;
-	dst.Init(flWidthScale, 0.0f, 0.0f, 0.0f,
-		0.0f, flHeightScale, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 0.0f,
+	float flWidth = 2.0f * flZNear * tanf(flFovX * M_PI / 360.0f);
+	float flHeight = flWidth / flAspect;
+	dst.Init(2.0f * flZNear / flWidth, 0.0f, 0.0f, 0.0f,
+		0.0f, 2.0f * flZNear / flHeight, 0.0f, 0.0f,
+		0.0f, 0.0f, flZFar / (flZNear - flZFar), flZNear * flZFar / (flZNear - flZFar),
 		0.0f, 0.0f, -1.0f, 0.0f);
-
-	MatrixBuildPerspectiveZRange(dst, flZNear, flZFar);
 }
 
 void MatrixBuildPerspectiveOffCenterX(VMatrix& dst, double flFovX, double flAspect, double flZNear, double flZFar, double bottom, double top, double left, double right)
 {
-	float flWidth = tanf(flFovX * M_PI / 360.0f);
+	float flWidth = 2.0f * flZNear * tanf(flFovX * M_PI / 360.0f);
 	float flHeight = flWidth / flAspect;
 
 	// bottom, top, left, right are 0..1 so convert to -<val>/2..<val>/2
@@ -1274,12 +1294,58 @@ void MatrixBuildPerspectiveOffCenterX(VMatrix& dst, double flFovX, double flAspe
 	float flBottom = -(flHeight / 2.0f) * (1.0f - bottom) + bottom * (flHeight / 2.0f);
 	float flTop = -(flHeight / 2.0f) * (1.0f - top) + top * (flHeight / 2.0f);
 
-	dst.Init(1.0f / (flRight - flLeft), 0.0f, (flLeft + flRight) / (flRight - flLeft), 0.0f,
-		0.0f, 1.0f / (flTop - flBottom), (flTop + flBottom) / (flTop - flBottom), 0.0f,
-		0.0f, 0.0f, 0.0f, 0.0f,
+	dst.Init((2.0f * flZNear) / (flRight - flLeft), 0.0f, (flLeft + flRight) / (flRight - flLeft), 0.0f,
+		0.0f, 2.0f * flZNear / (flTop - flBottom), (flTop + flBottom) / (flTop - flBottom), 0.0f,
+		0.0f, 0.0f, flZFar / (flZNear - flZFar), flZNear * flZFar / (flZNear - flZFar),
 		0.0f, 0.0f, -1.0f, 0.0f);
-
-	MatrixBuildPerspectiveZRange(dst, flZNear, flZFar);
 }
-#endif // !_STATIC_LINKED || _SHARED_LIB
 
+void ExtractClipPlanesFromNonTransposedMatrix(const VMatrix& viewProjMatrix, VPlane* pPlanesOut, bool bD3DClippingRange)
+{
+	// Left
+	Vector4D vPlane = MatrixGetRowAsVector4D(viewProjMatrix, 0) + MatrixGetRowAsVector4D(viewProjMatrix, 3);
+	pPlanesOut[FRUSTUM_LEFT].Init(vPlane.AsVector3D(), -vPlane.w);
+
+	// Right
+	vPlane = -MatrixGetRowAsVector4D(viewProjMatrix, 0) + MatrixGetRowAsVector4D(viewProjMatrix, 3);
+	pPlanesOut[FRUSTUM_RIGHT].Init(vPlane.AsVector3D(), -vPlane.w);
+
+	// Bottom
+	vPlane = MatrixGetRowAsVector4D(viewProjMatrix, 1) + MatrixGetRowAsVector4D(viewProjMatrix, 3);
+	pPlanesOut[FRUSTUM_BOTTOM].Init(vPlane.AsVector3D(), -vPlane.w);
+
+	// Top
+	vPlane = -MatrixGetRowAsVector4D(viewProjMatrix, 1) + MatrixGetRowAsVector4D(viewProjMatrix, 3);
+	pPlanesOut[FRUSTUM_TOP].Init(vPlane.AsVector3D(), -vPlane.w);
+
+	// Near
+	if (bD3DClippingRange)
+	{
+		// [0,1] Z clipping range (D3D-style)
+		vPlane = MatrixGetRowAsVector4D(viewProjMatrix, 2);
+	}
+	else
+	{
+		// [-1,1] Z clipping range (OpenGL-style)
+		vPlane = MatrixGetRowAsVector4D(viewProjMatrix, 2) + MatrixGetRowAsVector4D(viewProjMatrix, 3);
+	}
+
+	pPlanesOut[FRUSTUM_NEARZ].Init(vPlane.AsVector3D(), -vPlane.w);
+
+	// Far
+	vPlane = -MatrixGetRowAsVector4D(viewProjMatrix, 2) + MatrixGetRowAsVector4D(viewProjMatrix, 3);
+	pPlanesOut[FRUSTUM_FARZ].Init(vPlane.AsVector3D(), -vPlane.w);
+
+	for (uint i = 0; i < FRUSTUM_NUMPLANES; ++i)
+	{
+		float flLen2 = pPlanesOut[i].m_Normal.x * pPlanesOut[i].m_Normal.x + pPlanesOut[i].m_Normal.y * pPlanesOut[i].m_Normal.y + pPlanesOut[i].m_Normal.z * pPlanesOut[i].m_Normal.z;
+		if (flLen2 != 0.0f)
+		{
+			float flScale = 1.0f / sqrt(flLen2);
+			pPlanesOut[i].m_Normal *= flScale;
+			pPlanesOut[i].m_Dist *= flScale;
+		}
+	}
+}
+
+#endif // !_STATIC_LINKED || _SHARED_LIB

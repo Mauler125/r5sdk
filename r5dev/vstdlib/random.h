@@ -10,7 +10,6 @@
 #define VSTDLIB_RANDOM_H
 
 #include "tier0/basetypes.h"
-#include "tier0/threadtools.h"
 
 #define NTAB 32
 

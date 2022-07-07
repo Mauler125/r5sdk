@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+﻿//========= Copyright � 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -19,12 +19,26 @@
 // For vec_t, put this somewhere else?
 #include "tier0/basetypes.h"
 
-// For rand(). We really need a library!
-#include <stdlib.h>
+// For RandomFloat()
+#include "vstdlib/random.h"
 
 #include "tier0/dbg.h"
 #include "mathlib/bits.h"
 #include "mathlib/math_pfns.h"
+
+#ifndef M_PI
+#define M_PI		3.14159265358979323846	// matches value in gcc v2 math.h
+#endif
+
+#ifndef M_PI_F
+#define M_PI_F		((float)(M_PI))
+#endif
+
+#ifndef DEG2RAD
+#define DEG2RAD( x  )  ( (float)(x) * (float)(M_PI_F / 180.f) )
+#endif
+
+extern void inline SinCos(float radians, float* RESTRICT sine, float* RESTRICT cosine);
 
 //=========================================================
 // 2D Vector2D
@@ -37,9 +51,9 @@ public:
 	vec_t x, y;
 
 	// Construction/destruction
-	Vector2D(void);
+	Vector2D();
 	Vector2D(vec_t X, vec_t Y);
-	Vector2D(const float* pFloat);
+	explicit Vector2D(const float* pFloat);
 
 	// Initialization
 	void Init(vec_t ix = 0.0f, vec_t iy = 0.0f);
@@ -196,7 +210,7 @@ void Vector2DLerp(const Vector2D& src1, const Vector2D& src2, vec_t t, Vector2D&
 // constructors
 //-----------------------------------------------------------------------------
 
-inline Vector2D::Vector2D(void)
+inline Vector2D::Vector2D()
 {
 #ifdef _DEBUG
 	// Initialize to NAN to catch errors
@@ -238,11 +252,13 @@ inline void Vector2D::Init(vec_t ix, vec_t iy)
 	Assert(IsValid());
 }
 
+#if !defined(__SPU__)
 inline void Vector2D::Random(float minVal, float maxVal)
 {
-	x = minVal + ((float)rand() / VALVE_RAND_MAX) * (maxVal - minVal);
-	y = minVal + ((float)rand() / VALVE_RAND_MAX) * (maxVal - minVal);
+	x = RandomFloat(minVal, maxVal);
+	y = RandomFloat(minVal, maxVal);
 }
+#endif
 
 inline void Vector2DClear(Vector2D& a)
 {
@@ -437,6 +453,15 @@ inline void Vector2DDivide(const Vector2D& a, const Vector2D& b, Vector2D& c)
 	Assert((b.x != 0.0f) && (b.y != 0.0f));
 	c.x = a.x / b.x;
 	c.y = a.y / b.y;
+}
+
+inline void Vector2DRotate(const Vector2D& vIn, float flDegrees, Vector2D& vOut)
+{
+	float c, s;
+	SinCos(DEG2RAD(flDegrees), &s, &c);
+
+	vOut.x = vIn.x * c - vIn.y * s;
+	vOut.y = vIn.x * s + vIn.y * c;
 }
 
 inline void Vector2DMA(const Vector2D& start, float s, const Vector2D& dir, Vector2D& result)

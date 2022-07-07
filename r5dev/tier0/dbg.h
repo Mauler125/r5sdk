@@ -8,6 +8,7 @@
 #ifndef DBG_H
 #define DBG_H
 #define Assert assert
+#define AssertDbg assert
 #include "tier0/dbgflag.h"
 
 bool HushAsserts();

@@ -220,6 +220,9 @@
     <Filter Include="sdk\engine\client">
       <UniqueIdentifier>{b7e33427-fd37-44b1-8530-651ae5f4fde1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\bonesetup">
+      <UniqueIdentifier>{acbd4b45-6a8d-4d9f-9747-1bc460481bb4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\vengineclient_impl.cpp">
@@ -575,6 +578,18 @@
     </ClCompile>
     <ClCompile Include="..\tier2\meshutils.cpp">
       <Filter>sdk\tier2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\bonesetup\bone_utils.cpp">
+      <Filter>sdk\bonesetup</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\transform.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\ssenoise.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier0\threadtools.cpp">
+      <Filter>sdk\tier0</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1637,9 +1652,6 @@
     <ClInclude Include="..\mathlib\ssemath.h">
       <Filter>sdk\mathlib</Filter>
     </ClInclude>
-    <ClInclude Include="..\mathlib\ssenoise.h">
-      <Filter>sdk\mathlib</Filter>
-    </ClInclude>
     <ClInclude Include="..\mathlib\noisedata.h">
       <Filter>sdk\mathlib</Filter>
     </ClInclude>
@@ -1666,6 +1678,15 @@
     </ClInclude>
     <ClInclude Include="..\tier2\meshutils.h">
       <Filter>sdk\tier2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\float_tools.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\fltx4.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\transform.h">
+      <Filter>sdk\mathlib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
