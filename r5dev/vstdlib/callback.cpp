@@ -80,11 +80,12 @@ void Host_Kick_f(const CCommand& args)
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
 		CClient* pClient = g_pClient->GetClient(i);
-		CNetChan* pNetChan = pClient->GetNetChan();
-		if (!pClient || !pNetChan)
-		{
+		if (!pClient)
 			continue;
-		}
+
+		CNetChan* pNetChan = pClient->GetNetChan();
+		if (!pNetChan)
+			continue;
 
 		string svClientName = pNetChan->GetName(); // Get full name.
 
@@ -120,12 +121,12 @@ void Host_KickID_f(const CCommand& args)
 		for (int i = 0; i < MAX_PLAYERS; i++)
 		{
 			CClient* pClient = g_pClient->GetClient(i);
-			CNetChan* pNetChan = pClient->GetNetChan();
-
-			if (!pClient || !pNetChan)
-			{
+			if (!pClient)
 				continue;
-			}
+
+			CNetChan* pNetChan = pClient->GetNetChan();
+			if (!pNetChan)
+				continue;
 
 			string svIpAddress = pNetChan->GetAddress(); // If this stays null they modified the packet somehow.
 
@@ -184,12 +185,12 @@ void Host_Ban_f(const CCommand& args)
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
 		CClient* pClient = g_pClient->GetClient(i);
-		CNetChan* pNetChan = pClient->GetNetChan();
-
-		if (!pClient || !pNetChan)
-		{
+		if (!pClient)
 			continue;
-		}
+
+		CNetChan* pNetChan = pClient->GetNetChan();
+		if (!pNetChan)
+			continue;
 
 		string svClientName = pNetChan->GetName(); // Get full name.
 
@@ -229,12 +230,12 @@ void Host_BanID_f(const CCommand& args)
 		for (int i = 0; i < MAX_PLAYERS; i++)
 		{
 			CClient* pClient = g_pClient->GetClient(i);
-			CNetChan* pNetChan = pClient->GetNetChan();
-
-			if (!pClient || !pNetChan)
-			{
+			if (!pClient)
 				continue;
-			}
+
+			CNetChan* pNetChan = pClient->GetNetChan();
+			if (!pNetChan)
+				continue;
 
 			string svIpAddress = pNetChan->GetAddress(); // If this stays empty they modified the packet somehow.
 
