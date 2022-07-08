@@ -513,8 +513,6 @@ void RTech::CreateDXTexture(RTechTextureInfo_t* textureHeader, int64_t imageData
 	__int64 initialData[4096]{};
 	textureHeader->m_nTextureMipLevels = textureHeader->m_nMipLevels;
 
-	DXGI_FORMAT dxgiFormat = rpakToDxgiFormat[textureHeader->m_nFormat]; // Get dxgi format
-
 	int totalStreamedMips = textureHeader->m_nMipLevelsStreamedOpt + textureHeader->m_nMipLevelsStreamed;
 	uint32_t mipLevel = textureHeader->m_nMipLevels + totalStreamedMips;
 	if (mipLevel != totalStreamedMips)
@@ -555,6 +553,8 @@ void RTech::CreateDXTexture(RTechTextureInfo_t* textureHeader, int64_t imageData
 			}
 		} while (mipLevel != totalStreamedMips);
 	}
+
+	DXGI_FORMAT dxgiFormat = rpakToDxgiFormat[textureHeader->m_nFormat]; // Get dxgi format
 
 	D3D11_TEXTURE2D_DESC textureDesc{};
 	textureDesc.Width = textureHeader->m_nWidth >> mipLevel;
