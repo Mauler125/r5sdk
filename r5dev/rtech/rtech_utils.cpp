@@ -651,14 +651,14 @@ RPakLoadedInfo_t* RTech::GetPakLoadedInfo(const char* szPakName)
 void RTech_Utils_Attach()
 {
 #ifndef DEDICATED
-	//DetourAttach((LPVOID*)&RTech_CreateDXTexture, &RTech::CreateDXTexture);
+	DetourAttach((LPVOID*)&RTech_CreateDXTexture, &RTech::CreateDXTexture);
 #endif
 }
 
 void RTech_Utils_Detach()
 {
 #ifndef DEDICATED
-	//DetourDetach((LPVOID*)&RTech_CreateDXTexture, &RTech::CreateDXTexture);
+	DetourDetach((LPVOID*)&RTech_CreateDXTexture, &RTech::CreateDXTexture);
 #endif
 }
 
