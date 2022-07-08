@@ -591,6 +591,9 @@
     <ClCompile Include="..\tier0\threadtools.cpp">
       <Filter>sdk\tier0</Filter>
     </ClCompile>
+    <ClCompile Include="..\server\persistence.cpp">
+      <Filter>sdk\server</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1687,6 +1690,9 @@
     </ClInclude>
     <ClInclude Include="..\mathlib\transform.h">
       <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\server\persistence.h">
+      <Filter>sdk\server</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

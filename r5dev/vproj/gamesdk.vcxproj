@@ -98,6 +98,7 @@
     <ClCompile Include="..\rtech\rtech_game.cpp" />
     <ClCompile Include="..\rtech\rui\rui.cpp" />
     <ClCompile Include="..\rtech\stryder\stryder.cpp" />
+    <ClCompile Include="..\server\persistence.cpp" />
     <ClCompile Include="..\server\vengineserver_impl.cpp" />
     <ClCompile Include="..\squirrel\sqapi.cpp" />
     <ClCompile Include="..\squirrel\sqinit.cpp" />
@@ -274,6 +275,7 @@
     <ClInclude Include="..\rtech\rtech_game.h" />
     <ClInclude Include="..\rtech\rui\rui.h" />
     <ClInclude Include="..\rtech\stryder\stryder.h" />
+    <ClInclude Include="..\server\persistence.h" />
     <ClInclude Include="..\server\vengineserver_impl.h" />
     <ClInclude Include="..\squirrel\sqapi.h" />
     <ClInclude Include="..\squirrel\sqinit.h" />

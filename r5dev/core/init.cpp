@@ -50,6 +50,7 @@
 #include "client/vengineclient_impl.h"
 #ifndef CLIENT_DLL
 #include "engine/server/server.h"
+#include "server/persistence.h"
 #include "server/vengineserver_impl.h"
 #endif // !CLIENT_DLL
 #include "squirrel/sqinit.h"
@@ -188,6 +189,7 @@ void Systems_Init()
 	CKeyValueSystem_Attach();
 
 #ifndef CLIENT_DLL
+	Persistence_Attach();
 	IVEngineServer_Attach();
 #endif // !CLIENT_DLL
 
@@ -309,6 +311,7 @@ void Systems_Shutdown()
 	CKeyValueSystem_Detach();
 
 #ifndef CLIENT_DLL
+	Persistence_Detach();
 	IVEngineServer_Detach();
 #endif // !CLIENT_DLL
 	SQAPI_Detach();
