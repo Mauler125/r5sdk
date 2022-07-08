@@ -166,6 +166,7 @@ struct RPakTextureHeader_t
 	uint8_t unk3[310];
 	ID3D11Texture2D* m_ppTexture;
 	ID3D11ShaderResourceView* m_ppShaderResourceView;
+	uint8_t m_nTextureMipLevels;
 };
 
 // Map of dxgi format to txtr asset format
