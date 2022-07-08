@@ -1214,6 +1214,9 @@ int InsideOut(int nTotal, int nCounter);
 // FIXME: Vector versions.... the float versions will go away hopefully soon!
 //-----------------------------------------------------------------------------
 
+void AngleCompose(const QAngle& a1, const QAngle& a2, QAngle& out);
+void AngleLerp(const QAngle& a1, const QAngle& a2, float t, QAngle& out);
+void AngleInverse(const QAngle& angles, QAngle& out);
 void AngleVectors(const QAngle& angles, Vector3D* forward);
 void AngleVectors(const QAngle& angles, Vector3D* forward, Vector3D* right, Vector3D* up);
 void AngleVectorsTranspose(const QAngle& angles, Vector3D* forward, Vector3D* right, Vector3D* up);

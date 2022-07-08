@@ -1003,6 +1003,50 @@ int __cdecl BoxOnPlaneSide(const float* emins, const float* emaxs, const cplane_
 }
 
 //-----------------------------------------------------------------------------
+// Euler QAngle -> Euler QAngle Composed
+//-----------------------------------------------------------------------------
+
+void AngleCompose(const QAngle& a1, const QAngle& a2, QAngle& out)
+{
+	Quaternion q1, q2, q3;
+
+	AngleQuaternion(a1, q1);
+	AngleQuaternion(a2, q2);
+
+	QuaternionMult(q1, q2, q3);
+	QuaternionAngles(q3, out);
+}
+
+//-----------------------------------------------------------------------------
+// Euler QAngle -> Euler QAngle Lerped
+//-----------------------------------------------------------------------------
+
+void AngleLerp(const QAngle& a1, const QAngle& a2, float t, QAngle& out)
+{
+	Quaternion q1, q2, q3;
+
+	AngleQuaternion(a1, q1);
+	AngleQuaternion(a2, q2);
+
+	QuaternionSlerp(q1, q2, t, q3);
+	QuaternionAngles(q3, out);
+}
+
+//-----------------------------------------------------------------------------
+// Euler QAngle -> Euler QAngle Inverted
+//-----------------------------------------------------------------------------
+
+void AngleInverse(const QAngle& angles, QAngle& out)
+{
+	Quaternion q1, q2;
+
+	AngleQuaternion(angles, q1);
+
+	QuaternionInvert(q1, q2);
+	QuaternionAngles(q2, out);
+}
+
+//-----------------------------------------------------------------------------
 // Euler QAngle -> Basis Vectors
 //-----------------------------------------------------------------------------
 
