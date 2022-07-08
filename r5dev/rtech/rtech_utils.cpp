@@ -650,14 +650,14 @@ RPakLoadedInfo_t* RTech::GetPakLoadedInfo(const char* szPakName)
 
 void RTech_Utils_Attach()
 {
-#ifndef DEDICATED
+#if not defined DEDICATED && defined (GAMEDLL_S3)
 	DetourAttach((LPVOID*)&RTech_CreateDXTexture, &RTech::CreateDXTexture);
 #endif
 }
 
 void RTech_Utils_Detach()
 {
-#ifndef DEDICATED
+#if not defined DEDICATED && defined (GAMEDLL_S3)
 	DetourDetach((LPVOID*)&RTech_CreateDXTexture, &RTech::CreateDXTexture);
 #endif
 }
