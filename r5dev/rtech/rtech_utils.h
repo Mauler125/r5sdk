@@ -153,6 +153,27 @@ struct RPakTextureHeader_t
 	uint32_t m_nNameOffset;
 	uint16_t m_nWidth;
 	uint16_t m_nHeight;
+	uint8_t unk0;
+	uint8_t unk1;
+	uint16_t m_nFormat;
+	uint8_t unk2;
+	uint32_t m_nDataSize;
+	uint8_t unk3;
+	uint8_t m_nMipLevelsStreamedOpt;
+	uint8_t m_nArraySize;
+	uint8_t m_nLayerCount;
+	uint8_t unk4;
+	uint8_t m_nMipLevels;
+	uint8_t m_nMipLevelsStreamed;
+	uint8_t unk5[0x15];
+};
+
+struct RTechTextureInfo_t
+{
+	uint64_t m_nGUID;
+	const char* m_nDebugName;
+	uint16_t m_nWidth;
+	uint16_t m_nHeight;
 	uint16_t unk0;
 	uint16_t m_nFormat;
 	uint32_t m_nDataSize;
@@ -341,7 +362,7 @@ public:
 	RPakLoadedInfo_t* GetPakLoadedInfo(const char* szPakName);
 
 #if not defined DEDICATED && defined (GAMEDLL_S3)
-	static void __fastcall CreateDXTexture(RPakTextureHeader_t* textureHeader, int64_t cpuArg);
+	static void __fastcall CreateDXTexture(RTechTextureInfo_t* textureHeader, int64_t cpuArg);
 #endif
 
 #ifndef DEDICATED

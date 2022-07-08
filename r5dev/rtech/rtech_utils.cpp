@@ -503,144 +503,96 @@ std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::
 
 #if not defined DEDICATED && defined (GAMEDLL_S3)
 
-void RTech::CreateDXTexture(RPakTextureHeader_t* textureHeader, int64_t imageData)
+#pragma warning( push )
+#pragma warning( disable : 6262 ) // Disable stack warning, tells us to move more data to the heap instead. Not really possible with 'initialData' here.
+void RTech::CreateDXTexture(RTechTextureInfo_t* textureHeader, int64_t imageData)
 {
-	RPakTextureHeader_t* v2; // rbx
-	int v5; // esi
-	UINT v6; // edi
-	uint8_t v7; // r15
-	UINT v8; // er14
-	unsigned int v9; // er8
-	unsigned int v10; // er11
-	unsigned int v11; // er10
-	unsigned int v12; // er13
-	int v13; // ebx
-	int v14; // er12
-	int v15; // eax
-	int v16; // edx
-	int v17; // eax
-	unsigned int v18; // edx
-	int v19; // er11
-	int v20; // er8
-	UINT v21; // eax
-	unsigned int v22; // er8
-	__int64 v23; // rdx
-	__int64 v24 = 0; // rcx
-	DXGI_FORMAT dxgiFormat; // esi
-	unsigned int v28; // er8
-	UINT v29; // eax
-	unsigned int v30; // edx
-	UINT v31; // eax
-	bool v32; // zf
-	int create_texture_err_var; // eax
-	uint8_t v34; // al
-	int v35; // ecx
-	int create_shader_resource_view_err; // eax
-	unsigned int v37; // [rsp+20h] [rbp-E0h]
-	unsigned int v38; // [rsp+24h] [rbp-DCh]
-	D3D11_SHADER_RESOURCE_VIEW_DESC v39; // [rsp+28h] [rbp-D8h] BYREF
-	D3D11_TEXTURE2D_DESC p_texture_desc_var{}; // [rsp+40h] [rbp-C0h] BYREF
-	__int64 p_initial_data_var[4096]{}; // [rsp+70h] [rbp-90h] BYREF
-	unsigned int v47; // [rsp+80C0h] [rbp+7FC0h]
+	if (textureHeader->unk0 && !textureHeader->m_nHeight)
+		return;
 
-	v2 = textureHeader;
-	if (!v2->unk0 && v2->m_nHeight)
+	__int64 initialData[4096]{};
+	textureHeader->m_nTextureMipLevels = textureHeader->m_nMipLevels;
+
+	DXGI_FORMAT dxgiFormat = rpakToDxgiFormat[textureHeader->m_nFormat]; // Get dxgi format
+
+	int totalStreamedMips = textureHeader->m_nMipLevelsStreamedOpt + textureHeader->m_nMipLevelsStreamed;
+	uint32_t mipLevel = textureHeader->m_nMipLevels + totalStreamedMips;
+	if (mipLevel != totalStreamedMips)
 	{
-		v5 = v2->m_nMipLevelsStreamedOpt + v2->m_nMipLevelsStreamed;
-		v6 = v2->m_nMipLevels;
-		v7 = v2->m_nArraySize;
-		v8 = v6 + v5;
-		if (v6 + v5 != v5)
+		do
 		{
-			v9 = v2->m_nWidth;
-			v10 = v2->m_nHeight;
-			v37 = v9;
-			v38 = v10;
-			v11 = HIBYTE(s_pBitsPerPixelWord[textureHeader->m_nFormat]);
-			v12 = v11 >> 1;
-			v47 = v11;
-			v13 = LOBYTE(s_pBitsPerPixelWord[textureHeader->m_nFormat]);
-			v14 = v13 * (v11 >> (v11 >> 1));
-			do
+			--mipLevel;
+			if (textureHeader->m_nArraySize)
 			{
-				--v8;
-				v15 = 1;
-				if (v9 >> v8 > 1)
-					v15 = v9 >> v8;
-				v16 = v15 - 1;
-				v17 = 1;
-				v18 = (v11 + v16) >> v12;
-				if (v10 >> v8 > 1)
-					v17 = v10 >> v8;
-				v19 = v18 * v14;
-				v20 = v17 - 1;
-				v21 = v8;
-				v22 = v13 * v18 * ((v11 + v20) >> v12);
-				if (v7)
-				{
-					v23 = v7;
-					do
-					{
-						v24 = v21;
-						v21 += v6;
-						v24 = v24 << 4;
-						*(__int64*)((char*)p_initial_data_var + v24) = imageData;
-						imageData += (v22 + 15) & 0xFFFFFFF0;
-						*(_DWORD*)((char*)&p_initial_data_var[1] + v24) = v19;
-						*(_DWORD*)((char*)&p_initial_data_var[1] + v24 + 4) = v22;
-						--v23;
-					} while (v23);
-					v11 = v47;
-				}
-				v9 = v37;
-				v10 = v38;
-			} while (v8 != v5);
-		}
-		v2->m_nTextureMipLevels = v6; // Seems kinda wrong
-		p_texture_desc_var.MipLevels = v6; // v6 is MipLevels
-		dxgiFormat = rpakToDxgiFormat[textureHeader->m_nFormat]; // Get dxgi format
-		p_texture_desc_var.Format = dxgiFormat;
-		v28 = v2->m_nWidth >> v8; // Offseted by mips?
-		v29 = 1;
-		v30 = v2->m_nHeight >> v8; // Offseted by mips?
-		p_texture_desc_var.SampleDesc.Count = 1;
-		p_texture_desc_var.SampleDesc.Quality = 0;
-		if (v28 > 1)
-			v29 = v28;
-		*(_QWORD*)&p_texture_desc_var.BindFlags = 8;
-		p_texture_desc_var.Width = v29; // Final width
-		v31 = 1;
-		if (v30 > 1)
-			v31 = v30;
-		p_texture_desc_var.Height = v31; // Final height
-		v32 = v2->unk2 == 2;
-		p_texture_desc_var.ArraySize = v7; // v7 is arraysiye
-		p_texture_desc_var.MiscFlags = 0;
-		p_texture_desc_var.Usage = (D3D11_USAGE)!v32;
-		D3D11_SUBRESOURCE_DATA* test = (D3D11_SUBRESOURCE_DATA*)((uint8_t*)p_initial_data_var + (v8 << 4));
-		create_texture_err_var = (*g_ppGameDevice)->CreateTexture2D(&p_texture_desc_var, test, &v2->m_ppTexture);
-		if (create_texture_err_var < 0)
-			Error(eDLL_T::RTECH, "Couldn't create texture \"%s\": error code %08x\n", *(const char**)&v2->m_nNameIndex, (unsigned int)create_texture_err_var);
-		v34 = v2->m_nArraySize;
-		v35 = v2->m_nTextureMipLevels; // Buffer num elements?
-		v39.Format = dxgiFormat;
-		v39.Texture2D.MipLevels = v35;
-		if (v34 <= 1u)
-		{
-			*(_QWORD*)&v39.ViewDimension = 4i64;
-		}
-		else
-		{
-			v39.Texture2DArray.ArraySize = v34;
-			*(_QWORD*)&v39.ViewDimension = 5i64;
-			v39.Texture2DArray.FirstArraySlice = 0;
-		}
-		create_shader_resource_view_err = (*g_ppGameDevice)->CreateShaderResourceView(v2->m_ppTexture, &v39, &v2->m_ppShaderResourceView);
-		if (create_shader_resource_view_err < 0)
-			Error(eDLL_T::RTECH, "Couldn't create shader resource view for texture \"%s\": error code %08x\n", *(const char**)&v2->m_nNameIndex, (unsigned int)create_shader_resource_view_err);
-	}
-}
+				int mipWidth = 0;
+				if (textureHeader->m_nWidth >> mipLevel > 1)
+					mipWidth = (textureHeader->m_nWidth >> mipLevel) - 1;
 
+				int mipHeight = 0;
+				if (textureHeader->m_nHeight >> mipLevel > 1)
+					mipHeight = (textureHeader->m_nHeight >> mipLevel) - 1;
+
+				uint8_t v11 = HIBYTE(s_pBitsPerPixelWord[textureHeader->m_nFormat]);
+				uint8_t v13 = LOBYTE(s_pBitsPerPixelWord[textureHeader->m_nFormat]);
+				uint32_t v14 = v13 * (v11 >> (v11 >> 1));
+
+				uint32_t v18 = (v11 + mipWidth) >> (v11 >> 1);
+				uint32_t v19 = v18 * v14;
+				uint32_t v22 = v13 * v18 * ((v11 + mipHeight) >> (v11 >> 1));
+
+				uint32_t subResourceEntry = mipLevel;
+				for (int i = 0; i < textureHeader->m_nArraySize; i++)
+				{
+					uint32_t offsetCurrentResourceData = subResourceEntry << 4u;
+
+					*(int64_t*)((uint8_t*)initialData + offsetCurrentResourceData) = imageData;
+					*(uint32_t*)((uint8_t*)&initialData[1] + offsetCurrentResourceData) = v19;
+					*(uint32_t*)((uint8_t*)&initialData[1] + offsetCurrentResourceData + 4) = v22;
+
+					imageData += (v22 + 15) & 0xFFFFFFF0;
+					subResourceEntry += textureHeader->m_nMipLevels;
+				}
+			}
+		} while (mipLevel != totalStreamedMips);
+	}
+
+	D3D11_TEXTURE2D_DESC textureDesc{};
+	textureDesc.Width = textureHeader->m_nWidth >> mipLevel;
+	textureDesc.Height = textureHeader->m_nHeight >> mipLevel;
+	textureDesc.MipLevels = textureHeader->m_nMipLevels;
+	textureDesc.ArraySize = textureHeader->m_nArraySize;
+	textureDesc.Format = dxgiFormat;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.SampleDesc.Quality = 0;
+	textureDesc.Usage = (D3D11_USAGE)(textureHeader->unk2 != 2);
+	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	textureDesc.MiscFlags = 0;
+
+	uint32_t offsetStartResourceData = mipLevel << 4u;
+	D3D11_SUBRESOURCE_DATA* subResData = (D3D11_SUBRESOURCE_DATA*)((uint8_t*)initialData + offsetStartResourceData);
+	HRESULT createTextureErr = (*g_ppGameDevice)->CreateTexture2D(&textureDesc, subResData, &textureHeader->m_ppTexture);
+	if (createTextureErr < S_OK)
+		Error(eDLL_T::RTECH, "Couldn't create texture \"%s\": error code %08x\n", textureHeader->m_nDebugName, createTextureErr);
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResource{};
+	shaderResource.Format = dxgiFormat;
+	shaderResource.Texture2D.MipLevels = textureHeader->m_nTextureMipLevels;
+	if (textureHeader->m_nArraySize > 1) // Do we have a texture array?
+	{
+		shaderResource.Texture2DArray.FirstArraySlice = 0;
+		shaderResource.Texture2DArray.ArraySize = textureHeader->m_nArraySize;
+		shaderResource.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2DARRAY;
+	}
+	else
+	{
+		shaderResource.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2D;
+	}
+
+	HRESULT createShaderResourceErr = (*g_ppGameDevice)->CreateShaderResourceView(textureHeader->m_ppTexture, &shaderResource, &textureHeader->m_ppShaderResourceView);
+	if (createShaderResourceErr < S_OK)
+		Error(eDLL_T::RTECH, "Couldn't create shader resource view for texture \"%s\": error code %08x\n", textureHeader->m_nDebugName, createShaderResourceErr);
+}
+#pragma warning( pop )
 #endif
 
 #ifndef DEDICATED
