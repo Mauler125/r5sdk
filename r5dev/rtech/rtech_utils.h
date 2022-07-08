@@ -188,6 +188,7 @@ struct RTechTextureInfo_t
 	ID3D11Texture2D* m_ppTexture;
 	ID3D11ShaderResourceView* m_ppShaderResourceView;
 	uint8_t m_nTextureMipLevels;
+	uint8_t m_nTextureMipLevelsStreamedOpt;
 };
 
 // Map of dxgi format to txtr asset format
