@@ -3126,9 +3126,22 @@ inline float matrix3x4_t::GetSylvestersCriterion()const
 // | / | /
 // |/  |/
 // 0---4   --> +x
-//
 void PointsFromBox(const Vector3D& mins, const Vector3D& maxs, Vector3D* points);
 void BuildTransformedBox(Vector3D* v2, Vector3D const& bbmin, Vector3D const& bbmax, const matrix3x4_t& m);
+// generate the corner points of a angled box:
+// +y*r     _+z*u
+// ^        /|
+// |       /
+// |  3---7   
+//   /|  /|
+//  / | / |
+// 2---6  |
+// |  1|--5
+// | / | /
+// |/  |/
+// 0---4   --> +x*f
+void PointsFromAngledBox(const QAngle& angles, const Vector3D& mins, const Vector3D& maxs, Vector3D* points);
+void BuildTransformedAngledBox(Vector3D* v2, const QAngle& a, Vector3D const& bbmin, Vector3D const& bbmax, const matrix3x4_t& m);
 
 
 

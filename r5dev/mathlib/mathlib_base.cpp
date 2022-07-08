@@ -5826,7 +5826,6 @@ const Quaternion RandomQuaternion(IUniformRandomStream* pRnd)
 // | / | /
 // |/  |/
 // 0---4   --> +x
-//
 void PointsFromBox(const Vector3D& mins, const Vector3D& maxs, Vector3D* points)
 {
 	points[0][0] = mins[0];
@@ -5866,6 +5865,51 @@ void BuildTransformedBox(Vector3D* v2, Vector3D const& bbmin, Vector3D const& bb
 {
 	Vector3D v[8];
 	PointsFromBox(bbmin, bbmax, v);
+
+	VectorTransform(v[0], m, v2[0]);
+	VectorTransform(v[1], m, v2[1]);
+	VectorTransform(v[2], m, v2[2]);
+	VectorTransform(v[3], m, v2[3]);
+	VectorTransform(v[4], m, v2[4]);
+	VectorTransform(v[5], m, v2[5]);
+	VectorTransform(v[6], m, v2[6]);
+	VectorTransform(v[7], m, v2[7]);
+}
+
+// Generate the corner points of a angled box:
+// +y*r     _+z*u
+// ^        /|
+// |       /
+// |  3---7   
+//   /|  /|
+//  / | / |
+// 2---6  |
+// |  1|--5
+// | / | /
+// |/  |/
+// 0---4   --> +x*f
+void PointsFromAngledBox(const QAngle& angles, const Vector3D& mins, const Vector3D& maxs, Vector3D* points)
+{
+	Vector3D forward;
+	Vector3D up;
+	Vector3D right;
+
+	AngleVectors(angles, &forward, &right, &up);
+
+	points[0] = (forward * mins.x) + (right * maxs.y) + (up * maxs.z);
+	points[1] = (forward * mins.x) + (right * mins.y) + (up * maxs.z);
+	points[2] = (forward * maxs.x) + (right * mins.y) + (up * maxs.z);
+	points[3] = (forward * maxs.x) + (right * maxs.y) + (up * maxs.z);
+	points[4] = (forward * mins.x) + (right * maxs.y) + (up * mins.z);
+	points[5] = (forward * mins.x) + (right * mins.y) + (up * mins.z);
+	points[6] = (forward * maxs.x) + (right * mins.y) + (up * mins.z);
+	points[7] = (forward * maxs.x) + (right * maxs.y) + (up * mins.z);
+}
+
+void BuildTransformedAngledBox(Vector3D* v2, const QAngle& a, Vector3D const& bbmin, Vector3D const& bbmax, const matrix3x4_t& m)
+{
+	Vector3D v[8];
+	PointsFromAngledBox(a, bbmin, bbmax, v);
 
 	VectorTransform(v[0], m, v2[0]);
 	VectorTransform(v[1], m, v2[1]);
