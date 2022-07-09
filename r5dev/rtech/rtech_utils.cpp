@@ -504,10 +504,10 @@ std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::
 #if not defined DEDICATED && defined (GAMEDLL_S3)
 
 #pragma warning( push )
-#pragma warning( disable : 6262 ) // Disable stack warning, tells us to move more data to the heap instead. Not really possible with 'initialData' here.
+#pragma warning( disable : 6262 ) // Disable stack warning, tells us to move more data to the heap instead. Not really possible with 'initialData' here. Since its parallel processed.
 void RTech::CreateDXTexture(RTechTextureInfo_t* textureHeader, int64_t imageData)
 {
-	if (textureHeader->unk0 && !textureHeader->m_nHeight)
+	if (textureHeader->unk0 && !textureHeader->m_nHeight) // Return never gets hit. Maybe its some debug check?
 		return;
 
 	__int64 initialData[4096]{};
@@ -529,14 +529,16 @@ void RTech::CreateDXTexture(RTechTextureInfo_t* textureHeader, int64_t imageData
 				int mipHeight = 0;
 				if (textureHeader->m_nHeight >> mipLevel > 1)
 					mipHeight = (textureHeader->m_nHeight >> mipLevel) - 1;
+	
+				uint8_t x = LOBYTE(s_pBitsPerPixelWord[textureHeader->m_nFormat]); // I assume lower byte is x.
+				uint8_t y = HIBYTE(s_pBitsPerPixelWord[textureHeader->m_nFormat]); // I assume upper byte is y.
 
-				uint8_t v11 = HIBYTE(s_pBitsPerPixelWord[textureHeader->m_nFormat]);
-				uint8_t v13 = LOBYTE(s_pBitsPerPixelWord[textureHeader->m_nFormat]);
-				uint32_t v14 = v13 * (v11 >> (v11 >> 1));
+				uint32_t bytesPerPixelWidth = (y + mipWidth) >> (y >> 1);
+				uint32_t bytesPerPixelHeight = (y + mipHeight) >> (y >> 1);
+				uint32_t sliceWidth = x * (y >> (y >> 1));
 
-				uint32_t v18 = (v11 + mipWidth) >> (v11 >> 1);
-				uint32_t v19 = v18 * v14;
-				uint32_t v22 = v13 * v18 * ((v11 + mipHeight) >> (v11 >> 1));
+				uint32_t rowPitch = sliceWidth * bytesPerPixelWidth;
+				uint32_t slicePitch = x * bytesPerPixelWidth * bytesPerPixelHeight;
 
 				uint32_t subResourceEntry = mipLevel;
 				for (int i = 0; i < textureHeader->m_nArraySize; i++)
@@ -544,10 +546,10 @@ void RTech::CreateDXTexture(RTechTextureInfo_t* textureHeader, int64_t imageData
 					uint32_t offsetCurrentResourceData = subResourceEntry << 4u;
 
 					*(int64_t*)((uint8_t*)initialData + offsetCurrentResourceData) = imageData;
-					*(uint32_t*)((uint8_t*)&initialData[1] + offsetCurrentResourceData) = v19;
-					*(uint32_t*)((uint8_t*)&initialData[1] + offsetCurrentResourceData + 4) = v22;
+					*(uint32_t*)((uint8_t*)&initialData[1] + offsetCurrentResourceData) = rowPitch;
+					*(uint32_t*)((uint8_t*)&initialData[1] + offsetCurrentResourceData + 4) = slicePitch;
 
-					imageData += (v22 + 15) & 0xFFFFFFF0;
+					imageData += (slicePitch + 15) & 0xFFFFFFF0;
 					subResourceEntry += textureHeader->m_nMipLevels;
 				}
 			}

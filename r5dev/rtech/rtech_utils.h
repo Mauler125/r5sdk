@@ -184,7 +184,9 @@ struct RTechTextureInfo_t
 	uint8_t unk2;
 	uint8_t m_nMipLevels;
 	uint8_t m_nMipLevelsStreamed;
-	uint8_t unk3[310];
+	uint8_t unk3[24];
+	uint8_t m_nTotalStreamedMips; // Does not get set until after RTech::CreateDXTexture.
+	uint8_t unk4[285];
 	ID3D11Texture2D* m_ppTexture;
 	ID3D11ShaderResourceView* m_ppShaderResourceView;
 	uint8_t m_nTextureMipLevels;
