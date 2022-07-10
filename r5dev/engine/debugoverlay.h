@@ -71,14 +71,9 @@ struct OverlayBox_t : public OverlayBase_t
 {
 	OverlayBox_t(void) { m_Type = OverlayType_t::OVERLAY_BOX; }
 
-	RadianEuler angles{};  //0x0020 - this isn't angles but idrk where it is
-	float origin_X{}; //0x002C
-	RadianEuler unk30{}; //0x0030
-	float origin_Y{}; //0x003C
-	RadianEuler unk40{}; //0x0040
-	float origin_Z{}; //0x004C
-	Vector3D mins{};  //0x0050
-	Vector3D maxs{};  //0x005C
+	__m128i transforms[3];
+	Vector3D mins{};
+	Vector3D maxs{};
 	int             r{};
 	int             g{};
 	int             b{};
@@ -152,14 +147,14 @@ void DebugOverlays_Detach();
 inline CMemory p_DrawAllOverlays;
 inline auto v_DrawAllOverlays = p_DrawAllOverlays.RCast<void (*)(char a1)>();
 
-inline CMemory p_RenderWireframeBox; // one of the vector parameters is probably the angles, vmins might no longer be used.
-inline auto v_RenderWireframeBox = p_RenderWireframeBox.RCast<void* (*)(Vector3D origin, Vector3D vMins, Vector3D vMaxs, Color color, bool bZBuffer)>();
-
 inline CMemory p_RenderLine;
-inline auto v_RenderLine = p_RenderLine.RCast<void* (*)(Vector3D origin, Vector3D dest, Color color, bool bZBuffer)>();
+inline auto v_RenderLine = p_RenderLine.RCast<void* (*)(const Vector3D& vOrigin, const Vector3D& vDest, Color color, bool bZBuffer)>();
+
+inline CMemory p_RenderBox;
+inline auto v_RenderBox = p_RenderBox.RCast<void* (*)(const __m128i* vTransforms, const Vector3D& vMins, const Vector3D& vMaxs, Color color, bool bZBuffer)>();
 
 inline CMemory p_RenderWireframeSphere;
-inline auto v_RenderWireframeSphere = p_RenderWireframeSphere.RCast<void* (*)(Vector3D vCenter, float flRadius, int nTheta, int nPhi, Color c, bool bZBuffer)>();
+inline auto v_RenderWireframeSphere = p_RenderWireframeSphere.RCast<void* (*)(const Vector3D& vCenter, float flRadius, int nTheta, int nPhi, Color color, bool bZBuffer)>();
 
 inline CMemory p_DestroyOverlay;
 inline auto v_DestroyOverlay = p_DestroyOverlay.RCast<void (*)(OverlayBase_t* pOverlay)>();
@@ -179,9 +174,9 @@ class VDebugOverlay : public IDetour
 	virtual void GetAdr(void) const
 	{
 		spdlog::debug("| FUN: DrawAllOverlays                      : {:#18x} |\n", p_DrawAllOverlays.GetPtr());
-		spdlog::debug("| FUN: RenderWireframeBox                   : {:#18x} |\n", p_RenderWireframeBox.GetPtr());
-		spdlog::debug("| FUN: RenderWireframeSphere                : {:#18x} |\n", p_RenderWireframeSphere.GetPtr());
 		spdlog::debug("| FUN: RenderLine                           : {:#18x} |\n", p_RenderLine.GetPtr());
+		spdlog::debug("| FUN: RenderBox                            : {:#18x} |\n", p_RenderBox.GetPtr());
+		spdlog::debug("| FUN: RenderWireframeSphere                : {:#18x} |\n", p_RenderWireframeSphere.GetPtr());
 		spdlog::debug("| FUN: DestroyOverlay                       : {:#18x} |\n", p_DestroyOverlay.GetPtr());
 		spdlog::debug("| VAR: s_pOverlays                          : {:#18x} |\n", reinterpret_cast<uintptr_t>(s_pOverlays));
 		spdlog::debug("| VAR: s_OverlayMutex                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(s_OverlayMutex));
@@ -198,17 +193,17 @@ class VDebugOverlay : public IDetour
 		p_RenderWireframeBox = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x44\x89\x4C\x24\x00"), "xxxx?xxxx?xxxx?");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		p_DrawAllOverlays = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x55\x48\x83\xEC\x30\x48\x8B\x05\x00\x00\x00\x00\x0F\xB6\xE9"), "xxxxxxxxx????xxx");
-		p_RenderWireframeBox = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x44\x89\x4C\x24\x00"), "xxxx?xxxx?xxxx?");
+		p_RenderBox = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x44\x89\x4C\x24\x00"), "xxxx?xxxx?xxxx?");
 #endif
 		p_DestroyOverlay = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x48\x8B\xD9\x48\x8D\x0D\x00\x00\x00\x00\xFF\x15\x00\x00\x00\x00\x48\x63\x03"), "xxxxxxxxxxxx????xx????xxx");
 		p_RenderWireframeSphere = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x56\x41\x54\x41\x55\x48\x81\xEC\x00\x00\x00\x00"), "xxxxxxxxx????");
 		p_RenderLine     = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x74\x24\x00\x44\x89\x44\x24\x00\x57\x41\x56"), "xxxx?xxxx?xxx");
 
-		v_DrawAllOverlays = p_DrawAllOverlays.RCast<void (*)(char)>();                                                /*40 55 48 83 EC 30 48 8B 05 ?? ?? ?? ?? 0F B6 E9*/
-		v_DestroyOverlay = p_DestroyOverlay.RCast<void (*)(OverlayBase_t*)>();                                        /*40 53 48 83 EC 20 48 8B D9 48 8D 0D ?? ?? ?? ?? FF 15 ?? ?? ?? ?? 48 63 03 */
-		v_RenderWireframeBox = p_RenderWireframeBox.RCast<void* (*)(Vector3D, Vector3D, Vector3D, Color, bool)>();    /*48 89 5C 24 ?? 48 89 6C 24 ?? 44 89 4C 24 ??*/
-		v_RenderWireframeSphere = p_RenderWireframeSphere.RCast<void* (*)(Vector3D, float, int, int, Color, bool)>(); /*40 56 41 54 41 55 48 81 EC ?? ?? ?? ??*/
-		v_RenderLine = p_RenderLine.RCast<void* (*)(Vector3D, Vector3D, Color, bool)>();                              /*48 89 74 24 ?? 44 89 44 24 ?? 57 41 56*/
+		v_DrawAllOverlays = p_DrawAllOverlays.RCast<void (*)(char)>();                                                                 /*40 55 48 83 EC 30 48 8B 05 ?? ?? ?? ?? 0F B6 E9*/
+		v_DestroyOverlay = p_DestroyOverlay.RCast<void (*)(OverlayBase_t*)>();                                                         /*40 53 48 83 EC 20 48 8B D9 48 8D 0D ?? ?? ?? ?? FF 15 ?? ?? ?? ?? 48 63 03 */
+		v_RenderBox = p_RenderBox.RCast<void* (*)(const __m128i*, const Vector3D&, const Vector3D&, Color, bool)>(); /*48 89 5C 24 ?? 48 89 6C 24 ?? 44 89 4C 24 ??*/
+		v_RenderWireframeSphere = p_RenderWireframeSphere.RCast<void* (*)(const Vector3D&, float, int, int, Color, bool)>();           /*40 56 41 54 41 55 48 81 EC ?? ?? ?? ??*/
+		v_RenderLine = p_RenderLine.RCast<void* (*)(const Vector3D&, const Vector3D&, Color, bool)>();                                 /*48 89 74 24 ?? 44 89 44 24 ?? 57 41 56*/
 	}
 	virtual void GetVar(void) const
 	{

@@ -114,24 +114,61 @@ void DrawOverlay(OverlayBase_t* pOverlay)
     {
     case OverlayType_t::OVERLAY_BOX:
     {
-        //printf("%p\n", pOverlay);
-
         OverlayBox_t* pBox = static_cast<OverlayBox_t*>(pOverlay);
         if (pBox->a < 1)
-            pBox->a = 255;
+        {
+            if (r_debug_overlay_invisible->GetBool())
+            {
+                pBox->a = 255;
+            }
+            else
+            {
+                LeaveCriticalSection(&*s_OverlayMutex);
+                return;
+            }
+        }
 
-        DrawAngledBox({ pBox->origin_X, pBox->origin_Y, pBox->origin_Z }, { 0,0,0 }, pBox->mins, pBox->maxs, pBox->r, pBox->g, pBox->b, pBox->a, false);
+        v_RenderBox(&*pBox->transforms, pBox->mins, pBox->maxs, Color(pBox->r, pBox->g, pBox->b, pBox->a), false);
         break;
     }
     case OverlayType_t::OVERLAY_SPHERE:
     {
         OverlaySphere_t* pSphere = static_cast<OverlaySphere_t*>(pOverlay);
-        v_RenderWireframeSphere(pSphere->vOrigin, pSphere->flRadius, pSphere->nTheta, pSphere->nPhi, Color(pSphere->r, pSphere->g, pSphere->b, pSphere->a), false);
+        if (pSphere->a < 1)
+        {
+            if (r_debug_overlay_invisible->GetBool())
+            {
+                pSphere->a = 255;
+            }
+            else
+            {
+                LeaveCriticalSection(&*s_OverlayMutex);
+                return;
+            }
+        }
+
+        if (r_debug_overlay_wireframe->GetBool())
+            v_RenderWireframeSphere(pSphere->vOrigin, pSphere->flRadius, pSphere->nTheta, pSphere->nPhi, Color(pSphere->r, pSphere->g, pSphere->b, pSphere->a), false);
+        else
+            DebugDrawSphere(pSphere->vOrigin, pSphere->flRadius, Color(pSphere->r, pSphere->g, pSphere->b, pSphere->a), 16);
         break;
     }
     case OverlayType_t::OVERLAY_LINE:
     {
         OverlayLine_t* pLine = static_cast<OverlayLine_t*>(pOverlay);
+        if (pLine->a < 1)
+        {
+            if (r_debug_overlay_invisible->GetBool())
+            {
+                pLine->a = 255;
+            }
+            else
+            {
+                LeaveCriticalSection(&*s_OverlayMutex);
+                return;
+            }
+        }
+
         v_RenderLine(pLine->origin, pLine->dest, Color(pLine->r, pLine->g, pLine->b, pLine->a), pLine->noDepthTest);
         break;
     }

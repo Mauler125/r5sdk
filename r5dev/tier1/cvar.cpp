@@ -32,6 +32,8 @@ ConVar* rcon_address                       = nullptr;
 ConVar* rcon_password                      = nullptr;
 
 ConVar* r_debug_overlay_nodecay            = nullptr;
+ConVar* r_debug_overlay_invisible          = nullptr;
+ConVar* r_debug_overlay_wireframe          = nullptr;
 ConVar* r_drawWorldMeshes                  = nullptr;
 ConVar* r_drawWorldMeshesDepthOnly         = nullptr;
 ConVar* r_drawWorldMeshesDepthAtTheEnd     = nullptr;
@@ -131,7 +133,7 @@ ConVar* net_encryptionEnable               = nullptr;
 ConVar* net_useRandomKey                   = nullptr;
 ConVar* net_usesocketsforloopback          = nullptr;
 ConVar* pylon_matchmaking_hostname         = nullptr;
-ConVar* pylon_showdebug                   = nullptr;
+ConVar* pylon_showdebug                    = nullptr;
 //-----------------------------------------------------------------------------
 // RTECH API                                                                  |
 //-----------------------------------------------------------------------------

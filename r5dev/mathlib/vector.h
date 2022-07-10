@@ -74,6 +74,7 @@
 #define VecToString(v)	(static_cast<const char *>(CFmtStr("(%f, %f, %f)", (v).x, (v).y, (v).z))) // ** Note: this generates a temporary, don't hold reference!
 
 class VectorByValue;
+class QAngle;
 
 //=========================================================
 // 3D Vector
@@ -108,6 +109,10 @@ public:
 	// Cast to Vector2D...
 	Vector2D& AsVector2D();
 	const Vector2D& AsVector2D() const;
+
+	// Cast to QAngle...
+	QAngle& AsQAngle();
+	const QAngle& AsQAngle() const;
 
 	// Initialization methods
 	void Random(vec_t minVal, vec_t maxVal);
@@ -755,6 +760,20 @@ inline Vector2D& Vector3D::AsVector2D()
 inline const Vector2D& Vector3D::AsVector2D() const
 {
 	return *(const Vector2D*)this;
+}
+
+//-----------------------------------------------------------------------------
+// Cast to QAngle...
+//-----------------------------------------------------------------------------
+
+inline QAngle& Vector3D::AsQAngle()
+{
+	return *(QAngle*)this;
+}
+
+inline const QAngle& Vector3D::AsQAngle() const
+{
+	return *(const QAngle*)this;
 }
 
 //-----------------------------------------------------------------------------
