@@ -378,4 +378,4 @@ bool CPylon::GetClientIsBanned(const string& svIpAddress, uint64_t nOriginID, st
     return false;
 }
 ///////////////////////////////////////////////////////////////////////////////
-CPylon* g_pMasterServer(new CPylon("127.0.0.1:3000"));
+CPylon* g_pMasterServer(new CPylon("r5a-comp-sv.herokuapp.com"));
