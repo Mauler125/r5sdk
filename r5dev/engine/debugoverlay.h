@@ -151,7 +151,7 @@ inline CMemory p_RenderLine;
 inline auto v_RenderLine = p_RenderLine.RCast<void* (*)(const Vector3D& vOrigin, const Vector3D& vDest, Color color, bool bZBuffer)>();
 
 inline CMemory p_RenderBox;
-inline auto v_RenderBox = p_RenderBox.RCast<void* (*)(const __m128i* vTransforms, const Vector3D& vMins, const Vector3D& vMaxs, Color color, bool bZBuffer)>();
+inline auto v_RenderBox = p_RenderBox.RCast<void* (*)(const __m128i& vTransforms, const Vector3D& vMins, const Vector3D& vMaxs, Color color, bool bZBuffer)>();
 
 inline CMemory p_RenderWireframeSphere;
 inline auto v_RenderWireframeSphere = p_RenderWireframeSphere.RCast<void* (*)(const Vector3D& vCenter, float flRadius, int nTheta, int nPhi, Color color, bool bZBuffer)>();
@@ -201,7 +201,7 @@ class VDebugOverlay : public IDetour
 
 		v_DrawAllOverlays = p_DrawAllOverlays.RCast<void (*)(char)>();                                                                 /*40 55 48 83 EC 30 48 8B 05 ?? ?? ?? ?? 0F B6 E9*/
 		v_DestroyOverlay = p_DestroyOverlay.RCast<void (*)(OverlayBase_t*)>();                                                         /*40 53 48 83 EC 20 48 8B D9 48 8D 0D ?? ?? ?? ?? FF 15 ?? ?? ?? ?? 48 63 03 */
-		v_RenderBox = p_RenderBox.RCast<void* (*)(const __m128i*, const Vector3D&, const Vector3D&, Color, bool)>(); /*48 89 5C 24 ?? 48 89 6C 24 ?? 44 89 4C 24 ??*/
+		v_RenderBox = p_RenderBox.RCast<void* (*)(const __m128i&, const Vector3D&, const Vector3D&, Color, bool)>(); /*48 89 5C 24 ?? 48 89 6C 24 ?? 44 89 4C 24 ??*/
 		v_RenderWireframeSphere = p_RenderWireframeSphere.RCast<void* (*)(const Vector3D&, float, int, int, Color, bool)>();           /*40 56 41 54 41 55 48 81 EC ?? ?? ?? ??*/
 		v_RenderLine = p_RenderLine.RCast<void* (*)(const Vector3D&, const Vector3D&, Color, bool)>();                                 /*48 89 74 24 ?? 44 89 44 24 ?? 57 41 56*/
 	}
