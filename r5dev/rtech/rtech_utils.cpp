@@ -572,9 +572,9 @@ void RTech::CreateDXTexture(RTechTextureInfo_t* textureHeader, int64_t imageData
 
 	uint32_t offsetStartResourceData = mipLevel << 4u;
 	D3D11_SUBRESOURCE_DATA* subResData = (D3D11_SUBRESOURCE_DATA*)((uint8_t*)initialData + offsetStartResourceData);
-	HRESULT createTextureErr = (*g_ppGameDevice)->CreateTexture2D(&textureDesc, subResData, &textureHeader->m_ppTexture);
-	if (createTextureErr < S_OK)
-		Error(eDLL_T::RTECH, "Couldn't create texture \"%s\": error code %08x\n", textureHeader->m_nDebugName, createTextureErr);
+	HRESULT createTextureRes = (*g_ppGameDevice)->CreateTexture2D(&textureDesc, subResData, &textureHeader->m_ppTexture);
+	if (createTextureRes < S_OK)
+		Error(eDLL_T::RTECH, "Couldn't create texture \"%s\": error code %08x\n", textureHeader->m_nDebugName, createTextureRes);
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResource{};
 	shaderResource.Format = dxgiFormat;
@@ -590,9 +590,9 @@ void RTech::CreateDXTexture(RTechTextureInfo_t* textureHeader, int64_t imageData
 		shaderResource.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2D;
 	}
 
-	HRESULT createShaderResourceErr = (*g_ppGameDevice)->CreateShaderResourceView(textureHeader->m_ppTexture, &shaderResource, &textureHeader->m_ppShaderResourceView);
-	if (createShaderResourceErr < S_OK)
-		Error(eDLL_T::RTECH, "Couldn't create shader resource view for texture \"%s\": error code %08x\n", textureHeader->m_nDebugName, createShaderResourceErr);
+	HRESULT createShaderResourceRes = (*g_ppGameDevice)->CreateShaderResourceView(textureHeader->m_ppTexture, &shaderResource, &textureHeader->m_ppShaderResourceView);
+	if (createShaderResourceRes < S_OK)
+		Error(eDLL_T::RTECH, "Couldn't create shader resource view for texture \"%s\": error code %08x\n", textureHeader->m_nDebugName, createShaderResourceRes);
 }
 #pragma warning( pop )
 #endif
