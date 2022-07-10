@@ -530,8 +530,8 @@ void RTech::CreateDXTexture(RTechTextureInfo_t* textureHeader, int64_t imageData
 				if (textureHeader->m_nHeight >> mipLevel > 1)
 					mipHeight = (textureHeader->m_nHeight >> mipLevel) - 1;
 	
-				uint8_t x = LOBYTE(s_pBitsPerPixelWord[textureHeader->m_nFormat]); // I assume lower byte is x.
-				uint8_t y = HIBYTE(s_pBitsPerPixelWord[textureHeader->m_nFormat]); // I assume upper byte is y.
+				uint8_t x = s_pRTechBytesPerPixel[textureHeader->m_nFormat].first;
+				uint8_t y = s_pRTechBytesPerPixel[textureHeader->m_nFormat].second;
 
 				uint32_t bytesPerPixelWidth = (y + mipWidth) >> (y >> 1);
 				uint32_t bytesPerPixelHeight = (y + mipHeight) >> (y >> 1);

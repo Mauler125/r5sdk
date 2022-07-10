@@ -193,6 +193,86 @@ struct RTechTextureInfo_t
 	uint8_t m_nTextureMipLevelsStreamedOpt;
 };
 
+static pair<uint8_t, uint8_t> s_pRTechBytesPerPixel[] =
+{
+  { 8u, 4u },
+  { 8u, 4u },
+  { 16u, 4u },
+  { 16u, 4u },
+  { 16u, 4u },
+  { 16u, 4u },
+  { 8u, 4u },
+  { 8u, 4u },
+  { 16u, 4u },
+  { 16u, 4u },
+  { 16u, 4u },
+  { 16u, 4u },
+  { 16u, 4u },
+  { 16u, 4u },
+  { 16u, 1u },
+  { 16u, 1u },
+  { 16u, 1u },
+  { 12u, 1u },
+  { 12u, 1u },
+  { 12u, 1u },
+  { 8u, 1u },
+  { 8u, 1u },
+  { 8u, 1u },
+  { 8u, 1u },
+  { 8u, 1u },
+  { 8u, 1u },
+  { 8u, 1u },
+  { 8u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 2u, 1u },
+  { 2u, 1u },
+  { 2u, 1u },
+  { 2u, 1u },
+  { 2u, 1u },
+  { 2u, 1u },
+  { 2u, 1u },
+  { 2u, 1u },
+  { 2u, 1u },
+  { 1u, 1u },
+  { 1u, 1u },
+  { 1u, 1u },
+  { 1u, 1u },
+  { 1u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 2u, 1u },
+  { 0u, 0u },
+  { 0u, 0u },
+  { 5u, 0u },
+  { 0u, 0u },
+  { 5u, 0u },
+  { 0u, 0u },
+  { 1u, 0u },
+  { 0u, 0u },
+  { 2u, 0u },
+  { 0u, 0u },
+  { 0u, 0u },
+  { 0u, 0u },
+  { 1u, 0u },
+  { 0u, 0u }
+};
+
 // Map of dxgi format to txtr asset format
 static std::map<DXGI_FORMAT, uint16_t> dxgiToRPakFormat {
 	{ DXGI_FORMAT_BC1_UNORM, 0 },
@@ -353,7 +433,6 @@ inline auto RTech_CreateDXTexture = p_RTech_CreateDXTexture.RCast<void(*)(RPakTe
 
 inline RPakLoadedInfo_t* g_pLoadedPakInfo;
 inline std::int16_t* s_pLoadedPakCount;
-inline int16_t* s_pBitsPerPixelWord;
 
 class RTech
 {
@@ -401,9 +480,6 @@ class VPakFile : public IDetour
 
 		g_pLoadedPakInfo = localRef.FindPattern("48 8D 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakLoadedInfo_t*>();
 		s_pLoadedPakCount = localRef.FindPattern("66 89", CMemory::Direction::DOWN, 450).ResolveRelativeAddressSelf(0x3, 0x7).RCast<std::int16_t*>();
-#if not defined DEDICATED && defined (GAMEDLL_S3)
-		s_pBitsPerPixelWord = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x0F\xB7\x43\x16\x48\x8D\x0D\x00\x00\x00\x00"), "xxxxxxx????").OffsetSelf(0x4).ResolveRelativeAddressSelf(0x3, 0x7).RCast<int16_t*>();
-#endif
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
