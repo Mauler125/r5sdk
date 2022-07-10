@@ -155,7 +155,7 @@ void ConVar::Init(void) const
 	net_useRandomKey           = new ConVar("net_useRandomKey"          , "1"                        , FCVAR_RELEASE        , "Use random base64 netkey for game packets.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// NETWORKSYSTEM                                                          |
-	pylon_matchmaking_hostname = new ConVar("pylon_matchmaking_hostname", "127.0.0.1:3000"           , FCVAR_RELEASE        , "Holds the pylon matchmaking hostname.", false, 0.f, false, 0.f, nullptr, nullptr);
+	pylon_matchmaking_hostname = new ConVar("pylon_matchmaking_hostname", "r5a-comp-sv.herokuapp.com", FCVAR_RELEASE        , "Holds the pylon matchmaking hostname.", false, 0.f, false, 0.f, nullptr, nullptr);
 	pylon_showdebug            = new ConVar("pylon_showdebug"           , "0"                        , FCVAR_DEVELOPMENTONLY, "Shows debug output for pylon.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// RTECH API                                                              |
