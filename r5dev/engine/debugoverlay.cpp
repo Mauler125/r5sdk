@@ -68,13 +68,13 @@ void DestroyOverlay(OverlayBase_t* pOverlay)
     switch (pOverlay->m_Type)
     {
     case OverlayType_t::OVERLAY_BOX:
-        pOverlaySize = 128i64;
+        pOverlaySize = sizeof(OverlayBox_t);
         goto LABEL_MALLOC;
     case OverlayType_t::OVERLAY_SPHERE:
-        pOverlaySize = 72i64;
+        pOverlaySize = sizeof(OverlaySphere_t);
         goto LABEL_MALLOC;
     case OverlayType_t::OVERLAY_LINE:
-        pOverlaySize = 80i64;
+        pOverlaySize = sizeof(OverlayLine_t);
         goto LABEL_MALLOC;
     case OverlayType_t::OVERLAY_TRIANGLE:
         pOverlaySize = 6200i64;
@@ -87,7 +87,7 @@ void DestroyOverlay(OverlayBase_t* pOverlay)
         pOverlaySize = 88i64;
         goto LABEL_MALLOC;
     case OverlayType_t::OVERLAY_CAPSULE:
-        pOverlaySize = 112i64;
+        pOverlaySize = sizeof(OverlayCapsule_t);
         break;
     case OverlayType_t::OVERLAY_UNK0:
         pOverlaySize = 88i64;
