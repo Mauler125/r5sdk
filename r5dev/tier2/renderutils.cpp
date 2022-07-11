@@ -135,8 +135,8 @@ void DebugDrawCapsule(const Vector3D& vStart, const QAngle& vAngles, const Vecto
 
     AngleCompose(vAngles, { 180, 180, 0 }, vHemi);
 
-    DebugDrawHemiSphere(vStart + (vUp * flHeight), vAngles, vRadius, color, 16, bZBuffer);
-    DebugDrawHemiSphere(vStart, vHemi, vRadius, color, 16, bZBuffer);
+    DebugDrawHemiSphere(vStart + (vUp * flHeight), vAngles, vRadius, color, 8, bZBuffer);
+    DebugDrawHemiSphere(vStart, vHemi, vRadius, color, 8, bZBuffer);
 }
 
 //-----------------------------------------------------------------------------
@@ -180,9 +180,9 @@ void DebugDrawHemiSphere(const Vector3D& vOrigin, const QAngle& vAngles, const V
     Vector3D vForward[4];
     QAngle vComposed[4];
 
-    float flDegrees = 360.0 / float(nSegments);
+    float flDegrees = 360.0 / float(nSegments * 2);
 
-    for (int i = 0; i < (nSegments / 2 + 1); i++)
+    for (int i = 0; i < (nSegments + 1); i++)
     {
         AngleCompose(vAngles, { -flDegrees * i, 0, 0 }, vComposed[0]);
         AngleCompose(vAngles, { 0, flDegrees * i - 90, 0 }, vComposed[1]);

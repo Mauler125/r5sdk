@@ -6,7 +6,7 @@ void DebugDrawBox(const Vector3D& vOrigin, const QAngle& vAngles, const Vector3D
 void DebugDrawCylinder(const Vector3D& vOrigin, const QAngle& vAngles, float flRadius, float flHeight, Color color, int nSides = 16, bool bZBuffer = true);
 void DebugDrawCapsule(const Vector3D& vStart, const QAngle& vAngles, const Vector3D& vRadius, float flHeight, Color color, bool bZBuffer = true);
 void DebugDrawSphere(const Vector3D& vOrigin, float flRadius, Color color, int nSegments = 16, bool bZBuffer = true);
-void DebugDrawHemiSphere(const Vector3D& vOrigin, const QAngle& vAngles, const Vector3D& vRadius, Color color, int nSegments = 16, bool bZBuffer = true);
+void DebugDrawHemiSphere(const Vector3D& vOrigin, const QAngle& vAngles, const Vector3D& vRadius, Color color, int nSegments = 8, bool bZBuffer = true);
 void DebugDrawCircle(const Vector3D& vOrigin, const QAngle& vAngles, float flRadius, Color color, int nSegments = 16, bool bZBuffer = true);
 void DebugDrawSquare(const Vector3D& vOrigin, const QAngle& vAngles, float flSquareSize, Color color, bool bZBuffer = true);
 void DebugDrawTriangle(const Vector3D& vOrigin, const QAngle& vAngles, float flTriangleSize, Color color, bool bZBuffer = true);
