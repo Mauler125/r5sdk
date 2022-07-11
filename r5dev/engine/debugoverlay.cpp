@@ -155,9 +155,13 @@ void DrawOverlay(OverlayBase_t* pOverlay)
         }
 
         if (r_debug_overlay_wireframe->GetBool())
+        {
             v_RenderWireframeSphere(pSphere->vOrigin, pSphere->flRadius, pSphere->nTheta, pSphere->nPhi, Color(pSphere->r, pSphere->g, pSphere->b, pSphere->a), false);
+        }
         else
+        {
             DebugDrawSphere(pSphere->vOrigin, pSphere->flRadius, Color(pSphere->r, pSphere->g, pSphere->b, pSphere->a), 16);
+        }
         break;
     }
     case OverlayType_t::OVERLAY_LINE:
@@ -217,7 +221,7 @@ void DrawOverlay(OverlayBase_t* pOverlay)
 //------------------------------------------------------------------------------
 // Purpose : draw AIN script nodes
 //------------------------------------------------------------------------------
-void DrawAIScriptNode()
+void DrawAIScriptNodes()
 {
 #ifndef CLIENT_DLL
     if (*g_pAINetwork)
@@ -259,7 +263,7 @@ void DrawAllOverlays(bool bDraw)
     }
     if (ai_script_nodes_draw->GetBool())
     {
-        DrawAIScriptNode();
+        DrawAIScriptNodes();
     }
     EnterCriticalSection(&*s_OverlayMutex);
 
