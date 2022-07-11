@@ -40,6 +40,8 @@ extern ConVar* r_drawWorldMeshesDepthAtTheEnd;
 // SERVER                                                                 |
 extern ConVar* ai_ainDumpOnLoad;
 extern ConVar* ai_ainDebugConnect;
+extern ConVar* ai_script_nodes_draw;
+extern ConVar* ai_script_nodes_draw_index;
 extern ConVar* navmesh_always_reachable;
 extern ConVar* sv_showconnecting;
 extern ConVar* sv_pylonVisibility;

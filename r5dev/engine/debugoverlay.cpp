@@ -15,10 +15,15 @@
 #include "engine/debugoverlay.h"
 #include "materialsystem/cmaterialsystem.h"
 #include "mathlib/mathlib.h"
+#ifndef CLIENT_DLL
+#include "game/server/ai_network.h"
+#include "game/server/ai_networkmanager.h"
+#endif // !CLIENT_DLL
 
 
 //------------------------------------------------------------------------------
 // Purpose: checks if overlay should be decayed
+// Output : true to decay, false otherwise
 //------------------------------------------------------------------------------
 bool OverlayBase_t::IsDead() const
 {
@@ -59,6 +64,7 @@ bool OverlayBase_t::IsDead() const
 
 //------------------------------------------------------------------------------
 // Purpose: destroys the overlay
+// Input  : *pOverlay - 
 //------------------------------------------------------------------------------
 void DestroyOverlay(OverlayBase_t* pOverlay)
 {
@@ -105,6 +111,7 @@ void DestroyOverlay(OverlayBase_t* pOverlay)
 
 //------------------------------------------------------------------------------
 // Purpose: draws a generic overlay
+// Input  : *pOverlay - 
 //------------------------------------------------------------------------------
 void DrawOverlay(OverlayBase_t* pOverlay)
 {
@@ -128,7 +135,7 @@ void DrawOverlay(OverlayBase_t* pOverlay)
             }
         }
 
-        v_RenderBox(*pBox->transforms, pBox->mins, pBox->maxs, Color(pBox->r, pBox->g, pBox->b, pBox->a), false);
+        v_RenderBox(pBox->transforms, pBox->mins, pBox->maxs, Color(pBox->r, pBox->g, pBox->b, pBox->a), false);
         break;
     }
     case OverlayType_t::OVERLAY_SPHERE:
@@ -208,13 +215,51 @@ void DrawOverlay(OverlayBase_t* pOverlay)
 }
 
 //------------------------------------------------------------------------------
-// Purpose : overlay drawing entrypoint
+// Purpose : draw AIN script nodes
 //------------------------------------------------------------------------------
-void DrawAllOverlays(char pOverlay)
+void DrawAIScriptNode()
+{
+#ifndef CLIENT_DLL
+    if (*g_pAINetwork)
+    {
+        for (int i = ai_script_nodes_draw_index->GetInt(); i < (*g_pAINetwork)->GetNumScriptNodes(); i++)
+        {
+            if (i < 0)
+            {
+                return;
+            }
+
+            OverlayBox_t::Transforms vTransforms{}; /*!FIXME: using '__m128' without type cast shifts the stack with 0x10 despite being the same size!*/
+            __m128* pTransforms = reinterpret_cast<__m128*>(&vTransforms.u0);
+
+            pTransforms[0] = _mm_set_ps((*g_pAINetwork)->m_ScriptNode[i].m_vOrigin.x - 50.f, 0.0f, 0.0f, 1.0f);
+            pTransforms[1] = _mm_set_ps((*g_pAINetwork)->m_ScriptNode[i].m_vOrigin.y - 50.f, 0.0f, 1.0f, 0.0f);
+            pTransforms[2] = _mm_set_ps((*g_pAINetwork)->m_ScriptNode[i].m_vOrigin.z - 50.f, 1.0f, 0.0f, 0.0f);
+
+            v_RenderBox(vTransforms, {0, 0, 0}, {100, 100, 100}, Color(0, 255, 0, 255), true);
+
+            if (i > 0)
+            {
+                v_RenderLine((*g_pAINetwork)->m_ScriptNode[i - 1].m_vOrigin, (*g_pAINetwork)->m_ScriptNode[i].m_vOrigin, Color(255, 0, 0, 255), true);
+            }
+        }
+    }
+#endif // !CLIENT_DLL
+}
+
+//------------------------------------------------------------------------------
+// Purpose : overlay drawing entrypoint
+// Input  : bDraw - 
+//------------------------------------------------------------------------------
+void DrawAllOverlays(bool bDraw)
 {
     if (!enable_debug_overlays->GetBool())
     {
         return;
+    }
+    if (ai_script_nodes_draw->GetBool())
+    {
+        DrawAIScriptNode();
     }
     EnterCriticalSection(&*s_OverlayMutex);
 
@@ -263,7 +308,7 @@ void DrawAllOverlays(char pOverlay)
             }
             if (bDraw)
             {
-                if (pOverlay)
+                if (bDraw)
                 {
                     DrawOverlay(pCurrOverlay);
                 }

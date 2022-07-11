@@ -101,7 +101,6 @@ class VAI_NetworkManager : public IDetour
 		p_CAI_NetworkBuilder__Build = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x54\x24\x00\x48\x89\x4C\x24\x00\x53\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x38\x8B\xB2\x00\x00\x00\x00"), "xxxx?xxxx?xxxxxxxxxxxxxxxxxx????");
 #endif
 		CAI_NetworkManager__ShouldRebuild = p_CAI_NetworkManager__ShouldRebuild.RCast<void* (*)(void*, CAI_Network*, void*, int)>(); /*40 53 48 83 EC 20 48 8B D9 48 8B 0D ?? ?? ?? ?? 8B 41 6C*/
-		CAI_NetworkBuilder__Build         = p_CAI_NetworkBuilder__Build.RCast<void* (*)(void*, CAI_Network*, void*, int)>();         /*48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 4C 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 30 48 63 BA ?? ?? ?? ??*/
 		CAI_NetworkBuilder__Build         = p_CAI_NetworkBuilder__Build.RCast<void* (*)(void*, CAI_Network*, void*, int)>();         /*48 89 54 24 ?? 48 89 4C 24 ?? 53 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 38 8B B2 ?? ?? ?? ??*/
 	}
 	virtual void GetVar(void) const

@@ -60,9 +60,10 @@ void ConVar::Init(void) const
 	r_drawWorldMeshesDepthAtTheEnd = new ConVar("r_drawWorldMeshesDepthAtTheEnd", "1", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Render world meshes (depth at the end).", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// SERVER                                                                 |
-	ai_ainDumpOnLoad         = new ConVar("ai_ainDumpOnLoad"         , "0", FCVAR_DEVELOPMENTONLY, "Dumps AIN data from node graphs loaded from the disk on load.", false, 0.f, false, 0.f, nullptr, nullptr);
-	ai_ainDebugConnect       = new ConVar("ai_ainDebugConnect"       , "0", FCVAR_DEVELOPMENTONLY, "Debug AIN node connections.", false, 0.f, false, 0.f, nullptr, nullptr);
-	navmesh_always_reachable = new ConVar("navmesh_always_reachable" , "1", FCVAR_DEVELOPMENTONLY, "Marks poly from agent to target on navmesh as reachable regardless of table data ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr); // !TODO: Default to '0' once the reachability table gets properly parsed.
+	ai_ainDumpOnLoad           = new ConVar("ai_ainDumpOnLoad"          , "0", FCVAR_DEVELOPMENTONLY, "Dumps AIN data from node graphs loaded from the disk on load.", false, 0.f, false, 0.f, nullptr, nullptr);
+	ai_ainDebugConnect         = new ConVar("ai_ainDebugConnect"        , "0", FCVAR_DEVELOPMENTONLY, "Debug AIN node connections.", false, 0.f, false, 0.f, nullptr, nullptr);
+	ai_script_nodes_draw_index = new ConVar("ai_script_nodes_draw_index", "0", FCVAR_DEVELOPMENTONLY, "Start index for drawing script nodes.", false, 0.f, false, 0.f, nullptr, nullptr);
+	navmesh_always_reachable   = new ConVar("navmesh_always_reachable"  , "1", FCVAR_DEVELOPMENTONLY, "Marks poly from agent to target on navmesh as reachable regardless of table data ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr); // !TODO: Default to '0' once the reachability table gets properly parsed.
 
 	sv_showconnecting  = new ConVar("sv_showconnecting" , "1", FCVAR_RELEASE, "Logs information about the connecting client to the console.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_pylonVisibility = new ConVar("sv_pylonVisibility", "0", FCVAR_RELEASE, "Determines the visiblity to the Pylon master server, 0 = Offline, 1 = Hidden, 2 = Public.", false, 0.f, false, 0.f, nullptr, nullptr);
@@ -172,6 +173,7 @@ void ConVar::Init(void) const
 //-----------------------------------------------------------------------------
 void ConVar::InitShipped(void) const
 {
+	ai_script_nodes_draw             = g_pCVar->FindVar("ai_script_nodes_draw");
 	single_frame_shutdown_for_reload = g_pCVar->FindVar("single_frame_shutdown_for_reload");
 	enable_debug_overlays            = g_pCVar->FindVar("enable_debug_overlays");
 	model_defaultFadeDistScale       = g_pCVar->FindVar("model_defaultFadeDistScale");
