@@ -200,7 +200,26 @@ void DrawOverlay(OverlayBase_t* pOverlay)
     }
     case OverlayType_t::OVERLAY_CAPSULE:
     {
-        //printf("CAPSULE %p\n", pOverlay);
+        OverlayCapsule_t* pCapsule = static_cast<OverlayCapsule_t*>(pOverlay);
+        if (pCapsule->a < 1)
+        {
+            if (r_debug_overlay_invisible->GetBool())
+            {
+                pCapsule->a = 255;
+            }
+            else
+            {
+                LeaveCriticalSection(&*s_OverlayMutex);
+                return;
+            }
+        }
+
+        QAngle angles;
+
+        VectorAngles(pCapsule->end, pCapsule->start, angles);
+        AngleInverse(angles, angles);
+
+        DebugDrawCapsule(pCapsule->start, angles, 100, pCapsule->start.DistTo(pCapsule->end), Color(pCapsule->r, pCapsule->g, pCapsule->b, pCapsule->a), true);
         break;
     }
     case OverlayType_t::OVERLAY_UNK0:

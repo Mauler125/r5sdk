@@ -238,6 +238,8 @@ public:
 	Vector3D	operator-(const Vector3D& v) const;
 	Vector3D	operator*(const Vector3D& v) const;
 	Vector3D	operator/(const Vector3D& v) const;
+	Vector3D	operator+(float fl) const;
+	Vector3D	operator-(float fl) const;
 	Vector3D	operator*(float fl) const;
 	Vector3D	operator/(float fl) const;
 
@@ -1241,6 +1243,15 @@ FORCEINLINE IntVector4D IntVector4D::operator*(float fl) const
 // =======================
 
 
+FORCEINLINE void VectorAdd(const Vector3D& a, vec_t b, Vector3D& c)
+{
+	CHECK_VALID(a);
+	CHECK_VALID(b);
+	c.x = a.x + b;
+	c.y = a.y + b;
+	c.z = a.z + b;
+}
+
 FORCEINLINE void VectorAdd(const Vector3D& a, const Vector3D& b, Vector3D& c)
 {
 	CHECK_VALID(a);
@@ -1248,6 +1259,15 @@ FORCEINLINE void VectorAdd(const Vector3D& a, const Vector3D& b, Vector3D& c)
 	c.x = a.x + b.x;
 	c.y = a.y + b.y;
 	c.z = a.z + b.z;
+}
+
+FORCEINLINE void VectorSubtract(const Vector3D& a, vec_t b, Vector3D& c)
+{
+	CHECK_VALID(a);
+	CHECK_VALID(b);
+	c.x = a.x - b;
+	c.y = a.y - b;
+	c.z = a.z - b;
 }
 
 FORCEINLINE void VectorSubtract(const Vector3D& a, const Vector3D& b, Vector3D& c)
@@ -1624,10 +1644,24 @@ inline Vector3D Vector3D::operator-(void) const
 	return Vector3D(-x, -y, -z);
 }
 
+inline Vector3D Vector3D::operator+(float fl) const
+{
+	Vector3D res;
+	VectorAdd(*this, fl, res);
+	return res;
+}
+
 inline Vector3D Vector3D::operator+(const Vector3D& v) const
 {
 	Vector3D res;
 	VectorAdd(*this, v, res);
+	return res;
+}
+
+inline Vector3D Vector3D::operator-(float fl) const
+{
+	Vector3D res;
+	VectorSubtract(*this, fl, res);
 	return res;
 }
 
