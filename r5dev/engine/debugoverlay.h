@@ -58,7 +58,7 @@ struct OverlayLine_t : public OverlayBase_t
 {
 	OverlayLine_t(void) { m_Type = OverlayType_t::OVERLAY_LINE; }
 
-	Vector3D         origin{};
+	Vector3D        origin{};
 	Vector3D        dest{};
 	int             r{};
 	int             g{};

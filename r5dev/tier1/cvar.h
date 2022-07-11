@@ -33,6 +33,7 @@ extern ConVar* rcon_password;
 extern ConVar* r_debug_overlay_nodecay;
 extern ConVar* r_debug_overlay_invisible;
 extern ConVar* r_debug_overlay_wireframe;
+extern ConVar* r_debug_overlay_zbuffer;
 extern ConVar* r_drawWorldMeshes;
 extern ConVar* r_drawWorldMeshesDepthOnly;
 extern ConVar* r_drawWorldMeshesDepthAtTheEnd;

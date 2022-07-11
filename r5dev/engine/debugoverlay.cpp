@@ -135,7 +135,7 @@ void DrawOverlay(OverlayBase_t* pOverlay)
             }
         }
 
-        v_RenderBox(pBox->transforms, pBox->mins, pBox->maxs, Color(pBox->r, pBox->g, pBox->b, pBox->a), false);
+        v_RenderBox(pBox->transforms, pBox->mins, pBox->maxs, Color(pBox->r, pBox->g, pBox->b, pBox->a), r_debug_overlay_zbuffer->GetBool());
         break;
     }
     case OverlayType_t::OVERLAY_SPHERE:
@@ -156,11 +156,12 @@ void DrawOverlay(OverlayBase_t* pOverlay)
 
         if (r_debug_overlay_wireframe->GetBool())
         {
-            v_RenderWireframeSphere(pSphere->vOrigin, pSphere->flRadius, pSphere->nTheta, pSphere->nPhi, Color(pSphere->r, pSphere->g, pSphere->b, pSphere->a), false);
+            v_RenderWireframeSphere(pSphere->vOrigin, pSphere->flRadius, pSphere->nTheta, pSphere->nPhi, 
+                Color(pSphere->r, pSphere->g, pSphere->b, pSphere->a), r_debug_overlay_zbuffer->GetBool());
         }
         else
         {
-            DebugDrawSphere(pSphere->vOrigin, pSphere->flRadius, Color(pSphere->r, pSphere->g, pSphere->b, pSphere->a), 16);
+            DebugDrawSphere(pSphere->vOrigin, pSphere->flRadius, Color(pSphere->r, pSphere->g, pSphere->b, pSphere->a), 16, r_debug_overlay_zbuffer->GetBool());
         }
         break;
     }
@@ -180,7 +181,7 @@ void DrawOverlay(OverlayBase_t* pOverlay)
             }
         }
 
-        v_RenderLine(pLine->origin, pLine->dest, Color(pLine->r, pLine->g, pLine->b, pLine->a), pLine->noDepthTest);
+        v_RenderLine(pLine->origin, pLine->dest, Color(pLine->r, pLine->g, pLine->b, pLine->a), !pLine->noDepthTest);
         break;
     }
     case OverlayType_t::OVERLAY_TRIANGLE:
@@ -219,7 +220,8 @@ void DrawOverlay(OverlayBase_t* pOverlay)
         VectorAngles(pCapsule->end, pCapsule->start, angles);
         AngleInverse(angles, angles);
 
-        DebugDrawCapsule(pCapsule->start, angles, pCapsule->radius, pCapsule->start.DistTo(pCapsule->end), Color(pCapsule->r, pCapsule->g, pCapsule->b, pCapsule->a), true);
+        DebugDrawCapsule(pCapsule->start, angles, pCapsule->radius, pCapsule->start.DistTo(pCapsule->end), 
+            Color(pCapsule->r, pCapsule->g, pCapsule->b, pCapsule->a), r_debug_overlay_zbuffer->GetBool());
         break;
     }
     case OverlayType_t::OVERLAY_UNK0:
@@ -259,11 +261,11 @@ void DrawAIScriptNodes()
             pTransforms[1] = _mm_set_ps((*g_pAINetwork)->m_ScriptNode[i].m_vOrigin.y - 50.f, 0.0f, 1.0f, 0.0f);
             pTransforms[2] = _mm_set_ps((*g_pAINetwork)->m_ScriptNode[i].m_vOrigin.z - 50.f, 1.0f, 0.0f, 0.0f);
 
-            v_RenderBox(vTransforms, {0, 0, 0}, {100, 100, 100}, Color(0, 255, 0, 255), true);
+            v_RenderBox(vTransforms, {0, 0, 0}, {100, 100, 100}, Color(0, 255, 0, 255), r_debug_overlay_zbuffer->GetBool());
 
             if (i > 0)
             {
-                v_RenderLine((*g_pAINetwork)->m_ScriptNode[i - 1].m_vOrigin, (*g_pAINetwork)->m_ScriptNode[i].m_vOrigin, Color(255, 0, 0, 255), true);
+                v_RenderLine((*g_pAINetwork)->m_ScriptNode[i - 1].m_vOrigin, (*g_pAINetwork)->m_ScriptNode[i].m_vOrigin, Color(255, 0, 0, 255), r_debug_overlay_zbuffer->GetBool());
             }
         }
     }

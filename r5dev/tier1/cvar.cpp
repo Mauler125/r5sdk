@@ -34,6 +34,7 @@ ConVar* rcon_password                      = nullptr;
 ConVar* r_debug_overlay_nodecay            = nullptr;
 ConVar* r_debug_overlay_invisible          = nullptr;
 ConVar* r_debug_overlay_wireframe          = nullptr;
+ConVar* r_debug_overlay_zbuffer            = nullptr;
 ConVar* r_drawWorldMeshes                  = nullptr;
 ConVar* r_drawWorldMeshesDepthOnly         = nullptr;
 ConVar* r_drawWorldMeshesDepthAtTheEnd     = nullptr;
