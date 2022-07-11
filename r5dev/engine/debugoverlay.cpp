@@ -219,7 +219,7 @@ void DrawOverlay(OverlayBase_t* pOverlay)
         VectorAngles(pCapsule->end, pCapsule->start, angles);
         AngleInverse(angles, angles);
 
-        DebugDrawCapsule(pCapsule->start, angles, 100, pCapsule->start.DistTo(pCapsule->end), Color(pCapsule->r, pCapsule->g, pCapsule->b, pCapsule->a), true);
+        DebugDrawCapsule(pCapsule->start, angles, pCapsule->radius, pCapsule->start.DistTo(pCapsule->end), Color(pCapsule->r, pCapsule->g, pCapsule->b, pCapsule->a), true);
         break;
     }
     case OverlayType_t::OVERLAY_UNK0:
