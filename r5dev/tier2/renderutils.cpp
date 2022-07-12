@@ -182,7 +182,7 @@ void DebugDrawHemiSphere(const Vector3D& vOrigin, const QAngle& vAngles, const V
 
     for (int i = 0; i < (nSegments + 1); i++)
     {
-        AngleCompose(vAngles, { -flDegrees * i, 0, 0 }, vComposed[0]);
+        AngleCompose(vAngles, { flDegrees * i - 180, 0, 0 }, vComposed[0]);
         AngleCompose(vAngles, { 0, flDegrees * i - 90, 0 }, vComposed[1]);
         AngleCompose(vAngles, { flDegrees * i + 180, 90, 0 }, vComposed[2]);
         AngleCompose(vAngles, { 0, flDegrees * i + 90, 0 }, vComposed[3]);
