@@ -100,6 +100,7 @@
 #include "public/include/edict.h"
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
+#include "public/include/idebugoverlay.h"
 #include "inputsystem/inputsystem.h"
 #include "windows/id3dx.h"
 #endif // !DEDICATED

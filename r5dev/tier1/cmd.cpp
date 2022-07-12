@@ -125,6 +125,13 @@ ConCommand::ConCommand(const char* pszName, const char* pszHelpString, int nFlag
 void ConCommand::Init(void)
 {
 	//-------------------------------------------------------------------------
+	// ENGINE DLL                                                             |
+#ifndef DEDICATED
+	new ConCommand("line", "Draw a debug line.", FCVAR_GAMEDLL | FCVAR_CHEAT, Line_f, nullptr);
+	new ConCommand("sphere", "Draw a debug sphere.", FCVAR_GAMEDLL | FCVAR_CHEAT, Sphere_f, nullptr);
+	new ConCommand("capsule", "Draw a debug capsule.", FCVAR_GAMEDLL | FCVAR_CHEAT, Capsule_f, nullptr);
+#endif //!DEDICATED
+	//-------------------------------------------------------------------------
 	// SERVER DLL                                                             |
 	new ConCommand("script", "Run input code as SERVER script on the VM.", FCVAR_GAMEDLL | FCVAR_CHEAT, SQVM_ServerScript_f, nullptr);
 	new ConCommand("sv_kick", "Kick a client from the server by name. | Usage: kick \"<name>\".", FCVAR_RELEASE, Host_Kick_f, nullptr);

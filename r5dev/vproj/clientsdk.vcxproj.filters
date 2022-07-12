@@ -1616,6 +1616,9 @@
     <ClInclude Include="..\mathlib\transform.h">
       <Filter>sdk\mathlib</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\include\idebugoverlay.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\shared\resource\lockedserver.png">

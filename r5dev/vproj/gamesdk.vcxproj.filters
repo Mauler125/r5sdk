@@ -1694,6 +1694,9 @@
     <ClInclude Include="..\server\persistence.h">
       <Filter>sdk\server</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\include\idebugoverlay.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\shared\resource\lockedserver.png">

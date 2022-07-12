@@ -30,6 +30,7 @@
 #include "vstdlib/callback.h"
 #ifndef DEDICATED
 #include "materialsystem/cmaterialglue.h"
+#include "public/include/idebugoverlay.h"
 #endif // !DEDICATED
 
 
@@ -896,5 +897,86 @@ void Mat_CrossHair_f(const CCommand& args)
 	{
 		DevMsg(eDLL_T::MS, "%s - No Material found >:(\n", __FUNCTION__);
 	}
+}
+
+/*
+=====================
+Line_f
+
+  Draws a line at 
+  start<x1 y1 z1> end<x2 y2 z2>.
+=====================
+*/
+void Line_f(const CCommand& args)
+{
+	if (args.ArgC() != 7)
+	{
+		DevMsg(eDLL_T::CLIENT, "Usage 'line': start(vector) end(vector)\n");
+		return;
+	}
+
+	Vector3D start, end;
+	for (int i = 0; i < 3; ++i)
+	{
+		start[i] = atof(args[i + 1]);
+		end[i] = atof(args[i + 4]);
+	}
+
+	g_pDebugOverlay->AddLineOverlay(start, end, 255, 255, 0, r_debug_overlay_zbuffer->GetBool(), 100);
+}
+
+/*
+=====================
+Sphere_f
+
+  Draws a sphere at origin(x1 y1 z1) 
+  radius(float) theta(int) phi(int).
+=====================
+*/
+void Sphere_f(const CCommand& args)
+{
+	if (args.ArgC() != 7)
+	{
+		DevMsg(eDLL_T::CLIENT, "Usage 'sphere': origin(vector) radius(float) theta(int) phi(int)\n");
+		return;
+	}
+
+	Vector3D start;
+	for (int i = 0; i < 3; ++i)
+	{
+		start[i] = atof(args[i + 1]);
+	}
+
+	float radius = atof(args[4]);
+	int theta = atoi(args[5]);
+	int phi = atoi(args[6]);
+
+	g_pDebugOverlay->AddSphereOverlay(start, radius, theta, phi, 20, 210, 255, 0, 100);
+}
+
+/*
+=====================
+Capsule_f
+
+  Draws a capsule at start<x1 y1 z1> 
+  end<x2 y2 z2> radius <x3 y3 z3>.
+=====================
+*/
+void Capsule_f(const CCommand& args)
+{
+	if (args.ArgC() != 10)
+	{
+		DevMsg(eDLL_T::CLIENT, "Usage 'capsule': start(vector) end(vector) radius(vector)\n");
+		return;
+	}
+
+	Vector3D start, end, radius;
+	for (int i = 0; i < 3; ++i)
+	{
+		start[i] = atof(args[i + 1]);
+		end[i] = atof(args[i + 4]);
+		radius[i] = atof(args[i + 7]);
+	}
+	g_pDebugOverlay->AddCapsuleOverlay(start, end, radius, { 0,0,0 }, { 0,0,0 }, 141, 233, 135, 0, 100);
 }
 #endif // !DEDICATED

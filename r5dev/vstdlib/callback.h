@@ -43,6 +43,9 @@ void SQVM_ServerScript_f(const CCommand& args);
 void SQVM_ClientScript_f(const CCommand& args);
 void SQVM_UIScript_f(const CCommand& args);
 void Mat_CrossHair_f(const CCommand& args);
+void Line_f(const CCommand& args);
+void Sphere_f(const CCommand& args);
+void Capsule_f(const CCommand& args);
 #endif // !DEDICATED
 ///////////////////////////////////////////////////////////////////////////////
 class VCallback : public IDetour
