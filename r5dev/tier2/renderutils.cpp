@@ -68,9 +68,9 @@ void DebugDrawBox(const Vector3D& vOrigin, const QAngle& vAngles, const Vector3D
 void DebugDrawCylinder(const Vector3D& vOrigin, const QAngle& vAngles, float flRadius, float flHeight, Color color, int nSides, bool bZBuffer)
 {
     float flDegrees = 360.f / float(nSides);
-    vector<Vector3D> vvPoints;
-    Vector3D vForward;
     QAngle vComposed;
+    Vector3D vForward;
+    vector<Vector3D> vvPoints;
 
     AngleVectors(vAngles, &vForward);
 
@@ -111,29 +111,19 @@ void DebugDrawCylinder(const Vector3D& vOrigin, const QAngle& vAngles, float flR
 //-----------------------------------------------------------------------------
 void DebugDrawCapsule(const Vector3D& vStart, const QAngle& vAngles, const Vector3D& vRadius, float flHeight, Color color, bool bZBuffer)
 {
-    int nSides = 4;
-    float flDegrees = 360.0 / float(nSides);
-    Vector3D vUp;
-    Vector3D vForward;
-    QAngle vComposed;
-    QAngle vHemi;
-    vector<Vector3D> vvPoints;
+    Vector3D vForward, vUp;
+    QAngle vHemi, vComposed;
+
     AngleVectors(vAngles, nullptr, nullptr, &vUp);
 
-    for (int i = 0; i < nSides; i++)
+    for (int i = 0; i < 4; i++)
     {
-        AngleCompose(vAngles, { 0, flDegrees * i, 0 }, vComposed);
+        AngleCompose(vAngles, { 0.f, 90.f * i, 0.f }, vComposed);
         AngleVectors(vComposed, &vForward);
-        vvPoints.push_back(vStart + (vForward * vRadius));
+        v_RenderLine(vStart + (vForward * vRadius), vStart + (vForward * vRadius) + (vUp * flHeight), color, bZBuffer);
     }
 
-    for (int i = 0; i < nSides; i++)
-    {
-        Vector3D vStart = vvPoints[i];
-        v_RenderLine(vStart, vStart + (vUp * flHeight), color, bZBuffer);
-    }
-
-    AngleCompose(vAngles, { 180, 180, 0 }, vHemi);
+    AngleCompose(vAngles, { 180.f, 180.f, 0.f }, vHemi);
 
     DebugDrawHemiSphere(vStart + (vUp * flHeight), vAngles, vRadius, color, 8, bZBuffer);
     DebugDrawHemiSphere(vStart, vHemi, vRadius, color, 8, bZBuffer);
@@ -172,13 +162,10 @@ void DebugDrawSphere(const Vector3D& vOrigin, float flRadius, Color color, int n
 void DebugDrawHemiSphere(const Vector3D& vOrigin, const QAngle& vAngles, const Vector3D& vRadius, Color color, int nSegments, bool bZBuffer)
 {
     bool bFirstLoop = true;
-
-    Vector3D vStart[4];
-    Vector3D vEnd[4];
-    Vector3D vForward[4];
-    QAngle vComposed[4];
-
     float flDegrees = 360.0 / float(nSegments * 2);
+
+    Vector3D vStart[4], vEnd[4], vForward[4];
+    QAngle vComposed[4];
 
     for (int i = 0; i < (nSegments + 1); i++)
     {
@@ -230,12 +217,10 @@ void DebugDrawHemiSphere(const Vector3D& vOrigin, const QAngle& vAngles, const V
 void DebugDrawCircle(const Vector3D& vOrigin, const QAngle& vAngles, float flRadius, Color color, int nSegments, bool bZBuffer)
 {
     bool bFirstLoop = true;
-    Vector3D vStart;
-    Vector3D vEnd;
-    Vector3D vFirstend;
-    Vector3D vForward;
-    QAngle vComposed;
     float flDegrees = 360.f / float(nSegments);
+
+    Vector3D vStart, vEnd, vFirstend, vForward;
+    QAngle vComposed;
 
     for (int i = 0; i < nSegments; i++)
     {
@@ -366,9 +351,7 @@ void DebugDrawArrow(const Vector3D& vOrigin, const Vector3D& vEnd, float flArray
 //-----------------------------------------------------------------------------
 void DebugDrawAxis(const Vector3D& vOrigin, const QAngle& vAngles, float flScale, bool bZBuffer)
 {
-    Vector3D vForward;
-    Vector3D vRight;
-    Vector3D vUp;
+    Vector3D vForward, vRight, vUp;
     AngleVectors(vAngles, &vForward, &vRight, &vUp);
 
     v_RenderLine(vOrigin, vOrigin + vForward * flScale, Color(0, 255, 0, 255), bZBuffer);
