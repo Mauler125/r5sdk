@@ -154,11 +154,9 @@ void DebugDrawCapsule(const Vector3D& vStart, const QAngle& vAngles, const Vecto
 //-----------------------------------------------------------------------------
 void DebugDrawSphere(const Vector3D& vOrigin, float flRadius, Color color, int nSegments, bool bZBuffer)
 {
-    for (int i = 0; i < 2; i++)
-    {
-        DebugDrawCircle(vOrigin, { 0.f, 0.f, 90.f * i }, flRadius, color, nSegments, bZBuffer);
-        DebugDrawCircle(vOrigin, { 90.f * i, 0.f, 0.f }, flRadius, color, nSegments, bZBuffer);
-    }
+    DebugDrawCircle(vOrigin, { 90.f, 0.f, 0.f }, flRadius, color, nSegments, bZBuffer);
+    DebugDrawCircle(vOrigin, { 0.f, 90.f, 0.f }, flRadius, color, nSegments, bZBuffer);
+    DebugDrawCircle(vOrigin, { 0.f, 0.f, 90.f }, flRadius, color, nSegments, bZBuffer);
 }
 
 //-----------------------------------------------------------------------------
