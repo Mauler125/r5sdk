@@ -94,6 +94,7 @@ struct OverlayBox_t : public OverlayBase_t
 	int             g{};
 	int             b{};
 	int             a{};
+	bool            noDepthTest{};
 };
 
 struct OverlaySphere_t : public OverlayBase_t
