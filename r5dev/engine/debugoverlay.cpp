@@ -247,6 +247,8 @@ void DrawAIScriptNodes()
 #ifndef CLIENT_DLL
     if (*g_pAINetwork)
     {
+        OverlayBox_t::Transforms vTransforms;
+
         for (int i = ai_script_nodes_draw_index->GetInt(); i < (*g_pAINetwork)->GetNumScriptNodes(); i++)
         {
             if (i < 0)
@@ -254,12 +256,9 @@ void DrawAIScriptNodes()
                 return;
             }
 
-            OverlayBox_t::Transforms vTransforms{}; /*!FIXME: using '__m128' without type cast shifts the stack with 0x10 despite being the same size!*/
-            __m128* pTransforms = reinterpret_cast<__m128*>(&vTransforms.u0);
-
-            pTransforms[0] = _mm_set_ps((*g_pAINetwork)->m_ScriptNode[i].m_vOrigin.x - 50.f, 0.0f, 0.0f, 1.0f);
-            pTransforms[1] = _mm_set_ps((*g_pAINetwork)->m_ScriptNode[i].m_vOrigin.y - 50.f, 0.0f, 1.0f, 0.0f);
-            pTransforms[2] = _mm_set_ps((*g_pAINetwork)->m_ScriptNode[i].m_vOrigin.z - 50.f, 1.0f, 0.0f, 0.0f);
+            vTransforms.xmm[0] = _mm_set_ps((*g_pAINetwork)->m_ScriptNode[i].m_vOrigin.x - 50.f, 0.0f, 0.0f, 1.0f);
+            vTransforms.xmm[1] = _mm_set_ps((*g_pAINetwork)->m_ScriptNode[i].m_vOrigin.y - 50.f, 0.0f, 1.0f, 0.0f);
+            vTransforms.xmm[2] = _mm_set_ps((*g_pAINetwork)->m_ScriptNode[i].m_vOrigin.z - 50.f, 1.0f, 0.0f, 0.0f);
 
             v_RenderBox(vTransforms, {0, 0, 0}, {100, 100, 100}, Color(0, 255, 0, 255), r_debug_overlay_zbuffer->GetBool());
 
