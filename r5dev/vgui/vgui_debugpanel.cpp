@@ -152,8 +152,6 @@ void CLogSystem::DrawSimStats(void) const
 		g_pServer->GetTick(), g_pClientState->GetTick(), *render_tickcount);
 #endif
 
-
-
 	if (cl_simstats_invert_rect_x->GetBool())
 	{
 		nWidth  = g_nWindowWidth  - nWidth;
