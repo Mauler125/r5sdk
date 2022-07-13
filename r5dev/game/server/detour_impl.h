@@ -33,6 +33,7 @@ enum EHULL_SIZE
 };
 
 inline dtNavMesh** g_pNavMesh = nullptr;
+dtNavMesh* GetNavMeshForHull(int hull);
 ///////////////////////////////////////////////////////////////////////////////
 class VRecast : public IDetour
 {
