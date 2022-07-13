@@ -10,7 +10,9 @@
 #include <engine/net.h>
 #include <engine/host_state.h>
 #include <engine/sys_utils.h>
+#ifndef CLIENT_DLL
 #include <engine/server/server.h>
+#endif
 #include <squirrel/sqinit.h>
 #include <networksystem/pylon.h>
 #include <public/include/edict.h>

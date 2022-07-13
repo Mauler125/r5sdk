@@ -78,6 +78,7 @@ static_assert(sizeof(CServer) == 0x4A440);
 #else
 static_assert(sizeof(CServer) == 0x4A4C0);
 #endif
+
 extern CServer* g_pServer;
 
 /* ==== CSERVER ========================================================================================================================================================= */

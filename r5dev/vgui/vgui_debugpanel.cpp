@@ -16,8 +16,11 @@
 #include <materialsystem/cmaterialsystem.h>
 #include <engine/debugoverlay.h>
 #include <engine/client/clientstate.h>
-#include <engine/server/server.h>
 #include <materialsystem/cmaterialglue.h>
+
+#ifndef CLIENT_DLL
+#include <engine/server/server.h>
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: proceed a log update
@@ -140,8 +143,16 @@ void CLogSystem::DrawSimStats(void) const
 
 	static Color c = { 255, 255, 255, 255 };
 	static const char* szLogbuf[4096]{};
+
+#ifdef CLIENT_DLL
+	snprintf((char*)szLogbuf, 4096, "Client Frame: (%d) Render Frame: (%d)\n",
+		g_pClientState->GetTick(), *render_tickcount);
+#else
 	snprintf((char*)szLogbuf, 4096, "Server Frame: (%d) Client Frame: (%d) Render Frame: (%d)\n",
-	g_pServer->GetTick(), g_pClientState->GetTick(), *render_tickcount);
+		g_pServer->GetTick(), g_pClientState->GetTick(), *render_tickcount);
+#endif
+
+
 
 	if (cl_simstats_invert_rect_x->GetBool())
 	{
