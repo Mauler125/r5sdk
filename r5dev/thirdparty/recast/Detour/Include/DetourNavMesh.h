@@ -320,8 +320,8 @@ struct dtMeshTile
 	dtOffMeshConnection* offMeshCons;		///< The tile off-mesh connections. [Size: dtMeshHeader::offMeshConCount]
 		
 	unsigned char* data;					///< The tile data. (Not directly accessed under normal situations.)
-	void* meshLink;							///<  Seems shifted with 8 bytes from here (the rest seems to line up with r2) see field assignments in 'r5apex.exe 0x140F44A00'
-
+	void* meshLink;							///< Seems shifted with 8 bytes from here (the rest seems to line up with r2) see field assignments in 'r5apex.exe 0x140F44A00'
+	dtMeshHeader* header2;					///< Also gets assigned to the tile header 'r5apex.exe + F43FFA' [mov     [rax+60h], r13].
 	int dataSize;							///< Size of the tile data.
 	int flags;								///< Tile flags. (See: #dtTileFlags)
 	dtMeshTile* next;						///< The next free tile, or the next tile in the spatial grid.
