@@ -5,21 +5,13 @@
 //=============================================================================//
 #pragma once
 #include "game/server/ai_network.h"
+#include "game/server/detour_impl.h"
 
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 const int AINETWORK_OFFSET = 2808;
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 const int AINETWORK_OFFSET = 2840;
 #endif
-
-const string HULL_SIZE[5] = 
-{
-	"small",
-	"med_short",
-	"medium",
-	"large",
-	"extra_large"
-};
 
 /* ==== CAI_NETWORKMANAGER ============================================================================================================================================== */
 inline CMemory p_CAI_NetworkManager__ShouldRebuild = nullptr;

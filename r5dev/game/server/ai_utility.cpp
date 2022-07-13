@@ -25,6 +25,17 @@ bool dtNavMesh__isPolyReachable(dtNavMesh* thisptr, dtPolyRef poly_1, dtPolyRef 
 	return v_dtNavMesh__isPolyReachable(thisptr, poly_1, poly_2, hull_type);
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: gets the navmesh by hull from global array [small, med_short, medium, large, extra_large]
+// input  : hull - 
+// Output : pointer to navmesh
+//-----------------------------------------------------------------------------
+dtNavMesh* GetNavMeshForHull(int hull)
+{
+	Assert(hull >= 0 && hull <= 4); // Programmer error.
+	return g_pNavMesh[hull];
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 void CAI_Utility_Attach()
 {
