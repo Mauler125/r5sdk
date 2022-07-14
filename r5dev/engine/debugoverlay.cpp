@@ -271,6 +271,28 @@ void DrawAIScriptNodes()
 #endif // !CLIENT_DLL
 }
 
+void DrawNavMeshTiles()
+{
+#ifndef CLIENT_DLL
+    dtNavMesh* mesh = g_pNavMesh[0];
+    if (!mesh)
+        return;
+    for (int i = 0; i < mesh->getTileCount(); ++i)
+    {
+        const dtMeshTile* tile = &mesh->m_tiles[i];
+        if (!tile->header) continue;
+        
+        OverlayBox_t::Transforms vTransforms;
+
+        vTransforms.xmm[0] = _mm_set_ps(tile->polys[0].org[0] - 50.f, 0.0f, 0.0f, 1.0f);
+        vTransforms.xmm[1] = _mm_set_ps(tile->polys[0].org[1] - 50.f, 0.0f, 1.0f, 0.0f);
+        vTransforms.xmm[2] = _mm_set_ps(tile->polys[0].org[2] - 50.f, 1.0f, 0.0f, 0.0f);
+
+        v_RenderBox(vTransforms, { 0, 0, 0 }, { 100, 100, 100 }, Color(0, 255, 0, 255), r_debug_overlay_zbuffer->GetBool());
+    }
+#endif
+}
+
 //------------------------------------------------------------------------------
 // Purpose : overlay drawing entrypoint
 // Input  : bDraw - 
@@ -285,6 +307,9 @@ void DrawAllOverlays(bool bDraw)
     {
         DrawAIScriptNodes();
     }
+
+    //DrawNavMeshTiles();
+
     EnterCriticalSection(&*s_OverlayMutex);
 
     OverlayBase_t* pCurrOverlay = *s_pOverlays; // rdi
