@@ -58,7 +58,7 @@ void CMemory::PatchString(const string& svString) const
 	DWORD oldProt = NULL;
 
 	SIZE_T dwSize = svString.size();
-	vector<char> bytes(svString.begin(), svString.end());
+	const vector<char> bytes(svString.begin(), svString.end());
 
 	VirtualProtect(reinterpret_cast<void*>(ptr), dwSize, PAGE_EXECUTE_READWRITE, &oldProt); // Patch page to be able to read and write to it.
 
@@ -198,13 +198,13 @@ CMemory CMemory::FollowNearCallSelf(const ptrdiff_t opcodeOffset, const ptrdiff_
 CMemory CMemory::ResolveRelativeAddress(const ptrdiff_t registerOffset, const ptrdiff_t nextInstructionOffset) const
 {
 	// Skip register.
-	uintptr_t skipRegister = ptr + registerOffset;
+	const uintptr_t skipRegister = ptr + registerOffset;
 
 	// Get 4-byte long relative Address.
-	int32_t relativeAddress = *reinterpret_cast<int32_t*>(skipRegister);
+	const int32_t relativeAddress = *reinterpret_cast<int32_t*>(skipRegister);
 
 	// Get location of next instruction.
-	uintptr_t nextInstruction = ptr + nextInstructionOffset;
+	const uintptr_t nextInstruction = ptr + nextInstructionOffset;
 
 	// Get function location via adding relative Address to next instruction.
 	return CMemory(nextInstruction + relativeAddress);
@@ -219,13 +219,13 @@ CMemory CMemory::ResolveRelativeAddress(const ptrdiff_t registerOffset, const pt
 CMemory CMemory::ResolveRelativeAddressSelf(const ptrdiff_t registerOffset, const ptrdiff_t nextInstructionOffset)
 {
 	// Skip register.
-	uintptr_t skipRegister = ptr + registerOffset;
+	const uintptr_t skipRegister = ptr + registerOffset;
 
 	// Get 4-byte long relative Address.
-	int32_t relativeAddress = *reinterpret_cast<int32_t*>(skipRegister);
+	const int32_t relativeAddress = *reinterpret_cast<int32_t*>(skipRegister);
 
 	// Get location of next instruction.
-	uintptr_t nextInstruction = ptr + nextInstructionOffset;
+	const uintptr_t nextInstruction = ptr + nextInstructionOffset;
 
 	// Get function location via adding relative Address to next instruction.
 	ptr = nextInstruction + relativeAddress;
@@ -273,10 +273,10 @@ void CMemory::HookVirtualMethod(const uintptr_t virtualTable, const void* pHookM
 	DWORD oldProt = NULL;
 
 	// Calculate delta to next virtual method.
-	uintptr_t virtualMethod = virtualTable + (methodIndex * sizeof(ptrdiff_t));
+	const uintptr_t virtualMethod = virtualTable + (methodIndex * sizeof(ptrdiff_t));
 
 	// Preserve original function.
-	uintptr_t originalFunction = *reinterpret_cast<uintptr_t*>(virtualMethod);
+	const uintptr_t originalFunction = *reinterpret_cast<uintptr_t*>(virtualMethod);
 
 	// Set page for current virtual method to execute n read n write.
 	VirtualProtect(reinterpret_cast<void*>(virtualMethod), sizeof(virtualMethod), PAGE_EXECUTE_READWRITE, &oldProt);
