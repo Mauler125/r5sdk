@@ -75,7 +75,6 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 		g_pHLClient = nullptr;
 	}
 	g_bAppSystemInit = true;
-
 	return CModAppSystemGroup_Create(pModAppSystemGroup);
 }
 

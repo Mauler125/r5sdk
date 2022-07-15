@@ -350,8 +350,3 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 .vscode/settings.json
-<<<<<<< HEAD
-/r5dev/vproj/mods/config.json
-=======
-r5dev/vproj/mods/config.json
->>>>>>> Mauler125-indev

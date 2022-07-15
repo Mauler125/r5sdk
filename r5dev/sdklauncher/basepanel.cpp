@@ -705,7 +705,7 @@ void CUIBaseSurface::Setup()
 // Purpose: Gets the requested config object. Each config object must be added to
 // v_LauncherValues so there's a default return value
 //-----------------------------------------------------------------------------
-std::string CUIBaseSurface::GetConfigCFG(std::string first) {
+std::string CUIBaseSurface::GetConfigCFG(const std::string& first) {
 	const char* pv;
 	std::string defaultVal;
 	for (auto& i : v_LauncherValues) {
@@ -718,12 +718,11 @@ std::string CUIBaseSurface::GetConfigCFG(std::string first) {
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Sets the requested config object - It also wasn't working just passing
-// cfg into json parser. So I gotta do this.
+// Purpose: Sets the requested config object
 //-----------------------------------------------------------------------------
-void CUIBaseSurface::SetConfigCFG(std::string first, std::string second) {
-	second = "\"" + second + "\"";
-	ini->SetValue("Launcher", first.c_str(), second.c_str());
+void CUIBaseSurface::SetConfigCFG(const std::string& first, const std::string& second) {
+	std::string secondT = "\"" + second + "\"";
+	ini->SetValue("Launcher", first.c_str(), secondT.c_str());
 	ini->SaveFile("platform\\cfg\\launcher.cfg");
 }
 	
@@ -752,7 +751,7 @@ void CUIBaseSurface::LatestSDKCompare(Forms::Control* pSender) {
 		easy.perform();
 	}
 	catch (cURLpp::RuntimeError& e) {
-		// TODO: Error
+		pSurface->logText("Error while checking for updates: " + std::string(e.what()));
 	}
 
 	try {
@@ -762,7 +761,7 @@ void CUIBaseSurface::LatestSDKCompare(Forms::Control* pSender) {
 		//pSurface->logText("Download Location: " + pSurface->sdkDownloadLocation);
 	}
 	catch (json::parse_error& e) {
-		// TODO: Error message
+		pSurface->logText("Error parsing updates: " + std::string(e.what()));
 	}
 
 	if (clientVersion != pSurface->newVersion)
@@ -950,7 +949,7 @@ void CUIBaseSurface::InstallGame(Forms::Control* pSender)
 
 	try {
 		lt::session ses;
-		lt::add_torrent_params p = lt::parse_magnet_uri("magnet:?xt=urn:btih:KCQJQT6DV2V4XWCOKCRM4EJELRLHQKI5&dn=R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM&tr=udp%3A%2F%2Fwambo.club%3A1337%2Fannounce");
+		lt::add_torrent_params p = lt::parse_magnet_uri(pSurface->GetConfigCFG("magnet"));
 		p.save_path = ".";
 
 		lt::torrent_handle tH = ses.add_torrent(p);
@@ -1299,7 +1298,7 @@ void CUIBaseSurface::ModManagerClick(const std::unique_ptr<MouseEventArgs>& pEve
 	pSurface->m_ManagerViewerNameLabel->SetText(object.name.c_str());
 	pSurface->m_ManagerViewerDescText->SetText(object.description.c_str());
 	std::string authors = "Authors: ";
-	for (int i = 0; i < object.authors.size(); i++) {
+	for (int i = 0; i < (size_t)object.authors.size(); i++) {
 		authors.append(object.authors[i]);
 		if (i < object.authors.size() - 1)
 			authors += ", ";

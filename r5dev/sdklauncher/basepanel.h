@@ -58,7 +58,7 @@ private:
 	bool bInstallGame = false;
 	bool bSdkChecked = false;
 	std::string newVersion = "";
-	std::vector < std::pair < std::string, std::string >> v_LauncherValues{ {"version", ""} };
+	std::vector < std::pair < std::string, std::string >> v_LauncherValues{ {"version", ""}, {"magnet", "magnet:?xt=urn:btih:KCQJQT6DV2V4XWCOKCRM4EJELRLHQKI5&dn=R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM&tr=udp%3A%2F%2Fwambo.club%3A1337%2Fannounce"}};
 
 	void Init();
 	void Setup();
@@ -67,8 +67,8 @@ private:
 	void ReadModJson();
 	void AdjustValues();
 	void InstallGameCheck();
-	std::string GetConfigCFG(std::string first);
-	void SetConfigCFG(std::string first, std::string second);
+	std::string GetConfigCFG(const std::string& first);
+	void SetConfigCFG(const std::string& first, const std::string& second);
 
 	static void LaunchGame(Forms::Control* pSender);
 	static void CleanSDK(Forms::Control* pSender);

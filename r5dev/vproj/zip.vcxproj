@@ -1,0 +1,407 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{39938F20-C820-38A5-A18E-1692D2A80B87}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
+    <Platform>x64</Platform>
+    <ProjectName>zip</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)lib\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">zip</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">D:\Libraries\libzip\build\lib\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">zip.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">zip</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">D:\Libraries\libzip\build\lib\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">zip.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">zip</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">D:\Libraries\libzip\build\lib\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">zip.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">zip</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.lib</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)/../thirdparty/libzip/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Strawberry/c/include"</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\Libraries\libzip\lib;D:\Libraries\libzip\build;C:\Strawberry\c\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\Libraries\libzip\lib;D:\Libraries\libzip\build;C:\Strawberry\c\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\Libraries\libzip\lib;D:\Libraries\libzip\build;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Strawberry/c/include"</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR="Release"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\Libraries\libzip\lib;D:\Libraries\libzip\build;C:\Strawberry\c\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\Libraries\libzip\lib;D:\Libraries\libzip\build;C:\Strawberry\c\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\Libraries\libzip\lib;D:\Libraries\libzip\build;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Strawberry/c/include"</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR="MinSizeRel"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\Libraries\libzip\lib;D:\Libraries\libzip\build;C:\Strawberry\c\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\Libraries\libzip\lib;D:\Libraries\libzip\build;C:\Strawberry\c\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\Libraries\libzip\lib;D:\Libraries\libzip\build;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Strawberry/c/include"</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR="RelWithDebInfo"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\Libraries\libzip\lib;D:\Libraries\libzip\build;C:\Strawberry\c\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\Libraries\libzip\lib;D:\Libraries\libzip\build;C:\Strawberry\c\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\Libraries\libzip\lib\CMakeLists.txt">
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule D:/Libraries/libzip/lib/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/Libraries/libzip -BD:/Libraries/libzip/build --check-stamp-file D:/Libraries/libzip/build/lib/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Program Files\CMake\share\cmake-3.24\Modules\CheckFunctionExists.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Libraries\libzip\build\lib\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule D:/Libraries/libzip/lib/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/Libraries/libzip -BD:/Libraries/libzip/build --check-stamp-file D:/Libraries/libzip/build/lib/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Program Files\CMake\share\cmake-3.24\Modules\CheckFunctionExists.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">D:\Libraries\libzip\build\lib\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule D:/Libraries/libzip/lib/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/Libraries/libzip -BD:/Libraries/libzip/build --check-stamp-file D:/Libraries/libzip/build/lib/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Program Files\CMake\share\cmake-3.24\Modules\CheckFunctionExists.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">D:\Libraries\libzip\build\lib\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule D:/Libraries/libzip/lib/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/Libraries/libzip -BD:/Libraries/libzip/build --check-stamp-file D:/Libraries/libzip/build/lib/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Program Files\CMake\share\cmake-3.24\Modules\CheckFunctionExists.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">D:\Libraries\libzip\build\lib\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_add.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_add_dir.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_add_entry.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_algorithm_deflate.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_buffer.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_close.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_delete.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_dir_add.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_dirent.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_discard.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_entry.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_error.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_error_clear.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_error_get.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_error_get_sys_type.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_error_strerror.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_error_to_str.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_extra_field.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_extra_field_api.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_fclose.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_fdopen.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_file_add.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_file_error_clear.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_file_error_get.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_file_get_comment.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_file_get_external_attributes.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_file_get_offset.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_file_rename.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_file_replace.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_file_set_comment.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_file_set_encryption.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_file_set_external_attributes.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_file_set_mtime.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_file_strerror.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_fopen.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_fopen_encrypted.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_fopen_index.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_fopen_index_encrypted.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_fread.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_fseek.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_ftell.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_get_archive_comment.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_get_archive_flag.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_get_encryption_implementation.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_get_file_comment.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_get_name.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_get_num_entries.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_get_num_files.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_hash.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_io_util.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_libzip_version.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_memdup.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_name_locate.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_new.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_open.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_pkware.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_progress.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_rename.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_replace.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_set_archive_comment.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_set_archive_flag.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_set_default_password.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_set_file_comment.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_set_file_compression.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_set_name.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_accept_empty.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_begin_write.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_begin_write_cloning.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_buffer.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_call.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_close.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_commit_write.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_compress.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_crc.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_error.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_file_common.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_file_stdio.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_free.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_function.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_get_file_attributes.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_is_deleted.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_layered.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_open.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_pkware_decode.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_pkware_encode.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_read.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_remove.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_rollback_write.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_seek.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_seek_write.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_stat.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_supports.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_tell.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_tell_write.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_window.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_write.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_zip.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_zip_new.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_stat.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_stat_index.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_stat_init.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_strerror.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_string.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_unchange.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_unchange_all.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_unchange_archive.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_unchange_data.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_utf-8.c" />
+    <ClCompile Include="D:\Libraries\libzip\build\lib\zip_err_str.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_file_win32.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_file_win32_named.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_file_win32_utf16.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_file_win32_utf8.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_file_win32_ansi.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_random_win32.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_crypto_win.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_winzip_aes.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_winzip_aes_decode.c" />
+    <ClCompile Include="D:\Libraries\libzip\lib\zip_source_winzip_aes_encode.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="D:\Libraries\libzip\build\ZERO_CHECK.proj">
+      <Project>{CF82260E-9F39-343F-8B6C-A7A0C5FBE00D}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

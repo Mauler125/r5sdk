@@ -116,7 +116,6 @@ FileHandle_t CBaseFileSystem::VReadFromVPK(CBaseFileSystem* pFileSystem, FileHan
 		// Erase '//*/'.
 		svFilePath.erase(0, 4);
 	}
-	
 	// TODO: obtain 'mod' SearchPath's instead.
 	svFilePath.insert(0, "platform\\");
 

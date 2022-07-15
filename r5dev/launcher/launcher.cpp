@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: Defines the entry point for the application.
 //
@@ -7,7 +7,6 @@
 #include "core/stdafx.h"
 #include "tier0/commandline.h"
 #include "launcher/launcher.h"
-#include "../filesystem/filesystem.h"
 
 int HWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
@@ -113,7 +112,7 @@ string LoadConfigFile(const string& svConfig)
 	}
 	else
 	{
-		spdlog::error("{}: '{}' does not exist!\n", __FUNCTION__, svConfig);
+		spdlog::error("{s}: '{s}' does not exist!\n", __FUNCTION__, svConfig);
 		cfgFile.close();
 		return "";
 	}
