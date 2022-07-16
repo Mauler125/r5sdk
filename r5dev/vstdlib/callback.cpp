@@ -878,8 +878,8 @@ void Mat_CrossHair_f(const CCommand& args)
 		DevMsg(eDLL_T::MS, " |-- Material Name: '%s'\n", material->m_pszName);
 		DevMsg(eDLL_T::MS, " |-- Material Surface Name 1: '%s'\n", material->m_pszSurfaceName1);
 		DevMsg(eDLL_T::MS, " |-- Material Surface Name 2: '%s'\n", material->m_pszSurfaceName2);
-		DevMsg(eDLL_T::MS, " |-- DX Texture 1: '%llX'\n", material->m_ppDXTexture1);
-		DevMsg(eDLL_T::MS, " |-- DX Texture 2: '%llX'\n", material->m_ppDXTexture2);
+		DevMsg(eDLL_T::MS, " |-- DX Buffer: '%llX'\n", material->m_pDXBuffer);
+		DevMsg(eDLL_T::MS, " |-- DX BufferVTable: '%llX'\n", material->m_pID3D11BufferVTable);
 
 		material->m_pDepthShadow ? fnPrintChild(material->m_pDepthShadow, " |   |-+ DepthShadow Addr: '%llX'\n") : DevMsg(eDLL_T::MS, " |   |-+ DepthShadow Addr: 'NULL'\n");
 		material->m_pDepthPrepass ? fnPrintChild(material->m_pDepthPrepass, " |   |-+ DepthPrepass Addr: '%llX'\n") : DevMsg(eDLL_T::MS, " |   |-+ DepthPrepass Addr: 'NULL'\n");

@@ -30,19 +30,19 @@ public:
 	int32_t m_unused2; //0x007C
 	uint8_t pad_0080[8]; //0x0080
 	uint32_t m_iUnknownFlags1; //0x0088
-	uint8_t pad_008C[116]; //0x008C
-
-	// They first point to a jump table which holds the texture, then theres another jump onto the actual texture.
-	void** m_ppDXTexture1; //0x0100
-	void** m_ppDXTexture2; //0x0108
-	uint8_t pad_0110[8]; //0x0110
-	uint32_t m_iUnknown1; //0x0118
-	uint16_t m_iUnknown2; //0x011C
-	uint16_t m_iUnknown3; //0x011E
-	uint16_t m_iUnknown4; //0x0120
-	uint64_t m_Unknown5; //0x0122
-	uint32_t m_iUnknown6; //0x012A
-	uint16_t m_iUnknown7; //0x012E
+	char pad_008C[103]; //0x008C
+	uint8_t m_iUnknown1; //0x00F3
+	char pad_00F4[12]; //0x00F4
+	void* m_pDXBuffer; //0x0100 [ PIXIE ]: ID3D11Buffer*, might need to include dx here.
+	void* m_pID3D11BufferVTable; //0x0108 [ PIXIE ]: ID3D11BufferVtbl, probably just leave it as a void*
+	void* m_pUnknown2; //0x0110
+	uint32_t m_iUnknown3; //0x0118
+	uint16_t m_iUnknown4; //0x011C
+	uint16_t m_iUnknown5; //0x011E
+	uint16_t m_iUnknown6; //0x0120
+	uint64_t m_Unknown7; //0x0122
+	uint32_t m_iUnknown8; //0x012A
+	uint16_t m_iUnknown9; //0x012E
 }; //Size: 0x0130 confirmed end size.
 static_assert(sizeof(CMaterialGlue) == 0x130);
 #pragma pack(pop)
