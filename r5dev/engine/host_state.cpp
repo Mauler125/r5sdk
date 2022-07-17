@@ -50,7 +50,7 @@
 //-----------------------------------------------------------------------------
 // Purpose: state machine's main processing loop
 //-----------------------------------------------------------------------------
-FORCEINLINE void CHostState::FrameUpdate(CHostState* rcx, void* rdx, float time)
+FORCEINLINE void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float flFrameTime)
 {
 	static bool bInitialized = false;
 	if (!bInitialized)
@@ -100,7 +100,7 @@ FORCEINLINE void CHostState::FrameUpdate(CHostState* rcx, void* rdx, float time)
 			}
 			case HostStates_t::HS_RUN:
 			{
-				CHostState_State_Run(&g_pHostState->m_iCurrentState, nullptr, time);
+				CHostState_State_Run(&g_pHostState->m_iCurrentState, flCurrentTime, flFrameTime);
 				break;
 			}
 			case HostStates_t::HS_GAME_SHUTDOWN:
