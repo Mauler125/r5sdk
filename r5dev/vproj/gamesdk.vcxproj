@@ -562,7 +562,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
+    <IncludePath>$(IncludePath);$(DXSDK_DIR)Include;$(SolutionDir)r5dev\;$(SolutionDir)r5dev\thirdparty\recast\</IncludePath>
     <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
     <TargetName>gamesdk</TargetName>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
@@ -571,7 +571,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
+    <IncludePath>$(IncludePath);$(DXSDK_DIR)Include;$(SolutionDir)r5dev\;$(SolutionDir)r5dev\thirdparty\recast\</IncludePath>
     <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
     <TargetName>gamesdk</TargetName>
     <ReferencePath>$(VC_ReferencesPath_x64);</ReferencePath>
