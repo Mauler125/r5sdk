@@ -250,8 +250,6 @@ dtStatus dtNavMesh::init(const dtNavMeshParams* params)
 		m_tiles[i].next = m_nextFree;
 		m_nextFree = &m_tiles[i];
 	}
-	
-	unk0 = dtIlog2(dtNextPow2((unsigned int)params[1].orig[0]));
 
 	// Init ID generator values.
 #ifndef DT_POLYREF64
@@ -1000,7 +998,6 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 	unsigned char* d = data + headerSize;
 	tile->verts = dtGetThenAdvanceBufferPointer<float>(d, vertsSize);
 	tile->polys = dtGetThenAdvanceBufferPointer<dtPoly>(d, polysSize);
-	d += header->sth_per_poly*header->polyCount * 4;
 	tile->links = dtGetThenAdvanceBufferPointer<dtLink>(d, linksSize);
 	tile->detailMeshes = dtGetThenAdvanceBufferPointer<dtPolyDetail>(d, detailMeshesSize);
 	tile->detailVerts = dtGetThenAdvanceBufferPointer<float>(d, detailVertsSize);

@@ -116,6 +116,9 @@ protected:
 	class dtCrowd* m_crowd;
 
 	unsigned char m_navMeshDrawFlags;
+	bool m_filterLowHangingObstacles;
+	bool m_filterLedgeSpans;
+	bool m_filterWalkableLowHeightSpans;
 
 	float m_cellSize;
 	float m_cellHeight;
@@ -131,12 +134,8 @@ protected:
 	float m_detailSampleDist;
 	float m_detailSampleMaxError;
 	int m_partitionType;
-	int m_count_reachability_tables;
-	const char* m_navmesh_name="unk";
-
-	bool m_filterLowHangingObstacles;
-	bool m_filterLedgeSpans;
-	bool m_filterWalkableLowHeightSpans;
+	int m_reachabilityTableCount;
+	const char* m_navmeshName="unk";
 	
 	SampleTool* m_tool;
 	SampleToolState* m_toolStates[MAX_TOOLS];

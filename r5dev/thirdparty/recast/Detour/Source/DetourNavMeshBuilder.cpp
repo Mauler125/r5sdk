@@ -539,7 +539,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		p->setArea(params->polyAreas[i]);
 		p->setType(DT_POLYTYPE_GROUND);
 		//p->org=params->polys
-		p->link_table_idx = 2; //0 is invalid 1 is special?
+		p->disjointSetId = 2; //0 is invalid 1 is special?
 		for (int j = 0; j < nvp; ++j)
 		{
 			if (src[j] == MESH_NULL_IDX) break;

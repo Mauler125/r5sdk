@@ -177,7 +177,7 @@ struct dtPoly
 	/// @note Use the structure's set and get methods to acess this value.
 	unsigned char areaAndtype;
 
-	unsigned short link_table_idx;			//IDK but looks filled
+	unsigned short disjointSetId;			//IDK but looks filled
 	unsigned short unk;						//IDK but looks filled
 	unsigned int unk1;						//!TODO: debug this if you ever find where this gets used in the engine..
 	float org[3];							// Seems to be used for AIN file generation (build from large navmesh).
@@ -193,6 +193,8 @@ struct dtPoly
 
 	/// Gets the polygon type. (See: #dtPolyTypes)
 	inline unsigned char getType() const { return areaAndtype >> 6; }
+
+	inline unsigned char getTest() const { return areaAndtype & 0xc0; }
 };
 
 /// Defines the location of detail sub-mesh data within a dtMeshTile.
@@ -354,10 +356,10 @@ struct dtNavMeshParams
 	int maxPolys;					///< The maximum number of polygons each tile can contain. This and maxTiles are used to calculate how many bits are needed to identify tiles and polygons uniquely.
 //	
 //// i hate this
-	int disjoint_poly_group_count = 0;
-	int reachability_table_size = 0;
-	int reachability_table_count = 0;
-	int unk0 = 0;
+	int disjointPolyGroupCount = 0;
+	int reachabilityTableSize = 0;
+	int reachabilityTableCount = 0;
+	int allocSize = 0;
 };
 
 #pragma pack(push, 4)
