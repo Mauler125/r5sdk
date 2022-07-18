@@ -721,10 +721,10 @@ void Sample::saveAll(std::string path, dtNavMesh* mesh)
 //	memcpy(&header.params, mesh->getParams(), sizeof(dtNavMeshParams));
 //	header.params.disjoint_poly_group_count = 3;
 //
-//	link_table_data link_data;
+//	LinkTableData link_data;
 //	build_link_table(mesh, link_data);
-//	int table_size = ((link_data.set_count + 31) / 32) * link_data.set_count * 32;
-//	header.params.disjoint_poly_group_count = link_data.set_count;
+//	int table_size = ((link_data.setCount + 31) / 32) * link_data.setCount * 32;
+//	header.params.disjoint_poly_group_count = link_data.setCount;
 //	header.params.reachability_table_count = m_count_reachability_tables;
 //	header.params.reachability_table_size = table_size;
 //
@@ -749,12 +749,12 @@ void Sample::saveAll(std::string path, dtNavMesh* mesh)
 //
 //	//still dont know what this thing is...
 //	int header_sth = 0;
-//	for (int i = 0; i < link_data.set_count; i++)
+//	for (int i = 0; i < link_data.setCount; i++)
 //		fwrite(&header_sth, sizeof(int), 1, fp);
 //
 //	std::vector<int> reachability(table_size, 0);
-//	for (int i = 0; i < link_data.set_count; i++)
-//		set_reachable(reachability, link_data.set_count, i, i, true);
+//	for (int i = 0; i < link_data.setCount; i++)
+//		set_reachable(reachability, link_data.setCount, i, i, true);
 //	for (int i = 0; i < header.params.reachability_table_count; i++)
 //		fwrite(reachability.data(), sizeof(int), (table_size / 4), fp);
 //	fclose(fp);
