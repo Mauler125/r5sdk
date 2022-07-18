@@ -200,12 +200,13 @@ void CLogSystem::DrawCrosshairMaterial(void) const
 
 	static Color c = { 255, 255, 255, 255 };
 	static const char* szLogbuf[4096]{};
-	snprintf((char*)szLogbuf, 4096, "name: %s\nguid: %llx\ndimensions: %d x %d\nsurface: %s/%s\nsig: %i",
+	snprintf((char*)szLogbuf, 4096, "name: %s\nguid: %llx\ndimensions: %d x %d\nsurface: %s/%s\nstc: %i\ntc: %i",
 		material->m_pszName,
 		material->m_GUID,
 		material->m_iWidth, material->m_iHeight,
 		material->m_pszSurfaceName1, material->m_pszSurfaceName2,
-		material->m_UnknownSignature);
+		material->m_nStreamableTextureCount,
+		material->m_pShaderGlue->m_nTextureInputCount);
 
 	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, cl_materialinfo_offset_x->GetInt(), cl_materialinfo_offset_y->GetInt(), c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
 }

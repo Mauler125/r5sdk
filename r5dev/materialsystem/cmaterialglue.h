@@ -21,8 +21,8 @@ public:
 	CMaterialGlue* m_pColPass; //0x0050
 	CShaderGlue* m_pShaderGlue; //0x0058
 	void* m_pTextureGUID1; //0x0060
-	void* m_pTextureGUID2; //0x0068
-	int16_t m_UnknownSignature; //0x0070 [ PIXIE ]: This seems to be the start of a modified VTF Header, I have no clue what this member does. 
+	void* m_pStreamableTextures; //0x0068
+	int16_t m_nStreamableTextureCount; //0x0070
 	int16_t m_iWidth; //0x0072 
 	int16_t m_iHeight; //0x0074
 	int16_t m_unused1; //0x0076

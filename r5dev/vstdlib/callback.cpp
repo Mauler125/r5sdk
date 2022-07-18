@@ -861,7 +861,7 @@ void Mat_CrossHair_f(const CCommand& args)
 		DevMsg(eDLL_T::MS, "-+ Material --------------------------------------------------\n");
 		DevMsg(eDLL_T::MS, " |-- ADDR: '%llX'\n", material);
 		DevMsg(eDLL_T::MS, " |-- GUID: '%llX'\n", material->m_GUID);
-		DevMsg(eDLL_T::MS, " |-- Signature: '%d'\n", material->m_UnknownSignature);
+		DevMsg(eDLL_T::MS, " |-- Streamable Texture Count: '%d'\n", material->m_nStreamableTextureCount);
 		DevMsg(eDLL_T::MS, " |-- Material Width: '%d'\n", material->m_iWidth);
 		DevMsg(eDLL_T::MS, " |-- Material Height: '%d'\n", material->m_iHeight);
 		DevMsg(eDLL_T::MS, " |-- Flags: '%llX'\n", material->m_iFlags);
@@ -889,7 +889,7 @@ void Mat_CrossHair_f(const CCommand& args)
 
 		DevMsg(eDLL_T::MS, "-+ Texture GUID map ------------------------------------------\n");
 		material->m_pTextureGUID1 ? DevMsg(eDLL_T::MS, " |-- TextureMap 1 Addr: '%llX'\n", material->m_pTextureGUID1) : DevMsg(eDLL_T::MS, " |-- TextureMap 1 Addr: 'NULL'\n");
-		material->m_pTextureGUID2 ? DevMsg(eDLL_T::MS, " |-- TextureMap 2 Addr: '%llX'\n", material->m_pTextureGUID2) : DevMsg(eDLL_T::MS, " |-- TextureMap 2 Addr: 'NULL'\n");
+		material->m_pStreamableTextures ? DevMsg(eDLL_T::MS, " |-- TextureMap 2 Addr: '%llX'\n", material->m_pStreamableTextures) : DevMsg(eDLL_T::MS, " |-- TextureMap 2 Addr: 'NULL'\n");
 
 		DevMsg(eDLL_T::MS, "--------------------------------------------------------------\n");
 	}

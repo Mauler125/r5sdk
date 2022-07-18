@@ -10,7 +10,7 @@ public:
 	char pad_0008[8]; //0x0008 Dispatcher Context, Some SEH try and catch thing.
 	uint64_t m_nUnknown1; //0x0010
 	uint16_t m_nCount1; //0x0018
-	uint16_t m_nCount2; //0x001A
+	uint16_t m_nTextureInputCount; //0x001A
 	uint16_t m_nNumSamplers; //0x001C [ PIXIE ]: Used by ID3D11DeviceContext::PSSetSamplers to set NumSamplers
 	uint8_t m_nStartSlot; //0x001E [ PIXIE ]: Used by ID3D11DeviceContext::PSSetShaderResources to set StartSlot.
 	uint8_t m_nNumViews; //0x001F [ PIXIE ]: Used by ID3D11DeviceContext::PSSetShaderResources to set NumViews.
