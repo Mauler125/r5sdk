@@ -343,7 +343,6 @@ struct NavMeshSetHeader
 	int version;
 	int numTiles;
 	dtNavMeshParams params;
-	int unk0 = 0;
 };
 
 struct NavMeshTileHeader
@@ -429,10 +428,10 @@ void unpatch_tiletf2(dtMeshTile* t)
 		coord_tf_unfix(t->offMeshCons[i].unk);
 	}
 }
-struct link_table_data
+struct LinkTableData
 {
 	//disjoint set algo from some crappy site because i'm too lazy to think
-	int set_count = 0;
+	int setCount = 0;
 	std::vector<int> rank;
 	std::vector<int> parent;
 	void init(int size)
@@ -446,8 +445,8 @@ struct link_table_data
 	int insert_new()
 	{
 		rank.push_back(0);
-		parent.push_back(set_count);
-		return set_count++;
+		parent.push_back(setCount);
+		return setCount++;
 	}
 	int find(int id)
 	{
@@ -473,7 +472,7 @@ struct link_table_data
 		}
 	}
 };
-void build_link_table(dtNavMesh* mesh, link_table_data& data)
+void build_link_table(dtNavMesh* mesh, LinkTableData& data)
 {
 	//clear all labels
 	for (int i = 0; i < mesh->getMaxTiles(); ++i)

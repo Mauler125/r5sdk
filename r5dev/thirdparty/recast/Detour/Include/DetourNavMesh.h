@@ -302,7 +302,7 @@ struct dtMeshTile
 	unsigned int linksFreeList;			///Index to the next free link.
 	dtMeshHeader* header;				///The tile header.
 	dtPoly* polys;						///The tile polygons. [Size: dtMeshHeader::polyCount]
-	void* unk0;
+	void* polysEnd;						///The tile polygons array end pointer.
 	float* verts;						///The tile vertices. [Size: dtMeshHeader::vertCount]
 	dtLink* links;						///The tile links. [Size: dtMeshHeader::maxLinkCount]
 	dtPolyDetail* detailMeshes;			///The tile's detail sub-meshes. [Size: dtMeshHeader::detailMeshCount]
@@ -357,6 +357,7 @@ struct dtNavMeshParams
 	int disjoint_poly_group_count = 0;
 	int reachability_table_size = 0;
 	int reachability_table_count = 0;
+	int unk0 = 0;
 };
 
 #pragma pack(push, 4)
@@ -687,32 +688,29 @@ public:
 	/// Returns closest point on polygon.
 	void closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest, bool* posOverPoly) const;
 
-	dtMeshTile** m_posLookup;
-	dtMeshTile* m_nextFree;
-	dtMeshTile* m_tiles;
+	dtMeshTile** m_posLookup;			///< Tile hash lookup.
+	dtMeshTile* m_nextFree;				///< Freelist of tiles.
+	dtMeshTile* m_tiles;				///< List of tiles.
+	void** m_setTables;					///< Array of set tables.
+	void* m_unk0;						///< FIXME: unknown structure pointer.
 
-	// im pretty sure these are in the wrong place but i'm not sure
-	// where they are supposed to go, so this is temp
-	dtNavMeshParams m_params;
-	float orig[3];
+	char m_meshFlags;	// Maybe.
+	char m_tileFlags;	// Maybe.
+	int m_unk1;			// FIXME:
 
-	int unk0;
-	int unk1;
-	int unk2;
-	int unk3;
-	float m_orig[3];
-	float m_tileWidth;
-	float m_tileHeight;
-	int m_tileCount;
-	int m_maxTiles;
-	int m_tileLutSize;
-	int m_tileLutMask;
+	dtNavMeshParams m_params;			///< Current initialization params. TODO: do not store this info twice.
+	float m_orig[3];					///< Origin of the tile (0,0)
+	float m_tileWidth, m_tileHeight;	///< Dimensions of each tile.
+	int m_tileCount;					///< Number of tiles in the mesh.
+	int m_maxTiles;						///< Max number of tiles.
+	int m_tileLutSize;					///< Tile hash lookup size (must be pot).
+	int m_tileLutMask;					///< Tile hash lookup mask.
+
 #ifndef DT_POLYREF64
 	unsigned int m_saltBits;			///< Number of salt bits in the tile ID.
 	unsigned int m_tileBits;			///< Number of tile bits in the tile ID.
 	unsigned int m_polyBits;			///< Number of poly bits in the tile ID.
 #endif
-	int unk8;
 	friend class dtNavMeshQuery;
 };
 #pragma pack(pop)
