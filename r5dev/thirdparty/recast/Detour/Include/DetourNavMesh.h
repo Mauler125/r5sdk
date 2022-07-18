@@ -270,7 +270,7 @@ struct dtMeshHeader
 
 	unsigned int userId;	///< The user defined id of the tile.
 	int polyCount;			///< The number of polygons in the tile.
-	int sth_per_poly;
+	int polyCountMultiplier;
 	int vertCount;			///< The number of vertices in the tile.
 	int maxLinkCount;		///< The number of allocated links.
 
@@ -283,11 +283,11 @@ struct dtMeshHeader
 	int bvNodeCount;			///< The number of bounding volume nodes. (Zero if bounding volumes are disabled.)
 	int offMeshConCount;		///< The number of off-mesh connections.
 	int offMeshBase;			///< The index of the first polygon which is an off-mesh connection.
+	int offMeshEnds;
 
 	float walkableHeight;		///< The height of the agents using the tile.
 	float walkableRadius;		///< The radius of the agents using the tile.
 	float walkableClimb;		///< The maximum climb height of the agents using the tile.
-	int unk1;
 	float bmin[3];				///< The minimum bounds of the tile's AABB. [(x, y, z)]
 	float bmax[3];				///< The maximum bounds of the tile's AABB. [(x, y, z)]
 
@@ -304,7 +304,7 @@ struct dtMeshTile
 	unsigned int linksFreeList;			///Index to the next free link.
 	dtMeshHeader* header;				///The tile header.
 	dtPoly* polys;						///The tile polygons. [Size: dtMeshHeader::polyCount]
-	void* polysEnd;						///The tile polygons array end pointer.
+	dtPoly* polysEnd;					///The tile polygons array end pointer.
 	float* verts;						///The tile vertices. [Size: dtMeshHeader::vertCount]
 	dtLink* links;						///The tile links. [Size: dtMeshHeader::maxLinkCount]
 	dtPolyDetail* detailMeshes;			///The tile's detail sub-meshes. [Size: dtMeshHeader::detailMeshCount]
@@ -322,6 +322,7 @@ struct dtMeshTile
 	void* meshLink;							///<  Seems shifted with 8 bytes from here (the rest seems to line up with r2) see field assignments in 'r5apex.exe 0x140F44A00'
 
 	dtOffMeshConnection* offMeshCons;		///< The tile off-mesh connections. [Size: dtMeshHeader::offMeshConCount]
+	dtOffMeshConnection* offMeshConsEnd;	///< The tile off-mesh connections array end pointer.
 
 	unsigned char* data;					///< The tile data. (Not directly accessed under normal situations.)
 

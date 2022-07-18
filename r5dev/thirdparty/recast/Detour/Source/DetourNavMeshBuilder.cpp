@@ -491,13 +491,13 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	header->detailTriCount = detailTriCount;
 	header->bvQuantFactor = 1.0f / params->cs;
 	header->offMeshBase = params->polyCount;
+	header->offMeshEnds = 0;
 	header->walkableHeight = params->walkableHeight;
 	header->walkableRadius = params->walkableRadius;
 	header->walkableClimb = params->walkableClimb;
 	header->offMeshConCount = storedOffMeshConCount;
 	header->bvNodeCount = params->buildBvTree ? params->polyCount*2 : 0;
-	
-	header->sth_per_poly = sth_per_poly_thingy;
+	header->polyCountMultiplier = sth_per_poly_thingy;
 
 	const int offMeshVertsBase = params->vertCount;
 	const int offMeshPolyBase = params->polyCount;
