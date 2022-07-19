@@ -770,16 +770,12 @@ void Sample_TileMesh::removeAllTiles()
 
 void Sample_TileMesh::buildAllHulls()
 {
-	bool is_human = true;
 	for (auto& h : hulls)
 	{
 		m_agentRadius = h.radius;
 		m_agentMaxClimb = h.climb_height;
 		m_agentHeight = h.height;
-		if (is_human)
-			m_reachabilityTableCount = 4;
 		m_navmeshName = h.name;
-		is_human = false;
 
 		handleSettings();
 		handleBuild();
