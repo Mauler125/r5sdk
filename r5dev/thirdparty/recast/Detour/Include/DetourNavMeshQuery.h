@@ -565,7 +565,6 @@ private:
 		float lastBestNodeCost;
 		dtPolyRef startRef, endRef;
 		float startPos[3], endPos[3];
-		const dtQueryFilter* filter;
 		unsigned int options;
 		float raycastLimitSqr;
 	};
@@ -574,6 +573,7 @@ private:
 	class dtNodePool* m_tinyNodePool;	///< Pointer to small node pool.
 	class dtNodePool* m_nodePool;		///< Pointer to node pool.
 	class dtNodeQueue* m_openList;		///< Pointer to open list queue.
+	const dtQueryFilter* m_queryFilter;	///< Pointer to query filter.
 };
 
 /// Allocates a query object using the Detour allocator.
