@@ -95,7 +95,7 @@ static const unsigned int DT_OFFMESH_CON_BIDIR = 1;
 
 /// The maximum number of user defined area ids.
 /// @ingroup detour
-static const int DT_MAX_AREAS = 64;
+static const int DT_MAX_AREAS = 32; // <-- confirmed 32 see [r5apex_ds.exe + 0xf47dda] '-> test    [rcx+80h], ax'.
 
 /// Tile flags used for various functions and fields.
 /// For an example, see dtNavMesh::addTile().
@@ -193,8 +193,6 @@ struct dtPoly
 
 	/// Gets the polygon type. (See: #dtPolyTypes)
 	inline unsigned char getType() const { return areaAndtype >> 6; }
-
-	inline unsigned char getTest() const { return areaAndtype & 0xc0; }
 };
 
 /// Defines the location of detail sub-mesh data within a dtMeshTile.
@@ -694,7 +692,7 @@ public:
 	dtMeshTile** m_posLookup;			///< Tile hash lookup.
 	dtMeshTile* m_nextFree;				///< Freelist of tiles.
 	dtMeshTile* m_tiles;				///< List of tiles.
-	void** m_setTables;					///< Array of set tables.
+	dtPolyRef** m_setTables;			///< Array of set tables.
 	void* m_unk0;						///< FIXME: unknown structure pointer.
 
 	char m_meshFlags;	// Maybe.

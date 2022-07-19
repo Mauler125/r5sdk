@@ -491,7 +491,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	header->detailTriCount = detailTriCount;
 	header->bvQuantFactor = 1.0f / params->cs;
 	header->offMeshBase = params->polyCount;
-	header->offMeshEnds = 0;
+	header->offMeshEnds = -1;
 	header->walkableHeight = params->walkableHeight;
 	header->walkableRadius = params->walkableRadius;
 	header->walkableClimb = params->walkableClimb;

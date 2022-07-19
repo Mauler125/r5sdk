@@ -661,16 +661,18 @@ void Sample::saveAll(std::string path, dtNavMesh* mesh)
 	for (int i = 0; i < link_data.setCount; i++)
 		set_reachable(reachability, link_data.setCount, i, i, true);
 
-	size_t del = 0;
-	for (size_t i = reachability.size() - 1; i >= 0; i--)
+	if (reachability.size() > 0)
 	{
-		if (reachability[i] == 0)
+		for (size_t i = reachability.size() - 1; i >= 0; i--)
 		{
-			reachability.erase(reachability.begin() + i);
-			table_size--;
+			if (reachability[i] == 0)
+			{
+				reachability.erase(reachability.begin() + i);
+				table_size--;
+			}
+			else
+				break;
 		}
-		else
-			break;
 	}
 
 	header.params.disjointPolyGroupCount = link_data.setCount;
