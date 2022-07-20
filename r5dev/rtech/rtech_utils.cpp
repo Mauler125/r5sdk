@@ -505,6 +505,10 @@ std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::
 
 #pragma warning( push )
 #pragma warning( disable : 6262 ) // Disable stack warning, tells us to move more data to the heap instead. Not really possible with 'initialData' here. Since its parallel processed.
+
+//----------------------------------------------------------------------------------
+// Purpose: creates 2D texture and shader resource from textureHeader and imageData.
+//----------------------------------------------------------------------------------
 void RTech::CreateDXTexture(RTechTextureInfo_t* textureHeader, int64_t imageData)
 {
 	if (textureHeader->unk0 && !textureHeader->m_nHeight) // Return never gets hit. Maybe its some debug check?
@@ -566,7 +570,7 @@ void RTech::CreateDXTexture(RTechTextureInfo_t* textureHeader, int64_t imageData
 	textureDesc.Format = dxgiFormat;
 	textureDesc.SampleDesc.Count = 1;
 	textureDesc.SampleDesc.Quality = 0;
-	textureDesc.Usage = (D3D11_USAGE)(textureHeader->unk2 != 2);
+	textureDesc.Usage = (D3D11_USAGE)(textureHeader->m_nCPUAccessFlag != 2);
 	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 	textureDesc.MiscFlags = 0;
 

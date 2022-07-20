@@ -85,6 +85,27 @@ const std::map<RPakStatus_t, std::string> RPakStatusToString {
 	{ RPakStatus_t::PAK_STATUS_BUSY,                   "PAK_STATUS_BUSY" },
 };
 
+struct RPakAssetBinding_t
+{
+	uint32_t m_nExtension; // For example '0x6C74616D' for the material asset.
+	int m_iVersion;
+	const char* m_szDescription; // Description/Name of asset.
+	void* m_pLoadAssetFunction;
+	void* m_pUnloadAssetFunction;
+	void* m_pReplaceAssetFunction;
+	void* m_pUnknownAssetFunction; // [ PIXIE ]: Also a function pointer just sometimes it's set to CStdMemAlloc and sometimes it handles some data.
+	int m_iSubHeaderSize;
+	int m_iNativeClassSize; // Native class size, for 'material' it would be CMaterialGlue full size.
+	uint32_t unk2;
+	int unk3;
+	// [ PIXIE ]: Should be the full size across Season 0-3.
+};
+
+struct RPakUnknownStruct_t
+{
+	RPakAssetBinding_t m_nAssetBindings[64]; // [ PIXIE ]: Max possible registered assets on Season 3, 0-2 I did not check yet.
+	// End size unknown.
+};
 
 struct RPakHeader_t
 {
@@ -181,7 +202,7 @@ struct RTechTextureInfo_t
 	uint8_t m_nMipLevelsStreamedOpt;
 	uint8_t m_nArraySize;
 	uint8_t m_nLayerCount;
-	uint8_t unk2;
+	uint8_t m_nCPUAccessFlag; // [ PIXIE ]: In RTech::CreateDXBuffer textureDescription Usage is determined by the CPU Access Flag so I assume it's the same case here.
 	uint8_t m_nMipLevels;
 	uint8_t m_nMipLevelsStreamed;
 	uint8_t unk3[24];
@@ -433,6 +454,7 @@ inline auto RTech_CreateDXTexture = p_RTech_CreateDXTexture.RCast<void(*)(RPakTe
 
 inline RPakLoadedInfo_t* g_pLoadedPakInfo;
 inline std::int16_t* s_pLoadedPakCount;
+inline RPakUnknownStruct_t* g_pUnknownPakStruct;
 
 class RTech
 {
@@ -476,10 +498,11 @@ class VPakFile : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		CMemory localRef = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x30\x8B\xC1"), "xxxx?xxxx?xxxxxxx");
+		g_pUnknownPakStruct = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8D\x1D\x00\x00\x00\x00\x45\x8D\x5A\x0E"), "xxx????xxxx").ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakUnknownStruct_t*>(); /*48 8D 1D ? ? ? ? 45 8D 5A 0E*/
 
-		g_pLoadedPakInfo = localRef.FindPattern("48 8D 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakLoadedInfo_t*>();
-		s_pLoadedPakCount = localRef.FindPattern("66 89", CMemory::Direction::DOWN, 450).ResolveRelativeAddressSelf(0x3, 0x7).RCast<std::int16_t*>();
+		CMemory RTech_UnloadPak = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x30\x8B\xC1"), "xxxx?xxxx?xxxxxxx");
+		g_pLoadedPakInfo = RTech_UnloadPak.FindPattern("48 8D 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakLoadedInfo_t*>();
+		s_pLoadedPakCount = RTech_UnloadPak.FindPattern("66 89", CMemory::Direction::DOWN, 450).ResolveRelativeAddressSelf(0x3, 0x7).RCast<std::int16_t*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

@@ -208,7 +208,7 @@ CMemory CModule::GetExportedFunction(const string& svFunctionName) const
 	if (!m_pNTHeaders || m_pNTHeaders->Signature != IMAGE_NT_SIGNATURE) // Is ntHeader valid?
 		return CMemory();
 
-	// Get the location of IMAGE_EXPORT_DIRECTORY for this module by adding the IMAGE_DIRECTORY_ENTRY_EXPORT relative virtual Address onto our module base Address.
+	// Get the location of IMAGE_EXPORT_DIRECTORY for this module by adding the IMAGE_DIRECTORY_ENTRY_EXPORT relative virtual address onto our module base address.
 	const IMAGE_EXPORT_DIRECTORY* pImageExportDirectory = reinterpret_cast<IMAGE_EXPORT_DIRECTORY*>(m_pModuleBase + m_pNTHeaders->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress);
 	if (!pImageExportDirectory)
 		return CMemory();
@@ -217,17 +217,17 @@ CMemory CModule::GetExportedFunction(const string& svFunctionName) const
 	if (!pImageExportDirectory->NumberOfFunctions)
 		return CMemory();
 
-	// Get the location of the functions via adding the relative virtual Address from the struct into our module base Address.
+	// Get the location of the functions via adding the relative virtual address from the struct into our module base address.
 	const DWORD* pAddressOfFunctions = reinterpret_cast<DWORD*>(m_pModuleBase + pImageExportDirectory->AddressOfFunctions);
 	if (!pAddressOfFunctions)
 		return CMemory();
 
-	// Get the names of the functions via adding the relative virtual Address from the struct into our module base Address.
+	// Get the names of the functions via adding the relative virtual address from the struct into our module base Address.
 	const DWORD* pAddressOfName = reinterpret_cast<DWORD*>(m_pModuleBase + pImageExportDirectory->AddressOfNames);
 	if (!pAddressOfName)
 		return CMemory();
 
-	// Get the ordinals of the functions via adding the relative virtual Address from the struct into our module base Address.
+	// Get the ordinals of the functions via adding the relative virtual Address from the struct into our module base address.
 	DWORD* pAddressOfOrdinals = reinterpret_cast<DWORD*>(m_pModuleBase + pImageExportDirectory->AddressOfNameOrdinals);
 	if (!pAddressOfOrdinals)
 		return CMemory();
@@ -239,8 +239,8 @@ CMemory CModule::GetExportedFunction(const string& svFunctionName) const
 
 		if (ExportFunctionName.compare(svFunctionName) == 0) // Is this our wanted exported function?
 		{
-			// Get the function ordinal. Then grab the relative virtual Address of our wanted function. Then add module base Address so we get the actual location.
-			return CMemory(m_pModuleBase + pAddressOfFunctions[reinterpret_cast<WORD*>(pAddressOfOrdinals)[i]]); // Return as Address class.
+			// Get the function ordinal. Then grab the relative virtual address of our wanted function. Then add module base address so we get the actual location.
+			return CMemory(m_pModuleBase + pAddressOfFunctions[reinterpret_cast<WORD*>(pAddressOfOrdinals)[i]]); // Return as CMemory class.
 		}
 	}
 	return CMemory();

@@ -20,7 +20,7 @@ public:
 	CMaterialGlue* m_pDepthShadowTight; //0x0048
 	CMaterialGlue* m_pColPass; //0x0050
 	CShaderGlue* m_pShaderGlue; //0x0058
-	void* m_pTextureGUID1; //0x0060
+	void* m_pTextureGUID; //0x0060
 	void* m_pStreamableTextures; //0x0068
 	int16_t m_nStreamableTextureCount; //0x0070
 	int16_t m_iWidth; //0x0072 
@@ -34,7 +34,7 @@ public:
 	uint8_t m_iUnknown1; //0x00F3
 	char pad_00F4[12]; //0x00F4
 	void* m_pDXBuffer; //0x0100 [ PIXIE ]: ID3D11Buffer*, might need to include dx here.
-	void* m_pID3D11BufferVTable; //0x0108 [ PIXIE ]: ID3D11BufferVtbl, probably just leave it as a void*
+	void* m_pDXBufferVTable; //0x0108 [ PIXIE ]: ID3D11BufferVtbl, probably just leave it as a void*
 	void* m_pUnknown2; //0x0110
 	uint32_t m_iUnknown3; //0x0118
 	uint16_t m_iUnknown4; //0x011C
