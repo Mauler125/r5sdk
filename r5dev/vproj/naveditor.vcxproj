@@ -15,6 +15,8 @@
     <ClInclude Include="..\naveditor\include\ConvexVolumeTool.h" />
     <ClInclude Include="..\naveditor\include\CrowdTool.h" />
     <ClInclude Include="..\naveditor\include\Filelist.h" />
+    <ClInclude Include="..\naveditor\include\FileTypes.h" />
+    <ClInclude Include="..\naveditor\include\GameUtils.h" />
     <ClInclude Include="..\naveditor\include\imgui.h" />
     <ClInclude Include="..\naveditor\include\imguiRenderGL.h" />
     <ClInclude Include="..\naveditor\include\InputGeom.h" />
@@ -41,6 +43,7 @@
     <ClCompile Include="..\naveditor\ConvexVolumeTool.cpp" />
     <ClCompile Include="..\naveditor\CrowdTool.cpp" />
     <ClCompile Include="..\naveditor\Filelist.cpp" />
+    <ClCompile Include="..\naveditor\GameUtils.cpp" />
     <ClCompile Include="..\naveditor\imgui.cpp" />
     <ClCompile Include="..\naveditor\imguiRenderGL.cpp" />
     <ClCompile Include="..\naveditor\InputGeom.cpp" />

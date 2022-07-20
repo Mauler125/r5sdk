@@ -111,6 +111,12 @@
     <ClInclude Include="..\thirdparty\recast\Pch.h">
       <Filter>core\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\naveditor\include\GameUtils.h">
+      <Filter>utils\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\naveditor\include\FileTypes.h">
+      <Filter>io\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\thirdparty\fastlz\fastlz.c">
@@ -187,6 +193,9 @@
     </ClCompile>
     <ClCompile Include="..\thirdparty\recast\Pch.cpp">
       <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\naveditor\GameUtils.cpp">
+      <Filter>utils</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

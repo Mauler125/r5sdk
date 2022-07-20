@@ -23,8 +23,10 @@
 #include "DetourCrowd/Include/DetourCrowd.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"
-#include "NavEditor/Include/Sample.h"
+#include "NavEditor/Include/FileTypes.h"
+#include "NavEditor/Include/GameUtils.h"
 #include "NavEditor/Include/InputGeom.h"
+#include "NavEditor/Include/Sample.h"
 
 unsigned int SampleDebugDraw::areaToCol(unsigned int area)
 {
@@ -330,222 +332,8 @@ void Sample::renderOverlayToolStates(double* proj, double* model, int* view)
 	}
 }
 
-static const int NAVMESHSET_MAGIC = 'M'<<24 | 'S'<<16 | 'E'<<8 | 'T'; //'MSET';
-static const int NAVMESHSET_VERSION = 8;
-
-struct NavMeshSetHeader
-{
-	int magic;
-	int version;
-	int numTiles;
-	dtNavMeshParams params;
-};
-
-struct NavMeshTileHeader
-{
-	dtTileRef tileRef;
-	int dataSize;
-};
-
-void coord_tf_fix(float* c)
-{
-	std::swap(c[1], c[2]);
-	c[2] *= -1;
-}
-void coord_tf_unfix(float* c)
-{
-	c[2] *= -1;
-	std::swap(c[1], c[2]);
-}
-void coord_short_tf_fix(unsigned short* c)
-{
-	std::swap(c[1], c[2]);
-	c[2] = std::numeric_limits<unsigned short>::max() - c[2];
-}
-void coord_short_tf_unfix(unsigned short* c)
-{
-	c[2] = std::numeric_limits<unsigned short>::max() - c[2];
-	std::swap(c[1], c[2]);
-}
-void patch_headertf2(NavMeshSetHeader& h)
-{
-	coord_tf_fix(h.params.orig);
-}
-void unpatch_headertf2(NavMeshSetHeader& h)
-{
-	coord_tf_unfix(h.params.orig);
-}
-
-void patch_tiletf2(dtMeshTile* t)
-{
-	coord_tf_fix(t->header->bmin);
-	coord_tf_fix(t->header->bmax);
-
-	for (size_t i = 0; i < t->header->vertCount * 3; i += 3)
-		coord_tf_fix(t->verts + i);
-	for (size_t i = 0; i < t->header->detailVertCount * 3; i += 3)
-		coord_tf_fix(t->detailVerts + i);
-	for (size_t i = 0; i < t->header->polyCount; i++)
-		coord_tf_fix(t->polys[i].org);
-	//might be wrong because of coord change might break tree layout
-	for (size_t i = 0; i < t->header->bvNodeCount; i++)
-	{
-		coord_short_tf_fix(t->bvTree[i].bmax);
-		coord_short_tf_fix(t->bvTree[i].bmin);
-	}
-	for (size_t i = 0; i < t->header->offMeshConCount; i++)
-	{
-		coord_tf_fix(t->offMeshCons[i].pos);
-		coord_tf_fix(t->offMeshCons[i].pos + 3);
-		coord_tf_fix(t->offMeshCons[i].unk);
-	}
-}
-void unpatch_tiletf2(dtMeshTile* t)
-{
-	coord_tf_unfix(t->header->bmin);
-	coord_tf_unfix(t->header->bmax);
-
-	for (size_t i = 0; i < t->header->vertCount * 3; i += 3)
-		coord_tf_unfix(t->verts + i);
-	for (size_t i = 0; i < t->header->detailVertCount * 3; i += 3)
-		coord_tf_unfix(t->detailVerts + i);
-	for (size_t i = 0; i < t->header->polyCount; i++)
-		coord_tf_unfix(t->polys[i].org);
-	//might be wrong because of coord change might break tree layout
-	for (size_t i = 0; i < t->header->bvNodeCount; i++)
-	{
-		coord_short_tf_unfix(t->bvTree[i].bmax);
-		coord_short_tf_unfix(t->bvTree[i].bmin);
-	}
-	for (size_t i = 0; i < t->header->offMeshConCount; i++)
-	{
-		coord_tf_unfix(t->offMeshCons[i].pos);
-		coord_tf_unfix(t->offMeshCons[i].pos+3);
-		coord_tf_unfix(t->offMeshCons[i].unk);
-	}
-}
-struct LinkTableData
-{
-	//disjoint set algo from some crappy site because i'm too lazy to think
-	int setCount = 0;
-	std::vector<int> rank;
-	std::vector<int> parent;
-	void init(int size)
-	{
-		rank.resize(size);
-		parent.resize(size);
-
-		for (int i = 0; i < parent.size(); i++)
-			parent[i] = i;
-	}
-	int insert_new()
-	{
-		rank.push_back(0);
-		parent.push_back(setCount);
-		return setCount++;
-	}
-	int find(int id)
-	{
-		if (parent[id] != id)
-			return find(parent[id]);
-		return id;
-	}
-	void set_union(int x, int y)
-	{
-		int sx = find(x);
-		int sy = find(y);
-		if (sx == sy) //same set already
-			return;
-
-		if (rank[sx] < rank[sy])
-			parent[sx] = sy;
-		else if (rank[sx] > rank[sy])
-			parent[sy] = sx;
-		else
-		{
-			parent[sy] = sx;
-			rank[sx] += 1;
-		}
-	}
-};
-void build_link_table(dtNavMesh* mesh, LinkTableData& data)
-{
-	//clear all labels
-	for (int i = 0; i < mesh->getMaxTiles(); ++i)
-	{
-		dtMeshTile* tile = mesh->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		auto pcount = tile->header->polyCount;
-		for (int j = 0; j < pcount; j++)
-		{
-			auto& poly = tile->polys[j];
-			poly.disjointSetId = -1;
-		}
-	}
-	//first pass
-	std::set<int> nlabels;
-	for (int i = 0; i < mesh->getMaxTiles(); ++i)
-	{
-		dtMeshTile* tile = mesh->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		auto pcount = tile->header->polyCount;
-		for (int j = 0; j < pcount; j++)
-		{
-			auto& poly = tile->polys[j];
-			auto plink = poly.firstLink;
-			while (plink != DT_NULL_LINK)
-			{
-				auto l = tile->links[plink];
-				const dtMeshTile* t;
-				const dtPoly* p;
-				mesh->getTileAndPolyByRefUnsafe(l.ref, &t, &p);
-
-				if (p->disjointSetId != (unsigned short)-1)
-					nlabels.insert(p->disjointSetId);
-				plink = l.next;
-			}
-			if (nlabels.empty())
-			{
-				poly.disjointSetId = data.insert_new();
-			}
-			else
-			{
-				auto l = *nlabels.begin();
-				poly.disjointSetId = l;
-				for (auto nl : nlabels)
-					data.set_union(l, nl);
-			}
-			nlabels.clear();
-		}
-	}
-	//second pass
-	for (int i = 0; i < mesh->getMaxTiles(); ++i)
-	{
-		dtMeshTile* tile = mesh->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		auto pcount = tile->header->polyCount;
-		for (int j = 0; j < pcount; j++)
-		{
-			auto& poly = tile->polys[j];
-			auto id = data.find(poly.disjointSetId);
-			poly.disjointSetId = id;
-		}
-	}
-}
-void set_reachable(std::vector<int>& data, int count, int id1, int id2, bool value)
-{
-	int w = ((count + 31) / 32);
-	auto& cell = data[id1 * w + id2 / 32];
-	uint32_t value_mask = ~(1 << (id2 & 0x1f));
-	if (!value)
-		cell = (cell & value_mask);
-	else
-		cell = (cell & value_mask) | (1 << (id2 & 0x1f));
-}
-
 dtNavMesh* Sample::loadAll(const char* path)
 {
-
 	char buffer[256];
 	sprintf(buffer, "%s_%s.nm", path, m_navmeshName);
 
@@ -577,7 +365,7 @@ dtNavMesh* Sample::loadAll(const char* path)
 		fclose(fp);
 		return 0;
 	}
-	if(*is_tf2) patch_headertf2(header);
+	if(*is_tf2) patchHeaderGame(header);
 	dtStatus status = mesh->init(&header.params);
 	if (dtStatusFailed(status))
 	{
@@ -612,7 +400,7 @@ dtNavMesh* Sample::loadAll(const char* path)
 		dtTileRef result;
 		mesh->addTile(data, tileHeader.dataSize, DT_TILE_FREE_DATA, tileHeader.tileRef, &result);
 		auto tile = const_cast<dtMeshTile*>(mesh->getTileByRef(result));
-		if (*is_tf2) patch_tiletf2(tile);
+		if (*is_tf2) patchTileGame(tile);
 	}
 
 	fclose(fp);
@@ -652,13 +440,13 @@ void Sample::saveAll(std::string path, dtNavMesh* mesh)
 	}
 	memcpy(&header.params, mesh->getParams(), sizeof(dtNavMeshParams));
 
-	//LinkTableData link_data;
-	//build_link_table(mesh, link_data);
-	//int table_size = ((link_data.setCount + 31) / 32) * link_data.setCount * 32;
+	//LinkTableData linkData;
+	//buildLinkTable(mesh, linkData);
+	//int tableSize = ((linkData.setCount + 31) / 32) * linkData.setCount * 32;
 
-	//std::vector<int> reachability(table_size, 0);
-	//for (int i = 0; i < link_data.setCount; i++)
-	//	set_reachable(reachability, link_data.setCount, i, i, true);
+	//std::vector<int> reachability(tableSize, 0);
+	//for (int i = 0; i < linkData.setCount; i++)
+	//	setReachable(reachability, linkData.setCount, i, i, true);
 
 	//if (reachability.size() > 0)
 	//{
@@ -667,22 +455,22 @@ void Sample::saveAll(std::string path, dtNavMesh* mesh)
 	//		if (reachability[i] == 0)
 	//		{
 	//			reachability.erase(reachability.begin() + i);
-	//			table_size--;
+	//			tableSize--;
 	//		}
 	//		else
 	//			break;
 	//	}
 	//}
 
-	//header.params.disjointPolyGroupCount = link_data.setCount;
+	//header.params.disjointPolyGroupCount = linkData.setCount;
 	//header.params.reachabilityTableCount = m_reachabilityTableCount;
-	//header.params.reachabilityTableSize = table_size;
+	//header.params.reachabilityTableSize = tableSize;
 
 	header.params.disjointPolyGroupCount = 4;
 	header.params.reachabilityTableCount = m_reachabilityTableCount;
 	header.params.reachabilityTableSize = ((header.params.disjointPolyGroupCount + 31) / 32) * header.params.disjointPolyGroupCount * 32;
 
-	if (*is_tf2)unpatch_headertf2(header);
+	if (*is_tf2)unpatchHeaderGame(header);
 	fwrite(&header, sizeof(NavMeshSetHeader), 1, fp);
 
 	// Store tiles.
@@ -696,18 +484,18 @@ void Sample::saveAll(std::string path, dtNavMesh* mesh)
 		tileHeader.dataSize = tile->dataSize;
 		fwrite(&tileHeader, sizeof(tileHeader), 1, fp);
 
-		if (*is_tf2)unpatch_tiletf2(const_cast<dtMeshTile*>(tile));
+		if (*is_tf2)unpatchTileGame(const_cast<dtMeshTile*>(tile));
 		fwrite(tile->data, tile->dataSize, 1, fp);
-		if (*is_tf2)patch_tiletf2(const_cast<dtMeshTile*>(tile));
+		if (*is_tf2)patchTileGame(const_cast<dtMeshTile*>(tile));
 	}
 
 	////still dont know what this thing is...
 	//int header_sth = 0;
-	//for (int i = 0; i < link_data.setCount; i++)
+	//for (int i = 0; i < linkData.setCount; i++)
 	//	fwrite(&header_sth, sizeof(int), 1, fp);
 
 	//for (int i = 0; i < header.params.reachabilityTableCount; i++)
-	//	fwrite(reachability.data(), sizeof(int), table_size, fp);
+	//	fwrite(reachability.data(), sizeof(int), tableSize, fp);
 
 	int header_sth[4] = { 0,0,0 };
 	fwrite(header_sth, sizeof(int), 4, fp);
