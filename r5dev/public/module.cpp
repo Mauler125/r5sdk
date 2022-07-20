@@ -41,13 +41,19 @@ CModule::CModule(const string& svModuleName) : m_svModuleName(svModuleName)
 //          *szMask - 
 // Output : CMemory
 //-----------------------------------------------------------------------------
-CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask) const
+CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, ModuleSections_t moduleSection) const
 {
 	if (!m_ExecutableCode.IsSectionValid())
 		return CMemory();
 
-	const uint64_t nBase = static_cast<uint64_t>(m_ExecutableCode.m_pSectionBase);
-	const uint64_t nSize = static_cast<uint64_t>(m_ExecutableCode.m_nSectionSize);
+	uint64_t nBase = static_cast<uint64_t>(m_ExecutableCode.m_pSectionBase);
+	uint64_t nSize = static_cast<uint64_t>(m_ExecutableCode.m_nSectionSize);
+
+	if (moduleSection.IsSectionValid())
+	{
+		nBase = static_cast<uint64_t>(moduleSection.m_pSectionBase);
+		nSize = static_cast<uint64_t>(moduleSection.m_nSectionSize);
+	}
 
 	const uint8_t* pData = reinterpret_cast<uint8_t*>(nBase);
 	const uint8_t* pEnd = pData + static_cast<uint32_t>(nSize) - strlen(szMask);
@@ -106,10 +112,10 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask) c
 // Input  : *szPattern
 // Output : CMemory
 //-----------------------------------------------------------------------------
-CMemory CModule::FindPatternSIMD(const string& svPattern) const
+CMemory CModule::FindPatternSIMD(const string& svPattern, ModuleSections_t moduleSection) const
 {
 	const pair patternInfo = PatternToMaskedBytes(svPattern);
-	return FindPatternSIMD(patternInfo.first.data(), patternInfo.second.c_str());
+	return FindPatternSIMD(patternInfo.first.data(), patternInfo.second.c_str(), moduleSection);
 }
 
 //-----------------------------------------------------------------------------
@@ -243,6 +249,45 @@ CMemory CModule::GetExportedFunction(const string& svFunctionName) const
 			return CMemory(m_pModuleBase + pAddressOfFunctions[reinterpret_cast<WORD*>(pAddressOfOrdinals)[i]]); // Return as CMemory class.
 		}
 	}
+	return CMemory();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: get address of a virtual method table by rtti type descriptor name.
+// Input  : *tableName - 
+// Output : CMemory
+//-----------------------------------------------------------------------------
+CMemory CModule::GetVirtualMethodTable(const std::string& tableName)
+{
+	const auto tableNameInfo = StringToMaskedBytes(tableName, false);
+	CMemory rttiTypeDescriptor = FindPatternSIMD(tableNameInfo.first.data(), tableNameInfo.second.c_str(), {".data", m_RunTimeData.m_pSectionBase, m_RunTimeData.m_nSectionSize}).OffsetSelf(-0x10);
+	if (!rttiTypeDescriptor)
+		return CMemory();
+
+	vector <CMemory> rttiTDRef = {};
+	uintptr_t scanStart = m_ReadOnlyData.m_pSectionBase; // Get the start address of our scan.
+
+	const uintptr_t scanEnd = (m_ReadOnlyData.m_pSectionBase + m_ReadOnlyData.m_nSectionSize) - 0x4; // Calculate the end of our scan.
+	const uintptr_t rttiTDRva = rttiTypeDescriptor.GetPtr() - m_pModuleBase; // The RTTI gets referenced by a 4-Byte RVA address. We need to scan for that address.
+	while (scanStart < scanEnd)
+	{
+		CMemory reference = FindPatternSIMD(reinterpret_cast<rsig_t>(&rttiTDRva), "xxxx", {".rdata", scanStart, m_ReadOnlyData.m_nSectionSize});
+		if (!reference)
+			break;
+
+		rttiTDRef.push_back(reference);
+		scanStart = reference.Offset(0x4).GetPtr(); // Set location to current reference + 0x4 so we avoid pushing it back again into the vector.
+	}
+
+	for (const CMemory& ref : rttiTDRef)
+	{
+		CMemory referenceOffset = ref.Offset(-0xC);
+		if (referenceOffset.GetValue<int32_t>() != 1) // Check if we got a RTTI Object Locator for this reference by checking if -0xC is 1, which is the 'signature' field which is always 1 on x64.
+			continue;
+
+		return FindPatternSIMD(reinterpret_cast<rsig_t>(&referenceOffset), "xxxx", { ".rdata", m_ReadOnlyData.m_pSectionBase, m_ReadOnlyData.m_nSectionSize }).OffsetSelf(0x8);
+	}
+
 	return CMemory();
 }
 

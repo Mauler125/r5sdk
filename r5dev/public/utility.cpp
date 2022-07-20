@@ -582,6 +582,30 @@ vector<int> StringToBytes(const string& svInput, bool bNullTerminator)
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+// For converting a string to an array of bytes.
+pair<vector<uint8_t>, string> StringToMaskedBytes(const string& svInput, bool bNullTerminator)
+{
+    char* pszStringStart = const_cast<char*>(svInput.c_str());
+    char* pszStringEnd = pszStringStart + strlen(svInput.c_str());
+    vector<uint8_t> vBytes = vector<uint8_t>{ };
+    string svMask = string();
+
+    for (char* pszCurrentByte = pszStringStart; pszCurrentByte < pszStringEnd; ++pszCurrentByte)
+    {
+        // Dereference character and push back the byte.
+        vBytes.push_back(*pszCurrentByte);
+        svMask.append("x");
+    }
+
+    if (bNullTerminator)
+    {
+        vBytes.push_back(0x0);
+        svMask.append("x");
+    }
+    return make_pair(vBytes, svMask);
+};
+
+///////////////////////////////////////////////////////////////////////////////
 // For converting a string pattern with wildcards to an array of bytes.
 vector<int> PatternToBytes(const string& svInput)
 {
