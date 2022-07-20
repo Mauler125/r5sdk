@@ -411,8 +411,6 @@ dtNavMesh* Sample::loadAll(std::string path)
 	}
 
 	fclose(fp);
-
-	fclose(fp);
 	return mesh;
 }
 
