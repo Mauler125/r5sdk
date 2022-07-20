@@ -285,7 +285,7 @@ CMemory CModule::GetVirtualMethodTable(const std::string& tableName)
 		if (referenceOffset.GetValue<int32_t>() != 1) // Check if we got a RTTI Object Locator for this reference by checking if -0xC is 1, which is the 'signature' field which is always 1 on x64.
 			continue;
 
-		return FindPatternSIMD(reinterpret_cast<rsig_t>(&referenceOffset), "xxxx", { ".rdata", m_ReadOnlyData.m_pSectionBase, m_ReadOnlyData.m_nSectionSize }).OffsetSelf(0x8);
+		return FindPatternSIMD(reinterpret_cast<rsig_t>(&referenceOffset), "xxxxxxxx", { ".rdata", m_ReadOnlyData.m_pSectionBase, m_ReadOnlyData.m_nSectionSize }).OffsetSelf(0x8);
 	}
 
 	return CMemory();
