@@ -144,8 +144,8 @@ protected:
 
 	SampleDebugDraw m_dd;
 	
-	dtNavMesh* loadAll(const char* path);
-	void saveAll(std::string path,dtNavMesh* mesh);
+	dtNavMesh* loadAll(std::string path);
+	void saveAll(std::string path, dtNavMesh* mesh);
 
 public:
 	std::string m_modelName;

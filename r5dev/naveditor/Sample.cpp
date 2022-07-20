@@ -332,13 +332,20 @@ void Sample::renderOverlayToolStates(double* proj, double* model, int* view)
 	}
 }
 
-dtNavMesh* Sample::loadAll(const char* path)
+dtNavMesh* Sample::loadAll(std::string path)
 {
+	std::filesystem::path p = "..\\maps\\navmesh\\";
+	if (std::filesystem::is_directory(p))
+	{
+		path.insert(0, p.string());
+	}
+
 	char buffer[256];
-	sprintf(buffer, "%s_%s.nm", path, m_navmeshName);
+	sprintf(buffer, "%s_%s.nm", path.c_str(), m_navmeshName);
 
 	FILE* fp = fopen(buffer, "rb");
-	if (!fp) return 0;
+	if (!fp)
+		return 0;
 
 	// Read header.
 	NavMeshSetHeader header;
@@ -405,15 +412,16 @@ dtNavMesh* Sample::loadAll(const char* path)
 
 	fclose(fp);
 
+	fclose(fp);
 	return mesh;
 }
 
 void Sample::saveAll(std::string path, dtNavMesh* mesh)
 {
-	if (!mesh) return;
+	if (!mesh)
+		return;
 
 	std::filesystem::path p = "..\\maps\\navmesh\\";
-
 	if (std::filesystem::is_directory(p))
 	{
 		path.insert(0, p.string());
