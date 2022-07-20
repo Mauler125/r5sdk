@@ -155,7 +155,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 				diskLink.unk0 = pNetwork->m_pAInode[i]->links[j]->unk1;
 				memcpy(diskLink.m_bHulls, pNetwork->m_pAInode[i]->links[j]->m_bHulls, sizeof(diskLink.m_bHulls));
 
-				DevMsg(eDLL_T::SERVER, "  |-- Writing link '%d' => '%d' to '0x%zX'\n", diskLink.m_iSrcID, diskLink.m_iDestID, writer.GetPosition());
+				DevMsg(eDLL_T::SERVER, "  |-- Writing link '%h' => '%h' to '0x%zX'\n", diskLink.m_iSrcID, diskLink.m_iDestID, writer.GetPosition());
 				writer.Write(&diskLink, sizeof(CAI_NodeLinkDisk));
 			}
 		}
@@ -255,14 +255,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	{
 		// Disk and memory structs for script nodes are identical.
 		DevMsg(eDLL_T::SERVER, " |-- Writing script node '#%d' at '0x%zX'\n", i, writer.GetPosition());
-		if (!IsBadReadPtrV2(reinterpret_cast<char*>(&pNetwork->m_ScriptNode[i])))
-		{
-			writer.Write(&pNetwork->m_ScriptNode[i], sizeof(CAI_ScriptNode));
-		}
-		else
-		{
-			Warning(eDLL_T::SERVER, " |-- Unable to write node '#%d' (invalid pointer)\n", i, pNetwork->m_iNumScriptNodes);
-		}
+		writer.Write(&pNetwork->m_ScriptNode[i], sizeof(CAI_ScriptNode));
 	}
 
 	timer.End();
