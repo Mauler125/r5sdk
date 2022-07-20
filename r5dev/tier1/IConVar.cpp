@@ -67,7 +67,8 @@ void ConVar::Init(void) const
 
 	navmesh_always_reachable   = new ConVar("navmesh_always_reachable"  , "0", FCVAR_DEVELOPMENTONLY, "Marks goal poly from agent poly as reachable regardless of table data ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	navmesh_debug_type         = new ConVar("navmesh_debug_type"  , "0", FCVAR_DEVELOPMENTONLY, "NavMesh hull index for debug draw.", true, 0.f, true, 4.f, nullptr, "0 = small, 1 = med_short, 2 = medium, 3 = large, 4 = extra large");
-	navmesh_draw_bvtree        = new ConVar("navmesh_draw_bvtree"  , "-1", FCVAR_DEVELOPMENTONLY, "Draws the BVTree of the NavMesh.", false, 0.f, false, 0.f, nullptr, "Index: > 0 && < tile->header->bvNodeCount");
+	navmesh_draw_bvtree        = new ConVar("navmesh_draw_bvtree"  , "-1", FCVAR_DEVELOPMENTONLY, "Draws the BVTree of the NavMesh tiles.", false, 0.f, false, 0.f, nullptr, "Index: > 0 && < mesh->m_tileCount");
+	navmesh_draw_portal        = new ConVar("navmesh_draw_portal"  , "-1", FCVAR_DEVELOPMENTONLY, "Draws the portal of the NavMesh tiles.", false, 0.f, false, 0.f, nullptr, "Index: > 0 && < mesh->m_tileCount");
 
 	sv_showconnecting  = new ConVar("sv_showconnecting" , "1", FCVAR_RELEASE, "Logs information about the connecting client to the console.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_pylonVisibility = new ConVar("sv_pylonVisibility", "0", FCVAR_RELEASE, "Determines the visiblity to the Pylon master server, 0 = Offline, 1 = Hidden, 2 = Public.", false, 0.f, false, 0.f, nullptr, nullptr);

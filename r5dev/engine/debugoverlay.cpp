@@ -278,7 +278,7 @@ void DrawAIScriptNodes()
 void DrawNavMeshBVTree()
 {
 #ifndef CLIENT_DLL
-    dtNavMesh* mesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
+    const dtNavMesh* mesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
     if (!mesh)
         return;
 
@@ -300,11 +300,11 @@ void DrawNavMeshBVTree()
             vTransforms.xmm[1] = _mm_set_ps(0.0f, 0.0f, 1.0f, 0.0f);
             vTransforms.xmm[2] = _mm_set_ps(0.0f, 1.0f, 0.0f, 0.0f);
 
-            Vector3D vMins(
+            const Vector3D vMins(
                 tile->header->bmin[0] + node->bmin[0] * cs,
                 tile->header->bmin[1] + node->bmin[1] * cs,
                 tile->header->bmin[2] + node->bmin[2] * cs);
-            Vector3D vMaxs(
+            const Vector3D vMaxs(
                 tile->header->bmin[0] + node->bmax[0] * cs,
                 tile->header->bmin[1] + node->bmax[1] * cs,
                 tile->header->bmin[2] + node->bmax[2] * cs);
@@ -312,7 +312,74 @@ void DrawNavMeshBVTree()
             v_RenderBox(vTransforms, vMins, vMaxs, Color(255, 255, 255, 255), r_debug_overlay_zbuffer->GetBool());
         }
     }
-#endif
+#endif // !CLIENT_DLL
+}
+
+//------------------------------------------------------------------------------
+// Purpose : draw NavMesh portals
+//------------------------------------------------------------------------------
+static void DrawNavMeshPortals()
+{
+#ifndef CLIENT_DLL
+    const dtNavMesh* mesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
+    if (!mesh)
+        return;
+
+    OverlayBox_t::Transforms vTransforms;
+    for (int i = navmesh_draw_portal->GetInt(); i < mesh->getTileCount(); ++i)
+    {
+        const dtMeshTile* tile = &mesh->m_tiles[i];
+        if (!tile->header)
+            continue;
+
+        // Draw portals
+        const float padx = 0.04f;
+        const float padz = tile->header->walkableClimb;
+
+        for (int side = 0; side < 8; ++side)
+        {
+            unsigned short m = DT_EXT_LINK | static_cast<unsigned short>(side);
+            for (int i = 0; i < tile->header->polyCount; ++i)
+            {
+                const dtPoly* poly = &tile->polys[i];
+
+                // Create new links.
+                const int nv = poly->vertCount;
+                for (int j = 0; j < nv; ++j)
+                {
+                    // Skip edges which do not point to the right side.
+                    if (poly->neis[j] != m)
+                        continue;
+
+                    // Create new links
+                    const float* va = &tile->verts[poly->verts[j] * 3];
+                    const float* vb = &tile->verts[poly->verts[(j + 1) % nv] * 3];
+
+                    if (side == 0 || side == 4)
+                    {
+                        Color col = side == 0 ? Color(188, 0, 0, 188) : Color(188, 0, 188, 188);
+                        const float x = va[0] + ((side == 0) ? -padx : padx);
+
+                        v_RenderLine(Vector3D(x, va[1], va[2] - padz), Vector3D(x, va[1], va[2] + padz), col, r_debug_overlay_zbuffer->GetBool());
+                        v_RenderLine(Vector3D(x, va[1], va[2] + padz), Vector3D(x, vb[1], vb[2] + padz), col, r_debug_overlay_zbuffer->GetBool());
+                        v_RenderLine(Vector3D(x, vb[1], vb[2] + padz), Vector3D(x, vb[1], vb[2] - padz), col, r_debug_overlay_zbuffer->GetBool());
+                        v_RenderLine(Vector3D(x, vb[1], vb[2] - padz), Vector3D(x, va[1], va[2] - padz), col, r_debug_overlay_zbuffer->GetBool());
+                    }
+                    else if (side == 2 || side == 6)
+                    {
+                        Color col = side == 2 ? Color(0, 188, 0, 188) : Color(0, 188, 188, 188);
+                        const float y = va[1] + ((side == 2) ? -padx : padx);
+
+                        v_RenderLine(Vector3D(va[0], y, va[2] - padz), Vector3D(va[0], y, va[2] + padz), col, r_debug_overlay_zbuffer->GetBool());
+                        v_RenderLine(Vector3D(va[0], y, va[2] + padz), Vector3D(vb[0], y, vb[2] + padz), col, r_debug_overlay_zbuffer->GetBool());
+                        v_RenderLine(Vector3D(vb[0], y, vb[2] + padz), Vector3D(vb[0], y, vb[2] - padz), col, r_debug_overlay_zbuffer->GetBool());
+                        v_RenderLine(Vector3D(vb[0], y, vb[2] - padz), Vector3D(va[0], y, va[2] - padz), col, r_debug_overlay_zbuffer->GetBool());
+                    }
+                }
+            }
+        }
+    }
+#endif // !CLIENT_DLL
 }
 
 //------------------------------------------------------------------------------
@@ -332,6 +399,10 @@ void DrawAllOverlays(bool bDraw)
     if (navmesh_draw_bvtree->GetInt() > -1)
     {
         DrawNavMeshBVTree();
+    }
+    if (navmesh_draw_portal->GetInt() > -1)
+    {
+        DrawNavMeshPortals();
     }
 
     EnterCriticalSection(&*s_OverlayMutex);
