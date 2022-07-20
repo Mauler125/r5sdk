@@ -38,6 +38,8 @@ ConVar* r_debug_overlay_zbuffer            = nullptr;
 ConVar* r_drawWorldMeshes                  = nullptr;
 ConVar* r_drawWorldMeshesDepthOnly         = nullptr;
 ConVar* r_drawWorldMeshesDepthAtTheEnd     = nullptr;
+
+ConVar* stream_overlay                     = nullptr;
 //-----------------------------------------------------------------------------
 // SERVER                                                                     |
 ConVar* ai_ainDumpOnLoad                   = nullptr;

@@ -37,6 +37,8 @@ extern ConVar* r_debug_overlay_zbuffer;
 extern ConVar* r_drawWorldMeshes;
 extern ConVar* r_drawWorldMeshesDepthOnly;
 extern ConVar* r_drawWorldMeshesDepthAtTheEnd;
+
+extern ConVar* stream_overlay;
 //-------------------------------------------------------------------------
 // SERVER                                                                 |
 extern ConVar* ai_ainDumpOnLoad;

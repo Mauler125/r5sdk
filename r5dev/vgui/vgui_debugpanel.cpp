@@ -21,6 +21,7 @@
 #ifndef CLIENT_DLL
 #include <engine/server/server.h>
 #endif
+#include <rtech/rtech_utils.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: proceed a log update
@@ -50,6 +51,10 @@ void CLogSystem::Update(void)
 	if (cl_showmaterialinfo->GetBool())
 	{
 		DrawCrosshairMaterial();
+	}
+	if (stream_overlay->GetBool())
+	{
+		DrawStreamOverlay();
 	}
 }
 
@@ -209,6 +214,15 @@ void CLogSystem::DrawCrosshairMaterial(void) const
 		material->m_pShaderGlue->m_nTextureInputCount);
 
 	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, cl_materialinfo_offset_x->GetInt(), cl_materialinfo_offset_y->GetInt(), c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
+}
+
+void CLogSystem::DrawStreamOverlay(void) const
+{
+	std::string buf = s_StreamOverlayBuf;
+
+	static Color c = { 255, 255, 255, 255 };
+
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, 20, 300, c.r(), c.g(), c.b(), c.a(), (char*)buf.c_str());
 }
 
 //-----------------------------------------------------------------------------

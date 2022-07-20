@@ -5,7 +5,6 @@
 #include "materialsystem/cshaderglue.h"
 #endif // !DEDICATED
 
-
 /******************************************************************************
 -------------------------------------------------------------------------------
 File   : rtech.cpp
@@ -655,10 +654,21 @@ RPakLoadedInfo_t* RTech::GetPakLoadedInfo(const char* szPakName)
 	return nullptr;
 }
 
+#if not defined DEDICATED && defined (GAMEDLL_S3)
+void RTech_GetStreamOverlay(const char* mode, char* buf, size_t bufSize)
+{
+	// call original first to populate the buffer
+	GetStreamOverlay(mode, buf, bufSize);
+
+	s_StreamOverlayBuf = std::string(buf);
+}
+#endif
+
 void RTech_Utils_Attach()
 {
 #if not defined DEDICATED && defined (GAMEDLL_S3)
 	DetourAttach((LPVOID*)&RTech_CreateDXTexture, &RTech::CreateDXTexture);
+	DetourAttach((LPVOID*)&GetStreamOverlay, &RTech_GetStreamOverlay);
 #endif
 }
 
@@ -666,6 +676,7 @@ void RTech_Utils_Detach()
 {
 #if not defined DEDICATED && defined (GAMEDLL_S3)
 	DetourDetach((LPVOID*)&RTech_CreateDXTexture, &RTech::CreateDXTexture);
+	DetourDetach((LPVOID*)&GetStreamOverlay, &RTech_GetStreamOverlay);
 #endif
 }
 

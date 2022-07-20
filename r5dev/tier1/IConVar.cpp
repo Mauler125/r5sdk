@@ -192,6 +192,8 @@ void ConVar::InitShipped(void) const
 	host_hasIrreversibleShutdown     = g_pCVar->FindVar("host_hasIrreversibleShutdown");
 	net_usesocketsforloopback        = g_pCVar->FindVar("net_usesocketsforloopback");
 
+	stream_overlay                   = g_pCVar->FindVar("stream_overlay");
+
 	mp_gamemode->SetCallback(&MP_GameMode_Changed_f);
 }
 

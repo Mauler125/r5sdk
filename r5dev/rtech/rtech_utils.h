@@ -450,6 +450,11 @@ public:
 #if not defined DEDICATED && defined (GAMEDLL_S3)
 inline CMemory p_RTech_CreateDXTexture;
 inline auto RTech_CreateDXTexture = p_RTech_CreateDXTexture.RCast<void(*)(RPakTextureHeader_t*, int64_t)>();
+
+inline CMemory p_GetStreamOverlay;
+inline auto GetStreamOverlay = p_GetStreamOverlay.RCast<void(*)(const char*, char*, size_t)>();
+
+inline std::string s_StreamOverlayBuf;
 #endif
 
 inline RPakLoadedInfo_t* g_pLoadedPakInfo;
@@ -494,6 +499,9 @@ class VPakFile : public IDetour
 #if not defined DEDICATED && defined (GAMEDLL_S3)
 		p_RTech_CreateDXTexture = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x4C\x8B\xC7\x48\x8B\xD5\x48\x8B\xCB\x48\x83\xC4\x60"), "x????xxxxxxxxxxxxx").FollowNearCallSelf();
 		RTech_CreateDXTexture = p_RTech_CreateDXTexture.RCast<void(*)(RPakTextureHeader_t*, int64_t)>(); /*E8 ? ? ? ? 4C 8B C7 48 8B D5 48 8B CB 48 83 C4 60*/
+
+		p_GetStreamOverlay = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x80\x7C\x24\x00\x00\x0F\x84\x00\x00\x00\x00\x48\x89\x9C\x24\x00\x00\x00\x00"), "x????xxx??xx????xxxx????").FollowNearCallSelf();
+		GetStreamOverlay = p_GetStreamOverlay.RCast<void(*)(const char*, char*, size_t)>();
 #endif
 	}
 	virtual void GetVar(void) const
