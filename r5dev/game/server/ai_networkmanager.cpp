@@ -167,7 +167,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	timer.Start();
 	DevMsg(eDLL_T::SERVER, "+- Writing hull data...\n");
 	// Don't know what this is, it's likely a block from tf1 that got deprecated? should just be 1 int per node.
-	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' bytes for unknown block at '0x%zX'\n", pNetwork->m_iNumNodes * sizeof(uint32_t), writer.GetPosition());
+	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' bytes for node block at '0x%zX'\n", pNetwork->m_iNumNodes * sizeof(uint32_t), writer.GetPosition());
 
 	if (static_cast<int>(pNetwork->m_iNumNodes) > 0)
 	{
@@ -184,11 +184,11 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	writer.Write(&traverseNodeCount, sizeof(short));
 
 	// TODO: Ideally these should be actually dumped, but they're always 0 in r2 from what i can tell.
-	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' bytes for unknown hull block at '0x%zX'\n", MAX_HULLS * 8, writer.GetPosition());
-	char* unkHullBlock = new char[MAX_HULLS * 8];
-	memset(unkHullBlock, '\0', MAX_HULLS * 8);
-	writer.Write(&unkHullBlock, MAX_HULLS * 8);
-	delete[] unkHullBlock;
+	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' bytes for hull data block at '0x%zX'\n", MAX_HULLS * 8, writer.GetPosition());
+	for (int i = 0; i < (MAX_HULLS * 8); i++)
+	{
+		writer.Write<uint8_t>('\0');
+	}
 
 	timer.End();
 	DevMsg(eDLL_T::SERVER, "...done writing hull data. %lf seconds\n", timer.GetDuration().GetSeconds());
