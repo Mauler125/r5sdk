@@ -33,11 +33,11 @@ enum EHULL_SIZE
 	EXTRA_LARGE
 };
 
-inline dtPolyRef** g_pHullMask = nullptr;
 inline dtNavMesh** g_pNavMesh = nullptr;
 inline dtNavMeshQuery* g_pNavMeshQuery = nullptr;
 
-dtNavMesh* GetNavMeshForHull(int hull);
+dtNavMesh* GetNavMeshForHull(int hullSize);
+uint32_t GetHullMaskById(int hullId);
 ///////////////////////////////////////////////////////////////////////////////
 class VRecast : public IDetour
 {
@@ -46,7 +46,6 @@ class VRecast : public IDetour
 		spdlog::debug("| FUN: dtNavMesh::Init                      : {:#18x} |\n", p_dtNavMesh__Init.GetPtr());
 		spdlog::debug("| FUN: dtNavMesh::addTile                   : {:#18x} |\n", p_dtNavMesh__addTile.GetPtr());
 		spdlog::debug("| FUN: dtNavMesh::isPolyReachable           : {:#18x} |\n", p_dtNavMesh__isPolyReachable.GetPtr());
-		spdlog::debug("| VAR: g_pHullMask[10]                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pHullMask));
 		spdlog::debug("| VAR: g_pNavMesh[5]                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pNavMesh));
 		spdlog::debug("| VAR: g_pNavMeshQuery                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pNavMeshQuery));
 		spdlog::debug("+----------------------------------------------------------------+\n");
@@ -67,8 +66,6 @@ class VRecast : public IDetour
 			.FindPatternSelf("48 8D 3D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<dtNavMesh**>();
 		g_pNavMeshQuery = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x56\x57\x41\x56\x48\x81\xEC\x00\x00\x00\x00\x48\x63\xD9"), "xxxx?xxxx?xxxxxxx????xxx")
 			.FindPatternSelf("48 89 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<dtNavMeshQuery*>();
-
-		g_pHullMask = p_dtNavMesh__isPolyReachable.FindPattern("48 8D 0D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<dtPolyRef**>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

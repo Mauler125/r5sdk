@@ -7,42 +7,59 @@
 #include "core/stdafx.h"
 #include "tier1/cvar.h"
 #include "game/server/detour_impl.h"
+#include "game/server/ai_networkmanager.h"
 
-//-----------------------------------------------------------------------------
-// Purpose: determines whether target poly is reachable from current agent poly
-// input  : *this - 
-//			poly_1 - 
-//			poly_2 - 
-//			hull_type - 
-// Output : true if reachable, false otherwise
-//-----------------------------------------------------------------------------
-bool dtNavMesh__isPolyReachable(dtNavMesh* thisptr, dtPolyRef poly_1, dtPolyRef poly_2, int hull_type)
+inline uint32_t g_pHullMasks[10] = // Hull mask table [r5apex_ds.exe + 131a2f8].
 {
-	if (navmesh_always_reachable->GetBool())
-	{
-		return true;
-	}
-	return v_dtNavMesh__isPolyReachable(thisptr, poly_1, poly_2, hull_type);
-}
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0xfffffffb, 0xfffffffa, 0xfffffff9, 0xfffffff8, 0x00040200
+};
 
 //-----------------------------------------------------------------------------
 // Purpose: gets the navmesh by hull from global array [small, med_short, medium, large, extra_large]
 // input  : hull - 
 // Output : pointer to navmesh
 //-----------------------------------------------------------------------------
-dtNavMesh* GetNavMeshForHull(int hull)
+dtNavMesh* GetNavMeshForHull(int hullSize)
 {
-	Assert(hull >= 0 && hull <= 4); // Programmer error.
-	return g_pNavMesh[hull];
+    assert(hullSize >= 0 && hullSize <= 4); // Programmer error.
+    return g_pNavMesh[hullSize];
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets hull mask by id
+// input  : hullId - 
+// Output : hull mask
+//-----------------------------------------------------------------------------
+uint32_t GetHullMaskById(int hullId)
+{
+    assert(hullId >= 0 && hullId <= 9); // Programmer error.
+    return (hullId + g_pHullMasks[hullId]);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: determines whether goal poly is reachable from agent poly
+// input  : *nav - 
+//			fromRef - 
+//			goalRef - 
+//			hull_type - 
+// Output : value if reachable, false otherwise
+//-----------------------------------------------------------------------------
+uint8_t IsGoalPolyReachable(dtNavMesh* nav, dtPolyRef fromRef, dtPolyRef goalRef, int hullId)
+{
+	if (navmesh_always_reachable->GetBool())
+		return true;
+
+    return v_dtNavMesh__isPolyReachable(nav, fromRef, goalRef, hullId);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void CAI_Utility_Attach()
 {
-	DetourAttach((LPVOID*)&v_dtNavMesh__isPolyReachable, &dtNavMesh__isPolyReachable);
+	DetourAttach((LPVOID*)&v_dtNavMesh__isPolyReachable, &IsGoalPolyReachable);
 }
 
 void CAI_Utility_Detach()
 {
-	DetourDetach((LPVOID*)&v_dtNavMesh__isPolyReachable, &dtNavMesh__isPolyReachable);
+	DetourDetach((LPVOID*)&v_dtNavMesh__isPolyReachable, &IsGoalPolyReachable);
 }
