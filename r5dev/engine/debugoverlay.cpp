@@ -16,6 +16,7 @@
 #include "materialsystem/cmaterialsystem.h"
 #include "mathlib/mathlib.h"
 #ifndef CLIENT_DLL
+#include "game/server/ai_utility.h"
 #include "game/server/ai_network.h"
 #include "game/server/ai_networkmanager.h"
 #endif // !CLIENT_DLL
@@ -271,24 +272,45 @@ void DrawAIScriptNodes()
 #endif // !CLIENT_DLL
 }
 
-void DrawNavMeshTiles()
+//------------------------------------------------------------------------------
+// Purpose : draw NavMesh BVTree
+//------------------------------------------------------------------------------
+void DrawNavMeshBVTree()
 {
 #ifndef CLIENT_DLL
-    dtNavMesh* mesh = g_pNavMesh[0];
+    dtNavMesh* mesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
     if (!mesh)
         return;
-    for (int i = 0; i < mesh->getTileCount(); ++i)
+
+    OverlayBox_t::Transforms vTransforms;
+    for (int i = navmesh_draw_bvtree->GetInt(); i < mesh->getTileCount(); ++i)
     {
         const dtMeshTile* tile = &mesh->m_tiles[i];
-        if (!tile->header) continue;
-        
-        OverlayBox_t::Transforms vTransforms;
+        if (!tile->header)
+            continue;
 
-        vTransforms.xmm[0] = _mm_set_ps(tile->polys[0].org[0] - 50.f, 0.0f, 0.0f, 1.0f);
-        vTransforms.xmm[1] = _mm_set_ps(tile->polys[0].org[1] - 50.f, 0.0f, 1.0f, 0.0f);
-        vTransforms.xmm[2] = _mm_set_ps(tile->polys[0].org[2] - 50.f, 1.0f, 0.0f, 0.0f);
+        const float cs = 1.0f / tile->header->bvQuantFactor;
+        for (int j = 0; j < tile->header->bvNodeCount; ++j)
+        {
+            const dtBVNode* node = &tile->bvTree[j];
+            if (node->i < 0) // Leaf indices are positive.
+                continue;
 
-        v_RenderBox(vTransforms, { 0, 0, 0 }, { 100, 100, 100 }, Color(0, 255, 0, 255), r_debug_overlay_zbuffer->GetBool());
+            vTransforms.xmm[0] = _mm_set_ps(0.0f, 0.0f, 0.0f, 1.0f);
+            vTransforms.xmm[1] = _mm_set_ps(0.0f, 0.0f, 1.0f, 0.0f);
+            vTransforms.xmm[2] = _mm_set_ps(0.0f, 1.0f, 0.0f, 0.0f);
+
+            Vector3D vMins(
+                tile->header->bmin[0] + node->bmin[0] * cs,
+                tile->header->bmin[1] + node->bmin[1] * cs,
+                tile->header->bmin[2] + node->bmin[2] * cs);
+            Vector3D vMaxs(
+                tile->header->bmin[0] + node->bmax[0] * cs,
+                tile->header->bmin[1] + node->bmax[1] * cs,
+                tile->header->bmin[2] + node->bmax[2] * cs);
+
+            v_RenderBox(vTransforms, vMins, vMaxs, Color(255, 255, 255, 255), r_debug_overlay_zbuffer->GetBool());
+        }
     }
 #endif
 }
@@ -307,8 +329,10 @@ void DrawAllOverlays(bool bDraw)
     {
         DrawAIScriptNodes();
     }
-
-    //DrawNavMeshTiles();
+    if (navmesh_draw_bvtree->GetInt() > -1)
+    {
+        DrawNavMeshBVTree();
+    }
 
     EnterCriticalSection(&*s_OverlayMutex);
 

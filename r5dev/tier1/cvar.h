@@ -43,7 +43,11 @@ extern ConVar* ai_ainDumpOnLoad;
 extern ConVar* ai_ainDebugConnect;
 extern ConVar* ai_script_nodes_draw;
 extern ConVar* ai_script_nodes_draw_index;
+
 extern ConVar* navmesh_always_reachable;
+extern ConVar* navmesh_debug_type;
+extern ConVar* navmesh_draw_bvtree;
+
 extern ConVar* sv_showconnecting;
 extern ConVar* sv_pylonVisibility;
 extern ConVar* sv_pylonRefreshInterval;

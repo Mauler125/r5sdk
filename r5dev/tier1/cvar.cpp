@@ -44,7 +44,10 @@ ConVar* ai_ainDumpOnLoad                   = nullptr;
 ConVar* ai_ainDebugConnect                 = nullptr;
 ConVar* ai_script_nodes_draw               = nullptr;
 ConVar* ai_script_nodes_draw_index         = nullptr;
+
 ConVar* navmesh_always_reachable           = nullptr;
+ConVar* navmesh_debug_type                 = nullptr;
+ConVar* navmesh_draw_bvtree                = nullptr;
 
 ConVar* sv_showconnecting                  = nullptr;
 ConVar* sv_pylonVisibility                 = nullptr;

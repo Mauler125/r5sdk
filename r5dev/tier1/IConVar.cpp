@@ -64,7 +64,10 @@ void ConVar::Init(void) const
 	ai_ainDumpOnLoad           = new ConVar("ai_ainDumpOnLoad"          , "0", FCVAR_DEVELOPMENTONLY, "Dumps AIN data from node graphs loaded from the disk on load.", false, 0.f, false, 0.f, nullptr, nullptr);
 	ai_ainDebugConnect         = new ConVar("ai_ainDebugConnect"        , "0", FCVAR_DEVELOPMENTONLY, "Debug AIN node connections.", false, 0.f, false, 0.f, nullptr, nullptr);
 	ai_script_nodes_draw_index = new ConVar("ai_script_nodes_draw_index", "0", FCVAR_DEVELOPMENTONLY, "Start index for drawing script nodes.", false, 0.f, false, 0.f, nullptr, nullptr);
-	navmesh_always_reachable   = new ConVar("navmesh_always_reachable"  , "0", FCVAR_DEVELOPMENTONLY, "Marks poly from agent to target on navmesh as reachable regardless of table data ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+
+	navmesh_always_reachable   = new ConVar("navmesh_always_reachable"  , "0", FCVAR_DEVELOPMENTONLY, "Marks goal poly from agent poly as reachable regardless of table data ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	navmesh_debug_type         = new ConVar("navmesh_debug_type"  , "0", FCVAR_DEVELOPMENTONLY, "NavMesh hull index for debug draw.", true, 0.f, true, 4.f, nullptr, "0 = small, 1 = med_short, 2 = medium, 3 = large, 4 = extra large");
+	navmesh_draw_bvtree        = new ConVar("navmesh_draw_bvtree"  , "-1", FCVAR_DEVELOPMENTONLY, "Draws the BVTree of the NavMesh.", false, 0.f, false, 0.f, nullptr, "Index: > 0 && < tile->header->bvNodeCount");
 
 	sv_showconnecting  = new ConVar("sv_showconnecting" , "1", FCVAR_RELEASE, "Logs information about the connecting client to the console.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_pylonVisibility = new ConVar("sv_pylonVisibility", "0", FCVAR_RELEASE, "Determines the visiblity to the Pylon master server, 0 = Offline, 1 = Hidden, 2 = Public.", false, 0.f, false, 0.f, nullptr, nullptr);
@@ -77,7 +80,7 @@ void ConVar::Init(void) const
 	sv_rcon_maxfailures = new ConVar("sv_rcon_maxfailures", "10", FCVAR_RELEASE, "Max number of times a user can fail rcon authentication before being banned.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_maxignores  = new ConVar("sv_rcon_maxignores" , "15", FCVAR_RELEASE, "Max number of times a user can ignore the no-auth message before being banned.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_maxsockets  = new ConVar("sv_rcon_maxsockets" , "32", FCVAR_RELEASE, "Max number of accepted sockets before the server starts closing redundant sockets.", false, 0.f, false, 0.f, nullptr, nullptr);
-	sv_rcon_whitelist_address = new ConVar("sv_rcon_whitelist_address", "", FCVAR_RELEASE, "This address is not considered a 'redundant' socket and will never be banned for failed authentications. Example: '::ffff:127.0.0.1'.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sv_rcon_whitelist_address = new ConVar("sv_rcon_whitelist_address", "", FCVAR_RELEASE, "This address is not considered a 'redundant' socket and will never be banned for failed authentications.", false, 0.f, false, 0.f, nullptr, "Format: '::ffff:127.0.0.1'.");
 #endif // DEDICATED
 	//-------------------------------------------------------------------------
 	// CLIENT                                                                 |
