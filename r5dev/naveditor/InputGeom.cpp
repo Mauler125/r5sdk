@@ -132,7 +132,7 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath,bool is_tf2
 	
 	m_mesh = new rcMeshLoaderObj;
 	//m_mesh->m_flip_tris = is_tf2;
-	m_mesh->m_tf2_import_flip = is_tf2;
+	m_mesh->m_flipAxis = is_tf2;
 	if (!m_mesh)
 	{
 		ctx->log(RC_LOG_ERROR, "loadMesh: Out of memory 'm_mesh'.");
@@ -174,7 +174,7 @@ bool InputGeom::loadPlyMesh(rcContext* ctx, const std::string& filepath, bool is
 
 	m_mesh = new rcMeshLoaderPly;
 	//m_mesh->m_flip_tris = is_tf2;
-	m_mesh->m_tf2_import_flip = is_tf2;
+	m_mesh->m_flipAxis = is_tf2;
 	if (!m_mesh)
 	{
 		ctx->log(RC_LOG_ERROR, "loadMesh: Out of memory 'm_mesh'.");
