@@ -194,8 +194,6 @@ public:
 	void resetCommonSettings();
 	void handleCommonSettings();
 
-	//don't do this kids, this is bad cpp
-	bool* is_tf2 = nullptr;
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
 	Sample(const Sample&);

@@ -118,7 +118,7 @@ InputGeom::~InputGeom()
 	delete m_mesh;
 }
 		
-bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath,bool is_tf2)
+bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 {
 	if (m_mesh)
 	{
@@ -131,8 +131,6 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath,bool is_tf2
 	m_volumeCount = 0;
 	
 	m_mesh = new rcMeshLoaderObj;
-	//m_mesh->m_flip_tris = is_tf2;
-	m_mesh->m_flipAxis = is_tf2;
 	if (!m_mesh)
 	{
 		ctx->log(RC_LOG_ERROR, "loadMesh: Out of memory 'm_mesh'.");
@@ -160,7 +158,7 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath,bool is_tf2
 
 	return true;
 }
-bool InputGeom::loadPlyMesh(rcContext* ctx, const std::string& filepath, bool is_tf2)
+bool InputGeom::loadPlyMesh(rcContext* ctx, const std::string& filepath)
 {
 	if (m_mesh)
 	{
@@ -173,8 +171,6 @@ bool InputGeom::loadPlyMesh(rcContext* ctx, const std::string& filepath, bool is
 	m_volumeCount = 0;
 
 	m_mesh = new rcMeshLoaderPly;
-	//m_mesh->m_flip_tris = is_tf2;
-	m_mesh->m_flipAxis = is_tf2;
 	if (!m_mesh)
 	{
 		ctx->log(RC_LOG_ERROR, "loadMesh: Out of memory 'm_mesh'.");
@@ -202,7 +198,7 @@ bool InputGeom::loadPlyMesh(rcContext* ctx, const std::string& filepath, bool is
 
 	return true;
 }
-bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath,bool is_tf2)
+bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 {
 	//NB(warmist): tf2 not implemented here
 	char* buf = 0;
@@ -264,7 +260,7 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath,bool is_
 				name++;
 			if (*name)
 			{
-				if (!loadMesh(ctx, name, is_tf2))
+				if (!loadMesh(ctx, name))
 				{
 					delete [] buf;
 					return false;
@@ -337,7 +333,7 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath,bool is_
 	return true;
 }
 
-bool InputGeom::load(rcContext* ctx, const std::string& filepath,bool is_tf2)
+bool InputGeom::load(rcContext* ctx, const std::string& filepath)
 {
 	size_t extensionPos = filepath.find_last_of('.');
 	if (extensionPos == std::string::npos)
@@ -347,11 +343,11 @@ bool InputGeom::load(rcContext* ctx, const std::string& filepath,bool is_tf2)
 	std::transform(extension.begin(), extension.end(), extension.begin(), tolower);
 
 	if (extension == ".gset")
-		return loadGeomSet(ctx, filepath, is_tf2);
+		return loadGeomSet(ctx, filepath);
 	if (extension == ".obj")
-		return loadMesh(ctx, filepath, is_tf2);
+		return loadMesh(ctx, filepath);
 	if (extension == ".ply")
-		return loadPlyMesh(ctx, filepath, is_tf2);
+		return loadPlyMesh(ctx, filepath);
 
 	return false;
 }

@@ -128,12 +128,12 @@ void generate_points(float* pts, int count, float dx, float dy, float dz)
 	}
 }
 
-void auto_load(const char* path, BuildContext& ctx, Sample*& sample,InputGeom*& geom, string& meshName,bool& tf2_transforms)
+void auto_load(const char* path, BuildContext& ctx, Sample*& sample,InputGeom*& geom, string& meshName)
 {
 	string geom_path = std::string(path);
 	meshName = geom_path.substr(geom_path.rfind("\\") + 1);
 	geom = new InputGeom;
-	if (!geom->load(&ctx, geom_path, tf2_transforms))
+	if (!geom->load(&ctx, geom_path))
 	{
 		delete geom;
 		geom = 0;
@@ -404,7 +404,6 @@ int not_main(int argc, char** argv)
 	float markerPosition[3] = {0, 0, 0};
 	bool markerPositionSet = false;
 	
-	bool tf2_transforms = false;
 	InputGeom* geom = nullptr;
 	Sample* sample = nullptr;
 	TestCase* test = nullptr;
@@ -414,7 +413,6 @@ int not_main(int argc, char** argv)
 
 	sample = g_samples[1].create();
 	sampleName = g_samples[1].name;
-	sample->is_tf2 = &tf2_transforms;
 	sample->setContext(&ctx);
 	if (geom)
 	{
@@ -422,7 +420,7 @@ int not_main(int argc, char** argv)
 	}
 	if (autoLoad)
 	{
-		auto_load(autoLoad, ctx, sample, geom, meshName, tf2_transforms);
+		auto_load(autoLoad, ctx, sample, geom, meshName);
 		if (geom || sample)
 		{
 			const float* bmin = 0;
@@ -847,9 +845,8 @@ int not_main(int argc, char** argv)
 			}
 			
 			imguiSeparator();
-			//if (imguiCheck("Import/Export TF2", tf2_transforms, true))
-			//	tf2_transforms = !tf2_transforms;
 			imguiLabel("Input Level");
+
 			if (imguiButton("Load Level..."))
 			{
 				char szFile[260];
@@ -955,7 +952,7 @@ int not_main(int argc, char** argv)
 					if (newSample)
 					{
 						sampleName = g_samples[i].name;
-						newSample->is_tf2 = &tf2_transforms;
+						//newSample->is_tf2 = &tf2_transforms;
 					}
 				}
 			}
@@ -1022,7 +1019,7 @@ int not_main(int argc, char** argv)
 		if (!geom_path.empty())
 		{
 			geom = new InputGeom;
-			if (!geom->load(&ctx, geom_path, tf2_transforms))
+			if (!geom->load(&ctx, geom_path))
 			{
 				delete geom;
 				geom = 0;
@@ -1098,7 +1095,7 @@ int not_main(int argc, char** argv)
 							if (newSample)
 							{
 								sampleName = g_samples[i].name;
-								newSample->is_tf2 = &tf2_transforms;
+								//newSample->is_tf2 = &tf2_transforms;
 							}
 						}
 					}
@@ -1120,7 +1117,7 @@ int not_main(int argc, char** argv)
 					
 					delete geom;
 					geom = new InputGeom;
-					if (!geom || !geom->load(&ctx, path,tf2_transforms))
+					if (!geom || !geom->load(&ctx, path))
 					{
 						delete geom;
 						geom = 0;

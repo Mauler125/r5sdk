@@ -372,7 +372,8 @@ dtNavMesh* Sample::loadAll(std::string path)
 		fclose(fp);
 		return 0;
 	}
-	if(*is_tf2) patchHeaderGame(header);
+
+
 	dtStatus status = mesh->init(&header.params);
 	if (dtStatusFailed(status))
 	{
@@ -395,19 +396,22 @@ dtNavMesh* Sample::loadAll(std::string path)
 			break;
 
 		unsigned char* data = (unsigned char*)dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM);
-		if (!data) break;
+		if (!data)
+			break;
+
 		memset(data, 0, tileHeader.dataSize);
 		readLen = fread(data, tileHeader.dataSize, 1, fp);
+
 		if (readLen != 1)
 		{
 			dtFree(data);
 			fclose(fp);
 			return 0;
 		}
+
 		dtTileRef result;
 		mesh->addTile(data, tileHeader.dataSize, DT_TILE_FREE_DATA, tileHeader.tileRef, &result);
 		auto tile = const_cast<dtMeshTile*>(mesh->getTileByRef(result));
-		if (*is_tf2) patchTileGame(tile);
 	}
 
 	fclose(fp);
@@ -441,7 +445,9 @@ void Sample::saveAll(std::string path, dtNavMesh* mesh)
 	for (int i = 0; i < mesh->getMaxTiles(); ++i)
 	{
 		dtMeshTile* tile = mesh->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
+		if (!tile || !tile->header || !tile->dataSize)
+			continue;
+
 		header.numTiles++;
 	}
 	memcpy(&header.params, mesh->getParams(), sizeof(dtNavMeshParams));
@@ -476,23 +482,21 @@ void Sample::saveAll(std::string path, dtNavMesh* mesh)
 	header.params.reachabilityTableCount = m_reachabilityTableCount;
 	header.params.reachabilityTableSize = ((header.params.disjointPolyGroupCount + 31) / 32) * header.params.disjointPolyGroupCount * 32;
 
-	if (*is_tf2)unpatchHeaderGame(header);
 	fwrite(&header, sizeof(NavMeshSetHeader), 1, fp);
 
 	// Store tiles.
 	for (int i = 0; i < mesh->getMaxTiles(); ++i)
 	{
 		dtMeshTile* tile = mesh->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
+		if (!tile || !tile->header || !tile->dataSize)
+			continue;
 
 		NavMeshTileHeader tileHeader;
 		tileHeader.tileRef = mesh->getTileRef(tile);
 		tileHeader.dataSize = tile->dataSize;
-		fwrite(&tileHeader, sizeof(tileHeader), 1, fp);
 
-		if (*is_tf2)unpatchTileGame(const_cast<dtMeshTile*>(tile));
+		fwrite(&tileHeader, sizeof(tileHeader), 1, fp);
 		fwrite(tile->data, tile->dataSize, 1, fp);
-		if (*is_tf2)patchTileGame(const_cast<dtMeshTile*>(tile));
 	}
 
 	////still dont know what this thing is...
