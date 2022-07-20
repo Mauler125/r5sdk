@@ -504,8 +504,9 @@ std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::
 #if not defined DEDICATED && defined (GAMEDLL_S3)
 
 #pragma warning( push )
-#pragma warning( disable : 6262 ) // Disable stack warning, tells us to move more data to the heap instead. Not really possible with 'initialData' here. Since its parallel processed.
-
+// Disable stack warning, tells us to move more data to the heap instead. Not really possible with 'initialData' here. Since its parallel processed.
+// Also disable 6378, complains that there is no control path where it would use 'nullptr', if that happens 'Error' will be called though.
+#pragma warning( disable : 6262 6387)
 //----------------------------------------------------------------------------------
 // Purpose: creates 2D texture and shader resource from textureHeader and imageData.
 //----------------------------------------------------------------------------------
@@ -570,7 +571,7 @@ void RTech::CreateDXTexture(RTechTextureInfo_t* textureHeader, int64_t imageData
 	textureDesc.Format = dxgiFormat;
 	textureDesc.SampleDesc.Count = 1;
 	textureDesc.SampleDesc.Quality = 0;
-	textureDesc.Usage = (D3D11_USAGE)(textureHeader->m_nCPUAccessFlag != 2);
+	textureDesc.Usage = textureHeader->m_nCPUAccessFlag != 2 ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DEFAULT;
 	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 	textureDesc.MiscFlags = 0;
 
