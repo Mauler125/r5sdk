@@ -174,7 +174,7 @@ void Sample::resetCommonSettings()
 	m_detailSampleDist = 6.0f;
 	m_detailSampleMaxError = 1.0f;
 	m_partitionType = SAMPLE_PARTITION_WATERSHED;
-	m_reachabilityTableCount = 1;
+	m_reachabilityTableCount = 4;
 }
 hulldef hulls[5] = {
 	{"small",8,72*0.5,70,512.0f},
@@ -651,33 +651,36 @@ void Sample::saveAll(std::string path, dtNavMesh* mesh)
 		header.numTiles++;
 	}
 	memcpy(&header.params, mesh->getParams(), sizeof(dtNavMeshParams));
-	header.params.disjointPolyGroupCount = 3;
 
-	LinkTableData link_data;
-	build_link_table(mesh, link_data);
-	int table_size = ((link_data.setCount + 31) / 32) * link_data.setCount * 32;
+	//LinkTableData link_data;
+	//build_link_table(mesh, link_data);
+	//int table_size = ((link_data.setCount + 31) / 32) * link_data.setCount * 32;
 
-	std::vector<int> reachability(table_size, 0);
-	for (int i = 0; i < link_data.setCount; i++)
-		set_reachable(reachability, link_data.setCount, i, i, true);
+	//std::vector<int> reachability(table_size, 0);
+	//for (int i = 0; i < link_data.setCount; i++)
+	//	set_reachable(reachability, link_data.setCount, i, i, true);
 
-	if (reachability.size() > 0)
-	{
-		for (size_t i = reachability.size() - 1; i >= 0; i--)
-		{
-			if (reachability[i] == 0)
-			{
-				reachability.erase(reachability.begin() + i);
-				table_size--;
-			}
-			else
-				break;
-		}
-	}
+	//if (reachability.size() > 0)
+	//{
+	//	for (size_t i = reachability.size() - 1; i >= 0; i--)
+	//	{
+	//		if (reachability[i] == 0)
+	//		{
+	//			reachability.erase(reachability.begin() + i);
+	//			table_size--;
+	//		}
+	//		else
+	//			break;
+	//	}
+	//}
 
-	header.params.disjointPolyGroupCount = link_data.setCount;
+	//header.params.disjointPolyGroupCount = link_data.setCount;
+	//header.params.reachabilityTableCount = m_reachabilityTableCount;
+	//header.params.reachabilityTableSize = table_size;
+
+	header.params.disjointPolyGroupCount = 4;
 	header.params.reachabilityTableCount = m_reachabilityTableCount;
-	header.params.reachabilityTableSize = table_size;
+	header.params.reachabilityTableSize = ((header.params.disjointPolyGroupCount + 31) / 32) * header.params.disjointPolyGroupCount * 32;
 
 	if (*is_tf2)unpatch_headertf2(header);
 	fwrite(&header, sizeof(NavMeshSetHeader), 1, fp);
@@ -698,13 +701,23 @@ void Sample::saveAll(std::string path, dtNavMesh* mesh)
 		if (*is_tf2)patch_tiletf2(const_cast<dtMeshTile*>(tile));
 	}
 
-	//still dont know what this thing is...
-	int header_sth = 0;
-	for (int i = 0; i < link_data.setCount; i++)
-		fwrite(&header_sth, sizeof(int), 1, fp);
+	////still dont know what this thing is...
+	//int header_sth = 0;
+	//for (int i = 0; i < link_data.setCount; i++)
+	//	fwrite(&header_sth, sizeof(int), 1, fp);
+
+	//for (int i = 0; i < header.params.reachabilityTableCount; i++)
+	//	fwrite(reachability.data(), sizeof(int), table_size, fp);
+
+	int header_sth[4] = { 0,0,0 };
+	fwrite(header_sth, sizeof(int), 4, fp);
+
+	unsigned int reachability[32 * 4];
+	for (int i = 0; i < 32 * 4; i++)
+		reachability[i] = 0xffffffff;
 
 	for (int i = 0; i < header.params.reachabilityTableCount; i++)
-		fwrite(reachability.data(), sizeof(int), table_size, fp);
+		fwrite(reachability, sizeof(int), (header.params.reachabilityTableSize / 4), fp);
 
 	fclose(fp);
 }
