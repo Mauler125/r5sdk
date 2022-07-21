@@ -17,12 +17,14 @@ bool MP_GameMode_Changed_f(ConVar* pVTable);
 void GameConsole_Invoke_f(const CCommand& args);
 void ServerBrowser_Invoke_f(const CCommand& args);
 #endif // !DEDICATED
+#ifndef CLIENT_DLL
 void Host_Kick_f(const CCommand& args);
 void Host_KickID_f(const CCommand& args);
 void Host_Ban_f(const CCommand& args);
 void Host_BanID_f(const CCommand& args);
 void Host_Unban_f(const CCommand& args);
 void Host_ReloadBanList_f(const CCommand& args);
+#endif // !CLIENT_DLL
 void Pak_ListPaks_f(const CCommand& args);
 void Pak_RequestUnload_f(const CCommand& args);
 void Pak_RequestLoad_f(const CCommand& args);

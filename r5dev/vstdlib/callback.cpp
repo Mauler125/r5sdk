@@ -24,7 +24,9 @@
 #include "gameui/IBrowser.h"
 #include "gameui/IConsole.h"
 #endif // !DEDICATED
+#ifndef CLIENT_DLL
 #include "public/include/bansystem.h"
+#endif // !CLIENT_DLL
 #include "mathlib/crc32.h"
 #include "vstdlib/completion.h"
 #include "vstdlib/callback.h"
@@ -103,7 +105,7 @@ void Host_Kick_f(const CCommand& args)
 		NET_DisconnectClient(pClient, i, "Kicked from server", 0, 1);
 	}
 }
-
+#ifndef CLIENT_DLL
 /*
 =====================
 Host_KickID_f
@@ -325,7 +327,7 @@ void Host_ReloadBanList_f(const CCommand& args)
 {
 	g_pBanSystem->Load(); // Reload banlist.
 }
-
+#endif // !CLIENT_DLL
 /*
 =====================
 Pak_ListPaks_f

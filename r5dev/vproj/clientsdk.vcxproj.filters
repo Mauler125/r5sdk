@@ -243,9 +243,6 @@
     <ClCompile Include="..\gameui\IConsole.cpp">
       <Filter>sdk\gameui</Filter>
     </ClCompile>
-    <ClCompile Include="..\public\bansystem.cpp">
-      <Filter>sdk\public</Filter>
-    </ClCompile>
     <ClCompile Include="..\public\utility.cpp">
       <Filter>sdk\public</Filter>
     </ClCompile>
@@ -592,9 +589,6 @@
     </ClInclude>
     <ClInclude Include="..\gameui\IConsole.h">
       <Filter>sdk\gameui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\public\include\bansystem.h">
-      <Filter>sdk\public\include</Filter>
     </ClInclude>
     <ClInclude Include="..\public\include\httplib.h">
       <Filter>sdk\public\include</Filter>

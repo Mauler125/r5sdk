@@ -210,19 +210,22 @@ FORCEINLINE void CHostState::Think(void) const
 	{
 		if (!bInitialized) // Initialize clocks.
 		{
+#ifndef CLIENT_DLL
 			banListTimer.Start();
 #ifdef DEDICATED
 			pylonTimer.Start();
 #endif // DEDICATED
 			statsTimer.Start();
+#endif // !CLIENT_DLL
 			bInitialized = true;
 		}
-
+#ifndef CLIENT_DLL
 		if (banListTimer.GetDurationInProgress().GetSeconds() > sv_banlistRefreshInterval->GetDouble())
 		{
 			g_pBanSystem->BanListCheck();
 			banListTimer.Start();
 		}
+#endif // !CLIENT_DLL
 #ifdef DEDICATED
 		if (pylonTimer.GetDurationInProgress().GetSeconds() > sv_pylonRefreshInterval->GetDouble())
 		{

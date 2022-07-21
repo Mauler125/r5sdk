@@ -133,6 +133,7 @@ void ConCommand::Init(void)
 #endif //!DEDICATED
 	//-------------------------------------------------------------------------
 	// SERVER DLL                                                             |
+#ifndef CLIENT_DLL
 	new ConCommand("script", "Run input code as SERVER script on the VM.", FCVAR_GAMEDLL | FCVAR_CHEAT, SQVM_ServerScript_f, nullptr);
 	new ConCommand("sv_kick", "Kick a client from the server by name. | Usage: kick \"<name>\".", FCVAR_RELEASE, Host_Kick_f, nullptr);
 	new ConCommand("sv_kickid", "Kick a client from the server by UserID or OriginID | Usage: kickid \"<UserID>\"/\"<OriginID>\".", FCVAR_RELEASE, Host_KickID_f, nullptr);
@@ -140,6 +141,7 @@ void ConCommand::Init(void)
 	new ConCommand("sv_banid", "Bans a client from the server by UserID, OriginID or IPAddress | Usage: banid \"<UserID>\"/\"<OriginID>/<IPAddress>\".", FCVAR_RELEASE, Host_BanID_f, nullptr);
 	new ConCommand("sv_unban", "Unbans a client from the server by OriginID or IPAddress | Usage: unban \"<OriginID>\"/\"<IPAddress>\".", FCVAR_RELEASE, Host_Unban_f, nullptr);
 	new ConCommand("sv_reloadbanlist", "Reloads the ban list from the disk.", FCVAR_RELEASE, Host_ReloadBanList_f, nullptr);
+#endif // !CLIENT_DLL
 #ifndef DEDICATED
 	//-------------------------------------------------------------------------
 	// CLIENT DLL                                                             |

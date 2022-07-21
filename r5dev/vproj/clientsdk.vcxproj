@@ -83,7 +83,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\public\bansystem.cpp" />
     <ClCompile Include="..\public\binstream.cpp" />
     <ClCompile Include="..\public\memaddr.cpp" />
     <ClCompile Include="..\public\module.cpp" />
@@ -241,7 +240,6 @@
     <ClInclude Include="..\public\include\inetmsghandler.h" />
     <ClInclude Include="..\public\include\ivrenderview.h" />
     <ClInclude Include="..\public\include\memaddr.h" />
-    <ClInclude Include="..\public\include\bansystem.h" />
     <ClInclude Include="..\public\include\binstream.h" />
     <ClInclude Include="..\public\include\httplib.h" />
     <ClInclude Include="..\public\include\model_types.h" />
@@ -578,7 +576,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\client.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
+      <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\bin\x64_retail\client.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\bin\x64_retail\</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -621,7 +619,7 @@
       <SetChecksum>true</SetChecksum>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\client.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
+      <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\bin\x64_retail\client.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\bin\x64_retail\</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
