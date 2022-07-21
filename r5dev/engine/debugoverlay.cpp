@@ -241,12 +241,12 @@ void DrawOverlay(OverlayBase_t* pOverlay)
     LeaveCriticalSection(&*s_OverlayMutex);
 }
 
+#ifndef CLIENT_DLL
 //------------------------------------------------------------------------------
 // Purpose : draw AIN script nodes
 //------------------------------------------------------------------------------
 void DrawAIScriptNodes()
 {
-#ifndef CLIENT_DLL
     if (*g_pAINetwork)
     {
         OverlayBox_t::Transforms vTransforms;
@@ -270,7 +270,6 @@ void DrawAIScriptNodes()
             }
         }
     }
-#endif // !CLIENT_DLL
 }
 
 //------------------------------------------------------------------------------
@@ -278,7 +277,6 @@ void DrawAIScriptNodes()
 //------------------------------------------------------------------------------
 void DrawNavMeshBVTree()
 {
-#ifndef CLIENT_DLL
     const dtNavMesh* mesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
     if (!mesh)
         return;
@@ -313,7 +311,6 @@ void DrawNavMeshBVTree()
             v_RenderBox(vTransforms, vMins, vMaxs, Color(255, 255, 255, 255), r_debug_overlay_zbuffer->GetBool());
         }
     }
-#endif // !CLIENT_DLL
 }
 
 //------------------------------------------------------------------------------
@@ -321,7 +318,6 @@ void DrawNavMeshBVTree()
 //------------------------------------------------------------------------------
 static void DrawNavMeshPortals()
 {
-#ifndef CLIENT_DLL
     const dtNavMesh* mesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
     if (!mesh)
         return;
@@ -380,14 +376,83 @@ static void DrawNavMeshPortals()
             }
         }
     }
-#endif // !CLIENT_DLL
+}
+
+void DrawNavMeshPolys()
+{
+    const dtNavMesh* mesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
+    if (!mesh)
+        return;
+
+    OverlayBox_t::Transforms vTransforms;
+    for (int i = navmesh_draw_polys->GetInt(); i < mesh->getTileCount(); ++i)
+    {
+        const dtMeshTile* tile = &mesh->m_tiles[i];
+        if (!tile->header)
+            continue;
+
+
+        for (int j = 0; j < tile->header->polyCount; j++)
+        {
+            const dtPoly* poly = &tile->polys[j];
+
+
+            Color c{ 0, 140, 240, 255 };
+            const unsigned int ip = (unsigned int)(poly - tile->polys);
+
+            if (poly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
+            {
+                //dtOffMeshConnection* con = &tile->offMeshCons[ip - tile->header->offMeshBase];
+
+                //dd->begin(DU_DRAW_LINES, 2.0f);
+
+                //// Connection arc.
+                //duAppendArc(dd, con->pos[0], con->pos[1], con->pos[2], con->pos[3], con->pos[4], con->pos[5], 0.25f,
+                //    (con->flags & 1) ? 0.6f : 0.0f, 0.6f, c);
+
+                //dd->end();
+            }
+            else
+            {
+                const dtPolyDetail* pd = &tile->detailMeshes[ip];
+
+                //dd->begin(DU_DRAW_TRIS);
+                for (int k = 0; k < pd->triCount; ++k)
+                {
+                    Vector3D tris[3];
+                    const unsigned char* t = &tile->detailTris[(pd->triBase + k) * 4];
+                    for (int e = 0; e < 3; ++e)
+                    {
+                        if (t[e] < poly->vertCount)
+                        {
+                            float* verts = &tile->verts[poly->verts[t[e]] * 3];
+                            tris[e].x = verts[0];
+                            tris[e].y = verts[1];
+                            tris[e].z = verts[2];
+                        }
+                        else
+                        {
+                            float* verts = &tile->detailVerts[(pd->vertBase + t[e] - poly->vertCount) * 3];
+                            tris[e].x = verts[0];
+                            tris[e].y = verts[1];
+                            tris[e].z = verts[2];
+                        }
+                    }
+
+                    v_RenderLine(tris[0], tris[1], c, r_debug_overlay_zbuffer->GetBool());
+                    v_RenderLine(tris[1], tris[2], c, r_debug_overlay_zbuffer->GetBool());
+                    v_RenderLine(tris[2], tris[0], c, r_debug_overlay_zbuffer->GetBool());
+                }
+            }
+
+        }
+    }
 }
 
 static void DrawNavMeshPolyBoundaries()
 {
-#ifndef CLIENT_DLL
     static const float thr = 0.01f * 0.01f;
-    Color col{0, 140, 240, 255};
+    Color col{20, 210, 255, 255};
 
     //dd->begin(DU_DRAW_LINES, linew);
 
@@ -474,8 +539,8 @@ static void DrawNavMeshPolyBoundaries()
             }
         }
     }
-#endif // !CLIENT_DLL
 }
+#endif // !CLIENT_DLL
 
 //------------------------------------------------------------------------------
 // Purpose : overlay drawing entrypoint
@@ -486,15 +551,18 @@ void DrawAllOverlays(bool bDraw)
     if (!enable_debug_overlays->GetBool())
         return;
     EnterCriticalSection(&*s_OverlayMutex);
-
+#ifndef CLIENT_DLL
     if (ai_script_nodes_draw->GetBool())
         DrawAIScriptNodes();
     if (navmesh_draw_bvtree->GetInt() > -1)
         DrawNavMeshBVTree();
     if (navmesh_draw_portal->GetInt() > -1)
         DrawNavMeshPortals();
+    if (navmesh_draw_polys->GetInt() > -1)
+        DrawNavMeshPolys();
     if (navmesh_draw_poly_bounds->GetInt() > -1)
         DrawNavMeshPolyBoundaries();
+#endif // !CLIENT_DLL
 
     OverlayBase_t* pCurrOverlay = *s_pOverlays; // rdi
     OverlayBase_t* pPrevOverlay = nullptr;      // rsi

@@ -61,22 +61,26 @@ void ConVar::Init(void) const
 	r_drawWorldMeshesDepthAtTheEnd = new ConVar("r_drawWorldMeshesDepthAtTheEnd", "1", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Render world meshes (depth at the end).", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// SERVER                                                                 |
+#ifndef CLIENT_DLL
 	ai_ainDumpOnLoad           = new ConVar("ai_ainDumpOnLoad"          , "0", FCVAR_DEVELOPMENTONLY, "Dumps AIN data from node graphs loaded from the disk on load.", false, 0.f, false, 0.f, nullptr, nullptr);
 	ai_ainDebugConnect         = new ConVar("ai_ainDebugConnect"        , "0", FCVAR_DEVELOPMENTONLY, "Debug AIN node connections.", false, 0.f, false, 0.f, nullptr, nullptr);
 	ai_script_nodes_draw_index = new ConVar("ai_script_nodes_draw_index", "0", FCVAR_DEVELOPMENTONLY, "Start index for drawing script nodes.", false, 0.f, false, 0.f, nullptr, nullptr);
 
 	navmesh_always_reachable   = new ConVar("navmesh_always_reachable" , "0" , FCVAR_DEVELOPMENTONLY, "Marks goal poly from agent poly as reachable regardless of table data ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	navmesh_debug_type         = new ConVar("navmesh_debug_type"       , "0" , FCVAR_DEVELOPMENTONLY, "NavMesh hull index for debug draw.", true, 0.f, true, 4.f, nullptr, "0 = small, 1 = med_short, 2 = medium, 3 = large, 4 = extra large");
+#ifndef DEDICATED
 	navmesh_draw_bvtree        = new ConVar("navmesh_draw_bvtree"      , "-1", FCVAR_DEVELOPMENTONLY, "Draws the BVTree of the NavMesh tiles.", false, 0.f, false, 0.f, nullptr, "Index: > 0 && < mesh->m_tileCount");
 	navmesh_draw_portal        = new ConVar("navmesh_draw_portal"      , "-1", FCVAR_DEVELOPMENTONLY, "Draws the portal of the NavMesh tiles.", false, 0.f, false, 0.f, nullptr, "Index: > 0 && < mesh->m_tileCount");
+	navmesh_draw_polys         = new ConVar("navmesh_draw_polys"       , "-1", FCVAR_DEVELOPMENTONLY, "Draws the polys of the NavMesh tiles.", false, 0.f, false, 0.f, nullptr, "Index: > 0 && < mesh->m_tileCount");
 	navmesh_draw_poly_bounds   = new ConVar("navmesh_draw_poly_bounds" , "-1", FCVAR_DEVELOPMENTONLY, "Draws the bounds of the NavMesh polys.", false, 0.f, false, 0.f, nullptr, "Index: > 0 && < mesh->m_tileCount");
 	navmesh_draw_poly_inner    = new ConVar("navmesh_draw_poly_inner"  , "0" , FCVAR_DEVELOPMENTONLY, "Draws the inner bounds of the NavMesh polys (requires navmesh_draw_poly_bounds).", false, 0.f, false, 0.f, nullptr, "Index: > 0 && < mesh->m_tileCount");
-
+#endif // !DEDICATED
 	sv_showconnecting  = new ConVar("sv_showconnecting" , "1", FCVAR_RELEASE, "Logs information about the connecting client to the console.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_pylonVisibility = new ConVar("sv_pylonVisibility", "0", FCVAR_RELEASE, "Determines the visiblity to the Pylon master server, 0 = Offline, 1 = Hidden, 2 = Public.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_pylonRefreshInterval   = new ConVar("sv_pylonRefreshInterval"  , "5.0", FCVAR_RELEASE, "Pylon server host request post update interval (seconds).", true, 2.f, true, 8.f, nullptr, nullptr);
 	sv_banlistRefreshInterval = new ConVar("sv_banlistRefreshInterval", "1.0", FCVAR_RELEASE, "Banlist refresh interval (seconds).", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_statusRefreshInterval  = new ConVar("sv_statusRefreshInterval" , "0.5", FCVAR_RELEASE, "Server status bar update interval (seconds).", false, 0.f, false, 0.f, nullptr, nullptr);
+#endif // !CLIENT_DLL
 #ifdef DEDICATED
 	sv_rcon_debug       = new ConVar("sv_rcon_debug"      , "0" , FCVAR_RELEASE, "Show rcon debug information ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_banpenalty  = new ConVar("sv_rcon_banpenalty" , "10", FCVAR_RELEASE, "Number of minutes to ban users who fail rcon authentication.", false, 0.f, false, 0.f, nullptr, nullptr);
@@ -180,13 +184,16 @@ void ConVar::Init(void) const
 //-----------------------------------------------------------------------------
 void ConVar::InitShipped(void) const
 {
+#ifndef CLIENT_DLL
 	ai_script_nodes_draw             = g_pCVar->FindVar("ai_script_nodes_draw");
+#endif // !CLIENT_DLL
 	single_frame_shutdown_for_reload = g_pCVar->FindVar("single_frame_shutdown_for_reload");
 	enable_debug_overlays            = g_pCVar->FindVar("enable_debug_overlays");
 	model_defaultFadeDistScale       = g_pCVar->FindVar("model_defaultFadeDistScale");
 	model_defaultFadeDistMin         = g_pCVar->FindVar("model_defaultFadeDistMin");
 	staticProp_no_fade_scalar        = g_pCVar->FindVar("staticProp_no_fade_scalar");
 	staticProp_gather_size_weight    = g_pCVar->FindVar("staticProp_gather_size_weight");
+	stream_overlay                   = g_pCVar->FindVar("stream_overlay");
 	old_gather_props                 = g_pCVar->FindVar("old_gather_props");
 	mp_gamemode                      = g_pCVar->FindVar("mp_gamemode");
 	hostname                         = g_pCVar->FindVar("hostname");
@@ -194,8 +201,6 @@ void ConVar::InitShipped(void) const
 	hostport                         = g_pCVar->FindVar("hostport");
 	host_hasIrreversibleShutdown     = g_pCVar->FindVar("host_hasIrreversibleShutdown");
 	net_usesocketsforloopback        = g_pCVar->FindVar("net_usesocketsforloopback");
-
-	stream_overlay                   = g_pCVar->FindVar("stream_overlay");
 
 	mp_gamemode->SetCallback(&MP_GameMode_Changed_f);
 }
