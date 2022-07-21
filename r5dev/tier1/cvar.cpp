@@ -51,6 +51,8 @@ ConVar* navmesh_always_reachable           = nullptr;
 ConVar* navmesh_debug_type                 = nullptr;
 ConVar* navmesh_draw_bvtree                = nullptr;
 ConVar* navmesh_draw_portal                = nullptr;
+ConVar* navmesh_draw_poly_bounds           = nullptr;
+ConVar* navmesh_draw_poly_inner            = nullptr;
 
 ConVar* sv_showconnecting                  = nullptr;
 ConVar* sv_pylonVisibility                 = nullptr;

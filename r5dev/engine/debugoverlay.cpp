@@ -19,6 +19,7 @@
 #include "game/server/ai_utility.h"
 #include "game/server/ai_network.h"
 #include "game/server/ai_networkmanager.h"
+#include "thirdparty/recast/detour/include/detourcommon.h"
 #endif // !CLIENT_DLL
 
 
@@ -382,6 +383,100 @@ static void DrawNavMeshPortals()
 #endif // !CLIENT_DLL
 }
 
+static void DrawNavMeshPolyBoundaries()
+{
+#ifndef CLIENT_DLL
+    static const float thr = 0.01f * 0.01f;
+    Color col{0, 140, 240, 255};
+
+    //dd->begin(DU_DRAW_LINES, linew);
+
+    const dtNavMesh* mesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
+    if (!mesh)
+        return;
+
+    OverlayBox_t::Transforms vTransforms;
+    for (int i = navmesh_draw_poly_bounds->GetInt(); i < mesh->getTileCount(); ++i)
+    {
+        const dtMeshTile* tile = &mesh->m_tiles[i];
+        if (!tile->header)
+            continue;
+
+        for (int i = 0; i < tile->header->polyCount; ++i)
+        {
+            const dtPoly* p = &tile->polys[i];
+
+            if (p->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
+                continue;
+
+            const dtPolyDetail* pd = &tile->detailMeshes[i];
+
+            for (int j = 0, nj = (int)p->vertCount; j < nj; ++j)
+            {
+                Color c = col;
+                if (navmesh_draw_poly_inner->GetBool())
+                {
+                    if (p->neis[j] == 0)
+                        continue;
+
+                    if (p->neis[j] & DT_EXT_LINK)
+                    {
+                        bool con = false;
+                        for (unsigned int k = p->firstLink; k != DT_NULL_LINK; k = tile->links[k].next)
+                        {
+                            if (tile->links[k].edge == j)
+                            {
+                                con = true;
+                                break;
+                            }
+                        }
+                        if (con)
+                            c = Color(255, 255, 255, 48);
+                        else
+                            c = Color(0, 0, 0, 48);
+                    }
+                    else
+                        c = Color(0, 48, 64, 32);
+                }
+                else
+                {
+                    if (p->neis[j] != 0) continue;
+                }
+
+                const float* v0 = &tile->verts[p->verts[j] * 3];
+                const float* v1 = &tile->verts[p->verts[(j + 1) % nj] * 3];
+
+                // Draw detail mesh edges which align with the actual poly edge.
+                // This is really slow.
+                for (int k = 0; k < pd->triCount; ++k)
+                {
+                    const unsigned char* t = &tile->detailTris[(pd->triBase + k) * 4];
+                    const float* tv[3];
+                    for (int m = 0; m < 3; ++m)
+                    {
+                        if (t[m] < p->vertCount)
+                            tv[m] = &tile->verts[p->verts[t[m]] * 3];
+                        else
+                            tv[m] = &tile->detailVerts[(pd->vertBase + (t[m] - p->vertCount)) * 3];
+                    }
+                    for (int m = 0, n = 2; m < 3; n = m++)
+                    {
+                        if ((dtGetDetailTriEdgeFlags(t[3], n) & DT_DETAIL_EDGE_BOUNDARY) == 0)
+                            continue;
+
+                        if (distancePtLine2d(tv[n], v0, v1) < thr &&
+                            distancePtLine2d(tv[m], v0, v1) < thr)
+                        {
+                            v_RenderLine(Vector3D(tv[n][0], tv[n][1], tv[n][2]), Vector3D(tv[m][0], tv[m][1], tv[m][2]), c, r_debug_overlay_zbuffer->GetBool());
+                        }
+                    }
+                }
+            }
+        }
+    }
+#endif // !CLIENT_DLL
+}
+
 //------------------------------------------------------------------------------
 // Purpose : overlay drawing entrypoint
 // Input  : bDraw - 
@@ -389,23 +484,17 @@ static void DrawNavMeshPortals()
 void DrawAllOverlays(bool bDraw)
 {
     if (!enable_debug_overlays->GetBool())
-    {
         return;
-    }
-    if (ai_script_nodes_draw->GetBool())
-    {
-        DrawAIScriptNodes();
-    }
-    if (navmesh_draw_bvtree->GetInt() > -1)
-    {
-        DrawNavMeshBVTree();
-    }
-    if (navmesh_draw_portal->GetInt() > -1)
-    {
-        DrawNavMeshPortals();
-    }
-
     EnterCriticalSection(&*s_OverlayMutex);
+
+    if (ai_script_nodes_draw->GetBool())
+        DrawAIScriptNodes();
+    if (navmesh_draw_bvtree->GetInt() > -1)
+        DrawNavMeshBVTree();
+    if (navmesh_draw_portal->GetInt() > -1)
+        DrawNavMeshPortals();
+    if (navmesh_draw_poly_bounds->GetInt() > -1)
+        DrawNavMeshPolyBoundaries();
 
     OverlayBase_t* pCurrOverlay = *s_pOverlays; // rdi
     OverlayBase_t* pPrevOverlay = nullptr;      // rsi

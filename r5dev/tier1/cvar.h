@@ -50,6 +50,8 @@ extern ConVar* navmesh_always_reachable;
 extern ConVar* navmesh_debug_type;
 extern ConVar* navmesh_draw_bvtree;
 extern ConVar* navmesh_draw_portal;
+extern ConVar* navmesh_draw_poly_bounds;
+extern ConVar* navmesh_draw_poly_inner;
 
 extern ConVar* sv_showconnecting;
 extern ConVar* sv_pylonVisibility;
