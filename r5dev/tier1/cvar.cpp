@@ -40,6 +40,7 @@ ConVar* r_drawWorldMeshesDepthOnly         = nullptr;
 ConVar* r_drawWorldMeshesDepthAtTheEnd     = nullptr;
 
 ConVar* stream_overlay                     = nullptr;
+ConVar* stream_overlay_mode                = nullptr;
 //-----------------------------------------------------------------------------
 // SERVER                                                                     |
 ConVar* ai_ainDumpOnLoad                   = nullptr;

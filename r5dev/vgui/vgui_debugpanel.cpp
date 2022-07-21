@@ -218,11 +218,13 @@ void CLogSystem::DrawCrosshairMaterial(void) const
 
 void CLogSystem::DrawStreamOverlay(void) const
 {
-	std::string buf = s_StreamOverlayBuf;
+	char buf[4096]{};
+	
+	GetStreamOverlay(stream_overlay_mode->GetString(), buf, sizeof(buf));
 
 	static Color c = { 255, 255, 255, 255 };
 
-	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, 20, 300, c.r(), c.g(), c.b(), c.a(), (char*)buf.c_str());
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, 20, 300, c.r(), c.g(), c.b(), c.a(), buf);
 }
 
 //-----------------------------------------------------------------------------

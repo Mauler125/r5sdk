@@ -452,9 +452,7 @@ inline CMemory p_RTech_CreateDXTexture;
 inline auto RTech_CreateDXTexture = p_RTech_CreateDXTexture.RCast<void(*)(RPakTextureHeader_t*, int64_t)>();
 
 inline CMemory p_GetStreamOverlay;
-inline auto GetStreamOverlay = p_GetStreamOverlay.RCast<void(*)(const char*, char*, size_t)>();
-
-inline std::string s_StreamOverlayBuf;
+inline auto GetStreamOverlay = p_GetStreamOverlay.RCast<void(*)(const char* mode, char* buf, size_t bufSize)>();
 #endif
 
 inline RPakLoadedInfo_t* g_pLoadedPakInfo;

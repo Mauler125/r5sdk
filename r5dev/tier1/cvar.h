@@ -39,6 +39,7 @@ extern ConVar* r_drawWorldMeshesDepthOnly;
 extern ConVar* r_drawWorldMeshesDepthAtTheEnd;
 
 extern ConVar* stream_overlay;
+extern ConVar* stream_overlay_mode;
 //-------------------------------------------------------------------------
 // SERVER                                                                 |
 #ifndef CLIENT_DLL

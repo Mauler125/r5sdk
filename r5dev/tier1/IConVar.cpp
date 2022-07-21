@@ -194,6 +194,7 @@ void ConVar::InitShipped(void) const
 	staticProp_no_fade_scalar        = g_pCVar->FindVar("staticProp_no_fade_scalar");
 	staticProp_gather_size_weight    = g_pCVar->FindVar("staticProp_gather_size_weight");
 	stream_overlay                   = g_pCVar->FindVar("stream_overlay");
+	stream_overlay_mode              = g_pCVar->FindVar("stream_overlay_mode");
 	old_gather_props                 = g_pCVar->FindVar("old_gather_props");
 	mp_gamemode                      = g_pCVar->FindVar("mp_gamemode");
 	hostname                         = g_pCVar->FindVar("hostname");
