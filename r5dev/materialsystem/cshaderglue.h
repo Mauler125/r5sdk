@@ -45,8 +45,8 @@ class VShaderGlue : public IDetour
 	virtual void GetFun(void) const 
 	{
 		// We get it here in GetFun because we grab other functions with it, it's more efficient.
-		CShaderGlue_VTable = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x01\xC3\xCC\xCC\xCC\xCC\xCC\x48\x85\xD2"), "xxx????xxxxxxxxxxxx").ResolveRelativeAddressSelf(0x3, 0x7);
-		g_pCShaderGlue_VTable = CShaderGlue_VTable.RCast<void*>(); /*48 8D 05 ? ? ? ? 48 89 01 C3 CC CC CC CC CC 48 85 D2*/
+		CShaderGlue_VTable = g_mGameDll.GetVirtualMethodTable(".?AVCShaderGlue@@");
+		g_pCShaderGlue_VTable = CShaderGlue_VTable.RCast<void*>();
 
 		CShaderGlue_SetupShader = CShaderGlue_VTable.WalkVTable(4).RCast<int(*)(CShaderGlue*, uint64_t, uint64_t, void*)>();
 	}

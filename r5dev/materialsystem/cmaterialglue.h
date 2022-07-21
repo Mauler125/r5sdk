@@ -72,8 +72,7 @@ class VMaterialGlue : public IDetour
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const
 	{
-		g_pMaterialGlueVTable = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xB9\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x8D\x15\x00\x00\x00\x00"), "x????xxx????xxx????")
-			.FindPatternSelf("48 8D ?? ?? ?? ?? 01").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void*>(); /*B9 ? ? ? ? 48 8D 05 ? ? ? ? 48 8D 15 ? ? ? ?*/
+		g_pMaterialGlueVTable = g_mGameDll.GetVirtualMethodTable(".?AVCMaterialGlue@@");
 	}
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }
