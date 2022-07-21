@@ -218,7 +218,7 @@ void CLogSystem::DrawCrosshairMaterial(void) const
 
 void CLogSystem::DrawStreamOverlay(void) const
 {
-	char buf[4096]{};
+	char buf[4096];
 	
 	GetStreamOverlay(stream_overlay_mode->GetString(), buf, sizeof(buf));
 
