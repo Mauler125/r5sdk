@@ -272,7 +272,7 @@ void ConVar::PurgeHostNames(void) const
 	{
 		if (ConVar* pCVar = g_pCVar->FindVar(pszHostNames[i]))
 		{
-			pCVar->ChangeStringValueUnsafe("0.0.0.0");
+			pCVar->ChangeStringValue("0.0.0.0", pCVar->m_Value.m_fValue);
 		}
 	}
 }
@@ -776,7 +776,7 @@ void ConVar::ChangeStringValue(const char* pszTempVal, float flOldValue)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: changes the ConVar string value (unsafe).
+// Purpose: changes the ConVar string value (only use if the new string is equal or lower than this->m_iStringLength).
 // Input  : *pszTempVal - flOldValue
 //-----------------------------------------------------------------------------
 void ConVar::ChangeStringValueUnsafe(const char* pszNewValue)
