@@ -7,7 +7,13 @@ public:
 	template<typename T>
 	T* Alloc(size_t nSize)
 	{
-		const int index = 1;
+		const int index = 0;
+		return CallVFunc<T*>(index, this, nSize);
+	}
+	template<typename T>
+	T* Realloc(T* pMem, size_t nSize)
+	{
+		const int index = 2;
 		return CallVFunc<T*>(index, this, nSize);
 	}
 	template<typename T>
