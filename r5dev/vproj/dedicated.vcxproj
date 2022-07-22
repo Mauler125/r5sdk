@@ -418,6 +418,7 @@
     <ClInclude Include="..\tier0\fasttimer.h" />
     <ClInclude Include="..\tier0\interface.h" />
     <ClInclude Include="..\tier0\jobthread.h" />
+    <ClInclude Include="..\tier0\memstd.h" />
     <ClInclude Include="..\tier0\platform.h" />
     <ClInclude Include="..\tier0\platform_internal.h" />
     <ClInclude Include="..\tier0\threadtools.h" />
@@ -539,7 +540,6 @@
     <ClCompile Include="..\tier0\jobthread.cpp" />
     <ClCompile Include="..\tier0\platform.cpp" />
     <ClCompile Include="..\tier0\threadtools.cpp" />
-    <ClCompile Include="..\tier0\tslist.cpp" />
     <ClCompile Include="..\tier1\bitbuf.cpp" />
     <ClCompile Include="..\tier1\cmd.cpp" />
     <ClCompile Include="..\tier1\cvar.cpp" />

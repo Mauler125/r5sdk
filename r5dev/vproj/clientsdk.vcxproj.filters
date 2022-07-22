@@ -477,9 +477,6 @@
     <ClCompile Include="..\engine\clockdriftmgr.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
-    <ClCompile Include="..\tier0\tslist.cpp">
-      <Filter>sdk\tier0</Filter>
-    </ClCompile>
     <ClCompile Include="..\engine\client\client.cpp">
       <Filter>sdk\engine\client</Filter>
     </ClCompile>
@@ -1612,6 +1609,9 @@
     </ClInclude>
     <ClInclude Include="..\public\include\idebugoverlay.h">
       <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\memstd.h">
+      <Filter>sdk\tier0</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

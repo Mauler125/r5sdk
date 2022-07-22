@@ -1170,6 +1170,9 @@
     <ClInclude Include="..\server\persistence.h">
       <Filter>sdk\server</Filter>
     </ClInclude>
+    <ClInclude Include="..\tier0\memstd.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1393,9 +1396,6 @@
     </ClCompile>
     <ClCompile Include="..\engine\clockdriftmgr.cpp">
       <Filter>sdk\engine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\tier0\tslist.cpp">
-      <Filter>sdk\tier0</Filter>
     </ClCompile>
     <ClCompile Include="..\engine\client\client.cpp">
       <Filter>sdk\engine\client</Filter>

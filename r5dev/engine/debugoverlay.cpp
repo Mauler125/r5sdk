@@ -6,7 +6,7 @@
 
 #include "core/stdafx.h"
 #include "common/pseudodefs.h"
-#include "tier0/tslist.h"
+#include "tier0/memstd.h"
 #include "tier0/basetypes.h"
 #include "tier1/cvar.h"
 #include "tier2/renderutils.h"
@@ -102,7 +102,7 @@ void DestroyOverlay(OverlayBase_t* pOverlay)
         goto LABEL_MALLOC;
     LABEL_MALLOC:
         pOverlay->m_Type = OverlayType_t::OVERLAY_UNK1;
-        v_MemAlloc_Internal(pOverlay, pOverlaySize);
+        MemAllocSingleton()->Free(pOverlay);
         break;
     default:
         break;
@@ -253,11 +253,6 @@ void DrawAIScriptNodes()
 
         for (int i = ai_script_nodes_draw_index->GetInt(); i < (*g_pAINetwork)->GetNumScriptNodes(); i++)
         {
-            if (i < 0)
-            {
-                return;
-            }
-
             vTransforms.xmm[0] = _mm_set_ps((*g_pAINetwork)->m_ScriptNode[i].m_vOrigin.x - 50.f, 0.0f, 0.0f, 1.0f);
             vTransforms.xmm[1] = _mm_set_ps((*g_pAINetwork)->m_ScriptNode[i].m_vOrigin.y - 50.f, 0.0f, 1.0f, 0.0f);
             vTransforms.xmm[2] = _mm_set_ps((*g_pAINetwork)->m_ScriptNode[i].m_vOrigin.z - 50.f, 1.0f, 0.0f, 0.0f);
@@ -386,6 +381,9 @@ static void DrawNavMeshPortals()
     }
 }
 
+//------------------------------------------------------------------------------
+// Purpose : draw NavMesh polys
+//------------------------------------------------------------------------------
 void DrawNavMeshPolys()
 {
     const dtNavMesh* mesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
@@ -452,7 +450,10 @@ void DrawNavMeshPolys()
     }
 }
 
-static void DrawNavMeshPolyBoundaries()
+//------------------------------------------------------------------------------
+// Purpose : draw NavMesh poly boundaries
+//------------------------------------------------------------------------------
+void DrawNavMeshPolyBoundaries()
 {
     static const float thr = 0.01f * 0.01f;
     Color col{20, 140, 255, 255};
@@ -556,7 +557,7 @@ void DrawAllOverlays(bool bDraw)
         return;
     EnterCriticalSection(&*s_OverlayMutex);
 #ifndef CLIENT_DLL
-    if (ai_script_nodes_draw->GetBool())
+    if (ai_script_nodes_draw->GetInt() > -1)
         DrawAIScriptNodes();
     if (navmesh_draw_bvtree->GetInt() > -1)
         DrawNavMeshBVTree();

@@ -6,6 +6,7 @@
 
 #include "core/stdafx.h"
 #include "tier0/tslist.h"
+#include "tier0/memstd.h"
 #include "tier1/IConVar.h"
 #include "tier1/cvar.h"
 #include "mathlib/bits.h"
@@ -16,8 +17,8 @@
 //-----------------------------------------------------------------------------
 ConVar::ConVar(const char* pszName, const char* pszDefaultValue, int nFlags, const char* pszHelpString, bool bMin, float fMin, bool bMax, float fMax, void* pCallback, const char* pszUsageString)
 {
-	ConVar* pNewConVar = reinterpret_cast<ConVar*>(v_MemAlloc_Wrapper(sizeof(ConVar))); // Allocate new memory with StdMemAlloc else we crash.
-	memset(pNewConVar, '\0', sizeof(ConVar));                                           // Set all to null.
+	ConVar* pNewConVar = MemAllocSingleton()->Alloc<ConVar>(sizeof(ConVar)); // Allocate new memory with StdMemAlloc else we crash.
+	memset(pNewConVar, '\0', sizeof(ConVar));                                // Set all to null.
 
 	pNewConVar->m_pConCommandBaseVTable = g_pConVarVtable.RCast<void*>();
 	pNewConVar->m_pIConVarVTable = g_pIConVarVtable.RCast<void*>();
@@ -31,6 +32,11 @@ ConVar::ConVar(const char* pszName, const char* pszDefaultValue, int nFlags, con
 //-----------------------------------------------------------------------------
 ConVar::~ConVar(void)
 {
+	if (m_Value.m_pszString)
+	{
+		MemAllocSingleton()->Free(m_Value.m_pszString);
+		m_Value.m_pszString = NULL;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -204,6 +210,9 @@ void ConVar::InitShipped(void) const
 	host_hasIrreversibleShutdown     = g_pCVar->FindVar("host_hasIrreversibleShutdown");
 	net_usesocketsforloopback        = g_pCVar->FindVar("net_usesocketsforloopback");
 
+#ifndef CLIENT_DLL
+	ai_script_nodes_draw->SetValue(-1);
+#endif // !CLIENT_DLL
 	mp_gamemode->SetCallback(&MP_GameMode_Changed_f);
 }
 
@@ -745,15 +754,15 @@ void ConVar::ChangeStringValue(const char* pszTempVal, float flOldValue)
 		{
 			if (m_Value.m_pszString)
 			{
-				delete[] m_Value.m_pszString;
+				MemAllocSingleton()->Free(m_Value.m_pszString);
 			}
 
-			m_Value.m_pszString = new char[len];
+			m_Value.m_pszString = MemAllocSingleton()->Alloc<const char>(len);
 			m_Value.m_iStringLength = len;
 		}
 		else if (!m_Value.m_pszString)
 		{
-			m_Value.m_pszString = new char[len];
+			m_Value.m_pszString = MemAllocSingleton()->Alloc<const char>(len);
 			m_Value.m_iStringLength = len;
 		}
 		memcpy(const_cast<char*>(m_Value.m_pszString), pszTempVal, len);
