@@ -50,12 +50,13 @@ ConVar* ai_script_nodes_draw_index         = nullptr;
 
 ConVar* navmesh_always_reachable           = nullptr;
 ConVar* navmesh_debug_type                 = nullptr;
+ConVar* navmesh_debug_tile_range           = nullptr;
 #ifndef DEDICATED
 ConVar* navmesh_draw_bvtree                = nullptr;
 ConVar* navmesh_draw_portal                = nullptr;
 ConVar* navmesh_draw_polys                 = nullptr;
 ConVar* navmesh_draw_poly_bounds           = nullptr;
-ConVar* navmesh_draw_poly_inner            = nullptr;
+ConVar* navmesh_draw_poly_bounds_inner     = nullptr;
 #endif // !DEDICATED
 
 ConVar* sv_showconnecting                  = nullptr;

@@ -284,6 +284,10 @@ void DrawNavMeshBVTree()
     OverlayBox_t::Transforms vTransforms;
     for (int i = navmesh_draw_bvtree->GetInt(); i < mesh->getTileCount(); ++i)
     {
+        if (navmesh_debug_tile_range->GetBool())
+            if (i > navmesh_debug_tile_range->GetInt())
+                break;
+
         const dtMeshTile* tile = &mesh->m_tiles[i];
         if (!tile->header)
             continue;
@@ -325,6 +329,10 @@ static void DrawNavMeshPortals()
     OverlayBox_t::Transforms vTransforms;
     for (int i = navmesh_draw_portal->GetInt(); i < mesh->getTileCount(); ++i)
     {
+        if (navmesh_debug_tile_range->GetBool())
+            if (i > navmesh_debug_tile_range->GetInt())
+                break;
+
         const dtMeshTile* tile = &mesh->m_tiles[i];
         if (!tile->header)
             continue;
@@ -354,7 +362,7 @@ static void DrawNavMeshPortals()
 
                     if (side == 0 || side == 4)
                     {
-                        Color col = side == 0 ? Color(188, 0, 0, 188) : Color(188, 0, 188, 188);
+                        Color col = side == 0 ? Color(188, 0, 0, 255) : Color(188, 0, 188, 255);
                         const float x = va[0] + ((side == 0) ? -padx : padx);
 
                         v_RenderLine(Vector3D(x, va[1], va[2] - padz), Vector3D(x, va[1], va[2] + padz), col, r_debug_overlay_zbuffer->GetBool());
@@ -364,7 +372,7 @@ static void DrawNavMeshPortals()
                     }
                     else if (side == 2 || side == 6)
                     {
-                        Color col = side == 2 ? Color(0, 188, 0, 188) : Color(0, 188, 188, 188);
+                        Color col = side == 2 ? Color(0, 188, 0, 255) : Color(0, 188, 188, 255);
                         const float y = va[1] + ((side == 2) ? -padx : padx);
 
                         v_RenderLine(Vector3D(va[0], y, va[2] - padz), Vector3D(va[0], y, va[2] + padz), col, r_debug_overlay_zbuffer->GetBool());
@@ -387,6 +395,10 @@ void DrawNavMeshPolys()
     OverlayBox_t::Transforms vTransforms;
     for (int i = navmesh_draw_polys->GetInt(); i < mesh->getTileCount(); ++i)
     {
+        if (navmesh_debug_tile_range->GetBool())
+            if (i > navmesh_debug_tile_range->GetInt())
+                break;
+
         const dtMeshTile* tile = &mesh->m_tiles[i];
         if (!tile->header)
             continue;
@@ -396,21 +408,13 @@ void DrawNavMeshPolys()
         {
             const dtPoly* poly = &tile->polys[j];
 
-
-            Color c{ 0, 140, 240, 255 };
+            Color col{ 110, 200, 220, 255 };
             const unsigned int ip = (unsigned int)(poly - tile->polys);
 
             if (poly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
             {
-                //dtOffMeshConnection* con = &tile->offMeshCons[ip - tile->header->offMeshBase];
-
-                //dd->begin(DU_DRAW_LINES, 2.0f);
-
-                //// Connection arc.
-                //duAppendArc(dd, con->pos[0], con->pos[1], con->pos[2], con->pos[3], con->pos[4], con->pos[5], 0.25f,
-                //    (con->flags & 1) ? 0.6f : 0.0f, 0.6f, c);
-
-                //dd->end();
+                const dtOffMeshConnection* con = &tile->offMeshCons[ip - tile->header->offMeshBase];
+                v_RenderLine(Vector3D(con->pos[0], con->pos[1], con->pos[2]), Vector3D(con->pos[3], con->pos[4], con->pos[5]), Color(188, 0, 188, 255), r_debug_overlay_zbuffer->GetBool());
             }
             else
             {
@@ -439,12 +443,11 @@ void DrawNavMeshPolys()
                         }
                     }
 
-                    v_RenderLine(tris[0], tris[1], c, r_debug_overlay_zbuffer->GetBool());
-                    v_RenderLine(tris[1], tris[2], c, r_debug_overlay_zbuffer->GetBool());
-                    v_RenderLine(tris[2], tris[0], c, r_debug_overlay_zbuffer->GetBool());
+                    v_RenderLine(tris[0], tris[1], col, r_debug_overlay_zbuffer->GetBool());
+                    v_RenderLine(tris[1], tris[2], col, r_debug_overlay_zbuffer->GetBool());
+                    v_RenderLine(tris[2], tris[0], col, r_debug_overlay_zbuffer->GetBool());
                 }
             }
-
         }
     }
 }
@@ -452,9 +455,7 @@ void DrawNavMeshPolys()
 static void DrawNavMeshPolyBoundaries()
 {
     static const float thr = 0.01f * 0.01f;
-    Color col{20, 210, 255, 255};
-
-    //dd->begin(DU_DRAW_LINES, linew);
+    Color col{20, 140, 255, 255};
 
     const dtNavMesh* mesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
     if (!mesh)
@@ -463,6 +464,10 @@ static void DrawNavMeshPolyBoundaries()
     OverlayBox_t::Transforms vTransforms;
     for (int i = navmesh_draw_poly_bounds->GetInt(); i < mesh->getTileCount(); ++i)
     {
+        if (navmesh_debug_tile_range->GetBool())
+            if (i > navmesh_debug_tile_range->GetInt())
+                break;
+
         const dtMeshTile* tile = &mesh->m_tiles[i];
         if (!tile->header)
             continue;
@@ -478,8 +483,7 @@ static void DrawNavMeshPolyBoundaries()
 
             for (int j = 0, nj = (int)p->vertCount; j < nj; ++j)
             {
-                Color c = col;
-                if (navmesh_draw_poly_inner->GetBool())
+                if (navmesh_draw_poly_bounds_inner->GetBool())
                 {
                     if (p->neis[j] == 0)
                         continue;
@@ -496,12 +500,12 @@ static void DrawNavMeshPolyBoundaries()
                             }
                         }
                         if (con)
-                            c = Color(255, 255, 255, 48);
+                            col = Color(255, 255, 255, 48);
                         else
-                            c = Color(0, 0, 0, 48);
+                            col = Color(0, 0, 0, 48);
                     }
                     else
-                        c = Color(0, 48, 64, 32);
+                        col = Color(0, 48, 64, 32);
                 }
                 else
                 {
@@ -532,7 +536,7 @@ static void DrawNavMeshPolyBoundaries()
                         if (distancePtLine2d(tv[n], v0, v1) < thr &&
                             distancePtLine2d(tv[m], v0, v1) < thr)
                         {
-                            v_RenderLine(Vector3D(tv[n][0], tv[n][1], tv[n][2]), Vector3D(tv[m][0], tv[m][1], tv[m][2]), c, r_debug_overlay_zbuffer->GetBool());
+                            v_RenderLine(Vector3D(tv[n][0], tv[n][1], tv[n][2]), Vector3D(tv[m][0], tv[m][1], tv[m][2]), col, r_debug_overlay_zbuffer->GetBool());
                         }
                     }
                 }
