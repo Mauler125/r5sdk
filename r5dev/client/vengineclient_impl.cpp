@@ -55,9 +55,14 @@ bool CEngineClient::GetRestrictClientCommands() const
 //---------------------------------------------------------------------------------
 // Purpose: get local player
 // Input  :
-// Output : void* (C_Player)
+// Output : int
 //---------------------------------------------------------------------------------
-void* CEngineClient::GetLocalPlayer() const
+int CEngineClient::GetLocalPlayer()
 {
-	return CEngineClient_GetLocalPlayer();
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+	const int index = 35;
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+	const int index = 36;
+#endif
+	return CallVFunc<int>(index, this);
 }

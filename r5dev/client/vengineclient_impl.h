@@ -7,7 +7,7 @@ public:
 	bool GetRestrictServerCommands() const;
 	void SetRestrictClientCommands(bool bRestrict);
 	bool GetRestrictClientCommands() const;
-	void* GetLocalPlayer() const; // Is actually C_Player.
+	int GetLocalPlayer(); // Local player index.
 };
 
 /* ==== CVENGINECLIENT ================================================================================================================================================== */
