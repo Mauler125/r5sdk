@@ -264,7 +264,6 @@ CMemory CModule::GetVirtualMethodTable(const std::string& tableName)
 	if (!rttiTypeDescriptor)
 		return CMemory();
 
-	vector <CMemory> rttiTDRef = {};
 	uintptr_t scanStart = m_ReadOnlyData.m_pSectionBase; // Get the start address of our scan.
 
 	const uintptr_t scanEnd = (m_ReadOnlyData.m_pSectionBase + m_ReadOnlyData.m_nSectionSize) - 0x4; // Calculate the end of our scan.
@@ -274,16 +273,13 @@ CMemory CModule::GetVirtualMethodTable(const std::string& tableName)
 		CMemory reference = FindPatternSIMD(reinterpret_cast<rsig_t>(&rttiTDRva), "xxxx", {".rdata", scanStart, m_ReadOnlyData.m_nSectionSize});
 		if (!reference)
 			break;
-
-		rttiTDRef.push_back(reference);
-		scanStart = reference.Offset(0x4).GetPtr(); // Set location to current reference + 0x4 so we avoid pushing it back again into the vector.
-	}
-
-	for (const CMemory& ref : rttiTDRef)
-	{
-		CMemory referenceOffset = ref.Offset(-0xC);
+		
+		CMemory referenceOffset = reference.Offset(-0xC);
 		if (referenceOffset.GetValue<int32_t>() != 1) // Check if we got a RTTI Object Locator for this reference by checking if -0xC is 1, which is the 'signature' field which is always 1 on x64.
+		{
+			scanStart = reference.Offset(0x4).GetPtr(); // Set location to current reference + 0x4 so we avoid pushing it back again into the vector.
 			continue;
+		}
 
 		return FindPatternSIMD(reinterpret_cast<rsig_t>(&referenceOffset), "xxxxxxxx", { ".rdata", m_ReadOnlyData.m_pSectionBase, m_ReadOnlyData.m_nSectionSize }).OffsetSelf(0x8);
 	}
