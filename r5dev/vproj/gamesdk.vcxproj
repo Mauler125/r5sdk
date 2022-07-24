@@ -53,6 +53,7 @@
     <ClCompile Include="..\filesystem\filesystem.cpp" />
     <ClCompile Include="..\gameui\IConsole.cpp" />
     <ClCompile Include="..\gameui\IBrowser.cpp" />
+    <ClCompile Include="..\game\client\c_baseentity.cpp" />
     <ClCompile Include="..\game\client\spritemodel.cpp" />
     <ClCompile Include="..\game\server\ai_network.cpp" />
     <ClCompile Include="..\game\server\ai_networkmanager.cpp" />
@@ -201,6 +202,7 @@
     <ClInclude Include="..\gameui\IConsole.h" />
     <ClInclude Include="..\gameui\IBrowser.h" />
     <ClInclude Include="..\game\client\c_baseentity.h" />
+    <ClInclude Include="..\game\client\c_baseplayer.h" />
     <ClInclude Include="..\game\client\enginesprite.h" />
     <ClInclude Include="..\game\client\hud.h" />
     <ClInclude Include="..\game\server\ai_network.h" />
@@ -254,13 +256,20 @@
     <ClInclude Include="..\public\include\const.h" />
     <ClInclude Include="..\public\include\edict.h" />
     <ClInclude Include="..\public\include\globalvars_base.h" />
+    <ClInclude Include="..\public\include\icliententity.h" />
     <ClInclude Include="..\public\include\icliententitylist.h" />
+    <ClInclude Include="..\public\include\iclientnetworkable.h" />
+    <ClInclude Include="..\public\include\iclientrenderable.h" />
+    <ClInclude Include="..\public\include\iclientthinkable.h" />
+    <ClInclude Include="..\public\include\iclientunknown.h" />
     <ClInclude Include="..\public\include\icommandline.h" />
     <ClInclude Include="..\public\include\idebugoverlay.h" />
+    <ClInclude Include="..\public\include\ihandleentity.h" />
     <ClInclude Include="..\public\include\inetchannel.h" />
     <ClInclude Include="..\public\include\inetmsghandler.h" />
     <ClInclude Include="..\public\include\iserver.h" />
     <ClInclude Include="..\public\include\ivrenderview.h" />
+    <ClInclude Include="..\public\include\ivscript.h" />
     <ClInclude Include="..\public\include\memaddr.h" />
     <ClInclude Include="..\public\include\bansystem.h" />
     <ClInclude Include="..\public\include\binstream.h" />

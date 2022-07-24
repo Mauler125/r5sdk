@@ -219,6 +219,7 @@
     <ClInclude Include="..\public\include\inetchannel.h" />
     <ClInclude Include="..\public\include\inetmsghandler.h" />
     <ClInclude Include="..\public\include\iserver.h" />
+    <ClInclude Include="..\public\include\ivscript.h" />
     <ClInclude Include="..\public\include\memaddr.h" />
     <ClInclude Include="..\public\include\bansystem.h" />
     <ClInclude Include="..\public\include\binstream.h" />
