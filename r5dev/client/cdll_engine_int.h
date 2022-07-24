@@ -1,7 +1,8 @@
 #pragma once
 #ifndef DEDICATED // We should think about not including this file at all in dedicated tbh.
 #include "public/include/client_class.h"
-#endif
+#include "public/include/icliententitylist.h"
+#endif // !DEDICATED
 
 enum class ClientFrameStage_t : int
 {
@@ -63,6 +64,9 @@ inline bool* cl_time_use_host_tickcount = nullptr;
 
 inline CHLClient* gHLClient = nullptr;
 inline CHLClient* g_pHLClient = nullptr;
+#ifndef DEDICATED 
+inline IClientEntityList* g_pClientEntityList = nullptr;
+#endif // !DEDICATED
 
 ///////////////////////////////////////////////////////////////////////////////
 void CHLClient_Attach();
