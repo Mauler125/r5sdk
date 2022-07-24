@@ -555,6 +555,9 @@
     <ClCompile Include="..\tier0\threadtools.cpp">
       <Filter>sdk\tier0</Filter>
     </ClCompile>
+    <ClCompile Include="..\game\client\c_baseentity.cpp">
+      <Filter>sdk\game\client</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1612,6 +1615,30 @@
     </ClInclude>
     <ClInclude Include="..\tier0\memstd.h">
       <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\client\c_baseplayer.h">
+      <Filter>sdk\game\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\iclientrenderable.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\iclientthinkable.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\iclientunknown.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\ihandleentity.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\iclientnetworkable.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\icliententity.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\ivscript.h">
+      <Filter>sdk\public\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
