@@ -11,6 +11,8 @@
 #include "tier1/cvar.h"
 #include "mathlib/bits.h"
 #include "vstdlib/callback.h"
+#include "public/include/iconvar.h"
+#include "public/include/iconcommand.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: construct/allocate
@@ -20,7 +22,7 @@ ConVar::ConVar(const char* pszName, const char* pszDefaultValue, int nFlags, con
 	ConVar* pNewConVar = MemAllocSingleton()->Alloc<ConVar>(sizeof(ConVar)); // Allocate new memory with StdMemAlloc else we crash.
 	memset(pNewConVar, '\0', sizeof(ConVar));                                // Set all to null.
 
-	pNewConVar->m_pConCommandBaseVFTable = g_pConVarVFTable.RCast<void*>();
+	pNewConVar->m_pConCommandBaseVFTable = g_pConVarVFTable.RCast<IConCommandBase*>();
 	pNewConVar->m_pIConVarVFTable = g_pIConVarVFTable.RCast<IConVar*>();
 
 	ConVar_Register(pNewConVar, pszName, pszDefaultValue, nFlags, pszHelpString, bMin, fMin, bMax, fMax, pCallback, pszUsageString);

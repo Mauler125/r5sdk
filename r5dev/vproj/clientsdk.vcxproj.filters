@@ -1646,8 +1646,11 @@
     <ClInclude Include="..\game\client\view.h">
       <Filter>sdk\game\client</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\include\iconcommand.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
     <ClInclude Include="..\public\include\iconvar.h">
-      <Filter>sdk\tier1</Filter>
+      <Filter>sdk\public\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

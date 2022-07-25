@@ -1,4 +1,5 @@
 #pragma once
+#include "public/include/iconcommand.h"
 
 //-----------------------------------------------------------------------------
 // Forward declarations
@@ -99,7 +100,7 @@ public:
 
 	char* CopyString(const char* szFrom) const;
 
-	void*    m_pConCommandBaseVTable;          //0x0000
+	IConCommandBase* m_pConCommandBaseVFTable; //0x0000
 	ConCommandBase*          m_pNext;          //0x0008
 	bool                     m_bRegistered;    //0x0010
 	char                     pad_0011[7];      //0x0011

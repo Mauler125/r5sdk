@@ -101,7 +101,7 @@ ConCommand::ConCommand(const char* pszName, const char* pszHelpString, int nFlag
 	ConCommand* pCommand = MemAllocSingleton()->Alloc<ConCommand>(sizeof(ConCommand));
 	memset(pCommand, '\0', sizeof(ConCommand));
 
-	pCommand->m_pConCommandBaseVTable = g_pConCommandVtable.RCast<void*>();
+	pCommand->m_pConCommandBaseVFTable = g_pConCommandVtable.RCast<IConCommandBase*>();
 	pCommand->m_pszName          = pszName;
 	pCommand->m_pszHelpString    = pszHelpString;
 	pCommand->m_nFlags           = nFlags;
@@ -266,7 +266,7 @@ bool ConCommand::IsCommand(void) const
 //-----------------------------------------------------------------------------
 bool ConCommandBase::IsCommand(void) const
 {
-	return m_pConCommandBaseVTable != g_pConVarVtable.RCast<void*>();
+	return m_pConCommandBaseVFTable != g_pConVarVFTable.RCast<void*>();
 }
 
 //-----------------------------------------------------------------------------
