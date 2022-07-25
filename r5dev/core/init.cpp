@@ -98,8 +98,11 @@
 #include "game/server/detour_impl.h"
 #include "game/server/fairfight_impl.h"
 #include "game/server/gameinterface.h"
-#include "public/include/edict.h"
 #endif // !CLIENT_DLL
+#ifndef DEDICATED
+#include "game/client/view.h"
+#endif // !DEDICATED
+#include "public/include/edict.h"
 #ifndef DEDICATED
 #include "public/include/idebugoverlay.h"
 #include "inputsystem/inputsystem.h"

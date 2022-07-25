@@ -594,6 +594,9 @@
     <ClCompile Include="..\game\client\c_baseentity.cpp">
       <Filter>sdk\game\client</Filter>
     </ClCompile>
+    <ClCompile Include="..\game\client\view.cpp">
+      <Filter>sdk\game\client</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1723,6 +1726,9 @@
     </ClInclude>
     <ClInclude Include="..\public\include\ivscript.h">
       <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\client\view.h">
+      <Filter>sdk\game\client</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
