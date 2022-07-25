@@ -11,6 +11,7 @@
 #ifndef DEDICATED
 #include "windows/id3dx.h"
 #endif // !DEDICATED
+#include "windows/system.h"
 #include "windows/console.h"
 #include "common/opcodes.h"
 
@@ -111,6 +112,7 @@ void Console_Init()
 		SetConsoleBackgroundColor(0x0000);
 		AnsiColors_Init();
 	}
+	SetConsoleCtrlHandler(ConsoleHandlerRoutine, true);
 }
 
 //#############################################################################
