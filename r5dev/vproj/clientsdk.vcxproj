@@ -243,6 +243,7 @@
     <ClInclude Include="..\public\include\iclientthinkable.h" />
     <ClInclude Include="..\public\include\iclientunknown.h" />
     <ClInclude Include="..\public\include\icommandline.h" />
+    <ClInclude Include="..\public\include\iconvar.h" />
     <ClInclude Include="..\public\include\idebugoverlay.h" />
     <ClInclude Include="..\public\include\ihandleentity.h" />
     <ClInclude Include="..\public\include\inetchannel.h" />

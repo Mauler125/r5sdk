@@ -1646,6 +1646,9 @@
     <ClInclude Include="..\game\client\view.h">
       <Filter>sdk\game\client</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\include\iconvar.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\shared\resource\lockedserver.png">

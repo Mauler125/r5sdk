@@ -238,9 +238,6 @@ void DrawOverlay(OverlayBase_t* pOverlay)
     LeaveCriticalSection(&*s_OverlayMutex);
 }
 
-#ifndef CLIENT_DLL
-#endif // !CLIENT_DLL
-
 //------------------------------------------------------------------------------
 // Purpose : overlay drawing entrypoint
 // Input  : bDraw - 

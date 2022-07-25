@@ -19,12 +19,9 @@
 //-----------------------------------------------------------------------------
 void CRConClient::Init(void)
 {
-	if (std::strlen(rcon_password->GetString()) < 8)
+	if (!m_bInitialized)
 	{
-		if (std::strlen(rcon_password->GetString()) > 0)
-		{
-			DevMsg(eDLL_T::CLIENT, "Remote server access requires a password of at least 8 characters\n");
-		}
+		this->SetPassword(rcon_password->GetString());
 	}
 	m_bInitialized = true;
 }
@@ -38,6 +35,24 @@ void CRConClient::Shutdown(void)
 	{
 		this->Disconnect();
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: changes the password
+// Input  : *pszPassword - 
+// Output : true on success, false otherwise
+//-----------------------------------------------------------------------------
+bool CRConClient::SetPassword(const char* pszPassword)
+{
+	if (std::strlen(pszPassword) < 8)
+	{
+		if (std::strlen(pszPassword) > 0)
+		{
+			DevMsg(eDLL_T::CLIENT, "Remote server access requires a password of at least 8 characters\n");
+		}
+		return false;
+	}
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -339,3 +354,7 @@ bool CRConClient::IsConnected(void) const
 }
 ///////////////////////////////////////////////////////////////////////////////
 CRConClient* g_pRConClient = new CRConClient();
+CRConClient* RCONClient()
+{
+	return g_pRConClient;
+}

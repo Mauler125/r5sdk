@@ -21,19 +21,16 @@
 //-----------------------------------------------------------------------------
 void CRConServer::Init(void)
 {
-	if (std::strlen(rcon_password->GetString()) < 8)
+	if (!m_bInitialized)
 	{
-		if (std::strlen(rcon_password->GetString()) > 0)
+		if (!this->SetPassword(rcon_password->GetString()))
 		{
-			Warning(eDLL_T::SERVER, "Remote server access requires a password of at least 8 characters\n");
+			return;
 		}
-		this->Shutdown();
-		return;
 	}
 
 	m_pAdr2->SetIPAndPort(rcon_address->GetString(), hostport->GetString());
 	m_pSocket->CreateListenSocket(*m_pAdr2, false);
-	m_svPasswordHash = sha256(rcon_password->GetString());
 
 	DevMsg(eDLL_T::SERVER, "Remote server access initialized\n");
 	m_bInitialized = true;
@@ -83,6 +80,32 @@ void CRConServer::Think(void)
 			m_pSocket->CreateListenSocket(*m_pAdr2, false);
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: changes the password
+// Input  : *pszPassword - 
+// Output : true on success, false otherwise
+//-----------------------------------------------------------------------------
+bool CRConServer::SetPassword(const char* pszPassword)
+{
+	m_bInitialized = false;
+	m_pSocket->CloseAllAcceptedSockets();
+
+	if (std::strlen(pszPassword) < 8)
+	{
+		if (std::strlen(pszPassword) > 0)
+		{
+			Warning(eDLL_T::SERVER, "Remote server access requires a password of at least 8 characters\n");
+		}
+		this->Shutdown();
+		return false;
+	}
+	m_svPasswordHash = sha256(pszPassword);
+	DevMsg(eDLL_T::SERVER, "Password hash ('%s')\n", m_svPasswordHash.c_str());
+
+	m_bInitialized = true;
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -465,3 +488,7 @@ void CRConServer::CloseNonAuthConnection(void)
 }
 ///////////////////////////////////////////////////////////////////////////////
 CRConServer* g_pRConServer = new CRConServer();
+CRConServer* RCONServer()
+{
+	return g_pRConServer;
+}

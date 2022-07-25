@@ -9,6 +9,9 @@
 #include "tier0/fasttimer.h"
 #include "tier1/cvar.h"
 #include "tier1/IConVar.h"
+#ifdef DEDICATED
+#include "engine/server/sv_rcon.h"
+#endif // DEDICATED
 #ifndef DEDICATED
 #include "engine/client/cl_rcon.h"
 #endif // !DEDICATED
@@ -733,44 +736,44 @@ void RCON_CmdQuery_f(const CCommand& args)
 {
 	if (args.ArgC() < 2)
 	{
-		if (g_pRConClient->IsInitialized()
-			&& !g_pRConClient->IsConnected()
+		if (RCONClient()->IsInitialized()
+			&& !RCONClient()->IsConnected()
 			&& strlen(rcon_address->GetString()) > 0)
 		{
-			g_pRConClient->Connect();
+			RCONClient()->Connect();
 		}
 	}
 	else
 	{
-		if (!g_pRConClient->IsInitialized())
+		if (!RCONClient()->IsInitialized())
 		{
 			Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: uninitialized\n");
 			return;
 		}
-		else if (g_pRConClient->IsConnected())
+		else if (RCONClient()->IsConnected())
 		{
 			if (strcmp(args.Arg(1), "PASS") == 0) // Auth with RCON server using rcon_password ConVar value.
 			{
 				string svCmdQuery;
 				if (args.ArgC() > 2)
 				{
-					svCmdQuery = g_pRConClient->Serialize(args.Arg(2), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+					svCmdQuery = RCONClient()->Serialize(args.Arg(2), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
 				}
 				else // Use 'rcon_password' ConVar as password.
 				{
-					svCmdQuery = g_pRConClient->Serialize(rcon_password->GetString(), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+					svCmdQuery = RCONClient()->Serialize(rcon_password->GetString(), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
 				}
-				g_pRConClient->Send(svCmdQuery);
+				RCONClient()->Send(svCmdQuery);
 				return;
 			}
 			else if (strcmp(args.Arg(1), "disconnect") == 0) // Disconnect from RCON server.
 			{
-				g_pRConClient->Disconnect();
+				RCONClient()->Disconnect();
 				return;
 			}
 
-			string svCmdQuery = g_pRConClient->Serialize(args.ArgS(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
-			g_pRConClient->Send(svCmdQuery);
+			string svCmdQuery = RCONClient()->Serialize(args.ArgS(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+			RCONClient()->Send(svCmdQuery);
 			return;
 		}
 		else
@@ -790,13 +793,35 @@ RCON_Disconnect_f
 */
 void RCON_Disconnect_f(const CCommand& args)
 {
-	if (g_pRConClient->IsConnected())
+	if (RCONClient()->IsConnected())
 	{
-		g_pRConClient->Disconnect();
+		RCONClient()->Disconnect();
 		DevMsg(eDLL_T::CLIENT, "User closed RCON connection\n");
 	}
 }
 #endif // !DEDICATED
+
+/*
+=====================
+RCON_PasswordChanged_f
+
+  Change password on RCON server
+  and RCON client
+=====================
+*/
+void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
+{
+	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
+	{
+#ifndef DEDICATED
+		RCONClient()->SetPassword(pConVarRef->GetString());
+		RCONClient()->Init();
+#elif DEDICATED 
+		RCONServer()->SetPassword(pConVarRef->GetString());
+		RCONServer()->Init();
+#endif // DEDICATED
+	}
+}
 
 /*
 =====================

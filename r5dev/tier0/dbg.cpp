@@ -132,7 +132,7 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 	{
 		wconsole->debug(svOut);
 #ifdef DEDICATED
-		g_pRConServer->Send(svOut);
+		RCONServer()->Send(svOut);
 #endif // DEDICATED
 	}
 	else
@@ -147,7 +147,7 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 		}
 		wconsole->debug(svAnsiOut);
 #ifdef DEDICATED
-		g_pRConServer->Send(svAnsiOut);
+		RCONServer()->Send(svAnsiOut);
 #endif // DEDICATED
 	}
 
@@ -240,7 +240,7 @@ void Warning(eDLL_T context, const char* fmt, ...)
 	{
 		wconsole->debug(svOut);
 #ifdef DEDICATED
-		g_pRConServer->Send(svOut);
+		RCONServer()->Send(svOut);
 #endif // DEDICATED
 	}
 	else
@@ -256,7 +256,7 @@ void Warning(eDLL_T context, const char* fmt, ...)
 		}
 		wconsole->debug(svAnsiOut);
 #ifdef DEDICATED
-		g_pRConServer->Send(svAnsiOut);
+		RCONServer()->Send(svAnsiOut);
 #endif // DEDICATED
 	}
 
@@ -317,7 +317,7 @@ void Error(eDLL_T context, const char* fmt, ...)
 	{
 		wconsole->debug(svOut);
 #ifdef DEDICATED
-		g_pRConServer->Send(svOut);
+		RCONServer()->Send(svOut);
 #endif // DEDICATED
 	}
 	else
@@ -333,7 +333,7 @@ void Error(eDLL_T context, const char* fmt, ...)
 		}
 		wconsole->debug(svAnsiOut);
 #ifdef DEDICATED
-		g_pRConServer->Send(svAnsiOut);
+		RCONServer()->Send(svAnsiOut);
 #endif // DEDICATED
 	}
 

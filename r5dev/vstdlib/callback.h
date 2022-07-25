@@ -40,7 +40,10 @@ void NET_GenerateKey_f(const CCommand& args);
 void RCON_CmdQuery_f(const CCommand& args);
 void RCON_Disconnect_f(const CCommand& args);
 #endif // !DEDICATED
+void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue);
+#ifndef CLIENT_DLL
 void SQVM_ServerScript_f(const CCommand& args);
+#endif // !CLIENT_DLL
 #ifndef DEDICATED
 void SQVM_ClientScript_f(const CCommand& args);
 void SQVM_UIScript_f(const CCommand& args);

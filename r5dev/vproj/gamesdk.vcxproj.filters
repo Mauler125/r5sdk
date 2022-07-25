@@ -1736,6 +1736,9 @@
     <ClInclude Include="..\game\shared\ai_utility_shared.h">
       <Filter>sdk\game\shared</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\include\iconvar.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\shared\resource\lockedserver.png">

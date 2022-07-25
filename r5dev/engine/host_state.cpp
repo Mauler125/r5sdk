@@ -59,9 +59,9 @@ FORCEINLINE void CHostState::FrameUpdate(CHostState* pHostState, double flCurren
 		bInitialized = true;
 	}
 #ifdef DEDICATED
-	g_pRConServer->RunFrame();
+	RCONServer()->RunFrame();
 #else // 
-	g_pRConClient->RunFrame();
+	RCONClient()->RunFrame();
 #endif // DEDICATED
 
 	HostStates_t oldState{};
@@ -179,11 +179,6 @@ FORCEINLINE void CHostState::Setup(void)
 {
 	g_pHostState->LoadConfig();
 	g_pConVar->PurgeHostNames();
-#ifdef DEDICATED
-	g_pRConServer->Init();
-#else // 
-	g_pRConClient->Init();
-#endif // DEDICATED
 
 	std::thread think(&CHostState::Think, this);
 	think.detach();
