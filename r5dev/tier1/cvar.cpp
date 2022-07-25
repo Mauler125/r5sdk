@@ -46,11 +46,12 @@ ConVar* stream_overlay_mode                = nullptr;
 ConVar* ai_ainDumpOnLoad                   = nullptr;
 ConVar* ai_ainDebugConnect                 = nullptr;
 ConVar* ai_script_nodes_draw               = nullptr;
-ConVar* ai_script_nodes_draw_index         = nullptr;
+ConVar* ai_script_nodes_draw_range         = nullptr;
 
 ConVar* navmesh_always_reachable           = nullptr;
 ConVar* navmesh_debug_type                 = nullptr;
 ConVar* navmesh_debug_tile_range           = nullptr;
+ConVar* navmesh_debug_camera_range         = nullptr;
 #ifndef DEDICATED
 ConVar* navmesh_draw_bvtree                = nullptr;
 ConVar* navmesh_draw_portal                = nullptr;

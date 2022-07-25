@@ -60,6 +60,7 @@
     <ClCompile Include="..\game\server\ai_networkmanager.cpp" />
     <ClCompile Include="..\game\server\ai_utility.cpp" />
     <ClCompile Include="..\game\server\gameinterface.cpp" />
+    <ClCompile Include="..\game\shared\ai_utility_shared.cpp" />
     <ClCompile Include="..\game\shared\animation.cpp" />
     <ClCompile Include="..\inputsystem\inputsystem.cpp" />
     <ClCompile Include="..\launcher\IApplication.cpp" />
@@ -214,6 +215,7 @@
     <ClInclude Include="..\game\server\detour_impl.h" />
     <ClInclude Include="..\game\server\fairfight_impl.h" />
     <ClInclude Include="..\game\server\gameinterface.h" />
+    <ClInclude Include="..\game\shared\ai_utility_shared.h" />
     <ClInclude Include="..\game\shared\animation.h" />
     <ClInclude Include="..\inputsystem\ButtonCode.h" />
     <ClInclude Include="..\inputsystem\inputsystem.h" />
