@@ -99,7 +99,7 @@ void DrawNavMeshBVTree()
                 tile->header->bmin[1] + node->bmax[1] * cs,
                 tile->header->bmin[2] + node->bmax[2] * cs);
 
-            v_RenderBox(vTransforms, vMins, vMaxs, Color(255, 255, 255, 255), r_debug_overlay_zbuffer->GetBool());
+            v_RenderBox(vTransforms, vMins, vMaxs, Color(188, 188, 188, 255), r_debug_overlay_zbuffer->GetBool());
         }
     }
 }
@@ -170,7 +170,7 @@ void DrawNavMeshPortals()
                     }
                     else if (side == 2 || side == 6)
                     {
-                        Color col = side == 2 ? Color(0, 188, 0, 255) : Color(0, 188, 188, 255);
+                        Color col = side == 2 ? Color(0, 188, 0, 255) : Color(188, 188, 0, 255);
                         const float y = va[1] + ((side == 2) ? -padx : padx);
 
                         v_RenderLine(Vector3D(va[0], y, va[2] - padz), Vector3D(va[0], y, va[2] + padz), col, r_debug_overlay_zbuffer->GetBool());
@@ -325,12 +325,12 @@ void DrawNavMeshPolyBoundaries()
                             }
                         }
                         if (con)
-                            col = Color(255, 255, 255, 48);
+                            col = Color(255, 255, 255, 255);
                         else
-                            col = Color(0, 0, 0, 48);
+                            col = Color(0, 0, 0, 255);
                     }
                     else
-                        col = Color(0, 48, 64, 32);
+                        col = Color(0, 48, 64, 255);
                 }
                 else
                 {
