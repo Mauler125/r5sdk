@@ -370,7 +370,7 @@ void RuntimePtc_Init() /* .TEXT */
 
 #if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 #ifndef CLIENT_DLL
-	p_CAI_NetworkManager__ShouldRebuild.Offset(0xA0).FindPatternSelf("FF ?? ?? ?? 00 00", CMemory::Direction::DOWN, 200).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | Virtual call to restart when building AIN (which clears the AIN memory). Remove this once writing to file works.
+	//p_CAI_NetworkManager__ShouldRebuild.Offset(0xA0).FindPatternSelf("FF ?? ?? ?? 00 00", CMemory::Direction::DOWN, 200).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | Virtual call to restart when building AIN (which clears the AIN memory). Remove this once writing to file works.
 	//Detour_LevelInit.Offset(0x100).FindPatternSelf("74", CMemory::Direction::DOWN, 600).Patch({ 0xEB });                                                                // JE  --> JMP | Do while loop setting fields to -1 in navmesh is writing out of bounds (!TODO).
 #endif // !CLIENT_DLL
 #endif
