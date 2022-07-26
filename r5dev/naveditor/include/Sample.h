@@ -135,7 +135,7 @@ protected:
 	float m_detailSampleMaxError;
 	int m_partitionType;
 	int m_reachabilityTableCount;
-	const char* m_navmeshName="unk";
+	const char* m_navmeshName = "unnamed";
 	
 	SampleTool* m_tool;
 	SampleToolState* m_toolStates[MAX_TOOLS];

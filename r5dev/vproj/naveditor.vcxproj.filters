@@ -57,12 +57,6 @@
     <ClInclude Include="..\naveditor\include\InputGeom.h">
       <Filter>builder\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\naveditor\include\Sample_SoloMesh.h">
-      <Filter>builder\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\naveditor\include\Sample_TempObstacles.h">
-      <Filter>builder\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\naveditor\include\Sample_TileMesh.h">
       <Filter>builder\include</Filter>
     </ClInclude>
@@ -175,12 +169,6 @@
     </ClCompile>
     <ClCompile Include="..\naveditor\ValueHistory.cpp">
       <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="..\naveditor\Sample_SoloMesh.cpp">
-      <Filter>builder</Filter>
-    </ClCompile>
-    <ClCompile Include="..\naveditor\Sample_TempObstacles.cpp">
-      <Filter>builder</Filter>
     </ClCompile>
     <ClCompile Include="..\naveditor\Sample_TileMesh.cpp">
       <Filter>builder</Filter>

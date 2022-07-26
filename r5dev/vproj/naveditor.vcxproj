@@ -30,8 +30,6 @@
     <ClInclude Include="..\naveditor\include\Sample.h" />
     <ClInclude Include="..\naveditor\include\SampleInterfaces.h" />
     <ClInclude Include="..\naveditor\include\Sample_Debug.h" />
-    <ClInclude Include="..\naveditor\include\Sample_SoloMesh.h" />
-    <ClInclude Include="..\naveditor\include\Sample_TempObstacles.h" />
     <ClInclude Include="..\naveditor\include\Sample_TileMesh.h" />
     <ClInclude Include="..\naveditor\include\TestCase.h" />
     <ClInclude Include="..\naveditor\include\ValueHistory.h" />
@@ -58,8 +56,6 @@
     <ClCompile Include="..\naveditor\Sample.cpp" />
     <ClCompile Include="..\naveditor\SampleInterfaces.cpp" />
     <ClCompile Include="..\naveditor\Sample_Debug.cpp" />
-    <ClCompile Include="..\naveditor\Sample_SoloMesh.cpp" />
-    <ClCompile Include="..\naveditor\Sample_TempObstacles.cpp" />
     <ClCompile Include="..\naveditor\Sample_TileMesh.cpp" />
     <ClCompile Include="..\naveditor\TestCase.cpp" />
     <ClCompile Include="..\naveditor\ValueHistory.cpp" />

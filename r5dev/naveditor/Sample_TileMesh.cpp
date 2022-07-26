@@ -207,9 +207,26 @@ void Sample_TileMesh::cleanup()
 	rcFreePolyMeshDetail(m_dmesh);
 	m_dmesh = 0;
 }
-
+const hulldef hulls[5] = {
+	{ "small", 8, 72 * 0.5, 45, 32.0f },
+	{ "med_short", 20, 72 * 0.5, 50, 32.0f },
+	{ "medium", 48, 150 * 0.5, 55, 32.0f },
+	{ "large", 60, 235 * 0.5, 60, 64.0f },
+	{ "extra_large", 88, 235 * 0.5, 65, 64.0f },
+};
 void Sample_TileMesh::handleSettings()
 {
+	for (const hulldef& h : hulls)
+	{
+		if (imguiButton(h.name))
+		{
+			m_agentRadius = h.radius;
+			m_agentMaxClimb = h.climb_height;
+			m_agentHeight = h.height;
+			m_navmeshName = h.name;
+			m_tileSize = h.tile_size;
+		}
+	}
 	Sample::handleCommonSettings();
 
 	if (imguiCheck("Keep Itermediate Results", m_keepInterResults))
@@ -776,6 +793,7 @@ void Sample_TileMesh::buildAllHulls()
 		m_agentMaxClimb = h.climb_height;
 		m_agentHeight = h.height;
 		m_navmeshName = h.name;
+		m_tileSize = h.tile_size;
 
 		handleSettings();
 		handleBuild();

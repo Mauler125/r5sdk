@@ -23,9 +23,7 @@
 #include "NavEditor/Include/InputGeom.h"
 #include "NavEditor/Include/TestCase.h"
 #include "NavEditor/Include/Filelist.h"
-#include "NavEditor/Include/Sample_SoloMesh.h"
 #include "NavEditor/Include/Sample_TileMesh.h"
-#include "NavEditor/Include/Sample_TempObstacles.h"
 #include "NavEditor/Include/Sample_Debug.h"
 #include "NavEditor/include/DroidSans.h"
 
@@ -37,17 +35,8 @@ struct SampleItem
 	Sample* (*create)();
 	const string name;
 };
-Sample* createSolo() { return new Sample_SoloMesh(); }
 Sample* createTile() { return new Sample_TileMesh(); }
-Sample* createTempObstacle() { return new Sample_TempObstacles(); }
 Sample* createDebug() { return new Sample_Debug(); }
-static SampleItem g_samples[] =
-{
-	{ createSolo, "Solo Mesh" },
-	{ createTile, "Tile Mesh" },
-	{ createTempObstacle, "Temp Obstacles" },
-};
-static const int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);
 
 void save_ply(std::vector<float>& pts,std::vector<int>& colors,rcIntArray& tris)
 {
@@ -395,7 +384,6 @@ int not_main(int argc, char** argv)
 	float camr = 1000;
 	float origCameraEulers[] = {0, 0}; // Used to compute rotational changes across frames.
 	
-	string sampleName = "Choose Sample...";
 	vector<string> files;
 	const string meshesFolder = "Levels";
 	string meshName = "Choose Level...";
@@ -411,8 +399,7 @@ int not_main(int argc, char** argv)
 	
 	//Load tiled sample
 
-	sample = g_samples[1].create();
-	sampleName = g_samples[1].name;
+	sample = createTile();
 	sample->setContext(&ctx);
 	if (geom)
 	{
@@ -829,22 +816,6 @@ int not_main(int argc, char** argv)
 				showTools = !showTools;
 
 			imguiSeparator();
-			imguiLabel("Sample");
-			if (imguiButton(sampleName.c_str()))
-			{
-				if (showSample)
-				{
-					showSample = false;
-				}
-				else
-				{
-					showSample = true;
-					showLevels = false;
-					showTestCases = false;
-				}
-			}
-			
-			imguiSeparator();
 			imguiLabel("Input Level");
 
 			if (imguiButton("Load Level..."))
@@ -940,34 +911,6 @@ int not_main(int argc, char** argv)
 		if (showSample)
 		{
 			static int levelScroll = 0;
-			if (imguiBeginScrollArea("Choose Sample", width-10-250-10-200, height-10-250, 200, 250, &levelScroll))
-				mouseOverMenu = true;
-
-			Sample* newSample = 0;
-			for (int i = 0; i < g_nsamples; ++i)
-			{
-				if (imguiItem(g_samples[i].name.c_str()))
-				{
-					newSample = g_samples[i].create();
-					if (newSample)
-					{
-						sampleName = g_samples[i].name;
-						//newSample->is_tf2 = &tf2_transforms;
-					}
-				}
-			}
-			if (newSample)
-			{
-				delete sample;
-				sample = newSample;
-				sample->setContext(&ctx);
-				if (geom)
-				{
-					sample->handleMeshChanged(geom);
-				}
-				showSample = false;
-			}
-
 			if (geom || sample)
 			{
 				const float* bmin = 0;
@@ -1084,24 +1027,6 @@ int not_main(int argc, char** argv)
 						delete test;
 						test = 0;
 					}
-
-					// Create sample
-					Sample* newSample = 0;
-					for (int i = 0; i < g_nsamples; ++i)
-					{
-						if (g_samples[i].name == test->getSampleName())
-						{
-							newSample = g_samples[i].create();
-							if (newSample)
-							{
-								sampleName = g_samples[i].name;
-								//newSample->is_tf2 = &tf2_transforms;
-							}
-						}
-					}
-
-					delete sample;
-					sample = newSample;
 
 					if (sample)
 					{
