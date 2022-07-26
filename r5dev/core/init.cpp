@@ -127,14 +127,9 @@ void Systems_Init()
 	QuerySystemInfo();
 
 	CFastTimer initTimer;
-	initTimer.Start();
 
-	for (IDetour* pDetour : vDetour)
-	{
-		pDetour->GetCon();
-		pDetour->GetFun();
-		pDetour->GetVar();
-	}
+	initTimer.Start();
+	DetourInit();
 	initTimer.End();
 
 	spdlog::info("+-------------------------------------------------------------+\n");
@@ -427,10 +422,19 @@ void QuerySystemInfo()
 	}
 }
 
-void PrintHAddress() // Test the sigscan results
+void DetourInit() // Run the sigscan
+{
+	for (const IDetour* pDetour : vDetour)
+	{
+		pDetour->GetCon(); // Constants.
+		pDetour->GetFun(); // Functions.
+		pDetour->GetVar(); // Variables.
+	}
+}
+void DetourAddress() // Test the sigscan results
 {
 	spdlog::debug("+----------------------------------------------------------------+\n");
-	for (IDetour* pDetour : vDetour)
+	for (const IDetour* pDetour : vDetour)
 	{
 		pDetour->GetAdr();
 	}
