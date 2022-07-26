@@ -443,7 +443,7 @@ int not_main(int argc, char** argv)
 		}
 	}
 	// Fog.
-	float fogColor[4] = { 0.32f, 0.31f, 0.30f, 1.0f };
+	float fogColor[4] = { 0.30f, 0.31f, 0.32f, 1.0f };
 	glEnable(GL_FOG);
 	glFogi(GL_FOG_MODE, GL_LINEAR);
 	glFogf(GL_FOG_START, camr * 0.1f);
@@ -708,7 +708,7 @@ int not_main(int argc, char** argv)
 		glGetIntegerv(GL_VIEWPORT, viewport);
 		
 		// Clear the screen
-		glClearColor(0.3f, 0.3f, 0.32f, 1.0f);
+		glClearColor(0.20f, 0.21f, 0.22f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -718,7 +718,7 @@ int not_main(int argc, char** argv)
 		// Compute the projection matrix.
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		gluPerspective(50.0f, (float)width/(float)height, 1.0f, camr);
+		gluPerspective(75.0f, (float)width/(float)height, 1.0f, camr);
 		GLdouble projectionMatrix[16];
 		glGetDoublev(GL_PROJECTION_MATRIX, projectionMatrix);
 		
@@ -727,7 +727,7 @@ int not_main(int argc, char** argv)
 		glLoadIdentity();
 		glRotatef(cameraEulers[0], 1, 0, 0);
 		glRotatef(cameraEulers[1], 0, 1, 0);
-		float mXZY_to_XYZ[16] =
+		const float mXZY_to_XYZ[16] =
 		{
 			1,0,0,0,
 			0,0,-1,0, //tbh not sure why this is needed, the tri flips again? something is very stupid...

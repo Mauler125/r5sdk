@@ -1017,6 +1017,8 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 
 	// Init tile.
 	tile->header = header;
+	tile->polysEnd = &tile->polys[polysSize];
+	tile->offMeshConsEnd = &tile->offMeshCons[offMeshLinksSize];
 	tile->data = data;
 	tile->dataSize = dataSize;
 	tile->flags = flags;

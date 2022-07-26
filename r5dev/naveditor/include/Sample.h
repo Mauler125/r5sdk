@@ -32,7 +32,7 @@ struct hulldef
 	float tile_size;
 	//TODO: voxel size, tile size
 };
-extern hulldef hulls[5];
+extern const hulldef hulls[5];
 
 /// Tool types.
 enum SampleToolType

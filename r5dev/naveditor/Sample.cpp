@@ -178,16 +178,16 @@ void Sample::resetCommonSettings()
 	m_partitionType = SAMPLE_PARTITION_WATERSHED;
 	m_reachabilityTableCount = 4;
 }
-hulldef hulls[5] = {
-	{"small",8,72*0.5,70,512.0f},
-	{"med_short",20,72*0.5,75,512.0f},
-	{"medium",48,150*0.5,77,512.0f},
-	{"large",60,235*0.5,80,960.0f},
-	{"extra_large",88,235*0.5,80,960.0f},
+const hulldef hulls[5] = {
+	{ "small", 8, 72 * 0.5, 45, 512.0f },
+	{ "med_short", 20, 72 * 0.5, 50, 512.0f },
+	{ "medium", 48, 150 * 0.5, 55, 512.0f },
+	{ "large", 60, 235 * 0.5, 60, 960.0f },
+	{ "extra_large", 88, 235 * 0.5, 65, 960.0f },
 };
 void Sample::handleCommonSettings()
 {
-	for (auto& h : hulls)
+	for (const hulldef& h : hulls)
 	{
 		if (imguiButton(h.name))
 		{
@@ -246,7 +246,7 @@ void Sample::handleCommonSettings()
 	imguiLabel("Polygonization");
 	imguiSlider("Max Edge Length", &m_edgeMaxLen, 0.0f, 50.0f, 1.0f);
 	imguiSlider("Max Edge Error", &m_edgeMaxError, 0.1f, 3.0f, 0.1f);
-	imguiSlider("Verts Per Poly", &m_vertsPerPoly, 3.0f, 12.0f, 1.0f,false);		
+	imguiSlider("Verts Per Poly", &m_vertsPerPoly, 3.0f, 12.0f, 1.0f);
 
 	imguiSeparator();
 	imguiLabel("Detail Mesh");
