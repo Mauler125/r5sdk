@@ -727,6 +727,13 @@ inline void rcVcopy(float* dest, const float* v)
 	dest[2] = v[2];
 }
 
+inline void rcVswap(float* dest, const float* v)
+{
+	dest[0] = v[0];
+	dest[2] = v[1];
+	dest[1] = v[2];
+}
+
 /// Returns the distance between two points.
 ///  @param[in]		v1	A point. [(x, y, z)]
 ///  @param[in]		v2	A point. [(x, y, z)]
