@@ -406,13 +406,13 @@ void rcMarkConvexPolyArea(rcContext* ctx, const float* verts, const int nverts,
 	
 	if (maxx < 0) return;
 	if (minx >= chf.width) return;
-	if (maxz < 0) return;
-	if (minz >= chf.height) return;
+	if (maxy < 0) return;
+	if (miny >= chf.height) return;
 	
 	if (minx < 0) minx = 0;
 	if (maxx >= chf.width) maxx = chf.width-1;
-	if (minz < 0) minz = 0;
-	if (maxz >= chf.height) maxz = chf.height-1;	
+	if (miny < 0) miny = 0;
+	if (maxy >= chf.height) maxy = chf.height-1;
 	
 	
 	// TODO: Optimize.
