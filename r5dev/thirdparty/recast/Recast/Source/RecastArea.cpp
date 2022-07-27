@@ -363,8 +363,8 @@ static int pointInPoly(int nvert, const float* verts, const float* p)
 	{
 		const float* vi = &verts[i*3];
 		const float* vj = &verts[j*3];
-		if (((vi[2] > p[2]) != (vj[2] > p[2])) &&
-			(p[0] < (vj[0]-vi[0]) * (p[2]-vi[2]) / (vj[2]-vi[2]) + vi[0]) )
+		if (((vi[1] > p[1]) != (vj[1] > p[1])) &&
+			(p[0] < (vj[0]-vi[0]) * (p[1]-vi[1]) / (vj[1]-vi[1]) + vi[0]) )
 			c = !c;
 	}
 	return c;
@@ -459,7 +459,7 @@ int rcOffsetPoly(const float* verts, const int nverts, const float offset,
 		const float* vb = &verts[b*3];
 		const float* vc = &verts[c*3];
 		float dx0 = vb[0] - va[0];
-		float dy0 = vb[2] - va[2];
+		float dy0 = vb[1] - va[1];
 		float d0 = dx0*dx0 + dy0*dy0;
 		if (d0 > 1e-6f)
 		{
@@ -468,7 +468,7 @@ int rcOffsetPoly(const float* verts, const int nverts, const float offset,
 			dy0 *= d0;
 		}
 		float dx1 = vc[0] - vb[0];
-		float dy1 = vc[2] - vb[2];
+		float dy1 = vc[1] - vb[1];
 		float d1 = dx1*dx1 + dy1*dy1;
 		if (d1 > 1e-6f)
 		{
@@ -498,12 +498,12 @@ int rcOffsetPoly(const float* verts, const int nverts, const float offset,
 				return 0;
 			float d = (1.0f - (dx0*dx1 + dy0*dy1))*0.5f;
 			outVerts[n*3+0] = vb[0] + (-dlx0+dx0*d)*offset;
-			outVerts[n*3+1] = vb[1];
-			outVerts[n*3+2] = vb[2] + (-dly0+dy0*d)*offset;
+			outVerts[n*3+1] = vb[1] + (-dly0+dy0*d)*offset;
+			outVerts[n*3+2] = vb[2];
 			n++;
 			outVerts[n*3+0] = vb[0] + (-dlx1-dx1*d)*offset;
-			outVerts[n*3+1] = vb[1];
-			outVerts[n*3+2] = vb[2] + (-dly1-dy1*d)*offset;
+			outVerts[n*3+1] = vb[1] + (-dly1-dy1*d)*offset;
+			outVerts[n*3+2] = vb[2];
 			n++;
 		}
 		else
@@ -511,8 +511,8 @@ int rcOffsetPoly(const float* verts, const int nverts, const float offset,
 			if (n+1 >= maxOutVerts)
 				return 0;
 			outVerts[n*3+0] = vb[0] - dmx*offset;
-			outVerts[n*3+1] = vb[1];
-			outVerts[n*3+2] = vb[2] - dmy*offset;
+			outVerts[n*3+1] = vb[1] - dmy*offset;
+			outVerts[n*3+2] = vb[2];
 			n++;
 		}
 	}
@@ -536,11 +536,11 @@ void rcMarkCylinderArea(rcContext* ctx, const float* pos,
 	
 	float bmin[3], bmax[3];
 	bmin[0] = pos[0] - r;
-	bmin[1] = pos[1];
-	bmin[2] = pos[2] - r;
+	bmin[1] = pos[1] - r;
+	bmin[2] = pos[2];
 	bmax[0] = pos[0] + r;
-	bmax[1] = pos[1] + h;
-	bmax[2] = pos[2] + r;
+	bmax[1] = pos[1] + r;
+	bmax[2] = pos[2] + h;
 	const float r2 = r*r;
 	
 	int minx = (int)((bmin[0]-chf.bmin[0])/chf.cs);
