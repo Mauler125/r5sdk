@@ -546,18 +546,18 @@ void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool hilight)
 		float* v = &m_offMeshConVerts[i*3*2];
 
 		dd->vertex(v[0],v[1],v[2], baseColor);
-		dd->vertex(v[0],v[1]+0.2f,v[2], baseColor);
+		dd->vertex(v[0],v[1],v[2]+10.0f, baseColor);
 		
 		dd->vertex(v[3],v[4],v[5], baseColor);
-		dd->vertex(v[3],v[4]+0.2f,v[5], baseColor);
+		dd->vertex(v[3],v[4],v[5]+10.0f, baseColor);
 		
-		duAppendCircle(dd, v[0],v[1]+0.1f,v[2], m_offMeshConRads[i], baseColor);
-		duAppendCircle(dd, v[3],v[4]+0.1f,v[5], m_offMeshConRads[i], baseColor);
+		duAppendCircle(dd, v[0],v[1],v[2]+5.0f, m_offMeshConRads[i], baseColor);
+		duAppendCircle(dd, v[3],v[4],v[5]+5.0f, m_offMeshConRads[i], baseColor);
 
 		if (hilight)
 		{
 			duAppendArc(dd, v[0],v[1],v[2], v[3],v[4],v[5], 0.25f,
-						(m_offMeshConDirs[i]&1) ? 0.6f : 0.0f, 30.0f, conColor);
+						(m_offMeshConDirs[i]&DT_OFFMESH_CON_BIDIR) ? 30.0f : 0.0f, 30.0f, conColor);
 		}
 	}	
 	dd->end();
