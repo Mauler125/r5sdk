@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\thirdparty\recast\detourcrowd\Include\DetourCrowd.h" />
+    <ClInclude Include="..\thirdparty\recast\DetourCrowd\Include\DetourCrowdInternal.h" />
     <ClInclude Include="..\thirdparty\recast\detourcrowd\Include\DetourLocalBoundary.h" />
     <ClInclude Include="..\thirdparty\recast\detourcrowd\Include\DetourObstacleAvoidance.h" />
     <ClInclude Include="..\thirdparty\recast\detourcrowd\Include\DetourPathCorridor.h" />
@@ -20,6 +21,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\thirdparty\recast\detourcrowd\Source\DetourCrowd.cpp" />
+    <ClCompile Include="..\thirdparty\recast\DetourCrowd\Source\DetourCrowdInternal.cpp" />
     <ClCompile Include="..\thirdparty\recast\detourcrowd\Source\DetourLocalBoundary.cpp" />
     <ClCompile Include="..\thirdparty\recast\detourcrowd\Source\DetourObstacleAvoidance.cpp" />
     <ClCompile Include="..\thirdparty\recast\detourcrowd\Source\DetourPathCorridor.cpp" />

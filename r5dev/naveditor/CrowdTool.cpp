@@ -26,6 +26,7 @@
 #include "NavEditor/Include/InputGeom.h"
 #include "NavEditor/Include/Sample.h"
 #include "NavEditor/Include/SampleInterfaces.h"
+#include "thirdparty/recast/DetourCrowd/Include/DetourCrowdInternal.h"
 
 static bool isectSegAABB(const float* sp, const float* sq,
 						 const float* amin, const float* amax,
@@ -320,25 +321,24 @@ void CrowdToolState::handleRender()
 				
 				if (m_toolParams.m_anticipateTurns)
 				{
-					/*					float dvel[3], pos[3];
-					 calcSmoothSteerDirection(ag->pos, ag->cornerVerts, ag->ncorners, dvel);
-					 pos[0] = ag->pos[0] + dvel[0];
-					 pos[1] = ag->pos[1] + dvel[1];
-					 pos[2] = ag->pos[2] + dvel[2];
-					 
-					 const float off = ag->radius+0.1f;
-					 const float* tgt = &ag->cornerVerts[0];
-					 const float y = ag->pos[1]+off;
-					 
-					 dd.begin(DU_DRAW_LINES, 2.0f);
-					 
-					 dd.vertex(ag->pos[0],y,ag->pos[2], duRGBA(255,0,0,192));
-					 dd.vertex(pos[0],y,pos[2], duRGBA(255,0,0,192));
-					 
-					 dd.vertex(pos[0],y,pos[2], duRGBA(255,0,0,192));
-					 dd.vertex(tgt[0],y,tgt[2], duRGBA(255,0,0,192));
-					 
-					 dd.end();*/
+					float dvel[3], pos[3];
+					calcSmoothSteerDirection(ag, dvel);
+					pos[0] = ag->npos[0] + dvel[0];
+					pos[1] = ag->npos[1] + dvel[1];
+					pos[2] = ag->npos[2] + dvel[2];
+
+					const float off = ag->params.radius+0.1f;
+					const float* tgt = &ag->cornerVerts[0];
+					const float z = ag->npos[2]+off;
+
+					dd.begin(DU_DRAW_LINES, 2.0f);
+
+					dd.vertex(ag->npos[0],ag->npos[1],z, duRGBA(255,0,0,192));
+					dd.vertex(pos[0],pos[1],z, duRGBA(255,0,0,192));
+					dd.vertex(pos[0],pos[1],z, duRGBA(255,0,0,192));
+					dd.vertex(tgt[0],tgt[1],z, duRGBA(255,0,0,192));
+
+					dd.end();
 				}
 			}
 		}
