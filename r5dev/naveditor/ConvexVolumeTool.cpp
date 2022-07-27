@@ -92,8 +92,8 @@ ConvexVolumeTool::ConvexVolumeTool() :
 	m_sample(0),
 	m_areaType(SAMPLE_POLYAREA_GRASS),
 	m_polyOffset(0.0f),
-	m_boxHeight(200.0f),
-	m_boxDescent(150.0f),
+	m_boxHeight(500.0f),
+	m_boxDescent(250.0f),
 	m_npts(0),
 	m_nhull(0)
 {
@@ -112,9 +112,9 @@ void ConvexVolumeTool::reset()
 
 void ConvexVolumeTool::handleMenu()
 {
-	imguiSlider("Shape Height", &m_boxHeight, 0.1f, 300.0f, 0.1f);
-	imguiSlider("Shape Descent", &m_boxDescent, 0.1f, 300.0f, 0.1f);
-	imguiSlider("Poly Offset", &m_polyOffset, 0.0f, 100.0f, 0.1f);
+	imguiSlider("Shape Height", &m_boxHeight, 0.1f, 2000.0f, 0.1f);
+	imguiSlider("Shape Descent", &m_boxDescent, 0.1f, 2000.0f, 0.1f);
+	imguiSlider("Poly Offset", &m_polyOffset, 0.0f, 1000.0f, 0.1f);
 
 	imguiSeparator();
 
