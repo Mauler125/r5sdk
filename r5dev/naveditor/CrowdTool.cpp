@@ -105,8 +105,10 @@ CrowdToolState::CrowdToolState() :
 	m_toolParams.m_optimizeTopo = true;
 	m_toolParams.m_obstacleAvoidance = true;
 	m_toolParams.m_obstacleAvoidanceType = 3.0f;
-	m_toolParams.m_separation = false;
-	m_toolParams.m_separationWeight = 2.0f;
+	m_toolParams.m_separation = true;
+	m_toolParams.m_separationWeight = 20.0f;
+	m_toolParams.m_maxAcceleration = 800.f;
+	m_toolParams.m_maxSpeed = 200.f;
 	
 	memset(m_trails, 0, sizeof(m_trails));
 	
@@ -630,10 +632,10 @@ void CrowdToolState::addAgent(const float* p)
 	memset(&ap, 0, sizeof(ap));
 	ap.radius = m_sample->getAgentRadius();
 	ap.height = m_sample->getAgentHeight();
-	ap.maxAcceleration = 8.0f;
-	ap.maxSpeed = 3.5f;
-	ap.collisionQueryRange = ap.radius * 12.0f;
-	ap.pathOptimizationRange = ap.radius * 30.0f;
+	ap.maxAcceleration = m_toolParams.m_maxAcceleration;
+	ap.maxSpeed = m_toolParams.m_maxSpeed;
+	ap.collisionQueryRange = ap.radius * 50.0f;
+	ap.pathOptimizationRange = ap.radius * 300.0f;
 	ap.updateFlags = 0; 
 	if (m_toolParams.m_anticipateTurns)
 		ap.updateFlags |= DT_CROWD_ANTICIPATE_TURNS;
@@ -804,6 +806,8 @@ void CrowdToolState::updateAgentParams()
 		params.updateFlags = updateFlags;
 		params.obstacleAvoidanceType = obstacleAvoidanceType;
 		params.separationWeight = m_toolParams.m_separationWeight;
+		params.maxAcceleration = m_toolParams.m_maxAcceleration;
+		params.maxSpeed = m_toolParams.m_maxSpeed;
 		crowd->updateAgentParameters(i, &params);
 	}	
 }
@@ -924,7 +928,15 @@ void CrowdTool::handleMenu()
 			params->m_separation = !params->m_separation;
 			m_state->updateAgentParams();
 		}
-		if (imguiSlider("Separation Weight", &params->m_separationWeight, 0.0f, 20.0f, 0.01f))
+		if (imguiSlider("Separation Weight", &params->m_separationWeight, 0.0f, 200.0f, 0.01f))
+		{
+			m_state->updateAgentParams();
+		}
+		if (imguiSlider("Max Acceleration", &params->m_maxAcceleration, 0.0f, 2000.0f, 0.01f))
+		{
+			m_state->updateAgentParams();
+		}
+		if (imguiSlider("Max Speed", &params->m_maxSpeed, 0.0f, 2000.0f, 0.01f))
 		{
 			m_state->updateAgentParams();
 		}
