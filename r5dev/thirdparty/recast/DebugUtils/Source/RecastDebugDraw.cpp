@@ -658,7 +658,7 @@ void duDebugDrawPolyMesh(duDebugDraw* dd, const struct rcPolyMesh& mesh)
 		else if (area == RC_NULL_AREA)
 			color = duRGBA(0,0,0,64);
 		else
-			color = dd->areaToCol(area);
+			color = duTransCol(dd->areaToCol(area), 64);
 		
 		unsigned short vi[3];
 		for (int j = 2; j < nvp; ++j)
