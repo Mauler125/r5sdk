@@ -489,7 +489,7 @@ void duDebugDrawRegionConnections(duDebugDraw* dd, const rcContourSet& cset, con
 			if (cont2)
 			{
 				getContourCenter(cont2, orig, cs, ch, pos2);
-				duAppendArc(dd, pos[0],pos[1],pos[2], pos2[0],pos2[1],pos2[2], 0.25f, 0.6f, 0.6f, color);
+				duAppendArc(dd, pos[0],pos[1],pos[2], pos2[0],pos2[1],pos2[2], 0.25f, 30.0f, 30.0f, color);
 			}
 		}
 	}

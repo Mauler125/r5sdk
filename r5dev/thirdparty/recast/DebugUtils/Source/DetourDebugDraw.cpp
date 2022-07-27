@@ -202,7 +202,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 			
 			// Connection arc.
 			duAppendArc(dd, con->pos[0],con->pos[1],con->pos[2], con->pos[3],con->pos[4],con->pos[5], 0.25f,
-						(con->flags & 1) ? 0.6f : 0, 0.6f, col);
+						(con->flags & 1) ? 30.0f : 0.0f, 30.0f, col);
 		}
 		dd->end();
 	}
@@ -443,7 +443,7 @@ void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef re
 
 		// Connection arc.
 		duAppendArc(dd, con->pos[0],con->pos[1],con->pos[2], con->pos[3],con->pos[4],con->pos[5], 0.25f,
-					(con->flags & 1) ? 0.6f : 0.0f, 0.6f, c);
+					(con->flags & 1) ? 30.0f : 0.0f, 30.0f, c);
 		
 		dd->end();
 	}
