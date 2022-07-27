@@ -92,8 +92,8 @@ ConvexVolumeTool::ConvexVolumeTool() :
 	m_sample(0),
 	m_areaType(SAMPLE_POLYAREA_GROUND),
 	m_polyOffset(0.0f),
-	m_boxHeight(500.0f),
-	m_boxDescent(250.0f),
+	m_boxHeight(650.0f),
+	m_boxDescent(150.0f),
 	m_npts(0),
 	m_nhull(0)
 {
