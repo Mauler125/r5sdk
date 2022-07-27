@@ -64,7 +64,7 @@ static int convexhull(const float* pts, int npts, int* out)
 		out[i++] = hull;
 		endpt = 0;
 		for (int j = 1; j < npts; ++j)
-			if (hull == endpt || left(&pts[hull*3], &pts[j*3], &pts[endpt*3]))
+			if (hull == endpt || left(&pts[hull*3], &pts[endpt*3], &pts[j*3]))
 				endpt = j;
 		hull = endpt;
 	}
