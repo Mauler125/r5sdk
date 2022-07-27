@@ -1,7 +1,7 @@
 ﻿playlists
 {
 	version stable
-	versionNum 217
+	versionNum 218
 	Gamemodes
 	{
 		defaults
@@ -962,6 +962,7 @@
 				cmdlineMapLoad                                 1
 				// R5DEV-196963
 				reconnect_disabled                             1
+				sv_cheats                                      1
 			}
 			gamemodes { survival { maps {
 				mp_rr_canyonlands_64k_x_64k                    1

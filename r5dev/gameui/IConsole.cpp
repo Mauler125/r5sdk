@@ -463,18 +463,16 @@ void CConsole::FindFromPartial(void)
 
     for (size_t i = 0; i < m_vsvCommandBases.size(); i++)
     {
-        if (m_vSuggest.size() < con_suggestion_limit->GetInt())
+        if (m_vSuggest.size() < con_suggestion_limit->GetSizeT())
         {
             if (m_vsvCommandBases[i].m_svName.find(m_szInputBuf) != string::npos)
             {
                 if (std::find(m_vSuggest.begin(), m_vSuggest.end(), 
                     m_vsvCommandBases[i].m_svName) == m_vSuggest.end())
                 {
-                    int nFlags = 0;
-                    string svValue;
-                    ConCommandBase* pCommandBase = g_pCVar->FindCommandBase(m_vsvCommandBases[i].m_svName.c_str());
+                    string svValue; int nFlags = 0;
 
-                    if (pCommandBase)
+                    if (ConCommandBase* pCommandBase = g_pCVar->FindCommandBase(m_vsvCommandBases[i].m_svName.c_str()))
                     {
                         if (!pCommandBase->IsCommand())
                         {

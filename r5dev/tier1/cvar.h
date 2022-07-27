@@ -31,14 +31,34 @@ extern ConVar* rcon_address;
 extern ConVar* rcon_password;
 
 extern ConVar* r_debug_overlay_nodecay;
+extern ConVar* r_debug_overlay_invisible;
+extern ConVar* r_debug_overlay_wireframe;
+extern ConVar* r_debug_overlay_zbuffer;
 extern ConVar* r_drawWorldMeshes;
 extern ConVar* r_drawWorldMeshesDepthOnly;
 extern ConVar* r_drawWorldMeshesDepthAtTheEnd;
+
+extern ConVar* stream_overlay;
+extern ConVar* stream_overlay_mode;
 //-------------------------------------------------------------------------
 // SERVER                                                                 |
+#ifndef CLIENT_DLL
 extern ConVar* ai_ainDumpOnLoad;
 extern ConVar* ai_ainDebugConnect;
+extern ConVar* ai_script_nodes_draw;
+extern ConVar* ai_script_nodes_draw_range;
+
 extern ConVar* navmesh_always_reachable;
+extern ConVar* navmesh_debug_type;
+extern ConVar* navmesh_debug_tile_range;
+extern ConVar* navmesh_debug_camera_range;
+#ifndef DEDICATED
+extern ConVar* navmesh_draw_bvtree;
+extern ConVar* navmesh_draw_portal;
+extern ConVar* navmesh_draw_polys;
+extern ConVar* navmesh_draw_poly_bounds;
+extern ConVar* navmesh_draw_poly_bounds_inner;
+#endif // DEDICATED
 extern ConVar* sv_showconnecting;
 extern ConVar* sv_pylonVisibility;
 extern ConVar* sv_pylonRefreshInterval;
@@ -52,6 +72,7 @@ extern ConVar* sv_rcon_maxignores;
 extern ConVar* sv_rcon_maxsockets;
 extern ConVar* sv_rcon_whitelist_address;
 #endif // DEDICATED
+#endif // CLIENT_DLL
 //-------------------------------------------------------------------------
 // CLIENT                                                                 |
 #ifndef DEDICATED

@@ -8,9 +8,10 @@
 
 #include "core/stdafx.h"
 #include "core/logdef.h"
+#include "tier0/dbg.h"
 #include "tier0/platform.h"
 #include "tier0/threadtools.h"
-#include "tier0/dbg.h"
+#include <tier0/commandline.h>
 #ifndef DEDICATED
 #include "vgui/vgui_debugpanel.h"
 #include "gameui/IConsole.h"
@@ -22,6 +23,19 @@
 #include "xbox/xbox_console.h"
 #endif
 std::mutex s_LogMutex;
+
+//-----------------------------------------------------------------------------
+// True if -hushasserts was passed on command line.
+//-----------------------------------------------------------------------------
+bool HushAsserts()
+{
+#ifdef DBGFLAG_ASSERT
+	static bool s_bHushAsserts = !!CommandLine()->FindParm("-hushasserts");
+	return s_bHushAsserts;
+#else
+	return true;
+#endif
+}
 
 //-----------------------------------------------------------------------------
 // Templates to assist in validating pointers:
@@ -118,7 +132,7 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 	{
 		wconsole->debug(svOut);
 #ifdef DEDICATED
-		g_pRConServer->Send(svOut);
+		RCONServer()->Send(svOut);
 #endif // DEDICATED
 	}
 	else
@@ -133,7 +147,7 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 		}
 		wconsole->debug(svAnsiOut);
 #ifdef DEDICATED
-		g_pRConServer->Send(svAnsiOut);
+		RCONServer()->Send(svAnsiOut);
 #endif // DEDICATED
 	}
 
@@ -226,7 +240,7 @@ void Warning(eDLL_T context, const char* fmt, ...)
 	{
 		wconsole->debug(svOut);
 #ifdef DEDICATED
-		g_pRConServer->Send(svOut);
+		RCONServer()->Send(svOut);
 #endif // DEDICATED
 	}
 	else
@@ -242,7 +256,7 @@ void Warning(eDLL_T context, const char* fmt, ...)
 		}
 		wconsole->debug(svAnsiOut);
 #ifdef DEDICATED
-		g_pRConServer->Send(svAnsiOut);
+		RCONServer()->Send(svAnsiOut);
 #endif // DEDICATED
 	}
 
@@ -303,7 +317,7 @@ void Error(eDLL_T context, const char* fmt, ...)
 	{
 		wconsole->debug(svOut);
 #ifdef DEDICATED
-		g_pRConServer->Send(svOut);
+		RCONServer()->Send(svOut);
 #endif // DEDICATED
 	}
 	else
@@ -319,7 +333,7 @@ void Error(eDLL_T context, const char* fmt, ...)
 		}
 		wconsole->debug(svAnsiOut);
 #ifdef DEDICATED
-		g_pRConServer->Send(svAnsiOut);
+		RCONServer()->Send(svAnsiOut);
 #endif // DEDICATED
 	}
 

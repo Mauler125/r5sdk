@@ -43,6 +43,7 @@ public:
 	void DrawSimStats(void) const;
 	void DrawGPUStats(void) const;
 	void DrawCrosshairMaterial(void) const;
+	void DrawStreamOverlay(void) const;
 
 private:
 	Color GetLogColorForType(LogType_t type) const;

@@ -22,21 +22,6 @@
 #include "Detour/Include/DetourCommon.h"
 #include "Detour/Include/DetourNode.h"
 
-
-static float distancePtLine2d(const float* pt, const float* p, const float* q)
-{
-	float pqx = q[0] - p[0];
-	float pqz = q[2] - p[2];
-	float dx = pt[0] - p[0];
-	float dz = pt[2] - p[2];
-	float d = pqx*pqx + pqz*pqz;
-	float t = pqx*dx + pqz*dz;
-	if (d != 0) t /= d;
-	dx = p[0] + t*pqx - pt[0];
-	dz = p[2] + t*pqz - pt[2];
-	return dx*dx + dz*dz;
-}
-
 static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 							   const unsigned int col, const float linew,
 							   bool inner)

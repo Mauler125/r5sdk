@@ -6,6 +6,7 @@
 #include <WinSock2.h>
 #include <comdef.h>
 #include <gdiplus.h>
+#include <timeapi.h>
 #include <shellapi.h>
 #include <Psapi.h>
 #include <setjmp.h>

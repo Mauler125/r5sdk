@@ -10,6 +10,7 @@
 #include "tier0/jobthread.h"
 #include "tier0/threadtools.h"
 #include "tier0/tslist.h"
+#include "tier0/memstd.h"
 #include "tier0/fasttimer.h"
 #include "tier0/cpu.h"
 #include "tier0/commandline.h"
@@ -35,6 +36,7 @@
 #ifndef DEDICATED
 #include "milessdk/win64_rrthreads.h"
 #endif // !DEDICATED
+#include "mathlib/mathlib.h"
 #include "vphysics/QHull.h"
 #include "bsplib/bsplib.h"
 #include "materialsystem/cmaterialsystem.h"
@@ -49,6 +51,7 @@
 #include "client/vengineclient_impl.h"
 #ifndef CLIENT_DLL
 #include "engine/server/server.h"
+#include "server/persistence.h"
 #include "server/vengineserver_impl.h"
 #endif // !CLIENT_DLL
 #include "squirrel/sqinit.h"
@@ -95,9 +98,13 @@
 #include "game/server/detour_impl.h"
 #include "game/server/fairfight_impl.h"
 #include "game/server/gameinterface.h"
-#include "public/include/edict.h"
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
+#include "game/client/view.h"
+#endif // !DEDICATED
+#include "public/include/edict.h"
+#ifndef DEDICATED
+#include "public/include/idebugoverlay.h"
 #include "inputsystem/inputsystem.h"
 #include "windows/id3dx.h"
 #endif // !DEDICATED
@@ -118,23 +125,20 @@ void Systems_Init()
 {
 	spdlog::info("+-------------------------------------------------------------+\n");
 	QuerySystemInfo();
+
 	CFastTimer initTimer;
 
 	initTimer.Start();
-	for (IDetour* pDetour : vDetour)
-	{
-		pDetour->GetCon();
-		pDetour->GetFun();
-		pDetour->GetVar();
-	}
+	DetourInit();
 	initTimer.End();
+
 	spdlog::info("+-------------------------------------------------------------+\n");
 	spdlog::info("Detour->Init()   '{:10.6f}' seconds ('{:12d}' clocks)\n", initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
 
 	initTimer.Start();
 
-	// Initialize WinSock system.
-	WS_Init();
+	WS_Init();      // Initialize WinSock.
+	MathLib_Init(); // Initialize MathLib.
 
 	// Begin the detour transaction to hook the the process
 	DetourTransactionBegin();
@@ -185,6 +189,7 @@ void Systems_Init()
 	CKeyValueSystem_Attach();
 
 #ifndef CLIENT_DLL
+	Persistence_Attach();
 	IVEngineServer_Attach();
 #endif // !CLIENT_DLL
 
@@ -306,6 +311,7 @@ void Systems_Shutdown()
 	CKeyValueSystem_Detach();
 
 #ifndef CLIENT_DLL
+	Persistence_Detach();
 	IVEngineServer_Detach();
 #endif // !CLIENT_DLL
 	SQAPI_Detach();
@@ -404,19 +410,31 @@ void QuerySystemInfo()
 			std::system_category().message(static_cast<int>(::GetLastError())));
 	}
 
-	if (!(pi.m_bSSE && pi.m_bSSE2))
+	if (!s_bMathlibInitialized)
 	{
-		if (MessageBoxA(NULL, "SSE and SSE2 are required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
+		if (!(pi.m_bSSE && pi.m_bSSE2))
 		{
-			TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
+			if (MessageBoxA(NULL, "SSE and SSE2 are required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
+			{
+				TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
+			}
 		}
 	}
 }
 
-void PrintHAddress() // Test the sigscan results
+void DetourInit() // Run the sigscan
+{
+	for (const IDetour* pDetour : vDetour)
+	{
+		pDetour->GetCon(); // Constants.
+		pDetour->GetFun(); // Functions.
+		pDetour->GetVar(); // Variables.
+	}
+}
+void DetourAddress() // Test the sigscan results
 {
 	spdlog::debug("+----------------------------------------------------------------+\n");
-	for (IDetour* pDetour : vDetour)
+	for (const IDetour* pDetour : vDetour)
 	{
 		pDetour->GetAdr();
 	}

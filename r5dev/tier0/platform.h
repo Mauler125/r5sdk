@@ -32,6 +32,8 @@
 #define IsPlatformWindowsPC64() 1
 #define IsPlatformWindowsPC32() 0
 #define PLATFORM_WINDOWS_PC64 1
+
+#define COMPILER_MSVC64 1
 #else
 #define IsPlatformWindowsPC64() 0
 #define IsPlatformWindowsPC32() 1
@@ -139,7 +141,87 @@
 #define IS_WINDOWS_PC 1
 #endif
 
+#if _MSC_VER >= 1800
+#define	VECTORCALL __vectorcall 
+#else 
+#define	VECTORCALL 
+#endif
+
 #endif // CROSS_PLATFORM_VERSION < 2
+
+#if defined( GNUC )	&& !defined( COMPILER_PS3 ) // use pre-align on PS3
+// gnuc has the align decoration at the end
+#define ALIGN4
+#define ALIGN8 
+#define ALIGN16
+#define ALIGN32
+#define ALIGN128
+
+#undef ALIGN16_POST
+#define ALIGN4_POST DECL_ALIGN(4)
+#define ALIGN8_POST DECL_ALIGN(8)
+#define ALIGN16_POST DECL_ALIGN(16)
+#define ALIGN32_POST DECL_ALIGN(32)
+#define ALIGN128_POST DECL_ALIGN(128)
+#else
+// MSVC has the align at the start of the struct
+// PS3 SNC supports both
+#define ALIGN4 DECL_ALIGN(4)
+#define ALIGN8 DECL_ALIGN(8)
+#define ALIGN16 DECL_ALIGN(16)
+#define ALIGN32 DECL_ALIGN(32)
+#define ALIGN128 DECL_ALIGN(128)
+
+#define ALIGN4_POST
+#define ALIGN8_POST
+#define ALIGN16_POST
+#define ALIGN32_POST
+#define ALIGN128_POST
+#endif
+
+// This can be used to declare an abstract (interface only) class.
+// Classes marked abstract should not be instantiated.  If they are, and access violation will occur.
+//
+// Example of use:
+//
+// abstract_class CFoo
+// {
+//      ...
+// }
+//
+// MSDN __declspec(novtable) documentation: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vclang/html/_langref_novtable.asp
+//
+// Note: NJS: This is not enabled for regular PC, due to not knowing the implications of exporting a class with no no vtable.
+//       It's probable that this shouldn't be an issue, but an experiment should be done to verify this.
+//
+#ifndef COMPILER_MSVCX360
+#define abstract_class class
+#else
+#define abstract_class class NO_VTABLE
+#endif
+
+//-----------------------------------------------------------------------------
+// Generally useful platform-independent macros (move to another file?)
+//-----------------------------------------------------------------------------
+
+// need macro for constant expression
+#define ALIGN_VALUE( val, alignment ) ( ( val + alignment - 1 ) & ~( alignment - 1 ) ) 
+
+// Force a function call site -not- to inlined. (useful for profiling)
+#define DONT_INLINE(a) (((int)(a)+1)?(a):(a))
+
+// Marks the codepath from here until the next branch entry point as unreachable,
+// and asserts if any attempt is made to execute it.
+#define UNREACHABLE() { Assert(0); HINT(0); }
+
+// In cases where no default is present or appropriate, this causes MSVC to generate
+// as little code as possible, and throw an assertion in debug.
+#define NO_DEFAULT default: UNREACHABLE();
+
+// Defines MAX_PATH
+#ifndef MAX_PATH
+#define MAX_PATH  260
+#endif
 
 //-----------------------------------------------------------------------------
 // Time stamp counter
@@ -205,6 +287,8 @@ inline int64 CastPtrToInt64(const void* p)
 #define mallocsize( _p )		( _msize( _p ) )
 
 #endif
+
+#define NO_MALLOC_OVERRIDE
 
 //-----------------------------------------------------------------------------
 // Various compiler-specific keywords

@@ -9,6 +9,9 @@
 #include "tier0/fasttimer.h"
 #include "tier1/cvar.h"
 #include "tier1/IConVar.h"
+#ifdef DEDICATED
+#include "engine/server/sv_rcon.h"
+#endif // DEDICATED
 #ifndef DEDICATED
 #include "engine/client/cl_rcon.h"
 #endif // !DEDICATED
@@ -24,12 +27,15 @@
 #include "gameui/IBrowser.h"
 #include "gameui/IConsole.h"
 #endif // !DEDICATED
+#ifndef CLIENT_DLL
 #include "public/include/bansystem.h"
+#endif // !CLIENT_DLL
 #include "mathlib/crc32.h"
 #include "vstdlib/completion.h"
 #include "vstdlib/callback.h"
 #ifndef DEDICATED
 #include "materialsystem/cmaterialglue.h"
+#include "public/include/idebugoverlay.h"
 #endif // !DEDICATED
 
 #include "tier0/commandline.h"
@@ -82,11 +88,12 @@ void Host_Kick_f(const CCommand& args)
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
 		CClient* pClient = g_pClient->GetClient(i);
-		CNetChan* pNetChan = pClient->GetNetChan();
-		if (!pClient || !pNetChan)
-		{
+		if (!pClient)
 			continue;
-		}
+
+		CNetChan* pNetChan = pClient->GetNetChan();
+		if (!pNetChan)
+			continue;
 
 		string svClientName = pNetChan->GetName(); // Get full name.
 
@@ -103,7 +110,7 @@ void Host_Kick_f(const CCommand& args)
 		NET_DisconnectClient(pClient, i, "Kicked from server", 0, 1);
 	}
 }
-
+#ifndef CLIENT_DLL
 /*
 =====================
 Host_KickID_f
@@ -122,12 +129,12 @@ void Host_KickID_f(const CCommand& args)
 		for (int i = 0; i < MAX_PLAYERS; i++)
 		{
 			CClient* pClient = g_pClient->GetClient(i);
-			CNetChan* pNetChan = pClient->GetNetChan();
-
-			if (!pClient || !pNetChan)
-			{
+			if (!pClient)
 				continue;
-			}
+
+			CNetChan* pNetChan = pClient->GetNetChan();
+			if (!pNetChan)
+				continue;
 
 			string svIpAddress = pNetChan->GetAddress(); // If this stays null they modified the packet somehow.
 
@@ -186,12 +193,12 @@ void Host_Ban_f(const CCommand& args)
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
 		CClient* pClient = g_pClient->GetClient(i);
-		CNetChan* pNetChan = pClient->GetNetChan();
-
-		if (!pClient || !pNetChan)
-		{
+		if (!pClient)
 			continue;
-		}
+
+		CNetChan* pNetChan = pClient->GetNetChan();
+		if (!pNetChan)
+			continue;
 
 		string svClientName = pNetChan->GetName(); // Get full name.
 
@@ -231,12 +238,12 @@ void Host_BanID_f(const CCommand& args)
 		for (int i = 0; i < MAX_PLAYERS; i++)
 		{
 			CClient* pClient = g_pClient->GetClient(i);
-			CNetChan* pNetChan = pClient->GetNetChan();
-
-			if (!pClient || !pNetChan)
-			{
+			if (!pClient)
 				continue;
-			}
+
+			CNetChan* pNetChan = pClient->GetNetChan();
+			if (!pNetChan)
+				continue;
 
 			string svIpAddress = pNetChan->GetAddress(); // If this stays empty they modified the packet somehow.
 
@@ -325,7 +332,7 @@ void Host_ReloadBanList_f(const CCommand& args)
 {
 	g_pBanSystem->Load(); // Reload banlist.
 }
-
+#endif // !CLIENT_DLL
 /*
 =====================
 Pak_ListPaks_f
@@ -762,44 +769,44 @@ void RCON_CmdQuery_f(const CCommand& args)
 {
 	if (args.ArgC() < 2)
 	{
-		if (g_pRConClient->IsInitialized()
-			&& !g_pRConClient->IsConnected()
+		if (RCONClient()->IsInitialized()
+			&& !RCONClient()->IsConnected()
 			&& strlen(rcon_address->GetString()) > 0)
 		{
-			g_pRConClient->Connect();
+			RCONClient()->Connect();
 		}
 	}
 	else
 	{
-		if (!g_pRConClient->IsInitialized())
+		if (!RCONClient()->IsInitialized())
 		{
 			Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: uninitialized\n");
 			return;
 		}
-		else if (g_pRConClient->IsConnected())
+		else if (RCONClient()->IsConnected())
 		{
 			if (strcmp(args.Arg(1), "PASS") == 0) // Auth with RCON server using rcon_password ConVar value.
 			{
 				string svCmdQuery;
 				if (args.ArgC() > 2)
 				{
-					svCmdQuery = g_pRConClient->Serialize(args.Arg(2), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+					svCmdQuery = RCONClient()->Serialize(args.Arg(2), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
 				}
 				else // Use 'rcon_password' ConVar as password.
 				{
-					svCmdQuery = g_pRConClient->Serialize(rcon_password->GetString(), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+					svCmdQuery = RCONClient()->Serialize(rcon_password->GetString(), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
 				}
-				g_pRConClient->Send(svCmdQuery);
+				RCONClient()->Send(svCmdQuery);
 				return;
 			}
 			else if (strcmp(args.Arg(1), "disconnect") == 0) // Disconnect from RCON server.
 			{
-				g_pRConClient->Disconnect();
+				RCONClient()->Disconnect();
 				return;
 			}
 
-			string svCmdQuery = g_pRConClient->Serialize(args.ArgS(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
-			g_pRConClient->Send(svCmdQuery);
+			string svCmdQuery = RCONClient()->Serialize(args.ArgS(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+			RCONClient()->Send(svCmdQuery);
 			return;
 		}
 		else
@@ -819,13 +826,35 @@ RCON_Disconnect_f
 */
 void RCON_Disconnect_f(const CCommand& args)
 {
-	if (g_pRConClient->IsConnected())
+	if (RCONClient()->IsConnected())
 	{
-		g_pRConClient->Disconnect();
+		RCONClient()->Disconnect();
 		DevMsg(eDLL_T::CLIENT, "User closed RCON connection\n");
 	}
 }
 #endif // !DEDICATED
+
+/*
+=====================
+RCON_PasswordChanged_f
+
+  Change password on RCON server
+  and RCON client
+=====================
+*/
+void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
+{
+	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
+	{
+#ifndef DEDICATED
+		RCONClient()->SetPassword(pConVarRef->GetString());
+		RCONClient()->Init();
+#elif DEDICATED 
+		RCONServer()->SetPassword(pConVarRef->GetString());
+		RCONServer()->Init();
+#endif // DEDICATED
+	}
+}
 
 /*
 =====================
@@ -892,7 +921,7 @@ void Mat_CrossHair_f(const CCommand& args)
 		DevMsg(eDLL_T::MS, "-+ Material --------------------------------------------------\n");
 		DevMsg(eDLL_T::MS, " |-- ADDR: '%llX'\n", material);
 		DevMsg(eDLL_T::MS, " |-- GUID: '%llX'\n", material->m_GUID);
-		DevMsg(eDLL_T::MS, " |-- Signature: '%d'\n", material->m_UnknownSignature);
+		DevMsg(eDLL_T::MS, " |-- Streamable Texture Count: '%d'\n", material->m_nStreamableTextureCount);
 		DevMsg(eDLL_T::MS, " |-- Material Width: '%d'\n", material->m_iWidth);
 		DevMsg(eDLL_T::MS, " |-- Material Height: '%d'\n", material->m_iHeight);
 		DevMsg(eDLL_T::MS, " |-- Flags: '%llX'\n", material->m_iFlags);
@@ -909,8 +938,8 @@ void Mat_CrossHair_f(const CCommand& args)
 		DevMsg(eDLL_T::MS, " |-- Material Name: '%s'\n", material->m_pszName);
 		DevMsg(eDLL_T::MS, " |-- Material Surface Name 1: '%s'\n", material->m_pszSurfaceName1);
 		DevMsg(eDLL_T::MS, " |-- Material Surface Name 2: '%s'\n", material->m_pszSurfaceName2);
-		DevMsg(eDLL_T::MS, " |-- DX Texture 1: '%llX'\n", material->m_ppDXTexture1);
-		DevMsg(eDLL_T::MS, " |-- DX Texture 2: '%llX'\n", material->m_ppDXTexture2);
+		DevMsg(eDLL_T::MS, " |-- DX Buffer: '%llX'\n", material->m_pDXBuffer);
+		DevMsg(eDLL_T::MS, " |-- DX BufferVTable: '%llX'\n", material->m_pDXBufferVTable);
 
 		material->m_pDepthShadow ? fnPrintChild(material->m_pDepthShadow, " |   |-+ DepthShadow Addr: '%llX'\n") : DevMsg(eDLL_T::MS, " |   |-+ DepthShadow Addr: 'NULL'\n");
 		material->m_pDepthPrepass ? fnPrintChild(material->m_pDepthPrepass, " |   |-+ DepthPrepass Addr: '%llX'\n") : DevMsg(eDLL_T::MS, " |   |-+ DepthPrepass Addr: 'NULL'\n");
@@ -919,8 +948,8 @@ void Mat_CrossHair_f(const CCommand& args)
 		material->m_pColPass ? fnPrintChild(material->m_pColPass, " |   |-+ ColPass Addr: '%llX'\n") : DevMsg(eDLL_T::MS, " |   |-+ ColPass Addr: 'NULL'\n");
 
 		DevMsg(eDLL_T::MS, "-+ Texture GUID map ------------------------------------------\n");
-		material->m_pTextureGUID1 ? DevMsg(eDLL_T::MS, " |-- TextureMap 1 Addr: '%llX'\n", material->m_pTextureGUID1) : DevMsg(eDLL_T::MS, " |-- TextureMap 1 Addr: 'NULL'\n");
-		material->m_pTextureGUID2 ? DevMsg(eDLL_T::MS, " |-- TextureMap 2 Addr: '%llX'\n", material->m_pTextureGUID2) : DevMsg(eDLL_T::MS, " |-- TextureMap 2 Addr: 'NULL'\n");
+		material->m_pTextureGUID ? DevMsg(eDLL_T::MS, " |-- TextureMap 1 Addr: '%llX'\n", material->m_pTextureGUID) : DevMsg(eDLL_T::MS, " |-- TextureMap 1 Addr: 'NULL'\n");
+		material->m_pStreamableTextures ? DevMsg(eDLL_T::MS, " |-- TextureMap 2 Addr: '%llX'\n", material->m_pStreamableTextures) : DevMsg(eDLL_T::MS, " |-- TextureMap 2 Addr: 'NULL'\n");
 
 		DevMsg(eDLL_T::MS, "--------------------------------------------------------------\n");
 	}
@@ -928,5 +957,86 @@ void Mat_CrossHair_f(const CCommand& args)
 	{
 		DevMsg(eDLL_T::MS, "%s - No Material found >:(\n", __FUNCTION__);
 	}
+}
+
+/*
+=====================
+Line_f
+
+  Draws a line at 
+  start<x1 y1 z1> end<x2 y2 z2>.
+=====================
+*/
+void Line_f(const CCommand& args)
+{
+	if (args.ArgC() != 7)
+	{
+		DevMsg(eDLL_T::CLIENT, "Usage 'line': start(vector) end(vector)\n");
+		return;
+	}
+
+	Vector3D start, end;
+	for (int i = 0; i < 3; ++i)
+	{
+		start[i] = atof(args[i + 1]);
+		end[i] = atof(args[i + 4]);
+	}
+
+	g_pDebugOverlay->AddLineOverlay(start, end, 255, 255, 0, r_debug_overlay_zbuffer->GetBool(), 100);
+}
+
+/*
+=====================
+Sphere_f
+
+  Draws a sphere at origin(x1 y1 z1) 
+  radius(float) theta(int) phi(int).
+=====================
+*/
+void Sphere_f(const CCommand& args)
+{
+	if (args.ArgC() != 7)
+	{
+		DevMsg(eDLL_T::CLIENT, "Usage 'sphere': origin(vector) radius(float) theta(int) phi(int)\n");
+		return;
+	}
+
+	Vector3D start;
+	for (int i = 0; i < 3; ++i)
+	{
+		start[i] = atof(args[i + 1]);
+	}
+
+	float radius = atof(args[4]);
+	int theta = atoi(args[5]);
+	int phi = atoi(args[6]);
+
+	g_pDebugOverlay->AddSphereOverlay(start, radius, theta, phi, 20, 210, 255, 0, 100);
+}
+
+/*
+=====================
+Capsule_f
+
+  Draws a capsule at start<x1 y1 z1> 
+  end<x2 y2 z2> radius <x3 y3 z3>.
+=====================
+*/
+void Capsule_f(const CCommand& args)
+{
+	if (args.ArgC() != 10)
+	{
+		DevMsg(eDLL_T::CLIENT, "Usage 'capsule': start(vector) end(vector) radius(vector)\n");
+		return;
+	}
+
+	Vector3D start, end, radius;
+	for (int i = 0; i < 3; ++i)
+	{
+		start[i] = atof(args[i + 1]);
+		end[i] = atof(args[i + 4]);
+		radius[i] = atof(args[i + 7]);
+	}
+	g_pDebugOverlay->AddCapsuleOverlay(start, end, radius, { 0,0,0 }, { 0,0,0 }, 141, 233, 135, 0, 100);
 }
 #endif // !DEDICATED

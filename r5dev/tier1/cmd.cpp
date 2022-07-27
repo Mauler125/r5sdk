@@ -6,6 +6,7 @@
 
 #include "core/stdafx.h"
 #include "tier0/tslist.h"
+#include "tier0/memstd.h"
 #include "tier1/cmd.h"
 #include "tier1/cvar.h"
 #include "vstdlib/callback.h"
@@ -97,10 +98,10 @@ bool CCommand::HasOnlyDigits(int nIndex) const
 //-----------------------------------------------------------------------------
 ConCommand::ConCommand(const char* pszName, const char* pszHelpString, int nFlags, void* pCallback, void* pCommandCompletionCallback)
 {
-	ConCommand* pCommand = reinterpret_cast<ConCommand*>(v_MemAlloc_Wrapper(sizeof(ConCommand))); // Allocate new memory with StdMemAlloc else we crash.
-	memset(pCommand, '\0', sizeof(ConCommand)); // Set all to null.
+	ConCommand* pCommand = MemAllocSingleton()->Alloc<ConCommand>(sizeof(ConCommand));
+	memset(pCommand, '\0', sizeof(ConCommand));
 
-	pCommand->m_pConCommandBaseVTable = g_pConCommandVtable.RCast<void*>();
+	pCommand->m_pConCommandBaseVFTable = g_pConCommandVtable.RCast<IConCommandBase*>();
 	pCommand->m_pszName          = pszName;
 	pCommand->m_pszHelpString    = pszHelpString;
 	pCommand->m_nFlags           = nFlags;
@@ -125,7 +126,15 @@ ConCommand::ConCommand(const char* pszName, const char* pszHelpString, int nFlag
 void ConCommand::Init(void)
 {
 	//-------------------------------------------------------------------------
+	// ENGINE DLL                                                             |
+#ifndef DEDICATED
+	new ConCommand("line", "Draw a debug line.", FCVAR_GAMEDLL | FCVAR_CHEAT, Line_f, nullptr);
+	new ConCommand("sphere", "Draw a debug sphere.", FCVAR_GAMEDLL | FCVAR_CHEAT, Sphere_f, nullptr);
+	new ConCommand("capsule", "Draw a debug capsule.", FCVAR_GAMEDLL | FCVAR_CHEAT, Capsule_f, nullptr);
+#endif //!DEDICATED
+	//-------------------------------------------------------------------------
 	// SERVER DLL                                                             |
+#ifndef CLIENT_DLL
 	new ConCommand("script", "Run input code as SERVER script on the VM.", FCVAR_GAMEDLL | FCVAR_CHEAT, SQVM_ServerScript_f, nullptr);
 	new ConCommand("sv_kick", "Kick a client from the server by name. | Usage: kick \"<name>\".", FCVAR_RELEASE, Host_Kick_f, nullptr);
 	new ConCommand("sv_kickid", "Kick a client from the server by UserID or OriginID | Usage: kickid \"<UserID>\"/\"<OriginID>\".", FCVAR_RELEASE, Host_KickID_f, nullptr);
@@ -133,6 +142,7 @@ void ConCommand::Init(void)
 	new ConCommand("sv_banid", "Bans a client from the server by UserID, OriginID or IPAddress | Usage: banid \"<UserID>\"/\"<OriginID>/<IPAddress>\".", FCVAR_RELEASE, Host_BanID_f, nullptr);
 	new ConCommand("sv_unban", "Unbans a client from the server by OriginID or IPAddress | Usage: unban \"<OriginID>\"/\"<IPAddress>\".", FCVAR_RELEASE, Host_Unban_f, nullptr);
 	new ConCommand("sv_reloadbanlist", "Reloads the ban list from the disk.", FCVAR_RELEASE, Host_ReloadBanList_f, nullptr);
+#endif // !CLIENT_DLL
 #ifndef DEDICATED
 	//-------------------------------------------------------------------------
 	// CLIENT DLL                                                             |
@@ -257,7 +267,7 @@ bool ConCommand::IsCommand(void) const
 //-----------------------------------------------------------------------------
 bool ConCommandBase::IsCommand(void) const
 {
-	return m_pConCommandBaseVTable != g_pConVarVtable.RCast<void*>();
+	return m_pConCommandBaseVFTable != g_pConVarVFTable.RCast<void*>();
 }
 
 //-----------------------------------------------------------------------------

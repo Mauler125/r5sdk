@@ -85,6 +85,27 @@ const std::map<RPakStatus_t, std::string> RPakStatusToString {
 	{ RPakStatus_t::PAK_STATUS_BUSY,                   "PAK_STATUS_BUSY" },
 };
 
+struct RPakAssetBinding_t
+{
+	uint32_t m_nExtension; // For example '0x6C74616D' for the material asset.
+	int m_iVersion;
+	const char* m_szDescription; // Description/Name of asset.
+	void* m_pLoadAssetFunction;
+	void* m_pUnloadAssetFunction;
+	void* m_pReplaceAssetFunction;
+	void* m_pUnknownAssetFunction; // [ PIXIE ]: Also a function pointer just sometimes it's set to CStdMemAlloc and sometimes it handles some data.
+	int m_iSubHeaderSize;
+	int m_iNativeClassSize; // Native class size, for 'material' it would be CMaterialGlue full size.
+	uint32_t unk2;
+	int unk3;
+	// [ PIXIE ]: Should be the full size across Season 0-3.
+};
+
+struct RPakUnknownStruct_t
+{
+	RPakAssetBinding_t m_nAssetBindings[64]; // [ PIXIE ]: Max possible registered assets on Season 3, 0-2 I did not check yet.
+	// End size unknown.
+};
 
 struct RPakHeader_t
 {
@@ -153,6 +174,27 @@ struct RPakTextureHeader_t
 	uint32_t m_nNameOffset;
 	uint16_t m_nWidth;
 	uint16_t m_nHeight;
+	uint8_t unk0;
+	uint8_t unk1;
+	uint16_t m_nFormat;
+	uint8_t unk2;
+	uint32_t m_nDataSize;
+	uint8_t unk3;
+	uint8_t m_nMipLevelsStreamedOpt;
+	uint8_t m_nArraySize;
+	uint8_t m_nLayerCount;
+	uint8_t unk4;
+	uint8_t m_nMipLevels;
+	uint8_t m_nMipLevelsStreamed;
+	uint8_t unk5[0x15];
+};
+
+struct RTechTextureInfo_t
+{
+	uint64_t m_nGUID;
+	const char* m_nDebugName;
+	uint16_t m_nWidth;
+	uint16_t m_nHeight;
 	uint16_t unk0;
 	uint16_t m_nFormat;
 	uint32_t m_nDataSize;
@@ -160,12 +202,96 @@ struct RPakTextureHeader_t
 	uint8_t m_nMipLevelsStreamedOpt;
 	uint8_t m_nArraySize;
 	uint8_t m_nLayerCount;
-	uint8_t unk2;
+	uint8_t m_nCPUAccessFlag; // [ PIXIE ]: In RTech::CreateDXBuffer textureDescription Usage is determined by the CPU Access Flag so I assume it's the same case here.
 	uint8_t m_nMipLevels;
 	uint8_t m_nMipLevelsStreamed;
-	uint8_t unk3[310];
+	uint8_t unk3[24];
+	uint8_t m_nTotalStreamedMips; // Does not get set until after RTech::CreateDXTexture.
+	uint8_t unk4[285];
 	ID3D11Texture2D* m_ppTexture;
 	ID3D11ShaderResourceView* m_ppShaderResourceView;
+	uint8_t m_nTextureMipLevels;
+	uint8_t m_nTextureMipLevelsStreamedOpt;
+};
+
+static pair<uint8_t, uint8_t> s_pRTechBytesPerPixel[] =
+{
+  { 8u, 4u },
+  { 8u, 4u },
+  { 16u, 4u },
+  { 16u, 4u },
+  { 16u, 4u },
+  { 16u, 4u },
+  { 8u, 4u },
+  { 8u, 4u },
+  { 16u, 4u },
+  { 16u, 4u },
+  { 16u, 4u },
+  { 16u, 4u },
+  { 16u, 4u },
+  { 16u, 4u },
+  { 16u, 1u },
+  { 16u, 1u },
+  { 16u, 1u },
+  { 12u, 1u },
+  { 12u, 1u },
+  { 12u, 1u },
+  { 8u, 1u },
+  { 8u, 1u },
+  { 8u, 1u },
+  { 8u, 1u },
+  { 8u, 1u },
+  { 8u, 1u },
+  { 8u, 1u },
+  { 8u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 2u, 1u },
+  { 2u, 1u },
+  { 2u, 1u },
+  { 2u, 1u },
+  { 2u, 1u },
+  { 2u, 1u },
+  { 2u, 1u },
+  { 2u, 1u },
+  { 2u, 1u },
+  { 1u, 1u },
+  { 1u, 1u },
+  { 1u, 1u },
+  { 1u, 1u },
+  { 1u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 4u, 1u },
+  { 2u, 1u },
+  { 0u, 0u },
+  { 0u, 0u },
+  { 5u, 0u },
+  { 0u, 0u },
+  { 5u, 0u },
+  { 0u, 0u },
+  { 1u, 0u },
+  { 0u, 0u },
+  { 2u, 0u },
+  { 0u, 0u },
+  { 0u, 0u },
+  { 0u, 0u },
+  { 1u, 0u },
+  { 0u, 0u }
 };
 
 // Map of dxgi format to txtr asset format
@@ -324,11 +450,14 @@ public:
 #if not defined DEDICATED && defined (GAMEDLL_S3)
 inline CMemory p_RTech_CreateDXTexture;
 inline auto RTech_CreateDXTexture = p_RTech_CreateDXTexture.RCast<void(*)(RPakTextureHeader_t*, int64_t)>();
+
+inline CMemory p_GetStreamOverlay;
+inline auto GetStreamOverlay = p_GetStreamOverlay.RCast<void(*)(const char* mode, char* buf, size_t bufSize)>();
 #endif
 
 inline RPakLoadedInfo_t* g_pLoadedPakInfo;
 inline std::int16_t* s_pLoadedPakCount;
-inline int16_t* s_pBitsPerPixelWord;
+inline RPakUnknownStruct_t* g_pUnknownPakStruct;
 
 class RTech
 {
@@ -340,7 +469,7 @@ public:
 	RPakLoadedInfo_t* GetPakLoadedInfo(const char* szPakName);
 
 #if not defined DEDICATED && defined (GAMEDLL_S3)
-	static void __fastcall CreateDXTexture(RPakTextureHeader_t* textureHeader, int64_t cpuArg);
+	static void __fastcall CreateDXTexture(RTechTextureInfo_t* textureHeader, int64_t cpuArg);
 #endif
 
 #ifndef DEDICATED
@@ -368,17 +497,18 @@ class VPakFile : public IDetour
 #if not defined DEDICATED && defined (GAMEDLL_S3)
 		p_RTech_CreateDXTexture = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x4C\x8B\xC7\x48\x8B\xD5\x48\x8B\xCB\x48\x83\xC4\x60"), "x????xxxxxxxxxxxxx").FollowNearCallSelf();
 		RTech_CreateDXTexture = p_RTech_CreateDXTexture.RCast<void(*)(RPakTextureHeader_t*, int64_t)>(); /*E8 ? ? ? ? 4C 8B C7 48 8B D5 48 8B CB 48 83 C4 60*/
+
+		p_GetStreamOverlay = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x80\x7C\x24\x00\x00\x0F\x84\x00\x00\x00\x00\x48\x89\x9C\x24\x00\x00\x00\x00"), "x????xxx??xx????xxxx????").FollowNearCallSelf();
+		GetStreamOverlay = p_GetStreamOverlay.RCast<void(*)(const char*, char*, size_t)>();
 #endif
 	}
 	virtual void GetVar(void) const
 	{
-		CMemory localRef = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x30\x8B\xC1"), "xxxx?xxxx?xxxxxxx");
+		g_pUnknownPakStruct = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8D\x1D\x00\x00\x00\x00\x45\x8D\x5A\x0E"), "xxx????xxxx").ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakUnknownStruct_t*>(); /*48 8D 1D ? ? ? ? 45 8D 5A 0E*/
 
-		g_pLoadedPakInfo = localRef.FindPattern("48 8D 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakLoadedInfo_t*>();
-		s_pLoadedPakCount = localRef.FindPattern("66 89", CMemory::Direction::DOWN, 450).ResolveRelativeAddressSelf(0x3, 0x7).RCast<std::int16_t*>();
-#if not defined DEDICATED && defined (GAMEDLL_S3)
-		s_pBitsPerPixelWord = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x0F\xB7\x43\x16\x48\x8D\x0D\x00\x00\x00\x00"), "xxxxxxx????").OffsetSelf(0x4).ResolveRelativeAddressSelf(0x3, 0x7).RCast<int16_t*>();
-#endif
+		CMemory RTech_UnloadPak = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x30\x8B\xC1"), "xxxx?xxxx?xxxxxxx");
+		g_pLoadedPakInfo = RTech_UnloadPak.FindPattern("48 8D 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakLoadedInfo_t*>();
+		s_pLoadedPakCount = RTech_UnloadPak.FindPattern("66 89", CMemory::Direction::DOWN, 450).ResolveRelativeAddressSelf(0x3, 0x7).RCast<std::int16_t*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

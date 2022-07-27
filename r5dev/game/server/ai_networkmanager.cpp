@@ -34,7 +34,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	const string svMeshDir = "maps\\navmesh\\";
 	const string svGraphDir = "maps\\graphs\\";
 
-	fs::path fsMeshPath(svMeshDir + g_pHostState->m_levelName + "_" + HULL_SIZE[3] + ".nm");
+	fs::path fsMeshPath(svMeshDir + g_pHostState->m_levelName + "_" + SHULL_SIZE[3] + ".nm");
 	fs::path fsGraphPath(svGraphDir + g_pHostState->m_levelName + ".ain");
 
 	CFastTimer masterTimer;
@@ -69,7 +69,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	}
 	else
 	{
-		Warning(eDLL_T::SERVER, "%s - No %s NavMesh found. Unable to calculate CRC for AI Network.\n", __FUNCTION__, HULL_SIZE[3].c_str());
+		Warning(eDLL_T::SERVER, "%s - No %s NavMesh found. Unable to calculate CRC for AI Network.\n", __FUNCTION__, SHULL_SIZE[3].c_str());
 	}
 
 	// Large NavMesh CRC.
@@ -155,7 +155,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 				diskLink.unk0 = pNetwork->m_pAInode[i]->links[j]->unk1;
 				memcpy(diskLink.m_bHulls, pNetwork->m_pAInode[i]->links[j]->m_bHulls, sizeof(diskLink.m_bHulls));
 
-				DevMsg(eDLL_T::SERVER, "  |-- Writing link '%d' => '%d' to '0x%zX'\n", diskLink.m_iSrcID, diskLink.m_iDestID, writer.GetPosition());
+				DevMsg(eDLL_T::SERVER, "  |-- Writing link '%h' => '%h' to '0x%zX'\n", diskLink.m_iSrcID, diskLink.m_iDestID, writer.GetPosition());
 				writer.Write(&diskLink, sizeof(CAI_NodeLinkDisk));
 			}
 		}
@@ -167,7 +167,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	timer.Start();
 	DevMsg(eDLL_T::SERVER, "+- Writing hull data...\n");
 	// Don't know what this is, it's likely a block from tf1 that got deprecated? should just be 1 int per node.
-	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' bytes for unknown block at '0x%zX'\n", pNetwork->m_iNumNodes * sizeof(uint32_t), writer.GetPosition());
+	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' bytes for node block at '0x%zX'\n", pNetwork->m_iNumNodes * sizeof(uint32_t), writer.GetPosition());
 
 	if (static_cast<int>(pNetwork->m_iNumNodes) > 0)
 	{
@@ -184,11 +184,11 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	writer.Write(&traverseNodeCount, sizeof(short));
 
 	// TODO: Ideally these should be actually dumped, but they're always 0 in r2 from what i can tell.
-	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' bytes for unknown hull block at '0x%zX'\n", MAX_HULLS * 8, writer.GetPosition());
-	char* unkHullBlock = new char[MAX_HULLS * 8];
-	memset(unkHullBlock, '\0', MAX_HULLS * 8);
-	writer.Write(&unkHullBlock, MAX_HULLS * 8);
-	delete[] unkHullBlock;
+	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' bytes for hull data block at '0x%zX'\n", MAX_HULLS * 8, writer.GetPosition());
+	for (int i = 0; i < (MAX_HULLS * 8); i++)
+	{
+		writer.Write<uint8_t>('\0');
+	}
 
 	timer.End();
 	DevMsg(eDLL_T::SERVER, "...done writing hull data. %lf seconds\n", timer.GetDuration().GetSeconds());
@@ -255,14 +255,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	{
 		// Disk and memory structs for script nodes are identical.
 		DevMsg(eDLL_T::SERVER, " |-- Writing script node '#%d' at '0x%zX'\n", i, writer.GetPosition());
-		if (!IsBadReadPtrV2(reinterpret_cast<char*>(&pNetwork->m_ScriptNode[i])))
-		{
-			writer.Write(&pNetwork->m_ScriptNode[i], sizeof(CAI_ScriptNode));
-		}
-		else
-		{
-			Warning(eDLL_T::SERVER, " |-- Unable to write node '#%d' (invalid pointer)\n", i, pNetwork->m_iNumScriptNodes);
-		}
+		writer.Write(&pNetwork->m_ScriptNode[i], sizeof(CAI_ScriptNode));
 	}
 
 	timer.End();
@@ -300,7 +293,7 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager,
 	string svMeshDir = "maps\\navmesh\\";
 	string svGraphDir = "maps\\graphs\\";
 
-	fs::path fsMeshPath(svMeshDir + g_pHostState->m_levelName + "_" + HULL_SIZE[3] + ".nm");
+	fs::path fsMeshPath(svMeshDir + g_pHostState->m_levelName + "_" + SHULL_SIZE[3] + ".nm");
 	fs::path fsGraphPath(svGraphDir + g_pHostState->m_levelName + ".ain");
 
 	int nAiNetVersion = NULL;

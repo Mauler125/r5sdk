@@ -16,8 +16,12 @@
 #include <materialsystem/cmaterialsystem.h>
 #include <engine/debugoverlay.h>
 #include <engine/client/clientstate.h>
-#include <engine/server/server.h>
 #include <materialsystem/cmaterialglue.h>
+
+#ifndef CLIENT_DLL
+#include <engine/server/server.h>
+#endif
+#include <rtech/rtech_utils.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: proceed a log update
@@ -47,6 +51,10 @@ void CLogSystem::Update(void)
 	if (cl_showmaterialinfo->GetBool())
 	{
 		DrawCrosshairMaterial();
+	}
+	if (stream_overlay->GetBool())
+	{
+		DrawStreamOverlay();
 	}
 }
 
@@ -140,8 +148,14 @@ void CLogSystem::DrawSimStats(void) const
 
 	static Color c = { 255, 255, 255, 255 };
 	static const char* szLogbuf[4096]{};
+
+#ifdef CLIENT_DLL
+	snprintf((char*)szLogbuf, 4096, "Client Frame: (%d) Render Frame: (%d)\n",
+		g_pClientState->GetTick(), *render_tickcount);
+#else
 	snprintf((char*)szLogbuf, 4096, "Server Frame: (%d) Client Frame: (%d) Render Frame: (%d)\n",
-	g_pServer->GetTick(), g_pClientState->GetTick(), *render_tickcount);
+		g_pServer->GetTick(), g_pClientState->GetTick(), *render_tickcount);
+#endif
 
 	if (cl_simstats_invert_rect_x->GetBool())
 	{
@@ -191,14 +205,26 @@ void CLogSystem::DrawCrosshairMaterial(void) const
 
 	static Color c = { 255, 255, 255, 255 };
 	static const char* szLogbuf[4096]{};
-	snprintf((char*)szLogbuf, 4096, "name: %s\nguid: %llx\ndimensions: %d x %d\nsurface: %s/%s\nsig: %i",
+	snprintf((char*)szLogbuf, 4096, "name: %s\nguid: %llx\ndimensions: %d x %d\nsurface: %s/%s\nstc: %i\ntc: %i",
 		material->m_pszName,
 		material->m_GUID,
 		material->m_iWidth, material->m_iHeight,
 		material->m_pszSurfaceName1, material->m_pszSurfaceName2,
-		material->m_UnknownSignature);
+		material->m_nStreamableTextureCount,
+		material->m_pShaderGlue->m_nTextureInputCount);
 
 	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, cl_materialinfo_offset_x->GetInt(), cl_materialinfo_offset_y->GetInt(), c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
+}
+
+void CLogSystem::DrawStreamOverlay(void) const
+{
+	char buf[4096];
+	
+	GetStreamOverlay(stream_overlay_mode->GetString(), buf, sizeof(buf));
+
+	static Color c = { 255, 255, 255, 255 };
+
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, 20, 300, c.r(), c.g(), c.b(), c.a(), buf);
 }
 
 //-----------------------------------------------------------------------------

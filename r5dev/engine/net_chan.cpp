@@ -29,10 +29,7 @@ string CNetChan::GetAddress(void) const
 	char szAdr[INET6_ADDRSTRLEN]{};
 	if (!inet_ntop(AF_INET6, &this->remote_address.adr, szAdr, INET6_ADDRSTRLEN))
 	{
-		if (sv_showconnecting->GetBool())
-		{
-			Warning(eDLL_T::ENGINE, "%s - Address conversion failed: %s", __FUNCTION__, NET_ErrorString(WSAGetLastError()));
-		}
+		Warning(eDLL_T::ENGINE, "%s - Address conversion failed: %s", __FUNCTION__, NET_ErrorString(WSAGetLastError()));
 	}
 	return szAdr;
 }

@@ -32,7 +32,7 @@ struct hulldef
 	float tile_size;
 	//TODO: voxel size, tile size
 };
-extern hulldef hulls[5];
+extern const hulldef hulls[5];
 
 /// Tool types.
 enum SampleToolType
@@ -116,6 +116,9 @@ protected:
 	class dtCrowd* m_crowd;
 
 	unsigned char m_navMeshDrawFlags;
+	bool m_filterLowHangingObstacles;
+	bool m_filterLedgeSpans;
+	bool m_filterWalkableLowHeightSpans;
 
 	float m_cellSize;
 	float m_cellHeight;
@@ -131,12 +134,8 @@ protected:
 	float m_detailSampleDist;
 	float m_detailSampleMaxError;
 	int m_partitionType;
-	int m_count_reachability_tables;
-	const char* m_navmesh_name="unk";
-
-	bool m_filterLowHangingObstacles;
-	bool m_filterLedgeSpans;
-	bool m_filterWalkableLowHeightSpans;
+	int m_reachabilityTableCount;
+	const char* m_navmeshName = "unnamed";
 	
 	SampleTool* m_tool;
 	SampleToolState* m_toolStates[MAX_TOOLS];
@@ -145,8 +144,8 @@ protected:
 
 	SampleDebugDraw m_dd;
 	
-	dtNavMesh* loadAll(const char* path);
-	void saveAll(std::string path,dtNavMesh* mesh);
+	dtNavMesh* loadAll(std::string path);
+	void saveAll(std::string path, dtNavMesh* mesh);
 
 public:
 	std::string m_modelName;
@@ -195,8 +194,6 @@ public:
 	void resetCommonSettings();
 	void handleCommonSettings();
 
-	//don't do this kids, this is bad cpp
-	bool* is_tf2 = nullptr;
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
 	Sample(const Sample&);

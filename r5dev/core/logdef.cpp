@@ -20,7 +20,7 @@ void SpdLog_Init(void)
 	{
 		auto iconsole = std::make_shared<spdlog::logger>("game_console", g_spd_sys_p_ostream_sink);
 		spdlog::register_logger(iconsole); // in-game console logger.
-		iconsole->set_pattern("[%S.%e] %v");
+		iconsole->set_pattern("[0.000] %v");
 		iconsole->set_level(spdlog::level::trace);
 	}
 
@@ -33,10 +33,10 @@ void SpdLog_Init(void)
 		// Determine if user wants ansi-color logging in the terminal.
 		if (strstr(g_svCmdLine.c_str(), "-ansiclr"))
 		{
-			wconsole->set_pattern("[%S.%e] %v\u001b[0m");
+			wconsole->set_pattern("[0.000] %v\u001b[0m");
 			g_bSpdLog_UseAnsiClr = true;
 		}
-		else { wconsole->set_pattern("[%S.%e] %v"); }
+		else { wconsole->set_pattern("[0.000] %v"); }
 		wconsole->set_level(spdlog::level::trace);
 		spdlog::set_default_logger(wconsole); // Set as default.
 	}

@@ -405,6 +405,8 @@ bool dtIntersectSegSeg2D(const float* ap, const float* aq,
 						 const float* bp, const float* bq,
 						 float& s, float& t);
 
+float distancePtLine2d(const float* pt, const float* p, const float* q);
+
 /// Determines if the specified point is inside the convex polygon on the xz-plane.
 ///  @param[in]		pt		The point to check. [(x, y, z)]
 ///  @param[in]		verts	The polygon vertices. [(x, y, z) * @p nverts]

@@ -6,21 +6,24 @@
 
 #include "core/stdafx.h"
 #include "tier0/tslist.h"
+#include "tier0/memstd.h"
 #include "tier1/IConVar.h"
 #include "tier1/cvar.h"
 #include "mathlib/bits.h"
 #include "vstdlib/callback.h"
+#include "public/include/iconvar.h"
+#include "public/include/iconcommand.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: construct/allocate
 //-----------------------------------------------------------------------------
-ConVar::ConVar(const char* pszName, const char* pszDefaultValue, int nFlags, const char* pszHelpString, bool bMin, float fMin, bool bMax, float fMax, void* pCallback, const char* pszUsageString)
+ConVar::ConVar(const char* pszName, const char* pszDefaultValue, int nFlags, const char* pszHelpString, bool bMin, float fMin, bool bMax, float fMax, FnChangeCallback_t pCallback, const char* pszUsageString)
 {
-	ConVar* pNewConVar = reinterpret_cast<ConVar*>(v_MemAlloc_Wrapper(sizeof(ConVar))); // Allocate new memory with StdMemAlloc else we crash.
-	memset(pNewConVar, '\0', sizeof(ConVar));                                           // Set all to null.
+	ConVar* pNewConVar = MemAllocSingleton()->Alloc<ConVar>(sizeof(ConVar)); // Allocate new memory with StdMemAlloc else we crash.
+	memset(pNewConVar, '\0', sizeof(ConVar));                                // Set all to null.
 
-	pNewConVar->m_pConCommandBaseVTable = g_pConVarVtable.RCast<void*>();
-	pNewConVar->m_pIConVarVTable = g_pIConVarVtable.RCast<void*>();
+	pNewConVar->m_pConCommandBaseVFTable = g_pConVarVFTable.RCast<IConCommandBase*>();
+	pNewConVar->m_pIConVarVFTable = g_pIConVarVFTable.RCast<IConVar*>();
 
 	ConVar_Register(pNewConVar, pszName, pszDefaultValue, nFlags, pszHelpString, bMin, fMin, bMax, fMax, pCallback, pszUsageString);
 	*this = *pNewConVar;
@@ -31,6 +34,11 @@ ConVar::ConVar(const char* pszName, const char* pszDefaultValue, int nFlags, con
 //-----------------------------------------------------------------------------
 ConVar::~ConVar(void)
 {
+	if (m_Value.m_pszString)
+	{
+		MemAllocSingleton()->Free(m_Value.m_pszString);
+		m_Value.m_pszString = NULL;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -48,32 +56,47 @@ void ConVar::Init(void) const
 	cm_unset_dev_cmdquery   = new ConVar("cm_unset_dev_cmdquery"  , "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Returns false on all FCVAR_DEVELOPMENTONLY ConVar/ConCommand queries ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	cm_unset_cheat_cmdquery = new ConVar("cm_unset_cheat_cmdquery", "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Returns false on all FCVAR_DEVELOPMENTONLY and FCVAR_CHEAT ConVar/ConCommand queries ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 
-	// TODO: RconPasswordChanged_f
 	rcon_address  = new ConVar("rcon_address",  "::", FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Remote server access address.", false, 0.f, false, 0.f, nullptr, nullptr);
-	rcon_password = new ConVar("rcon_password", ""  , FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Remote server access password (rcon is disabled if empty).", false, 0.f, false, 0.f, nullptr, nullptr);
+	rcon_password = new ConVar("rcon_password", ""  , FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Remote server access password (rcon is disabled if empty).", false, 0.f, false, 0.f, &RCON_PasswordChanged_f, nullptr);
 
 	r_debug_overlay_nodecay        = new ConVar("r_debug_overlay_nodecay"       , "0", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Keeps all debug overlays alive regardless of their lifetime. Use command 'clear_debug_overlays' to clear everything.", false, 0.f, false, 0.f, nullptr, nullptr);
+	r_debug_overlay_invisible      = new ConVar("r_debug_overlay_invisible"     , "1", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Show invisible debug overlays (alpha < 1 = 255).", false, 0.f, false, 0.f, nullptr, nullptr);
+	r_debug_overlay_wireframe      = new ConVar("r_debug_overlay_wireframe"     , "1", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Use wireframe in debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	r_debug_overlay_zbuffer        = new ConVar("r_debug_overlay_zbuffer"       , "1", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Use z-buffer for debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 	r_drawWorldMeshes              = new ConVar("r_drawWorldMeshes"             , "1", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Render world meshes.", false, 0.f, false, 0.f, nullptr, nullptr);
 	r_drawWorldMeshesDepthOnly     = new ConVar("r_drawWorldMeshesDepthOnly"    , "1", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Render world meshes (depth only).", false, 0.f, false, 0.f, nullptr, nullptr);
 	r_drawWorldMeshesDepthAtTheEnd = new ConVar("r_drawWorldMeshesDepthAtTheEnd", "1", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, "Render world meshes (depth at the end).", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// SERVER                                                                 |
-	ai_ainDumpOnLoad         = new ConVar("ai_ainDumpOnLoad"         , "0", FCVAR_DEVELOPMENTONLY, "Dumps AIN data from node graphs loaded from the disk on load.", false, 0.f, false, 0.f, nullptr, nullptr);
-	ai_ainDebugConnect       = new ConVar("ai_ainDebugConnect"       , "0", FCVAR_DEVELOPMENTONLY, "Debug AIN node connections.", false, 0.f, false, 0.f, nullptr, nullptr);
-	navmesh_always_reachable = new ConVar("navmesh_always_reachable" , "1", FCVAR_DEVELOPMENTONLY, "Marks poly from agent to target on navmesh as reachable regardless of table data ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr); // !TODO: Default to '0' once the reachability table gets properly parsed.
+#ifndef CLIENT_DLL
+	ai_ainDumpOnLoad           = new ConVar("ai_ainDumpOnLoad"          , "0", FCVAR_DEVELOPMENTONLY, "Dumps AIN data from node graphs loaded from the disk on load.", false, 0.f, false, 0.f, nullptr, nullptr);
+	ai_ainDebugConnect         = new ConVar("ai_ainDebugConnect"        , "0", FCVAR_DEVELOPMENTONLY, "Debug AIN node connections.", false, 0.f, false, 0.f, nullptr, nullptr);
+	ai_script_nodes_draw_range = new ConVar("ai_script_nodes_draw_range", "0", FCVAR_DEVELOPMENTONLY, "AIN debug draw script nodes ranging from shift index to this cvar.", false, 0.f, false, 0.f, nullptr, nullptr);
 
+	navmesh_always_reachable   = new ConVar("navmesh_always_reachable"   , "0"    , FCVAR_DEVELOPMENTONLY, "Marks goal poly from agent poly as reachable regardless of table data ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	navmesh_debug_type         = new ConVar("navmesh_debug_type"         , "0"    , FCVAR_DEVELOPMENTONLY, "NavMesh debug draw hull index.", true, 0.f, true, 4.f, nullptr, "0 = small, 1 = med_short, 2 = medium, 3 = large, 4 = extra large");
+	navmesh_debug_tile_range   = new ConVar("navmesh_debug_tile_range"   , "0"    , FCVAR_DEVELOPMENTONLY, "NavMesh debug draw tiles ranging from shift index to this cvar.", true, 0.f, false, 0.f, nullptr, nullptr);
+	navmesh_debug_camera_range = new ConVar("navmesh_debug_camera_range" , "2000" , FCVAR_DEVELOPMENTONLY, "Only debug draw tiles within this distance from camera origin.", true, 0.f, false, 0.f, nullptr, nullptr);
+#ifndef DEDICATED
+	navmesh_draw_bvtree            = new ConVar("navmesh_draw_bvtree"            , "-1", FCVAR_DEVELOPMENTONLY, "Draws the BVTree of the NavMesh tiles.", false, 0.f, false, 0.f, nullptr, "Index: > 0 && < mesh->m_tileCount");
+	navmesh_draw_portal            = new ConVar("navmesh_draw_portal"            , "-1", FCVAR_DEVELOPMENTONLY, "Draws the portal of the NavMesh tiles.", false, 0.f, false, 0.f, nullptr, "Index: > 0 && < mesh->m_tileCount");
+	navmesh_draw_polys             = new ConVar("navmesh_draw_polys"             , "-1", FCVAR_DEVELOPMENTONLY, "Draws the polys of the NavMesh tiles.", false, 0.f, false, 0.f, nullptr, "Index: > 0 && < mesh->m_tileCount");
+	navmesh_draw_poly_bounds       = new ConVar("navmesh_draw_poly_bounds"       , "-1", FCVAR_DEVELOPMENTONLY, "Draws the bounds of the NavMesh polys.", false, 0.f, false, 0.f, nullptr, "Index: > 0 && < mesh->m_tileCount");
+	navmesh_draw_poly_bounds_inner = new ConVar("navmesh_draw_poly_bounds_inner" , "0" , FCVAR_DEVELOPMENTONLY, "Draws the inner bounds of the NavMesh polys (requires navmesh_draw_poly_bounds).", false, 0.f, false, 0.f, nullptr, "Index: > 0 && < mesh->m_tileCount");
+#endif // !DEDICATED
 	sv_showconnecting  = new ConVar("sv_showconnecting" , "1", FCVAR_RELEASE, "Logs information about the connecting client to the console.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_pylonVisibility = new ConVar("sv_pylonVisibility", "0", FCVAR_RELEASE, "Determines the visiblity to the Pylon master server, 0 = Offline, 1 = Hidden, 2 = Public.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_pylonRefreshInterval   = new ConVar("sv_pylonRefreshInterval"  , "5.0", FCVAR_RELEASE, "Pylon server host request post update interval (seconds).", true, 2.f, true, 8.f, nullptr, nullptr);
 	sv_banlistRefreshInterval = new ConVar("sv_banlistRefreshInterval", "1.0", FCVAR_RELEASE, "Banlist refresh interval (seconds).", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_statusRefreshInterval  = new ConVar("sv_statusRefreshInterval" , "0.5", FCVAR_RELEASE, "Server status bar update interval (seconds).", false, 0.f, false, 0.f, nullptr, nullptr);
+#endif // !CLIENT_DLL
 #ifdef DEDICATED
 	sv_rcon_debug       = new ConVar("sv_rcon_debug"      , "0" , FCVAR_RELEASE, "Show rcon debug information ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_banpenalty  = new ConVar("sv_rcon_banpenalty" , "10", FCVAR_RELEASE, "Number of minutes to ban users who fail rcon authentication.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_maxfailures = new ConVar("sv_rcon_maxfailures", "10", FCVAR_RELEASE, "Max number of times a user can fail rcon authentication before being banned.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_maxignores  = new ConVar("sv_rcon_maxignores" , "15", FCVAR_RELEASE, "Max number of times a user can ignore the no-auth message before being banned.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_maxsockets  = new ConVar("sv_rcon_maxsockets" , "32", FCVAR_RELEASE, "Max number of accepted sockets before the server starts closing redundant sockets.", false, 0.f, false, 0.f, nullptr, nullptr);
-	sv_rcon_whitelist_address = new ConVar("sv_rcon_whitelist_address", "", FCVAR_RELEASE, "This address is not considered a 'redundant' socket and will never be banned for failed authentications. Example: '::ffff:127.0.0.1'.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sv_rcon_whitelist_address = new ConVar("sv_rcon_whitelist_address", "", FCVAR_RELEASE, "This address is not considered a 'redundant' socket and will never be banned for failed authentications.", false, 0.f, false, 0.f, nullptr, "Format: '::ffff:127.0.0.1'.");
 #endif // DEDICATED
 	//-------------------------------------------------------------------------
 	// CLIENT                                                                 |
@@ -119,8 +142,8 @@ void ConVar::Init(void) const
 	cl_gpustats_offset_x      = new ConVar("cl_gpustats_offset_x"     , "650", FCVAR_DEVELOPMENTONLY, "X offset for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_gpustats_offset_y      = new ConVar("cl_gpustats_offset_y"     , "105", FCVAR_DEVELOPMENTONLY, "Y offset for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 
-	cl_showmaterialinfo = new ConVar("cl_showmaterialinfo", "0", FCVAR_DEVELOPMENTONLY, "Draw info for the material under the crosshair on screen.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_materialinfo_offset_x = new ConVar("cl_materialinfo_offset_x", "0", FCVAR_DEVELOPMENTONLY, "X offset for material debug info overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_showmaterialinfo      = new ConVar("cl_showmaterialinfo"     , "0"  , FCVAR_DEVELOPMENTONLY, "Draw info for the material under the crosshair on screen.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_materialinfo_offset_x = new ConVar("cl_materialinfo_offset_x", "0"  , FCVAR_DEVELOPMENTONLY, "X offset for material debug info overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_materialinfo_offset_y = new ConVar("cl_materialinfo_offset_y", "420", FCVAR_DEVELOPMENTONLY, "Y offset for material debug info overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 
 	con_max_size_logvector        = new ConVar("con_max_size_logvector"        , "1000", FCVAR_DEVELOPMENTONLY, "Maximum number of logs in the console until cleanup starts.", false, 0.f, false, 0.f, nullptr, nullptr);
@@ -153,7 +176,7 @@ void ConVar::Init(void) const
 	net_useRandomKey           = new ConVar("net_useRandomKey"          , "1"                        , FCVAR_RELEASE        , "Use random base64 netkey for game packets.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// NETWORKSYSTEM                                                          |
-	pylon_matchmaking_hostname = new ConVar("pylon_matchmaking_hostname", "127.0.0.1:3000"           , FCVAR_RELEASE        , "Holds the pylon matchmaking hostname.", false, 0.f, false, 0.f, nullptr, nullptr);
+	pylon_matchmaking_hostname = new ConVar("pylon_matchmaking_hostname", "r5a-comp-sv.herokuapp.com", FCVAR_RELEASE        , "Holds the pylon matchmaking hostname.", false, 0.f, false, 0.f, nullptr, nullptr);
 	pylon_showdebug            = new ConVar("pylon_showdebug"           , "0"                        , FCVAR_DEVELOPMENTONLY, "Shows debug output for pylon.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// RTECH API                                                              |
@@ -170,12 +193,17 @@ void ConVar::Init(void) const
 //-----------------------------------------------------------------------------
 void ConVar::InitShipped(void) const
 {
+#ifndef CLIENT_DLL
+	ai_script_nodes_draw             = g_pCVar->FindVar("ai_script_nodes_draw");
+#endif // !CLIENT_DLL
 	single_frame_shutdown_for_reload = g_pCVar->FindVar("single_frame_shutdown_for_reload");
 	enable_debug_overlays            = g_pCVar->FindVar("enable_debug_overlays");
 	model_defaultFadeDistScale       = g_pCVar->FindVar("model_defaultFadeDistScale");
 	model_defaultFadeDistMin         = g_pCVar->FindVar("model_defaultFadeDistMin");
 	staticProp_no_fade_scalar        = g_pCVar->FindVar("staticProp_no_fade_scalar");
 	staticProp_gather_size_weight    = g_pCVar->FindVar("staticProp_gather_size_weight");
+	stream_overlay                   = g_pCVar->FindVar("stream_overlay");
+	stream_overlay_mode              = g_pCVar->FindVar("stream_overlay_mode");
 	old_gather_props                 = g_pCVar->FindVar("old_gather_props");
 	mp_gamemode                      = g_pCVar->FindVar("mp_gamemode");
 	hostname                         = g_pCVar->FindVar("hostname");
@@ -184,6 +212,9 @@ void ConVar::InitShipped(void) const
 	host_hasIrreversibleShutdown     = g_pCVar->FindVar("host_hasIrreversibleShutdown");
 	net_usesocketsforloopback        = g_pCVar->FindVar("net_usesocketsforloopback");
 
+#ifndef CLIENT_DLL
+	ai_script_nodes_draw->SetValue(-1);
+#endif // !CLIENT_DLL
 	mp_gamemode->SetCallback(&MP_GameMode_Changed_f);
 }
 
@@ -243,7 +274,7 @@ void ConVar::PurgeHostNames(void) const
 	{
 		if (ConVar* pCVar = g_pCVar->FindVar(pszHostNames[i]))
 		{
-			pCVar->ChangeStringValueUnsafe("0.0.0.0");
+			pCVar->ChangeStringValue("0.0.0.0", pCVar->m_Value.m_fValue);
 		}
 	}
 }
@@ -725,15 +756,15 @@ void ConVar::ChangeStringValue(const char* pszTempVal, float flOldValue)
 		{
 			if (m_Value.m_pszString)
 			{
-				delete[] m_Value.m_pszString;
+				MemAllocSingleton()->Free(m_Value.m_pszString);
 			}
 
-			m_Value.m_pszString = new char[len];
+			m_Value.m_pszString = MemAllocSingleton()->Alloc<const char>(len);
 			m_Value.m_iStringLength = len;
 		}
 		else if (!m_Value.m_pszString)
 		{
-			m_Value.m_pszString = new char[len];
+			m_Value.m_pszString = MemAllocSingleton()->Alloc<const char>(len);
 			m_Value.m_iStringLength = len;
 		}
 		memcpy(const_cast<char*>(m_Value.m_pszString), pszTempVal, len);
@@ -747,7 +778,7 @@ void ConVar::ChangeStringValue(const char* pszTempVal, float flOldValue)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: changes the ConVar string value (unsafe).
+// Purpose: changes the ConVar string value (only use if the new string is equal or lower than this->m_iStringLength).
 // Input  : *pszTempVal - flOldValue
 //-----------------------------------------------------------------------------
 void ConVar::ChangeStringValueUnsafe(const char* pszNewValue)

@@ -32,14 +32,33 @@ ConVar* rcon_address                       = nullptr;
 ConVar* rcon_password                      = nullptr;
 
 ConVar* r_debug_overlay_nodecay            = nullptr;
+ConVar* r_debug_overlay_invisible          = nullptr;
+ConVar* r_debug_overlay_wireframe          = nullptr;
+ConVar* r_debug_overlay_zbuffer            = nullptr;
 ConVar* r_drawWorldMeshes                  = nullptr;
 ConVar* r_drawWorldMeshesDepthOnly         = nullptr;
 ConVar* r_drawWorldMeshesDepthAtTheEnd     = nullptr;
+
+ConVar* stream_overlay                     = nullptr;
+ConVar* stream_overlay_mode                = nullptr;
 //-----------------------------------------------------------------------------
 // SERVER                                                                     |
 ConVar* ai_ainDumpOnLoad                   = nullptr;
 ConVar* ai_ainDebugConnect                 = nullptr;
+ConVar* ai_script_nodes_draw               = nullptr;
+ConVar* ai_script_nodes_draw_range         = nullptr;
+
 ConVar* navmesh_always_reachable           = nullptr;
+ConVar* navmesh_debug_type                 = nullptr;
+ConVar* navmesh_debug_tile_range           = nullptr;
+ConVar* navmesh_debug_camera_range         = nullptr;
+#ifndef DEDICATED
+ConVar* navmesh_draw_bvtree                = nullptr;
+ConVar* navmesh_draw_portal                = nullptr;
+ConVar* navmesh_draw_polys                 = nullptr;
+ConVar* navmesh_draw_poly_bounds           = nullptr;
+ConVar* navmesh_draw_poly_bounds_inner     = nullptr;
+#endif // !DEDICATED
 
 ConVar* sv_showconnecting                  = nullptr;
 ConVar* sv_pylonVisibility                 = nullptr;
@@ -131,7 +150,7 @@ ConVar* net_encryptionEnable               = nullptr;
 ConVar* net_useRandomKey                   = nullptr;
 ConVar* net_usesocketsforloopback          = nullptr;
 ConVar* pylon_matchmaking_hostname         = nullptr;
-ConVar* pylon_showdebug                   = nullptr;
+ConVar* pylon_showdebug                    = nullptr;
 //-----------------------------------------------------------------------------
 // RTECH API                                                                  |
 //-----------------------------------------------------------------------------

@@ -170,18 +170,16 @@ void CBanSystem::BanListCheck(void)
 		{
 			for (int c = 0; c < MAX_PLAYERS; c++) // Loop through all possible client instances.
 			{
-				CClient* pClient = g_pClient->GetClient(c);
-				CNetChan* pNetChan = pClient->GetNetChan();
-
-				if (!pClient || !pNetChan)
-				{
+				CClient* pClient = g_pClient->GetClient(i);
+				if (!pClient)
 					continue;
-				}
+
+				CNetChan* pNetChan = pClient->GetNetChan();
+				if (!pNetChan)
+					continue;
 
 				if (pClient->GetOriginID() != m_vRefuseList[i].second)
-				{
 					continue;
-				}
 
 				string svIpAddress = pNetChan->GetAddress();
 

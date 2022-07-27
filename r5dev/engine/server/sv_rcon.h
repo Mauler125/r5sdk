@@ -16,6 +16,7 @@ public:
 
 	void Init(void);
 	void Shutdown(void);
+	bool SetPassword(const char* pszPassword);
 
 	void Think(void);
 	void RunFrame(void);
@@ -48,3 +49,4 @@ private:
 	std::string              m_svPasswordHash;
 };
 extern CRConServer* g_pRConServer;
+CRConServer* RCONServer();
