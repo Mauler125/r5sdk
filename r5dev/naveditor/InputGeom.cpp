@@ -593,7 +593,13 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
 	for (int i = 0; i < m_volumeCount; ++i)
 	{
 		const ConvexVolume* vol = &m_volumes[i];
-		unsigned int col = duTransCol(dd->areaToCol(vol->area), 32);
+		unsigned int col;
+
+		if (vol->area == SAMPLE_POLYAREA_GROUND)
+			col = duRGBA(255, 0, 0, 32); // Use red for visibility (ground acts as deletion).
+		else
+			col = duTransCol(dd->areaToCol(vol->area), 32);
+
 		for (int j = 0, k = vol->nverts-1; j < vol->nverts; k = j++)
 		{
 			const float* va = &vol->verts[k*3];
@@ -617,7 +623,13 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
 	for (int i = 0; i < m_volumeCount; ++i)
 	{
 		const ConvexVolume* vol = &m_volumes[i];
-		unsigned int col = duTransCol(dd->areaToCol(vol->area), 220);
+		unsigned int col;
+
+		if (vol->area == SAMPLE_POLYAREA_GROUND)
+			col = duRGBA(255, 0, 0, 220); // Use red for visibility (ground acts as deletion).
+		else
+			col = duTransCol(dd->areaToCol(vol->area), 220);
+
 		for (int j = 0, k = vol->nverts-1; j < vol->nverts; k = j++)
 		{
 			const float* va = &vol->verts[k*3];
