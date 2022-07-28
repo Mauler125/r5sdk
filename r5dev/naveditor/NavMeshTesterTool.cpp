@@ -1301,8 +1301,8 @@ void NavMeshTesterTool::handleRender()
 				float delta[3], norm[3], p0[3], p1[3];
 				dtVsub(delta, s+3,s);
 				dtVmad(p0, s, delta, 0.5f);
-				norm[0] = delta[1];
-				norm[1] = -delta[0];
+				norm[0] = -delta[1];
+				norm[1] = delta[0];
 				norm[2] = 0;
 				dtVnormalize(norm);
 				dtVmad(p1, p0, norm, agentRadius*0.5f);
