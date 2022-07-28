@@ -932,8 +932,8 @@ void NavMeshTesterTool::recalc()
 		if (m_sposSet && m_startRef && m_eposSet)
 		{
 			const float dx = m_epos[0] - m_spos[0];
-			const float dz = m_epos[2] - m_spos[2];
-			float dist = sqrtf(dx*dx + dz*dz);
+			const float dy = m_epos[1] - m_spos[1];
+			float dist = sqrtf(dx*dx + dy*dy);
 #ifdef DUMP_REQS
 			printf("fpc  %f %f %f  %f  0x%x 0x%x\n",
 				   m_spos[0],m_spos[1],m_spos[2], dist,
@@ -948,25 +948,25 @@ void NavMeshTesterTool::recalc()
 	{
 		if (m_sposSet && m_startRef && m_eposSet)
 		{
-			const float nx = (m_epos[2] - m_spos[2])*0.25f;
-			const float nz = -(m_epos[0] - m_spos[0])*0.25f;
+			const float nx = (m_epos[1] - m_spos[1])*0.25f;
+			const float ny = -(m_epos[0] - m_spos[0])*0.25f;
 			const float agentHeight = m_sample ? m_sample->getAgentHeight() : 0;
 
 			m_queryPoly[0] = m_spos[0] + nx*1.2f;
-			m_queryPoly[1] = m_spos[1] + agentHeight/2;
-			m_queryPoly[2] = m_spos[2] + nz*1.2f;
+			m_queryPoly[1] = m_spos[1] + ny*1.2f;
+			m_queryPoly[2] = m_spos[2] + agentHeight/2;
 
 			m_queryPoly[3] = m_spos[0] - nx*1.3f;
-			m_queryPoly[4] = m_spos[1] + agentHeight/2;
-			m_queryPoly[5] = m_spos[2] - nz*1.3f;
+			m_queryPoly[4] = m_spos[1] - ny*1.3f;
+			m_queryPoly[5] = m_spos[2] + agentHeight/2;
 
 			m_queryPoly[6] = m_epos[0] - nx*0.8f;
-			m_queryPoly[7] = m_epos[1] + agentHeight/2;
-			m_queryPoly[8] = m_epos[2] - nz*0.8f;
+			m_queryPoly[7] = m_epos[1] - ny*0.8f;
+			m_queryPoly[8] = m_epos[2] + agentHeight/2;
 
 			m_queryPoly[9] = m_epos[0] + nx;
-			m_queryPoly[10] = m_epos[1] + agentHeight/2;
-			m_queryPoly[11] = m_epos[2] + nz;
+			m_queryPoly[10] = m_epos[1] + ny;
+			m_queryPoly[11] = m_epos[2] + agentHeight/2;
 			
 #ifdef DUMP_REQS
 			printf("fpp  %f %f %f  %f %f %f  %f %f %f  %f %f %f  0x%x 0x%x\n",
@@ -1386,18 +1386,18 @@ void NavMeshTesterTool::drawAgent(const float* pos, float r, float h, float c, c
 	dd.depthMask(false);
 	
 	// Agent dimensions.	
-	duDebugDrawCylinderWire(&dd, pos[0]-r, pos[1]-r, pos[2] + 0.02f, pos[0]+r, pos[1]+r, pos[2]+h, col, 2.0f);
+	duDebugDrawCylinderWire(&dd, pos[0]-r, pos[1]-r, pos[2]+0.02f, pos[0]+r, pos[1]+r, pos[2]+h, col, 2.0f);
 
 	duDebugDrawCircle(&dd, pos[0],pos[1],pos[2] + c,r,duRGBA(0,0,0,64),1.0f);
 
 	unsigned int colb = duRGBA(0,0,0,196);
 	dd.begin(DU_DRAW_LINES);
-	dd.vertex(pos[0], pos[1], pos[2] - c, colb);
-	dd.vertex(pos[0], pos[1], pos[2] + c, colb);
-	dd.vertex(pos[0]-r/2, pos[1], pos[2] + 0.02f, colb);
-	dd.vertex(pos[0]+r/2, pos[1], pos[2] + 0.02f, colb);
-	dd.vertex(pos[0], pos[1] - r / 2, pos[2] + 0.02f, colb);
-	dd.vertex(pos[0], pos[1] + r / 2, pos[2] + 0.02f, colb);
+	dd.vertex(pos[0],pos[1],pos[2]-c,colb);
+	dd.vertex(pos[0],pos[1],pos[2]+c,colb);
+	dd.vertex(pos[0]-r/2,pos[1],pos[2]+0.02f,colb);
+	dd.vertex(pos[0]+r/2,pos[1],pos[2]+0.02f,colb);
+	dd.vertex(pos[0],pos[1]-r/2,pos[2]+0.02f,colb);
+	dd.vertex(pos[0],pos[1]+r/2,pos[2]+0.02f,colb);
 	dd.end();
 	
 	dd.depthMask(true);

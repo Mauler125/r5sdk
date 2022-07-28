@@ -458,12 +458,9 @@ void appendArrowHead(struct duDebugDraw* dd, const float* p, const float* q,
 
 	dd->vertex(p, col);
 	dd->vertex(p[0]+az[0]*s+ay[0]*s/2, p[1]+az[1]*s+ay[1]*s/2, p[2]+az[2]*s+ay[2]*s/2, col);
-//	dd->vertex(p[0]+az[0]*s+ax[0]*s/3, p[1]+az[1]*s+ax[1]*s/3, p[2]+az[2]*s+ax[2]*s/3, col);
 
 	dd->vertex(p, col);
 	dd->vertex(p[0]+az[0]*s-ay[0]*s/2, p[1]+az[1]*s-ay[1]*s/2, p[2]+az[2]*s-ay[2]*s/2, col);
-//	dd->vertex(p[0]+az[0]*s-ax[0]*s/3, p[1]+az[1]*s-ax[1]*s/3, p[2]+az[2]*s-ax[2]*s/3, col);
-	
 }
 
 void duAppendArc(struct duDebugDraw* dd, const float x0, const float y0, const float z0,

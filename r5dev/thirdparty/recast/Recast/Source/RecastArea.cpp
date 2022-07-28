@@ -335,7 +335,7 @@ void rcMarkBoxArea(rcContext* ctx, const float* bmin, const float* bmax, unsigne
 	if (minx < 0) minx = 0;
 	if (maxx >= chf.width) maxx = chf.width-1;
 	if (miny < 0) miny = 0;
-	if (maxy >= chf.height) maxy = chf.height-1;	
+	if (maxy >= chf.height) maxy = chf.height-1;
 	
 	for (int y = miny; y <= maxy; ++y)
 	{
@@ -558,7 +558,7 @@ void rcMarkCylinderArea(rcContext* ctx, const float* pos,
 	if (minx < 0) minx = 0;
 	if (maxx >= chf.width) maxx = chf.width-1;
 	if (miny < 0) minz = 0;
-	if (maxy >= chf.height) maxy = chf.height-1;	
+	if (maxy >= chf.height) maxy = chf.height-1;
 	
 	
 	for (int y = miny; y <= maxy; ++y)

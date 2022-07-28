@@ -126,12 +126,12 @@ public:
 			glColor4ub(0,0,0,128);
 			glLineWidth(2.0f);
 			glBegin(GL_LINES);
-			glVertex3f(m_hitPos[0]-s,m_hitPos[1]+0.1f,m_hitPos[2]);
-			glVertex3f(m_hitPos[0]+s,m_hitPos[1]+0.1f,m_hitPos[2]);
-			glVertex3f(m_hitPos[0],m_hitPos[1]-s+0.1f,m_hitPos[2]);
-			glVertex3f(m_hitPos[0],m_hitPos[1]+s+0.1f,m_hitPos[2]);
-			glVertex3f(m_hitPos[0],m_hitPos[1]+0.1f,m_hitPos[2]-s);
-			glVertex3f(m_hitPos[0],m_hitPos[1]+0.1f,m_hitPos[2]+s);
+			glVertex3f(m_hitPos[0]-s,m_hitPos[1],m_hitPos[2]+0.1f);
+			glVertex3f(m_hitPos[0]+s,m_hitPos[1],m_hitPos[2]+0.1f);
+			glVertex3f(m_hitPos[0],m_hitPos[1]-s,m_hitPos[2]+0.1f);
+			glVertex3f(m_hitPos[0],m_hitPos[1]+s,m_hitPos[2]+0.1f);
+			glVertex3f(m_hitPos[0],m_hitPos[1],m_hitPos[2]-s+0.1f);
+			glVertex3f(m_hitPos[0],m_hitPos[1],m_hitPos[2]+s+0.1f);
 			glEnd();
 			glLineWidth(1.0f);
 		}
@@ -686,13 +686,11 @@ void Sample_TileMesh::getTileExtents(int tx, int ty, float* tmin, float* tmax)
 	const float* bmin = m_geom->getNavMeshBoundsMin();
 	const float* bmax = m_geom->getNavMeshBoundsMax();
 	tmin[0] = bmax[0] - (tx+1)*ts;
-	//tmin[0] = bmin[0] + tx * ts;
-	tmin[1] = bmin[1] + ty * ts;
+	tmin[1] = bmin[1] + (ty)*ts;
 	tmin[2] = bmin[2];
 
 	tmax[0] = bmax[0] - (tx)*ts;
-	//tmax[0] = bmin[0] + (tx + 1)*ts;
-	tmax[1] = bmin[1] + (ty + 1)*ts;
+	tmax[1] = bmin[1] + (ty+1)*ts;
 	tmax[2] = bmax[2];
 }
 void Sample_TileMesh::getTilePos(const float* pos, int& tx, int& ty)
@@ -704,7 +702,6 @@ void Sample_TileMesh::getTilePos(const float* pos, int& tx, int& ty)
 
 	const float ts = m_tileSize*m_cellSize;
 	tx = (int)((bmax[0]- pos[0]) / ts);
-	//tx = (int)((pos[0] - bmin[0]) / ts);
 	ty = (int)((pos[1] - bmin[1]) / ts);
 }
 
