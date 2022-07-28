@@ -479,7 +479,7 @@ void CBrowser::HostPanel(void)
 
     if (!g_pHostState->m_bActiveGame)
     {
-        if (ImGui::Button("Start Server", ImVec2(ImGui::GetWindowSize().x, 32)))
+        if (ImGui::Button("Start Server", ImVec2((ImGui::GetWindowSize().x - 10), 32)))
         {
             svServerNameErr.clear();
             if (!m_Server.m_svHostName.empty() && !m_Server.m_svPlaylist.empty() && !m_Server.m_svMapName.empty())
@@ -505,7 +505,7 @@ void CBrowser::HostPanel(void)
         }
     }
 
-    if (ImGui::Button("Force Start", ImVec2(ImGui::GetWindowSize().x, 32)))
+    if (ImGui::Button("Force Start", ImVec2((ImGui::GetWindowSize().x - 10), 32)))
     {
         svServerNameErr.clear();
         if (!m_Server.m_svPlaylist.empty() && !m_Server.m_svMapName.empty())
@@ -535,14 +535,14 @@ void CBrowser::HostPanel(void)
 
     if (g_pHostState->m_bActiveGame)
     {
-        if (ImGui::Button("Weapon Reparse", ImVec2(ImGui::GetWindowSize().x, 32)))
+        if (ImGui::Button("Weapon Reparse", ImVec2((ImGui::GetWindowSize().x - 10), 32)))
         {
             DevMsg(eDLL_T::ENGINE, "Reparsing weapon data on %s\n", "server and client");
             ProcessCommand("weapon_reparse");
             ProcessCommand("reload");
         }
 
-        if (ImGui::Button("Change Level", ImVec2(ImGui::GetWindowSize().x, 32)))
+        if (ImGui::Button("Change Level", ImVec2((ImGui::GetWindowSize().x - 10), 32)))
         {
             if (!m_Server.m_svMapName.empty())
             {
@@ -555,7 +555,7 @@ void CBrowser::HostPanel(void)
             }
         }
 
-        if (ImGui::Button("Stop Server", ImVec2(ImGui::GetWindowSize().x, 32)))
+        if (ImGui::Button("Stop Server", ImVec2((ImGui::GetWindowSize().x - 10), 32)))
         {
             ProcessCommand("LeaveMatch"); // TODO: use script callback instead.
             g_pHostState->m_iNextState = HostStates_t::HS_GAME_SHUTDOWN; // Force CHostState::FrameUpdate to shutdown the server for dedicated.
@@ -563,7 +563,7 @@ void CBrowser::HostPanel(void)
     }
     else
     {
-        if (ImGui::Button("Reload Playlist", ImVec2(ImGui::GetWindowSize().x, 32)))
+        if (ImGui::Button("Reload Playlist", ImVec2((ImGui::GetWindowSize().x - 10), 32)))
         {
             _DownloadPlaylists_f();
             KeyValues::InitPlaylists(); // Re-Init playlist.
