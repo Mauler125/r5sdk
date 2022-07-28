@@ -184,7 +184,7 @@ int getNeighbours(const float* pos, const float height, const float range,
 		dtVsub(diff, pos, ag->npos);
 		if (dtMathFabsf(diff[2]) >= (height+ag->params.height)/2.0f)
 			continue;
-		diff[1] = 0;
+		diff[2] = 0;
 		const float distSqr = dtVlenSqr(diff);
 		if (distSqr > dtSqr(range))
 			continue;

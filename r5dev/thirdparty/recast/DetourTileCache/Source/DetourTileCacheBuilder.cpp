@@ -398,7 +398,7 @@ static bool appendVertex(dtTempContour& cont, const int x, const int y, const in
 				pb[0] = (unsigned char)x;
 				return true;
 			}
-			else if (pa[2] == pb[2] && (int)pb[2] == y)
+			else if (pa[1] == pb[1] && (int)pb[1] == y)
 			{
 				// The verts are aligned aling y-axis, update x.
 				pb[0] = (unsigned char)x;
@@ -523,7 +523,7 @@ static bool walkContour(dtTileCacheLayer& layer, int x, int y, dtTempContour& co
 	// Remove last vertex if it is duplicate of the first one.
 	unsigned char* pa = &cont.verts[(cont.nverts-1)*4];
 	unsigned char* pb = &cont.verts[0];
-	if (pa[0] == pb[0] && pa[2] == pb[2])
+	if (pa[0] == pb[0] && pa[1] == pb[1])
 		cont.nverts--;
 	
 	return true;

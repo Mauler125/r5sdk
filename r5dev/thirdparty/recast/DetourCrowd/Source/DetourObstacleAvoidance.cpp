@@ -293,13 +293,13 @@ void dtObstacleAvoidanceQuery::prepare(const float* pos, const float* dvel)
 		const float a = dtTriArea2D(orig, cir->dp,dv);
 		if (a < 0.01f)
 		{
-			cir->np[0] = -cir->dp[2];
-			cir->np[2] = cir->dp[0];
+			cir->np[0] = -cir->dp[1];
+			cir->np[1] = cir->dp[0];
 		}
 		else
 		{
-			cir->np[0] = cir->dp[2];
-			cir->np[2] = -cir->dp[0];
+			cir->np[0] = cir->dp[1];
+			cir->np[1] = -cir->dp[0];
 		}
 	}	
 

@@ -535,7 +535,7 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 						const dtNode* node = pool->getNodeAtIdx(j+1);
 						if (!node) continue;
 
-						if (gluProject((GLdouble)node->pos[0],(GLdouble)node->pos[1]+off,(GLdouble)node->pos[2],
+						if (gluProject((GLdouble)node->pos[0],(GLdouble)node->pos[1],(GLdouble)node->pos[2]+off,
 									   model, proj, view, &x, &y, &z))
 						{
 							const float heuristic = node->total;// - node->cost;
@@ -588,7 +588,7 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 						const dtCrowdAgent* nei = crowd->getAgent(ag->neis[j].idx);
 						if (!nei->active) continue;
 						
-						if (gluProject((GLdouble)nei->npos[0], (GLdouble)nei->npos[1]+radius, (GLdouble)nei->npos[2],
+						if (gluProject((GLdouble)nei->npos[0], (GLdouble)nei->npos[1], (GLdouble)nei->npos[2]+radius,
 									   model, proj, view, &x, &y, &z))
 						{
 							snprintf(label, 32, "%.3f", ag->neis[j].dist);

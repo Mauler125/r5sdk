@@ -381,7 +381,6 @@ static void drawMeshTilePortal(duDebugDraw* dd, const dtMeshTile* tile)
 					dd->vertex(vb[0], y, vb[2] - padz, col);
 					dd->vertex(va[0], y, va[2] - padz, col);
 				}
-
 			}
 		}
 	}
@@ -497,11 +496,11 @@ static void debugDrawTileCachePortals(struct duDebugDraw* dd, const dtTileCacheL
 				{
 					const int* seg = &segs[dir*4];
 					const float ax = bmin[0] + (x+seg[0])*cs;
-					const float ay = bmin[1] + (lh+1)*ch;
-					const float az = bmin[2] + (y+seg[2])*cs;
-					const float bx = bmin[0] + (x+seg[2])*cs;
-					const float by = bmin[1] + (lh+3)*ch;
-					const float bz = bmin[2] + (y+seg[2])*cs;
+					const float ay = bmin[1] + (y+seg[1])*cs;
+					const float az = bmin[2] + (lh+1)*ch;
+					const float bx = bmin[0] + (x+seg[1])*cs;
+					const float by = bmin[1] + (y+seg[1])*cs;
+					const float bz = bmin[2] + (lh+3)*ch;
 					dd->vertex(ax, ay, az, pcol);
 					dd->vertex(bx, by, bz, pcol);
 				}
