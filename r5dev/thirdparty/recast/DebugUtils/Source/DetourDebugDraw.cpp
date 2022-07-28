@@ -186,19 +186,19 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 			dd->vertex(va[0],va[1],va[2], col);
 			dd->vertex(con->pos[0],con->pos[1],con->pos[2], col);
 			col2 = startSet ? col : duRGBA(220,32,16,196);
-			duAppendCircle(dd, con->pos[0],con->pos[1]+0.1f,con->pos[2], con->rad, col2);
+			duAppendCircle(dd, con->pos[0],con->pos[1],con->pos[2]+5.0f, con->rad, col2);
 
 			dd->vertex(vb[0],vb[1],vb[2], col);
 			dd->vertex(con->pos[3],con->pos[4],con->pos[5], col);
 			col2 = endSet ? col : duRGBA(220,32,16,196);
-			duAppendCircle(dd, con->pos[3],con->pos[4]+0.1f,con->pos[5], con->rad, col2);
+			duAppendCircle(dd, con->pos[3],con->pos[4],con->pos[5]+5.0f, con->rad, col2);
 			
 			// End point vertices.
 			dd->vertex(con->pos[0],con->pos[1],con->pos[2], duRGBA(0,48,64,196));
-			dd->vertex(con->pos[0],con->pos[1]+0.2f,con->pos[2], duRGBA(0,48,64,196));
+			dd->vertex(con->pos[0],con->pos[1],con->pos[2]+10.0f, duRGBA(0,48,64,196));
 			
 			dd->vertex(con->pos[3],con->pos[4],con->pos[5], duRGBA(0,48,64,196));
-			dd->vertex(con->pos[3],con->pos[4]+0.2f,con->pos[5], duRGBA(0,48,64,196));
+			dd->vertex(con->pos[3],con->pos[4],con->pos[5]+10.0f, duRGBA(0,48,64,196));
 			
 			// Connection arc.
 			duAppendArc(dd, con->pos[0],con->pos[1],con->pos[2], con->pos[3],con->pos[4],con->pos[5], 0.25f,
