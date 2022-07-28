@@ -46,7 +46,7 @@ inline bool cmppt(const float* a, const float* b)
 	if (a[1] > b[1]) return false;
 	return false;
 }
-// Calculates convex hull on xz-plane of points on 'pts',
+// Calculates convex hull on xy-plane of points on 'pts',
 // stores the indices of the resulting hull in 'out' and
 // returns number of points on hull.
 static int convexhull(const float* pts, int npts, int* out)

@@ -94,8 +94,8 @@ struct dtNavMeshCreateParams
 	float walkableHeight;	///< The agent height. [Unit: wu]
 	float walkableRadius;	///< The agent radius. [Unit: wu]
 	float walkableClimb;	///< The agent maximum traversable ledge. (Up/Down) [Unit: wu]
-	float cs;				///< The xz-plane cell size of the polygon mesh. [Limit: > 0] [Unit: wu]
-	float ch;				///< The y-axis cell height of the polygon mesh. [Limit: > 0] [Unit: wu]
+	float cs;				///< The xy-plane cell size of the polygon mesh. [Limit: > 0] [Unit: wu]
+	float ch;				///< The z-axis cell height of the polygon mesh. [Limit: > 0] [Unit: wu]
 
 	/// True if a bounding volume tree should be built for the tile.
 	/// @note The BVTree is not normally needed for layered navigation meshes.

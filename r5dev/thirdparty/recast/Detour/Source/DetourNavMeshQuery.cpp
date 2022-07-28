@@ -305,7 +305,7 @@ dtStatus dtNavMeshQuery::findRandomPoint(const dtQueryFilter* filter, float (*fr
 	dtStatus status = getPolyHeight(polyRef, pt, &h);
 	if (dtStatusFailed(status))
 		return status;
-	pt[1] = h;
+	pt[2] = h;
 	
 	dtVcopy(randomPt, pt);
 	*randomRef = polyRef;
@@ -2654,8 +2654,8 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 			const float* vb = &verts[b*3];
 			const float dx = vb[0] - va[0];
 			const float dy = vb[1] - va[1];
-			hit->hitNormal[0] = dy;
-			hit->hitNormal[1] = -dx;
+			hit->hitNormal[0] = -dy;
+			hit->hitNormal[1] = dx;
 			hit->hitNormal[2] = 0;
 			dtVnormalize(hit->hitNormal);
 			
@@ -2700,7 +2700,7 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 /// y-value will effect the costs.
 ///
 /// Intersection tests occur in 2D. All polygons and the search circle are 
-/// projected onto the xz-plane. So the y-value of the center point does not 
+/// projected onto the xy-plane. So the z-value of the center point does not 
 /// effect intersection tests.
 ///
 /// If the result arrays are to small to hold the entire result set, they will be 
@@ -2875,7 +2875,7 @@ dtStatus dtNavMeshQuery::findPolysAroundCircle(dtPolyRef startRef, const float* 
 /// calculations.
 /// 
 /// Intersection tests occur in 2D. All polygons are projected onto the 
-/// xz-plane. So the y-values of the vertices do not effect intersection tests.
+/// xy-plane. So the z-values of the vertices do not effect intersection tests.
 /// 
 /// If the result arrays are is too small to hold the entire result set, they will 
 /// be filled to capacity.
@@ -3072,7 +3072,7 @@ dtStatus dtNavMeshQuery::getPathFromDijkstraSearch(dtPolyRef endRef, dtPolyRef* 
 /// the costs.
 /// 
 /// Intersection tests occur in 2D. All polygons and the search circle are 
-/// projected onto the xz-plane. So the y-value of the center point does not 
+/// projected onto the xy-plane. So the z-value of the center point does not 
 /// effect intersection tests.
 /// 
 /// If the result arrays are is too small to hold the entire result set, they will 

@@ -579,7 +579,7 @@ static bool	inCone(int i, int n, const int* verts, const int* pj)
 
 static void removeDegenerateSegments(rcIntArray& simplified)
 {
-	// Remove adjacent vertices which are equal on xz-plane,
+	// Remove adjacent vertices which are equal on xy-plane,
 	// or else the triangulator will get confused.
 	int npts = simplified.size()/4;
 	for (int i = 0; i < npts; ++i)
