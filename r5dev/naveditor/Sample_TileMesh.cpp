@@ -1109,7 +1109,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 							   m_cfg.detailSampleDist, m_cfg.detailSampleMaxError,
 							   *m_dmesh))
 	{
-		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could build polymesh detail.");
+		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build polymesh detail.");
 		return 0;
 	}
 	
