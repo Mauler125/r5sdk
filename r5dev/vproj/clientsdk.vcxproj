@@ -108,6 +108,7 @@
     <ClCompile Include="..\tier0\platform.cpp" />
     <ClCompile Include="..\tier0\threadtools.cpp" />
     <ClCompile Include="..\tier1\bitbuf.cpp" />
+    <ClCompile Include="..\tier1\characterset.cpp" />
     <ClCompile Include="..\tier1\cmd.cpp" />
     <ClCompile Include="..\tier1\cvar.cpp" />
     <ClCompile Include="..\tier1\IConVar.cpp" />
@@ -468,6 +469,7 @@
     <ClInclude Include="..\tier0\valve_on.h" />
     <ClInclude Include="..\tier0\wchartypes.h" />
     <ClInclude Include="..\tier1\bitbuf.h" />
+    <ClInclude Include="..\tier1\characterset.h" />
     <ClInclude Include="..\tier1\cmd.h" />
     <ClInclude Include="..\tier1\cvar.h" />
     <ClInclude Include="..\tier1\IConVar.h" />

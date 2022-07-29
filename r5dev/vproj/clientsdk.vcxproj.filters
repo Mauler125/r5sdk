@@ -561,6 +561,9 @@
     <ClCompile Include="..\game\client\view.cpp">
       <Filter>sdk\game\client</Filter>
     </ClCompile>
+    <ClCompile Include="..\tier1\characterset.cpp">
+      <Filter>sdk\tier1</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1651,6 +1654,9 @@
     </ClInclude>
     <ClInclude Include="..\public\include\iconvar.h">
       <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\characterset.h">
+      <Filter>sdk\tier1</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

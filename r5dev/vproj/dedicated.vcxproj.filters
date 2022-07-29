@@ -1185,6 +1185,9 @@
     <ClInclude Include="..\public\include\icvar.h">
       <Filter>sdk\public\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\tier1\characterset.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1483,6 +1486,9 @@
     </ClCompile>
     <ClCompile Include="..\server\persistence.cpp">
       <Filter>sdk\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier1\characterset.cpp">
+      <Filter>sdk\tier1</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

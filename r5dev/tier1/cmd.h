@@ -1,4 +1,5 @@
 #pragma once
+#include "tier1/characterset.h"
 #include "public/include/iconcommand.h"
 
 //-----------------------------------------------------------------------------
@@ -58,8 +59,9 @@ private:
 
 public:
 	CCommand() = delete;
+	CCommand(int nArgC, const char** ppArgV, cmd_source_t source);
+	bool Tokenize(const char* pCommand, cmd_source_t source, characterset_t* pBreakSet);
 
-	int MaxCommandLength();
 	int64_t ArgC(void) const;
 	const char** ArgV(void) const;
 	const char* ArgS(void) const;
@@ -67,10 +69,12 @@ public:
 	const char* Arg(int nIndex) const;
 	const char* operator[](int nIndex) const;
 
+	void Reset();
+	int MaxCommandLength(void) const;
 	bool HasOnlyDigits(int nIndex) const;
 
 private:
-	int          m_nQueuedVal;
+	cmd_source_t m_nQueuedVal;
 	int          m_nArgc;
 	int64_t      m_nArgv0Size;
 	char         m_pArgSBuffer[COMMAND_MAX_LENGTH];
