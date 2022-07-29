@@ -52,6 +52,7 @@ void Line_f(const CCommand& args);
 void Sphere_f(const CCommand& args);
 void Capsule_f(const CCommand& args);
 #endif // !DEDICATED
+void BHit_f(const CCommand& args);
 ///////////////////////////////////////////////////////////////////////////////
 class VCallback : public IDetour
 {

@@ -64,6 +64,9 @@ extern ConVar* sv_pylonVisibility;
 extern ConVar* sv_pylonRefreshInterval;
 extern ConVar* sv_banlistRefreshInterval;
 extern ConVar* sv_statusRefreshInterval;
+
+extern ConVar* sv_visualizetraces;
+extern ConVar* bhit_abs_origin;
 #ifdef DEDICATED
 extern ConVar* sv_rcon_debug;
 extern ConVar* sv_rcon_banpenalty;

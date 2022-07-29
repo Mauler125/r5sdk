@@ -98,6 +98,7 @@ void ConVar::Init(void) const
 	sv_rcon_maxsockets  = new ConVar("sv_rcon_maxsockets" , "32", FCVAR_RELEASE, "Max number of accepted sockets before the server starts closing redundant sockets.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_whitelist_address = new ConVar("sv_rcon_whitelist_address", "", FCVAR_RELEASE, "This address is not considered a 'redundant' socket and will never be banned for failed authentications.", false, 0.f, false, 0.f, nullptr, "Format: '::ffff:127.0.0.1'.");
 #endif // DEDICATED
+	bhit_abs_origin = new ConVar("bhit_abs_origin", "0", FCVAR_RELEASE, "Use player's absolute origin for bhit tracing.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// CLIENT                                                                 |
 #ifndef DEDICATED
@@ -204,6 +205,7 @@ void ConVar::InitShipped(void) const
 	staticProp_gather_size_weight    = g_pCVar->FindVar("staticProp_gather_size_weight");
 	stream_overlay                   = g_pCVar->FindVar("stream_overlay");
 	stream_overlay_mode              = g_pCVar->FindVar("stream_overlay_mode");
+	sv_visualizetraces               = g_pCVar->FindVar("sv_visualizetraces");
 	old_gather_props                 = g_pCVar->FindVar("old_gather_props");
 	mp_gamemode                      = g_pCVar->FindVar("mp_gamemode");
 	hostname                         = g_pCVar->FindVar("hostname");

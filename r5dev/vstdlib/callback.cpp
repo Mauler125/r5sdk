@@ -17,6 +17,9 @@
 #endif // !DEDICATED
 #include "engine/client/client.h"
 #include "engine/net.h"
+#ifndef DEDICATED
+#include "client/cdll_engine_int.h"
+#endif // !DEDICATED
 #include "rtech/rtech_game.h"
 #include "rtech/rtech_utils.h"
 #include "filesystem/basefilesystem.h"
@@ -30,12 +33,17 @@
 #ifndef CLIENT_DLL
 #include "public/include/bansystem.h"
 #endif // !CLIENT_DLL
+#include "public/include/worldsize.h"
 #include "mathlib/crc32.h"
+#include "mathlib/mathlib.h"
 #include "vstdlib/completion.h"
 #include "vstdlib/callback.h"
 #ifndef DEDICATED
 #include "materialsystem/cmaterialglue.h"
 #include "public/include/idebugoverlay.h"
+#endif // !DEDICATED
+#ifndef DEDICATED
+#include "game/client/view.h"
 #endif // !DEDICATED
 
 
@@ -1007,3 +1015,56 @@ void Capsule_f(const CCommand& args)
 	g_pDebugOverlay->AddCapsuleOverlay(start, end, radius, { 0,0,0 }, { 0,0,0 }, 141, 233, 135, 0, 100);
 }
 #endif // !DEDICATED
+
+/*
+=====================
+BHit_f
+
+  Bullet trajectory tracing
+  from shooter to target entity.
+=====================
+*/
+void BHit_f(const CCommand& args)
+{
+	if (args.ArgC() != 9)
+		return;
+
+#ifndef DEDICATED
+	if (sv_visualizetraces->GetBool())
+	{
+		Vector3D vecAbsStart;
+		Vector3D vecAbsEnd;
+
+		for (int i = 0; i < 3; ++i)
+			vecAbsStart[i] = atof(args[i + 4]);
+
+		if (bhit_abs_origin->GetBool())
+		{
+			int iEnt = atof(args[2]);
+			if (IClientEntity* pEntity = g_pClientEntityList->GetClientEntity(atof(args[2])))
+				vecAbsEnd = pEntity->GetAbsOrigin();
+			else
+				goto VEC_RENDER;
+		}
+		else VEC_RENDER:
+		{
+			QAngle vecBulletAngles;
+			for (int i = 0; i < 2; ++i)
+				vecBulletAngles[i] = atof(args[i + 7]);
+
+			vecBulletAngles.z = 180.f; // Flipped axis.
+			AngleVectors(vecBulletAngles, &vecAbsEnd);
+		}
+
+		static char szBuf[2048];
+		snprintf(szBuf, sizeof(szBuf), "drawline %g %g %g %g %g %g", 
+			vecAbsStart.x, vecAbsStart.y, vecAbsStart.z,
+			vecAbsStart.x + vecAbsEnd.x * MAX_COORD_RANGE, 
+			vecAbsStart.y + vecAbsEnd.y * MAX_COORD_RANGE, 
+			vecAbsStart.z + vecAbsEnd.z * MAX_COORD_RANGE);
+
+		Cbuf_AddText(Cbuf_GetCurrentPlayer(), szBuf, cmd_source_t::kCommandSrcCode);
+		Cbuf_Execute();
+	}
+#endif // !DEDICATED
+}
