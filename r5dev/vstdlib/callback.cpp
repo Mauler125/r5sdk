@@ -1041,7 +1041,7 @@ void BHit_f(const CCommand& args)
 		if (bhit_abs_origin->GetBool())
 		{
 			int iEnt = atof(args[2]);
-			if (IClientEntity* pEntity = g_pClientEntityList->GetClientEntity(atof(args[2])))
+			if (IClientEntity* pEntity = g_pClientEntityList->GetClientEntity(iEnt))
 				vecAbsEnd = pEntity->GetAbsOrigin();
 			else
 				goto VEC_RENDER;
