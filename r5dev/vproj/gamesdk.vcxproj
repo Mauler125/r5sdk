@@ -288,6 +288,7 @@
     <ClInclude Include="..\public\include\studio.h" />
     <ClInclude Include="..\public\include\utility.h" />
     <ClInclude Include="..\core\resource.h" />
+    <ClInclude Include="..\public\include\worldsize.h" />
     <ClInclude Include="..\rtech\rtech_utils.h" />
     <ClInclude Include="..\rtech\rtech_game.h" />
     <ClInclude Include="..\rtech\rui\rui.h" />
