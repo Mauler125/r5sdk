@@ -209,8 +209,8 @@
 				match_ending_enabled                           1
 				battlechatter_enabled                          1
 				survival_shields                               1
-				survival_jumpkit_enabled                       1
-				survival_wallrun_enabled                       1
+				survival_jumpkit_enabled                       0
+				survival_wallrun_enabled                       0
 
 				///////////////////////////////////////////////////////////////////////////////////
 				//// Player Reporting
@@ -700,8 +700,8 @@
 				respawn_kit_tactical                           "mp_ability_3dash"
 				respawn_kit_ultimate                           "mp_ability_phase_walk"
 
-				survival_jumpkit_enabled                       1
-				survival_wallrun_enabled                       1
+				survival_jumpkit_enabled                       0
+				survival_wallrun_enabled                       0
 				survival_infinite_ammo                         1
 				survival_custom_deploy                         1
 				
@@ -791,8 +791,8 @@
 				// CTF Settings:
 				//// General CTF Settings:
 				teammate_huds_enabled                          0    //Enables teammate huds
-				survival_jumpkit_enabled                       1    //Enables double jump
-				survival_wallrun_enabled                       1    //Enables wallrun
+				survival_jumpkit_enabled                       0    //Disables double jump
+				survival_wallrun_enabled                       0    //Disables wallrun
 				default_shield_hp                              75   //Sets Sheilds
 				give_ult_after_capture                         1    //Fills up ult after capture
 				use_legend_abilitys                            0    //Uses Legends defualt abilitys instead of classes
