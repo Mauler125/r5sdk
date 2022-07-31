@@ -61,7 +61,7 @@ public:
 	void SetCallback(void* pCallback);
 	bool SetColorFromString(const char* pszValue);
 
-	void ChangeStringValue(const char* pszTempValue, float flOldValue);
+	void ChangeStringValue(const char* pszTempValue);
 	void ChangeStringValueUnsafe(const char* pszNewValue);
 
 	bool IsRegistered(void) const;
@@ -104,6 +104,9 @@ inline auto ConVar_SetInfo = p_ConVar_SetInfo.RCast<void* (*)(ConVar* thisptr, i
 inline CMemory p_ConVar_Register;
 inline auto ConVar_Register = p_ConVar_Register.RCast<void* (*)(ConVar* thisptr, const char* szName, const char* szDefaultValue, int nFlags, const char* szHelpString, bool bMin, float fMin, bool bMax, float fMax, FnChangeCallback_t pCallback, const char* pszUsageString)>();
 
+inline CMemory p_ConVar_ChangeStringValue;
+inline auto ConVar_ChangeStringValue = p_IConVar_IsFlagSet.RCast<bool (*)(ConVar* pConVar, const char* pszTempVal)>();
+
 inline CMemory g_pConVarVFTable;
 inline CMemory g_pIConVarVFTable;
 
@@ -121,6 +124,7 @@ class VConVar : public IDetour
 		spdlog::debug("| FUN: IConVar::IsFlagSet                   : {:#18x} |\n", p_IConVar_IsFlagSet.GetPtr());
 		spdlog::debug("| FUN: IConVar::SetInfo                     : {:#18x} |\n", p_ConVar_SetInfo.GetPtr());
 		spdlog::debug("| FUN: IConVar::Register                    : {:#18x} |\n", p_ConVar_Register.GetPtr());
+		spdlog::debug("| FUN: ConVar::ChangeStringValue            : {:#18x} |\n", p_ConVar_ChangeStringValue.GetPtr());
 		spdlog::debug("| VAR: g_pConVarVtable                      : {:#18x} |\n", g_pConVarVFTable.GetPtr());
 		spdlog::debug("| VAR: g_pIConVarVtable                     : {:#18x} |\n", g_pIConVarVFTable.GetPtr());
 		spdlog::debug("+----------------------------------------------------------------+\n");
@@ -134,10 +138,12 @@ class VConVar : public IDetour
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		p_ConVar_Register = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x40\xF3\x0F\x10\x84\x24\x00\x00\x00\x00"), "xxxx?xxxx?xxxx?xxxxxxxxxx????");
 #endif
+		p_ConVar_ChangeStringValue = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x55\x41\x56\x41\x57\x48\x83\xEC\x30\x48\x8D\x6C\x24\x00\x4C\x8B\x41\x60"), "xxxxxxxxxxxxxx?xxxx");
+
 		IConVar_IsFlagSet = p_IConVar_IsFlagSet.RCast<bool (*)(ConVar*, int)>();             /*48 8B 41 48 85 50 38*/
 		ConVar_SetInfo = p_ConVar_SetInfo.RCast<void* (*)(ConVar*, int, int, int, void*)>(); /*40 53 48 83 EC 60 48 8B D9 C6 41 10 00 33 C9 48 8D 05 ? ? ? ? 48 89 4C 24 ? 0F 57 C0 48 89 4C 24 ? 48 89 03 48 8D 05 ? ? ? ? 48 89 43 40*/
 		ConVar_Register = p_ConVar_Register.RCast<void* (*)(ConVar*, const char*, const char*, int, const char*, bool, float, bool, float, FnChangeCallback_t, const char*)>(); /*48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 40 F3 0F 10 84 24 ? ? ? ?*/
-
+		ConVar_ChangeStringValue = p_IConVar_IsFlagSet.RCast<bool (*)(ConVar*, const char*)>(); /*40 55 41 56 41 57 48 83 EC 30 48 8D 6C 24 ? 4C 8B 41 60*/
 	}
 	virtual void GetVar(void) const
 	{

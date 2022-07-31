@@ -19,7 +19,7 @@ public:
 	template<typename T>
 	void Free(T* pMem)
 	{
-		const int index = 4;
+		const int index = 5;
 		CallVFunc<void>(index, this, pMem);
 	}
 };

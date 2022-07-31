@@ -81,5 +81,8 @@
     <ClInclude Include="..\protoc\cl_rcon.pb.h">
       <Filter>thirdparty\protobuf</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\include\utility.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

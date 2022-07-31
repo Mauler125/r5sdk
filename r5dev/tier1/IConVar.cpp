@@ -276,7 +276,7 @@ void ConVar::PurgeHostNames(void) const
 	{
 		if (ConVar* pCVar = g_pCVar->FindVar(pszHostNames[i]))
 		{
-			pCVar->ChangeStringValue("0.0.0.0", pCVar->m_Value.m_fValue);
+			pCVar->ChangeStringValue("0.0.0.0");
 		}
 	}
 }
@@ -521,7 +521,6 @@ void ConVar::InternalSetValue(const char* pszValue)
 	// Only valid for root convars.
 	assert(m_pParent == this);
 
-	float flOldValue = m_Value.m_fValue;
 	pszNewValue = const_cast<char*>(pszValue);
 	if (!pszNewValue)
 	{
@@ -551,7 +550,7 @@ void ConVar::InternalSetValue(const char* pszValue)
 
 	if (!(m_nFlags & FCVAR_NEVER_AS_STRING))
 	{
-		ChangeStringValue(pszNewValue, flOldValue);
+		ChangeStringValue(pszNewValue);
 	}
 }
 
@@ -573,7 +572,6 @@ void ConVar::InternalSetIntValue(int nValue)
 	}
 
 	// Redetermine value
-	float flOldValue = m_Value.m_fValue;
 	m_Value.m_fValue = fValue;
 	m_Value.m_nValue = nValue;
 
@@ -581,7 +579,7 @@ void ConVar::InternalSetIntValue(int nValue)
 	{
 		char szTempVal[32];
 		snprintf(szTempVal, sizeof(szTempVal), "%d", nValue);
-		ChangeStringValue(szTempVal, flOldValue);
+		ChangeStringValue(szTempVal);
 	}
 }
 
@@ -600,7 +598,6 @@ void ConVar::InternalSetFloatValue(float flValue)
 	ClampValue(flValue);
 
 	// Redetermine value
-	float flOldValue = m_Value.m_fValue;
 	m_Value.m_fValue = flValue;
 	m_Value.m_nValue = static_cast<int>(flValue);
 
@@ -608,7 +605,7 @@ void ConVar::InternalSetFloatValue(float flValue)
 	{
 		char szTempVal[32];
 		snprintf(szTempVal, sizeof(szTempVal), "%f", flValue);
-		ChangeStringValue(szTempVal, flOldValue);
+		ChangeStringValue(szTempVal);
 	}
 }
 
@@ -740,43 +737,45 @@ bool ConVar::SetColorFromString(const char* pszValue)
 // Purpose: changes the ConVar string value.
 // Input  : *pszTempVal - flOldValue
 //-----------------------------------------------------------------------------
-void ConVar::ChangeStringValue(const char* pszTempVal, float flOldValue)
+void ConVar::ChangeStringValue(const char* pszTempVal)
 {
-	assert(!(m_nFlags & FCVAR_NEVER_AS_STRING));
+	ConVar_ChangeStringValue(this, pszTempVal);
 
-	char* pszOldValue = reinterpret_cast<char*>(_malloca(m_Value.m_iStringLength));
-	if (pszOldValue != NULL)
-	{
-		memcpy(pszOldValue, m_Value.m_pszString, m_Value.m_iStringLength);
-	}
+	//assert(!(m_nFlags & FCVAR_NEVER_AS_STRING));
 
-	if (pszTempVal)
-	{
-		size_t len = strlen(pszTempVal) + 1;
+	//char* pszOldValue = reinterpret_cast<char*>(_malloca(m_Value.m_iStringLength));
+	//if (pszOldValue != nullptr)
+	//{
+	//	memcpy(pszOldValue, m_Value.m_pszString, m_Value.m_iStringLength);
+	//}
 
-		if (len > m_Value.m_iStringLength)
-		{
-			if (m_Value.m_pszString)
-			{
-				MemAllocSingleton()->Free(m_Value.m_pszString);
-			}
+	//if (pszTempVal)
+	//{
+	//	size_t len = strlen(pszTempVal) + 1;
 
-			m_Value.m_pszString = MemAllocSingleton()->Alloc<const char>(len);
-			m_Value.m_iStringLength = len;
-		}
-		else if (!m_Value.m_pszString)
-		{
-			m_Value.m_pszString = MemAllocSingleton()->Alloc<const char>(len);
-			m_Value.m_iStringLength = len;
-		}
-		memcpy(const_cast<char*>(m_Value.m_pszString), pszTempVal, len);
-	}
-	else
-	{
-		m_Value.m_pszString = NULL;
-	}
+	//	if (len > m_Value.m_iStringLength)
+	//	{
+	//		if (m_Value.m_pszString)
+	//		{
+	//			MemAllocSingleton()->Free(m_Value.m_pszString);
+	//		}
 
-	pszOldValue = NULL;
+	//		m_Value.m_pszString = MemAllocSingleton()->Alloc<const char>(len);
+	//		m_Value.m_iStringLength = len;
+	//	}
+	//	else if (!m_Value.m_pszString)
+	//	{
+	//		m_Value.m_pszString = MemAllocSingleton()->Alloc<const char>(len);
+	//		m_Value.m_iStringLength = len;
+	//	}
+	//	memmove(const_cast<char*>(m_Value.m_pszString), pszTempVal, len);
+	//}
+	//else
+	//{
+	//	m_Value.m_pszString = nullptr;
+	//}
+
+	//pszOldValue = nullptr;
 }
 
 //-----------------------------------------------------------------------------

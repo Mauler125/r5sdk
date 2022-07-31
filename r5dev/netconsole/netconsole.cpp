@@ -10,6 +10,7 @@
 #include "tier2/socketcreator.h"
 #include "protoc/sv_rcon.pb.h"
 #include "protoc/cl_rcon.pb.h"
+#include "public/include/utility.h"
 #include "engine/net.h"
 #include "netconsole/netconsole.h"
 
@@ -113,25 +114,25 @@ void CNetCon::UserInput(void)
 				this->Disconnect();
 				return;
 			}
-			string::size_type nPos = svInput.find(' ');
-			if (!svInput.empty() 
-				&& nPos > 0 
-				&& nPos < svInput.size() 
-				&& nPos != svInput.size())
-			{
-				std::string svSecondArg = svInput.substr(nPos + 1);
-				std::string svFirstArg = svInput;
-				svFirstArg = svFirstArg.erase(svFirstArg.find(' '));
 
-				if (strcmp(svFirstArg.c_str(), "PASS") == 0) // Auth with RCON server.
+			vector<string> vSubStrings = StringSplit(svInput, ' ', 2);
+			if (vSubStrings.size() > 1)
+			{
+				if (strcmp(vSubStrings[0].c_str(), "PASS") == 0) // Auth with RCON server.
 				{
-					std::string svSerialized = this->Serialize(svSecondArg, "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+					std::string svSerialized = this->Serialize(vSubStrings[1], "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
 					this->Send(svSerialized);
 				}
-				else if (strcmp(svFirstArg.c_str(), "SET") == 0) // Set value query.
+				else if (strcmp(vSubStrings[0].c_str(), "SET") == 0) // Set value query.
 				{
-					std::string svSerialized = this->Serialize(svFirstArg, svSecondArg, cl_rcon::request_t::SERVERDATA_REQUEST_SETVALUE);
-					this->Send(svSerialized);
+					if (vSubStrings.size() > 2)
+					{
+						printf("%s\n", vSubStrings[1].c_str());
+						printf("%s\n", vSubStrings[2].c_str());
+
+						std::string svSerialized = this->Serialize(vSubStrings[1], vSubStrings[2], cl_rcon::request_t::SERVERDATA_REQUEST_SETVALUE);
+						this->Send(svSerialized);
+					}
 				}
 				else // Execute command query.
 				{
@@ -139,7 +140,7 @@ void CNetCon::UserInput(void)
 					this->Send(svSerialized);
 				}
 			}
-			else // Single arg command query.
+			else if (!svInput.empty()) // Single arg command query.
 			{
 				std::string svSerialized = this->Serialize(svInput.c_str(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
 				this->Send(svSerialized);
@@ -147,19 +148,21 @@ void CNetCon::UserInput(void)
 		}
 		else // Setup connection from input.
 		{
-			string::size_type nPos = svInput.find(' ');
-			if (!svInput.empty() 
-				&& nPos > 0 
-				&& nPos < svInput.size() 
-				&& nPos != svInput.size())
+			if (!svInput.empty())
 			{
-				std::string svInPort = svInput.substr(nPos + 1);
-				std::string svInAdr = svInput.erase(svInput.find(' '));
-
-				if (!this->Connect(svInAdr, svInPort))
+				string::size_type nPos = svInput.find(' ');
+				if (nPos > 0
+					&& nPos < svInput.size()
+					&& nPos != svInput.size())
 				{
-					m_abPromptConnect = true;
-					return;
+					std::string svInPort = svInput.substr(nPos + 1);
+					std::string svInAdr = svInput.erase(svInput.find(' '));
+
+					if (!this->Connect(svInAdr, svInPort))
+					{
+						m_abPromptConnect = true;
+						return;
+					}
 				}
 			}
 			else // Initialize as [127.0.0.1]:37015.
