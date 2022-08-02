@@ -303,6 +303,8 @@ void CSocketCreator::CloseAcceptedSocket(int nIndex)
 
 	AcceptedSocket_t& connected = m_hAcceptedSockets[nIndex];
 	::closesocket(connected.m_hSocket);
+	delete connected.m_pData;
+
 	m_hAcceptedSockets.erase(m_hAcceptedSockets.begin() + nIndex);
 }
 
@@ -315,6 +317,8 @@ void CSocketCreator::CloseAllAcceptedSockets(void)
 	{
 		AcceptedSocket_t& connected = m_hAcceptedSockets[i];
 		::closesocket(connected.m_hSocket);
+
+		delete connected.m_pData;
 	}
 	m_hAcceptedSockets.clear();
 }

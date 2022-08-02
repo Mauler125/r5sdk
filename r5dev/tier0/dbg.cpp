@@ -132,7 +132,7 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 	{
 		wconsole->debug(svOut);
 #ifdef DEDICATED
-		RCONServer()->Send(svOut);
+		RCONServer()->Send(RCONServer()->Serialize(svOut, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG));
 #endif // DEDICATED
 	}
 	else
@@ -147,7 +147,7 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 		}
 		wconsole->debug(svAnsiOut);
 #ifdef DEDICATED
-		RCONServer()->Send(svAnsiOut);
+		RCONServer()->Send(RCONServer()->Serialize(svAnsiOut, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG));
 #endif // DEDICATED
 	}
 
@@ -240,7 +240,7 @@ void Warning(eDLL_T context, const char* fmt, ...)
 	{
 		wconsole->debug(svOut);
 #ifdef DEDICATED
-		RCONServer()->Send(svOut);
+		RCONServer()->Send(RCONServer()->Serialize(svOut, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG));
 #endif // DEDICATED
 	}
 	else
@@ -256,7 +256,7 @@ void Warning(eDLL_T context, const char* fmt, ...)
 		}
 		wconsole->debug(svAnsiOut);
 #ifdef DEDICATED
-		RCONServer()->Send(svAnsiOut);
+		RCONServer()->Send(RCONServer()->Serialize(svAnsiOut, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG));
 #endif // DEDICATED
 	}
 
@@ -317,7 +317,7 @@ void Error(eDLL_T context, const char* fmt, ...)
 	{
 		wconsole->debug(svOut);
 #ifdef DEDICATED
-		RCONServer()->Send(svOut);
+		RCONServer()->Send(RCONServer()->Serialize(svOut, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG));
 #endif // DEDICATED
 	}
 	else
@@ -333,7 +333,7 @@ void Error(eDLL_T context, const char* fmt, ...)
 		}
 		wconsole->debug(svAnsiOut);
 #ifdef DEDICATED
-		RCONServer()->Send(svAnsiOut);
+		RCONServer()->Send(RCONServer()->Serialize(svAnsiOut, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG));
 #endif // DEDICATED
 	}
 

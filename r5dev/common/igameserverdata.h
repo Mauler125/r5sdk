@@ -30,21 +30,27 @@ enum class ServerDataResponseType_t : int
 class CConnectedNetConsoleData
 {
 public:
-	SocketHandle_t m_hSocket                               {};
-	int  m_nCharsInCommandBuffer                           {};
-	char m_pszInputCommandBuffer[MAX_NETCONSOLE_INPUT_LEN] {};
-	bool m_bValidated                                      {}; // Revalidates netconsole if false.
-	bool m_bAuthorized                                     {}; // Set to true after netconsole successfully authed.
-	bool m_bInputOnly                                      {}; // If set, don't send spew to this net console.
-	int  m_nFailedAttempts                                 {}; // Num failed authentication attempts.
-	int  m_nIgnoredMessage                                 {}; // Count how many times client ignored the no-auth message.
+	SocketHandle_t m_hSocket;
+	int  m_nPayloadLen;     // Num bytes for this message.
+	int  m_nPayloadRead;    // Num read bytes from input buffer.
+	int  m_nFailedAttempts; // Num failed authentication attempts.
+	int  m_nIgnoredMessage; // Count how many times client ignored the no-auth message.
+	bool m_bValidated;      // Revalidates netconsole if false.
+	bool m_bAuthorized;     // Set to true after successfull netconsole auth.
+	bool m_bInputOnly;      // If set, don't send spew to this net console.
+	std::vector<uint8_t> m_RecvBuffer;
 
 	CConnectedNetConsoleData(SocketHandle_t hSocket = -1)
 	{
-		m_nCharsInCommandBuffer = 0;
-		m_bAuthorized           = false;
-		m_hSocket               = hSocket;
-		m_bInputOnly            = false;
+		m_hSocket = hSocket;
+		m_nPayloadLen = 0;
+		m_nPayloadRead = 0;
+		m_nFailedAttempts = 0;
+		m_nIgnoredMessage = 0;
+		m_bValidated = false;
+		m_bAuthorized = false;
+		m_bInputOnly = false;
+		m_RecvBuffer.reserve(sizeof(int)); // Reserve enough for length-prefix.
 	}
 };
 

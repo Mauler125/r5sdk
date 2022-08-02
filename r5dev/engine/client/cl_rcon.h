@@ -7,8 +7,8 @@
 class CRConClient
 {
 public:
-	CRConClient(void){};
-	~CRConClient(void) { delete m_pNetAdr2; delete m_pSocket; };
+	CRConClient(void);
+	~CRConClient(void);
 
 	void Init(void);
 	void Shutdown(void);
@@ -23,7 +23,7 @@ public:
 	void Send(const std::string& svMessage) const;
 	void Recv(void);
 
-	void ProcessBuffer(const char* pszIn, int nRecvLen) const;
+	void ProcessBuffer(const char* pRecvBuf, int nRecvLen, CConnectedNetConsoleData* pData);
 	void ProcessMessage(const sv_rcon::response& sv_response) const;
 
 	std::string Serialize(const std::string& svReqBuf, const std::string& svReqVal, cl_rcon::request_t request_t) const;
@@ -33,8 +33,8 @@ public:
 	bool IsConnected(void) const;
 
 private:
-	CNetAdr2* m_pNetAdr2 = new CNetAdr2("localhost", "37015");
-	CSocketCreator* m_pSocket = new CSocketCreator();
+	CNetAdr2* m_pNetAdr2;
+	CSocketCreator* m_pSocket;
 
 	bool m_bInitialized = false;
 	bool m_bConnEstablished = false;
