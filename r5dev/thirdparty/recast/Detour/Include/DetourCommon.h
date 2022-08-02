@@ -305,7 +305,7 @@ inline bool dtVisfinite2D(const float* v)
 	return result;
 }
 
-/// Derives the dot product of two vectors on the xz-plane. (@p u . @p v)
+/// Derives the dot product of two vectors on the xy-plane. (@p u . @p v)
 ///  @param[in]		u		A vector [(x, y, z)]
 ///  @param[in]		v		A vector [(x, y, z)]
 /// @return The dot product on the xy-plane.
@@ -407,7 +407,7 @@ bool dtIntersectSegSeg2D(const float* ap, const float* aq,
 
 float distancePtLine2d(const float* pt, const float* p, const float* q);
 
-/// Determines if the specified point is inside the convex polygon on the xz-plane.
+/// Determines if the specified point is inside the convex polygon on the xy-plane.
 ///  @param[in]		pt		The point to check. [(x, y, z)]
 ///  @param[in]		verts	The polygon vertices. [(x, y, z) * @p nverts]
 ///  @param[in]		nverts	The number of vertices. [Limit: >= 3]
@@ -426,7 +426,7 @@ float dtDistancePtSegSqr2D(const float* pt, const float* p, const float* q, floa
 ///  @param[in]		verts	The polygon vertices. [(x, y, z) * vertCount]
 void dtCalcPolyCenter(float* tc, const unsigned short* idx, int nidx, const float* verts);
 
-/// Determines if the two convex polygons overlap on the xz-plane.
+/// Determines if the two convex polygons overlap on the xy-plane.
 ///  @param[in]		polya		Polygon A vertices.	[(x, y, z) * @p npolya]
 ///  @param[in]		npolya		The number of vertices in polygon A.
 ///  @param[in]		polyb		Polygon B vertices.	[(x, y, z) * @p npolyb]
@@ -538,13 +538,13 @@ TypeToRetrieveAs* dtGetThenAdvanceBufferPointer(unsigned char*& buffer, const si
 @fn float dtTriArea2D(const float* a, const float* b, const float* c)
 @par
 
-The vertices are projected onto the xz-plane, so the y-values are ignored.
+The vertices are projected onto the xy-plane, so the z-values are ignored.
 
 This is a low cost function than can be used for various purposes.  Its main purpose
 is for point/line relationship testing.
 
 In all cases: A value of zero indicates that all vertices are collinear or represent the same point.
-(On the xz-plane.)
+(On the xy-plane.)
 
 When used for point/line relationship tests, AB usually represents a line against which
 the C point is to be tested.  In this case:
@@ -555,7 +555,7 @@ A negative value indicates that point C is to the right of lineAB, looking from 
 When used for evaluating a triangle:
 
 The absolute value of the return value is two times the area of the triangle when it is
-projected onto the xz-plane.
+projected onto the xy-plane.
 
 A positive return value indicates:
 

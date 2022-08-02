@@ -27,6 +27,9 @@
     <ClInclude Include="..\thirdparty\recast\detourcrowd\Include\DetourCrowd.h">
       <Filter>Include</Filter>
     </ClInclude>
+    <ClInclude Include="..\thirdparty\recast\DetourCrowd\Include\DetourCrowdInternal.h">
+      <Filter>Include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\thirdparty\recast\detourcrowd\Source\DetourLocalBoundary.cpp">
@@ -45,6 +48,9 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\thirdparty\recast\detourcrowd\Source\DetourCrowd.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\recast\DetourCrowd\Source\DetourCrowdInternal.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

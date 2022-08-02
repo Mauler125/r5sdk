@@ -81,7 +81,7 @@ static bool circumCircle(const float* p1, const float* p2, const float* p3,
 		const float v2Sq = vdot2(v2,v2);
 		const float v3Sq = vdot2(v3,v3);
 		c[0] = (v1Sq*(v2[1]-v3[1]) + v2Sq*(v3[1]-v1[1]) + v3Sq*(v1[1]-v2[1])) / (2*cp);
-		c[1] = (v1Sq*(v3[0] - v2[0]) + v2Sq * (v1[0] - v3[0]) + v3Sq * (v2[0] - v1[0])) / (2 * cp);
+		c[1] = (v1Sq*(v3[0]-v2[0]) + v2Sq*(v1[0]-v3[0]) + v3Sq*(v2[0]-v1[0])) / (2*cp);
 		c[2] = 0;
 		r = vdist2(c, v1);
 		rcVadd(c, c, p1);
@@ -905,7 +905,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 			{
 				float pt[3];
 				pt[0] = x*sampleDist;
-				pt[1] = y * sampleDist;
+				pt[1] = y*sampleDist;
 				pt[2] = (bmax[2] + bmin[2])*0.5f;
 				// Make sure the samples are not too close to the edges.
 				if (distToPoly(nin,in,pt) > -sampleDist/2) continue;
@@ -937,8 +937,8 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 				// The sample location is jittered to get rid of some bad triangulations
 				// which are cause by symmetrical data from the grid structure.
 				pt[0] = s[0]*sampleDist + getJitterX(i)*cs*0.1f;
-				pt[1] = s[1] * sampleDist + getJitterY(i)*cs*0.1f;
-				pt[2] = s[2] * chf.ch;
+				pt[1] = s[1]*sampleDist + getJitterY(i)*cs*0.1f;
+				pt[2] = s[2]*chf.ch;
 				float d = distToTriMesh(pt, verts, nverts, tris.data(), tris.size()/4);
 				if (d < 0) continue; // did not hit the mesh.
 				if (d > bestd)
@@ -1407,7 +1407,7 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 		for (int j = 0; j < nverts; ++j)
 		{
 			verts[j*3+0] += orig[0];
-			verts[j * 3 + 1] += orig[1];
+			verts[j*3+1] += orig[1];
 			verts[j*3+2] += orig[2] + chf.ch; // Is this offset necessary?
 		}
 		// Offset poly too, will be used to flag checking.
@@ -1470,18 +1470,11 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 		for (int j = 0; j < ntris; ++j)
 		{
 			const int* t = &tris[j*4];
-#if 1
+
 			dmesh.tris[dmesh.ntris*4+0] = (unsigned char)t[0];
 			dmesh.tris[dmesh.ntris*4+1] = (unsigned char)t[2];
 			dmesh.tris[dmesh.ntris*4+2] = (unsigned char)t[1];
 			dmesh.tris[dmesh.ntris*4+3] = getTriFlags(&verts[t[0]*3], &verts[t[2]*3], &verts[t[1]*3], poly, npoly);
-			
-#else
-			dmesh.tris[dmesh.ntris * 4 + 0] = (unsigned char)t[0];
-			dmesh.tris[dmesh.ntris * 4 + 1] = (unsigned char)t[1];
-			dmesh.tris[dmesh.ntris * 4 + 2] = (unsigned char)t[2];
-			dmesh.tris[dmesh.ntris * 4 + 3] = getTriFlags(&verts[t[0] * 3], &verts[t[1] * 3], &verts[t[2] * 3], poly, npoly);
-#endif
 			dmesh.ntris++;
 		}
 	}

@@ -393,14 +393,14 @@ static bool appendVertex(dtTempContour& cont, const int x, const int y, const in
 		{
 			if (pa[0] == pb[0] && (int)pb[0] == x)
 			{
-				// The verts are aligned aling x-axis, update z.
+				// The verts are aligned aling x-axis, update y.
 				pb[1] = (unsigned char)y;
-				pb[2] = (unsigned char)z;
+				pb[0] = (unsigned char)x;
 				return true;
 			}
-			else if (pa[2] == pb[2] && (int)pb[2] == z)
+			else if (pa[1] == pb[1] && (int)pb[1] == y)
 			{
-				// The verts are aligned aling z-axis, update x.
+				// The verts are aligned aling y-axis, update x.
 				pb[0] = (unsigned char)x;
 				pb[1] = (unsigned char)y;
 				return true;
@@ -488,16 +488,16 @@ static bool walkContour(dtTileCacheLayer& layer, int x, int y, dtTempContour& co
 		{
 			// Solid edge.
 			int px = x;
-			int pz = y;
+			int py = y;
 			switch(dir)
 			{
-				case 0: pz++; break;
-				case 1: px++; pz++; break;
+				case 0: py++; break;
+				case 1: px++; py++; break;
 				case 2: px++; break;
 			}
 			
 			// Try to merge with previous vertex.
-			if (!appendVertex(cont, px, (int)layer.heights[x+y*w], pz,rn))
+			if (!appendVertex(cont, px, (int)layer.heights[x+y*w], py,rn))
 				return false;
 			
 			ndir = (dir+1) & 0x3;  // Rotate CW
@@ -523,23 +523,23 @@ static bool walkContour(dtTileCacheLayer& layer, int x, int y, dtTempContour& co
 	// Remove last vertex if it is duplicate of the first one.
 	unsigned char* pa = &cont.verts[(cont.nverts-1)*4];
 	unsigned char* pb = &cont.verts[0];
-	if (pa[0] == pb[0] && pa[2] == pb[2])
+	if (pa[0] == pb[0] && pa[1] == pb[1])
 		cont.nverts--;
 	
 	return true;
 }	
 
 
-static float distancePtSeg(const int x, const int z,
-						   const int px, const int pz,
+static float distancePtSeg(const int x, const int y,
+						   const int px, const int py,
 						   const int qx, const int qz)
 {
 	float pqx = (float)(qx - px);
-	float pqz = (float)(qz - pz);
+	float pqz = (float)(qz - py);
 	float dx = (float)(x - px);
-	float dz = (float)(z - pz);
+	float dy = (float)(y - py);
 	float d = pqx*pqx + pqz*pqz;
-	float t = pqx*dx + pqz*dz;
+	float t = pqx*dx + pqz*dy;
 	if (d > 0)
 		t /= d;
 	if (t < 0)
@@ -548,9 +548,9 @@ static float distancePtSeg(const int x, const int z,
 		t = 1;
 	
 	dx = px + t*pqx - x;
-	dz = pz + t*pqz - z;
+	dy = py + t*pqz - y;
 	
-	return dx*dx + dz*dz;
+	return dx*dx + dy*dy;
 }
 
 static void simplifyContour(dtTempContour& cont, const float maxError)
@@ -572,25 +572,25 @@ static void simplifyContour(dtTempContour& cont, const float maxError)
 		// create some initial points for the simplification process. 
 		// Find lower-left and upper-right vertices of the contour.
 		int llx = cont.verts[0];
-		int llz = cont.verts[2];
+		int lly = cont.verts[1];
 		int lli = 0;
 		int urx = cont.verts[0];
-		int urz = cont.verts[2];
+		int ury = cont.verts[1];
 		int uri = 0;
 		for (int i = 1; i < cont.nverts; ++i)
 		{
 			int x = cont.verts[i*4+0];
-			int z = cont.verts[i*4+2];
-			if (x < llx || (x == llx && z < llz))
+			int y = cont.verts[i*4+1];
+			if (x < llx || (x == llx && y < lly))
 			{
 				llx = x;
-				llz = z;
+				lly = y;
 				lli = i;
 			}
-			if (x > urx || (x == urx && z > urz))
+			if (x > urx || (x == urx && y > ury))
 			{
 				urx = x;
-				urz = z;
+				ury = y;
 				uri = i;
 			}
 		}
@@ -607,11 +607,11 @@ static void simplifyContour(dtTempContour& cont, const float maxError)
 		
 		const int ai = (int)cont.poly[i];
 		const int ax = (int)cont.verts[ai*4+0];
-		const int az = (int)cont.verts[ai*4+2];
+		const int ay = (int)cont.verts[ai*4+1];
 		
 		const int bi = (int)cont.poly[ii];
 		const int bx = (int)cont.verts[bi*4+0];
-		const int bz = (int)cont.verts[bi*4+2];
+		const int by = (int)cont.verts[bi*4+1];
 		
 		// Find maximum deviation from the segment.
 		float maxd = 0;
@@ -621,7 +621,7 @@ static void simplifyContour(dtTempContour& cont, const float maxError)
 		// Traverse the segment in lexilogical order so that the
 		// max deviation is calculated similarly when traversing
 		// opposite segments.
-		if (bx > ax || (bx == ax && bz > az))
+		if (bx > ax || (bx == ax && by > ay))
 		{
 			cinc = 1;
 			ci = (ai+cinc) % cont.nverts;
@@ -637,7 +637,7 @@ static void simplifyContour(dtTempContour& cont, const float maxError)
 		// Tessellate only outer edges or edges between areas.
 		while (ci != endi)
 		{
-			float d = distancePtSeg(cont.verts[ci*4+0], cont.verts[ci*4+2], ax, az, bx, bz);
+			float d = distancePtSeg(cont.verts[ci*4+0], cont.verts[ci*4+1], ax, ay, bx, by);
 			if (d > maxd)
 			{
 				maxd = d;
@@ -654,7 +654,7 @@ static void simplifyContour(dtTempContour& cont, const float maxError)
 			cont.npoly++;
 			for (int j = cont.npoly-1; j > i; --j)
 				cont.poly[j] = cont.poly[j-1];
-			cont.poly[i+1] = (unsigned short)maxi;
+			cont.poly[i+2] = (unsigned short)maxi;
 		}
 		else
 		{
@@ -697,17 +697,17 @@ static unsigned char getCornerHeight(dtTileCacheLayer& layer,
 	unsigned char preg = 0xff;
 	bool allSameReg = true;
 	
-	for (int dz = -1; dz <= 0; ++dz)
+	for (int dy = -1; dy <= 0; ++dy)
 	{
 		for (int dx = -1; dx <= 0; ++dx)
 		{
 			const int px = x+dx;
-			const int pz = z+dz;
-			if (px >= 0 && pz >= 0 && px < w && pz < h)
+			const int py = y+dy;
+			if (px >= 0 && py >= 0 && px < w && py < h)
 			{
-				const int idx  = px + pz*w;
+				const int idx  = px + py*w;
 				const int lh = (int)layer.heights[idx];
-				if (dtAbs(lh-y) <= walkableClimb && layer.areas[idx] != DT_TILECACHE_NULL_AREA)
+				if (dtAbs(lh-z) <= walkableClimb && layer.areas[idx] != DT_TILECACHE_NULL_AREA)
 				{
 					height = dtMax(height, (unsigned char)lh);
 					portal &= (layer.cons[idx] >> 4);
@@ -786,7 +786,7 @@ dtStatus dtBuildTileCacheContours(dtTileCacheAlloc* alloc,
 			if (!walkContour(layer, x, y, temp))
 			{
 				// Too complex contour.
-				// Note: If you hit here ofte, try increasing 'maxTempVerts'.
+				// Note: If you hit here often, try increasing 'maxTempVerts'.
 				return DT_FAILURE | DT_BUFFER_TOO_SMALL;
 			}
 			
@@ -811,8 +811,8 @@ dtStatus dtBuildTileCacheContours(dtTileCacheAlloc* alloc,
 													   walkableClimb, shouldRemove);
 					
 					dst[0] = v[0];
-					dst[1] = lh;
-					dst[2] = v[2];
+					dst[1] = v[1];
+					dst[2] = lh;
 					
 					// Store portal direction and remove status to the fourth component.
 					dst[3] = 0x0f;
@@ -982,10 +982,10 @@ static bool buildMeshAdjacency(dtTileCacheAlloc* alloc,
 			{
 				// Find matching vertical edge
 				const unsigned short x = (unsigned short)va[0];
-				unsigned short zmin = (unsigned short)va[2];
-				unsigned short zmax = (unsigned short)vb[2];
-				if (zmin > zmax)
-					dtSwap(zmin, zmax);
+				unsigned short ymin = (unsigned short)va[1];
+				unsigned short ymax = (unsigned short)vb[1];
+				if (ymin > ymax)
+					dtSwap(ymin, ymax);
 				
 				for (int m = 0; m < edgeCount; ++m)
 				{
@@ -997,11 +997,11 @@ static bool buildMeshAdjacency(dtTileCacheAlloc* alloc,
 					const unsigned short* evb = &verts[e.vert[1]*3];
 					if (eva[0] == x && evb[0] == x)
 					{
-						unsigned short ezmin = eva[2];
-						unsigned short ezmax = evb[2];
-						if (ezmin > ezmax)
-							dtSwap(ezmin, ezmax);
-						if (overlapRangeExl(zmin,zmax, ezmin, ezmax))
+						unsigned short eymin = eva[1];
+						unsigned short eymax = evb[1];
+						if (eymin > eymax)
+							dtSwap(eymin, eymax);
+						if (overlapRangeExl(ymin,ymax, eymin, eymax))
 						{
 							// Reuse the other polyedge to store dir.
 							e.polyEdge[1] = dir;
@@ -1059,7 +1059,6 @@ static bool buildMeshAdjacency(dtTileCacheAlloc* alloc,
 			unsigned short* p0 = &polys[e.poly[0]*MAX_VERTS_PER_POLY*2];
 			p0[MAX_VERTS_PER_POLY + e.polyEdge[0]] = 0x8000 | (unsigned short)e.polyEdge[1];
 		}
-		
 	}
 	
 	return true;
@@ -1072,7 +1071,7 @@ inline int next(int i, int n) { return i+1 < n ? i+1 : 0; }
 
 inline int area2(const unsigned char* a, const unsigned char* b, const unsigned char* c)
 {
-	return ((int)b[0] - (int)a[0]) * ((int)c[2] - (int)a[2]) - ((int)c[0] - (int)a[0]) * ((int)b[2] - (int)a[2]);
+	return ((int)b[0] - (int)a[0]) * ((int)c[1] - (int)a[1]) - ((int)c[0] - (int)a[0]) * ((int)b[1] - (int)a[1]);
 }
 
 //	Exclusive or: true iff exactly one argument is true.
@@ -1125,7 +1124,7 @@ static bool between(const unsigned char* a, const unsigned char* b, const unsign
 	if (a[0] != b[0])
 		return ((a[0] <= c[0]) && (c[0] <= b[0])) || ((a[0] >= c[0]) && (c[0] >= b[0]));
 	else
-		return ((a[2] <= c[2]) && (c[2] <= b[2])) || ((a[2] >= c[2]) && (c[2] >= b[2]));
+		return ((a[1] <= c[1]) && (c[1] <= b[1])) || ((a[1] >= c[1]) && (c[1] >= b[1]));
 }
 
 // Returns true iff segments ab and cd intersect, properly or improperly.
@@ -1143,7 +1142,7 @@ static bool intersect(const unsigned char* a, const unsigned char* b,
 
 static bool vequal(const unsigned char* a, const unsigned char* b)
 {
-	return a[0] == b[0] && a[2] == b[2];
+	return a[0] == b[0] && a[1] == b[1];
 }
 
 // Returns T iff (v_i, v_j) is a proper internal *or* external
@@ -1224,8 +1223,8 @@ static int triangulate(int n, const unsigned char* verts, unsigned short* indice
 				const unsigned char* p2 = &verts[(indices[next(i1, n)] & 0x7fff) * 4];
 				
 				const int dx = (int)p2[0] - (int)p0[0];
-				const int dz = (int)p2[2] - (int)p0[2];
-				const int len = dx*dx + dz*dz;
+				const int dy = (int)p2[1] - (int)p0[1];
+				const int len = dx*dx + dy*dy;
 				if (minLen < 0 || len < minLen)
 				{
 					minLen = len;
@@ -1294,8 +1293,8 @@ static int countPolyVerts(const unsigned short* p)
 
 inline bool uleft(const unsigned short* a, const unsigned short* b, const unsigned short* c)
 {
-	return ((int)b[0] - (int)a[0]) * ((int)c[2] - (int)a[2]) -
-	((int)c[0] - (int)a[0]) * ((int)b[2] - (int)a[2]) < 0;
+	return ((int)b[0] - (int)a[0]) * ((int)c[1] - (int)a[1]) -
+	((int)c[0] - (int)a[0]) * ((int)b[1] - (int)a[1]) < 0;
 }
 
 static int getPolyMergeValue(unsigned short* pa, unsigned short* pb,
@@ -1356,7 +1355,7 @@ static int getPolyMergeValue(unsigned short* pa, unsigned short* pb,
 	vb = pa[(ea+1)%na];
 	
 	int dx = (int)verts[va*3+0] - (int)verts[vb*3+0];
-	int dy = (int)verts[va*3+2] - (int)verts[vb*3+2];
+	int dy = (int)verts[va*3+1] - (int)verts[vb*3+1];
 	
 	return dx*dx + dy*dy;
 }
@@ -1952,11 +1951,11 @@ dtStatus dtMarkCylinderArea(dtTileCacheLayer& layer, const float* orig, const fl
 {
 	float bmin[3], bmax[3];
 	bmin[0] = pos[0] - radius;
-	bmin[1] = pos[1];
-	bmin[2] = pos[2] - radius;
+	bmin[1] = pos[1] - radius;
+	bmin[2] = pos[2];
 	bmax[0] = pos[0] + radius;
-	bmax[1] = pos[1] + height;
-	bmax[2] = pos[2] + radius;
+	bmax[1] = pos[1] + radius;
+	bmax[2] = pos[2] + height;;
 	const float r2 = dtSqr(radius/cs + 0.5f);
 
 	const int w = (int)layer.header->width;
@@ -1965,7 +1964,7 @@ dtStatus dtMarkCylinderArea(dtTileCacheLayer& layer, const float* orig, const fl
 	const float ich = 1.0f/ch;
 	
 	const float px = (pos[0]-orig[0])*ics;
-	const float pz = (pos[2]-orig[2])*ics;
+	const float py = (pos[1]-orig[1])*ics;
 	
 	int minx = (int)dtMathFloorf((bmin[0]-orig[0])*ics);
 	int miny = (int)dtMathFloorf((bmin[1]-orig[1])*ich);
@@ -1976,26 +1975,26 @@ dtStatus dtMarkCylinderArea(dtTileCacheLayer& layer, const float* orig, const fl
 
 	if (maxx < 0) return DT_SUCCESS;
 	if (minx >= w) return DT_SUCCESS;
-	if (maxz < 0) return DT_SUCCESS;
-	if (minz >= h) return DT_SUCCESS;
+	if (maxy < 0) return DT_SUCCESS;
+	if (miny >= h) return DT_SUCCESS;
 	
 	if (minx < 0) minx = 0;
 	if (maxx >= w) maxx = w-1;
-	if (minz < 0) minz = 0;
-	if (maxz >= h) maxz = h-1;
+	if (miny < 0) miny = 0;
+	if (maxy >= h) maxy = h-1;
 	
-	for (int z = minz; z <= maxz; ++z)
+	for (int y = miny; y <= maxy; ++y)
 	{
 		for (int x = minx; x <= maxx; ++x)
 		{
 			const float dx = (float)(x+0.5f) - px;
-			const float dz = (float)(z+0.5f) - pz;
-			if (dx*dx + dz*dz > r2)
+			const float dy = (float)(y+0.5f) - py;
+			if (dx*dx + dy*dy > r2)
 				continue;
-			const int y = layer.heights[x+z*w];
-			if (y < miny || y > maxy)
+			const int z = layer.heights[x+y*w];
+			if (z < minz || z > maxz)
 				continue;
-			layer.areas[x+z*w] = areaId;
+			layer.areas[x+y*w] = areaId;
 		}
 	}
 
@@ -2019,22 +2018,22 @@ dtStatus dtMarkBoxArea(dtTileCacheLayer& layer, const float* orig, const float c
 	
 	if (maxx < 0) return DT_SUCCESS;
 	if (minx >= w) return DT_SUCCESS;
-	if (maxz < 0) return DT_SUCCESS;
-	if (minz >= h) return DT_SUCCESS;
+	if (maxy < 0) return DT_SUCCESS;
+	if (miny >= h) return DT_SUCCESS;
 
 	if (minx < 0) minx = 0;
 	if (maxx >= w) maxx = w-1;
-	if (minz < 0) minz = 0;
-	if (maxz >= h) maxz = h-1;
+	if (miny < 0) miny = 0;
+	if (maxy >= h) maxy = h-1;
 	
-	for (int z = minz; z <= maxz; ++z)
+	for (int y = miny; y <= maxy; ++y)
 	{
 		for (int x = minx; x <= maxx; ++x)
 		{
-			const int y = layer.heights[x+z*w];
-			if (y < miny || y > maxy)
+			const int z = layer.heights[x+y*w];
+			if (z < minz || z > maxz)
 				continue;
-			layer.areas[x+z*w] = areaId;
+			layer.areas[x+y*w] = areaId;
 		}
 	}
 
@@ -2050,45 +2049,45 @@ dtStatus dtMarkBoxArea(dtTileCacheLayer& layer, const float* orig, const float c
 	const float ich = 1.0f/ch;
 
 	float cx = (center[0] - orig[0])*ics;
-	float cz = (center[2] - orig[2])*ics;
+	float cy = (center[1] - orig[1])*ics;
 	
 	float maxr = 1.41f*dtMax(halfExtents[0], halfExtents[2]);
 	int minx = (int)floorf(cx - maxr*ics);
 	int maxx = (int)floorf(cx + maxr*ics);
-	int minz = (int)floorf(cz - maxr*ics);
-	int maxz = (int)floorf(cz + maxr*ics);
-	int miny = (int)floorf((center[1]-halfExtents[1]-orig[1])*ich);
-	int maxy = (int)floorf((center[1]+halfExtents[1]-orig[1])*ich);
+	int miny = (int)floorf(cy - maxr*ics);
+	int maxy = (int)floorf(cy + maxr*ics);
+	int minz = (int)floorf((center[1]-halfExtents[1]-orig[1])*ich);
+	int maxz = (int)floorf((center[1]+halfExtents[1]-orig[1])*ich);
 
 	if (maxx < 0) return DT_SUCCESS;
 	if (minx >= w) return DT_SUCCESS;
-	if (maxz < 0) return DT_SUCCESS;
-	if (minz >= h) return DT_SUCCESS;
+	if (maxy < 0) return DT_SUCCESS;
+	if (miny >= h) return DT_SUCCESS;
 
 	if (minx < 0) minx = 0;
 	if (maxx >= w) maxx = w-1;
-	if (minz < 0) minz = 0;
-	if (maxz >= h) maxz = h-1;
+	if (miny < 0) miny = 0;
+	if (maxy >= h) maxy = h-1;
 	
 	float xhalf = halfExtents[0]*ics + 0.5f;
-	float zhalf = halfExtents[2]*ics + 0.5f;
+	float yhalf = halfExtents[1]*ics + 0.5f;
 
-	for (int z = minz; z <= maxz; ++z)
+	for (int y = miny; y <= maxy; ++y)
 	{
 		for (int x = minx; x <= maxx; ++x)
 		{			
 			float x2 = 2.0f*(float(x) - cx);
-			float z2 = 2.0f*(float(z) - cz);
-			float xrot = rotAux[1]*x2 + rotAux[0]*z2;
+			float y2 = 2.0f*(float(y) - cy);
+			float xrot = rotAux[1]*x2 + rotAux[0]*y2;
 			if (xrot > xhalf || xrot < -xhalf)
 				continue;
-			float zrot = rotAux[1]*z2 - rotAux[0]*x2;
-			if (zrot > zhalf || zrot < -zhalf)
+			float yrot = rotAux[1]*y2 - rotAux[0]*x2;
+			if (yrot > yhalf || yrot < -yhalf)
 				continue;
-			const int y = layer.heights[x+z*w];
-			if (y < miny || y > maxy)
+			const int z = layer.heights[x+y*w];
+			if (z < minz || z > maxz)
 				continue;
-			layer.areas[x+z*w] = areaId;
+			layer.areas[x+y*w] = areaId;
 		}
 	}
 

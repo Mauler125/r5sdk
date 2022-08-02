@@ -561,6 +561,34 @@ string StringUnescape(const string& svInput)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For splitting a string into substrings by delimiter.
+vector<string> StringSplit(string svInput, char cDelim, size_t nMax)
+{
+    string svSubString;
+    vector<string> vSubStrings;
+
+    svInput = svInput + cDelim;
+
+    for (size_t i = 0; i < svInput.size(); i++)
+    {
+        if (i != (svInput.size() - 1) && 
+            vSubStrings.size() >= nMax || svInput[i] != cDelim)
+        {
+            svSubString += svInput[i];
+        }
+        else
+        {
+            if (svSubString.size() != 0)
+            {
+                vSubStrings.push_back(svSubString);
+            }
+            svSubString.clear();
+        }
+    }
+    return vSubStrings;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For converting a string to an array of bytes.
 vector<int> StringToBytes(const string& svInput, bool bNullTerminator)
 {

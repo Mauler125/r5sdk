@@ -52,6 +52,9 @@ struct CrowdToolParams
 	float m_obstacleAvoidanceType;
 	bool m_separation;
 	float m_separationWeight;
+
+	float m_maxAcceleration;
+	float m_maxSpeed;
 };
 
 class CrowdToolState : public SampleToolState

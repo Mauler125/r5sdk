@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <new>
 #include "DetourCrowd\Include\DetourCrowd.h"
+#include "DetourCrowd\Include\DetourCrowdInternal.h"
 #include "DetourCrowd\Include\DetourObstacleAvoidance.h"
 #include "Detour\Include\DetourNavMesh.h"
 #include "Detour\Include\DetourNavMeshQuery.h"
@@ -54,240 +55,6 @@ static const int MAX_COMMON_NODES = 512;
 inline float tween(const float t, const float t0, const float t1)
 {
 	return dtClamp((t-t0) / (t1-t0), 0.0f, 1.0f);
-}
-
-static void integrate(dtCrowdAgent* ag, const float dt)
-{
-	// Fake dynamic constraint.
-	const float maxDelta = ag->params.maxAcceleration * dt;
-	float dv[3];
-	dtVsub(dv, ag->nvel, ag->vel);
-	float ds = dtVlen(dv);
-	if (ds > maxDelta)
-		dtVscale(dv, dv, maxDelta/ds);
-	dtVadd(ag->vel, ag->vel, dv);
-	
-	// Integrate
-	if (dtVlen(ag->vel) > 0.0001f)
-		dtVmad(ag->npos, ag->npos, ag->vel, dt);
-	else
-		dtVset(ag->vel,0,0,0);
-}
-
-static bool overOffmeshConnection(const dtCrowdAgent* ag, const float radius)
-{
-	if (!ag->ncorners)
-		return false;
-	
-	const bool offMeshConnection = (ag->cornerFlags[ag->ncorners-1] & DT_STRAIGHTPATH_OFFMESH_CONNECTION) ? true : false;
-	if (offMeshConnection)
-	{
-		const float distSq = dtVdist2DSqr(ag->npos, &ag->cornerVerts[(ag->ncorners-1)*3]);
-		if (distSq < radius*radius)
-			return true;
-	}
-	
-	return false;
-}
-
-static float getDistanceToGoal(const dtCrowdAgent* ag, const float range)
-{
-	if (!ag->ncorners)
-		return range;
-	
-	const bool endOfPath = (ag->cornerFlags[ag->ncorners-1] & DT_STRAIGHTPATH_END) ? true : false;
-	if (endOfPath)
-		return dtMin(dtVdist2D(ag->npos, &ag->cornerVerts[(ag->ncorners-1)*3]), range);
-	
-	return range;
-}
-
-static void calcSmoothSteerDirection(const dtCrowdAgent* ag, float* dir)
-{
-	if (!ag->ncorners)
-	{
-		dtVset(dir, 0,0,0);
-		return;
-	}
-	
-	const int ip0 = 0;
-	const int ip1 = dtMin(1, ag->ncorners-1);
-	const float* p0 = &ag->cornerVerts[ip0*3];
-	const float* p1 = &ag->cornerVerts[ip1*3];
-	
-	float dir0[3], dir1[3];
-	dtVsub(dir0, p0, ag->npos);
-	dtVsub(dir1, p1, ag->npos);
-	dir0[1] = 0;
-	dir1[1] = 0;
-	
-	float len0 = dtVlen(dir0);
-	float len1 = dtVlen(dir1);
-	if (len1 > 0.001f)
-		dtVscale(dir1,dir1,1.0f/len1);
-	
-	dir[0] = dir0[0] - dir1[0]*len0*0.5f;
-	dir[1] = 0;
-	dir[2] = dir0[2] - dir1[2]*len0*0.5f;
-	
-	dtVnormalize(dir);
-}
-
-static void calcStraightSteerDirection(const dtCrowdAgent* ag, float* dir)
-{
-	if (!ag->ncorners)
-	{
-		dtVset(dir, 0,0,0);
-		return;
-	}
-	dtVsub(dir, &ag->cornerVerts[0], ag->npos);
-	dir[1] = 0;
-	dtVnormalize(dir);
-}
-
-static int addNeighbour(const int idx, const float dist,
-						dtCrowdNeighbour* neis, const int nneis, const int maxNeis)
-{
-	// Insert neighbour based on the distance.
-	dtCrowdNeighbour* nei = 0;
-	if (!nneis)
-	{
-		nei = &neis[nneis];
-	}
-	else if (dist >= neis[nneis-1].dist)
-	{
-		if (nneis >= maxNeis)
-			return nneis;
-		nei = &neis[nneis];
-	}
-	else
-	{
-		int i;
-		for (i = 0; i < nneis; ++i)
-			if (dist <= neis[i].dist)
-				break;
-		
-		const int tgt = i+1;
-		const int n = dtMin(nneis-i, maxNeis-tgt);
-		
-		dtAssert(tgt+n <= maxNeis);
-		
-		if (n > 0)
-			memmove(&neis[tgt], &neis[i], sizeof(dtCrowdNeighbour)*n);
-		nei = &neis[i];
-	}
-	
-	memset(nei, 0, sizeof(dtCrowdNeighbour));
-	
-	nei->idx = idx;
-	nei->dist = dist;
-	
-	return dtMin(nneis+1, maxNeis);
-}
-
-static int getNeighbours(const float* pos, const float height, const float range,
-						 const dtCrowdAgent* skip, dtCrowdNeighbour* result, const int maxResult,
-						 dtCrowdAgent** agents, const int /*nagents*/, dtProximityGrid* grid)
-{
-	int n = 0;
-	
-	static const int MAX_NEIS = 32;
-	unsigned short ids[MAX_NEIS];
-	int nids = grid->queryItems(pos[0]-range, pos[2]-range,
-								pos[0]+range, pos[2]+range,
-								ids, MAX_NEIS);
-	
-	for (int i = 0; i < nids; ++i)
-	{
-		const dtCrowdAgent* ag = agents[ids[i]];
-		
-		if (ag == skip) continue;
-		
-		// Check for overlap.
-		float diff[3];
-		dtVsub(diff, pos, ag->npos);
-		if (dtMathFabsf(diff[1]) >= (height+ag->params.height)/2.0f)
-			continue;
-		diff[1] = 0;
-		const float distSqr = dtVlenSqr(diff);
-		if (distSqr > dtSqr(range))
-			continue;
-		
-		n = addNeighbour(ids[i], distSqr, result, n, maxResult);
-	}
-	return n;
-}
-
-static int addToOptQueue(dtCrowdAgent* newag, dtCrowdAgent** agents, const int nagents, const int maxAgents)
-{
-	// Insert neighbour based on greatest time.
-	int slot = 0;
-	if (!nagents)
-	{
-		slot = nagents;
-	}
-	else if (newag->topologyOptTime <= agents[nagents-1]->topologyOptTime)
-	{
-		if (nagents >= maxAgents)
-			return nagents;
-		slot = nagents;
-	}
-	else
-	{
-		int i;
-		for (i = 0; i < nagents; ++i)
-			if (newag->topologyOptTime >= agents[i]->topologyOptTime)
-				break;
-		
-		const int tgt = i+1;
-		const int n = dtMin(nagents-i, maxAgents-tgt);
-		
-		dtAssert(tgt+n <= maxAgents);
-		
-		if (n > 0)
-			memmove(&agents[tgt], &agents[i], sizeof(dtCrowdAgent*)*n);
-		slot = i;
-	}
-	
-	agents[slot] = newag;
-	
-	return dtMin(nagents+1, maxAgents);
-}
-
-static int addToPathQueue(dtCrowdAgent* newag, dtCrowdAgent** agents, const int nagents, const int maxAgents)
-{
-	// Insert neighbour based on greatest time.
-	int slot = 0;
-	if (!nagents)
-	{
-		slot = nagents;
-	}
-	else if (newag->targetReplanTime <= agents[nagents-1]->targetReplanTime)
-	{
-		if (nagents >= maxAgents)
-			return nagents;
-		slot = nagents;
-	}
-	else
-	{
-		int i;
-		for (i = 0; i < nagents; ++i)
-			if (newag->targetReplanTime >= agents[i]->targetReplanTime)
-				break;
-		
-		const int tgt = i+1;
-		const int n = dtMin(nagents-i, maxAgents-tgt);
-		
-		dtAssert(tgt+n <= maxAgents);
-		
-		if (n > 0)
-			memmove(&agents[tgt], &agents[i], sizeof(dtCrowdAgent*)*n);
-		slot = i;
-	}
-	
-	agents[slot] = newag;
-	
-	return dtMin(nagents+1, maxAgents);
 }
 
 
@@ -524,7 +291,7 @@ int dtCrowd::addAgent(const float* pos, const dtCrowdAgentParams* params)
 	if (idx == -1)
 		return -1;
 	
-	dtCrowdAgent* ag = &m_agents[idx];		
+	dtCrowdAgent* ag = &m_agents[idx];
 
 	updateAgentParameters(idx, params);
 	
@@ -901,7 +668,6 @@ void dtCrowd::updateMoveRequest(const float /*dt*/)
 			}
 		}
 	}
-	
 }
 
 
@@ -935,7 +701,6 @@ void dtCrowd::updateTopologyOptimization(dtCrowdAgent** agents, const int nagent
 		ag->corridor.optimizePathTopology(m_navquery, &m_filters[ag->params.queryFilterType]);
 		ag->topologyOptTime = 0;
 	}
-
 }
 
 void dtCrowd::checkPathValidity(dtCrowdAgent** agents, const int nagents, const float dt)
@@ -1043,7 +808,7 @@ void dtCrowd::checkPathValidity(dtCrowdAgent** agents, const int nagents, const 
 		}
 	}
 }
-	
+
 void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 {
 	m_velocitySampleCount = 0;
@@ -1069,7 +834,7 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 		dtCrowdAgent* ag = agents[i];
 		const float* p = ag->npos;
 		const float r = ag->params.radius;
-		m_grid->addItem((unsigned short)i, p[0]-r, p[2]-r, p[0]+r, p[2]+r);
+		m_grid->addItem((unsigned short)i, p[0]-r, p[1]-r, p[0]+r, p[1]+r);
 	}
 	
 	// Get nearby navmesh segments and agents to collide with.
@@ -1202,7 +967,7 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 				calcStraightSteerDirection(ag, dvel);
 			
 			// Calculate speed scale, which tells the agent to slowdown at the end of the path.
-			const float slowDownRadius = ag->params.radius*2;	// TODO: make less hacky.
+			const float slowDownRadius = ag->params.radius*4;	// TODO: make less hacky.
 			const float speedScale = getDistanceToGoal(ag, slowDownRadius) / slowDownRadius;
 				
 			ag->desiredSpeed = ag->params.maxSpeed;
@@ -1225,7 +990,7 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 				
 				float diff[3];
 				dtVsub(diff, ag->npos, nei->npos);
-				diff[1] = 0;
+				diff[2] = 0;
 				
 				const float distSqr = dtVlenSqr(diff);
 				if (distSqr < 0.00001f)
@@ -1345,7 +1110,7 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 
 				float diff[3];
 				dtVsub(diff, ag->npos, nei->npos);
-				diff[1] = 0;
+				diff[2] = 0;
 				
 				float dist = dtVlenSqr(diff);
 				if (dist > dtSqr(ag->params.radius + nei->params.radius))
@@ -1356,9 +1121,9 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 				{
 					// Agents on top of each other, try to choose diverging separation directions.
 					if (idx0 > idx1)
-						dtVset(diff, -ag->dvel[2],0,ag->dvel[0]);
+						dtVset(diff, -ag->dvel[1],0,ag->dvel[0]);
 					else
-						dtVset(diff, ag->dvel[2],0,-ag->dvel[0]);
+						dtVset(diff, ag->dvel[1],0,-ag->dvel[0]);
 					pen = 0.01f;
 				}
 				else
@@ -1366,7 +1131,7 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 					pen = (1.0f/dist) * (pen*0.5f) * COLLISION_RESOLVE_FACTOR;
 				}
 				
-				dtVmad(ag->disp, ag->disp, diff, pen);			
+				dtVmad(ag->disp, ag->disp, diff, pen);
 				
 				w += 1.0f;
 			}
@@ -1405,7 +1170,6 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 			ag->corridor.reset(ag->corridor.getFirstPoly(), ag->npos);
 			ag->partial = false;
 		}
-
 	}
 	
 	// Update agents using off-mesh connection.
@@ -1446,5 +1210,4 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 		dtVset(ag->vel, 0,0,0);
 		dtVset(ag->dvel, 0,0,0);
 	}
-	
 }

@@ -66,6 +66,9 @@ ConVar* sv_pylonRefreshInterval            = nullptr;
 ConVar* sv_banlistRefreshInterval          = nullptr;
 ConVar* sv_statusRefreshInterval           = nullptr;
 
+ConVar* sv_visualizetraces                 = nullptr;
+ConVar* bhit_abs_origin                    = nullptr;
+
 #ifdef DEDICATED
 ConVar* sv_rcon_debug                      = nullptr;
 ConVar* sv_rcon_banpenalty                 = nullptr; // TODO

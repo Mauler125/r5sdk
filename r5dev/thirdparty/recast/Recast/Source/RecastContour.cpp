@@ -579,7 +579,7 @@ static bool	inCone(int i, int n, const int* verts, const int* pj)
 
 static void removeDegenerateSegments(rcIntArray& simplified)
 {
-	// Remove adjacent vertices which are equal on xz-plane,
+	// Remove adjacent vertices which are equal on xy-plane,
 	// or else the triangulator will get confused.
 	int npts = simplified.size()/4;
 	for (int i = 0; i < npts; ++i)
@@ -650,7 +650,7 @@ static bool mergeContours(rcContour& ca, rcContour& cb, int ia, int ib)
 struct rcContourHole
 {
 	rcContour* contour;
-	int minx, minz, leftmost;
+	int minx, miny, leftmost;
 };
 
 struct rcContourRegion
@@ -667,19 +667,19 @@ struct rcPotentialDiagonal
 };
 
 // Finds the lowest leftmost vertex of a contour.
-static void findLeftMostVertex(rcContour* contour, int* minx, int* minz, int* leftmost)
+static void findLeftMostVertex(rcContour* contour, int* minx, int* miny, int* leftmost)
 {
 	*minx = contour->verts[0];
-	*minz = contour->verts[2];
+	*miny = contour->verts[1];
 	*leftmost = 0;
 	for (int i = 1; i < contour->nverts; i++)
 	{
 		const int x = contour->verts[i*4+0];
-		const int z = contour->verts[i*4+2];
-		if (x < *minx || (x == *minx && z < *minz))
+		const int y = contour->verts[i*4+1];
+		if (x < *minx || (x == *minx && y < *miny))
 		{
 			*minx = x;
-			*minz = z;
+			*miny = y;
 			*leftmost = i;
 		}
 	}
@@ -691,9 +691,9 @@ static int compareHoles(const void* va, const void* vb)
 	const rcContourHole* b = (const rcContourHole*)vb;
 	if (a->minx == b->minx)
 	{
-		if (a->minz < b->minz)
+		if (a->miny < b->miny)
 			return -1;
-		if (a->minz > b->minz)
+		if (a->miny > b->miny)
 			return 1;
 	}
 	else
@@ -723,7 +723,7 @@ static void mergeRegionHoles(rcContext* ctx, rcContourRegion& region)
 {
 	// Sort holes from left to right.
 	for (int i = 0; i < region.nholes; i++)
-		findLeftMostVertex(region.holes[i].contour, &region.holes[i].minx, &region.holes[i].minz, &region.holes[i].leftmost);
+		findLeftMostVertex(region.holes[i].contour, &region.holes[i].minx, &region.holes[i].miny, &region.holes[i].leftmost);
 	
 	qsort(region.holes, region.nholes, sizeof(rcContourHole), compareHoles);
 	
@@ -764,9 +764,9 @@ static void mergeRegionHoles(rcContext* ctx, rcContourRegion& region)
 				if (inCone(j, outline->nverts, outline->verts, corner))
 				{
 					int dx = outline->verts[j*4+0] - corner[0];
-					int dz = outline->verts[j*4+2] - corner[2];
+					int dy = outline->verts[j*4+1] - corner[1];
 					diags[ndiags].vert = j;
-					diags[ndiags].dist = dx*dx + dz*dz;
+					diags[ndiags].dist = dx*dx + dy*dy;
 					ndiags++;
 				}
 			}

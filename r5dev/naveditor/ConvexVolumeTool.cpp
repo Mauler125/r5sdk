@@ -46,7 +46,7 @@ inline bool cmppt(const float* a, const float* b)
 	if (a[1] > b[1]) return false;
 	return false;
 }
-// Calculates convex hull on xz-plane of points on 'pts',
+// Calculates convex hull on xy-plane of points on 'pts',
 // stores the indices of the resulting hull in 'out' and
 // returns number of points on hull.
 static int convexhull(const float* pts, int npts, int* out)
@@ -64,7 +64,7 @@ static int convexhull(const float* pts, int npts, int* out)
 		out[i++] = hull;
 		endpt = 0;
 		for (int j = 1; j < npts; ++j)
-			if (hull == endpt || left(&pts[hull*3], &pts[j*3], &pts[endpt*3]))
+			if (hull == endpt || left(&pts[hull*3], &pts[endpt*3], &pts[j*3]))
 				endpt = j;
 		hull = endpt;
 	}
@@ -90,9 +90,9 @@ static int pointInPoly(int nvert, const float* verts, const float* p)
 
 ConvexVolumeTool::ConvexVolumeTool() :
 	m_sample(0),
-	m_areaType(SAMPLE_POLYAREA_GRASS),
+	m_areaType(SAMPLE_POLYAREA_GROUND),
 	m_polyOffset(0.0f),
-	m_boxHeight(200.0f),
+	m_boxHeight(650.0f),
 	m_boxDescent(150.0f),
 	m_npts(0),
 	m_nhull(0)
@@ -112,9 +112,9 @@ void ConvexVolumeTool::reset()
 
 void ConvexVolumeTool::handleMenu()
 {
-	imguiSlider("Shape Height", &m_boxHeight, 0.1f, 300.0f, 0.1f);
-	imguiSlider("Shape Descent", &m_boxDescent, 0.1f, 300.0f, 0.1f);
-	imguiSlider("Poly Offset", &m_polyOffset, 0.0f, 100.0f, 0.1f);
+	imguiSlider("Shape Height", &m_boxHeight, 0.1f, 2000.0f, 0.1f);
+	imguiSlider("Shape Descent", &m_boxDescent, 0.1f, 2000.0f, 0.1f);
+	imguiSlider("Poly Offset", &m_polyOffset, 0.0f, 1000.0f, 0.1f);
 
 	imguiSeparator();
 

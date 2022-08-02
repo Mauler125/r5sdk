@@ -69,8 +69,8 @@ bool duDumpPolyMeshToObj(rcPolyMesh& pmesh, duFileIO* io)
 	{
 		const unsigned short* v = &pmesh.verts[i*3];
 		const float x = orig[0] + v[0]*cs;
-		const float y = orig[1] + (v[1]+1)*ch + 0.1f;
-		const float z = orig[2] + v[2]*cs;
+		const float y = orig[1] + v[1]*cs;
+		const float z = orig[2] +(v[2]+1)*ch + 0.1f;
 		ioprintf(io, "v %f %f %f\n", x,y,z);
 	}
 

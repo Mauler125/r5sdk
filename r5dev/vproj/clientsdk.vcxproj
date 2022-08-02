@@ -108,6 +108,7 @@
     <ClCompile Include="..\tier0\platform.cpp" />
     <ClCompile Include="..\tier0\threadtools.cpp" />
     <ClCompile Include="..\tier1\bitbuf.cpp" />
+    <ClCompile Include="..\tier1\characterset.cpp" />
     <ClCompile Include="..\tier1\cmd.cpp" />
     <ClCompile Include="..\tier1\cvar.cpp" />
     <ClCompile Include="..\tier1\IConVar.cpp" />
@@ -238,6 +239,7 @@
     <ClInclude Include="..\public\include\edict.h" />
     <ClInclude Include="..\public\include\globalvars_base.h" />
     <ClInclude Include="..\public\include\icliententity.h" />
+    <ClInclude Include="..\public\include\icliententitylist.h" />
     <ClInclude Include="..\public\include\iclientnetworkable.h" />
     <ClInclude Include="..\public\include\iclientrenderable.h" />
     <ClInclude Include="..\public\include\iclientthinkable.h" />
@@ -260,6 +262,7 @@
     <ClInclude Include="..\public\include\studio.h" />
     <ClInclude Include="..\public\include\utility.h" />
     <ClInclude Include="..\core\resource.h" />
+    <ClInclude Include="..\public\include\worldsize.h" />
     <ClInclude Include="..\rtech\rtech_utils.h" />
     <ClInclude Include="..\rtech\rtech_game.h" />
     <ClInclude Include="..\rtech\rui\rui.h" />
@@ -468,6 +471,7 @@
     <ClInclude Include="..\tier0\valve_on.h" />
     <ClInclude Include="..\tier0\wchartypes.h" />
     <ClInclude Include="..\tier1\bitbuf.h" />
+    <ClInclude Include="..\tier1\characterset.h" />
     <ClInclude Include="..\tier1\cmd.h" />
     <ClInclude Include="..\tier1\cvar.h" />
     <ClInclude Include="..\tier1\IConVar.h" />
