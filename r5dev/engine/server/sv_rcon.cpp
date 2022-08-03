@@ -19,14 +19,23 @@
 
 
 //-----------------------------------------------------------------------------
-// Purpose: NETCON systems init
+// Purpose: 
 //-----------------------------------------------------------------------------
-CRConServer::CRConServer()
+CRConServer::CRConServer(void)
 	: m_bInitialized(false)
 	, m_nConnIndex(0)
 {
 	m_pAdr2 = new CNetAdr2();
 	m_pSocket = new CSocketCreator();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CRConServer::~CRConServer(void)
+{
+	delete m_pAdr2;
+	delete m_pSocket;
 }
 
 //-----------------------------------------------------------------------------
@@ -74,7 +83,7 @@ void CRConServer::Think(void)
 		for (m_nConnIndex = nCount - 1; m_nConnIndex >= 0; m_nConnIndex--)
 		{
 			CNetAdr2 netAdr2 = m_pSocket->GetAcceptedSocketAddress(m_nConnIndex);
-			if (std::strcmp(netAdr2.GetIP(true).c_str(), sv_rcon_whitelist_address->GetString()) != 0)
+			if (netAdr2.GetIP(true).compare(sv_rcon_whitelist_address->GetString()) != 0)
 			{
 				CConnectedNetConsoleData* pData = m_pSocket->GetAcceptedSocketData(m_nConnIndex);
 				if (!pData->m_bAuthorized)
@@ -156,19 +165,7 @@ void CRConServer::Send(const std::string& svMessage) const
 
 			if (pData->m_bAuthorized)
 			{
-				size_t nMsgCount = (ssSendBuf.str().size() + MAX_NETCONSOLE_INPUT_LEN - 1) / MAX_NETCONSOLE_INPUT_LEN;
-				size_t nDataSize = ssSendBuf.str().size();
-				size_t nPos = 0;
-
-				for (size_t j = 0; j < nMsgCount; j++)
-				{
-					size_t nSize = std::min<uint64_t>(MAX_NETCONSOLE_INPUT_LEN, nDataSize);
-					nDataSize -= nSize;
-					string svFinal = ssSendBuf.str().substr(nPos, nSize);
-
-					::send(pData->m_hSocket, svFinal.data(), static_cast<int>(svFinal.size()), MSG_NOSIGNAL);
-					nPos += nSize;
-				}
+				::send(pData->m_hSocket, ssSendBuf.str().data(), static_cast<int>(ssSendBuf.str().size()), MSG_NOSIGNAL);
 			}
 		}
 	}
@@ -523,7 +520,7 @@ bool CRConServer::CheckForBan(CConnectedNetConsoleData* pData)
 		|| pData->m_nIgnoredMessage >= sv_rcon_maxignores->GetInt())
 	{
 		// Don't add whitelisted address to ban vector.
-		if (std::strcmp(netAdr2.GetIP(true).c_str(), sv_rcon_whitelist_address->GetString()) == 0)
+		if (netAdr2.GetIP(true).compare(sv_rcon_whitelist_address->GetString()) == 0)
 		{
 			pData->m_nFailedAttempts = 0;
 			pData->m_nIgnoredMessage = 0;

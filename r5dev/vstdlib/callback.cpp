@@ -780,8 +780,7 @@ void RCON_CmdQuery_f(const CCommand& args)
 				return;
 			}
 
-			string svCmdQuery = RCONClient()->Serialize(args.ArgS(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
-			RCONClient()->Send(svCmdQuery);
+			RCONClient()->Send(RCONClient()->Serialize(args.ArgS(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND));
 			return;
 		}
 		else

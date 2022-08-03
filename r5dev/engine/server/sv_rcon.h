@@ -12,8 +12,8 @@ constexpr char s_pszAuthMessage[]    = "RCON authentication successfull.\n";
 class CRConServer
 {
 public:
-	CRConServer();
-	~CRConServer() { delete m_pAdr2; delete m_pSocket; }
+	CRConServer(void);
+	~CRConServer(void);
 
 	void Init(void);
 	void Shutdown(void);

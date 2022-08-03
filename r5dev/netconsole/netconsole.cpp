@@ -125,14 +125,14 @@ void CNetCon::UserInput(void)
 
 	if (std::getline(std::cin, svInput))
 	{
-		if (strcmp(svInput.c_str(), "nquit") == 0)
+		if (svInput.compare("nquit") == 0)
 		{
 			m_bQuitApplication = true;
 			return;
 		}
 		if (m_abConnEstablished)
 		{
-			if (strcmp(svInput.c_str(), "disconnect") == 0)
+			if (svInput.compare("disconnect") == 0)
 			{
 				this->Disconnect();
 				return;
@@ -141,12 +141,12 @@ void CNetCon::UserInput(void)
 			vector<string> vSubStrings = StringSplit(svInput, ' ', 2);
 			if (vSubStrings.size() > 1)
 			{
-				if (strcmp(vSubStrings[0].c_str(), "PASS") == 0) // Auth with RCON server.
+				if (vSubStrings[0].compare("PASS") == 0) // Auth with RCON server.
 				{
 					std::string svSerialized = this->Serialize(vSubStrings[1], "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
 					this->Send(svSerialized);
 				}
-				else if (strcmp(vSubStrings[0].c_str(), "SET") == 0) // Set value query.
+				else if (vSubStrings[0].compare("SET") == 0) // Set value query.
 				{
 					if (vSubStrings.size() > 2)
 					{
@@ -156,13 +156,13 @@ void CNetCon::UserInput(void)
 				}
 				else // Execute command query.
 				{
-					std::string svSerialized = this->Serialize(svInput.c_str(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+					std::string svSerialized = this->Serialize(svInput, "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
 					this->Send(svSerialized);
 				}
 			}
 			else if (!svInput.empty()) // Single arg command query.
 			{
-				std::string svSerialized = this->Serialize(svInput.c_str(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+				std::string svSerialized = this->Serialize(svInput, "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
 				this->Send(svSerialized);
 			}
 		}
