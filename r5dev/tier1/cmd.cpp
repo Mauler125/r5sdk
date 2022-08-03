@@ -333,9 +333,10 @@ void ConCommand::Init(void)
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// FILESYSTEM API                                                         |
-	new ConCommand("fs_vpk_mount",  "Mounts a VPK file for FileSystem usage.", FCVAR_DEVELOPMENTONLY, VPK_Mount_f, nullptr);
-	new ConCommand("fs_vpk_build",  "Builds a VPK file from current workspace.", FCVAR_DEVELOPMENTONLY, VPK_Pack_f, nullptr);
-	new ConCommand("fs_vpk_unpack", "Unpacks all files from a VPK file.", FCVAR_DEVELOPMENTONLY, VPK_Unpack_f, nullptr);
+	new ConCommand("fs_vpk_mount", "Mounts user specified VPK file for FileSystem usage.", FCVAR_DEVELOPMENTONLY, VPK_Mount_f, nullptr);
+	new ConCommand("fs_vpk_build", "Packs all specified files into a VPK file.", FCVAR_DEVELOPMENTONLY, VPK_Pack_f, nullptr);
+	new ConCommand("fs_vpk_unpack", "Unpacks all files from user specified VPK file.", FCVAR_DEVELOPMENTONLY, VPK_Unpack_f, nullptr);
+	new ConCommand("fs_searchpath_add", "Adds a search path to specified searchPath location", FCVAR_DEVELOPMENTONLY, SP_Add, nullptr);
 	//-------------------------------------------------------------------------
 	// RTECH API                                                              |
 	new ConCommand("rtech_strtoguid", "Calculates the GUID from input data.", FCVAR_DEVELOPMENTONLY, RTech_StringToGUID_f, nullptr);

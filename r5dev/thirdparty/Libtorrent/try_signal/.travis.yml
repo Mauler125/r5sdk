@@ -1,0 +1,44 @@
+language: cpp
+matrix:
+  include:
+    - env: toolset=gcc
+    - os: osx
+      osx_image: xcode11.2
+      env: toolset=darwin
+
+branches:
+  only:
+    - master
+
+git:
+  submodules: false
+  depth: 1
+
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - libboost-tools-dev
+    - g++-9
+
+install:
+
+  - 'if [[ $TRAVIS_OS_NAME == "osx" ]]; then brew update > /dev/null && brew install boost-build; fi'
+  - 'if [[ $TRAVIS_OS_NAME != "osx" ]]; then
+      export B2=bjam;
+    else
+      export B2=b2;
+    fi'
+  - touch ~/user-config.jam
+  - 'if [[ $toolset == "gcc" ]]; then
+      g++-5 --version;
+      echo "using gcc : : g++-5 : <cxxflags>-std=c++11 ;" >> ~/user-config.jam;
+    fi'
+  - 'echo "using darwin : : clang++ : <cxxflags>-std=c++11 ;" >> ~/user-config.jam'
+
+script:
+
+  - ${B2} link=static stage_test
+  - ./test
+

@@ -43,6 +43,7 @@ int CModAppSystemGroup::Main(CModAppSystemGroup* pModAppSystemGroup)
 		g_pEngine->Unload();
 		SV_ShutdownGameDLL();
 	}
+
 	return nRunResult;
 #endif
 }
@@ -74,7 +75,6 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 		memset(g_pHLClient, '\0', sizeof(void*));
 		g_pHLClient = nullptr;
 	}
-
 	g_bAppSystemInit = true;
 	return CModAppSystemGroup_Create(pModAppSystemGroup);
 }

@@ -1,4 +1,4 @@
-//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//===== Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: Defines the entry point for the application.
 //
@@ -29,6 +29,7 @@ int HWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
 int LauncherMain(HINSTANCE hInstance)
 {
 	int results = v_LauncherMain(hInstance);
+
 	spdlog::info("LauncherMain: {:s}\n", ExitCodeToString(results));
 	return results;
 }
@@ -111,7 +112,7 @@ string LoadConfigFile(const string& svConfig)
 	}
 	else
 	{
-		spdlog::error("{:s}: '{:s}' does not exist!\n", __FUNCTION__, svConfig);
+		spdlog::error("{s}: '{s}' does not exist!\n", __FUNCTION__, svConfig);
 		cfgFile.close();
 		return "";
 	}
