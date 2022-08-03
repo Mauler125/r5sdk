@@ -4,7 +4,7 @@
 
 enum class LogType_t : int
 {
-	SCRIPT_SERVER,
+	SCRIPT_SERVER = -3,
 	SCRIPT_CLIENT,
 	SCRIPT_UI,
 	NATIVE_SERVER,
@@ -15,6 +15,7 @@ enum class LogType_t : int
 	NATIVE_RTECH,
 	NATIVE_MS,
 	NETCON_S,
+	COMMON_C,
 	WARNING_C,
 	ERROR_C,
 	NONE

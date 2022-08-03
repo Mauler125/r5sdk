@@ -256,6 +256,8 @@ Color CLogSystem::GetLogColorForType(LogType_t type) const
 		return { cl_conoverlay_native_ms_clr->GetColor() };
 	case LogType_t::NETCON_S:
 		return { cl_conoverlay_netcon_clr->GetColor() };
+	case LogType_t::COMMON_C:
+		return { cl_conoverlay_common_clr->GetColor() };
 	case LogType_t::WARNING_C:
 		return { cl_conoverlay_warning_clr->GetColor() };
 	case LogType_t::ERROR_C:

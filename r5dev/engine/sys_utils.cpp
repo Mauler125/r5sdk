@@ -58,7 +58,7 @@ void* HSys_Warning(int level, char* fmt, ...)
 		va_end(args);
 	}/////////////////////////////
 
-	Warning(eDLL_T::NONE, "Warning(%d):%s\n", level, buf);
+	Warning(eDLL_T::COMMON, "Warning(%d):%s\n", level, buf);
 	return v_Sys_Warning(level, buf);
 }
 

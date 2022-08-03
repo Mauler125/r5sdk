@@ -289,49 +289,7 @@ void CRConClient::ProcessMessage(const sv_rcon::response& sv_response) const
 	}
 	case sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG:
 	{
-		// !TODO: Network the enum for this.
-		if (svOut.find(SQVM_LOG_T[0]))
-		{
-			SQVM_PrintFunc(nullptr, const_cast<char*>("%s"), svOut.c_str());
-		}
-		else // This has to be done for RUI color logging.
-		{
-			if (svOut.find(sDLL_T[0]))
-			{
-				StringReplace(svOut, sDLL_T[0], "");
-				DevMsg(eDLL_T::SERVER, "%s", svOut.c_str());
-			}
-			if (svOut.find(sDLL_T[1]))
-			{
-				StringReplace(svOut, sDLL_T[1], "");
-				DevMsg(eDLL_T::CLIENT, "%s", svOut.c_str());
-			}
-			if (svOut.find(sDLL_T[2]))
-			{
-				StringReplace(svOut, sDLL_T[2], "");
-				DevMsg(eDLL_T::UI, "%s", svOut.c_str());
-			}
-			if (svOut.find(sDLL_T[3]))
-			{
-				StringReplace(svOut, sDLL_T[3], "");
-				DevMsg(eDLL_T::ENGINE, "%s", svOut.c_str());
-			}
-			if (svOut.find(sDLL_T[4]))
-			{
-				StringReplace(svOut, sDLL_T[4], "");
-				DevMsg(eDLL_T::FS, "%s", svOut.c_str());
-			}
-			if (svOut.find(sDLL_T[5]))
-			{
-				StringReplace(svOut, sDLL_T[5], "");
-				DevMsg(eDLL_T::RTECH, "%s", svOut.c_str());
-			}
-			if (svOut.find(sDLL_T[6]))
-			{
-				StringReplace(svOut, sDLL_T[6], "");
-				DevMsg(eDLL_T::MS, "%s", svOut.c_str());
-			}
-		}
+		NetMsg(sv_response.responseid(), svOut.c_str());
 		break;
 	}
 	default:

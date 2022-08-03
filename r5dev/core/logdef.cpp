@@ -45,14 +45,17 @@ void SpdLog_Init(void)
 	 * ROTATE LOGGER SETUP  *
 	 ************************/
 	{
-		spdlog::rotating_logger_mt<spdlog::synchronous_factory>("sqvm_warn" , "platform\\logs\\sqvm_warn.log" , SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
-		spdlog::rotating_logger_mt<spdlog::synchronous_factory>("sqvm_info" , "platform\\logs\\sqvm_info.log" , SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
-		spdlog::rotating_logger_mt<spdlog::synchronous_factory>("sdk_info"  , "platform\\logs\\sdk_info.log"  , SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
-		spdlog::rotating_logger_mt<spdlog::synchronous_factory>("sdk_warn"  , "platform\\logs\\sdk_warn.log"  , SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
-		spdlog::rotating_logger_mt<spdlog::synchronous_factory>("sdk_error" , "platform\\logs\\sdk_error.log" , SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
-		spdlog::rotating_logger_mt<spdlog::synchronous_factory>("qhull_info", "platform\\logs\\qhull_info.log", SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
-		spdlog::rotating_logger_mt<spdlog::synchronous_factory>("net_trace" , "platform\\logs\\net_trace.log" , SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
-		spdlog::rotating_logger_mt<spdlog::synchronous_factory>("fs_warn"   , "platform\\logs\\fs_warn.log"   , SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
+		spdlog::rotating_logger_mt<spdlog::synchronous_factory>("sqvm_warn" , "platform\\logs\\sqvm_warn.log"  , SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
+		spdlog::rotating_logger_mt<spdlog::synchronous_factory>("sqvm_info" , "platform\\logs\\sqvm_info.log"  , SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
+		spdlog::rotating_logger_mt<spdlog::synchronous_factory>("sdk_info"  , "platform\\logs\\sdk_info.log"   , SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
+		spdlog::rotating_logger_mt<spdlog::synchronous_factory>("sdk_warn"  , "platform\\logs\\sdk_warn.log"   , SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
+		spdlog::rotating_logger_mt<spdlog::synchronous_factory>("sdk_error" , "platform\\logs\\sdk_error.log"  , SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
+		spdlog::rotating_logger_mt<spdlog::synchronous_factory>("qhull_info", "platform\\logs\\qhull_info.log" , SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
+		spdlog::rotating_logger_mt<spdlog::synchronous_factory>("net_trace" , "platform\\logs\\net_trace.log"  , SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
+#ifndef DEDICATED
+		spdlog::rotating_logger_mt<spdlog::synchronous_factory>("net_con"   , "platform\\logs\\net_console.log", SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
+#endif // !DEDICATED
+		spdlog::rotating_logger_mt<spdlog::synchronous_factory>("fs_warn"   , "platform\\logs\\fs_warn.log"    , SPDLOG_MAX_SIZE, SPDLOG_NUM_FILE)->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %v");
 	}
 
 	spdlog::set_level(spdlog::level::trace);

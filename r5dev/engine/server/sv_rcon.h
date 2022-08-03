@@ -26,7 +26,7 @@ public:
 	void Send(SocketHandle_t hSocket, const std::string& svMessage) const;
 	void Recv(void);
 
-	std::string Serialize(const std::string& svRspBuf, const std::string& svRspVal, sv_rcon::response_t response_t) const;
+	std::string Serialize(const std::string& svRspBuf, const std::string& svRspVal, sv_rcon::response_t response_t, int nResponseId = -4) const;
 	cl_rcon::request Deserialize(const std::string& svBuf) const;
 
 	void Authenticate(const cl_rcon::request& cl_request, CConnectedNetConsoleData* pData);

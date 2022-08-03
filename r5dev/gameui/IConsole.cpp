@@ -528,7 +528,7 @@ void CConsole::FindFromPartial(void)
 //-----------------------------------------------------------------------------
 void CConsole::ProcessCommand(const char* pszCommand)
 {
-    AddLog(ImVec4(1.00f, 0.80f, 0.60f, 1.00f), "%s] %s\n", Plat_GetProcessUpTime(), pszCommand);
+    DevMsg(eDLL_T::COMMON, "] %s\n", pszCommand);
 
     std::thread t(CEngineClient_CommandExecute, this, pszCommand);
     t.detach(); // Detach from render thread.

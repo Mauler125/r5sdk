@@ -32,20 +32,25 @@
 SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 {
 	SQCONTEXT context;
+	int nResponseId;
 	// We use the sqvm pointer as index for SDK usage as the function prototype has to match assembly.
 	switch (static_cast<SQCONTEXT>(reinterpret_cast<int>(v)))
 	{
 	case SQCONTEXT::SERVER:
 		context = SQCONTEXT::SERVER;
+		nResponseId = -3;
 		break;
 	case SQCONTEXT::CLIENT:
 		context = SQCONTEXT::CLIENT;
+		nResponseId = -2;
 		break;
 	case SQCONTEXT::UI:
 		context = SQCONTEXT::UI;
+		nResponseId = -1;
 		break;
 	case SQCONTEXT::NONE:
 		context = SQCONTEXT::NONE;
+		nResponseId = -4;
 		break;
 	default:
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
@@ -53,8 +58,27 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 #else // Nothing equal to 'rdx + 18h' exist in the vm structs for anything below S3.
 		context = SQVM_GetContextIndex(v);
 #endif
+		switch (context)
+		{
+		case SQCONTEXT::SERVER:
+			nResponseId = -3;
+			break;
+		case SQCONTEXT::CLIENT:
+			nResponseId = -2;
+			break;
+		case SQCONTEXT::UI:
+			nResponseId = -1;
+			break;
+		case SQCONTEXT::NONE:
+			nResponseId = -4;
+			break;
+		default:
+			nResponseId = -4;
+			break;
+		}
 		break;
 	}
+
 	static SQChar buf[4096] = {};
 	static std::string vmStr;
 	static std::regex rxAnsiExp("\\\033\\[.*?m");
@@ -89,7 +113,7 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 		{
 			wconsole->debug(vmStr);
 #ifdef DEDICATED
-			RCONServer()->Send(RCONServer()->Serialize(vmStr, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG));
+			RCONServer()->Send(RCONServer()->Serialize(vmStr, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, nResponseId));
 #endif // DEDICATED
 		}
 		else
@@ -135,7 +159,7 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 			vmStrAnsi.append(buf);
 			wconsole->debug(vmStrAnsi);
 #ifdef DEDICATED
-			RCONServer()->Send(RCONServer()->Serialize(vmStrAnsi, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG));
+			RCONServer()->Send(RCONServer()->Serialize(vmStrAnsi, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, nResponseId));
 #endif // DEDICATED
 		}
 
@@ -175,7 +199,7 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 			}
 
 			g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), color));
-			g_pLogSystem.AddLog(static_cast<LogType_t>(context), g_spd_sys_w_oss.str());
+			g_pLogSystem.AddLog(static_cast<LogType_t>(nResponseId), g_spd_sys_w_oss.str());
 
 			g_spd_sys_w_oss.str("");
 			g_spd_sys_w_oss.clear();
@@ -198,6 +222,7 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* nStringSize, SQChar** ppString)
 {
 	static void* retaddr = reinterpret_cast<void*>(p_SQVM_WarningCmd.Offset(0x10).FindPatternSelf("85 ?? ?? 99", CMemory::Direction::DOWN).GetPtr());
+	int nResponseId;
 	SQCONTEXT context;
 	SQRESULT result = v_SQVM_WarningFunc(v, a2, a3, nStringSize, ppString);
 
@@ -212,6 +237,25 @@ SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* 
 #else // Nothing equal to 'rdx + 18h' exist in the vm structs for anything below S3.
 	context = SQVM_GetContextIndex(v);
 #endif
+
+	switch (context)
+	{
+	case SQCONTEXT::SERVER:
+		nResponseId = -3;
+		break;
+	case SQCONTEXT::CLIENT:
+		nResponseId = -2;
+		break;
+	case SQCONTEXT::UI:
+		nResponseId = -1;
+		break;
+	case SQCONTEXT::NONE:
+		nResponseId = -4;
+		break;
+	default:
+		nResponseId = -4;
+		break;
+	}
 
 	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
@@ -229,7 +273,7 @@ SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* 
 		{
 			wconsole->debug(vmStr);
 #ifdef DEDICATED
-			RCONServer()->Send(RCONServer()->Serialize(vmStr, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG));
+			RCONServer()->Send(RCONServer()->Serialize(vmStr, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, nResponseId));
 #endif // DEDICATED
 		}
 		else
@@ -239,7 +283,7 @@ SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* 
 			vmStrAnsi.append(svConstructor);
 			wconsole->debug(vmStrAnsi);
 #ifdef DEDICATED
-			RCONServer()->Send(RCONServer()->Serialize(vmStrAnsi, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG));
+			RCONServer()->Send(RCONServer()->Serialize(vmStrAnsi, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, nResponseId));
 #endif // DEDICATED
 		}
 

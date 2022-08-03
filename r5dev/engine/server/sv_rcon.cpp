@@ -195,7 +195,7 @@ void CRConServer::Send(SocketHandle_t hSocket, const std::string& svMessage) con
 void CRConServer::Recv(void)
 {
 	int nCount = m_pSocket->GetAcceptedSocketCount();
-	static char szRecvBuf[1024]{};
+	static char szRecvBuf[1024];
 
 	for (m_nConnIndex = nCount - 1; m_nConnIndex >= 0; m_nConnIndex--)
 	{
@@ -250,11 +250,11 @@ void CRConServer::Recv(void)
 //			response_t - 
 // Output : serialized results as string
 //-----------------------------------------------------------------------------
-std::string CRConServer::Serialize(const std::string& svRspBuf, const std::string& svRspVal, sv_rcon::response_t response_t) const
+std::string CRConServer::Serialize(const std::string& svRspBuf, const std::string& svRspVal, sv_rcon::response_t response_t, int nResponseId) const
 {
 	sv_rcon::response sv_response;
 
-	sv_response.set_responseid(-1); // TODO
+	sv_response.set_responseid(nResponseId);
 	sv_response.set_responsetype(response_t);
 
 	switch (response_t)
