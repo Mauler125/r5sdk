@@ -483,12 +483,15 @@ void CRConServer::ProcessMessage(const cl_rcon::request& cl_request)
 //-----------------------------------------------------------------------------
 void CRConServer::Execute(const cl_rcon::request& cl_request, bool bConVar) const
 {
-	ConVar* pConVar = g_pCVar->FindVar(cl_request.requestbuf().c_str());
-	if (pConVar) // Set value without running the callback.
+	if (bConVar)
 	{
-		pConVar->SetValue(cl_request.requestval().c_str());
+		ConVar* pConVar = g_pCVar->FindVar(cl_request.requestbuf().c_str());
+		if (pConVar) // Set value without running the callback.
+		{
+			pConVar->SetValue(cl_request.requestval().c_str());
+		}
 	}
-	else if (!bConVar) // Execute command with "<val>".
+	else // Execute command with "<val>".
 	{
 		Cbuf_AddText(Cbuf_GetCurrentPlayer(), cl_request.requestbuf().c_str(), cmd_source_t::kCommandSrcCode);
 		Cbuf_Execute();

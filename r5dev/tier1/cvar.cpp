@@ -243,5 +243,29 @@ unordered_map<string, ConCommandBase*> CCVar::DumpToMap(void)
 	return allConVars;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: deal with queued material system ConVars
+//-----------------------------------------------------------------------------
+bool CCVar::IsMaterialThreadSetAllowed(void)
+{
+	const int index = 280;
+	return CallVFunc<bool>(index, this);
+}
+void CCVar::QueueMaterialThreadSetValue(ConVar* pConVar, float flValue)
+{
+	const int index = 288;
+	CallVFunc<void>(index, this, pConVar, flValue);
+}
+void CCVar::QueueMaterialThreadSetValue(ConVar* pConVar, int nValue)
+{
+	const int index = 296;
+	CallVFunc<void>(index, this, pConVar, nValue);
+}
+void CCVar::QueueMaterialThreadSetValue(ConVar* pConVar, const char* pValue)
+{
+	const int index = 304;
+	CallVFunc<void>(index, this, pConVar, pValue);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 CCVar* g_pCVar = nullptr;

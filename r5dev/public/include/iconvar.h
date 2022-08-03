@@ -56,6 +56,7 @@ class CCommand;
 #define FCVAR_SERVER_CANNOT_QUERY   (1<<29)	// If this is set, then the server is not allowed to query this cvar's value (via IServerPluginHelpers::StartQueryCvarValue).
 #define FCVAR_CLIENTCMD_CAN_EXECUTE (1<<30)	// IVEngineClient::ClientCmd is allowed to execute this command.
 
+#define FCVAR_MATERIAL_THREAD_MASK ( FCVAR_RELOAD_MATERIALS | FCVAR_RELOAD_TEXTURES | FCVAR_MATERIAL_SYSTEM_THREAD )
 /*
 class ConVar : ConCommandBase, IConVar; [MI] (#classinformer)
 dq offset ? ? _R4ConVar@@6B@; const ConVar::`RTTI Complete Object Locator'

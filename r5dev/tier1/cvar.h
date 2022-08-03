@@ -182,6 +182,11 @@ public:
 	ConCommand* FindCommand(const char* pszCommandName);
 	CCVarIteratorInternal* FactoryInternalIterator(void);
 	unordered_map<string, ConCommandBase*> DumpToMap(void);
+
+	bool IsMaterialThreadSetAllowed(void);
+	void QueueMaterialThreadSetValue(ConVar* pConVar, float flValue);
+	void QueueMaterialThreadSetValue(ConVar* pConVar, int nValue);
+	void QueueMaterialThreadSetValue(ConVar* pConVar, const char* pValue);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

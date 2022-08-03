@@ -279,7 +279,7 @@ void ConVar::PurgeHostNames(void) const
 	{
 		if (ConVar* pCVar = g_pCVar->FindVar(pszHostNames[i]))
 		{
-			pCVar->ChangeStringValue("0.0.0.0");
+			pCVar->SetValue("0.0.0.0");
 		}
 	}
 }
@@ -512,14 +512,17 @@ void ConVar::SetValue(Color value)
 //-----------------------------------------------------------------------------
 void ConVar::InternalSetValue(const char* pszValue)
 {
-	if (strcmp(this->m_pParent->m_Value.m_pszString, pszValue) == 0)
+	if (IsFlagSet(this, FCVAR_MATERIAL_THREAD_MASK))
 	{
-		return;
+		if (g_pCVar && !g_pCVar->IsMaterialThreadSetAllowed())
+		{
+			g_pCVar->QueueMaterialThreadSetValue(this, pszValue);
+			return;
+		}
 	}
-	this->m_pParent->m_Value.m_pszString = pszValue;
 
-	char szTempValue[32]{};
-	const char* pszNewValue{};
+	char szTempValue[32];
+	const char* pszNewValue;
 
 	// Only valid for root convars.
 	assert(m_pParent == this);
@@ -533,7 +536,9 @@ void ConVar::InternalSetValue(const char* pszValue)
 	if (!SetColorFromString(pszValue))
 	{
 		// Not a color, do the standard thing
-		float flNewValue = static_cast<float>(atof(pszValue));
+		double dblValue = atof(pszValue); // Use double to avoid 24-bit restriction on integers and allow storing timestamps or dates in convars
+		float flNewValue = static_cast<float>(dblValue);
+
 		if (!IsFinite(flNewValue))
 		{
 			Warning(eDLL_T::ENGINE, "Warning: ConVar '%s' = '%s' is infinite, clamping value.\n", GetBaseName(), pszValue);
@@ -566,6 +571,15 @@ void ConVar::InternalSetIntValue(int nValue)
 	if (nValue == m_Value.m_nValue)
 		return;
 
+	if (IsFlagSet(this, FCVAR_MATERIAL_THREAD_MASK))
+	{
+		if (g_pCVar && !g_pCVar->IsMaterialThreadSetAllowed())
+		{
+			g_pCVar->QueueMaterialThreadSetValue(this, nValue);
+			return;
+		}
+	}
+
 	assert(m_pParent == this); // Only valid for root convars.
 
 	float fValue = static_cast<float>(nValue);
@@ -594,6 +608,15 @@ void ConVar::InternalSetFloatValue(float flValue)
 {
 	if (flValue == m_Value.m_fValue)
 		return;
+
+	if (IsFlagSet(this, FCVAR_MATERIAL_THREAD_MASK))
+	{
+		if (g_pCVar && !g_pCVar->IsMaterialThreadSetAllowed())
+		{
+			g_pCVar->QueueMaterialThreadSetValue(this, flValue);
+			return;
+		}
+	}
 
 	assert(m_pParent == this); // Only valid for root convars.
 
@@ -742,52 +765,57 @@ bool ConVar::SetColorFromString(const char* pszValue)
 //-----------------------------------------------------------------------------
 void ConVar::ChangeStringValue(const char* pszTempVal)
 {
-	ConVar_ChangeStringValue(this, pszTempVal);
+	assert(!(m_nFlags & FCVAR_NEVER_AS_STRING));
 
-	//assert(!(m_nFlags & FCVAR_NEVER_AS_STRING));
+	char* pszOldValue = reinterpret_cast<char*>(_malloca(m_Value.m_iStringLength));
+	if (pszOldValue != nullptr)
+	{
+		memcpy(pszOldValue, m_Value.m_pszString, m_Value.m_iStringLength);
+	}
 
-	//char* pszOldValue = reinterpret_cast<char*>(_malloca(m_Value.m_iStringLength));
-	//if (pszOldValue != nullptr)
-	//{
-	//	memcpy(pszOldValue, m_Value.m_pszString, m_Value.m_iStringLength);
-	//}
+	if (pszTempVal)
+	{
+		size_t len = strlen(pszTempVal) + 1;
+		if (len > m_Value.m_iStringLength)
+		{
+			if (m_Value.m_pszString)
+			{
+				MemAllocSingleton()->Free(m_Value.m_pszString);
+			}
 
-	//if (pszTempVal)
-	//{
-	//	size_t len = strlen(pszTempVal) + 1;
+			m_Value.m_pszString = MemAllocSingleton()->Alloc<char>(len);
+			m_Value.m_iStringLength = len;
+		}
+		else if (!m_Value.m_pszString)
+		{
+			m_Value.m_pszString = MemAllocSingleton()->Alloc<char>(len);
+			m_Value.m_iStringLength = len;
+		}
+		memmove(m_Value.m_pszString, pszTempVal, len);
 
-	//	if (len > m_Value.m_iStringLength)
-	//	{
-	//		if (m_Value.m_pszString)
-	//		{
-	//			MemAllocSingleton()->Free(m_Value.m_pszString);
-	//		}
+		/*****
+		!FIXME:
+			Respawn put additional code here which
+			seems to itterate over a 64bit integer
+			to call the callback several times (as many times as m_iCallbackCount?).
+		******/
+	}
+	else
+	{
+		m_Value.m_pszString = nullptr;
+	}
 
-	//		m_Value.m_pszString = MemAllocSingleton()->Alloc<const char>(len);
-	//		m_Value.m_iStringLength = len;
-	//	}
-	//	else if (!m_Value.m_pszString)
-	//	{
-	//		m_Value.m_pszString = MemAllocSingleton()->Alloc<const char>(len);
-	//		m_Value.m_iStringLength = len;
-	//	}
-	//	memmove(const_cast<char*>(m_Value.m_pszString), pszTempVal, len);
-	//}
-	//else
-	//{
-	//	m_Value.m_pszString = nullptr;
-	//}
-
-	//pszOldValue = nullptr;
+	pszOldValue = nullptr;
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: changes the ConVar string value (only use if the new string is equal or lower than this->m_iStringLength).
+// Purpose: changes the ConVar string value (this is faster than ChangeStringValue, 
+//          only use if the new string is equal or lower than this->m_iStringLength).
 // Input  : *pszTempVal - flOldValue
 //-----------------------------------------------------------------------------
 void ConVar::ChangeStringValueUnsafe(const char* pszNewValue)
 {
-	m_Value.m_pszString = pszNewValue;
+	m_Value.m_pszString = const_cast<char*>(pszNewValue);
 }
 
 //-----------------------------------------------------------------------------
