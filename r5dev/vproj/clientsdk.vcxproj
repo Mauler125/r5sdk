@@ -113,6 +113,7 @@
     <ClCompile Include="..\tier1\cvar.cpp" />
     <ClCompile Include="..\tier1\IConVar.cpp" />
     <ClCompile Include="..\tier1\NetAdr2.cpp" />
+    <ClCompile Include="..\tier1\splitstring.cpp" />
     <ClCompile Include="..\tier1\strtools.cpp" />
     <ClCompile Include="..\tier2\meshutils.cpp" />
     <ClCompile Include="..\tier2\renderutils.cpp" />
@@ -462,6 +463,7 @@
     <ClInclude Include="..\tier0\fasttimer.h" />
     <ClInclude Include="..\tier0\interface.h" />
     <ClInclude Include="..\tier0\jobthread.h" />
+    <ClInclude Include="..\tier0\memalloc.h" />
     <ClInclude Include="..\tier0\memstd.h" />
     <ClInclude Include="..\tier0\platform.h" />
     <ClInclude Include="..\tier0\platform_internal.h" />
@@ -478,6 +480,7 @@
     <ClInclude Include="..\tier1\mempool.h" />
     <ClInclude Include="..\tier1\NetAdr2.h" />
     <ClInclude Include="..\tier1\strtools.h" />
+    <ClInclude Include="..\tier1\utlblockmemory.h" />
     <ClInclude Include="..\tier1\utldict.h" />
     <ClInclude Include="..\tier1\utlmemory.h" />
     <ClInclude Include="..\tier1\utlvector.h" />

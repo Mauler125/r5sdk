@@ -149,6 +149,30 @@
 
 #endif // CROSS_PLATFORM_VERSION < 2
 
+
+//-----------------------------------------------------------------------------
+// Set up build configuration defines.
+//-----------------------------------------------------------------------------
+#ifdef _CERT
+#define IsCert() 1
+#else
+#define IsCert() 0
+#endif
+
+#ifdef _DEBUG
+#define IsRelease() 0
+#define IsDebug() 1
+#else
+#define IsRelease() 1
+#define IsDebug() 0
+#endif
+
+#ifdef _RETAIL
+#define IsRetail() 1
+#else
+#define IsRetail() 0
+#endif
+
 #if defined( GNUC )	&& !defined( COMPILER_PS3 ) // use pre-align on PS3
 // gnuc has the align decoration at the end
 #define ALIGN4
@@ -156,6 +180,7 @@
 #define ALIGN16
 #define ALIGN32
 #define ALIGN128
+#define ALIGN_N( _align_ )
 
 #undef ALIGN16_POST
 #define ALIGN4_POST DECL_ALIGN(4)
@@ -163,6 +188,7 @@
 #define ALIGN16_POST DECL_ALIGN(16)
 #define ALIGN32_POST DECL_ALIGN(32)
 #define ALIGN128_POST DECL_ALIGN(128)
+#define ALIGN_N_POST( _align_ ) DECL_ALIGN( _align_ )
 #else
 // MSVC has the align at the start of the struct
 // PS3 SNC supports both
@@ -171,13 +197,109 @@
 #define ALIGN16 DECL_ALIGN(16)
 #define ALIGN32 DECL_ALIGN(32)
 #define ALIGN128 DECL_ALIGN(128)
+#define ALIGN_N( _align_ ) DECL_ALIGN( _align_ )
 
 #define ALIGN4_POST
 #define ALIGN8_POST
 #define ALIGN16_POST
 #define ALIGN32_POST
 #define ALIGN128_POST
+#define ALIGN_N_POST( _align_ )
 #endif
+
+// !!! NOTE: if you get a compile error here, you are using VALIGNOF on an abstract type :NOTE !!!
+#define VALIGNOF_PORTABLE( type ) ( sizeof( AlignOf_t<type> ) - sizeof( type ) )
+
+#if defined( COMPILER_GCC ) || defined( COMPILER_MSVC )
+#define VALIGNOF( type ) __alignof( type )
+#define VALIGNOF_TEMPLATE_SAFE( type ) VALIGNOF_PORTABLE( type )
+#else
+#error "PORT: Code only tested with MSVC! Must validate with new compiler, and use built-in keyword if available."
+#endif
+
+// Use ValidateAlignment to sanity-check alignment usage when allocating arrays of an aligned type
+#define ALIGN_ASSERT( pred ) { COMPILE_TIME_ASSERT( pred ); }
+template< class T, int ALIGN >
+inline void ValidateAlignmentExplicit(void)
+{
+	// Alignment must be a power of two
+	ALIGN_ASSERT((ALIGN & (ALIGN - 1)) == 0);
+	// Alignment must not imply gaps in the array (which the CUtlMemory pattern does not allow for)
+	ALIGN_ASSERT(ALIGN <= sizeof(T));
+	// Alignment must be a multiple of the size of the object type, or elements will *NOT* be aligned!
+	ALIGN_ASSERT((sizeof(T) % ALIGN) == 0);
+	// Alignment should be a multiple of the base alignment of T
+//	ALIGN_ASSERT((ALIGN % VALIGNOF(T)) == 0);
+}
+template< class T > inline void ValidateAlignment(void) { ValidateAlignmentExplicit<T, VALIGNOF(T)>(); }
+
+// Portable alternative to __alignof
+template<class T> struct AlignOf_t { AlignOf_t() {} AlignOf_t& operator=(const AlignOf_t&) { return *this; } byte b; T t; };
+
+template < size_t NUM, class T, int ALIGN > struct AlignedByteArrayExplicit_t {};
+template < size_t NUM, class T > struct AlignedByteArray_t : public AlignedByteArrayExplicit_t< NUM, T, VALIGNOF_TEMPLATE_SAFE(T) > {};
+
+
+#if defined(MSVC) && ( defined(_DEBUG) || defined(USE_MEM_DEBUG) )
+
+#pragma warning(disable:4290)
+#pragma warning(push)
+#include <typeinfo.h>
+
+// MEM_DEBUG_CLASSNAME is opt-in.
+// Note: typeid().name() is not threadsafe, so if the project needs to access it in multiple threads
+// simultaneously, it'll need a mutex.
+#if defined(_CPPRTTI) && defined(MEM_DEBUG_CLASSNAME)
+
+template <typename T> const char* MemAllocClassName(T* p)
+{
+	static const char* pszName = typeid(*p).name(); // @TODO: support having debug heap ignore certain allocations, and ignore memory allocated here [5/7/2009 tom]
+	return pszName;
+}
+
+#define MEM_ALLOC_CREDIT_CLASS()	MEM_ALLOC_CREDIT_( MemAllocClassName( this ) )
+#define MEM_ALLOC_CLASSNAME(type) (typeid((type*)(0)).name())
+#else
+#define MEM_ALLOC_CREDIT_CLASS()	MEM_ALLOC_CREDIT_( __FILE__ )
+#define MEM_ALLOC_CLASSNAME(type) (__FILE__)
+#endif
+
+// MEM_ALLOC_CREDIT_FUNCTION is used when no this pointer is available ( inside 'new' overloads, for example )
+#ifdef _MSC_VER
+#define MEM_ALLOC_CREDIT_FUNCTION()		MEM_ALLOC_CREDIT_( __FUNCTION__ )
+#else
+#define MEM_ALLOC_CREDIT_FUNCTION() (__FILE__)
+#endif
+
+#pragma warning(pop)
+#else
+#define MEM_ALLOC_CREDIT_CLASS()
+#define MEM_ALLOC_CLASSNAME(type) NULL
+#define MEM_ALLOC_CREDIT_FUNCTION() 
+#endif
+
+//-----------------------------------------------------------------------------
+// Macro to assist in asserting constant invariants during compilation
+
+// This implementation of compile time assert has zero cost (so it can safely be
+// included in release builds) and can be used at file scope or function scope.
+#ifdef __GNUC__
+#define COMPILE_TIME_ASSERT( pred ) typedef int UNIQUE_ID[ (pred) ? 1 : -1 ]
+#else
+#if _MSC_VER >= 1600
+// If available use static_assert instead of weird language tricks. This
+// leads to much more readable messages when compile time assert constraints
+// are violated.
+#define COMPILE_TIME_ASSERT( pred ) static_assert( pred, "Compile time assert constraint is not true: " #pred )
+#else
+// Due to gcc bugs this can in rare cases (some template functions) cause redeclaration
+// errors when used multiple times in one scope. Fix by adding extra scoping.
+#define COMPILE_TIME_ASSERT( pred ) typedef char compile_time_assert_type[(pred) ? 1 : -1];
+#endif
+#endif
+// ASSERT_INVARIANT used to be needed in order to allow COMPILE_TIME_ASSERTs at global
+// scope. However the new COMPILE_TIME_ASSERT macro supports that by default.
+#define ASSERT_INVARIANT( pred )	COMPILE_TIME_ASSERT( pred )
 
 // This can be used to declare an abstract (interface only) class.
 // Classes marked abstract should not be instantiated.  If they are, and access violation will occur.
@@ -473,6 +595,123 @@ inline int64 CastPtrToInt64(const void* p)
 #define PLATFORM_CLASS
 
 #endif	// BUILD_AS_DLL
+
+//-----------------------------------------------------------------------------
+// C++11 helpers
+//-----------------------------------------------------------------------------
+#define VALVE_CPP11 1
+
+#if VALVE_CPP11
+template <class T> struct C11RemoveReference { typedef T Type; };
+template <class T> struct C11RemoveReference<T&> { typedef T Type; };
+template <class T> struct C11RemoveReference<T&&> { typedef T Type; };
+
+template <class T>
+inline typename C11RemoveReference<T>::Type&& Move(T&& obj)
+{
+	return static_cast<typename C11RemoveReference<T>::Type&&>(obj);
+}
+
+template <class T>
+inline T&& Forward(typename C11RemoveReference<T>::Type& obj)
+{
+	return static_cast<T&&>(obj);
+}
+
+template <class T>
+inline T&& Forward(typename C11RemoveReference<T>::Type&& obj)
+{
+	return static_cast<T&&>(obj);
+}
+#endif
+
+//-----------------------------------------------------------------------------
+// Methods to invoke the constructor, copy constructor, and destructor
+//-----------------------------------------------------------------------------
+
+template <class T>
+inline T* Construct(T* pMemory)
+{
+	return ::new(pMemory) T;
+}
+
+template <class T, typename ARG1>
+inline T* Construct(T* pMemory, ARG1 a1)
+{
+	return ::new(pMemory) T(a1);
+}
+
+template <class T, typename ARG1, typename ARG2>
+inline T* Construct(T* pMemory, ARG1 a1, ARG2 a2)
+{
+	return ::new(pMemory) T(a1, a2);
+}
+
+template <class T, typename ARG1, typename ARG2, typename ARG3>
+inline T* Construct(T* pMemory, ARG1 a1, ARG2 a2, ARG3 a3)
+{
+	return ::new(pMemory) T(a1, a2, a3);
+}
+
+template <class T, typename ARG1, typename ARG2, typename ARG3, typename ARG4>
+inline T* Construct(T* pMemory, ARG1 a1, ARG2 a2, ARG3 a3, ARG4 a4)
+{
+	return ::new(pMemory) T(a1, a2, a3, a4);
+}
+
+template <class T, typename ARG1, typename ARG2, typename ARG3, typename ARG4, typename ARG5>
+inline T* Construct(T* pMemory, ARG1 a1, ARG2 a2, ARG3 a3, ARG4 a4, ARG5 a5)
+{
+	return ::new(pMemory) T(a1, a2, a3, a4, a5);
+}
+
+template <class T>
+inline T* CopyConstruct(T* pMemory, T const& src)
+{
+	return ::new(pMemory) T(src);
+}
+
+template <class T>
+inline T* MoveConstruct(T* pMemory, T&& src)
+{
+	return ::new(pMemory) T(Move(src));
+}
+
+// [will] - Fixing a clang compile: unable to create a pseudo-destructor (aka a destructor that does nothing) for float __attribute__((__vector_size__(16)))
+// Fixed by specializing the Destroy function to not call destructor for that type.
+#if defined( __clang__ ) || defined (LINUX)
+
+template <class T>
+inline void Destruct(T* pMemory);
+
+template <>
+inline void Destruct(float __attribute__((__vector_size__(16)))* pMemory);
+
+#endif // __clang__
+
+template <class T>
+inline void Destruct(T* pMemory)
+{
+	pMemory->~T();
+
+#ifdef _DEBUG
+	memset(pMemory, 0xDD, sizeof(T));
+#endif
+}
+
+// [will] - Fixing a clang compile: unable to create a pseudo-destructor (aka a destructor that does nothing) for float __attribute__((__vector_size__(16)))
+// Fixed by specializing the Destroy function to not call destructor for that type.
+#if defined( __clang__ ) || defined (LINUX)
+
+template <>
+inline void Destruct(float __attribute__((__vector_size__(16)))* pMemory)
+{
+#ifdef _DEBUG
+	memset(pMemory, 0xDD, sizeof(float __attribute__((__vector_size__(16)))));
+#endif
+}
+
+#endif // __clang__
 
 //-----------------------------------------------------------------------------
 // Processor Information:

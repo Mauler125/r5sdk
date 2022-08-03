@@ -13,6 +13,7 @@
 #include "vstdlib/callback.h"
 #include "public/include/iconvar.h"
 #include "public/include/iconcommand.h"
+#include <tier1/utlvector.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: construct/allocate

@@ -1191,6 +1191,12 @@
     <ClInclude Include="..\public\include\worldsize.h">
       <Filter>sdk\public\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\tier1\utlblockmemory.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\memalloc.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1491,6 +1497,9 @@
       <Filter>sdk\server</Filter>
     </ClCompile>
     <ClCompile Include="..\tier1\characterset.cpp">
+      <Filter>sdk\tier1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier1\splitstring.cpp">
       <Filter>sdk\tier1</Filter>
     </ClCompile>
   </ItemGroup>
