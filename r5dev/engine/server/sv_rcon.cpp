@@ -404,7 +404,8 @@ void CRConServer::ProcessBuffer(const char* pRecvBuf, int nRecvLen, CConnectedNe
 				}
 			}
 
-			if (pData->m_nPayloadLen < 0)
+			if (pData->m_nPayloadLen < 0 ||
+				pData->m_nPayloadLen > pData->m_RecvBuffer.max_size())
 			{
 				Error(eDLL_T::SERVER, "RCON Cmd: sync error (%d)\n", pData->m_nPayloadLen);
 				this->CloseConnection(); // Out of sync (irrecoverable).

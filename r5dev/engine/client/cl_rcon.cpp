@@ -256,7 +256,8 @@ void CRConClient::ProcessBuffer(const char* pRecvBuf, int nRecvLen, CConnectedNe
 				pData->m_RecvBuffer[3]);
 			pData->m_nPayloadRead = 0;
 
-			if (pData->m_nPayloadLen < 0)
+			if (pData->m_nPayloadLen < 0 ||
+				pData->m_nPayloadLen > pData->m_RecvBuffer.max_size())
 			{
 				Error(eDLL_T::CLIENT, "RCON Cmd: sync error (%d)\n", pData->m_nPayloadLen);
 				this->Disconnect(); // Out of sync (irrecoverable).

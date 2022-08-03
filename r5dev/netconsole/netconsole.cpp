@@ -372,7 +372,8 @@ void CNetCon::ProcessBuffer(const char* pRecvBuf, int nRecvLen, CConnectedNetCon
 				pData->m_RecvBuffer[3]);
 			pData->m_nPayloadRead = 0;
 
-			if (pData->m_nPayloadLen < 0)
+			if (pData->m_nPayloadLen < 0 ||
+				pData->m_nPayloadLen > pData->m_RecvBuffer.max_size())
 			{
 				std::cout << "RCON Cmd: sync error (" << pData->m_nPayloadLen << ")" << std::endl;
 				this->Disconnect(); // Out of sync (irrecoverable).
