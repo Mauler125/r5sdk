@@ -1025,11 +1025,11 @@ BHit_f
 */
 void BHit_f(const CCommand& args)
 {
+#if !defined (DEDICATED) && !defined (CLIENT_DLL)
 	if (args.ArgC() != 9)
 		return;
 
-#ifndef DEDICATED
-	if (sv_visualizetraces->GetBool())
+	if (bhit_enable->GetBool() && sv_visualizetraces->GetBool())
 	{
 		Vector3D vecAbsStart;
 		Vector3D vecAbsEnd;
@@ -1065,5 +1065,5 @@ void BHit_f(const CCommand& args)
 		Cbuf_AddText(Cbuf_GetCurrentPlayer(), szBuf, cmd_source_t::kCommandSrcCode);
 		Cbuf_Execute();
 	}
-#endif // !DEDICATED
+#endif // !DEDICATED && !CLIENT_DLL
 }

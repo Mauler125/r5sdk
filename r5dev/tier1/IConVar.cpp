@@ -113,17 +113,19 @@ void ConVar::Init(void) const
 	cl_conoverlay_script_client_clr  = new ConVar("cl_conoverlay_script_client_clr", "117 116 139 255", FCVAR_DEVELOPMENTONLY, "Script CLIENT VM RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 	cl_conoverlay_script_ui_clr      = new ConVar("cl_conoverlay_script_ui_clr"    , "200 110 110 255", FCVAR_DEVELOPMENTONLY, "Script UI VM RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 
-	cl_conoverlay_native_server_clr = new ConVar("cl_conoverlay_native_server_clr", "020 050 248 255", FCVAR_DEVELOPMENTONLY, "Native SERVER RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_conoverlay_native_client_clr = new ConVar("cl_conoverlay_native_client_clr", "070 070 070 255", FCVAR_DEVELOPMENTONLY, "Native CLIENT RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_conoverlay_native_ui_clr     = new ConVar("cl_conoverlay_native_ui_clr"    , "200 060 060 255", FCVAR_DEVELOPMENTONLY, "Native UI RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_native_server_clr = new ConVar("cl_conoverlay_native_server_clr", "20 50 248 255", FCVAR_DEVELOPMENTONLY, "Native SERVER RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_native_client_clr = new ConVar("cl_conoverlay_native_client_clr", "70 70 70 255", FCVAR_DEVELOPMENTONLY, "Native CLIENT RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_native_ui_clr     = new ConVar("cl_conoverlay_native_ui_clr"    , "200 60 60 255", FCVAR_DEVELOPMENTONLY, "Native UI RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 	cl_conoverlay_native_engine_clr = new ConVar("cl_conoverlay_native_engine_clr", "255 255 255 255", FCVAR_DEVELOPMENTONLY, "Native engine RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_conoverlay_native_fs_clr     = new ConVar("cl_conoverlay_native_fs_clr"    , "000 100 225 255", FCVAR_DEVELOPMENTONLY, "Native filesystem RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_conoverlay_native_rtech_clr  = new ConVar("cl_conoverlay_native_rtech_clr" , "025 100 100 255", FCVAR_DEVELOPMENTONLY, "Native rtech RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_conoverlay_native_ms_clr     = new ConVar("cl_conoverlay_native_ms_clr"    , "200 020 180 255", FCVAR_DEVELOPMENTONLY, "Native materialsystem RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_native_fs_clr     = new ConVar("cl_conoverlay_native_fs_clr"    , "0 100 225 255", FCVAR_DEVELOPMENTONLY, "Native filesystem RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_native_rtech_clr  = new ConVar("cl_conoverlay_native_rtech_clr" , "25 100 100 255", FCVAR_DEVELOPMENTONLY, "Native rtech RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_native_ms_clr     = new ConVar("cl_conoverlay_native_ms_clr"    , "200 20 180 255", FCVAR_DEVELOPMENTONLY, "Native materialsystem RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 
 	cl_conoverlay_netcon_clr  = new ConVar("cl_conoverlay_netcon_clr" , "255 255 255 255", FCVAR_DEVELOPMENTONLY, "Net console RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_conoverlay_warning_clr = new ConVar("cl_conoverlay_warning_clr", "180 180 020 255", FCVAR_DEVELOPMENTONLY, "Warning RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_conoverlay_error_clr   = new ConVar("cl_conoverlay_error_clr"  , "225 030 030 255", FCVAR_DEVELOPMENTONLY, "Error RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_common_clr  = new ConVar("cl_conoverlay_common_clr" , "255 140 80 255" , FCVAR_DEVELOPMENTONLY, "Common RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+
+	cl_conoverlay_warning_clr = new ConVar("cl_conoverlay_warning_clr", "180 180 20 255", FCVAR_DEVELOPMENTONLY, "Warning RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_error_clr   = new ConVar("cl_conoverlay_error_clr"  , "225 20 20 255" , FCVAR_DEVELOPMENTONLY, "Error RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 
 	cl_showhoststats           = new ConVar("cl_showhoststats"          , "0", FCVAR_DEVELOPMENTONLY, "Host speeds debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_hoststats_invert_rect_x = new ConVar("cl_hoststats_invert_rect_x", "0", FCVAR_DEVELOPMENTONLY, "Inverts the X rect for host speeds debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
@@ -196,6 +198,7 @@ void ConVar::InitShipped(void) const
 {
 #ifndef CLIENT_DLL
 	ai_script_nodes_draw             = g_pCVar->FindVar("ai_script_nodes_draw");
+	bhit_enable                      = g_pCVar->FindVar("bhit_enable");
 #endif // !CLIENT_DLL
 	single_frame_shutdown_for_reload = g_pCVar->FindVar("single_frame_shutdown_for_reload");
 	enable_debug_overlays            = g_pCVar->FindVar("enable_debug_overlays");

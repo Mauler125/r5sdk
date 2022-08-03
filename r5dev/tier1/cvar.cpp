@@ -67,6 +67,7 @@ ConVar* sv_banlistRefreshInterval          = nullptr;
 ConVar* sv_statusRefreshInterval           = nullptr;
 
 ConVar* sv_visualizetraces                 = nullptr;
+ConVar* bhit_enable                        = nullptr;
 ConVar* bhit_abs_origin                    = nullptr;
 
 #ifdef DEDICATED
@@ -98,6 +99,7 @@ ConVar* cl_conoverlay_native_fs_clr        = nullptr;
 ConVar* cl_conoverlay_native_rtech_clr     = nullptr;
 ConVar* cl_conoverlay_native_ms_clr        = nullptr;
 ConVar* cl_conoverlay_netcon_clr           = nullptr;
+ConVar* cl_conoverlay_common_clr           = nullptr;
 ConVar* cl_conoverlay_warning_clr          = nullptr;
 ConVar* cl_conoverlay_error_clr            = nullptr;
 

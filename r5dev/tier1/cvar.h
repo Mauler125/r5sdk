@@ -66,6 +66,7 @@ extern ConVar* sv_banlistRefreshInterval;
 extern ConVar* sv_statusRefreshInterval;
 
 extern ConVar* sv_visualizetraces;
+extern ConVar* bhit_enable;
 extern ConVar* bhit_abs_origin;
 #ifdef DEDICATED
 extern ConVar* sv_rcon_debug;
@@ -97,6 +98,7 @@ extern ConVar* cl_conoverlay_native_fs_clr;
 extern ConVar* cl_conoverlay_native_rtech_clr;
 extern ConVar* cl_conoverlay_native_ms_clr;
 extern ConVar* cl_conoverlay_netcon_clr;
+extern ConVar* cl_conoverlay_common_clr;
 extern ConVar* cl_conoverlay_warning_clr;
 extern ConVar* cl_conoverlay_error_clr;
 
