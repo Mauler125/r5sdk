@@ -25,8 +25,8 @@ public:
 	float           m_fFrameTime;                    // Time spent on last server or client frame (has nothing to do with think intervals) (Also empty on dedicated)
 	float           m_fCurTime;                      
 	char            m_nPad0[24];                     // All unknown.
+	int             m_nMaxMilesAudioQueues;          // Only used on the server.
 	int             m_nMaxClients;                   // Current maxplayers setting
-	int             m_nMaxMilesAudioQueues_Maybe;    // Only used on the server.
 	GameMode_t      m_nGameMode;                     // 1 (MP) 2 (PVE) 3 (SP)
 	int             m_nTickCount;                    // Simulation ticks - does not increase when game is paused - resets on restart.
 	int             m_nUnk0;
