@@ -187,7 +187,7 @@ void ConVar::Init(void) const
 	//-------------------------------------------------------------------------
 	// RUI                                                                    |
 #ifndef DEDICATED
-	rui_drawEnable = new ConVar("rui_drawEnable", "1", FCVAR_RELEASE, "Draws the RUI, 1 = Draw, 0 = No Draw.", false, 0.f, false, 0.f, nullptr, nullptr);
+	rui_drawEnable = new ConVar("rui_drawEnable", "1", FCVAR_RELEASE, "Draws the RUI if set.", false, 0.f, false, 0.f, nullptr, " 1 = Draw, 0 = No Draw.");
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 }
