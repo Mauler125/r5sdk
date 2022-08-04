@@ -1,7 +1,7 @@
 ﻿playlists
 {
 	version stable
-	versionNum 218
+	versionNum 219
 	Gamemodes
 	{
 		defaults
@@ -209,8 +209,8 @@
 				match_ending_enabled                           1
 				battlechatter_enabled                          1
 				survival_shields                               1
-				survival_jumpkit_enabled                       1
-				survival_wallrun_enabled                       1
+				survival_jumpkit_enabled                       0
+				survival_wallrun_enabled                       0
 
 				///////////////////////////////////////////////////////////////////////////////////
 				//// Player Reporting
@@ -704,6 +704,9 @@
 				survival_wallrun_enabled                       1
 				survival_infinite_ammo                         1
 				survival_custom_deploy                         1
+
+				survival_jumpkit_enabled                       1
+				survival_wallrun_enabled                       1
 				
 				ground_loot_enable                             0
 				lootbin_loot_enable                            0
@@ -783,6 +786,9 @@
 				charselect_picking_delay_after_all             0
 				survival_enable_squad_intro                    0
 				survival_enable_gladiator_intros               0
+
+				survival_jumpkit_enabled                       1
+				survival_wallrun_enabled                       1
 
 				jump_from_plane_enabled                        0
 				match_ending_enabled                           0
@@ -916,7 +922,7 @@
 				sur_bots_spawn_with_random_weapons             1
 				match_ending_enabled                           0
 				max_teams                                      1
-				max_players                                    128
+				max_players                                    120
 				min_players                                    1
 				enable_nessies                                 1
 
@@ -962,7 +968,9 @@
 				cmdlineMapLoad                                 1
 				// R5DEV-196963
 				reconnect_disabled                             1
-				sv_cheats                                      1
+
+				survival_jumpkit_enabled                       1
+				survival_wallrun_enabled                       1
 			}
 			gamemodes { survival { maps {
 				mp_rr_canyonlands_64k_x_64k                    1
@@ -985,6 +993,7 @@
 				"MP_RR_ASHS_REDEMPTION"               "Ash's Redemption"
 				"MP_RR_AQUEDUCT"                      "Overflow"
 				"MP_RR_AQUEDUCT_NIGHT"                "Overflow After Dark"
+				"MP_RR_ARENA_COMPOSITE"               "Drop-Off"
 
 				"WORLDS_EDGE_NIGHT"                   "SHADOWFALL WORLD'S EDGE"
 				"WORLDS_EDGE_NIGHT_DESC"              "Dead Legends respawn as Shadows.\nSurvive and escape with final 10 Legends."
