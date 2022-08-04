@@ -33,7 +33,7 @@ unsigned int SampleDebugDraw::areaToCol(unsigned int area)
 	switch(area)
 	{
 	// Ground (0) : light blue
-	case SAMPLE_POLYAREA_GROUND: return duRGBA(0, 120, 255, 255);
+	case SAMPLE_POLYAREA_GROUND: return duRGBA(0, 135, 255, 255);
 	// Water : blue
 	case SAMPLE_POLYAREA_WATER: return duRGBA(0, 0, 255, 255);
 	// Road : brown
