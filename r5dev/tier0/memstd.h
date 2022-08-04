@@ -22,6 +22,12 @@ public:
 		const int index = 5;
 		CallVFunc<void>(index, this, pMem);
 	}
+	template<typename T>
+	size_t GetSize(T* pMem)
+	{
+		const int index = 6;
+		return CallVFunc<size_t>(index, this, pMem);
+	}
 };
 
 //-----------------------------------------------------------------------------

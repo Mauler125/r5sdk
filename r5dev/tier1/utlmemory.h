@@ -331,8 +331,7 @@ public:
 #ifdef REMEMBER_ALLOC_SIZE_FOR_VALGRIND
 		return m_nCurAllocSize;
 #else
-		//return (m_pMemory) ? MemAllocSingleton()->GetSize(m_pMemory) : 0; // FIXME: reverse vftable and get 'GetSize'
-		return 0;
+		return (m_pMemory) ? MemAllocSingleton()->GetSize(m_pMemory) : 0;
 #endif
 	}
 
