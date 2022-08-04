@@ -589,6 +589,7 @@ void CBrowser::UpdateHostingStatus(void)
     case eHostStatus::NOT_HOSTING:
     {
         m_svHostRequestMessage.clear();
+        m_svHostToken.clear();
         m_HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
         break;
     }
@@ -632,7 +633,6 @@ void CBrowser::UpdateHostingStatus(void)
 void CBrowser::SendHostingPostRequest(void)
 {
 #ifndef CLIENT_DLL
-    m_svHostToken.clear();
     bool result = g_pMasterServer->PostServerHost(m_svHostRequestMessage, m_svHostToken,
         NetGameServer_t
         {
@@ -664,7 +664,6 @@ void CBrowser::SendHostingPostRequest(void)
             ssMessage << "Share the following token for clients to connect: ";
         }
         m_svHostRequestMessage = ssMessage.str();
-        DevMsg(eDLL_T::CLIENT, "PostServerHost replied with: %s\n", m_svHostRequestMessage.c_str());
     }
     else
     {
