@@ -269,29 +269,39 @@ void CCommand::Reset()
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+ConCommand::ConCommand()
+	: m_nNullCallBack(nullptr)
+	, m_pSubCallback(nullptr)
+	, m_fnCommandCallbackV1(nullptr)
+	, m_fnCompletionCallback(nullptr)
+	, m_bHasCompletionCallback(false)
+	, m_bUsingNewCommandCallback(false)
+	, m_bUsingCommandCallbackInterface(false)
+{
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: construct/allocate
 //-----------------------------------------------------------------------------
-ConCommand::ConCommand(const char* pszName, const char* pszHelpString, int nFlags, void* pCallback, void* pCommandCompletionCallback)
+ConCommand::ConCommand(const char* pszName, const char* pszHelpString, int nFlags, FnCommandCallback_t pCallback, FnCommandCompletionCallback pCompletionFunc)
 {
 	ConCommand* pCommand = MemAllocSingleton()->Alloc<ConCommand>(sizeof(ConCommand));
 	memset(pCommand, '\0', sizeof(ConCommand));
 
 	pCommand->m_pConCommandBaseVFTable = g_pConCommandVtable.RCast<IConCommandBase*>();
-	pCommand->m_pszName          = pszName;
-	pCommand->m_pszHelpString    = pszHelpString;
-	pCommand->m_nFlags           = nFlags;
-	pCommand->m_nNullCallBack    = NullSub;
-	pCommand->m_pCommandCallback = pCallback;
-	pCommand->m_nCallbackFlags   = 2;
-	if (pCommandCompletionCallback)
-	{
-		pCommand->m_pCompletionCallback = pCommandCompletionCallback;
-	}
-	else
-	{
-		pCommand->m_pCompletionCallback = CallbackStub;
-	}
-	ConCommand_RegisterConCommand(pCommand);
+	pCommand->m_pszName                        = pszName;
+	pCommand->m_pszHelpString                  = pszHelpString;
+	pCommand->m_nFlags                         = nFlags;
+	pCommand->m_nNullCallBack                  = NullSub;
+	pCommand->m_fnCommandCallback              = pCallback;
+	pCommand->m_bHasCompletionCallback         = pCompletionFunc != nullptr ? true : false;
+	pCommand->m_bUsingNewCommandCallback       = true;
+	pCommand->m_bUsingCommandCallbackInterface = false;
+	pCommand->m_fnCompletionCallback           = pCompletionFunc ? pCompletionFunc : CallbackStub;
+
+	ConCommandBase_Init(pCommand);
 	*this = *pCommand;
 }
 
@@ -358,7 +368,7 @@ void ConCommand::InitShipped(void)
 #ifndef DEDICATED
 	//-------------------------------------------------------------------------
 	// MATERIAL SYSTEM
-	g_pCVar->FindCommand("mat_crosshair")->m_pCommandCallback = Mat_CrossHair_f; // Patch callback function to working callback.
+	g_pCVar->FindCommand("mat_crosshair")->m_fnCommandCallback = Mat_CrossHair_f; // Patch callback function to working callback.
 #endif // !DEDICATED
 }
 

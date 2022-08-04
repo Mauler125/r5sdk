@@ -86,6 +86,35 @@ dq offset RegisterConVar; #STR: "Convar '%s' is flagged as both FCVAR_ARCHIVE an
 */
 
 //-----------------------------------------------------------------------------
+// Called when a ConCommand needs to execute
+//-----------------------------------------------------------------------------
+typedef void (*FnCommandCallbackV1_t)(void);
+typedef void (*FnCommandCallback_t)(const CCommand& command);
+
+#define COMMAND_COMPLETION_MAXITEMS		128
+#define COMMAND_COMPLETION_ITEM_LENGTH	128
+
+//-----------------------------------------------------------------------------
+// Returns 0 to COMMAND_COMPLETION_MAXITEMS worth of completion strings
+//-----------------------------------------------------------------------------
+typedef int  (*FnCommandCompletionCallback)(const char* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH]);
+
+//-----------------------------------------------------------------------------
+// Interface version
+//-----------------------------------------------------------------------------
+class ICommandCallback
+{
+public:
+	virtual void CommandCallback(const CCommand& command) = 0;
+};
+
+class ICommandCompletionCallback
+{
+public:
+	//virtual int  CommandCompletionCallback(const char* pPartial, CUtlVector< CUtlString > &commands) = 0;
+};
+
+//-----------------------------------------------------------------------------
 // Called when a ConVar changes value
 // NOTE: For FCVAR_NEVER_AS_STRING ConVars, pOldValue == NULL
 //-----------------------------------------------------------------------------
