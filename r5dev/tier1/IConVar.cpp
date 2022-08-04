@@ -90,7 +90,6 @@ void ConVar::Init(void) const
 	sv_pylonRefreshInterval   = new ConVar("sv_pylonRefreshInterval"  , "5.0", FCVAR_RELEASE, "Pylon server host request post update interval (seconds).", true, 2.f, true, 8.f, nullptr, nullptr);
 	sv_banlistRefreshInterval = new ConVar("sv_banlistRefreshInterval", "1.0", FCVAR_RELEASE, "Banlist refresh interval (seconds).", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_statusRefreshInterval  = new ConVar("sv_statusRefreshInterval" , "0.5", FCVAR_RELEASE, "Server status bar update interval (seconds).", false, 0.f, false, 0.f, nullptr, nullptr);
-#endif // !CLIENT_DLL
 #ifdef DEDICATED
 	sv_rcon_debug       = new ConVar("sv_rcon_debug"      , "0" , FCVAR_RELEASE, "Show rcon debug information ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_banpenalty  = new ConVar("sv_rcon_banpenalty" , "10", FCVAR_RELEASE, "Number of minutes to ban users who fail rcon authentication.", false, 0.f, false, 0.f, nullptr, nullptr);
@@ -99,6 +98,7 @@ void ConVar::Init(void) const
 	sv_rcon_maxsockets  = new ConVar("sv_rcon_maxsockets" , "32", FCVAR_RELEASE, "Max number of accepted sockets before the server starts closing redundant sockets.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_whitelist_address = new ConVar("sv_rcon_whitelist_address", "", FCVAR_RELEASE, "This address is not considered a 'redundant' socket and will never be banned for failed authentications.", false, 0.f, false, 0.f, nullptr, "Format: '::ffff:127.0.0.1'.");
 #endif // DEDICATED
+#endif // !CLIENT_DLL
 	bhit_abs_origin = new ConVar("bhit_abs_origin", "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Use player's absolute origin for bhit tracing.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// CLIENT                                                                 |

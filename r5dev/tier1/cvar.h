@@ -65,9 +65,6 @@ extern ConVar* sv_pylonRefreshInterval;
 extern ConVar* sv_banlistRefreshInterval;
 extern ConVar* sv_statusRefreshInterval;
 
-extern ConVar* sv_visualizetraces;
-extern ConVar* bhit_enable;
-extern ConVar* bhit_abs_origin;
 #ifdef DEDICATED
 extern ConVar* sv_rcon_debug;
 extern ConVar* sv_rcon_banpenalty;
@@ -77,6 +74,9 @@ extern ConVar* sv_rcon_maxsockets;
 extern ConVar* sv_rcon_whitelist_address;
 #endif // DEDICATED
 #endif // CLIENT_DLL
+extern ConVar* sv_visualizetraces;
+extern ConVar* bhit_enable;
+extern ConVar* bhit_abs_origin;
 //-------------------------------------------------------------------------
 // CLIENT                                                                 |
 #ifndef DEDICATED

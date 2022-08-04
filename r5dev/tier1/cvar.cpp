@@ -43,6 +43,7 @@ ConVar* stream_overlay                     = nullptr;
 ConVar* stream_overlay_mode                = nullptr;
 //-----------------------------------------------------------------------------
 // SERVER                                                                     |
+#ifndef CLIENT_DLL
 ConVar* ai_ainDumpOnLoad                   = nullptr;
 ConVar* ai_ainDebugConnect                 = nullptr;
 ConVar* ai_script_nodes_draw               = nullptr;
@@ -66,10 +67,6 @@ ConVar* sv_pylonRefreshInterval            = nullptr;
 ConVar* sv_banlistRefreshInterval          = nullptr;
 ConVar* sv_statusRefreshInterval           = nullptr;
 
-ConVar* sv_visualizetraces                 = nullptr;
-ConVar* bhit_enable                        = nullptr;
-ConVar* bhit_abs_origin                    = nullptr;
-
 #ifdef DEDICATED
 ConVar* sv_rcon_debug                      = nullptr;
 ConVar* sv_rcon_banpenalty                 = nullptr; // TODO
@@ -78,6 +75,11 @@ ConVar* sv_rcon_maxignores                 = nullptr;
 ConVar* sv_rcon_maxsockets                 = nullptr;
 ConVar* sv_rcon_whitelist_address          = nullptr;
 #endif // DEDICATED
+#endif // !CLIENT_DLL
+
+ConVar* sv_visualizetraces = nullptr;
+ConVar* bhit_enable = nullptr;
+ConVar* bhit_abs_origin = nullptr;
 //-----------------------------------------------------------------------------
 // CLIENT                                                                     |
 #ifndef DEDICATED
