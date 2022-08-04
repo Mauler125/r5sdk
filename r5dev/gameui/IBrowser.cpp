@@ -48,6 +48,13 @@ CBrowser::CBrowser(void)
     {
         while (true)
         {
+            static bool bRefreshed = false;
+            if (!bRefreshed) // Refresh when created.
+            {
+                RefreshServerList();
+                bRefreshed = true;
+            }
+
             UpdateHostingStatus();
             std::this_thread::sleep_for(std::chrono::milliseconds(5000));
         }
