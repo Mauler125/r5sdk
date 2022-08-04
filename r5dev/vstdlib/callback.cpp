@@ -52,9 +52,9 @@
 MP_GameMode_Changed_f
 =====================
 */
-bool MP_GameMode_Changed_f(ConVar* pVTable)
+void MP_GameMode_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue)
 {
-	return SetupGamemode(mp_gamemode->GetString());
+	SetupGamemode(mp_gamemode->GetString());
 }
 
 #ifndef DEDICATED
@@ -780,7 +780,8 @@ void RCON_CmdQuery_f(const CCommand& args)
 				return;
 			}
 
-			RCONClient()->Send(RCONClient()->Serialize(args.ArgS(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND));
+			string svCmdQuery = RCONClient()->Serialize(args.ArgS(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+			RCONClient()->Send(svCmdQuery);
 			return;
 		}
 		else
@@ -1025,11 +1026,11 @@ BHit_f
 */
 void BHit_f(const CCommand& args)
 {
-#if !defined (DEDICATED) && !defined (CLIENT_DLL)
 	if (args.ArgC() != 9)
 		return;
 
-	if (bhit_enable->GetBool() && sv_visualizetraces->GetBool())
+#ifndef DEDICATED
+	if (sv_visualizetraces->GetBool())
 	{
 		Vector3D vecAbsStart;
 		Vector3D vecAbsEnd;
@@ -1065,5 +1066,5 @@ void BHit_f(const CCommand& args)
 		Cbuf_AddText(Cbuf_GetCurrentPlayer(), szBuf, cmd_source_t::kCommandSrcCode);
 		Cbuf_Execute();
 	}
-#endif // !DEDICATED && !CLIENT_DLL
+#endif // !DEDICATED
 }

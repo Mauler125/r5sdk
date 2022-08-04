@@ -180,13 +180,15 @@ public:
 	ConCommandBase* FindCommandBase(const char* pszCommandName); // @0x1405983A0 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	ConVar* FindVar(const char* pszVarName);                     // @0x1405983B0 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	ConCommand* FindCommand(const char* pszCommandName);
-	CCVarIteratorInternal* FactoryInternalIterator(void);
-	unordered_map<string, ConCommandBase*> DumpToMap(void);
 
+	void CallGlobalChangeCallbacks(ConVar* pConVar, const char* pOldString);
 	bool IsMaterialThreadSetAllowed(void);
 	void QueueMaterialThreadSetValue(ConVar* pConVar, float flValue);
 	void QueueMaterialThreadSetValue(ConVar* pConVar, int nValue);
 	void QueueMaterialThreadSetValue(ConVar* pConVar, const char* pValue);
+
+	CCVarIteratorInternal* FactoryInternalIterator(void);
+	unordered_map<string, ConCommandBase*> DumpToMap(void);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

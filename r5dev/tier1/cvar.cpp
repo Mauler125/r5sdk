@@ -215,6 +215,39 @@ ConCommand* CCVar::FindCommand(const char* pszCommandName)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CCVar::CallGlobalChangeCallbacks(ConVar* pConVar, const char* pOldString)
+{
+	const int index = 23;
+	CallVFunc<void>(index, this, pConVar, pOldString);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: deal with queued material system ConVars
+//-----------------------------------------------------------------------------
+bool CCVar::IsMaterialThreadSetAllowed(void)
+{
+	const int index = 35;
+	return CallVFunc<bool>(index, this);
+}
+void CCVar::QueueMaterialThreadSetValue(ConVar* pConVar, float flValue)
+{
+	const int index = 36;
+	CallVFunc<void>(index, this, pConVar, flValue);
+}
+void CCVar::QueueMaterialThreadSetValue(ConVar* pConVar, int nValue)
+{
+	const int index = 37;
+	CallVFunc<void>(index, this, pConVar, nValue);
+}
+void CCVar::QueueMaterialThreadSetValue(ConVar* pConVar, const char* pValue)
+{
+	const int index = 38;
+	CallVFunc<void>(index, this, pConVar, pValue);
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: iterates over all ConVars
 //-----------------------------------------------------------------------------
 CCVarIteratorInternal* CCVar::FactoryInternalIterator(void)
@@ -241,30 +274,6 @@ unordered_map<string, ConCommandBase*> CCVar::DumpToMap(void)
 	}
 
 	return allConVars;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: deal with queued material system ConVars
-//-----------------------------------------------------------------------------
-bool CCVar::IsMaterialThreadSetAllowed(void)
-{
-	const int index = 280;
-	return CallVFunc<bool>(index, this);
-}
-void CCVar::QueueMaterialThreadSetValue(ConVar* pConVar, float flValue)
-{
-	const int index = 288;
-	CallVFunc<void>(index, this, pConVar, flValue);
-}
-void CCVar::QueueMaterialThreadSetValue(ConVar* pConVar, int nValue)
-{
-	const int index = 296;
-	CallVFunc<void>(index, this, pConVar, nValue);
-}
-void CCVar::QueueMaterialThreadSetValue(ConVar* pConVar, const char* pValue)
-{
-	const int index = 304;
-	CallVFunc<void>(index, this, pConVar, pValue);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

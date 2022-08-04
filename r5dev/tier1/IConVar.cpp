@@ -221,7 +221,8 @@ void ConVar::InitShipped(void) const
 #ifndef CLIENT_DLL
 	ai_script_nodes_draw->SetValue(-1);
 #endif // !CLIENT_DLL
-	mp_gamemode->SetCallback(&MP_GameMode_Changed_f);
+	mp_gamemode->RemoveChangeCallback(mp_gamemode->m_fnChangeCallbacks[0]);
+	mp_gamemode->InstallChangeCallback(MP_GameMode_Changed_f, false);
 }
 
 //-----------------------------------------------------------------------------
@@ -292,6 +293,10 @@ void ConVar::PurgeHostNames(void) const
 void ConVar::AddFlags(int nFlags)
 {
 	m_pParent->m_nFlags |= nFlags;
+
+#ifdef ALLOW_DEVELOPMENT_CVARS
+	m_pParent->m_nFlags &= ~FCVAR_DEVELOPMENTONLY;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -534,15 +539,15 @@ void ConVar::InternalSetValue(const char* pszValue)
 		pszNewValue = "";
 	}
 
-	if (!SetColorFromString(pszValue))
+	if (!SetColorFromString(pszNewValue))
 	{
 		// Not a color, do the standard thing
-		double dblValue = atof(pszValue); // Use double to avoid 24-bit restriction on integers and allow storing timestamps or dates in convars
+		double dblValue = atof(pszNewValue); // Use double to avoid 24-bit restriction on integers and allow storing timestamps or dates in convars
 		float flNewValue = static_cast<float>(dblValue);
 
 		if (!IsFinite(flNewValue))
 		{
-			Warning(eDLL_T::ENGINE, "Warning: ConVar '%s' = '%s' is infinite, clamping value.\n", GetBaseName(), pszValue);
+			Warning(eDLL_T::ENGINE, "Warning: ConVar '%s' = '%s' is infinite, clamping value.\n", GetBaseName(), pszNewValue);
 			flNewValue = FLT_MAX;
 		}
 
@@ -706,15 +711,6 @@ void ConVar::SetDefault(const char* pszDefault)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: sets the ConVar callback.
-// Input  : *pCallback -
-//-----------------------------------------------------------------------------
-void ConVar::SetCallback(void* pCallback)
-{
-	*m_Callback.m_ppCallback = *&pCallback;
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: sets the ConVar color value from string.
 // Input  : *pszValue - 
 //-----------------------------------------------------------------------------
@@ -723,7 +719,7 @@ bool ConVar::SetColorFromString(const char* pszValue)
 	bool bColor = false;
 
 	// Try pulling RGBA color values out of the string.
-	int nRGBA[4]{};
+	int nRGBA[4];
 	int nParamsRead = sscanf_s(pszValue, "%i %i %i %i", &(nRGBA[0]), &(nRGBA[1]), &(nRGBA[2]), &(nRGBA[3]));
 
 	if (nParamsRead >= 3)
@@ -766,57 +762,88 @@ bool ConVar::SetColorFromString(const char* pszValue)
 //-----------------------------------------------------------------------------
 void ConVar::ChangeStringValue(const char* pszTempVal)
 {
-	assert(!(m_nFlags & FCVAR_NEVER_AS_STRING));
+	Assert(!(m_nFlags & FCVAR_NEVER_AS_STRING));
 
-	char* pszOldValue = reinterpret_cast<char*>(_malloca(m_Value.m_iStringLength));
-	if (pszOldValue != nullptr)
-	{
-		memcpy(pszOldValue, m_Value.m_pszString, m_Value.m_iStringLength);
-	}
+	char* pszOldValue = (char*)stackalloc(m_Value.m_iStringLength);
+	memcpy(pszOldValue, m_Value.m_pszString, m_Value.m_iStringLength);
 
-	if (pszTempVal)
+	int len = strlen(pszTempVal) + 1;
+
+	if (len > m_Value.m_iStringLength)
 	{
-		size_t len = strlen(pszTempVal) + 1;
-		if (len > m_Value.m_iStringLength)
+		if (m_Value.m_pszString)
 		{
-			if (m_Value.m_pszString)
-			{
-				MemAllocSingleton()->Free(m_Value.m_pszString);
-			}
-
-			m_Value.m_pszString = MemAllocSingleton()->Alloc<char>(len);
-			m_Value.m_iStringLength = len;
+			MemAllocSingleton()->Free(m_Value.m_pszString);
 		}
-		else if (!m_Value.m_pszString)
-		{
-			m_Value.m_pszString = MemAllocSingleton()->Alloc<char>(len);
-			m_Value.m_iStringLength = len;
-		}
-		memmove(m_Value.m_pszString, pszTempVal, len);
 
-		/*****
-		!FIXME:
-			Respawn put additional code here which
-			seems to itterate over a 64bit integer
-			to call the callback several times (as many times as m_iCallbackCount?).
-		******/
+		m_Value.m_pszString = MemAllocSingleton()->Alloc<char>(len);
+		m_Value.m_iStringLength = len;
 	}
-	else
+
+	memcpy(reinterpret_cast<void*>(m_Value.m_pszString), pszTempVal, len);
+
+	// Invoke any necessary callback function
+	for (int i = 0; i < m_fnChangeCallbacks.Count(); ++i)
 	{
-		m_Value.m_pszString = nullptr;
+		m_fnChangeCallbacks[i](reinterpret_cast<IConVar*>(&m_pIConVarVFTable), pszOldValue, NULL);
 	}
 
-	pszOldValue = nullptr;
+	if (g_pCVar)
+	{
+		g_pCVar->CallGlobalChangeCallbacks(this, pszOldValue);
+	}
+
+	stackfree(pszOldValue);
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: changes the ConVar string value (this is faster than ChangeStringValue, 
-//          only use if the new string is equal or lower than this->m_iStringLength).
+// Purpose: changes the ConVar string value without calling the callback
+// (Size of new string must be equal or lower than m_iStringLength!!!)
 // Input  : *pszTempVal - flOldValue
 //-----------------------------------------------------------------------------
 void ConVar::ChangeStringValueUnsafe(const char* pszNewValue)
 {
 	m_Value.m_pszString = const_cast<char*>(pszNewValue);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Install a change callback (there shouldn't already be one....)
+// Input  : callback - 
+//			bInvoke - 
+//-----------------------------------------------------------------------------
+void ConVar::InstallChangeCallback(FnChangeCallback_t callback, bool bInvoke /*=true*/)
+{
+	if (!callback)
+	{
+		Warning(eDLL_T::ENGINE, "%s: called with NULL callback, ignoring!!!\n", __FUNCTION__);
+		return;
+	}
+
+	if (m_pParent->m_fnChangeCallbacks.Find(callback) != m_pParent->m_fnChangeCallbacks.InvalidIndex())
+	{
+		// Same ptr added twice, sigh...
+		Warning(eDLL_T::ENGINE, "%s: ignoring duplicate change callback!!!\n", __FUNCTION__);
+		return;
+	}
+
+	m_pParent->m_fnChangeCallbacks.AddToTail(callback);
+
+	// Call it immediately to set the initial value...
+	if (bInvoke)
+	{
+		callback(reinterpret_cast<IConVar*>(&m_pIConVarVFTable), m_Value.m_pszString, m_Value.m_fValue);
+	}
+
+	sizeof(CUtlVector<int>);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Install a change callback (there shouldn't already be one....)
+// Input  : callback - 
+//-----------------------------------------------------------------------------
+void ConVar::RemoveChangeCallback(FnChangeCallback_t callback)
+{
+	m_pParent->m_fnChangeCallbacks.FindAndRemove(callback);
 }
 
 //-----------------------------------------------------------------------------

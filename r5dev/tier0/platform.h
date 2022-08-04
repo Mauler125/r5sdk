@@ -410,6 +410,15 @@ inline int64 CastPtrToInt64(const void* p)
 
 #endif
 
+#define stackalloc_aligned( _size, _align )		(void*)( ( ((uintp)alloca( ALIGN_VALUE( ( _size ) + (_align ),  ( _align ) ) )) + ( _align ) ) & ~_align )
+
+// We should probably always just align to 16 bytes, stackalloc just causes too many problems without this behavior. Source2 does it already.
+// #define stackalloc( _size )							stackalloc_aligned( _size, 16 )
+
+#define  stackfree( _p )			0
+// two-argument ( type, #elements) stackalloc
+#define StackAlloc( typ, nelements ) ( ( typ * )	stackalloc_aligned( ( nelements ) * sizeof(typ), 16 ) )
+
 #define NO_MALLOC_OVERRIDE
 
 //-----------------------------------------------------------------------------

@@ -486,7 +486,7 @@ void CRConServer::Execute(const cl_rcon::request& cl_request, bool bConVar) cons
 	if (bConVar)
 	{
 		ConVar* pConVar = g_pCVar->FindVar(cl_request.requestbuf().c_str());
-		if (pConVar) // Set value without running the callback.
+		if (pConVar) // Only run if this is a ConVar.
 		{
 			pConVar->SetValue(cl_request.requestval().c_str());
 		}

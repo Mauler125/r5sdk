@@ -12,7 +12,7 @@ inline CMemory p_DownloadPlaylists_f;
 inline auto _DownloadPlaylists_f = p_DownloadPlaylists_f.RCast<void(*)(void)>();
 
 ///////////////////////////////////////////////////////////////////////////////
-bool MP_GameMode_Changed_f(ConVar* pVTable);
+void MP_GameMode_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue);
 #ifndef DEDICATED
 void GameConsole_Invoke_f(const CCommand& args);
 void ServerBrowser_Invoke_f(const CCommand& args);
