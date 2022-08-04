@@ -805,9 +805,13 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 
 		if (this->m_WindowedToggle->Checked())
 			svParameters.append("-windowed\n");
+		else
+			svParameters.append("-fullscreen\n");
 
 		if (this->m_NoBorderToggle->Checked())
 			svParameters.append("-noborder\n");
+		//else
+		//	svParameters.append("-forceborder\n"); // !TODO: FIX IN ENGINE!
 
 		if (StringIsDigit(this->m_FpsTextBox->Text().ToCString()))
 			svParameters.append("+fps_max \"" + this->m_FpsTextBox->Text() + "\"\n");
@@ -1008,9 +1012,13 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 
 		if (this->m_WindowedToggle->Checked())
 			svParameters.append("-windowed\n");
+		else
+			svParameters.append("-fullscreen\n");
 
 		if (this->m_NoBorderToggle->Checked())
 			svParameters.append("-noborder\n");
+		//else
+		//	svParameters.append("-forceborder\n"); // !TODO: FIX IN ENGINE!
 
 		if (StringIsDigit(this->m_FpsTextBox->Text().ToCString()))
 			svParameters.append("+fps_max \"" + this->m_FpsTextBox->Text() + "\"\n");
