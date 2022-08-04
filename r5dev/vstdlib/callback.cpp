@@ -1030,7 +1030,7 @@ void BHit_f(const CCommand& args)
 		return;
 
 #ifndef DEDICATED
-	if (sv_visualizetraces->GetBool())
+	if (bhit_enable->GetBool() && sv_visualizetraces->GetBool())
 	{
 		Vector3D vecAbsStart;
 		Vector3D vecAbsEnd;

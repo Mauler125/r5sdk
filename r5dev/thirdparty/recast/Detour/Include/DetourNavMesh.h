@@ -393,7 +393,7 @@ public:
 	///  @param[in]		dataSize	Data size of the new tile mesh.
 	///  @param[in]		flags		Tile flags. (See: #dtTileFlags)
 	///  @param[in]		lastRef		The desired reference for the tile. (When reloading a tile.) [opt] [Default: 0]
-	///  @param[out]	result		The tile reference. (If the tile was succesfully added.) [opt]
+	///  @param[out]	result		The tile reference. (If the tile was successfully added.) [opt]
 	/// @return The status flags for the operation.
 	dtStatus addTile(unsigned char* data, int dataSize, int flags, dtTileRef lastRef, dtTileRef* result);
 

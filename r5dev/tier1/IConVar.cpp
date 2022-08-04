@@ -9,11 +9,11 @@
 #include "tier0/memstd.h"
 #include "tier1/IConVar.h"
 #include "tier1/cvar.h"
+#include "tier1/utlvector.h"
 #include "mathlib/bits.h"
 #include "vstdlib/callback.h"
 #include "public/include/iconvar.h"
 #include "public/include/iconcommand.h"
-#include <tier1/utlvector.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: construct/allocate
@@ -86,7 +86,7 @@ void ConVar::Init(void) const
 	navmesh_draw_poly_bounds_inner = new ConVar("navmesh_draw_poly_bounds_inner" , "0" , FCVAR_DEVELOPMENTONLY, "Draws the inner bounds of the NavMesh polys (requires navmesh_draw_poly_bounds).", false, 0.f, false, 0.f, nullptr, "Index: > 0 && < mesh->m_tileCount");
 #endif // !DEDICATED
 	sv_showconnecting  = new ConVar("sv_showconnecting" , "1", FCVAR_RELEASE, "Logs information about the connecting client to the console.", false, 0.f, false, 0.f, nullptr, nullptr);
-	sv_pylonVisibility = new ConVar("sv_pylonVisibility", "0", FCVAR_RELEASE, "Determines the visiblity to the Pylon master server, 0 = Offline, 1 = Hidden, 2 = Public.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sv_pylonVisibility = new ConVar("sv_pylonVisibility", "0", FCVAR_RELEASE, "Determines the visiblity to the Pylon master server.", false, 0.f, false, 0.f, nullptr, "0 = Offline, 1 = Hidden, 2 = Public.");
 	sv_pylonRefreshInterval   = new ConVar("sv_pylonRefreshInterval"  , "5.0", FCVAR_RELEASE, "Pylon server host request post update interval (seconds).", true, 2.f, true, 8.f, nullptr, nullptr);
 	sv_banlistRefreshInterval = new ConVar("sv_banlistRefreshInterval", "1.0", FCVAR_RELEASE, "Banlist refresh interval (seconds).", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_statusRefreshInterval  = new ConVar("sv_statusRefreshInterval" , "0.5", FCVAR_RELEASE, "Server status bar update interval (seconds).", false, 0.f, false, 0.f, nullptr, nullptr);
@@ -99,7 +99,7 @@ void ConVar::Init(void) const
 	sv_rcon_maxsockets  = new ConVar("sv_rcon_maxsockets" , "32", FCVAR_RELEASE, "Max number of accepted sockets before the server starts closing redundant sockets.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_whitelist_address = new ConVar("sv_rcon_whitelist_address", "", FCVAR_RELEASE, "This address is not considered a 'redundant' socket and will never be banned for failed authentications.", false, 0.f, false, 0.f, nullptr, "Format: '::ffff:127.0.0.1'.");
 #endif // DEDICATED
-	bhit_abs_origin = new ConVar("bhit_abs_origin", "0", FCVAR_RELEASE, "Use player's absolute origin for bhit tracing.", false, 0.f, false, 0.f, nullptr, nullptr);
+	bhit_abs_origin = new ConVar("bhit_abs_origin", "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Use player's absolute origin for bhit tracing.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// CLIENT                                                                 |
 #ifndef DEDICATED
@@ -114,13 +114,13 @@ void ConVar::Init(void) const
 	cl_conoverlay_script_client_clr  = new ConVar("cl_conoverlay_script_client_clr", "117 116 139 255", FCVAR_DEVELOPMENTONLY, "Script CLIENT VM RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 	cl_conoverlay_script_ui_clr      = new ConVar("cl_conoverlay_script_ui_clr"    , "200 110 110 255", FCVAR_DEVELOPMENTONLY, "Script UI VM RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 
-	cl_conoverlay_native_server_clr = new ConVar("cl_conoverlay_native_server_clr", "20 50 248 255", FCVAR_DEVELOPMENTONLY, "Native SERVER RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_conoverlay_native_client_clr = new ConVar("cl_conoverlay_native_client_clr", "70 70 70 255", FCVAR_DEVELOPMENTONLY, "Native CLIENT RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_conoverlay_native_ui_clr     = new ConVar("cl_conoverlay_native_ui_clr"    , "200 60 60 255", FCVAR_DEVELOPMENTONLY, "Native UI RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_native_server_clr = new ConVar("cl_conoverlay_native_server_clr", "20 50 248 255"  , FCVAR_DEVELOPMENTONLY, "Native SERVER RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_native_client_clr = new ConVar("cl_conoverlay_native_client_clr", "70 70 70 255"   , FCVAR_DEVELOPMENTONLY, "Native CLIENT RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_native_ui_clr     = new ConVar("cl_conoverlay_native_ui_clr"    , "200 60 60 255"  , FCVAR_DEVELOPMENTONLY, "Native UI RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 	cl_conoverlay_native_engine_clr = new ConVar("cl_conoverlay_native_engine_clr", "255 255 255 255", FCVAR_DEVELOPMENTONLY, "Native engine RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_conoverlay_native_fs_clr     = new ConVar("cl_conoverlay_native_fs_clr"    , "0 100 225 255", FCVAR_DEVELOPMENTONLY, "Native filesystem RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_conoverlay_native_rtech_clr  = new ConVar("cl_conoverlay_native_rtech_clr" , "25 100 100 255", FCVAR_DEVELOPMENTONLY, "Native rtech RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_conoverlay_native_ms_clr     = new ConVar("cl_conoverlay_native_ms_clr"    , "200 20 180 255", FCVAR_DEVELOPMENTONLY, "Native materialsystem RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_native_fs_clr     = new ConVar("cl_conoverlay_native_fs_clr"    , "0 100 225 255"  , FCVAR_DEVELOPMENTONLY, "Native filesystem RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_native_rtech_clr  = new ConVar("cl_conoverlay_native_rtech_clr" , "25 100 100 255" , FCVAR_DEVELOPMENTONLY, "Native rtech RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_conoverlay_native_ms_clr     = new ConVar("cl_conoverlay_native_ms_clr"    , "200 20 180 255" , FCVAR_DEVELOPMENTONLY, "Native materialsystem RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 
 	cl_conoverlay_netcon_clr  = new ConVar("cl_conoverlay_netcon_clr" , "255 255 255 255", FCVAR_DEVELOPMENTONLY, "Net console RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 	cl_conoverlay_common_clr  = new ConVar("cl_conoverlay_common_clr" , "255 140 80 255" , FCVAR_DEVELOPMENTONLY, "Common RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
@@ -171,8 +171,8 @@ void ConVar::Init(void) const
 	// SQUIRREL                                                               |
 	sq_showrsonloading   = new ConVar("sq_showrsonloading"  , "0", FCVAR_DEVELOPMENTONLY, "Logs all 'rson' files loaded by the SQVM ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	sq_showscriptloading = new ConVar("sq_showscriptloading", "0", FCVAR_DEVELOPMENTONLY, "Logs all scripts loaded by the SQVM to be pre-compiled ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
-	sq_showvmoutput      = new ConVar("sq_showvmoutput"     , "0", FCVAR_DEVELOPMENTONLY, "Prints the VM output to the console. 1 = Log to file. 2 = 1 + log to console. 3 = 1 + 2 + log to overhead console. 4 = only log to overhead console.", false, 0.f, false, 0.f, nullptr, nullptr);
-	sq_showvmwarning     = new ConVar("sq_showvmwarning"    , "0", FCVAR_DEVELOPMENTONLY, "Prints the VM warning output to the console. 1 = Log to file. 2 = 1 + log to console.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sq_showvmoutput      = new ConVar("sq_showvmoutput"     , "0", FCVAR_DEVELOPMENTONLY, "Prints the VM output to the console.", false, 0.f, false, 0.f, nullptr, "1 = Log to file. 2 = 1 + log to game console. 3 = 1 + 2 + log to overhead console.");
+	sq_showvmwarning     = new ConVar("sq_showvmwarning"    , "0", FCVAR_DEVELOPMENTONLY, "Prints the VM warning output to the console.", false, 0.f, false, 0.f, nullptr, "1 = Log to file. 2 = 1 + log to game console and overhead console.");
 	//-------------------------------------------------------------------------
 	// NETCHANNEL                                                             |
 	net_tracePayload           = new ConVar("net_tracePayload"          , "0", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT          , "Log the payload of the send/recv datagram to a file on the disk.", false, 0.f, false, 0.f, nullptr, nullptr);

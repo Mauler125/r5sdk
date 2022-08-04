@@ -302,7 +302,7 @@ void ConCommand::Init(void)
 {
 	//-------------------------------------------------------------------------
 	// ENGINE DLL                                                             |
-	new ConCommand("bhit", "Bullet-hit trajectory debug.", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, BHit_f, nullptr);
+	new ConCommand("bhit", "Bullet-hit trajectory debug.", FCVAR_DEVELOPMENTONLY | FCVAR_GAMEDLL, BHit_f, nullptr);
 #ifndef DEDICATED
 	new ConCommand("line", "Draw a debug line.", FCVAR_GAMEDLL | FCVAR_CHEAT, Line_f, nullptr);
 	new ConCommand("sphere", "Draw a debug sphere.", FCVAR_GAMEDLL | FCVAR_CHEAT, Sphere_f, nullptr);

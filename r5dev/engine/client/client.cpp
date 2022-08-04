@@ -227,7 +227,7 @@ void CClient::VClear(CClient* pBaseClient)
 //			*a5 - 
 //			*szMessage -
 //			nMessageSize - 
-// Output : true if connection was succesfull, false otherwise
+// Output : true if connection was successfull, false otherwise
 //---------------------------------------------------------------------------------
 bool CClient::Connect(const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize)
 {
@@ -243,7 +243,7 @@ bool CClient::Connect(const char* szName, void* pNetChannel, bool bFakePlayer, v
 //			*a5 - 
 //			*szMessage -
 //			nMessageSize - 
-// Output : true if connection was succesfull, false otherwise
+// Output : true if connection was successfull, false otherwise
 //---------------------------------------------------------------------------------
 bool CClient::VConnect(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize)
 {
