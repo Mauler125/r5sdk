@@ -346,7 +346,7 @@ public:
 
 	FORCEINLINE void ReAlloc(size_t sz)
 	{
-		m_pMemory = (T*)realloc(m_pMemory, sz);
+		m_pMemory = MemAllocSingleton()->Realloc<T>(m_pMemory, sz);
 		RememberAllocSize(sz);
 	}
 	// Grows the memory, so that at least allocated + num elements are allocated
@@ -419,7 +419,7 @@ m_nAllocationCount(nInitAllocationCount), m_nGrowSize(nGrowSize)
 	{
 		UTLMEMORY_TRACK_ALLOC();
 		MEM_ALLOC_CREDIT_CLASS();
-		m_pMemory = (T*)malloc(m_nAllocationCount * sizeof(T));
+		m_pMemory = MemAllocSingleton()->Alloc<T>(m_nAllocationCount * sizeof(T));
 	}
 }
 
@@ -496,7 +496,7 @@ void CUtlMemory<T, I>::Init(int64_t nGrowSize /*= 0*/, int64_t nInitSize /*= 0*/
 	{
 		UTLMEMORY_TRACK_ALLOC();
 		MEM_ALLOC_CREDIT_CLASS();
-		m_pMemory = (T*)malloc(m_nAllocationCount * sizeof(T));
+		m_pMemory = MemAllocSingleton()->Alloc<T>(m_nAllocationCount * sizeof(T));
 	}
 }
 
@@ -528,7 +528,7 @@ void CUtlMemory<T, I>::ConvertToGrowableMemory(int64_t nGrowSize)
 		MEM_ALLOC_CREDIT_CLASS();
 
 		int64_t nNumBytes = m_nAllocationCount * sizeof(T);
-		T* pMemory = (T*)malloc(nNumBytes);
+		T* pMemory = MemAllocSingleton()->Alloc<T>(nNumBytes);
 		memcpy(pMemory, m_pMemory, nNumBytes);
 		m_pMemory = pMemory;
 	}
@@ -795,13 +795,13 @@ void CUtlMemory<T, I>::Grow(int64_t num)
 	if (m_pMemory)
 	{
 		MEM_ALLOC_CREDIT_CLASS();
-		m_pMemory = (T*)realloc(m_pMemory, m_nAllocationCount * sizeof(T));
+		m_pMemory = MemAllocSingleton()->Realloc<T>(m_pMemory, m_nAllocationCount * sizeof(T));
 		Assert(m_pMemory);
 	}
 	else
 	{
 		MEM_ALLOC_CREDIT_CLASS();
-		m_pMemory = (T*)malloc(m_nAllocationCount * sizeof(T));
+		m_pMemory = MemAllocSingleton()->Alloc<T>(m_nAllocationCount * sizeof(T));
 		Assert(m_pMemory);
 	}
 }
@@ -832,12 +832,12 @@ inline void CUtlMemory<T, I>::EnsureCapacity(int64_t num)
 	if (m_pMemory)
 	{
 		MEM_ALLOC_CREDIT_CLASS();
-		m_pMemory = (T*)realloc(m_pMemory, m_nAllocationCount * sizeof(T));
+		m_pMemory = MemAllocSingleton()->Realloc<T>(m_pMemory, m_nAllocationCount * sizeof(T));
 	}
 	else
 	{
 		MEM_ALLOC_CREDIT_CLASS();
-		m_pMemory = (T*)malloc(m_nAllocationCount * sizeof(T));
+		m_pMemory = MemAllocSingleton()->Alloc<T>(m_nAllocationCount * sizeof(T));
 	}
 }
 
@@ -907,7 +907,7 @@ void CUtlMemory<T, I>::Purge(int64_t numElements)
 
 	// Allocation count > 0, shrink it down.
 	MEM_ALLOC_CREDIT_CLASS();
-	m_pMemory = (T*)realloc(m_pMemory, m_nAllocationCount * sizeof(T));
+	m_pMemory = MemAllocSingleton()->Realloc<T>(m_pMemory, m_nAllocationCount * sizeof(T));
 }
 
 //-----------------------------------------------------------------------------
