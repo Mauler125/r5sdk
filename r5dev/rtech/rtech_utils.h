@@ -500,8 +500,10 @@ class VPakFile : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
+#if not defined DEDICATED && defined (GAMEDLL_S3)
 		spdlog::debug("| FUN: GetStreamOverlay                     : {:#18x} |\n", p_GetStreamOverlay.GetPtr());
 		spdlog::debug("| FUN: RTech::CreateDXTexture               : {:#18x} |\n", p_RTech_CreateDXTexture.GetPtr());
+#endif
 		spdlog::debug("| FUN: RTech::FindFreeSlotInFiles           : {:#18x} |\n", p_RTech_FindFreeSlotInFiles.GetPtr());
 		spdlog::debug("| FUN: RTech::OpenFile                      : {:#18x} |\n", p_RTech_OpenFile.GetPtr());
 		spdlog::debug("| VAR: g_pLoadedPakInfo                     : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pLoadedPakInfo));
