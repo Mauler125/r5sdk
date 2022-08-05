@@ -260,7 +260,7 @@ CMemory CModule::GetExportedFunction(const string& svFunctionName) const
 CMemory CModule::GetVirtualMethodTable(const std::string& tableName)
 {
 	const auto tableNameInfo = StringToMaskedBytes(tableName, false);
-	CMemory rttiTypeDescriptor = FindPatternSIMD(tableNameInfo.first.data(), tableNameInfo.second.c_str(), {".data", m_RunTimeData.m_pSectionBase, m_RunTimeData.m_nSectionSize}).OffsetSelf(-0x10);
+	CMemory rttiTypeDescriptor = FindPatternSIMD(tableNameInfo.first.data(), tableNameInfo.second.c_str(), { ".data", m_RunTimeData.m_pSectionBase, m_RunTimeData.m_nSectionSize }).OffsetSelf(-0x10);
 	if (!rttiTypeDescriptor)
 		return CMemory();
 
@@ -270,7 +270,7 @@ CMemory CModule::GetVirtualMethodTable(const std::string& tableName)
 	const uintptr_t rttiTDRva = rttiTypeDescriptor.GetPtr() - m_pModuleBase; // The RTTI gets referenced by a 4-Byte RVA address. We need to scan for that address.
 	while (scanStart < scanEnd)
 	{
-		CMemory reference = FindPatternSIMD(reinterpret_cast<rsig_t>(&rttiTDRva), "xxxx", {".rdata", scanStart, m_ReadOnlyData.m_nSectionSize});
+		CMemory reference = FindPatternSIMD(reinterpret_cast<rsig_t>(&rttiTDRva), "xxxx", { ".rdata", scanStart, m_ReadOnlyData.m_nSectionSize });
 		if (!reference)
 			break;
 		
