@@ -629,16 +629,16 @@ int32_t RTech::OpenFile(const char* szFilePath, void* unused, int64_t* fileSizeO
 	}
 
 	AcquireSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&*g_pPakFileSlotLock));
-	const int32_t pakIdx = RTech_FindFreeSlotInFiles(s_pFileArray);
+	const int32_t fileIdx = RTech_FindFreeSlotInFiles(s_pFileArray);
 	ReleaseSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&*g_pPakFileSlotLock));
 
-	const int32_t pakHandleIdx = pakIdx & 0x3FF; // Something with ArraySize.
+	const int32_t fileHandleIdx = fileIdx & 0x3FF; // Something with ArraySize.
 
-	m_FileHandles->self[pakHandleIdx].m_nFileNumber = pakIdx;
-	m_FileHandles->self[pakHandleIdx].m_hFileHandle = hFile;
-	m_FileHandles->self[pakHandleIdx].m_nCurOfs = 1;
+	m_FileHandles->self[fileHandleIdx].m_nFileNumber = fileIdx;
+	m_FileHandles->self[fileHandleIdx].m_hFileHandle = hFile;
+	m_FileHandles->self[fileHandleIdx].m_nCurOfs = 1;
 
-	return pakIdx;
+	return fileIdx;
 }
 
 //-----------------------------------------------------------------------------
