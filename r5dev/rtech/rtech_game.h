@@ -2,6 +2,7 @@
 #include "tier0/tslist.h"
 
 typedef int RPakHandle_t;
+constexpr int INVALID_PAK_HANDLE = -1;
 
 enum class ePakStatus : int
 {

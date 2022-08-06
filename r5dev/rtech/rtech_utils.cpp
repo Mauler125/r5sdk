@@ -632,7 +632,7 @@ int32_t RTech::OpenFile(const char* szFilePath, void* unused, int64_t* fileSizeO
 	const int32_t fileIdx = RTech_FindFreeSlotInFiles(s_pFileArray);
 	ReleaseSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&*g_pPakFileSlotLock));
 
-	const int32_t fileHandleIdx = fileIdx & 0x3FF; // Something with ArraySize.
+	const int32_t fileHandleIdx =  (fileIdx & 0x3FF); // Something with ArraySize.
 
 	m_FileHandles->self[fileHandleIdx].m_nFileNumber = fileIdx;
 	m_FileHandles->self[fileHandleIdx].m_hFileHandle = hFile;
@@ -688,7 +688,7 @@ RPakLoadedInfo_t* RTech::GetPakLoadedInfo(const char* szPakName)
 
 void RTech_Utils_Attach()
 {
-	DetourAttach((LPVOID*)&RTech_OpenFile, &RTech::OpenFile);
+	//DetourAttach((LPVOID*)&RTech_OpenFile, &RTech::OpenFile); // !FIXME: Loading override rpaks doesn't work with this, disabled for now.
 
 #if not defined DEDICATED && defined (GAMEDLL_S3)
 	DetourAttach((LPVOID*)&RTech_CreateDXTexture, &RTech::CreateDXTexture);
@@ -698,7 +698,7 @@ void RTech_Utils_Attach()
 void RTech_Utils_Detach()
 {
 	// [ PIXIE ]: Everything related to RTech::OpenFile should be compatible across seasons.
-	DetourDetach((LPVOID*)&RTech_OpenFile, &RTech::OpenFile);
+	//DetourDetach((LPVOID*)&RTech_OpenFile, &RTech::OpenFile);
 
 #if not defined DEDICATED && defined (GAMEDLL_S3)
 	DetourDetach((LPVOID*)&RTech_CreateDXTexture, &RTech::CreateDXTexture);
