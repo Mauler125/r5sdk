@@ -10,9 +10,9 @@
 class ConVar : public ConCommandBase
 {
 public:
-	ConVar(void){};
-	ConVar(const char* pszName, const char* pszDefaultValue, int nFlags, const char*pszHelpString,
+	static ConVar* Create(const char* pszName, const char* pszDefaultValue, int nFlags, const char* pszHelpString,
 		bool bMin, float fMin, bool bMax, float fMax, FnChangeCallback_t pCallback, const char* pszUsageString);
+	ConVar(void);
 	~ConVar(void);
 
 	void Init(void) const;
