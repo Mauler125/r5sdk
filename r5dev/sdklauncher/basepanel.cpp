@@ -4,8 +4,16 @@
 //
 //=============================================================================//
 #include "core/stdafx.h"
+#include "modManager.h"
 #include "sdklauncher.h"
 #include "basepanel.h"
+#include "gameFilesLoc.h"
+
+Drawing::Color bgColor = Drawing::Color(47, 54, 61);
+Drawing::Color tickColor = Drawing::Color(3, 102, 214);
+Drawing::Color logListColor = Drawing::Color(29, 33, 37);
+Drawing::Color tickColor2 = Drawing::Color(3, 102, 214);
+ModManager manager;
 
 //-----------------------------------------------------------------------------
 // Purpose: creates the surface layout
@@ -14,7 +22,7 @@ void CUIBaseSurface::Init()
 {
 	// START DESIGNER CODE
 	const INT WindowX = 800;
-	const INT WindowY = 350;
+	const INT WindowY = 560;
 
 	this->SuspendLayout();
 	this->SetAutoScaleDimensions({ 6, 13 });
@@ -25,7 +33,7 @@ void CUIBaseSurface::Init()
 	this->SetStartPosition(Forms::FormStartPosition::CenterParent);
 	this->SetMinimizeBox(false);
 	this->SetMaximizeBox(false);
-	this->SetBackColor(Drawing::Color(47, 54, 61));
+	this->SetBackColor(bgColor);
 
 	// ########################################################################
 	//	GAME
@@ -234,6 +242,7 @@ void CUIBaseSurface::Init()
 	this->m_UpdateSDK->SetEnabled(false); // !TODO: Implement updater
 	this->m_UpdateSDK->SetText("Update SDK");
 	this->m_UpdateSDK->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
+	this->m_UpdateSDK->Click += UpdateSDKChecker;
 	this->m_MainGroupExt->AddControl(this->m_UpdateSDK);
 
 	this->m_LaunchSDK = new UIX::UIXButton();
@@ -241,7 +250,7 @@ void CUIBaseSurface::Init()
 	this->m_LaunchSDK->SetLocation({ 130, 7 });
 	this->m_LaunchSDK->SetTabIndex(0);
 	this->m_LaunchSDK->SetText("Launch game");
-	this->m_LaunchSDK->SetBackColor(Drawing::Color(3, 102, 214));
+	this->m_LaunchSDK->SetBackColor(tickColor);
 	this->m_LaunchSDK->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_LaunchSDK->Click += &LaunchGame;
 	this->m_MainGroupExt->AddControl(this->m_LaunchSDK);
@@ -440,22 +449,6 @@ void CUIBaseSurface::Init()
 	this->m_ConsoleGroupExt->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
 	this->AddControl(this->m_ConsoleGroupExt);
 
-	this->m_ConsoleListView = new UIX::UIXListView();
-	this->m_ConsoleListView->SetSize({ 427, 172 });
-	this->m_ConsoleListView->SetLocation({ 1, -23 }); // Hide columns
-	this->m_ConsoleListView->SetTabIndex(0);
-	this->m_ConsoleListView->SetBackColor(Drawing::Color(29, 33, 37));
-	this->m_ConsoleListView->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
-	this->m_ConsoleListView->SetView(Forms::View::Details);
-	this->m_ConsoleListView->SetVirtualMode(true);
-	this->m_ConsoleListView->SetFullRowSelect(true);
-	this->m_ConsoleListView->Columns.Add({ "index", 40 });
-	this->m_ConsoleListView->Columns.Add({ "buffer", 387 });
-	this->m_ConsoleListView->MouseClick += &VirtualItemToClipboard;
-	this->m_ConsoleListView->RetrieveVirtualItem += &GetVirtualItem;
-	this->m_ConsoleGroupExt->AddControl(this->m_ConsoleListView);
-
-	
 	this->m_ConsoleCommandTextBox = new UIX::UIXTextBox();
 	this->m_ConsoleCommandTextBox->SetSize({ 351, 18 });
 	this->m_ConsoleCommandTextBox->SetLocation({ 0, 149 });
@@ -470,10 +463,199 @@ void CUIBaseSurface::Init()
 	this->m_ConsoleSendCommand->SetLocation({ 350, 149 });
 	this->m_ConsoleSendCommand->SetTabIndex(0);
 	this->m_ConsoleSendCommand->SetText("Send");
-	this->m_ConsoleSendCommand->SetBackColor(Drawing::Color(3, 102, 214));
+	this->m_ConsoleSendCommand->SetBackColor(tickColor2);
 	this->m_ConsoleSendCommand->SetAnchor(Forms::AnchorStyles::None);
 	this->m_ConsoleSendCommand->Click += &ForwardCommandToGame;
 	this->m_ConsoleGroupExt->AddControl(this->m_ConsoleSendCommand);
+
+	// Moved to the bottom so that the scroll bars are hidden. Giving it a cleaner look || If someone doesn't have a scrollwheel, sucks to be them
+	this->m_ConsoleListView = new UIX::UIXListView();
+	this->m_ConsoleListView->SetSize({ 445, 174 });
+	this->m_ConsoleListView->SetLocation({ 1, -23 }); // Hide columns
+	this->m_ConsoleListView->SetTabIndex(0);
+	this->m_ConsoleListView->SetBackColor(logListColor);
+	this->m_ConsoleListView->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->m_ConsoleListView->SetView(Forms::View::Details);
+	this->m_ConsoleListView->SetVirtualMode(true);
+	this->m_ConsoleListView->SetFullRowSelect(true);
+	this->m_ConsoleListView->Columns.Add({ "index", 40 });
+	this->m_ConsoleListView->Columns.Add({ "buffer", 387 });
+	this->m_ConsoleListView->MouseClick += &VirtualItemToClipboard;
+	this->m_ConsoleListView->RetrieveVirtualItem += &GetVirtualItem;
+	this->m_ConsoleGroupExt->AddControl(this->m_ConsoleListView);
+
+	// ########################################################################
+	//	MOD MANAGER
+	// ########################################################################
+	this->m_ManagerSurroundingBox = new UIX::UIXGroupBox();
+	this->m_ManagerSurroundingBox->SetSize({ 780, 205 });
+	this->m_ManagerSurroundingBox->SetLocation({ 12, 350 });
+	this->m_ManagerSurroundingBox->SetTabIndex(0);
+	this->m_ManagerSurroundingBox->SetText("Mod Manager");
+	this->m_ManagerSurroundingBox->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->AddControl(this->m_ManagerSurroundingBox);
+
+	this->m_ManagerGroupExt = new UIX::UIXGroupBox();
+	this->m_ManagerGroupExt->SetSize({ 780, 172 });
+	this->m_ManagerGroupExt->SetLocation({ 0, 15 });
+	this->m_ManagerGroupExt->SetTabIndex(0);
+	this->m_ManagerGroupExt->SetText("");
+	this->m_ManagerGroupExt->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->m_ManagerSurroundingBox->AddControl(this->m_ManagerGroupExt);
+
+	this->m_ManagerGroup = new UIX::UIXGroupBox();
+	this->m_ManagerGroup->SetSize({ 780, 190 });
+	this->m_ManagerGroup->SetLocation({ 0, 15 });
+	this->m_ManagerGroup->SetTabIndex(0);
+	this->m_ManagerGroup->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->m_ManagerSurroundingBox->AddControl(this->m_ManagerGroup);
+
+	this->m_ManagerControlsGroup = new UIX::UIXGroupBox();
+	this->m_ManagerControlsGroup->SetSize({ 779, 18 });
+	this->m_ManagerControlsGroup->SetLocation({ 1, 172 });
+	this->m_ManagerGroup->SetText("");
+	this->m_ManagerControlsGroup->SetTabIndex(0);
+	this->m_ManagerControlsGroup->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->m_ManagerGroup->AddControl(this->m_ManagerControlsGroup);
+
+	this->m_ManagerControlsValidText = new UIX::UIXTextBox();
+	this->m_ManagerControlsValidText->SetSize({ 80, 18 });
+	this->m_ManagerControlsValidText->SetLocation({ 0, 0 });
+	this->m_ManagerControlsValidText->SetTabIndex(0);
+	this->m_ManagerControlsValidText->SetReadOnly(true);
+	this->m_ManagerControlsValidText->SetForeColor(Drawing::Color(92, 236, 89));
+	this->m_ManagerControlsValidText->SetText(std::string("Valid Mods: " + std::to_string(validMods)).c_str());
+	this->m_ManagerControlsValidText->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->m_ManagerControlsGroup->AddControl(this->m_ManagerControlsValidText);
+
+	this->m_ManagerControlsEnabledText = new UIX::UIXTextBox();
+	this->m_ManagerControlsEnabledText->SetSize({ 93, 18 });
+	this->m_ManagerControlsEnabledText->SetLocation({ 79, 0 });
+	this->m_ManagerControlsEnabledText->SetTabIndex(0);
+	this->m_ManagerControlsEnabledText->SetReadOnly(true);
+	this->m_ManagerControlsEnabledText->SetForeColor(Drawing::Color(0, 120, 215));
+	this->m_ManagerControlsEnabledText->SetText(std::string("Enabled Mods: " + std::to_string(enabledMods)).c_str());
+	this->m_ManagerControlsEnabledText->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->m_ManagerControlsGroup->AddControl(this->m_ManagerControlsEnabledText);
+
+	this->m_ManagerUseModsToggle = new UIX::UIXCheckBox();
+	this->m_ManagerUseModsToggle->SetSize({ 80, 16 });
+	this->m_ManagerUseModsToggle->SetLocation({ 180, 1 });
+	this->m_ManagerUseModsToggle->SetTabIndex(0);
+	this->m_ManagerUseModsToggle->SetText("Use Mods");
+	this->m_ManagerUseModsToggle->SetChecked(true);
+	this->m_ManagerUseModsToggle->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->m_ManagerUseModsToggle->SetTextAlign(Drawing::ContentAlignment::MiddleLeft);
+	this->m_ManagerControlsGroup->AddControl(this->m_ManagerUseModsToggle);
+
+	this->ModsListView = new UIX::UIXListView();
+	this->ModsListView->SetSize({ 350, 194 });
+	this->ModsListView->SetLocation({ 1, -24 }); // Hide columns
+	this->ModsListView->SetTabIndex(0);
+	this->ModsListView->SetBackColor(logListColor);
+	this->ModsListView->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
+	this->ModsListView->SetView(Forms::View::Details);
+	this->ModsListView->SetVirtualMode(true);
+	this->ModsListView->SetFullRowSelect(true);
+	this->ModsListView->Columns.Add({ "index", 50 });
+	this->ModsListView->Columns.Add({ "buffer", 300 });
+	this->ModsListView->MouseClick += &ModManagerClick;
+	//this->ModsListView->LostFocus += &UnfocusedManager;
+	this->ModsListView->RetrieveVirtualItem += &GetVirtItemMod;
+	this->m_ManagerGroupExt->AddControl(this->ModsListView);
+
+	this->m_ManagerViewerBox = new UIX::UIXGroupBox();
+	this->m_ManagerViewerBox->SetSize({ 429, 194 });
+	this->m_ManagerViewerBox->SetLocation({ 351, 0 });
+	this->m_ManagerViewerBox->SetForeColor(bgColor);
+	this->m_ManagerGroupExt->AddControl(this->m_ManagerViewerBox);
+
+	HFONT boldFontHf = CreateFontA(36, 0, 0, 0, FW_BLACK, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, "Arial");
+	HFONT italicsFontHf = CreateFontA(18, 0, 0, 0, FW_MEDIUM, TRUE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, "Arial");
+	HFONT defaultFontHf = CreateFontA(16, 0, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, "Arial");
+
+	Drawing::Font* boldFont = new Drawing::Font(this->GetHandle(), boldFontHf);
+	Drawing::Font* italicsFont = new Drawing::Font(this->GetHandle(), italicsFontHf);
+	Drawing::Font* defaultFont = new Drawing::Font(this->GetHandle(), defaultFontHf);
+
+	this->m_ManagerViewerNameLabel = new UIX::UIXLabel();
+	this->m_ManagerViewerNameLabel->SetSize({ 420, 32 });
+	this->m_ManagerViewerNameLabel->SetLocation({ 5, 1 });
+	this->m_ManagerViewerNameLabel->SetTabIndex(0);
+	this->m_ManagerViewerNameLabel->SetText("Placeholder");
+	this->m_ManagerViewerNameLabel->SetFont(boldFont);
+	this->m_ManagerViewerBox->AddControl(this->m_ManagerViewerNameLabel);
+
+	this->m_ManagerViewerDescText = new UIX::UIXTextBox();
+	this->m_ManagerViewerDescText->SetSize({ 410, 52 });
+	this->m_ManagerViewerDescText->SetLocation({ 8, 40 });
+	this->m_ManagerViewerDescText->SetTabIndex(0);
+	this->m_ManagerViewerDescText->SetText("Lorem ipsum dolor sit amet, consectetur adipiscing elit");
+	this->m_ManagerViewerDescText->SetWordWrap(true);
+	this->m_ManagerViewerDescText->SetMultiline(true);
+	this->m_ManagerViewerDescText->SetReadOnly(true);
+	this->m_ManagerViewerDescText->SetTextAlign(Forms::HorizontalAlignment::Left);
+	this->m_ManagerViewerDescText->SetBorderStyle(Forms::BorderStyle::None);
+	this->m_ManagerViewerDescText->SetFont(italicsFont);
+	this->m_ManagerViewerBox->AddControl(this->m_ManagerViewerDescText);
+
+	this->m_ManagerViewerAuthorLabel = new UIX::UIXLabel();
+	this->m_ManagerViewerAuthorLabel->SetSize({ 350, 18 });
+	this->m_ManagerViewerAuthorLabel->SetLocation({ 8, 112 });
+	this->m_ManagerViewerAuthorLabel->SetTabIndex(0);
+	this->m_ManagerViewerAuthorLabel->SetText("Authors: ");
+	this->m_ManagerViewerAuthorLabel->SetFont(defaultFont);
+	this->m_ManagerViewerBox->AddControl(this->m_ManagerViewerAuthorLabel);
+
+	this->m_ManagerViewerVersionLabel = new UIX::UIXLabel();
+	this->m_ManagerViewerVersionLabel->SetSize({ 350, 18 });
+	this->m_ManagerViewerVersionLabel->SetLocation({ 8, 132 });
+	this->m_ManagerViewerVersionLabel->SetTabIndex(0);
+	this->m_ManagerViewerVersionLabel->SetText("Version: ");
+	this->m_ManagerViewerVersionLabel->SetFont(defaultFont);
+	this->m_ManagerViewerBox->AddControl(this->m_ManagerViewerVersionLabel);
+
+	this->m_ManagerViewerAppidLabel = new UIX::UIXLabel();
+	this->m_ManagerViewerAppidLabel->SetSize({ 350, 18 });
+	this->m_ManagerViewerAppidLabel->SetLocation({ 8, 152 });
+	this->m_ManagerViewerAppidLabel->SetTabIndex(0);
+	this->m_ManagerViewerAppidLabel->SetText("AppID: ");
+	this->m_ManagerViewerAppidLabel->SetFont(defaultFont);
+	this->m_ManagerViewerBox->AddControl(this->m_ManagerViewerAppidLabel);
+
+	this->m_ManagerEnabledBox = new UIX::UIXGroupBox();
+	this->m_ManagerEnabledBox->SetSize({ 60, 60 });
+	this->m_ManagerEnabledBox->SetLocation({ 369, 114 });
+	this->m_ManagerEnabledBox->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Right);
+	this->m_ManagerEnabledBox->BringToFront();
+	this->m_ManagerViewerBox->AddControl(this->m_ManagerEnabledBox);
+
+	this->m_ManagerEnabledToggle = new UIX::UIXCheckBox();
+	this->m_ManagerEnabledToggle->SetSize({ 34, 34 });
+	this->m_ManagerEnabledToggle->SetLocation({ 13, 5 });
+	this->m_ManagerEnabledToggle->SetTabIndex(0);
+	this->m_ManagerEnabledToggle->SetText("");
+	this->m_ManagerEnabledToggle->SetFlatStyle(Forms::FlatStyle::Flat);
+	this->m_ManagerEnabledToggle->Click += &ModManagerEnabledToggle;
+	this->m_ManagerEnabledBox->AddControl(this->m_ManagerEnabledToggle);
+
+	this->m_ManagerEnabledLabel = new UIX::UIXLabel();
+	this->m_ManagerEnabledLabel->SetSize({ 50, 18 });
+	this->m_ManagerEnabledLabel->SetLocation({ 6, 40 });
+	this->m_ManagerEnabledLabel->SetTabIndex(0);
+	this->m_ManagerEnabledLabel->SetText("Enabled");
+	this->m_ManagerEnabledLabel->SetBackColor(Drawing::Color(92, 236, 89));
+	this->m_ManagerEnabledLabel->SetFont(defaultFont);
+	this->m_ManagerEnabledBox->AddControl(this->m_ManagerEnabledLabel);
+
+	this->m_ManagerViewerCoverText = new UIX::UIXTextBox();
+	this->m_ManagerViewerCoverText->SetSize({ 429, 194 });
+	this->m_ManagerViewerCoverText->SetLocation({ 351, 0 });
+	this->m_ManagerViewerCoverText->SetTabIndex(0);
+	this->m_ManagerViewerCoverText->SetText("Select mod...");
+	this->m_ManagerViewerCoverText->SetReadOnly(true);
+	this->m_ManagerViewerCoverText->SetTextAlign(Forms::HorizontalAlignment::Center);
+	this->m_ManagerGroupExt->AddControl(this->m_ManagerViewerCoverText);
 
 	this->ResumeLayout(false);
 	this->PerformLayout();
@@ -488,6 +670,23 @@ void CUIBaseSurface::Setup()
 {
 	this->ParseMaps();
 	this->ParsePlaylists();
+	this->ReadModJson();
+	this->InstallGameCheck();
+	std::thread thread(LatestSDKCompare, this->FindForm());
+	thread.detach();
+
+	// Launcher.cfg setup
+	ini = new CSimpleIniA;
+	ini->SetUnicode();
+
+	fs::create_directories("platform\\cfg");
+
+	SI_Error rc = ini->LoadFile("platform\\cfg\\launcher.cfg");
+	if (rc < 0) {
+		// TODO: Error handling
+	}
+
+	fs::remove_all("launcher-old.exe"); // This is related to the Update SDK feature. It just makes sure the old launcher is gone.
 
 	this->m_ModeCombo->Items.Add("Host");
 	this->m_ModeCombo->Items.Add("Server");
@@ -503,6 +702,233 @@ void CUIBaseSurface::Setup()
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Gets the requested config object. Each config object must be added to
+// v_LauncherValues so there's a default return value
+//-----------------------------------------------------------------------------
+std::string CUIBaseSurface::GetConfigCFG(const std::string& first) {
+	const char* pv;
+	std::string defaultVal;
+	for (auto& i : v_LauncherValues) {
+		if (i.first == first) {
+			defaultVal = i.second;
+			break;
+		}
+	}
+	return ini->GetValue("Launcher", first.c_str(), defaultVal.c_str());
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Sets the requested config object
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::SetConfigCFG(const std::string& first, const std::string& second) {
+	std::string secondT = "\"" + second + "\"";
+	ini->SetValue("Launcher", first.c_str(), secondT.c_str());
+	ini->SaveFile("platform\\cfg\\launcher.cfg");
+}
+	
+//-----------------------------------------------------------------------------
+// Purpose: Checks the releases page for updates, and converts it into a json object
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::LatestSDKCompare(Forms::Control* pSender) {
+	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+	std::string clientVersion = pSurface->GetConfigCFG("version");
+	if (clientVersion != "") {
+		clientVersion.erase(clientVersion.begin(), clientVersion.begin() + 1);
+		clientVersion.erase(clientVersion.end() - 1, clientVersion.end());
+	}
+	pSurface->newVersion = "";
+	std::ostringstream ss;
+
+	std::list<std::string> headers{ "User-Agent: R5Realoaded-Installer" };
+
+	cURLpp::Easy easy;
+	easy.setOpt(cURLpp::Options::Url("https://api.github.com/repos/Mauler125/r5sdk/releases/latest"));
+	easy.setOpt(cURLpp::Options::WriteStream(&ss));
+	easy.setOpt(cURLpp::Options::HttpHeader(headers));
+	easy.setOpt(cURLpp::Options::NoSignal(true));
+
+	try {
+		easy.perform();
+	}
+	catch (cURLpp::RuntimeError& e) {
+		pSurface->logText("Error while checking for updates: " + std::string(e.what()));
+	}
+
+	try {
+		json jason = json::parse(ss.str());
+		pSurface->newVersion = jason["tag_name"];
+		pSurface->sdkDownloadLocation = jason["assets"][0]["browser_download_url"];
+		//pSurface->logText("Download Location: " + pSurface->sdkDownloadLocation);
+	}
+	catch (json::parse_error& e) {
+		pSurface->logText("Error parsing updates: " + std::string(e.what()));
+	}
+
+	if (clientVersion != pSurface->newVersion)
+		pSurface->m_UpdateSDK->SetEnabled(true);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Determines what it should do
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::UpdateSDKChecker(Forms::Control* pSender) {
+	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+
+	if (pSurface->sdkDownState == idle) {
+		std::thread thread(DownloadSDK, pSurface->FindForm());
+		thread.detach();
+		pSurface->sdkDownState = sdkDownloadState::downloading;
+		pSurface->m_UpdateSDK->SetEnabled(false);
+	}
+	else if (pSurface->sdkDownState == downloading) {
+		pSurface->sdkDownState = sdkDownloadState::download_cancelled;
+		pSurface->m_UpdateSDK->SetText("Canceled");
+		pSurface->m_UpdateSDK->SetEnabled(false);
+	}
+}
+
+size_t CUIBaseSurface::ProgressCallback(CUIBaseSurface* pSurface, double dltotal, double dlnow, double ultotal, double ulnow) {
+	float progress = ceilf((dlnow / dltotal * 100) * 100) / 100;
+
+	std::ostringstream out;
+	out.precision(2);
+	out << std::fixed << progress << "%";
+
+	pSurface->m_UpdateSDK->SetText(out.str().c_str());
+
+	if (pSurface->sdkDownState == sdkDownloadState::download_cancelled)
+		return 1;
+
+	return 0;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Downloads the SDK
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::DownloadSDK(Forms::Control* pSender) {
+	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+
+	std::ofstream file("depots.zip", std::ios_base::binary);
+
+	std::list<std::string> headers{ "User-Agent: R5Realoaded-Installer", "Content-Type: application/zip" };
+
+	cURLpp::Easy easy;
+	easy.setOpt(cURLpp::Options::Url(pSurface->sdkDownloadLocation));
+	easy.setOpt(cURLpp::Options::WriteStream(&file));
+	easy.setOpt(cURLpp::Options::HttpHeader(headers));
+	easy.setOpt(cURLpp::Options::NoSignal(true));
+	easy.setOpt(cURLpp::Options::NoProgress(false));
+	easy.setOpt(cURLpp::Options::FollowLocation(true));
+
+	curl_easy_setopt(easy.getHandle(), CURLOPT_PROGRESSDATA, pSurface);
+	curl_easy_setopt(easy.getHandle(), CURLOPT_PROGRESSFUNCTION, ProgressCallback);
+
+	try {
+		pSurface->m_UpdateSDK->SetEnabled(true);
+
+		easy.perform();
+
+		file.close();
+
+		pSurface->m_UpdateSDK->SetText("Moving Files");
+
+		if (pSurface->sdkDownState != sdkDownloadState::download_cancelled)
+			fs::rename("launcher.exe", "launcher-old.exe");
+
+		if (fs::exists("platform\\scripts")) {
+			std::string newName = "scripts-" + std::to_string(time(0));
+			fs::rename("platform\\scripts", "platform\\" + newName);
+			pSurface->logText("Old Scripts have been renamed to: " + newName);
+		}
+
+		// Maybe change the name to be dynamic, so if the depots zip isn't named depots, it's fine.
+		libzippp::ZipArchive archive("depots.zip");
+		if (archive.open(libzippp::ZipArchive::OpenMode::ReadOnly)) {
+			pSurface->logText("Unzipping. " + std::to_string(archive.getEntriesCount()) + "  files inside.");
+			for (auto& p : archive.getEntries()) {
+				if (pSurface->sdkDownState == sdkDownloadState::download_cancelled)
+					break;
+				try {
+					std::string name = "./" + p.getName();
+					if (!fs::exists(fs::path(name).remove_filename()))
+						fs::create_directories(fs::path(name).remove_filename());
+					std::ofstream file(name, std::ios_base::binary);
+					p.readContent(file);
+					//pSurface->logText(p.getName());
+				}
+				catch (fs::filesystem_error& e) {
+					pSurface->logText("Error: " + (std::string)e.what());
+				}
+			}
+		}
+		else
+			pSurface->logText("Failed to extract zip");
+	}
+	catch (cURLpp::RuntimeError& e) {
+		pSurface->sdkDownState = sdkDownloadState::download_failed;
+		pSurface->m_UpdateSDK->SetText("Error");
+	}
+
+	pSurface->m_UpdateSDK->SetText("Finished");
+	pSurface->m_UpdateSDK->SetEnabled(false);
+
+	fs::remove_all("depots.zip");
+
+	if (pSurface->sdkDownState != sdkDownloadState::download_cancelled) {
+		pSurface->sdkDownState = sdkDownloadState::download_complete;
+		pSurface->SetConfigCFG("version", pSurface->newVersion);
+		
+		// Idk why this isn't working
+		//STARTUPINFO si;
+		//PROCESS_INFORMATION pi;
+
+		//if (CreateProcess(LPCWSTR("launcher.exe"), NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+		//	pSurface->logText("Come again later nerds!");
+		//}
+		//else 
+		//	pSurface->logText("Failed to launch launcher.exe" + GetLastError());
+
+		//CloseHandle(pi.hProcess);
+		//CloseHandle(pi.hThread);
+
+		// So this is my substitue
+		system("start launcher.exe");
+		
+		pSurface->Close();
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Checks whether the user needs to install the game
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::InstallGameCheck() {
+	std::vector<fs::path> gameFiles;
+
+	for (auto& p : gameFilesLocation) {
+		if (fs::exists(p))
+			gameFiles.push_back(p);
+	}
+
+	//for (auto& i : gameFiles)
+	//	logText(i.string());
+
+	//logText(std::to_string(gameFiles.size()) + " Vs. " + std::to_string(gameFilesLocation.size()));
+
+	if (gameFiles != gameFilesLocation) {
+		std::sort(gameFiles.begin(), gameFiles.end());
+		std::sort(gameFilesLocation.begin(), gameFilesLocation.end());
+		std::vector<fs::path> diff;
+		std::set_difference(gameFilesLocation.begin(), gameFilesLocation.end(), gameFiles.begin(), gameFiles.end(), std::back_inserter(GameFileDiff));
+		for (auto& i : GameFileDiff) {}
+		//logText(spdlog::level::level_enum::critical, "Missing: " + i.string());
+		bInstallGame = true;
+	}
+
+	if (bInstallGame)
+		this->m_LaunchSDK->SetText("Install Game");
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: removes redundant files from the game install
 // Input  : *pSender - 
 //-----------------------------------------------------------------------------
@@ -512,7 +938,98 @@ void CUIBaseSurface::CleanSDK(Forms::Control* pSender)
 	pSurface->m_LogList.push_back(LogList_t(spdlog::level::info, "Running cleaner for SDK installation\n"));
 	pSurface->m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(pSurface->m_LogList.size()));
 
-	std::system("platform\\clean_sdk.bat");
+	if (fs::exists("platform\\clean_sdk.bat")) {
+		std::system("platform\\clean_sdk.bat");
+	}
+}
+
+void CUIBaseSurface::InstallGame(Forms::Control* pSender)
+{
+	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+
+	try {
+		lt::session ses;
+		lt::add_torrent_params p = lt::parse_magnet_uri(pSurface->GetConfigCFG("magnet"));
+		p.save_path = ".";
+
+		lt::torrent_handle tH = ses.add_torrent(p);
+
+		// This makes sure no files download in the first place. There aren't 2000 files in this, but it works
+		for (int i = 0; i < 2000; i++)
+			tH.file_priority(i, lt::download_priority_t(lt::dont_download));
+
+		bool adjustValues = false;
+
+		for (;;) {
+			std::vector<lt::alert*> alerts;
+			ses.pop_alerts(&alerts);
+
+			for (lt::alert const* a : alerts) {
+				if (lt::alert_cast<lt::torrent_error_alert>(a)) {
+					// TODO error
+				}
+			}
+
+			if (tH.status().has_metadata && !adjustValues) {
+				for (int i = 0; i < (int)pSurface->GameFileDiff.size(); i++) {
+					for (int j = 0; j < tH.torrent_file().get()->files().num_files(); j++) {
+						std::string filePath = tH.torrent_file().get()->files().file_path(j);
+						filePath.replace(filePath.begin(), filePath.begin() + 49, "");
+						if (filePath == pSurface->GameFileDiff[i].string()) {
+							tH.file_priority(j, lt::download_priority_t(lt::default_priority));
+						}
+					}
+				}
+				adjustValues = true;
+			}
+
+			if (tH.status().is_finished) {
+				ses.remove_torrent(tH);
+				goto finished;
+			}
+
+			float progress = ceilf((tH.status().progress * 100) * 100) / 100;
+
+			std::ostringstream out;
+			out.precision(2);
+			out << std::fixed << progress << "%";
+
+			pSurface->logText(out.str());
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		}
+	finished:
+		MoveGameFiles(pSurface->FindForm());
+	}
+	catch (std::exception& e) {
+		pSurface->logText(e.what());
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Moves recently installed files to there correct place
+// Input  : *pSender - 
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::MoveGameFiles(Forms::Control* pSender) {
+	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+
+	for (int i = 0; i < (int)pSurface->GameFileDiff.size(); i++) {
+		std::string startingAddition("R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM\\");
+		startingAddition.append(pSurface->GameFileDiff[i].string());
+		fs::rename(startingAddition, pSurface->GameFileDiff[i].string());
+		pSurface->logText("Moved file: " + pSurface->GameFileDiff[i].filename().string());
+	}
+
+	fs::remove_all("R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM");
+
+	for (auto& it : fs::directory_iterator(".")) {
+		if (it.is_directory())
+			continue;
+		if (!it.path().has_extension())
+			continue;
+		if (it.path().extension() == ".parts")
+			fs::remove(it.path());
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -523,24 +1040,31 @@ void CUIBaseSurface::LaunchGame(Forms::Control* pSender)
 {
 	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
 
-	fs::path cfgPath = fs::current_path() /= "platform\\cfg\\startup_launcher.cfg";
-
-	ifstream cfgFile(cfgPath);
-	string svParameter = "-launcher\n";
-
-	if (cfgFile.good() && cfgFile)
-	{
-		stringstream ss;
-		ss << cfgFile.rdbuf();
-		svParameter.append(ss.str() + '\n');
+	if (pSurface->bInstallGame) {
+		std::thread threadR(InstallGame, pSender);
+		threadR.detach();
 	}
-	else
-		pSurface->m_LogList.push_back(LogList_t(spdlog::level::warn, "Unable to load 'startup_launcher.cfg'\n"));
+	else {
 
-	eLaunchMode launchMode = g_pLauncher->GetMainSurface()->BuildParameter(svParameter);
+		fs::path cfgPath = fs::current_path() /= "platform\\cfg\\startup_launcher.cfg";
 
-	if (g_pLauncher->Setup(launchMode, svParameter))
-		g_pLauncher->Launch();
+		ifstream cfgFile(cfgPath);
+		string svParameter = "-launcher\n";
+
+		if (cfgFile.good() && cfgFile)
+		{
+			stringstream ss;
+			ss << cfgFile.rdbuf();
+			svParameter.append(ss.str() + '\n');
+		}
+		else
+			pSurface->m_LogList.push_back(LogList_t(spdlog::level::warn, "Unable to load 'startup_launcher.cfg'\n"));
+
+		eLaunchMode launchMode = g_pLauncher->GetMainSurface()->BuildParameter(svParameter);
+
+		if (g_pLauncher->Setup(launchMode, svParameter))
+			g_pLauncher->Launch();
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -550,26 +1074,140 @@ void CUIBaseSurface::ParseMaps()
 {
 	std::regex rgArchiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
 	std::smatch smRegexMatches;
-	for (const auto& dEntry : fs::directory_iterator("vpk"))
-	{
-		std::string svFileName = dEntry.path().string();
-		std::regex_search(svFileName, smRegexMatches, rgArchiveRegex);
-
-		if (smRegexMatches.size() > 0)
+	if (fs::exists("vpk")) {
+		for (const auto& dEntry : fs::directory_iterator("vpk"))
 		{
-			if (strcmp(smRegexMatches[1].str().c_str(), "frontend") == 0)
-			{
-				continue;
-			}
-			else if (strcmp(smRegexMatches[1].str().c_str(), "mp_common") == 0)
-			{
-				this->m_MapCombo->Items.Add("mp_lobby");
-				continue;
-			}
+			std::string svFileName = dEntry.path().string();
+			std::regex_search(svFileName, smRegexMatches, rgArchiveRegex);
 
-			this->m_MapCombo->Items.Add(smRegexMatches[1].str().c_str());
+			if (smRegexMatches.size() > 0)
+			{
+				if (strcmp(smRegexMatches[1].str().c_str(), "frontend") == 0)
+				{
+					continue;
+				}
+				else if (strcmp(smRegexMatches[1].str().c_str(), "mp_common") == 0)
+				{
+					if (!this->m_MapCombo->Items.Contains("mp_lobby"))
+					{
+						this->m_MapCombo->Items.Add("mp_lobby");
+					}
+					continue;
+				}
+				else if (!this->m_MapCombo->Items.Contains(smRegexMatches[1].str().c_str()))
+				{
+					this->m_MapCombo->Items.Add(smRegexMatches[1].str().c_str());
+				}
+			}
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: reads mod's folder
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::ReadModJson() {
+	// Removes compiled_mods folder when closed
+	//atexit(compiledModsRemove);
+	if (fs::exists("mods\\compiled_mods"))
+		fs::remove_all("mods/\\compiled_mods");
+	bool ran = false;
+	logText(spdlog::level::level_enum::info, "Reading mod.json's.");
+	if (fs::exists("mods")) {
+		for (const auto& mEntry : fs::directory_iterator("mods")) {
+			if (mEntry.path() == "mods\\compiled_mods")
+				continue;
+			std::string path = mEntry.path().string();
+			std::string modJson = path + "\\mod.json";
+
+			if (fs::exists(modJson)) {
+				std::ifstream stream(modJson);
+				if (stream.good()) {
+					std::stringstream contents;
+					contents << stream.rdbuf();
+
+					//logText(spdlog::level::level_enum::info, contents.str());
+
+					ModObject object = manager.addMod(contents.str(), path, this);
+
+					//modObject object(contents.str(), modJson);
+
+					//logText(spdlog::level::level_enum::info, objectToString(object)
+				}
+				else {
+					logText(spdlog::level::level_enum::err, "Unable to read " + modJson);
+				}
+				stream.close();
+			}
+			else {
+				logText(spdlog::level::level_enum::err, "Unable to find mod.json for mod: " + path);
+			}
+		}
+		bool wereInvalid = false;
+		logText(spdlog::level::level_enum::warn, "The following mods are invalid:");
+		for (auto& invalid : manager.mods) {
+			if (invalid.invalid) {
+				logText(spdlog::level::level_enum::warn, invalid.name);
+				wereInvalid = true;
+			}
+		}
+		if (!wereInvalid)
+			logText(spdlog::level::level_enum::warn, "Jk. It's fine");
+	}
+
+	//manager.moveEnabled();
+
+	//this->LoadMods();
+
+	/*ModList.push_back(modManager_t(m_modStatusLevel::invalidM, manager.modsList()[0]));
+	ModsListView->SetVirtualListSize(static_cast<int32_t>(ModList.size()));
+	ModsListView->Refresh();*/
+
+	for (auto& mod : manager.modsList()) {
+		if (mod.invalid)
+			ModList.push_back(ModManager_t(invalidM, mod));
+		else if (mod.toggled)
+			ModList.push_back(ModManager_t(enabledM, mod));
+		else
+			ModList.push_back(ModManager_t(disabledM, mod));
+		ModsListView->SetVirtualListSize(static_cast<int32_t>(ModList.size()));
+		ModsListView->Refresh();
+	}
+
+	this->AdjustValues();
+
+	//logText(manager.scriptRson);
+}
+
+//-----------------------------------------------------------------------------
+// Refresh Mod Controls Text
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::AdjustValues() {
+	validMods = manager.modsListNum(ModType::valid);
+	enabledMods = manager.modsListNum(ModType::enabled);
+
+	this->m_ManagerControlsEnabledText->SetText(std::string("Enabled Mods: " + std::to_string(enabledMods)).c_str());
+	this->m_ManagerControlsValidText->SetText(std::string("Valid Mods: " + std::to_string(validMods)).c_str());
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: log's to console. for debugging purpose's (at least mainly)
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::logText(spdlog::level::level_enum color, std::string text) {
+	std::string newText = text + "\n";
+	m_LogList.push_back(LogList_t(color, newText.c_str()));
+	m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(m_LogList.size()));
+	//m_ConsoleListView->Refresh();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: overwrite without type
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::logText(std::string text) {
+	std::string newText = text + "\n";
+	m_LogList.push_back(LogList_t(spdlog::level::level_enum::info, newText.c_str()));
+	m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(m_LogList.size()));
+	m_ConsoleListView->Refresh();
 }
 
 //-----------------------------------------------------------------------------
@@ -589,9 +1227,12 @@ void CUIBaseSurface::ParsePlaylists()
 		if (bOk)
 		{
 			const auto& vcPlaylists = vRoot.childs.at("Playlists");
-			for (auto [id, it] = std::tuple{ 1, vcPlaylists->childs.begin()}; it != vcPlaylists->childs.end(); id++, it++)
+			for (auto [id, it] = std::tuple{ 1, vcPlaylists->childs.begin() }; it != vcPlaylists->childs.end(); id++, it++)
 			{
-				this->m_PlaylistCombo->Items.Add(it->first.c_str());
+				if (!this->m_PlaylistCombo->Items.Contains(it->first.c_str()))
+				{
+					this->m_PlaylistCombo->Items.Add(it->first.c_str());
+				}
 			}
 		}
 	}
@@ -634,10 +1275,151 @@ void CUIBaseSurface::VirtualItemToClipboard(const std::unique_ptr<MouseEventArgs
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: changes currently showed mod
+// Input  : &pEventArgs - 
+//			*pSender - 
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::ModManagerClick(const std::unique_ptr<MouseEventArgs>& pEventArgs, Forms::Control* pSender) {
+	if (pEventArgs->Button != Forms::MouseButtons::Left)
+		return;
+
+	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+
+	List<uint32_t> lSelected = pSurface->ModsListView->SelectedIndices();
+
+	if (!lSelected.Count())
+		return;
+
+	ModObject object;
+	for (uint32_t i = 0; i < lSelected.Count(); i++)
+		object = pSurface->ModList[lSelected[i]].m_object;
+
+	pSurface->m_ManagerViewerCoverText->Hide();
+	pSurface->m_ManagerViewerNameLabel->SetText(object.name.c_str());
+	pSurface->m_ManagerViewerDescText->SetText(object.description.c_str());
+	std::string authors = "Authors: ";
+	for (int i = 0; i < (size_t)object.authors.size(); i++) {
+		authors.append(object.authors[i]);
+		if (i < object.authors.size() - 1)
+			authors += ", ";
+	}
+	pSurface->m_ManagerViewerAuthorLabel->SetText(authors.c_str());
+	pSurface->m_ManagerViewerAppidLabel->SetText(std::string("AppID: " + object.appid).c_str());
+	std::string version = "Version: " + object.version;
+	pSurface->m_ManagerViewerVersionLabel->SetText(version.c_str());
+	pSurface->m_ManagerEnabledToggle->SetChecked(object.toggled);
+	if (object.toggled)
+		pSurface->m_ManagerEnabledLabel->SetText("Enabled");
+	else
+		pSurface->m_ManagerEnabledLabel->SetText("Disabled");
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: handles toggling mod state
+// Input  : &pEventArgs - 
+//			*pSender - 
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::ModManagerEnabledToggle(Forms::Control* pSender) {
+	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+
+	List<uint32_t> lSelected = pSurface->ModsListView->SelectedIndices();
+
+	if (!lSelected.Count())
+		return;
+
+	ModObject object;
+	for (uint32_t i = 0; i < lSelected.Count(); i++) {
+		object = pSurface->ModList[lSelected[i]].m_object;
+		//pSurface->ModList[lSelected[i]];
+	}
+
+	if (pSurface->m_ManagerEnabledToggle->Checked())
+		object.toggled = true;
+	else if (!pSurface->m_ManagerEnabledToggle->Checked())
+		object.toggled = false;
+
+	for (uint32_t i = 0; i < lSelected.Count(); i++) {
+		if (object.toggled) {
+			pSurface->m_ManagerEnabledLabel->SetText("Enabled");
+			pSurface->ModList[lSelected[i]].m_object = object;
+			pSurface->ModList[lSelected[i]].m_nLevel = enabledM;
+		}
+		else {
+			pSurface->m_ManagerEnabledLabel->SetText("Disabled");
+			pSurface->ModList[lSelected[i]].m_object = object;
+			pSurface->ModList[lSelected[i]].m_nLevel = disabledM;
+		}
+	}
+
+	pSurface->ModsListView->Refresh();
+
+	std::vector<ModObject> vObjects = manager.mods;
+	// Switched to an iterator because index wasn't needed
+	for (auto& vObject : vObjects) {
+		if (object.appid == vObject.appid)
+			vObject = object;
+	}
+
+	/*for (int i = 0; i < vObjects.size(); i++) {
+		if (object.appid == vObjects[i].appid)
+			vObjects[i] = object;
+	}*/
+	manager.mods = vObjects;
+	for (uint32_t i = 0; i < lSelected.Count(); i++)
+		pSurface->ModList[lSelected[i]].m_object = object;
+
+	object.updateJson();
+
+	pSurface->AdjustValues();
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: gets and handles the virtual item
 // Input  : &pEventArgs - 
 //			*pSender - 
 //-----------------------------------------------------------------------------
+void CUIBaseSurface::GetVirtItemMod(const std::unique_ptr<Forms::RetrieveVirtualItemEventArgs>& pEventArgs, Forms::Control* pSender)
+{
+	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+	if (static_cast<int>(pSurface->ModList.size()) <= 0)
+		return;
+
+	pEventArgs->Style.ForeColor = Drawing::Color::White;
+	pEventArgs->Style.BackColor = pSender->BackColor();
+	pSurface->ModsListView->SetVirtualListSize(static_cast<int32_t>(pSurface->ModList.size()));
+
+	static const Drawing::Color cColor[] =
+	{
+		Drawing::Color(92, 236, 89),   // Enabled
+		Drawing::Color(236, 203, 0),   // Disabled
+		Drawing::Color(236, 28, 0),    // Invalid
+	};
+	static const String svLevel[] =
+	{
+		"Enabled",
+		"Disabled",
+		"Invalid",
+	};
+
+	switch (pEventArgs->SubItemIndex)
+	{
+	case 0:
+		pEventArgs->Style.ForeColor = cColor[pSurface->ModList[pEventArgs->ItemIndex].m_nLevel];
+		pEventArgs->Text = svLevel[pSurface->ModList[pEventArgs->ItemIndex].m_nLevel];
+		break;
+	case 1:
+		std::string text = "";
+		text = pSurface->ModList[pEventArgs->ItemIndex].m_object.name + " By ";
+		for (int i = 0; i < (size_t)pSurface->ModList[pEventArgs->ItemIndex].m_object.authors.size(); i++) {
+			text += pSurface->ModList[pEventArgs->ItemIndex].m_object.authors[i];
+			if (i < (size_t)pSurface->ModList[pEventArgs->ItemIndex].m_object.authors.size() - 1)
+				text += ", ";
+		}
+		pEventArgs->Text = text;
+		break;
+	}
+}
+
 void CUIBaseSurface::GetVirtualItem(const std::unique_ptr<Forms::RetrieveVirtualItemEventArgs>& pEventArgs, Forms::Control* pSender)
 {
 	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
@@ -743,6 +1525,8 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 			svParameters.append("-showdevmenu\n");
 		}
 
+
+
 		if (this->m_ConsoleToggle->Checked())
 			svParameters.append("-wconsole\n");
 
@@ -836,6 +1620,13 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 		}
 		if (!String::IsNullOrEmpty(this->m_LaunchArgsTextBox->Text()))
 			svParameters.append(this->m_LaunchArgsTextBox->Text());
+
+		if (this->m_ManagerUseModsToggle->Checked()) {
+			svParameters.append("-modded ");
+			manager.moveEnabled();
+		}
+
+		svParameters.append("-fnf ");
 
 		return results;
 	}

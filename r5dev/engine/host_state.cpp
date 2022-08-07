@@ -194,6 +194,14 @@ FORCEINLINE void CHostState::Setup(void)
 		NET_GenerateKey();
 	}
 	ResetLevelName();
+
+	if (CommandLine()->CheckParm("-modded")) {
+		//DevMsg(eDLL_T::ENGINE, "Modded Param Found");
+		if (g_pFileSystem_Stdio) {
+			g_pFileSystem_Stdio->AddSearchPath("mods/compiled_mods", "Game", SearchPathAdd_t::PATH_ADD_TO_HEAD);
+			//DevMsg(eDLL_T::ENGINE, "SP Added");
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
