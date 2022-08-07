@@ -80,7 +80,7 @@ end_header
 	for (size_t i = 0; i < m_vertCount; i++)
 	{
 		//TODO: m_scale?
-		if (m_tf2_import_flip)
+		if (m_flipAxis)
 		{
 			input.read((char*)&m_verts[i * 3 + 0], sizeof(float));
 			input.read((char*)&m_verts[i * 3 + 2], sizeof(float));
@@ -102,7 +102,7 @@ end_header
 		input.read(&count, 1);
 		if (count != 3)
 			return false;
-		if (m_flip_tris)
+		if (m_flipTris)
 		{
 			input.read((char*)&m_tris[i * 3 + 0], sizeof(int));
 			input.read((char*)&m_tris[i * 3 + 2], sizeof(int));

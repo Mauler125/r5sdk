@@ -187,6 +187,9 @@
     <Filter Include="sdk\engine\client">
       <UniqueIdentifier>{98975892-5379-4f6c-8c7e-35d92d2bc5e5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\bonesetup">
+      <UniqueIdentifier>{d49ec580-58c2-49e7-8e83-957da576febd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\opcodes.h">
@@ -572,9 +575,6 @@
     </ClInclude>
     <ClInclude Include="..\windows\console.h">
       <Filter>windows</Filter>
-    </ClInclude>
-    <ClInclude Include="..\networksystem\r5net.h">
-      <Filter>sdk\networksystem</Filter>
     </ClInclude>
     <ClInclude Include="..\mathlib\IceKey.H">
       <Filter>sdk\mathlib</Filter>
@@ -1122,6 +1122,81 @@
     <ClInclude Include="..\mathlib\sha1.h">
       <Filter>sdk\mathlib</Filter>
     </ClInclude>
+    <ClInclude Include="..\tier0\platform_internal.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\icommandline.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\noisedata.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\ssemath.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\ssequaternion.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\vector2d.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\vector4d.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\vmatrix.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\vplane.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\halton.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\math_pfns.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\mathlib.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vstdlib\random.h">
+      <Filter>sdk\vstdlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\fltx4.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\transform.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\server\persistence.h">
+      <Filter>sdk\server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\memstd.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\ivscript.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\iconvar.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\iconcommand.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\icvar.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\characterset.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\worldsize.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\utlblockmemory.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\memalloc.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1186,9 +1261,6 @@
     </ClCompile>
     <ClCompile Include="..\windows\console.cpp">
       <Filter>windows</Filter>
-    </ClCompile>
-    <ClCompile Include="..\networksystem\r5net.cpp">
-      <Filter>sdk\networksystem</Filter>
     </ClCompile>
     <ClCompile Include="..\mathlib\IceKey.cpp">
       <Filter>sdk\mathlib</Filter>
@@ -1349,9 +1421,6 @@
     <ClCompile Include="..\engine\clockdriftmgr.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
-    <ClCompile Include="..\tier0\tslist.cpp">
-      <Filter>sdk\tier0</Filter>
-    </ClCompile>
     <ClCompile Include="..\engine\client\client.cpp">
       <Filter>sdk\engine\client</Filter>
     </ClCompile>
@@ -1378,6 +1447,60 @@
     </ClCompile>
     <ClCompile Include="..\mathlib\sha1.cpp">
       <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier0\platform.cpp">
+      <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\mathlib_base.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\powsse.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\randsse.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\sseconst.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\vmatrix.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\almostequal.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\color_conversion.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\halton.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vphysics\physics_collide.cpp">
+      <Filter>sdk\vphysics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vstdlib\random.cpp">
+      <Filter>sdk\vstdlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\bonesetup\bone_utils.cpp">
+      <Filter>sdk\bonesetup</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\ssenoise.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\transform.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier0\threadtools.cpp">
+      <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="..\server\persistence.cpp">
+      <Filter>sdk\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier1\characterset.cpp">
+      <Filter>sdk\tier1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier1\splitstring.cpp">
+      <Filter>sdk\tier1</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

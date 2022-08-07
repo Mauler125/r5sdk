@@ -10,6 +10,7 @@
 #include "tier1/bitbuf.h"
 #include "tier1/NetAdr2.h"
 #include "tier1/utlmemory.h"
+#include "tier1/utlvector.h"
 #include "common/netmessages.h"
 #include "common/protocol.h"
 #include "public/include/inetchannel.h"
@@ -129,7 +130,7 @@ private:
 	uint32_t            m_Rate;
 	int                 padding_maybe;
 	double              m_fClearTime;
-	VecNetDataFragments m_WaitingList;
+	CUtlVector<dataFragments_t*> m_WaitingList;
 	dataFragments_t     m_ReceiveList;
 	int                 m_nSubOutFragmentsAck;
 	int                 m_nSubInFragments;
@@ -144,7 +145,7 @@ private:
 	uint32_t            dword168;
 	float               m_Timeout;
 	INetChannelHandler* m_MessageHandler;
-	VecNetMessages      m_NetMessages;
+	CUtlVector<INetMessage*> m_NetMessages;
 	uint64_t            qword198;
 	int                 m_nQueuedPackets;
 	float               m_flRemoteFrameTime;

@@ -10,8 +10,32 @@
 #include "tier2/socketcreator.h"
 #include "protoc/sv_rcon.pb.h"
 #include "protoc/cl_rcon.pb.h"
+#include "public/include/utility.h"
 #include "engine/net.h"
 #include "netconsole/netconsole.h"
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CNetCon::CNetCon(void)
+	: m_bInitialized(false)
+	, m_bNoColor(false)
+	, m_bQuitApplication(false)
+	, m_abPromptConnect(true)
+	, m_abConnEstablished(false)
+{
+	m_pNetAdr2 = new CNetAdr2("localhost", "37015");
+	m_pSocket = new CSocketCreator();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CNetCon::~CNetCon(void)
+{
+	delete m_pNetAdr2;
+	delete m_pSocket;
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: WSA and NETCON systems init
@@ -101,65 +125,64 @@ void CNetCon::UserInput(void)
 
 	if (std::getline(std::cin, svInput))
 	{
-		if (strcmp(svInput.c_str(), "nquit") == 0)
+		if (svInput.compare("nquit") == 0)
 		{
 			m_bQuitApplication = true;
 			return;
 		}
 		if (m_abConnEstablished)
 		{
-			if (strcmp(svInput.c_str(), "disconnect") == 0)
+			if (svInput.compare("disconnect") == 0)
 			{
 				this->Disconnect();
 				return;
 			}
-			string::size_type nPos = svInput.find(' ');
-			if (!svInput.empty() 
-				&& nPos > 0 
-				&& nPos < svInput.size() 
-				&& nPos != svInput.size())
-			{
-				std::string svSecondArg = svInput.substr(nPos + 1);
-				std::string svFirstArg = svInput;
-				svFirstArg = svFirstArg.erase(svFirstArg.find(' '));
 
-				if (strcmp(svFirstArg.c_str(), "PASS") == 0) // Auth with RCON server.
+			vector<string> vSubStrings = StringSplit(svInput, ' ', 2);
+			if (vSubStrings.size() > 1)
+			{
+				if (vSubStrings[0].compare("PASS") == 0) // Auth with RCON server.
 				{
-					std::string svSerialized = this->Serialize(svSecondArg, "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+					std::string svSerialized = this->Serialize(vSubStrings[1], "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
 					this->Send(svSerialized);
 				}
-				else if (strcmp(svFirstArg.c_str(), "SET") == 0) // Set value query.
+				else if (vSubStrings[0].compare("SET") == 0) // Set value query.
 				{
-					std::string svSerialized = this->Serialize(svFirstArg, svSecondArg, cl_rcon::request_t::SERVERDATA_REQUEST_SETVALUE);
-					this->Send(svSerialized);
+					if (vSubStrings.size() > 2)
+					{
+						std::string svSerialized = this->Serialize(vSubStrings[1], vSubStrings[2], cl_rcon::request_t::SERVERDATA_REQUEST_SETVALUE);
+						this->Send(svSerialized);
+					}
 				}
 				else // Execute command query.
 				{
-					std::string svSerialized = this->Serialize(svInput.c_str(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+					std::string svSerialized = this->Serialize(svInput, "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
 					this->Send(svSerialized);
 				}
 			}
-			else // Single arg command query.
+			else if (!svInput.empty()) // Single arg command query.
 			{
-				std::string svSerialized = this->Serialize(svInput.c_str(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+				std::string svSerialized = this->Serialize(svInput, "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
 				this->Send(svSerialized);
 			}
 		}
 		else // Setup connection from input.
 		{
-			string::size_type nPos = svInput.find(' ');
-			if (!svInput.empty() 
-				&& nPos > 0 
-				&& nPos < svInput.size() 
-				&& nPos != svInput.size())
+			if (!svInput.empty())
 			{
-				std::string svInPort = svInput.substr(nPos + 1);
-				std::string svInAdr = svInput.erase(svInput.find(' '));
-
-				if (!this->Connect(svInAdr, svInPort))
+				string::size_type nPos = svInput.find(' ');
+				if (nPos > 0
+					&& nPos < svInput.size()
+					&& nPos != svInput.size())
 				{
-					m_abPromptConnect = true;
-					return;
+					std::string svInPort = svInput.substr(nPos + 1);
+					std::string svInAdr = svInput.erase(svInput.find(' '));
+
+					if (!this->Connect(svInAdr, svInPort))
+					{
+						m_abPromptConnect = true;
+						return;
+					}
 				}
 			}
 			else // Initialize as [127.0.0.1]:37015.
@@ -233,8 +256,8 @@ bool CNetCon::Connect(const std::string& svInAdr, const std::string& svInPort)
 //-----------------------------------------------------------------------------
 void CNetCon::Disconnect(void)
 {
-	::closesocket(m_pSocket->GetAcceptedSocketHandle(0));
-	m_abPromptConnect   = true;
+	m_pSocket->CloseAcceptedSocket(0);
+	m_abPromptConnect = true;
 	m_abConnEstablished = false;
 }
 
@@ -244,7 +267,16 @@ void CNetCon::Disconnect(void)
 //-----------------------------------------------------------------------------
 void CNetCon::Send(const std::string& svMessage) const
 {
-	int nSendResult = ::send(m_pSocket->GetAcceptedSocketData(0)->m_hSocket, svMessage.c_str(), svMessage.size(), MSG_NOSIGNAL);
+	std::ostringstream ssSendBuf;
+
+	ssSendBuf << static_cast<uint8_t>(static_cast<int>(svMessage.size()) >> 24);
+	ssSendBuf << static_cast<uint8_t>(static_cast<int>(svMessage.size()) >> 16);
+	ssSendBuf << static_cast<uint8_t>(static_cast<int>(svMessage.size()) >> 8 );
+	ssSendBuf << static_cast<uint8_t>(static_cast<int>(svMessage.size()));
+	ssSendBuf << svMessage;
+
+	int nSendResult = ::send(m_pSocket->GetAcceptedSocketData(0)->m_hSocket,
+		ssSendBuf.str().data(), static_cast<int>(ssSendBuf.str().size()), MSG_NOSIGNAL);
 	if (nSendResult == SOCKET_ERROR)
 	{
 		std::cout << "Failed to send message: (SOCKET_ERROR)" << std::endl;
@@ -256,10 +288,11 @@ void CNetCon::Send(const std::string& svMessage) const
 //-----------------------------------------------------------------------------
 void CNetCon::Recv(void)
 {
-	static char szRecvBuf[MAX_NETCONSOLE_INPUT_LEN]{};
+	static char szRecvBuf[1024];
+	CConnectedNetConsoleData* pData = m_pSocket->GetAcceptedSocketData(0);
 
 	{//////////////////////////////////////////////
-		int nPendingLen = ::recv(m_pSocket->GetAcceptedSocketData(0)->m_hSocket, szRecvBuf, sizeof(szRecvBuf), MSG_PEEK);
+		int nPendingLen = ::recv(pData->m_hSocket, szRecvBuf, sizeof(char), MSG_PEEK);
 		if (nPendingLen == SOCKET_ERROR && m_pSocket->IsSocketBlocking())
 		{
 			return;
@@ -273,13 +306,11 @@ void CNetCon::Recv(void)
 	}//////////////////////////////////////////////
 
 	u_long nReadLen; // Find out how much we have to read.
-	::ioctlsocket(m_pSocket->GetAcceptedSocketData(0)->m_hSocket, FIONREAD, &nReadLen);
+	::ioctlsocket(pData->m_hSocket, FIONREAD, &nReadLen);
 
 	while (nReadLen > 0)
 	{
-		memset(szRecvBuf, '\0', sizeof(szRecvBuf));
-		int nRecvLen = ::recv(m_pSocket->GetAcceptedSocketData(0)->m_hSocket, szRecvBuf, MIN(sizeof(szRecvBuf), nReadLen), MSG_NOSIGNAL);
-
+		int nRecvLen = ::recv(pData->m_hSocket, szRecvBuf, MIN(sizeof(szRecvBuf), nReadLen), MSG_NOSIGNAL);
 		if (nRecvLen == 0 && m_abConnEstablished) // Socket was closed.
 		{
 			this->Disconnect();
@@ -288,50 +319,72 @@ void CNetCon::Recv(void)
 		}
 		if (nRecvLen < 0 && !m_pSocket->IsSocketBlocking())
 		{
+			std::cout << "RCON Cmd: recv error (" << NET_ErrorString(WSAGetLastError()) << ")" << std::endl;
 			break;
 		}
 
 		nReadLen -= nRecvLen; // Process what we've got.
-		this->ProcessBuffer(szRecvBuf, nRecvLen);
+		this->ProcessBuffer(szRecvBuf, nRecvLen, pData);
 	}
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: handles input response buffer
-// Input  : *pszIn - 
+// Purpose: parses input response buffer using length-prefix framing
+// Input  : *pRecvBuf - 
 //			nRecvLen - 
+//			*pData - 
 //-----------------------------------------------------------------------------
-void CNetCon::ProcessBuffer(const char* pszIn, int nRecvLen) const
+void CNetCon::ProcessBuffer(const char* pRecvBuf, int nRecvLen, CConnectedNetConsoleData* pData)
 {
-	int nCharsInRespondBuffer = 0;
-	char szInputRespondBuffer[MAX_NETCONSOLE_INPUT_LEN]{};
-
-	while (nRecvLen)
+	while (nRecvLen > 0)
 	{
-		switch (*pszIn)
+		if (pData->m_nPayloadLen)
 		{
-		case '\r':
-		{
-			if (nCharsInRespondBuffer)
+			if (pData->m_nPayloadRead < pData->m_nPayloadLen)
 			{
-				sv_rcon::response sv_response = this->Deserialize(szInputRespondBuffer);
-				this->ProcessMessage(sv_response);
-			}
-			nCharsInRespondBuffer = 0;
-			break;
-		}
+				pData->m_RecvBuffer[pData->m_nPayloadRead++] = *pRecvBuf;
 
-		default:
-		{
-			if (nCharsInRespondBuffer < MAX_NETCONSOLE_INPUT_LEN - 1)
-			{
-				szInputRespondBuffer[nCharsInRespondBuffer++] = *pszIn;
+				pRecvBuf++;
+				nRecvLen--;
 			}
-			break;
+			if (pData->m_nPayloadRead == pData->m_nPayloadLen)
+			{
+				this->ProcessMessage(this->Deserialize(std::string(
+					reinterpret_cast<char*>(pData->m_RecvBuffer.data()), pData->m_nPayloadLen)));
+
+				pData->m_nPayloadLen = 0;
+				pData->m_nPayloadRead = 0;
+			}
 		}
+		else if (pData->m_nPayloadRead < sizeof(int)) // Read size field.
+		{
+			pData->m_RecvBuffer[pData->m_nPayloadRead++] = *pRecvBuf;
+
+			pRecvBuf++;
+			nRecvLen--;
 		}
-		pszIn++;
-		nRecvLen--;
+		else // Build prefix.
+		{
+			pData->m_nPayloadLen = static_cast<int>(
+				pData->m_RecvBuffer[0] << 24 |
+				pData->m_RecvBuffer[1] << 16 |
+				pData->m_RecvBuffer[2] << 8  |
+				pData->m_RecvBuffer[3]);
+			pData->m_nPayloadRead = 0;
+
+			if (pData->m_nPayloadLen < 0 ||
+				pData->m_nPayloadLen > pData->m_RecvBuffer.max_size())
+			{
+				std::cout << "RCON Cmd: sync error (" << pData->m_nPayloadLen << ")" << std::endl;
+				this->Disconnect(); // Out of sync (irrecoverable).
+
+				break;
+			}
+			else
+			{
+				pData->m_RecvBuffer.resize(pData->m_nPayloadLen);
+			}
+		}
 	}
 }
 
@@ -344,25 +397,25 @@ void CNetCon::ProcessMessage(const sv_rcon::response& sv_response) const
 	static std::regex rxAnsiExp("\\\033\\[.*?m");
 	switch (sv_response.responsetype())
 	{
-		case sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH:
-		case sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG:
+	case sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH:
+	case sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG:
+	{
+		std::string svOut = sv_response.responsebuf();
+		if (m_bNoColor)
 		{
-			std::string svOut = sv_response.responsebuf();
-			if (m_bNoColor)
-			{
-				svOut = std::regex_replace(svOut, rxAnsiExp, "");
-			}
-			else
-			{
-				svOut.append(g_svReset.c_str());
-			}
-			std::cout << svOut.c_str();
-			break;
+			svOut = std::regex_replace(svOut, rxAnsiExp, "");
 		}
-		default:
+		else
 		{
-			break;
+			svOut.append(g_svReset);
 		}
+		std::cout << svOut;
+		break;
+	}
+	default:
+	{
+		break;
+	}
 	}
 }
 
@@ -382,20 +435,20 @@ std::string CNetCon::Serialize(const std::string& svReqBuf, const std::string& s
 
 	switch (request_t)
 	{
-		case cl_rcon::request_t::SERVERDATA_REQUEST_SETVALUE:
-		case cl_rcon::request_t::SERVERDATA_REQUEST_AUTH:
-		{
-			cl_request.set_requestbuf(svReqBuf);
-			cl_request.set_requestval(svReqVal);
-			break;
-		}
-		case cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND:
-		{
-			cl_request.set_requestbuf(svReqBuf);
-			break;
-		}
+	case cl_rcon::request_t::SERVERDATA_REQUEST_SETVALUE:
+	case cl_rcon::request_t::SERVERDATA_REQUEST_AUTH:
+	{
+		cl_request.set_requestbuf(svReqBuf);
+		cl_request.set_requestval(svReqVal);
+		break;
 	}
-	return cl_request.SerializeAsString().append("\r");
+	case cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND:
+	{
+		cl_request.set_requestbuf(svReqBuf);
+		break;
+	}
+	}
+	return cl_request.SerializeAsString();
 }
 
 //-----------------------------------------------------------------------------
@@ -406,7 +459,7 @@ std::string CNetCon::Serialize(const std::string& svReqBuf, const std::string& s
 sv_rcon::response CNetCon::Deserialize(const std::string& svBuf) const
 {
 	sv_rcon::response sv_response;
-	sv_response.ParseFromArray(svBuf.c_str(), static_cast<int>(svBuf.size()));
+	sv_response.ParseFromArray(svBuf.data(), static_cast<int>(svBuf.size()));
 
 	return sv_response;
 }

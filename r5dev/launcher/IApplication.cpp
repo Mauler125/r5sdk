@@ -58,8 +58,9 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 #endif // DEDICATED
 	g_pConCommand->Init();
 	g_pFactory->GetFactoriesFromRegister();
-
 #ifndef DEDICATED
+	g_pClientEntityList = g_pFactory->GetFactoryPtr("VClientEntityList003", false).RCast<IClientEntityList*>();
+
 	for (auto& map : g_pCVar->DumpToMap())
 	{
 		g_pConsole->m_vsvCommandBases.push_back(

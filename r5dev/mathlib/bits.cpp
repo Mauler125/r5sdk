@@ -37,7 +37,7 @@ unsigned long FloatAbsBits(float f)
 
 float FloatMakePositive(float f)
 {
-	return fabsf(f);
+	return fabsf(f); // was since 2002: BitsToFloat( FloatBits(f) & 0x7FFFFFFF ); fixed in 2010
 }
 
 float FloatNegate(float f)

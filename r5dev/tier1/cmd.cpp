@@ -6,22 +6,178 @@
 
 #include "core/stdafx.h"
 #include "tier0/tslist.h"
+#include "tier0/memstd.h"
 #include "tier1/cmd.h"
 #include "tier1/cvar.h"
+#include "tier1/characterset.h"
 #include "vstdlib/callback.h"
 
 //-----------------------------------------------------------------------------
-// Purpose: returns max command lenght
+// Global methods
 //-----------------------------------------------------------------------------
-int CCommand::MaxCommandLength(void)
+static characterset_t s_BreakSet;
+static bool s_bBuiltBreakSet = false;
+
+
+//-----------------------------------------------------------------------------
+// Tokenizer class
+//-----------------------------------------------------------------------------
+CCommand::CCommand()
 {
-	return COMMAND_MAX_LENGTH - 1;
+	if (!s_bBuiltBreakSet)
+	{
+		s_bBuiltBreakSet = true;
+		CharacterSetBuild(&s_BreakSet, "{}()':");
+	}
+
+	Reset();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: constructor
+// Input  : nArgC - 
+//			**ppArgV - 
+//			source - 
+//-----------------------------------------------------------------------------
+CCommand::CCommand(int nArgC, const char** ppArgV, cmd_source_t source)
+{
+	Assert(nArgC > 0);
+
+	if (!s_bBuiltBreakSet)
+	{
+		s_bBuiltBreakSet = true;
+		CharacterSetBuild(&s_BreakSet, "{}()':");
+	}
+
+	Reset();
+
+	char* pBuf = m_pArgvBuffer;
+	char* pSBuf = m_pArgSBuffer;
+	m_nArgc = nArgC;
+	for (int i = 0; i < nArgC; ++i)
+	{
+		m_ppArgv[i] = pBuf;
+		int nLen = strlen(ppArgV[i]);
+		memcpy(pBuf, ppArgV[i], nLen + 1);
+		if (i == 0)
+		{
+			m_nArgv0Size = nLen;
+		}
+		pBuf += nLen + 1;
+
+		bool bContainsSpace = strchr(ppArgV[i], ' ') != NULL;
+		if (bContainsSpace)
+		{
+			*pSBuf++ = '\"';
+		}
+		memcpy(pSBuf, ppArgV[i], nLen);
+		pSBuf += nLen;
+		if (bContainsSpace)
+		{
+			*pSBuf++ = '\"';
+		}
+
+		if (i != nArgC - 1)
+		{
+			*pSBuf++ = ' ';
+		}
+	}
+
+	m_nQueuedVal = source;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: tokenizer
+// Input  : *pCommand - 
+//			source - 
+//			*pBreakSet - 
+// Output : true on success, false on failure
+//-----------------------------------------------------------------------------
+bool CCommand::Tokenize(const char* pCommand, cmd_source_t source, characterset_t* pBreakSet)
+{
+	/* !TODO (CUtlBuffer).
+	Reset();
+	m_nQueuedVal = source;
+
+	if (!pCommand)
+		return false;
+
+	// Use default break set
+	if (!pBreakSet)
+	{
+		pBreakSet = &s_BreakSet;
+	}
+
+	// Copy the current command into a temp buffer
+	// NOTE: This is here to avoid the pointers returned by DequeueNextCommand
+	// to become invalid by calling AddText. Is there a way we can avoid the memcpy?
+	int nLen = Q_strlen(pCommand);
+	if (nLen >= COMMAND_MAX_LENGTH - 1)
+	{
+		Warning(eDLL_T::ENGINE, "%s: Encountered command which overflows the tokenizer buffer.. Skipping!\n", __FUNCTION__);
+		return false;
+	}
+
+	memcpy(m_pArgSBuffer, pCommand, nLen + 1);
+
+	// Parse the current command into the current command buffer
+	CUtlBuffer bufParse(m_pArgSBuffer, nLen, CUtlBuffer::TEXT_BUFFER | CUtlBuffer::READ_ONLY);
+	int nArgvBufferSize = 0;
+	while (bufParse.IsValid() && (m_nArgc < COMMAND_MAX_ARGC))
+	{
+		char* pArgvBuf = &m_pArgvBuffer[nArgvBufferSize];
+		int nMaxLen = COMMAND_MAX_LENGTH - nArgvBufferSize;
+		int nStartGet = bufParse.TellGet();
+		int	nSize = bufParse.ParseToken(pBreakSet, pArgvBuf, nMaxLen);
+		if (nSize < 0)
+			break;
+
+		// Check for overflow condition
+		if (nMaxLen == nSize)
+		{
+			Reset();
+			return false;
+		}
+
+		if (m_nArgc == 1)
+		{
+			// Deal with the case where the arguments were quoted
+			m_nArgv0Size = bufParse.TellGet();
+			bool bFoundEndQuote = m_pArgSBuffer[m_nArgv0Size - 1] == '\"';
+			if (bFoundEndQuote)
+			{
+				--m_nArgv0Size;
+			}
+			m_nArgv0Size -= nSize;
+			Assert(m_nArgv0Size != 0);
+
+			// The StartGet check is to handle this case: "foo"bar
+			// which will parse into 2 different args. ArgS should point to bar.
+			bool bFoundStartQuote = (m_nArgv0Size > nStartGet) && (m_pArgSBuffer[m_nArgv0Size - 1] == '\"');
+			Assert(bFoundEndQuote == bFoundStartQuote);
+			if (bFoundStartQuote)
+			{
+				--m_nArgv0Size;
+			}
+		}
+
+		m_ppArgv[m_nArgc++] = pArgvBuf;
+		if (m_nArgc >= COMMAND_MAX_ARGC)
+		{
+			Warning(eDLL_T::ENGINE, "%s: Encountered command which overflows the argument buffer.. Clamped!\n", __FUNCTION__);
+		}
+
+		nArgvBufferSize += nSize + 1;
+		Assert(nArgvBufferSize <= COMMAND_MAX_LENGTH);
+	}*/
+
+	return true;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: returns argument count
 //-----------------------------------------------------------------------------
-std::int64_t CCommand::ArgC(void) const
+int64_t CCommand::ArgC(void) const
 {
 	return m_nArgc;
 }
@@ -76,6 +232,15 @@ const char* CCommand::operator[](int nIndex) const
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: returns max command lenght
+//-----------------------------------------------------------------------------
+int CCommand::MaxCommandLength(void) const
+{
+	return COMMAND_MAX_LENGTH - 1;
+}
+
+
+//-----------------------------------------------------------------------------
 // Purpose: return boolean depending on if the string only has digits in it
 // Input  : svString - 
 //-----------------------------------------------------------------------------
@@ -93,29 +258,50 @@ bool CCommand::HasOnlyDigits(int nIndex) const
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: reset
+//-----------------------------------------------------------------------------
+void CCommand::Reset()
+{
+	m_nArgc = 0;
+	m_nArgv0Size = 0;
+	m_pArgSBuffer[0] = 0;
+	m_nQueuedVal = cmd_source_t::kCommandSrcInvalid;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+ConCommand::ConCommand()
+	: m_nNullCallBack(nullptr)
+	, m_pSubCallback(nullptr)
+	, m_fnCommandCallbackV1(nullptr)
+	, m_fnCompletionCallback(nullptr)
+	, m_bHasCompletionCallback(false)
+	, m_bUsingNewCommandCallback(false)
+	, m_bUsingCommandCallbackInterface(false)
+{
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: construct/allocate
 //-----------------------------------------------------------------------------
-ConCommand::ConCommand(const char* pszName, const char* pszHelpString, int nFlags, void* pCallback, void* pCommandCompletionCallback)
+ConCommand::ConCommand(const char* pszName, const char* pszHelpString, int nFlags, FnCommandCallback_t pCallback, FnCommandCompletionCallback pCompletionFunc)
 {
-	ConCommand* pCommand = reinterpret_cast<ConCommand*>(v_MemAlloc_Wrapper(sizeof(ConCommand))); // Allocate new memory with StdMemAlloc else we crash.
-	memset(pCommand, '\0', sizeof(ConCommand)); // Set all to null.
+	ConCommand* pCommand = MemAllocSingleton()->Alloc<ConCommand>(sizeof(ConCommand));
+	memset(pCommand, '\0', sizeof(ConCommand));
 
-	pCommand->m_pConCommandBaseVTable = g_pConCommandVtable.RCast<void*>();
-	pCommand->m_pszName          = pszName;
-	pCommand->m_pszHelpString    = pszHelpString;
-	pCommand->m_nFlags           = nFlags;
-	pCommand->m_nNullCallBack    = NullSub;
-	pCommand->m_pCommandCallback = pCallback;
-	pCommand->m_nCallbackFlags   = 2;
-	if (pCommandCompletionCallback)
-	{
-		pCommand->m_pCompletionCallback = pCommandCompletionCallback;
-	}
-	else
-	{
-		pCommand->m_pCompletionCallback = CallbackStub;
-	}
-	ConCommand_RegisterConCommand(pCommand);
+	pCommand->m_pConCommandBaseVFTable = g_pConCommandVtable.RCast<IConCommandBase*>();
+	pCommand->m_pszName                        = pszName;
+	pCommand->m_pszHelpString                  = pszHelpString;
+	pCommand->m_nFlags                         = nFlags;
+	pCommand->m_nNullCallBack                  = NullSub;
+	pCommand->m_fnCommandCallback              = pCallback;
+	pCommand->m_bHasCompletionCallback         = pCompletionFunc != nullptr ? true : false;
+	pCommand->m_bUsingNewCommandCallback       = true;
+	pCommand->m_bUsingCommandCallbackInterface = false;
+	pCommand->m_fnCompletionCallback           = pCompletionFunc ? pCompletionFunc : CallbackStub;
+
+	ConCommandBase_Init(pCommand);
 	*this = *pCommand;
 }
 
@@ -125,7 +311,16 @@ ConCommand::ConCommand(const char* pszName, const char* pszHelpString, int nFlag
 void ConCommand::Init(void)
 {
 	//-------------------------------------------------------------------------
+	// ENGINE DLL                                                             |
+	new ConCommand("bhit", "Bullet-hit trajectory debug.", FCVAR_DEVELOPMENTONLY | FCVAR_GAMEDLL, BHit_f, nullptr);
+#ifndef DEDICATED
+	new ConCommand("line", "Draw a debug line.", FCVAR_GAMEDLL | FCVAR_CHEAT, Line_f, nullptr);
+	new ConCommand("sphere", "Draw a debug sphere.", FCVAR_GAMEDLL | FCVAR_CHEAT, Sphere_f, nullptr);
+	new ConCommand("capsule", "Draw a debug capsule.", FCVAR_GAMEDLL | FCVAR_CHEAT, Capsule_f, nullptr);
+#endif //!DEDICATED
+	//-------------------------------------------------------------------------
 	// SERVER DLL                                                             |
+#ifndef CLIENT_DLL
 	new ConCommand("script", "Run input code as SERVER script on the VM.", FCVAR_GAMEDLL | FCVAR_CHEAT, SQVM_ServerScript_f, nullptr);
 	new ConCommand("sv_kick", "Kick a client from the server by name. | Usage: kick \"<name>\".", FCVAR_RELEASE, Host_Kick_f, nullptr);
 	new ConCommand("sv_kickid", "Kick a client from the server by UserID or OriginID | Usage: kickid \"<UserID>\"/\"<OriginID>\".", FCVAR_RELEASE, Host_KickID_f, nullptr);
@@ -133,6 +328,7 @@ void ConCommand::Init(void)
 	new ConCommand("sv_banid", "Bans a client from the server by UserID, OriginID or IPAddress | Usage: banid \"<UserID>\"/\"<OriginID>/<IPAddress>\".", FCVAR_RELEASE, Host_BanID_f, nullptr);
 	new ConCommand("sv_unban", "Unbans a client from the server by OriginID or IPAddress | Usage: unban \"<OriginID>\"/\"<IPAddress>\".", FCVAR_RELEASE, Host_Unban_f, nullptr);
 	new ConCommand("sv_reloadbanlist", "Reloads the ban list from the disk.", FCVAR_RELEASE, Host_ReloadBanList_f, nullptr);
+#endif // !CLIENT_DLL
 #ifndef DEDICATED
 	//-------------------------------------------------------------------------
 	// CLIENT DLL                                                             |
@@ -172,7 +368,7 @@ void ConCommand::InitShipped(void)
 #ifndef DEDICATED
 	//-------------------------------------------------------------------------
 	// MATERIAL SYSTEM
-	g_pCVar->FindCommand("mat_crosshair")->m_pCommandCallback = Mat_CrossHair_f; // Patch callback function to working callback.
+	g_pCVar->FindCommand("mat_crosshair")->m_fnCommandCallback = Mat_CrossHair_f; // Patch callback function to working callback.
 #endif // !DEDICATED
 }
 
@@ -256,7 +452,7 @@ bool ConCommand::IsCommand(void) const
 //-----------------------------------------------------------------------------
 bool ConCommandBase::IsCommand(void) const
 {
-	return m_pConCommandBaseVTable != g_pConVarVtable.RCast<void*>();
+	return m_pConCommandBaseVFTable != g_pConVarVFTable.RCast<void*>();
 }
 
 //-----------------------------------------------------------------------------

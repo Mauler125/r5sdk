@@ -11,10 +11,10 @@ public:
 	};
 
 	CIOStream();
-	CIOStream(const string& svFileFullPath, Mode_t eMode);
+	CIOStream(const fs::path& fsFileFullPath, Mode_t eMode);
 	~CIOStream();
 
-	bool Open(const string& svFileFullPath, Mode_t eMode);
+	bool Open(const fs::path& fsFileFullPath, Mode_t eMode);
 	void Close();
 	void Flush();
 
@@ -94,7 +94,6 @@ private:
 
 	ofstream        m_oStream;      // Output file stream.
 	ifstream        m_iStream;      // Input file stream.
-	string          m_svFilePath;   // Filepath.
 	vector<uint8_t> m_vData;        // Data vector
 	Mode_t          m_eCurrentMode; // Current active mode.
 };

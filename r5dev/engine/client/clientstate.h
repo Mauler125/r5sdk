@@ -17,20 +17,20 @@ struct __declspec(align(8)) CClientSnapshotManager
 	CUtlMemoryPool m_ClientFramePool;
 };
 
-struct IServerMessageHandler : INetMessageHandler
-{};
-struct CS_INetChannelHandler : INetChannelHandler
-{};
-
-
 ///////////////////////////////////////////////////////////////////////////////
 class CClientState : CS_INetChannelHandler, IConnectionlessPacketHandler, IServerMessageHandler, CClientSnapshotManager
 {
 public:
 	bool IsPaused();
 	float GetClientTime();
+
+	int GetTick() const;
+
+	int GetServerTickCount() const;	// Get the server tick count.
+	void SetServerTickCount(int tick);
+
 	int GetClientTickCount() const;	// Get the client tick count.
-	void SetClientTickCount(int tick); // Set the client tick count.
+	void SetClientTickCount(int tick);
 
 	int m_Socket;
 	int _padding_maybe;

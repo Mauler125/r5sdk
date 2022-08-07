@@ -12,17 +12,19 @@ inline CMemory p_DownloadPlaylists_f;
 inline auto _DownloadPlaylists_f = p_DownloadPlaylists_f.RCast<void(*)(void)>();
 
 ///////////////////////////////////////////////////////////////////////////////
-bool MP_GameMode_Changed_f(ConVar* pVTable);
+void MP_GameMode_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue);
 #ifndef DEDICATED
 void GameConsole_Invoke_f(const CCommand& args);
 void ServerBrowser_Invoke_f(const CCommand& args);
 #endif // !DEDICATED
+#ifndef CLIENT_DLL
 void Host_Kick_f(const CCommand& args);
 void Host_KickID_f(const CCommand& args);
 void Host_Ban_f(const CCommand& args);
 void Host_BanID_f(const CCommand& args);
 void Host_Unban_f(const CCommand& args);
 void Host_ReloadBanList_f(const CCommand& args);
+#endif // !CLIENT_DLL
 void Pak_ListPaks_f(const CCommand& args);
 void Pak_RequestUnload_f(const CCommand& args);
 void Pak_RequestLoad_f(const CCommand& args);
@@ -38,12 +40,19 @@ void NET_GenerateKey_f(const CCommand& args);
 void RCON_CmdQuery_f(const CCommand& args);
 void RCON_Disconnect_f(const CCommand& args);
 #endif // !DEDICATED
+void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue);
+#ifndef CLIENT_DLL
 void SQVM_ServerScript_f(const CCommand& args);
+#endif // !CLIENT_DLL
 #ifndef DEDICATED
 void SQVM_ClientScript_f(const CCommand& args);
 void SQVM_UIScript_f(const CCommand& args);
 void Mat_CrossHair_f(const CCommand& args);
+void Line_f(const CCommand& args);
+void Sphere_f(const CCommand& args);
+void Capsule_f(const CCommand& args);
 #endif // !DEDICATED
+void BHit_f(const CCommand& args);
 ///////////////////////////////////////////////////////////////////////////////
 class VCallback : public IDetour
 {

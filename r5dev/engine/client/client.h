@@ -92,9 +92,6 @@ inline auto v_CClient_Connect = p_CClient_Connect.RCast<bool (*)(CClient* thispt
 inline CMemory p_CClient_Clear;
 inline auto v_CClient_Clear = p_CClient_Clear.RCast<void (*)(CClient* thisptr)>();
 
-inline CMemory g_pClientBuffer;
-extern CClient* g_pClient;
-
 ///////////////////////////////////////////////////////////////////////////////
 void CBaseClient_Attach();
 void CBaseClient_Detach();
@@ -119,9 +116,8 @@ class VClient : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		g_pClientBuffer = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x3B\x15\x00\x00\x00\x00\x7D\x33"), "xx????xx")
-			.FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
-		g_pClient = g_pClientBuffer.RCast<CClient*>();
+		g_pClient = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x3B\x15\x00\x00\x00\x00\x7D\x33"), "xx????xx")
+			.FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CClient*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

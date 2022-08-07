@@ -15,6 +15,8 @@ extern ConVar* model_defaultFadeDistScale;
 extern ConVar* model_defaultFadeDistMin;
 
 extern ConVar* hostname;
+extern ConVar* hostdesc;
+extern ConVar* hostip;
 extern ConVar* hostport;
 extern ConVar* host_hasIrreversibleShutdown;
 
@@ -29,19 +31,40 @@ extern ConVar* rcon_address;
 extern ConVar* rcon_password;
 
 extern ConVar* r_debug_overlay_nodecay;
+extern ConVar* r_debug_overlay_invisible;
+extern ConVar* r_debug_overlay_wireframe;
+extern ConVar* r_debug_overlay_zbuffer;
 extern ConVar* r_drawWorldMeshes;
 extern ConVar* r_drawWorldMeshesDepthOnly;
 extern ConVar* r_drawWorldMeshesDepthAtTheEnd;
+
+extern ConVar* stream_overlay;
+extern ConVar* stream_overlay_mode;
 //-------------------------------------------------------------------------
 // SERVER                                                                 |
+#ifndef CLIENT_DLL
 extern ConVar* ai_ainDumpOnLoad;
 extern ConVar* ai_ainDebugConnect;
+extern ConVar* ai_script_nodes_draw;
+extern ConVar* ai_script_nodes_draw_range;
+
 extern ConVar* navmesh_always_reachable;
+extern ConVar* navmesh_debug_type;
+extern ConVar* navmesh_debug_tile_range;
+extern ConVar* navmesh_debug_camera_range;
+#ifndef DEDICATED
+extern ConVar* navmesh_draw_bvtree;
+extern ConVar* navmesh_draw_portal;
+extern ConVar* navmesh_draw_polys;
+extern ConVar* navmesh_draw_poly_bounds;
+extern ConVar* navmesh_draw_poly_bounds_inner;
+#endif // DEDICATED
 extern ConVar* sv_showconnecting;
 extern ConVar* sv_pylonVisibility;
 extern ConVar* sv_pylonRefreshInterval;
 extern ConVar* sv_banlistRefreshInterval;
 extern ConVar* sv_statusRefreshInterval;
+
 #ifdef DEDICATED
 extern ConVar* sv_rcon_debug;
 extern ConVar* sv_rcon_banpenalty;
@@ -50,6 +73,10 @@ extern ConVar* sv_rcon_maxignores;
 extern ConVar* sv_rcon_maxsockets;
 extern ConVar* sv_rcon_whitelist_address;
 #endif // DEDICATED
+#endif // CLIENT_DLL
+extern ConVar* sv_visualizetraces;
+extern ConVar* bhit_enable;
+extern ConVar* bhit_abs_origin;
 //-------------------------------------------------------------------------
 // CLIENT                                                                 |
 #ifndef DEDICATED
@@ -71,6 +98,7 @@ extern ConVar* cl_conoverlay_native_fs_clr;
 extern ConVar* cl_conoverlay_native_rtech_clr;
 extern ConVar* cl_conoverlay_native_ms_clr;
 extern ConVar* cl_conoverlay_netcon_clr;
+extern ConVar* cl_conoverlay_common_clr;
 extern ConVar* cl_conoverlay_warning_clr;
 extern ConVar* cl_conoverlay_error_clr;
 
@@ -91,6 +119,10 @@ extern ConVar* cl_gpustats_invert_rect_x;
 extern ConVar* cl_gpustats_invert_rect_y;
 extern ConVar* cl_gpustats_offset_x;
 extern ConVar* cl_gpustats_offset_y;
+
+extern ConVar* cl_showmaterialinfo;
+extern ConVar* cl_materialinfo_offset_x;
+extern ConVar* cl_materialinfo_offset_y;
 
 extern ConVar* con_max_size_logvector;
 extern ConVar* con_suggestion_limit;
@@ -121,8 +153,8 @@ extern ConVar* net_tracePayload;
 extern ConVar* net_encryptionEnable;
 extern ConVar* net_useRandomKey;
 extern ConVar* net_usesocketsforloopback;
-extern ConVar* r5net_matchmaking_hostname;
-extern ConVar* r5net_show_debug;
+extern ConVar* pylon_matchmaking_hostname;
+extern ConVar* pylon_showdebug;
 //-------------------------------------------------------------------------
 // RTECH API                                                              |
 //-------------------------------------------------------------------------
@@ -148,6 +180,13 @@ public:
 	ConCommandBase* FindCommandBase(const char* pszCommandName); // @0x1405983A0 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	ConVar* FindVar(const char* pszVarName);                     // @0x1405983B0 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	ConCommand* FindCommand(const char* pszCommandName);
+
+	void CallGlobalChangeCallbacks(ConVar* pConVar, const char* pOldString);
+	bool IsMaterialThreadSetAllowed(void);
+	void QueueMaterialThreadSetValue(ConVar* pConVar, float flValue);
+	void QueueMaterialThreadSetValue(ConVar* pConVar, int nValue);
+	void QueueMaterialThreadSetValue(ConVar* pConVar, const char* pValue);
+
 	CCVarIteratorInternal* FactoryInternalIterator(void);
 	unordered_map<string, ConCommandBase*> DumpToMap(void);
 };

@@ -75,6 +75,8 @@ void CSocketCreator::ProcessAccept(void)
 
 //-----------------------------------------------------------------------------
 // Purpose: Configures a listen socket for use
+// Input  : iSocket - 
+// Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
 bool CSocketCreator::ConfigureListenSocket(int iSocket)
 {
@@ -102,6 +104,8 @@ bool CSocketCreator::ConfigureListenSocket(int iSocket)
 
 //-----------------------------------------------------------------------------
 // Purpose: Configures a accepted socket for use
+// Input  : hSocket - 
+// Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
 bool CSocketCreator::ConfigureConnectSocket(SocketHandle_t hSocket)
 {
@@ -282,7 +286,7 @@ int CSocketCreator::OnSocketAccepted(SocketHandle_t hSocket, CNetAdr2 netAdr2)
 
 	m_hAcceptedSockets.push_back(pNewEntry);
 
-	int nIndex = (int)m_hAcceptedSockets.size() - 1;
+	int nIndex = static_cast<int>(m_hAcceptedSockets.size()) - 1;
 	return nIndex;
 }
 
@@ -299,6 +303,8 @@ void CSocketCreator::CloseAcceptedSocket(int nIndex)
 
 	AcceptedSocket_t& connected = m_hAcceptedSockets[nIndex];
 	::closesocket(connected.m_hSocket);
+	delete connected.m_pData;
+
 	m_hAcceptedSockets.erase(m_hAcceptedSockets.begin() + nIndex);
 }
 
@@ -307,17 +313,19 @@ void CSocketCreator::CloseAcceptedSocket(int nIndex)
 //-----------------------------------------------------------------------------
 void CSocketCreator::CloseAllAcceptedSockets(void)
 {
-	int nCount = m_hAcceptedSockets.size();
-	for (int i = 0; i < nCount; ++i)
+	for (size_t i = 0; i < m_hAcceptedSockets.size(); ++i)
 	{
 		AcceptedSocket_t& connected = m_hAcceptedSockets[i];
 		::closesocket(connected.m_hSocket);
+
+		delete connected.m_pData;
 	}
 	m_hAcceptedSockets.clear();
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: returns true if the listening socket is created and listening
+// Output : bool
 //-----------------------------------------------------------------------------
 bool CSocketCreator::IsListening(void) const
 {
@@ -326,6 +334,7 @@ bool CSocketCreator::IsListening(void) const
 
 //-----------------------------------------------------------------------------
 // Purpose: returns true if the socket would block because of the last socket command
+// Output : bool
 //-----------------------------------------------------------------------------
 bool CSocketCreator::IsSocketBlocking(void) const
 {
@@ -334,6 +343,7 @@ bool CSocketCreator::IsSocketBlocking(void) const
 
 //-----------------------------------------------------------------------------
 // Purpose: returns accepted socket count
+// Output : int
 //-----------------------------------------------------------------------------
 int CSocketCreator::GetAcceptedSocketCount(void) const
 {
@@ -342,6 +352,8 @@ int CSocketCreator::GetAcceptedSocketCount(void) const
 
 //-----------------------------------------------------------------------------
 // Purpose: returns accepted socket handle
+// Input  : nIndex - 
+// Output : SocketHandle_t
 //-----------------------------------------------------------------------------
 SocketHandle_t CSocketCreator::GetAcceptedSocketHandle(int nIndex) const
 {
@@ -350,6 +362,8 @@ SocketHandle_t CSocketCreator::GetAcceptedSocketHandle(int nIndex) const
 
 //-----------------------------------------------------------------------------
 // Purpose: returns accepted socket address
+// Input  : nIndex - 
+// Output : const CNetAdr2&
 //-----------------------------------------------------------------------------
 const CNetAdr2& CSocketCreator::GetAcceptedSocketAddress(int nIndex) const
 {
@@ -358,6 +372,8 @@ const CNetAdr2& CSocketCreator::GetAcceptedSocketAddress(int nIndex) const
 
 //-----------------------------------------------------------------------------
 // Purpose: returns accepted socket data
+// Input  : nIndex - 
+// Output : CConnectedNetConsoleData*
 //-----------------------------------------------------------------------------
 CConnectedNetConsoleData* CSocketCreator::GetAcceptedSocketData(int nIndex) const
 {

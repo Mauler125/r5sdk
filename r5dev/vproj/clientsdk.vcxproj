@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\bonesetup\bone_utils.cpp" />
     <ClCompile Include="..\bsplib\bsplib.cpp" />
     <ClCompile Include="..\client\cdll_engine_int.cpp" />
     <ClCompile Include="..\client\vengineclient_impl.cpp" />
@@ -50,7 +51,9 @@
     <ClCompile Include="..\filesystem\filesystem.cpp" />
     <ClCompile Include="..\gameui\IConsole.cpp" />
     <ClCompile Include="..\gameui\IBrowser.cpp" />
+    <ClCompile Include="..\game\client\c_baseentity.cpp" />
     <ClCompile Include="..\game\client\spritemodel.cpp" />
+    <ClCompile Include="..\game\client\view.cpp" />
     <ClCompile Include="..\game\shared\animation.cpp" />
     <ClCompile Include="..\inputsystem\inputsystem.cpp" />
     <ClCompile Include="..\launcher\IApplication.cpp" />
@@ -58,13 +61,22 @@
     <ClCompile Include="..\materialsystem\cmaterialglue.cpp" />
     <ClCompile Include="..\materialsystem\cmaterialsystem.cpp" />
     <ClCompile Include="..\mathlib\adler32.cpp" />
+    <ClCompile Include="..\mathlib\almostequal.cpp" />
     <ClCompile Include="..\mathlib\bits.cpp" />
+    <ClCompile Include="..\mathlib\color_conversion.cpp" />
     <ClCompile Include="..\mathlib\crc32.cpp" />
+    <ClCompile Include="..\mathlib\halton.cpp" />
     <ClCompile Include="..\mathlib\IceKey.cpp" />
+    <ClCompile Include="..\mathlib\mathlib_base.cpp" />
+    <ClCompile Include="..\mathlib\powsse.cpp" />
+    <ClCompile Include="..\mathlib\randsse.cpp" />
     <ClCompile Include="..\mathlib\sha1.cpp" />
     <ClCompile Include="..\mathlib\sha256.cpp" />
+    <ClCompile Include="..\mathlib\sseconst.cpp" />
+    <ClCompile Include="..\mathlib\ssenoise.cpp" />
+    <ClCompile Include="..\mathlib\transform.cpp" />
+    <ClCompile Include="..\mathlib\vmatrix.cpp" />
     <ClCompile Include="..\networksystem\pylon.cpp" />
-    <ClCompile Include="..\networksystem\r5net.cpp" />
     <ClCompile Include="..\protoc\cl_rcon.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
@@ -73,7 +85,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\public\bansystem.cpp" />
     <ClCompile Include="..\public\binstream.cpp" />
     <ClCompile Include="..\public\memaddr.cpp" />
     <ClCompile Include="..\public\module.cpp" />
@@ -94,13 +105,18 @@
     <ClCompile Include="..\tier0\dbg.cpp" />
     <ClCompile Include="..\tier0\fasttimer.cpp" />
     <ClCompile Include="..\tier0\jobthread.cpp" />
-    <ClCompile Include="..\tier0\tslist.cpp" />
+    <ClCompile Include="..\tier0\platform.cpp" />
+    <ClCompile Include="..\tier0\threadtools.cpp" />
     <ClCompile Include="..\tier1\bitbuf.cpp" />
+    <ClCompile Include="..\tier1\characterset.cpp" />
     <ClCompile Include="..\tier1\cmd.cpp" />
     <ClCompile Include="..\tier1\cvar.cpp" />
     <ClCompile Include="..\tier1\IConVar.cpp" />
     <ClCompile Include="..\tier1\NetAdr2.cpp" />
+    <ClCompile Include="..\tier1\splitstring.cpp" />
     <ClCompile Include="..\tier1\strtools.cpp" />
+    <ClCompile Include="..\tier2\meshutils.cpp" />
+    <ClCompile Include="..\tier2\renderutils.cpp" />
     <ClCompile Include="..\tier2\socketcreator.cpp" />
     <ClCompile Include="..\vguimatsurface\MatSystemSurface.cpp" />
     <ClCompile Include="..\vgui\vgui_baseui_interface.cpp" />
@@ -109,11 +125,13 @@
     <ClCompile Include="..\vpc\IAppSystem.cpp" />
     <ClCompile Include="..\vpc\interfaces.cpp" />
     <ClCompile Include="..\vpc\keyvalues.cpp" />
+    <ClCompile Include="..\vphysics\physics_collide.cpp" />
     <ClCompile Include="..\vphysics\QHull.cpp" />
     <ClCompile Include="..\vpklib\packedstore.cpp" />
     <ClCompile Include="..\vstdlib\callback.cpp" />
     <ClCompile Include="..\vstdlib\completion.cpp" />
     <ClCompile Include="..\vstdlib\keyvaluessystem.cpp" />
+    <ClCompile Include="..\vstdlib\random.cpp" />
     <ClCompile Include="..\windows\console.cpp" />
     <ClCompile Include="..\windows\id3dx.cpp" />
     <ClCompile Include="..\windows\input.cpp" />
@@ -176,8 +194,10 @@
     <ClInclude Include="..\gameui\IConsole.h" />
     <ClInclude Include="..\gameui\IBrowser.h" />
     <ClInclude Include="..\game\client\c_baseentity.h" />
+    <ClInclude Include="..\game\client\c_baseplayer.h" />
     <ClInclude Include="..\game\client\enginesprite.h" />
     <ClInclude Include="..\game\client\hud.h" />
+    <ClInclude Include="..\game\client\view.h" />
     <ClInclude Include="..\game\shared\animation.h" />
     <ClInclude Include="..\inputsystem\ButtonCode.h" />
     <ClInclude Include="..\inputsystem\inputsystem.h" />
@@ -189,15 +209,26 @@
     <ClInclude Include="..\mathlib\bits.h" />
     <ClInclude Include="..\mathlib\color.h" />
     <ClInclude Include="..\mathlib\crc32.h" />
+    <ClInclude Include="..\mathlib\fltx4.h" />
+    <ClInclude Include="..\mathlib\halton.h" />
     <ClInclude Include="..\mathlib\IceKey.H" />
+    <ClInclude Include="..\mathlib\mathlib.h" />
+    <ClInclude Include="..\mathlib\math_pfns.h" />
+    <ClInclude Include="..\mathlib\noisedata.h" />
     <ClInclude Include="..\mathlib\parallel_for.h" />
     <ClInclude Include="..\mathlib\sha1.h" />
     <ClInclude Include="..\mathlib\sha256.h" />
+    <ClInclude Include="..\mathlib\ssemath.h" />
+    <ClInclude Include="..\mathlib\ssequaternion.h" />
     <ClInclude Include="..\mathlib\swap.h" />
+    <ClInclude Include="..\mathlib\transform.h" />
     <ClInclude Include="..\mathlib\vector.h" />
+    <ClInclude Include="..\mathlib\vector2d.h" />
+    <ClInclude Include="..\mathlib\vector4d.h" />
+    <ClInclude Include="..\mathlib\vmatrix.h" />
+    <ClInclude Include="..\mathlib\vplane.h" />
     <ClInclude Include="..\milessdk\win64_rrthreads.h" />
     <ClInclude Include="..\networksystem\pylon.h" />
-    <ClInclude Include="..\networksystem\r5net.h" />
     <ClInclude Include="..\networksystem\serverlisting.h" />
     <ClInclude Include="..\networksystem\sm_protocol.h" />
     <ClInclude Include="..\protoc\cl_rcon.pb.h" />
@@ -208,11 +239,22 @@
     <ClInclude Include="..\public\include\const.h" />
     <ClInclude Include="..\public\include\edict.h" />
     <ClInclude Include="..\public\include\globalvars_base.h" />
+    <ClInclude Include="..\public\include\icliententity.h" />
+    <ClInclude Include="..\public\include\icliententitylist.h" />
+    <ClInclude Include="..\public\include\iclientnetworkable.h" />
+    <ClInclude Include="..\public\include\iclientrenderable.h" />
+    <ClInclude Include="..\public\include\iclientthinkable.h" />
+    <ClInclude Include="..\public\include\iclientunknown.h" />
+    <ClInclude Include="..\public\include\icommandline.h" />
+    <ClInclude Include="..\public\include\iconcommand.h" />
+    <ClInclude Include="..\public\include\iconvar.h" />
+    <ClInclude Include="..\public\include\idebugoverlay.h" />
+    <ClInclude Include="..\public\include\ihandleentity.h" />
     <ClInclude Include="..\public\include\inetchannel.h" />
     <ClInclude Include="..\public\include\inetmsghandler.h" />
     <ClInclude Include="..\public\include\ivrenderview.h" />
+    <ClInclude Include="..\public\include\ivscript.h" />
     <ClInclude Include="..\public\include\memaddr.h" />
-    <ClInclude Include="..\public\include\bansystem.h" />
     <ClInclude Include="..\public\include\binstream.h" />
     <ClInclude Include="..\public\include\httplib.h" />
     <ClInclude Include="..\public\include\model_types.h" />
@@ -221,6 +263,7 @@
     <ClInclude Include="..\public\include\studio.h" />
     <ClInclude Include="..\public\include\utility.h" />
     <ClInclude Include="..\core\resource.h" />
+    <ClInclude Include="..\public\include\worldsize.h" />
     <ClInclude Include="..\rtech\rtech_utils.h" />
     <ClInclude Include="..\rtech\rtech_game.h" />
     <ClInclude Include="..\rtech\rui\rui.h" />
@@ -420,22 +463,29 @@
     <ClInclude Include="..\tier0\fasttimer.h" />
     <ClInclude Include="..\tier0\interface.h" />
     <ClInclude Include="..\tier0\jobthread.h" />
+    <ClInclude Include="..\tier0\memalloc.h" />
+    <ClInclude Include="..\tier0\memstd.h" />
     <ClInclude Include="..\tier0\platform.h" />
+    <ClInclude Include="..\tier0\platform_internal.h" />
     <ClInclude Include="..\tier0\threadtools.h" />
     <ClInclude Include="..\tier0\tslist.h" />
     <ClInclude Include="..\tier0\valve_off.h" />
     <ClInclude Include="..\tier0\valve_on.h" />
     <ClInclude Include="..\tier0\wchartypes.h" />
     <ClInclude Include="..\tier1\bitbuf.h" />
+    <ClInclude Include="..\tier1\characterset.h" />
     <ClInclude Include="..\tier1\cmd.h" />
     <ClInclude Include="..\tier1\cvar.h" />
     <ClInclude Include="..\tier1\IConVar.h" />
     <ClInclude Include="..\tier1\mempool.h" />
     <ClInclude Include="..\tier1\NetAdr2.h" />
     <ClInclude Include="..\tier1\strtools.h" />
+    <ClInclude Include="..\tier1\utlblockmemory.h" />
     <ClInclude Include="..\tier1\utldict.h" />
     <ClInclude Include="..\tier1\utlmemory.h" />
     <ClInclude Include="..\tier1\utlvector.h" />
+    <ClInclude Include="..\tier2\meshutils.h" />
+    <ClInclude Include="..\tier2\renderutils.h" />
     <ClInclude Include="..\tier2\socketcreator.h" />
     <ClInclude Include="..\vguimatsurface\MatSystemSurface.h" />
     <ClInclude Include="..\vgui\vgui_baseui_interface.h" />
@@ -451,6 +501,7 @@
     <ClInclude Include="..\vstdlib\callback.h" />
     <ClInclude Include="..\vstdlib\completion.h" />
     <ClInclude Include="..\vstdlib\keyvaluessystem.h" />
+    <ClInclude Include="..\vstdlib\random.h" />
     <ClInclude Include="..\windows\console.h" />
     <ClInclude Include="..\windows\id3dx.h" />
     <ClInclude Include="..\windows\input.h" />
@@ -545,7 +596,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\client.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
+      <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\bin\x64_retail\client.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\bin\x64_retail\</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -588,7 +639,7 @@
       <SetChecksum>true</SetChecksum>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\client.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
+      <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\bin\x64_retail\client.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\bin\x64_retail\</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>

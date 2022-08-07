@@ -51,62 +51,6 @@ MODULEINFO GetModuleInfo(const char* szModule)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// For finding a pattern in memory of the process with SIMD.
-DWORD64 FindPatternSIMD(const char* szModule, const unsigned char* szPattern, const char* szMask)
-{
-    MODULEINFO mInfo = GetModuleInfo(szModule);
-    DWORD64 dwBase = (DWORD64)mInfo.lpBaseOfDll;
-    DWORD64 dwSize = (DWORD64)mInfo.SizeOfImage;
-
-    unsigned char* pData = (unsigned char*)dwBase;
-    unsigned int length  = (unsigned int)dwSize;
-
-    const unsigned char* end = pData + length - strlen(szMask);
-    int num_masks = (int)ceil((float)strlen(szMask) / (float)16);
-    int masks[64]; // 64*16 = enough masks for 1024 bytes.
-    memset(masks, 0, num_masks * sizeof(int));
-    for (int i = 0; i < num_masks; ++i)
-    {
-        for (int j = strnlen(szMask + i * 16, 16) - 1; j >= 0; --j)
-        {
-            if (szMask[i * 16 + j] == 'x')
-            {
-                masks[i] |= 1 << j;
-            }
-        }
-    }
-    __m128i xmm1 = _mm_loadu_si128((const __m128i*) szPattern);
-    __m128i xmm2, xmm3, msks;
-    for (; pData != end; _mm_prefetch((const char*)(++pData + 64), _MM_HINT_NTA))
-    {
-        if (szPattern[0] == pData[0])
-        {
-            xmm2 = _mm_loadu_si128((const __m128i*) pData);
-            msks = _mm_cmpeq_epi8(xmm1, xmm2);
-            if ((_mm_movemask_epi8(msks) & masks[0]) == masks[0])
-            {
-                for (DWORD64 i = 1; i < num_masks; ++i)
-                {
-                    xmm2 = _mm_loadu_si128((const __m128i*) (pData + i * 16));
-                    xmm3 = _mm_loadu_si128((const __m128i*) (szPattern + i * 16));
-                    msks = _mm_cmpeq_epi8(xmm2, xmm3);
-                    if ((_mm_movemask_epi8(msks) & masks[i]) == masks[i])
-                    {
-                        if ((i + 1) == num_masks)
-                        {
-                            return (DWORD64)pData;
-                        }
-                    }
-                    else goto cont;
-                }
-                return (DWORD64)pData;
-            }
-        }cont:;
-    }
-    return NULL;
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // For printing output to the debugger.
 void DbgPrint(LPCSTR sFormat, ...)
 {
@@ -486,6 +430,23 @@ string UTF8Decode(const string& svInput)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For obtaining UTF8 character length.
+size_t UTF8CharLength(const uint8_t cInput)
+{
+    if ((cInput & 0xFE) == 0xFC)
+        return 6;
+    if ((cInput & 0xFC) == 0xF8)
+        return 5;
+    if ((cInput & 0xF8) == 0xF0)
+        return 4;
+    else if ((cInput & 0xF0) == 0xE0)
+        return 3;
+    else if ((cInput & 0xE0) == 0xC0)
+        return 2;
+    return 1;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For checking if a string is a number.
 bool StringIsDigit(const string& svInput)
 {
@@ -600,6 +561,34 @@ string StringUnescape(const string& svInput)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For splitting a string into substrings by delimiter.
+vector<string> StringSplit(string svInput, char cDelim, size_t nMax)
+{
+    string svSubString;
+    vector<string> vSubStrings;
+
+    svInput = svInput + cDelim;
+
+    for (size_t i = 0; i < svInput.size(); i++)
+    {
+        if (i != (svInput.size() - 1) && 
+            vSubStrings.size() >= nMax || svInput[i] != cDelim)
+        {
+            svSubString += svInput[i];
+        }
+        else
+        {
+            if (svSubString.size() != 0)
+            {
+                vSubStrings.push_back(svSubString);
+            }
+            svSubString.clear();
+        }
+    }
+    return vSubStrings;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For converting a string to an array of bytes.
 vector<int> StringToBytes(const string& svInput, bool bNullTerminator)
 {
@@ -618,6 +607,30 @@ vector<int> StringToBytes(const string& svInput, bool bNullTerminator)
         vBytes.push_back(0x0);
     }
     return vBytes;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// For converting a string to an array of bytes.
+pair<vector<uint8_t>, string> StringToMaskedBytes(const string& svInput, bool bNullTerminator)
+{
+    char* pszStringStart = const_cast<char*>(svInput.c_str());
+    char* pszStringEnd = pszStringStart + strlen(svInput.c_str());
+    vector<uint8_t> vBytes = vector<uint8_t>{ };
+    string svMask = string();
+
+    for (char* pszCurrentByte = pszStringStart; pszCurrentByte < pszStringEnd; ++pszCurrentByte)
+    {
+        // Dereference character and push back the byte.
+        vBytes.push_back(*pszCurrentByte);
+        svMask.append("x");
+    }
+
+    if (bNullTerminator)
+    {
+        vBytes.push_back(0x0);
+        svMask.append("x");
+    }
+    return make_pair(vBytes, svMask);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -645,6 +658,36 @@ vector<int> PatternToBytes(const string& svInput)
         }
     }
     return vBytes;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// For converting a string pattern with wildcards to an array of bytes and mask.
+pair<vector<uint8_t>, string> PatternToMaskedBytes(const string& svInput)
+{
+    char* pszPatternStart = const_cast<char*>(svInput.c_str());
+    char* pszPatternEnd = pszPatternStart + strlen(svInput.c_str());
+    vector<uint8_t> vBytes = vector<uint8_t>{ };
+    string svMask = string();
+
+    for (char* pszCurrentByte = pszPatternStart; pszCurrentByte < pszPatternEnd; ++pszCurrentByte)
+    {
+        if (*pszCurrentByte == '?')
+        {
+            ++pszCurrentByte;
+            if (*pszCurrentByte == '?')
+            {
+                ++pszCurrentByte; // Skip double wildcard.
+            }
+            vBytes.push_back(0); // Push the byte back as invalid.
+            svMask.append("?");
+        }
+        else
+        {
+            vBytes.push_back(strtoul(pszCurrentByte, &pszCurrentByte, 16));
+            svMask.append("x");
+        }
+    }
+    return make_pair(vBytes, svMask);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

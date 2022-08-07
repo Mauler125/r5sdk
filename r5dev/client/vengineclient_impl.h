@@ -7,7 +7,7 @@ public:
 	bool GetRestrictServerCommands() const;
 	void SetRestrictClientCommands(bool bRestrict);
 	bool GetRestrictClientCommands() const;
-	void* GetLocalPlayer() const; // Is actually C_Player.
+	int GetLocalPlayer(); // Local player index.
 };
 
 /* ==== CVENGINECLIENT ================================================================================================================================================== */
@@ -30,6 +30,7 @@ class HVEngineClient : public IDetour
 	virtual void GetAdr(void) const
 	{
 		spdlog::debug("| FUN: IVEngineClient::CommandExecute       : {:#18x} |\n", p_CEngineClient_CommandExecute.GetPtr());
+		spdlog::debug("| FUN: IVEngineClient::GetLocalPlayer       : {:#18x} |\n", p_CEngineClient_GetLocalPlayer.GetPtr());
 		spdlog::debug("| VAR: m_bRestrictServerCommands            : {:#18x} |\n", reinterpret_cast<uintptr_t>(m_bRestrictServerCommands));
 		spdlog::debug("| VAR: m_bRestrictClientCommands            : {:#18x} |\n", reinterpret_cast<uintptr_t>(m_bRestrictClientCommands));
 		spdlog::debug("| CON: g_ppEngineClient                     : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_ppEngineClient));

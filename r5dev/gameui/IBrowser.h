@@ -3,14 +3,7 @@
 #include "common/sdkdefs.h"
 #include "windows/resource.h"
 #include "networksystem/serverlisting.h"
-#include "networksystem/r5net.h"
-
-enum class eSection
-{
-    SERVER_BROWSER,
-    HOST_SERVER,
-    SETTINGS
-};
+#include "networksystem/pylon.h"
 
 enum class eHostStatus
 {
@@ -28,14 +21,15 @@ enum class EServerVisibility
 class CBrowser
 {
 private:
-    bool m_bInitialized = false;
+    bool m_bInitialized  = false;
+    bool m_bModernTheme  = false;
+    bool m_bLegacyTheme  = false;
     bool m_bDefaultTheme = false;
 public:
     ////////////////////
     //   Enum Vars    //
     ////////////////////
 
-    eSection eCurrentSection = eSection::SERVER_BROWSER;
     eHostStatus eHostingStatus = eHostStatus::NOT_HOSTING;
     EServerVisibility eServerVisibility = EServerVisibility::OFFLINE;
 public:
@@ -48,9 +42,9 @@ public:
     void Draw(void);
     void Think(void);
 
-    void CompMenu(void);
+    void BasePanel(void);
 
-    void ServerBrowserSection(void);
+    void BrowserPanel(void);
     void RefreshServerList(void);
     void GetServerList(void);
 
@@ -58,7 +52,7 @@ public:
     void ConnectToServer(const string& svServer, const string& svNetKey);
 
     void HiddenServersModal(void);
-    void HostServerSection(void);
+    void HostPanel(void);
 
     void UpdateHostingStatus(void);
     void SendHostingPostRequest(void);
@@ -66,9 +60,9 @@ public:
     void ProcessCommand(const char* pszCommand);
     void LaunchServer(void);
 
-    void SettingsSection(void);
+    void SettingsPanel(void);
     void RegenerateEncryptionKey(void) const;
-    void ChangeEncryptionKeyTo(const std::string& svNetKey) const;
+    void ChangeEncryptionKey(const std::string& svNetKey) const;
 
     void SetStyleVar(void);
 
@@ -80,7 +74,7 @@ public:
     float m_flFadeAlpha = 0.f;
     const char* m_pszBrowserTitle = nullptr;
 
-    vector<ServerListing> m_vServerList;
+    vector<NetGameServer_t> m_vServerList;
     ImGuiTextFilter m_imServerBrowserFilter;
     char m_szServerAddressBuffer[256] = { '\0' };
     char m_szServerEncKeyBuffer[30]   = { '\0' };
@@ -94,10 +88,10 @@ public:
     ////////////////////
     //   Host Server  //
     ////////////////////
-    ServerListing m_Server;
+    NetGameServer_t m_Server;
     string m_svHostRequestMessage;
     string m_svHostToken;
-    ImVec4 m_iv4HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+    ImVec4 m_HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
 
     ////////////////////
     // Private Server //
@@ -109,11 +103,6 @@ public:
     /* Texture */
     ID3D11ShaderResourceView* m_idLockedIcon = nullptr;
     MODULERESOURCE m_rLockedIconBlob;
-
-    void SetSection(eSection section)
-    {
-        eCurrentSection = section;
-    }
 };
 
 extern CBrowser* g_pBrowser;

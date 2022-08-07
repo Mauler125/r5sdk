@@ -18,7 +18,7 @@ inline CMemory p_DrawStreamOverlay;
 inline auto DrawStreamOverlay = p_DrawStreamOverlay.RCast<const char* (*)(void* thisptr, uint8_t* a2, void* unused, void* a4)>();
 
 inline CMemory p_StreamDB_Init;
-inline auto v_StreamDB_Init = p_StreamDB_Init.RCast<void (*)(const char* pszStreamDbFile)>();
+inline auto v_StreamDB_Init = p_StreamDB_Init.RCast<void (*)(const char* pszLevelName)>();
 
 inline CMemory s_pRenderContext;
 

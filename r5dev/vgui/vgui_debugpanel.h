@@ -4,7 +4,7 @@
 
 enum class LogType_t : int
 {
-	SCRIPT_SERVER,
+	SCRIPT_SERVER = -3,
 	SCRIPT_CLIENT,
 	SCRIPT_UI,
 	NATIVE_SERVER,
@@ -15,6 +15,7 @@ enum class LogType_t : int
 	NATIVE_RTECH,
 	NATIVE_MS,
 	NETCON_S,
+	COMMON_C,
 	WARNING_C,
 	ERROR_C,
 	NONE
@@ -42,6 +43,8 @@ public:
 	void DrawHostStats(void) const;
 	void DrawSimStats(void) const;
 	void DrawGPUStats(void) const;
+	void DrawCrosshairMaterial(void) const;
+	void DrawStreamOverlay(void) const;
 
 private:
 	Color GetLogColorForType(LogType_t type) const;

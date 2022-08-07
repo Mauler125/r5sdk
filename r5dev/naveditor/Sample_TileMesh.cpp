@@ -126,12 +126,12 @@ public:
 			glColor4ub(0,0,0,128);
 			glLineWidth(2.0f);
 			glBegin(GL_LINES);
-			glVertex3f(m_hitPos[0]-s,m_hitPos[1]+0.1f,m_hitPos[2]);
-			glVertex3f(m_hitPos[0]+s,m_hitPos[1]+0.1f,m_hitPos[2]);
-			glVertex3f(m_hitPos[0],m_hitPos[1]-s+0.1f,m_hitPos[2]);
-			glVertex3f(m_hitPos[0],m_hitPos[1]+s+0.1f,m_hitPos[2]);
-			glVertex3f(m_hitPos[0],m_hitPos[1]+0.1f,m_hitPos[2]-s);
-			glVertex3f(m_hitPos[0],m_hitPos[1]+0.1f,m_hitPos[2]+s);
+			glVertex3f(m_hitPos[0]-s,m_hitPos[1],m_hitPos[2]+0.1f);
+			glVertex3f(m_hitPos[0]+s,m_hitPos[1],m_hitPos[2]+0.1f);
+			glVertex3f(m_hitPos[0],m_hitPos[1]-s,m_hitPos[2]+0.1f);
+			glVertex3f(m_hitPos[0],m_hitPos[1]+s,m_hitPos[2]+0.1f);
+			glVertex3f(m_hitPos[0],m_hitPos[1],m_hitPos[2]-s+0.1f);
+			glVertex3f(m_hitPos[0],m_hitPos[1],m_hitPos[2]+s+0.1f);
 			glEnd();
 			glLineWidth(1.0f);
 		}
@@ -207,9 +207,26 @@ void Sample_TileMesh::cleanup()
 	rcFreePolyMeshDetail(m_dmesh);
 	m_dmesh = 0;
 }
-
+const hulldef hulls[5] = {
+	{ "small", 8, 72 * 0.5, 45, 32.0f },
+	{ "med_short", 20, 72 * 0.5, 50, 32.0f },
+	{ "medium", 48, 150 * 0.5, 55, 32.0f },
+	{ "large", 60, 235 * 0.5, 60, 64.0f },
+	{ "extra_large", 88, 235 * 0.5, 65, 64.0f },
+};
 void Sample_TileMesh::handleSettings()
 {
+	for (const hulldef& h : hulls)
+	{
+		if (imguiButton(h.name))
+		{
+			m_agentRadius = h.radius;
+			m_agentMaxClimb = h.climb_height;
+			m_agentHeight = h.height;
+			m_navmeshName = h.name;
+			m_tileSize = h.tile_size;
+		}
+	}
 	Sample::handleCommonSettings();
 
 	if (imguiCheck("Keep Itermediate Results", m_keepInterResults))
@@ -669,13 +686,11 @@ void Sample_TileMesh::getTileExtents(int tx, int ty, float* tmin, float* tmax)
 	const float* bmin = m_geom->getNavMeshBoundsMin();
 	const float* bmax = m_geom->getNavMeshBoundsMax();
 	tmin[0] = bmax[0] - (tx+1)*ts;
-	//tmin[0] = bmin[0] + tx * ts;
-	tmin[1] = bmin[1] + ty * ts;
+	tmin[1] = bmin[1] + (ty)*ts;
 	tmin[2] = bmin[2];
 
 	tmax[0] = bmax[0] - (tx)*ts;
-	//tmax[0] = bmin[0] + (tx + 1)*ts;
-	tmax[1] = bmin[1] + (ty + 1)*ts;
+	tmax[1] = bmin[1] + (ty+1)*ts;
 	tmax[2] = bmax[2];
 }
 void Sample_TileMesh::getTilePos(const float* pos, int& tx, int& ty)
@@ -687,7 +702,6 @@ void Sample_TileMesh::getTilePos(const float* pos, int& tx, int& ty)
 
 	const float ts = m_tileSize*m_cellSize;
 	tx = (int)((bmax[0]- pos[0]) / ts);
-	//tx = (int)((pos[0] - bmin[0]) / ts);
 	ty = (int)((pos[1] - bmin[1]) / ts);
 }
 
@@ -770,16 +784,13 @@ void Sample_TileMesh::removeAllTiles()
 
 void Sample_TileMesh::buildAllHulls()
 {
-	bool is_human = true;
 	for (auto& h : hulls)
 	{
 		m_agentRadius = h.radius;
 		m_agentMaxClimb = h.climb_height;
 		m_agentHeight = h.height;
-		if (is_human)
-			m_count_reachability_tables = 4;
-		m_navmesh_name = h.name;
-		is_human = false;
+		m_navmeshName = h.name;
+		m_tileSize = h.tile_size;
 
 		handleSettings();
 		handleBuild();
@@ -1098,7 +1109,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 							   m_cfg.detailSampleDist, m_cfg.detailSampleMaxError,
 							   *m_dmesh))
 	{
-		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could build polymesh detail.");
+		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build polymesh detail.");
 		return 0;
 	}
 	

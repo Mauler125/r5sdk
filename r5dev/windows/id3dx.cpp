@@ -68,12 +68,12 @@ LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		if (wParam == g_pImGuiConfig->IConsole_Config.m_nBind0 || wParam == g_pImGuiConfig->IConsole_Config.m_nBind1)
 		{
-			g_pConsole->m_bActivate = !g_pConsole->m_bActivate;
+			g_pConsole->m_bActivate ^= true;
 		}
 
 		if (wParam == g_pImGuiConfig->IBrowser_Config.m_nBind0 || wParam == g_pImGuiConfig->IBrowser_Config.m_nBind1)
 		{
-			g_pBrowser->m_bActivate = !g_pBrowser->m_bActivate;
+			g_pBrowser->m_bActivate ^= true;
 		}
 	}
 
@@ -531,14 +531,15 @@ void DirectX_Shutdown()
 	}
 }
 
-void HIDXGI::GetAdr(void) const
+void VDXGI::GetAdr(void) const
 {
 	///////////////////////////////////////////////////////////////////////////////
-	spdlog::debug("| VAR: ID3D11DeviceContext                  : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pDeviceContext)         );
-	spdlog::debug("| VAR: ID3D11Device                         : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pDevice)                );
-	spdlog::debug("| VAR: ID3D11RenderTargetView               : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pRenderTargetView)      );
-	spdlog::debug("| VAR: IDXGISwapChain                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pSwapChain)             );
-	spdlog::debug("| VAR: IDXGISwapChainPresent                : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_fnIDXGISwapChainPresent));
+	spdlog::debug("| FUN: IDXGISwapChain::Present              : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_fnIDXGISwapChainPresent));
+	spdlog::debug("| VAR: g_pSwapChain                         : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pSwapChain)             );
+	spdlog::debug("| VAR: g_pRenderTargetView                  : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pRenderTargetView)      );
+	spdlog::debug("| VAR: g_pDeviceContext                     : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pDeviceContext)         );
+	spdlog::debug("| VAR: g_pDevice                            : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pDevice)                );
+	spdlog::debug("| VAR: g_ppGameDevice                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_ppGameDevice)           );
 	spdlog::debug("+----------------------------------------------------------------+\n");
 }
 

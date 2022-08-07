@@ -1031,6 +1031,96 @@ void CUIBaseSurface::MoveGameFiles(Forms::Control* pSender) {
 			fs::remove(it.path());
 	}
 }
+}
+
+void CUIBaseSurface::InstallGame(Forms::Control* pSender)
+{
+	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+
+	try {
+		lt::session ses;
+		lt::add_torrent_params p = lt::parse_magnet_uri(pSurface->GetConfigCFG("magnet"));
+		p.save_path = ".";
+
+		lt::torrent_handle tH = ses.add_torrent(p);
+
+		// This makes sure no files download in the first place. There aren't 2000 files in this, but it works
+		for (int i = 0; i < 2000; i++)
+			tH.file_priority(i, lt::download_priority_t(lt::dont_download));
+
+		bool adjustValues = false;
+
+		for (;;) {
+			std::vector<lt::alert*> alerts;
+			ses.pop_alerts(&alerts);
+
+			for (lt::alert const* a : alerts) {
+				if (lt::alert_cast<lt::torrent_error_alert>(a)) {
+					// TODO error
+				}
+			}
+
+			if (tH.status().has_metadata && !adjustValues) {
+				for (int i = 0; i < (int)pSurface->GameFileDiff.size(); i++) {
+					for (int j = 0; j < tH.torrent_file().get()->files().num_files(); j++) {
+						std::string filePath = tH.torrent_file().get()->files().file_path(j);
+						filePath.replace(filePath.begin(), filePath.begin() + 49, "");
+						if (filePath == pSurface->GameFileDiff[i].string()) {
+							tH.file_priority(j, lt::download_priority_t(lt::default_priority));
+						}
+					}
+				}
+				adjustValues = true;
+			}
+
+			if (tH.status().is_finished) {
+				ses.remove_torrent(tH);
+				goto finished;
+			}
+
+			float progress = ceilf((tH.status().progress * 100) * 100) / 100;
+
+			std::ostringstream out;
+			out.precision(2);
+			out << std::fixed << progress << "%";
+
+			pSurface->logText(out.str());
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		}
+	finished:
+		MoveGameFiles(pSurface->FindForm());
+	}
+	catch (std::exception& e) {
+		pSurface->logText(e.what());
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Moves recently installed files to there correct place
+// Input  : *pSender - 
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::MoveGameFiles(Forms::Control* pSender) {
+	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+
+	for (int i = 0; i < (int)pSurface->GameFileDiff.size(); i++) {
+		std::string startingAddition("R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM\\");
+		startingAddition.append(pSurface->GameFileDiff[i].string());
+		fs::rename(startingAddition, pSurface->GameFileDiff[i].string());
+		pSurface->logText("Moved file: " + pSurface->GameFileDiff[i].filename().string());
+	}
+
+	fs::remove_all("R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM");
+
+	for (auto& it : fs::directory_iterator(".")) {
+		if (it.is_directory())
+			continue;
+		if (!it.path().has_extension())
+			continue;
+		if (it.path().extension() == ".parts")
+			fs::remove(it.path());
+	}
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: launches the game with the SDK
@@ -1581,9 +1671,13 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 
 		if (this->m_WindowedToggle->Checked())
 			svParameters.append("-windowed\n");
+		else
+			svParameters.append("-fullscreen\n");
 
 		if (this->m_NoBorderToggle->Checked())
 			svParameters.append("-noborder\n");
+		//else
+		//	svParameters.append("-forceborder\n"); // !TODO: FIX IN ENGINE!
 
 		if (StringIsDigit(this->m_FpsTextBox->Text().ToCString()))
 			svParameters.append("+fps_max \"" + this->m_FpsTextBox->Text() + "\"\n");
@@ -1791,9 +1885,13 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 
 		if (this->m_WindowedToggle->Checked())
 			svParameters.append("-windowed\n");
+		else
+			svParameters.append("-fullscreen\n");
 
 		if (this->m_NoBorderToggle->Checked())
 			svParameters.append("-noborder\n");
+		//else
+		//	svParameters.append("-forceborder\n"); // !TODO: FIX IN ENGINE!
 
 		if (StringIsDigit(this->m_FpsTextBox->Text().ToCString()))
 			svParameters.append("+fps_max \"" + this->m_FpsTextBox->Text() + "\"\n");

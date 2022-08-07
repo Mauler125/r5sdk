@@ -9,11 +9,17 @@
 #include "tier0/fasttimer.h"
 #include "tier1/cvar.h"
 #include "tier1/IConVar.h"
+#ifdef DEDICATED
+#include "engine/server/sv_rcon.h"
+#endif // DEDICATED
 #ifndef DEDICATED
 #include "engine/client/cl_rcon.h"
 #endif // !DEDICATED
 #include "engine/client/client.h"
 #include "engine/net.h"
+#ifndef DEDICATED
+#include "client/cdll_engine_int.h"
+#endif // !DEDICATED
 #include "rtech/rtech_game.h"
 #include "rtech/rtech_utils.h"
 #include "filesystem/basefilesystem.h"
@@ -24,12 +30,20 @@
 #include "gameui/IBrowser.h"
 #include "gameui/IConsole.h"
 #endif // !DEDICATED
+#ifndef CLIENT_DLL
 #include "public/include/bansystem.h"
+#endif // !CLIENT_DLL
+#include "public/include/worldsize.h"
 #include "mathlib/crc32.h"
+#include "mathlib/mathlib.h"
 #include "vstdlib/completion.h"
 #include "vstdlib/callback.h"
 #ifndef DEDICATED
 #include "materialsystem/cmaterialglue.h"
+#include "public/include/idebugoverlay.h"
+#endif // !DEDICATED
+#ifndef DEDICATED
+#include "game/client/view.h"
 #endif // !DEDICATED
 
 
@@ -38,9 +52,9 @@
 MP_GameMode_Changed_f
 =====================
 */
-bool MP_GameMode_Changed_f(ConVar* pVTable)
+void MP_GameMode_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue)
 {
-	return SetupGamemode(mp_gamemode->GetString());
+	SetupGamemode(mp_gamemode->GetString());
 }
 
 #ifndef DEDICATED
@@ -80,11 +94,12 @@ void Host_Kick_f(const CCommand& args)
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
 		CClient* pClient = g_pClient->GetClient(i);
-		CNetChan* pNetChan = pClient->GetNetChan();
-		if (!pClient || !pNetChan)
-		{
+		if (!pClient)
 			continue;
-		}
+
+		CNetChan* pNetChan = pClient->GetNetChan();
+		if (!pNetChan)
+			continue;
 
 		string svClientName = pNetChan->GetName(); // Get full name.
 
@@ -101,7 +116,7 @@ void Host_Kick_f(const CCommand& args)
 		NET_DisconnectClient(pClient, i, "Kicked from server", 0, 1);
 	}
 }
-
+#ifndef CLIENT_DLL
 /*
 =====================
 Host_KickID_f
@@ -120,12 +135,12 @@ void Host_KickID_f(const CCommand& args)
 		for (int i = 0; i < MAX_PLAYERS; i++)
 		{
 			CClient* pClient = g_pClient->GetClient(i);
-			CNetChan* pNetChan = pClient->GetNetChan();
-
-			if (!pClient || !pNetChan)
-			{
+			if (!pClient)
 				continue;
-			}
+
+			CNetChan* pNetChan = pClient->GetNetChan();
+			if (!pNetChan)
+				continue;
 
 			string svIpAddress = pNetChan->GetAddress(); // If this stays null they modified the packet somehow.
 
@@ -184,12 +199,12 @@ void Host_Ban_f(const CCommand& args)
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
 		CClient* pClient = g_pClient->GetClient(i);
-		CNetChan* pNetChan = pClient->GetNetChan();
-
-		if (!pClient || !pNetChan)
-		{
+		if (!pClient)
 			continue;
-		}
+
+		CNetChan* pNetChan = pClient->GetNetChan();
+		if (!pNetChan)
+			continue;
 
 		string svClientName = pNetChan->GetName(); // Get full name.
 
@@ -229,12 +244,12 @@ void Host_BanID_f(const CCommand& args)
 		for (int i = 0; i < MAX_PLAYERS; i++)
 		{
 			CClient* pClient = g_pClient->GetClient(i);
-			CNetChan* pNetChan = pClient->GetNetChan();
-
-			if (!pClient || !pNetChan)
-			{
+			if (!pClient)
 				continue;
-			}
+
+			CNetChan* pNetChan = pClient->GetNetChan();
+			if (!pNetChan)
+				continue;
 
 			string svIpAddress = pNetChan->GetAddress(); // If this stays empty they modified the packet somehow.
 
@@ -323,7 +338,7 @@ void Host_ReloadBanList_f(const CCommand& args)
 {
 	g_pBanSystem->Load(); // Reload banlist.
 }
-
+#endif // !CLIENT_DLL
 /*
 =====================
 Pak_ListPaks_f
@@ -336,7 +351,7 @@ void Pak_ListPaks_f(const CCommand& args)
 
 	uint32_t nActuallyLoaded = 0;
 
-	for (int i = 0; i < *s_pLoadedPakCount; ++i)
+	for (int16_t i = 0; i < *s_pLoadedPakCount; ++i)
 	{
 		RPakLoadedInfo_t info = g_pLoadedPakInfo[i];
 
@@ -520,94 +535,84 @@ void RTech_Decompress_f(const CCommand& args)
 
 	DevMsg(eDLL_T::RTECH, " |-+ Processing: '%s'\n", pakNameIn.c_str());
 
-	vector<uint8_t> upak; // Compressed region.
-	ifstream ipak(pakNameIn, fstream::binary);
+	CIOStream reader(pakNameIn, CIOStream::Mode_t::READ);
 
-	ipak.seekg(0, fstream::end);
-	upak.resize(ipak.tellg());
-	ipak.seekg(0, fstream::beg);
-	ipak.read(reinterpret_cast<char*>(upak.data()), upak.size());
-
-	RPakHeader_t* rheader = (RPakHeader_t*)upak.data();
-	uint16_t flags = (rheader->m_nFlags[0] << 8) | rheader->m_nFlags[1];
+	RPakHeader_t rheader = reader.Read<RPakHeader_t>();
+	uint16_t flags = (rheader.m_nFlags[0] << 8) | rheader.m_nFlags[1];
 
 	DevMsg(eDLL_T::RTECH, " | |-+ Header ------------------------------------------------\n");
-	DevMsg(eDLL_T::RTECH, " | | |-- Magic    : '%08X'\n", rheader->m_nMagic);
-	DevMsg(eDLL_T::RTECH, " | | |-- Version  : '%u'\n", rheader->m_nVersion);
-	DevMsg(eDLL_T::RTECH, " | | |-- Flags    : '%04X'\n", flags);
-	DevMsg(eDLL_T::RTECH, " | | |-- Hash     : '%llu'\n", rheader->m_nHash);
-	DevMsg(eDLL_T::RTECH, " | | |-- Entries  : '%zu'\n", rheader->m_nAssetEntryCount);
+	DevMsg(eDLL_T::RTECH, " | | |-- Magic    : '%08X'\n", rheader.m_nMagic);
+	DevMsg(eDLL_T::RTECH, " | | |-- Version  : '%hu'\n", rheader.m_nVersion);
+	DevMsg(eDLL_T::RTECH, " | | |-- Flags    : '%04hX'\n", flags);
+	DevMsg(eDLL_T::RTECH, " | | |-- Hash     : '%llu%llu'\n", rheader.m_nHash0, rheader.m_nHash1);
+	DevMsg(eDLL_T::RTECH, " | | |-- Entries  : '%u'\n", rheader.m_nAssetEntryCount);
 	DevMsg(eDLL_T::RTECH, " | |-+ Compression -------------------------------------------\n");
-	DevMsg(eDLL_T::RTECH, " | | |-- Size disk: '%lld'\n", rheader->m_nSizeDisk);
-	DevMsg(eDLL_T::RTECH, " | | |-- Size decp: '%lld'\n", rheader->m_nSizeMemory);
-	DevMsg(eDLL_T::RTECH, " | | |-- Ratio    : '%.02f'\n", (rheader->m_nSizeDisk * 100.f) / rheader->m_nSizeMemory);
+	DevMsg(eDLL_T::RTECH, " | | |-- Size disk: '%llu'\n", rheader.m_nSizeDisk);
+	DevMsg(eDLL_T::RTECH, " | | |-- Size decp: '%llu'\n", rheader.m_nSizeMemory);
+	DevMsg(eDLL_T::RTECH, " | | |-- Ratio    : '%.02f'\n", (rheader.m_nSizeDisk * 100.f) / rheader.m_nSizeMemory);
 
-	if (rheader->m_nMagic != 'kaPR')
+	if (rheader.m_nMagic != 'kaPR')
 	{
 		Error(eDLL_T::RTECH, "%s - pak file '%s' has invalid magic!\n", __FUNCTION__, pakNameIn.c_str());
 		return;
 	}
-	if ((rheader->m_nFlags[1] & 1) != 1)
+	if ((rheader.m_nFlags[1] & 1) != 1)
 	{
 		Error(eDLL_T::RTECH, "%s - pak file '%s' already decompressed!\n", __FUNCTION__, pakNameIn.c_str());
 		return;
 	}
-	if (rheader->m_nSizeDisk != upak.size())
+	if (rheader.m_nSizeDisk != reader.GetSize())
 	{
-		Error(eDLL_T::RTECH, "%s - pak file '%s' decompressed size '%zu' doesn't match expected value '%zu'!\n", __FUNCTION__, pakNameIn.c_str(), upak.size(), rheader->m_nSizeMemory);
+		Error(eDLL_T::RTECH, "%s - pak file '%s' decompressed size '%zu' doesn't match expected value '%llu'!\n", __FUNCTION__, pakNameIn.c_str(), reader.GetSize(), rheader.m_nSizeMemory);
 		return;
 	}
 
 	RPakDecompState_t state;
-	uint32_t decompSize = g_pRTech->DecompressPakFileInit(&state, upak.data(), upak.size(), 0, PAK_HEADER_SIZE);
+	uint64_t decompSize = g_pRTech->DecompressPakFileInit(&state, const_cast<uint8_t*>(reader.GetData()), reader.GetSize(), NULL, sizeof(RPakHeader_t));
 
-	if (decompSize == rheader->m_nSizeDisk)
+	if (decompSize == rheader.m_nSizeDisk)
 	{
-		Error(eDLL_T::RTECH, "%s - calculated size: '%zu' expected: '%zu'!\n", __FUNCTION__, decompSize, rheader->m_nSizeMemory);
+		Error(eDLL_T::RTECH, "%s - calculated size: '%llu' expected: '%llu'!\n", __FUNCTION__, decompSize, rheader.m_nSizeMemory);
 		return;
 	}
 	else
 	{
-		DevMsg(eDLL_T::RTECH, " | | |-- Calculated size: '%zu'\n", decompSize);
+		DevMsg(eDLL_T::RTECH, " | | |-- Calculated size: '%llu'\n", decompSize);
 	}
 
-	vector<uint8_t> pakBuf(rheader->m_nSizeMemory, 0);
+	vector<uint8_t> pakBuf(rheader.m_nSizeMemory, 0);
 
 	state.m_nOutMask = UINT64_MAX;
 	state.m_nOut = uint64_t(pakBuf.data());
 
-	uint8_t decompResult = g_pRTech->DecompressPakFile(&state, upak.size(), pakBuf.size());
+	uint8_t decompResult = g_pRTech->DecompressPakFile(&state, reader.GetSize(), pakBuf.size());
 	if (decompResult != 1)
 	{
-		Error(eDLL_T::RTECH, "%s - decompression failed for '%s' return value: '%u'!\n", __FUNCTION__, pakNameIn.c_str(), +decompResult);
+		Error(eDLL_T::RTECH, "%s - decompression failed for '%s' return value: '%hu'!\n", __FUNCTION__, pakNameIn.c_str(), decompResult);
 		return;
 	}
 
-	rheader->m_nFlags[1] = 0x0; // Set compressed flag to false for the decompressed pak file.
-	rheader->m_nSizeDisk = rheader->m_nSizeMemory; // Equal compressed size with decompressed.
+	rheader.m_nFlags[1] = 0x0; // Set compressed flag to false for the decompressed pak file.
+	rheader.m_nSizeDisk = rheader.m_nSizeMemory; // Equal compressed size with decompressed.
 
-	ofstream outBlock(pakNameOut, fstream::binary);
+	CIOStream writer(pakNameOut, CIOStream::Mode_t::WRITE);
 
-	if (rheader->m_nPatchIndex > 0) // Check if its an patch rpak.
+	if (rheader.m_nPatchIndex > 0) // Check if its an patch rpak.
 	{
 		// Loop through all the structs and patch their compress size.
-		for (int i = 1, patch_offset = 0x88; i <= rheader->m_nPatchIndex; i++, patch_offset += sizeof(RPakPatchCompressedHeader_t))
+		for (uint32_t i = 1, patch_offset = 0x88; i <= rheader.m_nPatchIndex; i++, patch_offset += sizeof(RPakPatchCompressedHeader_t))
 		{
 			RPakPatchCompressedHeader_t* patch_header = (RPakPatchCompressedHeader_t*)((uintptr_t)pakBuf.data() + patch_offset);
 			patch_header->m_nSizeDisk = patch_header->m_nSizeMemory; // Fix size for decompress.
 		}
 	}
 
-	memcpy_s(pakBuf.data(), state.m_nDecompSize, ((uint8_t*)rheader), PAK_HEADER_SIZE); // Overwrite first 0x80 bytes which are NULL with the header data.
+	memcpy_s(pakBuf.data(), state.m_nDecompSize, &rheader, sizeof(RPakHeader_t)); // Overwrite first 0x80 bytes which are NULL with the header data.
+	writer.Write(pakBuf.data(), state.m_nDecompSize);
 
-	outBlock.write((char*)pakBuf.data(), state.m_nDecompSize);
-
-	uint32_t crc32_init = {};
-	DevMsg(eDLL_T::RTECH, " | | |-- CRC32          : '%08X'\n", crc32::update(crc32_init, pakBuf.data(), state.m_nDecompSize));
+	DevMsg(eDLL_T::RTECH, " | | |-- CRC32          : '%08X'\n", crc32::update(NULL, pakBuf.data(), state.m_nDecompSize));
 	DevMsg(eDLL_T::RTECH, " |-+ Decompressed rpak to: '%s'\n", pakNameOut.c_str());
 	DevMsg(eDLL_T::RTECH, "--------------------------------------------------------------\n");
-
-	outBlock.close();
 }
 
 /*
@@ -687,21 +692,14 @@ void VPK_Mount_f(const CCommand& args)
 		return;
 	}
 
-	if (g_pFullFileSystem) // Initialized when g_pFileSystem_Stdio is initialized (global engine pointer).
+	VPKData_t* pPakData = FileSystem()->MountVPK(args.Arg(1));
+	if (pPakData)
 	{
-		VPKData_t* pPakData = g_pFileSystem_Stdio->MountVPK(args.Arg(1));
-		if (pPakData)
-		{
-			DevMsg(eDLL_T::FS, "Mounted VPK file '%s' with handle '%i'\n", args.Arg(1), pPakData->m_nHandle);
-		}
-		else
-		{
-			Warning(eDLL_T::FS, "Unable to mount VPK file '%s': non-existent VPK file\n", args.Arg(1));
-		}
+		DevMsg(eDLL_T::FS, "Mounted VPK file '%s' with handle '%i'\n", args.Arg(1), pPakData->m_nHandle);
 	}
 	else
 	{
-		Warning(eDLL_T::FS, "Unable to mount VPK file '%s': '%s' is not initalized\n", args.Arg(1), VAR_NAME(g_pFullFileSystem));
+		Warning(eDLL_T::FS, "Unable to mount VPK file '%s': non-existent VPK file\n", args.Arg(1));
 	}
 }
 
@@ -746,44 +744,44 @@ void RCON_CmdQuery_f(const CCommand& args)
 {
 	if (args.ArgC() < 2)
 	{
-		if (g_pRConClient->IsInitialized()
-			&& !g_pRConClient->IsConnected()
+		if (RCONClient()->IsInitialized()
+			&& !RCONClient()->IsConnected()
 			&& strlen(rcon_address->GetString()) > 0)
 		{
-			g_pRConClient->Connect();
+			RCONClient()->Connect();
 		}
 	}
 	else
 	{
-		if (!g_pRConClient->IsInitialized())
+		if (!RCONClient()->IsInitialized())
 		{
 			Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: uninitialized\n");
 			return;
 		}
-		else if (g_pRConClient->IsConnected())
+		else if (RCONClient()->IsConnected())
 		{
 			if (strcmp(args.Arg(1), "PASS") == 0) // Auth with RCON server using rcon_password ConVar value.
 			{
 				string svCmdQuery;
 				if (args.ArgC() > 2)
 				{
-					svCmdQuery = g_pRConClient->Serialize(args.Arg(2), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+					svCmdQuery = RCONClient()->Serialize(args.Arg(2), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
 				}
 				else // Use 'rcon_password' ConVar as password.
 				{
-					svCmdQuery = g_pRConClient->Serialize(rcon_password->GetString(), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+					svCmdQuery = RCONClient()->Serialize(rcon_password->GetString(), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
 				}
-				g_pRConClient->Send(svCmdQuery);
+				RCONClient()->Send(svCmdQuery);
 				return;
 			}
 			else if (strcmp(args.Arg(1), "disconnect") == 0) // Disconnect from RCON server.
 			{
-				g_pRConClient->Disconnect();
+				RCONClient()->Disconnect();
 				return;
 			}
 
-			string svCmdQuery = g_pRConClient->Serialize(args.ArgS(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
-			g_pRConClient->Send(svCmdQuery);
+			string svCmdQuery = RCONClient()->Serialize(args.ArgS(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+			RCONClient()->Send(svCmdQuery);
 			return;
 		}
 		else
@@ -803,13 +801,35 @@ RCON_Disconnect_f
 */
 void RCON_Disconnect_f(const CCommand& args)
 {
-	if (g_pRConClient->IsConnected())
+	if (RCONClient()->IsConnected())
 	{
-		g_pRConClient->Disconnect();
+		RCONClient()->Disconnect();
 		DevMsg(eDLL_T::CLIENT, "User closed RCON connection\n");
 	}
 }
 #endif // !DEDICATED
+
+/*
+=====================
+RCON_PasswordChanged_f
+
+  Change password on RCON server
+  and RCON client
+=====================
+*/
+void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
+{
+	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
+	{
+#ifndef DEDICATED
+		RCONClient()->SetPassword(pConVarRef->GetString());
+		RCONClient()->Init();
+#elif DEDICATED 
+		RCONServer()->SetPassword(pConVarRef->GetString());
+		RCONServer()->Init();
+#endif // DEDICATED
+	}
+}
 
 /*
 =====================
@@ -876,7 +896,7 @@ void Mat_CrossHair_f(const CCommand& args)
 		DevMsg(eDLL_T::MS, "-+ Material --------------------------------------------------\n");
 		DevMsg(eDLL_T::MS, " |-- ADDR: '%llX'\n", material);
 		DevMsg(eDLL_T::MS, " |-- GUID: '%llX'\n", material->m_GUID);
-		DevMsg(eDLL_T::MS, " |-- UnknownSignature: '%d'\n", material->m_UnknownSignature);
+		DevMsg(eDLL_T::MS, " |-- Streamable Texture Count: '%d'\n", material->m_nStreamableTextureCount);
 		DevMsg(eDLL_T::MS, " |-- Material Width: '%d'\n", material->m_iWidth);
 		DevMsg(eDLL_T::MS, " |-- Material Height: '%d'\n", material->m_iHeight);
 		DevMsg(eDLL_T::MS, " |-- Flags: '%llX'\n", material->m_iFlags);
@@ -893,8 +913,8 @@ void Mat_CrossHair_f(const CCommand& args)
 		DevMsg(eDLL_T::MS, " |-- Material Name: '%s'\n", material->m_pszName);
 		DevMsg(eDLL_T::MS, " |-- Material Surface Name 1: '%s'\n", material->m_pszSurfaceName1);
 		DevMsg(eDLL_T::MS, " |-- Material Surface Name 2: '%s'\n", material->m_pszSurfaceName2);
-		DevMsg(eDLL_T::MS, " |-- DX Texture 1: '%llX'\n", material->m_ppDXTexture1);
-		DevMsg(eDLL_T::MS, " |-- DX Texture 2: '%llX'\n", material->m_ppDXTexture2);
+		DevMsg(eDLL_T::MS, " |-- DX Buffer: '%llX'\n", material->m_pDXBuffer);
+		DevMsg(eDLL_T::MS, " |-- DX BufferVTable: '%llX'\n", material->m_pDXBufferVTable);
 
 		material->m_pDepthShadow ? fnPrintChild(material->m_pDepthShadow, " |   |-+ DepthShadow Addr: '%llX'\n") : DevMsg(eDLL_T::MS, " |   |-+ DepthShadow Addr: 'NULL'\n");
 		material->m_pDepthPrepass ? fnPrintChild(material->m_pDepthPrepass, " |   |-+ DepthPrepass Addr: '%llX'\n") : DevMsg(eDLL_T::MS, " |   |-+ DepthPrepass Addr: 'NULL'\n");
@@ -903,8 +923,8 @@ void Mat_CrossHair_f(const CCommand& args)
 		material->m_pColPass ? fnPrintChild(material->m_pColPass, " |   |-+ ColPass Addr: '%llX'\n") : DevMsg(eDLL_T::MS, " |   |-+ ColPass Addr: 'NULL'\n");
 
 		DevMsg(eDLL_T::MS, "-+ Texture GUID map ------------------------------------------\n");
-		material->m_pTextureGUID1 ? DevMsg(eDLL_T::MS, " |-- TextureMap 1 Addr: '%llX'\n", material->m_pTextureGUID1) : DevMsg(eDLL_T::MS, " |-- TextureMap 1 Addr: 'NULL'\n");
-		material->m_pTextureGUID2 ? DevMsg(eDLL_T::MS, " |-- TextureMap 2 Addr: '%llX'\n", material->m_pTextureGUID2) : DevMsg(eDLL_T::MS, " |-- TextureMap 2 Addr: 'NULL'\n");
+		material->m_pTextureGUID ? DevMsg(eDLL_T::MS, " |-- TextureMap 1 Addr: '%llX'\n", material->m_pTextureGUID) : DevMsg(eDLL_T::MS, " |-- TextureMap 1 Addr: 'NULL'\n");
+		material->m_pStreamableTextures ? DevMsg(eDLL_T::MS, " |-- TextureMap 2 Addr: '%llX'\n", material->m_pStreamableTextures) : DevMsg(eDLL_T::MS, " |-- TextureMap 2 Addr: 'NULL'\n");
 
 		DevMsg(eDLL_T::MS, "--------------------------------------------------------------\n");
 	}
@@ -913,4 +933,138 @@ void Mat_CrossHair_f(const CCommand& args)
 		DevMsg(eDLL_T::MS, "%s - No Material found >:(\n", __FUNCTION__);
 	}
 }
+
+/*
+=====================
+Line_f
+
+  Draws a line at 
+  start<x1 y1 z1> end<x2 y2 z2>.
+=====================
+*/
+void Line_f(const CCommand& args)
+{
+	if (args.ArgC() != 7)
+	{
+		DevMsg(eDLL_T::CLIENT, "Usage 'line': start(vector) end(vector)\n");
+		return;
+	}
+
+	Vector3D start, end;
+	for (int i = 0; i < 3; ++i)
+	{
+		start[i] = atof(args[i + 1]);
+		end[i] = atof(args[i + 4]);
+	}
+
+	g_pDebugOverlay->AddLineOverlay(start, end, 255, 255, 0, r_debug_overlay_zbuffer->GetBool(), 100);
+}
+
+/*
+=====================
+Sphere_f
+
+  Draws a sphere at origin(x1 y1 z1) 
+  radius(float) theta(int) phi(int).
+=====================
+*/
+void Sphere_f(const CCommand& args)
+{
+	if (args.ArgC() != 7)
+	{
+		DevMsg(eDLL_T::CLIENT, "Usage 'sphere': origin(vector) radius(float) theta(int) phi(int)\n");
+		return;
+	}
+
+	Vector3D start;
+	for (int i = 0; i < 3; ++i)
+	{
+		start[i] = atof(args[i + 1]);
+	}
+
+	float radius = atof(args[4]);
+	int theta = atoi(args[5]);
+	int phi = atoi(args[6]);
+
+	g_pDebugOverlay->AddSphereOverlay(start, radius, theta, phi, 20, 210, 255, 0, 100);
+}
+
+/*
+=====================
+Capsule_f
+
+  Draws a capsule at start<x1 y1 z1> 
+  end<x2 y2 z2> radius <x3 y3 z3>.
+=====================
+*/
+void Capsule_f(const CCommand& args)
+{
+	if (args.ArgC() != 10)
+	{
+		DevMsg(eDLL_T::CLIENT, "Usage 'capsule': start(vector) end(vector) radius(vector)\n");
+		return;
+	}
+
+	Vector3D start, end, radius;
+	for (int i = 0; i < 3; ++i)
+	{
+		start[i] = atof(args[i + 1]);
+		end[i] = atof(args[i + 4]);
+		radius[i] = atof(args[i + 7]);
+	}
+	g_pDebugOverlay->AddCapsuleOverlay(start, end, radius, { 0,0,0 }, { 0,0,0 }, 141, 233, 135, 0, 100);
+}
 #endif // !DEDICATED
+
+/*
+=====================
+BHit_f
+
+  Bullet trajectory tracing
+  from shooter to target entity.
+=====================
+*/
+void BHit_f(const CCommand& args)
+{
+	if (args.ArgC() != 9)
+		return;
+
+#ifndef DEDICATED
+	if (bhit_enable->GetBool() && sv_visualizetraces->GetBool())
+	{
+		Vector3D vecAbsStart;
+		Vector3D vecAbsEnd;
+
+		for (int i = 0; i < 3; ++i)
+			vecAbsStart[i] = atof(args[i + 4]);
+
+		if (bhit_abs_origin->GetBool())
+		{
+			int iEnt = atof(args[2]);
+			if (IClientEntity* pEntity = g_pClientEntityList->GetClientEntity(iEnt))
+				vecAbsEnd = pEntity->GetAbsOrigin();
+			else
+				goto VEC_RENDER;
+		}
+		else VEC_RENDER:
+		{
+			QAngle vecBulletAngles;
+			for (int i = 0; i < 2; ++i)
+				vecBulletAngles[i] = atof(args[i + 7]);
+
+			vecBulletAngles.z = 180.f; // Flipped axis.
+			AngleVectors(vecBulletAngles, &vecAbsEnd);
+		}
+
+		static char szBuf[2048];
+		snprintf(szBuf, sizeof(szBuf), "drawline %g %g %g %g %g %g", 
+			vecAbsStart.x, vecAbsStart.y, vecAbsStart.z,
+			vecAbsStart.x + vecAbsEnd.x * MAX_COORD_RANGE, 
+			vecAbsStart.y + vecAbsEnd.y * MAX_COORD_RANGE, 
+			vecAbsStart.z + vecAbsEnd.z * MAX_COORD_RANGE);
+
+		Cbuf_AddText(Cbuf_GetCurrentPlayer(), szBuf, cmd_source_t::kCommandSrcCode);
+		Cbuf_Execute();
+	}
+#endif // !DEDICATED
+}

@@ -50,7 +50,7 @@
 //-----------------------------------------------------------------------------
 // Purpose: state machine's main processing loop
 //-----------------------------------------------------------------------------
-FORCEINLINE void CHostState::FrameUpdate(CHostState* rcx, void* rdx, float time)
+FORCEINLINE void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float flFrameTime)
 {
 	static bool bInitialized = false;
 	if (!bInitialized)
@@ -59,9 +59,9 @@ FORCEINLINE void CHostState::FrameUpdate(CHostState* rcx, void* rdx, float time)
 		bInitialized = true;
 	}
 #ifdef DEDICATED
-	g_pRConServer->RunFrame();
+	RCONServer()->RunFrame();
 #else // 
-	g_pRConClient->RunFrame();
+	RCONClient()->RunFrame();
 #endif // DEDICATED
 
 	HostStates_t oldState{};
@@ -100,7 +100,7 @@ FORCEINLINE void CHostState::FrameUpdate(CHostState* rcx, void* rdx, float time)
 			}
 			case HostStates_t::HS_RUN:
 			{
-				CHostState_State_Run(&g_pHostState->m_iCurrentState, nullptr, time);
+				CHostState_State_Run(&g_pHostState->m_iCurrentState, flCurrentTime, flFrameTime);
 				break;
 			}
 			case HostStates_t::HS_GAME_SHUTDOWN:
@@ -179,11 +179,6 @@ FORCEINLINE void CHostState::Setup(void)
 {
 	g_pHostState->LoadConfig();
 	g_pConVar->PurgeHostNames();
-#ifdef DEDICATED
-	g_pRConServer->Init();
-#else // 
-	g_pRConClient->Init();
-#endif // DEDICATED
 
 	std::thread think(&CHostState::Think, this);
 	think.detach();
@@ -218,19 +213,22 @@ FORCEINLINE void CHostState::Think(void) const
 	{
 		if (!bInitialized) // Initialize clocks.
 		{
+#ifndef CLIENT_DLL
 			banListTimer.Start();
 #ifdef DEDICATED
 			pylonTimer.Start();
 #endif // DEDICATED
 			statsTimer.Start();
+#endif // !CLIENT_DLL
 			bInitialized = true;
 		}
-
+#ifndef CLIENT_DLL
 		if (banListTimer.GetDurationInProgress().GetSeconds() > sv_banlistRefreshInterval->GetDouble())
 		{
 			g_pBanSystem->BanListCheck();
 			banListTimer.Start();
 		}
+#endif // !CLIENT_DLL
 #ifdef DEDICATED
 		if (pylonTimer.GetDurationInProgress().GetSeconds() > sv_pylonRefreshInterval->GetDouble())
 		{

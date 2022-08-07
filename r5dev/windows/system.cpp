@@ -1,5 +1,6 @@
 #include "core/stdafx.h"
 #include "windows/system.h"
+#include "engine/host_state.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 typedef BOOL(WINAPI* IGetVersionExA)(
@@ -46,6 +47,28 @@ HPeekMessage(
 #else
 	return VPeekMessageA(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg);
 #endif // DEDICATED
+}
+
+BOOL
+WINAPI
+ConsoleHandlerRoutine(
+	DWORD eventCode)
+{
+	switch (eventCode)
+	{
+	case CTRL_CLOSE_EVENT:
+	case CTRL_LOGOFF_EVENT:
+	case CTRL_SHUTDOWN_EVENT:
+		if (g_pHostState)
+		{
+			g_pHostState->m_iNextState = HostStates_t::HS_SHUTDOWN;
+		}
+
+		Sleep(10000);
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 //#############################################################################

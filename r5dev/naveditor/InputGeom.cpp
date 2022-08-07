@@ -26,6 +26,7 @@
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "Detour/Include/DetourNavMesh.h"
 #include "NavEditor/Include/Sample.h"
+#include <naveditor/include/GameUtils.h>
 
 static bool intersectSegmentTriangle(const float* sp, const float* sq,
 									 const float* a, const float* b, const float* c,
@@ -118,7 +119,7 @@ InputGeom::~InputGeom()
 	delete m_mesh;
 }
 		
-bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath,bool is_tf2)
+bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 {
 	if (m_mesh)
 	{
@@ -131,8 +132,6 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath,bool is_tf2
 	m_volumeCount = 0;
 	
 	m_mesh = new rcMeshLoaderObj;
-	//m_mesh->m_flip_tris = is_tf2;
-	m_mesh->m_tf2_import_flip = is_tf2;
 	if (!m_mesh)
 	{
 		ctx->log(RC_LOG_ERROR, "loadMesh: Out of memory 'm_mesh'.");
@@ -160,7 +159,7 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath,bool is_tf2
 
 	return true;
 }
-bool InputGeom::loadPlyMesh(rcContext* ctx, const std::string& filepath, bool is_tf2)
+bool InputGeom::loadPlyMesh(rcContext* ctx, const std::string& filepath)
 {
 	if (m_mesh)
 	{
@@ -173,8 +172,6 @@ bool InputGeom::loadPlyMesh(rcContext* ctx, const std::string& filepath, bool is
 	m_volumeCount = 0;
 
 	m_mesh = new rcMeshLoaderPly;
-	//m_mesh->m_flip_tris = is_tf2;
-	m_mesh->m_tf2_import_flip = is_tf2;
 	if (!m_mesh)
 	{
 		ctx->log(RC_LOG_ERROR, "loadMesh: Out of memory 'm_mesh'.");
@@ -202,7 +199,7 @@ bool InputGeom::loadPlyMesh(rcContext* ctx, const std::string& filepath, bool is
 
 	return true;
 }
-bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath,bool is_tf2)
+bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 {
 	//NB(warmist): tf2 not implemented here
 	char* buf = 0;
@@ -264,7 +261,7 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath,bool is_
 				name++;
 			if (*name)
 			{
-				if (!loadMesh(ctx, name, is_tf2))
+				if (!loadMesh(ctx, name))
 				{
 					delete [] buf;
 					return false;
@@ -337,7 +334,7 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath,bool is_
 	return true;
 }
 
-bool InputGeom::load(rcContext* ctx, const std::string& filepath,bool is_tf2)
+bool InputGeom::load(rcContext* ctx, const std::string& filepath)
 {
 	size_t extensionPos = filepath.find_last_of('.');
 	if (extensionPos == std::string::npos)
@@ -347,11 +344,11 @@ bool InputGeom::load(rcContext* ctx, const std::string& filepath,bool is_tf2)
 	std::transform(extension.begin(), extension.end(), extension.begin(), tolower);
 
 	if (extension == ".gset")
-		return loadGeomSet(ctx, filepath, is_tf2);
+		return loadGeomSet(ctx, filepath);
 	if (extension == ".obj")
-		return loadMesh(ctx, filepath, is_tf2);
+		return loadMesh(ctx, filepath);
 	if (extension == ".ply")
-		return loadPlyMesh(ctx, filepath, is_tf2);
+		return loadPlyMesh(ctx, filepath);
 
 	return false;
 }
@@ -549,18 +546,18 @@ void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool hilight)
 		float* v = &m_offMeshConVerts[i*3*2];
 
 		dd->vertex(v[0],v[1],v[2], baseColor);
-		dd->vertex(v[0],v[1]+0.2f,v[2], baseColor);
+		dd->vertex(v[0],v[1],v[2]+10.0f, baseColor);
 		
 		dd->vertex(v[3],v[4],v[5], baseColor);
-		dd->vertex(v[3],v[4]+0.2f,v[5], baseColor);
+		dd->vertex(v[3],v[4],v[5]+10.0f, baseColor);
 		
-		duAppendCircle(dd, v[0],v[1]+0.1f,v[2], m_offMeshConRads[i], baseColor);
-		duAppendCircle(dd, v[3],v[4]+0.1f,v[5], m_offMeshConRads[i], baseColor);
+		duAppendCircle(dd, v[0],v[1],v[2]+5.0f, m_offMeshConRads[i], baseColor);
+		duAppendCircle(dd, v[3],v[4],v[5]+5.0f, m_offMeshConRads[i], baseColor);
 
 		if (hilight)
 		{
 			duAppendArc(dd, v[0],v[1],v[2], v[3],v[4],v[5], 0.25f,
-						(m_offMeshConDirs[i]&1) ? 0.6f : 0.0f, 0.6f, conColor);
+						(m_offMeshConDirs[i]&DT_OFFMESH_CON_BIDIR) ? 30.0f : 0.0f, 30.0f, conColor);
 		}
 	}	
 	dd->end();
@@ -596,23 +593,29 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
 	for (int i = 0; i < m_volumeCount; ++i)
 	{
 		const ConvexVolume* vol = &m_volumes[i];
-		unsigned int col = duTransCol(dd->areaToCol(vol->area), 32);
+		unsigned int col;
+
+		if (vol->area == SAMPLE_POLYAREA_GROUND)
+			col = duRGBA(255, 0, 0, 128); // Use red for visibility (ground acts as deletion).
+		else
+			col = duTransCol(dd->areaToCol(vol->area), 64);
+
 		for (int j = 0, k = vol->nverts-1; j < vol->nverts; k = j++)
 		{
 			const float* va = &vol->verts[k*3];
 			const float* vb = &vol->verts[j*3];
 
-			dd->vertex(vol->verts[0],vol->hmax,vol->verts[2], col);
-			dd->vertex(vb[0],vol->hmax,vb[2], col);
-			dd->vertex(va[0],vol->hmax,va[2], col);
-			
-			dd->vertex(va[0],vol->hmin,va[2], duDarkenCol(col));
-			dd->vertex(va[0],vol->hmax,va[2], col);
-			dd->vertex(vb[0],vol->hmax,vb[2], col);
+			dd->vertex(va[0],va[1],vol->hmax, col);
+			dd->vertex(vb[0],vb[1],vol->hmax, col);
+			dd->vertex(vol->verts[0],vol->verts[1],vol->hmax, col);
 
-			dd->vertex(va[0],vol->hmin,va[2], duDarkenCol(col));
-			dd->vertex(vb[0],vol->hmax,vb[2], col);
-			dd->vertex(vb[0],vol->hmin,vb[2], duDarkenCol(col));
+			dd->vertex(vb[0],vb[1],vol->hmax, col);
+			dd->vertex(va[0],va[1],vol->hmax, col);
+			dd->vertex(va[0],va[1],vol->hmin, duDarkenCol(col));
+
+			dd->vertex(vb[0],vb[1],vol->hmin, duDarkenCol(col));
+			dd->vertex(vb[0],vb[1],vol->hmax, col);
+			dd->vertex(va[0],va[1],vol->hmin, duDarkenCol(col));
 		}
 	}
 	
@@ -622,17 +625,23 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
 	for (int i = 0; i < m_volumeCount; ++i)
 	{
 		const ConvexVolume* vol = &m_volumes[i];
-		unsigned int col = duTransCol(dd->areaToCol(vol->area), 220);
+		unsigned int col;
+
+		if (vol->area == SAMPLE_POLYAREA_GROUND)
+			col = duRGBA(255, 0, 0, 220);
+		else
+			col = duTransCol(dd->areaToCol(vol->area), 220);
+
 		for (int j = 0, k = vol->nverts-1; j < vol->nverts; k = j++)
 		{
 			const float* va = &vol->verts[k*3];
 			const float* vb = &vol->verts[j*3];
-			dd->vertex(va[0],vol->hmin,va[2], duDarkenCol(col));
-			dd->vertex(vb[0],vol->hmin,vb[2], duDarkenCol(col));
-			dd->vertex(va[0],vol->hmax,va[2], col);
-			dd->vertex(vb[0],vol->hmax,vb[2], col);
-			dd->vertex(va[0],vol->hmin,va[2], duDarkenCol(col));
-			dd->vertex(va[0],vol->hmax,va[2], col);
+			dd->vertex(vb[0],vb[1],vol->hmin, duDarkenCol(col));
+			dd->vertex(va[0],va[1],vol->hmin, duDarkenCol(col));
+			dd->vertex(vb[0],vb[1],vol->hmax, col);
+			dd->vertex(va[0],va[1],vol->hmax, col);
+			dd->vertex(va[0],va[1],vol->hmax, col);
+			dd->vertex(va[0],va[1],vol->hmin, duDarkenCol(col));
 		}
 	}
 	dd->end();
@@ -641,16 +650,21 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
 	for (int i = 0; i < m_volumeCount; ++i)
 	{
 		const ConvexVolume* vol = &m_volumes[i];
-		unsigned int col = duDarkenCol(duTransCol(dd->areaToCol(vol->area), 220));
+		unsigned int col;
+
+		if (vol->area == SAMPLE_POLYAREA_GROUND)
+			col = duRGBA(255, 0, 0, 220);
+		else
+			col = duDarkenCol(duTransCol(dd->areaToCol(vol->area), 220));
+
 		for (int j = 0; j < vol->nverts; ++j)
 		{
+			dd->vertex(vol->verts[j*3+0],vol->verts[j*3+1],vol->hmax, col);
+			dd->vertex(vol->verts[j*3+0],vol->verts[j*3+1],vol->hmin, col);
 			dd->vertex(vol->verts[j*3+0],vol->verts[j*3+1]+0.1f,vol->verts[j*3+2], col);
-			dd->vertex(vol->verts[j*3+0],vol->hmin,vol->verts[j*3+2], col);
-			dd->vertex(vol->verts[j*3+0],vol->hmax,vol->verts[j*3+2], col);
 		}
 	}
 	dd->end();
-	
-	
+
 	dd->depthMask(true);
 }

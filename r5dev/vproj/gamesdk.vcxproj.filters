@@ -220,6 +220,9 @@
     <Filter Include="sdk\engine\client">
       <UniqueIdentifier>{b7e33427-fd37-44b1-8530-651ae5f4fde1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\bonesetup">
+      <UniqueIdentifier>{acbd4b45-6a8d-4d9f-9747-1bc460481bb4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\vengineclient_impl.cpp">
@@ -317,9 +320,6 @@
     </ClCompile>
     <ClCompile Include="..\mathlib\IceKey.cpp">
       <Filter>sdk\mathlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\networksystem\r5net.cpp">
-      <Filter>sdk\networksystem</Filter>
     </ClCompile>
     <ClCompile Include="..\squirrel\sqinit.cpp">
       <Filter>sdk\squirrel</Filter>
@@ -504,9 +504,6 @@
     <ClCompile Include="..\engine\clockdriftmgr.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
-    <ClCompile Include="..\tier0\tslist.cpp">
-      <Filter>sdk\tier0</Filter>
-    </ClCompile>
     <ClCompile Include="..\engine\server\sv_main.cpp">
       <Filter>sdk\engine\server</Filter>
     </ClCompile>
@@ -539,6 +536,75 @@
     </ClCompile>
     <ClCompile Include="..\engine\debugoverlay.cpp">
       <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier0\platform.cpp">
+      <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="..\materialsystem\cshaderglue.cpp">
+      <Filter>sdk\materialsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\mathlib_base.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vstdlib\random.cpp">
+      <Filter>sdk\vstdlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\powsse.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\randsse.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\vmatrix.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vphysics\physics_collide.cpp">
+      <Filter>sdk\vphysics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\halton.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\sseconst.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\color_conversion.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier2\renderutils.cpp">
+      <Filter>sdk\tier2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier2\meshutils.cpp">
+      <Filter>sdk\tier2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\bonesetup\bone_utils.cpp">
+      <Filter>sdk\bonesetup</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\transform.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mathlib\ssenoise.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier0\threadtools.cpp">
+      <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="..\server\persistence.cpp">
+      <Filter>sdk\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\client\c_baseentity.cpp">
+      <Filter>sdk\game\client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\client\view.cpp">
+      <Filter>sdk\game\client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\shared\ai_utility_shared.cpp">
+      <Filter>sdk\game\shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier1\characterset.cpp">
+      <Filter>sdk\tier1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier1\splitstring.cpp">
+      <Filter>sdk\tier1</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -991,9 +1057,6 @@
     </ClInclude>
     <ClInclude Include="..\mathlib\IceKey.H">
       <Filter>sdk\mathlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\networksystem\r5net.h">
-      <Filter>sdk\networksystem</Filter>
     </ClInclude>
     <ClInclude Include="..\networksystem\serverlisting.h">
       <Filter>sdk\networksystem</Filter>
@@ -1579,6 +1642,126 @@
     </ClInclude>
     <ClInclude Include="..\mathlib\sha1.h">
       <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\platform_internal.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\icommandline.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\materialsystem\cshaderglue.h">
+      <Filter>sdk\materialsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\mathlib.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\vector2d.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\math_pfns.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vstdlib\random.h">
+      <Filter>sdk\vstdlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\ssemath.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\noisedata.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\vmatrix.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\vector4d.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\vplane.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\almostequal.cpp">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\halton.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\ssequaternion.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier2\renderutils.h">
+      <Filter>sdk\tier2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier2\meshutils.h">
+      <Filter>sdk\tier2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\float_tools.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\fltx4.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mathlib\transform.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\server\persistence.h">
+      <Filter>sdk\server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\idebugoverlay.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\memstd.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\client\c_baseplayer.h">
+      <Filter>sdk\game\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\icliententity.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\iclientthinkable.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\iclientunknown.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\ihandleentity.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\iclientnetworkable.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\iclientrenderable.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\ivscript.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\client\view.h">
+      <Filter>sdk\game\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\shared\ai_utility_shared.h">
+      <Filter>sdk\game\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\iconvar.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\iconcommand.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\icvar.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\characterset.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\include\worldsize.h">
+      <Filter>sdk\public\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\utlblockmemory.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\memalloc.h">
+      <Filter>sdk\tier0</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

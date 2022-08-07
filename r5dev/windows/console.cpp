@@ -11,6 +11,7 @@
 #ifndef DEDICATED
 #include "windows/id3dx.h"
 #endif // !DEDICATED
+#include "windows/system.h"
 #include "windows/console.h"
 #include "common/opcodes.h"
 
@@ -111,6 +112,7 @@ void Console_Init()
 		SetConsoleBackgroundColor(0x0000);
 		AnsiColors_Init();
 	}
+	SetConsoleCtrlHandler(ConsoleHandlerRoutine, true);
 }
 
 //#############################################################################
@@ -129,9 +131,9 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 		std::getline(std::cin, sCommand);
 
 		//-- Debug toggles
-		if (sCommand == "pattern test") { PrintHAddress(); continue; }
+		if (sCommand == "sig_getadr") { DetourAddress(); continue; }
 
-		// Execute the command in the r5 SQVM
+		// Execute the command.
 		Cbuf_AddText(Cbuf_GetCurrentPlayer(), sCommand.c_str(), cmd_source_t::kCommandSrcCode);
 		Cbuf_Execute();
 

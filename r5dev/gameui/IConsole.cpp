@@ -28,20 +28,18 @@ History:
 //-----------------------------------------------------------------------------
 CConsole::CConsole(void)
 {
-    ClearLog();
     memset(m_szInputBuf, '\0', sizeof(m_szInputBuf));
 
     m_nHistoryPos     = -1;
-    m_bAutoScroll     = true;
-    m_bScrollToBottom = false;
     m_bInitialized    = false;
-    m_pszConsoleTitle = "Console";
+    m_pszConsoleLabel = "Console";
+    m_pszLoggingLabel = "LoggingRegion";
 
-    m_vsvCommands.push_back("CLEAR");
-    m_vsvCommands.push_back("HELP");
-    m_vsvCommands.push_back("HISTORY");
+    m_vCommands.push_back("CLEAR");
+    m_vCommands.push_back("HELP");
+    m_vCommands.push_back("HISTORY");
 
-    snprintf(m_szSummary, 256, "%llu history items", m_vsvHistory.size());
+    snprintf(m_szSummary, sizeof(m_szSummary), "%zu history items", m_vHistory.size());
 
     std::thread think(&CConsole::Think, this);
     think.detach();
@@ -53,7 +51,7 @@ CConsole::CConsole(void)
 CConsole::~CConsole(void)
 {
     ClearLog();
-    m_vsvHistory.clear();
+    m_vHistory.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -63,23 +61,7 @@ CConsole::~CConsole(void)
 bool CConsole::Setup(void)
 {
     SetStyleVar();
-
-    int k = 0; // Get all image resources for displaying flags.
-    for (int i = IDB_PNG3; i <= IDB_PNG18; i++)
-    {
-        m_vFlagIcons.push_back(MODULERESOURCE());
-        m_vFlagIcons[k] = GetModuleResource(i);
-
-        bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_vFlagIcons[k].m_pData), static_cast<int>(m_vFlagIcons[k].m_nSize),
-            &m_vFlagIcons[k].m_idIcon, &m_vFlagIcons[k].m_nWidth, &m_vFlagIcons[k].m_nHeight);
-        if (!ret)
-        {
-            IM_ASSERT(ret);
-            return false;
-        }
-        k++;
-    }
-    return true;
+    return LoadFlagIcons();
 }
 
 //-----------------------------------------------------------------------------
@@ -102,28 +84,24 @@ void CConsole::Draw(void)
      * BASE PANEL SETUP       *
      **************************/
     {
-        int nVars{};
+        int nVars = 0;
         if (!m_bActivate)
         {
             return;
         }
-        if (m_bDefaultTheme)
+        if (m_bModernTheme)
         {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 8.f, 10.f }); nVars++;
             ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
         }
         else
         {
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 4.f, 6.f });  nVars++;
-            ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);              nVars++;
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 6.f, 6.f });  nVars++;
             ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
         }
-
-        ImGui::SetNextWindowSize(ImVec2(1000, 600), ImGuiCond_FirstUseEver);
-        ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(618, 524));        nVars++;
 
         BasePanel();
-
         ImGui::PopStyleVar(nVars);
     }
 
@@ -131,17 +109,22 @@ void CConsole::Draw(void)
      * SUGGESTION PANEL SETUP *
      **************************/
     {
-        int nVars{};
-        if (CanAutoComplete())
+        int nVars = 0;
+        if (AutoComplete())
         {
-            if (m_bDefaultTheme)
+            if (m_bModernTheme)
             {
-                static ImGuiStyle& style = ImGui::GetStyle();
+                static const ImGuiStyle& style = ImGui::GetStyle();
                 m_ivSuggestWindowPos.y = m_ivSuggestWindowPos.y + style.WindowPadding.y + 1.5f;
             }
 
             ImGui::SetNextWindowPos(m_ivSuggestWindowPos);
             ImGui::SetNextWindowSize(m_ivSuggestWindowSize);
+            if (m_bSuggestUpdate)
+            {
+                ImGui::SetNextWindowScroll(ImVec2(0.f, 0.f));
+                m_bSuggestUpdate = false;
+            }
 
             ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(500, 37)); nVars++;
             ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);         nVars++;
@@ -161,25 +144,29 @@ void CConsole::Think(void)
 {
     for (;;) // Loop running at 100-tps.
     {
-        if (m_ivConLog.size() > con_max_size_logvector->GetSizeT())
+        if (m_Logger.GetTotalLines() > con_max_size_logvector->GetInt())
         {
-            while (m_ivConLog.size() > con_max_size_logvector->GetSizeT() / 4 * 3)
+            while (m_Logger.GetTotalLines() > con_max_size_logvector->GetInt())
             {
-                m_ivConLog.erase(m_ivConLog.begin());
+                m_Logger.RemoveLine(0);
                 m_nScrollBack++;
+                m_nSelectBack++;
             }
+            m_Logger.MoveSelection(m_nSelectBack, false);
+            m_Logger.MoveCursor(m_nSelectBack, false);
+            m_nSelectBack = 0;
         }
 
-        while (static_cast<int>(m_vsvHistory.size()) > 512)
+        while (m_vHistory.size() > 512)
         {
-            m_vsvHistory.erase(m_vsvHistory.begin());
+            m_vHistory.erase(m_vHistory.begin());
         }
 
         if (m_bActivate)
         {
             if (m_flFadeAlpha <= 1.f)
             {
-                m_flFadeAlpha += 0.05;
+                m_flFadeAlpha += .05f;
             }
         }
         else // Reset to full transparent.
@@ -197,16 +184,17 @@ void CConsole::Think(void)
 //-----------------------------------------------------------------------------
 void CConsole::BasePanel(void)
 {
-    if (!ImGui::Begin(m_pszConsoleTitle, &m_bActivate))
+    if (!ImGui::Begin(m_pszConsoleLabel, &m_bActivate))
     {
         ImGui::End();
         return;
     }
 
     // Reserve enough left-over height and width for 1 separator + 1 input text
-    const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-    const float footer_width_to_reserve  = ImGui::GetStyle().ItemSpacing.y + ImGui::GetWindowWidth();
+    const float flFooterHeightReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+    const float flFooterWidthReserve  = ImGui::GetStyle().ItemSpacing.y + ImGui::GetWindowWidth();
 
+    ImVec2 fontSize = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, "#", nullptr, nullptr);
     ///////////////////////////////////////////////////////////////////////
     ImGui::Separator();
     if (ImGui::BeginPopup("Options"))
@@ -219,7 +207,7 @@ void CConsole::BasePanel(void)
     }
 
     ImGui::SameLine();
-    m_itFilter.Draw("Filter | ", footer_width_to_reserve - 500);
+    m_Logger.m_itFilter.Draw("Filter | ", flFooterWidthReserve - 500);
 
     ImGui::SameLine();
     ImGui::Text(m_szSummary);
@@ -227,44 +215,44 @@ void CConsole::BasePanel(void)
     ImGui::Separator();
 
     ///////////////////////////////////////////////////////////////////////
-    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+    if (!m_Logger.m_bScrolledToMax && m_nScrollBack > 0)
+    {
+        ImGuiWindow* pWindow = ImGui::GetCurrentWindow();
+        ImGuiID nID = pWindow->GetID(m_pszLoggingLabel);
 
-    if (m_bCopyToClipBoard) { ImGui::LogToClipboard(); }
-    ColorLog();
+        snprintf(m_szWindowLabel, sizeof(m_szWindowLabel), "%s/%s_%08X", m_pszConsoleLabel, m_pszLoggingLabel, nID);
+        ImGui::SetWindowScrollY(m_szWindowLabel, m_flScrollY - m_nScrollBack * fontSize.y);
+    }
+    m_nScrollBack = 0;
+
+    ///////////////////////////////////////////////////////////////////////
+    ImGui::BeginChild(m_pszLoggingLabel, ImVec2(0, -flFooterHeightReserve), true, m_nLoggingFlags);
+    m_Logger.Render();
+
     if (m_bCopyToClipBoard)
     {
-        ImGui::LogToClipboard();
-        ImGui::LogFinish();
-
+        m_Logger.Copy(true);
         m_bCopyToClipBoard = false;
     }
 
-    if (m_nScrollBack > 0)
-    {
-        ImGui::SetScrollY(ImGui::GetScrollY() - m_nScrollBack * ImGui::GetTextLineHeightWithSpacing() - m_nScrollBack - 90);
-        m_nScrollBack = 0;
-    }
-
-    if (m_bScrollToBottom || (m_bAutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY()))
-    {
-        ImGui::SetScrollHereY(1.0f);
-        m_bScrollToBottom = false;
-    }
+    m_flScrollX = ImGui::GetScrollX();
+    m_flScrollY = ImGui::GetScrollY();
 
     ///////////////////////////////////////////////////////////////////////
     ImGui::EndChild();
     ImGui::Separator();
 
-    ImGui::PushItemWidth(footer_width_to_reserve - 80);
+    ImGui::PushItemWidth(flFooterWidthReserve - 80);
     if (ImGui::InputText("##input", m_szInputBuf, IM_ARRAYSIZE(m_szInputBuf), m_nInputFlags, &TextEditCallbackStub, reinterpret_cast<void*>(this)))
     {
         if (m_nSuggestPos != -1)
         {
             // Remove the default value from ConVar before assigning it to the input buffer.
-            string svConVar = m_vsvSuggest[m_nSuggestPos].m_svName.substr(0, m_vsvSuggest[m_nSuggestPos].m_svName.find(' ')) + " ";
+            string svConVar = m_vSuggest[m_nSuggestPos].m_svName.substr(0, m_vSuggest[m_nSuggestPos].m_svName.find(' ')) + ' ';
             memmove(m_szInputBuf, svConVar.c_str(), svConVar.size() + 1);
 
             ResetAutoComplete();
+            BuildSummary(svConVar);
         }
         else
         {
@@ -275,6 +263,7 @@ void CConsole::BasePanel(void)
             }
 
             ResetAutoComplete();
+            BuildSummary();
         }
     }
 
@@ -288,15 +277,15 @@ void CConsole::BasePanel(void)
         m_bReclaimFocus = false;
     }
 
-    int nPad = 0;
-    if (static_cast<int>(m_vsvSuggest.size()) > 1)
+    float nPad = 0.f;
+    if (m_vSuggest.size() > 1)
     {
         // Pad with 18 to keep all items in view.
-        nPad = 18;
+        nPad = ImGui::GetItemRectSize().y - 3;
     }
     m_ivSuggestWindowPos = ImGui::GetItemRectMin();
     m_ivSuggestWindowPos.y += ImGui::GetItemRectSize().y;
-    m_ivSuggestWindowSize = ImVec2(600, nPad + std::clamp(static_cast<float>(m_vsvSuggest.size()) * 13.0f, 37.0f, 127.5f));
+    m_ivSuggestWindowSize = ImVec2(600, nPad + std::clamp(static_cast<float>(m_vSuggest.size()) * fontSize.y, 37.0f, 127.5f));
 
     ImGui::SameLine();
     if (ImGui::Button("Submit"))
@@ -307,6 +296,7 @@ void CConsole::BasePanel(void)
             memset(m_szInputBuf, '\0', 1);
         }
         ResetAutoComplete();
+        BuildSummary();
     }
     ImGui::End();
 }
@@ -316,7 +306,7 @@ void CConsole::BasePanel(void)
 //-----------------------------------------------------------------------------
 void CConsole::OptionsPanel(void)
 {
-    ImGui::Checkbox("Auto-Scroll", &m_bAutoScroll);
+    ImGui::Checkbox("Auto-Scroll", &m_Logger.m_bAutoScroll);
 
     ImGui::SameLine();
     ImGui::PushItemWidth(100);
@@ -334,7 +324,7 @@ void CConsole::OptionsPanel(void)
     ImGui::Text("Console Hotkey:");
     ImGui::SameLine();
 
-    if (ImGui::Hotkey("##OpenIConsoleBind0", &g_pImGuiConfig->IConsole_Config.m_nBind0, ImVec2(80, 80)))
+    if (ImGui::Hotkey("##ToggleConsole", &g_pImGuiConfig->IConsole_Config.m_nBind0, ImVec2(80, 80)))
     {
         g_pImGuiConfig->Save();
     }
@@ -342,7 +332,7 @@ void CConsole::OptionsPanel(void)
     ImGui::Text("Browser Hotkey:");
     ImGui::SameLine();
 
-    if (ImGui::Hotkey("##OpenIBrowserBind0", &g_pImGuiConfig->IBrowser_Config.m_nBind0, ImVec2(80, 80)))
+    if (ImGui::Hotkey("##ToggleBrowser", &g_pImGuiConfig->IBrowser_Config.m_nBind0, ImVec2(80, 80)))
     {
         g_pImGuiConfig->Save();
     }
@@ -358,27 +348,28 @@ void CConsole::SuggestPanel(void)
     ImGui::Begin("##suggest", nullptr, m_nSuggestFlags);
     ImGui::PushAllowKeyboardFocus(false);
 
-    for (size_t i = 0; i < m_vsvSuggest.size(); i++)
+    for (size_t i = 0; i < m_vSuggest.size(); i++)
     {
         bool bIsIndexActive = m_nSuggestPos == i;
         ImGui::PushID(i);
 
         if (con_suggestion_showflags->GetBool())
         {
-            int k = ColorCodeFlags(m_vsvSuggest[i].m_nFlags);
+            int k = ColorCodeFlags(m_vSuggest[i].m_nFlags);
             ImGui::Image(m_vFlagIcons[k].m_idIcon, ImVec2(m_vFlagIcons[k].m_nWidth, m_vFlagIcons[k].m_nHeight));
             ImGui::SameLine();
         }
 
-        if (ImGui::Selectable(m_vsvSuggest[i].m_svName.c_str(), bIsIndexActive))
+        if (ImGui::Selectable(m_vSuggest[i].m_svName.c_str(), bIsIndexActive))
         {
             ImGui::Separator();
 
             // Remove the default value from ConVar before assigning it to the input buffer.
-            string svConVar = m_vsvSuggest[i].m_svName.substr(0, m_vsvSuggest[i].m_svName.find(' ')) + " ";
+            string svConVar = m_vSuggest[i].m_svName.substr(0, m_vSuggest[i].m_svName.find(' ')) + ' ';
             memmove(m_szInputBuf, svConVar.c_str(), svConVar.size() + 1);
 
             ResetAutoComplete();
+            BuildSummary(svConVar);
         }
         ImGui::PopID();
 
@@ -399,12 +390,6 @@ void CConsole::SuggestPanel(void)
             ImGui::ScrollToRect(pWindow, imRect);
             m_bSuggestMoved = false;
         }
-
-        if (m_bSuggestUpdate)
-        {
-            ImGui::SetScrollHereY(0.f);
-            m_bSuggestUpdate = false;
-        }
     }
 
     ImGui::PopAllowKeyboardFocus();
@@ -412,21 +397,20 @@ void CConsole::SuggestPanel(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: checks if the console can autocomplete based on input
-// Output : true to perform autocomplete, false otherwise
+// Purpose: runs the autocomplete for the console
+// Output : true if autocomplete is performed, false otherwise
 //-----------------------------------------------------------------------------
-bool CConsole::CanAutoComplete(void)
+bool CConsole::AutoComplete(void)
 {
     // Show ConVar/ConCommand suggestions when at least 2 characters have been entered.
     if (strlen(m_szInputBuf) > 1)
     {
-        static char szCurInputBuf[512]{};
-        if (strcmp(m_szInputBuf, szCurInputBuf) != 0) // Update suggestions if input buffer changed.
+        if (m_bCanAutoComplete)
         {
-            memmove(szCurInputBuf, m_szInputBuf, strlen(m_szInputBuf) + 1);
+            m_bCanAutoComplete = false;
             FindFromPartial();
         }
-        if (static_cast<int>(m_vsvSuggest.size()) <= 0)
+        if (m_vSuggest.empty())
         {
             m_nSuggestPos = -1;
             return false;
@@ -453,9 +437,21 @@ bool CConsole::CanAutoComplete(void)
 //-----------------------------------------------------------------------------
 void CConsole::ResetAutoComplete(void)
 {
+    m_bCanAutoComplete = false;
     m_bSuggestActive = false;
     m_nSuggestPos = -1;
     m_bReclaimFocus = true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: clears the autocomplete window
+//-----------------------------------------------------------------------------
+void CConsole::ClearAutoComplete(void)
+{
+    m_bCanAutoComplete = false;
+    m_nSuggestPos = -1;
+    m_bSuggestUpdate = true;
+    m_vSuggest.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -463,24 +459,20 @@ void CConsole::ResetAutoComplete(void)
 //-----------------------------------------------------------------------------
 void CConsole::FindFromPartial(void)
 {
-    m_nSuggestPos = -1;
-    m_bSuggestUpdate = true;
-    m_vsvSuggest.clear();
+    ClearAutoComplete();
 
     for (size_t i = 0; i < m_vsvCommandBases.size(); i++)
     {
-        if (m_vsvSuggest.size() < con_suggestion_limit->GetInt())
+        if (m_vSuggest.size() < con_suggestion_limit->GetSizeT())
         {
             if (m_vsvCommandBases[i].m_svName.find(m_szInputBuf) != string::npos)
             {
-                if (std::find(m_vsvSuggest.begin(), m_vsvSuggest.end(), 
-                    m_vsvCommandBases[i].m_svName) == m_vsvSuggest.end())
+                if (std::find(m_vSuggest.begin(), m_vSuggest.end(), 
+                    m_vsvCommandBases[i].m_svName) == m_vSuggest.end())
                 {
-                    int nFlags{};
-                    string svValue;
-                    ConCommandBase* pCommandBase = g_pCVar->FindCommandBase(m_vsvCommandBases[i].m_svName.c_str());
+                    string svValue; int nFlags = 0;
 
-                    if (pCommandBase)
+                    if (ConCommandBase* pCommandBase = g_pCVar->FindCommandBase(m_vsvCommandBases[i].m_svName.c_str()))
                     {
                         if (!pCommandBase->IsCommand())
                         {
@@ -521,13 +513,13 @@ void CConsole::FindFromPartial(void)
                             }
                         }
                     }
-                    m_vsvSuggest.push_back(CSuggest(m_vsvCommandBases[i].m_svName + svValue, nFlags));
+                    m_vSuggest.push_back(CSuggest(m_vsvCommandBases[i].m_svName + svValue, nFlags));
                 }
             }
         }
         else { break; }
     }
-    std::sort(m_vsvSuggest.begin(), m_vsvSuggest.end());
+    std::sort(m_vSuggest.begin(), m_vSuggest.end());
 }
 
 //-----------------------------------------------------------------------------
@@ -536,7 +528,7 @@ void CConsole::FindFromPartial(void)
 //-----------------------------------------------------------------------------
 void CConsole::ProcessCommand(const char* pszCommand)
 {
-    AddLog(ImVec4(1.00f, 0.80f, 0.60f, 1.00f), "# %s\n", PrintPercentageEscape(pszCommand).c_str());
+    DevMsg(eDLL_T::COMMON, "] %s\n", pszCommand);
 
     std::thread t(CEngineClient_CommandExecute, this, pszCommand);
     t.detach(); // Detach from render thread.
@@ -545,52 +537,110 @@ void CConsole::ProcessCommand(const char* pszCommand)
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
     m_nHistoryPos = -1;
-    for (int i = static_cast<int>(m_vsvHistory.size()) - 1; i >= 0; i--)
+    for (ssize_t i = static_cast<ssize_t>(m_vHistory.size()) - 1; i >= 0; i--)
     {
-        if (Stricmp(m_vsvHistory[i].c_str(), pszCommand) == 0)
+        if (m_vHistory[i].compare(pszCommand) == 0)
         {
-            m_vsvHistory.erase(m_vsvHistory.begin() + i);
+            m_vHistory.erase(m_vHistory.begin() + i);
             break;
         }
     }
 
-    m_vsvHistory.push_back(Strdup(pszCommand));
+    m_vHistory.push_back(Strdup(pszCommand));
     if (Stricmp(pszCommand, "CLEAR") == 0)
     {
         ClearLog();
     }
     else if (Stricmp(pszCommand, "HELP") == 0)
     {
-        AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "Commands:");
-        for (int i = 0; i < static_cast<int>(m_vsvCommands.size()); i++)
+        AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "Commands:\n");
+        for (size_t i = 0; i < m_vCommands.size(); i++)
         {
-            AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "- %s", m_vsvCommands[i].c_str());
+            AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "- %s\n", m_vCommands[i].c_str());
         }
 
-        AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "Log types:");
-        AddLog(ImVec4(0.59f, 0.58f, 0.73f, 1.00f), "Script(S): = Server DLL (Script)");
-        AddLog(ImVec4(0.59f, 0.58f, 0.63f, 1.00f), "Script(C): = Client DLL (Script)");
-        AddLog(ImVec4(0.59f, 0.48f, 0.53f, 1.00f), "Script(U): = UI DLL (Script)");
+        AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "Contexts:\n");
+        AddLog(ImVec4(0.59f, 0.58f, 0.73f, 1.00f), "- Script(S): = Server DLL (Script)\n");
+        AddLog(ImVec4(0.59f, 0.58f, 0.63f, 1.00f), "- Script(C): = Client DLL (Script)\n");
+        AddLog(ImVec4(0.59f, 0.48f, 0.53f, 1.00f), "- Script(U): = UI DLL (Script)\n");
 
-        AddLog(ImVec4(0.23f, 0.47f, 0.85f, 1.00f), "Native(S): = Server DLL (Code)");
-        AddLog(ImVec4(0.46f, 0.46f, 0.46f, 1.00f), "Native(C): = Client DLL (Code)");
-        AddLog(ImVec4(0.59f, 0.35f, 0.46f, 1.00f), "Native(U): = UI DLL (Code)");
+        AddLog(ImVec4(0.23f, 0.47f, 0.85f, 1.00f), "- Native(S): = Server DLL (Code)\n");
+        AddLog(ImVec4(0.46f, 0.46f, 0.46f, 1.00f), "- Native(C): = Client DLL (Code)\n");
+        AddLog(ImVec4(0.59f, 0.35f, 0.46f, 1.00f), "- Native(U): = UI DLL (Code)\n");
 
-        AddLog(ImVec4(0.70f, 0.70f, 0.70f, 1.00f), "Native(E): = Engine DLL (Code)");
-        AddLog(ImVec4(0.32f, 0.64f, 0.72f, 1.00f), "Native(F): = FileSys DLL (Code)");
-        AddLog(ImVec4(0.36f, 0.70f, 0.35f, 1.00f), "Native(R): = RTech DLL (Code)");
-        AddLog(ImVec4(0.75f, 0.41f, 0.67f, 1.00f), "Native(M): = MatSys DLL (Code)");
+        AddLog(ImVec4(0.70f, 0.70f, 0.70f, 1.00f), "- Native(E): = Engine DLL (Code)\n");
+        AddLog(ImVec4(0.32f, 0.64f, 0.72f, 1.00f), "- Native(F): = FileSystem (Code)\n");
+        AddLog(ImVec4(0.36f, 0.70f, 0.35f, 1.00f), "- Native(R): = PakLoadAPI (Code)\n");
+        AddLog(ImVec4(0.75f, 0.41f, 0.67f, 1.00f), "- Native(M): = MaterialSystem (Code)\n");
     }
     else if (Stricmp(pszCommand, "HISTORY") == 0)
     {
-        int nFirst = static_cast<int>(m_vsvHistory.size()) - 10;
-        for (int i = nFirst > 0 ? nFirst : 0; i < static_cast<int>(m_vsvHistory.size()); i++)
+        ssize_t nFirst = static_cast<ssize_t>(m_vHistory.size()) - 10;
+        for (ssize_t i = nFirst > 0 ? nFirst : 0; i < static_cast<ssize_t>(m_vHistory.size()); i++)
         {
-            AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "%3d: %s\n", i, m_vsvHistory[i].c_str());
+            AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "%3d: %s\n", i, m_vHistory[i].c_str());
         }
     }
 
-    m_bScrollToBottom = true;
+    m_Logger.m_bScrollToBottom = true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: builds the console summary
+// Input  : svConVar - 
+//-----------------------------------------------------------------------------
+void CConsole::BuildSummary(string svConVar)
+{
+    if (!svConVar.empty())
+    {
+        for (size_t i = 0; i < svConVar.size(); i++)
+        {
+            if (svConVar[i] == ' ' || svConVar[i] == ';')
+            {
+                svConVar[i] = '\0'; // Remove space or semicolon before we call 'g_pCVar->FindVar(..)'.
+            }
+        }
+
+        ConVar* pConVar = g_pCVar->FindVar(svConVar.c_str());
+        if (pConVar)
+        {
+            // Display the current and default value of ConVar if found.
+            snprintf(m_szSummary, sizeof(m_szSummary), "(\"%s\", default \"%s\")", pConVar->GetString(), pConVar->GetDefault());
+        }
+        else
+        {
+            // Display amount of history items if ConVar cannot be found.
+            snprintf(m_szSummary, sizeof(m_szSummary), "%zu history items", m_vHistory.size());
+        }
+    }
+    else // Default or empty param.
+    {
+        snprintf(m_szSummary, sizeof(m_szSummary), "%zu history items", m_vHistory.size());
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: loads flag images from resource section (must be aligned with resource.h!)
+// Output : true on success, false on failure 
+//-----------------------------------------------------------------------------
+bool CConsole::LoadFlagIcons(void)
+{
+    int k = 0; // Get all image resources for displaying flags.
+    for (int i = IDB_PNG3; i <= IDB_PNG18; i++)
+    {
+        m_vFlagIcons.push_back(MODULERESOURCE());
+        m_vFlagIcons[k] = GetModuleResource(i);
+
+        bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_vFlagIcons[k].m_pData), static_cast<int>(m_vFlagIcons[k].m_nSize),
+            &m_vFlagIcons[k].m_idIcon, &m_vFlagIcons[k].m_nWidth, &m_vFlagIcons[k].m_nHeight);
+        if (!ret)
+        {
+            IM_ASSERT(ret);
+            return false;
+        }
+        k++;
+    }
+    return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -672,7 +722,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
             }
             else if (iData->EventKey == ImGuiKey_DownArrow)
             {
-                if (m_nSuggestPos < static_cast<int>(m_vsvSuggest.size()) - 1)
+                if (m_nSuggestPos < static_cast<ssize_t>(m_vSuggest.size()) - 1)
                 {
                     m_nSuggestPos++;
                     m_bSuggestMoved = true;
@@ -686,7 +736,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
             {
                 if (m_nHistoryPos == -1)
                 {
-                    m_nHistoryPos = static_cast<int>(m_vsvHistory.size()) - 1;
+                    m_nHistoryPos = static_cast<ssize_t>(m_vHistory.size()) - 1;
                 }
                 else if (m_nHistoryPos > 0)
                 {
@@ -697,7 +747,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
             {
                 if (m_nHistoryPos != -1)
                 {
-                    if (++m_nHistoryPos >= static_cast<int>(m_vsvHistory.size()))
+                    if (++m_nHistoryPos >= static_cast<ssize_t>(m_vHistory.size()))
                     {
                         m_nHistoryPos = -1;
                     }
@@ -705,11 +755,11 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
             }
             if (nPrevHistoryPos != m_nHistoryPos)
             {
-                string svHistory = (m_nHistoryPos >= 0) ? m_vsvHistory[m_nHistoryPos] : "";
+                string svHistory = (m_nHistoryPos >= 0) ? m_vHistory[m_nHistoryPos] : "";
 
                 if (!svHistory.empty())
                 {
-                    if (!strstr(m_vsvHistory[m_nHistoryPos].c_str(), " "))
+                    if (m_vHistory[m_nHistoryPos].find(' ') == string::npos)
                     {
                         // Append whitespace to previous entered command if absent or no parameters where passed.
                         svHistory.append(" ");
@@ -720,39 +770,28 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
                 iData->InsertChars(0, svHistory.c_str());
             }
         }
+        BuildSummary(iData->Buf);
         break;
     }
-    case ImGuiInputTextFlags_CallbackAlways:
+    case ImGuiInputTextFlags_CallbackEdit:
     {
-        static char szCurInputBuf[512]{};
-        if (strcmp(m_szInputBuf, szCurInputBuf) != 0) // Only run if changed.
+        for (size_t i = 0, n = strlen(iData->Buf);  i < n; i++)
         {
-            char szValue[512]{};
-            memmove(szCurInputBuf, m_szInputBuf, strlen(m_szInputBuf) + 1);
-            sprintf_s(szValue, sizeof(szValue), "%s", m_szInputBuf);
-
-            // Remove space or semicolon before we call 'g_pCVar->FindVar(..)'.
-            for (size_t i = 0; i < strlen(szValue); i++)
+            if (iData->Buf[i] != '~' 
+                && iData->Buf[i] != '`' 
+                && iData->Buf[i] != ' ')
             {
-                if (szValue[i] == ' ' || szValue[i] == ';')
-                {
-                    szValue[i] = '\0';
-                }
+                break;
             }
-
-            ConVar* pConVar = g_pCVar->FindVar(szValue);
-            if (pConVar)
+            else if (i == (n - 1))
             {
-                // Display the current and default value of ConVar if found.
-                snprintf(m_szSummary, 256, "(\"%s\", default \"%s\")", pConVar->GetString(), pConVar->GetDefault());
+                iData->DeleteChars(0, n);
             }
-            else
-            {
-                // Display amount of history items if ConVar cannot be found.
-                snprintf(m_szSummary, 256, "%llu history items", m_vsvHistory.size());
-            }
-            break;
         }
+
+        m_bCanAutoComplete = true;
+        BuildSummary(iData->Buf);
+        break;
     }
     }
     return NULL;
@@ -771,10 +810,19 @@ int CConsole::TextEditCallbackStub(ImGuiInputTextCallbackData* iData)
 
 //-----------------------------------------------------------------------------
 // Purpose: adds logs to the vector
+// Input  : &conLog - 
+//-----------------------------------------------------------------------------
+void CConsole::AddLog(const ConLog_t& conLog)
+{
+    m_Logger.InsertText(conLog);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: adds logs to the vector
 // Input  : *fmt - 
 //          ... - 
 //-----------------------------------------------------------------------------
-void CConsole::AddLog(ImVec4 color, const char* fmt, ...) IM_FMTARGS(2)
+void CConsole::AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2)
 {
     char buf[1024];
     va_list args{};
@@ -782,35 +830,16 @@ void CConsole::AddLog(ImVec4 color, const char* fmt, ...) IM_FMTARGS(2)
     vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
     buf[IM_ARRAYSIZE(buf) - 1] = 0;
     va_end(args);
-    m_ivConLog.push_back(CConLog(Strdup(buf), color));
+
+    m_Logger.InsertText(ConLog_t(Strdup(buf), color));
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: clears the entire vector
+// Purpose: clears the entire log vector
 //-----------------------------------------------------------------------------
 void CConsole::ClearLog(void)
 {
-    //for (int i = 0; i < m_ivConLog.size(); i++) { free(m_ivConLog[i]); }
-    m_ivConLog.clear();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: colors important logs
-//-----------------------------------------------------------------------------
-void CConsole::ColorLog(void) const
-{
-    for (size_t i = 0; i < m_ivConLog.size(); i++)
-    {
-        if (!m_itFilter.PassFilter(m_ivConLog[i].m_svConLog.c_str()))
-        {
-            continue;
-        }
-
-        ImGui::PushStyleColor(ImGuiCol_Text, m_ivConLog[i].m_imColor);
-        ImGui::TextWrapped(m_ivConLog[i].m_svConLog.c_str());
-        ImGui::PopStyleColor();
-        ///////////////////////////////////////////////////////////////////////
-    }
+    m_Logger.RemoveLine(0, (m_Logger.GetTotalLines() - 1));
 }
 
 //-----------------------------------------------------------------------------
@@ -818,115 +847,14 @@ void CConsole::ColorLog(void) const
 //-----------------------------------------------------------------------------
 void CConsole::SetStyleVar(void)
 {
-    ImGuiStyle& style                     = ImGui::GetStyle();
-    ImVec4* colors                        = style.Colors;
+    int nStyle = g_pImGuiConfig->InitStyle();
 
-    if (!CommandLine()->CheckParm("-imgui_default_theme"))
-    {
-        colors[ImGuiCol_Text]                 = ImVec4(0.81f, 0.81f, 0.81f, 1.00f);
-        colors[ImGuiCol_TextDisabled]         = ImVec4(0.56f, 0.56f, 0.56f, 1.00f);
-        colors[ImGuiCol_WindowBg]             = ImVec4(0.27f, 0.27f, 0.27f, 1.00f);
-        colors[ImGuiCol_ChildBg]              = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-        colors[ImGuiCol_PopupBg]              = ImVec4(0.27f, 0.27f, 0.27f, 1.00f);
-        colors[ImGuiCol_Border]               = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
-        colors[ImGuiCol_BorderShadow]         = ImVec4(0.04f, 0.04f, 0.04f, 0.64f);
-        colors[ImGuiCol_FrameBg]              = ImVec4(0.13f, 0.13f, 0.13f, 1.00f);
-        colors[ImGuiCol_FrameBgHovered]       = ImVec4(0.19f, 0.19f, 0.19f, 1.00f);
-        colors[ImGuiCol_FrameBgActive]        = ImVec4(0.24f, 0.24f, 0.24f, 1.00f);
-        colors[ImGuiCol_TitleBg]              = ImVec4(0.22f, 0.22f, 0.22f, 1.00f);
-        colors[ImGuiCol_TitleBgActive]        = ImVec4(0.27f, 0.27f, 0.27f, 1.00f);
-        colors[ImGuiCol_TitleBgCollapsed]     = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-        colors[ImGuiCol_MenuBarBg]            = ImVec4(0.22f, 0.22f, 0.22f, 1.00f);
-        colors[ImGuiCol_ScrollbarBg]          = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
-        colors[ImGuiCol_ScrollbarGrab]        = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
-        colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.53f, 0.53f, 0.53f, 1.00f);
-        colors[ImGuiCol_ScrollbarGrabActive]  = ImVec4(0.63f, 0.63f, 0.63f, 1.00f);
-        colors[ImGuiCol_CheckMark]            = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
-        colors[ImGuiCol_SliderGrab]           = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
-        colors[ImGuiCol_SliderGrabActive]     = ImVec4(0.53f, 0.53f, 0.53f, 1.00f);
-        colors[ImGuiCol_Button]               = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
-        colors[ImGuiCol_ButtonHovered]        = ImVec4(0.45f, 0.45f, 0.45f, 1.00f);
-        colors[ImGuiCol_ButtonActive]         = ImVec4(0.52f, 0.52f, 0.52f, 1.00f);
-        colors[ImGuiCol_Header]               = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
-        colors[ImGuiCol_HeaderHovered]        = ImVec4(0.45f, 0.45f, 0.45f, 1.00f);
-        colors[ImGuiCol_HeaderActive]         = ImVec4(0.53f, 0.53f, 0.53f, 1.00f);
-        colors[ImGuiCol_Separator]            = ImVec4(0.53f, 0.53f, 0.57f, 1.00f);
-        colors[ImGuiCol_SeparatorHovered]     = ImVec4(0.53f, 0.53f, 0.53f, 1.00f);
-        colors[ImGuiCol_SeparatorActive]      = ImVec4(0.63f, 0.63f, 0.63f, 1.00f);
-        colors[ImGuiCol_ResizeGrip]           = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
-        colors[ImGuiCol_ResizeGripHovered]    = ImVec4(0.52f, 0.52f, 0.52f, 1.00f);
-        colors[ImGuiCol_ResizeGripActive]     = ImVec4(0.63f, 0.63f, 0.63f, 1.00f);
-        colors[ImGuiCol_Tab]                  = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
-        colors[ImGuiCol_TabHovered]           = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
-        colors[ImGuiCol_TabActive]            = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
+    m_bModernTheme  = nStyle == 0;
+    m_bLegacyTheme  = nStyle == 1;
+    m_bDefaultTheme = nStyle == 2;
 
-        style.WindowBorderSize  = 0.0f;
-        style.FrameBorderSize   = 1.0f;
-        style.ChildBorderSize   = 1.0f;
-        style.PopupBorderSize   = 1.0f;
-        style.TabBorderSize     = 1.0f;
-
-        style.WindowRounding    = 4.0f;
-        style.FrameRounding     = 1.0f;
-        style.ChildRounding     = 1.0f;
-        style.PopupRounding     = 3.0f;
-        style.TabRounding       = 1.0f;
-        style.ScrollbarRounding = 1.0f;
-    }
-    else
-    {
-        colors[ImGuiCol_WindowBg]               = ImVec4(0.11f, 0.13f, 0.17f, 1.00f);
-        colors[ImGuiCol_ChildBg]                = ImVec4(0.02f, 0.04f, 0.06f, 1.00f);
-        colors[ImGuiCol_PopupBg]                = ImVec4(0.11f, 0.13f, 0.17f, 1.00f);
-        colors[ImGuiCol_Border]                 = ImVec4(0.41f, 0.41f, 0.41f, 0.50f);
-        colors[ImGuiCol_BorderShadow]           = ImVec4(0.04f, 0.04f, 0.04f, 0.00f);
-        colors[ImGuiCol_FrameBg]                = ImVec4(0.02f, 0.04f, 0.06f, 1.00f);
-        colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.04f, 0.06f, 0.10f, 1.00f);
-        colors[ImGuiCol_FrameBgActive]          = ImVec4(0.04f, 0.07f, 0.12f, 1.00f);
-        colors[ImGuiCol_TitleBg]                = ImVec4(0.26f, 0.51f, 0.78f, 1.00f);
-        colors[ImGuiCol_TitleBgActive]          = ImVec4(0.26f, 0.51f, 0.78f, 1.00f);
-        colors[ImGuiCol_MenuBarBg]              = ImVec4(0.11f, 0.13f, 0.17f, 1.00f);
-        colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.14f, 0.19f, 0.24f, 1.00f);
-        colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.23f, 0.36f, 0.51f, 1.00f);
-        colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.30f, 0.46f, 0.65f, 1.00f);
-        colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.31f, 0.49f, 0.69f, 1.00f);
-        colors[ImGuiCol_SliderGrab]             = ImVec4(0.31f, 0.43f, 0.43f, 1.00f);
-        colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.41f, 0.56f, 0.57f, 1.00f);
-        colors[ImGuiCol_Button]                 = ImVec4(0.31f, 0.43f, 0.43f, 1.00f);
-        colors[ImGuiCol_ButtonHovered]          = ImVec4(0.38f, 0.52f, 0.53f, 1.00f);
-        colors[ImGuiCol_ButtonActive]           = ImVec4(0.41f, 0.56f, 0.57f, 1.00f);
-        colors[ImGuiCol_Header]                 = ImVec4(0.31f, 0.43f, 0.43f, 1.00f);
-        colors[ImGuiCol_HeaderHovered]          = ImVec4(0.38f, 0.53f, 0.53f, 1.00f);
-        colors[ImGuiCol_HeaderActive]           = ImVec4(0.41f, 0.56f, 0.57f, 1.00f);
-        colors[ImGuiCol_Separator]              = ImVec4(0.53f, 0.53f, 0.57f, 0.00f);
-        colors[ImGuiCol_ResizeGrip]             = ImVec4(0.41f, 0.41f, 0.41f, 0.50f);
-        colors[ImGuiCol_Tab]                    = ImVec4(0.31f, 0.43f, 0.43f, 1.00f);
-        colors[ImGuiCol_TabHovered]             = ImVec4(0.38f, 0.53f, 0.53f, 1.00f);
-        colors[ImGuiCol_TabActive]              = ImVec4(0.41f, 0.56f, 0.57f, 1.00f);
-        colors[ImGuiCol_TableHeaderBg]          = ImVec4(0.14f, 0.19f, 0.24f, 1.00f);
-        colors[ImGuiCol_TableBorderStrong]      = ImVec4(0.20f, 0.26f, 0.33f, 1.00f);
-        colors[ImGuiCol_TableBorderLight]       = ImVec4(0.22f, 0.29f, 0.37f, 1.00f);
-
-        style.WindowBorderSize  = 1.0f;
-        style.FrameBorderSize   = 0.0f;
-        style.ChildBorderSize   = 0.0f;
-        style.PopupBorderSize   = 1.0f;
-        style.TabBorderSize     = 1.0f;
-
-        style.WindowRounding    = 4.0f;
-        style.FrameRounding     = 1.0f;
-        style.ChildRounding     = 1.0f;
-        style.PopupRounding     = 3.0f;
-        style.TabRounding       = 1.0f;
-        style.ScrollbarRounding = 3.0f;
-
-        m_bDefaultTheme = true;
-    }
-
-    style.ItemSpacing       = ImVec2(4, 4);
-    style.FramePadding      = ImVec2(4, 4);
-    style.WindowPadding     = ImVec2(5, 5);
-    style.WindowMinSize = ImVec2(618, 518);
+    ImGui::SetNextWindowSize(ImVec2(1200, 524), ImGuiCond_FirstUseEver);
+    ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
 }
 
 CConsole* g_pConsole = new CConsole();

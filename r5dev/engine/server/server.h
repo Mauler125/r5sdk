@@ -1,6 +1,6 @@
 #pragma once
 #include "tier1/NetAdr2.h"
-#include "networksystem/r5net.h"
+#include "networksystem/pylon.h"
 #include "engine/client/client.h"
 #include "engine/networkstringtable.h"
 #include "public/include/iserver.h"
@@ -78,6 +78,7 @@ static_assert(sizeof(CServer) == 0x4A440);
 #else
 static_assert(sizeof(CServer) == 0x4A4C0);
 #endif
+
 extern CServer* g_pServer;
 
 /* ==== CSERVER ========================================================================================================================================================= */

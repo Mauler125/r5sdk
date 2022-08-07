@@ -5,7 +5,6 @@
 BOOL IsBadReadPtrV2(void* ptr);
 BOOL FileExists(const fs::path& svFilePath);
 MODULEINFO GetModuleInfo(const char* szModule);
-DWORD64 FindPatternSIMD(const char* szModule, const unsigned char* szPattern, const char* szMask);
 
 /////////////////////////////////////////////////////////////////////////////
 // Debug
@@ -32,6 +31,7 @@ string Base64Decode(const string& svInput);
 
 string UTF8Encode(const wstring& wsvInput);
 string UTF8Decode(const string& svInput);
+size_t UTF8CharLength(const uint8_t cInput);
 
 bool StringIsDigit(const string& svInput);
 bool CompareStringAlphabetically(const string& svA, const string& svB);
@@ -41,9 +41,14 @@ bool StringReplace(string& svInput, const string& svFrom, const string& svTo);
 string StringReplaceC(const string& svInput, const string& svFrom, const string& svTo);
 string StringEscape(const string& svInput);
 string StringUnescape(const string& svInput);
+vector<string> StringSplit(string svInput, char cDelim, size_t nMax = SIZE_MAX);
 
+/////////////////////////////////////////////////////////////////////////////
+// Bytes
 vector<int> StringToBytes(const string& svInput, bool bNullTerminator);
+pair<vector<uint8_t>, string> StringToMaskedBytes(const string& svInput, bool bNullTerminator);
 vector<int> PatternToBytes(const string& svInput);
+pair<vector<uint8_t>, string> PatternToMaskedBytes(const string& svInput);
 vector<int> IntToDigits(int iValue);
 
 /////////////////////////////////////////////////////////////////////////////

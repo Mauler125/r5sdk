@@ -8,8 +8,10 @@
 #ifndef DBG_H
 #define DBG_H
 #define Assert assert
+#define AssertDbg assert
 #include "tier0/dbgflag.h"
 
+bool HushAsserts();
 //-----------------------------------------------------------------------------
 enum class eDLL_T : int
 {
@@ -21,7 +23,7 @@ enum class eDLL_T : int
 	RTECH  = 5, // RTech API
 	MS     = 6, // Material System
 	NETCON = 7, // Net Console
-	NONE   = 8
+	COMMON   = 8
 };
 
 const string sDLL_T[9] = 
@@ -47,7 +49,7 @@ const static string sANSI_DLL_T[9] =
 	"\033[38;2;092;181;089mNative(R):",
 	"\033[38;2;192;105;173mNative(M):",
 	"\033[38;2;204;204;204mNetcon(X):",
-	""
+	"\033[38;2;255;204;153m"
 };
 extern std::mutex s_LogMutex;
 
@@ -56,6 +58,7 @@ extern std::mutex s_LogMutex;
 //////////////////////////////////////////////////////////////////////////
 
 // These functions do not return.
+PLATFORM_INTERFACE void NetMsg(int context, const char* fmt, ...) FMTFUNCTION(2, 3);
 PLATFORM_INTERFACE void DevMsg(eDLL_T context, const char* fmt, ...) FMTFUNCTION(2, 3);
 PLATFORM_INTERFACE void Warning(eDLL_T context, const char* fmt, ...) FMTFUNCTION(1, 2);
 PLATFORM_INTERFACE void Error(eDLL_T context, const char* fmt, ...) FMTFUNCTION(1, 2);

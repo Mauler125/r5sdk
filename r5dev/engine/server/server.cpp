@@ -13,7 +13,7 @@
 #include "tier1/cvar.h"
 #include "engine/server/sv_main.h"
 #include "engine/server/server.h"
-#include "networksystem/r5net.h"
+#include "networksystem/pylon.h"
 #include "public/include/edict.h"
 #include "public/include/bansystem.h"
 
@@ -87,6 +87,7 @@ CClient* CServer::Authenticate(CServer* pServer, user_creds_s* pInpacket)
 			{
 				Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%llu' is banned from this server!)\n", svIpAddress.c_str(), pInpacket->m_nNucleusID);
 			}
+
 			return nullptr;
 		}
 	}
@@ -97,9 +98,9 @@ CClient* CServer::Authenticate(CServer* pServer, user_creds_s* pInpacket)
 
 	if (g_bCheckCompBanDB)
 	{
-		if (g_pR5net)
+		if (g_pMasterServer)
 		{
-			std::thread th(SV_IsClientBanned, g_pR5net, svIpAddress, pInpacket->m_nNucleusID);
+			std::thread th(SV_IsClientBanned, g_pMasterServer, svIpAddress, pInpacket->m_nNucleusID);
 			th.detach();
 		}
 	}
@@ -119,5 +120,5 @@ void CServer_Detach()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-bool g_bCheckCompBanDB = true;
+bool g_bCheckCompBanDB = true; // Maybe make this a static method in CServer? It won't be added to the struct offsets then.
 CServer* g_pServer = nullptr;

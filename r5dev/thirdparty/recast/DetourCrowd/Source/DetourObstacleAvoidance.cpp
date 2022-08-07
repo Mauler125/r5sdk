@@ -293,13 +293,13 @@ void dtObstacleAvoidanceQuery::prepare(const float* pos, const float* dvel)
 		const float a = dtTriArea2D(orig, cir->dp,dv);
 		if (a < 0.01f)
 		{
-			cir->np[0] = -cir->dp[2];
-			cir->np[2] = cir->dp[0];
+			cir->np[0] = -cir->dp[1];
+			cir->np[1] = cir->dp[0];
 		}
 		else
 		{
-			cir->np[0] = cir->dp[2];
-			cir->np[2] = -cir->dp[0];
+			cir->np[0] = cir->dp[1];
+			cir->np[1] = -cir->dp[0];
 		}
 	}	
 
@@ -390,8 +390,8 @@ float dtObstacleAvoidanceQuery::processSample(const float* vcand, const float cs
 			// Special case when the agent is very close to the segment.
 			float sdir[3], snorm[3];
 			dtVsub(sdir, seg->q, seg->p);
-			snorm[0] = -sdir[2];
-			snorm[2] = sdir[0];
+			snorm[0] = -sdir[1];
+			snorm[1] = sdir[0];
 			// If the velocity is pointing towards the segment, no collision.
 			if (dtVdot2D(snorm, vcand) < 0.0f)
 				continue;
@@ -450,7 +450,7 @@ int dtObstacleAvoidanceQuery::sampleVelocityGrid(const float* pos, const float r
 		debug->reset();
 
 	const float cvx = dvel[0] * m_params.velBias;
-	const float cvz = dvel[2] * m_params.velBias;
+	const float cvy = dvel[1] * m_params.velBias;
 	const float cs = vmax * 2 * (1 - m_params.velBias) / (float)(m_params.gridSize-1);
 	const float half = (m_params.gridSize-1)*cs*0.5f;
 		
@@ -463,10 +463,10 @@ int dtObstacleAvoidanceQuery::sampleVelocityGrid(const float* pos, const float r
 		{
 			float vcand[3];
 			vcand[0] = cvx + x*cs - half;
-			vcand[1] = 0;
-			vcand[2] = cvz + y*cs - half;
+			vcand[1] = cvy + y*cs - half;
+			vcand[2] = 0;
 			
-			if (dtSqr(vcand[0])+dtSqr(vcand[2]) > dtSqr(vmax+cs/2)) continue;
+			if (dtSqr(vcand[0])+dtSqr(vcand[1]) > dtSqr(vmax+cs/2)) continue;
 			
 			const float penalty = processSample(vcand, cs, pos,rad,vel,dvel, minPenalty, debug);
 			ns++;
@@ -482,25 +482,25 @@ int dtObstacleAvoidanceQuery::sampleVelocityGrid(const float* pos, const float r
 }
 
 
-// vector normalization that ignores the y-component.
+// vector normalization that ignores the z-component.
 inline void dtNormalize2D(float* v)
 {
-	float d = dtMathSqrtf(v[0] * v[0] + v[2] * v[2]);
+	float d = dtMathSqrtf(v[0] * v[0] + v[1] * v[1]);
 	if (d==0)
 		return;
 	d = 1.0f / d;
 	v[0] *= d;
-	v[2] *= d;
+	v[1] *= d;
 }
 
-// vector normalization that ignores the y-component.
+// vector normalization that ignores the z-component.
 inline void dtRorate2D(float* dest, const float* v, float ang)
 {
 	float c = cosf(ang);
 	float s = sinf(ang);
-	dest[0] = v[0]*c - v[2]*s;
-	dest[2] = v[0]*s + v[2]*c;
-	dest[1] = v[1];
+	dest[0] = v[0]*c - v[1]*s;
+	dest[1] = v[0]*s + v[1]*c;
+	dest[2] = v[2];
 }
 
 
@@ -550,7 +550,7 @@ int dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const flo
 	{
 		const float r = (float)(nr-j)/(float)nr;
 		pat[npat*2+0] = ddir[(j%2)*3] * r;
-		pat[npat*2+1] = ddir[(j%2)*3+2] * r;
+		pat[npat*2+1] = ddir[(j%2)*3+1] * r;
 		float* last1 = pat + npat*2;
 		float* last2 = last1;
 		npat++;
@@ -594,10 +594,10 @@ int dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const flo
 		{
 			float vcand[3];
 			vcand[0] = res[0] + pat[i*2+0]*cr;
-			vcand[1] = 0;
-			vcand[2] = res[2] + pat[i*2+1]*cr;
+			vcand[1] = res[1] + pat[i*2+1]*cr;
+			vcand[2] = 0;
 			
-			if (dtSqr(vcand[0])+dtSqr(vcand[2]) > dtSqr(vmax+0.001f)) continue;
+			if (dtSqr(vcand[0])+dtSqr(vcand[1]) > dtSqr(vmax+0.001f)) continue;
 			
 			const float penalty = processSample(vcand,cr/10, pos,rad,vel,dvel, minPenalty, debug);
 			ns++;

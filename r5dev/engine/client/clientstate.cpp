@@ -39,7 +39,31 @@ float CClientState::GetClientTime()
 }
 
 //------------------------------------------------------------------------------
-// Purpose: gets the client simulation tick count
+// Purpose: gets the simulation tick count
+//------------------------------------------------------------------------------
+int CClientState::GetTick() const
+{
+    return m_ClockDriftMgr.m_nSimulationTick;
+}
+
+//------------------------------------------------------------------------------
+// Purpose: gets the last-received server tick count
+//------------------------------------------------------------------------------
+int CClientState::GetServerTickCount() const
+{
+    return m_ClockDriftMgr.m_nServerTick;
+}
+
+//------------------------------------------------------------------------------
+// Purpose: sets the server tick count
+//------------------------------------------------------------------------------
+void CClientState::SetServerTickCount(int tick)
+{
+    m_ClockDriftMgr.m_nServerTick = tick;
+}
+
+//------------------------------------------------------------------------------
+// Purpose: gets the client tick count
 //------------------------------------------------------------------------------
 int CClientState::GetClientTickCount() const
 {
@@ -47,7 +71,7 @@ int CClientState::GetClientTickCount() const
 }
 
 //------------------------------------------------------------------------------
-// Purpose: sets the client simulation tick count
+// Purpose: sets the client tick count
 //------------------------------------------------------------------------------
 void CClientState::SetClientTickCount(int tick)
 {

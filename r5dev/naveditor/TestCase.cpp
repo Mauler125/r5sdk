@@ -324,13 +324,13 @@ void TestCase::handleRender()
 		dtVsub(dir, iter->epos, iter->spos);
 		dtVnormalize(dir);
 		glColor4ub(128,25,0,192);
-		glVertex3f(iter->spos[0],iter->spos[1]-0.3f,iter->spos[2]);
-		glVertex3f(iter->spos[0],iter->spos[1]+0.3f,iter->spos[2]);
-		glVertex3f(iter->spos[0],iter->spos[1]+0.3f,iter->spos[2]);
-		glVertex3f(iter->spos[0]+dir[0]*0.3f,iter->spos[1]+0.3f+dir[1]*0.3f,iter->spos[2]+dir[2]*0.3f);
+		glVertex3f(iter->spos[0],iter->spos[1],iter->spos[2]-0.3f);
+		glVertex3f(iter->spos[0],iter->spos[1],iter->spos[2]+0.3f);
+		glVertex3f(iter->spos[0],iter->spos[1],iter->spos[2]+0.3f);
+		glVertex3f(iter->spos[0]+dir[0]*0.3f,iter->spos[1]+dir[1]*0.3f,iter->spos[2]+0.3f+dir[2]*0.3f);
 		glColor4ub(51,102,0,129);
-		glVertex3f(iter->epos[0],iter->epos[1]-0.3f,iter->epos[2]);
-		glVertex3f(iter->epos[0],iter->epos[1]+0.3f,iter->epos[2]);
+		glVertex3f(iter->epos[0],iter->epos[1],iter->epos[2]-0.3f);
+		glVertex3f(iter->epos[0],iter->epos[1],iter->epos[2]+0.3f);
 
 		if (iter->expand)
 		{
@@ -338,24 +338,24 @@ void TestCase::handleRender()
 			glColor4ub(255,32,0,128);
 			glVertex3f(iter->spos[0]-s,iter->spos[1],iter->spos[2]);
 			glVertex3f(iter->spos[0]+s,iter->spos[1],iter->spos[2]);
-			glVertex3f(iter->spos[0],iter->spos[1],iter->spos[2]-s);
-			glVertex3f(iter->spos[0],iter->spos[1],iter->spos[2]+s);
+			glVertex3f(iter->spos[0],iter->spos[1]-s,iter->spos[2]);
+			glVertex3f(iter->spos[0],iter->spos[1]+s,iter->spos[2]);
 			glColor4ub(255,192,0,255);
 			glVertex3f(iter->nspos[0]-s,iter->nspos[1],iter->nspos[2]);
 			glVertex3f(iter->nspos[0]+s,iter->nspos[1],iter->nspos[2]);
-			glVertex3f(iter->nspos[0],iter->nspos[1],iter->nspos[2]-s);
-			glVertex3f(iter->nspos[0],iter->nspos[1],iter->nspos[2]+s);
+			glVertex3f(iter->nspos[0],iter->nspos[1]-s,iter->nspos[2]);
+			glVertex3f(iter->nspos[0],iter->nspos[1]+s,iter->nspos[2]);
 			
 			glColor4ub(255,32,0,128);
 			glVertex3f(iter->epos[0]-s,iter->epos[1],iter->epos[2]);
 			glVertex3f(iter->epos[0]+s,iter->epos[1],iter->epos[2]);
-			glVertex3f(iter->epos[0],iter->epos[1],iter->epos[2]-s);
-			glVertex3f(iter->epos[0],iter->epos[1],iter->epos[2]+s);
+			glVertex3f(iter->epos[0],iter->epos[1]-s,iter->epos[2]);
+			glVertex3f(iter->epos[0],iter->epos[1]+s,iter->epos[2]);
 			glColor4ub(255,192,0,255);
 			glVertex3f(iter->nepos[0]-s,iter->nepos[1],iter->nepos[2]);
 			glVertex3f(iter->nepos[0]+s,iter->nepos[1],iter->nepos[2]);
-			glVertex3f(iter->nepos[0],iter->nepos[1],iter->nepos[2]-s);
-			glVertex3f(iter->nepos[0],iter->nepos[1],iter->nepos[2]+s);
+			glVertex3f(iter->nepos[0],iter->nepos[1]-s,iter->nepos[2]);
+			glVertex3f(iter->nepos[0],iter->nepos[1]+s,iter->nepos[2]);
 		}
 		
 		if (iter->expand)
@@ -365,8 +365,8 @@ void TestCase::handleRender()
 			
 		for (int i = 0; i < iter->nstraight-1; ++i)
 		{
-			glVertex3f(iter->straight[i*3+0],iter->straight[i*3+1]+0.3f,iter->straight[i*3+2]);
-			glVertex3f(iter->straight[(i+1)*3+0],iter->straight[(i+1)*3+1]+0.3f,iter->straight[(i+1)*3+2]);
+			glVertex3f(iter->straight[i*3+0],iter->straight[i*3+1],iter->straight[i*3+2]+0.3f);
+			glVertex3f(iter->straight[(i+1)*3+0],iter->straight[(i+1)*3+1],iter->straight[(i+1)*3+2]+0.3f);
 		}
 	}
 	glEnd();
@@ -393,14 +393,14 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 				dtVnormalize(dir);
 				dtVmad(pt, iter->spos, dir, LABEL_DIST);
 			}
-			pt[1]+=0.5f;
+			pt[2]+=0.5f;
 		}
 		else
 		{
 			dtVsub(dir, iter->epos, iter->spos);
 			dtVnormalize(dir);
 			dtVmad(pt, iter->spos, dir, LABEL_DIST);
-			pt[1]+=0.5f;
+			pt[2]+=0.5f;
 		}
 		
 		if (gluProject((GLdouble)pt[0], (GLdouble)pt[1], (GLdouble)pt[2],

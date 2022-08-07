@@ -22,7 +22,7 @@ struct __declspec(align(4)) CClockDriftMgr
 	int m_nClientTick;
 	float m_flServerTickTime;
 	int m_nServerTick;
-	int tickcount_MAYBE;
+	int m_nSimulationTick;
 };
 
 #endif // CLOCKDRIFTMGR_H

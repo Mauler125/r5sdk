@@ -486,8 +486,8 @@ dtStatus dtTileCache::queryTiles(const float* bmin, const float* bmax,
 	const float th = m_params.height * m_params.cs;
 	const int tx0 = (int)dtMathFloorf((bmin[0]-m_params.orig[0]) / tw);
 	const int tx1 = (int)dtMathFloorf((bmax[0]-m_params.orig[0]) / tw);
-	const int ty0 = (int)dtMathFloorf((bmin[2]-m_params.orig[2]) / th);
-	const int ty1 = (int)dtMathFloorf((bmax[2]-m_params.orig[2]) / th);
+	const int ty0 = (int)dtMathFloorf((bmin[1]-m_params.orig[1]) / th);
+	const int ty1 = (int)dtMathFloorf((bmax[1]-m_params.orig[1]) / th);
 	
 	for (int ty = ty0; ty <= ty1; ++ty)
 	{
@@ -780,11 +780,11 @@ void dtTileCache::calcTightTileBounds(const dtTileCacheLayerHeader* header, floa
 {
 	const float cs = m_params.cs;
 	bmin[0] = header->bmin[0] + header->minx*cs;
-	bmin[1] = header->bmin[1];
-	bmin[2] = header->bmin[2] + header->miny*cs;
+	bmin[1] = header->bmin[1] + header->miny*cs;
+	bmin[2] = header->bmin[2];
 	bmax[0] = header->bmin[0] + (header->maxx+1)*cs;
-	bmax[1] = header->bmax[1];
-	bmax[2] = header->bmin[2] + (header->maxy+1)*cs;
+	bmax[1] = header->bmax[1] + (header->maxy+1)*cs;
+	bmax[2] = header->bmin[2];
 }
 
 void dtTileCache::getObstacleBounds(const struct dtTileCacheObstacle* ob, float* bmin, float* bmax) const
@@ -794,11 +794,11 @@ void dtTileCache::getObstacleBounds(const struct dtTileCacheObstacle* ob, float*
 		const dtObstacleCylinder &cl = ob->cylinder;
 
 		bmin[0] = cl.pos[0] - cl.radius;
-		bmin[1] = cl.pos[1];
-		bmin[2] = cl.pos[2] - cl.radius;
+		bmin[1] = cl.pos[1] - cl.radius;
+		bmin[2] = cl.pos[2];
 		bmax[0] = cl.pos[0] + cl.radius;
-		bmax[1] = cl.pos[1] + cl.height;
-		bmax[2] = cl.pos[2] + cl.radius;
+		bmax[1] = cl.pos[1] + cl.radius;
+		bmax[2] = cl.pos[2] + cl.height;
 	}
 	else if (ob->type == DT_OBSTACLE_BOX)
 	{
@@ -809,12 +809,12 @@ void dtTileCache::getObstacleBounds(const struct dtTileCacheObstacle* ob, float*
 	{
 		const dtObstacleOrientedBox &orientedBox = ob->orientedBox;
 
-		float maxr = 1.41f*dtMax(orientedBox.halfExtents[0], orientedBox.halfExtents[2]);
+		float maxr = 1.41f*dtMax(orientedBox.halfExtents[0], orientedBox.halfExtents[1]);
 		bmin[0] = orientedBox.center[0] - maxr;
 		bmax[0] = orientedBox.center[0] + maxr;
-		bmin[1] = orientedBox.center[1] - orientedBox.halfExtents[1];
-		bmax[1] = orientedBox.center[1] + orientedBox.halfExtents[1];
-		bmin[2] = orientedBox.center[2] - maxr;
-		bmax[2] = orientedBox.center[2] + maxr;
+		bmin[1] = orientedBox.center[1] - maxr;
+		bmax[1] = orientedBox.center[1] + maxr;
+		bmin[2] = orientedBox.center[2] - orientedBox.halfExtents[2];
+		bmax[2] = orientedBox.center[2] + orientedBox.halfExtents[2];
 	}
 }

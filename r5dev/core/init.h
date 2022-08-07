@@ -14,4 +14,6 @@ void Systems_Shutdown();
 void WS_Init();
 void WS_Shutdown();
 void QuerySystemInfo();
-void PrintHAddress();
+
+void DetourInit();
+void DetourAddress();

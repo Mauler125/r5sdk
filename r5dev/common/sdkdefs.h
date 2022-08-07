@@ -18,5 +18,6 @@ using std::unordered_map;
 
 namespace fs = std::filesystem;
 typedef const unsigned char* rsig_t;
+typedef std::make_signed_t<std::size_t> ssize_t;
 
 #endif // SDKDEFS_H
