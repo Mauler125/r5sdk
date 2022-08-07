@@ -547,7 +547,7 @@ void CBrowser::HostPanel(void)
         {
             if (!m_Server.m_svMapName.empty())
             {
-                strncpy_s(g_pHostState->m_levelName, m_Server.m_svMapName.c_str(), 64); // Copy new map into hoststate levelname. 64 is size of m_levelname.
+                strncpy_s(g_pHostState->m_levelName, m_Server.m_svMapName.c_str(), MAX_MAP_NAME); // Copy new map into hoststate levelname.
                 g_pHostState->m_iNextState = HostStates_t::HS_CHANGE_LEVEL_MP; // Force CHostState::FrameUpdate to change the level.
             }
             else
