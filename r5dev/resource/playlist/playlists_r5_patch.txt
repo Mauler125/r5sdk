@@ -1,7 +1,7 @@
-﻿playlists
+playlists
 {
 	version stable
-	versionNum 220
+	versionNum 221
 	Gamemodes
 	{
 		defaults
@@ -796,6 +796,7 @@
 
 				// CTF Settings:
 				//// General CTF Settings:
+				global_chat_enabled                            1    //Enables Global chat
 				teammate_huds_enabled                          0    //Enables teammate huds
 				survival_jumpkit_enabled                       1    //Enables double jump
 				survival_wallrun_enabled                       1    //Enables wallrun
@@ -852,6 +853,7 @@
 				mp_rr_canyonlands_staging                      1
 				mp_rr_aqueduct                                 1
 				mp_rr_ashs_redemption                          1
+				mp_rr_arena_composite                          1
 			} } }
 		}
 		
@@ -935,6 +937,7 @@
 				mp_rr_canyonlands_mu1_night                    1
 				mp_rr_aqueduct                                 1
 				mp_rr_ashs_redemption                          1
+				mp_rr_arena_composite                          1
 			} } }
 		}
 		menufall
