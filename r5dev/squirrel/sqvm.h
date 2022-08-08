@@ -11,12 +11,21 @@ struct SQVM
 	{
 		return _vftable;
 	}
-#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
 	SQCONTEXT GetContext() const
 	{
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
 		return _contextidx;
+#else // This is the only way to obtain the context directly in anything <S3 without involving global script pointers.
+		if (strcmp(_sharedstate->_contextname, "SERVER") == 0)
+			return SQCONTEXT::SERVER;
+		if (strcmp(_sharedstate->_contextname, "CLIENT") == 0)
+			return SQCONTEXT::CLIENT;
+		if (strcmp(_sharedstate->_contextname, "UI") == 0)
+			return SQCONTEXT::UI;
+
+		return SQCONTEXT::NONE;
+#endif // !GAMEDLL_S0 && !GAMEDLL_S1 && !GAMEDLL_S2
 	}
-#endif
 
 	SQVM* _vftable;
 	_BYTE gap000[16];

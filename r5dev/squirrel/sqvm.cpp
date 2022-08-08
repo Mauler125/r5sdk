@@ -105,7 +105,8 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 	if (sq_showvmoutput->GetInt() > 0) {
 		sqlogger->debug(vmStr);
 	}
-	if (sq_showvmoutput->GetInt() > 1)
+	if (sq_showvmoutput->GetInt() > 1 ||
+		(g_bSQAuxError || g_bSQAuxBadLogic && v == g_pErrorVM))
 	{
 		bool bError = false;
 		bool bColorOverride = false;
@@ -334,9 +335,14 @@ void SQVM_CompileError(HSQUIRRELVM v, const SQChar* pszError, const SQChar* pszF
 //---------------------------------------------------------------------------------
 void SQVM_LogicError(SQBool bPrompt)
 {
-	if (*g_flErrorTimeStamp > 0.0 && (bPrompt || Plat_FloatTime() > *g_flErrorTimeStamp + 0.0))
+	if ((*g_flErrorTimeStamp) > 0.0 && (bPrompt || Plat_FloatTime() > (*g_flErrorTimeStamp) + 0.0))
 	{
 		g_bSQAuxBadLogic = true;
+	}
+	else
+	{
+		g_bSQAuxBadLogic = false;
+		g_pErrorVM = nullptr;
 	}
 	v_SQVM_LogicError(bPrompt);
 }

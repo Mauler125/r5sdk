@@ -1,6 +1,9 @@
 #pragma once
+#include "sqtype.h"
+
 extern bool g_bSQAuxError;
 extern bool g_bSQAuxBadLogic;
+extern HSQUIRRELVM g_pErrorVM;
 
 inline CMemory p_sqstd_aux_printerror;
 inline auto v_sqstd_aux_printerror = p_sqstd_aux_printerror.RCast<SQInteger(*)(HSQUIRRELVM v)>();
