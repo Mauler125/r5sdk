@@ -179,7 +179,7 @@ vector<string> CPackedStore::GetEntryPaths(const string& svPathIn, const nlohman
 				}
 				catch (const std::exception& ex)
 				{
-					Warning(eDLL_T::FS, "Exception while reading VPK manifest file: '%s'\n", ex.what());
+					Warning(eDLL_T::FS, "Exception while reading VPK control file: '%s'\n", ex.what());
 				}
 			}
 		}
@@ -241,7 +241,7 @@ nlohmann::json CPackedStore::GetManifest(const string& svWorkSpace, const string
 		}
 		catch (const std::exception& ex)
 		{
-			Warning(eDLL_T::FS, "Exception while parsing VPK manifest file: '%s'\n", ex.what());
+			Warning(eDLL_T::FS, "Exception while parsing VPK control file: '%s'\n", ex.what());
 			return jsOut;
 		}
 	}
@@ -461,10 +461,10 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 				}
 				catch (const std::exception& ex)
 				{
-					Warning(eDLL_T::FS, "Exception while reading VPK manifest file: '%s'\n", ex.what());
+					Warning(eDLL_T::FS, "Exception while reading VPK control file: '%s'\n", ex.what());
 				}
 			}
-			DevMsg(eDLL_T::FS, "Packing entry '%llu' ('%s')\n", i, svDestPath.c_str());
+			DevMsg(eDLL_T::FS, "Packing entry '%zu' ('%s')\n", i, svDestPath.c_str());
 
 			vEntryBlocks.push_back(VPKEntryBlock_t(reader.GetVector(), writer.GetPosition(), iPreloadSize, 0, nLoadFlags, nTextureFlags, svDestPath));
 			for (size_t j = 0; j < vEntryBlocks[i].m_vChunks.size(); j++)
@@ -485,7 +485,7 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 						vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize, &m_nAdler32_Internal, &m_nCrc32_Internal);
 					if (m_lzCompStatus != lzham_compress_status_t::LZHAM_COMP_STATUS_SUCCESS)
 					{
-						Warning(eDLL_T::FS, "Status '%d' for chunk '%llu' within entry '%llu' in block '%hu' (chunk packed without compression)\n", 
+						Warning(eDLL_T::FS, "Status '%d' for chunk '%zu' within entry '%zu' in block '%hu' (chunk packed without compression)\n", 
 							m_lzCompStatus, j, i, vEntryBlocks[i].m_iPackFileIndex);
 
 						vEntryBlocks[i].m_vChunks[j].m_nCompressedSize = vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize;
@@ -505,7 +505,7 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 
 					if (auto it{ m_mChunkHashMap.find(svEntryHash) }; it != std::end(m_mChunkHashMap))
 					{
-						DevMsg(eDLL_T::FS, "Mapping chunk '%lld' ('%s') to existing chunk at '0x%llx'\n", j, svEntryHash.c_str(), it->second.m_nArchiveOffset);
+						DevMsg(eDLL_T::FS, "Mapping chunk '%zu' ('%s') to existing chunk at '0x%llx'\n", j, svEntryHash.c_str(), it->second.m_nArchiveOffset);
 
 						vEntryBlocks[i].m_vChunks[j].m_nArchiveOffset = it->second.m_nArchiveOffset;
 						nSharedTotal += it->second.m_nCompressedSize;
@@ -528,7 +528,7 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 			}
 		}
 	}
-	DevMsg(eDLL_T::FS, "*** Build block totalling '%llu' bytes with '%llu' shared bytes among '%lu' chunks\n", writer.GetPosition(), nSharedTotal, nSharedCount);
+	DevMsg(eDLL_T::FS, "*** Build block totalling '%zu' bytes with '%zu' shared bytes among '%lu' chunks\n", writer.GetPosition(), nSharedTotal, nSharedCount);
 	m_mChunkHashMap.clear();
 
 	VPKDir_t vDir = VPKDir_t();
@@ -573,7 +573,7 @@ void CPackedStore::UnpackAll(const VPKDir_t& vDir, const string& svPathOut)
 					Error(eDLL_T::FS, "Unable to write file '%s'\n", svFilePath.c_str());
 					continue;
 				}
-				DevMsg(eDLL_T::FS, "Unpacking entry '%llu' from block '%llu' ('%s')\n", j, i, vDir.m_vEntryBlocks[j].m_svEntryPath.c_str());
+				DevMsg(eDLL_T::FS, "Unpacking entry '%zu' from block '%zu' ('%s')\n", j, i, vDir.m_vEntryBlocks[j].m_svEntryPath.c_str());
 
 				for (VPKChunkDescriptor_t vChunk : vDir.m_vEntryBlocks[j].m_vChunks)
 				{
@@ -593,7 +593,7 @@ void CPackedStore::UnpackAll(const VPKDir_t& vDir, const string& svPathOut)
 
 						if (m_lzDecompStatus != lzham_decompress_status_t::LZHAM_DECOMP_STATUS_SUCCESS)
 						{
-							Error(eDLL_T::FS, "Status '%d' for chunk '%llu' within entry '%llu' in block '%hu' (chunk not decompressed)\n", 
+							Error(eDLL_T::FS, "Status '%d' for chunk '%zu' within entry '%zu' in block '%hu' (chunk not decompressed)\n", 
 								m_lzDecompStatus, m_nChunkCount, i, vDir.m_vEntryBlocks[j].m_iPackFileIndex);
 						}
 						else // If successfully decompressed, write to file.
@@ -825,8 +825,8 @@ void VPKDir_t::Build(const string& svDirectoryFile, const vector<VPKEntryBlock_t
 	writer.Write(this->m_vHeader.m_nDirectorySize);
 	writer.Write(0);
 
-	DevMsg(eDLL_T::FS, "*** Build directory totalling '%llu' bytes with '%llu' entries and '%llu' descriptors\n", 
-		sizeof(VPKDirHeader_t) + m_vHeader.m_nDirectorySize, vEntryBlocks.size(), nDescriptors);
+	DevMsg(eDLL_T::FS, "*** Build directory totalling '%zu' bytes with '%zu' entries and '%zu' descriptors\n", 
+		size_t(sizeof(VPKDirHeader_t) + m_vHeader.m_nDirectorySize), vEntryBlocks.size(), nDescriptors);
 }
 ///////////////////////////////////////////////////////////////////////////////
 CPackedStore* g_pPackedStore = new CPackedStore();
