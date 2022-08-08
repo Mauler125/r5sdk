@@ -154,7 +154,7 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 			}
 			else
 			{
-				vmStrAnsi = vmStrAnsi = Plat_GetProcessUpTime();;
+				vmStrAnsi = Plat_GetProcessUpTime();;
 				vmStrAnsi.append(SQVM_ANSI_LOG_T[static_cast<SQInteger>(context)]);
 			}
 			vmStrAnsi.append(buf);
