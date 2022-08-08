@@ -12,4 +12,6 @@ del /Q "%~dp0..\r5reloaded.exe"
 del /Q "%~dp0..\r5apexsdkd64.dll"
 del /Q "%~dp0..\r5detours.dll"
 del /Q "%~dp0..\r5dev.dll"
+REM Remove deprecated pak files (these are no longer used).
 del /Q "%~dp0..\paks\Win32\common_empty.rpak"
+del /Q "%~dp0..\paks\Win32\common_sdk2.rpak"
