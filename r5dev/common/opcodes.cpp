@@ -340,7 +340,7 @@ void Dedicated_Init()
 #endif
 	}
 
-	// This mandatory pak file should only exist on the client.
+	// This mandatory pak file should only exist on the server.
 	if (FileExists("vpk\\server_mp_common.bsp.pak000_000.vpk"))
 	{
 		// Patch 'client' pak file string constants to 'server' if this is a standalone dedicated server.
@@ -348,8 +348,8 @@ void Dedicated_Init()
 		g_pClientBSP.PatchString("vpk/server_%s.bsp");
 		g_pClientCommonBSP.PatchString("vpk/server_mp_common.bsp");
 		g_pClientMPLobby.PatchString("vpk/server_mp_lobby");
-		g_pClientMP.PatchString("vpk/server_mp_");
-		g_pClientSP.PatchString("vpk/server_sp_");
+		g_pClientMP.PatchString("vpk/server_mp");
+		g_pClientSP.PatchString("vpk/server_sp");
 	}
 }
 #endif // DEDICATED
