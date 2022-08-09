@@ -41,16 +41,16 @@ void MOD_GetAllInstalledMaps()
 
     for (const fs::directory_entry& dEntry : fs::directory_iterator("vpk"))
     {
-        std::string svFileName = dEntry.path().string();
+        std::string svFileName = dEntry.path().u8string();
         std::regex_search(svFileName, smRegexMatches, rgArchiveRegex);
 
         if (smRegexMatches.size() > 0)
         {
-            if (strcmp(smRegexMatches[1].str().c_str(), "frontend") == 0)
+            if (smRegexMatches[1].str().compare("frontend") == 0)
             {
                 continue;
             }
-            else if (strcmp(smRegexMatches[1].str().c_str(), "mp_common") == 0)
+            else if (smRegexMatches[1].str().compare("mp_common") == 0)
             {
                 if (std::find(g_vAllMaps.begin(), g_vAllMaps.end(), "mp_lobby") == g_vAllMaps.end())
                     g_vAllMaps.push_back("mp_lobby");
@@ -354,7 +354,7 @@ void MOD_PreloadPakFile(const string& svLevelName)
 		nlohmann::json jsIn;
 		try
 		{
-			ifstream iPakLoadDefFile(fsPath.string().c_str(), std::ios::binary); // Load prerequisites file.
+			ifstream iPakLoadDefFile(fsPath.u8string(), std::ios::binary); // Load prerequisites file.
 
 			jsIn = nlohmann::json::parse(iPakLoadDefFile);
 			iPakLoadDefFile.close();

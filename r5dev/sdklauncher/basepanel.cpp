@@ -550,18 +550,18 @@ void CUIBaseSurface::ParseMaps()
 {
 	std::regex rgArchiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
 	std::smatch smRegexMatches;
-	for (const auto& dEntry : fs::directory_iterator("vpk"))
+	for (const fs::directory_entry& dEntry : fs::directory_iterator("vpk"))
 	{
 		std::string svFileName = dEntry.path().string();
 		std::regex_search(svFileName, smRegexMatches, rgArchiveRegex);
 
 		if (smRegexMatches.size() > 0)
 		{
-			if (strcmp(smRegexMatches[1].str().c_str(), "frontend") == 0)
+			if (smRegexMatches[1].str().compare("frontend") == 0)
 			{
 				continue;
 			}
-			else if (strcmp(smRegexMatches[1].str().c_str(), "mp_common") == 0)
+			else if (smRegexMatches[1].str().compare("mp_common") == 0)
 			{
 				if (!this->m_MapCombo->Items.Contains("mp_lobby"))
 				{

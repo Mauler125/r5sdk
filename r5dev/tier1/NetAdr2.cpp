@@ -62,12 +62,12 @@ void CNetAdr2::SetPort(const string& svInPort)
 void CNetAdr2::SetIPAndPort(string svInAdr)
 {
 	SetType(netadrtype_t::NA_IP);
-	if (strstr(svInAdr.c_str(), "loopback") || strstr(svInAdr.c_str(), "::1"))
+	if (svInAdr.find("loopback") != string::npos || svInAdr.find("::1") != string::npos)
 	{
 		SetType(netadrtype_t::NA_LOOPBACK);
 		svInAdr = "[127.0.0.1]:" + GetPort(svInAdr);
 	}
-	else if (strstr(svInAdr.c_str(), "localhost"))
+	else if (svInAdr.find("localhost") != string::npos)
 	{
 		svInAdr = "[127.0.0.1]:" + GetPort(svInAdr);
 	}
@@ -102,7 +102,7 @@ void CNetAdr2::SetIPAndPort(string svInAdr, string svInPort)
 		svInAdr = "127.0.0.1";
 	}
 
-	if (strstr(svInAdr.c_str(), "[") || strstr(svInAdr.c_str(), "]"))
+	if (svInAdr.find("[") != string::npos || svInAdr.find("]") != string::npos)
 	{
 		svInAdr = GetBase(svInAdr);
 	}

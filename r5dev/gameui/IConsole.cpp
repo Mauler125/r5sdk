@@ -535,7 +535,7 @@ void CConsole::ProcessCommand(const char* pszCommand)
     t.detach(); // Detatch from render thread.
 
     m_nHistoryPos = -1;
-    for (ssize_t i = static_cast<ssize_t>(m_vHistory.size()) - 1; i >= 0; i--)
+    for (size_t i = m_vHistory.size(); i-- > 0; )
     {
         if (m_vHistory[i].compare(pszCommand) == 0)
         {

@@ -55,14 +55,14 @@ VPKDir_t CPackedStore::GetDirectoryFile(string svPackDirFile) const
 
 		for (size_t i = 0; i < DIR_LOCALE.size(); i++)
 		{
-			if (strstr(svPackDirFile.c_str(), DIR_CONTEXT[i].c_str()))
+			if (svPackDirFile.find(DIR_CONTEXT[i]) != string::npos)
 			{
 				for (size_t j = 0; j < DIR_CONTEXT.size(); j++)
 				{
-					if (strstr(svPackDirFile.c_str(), DIR_CONTEXT[j].c_str()))
+					if (svPackDirFile.find(DIR_CONTEXT[j]) != string::npos)
 					{
 						string svPackDirPrefix = DIR_LOCALE[i] + DIR_LOCALE[i];
-						StringReplace(svPackDirFile, DIR_LOCALE[i].c_str(), svPackDirPrefix.c_str());
+						StringReplace(svPackDirFile, DIR_LOCALE[i], svPackDirPrefix);
 						goto escape;
 					}
 				}
@@ -234,7 +234,7 @@ nlohmann::json CPackedStore::GetManifest(const string& svWorkSpace, const string
 	{
 		try
 		{
-			ifstream iManifest(fsPath.string().c_str(), std::ios::binary);
+			ifstream iManifest(fsPath.u8string(), std::ios::binary);
 			jsOut = nlohmann::json::parse(iManifest);
 
 			return jsOut;
@@ -306,9 +306,9 @@ string CPackedStore::StripLocalePrefix(const string& svDirectoryFile) const
 
 	for (size_t i = 0; i < DIR_LOCALE.size(); i++)
 	{
-		if (strstr(svFileName.c_str(), DIR_LOCALE[i].c_str()))
+		if (svFileName.find(DIR_LOCALE[i]) != string::npos)
 		{
-			StringReplace(svFileName, DIR_LOCALE[i].c_str(), "");
+			StringReplace(svFileName, DIR_LOCALE[i], "");
 			break;
 		}
 	}

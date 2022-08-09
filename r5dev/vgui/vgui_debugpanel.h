@@ -37,6 +37,12 @@ struct LogMsg_t
 class CLogSystem
 {
 public:
+	CLogSystem()
+	{
+		m_nFontHeight = 16;
+		memset(m_pszCon_NPrintf_Buf, '\0', sizeof(m_pszCon_NPrintf_Buf));
+	}
+
 	void Update(void);
 	void AddLog(LogType_t type, string svText);
 	void DrawLog(void);
@@ -48,11 +54,11 @@ public:
 
 private:
 	Color GetLogColorForType(LogType_t type) const;
-	vector<LogMsg_t> m_vLogs{};
-	int m_nFontHeight = 16;
+	vector<LogMsg_t> m_vLogs;
+	int m_nFontHeight;
 
 public:
-	char* m_pszCon_NPrintf_Buf[4096]{};
+	char m_pszCon_NPrintf_Buf[4096]{};
 };
 
 ///////////////////////////////////////////////////////////////////////////////

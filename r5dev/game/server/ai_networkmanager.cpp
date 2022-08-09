@@ -312,12 +312,12 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager,
 		if (nAiNetVersion > AINET_VERSION_NUMBER)
 		{
 			Warning(eDLL_T::SERVER, "AI node graph '%s' deviates expectations (net version: '%d' expected: '%d')\n", 
-				fsGraphPath.string().c_str(), nAiNetVersion, AINET_VERSION_NUMBER);
+				fsGraphPath.relative_path().u8string().c_str(), nAiNetVersion, AINET_VERSION_NUMBER);
 		}
 		else if (nAiMapVersion != g_ServerGlobalVariables->m_nMapVersion)
 		{
 			Warning(eDLL_T::SERVER, "AI node graph '%s' is out of date (map version: '%d' expected: '%d')\n", 
-				fsGraphPath.string().c_str(), nAiMapVersion, g_ServerGlobalVariables->m_nMapVersion);
+				fsGraphPath.relative_path().u8string().c_str(), nAiMapVersion, g_ServerGlobalVariables->m_nMapVersion);
 		}
 		else
 		{
@@ -336,7 +336,7 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager,
 				if (nNavMeshHash != nAiGraphHash)
 				{
 					Warning(eDLL_T::SERVER, "AI node graph '%s' is out of date (checksum: '0x%X' expected: '0x%X')\n",
-						fsGraphPath.string().c_str(), nNavMeshHash, nAiGraphHash);
+						fsGraphPath.relative_path().u8string().c_str(), nNavMeshHash, nAiGraphHash);
 				}
 
 				iNavMesh.close();

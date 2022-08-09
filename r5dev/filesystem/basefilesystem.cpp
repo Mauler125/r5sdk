@@ -111,7 +111,7 @@ FileHandle_t CBaseFileSystem::VReadFromVPK(CBaseFileSystem* pFileSystem, FileHan
 {
 	std::string svFilePath = ConvertToWinPath(pszFilePath);
 
-	if (strstr(svFilePath.c_str(), "\\\*\\"))
+	if (svFilePath.find("\\\*\\") != string::npos)
 	{
 		// Erase '//*/'.
 		svFilePath.erase(0, 4);
@@ -139,7 +139,7 @@ bool CBaseFileSystem::VReadFromCache(CBaseFileSystem* pFileSystem, char* pszFile
 {
 	std::string svFilePath = ConvertToWinPath(pszFilePath);
 
-	if (strstr(svFilePath.c_str(), "\\\*\\"))
+	if (svFilePath.find("\\\*\\") != string::npos)
 	{
 		// Erase '//*/'.
 		svFilePath.erase(0, 4);

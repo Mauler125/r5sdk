@@ -45,7 +45,7 @@ void Strtrim(char* s)
 void ImGuiConfig::Load()
 {
     fs::path fsPath = "platform\\imgui.json";
-    DevMsg(eDLL_T::MS, "Loading ImGui config file '%s'\n", fsPath.relative_path().string().c_str());
+    DevMsg(eDLL_T::MS, "Loading ImGui config file '%s'\n", fsPath.relative_path().u8string().c_str());
 
     if (fs::exists(fsPath))
     {
@@ -93,7 +93,7 @@ void ImGuiConfig::Save()
 
     fs::path fsPath = "platform\\imgui.json";
 
-    DevMsg(eDLL_T::MS, "Saving ImGui config file '%s'\n", fsPath.string().c_str());
+    DevMsg(eDLL_T::MS, "Saving ImGui config file '%s'\n", fsPath.relative_path().u8string().c_str());
     std::ofstream outFile(fsPath, std::ios::out | std::ios::trunc); // Write config file.
 
     outFile << jsOut.dump(4); // Dump it into config file.

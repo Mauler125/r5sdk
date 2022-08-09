@@ -91,7 +91,7 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 
 		vsnprintf(buf, sizeof(buf), fmt, args);
 
-		buf[sizeof(buf) - 1] = 0;
+		buf[sizeof(buf) - 1] = '\0';
 		va_end(args);
 	}/////////////////////////////
 

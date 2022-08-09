@@ -35,7 +35,7 @@ void HSys_Error(char* fmt, ...)
 	buf[sizeof(buf) -1] = 0;
 	va_end(args);
 
-	Error(eDLL_T::ENGINE, "%s\n", buf);
+	Error(eDLL_T::ENGINE, "%s", buf);
 	return v_Sys_Error(buf);
 }
 
@@ -54,11 +54,11 @@ void* HSys_Warning(int level, char* fmt, ...)
 
 		vsnprintf(buf, sizeof(buf), fmt, args);
 
-		buf[sizeof(buf) - 1] = 0;
+		buf[sizeof(buf) - 1] = '\0';
 		va_end(args);
 	}/////////////////////////////
 
-	Warning(eDLL_T::COMMON, "Warning(%d):%s\n", level, buf);
+	Warning(eDLL_T::COMMON, "Warning(%d):%s", level, buf);
 	return v_Sys_Warning(level, buf);
 }
 
@@ -107,11 +107,12 @@ void HCon_NPrintf(int pos, const char* fmt, ...)
 
 			vsnprintf(buf, sizeof(buf), fmt, args);
 
-			buf[sizeof(buf) - 1] = 0;
+			buf[sizeof(buf) - 1] = '\0';
 			va_end(args);
 		}/////////////////////////////
 
-		snprintf((char*)g_pLogSystem.m_pszCon_NPrintf_Buf, 4096, buf);
+		snprintf(g_pLogSystem.m_pszCon_NPrintf_Buf, 
+			sizeof(g_pLogSystem.m_pszCon_NPrintf_Buf), buf);
 	}
 }
 #endif // !DEDICATED

@@ -74,7 +74,7 @@ void CFactory::GetFactoriesFromRegister(void)
 //---------------------------------------------------------------------------------
 CMemory CFactory::GetFactoryPtr(const string& svFactoryName, bool bVersionLess) const
 {
-	for (auto& it : m_vFactories) // Loop through the whole vector.
+	for (const FactoryInfo& it : m_vFactories) // Loop through the whole vector.
 	{
 		if (bVersionLess)
 		{

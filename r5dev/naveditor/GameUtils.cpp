@@ -105,10 +105,10 @@ void buildLinkTable(dtNavMesh* mesh, LinkTableData& data)
 	{
 		dtMeshTile* tile = mesh->getTile(i);
 		if (!tile || !tile->header || !tile->dataSize) continue;
-		auto pcount = tile->header->polyCount;
+		int pcount = tile->header->polyCount;
 		for (int j = 0; j < pcount; j++)
 		{
-			auto& poly = tile->polys[j];
+			dtPoly& poly = tile->polys[j];
 			poly.disjointSetId = -1;
 		}
 	}
@@ -118,14 +118,14 @@ void buildLinkTable(dtNavMesh* mesh, LinkTableData& data)
 	{
 		dtMeshTile* tile = mesh->getTile(i);
 		if (!tile || !tile->header || !tile->dataSize) continue;
-		auto pcount = tile->header->polyCount;
+		int pcount = tile->header->polyCount;
 		for (int j = 0; j < pcount; j++)
 		{
-			auto& poly = tile->polys[j];
-			auto plink = poly.firstLink;
+			dtPoly& poly = tile->polys[j];
+			unsigned int plink = poly.firstLink;
 			while (plink != DT_NULL_LINK)
 			{
-				auto l = tile->links[plink];
+				const dtLink l = tile->links[plink];
 				const dtMeshTile* t;
 				const dtPoly* p;
 				mesh->getTileAndPolyByRefUnsafe(l.ref, &t, &p);
@@ -153,11 +153,11 @@ void buildLinkTable(dtNavMesh* mesh, LinkTableData& data)
 	{
 		dtMeshTile* tile = mesh->getTile(i);
 		if (!tile || !tile->header || !tile->dataSize) continue;
-		auto pcount = tile->header->polyCount;
+		int pcount = tile->header->polyCount;
 		for (int j = 0; j < pcount; j++)
 		{
-			auto& poly = tile->polys[j];
-			auto id = data.find(poly.disjointSetId);
+			dtPoly& poly = tile->polys[j];
+			int id = data.find(poly.disjointSetId);
 			poly.disjointSetId = id;
 		}
 	}

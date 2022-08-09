@@ -784,7 +784,7 @@ void Sample_TileMesh::removeAllTiles()
 
 void Sample_TileMesh::buildAllHulls()
 {
-	for (auto& h : hulls)
+	for (const hulldef& h : hulls)
 	{
 		m_agentRadius = h.radius;
 		m_agentMaxClimb = h.climb_height;
