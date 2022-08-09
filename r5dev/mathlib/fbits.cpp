@@ -5,7 +5,7 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#include "mathlib/bits.h"
+#include "mathlib/fbits.h"
 
 //-----------------------------------------------------------------------------
 // This follows the ANSI/IEEE 754-1985 standard

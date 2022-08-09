@@ -10,7 +10,7 @@
 #include "tier1/IConVar.h"
 #include "tier1/cvar.h"
 #include "tier1/utlvector.h"
-#include "mathlib/bits.h"
+#include "mathlib/fbits.h"
 #include "vstdlib/callback.h"
 #include "public/iconvar.h"
 #include "public/iconcommand.h"

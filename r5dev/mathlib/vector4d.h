@@ -20,7 +20,7 @@
 #endif
 #include "tier0/basetypes.h"	// For vec_t, put this somewhere else?
 #include "tier0/dbg.h"
-#include "mathlib/bits.h"
+#include "mathlib/fbits.h"
 #include "mathlib/math_pfns.h"
 #include "mathlib/vector.h"
 #include "vstdlib/random.h"

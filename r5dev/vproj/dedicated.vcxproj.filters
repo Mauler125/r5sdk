@@ -603,7 +603,7 @@
     <ClInclude Include="..\windows\system.h">
       <Filter>windows</Filter>
     </ClInclude>
-    <ClInclude Include="..\mathlib\bits.h">
+    <ClInclude Include="..\mathlib\fbits.h">
       <Filter>sdk\mathlib</Filter>
     </ClInclude>
     <ClInclude Include="..\tier0\commandline.h">
@@ -1292,7 +1292,7 @@
     <ClCompile Include="..\windows\system.cpp">
       <Filter>windows</Filter>
     </ClCompile>
-    <ClCompile Include="..\mathlib\bits.cpp">
+    <ClCompile Include="..\mathlib\fbits.cpp">
       <Filter>sdk\mathlib</Filter>
     </ClCompile>
     <ClCompile Include="..\tier0\commandline.cpp">
