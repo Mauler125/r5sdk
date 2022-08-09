@@ -1,6 +1,6 @@
 #pragma once
 #include "networksystem/pylon.h"
-#include "public/bansystem.h"
+#include "networksystem/bansystem.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 

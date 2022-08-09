@@ -41,7 +41,7 @@
 #endif // DEDICATED
 #include "client/vengineclient_impl.h"
 #include "networksystem/pylon.h"
-#include "public/bansystem.h"
+#include "networksystem/bansystem.h"
 #include "public/edict.h"
 #ifndef CLIENT_DLL
 #include "game/server/gameinterface.h"

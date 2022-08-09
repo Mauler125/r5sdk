@@ -14,8 +14,8 @@
 #include "engine/server/sv_main.h"
 #include "engine/server/server.h"
 #include "networksystem/pylon.h"
+#include "networksystem/bansystem.h"
 #include "public/edict.h"
-#include "public/bansystem.h"
 
 //---------------------------------------------------------------------------------
 // Purpose: Gets the number of human players on the server

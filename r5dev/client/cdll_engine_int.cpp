@@ -12,7 +12,7 @@
 #include "client/cdll_engine_int.h"
 #include "engine/net_chan.h"
 #include "engine/client/cl_rcon.h"
-#include "public/bansystem.h"
+#include "networksystem/bansystem.h"
 #include "vpc/keyvalues.h"
 /*****************************************************************************/
 

@@ -261,9 +261,6 @@
     <ClCompile Include="..\gameui\IConsole.cpp">
       <Filter>sdk\gameui</Filter>
     </ClCompile>
-    <ClCompile Include="..\public\bansystem.cpp">
-      <Filter>sdk\public</Filter>
-    </ClCompile>
     <ClCompile Include="..\rtech\rtech_utils.cpp">
       <Filter>sdk\rtech</Filter>
     </ClCompile>
@@ -612,6 +609,9 @@
     <ClCompile Include="..\public\utility\memaddr.cpp">
       <Filter>sdk\public\utility</Filter>
     </ClCompile>
+    <ClCompile Include="..\networksystem\bansystem.cpp">
+      <Filter>sdk\networksystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -646,9 +646,6 @@
     </ClInclude>
     <ClInclude Include="..\gameui\IConsole.h">
       <Filter>sdk\gameui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\public\bansystem.h">
-      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\rtech\rtech_utils.h">
       <Filter>sdk\rtech</Filter>
@@ -1771,6 +1768,9 @@
     </ClInclude>
     <ClInclude Include="..\public\utility\httplib.h">
       <Filter>sdk\public\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\networksystem\bansystem.h">
+      <Filter>sdk\networksystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

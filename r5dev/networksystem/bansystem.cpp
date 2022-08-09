@@ -8,7 +8,7 @@
 #include "core/stdafx.h"
 #include "engine/net.h"
 #include "engine/client/client.h"
-#include "public/bansystem.h"
+#include "networksystem/bansystem.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 

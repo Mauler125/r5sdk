@@ -31,7 +31,7 @@
 #include "gameui/IConsole.h"
 #endif // !DEDICATED
 #ifndef CLIENT_DLL
-#include "public/bansystem.h"
+#include "networksystem/bansystem.h"
 #endif // !CLIENT_DLL
 #include "public/worldsize.h"
 #include "mathlib/crc32.h"
