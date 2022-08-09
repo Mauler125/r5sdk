@@ -235,7 +235,7 @@ FORCEINLINE void CHostState::Think(void) const
 			int32_t nPlayerCount = g_pServer->GetNumHumanPlayers();
 
 			SetConsoleTitleA(fmt::format("{:s} - {:d}/{:d} Players ({:s} on {:s})",
-				hostname->GetString(), nPlayerCount, g_ServerGlobalVariables->m_nMaxClients, svCurrentPlaylist.c_str(), m_levelName).c_str());
+				hostname->GetString(), nPlayerCount, g_ServerGlobalVariables->m_nMaxClients, svCurrentPlaylist, m_levelName).c_str());
 			statsTimer.Start();
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));
