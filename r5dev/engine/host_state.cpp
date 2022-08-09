@@ -119,7 +119,7 @@ FORCEINLINE void CHostState::FrameUpdate(CHostState* pHostState, double flCurren
 				CL_EndMovie();
 #endif // !DEDICATED
 				Stryder_SendOfflineRequest(); // We have hostnames nulled anyway.
-				g_pEngine->SetNextState(EngineState_t::DLL_RESTART);
+				g_pEngine->SetNextState(IEngine::DLL_RESTART);
 				break;
 			}
 			case HostStates_t::HS_SHUTDOWN:
@@ -129,7 +129,7 @@ FORCEINLINE void CHostState::FrameUpdate(CHostState* pHostState, double flCurren
 				CL_EndMovie();
 #endif // !DEDICATED
 				Stryder_SendOfflineRequest(); // We have hostnames nulled anyway.
-				g_pEngine->SetNextState(EngineState_t::DLL_CLOSE);
+				g_pEngine->SetNextState(IEngine::DLL_CLOSE);
 				break;
 			}
 			default:

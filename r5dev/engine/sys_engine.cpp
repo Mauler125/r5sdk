@@ -4,6 +4,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 CEngine* g_pEngine = nullptr;
 
+/*
 //-----------------------------------------------------------------------------
 // Purpose: Start initializing the engine.
 // Output : Returns true on success, false on failure.
@@ -81,3 +82,4 @@ void CEngine::SetQuitting(EngineDllQuitting_t quitDllState)
 	const int index = 9;
 	CallVFunc<void>(index, this, quitDllState);
 }
+*/

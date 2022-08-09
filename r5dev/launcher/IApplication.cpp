@@ -33,7 +33,7 @@ int CModAppSystemGroup::Main(CModAppSystemGroup* pModAppSystemGroup)
 	return CModAppSystemGroup_Main(pModAppSystemGroup);
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 
-	g_pEngine->SetQuitting(EngineDllQuitting_t::QUIT_NOTQUITTING);
+	g_pEngine->SetQuitting(IEngine::QUIT_NOTQUITTING);
 	if (g_pEngine->Load(pModAppSystemGroup->IsServerOnly(), g_pEngineParms->baseDirectory))
 	{
 		if (CEngineAPI_MainLoop())

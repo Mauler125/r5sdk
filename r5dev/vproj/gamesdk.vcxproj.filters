@@ -1763,6 +1763,9 @@
     <ClInclude Include="..\tier0\memalloc.h">
       <Filter>sdk\tier0</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\iengine.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\shared\resource\lockedserver.png">
