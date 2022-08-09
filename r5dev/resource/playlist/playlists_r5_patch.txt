@@ -1,7 +1,7 @@
 playlists
 {
 	version stable
-	versionNum 221
+	versionNum 222
 	Gamemodes
 	{
 		defaults
@@ -438,7 +438,7 @@ playlists
 			}
 			gamemodes { survival { maps {
 				mp_rr_desertlands_64k_x_64k                    1
-				mp_rr_desertlands_64k_x_64k_nx                 0
+				mp_rr_desertlands_64k_x_64k_nx                 1
 				mp_rr_canyonlands_64k_x_64k                    1
 				mp_rr_canyonlands_mu1                          1
 				mp_rr_canyonlands_mu1_night                    1
@@ -525,7 +525,7 @@ playlists
 			}
 			gamemodes { survival { maps {
 				mp_rr_canyonlands_mu1_night                    1
-				mp_rr_desertlands_64k_x_64k_nx                 0
+				mp_rr_desertlands_64k_x_64k_nx                 1
 			} } }
 		}
 		
@@ -657,7 +657,7 @@ playlists
 				//ui_slot                                      ltm
 			}
 			gamemodes { survival { maps {
-				mp_rr_desertlands_64k_x_64k_nx 1
+				mp_rr_desertlands_64k_x_64k_nx                 1
 			} } }
 		}
 		
@@ -738,7 +738,9 @@ playlists
 				mp_rr_canyonlands_mu1_night                    1
 				mp_rr_canyonlands_staging                      1
 				mp_rr_aqueduct                                 1
+				mp_rr_aqueduct_night                           1
 				mp_rr_ashs_redemption                          1
+				mp_rr_arena_composite                          1
 			} } }
 		}
 
@@ -852,6 +854,7 @@ playlists
 				mp_rr_canyonlands_mu1_night                    1
 				mp_rr_canyonlands_staging                      1
 				mp_rr_aqueduct                                 1
+				mp_rr_aqueduct_night                           1
 				mp_rr_ashs_redemption                          1
 				mp_rr_arena_composite                          1
 			} } }
@@ -935,9 +938,6 @@ playlists
 				mp_rr_desertlands_64k_x_64k                    1
 				mp_rr_desertlands_64k_x_64k_nx                 1
 				mp_rr_canyonlands_mu1_night                    1
-				mp_rr_aqueduct                                 1
-				mp_rr_ashs_redemption                          1
-				mp_rr_arena_composite                          1
 			} } }
 		}
 		menufall
@@ -979,9 +979,13 @@ playlists
 				mp_rr_canyonlands_64k_x_64k                    1
 				mp_rr_canyonlands_mu1                          1
 				mp_rr_desertlands_64k_x_64k                    1
-				mp_rr_desertlands_64k_x_64k_nx                 0
+				mp_rr_desertlands_64k_x_64k_nx                 1
 				mp_rr_canyonlands_mu1_night                    1
 				mp_rr_canyonlands_staging                      1
+				mp_rr_aqueduct                                 1
+				mp_rr_aqueduct_night                           1
+				mp_rr_ashs_redemption                          1
+				mp_rr_arena_composite                          1
 			} } }
 		}
 	}
