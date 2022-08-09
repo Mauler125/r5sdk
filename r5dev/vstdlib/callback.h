@@ -65,13 +65,13 @@ class VCallback : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		p_SetupGamemode = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x48\x8B\xD9\x48\xC7\xC0\x00\x00\x00\x00"), "xxxxxxxxxxxx????");
+		p_SetupGamemode = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x48\x8B\xD9\x48\xC7\xC0\x00\x00\x00\x00"), "xxxxxxxxxxxx????");
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_Host_Map_f = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x18\x55\x41\x56\x41\x00\x00\x00\x00\x40\x02"), "xxxxxxxxx????xx");
+		p_Host_Map_f = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x18\x55\x41\x56\x41\x00\x00\x00\x00\x40\x02"), "xxxxxxxxx????xx");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_Host_Map_f = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x55\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x83\x3D"), "xxxxxxxxx????xx");
+		p_Host_Map_f = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x55\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x83\x3D"), "xxxxxxxxx????xx");
 #endif
-		p_DownloadPlaylists_f = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x33\xC9\xC6\x05\x00\x00\x00\x00\x00\xE9\x00\x00\x00\x00"), "xxxx?????x????");
+		p_DownloadPlaylists_f = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x33\xC9\xC6\x05\x00\x00\x00\x00\x00\xE9\x00\x00\x00\x00"), "xxxx?????x????");
 
 		SetupGamemode = p_SetupGamemode.RCast<bool(*)(const char*)>();
 		_Host_Map_f = p_Host_Map_f.RCast<void (*)(CCommand* pCommand, char a2)>(); /*40 55 41 56 41 57 48 81 EC ?? ?? ?? ?? 83 3D*/

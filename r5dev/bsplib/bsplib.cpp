@@ -274,8 +274,8 @@
 //                    {
 //                        v68 = *(void**)(v66 + 8i64 * *(__int16*)(v57 + 2i64 * *(int*)(v67 + *(int*)(v65 + 80) + v65)));
 //
-//                        static CModule::ModuleSections_t mData = g_mGameDll.GetSectionByName(".data");
-//                        static CModule::ModuleSections_t mPData = g_mGameDll.GetSectionByName(".pdata");
+//                        static CModule::ModuleSections_t mData = g_GameDll.GetSectionByName(".data");
+//                        static CModule::ModuleSections_t mPData = g_GameDll.GetSectionByName(".pdata");
 //                        if (reinterpret_cast<uintptr_t>(v68) < mData.m_pSectionBase ||
 //                            reinterpret_cast<uintptr_t>(v68) > mPData.m_pSectionBase) // Check bounds (data could only be within the '.data' segment.
 //                            continue;
@@ -396,8 +396,8 @@ void* __fastcall BuildPropStaticFrustumCullMap(int64_t a1, int64_t a2, unsigned 
                         ++v64;
                         v67 += 92i64;
 
-                        if (reinterpret_cast<uintptr_t>(v68) < g_mGameDll.m_RunTimeData.m_pSectionBase    || // Check bounds (data could only be within the '.data' segment.
-                            reinterpret_cast<uintptr_t>(v68) > g_mGameDll.m_ExceptionTable.m_pSectionBase || error)
+                        if (reinterpret_cast<uintptr_t>(v68) < g_GameDll.m_RunTimeData.m_pSectionBase    || // Check bounds (data could only be within the '.data' segment.
+                            reinterpret_cast<uintptr_t>(v68) > g_GameDll.m_ExceptionTable.m_pSectionBase || error)
                         {
                             error = true;
                             continue;

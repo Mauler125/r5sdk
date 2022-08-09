@@ -55,7 +55,7 @@ void Dedicated_Init()
 		p_CHLClient_LevelShutdown.Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 }); // FUN --> RET | Return early in 'CHLClient::LevelShutdown()' during DLL shutdown.
 		p_CHLClient_HudProcessInput.Patch({ 0xC3 });                             // FUN --> RET | Return early in 'CHLClient::HudProcessInput()' to prevent infinite loop.
 
-		g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(                     // MOV --> JMP | Skip virtual call during settings layout parsing (S0/S1/S2/S3).
+		g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(                     // MOV --> JMP | Skip virtual call during settings layout parsing (S0/S1/S2/S3).
 			"\x41\x85\xC8\x0F\x84"), "xxxxx").Offset(0x40).Patch({ 0xEB, 0x23 });
 
 	}

@@ -30,7 +30,7 @@ class VInputSystem : public IDetour
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
-		g_pInputSystem = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
+		g_pInputSystem = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
 			"\x48\x83\xEC\x28\x48\x8B\x0D\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x85\xC9\x74\x11"),
 			"xxxxxxx????xxx????xxx????xxxxx").FindPatternSelf("48 89 05", CMemory::Direction::DOWN, 40).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CInputSystem*>();
 	}

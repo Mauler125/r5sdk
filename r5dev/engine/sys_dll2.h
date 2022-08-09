@@ -39,15 +39,15 @@ class VSys_Dll2 : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		p_CEngineAPI_Connect = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x48\x8B\x05\x00\x00\x00\x00\x48\x8D\x0D\x00\x00\x00\x00\x48\x85\xC0\x48\x89\x15"), "xxxxxxx????xxx????xxxxxx");
+		p_CEngineAPI_Connect = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x48\x8B\x05\x00\x00\x00\x00\x48\x8D\x0D\x00\x00\x00\x00\x48\x85\xC0\x48\x89\x15"), "xxxxxxx????xxx????xxxxxx");
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_CEngineAPI_ModInit  = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x4D\x8B\xF0"), "xxxx?xxxx?xxxx?xxxxxxxxxxxx????xxx");
-		p_CEngineAPI_MainLoop = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x55\x48\x81\xEC\x00\x00\x00\x00\x45\x33\xC9"), "xxxx?xxxx????xxx");
-		p_PakFile_Init        = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x44\x88\x44\x24\x00\x56\x57\x41\x54\x41\x56\x41\x57\x48\x83\xEC\x20"), "xxxx?xxxx?xxxx?xxxxxxxxxxxx");
+		p_CEngineAPI_ModInit  = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x4D\x8B\xF0"), "xxxx?xxxx?xxxx?xxxxxxxxxxxx????xxx");
+		p_CEngineAPI_MainLoop = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x55\x48\x81\xEC\x00\x00\x00\x00\x45\x33\xC9"), "xxxx?xxxx????xxx");
+		p_PakFile_Init        = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x44\x88\x44\x24\x00\x56\x57\x41\x54\x41\x56\x41\x57\x48\x83\xEC\x20"), "xxxx?xxxx?xxxx?xxxxxxxxxxxx");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_CEngineAPI_ModInit  = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x4C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x4D\x8B\xF8"), "xxxx?xxxx?xxxxxxxxxxxxxx????xxx");
-		p_CEngineAPI_MainLoop = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x48\x8B\x15\x00\x00\x00\x00\x84\xC0\xB9\x00\x00\x00\x00"), "x????xxx????xxx????").FollowNearCallSelf();
-		p_PakFile_Init        = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x44\x88\x44\x24\x00\x53\x55\x56\x57"), "xxxx?xxxx");
+		p_CEngineAPI_ModInit  = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x4C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x4D\x8B\xF8"), "xxxx?xxxx?xxxxxxxxxxxxxx????xxx");
+		p_CEngineAPI_MainLoop = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x48\x8B\x15\x00\x00\x00\x00\x84\xC0\xB9\x00\x00\x00\x00"), "x????xxx????xxx????").FollowNearCallSelf();
+		p_PakFile_Init        = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x44\x88\x44\x24\x00\x53\x55\x56\x57"), "xxxx?xxxx");
 #endif
 		CEngineAPI_Connect  = p_CEngineAPI_Connect.RCast<bool (*)(CEngineAPI*, CreateInterfaceFn)>();        /*48 83 EC 28 48 8B 05 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 48 85 C0 48 89 15 ?? ?? ?? ??*/
 		CEngineAPI_ModInit  = p_CEngineAPI_ModInit.RCast<bool (*)(CEngineAPI*, const char*, const char*)>(); /*48 89 5C 24 ?? 48 89 4C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ?? ?? ?? ?? 4D 8B F8*/

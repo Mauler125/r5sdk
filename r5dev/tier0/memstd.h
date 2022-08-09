@@ -61,12 +61,12 @@ class VMemStd : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		p_CreateGlobalMemAlloc = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\xBB\x00\x00\x00\x00\x33\xC0"), "xxxxxxx????xx");
+		p_CreateGlobalMemAlloc = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\xBB\x00\x00\x00\x00\x33\xC0"), "xxxxxxx????xx");
 		v_CreateGlobalMemAlloc = p_CreateGlobalMemAlloc.RCast<CStdMemAlloc* (*)(void)>();    /*40 53 48 83 EC 20 BB ?? ?? ?? ?? 33 C0*/
 	}
 	virtual void GetVar(void) const
 	{
-		g_pMemAllocSingleton = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x41\x8B\xD8"),
+		g_pMemAllocSingleton = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x41\x8B\xD8"),
 			"xxxx?xxxx????xxx").OffsetSelf(0x5A).FindPatternSelf("48 8B", CMemory::Direction::DOWN, 100).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CStdMemAlloc**>();
 	}
 	virtual void GetCon(void) const { }

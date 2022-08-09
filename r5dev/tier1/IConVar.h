@@ -124,12 +124,12 @@ class VConVar : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		p_IConVar_IsFlagSet = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\x41\x48\x85\x50\x38"), "xxxxxxx");
-		p_ConVar_SetInfo = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x60\x48\x8B\xD9\xC6\x41\x10\x00\x33\xC9\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x4C\x24\x00\x0F\x57\xC0\x48\x89\x4C\x24\x00\x48\x89\x03\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x43\x40"), "xxxxxxxxxxxxxxxxxx????xxxx?xxxxxxx?xxxxxx????xxxx");
+		p_IConVar_IsFlagSet = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\x41\x48\x85\x50\x38"), "xxxxxxx");
+		p_ConVar_SetInfo = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x60\x48\x8B\xD9\xC6\x41\x10\x00\x33\xC9\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x4C\x24\x00\x0F\x57\xC0\x48\x89\x4C\x24\x00\x48\x89\x03\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x43\x40"), "xxxxxxxxxxxxxxxxxx????xxxx?xxxxxxx?xxxxxx????xxxx");
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_ConVar_Register = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x83\xEC\x30\xF3\x0F\x10\x44\x24\x00"), "xxxx?xxxx?xxxx?xxxx?xxxxxxxxxxx?");
+		p_ConVar_Register = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x83\xEC\x30\xF3\x0F\x10\x44\x24\x00"), "xxxx?xxxx?xxxx?xxxx?xxxxxxxxxxx?");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_ConVar_Register = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x40\xF3\x0F\x10\x84\x24\x00\x00\x00\x00"), "xxxx?xxxx?xxxx?xxxxxxxxxx????");
+		p_ConVar_Register = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x40\xF3\x0F\x10\x84\x24\x00\x00\x00\x00"), "xxxx?xxxx?xxxx?xxxxxxxxxx????");
 #endif
 		IConVar_IsFlagSet = p_IConVar_IsFlagSet.RCast<bool (*)(ConVar*, int)>();             /*48 8B 41 48 85 50 38*/
 		ConVar_SetInfo = p_ConVar_SetInfo.RCast<void* (*)(ConVar*, int, int, int, void*)>(); /*40 53 48 83 EC 60 48 8B D9 C6 41 10 00 33 C9 48 8D 05 ? ? ? ? 48 89 4C 24 ? 0F 57 C0 48 89 4C 24 ? 48 89 03 48 8D 05 ? ? ? ? 48 89 43 40*/

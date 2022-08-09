@@ -517,31 +517,31 @@ class VPakFile : public IDetour
 	virtual void GetFun(void) const 
 	{
 #if not defined DEDICATED && defined (GAMEDLL_S3)
-		p_GetStreamOverlay = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x80\x7C\x24\x00\x00\x0F\x84\x00\x00\x00\x00\x48\x89\x9C\x24\x00\x00\x00\x00"), "x????xxx??xx????xxxx????").FollowNearCallSelf();
+		p_GetStreamOverlay = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x80\x7C\x24\x00\x00\x0F\x84\x00\x00\x00\x00\x48\x89\x9C\x24\x00\x00\x00\x00"), "x????xxx??xx????xxxx????").FollowNearCallSelf();
 		GetStreamOverlay = p_GetStreamOverlay.RCast<void(*)(const char*, char*, size_t)>(); /*E8 ? ? ? ? 80 7C 24 ? ? 0F 84 ? ? ? ? 48 89 9C 24 ? ? ? ?*/
 
-		p_RTech_CreateDXTexture = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x4C\x8B\xC7\x48\x8B\xD5\x48\x8B\xCB\x48\x83\xC4\x60"), "x????xxxxxxxxxxxxx").FollowNearCallSelf();
+		p_RTech_CreateDXTexture = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x4C\x8B\xC7\x48\x8B\xD5\x48\x8B\xCB\x48\x83\xC4\x60"), "x????xxxxxxxxxxxxx").FollowNearCallSelf();
 		RTech_CreateDXTexture   = p_RTech_CreateDXTexture.RCast<void(*)(RPakTextureHeader_t*, int64_t)>(); /*E8 ? ? ? ? 4C 8B C7 48 8B D5 48 8B CB 48 83 C4 60*/
 #endif
-		p_RTech_FindFreeSlotInFiles = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x44\x8B\x51\x0C\x4C\x8B\xC1"), "xxxxxxx");
+		p_RTech_FindFreeSlotInFiles = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x44\x8B\x51\x0C\x4C\x8B\xC1"), "xxxxxxx");
 		RTech_FindFreeSlotInFiles   = p_RTech_FindFreeSlotInFiles.RCast<int32_t(*)(int32_t*)>(); /*44 8B 51 0C 4C 8B C1*/
 
-		p_RTech_OpenFile = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x89\x85\x08\x01\x00\x00"), "x????xxxxxx").FollowNearCallSelf();
+		p_RTech_OpenFile = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x89\x85\x08\x01\x00\x00"), "x????xxxxxx").FollowNearCallSelf();
 		RTech_OpenFile   = p_RTech_OpenFile.RCast<int32_t(*)(const char*, void*, int64_t*)>(); /*E8 ? ? ? ? 89 85 08 01 00 00*/
 	}
 	virtual void GetVar(void) const
 	{
-		CMemory RTech_UnloadPak = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x30\x8B\xC1"), "xxxx?xxxx?xxxxxxx");
+		CMemory RTech_UnloadPak = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x30\x8B\xC1"), "xxxx?xxxx?xxxxxxx");
 		g_pLoadedPakInfo  = RTech_UnloadPak.FindPattern("48 8D 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakLoadedInfo_t*>();
 		s_pLoadedPakCount = RTech_UnloadPak.FindPattern("66 89", CMemory::Direction::DOWN, 450).ResolveRelativeAddressSelf(0x3, 0x7).RCast<int16_t*>();
 
 		/*48 8D 0D ? ? ? ? E8 ? ? ? ? 48 8D 0D ? ? ? ? 8B D8 FF 15 ? ? ? ? 4C 8D 25 ? ? ? ?*/
-		CMemory Offset_StreamDB_Init = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8D\x0D\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x8D\x0D\x00\x00\x00\x00\x8B\xD8\xFF\x15\x00\x00\x00\x00\x4C\x8D\x25\x00\x00\x00\x00"), "xxx????x????xxx????xxxx????xxx????");
+		CMemory Offset_StreamDB_Init = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8D\x0D\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x8D\x0D\x00\x00\x00\x00\x8B\xD8\xFF\x15\x00\x00\x00\x00\x4C\x8D\x25\x00\x00\x00\x00"), "xxx????x????xxx????xxxx????xxx????");
 		s_pFileArray       = Offset_StreamDB_Init.ResolveRelativeAddress(0x3, 0x7).RCast<int32_t*>();
 		g_pPakFileSlotLock = Offset_StreamDB_Init.Offset(-0xD).ResolveRelativeAddress(0x3, 0x7).RCast<PSRWLOCK*>();
 		m_FileHandles      = Offset_StreamDB_Init.Offset(0x1B).ResolveRelativeAddress(0x3, 0x7).RCast<pFileHandleTracker_t*>();
 
-		g_pUnknownPakStruct = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8D\x1D\x00\x00\x00\x00\x45\x8D\x5A\x0E"), "xxx????xxxx").ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakUnknownStruct_t*>(); /*48 8D 1D ? ? ? ? 45 8D 5A 0E*/
+		g_pUnknownPakStruct = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8D\x1D\x00\x00\x00\x00\x45\x8D\x5A\x0E"), "xxx????xxxx").ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakUnknownStruct_t*>(); /*48 8D 1D ? ? ? ? 45 8D 5A 0E*/
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

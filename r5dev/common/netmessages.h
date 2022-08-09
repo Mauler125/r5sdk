@@ -75,14 +75,14 @@ class HMM_Heartbeat : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		MM_Heartbeat__ToString = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x38\xE8\x00\x00\x00\x00\x3B\x05\x00\x00\x00\x00"), "xxxxx????xx????");
+		MM_Heartbeat__ToString = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x38\xE8\x00\x00\x00\x00\x3B\x05\x00\x00\x00\x00"), "xxxxx????xx????");
 		// 48 83 EC 38 E8 ? ? ? ? 3B 05 ? ? ? ?
 	}
 	virtual void GetVar(void) const 
 	{ 
 		// We get the actual address of the vtable here, not the class instance.
-		g_pSVC_Print_VTable = g_mGameDll.GetVirtualMethodTable(".?AVSVC_Print@@");
-		g_pSVC_UserMessage_VTable = g_mGameDll.GetVirtualMethodTable(".?AVSVC_UserMessage@@");
+		g_pSVC_Print_VTable = g_GameDll.GetVirtualMethodTable(".?AVSVC_Print@@");
+		g_pSVC_UserMessage_VTable = g_GameDll.GetVirtualMethodTable(".?AVSVC_UserMessage@@");
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

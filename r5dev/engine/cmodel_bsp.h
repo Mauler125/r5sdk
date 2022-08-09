@@ -79,27 +79,27 @@ class VModel_BSP : public IDetour
 	virtual void GetFun(void) const
 	{
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_CollisionBSPData_LinkPhysics = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x48\x8B\xD9\x48\x83\xC1\x08\xE8\x00\x00\x00\x00\x48\x8D\x4B\x68"), "xxxxxxxxxxxxxx????xxxx");
+		p_CollisionBSPData_LinkPhysics = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x48\x8B\xD9\x48\x83\xC1\x08\xE8\x00\x00\x00\x00\x48\x8D\x4B\x68"), "xxxxxxxxxxxxxx????xxxx");
 		CollisionBSPData_LinkPhysics = p_CollisionBSPData_LinkPhysics.RCast<uint64_t(*)(void*)>(); /*48 89 5C 24 ?? 48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B F9 33 ED*/
 
-		p_MOD_LoadPakForMap = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x81\xEC\x00\x00\x00\x00\x4C\x8B\xC1\x48\x8D\x15\x00\x00\x00\x00\x48\x8D\x4C\x24\x00\xE8\x00\x00\x00\x00\x4C\x8D\x0D\x00\x00\x00\x00"), "xxx????xxxxxx????xxxx?x????xxx????");
+		p_MOD_LoadPakForMap = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x81\xEC\x00\x00\x00\x00\x4C\x8B\xC1\x48\x8D\x15\x00\x00\x00\x00\x48\x8D\x4C\x24\x00\xE8\x00\x00\x00\x00\x4C\x8D\x0D\x00\x00\x00\x00"), "xxx????xxxxxx????xxxx?x????xxx????");
 		v_MOD_LoadPakForMap = p_MOD_LoadPakForMap.RCast<bool(*)(const char*)>(); /*48 81 EC ? ? ? ? 4C 8B C1 48 8D 15 ? ? ? ? 48 8D 4C 24 ? E8 ? ? ? ? 4C 8D 0D ? ? ? ?*/
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_CollisionBSPData_LinkPhysics = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xF9\x33\xED"), "xxxx?xxxx?xxxx????xxxxx");
+		p_CollisionBSPData_LinkPhysics = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xF9\x33\xED"), "xxxx?xxxx?xxxx????xxxxx");
 		CollisionBSPData_LinkPhysics = p_CollisionBSPData_LinkPhysics.RCast<uint64_t(*)(void*)>(); /*48 89 5C 24 ?? 48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B F9 33 ED*/
 
-		p_MOD_LoadPakForMap = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x81\xEC\x00\x00\x00\x00\x0F\xB6\x05\x00\x00\x00\x00\x4C\x8D\x05\x00\x00\x00\x00\x84\xC0"), "xxx????xxx????xxx????xx");
+		p_MOD_LoadPakForMap = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x81\xEC\x00\x00\x00\x00\x0F\xB6\x05\x00\x00\x00\x00\x4C\x8D\x05\x00\x00\x00\x00\x84\xC0"), "xxx????xxx????xxx????xx");
 		v_MOD_LoadPakForMap = p_MOD_LoadPakForMap.RCast<bool(*)(const char*)>(); /*48 81 EC ? ? ? ? 0F B6 05 ? ? ? ? 4C 8D 05 ? ? ? ? 84 C0*/
 #endif
-		p_MOD_ProcessPakQueue = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x00\xF3\x0F\x10\x05\x00\x00\x00\x00\x32\xDB"), "xxxxx?xxxx????xx");
+		p_MOD_ProcessPakQueue = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x00\xF3\x0F\x10\x05\x00\x00\x00\x00\x32\xDB"), "xxxxx?xxxx????xx");
 		v_MOD_ProcessPakQueue = p_MOD_ProcessPakQueue.RCast<void(*)(void)>(); /*40 53 48 83 EC ?? F3 0F 10 05 ? ? ? ? 32 DB*/
 
-		sub_14045BAC0 = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x4C\x89\x4C\x24\x00\x4C\x89\x44\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x60"), "xxxx?xxxx?xxxx?xxxxxxxxxxxxxxx").RCast<__int64(*)(__int64(__fastcall* a1)(__int64, _DWORD*, __int64, _QWORD*), __int64 a2, __int64 a3, __int64 a4)>();
-		sub_14045A1D0 = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x89\x4C\x24\x00\x4C\x89\x44\x24\x00\x48\x89\x54\x24\x00\x48\x89\x4C\x24\x00\x55\x53\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00"), "xxxx?xxxx?xxxx?xxxx?xxxxxxxxxxxxxxxx?").RCast<__int64(*)(unsigned __int8(__fastcall* a1)(_QWORD), __int64 a2, __int64 a3, __int64 a4, volatile signed __int64* a5, char a6)>();
+		sub_14045BAC0 = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x4C\x89\x4C\x24\x00\x4C\x89\x44\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x60"), "xxxx?xxxx?xxxx?xxxxxxxxxxxxxxx").RCast<__int64(*)(__int64(__fastcall* a1)(__int64, _DWORD*, __int64, _QWORD*), __int64 a2, __int64 a3, __int64 a4)>();
+		sub_14045A1D0 = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x89\x4C\x24\x00\x4C\x89\x44\x24\x00\x48\x89\x54\x24\x00\x48\x89\x4C\x24\x00\x55\x53\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00"), "xxxx?xxxx?xxxx?xxxx?xxxxxxxxxxxxxxxx?").RCast<__int64(*)(unsigned __int8(__fastcall* a1)(_QWORD), __int64 a2, __int64 a3, __int64 a4, volatile signed __int64* a5, char a6)>();
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		sub_140441220 = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x55\x48\x83\xEC\x20\x33\xED\x48\x39\x2D\x00\x00\x00\x00"), "xxxx?xxxxxxxxxx????").RCast<void(*)(__int64 a1, __int64 a2)>();
+		sub_140441220 = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x55\x48\x83\xEC\x20\x33\xED\x48\x39\x2D\x00\x00\x00\x00"), "xxxx?xxxxxxxxxx????").RCast<void(*)(__int64 a1, __int64 a2)>();
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		sub_140441220 = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\x33\xED\x48\x8D\x35\x00\x00\x00\x00\x48\x39\x2D\x00\x00\x00\x00"), "xxxx?xxxx?xxxx?xxxxxxxxxx????xxx????").RCast<void(*)(__int64 a1, __int64 a2)>();
+		sub_140441220 = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\x33\xED\x48\x8D\x35\x00\x00\x00\x00\x48\x39\x2D\x00\x00\x00\x00"), "xxxx?xxxx?xxxx?xxxxxxxxxx????xxx????").RCast<void(*)(__int64 a1, __int64 a2)>();
 #endif
 	}
 	virtual void GetVar(void) const

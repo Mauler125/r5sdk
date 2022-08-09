@@ -66,13 +66,13 @@ class VMaterialGlue : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		p_GetMaterialAtCrossHair = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x83\xEC\x58\x48\x83\x3D\x00\x00\x00\x00\x00"), "xxxxxxxxxx?????");
+		p_GetMaterialAtCrossHair = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x83\xEC\x58\x48\x83\x3D\x00\x00\x00\x00\x00"), "xxxxxxxxxx?????");
 		GetMaterialAtCrossHair = p_GetMaterialAtCrossHair.RCast<CMaterialGlue* (*)(void)>(); /*48 8B C4 48 83 EC 58 48 83 3D ? ? ? ? ?*/
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const
 	{
-		g_pMaterialGlueVTable = g_mGameDll.GetVirtualMethodTable(".?AVCMaterialGlue@@");
+		g_pMaterialGlueVTable = g_GameDll.GetVirtualMethodTable(".?AVCMaterialGlue@@");
 	}
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }

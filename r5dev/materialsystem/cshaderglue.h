@@ -45,7 +45,7 @@ class VShaderGlue : public IDetour
 	virtual void GetFun(void) const 
 	{
 		// We get it here in GetFun because we grab other functions with it, it's more efficient.
-		CShaderGlue_VTable = g_mGameDll.GetVirtualMethodTable(".?AVCShaderGlue@@");
+		CShaderGlue_VTable = g_GameDll.GetVirtualMethodTable(".?AVCShaderGlue@@");
 		g_pCShaderGlue_VTable = CShaderGlue_VTable.RCast<void*>();
 
 		CShaderGlue_SetupShader = CShaderGlue_VTable.WalkVTable(4).RCast<int(*)(CShaderGlue*, uint64_t, uint64_t, void*)>();

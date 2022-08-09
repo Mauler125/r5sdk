@@ -40,13 +40,13 @@ class VEbisuSDK : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		p_EbisuSDK_Init_Tier0 = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x80\x3D\x00\x00\x00\x00\x00\x0F\x85\x00\x02\x00\x00\x48\x89\x5C\x24\x20"), "xxxxxx????xxx?xxxxxxxx");
+		p_EbisuSDK_Init_Tier0 = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x80\x3D\x00\x00\x00\x00\x00\x0F\x85\x00\x02\x00\x00\x48\x89\x5C\x24\x20"), "xxxxxx????xxx?xxxxxxxx");
 		EbisuSDK_Init_Tier0 = p_EbisuSDK_Init_Tier0.RCast<void(*)(void)>(); /*48 83 EC 28 80 3D ?? ?? ?? ?? 00 0F 85 ?? 02 00 00 48 89 5C 24 20*/
 
-		p_EbisuSDK_CVar_Init = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x57\x48\x83\xEC\x40\x83\x3D"), "xxxxxxxx");
+		p_EbisuSDK_CVar_Init = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x57\x48\x83\xEC\x40\x83\x3D"), "xxxxxxxx");
 		EbisuSDK_CVar_Init = p_EbisuSDK_CVar_Init.RCast<void(*)(void)>(); /*40 57 48 83 EC 40 83 3D*/
 
-		p_EbisuSDK_SetState = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x81\xEC\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x0F\x84\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x74\x5B"), "xxx????xx?????xx????xx?????xx");
+		p_EbisuSDK_SetState = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x81\xEC\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x0F\x84\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x74\x5B"), "xxx????xx?????xx????xx?????xx");
 		EbisuSDK_SetState = p_EbisuSDK_SetState.RCast<void(*)(void)>(); /*48 81 EC ? ? ? ? 80 3D ? ? ? ? ? 0F 84 ? ? ? ? 80 3D ? ? ? ? ? 74 5B*/
 	}
 	virtual void GetVar(void) const

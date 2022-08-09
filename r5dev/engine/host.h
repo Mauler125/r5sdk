@@ -30,14 +30,14 @@ class VHost : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		p_Host_RunFrame = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x89\x58\x18\x48\x89\x70\x20\xF3\x0F\x11\x48\x00"), "xxxxxxxxxxxxxxx?");
+		p_Host_RunFrame = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x89\x58\x18\x48\x89\x70\x20\xF3\x0F\x11\x48\x00"), "xxxxxxxxxxxxxxx?");
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_Host_RunFrame_Render = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\x1D\x00\x00\x00\x00\x33\xFF"), "xxxx?xxxxxxxx????xx");
+		p_Host_RunFrame_Render = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\x1D\x00\x00\x00\x00\x33\xFF"), "xxxx?xxxxxxxx????xx");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_Host_RunFrame_Render = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x48\x8B\x0D\x00\x00\x00\x00\x48\x85\xC9\x75\x34"), "xxxxxxxxx????xxxxx");
+		p_Host_RunFrame_Render = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x48\x8B\x0D\x00\x00\x00\x00\x48\x85\xC9\x75\x34"), "xxxxxxxxx????xxxxx");
 #endif
-		p_Host_Error = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x4C\x24\x00\x48\x89\x54\x24\x00\x4C\x89\x44\x24\x00\x4C\x89\x4C\x24\x00\x53\x57\x48\x81\xEC\x00\x00\x00\x00"), "xxxx?xxxx?xxxx?xxxx?xxxxx????");
-		p_VCR_EnterPausedState = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x65\x48\x8B\x04\x25\x00\x00\x00\x00\xBB\x00\x00\x00\x00\xC6\x05\x00\x00\x00\x00\x00"), "xxxxxxxxxxx????x????xx?????");
+		p_Host_Error = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x4C\x24\x00\x48\x89\x54\x24\x00\x4C\x89\x44\x24\x00\x4C\x89\x4C\x24\x00\x53\x57\x48\x81\xEC\x00\x00\x00\x00"), "xxxx?xxxx?xxxx?xxxx?xxxxx????");
+		p_VCR_EnterPausedState = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x65\x48\x8B\x04\x25\x00\x00\x00\x00\xBB\x00\x00\x00\x00\xC6\x05\x00\x00\x00\x00\x00"), "xxxxxxxxxxx????x????xx?????");
 
 		_Host_RunFrame = p_Host_RunFrame.RCast<void(*)(void*, float)>();
 		_Host_RunFrame_Render = p_Host_Error.RCast<void(*)(void)>();

@@ -19,7 +19,7 @@ class V_View : public IDetour
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
-		CMemory base = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x30\xF3\x0F\x10\x05\x00\x00\x00\x00\x00\x8B\x00"), "xxxx?xxxxxxxxx?????x?");
+		CMemory base = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x30\xF3\x0F\x10\x05\x00\x00\x00\x00\x00\x8B\x00"), "xxxx?xxxxxxxxx?????x?");
 
 		g_vecRenderOrigin = base.Offset(0x00).FindPatternSelf("F3 0F 10 05").ResolveRelativeAddressSelf(0x4, 0x8).RCast<Vector3D*>();
 		g_vecRenderAngles = base.Offset(0x30).FindPatternSelf("F3 0F 10 0D").ResolveRelativeAddressSelf(0x4, 0x8).RCast<QAngle*>();

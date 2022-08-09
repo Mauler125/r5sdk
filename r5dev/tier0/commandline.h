@@ -55,7 +55,7 @@ class VCommandLine : public IDetour
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
-		g_pCmdLine = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
+		g_pCmdLine = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
 			"\x40\x55\x48\x83\xEC\x20\x48\x8D\x6C\x24\x00\x48\x89\x5D\x10\x49\xC7\xC0\x00\x00\x00\x00"),
 			"xxxxxxxxxx?xxxxxxx????").FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 250).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CCommandLine*>();
 	}

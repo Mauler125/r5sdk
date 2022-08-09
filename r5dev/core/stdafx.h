@@ -99,12 +99,12 @@
 
 #if !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
 #if !defined (DEDICATED)
-inline CModule g_mGameDll = CModule("r5apex.exe");
-inline CModule g_mRadVideoToolsDll   = CModule("bink2w64.dll");
-inline CModule g_mRadAudioDecoderDll = CModule("binkawin64.dll");
-inline CModule g_mRadAudioSystemDll  = CModule("mileswin64.dll");
+inline CModule g_GameDll = CModule("r5apex.exe");
+inline CModule g_RadVideoToolsDll   = CModule("bink2w64.dll");
+inline CModule g_RadAudioDecoderDll = CModule("binkawin64.dll");
+inline CModule g_RadAudioSystemDll  = CModule("mileswin64.dll");
 #else // No DirectX and Miles imports.
-inline CModule g_mGameDll = CModule("r5apex_ds.exe");
+inline CModule g_GameDll = CModule("r5apex_ds.exe");
 #endif // !DEDICATED
 
 #define VAR_NAME(varName)  #varName

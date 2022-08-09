@@ -62,17 +62,17 @@ class VEdict : public IDetour
 	virtual void GetVar(void) const
 	{
 #ifndef CLIENT_DLL
-		g_ServerGlobalVariables = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
+		g_ServerGlobalVariables = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
 			"\x48\x81\xEC\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x0F\x85\x00\x00\x00\x00"), "xxx????x????xx?????xx????")
 			.FindPatternSelf("48 8D ?? ?? ?? ?? 01", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CGlobalVars*>();
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		g_ClientGlobalVariables = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
+		g_ClientGlobalVariables = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
 			"\x48\x8B\xC4\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x60\x48\xC7\x40\x00\x00\x00\x00\x00\x48\x89\x58\x08"), "xxxxxxxxxxxxxxxxxxx?????xxxx")
 			.FindPatternSelf("4C 8D ?? ?? ?? ?? 01", CMemory::Direction::DOWN, 8000).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CGlobalVarsBase*>();
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		g_ClientGlobalVariables = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
+		g_ClientGlobalVariables = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
 			"\x48\x8B\xC4\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8B\xEC\x48\x83\xEC\x60"), "xxxxxxxxxxxxxxxxxxx")
 			.FindPatternSelf("4C 8D ?? ?? ?? ?? 01", CMemory::Direction::DOWN, 8000).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CGlobalVarsBase*>();
 #endif // GAME_DLL
