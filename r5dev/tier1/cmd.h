@@ -1,7 +1,7 @@
 #pragma once
 #include "tier1/characterset.h"
-#include "public/include/iconvar.h"
-#include "public/include/iconcommand.h"
+#include "public/iconvar.h"
+#include "public/iconcommand.h"
 
 //-----------------------------------------------------------------------------
 // Forward declarations

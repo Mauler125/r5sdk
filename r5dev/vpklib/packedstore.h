@@ -1,5 +1,5 @@
 #pragma once
-#include "public/include/binstream.h"
+#include "public/utility/binstream.h"
 #include "thirdparty/lzham/include/lzham.h"
 
 constexpr unsigned int VPK_HEADER_MARKER = 0x55AA1234;

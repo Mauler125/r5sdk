@@ -10,7 +10,7 @@
 #include "mathlib/vector.h"
 #include "common/qlimits.h"
 #include "datacache/imdlcache.h"
-#include "public/include/model_types.h"
+#include "public/model_types.h"
 
 #ifndef DEDICATED
 #include "game/client/enginesprite.h"

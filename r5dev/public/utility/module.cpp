@@ -4,8 +4,8 @@
 //
 //===========================================================================//
 #include "core/stdafx.h"
-#include "public/include/utility.h"
-#include "public/include/memaddr.h"
+#include "public/utility/utility.h"
+#include "public/utility/memaddr.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: constructor

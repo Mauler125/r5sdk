@@ -13,7 +13,7 @@
 #include "tier1/utlvector.h"
 #include "common/netmessages.h"
 #include "common/protocol.h"
-#include "public/include/inetchannel.h"
+#include "public/inetchannel.h"
 
 #define NET_FRAMES_BACKUP 128
 #define NET_CHANNELNAME_MAXLEN 32

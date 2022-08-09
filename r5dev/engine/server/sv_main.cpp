@@ -1,7 +1,7 @@
 #include "core/stdafx.h"
 #include "engine/server/sv_main.h"
 #include "networksystem/pylon.h"
-#include "public/include/bansystem.h"
+#include "public/bansystem.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: checks if particular client is banned on the comp server

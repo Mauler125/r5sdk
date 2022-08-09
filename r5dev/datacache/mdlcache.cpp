@@ -12,7 +12,7 @@
 #include "datacache/imdlcache.h"
 #include "datacache/idatacache.h"
 #include "rtech/rtech_utils.h"
-#include "public/include/studio.h"
+#include "public/studio.h"
 #include "tier1/utldict.h"
 
 

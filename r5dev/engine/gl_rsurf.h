@@ -1,6 +1,6 @@
 #ifndef GL_RSURF_H
 #define GL_RSURF_H
-#include "public/include/ivrenderview.h"
+#include "public/ivrenderview.h"
 
 inline CMemory P_DrawWorldMeshes;
 inline auto V_DrawWorldMeshes = P_DrawWorldMeshes.RCast<void* (*)(void* baseEntity, void* renderContext, DrawWorldLists_t worldLists)>();

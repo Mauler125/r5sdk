@@ -1,6 +1,6 @@
 #pragma once
 #include "vstdlib/completion.h"
-#include "public/include/utility.h"
+#include "public/utility/utility.h"
 
 //#ifdef DEDICATED
 inline CMemory p_EbisuSDK_Init_Tier0;

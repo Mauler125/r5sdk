@@ -1,7 +1,7 @@
 #pragma once
 #include "tier1/cmd.h"
 #include "mathlib/color.h"
-#include "public/include/iconvar.h"
+#include "public/iconvar.h"
 #include "tier1/utlvector.h"
 
 //-----------------------------------------------------------------------------

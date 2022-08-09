@@ -2,7 +2,7 @@
 #ifndef DEDICATED
 #include "launcher/IApplication.h"
 #endif // !DEDICATED
-#include "public/include/globalvars_base.h"
+#include "public/globalvars_base.h"
 #ifndef CLIENT_DLL
 #include "engine/server/sv_main.h"
 #endif // !CLIENT_DLL

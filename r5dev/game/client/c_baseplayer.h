@@ -1,14 +1,14 @@
 #ifndef C_BASEPLAYER_H
 #define C_BASEPLAYER_H
 
-#include "public/include/icliententity.h"
-#include "public/include/icliententitylist.h"
-#include "public/include/iclientnetworkable.h"
-#include "public/include/iclientrenderable.h"
-#include "public/include/iclientthinkable.h"
-#include "public/include/iclientunknown.h"
-#include "public/include/ihandleentity.h"
-#include "public/include/ivscript.h"
+#include "public/icliententity.h"
+#include "public/icliententitylist.h"
+#include "public/iclientnetworkable.h"
+#include "public/iclientrenderable.h"
+#include "public/iclientthinkable.h"
+#include "public/iclientunknown.h"
+#include "public/ihandleentity.h"
+#include "public/ivscript.h"
 
 
 class C_BaseCombatCharacter

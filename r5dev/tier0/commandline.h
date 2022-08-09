@@ -1,5 +1,5 @@
 #pragma once
-#include "public/include/icommandline.h"
+#include "public/icommandline.h"
 
 class CCommandLine : public ICommandLine // VTABLE @0x141369C78 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 {

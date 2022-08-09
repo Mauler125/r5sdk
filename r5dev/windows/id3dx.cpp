@@ -8,7 +8,7 @@
 #include "gameui/IConsole.h"
 #include "gameui/IBrowser.h"
 #include "inputsystem/inputsystem.h"
-#include "public/include/stb_image.h"
+#include "public/bitmap/stb_image.h"
 
 /**********************************************************************************
 -----------------------------------------------------------------------------------

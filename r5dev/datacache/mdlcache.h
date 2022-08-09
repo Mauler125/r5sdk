@@ -1,10 +1,10 @@
 #ifndef MDLCACHE_H
 #define MDLCACHE_H
-#include "public/include/studio.h"
-#include "datacache/idatacache.h"
-#include "datacache/imdlcache.h"
 #include "tier0/threadtools.h"
 #include "tier1/utldict.h"
+#include "datacache/idatacache.h"
+#include "datacache/imdlcache.h"
+#include "public/studio.h"
 
 struct RStaticProp_t
 {

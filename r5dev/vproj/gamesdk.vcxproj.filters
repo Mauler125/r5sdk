@@ -121,7 +121,7 @@
     <Filter Include="sdk\public">
       <UniqueIdentifier>{b0696621-8658-4918-b0f2-ba20acc26829}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sdk\public\include">
+    <Filter Include="sdk\public">
       <UniqueIdentifier>{cbe60970-f348-4a8b-8cee-d4cfebbe0d99}</UniqueIdentifier>
     </Filter>
     <Filter Include="sdk\tier2">
@@ -223,6 +223,12 @@
     <Filter Include="sdk\bonesetup">
       <UniqueIdentifier>{acbd4b45-6a8d-4d9f-9747-1bc460481bb4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\public\bitmap">
+      <UniqueIdentifier>{a7d7c0e6-d908-4e3e-ae8d-f45dea8de772}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\public\utility">
+      <UniqueIdentifier>{2828835b-d972-4793-83f7-8eb1741b78ba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\vengineclient_impl.cpp">
@@ -256,9 +262,6 @@
       <Filter>sdk\gameui</Filter>
     </ClCompile>
     <ClCompile Include="..\public\bansystem.cpp">
-      <Filter>sdk\public</Filter>
-    </ClCompile>
-    <ClCompile Include="..\public\utility.cpp">
       <Filter>sdk\public</Filter>
     </ClCompile>
     <ClCompile Include="..\rtech\rtech_utils.cpp">
@@ -326,9 +329,6 @@
     </ClCompile>
     <ClCompile Include="..\vpklib\packedstore.cpp">
       <Filter>sdk\vpklib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\public\binstream.cpp">
-      <Filter>sdk\public</Filter>
     </ClCompile>
     <ClCompile Include="..\bsplib\bsplib.cpp">
       <Filter>sdk\bsplib</Filter>
@@ -465,12 +465,6 @@
     <ClCompile Include="..\vstdlib\keyvaluessystem.cpp">
       <Filter>sdk\vstdlib</Filter>
     </ClCompile>
-    <ClCompile Include="..\public\memaddr.cpp">
-      <Filter>sdk\public</Filter>
-    </ClCompile>
-    <ClCompile Include="..\public\module.cpp">
-      <Filter>sdk\public</Filter>
-    </ClCompile>
     <ClCompile Include="..\vstdlib\callback.cpp">
       <Filter>sdk\vstdlib</Filter>
     </ClCompile>
@@ -606,6 +600,18 @@
     <ClCompile Include="..\tier1\splitstring.cpp">
       <Filter>sdk\tier1</Filter>
     </ClCompile>
+    <ClCompile Include="..\public\utility\module.cpp">
+      <Filter>sdk\public\utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\utility\utility.cpp">
+      <Filter>sdk\public\utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\utility\binstream.cpp">
+      <Filter>sdk\public\utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\utility\memaddr.cpp">
+      <Filter>sdk\public\utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -641,17 +647,8 @@
     <ClInclude Include="..\gameui\IConsole.h">
       <Filter>sdk\gameui</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\bansystem.h">
-      <Filter>sdk\public\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\public\include\httplib.h">
-      <Filter>sdk\public\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\public\include\utility.h">
-      <Filter>sdk\public\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\public\include\memaddr.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\bansystem.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\rtech\rtech_utils.h">
       <Filter>sdk\rtech</Filter>
@@ -1064,9 +1061,6 @@
     <ClInclude Include="..\mathlib\parallel_for.h">
       <Filter>sdk\mathlib</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\stb_image.h">
-      <Filter>sdk\public\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\squirrel\sqinit.h">
       <Filter>sdk\squirrel</Filter>
     </ClInclude>
@@ -1078,9 +1072,6 @@
     </ClInclude>
     <ClInclude Include="..\vpklib\packedstore.h">
       <Filter>sdk\vpklib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\public\include\binstream.h">
-      <Filter>sdk\public\include</Filter>
     </ClInclude>
     <ClInclude Include="..\mathlib\adler32.h">
       <Filter>sdk\mathlib</Filter>
@@ -1286,11 +1277,11 @@
     <ClInclude Include="..\game\server\ai_network.h">
       <Filter>sdk\game\server</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\edict.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\edict.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\globalvars_base.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\globalvars_base.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\engine\gl_matsysiface.h">
       <Filter>sdk\engine</Filter>
@@ -1325,8 +1316,8 @@
     <ClInclude Include="..\squirrel\sqtype.h">
       <Filter>sdk\squirrel</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\inetchannel.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\inetchannel.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\tier1\utlmemory.h">
       <Filter>sdk\tier1</Filter>
@@ -1361,9 +1352,6 @@
     <ClInclude Include="..\vstdlib\keyvaluessystem.h">
       <Filter>sdk\vstdlib</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\module.h">
-      <Filter>sdk\public\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\common\x86defs.h">
       <Filter>sdk\common</Filter>
     </ClInclude>
@@ -1391,8 +1379,8 @@
     <ClInclude Include="..\datacache\mdlcache.h">
       <Filter>sdk\datacache</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\studio.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\studio.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\engine\gl_model_private.h">
       <Filter>sdk\engine</Filter>
@@ -1400,8 +1388,8 @@
     <ClInclude Include="..\common\qlimits.h">
       <Filter>sdk\common</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\model_types.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\model_types.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\datacache\imdlcache.h">
       <Filter>sdk\datacache</Filter>
@@ -1409,8 +1397,8 @@
     <ClInclude Include="..\game\client\enginesprite.h">
       <Filter>sdk\game\client</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\const.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\const.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\public\avi\ibik.h">
       <Filter>sdk\public\avi</Filter>
@@ -1424,8 +1412,8 @@
     <ClInclude Include="..\engine\gl_rsurf.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\ivrenderview.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\ivrenderview.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\tier0\threadtools.h">
       <Filter>sdk\tier0</Filter>
@@ -1433,14 +1421,14 @@
     <ClInclude Include="..\game\shared\animation.h">
       <Filter>sdk\game\shared</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\icliententitylist.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\icliententitylist.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\tier1\utldict.h">
       <Filter>sdk\tier1</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\client_class.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\client_class.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\datacache\idatacache.h">
       <Filter>sdk\datacache</Filter>
@@ -1583,8 +1571,8 @@
     <ClInclude Include="..\tier1\mempool.h">
       <Filter>sdk\tier1</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\inetmsghandler.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\inetmsghandler.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\squirrel\sqstate.h">
       <Filter>sdk\squirrel</Filter>
@@ -1610,8 +1598,8 @@
     <ClInclude Include="..\engine\networkstringtable.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\iserver.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\iserver.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\tier0\wchartypes.h">
       <Filter>sdk\tier0</Filter>
@@ -1646,8 +1634,8 @@
     <ClInclude Include="..\tier0\platform_internal.h">
       <Filter>sdk\tier0</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\icommandline.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\icommandline.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\materialsystem\cshaderglue.h">
       <Filter>sdk\materialsystem</Filter>
@@ -1706,8 +1694,8 @@
     <ClInclude Include="..\server\persistence.h">
       <Filter>sdk\server</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\idebugoverlay.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\idebugoverlay.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\tier0\memstd.h">
       <Filter>sdk\tier0</Filter>
@@ -1715,26 +1703,26 @@
     <ClInclude Include="..\game\client\c_baseplayer.h">
       <Filter>sdk\game\client</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\icliententity.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\icliententity.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\iclientthinkable.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\iclientthinkable.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\iclientunknown.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\iclientunknown.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\ihandleentity.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\ihandleentity.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\iclientnetworkable.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\iclientnetworkable.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\iclientrenderable.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\iclientrenderable.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\ivscript.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\ivscript.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\game\client\view.h">
       <Filter>sdk\game\client</Filter>
@@ -1742,20 +1730,20 @@
     <ClInclude Include="..\game\shared\ai_utility_shared.h">
       <Filter>sdk\game\shared</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\iconvar.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\iconvar.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\iconcommand.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\iconcommand.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\icvar.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\icvar.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\tier1\characterset.h">
       <Filter>sdk\tier1</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\worldsize.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\worldsize.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\tier1\utlblockmemory.h">
       <Filter>sdk\tier1</Filter>
@@ -1765,6 +1753,24 @@
     </ClInclude>
     <ClInclude Include="..\public\iengine.h">
       <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\bitmap\stb_image.h">
+      <Filter>sdk\public\bitmap</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\utility\memaddr.h">
+      <Filter>sdk\public\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\utility\module.h">
+      <Filter>sdk\public\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\utility\utility.h">
+      <Filter>sdk\public\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\utility\binstream.h">
+      <Filter>sdk\public\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\utility\httplib.h">
+      <Filter>sdk\public\utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

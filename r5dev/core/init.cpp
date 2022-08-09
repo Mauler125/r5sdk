@@ -102,9 +102,9 @@
 #ifndef DEDICATED
 #include "game/client/view.h"
 #endif // !DEDICATED
-#include "public/include/edict.h"
+#include "public/edict.h"
 #ifndef DEDICATED
-#include "public/include/idebugoverlay.h"
+#include "public/idebugoverlay.h"
 #include "inputsystem/inputsystem.h"
 #include "windows/id3dx.h"
 #endif // !DEDICATED

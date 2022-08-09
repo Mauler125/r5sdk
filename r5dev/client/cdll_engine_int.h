@@ -1,7 +1,7 @@
 #pragma once
 #ifndef DEDICATED // We should think about not including this file at all in dedicated tbh.
-#include "public/include/client_class.h"
-#include "public/include/icliententitylist.h"
+#include "public/client_class.h"
+#include "public/icliententitylist.h"
 #endif // !DEDICATED
 
 enum class ClientFrameStage_t : int

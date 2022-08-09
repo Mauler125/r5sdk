@@ -82,11 +82,11 @@
 #include "common/x86defs.h"
 #include "common/sdkdefs.h"
 
-#include "public/include/utility.h"
-#include "public/include/memaddr.h"
-#include "public/include/module.h"
-#include "public/include/httplib.h"
-#include "public/include/vdf_parser.h"
+#include "public/utility/utility.h"
+#include "public/utility/memaddr.h"
+#include "public/utility/module.h"
+#include "public/utility/httplib.h"
+#include "public/utility/vdf_parser.h"
 
 #include "core/assert.h"
 #include "core/termutil.h"

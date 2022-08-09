@@ -31,16 +31,16 @@
 #include "gameui/IConsole.h"
 #endif // !DEDICATED
 #ifndef CLIENT_DLL
-#include "public/include/bansystem.h"
+#include "public/bansystem.h"
 #endif // !CLIENT_DLL
-#include "public/include/worldsize.h"
+#include "public/worldsize.h"
 #include "mathlib/crc32.h"
 #include "mathlib/mathlib.h"
 #include "vstdlib/completion.h"
 #include "vstdlib/callback.h"
 #ifndef DEDICATED
 #include "materialsystem/cmaterialglue.h"
-#include "public/include/idebugoverlay.h"
+#include "public/idebugoverlay.h"
 #endif // !DEDICATED
 #ifndef DEDICATED
 #include "game/client/view.h"

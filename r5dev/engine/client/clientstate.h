@@ -2,7 +2,7 @@
 #include "tier1/NetAdr2.h"
 #include "tier1/mempool.h"
 #include "common/protocol.h"
-#include "public/include/inetmsghandler.h"
+#include "public/inetmsghandler.h"
 #include "engine/datablock.h"
 #include "engine/net_chan.h"
 #include "engine/debugoverlay.h"

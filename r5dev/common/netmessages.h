@@ -1,6 +1,6 @@
 #pragma once
 #include "tier1/bitbuf.h"
-#include "public/include/inetmsghandler.h"
+#include "public/inetmsghandler.h"
 
 enum class UserMessages : int
 {

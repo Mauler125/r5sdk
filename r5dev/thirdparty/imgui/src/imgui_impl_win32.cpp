@@ -25,7 +25,7 @@
 // Includes of the game have to be here since this header is precompiled.
 #include "string"
 #include "d3d11.h"
-#include "public/include/httplib.h"
+#include "public/utility/httplib.h"
 
 // Game ImGui headers are here for mouse tracking.
 #include "gameui/IBrowser.h"

@@ -10,7 +10,7 @@
 #include "tier2/socketcreator.h"
 #include "protoc/sv_rcon.pb.h"
 #include "protoc/cl_rcon.pb.h"
-#include "public/include/utility.h"
+#include "public/utility/utility.h"
 #include "engine/net.h"
 #include "netconsole/netconsole.h"
 

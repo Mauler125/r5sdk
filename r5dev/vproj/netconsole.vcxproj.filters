@@ -31,9 +31,6 @@
     <ClCompile Include="..\tier1\NetAdr2.cpp">
       <Filter>sdk\tier1</Filter>
     </ClCompile>
-    <ClCompile Include="..\public\utility.cpp">
-      <Filter>sdk\public</Filter>
-    </ClCompile>
     <ClCompile Include="..\core\stdafx.cpp">
       <Filter>core</Filter>
     </ClCompile>
@@ -54,6 +51,9 @@
     </ClCompile>
     <ClCompile Include="..\protoc\cl_rcon.pb.cc">
       <Filter>thirdparty\protobuf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\utility\utility.cpp">
+      <Filter>sdk\public</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -81,7 +81,7 @@
     <ClInclude Include="..\protoc\cl_rcon.pb.h">
       <Filter>thirdparty\protobuf</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\utility.h">
+    <ClInclude Include="..\public\utility\utility.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
   </ItemGroup>

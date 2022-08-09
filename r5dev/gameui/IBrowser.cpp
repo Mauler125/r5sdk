@@ -35,7 +35,7 @@ History:
 #include "vstdlib/callback.h"
 #include "vpklib/packedstore.h"
 #include "gameui/IBrowser.h"
-#include "public/include/edict.h"
+#include "public/edict.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 

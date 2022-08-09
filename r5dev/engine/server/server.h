@@ -3,7 +3,7 @@
 #include "networksystem/pylon.h"
 #include "engine/client/client.h"
 #include "engine/networkstringtable.h"
-#include "public/include/iserver.h"
+#include "public/iserver.h"
 #ifndef CLIENT_DLL
 #include "server/vengineserver_impl.h"
 #endif // !CLIENT_DLL

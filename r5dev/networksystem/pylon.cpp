@@ -15,7 +15,7 @@
 #endif
 #include <squirrel/sqinit.h>
 #include <networksystem/pylon.h>
-#include <public/include/edict.h>
+#include <public/edict.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: Send keep alive request to Pylon Master Server.
