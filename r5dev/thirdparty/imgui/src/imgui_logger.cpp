@@ -257,7 +257,7 @@ CTextLogger::Coordinates CTextLogger::ScreenPosToCoordinates(const ImVec2& aPosi
 		int columnIndex = 0;
 		float columnX = 0.0f;
 
-		while ((size_t)columnIndex < line.size())
+		while (columnIndex < static_cast<int>(line.size()))
 		{
 			float columnWidth = 0.0f;
 
@@ -375,7 +375,7 @@ CTextLogger::Coordinates CTextLogger::FindNextWord(const Coordinates & aFrom) co
 
 	while (!isword || skip)
 	{
-		if (at.m_nLine >= m_Lines.size())
+		if (at.m_nLine >= static_cast<int>(m_Lines.size()))
 		{
 			int l = std::max(0, static_cast<int>(m_Lines.size() - 1));
 			return Coordinates(l, GetLineMaxColumn(l));
@@ -408,7 +408,7 @@ CTextLogger::Coordinates CTextLogger::FindNextWord(const Coordinates & aFrom) co
 
 int CTextLogger::GetCharacterIndex(const Coordinates& aCoordinates) const
 {
-	if (aCoordinates.m_nLine >= m_Lines.size())
+	if (aCoordinates.m_nLine >= static_cast<int>(m_Lines.size()))
 		return -1;
 
 	const Line& line = m_Lines[aCoordinates.m_nLine];
@@ -1193,7 +1193,7 @@ void CTextLogger::MoveRight(int aAmount, bool aSelect, bool aWordMode)
 {
 	const Coordinates oldPos = m_State.m_CursorPosition;
 
-	if (m_Lines.empty() || oldPos.m_nLine >= m_Lines.size())
+	if (m_Lines.empty() || oldPos.m_nLine >= static_cast<int>(m_Lines.size()))
 		return;
 
 	int cindex = GetCharacterIndex(m_State.m_CursorPosition);
@@ -1202,9 +1202,9 @@ void CTextLogger::MoveRight(int aAmount, bool aSelect, bool aWordMode)
 		int lindex = m_State.m_CursorPosition.m_nLine;
 		const Line& line = m_Lines[lindex];
 
-		if (cindex >= line.size()) // !CAST: SIZE_T
+		if (cindex >= static_cast<int>(line.size()))
 		{
-			if (m_State.m_CursorPosition.m_nLine < m_Lines.size() - 1)
+			if (m_State.m_CursorPosition.m_nLine < static_cast<int>(m_Lines.size()) - 1)
 			{
 				m_State.m_CursorPosition.m_nLine = std::max(0, std::min(static_cast<int>(m_Lines.size()) - 1, m_State.m_CursorPosition.m_nLine + 1));
 				m_State.m_CursorPosition.m_nColumn = 0;

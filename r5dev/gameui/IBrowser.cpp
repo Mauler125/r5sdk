@@ -43,22 +43,22 @@ History:
 CBrowser::CBrowser(void)
 {
     memset(m_szServerAddressBuffer, '\0', sizeof(m_szServerAddressBuffer));
-#ifndef CLIENT_DLL
-    static std::thread hostingServerRequestThread([this]()
+    static std::thread request([this]()
     {
         RefreshServerList();
+#ifndef CLIENT_DLL
         while (true)
         {
             UpdateHostingStatus();
             std::this_thread::sleep_for(std::chrono::milliseconds(5000));
         }
+#endif // !CLIENT_DLL
     });
 
-    hostingServerRequestThread.detach();
+    request.detach();
 
     std::thread think(&CBrowser::Think, this);
     think.detach();
-#endif // !CLIENT_DLL
 
     m_pszBrowserTitle = "Server Browser";
     m_rLockedIconBlob = GetModuleResource(IDB_PNG2);
