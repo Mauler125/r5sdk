@@ -297,53 +297,53 @@ string CreateDirectories(string svInput, bool bWindows)
     }
 
     fs::path fspPathOut(svInput);
-    string results = fspPathOut.u8string();
+    string result = fspPathOut.u8string();
 
     fspPathOut = fspPathOut.parent_path();
     fs::create_directories(fspPathOut);
 
-    return results;
+    return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // For converting filepaths to windows filepaths.
 string ConvertToWinPath(const string& svInput)
 {
-    string results = svInput;
+    string result = svInput;
 
     // Flip forward slashes in filepath to windows-style backslash
-    for (size_t i = 0; i < results.size(); i++)
+    for (size_t i = 0; i < result.size(); i++)
     {
-        if (results[i] == '/')
+        if (result[i] == '/')
         {
-            results[i] = '\\';
+            result[i] = '\\';
         }
     }
-    return results;
+    return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // For converting filepaths to unix filepaths.
 string ConvertToUnixPath(const string& svInput)
 {
-    string results = svInput;
+    string result = svInput;
 
     // Flip windows-style backslashes in filepath to forward slash
-    for (size_t i = 0; i < results.size(); i++)
+    for (size_t i = 0; i < result.size(); i++)
     {
-        if (results[i] == '\\')
+        if (result[i] == '\\')
         {
-            results[i] = '/';
+            result[i] = '/';
         }
     }
-    return results;
+    return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // For encoding data in Base64.
 string Base64Encode(const string& svInput)
 {
-    string results;
+    string result;
     int val = 0, valb = -6;
 
     for (unsigned char c : svInput)
@@ -352,26 +352,26 @@ string Base64Encode(const string& svInput)
         valb += 8;
         while (valb >= 0)
         {
-            results.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[(val >> valb) & 0x3F]);
+            result.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[(val >> valb) & 0x3F]);
             valb -= 6;
         }
     }
     if (valb > -6)
     {
-        results.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[((val << 8) >> (valb + 8)) & 0x3F]);
+        result.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[((val << 8) >> (valb + 8)) & 0x3F]);
     }
-    while (results.size() % 4)
+    while (result.size() % 4)
     {
-        results.push_back('=');
+        result.push_back('=');
     }
-    return results;
+    return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // For decoding data in Base64.
 string Base64Decode(const string& svInput)
 {
-    string results;
+    string result;
     int val = 0, valb = -8;
 
     vector<int> T(256, -1);
@@ -390,25 +390,25 @@ string Base64Decode(const string& svInput)
         valb += 6;
         if (valb >= 0)
         {
-            results.push_back(char((val >> valb) & 0xFF));
+            result.push_back(char((val >> valb) & 0xFF));
             valb -= 8;
         }
     }
-    return results;
+    return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // For encoding data in UTF8.
 string UTF8Encode(const wstring& wsvInput)
 {
-    string results;
+    string result;
     int nLen = WideCharToMultiByte(CP_UTF8, 0, wsvInput.c_str(), wsvInput.length(), NULL, 0, NULL, NULL);
     if (nLen > 0)
     {
-        results.resize(nLen);
-        WideCharToMultiByte(CP_UTF8, 0, wsvInput.c_str(), wsvInput.length(), &results[0], nLen, NULL, NULL);
+        result.resize(nLen);
+        WideCharToMultiByte(CP_UTF8, 0, wsvInput.c_str(), wsvInput.length(), &result[0], nLen, NULL, NULL);
     }
-    return results;
+    return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -494,66 +494,66 @@ bool StringReplace(string& svInput, const string& svFrom, const string& svTo)
 // For replacing parts of a given string by value.
 string StringReplaceC(const string& svInput, const string& svFrom, const string& svTo)
 {
-    string results = svInput;
-    string::size_type nPos = results.find(svFrom);
+    string result = svInput;
+    string::size_type nPos = result.find(svFrom);
 
     if (nPos == string::npos)
     {
-        return results;
+        return result;
     }
 
-    results.replace(nPos, svFrom.length(), svTo);
-    return results;
+    result.replace(nPos, svFrom.length(), svTo);
+    return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // For escaping special characters in a string.
 string StringEscape(const string& svInput)
 {
-    string results;
-    results.reserve(svInput.size());
+    string result;
+    result.reserve(svInput.size());
 
     for (const char c : svInput)
     {
         switch (c)
         {
-        //case '\'':  results += "\\'";  break;
-        case '\a':  results += "\\a";  break;
-        case '\b':  results += "\\b";  break;
-        case '\f':  results += "\\f";  break;
-        case '\n':  results += "\\n";  break;
-        case '\r':  results += "\\r";  break;
-        case '\t':  results += "\\t";  break;
-        case '\v':  results += "\\v";  break;
-        default:    results += c;      break;
+        //case '\'':  result += "\\'";  break;
+        case '\a':  result += "\\a";  break;
+        case '\b':  result += "\\b";  break;
+        case '\f':  result += "\\f";  break;
+        case '\n':  result += "\\n";  break;
+        case '\r':  result += "\\r";  break;
+        case '\t':  result += "\\t";  break;
+        case '\v':  result += "\\v";  break;
+        default:    result += c;      break;
         }
     }
-    return results;
+    return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // For unescaping special characters in a string.
 string StringUnescape(const string& svInput)
 {
-    string results;
-    results.reserve(svInput.size());
+    string result;
+    result.reserve(svInput.size());
 
     for (const char c : svInput)
     {
         switch (c)
         {
-        //case '\\':   results += "\'";  break;
-        case '\\a':  results += "\a";  break;
-        case '\\b':  results += "\b";  break;
-        case '\\f':  results += "\f";  break;
-        case '\\n':  results += "\n";  break;
-        case '\\r':  results += "\r";  break;
-        case '\\t':  results += "\t";  break;
-        case '\\v':  results += "\v";  break;
-        default:     results += c;     break;
+        //case '\\':   result += "\'";  break;
+        case '\\a':  result += "\a";  break;
+        case '\\b':  result += "\b";  break;
+        case '\\f':  result += "\f";  break;
+        case '\\n':  result += "\n";  break;
+        case '\\r':  result += "\r";  break;
+        case '\\t':  result += "\t";  break;
+        case '\\v':  result += "\v";  break;
+        default:     result += c;     break;
         }
     }
-    return results;
+    return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -732,16 +732,16 @@ void PrintM128i64(__m128i in)
 // For escaping the '%' character for *rintf.
 string PrintPercentageEscape(const string& svInput)
 {
-    string results;
-    results.reserve(svInput.size());
+    string result;
+    result.reserve(svInput.size());
 
     for (const char c : svInput)
     {
         switch (c)
         {
-        case '%':  results += "%%";  break;
-        default:   results += c;     break;
+        case '%':  result += "%%";  break;
+        default:   result += c;     break;
         }
     }
-    return results;
+    return result;
 }
