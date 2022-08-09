@@ -309,12 +309,12 @@ string CreateDirectories(string svInput, bool bWindows)
 // For converting filepaths to windows filepaths.
 string ConvertToWinPath(const string& svInput)
 {
-    char szFilePath[MAX_PATH] = { 0 };
+    char szFilePath[MAX_PATH];
     string results;
     sprintf_s(szFilePath, MAX_PATH, "%s", svInput.c_str());
 
     // Flip forward slashes in filepath to windows-style backslash
-    for (size_t i = 0; i < strlen(szFilePath); i++)
+    for (size_t i = 0, len = strlen(szFilePath); i < len; i++)
     {
         if (szFilePath[i] == '/')
         {
@@ -328,12 +328,12 @@ string ConvertToWinPath(const string& svInput)
 // For converting filepaths to unix filepaths.
 string ConvertToUnixPath(const string& svInput)
 {
-    char szFilePath[MAX_PATH] = { 0 };
+    char szFilePath[MAX_PATH];
     string results;
     sprintf_s(szFilePath, MAX_PATH, "%s", svInput.c_str());
 
-    // Flip forward slashes in filepath to windows-style backslash
-    for (size_t i = 0; i < strlen(szFilePath); i++)
+    // Flip windows-style backslashes in filepath to forward slash
+    for (size_t i = 0, len = strlen(szFilePath); i < len; i++)
     {
         if (szFilePath[i] == '\\')
         {
