@@ -530,11 +530,9 @@ void CConsole::ProcessCommand(const char* pszCommand)
 {
     DevMsg(eDLL_T::COMMON, "] %s\n", pszCommand);
 
-    std::thread t(CEngineClient_CommandExecute, this, pszCommand);
-    t.detach(); // Detach from render thread.
-
-    // This is to avoid a race condition.
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    Cbuf_AddText(Cbuf_GetCurrentPlayer(), pszCommand, cmd_source_t::kCommandSrcCode);
+    std::thread t(Cbuf_Execute);
+    t.detach(); // Detatch from render thread.
 
     m_nHistoryPos = -1;
     for (ssize_t i = static_cast<ssize_t>(m_vHistory.size()) - 1; i >= 0; i--)

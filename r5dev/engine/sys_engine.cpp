@@ -10,7 +10,7 @@ CEngine* g_pEngine = nullptr;
 //-----------------------------------------------------------------------------
 bool CEngine::Load(bool dedicated, const char* rootDir)
 {
-	static int index = 1;
+	const int index = 1;
 	return CallVFunc<bool>(index, this, dedicated, rootDir);
 }
 
@@ -19,7 +19,7 @@ bool CEngine::Load(bool dedicated, const char* rootDir)
 //-----------------------------------------------------------------------------
 void CEngine::Unload(void)
 {
-	static int index = 2;
+	const int index = 2;
 	CallVFunc<void>(index, this);
 }
 
@@ -44,7 +44,7 @@ EngineState_t CEngine::GetState(void) const
 //-----------------------------------------------------------------------------
 void CEngine::Frame(void)
 {
-	static int index = 5;
+	const int index = 5;
 	CallVFunc<void>(index, this);
 }
 
@@ -61,7 +61,7 @@ float CEngine::GetFrameTime(void) const
 //-----------------------------------------------------------------------------
 float CEngine::GetPreviousTime(void) // I'm not sure if this is right, should double check.
 {
-	static int index = 7;
+	const int index = 7;
 	return CallVFunc<float>(index, this);
 }
 
@@ -78,6 +78,6 @@ __m128 __fastcall CEngine::GetCurTime(CEngine *thisPtr) const
 //-----------------------------------------------------------------------------
 void CEngine::SetQuitting(EngineDllQuitting_t quitDllState)
 {
-	static int index = 9;
+	const int index = 9;
 	CallVFunc<void>(index, this, quitDllState);
 }

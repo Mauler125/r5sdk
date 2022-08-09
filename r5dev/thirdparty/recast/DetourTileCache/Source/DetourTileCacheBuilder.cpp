@@ -1955,7 +1955,7 @@ dtStatus dtMarkCylinderArea(dtTileCacheLayer& layer, const float* orig, const fl
 	bmin[2] = pos[2];
 	bmax[0] = pos[0] + radius;
 	bmax[1] = pos[1] + radius;
-	bmax[2] = pos[2] + height;;
+	bmax[2] = pos[2] + height;
 	const float r2 = dtSqr(radius/cs + 0.5f);
 
 	const int w = (int)layer.header->width;

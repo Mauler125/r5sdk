@@ -14,7 +14,7 @@
 //-----------------------------------------------------------------------------
 void CServerGameDLL::GameInit(void)
 {
-	static int index = 1;
+	const int index = 1;
 	CallVFunc<void>(index, this);
 }
 
@@ -23,7 +23,7 @@ void CServerGameDLL::GameInit(void)
 //-----------------------------------------------------------------------------
 void CServerGameDLL::PrecompileScriptsJob(void)
 {
-	static int index = 2;
+	const int index = 2;
 	CallVFunc<void>(index, this);
 }
 
@@ -32,7 +32,7 @@ void CServerGameDLL::PrecompileScriptsJob(void)
 //-----------------------------------------------------------------------------
 void CServerGameDLL::LevelShutdown(void)
 {
-	static int index = 8;
+	const int index = 8;
 	CallVFunc<void>(index, this);
 }
 
@@ -42,7 +42,7 @@ void CServerGameDLL::LevelShutdown(void)
 //-----------------------------------------------------------------------------
 void CServerGameDLL::GameShutdown(void)
 {
-	static int index = 9;
+	const int index = 9;
 	CallVFunc<void>(index, this);
 }
 
@@ -52,7 +52,7 @@ void CServerGameDLL::GameShutdown(void)
 //-----------------------------------------------------------------------------
 float CServerGameDLL::GetTickInterval(void)
 {
-	static int index = 11;
+	const int index = 11;
 	return CallVFunc<float>(index, this);
 }
 

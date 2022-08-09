@@ -33,7 +33,7 @@ CCommandLine::~CCommandLine(void)
 //-----------------------------------------------------------------------------
 void CCommandLine::CreateCmdLine(const char* pszCommandline)
 {
-	static int index = 0;
+	const int index = 0;
 	CallVFunc<void>(index, this, pszCommandline);
 }
 
@@ -42,7 +42,7 @@ void CCommandLine::CreateCmdLine(const char* pszCommandline)
 //-----------------------------------------------------------------------------
 void CCommandLine::CreateCmdLine(int argc, char** argv)
 {
-	static int index = 1;
+	const int index = 1;
 	CallVFunc<void>(index, this, argc, argv);
 }
 
@@ -51,7 +51,7 @@ void CCommandLine::CreateCmdLine(int argc, char** argv)
 //-----------------------------------------------------------------------------
 void CCommandLine::CreatePool(void* pMem)
 {
-	static int index = 2;
+	const int index = 2;
 	CallVFunc<void>(index, this, pMem);
 }
 
@@ -61,7 +61,7 @@ void CCommandLine::CreatePool(void* pMem)
 //-----------------------------------------------------------------------------
 const char* CCommandLine::GetCmdLine(void)
 {
-	static int index = 3;
+	const int index = 3;
 	return CallVFunc<const char*>(index, this);
 }
 
@@ -73,7 +73,7 @@ const char* CCommandLine::GetCmdLine(void)
 //-----------------------------------------------------------------------------
 const char* CCommandLine::CheckParm(const char* psz, const char** ppszValue)
 {
-	static int index = 4;
+	const int index = 4;
 	return CallVFunc<const char*>(index, this, psz, ppszValue);
 }
 
@@ -83,7 +83,7 @@ const char* CCommandLine::CheckParm(const char* psz, const char** ppszValue)
 //-----------------------------------------------------------------------------
 void CCommandLine::RemoveParm(const char* pszParm)
 {
-	static int index = 5;
+	const int index = 5;
 	CallVFunc<void>(index, this, pszParm);
 }
 
@@ -94,7 +94,7 @@ void CCommandLine::RemoveParm(const char* pszParm)
 //-----------------------------------------------------------------------------
 void CCommandLine::AppendParm(const char* pszParm, const char* pszValues)
 {
-	static int index = 6;
+	const int index = 6;
 	CallVFunc<void>(index, this, pszParm, pszValues);
 }
 
@@ -103,17 +103,17 @@ void CCommandLine::AppendParm(const char* pszParm, const char* pszValues)
 //-----------------------------------------------------------------------------
 float CCommandLine::ParmValue(const char* psz, float flDefaultVal)
 {
-	static int index = 7;
+	const int index = 7;
 	return CallVFunc<float>(index, this, psz, flDefaultVal);
 }
 int CCommandLine::ParmValue(const char* psz, int nDefaultVal)
 {
-	static int index = 8;
+	const int index = 8;
 	return CallVFunc<int>(index, this, psz, nDefaultVal);
 }
 const char* CCommandLine::ParmValue(const char* psz, const char* pDefaultVal)
 {
-	static int index = 9;
+	const int index = 9;
 	return CallVFunc<const char*>(index, this, psz, pDefaultVal);
 }
 
@@ -122,25 +122,25 @@ const char* CCommandLine::ParmValue(const char* psz, const char* pDefaultVal)
 //-----------------------------------------------------------------------------
 int CCommandLine::ParmCount(void)
 {
-	static int index = 10;
+	const int index = 10;
 	return CallVFunc<int>(index, this);
 }
 
 int CCommandLine::FindParm(const char* psz)
 {
-	static int index = 11;
+	const int index = 11;
 	return CallVFunc<int>(index, this, psz);
 }
 
 const char* CCommandLine::GetParm(int nIndex)
 {
-	static int index = 12;
+	const int index = 12;
 	return CallVFunc<const char*>(index, this, nIndex);
 }
 
 void CCommandLine::SetParm(int nIndex, char const* pParm)
 {
-	static int index = 14;
+	const int index = 14;
 	CallVFunc<void>(index, this, nIndex, pParm);
 }
 

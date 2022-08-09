@@ -172,7 +172,7 @@ ConVar* rui_drawEnable                     = nullptr;
 //-----------------------------------------------------------------------------
 ConCommandBase* CCVar::RegisterConCommand(ConCommandBase* pCommandToRemove)
 {
-	static int index = 9;
+	const int index = 9;
 	return CallVFunc<ConCommandBase*>(index, this, pCommandToRemove);
 }
 
@@ -182,7 +182,7 @@ ConCommandBase* CCVar::RegisterConCommand(ConCommandBase* pCommandToRemove)
 //-----------------------------------------------------------------------------
 ConCommandBase* CCVar::UnregisterConCommand(ConCommandBase* pCommandToRemove)
 {
-	static int index = 10;
+	const int index = 10;
 	return CallVFunc<ConCommandBase*>(index, this, pCommandToRemove);
 }
 
@@ -192,7 +192,7 @@ ConCommandBase* CCVar::UnregisterConCommand(ConCommandBase* pCommandToRemove)
 //-----------------------------------------------------------------------------
 ConCommandBase* CCVar::FindCommandBase(const char* pszCommandName)
 {
-	static int index = 14;
+	const int index = 14;
 	return CallVFunc<ConCommandBase*>(index, this, pszCommandName);
 }
 
@@ -202,7 +202,7 @@ ConCommandBase* CCVar::FindCommandBase(const char* pszCommandName)
 //-----------------------------------------------------------------------------
 ConVar* CCVar::FindVar(const char* pszVarName)
 {
-	static int index = 16;
+	const int index = 16;
 	return CallVFunc<ConVar*>(index, this, pszVarName);
 }
 
@@ -212,7 +212,7 @@ ConVar* CCVar::FindVar(const char* pszVarName)
 //-----------------------------------------------------------------------------
 ConCommand* CCVar::FindCommand(const char* pszCommandName)
 {
-	static int index = 18;
+	const int index = 18;
 	return CallVFunc<ConCommand*>(index, this, pszCommandName);
 }
 
@@ -254,7 +254,7 @@ void CCVar::QueueMaterialThreadSetValue(ConVar* pConVar, const char* pValue)
 //-----------------------------------------------------------------------------
 CCVarIteratorInternal* CCVar::FactoryInternalIterator(void)
 {
-	static int index = 41;
+	const int index = 41;
 	return CallVFunc<CCVarIteratorInternal*>(index, this);
 }
 

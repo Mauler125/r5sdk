@@ -300,6 +300,9 @@ void CBrowser::GetServerList(void)
 
 //-----------------------------------------------------------------------------
 // Purpose: connects to specified server
+// Input  : &svIp - 
+//          &svPort - 
+//          &svNetKey - 
 //-----------------------------------------------------------------------------
 void CBrowser::ConnectToServer(const string& svIp, const string& svPort, const string& svNetKey)
 {
@@ -315,6 +318,8 @@ void CBrowser::ConnectToServer(const string& svIp, const string& svPort, const s
 
 //-----------------------------------------------------------------------------
 // Purpose: connects to specified server
+// Input  : &svServer - 
+//          &svNetKey - 
 //-----------------------------------------------------------------------------
 void CBrowser::ConnectToServer(const string& svServer, const string& svNetKey)
 {
@@ -675,14 +680,13 @@ void CBrowser::SendHostingPostRequest(void)
 
 //-----------------------------------------------------------------------------
 // Purpose: executes submitted commands in a separate thread
+// Input  : *pszCommand - 
 //-----------------------------------------------------------------------------
 void CBrowser::ProcessCommand(const char* pszCommand)
 {
-    std::thread t(CEngineClient_CommandExecute, this, pszCommand);
-    t.detach(); // Detach from render thread.
-
-    // This is to avoid a race condition.
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    Cbuf_AddText(Cbuf_GetCurrentPlayer(), pszCommand, cmd_source_t::kCommandSrcCode);
+    std::thread t(Cbuf_Execute);
+    t.detach(); // Detatch from render thread.
 }
 
 //-----------------------------------------------------------------------------
@@ -717,6 +721,7 @@ void CBrowser::RegenerateEncryptionKey(void) const
 
 //-----------------------------------------------------------------------------
 // Purpose: changes encryption key to specified one
+// Input  : &svNetKey - 
 //-----------------------------------------------------------------------------
 void CBrowser::ChangeEncryptionKey(const string& svNetKey) const
 {

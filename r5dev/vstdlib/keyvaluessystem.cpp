@@ -24,7 +24,7 @@ CKeyValuesSystem* KeyValuesSystem()
 //-----------------------------------------------------------------------------
 void CKeyValuesSystem::RegisterSizeofKeyValues(int64_t nSize)
 {
-	static int index = 0;
+	const int index = 0;
 	CallVFunc<void>(index, this, nSize);
 }
 
@@ -35,7 +35,7 @@ void CKeyValuesSystem::RegisterSizeofKeyValues(int64_t nSize)
 //-----------------------------------------------------------------------------
 void* CKeyValuesSystem::AllocKeyValuesMemory(int64_t nSize)
 {
-	static int index = 1;
+	const int index = 1;
 	return CallVFunc<void*>(index, this, nSize);
 }
 
@@ -45,7 +45,7 @@ void* CKeyValuesSystem::AllocKeyValuesMemory(int64_t nSize)
 //-----------------------------------------------------------------------------
 void CKeyValuesSystem::FreeKeyValuesMemory(void* pMem)
 {
-	static int index = 2;
+	const int index = 2;
 	CallVFunc<void>(index, this, pMem);
 }
 
@@ -57,7 +57,7 @@ void CKeyValuesSystem::FreeKeyValuesMemory(void* pMem)
 //-----------------------------------------------------------------------------
 HKeySymbol CKeyValuesSystem::GetSymbolForString(const char* szName, bool bCreate)
 {
-	static int index = 3;
+	const int index = 3;
 	return CallVFunc<HKeySymbol>(index, this, szName, bCreate);
 }
 
@@ -68,7 +68,7 @@ HKeySymbol CKeyValuesSystem::GetSymbolForString(const char* szName, bool bCreate
 //-----------------------------------------------------------------------------
 const char* CKeyValuesSystem::GetStringForSymbol(HKeySymbol symbol)
 {
-	static int index = 4;
+	const int index = 4;
 	return CallVFunc<const char*>(index, this, symbol);
 }
 
@@ -78,7 +78,7 @@ const char* CKeyValuesSystem::GetStringForSymbol(HKeySymbol symbol)
 //-----------------------------------------------------------------------------
 void* CKeyValuesSystem::GetMemPool(void)
 {
-	static int index = 7;
+	const int index = 7;
 	return CallVFunc<void*>(index, this);
 }
 
@@ -90,7 +90,7 @@ void* CKeyValuesSystem::GetMemPool(void)
 //-----------------------------------------------------------------------------
 void CKeyValuesSystem::SetKeyValuesExpressionSymbol(const char* szName, bool bValue)
 {
-	static int index = 8;
+	const int index = 8;
 	CallVFunc<void>(index, this, szName, bValue);
 }
 
@@ -100,7 +100,7 @@ void CKeyValuesSystem::SetKeyValuesExpressionSymbol(const char* szName, bool bVa
 //-----------------------------------------------------------------------------
 bool CKeyValuesSystem::GetKeyValuesExpressionSymbol(const char* szName)
 {
-	static int index = 9;
+	const int index = 9;
 	return CallVFunc<bool>(index, this, szName);
 }
 
@@ -113,6 +113,6 @@ bool CKeyValuesSystem::GetKeyValuesExpressionSymbol(const char* szName)
 //-----------------------------------------------------------------------------
 HKeySymbol CKeyValuesSystem::GetSymbolForStringCaseSensitive(HKeySymbol& hCaseInsensitiveSymbol, const char* szName, bool bCreate)
 {
-	static int index = 10;
+	const int index = 10;
 	return CallVFunc<HKeySymbol>(index, this, hCaseInsensitiveSymbol, szName, bCreate);
 }

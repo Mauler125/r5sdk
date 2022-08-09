@@ -18,7 +18,7 @@ CFileSystem_Stdio* FileSystem()
 //-----------------------------------------------------------------------------
 void IFileSystem::AddSearchPath(const char* pPath, const char* pPathID, SearchPathAdd_t addType)
 {
-	static int index = 12;
+	const int index = 12;
 	CallVFunc<void>(index, this, pPath, pPathID, addType);
 }
 
@@ -31,7 +31,7 @@ void IFileSystem::AddSearchPath(const char* pPath, const char* pPathID, SearchPa
 //-----------------------------------------------------------------------------
 bool IFileSystem::RemoveSearchPath(const char* pPath, const char* pPathID)
 {
-	static int index = 13;
+	const int index = 13;
 	return CallVFunc<bool>(index, this, pPath, pPathID);
 }
 
@@ -43,7 +43,7 @@ bool IFileSystem::RemoveSearchPath(const char* pPath, const char* pPathID)
 //-----------------------------------------------------------------------------
 bool IFileSystem::ReadFromCache(const char* pPath, void* pResult)
 {
-	static int index = 76;
+	const int index = 76;
 	return CallVFunc<bool>(index, this, pPath, pResult);
 }
 
@@ -54,7 +54,7 @@ bool IFileSystem::ReadFromCache(const char* pPath, void* pResult)
 //-----------------------------------------------------------------------------
 VPKData_t* IFileSystem::MountVPK(const char* pPath)
 {
-	static int index = 92;
+	const int index = 92;
 	return CallVFunc<VPKData_t*>(index, this, pPath);
 }
 

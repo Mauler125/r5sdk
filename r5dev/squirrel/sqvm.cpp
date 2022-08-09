@@ -53,11 +53,8 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 		nResponseId = -4;
 		break;
 	default:
-#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
+
 		context = v->GetContext();
-#else // Nothing equal to 'rdx + 18h' exist in the vm structs for anything below S3.
-		context = SQVM_GetContextIndex(v);
-#endif
 		switch (context)
 		{
 		case SQCONTEXT::SERVER:
@@ -154,7 +151,7 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 			}
 			else
 			{
-				vmStrAnsi = Plat_GetProcessUpTime();;
+				vmStrAnsi = Plat_GetProcessUpTime();
 				vmStrAnsi.append(SQVM_ANSI_LOG_T[static_cast<SQInteger>(context)]);
 			}
 			vmStrAnsi.append(buf);
