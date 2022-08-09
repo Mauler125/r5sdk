@@ -116,7 +116,7 @@ void NetMsg(int context, const char* fmt, ...)
 
 			vsnprintf(szBuf, sizeof(szBuf), fmt, args);
 
-			szBuf[sizeof(szBuf) - 1] = 0;
+			szBuf[sizeof(szBuf) - 1] = '\0';
 			va_end(args);
 		}/////////////////////////////
 
@@ -195,7 +195,7 @@ void NetMsg(int context, const char* fmt, ...)
 
 			vsnprintf(szBuf, sizeof(szBuf), fmt, args);
 
-			szBuf[sizeof(szBuf) - 1] = 0;
+			szBuf[sizeof(szBuf) - 1] = '\0';
 			va_end(args);
 		}/////////////////////////////
 
@@ -304,7 +304,7 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 
 		vsnprintf(szBuf, sizeof(szBuf), fmt, args);
 
-		szBuf[sizeof(szBuf) - 1] = 0;
+		szBuf[sizeof(szBuf) - 1] = '\0';
 		va_end(args);
 	}/////////////////////////////
 
@@ -417,7 +417,7 @@ void Warning(eDLL_T context, const char* fmt, ...)
 
 		vsnprintf(szBuf, sizeof(szBuf), fmt, args);
 
-		szBuf[sizeof(szBuf) - 1] = 0;
+		szBuf[sizeof(szBuf) - 1] = '\0';
 		va_end(args);
 	}/////////////////////////////
 
@@ -494,7 +494,7 @@ void Error(eDLL_T context, const char* fmt, ...)
 
 		vsnprintf(szBuf, sizeof(szBuf), fmt, args);
 
-		szBuf[sizeof(szBuf) - 1] = 0;
+		szBuf[sizeof(szBuf) - 1] = '\0';
 		va_end(args);
 	}/////////////////////////////
 

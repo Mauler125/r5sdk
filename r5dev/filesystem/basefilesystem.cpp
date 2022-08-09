@@ -81,7 +81,7 @@ void CBaseFileSystem::Warning(CBaseFileSystem* pFileSystem, FileWarningLevel_t l
 
 		vsnprintf(szBuf, sizeof(szBuf), pFmt, args);
 
-		szBuf[sizeof(szBuf) - 1] = 0;
+		szBuf[sizeof(szBuf) - 1] = '\0';
 		va_end(args);
 	}/////////////////////////////
 
