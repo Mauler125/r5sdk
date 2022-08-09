@@ -104,7 +104,7 @@ class VServer : public IDetour
 		spdlog::debug("| FUN: CServer::Think                       : {:#18x} |\n", p_CServer_Think.GetPtr());
 		spdlog::debug("| FUN: CServer::Authenticate                : {:#18x} |\n", p_CServer_Authenticate.GetPtr());
 		spdlog::debug("| FUN: CServer::RejectConnection            : {:#18x} |\n", p_CServer_RejectConnection.GetPtr());
-		spdlog::debug("| VAR: g_pServer                            : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pServer));
+		spdlog::debug("| VAR: g_pServer[128]                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pServer));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const

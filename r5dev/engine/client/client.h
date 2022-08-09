@@ -103,7 +103,7 @@ class VClient : public IDetour
 	{
 		spdlog::debug("| FUN: CClient::Connect                     : {:#18x} |\n", p_CClient_Connect.GetPtr());
 		spdlog::debug("| FUN: CClient::Clear                       : {:#18x} |\n", p_CClient_Clear.GetPtr());
-		spdlog::debug("| VAR: g_pClient                            : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pClient));
+		spdlog::debug("| VAR: g_pClient[128]                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pClient));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
