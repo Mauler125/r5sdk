@@ -93,11 +93,11 @@ void CNetAdr2::SetIPAndPort(string svInAdr)
 void CNetAdr2::SetIPAndPort(string svInAdr, string svInPort)
 {
 	SetType(netadrtype_t::NA_IP);
-	if (strcmp(svInAdr.c_str(), "loopback") == 0 || strcmp(svInAdr.c_str(), "::1") == 0)
+	if (svInAdr.compare("loopback") == 0 || svInAdr.compare("::1") == 0)
 	{
 		SetType(netadrtype_t::NA_LOOPBACK);
 	}
-	else if (strcmp(svInAdr.c_str(), "localhost") == 0)
+	else if (svInAdr.compare("localhost") == 0)
 	{
 		svInAdr = "127.0.0.1";
 	}

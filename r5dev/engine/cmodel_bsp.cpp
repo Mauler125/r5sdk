@@ -25,7 +25,7 @@ bool s_bBasePaksInitialized = false;
 //-----------------------------------------------------------------------------
 bool MOD_LevelHasChanged(const string& svLevelName)
 {
-	return (strcmp(svLevelName.c_str(), g_svLevelName.c_str()) != 0);
+	return (g_svLevelName.compare(svLevelName) != 0);
 }
 
 //-----------------------------------------------------------------------------
