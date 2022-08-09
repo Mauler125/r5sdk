@@ -298,13 +298,17 @@ const char* GetProcessorBrand(bool bRemovePadding = true)
 
 	if (bRemovePadding)
 	{
-		for (int i = 0; i < sizeof(s_CpuBrand.name) - 1; i++)
+		for (size_t i = sizeof(s_CpuBrand.name); i-- > 0; )
 		{
-			if (s_CpuBrand.name[i] == ' ')
+			if (s_CpuBrand.name[i] != '\0')
 			{
-				if (s_CpuBrand.name[i + 1] == ' ')
+				if (s_CpuBrand.name[i] != ' ')
 				{
-					s_CpuBrand.name[i] = '\0';
+					if (i < (sizeof(s_CpuBrand.name) - 1))
+					{
+						s_CpuBrand.name[i + 1] = '\0';
+						break;
+					}
 				}
 			}
 		}
