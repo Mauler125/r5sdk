@@ -39,12 +39,12 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
             if (pStudioHDR)
             {
                 string svStudio = ConvertToUnixPath(string(pStudioHDR->name));
-                if (strcmp(svStudio.c_str(), ERROR_MODEL) == 0)
+                if (svStudio.compare(ERROR_MODEL) == 0)
                 {
                     g_pMDLFallback->m_pErrorHDR = pStudioHDR;
                     g_pMDLFallback->m_hErrorMDL = handle;
                 }
-                if (strcmp(svStudio.c_str(), EMPTY_MODEL) == 0)
+                if (svStudio.compare(EMPTY_MODEL) == 0)
                 {
                     g_pMDLFallback->m_pEmptyHDR = pStudioHDR;
                     g_pMDLFallback->m_hEmptyMDL = handle;
@@ -356,7 +356,7 @@ bool CMDLCache::IsKnownBadModel(MDLHandle_t handle)
 void MDLCache_Attach()
 {
     DetourAttach((LPVOID*)&v_CMDLCache__FindMDL, &CMDLCache::FindMDL);
-#ifdef GAMEDLL_S3 // !!! DECLARED INLINE IN < S3 !!!
+#ifdef GAMEDLL_S3 // !!! DECLARED INLINE WITH FINDMDL IN < S3 !!!
     DetourAttach((LPVOID*)&v_CMDLCache__FindCachedMDL, &CMDLCache::FindCachedMDL);
     DetourAttach((LPVOID*)&v_CMDLCache__FindUncachedMDL, &CMDLCache::FindUncachedMDL);
 #endif // GAMEDLL_S3
@@ -369,7 +369,7 @@ void MDLCache_Attach()
 void MDLCache_Detach()
 {
     DetourDetach((LPVOID*)&v_CMDLCache__FindMDL, &CMDLCache::FindMDL);
-#ifdef GAMEDLL_S3 // !!! DECLARED INLINE IN < S3 !!!
+#ifdef GAMEDLL_S3 // !!! DECLARED INLINE WITH FINDMDL IN < S3 !!!
     DetourDetach((LPVOID*)&v_CMDLCache__FindCachedMDL, &CMDLCache::FindCachedMDL);
     DetourDetach((LPVOID*)&v_CMDLCache__FindUncachedMDL, &CMDLCache::FindUncachedMDL);
 #endif // GAMEDLL_S3
