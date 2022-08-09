@@ -20,9 +20,9 @@ CBanSystem::CBanSystem(void)
 
 //-----------------------------------------------------------------------------
 // Purpose: 
-// Input  : pair - 
+// Input  : pair<const string&, const uint64_t> - 
 //-----------------------------------------------------------------------------
-void CBanSystem::operator[](std::pair<string, uint64_t> pair)
+void CBanSystem::operator[](std::pair<const string&, const uint64_t> pair)
 {
 	AddEntry(pair.first, pair.second);
 }
@@ -54,7 +54,7 @@ void CBanSystem::Load(void)
 
 		for (int i = 0; i < nTotalBans; i++)
 		{
-			nlohmann::json jsEntry = jsIn[std::to_string(i).c_str()];
+			nlohmann::json jsEntry = jsIn[std::to_string(i)];
 			if (jsEntry.is_null())
 			{
 				continue;
@@ -75,11 +75,11 @@ void CBanSystem::Save(void) const
 {
 	nlohmann::json jsOut;
 
-	for (int i = 0; i < m_vBanList.size(); i++)
+	for (size_t i = 0; i < m_vBanList.size(); i++)
 	{
 		jsOut["totalBans"] = m_vBanList.size();
-		jsOut[std::to_string(i).c_str()]["ipAddress"] = m_vBanList[i].first;
-		jsOut[std::to_string(i).c_str()]["originID"] = m_vBanList[i].second;
+		jsOut[std::to_string(i)]["ipAddress"] = m_vBanList[i].first;
+		jsOut[std::to_string(i)]["originID"] = m_vBanList[i].second;
 	}
 
 	fs::path path = std::filesystem::current_path() /= "platform\\banlist.json";
@@ -90,10 +90,10 @@ void CBanSystem::Save(void) const
 
 //-----------------------------------------------------------------------------
 // Purpose: adds a banned player entry to the banlist
-// Input  : svIpAddress - 
+// Input  : &svIpAddress - 
 //			nOriginID - 
 //-----------------------------------------------------------------------------
-void CBanSystem::AddEntry(string svIpAddress, uint64_t nOriginID)
+void CBanSystem::AddEntry(const string& svIpAddress, const uint64_t nOriginID)
 {
 	if (!svIpAddress.empty())
 	{
@@ -107,10 +107,10 @@ void CBanSystem::AddEntry(string svIpAddress, uint64_t nOriginID)
 
 //-----------------------------------------------------------------------------
 // Purpose: deletes an entry in the banlist
-// Input  : svIpAddress - 
+// Input  : &svIpAddress - 
 //			nOriginID - 
 //-----------------------------------------------------------------------------
-void CBanSystem::DeleteEntry(string svIpAddress, uint64_t nOriginID)
+void CBanSystem::DeleteEntry(const string& svIpAddress, const uint64_t nOriginID)
 {
 	for (size_t i = 0; i < m_vBanList.size(); i++)
 	{
@@ -123,10 +123,10 @@ void CBanSystem::DeleteEntry(string svIpAddress, uint64_t nOriginID)
 
 //-----------------------------------------------------------------------------
 // Purpose: adds a connect refuse entry to the refuselist
-// Input  : svError - 
+// Input  : &svError - 
 //			nOriginID - 
 //-----------------------------------------------------------------------------
-void CBanSystem::AddConnectionRefuse(string svError, uint64_t nOriginID)
+void CBanSystem::AddConnectionRefuse(const string& svError, const uint64_t nOriginID)
 {
 	if (m_vRefuseList.empty())
 	{
@@ -148,7 +148,7 @@ void CBanSystem::AddConnectionRefuse(string svError, uint64_t nOriginID)
 // Purpose: deletes an entry in the refuselist
 // Input  : nOriginID - 
 //-----------------------------------------------------------------------------
-void CBanSystem::DeleteConnectionRefuse(uint64_t nOriginID)
+void CBanSystem::DeleteConnectionRefuse(const uint64_t nOriginID)
 {
 	for (size_t i = 0; i < m_vRefuseList.size(); i++)
 	{
@@ -194,11 +194,11 @@ void CBanSystem::BanListCheck(void)
 
 //-----------------------------------------------------------------------------
 // Purpose: checks if specified ip address or necleus id is banned
-// Input  : svIpAddress - 
+// Input  : &svIpAddress - 
 //			nOriginID - 
 // Output : true if banned, false if not banned
 //-----------------------------------------------------------------------------
-bool CBanSystem::IsBanned(string svIpAddress, uint64_t nOriginID) const
+bool CBanSystem::IsBanned(const string& svIpAddress, const uint64_t nOriginID) const
 {
 	for (size_t i = 0; i < m_vBanList.size(); i++)
 	{

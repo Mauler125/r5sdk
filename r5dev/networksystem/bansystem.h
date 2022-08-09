@@ -4,20 +4,20 @@ class CBanSystem
 {
 public:
 	CBanSystem(void);
-	void operator[](std::pair<string, uint64_t> pair);
+	void operator[](std::pair<const string&, const uint64_t> pair);
 
 	void Load(void);
 	void Save(void) const;
 
-	void AddEntry(string svIpAddress, uint64_t nOriginID);
-	void DeleteEntry(string svIpAddress, uint64_t nOriginID);
+	void AddEntry(const string& svIpAddress, const uint64_t nOriginID);
+	void DeleteEntry(const string& svIpAddress, const uint64_t nOriginID);
 
-	void AddConnectionRefuse(string svError, uint64_t nOriginID);
-	void DeleteConnectionRefuse(uint64_t nOriginID);
+	void AddConnectionRefuse(const string& svError, const uint64_t nOriginID);
+	void DeleteConnectionRefuse(const uint64_t nOriginID);
 
 	void BanListCheck(void);
 
-	bool IsBanned(string svIpAddress, uint64_t nOriginID) const;
+	bool IsBanned(const string& svIpAddress, const uint64_t nOriginID) const;
 	bool IsRefuseListValid(void) const;
 	bool IsBanListValid(void) const;
 
