@@ -136,7 +136,7 @@ void CNetAdr2::SetVersion(void)
 {
 	if (inet_pton(reinterpret_cast<sockaddr_in*>(&m_sadr)->sin_family, 
 		GetBase().c_str(), &reinterpret_cast<sockaddr_in*>(m_sadr)->sin_addr) &&
-		!strstr(GetBase().c_str(), "::"))
+		GetBase().find("::") == string::npos)
 	{
 		m_version = netadrversion_t::NA_V4;
 		return;
@@ -203,13 +203,13 @@ string CNetAdr2::GetBase(void) const
 	std::smatch smRegexMatches;
 	std::regex_search(m_svip, smRegexMatches, rx);
 
-	if (smRegexMatches.size() > 0)
+	if (smRegexMatches.empty())
 	{
-		return smRegexMatches[1].str();
+		return "127.0.0.1";
 	}
 	else
 	{
-		return "127.0.0.1";
+		return smRegexMatches[1].str();
 	}
 }
 
@@ -223,13 +223,13 @@ string CNetAdr2::GetBase(const string& svInAdr) const
 	std::smatch smRegexMatches;
 	std::regex_search(svInAdr, smRegexMatches, rx);
 
-	if (smRegexMatches.size() > 0)
+	if (smRegexMatches.empty())
 	{
-		return smRegexMatches[1].str();
+		return "127.0.0.1";
 	}
 	else
 	{
-		return "127.0.0.1";
+		return smRegexMatches[1].str();
 	}
 }
 
@@ -498,7 +498,7 @@ bool CNetAdr2::IsValidPort(const string& svInPort) const
 //-----------------------------------------------------------------------------
 bool CNetAdr2::IsLocalhost(void) const
 {
-	return (strcmp(GetBase().c_str(), "127.0.0.1") == 0);
+	return (GetBase().compare("127.0.0.1") == NULL);
 }
 
 //-----------------------------------------------------------------------------
@@ -506,7 +506,7 @@ bool CNetAdr2::IsLocalhost(void) const
 //-----------------------------------------------------------------------------
 bool CNetAdr2::IsLoopback(void) const
 {
-	return GetType() == netadrtype_t::NA_LOOPBACK;
+	return (GetType() == netadrtype_t::NA_LOOPBACK);
 }
 
 //-----------------------------------------------------------------------------
@@ -558,12 +558,12 @@ bool CNetAdr2::CompareAdr(const CNetAdr2& netAdr2, bool bBaseOnly) const
 	if (GetType() == netadrtype_t::NA_IP)
 	{
 		if (!bBaseOnly && 
-			(strcmp(netAdr2.GetPort().c_str(), GetPort().c_str()) != 0))
+			(netAdr2.GetPort().compare(GetPort()) != NULL))
 		{
 			return false;
 		}
 
-		if (strcmp(netAdr2.GetBase().c_str(), GetBase().c_str()) == 0)
+		if (netAdr2.GetBase().compare(GetBase()) == NULL)
 		{
 			return true;
 		}
@@ -599,8 +599,8 @@ bool CNetAdr2::CompareClassBAdr(const CNetAdr2& netAdr2) const
 		vector<string> v0 = netAdr2.GetParts();
 		vector<string> v1 = GetParts();
 
-		if (strcmp(v0[0].c_str(), v1[0].c_str()) == 0 && 
-			strcmp(v0[1].c_str(), v1[1].c_str()) == 0)
+		if (v0[0].compare(v1[0]) == NULL && 
+			v0[1].compare(v1[1]) == NULL)
 		{
 			return true;
 		}
@@ -636,9 +636,9 @@ bool CNetAdr2::CompareClassCAdr(const CNetAdr2& netAdr2) const
 		vector<string> v0 = netAdr2.GetParts();
 		vector<string> v1 = GetParts();
 
-		if (strcmp(v0[0].c_str(), v1[0].c_str()) == 0 && 
-			strcmp(v0[1].c_str(), v1[1].c_str()) == 0 && 
-			strcmp(v0[2].c_str(), v1[2].c_str()) == 0)
+		if (v0[0].compare(v1[0]) == NULL && 
+			v0[1].compare(v1[1]) == NULL && 
+			v0[2].compare(v1[2]) == NULL)
 		{
 			return true;
 		}
@@ -655,5 +655,5 @@ void CNetAdr2::Clear(void)
 	m_svip.clear();
 	m_type    = netadrtype_t::NA_NULL;
 	m_version = netadrversion_t::NA_INVALID;
-	m_sadr    = {};
+	m_sadr    = nullptr;
 }

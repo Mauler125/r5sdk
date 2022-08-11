@@ -64,7 +64,7 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 	for (auto& map : g_pCVar->DumpToMap())
 	{
 		g_pConsole->m_vsvCommandBases.push_back(
-			CSuggest(map.first.c_str(), map.second->GetFlags()));
+			CSuggest(map.first, map.second->GetFlags()));
 	}
 #endif // !DEDICATED
 	if (pModAppSystemGroup->IsServerOnly())

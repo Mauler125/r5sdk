@@ -13,25 +13,31 @@
 // Purpose: gets the netchannel name
 // Output : const char*
 //-----------------------------------------------------------------------------
-string CNetChan::GetName(void) const
+const char* CNetChan::GetName(void) const
 {
-	// [0x1A8D + 0x1] (first char in array is a null character!).
-	const char* pszName = this->m_Name + 1;
-	return string(pszName, NET_CHANNELNAME_MAXLEN);
+	return this->m_Name;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: gets the netchannel address
 // Output : const char*
 //-----------------------------------------------------------------------------
-string CNetChan::GetAddress(void) const
+const char* CNetChan::GetAddress(void) const
 {
-	char szAdr[INET6_ADDRSTRLEN]{};
-	if (!inet_ntop(AF_INET6, &this->remote_address.adr, szAdr, INET6_ADDRSTRLEN))
+	// Select a static buffer
+	static char s[4][INET6_ADDRSTRLEN];
+	static int slot = 0;
+	int useSlot = (slot++) % 4;
+
+	// Render into it
+
+	if (!inet_ntop(AF_INET6, &this->remote_address.adr, s[useSlot], sizeof(s[0])))
 	{
 		Warning(eDLL_T::ENGINE, "%s - Address conversion failed: %s", __FUNCTION__, NET_ErrorString(WSAGetLastError()));
 	}
-	return szAdr;
+
+	// Pray the caller uses it before it gets clobbered
+	return s[useSlot];
 }
 
 //-----------------------------------------------------------------------------

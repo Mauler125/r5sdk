@@ -646,7 +646,7 @@ int32_t RTech::OpenFile(const char* szFilePath, void* unused, int64_t* fileSizeO
 //-----------------------------------------------------------------------------
 RPakLoadedInfo_t* RTech::GetPakLoadedInfo(int nPakId)
 {
-	for (int i = 0; i < *s_pLoadedPakCount; ++i)
+	for (int16_t i = 0; i < *s_pLoadedPakCount; ++i)
 	{
 		RPakLoadedInfo_t* info = &g_pLoadedPakInfo[i];
 		if (!info)
@@ -667,7 +667,7 @@ RPakLoadedInfo_t* RTech::GetPakLoadedInfo(int nPakId)
 //-----------------------------------------------------------------------------
 RPakLoadedInfo_t* RTech::GetPakLoadedInfo(const char* szPakName)
 {
-	for (int i = 0; i < *s_pLoadedPakCount; ++i)
+	for (int16_t i = 0; i < *s_pLoadedPakCount; ++i)
 	{
 		RPakLoadedInfo_t* info = &g_pLoadedPakInfo[i];
 		if (!info)

@@ -29,10 +29,10 @@ void StreamDB_Init(const char* pszLevelName)
 
 			if (!jsIn.is_null())
 			{
-				if (!jsIn["stbsp"].is_null())
+				if (!jsIn[STREAM_DB_EXT].is_null())
 				{
-					string svStreamDBFile = jsIn["stbsp"].get<string>();
-					DevMsg(eDLL_T::MS, "%s: Loading override STBSP file '%s.stbsp'\n", __FUNCTION__, svStreamDBFile.c_str());
+					string svStreamDBFile = jsIn[STREAM_DB_EXT].get<string>();
+					DevMsg(eDLL_T::MS, "%s: Loading override STBSP file '%s.%s'\n", __FUNCTION__, svStreamDBFile.c_str(), STREAM_DB_EXT);
 					v_StreamDB_Init(svStreamDBFile.c_str());
 					return;
 				}
@@ -43,7 +43,7 @@ void StreamDB_Init(const char* pszLevelName)
 			Warning(eDLL_T::MS, "%s: Exception while parsing STBSP override: '%s'\n", __FUNCTION__, ex.what());
 		}
 	}
-	DevMsg(eDLL_T::MS, "%s: Loading STBSP file '%s.stbsp'\n", __FUNCTION__, pszLevelName);
+	DevMsg(eDLL_T::MS, "%s: Loading STBSP file '%s.%s'\n", __FUNCTION__, pszLevelName, STREAM_DB_EXT);
 	v_StreamDB_Init(pszLevelName);
 }
 

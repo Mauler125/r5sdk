@@ -3,6 +3,8 @@
 #define PAK_PARAM_SIZE    0xB0
 #define DCMP_BUF_SIZE 0x400000
 
+#define RPAKHEADER	(('k'<<24)+('a'<<16)+('P'<<8)+'R')
+
 /*unk_141313180*/
 // LUT_0 redacted now, split LUT into multiple parts.
 #pragma warning( push )

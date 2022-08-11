@@ -186,7 +186,7 @@ void CBanSystem::BanListCheck(void)
 				Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%llu' is banned from this server!)\n", svIpAddress.c_str(), pClient->GetOriginID());
 				AddEntry(svIpAddress, pClient->GetOriginID());
 				Save(); // Save banlist to file.
-				NET_DisconnectClient(pClient, c, m_vRefuseList[i].first.c_str(), false, true);
+				NET_DisconnectClient(pClient, c, m_vRefuseList[i].first.c_str(), 0, true);
 			}
 		}
 	}

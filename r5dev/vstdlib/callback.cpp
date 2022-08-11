@@ -93,27 +93,19 @@ void Host_Kick_f(const CCommand& args)
 
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
-		CClient* pClient = g_pClient->GetClient(i);
-		if (!pClient)
-			continue;
-
-		CNetChan* pNetChan = pClient->GetNetChan();
-		if (!pNetChan)
-			continue;
-
-		string svClientName = pNetChan->GetName(); // Get full name.
-
-		if (svClientName.empty())
+		if (CClient* pClient = g_pClient->GetClient(i))
 		{
-			continue;
+			if (CNetChan* pNetChan = pClient->GetNetChan())
+			{
+				if (strlen(pNetChan->GetName()) > 0)
+				{
+					if (strcmp(args.Arg(1), pNetChan->GetName()) == NULL) // Our wanted name?
+					{
+						NET_DisconnectClient(pClient, i, "Kicked from server", 0, true);
+					}
+				}
+			}
 		}
-
-		if (strcmp(args.Arg(1), svClientName.c_str()) != 0) // Our wanted name?
-		{
-			continue;
-		}
-
-		NET_DisconnectClient(pClient, i, "Kicked from server", 0, 1);
 	}
 }
 #ifndef CLIENT_DLL
@@ -142,8 +134,6 @@ void Host_KickID_f(const CCommand& args)
 			if (!pNetChan)
 				continue;
 
-			string svIpAddress = pNetChan->GetAddress(); // If this stays null they modified the packet somehow.
-
 			if (bOnlyDigits)
 			{
 				uint64_t nTargetID = static_cast<uint64_t>(std::stoll(args.Arg(1)));
@@ -164,16 +154,16 @@ void Host_KickID_f(const CCommand& args)
 					}
 				}
 
-				NET_DisconnectClient(pClient, i, "Kicked from server", 0, 1);
+				NET_DisconnectClient(pClient, i, "Kicked from server", 0, true);
 			}
 			else
 			{
-				if (string(args.Arg(1)).compare(svIpAddress) != NULL)
+				if (strcmp(args.Arg(1), pNetChan->GetAddress()) != NULL)
 				{
 					continue;
 				}
 
-				NET_DisconnectClient(pClient, i, "Kicked from server", 0, 1);
+				NET_DisconnectClient(pClient, i, "Kicked from server", 0, true);
 			}
 		}
 	}
@@ -198,31 +188,21 @@ void Host_Ban_f(const CCommand& args)
 
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
-		CClient* pClient = g_pClient->GetClient(i);
-		if (!pClient)
-			continue;
-
-		CNetChan* pNetChan = pClient->GetNetChan();
-		if (!pNetChan)
-			continue;
-
-		string svClientName = pNetChan->GetName(); // Get full name.
-
-		if (svClientName.empty())
+		if (CClient* pClient = g_pClient->GetClient(i))
 		{
-			continue;
+			if (CNetChan* pNetChan = pClient->GetNetChan())
+			{
+				if (strlen(pNetChan->GetName()) > 0)
+				{
+					if (strcmp(args.Arg(1), pNetChan->GetName()) == NULL) // Our wanted name?
+					{
+						g_pBanSystem->AddEntry(pNetChan->GetAddress(), pClient->GetOriginID());
+						g_pBanSystem->Save();
+						NET_DisconnectClient(pClient, i, "Banned from server", 0, true);
+					}
+				}
+			}
 		}
-
-		if (strcmp(args.Arg(1), svClientName.c_str()) != 0)
-		{
-			continue;
-		}
-
-		string svIpAddress = pNetChan->GetAddress(); // If this stays empty they modified the packet somehow.
-
-		g_pBanSystem->AddEntry(svIpAddress, pClient->GetOriginID());
-		g_pBanSystem->Save();
-		NET_DisconnectClient(pClient, i, "Banned from server", 0, 1);
 	}
 }
 
@@ -251,8 +231,6 @@ void Host_BanID_f(const CCommand& args)
 			if (!pNetChan)
 				continue;
 
-			string svIpAddress = pNetChan->GetAddress(); // If this stays empty they modified the packet somehow.
-
 			if (bOnlyDigits)
 			{
 				uint64_t nTargetID = static_cast<uint64_t>(std::stoll(args.Arg(1)));
@@ -273,20 +251,20 @@ void Host_BanID_f(const CCommand& args)
 					}
 				}
 
-				g_pBanSystem->AddEntry(svIpAddress, pClient->GetOriginID());
+				g_pBanSystem->AddEntry(pNetChan->GetAddress(), pClient->GetOriginID());
 				g_pBanSystem->Save();
-				NET_DisconnectClient(pClient, i, "Banned from server", 0, 1);
+				NET_DisconnectClient(pClient, i, "Banned from server", 0, true);
 			}
 			else
 			{
-				if (string(args.Arg(1)).compare(svIpAddress) != NULL)
+				if (strcmp(args.Arg(1), pNetChan->GetAddress()) != NULL)
 				{
 					continue;
 				}
 
-				g_pBanSystem->AddEntry(svIpAddress, pClient->GetOriginID());
+				g_pBanSystem->AddEntry(pNetChan->GetAddress(), pClient->GetOriginID());
 				g_pBanSystem->Save();
-				NET_DisconnectClient(pClient, i, "Banned from server", 0, 1);
+				NET_DisconnectClient(pClient, i, "Banned from server", 0, true);
 			}
 		}
 	}
@@ -439,9 +417,9 @@ void Pak_Swap_f(const CCommand& args)
 {
 	try
 	{
+		string pakName;
 		RPakHandle_t nPakId = 0;
 		RPakLoadedInfo_t* pakInfo = nullptr;
-		string pakName = std::string();
 
 		if (args.HasOnlyDigits(1))
 		{
@@ -551,7 +529,7 @@ void RTech_Decompress_f(const CCommand& args)
 	DevMsg(eDLL_T::RTECH, " | | |-- Size decp: '%llu'\n", rheader.m_nSizeMemory);
 	DevMsg(eDLL_T::RTECH, " | | |-- Ratio    : '%.02f'\n", (rheader.m_nSizeDisk * 100.f) / rheader.m_nSizeMemory);
 
-	if (rheader.m_nMagic != 'kaPR')
+	if (rheader.m_nMagic != RPAKHEADER)
 	{
 		Error(eDLL_T::RTECH, "%s - pak file '%s' has invalid magic!\n", __FUNCTION__, pakNameIn.c_str());
 		return;
@@ -821,12 +799,19 @@ void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString, float flOl
 {
 	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
 	{
+		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
+			return; // Same password.
+
 #ifndef DEDICATED
-		RCONClient()->SetPassword(pConVarRef->GetString());
-		RCONClient()->Init();
-#elif DEDICATED 
-		RCONServer()->SetPassword(pConVarRef->GetString());
-		RCONServer()->Init();
+		if (RCONClient()->IsInitialized())
+			RCONClient()->SetPassword(pConVarRef->GetString());
+		else
+			RCONClient()->Init(); // Initialize first.
+#elif DEDICATED
+		if (RCONServer()->IsInitialized())
+			RCONServer()->SetPassword(pConVarRef->GetString());
+		else
+			RCONServer()->Init(); // Initialize first.
 #endif // DEDICATED
 	}
 }

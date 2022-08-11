@@ -41,6 +41,8 @@ public:
 	void CloseConnection(void);
 	void CloseNonAuthConnection(void);
 
+	bool IsInitialized(void) const;
+
 private:
 
 	bool                     m_bInitialized;

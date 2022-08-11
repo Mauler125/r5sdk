@@ -98,7 +98,7 @@ void Console_Init()
 		CloseHandle(hThread);
 	}
 
-	if (strstr(g_svCmdLine.c_str(), "-ansiclr"))
+	if (g_svCmdLine.find("-ansiclr") != string::npos)
 	{
 		GetConsoleMode(hOutput, &dwMode);
 		dwMode |= ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING;

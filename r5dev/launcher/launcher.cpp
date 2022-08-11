@@ -125,7 +125,7 @@ void ParseAndApplyConfigFile(const string& svConfig)
 	stringstream ss(svConfig);
 	string svInput;
 
-	if (strlen(svConfig.c_str()) > 0)
+	if (!svConfig.empty())
 	{
 		while (std::getline(ss, svInput, '\n'))
 		{

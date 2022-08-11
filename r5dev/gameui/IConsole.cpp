@@ -249,7 +249,7 @@ void CConsole::BasePanel(void)
         {
             // Remove the default value from ConVar before assigning it to the input buffer.
             string svConVar = m_vSuggest[m_nSuggestPos].m_svName.substr(0, m_vSuggest[m_nSuggestPos].m_svName.find(' ')) + ' ';
-            memmove(m_szInputBuf, svConVar.c_str(), svConVar.size() + 1);
+            memmove(m_szInputBuf, svConVar.data(), svConVar.size() + 1);
 
             ResetAutoComplete();
             BuildSummary(svConVar);
@@ -366,7 +366,7 @@ void CConsole::SuggestPanel(void)
 
             // Remove the default value from ConVar before assigning it to the input buffer.
             string svConVar = m_vSuggest[i].m_svName.substr(0, m_vSuggest[i].m_svName.find(' ')) + ' ';
-            memmove(m_szInputBuf, svConVar.c_str(), svConVar.size() + 1);
+            memmove(m_szInputBuf, svConVar.data(), svConVar.size() + 1);
 
             ResetAutoComplete();
             BuildSummary(svConVar);

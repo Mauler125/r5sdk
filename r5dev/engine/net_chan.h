@@ -79,8 +79,8 @@ enum EBufType
 class CNetChan
 {
 public:
-	string      GetName(void) const;
-	string      GetAddress(void) const;
+	const char* GetName(void) const;
+	const char* GetAddress(void) const;
 	int         GetDataRate(void) const;
 	int         GetBufferSize(void) const;
 
@@ -162,6 +162,7 @@ private:
 	int                 m_nSequencesSkipped_MAYBE;
 	int                 m_nSessionRecvs;
 	uint32_t            m_nLiftimeRecvs;
+	bool                m_bPad;
 	char                m_Name[NET_CHANNELNAME_MAXLEN];
 	uint8_t             m_bRetrySendLong;
 	v_netadr_t          remote_address;

@@ -26,7 +26,7 @@ void R5Dev_Init()
         g_svCmdLine = LoadConfigFile(SDK_DEFAULT_CFG);
     }
 #ifndef DEDICATED
-    if (strstr(g_svCmdLine.c_str(), "-wconsole"))
+    if (g_svCmdLine.find("-wconsole") != std::string::npos)
     {
         Console_Init();
     }
@@ -38,7 +38,7 @@ void R5Dev_Init()
     for (size_t i = 0; i < SDK_ARRAYSIZE(R5R_EMBLEM); i++)
     {
         std::string svEscaped = StringEscape(R5R_EMBLEM[i]);
-        spdlog::info("{:s}{:s}{:s}\n", g_svRedF.c_str(), svEscaped.c_str(), g_svReset.c_str());
+        spdlog::info("{:s}{:s}{:s}\n", g_svRedF, svEscaped, g_svReset);
     }
     spdlog::info("\n");
 

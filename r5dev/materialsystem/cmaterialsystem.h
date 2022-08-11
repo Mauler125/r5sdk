@@ -1,5 +1,7 @@
 #pragma once
 
+#define STREAM_DB_EXT "stbsp"
+
 /* ==== MATERIALSYSTEM ================================================================================================================================================== */
 inline CMemory p_CMaterialSystem__Init;
 inline auto CMaterialSystem__Init = p_CMaterialSystem__Init.RCast<void* (*)(void* thisptr)>();

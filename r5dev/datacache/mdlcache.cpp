@@ -39,12 +39,12 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
             if (pStudioHDR)
             {
                 string svStudio = ConvertToUnixPath(string(pStudioHDR->name));
-                if (svStudio.compare(ERROR_MODEL) == 0)
+                if (svStudio.compare(ERROR_MODEL) == NULL)
                 {
                     g_pMDLFallback->m_pErrorHDR = pStudioHDR;
                     g_pMDLFallback->m_hErrorMDL = handle;
                 }
-                if (svStudio.compare(EMPTY_MODEL) == 0)
+                if (svStudio.compare(EMPTY_MODEL) == NULL)
                 {
                     g_pMDLFallback->m_pEmptyHDR = pStudioHDR;
                     g_pMDLFallback->m_hEmptyMDL = handle;

@@ -114,15 +114,18 @@ bool CRConServer::SetPassword(const char* pszPassword)
 	m_bInitialized = false;
 	m_pSocket->CloseAllAcceptedSockets();
 
-	if (std::strlen(pszPassword) < 8)
+	size_t nLen = std::strlen(pszPassword);
+	if (nLen < 8)
 	{
-		if (std::strlen(pszPassword) > 0)
+		if (nLen > 0)
 		{
 			Warning(eDLL_T::SERVER, "Remote server access requires a password of at least 8 characters\n");
 		}
+
 		this->Shutdown();
 		return false;
 	}
+
 	m_svPasswordHash = sha256(pszPassword);
 	DevMsg(eDLL_T::SERVER, "Password hash ('%s')\n", m_svPasswordHash.c_str());
 
@@ -569,6 +572,16 @@ void CRConServer::CloseNonAuthConnection(void)
 		}
 	}
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: checks if server rcon is initialized
+// Output : true if initialized, false otherwise
+//-----------------------------------------------------------------------------
+bool CRConServer::IsInitialized(void) const
+{
+	return m_bInitialized;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 CRConServer* g_pRConServer = new CRConServer();
 CRConServer* RCONServer()

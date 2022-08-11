@@ -44,7 +44,7 @@ void MOD_GetAllInstalledMaps()
         std::string svFileName = dEntry.path().u8string();
         std::regex_search(svFileName, smRegexMatches, rgArchiveRegex);
 
-        if (smRegexMatches.size() > 0)
+        if (!smRegexMatches.empty())
         {
             if (smRegexMatches[1].str().compare("frontend") == 0)
             {

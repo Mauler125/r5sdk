@@ -66,9 +66,10 @@ void CRConClient::Shutdown(void)
 //-----------------------------------------------------------------------------
 bool CRConClient::SetPassword(const char* pszPassword)
 {
-	if (std::strlen(pszPassword) < 8)
+	size_t nLen = std::strlen(pszPassword);
+	if (nLen < 8)
 	{
-		if (std::strlen(pszPassword) > 0)
+		if (nLen > 0)
 		{
 			DevMsg(eDLL_T::CLIENT, "Remote server access requires a password of at least 8 characters\n");
 		}
@@ -119,7 +120,7 @@ bool CRConClient::Connect(void)
 //-----------------------------------------------------------------------------
 bool CRConClient::Connect(const std::string& svInAdr, const std::string& svInPort)
 {
-	if (svInAdr.size() > 0 && svInPort.size() > 0)
+	if (!svInAdr.empty() && !svInPort.empty())
 	{
 		// Default is [127.0.0.1]:37015
 		m_pNetAdr2->SetIPAndPort(svInAdr, svInPort);

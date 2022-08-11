@@ -40,7 +40,7 @@ void CMemory::Patch(const vector<uint8_t> vOpcodeArray) const
 	SIZE_T dwSize = vOpcodeArray.size();
 	VirtualProtect(reinterpret_cast<void*>(ptr), dwSize, PAGE_EXECUTE_READWRITE, &oldProt); // Patch page to be able to read and write to it.
 
-	for (int i = 0; i < vOpcodeArray.size(); i++)
+	for (size_t i = 0; i < vOpcodeArray.size(); i++)
 	{
 		*reinterpret_cast<uint8_t*>(ptr + i) = vOpcodeArray[i]; // Write opcodes to Address.
 	}
@@ -62,7 +62,7 @@ void CMemory::PatchString(const string& svString) const
 
 	VirtualProtect(reinterpret_cast<void*>(ptr), dwSize, PAGE_EXECUTE_READWRITE, &oldProt); // Patch page to be able to read and write to it.
 
-	for (int i = 0; i < svString.size(); i++)
+	for (size_t i = 0; i < svString.size(); i++)
 	{
 		*reinterpret_cast<uint8_t*>(ptr + i) = bytes[i]; // Write string to Address.
 	}

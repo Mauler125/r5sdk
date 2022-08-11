@@ -234,7 +234,7 @@ bool CNetCon::ShouldQuit(void) const
 //-----------------------------------------------------------------------------
 bool CNetCon::Connect(const std::string& svInAdr, const std::string& svInPort)
 {
-	if (svInAdr.size() > 0 && svInPort.size() > 0)
+	if (!svInAdr.empty() && !svInPort.empty())
 	{
 		// Default is [127.0.0.1]:37015
 		m_pNetAdr2->SetIPAndPort(svInAdr, svInPort);

@@ -34,7 +34,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	const string svMeshDir = "maps\\navmesh\\";
 	const string svGraphDir = "maps\\graphs\\";
 
-	fs::path fsMeshPath(svMeshDir + g_pHostState->m_levelName + "_" + SHULL_SIZE[3] + ".nm");
+	fs::path fsMeshPath(svMeshDir + g_pHostState->m_levelName + "_" + SHULL_SIZE[EHULL_SIZE::LARGE] + ".nm");
 	fs::path fsGraphPath(svGraphDir + g_pHostState->m_levelName + ".ain");
 
 	CFastTimer masterTimer;
@@ -69,7 +69,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	}
 	else
 	{
-		Warning(eDLL_T::SERVER, "%s - No %s NavMesh found. Unable to calculate CRC for AI Network.\n", __FUNCTION__, SHULL_SIZE[3].c_str());
+		Warning(eDLL_T::SERVER, "%s - No %s NavMesh found. Unable to calculate CRC for AI Network.\n", __FUNCTION__, SHULL_SIZE[EHULL_SIZE::LARGE].c_str());
 	}
 
 	// Large NavMesh CRC.
@@ -169,7 +169,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	// Don't know what this is, it's likely a block from tf1 that got deprecated? should just be 1 int per node.
 	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' bytes for node block at '0x%zX'\n", pNetwork->m_iNumNodes * sizeof(uint32_t), writer.GetPosition());
 
-	if (static_cast<int>(pNetwork->m_iNumNodes) > 0)
+	if (pNetwork->m_iNumNodes > 0)
 	{
 		uint32_t* unkNodeBlock = new uint32_t[pNetwork->m_iNumNodes];
 		memset(&unkNodeBlock, '\0', pNetwork->m_iNumNodes * sizeof(uint32_t));
@@ -179,7 +179,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 
 	// TODO: This is traverse nodes i think? these aren't used in r2 ains so we can get away with just writing count=0 and skipping
 	// but ideally should actually dump these.
-	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' traversal nodes at '0x%zX'\n", 0, static_cast<size_t>(writer.GetPosition()));
+	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' traversal nodes at '0x%zX'\n", 0, writer.GetPosition());
 	short traverseNodeCount = 0; // Only write count since count=0 means we don't have to actually do anything here.
 	writer.Write(&traverseNodeCount, sizeof(short));
 
@@ -293,7 +293,7 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager,
 	string svMeshDir = "maps\\navmesh\\";
 	string svGraphDir = "maps\\graphs\\";
 
-	fs::path fsMeshPath(svMeshDir + g_pHostState->m_levelName + "_" + SHULL_SIZE[3] + ".nm");
+	fs::path fsMeshPath(svMeshDir + g_pHostState->m_levelName + "_" + SHULL_SIZE[EHULL_SIZE::LARGE] + ".nm");
 	fs::path fsGraphPath(svGraphDir + g_pHostState->m_levelName + ".ain");
 
 	int nAiNetVersion = NULL;
