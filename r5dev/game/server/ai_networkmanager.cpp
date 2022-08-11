@@ -302,12 +302,13 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager,
 	uint32_t nAiGraphHash = NULL;
 	uint32_t nNavMeshHash = NULL;
 
-	ifstream iAIGraph(fsGraphPath, fstream::binary);
-	if (iAIGraph.good())
+	CIOStream iAIGraph(fsGraphPath, CIOStream::Mode_t::READ);
+
+	if (iAIGraph.IsReadable())
 	{
-		iAIGraph.read(reinterpret_cast<char*>(&nAiNetVersion), sizeof(int));
-		iAIGraph.read(reinterpret_cast<char*>(&nAiMapVersion), sizeof(int));
-		iAIGraph.read(reinterpret_cast<char*>(&nAiGraphHash), sizeof(uint32_t));
+		iAIGraph.Read(nAiNetVersion);
+		iAIGraph.Read(nAiMapVersion);
+		iAIGraph.Read(nAiGraphHash);
 
 		if (nAiNetVersion > AINET_VERSION_NUMBER)
 		{
@@ -321,29 +322,18 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager,
 		}
 		else
 		{
-			ifstream iNavMesh(fsMeshPath, fstream::binary);
-			if (iNavMesh.good())
+			CIOStream iNavMesh(fsMeshPath, CIOStream::Mode_t::READ);
+
+			if (iNavMesh.IsReadable())
 			{
-				vector<uint8_t> uNavMesh;
-
-				iNavMesh.seekg(0, fstream::end);
-				uNavMesh.resize(iNavMesh.tellg());
-				iNavMesh.seekg(0, fstream::beg);
-				iNavMesh.read(reinterpret_cast<char*>(uNavMesh.data()), uNavMesh.size());
-
-				nNavMeshHash = crc32::update(NULL, uNavMesh.data(), uNavMesh.size());
-
+				nNavMeshHash = crc32::update(NULL, iNavMesh.GetData(), iNavMesh.GetSize());
 				if (nNavMeshHash != nAiGraphHash)
 				{
 					Warning(eDLL_T::SERVER, "AI node graph '%s' is out of date (checksum: '0x%X' expected: '0x%X')\n",
 						fsGraphPath.relative_path().u8string().c_str(), nNavMeshHash, nAiGraphHash);
 				}
-
-				iNavMesh.close();
 			}
 		}
-
-		iAIGraph.close();
 	}
 
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
