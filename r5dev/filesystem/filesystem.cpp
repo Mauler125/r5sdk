@@ -3,7 +3,7 @@
 #include "filesystem/filesystem.h"
 
 //-----------------------------------------------------------------------------
-// 
+// Singleton FileSystem
 //-----------------------------------------------------------------------------
 CFileSystem_Stdio* FileSystem()
 {
@@ -18,7 +18,7 @@ CFileSystem_Stdio* FileSystem()
 //-----------------------------------------------------------------------------
 void IFileSystem::AddSearchPath(const char* pPath, const char* pPathID, SearchPathAdd_t addType)
 {
-	const int index = 12;
+	const int index = (12 - FS_VFTABLE_SHIFT);
 	CallVFunc<void>(index, this, pPath, pPathID, addType);
 }
 
@@ -31,8 +31,32 @@ void IFileSystem::AddSearchPath(const char* pPath, const char* pPathID, SearchPa
 //-----------------------------------------------------------------------------
 bool IFileSystem::RemoveSearchPath(const char* pPath, const char* pPathID)
 {
-	const int index = 13;
+	const int index = (13 - FS_VFTABLE_SHIFT);
 	return CallVFunc<bool>(index, this, pPath, pPathID);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: print to file.
+// Input  : file - 
+//			*pFormat - 
+//			... - 
+// Output : number of bytes written.
+//-----------------------------------------------------------------------------
+int IFileSystem::FPrintf(FileHandle_t file, const char* pFormat, ...) FMTFUNCTION(3, 4)
+{
+	const int index = (29 - FS_VFTABLE_SHIFT);
+	char buf[65560];
+	{/////////////////////////////
+		va_list args{};
+		va_start(args, pFormat);
+
+		vsnprintf(buf, sizeof(buf), pFormat, args);
+
+		buf[sizeof(buf) - 1] = '\0';
+		va_end(args);
+	}/////////////////////////////
+
+	return CallVFunc<int>(index, this, file, buf);
 }
 
 //-----------------------------------------------------------------------------
@@ -43,7 +67,7 @@ bool IFileSystem::RemoveSearchPath(const char* pPath, const char* pPathID)
 //-----------------------------------------------------------------------------
 bool IFileSystem::ReadFromCache(const char* pPath, void* pResult)
 {
-	const int index = 76;
+	const int index = (76 - FS_VFTABLE_SHIFT);
 	return CallVFunc<bool>(index, this, pPath, pResult);
 }
 
@@ -54,7 +78,7 @@ bool IFileSystem::ReadFromCache(const char* pPath, void* pResult)
 //-----------------------------------------------------------------------------
 VPKData_t* IFileSystem::MountVPK(const char* pPath)
 {
-	const int index = 92;
+	const int index = (92 - FS_VFTABLE_SHIFT);
 	return CallVFunc<VPKData_t*>(index, this, pPath);
 }
 

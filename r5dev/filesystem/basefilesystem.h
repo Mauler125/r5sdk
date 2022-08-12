@@ -1,5 +1,6 @@
 #pragma once
 typedef void* FileHandle_t;
+#define FILESYSTEM_INVALID_HANDLE	( FileHandle_t )0
 
 enum class SearchPathAdd_t : int
 {

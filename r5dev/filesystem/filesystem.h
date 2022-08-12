@@ -6,11 +6,20 @@
 #define GAMEINFOPATH_TOKEN		"|gameinfo_path|"
 #define BASESOURCEPATHS_TOKEN	"|all_source_engine_paths|"
 
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
+constexpr int FS_VFTABLE_SHIFT = 2;
+#else
+constexpr int FS_VFTABLE_SHIFT = 0;
+#endif
+
 class IFileSystem
 {
 public:
 	void AddSearchPath(const char* pPath, const char* pPathID, SearchPathAdd_t addType);
 	bool RemoveSearchPath(const char* pPath, const char* pPathID);
+
+	int FPrintf(FileHandle_t file, const char* pFormat, ...) FMTFUNCTION(3, 4);
+
 	bool ReadFromCache(const char* pPath, void* pResult);
 	VPKData_t* MountVPK(const char* pVpkPath);
 };
