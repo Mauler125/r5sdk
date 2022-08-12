@@ -478,13 +478,16 @@
     <ClInclude Include="..\tier1\characterset.h" />
     <ClInclude Include="..\tier1\cmd.h" />
     <ClInclude Include="..\tier1\cvar.h" />
+    <ClInclude Include="..\tier1\generichash.h" />
     <ClInclude Include="..\tier1\IConVar.h" />
     <ClInclude Include="..\tier1\mempool.h" />
     <ClInclude Include="..\tier1\NetAdr2.h" />
     <ClInclude Include="..\tier1\strtools.h" />
     <ClInclude Include="..\tier1\utlblockmemory.h" />
     <ClInclude Include="..\tier1\utldict.h" />
+    <ClInclude Include="..\tier1\utlfixedmemory.h" />
     <ClInclude Include="..\tier1\utlmemory.h" />
+    <ClInclude Include="..\tier1\utlrbtree.h" />
     <ClInclude Include="..\tier1\utlvector.h" />
     <ClInclude Include="..\tier2\meshutils.h" />
     <ClInclude Include="..\tier2\renderutils.h" />

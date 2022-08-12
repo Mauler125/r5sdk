@@ -1772,6 +1772,15 @@
     <ClInclude Include="..\networksystem\bansystem.h">
       <Filter>sdk\networksystem</Filter>
     </ClInclude>
+    <ClInclude Include="..\tier1\generichash.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\utlrbtree.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\utlfixedmemory.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\shared\resource\lockedserver.png">
