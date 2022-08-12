@@ -366,7 +366,7 @@ public:
 	// Memory deallocation
 	void Purge()
 	{
-		free(m_pMemory);
+		MemAllocSingleton()->Free(m_pMemory);
 		RememberAllocSize(0);
 		m_pMemory = NULL;
 	}
@@ -853,7 +853,7 @@ void CUtlMemory<T, I>::Purge()
 		if (m_pMemory)
 		{
 			UTLMEMORY_TRACK_FREE();
-			free((void*)m_pMemory);
+			MemAllocSingleton()->Free(m_pMemory);
 			m_pMemory = 0;
 		}
 		m_nAllocationCount = 0;

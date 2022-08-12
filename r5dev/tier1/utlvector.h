@@ -333,24 +333,23 @@ class CUtlVectorUltraConservativeAllocator
 public:
 	static void* Alloc(size_t nSize)
 	{
-		return malloc(nSize);
+		return MemAllocSingleton()->Alloc<void*>(nSize);
 	}
 
 	static void* Realloc(void* pMem, size_t nSize)
 	{
-		return realloc(pMem, nSize);
+		return MemAllocSingleton()->Realloc(pMem, nSize);
 	}
 
 	static void Free(void* pMem)
 	{
-		free(pMem);
+		MemAllocSingleton()->Free(pMem);
 	}
 
 	static size_t GetSize(void* pMem)
 	{
-		return mallocsize(pMem);
+		return MemAllocSingleton()->GetSize(pMem);
 	}
-
 };
 
 template <typename T, typename A = CUtlVectorUltraConservativeAllocator >

@@ -251,7 +251,7 @@ void CUtlBlockMemory<T, I>::ChangeSize(int nBlocks)
 	for (int i = m_nBlocks; i < nBlocksOld; ++i)
 	{
 		UTLBLOCKMEMORY_TRACK_FREE();
-		free((void*)m_pMemory[i]);
+		MemAllocSingleton()->Free(m_pMemory[i]);
 	}
 
 	if (m_pMemory)
@@ -305,12 +305,12 @@ void CUtlBlockMemory<T, I>::Purge()
 	for (int i = 0; i < m_nBlocks; ++i)
 	{
 		UTLBLOCKMEMORY_TRACK_FREE();
-		free((void*)m_pMemory[i]);
+		MemAllocSingleton()->Free(m_pMemory[i]);
 	}
 	m_nBlocks = 0;
 
 	UTLBLOCKMEMORY_TRACK_FREE();
-	free((void*)m_pMemory);
+	MemAllocSingleton()->Free(m_pMemory);
 	m_pMemory = 0;
 }
 
