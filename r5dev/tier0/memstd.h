@@ -13,8 +13,8 @@ public:
 	template<typename T>
 	T* Realloc(T* pMem, size_t nSize)
 	{
-		const int index = 2;
-		return CallVFunc<T*>(index, this, nSize);
+		const int index = 3;
+		return CallVFunc<T*>(index, this, pMem, nSize);
 	}
 	template<typename T>
 	void Free(T* pMem)
