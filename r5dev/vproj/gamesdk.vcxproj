@@ -121,6 +121,7 @@
     <ClCompile Include="..\tier1\characterset.cpp" />
     <ClCompile Include="..\tier1\cmd.cpp" />
     <ClCompile Include="..\tier1\cvar.cpp" />
+    <ClCompile Include="..\tier1\generichash.cpp" />
     <ClCompile Include="..\tier1\IConVar.cpp" />
     <ClCompile Include="..\tier1\NetAdr2.cpp" />
     <ClCompile Include="..\tier1\splitstring.cpp" />
@@ -515,6 +516,7 @@
     <ClInclude Include="..\tier1\utlblockmemory.h" />
     <ClInclude Include="..\tier1\utldict.h" />
     <ClInclude Include="..\tier1\utlfixedmemory.h" />
+    <ClInclude Include="..\tier1\utllinkedlist.h" />
     <ClInclude Include="..\tier1\utlmemory.h" />
     <ClInclude Include="..\tier1\utlrbtree.h" />
     <ClInclude Include="..\tier1\utlvector.h" />
@@ -534,6 +536,7 @@
     <ClInclude Include="..\vpklib\packedstore.h" />
     <ClInclude Include="..\vstdlib\callback.h" />
     <ClInclude Include="..\vstdlib\completion.h" />
+    <ClInclude Include="..\vstdlib\concommandhash.h" />
     <ClInclude Include="..\vstdlib\keyvaluessystem.h" />
     <ClInclude Include="..\vstdlib\random.h" />
     <ClInclude Include="..\windows\console.h" />

@@ -1,5 +1,6 @@
 #pragma once
 #include "tier1/IConVar.h"
+#include <vstdlib/concommandhash.h>
 
 //-------------------------------------------------------------------------
 // ENGINE                                                                 |
@@ -180,6 +181,7 @@ public:
 
 	// Enable cvars marked with FCVAR_DEVELOPMENTONLY
 	void EnableDevCvars();
+	void EnableHiddenCvars();
 
 	// Lists cvars to console
 	void CvarList(const CCommand& args);
@@ -211,16 +213,7 @@ private:
 
 extern CCvarUtilities* cv;
 
-class CCVarIteratorInternal // Fully reversed table, just look at the virtual function table and rename the function.
-{
-public:
-	virtual void            SetFirst(void) = 0; //0
-	virtual void            Next(void)     = 0; //1
-	virtual	bool            IsValid(void)  = 0; //2
-	virtual ConCommandBase* Get(void)      = 0; //3
-};
-
-class CCVar
+class CCvar
 {
 public:
 	ConCommandBase* RegisterConCommand(ConCommandBase* pCommandToAdd);
@@ -236,12 +229,24 @@ public:
 	void QueueMaterialThreadSetValue(ConVar* pConVar, int nValue);
 	void QueueMaterialThreadSetValue(ConVar* pConVar, const char* pValue);
 
+	class CCVarIteratorInternal : public ICVarIteratorInternal
+	{
+	public:
+		virtual void            SetFirst(void) = 0; //0
+		virtual void            Next(void) = 0; //1
+		virtual	bool            IsValid(void) = 0; //2
+		virtual ConCommandBase* Get(void) = 0; //3
+
+		CCvar* const m_pOuter;
+		CConCommandHash* const m_pHash;
+		CConCommandHash::CCommandHashIterator_t m_hashIter;
+	};
+
 	CCVarIteratorInternal* FactoryInternalIterator(void);
 	unordered_map<string, ConCommandBase*> DumpToMap(void);
-
-protected:
 	friend class CCVarIteratorInternal;
 
+protected:
 	enum ConVarSetType_t
 	{
 		CONVAR_SET_STRING = 0,
@@ -264,48 +269,49 @@ private:
 	char pad0[22];           //!TODO:
 	int m_nNextDLLIdentifier;
 	ConCommandBase* m_pConCommandList;
-	char m_CommandHash[208]; //!TODO:
+	CConCommandHash m_CommandHash;
+	char pad1[96];
 	CUtlVector< QueuedConVarSet_t > m_QueuedConVarSets;
 	bool m_bMaterialSystemThreadSetAllowed;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-extern CCVar* g_pCVar;
+extern CCvar* g_pCVar;
 
 /* ==== CCVAR =========================================================================================================================================================== */
-inline CMemory p_CCVar_Disconnect;
-inline auto CCVar_Disconnect = p_CCVar_Disconnect.RCast<void* (*)(void)>();
+inline CMemory p_CCvar_Disconnect;
+inline auto CCvar_Disconnect = p_CCvar_Disconnect.RCast<void* (*)(void)>();
 
-inline CMemory p_CCVar_GetCommandLineValue;
-inline auto CCVar_GetCommandLineValue = p_CCVar_GetCommandLineValue.RCast<const char* (*)(CCVar* thisptr, const char* pVariableName)>();
+inline CMemory p_CCvar_GetCommandLineValue;
+inline auto CCvar_GetCommandLineValue = p_CCvar_GetCommandLineValue.RCast<const char* (*)(CCvar* thisptr, const char* pVariableName)>();
 
 ///////////////////////////////////////////////////////////////////////////////
 class VCVar : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CCVar::Disconnect                    : {:#18x} |\n", p_CCVar_Disconnect.GetPtr());
-		spdlog::debug("| FUN: CCVar::GetCommandLineValue           : {:#18x} |\n", p_CCVar_GetCommandLineValue.GetPtr());
+		spdlog::debug("| FUN: CCvar::Disconnect                    : {:#18x} |\n", p_CCvar_Disconnect.GetPtr());
+		spdlog::debug("| FUN: CCvar::GetCommandLineValue           : {:#18x} |\n", p_CCvar_GetCommandLineValue.GetPtr());
 		spdlog::debug("| VAR: g_pCVar                              : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pCVar));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_CCVar_Disconnect = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x57\x41\x56\x48\x83\xEC\x38\x4C\x8B\x35"), "xxxxxxxxxxx");
-		CCVar_Disconnect = p_CCVar_Disconnect.RCast<void* (*)(void)>(); /*40 57 41 56 48 83 EC 38 4C 8B 35 ? ? ? ?*/
+		p_CCvar_Disconnect = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x57\x41\x56\x48\x83\xEC\x38\x4C\x8B\x35"), "xxxxxxxxxxx");
+		CCvar_Disconnect = p_CCvar_Disconnect.RCast<void* (*)(void)>(); /*40 57 41 56 48 83 EC 38 4C 8B 35 ? ? ? ?*/
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_CCVar_Disconnect = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x48\x8B\x0D\x00\x00\x00\x00\x48\x85\xC9\x74\x26\x80\x3D\x00\x00\x00\x00\x00\x74\x1D\x48\x8B\x01\x8B\x15\x00\x00\x00\x00\xFF\x50\x58\xC7\x05\x00\x00\x00\x00\x00\x00\x00\x00\xC6\x05\x00\x00\x00\x00\x00\x48\xC7\x05\x00\x00\x00"), "xxxxxxx????xxxxxxx?????xxxxxxx????xxxxx????????xx");
-		CCVar_Disconnect = p_CCVar_Disconnect.RCast<void* (*)(void)>(); /*48 83 EC 28 48 8B 0D ? ? ? ? 48 85 C9 74 26 80 3D ? ? ? ? ? 74 1D 48 8B 01 8B 15 ? ? ? ? FF 50 58 C7 05 ? ? ? ? ? ? ? ? C6 05 ? ? ? ? ? 48 C7 05 ? ? ? ? ? ? ? ?*/
+		p_CCvar_Disconnect = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x48\x8B\x0D\x00\x00\x00\x00\x48\x85\xC9\x74\x26\x80\x3D\x00\x00\x00\x00\x00\x74\x1D\x48\x8B\x01\x8B\x15\x00\x00\x00\x00\xFF\x50\x58\xC7\x05\x00\x00\x00\x00\x00\x00\x00\x00\xC6\x05\x00\x00\x00\x00\x00\x48\xC7\x05\x00\x00\x00"), "xxxxxxx????xxxxxxx?????xxxxxxx????xxxxx????????xx");
+		CCvar_Disconnect = p_CCvar_Disconnect.RCast<void* (*)(void)>(); /*48 83 EC 28 48 8B 0D ? ? ? ? 48 85 C9 74 26 80 3D ? ? ? ? ? 74 1D 48 8B 01 8B 15 ? ? ? ? FF 50 58 C7 05 ? ? ? ? ? ? ? ? C6 05 ? ? ? ? ? 48 C7 05 ? ? ? ? ? ? ? ?*/
 #endif
-		p_CCVar_GetCommandLineValue = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x55\x48\x83\xEC\x20\x48\x8D\x6C\x24\x00\x48\x89\x5D\x10\x49\xC7\xC0\x00\x00\x00\x00"), "xxxxxxxxxx?xxxxxxx????");
-		CCVar_GetCommandLineValue = p_CCVar_GetCommandLineValue.RCast<const char* (*)(CCVar* thisptr, const char* pVariableName)>(); /*40 55 48 83 EC 20 48 8D 6C 24 ? 48 89 5D 10 49 C7 C0 ? ? ? ?*/
+		p_CCvar_GetCommandLineValue = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x55\x48\x83\xEC\x20\x48\x8D\x6C\x24\x00\x48\x89\x5D\x10\x49\xC7\xC0\x00\x00\x00\x00"), "xxxxxxxxxx?xxxxxxx????");
+		CCvar_GetCommandLineValue = p_CCvar_GetCommandLineValue.RCast<const char* (*)(CCvar* thisptr, const char* pVariableName)>(); /*40 55 48 83 EC 20 48 8D 6C 24 ? 48 89 5D 10 49 C7 C0 ? ? ? ?*/
 	}
 	virtual void GetVar(void) const
 	{
 		g_pCVar = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
 			"\x48\x83\xEC\x28\x48\x8B\x05\x00\x00\x00\x00\x48\x8D\x0D\x00\x00\x00\x00\x48\x85\xC0\x48\x89\x15"),
-			"xxxxxxx????xxx????xxxxxx").FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 40).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CCVar*>();
+			"xxxxxxx????xxx????xxxxxx").FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 40).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CCvar*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

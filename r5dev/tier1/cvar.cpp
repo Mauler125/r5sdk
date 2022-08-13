@@ -4,6 +4,7 @@
 #include "tier1/IConVar.h"
 #include "engine/sys_dll2.h"
 #include "filesystem/filesystem.h"
+#include "vstdlib/concommandhash.h"
 
 //-----------------------------------------------------------------------------
 // ENGINE                                                                     |
@@ -343,7 +344,7 @@ int CCvarUtilities::CountVariablesWithFlags(int flags)
 	ConCommandBase* var;
 
 	// Loop through cvars...
-	CCVarIteratorInternal* pFactory = g_pCVar->FactoryInternalIterator();
+	CCvar::CCVarIteratorInternal* pFactory = g_pCVar->FactoryInternalIterator();
 	pFactory->SetFirst();
 
 	while (pFactory->IsValid())
@@ -369,7 +370,7 @@ int CCvarUtilities::CountVariablesWithFlags(int flags)
 void CCvarUtilities::EnableDevCvars()
 {
 	// Loop through cvars...
-	CCVarIteratorInternal* pFactory = g_pCVar->FactoryInternalIterator();
+	CCvar::CCVarIteratorInternal* pFactory = g_pCVar->FactoryInternalIterator();
 	pFactory->SetFirst();
 
 	while (pFactory->IsValid())
@@ -380,6 +381,27 @@ void CCvarUtilities::EnableDevCvars()
 
 		pFactory->Next();
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Removes the FCVAR_DEVELOPMENTONLY flag from all cvars, making them accessible
+//-----------------------------------------------------------------------------
+void CCvarUtilities::EnableHiddenCvars()
+{
+	// Loop through cvars...
+	CCvar::CCVarIteratorInternal* pFactory = g_pCVar->FactoryInternalIterator();
+	pFactory->SetFirst();
+
+	while (pFactory->IsValid())
+	{
+		// remove flag from all cvars
+		ConCommandBase* pCommandBase = pFactory->Get();
+		pCommandBase->RemoveFlags(FCVAR_HIDDEN);
+
+		pFactory->Next();
+	}
+
+	MemAllocSingleton()->Free(pFactory);
 }
 
 //-----------------------------------------------------------------------------
@@ -439,7 +461,7 @@ void CCvarUtilities::CvarList(const CCommand& args)
 	CUtlRBTree< ConCommandBase* > sorted(0, 0, ConCommandBaseLessFunc);
 
 	// Loop through cvars...
-	CCVarIteratorInternal* pFactory = g_pCVar->FactoryInternalIterator();
+	CCvar::CCVarIteratorInternal* pFactory = g_pCVar->FactoryInternalIterator();
 	pFactory->SetFirst();
 
 	while (pFactory->IsValid())
@@ -539,7 +561,7 @@ void CCvarUtilities::CvarHelp(const CCommand& args)
 //-----------------------------------------------------------------------------
 void CCvarUtilities::CvarDifferences(const CCommand& args)
 {
-	CCVarIteratorInternal* pFactory = g_pCVar->FactoryInternalIterator();
+	CCvar::CCVarIteratorInternal* pFactory = g_pCVar->FactoryInternalIterator();
 	pFactory->SetFirst();
 	int i = 0;
 
@@ -588,7 +610,7 @@ void CCvarUtilities::CvarFindFlags_f(const CCommand& args)
 	ConCommandBase* var;
 
 	// Loop through vars and print out findings
-	CCVarIteratorInternal* pFactory = g_pCVar->FactoryInternalIterator();
+	CCvar::CCVarIteratorInternal* pFactory = g_pCVar->FactoryInternalIterator();
 	pFactory->SetFirst();
 
 	while (pFactory->IsValid())
@@ -656,7 +678,7 @@ int CCvarUtilities::CvarFindFlagsCompletionCallback(const char* partial, char co
 // Purpose: registers input commands.
 // Input  : *pszCommandName - 
 //-----------------------------------------------------------------------------
-ConCommandBase* CCVar::RegisterConCommand(ConCommandBase* pCommandToRemove)
+ConCommandBase* CCvar::RegisterConCommand(ConCommandBase* pCommandToRemove)
 {
 	const int index = 9;
 	return CallVFunc<ConCommandBase*>(index, this, pCommandToRemove);
@@ -666,7 +688,7 @@ ConCommandBase* CCVar::RegisterConCommand(ConCommandBase* pCommandToRemove)
 // Purpose: unregisters input commands.
 // Input  : *pszCommandName - 
 //-----------------------------------------------------------------------------
-ConCommandBase* CCVar::UnregisterConCommand(ConCommandBase* pCommandToRemove)
+ConCommandBase* CCvar::UnregisterConCommand(ConCommandBase* pCommandToRemove)
 {
 	const int index = 10;
 	return CallVFunc<ConCommandBase*>(index, this, pCommandToRemove);
@@ -676,7 +698,7 @@ ConCommandBase* CCVar::UnregisterConCommand(ConCommandBase* pCommandToRemove)
 // Purpose: finds base commands.
 // Input  : *pszCommandName - 
 //-----------------------------------------------------------------------------
-ConCommandBase* CCVar::FindCommandBase(const char* pszCommandName)
+ConCommandBase* CCvar::FindCommandBase(const char* pszCommandName)
 {
 	const int index = 14;
 	return CallVFunc<ConCommandBase*>(index, this, pszCommandName);
@@ -686,7 +708,7 @@ ConCommandBase* CCVar::FindCommandBase(const char* pszCommandName)
 // Purpose: finds ConVars.
 // Input  : *pszVarName - 
 //-----------------------------------------------------------------------------
-ConVar* CCVar::FindVar(const char* pszVarName)
+ConVar* CCvar::FindVar(const char* pszVarName)
 {
 	const int index = 16;
 	return CallVFunc<ConVar*>(index, this, pszVarName);
@@ -696,7 +718,7 @@ ConVar* CCVar::FindVar(const char* pszVarName)
 // Purpose: finds ConCommands.
 // Input  : *pszCommandName - 
 //-----------------------------------------------------------------------------
-ConCommand* CCVar::FindCommand(const char* pszCommandName)
+ConCommand* CCvar::FindCommand(const char* pszCommandName)
 {
 	const int index = 18;
 	return CallVFunc<ConCommand*>(index, this, pszCommandName);
@@ -705,7 +727,7 @@ ConCommand* CCVar::FindCommand(const char* pszCommandName)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CCVar::CallGlobalChangeCallbacks(ConVar* pConVar, const char* pOldString)
+void CCvar::CallGlobalChangeCallbacks(ConVar* pConVar, const char* pOldString)
 {
 	const int index = 23;
 	CallVFunc<void>(index, this, pConVar, pOldString);
@@ -714,22 +736,22 @@ void CCVar::CallGlobalChangeCallbacks(ConVar* pConVar, const char* pOldString)
 //-----------------------------------------------------------------------------
 // Purpose: deal with queued material system ConVars
 //-----------------------------------------------------------------------------
-bool CCVar::IsMaterialThreadSetAllowed(void)
+bool CCvar::IsMaterialThreadSetAllowed(void)
 {
 	const int index = 35;
 	return CallVFunc<bool>(index, this);
 }
-void CCVar::QueueMaterialThreadSetValue(ConVar* pConVar, float flValue)
+void CCvar::QueueMaterialThreadSetValue(ConVar* pConVar, float flValue)
 {
 	const int index = 36;
 	CallVFunc<void>(index, this, pConVar, flValue);
 }
-void CCVar::QueueMaterialThreadSetValue(ConVar* pConVar, int nValue)
+void CCvar::QueueMaterialThreadSetValue(ConVar* pConVar, int nValue)
 {
 	const int index = 37;
 	CallVFunc<void>(index, this, pConVar, nValue);
 }
-void CCVar::QueueMaterialThreadSetValue(ConVar* pConVar, const char* pValue)
+void CCvar::QueueMaterialThreadSetValue(ConVar* pConVar, const char* pValue)
 {
 	const int index = 38;
 	CallVFunc<void>(index, this, pConVar, pValue);
@@ -738,7 +760,7 @@ void CCVar::QueueMaterialThreadSetValue(ConVar* pConVar, const char* pValue)
 //-----------------------------------------------------------------------------
 // Purpose: iterates over all ConVars
 //-----------------------------------------------------------------------------
-CCVarIteratorInternal* CCVar::FactoryInternalIterator(void)
+CCvar::CCVarIteratorInternal* CCvar::FactoryInternalIterator(void)
 {
 	const int index = 41;
 	return CallVFunc<CCVarIteratorInternal*>(index, this);
@@ -747,7 +769,7 @@ CCVarIteratorInternal* CCVar::FactoryInternalIterator(void)
 //-----------------------------------------------------------------------------
 // Purpose: returns all ConVars
 //-----------------------------------------------------------------------------
-unordered_map<string, ConCommandBase*> CCVar::DumpToMap(void)
+unordered_map<string, ConCommandBase*> CCvar::DumpToMap(void)
 {
 	stringstream ss;
 	CCVarIteratorInternal* itint = FactoryInternalIterator(); // Allocate new InternalIterator.
@@ -765,4 +787,207 @@ unordered_map<string, ConCommandBase*> CCVar::DumpToMap(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-CCVar* g_pCVar = nullptr;
+CCvar* g_pCVar = nullptr;
+
+
+//-----------------------------------------------------------------------------
+// Console command hash data structure
+//-----------------------------------------------------------------------------
+CConCommandHash::CConCommandHash()
+{
+	Purge(true);
+}
+
+CConCommandHash::~CConCommandHash()
+{
+	Purge(false);
+}
+
+void CConCommandHash::Purge(bool bReinitialize)
+{
+	m_aBuckets.Purge();
+	m_aDataPool.Purge();
+	if (bReinitialize)
+	{
+		Init();
+	}
+}
+
+// Initialize.
+void CConCommandHash::Init(void)
+{
+	// kNUM_BUCKETS must be a power of two.
+	COMPILE_TIME_ASSERT((kNUM_BUCKETS & (kNUM_BUCKETS - 1)) == 0);
+
+	// Set the bucket size.
+	m_aBuckets.SetSize(kNUM_BUCKETS);
+	for (int iBucket = 0; iBucket < kNUM_BUCKETS; ++iBucket)
+	{
+		m_aBuckets[iBucket] = m_aDataPool.InvalidIndex();
+	}
+
+	// Calculate the grow size.
+	int nGrowSize = 4 * kNUM_BUCKETS;
+	m_aDataPool.SetGrowSize(nGrowSize);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Insert data into the hash table given its key (unsigned int), 
+//			WITH a check to see if the element already exists within the hash.
+//-----------------------------------------------------------------------------
+CConCommandHash::CCommandHashHandle_t CConCommandHash::Insert(ConCommandBase* cmd)
+{
+	// Check to see if that key already exists in the buckets (should be unique).
+	CCommandHashHandle_t hHash = Find(cmd);
+	if (hHash != InvalidHandle())
+		return hHash;
+
+	return FastInsert(cmd);
+}
+//-----------------------------------------------------------------------------
+// Purpose: Insert data into the hash table given its key (unsigned int),
+//          WITHOUT a check to see if the element already exists within the hash.
+//-----------------------------------------------------------------------------
+CConCommandHash::CCommandHashHandle_t CConCommandHash::FastInsert(ConCommandBase* cmd)
+{
+	// Get a new element from the pool.
+	intptr_t iHashData = m_aDataPool.Alloc(true);
+	HashEntry_t* RESTRICT pHashData = &m_aDataPool[iHashData];
+	if (!pHashData)
+		return InvalidHandle();
+
+	HashKey_t key = Hash(cmd);
+
+	// Add data to new element.
+	pHashData->m_uiKey = key;
+	pHashData->m_Data = cmd;
+
+	// Link element.
+	int iBucket = key & kBUCKETMASK; // HashFuncs::Hash( uiKey, m_uiBucketMask );
+	m_aDataPool.LinkBefore(m_aBuckets[iBucket], iHashData);
+	m_aBuckets[iBucket] = iHashData;
+
+	return iHashData;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Remove a given element from the hash.
+//-----------------------------------------------------------------------------
+void CConCommandHash::Remove(CCommandHashHandle_t hHash) RESTRICT
+{
+	HashEntry_t* RESTRICT entry = &m_aDataPool[hHash];
+	HashKey_t iBucket = entry->m_uiKey & kBUCKETMASK;
+	if (m_aBuckets[iBucket] == hHash)
+	{
+		// It is a bucket head.
+		m_aBuckets[iBucket] = m_aDataPool.Next(hHash);
+	}
+	else
+	{
+		// Not a bucket head.
+		m_aDataPool.Unlink(hHash);
+	}
+
+	// Remove the element.
+	m_aDataPool.Remove(hHash);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Remove all elements from the hash
+//-----------------------------------------------------------------------------
+void CConCommandHash::RemoveAll(void)
+{
+	m_aBuckets.RemoveAll();
+	m_aDataPool.RemoveAll();
+}
+
+//-----------------------------------------------------------------------------
+// Find hash entry corresponding to a string name
+//-----------------------------------------------------------------------------
+CConCommandHash::CCommandHashHandle_t CConCommandHash::Find(const char* name, HashKey_t hashkey) const RESTRICT
+{
+	// hash the "key" - get the correct hash table "bucket"
+	int iBucket = hashkey & kBUCKETMASK;
+
+	for (datapool_t::IndexLocalType_t iElement = m_aBuckets[iBucket]; iElement != m_aDataPool.InvalidIndex(); iElement = m_aDataPool.Next(iElement))
+	{
+		const HashEntry_t& element = m_aDataPool[iElement];
+		if (element.m_uiKey == hashkey && // if hashes of strings match,
+			Q_stricmp(name, element.m_Data->GetName()) == 0) // then test the actual strings
+		{
+			return iElement;
+		}
+	}
+
+	// found nuffink
+	return InvalidHandle();
+}
+
+//-----------------------------------------------------------------------------
+// Find a command in the hash.
+//-----------------------------------------------------------------------------
+CConCommandHash::CCommandHashHandle_t CConCommandHash::Find(const ConCommandBase* cmd) const RESTRICT
+{
+	// Set this #if to 1 if the assert at bottom starts whining --
+	// that indicates that a console command is being double-registered,
+	// or something similarly nonfatally bad. With this #if 1, we'll search
+	// by name instead of by pointer, which is more robust in the face
+	// of double registered commands, but obviously slower.
+#if 0 
+	return Find(cmd->GetName());
+#else
+	HashKey_t hashkey = Hash(cmd);
+	int iBucket = hashkey & kBUCKETMASK;
+
+	// hunt through all entries in that bucket
+	for (datapool_t::IndexLocalType_t iElement = m_aBuckets[iBucket]; iElement != m_aDataPool.InvalidIndex(); iElement = m_aDataPool.Next(iElement))
+	{
+		const HashEntry_t& element = m_aDataPool[iElement];
+		if (element.m_uiKey == hashkey && // if the hashes match... 
+			element.m_Data == cmd) // and the pointers...
+		{
+			// in debug, test to make sure we don't have commands under the same name
+			// or something goofy like that
+			Assert(iElement == Find(cmd->GetName()),
+				"ConCommand %s had two entries in the hash!", cmd->GetName());
+
+			// return this element
+			return iElement;
+		}
+	}
+
+	// found nothing.
+#ifdef DBGFLAG_ASSERT // double check against search by name
+	CCommandHashHandle_t dbghand = Find(cmd->GetName());
+
+	AssertMsg1(InvalidHandle() == dbghand,
+		"ConCommand %s couldn't be found by pointer, but was found by name!", cmd->GetName());
+#endif
+	return InvalidHandle();
+#endif
+}
+
+
+//#ifdef _DEBUG
+// Dump a report to MSG
+void CConCommandHash::Report(void)
+{
+	DevMsg(eDLL_T::ENGINE, "Console command hash bucket load:\n");
+	int total = 0;
+	for (int iBucket = 0; iBucket < kNUM_BUCKETS; ++iBucket)
+	{
+		int count = 0;
+		CCommandHashHandle_t iElement = m_aBuckets[iBucket]; // get the head of the bucket
+		while (iElement != m_aDataPool.InvalidIndex())
+		{
+			++count;
+			iElement = m_aDataPool.Next(iElement);
+		}
+
+		DevMsg(eDLL_T::ENGINE, "%d: %d\n", iBucket, count);
+		total += count;
+	}
+
+	DevMsg(eDLL_T::ENGINE, "\tAverage: %.1f\n", total / ((float)(kNUM_BUCKETS)));
+}
+//#endif

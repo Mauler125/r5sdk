@@ -612,6 +612,9 @@
     <ClCompile Include="..\networksystem\bansystem.cpp">
       <Filter>sdk\networksystem</Filter>
     </ClCompile>
+    <ClCompile Include="..\tier1\generichash.cpp">
+      <Filter>sdk\tier1</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1789,6 +1792,12 @@
     </ClInclude>
     <ClInclude Include="..\tier0\annotations.h">
       <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vstdlib\concommandhash.h">
+      <Filter>sdk\vstdlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\utllinkedlist.h">
+      <Filter>sdk\tier1</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -5,6 +5,12 @@
 //===========================================================================//
 #pragma once
 
+#define LittleShort( val )			( val )
+#define LittleWord( val )			( val )
+#define LittleLong( val )			( val )
+#define LittleDWord( val )			( val )
+#define LittleQWord( val )			( val )
+
 template <typename T>
 inline T WordSwapC(T w)
 {

@@ -124,7 +124,7 @@ public:
 //-----------------------------------------------------------------------------
 class ConCommand : public ConCommandBase
 {
-	friend class CCVar;
+	friend class CCvar;
 public:
 	static ConCommand* Create(const char* szName, const char* szHelpString, int nFlags, FnCommandCallback_t pCallback, FnCommandCompletionCallback pCommandCompletionCallback);
 

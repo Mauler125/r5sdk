@@ -343,3 +343,16 @@ protected:
 
 #define DECLARE_DERIVED_POINTER_HANDLE( _name, _basehandle ) struct _name##__ : public _basehandle##__ {}; typedef struct _name##__ *_name
 #define DECLARE_ALIASED_POINTER_HANDLE( _name, _alias ) typedef struct _alias##__ *name
+
+#define ExecuteNTimes( nTimes, x )	\
+	{								\
+	static int __executeCount=0;\
+	if ( __executeCount < nTimes )\
+		{							\
+			++__executeCount;		\
+			x;						\
+		}							\
+	}
+
+
+#define ExecuteOnce( x )			ExecuteNTimes( 1, x )
