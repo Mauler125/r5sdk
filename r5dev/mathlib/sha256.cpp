@@ -127,7 +127,7 @@ string sha256(const string& input)
     char buf[2*SHA256::DIGEST_SIZE+1];
     memset(buf, '\0', 2*SHA256::DIGEST_SIZE+1);
 
-    for (int i = 0; i < SHA256::DIGEST_SIZE; i++) {
+    for (unsigned int i = 0; i < SHA256::DIGEST_SIZE; i++) {
         sprintf(buf + i * 2, "%02x", digest[i]);
     }
 

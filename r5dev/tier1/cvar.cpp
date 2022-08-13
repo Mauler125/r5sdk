@@ -959,7 +959,7 @@ CConCommandHash::CCommandHashHandle_t CConCommandHash::Find(const ConCommandBase
 #ifdef DBGFLAG_ASSERT // double check against search by name
 	CCommandHashHandle_t dbghand = Find(cmd->GetName());
 
-	AssertMsg1(InvalidHandle() == dbghand,
+	Assert(InvalidHandle() == dbghand,
 		"ConCommand %s couldn't be found by pointer, but was found by name!", cmd->GetName());
 #endif
 	return InvalidHandle();
