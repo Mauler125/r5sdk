@@ -375,6 +375,7 @@ void ConCommand::InitShipped(void)
 {
 	//-------------------------------------------------------------------------
 	// ENGINE DLL                                                             |
+	g_pCVar->FindCommand("help")->m_fnCommandCallback = CVHelp_f;
 	g_pCVar->FindCommand("convar_list")->m_fnCommandCallback = CVList_f;
 	g_pCVar->FindCommand("convar_differences")->m_fnCommandCallback = CVDiff_f;
 #ifndef DEDICATED

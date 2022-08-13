@@ -1056,6 +1056,19 @@ void BHit_f(const CCommand& args)
 
 /*
 =====================
+CVHelp_f
+
+  Show help text for a
+  particular convar/concommand
+=====================
+*/
+void CVHelp_f(const CCommand& args)
+{
+	cv->CvarHelp(args);
+}
+
+/*
+=====================
 CVList_f
 
   List all ConCommandBases
