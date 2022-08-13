@@ -483,33 +483,8 @@ bool ConCommandBase::IsRegistered(void) const
 // Input  : *pCommandBase - nFlags 
 // Output : False if execution is permitted, true if not.
 //-----------------------------------------------------------------------------
-bool ConCommandBase::IsFlagSetInternal(ConCommandBase* pCommandBase, int nFlags)
+bool ConCommandBase::IsFlagSetInternal(const ConCommandBase* pCommandBase, int nFlags)
 {
-	if (cm_debug_cmdquery->GetBool())
-	{
-		printf("--------------------------------------------------\n");
-		printf(" Flaged: %08X\n", pCommandBase->m_nFlags);
-	}
-	// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY.
-	if (cm_unset_cheat_cmdquery->GetBool())
-	{
-		pCommandBase->RemoveFlags(FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT);
-	}
-	else if (cm_unset_dev_cmdquery->GetBool())// Mask off FCVAR_DEVELOPMENTONLY.
-	{
-		pCommandBase->RemoveFlags(FCVAR_DEVELOPMENTONLY);
-	}
-	if (cm_debug_cmdquery->GetBool())
-	{
-		printf(" Masked: %08X\n", pCommandBase->m_nFlags);
-		printf(" Verify: %08X\n", nFlags);
-		printf("--------------------------------------------------\n");
-	}
-	if (nFlags & FCVAR_RELEASE && !cm_unset_all_cmdquery->GetBool())
-	{
-		// Default retail behaviour.
-		return ConCommandBase_IsFlagSet(pCommandBase, nFlags);
-	}
 	if (cm_unset_all_cmdquery->GetBool())
 	{
 		// Returning false on all queries may cause problems.

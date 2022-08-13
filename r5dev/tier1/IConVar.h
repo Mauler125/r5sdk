@@ -70,8 +70,8 @@ public:
 	bool IsRegistered(void) const;
 	bool IsCommand(void) const;
 
-	bool IsFlagSet(int nFlags) { return IsFlagSetInternal(this, nFlags); };
-	static bool IsFlagSetInternal(ConVar* pConVar, int nFlags);
+	bool IsFlagSet(int nFlags) const { return IsFlagSetInternal(this, nFlags); };
+	static bool IsFlagSetInternal(const ConVar* pConVar, int nFlags);
 
 	struct CVValue_t
 	{

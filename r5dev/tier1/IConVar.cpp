@@ -68,10 +68,7 @@ void ConVar::Init(void) const
 	hostdesc = ConVar::Create("hostdesc", "", FCVAR_RELEASE, "Host game server description.", false, 0.f, false, 0.f, nullptr, nullptr);
 	staticProp_defaultBuildFrustum = ConVar::Create("staticProp_defaultBuildFrustum", "0", FCVAR_DEVELOPMENTONLY, "Use the old solution for building static prop frustum culling.", false, 0.f, false, 0.f, nullptr, nullptr);
 
-	cm_debug_cmdquery       = ConVar::Create("cm_debug_cmdquery"      , "0", FCVAR_DEVELOPMENTONLY, "Prints the flags of each ConVar/ConCommand query to the console ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	cm_unset_all_cmdquery   = ConVar::Create("cm_unset_all_cmdquery"  , "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Returns false on every ConVar/ConCommand query ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
-	cm_unset_dev_cmdquery   = ConVar::Create("cm_unset_dev_cmdquery"  , "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Returns false on all FCVAR_DEVELOPMENTONLY ConVar/ConCommand queries ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
-	cm_unset_cheat_cmdquery = ConVar::Create("cm_unset_cheat_cmdquery", "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Returns false on all FCVAR_DEVELOPMENTONLY and FCVAR_CHEAT ConVar/ConCommand queries ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 
 	rcon_address  = ConVar::Create("rcon_address",  "::", FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Remote server access address.", false, 0.f, false, 0.f, nullptr, nullptr);
 	rcon_password = ConVar::Create("rcon_password", ""  , FCVAR_SERVER_CANNOT_QUERY | FCVAR_DONTRECORD | FCVAR_RELEASE, "Remote server access password (rcon is disabled if empty).", false, 0.f, false, 0.f, &RCON_PasswordChanged_f, nullptr);
@@ -885,33 +882,8 @@ bool ConVar::IsCommand(void) const
 // Input  : *pConVar - nFlags
 // Output : False if change is permitted, true if not.
 //-----------------------------------------------------------------------------
-bool ConVar::IsFlagSetInternal(ConVar* pConVar, int nFlags)
+bool ConVar::IsFlagSetInternal(const ConVar* pConVar, int nFlags)
 {
-	if (cm_debug_cmdquery->GetBool())
-	{
-		printf("--------------------------------------------------\n");
-		printf(" Flaged: %08X\n", pConVar->m_nFlags);
-	}
-	if (cm_unset_cheat_cmdquery->GetBool())
-	{
-		// Mask off FCVAR_CHEATS and FCVAR_DEVELOPMENTONLY.
-		pConVar->RemoveFlags(FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT);
-	}
-	else if(cm_unset_dev_cmdquery->GetBool())// Mask off FCVAR_DEVELOPMENTONLY.
-	{
-		pConVar->RemoveFlags(FCVAR_DEVELOPMENTONLY);
-	}
-	if (cm_debug_cmdquery->GetBool())
-	{
-		printf(" Masked: %08X\n", pConVar->m_nFlags);
-		printf(" Verify: %08X\n", nFlags);
-		printf("--------------------------------------------------\n");
-	}
-	if (nFlags & FCVAR_RELEASE && !cm_unset_all_cmdquery->GetBool())
-	{
-		// Default retail behaviour.
-		return IConVar_IsFlagSet(pConVar, nFlags);
-	}
 	if (cm_unset_all_cmdquery->GetBool())
 	{
 		// Returning false on all queries may cause problems.

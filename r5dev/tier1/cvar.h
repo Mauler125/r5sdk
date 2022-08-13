@@ -7,6 +7,7 @@
 extern ConVar* single_frame_shutdown_for_reload;
 extern ConVar* old_gather_props;
 extern ConVar* enable_debug_overlays;
+extern ConVar* cm_unset_all_cmdquery;
 
 extern ConVar* staticProp_defaultBuildFrustum;
 extern ConVar* staticProp_no_fade_scalar;
@@ -22,11 +23,6 @@ extern ConVar* hostport;
 extern ConVar* host_hasIrreversibleShutdown;
 
 extern ConVar* mp_gamemode;
-
-extern ConVar* cm_debug_cmdquery;
-extern ConVar* cm_unset_all_cmdquery;
-extern ConVar* cm_unset_dev_cmdquery;
-extern ConVar* cm_unset_cheat_cmdquery;
 
 extern ConVar* rcon_address;
 extern ConVar* rcon_password;

@@ -11,6 +11,7 @@
 ConVar* single_frame_shutdown_for_reload   = nullptr;
 ConVar* old_gather_props                   = nullptr;
 ConVar* enable_debug_overlays              = nullptr;
+ConVar* cm_unset_all_cmdquery              = nullptr;
 
 ConVar* staticProp_defaultBuildFrustum     = nullptr;
 ConVar* staticProp_no_fade_scalar          = nullptr;
@@ -25,11 +26,6 @@ ConVar* hostip                             = nullptr;
 ConVar* hostport                           = nullptr;
 ConVar* host_hasIrreversibleShutdown       = nullptr;
 ConVar* mp_gamemode                        = nullptr;
-
-ConVar* cm_debug_cmdquery                  = nullptr;
-ConVar* cm_unset_all_cmdquery              = nullptr;
-ConVar* cm_unset_dev_cmdquery              = nullptr;
-ConVar* cm_unset_cheat_cmdquery            = nullptr;
 
 ConVar* rcon_address                       = nullptr;
 ConVar* rcon_password                      = nullptr;

@@ -5,6 +5,7 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
+#include "tier0/commandline.h"
 #include "tier1/cvar.h"
 #include "vpc/interfaces.h"
 #include "launcher/IApplication.h"
@@ -66,6 +67,12 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 		g_pConsole->m_vsvCommandBases.push_back(
 			CSuggest(map.first, map.second->GetFlags()));
 	}
+	if (CommandLine()->CheckParm("-devsdk"))
+	{
+		cv->EnableDevCvars();
+		cv->EnableHiddenCvars();
+	}
+
 #endif // !DEDICATED
 	if (pModAppSystemGroup->IsServerOnly())
 	{

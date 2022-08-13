@@ -96,8 +96,8 @@ public:
 	bool IsCommand(void) const;
 	bool IsRegistered(void) const;
 
-	bool IsFlagSet(int nFlags) { return IsFlagSetInternal(this, nFlags); };
-	static bool IsFlagSetInternal(ConCommandBase* pCommandBase, int nFlags);
+	bool IsFlagSet(int nFlags) const { return IsFlagSetInternal(this, nFlags); };
+	static bool IsFlagSetInternal(const ConCommandBase* pCommandBase, int nFlags);
 
 	int GetFlags(void) const;
 	ConCommandBase* GetNext(void) const;
