@@ -7,6 +7,7 @@
 #include "core/stdafx.h"
 #include "tier0/tslist.h"
 #include "tier0/memstd.h"
+#include "tier0/commandline.h"
 #include "tier1/cmd.h"
 #include "tier1/cvar.h"
 #include "tier1/characterset.h"
@@ -287,7 +288,7 @@ ConCommand* ConCommand::Create(const char* pszName, const char* pszHelpString, i
 	pCommand->m_bUsingCommandCallbackInterface = false;
 	pCommand->m_fnCompletionCallback = pCompletionFunc ? pCompletionFunc : CallbackStub;
 
-	ConCommandBase_Init(pCommand);
+	g_pCVar->RegisterConCommand(pCommand);
 
 	return pCommand;
 }
@@ -373,17 +374,66 @@ void ConCommand::Init(void)
 //-----------------------------------------------------------------------------
 void ConCommand::InitShipped(void)
 {
+	///------------------------------------------------------ [ CALLBACK SWAP ]
 	//-------------------------------------------------------------------------
 	// ENGINE DLL                                                             |
-	g_pCVar->FindCommand("help")->m_fnCommandCallback = CVHelp_f;
-	g_pCVar->FindCommand("convar_list")->m_fnCommandCallback = CVList_f;
-	g_pCVar->FindCommand("convar_differences")->m_fnCommandCallback = CVDiff_f;
-	g_pCVar->FindCommand("convar_findByFlags")->m_fnCommandCallback = CVFlag_f;
+	ConCommand* help = g_pCVar->FindCommand("help");
+	ConCommand* convar_list =  g_pCVar->FindCommand("convar_list");
+	ConCommand* convar_differences = g_pCVar->FindCommand("convar_differences");
+	ConCommand* convar_findByFlags = g_pCVar->FindCommand("convar_findByFlags");
 #ifndef DEDICATED
 	//-------------------------------------------------------------------------
 	// MATERIAL SYSTEM
-	g_pCVar->FindCommand("mat_crosshair")->m_fnCommandCallback = Mat_CrossHair_f; // Patch callback function to working callback.
+	ConCommand* mat_crosshair = g_pCVar->FindCommand("mat_crosshair"); // Patch callback function to working callback.
+	mat_crosshair->m_fnCommandCallback = Mat_CrossHair_f;
 #endif // !DEDICATED
+
+	help->m_fnCommandCallback = CVHelp_f;
+	convar_list->m_fnCommandCallback = CVList_f;
+	convar_differences->m_fnCommandCallback = CVDiff_f;
+	convar_findByFlags->m_fnCommandCallback = CVFlag_f;
+
+	/// ------------------------------------------------------ [ FLAG REMOVAL ]
+	//-------------------------------------------------------------------------
+	if (!CommandLine()->CheckParm("-devsdk"))
+	{
+		const char* pszMaskedBases[] =
+		{
+			"changelevel",
+#ifndef DEDICATED
+			"connect",
+			"connectAsSpectator",
+			"connectWithKey",
+#endif // !DEDICATED
+			"exit",
+			"map",
+			"map_background",
+#ifndef DEDICATED
+			"ping",
+#endif // !DEDICATED
+			"quit",
+			"restart",
+			"status",
+#ifndef DEDICATED
+			"set",
+			"silentconnect",
+#endif // !DEDICATED
+			"version",
+		};
+
+		for (size_t i = 0; i < SDK_ARRAYSIZE(pszMaskedBases); i++)
+		{
+			if (ConCommandBase* pCommandBase = g_pCVar->FindCommandBase(pszMaskedBases[i]))
+			{
+				pCommandBase->RemoveFlags(FCVAR_DEVELOPMENTONLY);
+			}
+		}
+
+		help->RemoveFlags(FCVAR_DEVELOPMENTONLY);
+		convar_list->RemoveFlags(FCVAR_DEVELOPMENTONLY);
+		convar_differences->RemoveFlags(FCVAR_DEVELOPMENTONLY);
+		convar_findByFlags->RemoveFlags(FCVAR_DEVELOPMENTONLY);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -439,7 +489,7 @@ void ConCommand::PurgeShipped(void) const
 		"-scriptCommand9",
 	};
 
-	for (int i = 0; i < (&pszCommandToRemove)[1] - pszCommandToRemove; i++)
+	for (size_t i = 0; i < SDK_ARRAYSIZE(pszCommandToRemove); i++)
 	{
 		ConCommandBase* pCommandBase = g_pCVar->FindCommandBase(pszCommandToRemove[i]);
 

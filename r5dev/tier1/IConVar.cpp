@@ -214,10 +214,16 @@ void ConVar::InitShipped(void) const
 	ai_script_nodes_draw             = g_pCVar->FindVar("ai_script_nodes_draw");
 	bhit_enable                      = g_pCVar->FindVar("bhit_enable");
 #endif // !CLIENT_DLL
+#ifndef DEDICATED
+	cl_threaded_bone_setup           = g_pCVar->FindVar("cl_threaded_bone_setup");
+#endif // !DEDICATED
 	single_frame_shutdown_for_reload = g_pCVar->FindVar("single_frame_shutdown_for_reload");
 	enable_debug_overlays            = g_pCVar->FindVar("enable_debug_overlays");
 	model_defaultFadeDistScale       = g_pCVar->FindVar("model_defaultFadeDistScale");
 	model_defaultFadeDistMin         = g_pCVar->FindVar("model_defaultFadeDistMin");
+#ifndef DEDICATED
+	rui_defaultDebugFontFace         = g_pCVar->FindVar("rui_defaultDebugFontFace");
+#endif // !DEDICATED
 	staticProp_no_fade_scalar        = g_pCVar->FindVar("staticProp_no_fade_scalar");
 	staticProp_gather_size_weight    = g_pCVar->FindVar("staticProp_gather_size_weight");
 	stream_overlay                   = g_pCVar->FindVar("stream_overlay");
@@ -234,6 +240,10 @@ void ConVar::InitShipped(void) const
 #ifndef CLIENT_DLL
 	ai_script_nodes_draw->SetValue(-1);
 #endif // !CLIENT_DLL
+#ifndef DEDICATED
+	cl_threaded_bone_setup->RemoveFlags(FCVAR_DEVELOPMENTONLY);
+	rui_defaultDebugFontFace->RemoveFlags(FCVAR_DEVELOPMENTONLY);
+#endif // !DEDICATED
 	mp_gamemode->RemoveChangeCallback(mp_gamemode->m_fnChangeCallbacks[0]);
 	mp_gamemode->InstallChangeCallback(MP_GameMode_Changed_f, false);
 }

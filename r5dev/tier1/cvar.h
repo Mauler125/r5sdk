@@ -121,6 +121,8 @@ extern ConVar* cl_showmaterialinfo;
 extern ConVar* cl_materialinfo_offset_x;
 extern ConVar* cl_materialinfo_offset_y;
 
+extern ConVar* cl_threaded_bone_setup;
+
 extern ConVar* con_max_size_logvector;
 extern ConVar* con_suggestion_limit;
 extern ConVar* con_suggestion_showhelptext;
@@ -158,6 +160,7 @@ extern ConVar* pylon_showdebug;
 // RUI                                                                    |
 #ifndef DEDICATED
 extern ConVar* rui_drawEnable;
+extern ConVar* rui_defaultDebugFontFace;
 #endif // !DEDICATED
 
 //-----------------------------------------------------------------------------
@@ -209,7 +212,7 @@ private:
 
 extern CCvarUtilities* cv;
 
-class CCvar
+class CCvar // TODO: interface class !!!
 {
 public:
 	ConCommandBase* RegisterConCommand(ConCommandBase* pCommandToAdd);
