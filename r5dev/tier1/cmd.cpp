@@ -378,6 +378,7 @@ void ConCommand::InitShipped(void)
 	g_pCVar->FindCommand("help")->m_fnCommandCallback = CVHelp_f;
 	g_pCVar->FindCommand("convar_list")->m_fnCommandCallback = CVList_f;
 	g_pCVar->FindCommand("convar_differences")->m_fnCommandCallback = CVDiff_f;
+	g_pCVar->FindCommand("convar_findByFlags")->m_fnCommandCallback = CVFlag_f;
 #ifndef DEDICATED
 	//-------------------------------------------------------------------------
 	// MATERIAL SYSTEM

@@ -1092,3 +1092,16 @@ void CVDiff_f(const CCommand& args)
 {
 	cv->CvarDifferences(args);
 }
+
+/*
+=====================
+CVFlag_f
+
+  List all ConVar's
+  with specified flags
+=====================
+*/
+void CVFlag_f(const CCommand& args)
+{
+	cv->CvarFindFlags_f(args);
+}
