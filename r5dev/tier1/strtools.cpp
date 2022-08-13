@@ -1,5 +1,65 @@
 #include "core/stdafx.h"
 
+FORCEINLINE unsigned char tolower_fast(unsigned char c)
+{
+	if ((c >= 'A') && (c <= 'Z'))
+		return c + ('a' - 'A');
+	return c;
+}
+
+//-----------------------------------------------------------------------------
+// Finds a string in another string with a case insensitive test
+//-----------------------------------------------------------------------------
+char const* V_stristr(char const* pStr, char const* pSearch)
+{
+	AssertValidStringPtr(reinterpret_cast<const TCHAR*>(pStr));
+	AssertValidStringPtr(reinterpret_cast<const TCHAR*>(pSearch));
+
+	if (!pStr || !pSearch)
+		return 0;
+
+	char const* pLetter = pStr;
+
+	// Check the entire string
+	while (*pLetter != 0)
+	{
+		// Skip over non-matches
+		if (tolower_fast((unsigned char)*pLetter) == tolower_fast((unsigned char)*pSearch))
+		{
+			// Check for match
+			char const* pMatch = pLetter + 1;
+			char const* pTest = pSearch + 1;
+			while (*pTest != 0)
+			{
+				// We've run off the end; don't bother.
+				if (*pMatch == 0)
+					return 0;
+
+				if (tolower_fast((unsigned char)*pMatch) != tolower_fast((unsigned char)*pTest))
+					break;
+
+				++pMatch;
+				++pTest;
+			}
+
+			// Found a match!
+			if (*pTest == 0)
+				return pLetter;
+		}
+
+		++pLetter;
+	}
+
+	return 0;
+}
+
+char* V_stristr(char* pStr, char const* pSearch)
+{
+	AssertValidStringPtr(reinterpret_cast<const TCHAR*>(pStr));
+	AssertValidStringPtr(reinterpret_cast<const TCHAR*>(pSearch));
+
+	return (char*)V_stristr((char const*)pStr, pSearch);
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Converts a UTF8 string into a unicode string

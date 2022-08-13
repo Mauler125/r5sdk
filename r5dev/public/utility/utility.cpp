@@ -177,6 +177,68 @@ void HexDump(const char* szHeader, const char* szLogger, const void* pData, int 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For stripping tabs and return characters from input buffer.
+char* StripTabsAndReturns(const char* pInBuffer, char* pOutBuffer, int nOutBufferSize)
+{
+    char* out = pOutBuffer;
+    const char* i = pInBuffer;
+    char* o = out;
+
+    out[0] = 0;
+
+    while (*i && o - out < nOutBufferSize - 1)
+    {
+        if (*i == '\n' ||
+            *i == '\r' ||
+            *i == '\t')
+        {
+            *o++ = ' ';
+            i++;
+            continue;
+        }
+        if (*i == '\"')
+        {
+            *o++ = '\'';
+            i++;
+            continue;
+        }
+
+        *o++ = *i++;
+    }
+
+    *o = '\0';
+
+    return out;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// For stripping quote characters from input buffer.
+char* StripQuotes(const char* pInBuffer, char* pOutBuffer, int nOutBufferSize)
+{
+    char* out = pOutBuffer;
+    const char* i = pInBuffer;
+    char* o = out;
+
+    out[0] = 0;
+
+    while (*i && o - out < nOutBufferSize - 1)
+    {
+        if (*i == '\"')
+        {
+            *o++ = '\'';
+            i++;
+            continue;
+        }
+
+        *o++ = *i++;
+    }
+
+    *o = '\0';
+
+    return out;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For checking if file name has a specific extension.
 bool HasExtension(const string& svInput, const string& svExtension)
 {
@@ -726,6 +788,20 @@ void PrintM128i64(__m128i in)
     alignas(16) uint64_t v[2];  // uint64_t might give format-string warnings with %llx; it's just long in some ABIs
     _mm_store_si128(reinterpret_cast<__m128i*>(v), in);
     printf("v2_u64: %llx %llx\n", v[0], v[1]);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// For appending characters to a printf buffer.
+void AppendPrintf(char* pBuffer, size_t nBufSize, char const* pFormat, ...)
+{
+    char scratch[1024];
+    va_list argptr;
+    va_start(argptr, pFormat);
+    _vsnprintf(scratch, sizeof(scratch) - 1, pFormat, argptr);
+    va_end(argptr);
+    scratch[sizeof(scratch) - 1] = 0;
+
+    strncat(pBuffer, scratch, nBufSize);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

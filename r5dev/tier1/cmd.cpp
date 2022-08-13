@@ -373,6 +373,10 @@ void ConCommand::Init(void)
 //-----------------------------------------------------------------------------
 void ConCommand::InitShipped(void)
 {
+	//-------------------------------------------------------------------------
+	// ENGINE DLL                                                             |
+	g_pCVar->FindCommand("convar_list")->m_fnCommandCallback = CVList_f;
+	g_pCVar->FindCommand("convar_differences")->m_fnCommandCallback = CVDiff_f;
 #ifndef DEDICATED
 	//-------------------------------------------------------------------------
 	// MATERIAL SYSTEM
@@ -477,7 +481,7 @@ bool ConCommandBase::IsRegistered(void) const
 // Input  : *pCommandBase - nFlags 
 // Output : False if execution is permitted, true if not.
 //-----------------------------------------------------------------------------
-bool ConCommandBase::IsFlagSet(ConCommandBase* pCommandBase, int nFlags)
+bool ConCommandBase::IsFlagSetInternal(ConCommandBase* pCommandBase, int nFlags)
 {
 	if (cm_debug_cmdquery->GetBool())
 	{
@@ -518,7 +522,7 @@ bool ConCommandBase::IsFlagSet(ConCommandBase* pCommandBase, int nFlags)
 // Input  : nFlags - 
 // Output : True if ConCommand has nFlags.
 //-----------------------------------------------------------------------------
-bool ConCommandBase::HasFlags(int nFlags)
+bool ConCommandBase::HasFlags(int nFlags) const
 {
 	return m_nFlags & nFlags;
 }
@@ -623,10 +627,10 @@ ECommandTarget_t Cbuf_GetCurrentPlayer(void)
 ///////////////////////////////////////////////////////////////////////////////
 void ConCommand_Attach()
 {
-	DetourAttach((LPVOID*)&ConCommandBase_IsFlagSet, &ConCommandBase::IsFlagSet);
+	DetourAttach((LPVOID*)&ConCommandBase_IsFlagSet, &ConCommandBase::IsFlagSetInternal);
 }
 void ConCommand_Detach()
 {
-	DetourDetach((LPVOID*)&ConCommandBase_IsFlagSet, &ConCommandBase::IsFlagSet);
+	DetourDetach((LPVOID*)&ConCommandBase_IsFlagSet, &ConCommandBase::IsFlagSetInternal);
 }
 ConCommand* g_pConCommand = new ConCommand();

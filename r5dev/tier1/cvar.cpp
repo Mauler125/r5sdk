@@ -1,7 +1,9 @@
 #include "core/stdafx.h"
+#include "tier1/utlrbtree.h"
 #include "tier1/cvar.h"
 #include "tier1/IConVar.h"
 #include "engine/sys_dll2.h"
+#include "filesystem/filesystem.h"
 
 //-----------------------------------------------------------------------------
 // ENGINE                                                                     |
@@ -165,6 +167,483 @@ ConVar* pylon_showdebug                    = nullptr;
 #ifndef DEDICATED
 ConVar* rui_drawEnable                     = nullptr;
 #endif // !DEDICATED
+
+struct ConVarFlags_t
+{
+	int			bit;
+	const char* desc;
+	const char* shortdesc;
+};
+
+#define CONVARFLAG( x, y )	{ FCVAR_##x, #x, #y }
+
+static ConVarFlags_t g_ConVarFlags[] =
+{
+	//	CONVARFLAG( UNREGISTERED, "u" ),
+	CONVARFLAG(ARCHIVE, "a"),
+	CONVARFLAG(SPONLY, "sp"),
+	CONVARFLAG(GAMEDLL, "sv"),
+	CONVARFLAG(CHEAT, "cheat"),
+	CONVARFLAG(USERINFO, "user"),
+	CONVARFLAG(NOTIFY, "nf"),
+	CONVARFLAG(PROTECTED, "prot"),
+	CONVARFLAG(PRINTABLEONLY, "print"),
+	CONVARFLAG(UNLOGGED, "log"),
+	CONVARFLAG(NEVER_AS_STRING, "numeric"),
+	CONVARFLAG(REPLICATED, "rep"),
+	CONVARFLAG(DEMO, "demo"),
+	CONVARFLAG(DONTRECORD, "norecord"),
+	CONVARFLAG(SERVER_CAN_EXECUTE, "server_can_execute"),
+	CONVARFLAG(CLIENTCMD_CAN_EXECUTE, "clientcmd_can_execute"),
+	CONVARFLAG(CLIENTDLL, "cl"),
+};
+
+static void PrintListHeader(FileHandle_t& f)
+{
+	char csvflagstr[1024];
+
+	csvflagstr[0] = 0;
+
+	int c = ARRAYSIZE(g_ConVarFlags);
+	for (int i = 0; i < c; ++i)
+	{
+		char csvf[64];
+
+		ConVarFlags_t& entry = g_ConVarFlags[i];
+		snprintf(csvf, sizeof(csvf), "\"%s\",", entry.desc);
+		strncat(csvflagstr, csvf, sizeof(csvflagstr));
+	}
+
+	FileSystem()->FPrintf(f, "\"%s\",\"%s\",%s,\"%s\"\n", "Name", "Value", csvflagstr, "Help Text");
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : *var - 
+//			*f - 
+//-----------------------------------------------------------------------------
+static void PrintCvar(ConVar* var, bool logging, FileHandle_t& fh)
+{
+	char flagstr[128];
+	char csvflagstr[1024];
+
+	flagstr[0] = 0;
+	csvflagstr[0] = 0;
+
+	int c = ARRAYSIZE(g_ConVarFlags);
+	for (int i = 0; i < c; ++i)
+	{
+		char f[32];
+		char csvf[64];
+
+		ConVarFlags_t& entry = g_ConVarFlags[i];
+		if (var->IsFlagSet(entry.bit))
+		{
+			snprintf(f, sizeof(f), ", %s", entry.shortdesc);
+			strncat(flagstr, f, sizeof(flagstr));
+			snprintf(csvf, sizeof(csvf), "\"%s\",", entry.desc);
+		}
+		else
+		{
+			snprintf(csvf, sizeof(csvf), ",");
+		}
+
+		strncat(csvflagstr, csvf, sizeof(csvflagstr));
+	}
+
+
+	char valstr[32];
+	char tempbuff[512] = { 0 };
+
+	// Clean up integers
+	if (var->GetInt() == (int)var->GetFloat())
+	{
+		snprintf(valstr, sizeof(valstr), "%-8i", var->GetInt());
+	}
+	else
+	{
+		snprintf(valstr, sizeof(valstr), "%-8.3f", var->GetFloat());
+	}
+
+	// Print to console
+	DevMsg(eDLL_T::ENGINE, "%-40s : %-8s : %-16s : %s\n", var->GetName(), valstr, flagstr, StripTabsAndReturns(var->GetHelpText(), tempbuff, sizeof(tempbuff)));
+	if (logging)
+	{
+		FileSystem()->FPrintf(fh, "\"%s\",\"%s\",%s,\"%s\"\n", var->GetName(), valstr, csvflagstr, StripQuotes(var->GetHelpText(), tempbuff, sizeof(tempbuff)));
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : 
+// Output :
+//-----------------------------------------------------------------------------
+static void PrintCommand(const ConCommand* cmd, bool logging, FileHandle_t& f)
+{
+	// Print to console
+	char tempbuff[512] = { 0 };
+	DevMsg(eDLL_T::ENGINE, "%-40s : %-8s : %-16s : %s\n", cmd->GetName(), "cmd", "", StripTabsAndReturns(cmd->GetHelpText(), tempbuff, sizeof(tempbuff)));
+	if (logging)
+	{
+		char emptyflags[256];
+
+		emptyflags[0] = 0;
+
+		int c = ARRAYSIZE(g_ConVarFlags);
+		for (int i = 0; i < c; ++i)
+		{
+			char csvf[64];
+			Q_snprintf(csvf, sizeof(csvf), ",");
+			Q_strncat(emptyflags, csvf, sizeof(emptyflags));
+		}
+		// Names staring with +/- need to be wrapped in single quotes
+		char name[256];
+		snprintf(name, sizeof(name), "%s", cmd->GetName());
+		if (name[0] == '+' || name[0] == '-')
+		{
+			snprintf(name, sizeof(name), "'%s'", cmd->GetName());
+		}
+		FileSystem()->FPrintf(f, "\"%s\",\"%s\",%s,\"%s\"\n", name, "cmd", emptyflags, StripQuotes(cmd->GetHelpText(), tempbuff, sizeof(tempbuff)));
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : 
+// Output : bool
+//-----------------------------------------------------------------------------
+static bool ConCommandBaseLessFunc(ConCommandBase* const& lhs, ConCommandBase* const& rhs)
+{
+	const char* left = lhs->GetName();
+	const char* right = rhs->GetName();
+
+	if (*left == '-' || *left == '+')
+		left++;
+	if (*right == '-' || *right == '+')
+		right++;
+
+	return (Q_stricmp(left, right) < 0);
+}
+
+//-----------------------------------------------------------------------------
+// Singleton CCvarUtilities
+//-----------------------------------------------------------------------------
+static CCvarUtilities g_CvarUtilities;
+CCvarUtilities* cv = &g_CvarUtilities;
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : 
+// Output : int
+//-----------------------------------------------------------------------------
+int CCvarUtilities::CountVariablesWithFlags(int flags)
+{
+	int i = 0;
+	ConCommandBase* var;
+
+	// Loop through cvars...
+	CCVarIteratorInternal* pFactory = g_pCVar->FactoryInternalIterator();
+	pFactory->SetFirst();
+
+	while (pFactory->IsValid())
+	{
+		var = pFactory->Get();
+		if (!var->IsCommand())
+		{
+			if (var->IsFlagSet(flags))
+			{
+				i++;
+			}
+		}
+
+		pFactory->Next();
+	}
+
+	return i;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Removes the FCVAR_DEVELOPMENTONLY flag from all cvars, making them accessible
+//-----------------------------------------------------------------------------
+void CCvarUtilities::EnableDevCvars()
+{
+	// Loop through cvars...
+	CCVarIteratorInternal* pFactory = g_pCVar->FactoryInternalIterator();
+	pFactory->SetFirst();
+
+	while (pFactory->IsValid())
+	{
+		// remove flag from all cvars
+		ConCommandBase* pCommandBase = pFactory->Get();
+		pCommandBase->RemoveFlags(FCVAR_DEVELOPMENTONLY);
+
+		pFactory->Next();
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Output : void CCvar::CvarList_f
+//-----------------------------------------------------------------------------
+void CCvarUtilities::CvarList(const CCommand& args)
+{
+	ConCommandBase* var;	// Temporary Pointer to cvars
+	int iArgs;						// Argument count
+	const char* partial = NULL;		// Partial cvar to search for...
+									// E.eg
+	int ipLen = 0;					// Length of the partial cvar
+
+	FileHandle_t f = FILESYSTEM_INVALID_HANDLE;         // FilePointer for logging
+	bool bLogging = false;
+	// Are we logging?
+	iArgs = args.ArgC();		// Get count
+
+	// Print usage?
+	if (iArgs == 2 && !Q_strcasecmp(args[1], "?"))
+	{
+		DevMsg(eDLL_T::ENGINE, "cvarlist:  [log logfile] [ partial ]\n");
+		return;
+	}
+
+	if (!Q_strcasecmp(args[1], "log") && iArgs >= 3)
+	{
+		char fn[256];
+		Q_snprintf(fn, sizeof(fn), "%s", args[2]);
+		f = FileSystem()->Open(fn, "wb", nullptr, 0);
+		if (f)
+		{
+			bLogging = true;
+		}
+		else
+		{
+			DevMsg(eDLL_T::ENGINE, "Couldn't open '%s' for writing!\n", fn);
+			return;
+		}
+
+		if (iArgs == 4)
+		{
+			partial = args[3];
+			ipLen = Q_strlen(partial);
+		}
+	}
+	else
+	{
+		partial = args[1];
+		ipLen = Q_strlen(partial);
+	}
+
+	// Banner
+	DevMsg(eDLL_T::ENGINE, "cvar list\n--------------\n");
+
+	CUtlRBTree< ConCommandBase* > sorted(0, 0, ConCommandBaseLessFunc);
+
+	// Loop through cvars...
+	CCVarIteratorInternal* pFactory = g_pCVar->FactoryInternalIterator();
+	pFactory->SetFirst();
+
+	while (pFactory->IsValid())
+	{
+		var = pFactory->Get();
+
+		if (!var->IsFlagSet(FCVAR_DEVELOPMENTONLY) &&
+			!var->IsFlagSet(FCVAR_HIDDEN))
+		{
+			bool print = false;
+
+			if (partial)  // Partial string searching?
+			{
+				if (!Q_strncasecmp(var->GetName(), partial, ipLen))
+				{
+					print = true;
+				}
+			}
+			else
+			{
+				print = true;
+			}
+
+			if (print)
+			{
+				sorted.Insert(var);
+			}
+		}
+		pFactory->Next();
+	}
+
+	if (bLogging)
+	{
+		PrintListHeader(f);
+	}
+	for (int i = sorted.FirstInorder(); i != sorted.InvalidIndex(); i = sorted.NextInorder(i))
+	{
+		var = sorted[i];
+		if (var->IsCommand())
+		{
+			PrintCommand((ConCommand*)var, bLogging, f);
+		}
+		else
+		{
+			PrintCvar((ConVar*)var, bLogging, f);
+		}
+	}
+
+
+	// Show total and syntax help...
+	if (partial && partial[0])
+	{
+		DevMsg(eDLL_T::ENGINE, "--------------\n%3i convars/concommands for [%s]\n", sorted.Count(), partial);
+	}
+	else
+	{
+		DevMsg(eDLL_T::ENGINE, "--------------\n%3i total convars/concommands\n", sorted.Count());
+	}
+
+	if (bLogging)
+	{
+		FileSystem()->Close(f);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CCvarUtilities::CvarHelp(const CCommand& args)
+{
+	const char* search;
+	ConCommandBase* var;
+
+	if (args.ArgC() != 2)
+	{
+		DevMsg(eDLL_T::ENGINE, "Usage:  help <cvarname>\n");
+		return;
+	}
+
+	// Get name of var to find
+	search = args[1];
+
+	// Search for it
+	var = g_pCVar->FindCommandBase(search);
+	if (!var)
+	{
+		DevMsg(eDLL_T::ENGINE, "Help:  no cvar or command named %s\n", search);
+		return;
+	}
+
+	// Show info
+	ConVar_PrintDescription(var);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CCvarUtilities::CvarDifferences(const CCommand& args)
+{
+	CCVarIteratorInternal* pFactory = g_pCVar->FactoryInternalIterator();
+	pFactory->SetFirst();
+
+	while (pFactory->IsValid())
+	{
+		ConCommandBase* pCommandBase = pFactory->Get();
+
+		if (!pCommandBase->IsCommand() &&
+			!pCommandBase->IsFlagSet(FCVAR_HIDDEN))
+		{
+			ConVar* pConVar = reinterpret_cast<ConVar*>(pCommandBase);
+
+			if (strcmp(pConVar->GetString(), "FCVAR_NEVER_AS_STRING") != NULL)
+			{
+				ConVar_PrintDescription(pConVar);
+			}
+		}
+		pFactory->Next();
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CCvarUtilities::CvarFindFlags_f(const CCommand& args)
+{
+	if (args.ArgC() < 2)
+	{
+		DevMsg(eDLL_T::ENGINE, "Usage:  findflags <string>\n");
+		DevMsg(eDLL_T::ENGINE, "Available flags to search for: \n");
+
+		for (int i = 0; i < ARRAYSIZE(g_ConVarFlags); i++)
+		{
+			DevMsg(eDLL_T::ENGINE, "   - %s\n", g_ConVarFlags[i].desc);
+		}
+		return;
+	}
+
+	// Get substring to find
+	const char* search = args[1];
+	ConCommandBase* var;
+
+	// Loop through vars and print out findings
+	CCVarIteratorInternal* pFactory = g_pCVar->FactoryInternalIterator();
+	pFactory->SetFirst();
+
+	while (pFactory->IsValid())
+	{
+		var = pFactory->Get();
+
+		if (!var->IsFlagSet(FCVAR_DEVELOPMENTONLY) || !var->IsFlagSet(FCVAR_HIDDEN))
+		{
+			for (int i = 0; i < ARRAYSIZE(g_ConVarFlags); i++)
+			{
+				if (var->IsFlagSet(g_ConVarFlags[i].bit))
+				{
+					if (V_stristr(g_ConVarFlags[i].desc, search))
+					{
+						ConVar_PrintDescription(var);
+					}
+				}
+			}
+		}
+
+		pFactory->Next();
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CCvarUtilities::CvarFindFlagsCompletionCallback(const char* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH])
+{
+	int flagC = ARRAYSIZE(g_ConVarFlags);
+	char const* pcmd = "findflags ";
+	int len = Q_strlen(partial);
+
+	if (len < Q_strlen(pcmd))
+	{
+		int i = 0;
+		for (; i < MIN(flagC, COMMAND_COMPLETION_MAXITEMS); i++)
+		{
+			Q_snprintf(commands[i], sizeof(commands[i]), "%s %s", pcmd, g_ConVarFlags[i].desc);
+			Q_strlower(commands[i]);
+		}
+		return i;
+	}
+
+	char const* pSub = partial + Q_strlen(pcmd);
+	int nSubLen = Q_strlen(pSub);
+
+	int values = 0;
+	for (int i = 0; i < flagC; ++i)
+	{
+		if (Q_strnicmp(g_ConVarFlags[i].desc, pSub, nSubLen))
+			continue;
+
+		Q_snprintf(commands[values], sizeof(commands[values]), "%s %s", pcmd, g_ConVarFlags[i].desc);
+		Q_strlower(commands[values]);
+		++values;
+
+		if (values >= COMMAND_COMPLETION_MAXITEMS)
+			break;
+	}
+	return values;
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: registers input commands.

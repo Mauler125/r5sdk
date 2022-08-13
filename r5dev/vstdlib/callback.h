@@ -53,6 +53,8 @@ void Sphere_f(const CCommand& args);
 void Capsule_f(const CCommand& args);
 #endif // !DEDICATED
 void BHit_f(const CCommand& args);
+void CVList_f(const CCommand& args);
+void CVDiff_f(const CCommand& args);
 ///////////////////////////////////////////////////////////////////////////////
 class VCallback : public IDetour
 {

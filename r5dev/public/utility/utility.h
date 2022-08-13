@@ -13,6 +13,11 @@ void PrintLastError(void);
 void HexDump(const char* szHeader, const char* szLogger, const void* pData, int nSize);
 
 /////////////////////////////////////////////////////////////////////////////
+// Char
+char* StripTabsAndReturns(const char* pInBuffer, char* pOutBuffer, int nOutBufferSize);
+char* StripQuotes(const char* pInBuffer, char* pOutBuffer, int nOutBufferSize);
+
+/////////////////////////////////////////////////////////////////////////////
 // String
 bool HasExtension(const string& svInput, const string& svExtension);
 string GetExtension(const string& svInput, bool bReturnOriginal = false, bool bKeepDelimiter = false);
@@ -58,6 +63,7 @@ void PrintM128i16(__m128i in);
 void PrintM128i32(__m128i in);
 void PrintM128i64(__m128i in);
 
+void AppendPrintf(char* pBuffer, size_t nBufSize, char const* pFormat, ...);
 string PrintPercentageEscape(const string& svInput);
 
 /////////////////////////////////////////////////////////////////////////////

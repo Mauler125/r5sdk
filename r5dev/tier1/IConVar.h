@@ -69,7 +69,9 @@ public:
 
 	bool IsRegistered(void) const;
 	bool IsCommand(void) const;
-	static bool IsFlagSet(ConVar* pConVar, int nFlags);
+
+	bool IsFlagSet(int nFlags) { return IsFlagSetInternal(this, nFlags); };
+	static bool IsFlagSetInternal(ConVar* pConVar, int nFlags);
 
 	struct CVValue_t
 	{
@@ -107,6 +109,8 @@ inline CMemory g_pIConVarVFTable;
 ///////////////////////////////////////////////////////////////////////////////
 void IConVar_Attach();
 void IConVar_Detach();
+
+void ConVar_PrintDescription(ConCommandBase* pVar);
 
 extern ConVar* g_pConVar;
 

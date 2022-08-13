@@ -1053,3 +1053,29 @@ void BHit_f(const CCommand& args)
 	}
 #endif // !DEDICATED
 }
+
+/*
+=====================
+CVList_f
+
+  List all ConCommandBases
+=====================
+*/
+void CVList_f(const CCommand& args)
+{
+	cv->CvarList(args);
+}
+
+/*
+=====================
+CVDiff_f
+
+  List all ConVar's 
+  who's values deviate 
+  from default value
+=====================
+*/
+void CVDiff_f(const CCommand& args)
+{
+	cv->CvarDifferences(args);
+}

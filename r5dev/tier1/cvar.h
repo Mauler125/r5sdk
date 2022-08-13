@@ -163,6 +163,54 @@ extern ConVar* pylon_showdebug;
 extern ConVar* rui_drawEnable;
 #endif // !DEDICATED
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+class CCvarUtilities
+{
+public:
+	//bool IsCommand(const CCommand& args);
+
+	// Writes lines containing "set variable value" for all variables
+	// with the archive flag set to true.
+	//void WriteVariables(CUtlBuffer& buff, bool bAllVars);
+
+	// Returns the # of cvars with the server flag set.
+	int	CountVariablesWithFlags(int flags);
+
+	// Enable cvars marked with FCVAR_DEVELOPMENTONLY
+	void EnableDevCvars();
+
+	// Lists cvars to console
+	void CvarList(const CCommand& args);
+
+	// Prints help text for cvar
+	void CvarHelp(const CCommand& args);
+
+	// Revert all cvar values
+	//void CvarRevert(const CCommand& args);
+
+	// Revert all cvar values
+	void CvarDifferences(const CCommand& args);
+
+	// Toggles a cvar on/off, or cycles through a set of values
+	//void CvarToggle(const CCommand& args);
+
+	// Finds commands with a specified flag.
+	void CvarFindFlags_f(const CCommand& args);
+
+
+	int CvarFindFlagsCompletionCallback(const char* partial, char commands[COMMAND_COMPLETION_MAXITEMS][COMMAND_COMPLETION_ITEM_LENGTH]);
+
+private:
+	// just like Cvar_set, but optimizes out the search
+	//void SetDirect(ConVar* var, const char* value);
+
+	//bool IsValidToggleCommand(const char* cmd);
+};
+
+extern CCvarUtilities* cv;
+
 class CCVarIteratorInternal // Fully reversed table, just look at the virtual function table and rename the function.
 {
 public:
@@ -180,6 +228,7 @@ public:
 	ConCommandBase* FindCommandBase(const char* pszCommandName); // @0x1405983A0 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	ConVar* FindVar(const char* pszVarName);                     // @0x1405983B0 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	ConCommand* FindCommand(const char* pszCommandName);
+	ConCommandBase* GetCommands(void) const { return m_pConCommandList; };
 
 	void CallGlobalChangeCallbacks(ConVar* pConVar, const char* pOldString);
 	bool IsMaterialThreadSetAllowed(void);
@@ -189,6 +238,35 @@ public:
 
 	CCVarIteratorInternal* FactoryInternalIterator(void);
 	unordered_map<string, ConCommandBase*> DumpToMap(void);
+
+protected:
+	friend class CCVarIteratorInternal;
+
+	enum ConVarSetType_t
+	{
+		CONVAR_SET_STRING = 0,
+		CONVAR_SET_INT,
+		CONVAR_SET_FLOAT,
+	};
+
+	struct QueuedConVarSet_t
+	{
+		ConVar* m_pConVar;
+		ConVarSetType_t m_nType;
+		int m_nInt;
+		float m_flFloat;
+		//CUtlString m_String; // !TODO:
+	};
+
+private:
+	void* m_pVFTable;
+	CUtlVector< FnChangeCallback_t > m_GlobalChangeCallbacks;
+	char pad0[22];           //!TODO:
+	int m_nNextDLLIdentifier;
+	ConCommandBase* m_pConCommandList;
+	char m_CommandHash[208]; //!TODO:
+	CUtlVector< QueuedConVarSet_t > m_QueuedConVarSets;
+	bool m_bMaterialSystemThreadSetAllowed;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

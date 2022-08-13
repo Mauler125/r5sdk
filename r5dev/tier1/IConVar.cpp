@@ -534,7 +534,7 @@ void ConVar::SetValue(Color value)
 //-----------------------------------------------------------------------------
 void ConVar::InternalSetValue(const char* pszValue)
 {
-	if (IsFlagSet(this, FCVAR_MATERIAL_THREAD_MASK))
+	if (IsFlagSet(FCVAR_MATERIAL_THREAD_MASK))
 	{
 		if (g_pCVar && !g_pCVar->IsMaterialThreadSetAllowed())
 		{
@@ -593,7 +593,7 @@ void ConVar::InternalSetIntValue(int nValue)
 	if (nValue == m_Value.m_nValue)
 		return;
 
-	if (IsFlagSet(this, FCVAR_MATERIAL_THREAD_MASK))
+	if (IsFlagSet(FCVAR_MATERIAL_THREAD_MASK))
 	{
 		if (g_pCVar && !g_pCVar->IsMaterialThreadSetAllowed())
 		{
@@ -631,7 +631,7 @@ void ConVar::InternalSetFloatValue(float flValue)
 	if (flValue == m_Value.m_fValue)
 		return;
 
-	if (IsFlagSet(this, FCVAR_MATERIAL_THREAD_MASK))
+	if (IsFlagSet(FCVAR_MATERIAL_THREAD_MASK))
 	{
 		if (g_pCVar && !g_pCVar->IsMaterialThreadSetAllowed())
 		{
@@ -885,7 +885,7 @@ bool ConVar::IsCommand(void) const
 // Input  : *pConVar - nFlags
 // Output : False if change is permitted, true if not.
 //-----------------------------------------------------------------------------
-bool ConVar::IsFlagSet(ConVar* pConVar, int nFlags)
+bool ConVar::IsFlagSetInternal(ConVar* pConVar, int nFlags)
 {
 	if (cm_debug_cmdquery->GetBool())
 	{
@@ -924,12 +924,139 @@ bool ConVar::IsFlagSet(ConVar* pConVar, int nFlags)
 ///////////////////////////////////////////////////////////////////////////////
 void IConVar_Attach()
 {
-	DetourAttach((LPVOID*)&IConVar_IsFlagSet, &ConVar::IsFlagSet);
+	DetourAttach((LPVOID*)&IConVar_IsFlagSet, &ConVar::IsFlagSetInternal);
 }
 
 void IConVar_Detach()
 {
-	DetourDetach((LPVOID*)&IConVar_IsFlagSet, &ConVar::IsFlagSet);
+	DetourDetach((LPVOID*)&IConVar_IsFlagSet, &ConVar::IsFlagSetInternal);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+struct PrintConVarFlags_t
+{
+	int flag;
+	const char* desc;
+};
+
+static PrintConVarFlags_t g_PrintConVarFlags[] =
+{
+	{ FCVAR_GAMEDLL, "game" },
+	{ FCVAR_CLIENTDLL, "client" },
+	{ FCVAR_ARCHIVE, "archive" },
+	{ FCVAR_NOTIFY, "notify" },
+	{ FCVAR_SPONLY, "singleplayer" },
+	{ FCVAR_NOT_CONNECTED, "notconnected" },
+	{ FCVAR_CHEAT, "cheat" },
+	{ FCVAR_REPLICATED, "replicated" },
+	{ FCVAR_SERVER_CAN_EXECUTE, "server_can_execute" },
+	{ FCVAR_CLIENTCMD_CAN_EXECUTE, "clientcmd_can_execute" },
+	{ FCVAR_USERINFO, "user" },
+	{ FCVAR_SS, "ss" },
+	{ FCVAR_SS_ADDED, "ss_added" },
+};
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void ConVar_AppendFlags(ConCommandBase* var, char* buf, size_t bufsize)
+{
+	for (int i = 0; i < ARRAYSIZE(g_PrintConVarFlags); ++i)
+	{
+		const PrintConVarFlags_t& info = g_PrintConVarFlags[i];
+		if (var->IsFlagSet(info.flag))
+		{
+			char append[128];
+			snprintf(append, sizeof(append), " %s", info.desc);
+			strncat(buf, append, bufsize);
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void ConVar_PrintDescription(ConCommandBase* pVar)
+{
+	bool bMin, bMax;
+	float fMin, fMax;
+	const char* pStr;
+
+	Assert(pVar);
+
+	Color clr(255, 100, 100, 255);
+
+	char outstr[4096];
+	outstr[0] = 0;
+
+	if (!pVar->IsCommand())
+	{
+		ConVar* var = (ConVar*)pVar;
+
+		bMin = var->GetMin(fMin);
+		bMax = var->GetMax(fMax);
+
+		const char* value = NULL;
+		char tempVal[256];
+
+		if (var->IsFlagSet(FCVAR_NEVER_AS_STRING))
+		{
+			value = tempVal;
+
+			int intVal = var->GetInt();
+			float floatVal = var->GetFloat();
+
+			if (fabs((float)intVal - floatVal) < 0.000001)
+			{
+				snprintf(tempVal, sizeof(tempVal), "%d", intVal);
+			}
+			else
+			{
+				snprintf(tempVal, sizeof(tempVal), "%f", floatVal);
+			}
+		}
+		else
+		{
+			value = var->GetString();
+		}
+
+		if (value)
+		{
+			AppendPrintf(outstr, sizeof(outstr), "\"%s\" = \"%s\"", var->GetName(), value);
+
+			if (_stricmp(value, var->GetDefault()))
+			{
+				AppendPrintf(outstr, sizeof(outstr), " ( def. \"%s\" )", var->GetDefault());
+			}
+		}
+
+		if (bMin)
+		{
+			AppendPrintf(outstr, sizeof(outstr), " min. %f", fMin);
+		}
+		if (bMax)
+		{
+			AppendPrintf(outstr, sizeof(outstr), " max. %f", fMax);
+		}
+	}
+	else
+	{
+		ConCommand* var = (ConCommand*)pVar;
+
+		AppendPrintf(outstr, sizeof(outstr), "\"%s\" ", var->GetName());
+	}
+
+	ConVar_AppendFlags(pVar, outstr, sizeof(outstr));
+
+	pStr = pVar->GetHelpText();
+	if (pStr && *pStr)
+	{
+		DevMsg(eDLL_T::ENGINE, "%-80s - %.80s\n", outstr, pStr);
+	}
+	else
+	{
+		DevMsg(eDLL_T::ENGINE, "%-80s\n", outstr);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

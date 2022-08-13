@@ -89,13 +89,15 @@ private:
 class ConCommandBase
 {
 public:
-	bool HasFlags(int nFlags);
+	bool HasFlags(int nFlags) const;
 	void AddFlags(int nFlags);
 	void RemoveFlags(int nFlags);
 
 	bool IsCommand(void) const;
 	bool IsRegistered(void) const;
-	static bool IsFlagSet(ConCommandBase* pCommandBase, int nFlags);
+
+	bool IsFlagSet(int nFlags) { return IsFlagSetInternal(this, nFlags); };
+	static bool IsFlagSetInternal(ConCommandBase* pCommandBase, int nFlags);
 
 	int GetFlags(void) const;
 	ConCommandBase* GetNext(void) const;
