@@ -1,11 +1,11 @@
 #pragma once
 
 #define V_snprintf snprintf
-#define V_strlower strlwr
+#define V_strlower _strlwr
 #define V_strlen strlen
 #define V_strncat strncat
 #define V_stricmp _stricmp
-#define V_strnicmp strnicmp
+#define V_strnicmp _strnicmp
 #define V_strcmp strcmp
 
 #define Q_snprintf V_snprintf

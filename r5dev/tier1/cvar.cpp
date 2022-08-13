@@ -525,7 +525,7 @@ void CCvarUtilities::CvarHelp(const CCommand& args)
 	var = g_pCVar->FindCommandBase(search);
 	if (!var)
 	{
-		DevMsg(eDLL_T::ENGINE, "Help:  no cvar or command named %s\n", search);
+		DevMsg(eDLL_T::ENGINE, "help:  no cvar or command named %s\n", search);
 		return;
 	}
 
@@ -540,6 +540,7 @@ void CCvarUtilities::CvarDifferences(const CCommand& args)
 {
 	CCVarIteratorInternal* pFactory = g_pCVar->FactoryInternalIterator();
 	pFactory->SetFirst();
+	int i = 0;
 
 	while (pFactory->IsValid())
 	{
@@ -550,13 +551,18 @@ void CCvarUtilities::CvarDifferences(const CCommand& args)
 		{
 			ConVar* pConVar = reinterpret_cast<ConVar*>(pCommandBase);
 
-			if (strcmp(pConVar->GetString(), "FCVAR_NEVER_AS_STRING") != NULL)
+			if (V_strcmp(pConVar->GetString(), "FCVAR_NEVER_AS_STRING") != NULL)
 			{
-				ConVar_PrintDescription(pConVar);
+				if (V_stricmp(pConVar->GetString(), pConVar->GetDefault()) != NULL)
+				{
+					ConVar_PrintDescription(pConVar);
+					i++;
+				}
 			}
 		}
 		pFactory->Next();
 	}
+	DevMsg(eDLL_T::ENGINE, "--------------\n%3i changed convars\n", i);
 }
 
 //-----------------------------------------------------------------------------

@@ -967,8 +967,8 @@ void ConVar_AppendFlags(ConCommandBase* var, char* buf, size_t bufsize)
 		if (var->IsFlagSet(info.flag))
 		{
 			char append[128];
-			snprintf(append, sizeof(append), " %s", info.desc);
-			strncat(buf, append, bufsize);
+			V_snprintf(append, sizeof(append), " %s", info.desc);
+			V_strncat(buf, append, bufsize);
 		}
 	}
 }
@@ -1008,11 +1008,11 @@ void ConVar_PrintDescription(ConCommandBase* pVar)
 
 			if (fabs((float)intVal - floatVal) < 0.000001)
 			{
-				snprintf(tempVal, sizeof(tempVal), "%d", intVal);
+				V_snprintf(tempVal, sizeof(tempVal), "%d", intVal);
 			}
 			else
 			{
-				snprintf(tempVal, sizeof(tempVal), "%f", floatVal);
+				V_snprintf(tempVal, sizeof(tempVal), "%f", floatVal);
 			}
 		}
 		else
@@ -1024,7 +1024,7 @@ void ConVar_PrintDescription(ConCommandBase* pVar)
 		{
 			AppendPrintf(outstr, sizeof(outstr), "\"%s\" = \"%s\"", var->GetName(), value);
 
-			if (_stricmp(value, var->GetDefault()))
+			if (V_stricmp(value, var->GetDefault()))
 			{
 				AppendPrintf(outstr, sizeof(outstr), " ( def. \"%s\" )", var->GetDefault());
 			}
