@@ -149,6 +149,27 @@
 
 #endif // CROSS_PLATFORM_VERSION < 2
 
+// VXConsole is enabled for...
+#if defined(_X360) || defined(_PS3)
+#define USE_VXCONSOLE 1
+#define HasVxConsole() 1
+#else
+#define HasVxConsole() 0
+#endif
+
+//-----------------------------------------------------------------------------
+// Set up platform type defines.
+//-----------------------------------------------------------------------------
+#if defined( PLATFORM_X360 ) || defined( _PS3 )
+#ifndef _GAMECONSOLE
+#define _GAMECONSOLE
+#endif
+#define IsPC()		0
+#define IsGameConsole() 1
+#else
+#define IsPC()		1
+#define IsGameConsole() 0
+#endif
 
 //-----------------------------------------------------------------------------
 // Set up build configuration defines.

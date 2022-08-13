@@ -49,6 +49,8 @@ enum class InterfaceStatus_t : int
 //-----------------------------------------------------------------------------
 typedef void* (*CreateInterfaceFn)(const char* pName, int* pReturnCode);
 typedef void* (*InstantiateInterfaceFn)();
+typedef HINSTANCE CSysModule;
+
 struct InterfaceGlobals_t
 {
 	InstantiateInterfaceFn m_pInterfacePtr;

@@ -1,5 +1,4 @@
 #pragma once
-#include "filesystem/filesystem.h"
 #include "mathlib/color.h"
 
 #define MAKE_3_BYTES_FROM_1_AND_2( x1, x2 ) (( (( uint16_t )x2) << 8 ) | (uint8_t)(x1))
@@ -12,6 +11,7 @@ extern vector<string> g_vGameInfoPaths;
 // Purpose: Forward declarations
 //---------------------------------------------------------------------------------
 class KeyValues;
+class CFileSystem_Stdio;
 
 /* ==== KEYVALUES ======================================================================================================================================================= */
 inline CMemory p_KeyValues_Init;

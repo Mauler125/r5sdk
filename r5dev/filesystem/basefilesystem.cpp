@@ -8,55 +8,6 @@
 #endif // !DEDICATED
 
 //---------------------------------------------------------------------------------
-// Purpose: reads data from memory
-// Input  : *pOutput - 
-//			nSize - 
-//			hFile - 
-// Output : lenght of read data
-//---------------------------------------------------------------------------------
-int CBaseFileSystem::Read(void* pOutput, int nSize, FileHandle_t hFile)
-{
-	int index = 0;
-	return CallVFunc<int>(index, this, pOutput, nSize, hFile);
-}
-
-//---------------------------------------------------------------------------------
-// Purpose: open file
-// Input  : *pFileName - 
-//			*pOptions - 
-//			*pPathID - 
-//			unknown
-// Output : Handle to file on success, NULL on failure
-//---------------------------------------------------------------------------------
-FileHandle_t CBaseFileSystem::Open(const char* pFileName, const char* pOptions, const char* pPathID, int64_t unknown)
-{
-	int index = 2;
-	return CallVFunc<FileHandle_t>(index, this, pFileName, pOptions, pPathID, unknown);
-}
-
-//---------------------------------------------------------------------------------
-// Purpose: close file by handle
-// Input  : file - 
-//---------------------------------------------------------------------------------
-void CBaseFileSystem::Close(FileHandle_t file)
-{
-	int index = 3;
-	CallVFunc<void>(index, this, file);
-}
-
-//---------------------------------------------------------------------------------
-// Purpose: checks if file exists in all searchpaths and pak files
-// Input  : *pFileName - 
-//			*pPathID - 
-// Output : true if file exists, false otherwise
-//---------------------------------------------------------------------------------
-bool CBaseFileSystem::FileExists(const char* pFileName, const char* pPathID)
-{
-	int index = 10;
-	return CallVFunc<bool>(index, this, pFileName, pPathID);
-}
-
-//---------------------------------------------------------------------------------
 // Purpose: prints the output of the filesystem based on the warning level
 // Input  : *this - 
 //			level - 

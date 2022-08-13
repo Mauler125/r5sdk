@@ -276,6 +276,8 @@
     <ClInclude Include="..\public\iconvar.h" />
     <ClInclude Include="..\public\icvar.h" />
     <ClInclude Include="..\public\idebugoverlay.h" />
+    <ClInclude Include="..\public\ifile.h" />
+    <ClInclude Include="..\public\ifilesystem.h" />
     <ClInclude Include="..\public\ihandleentity.h" />
     <ClInclude Include="..\public\inetchannel.h" />
     <ClInclude Include="..\public\inetmsghandler.h" />
@@ -482,6 +484,7 @@
     <ClInclude Include="..\thirdparty\spdlog\include\stopwatch.h" />
     <ClInclude Include="..\thirdparty\spdlog\include\tweakme.h" />
     <ClInclude Include="..\thirdparty\spdlog\include\version.h" />
+    <ClInclude Include="..\tier0\annotations.h" />
     <ClInclude Include="..\tier0\basetypes.h" />
     <ClInclude Include="..\tier0\commandline.h" />
     <ClInclude Include="..\tier0\commonmacros.h" />

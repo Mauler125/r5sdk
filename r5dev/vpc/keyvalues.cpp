@@ -11,6 +11,7 @@
 #include "vpc/keyvalues.h"
 #include "vpc/kvleaktrace.h"
 #include "vstdlib/keyvaluessystem.h"
+#include "filesystem/filesystem.h"
 #include "mathlib/color.h"
 #include "rtech/stryder/stryder.h"
 #include "engine/sys_dll2.h"

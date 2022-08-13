@@ -1,38 +1,41 @@
 #pragma once
-typedef void* FileHandle_t;
-#define FILESYSTEM_INVALID_HANDLE	( FileHandle_t )0
+#include "public/ifilesystem.h"
 
-enum class SearchPathAdd_t : int
-{
-	PATH_ADD_TO_HEAD,         // First path searched
-	PATH_ADD_TO_TAIL,         // Last path searched
-	PATH_ADD_TO_TAIL_ATINDEX, // First path searched
-};
-
-enum class FileWarningLevel_t : int
-{
-	FILESYSTEM_WARNING = -1,                        // A problem!
-	FILESYSTEM_WARNING_QUIET = 0,                   // Don't print anything
-	FILESYSTEM_WARNING_REPORTUNCLOSED,              // On shutdown, report names of files left unclosed
-	FILESYSTEM_WARNING_REPORTUSAGE,                 // Report number of times a file was opened, closed
-	FILESYSTEM_WARNING_REPORTALLACCESSES,           // Report all open/close events to console ( !slow! )
-	FILESYSTEM_WARNING_REPORTALLACCESSES_READ,      // Report all open/close/read events to the console ( !slower! )
-	FILESYSTEM_WARNING_REPORTALLACCESSES_READWRITE, // Report all open/close/read/write events to the console ( !slower! )
-	FILESYSTEM_WARNING_REPORTALLACCESSES_ASYNC      // Report all open/close/read/write events and all async I/O file events to the console ( !slower(est)! )
-};
-
-class CBaseFileSystem
+class CBaseFileSystem : public IFileSystem
 {
 public:
-	int Read(void* pOutput, int nSize, FileHandle_t hFile);
-	FileHandle_t Open(const char* pFileName, const char* pOptions, const char* pPathID, int64_t unknown);
-	void Close(FileHandle_t file);
-	bool FileExists(const char* pFileName, const char* pPathID);
+	//--------------------------------------------------------
+	// Purpose: Static methods used for hooking.
+	//--------------------------------------------------------
 	static void Warning(CBaseFileSystem* pFileSystem, FileWarningLevel_t level, const char* fmt, ...);
 	static FileHandle_t VReadFromVPK(CBaseFileSystem* pVpk, FileHandle_t pResults, char* pszFilePath);
 	static bool VReadFromCache(CBaseFileSystem* pFileSystem, char* pszFilePath, void* pResults);
 	static void VAddSearchPath(CBaseFileSystem* pFileSystem, const char* pPath, const char* pPathID, SearchPathAdd_t addType);
 	static bool VRemoveSearchPath(CBaseFileSystem* pFileSystem, const char* pPath, const char* pPathID);
+
+protected:
+	//----------------------------------------------------------------------------
+	// Purpose: Functions implementing basic file system behavior.
+	//----------------------------------------------------------------------------
+	virtual FILE* FS_fopen(const char* filename, const char* options, unsigned flags, int64* size) = 0;
+	virtual void FS_setbufsize(FILE* fp, unsigned nBytes) = 0;
+	virtual void FS_fclose(FILE* fp) = 0;
+	virtual void FS_fseek(FILE* fp, int64 pos, int seekType) = 0;
+	virtual long FS_ftell(FILE* fp) = 0;
+	virtual int FS_feof(FILE* fp) = 0;
+	virtual size_t FS_fread(void* dest, size_t destSize, size_t size, FILE* fp) = 0;
+	virtual size_t FS_fwrite(const void* src, size_t size, FILE* fp) = 0;
+	virtual bool FS_setmode(FILE* fp, FileMode_t mode) = 0;
+	virtual size_t FS_vfprintf(FILE* fp, const char* fmt, va_list list) = 0;
+	virtual int FS_ferror(FILE* fp) = 0;
+	virtual int FS_fflush(FILE* fp) = 0;
+	virtual char* FS_fgets(char* dest, int destSize, FILE* fp) = 0;
+	virtual int FS_stat(const char* path, struct _stat* buf, bool* pbLoadedFromSteamCache = NULL) = 0;
+	virtual int FS_chmod(const char* path, int pmode) = 0;
+	virtual HANDLE FS_FindFirstFile(const char* findname, WIN32_FIND_DATA* dat) = 0;
+	virtual bool FS_FindNextFile(HANDLE handle, WIN32_FIND_DATA* dat) = 0;
+	virtual bool FS_FindClose(HANDLE handle) = 0;
+	virtual int FS_GetSectorSize(FILE*) = 0;
 };
 
 /* ==== CBASEFILESYSTEM ================================================================================================================================================= */
@@ -78,7 +81,7 @@ class VBaseFileSystem : public IDetour
 		p_CBaseFileSystem_AddSearchPath    = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x44\x89\x4C\x24\x00\x48\x89\x4C\x24\x00\x55\x57"), "xxxx?xxxx?xx");
 		p_CBaseFileSystem_RemoveSearchPath = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x55\x56\x57\x41\x54\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\xC6\x44\x24\x00\x00"), "xxxxxxxxxxxxxx????xxx??");
 
-		CBaseFileSystem_Warning          = p_CBaseFileSystem_Warning.RCast<void(*)(CBaseFileSystem*, FileWarningLevel_t, const char*, ...)>();            /*4C 89 4C 24 20 C3 ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 48*/
+		CBaseFileSystem_Warning           = p_CBaseFileSystem_Warning.RCast<void(*)(CBaseFileSystem*, FileWarningLevel_t, const char*, ...)>();            /*4C 89 4C 24 20 C3 ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 48*/
 		CBaseFileSystem_VLoadFromVPK      = p_CBaseFileSystem_LoadFromVPK.RCast<FileHandle_t(*)(CBaseFileSystem*, FileHandle_t, char*)>();                 /*48 89 5C 24 ?? 57 48 81 EC ?? ?? ?? ?? 49 8B C0 4C 8D 8C 24 ?? ?? ?? ??*/
 		CBaseFileSystem_VLoadFromCache    = p_CBaseFileSystem_LoadFromCache.RCast<bool(*)(CBaseFileSystem*, char*, void*)>();                              /*40 53 48 81 EC ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 49 8B D8*/
 		CBaseFileSystem_VAddSearchPath    = p_CBaseFileSystem_AddSearchPath.RCast<void(*)(CBaseFileSystem*, const char*, const char*, SearchPathAdd_t)>(); /*44 89 4C 24 ?? 48 89 4C 24 ?? 55 57*/

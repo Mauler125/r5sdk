@@ -1,31 +1,33 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
-#include "vpklib/packedstore.h"
+
+#include "public/ifilesystem.h"
+#include "public/ifile.h"
 #include "filesystem/basefilesystem.h"
 
-#define GAMEINFOPATH_TOKEN		"|gameinfo_path|"
-#define BASESOURCEPATHS_TOKEN	"|all_source_engine_paths|"
-
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
-constexpr int FS_VFTABLE_SHIFT = 2;
-#else
-constexpr int FS_VFTABLE_SHIFT = 0;
-#endif
-
-class IFileSystem
+class CFileSystem_Stdio : public CBaseFileSystem
 {
-public:
-	void AddSearchPath(const char* pPath, const char* pPathID, SearchPathAdd_t addType);
-	bool RemoveSearchPath(const char* pPath, const char* pPathID);
-
-	int FPrintf(FileHandle_t file, const char* pFormat, ...) FMTFUNCTION(3, 4);
-
-	bool ReadFromCache(const char* pPath, void* pResult);
-	VPKData_t* MountVPK(const char* pVpkPath);
-};
-
-class CFileSystem_Stdio : public IFileSystem, public CBaseFileSystem
-{
+protected:
+	// implementation of CBaseFileSystem virtual functions
+	virtual FILE* FS_fopen(const char* filename, const char* options, unsigned flags, int64* size) = 0;
+	virtual void FS_setbufsize(FILE* fp, unsigned nBytes) = 0;
+	virtual void FS_fclose(FILE* fp) = 0;
+	virtual void FS_fseek(FILE* fp, int64 pos, int seekType) = 0;
+	virtual long FS_ftell(FILE* fp) = 0;
+	virtual int FS_feof(FILE* fp) = 0;
+	virtual size_t FS_fread(void* dest, size_t destSize, size_t size, FILE* fp) = 0;
+	virtual size_t FS_fwrite(const void* src, size_t size, FILE* fp) = 0;
+	virtual bool FS_setmode(FILE* fp, FileMode_t mode) = 0;
+	virtual size_t FS_vfprintf(FILE* fp, const char* fmt, va_list list) = 0;
+	virtual int FS_ferror(FILE* fp) = 0;
+	virtual int FS_fflush(FILE* fp) = 0;
+	virtual char* FS_fgets(char* dest, int destSize, FILE* fp) = 0;
+	virtual int FS_stat(const char* path, struct _stat* buf, bool* pbLoadedFromSteamCache = NULL) = 0;
+	virtual int FS_chmod(const char* path, int pmode) = 0;
+	virtual HANDLE FS_FindFirstFile(const char* findname, WIN32_FIND_DATA* dat) = 0;
+	virtual bool FS_FindNextFile(HANDLE handle, WIN32_FIND_DATA* dat) = 0;
+	virtual bool FS_FindClose(HANDLE handle) = 0;
+	virtual int FS_GetSectorSize(FILE*) = 0;
 };
 
 extern CFileSystem_Stdio** g_pFullFileSystem; // Ptr to g_pFileSystem_Stdio.
