@@ -230,6 +230,9 @@ void ConVar::InitShipped(void) const
 	stream_overlay_mode              = g_pCVar->FindVar("stream_overlay_mode");
 	sv_visualizetraces               = g_pCVar->FindVar("sv_visualizetraces");
 	old_gather_props                 = g_pCVar->FindVar("old_gather_props");
+#ifndef DEDICATED
+	origin_disconnectWhenOffline     = g_pCVar->FindVar("origin_disconnectWhenOffline");
+#endif // !DEDICATED
 	mp_gamemode                      = g_pCVar->FindVar("mp_gamemode");
 	hostname                         = g_pCVar->FindVar("hostname");
 	hostip                           = g_pCVar->FindVar("hostip");
@@ -243,6 +246,7 @@ void ConVar::InitShipped(void) const
 #ifndef DEDICATED
 	cl_threaded_bone_setup->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	rui_defaultDebugFontFace->RemoveFlags(FCVAR_DEVELOPMENTONLY);
+	origin_disconnectWhenOffline->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 #endif // !DEDICATED
 	mp_gamemode->RemoveChangeCallback(mp_gamemode->m_fnChangeCallbacks[0]);
 	mp_gamemode->InstallChangeCallback(MP_GameMode_Changed_f, false);

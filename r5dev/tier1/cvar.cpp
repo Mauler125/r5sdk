@@ -133,6 +133,8 @@ ConVar* con_suggestion_limit               = nullptr;
 ConVar* con_suggestion_showhelptext        = nullptr;
 ConVar* con_suggestion_showflags           = nullptr;
 ConVar* con_suggestion_flags_realtime      = nullptr;
+
+ConVar* origin_disconnectWhenOffline       = nullptr;
 #endif // !DEDICATED
 //-----------------------------------------------------------------------------
 // FILESYSTEM                                                                 |
