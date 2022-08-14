@@ -15,6 +15,7 @@
 #endif
 #include <squirrel/sqinit.h>
 #include <networksystem/pylon.h>
+#include <networksystem/listmanager.h>
 #include <public/edict.h>
 
 //-----------------------------------------------------------------------------
@@ -34,7 +35,7 @@ void KeepAliveToPylon()
 			{
 				hostname->GetString(),
 				hostdesc->GetString(),
-				sv_pylonVisibility->GetInt() == 1,
+				sv_pylonVisibility->GetInt() == EServerVisibility_t::HIDDEN,
 				g_pHostState->m_levelName,
 				mp_gamemode->GetString(),
 				hostip->GetString(),
@@ -56,7 +57,7 @@ void KeepAliveToPylon()
 //-----------------------------------------------------------------------------
 // Purpose: returns a vector of hosted servers.
 //-----------------------------------------------------------------------------
-vector<NetGameServer_t> CPylon::GetServersList(string& svOutMessage)
+vector<NetGameServer_t> CPylon::GetServerList(string& svOutMessage)
 {
     vector<NetGameServer_t> vslList{};
 

@@ -11,7 +11,7 @@ public:
 		m_HttpClient.set_connection_timeout(10);
 	}
 
-	vector<NetGameServer_t> GetServersList(string& svOutMessage);
+	vector<NetGameServer_t> GetServerList(string& svOutMessage);
 	bool PostServerHost(string& svOutMessage, string& svOutToken, const NetGameServer_t& slServerListing);
 	bool GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage, const string& svToken);
 	bool GetClientIsBanned(const string& svIpAddress, uint64_t nOriginID, string& svOutErrCl);

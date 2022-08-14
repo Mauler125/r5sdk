@@ -615,6 +615,9 @@
     <ClCompile Include="..\tier1\generichash.cpp">
       <Filter>sdk\tier1</Filter>
     </ClCompile>
+    <ClCompile Include="..\networksystem\listmanager.cpp">
+      <Filter>sdk\networksystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1798,6 +1801,12 @@
     </ClInclude>
     <ClInclude Include="..\tier1\utllinkedlist.h">
       <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\isurfacesystem.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\networksystem\listmanager.h">
+      <Filter>sdk\networksystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

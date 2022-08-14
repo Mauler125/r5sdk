@@ -4,52 +4,22 @@
 #include "windows/resource.h"
 #include "networksystem/serverlisting.h"
 #include "networksystem/pylon.h"
+#include "public/isurfacesystem.h"
 
-enum class eHostStatus
+class CBrowser : public ISurface
 {
-    NOT_HOSTING,
-    HOSTING
-};
-
-enum class EServerVisibility
-{
-    OFFLINE,
-    HIDDEN,
-    PUBLIC
-};
-
-class CBrowser
-{
-private:
-    bool m_bInitialized  = false;
-    bool m_bModernTheme  = false;
-    bool m_bLegacyTheme  = false;
-    bool m_bDefaultTheme = false;
 public:
-    ////////////////////
-    //   Enum Vars    //
-    ////////////////////
-
-    eHostStatus eHostingStatus = eHostStatus::NOT_HOSTING;
-    EServerVisibility eServerVisibility = EServerVisibility::OFFLINE;
-public:
-    ////////////////////
-    //     Funcs      //
-    ////////////////////
     CBrowser(void);
-    ~CBrowser(void);
+    virtual ~CBrowser(void);
 
-    void Draw(void);
-    void Think(void);
+    virtual bool Init(void);
+    virtual void Think(void);
 
-    void BasePanel(void);
+    virtual void RunFrame(void);
+    virtual void DrawSurface(void);
 
     void BrowserPanel(void);
     void RefreshServerList(void);
-    void GetServerList(void);
-
-    void ConnectToServer(const string& svIp, const string& svPort, const string& svNetKey);
-    void ConnectToServer(const string& svServer, const string& svNetKey);
 
     void HiddenServersModal(void);
     void HostPanel(void);
@@ -57,38 +27,36 @@ public:
     void UpdateHostingStatus(void);
     void SendHostingPostRequest(void);
 
-    void ProcessCommand(const char* pszCommand);
-    void LaunchServer(void);
-
+    void ProcessCommand(const char* pszCommand) const;
     void SettingsPanel(void);
-    void RegenerateEncryptionKey(void) const;
-    void ChangeEncryptionKey(const std::string& svNetKey) const;
 
-    void SetStyleVar(void);
+    virtual void SetStyleVar(void);
 
-    ////////////////////
-    // Server Browser //
-    ////////////////////
-public:
-    bool m_bActivate = false;
-    float m_flFadeAlpha = 0.f;
+
     const char* m_pszBrowserTitle = nullptr;
-
-    vector<NetGameServer_t> m_vServerList;
-    ImGuiTextFilter m_imServerBrowserFilter;
+    bool m_bActivate     = false;
+private:
+    bool m_bInitialized  = false;
+    bool m_bModernTheme  = false;
+    bool m_bLegacyTheme  = false;
+    bool m_bDefaultTheme = false;
     char m_szServerAddressBuffer[256] = { '\0' };
     char m_szServerEncKeyBuffer[30]   = { '\0' };
-    string m_svServerListMessage;
+    float m_flFadeAlpha               = 0.f;
+
+    ID3D11ShaderResourceView* m_idLockedIcon = nullptr;
+    MODULERESOURCE m_rLockedIconBlob;
 
     ////////////////////
-    //    Settings    //
+    //   Server List  //
     ////////////////////
+    ImGuiTextFilter m_imServerBrowserFilter;
+    string m_svServerListMessage;
     string m_szMatchmakingHostName;
 
     ////////////////////
     //   Host Server  //
     ////////////////////
-    NetGameServer_t m_Server;
     string m_svHostRequestMessage;
     string m_svHostToken;
     ImVec4 m_HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
@@ -98,11 +66,7 @@ public:
     ////////////////////
     string m_svHiddenServerToken;
     string m_svHiddenServerRequestMessage;
-    ImVec4 m_ivHiddenServerMessageColor        = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
-
-    /* Texture */
-    ID3D11ShaderResourceView* m_idLockedIcon = nullptr;
-    MODULERESOURCE m_rLockedIconBlob;
+    ImVec4 m_ivHiddenServerMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
 };
 
 extern CBrowser* g_pBrowser;

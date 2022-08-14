@@ -13,7 +13,6 @@
 #include "engine/server/sv_rcon.h"
 #else
 #include "vgui/vgui_debugpanel.h"
-#include "gameui/IConsole.h"
 #endif // !DEDICATED
 
 

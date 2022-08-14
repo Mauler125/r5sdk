@@ -2,36 +2,54 @@
 #ifndef DEDICATED
 #include "common/sdkdefs.h"
 #include "windows/resource.h"
+#include "public/isurfacesystem.h"
 #include "thirdparty/imgui/include/imgui_logger.h"
 
-struct CSuggest
+class CConsole : public ISurface
 {
-    CSuggest(const string& svName, int nFlags)
-    {
-        m_svName = svName;
-        m_nFlags = nFlags;
-    }
-    bool operator==(const string& a) const
-    {
-        return m_svName.compare(a) == 0;
-    }
-    bool operator<(const CSuggest& a) const
-    {
-        return m_svName < a.m_svName;
-    }
-    string m_svName;
-    int m_nFlags;
-};
+public:
+    ///////////////////////////////////////////////////////////////////////////
+    CConsole(void);
+    virtual ~CConsole(void);
 
-class CConsole
-{
+    virtual bool Init(void);
+    virtual void Think(void);
+
+    virtual void RunFrame(void);
+    virtual void DrawSurface(void);
+
+    void OptionsPanel(void);
+    void SuggestPanel(void);
+
+    bool AutoComplete(void);
+    void ResetAutoComplete(void);
+    void ClearAutoComplete(void);
+
+    void FindFromPartial(void);
+    void ProcessCommand(const char* pszCommand);
+    void BuildSummary(string svConVar = "");
+
+    bool LoadFlagIcons(void);
+    int ColorCodeFlags(int nFlags) const;
+
+    int TextEditCallback(ImGuiInputTextCallbackData* pData);
+    static int TextEditCallbackStub(ImGuiInputTextCallbackData* pData);
+
+    ///////////////////////////////////////////////////////////////////////////
+    void AddLog(const ConLog_t& conLog);
+    void AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2);
+    void ClearLog(void);
+
+    ///////////////////////////////////////////////////////////////////////////
+    virtual void SetStyleVar(void);
+
 private:
     ///////////////////////////////////////////////////////////////////////////
+    const char*                    m_pszConsoleLabel     = nullptr;
+    const char*                    m_pszLoggingLabel     = nullptr;
     char                           m_szInputBuf[512]     = { '\0' };
     char                           m_szSummary[512]      = { '\0' };
     char                           m_szWindowLabel[512]  = { '\0' };
-    const char*                    m_pszConsoleLabel     = nullptr;
-    const char*                    m_pszLoggingLabel     = nullptr;
 
     vector<string>                 m_vCommands;
     vector<string>                 m_vHistory;
@@ -63,12 +81,12 @@ private:
     CTextLogger                    m_Logger;
 
     ImGuiInputTextFlags m_nInputFlags = 
-        ImGuiInputTextFlags_AutoCaretEnd       |
-        ImGuiInputTextFlags_CallbackCompletion |
-        ImGuiInputTextFlags_CallbackHistory    |
-        ImGuiInputTextFlags_CallbackAlways     |
-        ImGuiInputTextFlags_CallbackEdit       |
-        ImGuiInputTextFlags_EnterReturnsTrue   |
+        ImGuiInputTextFlags_AutoCaretEnd           |
+        ImGuiInputTextFlags_CallbackCompletion     |
+        ImGuiInputTextFlags_CallbackHistory        |
+        ImGuiInputTextFlags_CallbackAlways         |
+        ImGuiInputTextFlags_CallbackEdit           |
+        ImGuiInputTextFlags_EnterReturnsTrue       |
         ImGuiInputTextFlags_NoUndoRedo;
 
     ImGuiWindowFlags m_nSuggestFlags = 
@@ -80,47 +98,12 @@ private:
         ImGuiWindowFlags_AlwaysHorizontalScrollbar;
 
     ImGuiWindowFlags m_nLoggingFlags = 
-        ImGuiWindowFlags_NoMove              | 
-        ImGuiWindowFlags_HorizontalScrollbar | 
+        ImGuiWindowFlags_NoMove                    |
+        ImGuiWindowFlags_HorizontalScrollbar       |
         ImGuiWindowFlags_AlwaysVerticalScrollbar;
-
 public:
     bool             m_bActivate = false;
     vector<CSuggest> m_vsvCommandBases;
-
-    ///////////////////////////////////////////////////////////////////////////
-    CConsole(void);
-    ~CConsole(void);
-
-    bool Setup(void);
-    void Draw(void);
-    void Think(void);
-
-    void BasePanel(void);
-    void OptionsPanel(void);
-    void SuggestPanel(void);
-
-    bool AutoComplete(void);
-    void ResetAutoComplete(void);
-    void ClearAutoComplete(void);
-
-    void FindFromPartial(void);
-    void ProcessCommand(const char* pszCommand);
-    void BuildSummary(string svConVar = "");
-
-    bool LoadFlagIcons(void);
-    int ColorCodeFlags(int nFlags) const;
-
-    int TextEditCallback(ImGuiInputTextCallbackData* pData);
-    static int TextEditCallbackStub(ImGuiInputTextCallbackData* pData);
-
-    ///////////////////////////////////////////////////////////////////////////
-    void AddLog(const ConLog_t& conLog);
-    void AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2);
-    void ClearLog(void);
-
-    ///////////////////////////////////////////////////////////////////////////
-    void SetStyleVar(void);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

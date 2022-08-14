@@ -58,7 +58,7 @@ CConsole::~CConsole(void)
 // Purpose: game console setup
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CConsole::Setup(void)
+bool CConsole::Init(void)
 {
     SetStyleVar();
     return LoadFlagIcons();
@@ -67,11 +67,11 @@ bool CConsole::Setup(void)
 //-----------------------------------------------------------------------------
 // Purpose: game console main render loop
 //-----------------------------------------------------------------------------
-void CConsole::Draw(void)
+void CConsole::RunFrame(void)
 {
     if (!m_bInitialized)
     {
-        Setup();
+        Init();
         m_bInitialized = true;
     }
 
@@ -101,7 +101,7 @@ void CConsole::Draw(void)
         }
         ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(618, 524));        nVars++;
 
-        BasePanel();
+        DrawSurface();
         ImGui::PopStyleVar(nVars);
     }
 
@@ -182,7 +182,7 @@ void CConsole::Think(void)
 // Purpose: draws the console's main surface
 // Input  : *bDraw - 
 //-----------------------------------------------------------------------------
-void CConsole::BasePanel(void)
+void CConsole::DrawSurface(void)
 {
     if (!ImGui::Begin(m_pszConsoleLabel, &m_bActivate))
     {
