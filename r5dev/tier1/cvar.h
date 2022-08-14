@@ -180,7 +180,6 @@ public:
 
 	// Enable cvars marked with FCVAR_DEVELOPMENTONLY
 	void EnableDevCvars();
-	void EnableHiddenCvars();
 
 	// Lists cvars to console
 	void CvarList(const CCommand& args);

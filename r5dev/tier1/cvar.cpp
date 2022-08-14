@@ -341,14 +341,11 @@ int CCvarUtilities::CountVariablesWithFlags(int flags)
 {
 	int i = 0;
 	ConCommandBase* var;
+	CCvar::CCVarIteratorInternal* itint = g_pCVar->FactoryInternalIterator();
 
-	// Loop through cvars...
-	CCvar::CCVarIteratorInternal* pFactory = g_pCVar->FactoryInternalIterator();
-	pFactory->SetFirst();
-
-	while (pFactory->IsValid())
+	for (itint->SetFirst(); itint->IsValid(); itint->Next()) // Loop through cvars...
 	{
-		var = pFactory->Get();
+		var = itint->Get();
 		if (!var->IsCommand())
 		{
 			if (var->IsFlagSet(flags))
@@ -356,10 +353,9 @@ int CCvarUtilities::CountVariablesWithFlags(int flags)
 				i++;
 			}
 		}
-
-		pFactory->Next();
 	}
 
+	MemAllocSingleton()->Free(itint);
 	return i;
 }
 
@@ -369,38 +365,16 @@ int CCvarUtilities::CountVariablesWithFlags(int flags)
 void CCvarUtilities::EnableDevCvars()
 {
 	// Loop through cvars...
-	CCvar::CCVarIteratorInternal* pFactory = g_pCVar->FactoryInternalIterator();
-	pFactory->SetFirst();
+	CCvar::CCVarIteratorInternal* itint = g_pCVar->FactoryInternalIterator();
 
-	while (pFactory->IsValid())
+	for (itint->SetFirst(); itint->IsValid(); itint->Next())
 	{
 		// remove flag from all cvars
-		ConCommandBase* pCommandBase = pFactory->Get();
+		ConCommandBase* pCommandBase = itint->Get();
 		pCommandBase->RemoveFlags(FCVAR_DEVELOPMENTONLY);
-
-		pFactory->Next();
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Removes the FCVAR_DEVELOPMENTONLY flag from all cvars, making them accessible
-//-----------------------------------------------------------------------------
-void CCvarUtilities::EnableHiddenCvars()
-{
-	// Loop through cvars...
-	CCvar::CCVarIteratorInternal* pFactory = g_pCVar->FactoryInternalIterator();
-	pFactory->SetFirst();
-
-	while (pFactory->IsValid())
-	{
-		// remove flag from all cvars
-		ConCommandBase* pCommandBase = pFactory->Get();
-		pCommandBase->RemoveFlags(FCVAR_HIDDEN);
-
-		pFactory->Next();
 	}
 
-	MemAllocSingleton()->Free(pFactory);
+	MemAllocSingleton()->Free(itint);
 }
 
 //-----------------------------------------------------------------------------
@@ -458,14 +432,11 @@ void CCvarUtilities::CvarList(const CCommand& args)
 	DevMsg(eDLL_T::ENGINE, "cvar list\n--------------\n");
 
 	CUtlRBTree< ConCommandBase* > sorted(0, 0, ConCommandBaseLessFunc);
+	CCvar::CCVarIteratorInternal* itint = g_pCVar->FactoryInternalIterator();
 
-	// Loop through cvars...
-	CCvar::CCVarIteratorInternal* pFactory = g_pCVar->FactoryInternalIterator();
-	pFactory->SetFirst();
-
-	while (pFactory->IsValid())
+	for (itint->SetFirst(); itint->IsValid(); itint->Next()) // Loop through all instances.
 	{
-		var = pFactory->Get();
+		var = itint->Get();
 
 		if (!var->IsFlagSet(FCVAR_DEVELOPMENTONLY) &&
 			!var->IsFlagSet(FCVAR_HIDDEN))
@@ -489,8 +460,9 @@ void CCvarUtilities::CvarList(const CCommand& args)
 				sorted.Insert(var);
 			}
 		}
-		pFactory->Next();
 	}
+
+	MemAllocSingleton()->Free(itint);
 
 	if (bLogging)
 	{
@@ -560,13 +532,12 @@ void CCvarUtilities::CvarHelp(const CCommand& args)
 //-----------------------------------------------------------------------------
 void CCvarUtilities::CvarDifferences(const CCommand& args)
 {
-	CCvar::CCVarIteratorInternal* pFactory = g_pCVar->FactoryInternalIterator();
-	pFactory->SetFirst();
+	CCvar::CCVarIteratorInternal* itint = g_pCVar->FactoryInternalIterator();
 	int i = 0;
 
-	while (pFactory->IsValid())
+	for (itint->SetFirst(); itint->IsValid(); itint->Next()) // Loop through all instances.
 	{
-		ConCommandBase* pCommandBase = pFactory->Get();
+		ConCommandBase* pCommandBase = itint->Get();
 
 		if (!pCommandBase->IsCommand() &&
 			!pCommandBase->IsFlagSet(FCVAR_HIDDEN))
@@ -582,8 +553,9 @@ void CCvarUtilities::CvarDifferences(const CCommand& args)
 				}
 			}
 		}
-		pFactory->Next();
 	}
+
+	MemAllocSingleton()->Free(itint);
 	DevMsg(eDLL_T::ENGINE, "--------------\n%3i changed convars\n", i);
 }
 
@@ -609,12 +581,11 @@ void CCvarUtilities::CvarFindFlags_f(const CCommand& args)
 	ConCommandBase* var;
 
 	// Loop through vars and print out findings
-	CCvar::CCVarIteratorInternal* pFactory = g_pCVar->FactoryInternalIterator();
-	pFactory->SetFirst();
+	CCvar::CCVarIteratorInternal* itint = g_pCVar->FactoryInternalIterator();
 
-	while (pFactory->IsValid())
+	for (itint->SetFirst(); itint->IsValid(); itint->Next())
 	{
-		var = pFactory->Get();
+		var = itint->Get();
 
 		if (!var->IsFlagSet(FCVAR_DEVELOPMENTONLY) || !var->IsFlagSet(FCVAR_HIDDEN))
 		{
@@ -629,9 +600,9 @@ void CCvarUtilities::CvarFindFlags_f(const CCommand& args)
 				}
 			}
 		}
-
-		pFactory->Next();
 	}
+
+	MemAllocSingleton()->Free(itint);
 }
 
 //-----------------------------------------------------------------------------
@@ -781,6 +752,8 @@ unordered_map<string, ConCommandBase*> CCvar::DumpToMap(void)
 		const char* pszCommandName = pCommand->m_pszName;
 		allConVars[pszCommandName] = pCommand;
 	}
+
+	MemAllocSingleton()->Free(itint);
 
 	return allConVars;
 }

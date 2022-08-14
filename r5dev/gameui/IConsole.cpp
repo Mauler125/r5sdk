@@ -474,46 +474,49 @@ void CConsole::FindFromPartial(void)
 
                     if (ConCommandBase* pCommandBase = g_pCVar->FindCommandBase(m_vsvCommandBases[i].m_svName.c_str()))
                     {
-                        if (!pCommandBase->IsCommand())
+                        if (!pCommandBase->IsFlagSet(FCVAR_HIDDEN))
                         {
-                            ConVar* pConVar = reinterpret_cast<ConVar*>(pCommandBase);
+                            if (!pCommandBase->IsCommand())
+                            {
+                                ConVar* pConVar = reinterpret_cast<ConVar*>(pCommandBase);
 
-                            svValue = " = ["; // Assign default value to string if its a ConVar.
-                            svValue.append(pConVar->GetString());
-                            svValue.append("]");
-                        }
-                        if (con_suggestion_showhelptext->GetBool())
-                        {
-                            if (pCommandBase->GetHelpText())
+                                svValue = " = ["; // Assign default value to string if its a ConVar.
+                                svValue.append(pConVar->GetString());
+                                svValue.append("]");
+                            }
+                            if (con_suggestion_showhelptext->GetBool())
                             {
-                                string svHelpText = pCommandBase->GetHelpText();
-                                if (!svHelpText.empty())
+                                if (pCommandBase->GetHelpText())
                                 {
-                                    svValue.append(" - \"" + svHelpText + "\"");
+                                    string svHelpText = pCommandBase->GetHelpText();
+                                    if (!svHelpText.empty())
+                                    {
+                                        svValue.append(" - \"" + svHelpText + "\"");
+                                    }
+                                }
+                                if (pCommandBase->GetUsageText())
+                                {
+                                    string svUsageText = pCommandBase->GetUsageText();
+                                    if (!svUsageText.empty())
+                                    {
+                                        svValue.append(" - \"" + svUsageText + "\"");
+                                    }
                                 }
                             }
-                            if (pCommandBase->GetUsageText())
+                            if (con_suggestion_showflags->GetBool())
                             {
-                                string svUsageText = pCommandBase->GetUsageText();
-                                if (!svUsageText.empty())
+                                if (con_suggestion_flags_realtime->GetBool())
                                 {
-                                    svValue.append(" - \"" + svUsageText + "\"");
+                                    nFlags = pCommandBase->GetFlags();
+                                }
+                                else // Display compile-time flags instead.
+                                {
+                                    nFlags = m_vsvCommandBases[i].m_nFlags;
                                 }
                             }
-                        }
-                        if (con_suggestion_showflags->GetBool())
-                        {
-                            if (con_suggestion_flags_realtime->GetBool())
-                            {
-                                nFlags = pCommandBase->GetFlags();
-                            }
-                            else // Display compile-time flags instead.
-                            {
-                                nFlags = m_vsvCommandBases[i].m_nFlags;
-                            }
+                            m_vSuggest.push_back(CSuggest(m_vsvCommandBases[i].m_svName + svValue, nFlags));
                         }
                     }
-                    m_vSuggest.push_back(CSuggest(m_vsvCommandBases[i].m_svName + svValue, nFlags));
                 }
             }
         }

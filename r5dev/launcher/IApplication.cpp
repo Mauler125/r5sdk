@@ -70,7 +70,6 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 	if (CommandLine()->CheckParm("-devsdk"))
 	{
 		cv->EnableDevCvars();
-		cv->EnableHiddenCvars();
 	}
 
 #endif // !DEDICATED
