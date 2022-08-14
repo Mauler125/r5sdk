@@ -61,8 +61,6 @@ void CServerListManager::LaunchServer(void) const
 //-----------------------------------------------------------------------------
 void CServerListManager::ConnectToServer(const string& svIp, const string& svPort, const string& svNetKey) const
 {
-    printf("%s %s\n", svIp.c_str(), svPort.c_str());
-
     if (!svNetKey.empty())
     {
         NET_SetKey(svNetKey);
