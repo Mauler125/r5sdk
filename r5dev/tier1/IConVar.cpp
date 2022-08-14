@@ -184,8 +184,8 @@ void ConVar::Init(void) const
 	// SQUIRREL                                                               |
 	sq_showrsonloading   = ConVar::Create("sq_showrsonloading"  , "0", FCVAR_DEVELOPMENTONLY, "Logs all 'rson' files loaded by the SQVM ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	sq_showscriptloading = ConVar::Create("sq_showscriptloading", "0", FCVAR_DEVELOPMENTONLY, "Logs all scripts loaded by the SQVM to be pre-compiled ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
-	sq_showvmoutput      = ConVar::Create("sq_showvmoutput"     , "0", FCVAR_DEVELOPMENTONLY, "Prints the VM output to the console.", false, 0.f, false, 0.f, nullptr, "1 = Log to file. 2 = 1 + log to game console. 3 = 1 + 2 + log to overhead console.");
-	sq_showvmwarning     = ConVar::Create("sq_showvmwarning"    , "0", FCVAR_DEVELOPMENTONLY, "Prints the VM warning output to the console.", false, 0.f, false, 0.f, nullptr, "1 = Log to file. 2 = 1 + log to game console and overhead console.");
+	sq_showvmoutput      = ConVar::Create("sq_showvmoutput"     , "0", FCVAR_RELEASE, "Prints the VM output to the console.", false, 0.f, false, 0.f, nullptr, "1 = Log to file. 2 = 1 + log to game console. 3 = 1 + 2 + log to overhead console.");
+	sq_showvmwarning     = ConVar::Create("sq_showvmwarning"    , "0", FCVAR_RELEASE, "Prints the VM warning output to the console.", false, 0.f, false, 0.f, nullptr, "1 = Log to file. 2 = 1 + log to game console and overhead console.");
 	//-------------------------------------------------------------------------
 	// NETCHANNEL                                                             |
 	net_tracePayload           = ConVar::Create("net_tracePayload"          , "0", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT          , "Log the payload of the send/recv datagram to a file on the disk.", false, 0.f, false, 0.f, nullptr, nullptr);

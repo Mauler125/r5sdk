@@ -102,8 +102,11 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 	if (sq_showvmoutput->GetInt() > 0) {
 		sqlogger->debug(vmStr);
 	}
-	if (sq_showvmoutput->GetInt() > 1 ||
-		(g_bSQAuxError || g_bSQAuxBadLogic && v == g_pErrorVM))
+
+	// Always show script errors.
+	bool bLogLevelOverride = (g_bSQAuxError || g_bSQAuxBadLogic && v == g_pErrorVM);
+
+	if (sq_showvmoutput->GetInt() > 1 || bLogLevelOverride)
 	{
 		bool bError = false;
 		bool bColorOverride = false;
@@ -165,7 +168,7 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 		vmStr = std::regex_replace(vmStr, rxAnsiExp, "");
 		iconsole->debug(vmStr);
 
-		if (sq_showvmoutput->GetInt() > 2)
+		if (sq_showvmoutput->GetInt() > 2 || bLogLevelOverride)
 		{
 			ImVec4 color;
 			if (bColorOverride)
