@@ -266,11 +266,15 @@ protected:
 private:
 	void* m_pVFTable;
 	CUtlVector< FnChangeCallback_t > m_GlobalChangeCallbacks;
-	char pad0[22];           //!TODO:
+	char pad0[30];           //!TODO:
 	int m_nNextDLLIdentifier;
 	ConCommandBase* m_pConCommandList;
 	CConCommandHash m_CommandHash;
-	char pad1[96];
+	CUtlVector<void*> m_Unknown;
+	char pad2[32];
+	void* m_pCallbackStub;
+	void* m_pAllocFunc;
+	char pad3[16];
 	CUtlVector< QueuedConVarSet_t > m_QueuedConVarSets;
 	bool m_bMaterialSystemThreadSetAllowed;
 };
