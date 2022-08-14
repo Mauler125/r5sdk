@@ -732,7 +732,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
         }
         else // Allow user to navigate through the history if suggest isn't drawn.
         {
-            const int nPrevHistoryPos = m_nHistoryPos;
+            const ssize_t nPrevHistoryPos = m_nHistoryPos;
             if (iData->EventKey == ImGuiKey_UpArrow)
             {
                 if (m_nHistoryPos == -1)

@@ -121,9 +121,9 @@ float CNetChan::GetAvgData(int flow) const
 //-----------------------------------------------------------------------------
 // Purpose: gets the netchannel total data
 // Input  : flow - 
-// Output : int
+// Output : int64_t
 //-----------------------------------------------------------------------------
-int CNetChan::GetTotalData(int flow) const
+int64_t CNetChan::GetTotalData(int flow) const
 {
 	return this->m_DataFlow[flow].totalbytes;
 }
@@ -131,9 +131,9 @@ int CNetChan::GetTotalData(int flow) const
 //-----------------------------------------------------------------------------
 // Purpose: gets the netchannel total packets
 // Input  : flow - 
-// Output : int
+// Output : int64_t
 //-----------------------------------------------------------------------------
-int CNetChan::GetTotalPackets(int flow) const
+int64_t CNetChan::GetTotalPackets(int flow) const
 {
 	return this->m_DataFlow[flow].totalpackets;
 }

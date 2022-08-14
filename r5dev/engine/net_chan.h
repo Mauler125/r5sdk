@@ -91,8 +91,8 @@ public:
 	float       GetAvgPackets(int flow) const;
 	float       GetAvgData(int flow) const;
 
-	int         GetTotalData(int flow) const;
-	int         GetTotalPackets(int flow) const;
+	int64_t     GetTotalData(int flow) const;
+	int64_t     GetTotalPackets(int flow) const;
 	int         GetSequenceNr(int flow) const;
 
 	float       GetTimeoutSeconds(void) const;

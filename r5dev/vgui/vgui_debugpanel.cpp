@@ -83,10 +83,10 @@ void CLogSystem::DrawLog(void)
 				if (i < cl_consoleoverlay_lines->GetSizeT())
 				{
 					float fadepct = fminf(static_cast<float>(m_vLogs[i].m_nTicks) / 255.f, 4.f); // TODO [ AMOS ]: register a ConVar for this!
-					float ptc = static_cast<int>(ceilf(fadepct * 100.f));
+					float ptc = ceilf(fadepct * 100.f);
 					int alpha = static_cast<int>(ptc);
 					int x = cl_consoleoverlay_offset_x->GetInt();
-					int y = cl_consoleoverlay_offset_y->GetInt() + (m_nFontHeight * i);
+					int y = cl_consoleoverlay_offset_y->GetInt() + (m_nFontHeight * static_cast<int>(i));
 					Color c = GetLogColorForType(m_vLogs[i].m_type);
 
 					if (cl_consoleoverlay_invert_rect_x->GetBool())
@@ -96,7 +96,7 @@ void CLogSystem::DrawLog(void)
 					if (cl_consoleoverlay_invert_rect_y->GetBool())
 					{
 						y = g_nWindowHeight - cl_consoleoverlay_offset_y->GetInt();
-						y += m_nFontHeight * i;
+						y += m_nFontHeight * static_cast<int>(i);
 					}
 
 					CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, x, y, c.r(), c.g(), c.b(), alpha, m_vLogs[i].m_svMessage.c_str());

@@ -2279,7 +2279,7 @@ float CubicBasis3(float t);
 inline float QuinticInterpolatingPolynomial(float t)
 {
 	// 6t^5-15t^4+10t^3
-	return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
+	return t * t * t * (t * (t * 6.0f - 15.0f) + 10.0f);
 }
 
 // given a table of sorted tabulated positions, return the two indices and blendfactor to linear
@@ -2380,7 +2380,7 @@ float TriangleArea(const Vector3D& p0, const Vector3D& p1, const Vector3D& p2);
 FORCEINLINE float BoxSurfaceArea(Vector3D const& vecBoxMin, Vector3D const& vecBoxMax)
 {
 	Vector3D boxdim = vecBoxMax - vecBoxMin;
-	return 2.0 * ((boxdim[0] * boxdim[2]) + (boxdim[0] * boxdim[1]) + (boxdim[1] * boxdim[2]));
+	return 2.0f * ((boxdim[0] * boxdim[2]) + (boxdim[0] * boxdim[1]) + (boxdim[1] * boxdim[2]));
 }
 
 //-----------------------------------------------------------------------------
@@ -2869,7 +2869,7 @@ inline float Approach(float target, float value, float speed)
 // return a 0..1 value based on the position of x between edge0 and edge1
 inline float smoothstep_bounds(float edge0, float edge1, float x)
 {
-	x = clamp(static_cast<int>((x - edge0) / (edge1 - edge0)), 0, 1);
+	x = static_cast<float>(clamp(static_cast<int>((x - edge0) / (edge1 - edge0)), 0, 1));
 	return x * x * (3 - 2 * x);
 }
 

@@ -2830,7 +2830,7 @@ inline QAngle Quaternion::ToQAngle() const
 
 FORCEINLINE vec_t InvRSquared(const float* v)
 {
-	return 1.0 / MAX(1.0, v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+	return 1.0f / MAX(1.0f, v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
 }
 
 FORCEINLINE vec_t InvRSquared(const Vector3D& v)

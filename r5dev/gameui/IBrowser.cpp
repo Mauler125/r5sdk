@@ -133,7 +133,7 @@ void CBrowser::Think(void)
         {
             if (m_flFadeAlpha <= 1.f)
             {
-                m_flFadeAlpha += 0.05;
+                m_flFadeAlpha += .05f;
             }
         }
         else // Reset to full transparent.
@@ -261,13 +261,13 @@ void CBrowser::BrowserPanel(void)
         ImGui::InputTextWithHint("##ServerBrowser_ServerEncKey", "Enter encryption key", m_szServerEncKeyBuffer, IM_ARRAYSIZE(m_szServerEncKeyBuffer));
 
         ImGui::SameLine();
-        if (ImGui::Button("Connect", ImVec2(ImGui::GetWindowContentRegionWidth() / 4.3, ImGui::GetFrameHeight())))
+        if (ImGui::Button("Connect", ImVec2(ImGui::GetWindowContentRegionWidth() / 4.3f, ImGui::GetFrameHeight())))
         {
             g_pServerListManager->ConnectToServer(m_szServerAddressBuffer, m_szServerEncKeyBuffer);
         }
 
         ImGui::SameLine();
-        if (ImGui::Button("Private Servers", ImVec2(ImGui::GetWindowContentRegionWidth() / 4.3, ImGui::GetFrameHeight())))
+        if (ImGui::Button("Private Servers", ImVec2(ImGui::GetWindowContentRegionWidth() / 4.3f, ImGui::GetFrameHeight())))
         {
             ImGui::OpenPopup("Connect to Private Server");
         }
@@ -603,10 +603,10 @@ void CBrowser::SendHostingPostRequest(void)
     {
         m_HostRequestMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
         stringstream ssMessage;
-        ssMessage << "Broadcasting! ";
+        ssMessage << "Broadcasting: ";
         if (!m_svHostToken.empty())
         {
-            ssMessage << "Share the following token for clients to connect: ";
+            ssMessage << "share the following token for clients to connect: ";
         }
         m_svHostRequestMessage = ssMessage.str();
     }
