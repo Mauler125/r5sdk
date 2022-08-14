@@ -249,7 +249,7 @@ namespace VSquirrel
             string svMessage;
 
             g_pServerListManager->GetServerList(svMessage); // Refresh svListing list.
-            sq_pushinteger(v, g_pServerListManager->m_vServerList.size());
+            sq_pushinteger(v, static_cast<SQInteger>(g_pServerListManager->m_vServerList.size()));
 
             return SQ_OK;
         }
