@@ -3,6 +3,7 @@
 #include "tier1/mempool.h"
 #include "common/protocol.h"
 #include "public/inetmsghandler.h"
+#include "public/isnapshotmgr.h"
 #include "engine/datablock.h"
 #include "engine/net_chan.h"
 #include "engine/debugoverlay.h"
@@ -10,9 +11,11 @@
 #include "engine/framesnapshot.h"
 #include "engine/packed_entity.h"
 
-struct __declspec(align(8)) CClientSnapshotManager
+class CClientSnapshotManager : public IClientSnapshotManager
 {
-	void* __vftable /*VFT*/;
+public:
+	virtual ~CClientSnapshotManager(void){};
+
 	void* m_Frames;
 	CUtlMemoryPool m_ClientFramePool;
 };
@@ -70,10 +73,12 @@ public:
 	char field_1F0[64];
 	char field_230[64];
 	_BYTE m_szServerAddresString[128];
-	char buffer[16];
 	int m_bInMpLobbyMenu;
 	int m_nTeam;
 	_DWORD m_nMaxClients;
+	__declspec(align(8)) _DWORD reconnect_unk;
+	float m_flTickTime;
+	float m_flOldTickTime;
 	_BYTE m_bSignonChallengeReceived;
 	_DWORD challenge;
 	v_netadr_t challengeAddr;
@@ -88,8 +93,8 @@ public:
 #endif
 	_BYTE m_bPersistenceBaselineRecvd;
 	__unaligned __declspec(align(4)) _QWORD m_nPersistenceBaselineEntries;
-	char field_18364;
-	char field_18365;
+	bool m_bRestrictServerCommands;
+	bool m_bRestrictClientCommands;
 	char buffer_0x400[1024];
 	NetDataBlockReceiver blockReceiver;
 	char client_requested_disconnect;
