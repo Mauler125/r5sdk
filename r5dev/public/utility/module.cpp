@@ -41,7 +41,7 @@ CModule::CModule(const string& svModuleName) : m_svModuleName(svModuleName)
 //          *szMask - 
 // Output : CMemory
 //-----------------------------------------------------------------------------
-CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, ModuleSections_t moduleSection) const
+CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, const ModuleSections_t& moduleSection, const uint32_t nOccurence) const
 {
 	if (!m_ExecutableCode.IsSectionValid())
 		return CMemory();
@@ -58,6 +58,7 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, M
 	const uint8_t* pData = reinterpret_cast<uint8_t*>(nBase);
 	const uint8_t* pEnd = pData + static_cast<uint32_t>(nSize) - strlen(szMask);
 
+	int nOccurenceCount = 0;
 	int nMasks[64]; // 64*16 = enough masks for 1024 bytes.
 	const int iNumMasks = static_cast<int>(ceil(static_cast<float>(strlen(szMask)) / 16.f));
 
@@ -91,7 +92,11 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, M
 					{
 						if ((i + 1) == iNumMasks)
 						{
-							return static_cast<CMemory>(const_cast<uint8_t*>(pData));
+							if (nOccurenceCount == nOccurence)
+							{
+								return static_cast<CMemory>(const_cast<uint8_t*>(pData));
+							}
+							nOccurenceCount++;
 						}
 					}
 					else
@@ -99,7 +104,11 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, M
 						goto cont;
 					}
 				}
-				return static_cast<CMemory>((&*(const_cast<uint8_t*>(pData))));
+				if (nOccurenceCount == nOccurence)
+				{
+					return static_cast<CMemory>((&*(const_cast<uint8_t*>(pData))));
+				}
+				nOccurenceCount++;
 			}
 		}cont:;
 	}
@@ -112,7 +121,7 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, M
 // Input  : *szPattern
 // Output : CMemory
 //-----------------------------------------------------------------------------
-CMemory CModule::FindPatternSIMD(const string& svPattern, ModuleSections_t moduleSection) const
+CMemory CModule::FindPatternSIMD(const string& svPattern, const ModuleSections_t& moduleSection) const
 {
 	const pair patternInfo = PatternToMaskedBytes(svPattern);
 	return FindPatternSIMD(patternInfo.first.data(), patternInfo.second.c_str(), moduleSection);
@@ -170,6 +179,7 @@ CMemory CModule::FindString(const string& svString, const ptrdiff_t nOccurence, 
 		return CMemory();
 
 	const CMemory stringAddress = FindStringReadOnly(svString, bNullTerminator); // Get Address for the string in the .rdata section.
+
 	if (!stringAddress)
 		return CMemory();
 
@@ -254,12 +264,13 @@ CMemory CModule::GetExportedFunction(const string& svFunctionName) const
 
 //-----------------------------------------------------------------------------
 // Purpose: get address of a virtual method table by rtti type descriptor name.
-// Input  : *tableName - 
+// Input  : *svTableName - 
+//			nRefIndex - 
 // Output : CMemory
 //-----------------------------------------------------------------------------
-CMemory CModule::GetVirtualMethodTable(const std::string& tableName)
+CMemory CModule::GetVirtualMethodTable(const string& svTableName, const uint32_t nRefIndex)
 {
-	const auto tableNameInfo = StringToMaskedBytes(tableName, false);
+	const auto tableNameInfo = StringToMaskedBytes(svTableName, false);
 	CMemory rttiTypeDescriptor = FindPatternSIMD(tableNameInfo.first.data(), tableNameInfo.second.c_str(), { ".data", m_RunTimeData.m_pSectionBase, m_RunTimeData.m_nSectionSize }).OffsetSelf(-0x10);
 	if (!rttiTypeDescriptor)
 		return CMemory();
@@ -270,7 +281,7 @@ CMemory CModule::GetVirtualMethodTable(const std::string& tableName)
 	const uintptr_t rttiTDRva = rttiTypeDescriptor.GetPtr() - m_pModuleBase; // The RTTI gets referenced by a 4-Byte RVA address. We need to scan for that address.
 	while (scanStart < scanEnd)
 	{
-		CMemory reference = FindPatternSIMD(reinterpret_cast<rsig_t>(&rttiTDRva), "xxxx", { ".rdata", scanStart, m_ReadOnlyData.m_nSectionSize });
+		CMemory reference = FindPatternSIMD(reinterpret_cast<rsig_t>(&rttiTDRva), "xxxx", { ".rdata", scanStart, m_ReadOnlyData.m_nSectionSize }, nRefIndex);
 		if (!reference)
 			break;
 		
