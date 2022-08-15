@@ -6,14 +6,48 @@
 #define FLOW_INCOMING     1
 #define MAX_FLOWS         2 // in & out
 
-struct IClientMessageHandler
+class IClientMessageHandler
 {
-	void* __vftable /*VFT*/;
+public:
+	virtual void* Destructor(void) = 0;
+	virtual void* ProcessStringCmd(void) = 0;
+	virtual void* ProcessScriptMessage(void) = 0;
+	virtual void* ProcessSetConVar(void) = 0;
+	virtual char ProcessSignonState(void* msg) = 0; // NET_SignonState
+	virtual bool nullsub_0(void) = 0;
+	virtual bool nullsub_1(void) = 0;
+	virtual void* ProcessClientInfo(void) = 0;;
+	virtual void* ProcessMove(void) = 0;;
+	virtual void* ProcessVoiceData(void) = 0;;
+	virtual void* ProcessDurangoVoiceData(void) = 0;;
+	virtual bool nullsub_2(void) = 0;
+	virtual void* ProcessLoadingProgress(void) = 0;
+	virtual void* ProcessPersistenceRequestSave(void) = 0;
+	virtual bool nullsub_3(void) = 0;
+	virtual bool nullsub_4(void) = 0;
+	virtual void* ProcessSetPlaylistVarOverride(void) = 0;
+	virtual void* ProcessClaimClientSidePickup(void) = 0;
+	virtual void* ProcessCmdKeyValues(void) = 0;
+	virtual void* ProcessClientTick(void) = 0;
+	virtual void* ProcessClientSayText(void) = 0;
+	virtual bool nullsub_5(void) = 0;
+	virtual bool nullsub_6(void) = 0;
+	virtual bool nullsub_7(void) = 0;
+	virtual bool nullsub_8(void) = 0;
+	virtual void* ProcessScriptMessageChecksum(void) = 0;
 };
 
-struct INetChannelHandler
+class INetChannelHandler
 {
-	void* __vftable /*VFT*/;
+public:
+	virtual ~INetChannelHandler(void) = 0;
+	virtual void*ConnectionStart(INetChannel* chan) = 0;
+	virtual void ConnectionClosing(const char* reason, int unk) = 0;
+	virtual void ConnectionCrashed(const char* reason) = 0;
+	virtual void PacketStart(int incoming_sequence, int outgoing_acknowledged) = 0;
+	virtual void PacketEnd(void) = 0;
+	virtual void FileRequested(const char* fileName, unsigned int transferID) = 0;
+	virtual void ChannelDisconnect(const char* fileName) = 0;
 };
 
 struct CS_INetChannelHandler : INetChannelHandler

@@ -3,7 +3,9 @@
 
 class IClientNetworkable
 {
-	void* __vftable /*VFT*/;
+public:
+	virtual ~IClientNetworkable(void) = 0;
+	// !TODO!
 };
 
 #endif // ICLIENTNETWORKABLE_H

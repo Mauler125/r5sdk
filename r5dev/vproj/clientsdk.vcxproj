@@ -258,7 +258,9 @@
     <ClInclude Include="..\public\ifilesystem.h" />
     <ClInclude Include="..\public\ihandleentity.h" />
     <ClInclude Include="..\public\inetchannel.h" />
+    <ClInclude Include="..\public\inetmessage.h" />
     <ClInclude Include="..\public\inetmsghandler.h" />
+    <ClInclude Include="..\public\isnapshotmgr.h" />
     <ClInclude Include="..\public\isurfacesystem.h" />
     <ClInclude Include="..\public\ivrenderview.h" />
     <ClInclude Include="..\public\ivscript.h" />

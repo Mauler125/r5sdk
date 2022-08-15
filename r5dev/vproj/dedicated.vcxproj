@@ -224,8 +224,10 @@
     <ClInclude Include="..\public\ifile.h" />
     <ClInclude Include="..\public\ifilesystem.h" />
     <ClInclude Include="..\public\inetchannel.h" />
+    <ClInclude Include="..\public\inetmessage.h" />
     <ClInclude Include="..\public\inetmsghandler.h" />
     <ClInclude Include="..\public\iserver.h" />
+    <ClInclude Include="..\public\isnapshotmgr.h" />
     <ClInclude Include="..\public\ivscript.h" />
     <ClInclude Include="..\public\model_types.h" />
     <ClInclude Include="..\public\studio.h" />

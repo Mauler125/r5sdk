@@ -1721,6 +1721,12 @@
     <ClInclude Include="..\public\isurfacesystem.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\inetmessage.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\isnapshotmgr.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\shared\resource\lockedserver.png">

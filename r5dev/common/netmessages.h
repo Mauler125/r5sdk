@@ -1,5 +1,13 @@
+﻿//====== Copyright � 1996-2005, Valve Corporation, All rights reserved. =======//
+//
+// Purpose:
+//
+// $NoKeywords: $
+//=============================================================================//
+
 #pragma once
 #include "tier1/bitbuf.h"
+#include "public/inetmessage.h"
 #include "public/inetmsghandler.h"
 
 #define HUD_PRINTNOTIFY		1
@@ -7,23 +15,43 @@
 #define HUD_PRINTTALK		3
 #define HUD_PRINTCENTER		4
 
-class INetMessage
-{
-	void* __vftable /*VFT*/;
-};
+//-------------------------------------------------------------------------------------
+// Forward declarations
+//-------------------------------------------------------------------------------------
+class CNetChan;
 
 class CNetMessage : public INetMessage
 {
 public:
 	int m_nGroup;
 	bool m_bReliable;
-	void* m_NetChannel;
+	CNetChan* m_NetChannel;
 };
 
+///////////////////////////////////////////////////////////////////////////////////////
+// server messages:
+///////////////////////////////////////////////////////////////////////////////////////
 class SVC_Print : public CNetMessage, IServerMessageHandler
 {
 public:
-	bool Process();
+	virtual	~SVC_Print() {};
+
+	virtual void	SetNetChannel(INetChannel* netchan) = 0;
+	virtual void	SetReliable(bool state) = 0;
+
+	virtual bool	Process(void) = 0; bool ProcessImpl(void);
+
+	virtual	bool	ReadFromBuffer(bf_read& buffer) = 0;
+	virtual	bool	WriteToBuffer(bf_write& buffer) = 0;
+
+	virtual bool	IsReliable(void) const = 0;
+
+	virtual int          GetGroup(void) const = 0;
+	virtual int          GetType(void) const = 0;
+	virtual const char*  GetName(void) const = 0;
+	virtual INetChannel* GetNetChannel(void) const = 0;
+	virtual const char*  ToString(void) const = 0;
+	virtual size_t       GetSize(void) const = 0;
 
 	const void* m_pData;
 	const char* m_szText;
@@ -34,7 +62,24 @@ private:
 class SVC_UserMessage : public CNetMessage, IServerMessageHandler
 {
 public:
-	bool Process();
+	virtual	~SVC_UserMessage() {};
+
+	virtual void	SetNetChannel(INetChannel* netchan) = 0;
+	virtual void	SetReliable(bool state) = 0;
+
+	virtual bool	Process(void) = 0; bool ProcessImpl(void);
+
+	virtual	bool	ReadFromBuffer(bf_read& buffer) = 0;
+	virtual	bool	WriteToBuffer(bf_write& buffer) = 0;
+
+	virtual bool	IsReliable(void) const = 0;
+
+	virtual int          GetGroup(void) const = 0;
+	virtual int          GetType(void) const = 0;
+	virtual const char*  GetName(void) const = 0;
+	virtual INetChannel* GetNetChannel(void) const = 0;
+	virtual const char*  ToString(void) const = 0;
+	virtual size_t       GetSize(void) const = 0;
 
 	int			m_nMsgType;
 	int			m_nLength;	// data length in bits
@@ -68,8 +113,8 @@ class HMM_Heartbeat : public IDetour
 	virtual void GetAdr(void) const
 	{
 		spdlog::debug("| FUN: MM_Heartbeat::ToString               : {:#18x} |\n", MM_Heartbeat__ToString.GetPtr());
-		spdlog::debug("| VAR: SVC_Print_VTable                     : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pSVC_Print_VTable));
-		spdlog::debug("| VAR: SVC_UserMessage_VTable               : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pSVC_UserMessage_VTable));
+		spdlog::debug("| CON: SVC_Print                  (VFTable) : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pSVC_Print_VTable));
+		spdlog::debug("| CON: SVC_UserMessage            (VFTable) : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pSVC_UserMessage_VTable));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
@@ -77,13 +122,13 @@ class HMM_Heartbeat : public IDetour
 		MM_Heartbeat__ToString = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x38\xE8\x00\x00\x00\x00\x3B\x05\x00\x00\x00\x00"), "xxxxx????xx????");
 		// 48 83 EC 38 E8 ? ? ? ? 3B 05 ? ? ? ?
 	}
-	virtual void GetVar(void) const 
-	{ 
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const
+	{
 		// We get the actual address of the vtable here, not the class instance.
 		g_pSVC_Print_VTable = g_GameDll.GetVirtualMethodTable(".?AVSVC_Print@@");
 		g_pSVC_UserMessage_VTable = g_GameDll.GetVirtualMethodTable(".?AVSVC_UserMessage@@");
 	}
-	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }
 };

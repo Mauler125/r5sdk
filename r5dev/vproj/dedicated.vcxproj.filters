@@ -1230,6 +1230,12 @@
     <ClInclude Include="..\vstdlib\concommandhash.h">
       <Filter>sdk\vstdlib</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\inetmessage.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\isnapshotmgr.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">

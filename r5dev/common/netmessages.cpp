@@ -12,7 +12,7 @@
 #include "engine/net.h"
 #include "common/netmessages.h"
 
-bool SVC_Print::Process()
+bool SVC_Print::ProcessImpl()
 {
 	if (this->m_szText)
 	{
@@ -22,7 +22,7 @@ bool SVC_Print::Process()
 	return true; // Original just return true also.
 }
 
-bool SVC_UserMessage::Process()
+bool SVC_UserMessage::ProcessImpl()
 {
 	bf_read buf = m_DataIn;
 	int type = buf.ReadByte();
@@ -43,8 +43,8 @@ bool SVC_UserMessage::Process()
 
 void CNetMessages_Attach()
 {
-	auto SVCPrint = &SVC_Print::Process;
-	auto SVCUserMessage = &SVC_UserMessage::Process;
+	auto SVCPrint = &SVC_Print::ProcessImpl;
+	auto SVCUserMessage = &SVC_UserMessage::ProcessImpl;
 	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_Print_VTable,       (LPVOID&)SVCPrint,       3, (LPVOID*)&SVC_Print_Process);
 	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_UserMessage_VTable, (LPVOID&)SVCUserMessage, 3, (LPVOID*)&SVC_UserMessage_Process);
 }
