@@ -2,10 +2,10 @@
 #include "tier1/bitbuf.h"
 #include "public/inetmsghandler.h"
 
-enum class UserMessages : int
-{
-	TextMsg = 0x2
-};
+#define HUD_PRINTNOTIFY		1
+#define HUD_PRINTCONSOLE	2
+#define HUD_PRINTTALK		3
+#define HUD_PRINTCENTER		4
 
 class INetMessage
 {
@@ -17,7 +17,6 @@ class CNetMessage : public INetMessage
 public:
 	int m_nGroup;
 	bool m_bReliable;
-	char padding[3];
 	void* m_NetChannel;
 };
 
@@ -26,7 +25,7 @@ class SVC_Print : public CNetMessage, IServerMessageHandler
 public:
 	bool Process();
 
-	char padding[8];
+	const void* m_pData;
 	const char* m_szText;
 private:
 	char m_szTextBuffer[2048];

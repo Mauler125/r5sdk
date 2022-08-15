@@ -9,6 +9,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
+#include "engine/net.h"
 #include "common/netmessages.h"
 
 bool SVC_Print::Process()
@@ -24,13 +25,14 @@ bool SVC_Print::Process()
 bool SVC_UserMessage::Process()
 {
 	bf_read buf = m_DataIn;
-	UserMessages type = (UserMessages)buf.ReadByte();
+	int type = buf.ReadByte();
 
-	if (type == UserMessages::TextMsg)
+	if (type == HUD_PRINTCONSOLE ||
+		type == HUD_PRINTCENTER)
 	{
-		char text[256];
+		char text[MAX_USER_MSG_DATA];
 		buf.ReadString(text, sizeof(text));
-		if (strnlen_s(text, sizeof(text)) > 0)
+		if (strnlen_s(text, sizeof(text)) >= NET_MIN_MESSAGE)
 		{
 			DevMsg(eDLL_T::SERVER, text);
 		}

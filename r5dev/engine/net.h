@@ -6,6 +6,13 @@
 #define FRAGMENT_BITS       8
 #define FRAGMENT_SIZE       (1<<FRAGMENT_BITS)
 
+// user message
+#define MAX_USER_MSG_DATA 511 // <-- 255 in Valve Source.
+
+#define NETMSG_TYPE_BITS	8	// must be 2^NETMSG_TYPE_BITS > SVC_LASTMSG (6 in Valve Source).
+#define NETMSG_LENGTH_BITS	12	// 512 bytes (11 in Valve Source, 256 bytes).
+#define NET_MIN_MESSAGE 5 // Even connectionless packets require int32 value (-1) + 1 byte content
+
 /* ==== CNETCHAN ======================================================================================================================================================== */
 inline CMemory p_NET_Init;
 inline auto v_NET_Init = p_NET_Init.RCast<void* (*)(bool bDeveloper)>();
