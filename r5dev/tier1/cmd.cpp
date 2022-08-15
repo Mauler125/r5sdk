@@ -277,7 +277,7 @@ ConCommand* ConCommand::Create(const char* pszName, const char* pszHelpString, i
 	ConCommand* pCommand = MemAllocSingleton()->Alloc<ConCommand>(sizeof(ConCommand));
 	memset(pCommand, '\0', sizeof(ConCommand));
 
-	pCommand->m_pConCommandBaseVFTable = g_pConCommandVtable.RCast<IConCommandBase*>();
+	pCommand->m_pConCommandBaseVFTable = g_pConCommandVFTable.RCast<IConCommandBase*>();
 	pCommand->m_pszName = pszName;
 	pCommand->m_pszHelpString = pszHelpString;
 	pCommand->m_nFlags = nFlags;

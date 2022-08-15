@@ -122,8 +122,8 @@ class VConVar : public IDetour
 		spdlog::debug("| FUN: ConVar::IsFlagSet                    : {:#18x} |\n", p_IConVar_IsFlagSet.GetPtr());
 		spdlog::debug("| FUN: ConVar::SetInfo                      : {:#18x} |\n", p_ConVar_SetInfo.GetPtr());
 		spdlog::debug("| FUN: ConVar::Register                     : {:#18x} |\n", p_ConVar_Register.GetPtr());
-		spdlog::debug("| VAR: g_pConVarVtable                      : {:#18x} |\n", g_pConVarVFTable.GetPtr());
-		spdlog::debug("| VAR: g_pIConVarVtable                     : {:#18x} |\n", g_pIConVarVFTable.GetPtr());
+		spdlog::debug("| VAR: g_pConVarVFTable                     : {:#18x} |\n", g_pConVarVFTable.GetPtr());
+		spdlog::debug("| VAR: g_pIConVarVFTable                    : {:#18x} |\n", g_pIConVarVFTable.GetPtr());
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
@@ -139,12 +139,12 @@ class VConVar : public IDetour
 		ConVar_SetInfo = p_ConVar_SetInfo.RCast<void* (*)(ConVar*, int, int, int, void*)>(); /*40 53 48 83 EC 60 48 8B D9 C6 41 10 00 33 C9 48 8D 05 ? ? ? ? 48 89 4C 24 ? 0F 57 C0 48 89 4C 24 ? 48 89 03 48 8D 05 ? ? ? ? 48 89 43 40*/
 		ConVar_Register = p_ConVar_Register.RCast<void* (*)(ConVar*, const char*, const char*, int, const char*, bool, float, bool, float, FnChangeCallback_t, const char*)>(); /*48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 40 F3 0F 10 84 24 ? ? ? ?*/
 	}
-	virtual void GetVar(void) const
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const
 	{
-		g_pConVarVFTable  = p_ConVar_SetInfo.Offset(0x00).FindPatternSelf("48 8D 05", CMemory::Direction::DOWN, 100).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(); // Get vtable ptr for ConVar table.
-		g_pIConVarVFTable = p_ConVar_SetInfo.Offset(0x16).FindPatternSelf("48 8D 05", CMemory::Direction::DOWN, 100).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr(); // Get vtable ptr for ICvar table.
+		g_pConVarVFTable = g_GameDll.GetVirtualMethodTable(".?AVConVar@@", 0);
+		g_pIConVarVFTable = g_GameDll.GetVirtualMethodTable(".?AVConVar@@", 1);
 	}
-	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }
 };

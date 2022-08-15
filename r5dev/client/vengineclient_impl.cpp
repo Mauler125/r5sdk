@@ -6,11 +6,7 @@
 
 #include "core/stdafx.h"
 #include "client/vengineclient_impl.h"
-
-//#ifdef GAMEDLL_S3
-bool* m_bRestrictServerCommands = nullptr;
-bool* m_bRestrictClientCommands = nullptr;
-//#endif
+#include "engine/client/clientstate.h"
 
 //---------------------------------------------------------------------------------
 // Purpose: define if commands from the server should be restricted or not.
@@ -19,7 +15,7 @@ bool* m_bRestrictClientCommands = nullptr;
 //---------------------------------------------------------------------------------
 void CEngineClient::SetRestrictServerCommands(bool bRestricted)
 {
-	*m_bRestrictServerCommands = bRestricted;
+	g_pClientState->m_bRestrictServerCommands = bRestricted;
 }
 
 //---------------------------------------------------------------------------------
@@ -29,7 +25,7 @@ void CEngineClient::SetRestrictServerCommands(bool bRestricted)
 //---------------------------------------------------------------------------------
 bool CEngineClient::GetRestrictServerCommands() const
 {
-	return *m_bRestrictServerCommands;
+	return g_pClientState->m_bRestrictServerCommands;
 }
 
 //---------------------------------------------------------------------------------
@@ -39,7 +35,7 @@ bool CEngineClient::GetRestrictServerCommands() const
 //---------------------------------------------------------------------------------
 void CEngineClient::SetRestrictClientCommands(bool bRestricted)
 {
-	*m_bRestrictClientCommands = bRestricted;
+	g_pClientState->m_bRestrictClientCommands = bRestricted;
 }
 
 //---------------------------------------------------------------------------------
@@ -49,7 +45,7 @@ void CEngineClient::SetRestrictClientCommands(bool bRestricted)
 //---------------------------------------------------------------------------------
 bool CEngineClient::GetRestrictClientCommands() const
 {
-	return *m_bRestrictClientCommands;
+	return g_pClientState->m_bRestrictClientCommands;
 }
 
 //---------------------------------------------------------------------------------

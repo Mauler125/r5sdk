@@ -607,8 +607,8 @@ void RTech::CreateDXTexture(RTechTextureInfo_t* textureHeader, int64_t imageData
 //----------------------------------------------------------------------------------
 void** RTech::LoadShaderSet(void** VTablePtr)
 {
-	*VTablePtr = &g_pCShaderGlue_VTable;
-	return &g_pCShaderGlue_VTable;
+	*VTablePtr = &g_pShaderGlueVFTable;
+	return &g_pShaderGlueVFTable;
 }
 #endif
 

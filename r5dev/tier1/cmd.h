@@ -174,7 +174,7 @@ inline auto NullSub = p_NullSub.RCast<void(*)(void)>();
 inline CMemory p_CallbackStub;
 inline FnCommandCompletionCallback CallbackStub = p_CallbackStub.RCast<FnCommandCompletionCallback>();
 
-inline CMemory g_pConCommandVtable;
+inline CMemory g_pConCommandVFTable;
 
 ///////////////////////////////////////////////////////////////////////////////
 ECommandTarget_t Cbuf_GetCurrentPlayer(void);
@@ -197,7 +197,7 @@ class VConCommand : public IDetour
 		spdlog::debug("| FUN: CallbackStub                         : {:#18x} |\n", p_CallbackStub.GetPtr());
 		spdlog::debug("| FUN: NullSub                              : {:#18x} |\n", p_NullSub.GetPtr());
 		spdlog::debug("+----------------------------------------------------------------+\n");
-		spdlog::debug("| VAR: g_pConCommandVtable                  : {:#18x} |\n", g_pConCommandVtable.GetPtr());
+		spdlog::debug("| VAR: g_pConCommandVFTable                 : {:#18x} |\n", g_pConCommandVFTable.GetPtr());
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
@@ -216,9 +216,7 @@ class VConCommand : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		g_pConCommandVtable = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
-			"\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8B\xEC\x48\x83\xEC\x50\x48\x8B\x15\x00\x00\x00\x00"),
-			"xxxx?xxxx?xxxx?xxxxxxxxxxxxxxxxxxx????").FindPatternSelf("4C 8D 25", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
+		g_pConCommandVFTable = g_GameDll.GetVirtualMethodTable(".?AVConCommand@@");
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

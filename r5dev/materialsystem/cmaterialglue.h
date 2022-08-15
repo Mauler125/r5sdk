@@ -47,7 +47,7 @@ public:
 static_assert(sizeof(CMaterialGlue) == 0x130);
 #pragma pack(pop)
 
-inline void* g_pMaterialGlueVTable = nullptr;
+inline void* g_pMaterialGlueVFTable = nullptr;
 
 /* ==== CMATERIALGLUE ================================================================================================================================================== */
 inline CMemory p_GetMaterialAtCrossHair;
@@ -61,7 +61,7 @@ class VMaterialGlue : public IDetour
 	virtual void GetAdr(void) const
 	{
 		spdlog::debug("| FUN: CMaterialGlue::GetMaterialAtCrossHair: {:#18x} |\n", p_GetMaterialAtCrossHair.GetPtr());
-		spdlog::debug("| CON: g_pMaterialGlueVTable                : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pMaterialGlueVTable));
+		spdlog::debug("| CON: g_pMaterialGlueVFTable               : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pMaterialGlueVFTable));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
@@ -72,7 +72,7 @@ class VMaterialGlue : public IDetour
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const
 	{
-		g_pMaterialGlueVTable = g_GameDll.GetVirtualMethodTable(".?AVCMaterialGlue@@");
+		g_pMaterialGlueVFTable = g_GameDll.GetVirtualMethodTable(".?AVCMaterialGlue@@");
 	}
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }

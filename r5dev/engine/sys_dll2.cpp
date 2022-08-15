@@ -8,6 +8,7 @@
 #include "core/stdafx.h"
 #include "tier1/cmd.h"
 #include "tier1/cvar.h"
+#include "tier1/strtools.h"
 #include "engine/sys_dll.h"
 #include "engine/sys_dll2.h"
 #include "client/vengineclient_impl.h"
@@ -17,12 +18,12 @@
 //-----------------------------------------------------------------------------
 static bool IsValveMod(const char* pModName)
 {
-	return (_stricmp(pModName, "cstrike") == 0 ||
-		_stricmp(pModName, "dod") == 0 ||
-		_stricmp(pModName, "hl1mp") == 0 ||
-		_stricmp(pModName, "tf") == 0 ||
-		_stricmp(pModName, "hl2mp") == 0 ||
-		_stricmp(pModName, "csgo") == 0);
+	return (Q_stricmp(pModName, "cstrike") == 0 ||
+		Q_stricmp(pModName, "dod") == 0 ||
+		Q_stricmp(pModName, "hl1mp") == 0 ||
+		Q_stricmp(pModName, "tf") == 0 ||
+		Q_stricmp(pModName, "hl2mp") == 0 ||
+		Q_stricmp(pModName, "csgo") == 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -30,10 +31,10 @@ static bool IsValveMod(const char* pModName)
 //-----------------------------------------------------------------------------
 static bool IsRespawnMod(const char* pModName)
 {
-	return (_stricmp(pModName, "platform") == 0 ||
-		_stricmp(pModName, "r1") == 0 ||
-		_stricmp(pModName, "r2") == 0 ||
-		_stricmp(pModName, "r5") == 0);
+	return (Q_stricmp(pModName, "platform") == 0 ||
+		Q_stricmp(pModName, "r1") == 0 ||
+		Q_stricmp(pModName, "r2") == 0 ||
+		Q_stricmp(pModName, "r5") == 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -49,7 +50,7 @@ bool CEngineAPI::ModInit(CEngineAPI* pEngineAPI, const char* pModName, const cha
 	bool results = CEngineAPI_ModInit(pEngineAPI, pModName, pGameDir);
 	if (!IsValveMod(pModName) && IsRespawnMod(pModName))
 	{
-		(*g_ppEngineClient)->SetRestrictServerCommands(true); // Restrict commands.
+		g_pEngineClient->SetRestrictServerCommands(true); // Restrict commands.
 
 		ConCommandBase* disconnect = g_pCVar->FindCommandBase("disconnect");
 		disconnect->AddFlags(FCVAR_SERVER_CAN_EXECUTE); // Make sure server is not restricted to this.

@@ -19,7 +19,7 @@ public:
 	void* m_Frames;
 	CUtlMemoryPool m_ClientFramePool;
 };
-
+#pragma pack(push, 4)
 ///////////////////////////////////////////////////////////////////////////////
 class CClientState : CS_INetChannelHandler, IConnectionlessPacketHandler, IServerMessageHandler, CClientSnapshotManager
 {
@@ -172,6 +172,7 @@ public:
 	char byte34A38;
 	char field_34A39[7];
 };
+#pragma pack(pop)
 #ifndef DEDICATED
 extern CClientState* g_pClientState;
 #endif // DEDICATED
