@@ -181,9 +181,6 @@ extern CClientState* g_pClientState;
 inline CMemory p_CClientState__RunFrame;
 inline auto CClientState__RunFrame = p_CClientState__RunFrame.RCast<void(*)(CClientState* thisptr)>();
 
-inline CMemory p_CClientState__CheckForResend; /*48 89 5C 24 ?? 56 57 41 57 ?? 81 EC 20 04 ?? 00 45 0F B6 F9 ?? ?? ?? ?? 8B F1 48*/
-inline auto CClientState__CheckForResend = p_CClientState__CheckForResend.RCast<void(*)(CClientState* thisptr, const char* a2, std::int64_t a3, char a4, int a5, std::uint8_t* a6)>();
-
 inline CMemory p_CClientState__Disconnect; /*48 89 5C 24 ?? 55 57 41 56 48 83 EC 30 0F B6 EA*/
 inline auto CClientState__Disconnect = p_CClientState__Disconnect.RCast<void(*)(CClientState* thisptr, bool bSendTrackingContext)>();
 
@@ -195,7 +192,6 @@ class VClientState : public IDetour
 	{
 		spdlog::debug("| FUN: CClientState::RunFrame               : {:#18x} |\n", p_CClientState__RunFrame.GetPtr());
 		spdlog::debug("| FUN: CClientState::Disconnect             : {:#18x} |\n", p_CClientState__Disconnect.GetPtr());
-		spdlog::debug("| FUN: CClientState::CheckForResend         : {:#18x} |\n", p_CClientState__CheckForResend.GetPtr());
 #ifndef DEDICATED
 		spdlog::debug("| VAR: g_pClientState                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pClientState));
 #endif // DEDICATED
@@ -207,9 +203,6 @@ class VClientState : public IDetour
 		p_CClientState__RunFrame = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x4C\x24\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x83\xB9\x00\x00\x00\x00\x00"), "xxxx?xxxx????xx?????");
 		CClientState__RunFrame = p_CClientState__RunFrame.RCast<void(*)(CClientState* thisptr)>();
 
-		p_CClientState__CheckForResend = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x56\x57\x41\x57\x00\x81\xEC\x20\x04\x00\x00\x45\x0F\xB6\xF9\x00\x00\x00\x00\x8B\xF1\x48"), "xxxx?xxxx?xxxx?xxxxx????xxx");
-		CClientState__CheckForResend = p_CClientState__CheckForResend.RCast<void(*)(CClientState* thisptr, const char* a2, std::int64_t a3, char a4, int a5, std::uint8_t* a6)>(); /*48 89 5C 24 ?? 56 57 41 57 ?? 81 EC 20 04 ?? 00 45 0F B6 F9 ?? ?? ?? ?? 8B F1 48*/
-
 		p_CClientState__Disconnect = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x55\x57\x41\x56\x48\x83\xEC\x30\x0F\xB6\xEA"), "xxxx?xxxxxxxxxxx");
 		CClientState__Disconnect = p_CClientState__Disconnect.RCast<void(*)(CClientState* thisptr, bool bSendTrackingContext)>(); /*48 89 5C 24 ?? 55 57 41 56 48 83 EC 30 0F B6 EA*/
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
@@ -218,13 +211,6 @@ class VClientState : public IDetour
 
 		p_CClientState__Disconnect = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x56\x57\x41\x54\x41\x55\x41\x57\x48\x83\xEC\x30\x44\x0F\xB6\xFA"), "xxxxxxxxxxxxxxxxx");
 		CClientState__Disconnect = p_CClientState__Disconnect.RCast<void(*)(CClientState* thisptr, bool bSendTrackingContext)>(); /*40 56 57 41 54 41 55 41 57 48 83 EC 30 44 0F B6 FA*/
-#endif
-#if defined (GAMEDLL_S2)
-		p_CClientState__CheckForResend = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x81\xEC\x00\x00\x00\x00\x45\x0F\xB6"), "xxxx?xxxx?xxxx?xxxxx????xxx");
-		CClientState__CheckForResend = p_CClientState__CheckForResend.RCast<void(*)(CClientState* thisptr, const char* a2, std::int64_t a3, char a4, int a5, std::uint8_t* a6)>(); /*48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC ?? ?? ?? ?? 45 0F B6*/
-#elif defined (GAMEDLL_S3)
-		p_CClientState__CheckForResend = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x32"), "xxxx?xxxx?xxxx?xxxxx????xxx");
-		CClientState__CheckForResend = p_CClientState__CheckForResend.RCast<void(*)(CClientState* thisptr, const char* a2, std::int64_t a3, char a4, int a5, std::uint8_t* a6)>(); /*48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC ?? ?? ?? ?? 48 8B 32*/
 #endif
 	}
 	virtual void GetVar(void) const

@@ -401,12 +401,12 @@ public:
 
 	virtual __int64 __fastcall PrecacheTaskItem(__int64 a1) = 0;
 
-	virtual void sub_1403800A0() = 0;
+	virtual void ResetItemCacheSize(int edx) = 0;
 	virtual void __fastcall sub_140380100(__int64 a1) = 0;
 	virtual void __fastcall sub_140380230(char a2) = 0;
 	virtual void* __fastcall sub_1403801F0(const void* a1, unsigned int a2) = 0;
 	virtual void __fastcall sub_140380220(__int64 a1) = 0;
-	virtual bool sub_140380070() = 0;
+	virtual bool ResetItemCache() = 0;
 	virtual char __fastcall sub_1403836D0(int a1, char* a2, unsigned int a3) = 0;
 	virtual __int64 __fastcall sub_140383840(unsigned int a1, __int64 a2, char* a3, unsigned int BufferCount) = 0;
 	virtual const char** __fastcall sub_140383760(unsigned int a1) = 0;

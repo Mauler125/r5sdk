@@ -137,8 +137,8 @@ void Systems_Init()
 
 	initTimer.Start();
 
-	WS_Init();      // Initialize WinSock.
-	MathLib_Init(); // Initialize MathLib.
+	WS_Init();      // Initialize Winsock.
+	MathLib_Init(); // Initialize Mathlib.
 
 	// Begin the detour transaction to hook the the process
 	DetourTransactionBegin();
@@ -259,7 +259,7 @@ void Systems_Shutdown()
 	CFastTimer shutdownTimer;
 	shutdownTimer.Start();
 
-	// Shutdown WinSock system.
+	// Shutdown Winsock system.
 	WS_Shutdown();
 
 	// Begin the detour transaction to unhook the the process
@@ -375,7 +375,7 @@ void WS_Shutdown()
 	int nError = ::WSACleanup();
 	if (nError != 0)
 	{
-		std::cerr << "Failed to stop winsock via WSACleanup: (" << NET_ErrorString(WSAGetLastError()) << ")" << std::endl;
+		std::cerr << "Failed to stop Winsock via WSACleanup: (" << NET_ErrorString(WSAGetLastError()) << ")" << std::endl;
 	}
 }
 void QuerySystemInfo()
@@ -424,11 +424,24 @@ void QuerySystemInfo()
 
 void DetourInit() // Run the sigscan
 {
+	bool bLogAdr = (strstr(GetCommandLineA(), "-sig_toconsole") != nullptr);
+	bool bInitDivider = false;
+
 	for (const IDetour* pDetour : vDetour)
 	{
 		pDetour->GetCon(); // Constants.
 		pDetour->GetFun(); // Functions.
 		pDetour->GetVar(); // Variables.
+
+		if (bLogAdr)
+		{
+			if (!bInitDivider)
+			{
+				bInitDivider = true;
+				spdlog::debug("+----------------------------------------------------------------+\n");
+			}
+			pDetour->GetAdr();
+		}
 	}
 }
 void DetourAddress() // Test the sigscan results

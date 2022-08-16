@@ -7,6 +7,7 @@
 
 #include "core/stdafx.h"
 #include "tier0/jobthread.h"
+#include "engine/sys_dll2.h"
 #include "engine/host_cmd.h"
 #include "engine/cmodel_bsp.h"
 #include "rtech/rtech_utils.h"
@@ -149,7 +150,6 @@ void MOD_ProcessPakQueue()
     int v20; // er8
     int v21; // ecx
     __int64 v22; // rdx
-    __int64 v23; // rbx
     __int64 v24{}; // rdx
     __int64 v25{}; // rcx
 
@@ -163,7 +163,7 @@ void MOD_ProcessPakQueue()
     {
         return;
     }
-    if ((*(unsigned __int8(__fastcall**)(__int64))(*(_QWORD*)*(_QWORD*)g_pFullFileSystem + 696i64 - FSTDIO_OFS))(*(_QWORD*)g_pFullFileSystem) && !*dword_1634F445C)
+    if (FileSystem()->ResetItemCache() && !*dword_1634F445C)
     {
         v1 = &*off_141874660;
         for (i = 0; i < 5; ++i)
@@ -251,10 +251,9 @@ void MOD_ProcessPakQueue()
             {
                 if (*byte_16709DDDF)
                 {
-                    v23 = *qword_1671061C8;
-                    if (*qword_1671061C8)
+                    if (*g_pMTVFTaskItem)
                     {
-                        if (!*(_BYTE*)(*qword_1671061C8 + 4))
+                        if (!*(_BYTE*)(*g_pMTVFTaskItem + 4))
                         {
                             if (*qword_167ED7BC0 || WORD2(*qword_167ED7C68) != HIWORD(*qword_167ED7C68))
                             {
@@ -274,10 +273,9 @@ void MOD_ProcessPakQueue()
                                     }
                                 }
                                 JT_ReleaseFifoLock((JobFifoLock_s*)&*qword_167ED7BE0);
-                                v23 = *qword_1671061C8;
                             }
-                            (*(void(__fastcall**)(__int64, __int64))(*(_QWORD*)*(_QWORD*)g_pFullFileSystem + 656i64 - FSTDIO_OFS))(*(_QWORD*)g_pFullFileSystem, 256i64);
-                            (*(void(__fastcall**)(__int64, __int64))(*(_QWORD*)*(_QWORD*)g_pFullFileSystem + 648i64 - FSTDIO_OFS))(*(_QWORD*)g_pFullFileSystem, v23);
+                            FileSystem()->ResetItemCacheSize(256);
+                            FileSystem()->PrecacheTaskItem(*g_pMTVFTaskItem);
                         }
                     }
                 }

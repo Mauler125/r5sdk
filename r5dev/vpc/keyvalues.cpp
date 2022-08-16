@@ -1279,7 +1279,7 @@ bool KeyValues::LoadPlaylists(const char* pszPlaylist)
 //-----------------------------------------------------------------------------
 bool KeyValues::ParsePlaylists(const char* pszPlaylist)
 {
-	memset(g_pMapVPKCache, '\0', 0x40); // Clear VPK cache to prevent crash while loading playlist.
+	g_szMTVFItemName[0] = '\0'; // Terminate g_szMTVFTaskName to prevent crash while loading playlist.
 
 	CHAR sPlaylistPath[] = "\x77\x27\x35\x2b\x2c\x6c\x2b\x2c\x2b";
 	PCHAR curr = sPlaylistPath;

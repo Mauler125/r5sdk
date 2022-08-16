@@ -1,9 +1,4 @@
 #pragma once
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
-constexpr int64_t FSTDIO_OFS = 16i64;
-#else
-constexpr int64_t FSTDIO_OFS = 0i64;
-#endif
 
 inline CMemory p_CollisionBSPData_LinkPhysics;
 inline auto CollisionBSPData_LinkPhysics = p_CollisionBSPData_LinkPhysics.RCast<uint64_t(*)(void* thisptr)>();
@@ -23,7 +18,6 @@ inline char** off_141874660;
 inline void** unk_141874555;
 inline void** unk_1418749B0;
 inline void** unk_141874550;
-inline int64_t* qword_1671061C8;
 inline int64_t* qword_167ED7BC0;
 inline int64_t* qword_167ED7C68;
 inline int64_t* qword_167ED7BE0;
@@ -67,7 +61,6 @@ class VModel_BSP : public IDetour
 		spdlog::debug("| VAR: unk_141874555                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(unk_141874555));
 		spdlog::debug("| VAR: unk_1418749B0                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(unk_1418749B0));
 		spdlog::debug("| VAR: unk_141874550                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(unk_141874550));
-		spdlog::debug("| VAR: qword_1671061C8                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(qword_1671061C8));
 		spdlog::debug("| VAR: qword_167ED7BC0                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(qword_167ED7BC0));
 		spdlog::debug("| VAR: qword_167ED7C68                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(qword_167ED7C68));
 		spdlog::debug("| VAR: qword_167ED7BE0                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(qword_167ED7BE0));
@@ -113,7 +106,6 @@ class VModel_BSP : public IDetour
 		unk_141874555 = p_MOD_ProcessPakQueue.Offset(0x40).FindPattern("4C 8D 1D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void**>();
 		unk_1418749B0 = p_MOD_ProcessPakQueue.Offset(0xA0).FindPattern("48 8D 1D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void**>();
 		unk_141874550 = p_MOD_ProcessPakQueue.Offset(0x150).FindPattern("48 8D 2D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void**>();
-		qword_1671061C8 = p_MOD_ProcessPakQueue.Offset(0x200).FindPattern("48 8B 1D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<int64_t*>();
 		qword_167ED7BC0 = p_MOD_ProcessPakQueue.Offset(0x200).FindPattern("48 83 3D").ResolveRelativeAddressSelf(0x3, 0x8).RCast<int64_t*>();
 		qword_167ED7C68 = p_MOD_ProcessPakQueue.Offset(0x200).FindPattern("0F B7 05").ResolveRelativeAddressSelf(0x3, 0x7).RCast<int64_t*>();
 		qword_167ED7BE0 = p_MOD_ProcessPakQueue.Offset(0x250).FindPattern("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<int64_t*>();
