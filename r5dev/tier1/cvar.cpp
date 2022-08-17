@@ -83,6 +83,8 @@ ConVar* bhit_abs_origin = nullptr;
 //-----------------------------------------------------------------------------
 // CLIENT                                                                     |
 #ifndef DEDICATED
+ConVar* cl_rcon_request_sendlogs           = nullptr;
+
 ConVar* cl_drawconsoleoverlay              = nullptr;
 ConVar* cl_consoleoverlay_lines            = nullptr;
 ConVar* cl_consoleoverlay_invert_rect_x    = nullptr;

@@ -245,7 +245,7 @@ void CRConServer::Recv(void)
 		{//////////////////////////////////////////////
 			if (this->CheckForBan(pData))
 			{
-				this->Send(pData->m_hSocket, this->Serialize(s_pszBannedMessage, "", sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH));
+				this->Send(pData->m_hSocket, this->Serialize(s_pszBannedMessage, "", sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, 7/*NETCON_S*/));
 				this->CloseConnection();
 				continue;
 			}
@@ -304,12 +304,13 @@ std::string CRConServer::Serialize(const std::string& svRspBuf, const std::strin
 		case sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH:
 		{
 			sv_response.set_responsebuf(svRspBuf);
+			sv_response.set_responseval(svRspVal);
 			break;
 		}
 		case sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG:
 		{
 			sv_response.set_responsebuf(svRspBuf);
-			sv_response.set_responseval("");
+			sv_response.set_responseval(svRspVal);
 			break;
 		}
 		default:
@@ -352,7 +353,7 @@ void CRConServer::Authenticate(const cl_rcon::request& cl_request, CConnectedNet
 			m_pSocket->CloseListenSocket();
 
 			this->CloseNonAuthConnection();
-			this->Send(pData->m_hSocket, this->Serialize(s_pszAuthMessage, "", sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH));
+			this->Send(pData->m_hSocket, this->Serialize(s_pszAuthMessage, sv_rcon_sendlogs->GetString(), sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, 7/*NETCON_S*/));
 		}
 		else // Bad password.
 		{
@@ -362,7 +363,7 @@ void CRConServer::Authenticate(const cl_rcon::request& cl_request, CConnectedNet
 				DevMsg(eDLL_T::SERVER, "Bad RCON password attempt from '%s'\n", netAdr2.GetIPAndPort().c_str());
 			}
 
-			this->Send(pData->m_hSocket, this->Serialize(s_pszWrongPwMessage, "", sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH));
+			this->Send(pData->m_hSocket, this->Serialize(s_pszWrongPwMessage, "", sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, 7/*NETCON_S*/));
 
 			pData->m_bAuthorized = false;
 			pData->m_bValidated = false;
@@ -474,7 +475,7 @@ void CRConServer::ProcessMessage(const cl_rcon::request& cl_request)
 		&& cl_request.requesttype() != cl_rcon::request_t::SERVERDATA_REQUEST_AUTH)
 	{
 		// Notify net console that authentication is required.
-		this->Send(pData->m_hSocket, this->Serialize(s_pszNoAuthMessage, "", sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH));
+		this->Send(pData->m_hSocket, this->Serialize(s_pszNoAuthMessage, "", sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, 7/*NETCON_S*/));
 
 		pData->m_bValidated = false;
 		pData->m_nIgnoredMessage++;

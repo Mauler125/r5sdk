@@ -285,7 +285,19 @@ void CRConClient::ProcessMessage(const sv_rcon::response& sv_response) const
 	{
 	case sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH:
 	{
-		StringReplace(svOut, sDLL_T[7], "");
+		if (!sv_response.responseval().empty())
+		{
+			long i = strtol(sv_response.responseval().c_str(), NULL, NULL);
+			if (!i) // sv_rcon_sendlogs is not set.
+			{
+				if (cl_rcon_request_sendlogs->GetBool())
+				{
+					string svLogQuery = this->Serialize("", "", cl_rcon::request_t::SERVERDATA_REQUEST_SEND_CONSOLE_LOG);
+					this->Send(svLogQuery);
+				}
+			}
+		}
+
 		DevMsg(eDLL_T::NETCON, "%s", svOut.c_str());
 		break;
 	}

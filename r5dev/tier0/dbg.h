@@ -23,7 +23,7 @@ enum class eDLL_T : int
 	RTECH  = 5, // RTech API
 	MS     = 6, // Material System
 	NETCON = 7, // Net Console
-	COMMON   = 8
+	COMMON = 8
 };
 
 const string sDLL_T[9] = 

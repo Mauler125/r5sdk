@@ -105,6 +105,7 @@ void NetMsg(int context, const char* fmt, ...)
 	static std::shared_ptr<spdlog::logger> ntlogger = spdlog::get("net_con");
 	switch (context)
 	{
+	case -4:
 	case -3:
 	case -2:
 	case -1:
@@ -151,7 +152,7 @@ void NetMsg(int context, const char* fmt, ...)
 				color = ImVec4(0.59f, 0.48f, 0.53f, 1.00f);
 				break;
 			default:
-				color = ImVec4(0.59f, 0.58f, 0.63f, 1.00f);
+				color = ImVec4(0.59f, 0.59f, 0.59f, 1.00f);
 				break;
 			}
 		}
@@ -187,6 +188,8 @@ void NetMsg(int context, const char* fmt, ...)
 	case 4:
 	case 5:
 	case 6:
+	case 7:
+	case 8:
 	{
 		s_LogMutex.lock();
 		{/////////////////////////////

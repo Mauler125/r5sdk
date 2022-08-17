@@ -117,6 +117,8 @@ void ConVar::Init(void) const
 	//-------------------------------------------------------------------------
 	// CLIENT                                                                 |
 #ifndef DEDICATED
+	cl_rcon_request_sendlogs = ConVar::Create("cl_rcon_request_sendlogs", "1" , FCVAR_RELEASE, "Request the rcon server to send console logs on connect.", false, 0.f, false, 0.f, nullptr, nullptr);
+
 	cl_drawconsoleoverlay           = ConVar::Create("cl_drawconsoleoverlay"          , "0" , FCVAR_DEVELOPMENTONLY, "Draws the RUI console overlay at the top of the screen.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_consoleoverlay_lines         = ConVar::Create("cl_consoleoverlay_lines"        , "3" , FCVAR_DEVELOPMENTONLY, "Number of lines of console output to draw.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_consoleoverlay_invert_rect_x = ConVar::Create("cl_consoleoverlay_invert_rect_x", "0" , FCVAR_DEVELOPMENTONLY, "Inverts the X rect for RUI console overlay.", false, 0.f, false, 0.f, nullptr, nullptr);

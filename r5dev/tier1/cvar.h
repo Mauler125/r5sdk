@@ -78,6 +78,8 @@ extern ConVar* bhit_abs_origin;
 //-------------------------------------------------------------------------
 // CLIENT                                                                 |
 #ifndef DEDICATED
+extern ConVar* cl_rcon_request_sendlogs;
+
 extern ConVar* cl_drawconsoleoverlay;
 extern ConVar* cl_consoleoverlay_lines;
 extern ConVar* cl_consoleoverlay_invert_rect_x;

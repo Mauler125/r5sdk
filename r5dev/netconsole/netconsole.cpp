@@ -398,6 +398,18 @@ void CNetCon::ProcessMessage(const sv_rcon::response& sv_response) const
 	switch (sv_response.responsetype())
 	{
 	case sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH:
+	{
+		if (!sv_response.responseval().empty())
+		{
+			long i = strtol(sv_response.responseval().c_str(), NULL, NULL);
+			if (!i) // sv_rcon_sendlogs is not set.
+			{
+				string svLogQuery = this->Serialize("", "", cl_rcon::request_t::SERVERDATA_REQUEST_SEND_CONSOLE_LOG);
+				this->Send(svLogQuery);
+			}
+		}
+		[[fallthrough]];
+	}
 	case sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG:
 	{
 		std::string svOut = sv_response.responsebuf();
