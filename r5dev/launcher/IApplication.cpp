@@ -67,12 +67,11 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 		g_pConsole->m_vsvCommandBases.push_back(
 			CSuggest(map.first, map.second->GetFlags()));
 	}
+#endif // !DEDICATED
 	if (CommandLine()->CheckParm("-devsdk"))
 	{
 		cv->EnableDevCvars();
 	}
-
-#endif // !DEDICATED
 	if (pModAppSystemGroup->IsServerOnly())
 	{
 		memset(gHLClient, '\0', sizeof(void*));
