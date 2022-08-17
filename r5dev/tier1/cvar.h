@@ -64,6 +64,7 @@ extern ConVar* sv_statusRefreshInterval;
 
 #ifdef DEDICATED
 extern ConVar* sv_rcon_debug;
+extern ConVar* sv_rcon_sendlogs;
 extern ConVar* sv_rcon_banpenalty;
 extern ConVar* sv_rcon_maxfailures;
 extern ConVar* sv_rcon_maxignores;

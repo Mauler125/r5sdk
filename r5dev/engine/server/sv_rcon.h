@@ -7,7 +7,7 @@
 constexpr char s_pszNoAuthMessage[]  = "This server is password protected for console access. Authenticate with 'PASS <password>' command.\n";
 constexpr char s_pszWrongPwMessage[] = "Admin password incorrect.\n";
 constexpr char s_pszBannedMessage[]  = "Go away.\n";
-constexpr char s_pszAuthMessage[]    = "RCON authentication successfull.\n";
+constexpr char s_pszAuthMessage[]    = "Authentication successfull.\n";
 
 class CRConServer
 {
@@ -24,9 +24,11 @@ public:
 
 	void Send(const std::string& svMessage) const;
 	void Send(SocketHandle_t hSocket, const std::string& svMessage) const;
+	void Send(const std::string& svRspBuf, const std::string& svRspVal, sv_rcon::response_t responseType, int nResponseId = -4);
+	void Send(SocketHandle_t hSocket, const std::string& svRspBuf, const std::string& svRspVal, sv_rcon::response_t responseType, int nResponseId = -4);
 	void Recv(void);
 
-	std::string Serialize(const std::string& svRspBuf, const std::string& svRspVal, sv_rcon::response_t response_t, int nResponseId = -4) const;
+	std::string Serialize(const std::string& svRspBuf, const std::string& svRspVal, sv_rcon::response_t responseType, int nResponseId = -4) const;
 	cl_rcon::request Deserialize(const std::string& svBuf) const;
 
 	void Authenticate(const cl_rcon::request& cl_request, CConnectedNetConsoleData* pData);

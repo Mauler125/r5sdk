@@ -68,6 +68,7 @@ ConVar* sv_statusRefreshInterval           = nullptr;
 
 #ifdef DEDICATED
 ConVar* sv_rcon_debug                      = nullptr;
+ConVar* sv_rcon_sendlogs                   = nullptr;
 ConVar* sv_rcon_banpenalty                 = nullptr; // TODO
 ConVar* sv_rcon_maxfailures                = nullptr;
 ConVar* sv_rcon_maxignores                 = nullptr;

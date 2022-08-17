@@ -193,6 +193,45 @@ void CRConServer::Send(SocketHandle_t hSocket, const std::string& svMessage) con
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: send serialized message to all connected sockets
+// Input  : *svRspBuf - 
+//			*svRspVal - 
+//			responseType - 
+//			nResponseId - 
+//-----------------------------------------------------------------------------
+void CRConServer::Send(const std::string& svRspBuf, const std::string& svRspVal, sv_rcon::response_t responseType, int nResponseId)
+{
+	if (responseType == sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG)
+	{
+		if (!sv_rcon_sendlogs->GetBool())
+		{
+			return;
+		}
+	}
+	this->Send(this->Serialize(svRspBuf, svRspVal, responseType, nResponseId));
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: send serialized message to specific connected socket
+// Input  : hSocket - 
+//			*svRspBuf - 
+//			*svRspVal - 
+//			responseType - 
+//			nResponseId - 
+//-----------------------------------------------------------------------------
+void CRConServer::Send(SocketHandle_t hSocket, const std::string& svRspBuf, const std::string& svRspVal, sv_rcon::response_t responseType, int nResponseId)
+{
+	if (responseType == sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG)
+	{
+		if (!sv_rcon_sendlogs->GetBool())
+		{
+			return;
+		}
+	}
+	this->Send(hSocket, this->Serialize(svRspBuf, svRspVal, responseType, nResponseId));
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: receive message
 //-----------------------------------------------------------------------------
 void CRConServer::Recv(void)
@@ -250,17 +289,17 @@ void CRConServer::Recv(void)
 // Purpose: serializes input
 // Input  : *svRspBuf - 
 //			*svRspVal - 
-//			response_t - 
+//			responseType - 
 // Output : serialized results as string
 //-----------------------------------------------------------------------------
-std::string CRConServer::Serialize(const std::string& svRspBuf, const std::string& svRspVal, sv_rcon::response_t response_t, int nResponseId) const
+std::string CRConServer::Serialize(const std::string& svRspBuf, const std::string& svRspVal, sv_rcon::response_t responseType, int nResponseId) const
 {
 	sv_rcon::response sv_response;
 
 	sv_response.set_responseid(nResponseId);
-	sv_response.set_responsetype(response_t);
+	sv_response.set_responsetype(responseType);
 
-	switch (response_t)
+	switch (responseType)
 	{
 		case sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH:
 		{
@@ -334,7 +373,7 @@ void CRConServer::Authenticate(const cl_rcon::request& cl_request, CConnectedNet
 
 //-----------------------------------------------------------------------------
 // Purpose: sha256 hashed password comparison
-// Input  : *svCompare - 
+// Input  : svCompare - 
 // Output : true if matches, false otherwise
 //-----------------------------------------------------------------------------
 bool CRConServer::Comparator(std::string svPassword) const
@@ -347,7 +386,7 @@ bool CRConServer::Comparator(std::string svPassword) const
 		DevMsg(eDLL_T::SERVER, "] Client: '%s'[\n", svPassword.c_str());
 		DevMsg(eDLL_T::SERVER, "+---------------------------------------------------------------------------+\n");
 	}
-	if (memcmp(svPassword.c_str(), m_svPasswordHash.c_str(), SHA256::DIGEST_SIZE) == 0)
+	if (std::memcmp(svPassword.data(), m_svPasswordHash.data(), SHA256::DIGEST_SIZE) == 0)
 	{
 		return true;
 	}
@@ -468,7 +507,7 @@ void CRConServer::ProcessMessage(const cl_rcon::request& cl_request)
 		{
 			if (pData->m_bAuthorized)
 			{
-				// TODO: Send conlog to true.
+				sv_rcon_sendlogs->SetValue(true);
 			}
 			break;
 		}
