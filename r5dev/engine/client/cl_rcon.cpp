@@ -303,7 +303,7 @@ void CRConClient::ProcessMessage(const sv_rcon::response& sv_response) const
 	}
 	case sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG:
 	{
-		NetMsg(sv_response.responseid(), svOut.c_str());
+		NetMsg(static_cast<EGlobalContext_t>(sv_response.responseid()), svOut.c_str());
 		break;
 	}
 	default:

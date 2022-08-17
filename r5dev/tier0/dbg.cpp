@@ -94,7 +94,7 @@ PLATFORM_INTERFACE void AssertValidWStringPtr(const wchar_t* ptr, int maxchar/* 
 // Input  : context - 
 //			*fmt - ... - 
 //-----------------------------------------------------------------------------
-void NetMsg(int context, const char* fmt, ...)
+void NetMsg(EGlobalContext_t context, const char* fmt, ...)
 {
 #ifndef DEDICATED
 	static char szBuf[4096] = {};
@@ -105,10 +105,10 @@ void NetMsg(int context, const char* fmt, ...)
 	static std::shared_ptr<spdlog::logger> ntlogger = spdlog::get("net_con");
 	switch (context)
 	{
-	case -4:
-	case -3:
-	case -2:
-	case -1:
+	case EGlobalContext_t::GLOBAL_NONE:
+	case EGlobalContext_t::SCRIPT_SERVER:
+	case EGlobalContext_t::SCRIPT_CLIENT:
+	case EGlobalContext_t::SCRIPT_UI:
 	{
 		s_LogMutex.lock();
 		{/////////////////////////////
@@ -131,24 +131,24 @@ void NetMsg(int context, const char* fmt, ...)
 		if (svOut.find("\033[38;2;255;255;000m") != std::string::npos)
 		{ // Warning.
 			color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f);
-			context = static_cast<int>(LogType_t::WARNING_C);
+			context = EGlobalContext_t::WARNING_C;
 		}
 		else if (svOut.find("\033[38;2;255;000;000m") != std::string::npos)
 		{ // Error.
 			color = ImVec4(1.00f, 0.00f, 0.00f, 0.80f);
-			context = static_cast<int>(LogType_t::ERROR_C);
+			context = EGlobalContext_t::ERROR_C;
 		}
 		else
 		{
 			switch (context)
 			{
-			case -3: // [ SERVER ]
+			case EGlobalContext_t::SCRIPT_SERVER: // [ SERVER ]
 				color = ImVec4(0.59f, 0.58f, 0.73f, 1.00f);
 				break;
-			case -2: // [ CLIENT ]
+			case EGlobalContext_t::SCRIPT_CLIENT: // [ CLIENT ]
 				color = ImVec4(0.59f, 0.58f, 0.63f, 1.00f);
 				break;
-			case -1: // [   UI   ]
+			case EGlobalContext_t::SCRIPT_UI:     // [   UI   ]
 				color = ImVec4(0.59f, 0.48f, 0.53f, 1.00f);
 				break;
 			default:
@@ -172,7 +172,7 @@ void NetMsg(int context, const char* fmt, ...)
 		iconsole->debug(svOut);
 
 		g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), color));
-		g_pLogSystem.AddLog(static_cast<LogType_t>(context), g_spd_sys_w_oss.str());
+		g_pLogSystem.AddLog(static_cast<EGlobalContext_t>(context), g_spd_sys_w_oss.str());
 
 		g_spd_sys_w_oss.str("");
 		g_spd_sys_w_oss.clear();
@@ -181,15 +181,15 @@ void NetMsg(int context, const char* fmt, ...)
 
 		break;
 	}
-	case 0:
-	case 1:
-	case 2:
-	case 3:
-	case 4:
-	case 5:
-	case 6:
-	case 7:
-	case 8:
+	case EGlobalContext_t::NATIVE_SERVER:
+	case EGlobalContext_t::NATIVE_CLIENT:
+	case EGlobalContext_t::NATIVE_UI:
+	case EGlobalContext_t::NATIVE_ENGINE:
+	case EGlobalContext_t::NATIVE_FS:
+	case EGlobalContext_t::NATIVE_RTECH:
+	case EGlobalContext_t::NATIVE_MS:
+	case EGlobalContext_t::NETCON_S:
+	case EGlobalContext_t::COMMON_C:
 	{
 		s_LogMutex.lock();
 		{/////////////////////////////
@@ -212,12 +212,12 @@ void NetMsg(int context, const char* fmt, ...)
 		if (svOut.find("\033[38;2;255;255;000;") != std::string::npos)
 		{ // Warning.
 			color = ImVec4(1.00f, 1.00f, 0.00f, 0.80f);
-			context = static_cast<int>(LogType_t::WARNING_C);
+			context = EGlobalContext_t::WARNING_C;
 		}
 		else if (svOut.find("\033[38;2;255;000;000;") != std::string::npos)
 		{ // Error.
 			color = ImVec4(1.00f, 0.00f, 0.00f, 0.80f);
-			context = static_cast<int>(LogType_t::ERROR_C);
+			context = EGlobalContext_t::ERROR_C;
 		}
 		else
 		{
@@ -271,7 +271,7 @@ void NetMsg(int context, const char* fmt, ...)
 		iconsole->info(svOut);
 
 		g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), color));
-		g_pLogSystem.AddLog(static_cast<LogType_t>(context), g_spd_sys_w_oss.str());
+		g_pLogSystem.AddLog(context, g_spd_sys_w_oss.str());
 
 		g_spd_sys_w_oss.str("");
 		g_spd_sys_w_oss.clear();
@@ -349,7 +349,7 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 #ifndef DEDICATED
 	iconsole->info(svOut);
 
-	LogType_t tLog = static_cast<LogType_t>(context);
+	EGlobalContext_t tLog = static_cast<EGlobalContext_t>(context);
 	ImVec4 color;
 
 	switch (context)
@@ -464,7 +464,7 @@ void Warning(eDLL_T context, const char* fmt, ...)
 	iconsole->info(svOut);
 
 	g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), ImVec4(1.00f, 1.00f, 0.00f, 0.80f)));
-	g_pLogSystem.AddLog(LogType_t::WARNING_C, g_spd_sys_w_oss.str());
+	g_pLogSystem.AddLog(EGlobalContext_t::WARNING_C, g_spd_sys_w_oss.str());
 
 	g_spd_sys_w_oss.str("");
 	g_spd_sys_w_oss.clear();
@@ -541,7 +541,7 @@ void Error(eDLL_T context, const char* fmt, ...)
 	iconsole->info(svOut);
 
 	g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), ImVec4(1.00f, 0.00f, 0.00f, 1.00f)));
-	g_pLogSystem.AddLog(LogType_t::ERROR_C, g_spd_sys_w_oss.str());
+	g_pLogSystem.AddLog(EGlobalContext_t::ERROR_C, g_spd_sys_w_oss.str());
 
 	g_spd_sys_w_oss.str("");
 	g_spd_sys_w_oss.clear();

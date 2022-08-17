@@ -61,11 +61,11 @@ void CLogSystem::Update(void)
 //-----------------------------------------------------------------------------
 // Purpose: add a log to the vector.
 //-----------------------------------------------------------------------------
-void CLogSystem::AddLog(LogType_t type, string svMessage)
+void CLogSystem::AddLog(const EGlobalContext_t context, const string& svText)
 {
-	if (svMessage.length() > 0)
+	if (svText.length() > 0)
 	{
-		m_vLogs.push_back(LogMsg_t{ svMessage, 1024, type });
+		m_vLogs.push_back(LogMsg_t{ svText, 1024, context });
 	}
 }
 
@@ -230,37 +230,37 @@ void CLogSystem::DrawStreamOverlay(void) const
 //-----------------------------------------------------------------------------
 // Purpose: get log color for passed type.
 //-----------------------------------------------------------------------------
-Color CLogSystem::GetLogColorForType(LogType_t type) const
+Color CLogSystem::GetLogColorForType(const EGlobalContext_t context) const
 {
-	switch (type)
+	switch (context)
 	{
-	case LogType_t::SCRIPT_SERVER:
+	case EGlobalContext_t::SCRIPT_SERVER:
 		return { cl_conoverlay_script_server_clr->GetColor() };
-	case LogType_t::SCRIPT_CLIENT:
+	case EGlobalContext_t::SCRIPT_CLIENT:
 		return { cl_conoverlay_script_client_clr->GetColor() };
-	case LogType_t::SCRIPT_UI:
+	case EGlobalContext_t::SCRIPT_UI:
 		return { cl_conoverlay_script_ui_clr->GetColor() };
-	case LogType_t::NATIVE_SERVER:
+	case EGlobalContext_t::NATIVE_SERVER:
 		return { cl_conoverlay_native_server_clr->GetColor() };
-	case LogType_t::NATIVE_CLIENT:
+	case EGlobalContext_t::NATIVE_CLIENT:
 		return { cl_conoverlay_native_client_clr->GetColor() };
-	case LogType_t::NATIVE_UI:
+	case EGlobalContext_t::NATIVE_UI:
 		return { cl_conoverlay_native_ui_clr->GetColor() };
-	case LogType_t::NATIVE_ENGINE:
+	case EGlobalContext_t::NATIVE_ENGINE:
 		return { cl_conoverlay_native_engine_clr->GetColor() };
-	case LogType_t::NATIVE_FS:
+	case EGlobalContext_t::NATIVE_FS:
 		return { cl_conoverlay_native_fs_clr->GetColor() };
-	case LogType_t::NATIVE_RTECH:
+	case EGlobalContext_t::NATIVE_RTECH:
 		return { cl_conoverlay_native_rtech_clr->GetColor() };
-	case LogType_t::NATIVE_MS:
+	case EGlobalContext_t::NATIVE_MS:
 		return { cl_conoverlay_native_ms_clr->GetColor() };
-	case LogType_t::NETCON_S:
+	case EGlobalContext_t::NETCON_S:
 		return { cl_conoverlay_netcon_clr->GetColor() };
-	case LogType_t::COMMON_C:
+	case EGlobalContext_t::COMMON_C:
 		return { cl_conoverlay_common_clr->GetColor() };
-	case LogType_t::WARNING_C:
+	case EGlobalContext_t::WARNING_C:
 		return { cl_conoverlay_warning_clr->GetColor() };
-	case LogType_t::ERROR_C:
+	case EGlobalContext_t::ERROR_C:
 		return { cl_conoverlay_error_clr->GetColor() };
 	default:
 		return { cl_conoverlay_native_engine_clr->GetColor() };

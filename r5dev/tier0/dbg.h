@@ -13,6 +13,26 @@
 
 bool HushAsserts();
 //-----------------------------------------------------------------------------
+enum class EGlobalContext_t : int
+{
+	GLOBAL_NONE = -4,
+	SCRIPT_SERVER,
+	SCRIPT_CLIENT,
+	SCRIPT_UI,
+	NATIVE_SERVER,
+	NATIVE_CLIENT,
+	NATIVE_UI,
+	NATIVE_ENGINE,
+	NATIVE_FS,
+	NATIVE_RTECH,
+	NATIVE_MS,
+	NETCON_S,
+	COMMON_C,
+	WARNING_C,
+	ERROR_C,
+	NONE
+};
+
 enum class eDLL_T : int
 {
 	SERVER = 0, // Game DLL
@@ -58,7 +78,7 @@ extern std::mutex s_LogMutex;
 //////////////////////////////////////////////////////////////////////////
 
 // These functions do not return.
-PLATFORM_INTERFACE void NetMsg(int context, const char* fmt, ...) FMTFUNCTION(2, 3);
+PLATFORM_INTERFACE void NetMsg(EGlobalContext_t context, const char* fmt, ...) FMTFUNCTION(2, 3);
 PLATFORM_INTERFACE void DevMsg(eDLL_T context, const char* fmt, ...) FMTFUNCTION(2, 3);
 PLATFORM_INTERFACE void Warning(eDLL_T context, const char* fmt, ...) FMTFUNCTION(1, 2);
 PLATFORM_INTERFACE void Error(eDLL_T context, const char* fmt, ...) FMTFUNCTION(1, 2);
