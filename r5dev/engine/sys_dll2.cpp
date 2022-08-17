@@ -11,7 +11,9 @@
 #include "tier1/strtools.h"
 #include "engine/sys_dll.h"
 #include "engine/sys_dll2.h"
+#ifndef DEDICATED
 #include "client/vengineclient_impl.h"
+#endif // !DEDICATED
 
 //-----------------------------------------------------------------------------
 // Figure out if we're running a Valve mod or not.
@@ -31,8 +33,7 @@ static bool IsValveMod(const char* pModName)
 //-----------------------------------------------------------------------------
 static bool IsRespawnMod(const char* pModName)
 {
-	return (Q_stricmp(pModName, "platform") == 0 ||
-		Q_stricmp(pModName, "r1") == 0 ||
+	return (Q_stricmp(pModName, "r1") == 0 ||
 		Q_stricmp(pModName, "r2") == 0 ||
 		Q_stricmp(pModName, "r5") == 0);
 }
@@ -48,9 +49,12 @@ bool CEngineAPI::ModInit(CEngineAPI* pEngineAPI, const char* pModName, const cha
 	g_pConVar->PurgeShipped();
 
 	bool results = CEngineAPI_ModInit(pEngineAPI, pModName, pGameDir);
-	if (!IsValveMod(pModName) && IsRespawnMod(pModName))
+	if (!IsValveMod(pModName) && !IsRespawnMod(pModName))
 	{
-		g_pEngineClient->SetRestrictServerCommands(true); // Restrict commands.
+#ifndef DEDICATED
+		g_pEngineClient->SetRestrictServerCommands(true); // Restrict server commands.
+		g_pEngineClient->SetRestrictClientCommands(true); // Restrict client commands.
+#endif // !DEDICATED
 
 		ConCommandBase* disconnect = g_pCVar->FindCommandBase("disconnect");
 		disconnect->AddFlags(FCVAR_SERVER_CAN_EXECUTE); // Make sure server is not restricted to this.

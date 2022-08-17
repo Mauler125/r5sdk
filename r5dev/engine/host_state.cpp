@@ -38,8 +38,8 @@
 #include "rtech/stryder/stryder.h"
 #ifndef DEDICATED
 #include "vgui/vgui_baseui_interface.h"
-#endif // DEDICATED
 #include "client/vengineclient_impl.h"
+#endif // DEDICATED
 #include "networksystem/pylon.h"
 #include "networksystem/bansystem.h"
 #include "public/edict.h"

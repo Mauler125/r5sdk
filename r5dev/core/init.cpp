@@ -46,9 +46,9 @@
 #include "vgui/vgui_debugpanel.h"
 #include "vgui/vgui_fpspanel.h"
 #include "vguimatsurface/MatSystemSurface.h"
+#include "client/vengineclient_impl.h"
 #endif // !DEDICATED
 #include "client/cdll_engine_int.h"
-#include "client/vengineclient_impl.h"
 #ifndef CLIENT_DLL
 #include "engine/server/server.h"
 #include "server/persistence.h"

@@ -828,9 +828,6 @@
     <ClInclude Include="..\tier1\bitbuf.h">
       <Filter>sdk\tier1</Filter>
     </ClInclude>
-    <ClInclude Include="..\client\vengineclient_impl.h">
-      <Filter>sdk\client</Filter>
-    </ClInclude>
     <ClInclude Include="..\filesystem\basefilesystem.h">
       <Filter>sdk\filesystem</Filter>
     </ClInclude>
@@ -1396,9 +1393,6 @@
     </ClCompile>
     <ClCompile Include="..\tier1\bitbuf.cpp">
       <Filter>sdk\tier1</Filter>
-    </ClCompile>
-    <ClCompile Include="..\client\vengineclient_impl.cpp">
-      <Filter>sdk\client</Filter>
     </ClCompile>
     <ClCompile Include="..\game\server\ai_network.cpp">
       <Filter>sdk\game\server</Filter>
