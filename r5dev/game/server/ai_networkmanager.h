@@ -22,7 +22,6 @@ inline auto CAI_NetworkManager__LoadNetworkGraph = p_CAI_NetworkManager__LoadNet
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 inline CMemory p_CAI_NetworkManager__LoadNetworkGraph = nullptr;
 inline auto CAI_NetworkManager__LoadNetworkGraph = p_CAI_NetworkManager__LoadNetworkGraph.RCast<void* (*)(void* thisptr, void* pBuffer, const char* pszFileName)>();
-
 #endif
 /* ==== CAI_NETWORKBUILDER ============================================================================================================================================== */
 inline CMemory p_CAI_NetworkBuilder__Build;
@@ -68,7 +67,7 @@ class VAI_NetworkManager : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CAI_NetworkManager::LoadNetworkGraph : {:#18x} |\n", p_CAI_NetworkManager__ShouldRebuild.GetPtr());
+		spdlog::debug("| FUN: CAI_NetworkManager::LoadNetworkGraph : {:#18x} |\n", p_CAI_NetworkManager__LoadNetworkGraph.GetPtr());
 		spdlog::debug("| FUN: CAI_NetworkManager::ShouldRebuild    : {:#18x} |\n", p_CAI_NetworkManager__ShouldRebuild.GetPtr());
 		spdlog::debug("| FUN: CAI_NetworkBuilder::Build            : {:#18x} |\n", p_CAI_NetworkBuilder__Build.GetPtr()        );
 		spdlog::debug("| VAR: g_nAiNodeClusters                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_nAiNodeClusters      ));

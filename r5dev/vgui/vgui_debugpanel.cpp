@@ -154,7 +154,7 @@ void CLogSystem::DrawSimStats(void) const
 		g_pClientState->GetTick(), *render_tickcount);
 #else
 	snprintf((char*)szLogbuf, 4096, "Server Frame: (%d) Client Frame: (%d) Render Frame: (%d)\n",
-		g_pServer->GetTick(), g_pClientState->GetTick(), *render_tickcount);
+		g_pServer->GetTick(), g_pClientState->GetTick(), *g_nRenderTickCount);
 #endif
 
 	if (cl_simstats_invert_rect_x->GetBool())
@@ -180,7 +180,7 @@ void CLogSystem::DrawGPUStats(void) const
 	static Color c = { 255, 255, 255, 255 };
 	static const char* szLogbuf[4096]{};
 	snprintf((char*)szLogbuf, 4096, "%8d/%8d/%8dkiB unusable/unfree/total GPU Streaming Texture memory\n", 
-	*unusable_streaming_tex_memory / 1024, *unfree_streaming_tex_memory / 1024, *unusable_streaming_tex_memory / 1024);
+	*g_nUnusableStreamingTextureMemory / 1024, *g_nUnfreeStreamingTextureMemory / 1024, *g_nUnusableStreamingTextureMemory / 1024);
 
 	if (cl_gpustats_invert_rect_x->GetBool())
 	{

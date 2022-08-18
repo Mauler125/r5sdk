@@ -45,7 +45,6 @@ inline CMemory Sys_InitGame;
 //-------------------------------------------------------------------------
 // RUNTIME: HOST_INIT
 //-------------------------------------------------------------------------
-inline CMemory gHost_Init_0;// main Host_Init()?
 inline CMemory gHost_Init_1; // server Host_Init()?
 inline CMemory gHost_Init_2; // client Host_Init()?
 
@@ -113,7 +112,6 @@ class VOpcodes : public IDetour
 		spdlog::debug("+----------------------------------------------------------------+\n");
 		spdlog::debug("| FUN: Sys_InitGame                         : {:#18x} |\n", Sys_InitGame.GetPtr());
 		spdlog::debug("+----------------------------------------------------------------+\n");
-		spdlog::debug("| FUN: Host_Init_0                          : {:#18x} |\n", gHost_Init_0.GetPtr());
 		spdlog::debug("| FUN: Host_Init_1                          : {:#18x} |\n", gHost_Init_1.GetPtr());
 		spdlog::debug("| FUN: Host_Init_2                          : {:#18x} |\n", gHost_Init_2.GetPtr());
 		spdlog::debug("| FUN: Host_Disconnect                      : {:#18x} |\n", Host_Disconnect.GetPtr());
@@ -186,9 +184,6 @@ class VOpcodes : public IDetour
 		// 0x1402958D0 // 48 89 5C 24 ? 57 48 81 EC ? ? ? ? 80 3D ? ? ? ? ? 41 8B D8 //
 
 		//-------------------------------------------------------------------------
-		gHost_Init_0 = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\xB8\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x2B\xE0\x48\x8B\xD9"), "xxxx?xxxx?xxxx?xxxxxxxxxxxxx????x????x????xxxxxx"); // main Host_Init()?
-		// 0x140236E40 // 48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 55 41 54 41 55 41 56 41 57 48 8D AC 24 ? ? ? ? B8 ? ? ? ? E8 ? ? ? ? 48 2B E0 48 8B D9 //
-
 		gHost_Init_1 = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x41\x56\x48\x81\xEC\x00\x00\x00\x00\x45\x33\xF6"), "xxxxxxxx????xxx"); // server Host_Init()?
 		// 0x140237B00 // 48 8B C4 41 56 48 81 EC ? ? ? ? 45 33 F6 //
 

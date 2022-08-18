@@ -5,6 +5,7 @@
 //===========================================================================//
 #include "core/stdafx.h"
 #include "tier1/cvar.h"
+#include "rtech/rtech_utils.h"
 #include "materialsystem/cmaterialsystem.h"
 
 //---------------------------------------------------------------------------------

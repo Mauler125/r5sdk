@@ -500,7 +500,7 @@ uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, uint64_t i
 	return result;
 }
 
-#if not defined DEDICATED && defined (GAMEDLL_S3)
+#if not defined DEDICATED
 
 #pragma warning( push )
 // Disable stack warning, tells us to move more data to the heap instead. Not really possible with 'initialData' here. Since its parallel processed.
@@ -690,9 +690,9 @@ void RTech_Utils_Attach()
 {
 	//DetourAttach((LPVOID*)&RTech_OpenFile, &RTech::OpenFile); // !FIXME: Loading override rpaks doesn't work with this, disabled for now.
 
-#if not defined DEDICATED && defined (GAMEDLL_S3)
+#if not defined DEDICATED && defined GAMEDLL_S3
 	DetourAttach((LPVOID*)&RTech_CreateDXTexture, &RTech::CreateDXTexture);
-#endif
+#endif // !DEDICATED
 }
 
 void RTech_Utils_Detach()
@@ -700,9 +700,9 @@ void RTech_Utils_Detach()
 	// [ PIXIE ]: Everything related to RTech::OpenFile should be compatible across seasons.
 	//DetourDetach((LPVOID*)&RTech_OpenFile, &RTech::OpenFile);
 
-#if not defined DEDICATED && defined (GAMEDLL_S3)
+#if not defined DEDICATED && defined GAMEDLL_S3
 	DetourDetach((LPVOID*)&RTech_CreateDXTexture, &RTech::CreateDXTexture);
-#endif
+#endif // !DEDICATED
 }
 
 ///////////////////////////////////////////////////////////////////////////////

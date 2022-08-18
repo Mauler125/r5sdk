@@ -50,13 +50,13 @@ bool OverlayBase_t::IsDead() const
         }
         else
         {
-            return m_nOverlayTick < *overlay_tickcount;
+            return m_nOverlayTick < *g_nOverlayTickCount;
         }
         return false;
     }
     else
     {
-        return m_nCreationTick < *render_tickcount;
+        return m_nCreationTick < *g_nRenderTickCount;
     }
     return g_pClientState->GetClientTime() >= m_flEndTime;
 }
@@ -288,7 +288,7 @@ void DrawAllOverlays(bool bDraw)
             bool bDraw{ };
             if (pCurrOverlay->m_nCreationTick == -1)
             {
-                if (pCurrOverlay->m_nOverlayTick == *overlay_tickcount)
+                if (pCurrOverlay->m_nOverlayTick == *g_nOverlayTickCount)
                 {
                     // Draw overlay if unk0 == *overlay_tickcount
                     bDraw = true;
@@ -301,7 +301,7 @@ void DrawAllOverlays(bool bDraw)
             }
             else
             {
-                bDraw = pCurrOverlay->m_nCreationTick == *render_tickcount;
+                bDraw = pCurrOverlay->m_nCreationTick == *g_nRenderTickCount;
             }
             if (bDraw)
             {

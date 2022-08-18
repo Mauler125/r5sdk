@@ -10,8 +10,6 @@ public:
 	static void Warning(CBaseFileSystem* pFileSystem, FileWarningLevel_t level, const char* fmt, ...);
 	static FileHandle_t VReadFromVPK(CBaseFileSystem* pVpk, FileHandle_t pResults, char* pszFilePath);
 	static bool VReadFromCache(CBaseFileSystem* pFileSystem, char* pszFilePath, void* pResults);
-	static void VAddSearchPath(CBaseFileSystem* pFileSystem, const char* pPath, const char* pPathID, SearchPathAdd_t addType);
-	static bool VRemoveSearchPath(CBaseFileSystem* pFileSystem, const char* pPath, const char* pPathID);
 
 protected:
 	//----------------------------------------------------------------------------
@@ -48,12 +46,6 @@ inline auto CBaseFileSystem_VLoadFromVPK = p_CBaseFileSystem_LoadFromVPK.RCast<F
 inline CMemory p_CBaseFileSystem_LoadFromCache;
 inline auto CBaseFileSystem_VLoadFromCache = p_CBaseFileSystem_LoadFromCache.RCast<bool(*)(CBaseFileSystem* thisptr, char* pszAssetName, void* pResults)>();
 
-inline CMemory p_CBaseFileSystem_AddSearchPath;
-inline auto CBaseFileSystem_VAddSearchPath = p_CBaseFileSystem_AddSearchPath.RCast<void(*)(CBaseFileSystem* thisptr, const char* pPath, const char* pPathID, SearchPathAdd_t addType)>();
-
-inline CMemory p_CBaseFileSystem_RemoveSearchPath;
-inline auto CBaseFileSystem_VRemoveSearchPath = p_CBaseFileSystem_RemoveSearchPath.RCast<bool(*)(CBaseFileSystem* thisptr, const char* pPath, const char* pPathID)>();
-
 extern CBaseFileSystem* g_pFileSystem;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -68,8 +60,6 @@ class VBaseFileSystem : public IDetour
 		spdlog::debug("| FUN: CBaseFileSystem::Warning             : {:#18x} |\n", p_CBaseFileSystem_Warning.GetPtr());
 		spdlog::debug("| FUN: CBaseFileSystem::LoadFromVPK         : {:#18x} |\n", p_CBaseFileSystem_LoadFromVPK.GetPtr());
 		spdlog::debug("| FUN: CBaseFileSystem::LoadFromCache       : {:#18x} |\n", p_CBaseFileSystem_LoadFromCache.GetPtr());
-		spdlog::debug("| FUN: CBaseFileSystem::AddSearchPath       : {:#18x} |\n", p_CBaseFileSystem_AddSearchPath.GetPtr());
-		spdlog::debug("| FUN: CBaseFileSystem::RemoveSearchPath    : {:#18x} |\n", p_CBaseFileSystem_RemoveSearchPath.GetPtr());
 		spdlog::debug("| VAR: g_pFileSystem                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pFileSystem));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
@@ -78,14 +68,10 @@ class VBaseFileSystem : public IDetour
 		p_CBaseFileSystem_Warning          = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x89\x4C\x24\x20\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x48"), "xxxxxx??????????x");
 		p_CBaseFileSystem_LoadFromVPK      = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x49\x8B\xC0\x4C\x8D\x8C\x24\x00\x00\x00\x00"), "xxxx?xxxx????xxxxxxx????");
 		p_CBaseFileSystem_LoadFromCache    = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x81\xEC\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x49\x8B\xD8"), "xxxxx????xx?????xxx");
-		p_CBaseFileSystem_AddSearchPath    = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x44\x89\x4C\x24\x00\x48\x89\x4C\x24\x00\x55\x57"), "xxxx?xxxx?xx");
-		p_CBaseFileSystem_RemoveSearchPath = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x55\x56\x57\x41\x54\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\xC6\x44\x24\x00\x00"), "xxxxxxxxxxxxxx????xxx??");
 
 		CBaseFileSystem_Warning           = p_CBaseFileSystem_Warning.RCast<void(*)(CBaseFileSystem*, FileWarningLevel_t, const char*, ...)>();            /*4C 89 4C 24 20 C3 ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 48*/
 		CBaseFileSystem_VLoadFromVPK      = p_CBaseFileSystem_LoadFromVPK.RCast<FileHandle_t(*)(CBaseFileSystem*, FileHandle_t, char*)>();                 /*48 89 5C 24 ?? 57 48 81 EC ?? ?? ?? ?? 49 8B C0 4C 8D 8C 24 ?? ?? ?? ??*/
 		CBaseFileSystem_VLoadFromCache    = p_CBaseFileSystem_LoadFromCache.RCast<bool(*)(CBaseFileSystem*, char*, void*)>();                              /*40 53 48 81 EC ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 49 8B D8*/
-		CBaseFileSystem_VAddSearchPath    = p_CBaseFileSystem_AddSearchPath.RCast<void(*)(CBaseFileSystem*, const char*, const char*, SearchPathAdd_t)>(); /*44 89 4C 24 ?? 48 89 4C 24 ?? 55 57*/
-		CBaseFileSystem_VRemoveSearchPath = p_CBaseFileSystem_RemoveSearchPath.RCast<bool(*)(CBaseFileSystem*, const char*, const char*)>();               /*40 53 55 56 57 41 54 41 56 41 57 48 81 EC ?? ?? ?? ?? C6 44 24 ?? ??*/
 	}
 	virtual void GetVar(void) const
 	{

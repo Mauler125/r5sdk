@@ -1,5 +1,8 @@
 #pragma once
+#include "tier0/jobthread.h"
 #include "vpklib/packedstore.h"
+#include "rtech/rtech_game.h"
+
 #define PAK_PARAM_SIZE    0xB0
 #define DCMP_BUF_SIZE 0x400000
 
@@ -167,30 +170,7 @@ struct __declspec(align(8)) RPakDecompState_t
 	uint64_t m_nDecompStreamSize;
 };
 
-#if not defined DEDICATED && defined (GAMEDLL_S3)
-
-struct RPakTextureHeader_t
-{
-	uint64_t m_nNameHash;
-	uint32_t m_nNameIndex;
-	uint32_t m_nNameOffset;
-	uint16_t m_nWidth;
-	uint16_t m_nHeight;
-	uint8_t unk0;
-	uint8_t unk1;
-	uint16_t m_nFormat;
-	uint8_t unk2;
-	uint32_t m_nDataSize;
-	uint8_t unk3;
-	uint8_t m_nMipLevelsStreamedOpt;
-	uint8_t m_nArraySize;
-	uint8_t m_nLayerCount;
-	uint8_t unk4;
-	uint8_t m_nMipLevels;
-	uint8_t m_nMipLevelsStreamed;
-	uint8_t unk5[0x15];
-};
-
+#if not defined DEDICATED
 struct RTechTextureInfo_t
 {
 	uint64_t m_nGUID;
@@ -209,7 +189,10 @@ struct RTechTextureInfo_t
 	uint8_t m_nMipLevelsStreamed;
 	uint8_t unk3[24];
 	uint8_t m_nTotalStreamedMips; // Does not get set until after RTech::CreateDXTexture.
-	uint8_t unk4[285];
+	uint8_t unk4[228];
+#ifdef GAMEDLL_S3
+	uint8_t unk5[57];
+#endif // GAMEDLL_S3
 	ID3D11Texture2D* m_ppTexture;
 	ID3D11ShaderResourceView* m_ppShaderResourceView;
 	uint8_t m_nTextureMipLevels;
@@ -428,7 +411,7 @@ static std::map<uint16_t, DXGI_FORMAT> rpakToDxgiFormat {
 	{ 61, DXGI_FORMAT_D16_UNORM },
 };
 
-#endif
+#endif // !DEDICATED
 
 class RPakLoadedInfo_t
 {
@@ -442,16 +425,16 @@ public:
 	void* m_pMalloc; //0x0020
 	uint64_t* m_pAssetGuids; //0x0028 size of the array is m_nAssetCount
 	char pad_0030[128]; //0x0030
-#ifndef GAMEDLL_S3
+#if not defined GAMEDLL_S3
 	char pad_00B0[48];
 #endif // !GAMEDLL_S3
 	uint64_t m_nUnkEnd; //0x00B0
 }; //Size: 0x00B8/0x00E8
 
 /* ==== RTECH =========================================================================================================================================================== */
-#if not defined DEDICATED && defined (GAMEDLL_S3)
+#if not defined DEDICATED
 inline CMemory p_RTech_CreateDXTexture;
-inline auto RTech_CreateDXTexture = p_RTech_CreateDXTexture.RCast<void(*)(RPakTextureHeader_t*, int64_t)>();
+inline auto RTech_CreateDXTexture = p_RTech_CreateDXTexture.RCast<void(*)(RTechTextureInfo_t*, int64_t)>();
 
 inline CMemory p_GetStreamOverlay;
 inline auto GetStreamOverlay = p_GetStreamOverlay.RCast<void(*)(const char* mode, char* buf, size_t bufSize)>();
@@ -464,13 +447,21 @@ inline auto RTech_FindFreeSlotInFiles = p_RTech_FindFreeSlotInFiles.RCast<int32_
 inline CMemory p_RTech_OpenFile;
 inline auto RTech_OpenFile = p_RTech_OpenFile.RCast<int32_t(*)(const char*, void*, int64_t*)>();
 
+inline CMemory p_StreamDB_Init;
+inline auto v_StreamDB_Init = p_StreamDB_Init.RCast<void (*)(const char* pszLevelName)>();
+
 inline RPakLoadedInfo_t* g_pLoadedPakInfo;
 inline int16_t* s_pLoadedPakCount;
+inline int16_t* s_pParsedPakCount;
 inline RPakUnknownStruct_t* g_pUnknownPakStruct;
 
 inline int32_t* s_pFileArray;
 inline PSRWLOCK* g_pPakFileSlotLock;
 inline pFileHandleTracker_t* m_FileHandles;
+
+inline JobFifoLock_s* g_pPakFifoLock;
+inline void* g_pPakFifoLockWrapper; // Pointer to function that takes the the global pak fifolock as argument.
+inline bool* g_bPakFifoLockAcquired;
 
 class RTech
 {
@@ -482,13 +473,11 @@ public:
 	RPakLoadedInfo_t* GetPakLoadedInfo(const char* szPakName);
 
 	static int32_t OpenFile(const char* szFilePath, void* unused, int64_t* fileSizeOut);
-#if not defined DEDICATED && defined (GAMEDLL_S3)
-	static void CreateDXTexture(RTechTextureInfo_t* textureHeader, int64_t cpuArg);
-#endif
 
-#ifndef DEDICATED
+#if not defined DEDICATED
+	static void CreateDXTexture(RTechTextureInfo_t* textureHeader, int64_t cpuArg);
 	void** LoadShaderSet(void** VTablePtr);
-#endif
+#endif // !DEDICATED
 };
 
 void RTech_Utils_Attach();
@@ -502,29 +491,43 @@ class VPakFile : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-#if not defined DEDICATED && defined (GAMEDLL_S3)
-		spdlog::debug("| FUN: GetStreamOverlay                     : {:#18x} |\n", p_GetStreamOverlay.GetPtr());
+#if not defined DEDICATED
 		spdlog::debug("| FUN: RTech::CreateDXTexture               : {:#18x} |\n", p_RTech_CreateDXTexture.GetPtr());
-#endif
+#endif // !DEDICATED
 		spdlog::debug("| FUN: RTech::FindFreeSlotInFiles           : {:#18x} |\n", p_RTech_FindFreeSlotInFiles.GetPtr());
 		spdlog::debug("| FUN: RTech::OpenFile                      : {:#18x} |\n", p_RTech_OpenFile.GetPtr());
+#if not defined DEDICATED
+		spdlog::debug("| FUN: GetStreamOverlay                     : {:#18x} |\n", p_GetStreamOverlay.GetPtr());
+#endif // !DEDICATED
+		spdlog::debug("| FUN: StreamDB_Init                        : {:#18x} |\n", p_StreamDB_Init.GetPtr());
 		spdlog::debug("| VAR: g_pLoadedPakInfo                     : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pLoadedPakInfo));
 		spdlog::debug("| VAR: s_pLoadedPakCount                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(s_pLoadedPakCount));
+		spdlog::debug("| VAR: s_pParsedPakCount                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(s_pParsedPakCount));
 		spdlog::debug("| VAR: s_pFileArray                         : {:#18x} |\n", reinterpret_cast<uintptr_t>(s_pFileArray));
 		spdlog::debug("| VAR: g_pPakFileSlotLock                   : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pPakFileSlotLock));
 		spdlog::debug("| VAR: m_FileHandles                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(m_FileHandles));
 		spdlog::debug("| VAR: g_pUnknownPakStruct                  : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pUnknownPakStruct));
+		spdlog::debug("| VAR: g_pPakFifoLock                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pPakFifoLock));
+		spdlog::debug("| VAR: g_pPakFifoLockWrapper                : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pPakFifoLockWrapper));
+		spdlog::debug("| VAR: g_bPakFifoLockAcquired               : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_bPakFifoLockAcquired));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const 
 	{
-#if not defined DEDICATED && defined (GAMEDLL_S3)
+#if not defined DEDICATED
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+		p_RTech_CreateDXTexture = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x89\x48\x08\x53\x55\x41\x55"), "xxxxxxxxxxx");
+		RTech_CreateDXTexture = p_RTech_CreateDXTexture.RCast<void(*)(RTechTextureInfo_t*, int64_t)>(); /*48 8B C4 48 89 48 08 53 55 41 55*/
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+		p_RTech_CreateDXTexture = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x4C\x8B\xC7\x48\x8B\xD5\x48\x8B\xCB\x48\x83\xC4\x60"), "x????xxxxxxxxxxxxx").FollowNearCallSelf();
+		RTech_CreateDXTexture = p_RTech_CreateDXTexture.RCast<void(*)(RTechTextureInfo_t*, int64_t)>(); /*E8 ? ? ? ? 4C 8B C7 48 8B D5 48 8B CB 48 83 C4 60*/
+#endif
 		p_GetStreamOverlay = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x80\x7C\x24\x00\x00\x0F\x84\x00\x00\x00\x00\x48\x89\x9C\x24\x00\x00\x00\x00"), "x????xxx??xx????xxxx????").FollowNearCallSelf();
 		GetStreamOverlay = p_GetStreamOverlay.RCast<void(*)(const char*, char*, size_t)>(); /*E8 ? ? ? ? 80 7C 24 ? ? 0F 84 ? ? ? ? 48 89 9C 24 ? ? ? ?*/
+#endif // !DEDICATED
+		p_StreamDB_Init = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x54\x41\x56\x41\x57\x48\x83\xEC\x40\x48\x8B\xE9"), "xxxx?xxxx?xxxx?xxxx?xxxxxxxxxxxxx");
+		v_StreamDB_Init = p_StreamDB_Init.RCast<void (*)(const char*)>(); /*48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 54 41 56 41 57 48 83 EC 40 48 8B E9*/
 
-		p_RTech_CreateDXTexture = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x4C\x8B\xC7\x48\x8B\xD5\x48\x8B\xCB\x48\x83\xC4\x60"), "x????xxxxxxxxxxxxx").FollowNearCallSelf();
-		RTech_CreateDXTexture   = p_RTech_CreateDXTexture.RCast<void(*)(RPakTextureHeader_t*, int64_t)>(); /*E8 ? ? ? ? 4C 8B C7 48 8B D5 48 8B CB 48 83 C4 60*/
-#endif
 		p_RTech_FindFreeSlotInFiles = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x44\x8B\x51\x0C\x4C\x8B\xC1"), "xxxxxxx");
 		RTech_FindFreeSlotInFiles   = p_RTech_FindFreeSlotInFiles.RCast<int32_t(*)(int32_t*)>(); /*44 8B 51 0C 4C 8B C1*/
 
@@ -533,17 +536,19 @@ class VPakFile : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		CMemory RTech_UnloadPak = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x30\x8B\xC1"), "xxxx?xxxx?xxxxxxx");
-		g_pLoadedPakInfo  = RTech_UnloadPak.FindPattern("48 8D 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakLoadedInfo_t*>();
-		s_pLoadedPakCount = RTech_UnloadPak.FindPattern("66 89", CMemory::Direction::DOWN, 450).ResolveRelativeAddressSelf(0x3, 0x7).RCast<int16_t*>();
+		g_pLoadedPakInfo  = p_CPakFile_UnloadPak.FindPattern("48 8D 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakLoadedInfo_t*>();
+		s_pLoadedPakCount = p_CPakFile_UnloadPak.FindPattern("66 89", CMemory::Direction::DOWN, 450).ResolveRelativeAddressSelf(0x3, 0x7).RCast<int16_t*>();
+		s_pParsedPakCount = &*s_pLoadedPakCount - 1; // '-1' shifts it back with sizeof(int16_t).
 
-		/*48 8D 0D ? ? ? ? E8 ? ? ? ? 48 8D 0D ? ? ? ? 8B D8 FF 15 ? ? ? ? 4C 8D 25 ? ? ? ?*/
-		CMemory Offset_StreamDB_Init = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8D\x0D\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x8D\x0D\x00\x00\x00\x00\x8B\xD8\xFF\x15\x00\x00\x00\x00\x4C\x8D\x25\x00\x00\x00\x00"), "xxx????x????xxx????xxxx????xxx????");
-		s_pFileArray       = Offset_StreamDB_Init.ResolveRelativeAddress(0x3, 0x7).RCast<int32_t*>();
-		g_pPakFileSlotLock = Offset_StreamDB_Init.Offset(-0xD).ResolveRelativeAddress(0x3, 0x7).RCast<PSRWLOCK*>();
-		m_FileHandles      = Offset_StreamDB_Init.Offset(0x1B).ResolveRelativeAddress(0x3, 0x7).RCast<pFileHandleTracker_t*>();
+		g_pPakFileSlotLock = p_StreamDB_Init.Offset(0x70).FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 512, 1).ResolveRelativeAddress(0x3, 0x7).RCast<PSRWLOCK*>();
+		s_pFileArray       = p_StreamDB_Init.Offset(0x70).FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 512, 2).ResolveRelativeAddress(0x3, 0x7).RCast<int32_t*>();
+		m_FileHandles      = p_StreamDB_Init.Offset(0x70).FindPatternSelf("4C 8D", CMemory::Direction::DOWN, 512, 1).ResolveRelativeAddress(0x3, 0x7).RCast<pFileHandleTracker_t*>();
 
 		g_pUnknownPakStruct = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8D\x1D\x00\x00\x00\x00\x45\x8D\x5A\x0E"), "xxx????xxxx").ResolveRelativeAddressSelf(0x3, 0x7).RCast<RPakUnknownStruct_t*>(); /*48 8D 1D ? ? ? ? 45 8D 5A 0E*/
+
+		g_pPakFifoLock         = p_JT_HelpWithAnything.Offset(0x155).FindPatternSelf("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<JobFifoLock_s*>();
+		g_pPakFifoLockWrapper  = p_JT_HelpWithAnything.Offset(0x1BC).FindPatternSelf("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void*>();
+		g_bPakFifoLockAcquired = p_JT_HelpWithAnything.Offset(0x50).FindPatternSelf("C6 05").ResolveRelativeAddressSelf(0x2, 0x7).RCast<bool*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

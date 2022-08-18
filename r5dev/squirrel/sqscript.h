@@ -93,11 +93,11 @@ inline CMemory p_Script_LoadScript;
 inline auto v_Script_LoadScript = p_Script_LoadScript.RCast<SQBool(*)(HSQUIRRELVM v, const SQChar* szScriptPath, const SQChar* szScriptName, SQInteger nFlag)>();
 
 #if !defined (CLIENT_DLL)
-inline CMemory g_pServerVM;
+inline CMemory g_pServerScript;
 #endif // !CLIENT_DLL
 #if !defined (DEDICATED)
-inline CMemory g_pClientVM;
-inline CMemory g_pUIVM;
+inline CMemory g_pClientScript;
+inline CMemory g_pUIScript;
 #endif // !DEDICATED
 
 SQRESULT Script_RegisterFunction(CSquirrelVM* pSquirrelVM, const SQChar* szScriptName, const SQChar* szNativeName,
@@ -145,11 +145,11 @@ class VSquirrelVM : public IDetour
 		spdlog::debug("| FUN: Script_LoadRson                      : {:#18x} |\n", p_Script_LoadRson.GetPtr());
 		spdlog::debug("| FUN: Script_LoadScript                    : {:#18x} |\n", p_Script_LoadScript.GetPtr());
 #ifndef CLIENT_DLL
-		spdlog::debug("| VAR: g_pServerVM                          : {:#18x} |\n", g_pServerVM.GetPtr());
+		spdlog::debug("| VAR: g_pServerScript                      : {:#18x} |\n", g_pServerScript.GetPtr());
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
-		spdlog::debug("| VAR: g_pClientVM                          : {:#18x} |\n", g_pClientVM.GetPtr());
-		spdlog::debug("| VAR: g_pUIVM                              : {:#18x} |\n", g_pUIVM.GetPtr());
+		spdlog::debug("| VAR: g_pClientScript                      : {:#18x} |\n", g_pClientScript.GetPtr());
+		spdlog::debug("| VAR: g_pUIScript                          : {:#18x} |\n", g_pUIScript.GetPtr());
 #endif // !DEDICATED
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
@@ -201,11 +201,11 @@ class VSquirrelVM : public IDetour
 	virtual void GetVar(void) const
 	{
 #if !defined (CLIENT_DLL)
-		g_pServerVM = p_Script_CreateServerVM.FindPatternSelf("48 89 1D", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
+		g_pServerScript = p_Script_CreateServerVM.FindPatternSelf("48 89 1D", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
 #endif // !CLIENT_DLL
 #if !defined (DEDICATED)
-		g_pClientVM = p_Script_CreateClientVM.FindPatternSelf("48 83 3D", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x8);
-		g_pUIVM = p_Script_CreateUIVM.FindPatternSelf("48 8B 1D", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
+		g_pClientScript = p_Script_CreateClientVM.FindPatternSelf("48 83 3D", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x8);
+		g_pUIScript = p_Script_CreateUIVM.FindPatternSelf("48 8B 1D", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7);
 #endif // !DEDICATED
 	}
 	virtual void GetCon(void) const { }

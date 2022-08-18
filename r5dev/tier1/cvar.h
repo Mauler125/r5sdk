@@ -73,8 +73,10 @@ extern ConVar* sv_rcon_whitelist_address;
 #endif // DEDICATED
 #endif // CLIENT_DLL
 extern ConVar* sv_visualizetraces;
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 extern ConVar* bhit_enable;
 extern ConVar* bhit_abs_origin;
+#endif // !GAMEDLL_S0 && !GAMEDLL_S1
 //-------------------------------------------------------------------------
 // CLIENT                                                                 |
 #ifndef DEDICATED
@@ -286,34 +288,15 @@ private:
 extern CCvar* g_pCVar;
 
 /* ==== CCVAR =========================================================================================================================================================== */
-inline CMemory p_CCvar_Disconnect;
-inline auto CCvar_Disconnect = p_CCvar_Disconnect.RCast<void* (*)(void)>();
-
-inline CMemory p_CCvar_GetCommandLineValue;
-inline auto CCvar_GetCommandLineValue = p_CCvar_GetCommandLineValue.RCast<const char* (*)(CCvar* thisptr, const char* pVariableName)>();
-
 ///////////////////////////////////////////////////////////////////////////////
 class VCVar : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CCvar::Disconnect                    : {:#18x} |\n", p_CCvar_Disconnect.GetPtr());
-		spdlog::debug("| FUN: CCvar::GetCommandLineValue           : {:#18x} |\n", p_CCvar_GetCommandLineValue.GetPtr());
 		spdlog::debug("| VAR: g_pCVar                              : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pCVar));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
-	virtual void GetFun(void) const
-	{
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_CCvar_Disconnect = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x57\x41\x56\x48\x83\xEC\x38\x4C\x8B\x35"), "xxxxxxxxxxx");
-		CCvar_Disconnect = p_CCvar_Disconnect.RCast<void* (*)(void)>(); /*40 57 41 56 48 83 EC 38 4C 8B 35 ? ? ? ?*/
-#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_CCvar_Disconnect = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x48\x8B\x0D\x00\x00\x00\x00\x48\x85\xC9\x74\x26\x80\x3D\x00\x00\x00\x00\x00\x74\x1D\x48\x8B\x01\x8B\x15\x00\x00\x00\x00\xFF\x50\x58\xC7\x05\x00\x00\x00\x00\x00\x00\x00\x00\xC6\x05\x00\x00\x00\x00\x00\x48\xC7\x05\x00\x00\x00"), "xxxxxxx????xxxxxxx?????xxxxxxx????xxxxx????????xx");
-		CCvar_Disconnect = p_CCvar_Disconnect.RCast<void* (*)(void)>(); /*48 83 EC 28 48 8B 0D ? ? ? ? 48 85 C9 74 26 80 3D ? ? ? ? ? 74 1D 48 8B 01 8B 15 ? ? ? ? FF 50 58 C7 05 ? ? ? ? ? ? ? ? C6 05 ? ? ? ? ? 48 C7 05 ? ? ? ? ? ? ? ?*/
-#endif
-		p_CCvar_GetCommandLineValue = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x55\x48\x83\xEC\x20\x48\x8D\x6C\x24\x00\x48\x89\x5D\x10\x49\xC7\xC0\x00\x00\x00\x00"), "xxxxxxxxxx?xxxxxxx????");
-		CCvar_GetCommandLineValue = p_CCvar_GetCommandLineValue.RCast<const char* (*)(CCvar* thisptr, const char* pVariableName)>(); /*40 55 48 83 EC 20 48 8D 6C 24 ? 48 89 5D 10 49 C7 C0 ? ? ? ?*/
-	}
+	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
 		g_pCVar = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(

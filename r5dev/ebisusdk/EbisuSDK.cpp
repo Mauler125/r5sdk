@@ -9,7 +9,7 @@ void HEbisuSDK_Init()
 #ifdef DEDICATED
 	*(char*)g_bEbisuSDKInitialized     = (char)0x1; // <- 1st EbisuSDK
 	*(char*)g_bEbisuSDKCvarInitialized = (char)0x1; // <- 2nd EbisuSDK
-	*(char*)g_qEbisuSDKCvarInitialized = (char)0x1; // <- 3rd EbisuSDK
+	*(char*)g_NucleusID                = (char)0x1; // <- 3rd EbisuSDK
 #endif // DEDICATED
 }
 

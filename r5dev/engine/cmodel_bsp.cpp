@@ -257,22 +257,22 @@ void MOD_ProcessPakQueue()
                         {
                             if (*qword_167ED7BC0 || WORD2(*qword_167ED7C68) != HIWORD(*qword_167ED7C68))
                             {
-                                if (!JT_AcquireFifoLock((JobFifoLock_s*)&*qword_167ED7BE0)
-                                    && !(unsigned __int8)sub_14045BAC0((__int64(__fastcall*)(__int64, _DWORD*, __int64, _QWORD*))qword_14045C070, (__int64)&*qword_167ED7BE0, -1i64, 0i64))
+                                if (!JT_AcquireFifoLock(&*g_pPakFifoLock)
+                                    && !(unsigned __int8)sub_14045BAC0((__int64(__fastcall*)(__int64, _DWORD*, __int64, _QWORD*))g_pPakFifoLockWrapper, &*g_pPakFifoLock, -1i64, 0i64))
                                 {
-                                    sub_14045A1D0((unsigned __int8(__fastcall*)(_QWORD))qword_14045C070, (__int64)&*qword_167ED7BE0, -1i64, 0i64, 0i64, 1);
+                                    sub_14045A1D0((unsigned __int8(__fastcall*)(_QWORD))g_pPakFifoLockWrapper, &*g_pPakFifoLock, -1i64, 0i64, 0i64, 1);
                                 }
 
                                 sub_140441220(v25, v24);
                                 if (GetCurrentThreadId() == *dword_1641E443C)
                                 {
-                                    if (*byte_167208B0C)
+                                    if (*g_bPakFifoLockAcquired)
                                     {
-                                        *byte_167208B0C = 0;
-                                        JT_ReleaseFifoLock((JobFifoLock_s*)&*qword_167ED7BE0);
+                                        *g_bPakFifoLockAcquired = 0;
+                                        JT_ReleaseFifoLock(&*g_pPakFifoLock);
                                     }
                                 }
-                                JT_ReleaseFifoLock((JobFifoLock_s*)&*qword_167ED7BE0);
+                                JT_ReleaseFifoLock(&*g_pPakFifoLock);
                             }
                             FileSystem()->ResetItemCacheSize(256);
                             FileSystem()->PrecacheTaskItem(*g_pMTVFTaskItem);

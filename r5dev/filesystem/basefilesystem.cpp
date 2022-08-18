@@ -106,36 +106,11 @@ bool CBaseFileSystem::VReadFromCache(CBaseFileSystem* pFileSystem, char* pszFile
 	return CBaseFileSystem_VLoadFromCache(pFileSystem, pszFilePath, pResults);
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: create the search path.
-// Input  : *pPath - 
-//			*pPathID - 
-//			addType - 
-//-----------------------------------------------------------------------------
-void CBaseFileSystem::VAddSearchPath(CBaseFileSystem* pFileSystem, const char* pPath, const char* pPathID, SearchPathAdd_t addType)
-{
-	CBaseFileSystem_VAddSearchPath(pFileSystem, pPath, pPathID, addType);
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: remove the search path.
-// Input  : *pPath - 
-//			*pPathID - 
-//			addType - 
-// Output : true on success, false otherwise.
-//-----------------------------------------------------------------------------
-bool CBaseFileSystem::VRemoveSearchPath(CBaseFileSystem* pFileSystem, const char* pPath, const char* pPathID)
-{
-	return CBaseFileSystem_VRemoveSearchPath(pFileSystem, pPath, pPathID);
-}
-
 void CBaseFileSystem_Attach()
 {
 	DetourAttach((LPVOID*)&CBaseFileSystem_Warning, &CBaseFileSystem::Warning);
 	DetourAttach((LPVOID*)&CBaseFileSystem_VLoadFromVPK, &CBaseFileSystem::VReadFromVPK);
 	DetourAttach((LPVOID*)&CBaseFileSystem_VLoadFromCache, &CBaseFileSystem::VReadFromCache);
-	DetourAttach((LPVOID*)&CBaseFileSystem_VAddSearchPath, &CBaseFileSystem::VAddSearchPath);
-	DetourAttach((LPVOID*)&CBaseFileSystem_VRemoveSearchPath, &CBaseFileSystem::VRemoveSearchPath);
 }
 
 void CBaseFileSystem_Detach()
@@ -143,7 +118,5 @@ void CBaseFileSystem_Detach()
 	DetourDetach((LPVOID*)&CBaseFileSystem_Warning, &CBaseFileSystem::Warning);
 	DetourDetach((LPVOID*)&CBaseFileSystem_VLoadFromVPK, &CBaseFileSystem::VReadFromVPK);
 	DetourDetach((LPVOID*)&CBaseFileSystem_VLoadFromCache, &CBaseFileSystem::VReadFromCache);
-	DetourDetach((LPVOID*)&CBaseFileSystem_VAddSearchPath, &CBaseFileSystem::VAddSearchPath);
-	DetourDetach((LPVOID*)&CBaseFileSystem_VRemoveSearchPath, &CBaseFileSystem::VRemoveSearchPath);
 }
 CBaseFileSystem* g_pFileSystem = nullptr;

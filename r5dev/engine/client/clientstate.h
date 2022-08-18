@@ -105,7 +105,7 @@ public:
 	_QWORD qword18CB0;
 	CFrameSnapshot* current_frame_maybe;
 	_BYTE gap18CC0[8];
-	char IsClockCorrectionEnabled_MAYBE;
+	char m_bClockCorrectionEnabled;
 	char m_b_unknown;
 	bool m_bLocalPredictionInitialized_MAYBE;
 	int field_18CCC;
@@ -175,6 +175,7 @@ public:
 #pragma pack(pop)
 #ifndef DEDICATED
 extern CClientState* g_pClientState;
+extern CClientState** g_pClientState_Shifted; // Shifted by 0x10 forward!
 #endif // DEDICATED
 
 /* ==== CCLIENTSTATE ==================================================================================================================================================== */
@@ -194,6 +195,7 @@ class VClientState : public IDetour
 		spdlog::debug("| FUN: CClientState::Disconnect             : {:#18x} |\n", p_CClientState__Disconnect.GetPtr());
 #ifndef DEDICATED
 		spdlog::debug("| VAR: g_pClientState                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pClientState));
+		spdlog::debug("| VAR: g_pClientState_Shifted               : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pClientState_Shifted));
 #endif // DEDICATED
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
@@ -217,6 +219,7 @@ class VClientState : public IDetour
 	{
 #ifndef DEDICATED
 		g_pClientState = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x0F\x84\x00\x00\x00\x00\x48\x8D\x0D\x00\x00\x00\x00\x48\x83\xC4\x28"), "xx????xxx????xxxx").FindPatternSelf("48 8D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CClientState*>(); /*0F 84 ? ? ? ? 48 8D 0D ? ? ? ? 48 83 C4 28*/
+		g_pClientState_Shifted = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x80\x3D\x00\x00\x00\x00\x00\x74\x14\x66\x0F\x6E\x05\x00\x00\x00\x00"), "xx?????xxxxxx????").ResolveRelativeAddress(0x2, 0x7).RCast<CClientState**>();
 #endif // DEDICATED
 	}
 	virtual void GetCon(void) const { }

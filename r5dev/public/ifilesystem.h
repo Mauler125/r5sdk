@@ -198,7 +198,7 @@ public:
 	// at load time, so the dedicated couldn't pass it in that way).
 	virtual	FilesystemMountRetval_t MountSteamContent(int nExtraAppId = -1) = 0;
 
-#if !defined (GAMEDLL_S0) || !defined (GAMEDLL_S1) || !defined (GAMEDLL_S2)
+#if !defined(GAMEDLL_S0) && !defined(GAMEDLL_S1) && !defined (GAMEDLL_S2)
 	virtual bool InitFeatureFlags() = 0;
 	virtual bool InitFeatureFlags(const char* pszFlagSetFile) = 0;
 #endif // !GAMEDLL_S0 || !GAMEDLL_S1 || GAMEDLL_S2

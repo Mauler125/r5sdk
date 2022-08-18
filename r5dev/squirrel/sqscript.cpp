@@ -115,9 +115,9 @@ SQRESULT Script_InitializeCLGlobalStructs(CSquirrelVM* pSquirrelVM, SQCONTEXT co
 {
 	SQRESULT results = v_Script_InitializeCLGlobalStructs(pSquirrelVM, context);
 	if (context == SQCONTEXT::CLIENT)
-		Script_RegisterClientFunctions(g_pClientVM.GetValue<CSquirrelVM*>());
+		Script_RegisterClientFunctions(g_pClientScript.GetValue<CSquirrelVM*>());
 	if (context == SQCONTEXT::UI)
-		Script_RegisterUIFunctions(g_pUIVM.GetValue<CSquirrelVM*>());
+		Script_RegisterUIFunctions(g_pUIScript.GetValue<CSquirrelVM*>());
 	return results;
 }
 #endif // !DEDICATED
@@ -130,7 +130,7 @@ SQRESULT Script_InitializeCLGlobalStructs(CSquirrelVM* pSquirrelVM, SQCONTEXT co
 void Script_InitializeSVGlobalStructs(CSquirrelVM* pSquirrelVM)
 {
 	v_Script_InitializeSVGlobalStructs(pSquirrelVM);
-	Script_RegisterServerFunctions(g_pServerVM.GetValue<CSquirrelVM*>());
+	Script_RegisterServerFunctions(g_pServerScript.GetValue<CSquirrelVM*>());
 }
 
 //---------------------------------------------------------------------------------
@@ -141,7 +141,7 @@ SQBool Script_CreateServerVM()
 {
 	SQBool results = v_Script_CreateServerVM();
 	if (results)
-		DevMsg(eDLL_T::SERVER, "Created SERVER VM: '%p'\n", g_pServerVM.GetValue<CSquirrelVM*>());
+		DevMsg(eDLL_T::SERVER, "Created SERVER VM: '%p'\n", g_pServerScript.GetValue<CSquirrelVM*>());
 	else
 		Error(eDLL_T::SERVER, "Failed to create SERVER VM\n");
 	return results;
@@ -158,7 +158,7 @@ SQBool Script_CreateClientVM(CHLClient* hlclient)
 {
 	SQBool results = v_Script_CreateClientVM(hlclient);
 	if (results)
-		DevMsg(eDLL_T::CLIENT, "Created CLIENT VM: '%p'\n", g_pClientVM.GetValue<CSquirrelVM*>());
+		DevMsg(eDLL_T::CLIENT, "Created CLIENT VM: '%p'\n", g_pClientScript.GetValue<CSquirrelVM*>());
 	else
 		Error(eDLL_T::CLIENT, "Failed to create CLIENT VM\n");
 	return results;
@@ -172,7 +172,7 @@ SQBool Script_CreateUIVM()
 {
 	SQBool results = v_Script_CreateUIVM();
 	if (results)
-		DevMsg(eDLL_T::UI, "Created UI VM: '%p'\n", g_pUIVM.GetValue<CSquirrelVM*>());
+		DevMsg(eDLL_T::UI, "Created UI VM: '%p'\n", g_pUIScript.GetValue<CSquirrelVM*>());
 	else
 		Error(eDLL_T::UI, "Failed to create UI VM\n");
 	return results;
@@ -190,13 +190,13 @@ CSquirrelVM* Script_GetContextObject(SQCONTEXT context)
 	{
 #ifndef CLIENT_DLL
 	case SQCONTEXT::SERVER:
-		return g_pServerVM.GetValue<CSquirrelVM*>();
+		return g_pServerScript.GetValue<CSquirrelVM*>();
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 	case SQCONTEXT::CLIENT:
-		return g_pClientVM.GetValue<CSquirrelVM*>();
+		return g_pClientScript.GetValue<CSquirrelVM*>();
 	case SQCONTEXT::UI:
-		return g_pUIVM.GetValue<CSquirrelVM*>();
+		return g_pUIScript.GetValue<CSquirrelVM*>();
 #endif // !DEDICATED
 	default:
 		return nullptr;

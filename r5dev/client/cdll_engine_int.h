@@ -58,8 +58,6 @@ inline auto CHLClient_FrameStageNotify = p_CHLClient_FrameStageNotify.RCast<void
 
 inline CMemory p_CHLClient_GetAllClasses;
 inline auto CHLClient_GetAllClasses = p_CHLClient_GetAllClasses.RCast<ClientClass*(*)()>();
-
-inline bool* cl_time_use_host_tickcount = nullptr;
 #endif // !DEDICATED
 
 inline CHLClient* gHLClient = nullptr;
@@ -85,7 +83,6 @@ class VDll_Engine_Int : public IDetour
 #ifndef DEDICATED
 		spdlog::debug("| FUN: CHLClient::FrameStageNotify          : {:#18x} |\n", p_CHLClient_FrameStageNotify.GetPtr());
 		spdlog::debug("| FUN: CHLClient::GetAllClasses             : {:#18x} |\n", p_CHLClient_GetAllClasses.GetPtr());
-		spdlog::debug("| VAR: cl_time_use_host_tickcount           : {:#18x} |\n", reinterpret_cast<uintptr_t>(cl_time_use_host_tickcount));
 #endif // !DEDICATED
 		spdlog::debug("| VAR: gHLClient                            : {:#18x} |\n", reinterpret_cast<uintptr_t>(gHLClient));
 		spdlog::debug("| VAR: g_pHLClient                          : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pHLClient));
@@ -119,9 +116,6 @@ class VDll_Engine_Int : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-#ifndef DEDICATED
-		cl_time_use_host_tickcount = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x80\x3D\x00\x00\x00\x00\x00\x74\x14\x66\x0F\x6E\x05\x00\x00\x00\x00"), "xx?????xxxxxx????").ResolveRelativeAddress(0x2, 0x7).RCast<bool*>();
-#endif // !DEDICATED
 		gHLClient = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>
 			("\x48\x8D\x05\x00\x00\x00\x00\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x30\x48\x8B\xF9"),
 			"xxx????xxxxxxxxxxxxx?xxxxxxxx").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CHLClient*>();

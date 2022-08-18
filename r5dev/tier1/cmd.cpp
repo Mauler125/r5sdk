@@ -321,7 +321,9 @@ void ConCommand::Init(void)
 {
 	//-------------------------------------------------------------------------
 	// ENGINE DLL                                                             |
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 	ConCommand::Create("bhit", "Bullet-hit trajectory debug.", FCVAR_DEVELOPMENTONLY | FCVAR_GAMEDLL, BHit_f, nullptr);
+#endif // !GAMEDLL_S0 && !GAMEDLL_S1
 #ifndef DEDICATED
 	ConCommand::Create("line", "Draw a debug line.", FCVAR_GAMEDLL | FCVAR_CHEAT, Line_f, nullptr);
 	ConCommand::Create("sphere", "Draw a debug sphere.", FCVAR_GAMEDLL | FCVAR_CHEAT, Sphere_f, nullptr);

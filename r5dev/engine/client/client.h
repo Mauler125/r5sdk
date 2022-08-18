@@ -108,10 +108,10 @@ class VClient : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		p_CClient_Connect = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74"), "xxxxxxxxxxxxxxxx");
+		p_CClient_Connect = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x56\x57\x41\x56\x48\x83\xEC\x20\x41\x0F\xB6\xE9"), "xxxx?xxxx?xxxxxxxxxxxx");
 		p_CClient_Clear   = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74"), "xxxxxxxxxxxxxxxx");
 
-		v_CClient_Connect = p_CClient_Connect.RCast<bool (*)(CClient*, const char*, void*, bool, void*, char*, int)>(); /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
+		v_CClient_Connect = p_CClient_Connect.RCast<bool (*)(CClient*, const char*, void*, bool, void*, char*, int)>(); /*48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 20 41 0F B6 E9*/
 		v_CClient_Clear   = p_CClient_Clear.RCast<void (*)(CClient*)>();                                                /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
 	}
 	virtual void GetVar(void) const

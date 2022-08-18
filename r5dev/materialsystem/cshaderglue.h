@@ -49,7 +49,7 @@ class VShaderGlue : public IDetour
 	}
 	virtual void GetFun(void) const 
 	{
-		CShaderGlue_SetupShader = CShaderGlue_VTable.WalkVTable(4).RCast<int(*)(CShaderGlue*, uint64_t, uint64_t, void*)>();
+		CShaderGlue_SetupShader = CShaderGlue_VTable.WalkVTable(4).Deref(2).RCast<int(*)(CShaderGlue*, uint64_t, uint64_t, void*)>();
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const

@@ -52,7 +52,9 @@ void Line_f(const CCommand& args);
 void Sphere_f(const CCommand& args);
 void Capsule_f(const CCommand& args);
 #endif // !DEDICATED
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 void BHit_f(const CCommand& args);
+#endif // !GAMEDLL_S0 && !GAMEDLL_S1
 
 void CVHelp_f(const CCommand& args);
 void CVList_f(const CCommand& args);

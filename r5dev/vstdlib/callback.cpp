@@ -1000,7 +1000,7 @@ void Capsule_f(const CCommand& args)
 	g_pDebugOverlay->AddCapsuleOverlay(start, end, radius, { 0,0,0 }, { 0,0,0 }, 141, 233, 135, 0, 100);
 }
 #endif // !DEDICATED
-
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 /*
 =====================
 BHit_f
@@ -1053,7 +1053,7 @@ void BHit_f(const CCommand& args)
 	}
 #endif // !DEDICATED
 }
-
+#endif // !GAMEDLL_S0 && !GAMEDLL_S1
 /*
 =====================
 CVHelp_f

@@ -15,6 +15,8 @@ inline auto VCR_EnterPausedState = p_VCR_EnterPausedState.RCast<void(*)(void)>()
 inline bool* g_bAbortServerSet = nullptr;
 inline jmp_buf* host_abortserver = nullptr;
 
+inline float* interval_per_tick = nullptr;
+
 ///////////////////////////////////////////////////////////////////////////////
 class VHost : public IDetour
 {
@@ -24,6 +26,7 @@ class VHost : public IDetour
 		spdlog::debug("| FUN: _Host_RunFrame_Render                : {:#18x} |\n", p_Host_RunFrame_Render.GetPtr());
 		spdlog::debug("| FUN: Host_Error                           : {:#18x} |\n", p_Host_Error.GetPtr());
 		spdlog::debug("| FUN: VCR_EnterPausedState                 : {:#18x} |\n", p_VCR_EnterPausedState.GetPtr());
+		spdlog::debug("| VAR: interval_per_tick                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(interval_per_tick));
 		spdlog::debug("| VAR: host_abortserver                     : {:#18x} |\n", reinterpret_cast<uintptr_t>(host_abortserver));
 		spdlog::debug("| VAR: g_bAbortServerSet                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_bAbortServerSet));
 		spdlog::debug("+----------------------------------------------------------------+\n");
@@ -46,6 +49,7 @@ class VHost : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
+		interval_per_tick = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x8B\xDC\x4D\x89\x4B\x20\x55\x56\x41\x54"), "xxxxxxxxxxx").FindPatternSelf("F3 0F 5E", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x4, 0x8).RCast<float*>();
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 		g_bAbortServerSet = p_Host_Error.FindPattern("40 38 3D", CMemory::Direction::DOWN, 512, 2).ResolveRelativeAddress(3, 7).RCast<bool*>();
 		host_abortserver = p_Host_Error.FindPattern("48 8D 0D", CMemory::Direction::DOWN, 512, 3).ResolveRelativeAddress(3, 7).RCast<jmp_buf*>();

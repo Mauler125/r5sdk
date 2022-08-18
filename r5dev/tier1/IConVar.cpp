@@ -113,7 +113,9 @@ void ConVar::Init(void) const
 	sv_rcon_whitelist_address = ConVar::Create("sv_rcon_whitelist_address", "", FCVAR_RELEASE, "This address is not considered a 'redundant' socket and will never be banned for failed authentications.", false, 0.f, false, 0.f, nullptr, "Format: '::ffff:127.0.0.1'.");
 #endif // DEDICATED
 #endif // !CLIENT_DLL
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 	bhit_abs_origin = ConVar::Create("bhit_abs_origin", "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Use player's absolute origin for bhit tracing.", false, 0.f, false, 0.f, nullptr, nullptr);
+#endif // !GAMEDLL_S0 && !GAMEDLL_S1
 	//-------------------------------------------------------------------------
 	// CLIENT                                                                 |
 #ifndef DEDICATED
@@ -215,7 +217,9 @@ void ConVar::InitShipped(void) const
 {
 #ifndef CLIENT_DLL
 	ai_script_nodes_draw             = g_pCVar->FindVar("ai_script_nodes_draw");
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 	bhit_enable                      = g_pCVar->FindVar("bhit_enable");
+#endif // !GAMEDLL_S0 && !GAMEDLL_S1
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 	cl_threaded_bone_setup           = g_pCVar->FindVar("cl_threaded_bone_setup");
