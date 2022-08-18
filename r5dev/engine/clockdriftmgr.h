@@ -18,11 +18,11 @@ struct __declspec(align(4)) CClockDriftMgr
 	int m_iCurClockOffset;
 	float field_78;
 	float field_7C;
-	float m_flClientTickTime;
-	int m_nClientTick;
-	float m_flServerTickTime;
-	int m_nServerTick;
 	int m_nSimulationTick;
+	float m_flClientTickTime;
+	float m_flServerTickTime;
+	int m_nClientTick;
+	int m_nServerTick;
 };
 
 #endif // CLOCKDRIFTMGR_H

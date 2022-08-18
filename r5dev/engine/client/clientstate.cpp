@@ -34,7 +34,7 @@ float CClientState::GetClientTime()
     }
     else
     {
-        return m_flClockDriftUnknown_TIME; // VERIFY OFS
+        return m_flClockDriftFrameTime;
     }
 }
 

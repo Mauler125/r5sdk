@@ -53,7 +53,7 @@ public:
 	double m_flNextCmdTime;
 	int m_nServerCount;
 	int field_AC;
-	float m_flClockDriftUnknown_TIME;
+	float m_flClockDriftFrameTime;
 	CClockDriftMgr m_ClockDriftMgr;
 	_BYTE field_148;
 	_BYTE field_149;
@@ -108,10 +108,10 @@ public:
 	char m_bClockCorrectionEnabled;
 	char m_b_unknown;
 	bool m_bLocalPredictionInitialized_MAYBE;
-	int field_18CCC;
+	int m_nServerTick;
 	int dword18CD0;
 	int field_18CD4;
-	float GetFrameTime;
+	float m_flFrameTime;
 	int outgoing_command;
 	int current_movement_sequence_number;
 	char gap18CE4[4];
