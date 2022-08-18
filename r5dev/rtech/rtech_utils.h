@@ -472,7 +472,7 @@ public:
 	RPakLoadedInfo_t* GetPakLoadedInfo(int nPakId);
 	RPakLoadedInfo_t* GetPakLoadedInfo(const char* szPakName);
 
-	static int32_t OpenFile(const char* szFilePath, void* unused, int64_t* fileSizeOut);
+	static int32_t OpenFile(const CHAR* szFilePath, void* unused, LONGLONG* fileSizeOut);
 
 #if not defined DEDICATED
 	static void CreateDXTexture(RTechTextureInfo_t* textureHeader, int64_t cpuArg);

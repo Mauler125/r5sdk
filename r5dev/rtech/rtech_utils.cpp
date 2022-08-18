@@ -615,9 +615,25 @@ void** RTech::LoadShaderSet(void** VTablePtr)
 //----------------------------------------------------------------------------------
 // Purpose: open a file and add it to m_FileHandles.
 //----------------------------------------------------------------------------------
-int32_t RTech::OpenFile(const char* szFilePath, void* unused, int64_t* fileSizeOut)
+int32_t RTech::OpenFile(const CHAR* szFilePath, void* unused, LONGLONG* fileSizeOut)
 {
-	const HANDLE hFile = CreateFileA(szFilePath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, 0, OPEN_EXISTING, FILE_SUPPORTS_GHOSTING, 0);
+	string svModFile = szFilePath;
+	string svBaseFile = szFilePath;
+	const string svModDir = "paks\\Win32\\";
+	const string svBaseDir = "paks\\Win64\\";
+
+	if (strstr(szFilePath, svBaseDir.c_str()))
+	{
+		svBaseFile.erase(0, 11); // Erase 'base_dir'.
+		svModFile = svModDir + svBaseFile; // Prepend 'mod_dir'.
+
+		if (!FileExists(svModFile))
+		{
+			svModFile = szFilePath;
+		}
+	}
+
+	const HANDLE hFile = CreateFileA(svModFile.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, 0, OPEN_EXISTING, FILE_SUPPORTS_GHOSTING, 0);
 	if (hFile == INVALID_HANDLE_VALUE)
 		return -1;
 
@@ -688,7 +704,7 @@ RPakLoadedInfo_t* RTech::GetPakLoadedInfo(const char* szPakName)
 
 void RTech_Utils_Attach()
 {
-	//DetourAttach((LPVOID*)&RTech_OpenFile, &RTech::OpenFile); // !FIXME: Loading override rpaks doesn't work with this, disabled for now.
+	DetourAttach((LPVOID*)&RTech_OpenFile, &RTech::OpenFile);
 
 #if not defined DEDICATED && defined GAMEDLL_S3
 	DetourAttach((LPVOID*)&RTech_CreateDXTexture, &RTech::CreateDXTexture);
@@ -698,7 +714,7 @@ void RTech_Utils_Attach()
 void RTech_Utils_Detach()
 {
 	// [ PIXIE ]: Everything related to RTech::OpenFile should be compatible across seasons.
-	//DetourDetach((LPVOID*)&RTech_OpenFile, &RTech::OpenFile);
+	DetourDetach((LPVOID*)&RTech_OpenFile, &RTech::OpenFile);
 
 #if not defined DEDICATED && defined GAMEDLL_S3
 	DetourDetach((LPVOID*)&RTech_CreateDXTexture, &RTech::CreateDXTexture);
