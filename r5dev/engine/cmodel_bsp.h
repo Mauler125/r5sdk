@@ -18,7 +18,6 @@ inline void** unk_1418749B0;
 inline void** unk_141874550;
 inline int64_t* qword_167ED7BC0;
 inline int64_t* qword_167ED7C68;
-inline DWORD* dword_1641E443C;
 
 inline auto sub_14045BAC0 = p_MOD_ProcessPakQueue.RCast<__int64(*)(__int64(__fastcall* a1)(__int64, _DWORD*, __int64, _QWORD*), JobFifoLock_s* pFifoLock, __int64 a3, __int64 a4)>();
 inline auto sub_14045A1D0 = p_MOD_ProcessPakQueue.RCast<__int64(*)(unsigned __int8(__fastcall* a1)(_QWORD), JobFifoLock_s* pFifoLock, __int64 a3, __int64 a4, volatile signed __int64* a5, char a6)>();
@@ -57,7 +56,6 @@ class VModel_BSP : public IDetour
 		spdlog::debug("| VAR: unk_141874550                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(unk_141874550));
 		spdlog::debug("| VAR: qword_167ED7BC0                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(qword_167ED7BC0));
 		spdlog::debug("| VAR: qword_167ED7C68                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(qword_167ED7C68));
-		spdlog::debug("| VAR: dword_1641E443C                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(dword_1641E443C)); // TODO: ThreadInMainThread() (g_ThreadMainThreadID) threadtools.cpp
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
@@ -93,7 +91,6 @@ class VModel_BSP : public IDetour
 		unk_141874550 = p_MOD_ProcessPakQueue.Offset(0x150).FindPatternSelf("48 8D 2D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void**>();
 		qword_167ED7BC0 = p_MOD_ProcessPakQueue.Offset(0x200).FindPatternSelf("48 83 3D").ResolveRelativeAddressSelf(0x3, 0x8).RCast<int64_t*>();
 		qword_167ED7C68 = p_MOD_ProcessPakQueue.Offset(0x200).FindPatternSelf("0F B7 05").ResolveRelativeAddressSelf(0x3, 0x7).RCast<int64_t*>();
-		dword_1641E443C = p_MOD_ProcessPakQueue.Offset(0x2A0).FindPatternSelf("3B 05").ResolveRelativeAddressSelf(0x2, 0x6).RCast<DWORD*>();
 
 		(*((char**)(&qword_167ED7C68))) -= 6;
 	}

@@ -29,3 +29,25 @@ bool ThreadInterlockedAssignIf64(int64 volatile* pDest, int64 value, int64 compe
 {
 	return _InterlockedCompareExchange64(pDest, comperand, value);
 }
+
+bool ThreadInMainThread()
+{
+	return (ThreadGetCurrentId() == (*g_ThreadMainThreadID));
+}
+
+ThreadId_t ThreadGetCurrentId()
+{
+#ifdef _WIN32
+	return GetCurrentThreadId();
+#elif defined( _PS3 )
+	sys_ppu_thread_t th = 0;
+	sys_ppu_thread_get_id(&th);
+	return th;
+#elif defined(POSIX)
+	return (ThreadId_t)pthread_self();
+#else
+	Assert(0);
+	DebuggerBreak();
+	return 0;
+#endif
+}

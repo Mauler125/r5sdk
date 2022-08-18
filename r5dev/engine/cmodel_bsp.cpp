@@ -264,7 +264,7 @@ void MOD_ProcessPakQueue()
                                 }
 
                                 sub_140441220(v25, v24);
-                                if (GetCurrentThreadId() == *dword_1641E443C)
+                                if (ThreadInMainThread())
                                 {
                                     if (*g_bPakFifoLockAcquired)
                                     {
