@@ -273,6 +273,9 @@ void DrawImGui()
 
 	ImGui::NewFrame();
 
+	g_pBrowser->RunTask();
+	g_pConsole->RunTask();
+
 	if (g_pBrowser->m_bActivate)
 	{
 		g_pInputSystem->EnableInput(false); // Disable input to game when browser is drawn.

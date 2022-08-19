@@ -494,33 +494,21 @@ bool CTextLogger::IsOnWordBoundary(const Coordinates & aAt) const
 	return isspace(line[cindex].m_Char) != isspace(line[cindex - 1].m_Char);
 }
 
-void CTextLogger::RemoveLine(int aStart, int aEnd, bool aInternal)
+void CTextLogger::RemoveLine(int aStart, int aEnd)
 {
-	if (!aInternal)
-		m_Mutex.lock();
-
 	assert(aEnd >= aStart);
 	assert(m_Lines.size() > (size_t)(aEnd - aStart));
 
 	m_Lines.erase(m_Lines.begin() + aStart, m_Lines.begin() + aEnd);
 	assert(!m_Lines.empty());
-
-	if (!aInternal)
-		m_Mutex.unlock();
 }
 
-void CTextLogger::RemoveLine(int aIndex, bool aInternal)
+void CTextLogger::RemoveLine(int aIndex)
 {
-	if (!aInternal)
-		m_Mutex.lock();
-
 	assert(m_Lines.size() > 1);
 
 	m_Lines.erase(m_Lines.begin() + aIndex);
 	assert(!m_Lines.empty());
-
-	if (!aInternal)
-		m_Mutex.unlock();
 }
 
 CTextLogger::Line& CTextLogger::InsertLine(int aIndex)
@@ -689,8 +677,6 @@ void CTextLogger::HandleMouseInputs(bool bHoveredScrollbar, bool bActiveScrollba
 
 void CTextLogger::Render()
 {
-	m_Mutex.lock();
-
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
 
 	ImGuiWindow* pWindow = ImGui::GetCurrentWindow();
@@ -880,7 +866,6 @@ void CTextLogger::Render()
 		ImGui::PopAllowKeyboardFocus();
 
 	ImGui::PopStyleVar();
-	m_Mutex.unlock();
 }
 
 void CTextLogger::Copy(bool aCopyAll)
@@ -1047,8 +1032,6 @@ void CTextLogger::SetTabSize(int aValue)
 
 void CTextLogger::InsertText(const ConLog_t & aValue)
 {
-	m_Mutex.lock();
-
 	if (!aValue.m_svConLog.empty())
 	{
 		Coordinates pos = GetActualLastLineCoordinates();
@@ -1058,8 +1041,6 @@ void CTextLogger::InsertText(const ConLog_t & aValue)
 
 		totalLines += InsertTextAt(pos, aValue.m_svConLog.c_str(), aValue.m_imColor);
 	}
-
-	m_Mutex.unlock();
 }
 
 void CTextLogger::MoveUp(int aAmount, bool aSelect)

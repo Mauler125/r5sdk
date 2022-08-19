@@ -8,6 +8,7 @@ public:
 	virtual bool Init() = 0;
 	virtual void Think() = 0;
 	virtual void RunFrame() = 0;
+	virtual void RunTask() = 0;
 	virtual void DrawSurface() = 0;
 	virtual void SetStyleVar() = 0;
 };

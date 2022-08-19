@@ -165,8 +165,8 @@ public:
 	bool HasSelection() const;
 	void MoveSelection(int aLines, bool aForward = true);
 
-	void RemoveLine(int aStart, int aEnd, bool aInternal = false);
-	void RemoveLine(int aIndex, bool aInternal = false);
+	void RemoveLine(int aStart, int aEnd);
+	void RemoveLine(int aIndex);
 
 private:
 	struct LoggerState_t
@@ -229,7 +229,6 @@ private:
 
 	Lines m_Lines;
 	LoggerState_t m_State;
-	std::mutex m_Mutex;
 	std::string m_svLineBuffer;
 public:
 	ImGuiTextFilter m_itFilter;

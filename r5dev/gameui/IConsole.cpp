@@ -139,25 +139,32 @@ void CConsole::RunFrame(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: runs tasks for the console while not being drawn
+// Purpose: runs tasks for the console while not being drawn 
+// (!!! RunTask and RunFrame must be called from the same thread !!!)
+//-----------------------------------------------------------------------------
+void CConsole::RunTask()
+{
+    if (m_Logger.GetTotalLines() > con_max_size_logvector->GetInt())
+    {
+        while (m_Logger.GetTotalLines() > con_max_size_logvector->GetInt())
+        {
+            m_Logger.RemoveLine(0);
+            m_nScrollBack++;
+            m_nSelectBack++;
+        }
+        m_Logger.MoveSelection(m_nSelectBack, false);
+        m_Logger.MoveCursor(m_nSelectBack, false);
+        m_nSelectBack = 0;
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: think
 //-----------------------------------------------------------------------------
 void CConsole::Think(void)
 {
     for (;;) // Loop running at 100-tps.
     {
-        if (m_Logger.GetTotalLines() > con_max_size_logvector->GetInt())
-        {
-            while (m_Logger.GetTotalLines() > con_max_size_logvector->GetInt())
-            {
-                m_Logger.RemoveLine(0);
-                m_nScrollBack++;
-                m_nSelectBack++;
-            }
-            m_Logger.MoveSelection(m_nSelectBack, false);
-            m_Logger.MoveCursor(m_nSelectBack, false);
-            m_nSelectBack = 0;
-        }
-
         while (m_vHistory.size() > 512)
         {
             m_vHistory.erase(m_vHistory.begin());

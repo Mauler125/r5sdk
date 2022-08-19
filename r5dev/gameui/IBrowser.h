@@ -16,6 +16,8 @@ public:
     virtual void Think(void);
 
     virtual void RunFrame(void);
+    virtual void RunTask(void){};
+
     virtual void DrawSurface(void);
 
     void BrowserPanel(void);
