@@ -325,14 +325,14 @@ void ConCommand::Init(void)
 	ConCommand::Create("bhit", "Bullet-hit trajectory debug.", FCVAR_DEVELOPMENTONLY | FCVAR_GAMEDLL, BHit_f, nullptr);
 #endif // !GAMEDLL_S0 && !GAMEDLL_S1
 #ifndef DEDICATED
-	ConCommand::Create("line", "Draw a debug line.", FCVAR_GAMEDLL | FCVAR_CHEAT, Line_f, nullptr);
-	ConCommand::Create("sphere", "Draw a debug sphere.", FCVAR_GAMEDLL | FCVAR_CHEAT, Sphere_f, nullptr);
-	ConCommand::Create("capsule", "Draw a debug capsule.", FCVAR_GAMEDLL | FCVAR_CHEAT, Capsule_f, nullptr);
+	ConCommand::Create("line", "Draw a debug line.", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, Line_f, nullptr);
+	ConCommand::Create("sphere", "Draw a debug sphere.", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, Sphere_f, nullptr);
+	ConCommand::Create("capsule", "Draw a debug capsule.", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, Capsule_f, nullptr);
 #endif //!DEDICATED
 	//-------------------------------------------------------------------------
 	// SERVER DLL                                                             |
 #ifndef CLIENT_DLL
-	ConCommand::Create("script", "Run input code as SERVER script on the VM.", FCVAR_GAMEDLL | FCVAR_CHEAT, SQVM_ServerScript_f, nullptr);
+	ConCommand::Create("script", "Run input code as SERVER script on the VM.", FCVAR_CHEAT, SQVM_ServerScript_f, nullptr);
 	ConCommand::Create("sv_kick", "Kick a client from the server by name. | Usage: kick \"<name>\".", FCVAR_RELEASE, Host_Kick_f, nullptr);
 	ConCommand::Create("sv_kickid", "Kick a client from the server by UserID or OriginID | Usage: kickid \"<UserID>\"/\"<OriginID>\".", FCVAR_RELEASE, Host_KickID_f, nullptr);
 	ConCommand::Create("sv_ban", "Bans a client from the server by name. | Usage: ban <name>.", FCVAR_RELEASE, Host_Ban_f, nullptr);
