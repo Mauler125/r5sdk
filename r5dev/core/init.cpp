@@ -137,7 +137,7 @@ void Systems_Init()
 
 	initTimer.Start();
 
-	WS_Init();      // Initialize Winsock.
+	WinSock_Init(); // Initialize Winsock.
 	MathLib_Init(); // Initialize Mathlib.
 
 	// Begin the detour transaction to hook the the process
@@ -174,6 +174,7 @@ void Systems_Init()
 	CServer_Attach(); // S1 and S2 CServer functions require work.
 #endif // !CLIENT_DLL && GAMEDLL_S3
 
+	Host_Attach();
 	CHostState_Attach();
 
 	CModelBsp_Attach();
@@ -260,7 +261,7 @@ void Systems_Shutdown()
 	shutdownTimer.Start();
 
 	// Shutdown Winsock system.
-	WS_Shutdown();
+	WinSock_Shutdown();
 
 	// Begin the detour transaction to unhook the the process
 	DetourTransactionBegin();
@@ -296,6 +297,7 @@ void Systems_Shutdown()
 	CServer_Detach(); // S1 and S2 CServer functions require work.
 #endif // !CLIENT_DLL && GAMEDLL_S3
 
+	Host_Detach();
 	CHostState_Detach();
 
 	CModelBsp_Detach();
@@ -361,7 +363,7 @@ void Systems_Shutdown()
 //
 /////////////////////////////////////////////////////
 
-void WS_Init()
+void WinSock_Init()
 {
 	WSAData wsaData{};
 	int nError = ::WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -370,7 +372,7 @@ void WS_Init()
 		std::cerr << "Failed to start Winsock via WSAStartup: (" << NET_ErrorString(WSAGetLastError()) << ")" << std::endl;
 	}
 }
-void WS_Shutdown()
+void WinSock_Shutdown()
 {
 	int nError = ::WSACleanup();
 	if (nError != 0)

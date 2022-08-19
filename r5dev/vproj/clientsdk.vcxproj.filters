@@ -579,6 +579,12 @@
     <ClCompile Include="..\networksystem\listmanager.cpp">
       <Filter>sdk\networksystem</Filter>
     </ClCompile>
+    <ClCompile Include="..\engine\host.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier0\frametask.cpp">
+      <Filter>sdk\tier0</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1726,6 +1732,12 @@
     </ClInclude>
     <ClInclude Include="..\public\isnapshotmgr.h">
       <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\iframetask.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\frametask.h">
+      <Filter>sdk\tier0</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

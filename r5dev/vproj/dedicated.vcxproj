@@ -222,6 +222,7 @@
     <ClInclude Include="..\public\icvar.h" />
     <ClInclude Include="..\public\ifile.h" />
     <ClInclude Include="..\public\ifilesystem.h" />
+    <ClInclude Include="..\public\iframetask.h" />
     <ClInclude Include="..\public\inetchannel.h" />
     <ClInclude Include="..\public\inetmessage.h" />
     <ClInclude Include="..\public\inetmsghandler.h" />
@@ -427,6 +428,7 @@
     <ClInclude Include="..\tier0\dbg.h" />
     <ClInclude Include="..\tier0\dbgflag.h" />
     <ClInclude Include="..\tier0\fasttimer.h" />
+    <ClInclude Include="..\tier0\frametask.h" />
     <ClInclude Include="..\tier0\interface.h" />
     <ClInclude Include="..\tier0\jobthread.h" />
     <ClInclude Include="..\tier0\memalloc.h" />
@@ -487,6 +489,7 @@
     <ClCompile Include="..\engine\clockdriftmgr.cpp" />
     <ClCompile Include="..\engine\cmodel_bsp.cpp" />
     <ClCompile Include="..\engine\common.cpp" />
+    <ClCompile Include="..\engine\host.cpp" />
     <ClCompile Include="..\engine\host_cmd.cpp" />
     <ClCompile Include="..\engine\host_state.cpp" />
     <ClCompile Include="..\engine\modelloader.cpp" />
@@ -555,6 +558,7 @@
     <ClCompile Include="..\tier0\cputopology.cpp" />
     <ClCompile Include="..\tier0\dbg.cpp" />
     <ClCompile Include="..\tier0\fasttimer.cpp" />
+    <ClCompile Include="..\tier0\frametask.cpp" />
     <ClCompile Include="..\tier0\jobthread.cpp" />
     <ClCompile Include="..\tier0\platform.cpp" />
     <ClCompile Include="..\tier0\threadtools.cpp" />

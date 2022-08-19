@@ -1,22 +1,25 @@
 #pragma once
 
 inline CMemory p_Host_RunFrame;
-inline auto _Host_RunFrame = p_Host_RunFrame.RCast<void(*)(void* unused, float time)>();
+inline auto v_Host_RunFrame = p_Host_RunFrame.RCast<void(*)(void* unused, float time)>();
 
 inline CMemory p_Host_RunFrame_Render;
-inline auto _Host_RunFrame_Render = p_Host_RunFrame_Render.RCast<void(*)(void)>();
+inline auto v_Host_RunFrame_Render = p_Host_RunFrame_Render.RCast<void(*)(void)>();
 
 inline CMemory p_Host_Error;
-inline auto Host_Error = p_Host_Error.RCast<int(*)(char* error, ...)>();
+inline auto v_Host_Error = p_Host_Error.RCast<int(*)(char* error, ...)>();
 
 inline CMemory p_VCR_EnterPausedState;
-inline auto VCR_EnterPausedState = p_VCR_EnterPausedState.RCast<void(*)(void)>();
+inline auto v_VCR_EnterPausedState = p_VCR_EnterPausedState.RCast<void(*)(void)>();
 
 inline bool* g_bAbortServerSet = nullptr;
 inline jmp_buf* host_abortserver = nullptr;
 
 inline float* interval_per_tick = nullptr;
 
+
+void Host_Attach();
+void Host_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 class VHost : public IDetour
 {
@@ -42,10 +45,10 @@ class VHost : public IDetour
 		p_Host_Error = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x4C\x24\x00\x48\x89\x54\x24\x00\x4C\x89\x44\x24\x00\x4C\x89\x4C\x24\x00\x53\x57\x48\x81\xEC\x00\x00\x00\x00"), "xxxx?xxxx?xxxx?xxxx?xxxxx????");
 		p_VCR_EnterPausedState = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x65\x48\x8B\x04\x25\x00\x00\x00\x00\xBB\x00\x00\x00\x00\xC6\x05\x00\x00\x00\x00\x00"), "xxxxxxxxxxx????x????xx?????");
 
-		_Host_RunFrame = p_Host_RunFrame.RCast<void(*)(void*, float)>();
-		_Host_RunFrame_Render = p_Host_Error.RCast<void(*)(void)>();
-		Host_Error = p_Host_Error.RCast<int(*)(char*, ...)>();
-		VCR_EnterPausedState = p_VCR_EnterPausedState.RCast<void(*)(void)>();
+		v_Host_RunFrame = p_Host_RunFrame.RCast<void(*)(void*, float)>();
+		v_Host_RunFrame_Render = p_Host_Error.RCast<void(*)(void)>();
+		v_Host_Error = p_Host_Error.RCast<int(*)(char*, ...)>();
+		v_VCR_EnterPausedState = p_VCR_EnterPausedState.RCast<void(*)(void)>();
 	}
 	virtual void GetVar(void) const
 	{

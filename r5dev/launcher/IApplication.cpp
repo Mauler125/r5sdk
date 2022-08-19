@@ -5,6 +5,7 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
+#include "tier0/frametask.h"
 #include "tier0/commandline.h"
 #include "tier1/cvar.h"
 #include "vpc/interfaces.h"
@@ -80,7 +81,9 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 		g_pHLClient = nullptr;
 	}
 
+	g_FrameTasks.push_back(std::move(g_DelayedCallTask));
 	g_bAppSystemInit = true;
+
 	return CModAppSystemGroup_Create(pModAppSystemGroup);
 }
 

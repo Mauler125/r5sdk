@@ -7,6 +7,7 @@
 #include "core/stdafx.h"
 #include "core/init.h"
 #include "core/logdef.h"
+#include "tier0/frametask.h"
 #include "tier1/cmd.h"
 #ifndef DEDICATED
 #include "windows/id3dx.h"
@@ -135,7 +136,7 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 
 		// Execute the command.
 		Cbuf_AddText(Cbuf_GetCurrentPlayer(), sCommand.c_str(), cmd_source_t::kCommandSrcCode);
-		Cbuf_Execute();
+		g_DelayedCallTask->AddFunc(Cbuf_Execute, 0);
 
 		sCommand.clear();
 

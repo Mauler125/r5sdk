@@ -14,6 +14,7 @@ History:
 #include "core/stdafx.h"
 #include "core/init.h"
 #include "core/resource.h"
+#include "tier0/frametask.h"
 #include "tier0/commandline.h"
 #include "tier1/IConVar.h"
 #include "tier1/cvar.h"
@@ -624,8 +625,7 @@ void CBrowser::SendHostingPostRequest(void)
 void CBrowser::ProcessCommand(const char* pszCommand) const
 {
     Cbuf_AddText(Cbuf_GetCurrentPlayer(), pszCommand, cmd_source_t::kCommandSrcCode);
-    std::thread t(Cbuf_Execute);
-    t.detach(); // Detatch from render thread.
+    g_DelayedCallTask->AddFunc(Cbuf_Execute, 0); // Run in main thread.
 }
 
 //-----------------------------------------------------------------------------

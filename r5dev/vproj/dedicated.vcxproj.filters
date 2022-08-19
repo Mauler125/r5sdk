@@ -1233,6 +1233,12 @@
     <ClInclude Include="..\public\isnapshotmgr.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\iframetask.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\frametask.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1537,6 +1543,12 @@
     </ClCompile>
     <ClCompile Include="..\tier1\generichash.cpp">
       <Filter>sdk\tier1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\host.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier0\frametask.cpp">
+      <Filter>sdk\tier0</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

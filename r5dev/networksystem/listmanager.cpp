@@ -13,6 +13,7 @@
 #include "vpc/keyvalues.h"
 #include "pylon.h"
 #include "listmanager.h"
+#include <tier0/frametask.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -89,8 +90,7 @@ void CServerListManager::ConnectToServer(const string& svServer, const string& s
 void CServerListManager::ProcessCommand(const char* pszCommand) const
 {
     Cbuf_AddText(Cbuf_GetCurrentPlayer(), pszCommand, cmd_source_t::kCommandSrcCode);
-    std::thread t(Cbuf_Execute);
-    t.detach(); // Detatch from caller thread (would otherwise deadlock!).
+    g_DelayedCallTask->AddFunc(Cbuf_Execute, 0); // Run in main thread.
 }
 
 CServerListManager* g_pServerListManager = new CServerListManager();
