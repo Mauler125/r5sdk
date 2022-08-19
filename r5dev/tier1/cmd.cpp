@@ -401,25 +401,21 @@ void ConCommand::InitShipped(void)
 	{
 		const char* pszMaskedBases[] =
 		{
-			"changelevel",
 #ifndef DEDICATED
 			"connect",
 			"connectAsSpectator",
 			"connectWithKey",
+			"set",
+			"silentconnect",
+			"ping",
 #endif // !DEDICATED
+			"changelevel",
 			"exit",
 			"map",
 			"map_background",
-#ifndef DEDICATED
-			"ping",
-#endif // !DEDICATED
 			"quit",
 			"restart",
 			"status",
-#ifndef DEDICATED
-			"set",
-			"silentconnect",
-#endif // !DEDICATED
 			"version",
 		};
 
