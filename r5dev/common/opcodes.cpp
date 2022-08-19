@@ -361,7 +361,7 @@ void RuntimePtc_Init() /* .TEXT */
 #ifndef CLIENT_DLL
 	FairFight_Init.Offset(0x0).FindPatternSelf("0F 87", CMemory::Direction::DOWN, 200).Patch({ 0x0F, 0x85 });                      // JA  --> JNZ | Prevent 'FairFight' anti-cheat from initializing on the server by comparing RAX against 0x0 instead. Init will crash since the plugins aren't shipped.
 #endif // !CLIENT_DLL
-	SCR_BeginLoadingPlaque.Offset(0x1AD).FindPatternSelf("75 27", CMemory::Direction::DOWN).Patch({ 0xEB, 0x27 });                 // JNE --> JMP | Prevent connect command from crashing by invalid call to UI function.
+	//SCR_BeginLoadingPlaque.Offset(0x1AD).FindPatternSelf("75 27", CMemory::Direction::DOWN).Patch({ 0xEB, 0x27 });                 // JNE --> JMP | Prevent connect command from crashing by invalid call to UI function.
 	p_SQVM_CompileError.Offset(0x0).FindPatternSelf("41 B0 01", CMemory::Direction::DOWN, 400).Patch({ 0x41, 0xB0, 0x00 });        // MOV --> MOV | Set script error level to 0 (not severe): 'mov r8b, 0'.
 	p_SQVM_CompileError.Offset(0xE0).FindPatternSelf("E8", CMemory::Direction::DOWN, 200).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | TODO: causes errors on client script error. Research required (same function as soft error but that one doesn't crash).
 #else

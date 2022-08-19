@@ -90,7 +90,7 @@ void CServerListManager::ConnectToServer(const string& svServer, const string& s
 void CServerListManager::ProcessCommand(const char* pszCommand) const
 {
     Cbuf_AddText(Cbuf_GetCurrentPlayer(), pszCommand, cmd_source_t::kCommandSrcCode);
-    g_DelayedCallTask->AddFunc(Cbuf_Execute, 0); // Run in main thread.
+    //g_DelayedCallTask->AddFunc(Cbuf_Execute, 0); // Run in main thread.
 }
 
 CServerListManager* g_pServerListManager = new CServerListManager();
