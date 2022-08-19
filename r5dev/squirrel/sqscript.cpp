@@ -4,6 +4,7 @@
 //
 //=============================================================================//
 #include "core/stdafx.h"
+#include "tier0/frametask.h"
 #include "tier1/cvar.h"
 #include "squirrel/sqapi.h"
 #include "squirrel/sqinit.h"
@@ -246,6 +247,17 @@ SQBool Script_LoadScript(HSQUIRRELVM v, const SQChar* szScriptPath, const SQChar
 //---------------------------------------------------------------------------------
 void Script_Execute(const SQChar* code, SQCONTEXT context)
 {
+	if (!ThreadInMainThread())
+	{
+		g_DelayedCallTask->AddFunc([code, context]()
+			{
+				string scode(code);
+				Script_Execute(scode.c_str(), context);
+			}, 0);
+
+		return; // Only run in main thread.
+	}
+
 	CSquirrelVM* script = Script_GetContextObject(context);
 
 	if (!script)
