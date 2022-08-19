@@ -220,6 +220,9 @@
     <Filter Include="sdk\public\utility">
       <UniqueIdentifier>{91e5c68f-327d-446c-840d-5e7a53d9a631}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\pluginsystem">
+      <UniqueIdentifier>{b22e88ea-1ee0-4431-82a4-e877a6798f23}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\cdll_engine_int.cpp">
@@ -584,6 +587,9 @@
     </ClCompile>
     <ClCompile Include="..\tier0\frametask.cpp">
       <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pluginsystem\pluginsystem.cpp">
+      <Filter>sdk\pluginsystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1738,6 +1744,9 @@
     </ClInclude>
     <ClInclude Include="..\tier0\frametask.h">
       <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pluginsystem\pluginsystem.h">
+      <Filter>sdk\pluginsystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

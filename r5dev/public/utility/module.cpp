@@ -118,7 +118,7 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, c
 
 //-----------------------------------------------------------------------------
 // Purpose: find array of bytes in process memory using SIMD instructions
-// Input  : *szPattern
+// Input  : *svPattern
 // Output : CMemory
 //-----------------------------------------------------------------------------
 CMemory CModule::FindPatternSIMD(const string& svPattern, const ModuleSections_t& moduleSection) const

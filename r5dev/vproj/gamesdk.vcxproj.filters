@@ -229,6 +229,9 @@
     <Filter Include="sdk\public\utility">
       <UniqueIdentifier>{2828835b-d972-4793-83f7-8eb1741b78ba}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\pluginsystem">
+      <UniqueIdentifier>{cd7b0538-e28c-4181-9e19-588f77d41d36}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\vengineclient_impl.cpp">
@@ -623,6 +626,9 @@
     </ClCompile>
     <ClCompile Include="..\engine\host.cpp">
       <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pluginsystem\pluginsystem.cpp">
+      <Filter>sdk\pluginsystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1825,6 +1831,9 @@
     </ClInclude>
     <ClInclude Include="..\public\iframetask.h">
       <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pluginsystem\pluginsystem.h">
+      <Filter>sdk\pluginsystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

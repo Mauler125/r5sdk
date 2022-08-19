@@ -193,6 +193,9 @@
     <Filter Include="sdk\public\utility">
       <UniqueIdentifier>{e0155821-8fb2-4fb6-aa6a-d3e6d980b64c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\pluginsystem">
+      <UniqueIdentifier>{d0650f0e-6359-4322-82c2-97f2e40f141f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\opcodes.h">
@@ -1239,6 +1242,9 @@
     <ClInclude Include="..\tier0\frametask.h">
       <Filter>sdk\tier0</Filter>
     </ClInclude>
+    <ClInclude Include="..\pluginsystem\pluginsystem.h">
+      <Filter>sdk\pluginsystem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1549,6 +1555,9 @@
     </ClCompile>
     <ClCompile Include="..\tier0\frametask.cpp">
       <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pluginsystem\pluginsystem.cpp">
+      <Filter>sdk\pluginsystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

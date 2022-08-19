@@ -87,6 +87,7 @@
     <ClCompile Include="..\networksystem\bansystem.cpp" />
     <ClCompile Include="..\networksystem\listmanager.cpp" />
     <ClCompile Include="..\networksystem\pylon.cpp" />
+    <ClCompile Include="..\pluginsystem\pluginsystem.cpp" />
     <ClCompile Include="..\protoc\cl_rcon.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
@@ -260,6 +261,7 @@
     <ClInclude Include="..\networksystem\pylon.h" />
     <ClInclude Include="..\networksystem\serverlisting.h" />
     <ClInclude Include="..\networksystem\sm_protocol.h" />
+    <ClInclude Include="..\pluginsystem\pluginsystem.h" />
     <ClInclude Include="..\protoc\cl_rcon.pb.h" />
     <ClInclude Include="..\protoc\sv_rcon.pb.h" />
     <ClInclude Include="..\public\avi\iavi.h" />
