@@ -274,7 +274,6 @@ FORCEINLINE void CHostState::LoadConfig(void) const
 #endif // !DEDICATED
 			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_dev.cfg\"", cmd_source_t::kCommandSrcCode);
 		}
-		Cbuf_Execute();
 	}
 }
 

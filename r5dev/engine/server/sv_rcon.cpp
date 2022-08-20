@@ -537,7 +537,6 @@ void CRConServer::Execute(const cl_rcon::request& cl_request, bool bConVar) cons
 	else // Execute command with "<val>".
 	{
 		Cbuf_AddText(Cbuf_GetCurrentPlayer(), cl_request.requestbuf().c_str(), cmd_source_t::kCommandSrcCode);
-		Cbuf_Execute();
 	}
 }
 
