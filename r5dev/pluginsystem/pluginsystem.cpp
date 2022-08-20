@@ -1,6 +1,6 @@
 //=============================================================================//
 //
-// Purpose: Manager that manages Plugins!
+// Purpose: plugin system that manages plugins!
 // 
 //-----------------------------------------------------------------------------
 //
@@ -48,19 +48,21 @@ bool CPluginSystem::LoadPluginInstance(PluginInstance_t& pluginInst)
 		return false;
 
 	HMODULE loadedPlugin = LoadLibraryA(pluginInst.m_svPluginFullPath.c_str());
-	if (loadedPlugin == INVALID_HANDLE_VALUE)
+	if (loadedPlugin == INVALID_HANDLE_VALUE || loadedPlugin == 0)
 		return false;
 
-	pluginInst.m_hModule = CModule(pluginInst.m_svPluginName);
+	CModule pluginModule = CModule(pluginInst.m_svPluginName);
 
-	auto onLoadFn = pluginInst.m_hModule.GetExportedFunction("PluginInstance_OnLoad").RCast<PluginInstance_t::OnLoad>();
+	auto onLoadFn = pluginModule.GetExportedFunction("PluginInstance_OnLoad").RCast<PluginInstance_t::OnLoad>();
 	Assert(onLoadFn);
 
-	onLoadFn(pluginInst.m_hModule, g_GameDll);
+	if (!onLoadFn(pluginInst.m_svPluginName.c_str()))
+	{
+		FreeLibrary(loadedPlugin);
+		return false;
+	}
 
-	auto getDescFn = pluginInst.m_hModule.GetExportedFunction("PluginInstance_GetDescription").RCast<PluginInstance_t::GetDescription>();
-	if (getDescFn)
-		pluginInst.m_svDescription = getDescFn();
+	pluginInst.m_hModule = pluginModule;
 
 	return pluginInst.m_bIsLoaded = true;
 }
@@ -75,11 +77,11 @@ bool CPluginSystem::UnloadPluginInstance(PluginInstance_t& pluginInst)
 	if (!pluginInst.m_bIsLoaded)
 		return false;
 
-	Assert(pluginInst.m_hModule.GetModuleBase());
-
 	auto onUnloadFn = pluginInst.m_hModule.GetExportedFunction("PluginInstance_OnUnload").RCast<PluginInstance_t::OnUnload>();
+	Assert(onUnloadFn);
+
 	if (onUnloadFn)
-		onUnloadFn(g_GameDll);
+		onUnloadFn();
 
 	bool unloadOk = FreeLibrary((HMODULE)pluginInst.m_hModule.GetModuleBase());
 	Assert(unloadOk);

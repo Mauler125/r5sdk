@@ -3,6 +3,8 @@
 /*-----------------------------------------------------------------------------
  * _interfaces.h
  *-----------------------------------------------------------------------------*/
+
+// Maybe make them constexpr.
 #define VENGINE_LAUNCHER_API_VERSION              "VENGINE_LAUNCHER_API_VERSION004"
 #define VENGINE_GAMEUIFUNCS_VERSION               "VENGINE_GAMEUIFUNCS_VERSION005"
 
@@ -36,7 +38,8 @@
 
 #define SHADERSYSTEM_INTERFACE_VERSION            "ShaderSystem002"
 #define FILESYSTEM_INTERFACE_VERSION              "VFileSystem017"
- //-----------------------------------------------------------------------------
+#define FACTORY_INTERFACE_VERSION                 "VFactorySystem001"
+//-----------------------------------------------------------------------------
 
 enum class InterfaceStatus_t : int
 {
@@ -84,6 +87,7 @@ public:
 	virtual size_t GetVersionIndex(const string& svInterfaceName) const;
 	virtual void GetFactoriesFromRegister(void);
 	virtual CMemory GetFactoryPtr(const string& svFactoryName, bool versionLess = true) const;
+	virtual const char* GetFactoryFullName(const string& svFactoryName) const;
 
 private:
 	vector<FactoryInfo_t> m_vFactories;

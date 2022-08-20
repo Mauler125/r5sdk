@@ -28,9 +28,9 @@
 #include <cassert>
 #include <filesystem>
 
-#if !defined(DEDICATED) && !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
+#if !defined(DEDICATED) && !defined(SDKLAUNCHER) && !defined (NETCONSOLE) && !defined(PLUGINSDK)
 #include <d3d11.h>
-#endif // !DEDICATED && !SDKLAUNCHER && !NETCONSOLE
+#endif // !DEDICATED && !SDKLAUNCHER && !NETCONSOLE && !PLUGINSDK
 
 #include "thirdparty/nlohmann/json.hpp"
 
@@ -53,7 +53,7 @@
 #include "launcher/launcherdefs.h"
 #endif // SDKLAUNCHER
 
-#if !defined(DEDICATED) && !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
+#if !defined(DEDICATED) && !defined(SDKLAUNCHER) && !defined (NETCONSOLE) && !defined(PLUGINSDK)
 #include "thirdparty/imgui/include/imgui.h"
 #include "thirdparty/imgui/include/imgui_stdlib.h"
 #include "thirdparty/imgui/include/imgui_logger.h"
@@ -62,12 +62,12 @@
 #include "thirdparty/imgui/include/imgui_internal.h"
 #include "thirdparty/imgui/include/imgui_impl_dx11.h"
 #include "thirdparty/imgui/include/imgui_impl_win32.h"
-#endif // !DEDICATED && !SDKLAUNCHER && !NETCONSOLE
+#endif // !DEDICATED && !SDKLAUNCHER && !NETCONSOLE && !PLUGINSDK
 
-#if !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
+#if !defined(SDKLAUNCHER) && !defined (NETCONSOLE) && !defined(PLUGINSDK)
 #include "thirdparty/lzham/include/lzham_types.h"
 #include "thirdparty/lzham/include/lzham.h"
-#endif // !SDKLAUNCHER && !NETCONSOLE
+#endif // !SDKLAUNCHER && !NETCONSOLE && !PLUGINSDK
 
 #include "thirdparty/spdlog/include/spdlog.h"
 #include "thirdparty/spdlog/include/async.h"
@@ -93,11 +93,11 @@
 #include "tier0/basetypes.h"
 #include "tier0/platform.h"
 #include "tier0/commonmacros.h"
-#if !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
+#if !defined(SDKLAUNCHER) && !defined (NETCONSOLE) && !defined(PLUGINSDK)
 #include "tier0/dbg.h"
-#endif // !SDKLAUNCHER && !NETCONSOLE
+#endif // !SDKLAUNCHER && !NETCONSOLE && !PLUGINSDK
 
-#if !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
+#if !defined(SDKLAUNCHER) && !defined (NETCONSOLE) && !defined(PLUGINSDK)
 #if !defined (DEDICATED)
 inline CModule g_GameDll = CModule("r5apex.exe");
 inline CModule g_RadVideoToolsDll   = CModule("bink2w64.dll");
@@ -121,4 +121,4 @@ ReturnType CallVFunc(int index, void* thisPtr, Args... args)
 {
 	return (*reinterpret_cast<ReturnType(__fastcall***)(void*, Args...)>(thisPtr))[index](thisPtr, args...);
 }
-#endif // !SDKLAUNCHER && !NETCONSOLE
+#endif // !SDKLAUNCHER && !NETCONSOLE && !PLUGINSDK

@@ -38,7 +38,7 @@ void CFactory::AddFactory(FactoryInfo_t factoryInfo)
 size_t CFactory::GetVersionIndex(const string& svInterfaceName) const
 {
 	size_t nVersionIndex = 0;
-	for (size_t i = 0; i < svInterfaceName.length(); i++) // Loop through each charater to find the start of interface version.
+	for (size_t i = 0; i < svInterfaceName.length(); i++) // Loop through each character to find the start of interface version.
 	{
 		if (std::isdigit(svInterfaceName[i]))
 		{
@@ -89,6 +89,28 @@ CMemory CFactory::GetFactoryPtr(const string& svFactoryName, bool bVersionLess) 
 	}
 
 	return CMemory();
+}
+
+
+//---------------------------------------------------------------------------------
+// Purpose: get full factory string from versionless string
+// Input  : svFactoryName - 
+// Output : const char*
+//---------------------------------------------------------------------------------
+const char* CFactory::GetFactoryFullName(const string& svFactoryName) const
+{
+	for (const FactoryInfo_t& it : m_vFactories)
+	{
+		if (it.m_szFactoryName == svFactoryName)
+			return it.m_szFactoryFullName.c_str();
+	}
+
+	return "";
+}
+
+extern "C" __declspec(dllexport) void* GetFactorySystem()
+{
+	return g_pFactory;
 }
 
 CFactory* g_pFactory = new CFactory();

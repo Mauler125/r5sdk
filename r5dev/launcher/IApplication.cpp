@@ -10,6 +10,7 @@
 #include "tier1/cvar.h"
 #include "vpc/interfaces.h"
 #include "launcher/IApplication.h"
+#include "pluginsystem/pluginsystem.h"
 #include "ebisusdk/EbisuSDK.h"
 #include "engine/cmodel_bsp.h"
 #include "engine/sys_engine.h"
@@ -60,6 +61,17 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 #endif // DEDICATED
 	g_pConCommand->Init();
 	g_pFactory->GetFactoriesFromRegister();
+	g_pFactory->AddFactory(FACTORY_INTERFACE_VERSION, g_pFactory);
+	g_pFactory->AddFactory(INTERFACEVERSION_PLUGINSYSTEM, g_pPluginSystem);
+	
+	// DEBUG CODE FOR PLUGINS
+	//g_pPluginSystem->PluginSystem_Init();
+	//for (auto& it : g_pPluginSystem->GetPluginInstances())
+	//{
+	//	if (g_pPluginSystem->LoadPluginInstance(it))
+	//		spdlog::info("Load PLUGIN SUCCESS\n");
+	//}
+
 #ifndef DEDICATED
 	g_pClientEntityList = g_pFactory->GetFactoryPtr("VClientEntityList003", false).RCast<IClientEntityList*>();
 
