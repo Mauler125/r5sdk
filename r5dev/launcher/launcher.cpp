@@ -6,6 +6,7 @@
 //===========================================================================//
 #include "core/stdafx.h"
 #include "tier0/commandline.h"
+#include "tier1/strtools.h"
 #include "launcher/launcher.h"
 
 int HWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
@@ -47,9 +48,9 @@ void RemoveSpuriousGameParameters()
 	char lastGameArg[MAX_PATH];
 	for (int i = 0; i < CommandLine()->ParmCount() - 1; i++)
 	{
-		if (_stricmp(CommandLine()->GetParm(i), "-game") == 0)
+		if (Q_stricmp(CommandLine()->GetParm(i), "-game") == 0)
 		{
-			_snprintf(lastGameArg, sizeof(lastGameArg), "\"%s\"", CommandLine()->GetParm(i + 1));
+			Q_snprintf(lastGameArg, sizeof(lastGameArg), "\"%s\"", CommandLine()->GetParm(i + 1));
 			++nGameArgs;
 			++i;
 		}
