@@ -35,7 +35,26 @@ void CPluginSystem::PluginSystem_Init()
 //-----------------------------------------------------------------------------
 void CPluginSystem::PluginSystem_Reload()
 {
+	CreateDirectories("bin\\x64_plugins\\.");
 
+	for (auto& it : fs::directory_iterator("bin\\x64_plugins"))
+	{
+		if (!it.is_regular_file())
+			continue;
+
+		if (auto path = it.path(); path.has_filename() && path.has_extension() && path.extension().compare(".dll") == 0)
+		{
+			bool addInstance = true;
+			for (auto& inst : pluginInstances)
+			{
+				if (inst.m_svPluginFullPath.compare(path.u8string()) == 0)
+					addInstance = false;
+			}
+
+			if (addInstance)
+				pluginInstances.push_back(PluginInstance(path.filename().u8string(), path.u8string()));
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -45,18 +64,17 @@ void CPluginSystem::PluginSystem_Reload()
 //-----------------------------------------------------------------------------
 bool CPluginSystem::LoadPluginInstance(PluginInstance& pluginInst)
 {
-	if (pluginInst.m_bIsLoaded) // Ugh need to make proper module manager.
+	if (pluginInst.m_bIsLoaded)
 		return false;
 
 	HMODULE loadedPlugin = LoadLibraryA(pluginInst.m_svPluginFullPath.c_str());
-	if (!loadedPlugin)
+	if (loadedPlugin == INVALID_HANDLE_VALUE)
 		return false;
 
 	pluginInst.m_hModule = CModule(pluginInst.m_svPluginName);
 
 	auto onLoadFn = pluginInst.m_hModule.GetExportedFunction("PluginInstance_OnLoad").RCast<PluginInstance::OnLoad>();
-	if (!onLoadFn)
-		return false;
+	Assert(onLoadFn);
 
 	onLoadFn(pluginInst.m_hModule, g_GameDll);
 
@@ -68,7 +86,7 @@ bool CPluginSystem::LoadPluginInstance(PluginInstance& pluginInst)
 	if (getDescFn)
 		pluginInst.m_svDescription = getDescFn();
 
-	return pluginInst.m_bIsLoaded = true; // Change this sooooooon.
+	return pluginInst.m_bIsLoaded = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -81,16 +99,16 @@ bool CPluginSystem::UnloadPluginInstance(PluginInstance& pluginInst)
 	if (!pluginInst.m_bIsLoaded)
 		return false;
 
-	if (!pluginInst.m_hModule.GetModuleBase())
-		return false;
+	Assert(pluginInst.m_hModule.GetModuleBase());
 
 	auto onUnloadFn = pluginInst.m_hModule.GetExportedFunction("PluginInstance_OnUnload").RCast<PluginInstance::OnUnload>();
 	if (onUnloadFn)
 		onUnloadFn(g_GameDll);
 
 	bool unloadOk = FreeLibrary((HMODULE)pluginInst.m_hModule.GetModuleBase());
-	if (unloadOk)
-		pluginInst.m_bIsLoaded = false;
+	Assert(unloadOk);
+
+	pluginInst.m_bIsLoaded = false;
 
 	return unloadOk;
 }
