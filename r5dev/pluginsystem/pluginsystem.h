@@ -25,7 +25,6 @@ public:
 		// Might wanna make a status code system.
 		typedef void(*OnLoad)(CModule, CModule);
 		typedef void(*OnUnload)(CModule);
-		typedef int16_t(*GetVersion)();
 		typedef const char* (*GetDescription)();
 
 		CModule m_hModule;
