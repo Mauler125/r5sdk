@@ -5,7 +5,7 @@ class CPluginSystem
 public:	
 	struct PluginInstance
 	{
-		PluginInstance(string svPluginName, string svPluginFullPath) : m_svPluginName(svPluginName), m_svPluginFullPath(svPluginFullPath), m_svDescription(std::string()), m_nVersion(0), m_hModule(""), m_bIsLoaded(false) {};
+		PluginInstance(string svPluginName, string svPluginFullPath) : m_svPluginName(svPluginName), m_svPluginFullPath(svPluginFullPath), m_svDescription(std::string()), m_nVersion(0), m_bIsLoaded(false) {};
 
 		// Might wanna make a status code system.
 		typedef void(*OnLoad)(CModule, CModule);
@@ -23,7 +23,6 @@ public:
 	};
 
 	void PluginSystem_Init();
-	void PluginSystem_Reload();
 	bool ReloadPluginInstance(PluginInstance& pluginInst);
 	bool LoadPluginInstance(PluginInstance& pluginInst);
 	bool UnloadPluginInstance(PluginInstance& pluginInst);
@@ -32,3 +31,4 @@ public:
 private:
 	vector<PluginInstance> pluginInstances;
 };
+extern CPluginSystem* g_pPluginSystem;

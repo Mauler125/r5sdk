@@ -15,27 +15,7 @@
 //-----------------------------------------------------------------------------
 void CPluginSystem::PluginSystem_Init()
 {
-	CreateDirectories("bin\\x64_plugins\\.");
-
-	for (auto& it : fs::directory_iterator("bin\\x64_plugins"))
-	{
-		if (!it.is_regular_file())
-			continue;
-
-		if (auto path = it.path(); path.has_filename() && path.has_extension() && path.extension().compare(".dll") == 0)
-		{
-			pluginInstances.push_back(PluginInstance(path.filename().u8string(), path.u8string()));
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: reload the plugin system
-// Input  :
-//-----------------------------------------------------------------------------
-void CPluginSystem::PluginSystem_Reload()
-{
-	CreateDirectories("bin\\x64_plugins\\.");
+	CreateDirectories("bin\\x64_plugins\\");
 
 	for (auto& it : fs::directory_iterator("bin\\x64_plugins"))
 	{
@@ -132,3 +112,5 @@ vector<CPluginSystem::PluginInstance>& CPluginSystem::GetPluginInstances()
 {
 	return pluginInstances;
 }
+
+CPluginSystem* g_pPluginSystem = new CPluginSystem();
