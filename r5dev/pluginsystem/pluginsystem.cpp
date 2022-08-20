@@ -7,6 +7,7 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
+#include "vpc/interfaces.h"
 #include "pluginsystem.h"
 
 //-----------------------------------------------------------------------------
@@ -32,7 +33,7 @@ void CPluginSystem::PluginSystem_Init()
 			}
 
 			if (addInstance)
-				pluginInstances.push_back(PluginInstance(path.filename().u8string(), path.u8string()));
+				pluginInstances.push_back(PluginInstance_t(path.filename().u8string(), path.u8string()));
 		}
 	}
 }
@@ -42,7 +43,7 @@ void CPluginSystem::PluginSystem_Init()
 // Input  : pluginInst* -
 // Output : bool
 //-----------------------------------------------------------------------------
-bool CPluginSystem::LoadPluginInstance(PluginInstance& pluginInst)
+bool CPluginSystem::LoadPluginInstance(PluginInstance_t& pluginInst)
 {
 	if (pluginInst.m_bIsLoaded)
 		return false;
@@ -53,16 +54,12 @@ bool CPluginSystem::LoadPluginInstance(PluginInstance& pluginInst)
 
 	pluginInst.m_hModule = CModule(pluginInst.m_svPluginName);
 
-	auto onLoadFn = pluginInst.m_hModule.GetExportedFunction("PluginInstance_OnLoad").RCast<PluginInstance::OnLoad>();
+	auto onLoadFn = pluginInst.m_hModule.GetExportedFunction("PluginInstance_OnLoad").RCast<PluginInstance_t::OnLoad>();
 	Assert(onLoadFn);
 
 	onLoadFn(pluginInst.m_hModule, g_GameDll);
 
-	auto getVersFn = pluginInst.m_hModule.GetExportedFunction("PluginInstance_GetVersion").RCast<PluginInstance::GetVersion>();
-	if (getVersFn)
-		pluginInst.m_nVersion = getVersFn();
-
-	auto getDescFn = pluginInst.m_hModule.GetExportedFunction("PluginInstance_GetDescription").RCast<PluginInstance::GetDescription>();
+	auto getDescFn = pluginInst.m_hModule.GetExportedFunction("PluginInstance_GetDescription").RCast<PluginInstance_t::GetDescription>();
 	if (getDescFn)
 		pluginInst.m_svDescription = getDescFn();
 
@@ -74,14 +71,14 @@ bool CPluginSystem::LoadPluginInstance(PluginInstance& pluginInst)
 // Input  : pluginInst* -
 // Output : bool
 //-----------------------------------------------------------------------------
-bool CPluginSystem::UnloadPluginInstance(PluginInstance& pluginInst)
+bool CPluginSystem::UnloadPluginInstance(PluginInstance_t& pluginInst)
 {
 	if (!pluginInst.m_bIsLoaded)
 		return false;
 
 	Assert(pluginInst.m_hModule.GetModuleBase());
 
-	auto onUnloadFn = pluginInst.m_hModule.GetExportedFunction("PluginInstance_OnUnload").RCast<PluginInstance::OnUnload>();
+	auto onUnloadFn = pluginInst.m_hModule.GetExportedFunction("PluginInstance_OnUnload").RCast<PluginInstance_t::OnUnload>();
 	if (onUnloadFn)
 		onUnloadFn(g_GameDll);
 
@@ -98,7 +95,7 @@ bool CPluginSystem::UnloadPluginInstance(PluginInstance& pluginInst)
 // Input  : pluginInst* -
 // Output : bool
 //-----------------------------------------------------------------------------
-bool CPluginSystem::ReloadPluginInstance(PluginInstance& pluginInst)
+bool CPluginSystem::ReloadPluginInstance(PluginInstance_t& pluginInst)
 {
 	return UnloadPluginInstance(pluginInst) ? LoadPluginInstance(pluginInst) : false;
 }
@@ -108,9 +105,47 @@ bool CPluginSystem::ReloadPluginInstance(PluginInstance& pluginInst)
 // Input  : 
 // Output : vector<CPluginSystem::PluginInstance>&
 //-----------------------------------------------------------------------------
-vector<CPluginSystem::PluginInstance>& CPluginSystem::GetPluginInstances()
+vector<CPluginSystem::PluginInstance_t>& CPluginSystem::GetPluginInstances()
 {
 	return pluginInstances;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: get all plugin callbacks
+// Input  : 
+// Output : unordered_map<string, vector<pair<string, void*>>>&
+//-----------------------------------------------------------------------------
+unordered_map<string, vector<pair<string, void*>>>& CPluginSystem::GetPluginCallbacks()
+{
+	return pluginCallbacks;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: help plugins with anything
+// Input  : *help
+// Output : void*
+//-----------------------------------------------------------------------------
+void* CPluginSystem::HelpWithAnything(PluginHelpWithAnything_t* help)
+{
+	switch (help->m_nHelpID)
+	{
+	case PluginHelpWithAnything_t::ePluginHelp::PLUGIN_GET_FUNCTION:
+	{
+		break;
+	}
+	case PluginHelpWithAnything_t::ePluginHelp::PLUGIN_REGISTER_CALLBACK:
+	{
+		break;
+	}
+	case PluginHelpWithAnything_t::ePluginHelp::PLUGIN_UNREGISTER_CALLBACK:
+	{
+		break;
+	}
+	default:
+		break;
+	}
+
+	return nullptr;
 }
 
 CPluginSystem* g_pPluginSystem = new CPluginSystem();

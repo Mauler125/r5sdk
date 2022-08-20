@@ -1835,6 +1835,9 @@
     <ClInclude Include="..\pluginsystem\pluginsystem.h">
       <Filter>sdk\pluginsystem</Filter>
     </ClInclude>
+    <ClInclude Include="..\pluginsystem\ipluginsystem.h">
+      <Filter>sdk\pluginsystem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\shared\resource\lockedserver.png">

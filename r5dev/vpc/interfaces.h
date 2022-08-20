@@ -59,17 +59,17 @@ struct InterfaceGlobals_t
 };
 //-----------------------------------------------------------------------------
 
-struct FactoryInfo
+struct FactoryInfo_t
 {
 	CMemory m_pFactoryPtr;
 	string m_szFactoryFullName;
 	string m_szFactoryName;
 	string m_szFactoryVersion;
 
-	FactoryInfo() : m_szFactoryFullName(string()), m_szFactoryName(string()), m_szFactoryVersion(string()), m_pFactoryPtr(nullptr) {}
-	FactoryInfo(string factoryFullName, string factoryName, string factoryVersion, uintptr_t factoryPtr) : 
+	FactoryInfo_t() : m_szFactoryFullName(string()), m_szFactoryName(string()), m_szFactoryVersion(string()), m_pFactoryPtr(nullptr) {}
+	FactoryInfo_t(string factoryFullName, string factoryName, string factoryVersion, uintptr_t factoryPtr) : 
 		m_szFactoryFullName(factoryFullName), m_szFactoryName(factoryName), m_szFactoryVersion(factoryVersion), m_pFactoryPtr(factoryPtr) {}
-	FactoryInfo(string factoryFullName, uintptr_t factoryPtr) : 
+	FactoryInfo_t(string factoryFullName, uintptr_t factoryPtr) : 
 		m_szFactoryFullName(factoryFullName), m_szFactoryName(string()), m_szFactoryVersion(string()), m_pFactoryPtr(factoryPtr) {}
 };
 
@@ -80,13 +80,13 @@ class CFactory
 {
 public:
 	virtual void AddFactory(const string& svFactoryName, void* pFactory);
-	virtual void AddFactory(FactoryInfo factoryInfo);
+	virtual void AddFactory(FactoryInfo_t factoryInfo);
 	virtual size_t GetVersionIndex(const string& svInterfaceName) const;
 	virtual void GetFactoriesFromRegister(void);
 	virtual CMemory GetFactoryPtr(const string& svFactoryName, bool versionLess = true) const;
 
 private:
-	vector<FactoryInfo> m_vFactories;
+	vector<FactoryInfo_t> m_vFactories;
 };
 extern CFactory* g_pFactory;
 
