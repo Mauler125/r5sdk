@@ -1049,7 +1049,6 @@ void BHit_f(const CCommand& args)
 			vecAbsStart.z + vecAbsEnd.z * MAX_COORD_RANGE);
 
 		Cbuf_AddText(Cbuf_GetCurrentPlayer(), szBuf, cmd_source_t::kCommandSrcCode);
-		Cbuf_Execute();
 	}
 #endif // !DEDICATED
 }
