@@ -108,6 +108,9 @@ const char* CFactory::GetFactoryFullName(const string& svFactoryName) const
 	return "";
 }
 
+//---------------------------------------------------------------------------------
+// Purpose: expose factory system to other dlls
+//---------------------------------------------------------------------------------
 extern "C" __declspec(dllexport) void* GetFactorySystem()
 {
 	return g_pFactory;
