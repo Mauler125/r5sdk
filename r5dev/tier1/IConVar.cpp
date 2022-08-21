@@ -107,9 +107,9 @@ void ConVar::Init(void) const
 	sv_rcon_debug       = ConVar::Create("sv_rcon_debug"      , "0" , FCVAR_RELEASE, "Show rcon debug information ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_sendlogs    = ConVar::Create("sv_rcon_sendlogs"   , "0" , FCVAR_RELEASE, "Network console logs to connected and authenticated sockets.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_banpenalty  = ConVar::Create("sv_rcon_banpenalty" , "10", FCVAR_RELEASE, "Number of minutes to ban users who fail rcon authentication.", false, 0.f, false, 0.f, nullptr, nullptr);
-	sv_rcon_maxfailures = ConVar::Create("sv_rcon_maxfailures", "10", FCVAR_RELEASE, "Max number of times a user can fail rcon authentication before being banned.", false, 0.f, false, 0.f, nullptr, nullptr);
-	sv_rcon_maxignores  = ConVar::Create("sv_rcon_maxignores" , "15", FCVAR_RELEASE, "Max number of times a user can ignore the no-auth message before being banned.", false, 0.f, false, 0.f, nullptr, nullptr);
-	sv_rcon_maxsockets  = ConVar::Create("sv_rcon_maxsockets" , "32", FCVAR_RELEASE, "Max number of accepted sockets before the server starts closing redundant sockets.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sv_rcon_maxfailures = ConVar::Create("sv_rcon_maxfailures", "10", FCVAR_RELEASE, "Max number of times a user can fail rcon authentication before being banned.", true, 1.f, false, 0.f, nullptr, nullptr);
+	sv_rcon_maxignores  = ConVar::Create("sv_rcon_maxignores" , "15", FCVAR_RELEASE, "Max number of times a user can ignore the no-auth message before being banned.", true, 1.f, false, 0.f, nullptr, nullptr);
+	sv_rcon_maxsockets  = ConVar::Create("sv_rcon_maxsockets" , "32", FCVAR_RELEASE, "Max number of accepted sockets before the server starts closing redundant sockets.", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_whitelist_address = ConVar::Create("sv_rcon_whitelist_address", "", FCVAR_RELEASE, "This address is not considered a 'redundant' socket and will never be banned for failed authentications.", false, 0.f, false, 0.f, nullptr, "Format: '::ffff:127.0.0.1'.");
 #endif // DEDICATED
 #endif // !CLIENT_DLL
@@ -122,7 +122,7 @@ void ConVar::Init(void) const
 	cl_rcon_request_sendlogs = ConVar::Create("cl_rcon_request_sendlogs", "1" , FCVAR_RELEASE, "Request the rcon server to send console logs on connect.", false, 0.f, false, 0.f, nullptr, nullptr);
 
 	cl_drawconsoleoverlay           = ConVar::Create("cl_drawconsoleoverlay"          , "0" , FCVAR_DEVELOPMENTONLY, "Draws the RUI console overlay at the top of the screen.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_consoleoverlay_lines         = ConVar::Create("cl_consoleoverlay_lines"        , "3" , FCVAR_DEVELOPMENTONLY, "Number of lines of console output to draw.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_consoleoverlay_lines         = ConVar::Create("cl_consoleoverlay_lines"        , "3" , FCVAR_DEVELOPMENTONLY, "Number of lines of console output to draw.", true, 1.f, false, 0.f, nullptr, nullptr);
 	cl_consoleoverlay_invert_rect_x = ConVar::Create("cl_consoleoverlay_invert_rect_x", "0" , FCVAR_DEVELOPMENTONLY, "Inverts the X rect for RUI console overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_consoleoverlay_invert_rect_y = ConVar::Create("cl_consoleoverlay_invert_rect_y", "0" , FCVAR_DEVELOPMENTONLY, "Inverts the Y rect for RUI console overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_consoleoverlay_offset_x      = ConVar::Create("cl_consoleoverlay_offset_x"     , "10", FCVAR_DEVELOPMENTONLY, "X offset for RUI console overlay.", false, 1.f, false, 50.f, nullptr, nullptr);
@@ -168,7 +168,7 @@ void ConVar::Init(void) const
 	cl_materialinfo_offset_x = ConVar::Create("cl_materialinfo_offset_x", "0"  , FCVAR_DEVELOPMENTONLY, "X offset for material debug info overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_materialinfo_offset_y = ConVar::Create("cl_materialinfo_offset_y", "420", FCVAR_DEVELOPMENTONLY, "Y offset for material debug info overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 
-	con_max_size_logvector        = ConVar::Create("con_max_size_logvector"        , "1024", FCVAR_DEVELOPMENTONLY, "Maximum number of logs in the console before cleanup starts.", true, 0.f, false, 0.f, nullptr, nullptr);
+	con_max_size_logvector        = ConVar::Create("con_max_size_logvector"        , "1024", FCVAR_DEVELOPMENTONLY, "Maximum number of logs in the console before cleanup starts.", true, 1.f, false, 0.f, nullptr, nullptr);
 	con_max_size_history          = ConVar::Create("con_max_size_history"          , "512" , FCVAR_DEVELOPMENTONLY, "Maximum number of command history items before cleanup starts.", true, 0.f, false, 0.f, nullptr, nullptr);
 	con_suggestion_limit          = ConVar::Create("con_suggestion_limit"          , "128" , FCVAR_DEVELOPMENTONLY, "Maximum number of suggestions the autocomplete window will show for the console.", true, 0.f, false, 0.f, nullptr, nullptr);
 	con_suggestion_showhelptext   = ConVar::Create("con_suggestion_showhelptext"   , "1"   , FCVAR_DEVELOPMENTONLY, "Show CommandBase help text in autocomplete window.", false, 0.f, false, 0.f, nullptr, nullptr);
