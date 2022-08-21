@@ -2,6 +2,7 @@
 #ifndef DEDICATED // This file should not be compiled for DEDICATED!
 //------------------------------
 #define STB_IMAGE_IMPLEMENTATION
+#include "tier0/threadtools.h"
 #include "tier1/cvar.h"
 #include "windows/id3dx.h"
 #include "windows/input.h"
@@ -210,13 +211,9 @@ void GetPresent()
 		&nFeatureLevelsSupported,
 		&pContext)))
 	{
-		if (mat_showdxoutput->GetBool())
-		{
-			Error(eDLL_T::MS, "+--------------------------------------------------------+\n");
-			Error(eDLL_T::MS, "| >>>>>>>>>| VIRTUAL METHOD TABLE HOOK FAILED |<<<<<<<<< |\n");
-			Error(eDLL_T::MS, "+--------------------------------------------------------+\n");
-		}
+		Error(eDLL_T::MS, "Failed to create device and swap chain: error code = %08x\n", hr);
 		DirectX_Shutdown();
+
 		return;
 	}
 
@@ -349,9 +346,9 @@ void DestroyRenderTarget()
 
 		if (mat_showdxoutput->GetBool())
 		{
-			DevMsg(eDLL_T::MS, "+--------------------------------------------------------+\n");
-			DevMsg(eDLL_T::MS, "| >>>>>>>>>>>>>>| RENDER TARGET DESTROYED |<<<<<<<<<<<<< |\n");
-			DevMsg(eDLL_T::MS, "+--------------------------------------------------------+\n");
+			DevMsg(eDLL_T::MS, "+----------------------------------------------------------------+\n");
+			DevMsg(eDLL_T::MS, "| >>>>>>>>>>>>>>>| RENDER TARGET VIEW DESTROYED |<<<<<<<<<<<<<<< |\n");
+			DevMsg(eDLL_T::MS, "+----------------------------------------------------------------+\n");
 		}
 	}
 }
@@ -391,14 +388,10 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 {
 	if (!g_bInitialized)
 	{
-		if (FAILED(GetDeviceAndCtxFromSwapchain(pSwapChain, &g_pDevice, &g_pDeviceContext)))
+		HRESULT hr = 0;
+		if (FAILED(hr = GetDeviceAndCtxFromSwapchain(pSwapChain, &g_pDevice, &g_pDeviceContext)))
 		{
-			if (mat_showdxoutput->GetBool())
-			{
-				Error(eDLL_T::MS, "+--------------------------------------------------------+\n");
-				Error(eDLL_T::MS, "| >>>>>>>>>>| GET DVS AND CTX FROM SCP FAILED |<<<<<<<<< |\n");
-				Error(eDLL_T::MS, "+--------------------------------------------------------+\n");
-			}
+			Error(eDLL_T::MS, "Failed to get device and context from swap chain: error code = %08x\n", hr);
 			return g_fnIDXGISwapChainPresent(pSwapChain, nSyncInterval, nFlags);
 		}
 
@@ -410,12 +403,12 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 			g_oWndProc  = (WNDPROC)SetWindowLongPtr(g_hGameWindow, GWLP_WNDPROC, (LONG_PTR)HwndProc);
 		}
 
+		g_pSwapChain           = pSwapChain;
+		g_ThreadRenderThreadID = GetCurrentThreadId();
 		g_bInitialized  = true;
-		g_pSwapChain    = pSwapChain;
 	}
 
 	DrawImGui();
-	g_bInitialized      = true;
 	///////////////////////////////////////////////////////////////////////////////
 	return g_fnIDXGISwapChainPresent(pSwapChain, nSyncInterval, nFlags);
 }
@@ -532,6 +525,7 @@ void DirectX_Shutdown()
 		ImGui_ImplDX11_Shutdown();
 		g_bImGuiInitialized = false;
 	}
+	g_bInitialized = false;
 }
 
 void VDXGI::GetAdr(void) const

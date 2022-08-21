@@ -62,12 +62,12 @@ void ImGuiConfig::Load()
                 if (!jsIn["config"].is_null())
                 {
                     // IConsole
-                    IConsole_Config.m_nBind0 = jsIn["config"]["IConsole"]["bind0"].get<int>();
-                    IConsole_Config.m_nBind1 = jsIn["config"]["IConsole"]["bind1"].get<int>();
+                    IConsole_Config.m_nBind0 = jsIn["config"]["GameConsole"]["bind0"].get<int>();
+                    IConsole_Config.m_nBind1 = jsIn["config"]["GameConsole"]["bind1"].get<int>();
 
                     // IBrowser
-                    IBrowser_Config.m_nBind0 = jsIn["config"]["IBrowser"]["bind0"].get<int>();
-                    IBrowser_Config.m_nBind1 = jsIn["config"]["IBrowser"]["bind1"].get<int>();
+                    IBrowser_Config.m_nBind0 = jsIn["config"]["GameBrowser"]["bind0"].get<int>();
+                    IBrowser_Config.m_nBind1 = jsIn["config"]["GameBrowser"]["bind1"].get<int>();
                 }
             }
         }
@@ -84,12 +84,12 @@ void ImGuiConfig::Save()
     nlohmann::json jsOut;
 
     // IConsole
-    jsOut["config"]["IConsole"]["bind0"]          = IConsole_Config.m_nBind0;
-    jsOut["config"]["IConsole"]["bind1"]          = IConsole_Config.m_nBind1;
+    jsOut["config"]["GameConsole"]["bind0"]          = IConsole_Config.m_nBind0;
+    jsOut["config"]["GameConsole"]["bind1"]          = IConsole_Config.m_nBind1;
 
     // IBrowser
-    jsOut["config"]["IBrowser"]["bind0"] = IBrowser_Config.m_nBind0;
-    jsOut["config"]["IBrowser"]["bind1"] = IBrowser_Config.m_nBind1;
+    jsOut["config"]["GameBrowser"]["bind0"] = IBrowser_Config.m_nBind0;
+    jsOut["config"]["GameBrowser"]["bind1"] = IBrowser_Config.m_nBind1;
 
     fs::path fsPath = "platform\\imgui.json";
 

@@ -35,6 +35,11 @@ bool ThreadInMainThread()
 	return (ThreadGetCurrentId() == (*g_ThreadMainThreadID));
 }
 
+bool ThreadInRenderThread()
+{
+	return (ThreadGetCurrentId() == g_ThreadRenderThreadID);
+}
+
 ThreadId_t ThreadGetCurrentId()
 {
 #ifdef _WIN32

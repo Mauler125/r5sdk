@@ -51,8 +51,6 @@ CConsole::CConsole(void)
 //-----------------------------------------------------------------------------
 CConsole::~CConsole(void)
 {
-    ClearLog();
-    m_vHistory.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -144,6 +142,7 @@ void CConsole::RunFrame(void)
 //-----------------------------------------------------------------------------
 void CConsole::RunTask()
 {
+    std::lock_guard<std::mutex> l(m_Mutex);
     if (m_Logger.GetTotalLines() > con_max_size_logvector->GetInt())
     {
         while (m_Logger.GetTotalLines() > con_max_size_logvector->GetInt())
@@ -156,6 +155,10 @@ void CConsole::RunTask()
         m_Logger.MoveCursor(m_nSelectBack, false);
         m_nSelectBack = 0;
     }
+    while (m_vHistory.size() > 512)
+    {
+        m_vHistory.erase(m_vHistory.begin());
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -165,11 +168,6 @@ void CConsole::Think(void)
 {
     for (;;) // Loop running at 100-tps.
     {
-        while (m_vHistory.size() > 512)
-        {
-            m_vHistory.erase(m_vHistory.begin());
-        }
-
         if (m_bActivate)
         {
             if (m_flFadeAlpha <= 1.f)
@@ -197,6 +195,8 @@ void CConsole::DrawSurface(void)
         ImGui::End();
         return;
     }
+
+    std::lock_guard<std::mutex> l(m_Mutex);
 
     // Reserve enough left-over height and width for 1 separator + 1 input text
     const float flFooterHeightReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
@@ -359,7 +359,7 @@ void CConsole::SuggestPanel(void)
     for (size_t i = 0; i < m_vSuggest.size(); i++)
     {
         bool bIsIndexActive = m_nSuggestPos == i;
-        ImGui::PushID(i);
+        ImGui::PushID(static_cast<int>(i));
 
         if (con_suggestion_showflags->GetBool())
         {
@@ -534,7 +534,7 @@ void CConsole::FindFromPartial(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: executes submitted commands in a separate thread
+// Purpose: processes submitted commands for the main thread
 // Input  : pszCommand - 
 //-----------------------------------------------------------------------------
 void CConsole::ProcessCommand(const char* pszCommand)
@@ -793,7 +793,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
             }
             else if (i == (n - 1))
             {
-                iData->DeleteChars(0, n);
+                iData->DeleteChars(0, static_cast<int>(n));
             }
         }
 
@@ -822,17 +822,24 @@ int CConsole::TextEditCallbackStub(ImGuiInputTextCallbackData* iData)
 //-----------------------------------------------------------------------------
 void CConsole::AddLog(const ConLog_t& conLog)
 {
+    if (!ThreadInRenderThread())
+    {
+        std::lock_guard<std::mutex> l(m_Mutex);
+        m_Logger.InsertText(conLog);
+
+        return;
+    }
     m_Logger.InsertText(conLog);
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: adds logs to the vector
+// Purpose: adds logs to the vector (internal)
 // Input  : *fmt - 
 //          ... - 
 //-----------------------------------------------------------------------------
 void CConsole::AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2)
 {
-    char buf[1024];
+    char buf[4096];
     va_list args{};
     va_start(args, fmt);
     vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);

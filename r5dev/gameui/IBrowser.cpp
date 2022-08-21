@@ -124,7 +124,7 @@ void CBrowser::RunFrame(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: runs tasks for the browser while not being drawn
+// Purpose: think
 //-----------------------------------------------------------------------------
 void CBrowser::Think(void)
 {
@@ -619,7 +619,7 @@ void CBrowser::SendHostingPostRequest(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: executes submitted commands in a separate thread
+// Purpose: processes submitted commands for the main thread
 // Input  : *pszCommand - 
 //-----------------------------------------------------------------------------
 void CBrowser::ProcessCommand(const char* pszCommand) const

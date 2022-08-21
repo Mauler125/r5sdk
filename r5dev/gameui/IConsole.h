@@ -20,6 +20,7 @@ public:
 
     virtual void DrawSurface(void);
 
+private:
     void OptionsPanel(void);
     void SuggestPanel(void);
 
@@ -38,7 +39,10 @@ public:
     static int TextEditCallbackStub(ImGuiInputTextCallbackData* pData);
 
     ///////////////////////////////////////////////////////////////////////////
+public:
     void AddLog(const ConLog_t& conLog);
+
+private:
     void AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2);
     void ClearLog(void);
 
@@ -81,6 +85,7 @@ private:
     ImVec2                         m_ivSuggestWindowPos;
     ImVec2                         m_ivSuggestWindowSize;
     CTextLogger                    m_Logger;
+    mutable std::mutex             m_Mutex;
 
     ImGuiInputTextFlags m_nInputFlags = 
         ImGuiInputTextFlags_AutoCaretEnd           |

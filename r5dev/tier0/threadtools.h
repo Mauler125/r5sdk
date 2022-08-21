@@ -54,6 +54,7 @@ inline void ThreadPause()
 }
 
 bool ThreadInMainThread();
+bool ThreadInRenderThread();
 ThreadId_t ThreadGetCurrentId();
 
 //-----------------------------------------------------------------------------
@@ -212,7 +213,8 @@ inline auto v_MutexInternal_ReleaseWaiter = p_MutexInternal_ReleaseWaiter.RCast<
 inline CMemory p_DeclareCurrentThreadIsMainThread;
 inline auto v_DeclareCurrentThreadIsMainThread = p_DeclareCurrentThreadIsMainThread.RCast<ThreadId_t (*)(void)>();
 
-inline ThreadId_t* g_ThreadMainThreadID;
+inline ThreadId_t* g_ThreadMainThreadID = nullptr;
+inline ThreadId_t g_ThreadRenderThreadID = NULL;
 
 ///////////////////////////////////////////////////////////////////////////////
 class CThreadFastMutex
