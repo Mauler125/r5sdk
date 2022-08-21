@@ -102,10 +102,19 @@ void CBrowser::RunFrame(void)
     }
 
     int nVars = 0;
-    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);                   nVars++;
+    if (m_Style == ImGuiStyle_t::MODERN)
+    {
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 8.f, 10.f }); nVars++;
+        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
+    }
+    else
+    {
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 6.f, 6.f });  nVars++;
+        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
+    }
     ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(910, 524));        nVars++;
 
-    if (!m_bModernTheme)
+    if (m_Style != ImGuiStyle_t::MODERN)
     {
         ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);              nVars++;
     }
@@ -193,13 +202,13 @@ void CBrowser::BrowserPanel(void)
     if (ImGui::BeginTable("##ServerBrowser_ServerListTable", 6, ImGuiTableFlags_Resizable))
     {
         int nVars = 0;
-        if (m_bModernTheme)
+        if (m_Style == ImGuiStyle_t::MODERN)
         {
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 8.f, 0.f }); nVars++;
         }
         else
         {
-            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.f, 0.f)); nVars++;
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4.f, 0.f }); nVars++;
         }
 
         ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 25);
@@ -655,11 +664,7 @@ void CBrowser::SettingsPanel(void)
 //-----------------------------------------------------------------------------
 void CBrowser::SetStyleVar(void)
 {
-    int nStyle = g_pImGuiConfig->InitStyle();
-
-    m_bModernTheme  = nStyle == 0;
-    m_bLegacyTheme  = nStyle == 1;
-    m_bDefaultTheme = nStyle == 2;
+    m_Style = g_pImGuiConfig->InitStyle();
 
     ImGui::SetNextWindowSize(ImVec2(910, 524), ImGuiCond_FirstUseEver);
     ImGui::SetWindowPos(ImVec2(-500, 50), ImGuiCond_FirstUseEver);

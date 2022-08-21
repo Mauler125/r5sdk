@@ -4,6 +4,7 @@
 #include "windows/resource.h"
 #include "public/isurfacesystem.h"
 #include "thirdparty/imgui/include/imgui_logger.h"
+#include "thirdparty/imgui/include/imgui_utility.h"
 
 class CConsole : public ISurface
 {
@@ -31,6 +32,9 @@ private:
     void FindFromPartial(void);
     void ProcessCommand(const char* pszCommand);
     void BuildSummary(string svConVar = "");
+
+    void ClampLogSize(void);
+    void ClampHistorySize(void);
 
     bool LoadFlagIcons(void);
     int ColorCodeFlags(int nFlags) const;
@@ -66,10 +70,6 @@ private:
     float                          m_flScrollY        = 0.f;
     float                          m_flFadeAlpha      = 0.f;
 
-    bool                           m_bModernTheme     = false;
-    bool                           m_bLegacyTheme     = false;
-    bool                           m_bDefaultTheme    = false;
-
     bool                           m_bInitialized     = false;
     bool                           m_bReclaimFocus    = false;
     bool                           m_bCopyToClipBoard = false;
@@ -82,6 +82,7 @@ private:
     vector<CSuggest>               m_vSuggest;
     vector<MODULERESOURCE>         m_vFlagIcons;
 
+    ImGuiStyle_t                   m_Style = ImGuiStyle_t::NONE;
     ImVec2                         m_ivSuggestWindowPos;
     ImVec2                         m_ivSuggestWindowSize;
     CTextLogger                    m_Logger;

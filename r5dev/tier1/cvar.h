@@ -129,6 +129,7 @@ extern ConVar* cl_materialinfo_offset_y;
 extern ConVar* cl_threaded_bone_setup;
 
 extern ConVar* con_max_size_logvector;
+extern ConVar* con_max_size_history;
 extern ConVar* con_suggestion_limit;
 extern ConVar* con_suggestion_showhelptext;
 extern ConVar* con_suggestion_showflags;

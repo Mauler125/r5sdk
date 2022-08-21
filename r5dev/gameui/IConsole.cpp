@@ -1,4 +1,4 @@
-/******************************************************************************
+﻿/******************************************************************************
 -------------------------------------------------------------------------------
 File   : IConsole.cpp
 Date   : 18:07:2021
@@ -88,7 +88,7 @@ void CConsole::RunFrame(void)
         {
             return;
         }
-        if (m_bModernTheme)
+        if (m_Style == ImGuiStyle_t::MODERN)
         {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 8.f, 10.f }); nVars++;
             ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
@@ -111,7 +111,7 @@ void CConsole::RunFrame(void)
         int nVars = 0;
         if (AutoComplete())
         {
-            if (m_bModernTheme)
+            if (m_Style == ImGuiStyle_t::MODERN)
             {
                 static const ImGuiStyle& style = ImGui::GetStyle();
                 m_ivSuggestWindowPos.y = m_ivSuggestWindowPos.y + style.WindowPadding.y + 1.5f;
@@ -142,23 +142,8 @@ void CConsole::RunFrame(void)
 //-----------------------------------------------------------------------------
 void CConsole::RunTask()
 {
-    std::lock_guard<std::mutex> l(m_Mutex);
-    if (m_Logger.GetTotalLines() > con_max_size_logvector->GetInt())
-    {
-        while (m_Logger.GetTotalLines() > con_max_size_logvector->GetInt())
-        {
-            m_Logger.RemoveLine(0);
-            m_nScrollBack++;
-            m_nSelectBack++;
-        }
-        m_Logger.MoveSelection(m_nSelectBack, false);
-        m_Logger.MoveCursor(m_nSelectBack, false);
-        m_nSelectBack = 0;
-    }
-    while (m_vHistory.size() > 512)
-    {
-        m_vHistory.erase(m_vHistory.begin());
-    }
+    ClampLogSize();
+    ClampHistorySize();
 }
 
 //-----------------------------------------------------------------------------
@@ -195,8 +180,6 @@ void CConsole::DrawSurface(void)
         ImGui::End();
         return;
     }
-
-    std::lock_guard<std::mutex> l(m_Mutex);
 
     // Reserve enough left-over height and width for 1 separator + 1 input text
     const float flFooterHeightReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
@@ -235,6 +218,8 @@ void CConsole::DrawSurface(void)
 
     ///////////////////////////////////////////////////////////////////////
     ImGui::BeginChild(m_pszLoggingLabel, ImVec2(0, -flFooterHeightReserve), true, m_nLoggingFlags);
+
+    m_Mutex.lock();
     m_Logger.Render();
 
     if (m_bCopyToClipBoard)
@@ -242,6 +227,7 @@ void CConsole::DrawSurface(void)
         m_Logger.Copy(true);
         m_bCopyToClipBoard = false;
     }
+    m_Mutex.unlock();
 
     m_flScrollX = ImGui::GetScrollX();
     m_flScrollY = ImGui::GetScrollY();
@@ -618,12 +604,46 @@ void CConsole::BuildSummary(string svConVar)
         else
         {
             // Display amount of history items if ConVar cannot be found.
+            ClampHistorySize();
             snprintf(m_szSummary, sizeof(m_szSummary), "%zu history items", m_vHistory.size());
         }
     }
     else // Default or empty param.
     {
+        ClampHistorySize();
         snprintf(m_szSummary, sizeof(m_szSummary), "%zu history items", m_vHistory.size());
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: clamps the size of the log vector
+//-----------------------------------------------------------------------------
+void CConsole::ClampLogSize(void)
+{
+    m_Mutex.lock();
+    if (m_Logger.GetTotalLines() > con_max_size_logvector->GetInt())
+    {
+        while (m_Logger.GetTotalLines() > con_max_size_logvector->GetInt())
+        {
+            m_Logger.RemoveLine(0);
+            m_nScrollBack++;
+            m_nSelectBack++;
+        }
+        m_Logger.MoveSelection(m_nSelectBack, false);
+        m_Logger.MoveCursor(m_nSelectBack, false);
+        m_nSelectBack = 0;
+    }
+    m_Mutex.unlock();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: clamps the size of the history vector
+//-----------------------------------------------------------------------------
+void CConsole::ClampHistorySize(void)
+{
+    while (m_vHistory.size() > con_max_size_history->GetSizeT())
+    {
+        m_vHistory.erase(m_vHistory.begin());
     }
 }
 
@@ -822,13 +842,7 @@ int CConsole::TextEditCallbackStub(ImGuiInputTextCallbackData* iData)
 //-----------------------------------------------------------------------------
 void CConsole::AddLog(const ConLog_t& conLog)
 {
-    if (!ThreadInRenderThread())
-    {
-        std::lock_guard<std::mutex> l(m_Mutex);
-        m_Logger.InsertText(conLog);
-
-        return;
-    }
+    std::lock_guard<std::mutex> l(m_Mutex);
     m_Logger.InsertText(conLog);
 }
 
@@ -846,6 +860,7 @@ void CConsole::AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2)
     buf[IM_ARRAYSIZE(buf) - 1] = 0;
     va_end(args);
 
+    std::lock_guard<std::mutex> l(m_Mutex);
     m_Logger.InsertText(ConLog_t(Strdup(buf), color));
 }
 
@@ -854,6 +869,7 @@ void CConsole::AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2)
 //-----------------------------------------------------------------------------
 void CConsole::ClearLog(void)
 {
+    std::lock_guard<std::mutex> l(m_Mutex);
     m_Logger.RemoveLine(0, (m_Logger.GetTotalLines() - 1));
 }
 
@@ -862,11 +878,7 @@ void CConsole::ClearLog(void)
 //-----------------------------------------------------------------------------
 void CConsole::SetStyleVar(void)
 {
-    int nStyle = g_pImGuiConfig->InitStyle();
-
-    m_bModernTheme  = nStyle == 0;
-    m_bLegacyTheme  = nStyle == 1;
-    m_bDefaultTheme = nStyle == 2;
+    m_Style = g_pImGuiConfig->InitStyle();
 
     ImGui::SetNextWindowSize(ImVec2(1200, 524), ImGuiCond_FirstUseEver);
     ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);

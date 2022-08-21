@@ -168,8 +168,9 @@ void ConVar::Init(void) const
 	cl_materialinfo_offset_x = ConVar::Create("cl_materialinfo_offset_x", "0"  , FCVAR_DEVELOPMENTONLY, "X offset for material debug info overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_materialinfo_offset_y = ConVar::Create("cl_materialinfo_offset_y", "420", FCVAR_DEVELOPMENTONLY, "Y offset for material debug info overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 
-	con_max_size_logvector        = ConVar::Create("con_max_size_logvector"        , "1000", FCVAR_DEVELOPMENTONLY, "Maximum number of logs in the console until cleanup starts.", false, 0.f, false, 0.f, nullptr, nullptr);
-	con_suggestion_limit          = ConVar::Create("con_suggestion_limit"          , "120" , FCVAR_DEVELOPMENTONLY, "Maximum number of suggestions the autocomplete window will show for the console.", false, 0.f, false, 0.f, nullptr, nullptr);
+	con_max_size_logvector        = ConVar::Create("con_max_size_logvector"        , "1024", FCVAR_DEVELOPMENTONLY, "Maximum number of logs in the console before cleanup starts.", true, 0.f, false, 0.f, nullptr, nullptr);
+	con_max_size_history          = ConVar::Create("con_max_size_history"          , "512" , FCVAR_DEVELOPMENTONLY, "Maximum number of command history items before cleanup starts.", true, 0.f, false, 0.f, nullptr, nullptr);
+	con_suggestion_limit          = ConVar::Create("con_suggestion_limit"          , "128" , FCVAR_DEVELOPMENTONLY, "Maximum number of suggestions the autocomplete window will show for the console.", true, 0.f, false, 0.f, nullptr, nullptr);
 	con_suggestion_showhelptext   = ConVar::Create("con_suggestion_showhelptext"   , "1"   , FCVAR_DEVELOPMENTONLY, "Show CommandBase help text in autocomplete window.", false, 0.f, false, 0.f, nullptr, nullptr);
 	con_suggestion_showflags      = ConVar::Create("con_suggestion_showflags"      , "1"   , FCVAR_DEVELOPMENTONLY, "Show CommandBase flags in autocomplete window.", false, 0.f, false, 0.f, nullptr, nullptr);
 	con_suggestion_flags_realtime = ConVar::Create("con_suggestion_flags_realtime" , "0"   , FCVAR_DEVELOPMENTONLY, "Whether to show compile-time or run-time CommandBase flags.", false, 0.f, false, 0.f, nullptr, nullptr);

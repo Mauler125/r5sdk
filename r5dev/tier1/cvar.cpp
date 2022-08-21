@@ -134,6 +134,7 @@ ConVar* cl_materialinfo_offset_y           = nullptr;
 ConVar* cl_threaded_bone_setup             = nullptr;
 
 ConVar* con_max_size_logvector             = nullptr;
+ConVar* con_max_size_history               = nullptr;
 ConVar* con_suggestion_limit               = nullptr;
 ConVar* con_suggestion_showhelptext        = nullptr;
 ConVar* con_suggestion_showflags           = nullptr;

@@ -5,6 +5,7 @@
 #include "networksystem/serverlisting.h"
 #include "networksystem/pylon.h"
 #include "public/isurfacesystem.h"
+#include "thirdparty/imgui/include/imgui_utility.h"
 
 class CBrowser : public ISurface
 {
@@ -39,13 +40,11 @@ public:
     bool m_bActivate     = false;
 private:
     bool m_bInitialized  = false;
-    bool m_bModernTheme  = false;
-    bool m_bLegacyTheme  = false;
-    bool m_bDefaultTheme = false;
     char m_szServerAddressBuffer[256] = { '\0' };
     char m_szServerEncKeyBuffer[30]   = { '\0' };
     float m_flFadeAlpha               = 0.f;
 
+    ImGuiStyle_t              m_Style = ImGuiStyle_t::NONE;
     ID3D11ShaderResourceView* m_idLockedIcon = nullptr;
     MODULERESOURCE m_rLockedIconBlob;
 
