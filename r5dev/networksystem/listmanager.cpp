@@ -7,13 +7,14 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
+#include "tier0/frametask.h"
 #include "tier1/cmd.h"
 #include "tier1/cvar.h"
 #include "engine/net.h"
+#include "engine/host_state.h"
 #include "vpc/keyvalues.h"
 #include "pylon.h"
 #include "listmanager.h"
-#include <tier0/frametask.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -49,7 +50,15 @@ void CServerListManager::LaunchServer(void) const
     KeyValues::ParsePlaylists(m_Server.m_svPlaylist.c_str());
 
     mp_gamemode->SetValue(m_Server.m_svPlaylist.c_str());
-    ProcessCommand(fmt::format("{:s} \"{:s}\"", "map", m_Server.m_svMapName).c_str());
+
+    if (g_pHostState->m_bActiveGame)
+    {
+        ProcessCommand(fmt::format("{:s} \"{:s}\"", "changelevel", m_Server.m_svMapName).c_str());
+    }
+    else // Initial launch.
+    {
+        ProcessCommand(fmt::format("{:s} \"{:s}\"", "map", m_Server.m_svMapName).c_str());
+    }
 
 #endif // !CLIENT_DLL
 }
