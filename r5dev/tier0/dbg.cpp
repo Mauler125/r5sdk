@@ -475,9 +475,10 @@ void Warning(eDLL_T context, const char* fmt, ...)
 //-----------------------------------------------------------------------------
 // Purpose: Print engine and SDK errors
 // Input  : context - 
+//			fatal - 
 //			*fmt - ... - 
 //-----------------------------------------------------------------------------
-void Error(eDLL_T context, const char* fmt, ...)
+void Error(eDLL_T context, bool fatal, const char* fmt, ...)
 {
 	static char szBuf[4096] = {};
 
@@ -546,5 +547,12 @@ void Error(eDLL_T context, const char* fmt, ...)
 	g_spd_sys_w_oss.str("");
 	g_spd_sys_w_oss.clear();
 #endif // !DEDICATED
+	if (fatal)
+	{
+		if (MessageBoxA(NULL, fmt::format("{:s}- {:s}", Plat_GetProcessUpTime(), szBuf).c_str(), "SDK Error", MB_ICONERROR | MB_OK))
+		{
+			TerminateProcess(GetCurrentProcess(), 1);
+		}
+	}
 	s_LogMutex.unlock();
 }

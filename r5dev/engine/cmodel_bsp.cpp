@@ -361,7 +361,7 @@ void MOD_PreloadPakFile(const string& svLevelName)
 							RPakHandle_t nPakId = g_pakLoadApi->LoadAsync(svToLoad.c_str(), g_pMallocPool.GetPtr(), 4, 0);
 
 							if (nPakId == -1)
-								Error(eDLL_T::ENGINE, "%s: unable to load pak '%s' results '%d'\n", __FUNCTION__, svToLoad.c_str(), nPakId);
+								Error(eDLL_T::ENGINE, false, "%s: unable to load pak '%s' results '%d'\n", __FUNCTION__, svToLoad.c_str(), nPakId);
 							else
 								g_vLoadedPakHandle.push_back(nPakId);
 						}

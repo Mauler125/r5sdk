@@ -81,7 +81,7 @@ extern std::mutex s_LogMutex;
 PLATFORM_INTERFACE void NetMsg(EGlobalContext_t context, const char* fmt, ...) FMTFUNCTION(2, 3);
 PLATFORM_INTERFACE void DevMsg(eDLL_T context, const char* fmt, ...) FMTFUNCTION(2, 3);
 PLATFORM_INTERFACE void Warning(eDLL_T context, const char* fmt, ...) FMTFUNCTION(1, 2);
-PLATFORM_INTERFACE void Error(eDLL_T context, const char* fmt, ...) FMTFUNCTION(1, 2);
+PLATFORM_INTERFACE void Error(eDLL_T context, bool fatal, const char* fmt, ...) FMTFUNCTION(1, 2);
 
 // You can use this macro like a runtime assert macro.
 // If the condition fails, then Error is called with the message. This macro is called

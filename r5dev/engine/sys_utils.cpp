@@ -34,7 +34,7 @@ void HSys_Error(char* fmt, ...)
 	buf[sizeof(buf) -1] = 0;
 	va_end(args);
 
-	Error(eDLL_T::ENGINE, "%s", buf);
+	Error(eDLL_T::ENGINE, false, "%s", buf);
 	return v_Sys_Error(buf);
 }
 

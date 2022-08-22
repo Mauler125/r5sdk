@@ -4058,7 +4058,7 @@ void MathLib_Init(float gamma, float texGamma, float brightness, int overbright,
 		Assert(0);
 		if (MessageBoxA(NULL, "SSE and SSE2 are required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
 		{
-			TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
+			TerminateProcess(GetCurrentProcess(), 1);
 		}
 	}
 #endif //!360

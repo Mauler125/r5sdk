@@ -296,7 +296,7 @@ void CUtlFixedMemory<T>::Grow(ssize_t num)
 	BlockHeader_t* RESTRICT pBlockHeader = (BlockHeader_t*)malloc(sizeof(BlockHeader_t) + nBlockSize * sizeof(T));
 	if (!pBlockHeader)
 	{
-		Error(eDLL_T::ENGINE, "CUtlFixedMemory overflow!\n");
+		Error(eDLL_T::ENGINE, true, "CUtlFixedMemory overflow!\n");
 	}
 	pBlockHeader->m_pNext = NULL;
 	pBlockHeader->m_nBlockSize = nBlockSize;

@@ -324,9 +324,9 @@ void SQVM_CompileError(HSQUIRRELVM v, const SQChar* pszError, const SQChar* pszF
 
 	v_SQVM_GetErrorLine(pszFile, nLine, szContextBuf, sizeof(szContextBuf));
 
-	Error(static_cast<eDLL_T>(context), "%s SCRIPT COMPILE ERROR: %s\n", SQVM_GetContextName(context), pszError);
-	Error(static_cast<eDLL_T>(context), " -> %s\n\n", szContextBuf);
-	Error(static_cast<eDLL_T>(context), "%s line [%d] column [%d]\n", pszFile, nLine, nColumn);
+	Error(static_cast<eDLL_T>(context), false, "%s SCRIPT COMPILE ERROR: %s\n", SQVM_GetContextName(context), pszError);
+	Error(static_cast<eDLL_T>(context), false, " -> %s\n\n", szContextBuf);
+	Error(static_cast<eDLL_T>(context), false, "%s line [%d] column [%d]\n", pszFile, nLine, nColumn);
 }
 
 //---------------------------------------------------------------------------------

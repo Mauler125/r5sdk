@@ -211,9 +211,7 @@ void GetPresent()
 		&nFeatureLevelsSupported,
 		&pContext)))
 	{
-		Error(eDLL_T::MS, "Failed to create device and swap chain: error code = %08x\n", hr);
-		DirectX_Shutdown();
-
+		Error(eDLL_T::MS, true, "Failed to create device and swap chain: error code = %08x\n", hr);
 		return;
 	}
 
@@ -391,7 +389,7 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 		HRESULT hr = 0;
 		if (FAILED(hr = GetDeviceAndCtxFromSwapchain(pSwapChain, &g_pDevice, &g_pDeviceContext)))
 		{
-			Error(eDLL_T::MS, "Failed to get device and context from swap chain: error code = %08x\n", hr);
+			Error(eDLL_T::MS, true, "Failed to get device and context from swap chain: error code = %08x\n", hr);
 			return g_fnIDXGISwapChainPresent(pSwapChain, nSyncInterval, nFlags);
 		}
 

@@ -418,7 +418,7 @@ void QuerySystemInfo()
 		{
 			if (MessageBoxA(NULL, "SSE and SSE2 are required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
 			{
-				TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
+				TerminateProcess(GetCurrentProcess(), 1);
 			}
 		}
 	}

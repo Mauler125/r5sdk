@@ -7,10 +7,10 @@
 bool IsOriginInitialized()
 {
 #ifndef DEDICATED
-	//if ((!(*g_OriginErrorLevel)
-	//	&& (*g_bEbisuSDKInitialized)
-	//	&& (*g_NucleusID)
-	//	&& (*g_bEbisuSDKCvarInitialized)
+	if ((!(*g_OriginErrorLevel)
+		&& (*g_bEbisuSDKInitialized)
+		&& (*g_NucleusID)
+		&& (*g_bEbisuSDKCvarInitialized)))
 	//	&& (*g_OriginAuthCode)
 	//		&& (g_OriginNucleusToken[0])))
 #endif // DEDICATED

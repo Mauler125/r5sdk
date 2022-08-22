@@ -173,7 +173,7 @@ void Host_KickID_f(const CCommand& args)
 	}
 	catch (std::exception& e)
 	{
-		Error(eDLL_T::SERVER, "%s - sv_kickid requires a UserID or OriginID. You can get the UserID with the 'status' command. Error: %s", __FUNCTION__, e.what());
+		Error(eDLL_T::SERVER, false, "%s - sv_kickid requires a UserID or OriginID. You can get the UserID with the 'status' command. Error: %s", __FUNCTION__, e.what());
 		return;
 	}
 }
@@ -274,7 +274,7 @@ void Host_BanID_f(const CCommand& args)
 	}
 	catch (std::exception& e)
 	{
-		Error(eDLL_T::SERVER, "%s - Banid Error: %s", __FUNCTION__, e.what());
+		Error(eDLL_T::SERVER, false, "%s - Banid Error: %s", __FUNCTION__, e.what());
 		return;
 	}
 }
@@ -306,7 +306,7 @@ void Host_Unban_f(const CCommand& args)
 	}
 	catch (std::exception& e)
 	{
-		Error(eDLL_T::SERVER, "%s - Unban error: %s", __FUNCTION__, e.what());
+		Error(eDLL_T::SERVER, false, "%s - Unban error: %s", __FUNCTION__, e.what());
 		return;
 	}
 }
@@ -416,7 +416,7 @@ void Pak_RequestUnload_f(const CCommand& args)
 	}
 	catch (std::exception& e)
 	{
-		Error(eDLL_T::RTECH, "%s - %s", __FUNCTION__, e.what());
+		Error(eDLL_T::RTECH, false, "%s - %s", __FUNCTION__, e.what());
 		return;
 	}
 }
@@ -479,7 +479,7 @@ void Pak_Swap_f(const CCommand& args)
 	}
 	catch (std::exception& e)
 	{
-		Error(eDLL_T::RTECH, "%s - %s", __FUNCTION__, e.what());
+		Error(eDLL_T::RTECH, false, "%s - %s", __FUNCTION__, e.what());
 		return;
 	}
 }
@@ -531,7 +531,7 @@ void RTech_Decompress_f(const CCommand& args)
 
 	if (!FileExists(pakNameIn))
 	{
-		Error(eDLL_T::RTECH, "%s - pak file '%s' does not exist!\n", __FUNCTION__, pakNameIn.c_str());
+		Error(eDLL_T::RTECH, false, "%s - pak file '%s' does not exist!\n", __FUNCTION__, pakNameIn.c_str());
 		return;
 	}
 
@@ -555,17 +555,17 @@ void RTech_Decompress_f(const CCommand& args)
 
 	if (rheader.m_nMagic != RPAKHEADER)
 	{
-		Error(eDLL_T::RTECH, "%s - pak file '%s' has invalid magic!\n", __FUNCTION__, pakNameIn.c_str());
+		Error(eDLL_T::RTECH, false, "%s - pak file '%s' has invalid magic!\n", __FUNCTION__, pakNameIn.c_str());
 		return;
 	}
 	if ((rheader.m_nFlags[1] & 1) != 1)
 	{
-		Error(eDLL_T::RTECH, "%s - pak file '%s' already decompressed!\n", __FUNCTION__, pakNameIn.c_str());
+		Error(eDLL_T::RTECH, false, "%s - pak file '%s' already decompressed!\n", __FUNCTION__, pakNameIn.c_str());
 		return;
 	}
 	if (rheader.m_nSizeDisk != reader.GetSize())
 	{
-		Error(eDLL_T::RTECH, "%s - pak file '%s' decompressed size '%zu' doesn't match expected value '%llu'!\n", __FUNCTION__, pakNameIn.c_str(), reader.GetSize(), rheader.m_nSizeMemory);
+		Error(eDLL_T::RTECH, false, "%s - pak file '%s' decompressed size '%zu' doesn't match expected value '%llu'!\n", __FUNCTION__, pakNameIn.c_str(), reader.GetSize(), rheader.m_nSizeMemory);
 		return;
 	}
 
@@ -574,7 +574,7 @@ void RTech_Decompress_f(const CCommand& args)
 
 	if (decompSize == rheader.m_nSizeDisk)
 	{
-		Error(eDLL_T::RTECH, "%s - calculated size: '%llu' expected: '%llu'!\n", __FUNCTION__, decompSize, rheader.m_nSizeMemory);
+		Error(eDLL_T::RTECH, false, "%s - calculated size: '%llu' expected: '%llu'!\n", __FUNCTION__, decompSize, rheader.m_nSizeMemory);
 		return;
 	}
 	else
@@ -590,7 +590,7 @@ void RTech_Decompress_f(const CCommand& args)
 	uint8_t decompResult = g_pRTech->DecompressPakFile(&state, reader.GetSize(), pakBuf.size());
 	if (decompResult != 1)
 	{
-		Error(eDLL_T::RTECH, "%s - decompression failed for '%s' return value: '%hu'!\n", __FUNCTION__, pakNameIn.c_str(), decompResult);
+		Error(eDLL_T::RTECH, false, "%s - decompression failed for '%s' return value: '%hu'!\n", __FUNCTION__, pakNameIn.c_str(), decompResult);
 		return;
 	}
 

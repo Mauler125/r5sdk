@@ -51,12 +51,12 @@ RPakHandle_t CPakFile::LoadAsync(const char* szPakFileName, uintptr_t pMalloc, i
 
 		if (pakHandle == INVALID_PAK_HANDLE)
 		{
-			Error(eDLL_T::RTECH, "%s: Failed read '%s' results '%u'\n", __FUNCTION__, szPakFileName, pakHandle);
+			Error(eDLL_T::RTECH, false, "%s: Failed read '%s' results '%u'\n", __FUNCTION__, szPakFileName, pakHandle);
 		}
 	}
 	else
 	{
-		Error(eDLL_T::RTECH, "%s: Failed. File '%s' doesn't exist\n", __FUNCTION__, szPakFileName);
+		Error(eDLL_T::RTECH, false, "%s: Failed. File '%s' doesn't exist\n", __FUNCTION__, szPakFileName);
 	}
 
 	return pakHandle;

@@ -683,7 +683,7 @@ I  CUtlRBTree<T, I, L, M>::NewNode()
 			Assert(m_Elements.IsValidIterator(it));
 			if (!m_Elements.IsValidIterator(it))
 			{
-				Error(eDLL_T::ENGINE, "CUtlRBTree overflow!\n");
+				Error(eDLL_T::ENGINE, true, "CUtlRBTree overflow!\n");
 			}
 		}
 		m_LastAlloc = it;
