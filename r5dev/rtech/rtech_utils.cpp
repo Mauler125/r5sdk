@@ -622,7 +622,7 @@ int32_t RTech::OpenFile(const CHAR* szFilePath, void* unused, LONGLONG* fileSize
 	const string svModDir = "paks\\Win32\\";
 	const string svBaseDir = "paks\\Win64\\";
 
-	if (strstr(szFilePath, svBaseDir.c_str()))
+	if (strstr(ConvertToWinPath(szFilePath).c_str(), svBaseDir.c_str()))
 	{
 		svBaseFile.erase(0, 11); // Erase 'base_dir'.
 		svModFile = svModDir + svBaseFile; // Prepend 'mod_dir'.
@@ -636,6 +636,8 @@ int32_t RTech::OpenFile(const CHAR* szFilePath, void* unused, LONGLONG* fileSize
 	const HANDLE hFile = CreateFileA(svModFile.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, 0, OPEN_EXISTING, FILE_SUPPORTS_GHOSTING, 0);
 	if (hFile == INVALID_HANDLE_VALUE)
 		return -1;
+
+	DevMsg(eDLL_T::RTECH, "%s - opened: '%s'\n", __FUNCTION__, svModFile.c_str());
 
 	if (fileSizeOut)
 	{

@@ -377,4 +377,29 @@ void RuntimePtc_Init() /* .TEXT */
 #ifndef CLIENT_DLL
 	Server_S2C_CONNECT_1.Offset(0x7).Patch({ 0xEB }); // JZ --> JMP | Prevent entitlement check to kick player from server on S2C_CONNECT Packet if it does not match the servers one.
 #endif // !CLIENT_DLL
+
+	vector<uint8_t> starPakOpenFile = {
+		0x4D, 0x31, 0xC0,                                 // xor, r8, r8
+		0x48, 0x8D, 0x8C, 0x24, 0x90, 0x00, 0x00, 0x00,   // lea  rcx, [rsp+378h+90h] FileName
+														  // call RTech::OpenFile [RIP+RVA]
+    #if defined (GAMEDLL_S0)
+		0xE8, 0x87, 0x96, 0xFF, 0xFF,
+    #elif defined (GAMEDLL_S1)
+		0xE8, 0x27, 0x95, 0xFF, 0xFF,
+    #elif defined (GAMEDLL_S2)
+		0xE8, 0x97, 0x95, 0xFF, 0xFF,
+    #elif defined (GAMEDLL_S3)
+		0xE8, 0x77, 0x8F, 0xFF, 0xFF,
+    #endif
+
+		0x8B, 0xF8,                                       // mov  edi, eax
+														  // jmp  [RIP+RVA]
+	#if defined (GAMEDLL_S0) || defined(GAMEDLL_S1)
+		0xE9, 0xDC, 0x00, 0x00, 0x00
+    #elif defined (GAMEDLL_S2) || defined(GAMEDLL_S3)
+		0xE9, 0xDA, 0x00, 0x00, 0x00
+	#endif
+	};
+
+	p_CPakFile_LoadPak_OpenFileOffset.Patch(starPakOpenFile);
 }
