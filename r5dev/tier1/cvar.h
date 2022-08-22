@@ -164,6 +164,7 @@ extern ConVar* pylon_matchmaking_hostname;
 extern ConVar* pylon_showdebug;
 //-------------------------------------------------------------------------
 // RTECH API                                                              |
+extern ConVar* rtech_debug;
 //-------------------------------------------------------------------------
 // RUI                                                                    |
 #ifndef DEDICATED

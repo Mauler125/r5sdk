@@ -169,6 +169,7 @@ ConVar* pylon_matchmaking_hostname         = nullptr;
 ConVar* pylon_showdebug                    = nullptr;
 //-----------------------------------------------------------------------------
 // RTECH API                                                                  |
+ConVar* rtech_debug                        = nullptr;
 //-----------------------------------------------------------------------------
 // RUI                                                                        |
 #ifndef DEDICATED

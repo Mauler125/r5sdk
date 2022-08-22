@@ -203,6 +203,7 @@ void ConVar::Init(void) const
 	pylon_showdebug            = ConVar::Create("pylon_showdebug"           , "0"                        , FCVAR_DEVELOPMENTONLY, "Shows debug output for pylon.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// RTECH API                                                              |
+	rtech_debug = ConVar::Create("rtech_debug", "0", FCVAR_DEVELOPMENTONLY, "Shows debug output for the RTech system.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// RUI                                                                    |
 #ifndef DEDICATED

@@ -1,4 +1,5 @@
 #include "core/stdafx.h"
+#include "tier1/cvar.h"
 #include "rtech/rtech_utils.h"
 #ifndef DEDICATED
 #include "windows/id3dx.h"
@@ -637,7 +638,8 @@ int32_t RTech::OpenFile(const CHAR* szFilePath, void* unused, LONGLONG* fileSize
 	if (hFile == INVALID_HANDLE_VALUE)
 		return -1;
 
-	DevMsg(eDLL_T::RTECH, "Opened file: '%s'\n", svModFile.c_str());
+	if (rtech_debug->GetBool())
+		DevMsg(eDLL_T::RTECH, "Opened file: '%s'\n", svModFile.c_str());
 
 	if (fileSizeOut)
 	{
