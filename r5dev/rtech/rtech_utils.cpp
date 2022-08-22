@@ -637,7 +637,7 @@ int32_t RTech::OpenFile(const CHAR* szFilePath, void* unused, LONGLONG* fileSize
 	if (hFile == INVALID_HANDLE_VALUE)
 		return -1;
 
-	DevMsg(eDLL_T::RTECH, "%s - opened: '%s'\n", __FUNCTION__, svModFile.c_str());
+	DevMsg(eDLL_T::RTECH, "Opened file: '%s'\n", svModFile.c_str());
 
 	if (fileSizeOut)
 	{
