@@ -381,7 +381,8 @@ void RuntimePtc_Init() /* .TEXT */
 	vector<uint8_t> starPakOpenFile = {
 		0x4D, 0x31, 0xC0,                                 // xor, r8, r8
 		0x48, 0x8D, 0x8C, 0x24, 0x90, 0x00, 0x00, 0x00,   // lea  rcx, [rsp+378h+90h] FileName
-														  // call RTech::OpenFile [RIP+RVA]
+
+		// call RTech::OpenFile [RIP+RVA]
     #if defined (GAMEDLL_S0)
 		0xE8, 0x87, 0x96, 0xFF, 0xFF,
     #elif defined (GAMEDLL_S1)
@@ -393,7 +394,8 @@ void RuntimePtc_Init() /* .TEXT */
     #endif
 
 		0x8B, 0xF8,                                       // mov  edi, eax
-														  // jmp  [RIP+RVA]
+
+		// jmp  [RIP+RVA]
 	#if defined (GAMEDLL_S0) || defined(GAMEDLL_S1)
 		0xE9, 0xDC, 0x00, 0x00, 0x00
     #elif defined (GAMEDLL_S2) || defined(GAMEDLL_S3)
