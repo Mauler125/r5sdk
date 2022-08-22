@@ -50,7 +50,7 @@ class HVEngineServer : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		g_bDedicated = p_IVEngineServer__IsDedicatedServer.Offset(0x0).ResolveRelativeAddress(0x3, 0x7).RCast<bool*>();
+		g_bDedicated = p_IVEngineServer__IsDedicatedServer.ResolveRelativeAddress(0x3, 0x7).RCast<bool*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

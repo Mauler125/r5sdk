@@ -17,6 +17,8 @@
 #endif // !DEDICATED
 #include "engine/client/client.h"
 #include "engine/net.h"
+#include "engine/host_cmd.h"
+#include "engine/host_state.h"
 #ifndef DEDICATED
 #include "client/cdll_engine_int.h"
 #endif // !DEDICATED
@@ -45,6 +47,8 @@
 #ifndef DEDICATED
 #include "game/client/view.h"
 #endif // !DEDICATED
+#include <ebisusdk/EbisuSDK.h>
+#include <engine/server/server.h>
 
 
 /*
@@ -316,6 +320,26 @@ void Host_ReloadBanList_f(const CCommand& args)
 {
 	g_pBanSystem->Load(); // Reload banlist.
 }
+
+/*
+=====================
+Host_Changelevel_f
+
+  Goes to a new map, 
+  taking all clients along
+=====================
+*/
+void Host_Changelevel_f(const CCommand& args)
+{
+	if (args.ArgC() >= 2
+		&& IsOriginInitialized()
+		&& g_pServer->IsActive())
+	{
+		v_SetLaunchOptions(args);
+		v_HostState_ChangeLevelMP(args[1], args[2]);
+	}
+}
+
 #endif // !CLIENT_DLL
 /*
 =====================

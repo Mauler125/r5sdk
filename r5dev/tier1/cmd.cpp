@@ -380,6 +380,7 @@ void ConCommand::InitShipped(void)
 	//-------------------------------------------------------------------------
 	// ENGINE DLL                                                             |
 	ConCommand* help = g_pCVar->FindCommand("help");
+	ConCommand* changelevel = g_pCVar->FindCommand("changelevel");
 	ConCommand* convar_list =  g_pCVar->FindCommand("convar_list");
 	ConCommand* convar_differences = g_pCVar->FindCommand("convar_differences");
 	ConCommand* convar_findByFlags = g_pCVar->FindCommand("convar_findByFlags");
@@ -391,6 +392,7 @@ void ConCommand::InitShipped(void)
 #endif // !DEDICATED
 
 	help->m_fnCommandCallback = CVHelp_f;
+	changelevel->m_fnCommandCallback = Host_Changelevel_f;
 	convar_list->m_fnCommandCallback = CVList_f;
 	convar_differences->m_fnCommandCallback = CVDiff_f;
 	convar_findByFlags->m_fnCommandCallback = CVFlag_f;
@@ -409,7 +411,6 @@ void ConCommand::InitShipped(void)
 			"silentconnect",
 			"ping",
 #endif // !DEDICATED
-			"changelevel",
 			"exit",
 			"map",
 			"map_background",
@@ -428,6 +429,7 @@ void ConCommand::InitShipped(void)
 		}
 
 		help->RemoveFlags(FCVAR_DEVELOPMENTONLY);
+		changelevel->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 		convar_list->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 		convar_differences->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 		convar_findByFlags->RemoveFlags(FCVAR_DEVELOPMENTONLY);

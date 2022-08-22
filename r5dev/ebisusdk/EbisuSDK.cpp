@@ -2,6 +2,25 @@
 #include "ebisusdk/EbisuSDK.h"
 
 //-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+bool IsOriginInitialized()
+{
+#ifndef DEDICATED
+	//if ((!(*g_OriginErrorLevel)
+	//	&& (*g_bEbisuSDKInitialized)
+	//	&& (*g_NucleusID)
+	//	&& (*g_bEbisuSDKCvarInitialized)
+	//	&& (*g_OriginAuthCode)
+	//		&& (g_OriginNucleusToken[0])))
+#endif // DEDICATED
+	{
+		return true;
+	}
+	return false;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: sets the EbisuSDK globals for dedicated to satisfy command callbacks
 //-----------------------------------------------------------------------------
 void HEbisuSDK_Init()
