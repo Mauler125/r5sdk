@@ -81,9 +81,9 @@ class VCallback : public IDetour
 #endif
 		p_DownloadPlaylists_f = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x33\xC9\xC6\x05\x00\x00\x00\x00\x00\xE9\x00\x00\x00\x00"), "xxxx?????x????");
 
-		SetupGamemode = p_SetupGamemode.RCast<bool(*)(const char*)>();
-		_Host_Map_f = p_Host_Map_f.RCast<void (*)(CCommand* pCommand, char a2)>(); /*40 55 41 56 41 57 48 81 EC ?? ?? ?? ?? 83 3D*/
-		_DownloadPlaylists_f = p_DownloadPlaylists_f.RCast<void(*)(void)>();       /*33 C9 C6 05 ?? ?? ?? ?? ?? E9 ?? ?? ?? ??*/
+		SetupGamemode = p_SetupGamemode.RCast<bool(*)(const char*)>();       /*40 53 48 83 EC 20 48 8B D9 48 C7 C0 ?? ?? ?? ??*/
+		_Host_Map_f = p_Host_Map_f.RCast<void (*)(CCommand*, char)>();       /*40 55 41 56 41 57 48 81 EC ?? ?? ?? ?? 83 3D*/
+		_DownloadPlaylists_f = p_DownloadPlaylists_f.RCast<void(*)(void)>(); /*33 C9 C6 05 ?? ?? ?? ?? ?? E9 ?? ?? ?? ??*/
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

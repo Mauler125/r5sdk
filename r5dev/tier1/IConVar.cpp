@@ -256,8 +256,8 @@ void ConVar::InitShipped(void) const
 	cl_threaded_bone_setup->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	rui_defaultDebugFontFace->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	origin_disconnectWhenOffline->RemoveFlags(FCVAR_DEVELOPMENTONLY);
-	mp_gamemode->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 #endif // !DEDICATED
+	mp_gamemode->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 	mp_gamemode->RemoveChangeCallback(mp_gamemode->m_fnChangeCallbacks[0]);
 	mp_gamemode->InstallChangeCallback(MP_GameMode_Changed_f, false);
 }
