@@ -60,6 +60,7 @@ class CAI_NetworkManager
 {
 public:
 	static void LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager, void* pBuffer, const char* szAIGraphFile);
+	static void LoadNetworkGraphEx(CAI_NetworkManager* pAINetworkManager, void* pBuffer, const char* szAIGraphFile);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
