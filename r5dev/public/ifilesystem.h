@@ -143,12 +143,12 @@ public:
 	virtual int				Write(void const* pInput, int size, FileHandle_t file) = 0;
 
 	// if pathID is NULL, all paths will be searched for the file
-	virtual FileHandle_t	Open(const char* pFileName, const char* pOptions, const char* pPathID, int64_t unknown = 0) = 0;
+	virtual FileHandle_t	Open(const char* pFileName, const char* pOptions, const char* pPathID = 0, int64_t unknown = 0) = 0;
 	virtual void			Close(FileHandle_t file) = 0;
 
 	virtual void			Seek(FileHandle_t file, int pos, FileSystemSeek_t seekType) = 0;
 	virtual unsigned int	Tell(FileHandle_t file) = 0;
-	virtual unsigned int	Size(const char* pFileName, const char* pPathID = 0) = 0;
+	virtual unsigned int	FSize(const char* pFileName, const char* pPathID = 0) = 0; // Gets optimized away if it isn't named differently or used.
 	virtual unsigned int	Size(FileHandle_t file) = 0;
 
 	virtual void			Flush(FileHandle_t file) = 0;

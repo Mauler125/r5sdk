@@ -6,6 +6,7 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
+#include "tier0/memstd.h"
 #include "tier0/jobthread.h"
 #include "engine/sys_dll2.h"
 #include "engine/host_cmd.h"
@@ -299,7 +300,7 @@ void MOD_ProcessPakQueue()
 
     LABEL_37:
         v21 = *(_DWORD*)v15;
-        if (*(_DWORD*)v15 != -1)
+        if (*(_DWORD*)v15 != INVALID_PAK_HANDLE)
         {
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
             v22 = 232i64 * (v21 & 0x1FF);
@@ -336,45 +337,48 @@ bool MOD_LoadPakForMap(const char* szLevelName)
 void MOD_PreloadPakFile(const string& svLevelName)
 {
 	ostringstream ostream;
-	ostream << "platform\\scripts\\levels\\settings\\" << svLevelName << ".json";
+	ostream << "scripts/levels/settings/" << svLevelName << ".json";
 
-	fs::path fsPath = fs::current_path() /= ostream.str();
-	if (FileExists(fsPath))
-	{
-		nlohmann::json jsIn;
-		try
-		{
-			ifstream iPakLoadDefFile(fsPath.u8string(), std::ios::binary); // Load prerequisites file.
+    FileHandle_t pFile = FileSystem()->Open(ostream.str().c_str(), "rb");
+    if (!pFile)
+        return;
 
-			jsIn = nlohmann::json::parse(iPakLoadDefFile);
-			iPakLoadDefFile.close();
+    uint32_t nLen = FileSystem()->Size(pFile);
+    uint8_t* pBuf = MemAllocSingleton()->Alloc<uint8_t>(nLen);
 
-			if (!jsIn.is_null())
-			{
-				if (!jsIn["rpak"].is_null())
-				{
-					for (auto& it : jsIn["rpak"])
-					{
-						if (it.is_string())
-						{
-							string svToLoad = it.get<string>() + ".rpak";
-							RPakHandle_t nPakId = g_pakLoadApi->LoadAsync(svToLoad.c_str(), g_pMallocPool.GetPtr(), 4, 0);
+    FileSystem()->Read(pBuf, nLen, pFile);
+    FileSystem()->Close(pFile);
 
-							if (nPakId == -1)
-								Error(eDLL_T::ENGINE, false, "%s: unable to load pak '%s' results '%d'\n", __FUNCTION__, svToLoad.c_str(), nPakId);
-							else
-								g_vLoadedPakHandle.push_back(nPakId);
-						}
-					}
-				}
-			}
-		}
-		catch (const std::exception& ex)
-		{
-			Warning(eDLL_T::RTECH, "Exception while parsing RPak load list: '%s'\n", ex.what());
-			return;
-		}
-	}
+    nlohmann::json jsIn;
+    try
+    {
+        jsIn = nlohmann::json::parse(pBuf);
+        if (!jsIn.is_null())
+        {
+            if (!jsIn["rpak"].is_null())
+            {
+                for (auto& it : jsIn["rpak"])
+                {
+                    if (it.is_string())
+                    {
+                        string svToLoad = it.get<string>() + ".rpak";
+                        RPakHandle_t nPakId = g_pakLoadApi->LoadAsync(svToLoad.c_str(), g_pMallocPool.GetPtr(), 4, 0);
+
+                        if (nPakId == INVALID_PAK_HANDLE)
+                            Error(eDLL_T::ENGINE, false, "%s: unable to load pak '%s' results '%d'\n", __FUNCTION__, svToLoad.c_str(), nPakId);
+                        else
+                            g_vLoadedPakHandle.push_back(nPakId);
+                    }
+                }
+            }
+        }
+    }
+    catch (const std::exception& ex)
+    {
+        Warning(eDLL_T::RTECH, "Exception while parsing RPak load list: '%s'\n", ex.what());
+    }
+
+    MemAllocSingleton()->Free(pBuf);
 }
 
 //-----------------------------------------------------------------------------
