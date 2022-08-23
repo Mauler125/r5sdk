@@ -353,7 +353,7 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager,
 
 		if (nAiNetVersion > AINET_VERSION_NUMBER)
 		{
-			Warning(eDLL_T::SERVER, "AI node graph '%s' deviates expectations (net version: '%d' expected: '%d')\n",
+			Warning(eDLL_T::SERVER, "AI node graph '%s' is unsupported (net version: '%d' supported: '%d')\n",
 				fsGraphPath.relative_path().u8string().c_str(), nAiNetVersion, AINET_VERSION_NUMBER);
 		}
 		else if (nAiMapVersion != g_ServerGlobalVariables->m_nMapVersion)
