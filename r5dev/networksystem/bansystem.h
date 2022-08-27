@@ -9,8 +9,8 @@ public:
 	void Load(void);
 	void Save(void) const;
 
-	void AddEntry(const string& svIpAddress, const uint64_t nOriginID);
-	void DeleteEntry(const string& svIpAddress, const uint64_t nOriginID);
+	bool AddEntry(const string& svIpAddress, const uint64_t nOriginID);
+	bool DeleteEntry(const string& svIpAddress, const uint64_t nOriginID);
 
 	void AddConnectionRefuse(const string& svError, const uint64_t nOriginID);
 	void DeleteConnectionRefuse(const uint64_t nOriginID);

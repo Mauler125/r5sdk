@@ -32,7 +32,7 @@ void CBanSystem::operator[](std::pair<const string&, const uint64_t> pair)
 //-----------------------------------------------------------------------------
 void CBanSystem::Load(void)
 {
-	fs::path path = std::filesystem::current_path() /= "platform\\banlist.json";
+	fs::path path = std::filesystem::current_path() /= "platform\\banlist.json"; // !TODO: Use FS "PLATFORM"
 
 	nlohmann::json jsIn;
 	ifstream banFile(path, std::ios::in);
@@ -82,7 +82,7 @@ void CBanSystem::Save(void) const
 		jsOut[std::to_string(i)]["originID"] = m_vBanList[i].second;
 	}
 
-	fs::path path = std::filesystem::current_path() /= "platform\\banlist.json";
+	fs::path path = std::filesystem::current_path() /= "platform\\banlist.json"; // !TODO: Use FS "PLATFORM".
 	ofstream outFile(path, std::ios::out | std::ios::trunc); // Write config file..
 
 	outFile << jsOut.dump(4);
@@ -93,7 +93,7 @@ void CBanSystem::Save(void) const
 // Input  : &svIpAddress - 
 //			nOriginID - 
 //-----------------------------------------------------------------------------
-void CBanSystem::AddEntry(const string& svIpAddress, const uint64_t nOriginID)
+bool CBanSystem::AddEntry(const string& svIpAddress, const uint64_t nOriginID)
 {
 	if (!svIpAddress.empty())
 	{
@@ -101,8 +101,10 @@ void CBanSystem::AddEntry(const string& svIpAddress, const uint64_t nOriginID)
 		if (it == m_vBanList.end())
 		{
 			m_vBanList.push_back(std::make_pair(svIpAddress, nOriginID));
+			return true;
 		}
 	}
+	return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -110,15 +112,19 @@ void CBanSystem::AddEntry(const string& svIpAddress, const uint64_t nOriginID)
 // Input  : &svIpAddress - 
 //			nOriginID - 
 //-----------------------------------------------------------------------------
-void CBanSystem::DeleteEntry(const string& svIpAddress, const uint64_t nOriginID)
+bool CBanSystem::DeleteEntry(const string& svIpAddress, const uint64_t nOriginID)
 {
+	bool result = false;
 	for (size_t i = 0; i < m_vBanList.size(); i++)
 	{
 		if (svIpAddress.compare(m_vBanList[i].first) == NULL || nOriginID == m_vBanList[i].second)
 		{
 			m_vBanList.erase(m_vBanList.begin() + i);
+			result = true;
 		}
 	}
+
+	return result;
 }
 
 //-----------------------------------------------------------------------------
@@ -166,11 +172,12 @@ void CBanSystem::BanListCheck(void)
 {
 	if (IsRefuseListValid())
 	{
+		bool bSave = false;
 		for (size_t i = 0; i < m_vRefuseList.size(); i++)
 		{
 			for (int c = 0; c < MAX_PLAYERS; c++) // Loop through all possible client instances.
 			{
-				CClient* pClient = g_pClient->GetClient(i);
+				CClient* pClient = g_pClient->GetClient(c);
 				if (!pClient)
 					continue;
 
@@ -184,11 +191,15 @@ void CBanSystem::BanListCheck(void)
 				string svIpAddress = pNetChan->GetAddress();
 
 				Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%llu' is banned from this server!)\n", svIpAddress.c_str(), pClient->GetOriginID());
-				AddEntry(svIpAddress, pClient->GetOriginID());
-				Save(); // Save banlist to file.
 				NET_DisconnectClient(pClient, c, m_vRefuseList[i].first.c_str(), 0, true);
+
+				if (AddEntry(svIpAddress, pClient->GetOriginID() && !bSave))
+					bSave = true;
 			}
 		}
+
+		if (bSave)
+			Save(); // Save banlist to file.
 	}
 }
 

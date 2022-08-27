@@ -307,13 +307,17 @@ void Host_Unban_f(const CCommand& args)
 	{
 		if (args.HasOnlyDigits(1)) // Check if we have an ip address or origin ID.
 		{
-			g_pBanSystem->DeleteEntry("noIP", std::stoll(args.Arg(1))); // Delete ban entry.
-			g_pBanSystem->Save(); // Save modified vector to file.
+			if (g_pBanSystem->DeleteEntry("noIP", std::stoll(args.Arg(1)))) // Delete ban entry.
+			{
+				g_pBanSystem->Save(); // Save modified vector to file.
+			}
 		}
 		else
 		{
-			g_pBanSystem->DeleteEntry(args.Arg(1), 0); // Delete ban entry.
-			g_pBanSystem->Save(); // Save modified vector to file.
+			if (g_pBanSystem->DeleteEntry(args.Arg(1), 0)) // Delete ban entry.
+			{
+				g_pBanSystem->Save(); // Save modified vector to file.
+			}
 		}
 	}
 	catch (std::exception& e)

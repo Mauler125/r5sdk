@@ -71,7 +71,7 @@ CClient* CServer::Authenticate(CServer* pServer, user_creds_s* pInpacket)
 		DevMsg(eDLL_T::SERVER, "\n");
 		DevMsg(eDLL_T::SERVER, "______________________________________________________________\n");
 		DevMsg(eDLL_T::SERVER, "] AUTHENTICATION ---------------------------------------------\n");
-		DevMsg(eDLL_T::SERVER, "] UID : | '%s'\n", pInpacket->m_nUserID);
+		DevMsg(eDLL_T::SERVER, "] UID : | '%s'\n", pInpacket->m_pUserID);
 		DevMsg(eDLL_T::SERVER, "] OID : | '%llu'\n", pInpacket->m_nNucleusID);
 		DevMsg(eDLL_T::SERVER, "] ADR : | '%s'\n", svIpAddress.c_str());
 		DevMsg(eDLL_T::SERVER, "--------------------------------------------------------------\n");
@@ -82,7 +82,6 @@ CClient* CServer::Authenticate(CServer* pServer, user_creds_s* pInpacket)
 		if (g_pBanSystem->IsBanned(svIpAddress, pInpacket->m_nNucleusID)) // Is the client trying to connect banned?
 		{
 			v_CServer_RejectConnection(pServer, pServer->m_Socket, pInpacket, "You have been banned from this server."); // RejectConnection for the client.
-
 			if (sv_showconnecting->GetBool())
 			{
 				Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%llu' is banned from this server!)\n", svIpAddress.c_str(), pInpacket->m_nNucleusID);

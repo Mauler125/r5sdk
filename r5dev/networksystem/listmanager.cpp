@@ -96,6 +96,15 @@ void CServerListManager::LaunchServer(void) const
 //-----------------------------------------------------------------------------
 void CServerListManager::ConnectToServer(const string& svIp, const string& svPort, const string& svNetKey) const
 {
+    if (!ThreadInMainThread())
+    {
+        g_TaskScheduler->Dispatch([this, svIp, svPort, svNetKey]()
+            {
+                this->ConnectToServer(svIp, svPort, svNetKey);
+            }, 0);
+        return;
+    }
+
     if (!svNetKey.empty())
     {
         NET_SetKey(svNetKey);
@@ -110,6 +119,15 @@ void CServerListManager::ConnectToServer(const string& svIp, const string& svPor
 //-----------------------------------------------------------------------------
 void CServerListManager::ConnectToServer(const string& svServer, const string& svNetKey) const
 {
+    if (!ThreadInMainThread())
+    {
+        g_TaskScheduler->Dispatch([this, svServer, svNetKey]()
+            {
+                this->ConnectToServer(svServer, svNetKey);
+            }, 0);
+        return;
+    }
+
     if (!svNetKey.empty())
     {
         NET_SetKey(svNetKey);

@@ -592,7 +592,7 @@ void CBrowser::UpdateHostingStatus(void)
             break;
         }
 
-        NetGameServer_t gameServer // !FIXME: create from main thread.
+        NetGameServer_t netGameServer // !FIXME: create from main thread.
         {
             g_pServerListManager->m_Server.m_svHostName,
             g_pServerListManager->m_Server.m_svDescription,
@@ -611,7 +611,7 @@ void CBrowser::UpdateHostingStatus(void)
                 ).count()
         };
 
-        std::thread post(&CBrowser::SendHostingPostRequest, this, gameServer);
+        std::thread post(&CBrowser::SendHostingPostRequest, this, netGameServer);
         post.detach();
 
         break;

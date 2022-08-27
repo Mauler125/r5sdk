@@ -7,50 +7,25 @@
 
 #include <core/stdafx.h>
 #include <tier1/cvar.h>
-#include <engine/net.h>
 #include <engine/host_state.h>
-#include <engine/sys_utils.h>
-#ifndef CLIENT_DLL
-#include <engine/server/server.h>
-#endif
-#include <squirrel/sqinit.h>
 #include <networksystem/pylon.h>
-#include <networksystem/listmanager.h>
-#include <public/edict.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: Send keep alive request to Pylon Master Server.
 // NOTE: When Pylon update reaches indev remove this and implement properly.
 //-----------------------------------------------------------------------------
-void KeepAliveToPylon()
+bool KeepAliveToPylon(const NetGameServer_t& netGameServer)
 {
 #ifndef CLIENT_DLL
 	if (g_pHostState->m_bActiveGame && sv_pylonVisibility->GetBool()) // Check for active game.
 	{
-		std::string m_szHostToken = std::string();
-		std::string m_szHostRequestMessage = std::string();
+		string m_szHostToken;
+		string m_szHostRequestMessage;
 
-		bool result = g_pMasterServer->PostServerHost(m_szHostRequestMessage, m_szHostToken,
-			NetGameServer_t
-			{
-				hostname->GetString(),
-				hostdesc->GetString(),
-				sv_pylonVisibility->GetInt() == EServerVisibility_t::HIDDEN,
-				g_pHostState->m_levelName,
-				mp_gamemode->GetString(),
-				hostip->GetString(),
-				hostport->GetString(),
-				g_svNetKey,
-				std::to_string(*g_nServerRemoteChecksum),
-				SDK_VERSION,
-				std::to_string(g_pServer->GetNumHumanPlayers() + g_pServer->GetNumFakeClients()),
-				std::to_string(g_ServerGlobalVariables->m_nMaxClients),
-				std::chrono::duration_cast<std::chrono::milliseconds>(
-					std::chrono::system_clock::now().time_since_epoch()
-					).count()
-			}
-		);
+		bool result = g_pMasterServer->PostServerHost(m_szHostRequestMessage, m_szHostToken, netGameServer);
+		return result;
 	}
+	return false;
 #endif // !CLIENT_DLL
 }
 

@@ -42,10 +42,12 @@
 #endif // DEDICATED
 #include "networksystem/pylon.h"
 #include "networksystem/bansystem.h"
+#include "networksystem/listmanager.h"
 #include "public/edict.h"
 #ifndef CLIENT_DLL
 #include "game/server/gameinterface.h"
 #endif // !CLIENT_DLL
+#include "squirrel/sqinit.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: state machine's main processing loop
@@ -58,6 +60,8 @@ FORCEINLINE void CHostState::FrameUpdate(CHostState* pHostState, double flCurren
 		g_pHostState->Setup();
 		bInitialized = true;
 	}
+
+	g_pHostState->Think();
 #ifdef DEDICATED
 	RCONServer()->RunFrame();
 #else // 
@@ -162,11 +166,11 @@ FORCEINLINE void CHostState::Init(void)
 				m_iNextState = HostStates_t::HS_RUN;
 		}
 	}
-	m_flShortFrameTime = 1.0;
+	m_flShortFrameTime = 1.0f;
 	m_levelName[0] = 0;
 	m_landMarkName[0] = 0;
 	m_mapGroupName[0] = 0;
-	m_bSplitScreenConnect = 256;
+	m_bSplitScreenConnect = 256; // Is this actually 'm_bSplitScreenConnect'? (assembly sets this value, other 3 bytes are padded which makes this operation valid still).
 	m_vecLocation.Init();
 	m_angLocation.Init();
 	m_iCurrentState = HostStates_t::HS_NEW_GAME;
@@ -179,9 +183,6 @@ FORCEINLINE void CHostState::Setup(void)
 {
 	g_pHostState->LoadConfig();
 	g_pConVar->PurgeHostNames();
-
-	std::thread think(&CHostState::Think, this);
-	think.detach();
 
 	net_usesocketsforloopback->SetValue(1);
 	if (net_useRandomKey->GetBool())
@@ -201,46 +202,61 @@ FORCEINLINE void CHostState::Think(void) const
 	static CFastTimer pylonTimer;
 	static CFastTimer statsTimer;
 
-	for (;;) // Loop running at 20-tps.
+	if (!bInitialized) // Initialize clocks.
 	{
-		if (!bInitialized) // Initialize clocks.
-		{
 #ifndef CLIENT_DLL
-			banListTimer.Start();
+		banListTimer.Start();
 #ifdef DEDICATED
-			pylonTimer.Start();
+		pylonTimer.Start();
 #endif // DEDICATED
-			statsTimer.Start();
+		statsTimer.Start();
 #endif // !CLIENT_DLL
-			bInitialized = true;
-		}
-#ifndef CLIENT_DLL
-		if (banListTimer.GetDurationInProgress().GetSeconds() > sv_banlistRefreshInterval->GetDouble())
-		{
-			g_pBanSystem->BanListCheck();
-			banListTimer.Start();
-		}
-#endif // !CLIENT_DLL
-#ifdef DEDICATED
-		if (pylonTimer.GetDurationInProgress().GetSeconds() > sv_pylonRefreshInterval->GetDouble())
-		{
-			KeepAliveToPylon();
-			pylonTimer.Start();
-		}
-#endif // DEDICATED
-#ifndef CLIENT_DLL
-		if (statsTimer.GetDurationInProgress().GetSeconds() > sv_statusRefreshInterval->GetDouble())
-		{
-			string svCurrentPlaylist = KeyValues_GetCurrentPlaylist();
-			int32_t nPlayerCount = g_pServer->GetNumHumanPlayers();
-
-			SetConsoleTitleA(fmt::format("{:s} - {:d}/{:d} Players ({:s} on {:s})",
-				hostname->GetString(), nPlayerCount, g_ServerGlobalVariables->m_nMaxClients, svCurrentPlaylist, m_levelName).c_str());
-			statsTimer.Start();
-		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
-#endif // !CLIENT_DLL
+		bInitialized = true;
 	}
+#ifndef CLIENT_DLL
+	if (banListTimer.GetDurationInProgress().GetSeconds() > sv_banlistRefreshInterval->GetDouble())
+	{
+		g_pBanSystem->BanListCheck();
+		banListTimer.Start();
+	}
+#endif // !CLIENT_DLL
+#ifdef DEDICATED
+	if (pylonTimer.GetDurationInProgress().GetSeconds() > sv_pylonRefreshInterval->GetDouble())
+	{
+		const NetGameServer_t netGameServer
+		{
+			hostname->GetString(),
+			hostdesc->GetString(),
+			sv_pylonVisibility->GetInt() == EServerVisibility_t::HIDDEN,
+			g_pHostState->m_levelName,
+			mp_gamemode->GetString(),
+			hostip->GetString(),
+			hostport->GetString(),
+			g_svNetKey,
+			std::to_string(*g_nServerRemoteChecksum),
+			SDK_VERSION,
+			std::to_string(g_pServer->GetNumHumanPlayers() + g_pServer->GetNumFakeClients()),
+			std::to_string(g_ServerGlobalVariables->m_nMaxClients),
+			std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::system_clock::now().time_since_epoch()
+				).count()
+		};
+
+		std::thread(KeepAliveToPylon, netGameServer).detach();
+		pylonTimer.Start();
+	}
+#endif // DEDICATED
+#ifndef CLIENT_DLL
+	if (statsTimer.GetDurationInProgress().GetSeconds() > sv_statusRefreshInterval->GetDouble())
+	{
+		string svCurrentPlaylist = KeyValues_GetCurrentPlaylist();
+		int32_t nPlayerCount = g_pServer->GetNumHumanPlayers();
+
+		SetConsoleTitleA(fmt::format("{:s} - {:d}/{:d} Players ({:s} on {:s})",
+			hostname->GetString(), nPlayerCount, g_ServerGlobalVariables->m_nMaxClients, svCurrentPlaylist, m_levelName).c_str());
+		statsTimer.Start();
+	}
+#endif // !CLIENT_DLL
 }
 
 //-----------------------------------------------------------------------------
