@@ -66,6 +66,11 @@ void CBanSystem::Load(void)
 			m_vBanList.push_back(std::make_pair(svIpAddress, nOriginID));
 		}
 	}
+	else
+	{
+		// File no longer accessible, assume they want all bans dropped.
+		m_vBanList.clear();
+	}
 }
 
 //-----------------------------------------------------------------------------

@@ -202,6 +202,8 @@ void Host_Ban_f(const CCommand& args)
 		return;
 	}
 
+	bool bSave = false;
+
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
 		if (CClient* pClient = g_pClient->GetClient(i))
@@ -212,13 +214,20 @@ void Host_Ban_f(const CCommand& args)
 				{
 					if (strcmp(args.Arg(1), pNetChan->GetName()) == NULL) // Our wanted name?
 					{
-						g_pBanSystem->AddEntry(pNetChan->GetAddress(), pClient->GetOriginID());
-						g_pBanSystem->Save();
+						if (g_pBanSystem->AddEntry(pNetChan->GetAddress(), pClient->GetOriginID() && !bSave))
+						{
+							bSave = true;
+						}
 						NET_DisconnectClient(pClient, i, "Banned from server", 0, true);
 					}
 				}
 			}
 		}
+	}
+
+	if (bSave)
+	{
+		g_pBanSystem->Save();
 	}
 }
 
@@ -230,13 +239,13 @@ Host_BanID_f
 void Host_BanID_f(const CCommand& args)
 {
 	if (args.ArgC() < 2)
-	{
 		return;
-	}
 
 	try
 	{
 		bool bOnlyDigits = args.HasOnlyDigits(1);
+		bool bSave = false;
+
 		for (int i = 0; i < MAX_PLAYERS; i++)
 		{
 			CClient* pClient = g_pClient->GetClient(i);
@@ -254,35 +263,36 @@ void Host_BanID_f(const CCommand& args)
 				{
 					uint64_t nOriginID = pClient->GetOriginID();
 					if (nOriginID != nTargetID)
-					{
 						continue;
-					}
 				}
 				else // If its not try by handle.
 				{
 					uint64_t nClientID = static_cast<uint64_t>(pClient->GetHandle());
 					if (nClientID != nTargetID)
-					{
 						continue;
-					}
 				}
 
-				g_pBanSystem->AddEntry(pNetChan->GetAddress(), pClient->GetOriginID());
+				if (g_pBanSystem->AddEntry(pNetChan->GetAddress(), pClient->GetOriginID()) && !bSave)
+					bSave = true;
+
 				g_pBanSystem->Save();
 				NET_DisconnectClient(pClient, i, "Banned from server", 0, true);
 			}
 			else
 			{
 				if (strcmp(args.Arg(1), pNetChan->GetAddress()) != NULL)
-				{
 					continue;
-				}
 
-				g_pBanSystem->AddEntry(pNetChan->GetAddress(), pClient->GetOriginID());
+				if (g_pBanSystem->AddEntry(pNetChan->GetAddress(), pClient->GetOriginID()) && !bSave)
+					bSave = true;
+
 				g_pBanSystem->Save();
 				NET_DisconnectClient(pClient, i, "Banned from server", 0, true);
 			}
 		}
+
+		if (bSave)
+			g_pBanSystem->Save();
 	}
 	catch (std::exception& e)
 	{
