@@ -61,6 +61,18 @@ void MP_GameMode_Changed_f(IConVar* pConVar, const char* pOldString, float flOld
 	SetupGamemode(mp_gamemode->GetString());
 }
 
+/*
+=====================
+MP_HostName_Changed_f
+=====================
+*/
+void MP_HostName_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue)
+{
+#ifndef DEDICATED
+	g_pBrowser->SetHostName(pylon_matchmaking_hostname->GetString());
+#endif // !DEDICATED
+}
+
 #ifndef DEDICATED
 /*
 =====================

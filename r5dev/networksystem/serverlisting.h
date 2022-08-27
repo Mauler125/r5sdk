@@ -17,7 +17,7 @@ struct NetGameServer_t
 	string m_svDescription;
 	bool m_bHidden;
 
-	string m_svMapName = "mp_lobby";
+	string m_svHostMap = "mp_lobby";
 	string m_svPlaylist = "dev_default";
 
 	string m_svIpAddress;

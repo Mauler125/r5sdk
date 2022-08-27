@@ -124,10 +124,25 @@ namespace VSquirrel
     namespace UI
     {
         //-----------------------------------------------------------------------------
+        // Purpose: refreshes the server list
+        //-----------------------------------------------------------------------------
+        SQRESULT RefreshServerCount(HSQUIRRELVM v)
+        {
+            string svMessage; // Refresh svListing list.
+            size_t iCount = g_pServerListManager->RefreshServerList(svMessage);
+
+            sq_pushinteger(v, static_cast<SQInteger>(iCount));
+
+            return SQ_OK;
+        }
+
+        //-----------------------------------------------------------------------------
         // Purpose: get server's current name from serverlist index
         //-----------------------------------------------------------------------------
         SQRESULT GetServerName(HSQUIRRELVM v)
         {
+            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
+
             SQInteger iServer = sq_getinteger(v, 1);
             SQInteger iCount = static_cast<SQInteger>(g_pServerListManager->m_vServerList.size());
 
@@ -148,6 +163,8 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT GetServerDescription(HSQUIRRELVM v)
         {
+            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
+
             SQInteger iServer = sq_getinteger(v, 1);
             SQInteger iCount = static_cast<SQInteger>(g_pServerListManager->m_vServerList.size());
 
@@ -168,6 +185,8 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT GetServerMap(HSQUIRRELVM v)
         {
+            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
+
             SQInteger iServer = sq_getinteger(v, 1);
             SQInteger iCount = static_cast<SQInteger>(g_pServerListManager->m_vServerList.size());
 
@@ -177,7 +196,7 @@ namespace VSquirrel
                 return SQ_ERROR;
             }
 
-            string svServerMapName = g_pServerListManager->m_vServerList[iServer].m_svMapName;
+            string svServerMapName = g_pServerListManager->m_vServerList[iServer].m_svHostMap;
             sq_pushstring(v, svServerMapName.c_str(), -1);
 
             return SQ_OK;
@@ -188,6 +207,8 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT GetServerPlaylist(HSQUIRRELVM v)
         {
+            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
+
             SQInteger iServer = sq_getinteger(v, 1);
             SQInteger iCount = static_cast<SQInteger>(g_pServerListManager->m_vServerList.size());
 
@@ -208,6 +229,8 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT GetServerCurrentPlayers(HSQUIRRELVM v)
         {
+            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
+
             SQInteger iServer = sq_getinteger(v, 1);
             SQInteger iCount = static_cast<SQInteger>(g_pServerListManager->m_vServerList.size());
 
@@ -227,6 +250,8 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT GetServerMaxPlayers(HSQUIRRELVM v)
         {
+            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
+
             SQInteger iServer = sq_getinteger(v, 1);
             SQInteger iCount = static_cast<SQInteger>(g_pServerListManager->m_vServerList.size());
 
@@ -246,10 +271,8 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT GetServerCount(HSQUIRRELVM v)
         {
-            string svMessage;
-
-            g_pServerListManager->GetServerList(svMessage); // Refresh svListing list.
-            sq_pushinteger(v, static_cast<SQInteger>(g_pServerListManager->m_vServerList.size()));
+            size_t iCount = g_pServerListManager->m_vServerList.size();
+            sq_pushinteger(v, static_cast<SQInteger>(iCount));
 
             return SQ_OK;
         }
@@ -320,6 +343,8 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT SetEncKeyAndConnect(HSQUIRRELVM v)
         {
+            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
+
             SQInteger iServer = sq_getinteger(v, 1);
             SQInteger iCount = static_cast<SQInteger>(g_pServerListManager->m_vServerList.size());
 
@@ -351,9 +376,11 @@ namespace VSquirrel
                 return SQ_OK;
 
             // Adjust browser settings.
+            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
+
             g_pServerListManager->m_Server.m_svHostName = svServerName;
             g_pServerListManager->m_Server.m_svDescription = svServerDescription;
-            g_pServerListManager->m_Server.m_svMapName = svServerMapName;
+            g_pServerListManager->m_Server.m_svHostMap = svServerMapName;
             g_pServerListManager->m_Server.m_svPlaylist = svServerPlaylist;
             g_pServerListManager->m_ServerVisibility = eServerVisibility;
 

@@ -43,7 +43,7 @@ CConsole::CConsole(void)
     snprintf(m_szSummary, sizeof(m_szSummary), "%zu history items", m_vHistory.size());
 
     std::thread think(&CConsole::Think, this);
-    think.detach();
+    think.detach(); // !FIXME: Run from SDK MainFrame when finished.
 }
 
 //-----------------------------------------------------------------------------
@@ -528,7 +528,7 @@ void CConsole::ProcessCommand(const char* pszCommand)
     DevMsg(eDLL_T::COMMON, "] %s\n", pszCommand);
 
     Cbuf_AddText(Cbuf_GetCurrentPlayer(), pszCommand, cmd_source_t::kCommandSrcCode);
-    //g_DelayedCallTask->AddFunc(Cbuf_Execute, 0); // Run in main thread.
+    //g_TaskScheduler->Dispatch(Cbuf_Execute, 0); // Run in main thread.
 
     m_nHistoryPos = -1;
     for (size_t i = m_vHistory.size(); i-- > 0; )

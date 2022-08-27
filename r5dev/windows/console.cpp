@@ -136,7 +136,7 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 
 		// Execute the command.
 		Cbuf_AddText(Cbuf_GetCurrentPlayer(), sCommand.c_str(), cmd_source_t::kCommandSrcCode);
-		//g_DelayedCallTask->AddFunc(Cbuf_Execute, 0);
+		//g_TaskScheduler->Dispatch(Cbuf_Execute, 0);
 
 		sCommand.clear();
 

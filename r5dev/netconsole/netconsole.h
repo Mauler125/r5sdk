@@ -45,4 +45,6 @@ private:
 	bool m_bQuitApplication;
 	std::atomic<bool> m_abPromptConnect;
 	std::atomic<bool> m_abConnEstablished;
+
+	mutable std::mutex m_Mutex;
 };

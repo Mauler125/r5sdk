@@ -37,6 +37,7 @@ namespace VSquirrel
 	}
 	namespace UI
 	{
+		SQRESULT RefreshServerCount(HSQUIRRELVM v);
 		SQRESULT GetServerName(HSQUIRRELVM v);
 		SQRESULT GetServerDescription(HSQUIRRELVM v);
 		SQRESULT GetServerMap(HSQUIRRELVM v);

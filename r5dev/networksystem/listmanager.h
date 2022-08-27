@@ -4,35 +4,38 @@
 
 enum EHostStatus_t
 {
-    NOT_HOSTING,
-    HOSTING
+	NOT_HOSTING,
+	HOSTING
 };
 
 enum EServerVisibility_t
 {
-    OFFLINE,
-    HIDDEN,
-    PUBLIC
+	OFFLINE,
+	HIDDEN,
+	PUBLIC
 };
 
 class CServerListManager
 {
 public:
-    CServerListManager();
+	CServerListManager();
 
-    void GetServerList(string& svMessage);
+	size_t RefreshServerList(string& svMessage);
+	void ClearServerList(void);
 
-    void LaunchServer(void) const;
-    void ConnectToServer(const string& svIp, const string& svPort, const string& svNetKey) const;
-    void ConnectToServer(const string& svServer, const string& svNetKey) const;
+	void LaunchServer(void) const;
+	void ConnectToServer(const string& svIp, const string& svPort, const string& svNetKey) const;
+	void ConnectToServer(const string& svServer, const string& svNetKey) const;
 
-    void ProcessCommand(const char* pszCommand) const;
+	void ProcessCommand(const char* pszCommand) const;
 
-    EHostStatus_t m_HostingStatus;
+	EHostStatus_t m_HostingStatus;
 	EServerVisibility_t m_ServerVisibility;
 
 	NetGameServer_t m_Server;
 	vector<NetGameServer_t> m_vServerList;
+
+	mutable std::mutex m_Mutex;
 };
 
 extern CServerListManager* g_pServerListManager;

@@ -161,6 +161,7 @@ extern ConVar* net_encryptionEnable;
 extern ConVar* net_useRandomKey;
 extern ConVar* net_usesocketsforloopback;
 extern ConVar* pylon_matchmaking_hostname;
+extern ConVar* pylon_host_update_interval;
 extern ConVar* pylon_showdebug;
 //-------------------------------------------------------------------------
 // RTECH API                                                              |

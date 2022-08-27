@@ -81,6 +81,8 @@ void Script_RegisterUIFunctions(CSquirrelVM* pSquirrelVM)
 {
 	Script_RegisterFunction(pSquirrelVM, "SDKNativeTest", "Script_SDKNativeTest", "Native UI test function", "void", "", &VSquirrel::SHARED::SDKNativeTest);
 
+	Script_RegisterFunction(pSquirrelVM, "RefreshServerList", "Script_RefreshServerList", "Refreshes the public server list and returns the count", "int", "", &VSquirrel::UI::RefreshServerCount);
+
 	// Functions for retrieving server browser data
 	Script_RegisterFunction(pSquirrelVM, "GetServerName", "Script_GetServerName", "Gets the name of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerName);
 	Script_RegisterFunction(pSquirrelVM, "GetServerDescription", "Script_GetServerDescription", "Gets the description of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerDescription);
@@ -249,7 +251,7 @@ void Script_Execute(const SQChar* code, SQCONTEXT context)
 {
 	if (!ThreadInMainThread())
 	{
-		g_DelayedCallTask->AddFunc([code, context]()
+		g_TaskScheduler->Dispatch([code, context]()
 			{
 				string scode(code);
 				Script_Execute(scode.c_str(), context);

@@ -71,15 +71,17 @@ vector<NetGameServer_t> CPylon::GetServerList(string& svOutMessage)
         DevMsg(eDLL_T::ENGINE, "%s - Sending server list request to comp-server:\n%s\n", __FUNCTION__, svRequestBody.c_str());
     }
 
-    httplib::Result htResults = m_HttpClient.Post("/servers", jsRequestBody.dump(4).c_str(), jsRequestBody.dump(4).length(), "application/json");
-    if (htResults && pylon_showdebug->GetBool())
+    httplib::Client htClient(pylon_matchmaking_hostname->GetString()); htClient.set_connection_timeout(10);
+    httplib::Result htResult = htClient.Post("/servers", jsRequestBody.dump(4).c_str(), jsRequestBody.dump(4).length(), "application/json");
+
+    if (htResult && pylon_showdebug->GetBool())
     {
-        DevMsg(eDLL_T::ENGINE, "%s - replied with '%d'.\n", __FUNCTION__, htResults->status);
+        DevMsg(eDLL_T::ENGINE, "%s - replied with '%d'.\n", __FUNCTION__, htResult->status);
     }
 
-    if (htResults && htResults->status == 200) // STATUS_OK
+    if (htResult && htResult->status == 200) // STATUS_OK
     {
-        nlohmann::json jsResultBody = nlohmann::json::parse(htResults->body);
+        nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
         if (jsResultBody["success"].is_boolean() && jsResultBody["success"].get<bool>())
         {
             for (auto& obj : jsResultBody["servers"])
@@ -120,11 +122,11 @@ vector<NetGameServer_t> CPylon::GetServerList(string& svOutMessage)
     }
     else
     {
-        if (htResults)
+        if (htResult)
         {
-            if (!htResults->body.empty())
+            if (!htResult->body.empty())
             {
-                nlohmann::json jsResultBody = nlohmann::json::parse(htResults->body);
+                nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
 
                 if (jsResultBody["err"].is_string())
                 {
@@ -132,13 +134,13 @@ vector<NetGameServer_t> CPylon::GetServerList(string& svOutMessage)
                 }
                 else
                 {
-                    svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResults->status);
+                    svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResult->status);
                 }
 
                 return vslList;
             }
 
-            svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResults->status);
+            svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResult->status);
             return vslList;
         }
 
@@ -162,7 +164,7 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
     jsRequestBody["name"] = slServerListing.m_svHostName;
     jsRequestBody["description"] = slServerListing.m_svDescription;
     jsRequestBody["hidden"] = slServerListing.m_bHidden;
-    jsRequestBody["map"] = slServerListing.m_svMapName;
+    jsRequestBody["map"] = slServerListing.m_svHostMap;
     jsRequestBody["playlist"] = slServerListing.m_svPlaylist;
     jsRequestBody["ip"] = slServerListing.m_svIpAddress;
     jsRequestBody["port"] = slServerListing.m_svGamePort;
@@ -181,15 +183,17 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
         DevMsg(eDLL_T::ENGINE, "%s - Sending post host request to comp-server:\n%s\n", __FUNCTION__, svRequestBody.c_str());
     }
 
-    httplib::Result htResults = m_HttpClient.Post("/servers/add", svRequestBody.c_str(), svRequestBody.length(), "application/json");
-    if (htResults && pylon_showdebug->GetBool())
+    httplib::Client htClient(pylon_matchmaking_hostname->GetString()); htClient.set_connection_timeout(10);
+    httplib::Result htResult = htClient.Post("/servers/add", svRequestBody.c_str(), svRequestBody.length(), "application/json");
+
+    if (htResult && pylon_showdebug->GetBool())
     {
-        DevMsg(eDLL_T::ENGINE, "%s - Comp-server replied with '%d'\n", __FUNCTION__, htResults->status);
+        DevMsg(eDLL_T::ENGINE, "%s - Comp-server replied with '%d'\n", __FUNCTION__, htResult->status);
     }
 
-    if (htResults && htResults->status == 200) // STATUS_OK
+    if (htResult && htResult->status == 200) // STATUS_OK
     {
-        nlohmann::json jsResultBody = nlohmann::json::parse(htResults->body);
+        nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
         if (jsResultBody["success"].is_boolean() && jsResultBody["success"].get<bool>())
         {
             if (jsResultBody["token"].is_string())
@@ -218,11 +222,11 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
     }
     else
     {
-        if (htResults)
+        if (htResult)
         {
-            if (!htResults->body.empty())
+            if (!htResult->body.empty())
             {
-                nlohmann::json jsResultBody = nlohmann::json::parse(htResults->body);
+                nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
 
                 if (jsResultBody["err"].is_string())
                 {
@@ -230,7 +234,7 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
                 }
                 else
                 {
-                    svOutMessage = string("Failed to reach comp-server ") + std::to_string(htResults->status);
+                    svOutMessage = string("Failed to reach comp-server ") + std::to_string(htResult->status);
                 }
 
                 svOutToken = string();
@@ -238,7 +242,7 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
             }
 
             svOutToken = string();
-            svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResults->status);
+            svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResult->status);
             return false;
         }
 
@@ -269,20 +273,21 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
         DevMsg(eDLL_T::ENGINE, "%s - Sending token connect request to comp-server:\n%s\n", __FUNCTION__, svRequestBody.c_str());
     }
 
-    httplib::Result htResults = m_HttpClient.Post("/server/byToken", jsRequestBody.dump(4).c_str(), jsRequestBody.dump(4).length(), "application/json");
+    httplib::Client htClient(pylon_matchmaking_hostname->GetString()); htClient.set_connection_timeout(10);
+    httplib::Result htResult = htClient.Post("/server/byToken", jsRequestBody.dump(4).c_str(), jsRequestBody.dump(4).length(), "application/json");
 
     if (pylon_showdebug->GetBool())
     {
-        DevMsg(eDLL_T::ENGINE, "%s - Comp-server replied with '%d'\n", __FUNCTION__, htResults->status);
+        DevMsg(eDLL_T::ENGINE, "%s - Comp-server replied with '%d'\n", __FUNCTION__, htResult->status);
     }
 
-    if (htResults && htResults->status == 200) // STATUS_OK
+    if (htResult && htResult->status == 200) // STATUS_OK
     {
-        if (!htResults->body.empty())
+        if (!htResult->body.empty())
         {
-            nlohmann::json jsResultBody = nlohmann::json::parse(htResults->body);
+            nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
 
-            if (htResults && jsResultBody["success"].is_boolean() && jsResultBody["success"])
+            if (htResult && jsResultBody["success"].is_boolean() && jsResultBody["success"])
             {
                 slOutServer = NetGameServer_t
                 {
@@ -322,11 +327,11 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
     }
     else
     {
-        if (htResults)
+        if (htResult)
         {
-            if (!htResults->body.empty())
+            if (!htResult->body.empty())
             {
-                nlohmann::json jsResultBody = nlohmann::json::parse(htResults->body);
+                nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
 
                 if (jsResultBody["err"].is_string())
                 {
@@ -334,13 +339,13 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
                 }
                 else
                 {
-                    svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResults->status);
+                    svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResult->status);
                 }
 
                 return false;
             }
 
-            svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResults->status);
+            svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResult->status);
             return false;
         }
 
@@ -365,10 +370,12 @@ bool CPylon::GetClientIsBanned(const string& svIpAddress, uint64_t nOriginID, st
     jsRequestBody["oid"] = nOriginID;
     jsRequestBody["ip"] = svIpAddress;
 
-    httplib::Result htResults = m_HttpClient.Post("/banlist/isBanned", jsRequestBody.dump(4).c_str(), jsRequestBody.dump(4).length(), "application/json");
-    if (htResults && htResults->status == 200)
+    httplib::Client htClient(pylon_matchmaking_hostname->GetString()); htClient.set_connection_timeout(10);
+    httplib::Result htResult = htClient.Post("/banlist/isBanned", jsRequestBody.dump(4).c_str(), jsRequestBody.dump(4).length(), "application/json");
+
+    if (htResult && htResult->status == 200)
     {
-        nlohmann::json jsResultBody = nlohmann::json::parse(htResults->body);
+        nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
         if (jsResultBody["success"].is_boolean() && jsResultBody["success"].get<bool>())
         {
             if (jsResultBody["banned"].is_boolean() && jsResultBody["banned"].get<bool>())
@@ -381,4 +388,4 @@ bool CPylon::GetClientIsBanned(const string& svIpAddress, uint64_t nOriginID, st
     return false;
 }
 ///////////////////////////////////////////////////////////////////////////////
-CPylon* g_pMasterServer(new CPylon("r5a-comp-sv.herokuapp.com"));
+CPylon* g_pMasterServer(new CPylon());

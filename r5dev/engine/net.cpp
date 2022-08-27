@@ -8,6 +8,7 @@
 #include "engine/net.h"
 #ifndef NETCONSOLE
 #include "core/logdef.h"
+#include "tier0/frametask.h"
 #include "tier1/cvar.h"
 #include "vstdlib/callback.h"
 #include "mathlib/color.h"
@@ -140,7 +141,14 @@ void NET_PrintFunc(const char* fmt, ...)
 //-----------------------------------------------------------------------------
 void NET_Shutdown(void* thisptr, const char* szReason, uint8_t bBadRep, bool bRemoveNow)
 {
-	_DownloadPlaylists_f(); // Re-load playlist from disk after getting disconnected from the server.
+	if (!ThreadInMainThread())
+	{
+		g_TaskScheduler->Dispatch([]()
+			{
+				// Re-load playlist from disk the next frame.
+				_DownloadPlaylists_f();
+			}, 0);
+	}
 	v_NET_Shutdown(thisptr, szReason, bBadRep, bRemoveNow);
 }
 

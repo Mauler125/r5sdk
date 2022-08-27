@@ -54,8 +54,14 @@ bool CNetCon::Init(void)
 
 	this->TermSetup();
 
-	std::thread tFrame(&CNetCon::RunFrame, this);
-	tFrame.detach();
+	static std::thread frame([this]()
+		{
+			for (;;)
+			{
+				this->RunFrame();
+			}
+		});
+	frame.detach();
 
 	return true;
 }
@@ -130,6 +136,8 @@ void CNetCon::UserInput(void)
 			m_bQuitApplication = true;
 			return;
 		}
+
+		std::lock_guard<std::mutex> l(m_Mutex);
 		if (m_abConnEstablished)
 		{
 			if (svInput.compare("disconnect") == 0)
@@ -202,18 +210,17 @@ void CNetCon::UserInput(void)
 //-----------------------------------------------------------------------------
 void CNetCon::RunFrame(void)
 {
-	for (;;)
+	if (m_abConnEstablished)
 	{
-		if (m_abConnEstablished)
-		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(50));
-			this->Recv();
-		}
-		else if (m_abPromptConnect)
-		{
-			std::cout << "Enter <IP> <PORT>: ";
-			m_abPromptConnect = false;
-		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		std::lock_guard<std::mutex> l(m_Mutex);
+
+		this->Recv();
+	}
+	else if (m_abPromptConnect)
+	{
+		std::cout << "Enter <IP> <PORT>: ";
+		m_abPromptConnect = false;
 	}
 }
 

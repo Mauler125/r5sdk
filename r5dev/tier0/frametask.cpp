@@ -44,7 +44,7 @@ bool CFrameTask::IsFinished() const
 // Input  : functor - 
 //          frames - 
 //-----------------------------------------------------------------------------
-void CFrameTask::AddFunc(std::function<void()> functor, int frames)
+void CFrameTask::Dispatch(std::function<void()> functor, int frames)
 {
     std::lock_guard<std::mutex> l(m_Mutex);
     m_DelayedCalls.emplace_back(frames, functor);
@@ -52,4 +52,4 @@ void CFrameTask::AddFunc(std::function<void()> functor, int frames)
 
 //-----------------------------------------------------------------------------
 std::list<IFrameTask*> g_FrameTasks;
-CFrameTask* g_DelayedCallTask = new CFrameTask();
+CFrameTask* g_TaskScheduler = new CFrameTask();

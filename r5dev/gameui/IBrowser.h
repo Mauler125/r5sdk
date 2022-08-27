@@ -17,7 +17,7 @@ public:
     virtual void Think(void);
 
     virtual void RunFrame(void);
-    virtual void RunTask(void){};
+    virtual void RunTask(void);
 
     virtual void DrawSurface(void);
 
@@ -28,16 +28,18 @@ public:
     void HostPanel(void);
 
     void UpdateHostingStatus(void);
-    void SendHostingPostRequest(void);
+    void SendHostingPostRequest(const NetGameServer_t& gameServer);
 
     void ProcessCommand(const char* pszCommand) const;
     void SettingsPanel(void);
 
+    void SetHostName(const char* pszHostName);
     virtual void SetStyleVar(void);
 
 
     const char* m_pszBrowserTitle = nullptr;
     bool m_bActivate     = false;
+
 private:
     bool m_bInitialized  = false;
     char m_szServerAddressBuffer[256] = { '\0' };
@@ -46,7 +48,8 @@ private:
 
     ImGuiStyle_t              m_Style = ImGuiStyle_t::NONE;
     ID3D11ShaderResourceView* m_idLockedIcon = nullptr;
-    MODULERESOURCE m_rLockedIconBlob;
+    MODULERESOURCE            m_rLockedIconBlob;
+    mutable std::mutex        m_Mutex;
 
     ////////////////////
     //   Server List  //

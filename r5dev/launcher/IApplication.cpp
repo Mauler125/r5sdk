@@ -93,7 +93,7 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 		g_pHLClient = nullptr;
 	}
 
-	g_FrameTasks.push_back(std::move(g_DelayedCallTask));
+	g_FrameTasks.push_back(std::move(g_TaskScheduler));
 	g_bAppSystemInit = true;
 
 	return CModAppSystemGroup_Create(pModAppSystemGroup);
