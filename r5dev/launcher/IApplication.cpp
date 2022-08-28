@@ -9,6 +9,7 @@
 #include "tier0/commandline.h"
 #include "tier1/cvar.h"
 #include "vpc/interfaces.h"
+#include "appframework/engine_launcher_api.h"
 #include "launcher/IApplication.h"
 #include "pluginsystem/pluginsystem.h"
 #include "ebisusdk/EbisuSDK.h"

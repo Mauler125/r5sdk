@@ -591,6 +591,9 @@
     <ClCompile Include="..\pluginsystem\pluginsystem.cpp">
       <Filter>sdk\pluginsystem</Filter>
     </ClCompile>
+    <ClCompile Include="..\engine\sdk_dll.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1747,6 +1750,9 @@
     </ClInclude>
     <ClInclude Include="..\pluginsystem\pluginsystem.h">
       <Filter>sdk\pluginsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\sdk_dll.h">
+      <Filter>sdk\engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

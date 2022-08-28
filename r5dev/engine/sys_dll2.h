@@ -1,11 +1,41 @@
 #pragma once
 #include "vpc/interfaces.h"
+#include "appframework/engine_launcher_api.h"
 
-class CEngineAPI
+class CEngineAPI : public IEngineAPI
 {
 public:
+	virtual bool Connect(CreateInterfaceFn factory) = 0;
+	virtual void Disconnect() = 0;
+	virtual void* QueryInterface(const char* pInterfaceName) = 0;
+	virtual InitReturnVal_t Init() = 0;
+	virtual void Shutdown() = 0;
+	virtual AppSystemTier_t GetTier() = 0;
+	virtual void Reconnect(CreateInterfaceFn factory, const char* pInterfaceName) = 0;
+
+	// This function must be called before init
+	virtual bool SetStartupInfo(StartupInfo_t& info) = 0;
+
+	virtual int Run() = 0;
+
+	// Posts a console command
+	virtual void PostConsoleCommand(const char* pConsoleCommand) = 0;
+
+	// Are we running the simulation?
+	virtual bool IsRunningSimulation() const = 0;
+
+	// Start/stop running the simulation
+	virtual void ActivateSimulation(bool bActive) = 0;
+
+	// Reset the map we're on
+	virtual void SetMap(const char* pMapName) = 0;
+
+
 	static bool ModInit(CEngineAPI* pEngineAPI, const char* pModName, const char* pGameDir);
-	// TODO [ AMOS ]:
+private:
+	void* m_hEditorHWnd;
+	bool m_bRunningSimulation;
+	StartupInfo_t m_StartupInfo;
 };
 
 inline CMemory p_CEngineAPI_Connect;

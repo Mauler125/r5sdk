@@ -43,6 +43,7 @@
     <ClCompile Include="..\engine\net.cpp" />
     <ClCompile Include="..\engine\networkstringtable.cpp" />
     <ClCompile Include="..\engine\net_chan.cpp" />
+    <ClCompile Include="..\engine\sdk_dll.cpp" />
     <ClCompile Include="..\engine\sys_dll.cpp" />
     <ClCompile Include="..\engine\sys_dll2.cpp" />
     <ClCompile Include="..\engine\sys_engine.cpp" />
@@ -189,6 +190,7 @@
     <ClInclude Include="..\engine\networkstringtable.h" />
     <ClInclude Include="..\engine\net_chan.h" />
     <ClInclude Include="..\engine\packed_entity.h" />
+    <ClInclude Include="..\engine\sdk_dll.h" />
     <ClInclude Include="..\engine\sys_dll.h" />
     <ClInclude Include="..\engine\sys_dll2.h" />
     <ClInclude Include="..\engine\sys_engine.h" />
