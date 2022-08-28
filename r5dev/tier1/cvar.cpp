@@ -221,8 +221,8 @@ static void PrintListHeader(FileHandle_t& f)
 		char csvf[64];
 
 		ConVarFlags_t& entry = g_ConVarFlags[i];
-		snprintf(csvf, sizeof(csvf), "\"%s\",", entry.desc);
-		strncat(csvflagstr, csvf, sizeof(csvflagstr));
+		Q_snprintf(csvf, sizeof(csvf), "\"%s\",", entry.desc);
+		Q_strncat(csvflagstr, csvf, sizeof(csvflagstr) - strlen(csvflagstr) - 1);
 	}
 
 	FileSystem()->FPrintf(f, "\"%s\",\"%s\",%s,\"%s\"\n", "Name", "Value", csvflagstr, "Help Text");
@@ -246,20 +246,21 @@ static void PrintCvar(ConVar* var, bool logging, FileHandle_t& fh)
 	{
 		char f[32];
 		char csvf[64];
+		size_t flen = sizeof(csvflagstr) - strlen(csvflagstr) - 1;
 
 		ConVarFlags_t& entry = g_ConVarFlags[i];
 		if (var->IsFlagSet(entry.bit))
 		{
-			snprintf(f, sizeof(f), ", %s", entry.shortdesc);
-			strncat(flagstr, f, sizeof(flagstr));
-			snprintf(csvf, sizeof(csvf), "\"%s\",", entry.desc);
+			Q_snprintf(f, sizeof(f), ", %s", entry.shortdesc);
+			Q_strncat(flagstr, f, sizeof(flagstr) - strlen(flagstr) - 1);
+			Q_snprintf(csvf, sizeof(csvf), "\"%s\",", entry.desc);
 		}
 		else
 		{
-			snprintf(csvf, sizeof(csvf), ",");
+			Q_snprintf(csvf, sizeof(csvf), ",");
 		}
 
-		strncat(csvflagstr, csvf, sizeof(csvflagstr));
+		Q_strncat(csvflagstr, csvf, flen);
 	}
 
 
@@ -269,11 +270,11 @@ static void PrintCvar(ConVar* var, bool logging, FileHandle_t& fh)
 	// Clean up integers
 	if (var->GetInt() == (int)var->GetFloat())
 	{
-		snprintf(valstr, sizeof(valstr), "%-8i", var->GetInt());
+		Q_snprintf(valstr, sizeof(valstr), "%-8i", var->GetInt());
 	}
 	else
 	{
-		snprintf(valstr, sizeof(valstr), "%-8.3f", var->GetFloat());
+		Q_snprintf(valstr, sizeof(valstr), "%-8.3f", var->GetFloat());
 	}
 
 	// Print to console
@@ -304,15 +305,17 @@ static void PrintCommand(const ConCommand* cmd, bool logging, FileHandle_t& f)
 		for (int i = 0; i < c; ++i)
 		{
 			char csvf[64];
+			size_t len = sizeof(emptyflags) - strlen(emptyflags) - 1;
+
 			Q_snprintf(csvf, sizeof(csvf), ",");
-			Q_strncat(emptyflags, csvf, sizeof(emptyflags));
+			Q_strncat(emptyflags, csvf, len);
 		}
 		// Names staring with +/- need to be wrapped in single quotes
 		char name[256];
-		snprintf(name, sizeof(name), "%s", cmd->GetName());
+		Q_snprintf(name, sizeof(name), "%s", cmd->GetName());
 		if (name[0] == '+' || name[0] == '-')
 		{
-			snprintf(name, sizeof(name), "'%s'", cmd->GetName());
+			Q_snprintf(name, sizeof(name), "'%s'", cmd->GetName());
 		}
 		FileSystem()->FPrintf(f, "\"%s\",\"%s\",%s,\"%s\"\n", name, "cmd", emptyflags, StripQuotes(cmd->GetHelpText(), tempbuff, sizeof(tempbuff)));
 	}
