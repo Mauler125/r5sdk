@@ -458,15 +458,15 @@ void CBrowser::HostPanel(void)
             {
                 if (g_pServerListManager->m_Server.m_svHostName.empty())
                 {
-                    svServerNameErr = "No server name assigned.";
+                    svServerNameErr = "Server name is required.";
                 }
                 else if (g_pServerListManager->m_Server.m_svPlaylist.empty())
                 {
-                    svServerNameErr = "No playlist assigned.";
+                    svServerNameErr = "Playlist is required.";
                 }
                 else if (g_pServerListManager->m_Server.m_svHostMap.empty())
                 {
-                    svServerNameErr = "No level name assigned.";
+                    svServerNameErr = "Level name is required.";
                 }
             }
         }
@@ -483,11 +483,11 @@ void CBrowser::HostPanel(void)
         {
             if (g_pServerListManager->m_Server.m_svPlaylist.empty())
             {
-                svServerNameErr = "No playlist assigned.";
+                svServerNameErr = "Playlist is required.";
             }
             else if (g_pServerListManager->m_Server.m_svHostMap.empty())
             {
-                svServerNameErr = "No level name assigned.";
+                svServerNameErr = "Level name is required.";
             }
         }
     }
