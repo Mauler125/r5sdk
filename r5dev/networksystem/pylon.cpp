@@ -7,8 +7,10 @@
 
 #include <core/stdafx.h>
 #include <tier1/cvar.h>
-#include <engine/host_state.h>
 #include <networksystem/pylon.h>
+#ifndef CLIENT_DLL
+#include <engine/server/server.h>
+#endif // !CLIENT_DLL
 
 //-----------------------------------------------------------------------------
 // Purpose: Send keep alive request to Pylon Master Server.
@@ -17,7 +19,7 @@
 bool KeepAliveToPylon(const NetGameServer_t& netGameServer)
 {
 #ifndef CLIENT_DLL
-	if (g_pHostState->m_bActiveGame && sv_pylonVisibility->GetBool()) // Check for active game.
+	if (g_pServer->IsActive() && sv_pylonVisibility->GetBool()) // Check for active game.
 	{
 		string m_szHostToken;
 		string m_szHostRequestMessage;

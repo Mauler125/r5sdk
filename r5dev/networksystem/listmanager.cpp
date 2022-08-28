@@ -13,6 +13,9 @@
 #include "tier1/cvar.h"
 #include "engine/net.h"
 #include "engine/host_state.h"
+#ifndef CLIENT_DLL
+#include "engine/server/server.h"
+#endif // !CLIENT_DLL
 #include "vpc/keyvalues.h"
 #include "pylon.h"
 #include "listmanager.h"
@@ -76,7 +79,7 @@ void CServerListManager::LaunchServer(void) const
     KeyValues::ParsePlaylists(m_Server.m_svPlaylist.c_str());
     mp_gamemode->SetValue(m_Server.m_svPlaylist.c_str());
 
-    if (g_pHostState->m_bActiveGame)
+    if (g_pServer->IsActive())
     {
         ProcessCommand(fmt::format("{:s} \"{:s}\"", "changelevel", m_Server.m_svHostMap).c_str());
     }

@@ -445,7 +445,7 @@ void CBrowser::HostPanel(void)
     ImGui::Spacing();
     ImGui::Separator();
 
-    if (!g_pHostState->m_bActiveGame)
+    if (!g_pServer->IsActive())
     {
         if (ImGui::Button("Start Server", ImVec2((ImGui::GetWindowSize().x - 10), 32)))
         {
@@ -499,7 +499,7 @@ void CBrowser::HostPanel(void)
         ImGui::InputText("##ServerHost_HostToken", &m_svHostToken, ImGuiInputTextFlags_ReadOnly);
     }
 
-    if (g_pHostState->m_bActiveGame)
+    if (g_pServer->IsActive())
     {
         if (ImGui::Button("Weapon Reparse", ImVec2((ImGui::GetWindowSize().x - 10), 32)))
         {
@@ -556,7 +556,7 @@ void CBrowser::UpdateHostingStatus(void)
     }
 
     std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
-    g_pServerListManager->m_HostingStatus = g_pHostState->m_bActiveGame ? EHostStatus_t::HOSTING : EHostStatus_t::NOT_HOSTING; // Are we hosting a server?
+    g_pServerListManager->m_HostingStatus = g_pServer->IsActive() ? EHostStatus_t::HOSTING : EHostStatus_t::NOT_HOSTING; // Are we hosting a server?
 
     switch (g_pServerListManager->m_HostingStatus)
     {
