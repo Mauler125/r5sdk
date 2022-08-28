@@ -419,7 +419,11 @@ bool CConsole::AutoComplete(void)
     // Don't suggest if user tries to assign value to ConVar or execute ConCommand.
     if (strstr(m_szInputBuf, " ") || strstr(m_szInputBuf, ";"))
     {
-        ResetAutoComplete();
+        // !TODO: Add completion logic here.
+        m_bCanAutoComplete = false;
+        m_bSuggestActive = false;
+        m_nSuggestPos = -1;
+
         return false;
     }
     m_bSuggestActive = true;
