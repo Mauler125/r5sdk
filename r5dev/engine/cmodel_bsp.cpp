@@ -49,9 +49,8 @@ void MOD_GetAllInstalledMaps()
         if (!smRegexMatches.empty())
         {
             if (smRegexMatches[1].str().compare("frontend") == 0)
-            {
                 continue;
-            }
+
             else if (smRegexMatches[1].str().compare("mp_common") == 0)
             {
                 if (std::find(g_vAllMaps.begin(), g_vAllMaps.end(), "mp_lobby") == g_vAllMaps.end())
@@ -349,10 +348,9 @@ void MOD_PreloadPakFile(const string& svLevelName)
     FileSystem()->Read(pBuf, nLen, pFile);
     FileSystem()->Close(pFile);
 
-    nlohmann::json jsIn;
     try
     {
-        jsIn = nlohmann::json::parse(pBuf);
+        nlohmann::json jsIn = nlohmann::json::parse(pBuf);
         if (!jsIn.is_null())
         {
             if (!jsIn["rpak"].is_null())

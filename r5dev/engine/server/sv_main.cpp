@@ -12,7 +12,7 @@ void SV_IsClientBanned(CPylon* pPylon, const string& svIPAddr, const uint64_t nN
 {
 	string svError;
 
-	bool bCompBanned = pPylon->GetClientIsBanned(svIPAddr, nNucleusID, svError);
+	bool bCompBanned = pPylon->CheckForBan(svIPAddr, nNucleusID, svError);
 	if (bCompBanned)
 	{
 		DevMsg(eDLL_T::SERVER, "Connection rejected for '%s' ('%llu' is banned from the master server!)\n", svIPAddr.c_str(), nNucleusID);

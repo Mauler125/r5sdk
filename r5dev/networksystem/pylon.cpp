@@ -51,76 +51,83 @@ vector<NetGameServer_t> CPylon::GetServerList(string& svOutMessage)
 
     if (htResult && pylon_showdebug->GetBool())
     {
-        DevMsg(eDLL_T::ENGINE, "%s - replied with '%d'.\n", __FUNCTION__, htResult->status);
+        DevMsg(eDLL_T::ENGINE, "%s - Replied with '%d'.\n", __FUNCTION__, htResult->status);
     }
 
-    if (htResult && htResult->status == 200) // STATUS_OK
+    try
     {
-        nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
-        if (jsResultBody["success"].is_boolean() && jsResultBody["success"].get<bool>())
+        if (htResult && htResult->status == 200) // STATUS_OK
         {
-            for (auto& obj : jsResultBody["servers"])
+            nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
+            if (jsResultBody["success"].is_boolean() && jsResultBody["success"].get<bool>())
             {
-                vslList.push_back(
-                    NetGameServer_t
-                    {
-                        obj.value("name",""),
-                        obj.value("description",""),
-                        obj.value("hidden","false") == "true",
-                        obj.value("map",""),
-                        obj.value("playlist",""),
-                        obj.value("ip",""),
-                        obj.value("port", ""),
-                        obj.value("key",""),
-                        obj.value("checksum",""),
-                        obj.value("version", SDK_VERSION),
-                        obj.value("playerCount", ""),
-                        obj.value("maxPlayers", ""),
-                        obj.value("timeStamp", 0),
-                        obj.value("publicRef", ""),
-                        obj.value("cachedID", ""),
-                    }
-                );
-            }
-        }
-        else
-        {
-            if (jsResultBody["err"].is_string())
-            {
-                svOutMessage = jsResultBody["err"].get<string>();
+                for (auto& obj : jsResultBody["servers"])
+                {
+                    vslList.push_back(
+                        NetGameServer_t
+                        {
+                            obj.value("name",""),
+                            obj.value("description",""),
+                            obj.value("hidden","false") == "true",
+                            obj.value("map",""),
+                            obj.value("playlist",""),
+                            obj.value("ip",""),
+                            obj.value("port", ""),
+                            obj.value("key",""),
+                            obj.value("checksum",""),
+                            obj.value("version", SDK_VERSION),
+                            obj.value("playerCount", ""),
+                            obj.value("maxPlayers", ""),
+                            obj.value("timeStamp", 0),
+                            obj.value("publicRef", ""),
+                            obj.value("cachedID", ""),
+                        }
+                    );
+                }
             }
             else
             {
-                svOutMessage = "An unknown error occured!";
-            }
-        }
-    }
-    else
-    {
-        if (htResult)
-        {
-            if (!htResult->body.empty())
-            {
-                nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
-
                 if (jsResultBody["err"].is_string())
                 {
                     svOutMessage = jsResultBody["err"].get<string>();
                 }
                 else
                 {
-                    svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResult->status);
+                    svOutMessage = "An unknown error occured!";
+                }
+            }
+        }
+        else
+        {
+            if (htResult)
+            {
+                if (!htResult->body.empty())
+                {
+                    nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
+
+                    if (jsResultBody["err"].is_string())
+                    {
+                        svOutMessage = jsResultBody["err"].get<string>();
+                    }
+                    else
+                    {
+                        svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResult->status);
+                    }
+
+                    return vslList;
                 }
 
+                svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResult->status);
                 return vslList;
             }
 
-            svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResult->status);
+            svOutMessage = "Failed to reach comp-server: Unknown error code";
             return vslList;
         }
-
-        svOutMessage = "Failed to reach comp-server: Unknown error code";
-        return vslList;
+    }
+    catch (const std::exception& ex)
+    {
+        Warning(eDLL_T::ENGINE, "%s - Exception while parsing comp-server response:\n%s\n", __FUNCTION__, ex.what());
     }
 
     return vslList;
@@ -166,64 +173,71 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
         DevMsg(eDLL_T::ENGINE, "%s - Comp-server replied with '%d'\n", __FUNCTION__, htResult->status);
     }
 
-    if (htResult && htResult->status == 200) // STATUS_OK
+    try
     {
-        nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
-        if (jsResultBody["success"].is_boolean() && jsResultBody["success"].get<bool>())
+        if (htResult && htResult->status == 200) // STATUS_OK
         {
-            if (jsResultBody["token"].is_string())
+            nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
+            if (jsResultBody["success"].is_boolean() && jsResultBody["success"].get<bool>())
             {
-                svOutToken = jsResultBody["token"].get<string>();
+                if (jsResultBody["token"].is_string())
+                {
+                    svOutToken = jsResultBody["token"].get<string>();
+                }
+                else
+                {
+                    svOutToken = string();
+                }
+
+                return true;
             }
             else
             {
-                svOutToken = string();
-            }
-
-            return true;
-        }
-        else
-        {
-            if (jsResultBody["err"].is_string())
-            {
-                svOutMessage = jsResultBody["err"].get<string>();
-            }
-            else
-            {
-                svOutMessage = "An unknown error occured!";
-            }
-            return false;
-        }
-    }
-    else
-    {
-        if (htResult)
-        {
-            if (!htResult->body.empty())
-            {
-                nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
-
                 if (jsResultBody["err"].is_string())
                 {
                     svOutMessage = jsResultBody["err"].get<string>();
                 }
                 else
                 {
-                    svOutMessage = string("Failed to reach comp-server ") + std::to_string(htResult->status);
+                    svOutMessage = "An unknown error occured!";
+                }
+                return false;
+            }
+        }
+        else
+        {
+            if (htResult)
+            {
+                if (!htResult->body.empty())
+                {
+                    nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
+
+                    if (jsResultBody["err"].is_string())
+                    {
+                        svOutMessage = jsResultBody["err"].get<string>();
+                    }
+                    else
+                    {
+                        svOutMessage = string("Failed to reach comp-server ") + std::to_string(htResult->status);
+                    }
+
+                    svOutToken = string();
+                    return false;
                 }
 
                 svOutToken = string();
+                svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResult->status);
                 return false;
             }
 
             svOutToken = string();
-            svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResult->status);
+            svOutMessage = "Failed to reach comp-server: Unknown error code";
             return false;
         }
-
-        svOutToken = string();
-        svOutMessage = "Failed to reach comp-server: Unknown error code";
-        return false;
+    }
+    catch (const std::exception& ex)
+    {
+        Warning(eDLL_T::ENGINE, "%s - Exception while parsing comp-server response:\n%s\n", __FUNCTION__, ex.what());
     }
 
     return false;
@@ -256,77 +270,84 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
         DevMsg(eDLL_T::ENGINE, "%s - Comp-server replied with '%d'\n", __FUNCTION__, htResult->status);
     }
 
-    if (htResult && htResult->status == 200) // STATUS_OK
+    try
     {
-        if (!htResult->body.empty())
-        {
-            nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
-
-            if (htResult && jsResultBody["success"].is_boolean() && jsResultBody["success"])
-            {
-                slOutServer = NetGameServer_t
-                {
-                        jsResultBody["server"].value("name",""),
-                        jsResultBody["server"].value("description",""),
-                        jsResultBody["server"].value("hidden","false") == "true",
-                        jsResultBody["server"].value("map",""),
-                        jsResultBody["server"].value("playlist",""),
-                        jsResultBody["server"].value("ip",""),
-                        jsResultBody["server"].value("port", ""),
-                        jsResultBody["server"].value("key",""),
-                        jsResultBody["server"].value("checksum",""),
-                        jsResultBody["server"].value("version", SDK_VERSION),
-                        jsResultBody["server"].value("playerCount", ""),
-                        jsResultBody["server"].value("maxPlayers", ""),
-                        jsResultBody["server"].value("timeStamp", 0),
-                        jsResultBody["server"].value("publicRef", ""),
-                        jsResultBody["server"].value("cachedID", ""),
-                };
-                return true;
-            }
-            else
-            {
-                if (jsResultBody["err"].is_string())
-                {
-                    svOutMessage = jsResultBody["err"].get<string>();
-                }
-                else
-                {
-                    svOutMessage = "";
-                }
-
-                slOutServer = NetGameServer_t{};
-                return false;
-            }
-        }
-    }
-    else
-    {
-        if (htResult)
+        if (htResult && htResult->status == 200) // STATUS_OK
         {
             if (!htResult->body.empty())
             {
                 nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
 
-                if (jsResultBody["err"].is_string())
+                if (htResult && jsResultBody["success"].is_boolean() && jsResultBody["success"])
                 {
-                    svOutMessage = jsResultBody["err"].get<string>();
+                    slOutServer = NetGameServer_t
+                    {
+                            jsResultBody["server"].value("name",""),
+                            jsResultBody["server"].value("description",""),
+                            jsResultBody["server"].value("hidden","false") == "true",
+                            jsResultBody["server"].value("map",""),
+                            jsResultBody["server"].value("playlist",""),
+                            jsResultBody["server"].value("ip",""),
+                            jsResultBody["server"].value("port", ""),
+                            jsResultBody["server"].value("key",""),
+                            jsResultBody["server"].value("checksum",""),
+                            jsResultBody["server"].value("version", SDK_VERSION),
+                            jsResultBody["server"].value("playerCount", ""),
+                            jsResultBody["server"].value("maxPlayers", ""),
+                            jsResultBody["server"].value("timeStamp", 0),
+                            jsResultBody["server"].value("publicRef", ""),
+                            jsResultBody["server"].value("cachedID", ""),
+                    };
+                    return true;
                 }
                 else
                 {
-                    svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResult->status);
+                    if (jsResultBody["err"].is_string())
+                    {
+                        svOutMessage = jsResultBody["err"].get<string>();
+                    }
+                    else
+                    {
+                        svOutMessage = "";
+                    }
+
+                    slOutServer = NetGameServer_t{};
+                    return false;
+                }
+            }
+        }
+        else
+        {
+            if (htResult)
+            {
+                if (!htResult->body.empty())
+                {
+                    nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
+
+                    if (jsResultBody["err"].is_string())
+                    {
+                        svOutMessage = jsResultBody["err"].get<string>();
+                    }
+                    else
+                    {
+                        svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResult->status);
+                    }
+
+                    return false;
                 }
 
+                svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResult->status);
                 return false;
             }
 
-            svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResult->status);
+            svOutMessage = "Failed to reach comp-server: Unknown error code";
+            slOutServer = NetGameServer_t{};
             return false;
         }
-
-        svOutMessage = "Failed to reach comp-server: Unknown error code";
-        slOutServer = NetGameServer_t{};
-        return false;
+    }
+    catch (const std::exception& ex)
+    {
+        Warning(eDLL_T::ENGINE, "%s - Exception while parsing comp-server response:\n%s\n", __FUNCTION__, ex.what());
     }
 
     return false;
@@ -339,7 +360,7 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
 //			&svOutErrCl - 
 // Output : Returns true if banned, false if not banned.
 //-----------------------------------------------------------------------------
-bool CPylon::GetClientIsBanned(const string& svIpAddress, uint64_t nOriginID, string& svOutErrCl)
+bool CPylon::CheckForBan(const string& svIpAddress, uint64_t nOriginID, string& svOutErrCl)
 {
     nlohmann::json jsRequestBody = nlohmann::json::object();
     jsRequestBody["oid"] = nOriginID;
@@ -348,17 +369,24 @@ bool CPylon::GetClientIsBanned(const string& svIpAddress, uint64_t nOriginID, st
     httplib::Client htClient(pylon_matchmaking_hostname->GetString()); htClient.set_connection_timeout(10);
     httplib::Result htResult = htClient.Post("/banlist/isBanned", jsRequestBody.dump(4).c_str(), jsRequestBody.dump(4).length(), "application/json");
 
-    if (htResult && htResult->status == 200)
+    try
     {
-        nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
-        if (jsResultBody["success"].is_boolean() && jsResultBody["success"].get<bool>())
+        if (htResult && htResult->status == 200)
         {
-            if (jsResultBody["banned"].is_boolean() && jsResultBody["banned"].get<bool>())
+            nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
+            if (jsResultBody["success"].is_boolean() && jsResultBody["success"].get<bool>())
             {
-                svOutErrCl = jsResultBody.value("errCl", "#DISCONNECT_BANNED");
-                return true;
+                if (jsResultBody["banned"].is_boolean() && jsResultBody["banned"].get<bool>())
+                {
+                    svOutErrCl = jsResultBody.value("errCl", "#DISCONNECT_BANNED");
+                    return true;
+                }
             }
         }
+    }
+    catch (const std::exception& ex)
+    {
+        Warning(eDLL_T::ENGINE, "%s - Exception while parsing comp-server response:\n%s\n", __FUNCTION__, ex.what());
     }
     return false;
 }
