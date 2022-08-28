@@ -123,7 +123,7 @@ vector<NetGameServer_t> CPylon::GetServerList(string& svOutMessage)
                 return vslList;
             }
 
-            svOutMessage = "Failed to reach comp-server: Unknown error code";
+            svOutMessage = "Failed to reach comp-server: connection timed-out";
             return vslList;
         }
     }
@@ -233,7 +233,7 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
             }
 
             svOutToken = string();
-            svOutMessage = "Failed to reach comp-server: Unknown error code";
+            svOutMessage = "Failed to reach comp-server: connection timed-out";
             return false;
         }
     }
@@ -342,7 +342,7 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
                 return false;
             }
 
-            svOutMessage = "Failed to reach comp-server: Unknown error code";
+            svOutMessage = "Failed to reach comp-server: connection timed-out";
             slOutServer = NetGameServer_t{};
             return false;
         }
