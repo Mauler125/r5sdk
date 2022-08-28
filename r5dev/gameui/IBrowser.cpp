@@ -505,7 +505,6 @@ void CBrowser::HostPanel(void)
         {
             DevMsg(eDLL_T::ENGINE, "Reparsing weapon data on %s\n", "server and client");
             ProcessCommand("weapon_reparse");
-            ProcessCommand("reload");
         }
 
         if (ImGui::Button("Change Level", ImVec2((ImGui::GetWindowSize().x - 10), 32)))
