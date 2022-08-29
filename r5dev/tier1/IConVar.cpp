@@ -66,7 +66,7 @@ void ConVar::Init(void) const
 	//-------------------------------------------------------------------------
 	// ENGINE                                                                 |
 	hostdesc                       = ConVar::Create("hostdesc", "", FCVAR_RELEASE, "Host game server description.", false, 0.f, false, 0.f, nullptr, nullptr);
-	sdk_fixedframe_tickinterval    = ConVar::Create("sdk_fixedframe_tickinterval", "0.05", FCVAR_RELEASE, "The tick interval used by the SDK fixed frame.", false, 0.f, false, 0.f, nullptr, nullptr);
+	sdk_fixedframe_tickinterval    = ConVar::Create("sdk_fixedframe_tickinterval", "0.02", FCVAR_RELEASE, "The tick interval used by the SDK fixed frame.", false, 0.f, false, 0.f, nullptr, nullptr);
 	staticProp_defaultBuildFrustum = ConVar::Create("staticProp_defaultBuildFrustum", "0", FCVAR_DEVELOPMENTONLY, "Use the old solution for building static prop frustum culling.", false, 0.f, false, 0.f, nullptr, nullptr);
 
 	cm_unset_all_cmdquery   = ConVar::Create("cm_unset_all_cmdquery"  , "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Returns false on every ConVar/ConCommand query ( !warning! ).", false, 0.f, false, 0.f, nullptr, nullptr);

@@ -97,11 +97,8 @@ CClient* CServer::Authenticate(CServer* pServer, user_creds_s* pInpacket)
 
 	if (g_bCheckCompBanDB)
 	{
-		if (g_pMasterServer)
-		{
-			std::thread th(SV_IsClientBanned, g_pMasterServer, svIpAddress, pInpacket->m_nNucleusID);
-			th.detach();
-		}
+		std::thread th(SV_IsClientBanned, g_pMasterServer, svIpAddress, pInpacket->m_nNucleusID);
+		th.detach();
 	}
 
 	return v_CServer_Authenticate(pServer, pInpacket);

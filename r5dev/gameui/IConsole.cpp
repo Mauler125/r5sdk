@@ -151,7 +151,7 @@ void CConsole::Think(void)
     {
         if (m_flFadeAlpha <= 1.f)
         {
-            m_flFadeAlpha += .05f;
+            m_flFadeAlpha += .1f;
         }
     }
     else // Reset to full transparent.

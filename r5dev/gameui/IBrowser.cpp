@@ -17,7 +17,6 @@ History:
 #include "tier0/fasttimer.h"
 #include "tier0/frametask.h"
 #include "tier0/commandline.h"
-#include "tier1/IConVar.h"
 #include "tier1/cvar.h"
 #include "windows/id3dx.h"
 #include "windows/console.h"
@@ -46,9 +45,6 @@ CBrowser::CBrowser(void)
 
     std::thread refresh(&CBrowser::RefreshServerList, this);
     refresh.detach();
-
-    std::thread think(&CBrowser::Think, this);
-    think.detach(); // !FIXME: Run from SDK MainFrame when finished.
 
     m_pszBrowserTitle = "Server Browser";
     m_rLockedIconBlob = GetModuleResource(IDB_PNG2);
@@ -151,7 +147,7 @@ void CBrowser::Think(void)
     {
         if (m_flFadeAlpha <= 1.f)
         {
-            m_flFadeAlpha += .05f;
+            m_flFadeAlpha += .1f;
         }
     }
     else // Reset to full transparent.
@@ -339,7 +335,7 @@ void CBrowser::HiddenServersModal(void)
         ImGui::PopStyleColor(); // Pop the override for the child bg.
 
         ImGui::SameLine();
-        ImGui::Text("Enter the token to connect");
+        ImGui::Text("Enter token to connect");
 
         ImGui::PushItemWidth(ImGui::GetWindowContentRegionWidth()); // Override item width.
         ImGui::InputTextWithHint("##HiddenServersConnectModal_TokenInput", "Token", &m_svHiddenServerToken);

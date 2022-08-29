@@ -24,7 +24,7 @@ void CEngineSDK::FixedFrame()
 		g_pConsole->Think();
 #endif // !DEDICATED
 
-		std::chrono::duration<float, std::deci> interval{ sdk_fixedframe_tickinterval->GetFloat()};
+		std::chrono::duration<float> interval{ sdk_fixedframe_tickinterval->GetFloat()};
 		std::this_thread::sleep_for(interval);
 	}
 }
