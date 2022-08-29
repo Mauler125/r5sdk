@@ -68,13 +68,7 @@ CClient* CServer::Authenticate(CServer* pServer, user_creds_s* pInpacket)
 	string svIpAddress = pInpacket->m_nAddr.GetAddress();
 	if (sv_showconnecting->GetBool())
 	{
-		DevMsg(eDLL_T::SERVER, "\n");
-		DevMsg(eDLL_T::SERVER, "______________________________________________________________\n");
-		DevMsg(eDLL_T::SERVER, "] AUTHENTICATION ---------------------------------------------\n");
-		DevMsg(eDLL_T::SERVER, "] UID : | '%s'\n", pInpacket->m_pUserID);
-		DevMsg(eDLL_T::SERVER, "] OID : | '%llu'\n", pInpacket->m_nNucleusID);
-		DevMsg(eDLL_T::SERVER, "] ADR : | '%s'\n", svIpAddress.c_str());
-		DevMsg(eDLL_T::SERVER, "--------------------------------------------------------------\n");
+		DevMsg(eDLL_T::SERVER, "Processing connectionless challenge from '%s' ('%llu')\n", svIpAddress.c_str(), pInpacket->m_nNucleusID);
 	}
 
 	if (g_pBanSystem->IsBanListValid()) // Is the banlist vector valid?
@@ -89,10 +83,6 @@ CClient* CServer::Authenticate(CServer* pServer, user_creds_s* pInpacket)
 
 			return nullptr;
 		}
-	}
-	if (sv_showconnecting->GetBool())
-	{
-		DevMsg(eDLL_T::SERVER, "\n");
 	}
 
 	if (g_bCheckCompBanDB)

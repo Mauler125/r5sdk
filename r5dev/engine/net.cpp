@@ -65,15 +65,15 @@ int NET_SendDatagram(SOCKET s, void* pPayload, int iLenght, v_netadr_t* pAdr, bo
 //-----------------------------------------------------------------------------
 void NET_SetKey(const string& svNetKey)
 {
+	std::lock_guard<std::mutex> l(g_NetKeyMutex);
+
 	g_svNetKey.clear();
 	g_svNetKey = svNetKey;
 
-	DevMsg(eDLL_T::ENGINE, "______________________________________________________________\n");
-	DevMsg(eDLL_T::ENGINE, "] NET_KEY ----------------------------------------------------\n");
-	DevMsg(eDLL_T::ENGINE, "] BASE64: %s%s%s\n", g_svGreyB.c_str(), g_svNetKey.c_str(), g_svReset.c_str());
-	DevMsg(eDLL_T::ENGINE, "--------------------------------------------------------------\n");
-
 	v_NET_SetKey(g_pNetKey, g_svNetKey.c_str());
+
+	DevMsg(eDLL_T::ENGINE, "Installed NetKey: '%s%s%s'\n",
+		g_svGreyB.c_str(), g_svNetKey.c_str(), g_svReset.c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -81,8 +81,8 @@ void NET_SetKey(const string& svNetKey)
 //-----------------------------------------------------------------------------
 void NET_GenerateKey()
 {
-	g_svNetKey.clear();
-	net_useRandomKey->SetValue(1);
+	if (!net_useRandomKey->GetBool())
+		net_useRandomKey->SetValue(1);
 
 	BCRYPT_ALG_HANDLE hAlgorithm;
 	if (BCryptOpenAlgorithmProvider(&hAlgorithm, L"RNG", 0, 0) < 0)
@@ -90,26 +90,15 @@ void NET_GenerateKey()
 		Error(eDLL_T::ENGINE, false, "Failed to open rng algorithm\n");
 		return;
 	}
-	unsigned char pBuffer[0x10u];
-	if (BCryptGenRandom(hAlgorithm, pBuffer, 0x10u, 0) < 0)
+
+	uint8_t pBuffer[AES_128_KEY_SIZE];
+	if (BCryptGenRandom(hAlgorithm, pBuffer, AES_128_KEY_SIZE, 0) < 0)
 	{
 		Error(eDLL_T::ENGINE, false, "Failed to generate random data\n");
 		return;
 	}
 
-	for (int i = 0; i < 0x10u; i++)
-	{
-		g_svNetKey += pBuffer[i];
-	}
-
-	g_svNetKey = Base64Encode(g_svNetKey);
-
-	DevMsg(eDLL_T::ENGINE, "______________________________________________________________\n");
-	DevMsg(eDLL_T::ENGINE, "] NET_KEY ----------------------------------------------------\n");
-	DevMsg(eDLL_T::ENGINE, "] BASE64: %s%s%s\n", g_svGreyB.c_str(), g_svNetKey.c_str(), g_svReset.c_str());
-	DevMsg(eDLL_T::ENGINE, "--------------------------------------------------------------\n");
-
-	v_NET_SetKey(g_pNetKey, g_svNetKey.c_str());
+	NET_SetKey(Base64Encode(string(reinterpret_cast<char*>(&pBuffer), AES_128_KEY_SIZE)));
 }
 
 //-----------------------------------------------------------------------------

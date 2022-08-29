@@ -1,8 +1,9 @@
 #ifndef ISERVER_H
 #define ISERVER_H
 #include "inetchannel.h"
+#include "inetmsghandler.h"
 
-class IServer
+abstract_class IServer : public IConnectionlessPacketHandler
 {
 public:
 	virtual ~IServer(void) = 0;

@@ -525,7 +525,7 @@ void RTech_StringToGUID_f(const CCommand& args)
 	unsigned long long guid = g_pRTech->StringToGuid(args.Arg(1));
 
 	DevMsg(eDLL_T::RTECH, "______________________________________________________________\n");
-	DevMsg(eDLL_T::RTECH, "] RTECH_HASH -------------------------------------------------\n");
+	DevMsg(eDLL_T::RTECH, "] RTECH_HASH ]------------------------------------------------\n");
 	DevMsg(eDLL_T::RTECH, "] GUID: '0x%llX'\n", guid);
 }
 

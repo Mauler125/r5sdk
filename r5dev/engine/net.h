@@ -13,6 +13,8 @@
 #define NETMSG_LENGTH_BITS	12	// 512 bytes (11 in Valve Source, 256 bytes).
 #define NET_MIN_MESSAGE 5 // Even connectionless packets require int32 value (-1) + 1 byte content
 
+#define AES_128_KEY_SIZE 16
+
 /* ==== CNETCHAN ======================================================================================================================================================== */
 inline CMemory p_NET_Init;
 inline auto v_NET_Init = p_NET_Init.RCast<void* (*)(bool bDeveloper)>();
@@ -47,6 +49,7 @@ void NET_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 extern string g_svNetKey;
 extern uintptr_t g_pNetKey;
+inline std::mutex g_NetKeyMutex;
 
 ///////////////////////////////////////////////////////////////////////////////
 class VNet : public IDetour

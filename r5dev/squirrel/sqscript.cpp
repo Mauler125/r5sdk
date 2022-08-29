@@ -214,12 +214,7 @@ SQInteger Script_LoadRson(const SQChar* szRsonName)
 {
 	if (sq_showrsonloading->GetBool())
 	{
-		DevMsg(eDLL_T::ENGINE, "\n");
-		DevMsg(eDLL_T::ENGINE, "______________________________________________________________\n");
-		DevMsg(eDLL_T::ENGINE, "] RSON ]------------------------------------------------------\n");
-		DevMsg(eDLL_T::ENGINE, "] PATH: '%s'\n", szRsonName);
-		DevMsg(eDLL_T::ENGINE, "--------------------------------------------------------------\n");
-		DevMsg(eDLL_T::ENGINE, "\n");
+		DevMsg(eDLL_T::ENGINE, "Loading RSON: '%s'\n", szRsonName);
 	}
 	return v_Script_LoadRson(szRsonName);
 }

@@ -345,7 +345,7 @@ void DestroyRenderTarget()
 		if (mat_showdxoutput->GetBool())
 		{
 			DevMsg(eDLL_T::MS, "+----------------------------------------------------------------+\n");
-			DevMsg(eDLL_T::MS, "| >>>>>>>>>>>>>>>| RENDER TARGET VIEW DESTROYED |<<<<<<<<<<<<<<< |\n");
+			DevMsg(eDLL_T::MS, "| >>>>>>>>>>>>| !! RENDER TARGET VIEW DESTROYED !! |<<<<<<<<<<<< |\n");
 			DevMsg(eDLL_T::MS, "+----------------------------------------------------------------+\n");
 		}
 	}

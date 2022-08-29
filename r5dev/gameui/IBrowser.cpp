@@ -586,6 +586,7 @@ void CBrowser::UpdateHostingStatus(void)
             break;
         }
 
+        std::lock_guard<std::mutex> l(g_NetKeyMutex);
         NetGameServer_t netGameServer // !FIXME: create from main thread.
         {
             g_pServerListManager->m_Server.m_svHostName,
@@ -670,6 +671,8 @@ void CBrowser::SettingsPanel(void)
     {
         ProcessCommand(fmt::format("{:s} \"{:s}\"", "pylon_matchmaking_hostname", m_szMatchmakingHostName).c_str());
     }
+
+    std::lock_guard<std::mutex> l(g_NetKeyMutex);
     ImGui::InputText("Netkey", const_cast<char*>(g_svNetKey.c_str()), ImGuiInputTextFlags_ReadOnly);
     if (ImGui::Button("Regenerate Encryption Key"))
     {

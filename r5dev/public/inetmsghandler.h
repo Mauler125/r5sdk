@@ -13,11 +13,13 @@
 #if !defined( INETMSGHANDLER_H )
 #define INETMSGHANDLER_H
 
+typedef struct netpacket_s netpacket_t;
+
 abstract_class IConnectionlessPacketHandler
 {
 public:
 	virtual ~IConnectionlessPacketHandler(void) = 0;
-	virtual bool ProcessConnectionlessPacket(void* packet) = 0;
+	virtual bool ProcessConnectionlessPacket(netpacket_t* packet) = 0;
 };
 
 abstract_class INetMessageHandler
