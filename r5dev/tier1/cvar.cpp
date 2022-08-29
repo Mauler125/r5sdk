@@ -8,6 +8,7 @@
 
 //-----------------------------------------------------------------------------
 // ENGINE                                                                     |
+ConVar* sdk_fixedframe_tickinterval        = nullptr;
 ConVar* single_frame_shutdown_for_reload   = nullptr;
 ConVar* old_gather_props                   = nullptr;
 ConVar* enable_debug_overlays              = nullptr;

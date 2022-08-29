@@ -41,9 +41,6 @@ CConsole::CConsole(void)
     m_vCommands.push_back("HISTORY");
 
     snprintf(m_szSummary, sizeof(m_szSummary), "%zu history items", m_vHistory.size());
-
-    std::thread think(&CConsole::Think, this);
-    think.detach(); // !FIXME: Run from SDK MainFrame when finished.
 }
 
 //-----------------------------------------------------------------------------
@@ -151,21 +148,17 @@ void CConsole::RunTask()
 //-----------------------------------------------------------------------------
 void CConsole::Think(void)
 {
-    for (;;) // Loop running at 100-tps.
+    if (m_bActivate)
     {
-        if (m_bActivate)
+        if (m_flFadeAlpha <= 1.f)
         {
-            if (m_flFadeAlpha <= 1.f)
-            {
-                m_flFadeAlpha += .05f;
-            }
+            m_flFadeAlpha += .05f;
         }
-        else // Reset to full transparent.
-        {
-            m_flFadeAlpha = 0.f;
-            m_bReclaimFocus = true;
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    else // Reset to full transparent.
+    {
+        m_flFadeAlpha = 0.f;
+        m_bReclaimFocus = true;
     }
 }
 

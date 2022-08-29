@@ -78,6 +78,7 @@
 #ifndef CLIENT_DLL
 #include "engine/server/sv_main.h"
 #endif // !CLIENT_DLL
+#include "engine/sdk_dll.h"
 #include "engine/sys_dll.h"
 #include "engine/sys_dll2.h"
 #include "engine/sys_engine.h"
@@ -242,6 +243,9 @@ void Systems_Init()
 #endif // DEDICATED
 
 	SpdLog_PostInit();
+
+	std::thread fixed(&CEngineSDK::FixedFrame, g_EngineSDK);
+	fixed.detach();
 }
 
 //////////////////////////////////////////////////////////////////////////

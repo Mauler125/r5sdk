@@ -150,20 +150,16 @@ void CBrowser::RunTask()
 //-----------------------------------------------------------------------------
 void CBrowser::Think(void)
 {
-    for (;;) // Loop running at 100-tps.
+    if (m_bActivate)
     {
-        if (m_bActivate)
+        if (m_flFadeAlpha <= 1.f)
         {
-            if (m_flFadeAlpha <= 1.f)
-            {
-                m_flFadeAlpha += .05f;
-            }
+            m_flFadeAlpha += .05f;
         }
-        else // Reset to full transparent.
-        {
-            m_flFadeAlpha = 0.f;
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    else // Reset to full transparent.
+    {
+        m_flFadeAlpha = 0.f;
     }
 }
 

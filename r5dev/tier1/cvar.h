@@ -4,6 +4,7 @@
 
 //-------------------------------------------------------------------------
 // ENGINE                                                                 |
+extern ConVar* sdk_fixedframe_tickinterval;
 extern ConVar* single_frame_shutdown_for_reload;
 extern ConVar* old_gather_props;
 extern ConVar* enable_debug_overlays;
