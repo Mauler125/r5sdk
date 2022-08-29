@@ -33,11 +33,15 @@ void CBanSystem::operator[](std::pair<const string&, const uint64_t> pair)
 void CBanSystem::Load(void)
 {
 	fs::path path = std::filesystem::current_path() /= "platform\\banlist.json"; // !TODO: Use FS "PLATFORM"
-
 	nlohmann::json jsIn;
-	ifstream banFile(path, std::ios::in);
 
+	ifstream banFile(path, std::ios::in);
 	int nTotalBans = 0;
+
+	if (IsBanListValid())
+	{
+		m_vBanList.clear();
+	}
 
 	if (banFile.good() && banFile)
 	{
@@ -60,16 +64,11 @@ void CBanSystem::Load(void)
 				continue;
 			}
 
-			uint64_t nNucleusID = jsEntry["nucleusID"].get<uint64_t>();
+			uint64_t nNucleusID = jsEntry["nucleusId"].get<uint64_t>();
 			string svIpAddress = jsEntry["ipAddress"].get<string>();
 
 			m_vBanList.push_back(std::make_pair(svIpAddress, nNucleusID));
 		}
-	}
-	else
-	{
-		// File no longer accessible, assume they want all bans dropped.
-		m_vBanList.clear();
 	}
 }
 
@@ -82,10 +81,10 @@ void CBanSystem::Save(void) const
 
 	for (size_t i = 0; i < m_vBanList.size(); i++)
 	{
-		jsOut["totalBans"] = m_vBanList.size();
 		jsOut[std::to_string(i)]["ipAddress"] = m_vBanList[i].first;
-		jsOut[std::to_string(i)]["nucleusID"] = m_vBanList[i].second;
+		jsOut[std::to_string(i)]["nucleusId"] = m_vBanList[i].second;
 	}
+	jsOut["totalBans"] = m_vBanList.size();
 
 	fs::path path = std::filesystem::current_path() /= "platform\\banlist.json"; // !TODO: Use FS "PLATFORM".
 	ofstream outFile(path, std::ios::out | std::ios::trunc); // Write config file..
