@@ -22,7 +22,6 @@ History:
 #include "windows/console.h"
 #include "windows/resource.h"
 #include "gameui/IConsole.h"
-#include "client/vengineclient_impl.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -617,7 +616,7 @@ void CConsole::BuildSummary(string svConVar)
 //-----------------------------------------------------------------------------
 void CConsole::ClampLogSize(void)
 {
-    m_Mutex.lock();
+    std::lock_guard<std::mutex> l(m_Mutex);
     if (m_Logger.GetTotalLines() > con_max_size_logvector->GetInt())
     {
         while (m_Logger.GetTotalLines() > con_max_size_logvector->GetInt())
@@ -630,7 +629,6 @@ void CConsole::ClampLogSize(void)
         m_Logger.MoveCursor(m_nSelectBack, false);
         m_nSelectBack = 0;
     }
-    m_Mutex.unlock();
 }
 
 //-----------------------------------------------------------------------------

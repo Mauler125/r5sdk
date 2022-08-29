@@ -32,11 +32,8 @@ History:
 #include "networksystem/pylon.h"
 #include "networksystem/listmanager.h"
 #include "squirrel/sqinit.h"
-#include "squirrel/sqapi.h"
-#include "client/vengineclient_impl.h"
 #include "vpc/keyvalues.h"
 #include "vstdlib/callback.h"
-#include "vpklib/packedstore.h"
 #include "gameui/IBrowser.h"
 #include "public/edict.h"
 
@@ -669,7 +666,7 @@ void CBrowser::SettingsPanel(void)
     ImGui::InputTextWithHint("Hostname", "Matchmaking Server String", &m_szMatchmakingHostName);
     if (ImGui::Button("Update Hostname"))
     {
-        ProcessCommand(fmt::format("{:s} \"{:s}\"", "pylon_matchmaking_hostname", m_szMatchmakingHostName.c_str()).c_str());
+        ProcessCommand(fmt::format("{:s} \"{:s}\"", "pylon_matchmaking_hostname", m_szMatchmakingHostName).c_str());
     }
     ImGui::InputText("Netkey", const_cast<char*>(g_svNetKey.c_str()), ImGuiInputTextFlags_ReadOnly);
     if (ImGui::Button("Regenerate Encryption Key"))
