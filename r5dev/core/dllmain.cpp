@@ -15,7 +15,7 @@
 // INITIALIZATION
 //#############################################################################
 
-void R5Dev_Init()
+void SDK_Init()
 {
     if (strstr(GetCommandLineA(), "-launcher"))
     {
@@ -55,7 +55,7 @@ void R5Dev_Init()
 // SHUTDOWN
 //#############################################################################
 
-void R5Dev_Shutdown()
+void SDK_Shutdown()
 {
     static bool bShutDown = false;
     if (bShutDown)
@@ -87,13 +87,13 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  dwReason, LPVOID lpReserved)
     {
         case DLL_PROCESS_ATTACH:
         {
-            R5Dev_Init();
+            SDK_Init();
             break;
         }
 
         case DLL_PROCESS_DETACH:
         {
-            R5Dev_Shutdown();
+            SDK_Shutdown();
             break;
         }
     }

@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------
 void h_exit_or_terminate_process(UINT uExitCode)
 {
-	R5Dev_Shutdown();
+	//SDK_Shutdown();
 
 	HANDLE h = GetCurrentProcess();
 	TerminateProcess(h, uExitCode);
