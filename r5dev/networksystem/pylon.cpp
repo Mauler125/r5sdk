@@ -358,14 +358,14 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
 //-----------------------------------------------------------------------------
 // Purpose: Checks if client is banned on the comp server.
 // Input  : svIpAddress - 
-//			nOriginID - 
+//			nNucleusID - 
 //			&svOutErrCl - 
 // Output : Returns true if banned, false if not banned.
 //-----------------------------------------------------------------------------
-bool CPylon::CheckForBan(const string& svIpAddress, uint64_t nOriginID, string& svOutErrCl)
+bool CPylon::CheckForBan(const string& svIpAddress, uint64_t nNucleusID, string& svOutErrCl)
 {
     nlohmann::json jsRequestBody = nlohmann::json::object();
-    jsRequestBody["oid"] = nOriginID;
+    jsRequestBody["id"] = nNucleusID;
     jsRequestBody["ip"] = svIpAddress;
 
     httplib::Client htClient(pylon_matchmaking_hostname->GetString()); htClient.set_connection_timeout(10);

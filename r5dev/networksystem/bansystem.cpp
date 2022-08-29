@@ -60,10 +60,10 @@ void CBanSystem::Load(void)
 				continue;
 			}
 
-			uint64_t nOriginID = jsEntry["originID"].get<uint64_t>();
+			uint64_t nNucleusID = jsEntry["nucleusID"].get<uint64_t>();
 			string svIpAddress = jsEntry["ipAddress"].get<string>();
 
-			m_vBanList.push_back(std::make_pair(svIpAddress, nOriginID));
+			m_vBanList.push_back(std::make_pair(svIpAddress, nNucleusID));
 		}
 	}
 	else
@@ -84,7 +84,7 @@ void CBanSystem::Save(void) const
 	{
 		jsOut["totalBans"] = m_vBanList.size();
 		jsOut[std::to_string(i)]["ipAddress"] = m_vBanList[i].first;
-		jsOut[std::to_string(i)]["originID"] = m_vBanList[i].second;
+		jsOut[std::to_string(i)]["nucleusID"] = m_vBanList[i].second;
 	}
 
 	fs::path path = std::filesystem::current_path() /= "platform\\banlist.json"; // !TODO: Use FS "PLATFORM".
@@ -96,16 +96,16 @@ void CBanSystem::Save(void) const
 //-----------------------------------------------------------------------------
 // Purpose: adds a banned player entry to the banlist
 // Input  : &svIpAddress - 
-//			nOriginID - 
+//			nNucleusID - 
 //-----------------------------------------------------------------------------
-bool CBanSystem::AddEntry(const string& svIpAddress, const uint64_t nOriginID)
+bool CBanSystem::AddEntry(const string& svIpAddress, const uint64_t nNucleusID)
 {
 	if (!svIpAddress.empty())
 	{
-		auto it = std::find(m_vBanList.begin(), m_vBanList.end(), std::make_pair(svIpAddress, nOriginID));
+		auto it = std::find(m_vBanList.begin(), m_vBanList.end(), std::make_pair(svIpAddress, nNucleusID));
 		if (it == m_vBanList.end())
 		{
-			m_vBanList.push_back(std::make_pair(svIpAddress, nOriginID));
+			m_vBanList.push_back(std::make_pair(svIpAddress, nNucleusID));
 			return true;
 		}
 	}
@@ -115,14 +115,14 @@ bool CBanSystem::AddEntry(const string& svIpAddress, const uint64_t nOriginID)
 //-----------------------------------------------------------------------------
 // Purpose: deletes an entry in the banlist
 // Input  : &svIpAddress - 
-//			nOriginID - 
+//			nNucleusID - 
 //-----------------------------------------------------------------------------
-bool CBanSystem::DeleteEntry(const string& svIpAddress, const uint64_t nOriginID)
+bool CBanSystem::DeleteEntry(const string& svIpAddress, const uint64_t nNucleusID)
 {
 	bool result = false;
 	for (size_t i = 0; i < m_vBanList.size(); i++)
 	{
-		if (svIpAddress.compare(m_vBanList[i].first) == NULL || nOriginID == m_vBanList[i].second)
+		if (svIpAddress.compare(m_vBanList[i].first) == NULL || nNucleusID == m_vBanList[i].second)
 		{
 			m_vBanList.erase(m_vBanList.begin() + i);
 			result = true;
@@ -135,21 +135,21 @@ bool CBanSystem::DeleteEntry(const string& svIpAddress, const uint64_t nOriginID
 //-----------------------------------------------------------------------------
 // Purpose: adds a connect refuse entry to the refuselist
 // Input  : &svError - 
-//			nOriginID - 
+//			nNucleusID - 
 //-----------------------------------------------------------------------------
-void CBanSystem::AddConnectionRefuse(const string& svError, const uint64_t nOriginID)
+void CBanSystem::AddConnectionRefuse(const string& svError, const uint64_t nNucleusID)
 {
 	if (m_vRefuseList.empty())
 	{
-		m_vRefuseList.push_back(std::make_pair(svError, nOriginID));
+		m_vRefuseList.push_back(std::make_pair(svError, nNucleusID));
 	}
 	else
 	{
 		for (size_t i = 0; i < m_vRefuseList.size(); i++)
 		{
-			if (m_vRefuseList[i].second != nOriginID)
+			if (m_vRefuseList[i].second != nNucleusID)
 			{
-				m_vRefuseList.push_back(std::make_pair(svError, nOriginID));
+				m_vRefuseList.push_back(std::make_pair(svError, nNucleusID));
 			}
 		}
 	}
@@ -157,13 +157,13 @@ void CBanSystem::AddConnectionRefuse(const string& svError, const uint64_t nOrig
 
 //-----------------------------------------------------------------------------
 // Purpose: deletes an entry in the refuselist
-// Input  : nOriginID - 
+// Input  : nNucleusID - 
 //-----------------------------------------------------------------------------
-void CBanSystem::DeleteConnectionRefuse(const uint64_t nOriginID)
+void CBanSystem::DeleteConnectionRefuse(const uint64_t nNucleusID)
 {
 	for (size_t i = 0; i < m_vRefuseList.size(); i++)
 	{
-		if (m_vRefuseList[i].second == nOriginID)
+		if (m_vRefuseList[i].second == nNucleusID)
 		{
 			m_vRefuseList.erase(m_vRefuseList.begin() + i);
 		}
@@ -190,15 +190,15 @@ void CBanSystem::BanListCheck(void)
 				if (!pNetChan)
 					continue;
 
-				if (pClient->GetOriginID() != m_vRefuseList[i].second)
+				if (pClient->GetNucleusID() != m_vRefuseList[i].second)
 					continue;
 
 				string svIpAddress = pNetChan->GetAddress();
 
-				Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%llu' is banned from this server!)\n", svIpAddress.c_str(), pClient->GetOriginID());
+				Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%llu' is banned from this server!)\n", svIpAddress.c_str(), pClient->GetNucleusID());
 				NET_DisconnectClient(pClient, c, m_vRefuseList[i].first.c_str(), 0, true);
 
-				if (AddEntry(svIpAddress, pClient->GetOriginID() && !bSave))
+				if (AddEntry(svIpAddress, pClient->GetNucleusID() && !bSave))
 					bSave = true;
 			}
 		}
@@ -211,24 +211,24 @@ void CBanSystem::BanListCheck(void)
 //-----------------------------------------------------------------------------
 // Purpose: checks if specified ip address or necleus id is banned
 // Input  : &svIpAddress - 
-//			nOriginID - 
+//			nNucleusID - 
 // Output : true if banned, false if not banned
 //-----------------------------------------------------------------------------
-bool CBanSystem::IsBanned(const string& svIpAddress, const uint64_t nOriginID) const
+bool CBanSystem::IsBanned(const string& svIpAddress, const uint64_t nNucleusID) const
 {
 	for (size_t i = 0; i < m_vBanList.size(); i++)
 	{
 		string ipAddress = m_vBanList[i].first;
-		uint64_t originID = m_vBanList[i].second;
+		uint64_t nucleusID = m_vBanList[i].second;
 
 		if (ipAddress.empty() ||
-			!originID) // Cannot be null.
+			!nucleusID) // Cannot be null.
 		{
 			continue;
 		}
 
 		if (ipAddress.compare(svIpAddress) == NULL ||
-			nOriginID == originID)
+			nNucleusID == nucleusID)
 		{
 			return true;
 		}

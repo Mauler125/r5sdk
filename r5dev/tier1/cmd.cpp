@@ -333,11 +333,11 @@ void ConCommand::Init(void)
 	// SERVER DLL                                                             |
 #ifndef CLIENT_DLL
 	ConCommand::Create("script", "Run input code as SERVER script on the VM.", FCVAR_CHEAT, SQVM_ServerScript_f, nullptr);
-	ConCommand::Create("sv_kick", "Kick a client from the server by name. | Usage: kick \"<name>\".", FCVAR_RELEASE, Host_Kick_f, nullptr);
-	ConCommand::Create("sv_kickid", "Kick a client from the server by UserID or OriginID | Usage: kickid \"<UserID>\"/\"<OriginID>\".", FCVAR_RELEASE, Host_KickID_f, nullptr);
-	ConCommand::Create("sv_ban", "Bans a client from the server by name. | Usage: ban <name>.", FCVAR_RELEASE, Host_Ban_f, nullptr);
-	ConCommand::Create("sv_banid", "Bans a client from the server by UserID, OriginID or IPAddress | Usage: banid \"<UserID>\"/\"<OriginID>/<IPAddress>\".", FCVAR_RELEASE, Host_BanID_f, nullptr);
-	ConCommand::Create("sv_unban", "Unbans a client from the server by OriginID or IPAddress | Usage: unban \"<OriginID>\"/\"<IPAddress>\".", FCVAR_RELEASE, Host_Unban_f, nullptr);
+	ConCommand::Create("sv_kick", "Kick a client from the server by user name. | Usage: sv_kick \"<UserID>\".", FCVAR_RELEASE, Host_Kick_f, nullptr);
+	ConCommand::Create("sv_kickid", "Kick a client from the server by handle or platform id | Usage: sv_kickid \"<HandleID>\"/\"<NucleusID>\".", FCVAR_RELEASE, Host_KickID_f, nullptr);
+	ConCommand::Create("sv_ban", "Bans a client from the server by user name. | Usage: sv_ban <UserID>.", FCVAR_RELEASE, Host_Ban_f, nullptr);
+	ConCommand::Create("sv_banid", "Bans a client from the server by handle, platform id or ip address | Usage: sv_banid \"<HandleID>\"/\"<NucleusID>/<IPAddress>\".", FCVAR_RELEASE, Host_BanID_f, nullptr);
+	ConCommand::Create("sv_unban", "Unbans a client from the server by platform id or ip address | Usage: sv_unban \"<NucleusID>\"/\"<IPAddress>\".", FCVAR_RELEASE, Host_Unban_f, nullptr);
 	ConCommand::Create("sv_reloadbanlist", "Reloads the ban list from the disk.", FCVAR_RELEASE, Host_ReloadBanList_f, nullptr);
 #endif // !CLIENT_DLL
 #ifndef DEDICATED

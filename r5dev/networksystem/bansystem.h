@@ -9,15 +9,15 @@ public:
 	void Load(void);
 	void Save(void) const;
 
-	bool AddEntry(const string& svIpAddress, const uint64_t nOriginID);
-	bool DeleteEntry(const string& svIpAddress, const uint64_t nOriginID);
+	bool AddEntry(const string& svIpAddress, const uint64_t nNucleusID);
+	bool DeleteEntry(const string& svIpAddress, const uint64_t nNucleusID);
 
-	void AddConnectionRefuse(const string& svError, const uint64_t nOriginID);
-	void DeleteConnectionRefuse(const uint64_t nOriginID);
+	void AddConnectionRefuse(const string& svError, const uint64_t nNucleusID);
+	void DeleteConnectionRefuse(const uint64_t nNucleusID);
 
 	void BanListCheck(void);
 
-	bool IsBanned(const string& svIpAddress, const uint64_t nOriginID) const;
+	bool IsBanned(const string& svIpAddress, const uint64_t nNucleusID) const;
 	bool IsRefuseListValid(void) const;
 	bool IsBanListValid(void) const;
 

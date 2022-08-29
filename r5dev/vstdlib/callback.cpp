@@ -153,10 +153,10 @@ void Host_KickID_f(const CCommand& args)
 			if (bOnlyDigits)
 			{
 				uint64_t nTargetID = static_cast<uint64_t>(std::stoll(args.Arg(1)));
-				if (nTargetID > MAX_PLAYERS) // Is it a possible originID?
+				if (nTargetID > MAX_PLAYERS) // Is it a possible nucleusID?
 				{
-					uint64_t nOriginID = pClient->GetOriginID();
-					if (nOriginID != nTargetID)
+					uint64_t nNucleusID = pClient->GetNucleusID();
+					if (nNucleusID != nTargetID)
 					{
 						continue;
 					}
@@ -185,7 +185,7 @@ void Host_KickID_f(const CCommand& args)
 	}
 	catch (std::exception& e)
 	{
-		Error(eDLL_T::SERVER, false, "%s - sv_kickid requires a UserID or OriginID. You can get the UserID with the 'status' command. Error: %s", __FUNCTION__, e.what());
+		Error(eDLL_T::SERVER, false, "%s - sv_kickid requires a handle or platform id. You can get the handle with the 'status' command.\n Error: %s", __FUNCTION__, e.what());
 		return;
 	}
 }
@@ -214,7 +214,7 @@ void Host_Ban_f(const CCommand& args)
 				{
 					if (strcmp(args.Arg(1), pNetChan->GetName()) == NULL) // Our wanted name?
 					{
-						if (g_pBanSystem->AddEntry(pNetChan->GetAddress(), pClient->GetOriginID()) && !bSave)
+						if (g_pBanSystem->AddEntry(pNetChan->GetAddress(), pClient->GetNucleusID()) && !bSave)
 						{
 							bSave = true;
 						}
@@ -259,10 +259,10 @@ void Host_BanID_f(const CCommand& args)
 			if (bOnlyDigits)
 			{
 				uint64_t nTargetID = static_cast<uint64_t>(std::stoll(args.Arg(1)));
-				if (nTargetID > static_cast<uint64_t>(MAX_PLAYERS)) // Is it a possible originID?
+				if (nTargetID > static_cast<uint64_t>(MAX_PLAYERS)) // Is it a possible nucleusID?
 				{
-					uint64_t nOriginID = pClient->GetOriginID();
-					if (nOriginID != nTargetID)
+					uint64_t nNucleusID = pClient->GetNucleusID();
+					if (nNucleusID != nTargetID)
 						continue;
 				}
 				else // If its not try by handle.
@@ -272,7 +272,7 @@ void Host_BanID_f(const CCommand& args)
 						continue;
 				}
 
-				if (g_pBanSystem->AddEntry(pNetChan->GetAddress(), pClient->GetOriginID()) && !bSave)
+				if (g_pBanSystem->AddEntry(pNetChan->GetAddress(), pClient->GetNucleusID()) && !bSave)
 					bSave = true;
 
 				g_pBanSystem->Save();
@@ -283,7 +283,7 @@ void Host_BanID_f(const CCommand& args)
 				if (strcmp(args.Arg(1), pNetChan->GetAddress()) != NULL)
 					continue;
 
-				if (g_pBanSystem->AddEntry(pNetChan->GetAddress(), pClient->GetOriginID()) && !bSave)
+				if (g_pBanSystem->AddEntry(pNetChan->GetAddress(), pClient->GetNucleusID()) && !bSave)
 					bSave = true;
 
 				g_pBanSystem->Save();
@@ -296,7 +296,7 @@ void Host_BanID_f(const CCommand& args)
 	}
 	catch (std::exception& e)
 	{
-		Error(eDLL_T::SERVER, false, "%s - Banid Error: %s", __FUNCTION__, e.what());
+		Error(eDLL_T::SERVER, false, "%s - Ban error:\n%s\n", __FUNCTION__, e.what());
 		return;
 	}
 }
@@ -332,7 +332,7 @@ void Host_Unban_f(const CCommand& args)
 	}
 	catch (std::exception& e)
 	{
-		Error(eDLL_T::SERVER, false, "%s - Unban error: %s", __FUNCTION__, e.what());
+		Error(eDLL_T::SERVER, false, "%s - Unban error:\n%s\n", __FUNCTION__, e.what());
 		return;
 	}
 }

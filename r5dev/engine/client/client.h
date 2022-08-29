@@ -18,7 +18,7 @@ public:
 	CClient* GetClient(int nIndex) const;
 	uint16_t GetHandle(void) const;
 	uint32_t GetUserID(void) const;
-	uint64_t GetOriginID(void) const;
+	uint64_t GetNucleusID(void) const;
 	SIGNONSTATE GetSignonState(void) const;
 	PERSISTENCE GetPersistenceState(void) const;
 	CNetChan* GetNetChan(void) const;
@@ -26,7 +26,7 @@ public:
 	const char* GetClientName(void) const;
 	void SetHandle(uint16_t nHandle);
 	void SetUserID(uint32_t nUserID);
-	void SetOriginID(uint64_t nOriginID);
+	void SetNucleusID(uint64_t nNucleusID);
 	void SetSignonState(SIGNONSTATE nSignonState);
 	void SetPersistenceState(PERSISTENCE nPersistenceState);
 	void SetNetChan(CNetChan* pNetChan);
@@ -58,7 +58,7 @@ private:
 	char pad_03A8[8];                //0x03A8
 	SIGNONSTATE m_nSignonState;      //0x03B0
 	int32_t m_nDeltaTick;            //0x03B4
-	uint64_t m_nOriginID;            //0x03B8
+	uint64_t m_nNucleusID;           //0x03B8
 	int32_t m_nStringTableAckTick;   //0x03BC
 	int32_t m_nSignonTick;           //0x03C0
 	char pad_03C0[464];              //0x03C4
