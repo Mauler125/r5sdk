@@ -416,7 +416,7 @@ static std::map<uint16_t, DXGI_FORMAT> rpakToDxgiFormat {
 class RPakLoadedInfo_t
 {
 public:
-	int32_t m_nPakId; //0x0000
+	RPakHandle_t m_nHandle; //0x0000
 	RPakStatus_t m_nStatus; //0x0004
 	uint64_t m_nUnk1; //0x0008
 	uint32_t m_nUnk2; //0x0010
@@ -469,7 +469,7 @@ public:
 	uint64_t __fastcall StringToGuid(const char* pData);
 	uint8_t __fastcall DecompressPakFile(RPakDecompState_t* state, uint64_t inLen, uint64_t outLen);
 	uint64_t __fastcall DecompressPakFileInit(RPakDecompState_t* state, uint8_t* fileBuffer, uint64_t fileSize, uint64_t offNoHeader, uint64_t headerSize);
-	RPakLoadedInfo_t* GetPakLoadedInfo(int nPakId);
+	RPakLoadedInfo_t* GetPakLoadedInfo(RPakHandle_t nPakId);
 	RPakLoadedInfo_t* GetPakLoadedInfo(const char* szPakName);
 
 	static int32_t OpenFile(const CHAR* szFilePath, void* unused, LONGLONG* fileSizeOut);

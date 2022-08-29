@@ -664,7 +664,7 @@ int32_t RTech::OpenFile(const CHAR* szFilePath, void* unused, LONGLONG* fileSize
 //-----------------------------------------------------------------------------
 // Purpose: gets information about loaded pak file via pak ID
 //-----------------------------------------------------------------------------
-RPakLoadedInfo_t* RTech::GetPakLoadedInfo(int nPakId)
+RPakLoadedInfo_t* RTech::GetPakLoadedInfo(RPakHandle_t nHandle)
 {
 	for (int16_t i = 0; i < *s_pLoadedPakCount; ++i)
 	{
@@ -672,13 +672,13 @@ RPakLoadedInfo_t* RTech::GetPakLoadedInfo(int nPakId)
 		if (!info)
 			continue;
 
-		if (info->m_nPakId != nPakId)
+		if (info->m_nHandle != nHandle)
 			continue;
 
 		return info;
 	}
 
-	Warning(eDLL_T::RTECH, "%s - Failed getting RPakLoadInfo_t for PakId '%d'\n", __FUNCTION__, nPakId);
+	Warning(eDLL_T::RTECH, "%s - Failed to retrieve pak info for handle '%d'\n", __FUNCTION__, nHandle);
 	return nullptr;
 }
 
@@ -702,7 +702,7 @@ RPakLoadedInfo_t* RTech::GetPakLoadedInfo(const char* szPakName)
 		return info;
 	}
 
-	Warning(eDLL_T::RTECH, "%s - Failed getting RPakLoadInfo_t for Pak '%s'\n", __FUNCTION__, szPakName);
+	Warning(eDLL_T::RTECH, "%s - Failed to retrieve pak info for name '%s'\n", __FUNCTION__, szPakName);
 	return nullptr;
 }
 

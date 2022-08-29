@@ -185,7 +185,7 @@ void Host_KickID_f(const CCommand& args)
 	}
 	catch (std::exception& e)
 	{
-		Error(eDLL_T::SERVER, false, "%s - sv_kickid requires a handle or platform id. You can get the handle with the 'status' command.\n Error: %s", __FUNCTION__, e.what());
+		Error(eDLL_T::SERVER, false, "%s - %s", __FUNCTION__, e.what());
 		return;
 	}
 }
@@ -296,7 +296,7 @@ void Host_BanID_f(const CCommand& args)
 	}
 	catch (std::exception& e)
 	{
-		Error(eDLL_T::SERVER, false, "%s - Ban error:\n%s\n", __FUNCTION__, e.what());
+		Error(eDLL_T::SERVER, false, "%s - %s", __FUNCTION__, e.what());
 		return;
 	}
 }
@@ -332,7 +332,7 @@ void Host_Unban_f(const CCommand& args)
 	}
 	catch (std::exception& e)
 	{
-		Error(eDLL_T::SERVER, false, "%s - Unban error:\n%s\n", __FUNCTION__, e.what());
+		Error(eDLL_T::SERVER, false, "%s - %s", __FUNCTION__, e.what());
 		return;
 	}
 }
@@ -393,7 +393,7 @@ void Pak_ListPaks_f(const CCommand& args)
 			rpakStatus = it->second;
 
 		// todo: make status into a string from an array/vector
-		DevMsg(eDLL_T::RTECH, "| %02i | %-50s | %-36s | %11i |\n", info.m_nPakId, info.m_pszFileName, rpakStatus.c_str(), info.m_nAssetCount);
+		DevMsg(eDLL_T::RTECH, "| %02i | %-50s | %-36s | %11i |\n", info.m_nHandle, info.m_pszFileName, rpakStatus.c_str(), info.m_nAssetCount);
 		nActuallyLoaded++;
 	}
 	DevMsg(eDLL_T::RTECH, "|----|----------------------------------------------------|--------------------------------------|-------------|\n");
@@ -417,16 +417,16 @@ void Pak_RequestUnload_f(const CCommand& args)
 	{
 		if (args.HasOnlyDigits(1))
 		{
-			RPakHandle_t nPakId = std::stoi(args.Arg(1));
-			RPakLoadedInfo_t* pakInfo = g_pRTech->GetPakLoadedInfo(nPakId);
+			RPakHandle_t pakHandle = std::stoi(args.Arg(1));
+			RPakLoadedInfo_t* pakInfo = g_pRTech->GetPakLoadedInfo(pakHandle);
 			if (!pakInfo)
 			{
-				throw std::exception("Found no pak entry for specified ID.");
+				throw std::exception("Found no pak entry for specified handle.");
 			}
 
 			string pakName = pakInfo->m_pszFileName;
-			!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested pak unload for '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested Pak Unload for '%d'\n", nPakId);
-			g_pakLoadApi->UnloadPak(nPakId);
+			!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested pak unload for file '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested pak unload for handle '%d'\n", pakHandle);
+			g_pakLoadApi->UnloadPak(pakHandle);
 		}
 		else
 		{
@@ -436,8 +436,8 @@ void Pak_RequestUnload_f(const CCommand& args)
 				throw std::exception("Found no pak entry for specified name.");
 			}
 
-			DevMsg(eDLL_T::RTECH, "Requested pak unload for '%s'\n", args.Arg(1));
-			g_pakLoadApi->UnloadPak(pakInfo->m_nPakId);
+			DevMsg(eDLL_T::RTECH, "Requested pak unload for file '%s'\n", args.Arg(1));
+			g_pakLoadApi->UnloadPak(pakInfo->m_nHandle);
 		}
 	}
 	catch (std::exception& e)
@@ -468,16 +468,16 @@ void Pak_Swap_f(const CCommand& args)
 	try
 	{
 		string pakName;
-		RPakHandle_t nPakId = 0;
+		RPakHandle_t pakHandle = 0;
 		RPakLoadedInfo_t* pakInfo = nullptr;
 
 		if (args.HasOnlyDigits(1))
 		{
-			nPakId = std::stoi(args.Arg(1));
-			pakInfo = g_pRTech->GetPakLoadedInfo(nPakId);
+			pakHandle = std::stoi(args.Arg(1));
+			pakInfo = g_pRTech->GetPakLoadedInfo(pakHandle);
 			if (!pakInfo)
 			{
-				throw std::exception("Found no pak entry for specified ID.");
+				throw std::exception("Found no pak entry for specified handle.");
 			}
 
 			pakName = pakInfo->m_pszFileName;
@@ -491,12 +491,12 @@ void Pak_Swap_f(const CCommand& args)
 				throw std::exception("Found no pak entry for specified name.");
 			}
 
-			nPakId = pakInfo->m_nPakId;
+			pakHandle = pakInfo->m_nHandle;
 		}
 
-		!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested pak swap for '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested pak swap for '%d'\n", nPakId);
+		!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested pak swap for file '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested pak swap for handle '%d'\n", pakHandle);
 
-		g_pakLoadApi->UnloadPak(nPakId);
+		g_pakLoadApi->UnloadPak(pakHandle);
 
 		while (pakInfo->m_nStatus != RPakStatus_t::PAK_STATUS_FREED) // Wait till this slot gets free'd.
 			std::this_thread::sleep_for(std::chrono::seconds(1));
