@@ -1222,7 +1222,9 @@ void KeyValues::InitPlaylists(void)
 		KeyValues* pPlaylists = (*g_pPlaylistKeyValues)->FindKey("Playlists", false);
 		if (pPlaylists)
 		{
+			std::lock_guard<std::mutex> l(g_PlaylistsVecMutex);
 			g_vAllPlaylists.clear();
+
 			for (KeyValues* pSubKey = pPlaylists->GetFirstTrueSubKey(); pSubKey != nullptr; pSubKey = pSubKey->GetNextTrueSubKey())
 			{
 				g_vAllPlaylists.push_back(pSubKey->GetName()); // Get all playlists.

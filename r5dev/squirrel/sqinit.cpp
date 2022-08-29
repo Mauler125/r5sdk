@@ -53,6 +53,8 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT GetAvailableMaps(HSQUIRRELVM v)
         {
+            std::lock_guard<std::mutex> l(g_MapVecMutex);
+
             if (g_vAllMaps.empty())
                 return SQ_OK;
 
@@ -71,6 +73,8 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT GetAvailablePlaylists(HSQUIRRELVM v)
         {
+            std::lock_guard<std::mutex> l(g_PlaylistsVecMutex);
+
             if (g_vAllPlaylists.empty())
                 return SQ_OK;
 

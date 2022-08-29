@@ -35,6 +35,8 @@ bool MOD_LevelHasChanged(const string& svLevelName)
 //-----------------------------------------------------------------------------
 void MOD_GetAllInstalledMaps()
 {
+    std::lock_guard<std::mutex> l(g_MapVecMutex);
+
     if (!g_vAllMaps.empty())
         return;
 

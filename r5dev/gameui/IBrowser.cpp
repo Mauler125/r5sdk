@@ -393,25 +393,31 @@ void CBrowser::HostPanel(void)
 
     if (ImGui::BeginCombo("Playlist", g_pServerListManager->m_Server.m_svPlaylist.c_str()))
     {
-        for (auto& item : g_vAllPlaylists)
+        g_PlaylistsVecMutex.lock();
+        for (const string& item : g_vAllPlaylists)
         {
             if (ImGui::Selectable(item.c_str(), item == g_pServerListManager->m_Server.m_svPlaylist))
             {
                 g_pServerListManager->m_Server.m_svPlaylist = item;
             }
         }
+
+        g_PlaylistsVecMutex.unlock();
         ImGui::EndCombo();
     }
 
     if (ImGui::BeginCombo("Map##ServerHost_MapListBox", g_pServerListManager->m_Server.m_svHostMap.c_str()))
     {
-        for (auto& item : g_vAllMaps)
+        g_MapVecMutex.lock();
+        for (const string& item : g_vAllMaps)
         {
             if (ImGui::Selectable(item.c_str(), item == g_pServerListManager->m_Server.m_svHostMap))
             {
                 g_pServerListManager->m_Server.m_svHostMap = item;
             }
         }
+
+        g_MapVecMutex.unlock();
         ImGui::EndCombo();
     }
 

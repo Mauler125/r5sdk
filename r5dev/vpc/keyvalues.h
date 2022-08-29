@@ -7,6 +7,9 @@
 extern vector<string> g_vAllPlaylists;
 extern vector<string> g_vGameInfoPaths;
 
+inline std::mutex g_MapVecMutex;
+inline std::mutex g_PlaylistsVecMutex;
+
 //---------------------------------------------------------------------------------
 // Purpose: Forward declarations
 //---------------------------------------------------------------------------------
