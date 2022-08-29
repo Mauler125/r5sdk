@@ -388,7 +388,6 @@ void CBrowser::HiddenServersModal(void)
 void CBrowser::HostPanel(void)
 {
 #ifndef CLIENT_DLL
-    static string svServerNameErr = ""; // Member?
     std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
 
     ImGui::InputTextWithHint("##ServerHost_ServerName", "Server Name (Required)", &g_pServerListManager->m_Server.m_svHostName);
@@ -445,7 +444,7 @@ void CBrowser::HostPanel(void)
     {
         if (ImGui::Button("Start Server", ImVec2((ImGui::GetWindowSize().x - 10), 32)))
         {
-            svServerNameErr.clear();
+            m_svHostInvalidCriteria.clear();
             if (!g_pServerListManager->m_Server.m_svHostName.empty() && !g_pServerListManager->m_Server.m_svPlaylist.empty() && !g_pServerListManager->m_Server.m_svHostMap.empty())
             {
                 g_pServerListManager->LaunchServer(); // Launch server.
@@ -454,15 +453,15 @@ void CBrowser::HostPanel(void)
             {
                 if (g_pServerListManager->m_Server.m_svHostName.empty())
                 {
-                    svServerNameErr = "Server name is required.";
+                    m_svHostInvalidCriteria = "Server name is required.";
                 }
                 else if (g_pServerListManager->m_Server.m_svPlaylist.empty())
                 {
-                    svServerNameErr = "Playlist is required.";
+                    m_svHostInvalidCriteria = "Playlist is required.";
                 }
                 else if (g_pServerListManager->m_Server.m_svHostMap.empty())
                 {
-                    svServerNameErr = "Level name is required.";
+                    m_svHostInvalidCriteria = "Level name is required.";
                 }
             }
         }
@@ -470,7 +469,7 @@ void CBrowser::HostPanel(void)
 
     if (ImGui::Button("Force Start", ImVec2((ImGui::GetWindowSize().x - 10), 32)))
     {
-        svServerNameErr.clear();
+        m_svHostInvalidCriteria.clear();
         if (!g_pServerListManager->m_Server.m_svPlaylist.empty() && !g_pServerListManager->m_Server.m_svHostMap.empty())
         {
             g_pServerListManager->LaunchServer(); // Launch server.
@@ -479,17 +478,18 @@ void CBrowser::HostPanel(void)
         {
             if (g_pServerListManager->m_Server.m_svPlaylist.empty())
             {
-                svServerNameErr = "Playlist is required.";
+                m_svHostInvalidCriteria = "Playlist is required.";
             }
             else if (g_pServerListManager->m_Server.m_svHostMap.empty())
             {
-                svServerNameErr = "Level name is required.";
+                m_svHostInvalidCriteria = "Level name is required.";
             }
         }
     }
 
-    ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), svServerNameErr.c_str());
+    ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), m_svHostInvalidCriteria.c_str());
     ImGui::TextColored(m_HostRequestMessageColor, m_svHostRequestMessage.c_str());
+
     if (!m_svHostToken.empty())
     {
         ImGui::InputText("##ServerHost_HostToken", &m_svHostToken, ImGuiInputTextFlags_ReadOnly);
@@ -511,7 +511,7 @@ void CBrowser::HostPanel(void)
             }
             else
             {
-                svServerNameErr = "Failed to change level: 'levelname' was empty.";
+                m_svHostInvalidCriteria = "Failed to change level: 'levelname' was empty.";
             }
         }
 
