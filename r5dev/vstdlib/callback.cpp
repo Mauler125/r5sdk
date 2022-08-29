@@ -214,7 +214,7 @@ void Host_Ban_f(const CCommand& args)
 				{
 					if (strcmp(args.Arg(1), pNetChan->GetName()) == NULL) // Our wanted name?
 					{
-						if (g_pBanSystem->AddEntry(pNetChan->GetAddress(), pClient->GetOriginID() && !bSave))
+						if (g_pBanSystem->AddEntry(pNetChan->GetAddress(), pClient->GetOriginID()) && !bSave)
 						{
 							bSave = true;
 						}
