@@ -163,7 +163,7 @@ extern ConVar* net_useRandomKey;
 extern ConVar* net_usesocketsforloopback;
 extern ConVar* pylon_matchmaking_hostname;
 extern ConVar* pylon_host_update_interval;
-extern ConVar* pylon_showdebug;
+extern ConVar* pylon_showdebuginfo;
 //-------------------------------------------------------------------------
 // RTECH API                                                              |
 extern ConVar* rtech_debug;

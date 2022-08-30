@@ -3,17 +3,14 @@
 class CBanSystem
 {
 public:
-	CBanSystem(void);
-	void operator[](std::pair<const string&, const uint64_t> pair);
-
 	void Load(void);
 	void Save(void) const;
 
 	bool AddEntry(const string& svIpAddress, const uint64_t nNucleusID);
 	bool DeleteEntry(const string& svIpAddress, const uint64_t nNucleusID);
 
-	void AddConnectionRefuse(const string& svError, const uint64_t nNucleusID);
-	void DeleteConnectionRefuse(const uint64_t nNucleusID);
+	bool AddConnectionRefuse(const string& svError, const uint64_t nNucleusID);
+	bool DeleteConnectionRefuse(const uint64_t nNucleusID);
 
 	void BanListCheck(void);
 

@@ -1020,6 +1020,7 @@ playlists
 				"PROMO_SDK_ERROR"                     "You should not see this."
 
 				"DISCONNECT_BANNED"                   "The client's game account has been banned: Banned"
+				"VALVE_REJECT_BANNED"                 "You have been banned from this server."
 			}
 		}
 	}

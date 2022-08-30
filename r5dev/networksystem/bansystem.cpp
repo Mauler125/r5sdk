@@ -11,23 +11,6 @@
 #include "networksystem/bansystem.h"
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CBanSystem::CBanSystem(void)
-{
-	Load();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pair<const string&, const uint64_t> - 
-//-----------------------------------------------------------------------------
-void CBanSystem::operator[](std::pair<const string&, const uint64_t> pair)
-{
-	AddEntry(pair.first, pair.second);
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: loads and parses the banlist
 //-----------------------------------------------------------------------------
 void CBanSystem::Load(void)
@@ -99,7 +82,9 @@ void CBanSystem::Save(void) const
 //-----------------------------------------------------------------------------
 bool CBanSystem::AddEntry(const string& svIpAddress, const uint64_t nNucleusID)
 {
-	if (!svIpAddress.empty())
+	Assert(!svIpAddress.empty());
+
+	if (IsBanListValid())
 	{
 		auto it = std::find(m_vBanList.begin(), m_vBanList.end(), std::make_pair(svIpAddress, nNucleusID));
 		if (it == m_vBanList.end())
@@ -108,6 +93,12 @@ bool CBanSystem::AddEntry(const string& svIpAddress, const uint64_t nNucleusID)
 			return true;
 		}
 	}
+	else
+	{
+		m_vBanList.push_back(std::make_pair(svIpAddress, nNucleusID));
+		return true;
+	}
+
 	return false;
 }
 
@@ -118,17 +109,24 @@ bool CBanSystem::AddEntry(const string& svIpAddress, const uint64_t nNucleusID)
 //-----------------------------------------------------------------------------
 bool CBanSystem::DeleteEntry(const string& svIpAddress, const uint64_t nNucleusID)
 {
-	bool result = false;
-	for (size_t i = 0; i < m_vBanList.size(); i++)
+	Assert(!svIpAddress.empty());
+
+	if (IsBanListValid())
 	{
-		if (svIpAddress.compare(m_vBanList[i].first) == NULL || nNucleusID == m_vBanList[i].second)
+		auto it = std::find_if(m_vBanList.begin(), m_vBanList.end(),
+			[&](const pair<const string, const uint64_t>& element)
+			{ return (svIpAddress.compare(element.first) == NULL || element.second == nNucleusID); });
+
+		if (it != m_vBanList.end())
 		{
-			m_vBanList.erase(m_vBanList.begin() + i);
-			result = true;
+			DeleteConnectionRefuse(it->second);
+			m_vBanList.erase(it);
+
+			return true;
 		}
 	}
 
-	return result;
+	return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -136,37 +134,47 @@ bool CBanSystem::DeleteEntry(const string& svIpAddress, const uint64_t nNucleusI
 // Input  : &svError - 
 //			nNucleusID - 
 //-----------------------------------------------------------------------------
-void CBanSystem::AddConnectionRefuse(const string& svError, const uint64_t nNucleusID)
+bool CBanSystem::AddConnectionRefuse(const string& svError, const uint64_t nNucleusID)
 {
-	if (m_vRefuseList.empty())
+	if (IsRefuseListValid())
 	{
-		m_vRefuseList.push_back(std::make_pair(svError, nNucleusID));
+		auto it = std::find_if(m_vRefuseList.begin(), m_vRefuseList.end(),
+			[&](const pair<const string, const uint64_t>& element) { return element.second == nNucleusID; });
+
+		if (it == m_vRefuseList.end())
+		{
+			m_vRefuseList.push_back(std::make_pair(svError, nNucleusID));
+			return true;
+		}
 	}
 	else
 	{
-		for (size_t i = 0; i < m_vRefuseList.size(); i++)
-		{
-			if (m_vRefuseList[i].second != nNucleusID)
-			{
-				m_vRefuseList.push_back(std::make_pair(svError, nNucleusID));
-			}
-		}
+		m_vRefuseList.push_back(std::make_pair(svError, nNucleusID));
+		return true;
 	}
+
+	return false;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: deletes an entry in the refuselist
 // Input  : nNucleusID - 
 //-----------------------------------------------------------------------------
-void CBanSystem::DeleteConnectionRefuse(const uint64_t nNucleusID)
+bool CBanSystem::DeleteConnectionRefuse(const uint64_t nNucleusID)
 {
-	for (size_t i = 0; i < m_vRefuseList.size(); i++)
+	if (IsRefuseListValid())
 	{
-		if (m_vRefuseList[i].second == nNucleusID)
+		auto it = std::find_if(m_vRefuseList.begin(), m_vRefuseList.end(),
+			[&](const pair<const string, const uint64_t>& element) { return element.second == nNucleusID; });
+
+		if (it != m_vRefuseList.end())
 		{
-			m_vRefuseList.erase(m_vRefuseList.begin() + i);
+			m_vRefuseList.erase(it);
+			return true;
 		}
 	}
+
+	return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -194,11 +202,11 @@ void CBanSystem::BanListCheck(void)
 
 				string svIpAddress = pNetChan->GetAddress();
 
-				Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%llu' is banned from this server!)\n", svIpAddress.c_str(), pClient->GetNucleusID());
-				NET_DisconnectClient(pClient, c, m_vRefuseList[i].first.c_str(), 0, true);
-
-				if (AddEntry(svIpAddress, pClient->GetNucleusID() && !bSave))
+				Warning(eDLL_T::SERVER, "Removing client '%s' from slot '%hu' ('%llu' is banned from this server!)\n", svIpAddress.c_str(), pClient->GetHandle(), pClient->GetNucleusID());
+				if (AddEntry(svIpAddress, pClient->GetNucleusID()) && !bSave)
 					bSave = true;
+
+				NET_DisconnectClient(pClient, c, m_vRefuseList[i].first.c_str(), 0, true);
 			}
 		}
 

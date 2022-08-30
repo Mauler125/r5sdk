@@ -168,7 +168,7 @@ ConVar* net_useRandomKey                   = nullptr;
 ConVar* net_usesocketsforloopback          = nullptr;
 ConVar* pylon_matchmaking_hostname         = nullptr;
 ConVar* pylon_host_update_interval         = nullptr;
-ConVar* pylon_showdebug                    = nullptr;
+ConVar* pylon_showdebuginfo                = nullptr;
 //-----------------------------------------------------------------------------
 // RTECH API                                                                  |
 ConVar* rtech_debug                        = nullptr;

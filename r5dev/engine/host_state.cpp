@@ -182,6 +182,7 @@ FORCEINLINE void CHostState::Init(void)
 FORCEINLINE void CHostState::Setup(void) 
 {
 	g_pHostState->LoadConfig();
+	g_pBanSystem->Load();
 	g_pConVar->PurgeHostNames();
 
 	net_usesocketsforloopback->SetValue(1);
@@ -242,7 +243,7 @@ FORCEINLINE void CHostState::Think(void) const
 				).count()
 		};
 
-		std::thread(KeepAliveToPylon, netGameServer).detach();
+		std::thread(&CPylon::KeepAlive, g_pMasterServer, netGameServer).detach();
 		pylonTimer.Start();
 	}
 #endif // DEDICATED
