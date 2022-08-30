@@ -1348,7 +1348,7 @@ void CTextLogger::MoveSelection(int aLines, bool aForward)
 			if (newEnd.m_nLine >= static_cast<int>(m_Lines.size()))
 			{
 				newEnd.m_nLine = static_cast<int>(m_Lines.size()) - 1;
-				newEnd.m_nColumn = GetLineMaxColumn(newStart.m_nLine);
+				newEnd.m_nColumn = GetLineMaxColumn(newEnd.m_nLine);
 			}
 		}
 		else
