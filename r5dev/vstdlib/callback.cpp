@@ -759,6 +759,28 @@ void NET_GenerateKey_f(const CCommand& args)
 {
 	NET_GenerateKey();
 }
+
+/*
+=====================
+NET_UseRandomKeyChanged_f
+
+  Use random AES encryption
+  key for game packets
+=====================
+*/
+void NET_UseRandomKeyChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
+{
+	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
+	{
+		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
+			return; // Same value.
+
+		if (pConVarRef->GetBool())
+			NET_GenerateKey();
+		else
+			NET_SetKey(DEFAULT_NET_ENCRYPTION_KEY);
+	}
+}
 #ifndef DEDICATED
 /*
 =====================

@@ -13,7 +13,8 @@
 #define NETMSG_LENGTH_BITS	12	// 512 bytes (11 in Valve Source, 256 bytes).
 #define NET_MIN_MESSAGE 5 // Even connectionless packets require int32 value (-1) + 1 byte content
 
-#define AES_128_KEY_SIZE 16
+constexpr unsigned int AES_128_KEY_SIZE = 16;
+constexpr const char* DEFAULT_NET_ENCRYPTION_KEY = "WDNWLmJYQ2ZlM0VoTid3Yg==";
 
 /* ==== CNETCHAN ======================================================================================================================================================== */
 inline CMemory p_NET_Init;

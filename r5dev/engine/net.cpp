@@ -82,7 +82,10 @@ void NET_SetKey(const string& svNetKey)
 void NET_GenerateKey()
 {
 	if (!net_useRandomKey->GetBool())
+	{
 		net_useRandomKey->SetValue(1);
+		return; // Change callback will handle this.
+	}
 
 	BCRYPT_ALG_HANDLE hAlgorithm;
 	if (BCryptOpenAlgorithmProvider(&hAlgorithm, L"RNG", 0, 0) < 0)
@@ -289,6 +292,6 @@ void NET_Detach()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-string g_svNetKey = "WDNWLmJYQ2ZlM0VoTid3Yg==";
+string g_svNetKey = DEFAULT_NET_ENCRYPTION_KEY;
 uintptr_t g_pNetKey = NULL;
 #endif // !NETCONSOLE
