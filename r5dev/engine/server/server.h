@@ -20,7 +20,7 @@ struct user_creds_s
 {
 	v_netadr_t m_nAddr;
 	int32_t  m_nProtocolVer;
-	int32_t  m_nchallenge;
+	int32_t  m_nChallenge;
 	uint32_t m_nReservation;
 	uint64_t m_nNucleusID;
 	uint8_t* m_pUserID;
