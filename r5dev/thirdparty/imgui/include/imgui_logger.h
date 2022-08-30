@@ -213,13 +213,15 @@ private:
 	bool m_bHandleMouseInputs;
 	bool m_bWithinLoggingRect;
 	bool m_bShowWhiteSpaces;
-	float m_flTextStart;                   // position (in pixels) where a code line starts relative to the left of the TextLogger.
-	float m_flLineSpacing;
-	double m_flLastClick;
+	bool m_bLinesOffsetForward;
+	int m_nLinesOffsetAmount;
 	int m_nTabSize;
 	int m_nLeftMargin;
 	int m_nColorRangeMin;
 	int m_nColorRangeMax;
+	float m_flTextStart;                   // position (in pixels) where a code line starts relative to the left of the TextLogger.
+	float m_flLineSpacing;
+	double m_flLastClick;
 	uint64_t m_nStartTime;
 
 	SelectionMode m_SelectionMode;

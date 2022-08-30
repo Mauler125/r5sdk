@@ -31,13 +31,15 @@ CTextLogger::CTextLogger()
 	, m_bHandleMouseInputs(true)
 	, m_bWithinLoggingRect(false)
 	, m_bShowWhiteSpaces(false)
-	, m_flTextStart(0.0f)
-	, m_flLineSpacing(1.0f)
-	, m_flLastClick(-1.0)
+	, m_bLinesOffsetForward(false)
+	, m_nLinesOffsetAmount(0)
 	, m_nTabSize(4)
 	, m_nLeftMargin(0)
 	, m_nColorRangeMin(0)
 	, m_nColorRangeMax(0)
+	, m_flTextStart(0.0f)
+	, m_flLineSpacing(1.0f)
+	, m_flLastClick(-1.0)
 	, m_nStartTime(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count())
 	, m_SelectionMode(SelectionMode::Normal)
 {
@@ -668,8 +670,37 @@ void CTextLogger::HandleMouseInputs(bool bHoveredScrollbar, bool bActiveScrollba
 			{
 				io.WantCaptureMouse = true;
 				m_State.m_CursorPosition = m_InteractiveEnd = ScreenPosToCoordinates(ImGui::GetMousePos());
+
 				SetSelection(m_InteractiveStart, m_InteractiveEnd, m_SelectionMode);
 				EnsureCursorVisible();
+			}
+			// Move start position of the selection when entries have been erased/inserted
+			if (m_nLinesOffsetAmount && ImGui::IsMouseDown(0))
+			{
+				Coordinates newStart;
+				newStart = m_InteractiveStart;
+
+				if (m_bLinesOffsetForward)
+				{
+					newStart.m_nLine += m_nLinesOffsetAmount;
+					if (newStart.m_nLine >= static_cast<int>(m_Lines.size()))
+					{
+						newStart.m_nLine = static_cast<int>(m_Lines.size()) - 1;
+						newStart.m_nColumn = GetLineMaxColumn(newStart.m_nLine);
+					}
+				}
+				else
+				{
+					newStart.m_nLine -= m_nLinesOffsetAmount;
+					if (newStart.m_nLine < 0)
+					{
+						newStart.m_nLine = 0;
+						newStart.m_nColumn = 0;
+					}
+				}
+
+				m_nLinesOffsetAmount = 0;
+				m_InteractiveStart = newStart;
 			}
 		}
 	}
@@ -1328,16 +1359,20 @@ void CTextLogger::MoveSelection(int aLines, bool aForward)
 	if (aLines < 1)
 		return;
 
+	m_bLinesOffsetForward = aForward;
+	m_nLinesOffsetAmount = aLines;
+
 	if (HasSelection())
 	{
 		Coordinates newStart;
 		Coordinates newEnd;
 
+		newStart = m_State.m_SelectionStart;
+		newEnd = m_State.m_SelectionEnd;
+
 		if (aForward)
 		{
-			newStart = m_State.m_SelectionStart;
 			newStart.m_nLine += aLines;
-			newEnd = m_State.m_SelectionEnd;
 			newEnd.m_nLine += aLines;
 
 			if (newStart.m_nLine >= static_cast<int>(m_Lines.size()))
@@ -1353,9 +1388,7 @@ void CTextLogger::MoveSelection(int aLines, bool aForward)
 		}
 		else
 		{
-			newStart = m_State.m_SelectionStart;
 			newStart.m_nLine -= aLines;
-			newEnd = m_State.m_SelectionEnd;
 			newEnd.m_nLine -= aLines;
 
 			if (newStart.m_nLine < 0)
