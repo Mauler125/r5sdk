@@ -61,19 +61,25 @@ int NET_SendDatagram(SOCKET s, void* pPayload, int iLenght, v_netadr_t* pAdr, bo
 
 //-----------------------------------------------------------------------------
 // Purpose: sets the user specified encryption key
-// Input  : *svNetKey - 
+// Input  : svNetKey - 
 //-----------------------------------------------------------------------------
-void NET_SetKey(const string& svNetKey)
+void NET_SetKey(string svNetKey)
 {
 	std::lock_guard<std::mutex> l(g_NetKeyMutex);
 
-	g_svNetKey.clear();
-	g_svNetKey = svNetKey;
+	if (svNetKey.size() == AES_128_B64_ENCODED_SIZE &&
+		IsValidBase64(svNetKey))
+	{
+		g_svNetKey = svNetKey; // Results are tokenized by 'IsValidBase64()'.
+		v_NET_SetKey(g_pNetKey, g_svNetKey.c_str());
 
-	v_NET_SetKey(g_pNetKey, g_svNetKey.c_str());
-
-	DevMsg(eDLL_T::ENGINE, "Installed NetKey: '%s%s%s'\n",
-		g_svGreyB.c_str(), g_svNetKey.c_str(), g_svReset.c_str());
+		DevMsg(eDLL_T::ENGINE, "Installed NetKey: '%s%s%s'\n",
+			g_svGreyB.c_str(), g_svNetKey.c_str(), g_svReset.c_str());
+	}
+	else
+	{
+		Error(eDLL_T::ENGINE, false, "AES-128 key not encoded or invalid\n");
+	}
 }
 
 //-----------------------------------------------------------------------------

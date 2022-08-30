@@ -31,6 +31,7 @@ string CreateDirectories(string svInput, bool bWindows = false);
 string ConvertToWinPath(const string& svInput);
 string ConvertToUnixPath(const string& svInput);
 
+bool IsValidBase64(string& svInput);
 string Base64Encode(const string& svInput);
 string Base64Decode(const string& svInput);
 

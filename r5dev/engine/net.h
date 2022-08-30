@@ -14,6 +14,7 @@
 #define NET_MIN_MESSAGE 5 // Even connectionless packets require int32 value (-1) + 1 byte content
 
 constexpr unsigned int AES_128_KEY_SIZE = 16;
+constexpr unsigned int AES_128_B64_ENCODED_SIZE = 24;
 constexpr const char* DEFAULT_NET_ENCRYPTION_KEY = "WDNWLmJYQ2ZlM0VoTid3Yg==";
 
 /* ==== CNETCHAN ======================================================================================================================================================== */
@@ -38,7 +39,7 @@ inline auto v_NET_PrintFunc = p_NET_PrintFunc.RCast<void(*)(const char* fmt)>();
 ///////////////////////////////////////////////////////////////////////////////
 bool NET_ReceiveDatagram(int iSocket, netpacket_s* pInpacket, bool bRaw);
 int  NET_SendDatagram(SOCKET s, void* pPayload, int iLenght, v_netadr_t* pAdr, bool bEncrypted);
-void NET_SetKey(const string& svNetKey);
+void NET_SetKey(string svNetKey);
 void NET_GenerateKey();
 void NET_PrintFunc(const char* fmt, ...);
 void NET_Shutdown(void* thisptr, const char* szReason, uint8_t bBadRep, bool bRemoveNow);
