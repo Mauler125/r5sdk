@@ -8,6 +8,7 @@
 #include "core/stdafx.h"
 #include "engine/net.h"
 #include "engine/client/client.h"
+#include "filesystem/filesystem.h"
 #include "networksystem/bansystem.h"
 
 //-----------------------------------------------------------------------------
@@ -15,44 +16,56 @@
 //-----------------------------------------------------------------------------
 void CBanSystem::Load(void)
 {
-	fs::path path = std::filesystem::current_path() /= "platform\\banlist.json"; // !TODO: Use FS "PLATFORM"
-	nlohmann::json jsIn;
-
-	ifstream banFile(path, std::ios::in);
-	int nTotalBans = 0;
-
 	if (IsBanListValid())
 	{
 		m_vBanList.clear();
 	}
 
-	if (banFile.good() && banFile)
+	FileHandle_t pFile = FileSystem()->Open("banlist.json", "rt");
+	if (!pFile)
 	{
-		banFile >> jsIn; // Into json.
-		banFile.close();
+		return;
+	}
 
+	uint32_t nLen = FileSystem()->Size(pFile);
+	char* pBuf = MemAllocSingleton()->Alloc<char>(nLen);
+
+	int nRead = FileSystem()->Read(pBuf, nLen, pFile);
+	FileSystem()->Close(pFile);
+
+	pBuf[nRead] = '\0'; // Null terminate the string buffer containing our banned list.
+
+	try
+	{
+		nlohmann::json jsIn = nlohmann::json::parse(pBuf);
+
+		size_t nTotalBans = 0;
 		if (!jsIn.is_null())
 		{
 			if (!jsIn["totalBans"].is_null())
 			{
-				nTotalBans = jsIn["totalBans"].get<int>();
+				nTotalBans = jsIn["totalBans"].get<size_t>();
 			}
 		}
 
-		for (int i = 0; i < nTotalBans; i++)
+		for (size_t i = 0; i < nTotalBans; i++)
 		{
 			nlohmann::json jsEntry = jsIn[std::to_string(i)];
-			if (jsEntry.is_null())
+			if (!jsEntry.is_null())
 			{
-				continue;
+				string  svIpAddress = jsEntry["ipAddress"].get<string>();
+				uint64_t nNucleusID = jsEntry["nucleusId"].get<uint64_t>();
+
+				m_vBanList.push_back(std::make_pair(svIpAddress, nNucleusID));
 			}
-
-			string  svIpAddress = jsEntry["ipAddress"].get<string>();
-			uint64_t nNucleusID = jsEntry["nucleusId"].get<uint64_t>();
-
-			m_vBanList.push_back(std::make_pair(svIpAddress, nNucleusID));
 		}
 	}
+	catch (const std::exception& ex)
+	{
+		Warning(eDLL_T::SERVER, "%s: Exception while parsing banned list:\n%s\n", __FUNCTION__, ex.what());
+	}
+
+	MemAllocSingleton()->Free(pBuf);
 }
 
 //-----------------------------------------------------------------------------
@@ -60,19 +73,33 @@ void CBanSystem::Load(void)
 //-----------------------------------------------------------------------------
 void CBanSystem::Save(void) const
 {
-	nlohmann::json jsOut;
-
-	for (size_t i = 0; i < m_vBanList.size(); i++)
+	FileHandle_t pFile = FileSystem()->Open("banlist.json", "wt", "PLATFORM");
+	if (!pFile)
 	{
-		jsOut[std::to_string(i)]["ipAddress"] = m_vBanList[i].first;
-		jsOut[std::to_string(i)]["nucleusId"] = m_vBanList[i].second;
+		Error(eDLL_T::SERVER, false, "%s - Unable to write to '%s' (read-only?)\n", __FUNCTION__, "banlist.json");
+		return;
 	}
-	jsOut["totalBans"] = m_vBanList.size();
 
-	fs::path path = std::filesystem::current_path() /= "platform\\banlist.json"; // !TODO: Use FS "PLATFORM".
-	ofstream outFile(path, std::ios::out | std::ios::trunc); // Write config file..
+	try
+	{
+		nlohmann::json jsOut;
+		for (size_t i = 0; i < m_vBanList.size(); i++)
+		{
+			jsOut[std::to_string(i)]["ipAddress"] = m_vBanList[i].first;
+			jsOut[std::to_string(i)]["nucleusId"] = m_vBanList[i].second;
+		}
 
-	outFile << jsOut.dump(4);
+		jsOut["totalBans"] = m_vBanList.size();
+		string svJsOut = jsOut.dump(4);
+
+		FileSystem()->Write(svJsOut.data(), svJsOut.size(), pFile);
+	}
+	catch (const std::exception& ex)
+	{
+		Warning(eDLL_T::SERVER, "%s: Exception while parsing banned list:\n%s\n", __FUNCTION__, ex.what());
+	}
+
+	FileSystem()->Close(pFile);
 }
 
 //-----------------------------------------------------------------------------
