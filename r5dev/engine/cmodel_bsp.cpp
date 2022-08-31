@@ -340,15 +340,17 @@ void MOD_PreloadPakFile(const string& svLevelName)
 	ostringstream ostream;
 	ostream << "scripts/levels/settings/" << svLevelName << ".json";
 
-    FileHandle_t pFile = FileSystem()->Open(ostream.str().c_str(), "rb");
+    FileHandle_t pFile = FileSystem()->Open(ostream.str().c_str(), "rt");
     if (!pFile)
         return;
 
     uint32_t nLen = FileSystem()->Size(pFile);
     uint8_t* pBuf = MemAllocSingleton()->Alloc<uint8_t>(nLen);
 
-    FileSystem()->Read(pBuf, nLen, pFile);
+    int nRead = FileSystem()->Read(pBuf, nLen, pFile);
     FileSystem()->Close(pFile);
+
+    pBuf[nRead] = '\0';
 
     try
     {

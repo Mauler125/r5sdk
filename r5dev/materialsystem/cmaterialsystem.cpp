@@ -19,14 +19,16 @@ void StreamDB_Init(const char* pszLevelName)
 	ostringstream ostream;
 	ostream << "scripts/levels/settings/" << pszLevelName << ".json";
 
-	FileHandle_t pFile = FileSystem()->Open(ostream.str().c_str(), "rb");
+	FileHandle_t pFile = FileSystem()->Open(ostream.str().c_str(), "rt");
 	if (pFile)
 	{
 		uint32_t nLen = FileSystem()->Size(pFile);
 		uint8_t* pBuf = MemAllocSingleton()->Alloc<uint8_t>(nLen);
 
-		FileSystem()->Read(pBuf, nLen, pFile);
+		int nRead = FileSystem()->Read(pBuf, nLen, pFile);
 		FileSystem()->Close(pFile);
+
+		pBuf[nRead] = '\0';
 
 		try
 		{
