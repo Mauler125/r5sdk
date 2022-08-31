@@ -47,8 +47,8 @@ void CBanSystem::Load(void)
 				continue;
 			}
 
+			string  svIpAddress = jsEntry["ipAddress"].get<string>();
 			uint64_t nNucleusID = jsEntry["nucleusId"].get<uint64_t>();
-			string svIpAddress = jsEntry["ipAddress"].get<string>();
 
 			m_vBanList.push_back(std::make_pair(svIpAddress, nNucleusID));
 		}
