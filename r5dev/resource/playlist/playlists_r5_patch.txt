@@ -720,9 +720,11 @@ playlists
 				survival_enable_gladiator_intros               0
 				minified_unitframes_enabled                    1
 				jump_from_plane_enabled                        0
+				enabled_killstreak_obituary                    0
 
 				replay_enabled                                 1
 				replay_delay                                   2
+				replay_new_ui                                  0
 
 				
 				match_ending_enabled                           0
@@ -1018,6 +1020,10 @@ playlists
 				"PROMO_RIGHT_TITLE"                   "Yes2"
 				"PROMO_RIGHT_DESCRIPTION"             "Yes3"
 				"PROMO_SDK_ERROR"                     "You should not see this."
+
+				"PLAYER_KILLSTREAK"                   "`1%s1`0 is on a `1%s2`0 player killstreak"
+				"PLAYER_ENDED_KILLSTREAK"             "`1%s1`0 ended `1%s2`0's killstreak"
+				"PLAYER_ENDED_OWN_KILLSTREAK"         "`1%s1`0 ended their own killstreak"
 
 				"DISCONNECT_BANNED"                   "The client's game account has been banned: Banned"
 				"VALVE_REJECT_BANNED"                 "You have been banned from this server."
