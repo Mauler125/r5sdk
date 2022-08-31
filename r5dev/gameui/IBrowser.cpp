@@ -96,7 +96,7 @@ void CBrowser::RunFrame(void)
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 6.f, 6.f });  nVars++;
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
     }
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(910, 524));        nVars++;
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(924, 524));        nVars++;
 
     if (m_Style != ImGuiStyle_t::MODERN)
     {
@@ -390,11 +390,11 @@ void CBrowser::HostPanel(void)
     if (ImGui::BeginCombo("Playlist", g_pServerListManager->m_Server.m_svPlaylist.c_str()))
     {
         g_PlaylistsVecMutex.lock();
-        for (const string& item : g_vAllPlaylists)
+        for (const string& svPlaylist : g_vAllPlaylists)
         {
-            if (ImGui::Selectable(item.c_str(), item == g_pServerListManager->m_Server.m_svPlaylist))
+            if (ImGui::Selectable(svPlaylist.c_str(), svPlaylist == g_pServerListManager->m_Server.m_svPlaylist))
             {
-                g_pServerListManager->m_Server.m_svPlaylist = item;
+                g_pServerListManager->m_Server.m_svPlaylist = svPlaylist;
             }
         }
 
@@ -405,11 +405,11 @@ void CBrowser::HostPanel(void)
     if (ImGui::BeginCombo("Map##ServerHost_MapListBox", g_pServerListManager->m_Server.m_svHostMap.c_str()))
     {
         g_MapVecMutex.lock();
-        for (const string& item : g_vAllMaps)
+        for (const string& svMap : g_vAllMaps)
         {
-            if (ImGui::Selectable(item.c_str(), item == g_pServerListManager->m_Server.m_svHostMap))
+            if (ImGui::Selectable(svMap.c_str(), svMap == g_pServerListManager->m_Server.m_svHostMap))
             {
-                g_pServerListManager->m_Server.m_svHostMap = item;
+                g_pServerListManager->m_Server.m_svHostMap = svMap;
             }
         }
 
@@ -698,7 +698,7 @@ void CBrowser::SetStyleVar(void)
 {
     m_Style = g_pImGuiConfig->InitStyle();
 
-    ImGui::SetNextWindowSize(ImVec2(910, 524), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(924, 524), ImGuiCond_FirstUseEver);
     ImGui::SetWindowPos(ImVec2(-500, 50), ImGuiCond_FirstUseEver);
 }
 
