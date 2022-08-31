@@ -6,6 +6,7 @@
 
 #include "core/stdafx.h"
 #include "tier1/cvar.h"
+#include "public/utility/utility.h"
 #include "engine/sdk_dll.h"
 #ifndef DEDICATED
 #include "gameui/IBrowser.h"
@@ -23,9 +24,7 @@ void CEngineSDK::FixedFrame()
 		g_pBrowser->Think();
 		g_pConsole->Think();
 #endif // !DEDICATED
-
-		std::chrono::duration<float> interval{ sdk_fixedframe_tickinterval->GetFloat()};
-		std::this_thread::sleep_for(interval);
+		std::this_thread::sleep_for(IntervalToDuration(sdk_fixedframe_tickinterval->GetFloat()));
 	}
 }
 

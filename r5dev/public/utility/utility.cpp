@@ -836,3 +836,12 @@ string PrintPercentageEscape(const string& svInput)
     }
     return result;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// For obtaining a duration from a certain interval.
+std::chrono::nanoseconds IntervalToDuration(const float flInterval)
+{
+    using namespace std::chrono;
+    using fsec = duration<float>;
+    return round<nanoseconds>(fsec{ flInterval });
+}

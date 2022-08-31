@@ -68,3 +68,7 @@ void AppendPrintf(char* pBuffer, size_t nBufSize, char const* pFormat, ...);
 string PrintPercentageEscape(const string& svInput);
 
 /////////////////////////////////////////////////////////////////////////////
+// Time
+std::chrono::nanoseconds IntervalToDuration(const float flInterval);
+
+/////////////////////////////////////////////////////////////////////////////
