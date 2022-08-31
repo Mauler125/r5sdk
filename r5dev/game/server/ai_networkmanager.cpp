@@ -19,7 +19,7 @@
 
 constexpr int AINET_SCRIPT_VERSION_NUMBER = 21;
 constexpr int AINET_VERSION_NUMBER        = 57;
-constexpr int AINETWORK_MIN_SIZE          = 82;
+constexpr int AINET_MIN_FILE_SIZE          = 82;
 
 /*
 ==============================
@@ -68,7 +68,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 
 	if (!pNavMesh)
 	{
-		Warning(eDLL_T::SERVER, "%s - No %s NavMesh found. Unable to calculate CRC for AI Network.\n", __FUNCTION__, SHULL_SIZE[EHULL_SIZE::LARGE].c_str());
+		Warning(eDLL_T::SERVER, "%s - No %s NavMesh found. Unable to calculate CRC for AI Network\n", __FUNCTION__, SHULL_SIZE[EHULL_SIZE::LARGE].c_str());
 	}
 	else
 	{
@@ -345,7 +345,8 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager,
 
 		return;
 	}
-	if (FileSystem()->Size(pAIGraph) >= AINETWORK_MIN_SIZE)
+
+	if (FileSystem()->Size(pAIGraph) >= AINET_MIN_FILE_SIZE)
 	{
 		FileSystem()->Read(&nAiNetVersion, sizeof(int), pAIGraph);
 		FileSystem()->Read(&nAiMapVersion, sizeof(int), pAIGraph);
@@ -365,17 +366,17 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager,
 		{
 			if (bNavMeshAvailable)
 			{
-				if (nNavMeshHash != nAiGraphHash)
+				if (nAiGraphHash != nNavMeshHash)
 				{
 					Warning(eDLL_T::SERVER, "AI node graph '%s' is out of date (checksum: '0x%X' expected: '0x%X')\n",
-						fsGraphPath.relative_path().u8string().c_str(), nNavMeshHash, nAiGraphHash);
+						fsGraphPath.relative_path().u8string().c_str(), nAiGraphHash, nNavMeshHash);
 				}
 			}
 		}
 	}
 	else
 	{
-		Error(eDLL_T::SERVER, false, "%s - AI node graph '%s' is corrupt (LEN_BYTES < AINETWORK_MIN_SIZE)\n", __FUNCTION__, 
+		Error(eDLL_T::SERVER, false, "%s - AI node graph '%s' is corrupt\n", __FUNCTION__, 
 			fsGraphPath.relative_path().u8string().c_str());
 	}
 
