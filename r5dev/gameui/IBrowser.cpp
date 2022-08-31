@@ -314,8 +314,8 @@ void CBrowser::RefreshServerList(void)
 //-----------------------------------------------------------------------------
 void CBrowser::HiddenServersModal(void)
 {
-    bool modalOpen = true;
-    if (ImGui::BeginPopupModal("Private Server", &modalOpen, ImGuiWindowFlags_NoResize))
+    bool bModalOpen = true;
+    if (ImGui::BeginPopupModal("Private Server", &bModalOpen, ImGuiWindowFlags_NoResize))
     {
         ImGui::SetWindowSize(ImVec2(408.f, 204.f), ImGuiCond_Always);
 
@@ -375,10 +375,15 @@ void CBrowser::HiddenServersModal(void)
         }
         if (ImGui::Button("Close", ImVec2(ImGui::GetWindowContentRegionWidth(), 24)))
         {
+            m_svHiddenServerRequestMessage.clear();
             ImGui::CloseCurrentPopup();
         }
 
         ImGui::EndPopup();
+    }
+    else if (!bModalOpen)
+    {
+        m_svHiddenServerRequestMessage.clear();
     }
 }
 
