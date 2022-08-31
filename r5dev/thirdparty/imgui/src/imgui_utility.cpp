@@ -274,7 +274,6 @@ ImGuiStyle_t ImGuiConfig::InitStyle() const
     style.ItemSpacing       = ImVec2(5, 4);
     style.FramePadding      = ImVec2(4, 4);
     style.WindowPadding     = ImVec2(5, 5);
-    style.WindowMinSize = ImVec2(750, 510);
 
     return result;
 }

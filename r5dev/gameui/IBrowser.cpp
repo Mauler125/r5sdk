@@ -96,7 +96,7 @@ void CBrowser::RunFrame(void)
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 6.f, 6.f });  nVars++;
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
     }
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(924, 524));        nVars++;
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(928.f, 524.f));        nVars++;
 
     if (m_Style != ImGuiStyle_t::MODERN)
     {
@@ -110,10 +110,10 @@ void CBrowser::RunFrame(void)
         return;
     }
 
+    ImGui::PopStyleVar(nVars);
     DrawSurface();
 
     ImGui::End();
-    ImGui::PopStyleVar(nVars);
 }
 
 //-----------------------------------------------------------------------------
@@ -288,7 +288,7 @@ void CBrowser::BrowserPanel(void)
         ImGui::SameLine();
         if (ImGui::Button("Private Servers", ImVec2(ImGui::GetWindowContentRegionWidth() / 4.3f, ImGui::GetFrameHeight())))
         {
-            ImGui::OpenPopup("Connect to Private Server");
+            ImGui::OpenPopup("Private Server");
         }
         HiddenServersModal();
     }
@@ -315,9 +315,9 @@ void CBrowser::RefreshServerList(void)
 void CBrowser::HiddenServersModal(void)
 {
     bool modalOpen = true;
-    if (ImGui::BeginPopupModal("Connect to Private Server", &modalOpen))
+    if (ImGui::BeginPopupModal("Private Server", &modalOpen, ImGuiWindowFlags_NoResize))
     {
-        ImGui::SetWindowSize(ImVec2(400.f, 200.f), ImGuiCond_Always);
+        ImGui::SetWindowSize(ImVec2(408.f, 204.f), ImGuiCond_Always);
 
         if (!m_idLockedIcon)
         {
@@ -346,7 +346,7 @@ void CBrowser::HiddenServersModal(void)
         ImGui::TextColored(m_ivHiddenServerMessageColor, m_svHiddenServerRequestMessage.c_str());
         ImGui::Separator();
 
-        if (ImGui::Button("Connect", ImVec2(ImGui::GetWindowContentRegionWidth() / 2, 24)))
+        if (ImGui::Button("Connect", ImVec2(ImGui::GetWindowContentRegionWidth(), 24)))
         {
             m_svHiddenServerRequestMessage.clear();
             NetGameServer_t server;
@@ -364,9 +364,7 @@ void CBrowser::HiddenServersModal(void)
                 m_ivHiddenServerMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
             }
         }
-
-        ImGui::SameLine();
-        if (ImGui::Button("Close", ImVec2(ImGui::GetWindowContentRegionWidth() / 2, 24)))
+        if (ImGui::Button("Close", ImVec2(ImGui::GetWindowContentRegionWidth(), 24)))
         {
             ImGui::CloseCurrentPopup();
         }
@@ -441,7 +439,7 @@ void CBrowser::HostPanel(void)
 
     if (!g_pServer->IsActive())
     {
-        if (ImGui::Button("Start Server", ImVec2((ImGui::GetWindowSize().x - 10), 32)))
+        if (ImGui::Button("Start Server", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
         {
             m_svHostInvalidCriteria.clear();
             if (!g_pServerListManager->m_Server.m_svHostName.empty() && !g_pServerListManager->m_Server.m_svPlaylist.empty() && !g_pServerListManager->m_Server.m_svHostMap.empty())
@@ -466,7 +464,7 @@ void CBrowser::HostPanel(void)
         }
     }
 
-    if (ImGui::Button("Force Start", ImVec2((ImGui::GetWindowSize().x - 10), 32)))
+    if (ImGui::Button("Force Start", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
     {
         m_svHostInvalidCriteria.clear();
         if (!g_pServerListManager->m_Server.m_svPlaylist.empty() && !g_pServerListManager->m_Server.m_svHostMap.empty())
@@ -496,13 +494,13 @@ void CBrowser::HostPanel(void)
 
     if (g_pServer->IsActive())
     {
-        if (ImGui::Button("Weapon Reparse", ImVec2((ImGui::GetWindowSize().x - 10), 32)))
+        if (ImGui::Button("Weapon Reparse", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
         {
             DevMsg(eDLL_T::ENGINE, "Reparsing weapon data on %s\n", "server and client");
             ProcessCommand("weapon_reparse");
         }
 
-        if (ImGui::Button("Change Level", ImVec2((ImGui::GetWindowSize().x - 10), 32)))
+        if (ImGui::Button("Change Level", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
         {
             if (!g_pServerListManager->m_Server.m_svHostMap.empty())
             {
@@ -514,7 +512,7 @@ void CBrowser::HostPanel(void)
             }
         }
 
-        if (ImGui::Button("Stop Server", ImVec2((ImGui::GetWindowSize().x - 10), 32)))
+        if (ImGui::Button("Stop Server", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
         {
             ProcessCommand("LeaveMatch"); // TODO: use script callback instead.
             g_TaskScheduler->Dispatch([]()
@@ -526,7 +524,7 @@ void CBrowser::HostPanel(void)
     }
     else
     {
-        if (ImGui::Button("Reload Playlist", ImVec2((ImGui::GetWindowSize().x - 10), 32)))
+        if (ImGui::Button("Reload Playlist", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
         {
             g_TaskScheduler->Dispatch([]()
                 {
@@ -698,8 +696,8 @@ void CBrowser::SetStyleVar(void)
 {
     m_Style = g_pImGuiConfig->InitStyle();
 
-    ImGui::SetNextWindowSize(ImVec2(924, 524), ImGuiCond_FirstUseEver);
-    ImGui::SetWindowPos(ImVec2(-500, 50), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(928.f, 524.f), ImGuiCond_FirstUseEver);
+    ImGui::SetWindowPos(ImVec2(-500.f, 50.f), ImGuiCond_FirstUseEver);
 }
 
 CBrowser* g_pBrowser = new CBrowser();
