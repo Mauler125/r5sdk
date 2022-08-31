@@ -546,6 +546,14 @@ void CBrowser::HostPanel(void)
                     KeyValues::InitPlaylists(); // Re-Init playlist.
                 }, 0);
         }
+
+        if (ImGui::Button("Reload Banlist", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+        {
+            g_TaskScheduler->Dispatch([]()
+                {
+                    g_pBanSystem->Load();
+                }, 0);
+        }
     }
 #endif // !CLIENT_DLL
 }
