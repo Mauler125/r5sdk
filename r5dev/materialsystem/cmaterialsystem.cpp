@@ -6,6 +6,7 @@
 #include "core/stdafx.h"
 #include "tier1/cvar.h"
 #include "rtech/rtech_utils.h"
+#include "filesystem/filesystem.h"
 #include "materialsystem/cmaterialsystem.h"
 
 //---------------------------------------------------------------------------------
@@ -16,34 +17,42 @@
 void StreamDB_Init(const char* pszLevelName)
 {
 	ostringstream ostream;
-	ostream << "platform\\scripts\\levels\\settings\\" << pszLevelName << ".json";
-	fs::path fsPath = fs::current_path() /= ostream.str();
+	ostream << "scripts/levels/settings/" << pszLevelName << ".json";
 
-	if (FileExists(fsPath))
+	FileHandle_t pFile = FileSystem()->Open(ostream.str().c_str(), "rb");
+	if (pFile)
 	{
-		nlohmann::json jsIn;
+		uint32_t nLen = FileSystem()->Size(pFile);
+		uint8_t* pBuf = MemAllocSingleton()->Alloc<uint8_t>(nLen);
+
+		FileSystem()->Read(pBuf, nLen, pFile);
+		FileSystem()->Close(pFile);
+
 		try
 		{
-			ifstream iPakLoadDefFile(fsPath, std::ios::binary); // Parse prerequisites file.
-			iPakLoadDefFile >> jsIn;
-			iPakLoadDefFile.close();
-
+			nlohmann::json jsIn = nlohmann::json::parse(pBuf);
 			if (!jsIn.is_null())
 			{
 				if (!jsIn[STREAM_DB_EXT].is_null())
 				{
 					string svStreamDBFile = jsIn[STREAM_DB_EXT].get<string>();
 					DevMsg(eDLL_T::MS, "%s: Loading override STBSP file '%s.%s'\n", __FUNCTION__, svStreamDBFile.c_str(), STREAM_DB_EXT);
+
 					v_StreamDB_Init(svStreamDBFile.c_str());
+					MemAllocSingleton()->Free(pBuf);
+
 					return;
 				}
 			}
 		}
 		catch (const std::exception& ex)
 		{
-			Warning(eDLL_T::MS, "%s: Exception while parsing STBSP override: '%s'\n", __FUNCTION__, ex.what());
+			Warning(eDLL_T::MS, "%s: Exception while parsing STBSP override:\n%s\n", __FUNCTION__, ex.what());
 		}
+
+		MemAllocSingleton()->Free(pBuf);
 	}
+
 	DevMsg(eDLL_T::MS, "%s: Loading STBSP file '%s.%s'\n", __FUNCTION__, pszLevelName, STREAM_DB_EXT);
 	v_StreamDB_Init(pszLevelName);
 }
