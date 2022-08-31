@@ -30,11 +30,11 @@ vector<NetGameServer_t> CPylon::GetServerList(string& svOutMessage) const
     }
 
     httplib::Client htClient(pylon_matchmaking_hostname->GetString()); htClient.set_connection_timeout(10);
-    httplib::Result htResult = htClient.Post("/servers", jsRequestBody.dump(4).c_str(), jsRequestBody.dump(4).length(), "application/json");
+    httplib::Result htResult = htClient.Post("/servers", svRequestBody.c_str(), svRequestBody.length(), "application/json");
 
     if (htResult && pylon_showdebuginfo->GetBool())
     {
-        DevMsg(eDLL_T::ENGINE, "%s - Replied with '%d'.\n", __FUNCTION__, htResult->status);
+        DevMsg(eDLL_T::ENGINE, "%s - Comp-server replied with '%d'\n", __FUNCTION__, htResult->status);
     }
 
     try
@@ -76,7 +76,7 @@ vector<NetGameServer_t> CPylon::GetServerList(string& svOutMessage) const
                 }
                 else
                 {
-                    svOutMessage = "An unknown error occured!";
+                    svOutMessage = string("Unknown error with status: ") + std::to_string(htResult->status);
                 }
             }
         }
@@ -94,13 +94,13 @@ vector<NetGameServer_t> CPylon::GetServerList(string& svOutMessage) const
                     }
                     else
                     {
-                        svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResult->status);
+                        svOutMessage = string("Failed HTTP request: ") + std::to_string(htResult->status);
                     }
 
                     return vslList;
                 }
 
-                svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResult->status);
+                svOutMessage = string("Failed HTTP request: ") + std::to_string(htResult->status);
                 return vslList;
             }
 
@@ -136,7 +136,7 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
     }
 
     httplib::Client htClient(pylon_matchmaking_hostname->GetString()); htClient.set_connection_timeout(10);
-    httplib::Result htResult = htClient.Post("/server/byToken", jsRequestBody.dump(4).c_str(), jsRequestBody.dump(4).length(), "application/json");
+    httplib::Result htResult = htClient.Post("/server/byToken", svRequestBody.c_str(), svRequestBody.length(), "application/json");
 
     if (pylon_showdebuginfo->GetBool())
     {
@@ -181,7 +181,7 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
                     }
                     else
                     {
-                        svOutMessage = "";
+                        svOutMessage = string("Unknown error with status: ") + std::to_string(htResult->status);
                     }
 
                     slOutServer = NetGameServer_t{};
@@ -203,13 +203,13 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
                     }
                     else
                     {
-                        svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResult->status);
+                        svOutMessage = string("Server not found: ") + std::to_string(htResult->status);
                     }
 
                     return false;
                 }
 
-                svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResult->status);
+                svOutMessage = string("Failed HTTP request: ") + std::to_string(htResult->status);
                 return false;
             }
 
@@ -292,7 +292,7 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
                 }
                 else
                 {
-                    svOutMessage = "An unknown error occured!";
+                    svOutMessage = string("Unknown error with status: ") + std::to_string(htResult->status);
                 }
                 return false;
             }
@@ -311,7 +311,7 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
                     }
                     else
                     {
-                        svOutMessage = string("Failed to reach comp-server ") + std::to_string(htResult->status);
+                        svOutMessage = string("Failed HTTP request: ") + std::to_string(htResult->status);
                     }
 
                     svOutToken = string();
@@ -319,7 +319,7 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
                 }
 
                 svOutToken = string();
-                svOutMessage = string("Failed to reach comp-server: ") + std::to_string(htResult->status);
+                svOutMessage = string("Failed HTTP request: ") + std::to_string(htResult->status);
                 return false;
             }
 
