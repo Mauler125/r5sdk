@@ -338,7 +338,7 @@ void CBrowser::HiddenServersModal(void)
         ImGui::Text("Enter token to connect");
 
         ImGui::PushItemWidth(ImGui::GetWindowContentRegionWidth()); // Override item width.
-        ImGui::InputTextWithHint("##HiddenServersConnectModal_TokenInput", "Token", &m_svHiddenServerToken);
+        ImGui::InputTextWithHint("##HiddenServersConnectModal_TokenInput", "Token (Required)", &m_svHiddenServerToken);
         ImGui::PopItemWidth();
 
         ImGui::Dummy(ImVec2(ImGui::GetWindowContentRegionWidth(), 19.f)); // Place a dummy, basically making space inserting a blank element.
@@ -349,18 +349,27 @@ void CBrowser::HiddenServersModal(void)
         if (ImGui::Button("Connect", ImVec2(ImGui::GetWindowContentRegionWidth(), 24)))
         {
             m_svHiddenServerRequestMessage.clear();
-            NetGameServer_t server;
-            bool result = g_pMasterServer->GetServerByToken(server, m_svHiddenServerRequestMessage, m_svHiddenServerToken); // Send token connect request.
-            if (!server.m_svHostName.empty())
+            if (!m_svHiddenServerToken.empty())
             {
-                g_pServerListManager->ConnectToServer(server.m_svIpAddress, server.m_svGamePort, server.m_svEncryptionKey); // Connect to the server
-                m_svHiddenServerRequestMessage = "Found Server: " + server.m_svHostName;
-                m_ivHiddenServerMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
-                ImGui::CloseCurrentPopup();
+                NetGameServer_t server;
+                bool result = g_pMasterServer->GetServerByToken(server, m_svHiddenServerRequestMessage, m_svHiddenServerToken); // Send token connect request.
+
+                if (!server.m_svHostName.empty())
+                {
+                    g_pServerListManager->ConnectToServer(server.m_svIpAddress, server.m_svGamePort, server.m_svEncryptionKey); // Connect to the server
+                    m_svHiddenServerRequestMessage = "Found Server: " + server.m_svHostName;
+                    m_ivHiddenServerMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
+                    ImGui::CloseCurrentPopup();
+                }
+                else
+                {
+                    m_svHiddenServerRequestMessage = "Error: " + m_svHiddenServerRequestMessage;
+                    m_ivHiddenServerMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+                }
             }
             else
             {
-                m_svHiddenServerRequestMessage = "Error: " + m_svHiddenServerRequestMessage;
+                m_svHiddenServerRequestMessage = "Token is required." + m_svHiddenServerRequestMessage;
                 m_ivHiddenServerMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
             }
         }
