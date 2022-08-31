@@ -31,7 +31,9 @@ private:
 
     void FindFromPartial(void);
     void ProcessCommand(const char* pszCommand);
+
     void BuildSummary(string svConVar = "");
+    void BuildSuggestPanelRect(void);
 
     void ClampLogSize(void);
     void ClampHistorySize(void);

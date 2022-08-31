@@ -263,15 +263,7 @@ void CConsole::DrawSurface(void)
         m_bReclaimFocus = false;
     }
 
-    float nPad = 0.f;
-    if (m_vSuggest.size() > 1)
-    {
-        // Pad with 18 to keep all items in view.
-        nPad = ImGui::GetItemRectSize().y - 3;
-    }
-    m_ivSuggestWindowPos = ImGui::GetItemRectMin();
-    m_ivSuggestWindowPos.y += ImGui::GetItemRectSize().y;
-    m_ivSuggestWindowSize = ImVec2(600, nPad + std::clamp(static_cast<float>(m_vSuggest.size()) * fontSize.y, 37.0f, 127.5f));
+    BuildSuggestPanelRect();
 
     ImGui::SameLine();
     if (ImGui::Button("Submit"))
@@ -609,6 +601,27 @@ void CConsole::BuildSummary(string svConVar)
         ClampHistorySize();
         snprintf(m_szSummary, sizeof(m_szSummary), "%zu history items", m_vHistory.size());
     }
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: builds the suggestion panel rect
+//-----------------------------------------------------------------------------
+void CConsole::BuildSuggestPanelRect(void)
+{
+    float flSinglePadding = 0.f;
+    float flItemHeight = ImGui::GetTextLineHeightWithSpacing() + 1.0f;
+
+    if (m_vSuggest.size() > 1)
+    {
+        // Pad with 18 to keep all items in view.
+        flSinglePadding = flItemHeight;
+    }
+
+    m_ivSuggestWindowPos = ImGui::GetItemRectMin();
+    m_ivSuggestWindowPos.y += ImGui::GetItemRectSize().y;
+
+    float flWindowHeight = flSinglePadding + std::clamp(static_cast<float>(m_vSuggest.size()) * (flItemHeight), 37.0f, 127.5f);
+    m_ivSuggestWindowSize = ImVec2(600, flWindowHeight);
 }
 
 //-----------------------------------------------------------------------------
