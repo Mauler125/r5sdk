@@ -19,6 +19,9 @@
 #include "engine/net.h"
 #include "engine/host_cmd.h"
 #include "engine/host_state.h"
+#ifndef CLIENT_DLL
+#include "engine/server/server.h"
+#endif // !CLIENT_DLL
 #ifndef DEDICATED
 #include "client/cdll_engine_int.h"
 #endif // !DEDICATED
@@ -28,6 +31,7 @@
 #include "filesystem/filesystem.h"
 #include "vpklib/packedstore.h"
 #include "squirrel/sqscript.h"
+#include "ebisusdk/EbisuSDK.h"
 #ifndef DEDICATED
 #include "gameui/IBrowser.h"
 #include "gameui/IConsole.h"
@@ -47,8 +51,6 @@
 #ifndef DEDICATED
 #include "game/client/view.h"
 #endif // !DEDICATED
-#include <ebisusdk/EbisuSDK.h>
-#include <engine/server/server.h>
 
 
 /*

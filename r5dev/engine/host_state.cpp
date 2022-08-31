@@ -41,7 +41,9 @@
 #include "client/vengineclient_impl.h"
 #endif // DEDICATED
 #include "networksystem/pylon.h"
+#ifndef CLIENT_DLL
 #include "networksystem/bansystem.h"
+#endif // !CLIENT_DLL
 #include "networksystem/listmanager.h"
 #include "public/edict.h"
 #ifndef CLIENT_DLL
@@ -182,7 +184,9 @@ FORCEINLINE void CHostState::Init(void)
 FORCEINLINE void CHostState::Setup(void) 
 {
 	g_pHostState->LoadConfig();
+#ifndef CLIENT_DLL
 	g_pBanSystem->Load();
+#endif // !CLIENT_DLL
 	g_pConVar->PurgeHostNames();
 
 	net_usesocketsforloopback->SetValue(1);

@@ -392,7 +392,9 @@ void ConCommand::InitShipped(void)
 #endif // !DEDICATED
 
 	help->m_fnCommandCallback = CVHelp_f;
+#ifndef CLIENT_DLL
 	changelevel->m_fnCommandCallback = Host_Changelevel_f;
+#endif // !CLIENT_DLL
 	convar_list->m_fnCommandCallback = CVList_f;
 	convar_differences->m_fnCommandCallback = CVDiff_f;
 	convar_findByFlags->m_fnCommandCallback = CVFlag_f;
