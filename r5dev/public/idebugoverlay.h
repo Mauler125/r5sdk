@@ -19,22 +19,22 @@ class CIVDebugOverlay : public IVDebugOverlay
 public:
 	void AddBoxOverlay(__m128i& vTransforms, const Vector3D& vMins, const Vector3D& vMaxs, int r, int g, int b, int a, bool bZBuffer, float flDuration)
 	{
-		const int index = 1;
+		const static int index = 1;
 		CallVFunc<void>(index, this, vTransforms, vMins, vMaxs, r, g, b, a, bZBuffer, flDuration);
 	}
 	void AddSphereOverlay(const Vector3D& vOrigin, float flRadius, int nTheta, int nPhi, int r, int g, int b, int a, float flDuration)
 	{
-		const int index = 3;
+		const static int index = 3;
 		CallVFunc<void>(index, this, vOrigin, flRadius, nTheta, nPhi, r, g, b, a, flDuration);
 	}
 	void AddLineOverlay(const Vector3D& vStart, const Vector3D& vEnd, int r, int g, int b, char bZBuffer, float flDuration)
 	{
-		const int index = 5;
+		const static int index = 5;
 		CallVFunc<void>(index, this, vStart, vEnd, r, g, b, bZBuffer, flDuration);
 	}
 	void AddCapsuleOverlay(const Vector3D& vStart, const Vector3D& vEnd, const Vector3D& vRadius, const Vector3D& vTop, const Vector3D& vBottom, int r, int g, int b, int a, float flDuration)
 	{
-		const int index = 12;
+		const static int index = 12;
 		CallVFunc<void>(index, this, vStart, vEnd, vRadius, vTop, vBottom, r, g, b, a, flDuration);
 	}
 };

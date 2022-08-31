@@ -7,25 +7,25 @@ public:
 	template<typename T>
 	T* Alloc(size_t nSize)
 	{
-		const int index = 0;
+		const static int index = 0;
 		return CallVFunc<T*>(index, this, nSize);
 	}
 	template<typename T>
 	T* Realloc(T* pMem, size_t nSize)
 	{
-		const int index = 3;
+		const static int index = 3;
 		return CallVFunc<T*>(index, this, pMem, nSize);
 	}
 	template<typename T>
 	void Free(T* pMem)
 	{
-		const int index = 5;
+		const static int index = 5;
 		CallVFunc<void>(index, this, pMem);
 	}
 	template<typename T>
 	size_t GetSize(T* pMem)
 	{
-		const int index = 6;
+		const static int index = 6;
 		return CallVFunc<size_t>(index, this, pMem);
 	}
 };

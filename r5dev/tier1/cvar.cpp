@@ -664,7 +664,7 @@ int CCvarUtilities::CvarFindFlagsCompletionCallback(const char* partial, char co
 //-----------------------------------------------------------------------------
 ConCommandBase* CCvar::RegisterConCommand(ConCommandBase* pCommandToRemove)
 {
-	const int index = 9;
+	const static int index = 9;
 	return CallVFunc<ConCommandBase*>(index, this, pCommandToRemove);
 }
 
@@ -674,7 +674,7 @@ ConCommandBase* CCvar::RegisterConCommand(ConCommandBase* pCommandToRemove)
 //-----------------------------------------------------------------------------
 ConCommandBase* CCvar::UnregisterConCommand(ConCommandBase* pCommandToRemove)
 {
-	const int index = 10;
+	const static int index = 10;
 	return CallVFunc<ConCommandBase*>(index, this, pCommandToRemove);
 }
 
@@ -684,7 +684,7 @@ ConCommandBase* CCvar::UnregisterConCommand(ConCommandBase* pCommandToRemove)
 //-----------------------------------------------------------------------------
 ConCommandBase* CCvar::FindCommandBase(const char* pszCommandName)
 {
-	const int index = 14;
+	const static int index = 14;
 	return CallVFunc<ConCommandBase*>(index, this, pszCommandName);
 }
 
@@ -694,7 +694,7 @@ ConCommandBase* CCvar::FindCommandBase(const char* pszCommandName)
 //-----------------------------------------------------------------------------
 ConVar* CCvar::FindVar(const char* pszVarName)
 {
-	const int index = 16;
+	const static int index = 16;
 	return CallVFunc<ConVar*>(index, this, pszVarName);
 }
 
@@ -704,7 +704,7 @@ ConVar* CCvar::FindVar(const char* pszVarName)
 //-----------------------------------------------------------------------------
 ConCommand* CCvar::FindCommand(const char* pszCommandName)
 {
-	const int index = 18;
+	const static int index = 18;
 	return CallVFunc<ConCommand*>(index, this, pszCommandName);
 }
 
@@ -713,7 +713,7 @@ ConCommand* CCvar::FindCommand(const char* pszCommandName)
 //-----------------------------------------------------------------------------
 void CCvar::CallGlobalChangeCallbacks(ConVar* pConVar, const char* pOldString)
 {
-	const int index = 23;
+	const static int index = 23;
 	CallVFunc<void>(index, this, pConVar, pOldString);
 }
 
@@ -722,22 +722,22 @@ void CCvar::CallGlobalChangeCallbacks(ConVar* pConVar, const char* pOldString)
 //-----------------------------------------------------------------------------
 bool CCvar::IsMaterialThreadSetAllowed(void)
 {
-	const int index = 35;
+	const static int index = 35;
 	return CallVFunc<bool>(index, this);
 }
 void CCvar::QueueMaterialThreadSetValue(ConVar* pConVar, float flValue)
 {
-	const int index = 36;
+	const static int index = 36;
 	CallVFunc<void>(index, this, pConVar, flValue);
 }
 void CCvar::QueueMaterialThreadSetValue(ConVar* pConVar, int nValue)
 {
-	const int index = 37;
+	const static int index = 37;
 	CallVFunc<void>(index, this, pConVar, nValue);
 }
 void CCvar::QueueMaterialThreadSetValue(ConVar* pConVar, const char* pValue)
 {
-	const int index = 38;
+	const static int index = 38;
 	CallVFunc<void>(index, this, pConVar, pValue);
 }
 
@@ -746,7 +746,7 @@ void CCvar::QueueMaterialThreadSetValue(ConVar* pConVar, const char* pValue)
 //-----------------------------------------------------------------------------
 CCvar::CCVarIteratorInternal* CCvar::FactoryInternalIterator(void)
 {
-	const int index = 41;
+	const static int index = 41;
 	return CallVFunc<CCVarIteratorInternal*>(index, this);
 }
 
