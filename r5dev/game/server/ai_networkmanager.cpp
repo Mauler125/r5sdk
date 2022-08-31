@@ -19,7 +19,7 @@
 
 constexpr int AINET_SCRIPT_VERSION_NUMBER = 21;
 constexpr int AINET_VERSION_NUMBER        = 57;
-constexpr int AINET_MIN_FILE_SIZE          = 82;
+constexpr int AINET_MIN_FILE_SIZE         = 82;
 
 /*
 ==============================
@@ -135,7 +135,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	timer.Start();
 	DevMsg(eDLL_T::SERVER, "+- Writing links...\n");
 
-	DevMsg(eDLL_T::SERVER, " |-- Cache linkcount: '%d'\n", pNetwork->m_iNumLinks);
+	DevMsg(eDLL_T::SERVER, " |-- Cached linkcount: '%d'\n", pNetwork->m_iNumLinks);
 	DevMsg(eDLL_T::SERVER, " |-- Calculated linkcount: '%d'\n", nCalculatedLinkcount);
 
 	nCalculatedLinkcount /= 2;
@@ -143,7 +143,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	{
 		if (pNetwork->m_iNumLinks != nCalculatedLinkcount)
 		{
-			Warning(eDLL_T::SERVER, "%s - Calculated linkcount '%d' doesn't match file linkcount '%d' (expected on build!)\n", __FUNCTION__, nCalculatedLinkcount, pNetwork->m_iNumLinks);
+			Warning(eDLL_T::SERVER, "%s - Calculated linkcount '%d' doesn't match cached linkcount '%d' (expected on build!)\n", __FUNCTION__, nCalculatedLinkcount, pNetwork->m_iNumLinks);
 		}
 	}
 
@@ -197,7 +197,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	FileSystem()->Write(&traverseNodeCount, sizeof(short), pAIGraph);
 
 	// TODO: Ideally these should be actually dumped, but they're always 0 in r2 from what i can tell.
-	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' bytes for hull data block at '0x%zX'\n", MAX_HULLS * 8, FileSystem()->Tell(pAIGraph));
+	DevMsg(eDLL_T::SERVER, " |-- Writing '%d' bytes for hull data block at '0x%zX'\n", (MAX_HULLS * 8), FileSystem()->Tell(pAIGraph));
 	for (int i = 0; i < (MAX_HULLS * 8); i++)
 	{
 		FileSystem()->Write("\0", sizeof(char), pAIGraph);
@@ -321,7 +321,7 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager,
 	FileHandle_t pNavMesh = FileSystem()->Open(fsMeshPath.relative_path().u8string().c_str(), "rb", "GAME");
 	if (!pNavMesh)
 	{
-		Warning(eDLL_T::SERVER, "%s - No %s NavMesh found. Unable to calculate CRC for AI Network.\n", __FUNCTION__, SHULL_SIZE[EHULL_SIZE::LARGE].c_str());
+		Warning(eDLL_T::SERVER, "%s - No %s NavMesh found. Unable to calculate CRC for AI Network\n", __FUNCTION__, SHULL_SIZE[EHULL_SIZE::LARGE].c_str());
 		bNavMeshAvailable = false;
 	}
 	else
@@ -402,7 +402,7 @@ void CAI_NetworkManager::LoadNetworkGraphEx(CAI_NetworkManager* pAINetworkManage
 
 	if (ai_ainDumpOnLoad->GetBool())
 	{
-		DevMsg(eDLL_T::SERVER, "Running BuildAINFile for loaded AI node graph '%s'\n", szAIGraphFile);
+		DevMsg(eDLL_T::SERVER, "Reparsing AI Network '%s'\n", szAIGraphFile);
 		CAI_NetworkBuilder::SaveNetworkGraph(*(CAI_Network**)(reinterpret_cast<char*>(pAINetworkManager) + AINETWORK_OFFSET));
 	}
 }
