@@ -234,18 +234,18 @@ void CConsole::DrawSurface(void)
         if (m_nSuggestPos != -1)
         {
             // Remove the default value from ConVar before assigning it to the input buffer.
-            string svConVar = m_vSuggest[m_nSuggestPos].m_svName.substr(0, m_vSuggest[m_nSuggestPos].m_svName.find(' ')) + ' ';
-            memmove(m_szInputBuf, svConVar.data(), svConVar.size() + 1);
+            m_svInputConVar = m_vSuggest[m_nSuggestPos].m_svName.substr(0, m_vSuggest[m_nSuggestPos].m_svName.find(' ')) + ' ';
+            m_bModifyInput = true;
 
             ResetAutoComplete();
-            BuildSummary(svConVar);
+            BuildSummary(m_svInputConVar);
         }
         else
         {
             if (m_szInputBuf[0])
             {
                 ProcessCommand(m_szInputBuf);
-                memset(m_szInputBuf, '\0', 1);
+                m_bModifyInput = true;
             }
 
             ResetAutoComplete();
@@ -807,6 +807,21 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
             }
         }
         BuildSummary(iData->Buf);
+        break;
+    }
+    case ImGuiInputTextFlags_CallbackAlways:
+    {
+        if (m_bModifyInput)
+        {
+            iData->DeleteChars(0, iData->BufTextLen);
+            if (!m_svInputConVar.empty())
+            {
+                iData->InsertChars(0, m_svInputConVar.c_str());
+                m_svInputConVar.clear();
+            }
+            m_bModifyInput = false;
+        }
+
         break;
     }
     case ImGuiInputTextFlags_CallbackEdit:

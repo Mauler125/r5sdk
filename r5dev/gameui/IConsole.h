@@ -65,6 +65,7 @@ private:
 
     vector<string>                 m_vCommands;
     vector<string>                 m_vHistory;
+    string                         m_svInputConVar;
     ssize_t                        m_nHistoryPos      = -1;
     int                            m_nScrollBack      = 0;
     int                            m_nSelectBack      = 0;
@@ -75,6 +76,7 @@ private:
     bool                           m_bInitialized     = false;
     bool                           m_bReclaimFocus    = false;
     bool                           m_bCopyToClipBoard = false;
+    bool                           m_bModifyInput     = false;
 
     bool                           m_bCanAutoComplete = false;
     bool                           m_bSuggestActive   = false;
@@ -97,7 +99,7 @@ private:
         ImGuiInputTextFlags_CallbackAlways         |
         ImGuiInputTextFlags_CallbackEdit           |
         ImGuiInputTextFlags_EnterReturnsTrue       |
-        ImGuiInputTextFlags_NoUndoRedo;
+        ImGuiInputTextFlags_NoUndoRedo; // This flag will be removed when the ImGui lib is updated to v1.88 (see https://github.com/ocornut/imgui/issues/4947).
 
     ImGuiWindowFlags m_nSuggestFlags = 
         ImGuiWindowFlags_NoMove                    |
