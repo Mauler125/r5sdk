@@ -98,8 +98,7 @@ private:
         ImGuiInputTextFlags_CallbackHistory        |
         ImGuiInputTextFlags_CallbackAlways         |
         ImGuiInputTextFlags_CallbackEdit           |
-        ImGuiInputTextFlags_EnterReturnsTrue       |
-        ImGuiInputTextFlags_NoUndoRedo; // This flag will be removed when the ImGui lib is updated to v1.88 (see https://github.com/ocornut/imgui/issues/4947).
+        ImGuiInputTextFlags_EnterReturnsTrue;
 
     ImGuiWindowFlags m_nSuggestFlags = 
         ImGuiWindowFlags_NoMove                    |
