@@ -380,8 +380,8 @@ void CConsole::SuggestPanel(void)
 //-----------------------------------------------------------------------------
 bool CConsole::AutoComplete(void)
 {
-    // Show ConVar/ConCommand suggestions when at least 2 characters have been entered.
-    if (strlen(m_szInputBuf) > 1)
+    // Show ConVar/ConCommand suggestions when something has been entered.
+    if (m_szInputBuf[0])
     {
         if (m_bCanAutoComplete)
         {
@@ -620,7 +620,7 @@ void CConsole::BuildSuggestPanelRect(void)
     m_ivSuggestWindowPos = ImGui::GetItemRectMin();
     m_ivSuggestWindowPos.y += ImGui::GetItemRectSize().y;
 
-    float flWindowHeight = flSinglePadding + std::clamp(static_cast<float>(m_vSuggest.size()) * (flItemHeight), 37.0f, 127.5f);
+    float flWindowHeight = (flSinglePadding + std::clamp(static_cast<float>(m_vSuggest.size()) * (flItemHeight), 37.0f, 127.5f));
     m_ivSuggestWindowSize = ImVec2(600, flWindowHeight);
 }
 
@@ -826,22 +826,30 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
     }
     case ImGuiInputTextFlags_CallbackEdit:
     {
-        for (size_t i = 0, n = strlen(iData->Buf);  i < n; i++)
+        if (size_t n = strlen(iData->Buf))
         {
-            if (iData->Buf[i] != '~' 
-                && iData->Buf[i] != '`' 
-                && iData->Buf[i] != ' ')
+            for (size_t i = 0; i < n; i++)
             {
-                break;
+                if (iData->Buf[i] != '~'
+                    && iData->Buf[i] != '`'
+                    && iData->Buf[i] != ' ')
+                {
+                    break;
+                }
+                else if (i == (n - 1))
+                {
+                    iData->DeleteChars(0, static_cast<int>(n));
+                }
             }
-            else if (i == (n - 1))
-            {
-                iData->DeleteChars(0, static_cast<int>(n));
-            }
+
+            m_bCanAutoComplete = true;
+            BuildSummary(iData->Buf);
+        }
+        else // Reset state and enable history scrolling when buffer is empty.
+        {
+            ResetAutoComplete();
         }
 
-        m_bCanAutoComplete = true;
-        BuildSummary(iData->Buf);
         break;
     }
     }
