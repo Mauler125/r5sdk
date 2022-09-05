@@ -506,7 +506,7 @@ void CBrowser::HostPanel(void)
         ImGui::InputText("##ServerHost_HostToken", &m_svHostToken, ImGuiInputTextFlags_ReadOnly);
     }
 
-    if (g_pServer->IsActive())
+    if (g_pHostState->m_bActiveGame)
     {
         if (ImGui::Button("Weapon Reparse", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
         {
