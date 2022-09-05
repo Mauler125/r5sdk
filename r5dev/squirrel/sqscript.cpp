@@ -246,9 +246,9 @@ void Script_Execute(const SQChar* code, SQCONTEXT context)
 {
 	if (!ThreadInMainThread())
 	{
-		g_TaskScheduler->Dispatch([code, context]()
+		const string scode(code);
+		g_TaskScheduler->Dispatch([scode, context]()
 			{
-				string scode(code);
 				Script_Execute(scode.c_str(), context);
 			}, 0);
 
