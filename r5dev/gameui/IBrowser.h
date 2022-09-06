@@ -61,7 +61,6 @@ private:
     ////////////////////
     //   Host Server  //
     ////////////////////
-    string m_svHostInvalidCriteria;
     string m_svHostRequestMessage;
     string m_svHostToken;
     ImVec4 m_HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);

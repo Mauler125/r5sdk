@@ -448,15 +448,21 @@ void CBrowser::HostPanel(void)
         g_pServerListManager->m_ServerVisibility = EServerVisibility_t::PUBLIC;
     }
 
-    ImGui::Spacing();
-    ImGui::Separator();
+    ImGui::TextColored(m_HostRequestMessageColor, m_svHostRequestMessage.c_str());
+    if (!m_svHostToken.empty())
+    {
+        ImGui::InputText("##ServerHost_HostToken", &m_svHostToken, ImGuiInputTextFlags_ReadOnly);
+    }
 
-    if (!g_pServer->IsActive())
+    ImGui::Spacing();
+    if (!g_pHostState->m_bActiveGame)
     {
         if (ImGui::Button("Start Server", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
         {
-            m_svHostInvalidCriteria.clear();
-            if (!g_pServerListManager->m_Server.m_svHostName.empty() && !g_pServerListManager->m_Server.m_svPlaylist.empty() && !g_pServerListManager->m_Server.m_svHostMap.empty())
+            m_svHostRequestMessage.clear();
+
+            bool bEnforceField = g_pServerListManager->m_ServerVisibility == EServerVisibility_t::OFFLINE ? true : !g_pServerListManager->m_Server.m_svHostName.empty();
+            if (bEnforceField && !g_pServerListManager->m_Server.m_svPlaylist.empty() && !g_pServerListManager->m_Server.m_svHostMap.empty())
             {
                 g_pServerListManager->LaunchServer(); // Launch server.
             }
@@ -464,80 +470,21 @@ void CBrowser::HostPanel(void)
             {
                 if (g_pServerListManager->m_Server.m_svHostName.empty())
                 {
-                    m_svHostInvalidCriteria = "Server name is required.";
+                    m_svHostRequestMessage = "Server name is required.";
+                    m_HostRequestMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
                 }
                 else if (g_pServerListManager->m_Server.m_svPlaylist.empty())
                 {
-                    m_svHostInvalidCriteria = "Playlist is required.";
+                    m_svHostRequestMessage = "Playlist is required.";
+                    m_HostRequestMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
                 }
                 else if (g_pServerListManager->m_Server.m_svHostMap.empty())
                 {
-                    m_svHostInvalidCriteria = "Level name is required.";
+                    m_svHostRequestMessage = "Level name is required.";
+                    m_HostRequestMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
                 }
             }
         }
-    }
-
-    if (ImGui::Button("Force Start", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
-    {
-        m_svHostInvalidCriteria.clear();
-        if (!g_pServerListManager->m_Server.m_svPlaylist.empty() && !g_pServerListManager->m_Server.m_svHostMap.empty())
-        {
-            g_pServerListManager->LaunchServer(); // Launch server.
-        }
-        else
-        {
-            if (g_pServerListManager->m_Server.m_svPlaylist.empty())
-            {
-                m_svHostInvalidCriteria = "Playlist is required.";
-            }
-            else if (g_pServerListManager->m_Server.m_svHostMap.empty())
-            {
-                m_svHostInvalidCriteria = "Level name is required.";
-            }
-        }
-    }
-
-    ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), m_svHostInvalidCriteria.c_str());
-    ImGui::TextColored(m_HostRequestMessageColor, m_svHostRequestMessage.c_str());
-
-    if (!m_svHostToken.empty())
-    {
-        ImGui::InputText("##ServerHost_HostToken", &m_svHostToken, ImGuiInputTextFlags_ReadOnly);
-    }
-
-    if (g_pHostState->m_bActiveGame)
-    {
-        if (ImGui::Button("Weapon Reparse", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
-        {
-            DevMsg(eDLL_T::ENGINE, "Reparsing weapon data on %s\n", "server and client");
-            ProcessCommand("weapon_reparse");
-        }
-
-        if (ImGui::Button("Change Level", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
-        {
-            if (!g_pServerListManager->m_Server.m_svHostMap.empty())
-            {
-                g_pServerListManager->LaunchServer();
-            }
-            else
-            {
-                m_svHostInvalidCriteria = "Failed to change level: 'levelname' was empty.";
-            }
-        }
-
-        if (ImGui::Button("Stop Server", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
-        {
-            ProcessCommand("LeaveMatch"); // TODO: use script callback instead.
-            g_TaskScheduler->Dispatch([]()
-                {
-                    // Force CHostState::FrameUpdate to shutdown the server for dedicated.
-                    g_pHostState->m_iNextState = HostStates_t::HS_GAME_SHUTDOWN;
-                }, 0);
-        }
-    }
-    else
-    {
         if (ImGui::Button("Reload Playlist", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
         {
             g_TaskScheduler->Dispatch([]()
@@ -553,6 +500,37 @@ void CBrowser::HostPanel(void)
                 {
                     g_pBanSystem->Load();
                 }, 0);
+        }
+    }
+    else
+    {
+        if (ImGui::Button("Stop Server", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+        {
+            ProcessCommand("LeaveMatch"); // TODO: use script callback instead.
+            g_TaskScheduler->Dispatch([]()
+                {
+                    // Force CHostState::FrameUpdate to shutdown the server for dedicated.
+                    g_pHostState->m_iNextState = HostStates_t::HS_GAME_SHUTDOWN;
+                }, 0);
+        }
+
+        if (ImGui::Button("Change Level", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+        {
+            if (!g_pServerListManager->m_Server.m_svHostMap.empty())
+            {
+                g_pServerListManager->LaunchServer();
+            }
+            else
+            {
+                m_svHostRequestMessage = "Failed to change level: 'levelname' was empty.";
+                m_HostRequestMessageColor = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+            }
+        }
+
+        if (ImGui::Button("Weapon Reparse", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+        {
+            DevMsg(eDLL_T::ENGINE, "Reparsing weapon data on %s\n", "server and client");
+            ProcessCommand("weapon_reparse");
         }
     }
 #endif // !CLIENT_DLL
@@ -576,9 +554,15 @@ void CBrowser::UpdateHostingStatus(void)
     {
     case EHostStatus_t::NOT_HOSTING:
     {
-        m_svHostRequestMessage.clear();
         m_svHostToken.clear();
-        m_HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+
+        if (ImGui::ColorConvertFloat4ToU32(m_HostRequestMessageColor) == // Only clear if this is green (a valid hosting message).
+            ImGui::ColorConvertFloat4ToU32(ImVec4(0.00f, 1.00f, 0.00f, 1.00f)))
+        {
+            m_svHostRequestMessage.clear();
+            m_HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+        }
+
         break;
     }
     case EHostStatus_t::HOSTING:
@@ -606,7 +590,7 @@ void CBrowser::UpdateHostingStatus(void)
             break;
         }
 
-        std::lock_guard<std::mutex> l(g_NetKeyMutex);
+        g_NetKeyMutex.lock();
         NetGameServer_t netGameServer // !FIXME: create from main thread.
         {
             g_pServerListManager->m_Server.m_svHostName,
@@ -625,6 +609,7 @@ void CBrowser::UpdateHostingStatus(void)
                 std::chrono::system_clock::now().time_since_epoch()
                 ).count()
         };
+        g_NetKeyMutex.unlock();
 
         std::thread post(&CBrowser::SendHostingPostRequest, this, netGameServer);
         post.detach();
