@@ -271,7 +271,7 @@ void CConsole::DrawSurface(void)
         if (m_szInputBuf[0])
         {
             ProcessCommand(m_szInputBuf);
-            memset(m_szInputBuf, '\0', 1);
+            m_bModifyInput = true;
         }
         ResetAutoComplete();
         BuildSummary();
@@ -390,13 +390,17 @@ bool CConsole::AutoComplete(void)
         }
         if (m_vSuggest.empty())
         {
+            m_bSuggestActive = false;
             m_nSuggestPos = -1;
+
             return false;
         }
     }
     else
     {
+        m_bSuggestActive = false;
         m_nSuggestPos = -1;
+
         return false;
     }
 
@@ -579,7 +583,7 @@ void CConsole::BuildSummary(string svConVar)
         {
             if (svConVar[i] == ' ' || svConVar[i] == ';')
             {
-                svConVar[i] = '\0'; // Remove space or semicolon before we call 'g_pCVar->FindVar(..)'.
+                svConVar.erase(i, svConVar.length() - 1); // Remove space or semicolon before we call 'g_pCVar->FindVar(..)'.
             }
         }
 
@@ -792,7 +796,6 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
             if (nPrevHistoryPos != m_nHistoryPos)
             {
                 string svHistory = (m_nHistoryPos >= 0) ? m_vHistory[m_nHistoryPos] : "";
-
                 if (!svHistory.empty())
                 {
                     if (m_vHistory[m_nHistoryPos].find(' ') == string::npos)
@@ -814,6 +817,8 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
         if (m_bModifyInput)
         {
             iData->DeleteChars(0, iData->BufTextLen);
+            m_bSuggestActive = false;
+
             if (!m_svInputConVar.empty())
             {
                 iData->InsertChars(0, m_svInputConVar.c_str());
