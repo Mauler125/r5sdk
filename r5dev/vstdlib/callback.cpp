@@ -341,16 +341,6 @@ void Host_Unban_f(const CCommand& args)
 
 /*
 =====================
-Host_ReloadBanList_f
-=====================
-*/
-void Host_ReloadBanList_f(const CCommand& args)
-{
-	g_pBanSystem->Load(); // Reload banlist.
-}
-
-/*
-=====================
 Host_Changelevel_f
 
   Goes to a new map, 
@@ -366,6 +356,27 @@ void Host_Changelevel_f(const CCommand& args)
 		v_SetLaunchOptions(args);
 		v_HostState_ChangeLevelMP(args[1], args[2]);
 	}
+}
+
+/*
+=====================
+Host_ReloadBanList_f
+=====================
+*/
+void Host_ReloadBanList_f(const CCommand& args)
+{
+	g_pBanSystem->Load(); // Reload banlist.
+}
+
+/*
+=====================
+Host_ReloadPlaylists_f
+=====================
+*/
+void Host_ReloadPlaylists_f(const CCommand& args)
+{
+	_DownloadPlaylists_f();
+	KeyValues::InitPlaylists(); // Re-Init playlist.
 }
 
 #endif // !CLIENT_DLL

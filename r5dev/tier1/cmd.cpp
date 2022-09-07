@@ -329,6 +329,9 @@ void ConCommand::Init(void)
 	ConCommand::Create("sphere", "Draw a debug sphere.", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, Sphere_f, nullptr);
 	ConCommand::Create("capsule", "Draw a debug capsule.", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, Capsule_f, nullptr);
 #endif //!DEDICATED
+#ifndef CLIENT_DLL
+	ConCommand::Create("reload_playlists", "Reloads the playlists file.", FCVAR_RELEASE, Host_ReloadPlaylists_f, nullptr);
+#endif // !CLIENT_DLL
 	//-------------------------------------------------------------------------
 	// SERVER DLL                                                             |
 #ifndef CLIENT_DLL
@@ -338,7 +341,7 @@ void ConCommand::Init(void)
 	ConCommand::Create("sv_ban", "Bans a client from the server by user name. | Usage: sv_ban <UserID>.", FCVAR_GAMEDLL | FCVAR_RELEASE, Host_Ban_f, nullptr);
 	ConCommand::Create("sv_banid", "Bans a client from the server by handle, nucleus id or ip address | Usage: sv_banid \"<HandleID>\"/\"<NucleusID>/<IPAddress>\".", FCVAR_GAMEDLL | FCVAR_RELEASE, Host_BanID_f, nullptr);
 	ConCommand::Create("sv_unban", "Unbans a client from the server by nucleus id or ip address | Usage: sv_unban \"<NucleusID>\"/\"<IPAddress>\".", FCVAR_RELEASE, Host_Unban_f, nullptr);
-	ConCommand::Create("sv_reloadbanlist", "Reloads the ban list from the disk.", FCVAR_RELEASE, Host_ReloadBanList_f, nullptr);
+	ConCommand::Create("sv_reloadbanlist", "Reloads the banned list.", FCVAR_RELEASE, Host_ReloadBanList_f, nullptr);
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 	//-------------------------------------------------------------------------
