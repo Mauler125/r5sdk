@@ -172,7 +172,7 @@ FORCEINLINE void CHostState::Init(void)
 	m_levelName[0] = 0;
 	m_landMarkName[0] = 0;
 	m_mapGroupName[0] = 0;
-	m_bSplitScreenConnect = 256; // Is this actually 'm_bSplitScreenConnect'? (assembly sets this value, other 3 bytes are padded which makes this operation valid still).
+	m_nSplitScreenPlayers = 256;
 	m_vecLocation.Init();
 	m_angLocation.Init();
 	m_iCurrentState = HostStates_t::HS_NEW_GAME;
@@ -321,8 +321,8 @@ FORCEINLINE void CHostState::GameShutDown(void)
 FORCEINLINE void CHostState::State_NewGame(void)
 {
 	LARGE_INTEGER time{};
-
-	m_bSplitScreenConnect = false;
+	uint16_t nSplitScreenPlayers = m_nSplitScreenPlayers;
+	m_nSplitScreenPlayers = 0;
 #ifndef CLIENT_DLL
 	if (!g_pServerGameClients) // Init Game if it ain't valid.
 	{
@@ -332,7 +332,7 @@ FORCEINLINE void CHostState::State_NewGame(void)
 
 #ifndef CLIENT_DLL
 	if (!CModelLoader__Map_IsValid(g_pModelLoader, m_levelName) // Check if map is valid and if we can start a new game.
-		|| !Host_NewGame(m_levelName, nullptr, m_bBackgroundLevel, m_bSplitScreenConnect, time) || !g_pServerGameClients)
+		|| !Host_NewGame(m_levelName, nullptr, m_bBackgroundLevel, nSplitScreenPlayers, time) || !g_pServerGameClients)
 	{
 		Error(eDLL_T::ENGINE, false, "%s - Error: Map not valid\n", "CHostState::State_NewGame");
 #ifndef DEDICATED
