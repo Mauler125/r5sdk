@@ -4,6 +4,7 @@
 // Internals
 BOOL IsBadReadPtrV2(void* ptr);
 BOOL FileExists(const fs::path& svFilePath);
+BOOL FileEmpty(ifstream& pFile);
 MODULEINFO GetModuleInfo(const char* szModule);
 
 /////////////////////////////////////////////////////////////////////////////

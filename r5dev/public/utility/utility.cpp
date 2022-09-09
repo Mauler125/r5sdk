@@ -14,6 +14,13 @@ BOOL FileExists(const fs::path& svFilePath)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For checking if a specific file is empty.
+BOOL FileEmpty(ifstream& pFile)
+{
+    return pFile.peek() == ifstream::traits_type::eof();
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For checking if pointer is valid or bad.
 BOOL IsBadReadPtrV2(void* ptr)
 {
