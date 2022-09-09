@@ -7,8 +7,8 @@ Purpose: Implements the in-game console front-end
 -------------------------------------------------------------------------------
 History:
 - 15:06:2021 | 14:56 : Created by Kawe Mazidjatari
-- 07:08:2021 | 15:22 : Multithread 'CommandExecute' operations to prevent deadlock in render thread
-- 07:08:2021 | 15:25 : Fix a race condition that occured when detaching the 'CommandExecute' thread
+- 07:08:2021 | 15:22 : Multi-thread 'CommandExecute' operations to prevent deadlock in render thread
+- 07:08:2021 | 15:25 : Fix a race condition that occurred when detaching the 'CommandExecute' thread
 
 ******************************************************************************/
 

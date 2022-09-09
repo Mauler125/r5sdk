@@ -44,8 +44,8 @@ void Dedicated_Init()
 	// CGAME
 	//-------------------------------------------------------------------------
 	{
-		p_CVideoMode_Common__CreateGameWindow.Offset(0x2C).Patch({ 0xE9, 0x9A, 0x00, 0x00, 0x00 });       // PUS --> XOR | Prevent ShowWindow and CreateGameWindow from being initialized (STGS RPak datatype is registered here).
-		p_CVideoMode_Common__CreateWindowClass.Offset(0x0).Patch({ 0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3 }); // FUN --> RET | Prevent CreateWindowClass from being initialized (returned true to satisy condition that checks window handle).
+		p_CVideoMode_Common__CreateGameWindow.Offset(0x2C).Patch({ 0xE9, 0x9A, 0x00, 0x00, 0x00 });       // PUS --> XOR | Prevent ShowWindow and CreateGameWindow from being initialized (STGS RPak data type is registered here).
+		p_CVideoMode_Common__CreateWindowClass.Offset(0x0).Patch({ 0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3 }); // FUN --> RET | Prevent CreateWindowClass from being initialized (returned true to satisfy condition that checks window handle).
 	}
 
 	//-------------------------------------------------------------------------
@@ -113,7 +113,7 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	{
 		// Note: The registers here seems to contains pointers to material data and 'CMaterial' class methods when the shader system is initialized.
-		CStudioRenderContext__LoadModel.Offset(0x17D).Patch({ 0x90, 0x90, 0x90, 0x90 });             // MOV --> NOP | RAX + RCX are both nullptrs.
+		CStudioRenderContext__LoadModel.Offset(0x17D).Patch({ 0x90, 0x90, 0x90, 0x90 });             // MOV --> NOP | RAX + RCX are both nullptr.
 		CStudioRenderContext__LoadModel.Offset(0x181).Patch({ 0x90, 0x90, 0x90 });                   // MOV --> NOP | RCX is nullptr when trying to dereference.
 		CStudioRenderContext__LoadModel.Offset(0x184).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | RAX is nullptr during virtual call resulting in exception 'C0000005'.
 		CStudioRenderContext__LoadMaterials.Offset(0x28).Patch({ 0xE9, 0x80, 0x04, 0x00, 0x00 });    // FUN --> RET | 'CStudioRenderContext::LoadMaterials' is called virtually by the 'RMDL' streaming job.

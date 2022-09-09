@@ -273,7 +273,7 @@ void FourVectors::RotateManyBy(FourVectors* RESTRICT pVectors, unsigned int numV
 	// loop should be unrolled to 8 FourVectors per iteration; because each FourVectors is 
 	// 48 bytes long, 48 * 8 = 384, its least common multiple with the 128-byte cache line. 
 	// That way you can fetch the next 3 cache lines while you work on these three. 
-	// If you do go this route, be sure to dissassemble and make sure it doesn't spill 
+	// If you do go this route, be sure to disassemble and make sure it doesn't spill 
 	// registers to stack as you do this; the cost of that will be excessive. Unroll the loop
 	// a little and just live with the fact that you'll be doing a couple of redundant dbcts
 	// (they don't cost you anything). Be aware that all three cores share L2 and it can only
@@ -434,7 +434,7 @@ void FourVectors::RotateManyBy(FourVectors* RESTRICT pVectors, unsigned int numV
 	// loop should be unrolled to 8 FourVectors per iteration; because each FourVectors is 
 	// 48 bytes long, 48 * 8 = 384, its least common multiple with the 128-byte cache line. 
 	// That way you can fetch the next 3 cache lines while you work on these three. 
-	// If you do go this route, be sure to dissassemble and make sure it doesn't spill 
+	// If you do go this route, be sure to disassemble and make sure it doesn't spill 
 	// registers to stack as you do this; the cost of that will be excessive. Unroll the loop
 	// a little and just live with the fact that you'll be doing a couple of redundant dbcts
 	// (they don't cost you anything). Be aware that all three cores share L2 and it can only

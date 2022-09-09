@@ -1700,9 +1700,6 @@
     <ClInclude Include="..\tier2\meshutils.h">
       <Filter>sdk\tier2</Filter>
     </ClInclude>
-    <ClInclude Include="..\mathlib\float_tools.h">
-      <Filter>sdk\mathlib</Filter>
-    </ClInclude>
     <ClInclude Include="..\mathlib\fltx4.h">
       <Filter>sdk\mathlib</Filter>
     </ClInclude>

@@ -125,7 +125,7 @@ ice_perm32 (
 
 
 /*
- * Initialise the ICE S-boxes.
+ * Initialize the ICE S-boxes.
  * This only has to be done once.
  */
 

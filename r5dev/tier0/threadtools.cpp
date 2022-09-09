@@ -1,6 +1,6 @@
 ﻿//===== Copyright � 1996-2005, Valve Corporation, All rights reserved. ======//
 //
-// Purpose: Random number generator
+// Purpose: Thread tools
 //
 // $Workfile: $
 // $NoKeywords: $

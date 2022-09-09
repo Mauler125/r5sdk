@@ -5,7 +5,7 @@
 #include <tier0/threadtools.h>
 #include <appframework/iappsystem.h>
 #include <vpc/keyvalues.h>
-#include "vpc/interfaces.h"
+#include <vpc/interfaces.h>
 #include <vpklib/packedstore.h>
 
 typedef void* FileHandle_t;
@@ -328,7 +328,7 @@ public:
 	virtual __int64 __fastcall sub_14038C380(__int64 a1) = 0;
 	virtual __int64 __fastcall sub_14038C400(__int64 a1, __int64 a2) = 0;
 
-	// Returns the file system statistics retreived by the implementation.  Returns NULL if not supported.
+	// Returns the file system statistics retrieved by the implementation.  Returns NULL if not supported.
 	virtual const FileSystemStatistics* GetFilesystemStatistics() = 0;
 
 	//--------------------------------------------------------

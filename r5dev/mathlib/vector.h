@@ -1297,7 +1297,7 @@ FORCEINLINE void VectorMultiply(const Vector3D& a, const Vector3D& b, Vector3D& 
 	c.z = a.z * b.z;
 }
 
-// for backwards compatability
+// for backwards compatibility
 inline void VectorScale(const Vector3D& in, vec_t scale, Vector3D& result)
 {
 	VectorMultiply(in, scale, result);
@@ -1325,7 +1325,7 @@ FORCEINLINE void VectorDivide(const Vector3D& a, const Vector3D& b, Vector3D& c)
 }
 
 // FIXME: Remove
-// For backwards compatability
+// For backwards compatibility
 inline void	Vector3D::MulAdd(const Vector3D& a, const Vector3D& b, float scalar)
 {
 	CHECK_VALID(a);
@@ -1387,7 +1387,7 @@ FORCEINLINE vec_t DotProduct(const Vector3D& a, const Vector3D& b)
 	return(a.x * b.x + a.y * b.y + a.z * b.z);
 }
 
-// for backwards compatability
+// for backwards compatibility
 inline vec_t Vector3D::Dot(const Vector3D& vOther) const
 {
 	CHECK_VALID(vOther);
@@ -1502,7 +1502,7 @@ inline vec_t VectorNormalize( Vector& v )
 	else
 	{
 		// FIXME:
-		// Just copying the existing implemenation; shouldn't res.z == 0?
+		// Just copying the existing implementation; shouldn't res.z == 0?
 		v.x = v.y = 0.0f; v.z = 1.0f;
 	}
 	return l;
@@ -1827,7 +1827,7 @@ inline const Vector3D VectorPerpendicularToVector(const Vector3D& in)
 //-----------------------------------------------------------------------------
 // AngularImpulse
 //-----------------------------------------------------------------------------
-// AngularImpulse are exponetial maps (an axis scaled by a "twist" angle in degrees)
+// AngularImpulse are exponential maps (an axis scaled by a "twist" angle in degrees)
 typedef Vector3D AngularImpulse;
 
 #ifndef VECTOR_NO_SLOW_OPERATIONS
@@ -1967,7 +1967,7 @@ void Quaternion::Print() const
 
 
 //-----------------------------------------------------------------------------
-// Binaray operators
+// Binary operators
 //-----------------------------------------------------------------------------
 inline Quaternion operator+(const Quaternion& q1, const Quaternion& q2)
 {

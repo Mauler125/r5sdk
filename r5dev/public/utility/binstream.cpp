@@ -27,7 +27,7 @@ CIOStream::~CIOStream()
 //-----------------------------------------------------------------------------
 // Purpose: opens the file in specified mode
 // Input  : fileFullPath - mode
-// Output : true if operation is successfull
+// Output : true if operation is successful
 //-----------------------------------------------------------------------------
 bool CIOStream::Open(const fs::path& fsFilePath, Mode_t eMode)
 {
@@ -99,7 +99,7 @@ void CIOStream::Flush()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: gets the possition of the current character in the stream
+// Purpose: gets the position of the current character in the stream
 //-----------------------------------------------------------------------------
 size_t CIOStream::GetPosition()
 {
@@ -117,7 +117,7 @@ size_t CIOStream::GetPosition()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: sets the possition of the current character in the stream
+// Purpose: sets the position of the current character in the stream
 // Input  : nOffset - 
 //-----------------------------------------------------------------------------
 void CIOStream::SetPosition(int64_t nOffset)

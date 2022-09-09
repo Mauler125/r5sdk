@@ -134,7 +134,7 @@ Host_KickID_f
 */
 void Host_KickID_f(const CCommand& args)
 {
-	if (args.ArgC() < 2) // Do we atleast have 2 arguments?
+	if (args.ArgC() < 2) // Do we at least have 2 arguments?
 	{
 		return;
 	}
@@ -317,7 +317,7 @@ void Host_Unban_f(const CCommand& args)
 
 	try
 	{
-		if (args.HasOnlyDigits(1)) // Check if we have an ip address or origin ID.
+		if (args.HasOnlyDigits(1)) // Check if we have an ip address or nucleus id.
 		{
 			if (g_pBanSystem->DeleteEntry("noIP", std::stoll(args.Arg(1)))) // Delete ban entry.
 			{
@@ -365,7 +365,7 @@ Host_ReloadBanList_f
 */
 void Host_ReloadBanList_f(const CCommand& args)
 {
-	g_pBanSystem->Load(); // Reload banlist.
+	g_pBanSystem->Load(); // Reload banned list.
 }
 
 /*
@@ -938,7 +938,7 @@ void SQVM_ClientScript_f(const CCommand& args)
 =====================
 SQVM_UIScript_f
 
-  Exectutes input on the
+  Executes input on the
   VM in UI context.
 =====================
 */

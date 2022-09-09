@@ -45,13 +45,13 @@ public:
 	// Checks the string for equality, returns 0 when a match is found
 	constexpr int32_t Compare(std::basic_string_view<Tchar> Rhs) const noexcept;
 
-	// Creates an array of strings by splitting this string at each occurence of the separator
+	// Creates an array of strings by splitting this string at each occurrence of the separator
 	constexpr List<StringBase<Tchar>> Split(const Tchar Separator) const;
-	// Creates an array of strings by splitting this string at each occurence of the separator
+	// Creates an array of strings by splitting this string at each occurrence of the separator
 	constexpr List<StringBase<Tchar>> Split(const Tchar* Separator) const;
-	// Creates an array of strings by splitting this string at each occurence of the separator
+	// Creates an array of strings by splitting this string at each occurrence of the separator
 	constexpr List<StringBase<Tchar>> Split(const StringBase<Tchar>& Separator) const;
-	// Creates an array of strings by splitting this string at each occurence of the separator
+	// Creates an array of strings by splitting this string at each occurrence of the separator
 	constexpr List<StringBase<Tchar>> Split(const std::basic_string_view<Tchar> Separator) const;
 
 	// Trims the whitespace from both ends of the string
@@ -61,34 +61,34 @@ public:
 	// Trims the whitespace from the end of the string
 	constexpr StringBase<Tchar> TrimEnd() const;
 
-	// Returns the index of the first occurance of value in the current instance
+	// Returns the index of the first occurrence of value in the current instance
 	constexpr uint32_t IndexOf(const Tchar Rhs, uint32_t Pos = 0) const noexcept;
-	// Returns the index of the first occurance of value in the current instance
+	// Returns the index of the first occurrence of value in the current instance
 	constexpr uint32_t IndexOf(const Tchar* Rhs, uint32_t Pos = 0) const;
-	// Returns the index of the first occurance of value in the current instance
+	// Returns the index of the first occurrence of value in the current instance
 	constexpr uint32_t IndexOf(const Tchar* Rhs, uint32_t Pos, uint32_t Count) const;
-	// Returns the index of the first occurance of value in the current instance
+	// Returns the index of the first occurrence of value in the current instance
 	constexpr uint32_t IndexOf(const StringBase<Tchar>& Rhs, uint32_t Pos = 0) const noexcept;
-	// Returns the index of the first occurance of value in the current instance
+	// Returns the index of the first occurrence of value in the current instance
 	constexpr uint32_t IndexOf(const StringBase<Tchar>& Rhs, uint32_t Pos, uint32_t Count) const noexcept;
-	// Returns the index of the first occurance of value in the current instance
+	// Returns the index of the first occurrence of value in the current instance
 	constexpr uint32_t IndexOf(std::basic_string_view<Tchar> Rhs, uint32_t Pos = 0) const noexcept;
-	// Returns the index of the first occurance of value in the current instance
+	// Returns the index of the first occurrence of value in the current instance
 	constexpr uint32_t IndexOf(std::basic_string_view<Tchar> Rhs, uint32_t Pos, uint32_t Count) const noexcept;
 
-	// Returns the index of the last occurance of value in the current instance
+	// Returns the index of the last occurrence of value in the current instance
 	constexpr uint32_t LastIndexOf(const Tchar Rhs, uint32_t Pos = 0) const noexcept;
-	// Returns the index of the last occurance of value in the current instance
+	// Returns the index of the last occurrence of value in the current instance
 	constexpr uint32_t LastIndexOf(const Tchar* Rhs, uint32_t Pos = 0) const;
-	// Returns the index of the last occurance of value in the current instance
+	// Returns the index of the last occurrence of value in the current instance
 	constexpr uint32_t LastIndexOf(const Tchar* Rhs, uint32_t Pos, uint32_t Count) const;
-	// Returns the index of the last occurance of value in the current instance
+	// Returns the index of the last occurrence of value in the current instance
 	constexpr uint32_t LastIndexOf(const StringBase<Tchar>& Rhs, uint32_t Pos = 0) const noexcept;
-	// Returns the index of the last occurance of value in the current instance
+	// Returns the index of the last occurrence of value in the current instance
 	constexpr uint32_t LastIndexOf(const StringBase<Tchar>& Rhs, uint32_t Pos, uint32_t Count) const noexcept;
-	// Returns the index of the last occurance of value in the current instance
+	// Returns the index of the last occurrence of value in the current instance
 	constexpr uint32_t LastIndexOf(std::basic_string_view<Tchar> Rhs, uint32_t Pos = 0) const noexcept;
-	// Returns the index of the last occurance of value in the current instance
+	// Returns the index of the last occurrence of value in the current instance
 	constexpr uint32_t LastIndexOf(std::basic_string_view<Tchar> Rhs, uint32_t Pos, uint32_t Count) const noexcept;
 
 	// Creates a copy of this string in lower case
@@ -466,7 +466,7 @@ inline constexpr List<StringBase<Tchar>> StringBase<Tchar>::Split(const Tchar De
 
 	uint32_t CurrentIndex = 0, LocatedPosition = 0;
 
-	// Optimized for large strings and lots of occurences
+	// Optimized for large strings and lots of occurrences
 	while ((LocatedPosition = this->IndexOf(Delimiter, CurrentIndex)) != StringBase<Tchar>::InvalidPosition)
 	{
 		Result.Emplace(this->SubString(CurrentIndex, LocatedPosition - CurrentIndex));
@@ -494,7 +494,7 @@ inline constexpr List<StringBase<Tchar>> StringBase<Tchar>::Split(const Tchar* S
 	else if constexpr (sizeof(Tchar) == sizeof(wchar_t))
 		LhsSize = (uint32_t)wcslen(Separator);
 
-	// Optimized for large strings and lots of occurences
+	// Optimized for large strings and lots of occurrences
 	while ((LocatedPosition = this->IndexOf(Separator, CurrentIndex)) != StringBase<Tchar>::InvalidPosition)
 	{
 		Result.Emplace(this->SubString(CurrentIndex, LocatedPosition - CurrentIndex));
@@ -518,7 +518,7 @@ inline constexpr List<StringBase<Tchar>> StringBase<Tchar>::Split(const StringBa
 
 	auto LhsSize = Separator._StoreSize;
 
-	// Optimized for large strings and lots of occurences
+	// Optimized for large strings and lots of occurrences
 	while ((LocatedPosition = this->IndexOf(Separator, CurrentIndex)) != StringBase<Tchar>::InvalidPosition)
 	{
 		Result.Emplace(this->SubString(CurrentIndex, LocatedPosition - CurrentIndex));
@@ -542,7 +542,7 @@ inline constexpr List<StringBase<Tchar>> StringBase<Tchar>::Split(const std::bas
 
 	auto LhsSize = Separator.size();
 
-	// Optimized for large strings and lots of occurences
+	// Optimized for large strings and lots of occurrences
 	while ((LocatedPosition = this->IndexOf(Separator, CurrentIndex)) != StringBase<Tchar>::InvalidPosition)
 	{
 		Result.Emplace(this->SubString(CurrentIndex, LocatedPosition - CurrentIndex));
@@ -1072,7 +1072,7 @@ inline constexpr StringBase<Tchar> StringBase<Tchar>::Replace(const Tchar* Old, 
 
 	auto Result = StringBase<Tchar>();
 
-	// Optimized for large strings and lots of occurences
+	// Optimized for large strings and lots of occurrences
 	while ((LocatedPosition = this->IndexOf(Old, CurrentIndex)) != StringBase<Tchar>::InvalidPosition)
 	{
 		Result += this->SubString(CurrentIndex, LocatedPosition - CurrentIndex);
@@ -1096,7 +1096,7 @@ inline constexpr StringBase<Tchar> StringBase<Tchar>::Replace(const StringBase<T
 
 	auto Result = StringBase<Tchar>();
 
-	// Optimized for large strings and lots of occurences
+	// Optimized for large strings and lots of occurrences
 	while ((LocatedPosition = this->IndexOf(Old, CurrentIndex)) != StringBase<Tchar>::InvalidPosition)
 	{
 		Result += this->SubString(CurrentIndex, LocatedPosition - CurrentIndex);
@@ -1120,7 +1120,7 @@ inline constexpr StringBase<Tchar> StringBase<Tchar>::Replace(std::basic_string_
 
 	auto Result = StringBase<Tchar>();
 
-	// Optimized for large strings and lots of occurences
+	// Optimized for large strings and lots of occurrences
 	while ((LocatedPosition = this->IndexOf(Old, CurrentIndex)) != StringBase<Tchar>::InvalidPosition)
 	{
 		Result += this->SubString(CurrentIndex, LocatedPosition - CurrentIndex);

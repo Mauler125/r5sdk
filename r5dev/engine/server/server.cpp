@@ -68,7 +68,7 @@ bool CServer::AuthClient(user_creds_s* pChallenge)
 	if (sv_showconnecting->GetBool())
 		DevMsg(eDLL_T::SERVER, "Processing connectionless challenge for '%s' ('%llu')\n", svIpAddress.c_str(), pChallenge->m_nNucleusID);
 
-	if (g_pBanSystem->IsBanListValid()) // Is the banlist vector valid?
+	if (g_pBanSystem->IsBanListValid()) // Is the banned list vector valid?
 	{
 		if (g_pBanSystem->IsBanned(svIpAddress, pChallenge->m_nNucleusID)) // Is the client trying to connect banned?
 		{

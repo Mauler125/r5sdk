@@ -233,7 +233,7 @@ const char* CCommand::operator[](int nIndex) const
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: returns max command lenght
+// Purpose: returns max command length
 //-----------------------------------------------------------------------------
 int CCommand::MaxCommandLength(void) const
 {

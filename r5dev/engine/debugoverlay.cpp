@@ -28,7 +28,7 @@ bool OverlayBase_t::IsDead() const
 {
     if (r_debug_overlay_nodecay->GetBool())
     {
-        // Keep rendering the overlay if nodecay is set.
+        // Keep rendering the overlay if no-decay is set.
         return false;
     }
 

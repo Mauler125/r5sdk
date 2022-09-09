@@ -7,7 +7,7 @@
 constexpr char s_pszNoAuthMessage[]  = "This server is password protected for console access. Authenticate with 'PASS <password>' command.\n";
 constexpr char s_pszWrongPwMessage[] = "Admin password incorrect.\n";
 constexpr char s_pszBannedMessage[]  = "Go away.\n";
-constexpr char s_pszAuthMessage[]    = "Authentication successfull.\n";
+constexpr char s_pszAuthMessage[]    = "Authentication successful.\n";
 
 class CRConServer
 {

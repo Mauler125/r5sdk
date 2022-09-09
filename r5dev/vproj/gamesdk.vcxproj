@@ -238,7 +238,6 @@
     <ClInclude Include="..\mathlib\fbits.h" />
     <ClInclude Include="..\mathlib\color.h" />
     <ClInclude Include="..\mathlib\crc32.h" />
-    <ClInclude Include="..\mathlib\float_tools.h" />
     <ClInclude Include="..\mathlib\fltx4.h" />
     <ClInclude Include="..\mathlib\halton.h" />
     <ClInclude Include="..\mathlib\IceKey.H" />

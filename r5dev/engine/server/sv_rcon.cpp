@@ -490,7 +490,7 @@ void CRConServer::ProcessMessage(const cl_rcon::request& cl_request)
 		}
 		case cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND:
 		{
-			if (pData->m_bAuthorized) // Only execute if auth was successfull.
+			if (pData->m_bAuthorized) // Only execute if auth was successful.
 			{
 				this->Execute(cl_request, false);
 			}

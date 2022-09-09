@@ -1776,7 +1776,7 @@ void QuaternionIdentityBlend(const Quaternion& p, float t, Quaternion& qt)
 }
 
 //-----------------------------------------------------------------------------
-// Quaternion sphereical linear interpolation
+// Quaternion spherical linear interpolation
 //-----------------------------------------------------------------------------
 
 void QuaternionSlerp(const Quaternion& p, const Quaternion& q, float t, Quaternion& qt)
@@ -2200,7 +2200,7 @@ void QuaternionMatrix(const Quaternion& q, matrix3x4_t& matrix)
 #endif
 
 	// Original code
-	// This should produce the same code as below with optimization, but looking at the assmebly,
+	// This should produce the same code as below with optimization, but looking at the assembly,
 	// it doesn't.  There are 7 extra multiplies in the release build of this, go figure.
 #if 1
 	matrix[0][0] = 1.0 - 2.0 * q.y * q.y - 2.0 * q.z * q.z;
@@ -3647,7 +3647,7 @@ void TransformAABB(const matrix3x4_t& transform, const Vector3D& vecMinsIn, cons
 
 	VectorSubtract(worldCenter, worldExtents, vecMinsOut);
 	VectorAdd(worldCenter, worldExtents, vecMaxsOut);
-	// sanity chec	
+	// sanity check
 	Assert(vecMinsOut.LengthSqr() + vecMaxsOut.LengthSqr() < 1e+12);
 }
 

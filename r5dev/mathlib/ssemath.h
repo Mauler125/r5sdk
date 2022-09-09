@@ -41,7 +41,7 @@ typedef vec_float4 FLTX4;
 typedef const fltx4& FLTX4;
 #endif
 
-// A 16-byte aligned int32 datastructure
+// A 16-byte aligned int32 data structure
 // (for use when writing out fltx4's as SIGNED
 // ints).
 struct ALIGN16 intx4
@@ -953,7 +953,7 @@ FORCEINLINE void StoreFourUnalignedVector3SIMD(fltx4 a, fltx4 b, fltx4	c, FLTX4 
 // into the four consecutive Vectors:
 //    pDestination ,  pDestination + 1,  pDestination + 2,  pDestination + 3
 // The Vectors are assumed to start on an ALIGNED address, that is, 
-// pDestination is 16-byte aligned (thhough obviously pDestination+1 is not).
+// pDestination is 16-byte aligned (though obviously pDestination+1 is not).
 FORCEINLINE void StoreFourAlignedVector3SIMD(fltx4 a, fltx4 b, fltx4	c, FLTX4 d, // first three passed by copy (deliberate)
 	Vector* const pDestination)
 {
@@ -1987,7 +1987,7 @@ FORCEINLINE void StoreFourUnalignedVector3SIMD(fltx4 a, fltx4 b, fltx4	c, FLTX4 
 // into the four consecutive Vectors:
 //    pDestination ,  pDestination + 1,  pDestination + 2,  pDestination + 3
 // The Vectors are assumed to start on an ALIGNED address, that is, 
-// pDestination is 16-byte aligned (thhough obviously pDestination+1 is not).
+// pDestination is 16-byte aligned (though obviously pDestination+1 is not).
 FORCEINLINE void StoreFourAlignedVector3SIMD(fltx4 a, fltx4 b, fltx4	c, FLTX4 d, // first three passed by copy (deliberate)
 	Vector* const pDestination)
 {
@@ -3052,7 +3052,7 @@ FORCEINLINE void StoreFourUnalignedVector3SIMD(fltx4 a, fltx4 b, fltx4	c, FLTX4 
 // into the four consecutive Vectors:
 //    pDestination ,  pDestination + 1,  pDestination + 2,  pDestination + 3
 // The Vectors are assumed to start on an ALIGNED address, that is, 
-// pDestination is 16-byte aligned (thhough obviously pDestination+1 is not).
+// pDestination is 16-byte aligned (though obviously pDestination+1 is not).
 FORCEINLINE void StoreFourAlignedVector3SIMD(fltx4 a, fltx4 b, fltx4	c, FLTX4 d, // first three passed by copy (deliberate)
 	Vector* const pDestination)
 {
@@ -3556,7 +3556,7 @@ FORCEINLINE void StoreFourUnalignedVector3SIMD(fltx4 a, fltx4 b, fltx4	c, FLTX4 
 // into the four consecutive Vectors:
 //    pDestination ,  pDestination + 1,  pDestination + 2,  pDestination + 3
 // The Vectors are assumed to start on an ALIGNED address, that is, 
-// pDestination is 16-byte aligned (thhough obviously pDestination+1 is not).
+// pDestination is 16-byte aligned (though obviously pDestination+1 is not).
 FORCEINLINE void StoreFourAlignedVector3SIMD(fltx4 a, fltx4 b, fltx4	c, FLTX4 d, // first three passed by copy (deliberate)
 	Vector3D* const pDestination)
 {
@@ -5484,7 +5484,7 @@ inline fltx4 fnegate(const fltx4& x)
 fltx4 Pow_FixedPoint_Exponent_SIMD(const fltx4& x, int exponent);
 
 // PowSIMD - raise a SIMD register to a power.  This is analogous to the C pow() function, with some
-// restictions: fractional exponents are only handled with 2 bits of precision. Basically,
+// restrictions: fractional exponents are only handled with 2 bits of precision. Basically,
 // fractions of 0,.25,.5, and .75 are handled. PowSIMD(x,.30) will be the same as PowSIMD(x,.25).
 // negative and fractional powers are handled by the SIMD reciprocal and square root approximation
 // instructions and so are not especially accurate ----Note that this routine does not raise
@@ -5945,8 +5945,8 @@ inline const fltx4 Normalized3SIMD(const fltx4 vec)
 
 
 // Some convenience operator overloads, which are just aliasing the functions above.
-// Unneccessary on 360, as you already have them from xboxmath.h
-// Componentwise add
+// Unnecessary on 360, as you already have them from xboxmath.h
+// Component wise add
 #ifndef COMPILER_GCC
 
 FORCEINLINE fltx4 operator+=(fltx4& a, FLTX4 b)

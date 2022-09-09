@@ -460,7 +460,7 @@ inline PSRWLOCK* g_pPakFileSlotLock;
 inline pFileHandleTracker_t* m_FileHandles;
 
 inline JobFifoLock_s* g_pPakFifoLock;
-inline void* g_pPakFifoLockWrapper; // Pointer to function that takes the the global pak fifolock as argument.
+inline void* g_pPakFifoLockWrapper; // Pointer to functor that takes the global pak fifolock as argument.
 inline bool* g_bPakFifoLockAcquired;
 
 class RTech

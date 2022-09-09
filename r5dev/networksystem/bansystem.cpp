@@ -69,7 +69,7 @@ void CBanSystem::Load(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: saves the banlist
+// Purpose: saves the banned list
 //-----------------------------------------------------------------------------
 void CBanSystem::Save(void) const
 {
@@ -103,7 +103,7 @@ void CBanSystem::Save(void) const
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: adds a banned player entry to the banlist
+// Purpose: adds a banned player entry to the banned list
 // Input  : &svIpAddress - 
 //			nNucleusID - 
 //-----------------------------------------------------------------------------
@@ -130,7 +130,7 @@ bool CBanSystem::AddEntry(const string& svIpAddress, const uint64_t nNucleusID)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: deletes an entry in the banlist
+// Purpose: deletes an entry in the banned list
 // Input  : &svIpAddress - 
 //			nNucleusID - 
 //-----------------------------------------------------------------------------
@@ -157,7 +157,7 @@ bool CBanSystem::DeleteEntry(const string& svIpAddress, const uint64_t nNucleusI
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: adds a connect refuse entry to the refuselist
+// Purpose: adds a connect refuse entry to the refused list
 // Input  : &svError - 
 //			nNucleusID - 
 //-----------------------------------------------------------------------------
@@ -184,7 +184,7 @@ bool CBanSystem::AddConnectionRefuse(const string& svError, const uint64_t nNucl
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: deletes an entry in the refuselist
+// Purpose: deletes an entry in the refused list
 // Input  : nNucleusID - 
 //-----------------------------------------------------------------------------
 bool CBanSystem::DeleteConnectionRefuse(const uint64_t nNucleusID)
@@ -238,7 +238,7 @@ void CBanSystem::BanListCheck(void)
 		}
 
 		if (bSave)
-			Save(); // Save banlist to file.
+			Save(); // Save banned list to file.
 	}
 }
 

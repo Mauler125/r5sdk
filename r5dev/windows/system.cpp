@@ -42,7 +42,7 @@ HPeekMessage(
 	_In_ UINT wRemoveMsg)
 {
 #ifdef DEDICATED
-	// Return false for dedicated to reduce unneccesary overhead when calling 'PeekMessageA/W()' every frame.
+	// Return false for dedicated to reduce unnecessary overhead when calling 'PeekMessageA/W()' every frame.
 	return NULL;
 #else
 	return VPeekMessageA(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg);

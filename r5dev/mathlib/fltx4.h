@@ -1,6 +1,6 @@
 //===== Copyright 1996-2010, Valve Corporation, All rights reserved. ======//
 //
-// Purpose: - defines the type fltx4 - Avoid cyclic includion.
+// Purpose: - defines the type fltx4 - Avoid cyclic inclusion.
 //
 //===========================================================================//
 

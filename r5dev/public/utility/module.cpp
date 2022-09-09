@@ -41,7 +41,7 @@ CModule::CModule(const string& svModuleName) : m_svModuleName(svModuleName)
 //          *szMask - 
 // Output : CMemory
 //-----------------------------------------------------------------------------
-CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, const ModuleSections_t& moduleSection, const uint32_t nOccurence) const
+CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, const ModuleSections_t& moduleSection, const uint32_t nOccurrence) const
 {
 	if (!m_ExecutableCode.IsSectionValid())
 		return CMemory();
@@ -58,7 +58,7 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, c
 	const uint8_t* pData = reinterpret_cast<uint8_t*>(nBase);
 	const uint8_t* pEnd = pData + static_cast<uint32_t>(nSize) - strlen(szMask);
 
-	int nOccurenceCount = 0;
+	int nOccurrenceCount = 0;
 	int nMasks[64]; // 64*16 = enough masks for 1024 bytes.
 	const int iNumMasks = static_cast<int>(ceil(static_cast<float>(strlen(szMask)) / 16.f));
 
@@ -92,11 +92,11 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, c
 					{
 						if ((i + 1) == iNumMasks)
 						{
-							if (nOccurenceCount == nOccurence)
+							if (nOccurrenceCount == nOccurrence)
 							{
 								return static_cast<CMemory>(const_cast<uint8_t*>(pData));
 							}
-							nOccurenceCount++;
+							nOccurrenceCount++;
 						}
 					}
 					else
@@ -104,11 +104,11 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, c
 						goto cont;
 					}
 				}
-				if (nOccurenceCount == nOccurence)
+				if (nOccurrenceCount == nOccurrence)
 				{
 					return static_cast<CMemory>((&*(const_cast<uint8_t*>(pData))));
 				}
-				nOccurenceCount++;
+				nOccurrenceCount++;
 			}
 		}cont:;
 	}
@@ -173,7 +173,7 @@ CMemory CModule::FindStringReadOnly(const string& svString, bool bNullTerminator
 //          bNullTerminator - 
 // Output : CMemory
 //-----------------------------------------------------------------------------
-CMemory CModule::FindString(const string& svString, const ptrdiff_t nOccurence, bool bNullTerminator) const
+CMemory CModule::FindString(const string& svString, const ptrdiff_t nOccurrence, bool bNullTerminator) const
 {
 	if (!m_ExecutableCode.IsSectionValid())
 		return CMemory();
@@ -183,9 +183,9 @@ CMemory CModule::FindString(const string& svString, const ptrdiff_t nOccurence, 
 	if (!stringAddress)
 		return CMemory();
 
-	uint8_t* pLatestOccurence = nullptr;
+	uint8_t* pLatestOccurrence = nullptr;
 	uint8_t* pTextStart = reinterpret_cast<uint8_t*>(m_ExecutableCode.m_pSectionBase); // Get the start of the .text section.
-	ptrdiff_t dOccurencesFound = 0;
+	ptrdiff_t dOccurrencesFound = 0;
 
 	for (size_t i = 0ull; i < m_ExecutableCode.m_nSectionSize - 0x5; i++)
 	{
@@ -199,15 +199,15 @@ CMemory CModule::FindString(const string& svString, const ptrdiff_t nOccurence, 
 
 			if (potentialLocation == stringAddress)
 			{
-				dOccurencesFound++;
-				if (nOccurence == dOccurencesFound)
+				dOccurrencesFound++;
+				if (nOccurrence == dOccurrencesFound)
 					return CMemory(&pTextStart[i]);
 
-				pLatestOccurence = &pTextStart[i]; // Stash latest occurence.
+				pLatestOccurrence = &pTextStart[i]; // Stash latest occurrence.
 			}
 		}
 	}
-	return CMemory(pLatestOccurence);
+	return CMemory(pLatestOccurrence);
 }
 
 //-----------------------------------------------------------------------------

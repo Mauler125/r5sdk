@@ -8,7 +8,7 @@ struct __declspec(align(4)) CClockDriftMgr
 
 	enum
 	{
-		// This controls how much it smoothes out the samples from the server.
+		// This controls how much it smooths out the samples from the server.
 		NUM_CLOCKDRIFT_SAMPLES = 24
 	};
 

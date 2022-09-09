@@ -625,7 +625,7 @@ public:
                                     nLogProcsPerPkg = ( cpu.Ebx() & LogicalProcessorCount ) >> 16;
 
                                     // Determine the total number of cores per package.  This info
-                                    // is extracted differently dependending on the cpu vendor.
+                                    // is extracted differently depending on the cpu vendor.
                                     if( Cpuid::IsVendor( GenuineIntel ) )
                                     {
                                         if( cpu.Call( Cpuid::Std, 4 ) )
@@ -648,7 +648,7 @@ public:
                                             DWORD msbWidth = cpu.Ecx() & ApicIdCoreIdSize_Amd;
                                             if( msbWidth )
                                             {
-                                                // Set nCoresPerPkg to the maximum theortical number of cores
+                                                // Set nCoresPerPkg to the maximum theoretical number of cores
                                                 // the processor package can support (2 ^ width) so the APIC
                                                 // extractor object can be configured to extract the proper
                                                 // values from an APIC.
@@ -868,7 +868,7 @@ private:
     // Desc: Adds the package/core id extracted from the APIC ID at m_apicIds[idx]
     //       in the if the package/core id is unique to the pkgCoreIds array.
     //       nPkgCore is an in/out parm that will reflect the total number of items
-    //       in pkgCoreIds array.  It will be incrememted if a unique package/core
+    //       in pkgCoreIds array.  It will be incremented if a unique package/core
     //       id is found and added.
     //-----------------------------------------------------------------------------
     void                    AddUniquePkgCoreId_( DWORD idx, BYTE* pkgCoreIds, DWORD& nPkgCoreIds ) const

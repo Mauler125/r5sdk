@@ -36,7 +36,7 @@ public:
 	int  m_nFailedAttempts; // Num failed authentication attempts.
 	int  m_nIgnoredMessage; // Count how many times client ignored the no-auth message.
 	bool m_bValidated;      // Revalidates netconsole if false.
-	bool m_bAuthorized;     // Set to true after successfull netconsole auth.
+	bool m_bAuthorized;     // Set to true after successful netconsole auth.
 	bool m_bInputOnly;      // If set, don't send spew to this net console.
 	std::vector<uint8_t> m_RecvBuffer;
 

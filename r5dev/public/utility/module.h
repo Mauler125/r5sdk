@@ -22,9 +22,9 @@ public:
 
 	CModule(void) = default;
 	CModule(const string& moduleName);
-	CMemory FindPatternSIMD(const uint8_t* szPattern, const char* szMask, const ModuleSections_t& moduleSection = {}, const uint32_t nOccurence = 0) const;
+	CMemory FindPatternSIMD(const uint8_t* szPattern, const char* szMask, const ModuleSections_t& moduleSection = {}, const uint32_t nOccurrence = 0) const;
 	CMemory FindPatternSIMD(const string& svPattern, const ModuleSections_t& moduleSection = {}) const;
-	CMemory FindString(const string& string, const ptrdiff_t occurence = 1, bool nullTerminator = false) const;
+	CMemory FindString(const string& string, const ptrdiff_t occurrence = 1, bool nullTerminator = false) const;
 	CMemory FindStringReadOnly(const string& svString, bool nullTerminator) const;
 
 	CMemory          GetVirtualMethodTable(const string& svTableName, const uint32_t nRefIndex = 0);

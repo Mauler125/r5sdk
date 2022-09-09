@@ -37,7 +37,7 @@ void CPackedStore::InitLzDecompParams(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: gets a directory structure for sepcified file
+// Purpose: gets a directory structure for specified file
 // Input  : svPackDirFile - 
 // Output : VPKDir_t
 //-----------------------------------------------------------------------------
@@ -218,7 +218,7 @@ string CPackedStore::GetSourceName(const string& svDirectoryName) const
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: gets the manifest file assosiated with the VPK name
+// Purpose: gets the manifest file associated with the VPK name
 // Input  : &svWorkSpace - 
 //          &svManifestName - 
 // Output : json
@@ -528,7 +528,7 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 			}
 		}
 	}
-	DevMsg(eDLL_T::FS, "*** Build block totalling '%zu' bytes with '%zu' shared bytes among '%lu' chunks\n", writer.GetPosition(), nSharedTotal, nSharedCount);
+	DevMsg(eDLL_T::FS, "*** Build block totaling '%zu' bytes with '%zu' shared bytes among '%lu' chunks\n", writer.GetPosition(), nSharedTotal, nSharedCount);
 	m_mChunkHashMap.clear();
 
 	VPKDir_t vDir = VPKDir_t();
@@ -825,7 +825,7 @@ void VPKDir_t::Build(const string& svDirectoryFile, const vector<VPKEntryBlock_t
 	writer.Write(this->m_vHeader.m_nDirectorySize);
 	writer.Write(0);
 
-	DevMsg(eDLL_T::FS, "*** Build directory totalling '%zu' bytes with '%zu' entries and '%zu' descriptors\n", 
+	DevMsg(eDLL_T::FS, "*** Build directory totaling '%zu' bytes with '%zu' entries and '%zu' descriptors\n", 
 		size_t(sizeof(VPKDirHeader_t) + m_vHeader.m_nDirectorySize), vEntryBlocks.size(), nDescriptors);
 }
 ///////////////////////////////////////////////////////////////////////////////

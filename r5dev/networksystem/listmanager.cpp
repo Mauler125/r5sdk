@@ -73,7 +73,7 @@ void CServerListManager::LaunchServer(void) const
     DevMsg(eDLL_T::ENGINE, "Starting server with name: \"%s\" map: \"%s\" playlist: \"%s\"\n", m_Server.m_svHostName.c_str(), m_Server.m_svHostMap.c_str(), m_Server.m_svPlaylist.c_str());
 
     /*
-    * Playlist gets parsed in two instances, first in KeyValues::ParsePlaylists with all the neccessary values.
+    * Playlist gets parsed in two instances, first in KeyValues::ParsePlaylists with all the necessary values.
     * Then when you would normally call launchplaylist which calls StartPlaylist it would cmd call mp_gamemode which parses the gamemode specific part of the playlist..
     */
     KeyValues::ParsePlaylists(m_Server.m_svPlaylist.c_str());

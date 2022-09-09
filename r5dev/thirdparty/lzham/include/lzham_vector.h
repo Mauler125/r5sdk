@@ -512,7 +512,7 @@ namespace lzham
          return cInvalidIndex;
       }
 
-      inline uint count_occurences(const T& key) const
+      inline uint count_occurrences(const T& key) const
       {
          uint c = 0;
 

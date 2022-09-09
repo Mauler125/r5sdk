@@ -916,7 +916,7 @@ CConCommandHash::CCommandHashHandle_t CConCommandHash::Find(const ConCommandBase
 {
 	// Set this #if to 1 if the assert at bottom starts whining --
 	// that indicates that a console command is being double-registered,
-	// or something similarly nonfatally bad. With this #if 1, we'll search
+	// or something similarly non-fatally bad. With this #if 1, we'll search
 	// by name instead of by pointer, which is more robust in the face
 	// of double registered commands, but obviously slower.
 #if 0 

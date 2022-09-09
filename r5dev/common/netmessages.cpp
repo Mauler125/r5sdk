@@ -45,13 +45,13 @@ void CNetMessages_Attach()
 {
 	auto SVCPrint = &SVC_Print::ProcessImpl;
 	auto SVCUserMessage = &SVC_UserMessage::ProcessImpl;
-	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_Print_VTable,       (LPVOID&)SVCPrint,       3, (LPVOID*)&SVC_Print_Process);
-	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_UserMessage_VTable, (LPVOID&)SVCUserMessage, 3, (LPVOID*)&SVC_UserMessage_Process);
+	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_Print_VFTable,       (LPVOID&)SVCPrint,       3, (LPVOID*)&SVC_Print_Process);
+	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_UserMessage_VFTable, (LPVOID&)SVCUserMessage, 3, (LPVOID*)&SVC_UserMessage_Process);
 }
 
 void CNetMessages_Detach()
 {
 	void* hkRestore = nullptr;
-	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_Print_VTable,       (LPVOID)SVC_Print_Process,       3, (LPVOID*)&hkRestore);
-	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_UserMessage_VTable, (LPVOID)SVC_UserMessage_Process, 3, (LPVOID*)&hkRestore);
+	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_Print_VFTable,       (LPVOID)SVC_Print_Process,       3, (LPVOID*)&hkRestore);
+	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_UserMessage_VFTable, (LPVOID)SVC_UserMessage_Process, 3, (LPVOID*)&hkRestore);
 }

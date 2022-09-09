@@ -12,7 +12,7 @@
 
 //---------------------------------------------------------------------------------
 // Purpose: registers and exposes code functions to target context
-// Input  : *sqvm - 
+// Input  : *pSquirrelVM - 
 //			*szName - 
 //			*szHelpString - 
 //			*szRetValType - 
@@ -40,7 +40,7 @@ SQRESULT Script_RegisterFunction(CSquirrelVM* pSquirrelVM, const SQChar* szScrip
 #ifndef CLIENT_DLL
 //---------------------------------------------------------------------------------
 // Purpose: registers script functions in SERVER context
-// Input  : *sqvm - 
+// Input  : *pSquirrelVM - 
 //---------------------------------------------------------------------------------
 void Script_RegisterServerFunctions(CSquirrelVM* pSquirrelVM)
 {
@@ -60,7 +60,7 @@ void Script_RegisterServerFunctions(CSquirrelVM* pSquirrelVM)
 #ifndef DEDICATED
 //---------------------------------------------------------------------------------
 // Purpose: registers script functions in CLIENT context
-// Input  : *sqvm - 
+// Input  : *pSquirrelVM - 
 //---------------------------------------------------------------------------------
 void Script_RegisterClientFunctions(CSquirrelVM* pSquirrelVM)
 {
@@ -75,7 +75,7 @@ void Script_RegisterClientFunctions(CSquirrelVM* pSquirrelVM)
 
 //---------------------------------------------------------------------------------
 // Purpose: registers script functions in UI context
-// Input  : *sqvm - 
+// Input  : *pSquirrelVM - 
 //---------------------------------------------------------------------------------
 void Script_RegisterUIFunctions(CSquirrelVM* pSquirrelVM)
 {
@@ -111,7 +111,7 @@ void Script_RegisterUIFunctions(CSquirrelVM* pSquirrelVM)
 
 //---------------------------------------------------------------------------------
 // Purpose: Initialize all CLIENT/UI global structs and register SDK (CLIENT/UI) script functions
-// Input  : *sqvm - 
+// Input  : *pSquirrelVM - 
 //			context - (1 = CLIENT 2 = UI)
 //---------------------------------------------------------------------------------
 SQRESULT Script_InitializeCLGlobalStructs(CSquirrelVM* pSquirrelVM, SQCONTEXT context)
@@ -128,7 +128,7 @@ SQRESULT Script_InitializeCLGlobalStructs(CSquirrelVM* pSquirrelVM, SQCONTEXT co
 #ifndef CLIENT_DLL
 //---------------------------------------------------------------------------------
 // Purpose: Initialize all SERVER global structs and register SDK (SERVER) script functions
-// Input  : *sqvm - 
+// Input  : *pSquirrelVM - 
 //---------------------------------------------------------------------------------
 void Script_InitializeSVGlobalStructs(CSquirrelVM* pSquirrelVM)
 {
@@ -154,12 +154,12 @@ SQBool Script_CreateServerVM()
 #ifndef DEDICATED
 //---------------------------------------------------------------------------------
 // Purpose: Creates the CLIENT Squirrel VM
-// Input  : *hlclient - 
+// Input  : *pHlClient - 
 // Output : True on success, false on failure
 //---------------------------------------------------------------------------------
-SQBool Script_CreateClientVM(CHLClient* hlclient)
+SQBool Script_CreateClientVM(CHLClient* pHlClient)
 {
-	SQBool results = v_Script_CreateClientVM(hlclient);
+	SQBool results = v_Script_CreateClientVM(pHlClient);
 	if (results)
 		DevMsg(eDLL_T::CLIENT, "Created CLIENT VM: '%p'\n", g_pClientScript.GetValue<CSquirrelVM*>());
 	else
@@ -221,7 +221,7 @@ SQInteger Script_LoadRson(const SQChar* szRsonName)
 
 //---------------------------------------------------------------------------------
 // Purpose: prints the scripts the compiler loads from global include to be compiled
-// Input  : *sqvm - 
+// Input  : *v - 
 //			*szScriptPath - 
 //			*szScriptName - 
 //			nFlag - 

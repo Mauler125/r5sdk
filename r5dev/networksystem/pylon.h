@@ -1,8 +1,6 @@
 #pragma once
 #include "serverlisting.h"
 
-bool KeepAliveToPylon(const NetGameServer_t& netGameServer);
-
 class CPylon
 {
 public:

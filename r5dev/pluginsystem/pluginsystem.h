@@ -31,7 +31,7 @@ public:
 		string m_svPluginFullPath;
 		string m_svDescription;
 		bool m_bIsLoaded; // [ PIXIE ]: I don't like this and it's bad.
-		// I will make a module manager later which will grab all modules from the processand adds each module / removes module that passes through DLLMain.
+		// I will make a module manager later which will grab all modules from the process and adds each module / removes module that passes through DLLMain.
 	};
 
 	void PluginSystem_Init();

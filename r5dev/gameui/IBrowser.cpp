@@ -433,7 +433,7 @@ void CBrowser::HostPanel(void)
     ImGui::Spacing();
 
     ImGui::SameLine();
-    ImGui::Text("Server Visiblity");
+    ImGui::Text("Server Visibility");
 
     if (ImGui::SameLine(); ImGui::RadioButton("Offline", g_pServerListManager->m_ServerVisibility == EServerVisibility_t::OFFLINE))
     {
@@ -537,7 +537,7 @@ void CBrowser::HostPanel(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: updates the hoster's status
+// Purpose: updates the host status
 //-----------------------------------------------------------------------------
 void CBrowser::UpdateHostingStatus(void)
 {

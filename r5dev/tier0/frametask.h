@@ -5,9 +5,9 @@
 
 //=============================================================================//
 // This class is set up to run before each frame (main thread).
-// Commited tasks are scheduled to execute after 'i' frames.
+// Committed tasks are scheduled to execute after 'i' frames.
 // ----------------------------------------------------------------------------
-// A usecase for scheduling tasks in the main thread would be (for example)
+// A use case for scheduling tasks in the main thread would be (for example)
 // calling 'KeyValues::ParsePlaylists(...)' from the render thread.
 //=============================================================================//
 class CFrameTask : public IFrameTask

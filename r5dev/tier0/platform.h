@@ -465,7 +465,7 @@ inline int64 CastPtrToInt64(const void* p)
 #define EXPLICIT				explicit
 #define NO_VTABLE				__declspec( novtable )
 
-// gcc doesn't allow storage specifiers on explicit template instatiation, but visual studio needs them to avoid link errors.
+// gcc doesn't allow storage specifiers on explicit template instantiation, but visual studio needs them to avoid link errors.
 #define TEMPLATE_STATIC			static
 
 // Used for dll exporting and importing
@@ -480,8 +480,8 @@ inline int64 CastPtrToInt64(const void* p)
 #define DLL_GLOBAL_EXPORT		extern __declspec( dllexport )
 #define DLL_GLOBAL_IMPORT		extern __declspec( dllimport )
 
-// Pass hints to the compiler to prevent it from generating unnessecary / stupid code
-// in certain situations.  Several compilers other than MSVC also have an equivilent
+// Pass hints to the compiler to prevent it from generating unnecessary / stupid code
+// in certain situations.  Several compilers other than MSVC also have an equivalent
 // construct.
 //
 // Essentially the 'Hint' is that the condition specified is assumed to be true at
@@ -495,7 +495,7 @@ inline int64 CastPtrToInt64(const void* p)
 
 // GCC had a few areas where it didn't construct objects in the same order 
 // that Windows does. So when CVProfile::CVProfile() would access g_pMemAlloc,
-// it would crash because the allocator wasn't initalized yet.
+// it would crash because the allocator wasn't initialized yet.
 #define CONSTRUCT_EARLY
 
 #define SELECTANY				__declspec(selectany)
@@ -748,7 +748,7 @@ inline void Destruct(float __attribute__((__vector_size__(16)))* pMemory)
 //-----------------------------------------------------------------------------
 struct CPUInformation
 {
-	int	 m_Size; // Size of this structure, for forward compatability.
+	int	 m_Size; // Size of this structure, for forward compatibility.
 
 	uint8_t m_nLogicalProcessors;  // Number op logical processors.
 	uint8_t m_nPhysicalProcessors; // Number of physical processors

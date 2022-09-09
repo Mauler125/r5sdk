@@ -87,7 +87,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	FileSystem()->Write(&nNavMeshHash, sizeof(uint32_t), pAIGraph);
 
 	// Path nodes.
-	DevMsg(eDLL_T::SERVER, " |-- Nodecount: '%d'\n", pNetwork->m_iNumNodes);
+	DevMsg(eDLL_T::SERVER, " |-- Node count: '%d'\n", pNetwork->m_iNumNodes);
 	FileSystem()->Write(&pNetwork->m_iNumNodes, sizeof(int), pAIGraph);
 
 	timer.End();
@@ -135,15 +135,15 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	timer.Start();
 	DevMsg(eDLL_T::SERVER, "+- Writing links...\n");
 
-	DevMsg(eDLL_T::SERVER, " |-- Cached linkcount: '%d'\n", pNetwork->m_iNumLinks);
-	DevMsg(eDLL_T::SERVER, " |-- Calculated linkcount: '%d'\n", nCalculatedLinkcount);
+	DevMsg(eDLL_T::SERVER, " |-- Cached link count: '%d'\n", pNetwork->m_iNumLinks);
+	DevMsg(eDLL_T::SERVER, " |-- Calculated link count: '%d'\n", nCalculatedLinkcount);
 
 	nCalculatedLinkcount /= 2;
 	if (ai_ainDumpOnLoad->GetBool())
 	{
 		if (pNetwork->m_iNumLinks != nCalculatedLinkcount)
 		{
-			Warning(eDLL_T::SERVER, "%s - Calculated linkcount '%d' doesn't match cached linkcount '%d' (expected on build!)\n", __FUNCTION__, nCalculatedLinkcount, pNetwork->m_iNumLinks);
+			Warning(eDLL_T::SERVER, "%s - Calculated link count '%d' doesn't match cached link count '%d' (expected on build!)\n", __FUNCTION__, nCalculatedLinkcount, pNetwork->m_iNumLinks);
 		}
 	}
 

@@ -96,13 +96,13 @@ inline CMemory MM_Heartbeat__ToString; // server HeartBeat? (baseserver.cpp).
 // SVC_Print
 //-------------------------------------------------------------------------
 inline auto SVC_Print_Process = CMemory().RCast<bool(*)(SVC_Print* thisptr)>();
-inline void* g_pSVC_Print_VTable = nullptr;
+inline void* g_pSVC_Print_VFTable = nullptr;
 
 //-------------------------------------------------------------------------
 // SVC_UserMessage
 //-------------------------------------------------------------------------
 inline auto SVC_UserMessage_Process = CMemory().RCast<bool(*)(SVC_UserMessage* thisptr)>();
-inline void* g_pSVC_UserMessage_VTable = nullptr;
+inline void* g_pSVC_UserMessage_VFTable = nullptr;
 
 void CNetMessages_Attach();
 void CNetMessages_Detach();
@@ -113,8 +113,8 @@ class HMM_Heartbeat : public IDetour
 	virtual void GetAdr(void) const
 	{
 		spdlog::debug("| FUN: MM_Heartbeat::ToString               : {:#18x} |\n", MM_Heartbeat__ToString.GetPtr());
-		spdlog::debug("| CON: SVC_Print                  (VFTable) : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pSVC_Print_VTable));
-		spdlog::debug("| CON: SVC_UserMessage            (VFTable) : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pSVC_UserMessage_VTable));
+		spdlog::debug("| CON: SVC_Print                  (VFTable) : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pSVC_Print_VFTable));
+		spdlog::debug("| CON: SVC_UserMessage            (VFTable) : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pSVC_UserMessage_VFTable));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
@@ -125,9 +125,9 @@ class HMM_Heartbeat : public IDetour
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const
 	{
-		// We get the actual address of the vtable here, not the class instance.
-		g_pSVC_Print_VTable = g_GameDll.GetVirtualMethodTable(".?AVSVC_Print@@");
-		g_pSVC_UserMessage_VTable = g_GameDll.GetVirtualMethodTable(".?AVSVC_UserMessage@@");
+		// We get the actual address of the vftable here, not the class instance.
+		g_pSVC_Print_VFTable = g_GameDll.GetVirtualMethodTable(".?AVSVC_Print@@");
+		g_pSVC_UserMessage_VFTable = g_GameDll.GetVirtualMethodTable(".?AVSVC_UserMessage@@");
 	}
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }

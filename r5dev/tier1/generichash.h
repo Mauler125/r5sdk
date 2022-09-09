@@ -66,7 +66,7 @@ inline unsigned HashIntConventional(const int n) // faster but less effective
 template <typename T>
 inline unsigned HashItem(const T& item)
 {
-	// TODO: Confirm comiler optimizes out unused paths
+	// TODO: Confirm compiler optimizes out unused paths
 	if (sizeof(item) == 4)
 		return Hash4(&item);
 	else if (sizeof(item) == 8)

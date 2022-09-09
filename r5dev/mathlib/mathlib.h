@@ -2008,7 +2008,7 @@ FORCEINLINE float LinearToVertexLight(float f)
 	// assume 0..4 range
 	int i = RoundFloatToInt(f * 1024.f);
 
-	// Presumably the comman case will be not to clamp, so check that first:
+	// Presumably the common case will be not to clamp, so check that first:
 	if ((unsigned)i > 4095)
 	{
 		if (i < 0)
@@ -2028,7 +2028,7 @@ FORCEINLINE unsigned char LinearToLightmap(float f)
 	// Gotta clamp before the multiply; could overflow...
 	int i = RoundFloatToInt(f * 1024.f);	// assume 0..4 range
 
-	// Presumably the comman case will be not to clamp, so check that first:
+	// Presumably the common case will be not to clamp, so check that first:
 	if ((unsigned)i > 4095)
 	{
 		if (i < 0)
@@ -2322,7 +2322,7 @@ void  CalcClosestPointOnLineSegment(const Vector3D& P, const Vector3D& vLineA, c
 float CalcDistanceToLineSegment(const Vector3D& P, const Vector3D& vLineA, const Vector3D& vLineB, float* t = 0);
 float CalcDistanceSqrToLineSegment(const Vector3D& P, const Vector3D& vLineA, const Vector3D& vLineB, float* t = 0);
 
-// A function to compute the closes line segment connnection two lines (or false if the lines are parallel, etc.)
+// A function to compute the closes line segment connection two lines (or false if the lines are parallel, etc.)
 bool CalcLineToLineIntersectionSegment(
 	const Vector3D& p1, const Vector3D& p2, const Vector3D& p3, const Vector3D& p4, Vector3D* s1, Vector3D* s2,
 	float* t1, float* t2);

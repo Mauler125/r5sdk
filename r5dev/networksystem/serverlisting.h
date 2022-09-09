@@ -32,7 +32,7 @@ struct NetGameServer_t
 	int64_t m_nTimeStamp = -1;
 
 	string m_svPublicRef;
-	string m_svCachedID;
+	string m_svCachedId;
 
 	//vector<NetGameMod_t> m_vMods;
 };

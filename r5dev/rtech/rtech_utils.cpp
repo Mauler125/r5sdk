@@ -248,11 +248,11 @@ uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, uint64_t i
 	LABEL_9:
 		dword6c_shl8 = (uint64_t)dword6C << 8;
 		dword6c_old = dword6C;
-		LUT_200_val = LUT_200[(uint8_t)byte + dword6c_shl8];// LUT_200 - u8 - ammount of bits
+		LUT_200_val = LUT_200[(uint8_t)byte + dword6c_shl8];// LUT_200 - u8 - amount of bits
 		v17 = (uint8_t)byte + dword6c_shl8;
 		byte_bit_offset += LUT_200_val;
 		byte_new = byte >> LUT_200_val;
-		LUT_0_VAL = LUT_0[v17];// LUT_0 - i32 - signed, ammount of bytes
+		LUT_0_VAL = LUT_0[v17];// LUT_0 - i32 - signed, amount of bytes
 
 		if (LUT_0_VAL < 0)
 		{
@@ -277,7 +277,7 @@ uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, uint64_t i
 				if (byte_3bits)
 				{
 					LUT_4D0_480 = LUT_4D0[byte_3bits];// LUT_4D0 - u8
-					LUT_4D8_4C0_nBits = LUT_4D8[byte_3bits];// LUT_4D8 - u8 - ammount of bits
+					LUT_4D8_4C0_nBits = LUT_4D8[byte_3bits];// LUT_4D8 - u8 - amount of bits
 				}
 				else
 				{
@@ -285,7 +285,7 @@ uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, uint64_t i
 					byte_4bits = v40 & 15;
 					byte_bit_offset += 4;
 					LUT_4D0_480 = LUT_480[byte_4bits];// LUT_480 - u32
-					LUT_4D8_4C0_nBits = LUT_4C0[byte_4bits]; // LUT_4C0 - u8 - ammount of bits???
+					LUT_4D8_4C0_nBits = LUT_4C0[byte_4bits]; // LUT_4C0 - u8 - amount of bits???
 				}
 
 				byte_bit_offset += LUT_4D8_4C0_nBits + 3;
@@ -331,8 +331,8 @@ uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, uint64_t i
 			byte_4bits_1 = byte_new & 0xF;
 			dword6C = 0;
 			v21 = ((uint64_t)(uint32_t)byte_new >> (((uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 6)) & 0x3F;// 6 bits after shift for who knows how much???
-			v22 = 1 << (byte_4bits_1 + ((byte_new >> 4) & ((24 * (((uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 2)) >> 4)));// ammount of bits to read???
-			byte_bit_offset += (((uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 6)// shit shit gets shifted by ammount of bits it read or something
+			v22 = 1 << (byte_4bits_1 + ((byte_new >> 4) & ((24 * (((uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 2)) >> 4)));// amount of bits to read???
+			byte_bit_offset += (((uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 6)// shit shit gets shifted by amount of bits it read or something
 				+ LUT_440[v21]
 				+ byte_4bits_1
 				+ ((byte_new >> 4) & ((24 * (((uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 2)) >> 4));
@@ -398,7 +398,7 @@ uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, uint64_t i
 							v54 = v49;
 							do
 							{
-								*(uint8_t*)out_seekd_1 = v53[out_seekd_1];// seekd = seek_back; increment ptrs
+								*(uint8_t*)out_seekd_1 = v53[out_seekd_1];// seeked = seek_back; increment ptrs
 								++out_seekd_1;
 								--v54;
 							} while (v54);
@@ -604,7 +604,7 @@ void RTech::CreateDXTexture(RTechTextureInfo_t* textureHeader, int64_t imageData
 
 #ifndef DEDICATED
 //----------------------------------------------------------------------------------
-// Purpose: start loading shader sets, assign vtable pointer
+// Purpose: start loading shader sets, assign vftable pointer
 //----------------------------------------------------------------------------------
 void** RTech::LoadShaderSet(void** VTablePtr)
 {

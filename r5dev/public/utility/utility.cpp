@@ -110,7 +110,7 @@ void HexDump(const char* szHeader, const char* szLogger, const void* pData, int 
         }
     }
 
-    // Add timestamp.
+    // Add time stamp.
     logger->set_level(spdlog::level::trace);
     logger->set_pattern("%v [%H:%M:%S.%f]\n");
     logger->trace("---------------------------------------------------------");
@@ -368,12 +368,12 @@ string CreateDirectories(string svInput, bool bWindows)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// For converting filepaths to windows filepaths.
+// For converting file paths to windows file paths.
 string ConvertToWinPath(const string& svInput)
 {
     string result = svInput;
 
-    // Flip forward slashes in filepath to windows-style backslash
+    // Flip forward slashes in file path to windows-style backslash
     for (size_t i = 0; i < result.size(); i++)
     {
         if (result[i] == '/')
@@ -385,12 +385,12 @@ string ConvertToWinPath(const string& svInput)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// For converting filepaths to unix filepaths.
+// For converting file paths to unix file paths.
 string ConvertToUnixPath(const string& svInput)
 {
     string result = svInput;
 
-    // Flip windows-style backslashes in filepath to forward slash
+    // Flip windows-style backslashes in file path to forward slash
     for (size_t i = 0; i < result.size(); i++)
     {
         if (result[i] == '\\')
@@ -609,7 +609,7 @@ string StringEscape(const string& svInput)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// For unescaping special characters in a string.
+// For un-escaping special characters in a string.
 string StringUnescape(const string& svInput)
 {
     string result;
@@ -777,7 +777,7 @@ vector<int> IntToDigits(int iValue)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// For printing __m128i datatypes.
+// For printing __m128i data types.
 void PrintM128i8(__m128i in)
 {
     alignas(16) uint8_t v[16];

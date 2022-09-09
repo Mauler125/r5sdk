@@ -207,7 +207,7 @@ bool PlaneIntersection(const VPlane& vp1, const VPlane& vp2, const VPlane& vp3, 
 	vOut = vRet * (1.0 / flDenom);
 	return true;
 }
-#else  // old slow innaccurate code
+#else  // old slow inaccurate code
 bool PlaneIntersection(const VPlane& vp1, const VPlane& vp2, const VPlane& vp3, Vector& vOut)
 {
 	VMatrix mMat, mInverse;

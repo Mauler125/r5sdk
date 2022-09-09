@@ -8,7 +8,6 @@
 
 #include "core/stdafx.h"
 #include "vstdlib/random.h"
-#include <math.h>
 #include "tier0/dbg.h"
 
 #define IA 16807

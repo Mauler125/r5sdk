@@ -63,7 +63,7 @@ vector<NetGameServer_t> CPylon::GetServerList(string& svOutMessage) const
                             obj.value("maxPlayers", ""),
                             obj.value("timeStamp", 0),
                             obj.value("publicRef", ""),
-                            obj.value("cachedID", ""),
+                            obj.value("cachedId", ""),
                         }
                     );
                 }
@@ -169,7 +169,7 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
                             jsResultBody["server"].value("maxPlayers", ""),
                             jsResultBody["server"].value("timeStamp", 0),
                             jsResultBody["server"].value("publicRef", ""),
-                            jsResultBody["server"].value("cachedID", ""),
+                            jsResultBody["server"].value("cachedId", ""),
                     };
                     return true;
                 }
@@ -250,7 +250,7 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
     jsRequestBody["maxPlayers"] = slServerListing.m_svMaxPlayers;
     jsRequestBody["timeStamp"] = slServerListing.m_nTimeStamp;
     jsRequestBody["publicRef"] = slServerListing.m_svPublicRef;
-    jsRequestBody["cachedID"] = slServerListing.m_svCachedID;
+    jsRequestBody["cachedId"] = slServerListing.m_svCachedId;
 
     string svRequestBody = jsRequestBody.dump(4);
     if (pylon_showdebuginfo->GetBool())
