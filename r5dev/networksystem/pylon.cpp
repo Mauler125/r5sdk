@@ -352,8 +352,8 @@ bool CPylon::KeepAlive(const NetGameServer_t& netGameServer) const
         bool result = g_pMasterServer->PostServerHost(m_szHostRequestMessage, m_szHostToken, netGameServer);
         return result;
     }
-    return false;
 #endif // !CLIENT_DLL
+    return false;
 }
 
 //-----------------------------------------------------------------------------
