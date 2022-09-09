@@ -1,11 +1,11 @@
 #ifndef TIER0_IFRAMETASK_H
 #define TIER0_IFRAMETASK_H
 
-struct DelayedCall_s
+struct ScheduledTasks_s
 {
     int m_nDelayedFrames;
     std::function<void()> m_rFunctor;
-    DelayedCall_s(int frames, std::function<void()> functor)
+    ScheduledTasks_s(int frames, std::function<void()> functor)
     {
         m_nDelayedFrames = frames;
         m_rFunctor = functor;

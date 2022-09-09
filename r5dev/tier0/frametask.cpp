@@ -14,7 +14,7 @@
 void CFrameTask::RunFrame()
 {
     std::lock_guard<std::mutex> l(m_Mutex);
-    for (auto& delay : m_DelayedCalls)
+    for (auto& delay : m_ScheduledTasks)
     {
         delay.m_nDelayedFrames = (std::max)(delay.m_nDelayedFrames - 1, 0);
         if (delay.m_nDelayedFrames == 0)
@@ -23,11 +23,11 @@ void CFrameTask::RunFrame()
         }
     }
 
-    auto newEnd = std::remove_if(m_DelayedCalls.begin(), m_DelayedCalls.end(), [](const DelayedCall_s& delay)
+    auto newEnd = std::remove_if(m_ScheduledTasks.begin(), m_ScheduledTasks.end(), [](const ScheduledTasks_s& delay)
         {
             return delay.m_nDelayedFrames == 0;
         });
-    m_DelayedCalls.erase(newEnd, m_DelayedCalls.end());
+    m_ScheduledTasks.erase(newEnd, m_ScheduledTasks.end());
 }
 
 //-----------------------------------------------------------------------------
@@ -47,7 +47,7 @@ bool CFrameTask::IsFinished() const
 void CFrameTask::Dispatch(std::function<void()> functor, int frames)
 {
     std::lock_guard<std::mutex> l(m_Mutex);
-    m_DelayedCalls.emplace_back(frames, functor);
+    m_ScheduledTasks.emplace_back(frames, functor);
 }
 
 //-----------------------------------------------------------------------------

@@ -657,7 +657,7 @@ VPKEntryBlock_t::VPKEntryBlock_t(CIOStream* pReader, string svEntryPath)
 //-----------------------------------------------------------------------------
 VPKEntryBlock_t::VPKEntryBlock_t(const vector<uint8_t> &vData, int64_t nOffset, uint16_t nPreloadSize, uint16_t nArchiveIndex, uint32_t nLoadFlags, uint16_t nTextureFlags, const string& svEntryPath)
 {
-	m_nFileCRC = crc32::update(m_nFileCRC, vData.data(), vData.size());
+	m_nFileCRC = crc32::update(NULL, vData.data(), vData.size());
 	m_iPreloadSize = nPreloadSize;
 	m_iPackFileIndex = nArchiveIndex;
 	m_svEntryPath = svEntryPath;

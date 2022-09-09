@@ -21,7 +21,7 @@ public:
 
 private:
     mutable std::mutex m_Mutex;
-    std::list<DelayedCall_s> m_DelayedCalls;
+    std::list<ScheduledTasks_s> m_ScheduledTasks;
 };
 
 extern std::list<IFrameTask*> g_FrameTasks;
