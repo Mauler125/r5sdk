@@ -130,15 +130,19 @@ vector<string> CPackedStore::GetEntryPaths(const string& svPathIn) const
 	fs::recursive_directory_iterator dir(svPathIn), end;
 	while (dir != end)
 	{
-		vector<string>::iterator it = std::find(vIgnore.begin(), vIgnore.end(),
+		const vector<string>::iterator it = std::find(vIgnore.begin(), vIgnore.end(),
 			GetExtension(dir->path().filename().u8string(), true, true));
 		if (it != vIgnore.end())
 		{
 			dir.disable_recursion_pending(); // Skip all ignored folders and extensions.
 		}
-		if (!GetExtension(dir->path().u8string()).empty())
+		else if (dir->file_size() > 0) // Empty files are not supported.
 		{
-			vPaths.push_back(ConvertToUnixPath(dir->path().u8string()));
+			const string svPath = dir->path().u8string();
+			if (!GetExtension(svPath).empty())
+			{
+				vPaths.push_back(ConvertToUnixPath(svPath));
+			}
 		}
 		dir++;
 	}
@@ -159,27 +163,31 @@ vector<string> CPackedStore::GetEntryPaths(const string& svPathIn, const nlohman
 	fs::recursive_directory_iterator dir(svPathIn), end;
 	while (dir != end)
 	{
-		vector<string>::iterator it = std::find(vIgnore.begin(), vIgnore.end(), 
+		const vector<string>::iterator it = std::find(vIgnore.begin(), vIgnore.end(), 
 			GetExtension(dir->path().filename().u8string(), true, true));
 		if (it != vIgnore.end())
 		{
 			dir.disable_recursion_pending(); // Skip all ignored folders and extensions.
 		}
-		else if (!GetExtension(dir->path().u8string()).empty())
+		else if (dir->file_size() > 0) // Empty files are not supported.
 		{
-			if (!jManifest.is_null())
+			const string svPath = dir->path().u8string();
+			if (!GetExtension(svPath).empty())
 			{
-				try
+				if (!jManifest.is_null())
 				{
-					string svEntryPath = ConvertToUnixPath(dir->path().u8string());
-					if (jManifest.contains(StringReplaceC(svEntryPath, svPathIn, "")))
+					try
 					{
-						vPaths.push_back(svEntryPath);
+						const string svEntryPath = ConvertToUnixPath(svPath);
+						if (jManifest.contains(StringReplaceC(svEntryPath, svPathIn, "")))
+						{
+							vPaths.push_back(svEntryPath);
+						}
 					}
-				}
-				catch (const std::exception& ex)
-				{
-					Warning(eDLL_T::FS, "Exception while reading VPK control file: '%s'\n", ex.what());
+					catch (const std::exception& ex)
+					{
+						Warning(eDLL_T::FS, "Exception while reading VPK control file: '%s'\n", ex.what());
+					}
 				}
 			}
 		}
