@@ -108,8 +108,26 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 
 	if (sq_showvmoutput->GetInt() > 1 || bLogLevelOverride)
 	{
-		bool bError = false;
 		bool bColorOverride = false;
+		bool bError = false;
+
+		if (g_bSQAuxError)
+		{
+			bColorOverride = true;
+			if (strstr(buf, "SCRIPT ERROR:") || strstr(buf, " -> ")) {
+				bError = true;
+			}
+		}
+		else if (g_bSQAuxBadLogic)
+		{
+			if (strstr(buf, "There was a problem processing game logic."))
+			{
+				bColorOverride = true;
+				bError = true;
+				g_bSQAuxBadLogic = false;
+			}
+		}
+
 		if (!g_bSpdLog_UseAnsiClr)
 		{
 			wconsole->debug(vmStr);
@@ -117,15 +135,13 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 			RCONServer()->Send(vmStr, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, nResponseId);
 #endif // DEDICATED
 		}
-		else
+		else // Use ANSI escape codes for the external console.
 		{
 			static std::string vmStrAnsi;
-			if (g_bSQAuxError)
+			if (bColorOverride)
 			{
-				bColorOverride = true;
-				if (strstr(buf, "SCRIPT ERROR:") || strstr(buf, " -> "))
+				if (bError)
 				{
-					bError = true;
 					vmStrAnsi = Plat_GetProcessUpTime();
 					vmStrAnsi.append(SQVM_ERROR_ANSI_LOG_T[static_cast<SQInteger>(context)]);
 				}
@@ -133,23 +149,6 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 				{
 					vmStrAnsi = Plat_GetProcessUpTime();
 					vmStrAnsi.append(SQVM_WARNING_ANSI_LOG_T[static_cast<SQInteger>(context)]);
-				}
-			}
-			else if (g_bSQAuxBadLogic)
-			{
-				if (strstr(buf, "There was a problem processing game logic."))
-				{
-					bError = true;
-					bColorOverride = true;
-					g_bSQAuxBadLogic = false;
-
-					vmStrAnsi = Plat_GetProcessUpTime();
-					vmStrAnsi.append(SQVM_ERROR_ANSI_LOG_T[static_cast<SQInteger>(context)]);
-				}
-				else
-				{
-					vmStrAnsi = Plat_GetProcessUpTime();
-					vmStrAnsi.append(SQVM_ANSI_LOG_T[static_cast<SQInteger>(context)]);
 				}
 			}
 			else
