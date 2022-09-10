@@ -449,7 +449,7 @@ namespace VSquirrel
             if (svIpAddr.empty() || svEncKey.empty())
                 return SQ_OK;
 
-            DevMsg(eDLL_T::UI, "Connecting to server with ip-address '%s' and encryption key '%s'\n", svIpAddr.c_str(), svEncKey.c_str());
+            DevMsg(eDLL_T::UI, "Connecting to server with ip address '%s' and encryption key '%s'\n", svIpAddr.c_str(), svEncKey.c_str());
             g_pServerListManager->ConnectToServer(svIpAddr, svEncKey);
 
             return SQ_OK;
