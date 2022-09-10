@@ -144,6 +144,7 @@ extern ConVar* fs_warning_level_sdk;
 extern ConVar* fs_show_warning_output;
 extern ConVar* fs_packedstore_entryblock_stats;
 extern ConVar* fs_packedstore_workspace;
+extern ConVar* fs_packedstore_compression_level;
 //-------------------------------------------------------------------------
 // MATERIALSYSTEM                                                         |
 #ifndef DEDICATED

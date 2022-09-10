@@ -20,8 +20,8 @@ void CPackedStore::InitLzCompParams(void)
 {
 	/*| PARAMETERS ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
 	m_lzCompParams.m_dict_size_log2     = VPK_DICT_SIZE;
-	m_lzCompParams.m_level              = lzham_compress_level::LZHAM_COMP_LEVEL_UBER;
-	m_lzCompParams.m_compress_flags     = lzham_compress_flags::LZHAM_COMP_FLAG_DETERMINISTIC_PARSING | lzham_compress_flags::LZHAM_COMP_FLAG_TRADEOFF_DECOMPRESSION_RATE_FOR_COMP_RATIO;
+	m_lzCompParams.m_level              = GetCompressionLevel();
+	m_lzCompParams.m_compress_flags     = lzham_compress_flags::LZHAM_COMP_FLAG_DETERMINISTIC_PARSING;
 	m_lzCompParams.m_max_helper_threads = -1;
 }
 
@@ -61,7 +61,7 @@ VPKDir_t CPackedStore::GetDirectoryFile(string svPackDirFile) const
 				{
 					if (svPackDirFile.find(DIR_CONTEXT[j]) != string::npos)
 					{
-						string svPackDirPrefix = DIR_LOCALE[i] + DIR_LOCALE[i];
+						const string svPackDirPrefix = DIR_LOCALE[i] + DIR_LOCALE[i];
 						StringReplace(svPackDirFile, DIR_LOCALE[i], svPackDirPrefix);
 						goto escape;
 					}
@@ -94,6 +94,28 @@ string CPackedStore::GetPackFile(const string& svPackDirFile, uint16_t iArchiveI
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: gets the LZHAM compression level
+// output : lzham_compress_level
+//-----------------------------------------------------------------------------
+lzham_compress_level CPackedStore::GetCompressionLevel(void) const
+{
+	const char* pszLevel = fs_packedstore_compression_level->GetString();
+
+	if(strcmp(pszLevel, "fastest") == NULL)
+		return lzham_compress_level::LZHAM_COMP_LEVEL_FASTEST;
+	else if (strcmp(pszLevel, "faster") == NULL)
+		return lzham_compress_level::LZHAM_COMP_LEVEL_FASTER;
+	else if (strcmp(pszLevel, "default") == NULL)
+		return lzham_compress_level::LZHAM_COMP_LEVEL_DEFAULT;
+	else if (strcmp(pszLevel, "better") == NULL)
+		return lzham_compress_level::LZHAM_COMP_LEVEL_BETTER;
+	else if (strcmp(pszLevel, "uber") == NULL)
+		return lzham_compress_level::LZHAM_COMP_LEVEL_UBER;
+	else
+		return lzham_compress_level::LZHAM_COMP_LEVEL_DEFAULT;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: obtains and returns the entry block to the vector
 // Input  : *pReader - 
 // output : vector<VPKEntryBlock_t>
@@ -109,7 +131,7 @@ vector<VPKEntryBlock_t> CPackedStore::GetEntryBlocks(CIOStream* pReader) const
 		{
 			while (!(svName = pReader->ReadString()).empty())
 			{
-				string svFilePath = FormatEntryPath(svPath, svName, svExtension);
+				const string svFilePath = FormatEntryPath(svPath, svName, svExtension);
 				vBlocks.push_back(VPKEntryBlock_t(pReader, svFilePath));
 			}
 		}

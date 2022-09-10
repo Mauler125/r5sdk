@@ -149,6 +149,7 @@ ConVar* fs_warning_level_sdk               = nullptr;
 ConVar* fs_show_warning_output             = nullptr;
 ConVar* fs_packedstore_entryblock_stats    = nullptr;
 ConVar* fs_packedstore_workspace           = nullptr;
+ConVar* fs_packedstore_compression_level   = nullptr;
 //-----------------------------------------------------------------------------
 // MATERIALSYSTEM                                                             |
 #ifndef DEDICATED
