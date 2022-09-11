@@ -83,45 +83,21 @@ extern ConVar* bhit_abs_origin;
 #ifndef DEDICATED
 extern ConVar* cl_rcon_request_sendlogs;
 
-extern ConVar* con_drawnotify;
-extern ConVar* cl_consoleoverlay_lines;
-extern ConVar* cl_consoleoverlay_invert_rect_x;
-extern ConVar* cl_consoleoverlay_invert_rect_y;
-extern ConVar* cl_consoleoverlay_offset_x;
-extern ConVar* cl_consoleoverlay_offset_y;
-
-extern ConVar* con_notifytime;
-
-extern ConVar* cl_conoverlay_script_server_clr;
-extern ConVar* cl_conoverlay_script_client_clr;
-extern ConVar* cl_conoverlay_script_ui_clr;
-extern ConVar* cl_conoverlay_native_server_clr;
-extern ConVar* cl_conoverlay_native_client_clr;
-extern ConVar* cl_conoverlay_native_ui_clr;
-extern ConVar* cl_conoverlay_native_engine_clr;
-extern ConVar* cl_conoverlay_native_fs_clr;
-extern ConVar* cl_conoverlay_native_rtech_clr;
-extern ConVar* cl_conoverlay_native_ms_clr;
-extern ConVar* cl_conoverlay_netcon_clr;
-extern ConVar* cl_conoverlay_common_clr;
-extern ConVar* cl_conoverlay_warning_clr;
-extern ConVar* cl_conoverlay_error_clr;
-
 extern ConVar* cl_showhoststats;
-extern ConVar* cl_hoststats_invert_rect_x;
-extern ConVar* cl_hoststats_invert_rect_y;
+extern ConVar* cl_hoststats_invert_x;
+extern ConVar* cl_hoststats_invert_y;
 extern ConVar* cl_hoststats_offset_x;
 extern ConVar* cl_hoststats_offset_y;
 
 extern ConVar* cl_showsimstats;
-extern ConVar* cl_simstats_invert_rect_x;
-extern ConVar* cl_simstats_invert_rect_y;
+extern ConVar* cl_simstats_invert_x;
+extern ConVar* cl_simstats_invert_y;
 extern ConVar* cl_simstats_offset_x;
 extern ConVar* cl_simstats_offset_y;
 
 extern ConVar* cl_showgpustats;
-extern ConVar* cl_gpustats_invert_rect_x;
-extern ConVar* cl_gpustats_invert_rect_y;
+extern ConVar* cl_gpustats_invert_x;
+extern ConVar* cl_gpustats_invert_y;
 extern ConVar* cl_gpustats_offset_x;
 extern ConVar* cl_gpustats_offset_y;
 
@@ -130,6 +106,30 @@ extern ConVar* cl_materialinfo_offset_x;
 extern ConVar* cl_materialinfo_offset_y;
 
 extern ConVar* cl_threaded_bone_setup;
+
+extern ConVar* con_drawnotify;
+extern ConVar* con_notifylines;
+extern ConVar* con_notifytime;
+
+extern ConVar* con_notify_invert_x;
+extern ConVar* con_notify_invert_y;
+extern ConVar* con_notify_offset_x;
+extern ConVar* con_notify_offset_y;
+
+extern ConVar* con_notify_script_server_clr;
+extern ConVar* con_notify_script_client_clr;
+extern ConVar* con_notify_script_ui_clr;
+extern ConVar* con_notify_native_server_clr;
+extern ConVar* con_notify_native_client_clr;
+extern ConVar* con_notify_native_ui_clr;
+extern ConVar* con_notify_native_engine_clr;
+extern ConVar* con_notify_native_fs_clr;
+extern ConVar* con_notify_native_rtech_clr;
+extern ConVar* con_notify_native_ms_clr;
+extern ConVar* con_notify_netcon_clr;
+extern ConVar* con_notify_common_clr;
+extern ConVar* con_notify_warning_clr;
+extern ConVar* con_notify_error_clr;
 
 extern ConVar* con_max_size_logvector;
 extern ConVar* con_max_size_history;

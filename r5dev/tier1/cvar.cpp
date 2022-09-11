@@ -88,45 +88,21 @@ ConVar* bhit_abs_origin = nullptr;
 #ifndef DEDICATED
 ConVar* cl_rcon_request_sendlogs           = nullptr;
 
-ConVar* con_drawnotify              = nullptr;
-ConVar* cl_consoleoverlay_lines            = nullptr;
-ConVar* cl_consoleoverlay_invert_rect_x    = nullptr;
-ConVar* cl_consoleoverlay_invert_rect_y    = nullptr;
-ConVar* cl_consoleoverlay_offset_x         = nullptr;
-ConVar* cl_consoleoverlay_offset_y         = nullptr;
-
-ConVar* con_notifytime                     = nullptr;
-
-ConVar* cl_conoverlay_script_server_clr    = nullptr;
-ConVar* cl_conoverlay_script_client_clr    = nullptr;
-ConVar* cl_conoverlay_script_ui_clr        = nullptr;
-ConVar* cl_conoverlay_native_server_clr    = nullptr;
-ConVar* cl_conoverlay_native_client_clr    = nullptr;
-ConVar* cl_conoverlay_native_ui_clr        = nullptr;
-ConVar* cl_conoverlay_native_engine_clr    = nullptr;
-ConVar* cl_conoverlay_native_fs_clr        = nullptr;
-ConVar* cl_conoverlay_native_rtech_clr     = nullptr;
-ConVar* cl_conoverlay_native_ms_clr        = nullptr;
-ConVar* cl_conoverlay_netcon_clr           = nullptr;
-ConVar* cl_conoverlay_common_clr           = nullptr;
-ConVar* cl_conoverlay_warning_clr          = nullptr;
-ConVar* cl_conoverlay_error_clr            = nullptr;
-
 ConVar* cl_showhoststats                   = nullptr;
-ConVar* cl_hoststats_invert_rect_x         = nullptr;
-ConVar* cl_hoststats_invert_rect_y         = nullptr;
+ConVar* cl_hoststats_invert_x              = nullptr;
+ConVar* cl_hoststats_invert_y              = nullptr;
 ConVar* cl_hoststats_offset_x              = nullptr;
 ConVar* cl_hoststats_offset_y              = nullptr;
 
 ConVar* cl_showsimstats                    = nullptr;
-ConVar* cl_simstats_invert_rect_x          = nullptr;
-ConVar* cl_simstats_invert_rect_y          = nullptr;
+ConVar* cl_simstats_invert_x               = nullptr;
+ConVar* cl_simstats_invert_y               = nullptr;
 ConVar* cl_simstats_offset_x               = nullptr;
 ConVar* cl_simstats_offset_y               = nullptr;
 
 ConVar* cl_showgpustats                    = nullptr;
-ConVar* cl_gpustats_invert_rect_x          = nullptr;
-ConVar* cl_gpustats_invert_rect_y          = nullptr;
+ConVar* cl_gpustats_invert_x               = nullptr;
+ConVar* cl_gpustats_invert_y               = nullptr;
 ConVar* cl_gpustats_offset_x               = nullptr;
 ConVar* cl_gpustats_offset_y               = nullptr;
 
@@ -135,6 +111,30 @@ ConVar* cl_materialinfo_offset_x           = nullptr;
 ConVar* cl_materialinfo_offset_y           = nullptr;
 
 ConVar* cl_threaded_bone_setup             = nullptr;
+
+ConVar* con_drawnotify                     = nullptr;
+ConVar* con_notifylines                    = nullptr;
+ConVar* con_notifytime                     = nullptr;
+
+ConVar* con_notify_invert_x                = nullptr;
+ConVar* con_notify_invert_y                = nullptr;
+ConVar* con_notify_offset_x                = nullptr;
+ConVar* con_notify_offset_y                = nullptr;
+
+ConVar* con_notify_script_server_clr       = nullptr;
+ConVar* con_notify_script_client_clr       = nullptr;
+ConVar* con_notify_script_ui_clr           = nullptr;
+ConVar* con_notify_native_server_clr       = nullptr;
+ConVar* con_notify_native_client_clr       = nullptr;
+ConVar* con_notify_native_ui_clr           = nullptr;
+ConVar* con_notify_native_engine_clr       = nullptr;
+ConVar* con_notify_native_fs_clr           = nullptr;
+ConVar* con_notify_native_rtech_clr        = nullptr;
+ConVar* con_notify_native_ms_clr           = nullptr;
+ConVar* con_notify_netcon_clr              = nullptr;
+ConVar* con_notify_common_clr              = nullptr;
+ConVar* con_notify_warning_clr             = nullptr;
+ConVar* con_notify_error_clr               = nullptr;
 
 ConVar* con_max_size_logvector             = nullptr;
 ConVar* con_max_size_history               = nullptr;

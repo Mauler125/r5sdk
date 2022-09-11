@@ -72,7 +72,7 @@ void CLogSystem::AddLog(const EGlobalContext_t context, const string& svText)
 			m_vNotifyText.push_back(CNotifyText{ context, con_notifytime->GetFloat() , svText });
 
 			while (m_vNotifyText.size() > 0 &&
-				(m_vNotifyText.size() >= cl_consoleoverlay_lines->GetInt()))
+				(m_vNotifyText.size() > con_notifylines->GetInt()))
 			{
 				m_vNotifyText.erase(m_vNotifyText.begin());
 			}
@@ -87,21 +87,21 @@ void CLogSystem::DrawNotify(void)
 {
 	int x;
 	int y;
-	if (cl_consoleoverlay_invert_rect_x->GetBool())
+	if (con_notify_invert_x->GetBool())
 	{
-		x = g_nWindowWidth - cl_consoleoverlay_offset_x->GetInt();
+		x = g_nWindowWidth - con_notify_offset_x->GetInt();
 	}
 	else
 	{
-		x = cl_consoleoverlay_offset_x->GetInt();
+		x = con_notify_offset_x->GetInt();
 	}
-	if (cl_consoleoverlay_invert_rect_y->GetBool())
+	if (con_notify_invert_y->GetBool())
 	{
-		y = g_nWindowHeight - cl_consoleoverlay_offset_y->GetInt();
+		y = g_nWindowHeight - con_notify_offset_y->GetInt();
 	}
 	else
 	{
-		y = cl_consoleoverlay_offset_y->GetInt();
+		y = con_notify_offset_y->GetInt();
 	}
 
 	std::lock_guard<std::mutex> l(m_Mutex);
@@ -154,10 +154,10 @@ void CLogSystem::ShouldDraw(const float flFrameTime)
 		int c = m_vNotifyText.size();
 		for (i = c - 1; i >= 0; i--)
 		{
-			CNotifyText* notify = &m_vNotifyText[i];
-			notify->m_flLifeRemaining -= flFrameTime;
+			CNotifyText* pNotify = &m_vNotifyText[i];
+			pNotify->m_flLifeRemaining -= flFrameTime;
 
-			if (notify->m_flLifeRemaining <= 0.0f)
+			if (pNotify->m_flLifeRemaining <= 0.0f)
 			{
 				m_vNotifyText.erase(m_vNotifyText.begin() + i);
 				continue;
@@ -179,11 +179,11 @@ void CLogSystem::DrawHostStats(void) const
 	int nHeight = cl_hoststats_offset_y->GetInt();
 	const static Color c = { 255, 255, 255, 255 };
 
-	if (cl_hoststats_invert_rect_x->GetBool())
+	if (cl_hoststats_invert_x->GetBool())
 	{
 		nWidth  = g_nWindowWidth  - nWidth;
 	}
-	if (cl_hoststats_invert_rect_y->GetBool())
+	if (cl_hoststats_invert_y->GetBool())
 	{
 		nHeight = g_nWindowHeight - nHeight;
 	}
@@ -205,11 +205,11 @@ void CLogSystem::DrawSimStats(void) const
 	snprintf((char*)szLogbuf, 4096, "Server Frame: (%d) Client Frame: (%d) Render Frame: (%d)\n",
 		g_pClientState->GetServerTickCount(), g_pClientState->GetClientTickCount(), *g_nRenderTickCount);
 
-	if (cl_simstats_invert_rect_x->GetBool())
+	if (cl_simstats_invert_x->GetBool())
 	{
 		nWidth  = g_nWindowWidth  - nWidth;
 	}
-	if (cl_simstats_invert_rect_y->GetBool())
+	if (cl_simstats_invert_y->GetBool())
 	{
 		nHeight = g_nWindowHeight - nHeight;
 	}
@@ -230,11 +230,11 @@ void CLogSystem::DrawGPUStats(void) const
 	snprintf((char*)szLogbuf, 4096, "%8d/%8d/%8dkiB unusable/unfree/total GPU Streaming Texture memory\n", 
 	*g_nUnusableStreamingTextureMemory / 1024, *g_nUnfreeStreamingTextureMemory / 1024, *g_nUnusableStreamingTextureMemory / 1024);
 
-	if (cl_gpustats_invert_rect_x->GetBool())
+	if (cl_gpustats_invert_x->GetBool())
 	{
 		nWidth  = g_nWindowWidth  - nWidth;
 	}
-	if (cl_gpustats_invert_rect_y->GetBool())
+	if (cl_gpustats_invert_y->GetBool())
 	{
 		nHeight = g_nWindowHeight - nHeight;
 	}
@@ -247,19 +247,19 @@ void CLogSystem::DrawGPUStats(void) const
 //-----------------------------------------------------------------------------
 void CLogSystem::DrawCrosshairMaterial(void) const
 {
-	CMaterialGlue* material = GetMaterialAtCrossHair();
-	if (!material)
+	CMaterialGlue* pMaterialGlue = GetMaterialAtCrossHair();
+	if (!pMaterialGlue)
 		return;
 
 	static Color c = { 255, 255, 255, 255 };
 	static const char* szLogbuf[4096]{};
 	snprintf((char*)szLogbuf, 4096, "name: %s\nguid: %llx\ndimensions: %d x %d\nsurface: %s/%s\nstc: %i\ntc: %i",
-		material->m_pszName,
-		material->m_GUID,
-		material->m_iWidth, material->m_iHeight,
-		material->m_pszSurfaceName1, material->m_pszSurfaceName2,
-		material->m_nStreamableTextureCount,
-		material->m_pShaderGlue->m_nTextureInputCount);
+		pMaterialGlue->m_pszName,
+		pMaterialGlue->m_GUID,
+		pMaterialGlue->m_iWidth, pMaterialGlue->m_iHeight,
+		pMaterialGlue->m_pszSurfaceName1, pMaterialGlue->m_pszSurfaceName2,
+		pMaterialGlue->m_nStreamableTextureCount,
+		pMaterialGlue->m_pShaderGlue->m_nTextureInputCount);
 
 	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, cl_materialinfo_offset_x->GetInt(), cl_materialinfo_offset_y->GetInt(), c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
 }
@@ -283,35 +283,35 @@ Color CLogSystem::GetLogColorForType(const EGlobalContext_t context) const
 	switch (context)
 	{
 	case EGlobalContext_t::SCRIPT_SERVER:
-		return { cl_conoverlay_script_server_clr->GetColor() };
+		return { con_notify_script_server_clr->GetColor() };
 	case EGlobalContext_t::SCRIPT_CLIENT:
-		return { cl_conoverlay_script_client_clr->GetColor() };
+		return { con_notify_script_client_clr->GetColor() };
 	case EGlobalContext_t::SCRIPT_UI:
-		return { cl_conoverlay_script_ui_clr->GetColor() };
+		return { con_notify_script_ui_clr->GetColor() };
 	case EGlobalContext_t::NATIVE_SERVER:
-		return { cl_conoverlay_native_server_clr->GetColor() };
+		return { con_notify_native_server_clr->GetColor() };
 	case EGlobalContext_t::NATIVE_CLIENT:
-		return { cl_conoverlay_native_client_clr->GetColor() };
+		return { con_notify_native_client_clr->GetColor() };
 	case EGlobalContext_t::NATIVE_UI:
-		return { cl_conoverlay_native_ui_clr->GetColor() };
+		return { con_notify_native_ui_clr->GetColor() };
 	case EGlobalContext_t::NATIVE_ENGINE:
-		return { cl_conoverlay_native_engine_clr->GetColor() };
+		return { con_notify_native_engine_clr->GetColor() };
 	case EGlobalContext_t::NATIVE_FS:
-		return { cl_conoverlay_native_fs_clr->GetColor() };
+		return { con_notify_native_fs_clr->GetColor() };
 	case EGlobalContext_t::NATIVE_RTECH:
-		return { cl_conoverlay_native_rtech_clr->GetColor() };
+		return { con_notify_native_rtech_clr->GetColor() };
 	case EGlobalContext_t::NATIVE_MS:
-		return { cl_conoverlay_native_ms_clr->GetColor() };
+		return { con_notify_native_ms_clr->GetColor() };
 	case EGlobalContext_t::NETCON_S:
-		return { cl_conoverlay_netcon_clr->GetColor() };
+		return { con_notify_netcon_clr->GetColor() };
 	case EGlobalContext_t::COMMON_C:
-		return { cl_conoverlay_common_clr->GetColor() };
+		return { con_notify_common_clr->GetColor() };
 	case EGlobalContext_t::WARNING_C:
-		return { cl_conoverlay_warning_clr->GetColor() };
+		return { con_notify_warning_clr->GetColor() };
 	case EGlobalContext_t::ERROR_C:
-		return { cl_conoverlay_error_clr->GetColor() };
+		return { con_notify_error_clr->GetColor() };
 	default:
-		return { cl_conoverlay_native_engine_clr->GetColor() };
+		return { con_notify_native_engine_clr->GetColor() };
 	}
 }
 

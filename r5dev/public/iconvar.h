@@ -44,7 +44,7 @@ class CCommand;
 #define FCVAR_DEMO              (1<<16)	// record this cvar when starting a demo file
 #define FCVAR_DONTRECORD        (1<<17)	// don't record these command in demofiles
 #define FCVAR_SS_ADDED          (1<<18)	// This is one of the "added" FCVAR_SS variables for the splitscreen players
-#define FCVAR_RELEASE           (1<<19)	// Cvars tagged with this are the only cvars avaliable to customers
+#define FCVAR_RELEASE           (1<<19)	// Cvars tagged with this are the only cvars available to customers
 #define FCVAR_RELOAD_MATERIALS  (1<<20)	// If this cvar changes, it forces a material reload
 #define FCVAR_RELOAD_TEXTURES   (1<<21)	// If this cvar changes, if forces a texture reload
 
