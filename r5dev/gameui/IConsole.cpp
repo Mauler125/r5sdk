@@ -666,7 +666,7 @@ void CConsole::ClampHistorySize(void)
 bool CConsole::LoadFlagIcons(void)
 {
     int k = 0; // Get all image resources for displaying flags.
-    for (int i = IDB_PNG3; i <= IDB_PNG18; i++)
+    for (int i = IDB_PNG3; i <= IDB_PNG23; i++)
     {
         m_vFlagIcons.push_back(MODULERESOURCE());
         m_vFlagIcons[k] = GetModuleResource(i);
@@ -703,24 +703,34 @@ int CConsole::ColorCodeFlags(int nFlags) const
         return 5;
     case FCVAR_RELEASE:
         return 6;
-    case FCVAR_DEVELOPMENTONLY | FCVAR_GAMEDLL:
+    case FCVAR_MATERIAL_SYSTEM_THREAD:
         return 7;
-    case FCVAR_DEVELOPMENTONLY | FCVAR_CLIENTDLL:
+    case FCVAR_DEVELOPMENTONLY | FCVAR_GAMEDLL:
         return 8;
-    case FCVAR_DEVELOPMENTONLY | FCVAR_HIDDEN:
+    case FCVAR_DEVELOPMENTONLY | FCVAR_CLIENTDLL:
         return 9;
     case FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED:
         return 10;
     case FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT:
         return 11;
-    case FCVAR_REPLICATED | FCVAR_CHEAT:
+    case FCVAR_DEVELOPMENTONLY | FCVAR_MATERIAL_SYSTEM_THREAD:
         return 12;
-    case FCVAR_REPLICATED | FCVAR_RELEASE:
+    case FCVAR_REPLICATED | FCVAR_CHEAT:
         return 13;
-    case FCVAR_GAMEDLL | FCVAR_CHEAT:
+    case FCVAR_REPLICATED | FCVAR_RELEASE:
         return 14;
-    case FCVAR_CLIENTDLL | FCVAR_CHEAT:
+    case FCVAR_GAMEDLL | FCVAR_CHEAT:
         return 15;
+    case FCVAR_GAMEDLL | FCVAR_RELEASE:
+        return 16;
+    case FCVAR_CLIENTDLL | FCVAR_CHEAT:
+        return 17;
+    case FCVAR_CLIENTDLL | FCVAR_RELEASE:
+        return 18;
+    case FCVAR_MATERIAL_SYSTEM_THREAD | FCVAR_CHEAT:
+        return 19;
+    case FCVAR_MATERIAL_SYSTEM_THREAD | FCVAR_RELEASE:
+        return 20;
     default:
         return 0;
     }
