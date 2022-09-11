@@ -125,7 +125,7 @@ void CUIBaseSurface::Init()
 	this->m_GameGroupExt->AddControl(this->m_PlaylistFileTextBox);
 
 	this->m_PlaylistFileLabel = new UIX::UIXLabel();
-	this->m_PlaylistFileLabel->SetSize({ 50, 18 });
+	this->m_PlaylistFileLabel->SetSize({ 60, 18 });
 	this->m_PlaylistFileLabel->SetLocation({ 311, 32 });
 	this->m_PlaylistFileLabel->SetTabIndex(0);
 	this->m_PlaylistFileLabel->SetText("Playlists file");
