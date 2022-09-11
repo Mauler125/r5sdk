@@ -88,12 +88,14 @@ ConVar* bhit_abs_origin = nullptr;
 #ifndef DEDICATED
 ConVar* cl_rcon_request_sendlogs           = nullptr;
 
-ConVar* cl_drawconsoleoverlay              = nullptr;
+ConVar* con_drawnotify              = nullptr;
 ConVar* cl_consoleoverlay_lines            = nullptr;
 ConVar* cl_consoleoverlay_invert_rect_x    = nullptr;
 ConVar* cl_consoleoverlay_invert_rect_y    = nullptr;
 ConVar* cl_consoleoverlay_offset_x         = nullptr;
 ConVar* cl_consoleoverlay_offset_y         = nullptr;
+
+ConVar* con_notifytime                     = nullptr;
 
 ConVar* cl_conoverlay_script_server_clr    = nullptr;
 ConVar* cl_conoverlay_script_client_clr    = nullptr;

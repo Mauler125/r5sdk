@@ -83,12 +83,14 @@ extern ConVar* bhit_abs_origin;
 #ifndef DEDICATED
 extern ConVar* cl_rcon_request_sendlogs;
 
-extern ConVar* cl_drawconsoleoverlay;
+extern ConVar* con_drawnotify;
 extern ConVar* cl_consoleoverlay_lines;
 extern ConVar* cl_consoleoverlay_invert_rect_x;
 extern ConVar* cl_consoleoverlay_invert_rect_y;
 extern ConVar* cl_consoleoverlay_offset_x;
 extern ConVar* cl_consoleoverlay_offset_y;
+
+extern ConVar* con_notifytime;
 
 extern ConVar* cl_conoverlay_script_server_clr;
 extern ConVar* cl_conoverlay_script_client_clr;

@@ -22,6 +22,7 @@
 #include <engine/server/server.h>
 #endif
 #include <rtech/rtech_utils.h>
+#include <engine/sys_engine.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: proceed a log update
@@ -32,9 +33,9 @@ void CLogSystem::Update(void)
 	{
 		return;
 	}
-	if (cl_drawconsoleoverlay->GetBool())
+	if (con_drawnotify->GetBool())
 	{
-		DrawLog();
+		DrawNotify();
 	}
 	if (cl_showsimstats->GetBool())
 	{
@@ -63,57 +64,109 @@ void CLogSystem::Update(void)
 //-----------------------------------------------------------------------------
 void CLogSystem::AddLog(const EGlobalContext_t context, const string& svText)
 {
-	if (svText.length() > 0)
+	if (con_drawnotify->GetBool())
 	{
-		m_vLogs.push_back(LogMsg_t{ svText, 1024, context });
+		if (svText.length() > 0)
+		{
+			std::lock_guard<std::mutex> l(m_Mutex);
+			m_vNotifyText.push_back(CNotifyText{ context, con_notifytime->GetFloat() , svText });
+
+			while (m_vNotifyText.size() > 0 &&
+				(m_vNotifyText.size() >= cl_consoleoverlay_lines->GetInt()))
+			{
+				m_vNotifyText.erase(m_vNotifyText.begin());
+			}
+		}
 	}
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: draw log on screen.
+// Purpose: draw notify logs on screen.
 //-----------------------------------------------------------------------------
-void CLogSystem::DrawLog(void)
+void CLogSystem::DrawNotify(void)
 {
-	if (!m_vLogs.empty())
+	int x;
+	int y;
+	if (cl_consoleoverlay_invert_rect_x->GetBool())
 	{
-		for (size_t i = 0; i < m_vLogs.size(); ++i)
+		x = g_nWindowWidth - cl_consoleoverlay_offset_x->GetInt();
+	}
+	else
+	{
+		x = cl_consoleoverlay_offset_x->GetInt();
+	}
+	if (cl_consoleoverlay_invert_rect_y->GetBool())
+	{
+		y = g_nWindowHeight - cl_consoleoverlay_offset_y->GetInt();
+	}
+	else
+	{
+		y = cl_consoleoverlay_offset_y->GetInt();
+	}
+
+	std::lock_guard<std::mutex> l(m_Mutex);
+	for (int i = 0, j = m_vNotifyText.size(); i < j; i++)
+	{
+		CNotifyText* pNotify = &m_vNotifyText[i];
+		Color c = GetLogColorForType(m_vNotifyText[i].m_type);
+
+		float flTimeleft = pNotify->m_flLifeRemaining;
+
+		if (flTimeleft < .5f)
 		{
-			if (m_vLogs[i].m_nTicks >= 0)
+			float f = clamp(flTimeleft, 0.0f, .5f) / .5f;
+			c[3] = (int)(f * 255.0f);
+
+			if (i == 0 && f < 0.2f)
 			{
-				if (i < cl_consoleoverlay_lines->GetSizeT())
-				{
-					float fadepct = fminf(static_cast<float>(m_vLogs[i].m_nTicks) / 255.f, 4.f); // TODO [ AMOS ]: register a ConVar for this!
-					float ptc = ceilf(fadepct * 100.f);
-					int alpha = static_cast<int>(ptc);
-					int x = cl_consoleoverlay_offset_x->GetInt();
-					int y = cl_consoleoverlay_offset_y->GetInt() + (m_nFontHeight * static_cast<int>(i));
-					Color c = GetLogColorForType(m_vLogs[i].m_type);
-
-					if (cl_consoleoverlay_invert_rect_x->GetBool())
-					{
-						x = g_nWindowWidth - cl_consoleoverlay_offset_x->GetInt();
-					}
-					if (cl_consoleoverlay_invert_rect_y->GetBool())
-					{
-						y = g_nWindowHeight - cl_consoleoverlay_offset_y->GetInt();
-						y += m_nFontHeight * static_cast<int>(i);
-					}
-
-					CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, x, y, c.r(), c.g(), c.b(), alpha, m_vLogs[i].m_svMessage.c_str());
-				}
-				else
-				{
-					m_vLogs.erase(m_vLogs.begin());
-					continue;
-				}
-
-				m_vLogs[i].m_nTicks--;
-			}
-			else
-			{
-				m_vLogs.erase(m_vLogs.begin() + i);
+				y -= m_nFontHeight * (1.0f - f / 0.2f);
 			}
 		}
+		else
+		{
+			c[3] = 255;
+		}
+		CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, x, y, c.r(), c.g(), c.b(), c.a(), m_vNotifyText[i].m_svMessage.c_str());
+
+		if (IsX360())
+		{
+			// For some reason the fontTall value on 360 is about twice as high as it should be
+			y += 12;
+		}
+		else
+		{
+			y += m_nFontHeight;
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: checks if the notify text is expired
+// Input  : flFrameTime - 
+//-----------------------------------------------------------------------------
+void CLogSystem::ShouldDraw(const float flFrameTime)
+{
+	if (con_drawnotify->GetBool())
+	{
+		std::lock_guard<std::mutex> l(m_Mutex);
+
+		int i;
+		int c = m_vNotifyText.size();
+		for (i = c - 1; i >= 0; i--)
+		{
+			CNotifyText* notify = &m_vNotifyText[i];
+			notify->m_flLifeRemaining -= flFrameTime;
+
+			if (notify->m_flLifeRemaining <= 0.0f)
+			{
+				m_vNotifyText.erase(m_vNotifyText.begin() + i);
+				continue;
+			}
+		}
+	}
+	else if (!m_vNotifyText.empty())
+	{
+		m_vNotifyText.clear();
 	}
 }
 
@@ -124,7 +177,7 @@ void CLogSystem::DrawHostStats(void) const
 {
 	int nWidth  = cl_hoststats_offset_x->GetInt();
 	int nHeight = cl_hoststats_offset_y->GetInt();
-	static Color c = { 255, 255, 255, 255 };
+	const static Color c = { 255, 255, 255, 255 };
 
 	if (cl_hoststats_invert_rect_x->GetBool())
 	{
