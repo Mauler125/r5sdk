@@ -26,7 +26,7 @@ ConVar* ConVar::Create(const char* pszName, const char* pszDefaultValue, int nFl
 	pNewConVar->m_pConCommandBaseVFTable = g_pConVarVFTable.RCast<IConCommandBase*>();
 	pNewConVar->m_pIConVarVFTable = g_pIConVarVFTable.RCast<IConVar*>();
 
-	ConVar_Register(pNewConVar, pszName, pszDefaultValue, nFlags, pszHelpString, bMin, fMin, bMax, fMax, pCallback, pszUsageString);
+	v_ConVar_Register(pNewConVar, pszName, pszDefaultValue, nFlags, pszHelpString, bMin, fMin, bMax, fMax, pCallback, pszUsageString);
 
 	return pNewConVar;
 }
@@ -923,17 +923,6 @@ bool ConVar::IsFlagSetInternal(const ConVar* pConVar, int nFlags)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void IConVar_Attach()
-{
-	DetourAttach((LPVOID*)&IConVar_IsFlagSet, &ConVar::IsFlagSetInternal);
-}
-
-void IConVar_Detach()
-{
-	DetourDetach((LPVOID*)&IConVar_IsFlagSet, &ConVar::IsFlagSetInternal);
-}
-
-///////////////////////////////////////////////////////////////////////////////
 struct PrintConVarFlags_t
 {
 	int flag;
@@ -1058,6 +1047,19 @@ void ConVar_PrintDescription(ConCommandBase* pVar)
 	{
 		DevMsg(eDLL_T::ENGINE, "%-80s\n", outstr);
 	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void IConVar_Attach()
+{
+	DetourAttach((LPVOID*)&v_ConVar_IsFlagSet, &ConVar::IsFlagSetInternal);
+	DetourAttach((LPVOID*)&v_ConVar_PrintDescription, &ConVar_PrintDescription);
+}
+
+void IConVar_Detach()
+{
+	DetourDetach((LPVOID*)&v_ConVar_IsFlagSet, &ConVar::IsFlagSetInternal);
+	DetourDetach((LPVOID*)&v_ConVar_PrintDescription, &ConVar_PrintDescription);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
