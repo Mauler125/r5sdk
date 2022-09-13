@@ -684,7 +684,7 @@ playlists
 
 				pin_match_type                                 survival
 				enable_nessies                                 0
-				max_teams                                      2
+				max_teams                                      18
 				max_players                                    18
 				min_players                                    1
 				wait_for_players_forever                       0
