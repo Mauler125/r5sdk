@@ -76,7 +76,7 @@ void CBanSystem::Save(void) const
 	FileHandle_t pFile = FileSystem()->Open("banlist.json", "wt", "PLATFORM");
 	if (!pFile)
 	{
-		Error(eDLL_T::SERVER, NULL, "%s - Unable to write to '%s' (read-only?)\n", __FUNCTION__, "banlist.json");
+		Error(eDLL_T::SERVER, NO_ERROR, "%s - Unable to write to '%s' (read-only?)\n", __FUNCTION__, "banlist.json");
 		return;
 	}
 

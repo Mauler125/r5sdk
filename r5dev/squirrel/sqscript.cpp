@@ -258,14 +258,14 @@ void Script_Execute(const SQChar* code, SQCONTEXT context)
 	CSquirrelVM* script = Script_GetContextObject(context);
 	if (!script)
 	{
-		Error(eDLL_T::ENGINE, NULL, "Attempted to run %s script with no handle to script context\n", SQVM_GetContextName(context));
+		Error(eDLL_T::ENGINE, NO_ERROR, "Attempted to run %s script with no handle to script context\n", SQVM_GetContextName(context));
 		return;
 	}
 
 	HSQUIRRELVM v = script->GetVM();
 	if (!v)
 	{
-		Error(eDLL_T::ENGINE, NULL, "Attempted to run %s script while VM isn't initialized\n", SQVM_GetContextName(context));
+		Error(eDLL_T::ENGINE, NO_ERROR, "Attempted to run %s script while VM isn't initialized\n", SQVM_GetContextName(context));
 		return;
 	}
 

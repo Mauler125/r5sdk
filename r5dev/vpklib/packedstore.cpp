@@ -576,7 +576,7 @@ void CPackedStore::UnpackAll(const VPKDir_t& vDir, const string& svPathOut)
 		vDir.m_vHeader.m_nMajorVersion != VPK_MAJOR_VERSION ||
 		vDir.m_vHeader.m_nMinorVersion != VPK_MINOR_VERSION)
 	{
-		Error(eDLL_T::FS, NULL, "Unsupported VPK directory file (invalid header criteria)\n");
+		Error(eDLL_T::FS, NO_ERROR, "Unsupported VPK directory file (invalid header criteria)\n");
 		return;
 	}
 	BuildManifest(vDir.m_vEntryBlocks, svPathOut, GetSourceName(vDir.m_svDirPath));
@@ -600,7 +600,7 @@ void CPackedStore::UnpackAll(const VPKDir_t& vDir, const string& svPathOut)
 
 				if (!oStream.IsWritable())
 				{
-					Error(eDLL_T::FS, NULL, "Unable to write file '%s'\n", svFilePath.c_str());
+					Error(eDLL_T::FS, NO_ERROR, "Unable to write file '%s'\n", svFilePath.c_str());
 					continue;
 				}
 				DevMsg(eDLL_T::FS, "Unpacking entry '%zu' from block '%zu' ('%s')\n", j, i, vDir.m_vEntryBlocks[j].m_svEntryPath.c_str());
@@ -623,7 +623,7 @@ void CPackedStore::UnpackAll(const VPKDir_t& vDir, const string& svPathOut)
 
 						if (m_lzDecompStatus != lzham_decompress_status_t::LZHAM_DECOMP_STATUS_SUCCESS)
 						{
-							Error(eDLL_T::FS, NULL, "Status '%d' for chunk '%zu' within entry '%zu' in block '%hu' (chunk not decompressed)\n",
+							Error(eDLL_T::FS, NO_ERROR, "Status '%d' for chunk '%zu' within entry '%zu' in block '%hu' (chunk not decompressed)\n",
 								m_lzDecompStatus, m_nChunkCount, i, vDir.m_vEntryBlocks[j].m_iPackFileIndex);
 						}
 						else // If successfully decompressed, write to file.

@@ -334,7 +334,7 @@ FORCEINLINE void CHostState::State_NewGame(void)
 	if (!CModelLoader__Map_IsValid(g_pModelLoader, m_levelName) // Check if map is valid and if we can start a new game.
 		|| !Host_NewGame(m_levelName, nullptr, m_bBackgroundLevel, nSplitScreenPlayers, time) || !g_pServerGameClients)
 	{
-		Error(eDLL_T::ENGINE, NULL, "%s - Error: Map not valid\n", "CHostState::State_NewGame");
+		Error(eDLL_T::ENGINE, NO_ERROR, "%s - Error: Map not valid\n", "CHostState::State_NewGame");
 #ifndef DEDICATED
 		SCR_EndLoadingPlaque();
 #endif // !DEDICATED
@@ -365,7 +365,7 @@ FORCEINLINE void CHostState::State_ChangeLevelSP(void)
 	}
 	else
 	{
-		Error(eDLL_T::ENGINE, NULL, "%s - Error: Unable to find map: '%s'\n", "CHostState::State_ChangeLevelSP", m_levelName);
+		Error(eDLL_T::ENGINE, NO_ERROR, "%s - Error: Unable to find map: '%s'\n", "CHostState::State_ChangeLevelSP", m_levelName);
 	}
 
 	m_iCurrentState = HostStates_t::HS_RUN; // Set current state to run.
@@ -397,7 +397,7 @@ FORCEINLINE void CHostState::State_ChangeLevelMP(void)
 	}
 	else
 	{
-		Error(eDLL_T::ENGINE, NULL, "%s - Error: Unable to find map: '%s'\n", "CHostState::State_ChangeLevelMP", m_levelName);
+		Error(eDLL_T::ENGINE, NO_ERROR, "%s - Error: Unable to find map: '%s'\n", "CHostState::State_ChangeLevelMP", m_levelName);
 	}
 
 	m_iCurrentState = HostStates_t::HS_RUN; // Set current state to run.

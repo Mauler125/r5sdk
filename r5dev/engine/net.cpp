@@ -78,7 +78,7 @@ void NET_SetKey(string svNetKey)
 	}
 	else
 	{
-		Error(eDLL_T::ENGINE, NULL, "AES-128 key not encoded or invalid\n");
+		Error(eDLL_T::ENGINE, NO_ERROR, "AES-128 key not encoded or invalid\n");
 	}
 }
 
@@ -96,14 +96,14 @@ void NET_GenerateKey()
 	BCRYPT_ALG_HANDLE hAlgorithm;
 	if (BCryptOpenAlgorithmProvider(&hAlgorithm, L"RNG", 0, 0) < 0)
 	{
-		Error(eDLL_T::ENGINE, NULL, "Failed to open rng algorithm\n");
+		Error(eDLL_T::ENGINE, NO_ERROR, "Failed to open rng algorithm\n");
 		return;
 	}
 
 	uint8_t pBuffer[AES_128_KEY_SIZE];
 	if (BCryptGenRandom(hAlgorithm, pBuffer, AES_128_KEY_SIZE, 0) < 0)
 	{
-		Error(eDLL_T::ENGINE, NULL, "Failed to generate random data\n");
+		Error(eDLL_T::ENGINE, NO_ERROR, "Failed to generate random data\n");
 		return;
 	}
 

@@ -8,10 +8,10 @@
 int HSys_Error_Internal(char* fmt, va_list args)
 {
 	char buffer[2048]{};
-	Error(eDLL_T::COMMON, NULL, "_______________________________________________________________\n");
-	Error(eDLL_T::COMMON, NULL, "] ENGINE ERROR ################################################\n");
+	Error(eDLL_T::COMMON, NO_ERROR, "_______________________________________________________________\n");
+	Error(eDLL_T::COMMON, NO_ERROR, "] ENGINE ERROR ################################################\n");
 	vsprintf(buffer, fmt, args);
-	Error(eDLL_T::COMMON, NULL, "%s\n", buffer);
+	Error(eDLL_T::COMMON, NO_ERROR, "%s\n", buffer);
 
 	///////////////////////////////////////////////////////////////////////////
 	return Sys_Error_Internal(fmt, args);
