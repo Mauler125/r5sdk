@@ -204,7 +204,7 @@ void CRConClient::Recv(void)
 		}
 		if (nRecvLen < 0 && !m_pSocket->IsSocketBlocking())
 		{
-			Error(eDLL_T::CLIENT, false, "RCON Cmd: recv error (%s)\n", NET_ErrorString(WSAGetLastError()));
+			Error(eDLL_T::CLIENT, NULL, "RCON Cmd: recv error (%s)\n", NET_ErrorString(WSAGetLastError()));
 			break;
 		}
 
@@ -260,7 +260,7 @@ void CRConClient::ProcessBuffer(const char* pRecvBuf, int nRecvLen, CConnectedNe
 			if (pData->m_nPayloadLen < 0 ||
 				pData->m_nPayloadLen > pData->m_RecvBuffer.max_size())
 			{
-				Error(eDLL_T::CLIENT, false, "RCON Cmd: sync error (%d)\n", pData->m_nPayloadLen);
+				Error(eDLL_T::CLIENT, NULL, "RCON Cmd: sync error (%d)\n", pData->m_nPayloadLen);
 				this->Disconnect(); // Out of sync (irrecoverable).
 
 				break;

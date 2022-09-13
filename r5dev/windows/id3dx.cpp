@@ -194,7 +194,7 @@ void GetPresent()
 		&nFeatureLevelsSupported,
 		&pContext)))
 	{
-		Error(eDLL_T::MS, true, "Failed to create device and swap chain: error code = %08x\n", hr);
+		Error(eDLL_T::MS, EXIT_FAILURE, "Failed to create device and swap chain: error code = %08x\n", hr);
 		return;
 	}
 
@@ -372,7 +372,7 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 		HRESULT hr = 0;
 		if (FAILED(hr = GetDeviceAndCtxFromSwapchain(pSwapChain, &g_pDevice, &g_pDeviceContext)))
 		{
-			Error(eDLL_T::MS, true, "Failed to get device and context from swap chain: error code = %08x\n", hr);
+			Error(eDLL_T::MS, EXIT_FAILURE, "Failed to get device and context from swap chain: error code = %08x\n", hr);
 			return g_fnIDXGISwapChainPresent(pSwapChain, nSyncInterval, nFlags);
 		}
 
@@ -474,10 +474,10 @@ void InstallDXHooks()
 	DetourAttach(&(LPVOID&)g_oResizeBuffers, (PBYTE)GetResizeBuffers);
 
 	// Commit the transaction
-	if (DetourTransactionCommit() != NO_ERROR)
+	if (LONG hr = DetourTransactionCommit() != NO_ERROR)
 	{
 		// Failed to hook into the process, terminate
-		TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
+		Error(eDLL_T::COMMON, 0xBAD0C0DE, "Failed to detour process: error code = %08x\n", hr);
 	}
 }
 

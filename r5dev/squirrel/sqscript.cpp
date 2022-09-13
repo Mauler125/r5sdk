@@ -146,7 +146,7 @@ SQBool Script_CreateServerVM()
 	if (results)
 		DevMsg(eDLL_T::SERVER, "Created SERVER VM: '%p'\n", g_pServerScript.GetValue<CSquirrelVM*>());
 	else
-		Error(eDLL_T::SERVER, true, "Failed to create SERVER VM\n");
+		Error(eDLL_T::SERVER, EXIT_FAILURE, "Failed to create SERVER VM\n");
 	return results;
 }
 #endif // !CLIENT_DLL
@@ -163,7 +163,7 @@ SQBool Script_CreateClientVM(CHLClient* pHlClient)
 	if (results)
 		DevMsg(eDLL_T::CLIENT, "Created CLIENT VM: '%p'\n", g_pClientScript.GetValue<CSquirrelVM*>());
 	else
-		Error(eDLL_T::CLIENT, true, "Failed to create CLIENT VM\n");
+		Error(eDLL_T::CLIENT, EXIT_FAILURE, "Failed to create CLIENT VM\n");
 	return results;
 }
 
@@ -177,7 +177,7 @@ SQBool Script_CreateUIVM()
 	if (results)
 		DevMsg(eDLL_T::UI, "Created UI VM: '%p'\n", g_pUIScript.GetValue<CSquirrelVM*>());
 	else
-		Error(eDLL_T::UI, true, "Failed to create UI VM\n");
+		Error(eDLL_T::UI, EXIT_FAILURE, "Failed to create UI VM\n");
 	return results;
 }
 #endif // !DEDICATED
@@ -258,14 +258,14 @@ void Script_Execute(const SQChar* code, SQCONTEXT context)
 	CSquirrelVM* script = Script_GetContextObject(context);
 	if (!script)
 	{
-		Error(eDLL_T::ENGINE, false, "Attempted to run %s script with no handle to script context\n", SQVM_GetContextName(context));
+		Error(eDLL_T::ENGINE, NULL, "Attempted to run %s script with no handle to script context\n", SQVM_GetContextName(context));
 		return;
 	}
 
 	HSQUIRRELVM v = script->GetVM();
 	if (!v)
 	{
-		Error(eDLL_T::ENGINE, false, "Attempted to run %s script while VM isn't initialized\n", SQVM_GetContextName(context));
+		Error(eDLL_T::ENGINE, NULL, "Attempted to run %s script while VM isn't initialized\n", SQVM_GetContextName(context));
 		return;
 	}
 

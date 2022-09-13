@@ -53,7 +53,7 @@ void CSocketCreator::ProcessAccept(void)
 		if (!IsSocketBlocking())
 		{
 #ifndef NETCONSOLE
-			Error(eDLL_T::ENGINE, false, "Socket ProcessAccept Error: %s\n", NET_ErrorString(WSAGetLastError()));
+			Error(eDLL_T::ENGINE, NULL, "Socket ProcessAccept Error: %s\n", NET_ErrorString(WSAGetLastError()));
 #else
 			printf("Socket ProcessAccept Error: %s\n", NET_ErrorString(WSAGetLastError()));
 #endif // !NETCONSOLE

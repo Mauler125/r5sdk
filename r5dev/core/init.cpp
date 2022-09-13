@@ -226,10 +226,10 @@ void Systems_Init()
 	RuntimePtc_Init();
 
 	// Commit the transaction
-	if (DetourTransactionCommit() != NO_ERROR)
+	if (LONG hr = DetourTransactionCommit() != NO_ERROR)
 	{
 		// Failed to hook into the process, terminate
-		TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
+		Error(eDLL_T::COMMON, 0xBAD0C0DE, "Failed to detour process: error code = %08x\n", hr);
 	}
 
 	initTimer.End();
@@ -422,7 +422,7 @@ void QuerySystemInfo()
 		{
 			if (MessageBoxA(NULL, "SSE and SSE2 are required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
 			{
-				TerminateProcess(GetCurrentProcess(), 1);
+				TerminateProcess(GetCurrentProcess(), EXIT_FAILURE);
 			}
 		}
 	}
