@@ -85,39 +85,22 @@ LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		switch (uMsg)
 		{
 			case WM_LBUTTONDOWN:
-				return 1L;
 			case WM_LBUTTONUP:
-				return 1L;
 			case WM_LBUTTONDBLCLK:
-				return 1L;
 			case WM_RBUTTONDOWN:
-				return 1L;
 			case WM_RBUTTONUP:
-				return 1L;
 			case WM_RBUTTONDBLCLK:
-				return 1L;
 			case WM_MBUTTONDOWN:
-				return 1L;
 			case WM_MBUTTONUP:
-				return 1L;
 			case WM_MBUTTONDBLCLK:
-				return 1L;
 			case WM_KEYDOWN:
-				return 1L;
 			case WM_KEYUP:
-				return 1L;
 			case WM_MOUSEACTIVATE:
-				return 1L;
 			case WM_MOUSEHOVER:
-				return 1L;
 			case WM_MOUSEHWHEEL:
-				return 1L;
 			case WM_MOUSELEAVE:
-				return 1L;
 			case WM_MOUSEMOVE:
-				return 1L;
 			case WM_MOUSEWHEEL:
-				return 1L;
 			case WM_SETCURSOR:
 				return 1L;
 			default:
