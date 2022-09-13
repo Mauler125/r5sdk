@@ -684,8 +684,8 @@ playlists
 
 				pin_match_type                                 survival
 				enable_nessies                                 0
-				max_teams                                      3
-				max_players                                    3
+				max_teams                                      18
+				max_players                                    18
 				min_players                                    1
 				wait_for_players_forever                       0
 				survival_shields                               1
@@ -709,9 +709,6 @@ playlists
 				survival_wallrun_enabled                       1
 				survival_infinite_ammo                         1
 				survival_custom_deploy                         1
-
-				survival_jumpkit_enabled                       1
-				survival_wallrun_enabled                       1
 				
 				ground_loot_enable                             0
 				lootbin_loot_enable                            0
