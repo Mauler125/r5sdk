@@ -416,9 +416,13 @@ void QuerySystemInfo()
 		spdlog::error("Unable to retrieve system memory information: {:s}\n", 
 			std::system_category().message(static_cast<int>(::GetLastError())));
 	}
+}
 
+void CheckCPU() // Respawn's engine utilizes POPCNT, SSE3 and SSSE3 (Supplemental SSE 3 Instructions), which is checked in r5apex.exe after we have initialized. We only use up to SSE2.
+{
 	if (!s_bMathlibInitialized)
 	{
+		const CPUInformation& pi = GetCPUInformation();
 		if (!(pi.m_bSSE && pi.m_bSSE2))
 		{
 			if (MessageBoxA(NULL, "SSE and SSE2 are required.", "Unsupported CPU", MB_ICONERROR | MB_OK))

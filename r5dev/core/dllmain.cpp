@@ -17,6 +17,8 @@
 
 void SDK_Init()
 {
+    CheckCPU(); // Check CPU as early as possible, SpdLog also uses SIMD intrinsics.
+
     if (strstr(GetCommandLineA(), "-launcher"))
     {
         g_svCmdLine = GetCommandLineA();
