@@ -421,6 +421,7 @@ void ConCommand::InitShipped(void)
 			"launchplaylist",
 			"quit",
 			"exit",
+			"reload",
 			"restart",
 			"status",
 			"version",

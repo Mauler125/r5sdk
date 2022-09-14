@@ -216,6 +216,7 @@ FORCEINLINE void CHostState::Think(void) const
 	static bool bInitialized = false;
 	static CFastTimer banListTimer;
 	static CFastTimer pylonTimer;
+	static CFastTimer reloadTimer;
 	static CFastTimer statsTimer;
 
 	if (!bInitialized) // Initialize clocks.
@@ -226,6 +227,7 @@ FORCEINLINE void CHostState::Think(void) const
 		pylonTimer.Start();
 #endif // DEDICATED
 		statsTimer.Start();
+		reloadTimer.Start();
 #endif // !CLIENT_DLL
 		bInitialized = true;
 	}
@@ -263,6 +265,14 @@ FORCEINLINE void CHostState::Think(void) const
 	}
 #endif // DEDICATED
 #ifndef CLIENT_DLL
+	if (sv_autoReloadRate->GetBool())
+	{
+		if (reloadTimer.GetDurationInProgress().GetSeconds() > sv_autoReloadRate->GetDouble())
+		{
+			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "reload\n", cmd_source_t::kCommandSrcCode);
+			reloadTimer.Start();
+		}
+	}
 	if (statsTimer.GetDurationInProgress().GetSeconds() > sv_statusRefreshInterval->GetDouble())
 	{
 		string svCurrentPlaylist = KeyValues_GetCurrentPlaylist();
