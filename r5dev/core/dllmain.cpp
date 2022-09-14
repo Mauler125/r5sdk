@@ -9,6 +9,7 @@
 #endif // !DEDICATED
 #include "windows/console.h"
 #include "windows/system.h"
+#include "mathlib/mathlib.h"
 #include "launcher/launcher.h"
 
 //#############################################################################
@@ -18,6 +19,9 @@
 void SDK_Init()
 {
     CheckCPU(); // Check CPU as early as possible, SpdLog also uses SIMD intrinsics.
+
+    MathLib_Init(); // Initialize Mathlib.
+    WinSock_Init(); // Initialize Winsock.
 
     if (strstr(GetCommandLineA(), "-launcher"))
     {
@@ -68,6 +72,7 @@ void SDK_Shutdown()
     bShutDown = true;
     spdlog::info("Shutdown GameSDK\n");
 
+    WinSock_Shutdown();
     Systems_Shutdown();
     WinSys_Detach();
 

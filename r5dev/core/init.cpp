@@ -36,7 +36,6 @@
 #ifndef DEDICATED
 #include "milessdk/win64_rrthreads.h"
 #endif // !DEDICATED
-#include "mathlib/mathlib.h"
 #include "vphysics/QHull.h"
 #include "bsplib/bsplib.h"
 #include "materialsystem/cmaterialsystem.h"
@@ -137,9 +136,6 @@ void Systems_Init()
 	spdlog::info("Detour->Init()   '{:10.6f}' seconds ('{:12d}' clocks)\n", initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
 
 	initTimer.Start();
-
-	WinSock_Init(); // Initialize Winsock.
-	MathLib_Init(); // Initialize Mathlib.
 
 	// Begin the detour transaction to hook the process
 	DetourTransactionBegin();
@@ -264,9 +260,6 @@ void Systems_Shutdown()
 {
 	CFastTimer shutdownTimer;
 	shutdownTimer.Start();
-
-	// Shutdown Winsock system.
-	WinSock_Shutdown();
 
 	// Begin the detour transaction to unhook the process
 	DetourTransactionBegin();
@@ -418,18 +411,27 @@ void QuerySystemInfo()
 	}
 }
 
-void CheckCPU() // Respawn's engine utilizes POPCNT, SSE3 and SSSE3 (Supplemental SSE 3 Instructions), which is checked in r5apex.exe after we have initialized. We only use up to SSE2.
+void CheckCPU() // Respawn's engine and our SDK utilize POPCNT, SSE3 and SSSE3 (Supplemental SSE 3 Instructions).
 {
-	if (!s_bMathlibInitialized)
+	const CPUInformation& pi = GetCPUInformation();
+	static char szBuf[1024];
+	if (!pi.m_bSSE3)
 	{
-		const CPUInformation& pi = GetCPUInformation();
-		if (!(pi.m_bSSE && pi.m_bSSE2))
-		{
-			if (MessageBoxA(NULL, "SSE and SSE2 are required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
-			{
-				TerminateProcess(GetCurrentProcess(), EXIT_FAILURE);
-			}
-		}
+		V_snprintf(szBuf, sizeof(szBuf), "CPU does not have %s!\n", "SSE 3");
+		MessageBoxA(NULL, szBuf, "Unsupported CPU", MB_ICONERROR | MB_OK);
+		ExitProcess(-1);
+	}
+	if (!pi.m_bSSSE3)
+	{
+		V_snprintf(szBuf, sizeof(szBuf), "CPU does not have %s!\n", "SSSE 3 (Supplemental SSE 3 Instructions)");
+		MessageBoxA(NULL, szBuf, "Unsupported CPU", MB_ICONERROR | MB_OK);
+		ExitProcess(-1);
+	}
+	if (!pi.m_bPOPCNT)
+	{
+		V_snprintf(szBuf, sizeof(szBuf), "CPU does not have %s!\n", "POPCNT");
+		MessageBoxA(NULL, szBuf, "Unsupported CPU", MB_ICONERROR | MB_OK);
+		ExitProcess(-1);
 	}
 }
 
