@@ -57,6 +57,7 @@
 FORCEINLINE void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float flFrameTime)
 {
 	static bool bInitialized = false;
+	static bool bResetIdleName = false;
 	if (!bInitialized)
 	{
 		g_pHostState->Setup();
@@ -106,15 +107,25 @@ FORCEINLINE void CHostState::FrameUpdate(CHostState* pHostState, double flCurren
 			}
 			case HostStates_t::HS_RUN:
 			{
+				if (!g_pHostState->m_bActiveGame)
+				{
+					if (bResetIdleName)
+					{
+						g_pHostState->ResetLevelName();
+						bResetIdleName = false;
+					}
+				}
+				else // Reset idle name the next non-active frame.
+				{
+					bResetIdleName = true;
+				}
+
 				CHostState_State_Run(&g_pHostState->m_iCurrentState, flCurrentTime, flFrameTime);
 				break;
 			}
 			case HostStates_t::HS_GAME_SHUTDOWN:
 			{
 				DevMsg(eDLL_T::ENGINE, "%s - Shutdown host game\n", "CHostState::FrameUpdate");
-				if (g_pHostState->m_bActiveGame) {
-					g_pHostState->ResetLevelName();
-				}
 				CHostState_State_GameShutDown(g_pHostState);
 				break;
 			}
@@ -310,8 +321,6 @@ FORCEINLINE void CHostState::GameShutDown(void)
 		g_pServerGameDLL->GameShutdown();
 #endif // !CLIENT_DLL
 		m_bActiveGame = 0;
-
-		ResetLevelName();
 	}
 }
 
@@ -419,7 +428,7 @@ FORCEINLINE void CHostState::ResetLevelName(void)
 #else // DEDICATED
 	const char* szNoMap = "main_menu";
 #endif
-	snprintf(const_cast<char*>(m_levelName), sizeof(m_levelName), szNoMap);
+	Q_snprintf(const_cast<char*>(m_levelName), sizeof(m_levelName), szNoMap);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
