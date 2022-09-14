@@ -208,7 +208,7 @@ const char* NET_ErrorString(int iCode)
 		case WSAENETDOWN                : return "WSAENETDOWN";
 		case WSAENETUNREACH             : return "WSAENETUNREACH";
 		case WSAENETRESET               : return "WSAENETRESET";
-		case WSAECONNABORTED            : return "WSWSAECONNABORTEDAEINTR";
+		case WSAECONNABORTED            : return "WSAECONNABORTED";
 		case WSAECONNRESET              : return "WSAECONNRESET";
 		case WSAENOBUFS                 : return "WSAENOBUFS";
 		case WSAEISCONN                 : return "WSAEISCONN";
