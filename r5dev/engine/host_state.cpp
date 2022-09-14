@@ -321,6 +321,7 @@ FORCEINLINE void CHostState::GameShutDown(void)
 		g_pServerGameDLL->GameShutdown();
 #endif // !CLIENT_DLL
 		m_bActiveGame = 0;
+		ResetLevelName();
 	}
 }
 
@@ -424,9 +425,9 @@ FORCEINLINE void CHostState::State_ChangeLevelMP(void)
 FORCEINLINE void CHostState::ResetLevelName(void)
 {
 #ifdef DEDICATED
-	const char* szNoMap = "server_idle";
+	static const char* szNoMap = "server_idle";
 #else // DEDICATED
-	const char* szNoMap = "main_menu";
+	static const char* szNoMap = "main_menu";
 #endif
 	Q_snprintf(const_cast<char*>(m_levelName), sizeof(m_levelName), szNoMap);
 }
