@@ -308,7 +308,7 @@ void CBanSystem::KickPlayerByName(const string& svPlayerName)
 
 //-----------------------------------------------------------------------------
 // Purpose: kicks a player by given handle or id
-// Input  : svHandle - 
+// Input  : &svHandle - 
 //-----------------------------------------------------------------------------
 void CBanSystem::KickPlayerById(const string& svHandle)
 {
@@ -399,7 +399,7 @@ void CBanSystem::BanPlayerByName(const string& svPlayerName)
 
 //-----------------------------------------------------------------------------
 // Purpose: bans a player by given handle or id
-// Input  : svHandle - 
+// Input  : &svHandle - 
 //-----------------------------------------------------------------------------
 void CBanSystem::BanPlayerById(const string& svHandle)
 {
@@ -458,6 +458,36 @@ void CBanSystem::BanPlayerById(const string& svHandle)
 
 		if (bSave)
 			Save();
+	}
+	catch (const std::exception& e)
+	{
+		Error(eDLL_T::SERVER, NO_ERROR, "%s - %s", __FUNCTION__, e.what());
+		return;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: unbans a player by given nucleus id or ip address
+// Input  : &svCriteria - 
+//-----------------------------------------------------------------------------
+void CBanSystem::UnbanPlayer(const string& svCriteria)
+{
+	try
+	{
+		if (StringIsDigit(svCriteria)) // Check if we have an ip address or nucleus id.
+		{
+			if (DeleteEntry("<<invalid>>", std::stoll(svCriteria))) // Delete ban entry.
+			{
+				Save(); // Save modified vector to file.
+			}
+		}
+		else
+		{
+			if (DeleteEntry(svCriteria, 0)) // Delete ban entry.
+			{
+				Save(); // Save modified vector to file.
+			}
+		}
 	}
 	catch (const std::exception& e)
 	{

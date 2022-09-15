@@ -33,6 +33,7 @@ namespace VSquirrel
 		SQRESULT KickPlayerById(HSQUIRRELVM v);
 		SQRESULT BanPlayerByName(HSQUIRRELVM v);
 		SQRESULT BanPlayerById(HSQUIRRELVM v);
+		SQRESULT UnbanPlayer(HSQUIRRELVM v);
 	}
 #endif // !CLIENT_DLL
 #ifndef DEDICATED

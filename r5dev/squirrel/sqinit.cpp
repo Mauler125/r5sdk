@@ -128,8 +128,8 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT KickPlayerByName(HSQUIRRELVM v)
         {
-            SQChar* szPlayer = sq_getstring(v, 1);
-            g_pBanSystem->KickPlayerByName(szPlayer);
+            SQChar* szName = sq_getstring(v, 1);
+            g_pBanSystem->KickPlayerByName(szName);
 
             return SQ_OK;
         }
@@ -139,8 +139,8 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT KickPlayerById(HSQUIRRELVM v)
         {
-            SQChar* szPlayer = sq_getstring(v, 1);
-            g_pBanSystem->KickPlayerById(szPlayer);
+            SQChar* szHandle = sq_getstring(v, 1);
+            g_pBanSystem->KickPlayerById(szHandle);
 
             return SQ_OK;
         }
@@ -150,8 +150,8 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT BanPlayerByName(HSQUIRRELVM v)
         {
-            SQChar* szPlayer = sq_getstring(v, 1);
-            g_pBanSystem->BanPlayerByName(szPlayer);
+            SQChar* szName = sq_getstring(v, 1);
+            g_pBanSystem->BanPlayerByName(szName);
 
             return SQ_OK;
         }
@@ -161,8 +161,19 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         SQRESULT BanPlayerById(HSQUIRRELVM v)
         {
-            SQChar* szPlayer = sq_getstring(v, 1);
-            g_pBanSystem->BanPlayerById(szPlayer);
+            SQChar* szHandle = sq_getstring(v, 1);
+            g_pBanSystem->BanPlayerById(szHandle);
+
+            return SQ_OK;
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: unbans a player by given nucleus id or ip address
+        //-----------------------------------------------------------------------------
+        SQRESULT UnbanPlayer(HSQUIRRELVM v)
+        {
+            SQChar* szCriteria = sq_getstring(v, 1);
+            g_pBanSystem->UnbanPlayer(szCriteria);
 
             return SQ_OK;
         }

@@ -60,6 +60,8 @@ void Script_RegisterServerFunctions(CSquirrelVM* pSquirrelVM)
 
 	Script_RegisterFunction(pSquirrelVM, "BanPlayerByName", "Script_BanPlayerByName", "Bans a player from the server by name", "void", "string", &VSquirrel::SERVER::BanPlayerByName);
 	Script_RegisterFunction(pSquirrelVM, "BanPlayerById", "Script_BanPlayerById", "Bans a player from the server by handle or nucleus id", "void", "string", &VSquirrel::SERVER::BanPlayerById);
+
+	Script_RegisterFunction(pSquirrelVM, "UnbanPlayer", "Script_UnbanPlayer", "Unbans a player from the server by nucleus id or ip address", "void", "string", &VSquirrel::SERVER::UnbanPlayer);
 }
 #endif // !CLIENT_DLL
 

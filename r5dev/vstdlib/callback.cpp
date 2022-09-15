@@ -167,47 +167,7 @@ void Host_Unban_f(const CCommand& args)
 		return;
 	}
 
-	try
-	{
-		if (args.HasOnlyDigits(1)) // Check if we have an ip address or nucleus id.
-		{
-			if (g_pBanSystem->DeleteEntry("noIP", std::stoll(args.Arg(1)))) // Delete ban entry.
-			{
-				g_pBanSystem->Save(); // Save modified vector to file.
-			}
-		}
-		else
-		{
-			if (g_pBanSystem->DeleteEntry(args.Arg(1), 0)) // Delete ban entry.
-			{
-				g_pBanSystem->Save(); // Save modified vector to file.
-			}
-		}
-	}
-	catch (const std::exception& e)
-	{
-		Error(eDLL_T::SERVER, NO_ERROR, "%s - %s", __FUNCTION__, e.what());
-		return;
-	}
-}
-
-/*
-=====================
-Host_Changelevel_f
-
-  Goes to a new map, 
-  taking all clients along
-=====================
-*/
-void Host_Changelevel_f(const CCommand& args)
-{
-	if (args.ArgC() >= 2
-		&& IsOriginInitialized()
-		&& g_pServer->IsActive())
-	{
-		v_SetLaunchOptions(args);
-		v_HostState_ChangeLevelMP(args[1], args[2]);
-	}
+	g_pBanSystem->UnbanPlayer(args.Arg(1));
 }
 
 /*
@@ -229,6 +189,25 @@ void Host_ReloadPlaylists_f(const CCommand& args)
 {
 	_DownloadPlaylists_f();
 	KeyValues::InitPlaylists(); // Re-Init playlist.
+}
+
+/*
+=====================
+Host_Changelevel_f
+
+  Goes to a new map, 
+  taking all clients along
+=====================
+*/
+void Host_Changelevel_f(const CCommand& args)
+{
+	if (args.ArgC() >= 2
+		&& IsOriginInitialized()
+		&& g_pServer->IsActive())
+	{
+		v_SetLaunchOptions(args);
+		v_HostState_ChangeLevelMP(args[1], args[2]);
+	}
 }
 
 #endif // !CLIENT_DLL
