@@ -90,39 +90,7 @@ namespace VSquirrel
 
             return SQ_OK;
         }
-
-        //-----------------------------------------------------------------------------
-        // Purpose: shutdown local game (host only)
-        //-----------------------------------------------------------------------------
-        SQRESULT ShutdownHostGame(HSQUIRRELVM v)
-        {
-            if (g_pHostState->m_bActiveGame)
-                g_pHostState->m_iNextState = HostStates_t::HS_GAME_SHUTDOWN;
-
-            return SQ_OK;
-        }
-    }
 #ifndef CLIENT_DLL
-    namespace SERVER
-    {
-        //-----------------------------------------------------------------------------
-        // Purpose: gets the number of real players on this server
-        //-----------------------------------------------------------------------------
-        SQRESULT GetNumHumanPlayers(HSQUIRRELVM v)
-        {
-            sq_pushinteger(v, g_pServer->GetNumHumanPlayers());
-            return SQ_OK;
-        }
-
-        //-----------------------------------------------------------------------------
-        // Purpose: gets the number of fake players on this server
-        //-----------------------------------------------------------------------------
-        SQRESULT GetNumFakeClients(HSQUIRRELVM v)
-        {
-            sq_pushinteger(v, g_pServer->GetNumFakeClients());
-            return SQ_OK;
-        }
-
         //-----------------------------------------------------------------------------
         // Purpose: kicks a player by given name
         //-----------------------------------------------------------------------------
@@ -175,6 +143,38 @@ namespace VSquirrel
             SQChar* szCriteria = sq_getstring(v, 1);
             g_pBanSystem->UnbanPlayer(szCriteria);
 
+            return SQ_OK;
+        }
+#endif // !CLIENT_DLL
+        //-----------------------------------------------------------------------------
+        // Purpose: shutdown local game (host only)
+        //-----------------------------------------------------------------------------
+        SQRESULT ShutdownHostGame(HSQUIRRELVM v)
+        {
+            if (g_pHostState->m_bActiveGame)
+                g_pHostState->m_iNextState = HostStates_t::HS_GAME_SHUTDOWN;
+
+            return SQ_OK;
+        }
+    }
+#ifndef CLIENT_DLL
+    namespace SERVER
+    {
+        //-----------------------------------------------------------------------------
+        // Purpose: gets the number of real players on this server
+        //-----------------------------------------------------------------------------
+        SQRESULT GetNumHumanPlayers(HSQUIRRELVM v)
+        {
+            sq_pushinteger(v, g_pServer->GetNumHumanPlayers());
+            return SQ_OK;
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: gets the number of fake players on this server
+        //-----------------------------------------------------------------------------
+        SQRESULT GetNumFakeClients(HSQUIRRELVM v)
+        {
+            sq_pushinteger(v, g_pServer->GetNumFakeClients());
             return SQ_OK;
         }
     }

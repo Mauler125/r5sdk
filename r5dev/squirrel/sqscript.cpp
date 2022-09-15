@@ -53,15 +53,15 @@ void Script_RegisterServerFunctions(CSquirrelVM* pSquirrelVM)
 	Script_RegisterFunction(pSquirrelVM, "GetAvailableMaps", "Script_GetAvailableMaps", "Gets an array of all available maps", "array< string >", "", &VSquirrel::SHARED::GetAvailableMaps);
 	Script_RegisterFunction(pSquirrelVM, "GetAvailablePlaylists", "Script_GetAvailablePlaylists", "Gets an array of all available playlists", "array< string >", "", &VSquirrel::SHARED::GetAvailablePlaylists);
 
+	Script_RegisterFunction(pSquirrelVM, "KickPlayerByName", "Script_KickPlayerByName", "Kicks a player from the server by name", "void", "string", &VSquirrel::SHARED::KickPlayerByName);
+	Script_RegisterFunction(pSquirrelVM, "KickPlayerById", "Script_KickPlayerById", "Kicks a player from the server by handle or nucleus id", "void", "string", &VSquirrel::SHARED::KickPlayerById);
+
+	Script_RegisterFunction(pSquirrelVM, "BanPlayerByName", "Script_BanPlayerByName", "Bans a player from the server by name", "void", "string", &VSquirrel::SHARED::BanPlayerByName);
+	Script_RegisterFunction(pSquirrelVM, "BanPlayerById", "Script_BanPlayerById", "Bans a player from the server by handle or nucleus id", "void", "string", &VSquirrel::SHARED::BanPlayerById);
+
+	Script_RegisterFunction(pSquirrelVM, "UnbanPlayer", "Script_UnbanPlayer", "Unbans a player from the server by nucleus id or ip address", "void", "string", &VSquirrel::SHARED::UnbanPlayer);
+
 	Script_RegisterFunction(pSquirrelVM, "ShutdownHostGame", "Script_ShutdownHostGame", "Shuts the local host game down", "void", "", &VSquirrel::SHARED::ShutdownHostGame);
-
-	Script_RegisterFunction(pSquirrelVM, "KickPlayerByName", "Script_KickPlayerByName", "Kicks a player from the server by name", "void", "string", &VSquirrel::SERVER::KickPlayerByName);
-	Script_RegisterFunction(pSquirrelVM, "KickPlayerById", "Script_KickPlayerById", "Kicks a player from the server by handle or nucleus id", "void", "string", &VSquirrel::SERVER::KickPlayerById);
-
-	Script_RegisterFunction(pSquirrelVM, "BanPlayerByName", "Script_BanPlayerByName", "Bans a player from the server by name", "void", "string", &VSquirrel::SERVER::BanPlayerByName);
-	Script_RegisterFunction(pSquirrelVM, "BanPlayerById", "Script_BanPlayerById", "Bans a player from the server by handle or nucleus id", "void", "string", &VSquirrel::SERVER::BanPlayerById);
-
-	Script_RegisterFunction(pSquirrelVM, "UnbanPlayer", "Script_UnbanPlayer", "Unbans a player from the server by nucleus id or ip address", "void", "string", &VSquirrel::SERVER::UnbanPlayer);
 }
 #endif // !CLIENT_DLL
 
@@ -113,7 +113,15 @@ void Script_RegisterUIFunctions(CSquirrelVM* pSquirrelVM)
 
 	Script_RegisterFunction(pSquirrelVM, "GetAvailableMaps", "Script_GetAvailableMaps", "Gets an array of all available maps", "array< string >", "", &VSquirrel::SHARED::GetAvailableMaps);
 	Script_RegisterFunction(pSquirrelVM, "GetAvailablePlaylists", "Script_GetAvailablePlaylists", "Gets an array of all available playlists", "array< string >", "", &VSquirrel::SHARED::GetAvailablePlaylists);
+#ifndef CLIENT_DLL
+	Script_RegisterFunction(pSquirrelVM, "KickPlayerByName", "Script_KickPlayerByName", "Kicks a player from the server by name", "void", "string", &VSquirrel::SHARED::KickPlayerByName);
+	Script_RegisterFunction(pSquirrelVM, "KickPlayerById", "Script_KickPlayerById", "Kicks a player from the server by handle or nucleus id", "void", "string", &VSquirrel::SHARED::KickPlayerById);
 
+	Script_RegisterFunction(pSquirrelVM, "BanPlayerByName", "Script_BanPlayerByName", "Bans a player from the server by name", "void", "string", &VSquirrel::SHARED::BanPlayerByName);
+	Script_RegisterFunction(pSquirrelVM, "BanPlayerById", "Script_BanPlayerById", "Bans a player from the server by handle or nucleus id", "void", "string", &VSquirrel::SHARED::BanPlayerById);
+
+	Script_RegisterFunction(pSquirrelVM, "UnbanPlayer", "Script_UnbanPlayer", "Unbans a player from the server by nucleus id or ip address", "void", "string", &VSquirrel::SHARED::UnbanPlayer);
+#endif // !CLIENT_DLL
 	Script_RegisterFunction(pSquirrelVM, "ShutdownHostGame", "Script_ShutdownHostGame", "Shuts down the local host game", "void", "", &VSquirrel::SHARED::ShutdownHostGame);
 }
 

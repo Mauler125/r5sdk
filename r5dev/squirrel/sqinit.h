@@ -23,17 +23,19 @@ namespace VSquirrel
 		SQRESULT GetAvailableMaps(HSQUIRRELVM v);
 		SQRESULT GetAvailablePlaylists(HSQUIRRELVM v);
 		SQRESULT ShutdownHostGame(HSQUIRRELVM v);
+#ifndef CLIENT_DLL
+		SQRESULT KickPlayerByName(HSQUIRRELVM v);
+		SQRESULT KickPlayerById(HSQUIRRELVM v);
+		SQRESULT BanPlayerByName(HSQUIRRELVM v);
+		SQRESULT BanPlayerById(HSQUIRRELVM v);
+		SQRESULT UnbanPlayer(HSQUIRRELVM v);
+#endif // !CLIENT_DLL
 	}
 #ifndef CLIENT_DLL
 	namespace SERVER
 	{
 		SQRESULT GetNumHumanPlayers(HSQUIRRELVM v);
 		SQRESULT GetNumFakeClients(HSQUIRRELVM v);
-		SQRESULT KickPlayerByName(HSQUIRRELVM v);
-		SQRESULT KickPlayerById(HSQUIRRELVM v);
-		SQRESULT BanPlayerByName(HSQUIRRELVM v);
-		SQRESULT BanPlayerById(HSQUIRRELVM v);
-		SQRESULT UnbanPlayer(HSQUIRRELVM v);
 	}
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
