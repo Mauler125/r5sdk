@@ -22,6 +22,9 @@
 #include "squirrel/sqapi.h"
 #include "squirrel/sqinit.h"
 #include "networksystem/pylon.h"
+#ifndef CLIENT_DLL
+#include "networksystem/bansystem.h"
+#endif // !CLIENT_DLL
 #ifndef DEDICATED
 #include "networksystem/listmanager.h"
 #endif // !DEDICATED
@@ -117,6 +120,50 @@ namespace VSquirrel
         SQRESULT GetNumFakeClients(HSQUIRRELVM v)
         {
             sq_pushinteger(v, g_pServer->GetNumFakeClients());
+            return SQ_OK;
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: kicks a player by given name
+        //-----------------------------------------------------------------------------
+        SQRESULT KickPlayerByName(HSQUIRRELVM v)
+        {
+            SQChar* szPlayer = sq_getstring(v, 1);
+            g_pBanSystem->KickPlayerByName(szPlayer);
+
+            return SQ_OK;
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: kicks a player by given handle or id
+        //-----------------------------------------------------------------------------
+        SQRESULT KickPlayerById(HSQUIRRELVM v)
+        {
+            SQChar* szPlayer = sq_getstring(v, 1);
+            g_pBanSystem->KickPlayerById(szPlayer);
+
+            return SQ_OK;
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: bans a player by given name
+        //-----------------------------------------------------------------------------
+        SQRESULT BanPlayerByName(HSQUIRRELVM v)
+        {
+            SQChar* szPlayer = sq_getstring(v, 1);
+            g_pBanSystem->BanPlayerByName(szPlayer);
+
+            return SQ_OK;
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: bans a player by given handle or id
+        //-----------------------------------------------------------------------------
+        SQRESULT BanPlayerById(HSQUIRRELVM v)
+        {
+            SQChar* szPlayer = sq_getstring(v, 1);
+            g_pBanSystem->BanPlayerById(szPlayer);
+
             return SQ_OK;
         }
     }

@@ -29,6 +29,10 @@ namespace VSquirrel
 	{
 		SQRESULT GetNumHumanPlayers(HSQUIRRELVM v);
 		SQRESULT GetNumFakeClients(HSQUIRRELVM v);
+		SQRESULT KickPlayerByName(HSQUIRRELVM v);
+		SQRESULT KickPlayerById(HSQUIRRELVM v);
+		SQRESULT BanPlayerByName(HSQUIRRELVM v);
+		SQRESULT BanPlayerById(HSQUIRRELVM v);
 	}
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
