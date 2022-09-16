@@ -1038,6 +1038,7 @@ playlists
 			"Tokens"
 			{
 				"MP_RR_DESERTLANDS_64K_X_64K_NX"      "World's Edge After Dark"
+				"MP_RR_DESERTLANDS_64K_X_64K_TT"      "World's Edge Mirage Voyage"
 				"MP_RR_ASHS_REDEMPTION"               "Ash's Redemption"
 				"MP_RR_AQUEDUCT"                      "Overflow"
 				"MP_RR_AQUEDUCT_NIGHT"                "Overflow After Dark"
