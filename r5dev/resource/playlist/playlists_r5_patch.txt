@@ -371,7 +371,7 @@ playlists
 				visible                                        1
 				ui_slot                                        firing_range
 				image                                          firing_range
-				name                                           #PL_FIRINGRANGE
+				name                                           "Firing Range"
 				description                                    #PL_FIRINGRANGE_DESC
 				video                                          _temp
 
@@ -426,7 +426,7 @@ playlists
 			{
 				visible                                        1
 				battlechatter_enabled                          1
-				name                                           #PL_PLAY_APEX
+				name                                           "Survival"
 				description                                    #PL_SURVIVAL_SQUADS_DESC
 				abbreviation                                   #PL_PLAY_APEX
 
@@ -470,7 +470,7 @@ playlists
 				panel_image                                    panel_worlds_edge
 				visible                                        0
 				battlechatter_enabled                          1
-				name                                           #PL_Ranked_Leagues
+				name                                           "Ranked"
 				description                                    #PL_survival_ranked_desc
 				abbreviation                                   #PL_Ranked_Leagues
 				map_name                                       #MP_RR_DESERTLANDS_64K_X_64K
@@ -503,7 +503,7 @@ playlists
 			inherit defaults
 			vars
 			{
-				name                                           #SHADOW_SQUAD_MODE
+				name                                           "ShadowFall"
 				description                                    #SHADOW_SQUAD_MODE_DESC
 				abbreviation                                   #SHADOW_SQUAD_MODE_ABOUT
 				image                                          shadow_squad
@@ -538,7 +538,7 @@ playlists
 			inherit defaults
 			vars
 			{
-				name                                           #PL_DES_DUO
+				name                                           "Duos"
 				description                                    #PL_DES_DUO_SHORT
 				abbreviation                                   #PL_DES_DUO_LONG
 				image                                          duos
@@ -576,7 +576,7 @@ playlists
 			inherit survival
 			vars
 			{
-				name                                           #PL_CAN_SOLO
+				name                                           "Iron Crown"
 				description                                    #PL_CAN_SOLO_SHORT
 				abbreviation                                   #PL_CAN_SOLO_LONG
 				image                                          solo_iron_crown
@@ -609,7 +609,7 @@ playlists
 			inherit survival
 			vars
 			{
-				name                                           #CAN_ELITE
+				name                                           "Elite"
 				description                                    #PL_survival_elite_desc
 				abbreviation                                   #PL_survival_elite_desc
 				image                                          apex_elite
@@ -630,7 +630,7 @@ playlists
 			inherit survival
 			vars
 			{
-				name                                           #SHOTGUNS_AND_SNIPERS
+				name                                           "Armed and Dangerous"
 				description                                    #SHOTGUNS_AND_SNIPERS_DESC
 				abbreviation                                   #SHOTGUNS_AND_SNIPERS_DESC
 				image                                          shotguns_and_snipers
@@ -676,7 +676,7 @@ playlists
 				panel_image                                    panel_worlds_edge
 				visible                                        1
 				battlechatter_enabled                          1
-				name                                           custom_tdm
+				name                                           "Team Deathmatch"
 				description                                    "You, against them, in a variety of gamemodes"
 				abbreviation                                   "Team Deathmatch"
 				lobbytitle                                     "Team Deathmatch"
@@ -758,7 +758,7 @@ playlists
 				panel_image                                    panel_worlds_edge
 				visible                                        1
 				battlechatter_enabled                          1
-				name                                           custom_ctf
+				name                                           "Capture The Flag"
 				description                                    "Two teams each have their own color flag placed in their home base. The objective is to steal the other team's flag and take it to their own base"
 				abbreviation                                   "Capture The Flag"
 				lobbytitle                                     "Capture The Flag"
@@ -870,6 +870,8 @@ playlists
 			{
 				visible                                        1
 
+				name                                           "Gun Game"
+
 				tdm_gungame                                    1
 				respawn_delay                                  1
 				replay_enabled                                 0
@@ -890,6 +892,7 @@ playlists
 			vars
 			{
 				visible                                        1
+				name                                           "Gun Game Double"
 
 				tdm_gungame                                    1
 				respawn_delay                                  1
@@ -909,6 +912,7 @@ playlists
 			vars
 			{
 				visible                                        1
+				name                                           "Survival Dev"
 
 				// Skip intros:
 				waiting_for_players_spawning_enabled           1
@@ -954,6 +958,8 @@ playlists
 			inherit survival_dev
 			vars
 			{
+				name                                           "ShadowFall Dev"
+
 				// Bots:
 				character_select_time_max                      4.0
 				character_select_time_min                      4.0
@@ -986,6 +992,8 @@ playlists
 			vars
 			{
 				visible                                        0
+				name                                           "MenuFall"
+
 				menu_fall_ltm                                  1
 
 				// Sets the legend in the lobby.
