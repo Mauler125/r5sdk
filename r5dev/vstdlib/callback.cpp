@@ -96,7 +96,7 @@ void ServerBrowser_Invoke_f(const CCommand& args)
 	g_pBrowser->m_bActivate = !g_pBrowser->m_bActivate;
 }
 #endif // !DEDICATED
-
+#ifndef CLIENT_DLL
 /*
 =====================
 Host_Kick_f
@@ -111,7 +111,7 @@ void Host_Kick_f(const CCommand& args)
 
 	g_pBanSystem->KickPlayerByName(args.Arg(1));
 }
-#ifndef CLIENT_DLL
+
 /*
 =====================
 Host_KickID_f
