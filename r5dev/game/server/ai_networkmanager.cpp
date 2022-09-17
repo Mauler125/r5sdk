@@ -52,7 +52,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	FileHandle_t pAIGraph = FileSystem()->Open(fsGraphPath.relative_path().u8string().c_str(), "wb", "GAME");
 	if (!pAIGraph)
 	{
-		Error(eDLL_T::SERVER, false, "%s - Unable to write to '%s' (read-only?)\n", __FUNCTION__, fsGraphPath.relative_path().u8string().c_str());
+		Error(eDLL_T::SERVER, NO_ERROR, "%s - Unable to write to '%s' (read-only?)\n", __FUNCTION__, fsGraphPath.relative_path().u8string().c_str());
 		return;
 	}
 
@@ -339,7 +339,7 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager,
 	FileHandle_t pAIGraph = FileSystem()->Open(fsGraphPath.relative_path().u8string().c_str(), "rb", "GAME");
 	if (!pAIGraph)
 	{
-		Error(eDLL_T::SERVER, false, "%s - Unable to open '%s' (insufficient rights?)\n", __FUNCTION__, 
+		Error(eDLL_T::SERVER, NO_ERROR, "%s - Unable to open '%s' (insufficient rights?)\n", __FUNCTION__,
 			fsGraphPath.relative_path().u8string().c_str());
 		LoadNetworkGraphEx(pAINetworkManager, pBuffer, szAIGraphFile);
 
@@ -376,7 +376,7 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager,
 	}
 	else
 	{
-		Error(eDLL_T::SERVER, false, "%s - AI node graph '%s' is corrupt\n", __FUNCTION__, 
+		Error(eDLL_T::SERVER, NO_ERROR, "%s - AI node graph '%s' is corrupt\n", __FUNCTION__,
 			fsGraphPath.relative_path().u8string().c_str());
 	}
 

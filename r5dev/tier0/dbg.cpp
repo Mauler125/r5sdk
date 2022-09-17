@@ -301,6 +301,8 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sdk_info");
 
 	s_LogMutex.lock();
+	const char* pszUpTime = Plat_GetProcessUpTime();
+
 	{/////////////////////////////
 		va_list args{};
 		va_start(args, fmt);
@@ -311,7 +313,7 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 		va_end(args);
 	}/////////////////////////////
 
-	svOut = Plat_GetProcessUpTime();
+	svOut = g_bSpdLog_PostInit ? pszUpTime : "";
 	svOut.append(sDLL_T[static_cast<int>(context)]);
 	svOut.append(szBuf);
 	svOut = std::regex_replace(svOut, rxAnsiExp, "");
@@ -330,7 +332,7 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 	}
 	else
 	{
-		svAnsiOut = Plat_GetProcessUpTime();
+		svAnsiOut = g_bSpdLog_PostInit ? pszUpTime : "";
 		svAnsiOut.append(sANSI_DLL_T[static_cast<int>(context)]);
 		svAnsiOut.append(szBuf);
 
@@ -386,8 +388,11 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 		break;
 	}
 
-	g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), color));
-	g_pLogSystem.AddLog(tLog, g_spd_sys_w_oss.str());
+	if (g_bSpdLog_PostInit)
+	{
+		g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), color));
+		g_pLogSystem.AddLog(tLog, g_spd_sys_w_oss.str());
+	}
 
 	g_spd_sys_w_oss.str("");
 	g_spd_sys_w_oss.clear();
@@ -414,6 +419,8 @@ void Warning(eDLL_T context, const char* fmt, ...)
 	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sdk_warn");
 
 	s_LogMutex.lock();
+	const char* pszUpTime = Plat_GetProcessUpTime();
+
 	{/////////////////////////////
 		va_list args{};
 		va_start(args, fmt);
@@ -424,7 +431,7 @@ void Warning(eDLL_T context, const char* fmt, ...)
 		va_end(args);
 	}/////////////////////////////
 
-	svOut = Plat_GetProcessUpTime();
+	svOut = g_bSpdLog_PostInit ? pszUpTime : "";
 	svOut.append(sDLL_T[static_cast<int>(context)]);
 	svOut.append(szBuf);
 	svOut = std::regex_replace(svOut, rxAnsiExp, "");
@@ -443,7 +450,7 @@ void Warning(eDLL_T context, const char* fmt, ...)
 	}
 	else
 	{
-		svAnsiOut = Plat_GetProcessUpTime();
+		svAnsiOut = g_bSpdLog_PostInit ? pszUpTime : "";
 		svAnsiOut.append(sANSI_DLL_T[static_cast<int>(context)]);
 		svAnsiOut.append(g_svYellowF);
 		svAnsiOut.append(szBuf);
@@ -459,12 +466,14 @@ void Warning(eDLL_T context, const char* fmt, ...)
 	}
 
 	sqlogger->debug(svOut);
-
 #ifndef DEDICATED
 	iconsole->info(svOut);
 
-	g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), ImVec4(1.00f, 1.00f, 0.00f, 0.80f)));
-	g_pLogSystem.AddLog(EGlobalContext_t::WARNING_C, g_spd_sys_w_oss.str());
+	if (g_bSpdLog_PostInit)
+	{
+		g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), ImVec4(1.00f, 1.00f, 0.00f, 0.80f)));
+		g_pLogSystem.AddLog(EGlobalContext_t::WARNING_C, g_spd_sys_w_oss.str());
+	}
 
 	g_spd_sys_w_oss.str("");
 	g_spd_sys_w_oss.clear();
@@ -475,10 +484,10 @@ void Warning(eDLL_T context, const char* fmt, ...)
 //-----------------------------------------------------------------------------
 // Purpose: Print engine and SDK errors
 // Input  : context - 
-//			fatal - 
+//			code - 
 //			*fmt - ... - 
 //-----------------------------------------------------------------------------
-void Error(eDLL_T context, bool fatal, const char* fmt, ...)
+void Error(eDLL_T context, UINT code, const char* fmt, ...)
 {
 	static char szBuf[4096] = {};
 
@@ -492,6 +501,8 @@ void Error(eDLL_T context, bool fatal, const char* fmt, ...)
 	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sdk_error");
 
 	s_LogMutex.lock();
+	const char* pszUpTime = Plat_GetProcessUpTime();
+
 	{/////////////////////////////
 		va_list args{};
 		va_start(args, fmt);
@@ -502,7 +513,7 @@ void Error(eDLL_T context, bool fatal, const char* fmt, ...)
 		va_end(args);
 	}/////////////////////////////
 
-	svOut = Plat_GetProcessUpTime();
+	svOut = g_bSpdLog_PostInit ? pszUpTime : "";
 	svOut.append(sDLL_T[static_cast<int>(context)]);
 	svOut.append(szBuf);
 	svOut = std::regex_replace(svOut, rxAnsiExp, "");
@@ -521,7 +532,7 @@ void Error(eDLL_T context, bool fatal, const char* fmt, ...)
 	}
 	else
 	{
-		svAnsiOut = Plat_GetProcessUpTime();
+		svAnsiOut = g_bSpdLog_PostInit ? pszUpTime : "";
 		svAnsiOut.append(sANSI_DLL_T[static_cast<int>(context)]);
 		svAnsiOut.append(g_svRedF);
 		svAnsiOut.append(szBuf);
@@ -541,17 +552,20 @@ void Error(eDLL_T context, bool fatal, const char* fmt, ...)
 #ifndef DEDICATED
 	iconsole->info(svOut);
 
-	g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), ImVec4(1.00f, 0.00f, 0.00f, 1.00f)));
-	g_pLogSystem.AddLog(EGlobalContext_t::ERROR_C, g_spd_sys_w_oss.str());
+	if (g_bSpdLog_PostInit)
+	{
+		g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), ImVec4(1.00f, 0.00f, 0.00f, 1.00f)));
+		g_pLogSystem.AddLog(EGlobalContext_t::ERROR_C, g_spd_sys_w_oss.str());
+	}
 
 	g_spd_sys_w_oss.str("");
 	g_spd_sys_w_oss.clear();
 #endif // !DEDICATED
-	if (fatal)
+	if (code) // Terminate the process if an exit code was passed.
 	{
-		if (MessageBoxA(NULL, fmt::format("{:s}- {:s}", Plat_GetProcessUpTime(), szBuf).c_str(), "SDK Error", MB_ICONERROR | MB_OK))
+		if (MessageBoxA(NULL, fmt::format("{:s}- {:s}", pszUpTime, szBuf).c_str(), "SDK Error", MB_ICONERROR | MB_OK))
 		{
-			TerminateProcess(GetCurrentProcess(), 1);
+			TerminateProcess(GetCurrentProcess(), code);
 		}
 	}
 	s_LogMutex.unlock();

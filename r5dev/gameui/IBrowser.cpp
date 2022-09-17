@@ -43,9 +43,6 @@ CBrowser::CBrowser(void)
 {
     memset(m_szServerAddressBuffer, '\0', sizeof(m_szServerAddressBuffer));
 
-    std::thread refresh(&CBrowser::RefreshServerList, this);
-    refresh.detach();
-
     m_pszBrowserTitle = "Server Browser";
     m_rLockedIconBlob = GetModuleResource(IDB_PNG2);
 }
@@ -135,6 +132,21 @@ void CBrowser::RunTask()
     {
         UpdateHostingStatus();
         timer.Start();
+    }
+
+    if (m_bActivate)
+    {
+        if (m_bQueryListNonRecursive)
+        {
+            std::thread refresh(&CBrowser::RefreshServerList, g_pBrowser);
+            refresh.detach();
+
+            m_bQueryListNonRecursive = false;
+        }
+    }
+    else // Refresh server list the next time 'm_bActivate' evaluates to true.
+    {
+        m_bQueryListNonRecursive = true;
     }
 }
 

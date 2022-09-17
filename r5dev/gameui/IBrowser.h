@@ -42,6 +42,7 @@ public:
 
 private:
     bool m_bInitialized  = false;
+    bool m_bQueryListNonRecursive = false; // When set, refreshes the server list once the next frame.
     char m_szServerAddressBuffer[256] = { '\0' };
     char m_szServerEncKeyBuffer[30]   = { '\0' };
     float m_flFadeAlpha               = 0.f;
