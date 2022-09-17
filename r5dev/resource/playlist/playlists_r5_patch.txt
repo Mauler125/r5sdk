@@ -444,6 +444,7 @@ playlists
 			gamemodes { survival { maps {
 				mp_rr_desertlands_64k_x_64k                    1
 				mp_rr_desertlands_64k_x_64k_nx                 1
+				mp_rr_desertlands_64k_x_64k_tt                 1
 				mp_rr_canyonlands_64k_x_64k                    1
 				mp_rr_canyonlands_mu1                          1
 				mp_rr_canyonlands_mu1_night                    1
@@ -567,6 +568,7 @@ playlists
 				mp_rr_canyonlands_mu1                          1
 				mp_rr_desertlands_64k_x_64k                    1
 				mp_rr_desertlands_64k_x_64k_nx                 1
+				mp_rr_desertlands_64k_x_64k_tt                 1
 				mp_rr_canyonlands_mu1_night                    1
 			} } }
 		}
@@ -738,6 +740,7 @@ playlists
 				mp_rr_canyonlands_mu1                          1
 				mp_rr_desertlands_64k_x_64k                    1
 				mp_rr_desertlands_64k_x_64k_nx                 1
+				mp_rr_desertlands_64k_x_64k_tt                 1
 				mp_rr_canyonlands_mu1_night                    1
 				mp_rr_canyonlands_staging                      1
 				mp_rr_aqueduct                                 1
@@ -940,6 +943,7 @@ playlists
 				mp_rr_canyonlands_mu1                          1
 				mp_rr_desertlands_64k_x_64k                    1
 				mp_rr_desertlands_64k_x_64k_nx                 1
+				mp_rr_desertlands_64k_x_64k_tt                 1
 				mp_rr_canyonlands_mu1_night                    1
 				mp_rr_canyonlands_staging                      1
 				mp_rr_aqueduct                                 1
@@ -1021,6 +1025,7 @@ playlists
 				mp_rr_canyonlands_mu1                          1
 				mp_rr_desertlands_64k_x_64k                    1
 				mp_rr_desertlands_64k_x_64k_nx                 1
+				mp_rr_desertlands_64k_x_64k_tt                 1
 				mp_rr_canyonlands_mu1_night                    1
 				mp_rr_canyonlands_staging                      1
 				mp_rr_aqueduct                                 1
