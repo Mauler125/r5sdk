@@ -12,20 +12,16 @@
 #include "networksystem/bansystem.h"
 
 //-----------------------------------------------------------------------------
-// Purpose: loads and parses the banlist
+// Purpose: loads and parses the banned list
 //-----------------------------------------------------------------------------
 void CBanSystem::Load(void)
 {
 	if (IsBanListValid())
-	{
 		m_vBanList.clear();
-	}
 
 	FileHandle_t pFile = FileSystem()->Open("banlist.json", "rt");
 	if (!pFile)
-	{
 		return;
-	}
 
 	uint32_t nLen = FileSystem()->Size(pFile);
 	char* pBuf = MemAllocSingleton()->Alloc<char>(nLen);
@@ -43,9 +39,7 @@ void CBanSystem::Load(void)
 		if (!jsIn.is_null())
 		{
 			if (!jsIn["totalBans"].is_null())
-			{
 				nTotalBans = jsIn["totalBans"].get<size_t>();
-			}
 		}
 
 		for (size_t i = 0; i < nTotalBans; i++)
@@ -243,7 +237,7 @@ void CBanSystem::BanListCheck(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: checks if specified ip address or necleus id is banned
+// Purpose: checks if specified ip address or nucleus id is banned
 // Input  : &svIpAddress - 
 //			nNucleusID - 
 // Output : true if banned, false if not banned
@@ -272,7 +266,7 @@ bool CBanSystem::IsBanned(const string& svIpAddress, const uint64_t nNucleusID) 
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: checks if refuselist is valid
+// Purpose: checks if refused list is valid
 //-----------------------------------------------------------------------------
 bool CBanSystem::IsRefuseListValid(void) const
 {
@@ -280,11 +274,227 @@ bool CBanSystem::IsRefuseListValid(void) const
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: checks if banlist is valid
+// Purpose: checks if banned list is valid
 //-----------------------------------------------------------------------------
 bool CBanSystem::IsBanListValid(void) const
 {
 	return !m_vBanList.empty();
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: kicks a player by given name
+// Input  : &svPlayerName - 
+//-----------------------------------------------------------------------------
+void CBanSystem::KickPlayerByName(const string& svPlayerName)
+{
+	if (svPlayerName.empty())
+		return;
+
+	for (int i = 0; i < MAX_PLAYERS; i++)
+	{
+		if (CClient* pClient = g_pClient->GetClient(i))
+		{
+			if (CNetChan* pNetChan = pClient->GetNetChan())
+			{
+				if (strlen(pNetChan->GetName()) > 0)
+				{
+					if (svPlayerName.compare(pNetChan->GetName()) == NULL) // Our wanted name?
+						NET_DisconnectClient(pClient, i, "Kicked from server", 0, true);
+				}
+			}
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: kicks a player by given handle or id
+// Input  : &svHandle - 
+//-----------------------------------------------------------------------------
+void CBanSystem::KickPlayerById(const string& svHandle)
+{
+	if (svHandle.empty())
+		return;
+
+	try
+	{
+		bool bOnlyDigits = StringIsDigit(svHandle);
+		for (int i = 0; i < MAX_PLAYERS; i++)
+		{
+			CClient* pClient = g_pClient->GetClient(i);
+			if (!pClient)
+				continue;
+
+			CNetChan* pNetChan = pClient->GetNetChan();
+			if (!pNetChan)
+				continue;
+
+			if (bOnlyDigits)
+			{
+				uint64_t nTargetID = static_cast<uint64_t>(std::stoll(svHandle));
+				if (nTargetID > MAX_PLAYERS) // Is it a possible nucleusID?
+				{
+					uint64_t nNucleusID = pClient->GetNucleusID();
+					if (nNucleusID != nTargetID)
+						continue;
+				}
+				else // If its not try by handle.
+				{
+					uint64_t nClientID = static_cast<uint64_t>(pClient->GetHandle());
+					if (nClientID != nTargetID)
+						continue;
+				}
+
+				NET_DisconnectClient(pClient, i, "Kicked from server", 0, true);
+			}
+			else
+			{
+				if (svHandle.compare(pNetChan->GetAddress()) != NULL)
+					continue;
+
+				NET_DisconnectClient(pClient, i, "Kicked from server", 0, true);
+			}
+		}
+	}
+	catch (const std::exception& e)
+	{
+		Error(eDLL_T::SERVER, NO_ERROR, "%s - %s", __FUNCTION__, e.what());
+		return;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: bans a player by given name
+// Input  : &svPlayerName - 
+//-----------------------------------------------------------------------------
+void CBanSystem::BanPlayerByName(const string& svPlayerName)
+{
+	if (svPlayerName.empty())
+		return;
+
+	bool bSave = false;
+
+	for (int i = 0; i < MAX_PLAYERS; i++)
+	{
+		if (CClient* pClient = g_pClient->GetClient(i))
+		{
+			if (CNetChan* pNetChan = pClient->GetNetChan())
+			{
+				if (strlen(pNetChan->GetName()) > 0)
+				{
+					if (svPlayerName.compare(pNetChan->GetName()) == NULL) // Our wanted name?
+					{
+						if (AddEntry(pNetChan->GetAddress(), pClient->GetNucleusID()) && !bSave)
+							bSave = true;
+
+						NET_DisconnectClient(pClient, i, "Banned from server", 0, true);
+					}
+				}
+			}
+		}
+	}
+
+	if (bSave)
+		Save();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: bans a player by given handle or id
+// Input  : &svHandle - 
+//-----------------------------------------------------------------------------
+void CBanSystem::BanPlayerById(const string& svHandle)
+{
+	if (svHandle.empty())
+		return;
+
+	try
+	{
+		bool bOnlyDigits = StringIsDigit(svHandle);
+		bool bSave = false;
+
+		for (int i = 0; i < MAX_PLAYERS; i++)
+		{
+			CClient* pClient = g_pClient->GetClient(i);
+			if (!pClient)
+				continue;
+
+			CNetChan* pNetChan = pClient->GetNetChan();
+			if (!pNetChan)
+				continue;
+
+			if (bOnlyDigits)
+			{
+				uint64_t nTargetID = static_cast<uint64_t>(std::stoll(svHandle));
+				if (nTargetID > static_cast<uint64_t>(MAX_PLAYERS)) // Is it a possible nucleusID?
+				{
+					uint64_t nNucleusID = pClient->GetNucleusID();
+					if (nNucleusID != nTargetID)
+						continue;
+				}
+				else // If its not try by handle.
+				{
+					uint64_t nClientID = static_cast<uint64_t>(pClient->GetHandle());
+					if (nClientID != nTargetID)
+						continue;
+				}
+
+				if (AddEntry(pNetChan->GetAddress(), pClient->GetNucleusID()) && !bSave)
+					bSave = true;
+
+				Save();
+				NET_DisconnectClient(pClient, i, "Banned from server", 0, true);
+			}
+			else
+			{
+				if (svHandle.compare(pNetChan->GetAddress()) != NULL)
+					continue;
+
+				if (AddEntry(pNetChan->GetAddress(), pClient->GetNucleusID()) && !bSave)
+					bSave = true;
+
+				Save();
+				NET_DisconnectClient(pClient, i, "Banned from server", 0, true);
+			}
+		}
+
+		if (bSave)
+			Save();
+	}
+	catch (const std::exception& e)
+	{
+		Error(eDLL_T::SERVER, NO_ERROR, "%s - %s", __FUNCTION__, e.what());
+		return;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: unbans a player by given nucleus id or ip address
+// Input  : &svCriteria - 
+//-----------------------------------------------------------------------------
+void CBanSystem::UnbanPlayer(const string& svCriteria)
+{
+	try
+	{
+		if (StringIsDigit(svCriteria)) // Check if we have an ip address or nucleus id.
+		{
+			if (DeleteEntry("<<invalid>>", std::stoll(svCriteria))) // Delete ban entry.
+			{
+				Save(); // Save modified vector to file.
+			}
+		}
+		else
+		{
+			if (DeleteEntry(svCriteria, 0)) // Delete ban entry.
+			{
+				Save(); // Save modified vector to file.
+			}
+		}
+	}
+	catch (const std::exception& e)
+	{
+		Error(eDLL_T::SERVER, NO_ERROR, "%s - %s", __FUNCTION__, e.what());
+		return;
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 CBanSystem* g_pBanSystem = new CBanSystem();

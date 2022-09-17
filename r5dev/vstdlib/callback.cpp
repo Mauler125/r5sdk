@@ -96,7 +96,7 @@ void ServerBrowser_Invoke_f(const CCommand& args)
 	g_pBrowser->m_bActivate = !g_pBrowser->m_bActivate;
 }
 #endif // !DEDICATED
-
+#ifndef CLIENT_DLL
 /*
 =====================
 Host_Kick_f
@@ -109,24 +109,9 @@ void Host_Kick_f(const CCommand& args)
 		return;
 	}
 
-	for (int i = 0; i < MAX_PLAYERS; i++)
-	{
-		if (CClient* pClient = g_pClient->GetClient(i))
-		{
-			if (CNetChan* pNetChan = pClient->GetNetChan())
-			{
-				if (strlen(pNetChan->GetName()) > 0)
-				{
-					if (strcmp(args.Arg(1), pNetChan->GetName()) == NULL) // Our wanted name?
-					{
-						NET_DisconnectClient(pClient, i, "Kicked from server", 0, true);
-					}
-				}
-			}
-		}
-	}
+	g_pBanSystem->KickPlayerByName(args.Arg(1));
 }
-#ifndef CLIENT_DLL
+
 /*
 =====================
 Host_KickID_f
@@ -139,57 +124,7 @@ void Host_KickID_f(const CCommand& args)
 		return;
 	}
 
-	try
-	{
-		bool bOnlyDigits = args.HasOnlyDigits(1);
-		for (int i = 0; i < MAX_PLAYERS; i++)
-		{
-			CClient* pClient = g_pClient->GetClient(i);
-			if (!pClient)
-				continue;
-
-			CNetChan* pNetChan = pClient->GetNetChan();
-			if (!pNetChan)
-				continue;
-
-			if (bOnlyDigits)
-			{
-				uint64_t nTargetID = static_cast<uint64_t>(std::stoll(args.Arg(1)));
-				if (nTargetID > MAX_PLAYERS) // Is it a possible nucleusID?
-				{
-					uint64_t nNucleusID = pClient->GetNucleusID();
-					if (nNucleusID != nTargetID)
-					{
-						continue;
-					}
-				}
-				else // If its not try by handle.
-				{
-					uint64_t nClientID = static_cast<uint64_t>(pClient->GetHandle());
-					if (nClientID != nTargetID)
-					{
-						continue;
-					}
-				}
-
-				NET_DisconnectClient(pClient, i, "Kicked from server", 0, true);
-			}
-			else
-			{
-				if (strcmp(args.Arg(1), pNetChan->GetAddress()) != NULL)
-				{
-					continue;
-				}
-
-				NET_DisconnectClient(pClient, i, "Kicked from server", 0, true);
-			}
-		}
-	}
-	catch (const std::exception& e)
-	{
-		Error(eDLL_T::SERVER, NO_ERROR, "%s - %s", __FUNCTION__, e.what());
-		return;
-	}
+	g_pBanSystem->KickPlayerById(args.Arg(1));
 }
 
 /*
@@ -204,33 +139,7 @@ void Host_Ban_f(const CCommand& args)
 		return;
 	}
 
-	bool bSave = false;
-
-	for (int i = 0; i < MAX_PLAYERS; i++)
-	{
-		if (CClient* pClient = g_pClient->GetClient(i))
-		{
-			if (CNetChan* pNetChan = pClient->GetNetChan())
-			{
-				if (strlen(pNetChan->GetName()) > 0)
-				{
-					if (strcmp(args.Arg(1), pNetChan->GetName()) == NULL) // Our wanted name?
-					{
-						if (g_pBanSystem->AddEntry(pNetChan->GetAddress(), pClient->GetNucleusID()) && !bSave)
-						{
-							bSave = true;
-						}
-						NET_DisconnectClient(pClient, i, "Banned from server", 0, true);
-					}
-				}
-			}
-		}
-	}
-
-	if (bSave)
-	{
-		g_pBanSystem->Save();
-	}
+	g_pBanSystem->BanPlayerByName(args.Arg(1));
 }
 
 /*
@@ -243,64 +152,7 @@ void Host_BanID_f(const CCommand& args)
 	if (args.ArgC() < 2)
 		return;
 
-	try
-	{
-		bool bOnlyDigits = args.HasOnlyDigits(1);
-		bool bSave = false;
-
-		for (int i = 0; i < MAX_PLAYERS; i++)
-		{
-			CClient* pClient = g_pClient->GetClient(i);
-			if (!pClient)
-				continue;
-
-			CNetChan* pNetChan = pClient->GetNetChan();
-			if (!pNetChan)
-				continue;
-
-			if (bOnlyDigits)
-			{
-				uint64_t nTargetID = static_cast<uint64_t>(std::stoll(args.Arg(1)));
-				if (nTargetID > static_cast<uint64_t>(MAX_PLAYERS)) // Is it a possible nucleusID?
-				{
-					uint64_t nNucleusID = pClient->GetNucleusID();
-					if (nNucleusID != nTargetID)
-						continue;
-				}
-				else // If its not try by handle.
-				{
-					uint64_t nClientID = static_cast<uint64_t>(pClient->GetHandle());
-					if (nClientID != nTargetID)
-						continue;
-				}
-
-				if (g_pBanSystem->AddEntry(pNetChan->GetAddress(), pClient->GetNucleusID()) && !bSave)
-					bSave = true;
-
-				g_pBanSystem->Save();
-				NET_DisconnectClient(pClient, i, "Banned from server", 0, true);
-			}
-			else
-			{
-				if (strcmp(args.Arg(1), pNetChan->GetAddress()) != NULL)
-					continue;
-
-				if (g_pBanSystem->AddEntry(pNetChan->GetAddress(), pClient->GetNucleusID()) && !bSave)
-					bSave = true;
-
-				g_pBanSystem->Save();
-				NET_DisconnectClient(pClient, i, "Banned from server", 0, true);
-			}
-		}
-
-		if (bSave)
-			g_pBanSystem->Save();
-	}
-	catch (const std::exception& e)
-	{
-		Error(eDLL_T::SERVER, NO_ERROR, "%s - %s", __FUNCTION__, e.what());
-		return;
-	}
+	g_pBanSystem->BanPlayerById(args.Arg(1));
 }
 
 /*
@@ -315,47 +167,7 @@ void Host_Unban_f(const CCommand& args)
 		return;
 	}
 
-	try
-	{
-		if (args.HasOnlyDigits(1)) // Check if we have an ip address or nucleus id.
-		{
-			if (g_pBanSystem->DeleteEntry("noIP", std::stoll(args.Arg(1)))) // Delete ban entry.
-			{
-				g_pBanSystem->Save(); // Save modified vector to file.
-			}
-		}
-		else
-		{
-			if (g_pBanSystem->DeleteEntry(args.Arg(1), 0)) // Delete ban entry.
-			{
-				g_pBanSystem->Save(); // Save modified vector to file.
-			}
-		}
-	}
-	catch (const std::exception& e)
-	{
-		Error(eDLL_T::SERVER, NO_ERROR, "%s - %s", __FUNCTION__, e.what());
-		return;
-	}
-}
-
-/*
-=====================
-Host_Changelevel_f
-
-  Goes to a new map, 
-  taking all clients along
-=====================
-*/
-void Host_Changelevel_f(const CCommand& args)
-{
-	if (args.ArgC() >= 2
-		&& IsOriginInitialized()
-		&& g_pServer->IsActive())
-	{
-		v_SetLaunchOptions(args);
-		v_HostState_ChangeLevelMP(args[1], args[2]);
-	}
+	g_pBanSystem->UnbanPlayer(args.Arg(1));
 }
 
 /*
@@ -377,6 +189,25 @@ void Host_ReloadPlaylists_f(const CCommand& args)
 {
 	_DownloadPlaylists_f();
 	KeyValues::InitPlaylists(); // Re-Init playlist.
+}
+
+/*
+=====================
+Host_Changelevel_f
+
+  Goes to a new map, 
+  taking all clients along
+=====================
+*/
+void Host_Changelevel_f(const CCommand& args)
+{
+	if (args.ArgC() >= 2
+		&& IsOriginInitialized()
+		&& g_pServer->IsActive())
+	{
+		v_SetLaunchOptions(args);
+		v_HostState_ChangeLevelMP(args[1], args[2]);
+	}
 }
 
 #endif // !CLIENT_DLL
