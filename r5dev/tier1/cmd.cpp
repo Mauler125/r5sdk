@@ -382,6 +382,7 @@ void ConCommand::InitShipped(void)
 	///------------------------------------------------------ [ CALLBACK SWAP ]
 	//-------------------------------------------------------------------------
 	// ENGINE DLL                                                             |
+	ConCommand* migrateme = g_pCVar->FindCommand("migrateme");
 	ConCommand* help = g_pCVar->FindCommand("help");
 	ConCommand* changelevel = g_pCVar->FindCommand("changelevel");
 	ConCommand* convar_list =  g_pCVar->FindCommand("convar_list");
@@ -435,6 +436,7 @@ void ConCommand::InitShipped(void)
 			}
 		}
 
+		migrateme->RemoveFlags(FCVAR_SERVER_CAN_EXECUTE);
 		help->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 		changelevel->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 		convar_list->RemoveFlags(FCVAR_DEVELOPMENTONLY);
