@@ -55,6 +55,7 @@ inline void ThreadPause()
 
 bool ThreadInMainThread();
 bool ThreadInRenderThread();
+bool ThreadInServerFrameThread();
 ThreadId_t ThreadGetCurrentId();
 
 //-----------------------------------------------------------------------------
@@ -215,6 +216,7 @@ inline auto v_DeclareCurrentThreadIsMainThread = p_DeclareCurrentThreadIsMainThr
 
 inline ThreadId_t* g_ThreadMainThreadID = nullptr;
 inline ThreadId_t g_ThreadRenderThreadID = NULL;
+inline ThreadId_t* g_ThreadServerFrameThreadID = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
 class CThreadFastMutex
@@ -248,6 +250,7 @@ class VThreadTools : public IDetour
 		spdlog::debug("| FUN: CThreadFastMutex::ReleaseWaiter      : {:#18x} |\n", p_MutexInternal_ReleaseWaiter.GetPtr());
 		spdlog::debug("| FUN: DeclareCurrentThreadIsMainThread     : {:#18x} |\n", p_DeclareCurrentThreadIsMainThread.GetPtr());
 		spdlog::debug("| VAR: g_ThreadMainThreadID                 : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_ThreadMainThreadID));
+		spdlog::debug("| VAR: g_ThreadServerFrameThreadID          : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_ThreadServerFrameThreadID));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
@@ -262,7 +265,9 @@ class VThreadTools : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		g_ThreadMainThreadID = p_DeclareCurrentThreadIsMainThread.FindPattern("89 05").ResolveRelativeAddressSelf(0x2, 0x6).RCast<DWORD*>();
+		g_ThreadMainThreadID = p_DeclareCurrentThreadIsMainThread.FindPattern("89 05").ResolveRelativeAddressSelf(0x2, 0x6).RCast<ThreadId_t*>();
+		g_ThreadServerFrameThreadID = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x83\x79\x00\x00\x75\x28\x8B"), "xx?xxxx")
+			.FindPatternSelf("8B 05").ResolveRelativeAddressSelf(0x2, 0x6).RCast<ThreadId_t*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
