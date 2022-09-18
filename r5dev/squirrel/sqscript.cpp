@@ -203,7 +203,7 @@ SQBool Script_CreateUIVM()
 // Input  : context - 
 // Output : SQVM* 
 //---------------------------------------------------------------------------------
-CSquirrelVM* Script_GetContextObject(SQCONTEXT context)
+CSquirrelVM* Script_GetContextObject(const SQCONTEXT context)
 {
 	switch (context)
 	{
@@ -258,7 +258,7 @@ SQBool Script_LoadScript(HSQUIRRELVM v, const SQChar* szScriptPath, const SQChar
 // Input  : *code - 
 //			context - 
 //---------------------------------------------------------------------------------
-void Script_Execute(const SQChar* code, SQCONTEXT context)
+void Script_Execute(const SQChar* code, const SQCONTEXT context)
 {
 	if (!ThreadInMainThread())
 	{
@@ -274,7 +274,7 @@ void Script_Execute(const SQChar* code, SQCONTEXT context)
 	CSquirrelVM* script = Script_GetContextObject(context);
 	if (!script)
 	{
-		Error(eDLL_T::ENGINE, NO_ERROR, "Attempted to run %s script with no handle to script context\n", SQVM_GetContextName(context));
+		Error(eDLL_T::ENGINE, NO_ERROR, "Attempted to run %s script with no handle to VM\n", SQVM_GetContextName(context));
 		return;
 	}
 
@@ -285,11 +285,10 @@ void Script_Execute(const SQChar* code, SQCONTEXT context)
 		return;
 	}
 
-	SQRESULT compileResult{};
 	SQBufState bufState = SQBufState(code);
+	SQRESULT compileResult = sq_compilebuffer(v, &bufState, "console", -1);
 
-	compileResult = sq_compilebuffer(v, &bufState, "console", -1);
-	if (compileResult >= 0)
+	if (compileResult >= NULL)
 	{
 		sq_pushroottable(v);
 		SQRESULT callResult = sq_call(v, 1, false, false);

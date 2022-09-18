@@ -114,12 +114,12 @@ SQBool Script_CreateServerVM();
 SQBool Script_CreateClientVM(CHLClient* hlclient);
 #endif // !DEDICATED
 SQBool Script_CreateUIVM();
-CSquirrelVM* Script_GetContextObject(SQCONTEXT context);
+CSquirrelVM* Script_GetContextObject(const SQCONTEXT context);
 
 SQInteger Script_LoadRson(const SQChar* szRsonName);
 SQBool Script_LoadScript(HSQUIRRELVM v, const SQChar* szScriptPath, const SQChar* szScriptName, SQInteger nFlag);
 
-void Script_Execute(const SQChar* code, SQCONTEXT context);
+void Script_Execute(const SQChar* code, const SQCONTEXT context);
 
 void SQScript_Attach();
 void SQScript_Detach();
