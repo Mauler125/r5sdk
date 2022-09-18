@@ -4,6 +4,16 @@
 #include "engine/net_chan.h"
 
 //-----------------------------------------------------------------------------
+// Enumerations
+//-----------------------------------------------------------------------------
+enum Reputation_t
+{
+	REP_NONE = 0,
+	REP_REMOVE_ONLY,
+	REP_MARK
+};
+
+//-----------------------------------------------------------------------------
 // Forward declarations
 //-----------------------------------------------------------------------------
 class CServer;
@@ -38,10 +48,10 @@ public:
 	bool IsFakeClient(void) const;
 	bool IsHumanPlayer(void) const;
 	bool Connect(const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize);
-	void Disconnect(int nBadRep /*!!ENUM!!*/, const char* szReason, ...);
+	void Disconnect(const Reputation_t nRepLvl, const char* szReason, ...);
 	static bool VConnect(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize);
 	void Clear(void);
-	static void VClear(CClient* pBaseClient);
+	static void VClear(CClient* pClient);
 
 private:
 	uint32_t m_nUserID;              //0x0010
@@ -91,7 +101,7 @@ inline CMemory p_CClient_Connect;
 inline auto v_CClient_Connect = p_CClient_Connect.RCast<bool (*)(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize)>();
 
 inline CMemory p_CClient_Disconnect;
-inline auto v_CClient_Disconnect = p_CClient_Disconnect.RCast<bool (*)(CClient* pClient, int nBadRep /*!!ENUM!!*/, const char* szReason, ...)>();
+inline auto v_CClient_Disconnect = p_CClient_Disconnect.RCast<bool (*)(CClient* pClient, const Reputation_t nRepLvl, const char* szReason, ...)>();
 
 inline CMemory p_CClient_Clear;
 inline auto v_CClient_Clear = p_CClient_Clear.RCast<void (*)(CClient* pClient)>();
@@ -122,7 +132,7 @@ class VClient : public IDetour
 		p_CClient_Clear      = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74"), "xxxxxxxxxxxxxxxx");
 
 		v_CClient_Connect    = p_CClient_Connect.RCast<bool (*)(CClient*, const char*, void*, bool, void*, char*, int)>(); /*48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 20 41 0F B6 E9*/
-		v_CClient_Disconnect = p_CClient_Disconnect.RCast<bool (*)(CClient*, int, const char*, ...)>();                    /*48 8B C4 4C 89 40 18 4C 89 48 20 53 56 57 48 81 EC ?? ?? ?? ?? 83 B9 ?? ?? ?? ?? ?? 49 8B F8 8B F2*/
+		v_CClient_Disconnect = p_CClient_Disconnect.RCast<bool (*)(CClient*, const Reputation_t, const char*, ...)>();     /*48 8B C4 4C 89 40 18 4C 89 48 20 53 56 57 48 81 EC ?? ?? ?? ?? 83 B9 ?? ?? ?? ?? ?? 49 8B F8 8B F2*/
 		v_CClient_Clear      = p_CClient_Clear.RCast<void (*)(CClient*)>();                                                /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
 	}
 	virtual void GetVar(void) const

@@ -9,6 +9,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
+#include "engine/server/server.h"
 #include "engine/client/client.h"
 
 //---------------------------------------------------------------------------------
@@ -207,16 +208,18 @@ bool CClient::IsHumanPlayer(void) const
 //---------------------------------------------------------------------------------
 void CClient::Clear(void)
 {
+	g_ServerPlayer[GetUserID()].Reset(); // Reset ServerPlayer slot.
 	v_CClient_Clear(this);
 }
 
 //---------------------------------------------------------------------------------
 // Purpose: throw away any residual garbage in the channel
-// Input  : *pBaseClient - 
+// Input  : *pClient - 
 //---------------------------------------------------------------------------------
-void CClient::VClear(CClient* pBaseClient)
+void CClient::VClear(CClient* pClient)
 {
-	v_CClient_Clear(pBaseClient);
+	g_ServerPlayer[pClient->GetUserID()].Reset(); // Reset ServerPlayer slot.
+	v_CClient_Clear(pClient);
 }
 
 //---------------------------------------------------------------------------------
@@ -247,28 +250,33 @@ bool CClient::Connect(const char* szName, void* pNetChannel, bool bFakePlayer, v
 //---------------------------------------------------------------------------------
 bool CClient::VConnect(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize)
 {
-	return v_CClient_Connect(pClient, szName, pNetChannel, bFakePlayer, a5, szMessage, nMessageSize);
+	bool bResult = v_CClient_Connect(pClient, szName, pNetChannel, bFakePlayer, a5, szMessage, nMessageSize);
+	g_ServerPlayer[pClient->GetUserID()].Reset(); // Reset ServerPlayer slot.
+	return bResult;
 }
 
 //---------------------------------------------------------------------------------
 // Purpose: disconnect client
-// Input  : nBadRep - 
+// Input  : nRepLvl - 
 //			*szReason - 
 //			... - 
 //---------------------------------------------------------------------------------
-void CClient::Disconnect(int nBadRep/*!!ENUM!!*/, const char* szReason, ...)
+void CClient::Disconnect(const Reputation_t nRepLvl, const char* szReason, ...)
 {
-	char szBuf[1024];
-	{/////////////////////////////
-		va_list vArgs{};
-		va_start(vArgs, szReason);
+	if (m_nSignonState != SIGNONSTATE::SIGNONSTATE_NONE)
+	{
+		char szBuf[1024];
+		{/////////////////////////////
+			va_list vArgs{};
+			va_start(vArgs, szReason);
 
-		vsnprintf(szBuf, sizeof(szBuf), szReason, vArgs);
+			vsnprintf(szBuf, sizeof(szBuf), szReason, vArgs);
 
-		szBuf[sizeof(szBuf) - 1] = '\0';
-		va_end(vArgs);
-	}/////////////////////////////
-	v_CClient_Disconnect(this, nBadRep, szBuf);
+			szBuf[sizeof(szBuf) - 1] = '\0';
+			va_end(vArgs);
+		}/////////////////////////////
+		v_CClient_Disconnect(this, nRepLvl, szBuf);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////

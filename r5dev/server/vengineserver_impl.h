@@ -28,6 +28,11 @@ void IVEngineServer_Detach();
 
 struct ServerPlayer_t
 {
+	ServerPlayer_t(void)
+		: m_flCurrentNetProcessTime(0.0)
+		, m_flLastNetProcessTime(0.0)
+		, m_bPersistenceEnabled(false)
+	{}
 	inline void Reset(void)
 	{
 		m_flCurrentNetProcessTime = 0.0;

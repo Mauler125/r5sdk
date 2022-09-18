@@ -223,8 +223,7 @@ bool CNetChan::ProcessMessages(CNetChan* pChan, bf_read* pMsg)
 	const bool bResult = v_NetChan_ProcessMessages(pChan, pMsg);
 
 	CClient* pClient = reinterpret_cast<CClient*>(pChan->m_MessageHandler);
-	uint16_t nSlot = pClient->GetUserID();
-	ServerPlayer_t* pSlot = &g_ServerPlayer[nSlot];
+	ServerPlayer_t* pSlot = &g_ServerPlayer[pClient->GetUserID()];
 
 	if (flStartTime - pSlot->m_flLastNetProcessTime >= 1.0 ||
 		pSlot->m_flLastNetProcessTime == -1.0)
@@ -235,10 +234,10 @@ bool CNetChan::ProcessMessages(CNetChan* pChan, bf_read* pMsg)
 	pSlot->m_flCurrentNetProcessTime +=
 		(Plat_FloatTime() * 1000) - (flStartTime * 1000);
 
-	if (pSlot->m_flCurrentNetProcessTime >=
+	if (pSlot->m_flCurrentNetProcessTime >
 		net_processLimit->GetDouble())
 	{
-		pClient->Disconnect(2, "#DISCONNECT_NETCHAN_OVERFLOW");
+		pClient->Disconnect(REP_MARK, "#DISCONNECT_NETCHAN_OVERFLOW");
 		return false;
 	}
 
