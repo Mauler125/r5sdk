@@ -104,6 +104,8 @@ void ConVar::Init(void) const
 	sv_pylonRefreshInterval   = ConVar::Create("sv_pylonRefreshInterval"  , "5.0", FCVAR_RELEASE, "Pylon server host request post update interval (seconds).", true, 2.f, true, 8.f, nullptr, nullptr);
 	sv_banlistRefreshInterval = ConVar::Create("sv_banlistRefreshInterval", "1.0", FCVAR_RELEASE, "Banlist refresh interval (seconds).", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_statusRefreshInterval  = ConVar::Create("sv_statusRefreshInterval" , "0.5", FCVAR_RELEASE, "Server status bar update interval (seconds).", false, 0.f, false, 0.f, nullptr, nullptr);
+
+	sv_autoReloadRate = ConVar::Create("sv_autoReloadRate" , "0", FCVAR_RELEASE, "Time in seconds between each server auto-reload (disabled if null). ", true, 0.f, false, 0.f, nullptr, nullptr);
 #ifdef DEDICATED
 	sv_rcon_debug       = ConVar::Create("sv_rcon_debug"      , "0" , FCVAR_RELEASE, "Show rcon debug information ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_sendlogs    = ConVar::Create("sv_rcon_sendlogs"   , "0" , FCVAR_RELEASE, "Network console logs to connected and authenticated sockets.", false, 0.f, false, 0.f, nullptr, nullptr);
@@ -161,9 +163,9 @@ void ConVar::Init(void) const
 	con_notify_native_client_clr = ConVar::Create("con_notify_native_client_clr", "70 70 70 255"   , FCVAR_MATERIAL_SYSTEM_THREAD, "Native CLIENT RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 	con_notify_native_ui_clr     = ConVar::Create("con_notify_native_ui_clr"    , "200 60 60 255"  , FCVAR_MATERIAL_SYSTEM_THREAD, "Native UI RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 	con_notify_native_engine_clr = ConVar::Create("con_notify_native_engine_clr", "255 255 255 255", FCVAR_MATERIAL_SYSTEM_THREAD, "Native engine RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	con_notify_native_fs_clr     = ConVar::Create("con_notify_native_fs_clr"    , "0 100 225 255"  , FCVAR_MATERIAL_SYSTEM_THREAD, "Native filesystem RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	con_notify_native_rtech_clr  = ConVar::Create("con_notify_native_rtech_clr" , "25 100 100 255" , FCVAR_MATERIAL_SYSTEM_THREAD, "Native rtech RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	con_notify_native_ms_clr     = ConVar::Create("con_notify_native_ms_clr"    , "200 20 180 255" , FCVAR_MATERIAL_SYSTEM_THREAD, "Native materialsystem RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	con_notify_native_fs_clr     = ConVar::Create("con_notify_native_fs_clr"    , "0 100 225 255"  , FCVAR_MATERIAL_SYSTEM_THREAD, "Native FileSystem RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	con_notify_native_rtech_clr  = ConVar::Create("con_notify_native_rtech_clr" , "25 100 100 255" , FCVAR_MATERIAL_SYSTEM_THREAD, "Native RTech RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	con_notify_native_ms_clr     = ConVar::Create("con_notify_native_ms_clr"    , "200 20 180 255" , FCVAR_MATERIAL_SYSTEM_THREAD, "Native MaterialSystem RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 
 	con_notify_netcon_clr  = ConVar::Create("con_notify_netcon_clr" , "255 255 255 255", FCVAR_MATERIAL_SYSTEM_THREAD, "Net console RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 	con_notify_common_clr  = ConVar::Create("con_notify_common_clr" , "255 140 80 255" , FCVAR_MATERIAL_SYSTEM_THREAD, "Common RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
@@ -180,9 +182,9 @@ void ConVar::Init(void) const
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// FILESYSTEM                                                             |
-	fs_warning_level_sdk             = ConVar::Create("fs_warning_level_sdk"                  , "0", FCVAR_DEVELOPMENTONLY, "Set the SDK filesystem warning level.", false, 0.f, false, 0.f, nullptr, nullptr);
-	fs_show_warning_output           = ConVar::Create("fs_show_warning_output"                , "0", FCVAR_DEVELOPMENTONLY, "Logs the filesystem warnings to the console, filtered by 'fs_warning_level_native' ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
-	fs_packedstore_entryblock_stats  = ConVar::Create("fs_packedstore_entryblock_stats"       , "0", FCVAR_DEVELOPMENTONLY, "If set to 1, prints the stats of each file entry in the VPK during decompression ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	fs_warning_level_sdk             = ConVar::Create("fs_warning_level_sdk"                  , "0", FCVAR_DEVELOPMENTONLY, "Set the SDK FileSystem warning level.", false, 0.f, false, 0.f, nullptr, nullptr);
+	fs_show_warning_output           = ConVar::Create("fs_show_warning_output"                , "0", FCVAR_DEVELOPMENTONLY, "Logs the FileSystem warnings to the console, filtered by 'fs_warning_level_native' ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	fs_packedstore_entryblock_stats  = ConVar::Create("fs_packedstore_entryblock_stats"       , "0", FCVAR_DEVELOPMENTONLY, "Logs the stats of each file entry in the VPK during decompression ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	fs_packedstore_workspace         = ConVar::Create("fs_packedstore_workspace"  , "platform/vpk/", FCVAR_DEVELOPMENTONLY, "Determines the current VPK workspace.", false, 0.f, false, 0.f, nullptr, nullptr);
 	fs_packedstore_compression_level = ConVar::Create("fs_packedstore_compression_level", "default", FCVAR_DEVELOPMENTONLY, "Determines the VPK compression level.", false, 0.f, false, 0.f, nullptr, "fastest faster default better uber");
 	//-------------------------------------------------------------------------
@@ -192,15 +194,15 @@ void ConVar::Init(void) const
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// SQUIRREL                                                               |
-	sq_showrsonloading   = ConVar::Create("sq_showrsonloading"  , "0", FCVAR_DEVELOPMENTONLY, "Logs all 'rson' files loaded by the SQVM ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	sq_showrsonloading   = ConVar::Create("sq_showrsonloading"  , "0", FCVAR_DEVELOPMENTONLY, "Logs all RSON files loaded by the SQVM ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	sq_showscriptloading = ConVar::Create("sq_showscriptloading", "0", FCVAR_DEVELOPMENTONLY, "Logs all scripts loaded by the SQVM to be pre-compiled ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
-	sq_showvmoutput      = ConVar::Create("sq_showvmoutput"     , "0", FCVAR_RELEASE, "Prints the VM output to the console.", false, 0.f, false, 0.f, nullptr, "1 = Log to file. 2 = 1 + log to game console. 3 = 1 + 2 + log to overhead console.");
-	sq_showvmwarning     = ConVar::Create("sq_showvmwarning"    , "0", FCVAR_RELEASE, "Prints the VM warning output to the console.", false, 0.f, false, 0.f, nullptr, "1 = Log to file. 2 = 1 + log to game console and overhead console.");
+	sq_showvmoutput      = ConVar::Create("sq_showvmoutput"     , "0", FCVAR_RELEASE, "Prints the VM output to the console ( !slower! ).", false, 0.f, false, 0.f, nullptr, "1 = Log to file. 2 = 1 + log to game console. 3 = 1 + 2 + log to overhead console.");
+	sq_showvmwarning     = ConVar::Create("sq_showvmwarning"    , "0", FCVAR_RELEASE, "Prints the VM warning output to the console ( !slower! ).", false, 0.f, false, 0.f, nullptr, "1 = Log to file. 2 = 1 + log to game console and overhead console.");
 	//-------------------------------------------------------------------------
 	// NETCHANNEL                                                             |
-	net_tracePayload           = ConVar::Create("net_tracePayload"          , "0", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT          , "Log the payload of the send/recv datagram to a file on the disk.", false, 0.f, false, 0.f, nullptr, nullptr);
-	net_encryptionEnable       = ConVar::Create("net_encryptionEnable"      , "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED     , "Use AES encryption on game packets.", false, 0.f, false, 0.f, nullptr, nullptr);
-	net_useRandomKey           = ConVar::Create("net_useRandomKey"          , "1"                        , FCVAR_RELEASE        , "Use random AES encryption key for game packets.", false, 0.f, false, 0.f, &NET_UseRandomKeyChanged_f, nullptr);
+	net_tracePayload           = ConVar::Create("net_tracePayload"          , "0", FCVAR_DEVELOPMENTONLY                    , "Log the payload of the send/recv datagram to a file on the disk.", false, 0.f, false, 0.f, nullptr, nullptr);
+	net_encryptionEnable       = ConVar::Create("net_encryptionEnable"      , "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED , "Use AES encryption on game packets.", false, 0.f, false, 0.f, nullptr, nullptr);
+	net_useRandomKey           = ConVar::Create("net_useRandomKey"          , "1"                        , FCVAR_RELEASE    , "Use random AES encryption key for game packets.", false, 0.f, false, 0.f, &NET_UseRandomKeyChanged_f, nullptr);
 	//-------------------------------------------------------------------------
 	// NETWORKSYSTEM                                                          |
 	pylon_matchmaking_hostname = ConVar::Create("pylon_matchmaking_hostname", "ms.r5reloaded.com", FCVAR_RELEASE        , "Holds the pylon matchmaking hostname.", false, 0.f, false, 0.f, &MP_HostName_Changed_f, nullptr);

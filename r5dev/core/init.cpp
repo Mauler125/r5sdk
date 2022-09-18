@@ -182,6 +182,8 @@ void Systems_Init()
 #endif // !DEDICATED && GAMEDLL_S3
 
 	NET_Attach();
+	//NetChan_Attach();
+
 	ConCommand_Attach();
 	IConVar_Attach();
 	CKeyValueSystem_Attach();
@@ -306,6 +308,8 @@ void Systems_Shutdown()
 #endif // !DEDICATED && GAMEDLL_S3
 
 	NET_Detach();
+	//NetChan_Detach();
+
 	ConCommand_Detach();
 	IConVar_Detach();
 	CKeyValueSystem_Detach();

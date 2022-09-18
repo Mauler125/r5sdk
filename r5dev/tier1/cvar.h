@@ -63,6 +63,8 @@ extern ConVar* sv_pylonRefreshInterval;
 extern ConVar* sv_banlistRefreshInterval;
 extern ConVar* sv_statusRefreshInterval;
 
+extern ConVar* sv_autoReloadRate;
+
 #ifdef DEDICATED
 extern ConVar* sv_rcon_debug;
 extern ConVar* sv_rcon_sendlogs;

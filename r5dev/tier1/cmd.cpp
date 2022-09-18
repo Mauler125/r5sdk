@@ -247,7 +247,7 @@ int CCommand::MaxCommandLength(void) const
 //-----------------------------------------------------------------------------
 bool CCommand::HasOnlyDigits(int nIndex) const
 {
-	string svString = Arg(nIndex);
+	const string svString = Arg(nIndex);
 	for (const char& character : svString)
 	{
 		if (std::isdigit(character) == 0)
@@ -336,10 +336,10 @@ void ConCommand::Init(void)
 	// SERVER DLL                                                             |
 #ifndef CLIENT_DLL
 	ConCommand::Create("script", "Run input code as SERVER script on the VM.", FCVAR_GAMEDLL | FCVAR_CHEAT, SQVM_ServerScript_f, nullptr);
-	ConCommand::Create("sv_kick", "Kick a client from the server by user name. | Usage: sv_kick \"<UserID>\".", FCVAR_GAMEDLL | FCVAR_RELEASE, Host_Kick_f, nullptr);
-	ConCommand::Create("sv_kickid", "Kick a client from the server by handle or nucleus id | Usage: sv_kickid \"<HandleID>\"/\"<NucleusID>\".", FCVAR_GAMEDLL | FCVAR_RELEASE, Host_KickID_f, nullptr);
-	ConCommand::Create("sv_ban", "Bans a client from the server by user name. | Usage: sv_ban <UserID>.", FCVAR_GAMEDLL | FCVAR_RELEASE, Host_Ban_f, nullptr);
-	ConCommand::Create("sv_banid", "Bans a client from the server by handle, nucleus id or ip address | Usage: sv_banid \"<HandleID>\"/\"<NucleusID>/<IPAddress>\".", FCVAR_GAMEDLL | FCVAR_RELEASE, Host_BanID_f, nullptr);
+	ConCommand::Create("sv_kick", "Kick a client from the server by user name. | Usage: sv_kick \"<UserID>\".", FCVAR_RELEASE, Host_Kick_f, nullptr);
+	ConCommand::Create("sv_kickid", "Kick a client from the server by handle or nucleus id | Usage: sv_kickid \"<HandleID>\"/\"<NucleusID>\".", FCVAR_RELEASE, Host_KickID_f, nullptr);
+	ConCommand::Create("sv_ban", "Bans a client from the server by user name. | Usage: sv_ban <UserID>.", FCVAR_RELEASE, Host_Ban_f, nullptr);
+	ConCommand::Create("sv_banid", "Bans a client from the server by handle, nucleus id or ip address | Usage: sv_banid \"<HandleID>\"/\"<NucleusID>/<IPAddress>\".", FCVAR_RELEASE, Host_BanID_f, nullptr);
 	ConCommand::Create("sv_unban", "Unbans a client from the server by nucleus id or ip address | Usage: sv_unban \"<NucleusID>\"/\"<IPAddress>\".", FCVAR_RELEASE, Host_Unban_f, nullptr);
 	ConCommand::Create("sv_reloadbanlist", "Reloads the banned list.", FCVAR_RELEASE, Host_ReloadBanList_f, nullptr);
 #endif // !CLIENT_DLL
@@ -382,6 +382,7 @@ void ConCommand::InitShipped(void)
 	///------------------------------------------------------ [ CALLBACK SWAP ]
 	//-------------------------------------------------------------------------
 	// ENGINE DLL                                                             |
+	ConCommand* migrateme = g_pCVar->FindCommand("migrateme");
 	ConCommand* help = g_pCVar->FindCommand("help");
 	ConCommand* changelevel = g_pCVar->FindCommand("changelevel");
 	ConCommand* convar_list =  g_pCVar->FindCommand("convar_list");
@@ -421,6 +422,7 @@ void ConCommand::InitShipped(void)
 			"launchplaylist",
 			"quit",
 			"exit",
+			"reload",
 			"restart",
 			"status",
 			"version",
@@ -434,6 +436,7 @@ void ConCommand::InitShipped(void)
 			}
 		}
 
+		migrateme->RemoveFlags(FCVAR_SERVER_CAN_EXECUTE);
 		help->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 		changelevel->RemoveFlags(FCVAR_DEVELOPMENTONLY);
 		convar_list->RemoveFlags(FCVAR_DEVELOPMENTONLY);

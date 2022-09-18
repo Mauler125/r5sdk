@@ -67,6 +67,8 @@ ConVar* sv_pylonRefreshInterval            = nullptr;
 ConVar* sv_banlistRefreshInterval          = nullptr;
 ConVar* sv_statusRefreshInterval           = nullptr;
 
+ConVar* sv_autoReloadRate                  = nullptr;
+
 #ifdef DEDICATED
 ConVar* sv_rcon_debug                      = nullptr;
 ConVar* sv_rcon_sendlogs                   = nullptr;
