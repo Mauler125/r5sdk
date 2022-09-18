@@ -62,6 +62,7 @@ extern ConVar* sv_pylonVisibility;
 extern ConVar* sv_pylonRefreshInterval;
 extern ConVar* sv_banlistRefreshInterval;
 extern ConVar* sv_statusRefreshInterval;
+extern ConVar* sv_forceChatToTeamOnly;
 
 extern ConVar* sv_autoReloadRate;
 

@@ -255,6 +255,10 @@ void ConVar::InitShipped(void) const
 	hostport                         = g_pCVar->FindVar("hostport");
 	host_hasIrreversibleShutdown     = g_pCVar->FindVar("host_hasIrreversibleShutdown");
 	net_usesocketsforloopback        = g_pCVar->FindVar("net_usesocketsforloopback");
+	sv_forceChatToTeamOnly           = g_pCVar->FindVar("sv_forceChatToTeamOnly");
+
+	sv_forceChatToTeamOnly->RemoveFlags(FCVAR_DEVELOPMENTONLY);
+	sv_forceChatToTeamOnly->AddFlags(FCVAR_REPLICATED);
 
 #ifndef CLIENT_DLL
 	ai_script_nodes_draw->SetValue(-1);

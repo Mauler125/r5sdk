@@ -66,6 +66,7 @@ ConVar* sv_pylonVisibility                 = nullptr;
 ConVar* sv_pylonRefreshInterval            = nullptr;
 ConVar* sv_banlistRefreshInterval          = nullptr;
 ConVar* sv_statusRefreshInterval           = nullptr;
+ConVar* sv_forceChatToTeamOnly             = nullptr;
 
 ConVar* sv_autoReloadRate                  = nullptr;
 
