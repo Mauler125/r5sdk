@@ -114,31 +114,33 @@ struct RPakUnknownStruct_t
 
 struct RPakHeader_t
 {
-	uint32_t m_nMagic;                    // 'RPak'
-	uint16_t m_nVersion;                  // R2 = '7' R5 = '8'
-	uint8_t  m_nFlags[0x2];               //
-	uint8_t  m_nHash0[0x8];               //
-	uint8_t  m_nHash1[0x8];               //
-	uint64_t m_nSizeDisk;                 // Compressed size
-	uint64_t m_nEmbeddedStarpakOffset;    //
-	uint8_t  unk0[0x8];                   //
-	uint64_t m_nSizeMemory;               // Decompressed size
-	uint64_t m_nEmbeddedStarpakSize;      //
-	uint8_t  unk1[0x8];                   //
+	uint32_t m_nMagic;                     // 'RPak'
+	uint16_t m_nVersion;                   // R2 = '7' R5 = '8'
+	uint8_t  m_nFlags[0x2];                //
+	uint8_t  m_nHash0[0x8];                //
+	uint8_t  m_nHash1[0x8];                //
+	uint64_t m_nSizeDisk;                  // Compressed size
+	uint64_t m_nEmbeddedStarpakOffset;     //
+	uint8_t  unk0[0x8];                    //
+	uint64_t m_nSizeMemory;                // Decompressed size
+	uint64_t m_nEmbeddedStarpakSize;       //
+	uint8_t  unk1[0x8];                    //
 
-	uint16_t m_nStarpakReferenceSize;     //
-	uint16_t m_nStarpakOptReferenceSize;  //
-	uint16_t m_nVirtualSegmentCount;      // * 0x10
-	uint16_t m_nVirtualSegmentBlockCount; // * 0xC
+	uint16_t m_nStarpakReferenceSize;      //
+	uint16_t m_nStarpakOptReferenceSize;   //
+	uint16_t m_nVirtualSegmentCount;       // * 0x10
+	uint16_t m_nMemPageCount;              // * 0xC
 
-	uint32_t m_nPatchIndex;               //
+	uint32_t m_nPatchIndex;                //
 
-	uint32_t m_nDescriptorCount;          //
-	uint32_t m_nAssetEntryCount;          // File entry count
-	uint32_t m_nGuidDescriptorCount;      //
-	uint32_t m_nRelationsCounts;         //
+	uint32_t m_nDescriptorCount;           //
+	uint32_t m_nAssetEntryCount;           // File entry count
+	uint32_t m_nGuidDescriptorCount;       //
+	uint32_t m_nRelationsCounts;           //
 
-	uint8_t  unk2[0x1C];                  //
+	uint8_t  unk2[0x10];                   //
+	uint32_t m_nMemPageOffset;             // Size not verified. Offsets every page by x amount, if not 0 start of first page has data corresponding for 'patching some page'
+	uint8_t  unk3[0x8];                    //
 };
 
 struct __declspec(align(8)) RPakPatchCompressedHeader_t
@@ -424,11 +426,22 @@ public:
 	char* m_pszFileName; //0x0018
 	void* m_pMalloc; //0x0020
 	uint64_t* m_pAssetGuids; //0x0028 size of the array is m_nAssetCount
-	char pad_0030[128]; //0x0030
+#if defined GAMEDLL_S3
+	void* m_pVSegBuffers[4]; //0x0030
+	char pad_0050[16]; //0x0050
+	void* m_pPakInfo; //0x0060
+	RPakLoadedInfo_t* m_pUnknownLoadedPakInfo; //0x0068
+	char pad_0070[4]; //0x0070
+	int8_t m_nUnk3; //0x0074
+	char pad_0075[51]; //0x0075
+	uint32_t m_nUnk4; //0x00A8
+	uint8_t m_nUnk5; //0x00AC
+#endif
 #if not defined GAMEDLL_S3
-	char pad_00B0[48];
+	char pad_0030[128]; //0x0030
+	char pad_00B0[48];  //0x00B0
 #endif // !GAMEDLL_S3
-	uint64_t m_nUnkEnd; //0x00B0
+	uint64_t m_nUnkEnd; //0x00B0/0x00E8
 }; //Size: 0x00B8/0x00E8
 
 /* ==== RTECH =========================================================================================================================================================== */

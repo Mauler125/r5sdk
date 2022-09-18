@@ -330,7 +330,7 @@ FORCEINLINE void CHostState::GameShutDown(void)
 #ifndef CLIENT_DLL
 		g_pServerGameDLL->GameShutdown();
 #endif // !CLIENT_DLL
-		m_bActiveGame = 0;
+		m_bActiveGame = false;
 		ResetLevelName();
 	}
 }
