@@ -191,6 +191,7 @@ void Systems_Init()
 #ifndef CLIENT_DLL
 	Persistence_Attach();
 	IVEngineServer_Attach();
+	CServerGameDLL_Attach();
 #endif // !CLIENT_DLL
 
 	SQAPI_Attach();
@@ -317,6 +318,7 @@ void Systems_Shutdown()
 #ifndef CLIENT_DLL
 	Persistence_Detach();
 	IVEngineServer_Detach();
+	CServerGameDLL_Detach();
 #endif // !CLIENT_DLL
 	SQAPI_Detach();
 	SQVM_Detach();

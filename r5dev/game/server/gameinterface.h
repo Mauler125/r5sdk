@@ -13,13 +13,21 @@ public:
 	void LevelShutdown(void);
 	void GameShutdown(void);
 	float GetTickInterval(void);
+
+	static void __fastcall OnReceivedSayTextMessage(void* thisptr, int senderId, const char* text, bool isTeamChat);
 };
 class CServerGameClients
 {
 };
 
+inline CMemory p_CServerGameDLL__OnReceivedSayTextMessage;
+inline auto CServerGameDLL__OnReceivedSayTextMessage = p_CServerGameDLL__OnReceivedSayTextMessage.RCast<void(__fastcall*)(void* thisptr, int senderId, const char* text, bool isTeamChat)>();
+
 extern CServerGameDLL* g_pServerGameDLL;
 extern CServerGameClients* g_pServerGameClients;
+
+void CServerGameDLL_Attach();
+void CServerGameDLL_Detach();
 
 ///////////////////////////////////////////////////////////////////////////////
 class VServerGameDLL : public IDetour
@@ -30,7 +38,14 @@ class VServerGameDLL : public IDetour
 		spdlog::debug("| VAR: g_pServerGameClients                 : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pServerGameClients));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
-	virtual void GetFun(void) const { }
+	virtual void GetFun(void) const
+	{
+#if defined(GAMEDLL_S3)
+		p_CServerGameDLL__OnReceivedSayTextMessage = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x85\xD2\x0F\x8E\x00\x00\x00\x00\x4C\x8B\xDC"), "xxxx????xxx");
+
+		CServerGameDLL__OnReceivedSayTextMessage = p_CServerGameDLL__OnReceivedSayTextMessage.RCast<void(__fastcall*)(void* thisptr, int senderId, const char* text, bool isTeamChat)>();
+#endif
+	}
 	virtual void GetVar(void) const
 	{
 		g_pServerGameDLL = p_SV_CreateBaseline.Offset(0x0).FindPatternSelf("48 8B", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).Deref().RCast<CServerGameDLL*>();
