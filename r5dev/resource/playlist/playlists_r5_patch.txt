@@ -294,6 +294,11 @@ playlists
 		menufall
 		{
 			inherit defaults
+		}	
+		
+		custom_aimtrainer
+		{
+			inherit defaults
 		}
 	}
 
