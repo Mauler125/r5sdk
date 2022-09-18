@@ -227,7 +227,7 @@ void CBanSystem::BanListCheck(void)
 				if (AddEntry(svIpAddress, pClient->GetNucleusID()) && !bSave)
 					bSave = true;
 
-				NET_DisconnectClient(pClient, c, m_vRefuseList[i].first.c_str(), 0, true);
+				NET_RemoveChannel(pClient, c, m_vRefuseList[i].first.c_str(), 0, true);
 			}
 		}
 
@@ -299,7 +299,7 @@ void CBanSystem::KickPlayerByName(const string& svPlayerName)
 				if (strlen(pNetChan->GetName()) > 0)
 				{
 					if (svPlayerName.compare(pNetChan->GetName()) == NULL) // Our wanted name?
-						NET_DisconnectClient(pClient, i, "Kicked from server", 0, true);
+						NET_RemoveChannel(pClient, i, "Kicked from server", 0, true);
 				}
 			}
 		}
@@ -344,14 +344,14 @@ void CBanSystem::KickPlayerById(const string& svHandle)
 						continue;
 				}
 
-				NET_DisconnectClient(pClient, i, "Kicked from server", 0, true);
+				NET_RemoveChannel(pClient, i, "Kicked from server", 0, true);
 			}
 			else
 			{
 				if (svHandle.compare(pNetChan->GetAddress()) != NULL)
 					continue;
 
-				NET_DisconnectClient(pClient, i, "Kicked from server", 0, true);
+				NET_RemoveChannel(pClient, i, "Kicked from server", 0, true);
 			}
 		}
 	}
@@ -386,7 +386,7 @@ void CBanSystem::BanPlayerByName(const string& svPlayerName)
 						if (AddEntry(pNetChan->GetAddress(), pClient->GetNucleusID()) && !bSave)
 							bSave = true;
 
-						NET_DisconnectClient(pClient, i, "Banned from server", 0, true);
+						NET_RemoveChannel(pClient, i, "Banned from server", 0, true);
 					}
 				}
 			}
@@ -441,7 +441,7 @@ void CBanSystem::BanPlayerById(const string& svHandle)
 					bSave = true;
 
 				Save();
-				NET_DisconnectClient(pClient, i, "Banned from server", 0, true);
+				NET_RemoveChannel(pClient, i, "Banned from server", 0, true);
 			}
 			else
 			{
@@ -452,7 +452,7 @@ void CBanSystem::BanPlayerById(const string& svHandle)
 					bSave = true;
 
 				Save();
-				NET_DisconnectClient(pClient, i, "Banned from server", 0, true);
+				NET_RemoveChannel(pClient, i, "Banned from server", 0, true);
 			}
 		}
 

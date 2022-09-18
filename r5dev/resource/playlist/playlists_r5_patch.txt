@@ -1067,6 +1067,10 @@ playlists
 
 				"DISCONNECT_BANNED"                   "The client's game account has been banned: Banned"
 				"VALVE_REJECT_BANNED"                 "You have been banned from this server."
+
+				"DISCONNECT_SEND_RELIABLEOVERFLOW"    "Connection to server overflowed (code:river)."
+				"DISCONNECT_SEND_OVERFLOW"            "Connection to server overflowed (code:dam)."
+				"DISCONNECT_NETCHAN_OVERFLOW"         "Connection to server overflowed (code:vulkan)."
 			}
 		}
 	}

@@ -8,6 +8,12 @@
 #include "tier1/cvar.h"
 #include "engine/net.h"
 #include "engine/net_chan.h"
+#ifndef CLIENT_DLL
+#include "engine/server/server.h"
+#include "engine/client/client.h"
+#include "server/vengineserver_impl.h"
+#endif // !CLIENT_DLL
+
 
 //-----------------------------------------------------------------------------
 // Purpose: gets the netchannel name
@@ -201,9 +207,45 @@ void CNetChan::Clear(bool bStopProcessing)
 	v_NetChan_Clear(this, bStopProcessing);
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: process message
+// Input  : *pChan - 
+//			*pMsg - 
+// Output : true on success, false on failure
+//-----------------------------------------------------------------------------
 bool CNetChan::ProcessMessages(CNetChan* pChan, bf_read* pMsg)
 {
+#ifndef CLIENT_DLL
+	if (!ThreadInServerFrameThread() || !net_processLimit->GetInt())
+		return v_NetChan_ProcessMessages(pChan, pMsg);
+
+	const double flStartTime = Plat_FloatTime();
+	const bool bResult = v_NetChan_ProcessMessages(pChan, pMsg);
+
+	CClient* pClient = reinterpret_cast<CClient*>(pChan->m_MessageHandler);
+	uint16_t nSlot = pClient->GetUserID();
+	ServerPlayer_t* pSlot = &g_ServerPlayer[nSlot];
+
+	if (flStartTime - pSlot->m_flLastNetProcessTime >= 1.0 ||
+		pSlot->m_flLastNetProcessTime == -1.0)
+	{
+		pSlot->m_flLastNetProcessTime = flStartTime;
+		pSlot->m_flCurrentNetProcessTime = 0.0;
+	}
+	pSlot->m_flCurrentNetProcessTime +=
+		(Plat_FloatTime() * 1000) - (flStartTime * 1000);
+
+	if (pSlot->m_flCurrentNetProcessTime >=
+		net_processLimit->GetDouble())
+	{
+		pClient->Disconnect(2, "#DISCONNECT_NETCHAN_OVERFLOW");
+		return false;
+	}
+
+	return bResult;
+#else // !CLIENT_DLL
 	return v_NetChan_ProcessMessages(pChan, pMsg);
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////

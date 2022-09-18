@@ -38,6 +38,7 @@ public:
 	bool IsFakeClient(void) const;
 	bool IsHumanPlayer(void) const;
 	bool Connect(const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize);
+	void Disconnect(int nBadRep /*!!ENUM!!*/, const char* szReason, ...);
 	static bool VConnect(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize);
 	void Clear(void);
 	static void VClear(CClient* pBaseClient);
@@ -87,10 +88,13 @@ static_assert(sizeof(CClient) == 0x4A4C0);
 
 /* ==== CBASECLIENT ===================================================================================================================================================== */
 inline CMemory p_CClient_Connect;
-inline auto v_CClient_Connect = p_CClient_Connect.RCast<bool (*)(CClient* thisptr, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize)>();
+inline auto v_CClient_Connect = p_CClient_Connect.RCast<bool (*)(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize)>();
+
+inline CMemory p_CClient_Disconnect;
+inline auto v_CClient_Disconnect = p_CClient_Disconnect.RCast<bool (*)(CClient* pClient, int nBadRep /*!!ENUM!!*/, const char* szReason, ...)>();
 
 inline CMemory p_CClient_Clear;
-inline auto v_CClient_Clear = p_CClient_Clear.RCast<void (*)(CClient* thisptr)>();
+inline auto v_CClient_Clear = p_CClient_Clear.RCast<void (*)(CClient* pClient)>();
 
 ///////////////////////////////////////////////////////////////////////////////
 void CBaseClient_Attach();
@@ -102,17 +106,24 @@ class VClient : public IDetour
 	virtual void GetAdr(void) const
 	{
 		spdlog::debug("| FUN: CClient::Connect                     : {:#18x} |\n", p_CClient_Connect.GetPtr());
+		spdlog::debug("| FUN: CClient::Disconnect                  : {:#18x} |\n", p_CClient_Disconnect.GetPtr());
 		spdlog::debug("| FUN: CClient::Clear                       : {:#18x} |\n", p_CClient_Clear.GetPtr());
 		spdlog::debug("| VAR: g_pClient[128]                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pClient));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
-		p_CClient_Connect = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x56\x57\x41\x56\x48\x83\xEC\x20\x41\x0F\xB6\xE9"), "xxxx?xxxx?xxxxxxxxxxxx");
-		p_CClient_Clear   = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74"), "xxxxxxxxxxxxxxxx");
+		p_CClient_Connect    = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x56\x57\x41\x56\x48\x83\xEC\x20\x41\x0F\xB6\xE9"), "xxxx?xxxx?xxxxxxxxxxxx");
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
+		p_CClient_Disconnect = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x4C\x89\x40\x18\x4C\x89\x48\x20\x53\x56\x57\x48\x81\xEC\x00\x00\x00\x00\x83\xB9\x00\x00\x00\x00\x00\x49\x8B\xF8\x0F\xB6\xF2"), "xxxxxxxxxxxxxxxxx????xx?????xxxxxx");
+#else // !GAMEDLL_S0 || !GAMEDLL_S1 || !GAMEDLL_S2
+		p_CClient_Disconnect = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x4C\x89\x40\x18\x4C\x89\x48\x20\x53\x56\x57\x48\x81\xEC\x00\x00\x00\x00\x83\xB9\x00\x00\x00\x00\x00\x49\x8B\xF8\x8B\xF2"), "xxxxxxxxxxxxxxxxx????xx?????xxxxx");
+#endif
+		p_CClient_Clear      = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74"), "xxxxxxxxxxxxxxxx");
 
-		v_CClient_Connect = p_CClient_Connect.RCast<bool (*)(CClient*, const char*, void*, bool, void*, char*, int)>(); /*48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 20 41 0F B6 E9*/
-		v_CClient_Clear   = p_CClient_Clear.RCast<void (*)(CClient*)>();                                                /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
+		v_CClient_Connect    = p_CClient_Connect.RCast<bool (*)(CClient*, const char*, void*, bool, void*, char*, int)>(); /*48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 20 41 0F B6 E9*/
+		v_CClient_Disconnect = p_CClient_Disconnect.RCast<bool (*)(CClient*, int, const char*, ...)>();                    /*48 8B C4 4C 89 40 18 4C 89 48 20 53 56 57 48 81 EC ?? ?? ?? ?? 83 B9 ?? ?? ?? ?? ?? 49 8B F8 8B F2*/
+		v_CClient_Clear      = p_CClient_Clear.RCast<void (*)(CClient*)>();                                                /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
 	}
 	virtual void GetVar(void) const
 	{

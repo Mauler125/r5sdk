@@ -250,6 +250,27 @@ bool CClient::VConnect(CClient* pClient, const char* szName, void* pNetChannel, 
 	return v_CClient_Connect(pClient, szName, pNetChannel, bFakePlayer, a5, szMessage, nMessageSize);
 }
 
+//---------------------------------------------------------------------------------
+// Purpose: disconnect client
+// Input  : nBadRep - 
+//			*szReason - 
+//			... - 
+//---------------------------------------------------------------------------------
+void CClient::Disconnect(int nBadRep/*!!ENUM!!*/, const char* szReason, ...)
+{
+	char szBuf[1024];
+	{/////////////////////////////
+		va_list vArgs{};
+		va_start(vArgs, szReason);
+
+		vsnprintf(szBuf, sizeof(szBuf), szReason, vArgs);
+
+		szBuf[sizeof(szBuf) - 1] = '\0';
+		va_end(vArgs);
+	}/////////////////////////////
+	v_CClient_Disconnect(this, nBadRep, szBuf);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////
 void CBaseClient_Attach()
 {
