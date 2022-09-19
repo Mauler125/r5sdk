@@ -13,6 +13,26 @@
 
 bool HushAsserts();
 //-----------------------------------------------------------------------------
+enum class EGlobalContext_t : int
+{
+	GLOBAL_NONE = -4,
+	SCRIPT_SERVER,
+	SCRIPT_CLIENT,
+	SCRIPT_UI,
+	NATIVE_SERVER,
+	NATIVE_CLIENT,
+	NATIVE_UI,
+	NATIVE_ENGINE,
+	NATIVE_FS,
+	NATIVE_RTECH,
+	NATIVE_MS,
+	NETCON_S,
+	COMMON_C,
+	WARNING_C,
+	ERROR_C,
+	NONE
+};
+
 enum class eDLL_T : int
 {
 	SERVER = 0, // Game DLL
@@ -23,7 +43,7 @@ enum class eDLL_T : int
 	RTECH  = 5, // RTech API
 	MS     = 6, // Material System
 	NETCON = 7, // Net Console
-	NONE   = 8
+	COMMON = 8
 };
 
 const string sDLL_T[9] = 
@@ -49,7 +69,7 @@ const static string sANSI_DLL_T[9] =
 	"\033[38;2;092;181;089mNative(R):",
 	"\033[38;2;192;105;173mNative(M):",
 	"\033[38;2;204;204;204mNetcon(X):",
-	""
+	"\033[38;2;255;204;153m"
 };
 extern std::mutex s_LogMutex;
 
@@ -58,9 +78,10 @@ extern std::mutex s_LogMutex;
 //////////////////////////////////////////////////////////////////////////
 
 // These functions do not return.
+PLATFORM_INTERFACE void NetMsg(EGlobalContext_t context, const char* fmt, ...) FMTFUNCTION(2, 3);
 PLATFORM_INTERFACE void DevMsg(eDLL_T context, const char* fmt, ...) FMTFUNCTION(2, 3);
 PLATFORM_INTERFACE void Warning(eDLL_T context, const char* fmt, ...) FMTFUNCTION(1, 2);
-PLATFORM_INTERFACE void Error(eDLL_T context, const char* fmt, ...) FMTFUNCTION(1, 2);
+PLATFORM_INTERFACE void Error(eDLL_T context, UINT code, const char* fmt, ...) FMTFUNCTION(1, 2);
 
 // You can use this macro like a runtime assert macro.
 // If the condition fails, then Error is called with the message. This macro is called

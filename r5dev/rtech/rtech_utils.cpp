@@ -1,10 +1,10 @@
 #include "core/stdafx.h"
+#include "tier1/cvar.h"
 #include "rtech/rtech_utils.h"
 #ifndef DEDICATED
 #include "windows/id3dx.h"
 #include "materialsystem/cshaderglue.h"
 #endif // !DEDICATED
-
 
 /******************************************************************************
 -------------------------------------------------------------------------------
@@ -25,20 +25,20 @@ History:
 //-----------------------------------------------------------------------------
 // Purpose: calculate 'GUID' from input data
 //-----------------------------------------------------------------------------
-std::uint64_t __fastcall RTech::StringToGuid(const char* pData)
+uint64_t __fastcall RTech::StringToGuid(const char* pData)
 {
-	std::uint32_t*        v1; // r8
-	std::uint64_t         v2; // r10
-	std::int32_t          v3; // er11
-	std::uint32_t         v4; // er9
-	std::uint32_t          i; // edx
-	std::uint64_t         v6; // rcx
-	std::int32_t          v7; // er9
-	std::int32_t          v8; // edx
-	std::int32_t          v9; // eax
-	std::uint32_t        v10; // er8
-	std::int32_t         v12; // ecx
-	std::uint32_t* a1 = (std::uint32_t*)pData;
+	uint32_t*        v1; // r8
+	uint64_t         v2; // r10
+	int32_t          v3; // er11
+	uint32_t         v4; // er9
+	uint32_t          i; // edx
+	uint64_t         v6; // rcx
+	int32_t          v7; // er9
+	int32_t          v8; // edx
+	int32_t          v9; // eax
+	uint32_t        v10; // er8
+	int32_t         v12; // ecx
+	uint32_t* a1 = (uint32_t*)pData;
 
 	v1 = a1;
 	v2 = 0i64;
@@ -50,7 +50,7 @@ std::uint64_t __fastcall RTech::StringToGuid(const char* pData)
 		v7 = v1[1];
 		++v1;
 		v3 += 4;
-		v2 = ((((std::uint64_t)(0xFB8C4D96501i64 * v6) >> 24) + 0x633D5F1 * v2) >> 61) ^ (((std::uint64_t)(0xFB8C4D96501i64 * v6) >> 24)
+		v2 = ((((uint64_t)(0xFB8C4D96501i64 * v6) >> 24) + 0x633D5F1 * v2) >> 61) ^ (((uint64_t)(0xFB8C4D96501i64 * v6) >> 24)
 			+ 0x633D5F1 * v2);
 		v8 = ~v7 & (v7 - 0x1010101);
 		v4 = (v7 - 45 * ((~(v7 ^ 0x5C5C5C5Cu) >> 7) & (((v7 ^ 0x5C5C5C5Cu) - 0x1010101) >> 7) & 0x1010101)) & 0xDFDFDFDF;
@@ -61,38 +61,38 @@ std::uint64_t __fastcall RTech::StringToGuid(const char* pData)
 	{
 		v9 = v12;
 	}
-	return 0x633D5F1 * v2 + ((0xFB8C4D96501i64 * (std::uint64_t)(v4 & v10)) >> 24) - 0xAE502812AA7333i64 * (std::uint32_t)(v3 + v9 / 8);
+	return 0x633D5F1 * v2 + ((0xFB8C4D96501i64 * (uint64_t)(v4 & v10)) >> 24) - 0xAE502812AA7333i64 * (uint32_t)(v3 + v9 / 8);
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: calculate 'decompressed' size and commit parameters
 //-----------------------------------------------------------------------------
-std::uint64_t __fastcall RTech::DecompressPakFileInit(RPakDecompState_t* state, std::uint8_t* fileBuffer, std::uint64_t fileSize, std::uint64_t offNoHeader, std::uint64_t headerSize)
+uint64_t __fastcall RTech::DecompressPakFileInit(RPakDecompState_t* state, uint8_t* fileBuffer, uint64_t fileSize, uint64_t offNoHeader, uint64_t headerSize)
 {
-	std::int64_t input_byte_pos_init;         // r9
-	std::uint64_t byte_init;                  // r11
-	std::int32_t decompressed_size_bits;      // ecx
-	std::int64_t byte_1_low;                  // rdi
-	std::uint64_t input_byte_pos_1;           // r10
-	std::uint32_t bit_pos_final;              // ebp
-	std::uint64_t byte_1;                     // rdi
-	std::uint32_t brih_bits;                  // er11
-	std::uint64_t inv_mask_in;                // r8
-	std::uint64_t byte_final_full;            // rbx
-	std::uint64_t bit_pos_final_1;            // rax
-	std::int32_t byte_bit_offset_final;       // ebp
-	std::uint64_t input_byte_pos_final;       // r10
-	std::uint64_t byte_final;                 // rbx
-	std::uint32_t brih_bytes;                 // er11
-	std::uint64_t byte_tmp;                   // rdx
-	std::uint64_t stream_len_needed;          // r14
-	std::uint64_t result;                     // rax
-	std::uint64_t inv_mask_out;               // r8
-	std::uint64_t qw70;                       // rcx
-	std::uint64_t stream_compressed_size_new; // rdx
+	int64_t input_byte_pos_init;         // r9
+	uint64_t byte_init;                  // r11
+	int32_t decompressed_size_bits;      // ecx
+	int64_t byte_1_low;                  // rdi
+	uint64_t input_byte_pos_1;           // r10
+	uint32_t bit_pos_final;              // ebp
+	uint64_t byte_1;                     // rdi
+	uint32_t brih_bits;                  // er11
+	uint64_t inv_mask_in;                // r8
+	uint64_t byte_final_full;            // rbx
+	uint64_t bit_pos_final_1;            // rax
+	int32_t byte_bit_offset_final;       // ebp
+	uint64_t input_byte_pos_final;       // r10
+	uint64_t byte_final;                 // rbx
+	uint32_t brih_bytes;                 // er11
+	uint64_t byte_tmp;                   // rdx
+	uint64_t stream_len_needed;          // r14
+	uint64_t result;                     // rax
+	uint64_t inv_mask_out;               // r8
+	uint64_t qw70;                       // rcx
+	uint64_t stream_compressed_size_new; // rdx
 
-	const std::uintptr_t mask = UINT64_MAX;
-	const std::uintptr_t file_buf = std::uintptr_t(fileBuffer);
+	const uintptr_t mask = UINT64_MAX;
+	const uintptr_t file_buf = uintptr_t(fileBuffer);
 
 	state->m_nInputBuf = file_buf;
 	state->m_nOut = 0i64;
@@ -101,25 +101,25 @@ std::uint64_t __fastcall RTech::DecompressPakFileInit(RPakDecompState_t* state, 
 	state->m_nTotalFileLen = fileSize + offNoHeader;
 	state->m_nMask = mask;
 	input_byte_pos_init = offNoHeader + headerSize + 8;
-	byte_init = *(std::uint64_t*)((mask & (offNoHeader + headerSize)) + file_buf);
+	byte_init = *(uint64_t*)((mask & (offNoHeader + headerSize)) + file_buf);
 	state->m_nDecompPosition = headerSize;
 	decompressed_size_bits = byte_init & 0x3F;
 	byte_init >>= 6;
 	state->input_byte_pos = input_byte_pos_init;
 	state->m_nDecompSize = byte_init & ((1i64 << decompressed_size_bits) - 1) | (1i64 << decompressed_size_bits);
-	byte_1_low = *(std::uint64_t*)((mask & input_byte_pos_init) + file_buf) << (64
-		- ((std::uint8_t)decompressed_size_bits
+	byte_1_low = *(uint64_t*)((mask & input_byte_pos_init) + file_buf) << (64
+		- ((uint8_t)decompressed_size_bits
 			+ 6));
-	input_byte_pos_1 = input_byte_pos_init + ((std::uint64_t)(std::uint32_t)(decompressed_size_bits + 6) >> 3);
+	input_byte_pos_1 = input_byte_pos_init + ((uint64_t)(uint32_t)(decompressed_size_bits + 6) >> 3);
 	state->input_byte_pos = input_byte_pos_1;
 	bit_pos_final = ((decompressed_size_bits + 6) & 7) + 13;
 	byte_1 = (0xFFFFFFFFFFFFFFFFui64 >> ((decompressed_size_bits + 6) & 7)) & ((byte_init >> decompressed_size_bits) | byte_1_low);
-	brih_bits = (((std::uint8_t)byte_1 - 1) & 0x3F) + 1;
-	inv_mask_in = 0xFFFFFFFFFFFFFFFFui64 >> (64 - (std::uint8_t)brih_bits);
+	brih_bits = (((uint8_t)byte_1 - 1) & 0x3F) + 1;
+	inv_mask_in = 0xFFFFFFFFFFFFFFFFui64 >> (64 - (uint8_t)brih_bits);
 	state->m_nInvMaskIn = inv_mask_in;
 	state->m_nInvMaskOut = 0xFFFFFFFFFFFFFFFFui64 >> (63 - (((byte_1 >> 6) - 1) & 0x3F));
-	byte_final_full = (byte_1 >> 13) | (*(std::uint64_t*)((mask & input_byte_pos_1) + file_buf) << (64
-		- (std::uint8_t)bit_pos_final));
+	byte_final_full = (byte_1 >> 13) | (*(uint64_t*)((mask & input_byte_pos_1) + file_buf) << (64
+		- (uint8_t)bit_pos_final));
 	bit_pos_final_1 = bit_pos_final;
 	byte_bit_offset_final = bit_pos_final & 7;
 	input_byte_pos_final = (bit_pos_final_1 >> 3) + input_byte_pos_1;
@@ -134,9 +134,9 @@ std::uint64_t __fastcall RTech::DecompressPakFileInit(RPakDecompState_t* state, 
 	{
 		brih_bytes = brih_bits >> 3;
 		state->header_skip_bytes_bs = brih_bytes + 1;
-		byte_tmp = *(std::uint64_t*)((mask & input_byte_pos_final) + file_buf);
+		byte_tmp = *(uint64_t*)((mask & input_byte_pos_final) + file_buf);
 		state->input_byte_pos = input_byte_pos_final + brih_bytes + 1;
-		stream_len_needed = byte_tmp & ((1i64 << (8 * ((std::uint8_t)brih_bytes + 1))) - 1);
+		stream_len_needed = byte_tmp & ((1i64 << (8 * ((uint8_t)brih_bytes + 1))) - 1);
 	}
 	result = state->m_nDecompSize;
 	inv_mask_out = state->m_nInvMaskOut;
@@ -161,65 +161,65 @@ std::uint64_t __fastcall RTech::DecompressPakFileInit(RPakDecompState_t* state, 
 //-----------------------------------------------------------------------------
 // Purpose: decompress input data
 //-----------------------------------------------------------------------------
-std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::uint64_t inLen, std::uint64_t outLen)
+uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, uint64_t inLen, uint64_t outLen)
 {
-	std::uint64_t decompressed_position;        // r15
-	std::uint32_t byte_bit_offset;              // ebp
-	std::uint64_t byte;                         // rsi
-	std::uint64_t input_byte_pos;               // rdi
-	std::uint64_t some_size;                    // r12
-	std::uint32_t dword6C;                      // ecx MAPDST
-	std::uint64_t v12;                          // rsi
-	std::uint64_t i;                            // rax
-	std::uint64_t dword6c_shl8;                 // r8
-	std::int64_t dword6c_old;                   // r9
-	std::int32_t LUT_200_val;                   // ecx
-	std::uint64_t v17;                          // rax
-	std::uint64_t byte_new;                     // rsi
-	std::int64_t  LUT_0_VAL;                    // r14
-	std::int32_t byte_4bits_1;                  // ecx
-	std::uint64_t v21;                          // r11
-	std::int32_t v22;                           // edx
-	std::uint64_t out_mask;                     // rax
-	std::int32_t v24;                           // er8
-	std::uint32_t LUT_400_seek_backwards;       // er13
-	std::uint64_t out_seek_back;                // r10
-	std::uint64_t out_seekd_1;                  // rax
-	std::uint64_t* out_seekd_back;              // r10
-	std::uint64_t decompressed_size;            // r9
-	std::uint64_t inv_mask_in;                  // r10
-	std::uint64_t header_skip_bytes_bs;         // r8
-	std::uint64_t v32;                          // rax
-	std::uint64_t v33;                          // rax
-	std::uint64_t v34;                          // rax
-	std::uint64_t stream_decompressed_size_new; // rcx
-	std::int64_t  v36;                          // rdx
-	std::uint64_t len_needed_new;               // r14
-	std::uint64_t stream_compressed_size_new;   // r11
+	uint64_t decompressed_position;        // r15
+	uint32_t byte_bit_offset;              // ebp
+	uint64_t byte;                         // rsi
+	uint64_t input_byte_pos;               // rdi
+	uint64_t some_size;                    // r12
+	uint32_t dword6C;                      // ecx MAPDST
+	uint64_t v12;                          // rsi
+	uint64_t i;                            // rax
+	uint64_t dword6c_shl8;                 // r8
+	int64_t dword6c_old;                   // r9
+	int32_t LUT_200_val;                   // ecx
+	uint64_t v17;                          // rax
+	uint64_t byte_new;                     // rsi
+	int64_t  LUT_0_VAL;                    // r14
+	int32_t byte_4bits_1;                  // ecx
+	uint64_t v21;                          // r11
+	int32_t v22;                           // edx
+	uint64_t out_mask;                     // rax
+	int32_t v24;                           // er8
+	uint32_t LUT_400_seek_backwards;       // er13
+	uint64_t out_seek_back;                // r10
+	uint64_t out_seekd_1;                  // rax
+	uint64_t* out_seekd_back;              // r10
+	uint64_t decompressed_size;            // r9
+	uint64_t inv_mask_in;                  // r10
+	uint64_t header_skip_bytes_bs;         // r8
+	uint64_t v32;                          // rax
+	uint64_t v33;                          // rax
+	uint64_t v34;                          // rax
+	uint64_t stream_decompressed_size_new; // rcx
+	int64_t  v36;                          // rdx
+	uint64_t len_needed_new;               // r14
+	uint64_t stream_compressed_size_new;   // r11
 	char v39;                                   // cl MAPDST
-	std::uint64_t v40;                          // rsi MAPDST
+	uint64_t v40;                          // rsi MAPDST
 	uint64_t v46;                               // rcx
-	std::int64_t v47;                           // r9
-	std::int64_t m;                             // r8
-	std::uint32_t v49;                          // er9
-	std::int64_t v50;                           // r8
-	std::int64_t v51;                           // rdx
-	std::int64_t k;                             // r8
+	int64_t v47;                           // r9
+	int64_t m;                             // r8
+	uint32_t v49;                          // er9
+	int64_t v50;                           // r8
+	int64_t v51;                           // rdx
+	int64_t k;                             // r8
 	char* v53;                                  // r10
-	std::int64_t  v54;                          // rdx
-	std::uint32_t lut0_val_abs;                 // er14
-	std::int64_t* in_seekd;                     // rdx
-	std::int64_t* out_seekd;                    // r8
-	std::int64_t  byte_3bits;                   // rax MAPDST
-	std::uint64_t byte_new_tmp;                 // r9 MAPDST
-	std::int32_t LUT_4D0_480;                   // er10 MAPDST
-	std::uint8_t LUT_4D8_4C0_nBits;             // cl MAPDST
-	std::uint64_t byte_4bits;                   // rax MAPDST
-	std::uint32_t copy_bytes_ammount;           // er14
-	std::uint32_t j;                            // ecx
-	std::int64_t v67;                           // rax
-	std::uint64_t v68;                          // rcx
-	std::uint8_t result;                        // al
+	int64_t  v54;                          // rdx
+	uint32_t lut0_val_abs;                 // er14
+	int64_t* in_seekd;                     // rdx
+	int64_t* out_seekd;                    // r8
+	int64_t  byte_3bits;                   // rax MAPDST
+	uint64_t byte_new_tmp;                 // r9 MAPDST
+	int32_t LUT_4D0_480;                   // er10 MAPDST
+	uint8_t LUT_4D8_4C0_nBits;             // cl MAPDST
+	uint64_t byte_4bits;                   // rax MAPDST
+	uint32_t copy_bytes_ammount;           // er14
+	uint32_t j;                            // ecx
+	int64_t v67;                           // rax
+	uint64_t v68;                          // rcx
+	uint8_t result;                        // al
 
 	if (inLen < state->m_nLengthNeeded)
 		return 0;
@@ -239,27 +239,27 @@ std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::
 	if (!byte_bit_offset)
 		goto LABEL_9;
 
-	v12 = (*(std::uint64_t*)((input_byte_pos & state->m_nMask) + state->m_nInputBuf) << (64 - (std::uint8_t)byte_bit_offset)) | byte;
+	v12 = (*(uint64_t*)((input_byte_pos & state->m_nMask) + state->m_nInputBuf) << (64 - (uint8_t)byte_bit_offset)) | byte;
 	for (i = byte_bit_offset; ; i = byte_bit_offset)
 	{
 		byte_bit_offset &= 7u;
 		input_byte_pos += i >> 3;
 		byte = (0xFFFFFFFFFFFFFFFFui64 >> byte_bit_offset) & v12;
 	LABEL_9:
-		dword6c_shl8 = (std::uint64_t)dword6C << 8;
+		dword6c_shl8 = (uint64_t)dword6C << 8;
 		dword6c_old = dword6C;
-		LUT_200_val = LUT_200[(std::uint8_t)byte + dword6c_shl8];// LUT_200 - u8 - ammount of bits
-		v17 = (std::uint8_t)byte + dword6c_shl8;
+		LUT_200_val = LUT_200[(uint8_t)byte + dword6c_shl8];// LUT_200 - u8 - amount of bits
+		v17 = (uint8_t)byte + dword6c_shl8;
 		byte_bit_offset += LUT_200_val;
 		byte_new = byte >> LUT_200_val;
-		LUT_0_VAL = LUT_0[v17];// LUT_0 - i32 - signed, ammount of bytes
+		LUT_0_VAL = LUT_0[v17];// LUT_0 - i32 - signed, amount of bytes
 
 		if (LUT_0_VAL < 0)
 		{
-			lut0_val_abs = -(std::int32_t)LUT_0_VAL;
-			in_seekd = (std::int64_t*)(state->m_nInputBuf + (input_byte_pos & state->m_nMask));
+			lut0_val_abs = -(int32_t)LUT_0_VAL;
+			in_seekd = (int64_t*)(state->m_nInputBuf + (input_byte_pos & state->m_nMask));
 			dword6C = 1;
-			out_seekd = (std::int64_t*)(state->m_nOut + (decompressed_position & state->m_nOutMask));
+			out_seekd = (int64_t*)(state->m_nOut + (decompressed_position & state->m_nOutMask));
 			if (lut0_val_abs == LUT_4E0[dword6c_old])
 			{
 				if ((~input_byte_pos & state->m_nInvMaskIn) < 0xF
@@ -277,7 +277,7 @@ std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::
 				if (byte_3bits)
 				{
 					LUT_4D0_480 = LUT_4D0[byte_3bits];// LUT_4D0 - u8
-					LUT_4D8_4C0_nBits = LUT_4D8[byte_3bits];// LUT_4D8 - u8 - ammount of bits
+					LUT_4D8_4C0_nBits = LUT_4D8[byte_3bits];// LUT_4D8 - u8 - amount of bits
 				}
 				else
 				{
@@ -285,7 +285,7 @@ std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::
 					byte_4bits = v40 & 15;
 					byte_bit_offset += 4;
 					LUT_4D0_480 = LUT_480[byte_4bits];// LUT_480 - u32
-					LUT_4D8_4C0_nBits = LUT_4C0[byte_4bits]; // LUT_4C0 - u8 - ammount of bits???
+					LUT_4D8_4C0_nBits = LUT_4C0[byte_4bits]; // LUT_4C0 - u8 - amount of bits???
 				}
 
 				byte_bit_offset += LUT_4D8_4C0_nBits + 3;
@@ -300,20 +300,20 @@ std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::
 
 				if ((copy_bytes_ammount & 4) != 0)    // copy by 4
 				{
-					*(std::uint32_t*)out_seekd = *(std::uint32_t*)in_seekd;
-					out_seekd = (std::int64_t*)((char*)out_seekd + 4);
-					in_seekd = (std::int64_t*)((char*)in_seekd + 4);
+					*(uint32_t*)out_seekd = *(uint32_t*)in_seekd;
+					out_seekd = (int64_t*)((char*)out_seekd + 4);
+					in_seekd = (int64_t*)((char*)in_seekd + 4);
 				}
 
 				if ((copy_bytes_ammount & 2) != 0)    // copy by 2
 				{
-					*(std::uint16_t*)out_seekd = *(std::uint16_t*)in_seekd;
-					out_seekd = (std::int64_t*)((char*)out_seekd + 2);
-					in_seekd = (std::int64_t*)((char*)in_seekd + 2);
+					*(uint16_t*)out_seekd = *(uint16_t*)in_seekd;
+					out_seekd = (int64_t*)((char*)out_seekd + 2);
+					in_seekd = (int64_t*)((char*)in_seekd + 2);
 				}
 
 				if ((copy_bytes_ammount & 1) != 0)    // copy by 1
-					*(std::uint8_t*)out_seekd = *(std::uint8_t*)in_seekd;
+					*(uint8_t*)out_seekd = *(uint8_t*)in_seekd;
 
 				input_byte_pos += copy_bytes_ammount;
 				decompressed_position += copy_bytes_ammount;
@@ -330,26 +330,26 @@ std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::
 		{
 			byte_4bits_1 = byte_new & 0xF;
 			dword6C = 0;
-			v21 = ((std::uint64_t)(std::uint32_t)byte_new >> (((std::uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 6)) & 0x3F;// 6 bits after shift for who knows how much???
-			v22 = 1 << (byte_4bits_1 + ((byte_new >> 4) & ((24 * (((std::uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 2)) >> 4)));// ammount of bits to read???
-			byte_bit_offset += (((std::uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 6)// shit shit gets shifted by ammount of bits it read or something
+			v21 = ((uint64_t)(uint32_t)byte_new >> (((uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 6)) & 0x3F;// 6 bits after shift for who knows how much???
+			v22 = 1 << (byte_4bits_1 + ((byte_new >> 4) & ((24 * (((uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 2)) >> 4)));// amount of bits to read???
+			byte_bit_offset += (((uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 6)// shit shit gets shifted by amount of bits it read or something
 				+ LUT_440[v21]
 				+ byte_4bits_1
-				+ ((byte_new >> 4) & ((24 * (((std::uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 2)) >> 4));
+				+ ((byte_new >> 4) & ((24 * (((uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 2)) >> 4));
 			out_mask = state->m_nOutMask;
 			v24 = 16
 				* (v22
-					+ ((v22 - 1) & (byte_new >> ((((std::uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 6)
+					+ ((v22 - 1) & (byte_new >> ((((uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 6)
 						+ LUT_440[v21]))));
-			byte_new >>= (((std::uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 6)
+			byte_new >>= (((uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 6)
 				+ LUT_440[v21]
 				+ byte_4bits_1
-				+ ((byte_new >> 4) & ((24 * (((std::uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 2)) >> 4));
+				+ ((byte_new >> 4) & ((24 * (((uint32_t)(byte_4bits_1 + 0xFFFFFFE1) >> 3) & 2)) >> 4));
 			LUT_400_seek_backwards = v24 + LUT_400[v21] - 16;// LUT_400 - u8 - seek backwards
 			out_seek_back = out_mask & (decompressed_position - LUT_400_seek_backwards);
 			out_seekd_1 = state->m_nOut + (decompressed_position & out_mask);
-			out_seekd_back = (std::uint64_t*)(state->m_nOut + out_seek_back);
-			if ((std::int32_t)LUT_0_VAL == 17)
+			out_seekd_back = (uint64_t*)(state->m_nOut + out_seek_back);
+			if ((int32_t)LUT_0_VAL == 17)
 			{
 				v39 = byte_new;
 				v40 = byte_new >> 3;
@@ -370,14 +370,14 @@ std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::
 					if (state->m_nInputBuf && byte_bit_offset + LUT_4D8_4C0_nBits >= 0x3D)
 					{
 						v46 = input_byte_pos++ & state->m_nMask;
-						byte_new_tmp |= (std::uint64_t) * (std::uint8_t*)(v46 + state->m_nInputBuf) << (61
-							- (std::uint8_t)byte_bit_offset);
+						byte_new_tmp |= (uint64_t) * (uint8_t*)(v46 + state->m_nInputBuf) << (61
+							- (uint8_t)byte_bit_offset);
 						byte_bit_offset -= 8;
 					}
 				}
 				byte_bit_offset += LUT_4D8_4C0_nBits + 3;
 				byte_new = byte_new_tmp >> LUT_4D8_4C0_nBits;
-				v47 = ((std::uint32_t)byte_new_tmp & ((1 << LUT_4D8_4C0_nBits) - 1)) + LUT_4D0_480 + 17;
+				v47 = ((uint32_t)byte_new_tmp & ((1 << LUT_4D8_4C0_nBits) - 1)) + LUT_4D0_480 + 17;
 				decompressed_position += v47;
 				if (LUT_400_seek_backwards < 8)
 				{
@@ -385,10 +385,10 @@ std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::
 					decompressed_position -= 13i64;
 					if (LUT_400_seek_backwards == 1)    // 1 means copy v49 qwords?
 					{
-						v50 = *(std::uint8_t*)out_seekd_back;
+						v50 = *(uint8_t*)out_seekd_back;
 						v51 = 0i64;
-						for (k = 0x101010101010101i64 * v50; (std::uint32_t)v51 < v49; v51 = (std::uint32_t)(v51 + 8))
-							*(std::uint64_t*)(v51 + out_seekd_1) = k;
+						for (k = 0x101010101010101i64 * v50; (uint32_t)v51 < v49; v51 = (uint32_t)(v51 + 8))
+							*(uint64_t*)(v51 + out_seekd_1) = k;
 					}
 					else
 					{
@@ -398,7 +398,7 @@ std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::
 							v54 = v49;
 							do
 							{
-								*(std::uint8_t*)out_seekd_1 = v53[out_seekd_1];// seekd = seek_back; increment ptrs
+								*(uint8_t*)out_seekd_1 = v53[out_seekd_1];// seeked = seek_back; increment ptrs
 								++out_seekd_1;
 								--v54;
 							} while (v54);
@@ -407,22 +407,22 @@ std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::
 				}
 				else
 				{
-					for (m = 0i64; (std::uint32_t)m < (std::uint32_t)v47; m = (std::uint32_t)(m + 8))
-						*(std::uint64_t*)(m + out_seekd_1) = *(std::uint64_t*)((char*)out_seekd_back + m);
+					for (m = 0i64; (uint32_t)m < (uint32_t)v47; m = (uint32_t)(m + 8))
+						*(uint64_t*)(m + out_seekd_1) = *(uint64_t*)((char*)out_seekd_back + m);
 				}
 			}
 			else
 			{
 				decompressed_position += LUT_0_VAL;
-				*(std::uint64_t*)out_seekd_1 = *out_seekd_back;
-				*(std::uint64_t*)(out_seekd_1 + 8) = out_seekd_back[1];
+				*(uint64_t*)out_seekd_1 = *out_seekd_back;
+				*(uint64_t*)(out_seekd_1 + 8) = out_seekd_back[1];
 			}
 		}
 		if (input_byte_pos >= some_size)
 			break;
 
 	LABEL_26:
-		v12 = (*(std::uint64_t*)((input_byte_pos & state->m_nMask) + state->m_nInputBuf) << (64 - (std::uint8_t)byte_bit_offset)) | byte_new;
+		v12 = (*(uint64_t*)((input_byte_pos & state->m_nMask) + state->m_nInputBuf) << (64 - (uint8_t)byte_bit_offset)) | byte_new;
 	}
 
 	if (decompressed_position != state->m_nDecompStreamSize)
@@ -439,7 +439,7 @@ std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::
 
 	inv_mask_in = state->m_nInvMaskIn;
 	header_skip_bytes_bs = state->header_skip_bytes_bs;
-	v32 = inv_mask_in & -(std::int64_t)input_byte_pos;
+	v32 = inv_mask_in & -(int64_t)input_byte_pos;
 	byte_new >>= 1;
 	++byte_bit_offset;
 
@@ -454,7 +454,7 @@ std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::
 	v34 = input_byte_pos & state->m_nMask;
 	input_byte_pos += header_skip_bytes_bs;
 	stream_decompressed_size_new = decompressed_position + state->m_nInvMaskOut + 1;
-	v36 = *(std::uint64_t*)(v34 + state->m_nInputBuf) & ((1LL << (8 * (std::uint8_t)header_skip_bytes_bs)) - 1);
+	v36 = *(uint64_t*)(v34 + state->m_nInputBuf) & ((1LL << (8 * (uint8_t)header_skip_bytes_bs)) - 1);
 	len_needed_new = v36 + state->m_nLengthNeeded;
 	stream_compressed_size_new = v36 + state->m_nCompressedStreamSize;
 	state->m_nLengthNeeded = len_needed_new;
@@ -501,10 +501,15 @@ std::uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, std::
 	return result;
 }
 
-#if not defined DEDICATED && defined (GAMEDLL_S3)
+#if not defined DEDICATED
 
 #pragma warning( push )
-#pragma warning( disable : 6262 ) // Disable stack warning, tells us to move more data to the heap instead. Not really possible with 'initialData' here. Since its parallel processed.
+// Disable stack warning, tells us to move more data to the heap instead. Not really possible with 'initialData' here. Since its parallel processed.
+// Also disable 6378, complains that there is no control path where it would use 'nullptr', if that happens 'Error' will be called though.
+#pragma warning( disable : 6262 6387)
+//----------------------------------------------------------------------------------
+// Purpose: creates 2D texture and shader resource from textureHeader and imageData.
+//----------------------------------------------------------------------------------
 void RTech::CreateDXTexture(RTechTextureInfo_t* textureHeader, int64_t imageData)
 {
 	if (textureHeader->unk0 && !textureHeader->m_nHeight) // Return never gets hit. Maybe its some debug check?
@@ -513,7 +518,7 @@ void RTech::CreateDXTexture(RTechTextureInfo_t* textureHeader, int64_t imageData
 	__int64 initialData[4096]{};
 	textureHeader->m_nTextureMipLevels = textureHeader->m_nMipLevels;
 
-	int totalStreamedMips = textureHeader->m_nMipLevelsStreamedOpt + textureHeader->m_nMipLevelsStreamed;
+	const int totalStreamedMips = textureHeader->m_nMipLevelsStreamedOpt + textureHeader->m_nMipLevelsStreamed;
 	uint32_t mipLevel = textureHeader->m_nMipLevels + totalStreamedMips;
 	if (mipLevel != totalStreamedMips)
 	{
@@ -556,7 +561,7 @@ void RTech::CreateDXTexture(RTechTextureInfo_t* textureHeader, int64_t imageData
 		} while (mipLevel != totalStreamedMips);
 	}
 
-	DXGI_FORMAT dxgiFormat = rpakToDxgiFormat[textureHeader->m_nFormat]; // Get dxgi format
+	const DXGI_FORMAT dxgiFormat = rpakToDxgiFormat[textureHeader->m_nFormat]; // Get dxgi format
 
 	D3D11_TEXTURE2D_DESC textureDesc{};
 	textureDesc.Width = textureHeader->m_nWidth >> mipLevel;
@@ -566,15 +571,15 @@ void RTech::CreateDXTexture(RTechTextureInfo_t* textureHeader, int64_t imageData
 	textureDesc.Format = dxgiFormat;
 	textureDesc.SampleDesc.Count = 1;
 	textureDesc.SampleDesc.Quality = 0;
-	textureDesc.Usage = (D3D11_USAGE)(textureHeader->unk2 != 2);
+	textureDesc.Usage = textureHeader->m_nCPUAccessFlag != 2 ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DEFAULT;
 	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 	textureDesc.MiscFlags = 0;
 
-	uint32_t offsetStartResourceData = mipLevel << 4u;
-	D3D11_SUBRESOURCE_DATA* subResData = (D3D11_SUBRESOURCE_DATA*)((uint8_t*)initialData + offsetStartResourceData);
-	HRESULT createTextureRes = (*g_ppGameDevice)->CreateTexture2D(&textureDesc, subResData, &textureHeader->m_ppTexture);
+	const uint32_t offsetStartResourceData = mipLevel << 4u;
+	const D3D11_SUBRESOURCE_DATA* subResData = (D3D11_SUBRESOURCE_DATA*)((uint8_t*)initialData + offsetStartResourceData);
+	const HRESULT createTextureRes = (*g_ppGameDevice)->CreateTexture2D(&textureDesc, subResData, &textureHeader->m_ppTexture);
 	if (createTextureRes < S_OK)
-		Error(eDLL_T::RTECH, "Couldn't create texture \"%s\": error code %08x\n", textureHeader->m_nDebugName, createTextureRes);
+		Error(eDLL_T::RTECH, EXIT_FAILURE, "Couldn't create texture \"%s\": error code %08x\n", textureHeader->m_nDebugName, createTextureRes);
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResource{};
 	shaderResource.Format = dxgiFormat;
@@ -590,39 +595,90 @@ void RTech::CreateDXTexture(RTechTextureInfo_t* textureHeader, int64_t imageData
 		shaderResource.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2D;
 	}
 
-	HRESULT createShaderResourceRes = (*g_ppGameDevice)->CreateShaderResourceView(textureHeader->m_ppTexture, &shaderResource, &textureHeader->m_ppShaderResourceView);
+	const HRESULT createShaderResourceRes = (*g_ppGameDevice)->CreateShaderResourceView(textureHeader->m_ppTexture, &shaderResource, &textureHeader->m_ppShaderResourceView);
 	if (createShaderResourceRes < S_OK)
-		Error(eDLL_T::RTECH, "Couldn't create shader resource view for texture \"%s\": error code %08x\n", textureHeader->m_nDebugName, createShaderResourceRes);
+		Error(eDLL_T::RTECH, EXIT_FAILURE, "Couldn't create shader resource view for texture \"%s\": error code %08x\n", textureHeader->m_nDebugName, createShaderResourceRes);
 }
 #pragma warning( pop )
 #endif
 
 #ifndef DEDICATED
+//----------------------------------------------------------------------------------
+// Purpose: start loading shader sets, assign vftable pointer
+//----------------------------------------------------------------------------------
 void** RTech::LoadShaderSet(void** VTablePtr)
 {
-	*VTablePtr = &g_pCShaderGlue_VTable;
-	return &g_pCShaderGlue_VTable;
+	*VTablePtr = &g_pShaderGlueVFTable;
+	return &g_pShaderGlueVFTable;
 }
 #endif
+
+//----------------------------------------------------------------------------------
+// Purpose: open a file and add it to m_FileHandles.
+//----------------------------------------------------------------------------------
+int32_t RTech::OpenFile(const CHAR* szFilePath, void* unused, LONGLONG* fileSizeOut)
+{
+	string svModFile = szFilePath;
+	string svBaseFile = szFilePath;
+	const string svModDir = "paks\\Win32\\";
+	const string svBaseDir = "paks\\Win64\\";
+
+	if (strstr(ConvertToWinPath(szFilePath).c_str(), svBaseDir.c_str()))
+	{
+		svBaseFile.erase(0, 11); // Erase 'base_dir'.
+		svModFile = svModDir + svBaseFile; // Prepend 'mod_dir'.
+
+		if (!FileExists(svModFile))
+		{
+			svModFile = szFilePath;
+		}
+	}
+
+	const HANDLE hFile = CreateFileA(svModFile.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, 0, OPEN_EXISTING, FILE_SUPPORTS_GHOSTING, 0);
+	if (hFile == INVALID_HANDLE_VALUE)
+		return -1;
+
+	if (rtech_debug->GetBool())
+		DevMsg(eDLL_T::RTECH, "Opened file: '%s'\n", svModFile.c_str());
+
+	if (fileSizeOut)
+	{
+		LARGE_INTEGER fileSize{};
+		if (GetFileSizeEx(hFile, &fileSize))
+			*fileSizeOut = fileSize.QuadPart;
+	}
+
+	AcquireSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&*g_pPakFileSlotLock));
+	const int32_t fileIdx = RTech_FindFreeSlotInFiles(s_pFileArray);
+	ReleaseSRWLockExclusive(reinterpret_cast<PSRWLOCK>(&*g_pPakFileSlotLock));
+
+	const int32_t fileHandleIdx =  (fileIdx & 0x3FF); // Something with ArraySize.
+
+	m_FileHandles->self[fileHandleIdx].m_nFileNumber = fileIdx;
+	m_FileHandles->self[fileHandleIdx].m_hFileHandle = hFile;
+	m_FileHandles->self[fileHandleIdx].m_nCurOfs = 1;
+
+	return fileIdx;
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: gets information about loaded pak file via pak ID
 //-----------------------------------------------------------------------------
-RPakLoadedInfo_t* RTech::GetPakLoadedInfo(int nPakId)
+RPakLoadedInfo_t* RTech::GetPakLoadedInfo(RPakHandle_t nHandle)
 {
-	for (int i = 0; i < *s_pLoadedPakCount; ++i)
+	for (int16_t i = 0; i < *s_pLoadedPakCount; ++i)
 	{
 		RPakLoadedInfo_t* info = &g_pLoadedPakInfo[i];
 		if (!info)
 			continue;
 
-		if (info->m_nPakId != nPakId)
+		if (info->m_nHandle != nHandle)
 			continue;
 
 		return info;
 	}
 
-	Warning(eDLL_T::RTECH, "%s - Failed getting RPakLoadInfo_t for PakId '%d'\n", __FUNCTION__, nPakId);
+	Warning(eDLL_T::RTECH, "%s - Failed to retrieve pak info for handle '%d'\n", __FUNCTION__, nHandle);
 	return nullptr;
 }
 
@@ -631,7 +687,7 @@ RPakLoadedInfo_t* RTech::GetPakLoadedInfo(int nPakId)
 //-----------------------------------------------------------------------------
 RPakLoadedInfo_t* RTech::GetPakLoadedInfo(const char* szPakName)
 {
-	for (int i = 0; i < *s_pLoadedPakCount; ++i)
+	for (int16_t i = 0; i < *s_pLoadedPakCount; ++i)
 	{
 		RPakLoadedInfo_t* info = &g_pLoadedPakInfo[i];
 		if (!info)
@@ -646,22 +702,27 @@ RPakLoadedInfo_t* RTech::GetPakLoadedInfo(const char* szPakName)
 		return info;
 	}
 
-	Warning(eDLL_T::RTECH, "%s - Failed getting RPakLoadInfo_t for Pak '%s'\n", __FUNCTION__, szPakName);
+	Warning(eDLL_T::RTECH, "%s - Failed to retrieve pak info for name '%s'\n", __FUNCTION__, szPakName);
 	return nullptr;
 }
 
 void RTech_Utils_Attach()
 {
-#if not defined DEDICATED && defined (GAMEDLL_S3)
+	DetourAttach((LPVOID*)&RTech_OpenFile, &RTech::OpenFile);
+
+#if not defined DEDICATED && defined GAMEDLL_S3
 	DetourAttach((LPVOID*)&RTech_CreateDXTexture, &RTech::CreateDXTexture);
-#endif
+#endif // !DEDICATED
 }
 
 void RTech_Utils_Detach()
 {
-#if not defined DEDICATED && defined (GAMEDLL_S3)
+	// [ PIXIE ]: Everything related to RTech::OpenFile should be compatible across seasons.
+	DetourDetach((LPVOID*)&RTech_OpenFile, &RTech::OpenFile);
+
+#if not defined DEDICATED && defined GAMEDLL_S3
 	DetourDetach((LPVOID*)&RTech_CreateDXTexture, &RTech::CreateDXTexture);
-#endif
+#endif // !DEDICATED
 }
 
 ///////////////////////////////////////////////////////////////////////////////

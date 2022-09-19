@@ -37,11 +37,11 @@ uint32_t CClient::GetUserID(void) const
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: gets the originID of this client
+// Purpose: gets the nucleusID of this client
 //---------------------------------------------------------------------------------
-uint64_t CClient::GetOriginID(void) const
+uint64_t CClient::GetNucleusID(void) const
 {
-	return m_nOriginID;
+	return m_nNucleusID;
 }
 
 //---------------------------------------------------------------------------------
@@ -101,11 +101,11 @@ void CClient::SetUserID(uint32_t nUserID)
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: sets the originID of this client
+// Purpose: sets the nucleusID of this client
 //---------------------------------------------------------------------------------
-void CClient::SetOriginID(uint64_t nOriginID)
+void CClient::SetNucleusID(uint64_t nNucleusID)
 {
-	m_nOriginID = nOriginID;
+	m_nNucleusID = nNucleusID;
 }
 
 //---------------------------------------------------------------------------------
@@ -227,7 +227,7 @@ void CClient::VClear(CClient* pBaseClient)
 //			*a5 - 
 //			*szMessage -
 //			nMessageSize - 
-// Output : true if connection was succesfull, false otherwise
+// Output : true if connection was successful, false otherwise
 //---------------------------------------------------------------------------------
 bool CClient::Connect(const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize)
 {
@@ -243,7 +243,7 @@ bool CClient::Connect(const char* szName, void* pNetChannel, bool bFakePlayer, v
 //			*a5 - 
 //			*szMessage -
 //			nMessageSize - 
-// Output : true if connection was succesfull, false otherwise
+// Output : true if connection was successful, false otherwise
 //---------------------------------------------------------------------------------
 bool CClient::VConnect(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize)
 {

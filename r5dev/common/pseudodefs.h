@@ -211,7 +211,7 @@ template<class T> bool saturated_mul(T count, T elsize)
 
 #include <stddef.h> // for size_t
 
-// memcpy() with determined behavoir: it always copies
+// memcpy() with determined behavior: it always copies
 // from the start to the end of the buffer
 // note: it copies byte by byte, so it is not equivalent to, for example, rep movsd
 inline void *qmemcpy(void *dst, const void *src, size_t cnt)

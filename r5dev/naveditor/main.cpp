@@ -23,9 +23,7 @@
 #include "NavEditor/Include/InputGeom.h"
 #include "NavEditor/Include/TestCase.h"
 #include "NavEditor/Include/Filelist.h"
-#include "NavEditor/Include/Sample_SoloMesh.h"
 #include "NavEditor/Include/Sample_TileMesh.h"
-#include "NavEditor/Include/Sample_TempObstacles.h"
 #include "NavEditor/Include/Sample_Debug.h"
 #include "NavEditor/include/DroidSans.h"
 
@@ -37,17 +35,8 @@ struct SampleItem
 	Sample* (*create)();
 	const string name;
 };
-Sample* createSolo() { return new Sample_SoloMesh(); }
 Sample* createTile() { return new Sample_TileMesh(); }
-Sample* createTempObstacle() { return new Sample_TempObstacles(); }
 Sample* createDebug() { return new Sample_Debug(); }
-static SampleItem g_samples[] =
-{
-	{ createSolo, "Solo Mesh" },
-	{ createTile, "Tile Mesh" },
-	{ createTempObstacle, "Temp Obstacles" },
-};
-static const int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);
 
 void save_ply(std::vector<float>& pts,std::vector<int>& colors,rcIntArray& tris)
 {
@@ -128,12 +117,12 @@ void generate_points(float* pts, int count, float dx, float dy, float dz)
 	}
 }
 
-void auto_load(const char* path, BuildContext& ctx, Sample*& sample,InputGeom*& geom, string& meshName,bool& tf2_transforms)
+void auto_load(const char* path, BuildContext& ctx, Sample*& sample,InputGeom*& geom, string& meshName)
 {
 	string geom_path = std::string(path);
 	meshName = geom_path.substr(geom_path.rfind("\\") + 1);
 	geom = new InputGeom;
-	if (!geom->load(&ctx, geom_path, tf2_transforms))
+	if (!geom->load(&ctx, geom_path))
 	{
 		delete geom;
 		geom = 0;
@@ -395,7 +384,6 @@ int not_main(int argc, char** argv)
 	float camr = 1000;
 	float origCameraEulers[] = {0, 0}; // Used to compute rotational changes across frames.
 	
-	string sampleName = "Choose Sample...";
 	vector<string> files;
 	const string meshesFolder = "Levels";
 	string meshName = "Choose Level...";
@@ -404,7 +392,6 @@ int not_main(int argc, char** argv)
 	float markerPosition[3] = {0, 0, 0};
 	bool markerPositionSet = false;
 	
-	bool tf2_transforms = false;
 	InputGeom* geom = nullptr;
 	Sample* sample = nullptr;
 	TestCase* test = nullptr;
@@ -412,9 +399,7 @@ int not_main(int argc, char** argv)
 	
 	//Load tiled sample
 
-	sample = g_samples[1].create();
-	sampleName = g_samples[1].name;
-	sample->is_tf2 = &tf2_transforms;
+	sample = createTile();
 	sample->setContext(&ctx);
 	if (geom)
 	{
@@ -422,7 +407,7 @@ int not_main(int argc, char** argv)
 	}
 	if (autoLoad)
 	{
-		auto_load(autoLoad, ctx, sample, geom, meshName, tf2_transforms);
+		auto_load(autoLoad, ctx, sample, geom, meshName);
 		if (geom || sample)
 		{
 			const float* bmin = 0;
@@ -445,7 +430,7 @@ int not_main(int argc, char** argv)
 		}
 	}
 	// Fog.
-	float fogColor[4] = { 0.32f, 0.31f, 0.30f, 1.0f };
+	float fogColor[4] = { 0.30f, 0.31f, 0.32f, 1.0f };
 	glEnable(GL_FOG);
 	glFogi(GL_FOG_MODE, GL_LINEAR);
 	glFogf(GL_FOG_START, camr * 0.1f);
@@ -710,7 +695,7 @@ int not_main(int argc, char** argv)
 		glGetIntegerv(GL_VIEWPORT, viewport);
 		
 		// Clear the screen
-		glClearColor(0.3f, 0.3f, 0.32f, 1.0f);
+		glClearColor(0.20f, 0.21f, 0.22f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -720,7 +705,7 @@ int not_main(int argc, char** argv)
 		// Compute the projection matrix.
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		gluPerspective(50.0f, (float)width/(float)height, 1.0f, camr);
+		gluPerspective(75.0f, (float)width/(float)height, 1.0f, camr);
 		GLdouble projectionMatrix[16];
 		glGetDoublev(GL_PROJECTION_MATRIX, projectionMatrix);
 		
@@ -729,7 +714,7 @@ int not_main(int argc, char** argv)
 		glLoadIdentity();
 		glRotatef(cameraEulers[0], 1, 0, 0);
 		glRotatef(cameraEulers[1], 0, 1, 0);
-		float mXZY_to_XYZ[16] =
+		const float mXZY_to_XYZ[16] =
 		{
 			1,0,0,0,
 			0,0,-1,0, //tbh not sure why this is needed, the tri flips again? something is very stupid...
@@ -831,25 +816,8 @@ int not_main(int argc, char** argv)
 				showTools = !showTools;
 
 			imguiSeparator();
-			imguiLabel("Sample");
-			if (imguiButton(sampleName.c_str()))
-			{
-				if (showSample)
-				{
-					showSample = false;
-				}
-				else
-				{
-					showSample = true;
-					showLevels = false;
-					showTestCases = false;
-				}
-			}
-			
-			imguiSeparator();
-			//if (imguiCheck("Import/Export TF2", tf2_transforms, true))
-			//	tf2_transforms = !tf2_transforms;
 			imguiLabel("Input Level");
+
 			if (imguiButton("Load Level..."))
 			{
 				char szFile[260];
@@ -943,34 +911,6 @@ int not_main(int argc, char** argv)
 		if (showSample)
 		{
 			static int levelScroll = 0;
-			if (imguiBeginScrollArea("Choose Sample", width-10-250-10-200, height-10-250, 200, 250, &levelScroll))
-				mouseOverMenu = true;
-
-			Sample* newSample = 0;
-			for (int i = 0; i < g_nsamples; ++i)
-			{
-				if (imguiItem(g_samples[i].name.c_str()))
-				{
-					newSample = g_samples[i].create();
-					if (newSample)
-					{
-						sampleName = g_samples[i].name;
-						newSample->is_tf2 = &tf2_transforms;
-					}
-				}
-			}
-			if (newSample)
-			{
-				delete sample;
-				sample = newSample;
-				sample->setContext(&ctx);
-				if (geom)
-				{
-					sample->handleMeshChanged(geom);
-				}
-				showSample = false;
-			}
-
 			if (geom || sample)
 			{
 				const float* bmin = 0;
@@ -1022,7 +962,7 @@ int not_main(int argc, char** argv)
 		if (!geom_path.empty())
 		{
 			geom = new InputGeom;
-			if (!geom->load(&ctx, geom_path, tf2_transforms))
+			if (!geom->load(&ctx, geom_path))
 			{
 				delete geom;
 				geom = 0;
@@ -1088,24 +1028,6 @@ int not_main(int argc, char** argv)
 						test = 0;
 					}
 
-					// Create sample
-					Sample* newSample = 0;
-					for (int i = 0; i < g_nsamples; ++i)
-					{
-						if (g_samples[i].name == test->getSampleName())
-						{
-							newSample = g_samples[i].create();
-							if (newSample)
-							{
-								sampleName = g_samples[i].name;
-								newSample->is_tf2 = &tf2_transforms;
-							}
-						}
-					}
-
-					delete sample;
-					sample = newSample;
-
 					if (sample)
 					{
 						sample->setContext(&ctx);
@@ -1120,7 +1042,7 @@ int not_main(int argc, char** argv)
 					
 					delete geom;
 					geom = new InputGeom;
-					if (!geom || !geom->load(&ctx, path,tf2_transforms))
+					if (!geom || !geom->load(&ctx, path))
 					{
 						delete geom;
 						geom = 0;

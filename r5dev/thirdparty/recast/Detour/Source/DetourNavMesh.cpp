@@ -250,8 +250,6 @@ dtStatus dtNavMesh::init(const dtNavMeshParams* params)
 		m_tiles[i].next = m_nextFree;
 		m_nextFree = &m_tiles[i];
 	}
-	
-	unk0 = dtIlog2(dtNextPow2((unsigned int)params[1].orig[0]));
 
 	// Init ID generator values.
 #ifndef DT_POLYREF64
@@ -527,7 +525,6 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 			}
 		}
 	}
-
 }
 
 void dtNavMesh::connectIntLinks(dtMeshTile* tile)
@@ -564,7 +561,7 @@ void dtNavMesh::connectIntLinks(dtMeshTile* tile)
 				poly->firstLink = idx;
 				link->flags = 0xffff00ff;
 			}
-		}			
+		}
 	}
 }
 
@@ -1000,7 +997,6 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 	unsigned char* d = data + headerSize;
 	tile->verts = dtGetThenAdvanceBufferPointer<float>(d, vertsSize);
 	tile->polys = dtGetThenAdvanceBufferPointer<dtPoly>(d, polysSize);
-	d += header->sth_per_poly*header->polyCount * 4;
 	tile->links = dtGetThenAdvanceBufferPointer<dtLink>(d, linksSize);
 	tile->detailMeshes = dtGetThenAdvanceBufferPointer<dtPolyDetail>(d, detailMeshesSize);
 	tile->detailVerts = dtGetThenAdvanceBufferPointer<float>(d, detailVertsSize);
@@ -1020,10 +1016,12 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 
 	// Init tile.
 	tile->header = header;
+	tile->polysEnd = &tile->polys[polysSize];
+	tile->offMeshConsEnd = &tile->offMeshCons[offMeshLinksSize];
 	tile->data = data;
-	tile->meshLink = &data[offMeshLinksSize]; // tile + 58h = &v33[v17];
 	tile->dataSize = dataSize;
 	tile->flags = flags;
+	tile->unused = nullptr;
 
 	connectIntLinks(tile);
 

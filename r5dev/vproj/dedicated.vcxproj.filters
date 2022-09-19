@@ -82,7 +82,7 @@
     <Filter Include="sdk\public">
       <UniqueIdentifier>{bbb7a170-37ae-4c76-b99a-8ebb924818ed}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sdk\public\include">
+    <Filter Include="sdk\public">
       <UniqueIdentifier>{e1897f61-953e-4173-9c75-e59ca33929ea}</UniqueIdentifier>
     </Filter>
     <Filter Include="sdk\vpklib">
@@ -190,6 +190,12 @@
     <Filter Include="sdk\bonesetup">
       <UniqueIdentifier>{d49ec580-58c2-49e7-8e83-957da576febd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\public\utility">
+      <UniqueIdentifier>{e0155821-8fb2-4fb6-aa6a-d3e6d980b64c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\pluginsystem">
+      <UniqueIdentifier>{d0650f0e-6359-4322-82c2-97f2e40f141f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\opcodes.h">
@@ -239,18 +245,6 @@
     </ClInclude>
     <ClInclude Include="..\networksystem\sm_protocol.h">
       <Filter>sdk\networksystem</Filter>
-    </ClInclude>
-    <ClInclude Include="..\public\include\httplib.h">
-      <Filter>sdk\public\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\public\include\utility.h">
-      <Filter>sdk\public\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\public\include\memaddr.h">
-      <Filter>sdk\public\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\public\include\bansystem.h">
-      <Filter>sdk\public\include</Filter>
     </ClInclude>
     <ClInclude Include="..\rtech\rtech_utils.h">
       <Filter>sdk\rtech</Filter>
@@ -594,9 +588,6 @@
     <ClInclude Include="..\vpklib\packedstore.h">
       <Filter>sdk\vpklib</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\binstream.h">
-      <Filter>sdk\public\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\mathlib\adler32.h">
       <Filter>sdk\mathlib</Filter>
     </ClInclude>
@@ -615,7 +606,7 @@
     <ClInclude Include="..\windows\system.h">
       <Filter>windows</Filter>
     </ClInclude>
-    <ClInclude Include="..\mathlib\bits.h">
+    <ClInclude Include="..\mathlib\fbits.h">
       <Filter>sdk\mathlib</Filter>
     </ClInclude>
     <ClInclude Include="..\tier0\commandline.h">
@@ -792,11 +783,11 @@
     <ClInclude Include="..\game\server\ai_network.h">
       <Filter>sdk\game\server</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\edict.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\edict.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\globalvars_base.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\globalvars_base.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\engine\gl_matsysiface.h">
       <Filter>sdk\engine</Filter>
@@ -828,8 +819,8 @@
     <ClInclude Include="..\squirrel\sqtype.h">
       <Filter>sdk\squirrel</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\inetchannel.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\inetchannel.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\tier1\utlmemory.h">
       <Filter>sdk\tier1</Filter>
@@ -839,9 +830,6 @@
     </ClInclude>
     <ClInclude Include="..\tier1\bitbuf.h">
       <Filter>sdk\tier1</Filter>
-    </ClInclude>
-    <ClInclude Include="..\client\vengineclient_impl.h">
-      <Filter>sdk\client</Filter>
     </ClInclude>
     <ClInclude Include="..\filesystem\basefilesystem.h">
       <Filter>sdk\filesystem</Filter>
@@ -863,9 +851,6 @@
     </ClInclude>
     <ClInclude Include="..\vstdlib\keyvaluessystem.h">
       <Filter>sdk\vstdlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\public\include\module.h">
-      <Filter>sdk\public\include</Filter>
     </ClInclude>
     <ClInclude Include="..\common\x86defs.h">
       <Filter>sdk\common</Filter>
@@ -891,8 +876,8 @@
     <ClInclude Include="..\rtech\rui\rui.h">
       <Filter>sdk\rtech\rui</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\studio.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\studio.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\engine\gl_model_private.h">
       <Filter>sdk\engine</Filter>
@@ -900,8 +885,8 @@
     <ClInclude Include="..\common\qlimits.h">
       <Filter>sdk\common</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\model_types.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\model_types.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\datacache\imdlcache.h">
       <Filter>sdk\datacache</Filter>
@@ -909,8 +894,8 @@
     <ClInclude Include="..\datacache\mdlcache.h">
       <Filter>sdk\datacache</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\const.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\const.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\tier0\threadtools.h">
       <Filter>sdk\tier0</Filter>
@@ -921,8 +906,8 @@
     <ClInclude Include="..\tier1\utldict.h">
       <Filter>sdk\tier1</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\client_class.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\client_class.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\datacache\idatacache.h">
       <Filter>sdk\datacache</Filter>
@@ -1062,8 +1047,8 @@
     <ClInclude Include="..\engine\packed_entity.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\inetmsghandler.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\inetmsghandler.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\tier1\mempool.h">
       <Filter>sdk\tier1</Filter>
@@ -1089,8 +1074,8 @@
     <ClInclude Include="..\engine\networkstringtable.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\iserver.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\iserver.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\tier0\dbg.h">
       <Filter>sdk\tier0</Filter>
@@ -1125,8 +1110,8 @@
     <ClInclude Include="..\tier0\platform_internal.h">
       <Filter>sdk\tier0</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\icommandline.h">
-      <Filter>sdk\public\include</Filter>
+    <ClInclude Include="..\public\icommandline.h">
+      <Filter>sdk\public</Filter>
     </ClInclude>
     <ClInclude Include="..\mathlib\noisedata.h">
       <Filter>sdk\mathlib</Filter>
@@ -1170,6 +1155,99 @@
     <ClInclude Include="..\server\persistence.h">
       <Filter>sdk\server</Filter>
     </ClInclude>
+    <ClInclude Include="..\tier0\memstd.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\ivscript.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\iconvar.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\iconcommand.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\icvar.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\characterset.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\worldsize.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\utlblockmemory.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\memalloc.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\iengine.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\utility\memaddr.h">
+      <Filter>sdk\public\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\utility\module.h">
+      <Filter>sdk\public\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\utility\utility.h">
+      <Filter>sdk\public\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\utility\vdf_parser.h">
+      <Filter>sdk\public\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\utility\binstream.h">
+      <Filter>sdk\public\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\utility\httplib.h">
+      <Filter>sdk\public\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\networksystem\bansystem.h">
+      <Filter>sdk\networksystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\generichash.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\utlfixedmemory.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\utlrbtree.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\ifilesystem.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\ifile.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\annotations.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\utllinkedlist.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vstdlib\concommandhash.h">
+      <Filter>sdk\vstdlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\inetmessage.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\isnapshotmgr.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\iframetask.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\frametask.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pluginsystem\pluginsystem.h">
+      <Filter>sdk\pluginsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\sdk_dll.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1205,12 +1283,6 @@
     <ClCompile Include="..\launcher\IApplication.cpp">
       <Filter>sdk\launcher</Filter>
     </ClCompile>
-    <ClCompile Include="..\public\utility.cpp">
-      <Filter>sdk\public</Filter>
-    </ClCompile>
-    <ClCompile Include="..\public\bansystem.cpp">
-      <Filter>sdk\public</Filter>
-    </ClCompile>
     <ClCompile Include="..\rtech\rtech_utils.cpp">
       <Filter>sdk\rtech</Filter>
     </ClCompile>
@@ -1244,9 +1316,6 @@
     <ClCompile Include="..\vpklib\packedstore.cpp">
       <Filter>sdk\vpklib</Filter>
     </ClCompile>
-    <ClCompile Include="..\public\binstream.cpp">
-      <Filter>sdk\public</Filter>
-    </ClCompile>
     <ClCompile Include="..\bsplib\bsplib.cpp">
       <Filter>sdk\bsplib</Filter>
     </ClCompile>
@@ -1265,7 +1334,7 @@
     <ClCompile Include="..\windows\system.cpp">
       <Filter>windows</Filter>
     </ClCompile>
-    <ClCompile Include="..\mathlib\bits.cpp">
+    <ClCompile Include="..\mathlib\fbits.cpp">
       <Filter>sdk\mathlib</Filter>
     </ClCompile>
     <ClCompile Include="..\tier0\commandline.cpp">
@@ -1340,9 +1409,6 @@
     <ClCompile Include="..\tier1\bitbuf.cpp">
       <Filter>sdk\tier1</Filter>
     </ClCompile>
-    <ClCompile Include="..\client\vengineclient_impl.cpp">
-      <Filter>sdk\client</Filter>
-    </ClCompile>
     <ClCompile Include="..\game\server\ai_network.cpp">
       <Filter>sdk\game\server</Filter>
     </ClCompile>
@@ -1367,12 +1433,6 @@
     <ClCompile Include="..\vstdlib\keyvaluessystem.cpp">
       <Filter>sdk\vstdlib</Filter>
     </ClCompile>
-    <ClCompile Include="..\public\memaddr.cpp">
-      <Filter>sdk\public</Filter>
-    </ClCompile>
-    <ClCompile Include="..\public\module.cpp">
-      <Filter>sdk\public</Filter>
-    </ClCompile>
     <ClCompile Include="..\vstdlib\callback.cpp">
       <Filter>sdk\vstdlib</Filter>
     </ClCompile>
@@ -1393,9 +1453,6 @@
     </ClCompile>
     <ClCompile Include="..\engine\clockdriftmgr.cpp">
       <Filter>sdk\engine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\tier0\tslist.cpp">
-      <Filter>sdk\tier0</Filter>
     </ClCompile>
     <ClCompile Include="..\engine\client\client.cpp">
       <Filter>sdk\engine\client</Filter>
@@ -1471,6 +1528,42 @@
     </ClCompile>
     <ClCompile Include="..\server\persistence.cpp">
       <Filter>sdk\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier1\characterset.cpp">
+      <Filter>sdk\tier1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier1\splitstring.cpp">
+      <Filter>sdk\tier1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\utility\memaddr.cpp">
+      <Filter>sdk\public\utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\utility\module.cpp">
+      <Filter>sdk\public\utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\utility\utility.cpp">
+      <Filter>sdk\public\utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\utility\binstream.cpp">
+      <Filter>sdk\public\utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\networksystem\bansystem.cpp">
+      <Filter>sdk\networksystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier1\generichash.cpp">
+      <Filter>sdk\tier1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\host.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier0\frametask.cpp">
+      <Filter>sdk\tier0</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pluginsystem\pluginsystem.cpp">
+      <Filter>sdk\pluginsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\sdk_dll.cpp">
+      <Filter>sdk\engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -18,17 +18,17 @@ vector<RPakHandle_t> g_vLoadedPakHandle;
 //			*pMalloc - 
 //			nIdx - 
 //			bUnk - 
-// Output : pak file handle on success, -1 (INVALID_PAK_HANDLE) on failure
+// Output : pak file handle on success, INVALID_PAK_HANDLE on failure
 //-----------------------------------------------------------------------------
 RPakHandle_t CPakFile::LoadAsync(const char* szPakFileName, uintptr_t pMalloc, int nIdx, bool bUnk)
 {
-	RPakHandle_t pakHandle = -1;
+	RPakHandle_t pakHandle = INVALID_PAK_HANDLE;
 #ifdef DEDICATED
 	// Extraneous files (useless on the dedicated server).
 	if (strcmp(szPakFileName, "ui.rpak") == 0)
 	{
-		static const char* szReplacement = "common_empty.rpak";
-		// Returning -1 (invalid handle) triggers engine error, call is inline.
+		static const char* szReplacement = "empty.rpak";
+		// Returning INVALID_PAK_HANDLE triggers engine error, call is inline.
 		// Replacing the ui.rpak file here with a stub to avoid having to patch.
 		DevMsg(eDLL_T::RTECH, "Loading pak file: '%s' for '%s'\n", szReplacement, szPakFileName);
 		return pakHandle = CPakFile_LoadAsync(szReplacement, pMalloc, nIdx, bUnk);
@@ -49,14 +49,14 @@ RPakHandle_t CPakFile::LoadAsync(const char* szPakFileName, uintptr_t pMalloc, i
 		DevMsg(eDLL_T::RTECH, "Loading pak file: '%s'\n", szPakFileName);
 		pakHandle = CPakFile_LoadAsync(szPakFileName, pMalloc, nIdx, bUnk);
 
-		if (pakHandle == -1)
+		if (pakHandle == INVALID_PAK_HANDLE)
 		{
-			Error(eDLL_T::RTECH, "%s: Failed read '%s' results '%u'\n", __FUNCTION__, szPakFileName, pakHandle);
+			Error(eDLL_T::RTECH, NO_ERROR, "%s: Failed read '%s' results '%u'\n", __FUNCTION__, szPakFileName, pakHandle);
 		}
 	}
 	else
 	{
-		Error(eDLL_T::RTECH, "%s: Failed. File '%s' doesn't exist\n", __FUNCTION__, szPakFileName);
+		Error(eDLL_T::RTECH, NO_ERROR, "%s: Failed. File '%s' doesn't exist\n", __FUNCTION__, szPakFileName);
 	}
 
 	return pakHandle;

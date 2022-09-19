@@ -38,30 +38,37 @@
 #include "rtech/stryder/stryder.h"
 #ifndef DEDICATED
 #include "vgui/vgui_baseui_interface.h"
-#endif // DEDICATED
 #include "client/vengineclient_impl.h"
+#endif // DEDICATED
 #include "networksystem/pylon.h"
-#include "public/include/bansystem.h"
-#include "public/include/edict.h"
+#ifndef CLIENT_DLL
+#include "networksystem/bansystem.h"
+#endif // !CLIENT_DLL
+#include "networksystem/listmanager.h"
+#include "public/edict.h"
 #ifndef CLIENT_DLL
 #include "game/server/gameinterface.h"
 #endif // !CLIENT_DLL
+#include "squirrel/sqinit.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: state machine's main processing loop
 //-----------------------------------------------------------------------------
-FORCEINLINE void CHostState::FrameUpdate(CHostState* rcx, void* rdx, float time)
+FORCEINLINE void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float flFrameTime)
 {
 	static bool bInitialized = false;
+	static bool bResetIdleName = false;
 	if (!bInitialized)
 	{
 		g_pHostState->Setup();
 		bInitialized = true;
 	}
+
+	g_pHostState->Think();
 #ifdef DEDICATED
-	g_pRConServer->RunFrame();
+	RCONServer()->RunFrame();
 #else // 
-	g_pRConClient->RunFrame();
+	RCONClient()->RunFrame();
 #endif // DEDICATED
 
 	HostStates_t oldState{};
@@ -100,15 +107,25 @@ FORCEINLINE void CHostState::FrameUpdate(CHostState* rcx, void* rdx, float time)
 			}
 			case HostStates_t::HS_RUN:
 			{
-				CHostState_State_Run(&g_pHostState->m_iCurrentState, nullptr, time);
+				if (!g_pHostState->m_bActiveGame)
+				{
+					if (bResetIdleName)
+					{
+						g_pHostState->ResetLevelName();
+						bResetIdleName = false;
+					}
+				}
+				else // Reset idle name the next non-active frame.
+				{
+					bResetIdleName = true;
+				}
+
+				CHostState_State_Run(&g_pHostState->m_iCurrentState, flCurrentTime, flFrameTime);
 				break;
 			}
 			case HostStates_t::HS_GAME_SHUTDOWN:
 			{
 				DevMsg(eDLL_T::ENGINE, "%s - Shutdown host game\n", "CHostState::FrameUpdate");
-				if (g_pHostState->m_bActiveGame) {
-					g_pHostState->ResetLevelName();
-				}
 				CHostState_State_GameShutDown(g_pHostState);
 				break;
 			}
@@ -119,7 +136,7 @@ FORCEINLINE void CHostState::FrameUpdate(CHostState* rcx, void* rdx, float time)
 				CL_EndMovie();
 #endif // !DEDICATED
 				Stryder_SendOfflineRequest(); // We have hostnames nulled anyway.
-				g_pEngine->SetNextState(EngineState_t::DLL_RESTART);
+				g_pEngine->SetNextState(IEngine::DLL_RESTART);
 				break;
 			}
 			case HostStates_t::HS_SHUTDOWN:
@@ -129,7 +146,7 @@ FORCEINLINE void CHostState::FrameUpdate(CHostState* rcx, void* rdx, float time)
 				CL_EndMovie();
 #endif // !DEDICATED
 				Stryder_SendOfflineRequest(); // We have hostnames nulled anyway.
-				g_pEngine->SetNextState(EngineState_t::DLL_CLOSE);
+				g_pEngine->SetNextState(IEngine::DLL_CLOSE);
 				break;
 			}
 			default:
@@ -162,11 +179,11 @@ FORCEINLINE void CHostState::Init(void)
 				m_iNextState = HostStates_t::HS_RUN;
 		}
 	}
-	m_flShortFrameTime = 1.0;
+	m_flShortFrameTime = 1.0f;
 	m_levelName[0] = 0;
 	m_landMarkName[0] = 0;
 	m_mapGroupName[0] = 0;
-	m_bSplitScreenConnect = 256;
+	m_nSplitScreenPlayers = 256;
 	m_vecLocation.Init();
 	m_angLocation.Init();
 	m_iCurrentState = HostStates_t::HS_NEW_GAME;
@@ -178,15 +195,10 @@ FORCEINLINE void CHostState::Init(void)
 FORCEINLINE void CHostState::Setup(void) 
 {
 	g_pHostState->LoadConfig();
+#ifndef CLIENT_DLL
+	g_pBanSystem->Load();
+#endif // !CLIENT_DLL
 	g_pConVar->PurgeHostNames();
-#ifdef DEDICATED
-	g_pRConServer->Init();
-#else // 
-	g_pRConClient->Init();
-#endif // DEDICATED
-
-	std::thread think(&CHostState::Think, this);
-	think.detach();
 
 	net_usesocketsforloopback->SetValue(1);
 	if (net_useRandomKey->GetBool())
@@ -204,45 +216,73 @@ FORCEINLINE void CHostState::Think(void) const
 	static bool bInitialized = false;
 	static CFastTimer banListTimer;
 	static CFastTimer pylonTimer;
+	static CFastTimer reloadTimer;
 	static CFastTimer statsTimer;
 
-	for (;;) // Loop running at 20-tps.
+	if (!bInitialized) // Initialize clocks.
 	{
-		if (!bInitialized) // Initialize clocks.
-		{
-			banListTimer.Start();
+#ifndef CLIENT_DLL
+		banListTimer.Start();
 #ifdef DEDICATED
-			pylonTimer.Start();
+		pylonTimer.Start();
 #endif // DEDICATED
-			statsTimer.Start();
-			bInitialized = true;
-		}
-
-		if (banListTimer.GetDurationInProgress().GetSeconds() > sv_banlistRefreshInterval->GetDouble())
-		{
-			g_pBanSystem->BanListCheck();
-			banListTimer.Start();
-		}
+		statsTimer.Start();
+		reloadTimer.Start();
+#endif // !CLIENT_DLL
+		bInitialized = true;
+	}
+#ifndef CLIENT_DLL
+	if (banListTimer.GetDurationInProgress().GetSeconds() > sv_banlistRefreshInterval->GetDouble())
+	{
+		g_pBanSystem->BanListCheck();
+		banListTimer.Start();
+	}
+#endif // !CLIENT_DLL
 #ifdef DEDICATED
-		if (pylonTimer.GetDurationInProgress().GetSeconds() > sv_pylonRefreshInterval->GetDouble())
+	if (pylonTimer.GetDurationInProgress().GetSeconds() > sv_pylonRefreshInterval->GetDouble())
+	{
+		const NetGameServer_t netGameServer
 		{
-			KeepAliveToPylon();
-			pylonTimer.Start();
-		}
+			hostname->GetString(),
+			hostdesc->GetString(),
+			sv_pylonVisibility->GetInt() == EServerVisibility_t::HIDDEN,
+			g_pHostState->m_levelName,
+			mp_gamemode->GetString(),
+			hostip->GetString(),
+			hostport->GetString(),
+			g_svNetKey,
+			std::to_string(*g_nServerRemoteChecksum),
+			SDK_VERSION,
+			std::to_string(g_pServer->GetNumHumanPlayers() + g_pServer->GetNumFakeClients()),
+			std::to_string(g_ServerGlobalVariables->m_nMaxClients),
+			std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::system_clock::now().time_since_epoch()
+				).count()
+		};
+
+		std::thread(&CPylon::KeepAlive, g_pMasterServer, netGameServer).detach();
+		pylonTimer.Start();
+	}
 #endif // DEDICATED
 #ifndef CLIENT_DLL
-		if (statsTimer.GetDurationInProgress().GetSeconds() > sv_statusRefreshInterval->GetDouble())
+	if (sv_autoReloadRate->GetBool())
+	{
+		if (reloadTimer.GetDurationInProgress().GetSeconds() > sv_autoReloadRate->GetDouble())
 		{
-			string svCurrentPlaylist = KeyValues_GetCurrentPlaylist();
-			int32_t nPlayerCount = g_pServer->GetNumHumanPlayers();
-
-			SetConsoleTitleA(fmt::format("{:s} - {:d}/{:d} Players ({:s} on {:s})",
-				hostname->GetString(), nPlayerCount, g_ServerGlobalVariables->m_nMaxClients, svCurrentPlaylist.c_str(), m_levelName).c_str());
-			statsTimer.Start();
+			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "reload\n", cmd_source_t::kCommandSrcCode);
+			reloadTimer.Start();
 		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
-#endif // !CLIENT_DLL
 	}
+	if (statsTimer.GetDurationInProgress().GetSeconds() > sv_statusRefreshInterval->GetDouble())
+	{
+		string svCurrentPlaylist = KeyValues_GetCurrentPlaylist();
+		int32_t nPlayerCount = g_pServer->GetNumHumanPlayers();
+
+		SetConsoleTitleA(fmt::format("{:s} - {:d}/{:d} Players ({:s} on {:s})",
+			hostname->GetString(), nPlayerCount, g_ServerGlobalVariables->m_nMaxClients, svCurrentPlaylist, m_levelName).c_str());
+		statsTimer.Start();
+	}
+#endif // !CLIENT_DLL
 }
 
 //-----------------------------------------------------------------------------
@@ -291,7 +331,6 @@ FORCEINLINE void CHostState::GameShutDown(void)
 		g_pServerGameDLL->GameShutdown();
 #endif // !CLIENT_DLL
 		m_bActiveGame = 0;
-
 		ResetLevelName();
 	}
 }
@@ -302,8 +341,8 @@ FORCEINLINE void CHostState::GameShutDown(void)
 FORCEINLINE void CHostState::State_NewGame(void)
 {
 	LARGE_INTEGER time{};
-
-	m_bSplitScreenConnect = false;
+	uint16_t nSplitScreenPlayers = m_nSplitScreenPlayers;
+	m_nSplitScreenPlayers = 0;
 #ifndef CLIENT_DLL
 	if (!g_pServerGameClients) // Init Game if it ain't valid.
 	{
@@ -313,9 +352,9 @@ FORCEINLINE void CHostState::State_NewGame(void)
 
 #ifndef CLIENT_DLL
 	if (!CModelLoader__Map_IsValid(g_pModelLoader, m_levelName) // Check if map is valid and if we can start a new game.
-		|| !Host_NewGame(m_levelName, nullptr, m_bBackgroundLevel, m_bSplitScreenConnect, time) || !g_pServerGameClients)
+		|| !Host_NewGame(m_levelName, nullptr, m_bBackgroundLevel, nSplitScreenPlayers, time) || !g_pServerGameClients)
 	{
-		Error(eDLL_T::ENGINE, "%s - Error: Map not valid\n", "CHostState::State_NewGame");
+		Error(eDLL_T::ENGINE, NO_ERROR, "%s - Error: Map not valid\n", "CHostState::State_NewGame");
 #ifndef DEDICATED
 		SCR_EndLoadingPlaque();
 #endif // !DEDICATED
@@ -346,7 +385,7 @@ FORCEINLINE void CHostState::State_ChangeLevelSP(void)
 	}
 	else
 	{
-		Error(eDLL_T::ENGINE, "%s - Error: Unable to find map: '%s'\n", "CHostState::State_ChangeLevelSP", m_levelName);
+		Error(eDLL_T::ENGINE, NO_ERROR, "%s - Error: Unable to find map: '%s'\n", "CHostState::State_ChangeLevelSP", m_levelName);
 	}
 
 	m_iCurrentState = HostStates_t::HS_RUN; // Set current state to run.
@@ -378,7 +417,7 @@ FORCEINLINE void CHostState::State_ChangeLevelMP(void)
 	}
 	else
 	{
-		Error(eDLL_T::ENGINE, "%s - Error: Unable to find map: '%s'\n", "CHostState::State_ChangeLevelMP", m_levelName);
+		Error(eDLL_T::ENGINE, NO_ERROR, "%s - Error: Unable to find map: '%s'\n", "CHostState::State_ChangeLevelMP", m_levelName);
 	}
 
 	m_iCurrentState = HostStates_t::HS_RUN; // Set current state to run.
@@ -396,11 +435,11 @@ FORCEINLINE void CHostState::State_ChangeLevelMP(void)
 FORCEINLINE void CHostState::ResetLevelName(void)
 {
 #ifdef DEDICATED
-	const char* szNoMap = "server_idle";
+	static const char* szNoMap = "server_idle";
 #else // DEDICATED
-	const char* szNoMap = "main_menu";
+	static const char* szNoMap = "main_menu";
 #endif
-	snprintf(const_cast<char*>(m_levelName), sizeof(m_levelName), szNoMap);
+	Q_snprintf(const_cast<char*>(m_levelName), sizeof(m_levelName), szNoMap);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

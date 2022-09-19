@@ -4,6 +4,7 @@ constexpr int SPDLOG_MAX_SIZE = 10 * 1024 * 1024; // Sets number of bytes before
 constexpr int SPDLOG_NUM_FILE = 0; // Sets number of files to rotate to.
 
 inline bool g_bSpdLog_UseAnsiClr = false;
+inline bool g_bSpdLog_PostInit = false;
 
 //-------------------------------------------------------------------------
 // IMGUI CONSOLE SINK                                                     |

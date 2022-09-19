@@ -53,7 +53,7 @@ void CSocketCreator::ProcessAccept(void)
 		if (!IsSocketBlocking())
 		{
 #ifndef NETCONSOLE
-			Error(eDLL_T::ENGINE, "Socket ProcessAccept Error: %s\n", NET_ErrorString(WSAGetLastError()));
+			Error(eDLL_T::ENGINE, NO_ERROR, "Socket ProcessAccept Error: %s\n", NET_ErrorString(WSAGetLastError()));
 #else
 			printf("Socket ProcessAccept Error: %s\n", NET_ErrorString(WSAGetLastError()));
 #endif // !NETCONSOLE
@@ -303,6 +303,8 @@ void CSocketCreator::CloseAcceptedSocket(int nIndex)
 
 	AcceptedSocket_t& connected = m_hAcceptedSockets[nIndex];
 	::closesocket(connected.m_hSocket);
+	delete connected.m_pData;
+
 	m_hAcceptedSockets.erase(m_hAcceptedSockets.begin() + nIndex);
 }
 
@@ -315,6 +317,8 @@ void CSocketCreator::CloseAllAcceptedSockets(void)
 	{
 		AcceptedSocket_t& connected = m_hAcceptedSockets[i];
 		::closesocket(connected.m_hSocket);
+
+		delete connected.m_pData;
 	}
 	m_hAcceptedSockets.clear();
 }

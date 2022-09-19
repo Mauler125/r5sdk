@@ -70,7 +70,7 @@ namespace Data
 
 		// Search for the pattern in the given buffer
 		int64_t Search(uint8_t* Buffer, uint64_t Offset, uint64_t Size);
-		// Search for all occurences of the pattern in the given buffer
+		// Search for all occurrences of the pattern in the given buffer
 		List<int64_t> SearchAll(uint8_t* Buffer, uint64_t Offset, uint64_t Size);
 
 	private:

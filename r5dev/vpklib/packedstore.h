@@ -1,5 +1,5 @@
 #pragma once
-#include "public/include/binstream.h"
+#include "public/utility/binstream.h"
 #include "thirdparty/lzham/include/lzham.h"
 
 constexpr unsigned int VPK_HEADER_MARKER = 0x55AA1234;
@@ -26,6 +26,18 @@ enum class EPackedTextureFlags : short
 	TEXTURE_NONE,
 	TEXTURE_DEFAULT         = 1 << 3,
 	TEXTURE_ENVIRONMENT_MAP = 1 << 10,
+};
+
+struct FileHandleTracker_t
+{
+	int m_nFileNumber;
+	int m_nCurOfs;
+	HANDLE m_hFileHandle;
+};
+
+struct pFileHandleTracker_t
+{
+	FileHandleTracker_t self[1024];
 };
 
 #pragma pack(push, 1)
@@ -113,6 +125,7 @@ public:
 
 	VPKDir_t GetDirectoryFile(string svDirectoryFile) const;
 	string GetPackFile(const string& svPackDirFile, uint16_t iArchiveIndex) const;
+	lzham_compress_level GetCompressionLevel(void) const;
 
 	vector<VPKEntryBlock_t> GetEntryBlocks(CIOStream* pReader) const;
 	vector<string> GetEntryPaths(const string& svPathIn) const;

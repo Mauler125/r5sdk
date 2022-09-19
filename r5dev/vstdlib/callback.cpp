@@ -9,27 +9,47 @@
 #include "tier0/fasttimer.h"
 #include "tier1/cvar.h"
 #include "tier1/IConVar.h"
+#ifdef DEDICATED
+#include "engine/server/sv_rcon.h"
+#endif // DEDICATED
 #ifndef DEDICATED
 #include "engine/client/cl_rcon.h"
 #endif // !DEDICATED
 #include "engine/client/client.h"
 #include "engine/net.h"
+#include "engine/host_cmd.h"
+#include "engine/host_state.h"
+#ifndef CLIENT_DLL
+#include "engine/server/server.h"
+#endif // !CLIENT_DLL
+#ifndef DEDICATED
+#include "client/cdll_engine_int.h"
+#endif // !DEDICATED
 #include "rtech/rtech_game.h"
 #include "rtech/rtech_utils.h"
 #include "filesystem/basefilesystem.h"
 #include "filesystem/filesystem.h"
 #include "vpklib/packedstore.h"
 #include "squirrel/sqscript.h"
+#include "ebisusdk/EbisuSDK.h"
 #ifndef DEDICATED
 #include "gameui/IBrowser.h"
 #include "gameui/IConsole.h"
 #endif // !DEDICATED
-#include "public/include/bansystem.h"
+#ifndef CLIENT_DLL
+#include "networksystem/bansystem.h"
+#endif // !CLIENT_DLL
+#include "public/worldsize.h"
 #include "mathlib/crc32.h"
+#include "mathlib/mathlib.h"
 #include "vstdlib/completion.h"
 #include "vstdlib/callback.h"
 #ifndef DEDICATED
 #include "materialsystem/cmaterialglue.h"
+#include "public/idebugoverlay.h"
+#endif // !DEDICATED
+#ifndef DEDICATED
+#include "game/client/view.h"
 #endif // !DEDICATED
 
 
@@ -38,9 +58,21 @@
 MP_GameMode_Changed_f
 =====================
 */
-bool MP_GameMode_Changed_f(ConVar* pVTable)
+void MP_GameMode_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue)
 {
-	return SetupGamemode(mp_gamemode->GetString());
+	SetupGamemode(mp_gamemode->GetString());
+}
+
+/*
+=====================
+MP_HostName_Changed_f
+=====================
+*/
+void MP_HostName_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue)
+{
+#ifndef DEDICATED
+	g_pBrowser->SetHostName(pylon_matchmaking_hostname->GetString());
+#endif // !DEDICATED
 }
 
 #ifndef DEDICATED
@@ -64,7 +96,7 @@ void ServerBrowser_Invoke_f(const CCommand& args)
 	g_pBrowser->m_bActivate = !g_pBrowser->m_bActivate;
 }
 #endif // !DEDICATED
-
+#ifndef CLIENT_DLL
 /*
 =====================
 Host_Kick_f
@@ -77,30 +109,7 @@ void Host_Kick_f(const CCommand& args)
 		return;
 	}
 
-	for (int i = 0; i < MAX_PLAYERS; i++)
-	{
-		CClient* pClient = g_pClient->GetClient(i);
-		if (!pClient)
-			continue;
-
-		CNetChan* pNetChan = pClient->GetNetChan();
-		if (!pNetChan)
-			continue;
-
-		string svClientName = pNetChan->GetName(); // Get full name.
-
-		if (svClientName.empty())
-		{
-			continue;
-		}
-
-		if (strcmp(args.Arg(1), svClientName.c_str()) != 0) // Our wanted name?
-		{
-			continue;
-		}
-
-		NET_DisconnectClient(pClient, i, "Kicked from server", 0, 1);
-	}
+	g_pBanSystem->KickPlayerByName(args.Arg(1));
 }
 
 /*
@@ -110,64 +119,12 @@ Host_KickID_f
 */
 void Host_KickID_f(const CCommand& args)
 {
-	if (args.ArgC() < 2) // Do we atleast have 2 arguments?
+	if (args.ArgC() < 2) // Do we at least have 2 arguments?
 	{
 		return;
 	}
 
-	try
-	{
-		bool bOnlyDigits = args.HasOnlyDigits(1);
-		for (int i = 0; i < MAX_PLAYERS; i++)
-		{
-			CClient* pClient = g_pClient->GetClient(i);
-			if (!pClient)
-				continue;
-
-			CNetChan* pNetChan = pClient->GetNetChan();
-			if (!pNetChan)
-				continue;
-
-			string svIpAddress = pNetChan->GetAddress(); // If this stays null they modified the packet somehow.
-
-			if (bOnlyDigits)
-			{
-				uint64_t nTargetID = static_cast<uint64_t>(std::stoll(args.Arg(1)));
-				if (nTargetID > MAX_PLAYERS) // Is it a possible originID?
-				{
-					uint64_t nOriginID = pClient->GetOriginID();
-					if (nOriginID != nTargetID)
-					{
-						continue;
-					}
-				}
-				else // If its not try by handle.
-				{
-					uint64_t nClientID = static_cast<uint64_t>(pClient->GetHandle());
-					if (nClientID != nTargetID)
-					{
-						continue;
-					}
-				}
-
-				NET_DisconnectClient(pClient, i, "Kicked from server", 0, 1);
-			}
-			else
-			{
-				if (string(args.Arg(1)).compare(svIpAddress) != NULL)
-				{
-					continue;
-				}
-
-				NET_DisconnectClient(pClient, i, "Kicked from server", 0, 1);
-			}
-		}
-	}
-	catch (std::exception& e)
-	{
-		Error(eDLL_T::SERVER, "%s - sv_kickid requires a UserID or OriginID. You can get the UserID with the 'status' command. Error: %s", __FUNCTION__, e.what());
-		return;
-	}
+	g_pBanSystem->KickPlayerById(args.Arg(1));
 }
 
 /*
@@ -182,34 +139,7 @@ void Host_Ban_f(const CCommand& args)
 		return;
 	}
 
-	for (int i = 0; i < MAX_PLAYERS; i++)
-	{
-		CClient* pClient = g_pClient->GetClient(i);
-		if (!pClient)
-			continue;
-
-		CNetChan* pNetChan = pClient->GetNetChan();
-		if (!pNetChan)
-			continue;
-
-		string svClientName = pNetChan->GetName(); // Get full name.
-
-		if (svClientName.empty())
-		{
-			continue;
-		}
-
-		if (strcmp(args.Arg(1), svClientName.c_str()) != 0)
-		{
-			continue;
-		}
-
-		string svIpAddress = pNetChan->GetAddress(); // If this stays empty they modified the packet somehow.
-
-		g_pBanSystem->AddEntry(svIpAddress, pClient->GetOriginID());
-		g_pBanSystem->Save();
-		NET_DisconnectClient(pClient, i, "Banned from server", 0, 1);
-	}
+	g_pBanSystem->BanPlayerByName(args.Arg(1));
 }
 
 /*
@@ -220,67 +150,9 @@ Host_BanID_f
 void Host_BanID_f(const CCommand& args)
 {
 	if (args.ArgC() < 2)
-	{
 		return;
-	}
 
-	try
-	{
-		bool bOnlyDigits = args.HasOnlyDigits(1);
-		for (int i = 0; i < MAX_PLAYERS; i++)
-		{
-			CClient* pClient = g_pClient->GetClient(i);
-			if (!pClient)
-				continue;
-
-			CNetChan* pNetChan = pClient->GetNetChan();
-			if (!pNetChan)
-				continue;
-
-			string svIpAddress = pNetChan->GetAddress(); // If this stays empty they modified the packet somehow.
-
-			if (bOnlyDigits)
-			{
-				uint64_t nTargetID = static_cast<uint64_t>(std::stoll(args.Arg(1)));
-				if (nTargetID > static_cast<uint64_t>(MAX_PLAYERS)) // Is it a possible originID?
-				{
-					uint64_t nOriginID = pClient->GetOriginID();
-					if (nOriginID != nTargetID)
-					{
-						continue;
-					}
-				}
-				else // If its not try by handle.
-				{
-					uint64_t nClientID = static_cast<uint64_t>(pClient->GetHandle());
-					if (nClientID != nTargetID)
-					{
-						continue;
-					}
-				}
-
-				g_pBanSystem->AddEntry(svIpAddress, pClient->GetOriginID());
-				g_pBanSystem->Save();
-				NET_DisconnectClient(pClient, i, "Banned from server", 0, 1);
-			}
-			else
-			{
-				if (string(args.Arg(1)).compare(svIpAddress) != NULL)
-				{
-					continue;
-				}
-
-				g_pBanSystem->AddEntry(svIpAddress, pClient->GetOriginID());
-				g_pBanSystem->Save();
-				NET_DisconnectClient(pClient, i, "Banned from server", 0, 1);
-			}
-		}
-	}
-	catch (std::exception& e)
-	{
-		Error(eDLL_T::SERVER, "%s - Banid Error: %s", __FUNCTION__, e.what());
-		return;
-	}
+	g_pBanSystem->BanPlayerById(args.Arg(1));
 }
 
 /*
@@ -295,24 +167,7 @@ void Host_Unban_f(const CCommand& args)
 		return;
 	}
 
-	try
-	{
-		if (args.HasOnlyDigits(1)) // Check if we have an ip address or origin ID.
-		{
-			g_pBanSystem->DeleteEntry("noIP", std::stoll(args.Arg(1))); // Delete ban entry.
-			g_pBanSystem->Save(); // Save modified vector to file.
-		}
-		else
-		{
-			g_pBanSystem->DeleteEntry(args.Arg(1), 0); // Delete ban entry.
-			g_pBanSystem->Save(); // Save modified vector to file.
-		}
-	}
-	catch (std::exception& e)
-	{
-		Error(eDLL_T::SERVER, "%s - Unban error: %s", __FUNCTION__, e.what());
-		return;
-	}
+	g_pBanSystem->UnbanPlayer(args.Arg(1));
 }
 
 /*
@@ -322,9 +177,40 @@ Host_ReloadBanList_f
 */
 void Host_ReloadBanList_f(const CCommand& args)
 {
-	g_pBanSystem->Load(); // Reload banlist.
+	g_pBanSystem->Load(); // Reload banned list.
 }
 
+/*
+=====================
+Host_ReloadPlaylists_f
+=====================
+*/
+void Host_ReloadPlaylists_f(const CCommand& args)
+{
+	_DownloadPlaylists_f();
+	KeyValues::InitPlaylists(); // Re-Init playlist.
+}
+
+/*
+=====================
+Host_Changelevel_f
+
+  Goes to a new map, 
+  taking all clients along
+=====================
+*/
+void Host_Changelevel_f(const CCommand& args)
+{
+	if (args.ArgC() >= 2
+		&& IsOriginInitialized()
+		&& g_pServer->IsActive())
+	{
+		v_SetLaunchOptions(args);
+		v_HostState_ChangeLevelMP(args[1], args[2]);
+	}
+}
+
+#endif // !CLIENT_DLL
 /*
 =====================
 Pak_ListPaks_f
@@ -351,7 +237,7 @@ void Pak_ListPaks_f(const CCommand& args)
 			rpakStatus = it->second;
 
 		// todo: make status into a string from an array/vector
-		DevMsg(eDLL_T::RTECH, "| %02i | %-50s | %-36s | %11i |\n", info.m_nPakId, info.m_pszFileName, rpakStatus.c_str(), info.m_nAssetCount);
+		DevMsg(eDLL_T::RTECH, "| %02i | %-50s | %-36s | %11i |\n", info.m_nHandle, info.m_pszFileName, rpakStatus.c_str(), info.m_nAssetCount);
 		nActuallyLoaded++;
 	}
 	DevMsg(eDLL_T::RTECH, "|----|----------------------------------------------------|--------------------------------------|-------------|\n");
@@ -375,16 +261,16 @@ void Pak_RequestUnload_f(const CCommand& args)
 	{
 		if (args.HasOnlyDigits(1))
 		{
-			RPakHandle_t nPakId = std::stoi(args.Arg(1));
-			RPakLoadedInfo_t* pakInfo = g_pRTech->GetPakLoadedInfo(nPakId);
+			RPakHandle_t pakHandle = std::stoi(args.Arg(1));
+			RPakLoadedInfo_t* pakInfo = g_pRTech->GetPakLoadedInfo(pakHandle);
 			if (!pakInfo)
 			{
-				throw std::exception("Found no pak entry for specified ID.");
+				throw std::exception("Found no pak entry for specified handle.");
 			}
 
 			string pakName = pakInfo->m_pszFileName;
-			!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested pak unload for '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested Pak Unload for '%d'\n", nPakId);
-			g_pakLoadApi->UnloadPak(nPakId);
+			!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested pak unload for file '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested pak unload for handle '%d'\n", pakHandle);
+			g_pakLoadApi->UnloadPak(pakHandle);
 		}
 		else
 		{
@@ -394,13 +280,13 @@ void Pak_RequestUnload_f(const CCommand& args)
 				throw std::exception("Found no pak entry for specified name.");
 			}
 
-			DevMsg(eDLL_T::RTECH, "Requested pak unload for '%s'\n", args.Arg(1));
-			g_pakLoadApi->UnloadPak(pakInfo->m_nPakId);
+			DevMsg(eDLL_T::RTECH, "Requested pak unload for file '%s'\n", args.Arg(1));
+			g_pakLoadApi->UnloadPak(pakInfo->m_nHandle);
 		}
 	}
-	catch (std::exception& e)
+	catch (const std::exception& e)
 	{
-		Error(eDLL_T::RTECH, "%s - %s", __FUNCTION__, e.what());
+		Error(eDLL_T::RTECH, NO_ERROR, "%s - %s", __FUNCTION__, e.what());
 		return;
 	}
 }
@@ -425,17 +311,17 @@ void Pak_Swap_f(const CCommand& args)
 {
 	try
 	{
-		RPakHandle_t nPakId = 0;
+		string pakName;
+		RPakHandle_t pakHandle = 0;
 		RPakLoadedInfo_t* pakInfo = nullptr;
-		string pakName = std::string();
 
 		if (args.HasOnlyDigits(1))
 		{
-			nPakId = std::stoi(args.Arg(1));
-			pakInfo = g_pRTech->GetPakLoadedInfo(nPakId);
+			pakHandle = std::stoi(args.Arg(1));
+			pakInfo = g_pRTech->GetPakLoadedInfo(pakHandle);
 			if (!pakInfo)
 			{
-				throw std::exception("Found no pak entry for specified ID.");
+				throw std::exception("Found no pak entry for specified handle.");
 			}
 
 			pakName = pakInfo->m_pszFileName;
@@ -449,21 +335,21 @@ void Pak_Swap_f(const CCommand& args)
 				throw std::exception("Found no pak entry for specified name.");
 			}
 
-			nPakId = pakInfo->m_nPakId;
+			pakHandle = pakInfo->m_nHandle;
 		}
 
-		!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested pak swap for '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested pak swap for '%d'\n", nPakId);
+		!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested pak swap for file '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested pak swap for handle '%d'\n", pakHandle);
 
-		g_pakLoadApi->UnloadPak(nPakId);
+		g_pakLoadApi->UnloadPak(pakHandle);
 
 		while (pakInfo->m_nStatus != RPakStatus_t::PAK_STATUS_FREED) // Wait till this slot gets free'd.
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 
 		g_pakLoadApi->LoadAsync(pakName.c_str());
 	}
-	catch (std::exception& e)
+	catch (const std::exception& e)
 	{
-		Error(eDLL_T::RTECH, "%s - %s", __FUNCTION__, e.what());
+		Error(eDLL_T::RTECH, NO_ERROR, "%s - %s", __FUNCTION__, e.what());
 		return;
 	}
 }
@@ -483,7 +369,7 @@ void RTech_StringToGUID_f(const CCommand& args)
 	unsigned long long guid = g_pRTech->StringToGuid(args.Arg(1));
 
 	DevMsg(eDLL_T::RTECH, "______________________________________________________________\n");
-	DevMsg(eDLL_T::RTECH, "] RTECH_HASH -------------------------------------------------\n");
+	DevMsg(eDLL_T::RTECH, "] RTECH_HASH ]------------------------------------------------\n");
 	DevMsg(eDLL_T::RTECH, "] GUID: '0x%llX'\n", guid);
 }
 
@@ -515,7 +401,7 @@ void RTech_Decompress_f(const CCommand& args)
 
 	if (!FileExists(pakNameIn))
 	{
-		Error(eDLL_T::RTECH, "%s - pak file '%s' does not exist!\n", __FUNCTION__, pakNameIn.c_str());
+		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' does not exist!\n", __FUNCTION__, pakNameIn.c_str());
 		return;
 	}
 
@@ -537,19 +423,19 @@ void RTech_Decompress_f(const CCommand& args)
 	DevMsg(eDLL_T::RTECH, " | | |-- Size decp: '%llu'\n", rheader.m_nSizeMemory);
 	DevMsg(eDLL_T::RTECH, " | | |-- Ratio    : '%.02f'\n", (rheader.m_nSizeDisk * 100.f) / rheader.m_nSizeMemory);
 
-	if (rheader.m_nMagic != 'kaPR')
+	if (rheader.m_nMagic != RPAKHEADER)
 	{
-		Error(eDLL_T::RTECH, "%s - pak file '%s' has invalid magic!\n", __FUNCTION__, pakNameIn.c_str());
+		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' has invalid magic!\n", __FUNCTION__, pakNameIn.c_str());
 		return;
 	}
 	if ((rheader.m_nFlags[1] & 1) != 1)
 	{
-		Error(eDLL_T::RTECH, "%s - pak file '%s' already decompressed!\n", __FUNCTION__, pakNameIn.c_str());
+		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' already decompressed!\n", __FUNCTION__, pakNameIn.c_str());
 		return;
 	}
 	if (rheader.m_nSizeDisk != reader.GetSize())
 	{
-		Error(eDLL_T::RTECH, "%s - pak file '%s' decompressed size '%zu' doesn't match expected value '%llu'!\n", __FUNCTION__, pakNameIn.c_str(), reader.GetSize(), rheader.m_nSizeMemory);
+		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' decompressed size '%zu' doesn't match expected value '%llu'!\n", __FUNCTION__, pakNameIn.c_str(), reader.GetSize(), rheader.m_nSizeMemory);
 		return;
 	}
 
@@ -558,7 +444,7 @@ void RTech_Decompress_f(const CCommand& args)
 
 	if (decompSize == rheader.m_nSizeDisk)
 	{
-		Error(eDLL_T::RTECH, "%s - calculated size: '%llu' expected: '%llu'!\n", __FUNCTION__, decompSize, rheader.m_nSizeMemory);
+		Error(eDLL_T::RTECH, NO_ERROR, "%s - calculated size: '%llu' expected: '%llu'!\n", __FUNCTION__, decompSize, rheader.m_nSizeMemory);
 		return;
 	}
 	else
@@ -574,7 +460,7 @@ void RTech_Decompress_f(const CCommand& args)
 	uint8_t decompResult = g_pRTech->DecompressPakFile(&state, reader.GetSize(), pakBuf.size());
 	if (decompResult != 1)
 	{
-		Error(eDLL_T::RTECH, "%s - decompression failed for '%s' return value: '%hu'!\n", __FUNCTION__, pakNameIn.c_str(), decompResult);
+		Error(eDLL_T::RTECH, NO_ERROR, "%s - decompression failed for '%s' return value: '%hu'!\n", __FUNCTION__, pakNameIn.c_str(), decompResult);
 		return;
 	}
 
@@ -678,7 +564,7 @@ void VPK_Mount_f(const CCommand& args)
 		return;
 	}
 
-	VPKData_t* pPakData = FileSystem()->MountVPK(args.Arg(1));
+	VPKData_t* pPakData = FileSystem()->MountVPKFile(args.Arg(1));
 	if (pPakData)
 	{
 		DevMsg(eDLL_T::FS, "Mounted VPK file '%s' with handle '%i'\n", args.Arg(1), pPakData->m_nHandle);
@@ -717,6 +603,28 @@ void NET_GenerateKey_f(const CCommand& args)
 {
 	NET_GenerateKey();
 }
+
+/*
+=====================
+NET_UseRandomKeyChanged_f
+
+  Use random AES encryption
+  key for game packets
+=====================
+*/
+void NET_UseRandomKeyChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
+{
+	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
+	{
+		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
+			return; // Same value.
+
+		if (pConVarRef->GetBool())
+			NET_GenerateKey();
+		else
+			NET_SetKey(DEFAULT_NET_ENCRYPTION_KEY);
+	}
+}
 #ifndef DEDICATED
 /*
 =====================
@@ -730,44 +638,44 @@ void RCON_CmdQuery_f(const CCommand& args)
 {
 	if (args.ArgC() < 2)
 	{
-		if (g_pRConClient->IsInitialized()
-			&& !g_pRConClient->IsConnected()
+		if (RCONClient()->IsInitialized()
+			&& !RCONClient()->IsConnected()
 			&& strlen(rcon_address->GetString()) > 0)
 		{
-			g_pRConClient->Connect();
+			RCONClient()->Connect();
 		}
 	}
 	else
 	{
-		if (!g_pRConClient->IsInitialized())
+		if (!RCONClient()->IsInitialized())
 		{
 			Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: uninitialized\n");
 			return;
 		}
-		else if (g_pRConClient->IsConnected())
+		else if (RCONClient()->IsConnected())
 		{
 			if (strcmp(args.Arg(1), "PASS") == 0) // Auth with RCON server using rcon_password ConVar value.
 			{
 				string svCmdQuery;
 				if (args.ArgC() > 2)
 				{
-					svCmdQuery = g_pRConClient->Serialize(args.Arg(2), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+					svCmdQuery = RCONClient()->Serialize(args.Arg(2), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
 				}
 				else // Use 'rcon_password' ConVar as password.
 				{
-					svCmdQuery = g_pRConClient->Serialize(rcon_password->GetString(), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
+					svCmdQuery = RCONClient()->Serialize(rcon_password->GetString(), "", cl_rcon::request_t::SERVERDATA_REQUEST_AUTH);
 				}
-				g_pRConClient->Send(svCmdQuery);
+				RCONClient()->Send(svCmdQuery);
 				return;
 			}
 			else if (strcmp(args.Arg(1), "disconnect") == 0) // Disconnect from RCON server.
 			{
-				g_pRConClient->Disconnect();
+				RCONClient()->Disconnect();
 				return;
 			}
 
-			string svCmdQuery = g_pRConClient->Serialize(args.ArgS(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
-			g_pRConClient->Send(svCmdQuery);
+			string svCmdQuery = RCONClient()->Serialize(args.ArgS(), "", cl_rcon::request_t::SERVERDATA_REQUEST_EXECCOMMAND);
+			RCONClient()->Send(svCmdQuery);
 			return;
 		}
 		else
@@ -787,13 +695,42 @@ RCON_Disconnect_f
 */
 void RCON_Disconnect_f(const CCommand& args)
 {
-	if (g_pRConClient->IsConnected())
+	if (RCONClient()->IsConnected())
 	{
-		g_pRConClient->Disconnect();
+		RCONClient()->Disconnect();
 		DevMsg(eDLL_T::CLIENT, "User closed RCON connection\n");
 	}
 }
 #endif // !DEDICATED
+
+/*
+=====================
+RCON_PasswordChanged_f
+
+  Change password on RCON server
+  and RCON client
+=====================
+*/
+void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue)
+{
+	if (ConVar* pConVarRef = g_pCVar->FindVar(pConVar->GetName()))
+	{
+		if (strcmp(pOldString, pConVarRef->GetString()) == NULL)
+			return; // Same password.
+
+#ifndef DEDICATED
+		if (RCONClient()->IsInitialized())
+			RCONClient()->SetPassword(pConVarRef->GetString());
+		else
+			RCONClient()->Init(); // Initialize first.
+#elif DEDICATED
+		if (RCONServer()->IsInitialized())
+			RCONServer()->SetPassword(pConVarRef->GetString());
+		else
+			RCONServer()->Init(); // Initialize first.
+#endif // DEDICATED
+	}
+}
 
 /*
 =====================
@@ -832,7 +769,7 @@ void SQVM_ClientScript_f(const CCommand& args)
 =====================
 SQVM_UIScript_f
 
-  Exectutes input on the
+  Executes input on the
   VM in UI context.
 =====================
 */
@@ -860,7 +797,7 @@ void Mat_CrossHair_f(const CCommand& args)
 		DevMsg(eDLL_T::MS, "-+ Material --------------------------------------------------\n");
 		DevMsg(eDLL_T::MS, " |-- ADDR: '%llX'\n", material);
 		DevMsg(eDLL_T::MS, " |-- GUID: '%llX'\n", material->m_GUID);
-		DevMsg(eDLL_T::MS, " |-- Signature: '%d'\n", material->m_UnknownSignature);
+		DevMsg(eDLL_T::MS, " |-- Streamable Texture Count: '%d'\n", material->m_nStreamableTextureCount);
 		DevMsg(eDLL_T::MS, " |-- Material Width: '%d'\n", material->m_iWidth);
 		DevMsg(eDLL_T::MS, " |-- Material Height: '%d'\n", material->m_iHeight);
 		DevMsg(eDLL_T::MS, " |-- Flags: '%llX'\n", material->m_iFlags);
@@ -877,8 +814,8 @@ void Mat_CrossHair_f(const CCommand& args)
 		DevMsg(eDLL_T::MS, " |-- Material Name: '%s'\n", material->m_pszName);
 		DevMsg(eDLL_T::MS, " |-- Material Surface Name 1: '%s'\n", material->m_pszSurfaceName1);
 		DevMsg(eDLL_T::MS, " |-- Material Surface Name 2: '%s'\n", material->m_pszSurfaceName2);
-		DevMsg(eDLL_T::MS, " |-- DX Texture 1: '%llX'\n", material->m_ppDXTexture1);
-		DevMsg(eDLL_T::MS, " |-- DX Texture 2: '%llX'\n", material->m_ppDXTexture2);
+		DevMsg(eDLL_T::MS, " |-- DX Buffer: '%llX'\n", material->m_pDXBuffer);
+		DevMsg(eDLL_T::MS, " |-- DX BufferVTable: '%llX'\n", material->m_pDXBufferVTable);
 
 		material->m_pDepthShadow ? fnPrintChild(material->m_pDepthShadow, " |   |-+ DepthShadow Addr: '%llX'\n") : DevMsg(eDLL_T::MS, " |   |-+ DepthShadow Addr: 'NULL'\n");
 		material->m_pDepthPrepass ? fnPrintChild(material->m_pDepthPrepass, " |   |-+ DepthPrepass Addr: '%llX'\n") : DevMsg(eDLL_T::MS, " |   |-+ DepthPrepass Addr: 'NULL'\n");
@@ -887,8 +824,8 @@ void Mat_CrossHair_f(const CCommand& args)
 		material->m_pColPass ? fnPrintChild(material->m_pColPass, " |   |-+ ColPass Addr: '%llX'\n") : DevMsg(eDLL_T::MS, " |   |-+ ColPass Addr: 'NULL'\n");
 
 		DevMsg(eDLL_T::MS, "-+ Texture GUID map ------------------------------------------\n");
-		material->m_pTextureGUID1 ? DevMsg(eDLL_T::MS, " |-- TextureMap 1 Addr: '%llX'\n", material->m_pTextureGUID1) : DevMsg(eDLL_T::MS, " |-- TextureMap 1 Addr: 'NULL'\n");
-		material->m_pTextureGUID2 ? DevMsg(eDLL_T::MS, " |-- TextureMap 2 Addr: '%llX'\n", material->m_pTextureGUID2) : DevMsg(eDLL_T::MS, " |-- TextureMap 2 Addr: 'NULL'\n");
+		material->m_pTextureGUID ? DevMsg(eDLL_T::MS, " |-- TextureMap 1 Addr: '%llX'\n", material->m_pTextureGUID) : DevMsg(eDLL_T::MS, " |-- TextureMap 1 Addr: 'NULL'\n");
+		material->m_pStreamableTextures ? DevMsg(eDLL_T::MS, " |-- TextureMap 2 Addr: '%llX'\n", material->m_pStreamableTextures) : DevMsg(eDLL_T::MS, " |-- TextureMap 2 Addr: 'NULL'\n");
 
 		DevMsg(eDLL_T::MS, "--------------------------------------------------------------\n");
 	}
@@ -897,4 +834,189 @@ void Mat_CrossHair_f(const CCommand& args)
 		DevMsg(eDLL_T::MS, "%s - No Material found >:(\n", __FUNCTION__);
 	}
 }
+
+/*
+=====================
+Line_f
+
+  Draws a line at 
+  start<x1 y1 z1> end<x2 y2 z2>.
+=====================
+*/
+void Line_f(const CCommand& args)
+{
+	if (args.ArgC() != 7)
+	{
+		DevMsg(eDLL_T::CLIENT, "Usage 'line': start(vector) end(vector)\n");
+		return;
+	}
+
+	Vector3D start, end;
+	for (int i = 0; i < 3; ++i)
+	{
+		start[i] = atof(args[i + 1]);
+		end[i] = atof(args[i + 4]);
+	}
+
+	g_pDebugOverlay->AddLineOverlay(start, end, 255, 255, 0, r_debug_overlay_zbuffer->GetBool(), 100);
+}
+
+/*
+=====================
+Sphere_f
+
+  Draws a sphere at origin(x1 y1 z1) 
+  radius(float) theta(int) phi(int).
+=====================
+*/
+void Sphere_f(const CCommand& args)
+{
+	if (args.ArgC() != 7)
+	{
+		DevMsg(eDLL_T::CLIENT, "Usage 'sphere': origin(vector) radius(float) theta(int) phi(int)\n");
+		return;
+	}
+
+	Vector3D start;
+	for (int i = 0; i < 3; ++i)
+	{
+		start[i] = atof(args[i + 1]);
+	}
+
+	float radius = atof(args[4]);
+	int theta = atoi(args[5]);
+	int phi = atoi(args[6]);
+
+	g_pDebugOverlay->AddSphereOverlay(start, radius, theta, phi, 20, 210, 255, 0, 100);
+}
+
+/*
+=====================
+Capsule_f
+
+  Draws a capsule at start<x1 y1 z1> 
+  end<x2 y2 z2> radius <x3 y3 z3>.
+=====================
+*/
+void Capsule_f(const CCommand& args)
+{
+	if (args.ArgC() != 10)
+	{
+		DevMsg(eDLL_T::CLIENT, "Usage 'capsule': start(vector) end(vector) radius(vector)\n");
+		return;
+	}
+
+	Vector3D start, end, radius;
+	for (int i = 0; i < 3; ++i)
+	{
+		start[i] = atof(args[i + 1]);
+		end[i] = atof(args[i + 4]);
+		radius[i] = atof(args[i + 7]);
+	}
+	g_pDebugOverlay->AddCapsuleOverlay(start, end, radius, { 0,0,0 }, { 0,0,0 }, 141, 233, 135, 0, 100);
+}
 #endif // !DEDICATED
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
+/*
+=====================
+BHit_f
+
+  Bullet trajectory tracing
+  from shooter to target entity.
+=====================
+*/
+void BHit_f(const CCommand& args)
+{
+	if (args.ArgC() != 9)
+		return;
+
+#ifndef DEDICATED
+	if (bhit_enable->GetBool() && sv_visualizetraces->GetBool())
+	{
+		Vector3D vecAbsStart;
+		Vector3D vecAbsEnd;
+
+		for (int i = 0; i < 3; ++i)
+			vecAbsStart[i] = atof(args[i + 4]);
+
+		if (bhit_abs_origin->GetBool())
+		{
+			int iEnt = atof(args[2]);
+			if (IClientEntity* pEntity = g_pClientEntityList->GetClientEntity(iEnt))
+				vecAbsEnd = pEntity->GetAbsOrigin();
+			else
+				goto VEC_RENDER;
+		}
+		else VEC_RENDER:
+		{
+			QAngle vecBulletAngles;
+			for (int i = 0; i < 2; ++i)
+				vecBulletAngles[i] = atof(args[i + 7]);
+
+			vecBulletAngles.z = 180.f; // Flipped axis.
+			AngleVectors(vecBulletAngles, &vecAbsEnd);
+		}
+
+		static char szBuf[2048];
+		snprintf(szBuf, sizeof(szBuf), "drawline %g %g %g %g %g %g", 
+			vecAbsStart.x, vecAbsStart.y, vecAbsStart.z,
+			vecAbsStart.x + vecAbsEnd.x * MAX_COORD_RANGE, 
+			vecAbsStart.y + vecAbsEnd.y * MAX_COORD_RANGE, 
+			vecAbsStart.z + vecAbsEnd.z * MAX_COORD_RANGE);
+
+		Cbuf_AddText(Cbuf_GetCurrentPlayer(), szBuf, cmd_source_t::kCommandSrcCode);
+	}
+#endif // !DEDICATED
+}
+#endif // !GAMEDLL_S0 && !GAMEDLL_S1
+/*
+=====================
+CVHelp_f
+
+  Show help text for a
+  particular convar/concommand
+=====================
+*/
+void CVHelp_f(const CCommand& args)
+{
+	cv->CvarHelp(args);
+}
+
+/*
+=====================
+CVList_f
+
+  List all ConCommandBases
+=====================
+*/
+void CVList_f(const CCommand& args)
+{
+	cv->CvarList(args);
+}
+
+/*
+=====================
+CVDiff_f
+
+  List all ConVar's 
+  who's values deviate 
+  from default value
+=====================
+*/
+void CVDiff_f(const CCommand& args)
+{
+	cv->CvarDifferences(args);
+}
+
+/*
+=====================
+CVFlag_f
+
+  List all ConVar's
+  with specified flags
+=====================
+*/
+void CVFlag_f(const CCommand& args)
+{
+	cv->CvarFindFlags_f(args);
+}

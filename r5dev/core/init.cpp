@@ -10,6 +10,7 @@
 #include "tier0/jobthread.h"
 #include "tier0/threadtools.h"
 #include "tier0/tslist.h"
+#include "tier0/memstd.h"
 #include "tier0/fasttimer.h"
 #include "tier0/cpu.h"
 #include "tier0/commandline.h"
@@ -35,7 +36,6 @@
 #ifndef DEDICATED
 #include "milessdk/win64_rrthreads.h"
 #endif // !DEDICATED
-#include "mathlib/mathlib.h"
 #include "vphysics/QHull.h"
 #include "bsplib/bsplib.h"
 #include "materialsystem/cmaterialsystem.h"
@@ -45,9 +45,9 @@
 #include "vgui/vgui_debugpanel.h"
 #include "vgui/vgui_fpspanel.h"
 #include "vguimatsurface/MatSystemSurface.h"
+#include "client/vengineclient_impl.h"
 #endif // !DEDICATED
 #include "client/cdll_engine_int.h"
-#include "client/vengineclient_impl.h"
 #ifndef CLIENT_DLL
 #include "engine/server/server.h"
 #include "server/persistence.h"
@@ -77,6 +77,7 @@
 #ifndef CLIENT_DLL
 #include "engine/server/sv_main.h"
 #endif // !CLIENT_DLL
+#include "engine/sdk_dll.h"
 #include "engine/sys_dll.h"
 #include "engine/sys_dll2.h"
 #include "engine/sys_engine.h"
@@ -97,9 +98,13 @@
 #include "game/server/detour_impl.h"
 #include "game/server/fairfight_impl.h"
 #include "game/server/gameinterface.h"
-#include "public/include/edict.h"
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
+#include "game/client/view.h"
+#endif // !DEDICATED
+#include "public/edict.h"
+#ifndef DEDICATED
+#include "public/idebugoverlay.h"
 #include "inputsystem/inputsystem.h"
 #include "windows/id3dx.h"
 #endif // !DEDICATED
@@ -122,14 +127,9 @@ void Systems_Init()
 	QuerySystemInfo();
 
 	CFastTimer initTimer;
-	initTimer.Start();
 
-	for (IDetour* pDetour : vDetour)
-	{
-		pDetour->GetCon();
-		pDetour->GetFun();
-		pDetour->GetVar();
-	}
+	initTimer.Start();
+	DetourInit();
 	initTimer.End();
 
 	spdlog::info("+-------------------------------------------------------------+\n");
@@ -137,10 +137,7 @@ void Systems_Init()
 
 	initTimer.Start();
 
-	WS_Init();      // Initialize WinSock.
-	MathLib_Init(); // Initialize MathLib.
-
-	// Begin the detour transaction to hook the the process
+	// Begin the detour transaction to hook the process
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
@@ -174,6 +171,7 @@ void Systems_Init()
 	CServer_Attach(); // S1 and S2 CServer functions require work.
 #endif // !CLIENT_DLL && GAMEDLL_S3
 
+	Host_Attach();
 	CHostState_Attach();
 
 	CModelBsp_Attach();
@@ -184,6 +182,8 @@ void Systems_Init()
 #endif // !DEDICATED && GAMEDLL_S3
 
 	NET_Attach();
+	//NetChan_Attach();
+
 	ConCommand_Attach();
 	IConVar_Attach();
 	CKeyValueSystem_Attach();
@@ -224,10 +224,11 @@ void Systems_Init()
 	RuntimePtc_Init();
 
 	// Commit the transaction
-	if (DetourTransactionCommit() != NO_ERROR)
+	HRESULT hr = DetourTransactionCommit();
+	if (hr != NO_ERROR)
 	{
 		// Failed to hook into the process, terminate
-		TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
+		Error(eDLL_T::COMMON, 0xBAD0C0DE, "Failed to detour process: error code = %08x\n", hr);
 	}
 
 	initTimer.End();
@@ -241,6 +242,9 @@ void Systems_Init()
 #endif // DEDICATED
 
 	SpdLog_PostInit();
+
+	std::thread fixed(&CEngineSDK::FixedFrame, g_EngineSDK);
+	fixed.detach();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -259,10 +263,7 @@ void Systems_Shutdown()
 	CFastTimer shutdownTimer;
 	shutdownTimer.Start();
 
-	// Shutdown WinSock system.
-	WS_Shutdown();
-
-	// Begin the detour transaction to unhook the the process
+	// Begin the detour transaction to unhook the process
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
@@ -296,6 +297,7 @@ void Systems_Shutdown()
 	CServer_Detach(); // S1 and S2 CServer functions require work.
 #endif // !CLIENT_DLL && GAMEDLL_S3
 
+	Host_Detach();
 	CHostState_Detach();
 
 	CModelBsp_Detach();
@@ -306,6 +308,8 @@ void Systems_Shutdown()
 #endif // !DEDICATED && GAMEDLL_S3
 
 	NET_Detach();
+	//NetChan_Detach();
+
 	ConCommand_Detach();
 	IConVar_Detach();
 	CKeyValueSystem_Detach();
@@ -361,7 +365,7 @@ void Systems_Shutdown()
 //
 /////////////////////////////////////////////////////
 
-void WS_Init()
+void WinSock_Init()
 {
 	WSAData wsaData{};
 	int nError = ::WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -370,12 +374,12 @@ void WS_Init()
 		std::cerr << "Failed to start Winsock via WSAStartup: (" << NET_ErrorString(WSAGetLastError()) << ")" << std::endl;
 	}
 }
-void WS_Shutdown()
+void WinSock_Shutdown()
 {
 	int nError = ::WSACleanup();
 	if (nError != 0)
 	{
-		std::cerr << "Failed to stop winsock via WSACleanup: (" << NET_ErrorString(WSAGetLastError()) << ")" << std::endl;
+		std::cerr << "Failed to stop Winsock via WSACleanup: (" << NET_ErrorString(WSAGetLastError()) << ")" << std::endl;
 	}
 }
 void QuerySystemInfo()
@@ -409,23 +413,58 @@ void QuerySystemInfo()
 		spdlog::error("Unable to retrieve system memory information: {:s}\n", 
 			std::system_category().message(static_cast<int>(::GetLastError())));
 	}
+}
 
-	if (!s_bMathlibInitialized)
+void CheckCPU() // Respawn's engine and our SDK utilize POPCNT, SSE3 and SSSE3 (Supplemental SSE 3 Instructions).
+{
+	const CPUInformation& pi = GetCPUInformation();
+	static char szBuf[1024];
+	if (!pi.m_bSSE3)
 	{
-		if (!(pi.m_bSSE && pi.m_bSSE2))
-		{
-			if (MessageBoxA(NULL, "SSE and SSE2 are required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
-			{
-				TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
-			}
-		}
+		V_snprintf(szBuf, sizeof(szBuf), "CPU does not have %s!\n", "SSE 3");
+		MessageBoxA(NULL, szBuf, "Unsupported CPU", MB_ICONERROR | MB_OK);
+		ExitProcess(-1);
+	}
+	if (!pi.m_bSSSE3)
+	{
+		V_snprintf(szBuf, sizeof(szBuf), "CPU does not have %s!\n", "SSSE 3 (Supplemental SSE 3 Instructions)");
+		MessageBoxA(NULL, szBuf, "Unsupported CPU", MB_ICONERROR | MB_OK);
+		ExitProcess(-1);
+	}
+	if (!pi.m_bPOPCNT)
+	{
+		V_snprintf(szBuf, sizeof(szBuf), "CPU does not have %s!\n", "POPCNT");
+		MessageBoxA(NULL, szBuf, "Unsupported CPU", MB_ICONERROR | MB_OK);
+		ExitProcess(-1);
 	}
 }
 
-void PrintHAddress() // Test the sigscan results
+void DetourInit() // Run the sigscan
+{
+	bool bLogAdr = (strstr(GetCommandLineA(), "-sig_toconsole") != nullptr);
+	bool bInitDivider = false;
+
+	for (const IDetour* pDetour : vDetour)
+	{
+		pDetour->GetCon(); // Constants.
+		pDetour->GetFun(); // Functions.
+		pDetour->GetVar(); // Variables.
+
+		if (bLogAdr)
+		{
+			if (!bInitDivider)
+			{
+				bInitDivider = true;
+				spdlog::debug("+----------------------------------------------------------------+\n");
+			}
+			pDetour->GetAdr();
+		}
+	}
+}
+void DetourAddress() // Test the sigscan results
 {
 	spdlog::debug("+----------------------------------------------------------------+\n");
-	for (IDetour* pDetour : vDetour)
+	for (const IDetour* pDetour : vDetour)
 	{
 		pDetour->GetAdr();
 	}

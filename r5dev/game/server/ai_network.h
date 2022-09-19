@@ -43,6 +43,7 @@ public:
 	int m_iNumNodes;              // +0x1070
 	CAI_Node** m_pAInode;         // +0x1078
 };
+inline CAI_Network** g_pAINetwork = nullptr;
 
 void CAI_Network_Attach();
 void CAI_Network_Detach();
@@ -56,14 +57,19 @@ class VAI_Network : public IDetour
 	virtual void GetAdr(void) const
 	{
 		spdlog::debug("| FUN: CAI_Network::DebugConnectMsg         : {:#18x} |\n", p_CAI_Network__DebugConnectMsg.GetPtr());
+		spdlog::debug("| VAR: g_pAINetwork                         : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pAINetwork));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
-		p_CAI_Network__DebugConnectMsg = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x89\x4C\x24\x00\x48\x83\xEC\x18"), "xxxx?xxxx");
+		p_CAI_Network__DebugConnectMsg = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x89\x4C\x24\x00\x48\x83\xEC\x18"), "xxxx?xxxx");
 		v_CAI_Network__DebugConnectMsg = p_CAI_Network__DebugConnectMsg.RCast<void (*)(int, int, const char*, ...)>(); /*4C 89 4C 24 ?? 48 83 EC 18*/
 	}
-	virtual void GetVar(void) const { }
+	virtual void GetVar(void) const
+	{
+		g_pAINetwork = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x4C\x63\x91\x00\x00\x00\x00"), "xxxx?xxx????")
+			.FindPatternSelf("48 8B").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CAI_Network**>();
+	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }

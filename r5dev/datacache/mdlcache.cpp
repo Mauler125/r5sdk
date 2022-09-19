@@ -12,7 +12,7 @@
 #include "datacache/imdlcache.h"
 #include "datacache/idatacache.h"
 #include "rtech/rtech_utils.h"
-#include "public/include/studio.h"
+#include "public/studio.h"
 #include "tier1/utldict.h"
 
 
@@ -39,12 +39,12 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
             if (pStudioHDR)
             {
                 string svStudio = ConvertToUnixPath(string(pStudioHDR->name));
-                if (strcmp(svStudio.c_str(), ERROR_MODEL) == 0)
+                if (svStudio.compare(ERROR_MODEL) == NULL)
                 {
                     g_pMDLFallback->m_pErrorHDR = pStudioHDR;
                     g_pMDLFallback->m_hErrorMDL = handle;
                 }
-                if (strcmp(svStudio.c_str(), EMPTY_MODEL) == 0)
+                if (svStudio.compare(EMPTY_MODEL) == NULL)
                 {
                     g_pMDLFallback->m_pEmptyHDR = pStudioHDR;
                     g_pMDLFallback->m_hEmptyMDL = handle;
@@ -60,9 +60,9 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
         if (!IsKnownBadModel(handle))
         {
             if (!pStudioHdr)
-                Error(eDLL_T::ENGINE, "Model with handle \"%hu\" not found and \"%s\" couldn't be loaded.\n", handle, ERROR_MODEL);
+                Error(eDLL_T::ENGINE, EXIT_FAILURE, "Model with handle \"%hu\" not found and \"%s\" couldn't be loaded.\n", handle, ERROR_MODEL);
             else
-                Error(eDLL_T::ENGINE, "Model with handle \"%hu\" not found; replacing with \"%s\".\n", handle, ERROR_MODEL);
+                Error(eDLL_T::ENGINE, NO_ERROR, "Model with handle \"%hu\" not found; replacing with \"%s\".\n", handle, ERROR_MODEL);
 
             g_vBadMDLHandles.push_back(handle);
         }
@@ -143,9 +143,9 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
         if (!IsKnownBadModel(handle))
         {
             if (!pStudioHdr)
-                Error(eDLL_T::ENGINE, "Model with handle \"%hu\" not found and \"%s\" couldn't be loaded.\n", handle, ERROR_MODEL);
+                Error(eDLL_T::ENGINE, EXIT_FAILURE, "Model with handle \"%hu\" not found and \"%s\" couldn't be loaded.\n", handle, ERROR_MODEL);
             else
-                Error(eDLL_T::ENGINE, "Model with handle \"%hu\" not found; replacing with \"%s\".\n", handle, ERROR_MODEL);
+                Error(eDLL_T::ENGINE, NO_ERROR, "Model with handle \"%hu\" not found; replacing with \"%s\".\n", handle, ERROR_MODEL);
 
             g_vBadMDLHandles.push_back(handle);
         }
@@ -165,9 +165,9 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
         if (!IsKnownBadModel(handle))
         {
             if (!pStudioHdr)
-                Error(eDLL_T::ENGINE, "Attempted to load old model \"%s\" and \"%s\" couldn't be loaded.\n", szModelName, ERROR_MODEL);
+                Error(eDLL_T::ENGINE, EXIT_FAILURE, "Attempted to load old model \"%s\" and \"%s\" couldn't be loaded.\n", szModelName, ERROR_MODEL);
             else
-                Error(eDLL_T::ENGINE, "Attempted to load old model \"%s\"; replacing with \"%s\".\n", szModelName, ERROR_MODEL);
+                Error(eDLL_T::ENGINE, NO_ERROR, "Attempted to load old model \"%s\"; replacing with \"%s\".\n", szModelName, ERROR_MODEL);
 
             g_vBadMDLHandles.push_back(handle);
         }
@@ -192,10 +192,10 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
             pStudioHdr = GetErrorModel();
             if (!IsKnownBadModel(handle))
             {
-                if (pStudioHdr)
-                    Error(eDLL_T::ENGINE, "Model \"%s\" not found; replacing with \"%s\".\n", szModelName, ERROR_MODEL);
+                if (!pStudioHdr)
+                    Error(eDLL_T::ENGINE, EXIT_FAILURE, "Model \"%s\" not found and \"%s\" couldn't be loaded.\n", szModelName, ERROR_MODEL);
                 else
-                    Error(eDLL_T::ENGINE, "Model \"%s\" not found and \"%s\" couldn't be loaded.\n", szModelName, ERROR_MODEL);
+                    Error(eDLL_T::ENGINE, NO_ERROR, "Model \"%s\" not found; replacing with \"%s\".\n", szModelName, ERROR_MODEL);
 
                 g_vBadMDLHandles.push_back(handle);
             }
@@ -215,9 +215,9 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
                 if (!IsKnownBadModel(handle))
                 {
                     if (!pStudioHdr)
-                        Error(eDLL_T::ENGINE, "Model \"%s\" has bad studio data and \"%s\" couldn't be loaded.\n", szModelName, ERROR_MODEL);
+                        Error(eDLL_T::ENGINE, EXIT_FAILURE, "Model \"%s\" has bad studio data and \"%s\" couldn't be loaded.\n", szModelName, ERROR_MODEL);
                     else
-                        Error(eDLL_T::ENGINE, "Model \"%s\" has bad studio data; replacing with \"%s\".\n", szModelName, ERROR_MODEL);
+                        Error(eDLL_T::ENGINE, NO_ERROR, "Model \"%s\" has bad studio data; replacing with \"%s\".\n", szModelName, ERROR_MODEL);
 
                     g_vBadMDLHandles.push_back(handle);
                 }
@@ -231,9 +231,9 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
             if (!IsKnownBadModel(handle))
             {
                 if (!pStudioHdr)
-                    Error(eDLL_T::ENGINE, "Model \"%s\" has no studio data and \"%s\" couldn't be loaded.\n", szModelName, ERROR_MODEL);
+                    Error(eDLL_T::ENGINE, EXIT_FAILURE, "Model \"%s\" has no studio data and \"%s\" couldn't be loaded.\n", szModelName, ERROR_MODEL);
                 else
-                    Error(eDLL_T::ENGINE, "Model \"%s\" has no studio data; replacing with \"%s\".\n", szModelName, ERROR_MODEL);
+                    Error(eDLL_T::ENGINE, NO_ERROR, "Model \"%s\" has no studio data; replacing with \"%s\".\n", szModelName, ERROR_MODEL);
 
                 g_vBadMDLHandles.push_back(handle);
             }
@@ -257,7 +257,7 @@ studiohdr_t* CMDLCache::GetStudioHDR(CMDLCache* pMDLCache, MDLHandle_t handle)
     {
         pStudioHdr = GetErrorModel();
         if (!pStudioHdr)
-            Error(eDLL_T::ENGINE, "Attempted to load model with no handle and \"%s\" couldn't be loaded.\n", ERROR_MODEL);
+            Error(eDLL_T::ENGINE, EXIT_FAILURE, "Attempted to load model with no handle and \"%s\" couldn't be loaded.\n", ERROR_MODEL);
 
         return pStudioHdr;
     }
@@ -293,7 +293,7 @@ studiohwdata_t* CMDLCache::GetHardwareData(CMDLCache* cache, MDLHandle_t handle)
     {
         if (!g_pMDLFallback->m_hErrorMDL)
         {
-            Error(eDLL_T::ENGINE, "Studio hardware with handle \"%hu\" not found and \"%s\" couldn't be loaded.\n", handle, ERROR_MODEL);
+            Error(eDLL_T::ENGINE, EXIT_FAILURE, "Studio hardware with handle \"%hu\" not found and \"%s\" couldn't be loaded.\n", handle, ERROR_MODEL);
             return nullptr;
         }
         pStudioData = m_MDLDict->Find(g_pMDLFallback->m_hErrorMDL);
@@ -356,7 +356,7 @@ bool CMDLCache::IsKnownBadModel(MDLHandle_t handle)
 void MDLCache_Attach()
 {
     DetourAttach((LPVOID*)&v_CMDLCache__FindMDL, &CMDLCache::FindMDL);
-#ifdef GAMEDLL_S3 // !!! DECLARED INLINE IN < S3 !!!
+#ifdef GAMEDLL_S3 // !!! DECLARED INLINE WITH FINDMDL IN < S3 !!!
     DetourAttach((LPVOID*)&v_CMDLCache__FindCachedMDL, &CMDLCache::FindCachedMDL);
     DetourAttach((LPVOID*)&v_CMDLCache__FindUncachedMDL, &CMDLCache::FindUncachedMDL);
 #endif // GAMEDLL_S3
@@ -369,7 +369,7 @@ void MDLCache_Attach()
 void MDLCache_Detach()
 {
     DetourDetach((LPVOID*)&v_CMDLCache__FindMDL, &CMDLCache::FindMDL);
-#ifdef GAMEDLL_S3 // !!! DECLARED INLINE IN < S3 !!!
+#ifdef GAMEDLL_S3 // !!! DECLARED INLINE WITH FINDMDL IN < S3 !!!
     DetourDetach((LPVOID*)&v_CMDLCache__FindCachedMDL, &CMDLCache::FindCachedMDL);
     DetourDetach((LPVOID*)&v_CMDLCache__FindUncachedMDL, &CMDLCache::FindUncachedMDL);
 #endif // GAMEDLL_S3

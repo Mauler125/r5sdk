@@ -17,8 +17,10 @@
 #include "engine/client/client.h"
 #include "engine/client/clientstate.h"
 #include "engine/sys_getmodes.h"
+#ifndef CLIENT_DLL
 #include "game/server/ai_networkmanager.h"
 #include "game/server/fairfight_impl.h"
+#endif // !CLIENT_DLL
 #include "rtech/rtech_game.h"
 #include "rtech/rui/rui.h"
 #include "client/cdll_engine_int.h"
@@ -42,8 +44,8 @@ void Dedicated_Init()
 	// CGAME
 	//-------------------------------------------------------------------------
 	{
-		p_CVideoMode_Common__CreateGameWindow.Offset(0x2C).Patch({ 0xE9, 0x9A, 0x00, 0x00, 0x00 });       // PUS --> XOR | Prevent ShowWindow and CreateGameWindow from being initialized (STGS RPak datatype is registered here).
-		p_CVideoMode_Common__CreateWindowClass.Offset(0x0).Patch({ 0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3 }); // FUN --> RET | Prevent CreateWindowClass from being initialized (returned true to satisy condition that checks window handle).
+		p_CVideoMode_Common__CreateGameWindow.Offset(0x2C).Patch({ 0xE9, 0x9A, 0x00, 0x00, 0x00 });       // PUS --> XOR | Prevent ShowWindow and CreateGameWindow from being initialized (STGS RPak data type is registered here).
+		p_CVideoMode_Common__CreateWindowClass.Offset(0x0).Patch({ 0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3 }); // FUN --> RET | Prevent CreateWindowClass from being initialized (returned true to satisfy condition that checks window handle).
 	}
 
 	//-------------------------------------------------------------------------
@@ -53,7 +55,7 @@ void Dedicated_Init()
 		p_CHLClient_LevelShutdown.Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 }); // FUN --> RET | Return early in 'CHLClient::LevelShutdown()' during DLL shutdown.
 		p_CHLClient_HudProcessInput.Patch({ 0xC3 });                             // FUN --> RET | Return early in 'CHLClient::HudProcessInput()' to prevent infinite loop.
 
-		g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(                     // MOV --> JMP | Skip virtual call during settings layout parsing (S0/S1/S2/S3).
+		g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(                     // MOV --> JMP | Skip virtual call during settings layout parsing (S0/S1/S2/S3).
 			"\x41\x85\xC8\x0F\x84"), "xxxxx").Offset(0x40).Patch({ 0xEB, 0x23 });
 
 	}
@@ -111,7 +113,7 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	{
 		// Note: The registers here seems to contains pointers to material data and 'CMaterial' class methods when the shader system is initialized.
-		CStudioRenderContext__LoadModel.Offset(0x17D).Patch({ 0x90, 0x90, 0x90, 0x90 });             // MOV --> NOP | RAX + RCX are both nullptrs.
+		CStudioRenderContext__LoadModel.Offset(0x17D).Patch({ 0x90, 0x90, 0x90, 0x90 });             // MOV --> NOP | RAX + RCX are both nullptr.
 		CStudioRenderContext__LoadModel.Offset(0x181).Patch({ 0x90, 0x90, 0x90 });                   // MOV --> NOP | RCX is nullptr when trying to dereference.
 		CStudioRenderContext__LoadModel.Offset(0x184).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | RAX is nullptr during virtual call resulting in exception 'C0000005'.
 		CStudioRenderContext__LoadMaterials.Offset(0x28).Patch({ 0xE9, 0x80, 0x04, 0x00, 0x00 });    // FUN --> RET | 'CStudioRenderContext::LoadMaterials' is called virtually by the 'RMDL' streaming job.
@@ -203,10 +205,10 @@ void Dedicated_Init()
 	// RUNTIME: HOST_INIT
 	//-------------------------------------------------------------------------
 	{
-		gHost_Init_0.Offset(0xC2).Patch({ 0xEB, 0x34 });                    // CAL --> NOP | Disable 'vpk/client_common.bsp' loading.
-		gHost_Init_0.Offset(0x182).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> JMP | Disable UI material asset initialization.
-		gHost_Init_0.Offset(0x859).Patch({ 0xE9, 0x19, 0x04, 0x00, 0x00 }); // LEA --> RET | Disable 'client.dll' library initialization.
-		gHost_Init_0.Offset(0xC77).Patch({ 0xE8, 0x44, 0xCF, 0xFF, 0xFF }); // CAL --> CAL | Disable user config loading and call entitlements.rson initialization instead.
+		p_Host_Init.Offset(0xC2).Patch({ 0xEB, 0x34 });                    // CAL --> NOP | Disable 'vpk/client_common.bsp' loading.
+		p_Host_Init.Offset(0x182).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> JMP | Disable UI material asset initialization.
+		p_Host_Init.Offset(0x859).Patch({ 0xE9, 0x19, 0x04, 0x00, 0x00 }); // LEA --> RET | Disable 'client.dll' library initialization.
+		p_Host_Init.Offset(0xC77).Patch({ 0xE8, 0x44, 0xCF, 0xFF, 0xFF }); // CAL --> CAL | Disable user config loading and call entitlements.rson initialization instead.
 
 		gHost_Init_1.Offset(0x564).Patch({ 0xEB });                         // JNZ --> JMP | Skip chat room and discord presence thread creation [!TODO: set global boolean instead].
 		gHost_Init_1.Offset(0x609).Patch({ 0xEB, 0x2B });                   // JE  --> JMP | Skip client.dll 'Init_PostVideo()' validation code.
@@ -338,7 +340,7 @@ void Dedicated_Init()
 #endif
 	}
 
-	// This mandatory pak file should only exist on the client.
+	// This mandatory pak file should only exist on the server.
 	if (FileExists("vpk\\server_mp_common.bsp.pak000_000.vpk"))
 	{
 		// Patch 'client' pak file string constants to 'server' if this is a standalone dedicated server.
@@ -346,8 +348,8 @@ void Dedicated_Init()
 		g_pClientBSP.PatchString("vpk/server_%s.bsp");
 		g_pClientCommonBSP.PatchString("vpk/server_mp_common.bsp");
 		g_pClientMPLobby.PatchString("vpk/server_mp_lobby");
-		g_pClientMP.PatchString("vpk/server_mp_");
-		g_pClientSP.PatchString("vpk/server_sp_");
+		g_pClientMP.PatchString("vpk/server_mp");
+		g_pClientSP.PatchString("vpk/server_sp");
 	}
 }
 #endif // DEDICATED
@@ -356,8 +358,9 @@ void RuntimePtc_Init() /* .TEXT */
 {
 #ifndef DEDICATED
 	p_WASAPI_GetAudioDevice.Offset(0x410).FindPatternSelf("FF 15 ?? ?? 01 00", CMemory::Direction::DOWN, 100).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0xEB }); // CAL --> NOP | Disable debugger check when miles searches for audio device to allow attaching the debugger to the game upon launch.
+#ifndef CLIENT_DLL
 	FairFight_Init.Offset(0x0).FindPatternSelf("0F 87", CMemory::Direction::DOWN, 200).Patch({ 0x0F, 0x85 });                      // JA  --> JNZ | Prevent 'FairFight' anti-cheat from initializing on the server by comparing RAX against 0x0 instead. Init will crash since the plugins aren't shipped.
-	SCR_BeginLoadingPlaque.Offset(0x1AD).FindPatternSelf("75 27", CMemory::Direction::DOWN).Patch({ 0xEB, 0x27 });                 // JNE --> JMP | Prevent connect command from crashing by invalid call to UI function.
+#endif // !CLIENT_DLL
 	p_SQVM_CompileError.Offset(0x0).FindPatternSelf("41 B0 01", CMemory::Direction::DOWN, 400).Patch({ 0x41, 0xB0, 0x00 });        // MOV --> MOV | Set script error level to 0 (not severe): 'mov r8b, 0'.
 	p_SQVM_CompileError.Offset(0xE0).FindPatternSelf("E8", CMemory::Direction::DOWN, 200).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | TODO: causes errors on client script error. Research required (same function as soft error but that one doesn't crash).
 #else
@@ -365,10 +368,39 @@ void RuntimePtc_Init() /* .TEXT */
 #endif // !DEDICATED
 
 #if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-	p_CAI_NetworkManager__ShouldRebuild.Offset(0xA0).FindPatternSelf("FF ?? ?? ?? 00 00", CMemory::Direction::DOWN, 200).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | Virtual call to restart when building AIN (which clears the AIN memory). Remove this once writing to file works.
-	Detour_LevelInit.Offset(0x100).FindPatternSelf("74", CMemory::Direction::DOWN, 600).Patch({ 0xEB });                                                                // JE  --> JMP | Do while loop setting fields to -1 in navmesh is writing out of bounds (!TODO).
+#ifndef CLIENT_DLL
+	//p_CAI_NetworkManager__ShouldRebuild.Offset(0xA0).FindPatternSelf("FF ?? ?? ?? 00 00", CMemory::Direction::DOWN, 200).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }); // CAL --> NOP | Virtual call to restart when building AIN (which clears the AIN memory). Remove this once writing to file works.
+	//Detour_LevelInit.Offset(0x100).FindPatternSelf("74", CMemory::Direction::DOWN, 600).Patch({ 0xEB });                                                                // JE  --> JMP | Do while loop setting fields to -1 in navmesh is writing out of bounds (!TODO).
+#endif // !CLIENT_DLL
 #endif
 #ifndef CLIENT_DLL
 	Server_S2C_CONNECT_1.Offset(0x7).Patch({ 0xEB }); // JZ --> JMP | Prevent entitlement check to kick player from server on S2C_CONNECT Packet if it does not match the servers one.
 #endif // !CLIENT_DLL
+
+	vector<uint8_t> starPakOpenFile = {
+		0x4D, 0x31, 0xC0,                                 // xor, r8, r8
+		0x48, 0x8D, 0x8C, 0x24, 0x90, 0x00, 0x00, 0x00,   // lea  rcx, [rsp+378h+90h] FileName
+
+		// call RTech::OpenFile [RIP+RVA]
+    #if defined (GAMEDLL_S0)
+		0xE8, 0x87, 0x96, 0xFF, 0xFF,
+    #elif defined (GAMEDLL_S1)
+		0xE8, 0x27, 0x95, 0xFF, 0xFF,
+    #elif defined (GAMEDLL_S2)
+		0xE8, 0x97, 0x95, 0xFF, 0xFF,
+    #elif defined (GAMEDLL_S3)
+		0xE8, 0x77, 0x8F, 0xFF, 0xFF,
+    #endif
+
+		0x8B, 0xF8,                                       // mov  edi, eax
+
+		// jmp  [RIP+RVA]
+	#if defined (GAMEDLL_S0) || defined(GAMEDLL_S1)
+		0xE9, 0xDC, 0x00, 0x00, 0x00
+    #elif defined (GAMEDLL_S2) || defined(GAMEDLL_S3)
+		0xE9, 0xDA, 0x00, 0x00, 0x00
+	#endif
+	};
+
+	p_CPakFile_LoadPak_OpenFileOffset.Patch(starPakOpenFile);
 }

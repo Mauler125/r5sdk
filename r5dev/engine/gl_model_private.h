@@ -10,12 +10,12 @@
 #include "mathlib/vector.h"
 #include "common/qlimits.h"
 #include "datacache/imdlcache.h"
-#include "public/include/model_types.h"
+#include "public/model_types.h"
 
 #ifndef DEDICATED
 #include "game/client/enginesprite.h"
 #endif // !DEDICATED
-typedef int FileNameHandle_t; // 4 bytes in r5, void* originally.
+typedef int ModelFileNameHandle_t; // 4 bytes in r5, void* originally.
 
 struct brushdata_t // !! UNCONFIRMED !!
 {
@@ -45,7 +45,7 @@ struct spritedata_t // !! UNCONFIRMED !!
 
 struct model_t // !! CONFIRMED !!
 {
-	FileNameHandle_t	fnHandle;
+	ModelFileNameHandle_t	fnHandle;
 	char				szPathName[MAX_OSPATH];
 
 	int					nLoadFlags;		// mark loaded/not loaded

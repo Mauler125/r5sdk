@@ -31,13 +31,15 @@ CTextLogger::CTextLogger()
 	, m_bHandleMouseInputs(true)
 	, m_bWithinLoggingRect(false)
 	, m_bShowWhiteSpaces(false)
-	, m_flTextStart(0.0f)
-	, m_flLineSpacing(1.0f)
-	, m_flLastClick(-1.0)
+	, m_bLinesOffsetForward(false)
+	, m_nLinesOffsetAmount(0)
 	, m_nTabSize(4)
 	, m_nLeftMargin(0)
 	, m_nColorRangeMin(0)
 	, m_nColorRangeMax(0)
+	, m_flTextStart(0.0f)
+	, m_flLineSpacing(1.0f)
+	, m_flLastClick(-1.0)
 	, m_nStartTime(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count())
 	, m_SelectionMode(SelectionMode::Normal)
 {
@@ -257,7 +259,7 @@ CTextLogger::Coordinates CTextLogger::ScreenPosToCoordinates(const ImVec2& aPosi
 		int columnIndex = 0;
 		float columnX = 0.0f;
 
-		while ((size_t)columnIndex < line.size())
+		while (columnIndex < static_cast<int>(line.size()))
 		{
 			float columnWidth = 0.0f;
 
@@ -375,7 +377,7 @@ CTextLogger::Coordinates CTextLogger::FindNextWord(const Coordinates & aFrom) co
 
 	while (!isword || skip)
 	{
-		if (at.m_nLine >= m_Lines.size())
+		if (at.m_nLine >= static_cast<int>(m_Lines.size()))
 		{
 			int l = std::max(0, static_cast<int>(m_Lines.size() - 1));
 			return Coordinates(l, GetLineMaxColumn(l));
@@ -408,7 +410,7 @@ CTextLogger::Coordinates CTextLogger::FindNextWord(const Coordinates & aFrom) co
 
 int CTextLogger::GetCharacterIndex(const Coordinates& aCoordinates) const
 {
-	if (aCoordinates.m_nLine >= m_Lines.size())
+	if (aCoordinates.m_nLine >= static_cast<int>(m_Lines.size()))
 		return -1;
 
 	const Line& line = m_Lines[aCoordinates.m_nLine];
@@ -494,33 +496,21 @@ bool CTextLogger::IsOnWordBoundary(const Coordinates & aAt) const
 	return isspace(line[cindex].m_Char) != isspace(line[cindex - 1].m_Char);
 }
 
-void CTextLogger::RemoveLine(int aStart, int aEnd, bool aInternal)
+void CTextLogger::RemoveLine(int aStart, int aEnd)
 {
-	if (!aInternal)
-		m_Mutex.lock();
-
 	assert(aEnd >= aStart);
 	assert(m_Lines.size() > (size_t)(aEnd - aStart));
 
 	m_Lines.erase(m_Lines.begin() + aStart, m_Lines.begin() + aEnd);
 	assert(!m_Lines.empty());
-
-	if (!aInternal)
-		m_Mutex.unlock();
 }
 
-void CTextLogger::RemoveLine(int aIndex, bool aInternal)
+void CTextLogger::RemoveLine(int aIndex)
 {
-	if (!aInternal)
-		m_Mutex.lock();
-
 	assert(m_Lines.size() > 1);
 
 	m_Lines.erase(m_Lines.begin() + aIndex);
 	assert(!m_Lines.empty());
-
-	if (!aInternal)
-		m_Mutex.unlock();
 }
 
 CTextLogger::Line& CTextLogger::InsertLine(int aIndex)
@@ -680,8 +670,37 @@ void CTextLogger::HandleMouseInputs(bool bHoveredScrollbar, bool bActiveScrollba
 			{
 				io.WantCaptureMouse = true;
 				m_State.m_CursorPosition = m_InteractiveEnd = ScreenPosToCoordinates(ImGui::GetMousePos());
+
 				SetSelection(m_InteractiveStart, m_InteractiveEnd, m_SelectionMode);
 				EnsureCursorVisible();
+			}
+			// Move start position of the selection when entries have been erased/inserted
+			if (m_nLinesOffsetAmount && ImGui::IsMouseDown(0))
+			{
+				Coordinates newStart;
+				newStart = m_InteractiveStart;
+
+				if (m_bLinesOffsetForward)
+				{
+					newStart.m_nLine += m_nLinesOffsetAmount;
+					if (newStart.m_nLine >= static_cast<int>(m_Lines.size()))
+					{
+						newStart.m_nLine = static_cast<int>(m_Lines.size()) - 1;
+						newStart.m_nColumn = GetLineMaxColumn(newStart.m_nLine);
+					}
+				}
+				else
+				{
+					newStart.m_nLine -= m_nLinesOffsetAmount;
+					if (newStart.m_nLine < 0)
+					{
+						newStart.m_nLine = 0;
+						newStart.m_nColumn = 0;
+					}
+				}
+
+				m_nLinesOffsetAmount = 0;
+				m_InteractiveStart = newStart;
 			}
 		}
 	}
@@ -689,8 +708,6 @@ void CTextLogger::HandleMouseInputs(bool bHoveredScrollbar, bool bActiveScrollba
 
 void CTextLogger::Render()
 {
-	m_Mutex.lock();
-
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
 
 	ImGuiWindow* pWindow = ImGui::GetCurrentWindow();
@@ -880,7 +897,6 @@ void CTextLogger::Render()
 		ImGui::PopAllowKeyboardFocus();
 
 	ImGui::PopStyleVar();
-	m_Mutex.unlock();
 }
 
 void CTextLogger::Copy(bool aCopyAll)
@@ -1047,8 +1063,6 @@ void CTextLogger::SetTabSize(int aValue)
 
 void CTextLogger::InsertText(const ConLog_t & aValue)
 {
-	m_Mutex.lock();
-
 	if (!aValue.m_svConLog.empty())
 	{
 		Coordinates pos = GetActualLastLineCoordinates();
@@ -1058,8 +1072,6 @@ void CTextLogger::InsertText(const ConLog_t & aValue)
 
 		totalLines += InsertTextAt(pos, aValue.m_svConLog.c_str(), aValue.m_imColor);
 	}
-
-	m_Mutex.unlock();
 }
 
 void CTextLogger::MoveUp(int aAmount, bool aSelect)
@@ -1193,7 +1205,7 @@ void CTextLogger::MoveRight(int aAmount, bool aSelect, bool aWordMode)
 {
 	const Coordinates oldPos = m_State.m_CursorPosition;
 
-	if (m_Lines.empty() || oldPos.m_nLine >= m_Lines.size())
+	if (m_Lines.empty() || oldPos.m_nLine >= static_cast<int>(m_Lines.size()))
 		return;
 
 	int cindex = GetCharacterIndex(m_State.m_CursorPosition);
@@ -1202,9 +1214,9 @@ void CTextLogger::MoveRight(int aAmount, bool aSelect, bool aWordMode)
 		int lindex = m_State.m_CursorPosition.m_nLine;
 		const Line& line = m_Lines[lindex];
 
-		if (cindex >= line.size()) // !CAST: SIZE_T
+		if (cindex >= static_cast<int>(line.size()))
 		{
-			if (m_State.m_CursorPosition.m_nLine < m_Lines.size() - 1)
+			if (m_State.m_CursorPosition.m_nLine < static_cast<int>(m_Lines.size()) - 1)
 			{
 				m_State.m_CursorPosition.m_nLine = std::max(0, std::min(static_cast<int>(m_Lines.size()) - 1, m_State.m_CursorPosition.m_nLine + 1));
 				m_State.m_CursorPosition.m_nColumn = 0;
@@ -1347,16 +1359,20 @@ void CTextLogger::MoveSelection(int aLines, bool aForward)
 	if (aLines < 1)
 		return;
 
+	m_bLinesOffsetForward = aForward;
+	m_nLinesOffsetAmount = aLines;
+
 	if (HasSelection())
 	{
 		Coordinates newStart;
 		Coordinates newEnd;
 
+		newStart = m_State.m_SelectionStart;
+		newEnd = m_State.m_SelectionEnd;
+
 		if (aForward)
 		{
-			newStart = m_State.m_SelectionStart;
 			newStart.m_nLine += aLines;
-			newEnd = m_State.m_SelectionEnd;
 			newEnd.m_nLine += aLines;
 
 			if (newStart.m_nLine >= static_cast<int>(m_Lines.size()))
@@ -1367,14 +1383,12 @@ void CTextLogger::MoveSelection(int aLines, bool aForward)
 			if (newEnd.m_nLine >= static_cast<int>(m_Lines.size()))
 			{
 				newEnd.m_nLine = static_cast<int>(m_Lines.size()) - 1;
-				newEnd.m_nColumn = GetLineMaxColumn(newStart.m_nLine);
+				newEnd.m_nColumn = GetLineMaxColumn(newEnd.m_nLine);
 			}
 		}
 		else
 		{
-			newStart = m_State.m_SelectionStart;
 			newStart.m_nLine -= aLines;
-			newEnd = m_State.m_SelectionEnd;
 			newEnd.m_nLine -= aLines;
 
 			if (newStart.m_nLine < 0)

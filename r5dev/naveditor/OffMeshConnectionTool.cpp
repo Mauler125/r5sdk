@@ -113,7 +113,6 @@ void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, bool
 			m_hitPosSet = false;
 		}
 	}
-	
 }
 
 void OffMeshConnectionTool::handleToggle()

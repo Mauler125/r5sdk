@@ -13,7 +13,7 @@
 //-----------------------------------------------------------------------------
 void CInputSystem::EnableInput(bool bEnabled)
 {
-	static int index = 10;
+	const static int index = 10;
 	CallVFunc<void>(index, this, bEnabled);
 }
 
@@ -22,7 +22,7 @@ void CInputSystem::EnableInput(bool bEnabled)
 //-----------------------------------------------------------------------------
 void CInputSystem::EnableMessagePump(bool bEnabled)
 {
-	static int index = 11;
+	const static int index = 11;
 	CallVFunc<void>(index, this, bEnabled);
 }
 
@@ -31,7 +31,7 @@ void CInputSystem::EnableMessagePump(bool bEnabled)
 //-----------------------------------------------------------------------------
 bool CInputSystem::IsButtonDown(ButtonCode_t Button)
 {
-	static int index = 13;
+	const static int index = 13;
 	return CallVFunc<bool>(index, this, Button);
 }
 

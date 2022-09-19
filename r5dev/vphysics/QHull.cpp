@@ -23,7 +23,7 @@ int HQHull_PrintFunc(const char* fmt, ...)
 
 		vsnprintf(buf, sizeof(buf), fmt, args);
 
-		buf[sizeof(buf) - 1] = 0;
+		buf[sizeof(buf) - 1] = '\0';
 		va_end(args);
 	}/////////////////////////////
 

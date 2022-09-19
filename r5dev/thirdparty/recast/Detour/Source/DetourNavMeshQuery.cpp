@@ -305,7 +305,7 @@ dtStatus dtNavMeshQuery::findRandomPoint(const dtQueryFilter* filter, float (*fr
 	dtStatus status = getPolyHeight(polyRef, pt, &h);
 	if (dtStatusFailed(status))
 		return status;
-	pt[1] = h;
+	pt[2] = h;
 	
 	dtVcopy(randomPt, pt);
 	*randomRef = polyRef;
@@ -1219,7 +1219,7 @@ dtStatus dtNavMeshQuery::initSlicedFindPath(dtPolyRef startRef, dtPolyRef endRef
 		dtVcopy(m_query.startPos, startPos);
 	if (endPos)
 		dtVcopy(m_query.endPos, endPos);
-	m_query.filter = filter;
+	m_queryFilter = filter;
 	m_query.options = options;
 	m_query.raycastLimitSqr = FLT_MAX;
 	
@@ -1363,7 +1363,7 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 			const dtPoly* neighbourPoly = 0;
 			m_nav->getTileAndPolyByRefUnsafe(neighbourRef, &neighbourTile, &neighbourPoly);			
 			
-			if (!m_query.filter->passFilter(neighbourRef, neighbourTile, neighbourPoly))
+			if (!m_queryFilter->passFilter(neighbourRef, neighbourTile, neighbourPoly))
 				continue;
 			
 			// get the neighbor node
@@ -1395,7 +1395,7 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 			rayHit.pathCost = rayHit.t = 0;
 			if (tryLOS)
 			{
-				raycast(parentRef, parentNode->pos, neighbourNode->pos, m_query.filter, DT_RAYCAST_USE_COSTS, &rayHit, grandpaRef);
+				raycast(parentRef, parentNode->pos, neighbourNode->pos, m_queryFilter, DT_RAYCAST_USE_COSTS, &rayHit, grandpaRef);
 				foundShortCut = rayHit.t >= 1.0f;
 			}
 
@@ -1408,7 +1408,7 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 			else
 			{
 				// No shortcut found.
-				const float curCost = m_query.filter->getCost(bestNode->pos, neighbourNode->pos,
+				const float curCost = m_queryFilter->getCost(bestNode->pos, neighbourNode->pos,
 															  parentRef, parentTile, parentPoly,
 															bestRef, bestTile, bestPoly,
 															neighbourRef, neighbourTile, neighbourPoly);
@@ -1418,7 +1418,7 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 			// Special case for last node.
 			if (neighbourRef == m_query.endRef)
 			{
-				const float endCost = m_query.filter->getCost(neighbourNode->pos, m_query.endPos,
+				const float endCost = m_queryFilter->getCost(neighbourNode->pos, m_query.endPos,
 															  bestRef, bestTile, bestPoly,
 															  neighbourRef, neighbourTile, neighbourPoly,
 															  0, 0, 0);
@@ -1540,7 +1540,7 @@ dtStatus dtNavMeshQuery::finalizeSlicedFindPath(dtPolyRef* path, int* pathCount,
 			{
 				float t, normal[3];
 				int m;
-				status = raycast(node->id, node->pos, next->pos, m_query.filter, &t, normal, path+n, &m, maxPath-n);
+				status = raycast(node->id, node->pos, next->pos, m_queryFilter, &t, normal, path+n, &m, maxPath-n);
 				n += m;
 				// raycast ends on poly boundary and the path might include the next poly boundary.
 				if (path[n-1] == next->id)
@@ -1641,7 +1641,7 @@ dtStatus dtNavMeshQuery::finalizeSlicedFindPathPartial(const dtPolyRef* existing
 			{
 				float t, normal[3];
 				int m;
-				status = raycast(node->id, node->pos, next->pos, m_query.filter, &t, normal, path+n, &m, maxPath-n);
+				status = raycast(node->id, node->pos, next->pos, m_queryFilter, &t, normal, path+n, &m, maxPath-n);
 				n += m;
 				// raycast ends on poly boundary and the path might include the next poly boundary.
 				if (path[n-1] == next->id)
@@ -2654,8 +2654,8 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 			const float* vb = &verts[b*3];
 			const float dx = vb[0] - va[0];
 			const float dy = vb[1] - va[1];
-			hit->hitNormal[0] = dy;
-			hit->hitNormal[1] = -dx;
+			hit->hitNormal[0] = -dy;
+			hit->hitNormal[1] = dx;
 			hit->hitNormal[2] = 0;
 			dtVnormalize(hit->hitNormal);
 			
@@ -2700,7 +2700,7 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 /// y-value will effect the costs.
 ///
 /// Intersection tests occur in 2D. All polygons and the search circle are 
-/// projected onto the xz-plane. So the y-value of the center point does not 
+/// projected onto the xy-plane. So the z-value of the center point does not 
 /// effect intersection tests.
 ///
 /// If the result arrays are to small to hold the entire result set, they will be 
@@ -2875,7 +2875,7 @@ dtStatus dtNavMeshQuery::findPolysAroundCircle(dtPolyRef startRef, const float* 
 /// calculations.
 /// 
 /// Intersection tests occur in 2D. All polygons are projected onto the 
-/// xz-plane. So the y-values of the vertices do not effect intersection tests.
+/// xy-plane. So the z-values of the vertices do not effect intersection tests.
 /// 
 /// If the result arrays are is too small to hold the entire result set, they will 
 /// be filled to capacity.
@@ -3072,7 +3072,7 @@ dtStatus dtNavMeshQuery::getPathFromDijkstraSearch(dtPolyRef endRef, dtPolyRef* 
 /// the costs.
 /// 
 /// Intersection tests occur in 2D. All polygons and the search circle are 
-/// projected onto the xz-plane. So the y-value of the center point does not 
+/// projected onto the xy-plane. So the z-value of the center point does not 
 /// effect intersection tests.
 /// 
 /// If the result arrays are is too small to hold the entire result set, they will 

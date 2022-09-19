@@ -17,7 +17,7 @@ struct NetGameServer_t
 	string m_svDescription;
 	bool m_bHidden;
 
-	string m_svMapName = "mp_lobby";
+	string m_svHostMap = "mp_lobby";
 	string m_svPlaylist = "dev_default";
 
 	string m_svIpAddress;
@@ -32,7 +32,7 @@ struct NetGameServer_t
 	int64_t m_nTimeStamp = -1;
 
 	string m_svPublicRef;
-	string m_svCachedID;
+	string m_svCachedId;
 
 	//vector<NetGameMod_t> m_vMods;
 };

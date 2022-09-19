@@ -8,7 +8,7 @@
 #define ENGINESPRITE_H
 #include "public/avi/iavi.h"
 #include "public/avi/ibik.h"
-#include "public/include/const.h"
+#include "public/const.h"
 #include "game/client/hud.h"
 
 typedef void* IMaterial; // HACK

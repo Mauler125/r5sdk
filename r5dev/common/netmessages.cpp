@@ -9,9 +9,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
+#include "engine/net.h"
 #include "common/netmessages.h"
 
-bool SVC_Print::Process()
+bool SVC_Print::ProcessImpl()
 {
 	if (this->m_szText)
 	{
@@ -21,16 +22,17 @@ bool SVC_Print::Process()
 	return true; // Original just return true also.
 }
 
-bool SVC_UserMessage::Process()
+bool SVC_UserMessage::ProcessImpl()
 {
 	bf_read buf = m_DataIn;
-	UserMessages type = (UserMessages)buf.ReadByte();
+	int type = buf.ReadByte();
 
-	if (type == UserMessages::TextMsg)
+	if (type == HUD_PRINTCONSOLE ||
+		type == HUD_PRINTCENTER)
 	{
-		char text[256];
+		char text[MAX_USER_MSG_DATA];
 		buf.ReadString(text, sizeof(text));
-		if (strnlen_s(text, sizeof(text)) > 0)
+		if (strnlen_s(text, sizeof(text)) >= NET_MIN_MESSAGE)
 		{
 			DevMsg(eDLL_T::SERVER, text);
 		}
@@ -41,15 +43,15 @@ bool SVC_UserMessage::Process()
 
 void CNetMessages_Attach()
 {
-	auto SVCPrint = &SVC_Print::Process;
-	auto SVCUserMessage = &SVC_UserMessage::Process;
-	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_Print_VTable,       (LPVOID&)SVCPrint,       3, (LPVOID*)&SVC_Print_Process);
-	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_UserMessage_VTable, (LPVOID&)SVCUserMessage, 3, (LPVOID*)&SVC_UserMessage_Process);
+	auto SVCPrint = &SVC_Print::ProcessImpl;
+	auto SVCUserMessage = &SVC_UserMessage::ProcessImpl;
+	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_Print_VFTable,       (LPVOID&)SVCPrint,       3, (LPVOID*)&SVC_Print_Process);
+	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_UserMessage_VFTable, (LPVOID&)SVCUserMessage, 3, (LPVOID*)&SVC_UserMessage_Process);
 }
 
 void CNetMessages_Detach()
 {
 	void* hkRestore = nullptr;
-	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_Print_VTable,       (LPVOID)SVC_Print_Process,       3, (LPVOID*)&hkRestore);
-	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_UserMessage_VTable, (LPVOID)SVC_UserMessage_Process, 3, (LPVOID*)&hkRestore);
+	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_Print_VFTable,       (LPVOID)SVC_Print_Process,       3, (LPVOID*)&hkRestore);
+	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_UserMessage_VFTable, (LPVOID)SVC_UserMessage_Process, 3, (LPVOID*)&hkRestore);
 }

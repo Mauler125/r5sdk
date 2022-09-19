@@ -6,11 +6,7 @@
 
 #include "core/stdafx.h"
 #include "client/vengineclient_impl.h"
-
-//#ifdef GAMEDLL_S3
-bool* m_bRestrictServerCommands = nullptr;
-bool* m_bRestrictClientCommands = nullptr;
-//#endif
+#include "engine/client/clientstate.h"
 
 //---------------------------------------------------------------------------------
 // Purpose: define if commands from the server should be restricted or not.
@@ -19,7 +15,7 @@ bool* m_bRestrictClientCommands = nullptr;
 //---------------------------------------------------------------------------------
 void CEngineClient::SetRestrictServerCommands(bool bRestricted)
 {
-	*m_bRestrictServerCommands = bRestricted;
+	g_pClientState->m_bRestrictServerCommands = bRestricted;
 }
 
 //---------------------------------------------------------------------------------
@@ -29,7 +25,7 @@ void CEngineClient::SetRestrictServerCommands(bool bRestricted)
 //---------------------------------------------------------------------------------
 bool CEngineClient::GetRestrictServerCommands() const
 {
-	return *m_bRestrictServerCommands;
+	return g_pClientState->m_bRestrictServerCommands;
 }
 
 //---------------------------------------------------------------------------------
@@ -39,7 +35,7 @@ bool CEngineClient::GetRestrictServerCommands() const
 //---------------------------------------------------------------------------------
 void CEngineClient::SetRestrictClientCommands(bool bRestricted)
 {
-	*m_bRestrictClientCommands = bRestricted;
+	g_pClientState->m_bRestrictClientCommands = bRestricted;
 }
 
 //---------------------------------------------------------------------------------
@@ -49,15 +45,20 @@ void CEngineClient::SetRestrictClientCommands(bool bRestricted)
 //---------------------------------------------------------------------------------
 bool CEngineClient::GetRestrictClientCommands() const
 {
-	return *m_bRestrictClientCommands;
+	return g_pClientState->m_bRestrictClientCommands;
 }
 
 //---------------------------------------------------------------------------------
 // Purpose: get local player
 // Input  :
-// Output : void* (C_Player)
+// Output : int
 //---------------------------------------------------------------------------------
-void* CEngineClient::GetLocalPlayer() const
+int CEngineClient::GetLocalPlayer()
 {
-	return CEngineClient_GetLocalPlayer();
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+	const static int index = 35;
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+	const static int index = 36;
+#endif
+	return CallVFunc<int>(index, this);
 }

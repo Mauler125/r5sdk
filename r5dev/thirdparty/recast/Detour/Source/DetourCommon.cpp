@@ -290,7 +290,7 @@ inline bool overlapRange(const float amin, const float amax,
 
 /// @par
 ///
-/// All vertices are projected onto the xz-plane, so the y-values are ignored.
+/// All vertices are projected onto the xy-plane, so the z-values are ignored.
 bool dtOverlapPolyPoly2D(const float* polya, const int npolya,
 						 const float* polyb, const int npolyb)
 {
@@ -300,7 +300,7 @@ bool dtOverlapPolyPoly2D(const float* polya, const int npolya,
 	{
 		const float* va = &polya[j*3];
 		const float* vb = &polya[i*3];
-		const float n[3] = { vb[2]-va[2], 0, -(vb[0]-va[0]) };
+		const float n[3] = { vb[1]-va[1], 0, -(vb[0]-va[0]) };
 		float amin,amax,bmin,bmax;
 		projectPoly(n, polya, npolya, amin,amax);
 		projectPoly(n, polyb, npolyb, bmin,bmax);
@@ -314,7 +314,7 @@ bool dtOverlapPolyPoly2D(const float* polya, const int npolya,
 	{
 		const float* va = &polyb[j*3];
 		const float* vb = &polyb[i*3];
-		const float n[3] = { vb[2]-va[2], 0, -(vb[0]-va[0]) };
+		const float n[3] = { vb[1]-va[1], 0, -(vb[0]-va[0]) };
 		float amin,amax,bmin,bmax;
 		projectPoly(n, polya, npolya, amin,amax);
 		projectPoly(n, polyb, npolyb, bmin,bmax);
@@ -385,3 +385,16 @@ bool dtIntersectSegSeg2D(const float* ap, const float* aq,
 	return true;
 }
 
+float distancePtLine2d(const float* pt, const float* p, const float* q)
+{
+	float pqx = q[0] - p[0];
+	float pqy = q[1] - p[1];
+	float dx = pt[0] - p[0];
+	float dy = pt[1] - p[1];
+	float d = pqx * pqx + pqy * pqy;
+	float t = pqx * dx + pqy * dy;
+	if (d != 0) t /= d;
+	dx = p[0] + t * pqx - pt[0];
+	dy = p[1] + t * pqy - pt[1];
+	return dx * dx + dy * dy;
+}

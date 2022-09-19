@@ -5,9 +5,13 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
+#include "tier0/frametask.h"
+#include "tier0/commandline.h"
 #include "tier1/cvar.h"
 #include "vpc/interfaces.h"
+#include "appframework/engine_launcher_api.h"
 #include "launcher/IApplication.h"
+#include "pluginsystem/pluginsystem.h"
 #include "ebisusdk/EbisuSDK.h"
 #include "engine/cmodel_bsp.h"
 #include "engine/sys_engine.h"
@@ -33,7 +37,7 @@ int CModAppSystemGroup::Main(CModAppSystemGroup* pModAppSystemGroup)
 	return CModAppSystemGroup_Main(pModAppSystemGroup);
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 
-	g_pEngine->SetQuitting(EngineDllQuitting_t::QUIT_NOTQUITTING);
+	g_pEngine->SetQuitting(IEngine::QUIT_NOTQUITTING);
 	if (g_pEngine->Load(pModAppSystemGroup->IsServerOnly(), g_pEngineParms->baseDirectory))
 	{
 		if (CEngineAPI_MainLoop())
@@ -58,14 +62,30 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 #endif // DEDICATED
 	g_pConCommand->Init();
 	g_pFactory->GetFactoriesFromRegister();
+	g_pFactory->AddFactory(FACTORY_INTERFACE_VERSION, g_pFactory);
+	g_pFactory->AddFactory(INTERFACEVERSION_PLUGINSYSTEM, g_pPluginSystem);
+	
+	// DEBUG CODE FOR PLUGINS
+	//g_pPluginSystem->PluginSystem_Init();
+	//for (auto& it : g_pPluginSystem->GetPluginInstances())
+	//{
+	//	if (g_pPluginSystem->LoadPluginInstance(it))
+	//		spdlog::info("Load PLUGIN SUCCESS\n");
+	//}
 
 #ifndef DEDICATED
+	g_pClientEntityList = g_pFactory->GetFactoryPtr("VClientEntityList003", false).RCast<IClientEntityList*>();
+
 	for (auto& map : g_pCVar->DumpToMap())
 	{
 		g_pConsole->m_vsvCommandBases.push_back(
-			CSuggest(map.first.c_str(), map.second->GetFlags()));
+			CSuggest(map.first, map.second->GetFlags()));
 	}
 #endif // !DEDICATED
+	if (CommandLine()->CheckParm("-devsdk"))
+	{
+		cv->EnableDevCvars();
+	}
 	if (pModAppSystemGroup->IsServerOnly())
 	{
 		memset(gHLClient, '\0', sizeof(void*));
@@ -74,7 +94,9 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 		g_pHLClient = nullptr;
 	}
 
+	g_FrameTasks.push_back(std::move(g_TaskScheduler));
 	g_bAppSystemInit = true;
+
 	return CModAppSystemGroup_Create(pModAppSystemGroup);
 }
 

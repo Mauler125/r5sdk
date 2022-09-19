@@ -55,9 +55,9 @@ namespace IO
 		// Scan the stream for a given signature
 		int64_t SignatureScan(const String& Signature, uint64_t Offset, uint64_t Count);
 
-		// Scan the process for a given signature (All occurences)
+		// Scan the process for a given signature (All occurrences)
 		List<int64_t> SignatureScanAll(const String& Signature);
-		// Scan the process for a given signature (All occurences)
+		// Scan the process for a given signature (All occurrences)
 		List<int64_t> SignatureScanAll(const String& Signature, uint64_t Offset, uint64_t Count);
 
 		// Get the underlying stream

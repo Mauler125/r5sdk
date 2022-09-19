@@ -39,7 +39,7 @@ public:
 class CNetworkStringTableContainer : public INetworkStringTable
 {
 public:
-	bool        m_bAllowCreation;  // creat guard Guard
+	bool        m_bAllowCreation;  // create guard
 	int         m_nTickCount;      // current tick
 	bool        m_bLocked;         // currently locked?
 	bool        m_bEnableRollback; // enables rollback feature

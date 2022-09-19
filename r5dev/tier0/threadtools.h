@@ -52,10 +52,10 @@ inline void ThreadPause()
 #error "implement me"
 #endif
 }
-LONG ThreadInterlockedCompareExchange64(LONG volatile* pDest, int64 value, int64 comperand);
-bool ThreadInterlockedAssignIf(LONG volatile* p, int32 value, int32 comperand);
-int64 ThreadInterlockedCompareExchange64(int64 volatile* pDest, int64 value, int64 comperand);
-bool ThreadInterlockedAssignIf64(int64 volatile* pDest, int64 value, int64 comperand);
+
+bool ThreadInMainThread();
+bool ThreadInRenderThread();
+ThreadId_t ThreadGetCurrentId();
 
 //-----------------------------------------------------------------------------
 //
@@ -63,6 +63,11 @@ bool ThreadInterlockedAssignIf64(int64 volatile* pDest, int64 value, int64 compe
 // safe operations. These are especially relevant in a multi-core setting.
 //
 //-----------------------------------------------------------------------------
+
+LONG ThreadInterlockedCompareExchange64(LONG volatile* pDest, int64 value, int64 comperand);
+bool ThreadInterlockedAssignIf(LONG volatile* p, int32 value, int32 comperand);
+int64 ThreadInterlockedCompareExchange64(int64 volatile* pDest, int64 value, int64 comperand);
+bool ThreadInterlockedAssignIf64(int64 volatile* pDest, int64 value, int64 comperand);
 
 #ifdef _WIN32
 #define NOINLINE
@@ -205,6 +210,12 @@ inline auto v_MutexInternal_WaitForLock = p_MutexInternal_WaitForLock.RCast<int 
 inline CMemory p_MutexInternal_ReleaseWaiter;
 inline auto v_MutexInternal_ReleaseWaiter = p_MutexInternal_ReleaseWaiter.RCast<int (*)(CThreadFastMutex* mutex)>();
 
+inline CMemory p_DeclareCurrentThreadIsMainThread;
+inline auto v_DeclareCurrentThreadIsMainThread = p_DeclareCurrentThreadIsMainThread.RCast<ThreadId_t (*)(void)>();
+
+inline ThreadId_t* g_ThreadMainThreadID = nullptr;
+inline ThreadId_t g_ThreadRenderThreadID = NULL;
+
 ///////////////////////////////////////////////////////////////////////////////
 class CThreadFastMutex
 {
@@ -235,17 +246,24 @@ class VThreadTools : public IDetour
 	{
 		spdlog::debug("| FUN: CThreadFastMutex::WaitForLock        : {:#18x} |\n", p_MutexInternal_WaitForLock.GetPtr());
 		spdlog::debug("| FUN: CThreadFastMutex::ReleaseWaiter      : {:#18x} |\n", p_MutexInternal_ReleaseWaiter.GetPtr());
+		spdlog::debug("| FUN: DeclareCurrentThreadIsMainThread     : {:#18x} |\n", p_DeclareCurrentThreadIsMainThread.GetPtr());
+		spdlog::debug("| VAR: g_ThreadMainThreadID                 : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_ThreadMainThreadID));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
-		p_MutexInternal_WaitForLock   = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\xD9\xFF\x15\x00\x00\x00\x00"), "xxxx?xxxx?xxxxxxxxxx????");
-		p_MutexInternal_ReleaseWaiter = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x8B\x41\x04\x48\x8B\xD9\x83\xE8\x01"), "xxxxxxxxxxxxxxx");
+		p_MutexInternal_WaitForLock   = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\xD9\xFF\x15\x00\x00\x00\x00"), "xxxx?xxxx?xxxxxxxxxx????");
+		p_MutexInternal_ReleaseWaiter = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x8B\x41\x04\x48\x8B\xD9\x83\xE8\x01"), "xxxxxxxxxxxxxxx");
+		p_DeclareCurrentThreadIsMainThread = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\xFF\x15\x00\x00\x00\x00\x89\x05\x00\x00\x00\x00\x48\x83\xC4\x28"), "xxxxxx????xx????xxxx");
 
-		v_MutexInternal_WaitForLock   = p_MutexInternal_WaitForLock.RCast<int (*)(CThreadFastMutex*)>();   /*48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B D9 FF 15 ?? ?? ?? ??*/
-		v_MutexInternal_ReleaseWaiter = p_MutexInternal_ReleaseWaiter.RCast<int (*)(CThreadFastMutex*)>(); /*40 53 48 83 EC 20 8B 41 04 48 8B D9 83 E8 01*/
+		v_MutexInternal_WaitForLock   = p_MutexInternal_WaitForLock.RCast<int (*)(CThreadFastMutex*)>();      /*48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B D9 FF 15 ?? ?? ?? ??*/
+		v_MutexInternal_ReleaseWaiter = p_MutexInternal_ReleaseWaiter.RCast<int (*)(CThreadFastMutex*)>();    /*40 53 48 83 EC 20 8B 41 04 48 8B D9 83 E8 01*/
+		v_DeclareCurrentThreadIsMainThread = p_DeclareCurrentThreadIsMainThread.RCast<ThreadId_t(*)(void)>(); /*48 83 EC 28 FF 15 ?? ?? ?? ?? 89 05 ?? ?? ?? ?? 48 83 C4 28 */
 	}
-	virtual void GetVar(void) const { }
+	virtual void GetVar(void) const
+	{
+		g_ThreadMainThreadID = p_DeclareCurrentThreadIsMainThread.FindPattern("89 05").ResolveRelativeAddressSelf(0x2, 0x6).RCast<DWORD*>();
+	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }

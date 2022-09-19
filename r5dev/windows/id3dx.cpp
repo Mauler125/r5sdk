@@ -2,13 +2,14 @@
 #ifndef DEDICATED // This file should not be compiled for DEDICATED!
 //------------------------------
 #define STB_IMAGE_IMPLEMENTATION
+#include "tier0/threadtools.h"
 #include "tier1/cvar.h"
 #include "windows/id3dx.h"
 #include "windows/input.h"
 #include "gameui/IConsole.h"
 #include "gameui/IBrowser.h"
 #include "inputsystem/inputsystem.h"
-#include "public/include/stb_image.h"
+#include "public/bitmap/stb_image.h"
 
 /**********************************************************************************
 -----------------------------------------------------------------------------------
@@ -84,39 +85,22 @@ LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		switch (uMsg)
 		{
 			case WM_LBUTTONDOWN:
-				return 1L;
 			case WM_LBUTTONUP:
-				return 1L;
 			case WM_LBUTTONDBLCLK:
-				return 1L;
 			case WM_RBUTTONDOWN:
-				return 1L;
 			case WM_RBUTTONUP:
-				return 1L;
 			case WM_RBUTTONDBLCLK:
-				return 1L;
 			case WM_MBUTTONDOWN:
-				return 1L;
 			case WM_MBUTTONUP:
-				return 1L;
 			case WM_MBUTTONDBLCLK:
-				return 1L;
 			case WM_KEYDOWN:
-				return 1L;
 			case WM_KEYUP:
-				return 1L;
 			case WM_MOUSEACTIVATE:
-				return 1L;
 			case WM_MOUSEHOVER:
-				return 1L;
 			case WM_MOUSEHWHEEL:
-				return 1L;
 			case WM_MOUSELEAVE:
-				return 1L;
 			case WM_MOUSEMOVE:
-				return 1L;
 			case WM_MOUSEWHEEL:
-				return 1L;
 			case WM_SETCURSOR:
 				return 1L;
 			default:
@@ -210,13 +194,7 @@ void GetPresent()
 		&nFeatureLevelsSupported,
 		&pContext)))
 	{
-		if (mat_showdxoutput->GetBool())
-		{
-			Error(eDLL_T::MS, "+--------------------------------------------------------+\n");
-			Error(eDLL_T::MS, "| >>>>>>>>>| VIRTUAL METHOD TABLE HOOK FAILED |<<<<<<<<< |\n");
-			Error(eDLL_T::MS, "+--------------------------------------------------------+\n");
-		}
-		DirectX_Shutdown();
+		Error(eDLL_T::MS, EXIT_FAILURE, "Failed to create device and swap chain: error code = %08x\n", hr);
 		return;
 	}
 
@@ -273,15 +251,18 @@ void DrawImGui()
 
 	ImGui::NewFrame();
 
+	g_pBrowser->RunTask();
+	g_pConsole->RunTask();
+
 	if (g_pBrowser->m_bActivate)
 	{
 		g_pInputSystem->EnableInput(false); // Disable input to game when browser is drawn.
-		g_pBrowser->Draw();
+		g_pBrowser->RunFrame();
 	}
 	if (g_pConsole->m_bActivate)
 	{
 		g_pInputSystem->EnableInput(false); // Disable input to game when console is drawn.
-		g_pConsole->Draw();
+		g_pConsole->RunFrame();
 	}
 	if (!g_pConsole->m_bActivate && !g_pBrowser->m_bActivate)
 	{
@@ -346,9 +327,9 @@ void DestroyRenderTarget()
 
 		if (mat_showdxoutput->GetBool())
 		{
-			DevMsg(eDLL_T::MS, "+--------------------------------------------------------+\n");
-			DevMsg(eDLL_T::MS, "| >>>>>>>>>>>>>>| RENDER TARGET DESTROYED |<<<<<<<<<<<<< |\n");
-			DevMsg(eDLL_T::MS, "+--------------------------------------------------------+\n");
+			DevMsg(eDLL_T::MS, "+----------------------------------------------------------------+\n");
+			DevMsg(eDLL_T::MS, "| >>>>>>>>>>>>| !! RENDER TARGET VIEW DESTROYED !! |<<<<<<<<<<<< |\n");
+			DevMsg(eDLL_T::MS, "+----------------------------------------------------------------+\n");
 		}
 	}
 }
@@ -388,14 +369,10 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 {
 	if (!g_bInitialized)
 	{
-		if (FAILED(GetDeviceAndCtxFromSwapchain(pSwapChain, &g_pDevice, &g_pDeviceContext)))
+		HRESULT hr = 0;
+		if (FAILED(hr = GetDeviceAndCtxFromSwapchain(pSwapChain, &g_pDevice, &g_pDeviceContext)))
 		{
-			if (mat_showdxoutput->GetBool())
-			{
-				Error(eDLL_T::MS, "+--------------------------------------------------------+\n");
-				Error(eDLL_T::MS, "| >>>>>>>>>>| GET DVS AND CTX FROM SCP FAILED |<<<<<<<<< |\n");
-				Error(eDLL_T::MS, "+--------------------------------------------------------+\n");
-			}
+			Error(eDLL_T::MS, EXIT_FAILURE, "Failed to get device and context from swap chain: error code = %08x\n", hr);
 			return g_fnIDXGISwapChainPresent(pSwapChain, nSyncInterval, nFlags);
 		}
 
@@ -403,16 +380,16 @@ HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT n
 
 		if (!g_oWndProc)
 		{   // Only initialize HwndProc pointer once to avoid stack overflow during ResizeBuffers(..)
-			SetupImGui(); // Don't re-init imgui everytime.
+			SetupImGui(); // Don't re-init imgui every time.
 			g_oWndProc  = (WNDPROC)SetWindowLongPtr(g_hGameWindow, GWLP_WNDPROC, (LONG_PTR)HwndProc);
 		}
 
+		g_pSwapChain           = pSwapChain;
+		g_ThreadRenderThreadID = GetCurrentThreadId();
 		g_bInitialized  = true;
-		g_pSwapChain    = pSwapChain;
 	}
 
 	DrawImGui();
-	g_bInitialized      = true;
 	///////////////////////////////////////////////////////////////////////////////
 	return g_fnIDXGISwapChainPresent(pSwapChain, nSyncInterval, nFlags);
 }
@@ -497,10 +474,11 @@ void InstallDXHooks()
 	DetourAttach(&(LPVOID&)g_oResizeBuffers, (PBYTE)GetResizeBuffers);
 
 	// Commit the transaction
-	if (DetourTransactionCommit() != NO_ERROR)
+	HRESULT hr = DetourTransactionCommit();
+	if (hr != NO_ERROR)
 	{
 		// Failed to hook into the process, terminate
-		TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
+		Error(eDLL_T::COMMON, 0xBAD0C0DE, "Failed to detour process: error code = %08x\n", hr);
 	}
 }
 
@@ -529,16 +507,18 @@ void DirectX_Shutdown()
 		ImGui_ImplDX11_Shutdown();
 		g_bImGuiInitialized = false;
 	}
+	g_bInitialized = false;
 }
 
-void HIDXGI::GetAdr(void) const
+void VDXGI::GetAdr(void) const
 {
 	///////////////////////////////////////////////////////////////////////////////
-	spdlog::debug("| VAR: ID3D11DeviceContext                  : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pDeviceContext)         );
-	spdlog::debug("| VAR: ID3D11Device                         : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pDevice)                );
-	spdlog::debug("| VAR: ID3D11RenderTargetView               : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pRenderTargetView)      );
-	spdlog::debug("| VAR: IDXGISwapChain                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pSwapChain)             );
-	spdlog::debug("| VAR: IDXGISwapChainPresent                : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_fnIDXGISwapChainPresent));
+	spdlog::debug("| FUN: IDXGISwapChain::Present              : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_fnIDXGISwapChainPresent));
+	spdlog::debug("| VAR: g_pSwapChain                         : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pSwapChain)             );
+	spdlog::debug("| VAR: g_pRenderTargetView                  : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pRenderTargetView)      );
+	spdlog::debug("| VAR: g_pDeviceContext                     : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pDeviceContext)         );
+	spdlog::debug("| VAR: g_pDevice                            : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pDevice)                );
+	spdlog::debug("| VAR: g_ppGameDevice                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_ppGameDevice)           );
 	spdlog::debug("+----------------------------------------------------------------+\n");
 }
 

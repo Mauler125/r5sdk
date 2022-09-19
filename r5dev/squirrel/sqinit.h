@@ -23,6 +23,13 @@ namespace VSquirrel
 		SQRESULT GetAvailableMaps(HSQUIRRELVM v);
 		SQRESULT GetAvailablePlaylists(HSQUIRRELVM v);
 		SQRESULT ShutdownHostGame(HSQUIRRELVM v);
+#ifndef CLIENT_DLL
+		SQRESULT KickPlayerByName(HSQUIRRELVM v);
+		SQRESULT KickPlayerById(HSQUIRRELVM v);
+		SQRESULT BanPlayerByName(HSQUIRRELVM v);
+		SQRESULT BanPlayerById(HSQUIRRELVM v);
+		SQRESULT UnbanPlayer(HSQUIRRELVM v);
+#endif // !CLIENT_DLL
 	}
 #ifndef CLIENT_DLL
 	namespace SERVER
@@ -37,6 +44,7 @@ namespace VSquirrel
 	}
 	namespace UI
 	{
+		SQRESULT RefreshServerCount(HSQUIRRELVM v);
 		SQRESULT GetServerName(HSQUIRRELVM v);
 		SQRESULT GetServerDescription(HSQUIRRELVM v);
 		SQRESULT GetServerMap(HSQUIRRELVM v);
@@ -71,8 +79,8 @@ class VSqInit : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		p_Script_Remote_BeginRegisteringFunctions = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x83\x3D\x00\x00\x00\x00\x00\x74\x10"), "xxxxxx?????xx");
-		p_RestoreRemoteChecksumsFromSaveGame      = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x4C\x24\x00\x41\x54\x48\x83\xEC\x40"), "xxxx?xxxxxx");
+		p_Script_Remote_BeginRegisteringFunctions = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x83\x3D\x00\x00\x00\x00\x00\x74\x10"), "xxxxxx?????xx");
+		p_RestoreRemoteChecksumsFromSaveGame      = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x4C\x24\x00\x41\x54\x48\x83\xEC\x40"), "xxxx?xxxxxx");
 
 		Script_Remote_BeginRegisteringFunctions = p_Script_Remote_BeginRegisteringFunctions.RCast<void* (*)(void)>();          /*48 83 EC 28 83 3D ?? ?? ?? ?? ?? 74 10*/
 		RestoreRemoteChecksumsFromSaveGame      = p_RestoreRemoteChecksumsFromSaveGame.RCast<void* (*)(void* a1, void* a2)>(); /*48 89 4C 24 ?? 41 54 48 83 EC 40*/

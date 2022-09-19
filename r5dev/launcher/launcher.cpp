@@ -6,6 +6,7 @@
 //===========================================================================//
 #include "core/stdafx.h"
 #include "tier0/commandline.h"
+#include "tier1/strtools.h"
 #include "launcher/launcher.h"
 
 int HWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
@@ -29,7 +30,7 @@ int HWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
 int LauncherMain(HINSTANCE hInstance)
 {
 	int results = v_LauncherMain(hInstance);
-	spdlog::info("LauncherMain: {:s}\n", ExitCodeToString(results));
+	spdlog::info("LauncherMain returned: {:s}\n", ExitCodeToString(results));
 	return results;
 }
 
@@ -37,7 +38,7 @@ int LauncherMain(HINSTANCE hInstance)
 // Remove all but the last -game parameter.
 // This is for mods based off something other than Half-Life 2 (like HL2MP mods).
 // The Steam UI does 'steam -applaunch 320 -game c:\steam\steamapps\sourcemods\modname', but applaunch inserts
-// its own -game parameter, which would supercede the one we really want if we didn't intercede here.
+// its own -game parameter, which would supersede the one we really want if we didn't intercede here.
 void RemoveSpuriousGameParameters()
 {
 	AppendSDKParametersPreInit();
@@ -47,9 +48,9 @@ void RemoveSpuriousGameParameters()
 	char lastGameArg[MAX_PATH];
 	for (int i = 0; i < CommandLine()->ParmCount() - 1; i++)
 	{
-		if (_stricmp(CommandLine()->GetParm(i), "-game") == 0)
+		if (Q_stricmp(CommandLine()->GetParm(i), "-game") == 0)
 		{
-			_snprintf(lastGameArg, sizeof(lastGameArg), "\"%s\"", CommandLine()->GetParm(i + 1));
+			Q_snprintf(lastGameArg, sizeof(lastGameArg), "\"%s\"", CommandLine()->GetParm(i + 1));
 			++nGameArgs;
 			++i;
 		}
@@ -125,7 +126,7 @@ void ParseAndApplyConfigFile(const string& svConfig)
 	stringstream ss(svConfig);
 	string svInput;
 
-	if (strlen(svConfig.c_str()) > 0)
+	if (!svConfig.empty())
 	{
 		while (std::getline(ss, svInput, '\n'))
 		{

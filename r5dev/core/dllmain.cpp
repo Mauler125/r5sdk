@@ -9,14 +9,20 @@
 #endif // !DEDICATED
 #include "windows/console.h"
 #include "windows/system.h"
+#include "mathlib/mathlib.h"
 #include "launcher/launcher.h"
 
 //#############################################################################
 // INITIALIZATION
 //#############################################################################
 
-void R5Dev_Init()
+void SDK_Init()
 {
+    CheckCPU(); // Check CPU as early as possible, SpdLog also uses SIMD intrinsics.
+
+    MathLib_Init(); // Initialize Mathlib.
+    WinSock_Init(); // Initialize Winsock.
+
     if (strstr(GetCommandLineA(), "-launcher"))
     {
         g_svCmdLine = GetCommandLineA();
@@ -26,7 +32,7 @@ void R5Dev_Init()
         g_svCmdLine = LoadConfigFile(SDK_DEFAULT_CFG);
     }
 #ifndef DEDICATED
-    if (strstr(g_svCmdLine.c_str(), "-wconsole"))
+    if (g_svCmdLine.find("-wconsole") != std::string::npos)
     {
         Console_Init();
     }
@@ -38,7 +44,7 @@ void R5Dev_Init()
     for (size_t i = 0; i < SDK_ARRAYSIZE(R5R_EMBLEM); i++)
     {
         std::string svEscaped = StringEscape(R5R_EMBLEM[i]);
-        spdlog::info("{:s}{:s}{:s}\n", g_svRedF.c_str(), svEscaped.c_str(), g_svReset.c_str());
+        spdlog::info("{:s}{:s}{:s}\n", g_svRedF, svEscaped, g_svReset);
     }
     spdlog::info("\n");
 
@@ -55,7 +61,7 @@ void R5Dev_Init()
 // SHUTDOWN
 //#############################################################################
 
-void R5Dev_Shutdown()
+void SDK_Shutdown()
 {
     static bool bShutDown = false;
     if (bShutDown)
@@ -66,6 +72,7 @@ void R5Dev_Shutdown()
     bShutDown = true;
     spdlog::info("Shutdown GameSDK\n");
 
+    WinSock_Shutdown();
     Systems_Shutdown();
     WinSys_Detach();
 
@@ -87,13 +94,13 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  dwReason, LPVOID lpReserved)
     {
         case DLL_PROCESS_ATTACH:
         {
-            R5Dev_Init();
+            SDK_Init();
             break;
         }
 
         case DLL_PROCESS_DETACH:
         {
-            R5Dev_Shutdown();
+            SDK_Shutdown();
             break;
         }
     }

@@ -37,9 +37,9 @@ const fltx4 Four_2ToThe21s = { (float)(1 << 21), (float)(1 << 21), (float)(1 << 
 const fltx4 Four_2ToThe22s = { (float)(1 << 22), (float)(1 << 22), (float)(1 << 22), (float)(1 << 22) };
 const fltx4 Four_2ToThe23s = { (float)(1 << 23), (float)(1 << 23), (float)(1 << 23), (float)(1 << 23) };
 const fltx4 Four_2ToThe24s = { (float)(1 << 24), (float)(1 << 24), (float)(1 << 24), (float)(1 << 24) };
-const fltx4 Four_Thirds = { 0.33333333, 0.33333333, 0.33333333, 0.33333333 };
-const fltx4 Four_TwoThirds = { 0.66666666, 0.66666666, 0.66666666, 0.66666666 };
-const fltx4 Four_Point225s = { .225, .225, .225, .225 };
+const fltx4 Four_Thirds = { 0.33333333f, 0.33333333f, 0.33333333f, 0.33333333f };
+const fltx4 Four_TwoThirds = { 0.66666666f, 0.66666666f, 0.66666666f, 0.66666666f };
+const fltx4 Four_Point225s = { .225f, .225f, .225f, .225f };
 const fltx4 Four_Epsilons = { FLT_EPSILON,FLT_EPSILON,FLT_EPSILON,FLT_EPSILON };
 const fltx4 Four_DegToRad = { ((float)(M_PI_F / 180.f)), ((float)(M_PI_F / 180.f)), ((float)(M_PI_F / 180.f)), ((float)(M_PI_F / 180.f)) };
 
@@ -47,16 +47,16 @@ const fltx4 Four_FLT_MAX = { FLT_MAX,FLT_MAX,FLT_MAX,FLT_MAX };
 const fltx4 Four_Negative_FLT_MAX = { -FLT_MAX,-FLT_MAX,-FLT_MAX,-FLT_MAX };
 const fltx4 g_SIMD_0123 = { 0., 1., 2., 3. };
 
-const fltx4 Four_LinearToGammaCoefficients_A = { -3.7295, -3.7295, -3.7295, -3.7295 };
-const fltx4 Four_LinearToGammaCoefficients_B = { 8.9635,  8.9635,  8.9635,  8.9635 };
-const fltx4 Four_LinearToGammaCoefficients_C = { -7.7397,  -7.7397,  -7.7397,  -7.7397 };
-const fltx4 Four_LinearToGammaCoefficients_D = { 3.443, 3.443, 3.443, 3.443 };
-const fltx4 Four_LinearToGammaCoefficients_E = { 0.048, 0.048, 0.048, 0.048 };
+const fltx4 Four_LinearToGammaCoefficients_A = { -3.7295f, -3.7295f, -3.7295f, -3.7295f };
+const fltx4 Four_LinearToGammaCoefficients_B = { 8.9635f,  8.9635f,  8.9635f,  8.9635f };
+const fltx4 Four_LinearToGammaCoefficients_C = { -7.7397f,  -7.7397f,  -7.7397f,  -7.7397f };
+const fltx4 Four_LinearToGammaCoefficients_D = { 3.443f, 3.443f, 3.443f, 3.443f };
+const fltx4 Four_LinearToGammaCoefficients_E = { 0.048f, 0.048f, 0.048f, 0.048f };
 
-const fltx4 Four_GammaToLinearCoefficients_A = { .1731, .1731, .1731, .1731 };
-const fltx4 Four_GammaToLinearCoefficients_B = { .8717, .8717, .8717, .8717 };
-const fltx4 Four_GammaToLinearCoefficients_C = { -.0452, -.0452, -.0452, -.0452 };
-const fltx4 Four_GammaToLinearCoefficients_D = { .0012, .0012, .0012, .0012 };
+const fltx4 Four_GammaToLinearCoefficients_A = { .1731f, .1731f, .1731f, .1731f };
+const fltx4 Four_GammaToLinearCoefficients_B = { .8717f, .8717f, .8717f, .8717f };
+const fltx4 Four_GammaToLinearCoefficients_C = { -.0452f, -.0452f, -.0452f, -.0452f };
+const fltx4 Four_GammaToLinearCoefficients_D = { .0012f, .0012f, .0012f, .0012f };
 
 const fltx4 g_QuatMultRowSign[4] =
 {
@@ -273,7 +273,7 @@ void FourVectors::RotateManyBy(FourVectors* RESTRICT pVectors, unsigned int numV
 	// loop should be unrolled to 8 FourVectors per iteration; because each FourVectors is 
 	// 48 bytes long, 48 * 8 = 384, its least common multiple with the 128-byte cache line. 
 	// That way you can fetch the next 3 cache lines while you work on these three. 
-	// If you do go this route, be sure to dissassemble and make sure it doesn't spill 
+	// If you do go this route, be sure to disassemble and make sure it doesn't spill 
 	// registers to stack as you do this; the cost of that will be excessive. Unroll the loop
 	// a little and just live with the fact that you'll be doing a couple of redundant dbcts
 	// (they don't cost you anything). Be aware that all three cores share L2 and it can only
@@ -434,7 +434,7 @@ void FourVectors::RotateManyBy(FourVectors* RESTRICT pVectors, unsigned int numV
 	// loop should be unrolled to 8 FourVectors per iteration; because each FourVectors is 
 	// 48 bytes long, 48 * 8 = 384, its least common multiple with the 128-byte cache line. 
 	// That way you can fetch the next 3 cache lines while you work on these three. 
-	// If you do go this route, be sure to dissassemble and make sure it doesn't spill 
+	// If you do go this route, be sure to disassemble and make sure it doesn't spill 
 	// registers to stack as you do this; the cost of that will be excessive. Unroll the loop
 	// a little and just live with the fact that you'll be doing a couple of redundant dbcts
 	// (they don't cost you anything). Be aware that all three cores share L2 and it can only

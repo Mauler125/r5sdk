@@ -6,7 +6,9 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
+#include "tier0/memstd.h"
 #include "tier0/jobthread.h"
+#include "engine/sys_dll2.h"
 #include "engine/host_cmd.h"
 #include "engine/cmodel_bsp.h"
 #include "rtech/rtech_utils.h"
@@ -25,7 +27,7 @@ bool s_bBasePaksInitialized = false;
 //-----------------------------------------------------------------------------
 bool MOD_LevelHasChanged(const string& svLevelName)
 {
-	return (strcmp(svLevelName.c_str(), g_svLevelName.c_str()) != 0);
+	return (g_svLevelName.compare(svLevelName) != 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -33,6 +35,8 @@ bool MOD_LevelHasChanged(const string& svLevelName)
 //-----------------------------------------------------------------------------
 void MOD_GetAllInstalledMaps()
 {
+    std::lock_guard<std::mutex> l(g_MapVecMutex);
+
     if (!g_vAllMaps.empty())
         return;
 
@@ -41,16 +45,15 @@ void MOD_GetAllInstalledMaps()
 
     for (const fs::directory_entry& dEntry : fs::directory_iterator("vpk"))
     {
-        std::string svFileName = dEntry.path().string();
+        std::string svFileName = dEntry.path().u8string();
         std::regex_search(svFileName, smRegexMatches, rgArchiveRegex);
 
-        if (smRegexMatches.size() > 0)
+        if (!smRegexMatches.empty())
         {
-            if (strcmp(smRegexMatches[1].str().c_str(), "frontend") == 0)
-            {
+            if (smRegexMatches[1].str().compare("frontend") == 0)
                 continue;
-            }
-            else if (strcmp(smRegexMatches[1].str().c_str(), "mp_common") == 0)
+
+            else if (smRegexMatches[1].str().compare("mp_common") == 0)
             {
                 if (std::find(g_vAllMaps.begin(), g_vAllMaps.end(), "mp_lobby") == g_vAllMaps.end())
                     g_vAllMaps.push_back("mp_lobby");
@@ -149,7 +152,6 @@ void MOD_ProcessPakQueue()
     int v20; // er8
     int v21; // ecx
     __int64 v22; // rdx
-    __int64 v23; // rbx
     __int64 v24{}; // rdx
     __int64 v25{}; // rcx
 
@@ -163,7 +165,7 @@ void MOD_ProcessPakQueue()
     {
         return;
     }
-    if ((*(unsigned __int8(__fastcall**)(__int64))(*(_QWORD*)*(_QWORD*)g_pFullFileSystem + 696i64 - FSTDIO_OFS))(*(_QWORD*)g_pFullFileSystem) && !*dword_1634F445C)
+    if (FileSystem()->ResetItemCache() && !*dword_1634F445C)
     {
         v1 = &*off_141874660;
         for (i = 0; i < 5; ++i)
@@ -251,33 +253,31 @@ void MOD_ProcessPakQueue()
             {
                 if (*byte_16709DDDF)
                 {
-                    v23 = *qword_1671061C8;
-                    if (*qword_1671061C8)
+                    if (*g_pMTVFTaskItem)
                     {
-                        if (!*(_BYTE*)(*qword_1671061C8 + 4))
+                        if (!*(_BYTE*)(*g_pMTVFTaskItem + 4))
                         {
                             if (*qword_167ED7BC0 || WORD2(*qword_167ED7C68) != HIWORD(*qword_167ED7C68))
                             {
-                                if (!JT_AcquireFifoLock((JobFifoLock_s*)&*qword_167ED7BE0)
-                                    && !(unsigned __int8)sub_14045BAC0((__int64(__fastcall*)(__int64, _DWORD*, __int64, _QWORD*))qword_14045C070, (__int64)&*qword_167ED7BE0, -1i64, 0i64))
+                                if (!JT_AcquireFifoLock(&*g_pPakFifoLock)
+                                    && !(unsigned __int8)sub_14045BAC0((__int64(__fastcall*)(__int64, _DWORD*, __int64, _QWORD*))g_pPakFifoLockWrapper, &*g_pPakFifoLock, -1i64, 0i64))
                                 {
-                                    sub_14045A1D0((unsigned __int8(__fastcall*)(_QWORD))qword_14045C070, (__int64)&*qword_167ED7BE0, -1i64, 0i64, 0i64, 1);
+                                    sub_14045A1D0((unsigned __int8(__fastcall*)(_QWORD))g_pPakFifoLockWrapper, &*g_pPakFifoLock, -1i64, 0i64, 0i64, 1);
                                 }
 
                                 sub_140441220(v25, v24);
-                                if (GetCurrentThreadId() == *dword_1641E443C)
+                                if (ThreadInMainThread())
                                 {
-                                    if (*byte_167208B0C)
+                                    if (*g_bPakFifoLockAcquired)
                                     {
-                                        *byte_167208B0C = 0;
-                                        JT_ReleaseFifoLock((JobFifoLock_s*)&*qword_167ED7BE0);
+                                        *g_bPakFifoLockAcquired = 0;
+                                        JT_ReleaseFifoLock(&*g_pPakFifoLock);
                                     }
                                 }
-                                JT_ReleaseFifoLock((JobFifoLock_s*)&*qword_167ED7BE0);
-                                v23 = *qword_1671061C8;
+                                JT_ReleaseFifoLock(&*g_pPakFifoLock);
                             }
-                            (*(void(__fastcall**)(__int64, __int64))(*(_QWORD*)*(_QWORD*)g_pFullFileSystem + 656i64 - FSTDIO_OFS))(*(_QWORD*)g_pFullFileSystem, 256i64);
-                            (*(void(__fastcall**)(__int64, __int64))(*(_QWORD*)*(_QWORD*)g_pFullFileSystem + 648i64 - FSTDIO_OFS))(*(_QWORD*)g_pFullFileSystem, v23);
+                            FileSystem()->ResetItemCacheSize(256);
+                            FileSystem()->PrecacheTaskItem(*g_pMTVFTaskItem);
                         }
                     }
                 }
@@ -295,21 +295,13 @@ void MOD_ProcessPakQueue()
         *(_DWORD*)v15 = g_pakLoadApi->LoadAsync(v17, g_pMallocPool.GetPtr(), 4, 0);
 
         if (strcmp(v17, "common_mp.rpak") == 0 || strcmp(v17, "common_sp.rpak") == 0 || strcmp(v17, "common_pve.rpak") == 0)
-        {
             RPakHandle_t pakHandle = g_pakLoadApi->LoadAsync("common_sdk.rpak", g_pMallocPool.GetPtr(), 4, 0);
-            if (pakHandle != -1)
-                g_vLoadedPakHandle.push_back(pakHandle);
-        }
         if (strcmp(v17, "ui_mp.rpak") == 0)
-        {
             RPakHandle_t pakHandle = g_pakLoadApi->LoadAsync("ui_sdk.rpak", g_pMallocPool.GetPtr(), 4, 0);
-            if (pakHandle != -1)
-                g_vLoadedPakHandle.push_back(pakHandle);
-        }
 
     LABEL_37:
         v21 = *(_DWORD*)v15;
-        if (*(_DWORD*)v15 != -1)
+        if (*(_DWORD*)v15 != INVALID_PAK_HANDLE)
         {
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
             v22 = 232i64 * (v21 & 0x1FF);
@@ -346,45 +338,49 @@ bool MOD_LoadPakForMap(const char* szLevelName)
 void MOD_PreloadPakFile(const string& svLevelName)
 {
 	ostringstream ostream;
-	ostream << "platform\\scripts\\levels\\settings\\" << svLevelName << ".json";
+	ostream << "scripts/levels/settings/" << svLevelName << ".json";
 
-	fs::path fsPath = fs::current_path() /= ostream.str();
-	if (FileExists(fsPath))
-	{
-		nlohmann::json jsIn;
-		try
-		{
-			ifstream iPakLoadDefFile(fsPath.string().c_str(), std::ios::binary); // Load prerequisites file.
+    FileHandle_t pFile = FileSystem()->Open(ostream.str().c_str(), "rt");
+    if (!pFile)
+        return;
 
-			jsIn = nlohmann::json::parse(iPakLoadDefFile);
-			iPakLoadDefFile.close();
+    uint32_t nLen = FileSystem()->Size(pFile);
+    uint8_t* pBuf = MemAllocSingleton()->Alloc<uint8_t>(nLen);
 
-			if (!jsIn.is_null())
-			{
-				if (!jsIn["rpak"].is_null())
-				{
-					for (auto& it : jsIn["rpak"])
-					{
-						if (it.is_string())
-						{
-							string svToLoad = it.get<string>() + ".rpak";
-							RPakHandle_t nPakId = g_pakLoadApi->LoadAsync(svToLoad.c_str(), g_pMallocPool.GetPtr(), 4, 0);
+    int nRead = FileSystem()->Read(pBuf, nLen, pFile);
+    FileSystem()->Close(pFile);
 
-							if (nPakId == -1)
-								Error(eDLL_T::ENGINE, "%s: unable to load pak '%s' results '%d'\n", __FUNCTION__, svToLoad.c_str(), nPakId);
-							else
-								g_vLoadedPakHandle.push_back(nPakId);
-						}
-					}
-				}
-			}
-		}
-		catch (const std::exception& ex)
-		{
-			Warning(eDLL_T::RTECH, "Exception while parsing RPak load list: '%s'\n", ex.what());
-			return;
-		}
-	}
+    pBuf[nRead] = '\0';
+
+    try
+    {
+        nlohmann::json jsIn = nlohmann::json::parse(pBuf);
+        if (!jsIn.is_null())
+        {
+            if (!jsIn["rpak"].is_null())
+            {
+                for (auto& it : jsIn["rpak"])
+                {
+                    if (it.is_string())
+                    {
+                        string svToLoad = it.get<string>() + ".rpak";
+                        RPakHandle_t nPakId = g_pakLoadApi->LoadAsync(svToLoad.c_str(), g_pMallocPool.GetPtr(), 4, 0);
+
+                        if (nPakId == INVALID_PAK_HANDLE)
+                            Error(eDLL_T::ENGINE, NO_ERROR, "%s: unable to load pak '%s' results '%d'\n", __FUNCTION__, svToLoad.c_str(), nPakId);
+                        else
+                            g_vLoadedPakHandle.push_back(nPakId);
+                    }
+                }
+            }
+        }
+    }
+    catch (const std::exception& ex)
+    {
+        Warning(eDLL_T::RTECH, "Exception while parsing RPak load list: '%s'\n", ex.what());
+    }
+
+    MemAllocSingleton()->Free(pBuf);
 }
 
 //-----------------------------------------------------------------------------

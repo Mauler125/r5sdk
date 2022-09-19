@@ -7,6 +7,14 @@ int   Strnicmp(const char* s1, const char* s2, int n);
 char* Strdup(const char* s);
 void  Strtrim(char* s);
 
+enum class ImGuiStyle_t
+{
+    NONE = -1,
+    DEFAULT,
+    LEGACY,
+    MODERN
+};
+
 class ImGuiConfig
 {
 public:
@@ -24,7 +32,7 @@ public:
 
     void Load();
     void Save();
-    int InitStyle() const;
+    ImGuiStyle_t InitStyle() const;
 };
 
 extern ImGuiConfig* g_pImGuiConfig;

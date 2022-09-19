@@ -298,13 +298,17 @@ const char* GetProcessorBrand(bool bRemovePadding = true)
 
 	if (bRemovePadding)
 	{
-		for (int i = 0; i < sizeof(s_CpuBrand.name) - 1; i++)
+		for (size_t i = sizeof(s_CpuBrand.name); i-- > 0; )
 		{
-			if (s_CpuBrand.name[i] == ' ')
+			if (s_CpuBrand.name[i] != '\0')
 			{
-				if (s_CpuBrand.name[i + 1] == ' ')
+				if (s_CpuBrand.name[i] != ' ')
 				{
-					s_CpuBrand.name[i] = '\0';
+					if (i < (sizeof(s_CpuBrand.name) - 1))
+					{
+						s_CpuBrand.name[i + 1] = '\0';
+						break;
+					}
 				}
 			}
 		}
@@ -465,6 +469,7 @@ const CPUInformation& GetCPUInformation(void)
 		pi.m_bRDTSC = (cpuid1.edx >> 4) & 1;
 		pi.m_bCMOV  = (cpuid1.edx >> 15) & 1;
 		pi.m_bFCMOV = (pi.m_bCMOV && bFPU) ? 1 : 0;
+		pi.m_bPOPCNT= (cpuid1.edx >> 17) & 1;
 		pi.m_bMMX   = (cpuid1.edx >> 23) & 1;
 		pi.m_bSSE   = (cpuid1.edx >> 25) & 1;
 		pi.m_bSSE2  = (cpuid1.edx >> 26) & 1;

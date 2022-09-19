@@ -12,7 +12,7 @@ struct TickUpdate
 	int command_number;
 };
 
-struct __declspec(align(1)) CFrameSnapshot
+struct CFrameSnapshot
 {
 	char field_0;
 	_DWORD last_entity;

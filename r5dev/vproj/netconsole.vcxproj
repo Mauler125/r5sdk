@@ -40,7 +40,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\public\utility.cpp" />
+    <ClCompile Include="..\public\utility\utility.cpp" />
     <ClCompile Include="..\tier1\NetAdr2.cpp" />
     <ClCompile Include="..\tier2\socketcreator.cpp" />
   </ItemGroup>
@@ -51,6 +51,7 @@
     <ClInclude Include="..\netconsole\netconsole.h" />
     <ClInclude Include="..\protoc\cl_rcon.pb.h" />
     <ClInclude Include="..\protoc\sv_rcon.pb.h" />
+    <ClInclude Include="..\public\utility\utility.h" />
     <ClInclude Include="..\tier1\NetAdr2.h" />
     <ClInclude Include="..\tier2\socketcreator.h" />
   </ItemGroup>
@@ -119,7 +120,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)game\bin\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
     <TargetName>netcon32</TargetName>
     <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);</IncludePath>
@@ -133,7 +134,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)game\bin\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
     <TargetName>netcon64</TargetName>
     <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);</IncludePath>

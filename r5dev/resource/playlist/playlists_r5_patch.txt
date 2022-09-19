@@ -1,7 +1,7 @@
-﻿playlists
+playlists
 {
 	version stable
-	versionNum 218
+	versionNum 224
 	Gamemodes
 	{
 		defaults
@@ -182,7 +182,7 @@
 				///////////////////////////////////////////////////////////////////////////////////
 				aimassist_adspull_disabled                     1
 				aimassist_magnet_pc                            0.40
-				aimassist_magnet                               0.55
+				aimassist_magnet                               0.60
 
 
 				///////////////////////////////////////////////////////////////////////////////////
@@ -287,6 +287,11 @@
 		}
 
 		custom_ctf
+		{
+			inherit defaults
+		}
+
+		menufall
 		{
 			inherit defaults
 		}
@@ -438,11 +443,10 @@
 			}
 			gamemodes { survival { maps {
 				mp_rr_desertlands_64k_x_64k                    1
-				mp_rr_desertlands_64k_x_64k_nx                 0
+				mp_rr_desertlands_64k_x_64k_nx                 1
 				mp_rr_canyonlands_64k_x_64k                    1
 				mp_rr_canyonlands_mu1                          1
 				mp_rr_canyonlands_mu1_night                    1
-				mp_rr_canyonlands_staging                      1
 			} } }
 		}
 
@@ -525,7 +529,7 @@
 			}
 			gamemodes { survival { maps {
 				mp_rr_canyonlands_mu1_night                    1
-				mp_rr_desertlands_64k_x_64k_nx                 0
+				mp_rr_desertlands_64k_x_64k_nx                 1
 			} } }
 		}
 		
@@ -657,7 +661,7 @@
 				//ui_slot                                      ltm
 			}
 			gamemodes { survival { maps {
-				mp_rr_desertlands_64k_x_64k_nx 1
+				mp_rr_desertlands_64k_x_64k_nx                 1
 			} } }
 		}
 		
@@ -679,8 +683,8 @@
 
 				pin_match_type                                 survival
 				enable_nessies                                 0
-				max_teams                                      3
-				max_players                                    3
+				max_teams                                      18
+				max_players                                    18
 				min_players                                    1
 				wait_for_players_forever                       0
 				survival_shields                               1
@@ -717,9 +721,11 @@
 				survival_enable_gladiator_intros               0
 				minified_unitframes_enabled                    1
 				jump_from_plane_enabled                        0
+				enabled_killstreak_obituary                    0
 
 				replay_enabled                                 1
 				replay_delay                                   2
+				replay_new_ui                                  0
 
 				
 				match_ending_enabled                           0
@@ -735,7 +741,9 @@
 				mp_rr_canyonlands_mu1_night                    1
 				mp_rr_canyonlands_staging                      1
 				mp_rr_aqueduct                                 1
+				mp_rr_aqueduct_night                           1
 				mp_rr_ashs_redemption                          1
+				mp_rr_arena_composite                          1
 			} } }
 		}
 
@@ -784,12 +792,16 @@
 				survival_enable_squad_intro                    0
 				survival_enable_gladiator_intros               0
 
+				survival_jumpkit_enabled                       1
+				survival_wallrun_enabled                       1
+
 				jump_from_plane_enabled                        0
 				match_ending_enabled                           0
 				sur_circle_start_paused                        1
 
 				// CTF Settings:
 				//// General CTF Settings:
+				global_chat_enabled                            1    //Enables Global chat
 				teammate_huds_enabled                          0    //Enables teammate huds
 				survival_jumpkit_enabled                       0    //Disables double jump
 				survival_wallrun_enabled                       0    //Disables wallrun
@@ -845,7 +857,9 @@
 				mp_rr_canyonlands_mu1_night                    1
 				mp_rr_canyonlands_staging                      1
 				mp_rr_aqueduct                                 1
+				mp_rr_aqueduct_night                           1
 				mp_rr_ashs_redemption                          1
+				mp_rr_arena_composite                          1
 			} } }
 		}
 		
@@ -916,7 +930,7 @@
 				sur_bots_spawn_with_random_weapons             1
 				match_ending_enabled                           0
 				max_teams                                      1
-				max_players                                    128
+				max_players                                    120
 				min_players                                    1
 				enable_nessies                                 1
 
@@ -927,10 +941,46 @@
 				mp_rr_desertlands_64k_x_64k                    1
 				mp_rr_desertlands_64k_x_64k_nx                 1
 				mp_rr_canyonlands_mu1_night                    1
+				mp_rr_canyonlands_staging                      1
 				mp_rr_aqueduct                                 1
+				mp_rr_aqueduct_night                           1
 				mp_rr_ashs_redemption                          1
+				mp_rr_arena_composite                          1
 			} } }
 		}
+		
+		shadowfall_dev
+		{
+			inherit survival_dev
+			vars
+			{
+				// Bots:
+				character_select_time_max                      4.0
+				character_select_time_min                      4.0
+				survival_enable_gladiator_intros               1
+				match_ending_enabled                           0
+				player_revive_enabled						   0
+				max_teams                                      2
+				max_players                                    2
+				min_players                                    1
+				enable_nessies                                 0
+				evil_leviathans                                1
+				evil_flyers                                    1
+				battlechatter_enabled                          0
+				showLTMAboutButton                             0
+				lootbin_spiders_chance                         50
+				lootbin_infected_chance                        50
+				mode_fall_ltm                                  1
+				force_custom_musicpack                         1
+				solo_mode                                      1
+
+			}
+			gamemodes { survival { maps {
+				mp_rr_desertlands_64k_x_64k_nx                 1
+				mp_rr_canyonlands_mu1_night                    1
+			} } }
+		}
+		
 		menufall
 		{
 			vars
@@ -962,15 +1012,21 @@
 				cmdlineMapLoad                                 1
 				// R5DEV-196963
 				reconnect_disabled                             1
-				sv_cheats                                      1
+
+				survival_jumpkit_enabled                       1
+				survival_wallrun_enabled                       1
 			}
 			gamemodes { survival { maps {
 				mp_rr_canyonlands_64k_x_64k                    1
 				mp_rr_canyonlands_mu1                          1
 				mp_rr_desertlands_64k_x_64k                    1
-				mp_rr_desertlands_64k_x_64k_nx                 0
+				mp_rr_desertlands_64k_x_64k_nx                 1
 				mp_rr_canyonlands_mu1_night                    1
 				mp_rr_canyonlands_staging                      1
+				mp_rr_aqueduct                                 1
+				mp_rr_aqueduct_night                           1
+				mp_rr_ashs_redemption                          1
+				mp_rr_arena_composite                          1
 			} } }
 		}
 	}
@@ -982,9 +1038,11 @@
 			"Tokens"
 			{
 				"MP_RR_DESERTLANDS_64K_X_64K_NX"      "World's Edge After Dark"
+				"MP_RR_DESERTLANDS_64K_X_64K_TT"      "World's Edge Mirage Voyage"
 				"MP_RR_ASHS_REDEMPTION"               "Ash's Redemption"
 				"MP_RR_AQUEDUCT"                      "Overflow"
 				"MP_RR_AQUEDUCT_NIGHT"                "Overflow After Dark"
+				"MP_RR_ARENA_COMPOSITE"               "Drop-Off"
 
 				"WORLDS_EDGE_NIGHT"                   "SHADOWFALL WORLD'S EDGE"
 				"WORLDS_EDGE_NIGHT_DESC"              "Dead Legends respawn as Shadows.\nSurvive and escape with final 10 Legends."
@@ -993,7 +1051,7 @@
 				"KCAD"                                "Kings Canyon After Dark"
 				"Playtest"                            "Playtest"
 				"Playtest_Only"                       "Playtest"
-				"BETA_BUILD_WATERMARK"                "R5Reloaded [v2.0.7-rc]"
+				"BETA_BUILD_WATERMARK"                "R5Reloaded [v2.1]"
 
 				"PROMO_LARGE_TITLE"                   "Welcome To R5Reloaded!"
 				"PROMO_LARGE_DESCRIPTION"             "Make sure to join the discord! discord.gg/r5reloaded"
@@ -1003,7 +1061,12 @@
 				"PROMO_RIGHT_DESCRIPTION"             "Yes3"
 				"PROMO_SDK_ERROR"                     "You should not see this."
 
+				"PLAYER_KILLSTREAK"                   "`1%s1`0 is on a `1%s2`0 player killstreak"
+				"PLAYER_ENDED_KILLSTREAK"             "`1%s1`0 ended `1%s2`0's killstreak"
+				"PLAYER_ENDED_OWN_KILLSTREAK"         "`1%s1`0 ended their own killstreak"
+
 				"DISCONNECT_BANNED"                   "The client's game account has been banned: Banned"
+				"VALVE_REJECT_BANNED"                 "You have been banned from this server."
 			}
 		}
 	}

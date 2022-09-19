@@ -10,7 +10,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
 #include "client/cdll_engine_int.h"
-#include "engine/debugoverlay.h"
+#include "engine/host.h"
 #include "engine/client/clientstate.h"
 
 
@@ -28,13 +28,13 @@ bool CClientState::IsPaused()
 //------------------------------------------------------------------------------
 float CClientState::GetClientTime()
 {
-    if (*cl_time_use_host_tickcount)
+    if (m_bClockCorrectionEnabled)
     {
-        return (float)(int)m_ClockDriftMgr.m_nClientTick * (float)*client_debugdraw_int_unk;
+        return (float)m_ClockDriftMgr.m_nSimulationTick * (*(float*)&interval_per_tick); // VERIFY DEREF
     }
     else
     {
-        return *(float*)client_debugdraw_float_unk;
+        return m_flClockDriftFrameTime;
     }
 }
 
@@ -80,3 +80,4 @@ void CClientState::SetClientTickCount(int tick)
 
 /////////////////////////////////////////////////////////////////////////////////
 CClientState* g_pClientState = nullptr;
+CClientState** g_pClientState_Shifted = nullptr;

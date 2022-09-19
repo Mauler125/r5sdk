@@ -134,7 +134,7 @@ int dtMergeCorridorStartShortcut(dtPolyRef* path, const int npath, const int max
 	if (furthestPath == -1 || furthestVisited == -1)
 		return npath;
 	
-	// Concatenate paths.	
+	// Concatenate paths.
 	
 	// Adjust beginning of the buffer to include the visited.
 	const int req = furthestVisited;
@@ -452,9 +452,9 @@ bool dtPathCorridor::movePosition(const float* npos, dtNavMeshQuery* navquery, c
 		m_npath = dtMergeCorridorStartMoved(m_path, m_npath, m_maxPath, visited, nvisited);
 		
 		// Adjust the position to stay on top of the navmesh.
-		float h = m_pos[1];
+		float h = m_pos[2];
 		navquery->getPolyHeight(m_path[0], result, &h);
-		result[1] = h;
+		result[2] = h;
 		dtVcopy(m_pos, result);
 		return true;
 	}

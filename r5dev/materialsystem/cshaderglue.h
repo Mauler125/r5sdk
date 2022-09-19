@@ -10,7 +10,7 @@ public:
 	char pad_0008[8]; //0x0008 Dispatcher Context, Some SEH try and catch thing.
 	uint64_t m_nUnknown1; //0x0010
 	uint16_t m_nCount1; //0x0018
-	uint16_t m_nCount2; //0x001A
+	uint16_t m_nTextureInputCount; //0x001A
 	uint16_t m_nNumSamplers; //0x001C [ PIXIE ]: Used by ID3D11DeviceContext::PSSetSamplers to set NumSamplers
 	uint8_t m_nStartSlot; //0x001E [ PIXIE ]: Used by ID3D11DeviceContext::PSSetShaderResources to set StartSlot.
 	uint8_t m_nNumViews; //0x001F [ PIXIE ]: Used by ID3D11DeviceContext::PSSetShaderResources to set NumViews.
@@ -34,24 +34,29 @@ static_assert(sizeof(CShaderGlue) == 0x40); // [ PIXIE ]: All vars have proper d
 inline auto CShaderGlue_SetupShader = CMemory().RCast<int(*)(CShaderGlue* thisptr, uint64_t nCount, uint64_t a3, void* pRawMaterialGlueWithoutVTable)>();
 
 inline CMemory CShaderGlue_VTable;
-inline void* g_pCShaderGlue_VTable = nullptr;
+inline void* g_pShaderGlueVFTable = nullptr;
 
 void CShaderGlue_Attach();
 void CShaderGlue_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 class VShaderGlue : public IDetour
 {
-	virtual void GetAdr(void) const { }
+	virtual void GetAdr(void) const
+	{
+		spdlog::debug("| FUN: CShaderGlue::SetupShader             : {:#18x} |\n", reinterpret_cast<uintptr_t>(CShaderGlue_SetupShader));
+		spdlog::debug("| CON: g_pShaderGlueVFTable                 : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pShaderGlueVFTable));
+		spdlog::debug("+----------------------------------------------------------------+\n");
+	}
 	virtual void GetFun(void) const 
 	{
-		// We get it here in GetFun because we grab other functions with it, it's more efficient.
-		CShaderGlue_VTable = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x01\xC3\xCC\xCC\xCC\xCC\xCC\x48\x85\xD2"), "xxx????xxxxxxxxxxxx").ResolveRelativeAddressSelf(0x3, 0x7);
-		g_pCShaderGlue_VTable = CShaderGlue_VTable.RCast<void*>(); /*48 8D 05 ? ? ? ? 48 89 01 C3 CC CC CC CC CC 48 85 D2*/
-
-		CShaderGlue_SetupShader = CShaderGlue_VTable.WalkVTable(4).RCast<int(*)(CShaderGlue*, uint64_t, uint64_t, void*)>();
+		CShaderGlue_SetupShader = CShaderGlue_VTable.WalkVTable(4).Deref(2).RCast<int(*)(CShaderGlue*, uint64_t, uint64_t, void*)>();
 	}
 	virtual void GetVar(void) const { }
-	virtual void GetCon(void) const { }
+	virtual void GetCon(void) const
+	{
+		CShaderGlue_VTable = g_GameDll.GetVirtualMethodTable(".?AVCShaderGlue@@");
+		g_pShaderGlueVFTable = CShaderGlue_VTable.RCast<void*>();
+	}
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }
 };

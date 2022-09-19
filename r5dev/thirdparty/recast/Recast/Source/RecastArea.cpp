@@ -335,7 +335,7 @@ void rcMarkBoxArea(rcContext* ctx, const float* bmin, const float* bmax, unsigne
 	if (minx < 0) minx = 0;
 	if (maxx >= chf.width) maxx = chf.width-1;
 	if (miny < 0) miny = 0;
-	if (maxy >= chf.height) maxy = chf.height-1;	
+	if (maxy >= chf.height) maxy = chf.height-1;
 	
 	for (int y = miny; y <= maxy; ++y)
 	{
@@ -363,8 +363,8 @@ static int pointInPoly(int nvert, const float* verts, const float* p)
 	{
 		const float* vi = &verts[i*3];
 		const float* vj = &verts[j*3];
-		if (((vi[2] > p[2]) != (vj[2] > p[2])) &&
-			(p[0] < (vj[0]-vi[0]) * (p[2]-vi[2]) / (vj[2]-vi[2]) + vi[0]) )
+		if (((vi[1] > p[1]) != (vj[1] > p[1])) &&
+			(p[0] < (vj[0]-vi[0]) * (p[1]-vi[1]) / (vj[1]-vi[1]) + vi[0]) )
 			c = !c;
 	}
 	return c;
@@ -375,7 +375,7 @@ static int pointInPoly(int nvert, const float* verts, const float* p)
 /// The value of spacial parameters are in world units.
 /// 
 /// The y-values of the polygon vertices are ignored. So the polygon is effectively 
-/// projected onto the xz-plane at @p hmin, then extruded to @p hmax.
+/// projected onto the xy-plane at @p hmin, then extruded to @p hmax.
 /// 
 /// @see rcCompactHeightfield, rcMedianFilterWalkableArea
 void rcMarkConvexPolyArea(rcContext* ctx, const float* verts, const int nverts,
@@ -406,13 +406,13 @@ void rcMarkConvexPolyArea(rcContext* ctx, const float* verts, const int nverts,
 	
 	if (maxx < 0) return;
 	if (minx >= chf.width) return;
-	if (maxz < 0) return;
-	if (minz >= chf.height) return;
+	if (maxy < 0) return;
+	if (miny >= chf.height) return;
 	
 	if (minx < 0) minx = 0;
 	if (maxx >= chf.width) maxx = chf.width-1;
-	if (minz < 0) minz = 0;
-	if (maxz >= chf.height) maxz = chf.height-1;	
+	if (miny < 0) miny = 0;
+	if (maxy >= chf.height) maxy = chf.height-1;
 	
 	
 	// TODO: Optimize.
@@ -429,8 +429,8 @@ void rcMarkConvexPolyArea(rcContext* ctx, const float* verts, const int nverts,
 				if ((int)s.z >= minz && (int)s.z <= maxz)
 				{
 					float p[3];
-					p[0] = chf.bmin[0] + (x+0.5f)*chf.cs; 
-					p[1] = chf.bmin[1] + (y + 0.5f)*chf.cs;
+					p[0] = chf.bmin[0] + (x+0.5f)*chf.cs;
+					p[1] = chf.bmin[1] + (y+0.5f)*chf.cs;
 					p[2] = 0; 
 
 					if (pointInPoly(nverts, verts, p))
@@ -459,7 +459,7 @@ int rcOffsetPoly(const float* verts, const int nverts, const float offset,
 		const float* vb = &verts[b*3];
 		const float* vc = &verts[c*3];
 		float dx0 = vb[0] - va[0];
-		float dy0 = vb[2] - va[2];
+		float dy0 = vb[1] - va[1];
 		float d0 = dx0*dx0 + dy0*dy0;
 		if (d0 > 1e-6f)
 		{
@@ -468,7 +468,7 @@ int rcOffsetPoly(const float* verts, const int nverts, const float offset,
 			dy0 *= d0;
 		}
 		float dx1 = vc[0] - vb[0];
-		float dy1 = vc[2] - vb[2];
+		float dy1 = vc[1] - vb[1];
 		float d1 = dx1*dx1 + dy1*dy1;
 		if (d1 > 1e-6f)
 		{
@@ -498,12 +498,12 @@ int rcOffsetPoly(const float* verts, const int nverts, const float offset,
 				return 0;
 			float d = (1.0f - (dx0*dx1 + dy0*dy1))*0.5f;
 			outVerts[n*3+0] = vb[0] + (-dlx0+dx0*d)*offset;
-			outVerts[n*3+1] = vb[1];
-			outVerts[n*3+2] = vb[2] + (-dly0+dy0*d)*offset;
+			outVerts[n*3+1] = vb[1] + (-dly0+dy0*d)*offset;
+			outVerts[n*3+2] = vb[2];
 			n++;
 			outVerts[n*3+0] = vb[0] + (-dlx1-dx1*d)*offset;
-			outVerts[n*3+1] = vb[1];
-			outVerts[n*3+2] = vb[2] + (-dly1-dy1*d)*offset;
+			outVerts[n*3+1] = vb[1] + (-dly1-dy1*d)*offset;
+			outVerts[n*3+2] = vb[2];
 			n++;
 		}
 		else
@@ -511,8 +511,8 @@ int rcOffsetPoly(const float* verts, const int nverts, const float offset,
 			if (n+1 >= maxOutVerts)
 				return 0;
 			outVerts[n*3+0] = vb[0] - dmx*offset;
-			outVerts[n*3+1] = vb[1];
-			outVerts[n*3+2] = vb[2] - dmy*offset;
+			outVerts[n*3+1] = vb[1] - dmy*offset;
+			outVerts[n*3+2] = vb[2];
 			n++;
 		}
 	}
@@ -536,11 +536,11 @@ void rcMarkCylinderArea(rcContext* ctx, const float* pos,
 	
 	float bmin[3], bmax[3];
 	bmin[0] = pos[0] - r;
-	bmin[1] = pos[1];
-	bmin[2] = pos[2] - r;
+	bmin[1] = pos[1] - r;
+	bmin[2] = pos[2];
 	bmax[0] = pos[0] + r;
-	bmax[1] = pos[1] + h;
-	bmax[2] = pos[2] + r;
+	bmax[1] = pos[1] + r;
+	bmax[2] = pos[2] + h;
 	const float r2 = r*r;
 	
 	int minx = (int)((bmin[0]-chf.bmin[0])/chf.cs);
@@ -558,7 +558,7 @@ void rcMarkCylinderArea(rcContext* ctx, const float* pos,
 	if (minx < 0) minx = 0;
 	if (maxx >= chf.width) maxx = chf.width-1;
 	if (miny < 0) minz = 0;
-	if (maxy >= chf.height) maxy = chf.height-1;	
+	if (maxy >= chf.height) maxy = chf.height-1;
 	
 	
 	for (int y = miny; y <= maxy; ++y)

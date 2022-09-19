@@ -5,7 +5,7 @@
 // $NoKeywords: $
 //=============================================================================//
 #include "core/stdafx.h"
-#include "public/include/studio.h"
+#include "public/studio.h"
 #include "game/shared/animation.h"
 
 //-----------------------------------------------------------------------------

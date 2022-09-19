@@ -20,9 +20,9 @@ public:
 	CMaterialGlue* m_pDepthShadowTight; //0x0048
 	CMaterialGlue* m_pColPass; //0x0050
 	CShaderGlue* m_pShaderGlue; //0x0058
-	void* m_pTextureGUID1; //0x0060
-	void* m_pTextureGUID2; //0x0068
-	int16_t m_UnknownSignature; //0x0070 [ PIXIE ]: This seems to be the start of a modified VTF Header, I have no clue what this member does. 
+	void* m_pTextureGUID; //0x0060
+	void* m_pStreamableTextures; //0x0068
+	int16_t m_nStreamableTextureCount; //0x0070
 	int16_t m_iWidth; //0x0072 
 	int16_t m_iHeight; //0x0074
 	int16_t m_unused1; //0x0076
@@ -30,24 +30,24 @@ public:
 	int32_t m_unused2; //0x007C
 	uint8_t pad_0080[8]; //0x0080
 	uint32_t m_iUnknownFlags1; //0x0088
-	uint8_t pad_008C[116]; //0x008C
-
-	// They first point to a jump table which holds the texture, then theres another jump onto the actual texture.
-	void** m_ppDXTexture1; //0x0100
-	void** m_ppDXTexture2; //0x0108
-	uint8_t pad_0110[8]; //0x0110
-	uint32_t m_iUnknown1; //0x0118
-	uint16_t m_iUnknown2; //0x011C
-	uint16_t m_iUnknown3; //0x011E
-	uint16_t m_iUnknown4; //0x0120
-	uint64_t m_Unknown5; //0x0122
-	uint32_t m_iUnknown6; //0x012A
-	uint16_t m_iUnknown7; //0x012E
+	char pad_008C[103]; //0x008C
+	uint8_t m_iUnknown1; //0x00F3
+	char pad_00F4[12]; //0x00F4
+	void* m_pDXBuffer; //0x0100 [ PIXIE ]: ID3D11Buffer*, might need to include dx here.
+	void* m_pDXBufferVTable; //0x0108 [ PIXIE ]: ID3D11BufferVtbl, probably just leave it as a void*
+	void* m_pUnknown2; //0x0110
+	uint32_t m_iUnknown3; //0x0118
+	uint16_t m_iUnknown4; //0x011C
+	uint16_t m_iUnknown5; //0x011E
+	uint16_t m_iUnknown6; //0x0120
+	uint64_t m_Unknown7; //0x0122
+	uint32_t m_iUnknown8; //0x012A
+	uint16_t m_iUnknown9; //0x012E
 }; //Size: 0x0130 confirmed end size.
 static_assert(sizeof(CMaterialGlue) == 0x130);
 #pragma pack(pop)
 
-inline void* g_pMaterialGlueVTable = nullptr;
+inline void* g_pMaterialGlueVFTable = nullptr;
 
 /* ==== CMATERIALGLUE ================================================================================================================================================== */
 inline CMemory p_GetMaterialAtCrossHair;
@@ -61,19 +61,18 @@ class VMaterialGlue : public IDetour
 	virtual void GetAdr(void) const
 	{
 		spdlog::debug("| FUN: CMaterialGlue::GetMaterialAtCrossHair: {:#18x} |\n", p_GetMaterialAtCrossHair.GetPtr());
-		spdlog::debug("| CON: g_pMaterialGlueVTable                : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pMaterialGlueVTable));
+		spdlog::debug("| CON: g_pMaterialGlueVFTable               : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pMaterialGlueVFTable));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
-		p_GetMaterialAtCrossHair = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x83\xEC\x58\x48\x83\x3D\x00\x00\x00\x00\x00"), "xxxxxxxxxx?????");
+		p_GetMaterialAtCrossHair = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x83\xEC\x58\x48\x83\x3D\x00\x00\x00\x00\x00"), "xxxxxxxxxx?????");
 		GetMaterialAtCrossHair = p_GetMaterialAtCrossHair.RCast<CMaterialGlue* (*)(void)>(); /*48 8B C4 48 83 EC 58 48 83 3D ? ? ? ? ?*/
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const
 	{
-		g_pMaterialGlueVTable = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xB9\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x8D\x15\x00\x00\x00\x00"), "x????xxx????xxx????")
-			.FindPatternSelf("48 8D ?? ?? ?? ?? 01").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void*>(); /*B9 ? ? ? ? 48 8D 05 ? ? ? ? 48 8D 15 ? ? ? ?*/
+		g_pMaterialGlueVFTable = g_GameDll.GetVirtualMethodTable(".?AVCMaterialGlue@@");
 	}
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }

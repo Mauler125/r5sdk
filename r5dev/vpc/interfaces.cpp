@@ -15,7 +15,7 @@
 void CFactory::AddFactory(const string& svFactoryName, void* pFactory)
 {
 	size_t nVersionIndex = GetVersionIndex(svFactoryName);
-	FactoryInfo factoryInfo = FactoryInfo(svFactoryName, svFactoryName.substr(0, nVersionIndex),
+	FactoryInfo_t factoryInfo = FactoryInfo_t(svFactoryName, svFactoryName.substr(0, nVersionIndex),
 		svFactoryName.substr(nVersionIndex), reinterpret_cast<uintptr_t>(pFactory));
 
 	m_vFactories.push_back(factoryInfo); // Push factory info back into the vector.
@@ -25,7 +25,7 @@ void CFactory::AddFactory(const string& svFactoryName, void* pFactory)
 // Purpose: add a factory to the factories vector
 // Input  : factoryInfo - 
 //---------------------------------------------------------------------------------
-void CFactory::AddFactory(FactoryInfo factoryInfo)
+void CFactory::AddFactory(FactoryInfo_t factoryInfo)
 {
 	m_vFactories.push_back(factoryInfo); // Push factory info back into the vector.
 }
@@ -38,7 +38,7 @@ void CFactory::AddFactory(FactoryInfo factoryInfo)
 size_t CFactory::GetVersionIndex(const string& svInterfaceName) const
 {
 	size_t nVersionIndex = 0;
-	for (size_t i = 0; i < svInterfaceName.length(); i++) // Loop through each charater to find the start of interface version.
+	for (size_t i = 0; i < svInterfaceName.length(); i++) // Loop through each character to find the start of interface version.
 	{
 		if (std::isdigit(svInterfaceName[i]))
 		{
@@ -61,7 +61,7 @@ void CFactory::GetFactoriesFromRegister(void)
 		size_t nVersionIndex = GetVersionIndex(svInterfaceName);
 
 		// Push back the interface.
-		AddFactory(FactoryInfo(svInterfaceName, svInterfaceName.substr(0, nVersionIndex), 
+		AddFactory(FactoryInfo_t(svInterfaceName, svInterfaceName.substr(0, nVersionIndex), 
 			svInterfaceName.substr(nVersionIndex), reinterpret_cast<uintptr_t>(it->m_pInterfacePtr())));
 	}
 }
@@ -74,7 +74,7 @@ void CFactory::GetFactoriesFromRegister(void)
 //---------------------------------------------------------------------------------
 CMemory CFactory::GetFactoryPtr(const string& svFactoryName, bool bVersionLess) const
 {
-	for (auto& it : m_vFactories) // Loop through the whole vector.
+	for (const FactoryInfo_t& it : m_vFactories) // Loop through the whole vector.
 	{
 		if (bVersionLess)
 		{
@@ -89,6 +89,31 @@ CMemory CFactory::GetFactoryPtr(const string& svFactoryName, bool bVersionLess) 
 	}
 
 	return CMemory();
+}
+
+
+//---------------------------------------------------------------------------------
+// Purpose: get full factory string from versionless string
+// Input  : svFactoryName - 
+// Output : const char*
+//---------------------------------------------------------------------------------
+const char* CFactory::GetFactoryFullName(const string& svFactoryName) const
+{
+	for (const FactoryInfo_t& it : m_vFactories)
+	{
+		if (it.m_szFactoryName == svFactoryName)
+			return it.m_szFactoryFullName.c_str();
+	}
+
+	return "";
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: expose factory system to other dlls
+//---------------------------------------------------------------------------------
+extern "C" __declspec(dllexport) void* GetFactorySystem()
+{
+	return g_pFactory;
 }
 
 CFactory* g_pFactory = new CFactory();

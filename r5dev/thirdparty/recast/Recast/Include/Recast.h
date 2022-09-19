@@ -203,16 +203,16 @@ struct rcConfig
 	/// The height of the field along the z-axis. [Limit: >= 0] [Units: vx]
 	int height;
 	
-	/// The width/height size of tile's on the xz-plane. [Limit: >= 0] [Units: vx]
+	/// The width/height size of tile's on the xy-plane. [Limit: >= 0] [Units: vx]
 	int tileSize;
 	
 	/// The size of the non-navigable border around the heightfield. [Limit: >=0] [Units: vx]
 	int borderSize;
 
-	/// The xz-plane cell size to use for fields. [Limit: > 0] [Units: wu] 
+	/// The xy-plane cell size to use for fields. [Limit: > 0] [Units: wu] 
 	float cs;
 
-	/// The y-axis cell size to use for fields. [Limit: > 0] [Units: wu]
+	/// The z-axis cell size to use for fields. [Limit: > 0] [Units: wu]
 	float ch;
 
 	/// The minimum bounds of the field's AABB. [(x, y, z)] [Units: wu]
@@ -300,8 +300,8 @@ struct rcHeightfield
 	int height;			///< The height of the heightfield. (Along the z-axis in cell units.)
 	float bmin[3];  	///< The minimum bounds in world space. [(x, y, z)]
 	float bmax[3];		///< The maximum bounds in world space. [(x, y, z)]
-	float cs;			///< The size of each cell. (On the xz-plane.)
-	float ch;			///< The height of each cell. (The minimum increment along the y-axis.)
+	float cs;			///< The size of each cell. (On the xy-plane.)
+	float ch;			///< The height of each cell. (The minimum increment along the z-axis.)
 	rcSpan** spans;		///< Heightfield of spans (width*height).
 	rcSpanPool* pools;	///< Linked list of span pools.
 	rcSpan* freelist;	///< The next free span.
@@ -344,8 +344,8 @@ struct rcCompactHeightfield
 	unsigned short maxRegions;	///< The maximum region id of any span within the field. 
 	float bmin[3];				///< The minimum bounds in world space. [(x, y, z)]
 	float bmax[3];				///< The maximum bounds in world space. [(x, y, z)]
-	float cs;					///< The size of each cell. (On the xz-plane.)
-	float ch;					///< The height of each cell. (The minimum increment along the y-axis.)
+	float cs;					///< The size of each cell. (On the xy-plane.)
+	float ch;					///< The height of each cell. (The minimum increment along the z-axis.)
 	rcCompactCell* cells;		///< Array of cells. [Size: #width*#height]
 	rcCompactSpan* spans;		///< Array of spans. [Size: #spanCount]
 	unsigned short* dist;		///< Array containing border distance data. [Size: #spanCount]
@@ -358,8 +358,8 @@ struct rcHeightfieldLayer
 {
 	float bmin[3];				///< The minimum bounds in world space. [(x, y, z)]
 	float bmax[3];				///< The maximum bounds in world space. [(x, y, z)]
-	float cs;					///< The size of each cell. (On the xz-plane.)
-	float ch;					///< The height of each cell. (The minimum increment along the y-axis.)
+	float cs;					///< The size of each cell. (On the xy-plane.)
+	float ch;					///< The height of each cell. (The minimum increment along the z-axis.)
 	int width;					///< The width of the heightfield. (Along the x-axis in cell units.)
 	int height;					///< The height of the heightfield. (Along the z-axis in cell units.)
 	int minx;					///< The minimum x-bounds of usable data.
@@ -405,8 +405,8 @@ struct rcContourSet
 	int nconts;			///< The number of contours in the set.
 	float bmin[3];  	///< The minimum bounds in world space. [(x, y, z)]
 	float bmax[3];		///< The maximum bounds in world space. [(x, y, z)]
-	float cs;			///< The size of each cell. (On the xz-plane.)
-	float ch;			///< The height of each cell. (The minimum increment along the y-axis.)
+	float cs;			///< The size of each cell. (On the xy-plane.)
+	float ch;			///< The height of each cell. (The minimum increment along the z-axis.)
 	int width;			///< The width of the set. (Along the x-axis in cell units.) 
 	int height;			///< The height of the set. (Along the z-axis in cell units.) 
 	int borderSize;		///< The AABB border size used to generate the source data from which the contours were derived.
@@ -430,8 +430,8 @@ struct rcPolyMesh
 	int nvp;				///< The maximum number of vertices per polygon.
 	float bmin[3];			///< The minimum bounds in world space. [(x, y, z)]
 	float bmax[3];			///< The maximum bounds in world space. [(x, y, z)]
-	float cs;				///< The size of each cell. (On the xz-plane.)
-	float ch;				///< The height of each cell. (The minimum increment along the y-axis.)
+	float cs;				///< The size of each cell. (On the xy-plane.)
+	float ch;				///< The height of each cell. (The minimum increment along the z-axis.)
 	int borderSize;			///< The AABB border size used to generate the source data from which the mesh was derived.
 	float maxEdgeError;		///< The max error of the polygon edges in the mesh.
 };
@@ -727,6 +727,13 @@ inline void rcVcopy(float* dest, const float* v)
 	dest[2] = v[2];
 }
 
+inline void rcVswap(float* dest, const float* v)
+{
+	dest[0] = v[0];
+	dest[2] = v[1];
+	dest[1] = v[2];
+}
+
 /// Returns the distance between two points.
 ///  @param[in]		v1	A point. [(x, y, z)]
 ///  @param[in]		v2	A point. [(x, y, z)]
@@ -778,9 +785,9 @@ void rcCalcBounds(const float* verts, int nv, float* bmin, float* bmax);
 ///  @ingroup recast
 ///  @param[in]		bmin	The minimum bounds of the AABB. [(x, y, z)] [Units: wu]
 ///  @param[in]		bmax	The maximum bounds of the AABB. [(x, y, z)] [Units: wu]
-///  @param[in]		cs		The xz-plane cell size. [Limit: > 0] [Units: wu]
+///  @param[in]		cs		The xy-plane cell size. [Limit: > 0] [Units: wu]
 ///  @param[out]	w		The width along the x-axis. [Limit: >= 0] [Units: vx]
-///  @param[out]	h		The height along the z-axis. [Limit: >= 0] [Units: vx]
+///  @param[out]	h		The height along the y-axis. [Limit: >= 0] [Units: vx]
 void rcCalcGridSize(const float* bmin, const float* bmax, float cs, int* w, int* h);
 
 /// Initializes a new heightfield.
@@ -791,8 +798,8 @@ void rcCalcGridSize(const float* bmin, const float* bmax, float cs, int* w, int*
 ///  @param[in]		height	The height of the field along the z-axis. [Limit: >= 0] [Units: vx]
 ///  @param[in]		bmin	The minimum bounds of the field's AABB. [(x, y, z)] [Units: wu]
 ///  @param[in]		bmax	The maximum bounds of the field's AABB. [(x, y, z)] [Units: wu]
-///  @param[in]		cs		The xz-plane cell size to use for the field. [Limit: > 0] [Units: wu]
-///  @param[in]		ch		The y-axis cell size to use for field. [Limit: > 0] [Units: wu]
+///  @param[in]		cs		The xy-plane cell size to use for the field. [Limit: > 0] [Units: wu]
+///  @param[in]		ch		The z-axis cell size to use for field. [Limit: > 0] [Units: wu]
 ///  @returns True if the operation completed successfully.
 bool rcCreateHeightfield(rcContext* ctx, rcHeightfield& hf, int width, int height,
 						 const float* bmin, const float* bmax,

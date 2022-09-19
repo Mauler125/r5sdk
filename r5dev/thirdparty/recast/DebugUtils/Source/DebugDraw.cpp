@@ -82,7 +82,7 @@ void duDebugDrawCylinderWire(struct duDebugDraw* dd, float minx, float miny, flo
 	if (!dd) return;
 	
 	dd->begin(DU_DRAW_LINES, lineWidth);
-	duAppendCylinderWire(dd, minx,minz,miny, maxx,maxz,maxy, col);
+	duAppendCylinderWire(dd, minx,miny,minz, maxx,maxy,maxz, col);
 	dd->end();
 }
 
@@ -124,7 +124,7 @@ void duDebugDrawCircle(struct duDebugDraw* dd, const float x, const float y, con
 	if (!dd) return;
 	
 	dd->begin(DU_DRAW_LINES, lineWidth);
-	duAppendCircle(dd, x,z,y, r, col);
+	duAppendCircle(dd, x,y,z, r, col);
 	dd->end();
 }
 
@@ -154,7 +154,7 @@ void duDebugDrawCylinder(struct duDebugDraw* dd, float minx, float miny, float m
 	if (!dd) return;
 	
 	dd->begin(DU_DRAW_TRIS);
-	duAppendCylinder(dd, minx,minz,miny, maxx,maxz,maxy, col);
+	duAppendCylinder(dd, minx,miny,minz, maxx,maxy,maxz, col);
 	dd->end();
 }
 
@@ -237,21 +237,21 @@ void duAppendCylinderWire(struct duDebugDraw* dd, float minx, float miny, float 
 	}
 	
 	const float cx = (maxx + minx)/2;
-	const float cz = (maxz + minz)/2;
+	const float cy = (maxy + miny)/2;
 	const float rx = (maxx - minx)/2;
-	const float rz = (maxz - minz)/2;
+	const float ry = (maxy - miny)/2;
 	
 	for (int i = 0, j = NUM_SEG-1; i < NUM_SEG; j = i++)
 	{
-		dd->vertex(cx+dir[j*2+0]*rx, cz+dir[j*2+1]*rz, miny, col);
-		dd->vertex(cx+dir[i*2+0]*rx, cz+dir[i*2+1]*rz, miny, col);
-		dd->vertex(cx+dir[j*2+0]*rx, cz+dir[j*2+1]*rz, maxy, col);
-		dd->vertex(cx+dir[i*2+0]*rx, cz+dir[i*2+1]*rz, maxy, col);
+		dd->vertex(cx+dir[j*2+0]*rx, cy+dir[j*2+1]*ry, minz, col);
+		dd->vertex(cx+dir[i*2+0]*rx, cy+dir[i*2+1]*ry, minz, col);
+		dd->vertex(cx+dir[j*2+0]*rx, cy+dir[j*2+1]*ry, maxz, col);
+		dd->vertex(cx+dir[i*2+0]*rx, cy+dir[i*2+1]*ry, maxz, col);
 	}
 	for (int i = 0; i < NUM_SEG; i += NUM_SEG/4)
 	{
-		dd->vertex(cx+dir[i*2+0]*rx, cz+dir[i*2+1]*rz, miny, col);
-		dd->vertex(cx+dir[i*2+0]*rx, cz+dir[i*2+1]*rz, maxy, col);
+		dd->vertex(cx+dir[i*2+0]*rx, cy+dir[i*2+1]*ry, minz, col);
+		dd->vertex(cx+dir[i*2+0]*rx, cy+dir[i*2+1]*ry, maxz, col);
 	}
 }
 
@@ -372,33 +372,33 @@ void duAppendCylinder(struct duDebugDraw* dd, float minx, float miny, float minz
 	unsigned int col2 = duMultCol(col, 160);
 	
 	const float cx = (maxx + minx)/2;
-	const float cz = (maxz + minz)/2;
+	const float cy = (maxy + miny)/2;
 	const float rx = (maxx - minx)/2;
-	const float rz = (maxz - minz)/2;
+	const float ry = (maxy - miny)/2;
 
 	for (int i = 2; i < NUM_SEG; ++i)
 	{
 		const int a = 0, b = i-1, c = i;
-		dd->vertex(cx+dir[a*2+0]*rx, cz+dir[a*2+1]*rz, miny, col2);
-		dd->vertex(cx+dir[b*2+0]*rx, cz+dir[b*2+1]*rz, miny, col2);
-		dd->vertex(cx+dir[c*2+0]*rx, cz+dir[c*2+1]*rz, miny, col2);
+		dd->vertex(cx+dir[a*2+0]*rx, cy+dir[a*2+1]*ry, minz, col2);
+		dd->vertex(cx+dir[b*2+0]*rx, cy+dir[b*2+1]*ry, minz, col2);
+		dd->vertex(cx+dir[c*2+0]*rx, cy+dir[c*2+1]*ry, minz, col2);
 	}
 	for (int i = 2; i < NUM_SEG; ++i)
 	{
 		const int a = 0, b = i, c = i-1;
-		dd->vertex(cx+dir[a*2+0]*rx, cz+dir[a*2+1]*rz, maxy, col);
-		dd->vertex(cx+dir[b*2+0]*rx, cz+dir[b*2+1]*rz, maxy, col);
-		dd->vertex(cx+dir[c*2+0]*rx, cz+dir[c*2+1]*rz, maxy, col);
+		dd->vertex(cx+dir[a*2+0]*rx, cy+dir[a*2+1]*ry, maxz, col);
+		dd->vertex(cx+dir[b*2+0]*rx, cy+dir[b*2+1]*ry, maxz, col);
+		dd->vertex(cx+dir[c*2+0]*rx, cy+dir[c*2+1]*ry, maxz, col);
 	}
 	for (int i = 0, j = NUM_SEG-1; i < NUM_SEG; j = i++)
 	{
-		dd->vertex(cx+dir[i*2+0]*rx, cz+dir[i*2+1]*rz, miny, col2);
-		dd->vertex(cx+dir[j*2+0]*rx, cz+dir[j*2+1]*rz, miny, col2);
-		dd->vertex(cx+dir[j*2+0]*rx, cz+dir[j*2+1]*rz, maxy, col);
+		dd->vertex(cx+dir[i*2+0]*rx, cy+dir[i*2+1]*ry, minz, col2);
+		dd->vertex(cx+dir[j*2+0]*rx, cy+dir[j*2+1]*ry, minz, col2);
+		dd->vertex(cx+dir[j*2+0]*rx, cy+dir[j*2+1]*ry, maxz, col);
 
-		dd->vertex(cx+dir[i*2+0]*rx, cz+dir[i*2+1]*rz, miny, col2);
-		dd->vertex(cx+dir[j*2+0]*rx, cz+dir[j*2+1]*rz, maxy, col);
-		dd->vertex(cx+dir[i*2+0]*rx, cz+dir[i*2+1]*rz, maxy, col);
+		dd->vertex(cx+dir[i*2+0]*rx, cy+dir[i*2+1]*ry, minz, col2);
+		dd->vertex(cx+dir[j*2+0]*rx, cy+dir[j*2+1]*ry, maxz, col);
+		dd->vertex(cx+dir[i*2+0]*rx, cy+dir[i*2+1]*ry, maxz, col);
 	}
 }
 
@@ -408,7 +408,7 @@ inline void evalArc(const float x0, const float y0, const float z0,
 {
 	res[0] = x0 + dx * u;
 	res[1] = y0 + dy * u;
-	res[2] = z0 + dz * u + h * (1 - (u * 2 - 1) * (u * 2 - 1));
+	res[2] = z0 + dz * u + h * (1-(u*2-1)*(u*2-1));
 }
 
 
@@ -457,13 +457,10 @@ void appendArrowHead(struct duDebugDraw* dd, const float* p, const float* q,
 	vnormalize(ay);
 
 	dd->vertex(p, col);
-//	dd->vertex(p[0]+az[0]*s+ay[0]*s/2, p[1]+az[1]*s+ay[1]*s/2, p[2]+az[2]*s+ay[2]*s/2, col);
-	dd->vertex(p[0]+az[0]*s+ax[0]*s/3, p[1]+az[1]*s+ax[1]*s/3, p[2]+az[2]*s+ax[2]*s/3, col);
+	dd->vertex(p[0]+az[0]*s+ay[0]*s/2, p[1]+az[1]*s+ay[1]*s/2, p[2]+az[2]*s+ay[2]*s/2, col);
 
 	dd->vertex(p, col);
-//	dd->vertex(p[0]+az[0]*s-ay[0]*s/2, p[1]+az[1]*s-ay[1]*s/2, p[2]+az[2]*s-ay[2]*s/2, col);
-	dd->vertex(p[0]+az[0]*s-ax[0]*s/3, p[1]+az[1]*s-ax[1]*s/3, p[2]+az[2]*s-ax[2]*s/3, col);
-	
+	dd->vertex(p[0]+az[0]*s-ay[0]*s/2, p[1]+az[1]*s-ay[1]*s/2, p[2]+az[2]*s-ay[2]*s/2, col);
 }
 
 void duAppendArc(struct duDebugDraw* dd, const float x0, const float y0, const float z0,
@@ -545,8 +542,8 @@ void duAppendCircle(struct duDebugDraw* dd, const float x, const float y, const 
 	
 	for (int i = 0, j = NUM_SEG-1; i < NUM_SEG; j = i++)
 	{
-		dd->vertex(x+dir[j*2+0]*r, z+dir[j*2+1]*r, y, col);
-		dd->vertex(x+dir[i*2+0]*r, z+dir[i*2+1]*r, y, col);
+		dd->vertex(x+dir[j*2+0]*r, y+dir[j*2+1]*r, z, col);
+		dd->vertex(x+dir[i*2+0]*r, y+dir[i*2+1]*r, z, col);
 	}
 }
 

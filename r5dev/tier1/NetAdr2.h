@@ -60,9 +60,9 @@ public:
 
 private:
 	string            m_svip;
-	netadrtype_t      m_type{};
-	netadrversion_t   m_version{};
-	sockaddr_storage* m_sadr{};
+	netadrtype_t      m_type;
+	netadrversion_t   m_version;
+	sockaddr_storage* m_sadr;
 };
 
 class v_netadr_t // !TODO: Move this to 'NetAdr.h' instead and adjust existing class to new system.
@@ -74,10 +74,16 @@ public:
 	}
 	inline string GetAddress(void) const
 	{
-		char szAdr[INET6_ADDRSTRLEN]{};
-		inet_ntop(AF_INET6, &this->adr, szAdr, INET6_ADDRSTRLEN);
+		// Select a static buffer
+		static char s[4][INET6_ADDRSTRLEN];
+		static int slot = 0;
+		int useSlot = (slot++) % 4;
 
-		return szAdr;
+		// Render into it
+		inet_ntop(AF_INET6, &this->adr, s[useSlot], sizeof(s[0]));
+
+		// Pray the caller uses it before it gets clobbered
+		return s[useSlot];
 	}
 	inline uint16_t GetPort(void) const
 	{

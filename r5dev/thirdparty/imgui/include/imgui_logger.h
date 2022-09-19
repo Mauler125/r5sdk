@@ -165,8 +165,8 @@ public:
 	bool HasSelection() const;
 	void MoveSelection(int aLines, bool aForward = true);
 
-	void RemoveLine(int aStart, int aEnd, bool aInternal = false);
-	void RemoveLine(int aIndex, bool aInternal = false);
+	void RemoveLine(int aStart, int aEnd);
+	void RemoveLine(int aIndex);
 
 private:
 	struct LoggerState_t
@@ -213,13 +213,15 @@ private:
 	bool m_bHandleMouseInputs;
 	bool m_bWithinLoggingRect;
 	bool m_bShowWhiteSpaces;
-	float m_flTextStart;                   // position (in pixels) where a code line starts relative to the left of the TextLogger.
-	float m_flLineSpacing;
-	double m_flLastClick;
+	bool m_bLinesOffsetForward;
+	int m_nLinesOffsetAmount;
 	int m_nTabSize;
 	int m_nLeftMargin;
 	int m_nColorRangeMin;
 	int m_nColorRangeMax;
+	float m_flTextStart;                   // position (in pixels) where a code line starts relative to the left of the TextLogger.
+	float m_flLineSpacing;
+	double m_flLastClick;
 	uint64_t m_nStartTime;
 
 	SelectionMode m_SelectionMode;
@@ -229,7 +231,6 @@ private:
 
 	Lines m_Lines;
 	LoggerState_t m_State;
-	std::mutex m_Mutex;
 	std::string m_svLineBuffer;
 public:
 	ImGuiTextFilter m_itFilter;

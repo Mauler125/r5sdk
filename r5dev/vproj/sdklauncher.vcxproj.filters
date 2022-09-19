@@ -31,14 +31,14 @@
     <ClCompile Include="..\core\stdafx.cpp">
       <Filter>core</Filter>
     </ClCompile>
-    <ClCompile Include="..\public\utility.cpp">
-      <Filter>public</Filter>
-    </ClCompile>
     <ClCompile Include="..\sdklauncher\basepanel.cpp">
       <Filter>ui</Filter>
     </ClCompile>
     <ClCompile Include="..\sdklauncher\sdklauncher.cpp">
       <Filter>launcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\utility\utility.cpp">
+      <Filter>public</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -59,9 +59,6 @@
     <ClInclude Include="..\core\stdafx.h">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\include\utility.h">
-      <Filter>public</Filter>
-    </ClInclude>
     <ClInclude Include="..\sdklauncher\basepanel.h">
       <Filter>ui</Filter>
     </ClInclude>
@@ -76,6 +73,9 @@
     </ClInclude>
     <ClInclude Include="..\launcher\launcherdefs.h">
       <Filter>launcher</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\utility\utility.h">
+      <Filter>public</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

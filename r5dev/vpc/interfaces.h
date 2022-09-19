@@ -3,6 +3,8 @@
 /*-----------------------------------------------------------------------------
  * _interfaces.h
  *-----------------------------------------------------------------------------*/
+
+// Maybe make them constexpr.
 #define VENGINE_LAUNCHER_API_VERSION              "VENGINE_LAUNCHER_API_VERSION004"
 #define VENGINE_GAMEUIFUNCS_VERSION               "VENGINE_GAMEUIFUNCS_VERSION005"
 
@@ -36,7 +38,8 @@
 
 #define SHADERSYSTEM_INTERFACE_VERSION            "ShaderSystem002"
 #define FILESYSTEM_INTERFACE_VERSION              "VFileSystem017"
- //-----------------------------------------------------------------------------
+#define FACTORY_INTERFACE_VERSION                 "VFactorySystem001"
+//-----------------------------------------------------------------------------
 
 enum class InterfaceStatus_t : int
 {
@@ -49,6 +52,8 @@ enum class InterfaceStatus_t : int
 //-----------------------------------------------------------------------------
 typedef void* (*CreateInterfaceFn)(const char* pName, int* pReturnCode);
 typedef void* (*InstantiateInterfaceFn)();
+typedef HINSTANCE CSysModule;
+
 struct InterfaceGlobals_t
 {
 	InstantiateInterfaceFn m_pInterfacePtr;
@@ -57,17 +62,17 @@ struct InterfaceGlobals_t
 };
 //-----------------------------------------------------------------------------
 
-struct FactoryInfo
+struct FactoryInfo_t
 {
 	CMemory m_pFactoryPtr;
 	string m_szFactoryFullName;
 	string m_szFactoryName;
 	string m_szFactoryVersion;
 
-	FactoryInfo() : m_szFactoryFullName(string()), m_szFactoryName(string()), m_szFactoryVersion(string()), m_pFactoryPtr(nullptr) {}
-	FactoryInfo(string factoryFullName, string factoryName, string factoryVersion, uintptr_t factoryPtr) : 
+	FactoryInfo_t() : m_szFactoryFullName(string()), m_szFactoryName(string()), m_szFactoryVersion(string()), m_pFactoryPtr(nullptr) {}
+	FactoryInfo_t(string factoryFullName, string factoryName, string factoryVersion, uintptr_t factoryPtr) : 
 		m_szFactoryFullName(factoryFullName), m_szFactoryName(factoryName), m_szFactoryVersion(factoryVersion), m_pFactoryPtr(factoryPtr) {}
-	FactoryInfo(string factoryFullName, uintptr_t factoryPtr) : 
+	FactoryInfo_t(string factoryFullName, uintptr_t factoryPtr) : 
 		m_szFactoryFullName(factoryFullName), m_szFactoryName(string()), m_szFactoryVersion(string()), m_pFactoryPtr(factoryPtr) {}
 };
 
@@ -78,13 +83,14 @@ class CFactory
 {
 public:
 	virtual void AddFactory(const string& svFactoryName, void* pFactory);
-	virtual void AddFactory(FactoryInfo factoryInfo);
+	virtual void AddFactory(FactoryInfo_t factoryInfo);
 	virtual size_t GetVersionIndex(const string& svInterfaceName) const;
 	virtual void GetFactoriesFromRegister(void);
 	virtual CMemory GetFactoryPtr(const string& svFactoryName, bool versionLess = true) const;
+	virtual const char* GetFactoryFullName(const string& svFactoryName) const;
 
 private:
-	vector<FactoryInfo> m_vFactories;
+	vector<FactoryInfo_t> m_vFactories;
 };
 extern CFactory* g_pFactory;
 
@@ -102,7 +108,7 @@ class VFactory : public IDetour
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
-		s_pInterfacesRegs = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE9\x00\x00\x00\x00\xCC\xCC\x89\x91\x00\x00\x00\x00"), "x????xxxx????")
+		s_pInterfacesRegs = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE9\x00\x00\x00\x00\xCC\xCC\x89\x91\x00\x00\x00\x00"), "x????xxxx????")
 			.FollowNearCallSelf().FindPatternSelf("48 8B 1D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7);
 	}
 	virtual void GetCon(void) const { }

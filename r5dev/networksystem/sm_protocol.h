@@ -28,7 +28,7 @@ enum NetworkMessageGroup_t
 };
 
 //=============================================================================
-// Networksystem internal messages for use during valid connection
+// NetworkSystem internal messages for use during valid connection
 enum SystemNetworkMessageType_t
 {
 	net_nop 		= 0,			// nop command used for padding

@@ -238,6 +238,8 @@ public:
 	Vector3D	operator-(const Vector3D& v) const;
 	Vector3D	operator*(const Vector3D& v) const;
 	Vector3D	operator/(const Vector3D& v) const;
+	Vector3D	operator+(float fl) const;
+	Vector3D	operator-(float fl) const;
 	Vector3D	operator*(float fl) const;
 	Vector3D	operator/(float fl) const;
 
@@ -1241,6 +1243,15 @@ FORCEINLINE IntVector4D IntVector4D::operator*(float fl) const
 // =======================
 
 
+FORCEINLINE void VectorAdd(const Vector3D& a, vec_t b, Vector3D& c)
+{
+	CHECK_VALID(a);
+	CHECK_VALID(b);
+	c.x = a.x + b;
+	c.y = a.y + b;
+	c.z = a.z + b;
+}
+
 FORCEINLINE void VectorAdd(const Vector3D& a, const Vector3D& b, Vector3D& c)
 {
 	CHECK_VALID(a);
@@ -1248,6 +1259,15 @@ FORCEINLINE void VectorAdd(const Vector3D& a, const Vector3D& b, Vector3D& c)
 	c.x = a.x + b.x;
 	c.y = a.y + b.y;
 	c.z = a.z + b.z;
+}
+
+FORCEINLINE void VectorSubtract(const Vector3D& a, vec_t b, Vector3D& c)
+{
+	CHECK_VALID(a);
+	CHECK_VALID(b);
+	c.x = a.x - b;
+	c.y = a.y - b;
+	c.z = a.z - b;
 }
 
 FORCEINLINE void VectorSubtract(const Vector3D& a, const Vector3D& b, Vector3D& c)
@@ -1277,7 +1297,7 @@ FORCEINLINE void VectorMultiply(const Vector3D& a, const Vector3D& b, Vector3D& 
 	c.z = a.z * b.z;
 }
 
-// for backwards compatability
+// for backwards compatibility
 inline void VectorScale(const Vector3D& in, vec_t scale, Vector3D& result)
 {
 	VectorMultiply(in, scale, result);
@@ -1305,7 +1325,7 @@ FORCEINLINE void VectorDivide(const Vector3D& a, const Vector3D& b, Vector3D& c)
 }
 
 // FIXME: Remove
-// For backwards compatability
+// For backwards compatibility
 inline void	Vector3D::MulAdd(const Vector3D& a, const Vector3D& b, float scalar)
 {
 	CHECK_VALID(a);
@@ -1367,7 +1387,7 @@ FORCEINLINE vec_t DotProduct(const Vector3D& a, const Vector3D& b)
 	return(a.x * b.x + a.y * b.y + a.z * b.z);
 }
 
-// for backwards compatability
+// for backwards compatibility
 inline vec_t Vector3D::Dot(const Vector3D& vOther) const
 {
 	CHECK_VALID(vOther);
@@ -1482,7 +1502,7 @@ inline vec_t VectorNormalize( Vector& v )
 	else
 	{
 		// FIXME:
-		// Just copying the existing implemenation; shouldn't res.z == 0?
+		// Just copying the existing implementation; shouldn't res.z == 0?
 		v.x = v.y = 0.0f; v.z = 1.0f;
 	}
 	return l;
@@ -1624,10 +1644,24 @@ inline Vector3D Vector3D::operator-(void) const
 	return Vector3D(-x, -y, -z);
 }
 
+inline Vector3D Vector3D::operator+(float fl) const
+{
+	Vector3D res;
+	VectorAdd(*this, fl, res);
+	return res;
+}
+
 inline Vector3D Vector3D::operator+(const Vector3D& v) const
 {
 	Vector3D res;
 	VectorAdd(*this, v, res);
+	return res;
+}
+
+inline Vector3D Vector3D::operator-(float fl) const
+{
+	Vector3D res;
+	VectorSubtract(*this, fl, res);
 	return res;
 }
 
@@ -1793,7 +1827,7 @@ inline const Vector3D VectorPerpendicularToVector(const Vector3D& in)
 //-----------------------------------------------------------------------------
 // AngularImpulse
 //-----------------------------------------------------------------------------
-// AngularImpulse are exponetial maps (an axis scaled by a "twist" angle in degrees)
+// AngularImpulse are exponential maps (an axis scaled by a "twist" angle in degrees)
 typedef Vector3D AngularImpulse;
 
 #ifndef VECTOR_NO_SLOW_OPERATIONS
@@ -1933,7 +1967,7 @@ void Quaternion::Print() const
 
 
 //-----------------------------------------------------------------------------
-// Binaray operators
+// Binary operators
 //-----------------------------------------------------------------------------
 inline Quaternion operator+(const Quaternion& q1, const Quaternion& q2)
 {
@@ -2796,7 +2830,7 @@ inline QAngle Quaternion::ToQAngle() const
 
 FORCEINLINE vec_t InvRSquared(const float* v)
 {
-	return 1.0 / MAX(1.0, v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+	return 1.0f / MAX(1.0f, v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
 }
 
 FORCEINLINE vec_t InvRSquared(const Vector3D& v)

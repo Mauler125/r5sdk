@@ -24,13 +24,13 @@ bool HIVEngineServer__PersistenceAvailable(void* entidx, int clienthandle)
 
 		string svClientName = pNetChan->GetName();
 		string svIpAddress = pNetChan->GetAddress();
-		uint64_t nOriginID = pClient->GetOriginID();
+		uint64_t nNucleusID = pClient->GetNucleusID();
 
 		DevMsg(eDLL_T::SERVER, "______________________________________________________________\n");
-		DevMsg(eDLL_T::SERVER, "+- NetChannel:\n");
+		DevMsg(eDLL_T::SERVER, "+- Enabled persistence for NetChannel:\n");
 		DevMsg(eDLL_T::SERVER, " |- IDX : | '#%d'\n", clienthandle);
 		DevMsg(eDLL_T::SERVER, " |- UID : | '%s'\n", svClientName.c_str());
-		DevMsg(eDLL_T::SERVER, " |- OID : | '%llu'\n", nOriginID);
+		DevMsg(eDLL_T::SERVER, " |- PID : | '%llu'\n", nNucleusID);
 		DevMsg(eDLL_T::SERVER, " |- ADR : | '%s'\n", svIpAddress.c_str());
 		DevMsg(eDLL_T::SERVER, " -------------------------------------------------------------\n");
 

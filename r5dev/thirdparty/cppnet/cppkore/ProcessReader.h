@@ -52,9 +52,9 @@ namespace IO
 		// Scan the process for a given signature
 		int64_t SignatureScan(const String& Signature, uint64_t Address, uint64_t Count);
 
-		// Scan the process for a given signature (All occurences)
+		// Scan the process for a given signature (All occurrences)
 		List<int64_t> SignatureScanAll(const String& Signature, bool ScanAllMemory = false);
-		// Scan the process for a given signature (All occurences)
+		// Scan the process for a given signature (All occurrences)
 		List<int64_t> SignatureScanAll(const String& Signature, uint64_t Address, uint64_t Count);
 
 		// Whether or not the process is running

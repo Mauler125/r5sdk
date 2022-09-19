@@ -7,10 +7,12 @@
 #include "core/stdafx.h"
 #include "core/init.h"
 #include "core/logdef.h"
+#include "tier0/frametask.h"
 #include "tier1/cmd.h"
 #ifndef DEDICATED
 #include "windows/id3dx.h"
 #endif // !DEDICATED
+#include "windows/system.h"
 #include "windows/console.h"
 #include "common/opcodes.h"
 
@@ -97,7 +99,7 @@ void Console_Init()
 		CloseHandle(hThread);
 	}
 
-	if (strstr(g_svCmdLine.c_str(), "-ansiclr"))
+	if (g_svCmdLine.find("-ansiclr") != string::npos)
 	{
 		GetConsoleMode(hOutput, &dwMode);
 		dwMode |= ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
@@ -111,6 +113,7 @@ void Console_Init()
 		SetConsoleBackgroundColor(0x0000);
 		AnsiColors_Init();
 	}
+	SetConsoleCtrlHandler(ConsoleHandlerRoutine, true);
 }
 
 //#############################################################################
@@ -129,11 +132,11 @@ DWORD __stdcall ProcessConsoleWorker(LPVOID)
 		std::getline(std::cin, sCommand);
 
 		//-- Debug toggles
-		if (sCommand == "pattern test") { PrintHAddress(); continue; }
+		if (sCommand == "sig_getadr") { DetourAddress(); continue; }
 
-		// Execute the command in the r5 SQVM
+		// Execute the command.
 		Cbuf_AddText(Cbuf_GetCurrentPlayer(), sCommand.c_str(), cmd_source_t::kCommandSrcCode);
-		Cbuf_Execute();
+		//g_TaskScheduler->Dispatch(Cbuf_Execute, 0);
 
 		sCommand.clear();
 

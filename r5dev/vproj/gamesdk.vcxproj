@@ -36,12 +36,14 @@
     <ClCompile Include="..\engine\debugoverlay.cpp" />
     <ClCompile Include="..\engine\gl_rsurf.cpp" />
     <ClCompile Include="..\engine\gl_screen.cpp" />
+    <ClCompile Include="..\engine\host.cpp" />
     <ClCompile Include="..\engine\host_cmd.cpp" />
     <ClCompile Include="..\engine\host_state.cpp" />
     <ClCompile Include="..\engine\modelloader.cpp" />
     <ClCompile Include="..\engine\net.cpp" />
     <ClCompile Include="..\engine\networkstringtable.cpp" />
     <ClCompile Include="..\engine\net_chan.cpp" />
+    <ClCompile Include="..\engine\sdk_dll.cpp" />
     <ClCompile Include="..\engine\server\server.cpp" />
     <ClCompile Include="..\engine\server\sv_main.cpp" />
     <ClCompile Include="..\engine\sys_dll.cpp" />
@@ -53,11 +55,14 @@
     <ClCompile Include="..\filesystem\filesystem.cpp" />
     <ClCompile Include="..\gameui\IConsole.cpp" />
     <ClCompile Include="..\gameui\IBrowser.cpp" />
+    <ClCompile Include="..\game\client\c_baseentity.cpp" />
     <ClCompile Include="..\game\client\spritemodel.cpp" />
+    <ClCompile Include="..\game\client\view.cpp" />
     <ClCompile Include="..\game\server\ai_network.cpp" />
     <ClCompile Include="..\game\server\ai_networkmanager.cpp" />
     <ClCompile Include="..\game\server\ai_utility.cpp" />
     <ClCompile Include="..\game\server\gameinterface.cpp" />
+    <ClCompile Include="..\game\shared\ai_utility_shared.cpp" />
     <ClCompile Include="..\game\shared\animation.cpp" />
     <ClCompile Include="..\inputsystem\inputsystem.cpp" />
     <ClCompile Include="..\launcher\IApplication.cpp" />
@@ -66,7 +71,7 @@
     <ClCompile Include="..\materialsystem\cmaterialsystem.cpp" />
     <ClCompile Include="..\materialsystem\cshaderglue.cpp" />
     <ClCompile Include="..\mathlib\adler32.cpp" />
-    <ClCompile Include="..\mathlib\bits.cpp" />
+    <ClCompile Include="..\mathlib\fbits.cpp" />
     <ClCompile Include="..\mathlib\color_conversion.cpp" />
     <ClCompile Include="..\mathlib\crc32.cpp" />
     <ClCompile Include="..\mathlib\halton.cpp" />
@@ -80,7 +85,10 @@
     <ClCompile Include="..\mathlib\ssenoise.cpp" />
     <ClCompile Include="..\mathlib\transform.cpp" />
     <ClCompile Include="..\mathlib\vmatrix.cpp" />
+    <ClCompile Include="..\networksystem\bansystem.cpp" />
+    <ClCompile Include="..\networksystem\listmanager.cpp" />
     <ClCompile Include="..\networksystem\pylon.cpp" />
+    <ClCompile Include="..\pluginsystem\pluginsystem.cpp" />
     <ClCompile Include="..\protoc\cl_rcon.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
@@ -89,11 +97,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\public\bansystem.cpp" />
-    <ClCompile Include="..\public\binstream.cpp" />
-    <ClCompile Include="..\public\memaddr.cpp" />
-    <ClCompile Include="..\public\module.cpp" />
-    <ClCompile Include="..\public\utility.cpp" />
+    <ClCompile Include="..\public\utility\binstream.cpp" />
+    <ClCompile Include="..\public\utility\memaddr.cpp" />
+    <ClCompile Include="..\public\utility\module.cpp" />
+    <ClCompile Include="..\public\utility\utility.cpp" />
     <ClCompile Include="..\rtech\rtech_utils.cpp" />
     <ClCompile Include="..\rtech\rtech_game.cpp" />
     <ClCompile Include="..\rtech\rui\rui.cpp" />
@@ -111,15 +118,18 @@
     <ClCompile Include="..\tier0\cputopology.cpp" />
     <ClCompile Include="..\tier0\dbg.cpp" />
     <ClCompile Include="..\tier0\fasttimer.cpp" />
+    <ClCompile Include="..\tier0\frametask.cpp" />
     <ClCompile Include="..\tier0\jobthread.cpp" />
     <ClCompile Include="..\tier0\platform.cpp" />
     <ClCompile Include="..\tier0\threadtools.cpp" />
-    <ClCompile Include="..\tier0\tslist.cpp" />
     <ClCompile Include="..\tier1\bitbuf.cpp" />
+    <ClCompile Include="..\tier1\characterset.cpp" />
     <ClCompile Include="..\tier1\cmd.cpp" />
     <ClCompile Include="..\tier1\cvar.cpp" />
+    <ClCompile Include="..\tier1\generichash.cpp" />
     <ClCompile Include="..\tier1\IConVar.cpp" />
     <ClCompile Include="..\tier1\NetAdr2.cpp" />
+    <ClCompile Include="..\tier1\splitstring.cpp" />
     <ClCompile Include="..\tier1\strtools.cpp" />
     <ClCompile Include="..\tier2\meshutils.cpp" />
     <ClCompile Include="..\tier2\renderutils.cpp" />
@@ -190,6 +200,7 @@
     <ClInclude Include="..\engine\networkstringtable.h" />
     <ClInclude Include="..\engine\net_chan.h" />
     <ClInclude Include="..\engine\packed_entity.h" />
+    <ClInclude Include="..\engine\sdk_dll.h" />
     <ClInclude Include="..\engine\server\server.h" />
     <ClInclude Include="..\engine\server\sv_main.h" />
     <ClInclude Include="..\engine\sys_dll.h" />
@@ -202,8 +213,10 @@
     <ClInclude Include="..\gameui\IConsole.h" />
     <ClInclude Include="..\gameui\IBrowser.h" />
     <ClInclude Include="..\game\client\c_baseentity.h" />
+    <ClInclude Include="..\game\client\c_baseplayer.h" />
     <ClInclude Include="..\game\client\enginesprite.h" />
     <ClInclude Include="..\game\client\hud.h" />
+    <ClInclude Include="..\game\client\view.h" />
     <ClInclude Include="..\game\server\ai_network.h" />
     <ClInclude Include="..\game\server\ai_networkmanager.h" />
     <ClInclude Include="..\game\server\ai_node.h" />
@@ -211,6 +224,7 @@
     <ClInclude Include="..\game\server\detour_impl.h" />
     <ClInclude Include="..\game\server\fairfight_impl.h" />
     <ClInclude Include="..\game\server\gameinterface.h" />
+    <ClInclude Include="..\game\shared\ai_utility_shared.h" />
     <ClInclude Include="..\game\shared\animation.h" />
     <ClInclude Include="..\inputsystem\ButtonCode.h" />
     <ClInclude Include="..\inputsystem\inputsystem.h" />
@@ -221,10 +235,9 @@
     <ClInclude Include="..\materialsystem\cshaderglue.h" />
     <ClInclude Include="..\mathlib\adler32.h" />
     <ClInclude Include="..\mathlib\almostequal.cpp" />
-    <ClInclude Include="..\mathlib\bits.h" />
+    <ClInclude Include="..\mathlib\fbits.h" />
     <ClInclude Include="..\mathlib\color.h" />
     <ClInclude Include="..\mathlib\crc32.h" />
-    <ClInclude Include="..\mathlib\float_tools.h" />
     <ClInclude Include="..\mathlib\fltx4.h" />
     <ClInclude Include="..\mathlib\halton.h" />
     <ClInclude Include="..\mathlib\IceKey.H" />
@@ -244,33 +257,55 @@
     <ClInclude Include="..\mathlib\vmatrix.h" />
     <ClInclude Include="..\mathlib\vplane.h" />
     <ClInclude Include="..\milessdk\win64_rrthreads.h" />
+    <ClInclude Include="..\networksystem\bansystem.h" />
+    <ClInclude Include="..\networksystem\listmanager.h" />
     <ClInclude Include="..\networksystem\pylon.h" />
     <ClInclude Include="..\networksystem\serverlisting.h" />
     <ClInclude Include="..\networksystem\sm_protocol.h" />
+    <ClInclude Include="..\pluginsystem\ipluginsystem.h" />
+    <ClInclude Include="..\pluginsystem\pluginsystem.h" />
     <ClInclude Include="..\protoc\cl_rcon.pb.h" />
     <ClInclude Include="..\protoc\sv_rcon.pb.h" />
     <ClInclude Include="..\public\avi\iavi.h" />
     <ClInclude Include="..\public\avi\ibik.h" />
-    <ClInclude Include="..\public\include\client_class.h" />
-    <ClInclude Include="..\public\include\const.h" />
-    <ClInclude Include="..\public\include\edict.h" />
-    <ClInclude Include="..\public\include\globalvars_base.h" />
-    <ClInclude Include="..\public\include\icliententitylist.h" />
-    <ClInclude Include="..\public\include\icommandline.h" />
-    <ClInclude Include="..\public\include\inetchannel.h" />
-    <ClInclude Include="..\public\include\inetmsghandler.h" />
-    <ClInclude Include="..\public\include\iserver.h" />
-    <ClInclude Include="..\public\include\ivrenderview.h" />
-    <ClInclude Include="..\public\include\memaddr.h" />
-    <ClInclude Include="..\public\include\bansystem.h" />
-    <ClInclude Include="..\public\include\binstream.h" />
-    <ClInclude Include="..\public\include\httplib.h" />
-    <ClInclude Include="..\public\include\model_types.h" />
-    <ClInclude Include="..\public\include\module.h" />
-    <ClInclude Include="..\public\include\stb_image.h" />
-    <ClInclude Include="..\public\include\studio.h" />
-    <ClInclude Include="..\public\include\utility.h" />
+    <ClInclude Include="..\public\bitmap\stb_image.h" />
+    <ClInclude Include="..\public\iengine.h" />
+    <ClInclude Include="..\public\client_class.h" />
+    <ClInclude Include="..\public\const.h" />
+    <ClInclude Include="..\public\edict.h" />
+    <ClInclude Include="..\public\globalvars_base.h" />
+    <ClInclude Include="..\public\icliententity.h" />
+    <ClInclude Include="..\public\icliententitylist.h" />
+    <ClInclude Include="..\public\iclientnetworkable.h" />
+    <ClInclude Include="..\public\iclientrenderable.h" />
+    <ClInclude Include="..\public\iclientthinkable.h" />
+    <ClInclude Include="..\public\iclientunknown.h" />
+    <ClInclude Include="..\public\icommandline.h" />
+    <ClInclude Include="..\public\iconcommand.h" />
+    <ClInclude Include="..\public\iconvar.h" />
+    <ClInclude Include="..\public\icvar.h" />
+    <ClInclude Include="..\public\idebugoverlay.h" />
+    <ClInclude Include="..\public\ifile.h" />
+    <ClInclude Include="..\public\ifilesystem.h" />
+    <ClInclude Include="..\public\iframetask.h" />
+    <ClInclude Include="..\public\ihandleentity.h" />
+    <ClInclude Include="..\public\inetchannel.h" />
+    <ClInclude Include="..\public\inetmessage.h" />
+    <ClInclude Include="..\public\inetmsghandler.h" />
+    <ClInclude Include="..\public\iserver.h" />
+    <ClInclude Include="..\public\isnapshotmgr.h" />
+    <ClInclude Include="..\public\isurfacesystem.h" />
+    <ClInclude Include="..\public\ivrenderview.h" />
+    <ClInclude Include="..\public\ivscript.h" />
+    <ClInclude Include="..\public\model_types.h" />
+    <ClInclude Include="..\public\studio.h" />
     <ClInclude Include="..\core\resource.h" />
+    <ClInclude Include="..\public\utility\binstream.h" />
+    <ClInclude Include="..\public\utility\httplib.h" />
+    <ClInclude Include="..\public\utility\memaddr.h" />
+    <ClInclude Include="..\public\utility\module.h" />
+    <ClInclude Include="..\public\utility\utility.h" />
+    <ClInclude Include="..\public\worldsize.h" />
     <ClInclude Include="..\rtech\rtech_utils.h" />
     <ClInclude Include="..\rtech\rtech_game.h" />
     <ClInclude Include="..\rtech\rui\rui.h" />
@@ -462,6 +497,7 @@
     <ClInclude Include="..\thirdparty\spdlog\include\stopwatch.h" />
     <ClInclude Include="..\thirdparty\spdlog\include\tweakme.h" />
     <ClInclude Include="..\thirdparty\spdlog\include\version.h" />
+    <ClInclude Include="..\tier0\annotations.h" />
     <ClInclude Include="..\tier0\basetypes.h" />
     <ClInclude Include="..\tier0\commandline.h" />
     <ClInclude Include="..\tier0\commonmacros.h" />
@@ -470,7 +506,10 @@
     <ClInclude Include="..\tier0\dbg.h" />
     <ClInclude Include="..\tier0\dbgflag.h" />
     <ClInclude Include="..\tier0\fasttimer.h" />
+    <ClInclude Include="..\tier0\frametask.h" />
     <ClInclude Include="..\tier0\jobthread.h" />
+    <ClInclude Include="..\tier0\memalloc.h" />
+    <ClInclude Include="..\tier0\memstd.h" />
     <ClInclude Include="..\tier0\platform.h" />
     <ClInclude Include="..\tier0\platform_internal.h" />
     <ClInclude Include="..\tier0\threadtools.h" />
@@ -479,14 +518,20 @@
     <ClInclude Include="..\tier0\valve_on.h" />
     <ClInclude Include="..\tier0\wchartypes.h" />
     <ClInclude Include="..\tier1\bitbuf.h" />
+    <ClInclude Include="..\tier1\characterset.h" />
     <ClInclude Include="..\tier1\cmd.h" />
     <ClInclude Include="..\tier1\cvar.h" />
+    <ClInclude Include="..\tier1\generichash.h" />
     <ClInclude Include="..\tier1\IConVar.h" />
     <ClInclude Include="..\tier1\mempool.h" />
     <ClInclude Include="..\tier1\NetAdr2.h" />
     <ClInclude Include="..\tier1\strtools.h" />
+    <ClInclude Include="..\tier1\utlblockmemory.h" />
     <ClInclude Include="..\tier1\utldict.h" />
+    <ClInclude Include="..\tier1\utlfixedmemory.h" />
+    <ClInclude Include="..\tier1\utllinkedlist.h" />
     <ClInclude Include="..\tier1\utlmemory.h" />
+    <ClInclude Include="..\tier1\utlrbtree.h" />
     <ClInclude Include="..\tier1\utlvector.h" />
     <ClInclude Include="..\tier2\meshutils.h" />
     <ClInclude Include="..\tier2\renderutils.h" />
@@ -504,6 +549,7 @@
     <ClInclude Include="..\vpklib\packedstore.h" />
     <ClInclude Include="..\vstdlib\callback.h" />
     <ClInclude Include="..\vstdlib\completion.h" />
+    <ClInclude Include="..\vstdlib\concommandhash.h" />
     <ClInclude Include="..\vstdlib\keyvaluessystem.h" />
     <ClInclude Include="..\vstdlib\random.h" />
     <ClInclude Include="..\windows\console.h" />
@@ -561,7 +607,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
+    <IncludePath>$(IncludePath);$(DXSDK_DIR)Include;$(SolutionDir)r5dev\;$(SolutionDir)r5dev\thirdparty\recast\</IncludePath>
     <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
     <TargetName>gamesdk</TargetName>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
@@ -570,11 +616,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
+    <IncludePath>$(IncludePath);$(DXSDK_DIR)Include;$(SolutionDir)r5dev\;$(SolutionDir)r5dev\thirdparty\recast\</IncludePath>
     <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
     <TargetName>gamesdk</TargetName>
     <ReferencePath>$(VC_ReferencesPath_x64);</ReferencePath>
-    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)game\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -596,7 +642,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>..\GameSDK.def</ModuleDefinitionFile>
-      <AdditionalDependencies>d3d11.lib;bcrypt.lib;libdetours_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;bcrypt.lib;libdetours_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;librecast_x64.lib;libdtdetour_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -638,7 +684,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>..\GameSDK.def</ModuleDefinitionFile>
-      <AdditionalDependencies>d3d11.lib;bcrypt.lib;libdetours_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;bcrypt.lib;libdetours_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;librecast_x64.lib;libdtdetour_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <SetChecksum>true</SetChecksum>
     </Link>

@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="core">
+      <UniqueIdentifier>{8c48f080-f082-47e6-aa17-03316e0430ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk">
+      <UniqueIdentifier>{b1ddea2b-cc6c-413f-b709-d5d436825d04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public">
+      <UniqueIdentifier>{49a28380-a137-410c-ad75-a0b80176443e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="public\utility">
+      <UniqueIdentifier>{f0d21a39-484c-4464-a3fe-a629adc1930e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\pluginsdk\dllmain.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\core\stdafx.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pluginsdk\pluginsdk.cpp">
+      <Filter>sdk</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\utility\memaddr.cpp">
+      <Filter>public\utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\utility\module.cpp">
+      <Filter>public\utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\utility\utility.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\core\stdafx.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pluginsdk\pluginsdk.h">
+      <Filter>sdk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pluginsdk\ifactory.h">
+      <Filter>sdk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\utility\memaddr.h">
+      <Filter>public\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\utility\module.h">
+      <Filter>public\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\utility\utility.h">
+      <Filter>core</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

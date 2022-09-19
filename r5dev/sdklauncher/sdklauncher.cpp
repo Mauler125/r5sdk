@@ -143,7 +143,7 @@ int CLauncher::HandleCmdLine(int argc, char* argv[])
 int CLauncher::HandleInput()
 {
     std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
-    g_pLauncher->AddLog(spdlog::level::level_enum::warn, "If a DEBUG option has been choosen as launch parameter, do not broadcast servers to the Server Browser!\n");
+    g_pLauncher->AddLog(spdlog::level::level_enum::warn, "If a DEBUG option has been chosen as launch parameter, do not broadcast servers to the Server Browser!\n");
     g_pLauncher->AddLog(spdlog::level::level_enum::warn, "All FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY ConVar's/ConCommand's will be enabled.\n");
     g_pLauncher->AddLog(spdlog::level::level_enum::warn, "Connected clients will be able to set and execute anything flagged FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY.\n");
     std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
@@ -398,7 +398,7 @@ bool CLauncher::Setup(eLaunchMode lMode, eLaunchState lState)
             return false;
         }
 
-        m_svWorkerDll = m_svCurrentDir + "\\bin\\client.dll";
+        m_svWorkerDll = m_svCurrentDir + "\\bin\\x64_retail\\client.dll";
         m_svGameExe = m_svCurrentDir + "\\r5apex.exe";
         m_svCmdLine = m_svCurrentDir + "\\r5apex.exe " + svCmdLineArgs;
 
@@ -421,7 +421,7 @@ bool CLauncher::Setup(eLaunchMode lMode, eLaunchState lState)
             return false;
         }
 
-        m_svWorkerDll = m_svCurrentDir + "\\bin\\client.dll";
+        m_svWorkerDll = m_svCurrentDir + "\\bin\\x64_retail\\client.dll";
         m_svGameExe = m_svCurrentDir + "\\r5apex.exe";
         m_svCmdLine = m_svCurrentDir + "\\r5apex.exe " + svCmdLineArgs;
 
@@ -498,7 +498,7 @@ bool CLauncher::Setup(eLaunchMode lMode, const string& svCommandLine)
     }
     case eLaunchMode::LM_CLIENT_DEBUG:
     {
-        m_svWorkerDll = m_svCurrentDir + "\\bin\\client.dll";
+        m_svWorkerDll = m_svCurrentDir + "\\bin\\x64_retail\\client.dll";
         m_svGameExe = m_svCurrentDir + "\\r5apex.exe";
         m_svCmdLine = m_svCurrentDir + "\\r5apex.exe " + svCommandLine;
 
@@ -507,7 +507,7 @@ bool CLauncher::Setup(eLaunchMode lMode, const string& svCommandLine)
     }
     case eLaunchMode::LM_CLIENT:
     {
-        m_svWorkerDll = m_svCurrentDir + "\\bin\\client.dll";
+        m_svWorkerDll = m_svCurrentDir + "\\bin\\x64_retail\\client.dll";
         m_svGameExe = m_svCurrentDir + "\\r5apex.exe";
         m_svCmdLine = m_svCurrentDir + "\\r5apex.exe " + svCommandLine;
 

@@ -32,29 +32,50 @@
 SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 {
 	SQCONTEXT context;
+	int nResponseId;
 	// We use the sqvm pointer as index for SDK usage as the function prototype has to match assembly.
 	switch (static_cast<SQCONTEXT>(reinterpret_cast<int>(v)))
 	{
 	case SQCONTEXT::SERVER:
 		context = SQCONTEXT::SERVER;
+		nResponseId = -3;
 		break;
 	case SQCONTEXT::CLIENT:
 		context = SQCONTEXT::CLIENT;
+		nResponseId = -2;
 		break;
 	case SQCONTEXT::UI:
 		context = SQCONTEXT::UI;
+		nResponseId = -1;
 		break;
 	case SQCONTEXT::NONE:
 		context = SQCONTEXT::NONE;
+		nResponseId = -4;
 		break;
 	default:
-#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
+
 		context = v->GetContext();
-#else // Nothing equal to 'rdx + 18h' exist in the vm structs for anything below S3.
-		context = SQVM_GetContextIndex(v);
-#endif
+		switch (context)
+		{
+		case SQCONTEXT::SERVER:
+			nResponseId = -3;
+			break;
+		case SQCONTEXT::CLIENT:
+			nResponseId = -2;
+			break;
+		case SQCONTEXT::UI:
+			nResponseId = -1;
+			break;
+		case SQCONTEXT::NONE:
+			nResponseId = -4;
+			break;
+		default:
+			nResponseId = -4;
+			break;
+		}
 		break;
 	}
+
 	static SQChar buf[4096] = {};
 	static std::string vmStr;
 	static std::regex rxAnsiExp("\\\033\\[.*?m");
@@ -64,78 +85,78 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sqvm_info");
 
 	s_LogMutex.lock();
+	const char* pszUpTime = Plat_GetProcessUpTime();
+
 	{/////////////////////////////
 		va_list args{};
 		va_start(args, fmt);
 
 		vsnprintf(buf, sizeof(buf), fmt, args);
 
-		buf[sizeof(buf) - 1] = 0;
+		buf[sizeof(buf) - 1] = '\0';
 		va_end(args);
 	}/////////////////////////////
 
-	vmStr = Plat_GetProcessUpTime();
+	vmStr = pszUpTime;
 	vmStr.append(SQVM_LOG_T[static_cast<SQInteger>(context)]);
 	vmStr.append(buf);
 
 	if (sq_showvmoutput->GetInt() > 0) {
 		sqlogger->debug(vmStr);
 	}
-	if (sq_showvmoutput->GetInt() > 1)
+
+	// Always show script errors.
+	bool bLogLevelOverride = (g_bSQAuxError || g_bSQAuxBadLogic && v == g_pErrorVM);
+
+	if (sq_showvmoutput->GetInt() > 1 || bLogLevelOverride)
 	{
-		bool bError = false;
 		bool bColorOverride = false;
+		bool bError = false;
+
+		if (g_bSQAuxError)
+		{
+			bColorOverride = true;
+			if (strstr(buf, "SCRIPT ERROR:") || strstr(buf, " -> ")) {
+				bError = true;
+			}
+		}
+		if (g_bSQAuxBadLogic)
+		{
+			if (strstr(buf, "There was a problem processing game logic."))
+			{
+				bColorOverride = true;
+				bError = true;
+				g_bSQAuxBadLogic = false;
+			}
+		}
+
 		if (!g_bSpdLog_UseAnsiClr)
 		{
 			wconsole->debug(vmStr);
 #ifdef DEDICATED
-			g_pRConServer->Send(vmStr);
+			RCONServer()->Send(vmStr, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, nResponseId);
 #endif // DEDICATED
 		}
-		else
+		else // Use ANSI escape codes for the external console.
 		{
 			static std::string vmStrAnsi;
-			if (g_bSQAuxError)
+			vmStrAnsi = pszUpTime;
+			if (bColorOverride)
 			{
-				bColorOverride = true;
-				if (strstr(buf, "SCRIPT ERROR:") || strstr(buf, " -> "))
-				{
-					bError = true;
-					vmStrAnsi = Plat_GetProcessUpTime();
+				if (bError) {
 					vmStrAnsi.append(SQVM_ERROR_ANSI_LOG_T[static_cast<SQInteger>(context)]);
 				}
-				else
-				{
-					vmStrAnsi = Plat_GetProcessUpTime();
+				else {
 					vmStrAnsi.append(SQVM_WARNING_ANSI_LOG_T[static_cast<SQInteger>(context)]);
 				}
 			}
-			else if (g_bSQAuxBadLogic)
-			{
-				if (strstr(buf, "There was a problem processing game logic."))
-				{
-					bError = true;
-					bColorOverride = true;
-					g_bSQAuxBadLogic = false;
-
-					vmStrAnsi = Plat_GetProcessUpTime();
-					vmStrAnsi.append(SQVM_ERROR_ANSI_LOG_T[static_cast<SQInteger>(context)]);
-				}
-				else
-				{
-					vmStrAnsi = Plat_GetProcessUpTime();
-					vmStrAnsi.append(SQVM_ANSI_LOG_T[static_cast<SQInteger>(context)]);
-				}
-			}
-			else
-			{
-				vmStrAnsi = vmStrAnsi = Plat_GetProcessUpTime();;
+			else {
 				vmStrAnsi.append(SQVM_ANSI_LOG_T[static_cast<SQInteger>(context)]);
 			}
 			vmStrAnsi.append(buf);
 			wconsole->debug(vmStrAnsi);
 #ifdef DEDICATED
-			g_pRConServer->Send(vmStrAnsi);
+			RCONServer()->Send(vmStrAnsi, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, nResponseId);
 #endif // DEDICATED
 		}
 
@@ -143,7 +164,7 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 		vmStr = std::regex_replace(vmStr, rxAnsiExp, "");
 		iconsole->debug(vmStr);
 
-		if (sq_showvmoutput->GetInt() > 2)
+		if (sq_showvmoutput->GetInt() > 2 || bLogLevelOverride)
 		{
 			ImVec4 color;
 			if (bColorOverride)
@@ -175,13 +196,13 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 			}
 
 			g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), color));
-			g_pLogSystem.AddLog(static_cast<LogType_t>(context), g_spd_sys_w_oss.str());
-
-			g_spd_sys_w_oss.str("");
-			g_spd_sys_w_oss.clear();
+			g_pLogSystem.AddLog(static_cast<EGlobalContext_t>(nResponseId), g_spd_sys_w_oss.str());
 		}
 #endif // !DEDICATED
 	}
+
+	g_spd_sys_w_oss.str("");
+	g_spd_sys_w_oss.clear();
 
 	s_LogMutex.unlock();
 	return SQ_OK;
@@ -198,6 +219,7 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* nStringSize, SQChar** ppString)
 {
 	static void* retaddr = reinterpret_cast<void*>(p_SQVM_WarningCmd.Offset(0x10).FindPatternSelf("85 ?? ?? 99", CMemory::Direction::DOWN).GetPtr());
+	int nResponseId;
 	SQCONTEXT context;
 	SQRESULT result = v_SQVM_WarningFunc(v, a2, a3, nStringSize, ppString);
 
@@ -207,17 +229,37 @@ SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* 
 	}
 
 	s_LogMutex.lock();
+	const char* pszUpTime = Plat_GetProcessUpTime();
 #ifdef GAMEDLL_S3
 	context = v->GetContext();
 #else // Nothing equal to 'rdx + 18h' exist in the vm structs for anything below S3.
 	context = SQVM_GetContextIndex(v);
 #endif
 
+	switch (context)
+	{
+	case SQCONTEXT::SERVER:
+		nResponseId = -3;
+		break;
+	case SQCONTEXT::CLIENT:
+		nResponseId = -2;
+		break;
+	case SQCONTEXT::UI:
+		nResponseId = -1;
+		break;
+	case SQCONTEXT::NONE:
+		nResponseId = -4;
+		break;
+	default:
+		nResponseId = -4;
+		break;
+	}
+
 	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
 	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sqvm_warn");
 
-	std::string vmStr = Plat_GetProcessUpTime();
+	std::string vmStr = pszUpTime;
 	vmStr.append(SQVM_LOG_T[static_cast<int>(context)]);
 	std::string svConstructor(*ppString, *nStringSize); // Get string from memory via std::string constructor.
 	vmStr.append(svConstructor);
@@ -229,17 +271,17 @@ SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* 
 		{
 			wconsole->debug(vmStr);
 #ifdef DEDICATED
-			g_pRConServer->Send(vmStr);
+			RCONServer()->Send(vmStr, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, nResponseId);
 #endif // DEDICATED
 		}
 		else
 		{
-			std::string vmStrAnsi = Plat_GetProcessUpTime();
+			std::string vmStrAnsi = pszUpTime;
 			vmStrAnsi.append(SQVM_WARNING_ANSI_LOG_T[static_cast<int>(context)]);
 			vmStrAnsi.append(svConstructor);
 			wconsole->debug(vmStrAnsi);
 #ifdef DEDICATED
-			g_pRConServer->Send(vmStrAnsi);
+			RCONServer()->Send(vmStrAnsi, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, nResponseId);
 #endif // DEDICATED
 		}
 
@@ -247,12 +289,12 @@ SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* 
 		iconsole->debug(vmStr); // Emit to in-game console.
 
 		g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), ImVec4(1.00f, 1.00f, 0.00f, 0.80f)));
-		g_pLogSystem.AddLog(LogType_t::WARNING_C, g_spd_sys_w_oss.str());
-
-		g_spd_sys_w_oss.str("");
-		g_spd_sys_w_oss.clear();
+		g_pLogSystem.AddLog(EGlobalContext_t::WARNING_C, g_spd_sys_w_oss.str());
 #endif // !DEDICATED
 	}
+
+	g_spd_sys_w_oss.str("");
+	g_spd_sys_w_oss.clear();
 
 	s_LogMutex.unlock();
 	return result;
@@ -279,9 +321,9 @@ void SQVM_CompileError(HSQUIRRELVM v, const SQChar* pszError, const SQChar* pszF
 
 	v_SQVM_GetErrorLine(pszFile, nLine, szContextBuf, sizeof(szContextBuf));
 
-	Error(static_cast<eDLL_T>(context), "%s SCRIPT COMPILE ERROR: %s\n", SQVM_GetContextName(context), pszError);
-	Error(static_cast<eDLL_T>(context), " -> %s\n\n", szContextBuf);
-	Error(static_cast<eDLL_T>(context), "%s line [%d] column [%d]\n", pszFile, nLine, nColumn);
+	Error(static_cast<eDLL_T>(context), NO_ERROR, "%s SCRIPT COMPILE ERROR: %s\n", SQVM_GetContextName(context), pszError);
+	Error(static_cast<eDLL_T>(context), NO_ERROR, " -> %s\n\n", szContextBuf);
+	Error(static_cast<eDLL_T>(context), NO_ERROR, "%s line [%d] column [%d]\n", pszFile, nLine, nColumn);
 }
 
 //---------------------------------------------------------------------------------
@@ -290,9 +332,14 @@ void SQVM_CompileError(HSQUIRRELVM v, const SQChar* pszError, const SQChar* pszF
 //---------------------------------------------------------------------------------
 void SQVM_LogicError(SQBool bPrompt)
 {
-	if (*g_flErrorTimeStamp > 0.0 && (bPrompt || Plat_FloatTime() > *g_flErrorTimeStamp + 0.0))
+	if ((*g_flErrorTimeStamp) > 0.0 && (bPrompt || Plat_FloatTime() > (*g_flErrorTimeStamp) + 0.0))
 	{
 		g_bSQAuxBadLogic = true;
+	}
+	else
+	{
+		g_bSQAuxBadLogic = false;
+		g_pErrorVM = nullptr;
 	}
 	v_SQVM_LogicError(bPrompt);
 }

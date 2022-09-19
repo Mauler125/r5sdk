@@ -189,7 +189,7 @@ bool CBitRead::ReadString(char* pStr, int maxLen, bool bLine, int* pOutNumChars)
 	return !IsOverflowed() && !bTooSmall;
 }
 
-bool CBitRead::Seek(int nPosition)
+bool CBitRead::Seek(size_t nPosition)
 {
 	bool bSucc = true;
 	if (nPosition < 0 || nPosition > m_nDataBits)
@@ -198,10 +198,10 @@ bool CBitRead::Seek(int nPosition)
 		bSucc = false;
 		nPosition = m_nDataBits;
 	}
-	int nHead = m_nDataBytes & 3;							// non-multiple-of-4 bytes at head of buffer. We put the "round off"
+	size_t nHead = m_nDataBytes & 3;						// non-multiple-of-4 bytes at head of buffer. We put the "round off"
 															// at the head to make reading and detecting the end efficient.
 
-	int nByteOfs = nPosition / 8;
+	size_t nByteOfs = nPosition / 8;
 	if ((m_nDataBytes < 4) || (nHead && (nByteOfs < nHead)))
 	{
 		// partial first dword
@@ -220,7 +220,7 @@ bool CBitRead::Seek(int nPosition)
 	}
 	else
 	{
-		int nAdjPosition = nPosition - (nHead << 3);
+		ssize_t nAdjPosition = nPosition - (nHead << 3);
 		m_pDataIn = reinterpret_cast<uint32 const*> (
 			reinterpret_cast<uint8 const*>(m_pData) + ((nAdjPosition / 32) << 2) + nHead);
 		if (m_pData)
@@ -239,7 +239,7 @@ bool CBitRead::Seek(int nPosition)
 	return bSucc;
 }
 
-void CBitRead::StartReading(const void* pData, int nBytes, int iStartBit, int nBits)
+void CBitRead::StartReading(const void* pData, size_t nBytes, size_t iStartBit, size_t nBits)
 {
 	// Make sure it's dword aligned and padded.
 	assert(((unsigned long)pData & 3) == 0);

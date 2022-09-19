@@ -18,7 +18,7 @@ public:
 	CClient* GetClient(int nIndex) const;
 	uint16_t GetHandle(void) const;
 	uint32_t GetUserID(void) const;
-	uint64_t GetOriginID(void) const;
+	uint64_t GetNucleusID(void) const;
 	SIGNONSTATE GetSignonState(void) const;
 	PERSISTENCE GetPersistenceState(void) const;
 	CNetChan* GetNetChan(void) const;
@@ -26,7 +26,7 @@ public:
 	const char* GetClientName(void) const;
 	void SetHandle(uint16_t nHandle);
 	void SetUserID(uint32_t nUserID);
-	void SetOriginID(uint64_t nOriginID);
+	void SetNucleusID(uint64_t nNucleusID);
 	void SetSignonState(SIGNONSTATE nSignonState);
 	void SetPersistenceState(PERSISTENCE nPersistenceState);
 	void SetNetChan(CNetChan* pNetChan);
@@ -58,7 +58,7 @@ private:
 	char pad_03A8[8];                //0x03A8
 	SIGNONSTATE m_nSignonState;      //0x03B0
 	int32_t m_nDeltaTick;            //0x03B4
-	uint64_t m_nOriginID;            //0x03B8
+	uint64_t m_nNucleusID;           //0x03B8
 	int32_t m_nStringTableAckTick;   //0x03BC
 	int32_t m_nSignonTick;           //0x03C0
 	char pad_03C0[464];              //0x03C4
@@ -103,20 +103,20 @@ class VClient : public IDetour
 	{
 		spdlog::debug("| FUN: CClient::Connect                     : {:#18x} |\n", p_CClient_Connect.GetPtr());
 		spdlog::debug("| FUN: CClient::Clear                       : {:#18x} |\n", p_CClient_Clear.GetPtr());
-		spdlog::debug("| VAR: g_pClient                            : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pClient));
+		spdlog::debug("| VAR: g_pClient[128]                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pClient));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
-		p_CClient_Connect = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74"), "xxxxxxxxxxxxxxxx");
-		p_CClient_Clear   = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74"), "xxxxxxxxxxxxxxxx");
+		p_CClient_Connect = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x56\x57\x41\x56\x48\x83\xEC\x20\x41\x0F\xB6\xE9"), "xxxx?xxxx?xxxxxxxxxxxx");
+		p_CClient_Clear   = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74"), "xxxxxxxxxxxxxxxx");
 
-		v_CClient_Connect = p_CClient_Connect.RCast<bool (*)(CClient*, const char*, void*, bool, void*, char*, int)>(); /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
+		v_CClient_Connect = p_CClient_Connect.RCast<bool (*)(CClient*, const char*, void*, bool, void*, char*, int)>(); /*48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 20 41 0F B6 E9*/
 		v_CClient_Clear   = p_CClient_Clear.RCast<void (*)(CClient*)>();                                                /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
 	}
 	virtual void GetVar(void) const
 	{
-		g_pClient = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x3B\x15\x00\x00\x00\x00\x7D\x33"), "xx????xx")
+		g_pClient = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x3B\x15\x00\x00\x00\x00\x7D\x33"), "xx????xx")
 			.FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CClient*>();
 	}
 	virtual void GetCon(void) const { }

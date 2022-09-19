@@ -49,13 +49,13 @@ class VBspLib : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		p_BuildPropStaticFrustumCullMap = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x44\x89\x40\x18\x48\x89\x50\x10\x55"), "xxxxxxxxxxxx"); /*48 8B C4 44 89 40 18 48 89 50 10 55*/
+		p_BuildPropStaticFrustumCullMap = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x44\x89\x40\x18\x48\x89\x50\x10\x55"), "xxxxxxxxxxxx"); /*48 8B C4 44 89 40 18 48 89 50 10 55*/
 		v_BuildPropStaticFrustumCullMap = p_BuildPropStaticFrustumCullMap.RCast<void*(*)(__int64, __int64, unsigned int, unsigned int, __int64, __int64, __int64)>();
 
-		//sub_1404365A0 = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x83\xEC\x78\xF3\x41\x0F\x10\x48\x00"), "xxxxxxxxxxxx?").RCast<void** (*)(__m128*, const __m128i*, __m128i*, double)>();
-		//sub_140270130 = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x66\x0F\x6F\x15\x00\x00\x00\x00"), "xxxxxxxx????").RCast<__m128(*)(__m128*)>();
-		//sub_14028F170 = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x58\xF3\x41\x0F\x7E\x11"), "xxxxxxxxx").RCast<const __m128i* (*)(__int64, __int64, __m128*, const __m128i*, const __m128i*)>();
-		//sub_140257F20 = g_mGameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x20\x49\x8B\xD9\x49\x8B\xF8\x48\x85\xD2"), "xxxx?xxxxxxxxxxxxxx").RCast<__int64(*)(void*, __int64, __m128i*, __int8*)>();
+		//sub_1404365A0 = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x83\xEC\x78\xF3\x41\x0F\x10\x48\x00"), "xxxxxxxxxxxx?").RCast<void** (*)(__m128*, const __m128i*, __m128i*, double)>();
+		//sub_140270130 = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x66\x0F\x6F\x15\x00\x00\x00\x00"), "xxxxxxxx????").RCast<__m128(*)(__m128*)>();
+		//sub_14028F170 = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x58\xF3\x41\x0F\x7E\x11"), "xxxxxxxxx").RCast<const __m128i* (*)(__int64, __int64, __m128*, const __m128i*, const __m128i*)>();
+		//sub_140257F20 = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x20\x49\x8B\xD9\x49\x8B\xF8\x48\x85\xD2"), "xxxx?xxxxxxxxxxxxxx").RCast<__int64(*)(void*, __int64, __m128i*, __int8*)>();
 	}
 	virtual void GetVar(void) const
 	{

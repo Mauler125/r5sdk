@@ -4,6 +4,7 @@
 //
 //=============================================================================//
 #include "core/stdafx.h"
+#include "tier0/frametask.h"
 #include "tier1/cvar.h"
 #include "squirrel/sqapi.h"
 #include "squirrel/sqinit.h"
@@ -11,7 +12,7 @@
 
 //---------------------------------------------------------------------------------
 // Purpose: registers and exposes code functions to target context
-// Input  : *sqvm - 
+// Input  : *pSquirrelVM - 
 //			*szName - 
 //			*szHelpString - 
 //			*szRetValType - 
@@ -39,7 +40,7 @@ SQRESULT Script_RegisterFunction(CSquirrelVM* pSquirrelVM, const SQChar* szScrip
 #ifndef CLIENT_DLL
 //---------------------------------------------------------------------------------
 // Purpose: registers script functions in SERVER context
-// Input  : *sqvm - 
+// Input  : *pSquirrelVM - 
 //---------------------------------------------------------------------------------
 void Script_RegisterServerFunctions(CSquirrelVM* pSquirrelVM)
 {
@@ -52,14 +53,22 @@ void Script_RegisterServerFunctions(CSquirrelVM* pSquirrelVM)
 	Script_RegisterFunction(pSquirrelVM, "GetAvailableMaps", "Script_GetAvailableMaps", "Gets an array of all available maps", "array< string >", "", &VSquirrel::SHARED::GetAvailableMaps);
 	Script_RegisterFunction(pSquirrelVM, "GetAvailablePlaylists", "Script_GetAvailablePlaylists", "Gets an array of all available playlists", "array< string >", "", &VSquirrel::SHARED::GetAvailablePlaylists);
 
-	Script_RegisterFunction(pSquirrelVM, "ShutdownHostGame", "Script_ShutdownHostGame", "Shuts down the local host game", "void", "", &VSquirrel::SHARED::ShutdownHostGame);
+	Script_RegisterFunction(pSquirrelVM, "KickPlayerByName", "Script_KickPlayerByName", "Kicks a player from the server by name", "void", "string", &VSquirrel::SHARED::KickPlayerByName);
+	Script_RegisterFunction(pSquirrelVM, "KickPlayerById", "Script_KickPlayerById", "Kicks a player from the server by handle or nucleus id", "void", "string", &VSquirrel::SHARED::KickPlayerById);
+
+	Script_RegisterFunction(pSquirrelVM, "BanPlayerByName", "Script_BanPlayerByName", "Bans a player from the server by name", "void", "string", &VSquirrel::SHARED::BanPlayerByName);
+	Script_RegisterFunction(pSquirrelVM, "BanPlayerById", "Script_BanPlayerById", "Bans a player from the server by handle or nucleus id", "void", "string", &VSquirrel::SHARED::BanPlayerById);
+
+	Script_RegisterFunction(pSquirrelVM, "UnbanPlayer", "Script_UnbanPlayer", "Unbans a player from the server by nucleus id or ip address", "void", "string", &VSquirrel::SHARED::UnbanPlayer);
+
+	Script_RegisterFunction(pSquirrelVM, "ShutdownHostGame", "Script_ShutdownHostGame", "Shuts the local host game down", "void", "", &VSquirrel::SHARED::ShutdownHostGame);
 }
 #endif // !CLIENT_DLL
 
 #ifndef DEDICATED
 //---------------------------------------------------------------------------------
 // Purpose: registers script functions in CLIENT context
-// Input  : *sqvm - 
+// Input  : *pSquirrelVM - 
 //---------------------------------------------------------------------------------
 void Script_RegisterClientFunctions(CSquirrelVM* pSquirrelVM)
 {
@@ -69,16 +78,18 @@ void Script_RegisterClientFunctions(CSquirrelVM* pSquirrelVM)
 	Script_RegisterFunction(pSquirrelVM, "GetAvailableMaps", "Script_GetAvailableMaps", "Gets an array of all available maps", "array< string >", "", &VSquirrel::SHARED::GetAvailableMaps);
 	Script_RegisterFunction(pSquirrelVM, "GetAvailablePlaylists", "Script_GetAvailablePlaylists", "Gets an array of all available playlists", "array< string >", "", &VSquirrel::SHARED::GetAvailablePlaylists);
 
-	Script_RegisterFunction(pSquirrelVM, "ShutdownHostGame", "Script_ShutdownHostGame", "Shuts down the local host game", "void", "", &VSquirrel::SHARED::ShutdownHostGame);
+	Script_RegisterFunction(pSquirrelVM, "ShutdownHostGame", "Script_ShutdownHostGame", "Shuts the local host game down", "void", "", &VSquirrel::SHARED::ShutdownHostGame);
 }
 
 //---------------------------------------------------------------------------------
 // Purpose: registers script functions in UI context
-// Input  : *sqvm - 
+// Input  : *pSquirrelVM - 
 //---------------------------------------------------------------------------------
 void Script_RegisterUIFunctions(CSquirrelVM* pSquirrelVM)
 {
 	Script_RegisterFunction(pSquirrelVM, "SDKNativeTest", "Script_SDKNativeTest", "Native UI test function", "void", "", &VSquirrel::SHARED::SDKNativeTest);
+
+	Script_RegisterFunction(pSquirrelVM, "RefreshServerList", "Script_RefreshServerList", "Refreshes the public server list and returns the count", "int", "", &VSquirrel::UI::RefreshServerCount);
 
 	// Functions for retrieving server browser data
 	Script_RegisterFunction(pSquirrelVM, "GetServerName", "Script_GetServerName", "Gets the name of the server at the specified index of the server list", "string", "int", &VSquirrel::UI::GetServerName);
@@ -102,22 +113,30 @@ void Script_RegisterUIFunctions(CSquirrelVM* pSquirrelVM)
 
 	Script_RegisterFunction(pSquirrelVM, "GetAvailableMaps", "Script_GetAvailableMaps", "Gets an array of all available maps", "array< string >", "", &VSquirrel::SHARED::GetAvailableMaps);
 	Script_RegisterFunction(pSquirrelVM, "GetAvailablePlaylists", "Script_GetAvailablePlaylists", "Gets an array of all available playlists", "array< string >", "", &VSquirrel::SHARED::GetAvailablePlaylists);
+#ifndef CLIENT_DLL
+	Script_RegisterFunction(pSquirrelVM, "KickPlayerByName", "Script_KickPlayerByName", "Kicks a player from the server by name", "void", "string", &VSquirrel::SHARED::KickPlayerByName);
+	Script_RegisterFunction(pSquirrelVM, "KickPlayerById", "Script_KickPlayerById", "Kicks a player from the server by handle or nucleus id", "void", "string", &VSquirrel::SHARED::KickPlayerById);
 
-	Script_RegisterFunction(pSquirrelVM, "ShutdownHostGame", "Script_ShutdownHostGame", "Shuts down the local host game", "void", "", &VSquirrel::SHARED::ShutdownHostGame);
+	Script_RegisterFunction(pSquirrelVM, "BanPlayerByName", "Script_BanPlayerByName", "Bans a player from the server by name", "void", "string", &VSquirrel::SHARED::BanPlayerByName);
+	Script_RegisterFunction(pSquirrelVM, "BanPlayerById", "Script_BanPlayerById", "Bans a player from the server by handle or nucleus id", "void", "string", &VSquirrel::SHARED::BanPlayerById);
+
+	Script_RegisterFunction(pSquirrelVM, "UnbanPlayer", "Script_UnbanPlayer", "Unbans a player from the server by nucleus id or ip address", "void", "string", &VSquirrel::SHARED::UnbanPlayer);
+#endif // !CLIENT_DLL
+	Script_RegisterFunction(pSquirrelVM, "ShutdownHostGame", "Script_ShutdownHostGame", "Shuts the local host game down", "void", "", &VSquirrel::SHARED::ShutdownHostGame);
 }
 
 //---------------------------------------------------------------------------------
 // Purpose: Initialize all CLIENT/UI global structs and register SDK (CLIENT/UI) script functions
-// Input  : *sqvm - 
+// Input  : *pSquirrelVM - 
 //			context - (1 = CLIENT 2 = UI)
 //---------------------------------------------------------------------------------
 SQRESULT Script_InitializeCLGlobalStructs(CSquirrelVM* pSquirrelVM, SQCONTEXT context)
 {
 	SQRESULT results = v_Script_InitializeCLGlobalStructs(pSquirrelVM, context);
 	if (context == SQCONTEXT::CLIENT)
-		Script_RegisterClientFunctions(g_pClientVM.GetValue<CSquirrelVM*>());
+		Script_RegisterClientFunctions(g_pClientScript.GetValue<CSquirrelVM*>());
 	if (context == SQCONTEXT::UI)
-		Script_RegisterUIFunctions(g_pUIVM.GetValue<CSquirrelVM*>());
+		Script_RegisterUIFunctions(g_pUIScript.GetValue<CSquirrelVM*>());
 	return results;
 }
 #endif // !DEDICATED
@@ -125,12 +144,12 @@ SQRESULT Script_InitializeCLGlobalStructs(CSquirrelVM* pSquirrelVM, SQCONTEXT co
 #ifndef CLIENT_DLL
 //---------------------------------------------------------------------------------
 // Purpose: Initialize all SERVER global structs and register SDK (SERVER) script functions
-// Input  : *sqvm - 
+// Input  : *pSquirrelVM - 
 //---------------------------------------------------------------------------------
 void Script_InitializeSVGlobalStructs(CSquirrelVM* pSquirrelVM)
 {
 	v_Script_InitializeSVGlobalStructs(pSquirrelVM);
-	Script_RegisterServerFunctions(g_pServerVM.GetValue<CSquirrelVM*>());
+	Script_RegisterServerFunctions(g_pServerScript.GetValue<CSquirrelVM*>());
 }
 
 //---------------------------------------------------------------------------------
@@ -141,9 +160,9 @@ SQBool Script_CreateServerVM()
 {
 	SQBool results = v_Script_CreateServerVM();
 	if (results)
-		DevMsg(eDLL_T::SERVER, "Created SERVER VM: '%p'\n", g_pServerVM.GetValue<CSquirrelVM*>());
+		DevMsg(eDLL_T::SERVER, "Created SERVER VM: '%p'\n", g_pServerScript.GetValue<CSquirrelVM*>());
 	else
-		Error(eDLL_T::SERVER, "Failed to create SERVER VM\n");
+		Error(eDLL_T::SERVER, EXIT_FAILURE, "Failed to create SERVER VM\n");
 	return results;
 }
 #endif // !CLIENT_DLL
@@ -151,16 +170,16 @@ SQBool Script_CreateServerVM()
 #ifndef DEDICATED
 //---------------------------------------------------------------------------------
 // Purpose: Creates the CLIENT Squirrel VM
-// Input  : *hlclient - 
+// Input  : *pHlClient - 
 // Output : True on success, false on failure
 //---------------------------------------------------------------------------------
-SQBool Script_CreateClientVM(CHLClient* hlclient)
+SQBool Script_CreateClientVM(CHLClient* pHlClient)
 {
-	SQBool results = v_Script_CreateClientVM(hlclient);
+	SQBool results = v_Script_CreateClientVM(pHlClient);
 	if (results)
-		DevMsg(eDLL_T::CLIENT, "Created CLIENT VM: '%p'\n", g_pClientVM.GetValue<CSquirrelVM*>());
+		DevMsg(eDLL_T::CLIENT, "Created CLIENT VM: '%p'\n", g_pClientScript.GetValue<CSquirrelVM*>());
 	else
-		Error(eDLL_T::CLIENT, "Failed to create CLIENT VM\n");
+		Error(eDLL_T::CLIENT, EXIT_FAILURE, "Failed to create CLIENT VM\n");
 	return results;
 }
 
@@ -172,9 +191,9 @@ SQBool Script_CreateUIVM()
 {
 	SQBool results = v_Script_CreateUIVM();
 	if (results)
-		DevMsg(eDLL_T::UI, "Created UI VM: '%p'\n", g_pUIVM.GetValue<CSquirrelVM*>());
+		DevMsg(eDLL_T::UI, "Created UI VM: '%p'\n", g_pUIScript.GetValue<CSquirrelVM*>());
 	else
-		Error(eDLL_T::UI, "Failed to create UI VM\n");
+		Error(eDLL_T::UI, EXIT_FAILURE, "Failed to create UI VM\n");
 	return results;
 }
 #endif // !DEDICATED
@@ -190,13 +209,13 @@ CSquirrelVM* Script_GetContextObject(SQCONTEXT context)
 	{
 #ifndef CLIENT_DLL
 	case SQCONTEXT::SERVER:
-		return g_pServerVM.GetValue<CSquirrelVM*>();
+		return g_pServerScript.GetValue<CSquirrelVM*>();
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 	case SQCONTEXT::CLIENT:
-		return g_pClientVM.GetValue<CSquirrelVM*>();
+		return g_pClientScript.GetValue<CSquirrelVM*>();
 	case SQCONTEXT::UI:
-		return g_pUIVM.GetValue<CSquirrelVM*>();
+		return g_pUIScript.GetValue<CSquirrelVM*>();
 #endif // !DEDICATED
 	default:
 		return nullptr;
@@ -211,19 +230,14 @@ SQInteger Script_LoadRson(const SQChar* szRsonName)
 {
 	if (sq_showrsonloading->GetBool())
 	{
-		DevMsg(eDLL_T::ENGINE, "\n");
-		DevMsg(eDLL_T::ENGINE, "______________________________________________________________\n");
-		DevMsg(eDLL_T::ENGINE, "] RSON ]------------------------------------------------------\n");
-		DevMsg(eDLL_T::ENGINE, "] PATH: '%s'\n", szRsonName);
-		DevMsg(eDLL_T::ENGINE, "--------------------------------------------------------------\n");
-		DevMsg(eDLL_T::ENGINE, "\n");
+		DevMsg(eDLL_T::ENGINE, "Loading RSON: '%s'\n", szRsonName);
 	}
 	return v_Script_LoadRson(szRsonName);
 }
 
 //---------------------------------------------------------------------------------
 // Purpose: prints the scripts the compiler loads from global include to be compiled
-// Input  : *sqvm - 
+// Input  : *v - 
 //			*szScriptPath - 
 //			*szScriptName - 
 //			nFlag - 
@@ -246,18 +260,28 @@ SQBool Script_LoadScript(HSQUIRRELVM v, const SQChar* szScriptPath, const SQChar
 //---------------------------------------------------------------------------------
 void Script_Execute(const SQChar* code, SQCONTEXT context)
 {
-	CSquirrelVM* scriptVM = Script_GetContextObject(context);
-
-	if (!scriptVM)
+	if (!ThreadInMainThread())
 	{
-		Error(eDLL_T::ENGINE, "Attempted to run %s script while VM isn't initialized\n", SQVM_GetContextName(context));
+		const string scode(code);
+		g_TaskScheduler->Dispatch([scode, context]()
+			{
+				Script_Execute(scode.c_str(), context);
+			}, 0);
+
+		return; // Only run in main thread.
+	}
+
+	CSquirrelVM* script = Script_GetContextObject(context);
+	if (!script)
+	{
+		Error(eDLL_T::ENGINE, NO_ERROR, "Attempted to run %s script with no handle to script context\n", SQVM_GetContextName(context));
 		return;
 	}
 
-	HSQUIRRELVM v = scriptVM->GetVM();
+	HSQUIRRELVM v = script->GetVM();
 	if (!v)
 	{
-		Error(eDLL_T::ENGINE, "Attempted to run %s script while VM isn't initialized\n", SQVM_GetContextName(context));
+		Error(eDLL_T::ENGINE, NO_ERROR, "Attempted to run %s script while VM isn't initialized\n", SQVM_GetContextName(context));
 		return;
 	}
 

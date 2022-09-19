@@ -6,7 +6,7 @@
 
 #include "core/stdafx.h"
 #include "common/pseudodefs.h"
-#include "tier0/tslist.h"
+#include "tier0/memstd.h"
 #include "tier0/basetypes.h"
 #include "tier1/cvar.h"
 #include "tier2/renderutils.h"
@@ -15,16 +15,20 @@
 #include "engine/debugoverlay.h"
 #include "materialsystem/cmaterialsystem.h"
 #include "mathlib/mathlib.h"
+#if not defined (DEDICATED) && not defined (CLIENT_DLL)
+#include "game/shared/ai_utility_shared.h"
+#endif // !DEDICATED && !CLIENT_DLL
 
 
 //------------------------------------------------------------------------------
 // Purpose: checks if overlay should be decayed
+// Output : true to decay, false otherwise
 //------------------------------------------------------------------------------
 bool OverlayBase_t::IsDead() const
 {
     if (r_debug_overlay_nodecay->GetBool())
     {
-        // Keep rendering the overlay if nodecay is set.
+        // Keep rendering the overlay if no-decay is set.
         return false;
     }
 
@@ -46,19 +50,20 @@ bool OverlayBase_t::IsDead() const
         }
         else
         {
-            return m_nOverlayTick < *overlay_tickcount;
+            return m_nOverlayTick < *g_nOverlayTickCount;
         }
         return false;
     }
     else
     {
-        return m_nCreationTick < *render_tickcount;
+        return m_nCreationTick < *g_nRenderTickCount;
     }
     return g_pClientState->GetClientTime() >= m_flEndTime;
 }
 
 //------------------------------------------------------------------------------
 // Purpose: destroys the overlay
+// Input  : *pOverlay - 
 //------------------------------------------------------------------------------
 void DestroyOverlay(OverlayBase_t* pOverlay)
 {
@@ -68,13 +73,13 @@ void DestroyOverlay(OverlayBase_t* pOverlay)
     switch (pOverlay->m_Type)
     {
     case OverlayType_t::OVERLAY_BOX:
-        pOverlaySize = 128i64;
+        pOverlaySize = sizeof(OverlayBox_t);
         goto LABEL_MALLOC;
     case OverlayType_t::OVERLAY_SPHERE:
-        pOverlaySize = 72i64;
+        pOverlaySize = sizeof(OverlaySphere_t);
         goto LABEL_MALLOC;
     case OverlayType_t::OVERLAY_LINE:
-        pOverlaySize = 80i64;
+        pOverlaySize = sizeof(OverlayLine_t);
         goto LABEL_MALLOC;
     case OverlayType_t::OVERLAY_TRIANGLE:
         pOverlaySize = 6200i64;
@@ -87,14 +92,14 @@ void DestroyOverlay(OverlayBase_t* pOverlay)
         pOverlaySize = 88i64;
         goto LABEL_MALLOC;
     case OverlayType_t::OVERLAY_CAPSULE:
-        pOverlaySize = 112i64;
+        pOverlaySize = sizeof(OverlayCapsule_t);
         break;
     case OverlayType_t::OVERLAY_UNK0:
         pOverlaySize = 88i64;
         goto LABEL_MALLOC;
     LABEL_MALLOC:
         pOverlay->m_Type = OverlayType_t::OVERLAY_UNK1;
-        v_MemAlloc_Internal(pOverlay, pOverlaySize);
+        MemAllocSingleton()->Free(pOverlay);
         break;
     default:
         break;
@@ -105,6 +110,7 @@ void DestroyOverlay(OverlayBase_t* pOverlay)
 
 //------------------------------------------------------------------------------
 // Purpose: draws a generic overlay
+// Input  : *pOverlay - 
 //------------------------------------------------------------------------------
 void DrawOverlay(OverlayBase_t* pOverlay)
 {
@@ -128,7 +134,7 @@ void DrawOverlay(OverlayBase_t* pOverlay)
             }
         }
 
-        v_RenderBox(*pBox->transforms, pBox->mins, pBox->maxs, Color(pBox->r, pBox->g, pBox->b, pBox->a), false);
+        v_RenderBox(pBox->transforms, pBox->mins, pBox->maxs, Color(pBox->r, pBox->g, pBox->b, pBox->a), r_debug_overlay_zbuffer->GetBool());
         break;
     }
     case OverlayType_t::OVERLAY_SPHERE:
@@ -148,9 +154,14 @@ void DrawOverlay(OverlayBase_t* pOverlay)
         }
 
         if (r_debug_overlay_wireframe->GetBool())
-            v_RenderWireframeSphere(pSphere->vOrigin, pSphere->flRadius, pSphere->nTheta, pSphere->nPhi, Color(pSphere->r, pSphere->g, pSphere->b, pSphere->a), false);
+        {
+            v_RenderWireframeSphere(pSphere->vOrigin, pSphere->flRadius, pSphere->nTheta, pSphere->nPhi, 
+                Color(pSphere->r, pSphere->g, pSphere->b, pSphere->a), r_debug_overlay_zbuffer->GetBool());
+        }
         else
-            DebugDrawSphere(pSphere->vOrigin, pSphere->flRadius, Color(pSphere->r, pSphere->g, pSphere->b, pSphere->a), 16);
+        {
+            DebugDrawSphere(pSphere->vOrigin, pSphere->flRadius, Color(pSphere->r, pSphere->g, pSphere->b, pSphere->a), 16, r_debug_overlay_zbuffer->GetBool());
+        }
         break;
     }
     case OverlayType_t::OVERLAY_LINE:
@@ -169,7 +180,7 @@ void DrawOverlay(OverlayBase_t* pOverlay)
             }
         }
 
-        v_RenderLine(pLine->origin, pLine->dest, Color(pLine->r, pLine->g, pLine->b, pLine->a), pLine->noDepthTest);
+        v_RenderLine(pLine->origin, pLine->dest, Color(pLine->r, pLine->g, pLine->b, pLine->a), !pLine->noDepthTest);
         break;
     }
     case OverlayType_t::OVERLAY_TRIANGLE:
@@ -189,7 +200,27 @@ void DrawOverlay(OverlayBase_t* pOverlay)
     }
     case OverlayType_t::OVERLAY_CAPSULE:
     {
-        //printf("CAPSULE %p\n", pOverlay);
+        OverlayCapsule_t* pCapsule = static_cast<OverlayCapsule_t*>(pOverlay);
+        if (pCapsule->a < 1)
+        {
+            if (r_debug_overlay_invisible->GetBool())
+            {
+                pCapsule->a = 255;
+            }
+            else
+            {
+                LeaveCriticalSection(&*s_OverlayMutex);
+                return;
+            }
+        }
+
+        QAngle angles;
+
+        VectorAngles(pCapsule->end, pCapsule->start, angles);
+        AngleInverse(angles, angles);
+
+        DebugDrawCapsule(pCapsule->start, angles, pCapsule->radius, pCapsule->start.DistTo(pCapsule->end), 
+            Color(pCapsule->r, pCapsule->g, pCapsule->b, pCapsule->a), r_debug_overlay_zbuffer->GetBool());
         break;
     }
     case OverlayType_t::OVERLAY_UNK0:
@@ -209,14 +240,25 @@ void DrawOverlay(OverlayBase_t* pOverlay)
 
 //------------------------------------------------------------------------------
 // Purpose : overlay drawing entrypoint
+// Input  : bDraw - 
 //------------------------------------------------------------------------------
-void DrawAllOverlays(char pOverlay)
+void DrawAllOverlays(bool bDraw)
 {
     if (!enable_debug_overlays->GetBool())
-    {
         return;
-    }
     EnterCriticalSection(&*s_OverlayMutex);
+#ifndef CLIENT_DLL
+    if (ai_script_nodes_draw->GetInt() > -1)
+        DrawAIScriptNodes();
+    if (navmesh_draw_bvtree->GetInt() > -1)
+        DrawNavMeshBVTree();
+    if (navmesh_draw_portal->GetInt() > -1)
+        DrawNavMeshPortals();
+    if (navmesh_draw_polys->GetInt() > -1)
+        DrawNavMeshPolys();
+    if (navmesh_draw_poly_bounds->GetInt() > -1)
+        DrawNavMeshPolyBoundaries();
+#endif // !CLIENT_DLL
 
     OverlayBase_t* pCurrOverlay = *s_pOverlays; // rdi
     OverlayBase_t* pPrevOverlay = nullptr;      // rsi
@@ -246,7 +288,7 @@ void DrawAllOverlays(char pOverlay)
             bool bDraw{ };
             if (pCurrOverlay->m_nCreationTick == -1)
             {
-                if (pCurrOverlay->m_nOverlayTick == *overlay_tickcount)
+                if (pCurrOverlay->m_nOverlayTick == *g_nOverlayTickCount)
                 {
                     // Draw overlay if unk0 == *overlay_tickcount
                     bDraw = true;
@@ -259,11 +301,11 @@ void DrawAllOverlays(char pOverlay)
             }
             else
             {
-                bDraw = pCurrOverlay->m_nCreationTick == *render_tickcount;
+                bDraw = pCurrOverlay->m_nCreationTick == *g_nRenderTickCount;
             }
             if (bDraw)
             {
-                if (pOverlay)
+                if (bDraw)
                 {
                     DrawOverlay(pCurrOverlay);
                 }

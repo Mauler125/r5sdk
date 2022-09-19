@@ -28,9 +28,9 @@
 #include <cassert>
 #include <filesystem>
 
-#if !defined(DEDICATED) && !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
+#if !defined(DEDICATED) && !defined(SDKLAUNCHER) && !defined (NETCONSOLE) && !defined(PLUGINSDK)
 #include <d3d11.h>
-#endif // !DEDICATED && !SDKLAUNCHER && !NETCONSOLE
+#endif // !DEDICATED && !SDKLAUNCHER && !NETCONSOLE && !PLUGINSDK
 
 #include "thirdparty/nlohmann/json.hpp"
 
@@ -53,7 +53,7 @@
 #include "launcher/launcherdefs.h"
 #endif // SDKLAUNCHER
 
-#if !defined(DEDICATED) && !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
+#if !defined(DEDICATED) && !defined(SDKLAUNCHER) && !defined (NETCONSOLE) && !defined(PLUGINSDK)
 #include "thirdparty/imgui/include/imgui.h"
 #include "thirdparty/imgui/include/imgui_stdlib.h"
 #include "thirdparty/imgui/include/imgui_logger.h"
@@ -62,12 +62,12 @@
 #include "thirdparty/imgui/include/imgui_internal.h"
 #include "thirdparty/imgui/include/imgui_impl_dx11.h"
 #include "thirdparty/imgui/include/imgui_impl_win32.h"
-#endif // !DEDICATED && !SDKLAUNCHER && !NETCONSOLE
+#endif // !DEDICATED && !SDKLAUNCHER && !NETCONSOLE && !PLUGINSDK
 
-#if !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
+#if !defined(SDKLAUNCHER) && !defined (NETCONSOLE) && !defined(PLUGINSDK)
 #include "thirdparty/lzham/include/lzham_types.h"
 #include "thirdparty/lzham/include/lzham.h"
-#endif // !SDKLAUNCHER && !NETCONSOLE
+#endif // !SDKLAUNCHER && !NETCONSOLE && !PLUGINSDK
 
 #include "thirdparty/spdlog/include/spdlog.h"
 #include "thirdparty/spdlog/include/async.h"
@@ -82,29 +82,29 @@
 #include "common/x86defs.h"
 #include "common/sdkdefs.h"
 
-#include "public/include/utility.h"
-#include "public/include/memaddr.h"
-#include "public/include/module.h"
-#include "public/include/httplib.h"
-#include "public/include/vdf_parser.h"
+#include "public/utility/utility.h"
+#include "public/utility/memaddr.h"
+#include "public/utility/module.h"
+#include "public/utility/httplib.h"
+#include "public/utility/vdf_parser.h"
 
 #include "core/assert.h"
 #include "core/termutil.h"
 #include "tier0/basetypes.h"
 #include "tier0/platform.h"
 #include "tier0/commonmacros.h"
-#if !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
+#if !defined(SDKLAUNCHER) && !defined (NETCONSOLE) && !defined(PLUGINSDK)
 #include "tier0/dbg.h"
-#endif // !SDKLAUNCHER && !NETCONSOLE
+#endif // !SDKLAUNCHER && !NETCONSOLE && !PLUGINSDK
 
-#if !defined(SDKLAUNCHER) && !defined (NETCONSOLE)
+#if !defined(SDKLAUNCHER) && !defined (NETCONSOLE) && !defined(PLUGINSDK)
 #if !defined (DEDICATED)
-inline CModule g_mGameDll = CModule("r5apex.exe");
-inline CModule g_mRadVideoToolsDll   = CModule("bink2w64.dll");
-inline CModule g_mRadAudioDecoderDll = CModule("binkawin64.dll");
-inline CModule g_mRadAudioSystemDll  = CModule("mileswin64.dll");
+inline CModule g_GameDll = CModule("r5apex.exe");
+inline CModule g_RadVideoToolsDll   = CModule("bink2w64.dll");
+inline CModule g_RadAudioDecoderDll = CModule("binkawin64.dll");
+inline CModule g_RadAudioSystemDll  = CModule("mileswin64.dll");
 #else // No DirectX and Miles imports.
-inline CModule g_mGameDll = CModule("r5apex_ds.exe");
+inline CModule g_GameDll = CModule("r5apex_ds.exe");
 #endif // !DEDICATED
 
 #define VAR_NAME(varName)  #varName
@@ -121,4 +121,4 @@ ReturnType CallVFunc(int index, void* thisPtr, Args... args)
 {
 	return (*reinterpret_cast<ReturnType(__fastcall***)(void*, Args...)>(thisPtr))[index](thisPtr, args...);
 }
-#endif // !SDKLAUNCHER && !NETCONSOLE
+#endif // !SDKLAUNCHER && !NETCONSOLE && !PLUGINSDK
