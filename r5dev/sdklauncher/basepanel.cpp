@@ -550,6 +550,7 @@ void CUIBaseSurface::ParseMaps()
 {
 	std::regex rgArchiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
 	std::smatch smRegexMatches;
+	if (!fs::exists("vpk")) return;
 	for (const fs::directory_entry& dEntry : fs::directory_iterator("vpk"))
 	{
 		std::string svFileName = dEntry.path().string();
