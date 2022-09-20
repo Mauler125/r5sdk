@@ -216,11 +216,14 @@ void CNetChan::Clear(bool bStopProcessing)
 bool CNetChan::ProcessMessages(CNetChan* pChan, bf_read* pMsg)
 {
 #ifndef CLIENT_DLL
-	if (!ThreadInServerFrameThread() || !net_processLimit->GetInt())
+	if (!ThreadInServerFrameThread() || !net_processTimeBudget->GetInt())
 		return v_NetChan_ProcessMessages(pChan, pMsg);
 
 	const double flStartTime = Plat_FloatTime();
 	const bool bResult = v_NetChan_ProcessMessages(pChan, pMsg);
+
+	if (!pChan->m_MessageHandler) // NetChannel removed?
+		return bResult;
 
 	CClient* pClient = reinterpret_cast<CClient*>(pChan->m_MessageHandler);
 	ServerPlayer_t* pSlot = &g_ServerPlayer[pClient->GetUserID()];
@@ -235,9 +238,12 @@ bool CNetChan::ProcessMessages(CNetChan* pChan, bf_read* pMsg)
 		(Plat_FloatTime() * 1000) - (flStartTime * 1000);
 
 	if (pSlot->m_flCurrentNetProcessTime >
-		net_processLimit->GetDouble())
+		net_processTimeBudget->GetDouble())
 	{
-		pClient->Disconnect(REP_MARK, "#DISCONNECT_NETCHAN_OVERFLOW");
+		Warning(eDLL_T::ENGINE, "Removing netchannel '%s' ('%s' exceeded frame budget by '%3.1f'ms!)\n", 
+			pChan->GetName(), pChan->GetAddress(), (pSlot->m_flCurrentNetProcessTime - net_processTimeBudget->GetDouble()));
+		pClient->Disconnect(Reputation_t::REP_MARK, "#DISCONNECT_NETCHAN_OVERFLOW");
+
 		return false;
 	}
 

@@ -167,7 +167,7 @@ extern ConVar* net_tracePayload;
 extern ConVar* net_encryptionEnable;
 extern ConVar* net_useRandomKey;
 extern ConVar* net_usesocketsforloopback;
-extern ConVar* net_processLimit;
+extern ConVar* net_processTimeBudget;
 extern ConVar* pylon_matchmaking_hostname;
 extern ConVar* pylon_host_update_interval;
 extern ConVar* pylon_showdebuginfo;
