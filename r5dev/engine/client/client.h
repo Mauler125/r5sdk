@@ -22,7 +22,7 @@ class CClient;
 ///////////////////////////////////////////////////////////////////////////////
 extern CClient* g_pClient;
 
-class CClient : INetChannelHandler, IClientMessageHandler
+class CClient : IClientMessageHandler, INetChannelHandler
 {
 public:
 	CClient* GetClient(int nIndex) const;
@@ -52,6 +52,7 @@ public:
 	static bool VConnect(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize);
 	void Clear(void);
 	static void VClear(CClient* pClient);
+	static bool VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg);
 
 private:
 	uint32_t m_nUserID;              //0x0010
@@ -106,6 +107,9 @@ inline auto v_CClient_Disconnect = p_CClient_Disconnect.RCast<bool (*)(CClient* 
 inline CMemory p_CClient_Clear;
 inline auto v_CClient_Clear = p_CClient_Clear.RCast<void (*)(CClient* pClient)>();
 
+inline CMemory p_CClient_ProcessStringCmd;
+inline auto v_CClient_ProcessStringCmd = p_CClient_ProcessStringCmd.RCast<bool (*)(CClient* pClient, NET_StringCmd* pMsg)>();
+
 ///////////////////////////////////////////////////////////////////////////////
 void CBaseClient_Attach();
 void CBaseClient_Detach();
@@ -118,6 +122,7 @@ class VClient : public IDetour
 		spdlog::debug("| FUN: CClient::Connect                     : {:#18x} |\n", p_CClient_Connect.GetPtr());
 		spdlog::debug("| FUN: CClient::Disconnect                  : {:#18x} |\n", p_CClient_Disconnect.GetPtr());
 		spdlog::debug("| FUN: CClient::Clear                       : {:#18x} |\n", p_CClient_Clear.GetPtr());
+		spdlog::debug("| FUN: CClient::ProcessStringCmd            : {:#18x} |\n", p_CClient_ProcessStringCmd.GetPtr());
 		spdlog::debug("| VAR: g_pClient[128]                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pClient));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
@@ -130,10 +135,16 @@ class VClient : public IDetour
 		p_CClient_Disconnect = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x4C\x89\x40\x18\x4C\x89\x48\x20\x53\x56\x57\x48\x81\xEC\x00\x00\x00\x00\x83\xB9\x00\x00\x00\x00\x00\x49\x8B\xF8\x8B\xF2"), "xxxxxxxxxxxxxxxxx????xx?????xxxxx");
 #endif
 		p_CClient_Clear      = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74"), "xxxxxxxxxxxxxxxx");
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+		p_CClient_ProcessStringCmd = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x4C\x8B\x42\x20"), "xxxxxxxx");
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+		p_CClient_ProcessStringCmd = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x6C\x24\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x7A\x20"), "xxxx?xxxx????xxxx");
+#endif // !GAMEDLL_S0 || !GAMEDLL_S1
 
 		v_CClient_Connect    = p_CClient_Connect.RCast<bool (*)(CClient*, const char*, void*, bool, void*, char*, int)>(); /*48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 20 41 0F B6 E9*/
 		v_CClient_Disconnect = p_CClient_Disconnect.RCast<bool (*)(CClient*, const Reputation_t, const char*, ...)>();     /*48 8B C4 4C 89 40 18 4C 89 48 20 53 56 57 48 81 EC ?? ?? ?? ?? 83 B9 ?? ?? ?? ?? ?? 49 8B F8 8B F2*/
 		v_CClient_Clear      = p_CClient_Clear.RCast<void (*)(CClient*)>();                                                /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
+		v_CClient_ProcessStringCmd = p_CClient_ProcessStringCmd.RCast<bool (*)(CClient*, NET_StringCmd*)>();               /*48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 7A 20*/
 	}
 	virtual void GetVar(void) const
 	{

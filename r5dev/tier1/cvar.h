@@ -65,6 +65,7 @@ extern ConVar* sv_statusRefreshInterval;
 extern ConVar* sv_forceChatToTeamOnly;
 
 extern ConVar* sv_autoReloadRate;
+extern ConVar* sv_quota_stringCmdsPerSecond;
 
 #ifdef DEDICATED
 extern ConVar* sv_rcon_debug;
@@ -168,6 +169,7 @@ extern ConVar* net_encryptionEnable;
 extern ConVar* net_useRandomKey;
 extern ConVar* net_usesocketsforloopback;
 extern ConVar* net_processTimeBudget;
+
 extern ConVar* pylon_matchmaking_hostname;
 extern ConVar* pylon_host_update_interval;
 extern ConVar* pylon_showdebuginfo;

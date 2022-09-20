@@ -105,7 +105,8 @@ void ConVar::Init(void) const
 	sv_banlistRefreshInterval = ConVar::Create("sv_banlistRefreshInterval", "1.0", FCVAR_RELEASE, "Banlist refresh interval (seconds).", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_statusRefreshInterval  = ConVar::Create("sv_statusRefreshInterval" , "0.5", FCVAR_RELEASE, "Server status bar update interval (seconds).", false, 0.f, false, 0.f, nullptr, nullptr);
 
-	sv_autoReloadRate = ConVar::Create("sv_autoReloadRate" , "0", FCVAR_RELEASE, "Time in seconds between each server auto-reload (disabled if null). ", true, 0.f, false, 0.f, nullptr, nullptr);
+	sv_autoReloadRate      = ConVar::Create("sv_autoReloadRate" , "0", FCVAR_RELEASE, "Time in seconds between each server auto-reload (disabled if null). ", true, 0.f, false, 0.f, nullptr, nullptr);
+	sv_quota_stringCmdsPerSecond = ConVar::Create("sv_quota_stringCmdsPerSecond", "16", FCVAR_RELEASE, "How many string commands per second clients are allowed to submit, 0 to disallow all string commands.", true, 0.f, false, 0.f, nullptr, nullptr);
 #ifdef DEDICATED
 	sv_rcon_debug       = ConVar::Create("sv_rcon_debug"      , "0" , FCVAR_RELEASE, "Show rcon debug information ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_sendlogs    = ConVar::Create("sv_rcon_sendlogs"   , "0" , FCVAR_RELEASE, "Network console logs to connected and authenticated sockets.", false, 0.f, false, 0.f, nullptr, nullptr);
@@ -203,7 +204,7 @@ void ConVar::Init(void) const
 	net_tracePayload           = ConVar::Create("net_tracePayload"          , "0", FCVAR_DEVELOPMENTONLY                    , "Log the payload of the send/recv datagram to a file on the disk.", false, 0.f, false, 0.f, nullptr, nullptr);
 	net_encryptionEnable       = ConVar::Create("net_encryptionEnable"      , "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED , "Use AES encryption on game packets.", false, 0.f, false, 0.f, nullptr, nullptr);
 	net_useRandomKey           = ConVar::Create("net_useRandomKey"          , "1"                        , FCVAR_RELEASE    , "Use random AES encryption key for game packets.", false, 0.f, false, 0.f, &NET_UseRandomKeyChanged_f, nullptr);
-	net_processTimeBudget      = ConVar::Create("net_processTimeBudget"     ,"200"                       , FCVAR_RELEASE    , "Net message process budget in milliseconds (removing netchannel if exceeded).", true, 0.f, false, 0.f, nullptr, "0 = disabled.");
+	net_processTimeBudget      = ConVar::Create("net_processTimeBudget"     ,"150"                       , FCVAR_RELEASE    , "Net message process budget in milliseconds (removing netchannel if exceeded).", true, 0.f, false, 0.f, nullptr, "0 = disabled.");
 	//-------------------------------------------------------------------------
 	// NETWORKSYSTEM                                                          |
 	pylon_matchmaking_hostname = ConVar::Create("pylon_matchmaking_hostname", "ms.r5reloaded.com", FCVAR_RELEASE        , "Holds the pylon matchmaking hostname.", false, 0.f, false, 0.f, &MP_HostName_Changed_f, nullptr);
@@ -263,6 +264,7 @@ void ConVar::InitShipped(void) const
 
 #ifndef CLIENT_DLL
 	ai_script_nodes_draw->SetValue(-1);
+	bhit_enable->SetValue(0);
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 	cl_threaded_bone_setup->RemoveFlags(FCVAR_DEVELOPMENTONLY);

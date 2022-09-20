@@ -87,6 +87,13 @@ public:
 	bf_write	m_DataOut;
 };
 
+struct NET_StringCmd : CNetMessage, INetMessageHandler
+{
+	const char* cmd;
+	char buffer[1024];
+};
+
+
 //-------------------------------------------------------------------------
 // MM_HEARTBEAT
 //-------------------------------------------------------------------------
