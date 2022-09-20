@@ -316,7 +316,7 @@ bool CClient::VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg)
 	if (pSlot->m_nStringCommandQuotaCount > nCmdQuota)
 	{
 		Warning(eDLL_T::SERVER, "Removing client '%s' from slot '%i' ('%llu' exceeded string command quota!)\n", 
-			pClient_Adj->GetNetChan()->GetAddress(), pClient_Adj->GetUserID(), pClient->GetNucleusID());
+			pClient_Adj->GetNetChan()->GetAddress(), pClient_Adj->GetUserID(), pClient_Adj->GetNucleusID());
 
 		pClient_Adj->Disconnect(Reputation_t::REP_MARK_BAD, "#DISCONNECT_STRINGCMD_OVERFLOW");
 		return true;
