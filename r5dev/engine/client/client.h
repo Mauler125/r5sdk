@@ -10,7 +10,7 @@ enum Reputation_t
 {
 	REP_NONE = 0,
 	REP_REMOVE_ONLY,
-	REP_MARK
+	REP_MARK_BAD
 };
 
 //-----------------------------------------------------------------------------

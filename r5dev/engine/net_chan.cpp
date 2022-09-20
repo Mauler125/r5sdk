@@ -242,7 +242,7 @@ bool CNetChan::ProcessMessages(CNetChan* pChan, bf_read* pMsg)
 	{
 		Warning(eDLL_T::ENGINE, "Removing netchannel '%s' ('%s' exceeded frame budget by '%3.1f'ms!)\n", 
 			pChan->GetName(), pChan->GetAddress(), (pSlot->m_flCurrentNetProcessTime - net_processTimeBudget->GetDouble()));
-		pClient->Disconnect(Reputation_t::REP_MARK, "#DISCONNECT_NETCHAN_OVERFLOW");
+		pClient->Disconnect(Reputation_t::REP_MARK_BAD, "#DISCONNECT_NETCHAN_OVERFLOW");
 
 		return false;
 	}
