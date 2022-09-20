@@ -36,7 +36,6 @@
 #ifndef DEDICATED
 #include "milessdk/win64_rrthreads.h"
 #endif // !DEDICATED
-#include "mathlib/mathlib.h"
 #include "vphysics/QHull.h"
 #include "bsplib/bsplib.h"
 #include "materialsystem/cmaterialsystem.h"
@@ -138,10 +137,7 @@ void Systems_Init()
 
 	initTimer.Start();
 
-	WinSock_Init(); // Initialize Winsock.
-	MathLib_Init(); // Initialize Mathlib.
-
-	// Begin the detour transaction to hook the the process
+	// Begin the detour transaction to hook the process
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
@@ -186,6 +182,8 @@ void Systems_Init()
 #endif // !DEDICATED && GAMEDLL_S3
 
 	NET_Attach();
+	//NetChan_Attach();
+
 	ConCommand_Attach();
 	IConVar_Attach();
 	CKeyValueSystem_Attach();
@@ -226,10 +224,11 @@ void Systems_Init()
 	RuntimePtc_Init();
 
 	// Commit the transaction
-	if (DetourTransactionCommit() != NO_ERROR)
+	HRESULT hr = DetourTransactionCommit();
+	if (hr != NO_ERROR)
 	{
 		// Failed to hook into the process, terminate
-		TerminateProcess(GetCurrentProcess(), 0xBAD0C0DE);
+		Error(eDLL_T::COMMON, 0xBAD0C0DE, "Failed to detour process: error code = %08x\n", hr);
 	}
 
 	initTimer.End();
@@ -264,10 +263,7 @@ void Systems_Shutdown()
 	CFastTimer shutdownTimer;
 	shutdownTimer.Start();
 
-	// Shutdown Winsock system.
-	WinSock_Shutdown();
-
-	// Begin the detour transaction to unhook the the process
+	// Begin the detour transaction to unhook the process
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
@@ -312,6 +308,8 @@ void Systems_Shutdown()
 #endif // !DEDICATED && GAMEDLL_S3
 
 	NET_Detach();
+	//NetChan_Detach();
+
 	ConCommand_Detach();
 	IConVar_Detach();
 	CKeyValueSystem_Detach();
@@ -415,16 +413,29 @@ void QuerySystemInfo()
 		spdlog::error("Unable to retrieve system memory information: {:s}\n", 
 			std::system_category().message(static_cast<int>(::GetLastError())));
 	}
+}
 
-	if (!s_bMathlibInitialized)
+void CheckCPU() // Respawn's engine and our SDK utilize POPCNT, SSE3 and SSSE3 (Supplemental SSE 3 Instructions).
+{
+	const CPUInformation& pi = GetCPUInformation();
+	static char szBuf[1024];
+	if (!pi.m_bSSE3)
 	{
-		if (!(pi.m_bSSE && pi.m_bSSE2))
-		{
-			if (MessageBoxA(NULL, "SSE and SSE2 are required.", "Unsupported CPU", MB_ICONERROR | MB_OK))
-			{
-				TerminateProcess(GetCurrentProcess(), 1);
-			}
-		}
+		V_snprintf(szBuf, sizeof(szBuf), "CPU does not have %s!\n", "SSE 3");
+		MessageBoxA(NULL, szBuf, "Unsupported CPU", MB_ICONERROR | MB_OK);
+		ExitProcess(-1);
+	}
+	if (!pi.m_bSSSE3)
+	{
+		V_snprintf(szBuf, sizeof(szBuf), "CPU does not have %s!\n", "SSSE 3 (Supplemental SSE 3 Instructions)");
+		MessageBoxA(NULL, szBuf, "Unsupported CPU", MB_ICONERROR | MB_OK);
+		ExitProcess(-1);
+	}
+	if (!pi.m_bPOPCNT)
+	{
+		V_snprintf(szBuf, sizeof(szBuf), "CPU does not have %s!\n", "POPCNT");
+		MessageBoxA(NULL, szBuf, "Unsupported CPU", MB_ICONERROR | MB_OK);
+		ExitProcess(-1);
 	}
 }
 

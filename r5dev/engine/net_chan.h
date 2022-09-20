@@ -101,6 +101,8 @@ public:
 
 	bool        IsOverflowed(void) const;
 	void        Clear(bool bStopProcessing);
+
+	static bool ProcessMessages(CNetChan* pChan, bf_read* pMsg);
 	//-----------------------------------------------------------------------------
 private:
 	bool                m_bProcessingMessages;
@@ -175,18 +177,25 @@ static_assert(sizeof(CNetChan) == 0x1AC8);
 
 inline CMemory p_NetChan_Clear;
 inline auto v_NetChan_Clear = p_NetChan_Clear.RCast<void (*)(CNetChan* pChannel, bool bStopProcessing)>();
+
+inline CMemory p_NetChan_ProcessMessages;
+inline auto v_NetChan_ProcessMessages = p_NetChan_ProcessMessages.RCast<bool (*)(CNetChan* pChan, bf_read* pMsg)>();
 ///////////////////////////////////////////////////////////////////////////////
 class VNetChannel : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
 		spdlog::debug("| FUN: CNetChan::Clear                      : {:#18x} |\n", p_NetChan_Clear.GetPtr());
+		spdlog::debug("| FUN: CNetChan::ProcessMessages            : {:#18x} |\n", p_NetChan_ProcessMessages.GetPtr());
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
 		p_NetChan_Clear = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x88\x54\x24\x10\x53\x55\x57"), "xxxxxxx");
 		v_NetChan_Clear = p_NetChan_Clear.RCast<void (*)(CNetChan*, bool)>(); /*88 54 24 10 53 55 57*/
+
+		p_NetChan_ProcessMessages = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xFA"), "xxxx?xxxx?xxxx????xxx");
+		v_NetChan_ProcessMessages = p_NetChan_ProcessMessages.RCast<bool (*)(CNetChan* pChan, bf_read* pMsg)>();/*48 89 5C 24 ?? 48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B FA*/
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
@@ -195,5 +204,8 @@ class VNetChannel : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 REGISTER(VNetChannel);
+
+void NetChan_Attach();
+void NetChan_Detach();
 
 #endif // NET_CHAN_H

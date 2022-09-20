@@ -77,4 +77,5 @@ void SpdLog_PostInit()
 		g_bSpdLog_UseAnsiClr = true;
 	}
 	else { wconsole->set_pattern("%v"); }
+	g_bSpdLog_PostInit = true;
 }

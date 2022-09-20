@@ -269,7 +269,7 @@ void CUtlBlockMemory<T, I>::ChangeSize(int nBlocks)
 
 	if (!m_pMemory)
 	{
-		Error(eDLL_T::COMMON, true, "CUtlBlockMemory overflow!\n");
+		Error(eDLL_T::COMMON, EXIT_FAILURE, "CUtlBlockMemory overflow!\n");
 	}
 
 	// allocate new blocks if growing

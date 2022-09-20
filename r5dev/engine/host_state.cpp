@@ -57,6 +57,7 @@
 FORCEINLINE void CHostState::FrameUpdate(CHostState* pHostState, double flCurrentTime, float flFrameTime)
 {
 	static bool bInitialized = false;
+	static bool bResetIdleName = false;
 	if (!bInitialized)
 	{
 		g_pHostState->Setup();
@@ -106,15 +107,25 @@ FORCEINLINE void CHostState::FrameUpdate(CHostState* pHostState, double flCurren
 			}
 			case HostStates_t::HS_RUN:
 			{
+				if (!g_pHostState->m_bActiveGame)
+				{
+					if (bResetIdleName)
+					{
+						g_pHostState->ResetLevelName();
+						bResetIdleName = false;
+					}
+				}
+				else // Reset idle name the next non-active frame.
+				{
+					bResetIdleName = true;
+				}
+
 				CHostState_State_Run(&g_pHostState->m_iCurrentState, flCurrentTime, flFrameTime);
 				break;
 			}
 			case HostStates_t::HS_GAME_SHUTDOWN:
 			{
 				DevMsg(eDLL_T::ENGINE, "%s - Shutdown host game\n", "CHostState::FrameUpdate");
-				if (g_pHostState->m_bActiveGame) {
-					g_pHostState->ResetLevelName();
-				}
 				CHostState_State_GameShutDown(g_pHostState);
 				break;
 			}
@@ -205,6 +216,7 @@ FORCEINLINE void CHostState::Think(void) const
 	static bool bInitialized = false;
 	static CFastTimer banListTimer;
 	static CFastTimer pylonTimer;
+	static CFastTimer reloadTimer;
 	static CFastTimer statsTimer;
 
 	if (!bInitialized) // Initialize clocks.
@@ -215,6 +227,7 @@ FORCEINLINE void CHostState::Think(void) const
 		pylonTimer.Start();
 #endif // DEDICATED
 		statsTimer.Start();
+		reloadTimer.Start();
 #endif // !CLIENT_DLL
 		bInitialized = true;
 	}
@@ -252,6 +265,14 @@ FORCEINLINE void CHostState::Think(void) const
 	}
 #endif // DEDICATED
 #ifndef CLIENT_DLL
+	if (sv_autoReloadRate->GetBool())
+	{
+		if (reloadTimer.GetDurationInProgress().GetSeconds() > sv_autoReloadRate->GetDouble())
+		{
+			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "reload\n", cmd_source_t::kCommandSrcCode);
+			reloadTimer.Start();
+		}
+	}
 	if (statsTimer.GetDurationInProgress().GetSeconds() > sv_statusRefreshInterval->GetDouble())
 	{
 		string svCurrentPlaylist = KeyValues_GetCurrentPlaylist();
@@ -310,7 +331,6 @@ FORCEINLINE void CHostState::GameShutDown(void)
 		g_pServerGameDLL->GameShutdown();
 #endif // !CLIENT_DLL
 		m_bActiveGame = 0;
-
 		ResetLevelName();
 	}
 }
@@ -334,7 +354,7 @@ FORCEINLINE void CHostState::State_NewGame(void)
 	if (!CModelLoader__Map_IsValid(g_pModelLoader, m_levelName) // Check if map is valid and if we can start a new game.
 		|| !Host_NewGame(m_levelName, nullptr, m_bBackgroundLevel, nSplitScreenPlayers, time) || !g_pServerGameClients)
 	{
-		Error(eDLL_T::ENGINE, false, "%s - Error: Map not valid\n", "CHostState::State_NewGame");
+		Error(eDLL_T::ENGINE, NO_ERROR, "%s - Error: Map not valid\n", "CHostState::State_NewGame");
 #ifndef DEDICATED
 		SCR_EndLoadingPlaque();
 #endif // !DEDICATED
@@ -365,7 +385,7 @@ FORCEINLINE void CHostState::State_ChangeLevelSP(void)
 	}
 	else
 	{
-		Error(eDLL_T::ENGINE, false, "%s - Error: Unable to find map: '%s'\n", "CHostState::State_ChangeLevelSP", m_levelName);
+		Error(eDLL_T::ENGINE, NO_ERROR, "%s - Error: Unable to find map: '%s'\n", "CHostState::State_ChangeLevelSP", m_levelName);
 	}
 
 	m_iCurrentState = HostStates_t::HS_RUN; // Set current state to run.
@@ -397,7 +417,7 @@ FORCEINLINE void CHostState::State_ChangeLevelMP(void)
 	}
 	else
 	{
-		Error(eDLL_T::ENGINE, false, "%s - Error: Unable to find map: '%s'\n", "CHostState::State_ChangeLevelMP", m_levelName);
+		Error(eDLL_T::ENGINE, NO_ERROR, "%s - Error: Unable to find map: '%s'\n", "CHostState::State_ChangeLevelMP", m_levelName);
 	}
 
 	m_iCurrentState = HostStates_t::HS_RUN; // Set current state to run.
@@ -415,11 +435,11 @@ FORCEINLINE void CHostState::State_ChangeLevelMP(void)
 FORCEINLINE void CHostState::ResetLevelName(void)
 {
 #ifdef DEDICATED
-	const char* szNoMap = "server_idle";
+	static const char* szNoMap = "server_idle";
 #else // DEDICATED
-	const char* szNoMap = "main_menu";
+	static const char* szNoMap = "main_menu";
 #endif
-	snprintf(const_cast<char*>(m_levelName), sizeof(m_levelName), szNoMap);
+	Q_snprintf(const_cast<char*>(m_levelName), sizeof(m_levelName), szNoMap);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

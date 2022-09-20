@@ -469,6 +469,7 @@ const CPUInformation& GetCPUInformation(void)
 		pi.m_bRDTSC = (cpuid1.edx >> 4) & 1;
 		pi.m_bCMOV  = (cpuid1.edx >> 15) & 1;
 		pi.m_bFCMOV = (pi.m_bCMOV && bFPU) ? 1 : 0;
+		pi.m_bPOPCNT= (cpuid1.edx >> 17) & 1;
 		pi.m_bMMX   = (cpuid1.edx >> 23) & 1;
 		pi.m_bSSE   = (cpuid1.edx >> 25) & 1;
 		pi.m_bSSE2  = (cpuid1.edx >> 26) & 1;

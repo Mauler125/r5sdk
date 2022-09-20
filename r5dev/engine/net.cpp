@@ -78,7 +78,7 @@ void NET_SetKey(string svNetKey)
 	}
 	else
 	{
-		Error(eDLL_T::ENGINE, false, "AES-128 key not encoded or invalid\n");
+		Error(eDLL_T::ENGINE, NO_ERROR, "AES-128 key not encoded or invalid\n");
 	}
 }
 
@@ -96,14 +96,14 @@ void NET_GenerateKey()
 	BCRYPT_ALG_HANDLE hAlgorithm;
 	if (BCryptOpenAlgorithmProvider(&hAlgorithm, L"RNG", 0, 0) < 0)
 	{
-		Error(eDLL_T::ENGINE, false, "Failed to open rng algorithm\n");
+		Error(eDLL_T::ENGINE, NO_ERROR, "Failed to open rng algorithm\n");
 		return;
 	}
 
 	uint8_t pBuffer[AES_128_KEY_SIZE];
 	if (BCryptGenRandom(hAlgorithm, pBuffer, AES_128_KEY_SIZE, 0) < 0)
 	{
-		Error(eDLL_T::ENGINE, false, "Failed to generate random data\n");
+		Error(eDLL_T::ENGINE, NO_ERROR, "Failed to generate random data\n");
 		return;
 	}
 
@@ -118,7 +118,11 @@ void NET_GenerateKey()
 void NET_PrintFunc(const char* fmt, ...)
 {
 	static char buf[1024];
-
+#ifndef DEDICATED
+	const static eDLL_T context = eDLL_T::CLIENT;
+#else // !DEDICATED
+	const static eDLL_T context = eDLL_T::SERVER;
+#endif
 	va_list args;
 	va_start(args, fmt);
 
@@ -127,7 +131,7 @@ void NET_PrintFunc(const char* fmt, ...)
 	buf[sizeof(buf) - 1] = '\0';
 	va_end(args);
 
-	DevMsg(eDLL_T::CLIENT, "%s", buf);
+	DevMsg(context, "%s", buf);
 }
 
 //-----------------------------------------------------------------------------
@@ -204,7 +208,7 @@ const char* NET_ErrorString(int iCode)
 		case WSAENETDOWN                : return "WSAENETDOWN";
 		case WSAENETUNREACH             : return "WSAENETUNREACH";
 		case WSAENETRESET               : return "WSAENETRESET";
-		case WSAECONNABORTED            : return "WSWSAECONNABORTEDAEINTR";
+		case WSAECONNABORTED            : return "WSAECONNABORTED";
 		case WSAECONNRESET              : return "WSAECONNRESET";
 		case WSAENOBUFS                 : return "WSAENOBUFS";
 		case WSAEISCONN                 : return "WSAEISCONN";

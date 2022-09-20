@@ -125,6 +125,7 @@ public:
 
 	VPKDir_t GetDirectoryFile(string svDirectoryFile) const;
 	string GetPackFile(const string& svPackDirFile, uint16_t iArchiveIndex) const;
+	lzham_compress_level GetCompressionLevel(void) const;
 
 	vector<VPKEntryBlock_t> GetEntryBlocks(CIOStream* pReader) const;
 	vector<string> GetEntryPaths(const string& svPathIn) const;

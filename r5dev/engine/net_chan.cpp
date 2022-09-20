@@ -200,3 +200,18 @@ void CNetChan::Clear(bool bStopProcessing)
 {
 	v_NetChan_Clear(this, bStopProcessing);
 }
+
+bool CNetChan::ProcessMessages(CNetChan* pChan, bf_read* pMsg)
+{
+	return v_NetChan_ProcessMessages(pChan, pMsg);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void NetChan_Attach()
+{
+	DetourAttach((LPVOID*)&v_NetChan_ProcessMessages, &CNetChan::ProcessMessages);
+}
+void NetChan_Detach()
+{
+	DetourDetach((LPVOID*)&v_NetChan_ProcessMessages, &CNetChan::ProcessMessages);
+}

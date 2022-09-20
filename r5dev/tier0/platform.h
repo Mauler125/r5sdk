@@ -397,6 +397,7 @@ inline uint64_t Plat_Rdtsc()
 double Plat_FloatTime();
 uint64_t Plat_MSTime();
 const char* Plat_GetProcessUpTime();
+void Plat_GetProcessUpTime(char* szBuf, size_t nSize);
 
 //-----------------------------------------------------------------------------
 // Silences a number of warnings on 360 compiles
@@ -756,6 +757,7 @@ struct CPUInformation
 	bool m_bRDTSC : 1, // Is RDTSC supported?
 		m_bCMOV   : 1, // Is CMOV supported?
 		m_bFCMOV  : 1, // Is FCMOV supported?
+		m_bPOPCNT : 1, // Is POPCNT supported?
 		m_bSSE    : 1, // Is SSE supported?
 		m_bSSE2   : 1, // Is SSE2 Supported?
 		m_b3DNow  : 1, // Is 3DNow! Supported?

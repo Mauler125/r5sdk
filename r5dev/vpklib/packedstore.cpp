@@ -20,8 +20,8 @@ void CPackedStore::InitLzCompParams(void)
 {
 	/*| PARAMETERS ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
 	m_lzCompParams.m_dict_size_log2     = VPK_DICT_SIZE;
-	m_lzCompParams.m_level              = lzham_compress_level::LZHAM_COMP_LEVEL_UBER;
-	m_lzCompParams.m_compress_flags     = lzham_compress_flags::LZHAM_COMP_FLAG_DETERMINISTIC_PARSING | lzham_compress_flags::LZHAM_COMP_FLAG_TRADEOFF_DECOMPRESSION_RATE_FOR_COMP_RATIO;
+	m_lzCompParams.m_level              = GetCompressionLevel();
+	m_lzCompParams.m_compress_flags     = lzham_compress_flags::LZHAM_COMP_FLAG_DETERMINISTIC_PARSING;
 	m_lzCompParams.m_max_helper_threads = -1;
 }
 
@@ -61,7 +61,7 @@ VPKDir_t CPackedStore::GetDirectoryFile(string svPackDirFile) const
 				{
 					if (svPackDirFile.find(DIR_CONTEXT[j]) != string::npos)
 					{
-						string svPackDirPrefix = DIR_LOCALE[i] + DIR_LOCALE[i];
+						const string svPackDirPrefix = DIR_LOCALE[i] + DIR_LOCALE[i];
 						StringReplace(svPackDirFile, DIR_LOCALE[i], svPackDirPrefix);
 						goto escape;
 					}
@@ -94,6 +94,28 @@ string CPackedStore::GetPackFile(const string& svPackDirFile, uint16_t iArchiveI
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: gets the LZHAM compression level
+// output : lzham_compress_level
+//-----------------------------------------------------------------------------
+lzham_compress_level CPackedStore::GetCompressionLevel(void) const
+{
+	const char* pszLevel = fs_packedstore_compression_level->GetString();
+
+	if(strcmp(pszLevel, "fastest") == NULL)
+		return lzham_compress_level::LZHAM_COMP_LEVEL_FASTEST;
+	else if (strcmp(pszLevel, "faster") == NULL)
+		return lzham_compress_level::LZHAM_COMP_LEVEL_FASTER;
+	else if (strcmp(pszLevel, "default") == NULL)
+		return lzham_compress_level::LZHAM_COMP_LEVEL_DEFAULT;
+	else if (strcmp(pszLevel, "better") == NULL)
+		return lzham_compress_level::LZHAM_COMP_LEVEL_BETTER;
+	else if (strcmp(pszLevel, "uber") == NULL)
+		return lzham_compress_level::LZHAM_COMP_LEVEL_UBER;
+	else
+		return lzham_compress_level::LZHAM_COMP_LEVEL_DEFAULT;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: obtains and returns the entry block to the vector
 // Input  : *pReader - 
 // output : vector<VPKEntryBlock_t>
@@ -109,7 +131,7 @@ vector<VPKEntryBlock_t> CPackedStore::GetEntryBlocks(CIOStream* pReader) const
 		{
 			while (!(svName = pReader->ReadString()).empty())
 			{
-				string svFilePath = FormatEntryPath(svPath, svName, svExtension);
+				const string svFilePath = FormatEntryPath(svPath, svName, svExtension);
 				vBlocks.push_back(VPKEntryBlock_t(pReader, svFilePath));
 			}
 		}
@@ -554,7 +576,7 @@ void CPackedStore::UnpackAll(const VPKDir_t& vDir, const string& svPathOut)
 		vDir.m_vHeader.m_nMajorVersion != VPK_MAJOR_VERSION ||
 		vDir.m_vHeader.m_nMinorVersion != VPK_MINOR_VERSION)
 	{
-		Error(eDLL_T::FS, false, "Unsupported VPK directory file (invalid header criteria)\n");
+		Error(eDLL_T::FS, NO_ERROR, "Unsupported VPK directory file (invalid header criteria)\n");
 		return;
 	}
 	BuildManifest(vDir.m_vEntryBlocks, svPathOut, GetSourceName(vDir.m_svDirPath));
@@ -578,7 +600,7 @@ void CPackedStore::UnpackAll(const VPKDir_t& vDir, const string& svPathOut)
 
 				if (!oStream.IsWritable())
 				{
-					Error(eDLL_T::FS, false, "Unable to write file '%s'\n", svFilePath.c_str());
+					Error(eDLL_T::FS, NO_ERROR, "Unable to write file '%s'\n", svFilePath.c_str());
 					continue;
 				}
 				DevMsg(eDLL_T::FS, "Unpacking entry '%zu' from block '%zu' ('%s')\n", j, i, vDir.m_vEntryBlocks[j].m_svEntryPath.c_str());
@@ -601,7 +623,7 @@ void CPackedStore::UnpackAll(const VPKDir_t& vDir, const string& svPathOut)
 
 						if (m_lzDecompStatus != lzham_decompress_status_t::LZHAM_DECOMP_STATUS_SUCCESS)
 						{
-							Error(eDLL_T::FS, false, "Status '%d' for chunk '%zu' within entry '%zu' in block '%hu' (chunk not decompressed)\n",
+							Error(eDLL_T::FS, NO_ERROR, "Status '%d' for chunk '%zu' within entry '%zu' in block '%hu' (chunk not decompressed)\n",
 								m_lzDecompStatus, m_nChunkCount, i, vDir.m_vEntryBlocks[j].m_iPackFileIndex);
 						}
 						else // If successfully decompressed, write to file.

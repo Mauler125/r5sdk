@@ -55,9 +55,6 @@ bool CEngineAPI::ModInit(CEngineAPI* pEngineAPI, const char* pModName, const cha
 		g_pEngineClient->SetRestrictServerCommands(true); // Restrict server commands.
 		g_pEngineClient->SetRestrictClientCommands(true); // Restrict client commands.
 #endif // !DEDICATED
-
-		ConCommandBase* disconnect = g_pCVar->FindCommandBase("disconnect");
-		disconnect->AddFlags(FCVAR_SERVER_CAN_EXECUTE); // Make sure server is not restricted to this.
 	}
 	return results;
 }

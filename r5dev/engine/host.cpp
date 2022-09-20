@@ -8,6 +8,9 @@
 #include "core/stdafx.h"
 #include "tier0/frametask.h"
 #include "engine/host.h"
+#ifndef DEDICATED
+#include "vgui/vgui_debugpanel.h"
+#endif // !DEDICATED
 
 /*
 ==================
@@ -18,7 +21,7 @@ Runs all active servers
 */
 void _Host_RunFrame(void* unused, float time)
 {
-	for (const auto& task : g_FrameTasks)
+	for (IFrameTask* const& task : g_FrameTasks)
 	{
 		task->RunFrame();
 	}
@@ -27,6 +30,10 @@ void _Host_RunFrame(void* unused, float time)
 		{
 			return task->IsFinished();
 		}), g_FrameTasks.end());
+
+#ifndef DEDICATED
+	g_pLogSystem.ShouldDraw(time);
+#endif // !DEDICATED
 
 	return v_Host_RunFrame(unused, time);
 }

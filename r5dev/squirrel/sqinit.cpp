@@ -22,6 +22,9 @@
 #include "squirrel/sqapi.h"
 #include "squirrel/sqinit.h"
 #include "networksystem/pylon.h"
+#ifndef CLIENT_DLL
+#include "networksystem/bansystem.h"
+#endif // !CLIENT_DLL
 #ifndef DEDICATED
 #include "networksystem/listmanager.h"
 #endif // !DEDICATED
@@ -87,7 +90,62 @@ namespace VSquirrel
 
             return SQ_OK;
         }
+#ifndef CLIENT_DLL
+        //-----------------------------------------------------------------------------
+        // Purpose: kicks a player by given name
+        //-----------------------------------------------------------------------------
+        SQRESULT KickPlayerByName(HSQUIRRELVM v)
+        {
+            SQChar* szName = sq_getstring(v, 1);
+            g_pBanSystem->KickPlayerByName(szName);
 
+            return SQ_OK;
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: kicks a player by given handle or id
+        //-----------------------------------------------------------------------------
+        SQRESULT KickPlayerById(HSQUIRRELVM v)
+        {
+            SQChar* szHandle = sq_getstring(v, 1);
+            g_pBanSystem->KickPlayerById(szHandle);
+
+            return SQ_OK;
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: bans a player by given name
+        //-----------------------------------------------------------------------------
+        SQRESULT BanPlayerByName(HSQUIRRELVM v)
+        {
+            SQChar* szName = sq_getstring(v, 1);
+            g_pBanSystem->BanPlayerByName(szName);
+
+            return SQ_OK;
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: bans a player by given handle or id
+        //-----------------------------------------------------------------------------
+        SQRESULT BanPlayerById(HSQUIRRELVM v)
+        {
+            SQChar* szHandle = sq_getstring(v, 1);
+            g_pBanSystem->BanPlayerById(szHandle);
+
+            return SQ_OK;
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: unbans a player by given nucleus id or ip address
+        //-----------------------------------------------------------------------------
+        SQRESULT UnbanPlayer(HSQUIRRELVM v)
+        {
+            SQChar* szCriteria = sq_getstring(v, 1);
+            g_pBanSystem->UnbanPlayer(szCriteria);
+
+            return SQ_OK;
+        }
+#endif // !CLIENT_DLL
         //-----------------------------------------------------------------------------
         // Purpose: shutdown local game (host only)
         //-----------------------------------------------------------------------------
@@ -449,7 +507,7 @@ namespace VSquirrel
             if (svIpAddr.empty() || svEncKey.empty())
                 return SQ_OK;
 
-            DevMsg(eDLL_T::UI, "Connecting to server with ip-address '%s' and encryption key '%s'\n", svIpAddr.c_str(), svEncKey.c_str());
+            DevMsg(eDLL_T::UI, "Connecting to server with ip address '%s' and encryption key '%s'\n", svIpAddr.c_str(), svEncKey.c_str());
             g_pServerListManager->ConnectToServer(svIpAddr, svEncKey);
 
             return SQ_OK;

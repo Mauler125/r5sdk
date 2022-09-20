@@ -26,7 +26,7 @@ ConVar* ConVar::Create(const char* pszName, const char* pszDefaultValue, int nFl
 	pNewConVar->m_pConCommandBaseVFTable = g_pConVarVFTable.RCast<IConCommandBase*>();
 	pNewConVar->m_pIConVarVFTable = g_pIConVarVFTable.RCast<IConVar*>();
 
-	ConVar_Register(pNewConVar, pszName, pszDefaultValue, nFlags, pszHelpString, bMin, fMin, bMax, fMax, pCallback, pszUsageString);
+	v_ConVar_Register(pNewConVar, pszName, pszDefaultValue, nFlags, pszHelpString, bMin, fMin, bMax, fMax, pCallback, pszUsageString);
 
 	return pNewConVar;
 }
@@ -104,6 +104,8 @@ void ConVar::Init(void) const
 	sv_pylonRefreshInterval   = ConVar::Create("sv_pylonRefreshInterval"  , "5.0", FCVAR_RELEASE, "Pylon server host request post update interval (seconds).", true, 2.f, true, 8.f, nullptr, nullptr);
 	sv_banlistRefreshInterval = ConVar::Create("sv_banlistRefreshInterval", "1.0", FCVAR_RELEASE, "Banlist refresh interval (seconds).", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_statusRefreshInterval  = ConVar::Create("sv_statusRefreshInterval" , "0.5", FCVAR_RELEASE, "Server status bar update interval (seconds).", false, 0.f, false, 0.f, nullptr, nullptr);
+
+	sv_autoReloadRate = ConVar::Create("sv_autoReloadRate" , "0", FCVAR_RELEASE, "Time in seconds between each server auto-reload (disabled if null). ", true, 0.f, false, 0.f, nullptr, nullptr);
 #ifdef DEDICATED
 	sv_rcon_debug       = ConVar::Create("sv_rcon_debug"      , "0" , FCVAR_RELEASE, "Show rcon debug information ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_sendlogs    = ConVar::Create("sv_rcon_sendlogs"   , "0" , FCVAR_RELEASE, "Network console logs to connected and authenticated sockets.", false, 0.f, false, 0.f, nullptr, nullptr);
@@ -122,66 +124,69 @@ void ConVar::Init(void) const
 #ifndef DEDICATED
 	cl_rcon_request_sendlogs = ConVar::Create("cl_rcon_request_sendlogs", "1" , FCVAR_RELEASE, "Request the rcon server to send console logs on connect.", false, 0.f, false, 0.f, nullptr, nullptr);
 
-	cl_drawconsoleoverlay           = ConVar::Create("cl_drawconsoleoverlay"          , "0" , FCVAR_DEVELOPMENTONLY, "Draws the RUI console overlay at the top of the screen.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_consoleoverlay_lines         = ConVar::Create("cl_consoleoverlay_lines"        , "3" , FCVAR_DEVELOPMENTONLY, "Number of lines of console output to draw.", true, 1.f, false, 0.f, nullptr, nullptr);
-	cl_consoleoverlay_invert_rect_x = ConVar::Create("cl_consoleoverlay_invert_rect_x", "0" , FCVAR_DEVELOPMENTONLY, "Inverts the X rect for RUI console overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_consoleoverlay_invert_rect_y = ConVar::Create("cl_consoleoverlay_invert_rect_y", "0" , FCVAR_DEVELOPMENTONLY, "Inverts the Y rect for RUI console overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_consoleoverlay_offset_x      = ConVar::Create("cl_consoleoverlay_offset_x"     , "10", FCVAR_DEVELOPMENTONLY, "X offset for RUI console overlay.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_consoleoverlay_offset_y      = ConVar::Create("cl_consoleoverlay_offset_y"     , "10", FCVAR_DEVELOPMENTONLY, "Y offset for RUI console overlay.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_showhoststats      = ConVar::Create("cl_showhoststats"     , "0", FCVAR_DEVELOPMENTONLY, "Host speeds debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_hoststats_invert_x = ConVar::Create("cl_hoststats_invert_x", "0", FCVAR_DEVELOPMENTONLY, "Inverts the X offset for host speeds debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_hoststats_invert_y = ConVar::Create("cl_hoststats_invert_y", "0", FCVAR_DEVELOPMENTONLY, "Inverts the Y offset for host speeds debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_hoststats_offset_x = ConVar::Create("cl_hoststats_offset_x", "10", FCVAR_DEVELOPMENTONLY, "X offset for host speeds debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_hoststats_offset_y = ConVar::Create("cl_hoststats_offset_y", "10", FCVAR_DEVELOPMENTONLY, "Y offset for host speeds debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 
-	cl_conoverlay_script_server_clr  = ConVar::Create("cl_conoverlay_script_server_clr", "130 120 245 255", FCVAR_DEVELOPMENTONLY, "Script SERVER VM RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_conoverlay_script_client_clr  = ConVar::Create("cl_conoverlay_script_client_clr", "117 116 139 255", FCVAR_DEVELOPMENTONLY, "Script CLIENT VM RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_conoverlay_script_ui_clr      = ConVar::Create("cl_conoverlay_script_ui_clr"    , "200 110 110 255", FCVAR_DEVELOPMENTONLY, "Script UI VM RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	cl_showsimstats      = ConVar::Create("cl_showsimstats"     , "0"  , FCVAR_DEVELOPMENTONLY, "Shows the tick counter for the server/client simulation and the render frame.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_simstats_invert_x = ConVar::Create("cl_simstats_invert_x", "1"  , FCVAR_DEVELOPMENTONLY, "Inverts the X offset for simulation debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_simstats_invert_y = ConVar::Create("cl_simstats_invert_y", "1"  , FCVAR_DEVELOPMENTONLY, "Inverts the Y offset for simulation debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_simstats_offset_x = ConVar::Create("cl_simstats_offset_x", "650", FCVAR_DEVELOPMENTONLY, "X offset for simulation debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_simstats_offset_y = ConVar::Create("cl_simstats_offset_y", "120", FCVAR_DEVELOPMENTONLY, "Y offset for simulation debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 
-	cl_conoverlay_native_server_clr = ConVar::Create("cl_conoverlay_native_server_clr", "20 50 248 255"  , FCVAR_DEVELOPMENTONLY, "Native SERVER RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_conoverlay_native_client_clr = ConVar::Create("cl_conoverlay_native_client_clr", "70 70 70 255"   , FCVAR_DEVELOPMENTONLY, "Native CLIENT RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_conoverlay_native_ui_clr     = ConVar::Create("cl_conoverlay_native_ui_clr"    , "200 60 60 255"  , FCVAR_DEVELOPMENTONLY, "Native UI RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_conoverlay_native_engine_clr = ConVar::Create("cl_conoverlay_native_engine_clr", "255 255 255 255", FCVAR_DEVELOPMENTONLY, "Native engine RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_conoverlay_native_fs_clr     = ConVar::Create("cl_conoverlay_native_fs_clr"    , "0 100 225 255"  , FCVAR_DEVELOPMENTONLY, "Native filesystem RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_conoverlay_native_rtech_clr  = ConVar::Create("cl_conoverlay_native_rtech_clr" , "25 100 100 255" , FCVAR_DEVELOPMENTONLY, "Native rtech RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_conoverlay_native_ms_clr     = ConVar::Create("cl_conoverlay_native_ms_clr"    , "200 20 180 255" , FCVAR_DEVELOPMENTONLY, "Native materialsystem RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-
-	cl_conoverlay_netcon_clr  = ConVar::Create("cl_conoverlay_netcon_clr" , "255 255 255 255", FCVAR_DEVELOPMENTONLY, "Net console RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_conoverlay_common_clr  = ConVar::Create("cl_conoverlay_common_clr" , "255 140 80 255" , FCVAR_DEVELOPMENTONLY, "Common RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-
-	cl_conoverlay_warning_clr = ConVar::Create("cl_conoverlay_warning_clr", "180 180 20 255", FCVAR_DEVELOPMENTONLY, "Warning RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	cl_conoverlay_error_clr   = ConVar::Create("cl_conoverlay_error_clr"  , "225 20 20 255" , FCVAR_DEVELOPMENTONLY, "Error RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-
-	cl_showhoststats           = ConVar::Create("cl_showhoststats"          , "0", FCVAR_DEVELOPMENTONLY, "Host speeds debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_hoststats_invert_rect_x = ConVar::Create("cl_hoststats_invert_rect_x", "0", FCVAR_DEVELOPMENTONLY, "Inverts the X rect for host speeds debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_hoststats_invert_rect_y = ConVar::Create("cl_hoststats_invert_rect_y", "0", FCVAR_DEVELOPMENTONLY, "Inverts the Y rect for host speeds debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_hoststats_offset_x      = ConVar::Create("cl_hoststats_offset_x"    , "10", FCVAR_DEVELOPMENTONLY, "X offset for host speeds debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_hoststats_offset_y      = ConVar::Create("cl_hoststats_offset_y"    , "10", FCVAR_DEVELOPMENTONLY, "Y offset for host speeds debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
-
-	cl_showsimstats           = ConVar::Create("cl_showsimstats"          , "0"  , FCVAR_DEVELOPMENTONLY, "Shows the tick counter for the server/client simulation and the render frame.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_simstats_invert_rect_x = ConVar::Create("cl_simstats_invert_rect_x", "1"  , FCVAR_DEVELOPMENTONLY, "Inverts the X rect for simulation debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_simstats_invert_rect_y = ConVar::Create("cl_simstats_invert_rect_y", "1"  , FCVAR_DEVELOPMENTONLY, "Inverts the Y rect for simulation debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_simstats_offset_x      = ConVar::Create("cl_simstats_offset_x"     , "650", FCVAR_DEVELOPMENTONLY, "X offset for simulation debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_simstats_offset_y      = ConVar::Create("cl_simstats_offset_y"     , "120", FCVAR_DEVELOPMENTONLY, "Y offset for simulation debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
-
-	cl_showgpustats           = ConVar::Create("cl_showgpustats"            , "0", FCVAR_DEVELOPMENTONLY, "Texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_gpustats_invert_rect_x = ConVar::Create("cl_gpustats_invert_rect_x"  , "1", FCVAR_DEVELOPMENTONLY, "Inverts the X rect for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_gpustats_invert_rect_y = ConVar::Create("cl_gpustats_invert_rect_y"  , "1", FCVAR_DEVELOPMENTONLY, "Inverts the Y rect for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_gpustats_offset_x      = ConVar::Create("cl_gpustats_offset_x"     , "650", FCVAR_DEVELOPMENTONLY, "X offset for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
-	cl_gpustats_offset_y      = ConVar::Create("cl_gpustats_offset_y"     , "105", FCVAR_DEVELOPMENTONLY, "Y offset for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_showgpustats      = ConVar::Create("cl_showgpustats"     , "0", FCVAR_DEVELOPMENTONLY, "Texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_gpustats_invert_x = ConVar::Create("cl_gpustats_invert_x", "1", FCVAR_DEVELOPMENTONLY, "Inverts the X offset for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_gpustats_invert_y = ConVar::Create("cl_gpustats_invert_y", "1", FCVAR_DEVELOPMENTONLY, "Inverts the Y offset for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_gpustats_offset_x = ConVar::Create("cl_gpustats_offset_x", "650", FCVAR_DEVELOPMENTONLY, "X offset for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_gpustats_offset_y = ConVar::Create("cl_gpustats_offset_y", "105", FCVAR_DEVELOPMENTONLY, "Y offset for texture streaming debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 
 	cl_showmaterialinfo      = ConVar::Create("cl_showmaterialinfo"     , "0"  , FCVAR_DEVELOPMENTONLY, "Draw info for the material under the crosshair on screen.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_materialinfo_offset_x = ConVar::Create("cl_materialinfo_offset_x", "0"  , FCVAR_DEVELOPMENTONLY, "X offset for material debug info overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_materialinfo_offset_y = ConVar::Create("cl_materialinfo_offset_y", "420", FCVAR_DEVELOPMENTONLY, "Y offset for material debug info overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+
+	con_drawnotify = ConVar::Create("con_drawnotify", "0", FCVAR_RELEASE, "Draws the RUI console to the hud.", false, 0.f, false, 0.f, nullptr, nullptr);
+	con_notifylines     = ConVar::Create("con_notifylines"    , "3" , FCVAR_MATERIAL_SYSTEM_THREAD, "Number of console lines to overlay for debugging.", true, 1.f, false, 0.f, nullptr, nullptr);
+	con_notifytime      = ConVar::Create("con_notifytime"     , "6" , FCVAR_MATERIAL_SYSTEM_THREAD, "How long to display recent console text to the upper part of the game window.", false, 1.f, false, 50.f, nullptr, nullptr);
+
+	con_notify_invert_x = ConVar::Create("con_notify_invert_x", "0" , FCVAR_MATERIAL_SYSTEM_THREAD, "Inverts the X offset for RUI console overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	con_notify_invert_y = ConVar::Create("con_notify_invert_y", "0" , FCVAR_MATERIAL_SYSTEM_THREAD, "Inverts the Y offset for RUI console overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
+	con_notify_offset_x = ConVar::Create("con_notify_offset_x", "10", FCVAR_MATERIAL_SYSTEM_THREAD, "X offset for RUI console overlay.", false, 1.f, false, 50.f, nullptr, nullptr);
+	con_notify_offset_y = ConVar::Create("con_notify_offset_y", "10", FCVAR_MATERIAL_SYSTEM_THREAD, "Y offset for RUI console overlay.", false, 1.f, false, 50.f, nullptr, nullptr);
+
+	con_notify_script_server_clr  = ConVar::Create("con_notify_script_server_clr", "130 120 245 255", FCVAR_MATERIAL_SYSTEM_THREAD, "Script SERVER VM RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	con_notify_script_client_clr  = ConVar::Create("con_notify_script_client_clr", "117 116 139 255", FCVAR_MATERIAL_SYSTEM_THREAD, "Script CLIENT VM RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	con_notify_script_ui_clr      = ConVar::Create("con_notify_script_ui_clr"    , "200 110 110 255", FCVAR_MATERIAL_SYSTEM_THREAD, "Script UI VM RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+
+	con_notify_native_server_clr = ConVar::Create("con_notify_native_server_clr", "20 50 248 255"  , FCVAR_MATERIAL_SYSTEM_THREAD, "Native SERVER RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	con_notify_native_client_clr = ConVar::Create("con_notify_native_client_clr", "70 70 70 255"   , FCVAR_MATERIAL_SYSTEM_THREAD, "Native CLIENT RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	con_notify_native_ui_clr     = ConVar::Create("con_notify_native_ui_clr"    , "200 60 60 255"  , FCVAR_MATERIAL_SYSTEM_THREAD, "Native UI RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	con_notify_native_engine_clr = ConVar::Create("con_notify_native_engine_clr", "255 255 255 255", FCVAR_MATERIAL_SYSTEM_THREAD, "Native engine RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	con_notify_native_fs_clr     = ConVar::Create("con_notify_native_fs_clr"    , "0 100 225 255"  , FCVAR_MATERIAL_SYSTEM_THREAD, "Native FileSystem RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	con_notify_native_rtech_clr  = ConVar::Create("con_notify_native_rtech_clr" , "25 100 100 255" , FCVAR_MATERIAL_SYSTEM_THREAD, "Native RTech RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	con_notify_native_ms_clr     = ConVar::Create("con_notify_native_ms_clr"    , "200 20 180 255" , FCVAR_MATERIAL_SYSTEM_THREAD, "Native MaterialSystem RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+
+	con_notify_netcon_clr  = ConVar::Create("con_notify_netcon_clr" , "255 255 255 255", FCVAR_MATERIAL_SYSTEM_THREAD, "Net console RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	con_notify_common_clr  = ConVar::Create("con_notify_common_clr" , "255 140 80 255" , FCVAR_MATERIAL_SYSTEM_THREAD, "Common RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+
+	con_notify_warning_clr = ConVar::Create("con_notify_warning_clr", "180 180 20 255", FCVAR_MATERIAL_SYSTEM_THREAD, "Warning RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	con_notify_error_clr   = ConVar::Create("con_notify_error_clr"  , "225 20 20 255" , FCVAR_MATERIAL_SYSTEM_THREAD, "Error RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 
 	con_max_size_logvector        = ConVar::Create("con_max_size_logvector"        , "1024", FCVAR_DEVELOPMENTONLY, "Maximum number of logs in the console before cleanup starts.", true, 1.f, false, 0.f, nullptr, nullptr);
 	con_max_size_history          = ConVar::Create("con_max_size_history"          , "512" , FCVAR_DEVELOPMENTONLY, "Maximum number of command history items before cleanup starts.", true, 0.f, false, 0.f, nullptr, nullptr);
 	con_suggestion_limit          = ConVar::Create("con_suggestion_limit"          , "128" , FCVAR_DEVELOPMENTONLY, "Maximum number of suggestions the autocomplete window will show for the console.", true, 0.f, false, 0.f, nullptr, nullptr);
 	con_suggestion_showhelptext   = ConVar::Create("con_suggestion_showhelptext"   , "1"   , FCVAR_DEVELOPMENTONLY, "Show CommandBase help text in autocomplete window.", false, 0.f, false, 0.f, nullptr, nullptr);
 	con_suggestion_showflags      = ConVar::Create("con_suggestion_showflags"      , "1"   , FCVAR_DEVELOPMENTONLY, "Show CommandBase flags in autocomplete window.", false, 0.f, false, 0.f, nullptr, nullptr);
-	con_suggestion_flags_realtime = ConVar::Create("con_suggestion_flags_realtime" , "0"   , FCVAR_DEVELOPMENTONLY, "Whether to show compile-time or run-time CommandBase flags.", false, 0.f, false, 0.f, nullptr, nullptr);
+	con_suggestion_flags_realtime = ConVar::Create("con_suggestion_flags_realtime" , "1"   , FCVAR_DEVELOPMENTONLY, "Whether to show compile-time or run-time CommandBase flags.", false, 0.f, false, 0.f, nullptr, nullptr);
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// FILESYSTEM                                                             |
-	fs_warning_level_sdk            = ConVar::Create("fs_warning_level_sdk"                , "0", FCVAR_DEVELOPMENTONLY, "Set the SDK filesystem warning level.", false, 0.f, false, 0.f, nullptr, nullptr);
-	fs_show_warning_output          = ConVar::Create("fs_show_warning_output"              , "0", FCVAR_DEVELOPMENTONLY, "Logs the filesystem warnings to the console, filtered by 'fs_warning_level_native' ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
-	fs_packedstore_entryblock_stats = ConVar::Create("fs_packedstore_entryblock_stats"     , "0", FCVAR_DEVELOPMENTONLY, "If set to 1, prints the stats of each file entry in the VPK during decompression ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
-	fs_packedstore_workspace        = ConVar::Create("fs_packedstore_workspace", "platform/vpk/", FCVAR_DEVELOPMENTONLY, "Determines the current VPK workspace.", false, 0.f, false, 0.f, nullptr, nullptr);
+	fs_warning_level_sdk             = ConVar::Create("fs_warning_level_sdk"                  , "0", FCVAR_DEVELOPMENTONLY, "Set the SDK FileSystem warning level.", false, 0.f, false, 0.f, nullptr, nullptr);
+	fs_show_warning_output           = ConVar::Create("fs_show_warning_output"                , "0", FCVAR_DEVELOPMENTONLY, "Logs the FileSystem warnings to the console, filtered by 'fs_warning_level_native' ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	fs_packedstore_entryblock_stats  = ConVar::Create("fs_packedstore_entryblock_stats"       , "0", FCVAR_DEVELOPMENTONLY, "Logs the stats of each file entry in the VPK during decompression ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	fs_packedstore_workspace         = ConVar::Create("fs_packedstore_workspace"  , "platform/vpk/", FCVAR_DEVELOPMENTONLY, "Determines the current VPK workspace.", false, 0.f, false, 0.f, nullptr, nullptr);
+	fs_packedstore_compression_level = ConVar::Create("fs_packedstore_compression_level", "default", FCVAR_DEVELOPMENTONLY, "Determines the VPK compression level.", false, 0.f, false, 0.f, nullptr, "fastest faster default better uber");
 	//-------------------------------------------------------------------------
 	// MATERIALSYSTEM                                                         |
 #ifndef DEDICATED
@@ -189,15 +194,15 @@ void ConVar::Init(void) const
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// SQUIRREL                                                               |
-	sq_showrsonloading   = ConVar::Create("sq_showrsonloading"  , "0", FCVAR_DEVELOPMENTONLY, "Logs all 'rson' files loaded by the SQVM ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
+	sq_showrsonloading   = ConVar::Create("sq_showrsonloading"  , "0", FCVAR_DEVELOPMENTONLY, "Logs all RSON files loaded by the SQVM ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	sq_showscriptloading = ConVar::Create("sq_showscriptloading", "0", FCVAR_DEVELOPMENTONLY, "Logs all scripts loaded by the SQVM to be pre-compiled ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
-	sq_showvmoutput      = ConVar::Create("sq_showvmoutput"     , "0", FCVAR_RELEASE, "Prints the VM output to the console.", false, 0.f, false, 0.f, nullptr, "1 = Log to file. 2 = 1 + log to game console. 3 = 1 + 2 + log to overhead console.");
-	sq_showvmwarning     = ConVar::Create("sq_showvmwarning"    , "0", FCVAR_RELEASE, "Prints the VM warning output to the console.", false, 0.f, false, 0.f, nullptr, "1 = Log to file. 2 = 1 + log to game console and overhead console.");
+	sq_showvmoutput      = ConVar::Create("sq_showvmoutput"     , "0", FCVAR_RELEASE, "Prints the VM output to the console ( !slower! ).", false, 0.f, false, 0.f, nullptr, "1 = Log to file. 2 = 1 + log to game console. 3 = 1 + 2 + log to overhead console.");
+	sq_showvmwarning     = ConVar::Create("sq_showvmwarning"    , "0", FCVAR_RELEASE, "Prints the VM warning output to the console ( !slower! ).", false, 0.f, false, 0.f, nullptr, "1 = Log to file. 2 = 1 + log to game console and overhead console.");
 	//-------------------------------------------------------------------------
 	// NETCHANNEL                                                             |
-	net_tracePayload           = ConVar::Create("net_tracePayload"          , "0", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT          , "Log the payload of the send/recv datagram to a file on the disk.", false, 0.f, false, 0.f, nullptr, nullptr);
-	net_encryptionEnable       = ConVar::Create("net_encryptionEnable"      , "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED     , "Use AES encryption on game packets.", false, 0.f, false, 0.f, nullptr, nullptr);
-	net_useRandomKey           = ConVar::Create("net_useRandomKey"          , "1"                        , FCVAR_RELEASE        , "Use random AES encryption key for game packets.", false, 0.f, false, 0.f, &NET_UseRandomKeyChanged_f, nullptr);
+	net_tracePayload           = ConVar::Create("net_tracePayload"          , "0", FCVAR_DEVELOPMENTONLY                    , "Log the payload of the send/recv datagram to a file on the disk.", false, 0.f, false, 0.f, nullptr, nullptr);
+	net_encryptionEnable       = ConVar::Create("net_encryptionEnable"      , "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED , "Use AES encryption on game packets.", false, 0.f, false, 0.f, nullptr, nullptr);
+	net_useRandomKey           = ConVar::Create("net_useRandomKey"          , "1"                        , FCVAR_RELEASE    , "Use random AES encryption key for game packets.", false, 0.f, false, 0.f, &NET_UseRandomKeyChanged_f, nullptr);
 	//-------------------------------------------------------------------------
 	// NETWORKSYSTEM                                                          |
 	pylon_matchmaking_hostname = ConVar::Create("pylon_matchmaking_hostname", "ms.r5reloaded.com", FCVAR_RELEASE        , "Holds the pylon matchmaking hostname.", false, 0.f, false, 0.f, &MP_HostName_Changed_f, nullptr);
@@ -920,17 +925,6 @@ bool ConVar::IsFlagSetInternal(const ConVar* pConVar, int nFlags)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void IConVar_Attach()
-{
-	DetourAttach((LPVOID*)&IConVar_IsFlagSet, &ConVar::IsFlagSetInternal);
-}
-
-void IConVar_Detach()
-{
-	DetourDetach((LPVOID*)&IConVar_IsFlagSet, &ConVar::IsFlagSetInternal);
-}
-
-///////////////////////////////////////////////////////////////////////////////
 struct PrintConVarFlags_t
 {
 	int flag;
@@ -1055,6 +1049,19 @@ void ConVar_PrintDescription(ConCommandBase* pVar)
 	{
 		DevMsg(eDLL_T::ENGINE, "%-80s\n", outstr);
 	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void IConVar_Attach()
+{
+	DetourAttach((LPVOID*)&v_ConVar_IsFlagSet, &ConVar::IsFlagSetInternal);
+	DetourAttach((LPVOID*)&v_ConVar_PrintDescription, &ConVar_PrintDescription);
+}
+
+void IConVar_Detach()
+{
+	DetourDetach((LPVOID*)&v_ConVar_IsFlagSet, &ConVar::IsFlagSetInternal);
+	DetourDetach((LPVOID*)&v_ConVar_PrintDescription, &ConVar_PrintDescription);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

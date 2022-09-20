@@ -14,6 +14,7 @@ void Systems_Shutdown();
 void WinSock_Init();
 void WinSock_Shutdown();
 void QuerySystemInfo();
+void CheckCPU();
 
 void DetourInit();
 void DetourAddress();
