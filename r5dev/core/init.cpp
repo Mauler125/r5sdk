@@ -63,6 +63,9 @@
 #include "rtech/rtech_utils.h"
 #include "rtech/stryder/stryder.h"
 #include "rtech/rui/rui.h"
+#ifndef DEDICATED
+#include "engine/client/cl_ents_parse.h"
+#endif // !DEDICATED
 #include "engine/client/cl_main.h"
 #include "engine/client/client.h"
 #include "engine/client/clientstate.h"
@@ -149,6 +152,9 @@ void Systems_Init()
 #ifdef DEDICATED
 	//PRX_Attach();
 #endif // DEDICATED
+#ifndef DEDICATED
+	CL_Ents_Parse_Attach();
+#endif // !DEDICATED
 	CBaseClient_Attach();
 	CBaseFileSystem_Attach();
 
@@ -276,6 +282,9 @@ void Systems_Shutdown()
 #ifdef DEDICATED
 	//PRX_Detach();
 #endif // DEDICATED
+#ifndef DEDICATED
+	CL_Ents_Parse_Detach();
+#endif // !DEDICATED
 	CBaseClient_Detach();
 	CBaseFileSystem_Detach();
 

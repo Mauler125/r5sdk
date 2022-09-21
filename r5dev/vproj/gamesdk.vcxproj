@@ -29,6 +29,7 @@
     <ClCompile Include="..\ebisusdk\EbisuSDK.cpp" />
     <ClCompile Include="..\engine\client\client.cpp" />
     <ClCompile Include="..\engine\client\clientstate.cpp" />
+    <ClCompile Include="..\engine\client\cl_ents_parse.cpp" />
     <ClCompile Include="..\engine\client\cl_rcon.cpp" />
     <ClCompile Include="..\engine\clockdriftmgr.cpp" />
     <ClCompile Include="..\engine\cmodel_bsp.cpp" />
@@ -180,6 +181,7 @@
     <ClInclude Include="..\ebisusdk\EbisuSDK.h" />
     <ClInclude Include="..\engine\client\client.h" />
     <ClInclude Include="..\engine\client\clientstate.h" />
+    <ClInclude Include="..\engine\client\cl_ents_parse.h" />
     <ClInclude Include="..\engine\client\cl_main.h" />
     <ClInclude Include="..\engine\client\cl_rcon.h" />
     <ClInclude Include="..\engine\clockdriftmgr.h" />
