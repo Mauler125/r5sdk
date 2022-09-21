@@ -239,7 +239,7 @@ FORCEINLINE void CHostState::Think(void) const
 	}
 #endif // !CLIENT_DLL
 #ifdef DEDICATED
-	if (pylonTimer.GetDurationInProgress().GetSeconds() > sv_pylonRefreshInterval->GetDouble())
+	if (pylonTimer.GetDurationInProgress().GetSeconds() > sv_pylonRefreshRate->GetDouble())
 	{
 		const NetGameServer_t netGameServer
 		{
