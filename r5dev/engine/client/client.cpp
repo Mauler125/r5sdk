@@ -209,7 +209,9 @@ bool CClient::IsHumanPlayer(void) const
 //---------------------------------------------------------------------------------
 void CClient::Clear(void)
 {
+#ifndef CLIENT_DLL
 	g_ServerPlayer[GetUserID()].Reset(); // Reset ServerPlayer slot.
+#endif // !CLIENT_DLL
 	v_CClient_Clear(this);
 }
 
@@ -219,7 +221,9 @@ void CClient::Clear(void)
 //---------------------------------------------------------------------------------
 void CClient::VClear(CClient* pClient)
 {
+#ifndef CLIENT_DLL
 	g_ServerPlayer[pClient->GetUserID()].Reset(); // Reset ServerPlayer slot.
+#endif // !CLIENT_DLL
 	v_CClient_Clear(pClient);
 }
 
@@ -252,7 +256,9 @@ bool CClient::Connect(const char* szName, void* pNetChannel, bool bFakePlayer, v
 bool CClient::VConnect(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize)
 {
 	bool bResult = v_CClient_Connect(pClient, szName, pNetChannel, bFakePlayer, a5, szMessage, nMessageSize);
+#ifndef CLIENT_DLL
 	g_ServerPlayer[pClient->GetUserID()].Reset(); // Reset ServerPlayer slot.
+#endif // !CLIENT_DLL
 	return bResult;
 }
 

@@ -103,14 +103,17 @@ class VServer : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
+#ifndef CLIENT_DLL
 		spdlog::debug("| FUN: CServer::Think                       : {:#18x} |\n", p_CServer_Think.GetPtr());
 		spdlog::debug("| FUN: CServer::ConnectClient               : {:#18x} |\n", p_CServer_Authenticate.GetPtr());
 		spdlog::debug("| FUN: CServer::RejectConnection            : {:#18x} |\n", p_CServer_RejectConnection.GetPtr());
 		spdlog::debug("| VAR: g_pServer[128]                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pServer));
 		spdlog::debug("+----------------------------------------------------------------+\n");
+#endif // !CLIENT_DLL
 	}
 	virtual void GetFun(void) const
 	{
+#ifndef CLIENT_DLL
 		p_CServer_Think = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00"), "xxxx?xxxx?xxxx????xx?????");
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 		p_CServer_Authenticate = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x44\x89\x44\x24\x00\x55\x56\x57\x48\x8D\xAC\x24\x00\x00\x00\x00"), "xxxx?xxxxxxx????");
@@ -122,13 +125,16 @@ class VServer : public IDetour
 		p_CServer_RejectConnection = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x89\x4C\x24\x00\x53\x55\x56\x57\x48\x81\xEC\x00\x00\x00\x00\x49\x8B\xD9"), "xxxx?xxxxxxx????xxx");
 
 		v_CServer_Think = p_CServer_Think.RCast<void (*)(bool, bool)>();                                                       /*48 89 5C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ??*/
-		v_CServer_ConnectClient = p_CServer_Authenticate.RCast<CClient* (*)(CServer*, user_creds_s*)>();                        /*40 55 57 41 55 41 57 48 8D AC 24 ?? ?? ?? ??*/
+		v_CServer_ConnectClient = p_CServer_Authenticate.RCast<CClient* (*)(CServer*, user_creds_s*)>();                       /*40 55 57 41 55 41 57 48 8D AC 24 ?? ?? ?? ??*/
 		v_CServer_RejectConnection = p_CServer_RejectConnection.RCast<void* (*)(CServer*, int, user_creds_s*, const char*)>(); /*4C 89 4C 24 ?? 53 55 56 57 48 81 EC ?? ?? ?? ?? 49 8B D9*/
+#endif // !CLIENT_DLL
 	}
 	virtual void GetVar(void) const
 	{
+#ifndef CLIENT_DLL
 		g_pServer = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x20\x48\x0F\xBF\xD1"), "xxxx?xxxxxxxxx")
 			.FindPatternSelf("48 8D 3D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CServer*>();
+#endif // !CLIENT_DLL
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
