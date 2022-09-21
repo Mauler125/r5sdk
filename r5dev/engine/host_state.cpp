@@ -232,7 +232,7 @@ FORCEINLINE void CHostState::Think(void) const
 		bInitialized = true;
 	}
 #ifndef CLIENT_DLL
-	if (banListTimer.GetDurationInProgress().GetSeconds() > sv_banlistRefreshInterval->GetDouble())
+	if (banListTimer.GetDurationInProgress().GetSeconds() > sv_banlistRefreshRate->GetDouble())
 	{
 		g_pBanSystem->BanListCheck();
 		banListTimer.Start();
@@ -273,7 +273,7 @@ FORCEINLINE void CHostState::Think(void) const
 			reloadTimer.Start();
 		}
 	}
-	if (statsTimer.GetDurationInProgress().GetSeconds() > sv_statusRefreshInterval->GetDouble())
+	if (statsTimer.GetDurationInProgress().GetSeconds() > sv_statusRefreshRate->GetDouble())
 	{
 		string svCurrentPlaylist = KeyValues_GetCurrentPlaylist();
 		int32_t nPlayerCount = g_pServer->GetNumHumanPlayers();

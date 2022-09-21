@@ -63,9 +63,9 @@ ConVar* navmesh_draw_poly_bounds_inner     = nullptr;
 
 ConVar* sv_showconnecting                  = nullptr;
 ConVar* sv_pylonVisibility                 = nullptr;
-ConVar* sv_pylonRefreshInterval            = nullptr;
-ConVar* sv_banlistRefreshInterval          = nullptr;
-ConVar* sv_statusRefreshInterval           = nullptr;
+ConVar* sv_pylonRefreshRate                = nullptr;
+ConVar* sv_banlistRefreshRate              = nullptr;
+ConVar* sv_statusRefreshRate               = nullptr;
 ConVar* sv_forceChatToTeamOnly             = nullptr;
 
 ConVar* sv_autoReloadRate                  = nullptr;

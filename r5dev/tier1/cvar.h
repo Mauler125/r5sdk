@@ -59,9 +59,9 @@ extern ConVar* navmesh_draw_poly_bounds_inner;
 #endif // DEDICATED
 extern ConVar* sv_showconnecting;
 extern ConVar* sv_pylonVisibility;
-extern ConVar* sv_pylonRefreshInterval;
-extern ConVar* sv_banlistRefreshInterval;
-extern ConVar* sv_statusRefreshInterval;
+extern ConVar* sv_pylonRefreshRate;
+extern ConVar* sv_banlistRefreshRate;
+extern ConVar* sv_statusRefreshRate;
 extern ConVar* sv_forceChatToTeamOnly;
 
 extern ConVar* sv_autoReloadRate;
