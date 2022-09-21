@@ -11,7 +11,7 @@
 bool CL_CopyExistingEntity(__int64 a1, unsigned int* a2, char* a3)
 {
 	int nNewEntity = *reinterpret_cast<int*>(a1 + 40);
-	if (nNewEntity >= MAX_EDICTS || nNewEntity < 0)
+	if (nNewEntity >= MAX_EDICTS || nNewEntity < NULL)
 	{
 		// Value isn't sanitized in release builds for
 		// every game powered by the Source Engine 1
