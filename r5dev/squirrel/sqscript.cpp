@@ -149,8 +149,6 @@ SQRESULT Script_InitializeCLGlobalStructs(HSQUIRRELVM v, SQCONTEXT context)
 		Script_RegisterClientFunctions(g_pClientScript.GetValue<CSquirrelVM*>());
 	if (context == SQCONTEXT::UI)
 		Script_RegisterUIFunctions(g_pUIScript.GetValue<CSquirrelVM*>());
-
-	Script_RegisterConstant(Script_GetContextObject(context), "DEVELOPER", developer->GetInt());
 	return results;
 }
 #endif // !DEDICATED
@@ -164,7 +162,6 @@ void Script_InitializeSVGlobalStructs(HSQUIRRELVM v)
 {
 	v_Script_InitializeSVGlobalStructs(v);
 	Script_RegisterServerFunctions(Script_GetContextObject(SQCONTEXT::SERVER));
-	Script_RegisterConstant(Script_GetContextObject(SQCONTEXT::SERVER), "DEVELOPER", developer->GetInt());
 }
 
 //---------------------------------------------------------------------------------
@@ -235,6 +232,20 @@ CSquirrelVM* Script_GetContextObject(const SQCONTEXT context)
 	default:
 		return nullptr;
 	}
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: destroys the signal entry list head
+// Input  : *s - 
+//			v - 
+//			f - 
+// Output : true on success, false otherwise
+//---------------------------------------------------------------------------------
+SQBool Script_DestroySignalEntryListHead(CSquirrelVM* s, HSQUIRRELVM v, SQFloat f)
+{
+	SQBool result = v_Script_DestroySignalEntryListHead(s, v, f);
+	Script_RegisterConstant(s, "DEVELOPER", developer->GetInt());
+	return result;
 }
 
 //---------------------------------------------------------------------------------
@@ -325,6 +336,7 @@ void SQScript_Attach()
 	DetourAttach((LPVOID*)&v_Script_CreateClientVM, &Script_CreateClientVM);
 	DetourAttach((LPVOID*)&v_Script_CreateUIVM, &Script_CreateUIVM);
 #endif // !DEDICATED
+	DetourAttach((LPVOID*)&v_Script_DestroySignalEntryListHead, &Script_DestroySignalEntryListHead);
 	DetourAttach((LPVOID*)&v_Script_LoadRson, &Script_LoadRson);
 	DetourAttach((LPVOID*)&v_Script_LoadScript, &Script_LoadScript);
 }
@@ -343,6 +355,7 @@ void SQScript_Detach()
 	DetourDetach((LPVOID*)&v_Script_CreateClientVM, &Script_CreateClientVM);
 	DetourDetach((LPVOID*)&v_Script_CreateUIVM, &Script_CreateUIVM);
 #endif // !DEDICATED
+	DetourDetach((LPVOID*)&v_Script_DestroySignalEntryListHead, &Script_DestroySignalEntryListHead);
 	DetourDetach((LPVOID*)&v_Script_LoadRson, &Script_LoadRson);
 	DetourDetach((LPVOID*)&v_Script_LoadScript, &Script_LoadScript);
 }
