@@ -14,6 +14,8 @@ ConVar* old_gather_props                   = nullptr;
 ConVar* enable_debug_overlays              = nullptr;
 ConVar* cm_unset_all_cmdquery              = nullptr;
 
+ConVar* developer                          = nullptr;
+
 ConVar* staticProp_defaultBuildFrustum     = nullptr;
 ConVar* staticProp_no_fade_scalar          = nullptr;
 ConVar* staticProp_gather_size_weight      = nullptr;

@@ -126,17 +126,31 @@ void Script_RegisterUIFunctions(CSquirrelVM* pSquirrelVM)
 }
 
 //---------------------------------------------------------------------------------
+// Purpose: registers global constant for target context
+// Input  : *pSquirrelVM - 
+//			*name - 
+//			val - 
+//---------------------------------------------------------------------------------
+SQRESULT Script_RegisterConstant(CSquirrelVM* pSquirrelVM, const SQChar* name, SQInteger val)
+{
+	return v_Script_RegisterConstant(pSquirrelVM, name, val);
+}
+
+//---------------------------------------------------------------------------------
 // Purpose: Initialize all CLIENT/UI global structs and register SDK (CLIENT/UI) script functions
 // Input  : *pSquirrelVM - 
 //			context - (1 = CLIENT 2 = UI)
 //---------------------------------------------------------------------------------
-SQRESULT Script_InitializeCLGlobalStructs(CSquirrelVM* pSquirrelVM, SQCONTEXT context)
+SQRESULT Script_InitializeCLGlobalStructs(HSQUIRRELVM v, SQCONTEXT context)
 {
-	SQRESULT results = v_Script_InitializeCLGlobalStructs(pSquirrelVM, context);
+	SQRESULT results = v_Script_InitializeCLGlobalStructs(v, context);
+
 	if (context == SQCONTEXT::CLIENT)
 		Script_RegisterClientFunctions(g_pClientScript.GetValue<CSquirrelVM*>());
 	if (context == SQCONTEXT::UI)
 		Script_RegisterUIFunctions(g_pUIScript.GetValue<CSquirrelVM*>());
+
+	Script_RegisterConstant(Script_GetContextObject(context), "DEVELOPER", developer->GetInt());
 	return results;
 }
 #endif // !DEDICATED
@@ -146,10 +160,11 @@ SQRESULT Script_InitializeCLGlobalStructs(CSquirrelVM* pSquirrelVM, SQCONTEXT co
 // Purpose: Initialize all SERVER global structs and register SDK (SERVER) script functions
 // Input  : *pSquirrelVM - 
 //---------------------------------------------------------------------------------
-void Script_InitializeSVGlobalStructs(CSquirrelVM* pSquirrelVM)
+void Script_InitializeSVGlobalStructs(HSQUIRRELVM v)
 {
-	v_Script_InitializeSVGlobalStructs(pSquirrelVM);
-	Script_RegisterServerFunctions(g_pServerScript.GetValue<CSquirrelVM*>());
+	v_Script_InitializeSVGlobalStructs(v);
+	Script_RegisterServerFunctions(Script_GetContextObject(SQCONTEXT::SERVER));
+	Script_RegisterConstant(Script_GetContextObject(SQCONTEXT::SERVER), "DEVELOPER", developer->GetInt());
 }
 
 //---------------------------------------------------------------------------------
@@ -160,7 +175,7 @@ SQBool Script_CreateServerVM()
 {
 	SQBool results = v_Script_CreateServerVM();
 	if (results)
-		DevMsg(eDLL_T::SERVER, "Created SERVER VM: '%p'\n", g_pServerScript.GetValue<CSquirrelVM*>());
+		DevMsg(eDLL_T::SERVER, "Created SERVER VM: '%p'\n", Script_GetContextObject(SQCONTEXT::SERVER));
 	else
 		Error(eDLL_T::SERVER, EXIT_FAILURE, "Failed to create SERVER VM\n");
 	return results;
@@ -177,7 +192,7 @@ SQBool Script_CreateClientVM(CHLClient* pHlClient)
 {
 	SQBool results = v_Script_CreateClientVM(pHlClient);
 	if (results)
-		DevMsg(eDLL_T::CLIENT, "Created CLIENT VM: '%p'\n", g_pClientScript.GetValue<CSquirrelVM*>());
+		DevMsg(eDLL_T::CLIENT, "Created CLIENT VM: '%p'\n", Script_GetContextObject(SQCONTEXT::CLIENT));
 	else
 		Error(eDLL_T::CLIENT, EXIT_FAILURE, "Failed to create CLIENT VM\n");
 	return results;
@@ -191,7 +206,7 @@ SQBool Script_CreateUIVM()
 {
 	SQBool results = v_Script_CreateUIVM();
 	if (results)
-		DevMsg(eDLL_T::UI, "Created UI VM: '%p'\n", g_pUIScript.GetValue<CSquirrelVM*>());
+		DevMsg(eDLL_T::UI, "Created UI VM: '%p'\n", Script_GetContextObject(SQCONTEXT::UI));
 	else
 		Error(eDLL_T::UI, EXIT_FAILURE, "Failed to create UI VM\n");
 	return results;
@@ -298,6 +313,7 @@ void Script_Execute(const SQChar* code, const SQCONTEXT context)
 //---------------------------------------------------------------------------------
 void SQScript_Attach()
 {
+	DetourAttach((LPVOID*)&v_Script_RegisterConstant, &Script_RegisterConstant);
 #ifndef DEDICATED
 	DetourAttach((LPVOID*)&v_Script_InitializeCLGlobalStructs, &Script_InitializeCLGlobalStructs);
 #endif // !DEDICATED
@@ -315,6 +331,7 @@ void SQScript_Attach()
 //---------------------------------------------------------------------------------
 void SQScript_Detach()
 {
+	DetourDetach((LPVOID*)&v_Script_RegisterConstant, &Script_RegisterConstant);
 #ifndef DEDICATED
 	DetourDetach((LPVOID*)&v_Script_InitializeCLGlobalStructs, &Script_InitializeCLGlobalStructs);
 #endif // !DEDICATED

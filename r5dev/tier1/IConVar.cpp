@@ -230,6 +230,7 @@ void ConVar::InitShipped(void) const
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 	bhit_enable                      = g_pCVar->FindVar("bhit_enable");
 #endif // !GAMEDLL_S0 && !GAMEDLL_S1
+	developer                        = g_pCVar->FindVar("developer");
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 	cl_threaded_bone_setup           = g_pCVar->FindVar("cl_threaded_bone_setup");
