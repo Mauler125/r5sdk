@@ -307,9 +307,9 @@ bool CClient::VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg)
 #endif // !GAMEDLL_S0 || !GAMEDLL_S1
 	ServerPlayer_t* pSlot = &g_ServerPlayer[pClient_Adj->GetUserID()];
 	double flStartTime = Plat_FloatTime();
-	int nCmdQuota = sv_quota_stringCmdsPerSecond->GetInt();
+	int nCmdQuotaLimit = sv_quota_stringCmdsPerSecond->GetInt();
 
-	if (!nCmdQuota)
+	if (!nCmdQuotaLimit)
 		return true;
 
 	if (flStartTime - pSlot->m_flStringCommandQuotaTimeStart >= 1.0)
@@ -319,7 +319,7 @@ bool CClient::VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg)
 	}
 	++pSlot->m_nStringCommandQuotaCount;
 
-	if (pSlot->m_nStringCommandQuotaCount > nCmdQuota)
+	if (pSlot->m_nStringCommandQuotaCount > nCmdQuotaLimit)
 	{
 		Warning(eDLL_T::SERVER, "Removing client '%s' from slot '%i' ('%llu' exceeded string command quota!)\n", 
 			pClient_Adj->GetNetChan()->GetAddress(), pClient_Adj->GetUserID(), pClient_Adj->GetNucleusID());
