@@ -20,7 +20,7 @@ struct ScriptFunctionBinding_t
 	std::int64_t unk50;        // 50
 	std::int32_t unk58;        // 58
 	std::int32_t padding3;     // 5C
-	SQFunctor* _functor;       // 60
+	void* _functor;            // 60
 
 	ScriptFunctionBinding_t()
 	{

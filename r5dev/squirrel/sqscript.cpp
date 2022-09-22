@@ -21,7 +21,7 @@
 //			*functor - 
 //---------------------------------------------------------------------------------
 SQRESULT Script_RegisterFunction(CSquirrelVM* s, const SQChar* scriptname, const SQChar* nativename, 
-	const SQChar* helpstring, const SQChar* returntype, const SQChar* parameters, SQFunctor* functor)
+	const SQChar* helpstring, const SQChar* returntype, const SQChar* parameters, void* functor)
 {
 	ScriptFunctionBinding_t* binding = MemAllocSingleton()->Alloc<ScriptFunctionBinding_t>(sizeof(ScriptFunctionBinding_t));
 	memset(binding, '\0', sizeof(ScriptFunctionBinding_t));
