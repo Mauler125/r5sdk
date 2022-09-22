@@ -11,6 +11,17 @@
 #include "squirrel/sqscript.h"
 
 //---------------------------------------------------------------------------------
+// Purpose: registers global constant for target context
+// Input  : *v - 
+//			*name - 
+//			value - 
+//---------------------------------------------------------------------------------
+SQRESULT Script_RegisterConstant(CSquirrelVM* s, const SQChar* name, SQInteger value)
+{
+	return v_Script_RegisterConstant(s, name, value);
+}
+
+//---------------------------------------------------------------------------------
 // Purpose: registers and exposes code functions to target context
 // Input  : *s - 
 //			*scriptname - 
@@ -126,17 +137,6 @@ void Script_RegisterUIFunctions(CSquirrelVM* s)
 	Script_RegisterFunction(s, "UnbanPlayer", "Script_UnbanPlayer", "Unbans a player from the server by nucleus id or ip address", "void", "string", &VSquirrel::SHARED::UnbanPlayer);
 #endif // !CLIENT_DLL
 	Script_RegisterFunction(s, "ShutdownHostGame", "Script_ShutdownHostGame", "Shuts the local host game down", "void", "", &VSquirrel::SHARED::ShutdownHostGame);
-}
-
-//---------------------------------------------------------------------------------
-// Purpose: registers global constant for target context
-// Input  : *v - 
-//			*name - 
-//			value - 
-//---------------------------------------------------------------------------------
-SQRESULT Script_RegisterConstant(CSquirrelVM* s, const SQChar* name, SQInteger value)
-{
-	return v_Script_RegisterConstant(s, name, value);
 }
 
 //---------------------------------------------------------------------------------
