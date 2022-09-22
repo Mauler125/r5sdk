@@ -93,6 +93,7 @@ ConVar* bhit_abs_origin = nullptr;
 // CLIENT                                                                     |
 #ifndef DEDICATED
 ConVar* cl_rcon_request_sendlogs           = nullptr;
+ConVar* cl_quota_stringCmdsPerSecond       = nullptr;
 
 ConVar* cl_showhoststats                   = nullptr;
 ConVar* cl_hoststats_invert_x              = nullptr;

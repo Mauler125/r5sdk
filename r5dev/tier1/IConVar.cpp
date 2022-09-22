@@ -123,6 +123,7 @@ void ConVar::Init(void) const
 	// CLIENT                                                                 |
 #ifndef DEDICATED
 	cl_rcon_request_sendlogs = ConVar::Create("cl_rcon_request_sendlogs", "1" , FCVAR_RELEASE, "Request the rcon server to send console logs on connect.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_quota_stringCmdsPerSecond = ConVar::Create("cl_quota_stringCmdsPerSecond", "16" , FCVAR_RELEASE, "How many string commands per second user is allowed to submit, 0 to allow all submissions.", true, 0.f, false, 0.f, nullptr, nullptr);
 
 	cl_showhoststats      = ConVar::Create("cl_showhoststats"     , "0", FCVAR_DEVELOPMENTONLY, "Host speeds debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_hoststats_invert_x = ConVar::Create("cl_hoststats_invert_x", "0", FCVAR_DEVELOPMENTONLY, "Inverts the X offset for host speeds debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);

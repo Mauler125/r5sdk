@@ -88,6 +88,7 @@ extern ConVar* bhit_abs_origin;
 // CLIENT                                                                 |
 #ifndef DEDICATED
 extern ConVar* cl_rcon_request_sendlogs;
+extern ConVar* cl_quota_stringCmdsPerSecond;
 
 extern ConVar* cl_showhoststats;
 extern ConVar* cl_hoststats_invert_x;
