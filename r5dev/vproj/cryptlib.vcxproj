@@ -1,0 +1,588 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Microsoft documentation for VCXPROJ file format is located at -->
+  <!-- the following URL. The documentation leaves a lot to be desired. -->
+  <!-- https://msdn.microsoft.com/en-us/library/2208a1f2.aspx -->
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DLL-Import Debug|Win32">
+      <Configuration>DLL-Import Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DLL-Import Debug|x64">
+      <Configuration>DLL-Import Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DLL-Import Release|Win32">
+      <Configuration>DLL-Import Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DLL-Import Release|x64">
+      <Configuration>DLL-Import Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <!-- Microsoft documentation clearly shows the Global property group -->
+  <!-- precedes the import of Cpp.Default.props and Cpp.props -->
+  <!-- https://msdn.microsoft.com/en-us/library/2208a1f2.aspx -->
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{c39f4b46-6e89-4074-902e-ca57073044d2}</ProjectGuid>
+    <RootNamespace>cryptlib</RootNamespace>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <!-- Use DefaultPlatformToolset after Microsoft.Cpp.Default.props -->
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <!-- Set DefaultPlatformToolset to v100 (VS2010) if not defined -->
+  <PropertyGroup Label="EmptyDefaultPlatformToolset">
+    <DefaultPlatformToolset Condition=" '$(DefaultPlatformToolset)' == '' ">v100</DefaultPlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Label="PlatformToolset">
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);..\thirdparty\cryptopp\include\;</IncludePath>
+  </PropertyGroup>
+  <!-- End of Visual Studio boilerplate -->
+  <!-- All Configurations -->
+  <PropertyGroup Label="All Configurations">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <TargetName>cryptlib</TargetName>
+    <TargetExt>.lib</TargetExt>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <!-- Intermediate and Output directories -->
+  <!-- Cryptlib and Cryptest need extra care due to Non-DLL/DLL configs -->
+  <PropertyGroup Condition="'$(Configuration)'=='Debug' Or '$(Configuration)'=='Release'" Label="Non-DLL Directories">
+    <OutDir>$(SolutionDir)lib\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='DLL-Import Debug'" Label="DLL Directories">
+    <OutDir>$(Platform)\DLL_Output\Debug\</OutDir>
+    <IntDir>$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='DLL-Import Release'" Label="DLL Directories">
+    <OutDir>$(Platform)\DLL_Output\Release\</OutDir>
+    <IntDir>$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnabled>false</VcpkgEnabled>
+  </PropertyGroup>
+  <!-- All Configurations -->
+  <ItemDefinitionGroup Label="All Configurations">
+    <ClCompile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <ErrorReporting>None</ErrorReporting>
+      <WarningLevel>Level4</WarningLevel>
+      <DisableSpecificWarnings>4231; 4251; 4275; 4355; 4505</DisableSpecificWarnings>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalOptions>$(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Lib>
+      <ErrorReporting>NoErrorReport</ErrorReporting>
+    </Lib>
+  </ItemDefinitionGroup>
+  <!-- Debug Configurations -->
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug' Or '$(Configuration)'=='DLL-Import Debug'" Label="Debug Configuration">
+    <ClCompile>
+      <PreprocessorDefinitions>USE_PRECOMPILED_HEADERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Optimization>Disabled</Optimization>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <!-- Release Configurations -->
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release' Or '$(Configuration)'=='DLL-Import Release'" Label="Release Configuration">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;USE_PRECOMPILED_HEADERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <OmitFramePointers>true</OmitFramePointers>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <!-- DLL-Import Overrides for Preprocessor -->
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='DLL-Import Debug'" Label="DLL Debug Configuration">
+    <ClCompile>
+      <PreprocessorDefinitions>USE_PRECOMPILED_HEADERS;CRYPTOPP_IMPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='DLL-Import Release'" Label="DLL Debug Configuration">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;USE_PRECOMPILED_HEADERS;CRYPTOPP_IMPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <!-- X86 Configurations -->
+  <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'" Label="X86 Configuration">
+    <ClCompile>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>true</ImageHasSafeExceptionHandlers>
+    </Lib>
+  </ItemDefinitionGroup>
+  <!-- X64 Configurations -->
+  <ItemDefinitionGroup Condition="'$(Platform)'=='x64'" Label="X64 Configuration">
+    <Lib>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <!-- Original File with special treatment -->
+  <!-- Source Files -->
+  <!-- The order of the first three matters -->
+  <ItemGroup>
+    <ClCompile Include="..\thirdparty\cryptopp\src\cryptlib.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\cpu.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\integer.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\3way.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\adler32.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\algebra.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\algparam.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\allocate.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\arc4.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\aria.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\aria_simd.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\ariatab.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\asn.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\authenc.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\base32.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\base64.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\basecode.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\bfinit.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\blake2.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\blake2s_simd.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\blake2b_simd.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\blowfish.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\blumshub.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\camellia.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\cast.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\casts.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\cbcmac.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\ccm.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\chacha.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\chacha_simd.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\chacha_avx.cpp">
+      <!-- Requires Visual Studio 2013 and above -->
+      <ExcludedFromBuild Condition=" '$(PlatformToolset)' == 'v100' Or '$(PlatformToolset)' == 'v110' ">true</ExcludedFromBuild>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cryptopp\src\chachapoly.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\cham.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\cham_simd.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\channels.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\cmac.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\crc.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\crc_simd.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\darn.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\default.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\des.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\dessp.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\dh.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\dh2.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\dll.cpp">
+      <PrecompiledHeader />
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cryptopp\src\donna_32.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\donna_64.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\donna_sse.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\dsa.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\eax.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\ec2n.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\eccrypto.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cryptopp\src\ecp.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\elgamal.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\emsa2.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\eprecomp.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cryptopp\src\esign.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\files.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\filters.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\fips140.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\fipstest.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\gcm.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\gcm_simd.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\gf256.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\gf2_32.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\gf2n.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\gf2n_simd.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\gfpcrypt.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\gost.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\gzip.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\hc128.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\hc256.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\hex.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\hight.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\hmac.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\hrtimer.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\ida.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\idea.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\iterhash.cpp">
+      <PrecompiledHeader />
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cryptopp\src\kalyna.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\kalynatab.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\keccak.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\keccak_core.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\keccak_simd.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\lea.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\lea_simd.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\lsh256.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\lsh256_sse.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\lsh256_avx.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\lsh512.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\lsh512_sse.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\lsh512_avx.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\luc.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\mars.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\marss.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\md2.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\md4.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\md5.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\misc.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\modes.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\mqueue.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\mqv.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\nbtheory.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\oaep.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\osrng.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\padlkrng.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\panama.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\pch.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\cryptopp\src\pkcspad.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\poly1305.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\polynomi.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\pssr.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\pubkey.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\queue.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\rabin.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\randpool.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\rabbit.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\rc2.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\rc5.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\rc6.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\rdrand.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\rdtables.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\rijndael.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\rijndael_simd.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\ripemd.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\rng.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\rsa.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\rw.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\safer.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\salsa.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\scrypt.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\seal.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\seed.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\serpent.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\sha.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\sha_simd.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\sha3.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\shacal2.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\shacal2_simd.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\shake.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\shark.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\sharkbox.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\simeck.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\simon.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\simon128_simd.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\simple.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\skipjack.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\sm3.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\sm4.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\sm4_simd.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\sosemanuk.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\speck.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\speck128_simd.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\square.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\squaretb.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\sse_simd.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\strciphr.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\tea.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\tftables.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\threefish.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\tiger.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\tigertab.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\ttmac.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\tweetnacl.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\twofish.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\vmac.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\wake.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\whrlpool.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\xed25519.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\xtr.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\xtrcrypt.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\xts.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\zdeflate.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\zinflate.cpp" />
+    <ClCompile Include="..\thirdparty\cryptopp\src\zlib.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\thirdparty\cryptopp\src\adhoc.cpp.proto">
+      <Command>
+        if not exist adhoc.cpp copy "%(FullPath)" adhoc.cpp
+        echo: &gt;&gt; adhoc.cpp.copied
+      </Command>
+      <Outputs>adhoc.cpp.copied;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Condition="'$(Platform)'=='Win32'" Include="..\thirdparty\cryptopp\src\rdrand.asm">
+      <Message>Building and assembling rdrand.asm</Message>
+      <Command>ml.exe /c /nologo /D_M_X86 /W3 /Cx /Zi /safeseh /Fo"$(IntDir)rdrand-x86.obj" "%(FullPath)"</Command>
+      <Outputs>$(IntDir)\rdrand-x86.obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Condition="'$(Platform)'=='x64'" Include="..\thirdparty\cryptopp\src\rdrand.asm">
+      <Message>Building and assembling rdrand.asm</Message>
+      <Command>ml64.exe /c /nologo /D_M_X64 /W3 /Cx /Zi /Fo"$(IntDir)rdrand-x64.obj" "%(FullPath)"</Command>
+      <Outputs>$(IntDir)\rdrand-x64.obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Condition="'$(Platform)'=='Win32'" Include="..\thirdparty\cryptopp\src\rdseed.asm">
+      <Message>Building and assembling rdseed.asm</Message>
+      <Command>ml.exe /c /nologo /D_M_X86 /W3 /Cx /Zi /safeseh /Fo"$(IntDir)rdseed-x86.obj" "%(FullPath)"</Command>
+      <Outputs>$(IntDir)\rdseed-x86.obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Condition="'$(Platform)'=='x64'" Include="..\thirdparty\cryptopp\src\rdseed.asm">
+      <Message>Building and assembling rdseed.asm</Message>
+      <Command>ml64.exe /c /nologo /D_M_X64 /W3 /Cx /Zi /Fo"$(IntDir)rdseed-x64.obj" "%(FullPath)"</Command>
+      <Outputs>$(IntDir)\rdseed-x64.obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Condition="'$(Platform)'=='x64' AND ('$(Configuration)'=='Debug' Or '$(Configuration)'=='Release')" Include="..\thirdparty\cryptopp\src\x64dll.asm">
+      <Message>Building and assembling x64dll.asm</Message>
+      <Command>ml64.exe /c /nologo /D_M_X64 /W3 /Zi /Fo"$(IntDir)x64dll.obj" "%(FullPath)"</Command>
+      <Outputs>$(IntDir)x64dll.obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Condition="'$(Platform)'=='x64'" Include="..\thirdparty\cryptopp\src\x64masm.asm">
+      <Message>Building and Assembling x64masm.asm</Message>
+      <Command>ml64.exe /c /nologo /D_M_X64 /W3 /Zi /Fo"$(IntDir)x64masm.obj" "%(FullPath)"</Command>
+      <Outputs>$(IntDir)x64masm.obj;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\thirdparty\cryptopp\include\3way.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\adler32.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\adv_simd.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\aes.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\algebra.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\algparam.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\allocate.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\arc4.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\aria.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\argnames.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\asn.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\authenc.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\base32.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\base64.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\basecode.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\blake2.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\blowfish.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\blumshub.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\camellia.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\cast.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\cbcmac.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\ccm.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\chacha.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\chachapoly.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\cham.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\channels.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\cmac.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\config.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\config_align.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\config_asm.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\config_cpu.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\config_cxx.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\config_dll.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\config_int.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\config_misc.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\config_ns.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\config_os.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\config_ver.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\cpu.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\crc.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\cryptlib.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\darn.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\default.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\des.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\dh.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\dh2.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\dmac.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\drbg.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\donna.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\donna_32.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\donna_64.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\donna_sse.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\dsa.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\eax.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\ec2n.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\eccrypto.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\ecp.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\ecpoint.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\elgamal.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\emsa2.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\eprecomp.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\esign.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\files.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\filters.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\fips140.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\fhmqv.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\fltrimpl.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\gcm.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\gf256.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\gf2_32.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\gf2n.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\gfpcrypt.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\gost.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\gzip.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\hc128.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\hc256.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\hex.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\hight.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\hkdf.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\hmac.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\hmqv.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\hrtimer.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\ida.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\idea.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\integer.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\iterhash.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\kalyna.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\keccak.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\lubyrack.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\lea.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\lsh.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\luc.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\mars.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\md2.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\md4.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\md5.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\mdc.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\misc.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\modarith.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\modes.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\modexppc.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\mqueue.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\mqv.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\naclite.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\nbtheory.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\nr.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\oaep.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\oids.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\osrng.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\padlkrng.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\panama.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\pch.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\pkcspad.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\poly1305.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\polynomi.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\pssr.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\pubkey.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\pwdbased.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\queue.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\rabin.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\randpool.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\rabbit.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\rc2.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\rc5.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\rc6.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\rdrand.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\rijndael.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\ripemd.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\rng.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\rsa.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\rw.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\safer.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\salsa.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\scrypt.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\seal.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\secblock.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\secblockfwd.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\seckey.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\seed.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\serpent.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\sha.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\sha3.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\shacal2.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\shake.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\shark.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\simple.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\simeck.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\simon.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\siphash.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\skipjack.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\sm3.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\sm4.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\smartptr.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\sosemanuk.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\speck.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\square.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\stdcpp.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\strciphr.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\tea.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\threefish.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\tiger.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\trap.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\trunhash.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\ttmac.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\tweetnacl.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\twofish.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\vmac.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\wake.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\whrlpool.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\words.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\xed25519.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\xtr.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\xtrcrypt.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\xts.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\zdeflate.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\zinflate.h" />
+    <ClInclude Include="..\thirdparty\cryptopp\include\zlib.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
+  </ImportGroup>
+</Project>
