@@ -12,7 +12,7 @@ struct ScriptFunctionBinding_t
 	std::int16_t unk28;        // 28
 	std::int16_t padding1;     // 2A
 	std::int32_t unk2c;        // 2C
-	std::int64_t unk30;        // 30
+	const SQChar* _codehook;   // 30
 	std::int32_t unk38;        // 38
 	SQInteger _nparamscheck;   // 3C
 	std::int64_t unk40;        // 40
@@ -20,12 +20,27 @@ struct ScriptFunctionBinding_t
 	std::int64_t unk50;        // 50
 	std::int32_t unk58;        // 58
 	std::int32_t padding3;     // 5C
-	void* _functor;            // 60
+	SQFunctor* _functor;       // 60
 
 	ScriptFunctionBinding_t()
 	{
-		memset(this, '\0', sizeof(ScriptFunctionBinding_t));
-		this->_nparamscheck = 6;
+		_scriptname = nullptr;
+		_nativename = nullptr;
+		_helpstring = nullptr;
+		_returntype = nullptr;
+		_parameters = nullptr;
+		unk28 = 0;
+		padding1 = 0;
+		unk2c = 0;
+		_codehook = nullptr;
+		unk38 = 0;
+		_nparamscheck = 6;
+		unk40 = 0;
+		unk48 = 0;
+		unk50 = 0;
+		unk58 = 0;
+		padding3 = 0;
+		_functor = nullptr;
 	}
 };
 
