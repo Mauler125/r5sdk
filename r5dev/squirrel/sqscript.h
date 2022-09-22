@@ -4,28 +4,28 @@
 
 struct ScriptFunctionBinding_t
 {
-	const SQChar* m_szScriptName; // 00
-	const SQChar* m_szNativeName; // 08
-	const SQChar* m_szHelpString; // 10
-	const SQChar* m_szRetValType; // 18
-	const SQChar* m_szArgTypes;   // 20
-	std::int16_t unk28;           // 28
-	std::int16_t padding1;        // 2A
-	std::int32_t unk2c;           // 2C
-	std::int64_t unk30;           // 30
-	std::int32_t unk38;           // 38
-	std::int32_t padding2;        // 3C
-	std::int64_t unk40;           // 40
-	std::int64_t unk48;           // 48
-	std::int64_t unk50;           // 50
-	std::int32_t unk58;           // 58
-	std::int32_t padding3;        // 5C
-	void* m_pFunction;            // 60
+	const SQChar* _scriptname; // 00
+	const SQChar* _nativename; // 08
+	const SQChar* _helpstring; // 10
+	const SQChar* _returntype; // 18
+	const SQChar* _parameters; // 20
+	std::int16_t unk28;        // 28
+	std::int16_t padding1;     // 2A
+	std::int32_t unk2c;        // 2C
+	std::int64_t unk30;        // 30
+	std::int32_t unk38;        // 38
+	SQInteger _nparamscheck;   // 3C
+	std::int64_t unk40;        // 40
+	std::int64_t unk48;        // 48
+	std::int64_t unk50;        // 50
+	std::int32_t unk58;        // 58
+	std::int32_t padding3;     // 5C
+	void* _functor;            // 60
 
 	ScriptFunctionBinding_t()
 	{
 		memset(this, '\0', sizeof(ScriptFunctionBinding_t));
-		this->padding2 = 6;
+		this->_nparamscheck = 6;
 	}
 };
 
@@ -59,10 +59,10 @@ private:
 #pragma pack(pop)
 
 inline CMemory p_Script_RegisterFunction;
-inline auto v_Script_RegisterFunction = p_Script_RegisterFunction.RCast<SQRESULT(*)(CSquirrelVM* pSquirrelVM, ScriptFunctionBinding_t* sqFunc, SQInteger a1)>();
+inline auto v_Script_RegisterFunction = p_Script_RegisterFunction.RCast<SQRESULT(*)(CSquirrelVM* s, ScriptFunctionBinding_t* binding, SQInteger a1)>();
 
 inline CMemory p_Script_RegisterConstant;
-inline auto v_Script_RegisterConstant = p_Script_RegisterConstant.RCast<SQRESULT(*)(CSquirrelVM* pSquirrelVM, const SQChar* name, SQInteger val)>();
+inline auto v_Script_RegisterConstant = p_Script_RegisterConstant.RCast<SQRESULT(*)(CSquirrelVM* s, const SQChar* name, SQInteger value)>();
 #if !defined (CLIENT_DLL)
 inline CMemory p_Script_InitializeSVGlobalStructs;
 inline auto v_Script_InitializeSVGlobalStructs = p_Script_InitializeSVGlobalStructs.RCast<SQRESULT(*)(HSQUIRRELVM v)>();
@@ -80,10 +80,10 @@ inline auto v_Script_CreateServerVM = p_Script_CreateServerVM.RCast<SQBool(*)(vo
 #endif
 #if !defined (DEDICATED) && defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
 inline CMemory p_Script_CreateClientVM;
-inline auto v_Script_CreateClientVM = p_Script_CreateClientVM.RCast<SQBool(*)(CHLClient* pClient)>();
+inline auto v_Script_CreateClientVM = p_Script_CreateClientVM.RCast<SQBool(*)(CHLClient* hlclient)>();
 #elif !defined (DEDICATED) && defined (GAMEDLL_S3)
 inline CMemory p_Script_CreateClientVM;
-inline auto v_Script_CreateClientVM = p_Script_CreateClientVM.RCast<SQBool(*)(CHLClient* pClient)>();
+inline auto v_Script_CreateClientVM = p_Script_CreateClientVM.RCast<SQBool(*)(CHLClient* hlclient)>();
 #endif
 #if !defined (DEDICATED)
 inline CMemory p_Script_CreateUIVM;
@@ -93,10 +93,10 @@ inline CMemory p_Script_DestroySignalEntryListHead;
 inline auto v_Script_DestroySignalEntryListHead = p_Script_DestroySignalEntryListHead.RCast<SQBool(*)(CSquirrelVM* s, HSQUIRRELVM v, SQFloat f)>();
 
 inline CMemory p_Script_LoadRson;
-inline auto v_Script_LoadRson = p_Script_LoadRson.RCast<SQInteger(*)(const SQChar* szRsonName)>();
+inline auto v_Script_LoadRson = p_Script_LoadRson.RCast<SQInteger(*)(const SQChar* rsonfile)>();
 
 inline CMemory p_Script_LoadScript;
-inline auto v_Script_LoadScript = p_Script_LoadScript.RCast<SQBool(*)(HSQUIRRELVM v, const SQChar* szScriptPath, const SQChar* szScriptName, SQInteger nFlag)>();
+inline auto v_Script_LoadScript = p_Script_LoadScript.RCast<SQBool(*)(HSQUIRRELVM v, const SQChar* path, const SQChar* name, SQInteger flags)>();
 
 #if !defined (CLIENT_DLL)
 inline CMemory g_pServerScript;
@@ -106,12 +106,12 @@ inline CMemory g_pClientScript;
 inline CMemory g_pUIScript;
 #endif // !DEDICATED
 
-SQRESULT Script_RegisterConstant(CSquirrelVM* pSquirrelVM, const SQChar* name, SQInteger val);
-SQRESULT Script_RegisterFunction(CSquirrelVM* pSquirrelVM, const SQChar* szScriptName, const SQChar* szNativeName,
-	const SQChar* szHelpString, const SQChar* szRetValType, const SQChar* szArgTypes, void* pFunction);
-void Script_RegisterServerFunctions(CSquirrelVM* pSquirrelVM);
-void Script_RegisterClientFunctions(CSquirrelVM* pSquirrelVM);
-void Script_RegisterUIFunctions(CSquirrelVM* pSquirrelVM);
+SQRESULT Script_RegisterConstant(CSquirrelVM* s, const SQChar* name, SQInteger value);
+SQRESULT Script_RegisterFunction(CSquirrelVM* s, const SQChar* scriptname, const SQChar* nativename,
+	const SQChar* helpstring, const SQChar* returntype, const SQChar* arguments, void* functor);
+void Script_RegisterServerFunctions(CSquirrelVM* s);
+void Script_RegisterClientFunctions(CSquirrelVM* s);
+void Script_RegisterUIFunctions(CSquirrelVM* s);
 
 SQRESULT Script_InitializeCLGlobalStructs(HSQUIRRELVM v, SQCONTEXT context);
 void Script_InitializeSVGlobalStructs(HSQUIRRELVM v);
@@ -123,8 +123,8 @@ SQBool Script_CreateClientVM(CHLClient* hlclient);
 SQBool Script_CreateUIVM();
 CSquirrelVM* Script_GetContextObject(const SQCONTEXT context);
 
-SQInteger Script_LoadRson(const SQChar* szRsonName);
-SQBool Script_LoadScript(HSQUIRRELVM v, const SQChar* szScriptPath, const SQChar* szScriptName, SQInteger nFlag);
+SQInteger Script_LoadRson(const SQChar* rsonfile);
+SQBool Script_LoadScript(HSQUIRRELVM v, const SQChar* path, const SQChar* name, SQInteger flags);
 
 void Script_Execute(const SQChar* code, const SQCONTEXT context);
 
