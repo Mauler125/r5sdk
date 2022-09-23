@@ -1,5 +1,3 @@
-#include <vector>
-#include <filesystem>
 #include "core/stdafx.h"
 
 class customScript {
