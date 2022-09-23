@@ -40,6 +40,11 @@ bool ThreadInRenderThread()
 	return (ThreadGetCurrentId() == g_ThreadRenderThreadID);
 }
 
+bool ThreadInServerFrameThread()
+{
+	return (ThreadGetCurrentId() == (*g_ThreadServerFrameThreadID));
+}
+
 ThreadId_t ThreadGetCurrentId()
 {
 #ifdef _WIN32

@@ -223,11 +223,11 @@ void CBanSystem::BanListCheck(void)
 
 				string svIpAddress = pNetChan->GetAddress();
 
-				Warning(eDLL_T::SERVER, "Removing client '%s' from slot '%hu' ('%llu' is banned from this server!)\n", svIpAddress.c_str(), pClient->GetHandle(), pClient->GetNucleusID());
+				Warning(eDLL_T::SERVER, "Removing client '%s' from slot '%i' ('%llu' is banned from this server!)\n", svIpAddress.c_str(), c, pClient->GetNucleusID());
 				if (AddEntry(svIpAddress, pClient->GetNucleusID()) && !bSave)
 					bSave = true;
 
-				NET_DisconnectClient(pClient, c, m_vRefuseList[i].first.c_str(), 0, true);
+				pClient->Disconnect(Reputation_t::REP_MARK_BAD, m_vRefuseList[i].first.c_str());
 			}
 		}
 
@@ -299,7 +299,7 @@ void CBanSystem::KickPlayerByName(const string& svPlayerName)
 				if (strlen(pNetChan->GetName()) > 0)
 				{
 					if (svPlayerName.compare(pNetChan->GetName()) == NULL) // Our wanted name?
-						NET_DisconnectClient(pClient, i, "Kicked from server", 0, true);
+						pClient->Disconnect(REP_MARK_BAD, "Kicked from server");
 				}
 			}
 		}
@@ -344,14 +344,14 @@ void CBanSystem::KickPlayerById(const string& svHandle)
 						continue;
 				}
 
-				NET_DisconnectClient(pClient, i, "Kicked from server", 0, true);
+				pClient->Disconnect(REP_MARK_BAD, "Kicked from server");
 			}
 			else
 			{
 				if (svHandle.compare(pNetChan->GetAddress()) != NULL)
 					continue;
 
-				NET_DisconnectClient(pClient, i, "Kicked from server", 0, true);
+				pClient->Disconnect(REP_MARK_BAD, "Kicked from server");
 			}
 		}
 	}
@@ -386,7 +386,7 @@ void CBanSystem::BanPlayerByName(const string& svPlayerName)
 						if (AddEntry(pNetChan->GetAddress(), pClient->GetNucleusID()) && !bSave)
 							bSave = true;
 
-						NET_DisconnectClient(pClient, i, "Banned from server", 0, true);
+						pClient->Disconnect(REP_MARK_BAD, "Banned from server");
 					}
 				}
 			}
@@ -441,7 +441,7 @@ void CBanSystem::BanPlayerById(const string& svHandle)
 					bSave = true;
 
 				Save();
-				NET_DisconnectClient(pClient, i, "Banned from server", 0, true);
+				pClient->Disconnect(REP_MARK_BAD, "Banned from server");
 			}
 			else
 			{
@@ -452,7 +452,7 @@ void CBanSystem::BanPlayerById(const string& svHandle)
 					bSave = true;
 
 				Save();
-				NET_DisconnectClient(pClient, i, "Banned from server", 0, true);
+				pClient->Disconnect(REP_MARK_BAD, "Banned from server");
 			}
 		}
 

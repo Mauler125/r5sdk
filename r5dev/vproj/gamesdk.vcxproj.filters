@@ -633,6 +633,9 @@
     <ClCompile Include="..\engine\sdk_dll.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
+    <ClCompile Include="..\engine\client\cl_ents_parse.cpp">
+      <Filter>sdk\engine\client</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1840,6 +1843,9 @@
     </ClInclude>
     <ClInclude Include="..\engine\sdk_dll.h">
       <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\client\cl_ents_parse.h">
+      <Filter>sdk\engine\client</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
