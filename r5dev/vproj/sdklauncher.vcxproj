@@ -79,7 +79,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libcppkore_x64.lib;libdetours_x64.lib;shell32.lib;gdi32.lib;gdiplus.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcppkore_x64.lib;libdetours_x64.lib;shell32.lib;gdi32.lib;gdiplus.lib;advapi32.lib;cryptlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>

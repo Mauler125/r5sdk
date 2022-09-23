@@ -38,18 +38,10 @@ void writeString(ofstream* file, string str) {
 	file->write(str.c_str(), length);
 }
 
-class customScript {
-	// Class for each custom script entry in the mod.json file
-	// Holds the scripts location - including its name, and the script type - UI, Client, Server
-public:
-	enum class type {
-		ui,
-		client,
-		server
-	};
-
-	fs::path path;
-	type scripttype;
+enum class scriptType {
+	ui,
+	client,
+	server
 };
 
 class mod {
@@ -71,8 +63,6 @@ public:
 	string sdkVer = "";
 	bool modEnabled = true;
 	int fileCount = 0;
-
-	std::vector<customScript> customscripts;
 
 	bool status() {
 		return modEnabled;
@@ -229,6 +219,10 @@ public:
 			}
 		}
 
+		std::vector<fs::path> uiCustomScripts;
+		std::vector<fs::path> clCustomScripts;
+		std::vector<fs::path> seCustomScripts;
+
 		// Now, build the mods
 		for (mod* mod : enabledMods()) {
 			// Open the mod file for reading
@@ -242,8 +236,6 @@ public:
 				spdlog::error("Invalid Header");
 				return false;
 			}
-
-			std::ofstream testFile("testing.txt");
 			
 			// Read the SDK version
 			char* sdkVer = readString(&modFile);
@@ -293,9 +285,16 @@ public:
 				modFile.read(cFileSize, 4);
 				unsigned int cFileSizeInt = *reinterpret_cast<unsigned int*>(cFileSize);
 				// Get custom script state
-				char* customScript = new char[1];
+				char* customScript = new char[2];
 				modFile.read(customScript, 1);
-				uint8_t customScriptInt = *reinterpret_cast<uint8_t*>(customScript);
+				customScript[1] = '\0';
+
+				if (customScript == reinterpret_cast<const char*>("1"))
+					uiCustomScripts.push_back({ fs::path(fileName) });
+				else if (customScript == reinterpret_cast<const char*>("2"))
+					clCustomScripts.push_back({ fs::path(fileName) });
+				else if (customScript == reinterpret_cast<const char*>("3"))
+					seCustomScripts.push_back({ fs::path(fileName) });
 
 				// Get the file data
 				char* fileData = new char[cFileSizeInt];
@@ -314,13 +313,11 @@ public:
 				// Check to see if the file is located in a "special" folder
 				fs::path filePath(fileName);
 				for (auto& e : specialFiles) {
-					testFile << filePath.parent_path() << " | " << e.first << std::endl;
 					// Check to see if the parent path of the file is equal to the first value
 					if (filePath.parent_path() == e.first) {
 						// Create the directory to be sure
 						fs::create_directories(e.second);
 						// If it is, then we need to check to see if the file is in the second value
-						testFile << e.second << filePath.filename() << std::endl;
 						// If it is, then we need to write the file to the special folder
 						fs::path specialPath = e.second / filePath.filename();
 						std::ofstream specialFile(specialPath, std::ios::binary);
@@ -351,9 +348,53 @@ public:
 			string hashString;
 			CryptoPP::HexEncoder encoder(new CryptoPP::StringSink(hashString));
 			CryptoPP::StringSource(digest, true, new CryptoPP::Redirector(encoder));
-
-			return true;
 		}
+
+		// For each entry in the customScripts vector, build the custom scripts file
+		// Format:
+		// WHEN: "<type>"
+		// Scripts:
+		// [
+		//		<fileLocation minus vscripts>
+		// ]
+		std::stringstream rsonFile;
+		if (uiCustomScripts.size() != 0)
+		rsonFile << "WHEN: \"UI\"" << std::endl
+			<< "Scripts:" << std::endl
+			<< "[" << std::endl;
+		for (auto& cs : uiCustomScripts)
+			rsonFile << cs.string() << std::endl;
+		if (uiCustomScripts.size() != 0)
+			rsonFile << "]" << std::endl;
+
+		
+		if (clCustomScripts.size() != 0)
+		rsonFile << "WHEN: \"CLIENT\"" << std::endl
+			<< "Scripts:" << std::endl
+			<< "[" << std::endl;
+		for (auto& cs : clCustomScripts)
+			rsonFile << cs.string() << std::endl;
+		if (clCustomScripts.size() != 0)
+			rsonFile << "]" << std::endl;
+		
+		
+		if (seCustomScripts.size() != 0)
+		rsonFile << "WHEN: \"SERVER\"" << std::endl
+			<< "Scripts:" << std::endl
+			<< "[" << std::endl; 
+		for (auto& cs : seCustomScripts)
+			rsonFile << cs.string() << std::endl;
+		if (seCustomScripts.size() != 0)
+			rsonFile << "]" << std::endl;
+
+		if (seCustomScripts.size() == 0 && clCustomScripts.size() == 0 && uiCustomScripts.size() == 0) return true;
+		// Add the current .rson file onto the end for compabiltiiblity
+		if (fs::exists("platform\\scripts\\vscripts\\scripts.rson")) {
+			std::ifstream rsonFileC("platform\\scripts\\vscripts\\scripts.rson");
+			rsonFile << rsonFileC.rdbuf();
+			rsonFileC.close();
+		}
+		return true;
 	}
 	
 	modManager() {
