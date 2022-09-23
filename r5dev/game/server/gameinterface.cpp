@@ -56,6 +56,29 @@ float CServerGameDLL::GetTickInterval(void)
 	return CallVFunc<float>(index, this);
 }
 
+void __fastcall CServerGameDLL::OnReceivedSayTextMessage(void* thisptr, int senderId, const char* text, bool isTeamChat)
+{
+#if defined(GAMEDLL_S3)
+	// set isTeamChat to false so that we can let the convar sv_forceChatToTeamOnly decide whether team chat should be enforced
+	// this isn't a great way of doing it but it works so meh
+	CServerGameDLL__OnReceivedSayTextMessage(thisptr, senderId, text, false);
+#endif
+}
+
+void CServerGameDLL_Attach()
+{
+#if defined(GAMEDLL_S3)
+	DetourAttach((LPVOID*)&CServerGameDLL__OnReceivedSayTextMessage, &CServerGameDLL::OnReceivedSayTextMessage);
+#endif
+}
+
+void CServerGameDLL_Detach()
+{
+#if defined(GAMEDLL_S3)
+	DetourDetach((LPVOID*)&CServerGameDLL__OnReceivedSayTextMessage, &CServerGameDLL::OnReceivedSayTextMessage);
+#endif
+}
+
 // Pointer to CServerGameDLL virtual function table.
 CServerGameDLL* g_pServerGameDLL = nullptr;
 CServerGameClients* g_pServerGameClients = nullptr;

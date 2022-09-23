@@ -232,14 +232,14 @@ FORCEINLINE void CHostState::Think(void) const
 		bInitialized = true;
 	}
 #ifndef CLIENT_DLL
-	if (banListTimer.GetDurationInProgress().GetSeconds() > sv_banlistRefreshInterval->GetDouble())
+	if (banListTimer.GetDurationInProgress().GetSeconds() > sv_banlistRefreshRate->GetDouble())
 	{
 		g_pBanSystem->BanListCheck();
 		banListTimer.Start();
 	}
 #endif // !CLIENT_DLL
 #ifdef DEDICATED
-	if (pylonTimer.GetDurationInProgress().GetSeconds() > sv_pylonRefreshInterval->GetDouble())
+	if (pylonTimer.GetDurationInProgress().GetSeconds() > sv_pylonRefreshRate->GetDouble())
 	{
 		const NetGameServer_t netGameServer
 		{
@@ -273,7 +273,7 @@ FORCEINLINE void CHostState::Think(void) const
 			reloadTimer.Start();
 		}
 	}
-	if (statsTimer.GetDurationInProgress().GetSeconds() > sv_statusRefreshInterval->GetDouble())
+	if (statsTimer.GetDurationInProgress().GetSeconds() > sv_statusRefreshRate->GetDouble())
 	{
 		string svCurrentPlaylist = KeyValues_GetCurrentPlaylist();
 		int32_t nPlayerCount = g_pServer->GetNumHumanPlayers();
@@ -330,7 +330,7 @@ FORCEINLINE void CHostState::GameShutDown(void)
 #ifndef CLIENT_DLL
 		g_pServerGameDLL->GameShutdown();
 #endif // !CLIENT_DLL
-		m_bActiveGame = 0;
+		m_bActiveGame = false;
 		ResetLevelName();
 	}
 }

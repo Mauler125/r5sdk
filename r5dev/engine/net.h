@@ -43,7 +43,7 @@ void NET_SetKey(string svNetKey);
 void NET_GenerateKey();
 void NET_PrintFunc(const char* fmt, ...);
 void NET_Shutdown(void* thisptr, const char* szReason, uint8_t bBadRep, bool bRemoveNow);
-void NET_DisconnectClient(CClient* pClient, int nIndex, const char* szReason, uint8_t bBadRep, bool bRemoveNow);
+void NET_RemoveChannel(CClient* pClient, int nIndex, const char* szReason, uint8_t bBadRep, bool bRemoveNow);
 
 void NET_Attach();
 void NET_Detach();

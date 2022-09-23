@@ -196,7 +196,24 @@ void CTextLogger::DeleteRange(const Coordinates & aStart, const Coordinates & aE
 	}
 }
 
-int CTextLogger::InsertTextAt(Coordinates& /* inout */ aWhere, const char * aValue, ImVec4 aColor)
+void CTextLogger::MarkNewline(Coordinates& /* inout */ aWhere, const ImVec4& aColor, int aIndex)
+{
+	if (aIndex < static_cast<int>(m_Lines[aWhere.m_nLine].size()))
+	{
+		Line& newLine = InsertLine(aWhere.m_nLine + 1);
+		Line& line = m_Lines[aWhere.m_nLine];
+		newLine.insert(newLine.begin(), line.begin() + aIndex, line.end());
+		line.erase(line.begin() + aIndex, line.end());
+	}
+	else
+	{
+		Line& newLine = InsertLine(aWhere.m_nLine + 1);
+		Line& line = m_Lines[aWhere.m_nLine];
+		line.insert(line.begin() + aIndex, Glyph('\n', aColor));
+	}
+}
+
+int CTextLogger::InsertTextAt(Coordinates& /* inout */ aWhere, const char * aValue, const ImVec4& aColor)
 {
 	int cindex = GetCharacterIndex(aWhere);
 	int totalLines = 0;
@@ -212,19 +229,7 @@ int CTextLogger::InsertTextAt(Coordinates& /* inout */ aWhere, const char * aVal
 		}
 		else if (*aValue == '\n')
 		{
-			if (cindex < static_cast<int>(m_Lines[aWhere.m_nLine].size()))
-			{
-				Line& newLine = InsertLine(aWhere.m_nLine + 1);
-				Line& line = m_Lines[aWhere.m_nLine];
-				newLine.insert(newLine.begin(), line.begin() + cindex, line.end());
-				line.erase(line.begin() + cindex, line.end());
-			}
-			else
-			{
-				Line& newLine = InsertLine(aWhere.m_nLine + 1);
-				Line& line = m_Lines[aWhere.m_nLine];
-				line.insert(line.begin() + cindex, Glyph(*aValue, aColor));
-			}
+			MarkNewline(aWhere, aColor, cindex);
 			++aWhere.m_nLine;
 			aWhere.m_nColumn = 0;
 			cindex = 0;
@@ -234,11 +239,27 @@ int CTextLogger::InsertTextAt(Coordinates& /* inout */ aWhere, const char * aVal
 		else
 		{
 			Line& line = m_Lines[aWhere.m_nLine];
+			if (!line.empty() && ImGui::ColorConvertFloat4ToU32(aColor) != ImGui::ColorConvertFloat4ToU32(line[0].m_Color))
+			{
+				MarkNewline(aWhere, line[0].m_Color, cindex);
+				++aWhere.m_nLine;
+				aWhere.m_nColumn = 0;
+				cindex = 0;
+				++totalLines;
+				continue;
+			}
+
 			int d = UTF8CharLength(*aValue);
 			while (d-- > 0 && *aValue != '\0')
 				line.insert(line.begin() + cindex++, Glyph(*aValue++, aColor));
 			++aWhere.m_nColumn;
 		}
+	}
+	if (!*aValue)
+	{
+		Line& line = m_Lines[aWhere.m_nLine];
+		if (!line.empty())
+			line.insert(line.begin() + cindex, Glyph(' ', aColor));
 	}
 
 	return totalLines;

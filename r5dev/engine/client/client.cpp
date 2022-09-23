@@ -9,6 +9,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
+#include "tier1/cvar.h"
+#include "engine/server/server.h"
 #include "engine/client/client.h"
 
 //---------------------------------------------------------------------------------
@@ -207,16 +209,22 @@ bool CClient::IsHumanPlayer(void) const
 //---------------------------------------------------------------------------------
 void CClient::Clear(void)
 {
+#ifndef CLIENT_DLL
+	g_ServerPlayer[GetUserID()].Reset(); // Reset ServerPlayer slot.
+#endif // !CLIENT_DLL
 	v_CClient_Clear(this);
 }
 
 //---------------------------------------------------------------------------------
 // Purpose: throw away any residual garbage in the channel
-// Input  : *pBaseClient - 
+// Input  : *pClient - 
 //---------------------------------------------------------------------------------
-void CClient::VClear(CClient* pBaseClient)
+void CClient::VClear(CClient* pClient)
 {
-	v_CClient_Clear(pBaseClient);
+#ifndef CLIENT_DLL
+	g_ServerPlayer[pClient->GetUserID()].Reset(); // Reset ServerPlayer slot.
+#endif // !CLIENT_DLL
+	v_CClient_Clear(pClient);
 }
 
 //---------------------------------------------------------------------------------
@@ -247,7 +255,81 @@ bool CClient::Connect(const char* szName, void* pNetChannel, bool bFakePlayer, v
 //---------------------------------------------------------------------------------
 bool CClient::VConnect(CClient* pClient, const char* szName, void* pNetChannel, bool bFakePlayer, void* a5, char* szMessage, int nMessageSize)
 {
-	return v_CClient_Connect(pClient, szName, pNetChannel, bFakePlayer, a5, szMessage, nMessageSize);
+	bool bResult = v_CClient_Connect(pClient, szName, pNetChannel, bFakePlayer, a5, szMessage, nMessageSize);
+#ifndef CLIENT_DLL
+	g_ServerPlayer[pClient->GetUserID()].Reset(); // Reset ServerPlayer slot.
+#endif // !CLIENT_DLL
+	return bResult;
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: disconnect client
+// Input  : nRepLvl - 
+//			*szReason - 
+//			... - 
+//---------------------------------------------------------------------------------
+void CClient::Disconnect(const Reputation_t nRepLvl, const char* szReason, ...)
+{
+	if (m_nSignonState != SIGNONSTATE::SIGNONSTATE_NONE)
+	{
+		char szBuf[1024];
+		{/////////////////////////////
+			va_list vArgs{};
+			va_start(vArgs, szReason);
+
+			vsnprintf(szBuf, sizeof(szBuf), szReason, vArgs);
+
+			szBuf[sizeof(szBuf) - 1] = '\0';
+			va_end(vArgs);
+		}/////////////////////////////
+		v_CClient_Disconnect(this, nRepLvl, szBuf);
+	}
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: process string commands (kicking anyone attempting to DOS)
+// Input  : *pClient - (ADJ)
+//			*pMsg - 
+// Output : false if cmd should be passed to CServerGameClients
+//---------------------------------------------------------------------------------
+bool CClient::VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg)
+{
+#ifndef CLIENT_DLL
+#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
+	CClient* pClient_Adj = pClient;
+#elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
+	/* Original function called method "CClient::ExecuteStringCommand" with an optimization
+	 * that shifted the 'this' pointer with 8 bytes.
+	 * Since this has been inlined with "CClient::ProcessStringCmd" as of S2, the shifting
+	 * happens directly to anything calling this function. */
+	char* pShifted = reinterpret_cast<char*>(pClient) - 8;
+	CClient* pClient_Adj = reinterpret_cast<CClient*>(pShifted);
+#endif // !GAMEDLL_S0 || !GAMEDLL_S1
+	ServerPlayer_t* pSlot = &g_ServerPlayer[pClient_Adj->GetUserID()];
+	double flStartTime = Plat_FloatTime();
+	int nCmdQuotaLimit = sv_quota_stringCmdsPerSecond->GetInt();
+
+	if (!nCmdQuotaLimit)
+		return true;
+
+	if (flStartTime - pSlot->m_flStringCommandQuotaTimeStart >= 1.0)
+	{
+		pSlot->m_flStringCommandQuotaTimeStart = flStartTime;
+		pSlot->m_nStringCommandQuotaCount = 0;
+	}
+	++pSlot->m_nStringCommandQuotaCount;
+
+	if (pSlot->m_nStringCommandQuotaCount > nCmdQuotaLimit)
+	{
+		Warning(eDLL_T::SERVER, "Removing client '%s' from slot '%i' ('%llu' exceeded string command quota!)\n", 
+			pClient_Adj->GetNetChan()->GetAddress(), pClient_Adj->GetUserID(), pClient_Adj->GetNucleusID());
+
+		pClient_Adj->Disconnect(Reputation_t::REP_MARK_BAD, "#DISCONNECT_STRINGCMD_OVERFLOW");
+		return true;
+	}
+#endif // !CLIENT_DLL
+
+	return v_CClient_ProcessStringCmd(pClient, pMsg);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -255,11 +337,13 @@ void CBaseClient_Attach()
 {
 	DetourAttach((LPVOID*)&v_CClient_Clear, &CClient::VClear);
 	DetourAttach((LPVOID*)&v_CClient_Connect, &CClient::VConnect);
+	DetourAttach((LPVOID*)&v_CClient_ProcessStringCmd, &CClient::VProcessStringCmd);
 }
 void CBaseClient_Detach()
 {
 	DetourDetach((LPVOID*)&v_CClient_Clear, &CClient::VClear);
 	DetourDetach((LPVOID*)&v_CClient_Connect, &CClient::VConnect);
+	DetourDetach((LPVOID*)&v_CClient_ProcessStringCmd, &CClient::VProcessStringCmd);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

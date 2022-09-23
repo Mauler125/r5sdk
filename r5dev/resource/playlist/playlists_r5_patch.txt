@@ -1,7 +1,7 @@
 playlists
 {
 	version stable
-	versionNum 224
+	versionNum 225
 	Gamemodes
 	{
 		defaults
@@ -959,7 +959,7 @@ playlists
 				character_select_time_min                      4.0
 				survival_enable_gladiator_intros               1
 				match_ending_enabled                           0
-				player_revive_enabled						   0
+				player_revive_enabled                          0
 				max_teams                                      2
 				max_players                                    2
 				min_players                                    1
@@ -1065,8 +1065,13 @@ playlists
 				"PLAYER_ENDED_KILLSTREAK"             "`1%s1`0 ended `1%s2`0's killstreak"
 				"PLAYER_ENDED_OWN_KILLSTREAK"         "`1%s1`0 ended their own killstreak"
 
-				"DISCONNECT_BANNED"                   "The client's game account has been banned: Banned"
 				"VALVE_REJECT_BANNED"                 "You have been banned from this server."
+				"DISCONNECT_BANNED"                   "The client's game account has been banned."
+
+				"DISCONNECT_SEND_RELIABLEOVERFLOW"    "Connection to server overflowed (code:river)."
+				"DISCONNECT_SEND_OVERFLOW"            "Connection to server overflowed (code:dam)."
+				"DISCONNECT_NETCHAN_OVERFLOW"         "Connection to server overflowed (code:vulkan)."
+				"DISCONNECT_STRINGCMD_OVERFLOW"       "Connection to server overflowed (code:mountain)."
 			}
 		}
 	}

@@ -10,6 +10,8 @@ extern ConVar* old_gather_props;
 extern ConVar* enable_debug_overlays;
 extern ConVar* cm_unset_all_cmdquery;
 
+extern ConVar* developer;
+
 extern ConVar* staticProp_defaultBuildFrustum;
 extern ConVar* staticProp_no_fade_scalar;
 extern ConVar* staticProp_gather_size_weight;
@@ -59,11 +61,13 @@ extern ConVar* navmesh_draw_poly_bounds_inner;
 #endif // DEDICATED
 extern ConVar* sv_showconnecting;
 extern ConVar* sv_pylonVisibility;
-extern ConVar* sv_pylonRefreshInterval;
-extern ConVar* sv_banlistRefreshInterval;
-extern ConVar* sv_statusRefreshInterval;
+extern ConVar* sv_pylonRefreshRate;
+extern ConVar* sv_banlistRefreshRate;
+extern ConVar* sv_statusRefreshRate;
+extern ConVar* sv_forceChatToTeamOnly;
 
 extern ConVar* sv_autoReloadRate;
+extern ConVar* sv_quota_stringCmdsPerSecond;
 
 #ifdef DEDICATED
 extern ConVar* sv_rcon_debug;
@@ -84,6 +88,7 @@ extern ConVar* bhit_abs_origin;
 // CLIENT                                                                 |
 #ifndef DEDICATED
 extern ConVar* cl_rcon_request_sendlogs;
+extern ConVar* cl_quota_stringCmdsPerSecond;
 
 extern ConVar* cl_showhoststats;
 extern ConVar* cl_hoststats_invert_x;
@@ -166,6 +171,8 @@ extern ConVar* net_tracePayload;
 extern ConVar* net_encryptionEnable;
 extern ConVar* net_useRandomKey;
 extern ConVar* net_usesocketsforloopback;
+extern ConVar* net_processTimeBudget;
+
 extern ConVar* pylon_matchmaking_hostname;
 extern ConVar* pylon_host_update_interval;
 extern ConVar* pylon_showdebuginfo;

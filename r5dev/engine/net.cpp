@@ -162,7 +162,7 @@ void NET_Shutdown(void* thisptr, const char* szReason, uint8_t bBadRep, bool bRe
 //			bBadRep - 
 //			bRemoveNow - 
 //-----------------------------------------------------------------------------
-void NET_DisconnectClient(CClient* pClient, int nIndex, const char* szReason, uint8_t bBadRep, bool bRemoveNow)
+void NET_RemoveChannel(CClient* pClient, int nIndex, const char* szReason, uint8_t bBadRep, bool bRemoveNow)
 {
 #ifndef CLIENT_DLL
 	if (!pClient || std::strlen(szReason) == NULL || !pClient->GetNetChan())
@@ -170,9 +170,9 @@ void NET_DisconnectClient(CClient* pClient, int nIndex, const char* szReason, ui
 		return;
 	}
 
-	v_NET_Shutdown(pClient->GetNetChan(), szReason, bBadRep, bRemoveNow); // Shutdown netchan.
+	v_NET_Shutdown(pClient->GetNetChan(), szReason, bBadRep, bRemoveNow); // Shutdown NetChannel.
 	pClient->Clear();                                                     // Reset CClient instance for client.
-	g_bIsPersistenceVarSet[nIndex] = false;                               // Reset Persistence var.
+	g_ServerPlayer[nIndex].Reset();                                       // Reset ServerPlayer slot.
 #endif // !CLIENT_DLL
 }
 #endif // !NETCONSOLE

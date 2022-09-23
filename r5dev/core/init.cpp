@@ -63,6 +63,9 @@
 #include "rtech/rtech_utils.h"
 #include "rtech/stryder/stryder.h"
 #include "rtech/rui/rui.h"
+#ifndef DEDICATED
+#include "engine/client/cl_ents_parse.h"
+#endif // !DEDICATED
 #include "engine/client/cl_main.h"
 #include "engine/client/client.h"
 #include "engine/client/clientstate.h"
@@ -149,6 +152,9 @@ void Systems_Init()
 #ifdef DEDICATED
 	//PRX_Attach();
 #endif // DEDICATED
+#ifndef DEDICATED
+	CL_Ents_Parse_Attach();
+#endif // !DEDICATED
 	CBaseClient_Attach();
 	CBaseFileSystem_Attach();
 
@@ -182,7 +188,7 @@ void Systems_Init()
 #endif // !DEDICATED && GAMEDLL_S3
 
 	NET_Attach();
-	//NetChan_Attach();
+	NetChan_Attach();
 
 	ConCommand_Attach();
 	IConVar_Attach();
@@ -191,6 +197,7 @@ void Systems_Init()
 #ifndef CLIENT_DLL
 	Persistence_Attach();
 	IVEngineServer_Attach();
+	CServerGameDLL_Attach();
 #endif // !CLIENT_DLL
 
 	SQAPI_Attach();
@@ -275,6 +282,9 @@ void Systems_Shutdown()
 #ifdef DEDICATED
 	//PRX_Detach();
 #endif // DEDICATED
+#ifndef DEDICATED
+	CL_Ents_Parse_Detach();
+#endif // !DEDICATED
 	CBaseClient_Detach();
 	CBaseFileSystem_Detach();
 
@@ -308,7 +318,7 @@ void Systems_Shutdown()
 #endif // !DEDICATED && GAMEDLL_S3
 
 	NET_Detach();
-	//NetChan_Detach();
+	NetChan_Detach();
 
 	ConCommand_Detach();
 	IConVar_Detach();
@@ -317,6 +327,7 @@ void Systems_Shutdown()
 #ifndef CLIENT_DLL
 	Persistence_Detach();
 	IVEngineServer_Detach();
+	CServerGameDLL_Detach();
 #endif // !CLIENT_DLL
 	SQAPI_Detach();
 	SQVM_Detach();
