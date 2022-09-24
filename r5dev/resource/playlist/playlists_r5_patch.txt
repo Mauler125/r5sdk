@@ -679,11 +679,11 @@ playlists
 			inherit survival
 			vars
 			{
-				firingrange_aimtrainerbycolombia               1
+				r5reloaded_aimtrainer 1
 				solo_mode                                      1
 				
 				visible                                        1
-				name                                           "Flowstate Aim Trainer"
+				name                                           "Aim Trainer"
 				description                                    "Aim Trainer"
 
 				waiting_for_players_spawning_enabled           1
