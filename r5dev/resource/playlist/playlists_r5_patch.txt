@@ -1,7 +1,7 @@
 playlists
 {
 	version stable
-	versionNum 226
+	versionNum 227
 	Gamemodes
 	{
 		defaults
@@ -311,7 +311,7 @@ playlists
 			inherit survival
 			vars
 			{
-                        name                                           "survival_staging_baseline"
+				name                                           "survival_staging_baseline"
 				visible                                        0
 				max_teams                                      20
 				max_players                                    20
@@ -942,7 +942,7 @@ playlists
 			inherit custom_tdm
 			vars
 			{
-                        name                                           "Gun Game"
+				name                                           "Gun Game"
 				visible                                        1
 
 				tdm_gungame                                    1
@@ -964,7 +964,7 @@ playlists
 			inherit tdm_gg
 			vars
 			{
-                        name                                           "Gun Game Doubles"
+				name                                           "Gun Game Doubles"
 				visible                                        1
 
 				tdm_gungame                                    1
@@ -988,7 +988,7 @@ playlists
 			inherit survival
 			vars
 			{
-                        name                                           "Survival Dev"
+				name                                           "Survival Dev"
 				visible                                        1
 
 				// Skip intros:
@@ -1034,7 +1034,7 @@ playlists
 			inherit survival_dev
 			vars
 			{
-                        name                                           "ShadowFall Dev"
+				name                                           "ShadowFall Dev"
 				// Bots:
 				character_select_time_max                      4.0
 				character_select_time_min                      4.0
@@ -1065,7 +1065,7 @@ playlists
 		{
 			vars
 			{
-                        name                                           "menufall"
+				name                                           "menufall"
 				visible                                        0
 				menu_fall_ltm                                  1
 
@@ -1132,7 +1132,7 @@ playlists
 				"KCAD"                                "Kings Canyon After Dark"
 				"Playtest"                            "Playtest"
 				"Playtest_Only"                       "Playtest"
-				"BETA_BUILD_WATERMARK"                "R5Reloaded [v2.1]"
+				"BETA_BUILD_WATERMARK"                "R5Reloaded [v2.2]"
 
 				"PROMO_LARGE_TITLE"                   "Welcome To R5Reloaded!"
 				"PROMO_LARGE_DESCRIPTION"             "Make sure to join the discord! discord.gg/r5reloaded"
