@@ -311,6 +311,7 @@ playlists
 			inherit survival
 			vars
 			{
+                        name                                           "survival_staging_baseline"
 				visible                                        0
 				max_teams                                      20
 				max_players                                    20
@@ -357,7 +358,7 @@ playlists
 				visible                                        0
 				ui_slot                                        training
 				video                                          _temp
-				name                                           #PL_TRAINING
+				name                                           "Training"
 				description                                    #PL_TRAINING_DESC
 				image                                          training
 
@@ -376,7 +377,7 @@ playlists
 				visible                                        1
 				ui_slot                                        firing_range
 				image                                          firing_range
-				name                                           #PL_FIRINGRANGE
+				name                                           "Firing Range"
 				description                                    #PL_FIRINGRANGE_DESC
 				video                                          _temp
 
@@ -431,7 +432,7 @@ playlists
 			{
 				visible                                        1
 				battlechatter_enabled                          1
-				name                                           #PL_PLAY_APEX
+				name                                           "Survival"
 				description                                    #PL_SURVIVAL_SQUADS_DESC
 				abbreviation                                   #PL_PLAY_APEX
 
@@ -475,7 +476,7 @@ playlists
 				panel_image                                    panel_worlds_edge
 				visible                                        0
 				battlechatter_enabled                          1
-				name                                           #PL_Ranked_Leagues
+				name                                           "Ranked"
 				description                                    #PL_survival_ranked_desc
 				abbreviation                                   #PL_Ranked_Leagues
 				map_name                                       #MP_RR_DESERTLANDS_64K_X_64K
@@ -508,7 +509,7 @@ playlists
 			inherit defaults
 			vars
 			{
-				name                                           #SHADOW_SQUAD_MODE
+				name                                           "ShadowFall"
 				description                                    #SHADOW_SQUAD_MODE_DESC
 				abbreviation                                   #SHADOW_SQUAD_MODE_ABOUT
 				image                                          shadow_squad
@@ -543,7 +544,7 @@ playlists
 			inherit defaults
 			vars
 			{
-				name                                           #PL_DES_DUO
+				name                                           "Survival Duos"
 				description                                    #PL_DES_DUO_SHORT
 				abbreviation                                   #PL_DES_DUO_LONG
 				image                                          duos
@@ -581,7 +582,7 @@ playlists
 			inherit survival
 			vars
 			{
-				name                                           #PL_CAN_SOLO
+				name                                           "Iron Crown"
 				description                                    #PL_CAN_SOLO_SHORT
 				abbreviation                                   #PL_CAN_SOLO_LONG
 				image                                          solo_iron_crown
@@ -614,7 +615,7 @@ playlists
 			inherit survival
 			vars
 			{
-				name                                           #CAN_ELITE
+				name                                           "Elite"
 				description                                    #PL_survival_elite_desc
 				abbreviation                                   #PL_survival_elite_desc
 				image                                          apex_elite
@@ -635,7 +636,7 @@ playlists
 			inherit survival
 			vars
 			{
-				name                                           #SHOTGUNS_AND_SNIPERS
+				name                                           "Shotguns And Snipers"
 				description                                    #SHOTGUNS_AND_SNIPERS_DESC
 				abbreviation                                   #SHOTGUNS_AND_SNIPERS_DESC
 				image                                          shotguns_and_snipers
@@ -658,7 +659,7 @@ playlists
 			vars
 			{
 				visible                                        0
-				name                                           #WORLDS_EDGE_NIGHT
+				name                                           "Worlds Edge After Dark"
 				description                                    #WORLDS_EDGE_NIGHT_DESC
 				abbreviation                                   #WORLDS_EDGE_NIGHT_DESC
 				image                                          worlds_edge_after_dark
@@ -752,7 +753,7 @@ playlists
 				panel_image                                    panel_worlds_edge
 				visible                                        1
 				battlechatter_enabled                          1
-				name                                           custom_ctf
+				name                                           "Capture The Flag"
 				description                                    "Two teams each have their own color flag placed in their home base. The objective is to steal the other team's flag and take it to their own base"
 				abbreviation                                   "Capture The Flag"
 				lobbytitle                                     "Capture The Flag"
@@ -868,7 +869,7 @@ playlists
 				panel_image                                    panel_worlds_edge
 				visible                                        1
 				battlechatter_enabled                          1
-				name                                           custom_tdm
+				name                                           "Team Deathmatch"
 				description                                    "You, against them, in a variety of gamemodes"
 				abbreviation                                   "Team Deathmatch"
 				lobbytitle                                     "Team Deathmatch"
@@ -941,6 +942,7 @@ playlists
 			inherit custom_tdm
 			vars
 			{
+                        name                                           "Gun Game"
 				visible                                        1
 
 				tdm_gungame                                    1
@@ -962,6 +964,7 @@ playlists
 			inherit tdm_gg
 			vars
 			{
+                        name                                           "Gun Game Doubles"
 				visible                                        1
 
 				tdm_gungame                                    1
@@ -985,6 +988,7 @@ playlists
 			inherit survival
 			vars
 			{
+                        name                                           "Survival Dev"
 				visible                                        1
 
 				// Skip intros:
@@ -1030,6 +1034,7 @@ playlists
 			inherit survival_dev
 			vars
 			{
+                        name                                           "ShadowFall Dev"
 				// Bots:
 				character_select_time_max                      4.0
 				character_select_time_min                      4.0
@@ -1060,6 +1065,7 @@ playlists
 		{
 			vars
 			{
+                        name                                           "menufall"
 				visible                                        0
 				menu_fall_ltm                                  1
 
