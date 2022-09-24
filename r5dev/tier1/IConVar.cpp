@@ -209,7 +209,7 @@ void ConVar::Init(void) const
 	// NETWORKSYSTEM                                                          |
 	pylon_matchmaking_hostname = ConVar::Create("pylon_matchmaking_hostname", "ms.r5reloaded.com", FCVAR_RELEASE        , "Holds the pylon matchmaking hostname.", false, 0.f, false, 0.f, &MP_HostName_Changed_f, nullptr);
 	pylon_host_update_interval = ConVar::Create("pylon_host_update_interval", "5"                , FCVAR_RELEASE        , "Length of time in seconds between each status update interval to master server.", true, 5.f, false, 0.f, nullptr, nullptr);
-	pylon_showdebuginfo        = ConVar::Create("pylon_showdebuginfo"       , "0"                , FCVAR_DEVELOPMENTONLY, "Shows debug output for pylon.", false, 0.f, false, 0.f, nullptr, nullptr);
+	pylon_showdebuginfo        = ConVar::Create("pylon_showdebuginfo"       , "0"                , FCVAR_RELEASE, "Shows debug output for pylon.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// RTECH API                                                              |
 	rtech_debug = ConVar::Create("rtech_debug", "0", FCVAR_DEVELOPMENTONLY, "Shows debug output for the RTech system.", false, 0.f, false, 0.f, nullptr, nullptr);
