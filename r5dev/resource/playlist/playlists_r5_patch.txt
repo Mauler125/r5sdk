@@ -1,7 +1,7 @@
 playlists
 {
 	version stable
-	versionNum 224
+	versionNum 226
 	Gamemodes
 	{
 		defaults
@@ -280,8 +280,13 @@ playlists
 		{
 			inherit defaults
 		}
-		
-		custom_tdm 
+
+		menufall
+		{
+			inherit defaults
+		}
+
+		custom_aimtrainer
 		{
 			inherit defaults
 		}
@@ -291,12 +296,7 @@ playlists
 			inherit defaults
 		}
 
-		menufall
-		{
-			inherit defaults
-		}	
-		
-		custom_aimtrainer
+		custom_tdm
 		{
 			inherit defaults
 		}
@@ -325,7 +325,7 @@ playlists
 				airdrop_enabled                                0
 				num_static_loot_ticks_to_spawn                 0
 				loot_preprocessing_should_be_skipped           1
-				
+
 				// Skip intros:
 				waiting_for_players_spawning_enabled           1
 				waiting_for_players_countdown_seconds          0
@@ -334,7 +334,7 @@ playlists
 				character_select_time_min                      0.0
 				survival_enable_gladiator_intros               0
 				jump_from_plane_enabled                        0
-				
+
 				// No circle:
 				sur_circle_start_paused                        1
 
@@ -449,7 +449,6 @@ playlists
 			gamemodes { survival { maps {
 				mp_rr_desertlands_64k_x_64k                    1
 				mp_rr_desertlands_64k_x_64k_nx                 1
-				mp_rr_desertlands_64k_x_64k_tt                 1
 				mp_rr_canyonlands_64k_x_64k                    1
 				mp_rr_canyonlands_mu1                          1
 				mp_rr_canyonlands_mu1_night                    1
@@ -538,7 +537,7 @@ playlists
 				mp_rr_desertlands_64k_x_64k_nx                 1
 			} } }
 		}
-		
+
 		duos
 		{
 			inherit defaults
@@ -562,7 +561,7 @@ playlists
 				enable_apex_screens                            1
 				showLTMAboutButton                             1
 				//ui_slot                                        ltm
-				
+
 				character_select_time_max                      6.0
 				character_select_time_min                      6.0
 
@@ -573,11 +572,10 @@ playlists
 				mp_rr_canyonlands_mu1                          1
 				mp_rr_desertlands_64k_x_64k                    1
 				mp_rr_desertlands_64k_x_64k_nx                 1
-				mp_rr_desertlands_64k_x_64k_tt                 1
 				mp_rr_canyonlands_mu1_night                    1
 			} } }
 		}
-		
+
 		iron_crown
 		{
 			inherit survival
@@ -610,7 +608,7 @@ playlists
 				mp_rr_canyonlands_mu1                          1
 			} } }
 		}
-		
+
 		elite
 		{
 			inherit survival
@@ -631,7 +629,7 @@ playlists
 				mp_rr_canyonlands_64k_x_64k                    1
 			} } }
 		}
-		
+
 		armed_and_dangerous
 		{
 			inherit survival
@@ -653,7 +651,7 @@ playlists
 				mp_rr_desertlands_64k_x_64k                    1
 			} } }
 		}
-		
+
 		wead
 		{
 			inherit survival
@@ -671,14 +669,18 @@ playlists
 				mp_rr_desertlands_64k_x_64k_nx                 1
 			} } }
 		}
-		
+
+		///////////////////////////////////
+		////////////  CUSTOM  /////////////
+		///////////////////////////////////
+
 		custom_aimtrainer
 		{
 			inherit survival
 			vars
 			{
 				r5reloaded_aimtrainer 1
-				solo_mode 1
+				solo_mode                                      1
 				
 				visible                                        1
 				name                                           "Aim Trainer"
@@ -736,89 +738,6 @@ playlists
 				mp_rr_desertlands_64k_x_64k                    1
 				mp_rr_desertlands_64k_x_64k_nx                 1
 				mp_rr_canyonlands_mu1_night                    1
-			} } }
-		}
-		
-		custom_tdm
-		{
-			inherit defaults
-			vars
-			{
-				//ui_slot                                        regular_2
-				image                                          worlds_edge
-				video                                          worlds_edge
-				panel_image                                    panel_worlds_edge
-				visible                                        1
-				battlechatter_enabled                          1
-				name                                           custom_tdm
-				description                                    "You, against them, in a variety of gamemodes"
-				abbreviation                                   "Team Deathmatch"
-				lobbytitle                                     "Team Deathmatch"
-
-				pin_match_type                                 survival
-				enable_nessies                                 0
-				max_teams                                      18
-				max_players                                    18
-				min_players                                    1
-				wait_for_players_forever                       0
-				survival_shields                               1
-				skydive_ziplines_enabled                       0
-
-				dev_loadout_changeable_at_any_time             1
-				sur_dev_unrestricted_character_changes         1
-				character_reselect_enabled                     1
-				charselect_enabled                             1
-				solo_mode                                      1
-				solo_mode_intro_presentation                   1
-				solo_mode_ingame_presentation                  1
-				solo_mode_postgame_presentation                1
-				respawn_kit_enabled                            1
-				respawn_kit_primary_weapon                     "mp_weapon_volt_smg energy_mag_l3 barrel_stabilizer_l4_flash_hider optic_cq_hcog_bruiser"
-				respawn_kit_secondary_weapon                   "mp_weapon_volt_smg energy_mag_l3 barrel_stabilizer_l4_flash_hider"
-				respawn_kit_tactical                           "mp_ability_3dash"
-				respawn_kit_ultimate                           "mp_ability_phase_walk"
-
-				survival_jumpkit_enabled                       1
-				survival_wallrun_enabled                       1
-				survival_infinite_ammo                         1
-				survival_custom_deploy                         1
-				
-				ground_loot_enable                             0
-				lootbin_loot_enable                            0
-
-				character_select_time_max                      4.0
-				character_select_time_min                      4.0
-
-				charselect_picking_delay_after_all             0
-
-				survival_enable_squad_intro                    0
-				survival_enable_gladiator_intros               0
-				minified_unitframes_enabled                    1
-				jump_from_plane_enabled                        0
-				enabled_killstreak_obituary                    0
-
-				replay_enabled                                 1
-				replay_delay                                   2
-				replay_new_ui                                  0
-
-				
-				match_ending_enabled                           0
-				sur_circle_start_paused                        1
-
-
-			}
-			gamemodes { custom_tdm { maps {
-				mp_rr_canyonlands_64k_x_64k                    1
-				mp_rr_canyonlands_mu1                          1
-				mp_rr_desertlands_64k_x_64k                    1
-				mp_rr_desertlands_64k_x_64k_nx                 1
-				mp_rr_desertlands_64k_x_64k_tt                 1
-				mp_rr_canyonlands_mu1_night                    1
-				mp_rr_canyonlands_staging                      1
-				mp_rr_aqueduct                                 1
-				mp_rr_aqueduct_night                           1
-				mp_rr_ashs_redemption                          1
-				mp_rr_arena_composite                          1
 			} } }
 		}
 
@@ -937,7 +856,86 @@ playlists
 				mp_rr_arena_composite                          1
 			} } }
 		}
-		
+
+		custom_tdm
+		{
+			inherit defaults
+			vars
+			{
+				//ui_slot                                        regular_2
+				image                                          worlds_edge
+				video                                          worlds_edge
+				panel_image                                    panel_worlds_edge
+				visible                                        1
+				battlechatter_enabled                          1
+				name                                           custom_tdm
+				description                                    "You, against them, in a variety of gamemodes"
+				abbreviation                                   "Team Deathmatch"
+				lobbytitle                                     "Team Deathmatch"
+
+				pin_match_type                                 survival
+				enable_nessies                                 0
+				max_teams                                      18
+				max_players                                    18
+				min_players                                    1
+				wait_for_players_forever                       0
+				survival_shields                               1
+				skydive_ziplines_enabled                       0
+
+				dev_loadout_changeable_at_any_time             1
+				sur_dev_unrestricted_character_changes         1
+				character_reselect_enabled                     1
+				charselect_enabled                             1
+				solo_mode                                      1
+				solo_mode_intro_presentation                   1
+				solo_mode_ingame_presentation                  1
+				solo_mode_postgame_presentation                1
+				respawn_kit_enabled                            1
+				respawn_kit_primary_weapon                     "mp_weapon_volt_smg energy_mag_l3 barrel_stabilizer_l4_flash_hider optic_cq_hcog_bruiser"
+				respawn_kit_secondary_weapon                   "mp_weapon_volt_smg energy_mag_l3 barrel_stabilizer_l4_flash_hider"
+				respawn_kit_tactical                           "mp_ability_3dash"
+				respawn_kit_ultimate                           "mp_ability_phase_walk"
+
+				survival_jumpkit_enabled                       1
+				survival_wallrun_enabled                       1
+				survival_infinite_ammo                         1
+				survival_custom_deploy                         1
+				
+				ground_loot_enable                             0
+				lootbin_loot_enable                            0
+
+				character_select_time_max                      4.0
+				character_select_time_min                      4.0
+
+				charselect_picking_delay_after_all             0
+
+				survival_enable_squad_intro                    0
+				survival_enable_gladiator_intros               0
+				minified_unitframes_enabled                    1
+				jump_from_plane_enabled                        0
+				enabled_killstreak_obituary                    0
+
+				replay_enabled                                 1
+				replay_delay                                   2
+				replay_new_ui                                  0
+
+				match_ending_enabled                           0
+				sur_circle_start_paused                        1
+			}
+			gamemodes { custom_tdm { maps {
+				mp_rr_canyonlands_64k_x_64k                    1
+				mp_rr_canyonlands_mu1                          1
+				mp_rr_desertlands_64k_x_64k                    1
+				mp_rr_desertlands_64k_x_64k_nx                 1
+				mp_rr_canyonlands_mu1_night                    1
+				mp_rr_canyonlands_staging                      1
+				mp_rr_aqueduct                                 1
+				mp_rr_aqueduct_night                           1
+				mp_rr_ashs_redemption                          1
+				mp_rr_arena_composite                          1
+			} } }
+		}
+
 		tdm_gg
 		{
 			inherit custom_tdm
@@ -958,7 +956,7 @@ playlists
 				tgive_enabled                                  0
 			}
 		}
-		
+
 		tdm_gg_double
 		{
 			inherit tdm_gg
@@ -977,6 +975,10 @@ playlists
 				respawn_kit_ultimate                           "mp_ability_phase_walk"
 			}
 		}
+
+		///////////////////////////////////
+		//////////////  DEV  //////////////
+		///////////////////////////////////
 
 		survival_dev
 		{
@@ -1008,14 +1010,12 @@ playlists
 				max_players                                    120
 				min_players                                    1
 				enable_nessies                                 1
-
 			}
 			gamemodes { survival { maps {
 				mp_rr_canyonlands_64k_x_64k                    1
 				mp_rr_canyonlands_mu1                          1
 				mp_rr_desertlands_64k_x_64k                    1
 				mp_rr_desertlands_64k_x_64k_nx                 1
-				mp_rr_desertlands_64k_x_64k_tt                 1
 				mp_rr_canyonlands_mu1_night                    1
 				mp_rr_canyonlands_staging                      1
 				mp_rr_aqueduct                                 1
@@ -1024,7 +1024,7 @@ playlists
 				mp_rr_arena_composite                          1
 			} } }
 		}
-		
+
 		shadowfall_dev
 		{
 			inherit survival_dev
@@ -1035,7 +1035,7 @@ playlists
 				character_select_time_min                      4.0
 				survival_enable_gladiator_intros               1
 				match_ending_enabled                           0
-				player_revive_enabled						   0
+				player_revive_enabled                          0
 				max_teams                                      2
 				max_players                                    2
 				min_players                                    1
@@ -1049,14 +1049,13 @@ playlists
 				mode_fall_ltm                                  1
 				force_custom_musicpack                         1
 				solo_mode                                      1
-
 			}
 			gamemodes { survival { maps {
 				mp_rr_desertlands_64k_x_64k_nx                 1
 				mp_rr_canyonlands_mu1_night                    1
 			} } }
 		}
-		
+
 		menufall
 		{
 			vars
@@ -1097,7 +1096,6 @@ playlists
 				mp_rr_canyonlands_mu1                          1
 				mp_rr_desertlands_64k_x_64k                    1
 				mp_rr_desertlands_64k_x_64k_nx                 1
-				mp_rr_desertlands_64k_x_64k_tt                 1
 				mp_rr_canyonlands_mu1_night                    1
 				mp_rr_canyonlands_staging                      1
 				mp_rr_aqueduct                                 1
@@ -1142,8 +1140,13 @@ playlists
 				"PLAYER_ENDED_KILLSTREAK"             "`1%s1`0 ended `1%s2`0's killstreak"
 				"PLAYER_ENDED_OWN_KILLSTREAK"         "`1%s1`0 ended their own killstreak"
 
-				"DISCONNECT_BANNED"                   "The client's game account has been banned: Banned"
 				"VALVE_REJECT_BANNED"                 "You have been banned from this server."
+				"DISCONNECT_BANNED"                   "The client's game account has been banned."
+
+				"DISCONNECT_SEND_RELIABLEOVERFLOW"    "Connection to server overflowed (code:river)."
+				"DISCONNECT_SEND_OVERFLOW"            "Connection to server overflowed (code:dam)."
+				"DISCONNECT_NETCHAN_OVERFLOW"         "Connection to server overflowed (code:vulkan)."
+				"DISCONNECT_STRINGCMD_OVERFLOW"       "Connection to server overflowed (code:mountain)."
 			}
 		}
 	}
