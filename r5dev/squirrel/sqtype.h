@@ -18,6 +18,7 @@ typedef char SQChar;
 typedef float SQFloat;
 typedef long SQInteger;
 typedef unsigned long SQUnsignedInteger;
+typedef void* SQFunctor;
 
 typedef SQUnsignedInteger SQBool;
 typedef SQInteger SQRESULT;

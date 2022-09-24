@@ -14,6 +14,8 @@ ConVar* old_gather_props                   = nullptr;
 ConVar* enable_debug_overlays              = nullptr;
 ConVar* cm_unset_all_cmdquery              = nullptr;
 
+ConVar* developer                          = nullptr;
+
 ConVar* staticProp_defaultBuildFrustum     = nullptr;
 ConVar* staticProp_no_fade_scalar          = nullptr;
 ConVar* staticProp_gather_size_weight      = nullptr;
@@ -63,11 +65,13 @@ ConVar* navmesh_draw_poly_bounds_inner     = nullptr;
 
 ConVar* sv_showconnecting                  = nullptr;
 ConVar* sv_pylonVisibility                 = nullptr;
-ConVar* sv_pylonRefreshInterval            = nullptr;
-ConVar* sv_banlistRefreshInterval          = nullptr;
-ConVar* sv_statusRefreshInterval           = nullptr;
+ConVar* sv_pylonRefreshRate                = nullptr;
+ConVar* sv_banlistRefreshRate              = nullptr;
+ConVar* sv_statusRefreshRate               = nullptr;
+ConVar* sv_forceChatToTeamOnly             = nullptr;
 
 ConVar* sv_autoReloadRate                  = nullptr;
+ConVar* sv_quota_stringCmdsPerSecond       = nullptr;
 
 #ifdef DEDICATED
 ConVar* sv_rcon_debug                      = nullptr;
@@ -89,6 +93,7 @@ ConVar* bhit_abs_origin = nullptr;
 // CLIENT                                                                     |
 #ifndef DEDICATED
 ConVar* cl_rcon_request_sendlogs           = nullptr;
+ConVar* cl_quota_stringCmdsPerSecond       = nullptr;
 
 ConVar* cl_showhoststats                   = nullptr;
 ConVar* cl_hoststats_invert_x              = nullptr;
@@ -171,6 +176,8 @@ ConVar* net_tracePayload                   = nullptr;
 ConVar* net_encryptionEnable               = nullptr;
 ConVar* net_useRandomKey                   = nullptr;
 ConVar* net_usesocketsforloopback          = nullptr;
+ConVar* net_processTimeBudget              = nullptr;
+
 ConVar* pylon_matchmaking_hostname         = nullptr;
 ConVar* pylon_host_update_interval         = nullptr;
 ConVar* pylon_showdebuginfo                = nullptr;

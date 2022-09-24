@@ -48,6 +48,7 @@ bool StringReplace(string& svInput, const string& svFrom, const string& svTo);
 string StringReplaceC(const string& svInput, const string& svFrom, const string& svTo);
 string StringEscape(const string& svInput);
 string StringUnescape(const string& svInput);
+size_t StringCount(const string& svInput, char cDelim);
 vector<string> StringSplit(string svInput, char cDelim, size_t nMax = SIZE_MAX);
 
 /////////////////////////////////////////////////////////////////////////////

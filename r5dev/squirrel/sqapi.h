@@ -10,7 +10,6 @@ SQRESULT sq_pushroottable(HSQUIRRELVM v);
 void sq_pushbool(HSQUIRRELVM v, SQBool b);
 void sq_pushstring(HSQUIRRELVM v, const SQChar* string, SQInteger len);
 void sq_pushinteger(HSQUIRRELVM v, SQInteger val);
-void sq_pushconstant(HSQUIRRELVM v, const SQChar* name, SQInteger val);
 void sq_newarray(HSQUIRRELVM v, SQInteger size);
 void sq_newtable(HSQUIRRELVM v);
 SQRESULT sq_newslot(HSQUIRRELVM v, SQInteger idx);
@@ -34,9 +33,6 @@ inline auto v_sq_pushstring = p_sq_pushstring.RCast<void (*)(HSQUIRRELVM v, cons
 
 inline CMemory p_sq_pushinteger;
 inline auto v_sq_pushinteger = p_sq_pushinteger.RCast<void (*)(HSQUIRRELVM v, SQInteger val)>();
-
-inline CMemory p_sq_pushconstant;
-inline auto v_sq_pushconstant = p_sq_pushconstant.RCast<void (*)(HSQUIRRELVM v, const SQChar* name, SQInteger val)>();
 
 inline CMemory p_sq_newarray;
 inline auto v_sq_newarray = p_sq_newarray.RCast<void (*)(HSQUIRRELVM v, SQInteger size)>();
@@ -68,7 +64,6 @@ class VSqapi : public IDetour
 		spdlog::debug("| FUN: sq_pushbool                          : {:#18x} |\n", p_sq_pushbool.GetPtr());
 		spdlog::debug("| FUN: sq_pushstring                        : {:#18x} |\n", p_sq_pushstring.GetPtr());
 		spdlog::debug("| FUN: sq_pushinteger                       : {:#18x} |\n", p_sq_pushinteger.GetPtr());
-		spdlog::debug("| FUN: sq_pushconstant                      : {:#18x} |\n", p_sq_pushconstant.GetPtr());
 		spdlog::debug("| FUN: sq_newarray                          : {:#18x} |\n", p_sq_newarray.GetPtr());
 		spdlog::debug("| FUN: sq_arrayappend                       : {:#18x} |\n", p_sq_arrayappend.GetPtr());
 		spdlog::debug("| FUN: sq_newtable                          : {:#18x} |\n", p_sq_newtable.GetPtr());
@@ -88,7 +83,6 @@ class VSqapi : public IDetour
 		p_sq_pushstring = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x56\x48\x83\xEC\x30\x48\x8B\xF1\x48\x85\xD2\x0F\x84\x8F\x00"), "xxxxxxxxxxxxxxxx");
 #endif
 		p_sq_pushinteger  = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x38\x33\xC0\x48\xC7\x44\x24\x20\x02\x00\x00\x05\x48"), "xxxxxxxxxxxxxxxx");
-		p_sq_pushconstant = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x30\x4C\x8B"), "xxxx?xxxx?xxxx?xxxxxxx");
 		p_sq_newarray     = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x08\x57\x48\x83\xEC\x30\x48\x8B\xD9\x48\xC7\x44\x24\x20\x40"), "xxxxxxxxxxxxxxxxxxx");
 		p_sq_newtable     = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x08\x57\x48\x83\xEC\x30\x48\x8B\xD9\x48\xC7\x44\x24\x20\x20"), "xxxxxxxxxxxxxxxxxxx");
 		p_sq_newslot      = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x30\x44\x8B\x49\x00\x48\x8B\xD9\x41\x8B\xC1"), "xxxxxxxxx?xxxxxx");
@@ -105,7 +99,6 @@ class VSqapi : public IDetour
 		v_sq_pushbool      = p_sq_pushbool.RCast<void (*)(HSQUIRRELVM, SQBool)>();                                                             /*48 83 EC 38 33 C0 48 C7 44 24 20 08 00 00 01 48*/
 		v_sq_pushstring    = p_sq_pushstring.RCast<void (*)(HSQUIRRELVM, const SQChar*, SQInteger)>();                                         /*40 56 48 83 EC 30 48 8B F1 48 85 D2 0F 84 8F 00*/
 		v_sq_pushinteger   = p_sq_pushinteger.RCast<void (*)(HSQUIRRELVM, SQInteger)>();                                                       /*48 83 EC 38 33 C0 48 C7 44 24 20 02 00 00 05 48*/
-		v_sq_pushconstant  = p_sq_pushconstant.RCast<void (*)(HSQUIRRELVM, const SQChar*, SQInteger)>();                                       /*48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 30 4C 8B*/
 		v_sq_newarray      = p_sq_newarray.RCast<void (*)(HSQUIRRELVM, SQInteger)>();                                                          /*48 89 5C 24 08 57 48 83 EC 30 48 8B D9 48 C7 44 24 20 40*/
 		v_sq_newtable      = p_sq_newtable.RCast<void (*)(HSQUIRRELVM)>();                                                                     /*48 89 5C 24 08 57 48 83 EC 30 48 8B D9 48 C7 44 24 20 20*/
 		v_sq_newslot       = p_sq_newslot.RCast<SQRESULT(*)(HSQUIRRELVM, SQInteger)>();                                                        /*40 53 48 83 EC 20 8B 41 ?? 48 8B D9 2B 41 ?? 83 F8 02 7D*/

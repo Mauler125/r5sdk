@@ -112,9 +112,9 @@ void CLogSystem::DrawNotify(void)
 
 		float flTimeleft = pNotify->m_flLifeRemaining;
 
-		if (flTimeleft < .5f)
+		if (flTimeleft < 1.0f)
 		{
-			float f = clamp(flTimeleft, 0.0f, .5f) / .5f;
+			float f = clamp(flTimeleft, 0.0f, 1.0f) / 1.0f;
 			c[3] = (int)(f * 255.0f);
 
 			if (i == 0 && f < 0.2f)
