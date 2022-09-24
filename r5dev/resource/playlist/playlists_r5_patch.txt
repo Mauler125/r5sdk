@@ -1,7 +1,7 @@
 playlists
 {
 	version stable
-	versionNum 225
+	versionNum 226
 	Gamemodes
 	{
 		defaults
@@ -280,8 +280,13 @@ playlists
 		{
 			inherit defaults
 		}
-		
-		custom_tdm 
+
+		menufall
+		{
+			inherit defaults
+		}
+
+		custom_aimtrainer
 		{
 			inherit defaults
 		}
@@ -291,7 +296,7 @@ playlists
 			inherit defaults
 		}
 
-		menufall
+		custom_tdm
 		{
 			inherit defaults
 		}
@@ -306,6 +311,7 @@ playlists
 			inherit survival
 			vars
 			{
+                        name                                           "survival_staging_baseline"
 				visible                                        0
 				max_teams                                      20
 				max_players                                    20
@@ -320,7 +326,7 @@ playlists
 				airdrop_enabled                                0
 				num_static_loot_ticks_to_spawn                 0
 				loot_preprocessing_should_be_skipped           1
-				
+
 				// Skip intros:
 				waiting_for_players_spawning_enabled           1
 				waiting_for_players_countdown_seconds          0
@@ -329,7 +335,7 @@ playlists
 				character_select_time_min                      0.0
 				survival_enable_gladiator_intros               0
 				jump_from_plane_enabled                        0
-				
+
 				// No circle:
 				sur_circle_start_paused                        1
 
@@ -352,7 +358,7 @@ playlists
 				visible                                        0
 				ui_slot                                        training
 				video                                          _temp
-				name                                           #PL_TRAINING
+				name                                           "Training"
 				description                                    #PL_TRAINING_DESC
 				image                                          training
 
@@ -532,13 +538,13 @@ playlists
 				mp_rr_desertlands_64k_x_64k_nx                 1
 			} } }
 		}
-		
+
 		duos
 		{
 			inherit defaults
 			vars
 			{
-				name                                           "Duos"
+				name                                           "Survival Duos"
 				description                                    #PL_DES_DUO_SHORT
 				abbreviation                                   #PL_DES_DUO_LONG
 				image                                          duos
@@ -556,7 +562,7 @@ playlists
 				enable_apex_screens                            1
 				showLTMAboutButton                             1
 				//ui_slot                                        ltm
-				
+
 				character_select_time_max                      6.0
 				character_select_time_min                      6.0
 
@@ -570,7 +576,7 @@ playlists
 				mp_rr_canyonlands_mu1_night                    1
 			} } }
 		}
-		
+
 		iron_crown
 		{
 			inherit survival
@@ -603,7 +609,7 @@ playlists
 				mp_rr_canyonlands_mu1                          1
 			} } }
 		}
-		
+
 		elite
 		{
 			inherit survival
@@ -624,13 +630,13 @@ playlists
 				mp_rr_canyonlands_64k_x_64k                    1
 			} } }
 		}
-		
+
 		armed_and_dangerous
 		{
 			inherit survival
 			vars
 			{
-				name                                           "Armed and Dangerous"
+				name                                           "Shotguns And Snipers"
 				description                                    #SHOTGUNS_AND_SNIPERS_DESC
 				abbreviation                                   #SHOTGUNS_AND_SNIPERS_DESC
 				image                                          shotguns_and_snipers
@@ -646,14 +652,14 @@ playlists
 				mp_rr_desertlands_64k_x_64k                    1
 			} } }
 		}
-		
+
 		wead
 		{
 			inherit survival
 			vars
 			{
 				visible                                        0
-				name                                           #WORLDS_EDGE_NIGHT
+				name                                           "Worlds Edge After Dark"
 				description                                    #WORLDS_EDGE_NIGHT_DESC
 				abbreviation                                   #WORLDS_EDGE_NIGHT_DESC
 				image                                          worlds_edge_after_dark
@@ -664,86 +670,75 @@ playlists
 				mp_rr_desertlands_64k_x_64k_nx                 1
 			} } }
 		}
-		
-		custom_tdm
+
+		///////////////////////////////////
+		////////////  CUSTOM  /////////////
+		///////////////////////////////////
+
+		custom_aimtrainer
 		{
-			inherit defaults
+			inherit survival
 			vars
 			{
-				//ui_slot                                        regular_2
-				image                                          worlds_edge
-				video                                          worlds_edge
-				panel_image                                    panel_worlds_edge
+				firingrange_aimtrainerbycolombia               1
+				solo_mode                                      1
+				
 				visible                                        1
-				battlechatter_enabled                          1
-				name                                           "Team Deathmatch"
-				description                                    "You, against them, in a variety of gamemodes"
-				abbreviation                                   "Team Deathmatch"
-				lobbytitle                                     "Team Deathmatch"
+				name                                           "Flowstate Aim Trainer"
+				description                                    "Aim Trainer"
 
-				pin_match_type                                 survival
-				enable_nessies                                 0
-				max_teams                                      18
-				max_players                                    18
-				min_players                                    1
-				wait_for_players_forever                       0
-				survival_shields                               1
-				skydive_ziplines_enabled                       0
+				waiting_for_players_spawning_enabled           1
+				jump_from_plane_enabled                        0
+				wait_for_players_forever                       1
+				scorebar_hide_squads_remaining                 1
+				scorebar_hide_waiting_for_players              1
+				airdrop_enabled                                0
+				num_static_loot_ticks_to_spawn                 0
+				loot_preprocessing_should_be_skipped           1
+				survival_staging_area_enabled                  1
+				make_room_for_new_players                      1
 
+				// match teams will not fill with more than one party, up to max_teams of size max_team_size (or less) -- not exceeding max_players
+				visible                                        1
+
+				// Skip intros:
+				waiting_for_players_spawning_enabled           1
+				waiting_for_players_countdown_seconds          0
+				waiting_for_players_timeout_seconds            1
+				character_select_time_max                      0.0
+				character_select_time_min                      0.0
+				survival_enable_gladiator_intros               0
+				jump_from_plane_enabled                        0
+
+				// No circle:
+				sur_circle_start_paused                        1
+
+				// Can change loadouts:
 				dev_loadout_changeable_at_any_time             1
 				sur_dev_unrestricted_character_changes         1
 				character_reselect_enabled                     1
 				charselect_enabled                             1
-				solo_mode                                      1
-				solo_mode_intro_presentation                   1
-				solo_mode_ingame_presentation                  1
-				solo_mode_postgame_presentation                1
-				respawn_kit_enabled                            1
-				respawn_kit_primary_weapon                     "mp_weapon_volt_smg energy_mag_l3 barrel_stabilizer_l4_flash_hider optic_cq_hcog_bruiser"
-				respawn_kit_secondary_weapon                   "mp_weapon_volt_smg energy_mag_l3 barrel_stabilizer_l4_flash_hider"
-				respawn_kit_tactical                           "mp_ability_3dash"
-				respawn_kit_ultimate                           "mp_ability_phase_walk"
 
-				survival_jumpkit_enabled                       1
-				survival_wallrun_enabled                       1
-				survival_infinite_ammo                         1
-				survival_custom_deploy                         1
+				// Bots:
+				sur_bots_spawn_with_random_weapons             1
 				
-				ground_loot_enable                             0
-				lootbin_loot_enable                            0
-
-				character_select_time_max                      4.0
-				character_select_time_min                      4.0
-
-				charselect_picking_delay_after_all             0
-
-				survival_enable_squad_intro                    0
-				survival_enable_gladiator_intros               0
-				minified_unitframes_enabled                    1
-				jump_from_plane_enabled                        0
-				enabled_killstreak_obituary                    0
-
-				replay_enabled                                 1
-				replay_delay                                   2
-				replay_new_ui                                  0
-
-				
+				//General Gamemode Settings
 				match_ending_enabled                           0
-				sur_circle_start_paused                        1
-
-
+				max_teams                                      1
+				max_players                                    3
+				min_players                                    1
+				
+				// Firing Range:
+				survival_firingrange                           1
+				staging_ultimates_enabled                      1
+				survival_staging_area_enabled                  0
 			}
-			gamemodes { custom_tdm { maps {
+			gamemodes { custom_aimtrainer { maps {
 				mp_rr_canyonlands_64k_x_64k                    1
 				mp_rr_canyonlands_mu1                          1
 				mp_rr_desertlands_64k_x_64k                    1
 				mp_rr_desertlands_64k_x_64k_nx                 1
 				mp_rr_canyonlands_mu1_night                    1
-				mp_rr_canyonlands_staging                      1
-				mp_rr_aqueduct                                 1
-				mp_rr_aqueduct_night                           1
-				mp_rr_ashs_redemption                          1
-				mp_rr_arena_composite                          1
 			} } }
 		}
 
@@ -862,15 +857,93 @@ playlists
 				mp_rr_arena_composite                          1
 			} } }
 		}
-		
+
+		custom_tdm
+		{
+			inherit defaults
+			vars
+			{
+				//ui_slot                                        regular_2
+				image                                          worlds_edge
+				video                                          worlds_edge
+				panel_image                                    panel_worlds_edge
+				visible                                        1
+				battlechatter_enabled                          1
+				name                                           "Team Deathmatch"
+				description                                    "You, against them, in a variety of gamemodes"
+				abbreviation                                   "Team Deathmatch"
+				lobbytitle                                     "Team Deathmatch"
+
+				pin_match_type                                 survival
+				enable_nessies                                 0
+				max_teams                                      18
+				max_players                                    18
+				min_players                                    1
+				wait_for_players_forever                       0
+				survival_shields                               1
+				skydive_ziplines_enabled                       0
+
+				dev_loadout_changeable_at_any_time             1
+				sur_dev_unrestricted_character_changes         1
+				character_reselect_enabled                     1
+				charselect_enabled                             1
+				solo_mode                                      1
+				solo_mode_intro_presentation                   1
+				solo_mode_ingame_presentation                  1
+				solo_mode_postgame_presentation                1
+				respawn_kit_enabled                            1
+				respawn_kit_primary_weapon                     "mp_weapon_volt_smg energy_mag_l3 barrel_stabilizer_l4_flash_hider optic_cq_hcog_bruiser"
+				respawn_kit_secondary_weapon                   "mp_weapon_volt_smg energy_mag_l3 barrel_stabilizer_l4_flash_hider"
+				respawn_kit_tactical                           "mp_ability_3dash"
+				respawn_kit_ultimate                           "mp_ability_phase_walk"
+
+				survival_jumpkit_enabled                       1
+				survival_wallrun_enabled                       1
+				survival_infinite_ammo                         1
+				survival_custom_deploy                         1
+				
+				ground_loot_enable                             0
+				lootbin_loot_enable                            0
+
+				character_select_time_max                      4.0
+				character_select_time_min                      4.0
+
+				charselect_picking_delay_after_all             0
+
+				survival_enable_squad_intro                    0
+				survival_enable_gladiator_intros               0
+				minified_unitframes_enabled                    1
+				jump_from_plane_enabled                        0
+				enabled_killstreak_obituary                    0
+
+				replay_enabled                                 1
+				replay_delay                                   2
+				replay_new_ui                                  0
+
+				match_ending_enabled                           0
+				sur_circle_start_paused                        1
+			}
+			gamemodes { custom_tdm { maps {
+				mp_rr_canyonlands_64k_x_64k                    1
+				mp_rr_canyonlands_mu1                          1
+				mp_rr_desertlands_64k_x_64k                    1
+				mp_rr_desertlands_64k_x_64k_nx                 1
+				mp_rr_canyonlands_mu1_night                    1
+				mp_rr_canyonlands_staging                      1
+				mp_rr_aqueduct                                 1
+				mp_rr_aqueduct_night                           1
+				mp_rr_ashs_redemption                          1
+				mp_rr_arena_composite                          1
+			} } }
+		}
+
 		tdm_gg
 		{
 			inherit custom_tdm
 			vars
 			{
+                        name                                           "Gun Game"
 				visible                                        1
-
-				name                                           "Gun Game"
 
 				tdm_gungame                                    1
 				respawn_delay                                  1
@@ -885,14 +958,14 @@ playlists
 				tgive_enabled                                  0
 			}
 		}
-		
+
 		tdm_gg_double
 		{
 			inherit tdm_gg
 			vars
 			{
+                        name                                           "Gun Game Doubles"
 				visible                                        1
-				name                                           "Gun Game Double"
 
 				tdm_gungame                                    1
 				respawn_delay                                  1
@@ -906,13 +979,17 @@ playlists
 			}
 		}
 
+		///////////////////////////////////
+		//////////////  DEV  //////////////
+		///////////////////////////////////
+
 		survival_dev
 		{
 			inherit survival
 			vars
 			{
+                        name                                           "Survival Dev"
 				visible                                        1
-				name                                           "Survival Dev"
 
 				// Skip intros:
 				waiting_for_players_spawning_enabled           1
@@ -937,7 +1014,6 @@ playlists
 				max_players                                    120
 				min_players                                    1
 				enable_nessies                                 1
-
 			}
 			gamemodes { survival { maps {
 				mp_rr_canyonlands_64k_x_64k                    1
@@ -952,14 +1028,13 @@ playlists
 				mp_rr_arena_composite                          1
 			} } }
 		}
-		
+
 		shadowfall_dev
 		{
 			inherit survival_dev
 			vars
 			{
-				name                                           "ShadowFall Dev"
-
+                        name                                           "ShadowFall Dev"
 				// Bots:
 				character_select_time_max                      4.0
 				character_select_time_min                      4.0
@@ -979,21 +1054,19 @@ playlists
 				mode_fall_ltm                                  1
 				force_custom_musicpack                         1
 				solo_mode                                      1
-
 			}
 			gamemodes { survival { maps {
 				mp_rr_desertlands_64k_x_64k_nx                 1
 				mp_rr_canyonlands_mu1_night                    1
 			} } }
 		}
-		
+
 		menufall
 		{
 			vars
 			{
+                        name                                           "menufall"
 				visible                                        0
-				name                                           "MenuFall"
-
 				menu_fall_ltm                                  1
 
 				// Sets the legend in the lobby.
