@@ -185,7 +185,8 @@ private:
 	Coordinates SanitizeCoordinates(const Coordinates& aValue) const;
 	void Advance(Coordinates& aCoordinates) const;
 	void DeleteRange(const Coordinates& aStart, const Coordinates& aEnd);
-	int InsertTextAt(Coordinates& aWhere, const char* aValue, ImVec4 aColor);
+	int InsertTextAt(Coordinates& aWhere, const char* aValue, const ImVec4& aColor);
+	void MarkNewline(Coordinates& aWhere, const ImVec4& aColor, int aIndex);
 	Coordinates ScreenPosToCoordinates(const ImVec2& aPosition) const;
 	Coordinates FindWordStart(const Coordinates& aFrom) const;
 	Coordinates FindWordEnd(const Coordinates& aFrom) const;

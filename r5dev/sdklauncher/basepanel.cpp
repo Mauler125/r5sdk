@@ -739,8 +739,9 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 		}
 		if (this->m_DevelopmentToggle->Checked())
 		{
+			svParameters.append("-dev\n");
 			svParameters.append("-devsdk\n");
-			results = eLaunchMode::LM_HOST_DEBUG;
+			results = eLaunchMode::LM_HOST_DEV;
 		}
 		else
 			results = eLaunchMode::LM_HOST;
@@ -864,8 +865,9 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 		}
 		if (this->m_DevelopmentToggle->Checked())
 		{
+			svParameters.append("-dev\n");
 			svParameters.append("-devsdk\n");
-			results = eLaunchMode::LM_SERVER_DEBUG;
+			results = eLaunchMode::LM_SERVER_DEV;
 		}
 		else
 			results = eLaunchMode::LM_SERVER;
@@ -950,8 +952,9 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 		// GAME ###############################################################
 		if (this->m_DevelopmentToggle->Checked())
 		{
+			svParameters.append("-dev\n");
 			svParameters.append("-devsdk\n");
-			results = eLaunchMode::LM_CLIENT_DEBUG;
+			results = eLaunchMode::LM_CLIENT_DEV;
 		}
 		else
 			results = eLaunchMode::LM_CLIENT;

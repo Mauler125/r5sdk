@@ -18,7 +18,7 @@ bool HIVEngineServer__PersistenceAvailable(void* entidx, int clienthandle)
 	CClient* pClient = g_pClient->GetClient(clienthandle);        // Get client instance.
 	pClient->SetPersistenceState(PERSISTENCE::PERSISTENCE_READY); // Set the client instance to 'ready'.
 
-	if (!g_bIsPersistenceVarSet[clienthandle] && sv_showconnecting->GetBool())
+	if (!g_ServerPlayer[clienthandle].m_bPersistenceEnabled && sv_showconnecting->GetBool())
 	{
 		CNetChan* pNetChan = pClient->GetNetChan();
 
@@ -34,7 +34,7 @@ bool HIVEngineServer__PersistenceAvailable(void* entidx, int clienthandle)
 		DevMsg(eDLL_T::SERVER, " |- ADR : | '%s'\n", svIpAddress.c_str());
 		DevMsg(eDLL_T::SERVER, " -------------------------------------------------------------\n");
 
-		g_bIsPersistenceVarSet[clienthandle] = true;
+		g_ServerPlayer[clienthandle].m_bPersistenceEnabled = true;
 	}
 	///////////////////////////////////////////////////////////////////////////
 	return IVEngineServer__PersistenceAvailable(entidx, clienthandle);
@@ -51,4 +51,4 @@ void IVEngineServer_Detach()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-bool g_bIsPersistenceVarSet[MAX_PLAYERS];
+ServerPlayer_t g_ServerPlayer[MAX_PLAYERS];

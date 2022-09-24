@@ -649,7 +649,7 @@ void RCON_CmdQuery_f(const CCommand& args)
 	{
 		if (!RCONClient()->IsInitialized())
 		{
-			Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: uninitialized\n");
+			Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: %s\n", "uninitialized");
 			return;
 		}
 		else if (RCONClient()->IsConnected())
@@ -680,7 +680,7 @@ void RCON_CmdQuery_f(const CCommand& args)
 		}
 		else
 		{
-			Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: unconnected\n");
+			Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: %s\n", "unconnected");
 			return;
 		}
 	}

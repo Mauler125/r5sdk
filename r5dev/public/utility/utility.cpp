@@ -641,6 +641,21 @@ string StringUnescape(const string& svInput)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For counting the number of delimiters in a given string.
+size_t StringCount(const string& svInput, char cDelim)
+{
+    size_t result = 0;
+    for (size_t i = 0; i < svInput.size(); i++)
+    {
+        if (svInput[i] == cDelim)
+        {
+            result++;
+        }
+    }
+    return result;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For splitting a string into substrings by delimiter.
 vector<string> StringSplit(string svInput, char cDelim, size_t nMax)
 {

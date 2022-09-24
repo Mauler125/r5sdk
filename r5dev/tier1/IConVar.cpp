@@ -101,11 +101,11 @@ void ConVar::Init(void) const
 #endif // !DEDICATED
 	sv_showconnecting  = ConVar::Create("sv_showconnecting" , "1", FCVAR_RELEASE, "Logs information about the connecting client to the console.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_pylonVisibility = ConVar::Create("sv_pylonVisibility", "0", FCVAR_RELEASE, "Determines the visibility to the Pylon master server.", false, 0.f, false, 0.f, nullptr, "0 = Offline, 1 = Hidden, 2 = Public.");
-	sv_pylonRefreshInterval   = ConVar::Create("sv_pylonRefreshInterval"  , "5.0", FCVAR_RELEASE, "Pylon server host request post update interval (seconds).", true, 2.f, true, 8.f, nullptr, nullptr);
-	sv_banlistRefreshInterval = ConVar::Create("sv_banlistRefreshInterval", "1.0", FCVAR_RELEASE, "Banlist refresh interval (seconds).", true, 1.f, false, 0.f, nullptr, nullptr);
-	sv_statusRefreshInterval  = ConVar::Create("sv_statusRefreshInterval" , "0.5", FCVAR_RELEASE, "Server status bar update interval (seconds).", false, 0.f, false, 0.f, nullptr, nullptr);
-
-	sv_autoReloadRate = ConVar::Create("sv_autoReloadRate" , "0", FCVAR_RELEASE, "Time in seconds between each server auto-reload (disabled if null). ", true, 0.f, false, 0.f, nullptr, nullptr);
+	sv_pylonRefreshRate   = ConVar::Create("sv_pylonRefreshRate"  , "5.0", FCVAR_RELEASE, "Pylon host refresh rate (seconds).", true, 2.f, true, 8.f, nullptr, nullptr);
+	sv_banlistRefreshRate = ConVar::Create("sv_banlistRefreshRate", "1.0", FCVAR_RELEASE, "Banned list refresh rate (seconds).", true, 1.f, false, 0.f, nullptr, nullptr);
+	sv_statusRefreshRate  = ConVar::Create("sv_statusRefreshRate" , "0.5", FCVAR_RELEASE, "Server status refresh rate (seconds).", false, 0.f, false, 0.f, nullptr, nullptr);
+	sv_autoReloadRate     = ConVar::Create("sv_autoReloadRate"    , "0"  , FCVAR_RELEASE, "Time in seconds between each server auto-reload (disabled if null). ", true, 0.f, false, 0.f, nullptr, nullptr);
+	sv_quota_stringCmdsPerSecond = ConVar::Create("sv_quota_stringCmdsPerSecond", "16", FCVAR_RELEASE, "How many string commands per second clients are allowed to submit, 0 to disallow all string commands.", true, 0.f, false, 0.f, nullptr, nullptr);
 #ifdef DEDICATED
 	sv_rcon_debug       = ConVar::Create("sv_rcon_debug"      , "0" , FCVAR_RELEASE, "Show rcon debug information ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_sendlogs    = ConVar::Create("sv_rcon_sendlogs"   , "0" , FCVAR_RELEASE, "Network console logs to connected and authenticated sockets.", false, 0.f, false, 0.f, nullptr, nullptr);
@@ -123,6 +123,7 @@ void ConVar::Init(void) const
 	// CLIENT                                                                 |
 #ifndef DEDICATED
 	cl_rcon_request_sendlogs = ConVar::Create("cl_rcon_request_sendlogs", "1" , FCVAR_RELEASE, "Request the rcon server to send console logs on connect.", false, 0.f, false, 0.f, nullptr, nullptr);
+	cl_quota_stringCmdsPerSecond = ConVar::Create("cl_quota_stringCmdsPerSecond", "16" , FCVAR_RELEASE, "How many string commands per second user is allowed to submit, 0 to allow all submissions.", true, 0.f, false, 0.f, nullptr, nullptr);
 
 	cl_showhoststats      = ConVar::Create("cl_showhoststats"     , "0", FCVAR_DEVELOPMENTONLY, "Host speeds debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 	cl_hoststats_invert_x = ConVar::Create("cl_hoststats_invert_x", "0", FCVAR_DEVELOPMENTONLY, "Inverts the X offset for host speeds debug overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
@@ -203,6 +204,7 @@ void ConVar::Init(void) const
 	net_tracePayload           = ConVar::Create("net_tracePayload"          , "0", FCVAR_DEVELOPMENTONLY                    , "Log the payload of the send/recv datagram to a file on the disk.", false, 0.f, false, 0.f, nullptr, nullptr);
 	net_encryptionEnable       = ConVar::Create("net_encryptionEnable"      , "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED , "Use AES encryption on game packets.", false, 0.f, false, 0.f, nullptr, nullptr);
 	net_useRandomKey           = ConVar::Create("net_useRandomKey"          , "1"                        , FCVAR_RELEASE    , "Use random AES encryption key for game packets.", false, 0.f, false, 0.f, &NET_UseRandomKeyChanged_f, nullptr);
+	net_processTimeBudget      = ConVar::Create("net_processTimeBudget"     ,"150"                       , FCVAR_RELEASE    , "Net message process budget in milliseconds (removing netchannel if exceeded).", true, 0.f, false, 0.f, nullptr, "0 = disabled.");
 	//-------------------------------------------------------------------------
 	// NETWORKSYSTEM                                                          |
 	pylon_matchmaking_hostname = ConVar::Create("pylon_matchmaking_hostname", "ms.r5reloaded.com", FCVAR_RELEASE        , "Holds the pylon matchmaking hostname.", false, 0.f, false, 0.f, &MP_HostName_Changed_f, nullptr);
@@ -229,6 +231,7 @@ void ConVar::InitShipped(void) const
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 	bhit_enable                      = g_pCVar->FindVar("bhit_enable");
 #endif // !GAMEDLL_S0 && !GAMEDLL_S1
+	developer                        = g_pCVar->FindVar("developer");
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 	cl_threaded_bone_setup           = g_pCVar->FindVar("cl_threaded_bone_setup");
@@ -255,9 +258,14 @@ void ConVar::InitShipped(void) const
 	hostport                         = g_pCVar->FindVar("hostport");
 	host_hasIrreversibleShutdown     = g_pCVar->FindVar("host_hasIrreversibleShutdown");
 	net_usesocketsforloopback        = g_pCVar->FindVar("net_usesocketsforloopback");
-
 #ifndef CLIENT_DLL
+	sv_forceChatToTeamOnly = g_pCVar->FindVar("sv_forceChatToTeamOnly");
+
+	sv_forceChatToTeamOnly->RemoveFlags(FCVAR_DEVELOPMENTONLY);
+	sv_forceChatToTeamOnly->AddFlags(FCVAR_REPLICATED);
+
 	ai_script_nodes_draw->SetValue(-1);
+	bhit_enable->SetValue(0);
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 	cl_threaded_bone_setup->RemoveFlags(FCVAR_DEVELOPMENTONLY);

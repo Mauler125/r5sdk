@@ -8,6 +8,12 @@
 #include "tier1/cvar.h"
 #include "engine/net.h"
 #include "engine/net_chan.h"
+#ifndef CLIENT_DLL
+#include "engine/server/server.h"
+#include "engine/client/client.h"
+#include "server/vengineserver_impl.h"
+#endif // !CLIENT_DLL
+
 
 //-----------------------------------------------------------------------------
 // Purpose: gets the netchannel name
@@ -201,9 +207,50 @@ void CNetChan::Clear(bool bStopProcessing)
 	v_NetChan_Clear(this, bStopProcessing);
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: process message
+// Input  : *pChan - 
+//			*pMsg - 
+// Output : true on success, false on failure
+//-----------------------------------------------------------------------------
 bool CNetChan::ProcessMessages(CNetChan* pChan, bf_read* pMsg)
 {
+#ifndef CLIENT_DLL
+	if (!ThreadInServerFrameThread() || !net_processTimeBudget->GetInt())
+		return v_NetChan_ProcessMessages(pChan, pMsg);
+
+	const double flStartTime = Plat_FloatTime();
+	const bool bResult = v_NetChan_ProcessMessages(pChan, pMsg);
+
+	if (!pChan->m_MessageHandler) // NetChannel removed?
+		return bResult;
+
+	CClient* pClient = reinterpret_cast<CClient*>(pChan->m_MessageHandler);
+	ServerPlayer_t* pSlot = &g_ServerPlayer[pClient->GetUserID()];
+
+	if (flStartTime - pSlot->m_flLastNetProcessTime >= 1.0 ||
+		pSlot->m_flLastNetProcessTime == -1.0)
+	{
+		pSlot->m_flLastNetProcessTime = flStartTime;
+		pSlot->m_flCurrentNetProcessTime = 0.0;
+	}
+	pSlot->m_flCurrentNetProcessTime +=
+		(Plat_FloatTime() * 1000) - (flStartTime * 1000);
+
+	if (pSlot->m_flCurrentNetProcessTime >
+		net_processTimeBudget->GetDouble())
+	{
+		Warning(eDLL_T::ENGINE, "Removing netchannel '%s' ('%s' exceeded frame budget by '%3.1f'ms!)\n", 
+			pChan->GetName(), pChan->GetAddress(), (pSlot->m_flCurrentNetProcessTime - net_processTimeBudget->GetDouble()));
+		pClient->Disconnect(Reputation_t::REP_MARK_BAD, "#DISCONNECT_NETCHAN_OVERFLOW");
+
+		return false;
+	}
+
+	return bResult;
+#else // !CLIENT_DLL
 	return v_NetChan_ProcessMessages(pChan, pMsg);
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////

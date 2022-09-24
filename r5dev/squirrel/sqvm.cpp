@@ -319,7 +319,7 @@ void SQVM_CompileError(HSQUIRRELVM v, const SQChar* pszError, const SQChar* pszF
 	context = SQVM_GetContextIndex(v);
 #endif
 
-	v_SQVM_GetErrorLine(pszFile, nLine, szContextBuf, sizeof(szContextBuf));
+	v_SQVM_GetErrorLine(pszFile, nLine, szContextBuf, sizeof(szContextBuf) - 1);
 
 	Error(static_cast<eDLL_T>(context), NO_ERROR, "%s SCRIPT COMPILE ERROR: %s\n", SQVM_GetContextName(context), pszError);
 	Error(static_cast<eDLL_T>(context), NO_ERROR, " -> %s\n\n", szContextBuf);
