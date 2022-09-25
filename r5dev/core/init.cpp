@@ -86,6 +86,9 @@
 #include "engine/sys_engine.h"
 #include "engine/sys_utils.h"
 #include "engine/sys_getmodes.h"
+#ifndef DEDICATED
+#include "engine/sys_mainwind.h"
+#endif // !DEDICATED
 #include "engine/gl_matsysiface.h"
 #include "engine/gl_screen.h"
 #ifndef DEDICATED
@@ -214,6 +217,9 @@ void Systems_Init()
 	SysDll_Attach();
 	SysDll2_Attach();
 	SysUtils_Attach();
+#ifndef DEDICATED
+	SysGame_Attach();
+#endif // !DEDICATED
 
 #ifndef DEDICATED
 	HCVideoMode_Common_Attach();
@@ -343,6 +349,9 @@ void Systems_Shutdown()
 	SysDll_Detach();
 	SysDll2_Detach();
 	SysUtils_Detach();
+#ifndef DEDICATED
+	SysGame_Detach();
+#endif // DEDICATED
 
 #ifndef DEDICATED
 	HCVideoMode_Common_Detach();

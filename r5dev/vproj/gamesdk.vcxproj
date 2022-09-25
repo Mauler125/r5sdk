@@ -51,6 +51,7 @@
     <ClCompile Include="..\engine\sys_dll2.cpp" />
     <ClCompile Include="..\engine\sys_engine.cpp" />
     <ClCompile Include="..\engine\sys_getmodes.cpp" />
+    <ClCompile Include="..\engine\sys_mainwind.cpp" />
     <ClCompile Include="..\engine\sys_utils.cpp" />
     <ClCompile Include="..\filesystem\basefilesystem.cpp" />
     <ClCompile Include="..\filesystem\filesystem.cpp" />
@@ -209,6 +210,7 @@
     <ClInclude Include="..\engine\sys_dll2.h" />
     <ClInclude Include="..\engine\sys_engine.h" />
     <ClInclude Include="..\engine\sys_getmodes.h" />
+    <ClInclude Include="..\engine\sys_mainwind.h" />
     <ClInclude Include="..\engine\sys_utils.h" />
     <ClInclude Include="..\filesystem\basefilesystem.h" />
     <ClInclude Include="..\filesystem\filesystem.h" />
@@ -290,6 +292,7 @@
     <ClInclude Include="..\public\ifile.h" />
     <ClInclude Include="..\public\ifilesystem.h" />
     <ClInclude Include="..\public\iframetask.h" />
+    <ClInclude Include="..\public\igame.h" />
     <ClInclude Include="..\public\ihandleentity.h" />
     <ClInclude Include="..\public\inetchannel.h" />
     <ClInclude Include="..\public\inetmessage.h" />
