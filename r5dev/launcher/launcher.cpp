@@ -71,22 +71,18 @@ void RemoveSpuriousGameParameters()
 void AppendSDKParametersPreInit()
 {
 #ifdef DEDICATED
-	CommandLine()->AppendParm("-safe", "");
-	CommandLine()->AppendParm("-high", "");
-	CommandLine()->AppendParm("-rerun", "");
 	CommandLine()->AppendParm("-collate", "");
 	CommandLine()->AppendParm("-multiple", "");
 	CommandLine()->AppendParm("-noorigin", "");
 	CommandLine()->AppendParm("-nodiscord", "");
-	CommandLine()->AppendParm("-novid", "");
 	CommandLine()->AppendParm("-noshaderapi", "");
 	CommandLine()->AppendParm("-nobakedparticles", "");
-	CommandLine()->AppendParm("-nosound", "");
-	CommandLine()->AppendParm("-nojoy", "");
-	CommandLine()->AppendParm("-nomouse", "");
+	CommandLine()->AppendParm("-novid", "");
 	CommandLine()->AppendParm("-nomenuvid", "");
+	CommandLine()->AppendParm("-nosound", "");
+	CommandLine()->AppendParm("-nomouse", "");
+	CommandLine()->AppendParm("-nojoy", "");
 	CommandLine()->AppendParm("-nosendtable", "");
-	CommandLine()->AppendParm("-gamepad_ignore_local", "");
 #endif
 	// Assume default configs if the game isn't launched with the SDKLauncher.
 	if (!CommandLine()->FindParm("-launcher"))
