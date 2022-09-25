@@ -71,8 +71,6 @@ void RemoveSpuriousGameParameters()
 void AppendSDKParametersPreInit()
 {
 #ifdef DEDICATED
-	CommandLine()->AppendParm("-sw", "");
-	CommandLine()->AppendParm("-lv", "");
 	CommandLine()->AppendParm("-safe", "");
 	CommandLine()->AppendParm("-high", "");
 	CommandLine()->AppendParm("-rerun", "");
