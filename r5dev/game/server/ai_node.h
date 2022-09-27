@@ -7,6 +7,9 @@
 #include "mathlib/vector.h"
 constexpr int MAX_HULLS = 5;
 
+constexpr int NOT_CACHED = -2;			// Returned if data not in cache
+constexpr int NO_NODE    = -1;			// Returned when no node meets the qualification
+
 #pragma pack(push, 1)
 //=============================================================================
 //	>> CAI_NodeLink

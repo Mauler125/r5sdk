@@ -47,6 +47,7 @@ extern ConVar* ai_ainDumpOnLoad;
 extern ConVar* ai_ainDebugConnect;
 extern ConVar* ai_script_nodes_draw;
 extern ConVar* ai_script_nodes_draw_range;
+extern ConVar* ai_script_nodes_draw_nearest;
 
 extern ConVar* navmesh_always_reachable;
 extern ConVar* navmesh_debug_type;

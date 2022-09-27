@@ -50,6 +50,7 @@ ConVar* ai_ainDumpOnLoad                   = nullptr;
 ConVar* ai_ainDebugConnect                 = nullptr;
 ConVar* ai_script_nodes_draw               = nullptr;
 ConVar* ai_script_nodes_draw_range         = nullptr;
+ConVar* ai_script_nodes_draw_nearest       = nullptr;
 
 ConVar* navmesh_always_reachable           = nullptr;
 ConVar* navmesh_debug_type                 = nullptr;

@@ -27,8 +27,9 @@ void DrawAIScriptNodes()
     if (*g_pAINetwork)
     {
         OverlayBox_t::Transforms vTransforms;
+        std::unordered_set<uint64_t> linkSet;
 
-        for (int i = ai_script_nodes_draw->GetInt(); i < (*g_pAINetwork)->GetNumScriptNodes(); i++)
+        for (int i = ai_script_nodes_draw->GetInt(), j = (*g_pAINetwork)->GetNumScriptNodes(); i < j; i++)
         {
             if (ai_script_nodes_draw_range->GetBool())
             {
@@ -36,14 +37,30 @@ void DrawAIScriptNodes()
                     break;
             }
 
-            vTransforms.xmm[0] = _mm_set_ps((*g_pAINetwork)->m_ScriptNode[i].m_vOrigin.x - 50.f, 0.0f, 0.0f, 1.0f);
-            vTransforms.xmm[1] = _mm_set_ps((*g_pAINetwork)->m_ScriptNode[i].m_vOrigin.y - 50.f, 0.0f, 1.0f, 0.0f);
-            vTransforms.xmm[2] = _mm_set_ps((*g_pAINetwork)->m_ScriptNode[i].m_vOrigin.z - 50.f, 1.0f, 0.0f, 0.0f);
+            const CAI_ScriptNode* pScriptNode = &(*g_pAINetwork)->m_ScriptNode[i];
+            const bool bUseDepthBuffer = r_debug_overlay_zbuffer->GetBool();
 
-            v_RenderBox(vTransforms, { 0, 0, 0 }, { 100, 100, 100 }, Color(0, 255, 0, 255), r_debug_overlay_zbuffer->GetBool());
+            vTransforms.xmm[0] = _mm_set_ps(pScriptNode->m_vOrigin.x - 50.f, 0.0f, 0.0f, 1.0f);
+            vTransforms.xmm[1] = _mm_set_ps(pScriptNode->m_vOrigin.y - 50.f, 0.0f, 1.0f, 0.0f);
+            vTransforms.xmm[2] = _mm_set_ps(pScriptNode->m_vOrigin.z - 50.f, 1.0f, 0.0f, 0.0f);
 
-            if (i > 0)
-                v_RenderLine((*g_pAINetwork)->m_ScriptNode[i - 1].m_vOrigin, (*g_pAINetwork)->m_ScriptNode[i].m_vOrigin, Color(255, 0, 0, 255), r_debug_overlay_zbuffer->GetBool());
+            v_RenderBox(vTransforms, { 0, 0, 0 }, { 100, 100, 100 }, Color(0, 255, 0, 255), bUseDepthBuffer);
+
+            if (ai_script_nodes_draw_nearest->GetBool())
+            {
+                int nNearest = GetNearestNodeToPos(&pScriptNode->m_vOrigin);
+                if (nNearest != NO_NODE) // NO_NODE = -1
+                {
+                    auto p = linkSet.insert(PackNodeLink(i, nNearest));
+                    if (p.second)
+                    {
+                        const CAI_ScriptNode* pNearestNode = &(*g_pAINetwork)->m_ScriptNode[nNearest];
+                        v_RenderLine(pScriptNode->m_vOrigin, pNearestNode->m_vOrigin, Color(255, 0, 0, 255), bUseDepthBuffer);
+                    }
+                }
+            }
+            else if (i > 0) // Render links in the order the AI Network was build.
+                v_RenderLine((pScriptNode - 1)->m_vOrigin, pScriptNode->m_vOrigin, Color(255, 0, 0, 255), bUseDepthBuffer);
         }
     }
 }
@@ -368,4 +385,130 @@ void DrawNavMeshPolyBoundaries()
             }
         }
     }
+}
+
+//------------------------------------------------------------------------------
+// Purpose: packs 2 node indices together
+// Input  : a - 
+//          b - 
+// Output : packed node set
+//------------------------------------------------------------------------------
+uint64_t PackNodeLink(uint32_t a, uint32_t b)
+{
+    if (a < b)
+        std::swap(a, b);
+
+    uint64_t c = static_cast<uint64_t>(a) << 32;
+    return c = c + static_cast<uint64_t>(b);
+}
+
+//------------------------------------------------------------------------------
+// Purpose: gets the nearest node index to position
+// Input  : *vPos
+// Output : node index (NO_NODEif no node has been found)
+//------------------------------------------------------------------------------
+int64_t GetNearestNodeToPos(const Vector3D* vPos)
+{
+    __int64 result; // rax
+    unsigned int v3; // er10
+    __int64 v4; // rdx
+    float v5; // xmm3_4
+    unsigned int v6; // er8
+    CAI_ScriptNode* v7; // rax
+    float v8; // xmm4_4
+    float v9; // xmm5_4
+    float v10; // xmm6_4
+    float* v11; // rcx
+    float* v12; // rax
+    float v13; // xmm7_4
+    float v14; // xmm2_4
+    unsigned int v15; // er9
+    float v16; // xmm8_4
+    float v17; // xmm2_4
+    unsigned int v18; // er8
+    float v19; // xmm9_4
+    float v20; // xmm2_4
+    unsigned int v21; // er9
+    float v22; // xmm7_4
+    float v23; // xmm2_4
+    float* v24; // r9
+    float v25; // xmm4_4
+    float v26; // xmm2_4
+    unsigned int v27; // ecx
+
+    if (*g_pAINetwork)
+    {
+        v3 = (*g_pAINetwork)->m_iNumScriptNodes;
+        v4 = 0i64;
+        v5 = 640000.0;
+        v6 = -1;
+        if (v3 >= 4)
+        {
+            v7 = (*g_pAINetwork)->m_ScriptNode;
+            v8 = vPos->x;
+            v9 = vPos->y;
+            v10 = vPos->z;
+            v11 = &v7->m_vOrigin.z;
+            v12 = &v7[1].m_vOrigin.y;
+            do
+            {
+                v13 = v5;
+                v14 = (float)((float)((float)(*(v11 - 1) - v9) * (float)(*(v11 - 1) - v9)) + (float)((float)(*(v11 - 2) - v8) * (float)(*(v11 - 2) - v8))) + (float)((float)(*v11 - v10) * (float)(*v11 - v10));
+                if (v5 > v14)
+                    v5 = (float)((float)((float)(*(v11 - 1) - v9) * (float)(*(v11 - 1) - v9)) + (float)((float)(*(v11 - 2) - v8) * (float)(*(v11 - 2) - v8))) + (float)((float)(*v11 - v10) * (float)(*v11 - v10));
+                v15 = v4;
+                if (v13 <= v14)
+                    v15 = v6;
+                v16 = v5;
+                v17 = (float)((float)((float)(*(v12 - 1) - v9) * (float)(*(v12 - 1) - v9)) + (float)((float)(v11[3] - v8) * (float)(v11[3] - v8))) + (float)((float)(*v12 - v10) * (float)(*v12 - v10));
+                if (v5 > v17)
+                    v5 = (float)((float)((float)(*(v12 - 1) - v9) * (float)(*(v12 - 1) - v9)) + (float)((float)(v11[3] - v8) * (float)(v11[3] - v8))) + (float)((float)(*v12 - v10) * (float)(*v12 - v10));
+                v18 = v4 + 1;
+                if (v16 <= v17)
+                    v18 = v15;
+                v19 = v5;
+                v20 = (float)((float)((float)(v12[4] - v9) * (float)(v12[4] - v9)) + (float)((float)(v11[8] - v8) * (float)(v11[8] - v8))) + (float)((float)(v12[5] - v10) * (float)(v12[5] - v10));
+                if (v5 > v20)
+                    v5 = (float)((float)((float)(v12[4] - v9) * (float)(v12[4] - v9)) + (float)((float)(v11[8] - v8) * (float)(v11[8] - v8))) + (float)((float)(v12[5] - v10) * (float)(v12[5] - v10));
+                v21 = v4 + 2;
+                if (v19 <= v20)
+                    v21 = v18;
+                v22 = v5;
+                v23 = (float)((float)((float)(v12[9] - v9) * (float)(v12[9] - v9)) + (float)((float)(v11[13] - v8) * (float)(v11[13] - v8))) + (float)((float)(v12[10] - v10) * (float)(v12[10] - v10));
+                if (v5 > v23)
+                    v5 = (float)((float)((float)(v12[9] - v9) * (float)(v12[9] - v9)) + (float)((float)(v11[13] - v8) * (float)(v11[13] - v8))) + (float)((float)(v12[10] - v10) * (float)(v12[10] - v10));
+                v6 = v4 + 3;
+                if (v22 <= v23)
+                    v6 = v21;
+                v11 += 20;
+                v12 += 20;
+                v4 = (unsigned int)(v4 + 4);
+            }       while ((unsigned int)v4 < v3 - 3);
+        }
+        if ((unsigned int)v4 < v3)
+        {
+            v24 = &(*g_pAINetwork)->m_ScriptNode->m_vOrigin.x + 5 * v4;
+            do
+            {
+                v25 = v5;
+                v26 = (float)((float)((float)(v24[1] - vPos->y) * (float)(v24[1] - vPos->y)) + (float)((float)(*v24 - vPos->x) * (float)(*v24 - vPos->x)))
+                    + (float)((float)(v24[2] - vPos->z) * (float)(v24[2] - vPos->z));
+                if (v5 > v26)
+                    v5 = (float)((float)((float)(v24[1] - vPos->y) * (float)(v24[1] - vPos->y)) + (float)((float)(*v24 - vPos->x) * (float)(*v24 - vPos->x)))
+                    + (float)((float)(v24[2] - vPos->z) * (float)(v24[2] - vPos->z));
+                v27 = v4;
+                if (v25 <= v26)
+                    v27 = v6;
+                v24 += 5;
+                LODWORD(v4) = v4 + 1;
+                v6 = v27;
+            }       while ((unsigned int)v4 < v3);
+        }
+        result = v6;
+    }
+    else
+    {
+        result = 0i64;
+    }
+    return result;
 }
