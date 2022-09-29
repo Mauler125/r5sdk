@@ -26,6 +26,9 @@ void DrawAIScriptNodes()
 {
     if (*g_pAINetwork)
     {
+        const bool bUseDepthBuffer = r_debug_overlay_zbuffer->GetBool();
+        static const __m128 xSubMask = _mm_setr_ps(50.0f, 50.0f, 50.0f, 0.0f);
+
         OverlayBox_t::Transforms vTransforms;
         std::unordered_set<uint64_t> linkSet;
 
@@ -38,9 +41,6 @@ void DrawAIScriptNodes()
             }
 
             const CAI_ScriptNode* pScriptNode = &(*g_pAINetwork)->m_ScriptNode[i];
-            const bool bUseDepthBuffer = r_debug_overlay_zbuffer->GetBool();
-
-            static const __m128 xSubMask = _mm_setr_ps(50.0f, 50.0f, 50.0f, 0.0f);
 
             const __m128 xOrigin = _mm_setr_ps(pScriptNode->m_vOrigin.x, pScriptNode->m_vOrigin.y, pScriptNode->m_vOrigin.z, 0.0f);
             const __m128 xResult = _mm_sub_ps(xOrigin, xSubMask); // Subtract 50.f from our scalars to align box with node.
@@ -78,6 +78,7 @@ void DrawNavMeshBVTree()
     const dtNavMesh* mesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
     if (!mesh)
         return;
+    const Vector3D vCamera = MainViewOrigin();
 
     OverlayBox_t::Transforms vTransforms;
     for (int i = navmesh_draw_bvtree->GetInt(); i < mesh->getTileCount(); ++i)
@@ -94,15 +95,13 @@ void DrawNavMeshBVTree()
 
         if (navmesh_debug_camera_range->GetBool())
         {
-            const Vector3D vCamera = MainViewOrigin();
-
             if (vCamera.DistTo(Vector3D(tile->header->bmin[0], tile->header->bmin[1], vCamera.z)) > navmesh_debug_camera_range->GetFloat() ||
                 vCamera.DistTo(Vector3D(tile->header->bmax[0], tile->header->bmax[1], vCamera.z)) > navmesh_debug_camera_range->GetFloat())
                 continue;
         }
 
         const float cs = 1.0f / tile->header->bvQuantFactor;
-        for (int j = 0; j < tile->header->bvNodeCount; ++j)
+        for (int j = 0, k = tile->header->bvNodeCount; j < k; ++j)
         {
             const dtBVNode* node = &tile->bvTree[j];
             if (node->i < 0) // Leaf indices are positive.
@@ -112,16 +111,17 @@ void DrawNavMeshBVTree()
             vTransforms.xmm[1] = _mm_set_ps(0.0f, 0.0f, 1.0f, 0.0f);
             vTransforms.xmm[2] = _mm_set_ps(0.0f, 1.0f, 0.0f, 0.0f);
 
-            const Vector3D vMins(
-                tile->header->bmin[0] + node->bmin[0] * cs,
-                tile->header->bmin[1] + node->bmin[1] * cs,
-                tile->header->bmin[2] + node->bmin[2] * cs);
-            const Vector3D vMaxs(
-                tile->header->bmin[0] + node->bmax[0] * cs,
-                tile->header->bmin[1] + node->bmax[1] * cs,
-                tile->header->bmin[2] + node->bmax[2] * cs);
+            const __m128 xMinTileAABB = _mm_setr_ps(tile->header->bmin[0], tile->header->bmin[1], tile->header->bmin[2], 0.0f);
+            const __m128 xQuantMask = _mm_setr_ps(cs, cs, cs, 0.0f);
 
-            v_RenderBox(vTransforms, vMins, vMaxs, Color(188, 188, 188, 255), r_debug_overlay_zbuffer->GetBool());
+            // Parallel Vector3D construction.
+            const __m128 xMinRet = _mm_add_ps(xMinTileAABB, _mm_mul_ps( // Formula: tile->header->bmin[axis] + node->bmin[axis] * cs;
+                _mm_setr_ps(node->bmin[0], node->bmin[1], node->bmin[2], 0.0f), xQuantMask));
+            const __m128 xMaxRet = _mm_add_ps(xMinTileAABB, _mm_mul_ps( // Formula: tile->header->bmin[axis] + node->bmax[axis] * cs;
+                _mm_setr_ps(node->bmax[0], node->bmax[1], node->bmax[2], 0.0f), xQuantMask));
+
+            v_RenderBox(vTransforms, *reinterpret_cast<const Vector3D*>(&xMinRet), *reinterpret_cast<const Vector3D*>(&xMaxRet), 
+                Color(188, 188, 188, 255), r_debug_overlay_zbuffer->GetBool());
         }
     }
 }
