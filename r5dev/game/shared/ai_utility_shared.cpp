@@ -18,21 +18,32 @@
 #include "game/server/ai_network.h"
 #include "game/client/view.h"
 #include "thirdparty/recast/detour/include/detourcommon.h"
+#include "thirdparty/recast/detour/include/detournavmesh.h"
 
 //------------------------------------------------------------------------------
-// Purpose : draw AIN script nodes
+// Purpose:
 //------------------------------------------------------------------------------
-void DrawAIScriptNodes()
+CAI_Utility::CAI_Utility(void)
+    : m_BoxColor(0, 255, 0, 255)
+    , m_LinkColor(255, 0, 0, 255)
 {
-    if (*g_pAINetwork)
+}
+
+//------------------------------------------------------------------------------
+// Purpose: draw AIN script nodes
+// Input  : *pAINetwork - 
+//------------------------------------------------------------------------------
+void CAI_Utility::DrawAIScriptNetwork(const CAI_Network* pAINetwork) const
+{
+    if (pAINetwork)
     {
         const bool bUseDepthBuffer = r_debug_overlay_zbuffer->GetBool();
-        static const __m128 xSubMask = _mm_setr_ps(50.0f, 50.0f, 50.0f, 0.0f);
+        static const __m128 xSubMask = _mm_setr_ps(25.0f, 25.0f, 25.0f, 0.0f);
 
         OverlayBox_t::Transforms vTransforms;
         std::unordered_set<uint64_t> linkSet;
 
-        for (int i = ai_script_nodes_draw->GetInt(), j = (*g_pAINetwork)->GetNumScriptNodes(); i < j; i++)
+        for (int i = ai_script_nodes_draw->GetInt(), j = pAINetwork->GetNumScriptNodes(); i < j; i++)
         {
             if (ai_script_nodes_draw_range->GetBool())
             {
@@ -40,44 +51,50 @@ void DrawAIScriptNodes()
                     break;
             }
 
-            const CAI_ScriptNode* pScriptNode = &(*g_pAINetwork)->m_ScriptNode[i];
+            const CAI_ScriptNode* pScriptNode = &pAINetwork->m_ScriptNode[i];
 
-            const __m128 xOrigin = _mm_setr_ps(pScriptNode->m_vOrigin.x, pScriptNode->m_vOrigin.y, pScriptNode->m_vOrigin.z, 0.0f);
-            const __m128 xResult = _mm_sub_ps(xOrigin, xSubMask); // Subtract 50.f from our scalars to align box with node.
+            __m128 xMins = _mm_setzero_ps();
+            __m128 xMaxs = _mm_setr_ps(50.0f, 50.0f, 50.0f, 0.0f);
+            __m128 xOrigin = _mm_setr_ps(pScriptNode->m_vOrigin.x, pScriptNode->m_vOrigin.y, pScriptNode->m_vOrigin.z, 0.0f);
+            xOrigin = _mm_sub_ps(xOrigin, xSubMask); // Subtract 25.f from our scalars to align box with node.
 
-            vTransforms.xmm[0] = _mm_set_ps(xResult.m128_f32[0], 0.0f, 0.0f, 1.0f);
-            vTransforms.xmm[1] = _mm_set_ps(xResult.m128_f32[1], 0.0f, 1.0f, 0.0f);
-            vTransforms.xmm[2] = _mm_set_ps(xResult.m128_f32[2], 1.0f, 0.0f, 0.0f);
+            vTransforms.xmm[0] = _mm_set_ps(xOrigin.m128_f32[0], 0.0f, 0.0f, 1.0f);
+            vTransforms.xmm[1] = _mm_set_ps(xOrigin.m128_f32[1], 0.0f, 1.0f, 0.0f);
+            vTransforms.xmm[2] = _mm_set_ps(xOrigin.m128_f32[2], 1.0f, 0.0f, 0.0f);
 
-            v_RenderBox(vTransforms, { 0, 0, 0 }, { 100, 100, 100 }, Color(0, 255, 0, 255), bUseDepthBuffer);
+            v_RenderBox(vTransforms, *reinterpret_cast<Vector3D*>(&xMins), 
+                *reinterpret_cast<Vector3D*>(&xMaxs), m_BoxColor, bUseDepthBuffer);
 
             if (ai_script_nodes_draw_nearest->GetBool())
             {
-                int nNearest = GetNearestNodeToPos(&pScriptNode->m_vOrigin);
+                int nNearest = GetNearestNodeToPos(pAINetwork , &pScriptNode->m_vOrigin);
                 if (nNearest != NO_NODE) // NO_NODE = -1
                 {
                     auto p = linkSet.insert(PackNodeLink(i, nNearest));
                     if (p.second)
                     {
-                        const CAI_ScriptNode* pNearestNode = &(*g_pAINetwork)->m_ScriptNode[nNearest];
-                        v_RenderLine(pScriptNode->m_vOrigin, pNearestNode->m_vOrigin, Color(255, 0, 0, 255), bUseDepthBuffer);
+                        const CAI_ScriptNode* pNearestNode = &pAINetwork->m_ScriptNode[nNearest];
+                        v_RenderLine(pScriptNode->m_vOrigin, pNearestNode->m_vOrigin, m_LinkColor, bUseDepthBuffer);
                     }
                 }
             }
             else if (i > 0) // Render links in the order the AI Network was build.
-                v_RenderLine((pScriptNode - 1)->m_vOrigin, pScriptNode->m_vOrigin, Color(255, 0, 0, 255), bUseDepthBuffer);
+                v_RenderLine((pScriptNode - 1)->m_vOrigin, pScriptNode->m_vOrigin, m_LinkColor, bUseDepthBuffer);
         }
     }
 }
 
 //------------------------------------------------------------------------------
-// Purpose : draw NavMesh BVTree
+// Purpose: draw NavMesh BVTree
+// Input  : *mesh
 //------------------------------------------------------------------------------
-void DrawNavMeshBVTree()
+void CAI_Utility::DrawNavMeshBVTree(dtNavMesh* mesh) const
 {
-    const dtNavMesh* mesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
     if (!mesh)
-        return;
+        mesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
+    if (!mesh)
+        return; // NavMesh for hull not loaded.
+
     const Vector3D vCamera = MainViewOrigin();
     const bool bUseDepthBuffer = r_debug_overlay_zbuffer->GetBool();
 
@@ -128,13 +145,14 @@ void DrawNavMeshBVTree()
 }
 
 //------------------------------------------------------------------------------
-// Purpose : draw NavMesh portals
+// Purpose: draw NavMesh portals
 //------------------------------------------------------------------------------
-void DrawNavMeshPortals()
+void CAI_Utility::DrawNavMeshPortals(dtNavMesh* mesh) const
 {
-    const dtNavMesh* mesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
     if (!mesh)
-        return;
+        mesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
+    if (!mesh)
+        return; // NavMesh for hull not loaded.
 
     const bool zbuffer = r_debug_overlay_zbuffer->GetBool();
     const float range = navmesh_debug_camera_range->GetFloat();
@@ -245,17 +263,17 @@ void DrawNavMeshPortals()
 }
 
 //------------------------------------------------------------------------------
-// Purpose : draw NavMesh polys
+// Purpose: draw NavMesh polys
+// Input  : *mesh - 
 //------------------------------------------------------------------------------
-void DrawNavMeshPolys()
+void CAI_Utility::DrawNavMeshPolys(dtNavMesh* mesh) const
 {
-    const dtNavMesh* mesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
     if (!mesh)
-        return;
+        mesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
+    if (!mesh)
+        return; // NavMesh for hull not loaded.
 
     const bool bUseDepthBuffer = r_debug_overlay_zbuffer->GetBool();
-    OverlayBox_t::Transforms vTransforms;
-
     for (int i = navmesh_draw_polys->GetInt(); i < mesh->getTileCount(); ++i)
     {
         if (navmesh_debug_tile_range->GetBool())
@@ -287,14 +305,15 @@ void DrawNavMeshPolys()
             if (poly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
             {
                 const dtOffMeshConnection* con = &tile->offMeshCons[ip - tile->header->offMeshBase];
-                v_RenderLine(Vector3D(con->pos[0], con->pos[1], con->pos[2]), Vector3D(con->pos[3], con->pos[4], con->pos[5]), Color(188, 0, 188, 255), bUseDepthBuffer);
+                v_RenderLine(Vector3D(con->pos[0], con->pos[1], con->pos[2]), 
+                    Vector3D(con->pos[3], con->pos[4], con->pos[5]), Color(188, 0, 188, 255), bUseDepthBuffer);
             }
             else
             {
                 const dtPolyDetail* pd = &tile->detailMeshes[ip];
+                __m128 tris[3] = { _mm_setzero_ps() };
                 for (int k = 0; k < pd->triCount; ++k)
                 {
-                    __m128 tris[3] = { _mm_setzero_ps() };
                     const unsigned char* t = &tile->detailTris[(pd->triBase + k) * 4];
                     for (int e = 0; e < 3; ++e)
                     {
@@ -310,9 +329,12 @@ void DrawNavMeshPolys()
                         }
                     }
 
-                    v_RenderLine(*reinterpret_cast<const Vector3D*>(&tris[0]), *reinterpret_cast<const Vector3D*>(&tris[1]), col, bUseDepthBuffer);
-                    v_RenderLine(*reinterpret_cast<const Vector3D*>(&tris[1]), *reinterpret_cast<const Vector3D*>(&tris[2]), col, bUseDepthBuffer);
-                    v_RenderLine(*reinterpret_cast<const Vector3D*>(&tris[2]), *reinterpret_cast<const Vector3D*>(&tris[0]), col, bUseDepthBuffer);
+                    v_RenderLine(*reinterpret_cast<const Vector3D*>(&tris[0]), 
+                        *reinterpret_cast<const Vector3D*>(&tris[1]), col, bUseDepthBuffer);
+                    v_RenderLine(*reinterpret_cast<const Vector3D*>(&tris[1]), 
+                        *reinterpret_cast<const Vector3D*>(&tris[2]), col, bUseDepthBuffer);
+                    v_RenderLine(*reinterpret_cast<const Vector3D*>(&tris[2]), 
+                        *reinterpret_cast<const Vector3D*>(&tris[0]), col, bUseDepthBuffer);
                 }
             }
         }
@@ -321,17 +343,19 @@ void DrawNavMeshPolys()
 
 //------------------------------------------------------------------------------
 // Purpose : draw NavMesh poly boundaries
+// Input  : *mesh - 
 //------------------------------------------------------------------------------
-void DrawNavMeshPolyBoundaries()
+void CAI_Utility::DrawNavMeshPolyBoundaries(dtNavMesh* mesh) const
 {
     static const float thr = 0.01f * 0.01f;
     Color col{ 20, 140, 255, 255 };
 
-    const dtNavMesh* mesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
     if (!mesh)
-        return;
+        mesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
+    if (!mesh)
+        return; // NavMesh for hull not loaded.
 
-    OverlayBox_t::Transforms vTransforms;
+    const bool zbuffer = r_debug_overlay_zbuffer->GetBool();
     for (int i = navmesh_draw_poly_bounds->GetInt(); i < mesh->getTileCount(); ++i)
     {
         if (navmesh_debug_tile_range->GetBool())
@@ -362,7 +386,7 @@ void DrawNavMeshPolyBoundaries()
 
             const dtPolyDetail* pd = &tile->detailMeshes[i];
 
-            for (int j = 0, nj = (int)p->vertCount; j < nj; ++j)
+            for (int j = 0, nj = static_cast<int>(p->vertCount); j < nj; ++j)
             {
                 if (navmesh_draw_poly_bounds_inner->GetBool())
                 {
@@ -398,7 +422,7 @@ void DrawNavMeshPolyBoundaries()
 
                 // Draw detail mesh edges which align with the actual poly edge.
                 // This is really slow.
-                for (int k = 0; k < pd->triCount; ++k)
+                for (int k = 0, e = pd->triCount; k < e; ++k)
                 {
                     const unsigned char* t = &tile->detailTris[(pd->triBase + k) * 4];
                     const float* tv[3];
@@ -417,7 +441,7 @@ void DrawNavMeshPolyBoundaries()
                         if (distancePtLine2d(tv[n], v0, v1) < thr &&
                             distancePtLine2d(tv[m], v0, v1) < thr)
                         {
-                            v_RenderLine(Vector3D(tv[n][0], tv[n][1], tv[n][2]), Vector3D(tv[m][0], tv[m][1], tv[m][2]), col, r_debug_overlay_zbuffer->GetBool());
+                            v_RenderLine(Vector3D(tv[n][0], tv[n][1], tv[n][2]), Vector3D(tv[m][0], tv[m][1], tv[m][2]), col, zbuffer);
                         }
                     }
                 }
@@ -432,7 +456,7 @@ void DrawNavMeshPolyBoundaries()
 //          b - 
 // Output : packed node set as u64
 //------------------------------------------------------------------------------
-uint64_t PackNodeLink(uint32_t a, uint32_t b)
+uint64_t CAI_Utility::PackNodeLink(uint32_t a, uint32_t b) const
 {
     if (a < b)
         std::swap(a, b);
@@ -443,10 +467,11 @@ uint64_t PackNodeLink(uint32_t a, uint32_t b)
 
 //------------------------------------------------------------------------------
 // Purpose: gets the nearest node index to position
-// Input  : *vPos
-// Output : node index (NO_NODEif no node has been found)
+// Input  : *vPos       - 
+//          *pAINetwork - 
+// Output : node index ('NO_NODE' if no node has been found)
 //------------------------------------------------------------------------------
-int64_t GetNearestNodeToPos(const Vector3D* vPos)
+int64_t CAI_Utility::GetNearestNodeToPos(const CAI_Network* pAINetwork, const Vector3D* vPos) const
 {
     __int64 result; // rax
     unsigned int v3; // er10
@@ -475,15 +500,15 @@ int64_t GetNearestNodeToPos(const Vector3D* vPos)
     float v26; // xmm2_4
     unsigned int v27; // ecx
 
-    if (*g_pAINetwork)
+    if (pAINetwork)
     {
-        v3 = (*g_pAINetwork)->m_iNumScriptNodes;
+        v3 = pAINetwork->m_iNumScriptNodes;
         v4 = 0i64;
         v5 = 640000.0;
         v6 = -1;
         if (v3 >= 4)
         {
-            v7 = (*g_pAINetwork)->m_ScriptNode;
+            v7 = pAINetwork->m_ScriptNode;
             v8 = vPos->x;
             v9 = vPos->y;
             v10 = vPos->z;
@@ -526,7 +551,7 @@ int64_t GetNearestNodeToPos(const Vector3D* vPos)
         }
         if ((unsigned int)v4 < v3)
         {
-            v24 = &(*g_pAINetwork)->m_ScriptNode->m_vOrigin.x + 5 * v4;
+            v24 = &pAINetwork->m_ScriptNode->m_vOrigin.x + 5 * v4;
             do
             {
                 v25 = v5;
@@ -551,3 +576,5 @@ int64_t GetNearestNodeToPos(const Vector3D* vPos)
     }
     return result;
 }
+
+CAI_Utility* g_pAIUtility = new (CAI_Utility);
