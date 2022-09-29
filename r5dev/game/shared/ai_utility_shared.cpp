@@ -136,10 +136,10 @@ void DrawNavMeshPortals()
     if (!mesh)
         return;
 
-    const bool bUseDepthBuffer = r_debug_overlay_zbuffer->GetBool();
-    OverlayBox_t::Transforms vTransforms;
+    const bool zbuffer = r_debug_overlay_zbuffer->GetBool();
+    const float range = navmesh_debug_camera_range->GetFloat();
 
-    for (int i = navmesh_draw_portal->GetInt(); i < mesh->getTileCount(); ++i)
+    for (int i = navmesh_draw_portal->GetInt(), j = mesh->getTileCount(); i < j; ++i)
     {
         if (navmesh_debug_tile_range->GetBool())
         {
@@ -151,12 +151,12 @@ void DrawNavMeshPortals()
         if (!tile->header)
             continue;
 
-        if (navmesh_debug_camera_range->GetBool())
+        if (range > 0)
         {
-            const Vector3D vCamera = MainViewOrigin();
+            const Vector3D camera = MainViewOrigin();
 
-            if (vCamera.DistTo(Vector3D(tile->header->bmin[0], tile->header->bmin[1], vCamera.z)) > navmesh_debug_camera_range->GetFloat() ||
-                vCamera.DistTo(Vector3D(tile->header->bmax[0], tile->header->bmax[1], vCamera.z)) > navmesh_debug_camera_range->GetFloat())
+            if (camera.DistTo(Vector3D(tile->header->bmin[0], tile->header->bmin[1], camera.z)) > range ||
+                camera.DistTo(Vector3D(tile->header->bmax[0], tile->header->bmax[1], camera.z)) > range)
                 continue;
         }
 
@@ -167,41 +167,76 @@ void DrawNavMeshPortals()
         for (int side = 0; side < 8; ++side)
         {
             unsigned short m = DT_EXT_LINK | static_cast<unsigned short>(side);
-            for (int i = 0; i < tile->header->polyCount; ++i)
+            for (int k = 0, e = tile->header->polyCount; k < e; ++k)
             {
-                const dtPoly* poly = &tile->polys[i];
+                const dtPoly* poly = &tile->polys[k];
 
                 // Create new links.
                 const int nv = poly->vertCount;
-                for (int j = 0; j < nv; ++j)
+                for (int v = 0; v < nv; ++v)
                 {
                     // Skip edges which do not point to the right side.
-                    if (poly->neis[j] != m)
+                    if (poly->neis[v] != m)
                         continue;
 
                     // Create new links
-                    const float* va = &tile->verts[poly->verts[j] * 3];
-                    const float* vb = &tile->verts[poly->verts[(j + 1) % nv] * 3];
+                    const float* va = &tile->verts[poly->verts[v] * 3];
+                    const float* vb = &tile->verts[poly->verts[(v + 1) % nv] * 3];
+
+                    /*****************
+                     Vertex indices:
+                     va - = 0 +------+
+                     vb - = 1 |      |
+                     va + = 2 |      |
+                     vb + = 3 +------+
+                     *****************/
+                    __m128 verts = _mm_setr_ps(va[2], vb[2], va[2], vb[2]);
+                    verts = _mm_sub_ps(verts, _mm_setr_ps(padz, padz, 0.0f, 0.0f));
+                    verts = _mm_add_ps(verts, _mm_setr_ps(0.0f, 0.0f, padz, padz));
 
                     if (side == 0 || side == 4)
                     {
                         Color col = side == 0 ? Color(188, 0, 0, 255) : Color(188, 0, 188, 255);
                         const float x = va[0] + ((side == 0) ? -padx : padx);
 
-                        v_RenderLine(Vector3D(x, va[1], va[2] - padz), Vector3D(x, va[1], va[2] + padz), col, r_debug_overlay_zbuffer->GetBool());
-                        v_RenderLine(Vector3D(x, va[1], va[2] + padz), Vector3D(x, vb[1], vb[2] + padz), col, r_debug_overlay_zbuffer->GetBool());
-                        v_RenderLine(Vector3D(x, vb[1], vb[2] + padz), Vector3D(x, vb[1], vb[2] - padz), col, r_debug_overlay_zbuffer->GetBool());
-                        v_RenderLine(Vector3D(x, vb[1], vb[2] - padz), Vector3D(x, va[1], va[2] - padz), col, r_debug_overlay_zbuffer->GetBool());
+                        __m128 origin = _mm_setr_ps(x, va[1], verts.m128_f32[0], 0);
+                        __m128 dest = _mm_setr_ps(x, va[1], verts.m128_f32[2], 0);
+                        v_RenderLine(*reinterpret_cast<Vector3D*>(&origin), 
+                            *reinterpret_cast<Vector3D*>(&dest), col, zbuffer);
+                        origin = _mm_setr_ps(x, va[1], verts.m128_f32[2], 0);
+                        dest = _mm_setr_ps(x, vb[1], verts.m128_f32[3], 0);
+                        v_RenderLine(*reinterpret_cast<Vector3D*>(&origin), 
+                            *reinterpret_cast<Vector3D*>(&dest), col, zbuffer);
+                        origin = _mm_setr_ps(x, vb[1], verts.m128_f32[3], 0);
+                        dest = _mm_setr_ps(x, vb[1], verts.m128_f32[1], 0);
+                        v_RenderLine(*reinterpret_cast<Vector3D*>(&origin), 
+                            *reinterpret_cast<Vector3D*>(&dest), col, zbuffer);
+                        origin = _mm_setr_ps(x, vb[1], verts.m128_f32[1], 0);
+                        dest = _mm_setr_ps(x, va[1], verts.m128_f32[0], 0);
+                        v_RenderLine(*reinterpret_cast<Vector3D*>(&origin), 
+                            *reinterpret_cast<Vector3D*>(&dest), col, zbuffer);
                     }
                     else if (side == 2 || side == 6)
                     {
                         Color col = side == 2 ? Color(0, 188, 0, 255) : Color(188, 188, 0, 255);
                         const float y = va[1] + ((side == 2) ? -padx : padx);
 
-                        v_RenderLine(Vector3D(va[0], y, va[2] - padz), Vector3D(va[0], y, va[2] + padz), col, r_debug_overlay_zbuffer->GetBool());
-                        v_RenderLine(Vector3D(va[0], y, va[2] + padz), Vector3D(vb[0], y, vb[2] + padz), col, r_debug_overlay_zbuffer->GetBool());
-                        v_RenderLine(Vector3D(vb[0], y, vb[2] + padz), Vector3D(vb[0], y, vb[2] - padz), col, r_debug_overlay_zbuffer->GetBool());
-                        v_RenderLine(Vector3D(vb[0], y, vb[2] - padz), Vector3D(va[0], y, va[2] - padz), col, r_debug_overlay_zbuffer->GetBool());
+                        __m128 origin = _mm_setr_ps(va[0], y, verts.m128_f32[0], 0);
+                        __m128 dest = _mm_setr_ps(va[0], y, verts.m128_f32[2], 0);
+                        v_RenderLine(*reinterpret_cast<Vector3D*>(&origin),
+                            *reinterpret_cast<Vector3D*>(&dest), col, zbuffer);
+                        origin = _mm_setr_ps(va[0], y, verts.m128_f32[2], 0);
+                        dest = _mm_setr_ps(vb[0], y, verts.m128_f32[3], 0);
+                        v_RenderLine(*reinterpret_cast<Vector3D*>(&origin),
+                            *reinterpret_cast<Vector3D*>(&dest), col, zbuffer);
+                        origin = _mm_setr_ps(vb[0], y, verts.m128_f32[3], 0);
+                        dest = _mm_setr_ps(vb[0], y, verts.m128_f32[1], 0);
+                        v_RenderLine(*reinterpret_cast<Vector3D*>(&origin),
+                            *reinterpret_cast<Vector3D*>(&dest), col, zbuffer);
+                        origin = _mm_setr_ps(vb[0], y, verts.m128_f32[1], 0);
+                        dest = _mm_setr_ps(va[0], y, verts.m128_f32[0], 0);
+                        v_RenderLine(*reinterpret_cast<Vector3D*>(&origin),
+                            *reinterpret_cast<Vector3D*>(&dest), col, zbuffer);
                     }
                 }
             }
