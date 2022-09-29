@@ -1,17 +1,9 @@
 #include "core/stdafx.h"
 
-class customScript {
-	// Class for each custom script entry in the mod.json file
-	// Holds the scripts location - including its name, and the script type - UI, Client, Server
-public:
-	enum class type {
-		ui,
-		client,
-		server
-	};
-
-	fs::path path;
-	type scripttype;
+enum class scriptType {
+	ui,
+	client,
+	server
 };
 
 class mod {
@@ -41,7 +33,7 @@ public:
 	std::vector<std::string> authors;
 	locations location = locations();
 	bool modEnabled = false;
-	std::vector<customScript> customscripts;
+	std::vector<std::pair<scriptType, fs::path>> customscripts;
 	std::string version = "1.0.0";
 	
 	bool update() {
@@ -71,6 +63,14 @@ public:
 };
 
 class modManager {
+private:
+	std::vector<std::pair<fs::path, fs::path>> specialFiles{
+		{"rpaks", "paks\\Win64"},
+		{"vpk", "vpk"},
+		{"plugins", "toDo"},
+		{"playlist", "platform"}
+	};
+
 public:
 	std::vector<mod*> mods;
 	fs::path modsfolder = fs::path("mods");
@@ -123,20 +123,20 @@ public:
 			// If it has a custom scripts field, and it's longer than 0, then add the entries to the customscripts vector
 			if (modjsondata->contains("customscripts")) {
 				for (auto& script : modjsondata->at("customscripts")) {
-					customScript newscript;
+					std::pair<scriptType, fs::path> newscript;
 					if (!script.contains("path")) continue;
-					newscript.path = fs::path(script.at("path").get<std::string>());
+					newscript.second = fs::path(script.at("path").get<std::string>());
 					if (script.at("runon") == "UI") {
-						newscript.scripttype = customScript::type::ui;
+						newscript.first = scriptType::ui;
 					}
 					else if (script.at("runon") == "CLIENT") {
-						newscript.scripttype = customScript::type::client;
+						newscript.first = scriptType::client;
 					}
 					else if (script.at("runon") == "SERVER") {
-						newscript.scripttype = customScript::type::server;
+						newscript.first = scriptType::server;
 					}
 					else {
-						newscript.scripttype = customScript::type::server;
+						newscript.first = scriptType::server;
 					}
 					newmod->customscripts.push_back(newscript);
 				}
@@ -165,38 +165,94 @@ public:
 		if (!fs::exists(builtfolder))
 			fs::create_directory(builtfolder);
 
-		std::stringstream generatedRSON;
-		// Todo: See if using a custom RSON ignores the other RSON, or if they both get merged together.
-		// If they don't. Maybe copy the existing one and add new content on top.
+		std::vector<fs::path> uiCustomScripts;
+		std::vector<fs::path> clCustomScripts;
+		std::vector<fs::path> seCustomScripts;
 
 		// Get all the enabled mods
 		std::vector<mod*> enabledmods = filterMods(mod::status::enabled);
 		for (mod* mod : enabledmods) {
-			// For each enabled mod, copy the scripts folder to the built folder
-			fs::copy(mod->location.scripts, builtfolder, fs::copy_options::recursive);
+			// Surface level iterate the mod folder to check for any special files
+			for (const auto& entry : fs::directory_iterator(mod->location.folder)) {
+				// Check if the file is a special file
+				for (auto& specialfile : specialFiles) {
+					if (entry.path() != specialfile.first) continue;
+					// Copy the contents of the folder to the second part of the pair
+					fs::copy(entry.path(), builtfolder / specialfile.second, fs::copy_options::recursive);
+				}
+			}
 
-			// Build the correct RSON text - example below:
-			// When: " <Server/Client/UI> "
-			// Scripts:
-			// [
-			//		" <script path> "
-			// ]
-			// Then add it to the generated RSON
+			// Copy files from the mod's scripts folder to the built folder
+			for (const auto& entry : fs::recursive_directory_iterator(mod->location.scripts)) {
+				if (entry.is_directory()) continue;
+
+				// Check to see if the file already exists. 
+				if (fs::exists(builtfolder / entry)) continue;
+
+				// Copy the file
+				fs::copy(entry, builtfolder / entry);
+			}
+
+			// Iterate through the custom scripts			
 			for (auto& script : mod->customscripts) {
-				std::string scripttype = "";
-				switch (script.scripttype) {
-				case customScript::type::server:
-					scripttype = "SERVER";
+				switch (script.first) {
+				case scriptType::server:
+					uiCustomScripts.push_back({ script.second });
 					break;
-				case customScript::type::client:
-					scripttype = "CLIENT";
+				case scriptType::client:
+					clCustomScripts.push_back({ script.second });
 					break;
-				case customScript::type::ui:
-					scripttype = "UI";
+				case scriptType::ui:
+					seCustomScripts.push_back({ script.second });
 					break;
 				}
-				generatedRSON << "When: \"" << scripttype << "\"\nScripts:\n[\n\t\"" << script.path.string() << "\"\n]\n";
+				
 			}
+		}
+
+		// For each entry in the customScripts vector, build the custom scripts file
+		// Format:
+		// WHEN: "<type>"
+		// Scripts:
+		// [
+		//		<fileLocation minus vscripts>
+		// ]
+		std::stringstream rsonFile;
+		if (uiCustomScripts.size() != 0)
+			rsonFile << "WHEN: \"UI\"" << std::endl
+			<< "Scripts:" << std::endl
+			<< "[" << std::endl;
+		for (auto& cs : uiCustomScripts)
+			rsonFile << cs.string() << std::endl;
+		if (uiCustomScripts.size() != 0)
+			rsonFile << "]" << std::endl;
+
+
+		if (clCustomScripts.size() != 0)
+			rsonFile << "WHEN: \"CLIENT\"" << std::endl
+			<< "Scripts:" << std::endl
+			<< "[" << std::endl;
+		for (auto& cs : clCustomScripts)
+			rsonFile << cs.string() << std::endl;
+		if (clCustomScripts.size() != 0)
+			rsonFile << "]" << std::endl;
+
+
+		if (seCustomScripts.size() != 0)
+			rsonFile << "WHEN: \"SERVER\"" << std::endl
+			<< "Scripts:" << std::endl
+			<< "[" << std::endl;
+		for (auto& cs : seCustomScripts)
+			rsonFile << cs.string() << std::endl;
+		if (seCustomScripts.size() != 0)
+			rsonFile << "]" << std::endl;
+
+		if (seCustomScripts.size() == 0 && clCustomScripts.size() == 0 && uiCustomScripts.size() == 0) return true;
+		// Add the current .rson file onto the end for compabiltiiblity
+		if (fs::exists("platform\\scripts\\vscripts\\scripts.rson")) {
+			std::ifstream rsonFileC("platform\\scripts\\vscripts\\scripts.rson");
+			rsonFile << rsonFileC.rdbuf();
+			rsonFileC.close();
 		}
 
 		// Write the generated RSON to the built folders vscript folder
@@ -204,7 +260,7 @@ public:
 		if (!fs::exists(vscriptfolder))
 			fs::create_directory(vscriptfolder);
 		std::ofstream generatedRSONfile(vscriptfolder / "scripts.rson");
-		generatedRSONfile << generatedRSON.str();
+		generatedRSONfile << rsonFile.str();
 
 		return true;
 	}
