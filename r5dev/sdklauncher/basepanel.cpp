@@ -749,7 +749,7 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 
 		if (this->m_CheatsToggle->Checked())
 		{
-			svParameters.append("+sv_cheats \"1\"\n");
+			svParameters.append("-dev\n");
 			svParameters.append("-showdevmenu\n");
 		}
 
@@ -962,7 +962,7 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 
 		if (this->m_CheatsToggle->Checked())
 		{
-			svParameters.append("+sv_cheats \"1\"\n");
+			svParameters.append("-dev\n");
 			svParameters.append("-showdevmenu\n");
 		}
 
