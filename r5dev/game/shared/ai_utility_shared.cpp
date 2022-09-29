@@ -79,6 +79,7 @@ void DrawNavMeshBVTree()
     if (!mesh)
         return;
     const Vector3D vCamera = MainViewOrigin();
+    const bool bUseDepthBuffer = r_debug_overlay_zbuffer->GetBool();
 
     OverlayBox_t::Transforms vTransforms;
     for (int i = navmesh_draw_bvtree->GetInt(); i < mesh->getTileCount(); ++i)
@@ -111,17 +112,17 @@ void DrawNavMeshBVTree()
             vTransforms.xmm[1] = _mm_set_ps(0.0f, 0.0f, 1.0f, 0.0f);
             vTransforms.xmm[2] = _mm_set_ps(0.0f, 1.0f, 0.0f, 0.0f);
 
-            const __m128 xMinTileAABB = _mm_setr_ps(tile->header->bmin[0], tile->header->bmin[1], tile->header->bmin[2], 0.0f);
-            const __m128 xQuantMask = _mm_setr_ps(cs, cs, cs, 0.0f);
+            const __m128 xTileMinAABB = _mm_setr_ps(tile->header->bmin[0], tile->header->bmin[1], tile->header->bmin[2], 0.0f);
+            const __m128 xCellSize = _mm_setr_ps(cs, cs, cs, 0.0f);
 
             // Parallel Vector3D construction.
-            const __m128 xMinRet = _mm_add_ps(xMinTileAABB, _mm_mul_ps( // Formula: tile->header->bmin[axis] + node->bmin[axis] * cs;
-                _mm_setr_ps(node->bmin[0], node->bmin[1], node->bmin[2], 0.0f), xQuantMask));
-            const __m128 xMaxRet = _mm_add_ps(xMinTileAABB, _mm_mul_ps( // Formula: tile->header->bmin[axis] + node->bmax[axis] * cs;
-                _mm_setr_ps(node->bmax[0], node->bmax[1], node->bmax[2], 0.0f), xQuantMask));
+            const __m128 xMins = _mm_add_ps(xTileMinAABB, _mm_mul_ps( // Formula: tile->header->bmin[axis] + node->bmin[axis] * cs;
+                _mm_setr_ps(node->bmin[0], node->bmin[1], node->bmin[2], 0.0f), xCellSize));
+            const __m128 xMaxs = _mm_add_ps(xTileMinAABB, _mm_mul_ps( // Formula: tile->header->bmin[axis] + node->bmax[axis] * cs;
+                _mm_setr_ps(node->bmax[0], node->bmax[1], node->bmax[2], 0.0f), xCellSize));
 
-            v_RenderBox(vTransforms, *reinterpret_cast<const Vector3D*>(&xMinRet), *reinterpret_cast<const Vector3D*>(&xMaxRet), 
-                Color(188, 188, 188, 255), r_debug_overlay_zbuffer->GetBool());
+            v_RenderBox(vTransforms, *reinterpret_cast<const Vector3D*>(&xMins), *reinterpret_cast<const Vector3D*>(&xMaxs), 
+                Color(188, 188, 188, 255), bUseDepthBuffer);
         }
     }
 }
@@ -135,7 +136,9 @@ void DrawNavMeshPortals()
     if (!mesh)
         return;
 
+    const bool bUseDepthBuffer = r_debug_overlay_zbuffer->GetBool();
     OverlayBox_t::Transforms vTransforms;
+
     for (int i = navmesh_draw_portal->GetInt(); i < mesh->getTileCount(); ++i)
     {
         if (navmesh_debug_tile_range->GetBool())
@@ -215,7 +218,9 @@ void DrawNavMeshPolys()
     if (!mesh)
         return;
 
+    const bool bUseDepthBuffer = r_debug_overlay_zbuffer->GetBool();
     OverlayBox_t::Transforms vTransforms;
+
     for (int i = navmesh_draw_polys->GetInt(); i < mesh->getTileCount(); ++i)
     {
         if (navmesh_debug_tile_range->GetBool())
@@ -247,38 +252,32 @@ void DrawNavMeshPolys()
             if (poly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
             {
                 const dtOffMeshConnection* con = &tile->offMeshCons[ip - tile->header->offMeshBase];
-                v_RenderLine(Vector3D(con->pos[0], con->pos[1], con->pos[2]), Vector3D(con->pos[3], con->pos[4], con->pos[5]), Color(188, 0, 188, 255), r_debug_overlay_zbuffer->GetBool());
+                v_RenderLine(Vector3D(con->pos[0], con->pos[1], con->pos[2]), Vector3D(con->pos[3], con->pos[4], con->pos[5]), Color(188, 0, 188, 255), bUseDepthBuffer);
             }
             else
             {
                 const dtPolyDetail* pd = &tile->detailMeshes[ip];
-
-                //dd->begin(DU_DRAW_TRIS);
                 for (int k = 0; k < pd->triCount; ++k)
                 {
-                    Vector3D tris[3];
+                    __m128 tris[3] = { _mm_setzero_ps() };
                     const unsigned char* t = &tile->detailTris[(pd->triBase + k) * 4];
                     for (int e = 0; e < 3; ++e)
                     {
                         if (t[e] < poly->vertCount)
                         {
                             float* verts = &tile->verts[poly->verts[t[e]] * 3];
-                            tris[e].x = verts[0];
-                            tris[e].y = verts[1];
-                            tris[e].z = verts[2];
+                            tris[e] = _mm_setr_ps(verts[0], verts[1], verts[2], 0.0f);
                         }
                         else
                         {
                             float* verts = &tile->detailVerts[(pd->vertBase + t[e] - poly->vertCount) * 3];
-                            tris[e].x = verts[0];
-                            tris[e].y = verts[1];
-                            tris[e].z = verts[2];
+                            tris[e] = _mm_setr_ps(verts[0], verts[1], verts[2], 0.0f);
                         }
                     }
 
-                    v_RenderLine(tris[0], tris[1], col, r_debug_overlay_zbuffer->GetBool());
-                    v_RenderLine(tris[1], tris[2], col, r_debug_overlay_zbuffer->GetBool());
-                    v_RenderLine(tris[2], tris[0], col, r_debug_overlay_zbuffer->GetBool());
+                    v_RenderLine(*reinterpret_cast<const Vector3D*>(&tris[0]), *reinterpret_cast<const Vector3D*>(&tris[1]), col, bUseDepthBuffer);
+                    v_RenderLine(*reinterpret_cast<const Vector3D*>(&tris[1]), *reinterpret_cast<const Vector3D*>(&tris[2]), col, bUseDepthBuffer);
+                    v_RenderLine(*reinterpret_cast<const Vector3D*>(&tris[2]), *reinterpret_cast<const Vector3D*>(&tris[0]), col, bUseDepthBuffer);
                 }
             }
         }
