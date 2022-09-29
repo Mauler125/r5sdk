@@ -14,8 +14,8 @@
 #include "engine/debugoverlay.h"
 #include "game/shared/ai_utility_shared.h"
 #include "game/server/ai_utility.h"
-#include "game/server/ai_network.h"
 #include "game/server/ai_networkmanager.h"
+#include "game/server/ai_network.h"
 #include "game/client/view.h"
 #include "thirdparty/recast/detour/include/detourcommon.h"
 
@@ -40,9 +40,14 @@ void DrawAIScriptNodes()
             const CAI_ScriptNode* pScriptNode = &(*g_pAINetwork)->m_ScriptNode[i];
             const bool bUseDepthBuffer = r_debug_overlay_zbuffer->GetBool();
 
-            vTransforms.xmm[0] = _mm_set_ps(pScriptNode->m_vOrigin.x - 50.f, 0.0f, 0.0f, 1.0f);
-            vTransforms.xmm[1] = _mm_set_ps(pScriptNode->m_vOrigin.y - 50.f, 0.0f, 1.0f, 0.0f);
-            vTransforms.xmm[2] = _mm_set_ps(pScriptNode->m_vOrigin.z - 50.f, 1.0f, 0.0f, 0.0f);
+            static const __m128 xSubMask = _mm_setr_ps(50.0f, 50.0f, 50.0f, 0.0f);
+
+            const __m128 xOrigin = _mm_setr_ps(pScriptNode->m_vOrigin.x, pScriptNode->m_vOrigin.y, pScriptNode->m_vOrigin.z, 0.0f);
+            const __m128 xResult = _mm_sub_ps(xOrigin, xSubMask); // Subtract 50.f from our scalars to align box with node.
+
+            vTransforms.xmm[0] = _mm_set_ps(xResult.m128_f32[0], 0.0f, 0.0f, 1.0f);
+            vTransforms.xmm[1] = _mm_set_ps(xResult.m128_f32[1], 0.0f, 1.0f, 0.0f);
+            vTransforms.xmm[2] = _mm_set_ps(xResult.m128_f32[2], 1.0f, 0.0f, 0.0f);
 
             v_RenderBox(vTransforms, { 0, 0, 0 }, { 100, 100, 100 }, Color(0, 255, 0, 255), bUseDepthBuffer);
 
@@ -391,7 +396,7 @@ void DrawNavMeshPolyBoundaries()
 // Purpose: packs 2 node indices together
 // Input  : a - 
 //          b - 
-// Output : packed node set
+// Output : packed node set as u64
 //------------------------------------------------------------------------------
 uint64_t PackNodeLink(uint32_t a, uint32_t b)
 {
