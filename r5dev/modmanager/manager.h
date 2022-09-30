@@ -1,4 +1,6 @@
 #include "core/stdafx.h"
+#include "thirdparty/cryptopp/include/gzip.h"
+#include "thirdparty/cryptopp/include/files.h"
 
 enum class scriptType {
 	ui,
@@ -8,10 +10,10 @@ enum class scriptType {
 
 class mod {
 	// Class for information relating to the mod
-	// This includes location, status, appid, etc
+	// This includes m_Locations, status, appid, etc
 
 public:
-	enum status {
+	enum eStatus {
 		invalid,
 		valid,
 		enabled,
@@ -25,38 +27,38 @@ public:
 		fs::path jason = "";
 	};
 
-	status mod_status = unknown;
-	std::string mod_appid = "";
-	std::string mod_name = "";
-	std::string mod_desc = "";
-	nlohmann::json modjsondata;
-	std::vector<std::string> authors;
-	locations location = locations();
-	bool modEnabled = false;
-	std::vector<std::pair<scriptType, fs::path>> customscripts;
-	std::string version = "1.0.0";
+	eStatus mod_status = unknown;
+	std::string m_Appid = "";
+	std::string m_Name = "";
+	std::string m_Desc = "";
+	nlohmann::json m_Json;
+	std::vector<std::string> m_Authors;
+	locations m_Locations = locations();
+	bool m_Enabled = false;
+	std::vector<std::pair<scriptType, fs::path>> m_CustomScripts;
+	std::string m_Version = "1.0.0";
 	
 	bool update() {
 		// Updates the mods mod.json file with the correct state
 
 		// Check for the existance of the file
-		if (!fs::exists(location.jason))
+		if (!fs::exists(m_Locations.jason))
 			return false;
 
-		modjsondata["enabled"] = modEnabled;
+		m_Json["enabled"] = m_Enabled;
 
 		// Write the file
-		std::ofstream modjsonwrite(location.jason);
-		modjsonwrite << modjsondata.dump(4);
+		std::ofstream modjsonwrite(m_Locations.jason);
+		modjsonwrite << m_Json.dump(4);
 		return true;
 	}
 	bool toggle() {
 		// Toggles the mods state - updates the mod.json file
-		modEnabled = !modEnabled;
-		return toggle(modEnabled);
+		m_Enabled = !m_Enabled;
+		return toggle(m_Enabled);
 	}
 	bool toggle(bool value) {
-		modEnabled = value;
+		m_Enabled = value;
 		update();
 		return value;
 	}
@@ -75,9 +77,16 @@ public:
 	std::vector<mod*> mods;
 	fs::path modsfolder = fs::path("mods");
 
-	modManager() {
-		refresh();
+	void decompressZips() {
+		// Decompresses all zip files in the mods folder
+		for (auto& file : fs::directory_iterator(modsfolder)) {
+			if (file.path().extension() == ".zip") {
+				// Decompress .zip into the correctly structued folder
+				// TODO: Figure out what I need to do...
+			}
+		}
 	}
+	
 	void refresh() {
 		// Reset the mods vector
 		mods.clear();
@@ -88,41 +97,41 @@ public:
 			// For each mod folder, create a mod object
 			// Then add it to the mods array
 			mod* newmod = new mod;
-			newmod->location.folder = entry.path();
-			newmod->location.scripts = entry.path() / "scripts";
-			newmod->location.jason = entry.path() / "mod.json";
+			newmod->m_Locations.folder = entry.path();
+			newmod->m_Locations.scripts = entry.path() / "scripts";
+			newmod->m_Locations.jason = entry.path() / "mod.json";
 
 			// Check if the mod.json file exists
-			if (!fs::exists(newmod->location.jason)) {
+			if (!fs::exists(newmod->m_Locations.jason)) {
 				newmod->mod_status = mod::invalid;
 				std::cout << "Mod is invalid. Mod.json doesn't exist" << std::endl;
 				continue;
 			}
 
 			// Read mod.json file, then put it through the json library
-			std::ifstream modjson(newmod->location.jason);
-			modjson >> newmod->modjsondata;
-			nlohmann::json* modjsondata = &newmod->modjsondata;
+			std::ifstream modjson(newmod->m_Locations.jason);
+			modjson >> newmod->m_Json;
+			nlohmann::json* m_Json = &newmod->m_Json;
 			// Check if mod contains required modjson files
 			// This includes appid and name;
-			if (!modjsondata->contains("appid") || !modjsondata->contains("name")) {
+			if (!m_Json->contains("appid") || !m_Json->contains("name")) {
 				newmod->mod_status = mod::invalid;
 				std::cout << "Mod is invalid. Missing appid or name" << std::endl;
 				continue;
 			}
 
 			// Set the mod names
-			newmod->mod_appid = (*modjsondata)["appid"];
-			newmod->mod_name = (*modjsondata)["name"];
-			newmod->mod_desc = (*modjsondata)["description"];
-			newmod->modEnabled = (*modjsondata)["enabled"];
-			newmod->authors = (*modjsondata)["authors"];
-			newmod->version = (*modjsondata)["version"];
-			newmod->mod_status = newmod->modEnabled ? mod::status::enabled : mod::status::disabled;
+			newmod->m_Appid = (*m_Json)["appid"];
+			newmod->m_Name = (*m_Json)["name"];
+			newmod->m_Desc = (*m_Json)["description"];
+			newmod->m_Enabled = (*m_Json)["enabled"];
+			newmod->m_Authors = (*m_Json)["authors"];
+			newmod->m_Version = (*m_Json)["version"];
+			newmod->mod_status = newmod->m_Enabled ? mod::eStatus::enabled : mod::eStatus::disabled;
 
-			// If it has a custom scripts field, and it's longer than 0, then add the entries to the customscripts vector
-			if (modjsondata->contains("customscripts")) {
-				for (auto& script : modjsondata->at("customscripts")) {
+			// If it has a custom scripts field, and it's longer than 0, then add the entries to the m_CustomScripts vector
+			if (m_Json->contains("customscripts")) {
+				for (auto& script : m_Json->at("customscripts")) {
 					std::pair<scriptType, fs::path> newscript;
 					if (!script.contains("path")) continue;
 					newscript.second = fs::path(script.at("path").get<std::string>());
@@ -138,7 +147,7 @@ public:
 					else {
 						newscript.first = scriptType::server;
 					}
-					newmod->customscripts.push_back(newscript);
+					newmod->m_CustomScripts.push_back(newscript);
 				}
 			}
 
@@ -148,7 +157,7 @@ public:
 			mods.push_back(newmod);
 		}
 	}
-	std::vector<mod*> filterMods(mod::status filter = mod::status::enabled) {
+	std::vector<mod*> filterMods(mod::eStatus filter = mod::eStatus::enabled) {
 		// Returns a vector of mods with a particular status - default is enabled
 		std::vector<mod*> filteredmods;
 		for (mod* mod : mods) {
@@ -170,10 +179,10 @@ public:
 		std::vector<fs::path> seCustomScripts;
 
 		// Get all the enabled mods
-		std::vector<mod*> enabledmods = filterMods(mod::status::enabled);
+		std::vector<mod*> enabledmods = filterMods(mod::eStatus::enabled);
 		for (mod* mod : enabledmods) {
 			// Surface level iterate the mod folder to check for any special files
-			for (const auto& entry : fs::directory_iterator(mod->location.folder)) {
+			for (const auto& entry : fs::directory_iterator(mod->m_Locations.folder)) {
 				// Check if the file is a special file
 				for (auto& specialfile : specialFiles) {
 					if (entry.path() != specialfile.first) continue;
@@ -183,7 +192,7 @@ public:
 			}
 
 			// Copy files from the mod's scripts folder to the built folder
-			for (const auto& entry : fs::recursive_directory_iterator(mod->location.scripts)) {
+			for (const auto& entry : fs::recursive_directory_iterator(mod->m_Locations.scripts)) {
 				if (entry.is_directory()) continue;
 
 				// Check to see if the file already exists. 
@@ -194,7 +203,7 @@ public:
 			}
 
 			// Iterate through the custom scripts			
-			for (auto& script : mod->customscripts) {
+			for (auto& script : mod->m_CustomScripts) {
 				switch (script.first) {
 				case scriptType::server:
 					uiCustomScripts.push_back({ script.second });
@@ -263,6 +272,10 @@ public:
 		generatedRSONfile << rsonFile.str();
 
 		return true;
+	}
+
+	modManager() {
+		refresh();
 	}
 };
 
