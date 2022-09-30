@@ -84,11 +84,11 @@ ConVar* sv_rcon_maxsockets                 = nullptr;
 ConVar* sv_rcon_whitelist_address          = nullptr;
 #endif // DEDICATED
 #endif // !CLIENT_DLL
-
-ConVar* sv_visualizetraces = nullptr;
+ConVar* sv_visualizetraces                 = nullptr;
+ConVar* sv_visualizetraces_duration        = nullptr;
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
-ConVar* bhit_enable = nullptr;
-ConVar* bhit_abs_origin = nullptr;
+ConVar* bhit_enable                        = nullptr;
+ConVar* bhit_abs_origin                    = nullptr;
 #endif // !GAMEDLL_S0 && !GAMEDLL_S1
 //-----------------------------------------------------------------------------
 // CLIENT                                                                     |

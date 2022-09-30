@@ -927,10 +927,10 @@ BHit_f
 */
 void BHit_f(const CCommand& args)
 {
+#ifndef DEDICATED // 
 	if (args.ArgC() != 9)
 		return;
 
-#ifndef DEDICATED
 	if (bhit_enable->GetBool() && sv_visualizetraces->GetBool())
 	{
 		Vector3D vecAbsStart;
@@ -939,23 +939,12 @@ void BHit_f(const CCommand& args)
 		for (int i = 0; i < 3; ++i)
 			vecAbsStart[i] = atof(args[i + 4]);
 
-		if (bhit_abs_origin->GetBool())
-		{
-			int iEnt = atof(args[2]);
-			if (IClientEntity* pEntity = g_pClientEntityList->GetClientEntity(iEnt))
-				vecAbsEnd = pEntity->GetAbsOrigin();
-			else
-				goto VEC_RENDER;
-		}
-		else VEC_RENDER:
-		{
-			QAngle vecBulletAngles;
-			for (int i = 0; i < 2; ++i)
-				vecBulletAngles[i] = atof(args[i + 7]);
+		QAngle vecBulletAngles;
+		for (int i = 0; i < 2; ++i)
+			vecBulletAngles[i] = atof(args[i + 7]);
 
-			vecBulletAngles.z = 180.f; // Flipped axis.
-			AngleVectors(vecBulletAngles, &vecAbsEnd);
-		}
+		vecBulletAngles.z = 180.f; // Flipped axis.
+		AngleVectors(vecBulletAngles, &vecAbsEnd);
 
 		static char szBuf[2048];
 		snprintf(szBuf, sizeof(szBuf), "drawline %g %g %g %g %g %g", 
@@ -963,8 +952,17 @@ void BHit_f(const CCommand& args)
 			vecAbsStart.x + vecAbsEnd.x * MAX_COORD_RANGE, 
 			vecAbsStart.y + vecAbsEnd.y * MAX_COORD_RANGE, 
 			vecAbsStart.z + vecAbsEnd.z * MAX_COORD_RANGE);
-
 		Cbuf_AddText(Cbuf_GetCurrentPlayer(), szBuf, cmd_source_t::kCommandSrcCode);
+
+		if (bhit_abs_origin->GetBool())
+		{
+			const int iEnt = atof(args[2]);
+			if (const IClientEntity* pEntity = g_pClientEntityList->GetClientEntity(iEnt))
+			{
+				g_pDebugOverlay->AddSphereOverlay( // Render a debug sphere at the client's predicted entity origin.
+					pEntity->GetAbsOrigin(), 10.f, 8, 6, 20, 60, 255, 0, sv_visualizetraces_duration->GetFloat());
+			}
+		}
 	}
 #endif // !DEDICATED
 }

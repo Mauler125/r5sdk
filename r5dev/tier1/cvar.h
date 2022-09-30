@@ -81,6 +81,7 @@ extern ConVar* sv_rcon_whitelist_address;
 #endif // DEDICATED
 #endif // CLIENT_DLL
 extern ConVar* sv_visualizetraces;
+extern ConVar* sv_visualizetraces_duration;
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 extern ConVar* bhit_enable;
 extern ConVar* bhit_abs_origin;

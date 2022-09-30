@@ -118,7 +118,7 @@ void ConVar::Init(void) const
 #endif // DEDICATED
 #endif // !CLIENT_DLL
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
-	bhit_abs_origin = ConVar::Create("bhit_abs_origin", "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Use player's absolute origin for bhit tracing.", false, 0.f, false, 0.f, nullptr, nullptr);
+	bhit_abs_origin = ConVar::Create("bhit_abs_origin", "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Draw entity's predicted abs origin upon bullet impact for trajectory debugging.", false, 0.f, false, 0.f, nullptr, nullptr);
 #endif // !GAMEDLL_S0 && !GAMEDLL_S1
 	//-------------------------------------------------------------------------
 	// CLIENT                                                                 |
@@ -249,6 +249,7 @@ void ConVar::InitShipped(void) const
 	stream_overlay                   = g_pCVar->FindVar("stream_overlay");
 	stream_overlay_mode              = g_pCVar->FindVar("stream_overlay_mode");
 	sv_visualizetraces               = g_pCVar->FindVar("sv_visualizetraces");
+	sv_visualizetraces_duration      = g_pCVar->FindVar("sv_visualizetraces_duration");
 	old_gather_props                 = g_pCVar->FindVar("old_gather_props");
 #ifndef DEDICATED
 	origin_disconnectWhenOffline     = g_pCVar->FindVar("origin_disconnectWhenOffline");
