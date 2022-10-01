@@ -397,7 +397,6 @@ playlists
 				sur_circle_start_paused                        1
 
 				// Can change loadouts:
-				dev_loadout_changeable_at_any_time             1
 				sur_dev_unrestricted_character_changes         1
 				character_reselect_enabled                     1
 				charselect_enabled                             1
