@@ -533,10 +533,11 @@ void VPK_Unpack_f(const CCommand& args)
 		return;
 	}
 	std::chrono::milliseconds msStart = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+	const char* pArg = args.Arg(1);
 
-	DevMsg(eDLL_T::FS, "*** Starting VPK extraction command for: '%s'\n", args.Arg(1));
+	DevMsg(eDLL_T::FS, "*** Starting VPK extraction command for: '%s'\n", pArg);
 
-	VPKDir_t vpk = g_pPackedStore->GetDirectoryFile(args.Arg(1));
+	VPKDir_t vpk = g_pPackedStore->GetDirectoryFile(pArg);
 	g_pPackedStore->InitLzDecompParams();
 
 	std::thread th([&] { g_pPackedStore->UnpackAll(vpk, ConvertToWinPath(fs_packedstore_workspace->GetString())); });
@@ -564,14 +565,15 @@ void VPK_Mount_f(const CCommand& args)
 		return;
 	}
 
-	VPKData_t* pPakData = FileSystem()->MountVPKFile(args.Arg(1));
+	const char* pArg = args.Arg(1);
+	VPKData_t* pPakData = FileSystem()->MountVPKFile(pArg);
 	if (pPakData)
 	{
-		DevMsg(eDLL_T::FS, "Mounted VPK file '%s' with handle '%i'\n", args.Arg(1), pPakData->m_nHandle);
+		DevMsg(eDLL_T::FS, "Mounted VPK file '%s' with handle '%i'\n", pArg, pPakData->m_nHandle);
 	}
 	else
 	{
-		Warning(eDLL_T::FS, "Unable to mount VPK file '%s': non-existent VPK file\n", args.Arg(1));
+		Warning(eDLL_T::FS, "Unable to mount VPK file '%s': non-existent VPK file\n", pArg);
 	}
 }
 
@@ -927,7 +929,7 @@ BHit_f
 */
 void BHit_f(const CCommand& args)
 {
-#ifndef DEDICATED // 
+#ifndef DEDICATED // Stubbed to suppress server warnings as this is a GAMEDLL command!
 	if (args.ArgC() != 9)
 		return;
 
@@ -946,7 +948,7 @@ void BHit_f(const CCommand& args)
 		vecBulletAngles.z = 180.f; // Flipped axis.
 		AngleVectors(vecBulletAngles, &vecAbsEnd);
 
-		static char szBuf[2048];
+		static char szBuf[2048]; // Render physics trace.
 		snprintf(szBuf, sizeof(szBuf), "drawline %g %g %g %g %g %g", 
 			vecAbsStart.x, vecAbsStart.y, vecAbsStart.z,
 			vecAbsStart.x + vecAbsEnd.x * MAX_COORD_RANGE, 
