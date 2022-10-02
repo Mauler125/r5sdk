@@ -2,6 +2,7 @@
 #include "tier1/cvar.h"
 #include "datacache/mdlcache.h"
 #include "common/pseudodefs.h"
+#include "materialsystem/cmaterialsystem.h"
 #include "materialsystem/cmaterialglue.h"
 #include "engine/host_state.h"
 #include "engine/modelloader.h"
@@ -339,7 +340,7 @@
 //}
 
 //-----------------------------------------------------------------------------
-// Purpose: calculates the view frustum culling data per static prop
+// Purpose: calculates the view frustum culling data foreach static prop
 //-----------------------------------------------------------------------------
 void* __fastcall BuildPropStaticFrustumCullMap(int64_t a1, int64_t a2, unsigned int a3, unsigned int a4, int64_t a5, int64_t a6, int64_t a7)
 {
@@ -396,11 +397,14 @@ void* __fastcall BuildPropStaticFrustumCullMap(int64_t a1, int64_t a2, unsigned 
                         ++v64;
                         v67 += 92i64;
 
-                        if (reinterpret_cast<uintptr_t>(v68) < g_GameDll.m_RunTimeData.m_pSectionBase    || // Check bounds (data could only be within the '.data' segment.
+                        if (reinterpret_cast<uintptr_t>(v68) < g_GameDll.m_RunTimeData.m_pSectionBase    || // Check bounds (data is mostly within the '.data' segment.
                             reinterpret_cast<uintptr_t>(v68) > g_GameDll.m_ExceptionTable.m_pSectionBase || error)
                         {
-                            error = true;
-                            continue;
+                            if (!IsMaterialVFTable(reinterpret_cast<void**>(v68))) // Last chance.
+                            {
+                                error = true;
+                                continue;
+                            }
                         }
                     }           while (v64 < *((int*)v65 + 19));
                 }

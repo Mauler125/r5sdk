@@ -7,6 +7,7 @@ inline CMemory p_CMaterialSystem__Init;
 inline auto CMaterialSystem__Init = p_CMaterialSystem__Init.RCast<void* (*)(void* thisptr)>();
 
 inline void* g_pMaterialSystem = nullptr;
+inline void* g_pMaterialVFTable = nullptr;
 #ifndef DEDICATED
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 inline CMemory p_DispatchDrawCall;
@@ -25,6 +26,7 @@ inline int* g_nUnfreeStreamingTextureMemory   = nullptr;
 inline int* g_nUnusableStreamingTextureMemory = nullptr;
 #endif // !DEDICATED
 
+bool IsMaterialVFTable(void** pCandidate);
 void CMaterialSystem_Attach();
 void CMaterialSystem_Detach();
 ///////////////////////////////////////////////////////////////////////////////
@@ -36,14 +38,13 @@ class VMaterialSystem : public IDetour
 #ifndef DEDICATED
 		spdlog::debug("| FUN: CMaterialSystem::DispatchDrawCall    : {:#18x} |\n", p_DispatchDrawCall.GetPtr());
 		spdlog::debug("| FUN: CMaterialSystem::DrawStreamOverlay   : {:#18x} |\n", p_DrawStreamOverlay.GetPtr());
-		spdlog::debug("| VAR: s_pRenderContext                     : {:#18x} |\n", s_pRenderContext.GetPtr());
-#endif // !DEDICATED
-		spdlog::debug("| VAR: g_pMaterialSystem                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pMaterialSystem));
-#ifndef DEDICATED
 		spdlog::debug("| VAR: g_nTotalStreamingTextureMemory       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_nTotalStreamingTextureMemory));
 		spdlog::debug("| VAR: g_nUnfreeStreamingTextureMemory      : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_nUnfreeStreamingTextureMemory));
 		spdlog::debug("| VAR: g_nUnusableStreamingTextureMemory    : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_nUnusableStreamingTextureMemory));
+		spdlog::debug("| VAR: s_pRenderContext                     : {:#18x} |\n", s_pRenderContext.GetPtr());
 #endif // !DEDICATED
+		spdlog::debug("| VAR: g_pMaterialSystem                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pMaterialSystem));
+		spdlog::debug("| CON: g_pMaterialVFTable                   : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pMaterialVFTable));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
@@ -64,17 +65,20 @@ class VMaterialSystem : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		g_pMaterialSystem = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
-			"\x48\x8B\x0D\x00\x00\x00\x00\x48\x85\xC9\x74\x11\x48\x8B\x01\x48\x8D\x15\x00\x00\x00\x00"), "xxx????xxxxxxxxxxx????").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void*>();
 #ifndef DEDICATED
-		s_pRenderContext = p_DispatchDrawCall.FindPattern("48 8B ?? ?? ?? ?? 01").ResolveRelativeAddressSelf(0x3, 0x7);
-
 		g_nTotalStreamingTextureMemory = p_DrawStreamOverlay.Offset(0x0).FindPatternSelf("48 8B 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<int*>();
 		g_nUnfreeStreamingTextureMemory = p_DrawStreamOverlay.Offset(0x20).FindPatternSelf("48 8B 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<int*>();
 		g_nUnusableStreamingTextureMemory = p_DrawStreamOverlay.Offset(0x50).FindPatternSelf("48 8B 05", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<int*>();
+
+		s_pRenderContext = p_DispatchDrawCall.FindPattern("48 8B ?? ?? ?? ?? 01").ResolveRelativeAddressSelf(0x3, 0x7);
 #endif // !DEDICATED
+		g_pMaterialSystem = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
+			"\x48\x8B\x0D\x00\x00\x00\x00\x48\x85\xC9\x74\x11\x48\x8B\x01\x48\x8D\x15\x00\x00\x00\x00"), "xxx????xxxxxxxxxxx????").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void*>();
 	}
-	virtual void GetCon(void) const { }
+	virtual void GetCon(void) const
+	{
+		g_pMaterialVFTable = g_GameDll.GetVirtualMethodTable(".?AVCMaterial@@").RCast<void*>();
+	}
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }
 };
