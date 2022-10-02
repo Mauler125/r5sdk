@@ -22,7 +22,7 @@ inline uint32_t g_pHullMasks[10] = // Hull mask table [r5apex_ds.exe + 131a2f8].
 //-----------------------------------------------------------------------------
 dtNavMesh* GetNavMeshForHull(int hullSize)
 {
-    assert(hullSize >= 0 && hullSize <= 4); // Programmer error.
+    assert(hullSize >= NULL && hullSize < MAX_HULLS); // Programmer error.
     return g_pNavMesh[hullSize];
 }
 
@@ -33,7 +33,7 @@ dtNavMesh* GetNavMeshForHull(int hullSize)
 //-----------------------------------------------------------------------------
 uint32_t GetHullMaskById(int hullId)
 {
-    assert(hullId >= 0 && hullId <= 9); // Programmer error.
+    assert(hullId >= NULL && hullId < SDK_ARRAYSIZE(g_pHullMasks)); // Programmer error.
     return (hullId + g_pHullMasks[hullId]);
 }
 
