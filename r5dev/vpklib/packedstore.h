@@ -8,6 +8,8 @@ constexpr unsigned int VPK_MINOR_VERSION = 3;
 constexpr unsigned int VPK_DICT_SIZE = 20;
 constexpr int ENTRY_MAX_LEN = 1024 * 1024;
 
+static const std::regex BLOCK_REGEX{ R"((?:.*\/)?([^_]*_)(.*)(.bsp.pak000_dir).*)" };
+
 static const vector<string> DIR_CONTEXT = 
 {
 	"server",
@@ -176,7 +178,7 @@ private:
 	lzham_compress_status_t      m_lzCompStatus     {}; // LZham compression status.
 	lzham_decompress_params      m_lzDecompParams   {}; // LZham decompression parameters.
 	lzham_decompress_status_t    m_lzDecompStatus   {}; // LZham decompression status.
-	std::unordered_map<string, VPKChunkDescriptor_t> m_mChunkHashMap{};
+	std::unordered_map<string, VPKChunkDescriptor_t&> m_mChunkHashMap{};
 };
 ///////////////////////////////////////////////////////////////////////////////
 extern CPackedStore* g_pPackedStore;
