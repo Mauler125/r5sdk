@@ -447,7 +447,7 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 
 	vector<string> vPaths;
 	vector<VPKEntryBlock_t> vEntryBlocks;
-	nlohmann::json jManifest = GetManifest(svPathIn, GetSourceName(vPair.m_svDirectoryName));
+	const nlohmann::json jManifest = GetManifest(svPathIn, GetSourceName(vPair.m_svDirectoryName));
 
 	GetIgnoreList(svPathIn);
 
@@ -468,7 +468,7 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 		CIOStream reader(vPaths[i], CIOStream::Mode_t::READ);
 		if (reader.IsReadable())
 		{
-			string svDestPath = StringReplaceC(vPaths[i], svPathIn, "");
+			const string svDestPath = StringReplaceC(vPaths[i], svPathIn, "");
 			uint16_t iPreloadSize  = 0i16;
 			uint32_t nLoadFlags    = static_cast<uint32_t>(EPackedLoadFlags::LOAD_VISIBLE) | static_cast<uint32_t>(EPackedLoadFlags::LOAD_CACHE);
 			uint16_t nTextureFlags = static_cast<uint16_t>(EPackedTextureFlags::TEXTURE_DEFAULT); // !TODO: Reverse these.
@@ -508,48 +508,48 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 				reader.Read(*pSrc, vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize);
 				vEntryBlocks[i].m_vChunks[j].m_nArchiveOffset = writer.GetPosition();
 
-				if (bUseCompression)
-				{
-					m_lzCompStatus = lzham_compress_memory(&m_lzCompParams, pDest, 
-						&vEntryBlocks[i].m_vChunks[j].m_nCompressedSize, pSrc, 
-						vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize, &m_nAdler32_Internal, &m_nCrc32_Internal);
-					if (m_lzCompStatus != lzham_compress_status_t::LZHAM_COMP_STATUS_SUCCESS)
-					{
-						Warning(eDLL_T::FS, "Status '%d' for chunk '%zu' within entry '%zu' in block '%hu' (chunk packed without compression)\n", 
-							m_lzCompStatus, j, i, vEntryBlocks[i].m_iPackFileIndex);
-
-						vEntryBlocks[i].m_vChunks[j].m_nCompressedSize = vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize;
-						memmove(pDest, pSrc, vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize);
-					}
-				}
-				else // Write data uncompressed.
-				{
-					vEntryBlocks[i].m_vChunks[j].m_nCompressedSize = vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize;
-					memmove(pDest, pSrc, vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize);
-				}
-				vEntryBlocks[i].m_vChunks[j].m_bIsCompressed = vEntryBlocks[i].m_vChunks[j].m_nCompressedSize != vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize;
-
 				if (bUseDataSharing)
 				{
-					string svEntryHash = sha1(string(reinterpret_cast<char*>(pDest), vEntryBlocks[i].m_vChunks[j].m_nCompressedSize));
+					string svEntryHash = sha1(string(reinterpret_cast<char*>(pSrc), vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize));
+					auto p = m_mChunkHashMap.insert({ svEntryHash, vEntryBlocks[i].m_vChunks[j] });
 
-					if (auto it{ m_mChunkHashMap.find(svEntryHash) }; it != std::end(m_mChunkHashMap))
+					if (p.second)
 					{
-						DevMsg(eDLL_T::FS, "Mapping chunk '%zu' ('%s') to existing chunk at '0x%llx'\n", j, svEntryHash.c_str(), it->second.m_nArchiveOffset);
+						bShared = false;
+					}
+					else // Map to existing chunk to avoid having copies of the same data.
+					{
+						DevMsg(eDLL_T::FS, "Mapping chunk '%zu' ('%s') to existing chunk at '0x%llx'\n", j, svEntryHash.c_str(), p.first->second.m_nArchiveOffset);
 
-						vEntryBlocks[i].m_vChunks[j].m_nArchiveOffset = it->second.m_nArchiveOffset;
-						nSharedTotal += it->second.m_nCompressedSize;
+						vEntryBlocks[i].m_vChunks[j].m_nArchiveOffset = p.first->second.m_nArchiveOffset;
+						nSharedTotal += p.first->second.m_nCompressedSize;
 						nSharedCount++;
 						bShared = true;
 					}
-					else // Add entry to hashmap.
-					{
-						m_mChunkHashMap.insert({ svEntryHash, vEntryBlocks[i].m_vChunks[j] });
-						bShared = false;
-					}
 				}
-				if (!bShared)
+
+				if (!bShared) // Don't compress if we mapped the descriptor offset to an existing chunk.
 				{
+					if (bUseCompression)
+					{
+						m_lzCompStatus = lzham_compress_memory(&m_lzCompParams, pDest,
+							&vEntryBlocks[i].m_vChunks[j].m_nCompressedSize, pSrc,
+							vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize, &m_nAdler32_Internal, &m_nCrc32_Internal);
+						if (m_lzCompStatus != lzham_compress_status_t::LZHAM_COMP_STATUS_SUCCESS)
+						{
+							Warning(eDLL_T::FS, "Status '%d' for chunk '%zu' within entry '%zu' in block '%hu' (chunk packed without compression)\n",
+								m_lzCompStatus, j, i, vEntryBlocks[i].m_iPackFileIndex);
+
+							vEntryBlocks[i].m_vChunks[j].m_nCompressedSize = vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize;
+							memmove(pDest, pSrc, vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize);
+						}
+					}
+					else // Write data uncompressed.
+					{
+						vEntryBlocks[i].m_vChunks[j].m_nCompressedSize = vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize;
+						memmove(pDest, pSrc, vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize);
+					}
+					vEntryBlocks[i].m_vChunks[j].m_bIsCompressed = vEntryBlocks[i].m_vChunks[j].m_nCompressedSize != vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize;
 					writer.Write(pDest, vEntryBlocks[i].m_vChunks[j].m_nCompressedSize);
 				}
 
