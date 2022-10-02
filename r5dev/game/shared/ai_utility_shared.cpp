@@ -35,51 +35,51 @@ CAI_Utility::CAI_Utility(void)
 //------------------------------------------------------------------------------
 void CAI_Utility::DrawAIScriptNetwork(const CAI_Network* pAINetwork) const
 {
-    if (pAINetwork)
+    if (!pAINetwork)
+        return; // AI Network not loaded or build.
+
+    const bool bUseDepthBuffer = r_debug_overlay_zbuffer->GetBool();
+    const bool bDrawNearest = ai_script_nodes_draw_nearest->GetBool();
+    const int nCameraRange = ai_script_nodes_draw_range->GetInt();
+    static const __m128 xSubMask = _mm_setr_ps(25.0f, 25.0f, 25.0f, 0.0f);
+
+    OverlayBox_t::Transforms vTransforms;
+    std::unordered_set<uint64_t> linkSet;
+
+    for (int i = ai_script_nodes_draw->GetInt(), j = pAINetwork->GetNumScriptNodes(); i < j; i++)
     {
-        const bool bUseDepthBuffer = r_debug_overlay_zbuffer->GetBool();
-        const bool bDrawNearest = ai_script_nodes_draw_nearest->GetBool();
-        const int nCameraRange = ai_script_nodes_draw_range->GetInt();
-        static const __m128 xSubMask = _mm_setr_ps(25.0f, 25.0f, 25.0f, 0.0f);
+        if (nCameraRange && i > nCameraRange)
+            break;
 
-        OverlayBox_t::Transforms vTransforms;
-        std::unordered_set<uint64_t> linkSet;
+        const CAI_ScriptNode* pScriptNode = &pAINetwork->m_ScriptNode[i];
 
-        for (int i = ai_script_nodes_draw->GetInt(), j = pAINetwork->GetNumScriptNodes(); i < j; i++)
+        __m128 xMins = _mm_setzero_ps();
+        __m128 xMaxs = _mm_setr_ps(50.0f, 50.0f, 50.0f, 0.0f);
+        __m128 xOrigin = _mm_setr_ps(pScriptNode->m_vOrigin.x, pScriptNode->m_vOrigin.y, pScriptNode->m_vOrigin.z, 0.0f);
+        xOrigin = _mm_sub_ps(xOrigin, xSubMask); // Subtract 25.f from our scalars to align box with node.
+
+        vTransforms.xmm[0] = _mm_set_ps(xOrigin.m128_f32[0], 0.0f, 0.0f, 1.0f);
+        vTransforms.xmm[1] = _mm_set_ps(xOrigin.m128_f32[1], 0.0f, 1.0f, 0.0f);
+        vTransforms.xmm[2] = _mm_set_ps(xOrigin.m128_f32[2], 1.0f, 0.0f, 0.0f);
+
+        v_RenderBox(vTransforms, *reinterpret_cast<Vector3D*>(&xMins),
+            *reinterpret_cast<Vector3D*>(&xMaxs), m_BoxColor, bUseDepthBuffer);
+
+        if (bDrawNearest)
         {
-            if (nCameraRange && i > nCameraRange)
-                break;
-
-            const CAI_ScriptNode* pScriptNode = &pAINetwork->m_ScriptNode[i];
-
-            __m128 xMins = _mm_setzero_ps();
-            __m128 xMaxs = _mm_setr_ps(50.0f, 50.0f, 50.0f, 0.0f);
-            __m128 xOrigin = _mm_setr_ps(pScriptNode->m_vOrigin.x, pScriptNode->m_vOrigin.y, pScriptNode->m_vOrigin.z, 0.0f);
-            xOrigin = _mm_sub_ps(xOrigin, xSubMask); // Subtract 25.f from our scalars to align box with node.
-
-            vTransforms.xmm[0] = _mm_set_ps(xOrigin.m128_f32[0], 0.0f, 0.0f, 1.0f);
-            vTransforms.xmm[1] = _mm_set_ps(xOrigin.m128_f32[1], 0.0f, 1.0f, 0.0f);
-            vTransforms.xmm[2] = _mm_set_ps(xOrigin.m128_f32[2], 1.0f, 0.0f, 0.0f);
-
-            v_RenderBox(vTransforms, *reinterpret_cast<Vector3D*>(&xMins), 
-                *reinterpret_cast<Vector3D*>(&xMaxs), m_BoxColor, bUseDepthBuffer);
-
-            if (bDrawNearest)
+            int nNearest = GetNearestNodeToPos(pAINetwork, &pScriptNode->m_vOrigin);
+            if (nNearest != NO_NODE) // NO_NODE = -1
             {
-                int nNearest = GetNearestNodeToPos(pAINetwork , &pScriptNode->m_vOrigin);
-                if (nNearest != NO_NODE) // NO_NODE = -1
+                auto p = linkSet.insert(PackNodeLink(i, nNearest));
+                if (p.second)
                 {
-                    auto p = linkSet.insert(PackNodeLink(i, nNearest));
-                    if (p.second)
-                    {
-                        const CAI_ScriptNode* pNearestNode = &pAINetwork->m_ScriptNode[nNearest];
-                        v_RenderLine(pScriptNode->m_vOrigin, pNearestNode->m_vOrigin, m_LinkColor, bUseDepthBuffer);
-                    }
+                    const CAI_ScriptNode* pNearestNode = &pAINetwork->m_ScriptNode[nNearest];
+                    v_RenderLine(pScriptNode->m_vOrigin, pNearestNode->m_vOrigin, m_LinkColor, bUseDepthBuffer);
                 }
             }
-            else if (i > 0) // Render links in the order the AI Network was build.
-                v_RenderLine((pScriptNode - 1)->m_vOrigin, pScriptNode->m_vOrigin, m_LinkColor, bUseDepthBuffer);
         }
+        else if (i > 0) // Render links in the order the AI Network was build.
+            v_RenderLine((pScriptNode - 1)->m_vOrigin, pScriptNode->m_vOrigin, m_LinkColor, bUseDepthBuffer);
     }
 }
 
