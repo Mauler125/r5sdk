@@ -8,8 +8,25 @@ constexpr unsigned int VPK_MINOR_VERSION = 3;
 constexpr unsigned int VPK_DICT_SIZE = 20;
 constexpr int ENTRY_MAX_LEN = 1024 * 1024;
 
-const vector<string> DIR_CONTEXT = { "server", "client" };
-const vector<string> DIR_LOCALE  = { "english", "french", "german", "italian", "japanese", "korean", "polish", "portuguese", "russian", "spanish", "tchinese" };
+static const vector<string> DIR_CONTEXT = 
+{
+	"server",
+	"client"
+};
+static const vector<string> DIR_LOCALE  = 
+{
+	"english",
+	"french",
+	"german",
+	"italian",
+	"japanese",
+	"korean",
+	"polish",
+	"portuguese",
+	"russian",
+	"spanish",
+	"tchinese"
+};
 
 enum class EPackedLoadFlags : int
 {

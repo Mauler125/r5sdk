@@ -14,6 +14,13 @@
 #include "vpklib/packedstore.h"
 
 //-----------------------------------------------------------------------------
+// Single static buffer for the source entry, which is the source file chunked
+// into ENTRY_MAX_LEN bytes (1024 * 1024). The compressed chunk size is always
+// lower than the source chunk size with the light modifications done to the LZHAM lib.
+//-----------------------------------------------------------------------------
+static uint8_t s_pEntryBuffer[ENTRY_MAX_LEN];
+
+//-----------------------------------------------------------------------------
 // Purpose: initialize parameters for compression algorithm
 //-----------------------------------------------------------------------------
 void CPackedStore::InitLzCompParams(void)
@@ -499,18 +506,15 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 			vEntryBlocks.push_back(VPKEntryBlock_t(reader.GetVector(), writer.GetPosition(), iPreloadSize, 0, nLoadFlags, nTextureFlags, svDestPath));
 			for (size_t j = 0; j < vEntryBlocks[i].m_vChunks.size(); j++)
 			{
-				uint8_t* pSrc  = new uint8_t[vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize];
-				uint8_t* pDest = new uint8_t[vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize];
-
 				bool bShared = false;
 				bool bCompressed = bUseCompression;
 
-				reader.Read(*pSrc, vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize);
+				reader.Read(*s_pEntryBuffer, vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize);
 				vEntryBlocks[i].m_vChunks[j].m_nArchiveOffset = writer.GetPosition();
 
 				if (bUseDataSharing)
 				{
-					string svEntryHash = sha1(string(reinterpret_cast<char*>(pSrc), vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize));
+					string svEntryHash = sha1(string(reinterpret_cast<char*>(s_pEntryBuffer), vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize));
 					auto p = m_mChunkHashMap.insert({ svEntryHash, vEntryBlocks[i].m_vChunks[j] });
 
 					if (p.second)
@@ -532,34 +536,33 @@ void CPackedStore::PackAll(const VPKPair_t& vPair, const string& svPathIn, const
 				{
 					if (bUseCompression)
 					{
-						m_lzCompStatus = lzham_compress_memory(&m_lzCompParams, pDest,
-							&vEntryBlocks[i].m_vChunks[j].m_nCompressedSize, pSrc,
+						m_lzCompStatus = lzham_compress_memory(&m_lzCompParams, s_pEntryBuffer,
+							&vEntryBlocks[i].m_vChunks[j].m_nCompressedSize, s_pEntryBuffer,
 							vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize, &m_nAdler32_Internal, &m_nCrc32_Internal);
+
 						if (m_lzCompStatus != lzham_compress_status_t::LZHAM_COMP_STATUS_SUCCESS)
 						{
 							Warning(eDLL_T::FS, "Status '%d' for chunk '%zu' within entry '%zu' in block '%hu' (chunk packed without compression)\n",
 								m_lzCompStatus, j, i, vEntryBlocks[i].m_iPackFileIndex);
 
 							vEntryBlocks[i].m_vChunks[j].m_nCompressedSize = vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize;
-							memmove(pDest, pSrc, vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize);
 						}
 					}
 					else // Write data uncompressed.
 					{
 						vEntryBlocks[i].m_vChunks[j].m_nCompressedSize = vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize;
-						memmove(pDest, pSrc, vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize);
 					}
-					vEntryBlocks[i].m_vChunks[j].m_bIsCompressed = vEntryBlocks[i].m_vChunks[j].m_nCompressedSize != vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize;
-					writer.Write(pDest, vEntryBlocks[i].m_vChunks[j].m_nCompressedSize);
-				}
 
-				delete[] pDest;
-				delete[] pSrc;
+					vEntryBlocks[i].m_vChunks[j].m_bIsCompressed = vEntryBlocks[i].m_vChunks[j].m_nCompressedSize != vEntryBlocks[i].m_vChunks[j].m_nUncompressedSize;
+					writer.Write(s_pEntryBuffer, vEntryBlocks[i].m_vChunks[j].m_nCompressedSize);
+				}
 			}
 		}
 	}
 	DevMsg(eDLL_T::FS, "*** Build block totaling '%zu' bytes with '%zu' shared bytes among '%lu' chunks\n", writer.GetPosition(), nSharedTotal, nSharedCount);
+
 	m_mChunkHashMap.clear();
+	memset(s_pEntryBuffer, '\0', sizeof(s_pEntryBuffer));
 
 	VPKDir_t vDir = VPKDir_t();
 	vDir.Build(svPathOut + vPair.m_svDirectoryName, vEntryBlocks);
