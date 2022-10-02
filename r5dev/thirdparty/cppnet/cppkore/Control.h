@@ -332,6 +332,9 @@ namespace Forms
 		// Routine to scale a control
 		virtual void Scale(Drawing::SizeF IncludedFactor, Drawing::SizeF ExcludedFactor, Control* Ctrl);
 
+		// Slimbo stuff - To lazy to add setters and getters rn
+		String internalName = "";
+
 	protected:
 		// The control handle
 		HWND _Handle;

@@ -1044,12 +1044,75 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 	}
 }
 
+void CUIBaseSurface::LoadSettings() {
+	m_TextBoxes = std::vector<std::pair<std::string, UIX::UIXTextBox*>>{
+		{"width", this->m_WidthTextBox},
+		{"height", this->m_HeightTextBox},
+		{"workerThreads", this->m_WorkerThreadsTextBox},
+		{"reservedCores", this->m_ReservedCoresTextBox},
+		{"fps", this->m_FpsTextBox},
+		{"playlistFile", this->m_PlaylistFileTextBox},
+		{"hostName", this->m_HostNameTextBox},
+		{"launchArgs", this->m_LaunchArgsTextBox},
+	};
+
+	m_Toggles = std::vector<std::pair<std::string, UIX::UIXCheckBox*>>{
+		{"cheats", this->m_CheatsToggle},
+		{"development", this->m_DevelopmentToggle},
+		{"console", this->m_ConsoleToggle},
+		{"windowed", this->m_WindowedToggle},
+		{"noBorder", this->m_NoBorderToggle},
+		{"singleCoreDedi", this->m_SingleCoreDediToggle},
+		{"noAsyncJobs", this->m_NoAsyncJobsToggle},
+		{"netEncryption", this->m_NetEncryptionToggle},
+		{"netRandomKey", this->m_NetRandomKeyToggle},
+		{"noQueuedPacketThread", this->m_NoQueuedPacketThread},
+		{"noTimeOut", this->m_NoTimeOutToggle},
+		{"colorConsole", this->m_ColorConsoleToggle},
+	};
+
+	// Loop through all the text boxes
+	for (auto& c : m_TextBoxes) {
+		// When the text is changed, save the new text to the settings with the respective key
+		c.second->internalName = c.first;
+		// For some reason, the TextChanged event doesn't work, nor does Modified. So this doesn't work for now :(
+		c.second->TextChanged += [](Forms::Control* pSender) {
+			CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+			UIX::UIXTextBox* pCheckBox = reinterpret_cast<UIX::UIXTextBox*>(pSender);
+			pSurface->m_Settings.Set<System::SettingType::String, String>(pCheckBox->internalName.ToCString(), pCheckBox->Text());
+			pSurface->m_Settings.Save("platform/cfg/launcher.cfg");
+		};
+	}
+
+	// Loop through all the toggles
+	for (auto& c : m_Toggles) {
+		// When the toggle is changed, save the new state to the settings with the respective key
+		c.second->internalName = c.first;
+		c.second->SetChecked(this->m_Settings.GetBool(c.first.c_str()));
+		c.second->CheckedChanged += [](Forms::Control* pSender) {
+			CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+			UIX::UIXCheckBox* pCheckBox = reinterpret_cast<UIX::UIXCheckBox*>(pSender);
+			pSurface->m_Settings.SetBool(pCheckBox->internalName.ToCString(), pCheckBox->Checked());
+			pSurface->m_Settings.Save("platform/cfg/launcher.cfg");
+		};
+	}
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 CUIBaseSurface::CUIBaseSurface() : Forms::Form()
 {
+	if (!fs::exists("platform\\cfg\\launcher.cfg")) {
+		fs::create_directories("platform\\cfg");
+		// Create the file
+		std::ofstream file("platform\\cfg\\launcher.cfg");
+		// Close the file
+		file.close();
+	}
+	m_Settings.Load("platform/cfg/launcher.cfg");
 	this->Init();
 	this->Setup();
+	this->LoadSettings();
 }
 CUIBaseSurface* g_pMainUI;

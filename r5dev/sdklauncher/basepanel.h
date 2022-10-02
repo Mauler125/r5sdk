@@ -22,15 +22,23 @@ public:
 	std::vector<LogList_t> m_LogList;
 	UIX::UIXListView* m_ConsoleListView;
 
+	// Settings member for values
+	System::Settings m_Settings;
+
+	std::vector<std::pair<std::string, UIX::UIXTextBox*>> m_TextBoxes;
+	std::vector<std::pair<std::string, UIX::UIXCheckBox*>> m_Toggles;
+
 private:
 	void Init();
 	void Setup();
 	void ParseMaps();
 	void ParsePlaylists();
+	void LoadSettings();
 
 	static void LaunchGame(Forms::Control* pSender);
 	static void CleanSDK(Forms::Control* pSender);
 	static void ReloadPlaylists(Forms::Control* pSender);
+	static void SetSettings(Forms::Control* pSender);
 	static void VirtualItemToClipboard(const std::unique_ptr<MouseEventArgs>& pEventArgs, Forms::Control* pSender);
 	static void GetVirtualItem(const std::unique_ptr<Forms::RetrieveVirtualItemEventArgs>& pEventArgs, Forms::Control* pSender);
 	static void ForwardCommandToGame(Forms::Control* pSender);
