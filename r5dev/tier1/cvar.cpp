@@ -50,6 +50,7 @@ ConVar* ai_ainDumpOnLoad                   = nullptr;
 ConVar* ai_ainDebugConnect                 = nullptr;
 ConVar* ai_script_nodes_draw               = nullptr;
 ConVar* ai_script_nodes_draw_range         = nullptr;
+ConVar* ai_script_nodes_draw_nearest       = nullptr;
 
 ConVar* navmesh_always_reachable           = nullptr;
 ConVar* navmesh_debug_type                 = nullptr;
@@ -83,11 +84,11 @@ ConVar* sv_rcon_maxsockets                 = nullptr;
 ConVar* sv_rcon_whitelist_address          = nullptr;
 #endif // DEDICATED
 #endif // !CLIENT_DLL
-
-ConVar* sv_visualizetraces = nullptr;
+ConVar* sv_visualizetraces                 = nullptr;
+ConVar* sv_visualizetraces_duration        = nullptr;
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
-ConVar* bhit_enable = nullptr;
-ConVar* bhit_abs_origin = nullptr;
+ConVar* bhit_enable                        = nullptr;
+ConVar* bhit_abs_origin                    = nullptr;
 #endif // !GAMEDLL_S0 && !GAMEDLL_S1
 //-----------------------------------------------------------------------------
 // CLIENT                                                                     |

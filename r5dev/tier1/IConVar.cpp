@@ -84,9 +84,10 @@ void ConVar::Init(void) const
 	//-------------------------------------------------------------------------
 	// SERVER                                                                 |
 #ifndef CLIENT_DLL
-	ai_ainDumpOnLoad           = ConVar::Create("ai_ainDumpOnLoad"          , "0", FCVAR_DEVELOPMENTONLY, "Dumps AIN data from node graphs loaded from the disk on load.", false, 0.f, false, 0.f, nullptr, nullptr);
-	ai_ainDebugConnect         = ConVar::Create("ai_ainDebugConnect"        , "0", FCVAR_DEVELOPMENTONLY, "Debug AIN node connections.", false, 0.f, false, 0.f, nullptr, nullptr);
-	ai_script_nodes_draw_range = ConVar::Create("ai_script_nodes_draw_range", "0", FCVAR_DEVELOPMENTONLY, "AIN debug draw script nodes ranging from shift index to this cvar.", false, 0.f, false, 0.f, nullptr, nullptr);
+	ai_ainDumpOnLoad             = ConVar::Create("ai_ainDumpOnLoad"            , "0", FCVAR_DEVELOPMENTONLY, "Dumps AIN data from node graphs loaded from the disk on load.", false, 0.f, false, 0.f, nullptr, nullptr);
+	ai_ainDebugConnect           = ConVar::Create("ai_ainDebugConnect"          , "0", FCVAR_DEVELOPMENTONLY, "Debug AIN node connections.", false, 0.f, false, 0.f, nullptr, nullptr);
+	ai_script_nodes_draw_range   = ConVar::Create("ai_script_nodes_draw_range"  , "0", FCVAR_DEVELOPMENTONLY, "Debug draw AIN script nodes ranging from shift index to this cvar.", false, 0.f, false, 0.f, nullptr, nullptr);
+	ai_script_nodes_draw_nearest = ConVar::Create("ai_script_nodes_draw_nearest", "0", FCVAR_DEVELOPMENTONLY, "Debug draw AIN script node links to nearest node (build order is used if null).", false, 0.f, false, 0.f, nullptr, nullptr);
 
 	navmesh_always_reachable   = ConVar::Create("navmesh_always_reachable"   , "0"    , FCVAR_DEVELOPMENTONLY, "Marks goal poly from agent poly as reachable regardless of table data ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	navmesh_debug_type         = ConVar::Create("navmesh_debug_type"         , "0"    , FCVAR_DEVELOPMENTONLY, "NavMesh debug draw hull index.", true, 0.f, true, 4.f, nullptr, "0 = small, 1 = med_short, 2 = medium, 3 = large, 4 = extra large");
@@ -117,7 +118,7 @@ void ConVar::Init(void) const
 #endif // DEDICATED
 #endif // !CLIENT_DLL
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
-	bhit_abs_origin = ConVar::Create("bhit_abs_origin", "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Use player's absolute origin for bhit tracing.", false, 0.f, false, 0.f, nullptr, nullptr);
+	bhit_abs_origin = ConVar::Create("bhit_abs_origin", "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Draw entity's predicted abs origin upon bullet impact for trajectory debugging.", false, 0.f, false, 0.f, nullptr, nullptr);
 #endif // !GAMEDLL_S0 && !GAMEDLL_S1
 	//-------------------------------------------------------------------------
 	// CLIENT                                                                 |
@@ -248,6 +249,7 @@ void ConVar::InitShipped(void) const
 	stream_overlay                   = g_pCVar->FindVar("stream_overlay");
 	stream_overlay_mode              = g_pCVar->FindVar("stream_overlay_mode");
 	sv_visualizetraces               = g_pCVar->FindVar("sv_visualizetraces");
+	sv_visualizetraces_duration      = g_pCVar->FindVar("sv_visualizetraces_duration");
 	old_gather_props                 = g_pCVar->FindVar("old_gather_props");
 #ifndef DEDICATED
 	origin_disconnectWhenOffline     = g_pCVar->FindVar("origin_disconnectWhenOffline");

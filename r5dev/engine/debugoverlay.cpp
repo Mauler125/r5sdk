@@ -15,9 +15,10 @@
 #include "engine/debugoverlay.h"
 #include "materialsystem/cmaterialsystem.h"
 #include "mathlib/mathlib.h"
-#if not defined (DEDICATED) && not defined (CLIENT_DLL)
+#ifndef CLIENT_DLL
 #include "game/shared/ai_utility_shared.h"
-#endif // !DEDICATED && !CLIENT_DLL
+#include "game/server/ai_network.h"
+#endif // !CLIENT_DLL
 
 
 //------------------------------------------------------------------------------
@@ -249,15 +250,15 @@ void DrawAllOverlays(bool bDraw)
     EnterCriticalSection(&*s_OverlayMutex);
 #ifndef CLIENT_DLL
     if (ai_script_nodes_draw->GetInt() > -1)
-        DrawAIScriptNodes();
+        g_pAIUtility->DrawAIScriptNetwork(*g_pAINetwork);
     if (navmesh_draw_bvtree->GetInt() > -1)
-        DrawNavMeshBVTree();
+        g_pAIUtility->DrawNavMeshBVTree();
     if (navmesh_draw_portal->GetInt() > -1)
-        DrawNavMeshPortals();
+        g_pAIUtility->DrawNavMeshPortals();
     if (navmesh_draw_polys->GetInt() > -1)
-        DrawNavMeshPolys();
+        g_pAIUtility->DrawNavMeshPolys();
     if (navmesh_draw_poly_bounds->GetInt() > -1)
-        DrawNavMeshPolyBoundaries();
+        g_pAIUtility->DrawNavMeshPolyBoundaries();
 #endif // !CLIENT_DLL
 
     OverlayBase_t* pCurrOverlay = *s_pOverlays; // rdi

@@ -47,6 +47,7 @@ extern ConVar* ai_ainDumpOnLoad;
 extern ConVar* ai_ainDebugConnect;
 extern ConVar* ai_script_nodes_draw;
 extern ConVar* ai_script_nodes_draw_range;
+extern ConVar* ai_script_nodes_draw_nearest;
 
 extern ConVar* navmesh_always_reachable;
 extern ConVar* navmesh_debug_type;
@@ -80,6 +81,7 @@ extern ConVar* sv_rcon_whitelist_address;
 #endif // DEDICATED
 #endif // CLIENT_DLL
 extern ConVar* sv_visualizetraces;
+extern ConVar* sv_visualizetraces_duration;
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 extern ConVar* bhit_enable;
 extern ConVar* bhit_abs_origin;
