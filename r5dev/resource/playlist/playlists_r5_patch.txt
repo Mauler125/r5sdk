@@ -211,6 +211,13 @@ playlists
 				survival_shields                               1
 				survival_jumpkit_enabled                       0
 				survival_wallrun_enabled                       0
+				survival_drop_item                             1
+				survival_pickup_item                           1
+				survival_swap_item                             1
+				survival_equip_attachment                      1
+				survival_unequip_attachment                    1
+				survival_transfer_attachment                   1
+				survival_drop_equipment                        1
 
 				///////////////////////////////////////////////////////////////////////////////////
 				//// Player Reporting
