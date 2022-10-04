@@ -33,25 +33,25 @@ CAI_Utility::CAI_Utility(void)
 // Purpose: draw AI script network
 // Input  : *pAINetwork - 
 //------------------------------------------------------------------------------
-void CAI_Utility::DrawAIScriptNetwork(const CAI_Network* pAINetwork) const
+void CAI_Utility::DrawAIScriptNetwork(const CAI_Network* pNetwork) const
 {
-    if (!pAINetwork)
-        return; // AI Network not loaded or build.
+    if (!pNetwork)
+        return; // AI Network not build or loaded.
 
     const bool bUseDepthBuffer = r_debug_overlay_zbuffer->GetBool();
     const bool bDrawNearest = ai_script_nodes_draw_nearest->GetBool();
-    const int nCameraRange = ai_script_nodes_draw_range->GetInt();
+    const int  nCameraRange = ai_script_nodes_draw_range->GetInt();
     static const __m128 xSubMask = _mm_setr_ps(25.0f, 25.0f, 25.0f, 0.0f);
 
     OverlayBox_t::Transforms vTransforms;
     std::unordered_set<uint64_t> linkSet;
 
-    for (int i = ai_script_nodes_draw->GetInt(), j = pAINetwork->GetNumScriptNodes(); i < j; i++)
+    for (int i = ai_script_nodes_draw->GetInt(), ns = pNetwork->GetNumScriptNodes(); i < ns; i++)
     {
         if (nCameraRange && i > nCameraRange)
             break;
 
-        const CAI_ScriptNode* pScriptNode = &pAINetwork->m_ScriptNode[i];
+        const CAI_ScriptNode* pScriptNode = &pNetwork->m_ScriptNode[i];
 
         __m128 xMins = _mm_setzero_ps();
         __m128 xMaxs = _mm_setr_ps(50.0f, 50.0f, 50.0f, 0.0f);
@@ -67,13 +67,13 @@ void CAI_Utility::DrawAIScriptNetwork(const CAI_Network* pAINetwork) const
 
         if (bDrawNearest)
         {
-            int nNearest = GetNearestNodeToPos(pAINetwork, &pScriptNode->m_vOrigin);
+            int nNearest = GetNearestNodeToPos(pNetwork, &pScriptNode->m_vOrigin);
             if (nNearest != NO_NODE) // NO_NODE = -1
             {
                 auto p = linkSet.insert(PackNodeLink(i, nNearest));
                 if (p.second)
                 {
-                    const CAI_ScriptNode* pNearestNode = &pAINetwork->m_ScriptNode[nNearest];
+                    const CAI_ScriptNode* pNearestNode = &pNetwork->m_ScriptNode[nNearest];
                     v_RenderLine(pScriptNode->m_vOrigin, pNearestNode->m_vOrigin, m_LinkColor, bUseDepthBuffer);
                 }
             }
@@ -85,117 +85,117 @@ void CAI_Utility::DrawAIScriptNetwork(const CAI_Network* pAINetwork) const
 
 //------------------------------------------------------------------------------
 // Purpose: draw NavMesh BVTree
-// Input  : *mesh
+// Input  : *pMesh - 
 //------------------------------------------------------------------------------
-void CAI_Utility::DrawNavMeshBVTree(dtNavMesh* mesh) const
+void CAI_Utility::DrawNavMeshBVTree(dtNavMesh* pMesh) const
 {
-    if (!mesh)
-        mesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
-    if (!mesh)
+    if (!pMesh)
+        pMesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
+    if (!pMesh)
         return; // NavMesh for hull not loaded.
 
-    const Vector3D camera = MainViewOrigin();
-    const bool zbuffer = r_debug_overlay_zbuffer->GetBool();
-    const int tilerange = navmesh_debug_tile_range->GetInt();
-    const float camerarange = navmesh_debug_camera_range->GetFloat();
+    const Vector3D vCamera       = MainViewOrigin();
+    const bool     bDepthBuffer  = r_debug_overlay_zbuffer->GetBool();
+    const int      nTileRange    = navmesh_debug_tile_range->GetInt();
+    const float    flCameRarange = navmesh_debug_camera_range->GetFloat();
 
-    OverlayBox_t::Transforms transforms;
-    for (int i = navmesh_draw_bvtree->GetInt(); i < mesh->getTileCount(); ++i)
+    OverlayBox_t::Transforms vTransforms;
+    for (int i = navmesh_draw_bvtree->GetInt(), nt = pMesh->getTileCount(); i < nt; ++i)
     {
-        if (tilerange > 0 && i > tilerange)
+        if (nTileRange > 0 && i > nTileRange)
             break;
 
-        const dtMeshTile* tile = &mesh->m_tiles[i];
-        if (!tile->header)
+        const dtMeshTile* pTile = &pMesh->m_tiles[i];
+        if (!pTile->header)
             continue;
 
-        if (camerarange > 0.0f)
+        if (flCameRarange > 0.0f)
         {
-            if (camera.DistTo(Vector3D(tile->header->bmin[0], tile->header->bmin[1], camera.z)) > camerarange ||
-                camera.DistTo(Vector3D(tile->header->bmax[0], tile->header->bmax[1], camera.z)) > camerarange)
+            if (vCamera.DistTo(Vector3D(pTile->header->bmin[0], pTile->header->bmin[1], vCamera.z)) > flCameRarange ||
+                vCamera.DistTo(Vector3D(pTile->header->bmax[0], pTile->header->bmax[1], vCamera.z)) > flCameRarange)
                 continue;
         }
 
-        const float cs = 1.0f / tile->header->bvQuantFactor;
-        for (int j = 0, k = tile->header->bvNodeCount; j < k; ++j)
+        const float flCellSize = 1.0f / pTile->header->bvQuantFactor;
+        for (int j = 0, nc = pTile->header->bvNodeCount; j < nc; ++j)
         {
-            const dtBVNode* node = &tile->bvTree[j];
-            if (node->i < 0) // Leaf indices are positive.
+            const dtBVNode* pNode = &pTile->bvTree[j];
+            if (pNode->i < 0) // Leaf indices are positive.
                 continue;
 
-            transforms.xmm[0] = _mm_set_ps(0.0f, 0.0f, 0.0f, 1.0f);
-            transforms.xmm[1] = _mm_set_ps(0.0f, 0.0f, 1.0f, 0.0f);
-            transforms.xmm[2] = _mm_set_ps(0.0f, 1.0f, 0.0f, 0.0f);
+            vTransforms.xmm[0] = _mm_set_ps(0.0f, 0.0f, 0.0f, 1.0f);
+            vTransforms.xmm[1] = _mm_set_ps(0.0f, 0.0f, 1.0f, 0.0f);
+            vTransforms.xmm[2] = _mm_set_ps(0.0f, 1.0f, 0.0f, 0.0f);
 
-            const __m128 tileaabb = _mm_setr_ps(tile->header->bmin[0], tile->header->bmin[1], tile->header->bmin[2], 0.0f);
-            const __m128 cellsize = _mm_setr_ps(cs, cs, cs, 0.0f);
+            const __m128 xTileAABB = _mm_setr_ps(pTile->header->bmin[0], pTile->header->bmin[1], pTile->header->bmin[2], 0.0f);
+            const __m128 xCellSize = _mm_setr_ps(flCellSize, flCellSize, flCellSize, 0.0f);
 
             // Parallel Vector3D construction.
-            const __m128 mins = _mm_add_ps(tileaabb, _mm_mul_ps( // Formula: tile->header->bmin[axis] + node->bmin[axis] * cs;
-                _mm_setr_ps(node->bmin[0], node->bmin[1], node->bmin[2], 0.0f), cellsize));
-            const __m128 maxs = _mm_add_ps(tileaabb, _mm_mul_ps( // Formula: tile->header->bmin[axis] + node->bmax[axis] * cs;
-                _mm_setr_ps(node->bmax[0], node->bmax[1], node->bmax[2], 0.0f), cellsize));
+            const __m128 xMins = _mm_add_ps(xTileAABB, _mm_mul_ps( // Formula: tile->header->bmin[axis] + node->bmin[axis] * cs;
+                _mm_setr_ps(pNode->bmin[0], pNode->bmin[1], pNode->bmin[2], 0.0f), xCellSize));
+            const __m128 xMaxs = _mm_add_ps(xTileAABB, _mm_mul_ps( // Formula: tile->header->bmin[axis] + node->bmax[axis] * cs;
+                _mm_setr_ps(pNode->bmax[0], pNode->bmax[1], pNode->bmax[2], 0.0f), xCellSize));
 
-            v_RenderBox(transforms, *reinterpret_cast<const Vector3D*>(&mins), *reinterpret_cast<const Vector3D*>(&maxs), 
-                Color(188, 188, 188, 255), zbuffer);
+            v_RenderBox(vTransforms, *reinterpret_cast<const Vector3D*>(&xMins), *reinterpret_cast<const Vector3D*>(&xMaxs), 
+                Color(188, 188, 188, 255), bDepthBuffer);
         }
     }
 }
 
 //------------------------------------------------------------------------------
 // Purpose: draw NavMesh portals
+// Input  : *pMesh - 
 //------------------------------------------------------------------------------
-void CAI_Utility::DrawNavMeshPortals(dtNavMesh* mesh) const
+void CAI_Utility::DrawNavMeshPortals(dtNavMesh* pMesh) const
 {
-    if (!mesh)
-        mesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
-    if (!mesh)
+    if (!pMesh)
+        pMesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
+    if (!pMesh)
         return; // NavMesh for hull not loaded.
 
-    const bool zbuffer = r_debug_overlay_zbuffer->GetBool();
-    const float camerarange = navmesh_debug_camera_range->GetFloat();
-    const int tilerange = navmesh_debug_tile_range->GetInt();
+    const bool bDepthBuffer = r_debug_overlay_zbuffer->GetBool();
+    const int nTileRange = navmesh_debug_tile_range->GetInt();
+    const float flCameraRange = navmesh_debug_camera_range->GetFloat();
 
-    for (int i = navmesh_draw_portal->GetInt(), j = mesh->getTileCount(); i < j; ++i)
+    for (int i = navmesh_draw_portal->GetInt(), nt = pMesh->getTileCount(); i < nt; ++i)
     {
-        if (tilerange > 0 && i > tilerange)
+        if (nTileRange > 0 && i > nTileRange)
             break;
 
-        const dtMeshTile* tile = &mesh->m_tiles[i];
-        if (!tile->header)
+        const dtMeshTile* pTile = &pMesh->m_tiles[i];
+        if (!pTile->header)
             continue;
 
-        if (camerarange > 0.0f)
+        if (flCameraRange > 0.0f)
         {
-            const Vector3D camera = MainViewOrigin();
+            const Vector3D vCamera = MainViewOrigin();
 
-            if (camera.DistTo(Vector3D(tile->header->bmin[0], tile->header->bmin[1], camera.z)) > camerarange ||
-                camera.DistTo(Vector3D(tile->header->bmax[0], tile->header->bmax[1], camera.z)) > camerarange)
+            if (vCamera.DistTo(Vector3D(pTile->header->bmin[0], pTile->header->bmin[1], vCamera.z)) > flCameraRange ||
+                vCamera.DistTo(Vector3D(pTile->header->bmax[0], pTile->header->bmax[1], vCamera.z)) > flCameraRange)
                 continue;
         }
 
         // Draw portals
-        const float padx = 0.04f;
-        const float padz = tile->header->walkableClimb;
+        const float flPadX = 0.04f;
+        const float flPadZ = pTile->header->walkableClimb;
 
-        for (int side = 0; side < 8; ++side)
+        for (int nSide = 0; nSide < 8; ++nSide)
         {
-            unsigned short m = DT_EXT_LINK | static_cast<unsigned short>(side);
-            for (int k = 0, e = tile->header->polyCount; k < e; ++k)
+            unsigned short m = DT_EXT_LINK | static_cast<unsigned short>(nSide);
+            for (int j = 0, np = pTile->header->polyCount; j < np; ++j)
             {
-                const dtPoly* poly = &tile->polys[k];
+                const dtPoly* pPoly = &pTile->polys[j];
 
                 // Create new links.
-                const int nv = poly->vertCount;
-                for (int v = 0; v < nv; ++v)
+                for (int v = 0, nv = pPoly->vertCount; v < nv; ++v)
                 {
                     // Skip edges which do not point to the right side.
-                    if (poly->neis[v] != m)
+                    if (pPoly->neis[v] != m)
                         continue;
 
                     // Create new links
-                    const float* va = &tile->verts[poly->verts[v] * 3];
-                    const float* vb = &tile->verts[poly->verts[(v + 1) % nv] * 3];
+                    const float* va = &pTile->verts[pPoly->verts[v] * 3];
+                    const float* vb = &pTile->verts[pPoly->verts[(v + 1) % nv] * 3];
 
                     /*****************
                      Vertex indices:
@@ -204,53 +204,53 @@ void CAI_Utility::DrawNavMeshPortals(dtNavMesh* mesh) const
                      va + = 2 |      |
                      vb + = 3 +------+
                      *****************/
-                    __m128 verts = _mm_setr_ps(va[2], vb[2], va[2], vb[2]);
-                    verts = _mm_sub_ps(verts, _mm_setr_ps(padz, padz, 0.0f, 0.0f));
-                    verts = _mm_add_ps(verts, _mm_setr_ps(0.0f, 0.0f, padz, padz));
+                    __m128 xVerts = _mm_setr_ps(va[2], vb[2], va[2], vb[2]);
+                    xVerts = _mm_sub_ps(xVerts, _mm_setr_ps(flPadZ, flPadZ, 0.0f, 0.0f));
+                    xVerts = _mm_add_ps(xVerts, _mm_setr_ps(0.0f, 0.0f, flPadZ, flPadZ));
 
-                    if (side == 0 || side == 4)
+                    if (nSide == 0 || nSide == 4)
                     {
-                        Color col = side == 0 ? Color(188, 0, 0, 255) : Color(188, 0, 188, 255);
-                        const float x = va[0] + ((side == 0) ? -padx : padx);
+                        Color col = nSide == 0 ? Color(188, 0, 0, 255) : Color(188, 0, 188, 255);
+                        const float x = va[0] + ((nSide == 0) ? -flPadX : flPadX);
 
-                        __m128 origin = _mm_setr_ps(x, va[1], verts.m128_f32[0], 0);
-                        __m128 dest = _mm_setr_ps(x, va[1], verts.m128_f32[2], 0);
-                        v_RenderLine(*reinterpret_cast<Vector3D*>(&origin), 
-                            *reinterpret_cast<Vector3D*>(&dest), col, zbuffer);
-                        origin = _mm_setr_ps(x, va[1], verts.m128_f32[2], 0);
-                        dest = _mm_setr_ps(x, vb[1], verts.m128_f32[3], 0);
-                        v_RenderLine(*reinterpret_cast<Vector3D*>(&origin), 
-                            *reinterpret_cast<Vector3D*>(&dest), col, zbuffer);
-                        origin = _mm_setr_ps(x, vb[1], verts.m128_f32[3], 0);
-                        dest = _mm_setr_ps(x, vb[1], verts.m128_f32[1], 0);
-                        v_RenderLine(*reinterpret_cast<Vector3D*>(&origin), 
-                            *reinterpret_cast<Vector3D*>(&dest), col, zbuffer);
-                        origin = _mm_setr_ps(x, vb[1], verts.m128_f32[1], 0);
-                        dest = _mm_setr_ps(x, va[1], verts.m128_f32[0], 0);
-                        v_RenderLine(*reinterpret_cast<Vector3D*>(&origin), 
-                            *reinterpret_cast<Vector3D*>(&dest), col, zbuffer);
+                        __m128 xOrigin = _mm_setr_ps(x, va[1], xVerts.m128_f32[0], 0);
+                        __m128 xDest = _mm_setr_ps(x, va[1], xVerts.m128_f32[2], 0);
+                        v_RenderLine(*reinterpret_cast<Vector3D*>(&xOrigin), 
+                            *reinterpret_cast<Vector3D*>(&xDest), col, bDepthBuffer);
+                        xOrigin = _mm_setr_ps(x, va[1], xVerts.m128_f32[2], 0);
+                        xDest = _mm_setr_ps(x, vb[1], xVerts.m128_f32[3], 0);
+                        v_RenderLine(*reinterpret_cast<Vector3D*>(&xOrigin), 
+                            *reinterpret_cast<Vector3D*>(&xDest), col, bDepthBuffer);
+                        xOrigin = _mm_setr_ps(x, vb[1], xVerts.m128_f32[3], 0);
+                        xDest = _mm_setr_ps(x, vb[1], xVerts.m128_f32[1], 0);
+                        v_RenderLine(*reinterpret_cast<Vector3D*>(&xOrigin), 
+                            *reinterpret_cast<Vector3D*>(&xDest), col, bDepthBuffer);
+                        xOrigin = _mm_setr_ps(x, vb[1], xVerts.m128_f32[1], 0);
+                        xDest = _mm_setr_ps(x, va[1], xVerts.m128_f32[0], 0);
+                        v_RenderLine(*reinterpret_cast<Vector3D*>(&xOrigin), 
+                            *reinterpret_cast<Vector3D*>(&xDest), col, bDepthBuffer);
                     }
-                    else if (side == 2 || side == 6)
+                    else if (nSide == 2 || nSide == 6)
                     {
-                        Color col = side == 2 ? Color(0, 188, 0, 255) : Color(188, 188, 0, 255);
-                        const float y = va[1] + ((side == 2) ? -padx : padx);
+                        Color col = nSide == 2 ? Color(0, 188, 0, 255) : Color(188, 188, 0, 255);
+                        const float y = va[1] + ((nSide == 2) ? -flPadX : flPadX);
 
-                        __m128 origin = _mm_setr_ps(va[0], y, verts.m128_f32[0], 0);
-                        __m128 dest = _mm_setr_ps(va[0], y, verts.m128_f32[2], 0);
-                        v_RenderLine(*reinterpret_cast<Vector3D*>(&origin),
-                            *reinterpret_cast<Vector3D*>(&dest), col, zbuffer);
-                        origin = _mm_setr_ps(va[0], y, verts.m128_f32[2], 0);
-                        dest = _mm_setr_ps(vb[0], y, verts.m128_f32[3], 0);
-                        v_RenderLine(*reinterpret_cast<Vector3D*>(&origin),
-                            *reinterpret_cast<Vector3D*>(&dest), col, zbuffer);
-                        origin = _mm_setr_ps(vb[0], y, verts.m128_f32[3], 0);
-                        dest = _mm_setr_ps(vb[0], y, verts.m128_f32[1], 0);
-                        v_RenderLine(*reinterpret_cast<Vector3D*>(&origin),
-                            *reinterpret_cast<Vector3D*>(&dest), col, zbuffer);
-                        origin = _mm_setr_ps(vb[0], y, verts.m128_f32[1], 0);
-                        dest = _mm_setr_ps(va[0], y, verts.m128_f32[0], 0);
-                        v_RenderLine(*reinterpret_cast<Vector3D*>(&origin),
-                            *reinterpret_cast<Vector3D*>(&dest), col, zbuffer);
+                        __m128 xOrigin = _mm_setr_ps(va[0], y, xVerts.m128_f32[0], 0);
+                        __m128 xDest = _mm_setr_ps(va[0], y, xVerts.m128_f32[2], 0);
+                        v_RenderLine(*reinterpret_cast<Vector3D*>(&xOrigin),
+                            *reinterpret_cast<Vector3D*>(&xDest), col, bDepthBuffer);
+                        xOrigin = _mm_setr_ps(va[0], y, xVerts.m128_f32[2], 0);
+                        xDest = _mm_setr_ps(vb[0], y, xVerts.m128_f32[3], 0);
+                        v_RenderLine(*reinterpret_cast<Vector3D*>(&xOrigin),
+                            *reinterpret_cast<Vector3D*>(&xDest), col, bDepthBuffer);
+                        xOrigin = _mm_setr_ps(vb[0], y, xVerts.m128_f32[3], 0);
+                        xDest = _mm_setr_ps(vb[0], y, xVerts.m128_f32[1], 0);
+                        v_RenderLine(*reinterpret_cast<Vector3D*>(&xOrigin),
+                            *reinterpret_cast<Vector3D*>(&xDest), col, bDepthBuffer);
+                        xOrigin = _mm_setr_ps(vb[0], y, xVerts.m128_f32[1], 0);
+                        xDest = _mm_setr_ps(va[0], y, xVerts.m128_f32[0], 0);
+                        v_RenderLine(*reinterpret_cast<Vector3D*>(&xOrigin),
+                            *reinterpret_cast<Vector3D*>(&xDest), col, bDepthBuffer);
                     }
                 }
             }
@@ -260,77 +260,77 @@ void CAI_Utility::DrawNavMeshPortals(dtNavMesh* mesh) const
 
 //------------------------------------------------------------------------------
 // Purpose: draw NavMesh polys
-// Input  : *mesh - 
+// Input  : *pMesh - 
 //------------------------------------------------------------------------------
-void CAI_Utility::DrawNavMeshPolys(dtNavMesh* mesh) const
+void CAI_Utility::DrawNavMeshPolys(dtNavMesh* pMesh) const
 {
-    if (!mesh)
-        mesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
-    if (!mesh)
+    if (!pMesh)
+        pMesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
+    if (!pMesh)
         return; // NavMesh for hull not loaded.
 
-    const bool bUseDepthBuffer = r_debug_overlay_zbuffer->GetBool();
-    const int tilerange = navmesh_debug_tile_range->GetInt();
-    const float camerarange = navmesh_debug_camera_range->GetFloat();
+    const bool bDepthBuffer = r_debug_overlay_zbuffer->GetBool();
+    const int nTileRange = navmesh_debug_tile_range->GetInt();
+    const float flCameraRange = navmesh_debug_camera_range->GetFloat();
 
-    for (int i = navmesh_draw_polys->GetInt(); i < mesh->getTileCount(); ++i)
+    for (int i = navmesh_draw_polys->GetInt(); i < pMesh->getTileCount(); ++i)
     {
-        if (tilerange > 0 && i > tilerange)
+        if (nTileRange > 0 && i > nTileRange)
             break;
 
-        const dtMeshTile* tile = &mesh->m_tiles[i];
-        if (!tile->header)
+        const dtMeshTile* pTile = &pMesh->m_tiles[i];
+        if (!pTile->header)
             continue;
 
-        if (camerarange > 0.0f)
+        if (flCameraRange > 0.0f)
         {
             const Vector3D vCamera = MainViewOrigin();
 
-            if (vCamera.DistTo(Vector3D(tile->header->bmin[0], tile->header->bmin[1], vCamera.z)) > camerarange ||
-                vCamera.DistTo(Vector3D(tile->header->bmax[0], tile->header->bmax[1], vCamera.z)) > camerarange)
+            if (vCamera.DistTo(Vector3D(pTile->header->bmin[0], pTile->header->bmin[1], vCamera.z)) > flCameraRange ||
+                vCamera.DistTo(Vector3D(pTile->header->bmax[0], pTile->header->bmax[1], vCamera.z)) > flCameraRange)
                 continue;
         }
 
-        for (int j = 0; j < tile->header->polyCount; j++)
+        for (int j = 0; j < pTile->header->polyCount; j++)
         {
-            const dtPoly* poly = &tile->polys[j];
+            const dtPoly* pPoly = &pTile->polys[j];
 
             Color col{ 110, 200, 220, 255 };
-            const unsigned int ip = (unsigned int)(poly - tile->polys);
+            const unsigned int ip = (unsigned int)(pPoly - pTile->polys);
 
-            if (poly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
+            if (pPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
             {
-                const dtOffMeshConnection* con = &tile->offMeshCons[ip - tile->header->offMeshBase];
+                const dtOffMeshConnection* con = &pTile->offMeshCons[ip - pTile->header->offMeshBase];
                 v_RenderLine(Vector3D(con->pos[0], con->pos[1], con->pos[2]), 
-                    Vector3D(con->pos[3], con->pos[4], con->pos[5]), Color(188, 0, 188, 255), bUseDepthBuffer);
+                    Vector3D(con->pos[3], con->pos[4], con->pos[5]), Color(188, 0, 188, 255), bDepthBuffer);
             }
             else
             {
-                const dtPolyDetail* pd = &tile->detailMeshes[ip];
-                __m128 tris[3] = { _mm_setzero_ps() };
-                for (int k = 0; k < pd->triCount; ++k)
+                const dtPolyDetail* pDetail = &pTile->detailMeshes[ip];
+                __m128 xTris[3] = { _mm_setzero_ps() };
+                for (int k = 0; k < pDetail->triCount; ++k)
                 {
-                    const unsigned char* t = &tile->detailTris[(pd->triBase + k) * 4];
+                    const unsigned char* t = &pTile->detailTris[(pDetail->triBase + k) * 4];
                     for (int e = 0; e < 3; ++e)
                     {
-                        if (t[e] < poly->vertCount)
+                        if (t[e] < pPoly->vertCount)
                         {
-                            float* verts = &tile->verts[poly->verts[t[e]] * 3];
-                            tris[e] = _mm_setr_ps(verts[0], verts[1], verts[2], 0.0f);
+                            float* pflVerts = &pTile->verts[pPoly->verts[t[e]] * 3];
+                            xTris[e] = _mm_setr_ps(pflVerts[0], pflVerts[1], pflVerts[2], 0.0f);
                         }
                         else
                         {
-                            float* verts = &tile->detailVerts[(pd->vertBase + t[e] - poly->vertCount) * 3];
-                            tris[e] = _mm_setr_ps(verts[0], verts[1], verts[2], 0.0f);
+                            float* pflVerts = &pTile->detailVerts[(pDetail->vertBase + t[e] - pPoly->vertCount) * 3];
+                            xTris[e] = _mm_setr_ps(pflVerts[0], pflVerts[1], pflVerts[2], 0.0f);
                         }
                     }
 
-                    v_RenderLine(*reinterpret_cast<const Vector3D*>(&tris[0]), 
-                        *reinterpret_cast<const Vector3D*>(&tris[1]), col, bUseDepthBuffer);
-                    v_RenderLine(*reinterpret_cast<const Vector3D*>(&tris[1]), 
-                        *reinterpret_cast<const Vector3D*>(&tris[2]), col, bUseDepthBuffer);
-                    v_RenderLine(*reinterpret_cast<const Vector3D*>(&tris[2]), 
-                        *reinterpret_cast<const Vector3D*>(&tris[0]), col, bUseDepthBuffer);
+                    v_RenderLine(*reinterpret_cast<const Vector3D*>(&xTris[0]), 
+                        *reinterpret_cast<const Vector3D*>(&xTris[1]), col, bDepthBuffer);
+                    v_RenderLine(*reinterpret_cast<const Vector3D*>(&xTris[1]), 
+                        *reinterpret_cast<const Vector3D*>(&xTris[2]), col, bDepthBuffer);
+                    v_RenderLine(*reinterpret_cast<const Vector3D*>(&xTris[2]), 
+                        *reinterpret_cast<const Vector3D*>(&xTris[0]), col, bDepthBuffer);
                 }
             }
         }
@@ -339,69 +339,69 @@ void CAI_Utility::DrawNavMeshPolys(dtNavMesh* mesh) const
 
 //------------------------------------------------------------------------------
 // Purpose : draw NavMesh poly boundaries
-// Input  : *mesh - 
+// Input  : *pMesh - 
 //------------------------------------------------------------------------------
-void CAI_Utility::DrawNavMeshPolyBoundaries(dtNavMesh* mesh) const
+void CAI_Utility::DrawNavMeshPolyBoundaries(dtNavMesh* pMesh) const
 {
     static const float thr = 0.01f * 0.01f;
     Color col{ 20, 140, 255, 255 };
 
-    if (!mesh)
-        mesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
-    if (!mesh)
+    if (!pMesh)
+        pMesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
+    if (!pMesh)
         return; // NavMesh for hull not loaded.
 
-    const bool zbuffer = r_debug_overlay_zbuffer->GetBool();
-    const bool polyinner = navmesh_draw_poly_bounds_inner->GetBool();
-    const int tilerange = navmesh_debug_tile_range->GetInt();
-    const float camerarange = navmesh_debug_camera_range->GetFloat();
+    const bool bDepthBuffer = r_debug_overlay_zbuffer->GetBool();
+    const bool bDrawInner = navmesh_draw_poly_bounds_inner->GetBool();
+    const int nTileRange = navmesh_debug_tile_range->GetInt();
+    const float flCameraRange = navmesh_debug_camera_range->GetFloat();
 
-    for (int i = navmesh_draw_poly_bounds->GetInt(); i < mesh->getTileCount(); ++i)
+    for (int i = navmesh_draw_poly_bounds->GetInt(), nt = pMesh->getTileCount(); i < nt; ++i)
     {
-        if (tilerange > 0 && i > tilerange)
+        if (nTileRange > 0 && i > nTileRange)
             break;
 
-        const dtMeshTile* tile = &mesh->m_tiles[i];
-        if (!tile->header)
+        const dtMeshTile* pTile = &pMesh->m_tiles[i];
+        if (!pTile->header)
             continue;
 
-        if (camerarange > 0.0f)
+        if (flCameraRange > 0.0f)
         {
             const Vector3D vCamera = MainViewOrigin();
 
-            if (vCamera.DistTo(Vector3D(tile->header->bmin[0], tile->header->bmin[1], vCamera.z)) > camerarange ||
-                vCamera.DistTo(Vector3D(tile->header->bmax[0], tile->header->bmax[1], vCamera.z)) > camerarange)
+            if (vCamera.DistTo(Vector3D(pTile->header->bmin[0], pTile->header->bmin[1], vCamera.z)) > flCameraRange ||
+                vCamera.DistTo(Vector3D(pTile->header->bmax[0], pTile->header->bmax[1], vCamera.z)) > flCameraRange)
                 continue;
         }
 
-        for (int i = 0; i < tile->header->polyCount; ++i)
+        for (int i = 0; i < pTile->header->polyCount; ++i)
         {
-            const dtPoly* p = &tile->polys[i];
+            const dtPoly* pPoly = &pTile->polys[i];
 
-            if (p->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
+            if (pPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
                 continue;
 
-            const dtPolyDetail* pd = &tile->detailMeshes[i];
+            const dtPolyDetail* pd = &pTile->detailMeshes[i];
 
-            for (int j = 0, nj = static_cast<int>(p->vertCount); j < nj; ++j)
+            for (int j = 0, nj = static_cast<int>(pPoly->vertCount); j < nj; ++j)
             {
-                if (polyinner)
+                if (bDrawInner)
                 {
-                    if (p->neis[j] == 0)
+                    if (pPoly->neis[j] == 0)
                         continue;
 
-                    if (p->neis[j] & DT_EXT_LINK)
+                    if (pPoly->neis[j] & DT_EXT_LINK)
                     {
-                        bool con = false;
-                        for (unsigned int k = p->firstLink; k != DT_NULL_LINK; k = tile->links[k].next)
+                        bool bCon = false;
+                        for (unsigned int k = pPoly->firstLink; k != DT_NULL_LINK; k = pTile->links[k].next)
                         {
-                            if (tile->links[k].edge == j)
+                            if (pTile->links[k].edge == j)
                             {
-                                con = true;
+                                bCon = true;
                                 break;
                             }
                         }
-                        if (con)
+                        if (bCon)
                             col = Color(255, 255, 255, 255);
                         else
                             col = Color(0, 0, 0, 255);
@@ -411,24 +411,25 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(dtNavMesh* mesh) const
                 }
                 else
                 {
-                    if (p->neis[j] != 0) continue;
+                    if (pPoly->neis[j] != 0)
+                        continue;
                 }
 
-                const float* v0 = &tile->verts[p->verts[j] * 3];
-                const float* v1 = &tile->verts[p->verts[(j + 1) % nj] * 3];
+                const float* v0 = &pTile->verts[pPoly->verts[j] * 3];
+                const float* v1 = &pTile->verts[pPoly->verts[(j + 1) % nj] * 3];
 
                 // Draw detail mesh edges which align with the actual poly edge.
                 // This is really slow.
                 for (int k = 0, e = pd->triCount; k < e; ++k)
                 {
-                    const unsigned char* t = &tile->detailTris[(pd->triBase + k) * 4];
+                    const unsigned char* t = &pTile->detailTris[(pd->triBase + k) * 4];
                     const float* tv[3];
                     for (int m = 0; m < 3; ++m)
                     {
-                        if (t[m] < p->vertCount)
-                            tv[m] = &tile->verts[p->verts[t[m]] * 3];
+                        if (t[m] < pPoly->vertCount)
+                            tv[m] = &pTile->verts[pPoly->verts[t[m]] * 3];
                         else
-                            tv[m] = &tile->detailVerts[(pd->vertBase + (t[m] - p->vertCount)) * 3];
+                            tv[m] = &pTile->detailVerts[(pd->vertBase + (t[m] - pPoly->vertCount)) * 3];
                     }
                     for (int m = 0, n = 2; m < 3; n = m++)
                     {
@@ -438,7 +439,7 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(dtNavMesh* mesh) const
                         if (distancePtLine2d(tv[n], v0, v1) < thr &&
                             distancePtLine2d(tv[m], v0, v1) < thr)
                         {
-                            v_RenderLine(Vector3D(tv[n][0], tv[n][1], tv[n][2]), Vector3D(tv[m][0], tv[m][1], tv[m][2]), col, zbuffer);
+                            v_RenderLine(Vector3D(tv[n][0], tv[n][1], tv[n][2]), Vector3D(tv[m][0], tv[m][1], tv[m][2]), col, bDepthBuffer);
                         }
                     }
                 }
