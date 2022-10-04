@@ -40,7 +40,7 @@ void CAI_Utility::DrawAIScriptNetwork(const CAI_Network* pNetwork) const
 
     const bool bUseDepthBuffer = r_debug_overlay_zbuffer->GetBool();
     const bool bDrawNearest = ai_script_nodes_draw_nearest->GetBool();
-    const int  nCameraRange = ai_script_nodes_draw_range->GetInt();
+    const int  nTileRange = ai_script_nodes_draw_range->GetInt();
     static const __m128 xSubMask = _mm_setr_ps(25.0f, 25.0f, 25.0f, 0.0f);
 
     OverlayBox_t::Transforms vTransforms;
@@ -48,7 +48,7 @@ void CAI_Utility::DrawAIScriptNetwork(const CAI_Network* pNetwork) const
 
     for (int i = ai_script_nodes_draw->GetInt(), ns = pNetwork->GetNumScriptNodes(); i < ns; i++)
     {
-        if (nCameraRange && i > nCameraRange)
+        if (nTileRange && i > nTileRange)
             break;
 
         const CAI_ScriptNode* pScriptNode = &pNetwork->m_ScriptNode[i];
@@ -87,36 +87,43 @@ void CAI_Utility::DrawAIScriptNetwork(const CAI_Network* pNetwork) const
 // Purpose: draw NavMesh BVTree
 // Input  : *pMesh - 
 //------------------------------------------------------------------------------
-void CAI_Utility::DrawNavMeshBVTree(dtNavMesh* pMesh) const
+void CAI_Utility::DrawNavMeshBVTree(dtNavMesh* pNavMesh) const
 {
-    if (!pMesh)
-        pMesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
-    if (!pMesh)
+    if (!pNavMesh)
+        pNavMesh = GetNavMeshForHull(navmesh_debug_type->GetInt());
+    if (!pNavMesh)
         return; // NavMesh for hull not loaded.
 
-    const Vector3D vCamera       = MainViewOrigin();
-    const bool     bDepthBuffer  = r_debug_overlay_zbuffer->GetBool();
-    const int      nTileRange    = navmesh_debug_tile_range->GetInt();
-    const float    flCameRarange = navmesh_debug_camera_range->GetFloat();
+    const Vector3D vCamera = MainViewOrigin();
+    const bool bDepthBuffer = r_debug_overlay_zbuffer->GetBool();
+    const int nTileRange = navmesh_debug_tile_range->GetInt();
+    const float flCameraRange = navmesh_debug_camera_range->GetFloat();
 
     OverlayBox_t::Transforms vTransforms;
-    for (int i = navmesh_draw_bvtree->GetInt(), nt = pMesh->getTileCount(); i < nt; ++i)
+    for (int i = navmesh_draw_bvtree->GetInt(), nt = pNavMesh->getTileCount(); i < nt; ++i)
     {
         if (nTileRange > 0 && i > nTileRange)
             break;
 
-        const dtMeshTile* pTile = &pMesh->m_tiles[i];
+        const dtMeshTile* pTile = &pNavMesh->m_tiles[i];
         if (!pTile->header)
             continue;
 
-        if (flCameRarange > 0.0f)
+        if (flCameraRange > 0.0f)
         {
-            if (vCamera.DistTo(Vector3D(pTile->header->bmin[0], pTile->header->bmin[1], vCamera.z)) > flCameRarange ||
-                vCamera.DistTo(Vector3D(pTile->header->bmax[0], pTile->header->bmax[1], vCamera.z)) > flCameRarange)
+            const __m128 xMinBound = _mm_setr_ps(pTile->header->bmin[0], pTile->header->bmin[1], vCamera.z, 0.0f);
+            const __m128 xMaxBound = _mm_setr_ps(pTile->header->bmax[0], pTile->header->bmax[1], vCamera.z, 0.0f);
+
+            if (vCamera.DistTo(*reinterpret_cast<const Vector3D*>(&xMinBound)) > flCameraRange ||
+                vCamera.DistTo(*reinterpret_cast<const Vector3D*>(&xMaxBound)) > flCameraRange)
                 continue;
         }
 
         const float flCellSize = 1.0f / pTile->header->bvQuantFactor;
+
+        const __m128 xTileAABB = _mm_setr_ps(pTile->header->bmin[0], pTile->header->bmin[1], pTile->header->bmin[2], 0.0f);
+        const __m128 xCellSize = _mm_setr_ps(flCellSize, flCellSize, flCellSize, 0.0f);
+
         for (int j = 0, nc = pTile->header->bvNodeCount; j < nc; ++j)
         {
             const dtBVNode* pNode = &pTile->bvTree[j];
@@ -127,16 +134,13 @@ void CAI_Utility::DrawNavMeshBVTree(dtNavMesh* pMesh) const
             vTransforms.xmm[1] = _mm_set_ps(0.0f, 0.0f, 1.0f, 0.0f);
             vTransforms.xmm[2] = _mm_set_ps(0.0f, 1.0f, 0.0f, 0.0f);
 
-            const __m128 xTileAABB = _mm_setr_ps(pTile->header->bmin[0], pTile->header->bmin[1], pTile->header->bmin[2], 0.0f);
-            const __m128 xCellSize = _mm_setr_ps(flCellSize, flCellSize, flCellSize, 0.0f);
-
             // Parallel Vector3D construction.
             const __m128 xMins = _mm_add_ps(xTileAABB, _mm_mul_ps( // Formula: tile->header->bmin[axis] + node->bmin[axis] * cs;
                 _mm_setr_ps(pNode->bmin[0], pNode->bmin[1], pNode->bmin[2], 0.0f), xCellSize));
             const __m128 xMaxs = _mm_add_ps(xTileAABB, _mm_mul_ps( // Formula: tile->header->bmin[axis] + node->bmax[axis] * cs;
                 _mm_setr_ps(pNode->bmax[0], pNode->bmax[1], pNode->bmax[2], 0.0f), xCellSize));
 
-            v_RenderBox(vTransforms, *reinterpret_cast<const Vector3D*>(&xMins), *reinterpret_cast<const Vector3D*>(&xMaxs), 
+            v_RenderBox(vTransforms, *reinterpret_cast<const Vector3D*>(&xMins), *reinterpret_cast<const Vector3D*>(&xMaxs),
                 Color(188, 188, 188, 255), bDepthBuffer);
         }
     }
@@ -153,6 +157,7 @@ void CAI_Utility::DrawNavMeshPortals(dtNavMesh* pMesh) const
     if (!pMesh)
         return; // NavMesh for hull not loaded.
 
+    const Vector3D vCamera = MainViewOrigin();
     const bool bDepthBuffer = r_debug_overlay_zbuffer->GetBool();
     const int nTileRange = navmesh_debug_tile_range->GetInt();
     const float flCameraRange = navmesh_debug_camera_range->GetFloat();
@@ -168,10 +173,11 @@ void CAI_Utility::DrawNavMeshPortals(dtNavMesh* pMesh) const
 
         if (flCameraRange > 0.0f)
         {
-            const Vector3D vCamera = MainViewOrigin();
+            const __m128 xMinBound = _mm_setr_ps(pTile->header->bmin[0], pTile->header->bmin[1], vCamera.z, 0.0f);
+            const __m128 xMaxBound = _mm_setr_ps(pTile->header->bmax[0], pTile->header->bmax[1], vCamera.z, 0.0f);
 
-            if (vCamera.DistTo(Vector3D(pTile->header->bmin[0], pTile->header->bmin[1], vCamera.z)) > flCameraRange ||
-                vCamera.DistTo(Vector3D(pTile->header->bmax[0], pTile->header->bmax[1], vCamera.z)) > flCameraRange)
+            if (vCamera.DistTo(*reinterpret_cast<const Vector3D*>(&xMinBound)) > flCameraRange ||
+                vCamera.DistTo(*reinterpret_cast<const Vector3D*>(&xMaxBound)) > flCameraRange)
                 continue;
         }
 
@@ -269,6 +275,7 @@ void CAI_Utility::DrawNavMeshPolys(dtNavMesh* pMesh) const
     if (!pMesh)
         return; // NavMesh for hull not loaded.
 
+    const Vector3D vCamera = MainViewOrigin();
     const bool bDepthBuffer = r_debug_overlay_zbuffer->GetBool();
     const int nTileRange = navmesh_debug_tile_range->GetInt();
     const float flCameraRange = navmesh_debug_camera_range->GetFloat();
@@ -284,10 +291,11 @@ void CAI_Utility::DrawNavMeshPolys(dtNavMesh* pMesh) const
 
         if (flCameraRange > 0.0f)
         {
-            const Vector3D vCamera = MainViewOrigin();
+            const __m128 xMinBound = _mm_setr_ps(pTile->header->bmin[0], pTile->header->bmin[1], vCamera.z, 0.0f);
+            const __m128 xMaxBound = _mm_setr_ps(pTile->header->bmax[0], pTile->header->bmax[1], vCamera.z, 0.0f);
 
-            if (vCamera.DistTo(Vector3D(pTile->header->bmin[0], pTile->header->bmin[1], vCamera.z)) > flCameraRange ||
-                vCamera.DistTo(Vector3D(pTile->header->bmax[0], pTile->header->bmax[1], vCamera.z)) > flCameraRange)
+            if (vCamera.DistTo(*reinterpret_cast<const Vector3D*>(&xMinBound)) > flCameraRange ||
+                vCamera.DistTo(*reinterpret_cast<const Vector3D*>(&xMaxBound)) > flCameraRange)
                 continue;
         }
 
@@ -351,6 +359,7 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(dtNavMesh* pMesh) const
     if (!pMesh)
         return; // NavMesh for hull not loaded.
 
+    const Vector3D vCamera = MainViewOrigin();
     const bool bDepthBuffer = r_debug_overlay_zbuffer->GetBool();
     const bool bDrawInner = navmesh_draw_poly_bounds_inner->GetBool();
     const int nTileRange = navmesh_debug_tile_range->GetInt();
@@ -367,10 +376,11 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(dtNavMesh* pMesh) const
 
         if (flCameraRange > 0.0f)
         {
-            const Vector3D vCamera = MainViewOrigin();
+            const __m128 xMinBound = _mm_setr_ps(pTile->header->bmin[0], pTile->header->bmin[1], vCamera.z, 0.0f);
+            const __m128 xMaxBound = _mm_setr_ps(pTile->header->bmax[0], pTile->header->bmax[1], vCamera.z, 0.0f);
 
-            if (vCamera.DistTo(Vector3D(pTile->header->bmin[0], pTile->header->bmin[1], vCamera.z)) > flCameraRange ||
-                vCamera.DistTo(Vector3D(pTile->header->bmax[0], pTile->header->bmax[1], vCamera.z)) > flCameraRange)
+            if (vCamera.DistTo(*reinterpret_cast<const Vector3D*>(&xMinBound)) > flCameraRange ||
+                vCamera.DistTo(*reinterpret_cast<const Vector3D*>(&xMaxBound)) > flCameraRange)
                 continue;
         }
 
