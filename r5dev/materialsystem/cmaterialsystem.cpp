@@ -7,6 +7,7 @@
 #include "tier1/cvar.h"
 #include "rtech/rtech_utils.h"
 #include "filesystem/filesystem.h"
+#include "materialsystem/cmaterialglue.h"
 #include "materialsystem/cmaterialsystem.h"
 
 //---------------------------------------------------------------------------------
@@ -85,7 +86,7 @@ void* __fastcall DispatchDrawCall(int64_t a1, uint64_t a2, int a3, int a4, int64
 // Input  : **pCandidate - 
 // Output : true if valid and material, false otherwise
 //-----------------------------------------------------------------------------
-bool IsMaterialVFTable(void** pCandidate)
+bool IsMaterialInternal(void** pCandidate)
 {
 	// NOTE: this is a dirty fix, but for running technically broken BSP's, this is the only fix 
 	// besides going bare metal inline assembly (which on its own isn't directly the problem, but 
@@ -99,13 +100,15 @@ bool IsMaterialVFTable(void** pCandidate)
 	// The first member of the CMaterial data structure should be its VFTable pointer, anything else is invalid.
 	__try
 	{
-		if (*pCandidate == g_pMaterialVFTable)
+		if (*pCandidate == g_pMaterialVFTable ||
+			*pCandidate == g_pMaterialGlueVFTable)
 			return true;
 	}
 	__except (GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION)
 	{
 		return false;
 	}
+	return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

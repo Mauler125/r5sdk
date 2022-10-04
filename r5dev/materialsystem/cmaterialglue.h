@@ -1,5 +1,4 @@
 #pragma once
-
 #include "materialsystem/cshaderglue.h"
 
 #pragma pack(push, 1) // Without this MSVC might get the idea to align our members to completely fuck the offsets up.

@@ -26,7 +26,7 @@ inline int* g_nUnfreeStreamingTextureMemory   = nullptr;
 inline int* g_nUnusableStreamingTextureMemory = nullptr;
 #endif // !DEDICATED
 
-bool IsMaterialVFTable(void** pCandidate);
+bool IsMaterialInternal(void** pCandidate);
 void CMaterialSystem_Attach();
 void CMaterialSystem_Detach();
 ///////////////////////////////////////////////////////////////////////////////

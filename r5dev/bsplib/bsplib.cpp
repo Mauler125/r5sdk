@@ -400,7 +400,7 @@ void* __fastcall BuildPropStaticFrustumCullMap(int64_t a1, int64_t a2, unsigned 
                         if (reinterpret_cast<uintptr_t>(v68) < g_GameDll.m_RunTimeData.m_pSectionBase    || // Check bounds (data is mostly within the '.data' segment.
                             reinterpret_cast<uintptr_t>(v68) > g_GameDll.m_ExceptionTable.m_pSectionBase || error)
                         {
-                            if (!IsMaterialVFTable(reinterpret_cast<void**>(v68))) // Last chance.
+                            if (!IsMaterialInternal(reinterpret_cast<void**>(v68))) // Last chance.
                             {
                                 error = true;
                                 continue;
