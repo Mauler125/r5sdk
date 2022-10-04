@@ -140,7 +140,16 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
 
     if (pylon_showdebuginfo->GetBool())
     {
-        DevMsg(eDLL_T::ENGINE, "%s - Comp-server replied with '%d'\n", __FUNCTION__, htResult->status);
+        DevMsg(eDLL_T::ENGINE, "%s - Comp-server replied with status: '%d'\n", __FUNCTION__, htResult->status);
+        try
+        {
+            string jsResultBody = nlohmann::json::parse(htResult->body).dump(4);
+            DevMsg(eDLL_T::ENGINE, "%s - Comp-Server response body:\n'%s'\n", __FUNCTION__, jsResultBody.c_str());
+        }
+        catch (const std::exception& ex)
+        {
+            DevMsg(eDLL_T::ENGINE, "%s - Encountered error parsing Comp-server response body: '%s'\n", __FUNCTION__, ex.what());
+        }
     }
 
     try
@@ -263,7 +272,16 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
 
     if (htResult && pylon_showdebuginfo->GetBool())
     {
-        DevMsg(eDLL_T::ENGINE, "%s - Comp-server replied with '%d'\n", __FUNCTION__, htResult->status);
+        DevMsg(eDLL_T::ENGINE, "%s - Comp-server replied with status: '%d'\n", __FUNCTION__, htResult->status);
+        try
+        {
+            string jsResultBody = nlohmann::json::parse(htResult->body).dump(4);
+            DevMsg(eDLL_T::ENGINE, "%s - Comp-Server response body:\n'%s'\n", __FUNCTION__, jsResultBody.c_str());
+        }
+        catch (const std::exception& ex)
+        {
+            DevMsg(eDLL_T::ENGINE, "%s - Encountered error parsing Comp-server response body: '%s'\n", __FUNCTION__, ex.what());
+        }
     }
 
     try
