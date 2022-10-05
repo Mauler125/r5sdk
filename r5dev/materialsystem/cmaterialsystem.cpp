@@ -10,6 +10,7 @@
 #include "materialsystem/cmaterialglue.h"
 #include "materialsystem/cmaterialsystem.h"
 
+#ifndef DEDICATED
 //---------------------------------------------------------------------------------
 // Purpose: loads and processes STBSP files
 // (overrides level name if stbsp field has value in prerequisites file)
@@ -80,6 +81,7 @@ void* __fastcall DispatchDrawCall(int64_t a1, uint64_t a2, int a3, int a4, int64
 	return v_DispatchDrawCall(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14);
 #endif
 }
+#endif // !DEDICATED
 
 //-----------------------------------------------------------------------------
 // Purpose: checks if ptr is valid, and checks for equality against CMaterial vftable
@@ -114,12 +116,16 @@ bool IsMaterialInternal(void** pCandidate)
 ///////////////////////////////////////////////////////////////////////////////
 void CMaterialSystem_Attach()
 {
+#ifndef DEDICATED
 	DetourAttach((LPVOID*)&v_StreamDB_Init, &StreamDB_Init);
 	DetourAttach((LPVOID*)&v_DispatchDrawCall, &DispatchDrawCall);
+#endif // !DEDICATED
 }
 
 void CMaterialSystem_Detach()
 {
+#ifndef DEDICATED
 	DetourDetach((LPVOID*)&v_StreamDB_Init, &StreamDB_Init);
 	DetourDetach((LPVOID*)&v_DispatchDrawCall, &DispatchDrawCall);
+#endif // !DEDICATED
 }

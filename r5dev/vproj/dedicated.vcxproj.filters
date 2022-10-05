@@ -1565,6 +1565,9 @@
     <ClCompile Include="..\engine\sdk_dll.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
+    <ClCompile Include="..\materialsystem\cmaterialsystem.cpp">
+      <Filter>sdk\materialsystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Dedicated.def" />
