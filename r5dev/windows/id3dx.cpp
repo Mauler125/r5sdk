@@ -10,6 +10,7 @@
 #include "gameui/IBrowser.h"
 #include "inputsystem/inputsystem.h"
 #include "public/bitmap/stb_image.h"
+#include <gameui/IOverlay.h>
 
 /**********************************************************************************
 -----------------------------------------------------------------------------------
@@ -75,6 +76,11 @@ LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		if (wParam == g_pImGuiConfig->IBrowser_Config.m_nBind0 || wParam == g_pImGuiConfig->IBrowser_Config.m_nBind1)
 		{
 			g_pBrowser->m_bActivate ^= true;
+		}
+
+		if (wParam == g_pImGuiConfig->IOverlay_Config.m_nBind0)
+		{
+			g_pOverlay->m_bActivate ^= true;
 		}
 	}
 
@@ -253,6 +259,7 @@ void DrawImGui()
 
 	g_pBrowser->RunTask();
 	g_pConsole->RunTask();
+	g_pOverlay->RunTask();
 
 	if (g_pBrowser->m_bActivate)
 	{
@@ -267,6 +274,11 @@ void DrawImGui()
 	if (!g_pConsole->m_bActivate && !g_pBrowser->m_bActivate)
 	{
 		g_pInputSystem->EnableInput(true); // Enable input to game when both are not drawn.
+	}
+	if (g_pOverlay->m_bActivate)
+	{
+		g_pInputSystem->EnableInput(false); // Disable input to game when console is drawn.
+		g_pOverlay->RunFrame();
 	}
 
 	ImGui::EndFrame();
@@ -352,6 +364,7 @@ HRESULT __stdcall GetResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount
 {
 	g_pConsole->m_bActivate = false;
 	g_pBrowser->m_bActivate = false;
+	g_pOverlay->m_bActivate = false;
 	g_bInitialized    = false;
 	g_bPresentHooked  = false;
 

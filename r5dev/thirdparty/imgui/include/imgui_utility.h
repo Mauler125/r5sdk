@@ -30,6 +30,11 @@ public:
         int m_nBind1 = VK_F10;
     } IBrowser_Config;
 
+    struct
+    {
+        int m_nBind0 = VK_F3;
+    } IOverlay_Config;
+
     void Load();
     void Save();
     ImGuiStyle_t InitStyle() const;

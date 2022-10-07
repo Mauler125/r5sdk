@@ -20,6 +20,9 @@ public:
     virtual void RunTask(void);
 
     virtual void DrawSurface(void);
+    virtual void DrawServerList(void);
+    virtual void DrawHosting(void);
+    virtual void DrawSettings(void);
 
     void BrowserPanel(void);
     void RefreshServerList(void);

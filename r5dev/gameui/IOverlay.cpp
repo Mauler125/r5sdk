@@ -21,12 +21,14 @@ History:
 #include "windows/id3dx.h"
 #include "windows/console.h"
 #include "windows/resource.h"
+#include "gameui/IOverlay.h"
+#include "gameui/IBrowser.h"
 #include "gameui/IConsole.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CConsole::CConsole(void)
+COverlay::COverlay(void)
 {
     memset(m_szInputBuf, '\0', sizeof(m_szInputBuf));
 
@@ -45,7 +47,7 @@ CConsole::CConsole(void)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CConsole::~CConsole(void)
+COverlay::~COverlay(void)
 {
 }
 
@@ -53,7 +55,7 @@ CConsole::~CConsole(void)
 // Purpose: game console setup
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CConsole::Init(void)
+bool COverlay::Init(void)
 {
     SetStyleVar();
     return LoadFlagIcons();
@@ -62,7 +64,7 @@ bool CConsole::Init(void)
 //-----------------------------------------------------------------------------
 // Purpose: game console main render loop
 //-----------------------------------------------------------------------------
-void CConsole::RunFrame(void)
+void COverlay::RunFrame(void)
 {
     if (!m_bInitialized)
     {
@@ -96,8 +98,35 @@ void CConsole::RunFrame(void)
         }
         ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(618, 524));        nVars++;
 
-        DrawSurface();
         ImGui::PopStyleVar(nVars);
+
+        if (ImGui::BeginMainMenuBar())
+        {
+            if (ImGui::BeginMenu("Console"))
+            {
+                g_pConsole->DrawSurface();
+                ImGui::EndMenu();
+            }
+            ImGui::Separator();
+            if (ImGui::BeginMenu("Server Browser"))
+            {
+                g_pBrowser->DrawServerList();
+                ImGui::EndMenu();
+            }
+            ImGui::Separator();
+            if (ImGui::BeginMenu("Create Server"))
+            {
+                g_pBrowser->DrawHosting();
+                ImGui::EndMenu();
+            }
+            ImGui::Separator();
+            if (ImGui::BeginMenu("Settings"))
+            {
+                g_pBrowser->DrawSettings();
+                ImGui::EndMenu();
+            }
+            ImGui::EndMainMenuBar();
+        }
     }
 
     /**************************
@@ -137,7 +166,7 @@ void CConsole::RunFrame(void)
 // Purpose: runs tasks for the console while not being drawn 
 // (!!! RunTask and RunFrame must be called from the same thread !!!)
 //-----------------------------------------------------------------------------
-void CConsole::RunTask()
+void COverlay::RunTask()
 {
     ClampLogSize();
     ClampHistorySize();
@@ -146,7 +175,7 @@ void CConsole::RunTask()
 //-----------------------------------------------------------------------------
 // Purpose: think
 //-----------------------------------------------------------------------------
-void CConsole::Think(void)
+void COverlay::Think(void)
 {
     if (m_bActivate)
     {
@@ -166,7 +195,7 @@ void CConsole::Think(void)
 // Purpose: draws the console's main surface
 // Input  : *bDraw - 
 //-----------------------------------------------------------------------------
-void CConsole::DrawSurface(void)
+void COverlay::DrawSurface(void)
 {
     if (!ImGui::Begin(m_pszConsoleLabel, &m_bActivate))
     {
@@ -284,7 +313,7 @@ void CConsole::DrawSurface(void)
 //-----------------------------------------------------------------------------
 // Purpose: draws the options panel
 //-----------------------------------------------------------------------------
-void CConsole::OptionsPanel(void)
+void COverlay::OptionsPanel(void)
 {
     ImGui::Checkbox("Auto-Scroll", &m_Logger.m_bAutoScroll);
 
@@ -323,7 +352,7 @@ void CConsole::OptionsPanel(void)
 //-----------------------------------------------------------------------------
 // Purpose: draws the suggestion panel with results based on user input
 //-----------------------------------------------------------------------------
-void CConsole::SuggestPanel(void)
+void COverlay::SuggestPanel(void)
 {
     ImGui::Begin("##suggest", nullptr, m_nSuggestFlags);
     ImGui::PushAllowKeyboardFocus(false);
@@ -380,7 +409,7 @@ void CConsole::SuggestPanel(void)
 // Purpose: runs the autocomplete for the console
 // Output : true if autocomplete is performed, false otherwise
 //-----------------------------------------------------------------------------
-bool CConsole::AutoComplete(void)
+bool COverlay::AutoComplete(void)
 {
     // Show ConVar/ConCommand suggestions when something has been entered.
     if (m_szInputBuf[0])
@@ -423,7 +452,7 @@ bool CConsole::AutoComplete(void)
 //-----------------------------------------------------------------------------
 // Purpose: resets the autocomplete window
 //-----------------------------------------------------------------------------
-void CConsole::ResetAutoComplete(void)
+void COverlay::ResetAutoComplete(void)
 {
     m_bCanAutoComplete = false;
     m_bSuggestActive = false;
@@ -434,7 +463,7 @@ void CConsole::ResetAutoComplete(void)
 //-----------------------------------------------------------------------------
 // Purpose: clears the autocomplete window
 //-----------------------------------------------------------------------------
-void CConsole::ClearAutoComplete(void)
+void COverlay::ClearAutoComplete(void)
 {
     m_bCanAutoComplete = false;
     m_nSuggestPos = -1;
@@ -445,7 +474,7 @@ void CConsole::ClearAutoComplete(void)
 //-----------------------------------------------------------------------------
 // Purpose: find ConVars/ConCommands from user input and add to vector
 //-----------------------------------------------------------------------------
-void CConsole::FindFromPartial(void)
+void COverlay::FindFromPartial(void)
 {
     ClearAutoComplete();
 
@@ -517,7 +546,7 @@ void CConsole::FindFromPartial(void)
 // Purpose: processes submitted commands for the main thread
 // Input  : pszCommand - 
 //-----------------------------------------------------------------------------
-void CConsole::ProcessCommand(const char* pszCommand)
+void COverlay::ProcessCommand(const char* pszCommand)
 {
     DevMsg(eDLL_T::COMMON, "] %s\n", pszCommand);
 
@@ -577,7 +606,7 @@ void CConsole::ProcessCommand(const char* pszCommand)
 // Purpose: builds the console summary
 // Input  : svConVar - 
 //-----------------------------------------------------------------------------
-void CConsole::BuildSummary(string svConVar)
+void COverlay::BuildSummary(string svConVar)
 {
     if (!svConVar.empty())
     {
@@ -612,7 +641,7 @@ void CConsole::BuildSummary(string svConVar)
 //-----------------------------------------------------------------------------
 // Purpose: builds the suggestion panel rect
 //-----------------------------------------------------------------------------
-void CConsole::BuildSuggestPanelRect(void)
+void COverlay::BuildSuggestPanelRect(void)
 {
     float flSinglePadding = 0.f;
     float flItemHeight = ImGui::GetTextLineHeightWithSpacing() + 1.0f;
@@ -633,7 +662,7 @@ void CConsole::BuildSuggestPanelRect(void)
 //-----------------------------------------------------------------------------
 // Purpose: clamps the size of the log vector
 //-----------------------------------------------------------------------------
-void CConsole::ClampLogSize(void)
+void COverlay::ClampLogSize(void)
 {
     std::lock_guard<std::mutex> l(m_Mutex);
     if (m_Logger.GetTotalLines() > con_max_size_logvector->GetInt())
@@ -653,7 +682,7 @@ void CConsole::ClampLogSize(void)
 //-----------------------------------------------------------------------------
 // Purpose: clamps the size of the history vector
 //-----------------------------------------------------------------------------
-void CConsole::ClampHistorySize(void)
+void COverlay::ClampHistorySize(void)
 {
     while (m_vHistory.size() > con_max_size_history->GetSizeT())
     {
@@ -665,7 +694,7 @@ void CConsole::ClampHistorySize(void)
 // Purpose: loads flag images from resource section (must be aligned with resource.h!)
 // Output : true on success, false on failure 
 //-----------------------------------------------------------------------------
-bool CConsole::LoadFlagIcons(void)
+bool COverlay::LoadFlagIcons(void)
 {
     int k = 0; // Get all image resources for displaying flags.
     for (int i = IDB_PNG3; i <= IDB_PNG23; i++)
@@ -689,7 +718,7 @@ bool CConsole::LoadFlagIcons(void)
 // Purpose: returns flag image index for CommandBase (must be aligned with resource.h!)
 // Input  : nFlags - 
 //-----------------------------------------------------------------------------
-int CConsole::ColorCodeFlags(int nFlags) const
+int COverlay::ColorCodeFlags(int nFlags) const
 {
     switch (nFlags)
     {
@@ -743,7 +772,7 @@ int CConsole::ColorCodeFlags(int nFlags) const
 // Input  : *iData - 
 // Output : 
 //-----------------------------------------------------------------------------
-int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
+int COverlay::TextEditCallback(ImGuiInputTextCallbackData* iData)
 {
     switch (iData->EventFlag)
     {
@@ -878,9 +907,9 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
 // Input  : *iData - 
 // Output : 
 //-----------------------------------------------------------------------------
-int CConsole::TextEditCallbackStub(ImGuiInputTextCallbackData* iData)
+int COverlay::TextEditCallbackStub(ImGuiInputTextCallbackData* iData)
 {
-    CConsole* pConsole = reinterpret_cast<CConsole*>(iData->UserData);
+    COverlay* pConsole = reinterpret_cast<COverlay*>(iData->UserData);
     return pConsole->TextEditCallback(iData);
 }
 
@@ -888,7 +917,7 @@ int CConsole::TextEditCallbackStub(ImGuiInputTextCallbackData* iData)
 // Purpose: adds logs to the vector
 // Input  : &conLog - 
 //-----------------------------------------------------------------------------
-void CConsole::AddLog(const ConLog_t& conLog)
+void COverlay::AddLog(const ConLog_t& conLog)
 {
     std::lock_guard<std::mutex> l(m_Mutex);
     m_Logger.InsertText(conLog);
@@ -899,7 +928,7 @@ void CConsole::AddLog(const ConLog_t& conLog)
 // Input  : *fmt - 
 //          ... - 
 //-----------------------------------------------------------------------------
-void CConsole::AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2)
+void COverlay::AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2)
 {
     char buf[4096];
     va_list args{};
@@ -915,7 +944,7 @@ void CConsole::AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2)
 //-----------------------------------------------------------------------------
 // Purpose: clears the entire log vector
 //-----------------------------------------------------------------------------
-void CConsole::ClearLog(void)
+void COverlay::ClearLog(void)
 {
     std::lock_guard<std::mutex> l(m_Mutex);
     m_Logger.RemoveLine(0, (m_Logger.GetTotalLines() - 1));
@@ -924,7 +953,7 @@ void CConsole::ClearLog(void)
 //-----------------------------------------------------------------------------
 // Purpose: sets the console front-end style
 //-----------------------------------------------------------------------------
-void CConsole::SetStyleVar(void)
+void COverlay::SetStyleVar(void)
 {
     m_Style = g_pImGuiConfig->InitStyle();
 
@@ -932,4 +961,4 @@ void CConsole::SetStyleVar(void)
     ImGui::SetWindowPos(ImVec2(-1000, 50), ImGuiCond_FirstUseEver);
 }
 
-CConsole* g_pConsole = new CConsole();
+COverlay* g_pOverlay = new COverlay();

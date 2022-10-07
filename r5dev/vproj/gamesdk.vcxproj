@@ -57,6 +57,7 @@
     <ClCompile Include="..\filesystem\filesystem.cpp" />
     <ClCompile Include="..\gameui\IConsole.cpp" />
     <ClCompile Include="..\gameui\IBrowser.cpp" />
+    <ClCompile Include="..\gameui\IOverlay.cpp" />
     <ClCompile Include="..\game\client\c_baseentity.cpp" />
     <ClCompile Include="..\game\client\spritemodel.cpp" />
     <ClCompile Include="..\game\client\view.cpp" />
@@ -216,6 +217,7 @@
     <ClInclude Include="..\filesystem\filesystem.h" />
     <ClInclude Include="..\gameui\IConsole.h" />
     <ClInclude Include="..\gameui\IBrowser.h" />
+    <ClInclude Include="..\gameui\IOverlay.h" />
     <ClInclude Include="..\game\client\c_baseentity.h" />
     <ClInclude Include="..\game\client\c_baseplayer.h" />
     <ClInclude Include="..\game\client\enginesprite.h" />
@@ -694,7 +696,7 @@
       <SetChecksum>true</SetChecksum>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\gamesdk.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
+      <Command>IF EXIST "E:\R5Reloaded\r5apex.exe" del "E:\R5Reloaded\gamesdk.dll" &amp;&amp; copy /Y "$(TargetPath)" "E:\R5Reloaded\</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>

@@ -173,6 +173,12 @@ void CBrowser::Think(void)
 //-----------------------------------------------------------------------------
 void CBrowser::DrawSurface(void)
 {
+    if (!ImGui::Begin(m_pszBrowserTitle, &m_bActivate))
+    {
+        ImGui::End();
+        return;
+    }
+
     std::lock_guard<std::mutex> l(m_Mutex);
 
     ImGui::BeginTabBar("CompMenu");
@@ -194,6 +200,53 @@ void CBrowser::DrawSurface(void)
         ImGui::EndTabItem();
     }
     ImGui::EndTabBar();
+
+    ImGui::End();
+}
+
+void CBrowser::DrawServerList(void)
+{
+    if (!ImGui::Begin(m_pszBrowserTitle, &m_bActivate))
+    {
+        ImGui::End();
+        return;
+    }
+
+    std::lock_guard<std::mutex> l(m_Mutex);
+
+    BrowserPanel();
+
+    ImGui::End();
+}
+
+void CBrowser::DrawHosting(void)
+{
+    if (!ImGui::Begin("Hosting", &m_bActivate))
+    {
+        ImGui::End();
+        return;
+    }
+
+    std::lock_guard<std::mutex> l(m_Mutex);
+
+    HostPanel();
+
+    ImGui::End();
+}
+
+void CBrowser::DrawSettings(void)
+{
+    if (!ImGui::Begin("Settings", &m_bActivate))
+    {
+        ImGui::End();
+        return;
+    }
+
+    std::lock_guard<std::mutex> l(m_Mutex);
+
+    SettingsPanel();
+
+    ImGui::End();
 }
 
 //-----------------------------------------------------------------------------
