@@ -50,6 +50,7 @@ END
 //
 IDB_PNG1                DEV                     "png\\debugempty.png"
 IDB_PNG2                DEV                     "png\\lockedserver.png"
+IDB_PNG24               DEV                     "png\\r5ricon.png"
 
 /////////////////////////////////////////////////////////////////////////////
 //

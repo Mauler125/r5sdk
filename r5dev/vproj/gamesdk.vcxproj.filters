@@ -1867,6 +1867,9 @@
     <Image Include="..\shared\resource\lockedserver.png">
       <Filter>sdk\resource\png</Filter>
     </Image>
+    <Image Include="..\resource\png\r5ricon.png">
+      <Filter>sdk\resource\png</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resource\r5dev.rc">

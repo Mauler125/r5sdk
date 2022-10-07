@@ -261,7 +261,7 @@ void DrawImGui()
 	g_pConsole->RunTask();
 	g_pOverlay->RunTask();
 
-	if (g_pBrowser->m_bActivate)
+	/*if (g_pBrowser->m_bActivate)
 	{
 		g_pInputSystem->EnableInput(false); // Disable input to game when browser is drawn.
 		g_pBrowser->RunFrame();
@@ -274,11 +274,24 @@ void DrawImGui()
 	if (!g_pConsole->m_bActivate && !g_pBrowser->m_bActivate)
 	{
 		g_pInputSystem->EnableInput(true); // Enable input to game when both are not drawn.
-	}
+	}*/
 	if (g_pOverlay->m_bActivate)
 	{
 		g_pInputSystem->EnableInput(false); // Disable input to game when console is drawn.
 		g_pOverlay->RunFrame();
+
+		if (g_pOverlay->m_bConsole)
+			g_pConsole->RunFrame();
+		if (g_pOverlay->m_bServerList)
+			g_pBrowser->DrawServerList();
+		if (g_pOverlay->m_bHosting)
+			g_pBrowser->DrawHosting();
+		if (g_pOverlay->m_bSettings)
+			g_pBrowser->DrawSettings();
+	}
+	if (!g_pOverlay->m_bActivate)
+	{
+		g_pInputSystem->EnableInput(true); // Enable input to game when both are not drawn.
 	}
 
 	ImGui::EndFrame();

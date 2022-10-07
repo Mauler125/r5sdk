@@ -22,6 +22,7 @@ History:
 #include "windows/console.h"
 #include "windows/resource.h"
 #include "gameui/IConsole.h"
+#include <gameui/IOverlay.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -168,7 +169,7 @@ void CConsole::Think(void)
 //-----------------------------------------------------------------------------
 void CConsole::DrawSurface(void)
 {
-    if (!ImGui::Begin(m_pszConsoleLabel, &m_bActivate))
+    if (!ImGui::Begin("Game Console", &m_bActivate))
     {
         ImGui::End();
         return;

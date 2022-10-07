@@ -35,6 +35,7 @@ History:
 #include "vstdlib/callback.h"
 #include "gameui/IBrowser.h"
 #include "public/edict.h"
+#include <gameui/IOverlay.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -206,7 +207,7 @@ void CBrowser::DrawSurface(void)
 
 void CBrowser::DrawServerList(void)
 {
-    if (!ImGui::Begin(m_pszBrowserTitle, &m_bActivate))
+    if (!ImGui::Begin("Server Browser", &g_pOverlay->m_bServerList))
     {
         ImGui::End();
         return;
@@ -221,11 +222,26 @@ void CBrowser::DrawServerList(void)
 
 void CBrowser::DrawHosting(void)
 {
-    if (!ImGui::Begin("Hosting", &m_bActivate))
+    int nVars = 0;
+    if (m_Style == ImGuiStyle_t::MODERN)
     {
-        ImGui::End();
-        return;
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 8.f, 10.f }); nVars++;
+        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
     }
+    else
+    {
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 6.f, 6.f });  nVars++;
+        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
+    }
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(928.f, 524.f));        nVars++;
+
+    if (m_Style != ImGuiStyle_t::MODERN)
+    {
+        ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);              nVars++;
+    }
+
+    ImGui::PopStyleVar(nVars);
+    ImGui::Begin("Hosting");
 
     std::lock_guard<std::mutex> l(m_Mutex);
 
@@ -236,7 +252,7 @@ void CBrowser::DrawHosting(void)
 
 void CBrowser::DrawSettings(void)
 {
-    if (!ImGui::Begin("Settings", &m_bActivate))
+    if (!ImGui::Begin("Settings", &g_pOverlay->m_bSettings))
     {
         ImGui::End();
         return;

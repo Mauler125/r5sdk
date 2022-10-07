@@ -22,35 +22,12 @@ public:
     virtual void DrawSurface(void);
 
 private:
-    void OptionsPanel(void);
-    void SuggestPanel(void);
-
-    bool AutoComplete(void);
-    void ResetAutoComplete(void);
-    void ClearAutoComplete(void);
-
-    void FindFromPartial(void);
-    void ProcessCommand(const char* pszCommand);
-
-    void BuildSummary(string svConVar = "");
-    void BuildSuggestPanelRect(void);
-
-    void ClampLogSize(void);
-    void ClampHistorySize(void);
-
     bool LoadFlagIcons(void);
-    int ColorCodeFlags(int nFlags) const;
-
-    int TextEditCallback(ImGuiInputTextCallbackData* pData);
-    static int TextEditCallbackStub(ImGuiInputTextCallbackData* pData);
 
     ///////////////////////////////////////////////////////////////////////////
 public:
-    void AddLog(const ConLog_t& conLog);
 
 private:
-    void AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2);
-    void ClearLog(void);
 
     ///////////////////////////////////////////////////////////////////////////
     virtual void SetStyleVar(void);
@@ -85,6 +62,8 @@ private:
     ssize_t                        m_nSuggestPos      = -1;
     vector<CSuggest>               m_vSuggest;
     vector<MODULERESOURCE>         m_vFlagIcons;
+    ID3D11ShaderResourceView* m_idR5RIcon = nullptr;
+    MODULERESOURCE                 m_rR5RIconBlob;
 
     ImGuiStyle_t                   m_Style = ImGuiStyle_t::NONE;
     ImVec2                         m_ivSuggestWindowPos;
@@ -114,6 +93,10 @@ private:
         ImGuiWindowFlags_AlwaysVerticalScrollbar;
 public:
     bool             m_bActivate = false;
+    bool             m_bConsole = false;
+    bool             m_bServerList = false;
+    bool             m_bHosting = false;
+    bool             m_bSettings = false;
     vector<CSuggest> m_vsvCommandBases;
 };
 

@@ -569,6 +569,7 @@
     <ResourceCompile Include="..\resource\r5dev.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\resource\png\r5ricon.png" />
     <Image Include="..\shared\resource\lockedserver.png" />
   </ItemGroup>
   <ItemGroup>
