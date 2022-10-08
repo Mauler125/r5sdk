@@ -20,6 +20,7 @@ public:
     virtual void RunTask(void);
 
     virtual void DrawSurface(void);
+    virtual void DrawHint(void);
 
 private:
     bool LoadFlagIcons(void);
@@ -62,8 +63,15 @@ private:
     ssize_t                        m_nSuggestPos      = -1;
     vector<CSuggest>               m_vSuggest;
     vector<MODULERESOURCE>         m_vFlagIcons;
+
     ID3D11ShaderResourceView* m_idR5RIcon = nullptr;
     MODULERESOURCE                 m_rR5RIconBlob;
+    ID3D11ShaderResourceView* m_idConsoleIcon = nullptr;
+    MODULERESOURCE                 m_rConsoleIconBlob;
+    ID3D11ShaderResourceView* m_idListIcon = nullptr;
+    MODULERESOURCE                 m_rListIconBlob;
+    ID3D11ShaderResourceView* m_idAddIcon = nullptr;
+    MODULERESOURCE                 m_rAddIconBlob;
 
     ImGuiStyle_t                   m_Style = ImGuiStyle_t::NONE;
     ImVec2                         m_ivSuggestWindowPos;
@@ -93,6 +101,7 @@ private:
         ImGuiWindowFlags_AlwaysVerticalScrollbar;
 public:
     bool             m_bActivate = false;
+    bool             m_bHintShown = false;
     bool             m_bConsole = false;
     bool             m_bServerList = false;
     bool             m_bHosting = false;

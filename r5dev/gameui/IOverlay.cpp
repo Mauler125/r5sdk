@@ -31,6 +31,9 @@ History:
 COverlay::COverlay(void)
 {
     m_rR5RIconBlob = GetModuleResource(IDB_PNG24);
+    m_rConsoleIconBlob = GetModuleResource(IDB_PNG25);
+    m_rListIconBlob = GetModuleResource(IDB_PNG26);
+    m_rAddIconBlob = GetModuleResource(IDB_PNG27);
 }
 
 //-----------------------------------------------------------------------------
@@ -127,61 +130,119 @@ void COverlay::Think(void)
 //-----------------------------------------------------------------------------
 void COverlay::DrawSurface(void)
 {
-    if (!m_idR5RIcon)
-    {
+    if (!m_idR5RIcon) {
         bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_rR5RIconBlob.m_pData), static_cast<int>(m_rR5RIconBlob.m_nSize),
             &m_idR5RIcon, &m_rR5RIconBlob.m_nWidth, &m_rR5RIconBlob.m_nHeight);
+        IM_ASSERT(ret);
+    }
+    if (!m_idConsoleIcon) {
+        bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_rConsoleIconBlob.m_pData), static_cast<int>(m_rConsoleIconBlob.m_nSize),
+            &m_idConsoleIcon, &m_rConsoleIconBlob.m_nWidth, &m_rConsoleIconBlob.m_nHeight);
+        IM_ASSERT(ret);
+    }
+    if (!m_idListIcon) {
+        bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_rListIconBlob.m_pData), static_cast<int>(m_rListIconBlob.m_nSize),
+            &m_idListIcon, &m_rListIconBlob.m_nWidth, &m_rListIconBlob.m_nHeight);
+        IM_ASSERT(ret);
+    }
+    if (!m_idAddIcon) {
+        bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_rAddIconBlob.m_pData), static_cast<int>(m_rAddIconBlob.m_nSize),
+            &m_idAddIcon, &m_rAddIconBlob.m_nWidth, &m_rAddIconBlob.m_nHeight);
         IM_ASSERT(ret);
     }
 
     if (ImGui::BeginMainMenuBar())
     {
-        ImGui::Image(m_idR5RIcon, ImVec2(20, 20));
-        ImGui::Text("R5Reloaded");
-        ImGui::Spacing();
-        ImGui::Spacing();
-        ImGui::Spacing();
-        ImGui::Spacing();
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1372549086809158, 0.1372549086809158, 0.1372549086809158, 1.0));
+        ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.1372549086809158, 0.1372549086809158, 0.1372549086809158, 1.0));
+        ImGui::PushStyleColor(ImGuiCol_BorderShadow, ImVec4(0.1372549086809158, 0.1372549086809158, 0.1372549086809158, 1.0));
+        ImGui::Image(m_idR5RIcon, ImVec2(19, 19));
+        if (ImGui::BeginMenu("R5Reloaded"))
+        {
+            if (ImGui::MenuItem("Settings"))
+                m_bSettings = !m_bSettings;
+            ImGui::Separator();
+            if (ImGui::MenuItem("Open R5R Folder"))
+            { 
+                //Open R5R Folder
+            }
+            if (ImGui::MenuItem("Open Scripts Folder"))
+            { 
+                //Open Scripts Folder
+            }
+            ImGui::Separator();
+            if (ImGui::MenuItem("Exit"))
+            {
+                //Exit Apex
+            }
+            ImGui::EndMenu();
+        }
 
-        if (ImGui::Button("Console"))
+        ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
+
+        if (ImGui::ImageButtonWithText(m_idConsoleIcon, "Console", ImVec2(14, 14))) {
+            bool isconsoleactive = m_bConsole;
+            m_bConsole = !isconsoleactive;
+            g_pConsole->m_bActivate = !isconsoleactive;
+        }
+        ImGui::Spacing();
+        if (ImGui::ImageButtonWithText(m_idListIcon, "Server Browser", ImVec2(18, 18)))
+            m_bServerList = !m_bServerList;
+        ImGui::Spacing();
+        if (ImGui::ImageButtonWithText(m_idAddIcon, "Create Server", ImVec2(15, 15)))
+            m_bHosting = !m_bHosting;
+
+        if (ImGui::BeginMenu("Help"))
         {
-            if (m_bConsole)
+            if (ImGui::MenuItem("Join Discord"))
             {
-                m_bConsole = false;
-                g_pConsole->m_bActivate = false;
             }
-            else
+            ImGui::Separator();
+            if (ImGui::MenuItem("Documentation"))
             {
-                m_bConsole = true;
-                g_pConsole->m_bActivate = true;
             }
+            ImGui::Separator();
+            if (ImGui::MenuItem("About"))
+            {
+            }
+            ImGui::EndMenu();
         }
-        ImGui::Spacing();
-        if (ImGui::Button("Server Browser"))
-        {
-            if (m_bServerList)
-                m_bServerList = false;
-            else
-                m_bServerList = true;
-        }
-        ImGui::Spacing();
-        if (ImGui::Button("Create Server"))
-        {
-            if (m_bHosting)
-                m_bHosting = false;
-            else
-                m_bHosting = true;
-        }
-        ImGui::Spacing();
-        if (ImGui::Button("Settings"))
-        {
-            if (m_bSettings)
-                m_bSettings = false;
-            else
-                m_bSettings = true;
-        }
+
         ImGui::EndMainMenuBar();
+        ImGui::PopStyleColor();
     }
+}
+
+void COverlay::DrawHint(void)
+{
+    if (m_bActivate)
+    {
+        ImGui::SetNextWindowPos(ImVec2(5, 25));
+        ImGui::SetNextWindowSize(ImVec2(250, 50));
+    }
+    else
+    {
+        ImGui::SetNextWindowPos(ImVec2(5, 5));
+        ImGui::SetNextWindowSize(ImVec2(250, 50));
+    }
+
+    if (!m_idR5RIcon) {
+        bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_rR5RIconBlob.m_pData), static_cast<int>(m_rR5RIconBlob.m_nSize),
+            &m_idR5RIcon, &m_rR5RIconBlob.m_nWidth, &m_rR5RIconBlob.m_nHeight);
+        IM_ASSERT(ret);
+    }
+
+    if (!ImGui::Begin("Hint", &m_bHintShown, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar))
+    {
+        ImGui::End();
+        return;
+    }
+    ImGui::Image(m_idR5RIcon, ImVec2(15, 15));
+    ImGui::SameLine();
+    ImGui::Text("R5Reloaded");
+    ImGui::Text("Press F3 to open the overlay.");
+
+    ImGui::End();
 }
 
 //-----------------------------------------------------------------------------

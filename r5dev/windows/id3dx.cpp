@@ -53,6 +53,8 @@ static ID3D11Device*            g_pDevice                   = nullptr;
 static ID3D11RenderTargetView*  g_pRenderTargetView         = nullptr;
 static ID3D11DepthStencilView*  g_pDepthStencilView         = nullptr;
 
+int hintimer = 0;
+
 //#################################################################################
 // WINDOW PROCEDURE
 //#################################################################################
@@ -261,6 +263,12 @@ void DrawImGui()
 	g_pConsole->RunTask();
 	g_pOverlay->RunTask();
 
+	if (hintimer < 500)
+	{
+		g_pOverlay->DrawHint();
+		hintimer++;
+	}
+
 	/*if (g_pBrowser->m_bActivate)
 	{
 		g_pInputSystem->EnableInput(false); // Disable input to game when browser is drawn.
@@ -277,7 +285,7 @@ void DrawImGui()
 	}*/
 	if (g_pOverlay->m_bActivate)
 	{
-		g_pInputSystem->EnableInput(false); // Disable input to game when console is drawn.
+		g_pInputSystem->EnableInput(true); // Disable input to game when console is drawn.
 		g_pOverlay->RunFrame();
 
 		if (g_pOverlay->m_bConsole)
@@ -289,6 +297,10 @@ void DrawImGui()
 		if (g_pOverlay->m_bSettings)
 			g_pBrowser->DrawSettings();
 	}
+	if(g_pOverlay->m_bConsole || g_pOverlay->m_bServerList || g_pOverlay->m_bHosting || g_pOverlay->m_bSettings)
+		g_pInputSystem->EnableInput(false);
+	else
+		g_pInputSystem->EnableInput(true);
 	if (!g_pOverlay->m_bActivate)
 	{
 		g_pInputSystem->EnableInput(true); // Enable input to game when both are not drawn.
