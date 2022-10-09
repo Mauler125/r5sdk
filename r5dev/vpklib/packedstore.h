@@ -132,7 +132,7 @@ struct VPKDir_t
 
 struct VPKPair_t
 {
-	string m_svBlockName;
+	string m_svBlockName; // !TODO: Multi-pak support.
 	string m_svDirectoryName;
 };
 
