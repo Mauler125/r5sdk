@@ -18,7 +18,7 @@
 
 void SDK_Init()
 {
-    CheckCPU(); // Check CPU as early as possible, SpdLog also uses SIMD intrinsics.
+    CheckCPU(); // Check CPU as early as possible, SpdLog also uses SSE intrinsics.
 
     MathLib_Init(); // Initialize Mathlib.
     WinSock_Init(); // Initialize Winsock.
@@ -90,17 +90,31 @@ void SDK_Shutdown()
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  dwReason, LPVOID lpReserved)
 {
+#if !defined (DEDICATED) && !defined (CLIENT_DLL)
+    // This dll is imported by the game executable, we cannot circumvent it.
+    // To solve the recursive init problem, we check if -noworkerdll is passed.
+    // If this is passed, the worker dll will not be initialized, which allows 
+    // us to load the client dll (or any other dll) instead, or load the game
+    // without the SDK.
+    s_bNoWorkerDll = !!strstr(GetCommandLineA(), "-noworkerdll");
+#endif // !DEDICATED && CLIENT_DLL
     switch (dwReason)
     {
         case DLL_PROCESS_ATTACH:
         {
-            SDK_Init();
+            if (!s_bNoWorkerDll)
+            {
+                SDK_Init();
+            }
             break;
         }
 
         case DLL_PROCESS_DETACH:
         {
-            SDK_Shutdown();
+            if (!s_bNoWorkerDll)
+            {
+                SDK_Shutdown();
+            }
             break;
         }
     }

@@ -949,6 +949,9 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 	}
 	case eMode::CLIENT:
 	{
+		svParameters.append("-noworkerdll\n"); // This prevents init of worker dll 
+		//(this dll is always imported, but we want client.dll to do the work instead).
+
 		// GAME ###############################################################
 		if (this->m_DeveloperToggle->Checked())
 		{
