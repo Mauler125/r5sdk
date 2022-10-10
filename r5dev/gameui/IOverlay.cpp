@@ -47,7 +47,7 @@ COverlay::~COverlay(void)
 bool COverlay::Init(void)
 {
     SetStyleVar();
-    return LoadFlagIcons();
+    return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -233,30 +233,6 @@ void COverlay::DrawHint(void)
     ImGui::Text("Press F3 to open the overlay.");
     ImGui::PopStyleColor();
     ImGui::End();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: loads flag images from resource section (must be aligned with resource.h!)
-// Output : true on success, false on failure 
-//-----------------------------------------------------------------------------
-bool COverlay::LoadFlagIcons(void)
-{
-    int k = 0; // Get all image resources for displaying flags.
-    for (int i = IDB_PNG3; i <= IDB_PNG23; i++)
-    {
-        m_vFlagIcons.push_back(MODULERESOURCE());
-        m_vFlagIcons[k] = GetModuleResource(i);
-
-        bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_vFlagIcons[k].m_pData), static_cast<int>(m_vFlagIcons[k].m_nSize),
-            &m_vFlagIcons[k].m_idIcon, &m_vFlagIcons[k].m_nWidth, &m_vFlagIcons[k].m_nHeight);
-        if (!ret)
-        {
-            IM_ASSERT(ret);
-            return false;
-        }
-        k++;
-    }
-    return true;
 }
 
 //-----------------------------------------------------------------------------
