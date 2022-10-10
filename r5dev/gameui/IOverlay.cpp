@@ -194,16 +194,6 @@ void COverlay::DrawSurface(void)
             ImGui::EndMenu();
         }
 
-        ImGui::Spacing();
-
-        if (ImGui::BeginMenu("Help"))
-        {
-            if (ImGui::MenuItem("About"))
-            {
-            }
-            ImGui::EndMenu();
-        }
-
         ImGui::EndMainMenuBar();
         ImGui::PopStyleColor();
     }
