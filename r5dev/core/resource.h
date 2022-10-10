@@ -25,6 +25,7 @@
 #define IDB_PNG21                       121
 #define IDB_PNG22                       122
 #define IDB_PNG23                       123
+#define IDB_PNG24                       124
 #define DEV                             256
 #define PNG                             256
 

@@ -462,7 +462,7 @@ void CConsole::FindFromPartial(void)
             m_vsvCommandBases[i].m_svName) == m_vSuggest.end())
         {
             string svValue; int nFlags = FCVAR_NONE;
-            ConCommandBase* pCommandBase = g_pCVar->FindCommandBase(m_vsvCommandBases[i].m_svName.c_str());
+            const ConCommandBase* pCommandBase = g_pCVar->FindCommandBase(m_vsvCommandBases[i].m_svName.c_str());
 
             if (!pCommandBase || pCommandBase->IsFlagSet(FCVAR_HIDDEN))
             {
@@ -471,7 +471,7 @@ void CConsole::FindFromPartial(void)
 
             if (!pCommandBase->IsCommand())
             {
-                ConVar* pConVar = reinterpret_cast<ConVar*>(pCommandBase);
+                const ConVar* pConVar = reinterpret_cast<const ConVar*>(pCommandBase);
 
                 svValue = " = ["; // Assign default value to string if its a ConVar.
                 svValue.append(pConVar->GetString());
@@ -669,7 +669,7 @@ void CConsole::ClampHistorySize(void)
 bool CConsole::LoadFlagIcons(void)
 {
     int k = 0; // Get all image resources for displaying flags.
-    for (int i = IDB_PNG3; i <= IDB_PNG23; i++)
+    for (int i = IDB_PNG3; i <= IDB_PNG24; i++)
     {
         m_vFlagIcons.push_back(MODULERESOURCE());
         m_vFlagIcons[k] = GetModuleResource(i);
@@ -702,38 +702,40 @@ int CConsole::ColorCodeFlags(int nFlags) const
         return 3;
     case FCVAR_CLIENTDLL:
         return 4;
-    case FCVAR_CHEAT:
+    case FCVAR_REPLICATED:
         return 5;
-    case FCVAR_RELEASE:
+    case FCVAR_CHEAT:
         return 6;
-    case FCVAR_MATERIAL_SYSTEM_THREAD:
+    case FCVAR_RELEASE:
         return 7;
-    case FCVAR_DEVELOPMENTONLY | FCVAR_GAMEDLL:
+    case FCVAR_MATERIAL_SYSTEM_THREAD:
         return 8;
-    case FCVAR_DEVELOPMENTONLY | FCVAR_CLIENTDLL:
+    case FCVAR_DEVELOPMENTONLY | FCVAR_GAMEDLL:
         return 9;
-    case FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED:
+    case FCVAR_DEVELOPMENTONLY | FCVAR_CLIENTDLL:
         return 10;
-    case FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT:
+    case FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED:
         return 11;
-    case FCVAR_DEVELOPMENTONLY | FCVAR_MATERIAL_SYSTEM_THREAD:
+    case FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT:
         return 12;
-    case FCVAR_REPLICATED | FCVAR_CHEAT:
+    case FCVAR_DEVELOPMENTONLY | FCVAR_MATERIAL_SYSTEM_THREAD:
         return 13;
-    case FCVAR_REPLICATED | FCVAR_RELEASE:
+    case FCVAR_REPLICATED | FCVAR_CHEAT:
         return 14;
-    case FCVAR_GAMEDLL | FCVAR_CHEAT:
+    case FCVAR_REPLICATED | FCVAR_RELEASE:
         return 15;
-    case FCVAR_GAMEDLL | FCVAR_RELEASE:
+    case FCVAR_GAMEDLL | FCVAR_CHEAT:
         return 16;
-    case FCVAR_CLIENTDLL | FCVAR_CHEAT:
+    case FCVAR_GAMEDLL | FCVAR_RELEASE:
         return 17;
-    case FCVAR_CLIENTDLL | FCVAR_RELEASE:
+    case FCVAR_CLIENTDLL | FCVAR_CHEAT:
         return 18;
-    case FCVAR_MATERIAL_SYSTEM_THREAD | FCVAR_CHEAT:
+    case FCVAR_CLIENTDLL | FCVAR_RELEASE:
         return 19;
-    case FCVAR_MATERIAL_SYSTEM_THREAD | FCVAR_RELEASE:
+    case FCVAR_MATERIAL_SYSTEM_THREAD | FCVAR_CHEAT:
         return 20;
+    case FCVAR_MATERIAL_SYSTEM_THREAD | FCVAR_RELEASE:
+        return 21;
     default:
         return 0;
     }
