@@ -696,7 +696,7 @@
       <SetChecksum>true</SetChecksum>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST "E:\R5Reloaded\r5apex.exe" del "E:\R5Reloaded\gamesdk.dll" &amp;&amp; copy /Y "$(TargetPath)" "E:\R5Reloaded\</Command>
+      <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\gamesdk.dll" &amp;amp;&amp;amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
