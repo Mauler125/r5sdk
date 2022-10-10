@@ -64,6 +64,7 @@ void SDK_Init()
 void SDK_Shutdown()
 {
     static bool bShutDown = false;
+    assert(!bShutDown);
     if (bShutDown)
     {
         spdlog::error("Recursive shutdown!\n");
