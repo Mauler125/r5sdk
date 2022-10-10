@@ -1,6 +1,6 @@
 # Description
 
- * Development package to be used for the 'Apex Legends' Source Engine.
+ * Source Engine development package to be used for the game 'Apex Legends'.
 
 ## Instructions
 
@@ -27,7 +27,7 @@ Additional launch parameters can be added to the `startup_*.cfg` files,
 which are located in `<gamedir>\platform\cfg\startup_*.cfg`.
 
 ## Note [Important]
-This is not a cheat or hack. Do not attempt to use the SDK on the live version of the game!
+This is not a cheat or hack, do not attempt to use the SDK on the live version of the game!
 The only versions currently supported are `R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM` and anything below.
 
 The following builds are tested and guaranteed to work:
@@ -61,4 +61,4 @@ There is a Checkbox in the server browser called `Server Visibility` that is by 
 
 Alternatively, you can host game servers without the use of our master server, and grant people access to your game server
 by sharing the IP address and port manually. The client can connect using the `connect` command. The usage of the `connect`
-command is as follows: IPv4 `connect 127.0.0.1:37015`, IPv6 `connect [::1]:37015`, NOTE: the IP and port where examples.
+command is as follows: IPv4 `connect 127.0.0.1:37015`, IPv6 `connect [::1]:37015`, NOTE: the IP address and port where examples.
