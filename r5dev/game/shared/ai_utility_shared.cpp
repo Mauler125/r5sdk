@@ -41,10 +41,13 @@ void CAI_Utility::DrawAIScriptNetwork(const CAI_Network* pNetwork) const
     const bool bUseDepthBuffer = r_debug_overlay_zbuffer->GetBool();
     const bool bDrawNearest = ai_script_nodes_draw_nearest->GetBool();
     const int  nTileRange = ai_script_nodes_draw_range->GetInt();
+
+    static const __m128 xMins = _mm_setzero_ps();
+    static const __m128 xMaxs = _mm_setr_ps(50.0f, 50.0f, 50.0f, 0.0f);
     static const __m128 xSubMask = _mm_setr_ps(25.0f, 25.0f, 25.0f, 0.0f);
 
     OverlayBox_t::Transforms vTransforms;
-    std::unordered_set<uint64_t> linkSet;
+    std::unordered_set<int64_t> uLinkSet;
 
     for (int i = ai_script_nodes_draw->GetInt(), ns = pNetwork->GetNumScriptNodes(); i < ns; i++)
     {
@@ -53,8 +56,6 @@ void CAI_Utility::DrawAIScriptNetwork(const CAI_Network* pNetwork) const
 
         const CAI_ScriptNode* pScriptNode = &pNetwork->m_ScriptNode[i];
 
-        __m128 xMins = _mm_setzero_ps();
-        __m128 xMaxs = _mm_setr_ps(50.0f, 50.0f, 50.0f, 0.0f);
         __m128 xOrigin = _mm_setr_ps(pScriptNode->m_vOrigin.x, pScriptNode->m_vOrigin.y, pScriptNode->m_vOrigin.z, 0.0f);
         xOrigin = _mm_sub_ps(xOrigin, xSubMask); // Subtract 25.f from our scalars to align box with node.
 
@@ -62,15 +63,15 @@ void CAI_Utility::DrawAIScriptNetwork(const CAI_Network* pNetwork) const
         vTransforms.xmm[1] = _mm_set_ps(xOrigin.m128_f32[1], 0.0f, 1.0f, 0.0f);
         vTransforms.xmm[2] = _mm_set_ps(xOrigin.m128_f32[2], 1.0f, 0.0f, 0.0f);
 
-        v_RenderBox(vTransforms, *reinterpret_cast<Vector3D*>(&xMins),
-            *reinterpret_cast<Vector3D*>(&xMaxs), m_BoxColor, bUseDepthBuffer);
+        v_RenderBox(vTransforms, *reinterpret_cast<const Vector3D*>(&xMins),
+            *reinterpret_cast<const Vector3D*>(&xMaxs), m_BoxColor, bUseDepthBuffer);
 
-        if (bDrawNearest)
+        if (bDrawNearest) // Render links to the nearest node.
         {
             int nNearest = GetNearestNodeToPos(pNetwork, &pScriptNode->m_vOrigin);
             if (nNearest != NO_NODE) // NO_NODE = -1
             {
-                auto p = linkSet.insert(PackNodeLink(i, nNearest));
+                auto p = uLinkSet.insert(PackNodeLink(i, nNearest).m128i_i64[1]);
                 if (p.second)
                 {
                     const CAI_ScriptNode* pNearestNode = &pNetwork->m_ScriptNode[nNearest];
@@ -459,18 +460,25 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(dtNavMesh* pMesh) const
 }
 
 //------------------------------------------------------------------------------
-// Purpose: packs 2 node indices together
-// Input  : a - 
+// Purpose: packs 4 node indices together
+// Input  : a - (set 1)
 //          b - 
-// Output : packed node set as u64
+//          c - (set 2)
+//          d - 
+// Output : packed node set as i64x2
 //------------------------------------------------------------------------------
-uint64_t CAI_Utility::PackNodeLink(uint32_t a, uint32_t b) const
+__m128i CAI_Utility::PackNodeLink(int32_t a, int32_t b, int32_t c, int32_t d) const
 {
-    if (a < b)
-        std::swap(a, b);
+    __m128i xResult = _mm_set_epi32(a, b, c, d);
 
-    uint64_t c = static_cast<uint64_t>(a) << 32;
-    return c = c + static_cast<uint64_t>(b);
+    // We shuffle a b and c d if following condition is met, this is to 
+    // ensure we always end up with one possible combination of indices.
+    if (a < b) // Swap 'a' with 'b'.
+        xResult = _mm_shuffle_epi32(xResult, _MM_SHUFFLE(2, 3, 1, 0));
+    if (c < d) // Swap 'c' with 'd'.
+        xResult = _mm_shuffle_epi32(xResult, _MM_SHUFFLE(3, 2, 0, 1));
+
+    return xResult;
 }
 
 //------------------------------------------------------------------------------
