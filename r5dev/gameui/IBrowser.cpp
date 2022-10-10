@@ -37,6 +37,8 @@ History:
 #include "public/edict.h"
 #include <gameui/IOverlay.h>
 
+vector<CClient*> m_vPlayerList;
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -135,7 +137,7 @@ void CBrowser::RunTask()
         timer.Start();
     }
 
-    if (m_bActivate)
+    if (g_pOverlay->m_bServerList)
     {
         if (m_bQueryListNonRecursive)
         {
@@ -148,6 +150,21 @@ void CBrowser::RunTask()
     else // Refresh server list the next time 'm_bActivate' evaluates to true.
     {
         m_bQueryListNonRecursive = true;
+    }
+
+    if (g_pOverlay->m_bPlayerList)
+    {
+        if (m_bQueryPlayerListNonRecursive)
+        {
+            std::thread refresh(&CBrowser::RefreshPlayerList, this);
+            refresh.detach();
+
+            m_bQueryPlayerListNonRecursive = false;
+        }
+    }
+    else // Refresh player list the next time 'm_bPlayerList' evaluates to true.
+    {
+        m_bQueryPlayerListNonRecursive = true;
     }
 }
 
@@ -207,6 +224,13 @@ void CBrowser::DrawSurface(void)
 
 void CBrowser::DrawServerList(void)
 {
+    if (!m_bServerBrowserInitialized)
+    {
+        ImGui::SetNextWindowSize(ImVec2(928.f, 524.f), ImGuiCond_FirstUseEver);
+        ImGui::SetWindowPos(ImVec2(-500.f, 50.f), ImGuiCond_FirstUseEver);
+        m_bServerBrowserInitialized = true;
+    }
+
     if (!ImGui::Begin("Server Browser", &g_pOverlay->m_bServerList))
     {
         ImGui::End();
@@ -222,36 +246,63 @@ void CBrowser::DrawServerList(void)
 
 void CBrowser::DrawHosting(void)
 {
-    int nVars = 0;
-    if (m_Style == ImGuiStyle_t::MODERN)
+    if (!m_bHostingInitialized)
     {
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 8.f, 10.f }); nVars++;
-        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
-    }
-    else
-    {
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 6.f, 6.f });  nVars++;
-        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
-    }
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(928.f, 524.f));        nVars++;
-
-    if (m_Style != ImGuiStyle_t::MODERN)
-    {
-        ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);              nVars++;
+        ImGui::SetNextWindowSize(ImVec2(389.f, 312.f), ImGuiCond_FirstUseEver);
+        ImGui::SetWindowPos(ImVec2(-500.f, 50.f), ImGuiCond_FirstUseEver);
+        m_bHostingInitialized = true;
     }
 
-    ImGui::PopStyleVar(nVars);
-    ImGui::Begin("Hosting");
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1874228715896606, 0.4661070704460144, 0.7939914464950562, 1.0));
+    if (!ImGui::Begin("Hosting", &g_pOverlay->m_bHosting))
+    {
+        ImGui::End();
+        return;
+    }
 
     std::lock_guard<std::mutex> l(m_Mutex);
 
     HostPanel();
+    ImGui::PopStyleColor();
+
+    ImGui::End();
+}
+
+void CBrowser::DrawPlayerList(void)
+{
+    if (!m_bPlayerlistInitialized)
+    {
+        ImGui::SetNextWindowSize(ImVec2(657.f, 434.f), ImGuiCond_FirstUseEver);
+        ImGui::SetWindowPos(ImVec2(-500.f, 50.f), ImGuiCond_FirstUseEver);
+        m_bPlayerlistInitialized = true;
+    }
+
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1874228715896606, 0.4661070704460144, 0.7939914464950562, 1.0));
+    if (!ImGui::Begin("Player List", &g_pOverlay->m_bPlayerList))
+    {
+        ImGui::End();
+        return;
+    }
+
+    std::lock_guard<std::mutex> l(m_Mutex);
+
+    PlayersPanel();
+    ImGui::PopStyleColor();
 
     ImGui::End();
 }
 
 void CBrowser::DrawSettings(void)
 {
+    if (!m_bSettingsInitialized)
+    {
+        ImGui::SetNextWindowSize(ImVec2(400.f, 129.f), ImGuiCond_FirstUseEver);
+        ImGui::SetWindowPos(ImVec2(-500.f, 50.f), ImGuiCond_FirstUseEver);
+        m_szMatchmakingHostName = pylon_matchmaking_hostname->GetString();
+        m_bSettingsInitialized = true;
+    }
+
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1874228715896606, 0.4661070704460144, 0.7939914464950562, 1.0));
     if (!ImGui::Begin("Settings", &g_pOverlay->m_bSettings))
     {
         ImGui::End();
@@ -261,6 +312,7 @@ void CBrowser::DrawSettings(void)
     std::lock_guard<std::mutex> l(m_Mutex);
 
     SettingsPanel();
+    ImGui::PopStyleColor();
 
     ImGui::End();
 }
@@ -270,6 +322,7 @@ void CBrowser::DrawSettings(void)
 //-----------------------------------------------------------------------------
 void CBrowser::BrowserPanel(void)
 {
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1874228715896606, 0.4661070704460144, 0.7939914464950562, 1.0));
     ImGui::BeginGroup();
     m_imServerBrowserFilter.Draw();
     ImGui::SameLine();
@@ -374,6 +427,93 @@ void CBrowser::BrowserPanel(void)
         HiddenServersModal();
     }
     ImGui::PopItemWidth();
+    ImGui::PopStyleColor();
+}
+
+void CBrowser::PlayersPanel(void)
+{
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1874228715896606, 0.4661070704460144, 0.7939914464950562, 1.0));
+    ImGui::BeginGroup();
+    if (ImGui::Button("Refresh List"))
+    {
+        std::thread refresh(&CBrowser::RefreshPlayerList, this);
+        refresh.detach();
+    }
+    ImGui::EndGroup();
+    ImGui::Separator();
+
+    ImGui::BeginChild("##PlayersList", { 0, 0 }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+
+    if (ImGui::BeginTable("##PlayersListTable", 4, ImGuiTableFlags_Resizable))
+    {
+        int nVars = 0;
+        if (m_Style == ImGuiStyle_t::MODERN)
+        {
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 8.f, 0.f }); nVars++;
+        }
+        else
+        {
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4.f, 0.f }); nVars++;
+        }
+
+        ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthStretch, 5);
+        ImGui::TableSetupColumn("Player Name", ImGuiTableColumnFlags_WidthStretch, 25);
+        ImGui::TableSetupColumn("Nucleus ID", ImGuiTableColumnFlags_WidthStretch, 20);
+        ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch, 20);
+        ImGui::TableHeadersRow();
+
+        for (CClient* pClient : m_vPlayerList)
+        {
+            const char* playername = pClient->GetClientName();
+            const uint64_t nucleusid = pClient->GetNucleusID();
+            const uint64_t id = pClient->GetUserID();
+
+            ImGui::TableNextColumn();
+            ImGui::Text(std::to_string(id).c_str());
+
+            ImGui::TableNextColumn();
+            ImGui::Text(playername);
+
+            ImGui::TableNextColumn();
+            ImGui::Text(std::to_string(nucleusid).c_str());
+
+            ImGui::TableNextColumn();
+            if (ImGui::Button("Kick"))
+            {
+                //g_pServerListManager->ConnectToServer(server.m_svIpAddress, pszHostPort, server.m_svEncryptionKey);
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Ban"))
+            {
+                //g_pServerListManager->ConnectToServer(server.m_svIpAddress, pszHostPort, server.m_svEncryptionKey);
+            }
+        }
+        ImGui::EndTable();
+        ImGui::PopStyleVar(nVars);
+    }
+
+    ImGui::EndChild();
+    ImGui::PopStyleColor();
+}
+
+void CBrowser::RefreshPlayerList(void)
+{
+    if (g_pServerListManager->m_HostingStatus != EHostStatus_t::HOSTING)
+        return;
+
+    //DevMsg(eDLL_T::CLIENT, "Refreshing player list\n");
+
+    m_vPlayerList.clear();
+
+    for (int i = 0; i < MAX_PLAYERS; i++)
+    {
+        CClient* pClient = g_pClient->GetClient(i);
+        if (!pClient)
+            continue;
+
+        if (pClient->IsHumanPlayer())
+            m_vPlayerList.push_back(pClient);
+    }
 }
 
 //-----------------------------------------------------------------------------

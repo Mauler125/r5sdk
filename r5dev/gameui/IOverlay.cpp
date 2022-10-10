@@ -31,9 +31,6 @@ History:
 COverlay::COverlay(void)
 {
     m_rR5RIconBlob = GetModuleResource(IDB_PNG24);
-    m_rConsoleIconBlob = GetModuleResource(IDB_PNG25);
-    m_rListIconBlob = GetModuleResource(IDB_PNG26);
-    m_rAddIconBlob = GetModuleResource(IDB_PNG27);
 }
 
 //-----------------------------------------------------------------------------
@@ -135,31 +132,17 @@ void COverlay::DrawSurface(void)
             &m_idR5RIcon, &m_rR5RIconBlob.m_nWidth, &m_rR5RIconBlob.m_nHeight);
         IM_ASSERT(ret);
     }
-    if (!m_idConsoleIcon) {
-        bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_rConsoleIconBlob.m_pData), static_cast<int>(m_rConsoleIconBlob.m_nSize),
-            &m_idConsoleIcon, &m_rConsoleIconBlob.m_nWidth, &m_rConsoleIconBlob.m_nHeight);
-        IM_ASSERT(ret);
-    }
-    if (!m_idListIcon) {
-        bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_rListIconBlob.m_pData), static_cast<int>(m_rListIconBlob.m_nSize),
-            &m_idListIcon, &m_rListIconBlob.m_nWidth, &m_rListIconBlob.m_nHeight);
-        IM_ASSERT(ret);
-    }
-    if (!m_idAddIcon) {
-        bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_rAddIconBlob.m_pData), static_cast<int>(m_rAddIconBlob.m_nSize),
-            &m_idAddIcon, &m_rAddIconBlob.m_nWidth, &m_rAddIconBlob.m_nHeight);
-        IM_ASSERT(ret);
-    }
 
     if (ImGui::BeginMainMenuBar())
     {
+        ImGuiIO& io = ImGui::GetIO();
+
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1372549086809158, 0.1372549086809158, 0.1372549086809158, 1.0));
         ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.1372549086809158, 0.1372549086809158, 0.1372549086809158, 1.0));
         ImGui::PushStyleColor(ImGuiCol_BorderShadow, ImVec4(0.1372549086809158, 0.1372549086809158, 0.1372549086809158, 1.0));
-        ImGui::Image(m_idR5RIcon, ImVec2(19, 19));
-        if (ImGui::BeginMenu("R5Reloaded"))
+        if (ImGui::BeginMenuIcon(m_idR5RIcon, "R5Reloaded", NULL, true, ImVec2(15, 15)))
         {
-            if (ImGui::MenuItem("Settings"))
+            if (ImGui::MenuItemEx("Settings", NULL, NULL, m_bSettings, true))
                 m_bSettings = !m_bSettings;
             ImGui::Separator();
             if (ImGui::MenuItem("Open R5R Folder"))
@@ -178,30 +161,43 @@ void COverlay::DrawSurface(void)
             ImGui::EndMenu();
         }
 
-        ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
+        ImGui::Spacing();
 
-        if (ImGui::ImageButtonWithText(m_idConsoleIcon, "Console", ImVec2(14, 14))) {
-            bool isconsoleactive = m_bConsole;
-            m_bConsole = !isconsoleactive;
-            g_pConsole->m_bActivate = !isconsoleactive;
+        if (ImGui::BeginMenu("Game", true))
+        {
+            if (ImGui::MenuItemEx("Console", NULL, NULL, g_pConsole->m_bActivate, true))
+            {
+                bool isconsoleactive = g_pConsole->m_bActivate;
+                m_bConsole = !isconsoleactive;
+                g_pConsole->m_bActivate = !isconsoleactive;
+            }
+            ImGui::EndMenu();
         }
+
         ImGui::Spacing();
-        if (ImGui::ImageButtonWithText(m_idListIcon, "Server Browser", ImVec2(18, 18)))
-            m_bServerList = !m_bServerList;
+
+        if (ImGui::BeginMenu("Servers", true))
+        {
+            if (ImGui::MenuItemEx( "Server Browser", NULL, NULL, m_bServerList, true))
+                m_bServerList = !m_bServerList;
+            ImGui::EndMenu();
+        }
+
         ImGui::Spacing();
-        if (ImGui::ImageButtonWithText(m_idAddIcon, "Create Server", ImVec2(15, 15)))
-            m_bHosting = !m_bHosting;
+
+        if (ImGui::BeginMenu("Hosting", true))
+        {
+            if (ImGui::MenuItemEx( "Create Server", NULL, NULL, m_bHosting, true))
+                m_bHosting = !m_bHosting;
+            if (ImGui::MenuItemEx("Player List", NULL, NULL, m_bPlayerList, true))
+                m_bPlayerList = !m_bPlayerList;
+            ImGui::EndMenu();
+        }
+
+        ImGui::Spacing();
 
         if (ImGui::BeginMenu("Help"))
         {
-            if (ImGui::MenuItem("Join Discord"))
-            {
-            }
-            ImGui::Separator();
-            if (ImGui::MenuItem("Documentation"))
-            {
-            }
-            ImGui::Separator();
             if (ImGui::MenuItem("About"))
             {
             }
@@ -215,6 +211,10 @@ void COverlay::DrawSurface(void)
 
 void COverlay::DrawHint(void)
 {
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1372549086809158, 0.1372549086809158, 0.1372549086809158, 1.0));
+    ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.1372549086809158, 0.1372549086809158, 0.1372549086809158, 1.0));
+    ImGui::PushStyleColor(ImGuiCol_BorderShadow, ImVec4(0.1372549086809158, 0.1372549086809158, 0.1372549086809158, 1.0));
+
     if (m_bActivate)
     {
         ImGui::SetNextWindowPos(ImVec2(5, 25));
@@ -239,9 +239,9 @@ void COverlay::DrawHint(void)
     }
     ImGui::Image(m_idR5RIcon, ImVec2(15, 15));
     ImGui::SameLine();
-    ImGui::Text("R5Reloaded");
+    ImGui::Text("Welcome to R5Reloaded");
     ImGui::Text("Press F3 to open the overlay.");
-
+    ImGui::PopStyleColor();
     ImGui::End();
 }
 

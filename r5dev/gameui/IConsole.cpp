@@ -169,6 +169,8 @@ void CConsole::Think(void)
 //-----------------------------------------------------------------------------
 void CConsole::DrawSurface(void)
 {
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1874228715896606, 0.4661070704460144, 0.7939914464950562, 1.0));
+
     if (!ImGui::Begin("Game Console", &m_bActivate))
     {
         ImGui::End();
@@ -278,6 +280,8 @@ void CConsole::DrawSurface(void)
         ResetAutoComplete();
         BuildSummary();
     }
+
+    ImGui::PopStyleColor();
 
     ImGui::End();
 }

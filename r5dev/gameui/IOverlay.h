@@ -66,12 +66,6 @@ private:
 
     ID3D11ShaderResourceView* m_idR5RIcon = nullptr;
     MODULERESOURCE                 m_rR5RIconBlob;
-    ID3D11ShaderResourceView* m_idConsoleIcon = nullptr;
-    MODULERESOURCE                 m_rConsoleIconBlob;
-    ID3D11ShaderResourceView* m_idListIcon = nullptr;
-    MODULERESOURCE                 m_rListIconBlob;
-    ID3D11ShaderResourceView* m_idAddIcon = nullptr;
-    MODULERESOURCE                 m_rAddIconBlob;
 
     ImGuiStyle_t                   m_Style = ImGuiStyle_t::NONE;
     ImVec2                         m_ivSuggestWindowPos;
@@ -105,6 +99,7 @@ public:
     bool             m_bConsole = false;
     bool             m_bServerList = false;
     bool             m_bHosting = false;
+    bool             m_bPlayerList = false;
     bool             m_bSettings = false;
     vector<CSuggest> m_vsvCommandBases;
 };

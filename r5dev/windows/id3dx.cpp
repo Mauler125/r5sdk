@@ -72,12 +72,16 @@ LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		if (wParam == g_pImGuiConfig->IConsole_Config.m_nBind0 || wParam == g_pImGuiConfig->IConsole_Config.m_nBind1)
 		{
-			g_pConsole->m_bActivate ^= true;
+			g_pConsole->m_bActivate = true;
+			g_pOverlay->m_bConsole = true;
+			g_pOverlay->m_bActivate ^= true;
 		}
 
 		if (wParam == g_pImGuiConfig->IBrowser_Config.m_nBind0 || wParam == g_pImGuiConfig->IBrowser_Config.m_nBind1)
 		{
-			g_pBrowser->m_bActivate ^= true;
+			g_pBrowser->m_bActivate = true;
+			g_pOverlay->m_bServerList = true;
+			g_pOverlay->m_bActivate ^= true;
 		}
 
 		if (wParam == g_pImGuiConfig->IOverlay_Config.m_nBind0)
@@ -283,9 +287,11 @@ void DrawImGui()
 	{
 		g_pInputSystem->EnableInput(true); // Enable input to game when both are not drawn.
 	}*/
+
 	if (g_pOverlay->m_bActivate)
 	{
-		g_pInputSystem->EnableInput(true); // Disable input to game when console is drawn.
+		g_pInputSystem->EnableInput(false);
+
 		g_pOverlay->RunFrame();
 
 		if (g_pOverlay->m_bConsole)
@@ -294,13 +300,11 @@ void DrawImGui()
 			g_pBrowser->DrawServerList();
 		if (g_pOverlay->m_bHosting)
 			g_pBrowser->DrawHosting();
+		if (g_pOverlay->m_bPlayerList)
+			g_pBrowser->DrawPlayerList();
 		if (g_pOverlay->m_bSettings)
 			g_pBrowser->DrawSettings();
 	}
-	if(g_pOverlay->m_bConsole || g_pOverlay->m_bServerList || g_pOverlay->m_bHosting || g_pOverlay->m_bSettings)
-		g_pInputSystem->EnableInput(false);
-	else
-		g_pInputSystem->EnableInput(true);
 	if (!g_pOverlay->m_bActivate)
 	{
 		g_pInputSystem->EnableInput(true); // Enable input to game when both are not drawn.
