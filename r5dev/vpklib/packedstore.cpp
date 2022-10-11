@@ -43,41 +43,68 @@ void CPackedStore::InitLzDecompParams(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: gets a directory structure for specified file
+// Purpose: gets a directory structure for specified file.
 // Input  : svPackDirFile - 
+//			bSanitizeName - retrieve the directory file name from block name
 // Output : VPKDir_t
 //-----------------------------------------------------------------------------
-VPKDir_t CPackedStore::GetDirectoryFile(string svPackDirFile) const
+VPKDir_t CPackedStore::GetDirectoryFile(string svPackDirFile, bool bSanitizeName) const
 {
 	/*| PACKDIRFILE |||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
-	std::regex rgArchiveRegex("pak000_([0-9]{3})");
 	std::smatch smRegexMatches;
 
-	std::regex_search(svPackDirFile, smRegexMatches, rgArchiveRegex);
+	if (!bSanitizeName)
+		return VPKDir_t(svPackDirFile);
 
-	if (smRegexMatches.size() != 0)
+	std::regex_search(svPackDirFile, smRegexMatches, BLOCK_REGEX);
+	if (smRegexMatches.empty())
+		return VPKDir_t(svPackDirFile);
+
+	StringReplace(svPackDirFile, smRegexMatches[0], "pak000_dir");
+
+	bool bHasLocale = false;
+	bool bHasContext = false;
+	string svPackDirPrefix;
+
+	size_t nLocaleIndex = 0; // Default to ENGLISH;
+	size_t nContextIndex = 0; // Default to SERVER;
+
+	for (size_t i = 0, nl = DIR_LOCALE.size(); i < nl; i++)
 	{
-		StringReplace(svPackDirFile, smRegexMatches[0], "pak000_dir");
-
-		for (const string& svLocale : DIR_LOCALE)
+		const string& svLocale = DIR_LOCALE[i];
+		if (svPackDirFile.find(svLocale) != string::npos)
 		{
-			if (svPackDirFile.find(svLocale) != string::npos)
-			{
-				for (const string& svContext : DIR_CONTEXT)
-				{
-					if (svPackDirFile.find(svContext) != string::npos)
-					{
-						const string svPackDirPrefix = svContext + svContext;
-						StringReplace(svPackDirFile, svContext, svPackDirPrefix);
-						goto escape;
-					}
-				}
-			}
-		}escape:;
+			svPackDirPrefix.append(svLocale);
+			nLocaleIndex = i;
+			bHasLocale = true;
+		}
 	}
 
-	VPKDir_t vDir(svPackDirFile);
-	return vDir;
+	if (svPackDirPrefix.empty()) // No locale found.
+	{
+		svPackDirPrefix.append(DIR_LOCALE[0]);
+	}
+
+	if (!bHasLocale)
+	{
+		for (size_t i = 0, nc = DIR_CONTEXT.size(); i < nc; i++)
+		{
+			const string& svContext = DIR_CONTEXT[i];
+			if (svPackDirFile.find(svContext) != string::npos)
+			{
+				svPackDirPrefix.append(svContext);
+				nContextIndex = i;
+				bHasContext = true;
+			}
+		}
+	}
+
+	if (bHasContext) // Context is required for this to work.
+	{
+		StringReplace(svPackDirFile, DIR_CONTEXT[nContextIndex], svPackDirPrefix);
+	}
+
+	return VPKDir_t(svPackDirFile);
 }
 
 //-----------------------------------------------------------------------------
@@ -148,7 +175,7 @@ vector<VPKEntryBlock_t> CPackedStore::GetEntryBlocks(CIOStream* pReader) const
 //-----------------------------------------------------------------------------
 // Purpose: scans the input directory and returns the paths to the vector
 // Input  : &svPathIn - 
-// Output : vector<string>
+// Output : a string vector of all included entry paths
 //-----------------------------------------------------------------------------
 vector<string> CPackedStore::GetEntryPaths(const string& svPathIn) const
 {
@@ -181,7 +208,7 @@ vector<string> CPackedStore::GetEntryPaths(const string& svPathIn) const
 // Purpose: scans the input directory and returns the paths to the vector if path exists in manifest
 // Input  : &svPathIn - 
 //          &jManifest - 
-// Output : vector<string>
+// Output : a string vector of all included entry paths
 //-----------------------------------------------------------------------------
 vector<string> CPackedStore::GetEntryPaths(const string& svPathIn, const nlohmann::json& jManifest) const
 {
@@ -225,15 +252,15 @@ vector<string> CPackedStore::GetEntryPaths(const string& svPathIn, const nlohman
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: gets the parts of the directory file name (1 = locale + context, 2 = levelname)
+// Purpose: gets the parts of the directory file name
 // Input  : &svDirectoryName - 
-//          nCaptureGroup - 
-// Output : string
+//          nCaptureGroup - (1 = locale + context, 2 = levelname)
+// Output : part of directory file name as string
 //-----------------------------------------------------------------------------
 string CPackedStore::GetNameParts(const string& svDirectoryName, int nCaptureGroup) const
 {
 	std::smatch smRegexMatches;
-	std::regex_search(svDirectoryName, smRegexMatches, BLOCK_REGEX);
+	std::regex_search(svDirectoryName, smRegexMatches, DIR_REGEX);
 
 	return smRegexMatches[nCaptureGroup].str();
 }
@@ -241,12 +268,12 @@ string CPackedStore::GetNameParts(const string& svDirectoryName, int nCaptureGro
 //-----------------------------------------------------------------------------
 // Purpose: gets the source of the directory file name
 // Input  : &svDirectoryName - 
-// Output : string
+// Output : source name as string (e.g. "mp_rr_box")
 //-----------------------------------------------------------------------------
 string CPackedStore::GetSourceName(const string& svDirectoryName) const
 {
 	std::smatch smRegexMatches;
-	std::regex_search(svDirectoryName, smRegexMatches, BLOCK_REGEX);
+	std::regex_search(svDirectoryName, smRegexMatches, DIR_REGEX);
 
 	return smRegexMatches[1].str() + smRegexMatches[2].str();
 }
@@ -285,7 +312,7 @@ nlohmann::json CPackedStore::GetManifest(const string& svWorkSpace, const string
 //-----------------------------------------------------------------------------
 // Purpose: gets the contents from the global ignore list (.vpkignore)
 // Input  : &svWorkSpace - 
-// Output : vector<string>
+// Output : a string vector of ignored directories/files
 //-----------------------------------------------------------------------------
 vector<string> CPackedStore::GetIgnoreList(const string& svWorkSpace) const
 {
@@ -317,7 +344,7 @@ vector<string> CPackedStore::GetIgnoreList(const string& svWorkSpace) const
 // Input  : svPath - 
 //          &svName - 
 //          &svExtension - 
-// Output : string
+// Output : formatted entry path
 //-----------------------------------------------------------------------------
 string CPackedStore::FormatEntryPath(string svPath, const string& svName, const string& svExtension) const
 {
@@ -331,7 +358,7 @@ string CPackedStore::FormatEntryPath(string svPath, const string& svName, const 
 //-----------------------------------------------------------------------------
 // Purpose: strips locale prefix from file path
 // Input  : &svDirectoryFile - 
-// Output : string
+// Output : directory filename without locale prefix
 //-----------------------------------------------------------------------------
 string CPackedStore::StripLocalePrefix(const string& svDirectoryFile) const
 {
@@ -355,7 +382,7 @@ string CPackedStore::StripLocalePrefix(const string& svDirectoryFile) const
 //          svContext - 
 //          &svPakName - 
 //          nPatch - 
-// Output : VPKPair_t
+// Output : a vpk file pair (block and directory file names)
 //-----------------------------------------------------------------------------
 VPKPair_t CPackedStore::BuildFileName(string svLanguage, string svContext, const string& svPakName, int nPatch) const
 {

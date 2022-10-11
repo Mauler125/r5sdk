@@ -261,20 +261,20 @@ void Pak_RequestUnload_f(const CCommand& args)
 	{
 		if (args.HasOnlyDigits(1))
 		{
-			RPakHandle_t pakHandle = std::stoi(args.Arg(1));
-			RPakLoadedInfo_t* pakInfo = g_pRTech->GetPakLoadedInfo(pakHandle);
+			const RPakHandle_t pakHandle = std::stoi(args.Arg(1));
+			const RPakLoadedInfo_t* pakInfo = g_pRTech->GetPakLoadedInfo(pakHandle);
 			if (!pakInfo)
 			{
 				throw std::exception("Found no pak entry for specified handle.");
 			}
 
-			string pakName = pakInfo->m_pszFileName;
+			const string pakName = pakInfo->m_pszFileName;
 			!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested pak unload for file '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested pak unload for handle '%d'\n", pakHandle);
 			g_pakLoadApi->UnloadPak(pakHandle);
 		}
 		else
 		{
-			RPakLoadedInfo_t* pakInfo = g_pRTech->GetPakLoadedInfo(args.Arg(1));
+			const RPakLoadedInfo_t* pakInfo = g_pRTech->GetPakLoadedInfo(args.Arg(1));
 			if (!pakInfo)
 			{
 				throw std::exception("Found no pak entry for specified name.");
@@ -537,7 +537,7 @@ void VPK_Unpack_f(const CCommand& args)
 
 	DevMsg(eDLL_T::FS, "*** Starting VPK extraction command for: '%s'\n", pArg);
 
-	VPKDir_t vpk = g_pPackedStore->GetDirectoryFile(pArg);
+	VPKDir_t vpk = g_pPackedStore->GetDirectoryFile(pArg, (args.ArgC() > 2));
 	g_pPackedStore->InitLzDecompParams();
 
 	std::thread th([&] { g_pPackedStore->UnpackAll(vpk, ConvertToWinPath(fs_packedstore_workspace->GetString())); });
