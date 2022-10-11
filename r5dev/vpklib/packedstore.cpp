@@ -63,45 +63,33 @@ VPKDir_t CPackedStore::GetDirectoryFile(string svPackDirFile, bool bSanitizeName
 	StringReplace(svPackDirFile, smRegexMatches[0], "pak000_dir");
 
 	bool bHasLocale = false;
-	bool bHasContext = false;
 	string svPackDirPrefix;
-
-	size_t nLocaleIndex = 0; // Default to ENGLISH;
-	size_t nContextIndex = 0; // Default to SERVER;
 
 	for (size_t i = 0, nl = DIR_LOCALE.size(); i < nl; i++)
 	{
 		const string& svLocale = DIR_LOCALE[i];
 		if (svPackDirFile.find(svLocale) != string::npos)
 		{
-			svPackDirPrefix.append(svLocale);
-			nLocaleIndex = i;
 			bHasLocale = true;
+			break;
 		}
-	}
-
-	if (svPackDirPrefix.empty()) // No locale found.
-	{
-		svPackDirPrefix.append(DIR_LOCALE[0]);
 	}
 
 	if (!bHasLocale)
 	{
+		svPackDirPrefix.append(DIR_LOCALE[0]);
+
 		for (size_t i = 0, nc = DIR_CONTEXT.size(); i < nc; i++)
 		{
 			const string& svContext = DIR_CONTEXT[i];
 			if (svPackDirFile.find(svContext) != string::npos)
 			{
 				svPackDirPrefix.append(svContext);
-				nContextIndex = i;
-				bHasContext = true;
+				StringReplace(svPackDirFile, svContext, svPackDirPrefix);
+
+				break;
 			}
 		}
-	}
-
-	if (bHasContext) // Context is required for this to work.
-	{
-		StringReplace(svPackDirFile, DIR_CONTEXT[nContextIndex], svPackDirPrefix);
 	}
 
 	return VPKDir_t(svPackDirFile);
