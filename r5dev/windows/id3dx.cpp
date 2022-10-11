@@ -90,7 +90,7 @@ LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 	}
 
-	if (g_pConsole->m_bActivate || g_pBrowser->m_bActivate)
+	if (g_pOverlay->m_bActivate)
 	{//////////////////////////////////////////////////////////////////////////////
 		g_bBlockInput = true;
 

@@ -440,6 +440,10 @@ void CBrowser::PlayersPanel(void)
         refresh.detach();
     }
     ImGui::EndGroup();
+
+    if (g_pServerListManager->m_HostingStatus != EHostStatus_t::HOSTING)
+        ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), "You must be hosting a server to get the playerlist.");
+
     ImGui::Separator();
 
     ImGui::BeginChild("##PlayersList", { 0, 0 }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
