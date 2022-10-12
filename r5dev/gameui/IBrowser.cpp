@@ -896,18 +896,53 @@ void CBrowser::ProcessCommand(const char* pszCommand) const
 //-----------------------------------------------------------------------------
 void CBrowser::SettingsPanel(void)
 {
-    ImGui::InputTextWithHint("Hostname", "Matchmaking Server String", &m_szMatchmakingHostName);
-    if (ImGui::Button("Update Hostname"))
+    ImGui::BeginTabBar("##SettingsTabs");
+
+    if (ImGui::BeginTabItem("General"))
     {
-        ProcessCommand(fmt::format("{:s} \"{:s}\"", "pylon_matchmaking_hostname", m_szMatchmakingHostName).c_str());
+        ImGui::InputTextWithHint("Hostname", "Matchmaking Server String", &m_szMatchmakingHostName);
+        if (ImGui::Button("Update Hostname"))
+        {
+            ProcessCommand(fmt::format("{:s} \"{:s}\"", "pylon_matchmaking_hostname", m_szMatchmakingHostName).c_str());
+        }
+
+        std::lock_guard<std::mutex> l(g_NetKeyMutex);
+        ImGui::InputText("Netkey", const_cast<char*>(g_svNetKey.c_str()), ImGuiInputTextFlags_ReadOnly);
+        if (ImGui::Button("Regenerate Encryption Key"))
+        {
+            g_TaskScheduler->Dispatch(NET_GenerateKey, 0);
+        }
+        ImGui::EndTabItem();
+    }
+    if (ImGui::BeginTabItem("KeyBinds"))
+    {
+        ImGui::Text("Overlay Hotkey:");
+        ImGui::SameLine();
+
+        if (ImGui::Hotkey("##ToggleOverlay", &g_pImGuiConfig->IOverlay_Config.m_nBind0, ImVec2(80, 80)))
+        {
+            g_pImGuiConfig->Save();
+        }
+
+        ImGui::Text("Console Hotkey:");
+        ImGui::SameLine();
+
+        if (ImGui::Hotkey("##ToggleConsole", &g_pImGuiConfig->IConsole_Config.m_nBind0, ImVec2(80, 80)))
+        {
+            g_pImGuiConfig->Save();
+        }
+
+        ImGui::Text("Browser Hotkey:");
+        ImGui::SameLine();
+
+        if (ImGui::Hotkey("##ToggleBrowser", &g_pImGuiConfig->IBrowser_Config.m_nBind0, ImVec2(80, 80)))
+        {
+            g_pImGuiConfig->Save();
+        }
+        ImGui::EndTabItem();
     }
 
-    std::lock_guard<std::mutex> l(g_NetKeyMutex);
-    ImGui::InputText("Netkey", const_cast<char*>(g_svNetKey.c_str()), ImGuiInputTextFlags_ReadOnly);
-    if (ImGui::Button("Regenerate Encryption Key"))
-    {
-        g_TaskScheduler->Dispatch(NET_GenerateKey, 0);
-    }
+    ImGui::EndTabBar();
 }
 
 //-----------------------------------------------------------------------------

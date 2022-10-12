@@ -306,7 +306,7 @@ void CConsole::OptionsPanel(void)
     ImGui::SameLine();
     m_bCopyToClipBoard = ImGui::SmallButton("Copy");
 
-    ImGui::Text("Console Hotkey:");
+    /*ImGui::Text("Console Hotkey:");
     ImGui::SameLine();
 
     if (ImGui::Hotkey("##ToggleConsole", &g_pImGuiConfig->IConsole_Config.m_nBind0, ImVec2(80, 80)))
@@ -320,7 +320,7 @@ void CConsole::OptionsPanel(void)
     if (ImGui::Hotkey("##ToggleBrowser", &g_pImGuiConfig->IBrowser_Config.m_nBind0, ImVec2(80, 80)))
     {
         g_pImGuiConfig->Save();
-    }
+    }*/
 
     ImGui::EndPopup();
 }
