@@ -61,6 +61,9 @@ void ImGuiConfig::Load()
             {
                 if (!jsIn["config"].is_null())
                 {
+                    // IOverlay
+                    IOverlay_Config.m_nBind0 = jsIn["config"]["GameOverlay"]["bind0"].get<int>();
+
                     // IConsole
                     IConsole_Config.m_nBind0 = jsIn["config"]["GameConsole"]["bind0"].get<int>();
                     IConsole_Config.m_nBind1 = jsIn["config"]["GameConsole"]["bind1"].get<int>();
@@ -82,6 +85,9 @@ void ImGuiConfig::Load()
 void ImGuiConfig::Save()
 {
     nlohmann::json jsOut;
+
+    // IOverlay
+    jsOut["config"]["GameOverlay"]["bind0"] = IOverlay_Config.m_nBind0;
 
     // IConsole
     jsOut["config"]["GameConsole"]["bind0"]          = IConsole_Config.m_nBind0;
