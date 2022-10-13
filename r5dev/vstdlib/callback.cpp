@@ -232,8 +232,8 @@ void Pak_ListPaks_f(const CCommand& args)
 
 		string rpakStatus = "RPAK_CREATED_A_NEW_STATUS_SOMEHOW";
 
-		auto it = RPakStatusToString.find(info.m_nStatus);
-		if (it != RPakStatusToString.end())
+		auto it = g_PakStatusToString.find(info.m_nStatus);
+		if (it != g_PakStatusToString.end())
 			rpakStatus = it->second;
 
 		// todo: make status into a string from an array/vector
