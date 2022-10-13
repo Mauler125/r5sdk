@@ -648,6 +648,9 @@
     <ClCompile Include="..\engine\sys_mainwind.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
+    <ClCompile Include="..\engine\enginetrace.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1876,6 +1879,9 @@
     </ClInclude>
     <ClInclude Include="..\public\materialsystem\shader_vcs_version.h">
       <Filter>sdk\public\materialsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\enginetrace.h">
+      <Filter>sdk\engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
