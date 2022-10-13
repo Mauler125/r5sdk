@@ -1,26 +1,36 @@
 #pragma once
 #include "materialsystem/cshaderglue.h"
+#include "public/imaterialinternal.h"
+#include "public/materialsystem/shader_vcs_version.h"
+#include "public/rendersystem/schema/texture.g.h"
+
+struct CMaterialGlue_Unknown
+{
+	__m128i unk1;
+	__m128i unk2;
+	__m128i unk3;
+};
 
 #pragma pack(push, 1) // Without this MSVC might get the idea to align our members to completely fuck the offsets up.
 // [ PIXIE ]: The texture GUID's aren't in a specific order, gonna leave them as ptr's so an individual can check them in any memory searcher.
 // [ PIXIE ]: Verification needed for earlier seasons, if the struct is the same.
-class CMaterialGlue // [ PIXIE ]: Class seems mostly right, a few members are still missing though.
+// [ PIXIE ]: Class seems mostly right, a few members are still missing though.
+class CMaterialGlue : public IMaterialInternal
 {
 public:
-	void* m_pVTable; //0x0000
 	uint8_t pad_0008[8]; //0x0008
 	uint64_t m_GUID; //0x0010
 	const char* m_pszName; //0x0018
-	const char* m_pszSurfaceName1; //0x0020
-	const char* m_pszSurfaceName2; //0x0028
+	const char* m_pszSurfaceProp; //0x0020
+	const char* m_pszSurfaceProp2; //0x0028
 	CMaterialGlue* m_pDepthShadow; //0x0030
 	CMaterialGlue* m_pDepthPrepass; //0x0038
 	CMaterialGlue* m_pDepthVSM; //0x0040
 	CMaterialGlue* m_pDepthShadowTight; //0x0048
 	CMaterialGlue* m_pColPass; //0x0050
 	CShaderGlue* m_pShaderGlue; //0x0058
-	void* m_pTextureGUID; //0x0060
-	void* m_pStreamableTextures; //0x0068
+	TextureHeader_t** m_pTextureHandles; //0x0060
+	TextureHeader_t** m_pStreamableTextureHandles; //0x0068
 	int16_t m_nStreamableTextureCount; //0x0070
 	int16_t m_iWidth; //0x0072 
 	int16_t m_iHeight; //0x0074
@@ -29,12 +39,17 @@ public:
 	int32_t m_unused2; //0x007C
 	uint8_t pad_0080[8]; //0x0080
 	uint32_t m_iUnknownFlags1; //0x0088
-	char pad_008C[103]; //0x008C
-	uint8_t m_iUnknown1; //0x00F3
-	char pad_00F4[12]; //0x00F4
-	void* m_pDXBuffer; //0x0100 [ PIXIE ]: ID3D11Buffer*, might need to include dx here.
-	void* m_pDXBufferVTable; //0x0108 [ PIXIE ]: ID3D11BufferVtbl, probably just leave it as a void*
-	void* m_pUnknown2; //0x0110
+	char pad_008C[4]; //0x008C
+	CMaterialGlue_Unknown unk_sections[2];
+	_BYTE bytef0;
+	_BYTE bytef1;
+	_BYTE materialType;
+	_BYTE bytef3;
+	int dwordf4;
+	void* textureAnim;
+	void** m_pDXBuffer;
+	void** m_pID3D11BufferVTable;
+	void* m_pViewsBuffer;
 	uint32_t m_iUnknown3; //0x0118
 	uint16_t m_iUnknown4; //0x011C
 	uint16_t m_iUnknown5; //0x011E

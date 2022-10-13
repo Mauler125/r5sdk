@@ -799,9 +799,9 @@ void Mat_CrossHair_f(const CCommand& args)
 		DevMsg(eDLL_T::MS, "-+ Material --------------------------------------------------\n");
 		DevMsg(eDLL_T::MS, " |-- ADDR: '%llX'\n", material);
 		DevMsg(eDLL_T::MS, " |-- GUID: '%llX'\n", material->m_GUID);
-		DevMsg(eDLL_T::MS, " |-- Streamable Texture Count: '%d'\n", material->m_nStreamableTextureCount);
-		DevMsg(eDLL_T::MS, " |-- Material Width: '%d'\n", material->m_iWidth);
-		DevMsg(eDLL_T::MS, " |-- Material Height: '%d'\n", material->m_iHeight);
+		DevMsg(eDLL_T::MS, " |-- Streaming texture count: '%d'\n", material->m_nStreamableTextureCount);
+		DevMsg(eDLL_T::MS, " |-- Material width: '%d'\n", material->m_iWidth);
+		DevMsg(eDLL_T::MS, " |-- Material height: '%d'\n", material->m_iHeight);
 		DevMsg(eDLL_T::MS, " |-- Flags: '%llX'\n", material->m_iFlags);
 
 		std::function<void(CMaterialGlue*, const char*)> fnPrintChild = [](CMaterialGlue* material, const char* print)
@@ -810,30 +810,40 @@ void Mat_CrossHair_f(const CCommand& args)
 			DevMsg(eDLL_T::MS, " | |-+ Child material ----------------------------------------\n");
 			DevMsg(eDLL_T::MS, print, material);
 			DevMsg(eDLL_T::MS, " |     |-- GUID: '%llX'\n", material->m_GUID);
-			DevMsg(eDLL_T::MS, " |     |-- Material Name: '%s'\n", material->m_pszName);
+			DevMsg(eDLL_T::MS, " |     |-- Material name: '%s'\n", material->m_pszName);
 		};
 
-		DevMsg(eDLL_T::MS, " |-- Material Name: '%s'\n", material->m_pszName);
-		DevMsg(eDLL_T::MS, " |-- Material Surface Name 1: '%s'\n", material->m_pszSurfaceName1);
-		DevMsg(eDLL_T::MS, " |-- Material Surface Name 2: '%s'\n", material->m_pszSurfaceName2);
-		DevMsg(eDLL_T::MS, " |-- DX Buffer: '%llX'\n", material->m_pDXBuffer);
-		DevMsg(eDLL_T::MS, " |-- DX BufferVTable: '%llX'\n", material->m_pDXBufferVTable);
+		DevMsg(eDLL_T::MS, " |-- Material name: '%s'\n", material->m_pszName);
+		DevMsg(eDLL_T::MS, " |-- Material surface name 1: '%s'\n", material->m_pszSurfaceProp);
+		DevMsg(eDLL_T::MS, " |-- Material surface name 2: '%s'\n", material->m_pszSurfaceProp2);
+		DevMsg(eDLL_T::MS, " |-- DX buffer: '%llX'\n", material->m_pDXBuffer);
+		DevMsg(eDLL_T::MS, " |-- DX buffer VFTable: '%llX'\n", material->m_pID3D11BufferVTable);
 
-		material->m_pDepthShadow ? fnPrintChild(material->m_pDepthShadow, " |   |-+ DepthShadow Addr: '%llX'\n") : DevMsg(eDLL_T::MS, " |   |-+ DepthShadow Addr: 'NULL'\n");
-		material->m_pDepthPrepass ? fnPrintChild(material->m_pDepthPrepass, " |   |-+ DepthPrepass Addr: '%llX'\n") : DevMsg(eDLL_T::MS, " |   |-+ DepthPrepass Addr: 'NULL'\n");
-		material->m_pDepthVSM ? fnPrintChild(material->m_pDepthVSM, " |   |-+ DepthVSM Addr: '%llX'\n") : DevMsg(eDLL_T::MS, " |   |-+ DepthVSM Addr: 'NULL'\n");
-		material->m_pDepthShadow ? fnPrintChild(material->m_pDepthShadow, " |   |-+ DepthShadowTight Addr: '%llX'\n") : DevMsg(eDLL_T::MS, " |   |-+ DepthShadowTight Addr: 'NULL'\n");
-		material->m_pColPass ? fnPrintChild(material->m_pColPass, " |   |-+ ColPass Addr: '%llX'\n") : DevMsg(eDLL_T::MS, " |   |-+ ColPass Addr: 'NULL'\n");
+		material->m_pDepthShadow 
+			? fnPrintChild(material->m_pDepthShadow, " |   |-+ DepthShadow: '%llX'\n") 
+			: DevMsg(eDLL_T::MS, " |   |-+ DepthShadow: 'NULL'\n");
+		material->m_pDepthPrepass 
+			? fnPrintChild(material->m_pDepthPrepass, " |   |-+ DepthPrepass: '%llX'\n") 
+			: DevMsg(eDLL_T::MS, " |   |-+ DepthPrepass: 'NULL'\n");
+		material->m_pDepthVSM 
+			? fnPrintChild(material->m_pDepthVSM, " |   |-+ DepthVSM: '%llX'\n") 
+			: DevMsg(eDLL_T::MS, " |   |-+ DepthVSM: 'NULL'\n");
+		material->m_pDepthShadow 
+			? fnPrintChild(material->m_pDepthShadow, " |   |-+ DepthShadowTight: '%llX'\n") 
+			: DevMsg(eDLL_T::MS, " |   |-+ DepthShadowTight: 'NULL'\n");
+		material->m_pColPass 
+			? fnPrintChild(material->m_pColPass, " |   |-+ ColPass: '%llX'\n") 
+			: DevMsg(eDLL_T::MS, " |   |-+ ColPass: 'NULL'\n");
 
 		DevMsg(eDLL_T::MS, "-+ Texture GUID map ------------------------------------------\n");
-		material->m_pTextureGUID ? DevMsg(eDLL_T::MS, " |-- TextureMap 1 Addr: '%llX'\n", material->m_pTextureGUID) : DevMsg(eDLL_T::MS, " |-- TextureMap 1 Addr: 'NULL'\n");
-		material->m_pStreamableTextures ? DevMsg(eDLL_T::MS, " |-- TextureMap 2 Addr: '%llX'\n", material->m_pStreamableTextures) : DevMsg(eDLL_T::MS, " |-- TextureMap 2 Addr: 'NULL'\n");
+		DevMsg(eDLL_T::MS, " |-- Texture handles: '%llX'\n", material->m_pTextureHandles);
+		DevMsg(eDLL_T::MS, " |-- Streaming texture handles: '%llX'\n", material->m_pStreamableTextureHandles);
 
 		DevMsg(eDLL_T::MS, "--------------------------------------------------------------\n");
 	}
 	else
 	{
-		DevMsg(eDLL_T::MS, "%s - No Material found >:(\n", __FUNCTION__);
+		DevMsg(eDLL_T::MS, "%s - No material found >:(\n", __FUNCTION__);
 	}
 }
 

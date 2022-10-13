@@ -1,14 +1,25 @@
 #pragma once
-
+#include "cmaterialglue.h"
 #define STREAM_DB_EXT "stbsp"
+
+class CMaterialSystem
+{
+public:
+#ifndef DEDICATED
+	static CMaterialGlue* FindMaterialEx(CMaterialSystem* pMatSys, const char* pMaterialName, uint8_t nMaterialType, int nUnk, bool bComplain);
+#endif // !DEDICATED
+};
 
 /* ==== MATERIALSYSTEM ================================================================================================================================================== */
 inline CMemory p_CMaterialSystem__Init;
-inline auto CMaterialSystem__Init = p_CMaterialSystem__Init.RCast<void* (*)(void* thisptr)>();
+inline auto CMaterialSystem__Init = p_CMaterialSystem__Init.RCast<void* (*)(CMaterialSystem* thisptr)>();
 
 inline void* g_pMaterialSystem = nullptr;
 inline void* g_pMaterialVFTable = nullptr;
 #ifndef DEDICATED
+inline CMemory p_CMaterialSystem__FindMaterialEx;
+inline auto CMaterialSystem__FindMaterialEx = p_CMaterialSystem__FindMaterialEx.RCast<CMaterialGlue* (*)(CMaterialSystem* pMatSys, const char* pMaterialName, uint8_t nMaterialType, int nUnk, bool bComplain)>();
+
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 inline CMemory p_DispatchDrawCall;
 inline auto v_DispatchDrawCall = p_DispatchDrawCall.RCast<void* (*)(int64_t a1, uint64_t a2, int a3, int a4, char a5, int a6, uint8_t a7, int64_t a8, uint32_t a9, uint32_t a10, __m128* a11, int a12)>();
@@ -50,8 +61,10 @@ class VMaterialSystem : public IDetour
 	virtual void GetFun(void) const
 	{
 		p_CMaterialSystem__Init = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x70\x48\x83\x3D\x00\x00\x00\x00\x00"), "xxxx?xxxxxxxxxxxxxxxxxx?????");
-		CMaterialSystem__Init = p_CMaterialSystem__Init.RCast<void* (*)(void*)>(); /*48 89 5C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 70 48 83 3D ?? ?? ?? ?? ??*/
+		CMaterialSystem__Init = p_CMaterialSystem__Init.RCast<void* (*)(CMaterialSystem*)>(); /*48 89 5C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 70 48 83 3D ?? ?? ?? ?? ??*/
 #ifndef DEDICATED
+		p_CMaterialSystem__FindMaterialEx = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x44\x89\x4C\x24\x00\x44\x88\x44\x24\x00\x48\x89\x4C\x24\x00"), "xxxx?xxxx?xxxx?");
+		CMaterialSystem__FindMaterialEx = p_CMaterialSystem__FindMaterialEx.RCast<CMaterialGlue* (*)(CMaterialSystem*, const char*, uint8_t, int, bool)>(); /*44 89 4C 24 ?? 44 88 44 24 ?? 48 89 4C 24 ??*/
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 		p_DispatchDrawCall = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x44\x89\x4C\x24\x00\x44\x89\x44\x24\x00\x48\x89\x4C\x24\x00\x55\x53"), "xxxx?xxxx?xxxx?xx");
 		v_DispatchDrawCall = p_DispatchDrawCall.RCast<void* (*)(int64_t, uint64_t, int, int, char, int, uint8_t, int64_t, uint32_t, uint32_t, __m128*, int)>();
