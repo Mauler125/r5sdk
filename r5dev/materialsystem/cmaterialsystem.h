@@ -1,5 +1,7 @@
-#pragma once
+#ifndef MATERIALSYSTEM_H
+#define MATERIALSYSTEM_H
 #include "cmaterialglue.h"
+
 #define STREAM_DB_EXT "stbsp"
 
 class CMaterialSystem
@@ -98,3 +100,5 @@ class VMaterialSystem : public IDetour
 ///////////////////////////////////////////////////////////////////////////////
 
 REGISTER(VMaterialSystem);
+
+#endif // MATERIALSYSTEM_H

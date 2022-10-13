@@ -113,6 +113,7 @@ bool IsMaterialInternal(void** pCandidate)
 	return false;
 }
 
+#ifndef DEDICATED
 //-----------------------------------------------------------------------------
 // Purpose: finds a material
 // Input  : *pMatSys - 
@@ -131,6 +132,7 @@ CMaterialGlue* CMaterialSystem::FindMaterialEx(CMaterialSystem* pMatSys, const c
 	}
 	return pMaterial;
 }
+#endif // !DEDICATED
 
 ///////////////////////////////////////////////////////////////////////////////
 void CMaterialSystem_Attach()

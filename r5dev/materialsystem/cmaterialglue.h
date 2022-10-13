@@ -1,4 +1,5 @@
 #pragma once
+#ifndef DEDICATED
 #include "materialsystem/cshaderglue.h"
 #include "public/imaterialinternal.h"
 #include "public/materialsystem/shader_vcs_version.h"
@@ -60,12 +61,16 @@ public:
 }; //Size: 0x0130 confirmed end size.
 static_assert(sizeof(CMaterialGlue) == 0x130);
 #pragma pack(pop)
+#endif // !DEDICATED
 
 inline void* g_pMaterialGlueVFTable = nullptr;
 
+
 /* ==== CMATERIALGLUE ================================================================================================================================================== */
+#ifndef DEDICATED
 inline CMemory p_GetMaterialAtCrossHair;
 inline auto GetMaterialAtCrossHair = p_GetMaterialAtCrossHair.RCast<CMaterialGlue* (*)(void)>();
+#endif // !DEDICATED
 
 void CMaterialGlue_Attach();
 void CMaterialGlue_Detach();
@@ -74,14 +79,18 @@ class VMaterialGlue : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
+#ifndef DEDICATED
 		spdlog::debug("| FUN: CMaterialGlue::GetMaterialAtCrossHair: {:#18x} |\n", p_GetMaterialAtCrossHair.GetPtr());
+#endif // !DEDICATED
 		spdlog::debug("| CON: g_pMaterialGlueVFTable               : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pMaterialGlueVFTable));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
+#ifndef DEDICATED
 		p_GetMaterialAtCrossHair = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x83\xEC\x58\x48\x83\x3D\x00\x00\x00\x00\x00"), "xxxxxxxxxx?????");
 		GetMaterialAtCrossHair = p_GetMaterialAtCrossHair.RCast<CMaterialGlue* (*)(void)>(); /*48 8B C4 48 83 EC 58 48 83 3D ? ? ? ? ?*/
+#endif // !DEDICATED
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const
