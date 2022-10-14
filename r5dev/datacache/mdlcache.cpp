@@ -81,7 +81,7 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
                 FindCachedMDL(cache, pStudioData, a3);
                 pMDLCache = *reinterpret_cast<void**>(pStudioData);
             }
-        LABEL_6:
+
             pStudioHdr = *reinterpret_cast<studiohdr_t**>(pMDLCache);
             if (pStudioHdr)
                 return pStudioHdr;
@@ -90,7 +90,11 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
         }
         pMDLCache = pStudioData->m_pAnimData;
         if (pMDLCache)
-            goto LABEL_6;
+        {
+            pStudioHdr = *reinterpret_cast<studiohdr_t**>(pMDLCache);
+            if (pStudioHdr)
+                return pStudioHdr;
+        }
     }
     return FindUncachedMDL(cache, handle, pStudioData, a3);
 }
@@ -156,7 +160,7 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
 
     size_t nFileNameLen = strlen(szModelName);
 
-    if (static_cast<int>(nFileNameLen) < 5 ||
+    if (nFileNameLen < 5 ||
         (Q_stricmp(&szModelName[nFileNameLen - 5], ".rmdl") != 0) &&
         (Q_stricmp(&szModelName[nFileNameLen - 5], ".rrig") != 0) &&
         (Q_stricmp(&szModelName[nFileNameLen - 5], ".rpak") != 0))
