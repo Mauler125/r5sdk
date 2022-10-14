@@ -8,12 +8,12 @@
 #include "core/stdafx.h"
 #include "tier0/threadtools.h"
 #include "tier1/cvar.h"
+#include "tier1/utldict.h"
 #include "datacache/mdlcache.h"
 #include "datacache/imdlcache.h"
 #include "datacache/idatacache.h"
 #include "rtech/rtech_utils.h"
 #include "public/studio.h"
-#include "tier1/utldict.h"
 
 
 //-----------------------------------------------------------------------------
