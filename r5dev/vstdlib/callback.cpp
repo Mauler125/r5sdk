@@ -218,14 +218,14 @@ Pak_ListPaks_f
 */
 void Pak_ListPaks_f(const CCommand& args)
 {
-	DevMsg(eDLL_T::RTECH, "| id | name                                               | status                               | asset count |\n");
-	DevMsg(eDLL_T::RTECH, "|----|----------------------------------------------------|--------------------------------------|-------------|\n");
+	DevMsg(eDLL_T::RTECH, "| id   | name                                               | status                               | asset count |\n");
+	DevMsg(eDLL_T::RTECH, "|------|----------------------------------------------------|--------------------------------------|-------------|\n");
 
-	uint32_t nActuallyLoaded = 0;
+	uint32_t nTotalLoaded = 0;
 
 	for (int16_t i = 0; i < *s_pLoadedPakCount; ++i)
 	{
-		RPakLoadedInfo_t info = g_pLoadedPakInfo[i];
+		const RPakLoadedInfo_t& info = g_pLoadedPakInfo[i];
 
 		if (info.m_nStatus == RPakStatus_t::PAK_STATUS_FREED)
 			continue;
@@ -237,12 +237,12 @@ void Pak_ListPaks_f(const CCommand& args)
 			rpakStatus = it->second;
 
 		// todo: make status into a string from an array/vector
-		DevMsg(eDLL_T::RTECH, "| %02i | %-50s | %-36s | %11i |\n", info.m_nHandle, info.m_pszFileName, rpakStatus.c_str(), info.m_nAssetCount);
-		nActuallyLoaded++;
+		DevMsg(eDLL_T::RTECH, "| %04i | %-50s | %-36s | %11i |\n", info.m_nHandle, info.m_pszFileName, rpakStatus.c_str(), info.m_nAssetCount);
+		nTotalLoaded++;
 	}
-	DevMsg(eDLL_T::RTECH, "|----|----------------------------------------------------|--------------------------------------|-------------|\n");
-	DevMsg(eDLL_T::RTECH, "| %16i loaded paks.                                                                                |\n", nActuallyLoaded);
-	DevMsg(eDLL_T::RTECH, "|----|----------------------------------------------------|--------------------------------------|-------------|\n");
+	DevMsg(eDLL_T::RTECH, "|------|----------------------------------------------------|--------------------------------------|-------------|\n");
+	DevMsg(eDLL_T::RTECH, "| %18i loaded paks.                                                                                |\n", nTotalLoaded);
+	DevMsg(eDLL_T::RTECH, "|------|----------------------------------------------------|--------------------------------------|-------------|\n");
 }
 
 /*
