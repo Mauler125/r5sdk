@@ -388,11 +388,11 @@ void RTech_Decompress_f(const CCommand& args)
 		return;
 	}
 
-	const string modDir = "paks\\Win32\\";
-	const string baseDir = "paks\\Win64\\";
+	static const string modDir = "paks\\Win32\\";
+	static const string baseDir = "paks\\Win64\\";
 
-	string pakNameOut = modDir + args.Arg(1);
-	string pakNameIn = baseDir + args.Arg(1);
+	const string pakNameOut = modDir + args.Arg(1);
+	const string pakNameIn = baseDir + args.Arg(1);
 
 	CreateDirectories(pakNameOut);
 
@@ -406,22 +406,20 @@ void RTech_Decompress_f(const CCommand& args)
 	}
 
 	DevMsg(eDLL_T::RTECH, " |-+ Processing: '%s'\n", pakNameIn.c_str());
-
 	CIOStream reader(pakNameIn, CIOStream::Mode_t::READ);
 
 	RPakHeader_t rheader = reader.Read<RPakHeader_t>();
 	uint16_t flags = (rheader.m_nFlags[0] << 8) | rheader.m_nFlags[1];
 
 	DevMsg(eDLL_T::RTECH, " | |-+ Header ------------------------------------------------\n");
-	DevMsg(eDLL_T::RTECH, " | | |-- Magic    : '%08X'\n", rheader.m_nMagic);
-	DevMsg(eDLL_T::RTECH, " | | |-- Version  : '%hu'\n", rheader.m_nVersion);
-	DevMsg(eDLL_T::RTECH, " | | |-- Flags    : '%04hX'\n", flags);
-	DevMsg(eDLL_T::RTECH, " | | |-- Hash     : '%llu%llu'\n", rheader.m_nHash0, rheader.m_nHash1);
-	DevMsg(eDLL_T::RTECH, " | | |-- Entries  : '%u'\n", rheader.m_nAssetEntryCount);
-	DevMsg(eDLL_T::RTECH, " | |-+ Compression -------------------------------------------\n");
-	DevMsg(eDLL_T::RTECH, " | | |-- Size disk: '%llu'\n", rheader.m_nSizeDisk);
-	DevMsg(eDLL_T::RTECH, " | | |-- Size decp: '%llu'\n", rheader.m_nSizeMemory);
-	DevMsg(eDLL_T::RTECH, " | | |-- Ratio    : '%.02f'\n", (rheader.m_nSizeDisk * 100.f) / rheader.m_nSizeMemory);
+	DevMsg(eDLL_T::RTECH, " |   |-- Magic    : '%08X'\n", rheader.m_nMagic);
+	DevMsg(eDLL_T::RTECH, " |   |-- Version  : '%hu'\n", rheader.m_nVersion);
+	DevMsg(eDLL_T::RTECH, " |   |-- Flags    : '%04hX'\n", flags);
+	DevMsg(eDLL_T::RTECH, " |   |-- Hash     : '%llu%llu'\n", rheader.m_nHash0, rheader.m_nHash1);
+	DevMsg(eDLL_T::RTECH, " |   |-- Entries  : '%u'\n", rheader.m_nAssetEntryCount);
+	DevMsg(eDLL_T::RTECH, " |   |-+ Compression -----------------------------------------\n");
+	DevMsg(eDLL_T::RTECH, " |     |-- Size disk: '%llu'\n", rheader.m_nSizeDisk);
+	DevMsg(eDLL_T::RTECH, " |     |-- Size decp: '%llu'\n", rheader.m_nSizeMemory);
 
 	if (rheader.m_nMagic != RPAKHEADER)
 	{
@@ -435,7 +433,7 @@ void RTech_Decompress_f(const CCommand& args)
 	}
 	if (rheader.m_nSizeDisk != reader.GetSize())
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' decompressed size '%zu' doesn't match expected value '%llu'!\n", __FUNCTION__, pakNameIn.c_str(), reader.GetSize(), rheader.m_nSizeMemory);
+		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' decompressed size '%zu' doesn't match expected size '%llu'!\n", __FUNCTION__, pakNameIn.c_str(), reader.GetSize(), rheader.m_nSizeMemory);
 		return;
 	}
 
@@ -449,9 +447,10 @@ void RTech_Decompress_f(const CCommand& args)
 	}
 	else
 	{
-		DevMsg(eDLL_T::RTECH, " | | |-- Calculated size: '%llu'\n", decompSize);
+		DevMsg(eDLL_T::RTECH, " |     |-- Size calc: '%llu'\n", decompSize);
 	}
 
+	DevMsg(eDLL_T::RTECH, " |     |-- Ratio    : '%.02f'\n", (rheader.m_nSizeDisk * 100.f) / rheader.m_nSizeMemory);
 	vector<uint8_t> pakBuf(rheader.m_nSizeMemory, 0);
 
 	state.m_nOutMask = UINT64_MAX;
@@ -472,18 +471,19 @@ void RTech_Decompress_f(const CCommand& args)
 	if (rheader.m_nPatchIndex > 0) // Check if its an patch rpak.
 	{
 		// Loop through all the structs and patch their compress size.
-		for (uint32_t i = 1, patch_offset = 0x88; i <= rheader.m_nPatchIndex; i++, patch_offset += sizeof(RPakPatchCompressedHeader_t))
+		for (uint32_t i = 1, patchOffset = (sizeof(RPakHeader_t) + sizeof(uint64_t));
+			i <= rheader.m_nPatchIndex; i++, patchOffset += sizeof(RPakPatchCompressedHeader_t))
 		{
-			RPakPatchCompressedHeader_t* patch_header = (RPakPatchCompressedHeader_t*)((uintptr_t)pakBuf.data() + patch_offset);
-			patch_header->m_nSizeDisk = patch_header->m_nSizeMemory; // Fix size for decompress.
+			RPakPatchCompressedHeader_t* patchHeader = (RPakPatchCompressedHeader_t*)((uintptr_t)pakBuf.data() + patchOffset);
+			patchHeader->m_nSizeDisk = patchHeader->m_nSizeMemory; // Fix size for decompress.
 		}
 	}
 
 	memcpy_s(pakBuf.data(), state.m_nDecompSize, &rheader, sizeof(RPakHeader_t)); // Overwrite first 0x80 bytes which are NULL with the header data.
 	writer.Write(pakBuf.data(), state.m_nDecompSize);
 
-	DevMsg(eDLL_T::RTECH, " | | |-- CRC32          : '%08X'\n", crc32::update(NULL, pakBuf.data(), state.m_nDecompSize));
-	DevMsg(eDLL_T::RTECH, " |-+ Decompressed rpak to: '%s'\n", pakNameOut.c_str());
+	DevMsg(eDLL_T::RTECH, " |     |-- Checksum : '%08X'\n", crc32::update(NULL, pakBuf.data(), state.m_nDecompSize));
+	DevMsg(eDLL_T::RTECH, " |-+ Decompressed pak file to: '%s'\n", pakNameOut.c_str());
 	DevMsg(eDLL_T::RTECH, "--------------------------------------------------------------\n");
 }
 
@@ -738,7 +738,7 @@ void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString, float flOl
 =====================
 SQVM_ServerScript_f
 
-  Exectutes input on the
+  Executes input on the
   VM in SERVER context.
 =====================
 */
@@ -755,7 +755,7 @@ void SQVM_ServerScript_f(const CCommand& args)
 =====================
 SQVM_ClientScript_f
 
-  Exectutes input on the
+  Executes input on the
   VM in CLIENT context.
 =====================
 */
