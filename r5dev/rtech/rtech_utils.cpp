@@ -4,7 +4,6 @@
 #ifndef DEDICATED
 #include "windows/id3dx.h"
 #include "materialsystem/cshaderglue.h"
-#include "public/rendersystem/schema/texture.g.h"
 #endif // !DEDICATED
 
 /******************************************************************************
@@ -511,16 +510,16 @@ uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, uint64_t i
 //----------------------------------------------------------------------------------
 // Purpose: creates 2D texture and shader resource from textureHeader and imageData.
 //----------------------------------------------------------------------------------
-void RTech::CreateDXTexture(TextureHeader_t* textureHeader, int64_t imageData)
+void RTech::CreateDXTexture(RTechTextureInfo_t* textureHeader, int64_t imageData)
 {
-	if (textureHeader->m_nDepth && !textureHeader->m_nHeight) // Return never gets hit. Maybe its some debug check?
+	if (textureHeader->unk0 && !textureHeader->m_nHeight) // Return never gets hit. Maybe its some debug check?
 		return;
 
 	__int64 initialData[4096]{};
-	textureHeader->m_nTextureMipLevels = textureHeader->m_nPermanentMipCount;
+	textureHeader->m_nTextureMipLevels = textureHeader->m_nMipLevels;
 
-	const int totalStreamedMips = textureHeader->m_nOptStreamedMipCount + textureHeader->m_nStreamedMipCount;
-	uint32_t mipLevel = textureHeader->m_nPermanentMipCount + totalStreamedMips;
+	const int totalStreamedMips = textureHeader->m_nMipLevelsStreamedOpt + textureHeader->m_nMipLevelsStreamed;
+	uint32_t mipLevel = textureHeader->m_nMipLevels + totalStreamedMips;
 	if (mipLevel != totalStreamedMips)
 	{
 		do
@@ -536,8 +535,8 @@ void RTech::CreateDXTexture(TextureHeader_t* textureHeader, int64_t imageData)
 				if (textureHeader->m_nHeight >> mipLevel > 1)
 					mipHeight = (textureHeader->m_nHeight >> mipLevel) - 1;
 	
-				uint8_t x = s_pBytesPerPixel[textureHeader->m_nImageFormat].first;
-				uint8_t y = s_pBytesPerPixel[textureHeader->m_nImageFormat].second;
+				uint8_t x = s_pRTechBytesPerPixel[textureHeader->m_nFormat].first;
+				uint8_t y = s_pRTechBytesPerPixel[textureHeader->m_nFormat].second;
 
 				uint32_t bytesPerPixelWidth = (y + mipWidth) >> (y >> 1);
 				uint32_t bytesPerPixelHeight = (y + mipHeight) >> (y >> 1);
@@ -556,18 +555,18 @@ void RTech::CreateDXTexture(TextureHeader_t* textureHeader, int64_t imageData)
 					*(uint32_t*)((uint8_t*)&initialData[1] + offsetCurrentResourceData + 4) = slicePitch;
 
 					imageData += (slicePitch + 15) & 0xFFFFFFF0;
-					subResourceEntry += textureHeader->m_nPermanentMipCount;
+					subResourceEntry += textureHeader->m_nMipLevels;
 				}
 			}
 		} while (mipLevel != totalStreamedMips);
 	}
 
-	const DXGI_FORMAT dxgiFormat = s_TxtrToDxgiTable.at(textureHeader->m_nImageFormat); // Get dxgi format
+	const DXGI_FORMAT dxgiFormat = rpakToDxgiFormat[textureHeader->m_nFormat]; // Get dxgi format
 
 	D3D11_TEXTURE2D_DESC textureDesc{};
 	textureDesc.Width = textureHeader->m_nWidth >> mipLevel;
 	textureDesc.Height = textureHeader->m_nHeight >> mipLevel;
-	textureDesc.MipLevels = textureHeader->m_nPermanentMipCount;
+	textureDesc.MipLevels = textureHeader->m_nMipLevels;
 	textureDesc.ArraySize = textureHeader->m_nArraySize;
 	textureDesc.Format = dxgiFormat;
 	textureDesc.SampleDesc.Count = 1;
@@ -580,7 +579,7 @@ void RTech::CreateDXTexture(TextureHeader_t* textureHeader, int64_t imageData)
 	const D3D11_SUBRESOURCE_DATA* subResData = (D3D11_SUBRESOURCE_DATA*)((uint8_t*)initialData + offsetStartResourceData);
 	const HRESULT createTextureRes = (*g_ppGameDevice)->CreateTexture2D(&textureDesc, subResData, &textureHeader->m_ppTexture);
 	if (createTextureRes < S_OK)
-		Error(eDLL_T::RTECH, EXIT_FAILURE, "Couldn't create texture \"%s\": error code %08x\n", textureHeader->m_pDebugName, createTextureRes);
+		Error(eDLL_T::RTECH, EXIT_FAILURE, "Couldn't create texture \"%s\": error code %08x\n", textureHeader->m_nDebugName, createTextureRes);
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResource{};
 	shaderResource.Format = dxgiFormat;
@@ -598,7 +597,7 @@ void RTech::CreateDXTexture(TextureHeader_t* textureHeader, int64_t imageData)
 
 	const HRESULT createShaderResourceRes = (*g_ppGameDevice)->CreateShaderResourceView(textureHeader->m_ppTexture, &shaderResource, &textureHeader->m_ppShaderResourceView);
 	if (createShaderResourceRes < S_OK)
-		Error(eDLL_T::RTECH, EXIT_FAILURE, "Couldn't create shader resource view for texture \"%s\": error code %08x\n", textureHeader->m_pDebugName, createShaderResourceRes);
+		Error(eDLL_T::RTECH, EXIT_FAILURE, "Couldn't create shader resource view for texture \"%s\": error code %08x\n", textureHeader->m_nDebugName, createShaderResourceRes);
 }
 #pragma warning( pop )
 #endif

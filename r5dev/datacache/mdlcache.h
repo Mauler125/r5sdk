@@ -14,27 +14,19 @@ struct RStaticProp_t
 	uint8_t m_pUnknown[0x62]{};
 };
 
-struct RMDLFallBack_t
+struct CMDLFallBack
 {
-	studiohdr_t* m_pErrorHDR;
-	studiohdr_t* m_pEmptyHDR;
-	MDLHandle_t m_hErrorMDL;
-	MDLHandle_t m_hEmptyMDL;
+	studiohdr_t* m_pErrorHDR{};
+	MDLHandle_t m_hErrorMDL{};
+	studiohdr_t* m_pEmptyHDR{};
+	MDLHandle_t m_hEmptyMDL{};
 
-	RMDLFallBack_t(void)
-		: m_pErrorHDR(nullptr)
-		, m_pEmptyHDR(nullptr)
-		, m_hErrorMDL(NULL)
-		, m_hEmptyMDL(NULL)
-	{
-	}
-
-	// This must be cleared if 'common.rpak' is getting unloaded!
+	// This has to be cleared if 'common.rpak' is getting unloaded!
 	void Clear(void)
 	{
-		m_pErrorHDR = nullptr;
 		m_pEmptyHDR = nullptr;
 		m_hErrorMDL = NULL;
+		m_pEmptyHDR = nullptr;
 		m_hEmptyMDL = NULL;
 	}
 };
@@ -60,7 +52,7 @@ struct studiodata_t
 	int m_nGuidLock; // always -1, set to 1 and 0 in CMDLCache::FindUncachedMDL.
 };
 
-inline RMDLFallBack_t* g_pMDLFallback = new RMDLFallBack_t();
+inline CMDLFallBack* g_pMDLFallback = new CMDLFallBack();
 inline vector<MDLHandle_t> g_vBadMDLHandles;
 
 class CMDLCache

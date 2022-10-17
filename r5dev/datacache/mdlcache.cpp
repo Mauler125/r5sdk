@@ -8,12 +8,12 @@
 #include "core/stdafx.h"
 #include "tier0/threadtools.h"
 #include "tier1/cvar.h"
-#include "tier1/utldict.h"
 #include "datacache/mdlcache.h"
 #include "datacache/imdlcache.h"
 #include "datacache/idatacache.h"
 #include "rtech/rtech_utils.h"
 #include "public/studio.h"
+#include "tier1/utldict.h"
 
 
 //-----------------------------------------------------------------------------
@@ -81,7 +81,7 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
                 FindCachedMDL(cache, pStudioData, a3);
                 pMDLCache = *reinterpret_cast<void**>(pStudioData);
             }
-
+        LABEL_6:
             pStudioHdr = *reinterpret_cast<studiohdr_t**>(pMDLCache);
             if (pStudioHdr)
                 return pStudioHdr;
@@ -90,11 +90,7 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
         }
         pMDLCache = pStudioData->m_pAnimData;
         if (pMDLCache)
-        {
-            pStudioHdr = *reinterpret_cast<studiohdr_t**>(pMDLCache);
-            if (pStudioHdr)
-                return pStudioHdr;
-        }
+            goto LABEL_6;
     }
     return FindUncachedMDL(cache, handle, pStudioData, a3);
 }
@@ -160,10 +156,10 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
 
     size_t nFileNameLen = strlen(szModelName);
 
-    if (nFileNameLen < 5 ||
-        (Q_stricmp(&szModelName[nFileNameLen - 5], ".rmdl") != 0) &&
-        (Q_stricmp(&szModelName[nFileNameLen - 5], ".rrig") != 0) &&
-        (Q_stricmp(&szModelName[nFileNameLen - 5], ".rpak") != 0))
+    if (static_cast<int>(nFileNameLen) < 5 ||
+        (_stricmp(&szModelName[nFileNameLen - 5], ".rmdl") != 0) &&
+        (_stricmp(&szModelName[nFileNameLen - 5], ".rrig") != 0) &&
+        (_stricmp(&szModelName[nFileNameLen - 5], ".rpak") != 0))
     {
         pStudioHdr = GetErrorModel();
         if (!IsKnownBadModel(handle))

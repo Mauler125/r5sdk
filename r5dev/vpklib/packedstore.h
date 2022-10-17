@@ -1,13 +1,4 @@
-﻿#ifndef PACKEDSTORE_H
-#define PACKEDSTORE_H
-/*******************************************************************
-* ██████╗  ██╗    ██╗   ██╗██████╗ ██╗  ██╗    ██╗     ██╗██████╗  *
-* ██╔══██╗███║    ██║   ██║██╔══██╗██║ ██╔╝    ██║     ██║██╔══██╗ *
-* ██████╔╝╚██║    ██║   ██║██████╔╝█████╔╝     ██║     ██║██████╔╝ *
-* ██╔══██╗ ██║    ╚██╗ ██╔╝██╔═══╝ ██╔═██╗     ██║     ██║██╔══██╗ *
-* ██║  ██║ ██║     ╚████╔╝ ██║     ██║  ██╗    ███████╗██║██████╔╝ *
-* ╚═╝  ╚═╝ ╚═╝      ╚═══╝  ╚═╝     ╚═╝  ╚═╝    ╚══════╝╚═╝╚═════╝  *
-*******************************************************************/
+#pragma once
 #include "public/utility/binstream.h"
 #include "thirdparty/lzham/include/lzham.h"
 
@@ -91,11 +82,11 @@ struct VPKData_t
 
 struct VPKChunkDescriptor_t
 {
-	uint32_t m_nLoadFlags;        // Load flags.
-	uint16_t m_nTextureFlags;     // Texture flags (only used if the entry is a vtf).
-	uint64_t m_nArchiveOffset;    // Offset in archive.
-	uint64_t m_nCompressedSize;   // Compressed size of chunk.
-	uint64_t m_nUncompressedSize; // Uncompressed size of chunk.
+	uint32_t m_nLoadFlags       {}; // Load flags.
+	uint16_t m_nTextureFlags    {}; // Texture flags (only used if the entry is a vtf).
+	uint64_t m_nArchiveOffset   {}; // Offset in archive.
+	uint64_t m_nCompressedSize  {}; // Compressed size of chunk.
+	uint64_t m_nUncompressedSize{}; // Uncompressed size of chunk.
 	bool     m_bIsCompressed  = false;
 
 	VPKChunkDescriptor_t(){};
@@ -105,11 +96,11 @@ struct VPKChunkDescriptor_t
 
 struct VPKEntryBlock_t
 {
-	uint32_t                     m_nFileCRC;       // Crc32 for the uncompressed entry.
-	uint16_t                     m_iPreloadSize;   // Preload bytes.
-	uint16_t                     m_iPackFileIndex; // Index of the pack file that contains this entry.
-	vector<VPKChunkDescriptor_t> m_vChunks;        // Vector of all the chunks of a given entry (chunks have a size limit of 1 MiB, anything over this limit is fragmented into smaller chunks).
-	string                       m_svEntryPath;    // Path to entry within vpk.
+	uint32_t                     m_nFileCRC      {}; // Crc32 for the uncompressed entry.
+	uint16_t                     m_iPreloadSize  {}; // Preload bytes.
+	uint16_t                     m_iPackFileIndex{}; // Index of the pack file that contains this entry.
+	vector<VPKChunkDescriptor_t> m_vChunks       {}; // Vector of all the chunks of a given entry (chunks have a size limit of 1 MiB, anything over this limit is fragmented into smaller chunks).
+	string                       m_svEntryPath   {}; // Path to entry within vpk.
 
 	VPKEntryBlock_t(CIOStream* pReader, string svEntryPath);
 	VPKEntryBlock_t(const vector<uint8_t>& vData, int64_t nOffset, uint16_t nPreloadData, uint16_t nArchiveIndex, uint32_t nEntryFlags, uint16_t nTextureFlags, const string& svEntryPath);
@@ -117,21 +108,21 @@ struct VPKEntryBlock_t
 
 struct VPKDirHeader_t
 {
-	uint32_t                     m_nHeaderMarker;  // File magic.
-	uint16_t                     m_nMajorVersion;  // Vpk major version.
-	uint16_t                     m_nMinorVersion;  // Vpk minor version.
-	uint32_t                     m_nDirectorySize; // Directory tree size.
-	uint32_t                     m_nSignatureSize; // Directory signature.
+	uint32_t                     m_nHeaderMarker {}; // File magic.
+	uint16_t                     m_nMajorVersion {}; // Vpk major version.
+	uint16_t                     m_nMinorVersion {}; // Vpk minor version.
+	uint32_t                     m_nDirectorySize{}; // Directory tree size.
+	uint32_t                     m_nSignatureSize{}; // Directory signature.
 };
 
 struct VPKDir_t
 {
-	VPKDirHeader_t               m_vHeader;        // Dir header.
-	uint32_t                     m_nFileDataSize;  // File data section size.
-	vector<VPKEntryBlock_t>      m_vEntryBlocks;   // Vector of entry blocks.
-	uint16_t                     m_iPackFileCount; // Highest archive index (archive count-1).
-	vector<string>               m_vPackFile;      // Vector of archive file names.
-	string                       m_svDirPath;      // Path to vpk_dir file.
+	VPKDirHeader_t               m_vHeader       {}; // Dir header.
+	uint32_t                     m_nFileDataSize {}; // File data section size.
+	vector<VPKEntryBlock_t>      m_vEntryBlocks  {}; // Vector of entry blocks.
+	uint16_t                     m_iPackFileCount{}; // Highest archive index (archive count-1).
+	vector<string>               m_vPackFile     {}; // Vector of archive file names.
+	string                       m_svDirPath     {}; // Path to vpk_dir file.
 
 	VPKDir_t(const string& svPath);
 	VPKDir_t() { m_vHeader.m_nHeaderMarker = VPK_HEADER_MARKER; m_vHeader.m_nMajorVersion = VPK_MAJOR_VERSION; m_vHeader.m_nMinorVersion = VPK_MINOR_VERSION; };
@@ -151,7 +142,7 @@ public:
 	void InitLzCompParams(void);
 	void InitLzDecompParams(void);
 
-	VPKDir_t GetDirectoryFile(const string& svDirectoryFile, bool bSanitizeName) const;
+	VPKDir_t GetDirectoryFile(string svDirectoryFile) const;
 	string GetPackFile(const string& svPackDirFile, uint16_t iArchiveIndex) const;
 	lzham_compress_level GetCompressionLevel(void) const;
 
@@ -191,5 +182,3 @@ private:
 };
 ///////////////////////////////////////////////////////////////////////////////
 extern CPackedStore* g_pPackedStore;
-
-#endif // PACKEDSTORE_H
