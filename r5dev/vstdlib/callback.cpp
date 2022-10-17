@@ -261,20 +261,20 @@ void Pak_RequestUnload_f(const CCommand& args)
 	{
 		if (args.HasOnlyDigits(1))
 		{
-			RPakHandle_t pakHandle = std::stoi(args.Arg(1));
-			RPakLoadedInfo_t* pakInfo = g_pRTech->GetPakLoadedInfo(pakHandle);
+			const RPakHandle_t pakHandle = std::stoi(args.Arg(1));
+			const RPakLoadedInfo_t* pakInfo = g_pRTech->GetPakLoadedInfo(pakHandle);
 			if (!pakInfo)
 			{
 				throw std::exception("Found no pak entry for specified handle.");
 			}
 
-			string pakName = pakInfo->m_pszFileName;
+			const string pakName = pakInfo->m_pszFileName;
 			!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested pak unload for file '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested pak unload for handle '%d'\n", pakHandle);
 			g_pakLoadApi->UnloadPak(pakHandle);
 		}
 		else
 		{
-			RPakLoadedInfo_t* pakInfo = g_pRTech->GetPakLoadedInfo(args.Arg(1));
+			const RPakLoadedInfo_t* pakInfo = g_pRTech->GetPakLoadedInfo(args.Arg(1));
 			if (!pakInfo)
 			{
 				throw std::exception("Found no pak entry for specified name.");
@@ -537,7 +537,7 @@ void VPK_Unpack_f(const CCommand& args)
 
 	DevMsg(eDLL_T::FS, "*** Starting VPK extraction command for: '%s'\n", pArg);
 
-	VPKDir_t vpk = g_pPackedStore->GetDirectoryFile(pArg);
+	VPKDir_t vpk = g_pPackedStore->GetDirectoryFile(pArg, (args.ArgC() > 2));
 	g_pPackedStore->InitLzDecompParams();
 
 	std::thread th([&] { g_pPackedStore->UnpackAll(vpk, ConvertToWinPath(fs_packedstore_workspace->GetString())); });
@@ -933,37 +933,37 @@ void BHit_f(const CCommand& args)
 	if (args.ArgC() != 9)
 		return;
 
-	if (bhit_enable->GetBool() && sv_visualizetraces->GetBool())
+	if (!bhit_enable->GetBool() && !sv_visualizetraces->GetBool())
+		return;
+
+	Vector3D vecAbsStart;
+	Vector3D vecAbsEnd;
+
+	for (int i = 0; i < 3; ++i)
+		vecAbsStart[i] = atof(args[i + 4]);
+
+	QAngle vecBulletAngles;
+	for (int i = 0; i < 2; ++i)
+		vecBulletAngles[i] = atof(args[i + 7]);
+
+	vecBulletAngles.z = 180.f; // Flipped axis.
+	AngleVectors(vecBulletAngles, &vecAbsEnd);
+
+	static char szBuf[2048]; // Render physics trace.
+	snprintf(szBuf, sizeof(szBuf), "drawline %g %g %g %g %g %g",
+		vecAbsStart.x, vecAbsStart.y, vecAbsStart.z,
+		vecAbsStart.x + vecAbsEnd.x * MAX_COORD_RANGE,
+		vecAbsStart.y + vecAbsEnd.y * MAX_COORD_RANGE,
+		vecAbsStart.z + vecAbsEnd.z * MAX_COORD_RANGE);
+	Cbuf_AddText(Cbuf_GetCurrentPlayer(), szBuf, cmd_source_t::kCommandSrcCode);
+
+	if (bhit_abs_origin->GetBool())
 	{
-		Vector3D vecAbsStart;
-		Vector3D vecAbsEnd;
-
-		for (int i = 0; i < 3; ++i)
-			vecAbsStart[i] = atof(args[i + 4]);
-
-		QAngle vecBulletAngles;
-		for (int i = 0; i < 2; ++i)
-			vecBulletAngles[i] = atof(args[i + 7]);
-
-		vecBulletAngles.z = 180.f; // Flipped axis.
-		AngleVectors(vecBulletAngles, &vecAbsEnd);
-
-		static char szBuf[2048]; // Render physics trace.
-		snprintf(szBuf, sizeof(szBuf), "drawline %g %g %g %g %g %g", 
-			vecAbsStart.x, vecAbsStart.y, vecAbsStart.z,
-			vecAbsStart.x + vecAbsEnd.x * MAX_COORD_RANGE, 
-			vecAbsStart.y + vecAbsEnd.y * MAX_COORD_RANGE, 
-			vecAbsStart.z + vecAbsEnd.z * MAX_COORD_RANGE);
-		Cbuf_AddText(Cbuf_GetCurrentPlayer(), szBuf, cmd_source_t::kCommandSrcCode);
-
-		if (bhit_abs_origin->GetBool())
+		const int iEnt = atof(args[2]);
+		if (const IClientEntity* pEntity = g_pClientEntityList->GetClientEntity(iEnt))
 		{
-			const int iEnt = atof(args[2]);
-			if (const IClientEntity* pEntity = g_pClientEntityList->GetClientEntity(iEnt))
-			{
-				g_pDebugOverlay->AddSphereOverlay( // Render a debug sphere at the client's predicted entity origin.
-					pEntity->GetAbsOrigin(), 10.f, 8, 6, 20, 60, 255, 0, sv_visualizetraces_duration->GetFloat());
-			}
+			g_pDebugOverlay->AddSphereOverlay( // Render a debug sphere at the client's predicted entity origin.
+				pEntity->GetAbsOrigin(), 10.f, 8, 6, 20, 60, 255, 0, sv_visualizetraces_duration->GetFloat());
 		}
 	}
 #endif // !DEDICATED

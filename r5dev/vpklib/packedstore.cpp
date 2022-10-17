@@ -43,41 +43,68 @@ void CPackedStore::InitLzDecompParams(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: gets a directory structure for specified file
+// Purpose: gets a directory structure for specified file.
 // Input  : svPackDirFile - 
+//			bSanitizeName - retrieve the directory file name from block name
 // Output : VPKDir_t
 //-----------------------------------------------------------------------------
-VPKDir_t CPackedStore::GetDirectoryFile(string svPackDirFile) const
+VPKDir_t CPackedStore::GetDirectoryFile(string svPackDirFile, bool bSanitizeName) const
 {
 	/*| PACKDIRFILE |||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
-	std::regex rgArchiveRegex("pak000_([0-9]{3})");
 	std::smatch smRegexMatches;
 
-	std::regex_search(svPackDirFile, smRegexMatches, rgArchiveRegex);
+	if (!bSanitizeName)
+		return VPKDir_t(svPackDirFile);
 
-	if (smRegexMatches.size() != 0)
+	std::regex_search(svPackDirFile, smRegexMatches, BLOCK_REGEX);
+	if (smRegexMatches.empty())
+		return VPKDir_t(svPackDirFile);
+
+	StringReplace(svPackDirFile, smRegexMatches[0], "pak000_dir");
+
+	bool bHasLocale = false;
+	bool bHasContext = false;
+	string svPackDirPrefix;
+
+	size_t nLocaleIndex = 0; // Default to ENGLISH;
+	size_t nContextIndex = 0; // Default to SERVER;
+
+	for (size_t i = 0, nl = DIR_LOCALE.size(); i < nl; i++)
 	{
-		StringReplace(svPackDirFile, smRegexMatches[0], "pak000_dir");
-
-		for (size_t i = 0; i < DIR_LOCALE.size(); i++)
+		const string& svLocale = DIR_LOCALE[i];
+		if (svPackDirFile.find(svLocale) != string::npos)
 		{
-			if (svPackDirFile.find(DIR_CONTEXT[i]) != string::npos)
-			{
-				for (size_t j = 0; j < DIR_CONTEXT.size(); j++)
-				{
-					if (svPackDirFile.find(DIR_CONTEXT[j]) != string::npos)
-					{
-						const string svPackDirPrefix = DIR_LOCALE[i] + DIR_LOCALE[i];
-						StringReplace(svPackDirFile, DIR_LOCALE[i], svPackDirPrefix);
-						goto escape;
-					}
-				}
-			}
-		}escape:;
+			svPackDirPrefix.append(svLocale);
+			nLocaleIndex = i;
+			bHasLocale = true;
+		}
 	}
 
-	VPKDir_t vDir(svPackDirFile);
-	return vDir;
+	if (svPackDirPrefix.empty()) // No locale found.
+	{
+		svPackDirPrefix.append(DIR_LOCALE[0]);
+	}
+
+	if (!bHasLocale)
+	{
+		for (size_t i = 0, nc = DIR_CONTEXT.size(); i < nc; i++)
+		{
+			const string& svContext = DIR_CONTEXT[i];
+			if (svPackDirFile.find(svContext) != string::npos)
+			{
+				svPackDirPrefix.append(svContext);
+				nContextIndex = i;
+				bHasContext = true;
+			}
+		}
+	}
+
+	if (bHasContext) // Context is required for this to work.
+	{
+		StringReplace(svPackDirFile, DIR_CONTEXT[nContextIndex], svPackDirPrefix);
+	}
+
+	return VPKDir_t(svPackDirFile);
 }
 
 //-----------------------------------------------------------------------------
@@ -148,7 +175,7 @@ vector<VPKEntryBlock_t> CPackedStore::GetEntryBlocks(CIOStream* pReader) const
 //-----------------------------------------------------------------------------
 // Purpose: scans the input directory and returns the paths to the vector
 // Input  : &svPathIn - 
-// Output : vector<string>
+// Output : a string vector of all included entry paths
 //-----------------------------------------------------------------------------
 vector<string> CPackedStore::GetEntryPaths(const string& svPathIn) const
 {
@@ -181,7 +208,7 @@ vector<string> CPackedStore::GetEntryPaths(const string& svPathIn) const
 // Purpose: scans the input directory and returns the paths to the vector if path exists in manifest
 // Input  : &svPathIn - 
 //          &jManifest - 
-// Output : vector<string>
+// Output : a string vector of all included entry paths
 //-----------------------------------------------------------------------------
 vector<string> CPackedStore::GetEntryPaths(const string& svPathIn, const nlohmann::json& jManifest) const
 {
@@ -225,15 +252,15 @@ vector<string> CPackedStore::GetEntryPaths(const string& svPathIn, const nlohman
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: gets the parts of the directory file name (1 = locale + context, 2 = levelname)
+// Purpose: gets the parts of the directory file name
 // Input  : &svDirectoryName - 
-//          nCaptureGroup - 
-// Output : string
+//          nCaptureGroup - (1 = locale + context, 2 = levelname)
+// Output : part of directory file name as string
 //-----------------------------------------------------------------------------
 string CPackedStore::GetNameParts(const string& svDirectoryName, int nCaptureGroup) const
 {
 	std::smatch smRegexMatches;
-	std::regex_search(svDirectoryName, smRegexMatches, BLOCK_REGEX);
+	std::regex_search(svDirectoryName, smRegexMatches, DIR_REGEX);
 
 	return smRegexMatches[nCaptureGroup].str();
 }
@@ -241,12 +268,12 @@ string CPackedStore::GetNameParts(const string& svDirectoryName, int nCaptureGro
 //-----------------------------------------------------------------------------
 // Purpose: gets the source of the directory file name
 // Input  : &svDirectoryName - 
-// Output : string
+// Output : source name as string (e.g. "mp_rr_box")
 //-----------------------------------------------------------------------------
 string CPackedStore::GetSourceName(const string& svDirectoryName) const
 {
 	std::smatch smRegexMatches;
-	std::regex_search(svDirectoryName, smRegexMatches, BLOCK_REGEX);
+	std::regex_search(svDirectoryName, smRegexMatches, DIR_REGEX);
 
 	return smRegexMatches[1].str() + smRegexMatches[2].str();
 }
@@ -285,7 +312,7 @@ nlohmann::json CPackedStore::GetManifest(const string& svWorkSpace, const string
 //-----------------------------------------------------------------------------
 // Purpose: gets the contents from the global ignore list (.vpkignore)
 // Input  : &svWorkSpace - 
-// Output : vector<string>
+// Output : a string vector of ignored directories/files
 //-----------------------------------------------------------------------------
 vector<string> CPackedStore::GetIgnoreList(const string& svWorkSpace) const
 {
@@ -317,7 +344,7 @@ vector<string> CPackedStore::GetIgnoreList(const string& svWorkSpace) const
 // Input  : svPath - 
 //          &svName - 
 //          &svExtension - 
-// Output : string
+// Output : formatted entry path
 //-----------------------------------------------------------------------------
 string CPackedStore::FormatEntryPath(string svPath, const string& svName, const string& svExtension) const
 {
@@ -331,18 +358,18 @@ string CPackedStore::FormatEntryPath(string svPath, const string& svName, const 
 //-----------------------------------------------------------------------------
 // Purpose: strips locale prefix from file path
 // Input  : &svDirectoryFile - 
-// Output : string
+// Output : directory filename without locale prefix
 //-----------------------------------------------------------------------------
 string CPackedStore::StripLocalePrefix(const string& svDirectoryFile) const
 {
 	fs::path fsDirectoryFile(svDirectoryFile);
 	string svFileName = fsDirectoryFile.filename().u8string();
 
-	for (size_t i = 0; i < DIR_LOCALE.size(); i++)
+	for (const string& svLocale : DIR_LOCALE)
 	{
-		if (svFileName.find(DIR_LOCALE[i]) != string::npos)
+		if (svFileName.find(svLocale) != string::npos)
 		{
-			StringReplace(svFileName, DIR_LOCALE[i], "");
+			StringReplace(svFileName, svLocale, "");
 			break;
 		}
 	}
@@ -355,7 +382,7 @@ string CPackedStore::StripLocalePrefix(const string& svDirectoryFile) const
 //          svContext - 
 //          &svPakName - 
 //          nPatch - 
-// Output : VPKPair_t
+// Output : a vpk file pair (block and directory file names)
 //-----------------------------------------------------------------------------
 VPKPair_t CPackedStore::BuildFileName(string svLanguage, string svContext, const string& svPakName, int nPatch) const
 {
@@ -385,14 +412,14 @@ void CPackedStore::BuildManifest(const vector<VPKEntryBlock_t>& vBlock, const st
 {
 	nlohmann::json jEntry;
 
-	for (size_t i = 0; i < vBlock.size(); i++)
+	for (const VPKEntryBlock_t& vEntry : vBlock)
 	{
-		jEntry[vBlock[i].m_svEntryPath] =
+		jEntry[vEntry.m_svEntryPath] =
 		{
-			{ "preloadSize", vBlock[i].m_iPreloadSize },
-			{ "loadFlags", vBlock[i].m_vChunks[0].m_nLoadFlags },
-			{ "textureFlags", vBlock[i].m_vChunks[0].m_nTextureFlags },
-			{ "useCompression", vBlock[i].m_vChunks[0].m_nCompressedSize != vBlock[i].m_vChunks[0].m_nUncompressedSize },
+			{ "preloadSize", vEntry.m_iPreloadSize },
+			{ "loadFlags", vEntry.m_vChunks[0].m_nLoadFlags },
+			{ "textureFlags", vEntry.m_vChunks[0].m_nTextureFlags },
+			{ "useCompression", vEntry.m_vChunks[0].m_nCompressedSize != vEntry.m_vChunks[0].m_nUncompressedSize },
 			{ "useDataSharing", true }
 		};
 	}
@@ -684,7 +711,8 @@ VPKEntryBlock_t::VPKEntryBlock_t(CIOStream* pReader, string svEntryPath)
 //          nTextureFlags - 
 //          &svBlockPath - 
 //-----------------------------------------------------------------------------
-VPKEntryBlock_t::VPKEntryBlock_t(const vector<uint8_t> &vData, int64_t nOffset, uint16_t nPreloadSize, uint16_t nArchiveIndex, uint32_t nLoadFlags, uint16_t nTextureFlags, const string& svEntryPath)
+VPKEntryBlock_t::VPKEntryBlock_t(const vector<uint8_t> &vData, int64_t nOffset, uint16_t nPreloadSize, 
+	uint16_t nArchiveIndex, uint32_t nLoadFlags, uint16_t nTextureFlags, const string& svEntryPath)
 {
 	m_nFileCRC = crc32::update(NULL, vData.data(), vData.size());
 	m_iPreloadSize = nPreloadSize;
@@ -695,7 +723,7 @@ VPKEntryBlock_t::VPKEntryBlock_t(const vector<uint8_t> &vData, int64_t nOffset, 
 	size_t nDataSize = vData.size();
 	int64_t nCurrentOffset = nOffset;
 
-	for (size_t i = 0; i < nEntryCount; i++) // Fragment data into 1 MiB chunks
+	for (size_t i = 0; i < nEntryCount; i++) // Fragment data into 1 MiB chunks.
 	{
 		size_t nSize = std::min<uint64_t>(ENTRY_MAX_LEN, nDataSize);
 		nDataSize -= nSize;
@@ -726,7 +754,8 @@ VPKChunkDescriptor_t::VPKChunkDescriptor_t(CIOStream* pReader)
 //          nCompressedSize - 
 //          nUncompressedSize - 
 //-----------------------------------------------------------------------------
-VPKChunkDescriptor_t::VPKChunkDescriptor_t(uint32_t nLoadFlags, uint16_t nTextureFlags, uint64_t nArchiveOffset, uint64_t nCompressedSize, uint64_t nUncompressedSize)
+VPKChunkDescriptor_t::VPKChunkDescriptor_t(uint32_t nLoadFlags, uint16_t nTextureFlags, 
+	uint64_t nArchiveOffset, uint64_t nCompressedSize, uint64_t nUncompressedSize)
 {
 	m_nLoadFlags = nLoadFlags;
 	m_nTextureFlags = nTextureFlags;
@@ -777,7 +806,7 @@ void VPKDir_t::Build(const string& svDirectoryFile, const vector<VPKEntryBlock_t
 {
 	CIOStream writer(svDirectoryFile, CIOStream::Mode_t::WRITE);
 	auto vMap = std::map<string, std::map<string, std::list<VPKEntryBlock_t>>>();
-	uint64_t nDescriptors = 0i64;
+	uint64_t nDescriptors = 0;
 
 	writer.Write<uint32_t>(this->m_vHeader.m_nHeaderMarker);
 	writer.Write<uint16_t>(this->m_vHeader.m_nMajorVersion);
@@ -813,34 +842,34 @@ void VPKDir_t::Build(const string& svDirectoryFile, const vector<VPKEntryBlock_t
 			writer.WriteString(jKeyValue.first);
 			for (auto& vEntry : jKeyValue.second)
 			{
+				/*Write entry block*/
 				writer.WriteString(GetFileName(vEntry.m_svEntryPath, true));
-				{/*Write entry block*/
-					writer.Write(vEntry.m_nFileCRC);
-					writer.Write(vEntry.m_iPreloadSize);
-					writer.Write(vEntry.m_iPackFileIndex);
+				writer.Write(vEntry.m_nFileCRC);
+				writer.Write(vEntry.m_iPreloadSize);
+				writer.Write(vEntry.m_iPackFileIndex);
 
-					for (size_t i = 0; i < vEntry.m_vChunks.size(); i++)
+				for (size_t i = 0, nc = vEntry.m_vChunks.size(); i < nc; i++)
+				{
+					/*Write chunk descriptor*/
+					const VPKChunkDescriptor_t* pDescriptor = &vEntry.m_vChunks[i];
+
+					writer.Write(pDescriptor->m_nLoadFlags);
+					writer.Write(pDescriptor->m_nTextureFlags);
+					writer.Write(pDescriptor->m_nArchiveOffset);
+					writer.Write(pDescriptor->m_nCompressedSize);
+					writer.Write(pDescriptor->m_nUncompressedSize);
+
+					if (i != (nc - 1))
 					{
-						{/*Write chunk descriptor*/
-							writer.Write(vEntry.m_vChunks[i].m_nLoadFlags);
-							writer.Write(vEntry.m_vChunks[i].m_nTextureFlags);
-							writer.Write(vEntry.m_vChunks[i].m_nArchiveOffset);
-							writer.Write(vEntry.m_vChunks[i].m_nCompressedSize);
-							writer.Write(vEntry.m_vChunks[i].m_nUncompressedSize);
-						}
-
-						if (i != (vEntry.m_vChunks.size() - 1))
-						{
-							const ushort s = 0;
-							writer.Write(s);
-						}
-						else
-						{
-							const ushort s = UINT16_MAX;
-							writer.Write(s);
-						}
-						nDescriptors++;
+						const ushort s = 0;
+						writer.Write(s);
 					}
+					else
+					{
+						const ushort s = UINT16_MAX;
+						writer.Write(s);
+					}
+					nDescriptors++;
 				}
 			}
 			writer.Write<uint8_t>('\0');

@@ -90,13 +90,13 @@ void CUIBaseSurface::Init()
 	this->m_CheatsToggle->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_GameGroupExt->AddControl(this->m_CheatsToggle);
 
-	this->m_DevelopmentToggle = new UIX::UIXCheckBox();
-	this->m_DevelopmentToggle->SetSize({ 150, 18 });
-	this->m_DevelopmentToggle->SetLocation({ 130, 7 });
-	this->m_DevelopmentToggle->SetTabIndex(0);
-	this->m_DevelopmentToggle->SetText("Enable development");
-	this->m_DevelopmentToggle->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
-	this->m_GameGroupExt->AddControl(this->m_DevelopmentToggle);
+	this->m_DeveloperToggle = new UIX::UIXCheckBox();
+	this->m_DeveloperToggle->SetSize({ 150, 18 });
+	this->m_DeveloperToggle->SetLocation({ 130, 7 });
+	this->m_DeveloperToggle->SetTabIndex(0);
+	this->m_DeveloperToggle->SetText("Enable developer");
+	this->m_DeveloperToggle->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
+	this->m_GameGroupExt->AddControl(this->m_DeveloperToggle);
 
 	this->m_ConsoleToggle = new UIX::UIXCheckBox();
 	this->m_ConsoleToggle->SetSize({ 150, 18 });
@@ -737,7 +737,7 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 		{
 			svParameters.append("+launchplaylist \"" + this->m_PlaylistCombo->Text() + "\"\n");
 		}
-		if (this->m_DevelopmentToggle->Checked())
+		if (this->m_DeveloperToggle->Checked())
 		{
 			svParameters.append("-dev\n");
 			svParameters.append("-devsdk\n");
@@ -863,7 +863,7 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 		{
 			svParameters.append("+launchplaylist \"" + this->m_PlaylistCombo->Text() + "\"\n");
 		}
-		if (this->m_DevelopmentToggle->Checked())
+		if (this->m_DeveloperToggle->Checked())
 		{
 			svParameters.append("-dev\n");
 			svParameters.append("-devsdk\n");
@@ -949,8 +949,11 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 	}
 	case eMode::CLIENT:
 	{
+		svParameters.append("-noworkerdll\n"); // This prevents init of worker dll 
+		//(this dll is always imported, but we want client.dll to do the work instead).
+
 		// GAME ###############################################################
-		if (this->m_DevelopmentToggle->Checked())
+		if (this->m_DeveloperToggle->Checked())
 		{
 			svParameters.append("-dev\n");
 			svParameters.append("-devsdk\n");

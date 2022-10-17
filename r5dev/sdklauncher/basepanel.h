@@ -82,7 +82,7 @@ private:
 	UIX::UIXGroupBox* m_EngineVideoGroup;
 	// Toggles
 	UIX::UIXCheckBox* m_CheatsToggle;
-	UIX::UIXCheckBox* m_DevelopmentToggle;
+	UIX::UIXCheckBox* m_DeveloperToggle;
 	UIX::UIXCheckBox* m_ConsoleToggle;
 	UIX::UIXCheckBox* m_WindowedToggle;
 	UIX::UIXCheckBox* m_NoBorderToggle;
