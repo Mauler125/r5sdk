@@ -9,9 +9,8 @@
 #include "public/avi/iavi.h"
 #include "public/avi/ibik.h"
 #include "public/const.h"
+#include "public/imaterial.h"
 #include "game/client/hud.h"
-
-typedef void* IMaterial; // HACK
 
 //-----------------------------------------------------------------------------
 // Purpose: Sprite Models

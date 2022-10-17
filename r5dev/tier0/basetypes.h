@@ -114,6 +114,16 @@
 #error
 #endif
 
+//////////////////////////////////////////////////////////////////////////
+
+//#ifndef schema
+//#define schema namespace ValveSchemaMarker {}
+//#endif
+//#define noschema
+//#define schema_pragma( ... )
+//#define META( ... )
+//#define TYPEMETA( ... )
+
 //-----------------------------------------------------------------------------
 // Old-school defines we're going to support since much code uses them
 //-----------------------------------------------------------------------------

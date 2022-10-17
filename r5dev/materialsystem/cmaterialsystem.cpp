@@ -113,12 +113,34 @@ bool IsMaterialInternal(void** pCandidate)
 	return false;
 }
 
+#ifndef DEDICATED
+//-----------------------------------------------------------------------------
+// Purpose: finds a material
+// Input  : *pMatSys - 
+//			*pMaterialName - 
+//			nMaterialType - 
+//			nUnk - 
+//			bComplain - 
+// Output : pointer to material
+//-----------------------------------------------------------------------------
+CMaterialGlue* CMaterialSystem::FindMaterialEx(CMaterialSystem* pMatSys, const char* pMaterialName, uint8_t nMaterialType, int nUnk, bool bComplain)
+{
+	CMaterialGlue* pMaterial = CMaterialSystem__FindMaterialEx(pMatSys, pMaterialName, nMaterialType, nUnk, bComplain);
+	if (pMaterial->IsErrorMaterial())
+	{
+		Error(eDLL_T::MS, NO_ERROR, "Material \"%s\" not found; replacing with \"%s\".\n", pMaterialName, pMaterial->GetName());
+	}
+	return pMaterial;
+}
+#endif // !DEDICATED
+
 ///////////////////////////////////////////////////////////////////////////////
 void CMaterialSystem_Attach()
 {
 #ifndef DEDICATED
 	DetourAttach((LPVOID*)&v_StreamDB_Init, &StreamDB_Init);
 	DetourAttach((LPVOID*)&v_DispatchDrawCall, &DispatchDrawCall);
+	DetourAttach((LPVOID*)&CMaterialSystem__FindMaterialEx, &CMaterialSystem::FindMaterialEx);
 #endif // !DEDICATED
 }
 
@@ -127,5 +149,6 @@ void CMaterialSystem_Detach()
 #ifndef DEDICATED
 	DetourDetach((LPVOID*)&v_StreamDB_Init, &StreamDB_Init);
 	DetourDetach((LPVOID*)&v_DispatchDrawCall, &DispatchDrawCall);
+	DetourDetach((LPVOID*)&CMaterialSystem__FindMaterialEx, &CMaterialSystem::FindMaterialEx);
 #endif // !DEDICATED
 }
