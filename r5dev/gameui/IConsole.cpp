@@ -456,65 +456,62 @@ void CConsole::FindFromPartial(void)
 
     for (size_t i = 0; i < m_vsvCommandBases.size(); i++)
     {
-        if (m_vSuggest.size() >= con_suggestion_limit->GetSizeT())
+        if (m_vSuggest.size() < con_suggestion_limit->GetSizeT())
         {
-            return;
-        }
-        if (m_vsvCommandBases[i].m_svName.find(m_szInputBuf) == string::npos)
-        {
-            continue;
-        }
-
-        if (std::find(m_vSuggest.begin(), m_vSuggest.end(),
-            m_vsvCommandBases[i].m_svName) == m_vSuggest.end())
-        {
-            string svValue; int nFlags = FCVAR_NONE;
-            const ConCommandBase* pCommandBase = g_pCVar->FindCommandBase(m_vsvCommandBases[i].m_svName.c_str());
-
-            if (!pCommandBase || pCommandBase->IsFlagSet(FCVAR_HIDDEN))
+            if (m_vsvCommandBases[i].m_svName.find(m_szInputBuf) != string::npos)
             {
-                continue;
-            }
-
-            if (!pCommandBase->IsCommand())
-            {
-                const ConVar* pConVar = reinterpret_cast<const ConVar*>(pCommandBase);
-
-                svValue = " = ["; // Assign default value to string if its a ConVar.
-                svValue.append(pConVar->GetString());
-                svValue.append("]");
-            }
-            if (con_suggestion_showhelptext->GetBool())
-            {
-                if (pCommandBase->GetHelpText())
+                if (std::find(m_vSuggest.begin(), m_vSuggest.end(), 
+                    m_vsvCommandBases[i].m_svName) == m_vSuggest.end())
                 {
-                    string svHelpText = pCommandBase->GetHelpText();
-                    if (!svHelpText.empty())
+                    string svValue; int nFlags = 0;
+
+                    if (ConCommandBase* pCommandBase = g_pCVar->FindCommandBase(m_vsvCommandBases[i].m_svName.c_str()))
                     {
-                        svValue.append(" - \"" + svHelpText + "\"");
+                        if (!pCommandBase->IsFlagSet(FCVAR_HIDDEN))
+                        {
+                            if (!pCommandBase->IsCommand())
+                            {
+                                ConVar* pConVar = reinterpret_cast<ConVar*>(pCommandBase);
+
+                                svValue = " = ["; // Assign default value to string if its a ConVar.
+                                svValue.append(pConVar->GetString());
+                                svValue.append("]");
+                            }
+                            if (con_suggestion_showhelptext->GetBool())
+                            {
+                                if (pCommandBase->GetHelpText())
+                                {
+                                    string svHelpText = pCommandBase->GetHelpText();
+                                    if (!svHelpText.empty())
+                                    {
+                                        svValue.append(" - \"" + svHelpText + "\"");
+                                    }
+                                }
+                                if (pCommandBase->GetUsageText())
+                                {
+                                    string svUsageText = pCommandBase->GetUsageText();
+                                    if (!svUsageText.empty())
+                                    {
+                                        svValue.append(" - \"" + svUsageText + "\"");
+                                    }
+                                }
+                            }
+                            if (con_suggestion_showflags->GetBool())
+                            {
+                                if (con_suggestion_flags_realtime->GetBool())
+                                {
+                                    nFlags = pCommandBase->GetFlags();
+                                }
+                                else // Display compile-time flags instead.
+                                {
+                                    nFlags = m_vsvCommandBases[i].m_nFlags;
+                                }
+                            }
+                            m_vSuggest.push_back(CSuggest(m_vsvCommandBases[i].m_svName + svValue, nFlags));
+                        }
                     }
                 }
-                if (pCommandBase->GetUsageText())
-                {
-                    string svUsageText = pCommandBase->GetUsageText();
-                    if (!svUsageText.empty())
-                    {
-                        svValue.append(" - \"" + svUsageText + "\"");
-                    }
-                }
             }
-            if (con_suggestion_showflags->GetBool())
-            {
-                if (con_suggestion_flags_realtime->GetBool())
-                {
-                    nFlags = pCommandBase->GetFlags();
-                }
-                else // Display compile-time flags instead.
-                {
-                    nFlags = m_vsvCommandBases[i].m_nFlags;
-                }
-            }
-            m_vSuggest.push_back(CSuggest(m_vsvCommandBases[i].m_svName + svValue, nFlags));
         }
         else { break; }
     }
@@ -676,7 +673,7 @@ void CConsole::ClampHistorySize(void)
 bool CConsole::LoadFlagIcons(void)
 {
     int k = 0; // Get all image resources for displaying flags.
-    for (int i = IDB_PNG3; i <= IDB_PNG24; i++)
+    for (int i = IDB_PNG3; i <= IDB_PNG23; i++)
     {
         m_vFlagIcons.push_back(MODULERESOURCE());
         m_vFlagIcons[k] = GetModuleResource(i);
@@ -709,40 +706,38 @@ int CConsole::ColorCodeFlags(int nFlags) const
         return 3;
     case FCVAR_CLIENTDLL:
         return 4;
-    case FCVAR_REPLICATED:
-        return 5;
     case FCVAR_CHEAT:
-        return 6;
+        return 5;
     case FCVAR_RELEASE:
-        return 7;
+        return 6;
     case FCVAR_MATERIAL_SYSTEM_THREAD:
-        return 8;
+        return 7;
     case FCVAR_DEVELOPMENTONLY | FCVAR_GAMEDLL:
-        return 9;
+        return 8;
     case FCVAR_DEVELOPMENTONLY | FCVAR_CLIENTDLL:
-        return 10;
+        return 9;
     case FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED:
-        return 11;
+        return 10;
     case FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT:
-        return 12;
+        return 11;
     case FCVAR_DEVELOPMENTONLY | FCVAR_MATERIAL_SYSTEM_THREAD:
-        return 13;
+        return 12;
     case FCVAR_REPLICATED | FCVAR_CHEAT:
-        return 14;
+        return 13;
     case FCVAR_REPLICATED | FCVAR_RELEASE:
-        return 15;
+        return 14;
     case FCVAR_GAMEDLL | FCVAR_CHEAT:
-        return 16;
+        return 15;
     case FCVAR_GAMEDLL | FCVAR_RELEASE:
-        return 17;
+        return 16;
     case FCVAR_CLIENTDLL | FCVAR_CHEAT:
-        return 18;
+        return 17;
     case FCVAR_CLIENTDLL | FCVAR_RELEASE:
-        return 19;
+        return 18;
     case FCVAR_MATERIAL_SYSTEM_THREAD | FCVAR_CHEAT:
-        return 20;
+        return 19;
     case FCVAR_MATERIAL_SYSTEM_THREAD | FCVAR_RELEASE:
-        return 21;
+        return 20;
     default:
         return 0;
     }

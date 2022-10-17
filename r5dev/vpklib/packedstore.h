@@ -8,8 +8,7 @@ constexpr unsigned int VPK_MINOR_VERSION = 3;
 constexpr unsigned int VPK_DICT_SIZE = 20;
 constexpr int ENTRY_MAX_LEN = 1024 * 1024;
 
-static const std::regex BLOCK_REGEX{ R"(pak000_([0-9]{3}))" };
-static const std::regex DIR_REGEX{ R"((?:.*\/)?([^_]*_)(.*)(.bsp.pak000_dir).*)" };
+static const std::regex BLOCK_REGEX{ R"((?:.*\/)?([^_]*_)(.*)(.bsp.pak000_dir).*)" };
 
 static const vector<string> DIR_CONTEXT = 
 {
@@ -133,7 +132,7 @@ struct VPKDir_t
 
 struct VPKPair_t
 {
-	string m_svBlockName; // !TODO: Multi-pak support.
+	string m_svBlockName;
 	string m_svDirectoryName;
 };
 
@@ -143,7 +142,7 @@ public:
 	void InitLzCompParams(void);
 	void InitLzDecompParams(void);
 
-	VPKDir_t GetDirectoryFile(string svDirectoryFile, bool bSanitizeName) const;
+	VPKDir_t GetDirectoryFile(string svDirectoryFile) const;
 	string GetPackFile(const string& svPackDirFile, uint16_t iArchiveIndex) const;
 	lzham_compress_level GetCompressionLevel(void) const;
 

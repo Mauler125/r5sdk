@@ -36,7 +36,7 @@ class dtQueryFilter
 {
 	float m_areaCost[DT_MAX_AREAS];		///< Cost per area type. (Used by default implementation.)
 	unsigned short m_includeFlags;		///< Flags for polygons that can be visited. (Used by default implementation.)
-	unsigned short m_excludeFlags;		///< Flags for polygons that should not be visited. (Used by default implementation.)
+	unsigned short m_excludeFlags;		///< Flags for polygons that should not be visted. (Used by default implementation.)
 	unsigned short m_unknownFlags;		///< Unknown.
 	
 public:
@@ -70,7 +70,7 @@ public:
 	///  @param[in]		curRef		The reference id of the current polygon.
 	///  @param[in]		curTile		The tile containing the current polygon.
 	///  @param[in]		curPoly		The current polygon.
-	///  @param[in]		nextRef		The reference id of the next polygon. [opt]
+	///  @param[in]		nextRef		The refernece id of the next polygon. [opt]
 	///  @param[in]		nextTile	The tile containing the next polygon. [opt]
 	///  @param[in]		nextPoly	The next polygon. [opt]
 #ifdef DT_VIRTUAL_QUERYFILTER
@@ -179,7 +179,7 @@ public:
 	// /@{
 
 	/// Finds a path from the start polygon to the end polygon.
-	///  @param[in]		startRef	The reference id of the start polygon.
+	///  @param[in]		startRef	The refrence id of the start polygon.
 	///  @param[in]		endRef		The reference id of the end polygon.
 	///  @param[in]		startPos	A position within the start polygon. [(x, y, z)]
 	///  @param[in]		endPos		A position within the end polygon. [(x, y, z)]
@@ -218,8 +218,8 @@ public:
 	///	-# Call finalizeSlicedFindPath() to get the path.
 	///@{ 
 
-	/// Initializes a sliced path query.
-	///  @param[in]		startRef	The reference id of the start polygon.
+	/// Intializes a sliced path query.
+	///  @param[in]		startRef	The refrence id of the start polygon.
 	///  @param[in]		endRef		The reference id of the end polygon.
 	///  @param[in]		startPos	A position within the start polygon. [(x, y, z)]
 	///  @param[in]		endPos		A position within the end polygon. [(x, y, z)]
@@ -277,7 +277,7 @@ public:
 								   dtPolyRef* resultRef, dtPolyRef* resultParent, float* resultCost,
 								   int* resultCount, const int maxResult) const;
 	
-	/// Finds the polygons along the navigation graph that touch the specified convex polygon.
+	/// Finds the polygons along the naviation graph that touch the specified convex polygon.
 	///  @param[in]		startRef		The reference id of the polygon where the search starts.
 	///  @param[in]		verts			The vertices describing the convex polygon. (CCW) 
 	///  								[(x, y, z) * @p nverts]
@@ -484,7 +484,7 @@ public:
 	dtStatus closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest, bool* posOverPoly) const;
 	
 	/// Returns a point on the boundary closest to the source point if the source point is outside the 
-	/// polygon's xy-bounds.
+	/// polygon's xz-bounds.
 	///  @param[in]		ref			The reference id to the polygon.
 	///  @param[in]		pos			The position to check. [(x, y, z)]
 	///  @param[out]	closest		The closest point. [(x, y, z)]
@@ -493,7 +493,7 @@ public:
 	
 	/// Gets the height of the polygon at the provided position using the height detail. (Most accurate.)
 	///  @param[in]		ref			The reference id of the polygon.
-	///  @param[in]		pos			A position within the xy-bounds of the polygon. [(x, y, z)]
+	///  @param[in]		pos			A position within the xz-bounds of the polygon. [(x, y, z)]
 	///  @param[out]	height		The height at the surface of the polygon.
 	/// @returns The status flags for the query.
 	dtStatus getPolyHeight(dtPolyRef ref, const float* pos, float* height) const;

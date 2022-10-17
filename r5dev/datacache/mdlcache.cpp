@@ -157,9 +157,9 @@ studiohdr_t* CMDLCache::FindUncachedMDL(CMDLCache* cache, MDLHandle_t handle, st
     size_t nFileNameLen = strlen(szModelName);
 
     if (static_cast<int>(nFileNameLen) < 5 ||
-        (Q_stricmp(&szModelName[nFileNameLen - 5], ".rmdl") != 0) &&
-        (Q_stricmp(&szModelName[nFileNameLen - 5], ".rrig") != 0) &&
-        (Q_stricmp(&szModelName[nFileNameLen - 5], ".rpak") != 0))
+        (_stricmp(&szModelName[nFileNameLen - 5], ".rmdl") != 0) &&
+        (_stricmp(&szModelName[nFileNameLen - 5], ".rrig") != 0) &&
+        (_stricmp(&szModelName[nFileNameLen - 5], ".rpak") != 0))
     {
         pStudioHdr = GetErrorModel();
         if (!IsKnownBadModel(handle))
