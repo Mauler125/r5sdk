@@ -9,7 +9,7 @@ __declspec(dllexport) void DummyExport()
     // Required for detours.
 }
 
-const static std::string R5R_EMBLEM[] =
+const std::string R5R_EMBLEM[] =
 {
     R"(+-------------------------------------------------------------+)",
     R"(|  ___ ___ ___     _              _        _       ___   ___  |)",
@@ -19,5 +19,3 @@ const static std::string R5R_EMBLEM[] =
     R"(|                                                             |)",
     R"(+-------------------------------------------------------------+)"
 };
-
-static bool s_bNoWorkerDll = false;

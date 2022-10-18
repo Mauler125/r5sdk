@@ -59,16 +59,16 @@ VPKDir_t CPackedStore::GetDirectoryFile(string svPackDirFile) const
 	{
 		StringReplace(svPackDirFile, smRegexMatches[0], "pak000_dir");
 
-		for (const string& svLocale : DIR_LOCALE)
+		for (size_t i = 0; i < DIR_LOCALE.size(); i++)
 		{
-			if (svPackDirFile.find(svLocale) != string::npos)
+			if (svPackDirFile.find(DIR_CONTEXT[i]) != string::npos)
 			{
-				for (const string& svContext : DIR_CONTEXT)
+				for (size_t j = 0; j < DIR_CONTEXT.size(); j++)
 				{
-					if (svPackDirFile.find(svContext) != string::npos)
+					if (svPackDirFile.find(DIR_CONTEXT[j]) != string::npos)
 					{
-						const string svPackDirPrefix = svContext + svContext;
-						StringReplace(svPackDirFile, svContext, svPackDirPrefix);
+						const string svPackDirPrefix = DIR_LOCALE[i] + DIR_LOCALE[i];
+						StringReplace(svPackDirFile, DIR_LOCALE[i], svPackDirPrefix);
 						goto escape;
 					}
 				}
@@ -338,11 +338,11 @@ string CPackedStore::StripLocalePrefix(const string& svDirectoryFile) const
 	fs::path fsDirectoryFile(svDirectoryFile);
 	string svFileName = fsDirectoryFile.filename().u8string();
 
-	for (const string& svLocale : DIR_LOCALE)
+	for (size_t i = 0; i < DIR_LOCALE.size(); i++)
 	{
-		if (svFileName.find(svLocale) != string::npos)
+		if (svFileName.find(DIR_LOCALE[i]) != string::npos)
 		{
-			StringReplace(svFileName, svLocale, "");
+			StringReplace(svFileName, DIR_LOCALE[i], "");
 			break;
 		}
 	}
@@ -385,14 +385,14 @@ void CPackedStore::BuildManifest(const vector<VPKEntryBlock_t>& vBlock, const st
 {
 	nlohmann::json jEntry;
 
-	for (const VPKEntryBlock_t& vEntry : vBlock)
+	for (size_t i = 0; i < vBlock.size(); i++)
 	{
-		jEntry[vEntry.m_svEntryPath] =
+		jEntry[vBlock[i].m_svEntryPath] =
 		{
-			{ "preloadSize", vEntry.m_iPreloadSize },
-			{ "loadFlags", vEntry.m_vChunks[0].m_nLoadFlags },
-			{ "textureFlags", vEntry.m_vChunks[0].m_nTextureFlags },
-			{ "useCompression", vEntry.m_vChunks[0].m_nCompressedSize != vEntry.m_vChunks[0].m_nUncompressedSize },
+			{ "preloadSize", vBlock[i].m_iPreloadSize },
+			{ "loadFlags", vBlock[i].m_vChunks[0].m_nLoadFlags },
+			{ "textureFlags", vBlock[i].m_vChunks[0].m_nTextureFlags },
+			{ "useCompression", vBlock[i].m_vChunks[0].m_nCompressedSize != vBlock[i].m_vChunks[0].m_nUncompressedSize },
 			{ "useDataSharing", true }
 		};
 	}
@@ -684,8 +684,7 @@ VPKEntryBlock_t::VPKEntryBlock_t(CIOStream* pReader, string svEntryPath)
 //          nTextureFlags - 
 //          &svBlockPath - 
 //-----------------------------------------------------------------------------
-VPKEntryBlock_t::VPKEntryBlock_t(const vector<uint8_t> &vData, int64_t nOffset, uint16_t nPreloadSize, 
-	uint16_t nArchiveIndex, uint32_t nLoadFlags, uint16_t nTextureFlags, const string& svEntryPath)
+VPKEntryBlock_t::VPKEntryBlock_t(const vector<uint8_t> &vData, int64_t nOffset, uint16_t nPreloadSize, uint16_t nArchiveIndex, uint32_t nLoadFlags, uint16_t nTextureFlags, const string& svEntryPath)
 {
 	m_nFileCRC = crc32::update(NULL, vData.data(), vData.size());
 	m_iPreloadSize = nPreloadSize;
@@ -696,7 +695,7 @@ VPKEntryBlock_t::VPKEntryBlock_t(const vector<uint8_t> &vData, int64_t nOffset, 
 	size_t nDataSize = vData.size();
 	int64_t nCurrentOffset = nOffset;
 
-	for (size_t i = 0; i < nEntryCount; i++) // Fragment data into 1 MiB chunks.
+	for (size_t i = 0; i < nEntryCount; i++) // Fragment data into 1 MiB chunks
 	{
 		size_t nSize = std::min<uint64_t>(ENTRY_MAX_LEN, nDataSize);
 		nDataSize -= nSize;
@@ -727,8 +726,7 @@ VPKChunkDescriptor_t::VPKChunkDescriptor_t(CIOStream* pReader)
 //          nCompressedSize - 
 //          nUncompressedSize - 
 //-----------------------------------------------------------------------------
-VPKChunkDescriptor_t::VPKChunkDescriptor_t(uint32_t nLoadFlags, uint16_t nTextureFlags, 
-	uint64_t nArchiveOffset, uint64_t nCompressedSize, uint64_t nUncompressedSize)
+VPKChunkDescriptor_t::VPKChunkDescriptor_t(uint32_t nLoadFlags, uint16_t nTextureFlags, uint64_t nArchiveOffset, uint64_t nCompressedSize, uint64_t nUncompressedSize)
 {
 	m_nLoadFlags = nLoadFlags;
 	m_nTextureFlags = nTextureFlags;
@@ -779,7 +777,7 @@ void VPKDir_t::Build(const string& svDirectoryFile, const vector<VPKEntryBlock_t
 {
 	CIOStream writer(svDirectoryFile, CIOStream::Mode_t::WRITE);
 	auto vMap = std::map<string, std::map<string, std::list<VPKEntryBlock_t>>>();
-	uint64_t nDescriptors = 0;
+	uint64_t nDescriptors = 0i64;
 
 	writer.Write<uint32_t>(this->m_vHeader.m_nHeaderMarker);
 	writer.Write<uint16_t>(this->m_vHeader.m_nMajorVersion);
@@ -815,34 +813,34 @@ void VPKDir_t::Build(const string& svDirectoryFile, const vector<VPKEntryBlock_t
 			writer.WriteString(jKeyValue.first);
 			for (auto& vEntry : jKeyValue.second)
 			{
-				/*Write entry block*/
 				writer.WriteString(GetFileName(vEntry.m_svEntryPath, true));
-				writer.Write(vEntry.m_nFileCRC);
-				writer.Write(vEntry.m_iPreloadSize);
-				writer.Write(vEntry.m_iPackFileIndex);
+				{/*Write entry block*/
+					writer.Write(vEntry.m_nFileCRC);
+					writer.Write(vEntry.m_iPreloadSize);
+					writer.Write(vEntry.m_iPackFileIndex);
 
-				for (size_t i = 0, nc = vEntry.m_vChunks.size(); i < nc; i++)
-				{
-					/*Write chunk descriptor*/
-					const VPKChunkDescriptor_t* pDescriptor = &vEntry.m_vChunks[i];
-
-					writer.Write(pDescriptor->m_nLoadFlags);
-					writer.Write(pDescriptor->m_nTextureFlags);
-					writer.Write(pDescriptor->m_nArchiveOffset);
-					writer.Write(pDescriptor->m_nCompressedSize);
-					writer.Write(pDescriptor->m_nUncompressedSize);
-
-					if (i != (nc - 1))
+					for (size_t i = 0; i < vEntry.m_vChunks.size(); i++)
 					{
-						const ushort s = 0;
-						writer.Write(s);
+						{/*Write chunk descriptor*/
+							writer.Write(vEntry.m_vChunks[i].m_nLoadFlags);
+							writer.Write(vEntry.m_vChunks[i].m_nTextureFlags);
+							writer.Write(vEntry.m_vChunks[i].m_nArchiveOffset);
+							writer.Write(vEntry.m_vChunks[i].m_nCompressedSize);
+							writer.Write(vEntry.m_vChunks[i].m_nUncompressedSize);
+						}
+
+						if (i != (vEntry.m_vChunks.size() - 1))
+						{
+							const ushort s = 0;
+							writer.Write(s);
+						}
+						else
+						{
+							const ushort s = UINT16_MAX;
+							writer.Write(s);
+						}
+						nDescriptors++;
 					}
-					else
-					{
-						const ushort s = UINT16_MAX;
-						writer.Write(s);
-					}
-					nDescriptors++;
 				}
 			}
 			writer.Write<uint8_t>('\0');

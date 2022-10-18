@@ -639,6 +639,9 @@
     <ClCompile Include="..\engine\sys_mainwind.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
+    <ClCompile Include="..\gameui\IOverlay.cpp">
+      <Filter>sdk\gameui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1856,9 +1859,12 @@
     <ClInclude Include="..\public\igame.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
+    <ClInclude Include="..\gameui\IOverlay.h">
+      <Filter>sdk\gameui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\shared\resource\lockedserver.png">
+    <Image Include="..\resource\png\r5ricon.png">
       <Filter>sdk\resource\png</Filter>
     </Image>
   </ItemGroup>

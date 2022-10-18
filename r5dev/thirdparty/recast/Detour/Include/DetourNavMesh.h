@@ -25,7 +25,7 @@
 #include "Detour/Include/DetourStatus.h"
 #endif // !GAMESDK
 
-// Undefine (or define in a build config) the following line to use 64bit polyref.
+// Undefine (or define in a build cofnig) the following line to use 64bit polyref.
 // Generally not needed, useful for very large worlds.
 // Note: tiles build using 32bit refs are not compatible with 64bit refs!
 //#define DT_POLYREF64 1
@@ -174,7 +174,7 @@ struct dtPoly
 	unsigned char vertCount;
 
 	/// The bit packed area id and polygon type.
-	/// @note Use the structure's set and get methods to access this value.
+	/// @note Use the structure's set and get methods to acess this value.
 	unsigned char areaAndtype;
 
 	unsigned short disjointSetId;			//IDK but looks filled
@@ -809,7 +809,7 @@ off-mesh connections.  In this case the associated pointer will be null.
 If a detail mesh exists it will share vertices with the base polygon mesh.
 Only the vertices unique to the detail mesh will be stored in #detailVerts.
 
-@warning Tiles returned by a dtNavMesh object are not guaranteed to be populated.
+@warning Tiles returned by a dtNavMesh object are not guarenteed to be populated.
 For example: The tile at a location might not have been loaded yet, or may have been removed.
 In this case, pointers will be null.  So if in doubt, check the polygon count in the
 tile's header to determine if a tile has polygons defined.

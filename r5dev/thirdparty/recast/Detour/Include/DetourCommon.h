@@ -436,7 +436,7 @@ bool dtOverlapPolyPoly2D(const float* polya, const int npolya,
 						 const float* polyb, const int npolyb);
 
 /// @}
-/// @name Miscellaneous functions.
+/// @name Miscellanious functions.
 /// @{
 
 inline unsigned int dtNextPow2(unsigned int v)

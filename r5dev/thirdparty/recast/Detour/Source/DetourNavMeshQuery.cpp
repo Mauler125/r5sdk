@@ -529,7 +529,7 @@ dtStatus dtNavMeshQuery::closestPointOnPoly(dtPolyRef ref, const float* pos, flo
 ///
 /// Much faster than closestPointOnPoly().
 ///
-/// If the provided position lies within the polygon's xy-bounds (above or below), 
+/// If the provided position lies within the polygon's xz-bounds (above or below), 
 /// then @p pos and @p closest will be equal.
 ///
 /// The height of @p closest will be the polygon boundary.  The height detail is not used.
@@ -588,7 +588,7 @@ dtStatus dtNavMeshQuery::closestPointOnPolyBoundary(dtPolyRef ref, const float* 
 
 /// @par
 ///
-/// Will return #DT_FAILURE | DT_INVALID_PARAM if the provided position is outside the xy-bounds 
+/// Will return #DT_FAILURE | DT_INVALID_PARAM if the provided position is outside the xz-bounds 
 /// of the polygon.
 /// 
 dtStatus dtNavMeshQuery::getPolyHeight(dtPolyRef ref, const float* pos, float* height) const
@@ -2390,7 +2390,7 @@ dtStatus dtNavMeshQuery::getEdgeMidPoint(dtPolyRef from, const dtPoly* fromPoly,
 /// position is on the balcony.
 ///
 /// The raycast will search toward the end position along the first floor mesh. 
-/// If it reaches the end position's xy-coordinates it will indicate FLT_MAX
+/// If it reaches the end position's xz-coordinates it will indicate FLT_MAX
 /// (no wall hit), meaning it reached the end position. This is one example of why
 /// this method is meant for short distance checks.
 ///
@@ -2448,7 +2448,7 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 /// position is on the balcony.
 ///
 /// The raycast will search toward the end position along the first floor mesh. 
-/// If it reaches the end position's xy-coordinates it will indicate FLT_MAX
+/// If it reaches the end position's xz-coordinates it will indicate FLT_MAX
 /// (no wall hit), meaning it reached the end position. This is one example of why
 /// this method is meant for short distance checks.
 ///

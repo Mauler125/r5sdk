@@ -213,34 +213,8 @@ void MOD_ProcessPakQueue()
                     }
                     if (!v14 || v13 == 9)
                     {
-                        // SDK pak files must be unloaded before the engine pak files,
-                        // as we reference assets within engine pak files.
-                        const RPakLoadedInfo_t* pLoadedPakInfo = g_pRTech->GetPakLoadedInfo(*(RPakHandle_t*)v10);
-                        if (pLoadedPakInfo)
-                        {
-                            const char* pszLoadedPakName = pLoadedPakInfo->m_pszFileName;
-
-                            if (strcmp(pszLoadedPakName, "common_mp.rpak") == 0 ||
-                                strcmp(pszLoadedPakName, "common_sp.rpak") == 0 ||
-                                strcmp(pszLoadedPakName, "common_pve.rpak") == 0)
-                            {
-                                const RPakLoadedInfo_t* pLoadedSdkPak = g_pRTech->GetPakLoadedInfo("common_sdk.rpak");
-
-                                if (pLoadedSdkPak) // Only unload if sdk pak file is loaded.
-                                    g_pakLoadApi->UnloadPak(pLoadedSdkPak->m_nHandle);
-
-                            }
-                            else if (strcmp(pszLoadedPakName, "ui_mp.rpak") == 0)
-                            {
-                                const RPakLoadedInfo_t* pLoadedSdkPak = g_pRTech->GetPakLoadedInfo("ui_sdk.rpak");
-
-                                if (pLoadedSdkPak) // Only unload if sdk pak file is loaded.
-                                    g_pakLoadApi->UnloadPak(pLoadedSdkPak->m_nHandle);
-                            }
-                        }
-
-                        g_pakLoadApi->UnloadPak(*(RPakHandle_t*)v10);
-                        MOD_UnloadPakFile(); // Unload mod pak files.
+                        g_pakLoadApi->UnloadPak(*(_DWORD*)v10);
+                        MOD_UnloadPakFile();
                     }
                     if (v13 && (unsigned int)(v13 - 13) > 1)
                         return;
@@ -414,7 +388,7 @@ void MOD_PreloadPakFile(const string& svLevelName)
 //-----------------------------------------------------------------------------
 void MOD_UnloadPakFile(void)
 {
-	for (const RPakHandle_t& it : g_vLoadedPakHandle)
+	for (auto& it : g_vLoadedPakHandle)
 	{
 		if (it >= 0)
 		{

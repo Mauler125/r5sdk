@@ -90,7 +90,7 @@ bool CServer::AuthClient(user_creds_s* pChallenge)
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: Initializes a CSVClient for a new net connection. This will only be called
+// Purpose: Initializes a CSVClient for a new net connection.  This will only be called
 //			once for a player each game, not once for each level change.
 // Input  : *pServer - 
 //			*pInpacket - 

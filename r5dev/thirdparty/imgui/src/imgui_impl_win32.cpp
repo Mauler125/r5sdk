@@ -40,6 +40,7 @@
 typedef DWORD (WINAPI *PFN_XInputGetCapabilities)(DWORD, DWORD, XINPUT_CAPABILITIES*);
 typedef DWORD (WINAPI *PFN_XInputGetState)(DWORD, XINPUT_STATE*);
 #endif
+#include <gameui/IOverlay.h>
 
 // CHANGELOG
 // (minor and older changes stripped away, please see git history for details)
@@ -186,7 +187,8 @@ void    ImGui_ImplWin32_Shutdown()
 static bool ImGui_ImplWin32_UpdateMouseCursor()
 {
     // These have to be here to prevent the mouse in-game from flickering when '::SetCursor(...)' is called.
-    if (g_pBrowser->m_bActivate || g_pConsole->m_bActivate)
+    //if (g_pBrowser->m_bActivate || g_pConsole->m_bActivate)
+    if (g_pOverlay->m_bActivate)
     {
         ImGuiIO& io = ImGui::GetIO();
         if (io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)

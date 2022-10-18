@@ -21,7 +21,7 @@ public:
 	void DrawNavMeshPortals(dtNavMesh* mesh = nullptr) const;
 	void DrawNavMeshPolys(dtNavMesh* mesh = nullptr) const;
 	void DrawNavMeshPolyBoundaries(dtNavMesh* mesh = nullptr) const;
-	__m128i PackNodeLink(int32_t a, int32_t b, int32_t c = 0, int32_t d = 0) const;
+	uint64_t PackNodeLink(uint32_t a, uint32_t b) const;
 	int64_t GetNearestNodeToPos(const CAI_Network* pAINetwork, const Vector3D* vec) const;
 
 private:

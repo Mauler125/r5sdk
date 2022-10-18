@@ -20,15 +20,22 @@ public:
     virtual void RunTask(void);
 
     virtual void DrawSurface(void);
+    virtual void DrawServerList(void);
+    virtual void DrawHosting(void);
+    virtual void DrawPlayerList(void);
+    virtual void DrawSettings(void);
 
     void BrowserPanel(void);
     void RefreshServerList(void);
 
     void HiddenServersModal(void);
     void HostPanel(void);
+    
+    void PlayersPanel(void);
 
     void UpdateHostingStatus(void);
     void SendHostingPostRequest(const NetGameServer_t& gameServer);
+    void RefreshPlayerList(void);
 
     void ProcessCommand(const char* pszCommand) const;
     void SettingsPanel(void);
@@ -42,7 +49,14 @@ public:
 
 private:
     bool m_bInitialized  = false;
+
+    bool m_bServerBrowserInitialized = false;
+    bool m_bHostingInitialized = false;
+    bool m_bPlayerlistInitialized = false;
+    bool m_bSettingsInitialized = false;
+
     bool m_bQueryListNonRecursive = false; // When set, refreshes the server list once the next frame.
+    bool m_bQueryPlayerListNonRecursive = false; // When set, refreshes the player list once the next frame.
     char m_szServerAddressBuffer[256] = { '\0' };
     char m_szServerEncKeyBuffer[30]   = { '\0' };
     float m_flFadeAlpha               = 0.f;

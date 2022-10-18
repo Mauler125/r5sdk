@@ -10,6 +10,7 @@
 #include "gameui/IBrowser.h"
 #include "inputsystem/inputsystem.h"
 #include "public/bitmap/stb_image.h"
+#include <gameui/IOverlay.h>
 
 /**********************************************************************************
 -----------------------------------------------------------------------------------
@@ -52,6 +53,8 @@ static ID3D11Device*            g_pDevice                   = nullptr;
 static ID3D11RenderTargetView*  g_pRenderTargetView         = nullptr;
 static ID3D11DepthStencilView*  g_pDepthStencilView         = nullptr;
 
+int hintimer = 0;
+
 //#################################################################################
 // WINDOW PROCEDURE
 //#################################################################################
@@ -69,16 +72,25 @@ LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		if (wParam == g_pImGuiConfig->IConsole_Config.m_nBind0 || wParam == g_pImGuiConfig->IConsole_Config.m_nBind1)
 		{
-			g_pConsole->m_bActivate ^= true;
+			g_pConsole->m_bActivate = true;
+			g_pOverlay->m_bConsole = true;
+			g_pOverlay->m_bActivate ^= true;
 		}
 
 		if (wParam == g_pImGuiConfig->IBrowser_Config.m_nBind0 || wParam == g_pImGuiConfig->IBrowser_Config.m_nBind1)
 		{
-			g_pBrowser->m_bActivate ^= true;
+			g_pBrowser->m_bActivate = true;
+			g_pOverlay->m_bServerList = true;
+			g_pOverlay->m_bActivate ^= true;
+		}
+
+		if (wParam == g_pImGuiConfig->IOverlay_Config.m_nBind0)
+		{
+			g_pOverlay->m_bActivate ^= true;
 		}
 	}
 
-	if (g_pConsole->m_bActivate || g_pBrowser->m_bActivate)
+	if (g_pOverlay->m_bActivate)
 	{//////////////////////////////////////////////////////////////////////////////
 		g_bBlockInput = true;
 
@@ -253,8 +265,15 @@ void DrawImGui()
 
 	g_pBrowser->RunTask();
 	g_pConsole->RunTask();
+	g_pOverlay->RunTask();
 
-	if (g_pBrowser->m_bActivate)
+	if (hintimer < 500)
+	{
+		g_pOverlay->DrawHint();
+		hintimer++;
+	}
+
+	/*if (g_pBrowser->m_bActivate)
 	{
 		g_pInputSystem->EnableInput(false); // Disable input to game when browser is drawn.
 		g_pBrowser->RunFrame();
@@ -265,6 +284,28 @@ void DrawImGui()
 		g_pConsole->RunFrame();
 	}
 	if (!g_pConsole->m_bActivate && !g_pBrowser->m_bActivate)
+	{
+		g_pInputSystem->EnableInput(true); // Enable input to game when both are not drawn.
+	}*/
+
+	if (g_pOverlay->m_bActivate)
+	{
+		g_pInputSystem->EnableInput(false);
+
+		g_pOverlay->RunFrame();
+
+		if (g_pOverlay->m_bConsole)
+			g_pConsole->RunFrame();
+		if (g_pOverlay->m_bServerList)
+			g_pBrowser->DrawServerList();
+		if (g_pOverlay->m_bHosting)
+			g_pBrowser->DrawHosting();
+		if (g_pOverlay->m_bPlayerList)
+			g_pBrowser->DrawPlayerList();
+		if (g_pOverlay->m_bSettings)
+			g_pBrowser->DrawSettings();
+	}
+	if (!g_pOverlay->m_bActivate)
 	{
 		g_pInputSystem->EnableInput(true); // Enable input to game when both are not drawn.
 	}
@@ -352,6 +393,7 @@ HRESULT __stdcall GetResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount
 {
 	g_pConsole->m_bActivate = false;
 	g_pBrowser->m_bActivate = false;
+	g_pOverlay->m_bActivate = false;
 	g_bInitialized    = false;
 	g_bPresentHooked  = false;
 
