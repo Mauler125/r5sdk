@@ -58,6 +58,15 @@ playlists
 				//character_wattson                              lock
 				//character_crypto                               lock
 				//============= Hide from Normal Use ============//
+				
+				
+				///////////////////////////////////////////////////////////////////////////////////
+				//// Custom Weapons
+				///////////////////////////////////////////////////////////////////////////////////
+				custom_weapon_list "mp_weapon_volt_smg mp_weapon_sentinel"
+				
+				mp_weapon_volt_smg_class "smg"
+				mp_weapon_sentinel_class  "sniper"
 
 
 				///////////////////////////////////////////////////////////////////////////////////
