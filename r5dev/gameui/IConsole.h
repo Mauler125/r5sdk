@@ -47,6 +47,7 @@ private:
     ///////////////////////////////////////////////////////////////////////////
 public:
     void AddLog(const ConLog_t& conLog);
+    void RemoveLog(int nStart, int nEnd);
 
 private:
     void AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2);

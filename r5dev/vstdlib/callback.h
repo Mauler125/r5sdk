@@ -38,6 +38,7 @@ void NET_SetKey_f(const CCommand& args);
 void NET_GenerateKey_f(const CCommand& args);
 void NET_UseRandomKeyChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue);
 #ifndef DEDICATED
+void CON_RemoveLine_f(const CCommand& args);
 void RCON_CmdQuery_f(const CCommand& args);
 void RCON_Disconnect_f(const CCommand& args);
 #endif // !DEDICATED

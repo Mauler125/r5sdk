@@ -351,6 +351,7 @@ void ConCommand::Init(void)
 	ConCommand::Create("cl_showbrowser", "Opens the server browser.", FCVAR_CLIENTDLL | FCVAR_RELEASE, ServerBrowser_Invoke_f, nullptr);
 	ConCommand::Create("rcon", "Forward RCON query to remote server. | Usage: rcon \"<query>\".", FCVAR_CLIENTDLL | FCVAR_RELEASE, RCON_CmdQuery_f, nullptr);
 	ConCommand::Create("rcon_disconnect", "Disconnect from RCON server.", FCVAR_CLIENTDLL | FCVAR_RELEASE, RCON_Disconnect_f, nullptr);
+	ConCommand::Create("con_removeline", "Removes a range of lines from the console.", FCVAR_CLIENTDLL | FCVAR_RELEASE, CON_RemoveLine_f, nullptr);
 	//-------------------------------------------------------------------------
 	// UI DLL                                                                 |
 	ConCommand::Create("script_ui", "Run input code as UI script on the VM.", FCVAR_CLIENTDLL | FCVAR_CHEAT, SQVM_UIScript_f, nullptr);

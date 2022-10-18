@@ -630,6 +630,28 @@ void NET_UseRandomKeyChanged_f(IConVar* pConVar, const char* pOldString, float f
 #ifndef DEDICATED
 /*
 =====================
+CON_RemoveLine_f
+
+  Removes a range of lines
+  from the console.
+=====================
+*/
+void CON_RemoveLine_f(const CCommand& args)
+{
+	if (args.ArgC() < 3)
+	{
+		DevMsg(eDLL_T::CLIENT, "Usage 'con_removeline': start(int) end(int)\n");
+		return;
+	}
+
+	int start = atoi(args[1]);
+	int end = atoi(args[2]);
+
+	g_pConsole->RemoveLog(start, end);
+}
+
+/*
+=====================
 RCON_CmdQuery_f
 
   Issues an RCON command to the

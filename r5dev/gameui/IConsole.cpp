@@ -149,7 +149,7 @@ void CConsole::Think(void)
 {
     if (m_bActivate)
     {
-        if (m_flFadeAlpha <= 1.f)
+        if (m_flFadeAlpha < 1.f)
         {
             m_flFadeAlpha += .1f;
         }
@@ -254,7 +254,7 @@ void CConsole::DrawSurface(void)
     }
 
     // Auto-focus on window apparition.
-    ImGui::SetItemDefaultFocus();
+    //ImGui::SetItemDefaultFocus();
 
     // Auto-focus previous widget.
     if (m_bReclaimFocus)
@@ -913,6 +913,48 @@ void CConsole::AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2)
 
     std::lock_guard<std::mutex> l(m_Mutex);
     m_Logger.InsertText(ConLog_t(Strdup(buf), color));
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: removes lines from console with sanitized start and end indices
+// input  : nStart - 
+//          nEnd - 
+//-----------------------------------------------------------------------------
+void CConsole::RemoveLog(int nStart, int nEnd)
+{
+    int nLines = m_Logger.GetTotalLines();
+    if (nEnd >= nLines)
+    {
+        // Sanitize for last array elem.
+        nEnd = (nLines - 1);
+    }
+
+    if (nStart >= nEnd)
+    {
+        if (nEnd > 0)
+        {
+            nStart = (nEnd - 1);
+        }
+        else
+        {
+            // First elem cannot be removed!
+            return;
+        }
+    }
+    else if (nStart < 0)
+    {
+        nStart = 0;
+    }
+
+    // User wants to remove everything.
+    if (nLines <= (nStart - nEnd))
+    {
+        ClearLog();
+        return;
+    }
+
+    std::lock_guard<std::mutex> l(m_Mutex);
+    m_Logger.RemoveLine(nStart, nEnd);
 }
 
 //-----------------------------------------------------------------------------
