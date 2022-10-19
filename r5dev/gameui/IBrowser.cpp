@@ -100,7 +100,7 @@ void CBrowser::RunFrame(void)
         ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);              nVars++;
     }
 
-    if (!ImGui::Begin(m_pszBrowserTitle, &m_bActivate, ImGuiWindowFlags_NoScrollbar))
+    if (!ImGui::Begin(m_pszBrowserTitle, &m_bActivate, ImGuiWindowFlags_NoScrollbar, &ResetInput))
     {
         ImGui::End();
         ImGui::PopStyleVar(nVars);

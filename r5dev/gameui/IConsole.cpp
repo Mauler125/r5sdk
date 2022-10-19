@@ -69,7 +69,6 @@ CConsole::CConsole(void)
         ImGuiWindowFlags_HorizontalScrollbar       |
         ImGuiWindowFlags_AlwaysVerticalScrollbar;
 
-
     memset(m_szInputBuf, '\0', sizeof(m_szInputBuf));
     memset(m_szWindowLabel, '\0', sizeof(m_szWindowLabel));
     snprintf(m_szSummary, sizeof(m_szSummary), "%zu history items", m_vHistory.size());
@@ -203,7 +202,7 @@ void CConsole::Think(void)
 //-----------------------------------------------------------------------------
 void CConsole::DrawSurface(void)
 {
-    if (!ImGui::Begin(m_pszConsoleLabel, &m_bActivate))
+    if (!ImGui::Begin(m_pszConsoleLabel, &m_bActivate, ImGuiWindowFlags_None, &ResetInput))
     {
         ImGui::End();
         return;
@@ -290,13 +289,13 @@ void CConsole::DrawSurface(void)
         }
     }
 
-    // Auto-focus on window apparition.
-    //ImGui::SetItemDefaultFocus();
+    // Auto-focus input field on window apparition.
+    ImGui::SetItemDefaultFocus();
 
-    // Auto-focus previous widget.
+    // Auto-focus input field if reclaim is demanded.
     if (m_bReclaimFocus)
     {
-        ImGui::SetKeyboardFocusHere(-1);
+        ImGui::SetKeyboardFocusHere(-1); // -1 means previous widget.
         m_bReclaimFocus = false;
     }
 

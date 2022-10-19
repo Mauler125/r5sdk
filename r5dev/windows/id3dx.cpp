@@ -29,16 +29,12 @@ typedef BOOL(WINAPI* IPostMessageA)(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM l
 typedef BOOL(WINAPI* IPostMessageW)(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
 ///////////////////////////////////////////////////////////////////////////////////
-static BOOL                     g_bInitMenu                 = false;
 static BOOL                     g_bInitialized              = false;
-static BOOL                     g_bPresentHooked            = false;
 static BOOL                     g_bImGuiInitialized         = false;
 
 ///////////////////////////////////////////////////////////////////////////////////
 static WNDPROC                  g_oWndProc                  = NULL;
 static HWND                     g_hGameWindow               = NULL;
-extern DWORD                    g_dThreadId                 = NULL;
-
 ///////////////////////////////////////////////////////////////////////////////////
 static IPostMessageA            g_oPostMessageA             = NULL;
 static IPostMessageW            g_oPostMessageW             = NULL;
@@ -70,11 +66,13 @@ LRESULT CALLBACK HwndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		if (wParam == g_pImGuiConfig->IConsole_Config.m_nBind0 || wParam == g_pImGuiConfig->IConsole_Config.m_nBind1)
 		{
 			g_pConsole->m_bActivate ^= true;
+			ResetInput(); // Disable input to game when console is drawn.
 		}
 
 		if (wParam == g_pImGuiConfig->IBrowser_Config.m_nBind0 || wParam == g_pImGuiConfig->IBrowser_Config.m_nBind1)
 		{
 			g_pBrowser->m_bActivate ^= true;
+			ResetInput(); // Disable input to game when browser is drawn.
 		}
 	}
 
@@ -221,7 +219,6 @@ void GetPresent()
 	pDevice->Release();
 
 	///////////////////////////////////////////////////////////////////////////////
-	g_bPresentHooked          = true;
 }
 
 //#################################################################################
@@ -254,20 +251,8 @@ void DrawImGui()
 	g_pBrowser->RunTask();
 	g_pConsole->RunTask();
 
-	if (g_pBrowser->m_bActivate)
-	{
-		g_pInputSystem->EnableInput(false); // Disable input to game when browser is drawn.
-		g_pBrowser->RunFrame();
-	}
-	if (g_pConsole->m_bActivate)
-	{
-		g_pInputSystem->EnableInput(false); // Disable input to game when console is drawn.
-		g_pConsole->RunFrame();
-	}
-	if (!g_pConsole->m_bActivate && !g_pBrowser->m_bActivate)
-	{
-		g_pInputSystem->EnableInput(true); // Enable input to game when both are not drawn.
-	}
+	g_pBrowser->RunFrame();
+	g_pConsole->RunFrame();
 
 	ImGui::EndFrame();
 	ImGui::Render();
@@ -353,7 +338,6 @@ HRESULT __stdcall GetResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount
 	g_pConsole->m_bActivate = false;
 	g_pBrowser->m_bActivate = false;
 	g_bInitialized    = false;
-	g_bPresentHooked  = false;
 
 	g_nWindowWidth  = nWidth;
 	g_nWindowHeight = nHeight;
@@ -451,6 +435,12 @@ bool LoadTextureBuffer(unsigned char* buffer, int len, ID3D11ShaderResourceView*
 	return true;
 }
 
+void ResetInput()
+{
+	g_pInputSystem->EnableInput( // Enables the input system when both are not drawn.
+		!g_pBrowser->m_bActivate && !g_pConsole->m_bActivate);
+}
+
 //#################################################################################
 // MANAGEMENT
 //#################################################################################
@@ -538,7 +528,7 @@ void DirectX_Init()
 {
 	// Create a worker thread for the in-game console frontend
 	DWORD __stdcall DXSwapChainWorker(LPVOID);
-	HANDLE hThread = CreateThread(NULL, 0, DXSwapChainWorker, NULL, 0, &g_dThreadId);
+	HANDLE hThread = CreateThread(NULL, 0, DXSwapChainWorker, NULL, 0, NULL);
 
 	if (hThread)
 	{
