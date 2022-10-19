@@ -37,8 +37,13 @@ void VPK_Mount_f(const CCommand& args);
 void NET_SetKey_f(const CCommand& args);
 void NET_GenerateKey_f(const CCommand& args);
 void NET_UseRandomKeyChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue);
+void CON_Help_f(const CCommand& args);
 #ifndef DEDICATED
+void CON_LogHistory_f(const CCommand& args);
 void CON_RemoveLine_f(const CCommand& args);
+void CON_ClearLines_f(const CCommand& args);
+void CON_ClearHistory_f(const CCommand& args);
+
 void RCON_CmdQuery_f(const CCommand& args);
 void RCON_Disconnect_f(const CCommand& args);
 #endif // !DEDICATED

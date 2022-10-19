@@ -144,8 +144,8 @@ ConVar* con_notify_common_clr              = nullptr;
 ConVar* con_notify_warning_clr             = nullptr;
 ConVar* con_notify_error_clr               = nullptr;
 
-ConVar* con_max_size_logvector             = nullptr;
-ConVar* con_max_size_history               = nullptr;
+ConVar* con_max_lines                      = nullptr;
+ConVar* con_max_history                    = nullptr;
 ConVar* con_suggestion_limit               = nullptr;
 ConVar* con_suggestion_showhelptext        = nullptr;
 ConVar* con_suggestion_showflags           = nullptr;

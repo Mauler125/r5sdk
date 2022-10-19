@@ -627,7 +627,50 @@ void NET_UseRandomKeyChanged_f(IConVar* pConVar, const char* pOldString, float f
 			NET_SetKey(DEFAULT_NET_ENCRYPTION_KEY);
 	}
 }
+/*
+=====================
+CON_Help_f
+
+  Shows the colors and
+  description of each
+  context.
+=====================
+*/
+void CON_Help_f(const CCommand& args)
+{
+	DevMsg(eDLL_T::COMMON, "Contexts:\n");
+	SQVM_PrintFunc(reinterpret_cast<HSQUIRRELVM>(SQCONTEXT::SERVER), (SQChar*)(" = Server DLL (Script)\n"));
+	SQVM_PrintFunc(reinterpret_cast<HSQUIRRELVM>(SQCONTEXT::CLIENT), (SQChar*)(" = Client DLL (Script)\n"));
+	SQVM_PrintFunc(reinterpret_cast<HSQUIRRELVM>(SQCONTEXT::UI), (SQChar*)(" = UI DLL (Script)\n"));
+
+	DevMsg(eDLL_T::SERVER, " = Server DLL (Code)\n");
+	DevMsg(eDLL_T::CLIENT, " = Client DLL (Code)\n");
+	DevMsg(eDLL_T::UI, " = UI DLL (Code)\n");
+	DevMsg(eDLL_T::ENGINE, " = Engine DLL (Code)\n");
+	DevMsg(eDLL_T::FS, " = FileSystem (Code)\n");
+	DevMsg(eDLL_T::RTECH, " = PakLoad API (Code)\n");
+	DevMsg(eDLL_T::MS, " = MaterialSystem (Code)\n");
+	DevMsg(eDLL_T::NETCON, " = Net Console (Code)\n");
+}
+
 #ifndef DEDICATED
+/*
+=====================
+CON_LogHistory_f
+
+  Shows the game console 
+  submission history.
+=====================
+*/
+void CON_LogHistory_f(const CCommand& args)
+{
+	const vector<string> vHistory = g_pConsole->GetHistory();
+	for (size_t i = 0, nh = vHistory.size(); i < nh; i++)
+	{
+		DevMsg(eDLL_T::COMMON, "%3d: %s\n", i, vHistory[i].c_str());
+	}
+}
+
 /*
 =====================
 CON_RemoveLine_f
@@ -648,6 +691,32 @@ void CON_RemoveLine_f(const CCommand& args)
 	int end = atoi(args[2]);
 
 	g_pConsole->RemoveLog(start, end);
+}
+
+/*
+=====================
+CON_ClearLines_f
+
+  Clears all lines from
+  the developer console.
+=====================
+*/
+void CON_ClearLines_f(const CCommand& args)
+{
+	g_pConsole->ClearLog();
+}
+
+/*
+=====================
+CON_ClearHistory_f
+
+  Clears all submissions from the
+  developer console history.
+=====================
+*/
+void CON_ClearHistory_f(const CCommand& args)
+{
+	g_pConsole->ClearHistory();
 }
 
 /*

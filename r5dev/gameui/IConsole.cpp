@@ -21,24 +21,57 @@ History:
 #include "windows/id3dx.h"
 #include "windows/console.h"
 #include "windows/resource.h"
+#include "squirrel/sqtype.h"
 #include "gameui/IConsole.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CConsole::CConsole(void)
+CConsole::CConsole(void) 
+    : m_pszConsoleLabel("Console")
+    , m_pszLoggingLabel("LoggingRegion")
+    , m_nHistoryPos(-1)
+    , m_nSuggestPos(-1)
+    , m_nScrollBack(0)
+    , m_nSelectBack(0)
+    , m_flScrollX(0.f)
+    , m_flScrollY(0.f)
+    , m_flFadeAlpha(0.f)
+    , m_bInitialized(false)
+    , m_bReclaimFocus(false)
+    , m_bCopyToClipBoard(false)
+    , m_bModifyInput(false)
+    , m_bCanAutoComplete(false)
+    , m_bSuggestActive(false)
+    , m_bSuggestMoved(false)
+    , m_bSuggestUpdate(false)
+    , m_bActivate(false)
+    , m_Style(ImGuiStyle_t::NONE)
 {
+    m_nInputFlags = 
+        ImGuiInputTextFlags_EnterReturnsTrue       |
+        ImGuiInputTextFlags_CallbackCompletion     |
+        ImGuiInputTextFlags_CallbackHistory        |
+        ImGuiInputTextFlags_CallbackAlways         |
+        ImGuiInputTextFlags_CallbackEdit           |
+        ImGuiInputTextFlags_AutoCaretEnd;
+
+    m_nSuggestFlags = 
+        ImGuiWindowFlags_NoTitleBar                |
+        ImGuiWindowFlags_NoMove                    |
+        ImGuiWindowFlags_NoSavedSettings           |
+        ImGuiWindowFlags_NoFocusOnAppearing        |
+        ImGuiWindowFlags_AlwaysVerticalScrollbar   |
+        ImGuiWindowFlags_AlwaysHorizontalScrollbar;
+
+    m_nLoggingFlags = 
+        ImGuiWindowFlags_NoMove                    |
+        ImGuiWindowFlags_HorizontalScrollbar       |
+        ImGuiWindowFlags_AlwaysVerticalScrollbar;
+
+
     memset(m_szInputBuf, '\0', sizeof(m_szInputBuf));
-
-    m_nHistoryPos     = -1;
-    m_bInitialized    = false;
-    m_pszConsoleLabel = "Console";
-    m_pszLoggingLabel = "LoggingRegion";
-
-    m_vCommands.push_back("CLEAR");
-    m_vCommands.push_back("HELP");
-    m_vCommands.push_back("HISTORY");
-
+    memset(m_szWindowLabel, '\0', sizeof(m_szWindowLabel));
     snprintf(m_szSummary, sizeof(m_szSummary), "%zu history items", m_vHistory.size());
 }
 
@@ -138,6 +171,9 @@ void CConsole::RunFrame(void)
 //-----------------------------------------------------------------------------
 void CConsole::RunTask()
 {
+    // m_Logger and m_vHistory are modified.
+    std::lock_guard<std::mutex> l(m_Mutex);
+
     ClampLogSize();
     ClampHistorySize();
 }
@@ -211,7 +247,9 @@ void CConsole::DrawSurface(void)
     ///////////////////////////////////////////////////////////////////////
     ImGui::BeginChild(m_pszLoggingLabel, ImVec2(0, -flFooterHeightReserve), true, m_nLoggingFlags);
 
-    m_Mutex.lock();
+    // Mutex is locked here, as we start using/modifying
+    // non-atomic members that are used from several threads.
+    std::lock_guard<std::mutex> l(m_Mutex);
     m_Logger.Render();
 
     if (m_bCopyToClipBoard)
@@ -219,15 +257,14 @@ void CConsole::DrawSurface(void)
         m_Logger.Copy(true);
         m_bCopyToClipBoard = false;
     }
-    m_Mutex.unlock();
 
     m_flScrollX = ImGui::GetScrollX();
     m_flScrollY = ImGui::GetScrollY();
 
-    ///////////////////////////////////////////////////////////////////////
     ImGui::EndChild();
     ImGui::Separator();
 
+    ///////////////////////////////////////////////////////////////////////
     ImGui::PushItemWidth(flFooterWidthReserve - 80);
     if (ImGui::InputText("##input", m_szInputBuf, IM_ARRAYSIZE(m_szInputBuf), m_nInputFlags, &TextEditCallbackStub, reinterpret_cast<void*>(this)))
     {
@@ -328,12 +365,12 @@ void CConsole::SuggestPanel(void)
 
     for (size_t i = 0; i < m_vSuggest.size(); i++)
     {
-        bool bIsIndexActive = m_nSuggestPos == i;
+        const bool bIsIndexActive = m_nSuggestPos == i;
         ImGui::PushID(static_cast<int>(i));
 
         if (con_suggestion_showflags->GetBool())
         {
-            int k = ColorCodeFlags(m_vSuggest[i].m_nFlags);
+            const int k = ColorCodeFlags(m_vSuggest[i].m_nFlags);
             ImGui::Image(m_vFlagIcons[k].m_idIcon, ImVec2(m_vFlagIcons[k].m_nWidth, m_vFlagIcons[k].m_nHeight));
             ImGui::SameLine();
         }
@@ -343,10 +380,14 @@ void CConsole::SuggestPanel(void)
             ImGui::Separator();
 
             // Remove the default value from ConVar before assigning it to the input buffer.
-            string svConVar = m_vSuggest[i].m_svName.substr(0, m_vSuggest[i].m_svName.find(' ')) + ' ';
-            memmove(m_szInputBuf, svConVar.data(), svConVar.size() + 1);
+            const string svConVar = m_vSuggest[i].m_svName.substr(0, m_vSuggest[i].m_svName.find(' ')) + ' ';
 
+            memmove(m_szInputBuf, svConVar.data(), svConVar.size() + 1);
             ResetAutoComplete();
+
+            // Mutex lock is obtained here are we modify m_vHistory
+            // which is used in the main and render thread.
+            std::lock_guard<std::mutex> l(m_Mutex);
             BuildSummary(svConVar);
         }
         ImGui::PopID();
@@ -447,22 +488,22 @@ void CConsole::FindFromPartial(void)
 {
     ClearAutoComplete();
 
-    for (size_t i = 0; i < m_vsvCommandBases.size(); i++)
+    for (const CSuggest& suggest : m_vsvCommandBases)
     {
         if (m_vSuggest.size() >= con_suggestion_limit->GetSizeT())
         {
             return;
         }
-        if (m_vsvCommandBases[i].m_svName.find(m_szInputBuf) == string::npos)
+        if (suggest.m_svName.find(m_szInputBuf) == string::npos)
         {
             continue;
         }
 
         if (std::find(m_vSuggest.begin(), m_vSuggest.end(),
-            m_vsvCommandBases[i].m_svName) == m_vSuggest.end())
+            suggest.m_svName) == m_vSuggest.end())
         {
             string svValue; int nFlags = FCVAR_NONE;
-            const ConCommandBase* pCommandBase = g_pCVar->FindCommandBase(m_vsvCommandBases[i].m_svName.c_str());
+            const ConCommandBase* pCommandBase = g_pCVar->FindCommandBase(suggest.m_svName.c_str());
 
             if (!pCommandBase || pCommandBase->IsFlagSet(FCVAR_HIDDEN))
             {
@@ -504,13 +545,14 @@ void CConsole::FindFromPartial(void)
                 }
                 else // Display compile-time flags instead.
                 {
-                    nFlags = m_vsvCommandBases[i].m_nFlags;
+                    nFlags = suggest.m_nFlags;
                 }
             }
-            m_vSuggest.push_back(CSuggest(m_vsvCommandBases[i].m_svName + svValue, nFlags));
+            m_vSuggest.push_back(CSuggest(suggest.m_svName + svValue, nFlags));
         }
         else { break; }
     }
+
     std::sort(m_vSuggest.begin(), m_vSuggest.end());
 }
 
@@ -520,13 +562,11 @@ void CConsole::FindFromPartial(void)
 //-----------------------------------------------------------------------------
 void CConsole::ProcessCommand(const char* pszCommand)
 {
-    DevMsg(eDLL_T::COMMON, "] %s\n", pszCommand);
-
+    AddLog(ImVec4(1.00f, 0.80f, 0.60f, 1.00f), "] %s\n", pszCommand);
     Cbuf_AddText(Cbuf_GetCurrentPlayer(), pszCommand, cmd_source_t::kCommandSrcCode);
-    //g_TaskScheduler->Dispatch(Cbuf_Execute, 0); // Run in main thread.
 
     m_nHistoryPos = -1;
-    for (size_t i = m_vHistory.size(); i-- > 0; )
+    for (size_t i = m_vHistory.size(); i-- > 0;)
     {
         if (m_vHistory[i].compare(pszCommand) == 0)
         {
@@ -536,41 +576,6 @@ void CConsole::ProcessCommand(const char* pszCommand)
     }
 
     m_vHistory.push_back(Strdup(pszCommand));
-    if (Stricmp(pszCommand, "CLEAR") == 0)
-    {
-        ClearLog();
-    }
-    else if (Stricmp(pszCommand, "HELP") == 0)
-    {
-        AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "Commands:\n");
-        for (size_t i = 0; i < m_vCommands.size(); i++)
-        {
-            AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "- %s\n", m_vCommands[i].c_str());
-        }
-
-        AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "Contexts:\n");
-        AddLog(ImVec4(0.59f, 0.58f, 0.73f, 1.00f), "- Script(S): = Server DLL (Script)\n");
-        AddLog(ImVec4(0.59f, 0.58f, 0.63f, 1.00f), "- Script(C): = Client DLL (Script)\n");
-        AddLog(ImVec4(0.59f, 0.48f, 0.53f, 1.00f), "- Script(U): = UI DLL (Script)\n");
-
-        AddLog(ImVec4(0.23f, 0.47f, 0.85f, 1.00f), "- Native(S): = Server DLL (Code)\n");
-        AddLog(ImVec4(0.46f, 0.46f, 0.46f, 1.00f), "- Native(C): = Client DLL (Code)\n");
-        AddLog(ImVec4(0.59f, 0.35f, 0.46f, 1.00f), "- Native(U): = UI DLL (Code)\n");
-
-        AddLog(ImVec4(0.70f, 0.70f, 0.70f, 1.00f), "- Native(E): = Engine DLL (Code)\n");
-        AddLog(ImVec4(0.32f, 0.64f, 0.72f, 1.00f), "- Native(F): = FileSystem (Code)\n");
-        AddLog(ImVec4(0.36f, 0.70f, 0.35f, 1.00f), "- Native(R): = PakLoadAPI (Code)\n");
-        AddLog(ImVec4(0.75f, 0.41f, 0.67f, 1.00f), "- Native(M): = MaterialSystem (Code)\n");
-    }
-    else if (Stricmp(pszCommand, "HISTORY") == 0)
-    {
-        ssize_t nFirst = static_cast<ssize_t>(m_vHistory.size()) - 10;
-        for (ssize_t i = nFirst > 0 ? nFirst : 0; i < static_cast<ssize_t>(m_vHistory.size()); i++)
-        {
-            AddLog(ImVec4(0.81f, 0.81f, 0.81f, 1.00f), "%3d: %s\n", i, m_vHistory[i].c_str());
-        }
-    }
-
     m_Logger.m_bScrollToBottom = true;
 }
 
@@ -582,16 +587,16 @@ void CConsole::BuildSummary(string svConVar)
 {
     if (!svConVar.empty())
     {
-        for (size_t i = 0; i < svConVar.size(); i++)
+        for (size_t i = 0, s = svConVar.size(); i < s; i++)
         {
-            if (svConVar[i] == ' ' || svConVar[i] == ';')
+            const char c = svConVar[i];
+            if (c == ' ' || c == ';')
             {
                 svConVar.erase(i, svConVar.length() - 1); // Remove space or semicolon before we call 'g_pCVar->FindVar(..)'.
             }
         }
 
-        ConVar* pConVar = g_pCVar->FindVar(svConVar.c_str());
-        if (pConVar)
+        if (const ConVar* pConVar = g_pCVar->FindVar(svConVar.c_str()))
         {
             // Display the current and default value of ConVar if found.
             snprintf(m_szSummary, sizeof(m_szSummary), "(\"%s\", default \"%s\")", pConVar->GetString(), pConVar->GetDefault());
@@ -616,7 +621,7 @@ void CConsole::BuildSummary(string svConVar)
 void CConsole::BuildSuggestPanelRect(void)
 {
     float flSinglePadding = 0.f;
-    float flItemHeight = ImGui::GetTextLineHeightWithSpacing() + 1.0f;
+    const float flItemHeight = ImGui::GetTextLineHeightWithSpacing() + 1.0f;
 
     if (m_vSuggest.size() > 1)
     {
@@ -627,7 +632,9 @@ void CConsole::BuildSuggestPanelRect(void)
     m_ivSuggestWindowPos = ImGui::GetItemRectMin();
     m_ivSuggestWindowPos.y += ImGui::GetItemRectSize().y;
 
-    float flWindowHeight = (flSinglePadding + std::clamp(static_cast<float>(m_vSuggest.size()) * (flItemHeight), 37.0f, 127.5f));
+    const float flWindowHeight = (flSinglePadding + std::clamp(
+        static_cast<float>(m_vSuggest.size()) * (flItemHeight), 37.0f, 127.5f));
+
     m_ivSuggestWindowSize = ImVec2(600, flWindowHeight);
 }
 
@@ -636,10 +643,11 @@ void CConsole::BuildSuggestPanelRect(void)
 //-----------------------------------------------------------------------------
 void CConsole::ClampLogSize(void)
 {
-    std::lock_guard<std::mutex> l(m_Mutex);
-    if (m_Logger.GetTotalLines() > con_max_size_logvector->GetInt())
+    const int nMaxLines = con_max_lines->GetInt();
+
+    if (m_Logger.GetTotalLines() > nMaxLines)
     {
-        while (m_Logger.GetTotalLines() > con_max_size_logvector->GetInt())
+        while (m_Logger.GetTotalLines() > nMaxLines)
         {
             m_Logger.RemoveLine(0);
             m_nScrollBack++;
@@ -656,7 +664,7 @@ void CConsole::ClampLogSize(void)
 //-----------------------------------------------------------------------------
 void CConsole::ClampHistorySize(void)
 {
-    while (m_vHistory.size() > con_max_size_history->GetSizeT())
+    while (m_vHistory.size() > con_max_history->GetSizeT())
     {
         m_vHistory.erase(m_vHistory.begin());
     }
@@ -668,22 +676,20 @@ void CConsole::ClampHistorySize(void)
 //-----------------------------------------------------------------------------
 bool CConsole::LoadFlagIcons(void)
 {
-    int k = 0; // Get all image resources for displaying flags.
-    for (int i = IDB_PNG3; i <= IDB_PNG24; i++)
-    {
-        m_vFlagIcons.push_back(MODULERESOURCE());
-        m_vFlagIcons[k] = GetModuleResource(i);
+    bool ret = false;
 
-        bool ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(m_vFlagIcons[k].m_pData), static_cast<int>(m_vFlagIcons[k].m_nSize),
-            &m_vFlagIcons[k].m_idIcon, &m_vFlagIcons[k].m_nWidth, &m_vFlagIcons[k].m_nHeight);
-        if (!ret)
-        {
-            IM_ASSERT(ret);
-            return false;
-        }
-        k++;
+    // Get all image resources for displaying flags.
+    for (int i = IDB_PNG3, k = NULL; i <= IDB_PNG24; i++, k++)
+    {
+        m_vFlagIcons.push_back(MODULERESOURCE(GetModuleResource(i)));
+        MODULERESOURCE& rFlagIcon = m_vFlagIcons[k];
+
+        ret = LoadTextureBuffer(reinterpret_cast<unsigned char*>(rFlagIcon.m_pData), 
+            static_cast<int>(rFlagIcon.m_nSize), &rFlagIcon.m_idIcon, &rFlagIcon.m_nWidth, &rFlagIcon.m_nHeight);
+
+        IM_ASSERT(ret);
     }
-    return true;
+    return ret;
 }
 
 //-----------------------------------------------------------------------------
@@ -899,7 +905,9 @@ void CConsole::AddLog(const ConLog_t& conLog)
 
 //-----------------------------------------------------------------------------
 // Purpose: adds logs to the vector (internal)
-// Input  : *fmt - 
+// Only call when mutex lock is obtained!
+// Input  : &color - 
+//          *fmt - 
 //          ... - 
 //-----------------------------------------------------------------------------
 void CConsole::AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2)
@@ -911,7 +919,6 @@ void CConsole::AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2)
     buf[IM_ARRAYSIZE(buf) - 1] = 0;
     va_end(args);
 
-    std::lock_guard<std::mutex> l(m_Mutex);
     m_Logger.InsertText(ConLog_t(Strdup(buf), color));
 }
 
@@ -964,6 +971,26 @@ void CConsole::ClearLog(void)
 {
     std::lock_guard<std::mutex> l(m_Mutex);
     m_Logger.RemoveLine(0, (m_Logger.GetTotalLines() - 1));
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: gets all console submissions
+// Output : vector of strings
+//-----------------------------------------------------------------------------
+vector<string> CConsole::GetHistory(void)
+{
+    std::lock_guard<std::mutex> l(m_Mutex);
+    return m_vHistory;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: clears the entire submission history vector
+//-----------------------------------------------------------------------------
+void CConsole::ClearHistory(void)
+{
+    std::lock_guard<std::mutex> l(m_Mutex);
+    m_vHistory.clear();
+    BuildSummary();
 }
 
 //-----------------------------------------------------------------------------
