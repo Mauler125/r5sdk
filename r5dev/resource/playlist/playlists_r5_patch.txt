@@ -1056,6 +1056,7 @@ playlists
 				mp_rr_desertlands_64k_x_64k                    1
 				mp_rr_desertlands_64k_x_64k_nx                 1
 				mp_rr_desertlands_64k_x_64k_tt                 1
+				mp_rr_arena_skygarden                          1
 				mp_rr_canyonlands_mu1_night                    1
 				mp_rr_canyonlands_staging                      1
 				mp_rr_aqueduct                                 1
@@ -1160,6 +1161,7 @@ playlists
 				"MP_RR_AQUEDUCT"                      "Overflow"
 				"MP_RR_AQUEDUCT_NIGHT"                "Overflow After Dark"
 				"MP_RR_ARENA_COMPOSITE"               "Drop-Off"
+				"MP_RR_ARENA_SKYGARDEN"               "Encore"
 
 				"WORLDS_EDGE_NIGHT"                   "SHADOWFALL WORLD'S EDGE"
 				"WORLDS_EDGE_NIGHT_DESC"              "Dead Legends respawn as Shadows.\nSurvive and escape with final 10 Legends."
