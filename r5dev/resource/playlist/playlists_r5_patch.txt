@@ -65,9 +65,8 @@ playlists
 				///////////////////////////////////////////////////////////////////////////////////
 				custom_weapon_list "mp_weapon_volt_smg mp_weapon_sentinel"
 				
-				mp_weapon_volt_smg_class "smg"
-				mp_weapon_sentinel_class  "sniper"
-
+				mp_weapon_volt_smg_class                       "smg"
+				mp_weapon_sentinel_class                       "sniper"
 
 				///////////////////////////////////////////////////////////////////////////////////
 				//// Character Damage Balances
