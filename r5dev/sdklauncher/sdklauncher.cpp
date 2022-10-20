@@ -390,7 +390,7 @@ bool CLauncher::Setup(eLaunchMode lMode, eLaunchState lState)
         {
             std::stringstream ss;
             ss << cfgFile.rdbuf();
-            svCmdLineArgs = ss.str() + "-launcher";
+            svCmdLineArgs = ss.str() + "-launcher" + "-noworkerdll";
         }
         else
         {
@@ -413,7 +413,7 @@ bool CLauncher::Setup(eLaunchMode lMode, eLaunchState lState)
         {
             std::stringstream ss;
             ss << cfgFile.rdbuf();
-            svCmdLineArgs = ss.str() + "-launcher";
+            svCmdLineArgs = ss.str() + "-launcher" + "-noworkerdll";
         }
         else
         {
