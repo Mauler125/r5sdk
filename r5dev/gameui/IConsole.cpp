@@ -359,24 +359,26 @@ void CConsole::SuggestPanel(void)
     ImGui::Begin("##suggest", nullptr, m_nSuggestFlags);
     ImGui::PushAllowKeyboardFocus(false);
 
-    for (size_t i = 0; i < m_vSuggest.size(); i++)
+    for (size_t i = 0, ns = m_vSuggest.size(); i < ns; i++)
     {
+        const CSuggest& suggest = m_vSuggest[i];
         const bool bIsIndexActive = m_nSuggestPos == i;
+
         ImGui::PushID(static_cast<int>(i));
 
         if (con_suggestion_showflags->GetBool())
         {
-            const int k = GetFlagColorIndex(m_vSuggest[i].m_nFlags);
+            const int k = GetFlagColorIndex(suggest.m_nFlags);
             ImGui::Image(m_vFlagIcons[k].m_idIcon, ImVec2(m_vFlagIcons[k].m_nWidth, m_vFlagIcons[k].m_nHeight));
             ImGui::SameLine();
         }
 
-        if (ImGui::Selectable(m_vSuggest[i].m_svName.c_str(), bIsIndexActive))
+        if (ImGui::Selectable(suggest.m_svName.c_str(), bIsIndexActive))
         {
             ImGui::Separator();
 
             // Remove the default value from ConVar before assigning it to the input buffer.
-            const string svConVar = m_vSuggest[i].m_svName.substr(0, m_vSuggest[i].m_svName.find(' ')) + ' ';
+            const string svConVar = suggest.m_svName.substr(0, suggest.m_svName.find(' ')) + ' ';
 
             memmove(m_szInputBuf, svConVar.data(), svConVar.size() + 1);
             ResetAutoComplete();
