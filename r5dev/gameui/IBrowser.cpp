@@ -114,9 +114,8 @@ void CBrowser::RunFrame(void)
         return;
     }
 
-    DrawSurface();
-
     ImGui::PopStyleVar(nVars);
+    DrawSurface();
     ImGui::End();
 }
 
