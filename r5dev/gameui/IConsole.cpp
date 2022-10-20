@@ -574,7 +574,7 @@ void CConsole::ProcessCommand(string svCommand)
         }
     }
 
-    m_vHistory.push_back(string(svCommand));
+    m_vHistory.push_back(svCommand);
     m_Logger.m_bScrollToBottom = true;
 }
 
