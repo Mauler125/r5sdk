@@ -1,7 +1,7 @@
 playlists
 {
 	version stable
-	versionNum 227
+	versionNum 228
 	Gamemodes
 	{
 		defaults
@@ -65,9 +65,9 @@ playlists
 				///////////////////////////////////////////////////////////////////////////////////
 				custom_weapon_list "mp_weapon_volt_smg mp_weapon_sentinel"
 				
-				mp_weapon_volt_smg_class "smg"
-				mp_weapon_sentinel_class  "sniper"
-				mp_weapon_sentinel_attachments "mag sight grip"
+				mp_weapon_volt_smg_class                       "smg"
+				mp_weapon_sentinel_class                       "sniper"
+				mp_weapon_sentinel_attachments                 "mag sight grip"
 
 
 				///////////////////////////////////////////////////////////////////////////////////
