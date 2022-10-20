@@ -106,10 +106,6 @@ void CConsole::RunFrame(void)
      * BASE PANEL SETUP       *
      **************************/
     {
-        if (!m_bActivate)
-        {
-            return;
-        }
         if (!m_bInitialized)
         {
             Init();

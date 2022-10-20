@@ -43,7 +43,7 @@ CBrowser::CBrowser(void)
 {
     memset(m_szServerAddressBuffer, '\0', sizeof(m_szServerAddressBuffer));
 
-    m_pszBrowserTitle = "Server Browser";
+    m_pszBrowserLabel = "Server Browser";
     m_rLockedIconBlob = GetModuleResource(IDB_PNG2);
 }
 
@@ -94,23 +94,29 @@ void CBrowser::RunFrame(void)
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 6.f, 6.f });  nVars++;
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, m_flFadeAlpha);               nVars++;
     }
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(928.f, 524.f));        nVars++;
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(928.f, 524.f));    nVars++;
 
     if (m_Style != ImGuiStyle_t::MODERN)
     {
         ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0f);              nVars++;
     }
 
-    if (!ImGui::Begin(m_pszBrowserTitle, &m_bActivate, ImGuiWindowFlags_NoScrollbar, &ResetInput))
+    if (m_bActivate && m_bReclaimFocus) // Reclaim focus on window apparition.
+    {
+        ImGui::SetNextWindowFocus();
+        m_bReclaimFocus = false;
+    }
+
+    if (!ImGui::Begin(m_pszBrowserLabel, &m_bActivate, ImGuiWindowFlags_NoScrollbar, &ResetInput))
     {
         ImGui::End();
         ImGui::PopStyleVar(nVars);
         return;
     }
 
-    ImGui::PopStyleVar(nVars);
     DrawSurface();
 
+    ImGui::PopStyleVar(nVars);
     ImGui::End();
 }
 
@@ -148,6 +154,7 @@ void CBrowser::RunTask()
     else // Refresh server list the next time 'm_bActivate' evaluates to true.
     {
         m_bQueryListNonRecursive = true;
+        m_bReclaimFocus = true;
     }
 }
 
@@ -205,6 +212,7 @@ void CBrowser::BrowserPanel(void)
     ImGui::BeginGroup();
     m_imServerBrowserFilter.Draw();
     ImGui::SameLine();
+
     if (ImGui::Button("Refresh List"))
     {
         m_svServerListMessage.clear();
@@ -212,6 +220,7 @@ void CBrowser::BrowserPanel(void)
         std::thread refresh(&CBrowser::RefreshServerList, this);
         refresh.detach();
     }
+
     ImGui::EndGroup();
     ImGui::TextColored(ImVec4(1.00f, 0.00f, 0.00f, 1.00f), m_svServerListMessage.c_str());
     ImGui::Separator();

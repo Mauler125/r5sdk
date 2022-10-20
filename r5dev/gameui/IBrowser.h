@@ -37,11 +37,12 @@ public:
     virtual void SetStyleVar(void);
 
 
-    const char* m_pszBrowserTitle = nullptr;
+    const char* m_pszBrowserLabel = nullptr;
     bool m_bActivate     = false;
 
 private:
     bool m_bInitialized  = false;
+    bool m_bReclaimFocus = false;
     bool m_bQueryListNonRecursive = false; // When set, refreshes the server list once the next frame.
     char m_szServerAddressBuffer[256] = { '\0' };
     char m_szServerEncKeyBuffer[30]   = { '\0' };
