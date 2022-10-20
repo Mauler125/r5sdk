@@ -23,7 +23,7 @@ void CUIBaseSurface::Init()
 	this->SetClientSize({ WindowX, WindowY });
 	this->SetFormBorderStyle(Forms::FormBorderStyle::FixedSingle);
 	this->SetStartPosition(Forms::FormStartPosition::CenterParent);
-	this->SetMinimizeBox(false);
+	this->SetMinimizeBox(true);
 	this->SetMaximizeBox(false);
 	this->SetBackColor(Drawing::Color(47, 54, 61));
 
