@@ -28,8 +28,8 @@ typedef HRESULT(__stdcall* IDXGIResizeBuffers)   (IDXGISwapChain* pSwapChain, UI
 
 /////////////////////////////////////////////////////////////////////////////
 // Globals
-inline INT g_nWindowWidth;
-inline INT g_nWindowHeight;
+inline UINT g_nWindowWidth;
+inline UINT g_nWindowHeight;
 
 /////////////////////////////////////////////////////////////////////////////
 // Enums

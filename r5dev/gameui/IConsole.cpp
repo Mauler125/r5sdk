@@ -96,12 +96,7 @@ bool CConsole::Init(void)
 //-----------------------------------------------------------------------------
 void CConsole::RunFrame(void)
 {
-    if (!m_bInitialized)
-    {
-        Init();
-        m_bInitialized = true;
-    }
-
+    // Uncomment these when adjusting the theme or layout.
     {
         //ImGui::ShowStyleEditor();
         //ImGui::ShowDemoWindow();
@@ -111,11 +106,17 @@ void CConsole::RunFrame(void)
      * BASE PANEL SETUP       *
      **************************/
     {
-        int nVars = 0;
         if (!m_bActivate)
         {
             return;
         }
+        if (!m_bInitialized)
+        {
+            Init();
+            m_bInitialized = true;
+        }
+
+        int nVars = 0;
         if (m_Style == ImGuiStyle_t::MODERN)
         {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 8.f, 10.f }); nVars++;
@@ -338,7 +339,7 @@ void CConsole::OptionsPanel(void)
     ImGui::Text("Console Hotkey:");
     ImGui::SameLine();
 
-    if (ImGui::Hotkey("##ToggleConsole", &g_pImGuiConfig->IConsole_Config.m_nBind0, ImVec2(80, 80)))
+    if (ImGui::Hotkey("##ToggleConsole", &g_pImGuiConfig->m_ConsoleConfig.m_nBind0, ImVec2(80, 80)))
     {
         g_pImGuiConfig->Save();
     }
@@ -346,7 +347,7 @@ void CConsole::OptionsPanel(void)
     ImGui::Text("Browser Hotkey:");
     ImGui::SameLine();
 
-    if (ImGui::Hotkey("##ToggleBrowser", &g_pImGuiConfig->IBrowser_Config.m_nBind0, ImVec2(80, 80)))
+    if (ImGui::Hotkey("##ToggleBrowser", &g_pImGuiConfig->m_BrowserConfig.m_nBind0, ImVec2(80, 80)))
     {
         g_pImGuiConfig->Save();
     }
@@ -369,7 +370,7 @@ void CConsole::SuggestPanel(void)
 
         if (con_suggestion_showflags->GetBool())
         {
-            const int k = ColorCodeFlags(m_vSuggest[i].m_nFlags);
+            const int k = GetFlagColorIndex(m_vSuggest[i].m_nFlags);
             ImGui::Image(m_vFlagIcons[k].m_idIcon, ImVec2(m_vFlagIcons[k].m_nWidth, m_vFlagIcons[k].m_nHeight));
             ImGui::SameLine();
         }
@@ -447,7 +448,7 @@ bool CConsole::AutoComplete(void)
     // Don't suggest if user tries to assign value to ConVar or execute ConCommand.
     if (strstr(m_szInputBuf, " ") || strstr(m_szInputBuf, ";"))
     {
-        // !TODO: Add completion logic here.
+        // !TODO: Add IConVar completion logic here.
         m_bCanAutoComplete = false;
         m_bSuggestActive = false;
         m_nSuggestPos = -1;
@@ -482,6 +483,7 @@ void CConsole::ClearAutoComplete(void)
 
 //-----------------------------------------------------------------------------
 // Purpose: find ConVars/ConCommands from user input and add to vector
+// - Ignores ConVars marked FCVAR_HIDDEN
 //-----------------------------------------------------------------------------
 void CConsole::FindFromPartial(void)
 {
@@ -557,24 +559,26 @@ void CConsole::FindFromPartial(void)
 
 //-----------------------------------------------------------------------------
 // Purpose: processes submitted commands for the main thread
-// Input  : pszCommand - 
+// Input  : svCommand - 
 //-----------------------------------------------------------------------------
-void CConsole::ProcessCommand(const char* pszCommand)
+void CConsole::ProcessCommand(string svCommand)
 {
-    AddLog(ImVec4(1.00f, 0.80f, 0.60f, 1.00f), "] %s\n", pszCommand);
-    Cbuf_AddText(Cbuf_GetCurrentPlayer(), pszCommand, cmd_source_t::kCommandSrcCode);
+    StringRTrim(svCommand, " "); // Remove trailing white space characters to prevent history duplication.
+    AddLog(ImVec4(1.00f, 0.80f, 0.60f, 1.00f), "%s] %s\n", Plat_GetProcessUpTime(), svCommand.c_str());
 
+    Cbuf_AddText(Cbuf_GetCurrentPlayer(), svCommand.c_str(), cmd_source_t::kCommandSrcCode);
     m_nHistoryPos = -1;
+
     for (size_t i = m_vHistory.size(); i-- > 0;)
     {
-        if (m_vHistory[i].compare(pszCommand) == 0)
+        if (m_vHistory[i].compare(svCommand) == 0)
         {
             m_vHistory.erase(m_vHistory.begin() + i);
             break;
         }
     }
 
-    m_vHistory.push_back(Strdup(pszCommand));
+    m_vHistory.push_back(string(svCommand));
     m_Logger.m_bScrollToBottom = true;
 }
 
@@ -586,7 +590,7 @@ void CConsole::BuildSummary(string svConVar)
 {
     if (!svConVar.empty())
     {
-        for (size_t i = 0, s = svConVar.size(); i < s; i++)
+        for (size_t i = 0; i < svConVar.size(); i++)
         {
             const char c = svConVar[i];
             if (c == ' ' || c == ';')
@@ -599,19 +603,12 @@ void CConsole::BuildSummary(string svConVar)
         {
             // Display the current and default value of ConVar if found.
             snprintf(m_szSummary, sizeof(m_szSummary), "(\"%s\", default \"%s\")", pConVar->GetString(), pConVar->GetDefault());
-        }
-        else
-        {
-            // Display amount of history items if ConVar cannot be found.
-            ClampHistorySize();
-            snprintf(m_szSummary, sizeof(m_szSummary), "%zu history items", m_vHistory.size());
+            return;
         }
     }
-    else // Default or empty param.
-    {
-        ClampHistorySize();
-        snprintf(m_szSummary, sizeof(m_szSummary), "%zu history items", m_vHistory.size());
-    }
+    // Display amount of history items if ConVar cannot be found or input is empty.
+    ClampHistorySize();
+    snprintf(m_szSummary, sizeof(m_szSummary), "%zu history items", m_vHistory.size());
 }
 
 //-----------------------------------------------------------------------------
@@ -695,7 +692,7 @@ bool CConsole::LoadFlagIcons(void)
 // Purpose: returns flag image index for CommandBase (must be aligned with resource.h!)
 // Input  : nFlags - 
 //-----------------------------------------------------------------------------
-int CConsole::ColorCodeFlags(int nFlags) const
+int CConsole::GetFlagColorIndex(int nFlags) const
 {
     switch (nFlags)
     {
@@ -918,7 +915,7 @@ void CConsole::AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2)
     buf[IM_ARRAYSIZE(buf) - 1] = 0;
     va_end(args);
 
-    m_Logger.InsertText(ConLog_t(Strdup(buf), color));
+    m_Logger.InsertText(ConLog_t(buf, color));
 }
 
 //-----------------------------------------------------------------------------

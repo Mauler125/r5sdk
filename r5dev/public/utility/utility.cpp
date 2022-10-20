@@ -684,6 +684,29 @@ vector<string> StringSplit(string svInput, char cDelim, size_t nMax)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For trimming leading characters from input.
+string& StringLTrim(string& svInput, const char* pszToTrim)
+{
+    svInput.erase(0, svInput.find_first_not_of(pszToTrim));
+    return svInput;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// For trimming trailing characters from input.
+string& StringRTrim(string& svInput, const char* pszToTrim)
+{
+    svInput.erase(svInput.find_last_not_of(pszToTrim) + 1);
+    return svInput;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// For trimming leading and trailing characters from input.
+string& StringTrim(string& svInput, const char* pszToTrim)
+{
+    return StringLTrim(StringRTrim(svInput, pszToTrim), pszToTrim);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For converting a string to an array of bytes.
 vector<int> StringToBytes(const string& svInput, bool bNullTerminator)
 {

@@ -71,15 +71,16 @@ bool CBrowser::Init(void)
 //-----------------------------------------------------------------------------
 void CBrowser::RunFrame(void)
 {
+    // Uncomment these when adjusting the theme or layout.
+    {
+        //ImGui::ShowStyleEditor();
+        //ImGui::ShowDemoWindow();
+    }
+
     if (!m_bInitialized)
     {
         Init();
         m_bInitialized = true;
-    }
-
-    {
-        //ImGui::ShowStyleEditor();
-        //ImGui::ShowDemoWindow();
     }
 
     int nVars = 0;

@@ -30,7 +30,7 @@ private:
     void ClearAutoComplete(void);
 
     void FindFromPartial(void);
-    void ProcessCommand(const char* pszCommand);
+    void ProcessCommand(string svCommand);
 
     void BuildSummary(string svConVar = "");
     void BuildSuggestPanelRect(void);
@@ -39,7 +39,7 @@ private:
     void ClampHistorySize(void);
 
     bool LoadFlagIcons(void);
-    int ColorCodeFlags(int nFlags) const;
+    int GetFlagColorIndex(int nFlags) const;
 
     int TextEditCallback(ImGuiInputTextCallbackData* pData);
     static int TextEditCallbackStub(ImGuiInputTextCallbackData* pData);

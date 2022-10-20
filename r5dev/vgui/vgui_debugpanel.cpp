@@ -181,7 +181,7 @@ void CLogSystem::DrawHostStats(void) const
 
 	if (cl_hoststats_invert_x->GetBool())
 	{
-		nWidth  = g_nWindowWidth  - nWidth;
+		nWidth = g_nWindowWidth  - nWidth;
 	}
 	if (cl_hoststats_invert_y->GetBool())
 	{
