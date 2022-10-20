@@ -1169,7 +1169,7 @@ playlists
 				"KCAD"                                "Kings Canyon After Dark"
 				"Playtest"                            "Playtest"
 				"Playtest_Only"                       "Playtest"
-				"BETA_BUILD_WATERMARK"                "R5Reloaded [v2.2.1]"
+				"BETA_BUILD_WATERMARK"                "R5Reloaded [v2.2]"
 
 				"PROMO_LARGE_TITLE"                   "Welcome To R5Reloaded!"
 				"PROMO_LARGE_DESCRIPTION"             "Make sure to join the discord! discord.gg/r5reloaded"
