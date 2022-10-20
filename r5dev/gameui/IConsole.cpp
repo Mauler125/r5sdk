@@ -586,14 +586,8 @@ void CConsole::BuildSummary(string svConVar)
 {
     if (!svConVar.empty())
     {
-        for (size_t i = 0; i < svConVar.size(); i++)
-        {
-            const char c = svConVar[i];
-            if (c == ' ' || c == ';')
-            {
-                svConVar.erase(i, svConVar.length() - 1); // Remove space or semicolon before we call 'g_pCVar->FindVar(..)'.
-            }
-        }
+        // Remove trailing space and semicolon before we call 'g_pCVar->FindVar(..)'.
+        StringRTrim(svConVar, " ;");
 
         if (const ConVar* pConVar = g_pCVar->FindVar(svConVar.c_str()))
         {
