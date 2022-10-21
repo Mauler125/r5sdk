@@ -267,6 +267,8 @@ playlists
 				///////////////////////////////////////////////////////////////////////////////////
 				//// Season start/end datetimes (don't delete these)
 				///////////////////////////////////////////////////////////////////////////////////
+				season01_start_unixtime                        2145916800
+				season02_start_unixtime                        2145916800
 				season03_reveal_unixtime                       1626656230
 				season03_start_unixtime                        1626656230
 				season03_finish_unixtime                       1637272618
