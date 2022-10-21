@@ -138,7 +138,7 @@ void CAI_Utility::DrawNavMeshBVTree(dtNavMesh* pNavMesh) const
             // Parallel Vector3D construction.
             const __m128 xMins = _mm_add_ps(xTileAABB, _mm_mul_ps( // Formula: tile->header->bmin[axis] + node->bmin[axis] * cs;
                 _mm_setr_ps(pNode->bmin[0], pNode->bmin[1], pNode->bmin[2], 0.0f), xCellSize));
-            const __m128 xMaxs = _mm_add_ps(xTileAABB, _mm_mul_ps( // Formula: tile->header->bmin[axis] + node->bmax[axis] * cs;
+            const __m128 xMaxs = _mm_add_ps(xTileAABB, _mm_mul_ps( // Formula: tile->header->bmax[axis] + node->bmax[axis] * cs;
                 _mm_setr_ps(pNode->bmax[0], pNode->bmax[1], pNode->bmax[2], 0.0f), xCellSize));
 
             v_RenderBox(vTransforms, *reinterpret_cast<const Vector3D*>(&xMins), *reinterpret_cast<const Vector3D*>(&xMaxs),
