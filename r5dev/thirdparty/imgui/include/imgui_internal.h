@@ -2136,6 +2136,7 @@ struct IMGUI_API ImGuiWindow
     int                     MemoryDrawListIdxCapacity;          // Backup of last idx/vtx count, so when waking up the window we can preallocate and avoid iterative alloc/copy
     int                     MemoryDrawListVtxCapacity;
     bool                    MemoryCompacted;                    // Set when window extraneous data have been garbage collected
+    void*                   CloseCallback;                      // Callback ran when the close button is pressed.
 
 public:
     ImGuiWindow(ImGuiContext* context, const char* name);

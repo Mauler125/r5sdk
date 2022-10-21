@@ -141,6 +141,7 @@ void CMaterialSystem_Attach()
 #ifndef DEDICATED
 	DetourAttach((LPVOID*)&v_StreamDB_Init, &StreamDB_Init);
 	DetourAttach((LPVOID*)&v_DispatchDrawCall, &DispatchDrawCall);
+	DetourAttach((LPVOID*)&CMaterialSystem__FindMaterialEx, &CMaterialSystem::FindMaterialEx);
 #endif // !DEDICATED
 }
 
@@ -149,5 +150,6 @@ void CMaterialSystem_Detach()
 #ifndef DEDICATED
 	DetourDetach((LPVOID*)&v_StreamDB_Init, &StreamDB_Init);
 	DetourDetach((LPVOID*)&v_DispatchDrawCall, &DispatchDrawCall);
+	DetourDetach((LPVOID*)&CMaterialSystem__FindMaterialEx, &CMaterialSystem::FindMaterialEx);
 #endif // !DEDICATED
 }

@@ -140,8 +140,8 @@ extern ConVar* con_notify_common_clr;
 extern ConVar* con_notify_warning_clr;
 extern ConVar* con_notify_error_clr;
 
-extern ConVar* con_max_size_logvector;
-extern ConVar* con_max_size_history;
+extern ConVar* con_max_lines;
+extern ConVar* con_max_history;
 extern ConVar* con_suggestion_limit;
 extern ConVar* con_suggestion_showhelptext;
 extern ConVar* con_suggestion_showflags;

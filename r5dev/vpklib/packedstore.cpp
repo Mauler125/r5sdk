@@ -1,11 +1,15 @@
-﻿/*******************************************************************
-* ██████╗  ██╗    ██╗   ██╗██████╗ ██╗  ██╗    ██╗     ██╗██████╗  *
-* ██╔══██╗███║    ██║   ██║██╔══██╗██║ ██╔╝    ██║     ██║██╔══██╗ *
-* ██████╔╝╚██║    ██║   ██║██████╔╝█████╔╝     ██║     ██║██████╔╝ *
-* ██╔══██╗ ██║    ╚██╗ ██╔╝██╔═══╝ ██╔═██╗     ██║     ██║██╔══██╗ *
-* ██║  ██║ ██║     ╚████╔╝ ██║     ██║  ██╗    ███████╗██║██████╔╝ *
-* ╚═╝  ╚═╝ ╚═╝      ╚═══╝  ╚═╝     ╚═╝  ╚═╝    ╚══════╝╚═╝╚═════╝  *
-*******************************************************************/
+﻿//=============================================================================//
+//
+// Purpose: Valve Pak utility class.
+//
+//=============================================================================//
+// packedstore.cpp
+//
+// Note: VPK's are created in pairs of a directory file and block archive(s).
+// - <locale><context>_<source>.bsp.pak000_dir.vpk --> directory file.
+// - <context>_<source>.bsp.pak000_<patch>.vpk --> block archive.
+// 
+/////////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
 #include "tier1/cvar.h"
 #include "mathlib/adler32.h"
@@ -48,63 +52,48 @@ void CPackedStore::InitLzDecompParams(void)
 //			bSanitizeName - retrieve the directory file name from block name
 // Output : VPKDir_t
 //-----------------------------------------------------------------------------
-VPKDir_t CPackedStore::GetDirectoryFile(string svPackDirFile, bool bSanitizeName) const
+VPKDir_t CPackedStore::GetDirectoryFile(const string& svPackDirFile, bool bSanitizeName) const
 {
-	/*| PACKDIRFILE |||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
-	std::smatch smRegexMatches;
-
 	if (!bSanitizeName)
 		return VPKDir_t(svPackDirFile);
 
+	std::smatch smRegexMatches;
 	std::regex_search(svPackDirFile, smRegexMatches, BLOCK_REGEX);
+
 	if (smRegexMatches.empty())
 		return VPKDir_t(svPackDirFile);
 
-	StringReplace(svPackDirFile, smRegexMatches[0], "pak000_dir");
+	string svSanitizedName = svPackDirFile;
+	StringReplace(svSanitizedName, smRegexMatches[0], "pak000_dir");
 
 	bool bHasLocale = false;
-	bool bHasContext = false;
-	string svPackDirPrefix;
-
-	size_t nLocaleIndex = 0; // Default to ENGLISH;
-	size_t nContextIndex = 0; // Default to SERVER;
-
-	for (size_t i = 0, nl = DIR_LOCALE.size(); i < nl; i++)
+	for (const string& svLocale : DIR_LOCALE)
 	{
-		const string& svLocale = DIR_LOCALE[i];
-		if (svPackDirFile.find(svLocale) != string::npos)
+		if (svSanitizedName.find(svLocale) != string::npos)
 		{
-			svPackDirPrefix.append(svLocale);
-			nLocaleIndex = i;
 			bHasLocale = true;
+			break;
 		}
 	}
 
-	if (svPackDirPrefix.empty()) // No locale found.
+	if (!bHasLocale) // Only sanitize if no locale was provided.
 	{
+		string svPackDirPrefix;
 		svPackDirPrefix.append(DIR_LOCALE[0]);
-	}
 
-	if (!bHasLocale)
-	{
-		for (size_t i = 0, nc = DIR_CONTEXT.size(); i < nc; i++)
+		for (const string& svContext : DIR_CONTEXT)
 		{
-			const string& svContext = DIR_CONTEXT[i];
-			if (svPackDirFile.find(svContext) != string::npos)
+			if (svSanitizedName.find(svContext) != string::npos)
 			{
 				svPackDirPrefix.append(svContext);
-				nContextIndex = i;
-				bHasContext = true;
+				StringReplace(svSanitizedName, svContext, svPackDirPrefix);
+
+				break;
 			}
 		}
 	}
 
-	if (bHasContext) // Context is required for this to work.
-	{
-		StringReplace(svPackDirFile, DIR_CONTEXT[nContextIndex], svPackDirPrefix);
-	}
-
-	return VPKDir_t(svPackDirFile);
+	return VPKDir_t(svSanitizedName);
 }
 
 //-----------------------------------------------------------------------------
@@ -115,7 +104,6 @@ VPKDir_t CPackedStore::GetDirectoryFile(string svPackDirFile, bool bSanitizeName
 //-----------------------------------------------------------------------------
 string CPackedStore::GetPackFile(const string& svPackDirFile, uint16_t iArchiveIndex) const
 {
-	/*| ARCHIVES ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
 	string svPackChunkFile = StripLocalePrefix(svPackDirFile);
 	ostringstream oss;
 
@@ -155,7 +143,6 @@ lzham_compress_level CPackedStore::GetCompressionLevel(void) const
 //-----------------------------------------------------------------------------
 vector<VPKEntryBlock_t> CPackedStore::GetEntryBlocks(CIOStream* pReader) const
 {
-	/*| ENTRYBLOCKS |||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
 	string svName, svPath, svExtension;
 	vector<VPKEntryBlock_t> vBlocks;
 	while (!(svExtension = pReader->ReadString()).empty())
@@ -414,12 +401,13 @@ void CPackedStore::BuildManifest(const vector<VPKEntryBlock_t>& vBlock, const st
 
 	for (const VPKEntryBlock_t& vEntry : vBlock)
 	{
+		const VPKChunkDescriptor_t& vDescriptor = vEntry.m_vChunks[0];
 		jEntry[vEntry.m_svEntryPath] =
 		{
 			{ "preloadSize", vEntry.m_iPreloadSize },
-			{ "loadFlags", vEntry.m_vChunks[0].m_nLoadFlags },
-			{ "textureFlags", vEntry.m_vChunks[0].m_nTextureFlags },
-			{ "useCompression", vEntry.m_vChunks[0].m_nCompressedSize != vEntry.m_vChunks[0].m_nUncompressedSize },
+			{ "loadFlags", vDescriptor.m_nLoadFlags },
+			{ "textureFlags", vDescriptor.m_nTextureFlags },
+			{ "useCompression", vDescriptor.m_nCompressedSize != vDescriptor.m_nUncompressedSize },
 			{ "useDataSharing", true }
 		};
 	}
@@ -606,8 +594,8 @@ void CPackedStore::UnpackAll(const VPKDir_t& vDir, const string& svPathOut)
 
 	for (size_t i = 0, fs = vDir.m_vPackFile.size(); i < fs; i++)
 	{
-		fs::path fspVpkPath(vDir.m_svDirPath);
-		string svPath = fspVpkPath.parent_path().u8string() + '\\' + vDir.m_vPackFile[i];
+		const fs::path fspVpkPath(vDir.m_svDirPath);
+		const string svPath = fspVpkPath.parent_path().u8string() + '\\' + vDir.m_vPackFile[i];
 		CIOStream iStream(svPath, CIOStream::Mode_t::READ); // Create stream to read from each archive.
 
 		for (size_t j = 0, es = vDir.m_vEntryBlocks.size(); j < es; j++)
@@ -619,7 +607,7 @@ void CPackedStore::UnpackAll(const VPKDir_t& vDir, const string& svPathOut)
 			}
 			else // Chunk belongs to this block.
 			{
-				string svFilePath = CreateDirectories(svPathOut + vBlock.m_svEntryPath);
+				const string svFilePath = CreateDirectories(svPathOut + vBlock.m_svEntryPath);
 				CIOStream oStream(svFilePath, CIOStream::Mode_t::WRITE);
 
 				if (!oStream.IsWritable())
@@ -814,7 +802,7 @@ void VPKDir_t::Build(const string& svDirectoryFile, const vector<VPKEntryBlock_t
 	writer.Write<uint32_t>(this->m_vHeader.m_nDirectorySize);
 	writer.Write<uint32_t>(this->m_vHeader.m_nSignatureSize);
 
-	for (VPKEntryBlock_t vBlock : vEntryBlocks)
+	for (const VPKEntryBlock_t& vBlock : vEntryBlocks)
 	{
 		string svExtension = GetExtension(vBlock.m_svEntryPath);
 		string svFilePath = RemoveFileName(vBlock.m_svEntryPath);

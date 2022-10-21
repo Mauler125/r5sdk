@@ -329,6 +329,7 @@ void ConCommand::Init(void)
 	ConCommand::Create("sphere", "Draw a debug sphere.", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, Sphere_f, nullptr);
 	ConCommand::Create("capsule", "Draw a debug capsule.", FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT, Capsule_f, nullptr);
 #endif //!DEDICATED
+	ConCommand::Create("con_help", "Shows the colors and description of each context.", FCVAR_RELEASE, CON_Help_f, nullptr);
 #ifndef CLIENT_DLL
 	ConCommand::Create("reload_playlists", "Reloads the playlists file.", FCVAR_RELEASE, Host_ReloadPlaylists_f, nullptr);
 #endif // !CLIENT_DLL
@@ -347,10 +348,15 @@ void ConCommand::Init(void)
 	//-------------------------------------------------------------------------
 	// CLIENT DLL                                                             |
 	ConCommand::Create("script_client", "Run input code as CLIENT script on the VM.", FCVAR_CLIENTDLL | FCVAR_CHEAT, SQVM_ClientScript_f, nullptr);
-	ConCommand::Create("cl_showconsole", "Opens the game console.", FCVAR_CLIENTDLL | FCVAR_RELEASE, GameConsole_Invoke_f, nullptr);
+	ConCommand::Create("cl_showconsole", "Opens the developer console.", FCVAR_CLIENTDLL | FCVAR_RELEASE, GameConsole_Invoke_f, nullptr);
 	ConCommand::Create("cl_showbrowser", "Opens the server browser.", FCVAR_CLIENTDLL | FCVAR_RELEASE, ServerBrowser_Invoke_f, nullptr);
 	ConCommand::Create("rcon", "Forward RCON query to remote server. | Usage: rcon \"<query>\".", FCVAR_CLIENTDLL | FCVAR_RELEASE, RCON_CmdQuery_f, nullptr);
 	ConCommand::Create("rcon_disconnect", "Disconnect from RCON server.", FCVAR_CLIENTDLL | FCVAR_RELEASE, RCON_Disconnect_f, nullptr);
+
+	ConCommand::Create("con_history", "Shows the developer console submission history.", FCVAR_CLIENTDLL | FCVAR_RELEASE, CON_LogHistory_f, nullptr);
+	ConCommand::Create("con_removeline", "Removes a range of lines from the developer console.", FCVAR_CLIENTDLL | FCVAR_RELEASE, CON_RemoveLine_f, nullptr);
+	ConCommand::Create("con_clearlines", "Clears all lines from the developer console.", FCVAR_CLIENTDLL | FCVAR_RELEASE, CON_ClearLines_f, nullptr);
+	ConCommand::Create("con_clearhistory", "Clears all submissions from the developer console history.", FCVAR_CLIENTDLL | FCVAR_RELEASE, CON_ClearHistory_f, nullptr);
 	//-------------------------------------------------------------------------
 	// UI DLL                                                                 |
 	ConCommand::Create("script_ui", "Run input code as UI script on the VM.", FCVAR_CLIENTDLL | FCVAR_CHEAT, SQVM_UIScript_f, nullptr);

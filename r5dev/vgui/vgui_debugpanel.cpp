@@ -181,7 +181,7 @@ void CLogSystem::DrawHostStats(void) const
 
 	if (cl_hoststats_invert_x->GetBool())
 	{
-		nWidth  = g_nWindowWidth  - nWidth;
+		nWidth = g_nWindowWidth  - nWidth;
 	}
 	if (cl_hoststats_invert_y->GetBool())
 	{
@@ -257,7 +257,7 @@ void CLogSystem::DrawCrosshairMaterial(void) const
 		pMaterialGlue->m_pszName,
 		pMaterialGlue->m_GUID,
 		pMaterialGlue->m_iWidth, pMaterialGlue->m_iHeight,
-		pMaterialGlue->m_pszSurfaceName1, pMaterialGlue->m_pszSurfaceName2,
+		pMaterialGlue->m_pszSurfaceProp, pMaterialGlue->m_pszSurfaceProp2,
 		pMaterialGlue->m_nStreamableTextureCount,
 		pMaterialGlue->m_pShaderGlue->m_nTextureInputCount);
 

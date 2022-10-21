@@ -19,6 +19,7 @@ extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam
 extern HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT nFlags);
 //extern bool LoadTextureBuffer(unsigned char* image_data, const int& image_width, const int& image_height, ID3D11ShaderResourceView** out_srv);
 extern bool LoadTextureBuffer(unsigned char* buffer, int len, ID3D11ShaderResourceView** out_srv, int* out_width, int* out_height);
+extern void ResetInput();
 
 /////////////////////////////////////////////////////////////////////////////
 // Typedefs
@@ -27,9 +28,8 @@ typedef HRESULT(__stdcall* IDXGIResizeBuffers)   (IDXGISwapChain* pSwapChain, UI
 
 /////////////////////////////////////////////////////////////////////////////
 // Globals
-extern DWORD g_dThreadId;
-inline INT g_nWindowWidth;
-inline INT g_nWindowHeight;
+inline UINT g_nWindowWidth;
+inline UINT g_nWindowHeight;
 
 /////////////////////////////////////////////////////////////////////////////
 // Enums

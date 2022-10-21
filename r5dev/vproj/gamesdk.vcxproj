@@ -35,6 +35,7 @@
     <ClCompile Include="..\engine\cmodel_bsp.cpp" />
     <ClCompile Include="..\engine\common.cpp" />
     <ClCompile Include="..\engine\debugoverlay.cpp" />
+    <ClCompile Include="..\engine\enginetrace.cpp" />
     <ClCompile Include="..\engine\gl_rsurf.cpp" />
     <ClCompile Include="..\engine\gl_screen.cpp" />
     <ClCompile Include="..\engine\host.cpp" />
@@ -190,6 +191,7 @@
     <ClInclude Include="..\engine\common.h" />
     <ClInclude Include="..\engine\datablock.h" />
     <ClInclude Include="..\engine\debugoverlay.h" />
+    <ClInclude Include="..\engine\enginetrace.h" />
     <ClInclude Include="..\engine\framesnapshot.h" />
     <ClInclude Include="..\engine\gl_matsysiface.h" />
     <ClInclude Include="..\engine\gl_model_private.h" />
@@ -294,6 +296,8 @@
     <ClInclude Include="..\public\iframetask.h" />
     <ClInclude Include="..\public\igame.h" />
     <ClInclude Include="..\public\ihandleentity.h" />
+    <ClInclude Include="..\public\imaterial.h" />
+    <ClInclude Include="..\public\imaterialinternal.h" />
     <ClInclude Include="..\public\inetchannel.h" />
     <ClInclude Include="..\public\inetmessage.h" />
     <ClInclude Include="..\public\inetmsghandler.h" />
@@ -302,7 +306,9 @@
     <ClInclude Include="..\public\isurfacesystem.h" />
     <ClInclude Include="..\public\ivrenderview.h" />
     <ClInclude Include="..\public\ivscript.h" />
+    <ClInclude Include="..\public\materialsystem\shader_vcs_version.h" />
     <ClInclude Include="..\public\model_types.h" />
+    <ClInclude Include="..\public\rendersystem\schema\texture.g.h" />
     <ClInclude Include="..\public\studio.h" />
     <ClInclude Include="..\core\resource.h" />
     <ClInclude Include="..\public\utility\binstream.h" />

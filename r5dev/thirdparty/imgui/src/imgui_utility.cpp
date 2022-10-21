@@ -37,45 +37,47 @@ char* Strdup(const char* s)
 void Strtrim(char* s)
 {
     char* str_end = s + strlen(s);
-
     while (str_end > s && str_end[-1] == ' ')
+    {
         str_end--; *str_end = 0;
+    }
 }
 
 void ImGuiConfig::Load()
 {
-    fs::path fsPath = "platform\\imgui.json";
+    static const fs::path fsPath = "platform\\imgui.json";
     DevMsg(eDLL_T::MS, "Loading ImGui config file '%s'\n", fsPath.relative_path().u8string().c_str());
 
-    if (fs::exists(fsPath))
+    if (!fs::exists(fsPath))
     {
-        try
+        return;
+    }
+
+    try
+    {
+        nlohmann::json jsIn;
+        std::ifstream configFile(fsPath, std::ios::binary); // Parse config file.
+
+        configFile >> jsIn;
+        configFile.close();
+
+        if (jsIn.is_null() || jsIn["config"].is_null())
         {
-            nlohmann::json jsIn;
-            std::ifstream configFile(fsPath, std::ios::binary); // Parse config file.
-
-            configFile >> jsIn;
-            configFile.close();
-
-            if (!jsIn.is_null())
-            {
-                if (!jsIn["config"].is_null())
-                {
-                    // IConsole
-                    IConsole_Config.m_nBind0 = jsIn["config"]["GameConsole"]["bind0"].get<int>();
-                    IConsole_Config.m_nBind1 = jsIn["config"]["GameConsole"]["bind1"].get<int>();
-
-                    // IBrowser
-                    IBrowser_Config.m_nBind0 = jsIn["config"]["GameBrowser"]["bind0"].get<int>();
-                    IBrowser_Config.m_nBind1 = jsIn["config"]["GameBrowser"]["bind1"].get<int>();
-                }
-            }
+            return; // Invalid or no config.
         }
-        catch (const std::exception& ex)
-        {
-            Warning(eDLL_T::MS, "Exception while parsing ImGui config file:\n%s\n", ex.what());
-            return;
-        }
+
+        // IConsole
+        m_ConsoleConfig.m_nBind0 = jsIn["config"]["GameConsole"]["bind0"].get<int>();
+        m_ConsoleConfig.m_nBind1 = jsIn["config"]["GameConsole"]["bind1"].get<int>();
+
+        // IBrowser
+        m_BrowserConfig.m_nBind0 = jsIn["config"]["GameBrowser"]["bind0"].get<int>();
+        m_BrowserConfig.m_nBind1 = jsIn["config"]["GameBrowser"]["bind1"].get<int>();
+    }
+    catch (const std::exception& ex)
+    {
+        Warning(eDLL_T::MS, "Exception while parsing ImGui config file:\n%s\n", ex.what());
+        return;
     }
 }
 
@@ -84,12 +86,12 @@ void ImGuiConfig::Save()
     nlohmann::json jsOut;
 
     // IConsole
-    jsOut["config"]["GameConsole"]["bind0"]          = IConsole_Config.m_nBind0;
-    jsOut["config"]["GameConsole"]["bind1"]          = IConsole_Config.m_nBind1;
+    jsOut["config"]["GameConsole"]["bind0"] = m_ConsoleConfig.m_nBind0;
+    jsOut["config"]["GameConsole"]["bind1"] = m_ConsoleConfig.m_nBind1;
 
     // IBrowser
-    jsOut["config"]["GameBrowser"]["bind0"] = IBrowser_Config.m_nBind0;
-    jsOut["config"]["GameBrowser"]["bind1"] = IBrowser_Config.m_nBind1;
+    jsOut["config"]["GameBrowser"]["bind0"] = m_BrowserConfig.m_nBind0;
+    jsOut["config"]["GameBrowser"]["bind1"] = m_BrowserConfig.m_nBind1;
 
     fs::path fsPath = "platform\\imgui.json";
 

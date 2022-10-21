@@ -175,12 +175,12 @@ void ConVar::Init(void) const
 	con_notify_warning_clr = ConVar::Create("con_notify_warning_clr", "180 180 20 255", FCVAR_MATERIAL_SYSTEM_THREAD, "Warning RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 	con_notify_error_clr   = ConVar::Create("con_notify_error_clr"  , "225 20 20 255" , FCVAR_MATERIAL_SYSTEM_THREAD, "Error RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 
-	con_max_size_logvector        = ConVar::Create("con_max_size_logvector"        , "1024", FCVAR_DEVELOPMENTONLY, "Maximum number of logs in the console before cleanup starts.", true, 1.f, false, 0.f, nullptr, nullptr);
-	con_max_size_history          = ConVar::Create("con_max_size_history"          , "512" , FCVAR_DEVELOPMENTONLY, "Maximum number of command history items before cleanup starts.", true, 0.f, false, 0.f, nullptr, nullptr);
-	con_suggestion_limit          = ConVar::Create("con_suggestion_limit"          , "128" , FCVAR_DEVELOPMENTONLY, "Maximum number of suggestions the autocomplete window will show for the console.", true, 0.f, false, 0.f, nullptr, nullptr);
-	con_suggestion_showhelptext   = ConVar::Create("con_suggestion_showhelptext"   , "1"   , FCVAR_DEVELOPMENTONLY, "Show CommandBase help text in autocomplete window.", false, 0.f, false, 0.f, nullptr, nullptr);
-	con_suggestion_showflags      = ConVar::Create("con_suggestion_showflags"      , "1"   , FCVAR_DEVELOPMENTONLY, "Show CommandBase flags in autocomplete window.", false, 0.f, false, 0.f, nullptr, nullptr);
-	con_suggestion_flags_realtime = ConVar::Create("con_suggestion_flags_realtime" , "1"   , FCVAR_DEVELOPMENTONLY, "Whether to show compile-time or run-time CommandBase flags.", false, 0.f, false, 0.f, nullptr, nullptr);
+	con_max_lines                 = ConVar::Create("con_max_lines"                , "1024", FCVAR_DEVELOPMENTONLY, "Maximum number of lines in the console before cleanup starts.", true, 1.f, false, 0.f, nullptr, nullptr);
+	con_max_history               = ConVar::Create("con_max_history"              , "512" , FCVAR_DEVELOPMENTONLY, "Maximum number of command submission items before history cleanup starts.", true, 0.f, false, 0.f, nullptr, nullptr);
+	con_suggestion_limit          = ConVar::Create("con_suggestion_limit"         , "128" , FCVAR_DEVELOPMENTONLY, "Maximum number of suggestions the autocomplete window will show for the console.", true, 0.f, false, 0.f, nullptr, nullptr);
+	con_suggestion_showhelptext   = ConVar::Create("con_suggestion_showhelptext"  , "1"   , FCVAR_DEVELOPMENTONLY, "Show CommandBase help text in autocomplete window.", false, 0.f, false, 0.f, nullptr, nullptr);
+	con_suggestion_showflags      = ConVar::Create("con_suggestion_showflags"     , "1"   , FCVAR_DEVELOPMENTONLY, "Show CommandBase flags in autocomplete window.", false, 0.f, false, 0.f, nullptr, nullptr);
+	con_suggestion_flags_realtime = ConVar::Create("con_suggestion_flags_realtime", "1"   , FCVAR_DEVELOPMENTONLY, "Whether to show compile-time or run-time CommandBase flags.", false, 0.f, false, 0.f, nullptr, nullptr);
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// FILESYSTEM                                                             |
@@ -209,8 +209,8 @@ void ConVar::Init(void) const
 	net_processTimeBudget      = ConVar::Create("net_processTimeBudget"     ,"200"                       , FCVAR_RELEASE    , "Net message process budget in milliseconds (removing netchannel if exceeded).", true, 0.f, false, 0.f, nullptr, "0 = disabled.");
 	//-------------------------------------------------------------------------
 	// NETWORKSYSTEM                                                          |
-	pylon_matchmaking_hostname = ConVar::Create("pylon_matchmaking_hostname", "ms.r5reloaded.com", FCVAR_RELEASE        , "Holds the pylon matchmaking hostname.", false, 0.f, false, 0.f, &MP_HostName_Changed_f, nullptr);
-	pylon_host_update_interval = ConVar::Create("pylon_host_update_interval", "5"                , FCVAR_RELEASE        , "Length of time in seconds between each status update interval to master server.", true, 5.f, false, 0.f, nullptr, nullptr);
+	pylon_matchmaking_hostname = ConVar::Create("pylon_matchmaking_hostname", "ms.r5reloaded.com", FCVAR_RELEASE, "Holds the pylon matchmaking hostname.", false, 0.f, false, 0.f, &MP_HostName_Changed_f, nullptr);
+	pylon_host_update_interval = ConVar::Create("pylon_host_update_interval", "5"                , FCVAR_RELEASE, "Length of time in seconds between each status update interval to master server.", true, 5.f, false, 0.f, nullptr, nullptr);
 	pylon_showdebuginfo        = ConVar::Create("pylon_showdebuginfo"       , "0"                , FCVAR_RELEASE, "Shows debug output for pylon.", false, 0.f, false, 0.f, nullptr, nullptr);
 	//-------------------------------------------------------------------------
 	// RTECH API                                                              |
@@ -888,8 +888,6 @@ void ConVar::InstallChangeCallback(FnChangeCallback_t callback, bool bInvoke /*=
 	{
 		callback(reinterpret_cast<IConVar*>(&m_pIConVarVFTable), m_Value.m_pszString, m_Value.m_fValue);
 	}
-
-	sizeof(CUtlVector<int>);
 }
 
 //-----------------------------------------------------------------------------

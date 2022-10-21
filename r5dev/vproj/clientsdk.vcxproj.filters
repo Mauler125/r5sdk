@@ -223,6 +223,15 @@
     <Filter Include="sdk\pluginsystem">
       <UniqueIdentifier>{b22e88ea-1ee0-4431-82a4-e877a6798f23}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\public\rendersystem">
+      <UniqueIdentifier>{a254a718-eeec-434e-b3a3-77604c8f372e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\public\rendersystem\schema">
+      <UniqueIdentifier>{a41c5a4b-d1a5-4b95-aa63-b61ca185a0a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\public\materialsystem">
+      <UniqueIdentifier>{565eefdf-15cf-47dc-a22b-0d3521e8c5c9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\cdll_engine_int.cpp">
@@ -1768,6 +1777,18 @@
     </ClInclude>
     <ClInclude Include="..\public\igame.h">
       <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\imaterial.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\imaterialinternal.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\rendersystem\schema\texture.g.h">
+      <Filter>sdk\public\rendersystem\schema</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\materialsystem\shader_vcs_version.h">
+      <Filter>sdk\public\materialsystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

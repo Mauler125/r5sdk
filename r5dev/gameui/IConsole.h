@@ -30,7 +30,7 @@ private:
     void ClearAutoComplete(void);
 
     void FindFromPartial(void);
-    void ProcessCommand(const char* pszCommand);
+    void ProcessCommand(string svCommand);
 
     void BuildSummary(string svConVar = "");
     void BuildSuggestPanelRect(void);
@@ -39,7 +39,7 @@ private:
     void ClampHistorySize(void);
 
     bool LoadFlagIcons(void);
-    int ColorCodeFlags(int nFlags) const;
+    int GetFlagColorIndex(int nFlags) const;
 
     int TextEditCallback(ImGuiInputTextCallbackData* pData);
     static int TextEditCallbackStub(ImGuiInputTextCallbackData* pData);
@@ -47,71 +47,59 @@ private:
     ///////////////////////////////////////////////////////////////////////////
 public:
     void AddLog(const ConLog_t& conLog);
-
-private:
-    void AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2);
+    void RemoveLog(int nStart, int nEnd);
     void ClearLog(void);
+
+    vector<string> GetHistory(void);
+    void ClearHistory(void);
+
+private: // Internal only.
+    void AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2);
 
     ///////////////////////////////////////////////////////////////////////////
     virtual void SetStyleVar(void);
 
 private:
     ///////////////////////////////////////////////////////////////////////////
-    const char*                    m_pszConsoleLabel     = nullptr;
-    const char*                    m_pszLoggingLabel     = nullptr;
-    char                           m_szInputBuf[512]     = { '\0' };
-    char                           m_szSummary[512]      = { '\0' };
-    char                           m_szWindowLabel[512]  = { '\0' };
+    const char*                    m_pszConsoleLabel;
+    const char*                    m_pszLoggingLabel;
+    char                           m_szInputBuf[512];
+    char                           m_szSummary[512];
+    char                           m_szWindowLabel[512];
 
-    vector<string>                 m_vCommands;
-    vector<string>                 m_vHistory;
     string                         m_svInputConVar;
-    ssize_t                        m_nHistoryPos      = -1;
-    int                            m_nScrollBack      = 0;
-    int                            m_nSelectBack      = 0;
-    float                          m_flScrollX        = 0.f;
-    float                          m_flScrollY        = 0.f;
-    float                          m_flFadeAlpha      = 0.f;
+    ssize_t                        m_nHistoryPos;
+    ssize_t                        m_nSuggestPos;
+    int                            m_nScrollBack;
+    int                            m_nSelectBack;
+    float                          m_flScrollX;
+    float                          m_flScrollY;
+    float                          m_flFadeAlpha;
 
-    bool                           m_bInitialized     = false;
-    bool                           m_bReclaimFocus    = false;
-    bool                           m_bCopyToClipBoard = false;
-    bool                           m_bModifyInput     = false;
+    bool                           m_bInitialized;
+    bool                           m_bReclaimFocus;
+    bool                           m_bCopyToClipBoard;
+    bool                           m_bModifyInput;
 
-    bool                           m_bCanAutoComplete = false;
-    bool                           m_bSuggestActive   = false;
-    bool                           m_bSuggestMoved    = false;
-    bool                           m_bSuggestUpdate   = false;
-    ssize_t                        m_nSuggestPos      = -1;
+    bool                           m_bCanAutoComplete;
+    bool                           m_bSuggestActive;
+    bool                           m_bSuggestMoved;
+    bool                           m_bSuggestUpdate;
+
     vector<CSuggest>               m_vSuggest;
     vector<MODULERESOURCE>         m_vFlagIcons;
+    vector<string>                 m_vHistory;
 
-    ImGuiStyle_t                   m_Style = ImGuiStyle_t::NONE;
+    ImGuiStyle_t                   m_Style;
     ImVec2                         m_ivSuggestWindowPos;
     ImVec2                         m_ivSuggestWindowSize;
     CTextLogger                    m_Logger;
     mutable std::mutex             m_Mutex;
 
-    ImGuiInputTextFlags m_nInputFlags = 
-        ImGuiInputTextFlags_AutoCaretEnd           |
-        ImGuiInputTextFlags_CallbackCompletion     |
-        ImGuiInputTextFlags_CallbackHistory        |
-        ImGuiInputTextFlags_CallbackAlways         |
-        ImGuiInputTextFlags_CallbackEdit           |
-        ImGuiInputTextFlags_EnterReturnsTrue;
+    ImGuiInputTextFlags m_nInputFlags;
+    ImGuiWindowFlags m_nSuggestFlags;
+    ImGuiWindowFlags m_nLoggingFlags;
 
-    ImGuiWindowFlags m_nSuggestFlags = 
-        ImGuiWindowFlags_NoMove                    |
-        ImGuiWindowFlags_NoTitleBar                |
-        ImGuiWindowFlags_NoSavedSettings           |
-        ImGuiWindowFlags_NoFocusOnAppearing        |
-        ImGuiWindowFlags_AlwaysVerticalScrollbar   |
-        ImGuiWindowFlags_AlwaysHorizontalScrollbar;
-
-    ImGuiWindowFlags m_nLoggingFlags = 
-        ImGuiWindowFlags_NoMove                    |
-        ImGuiWindowFlags_HorizontalScrollbar       |
-        ImGuiWindowFlags_AlwaysVerticalScrollbar;
 public:
     bool             m_bActivate = false;
     vector<CSuggest> m_vsvCommandBases;

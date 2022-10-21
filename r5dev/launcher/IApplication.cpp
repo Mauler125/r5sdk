@@ -20,6 +20,7 @@
 #include "engine/server/sv_main.h"
 #include "server/vengineserver_impl.h"
 #include "client/cdll_engine_int.h"
+#include "engine/enginetrace.h"
 #ifndef DEDICATED
 #include "gameui/IConsole.h"
 #endif // !DEDICATED
@@ -75,6 +76,7 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 
 #ifndef DEDICATED
 	g_pClientEntityList = g_pFactory->GetFactoryPtr("VClientEntityList003", false).RCast<IClientEntityList*>();
+	g_pEngineTrace = g_pFactory->GetFactoryPtr("EngineTraceClient004", false).RCast<CEngineTrace*>();
 
 	for (auto& map : g_pCVar->DumpToMap())
 	{
