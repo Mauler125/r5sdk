@@ -40,10 +40,19 @@ History:
 // Purpose: 
 //-----------------------------------------------------------------------------
 CBrowser::CBrowser(void)
+    : m_pszBrowserLabel("Server Browser")
+    , m_bActivate(false)
+    , m_bInitialized(false)
+    , m_bReclaimFocus(false)
+    , m_bQueryListNonRecursive(false)
+    , m_flFadeAlpha(0.f)
+    , m_HostRequestMessageColor(1.00f, 1.00f, 1.00f, 1.00f)
+    , m_ivHiddenServerMessageColor(0.00f, 1.00f, 0.00f, 1.00f)
+    , m_Style(ImGuiStyle_t::NONE)
 {
     memset(m_szServerAddressBuffer, '\0', sizeof(m_szServerAddressBuffer));
+    memset(m_szServerEncKeyBuffer, '\0', sizeof(m_szServerEncKeyBuffer));
 
-    m_pszBrowserTitle = "Server Browser";
     m_rLockedIconBlob = GetModuleResource(IDB_PNG2);
 }
 
@@ -52,7 +61,6 @@ CBrowser::CBrowser(void)
 //-----------------------------------------------------------------------------
 CBrowser::~CBrowser(void)
 {
-    //delete r5net;
 }
 
 //-----------------------------------------------------------------------------
@@ -554,10 +562,7 @@ void CBrowser::HostPanel(void)
 void CBrowser::UpdateHostingStatus(void)
 {
 #ifndef CLIENT_DLL
-    if (!g_pHostState || !g_pCVar)
-    {
-        return;
-    }
+    assert(g_pHostState && g_pCVar);
 
     std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
     g_pServerListManager->m_HostingStatus = g_pServer->IsActive() ? EHostStatus_t::HOSTING : EHostStatus_t::NOT_HOSTING; // Are we hosting a server?
