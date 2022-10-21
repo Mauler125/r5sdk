@@ -113,6 +113,28 @@ bool IsMaterialInternal(void** pCandidate)
 	return false;
 }
 
+#ifndef DEDICATED
+//-----------------------------------------------------------------------------
+// Purpose: finds a material
+// Input  : *pMatSys - 
+//			*pMaterialName - 
+//			nMaterialType - 
+//			nUnk - 
+//			bComplain - 
+// Output : pointer to material
+//-----------------------------------------------------------------------------
+CMaterialGlue* CMaterialSystem::FindMaterialEx(CMaterialSystem* pMatSys, const char* pMaterialName, uint8_t nMaterialType, int nUnk, bool bComplain)
+{
+	CMaterialGlue* pMaterial = CMaterialSystem__FindMaterialEx(pMatSys, pMaterialName, nMaterialType, nUnk, bComplain);
+
+	if ((bComplain || mat_alwaysComplain->GetBool()) && pMaterial->IsErrorMaterial())
+	{
+		Error(eDLL_T::MS, NO_ERROR, "Material \"%s\" not found; replacing with \"%s\".\n", pMaterialName, pMaterial->GetName());
+	}
+	return pMaterial;
+}
+#endif // !DEDICATED
+
 ///////////////////////////////////////////////////////////////////////////////
 void CMaterialSystem_Attach()
 {

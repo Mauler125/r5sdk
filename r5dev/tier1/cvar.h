@@ -160,6 +160,7 @@ extern ConVar* fs_packedstore_compression_level;
 // MATERIALSYSTEM                                                         |
 #ifndef DEDICATED
 extern ConVar* mat_showdxoutput;
+extern ConVar* mat_alwaysComplain;
 #endif // !DEDICATED
 //-------------------------------------------------------------------------
 // SQUIRREL                                                               |
