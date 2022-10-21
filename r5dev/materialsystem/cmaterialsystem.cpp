@@ -126,7 +126,8 @@ bool IsMaterialInternal(void** pCandidate)
 CMaterialGlue* CMaterialSystem::FindMaterialEx(CMaterialSystem* pMatSys, const char* pMaterialName, uint8_t nMaterialType, int nUnk, bool bComplain)
 {
 	CMaterialGlue* pMaterial = CMaterialSystem__FindMaterialEx(pMatSys, pMaterialName, nMaterialType, nUnk, bComplain);
-	if (pMaterial->IsErrorMaterial())
+
+	if ((bComplain || mat_alwaysComplain->GetBool()) && pMaterial->IsErrorMaterial())
 	{
 		Error(eDLL_T::MS, NO_ERROR, "Material \"%s\" not found; replacing with \"%s\".\n", pMaterialName, pMaterial->GetName());
 	}

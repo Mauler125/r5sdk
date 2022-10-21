@@ -192,7 +192,8 @@ void ConVar::Init(void) const
 	//-------------------------------------------------------------------------
 	// MATERIALSYSTEM                                                         |
 #ifndef DEDICATED
-	mat_showdxoutput = ConVar::Create("mat_showdxoutput", "0", FCVAR_DEVELOPMENTONLY, "Shows debug output for the DirectX system.", false, 0.f, false, 0.f, nullptr, nullptr);
+	mat_showdxoutput   = ConVar::Create("mat_showdxoutput", "0", FCVAR_DEVELOPMENTONLY | FCVAR_MATERIAL_SYSTEM_THREAD, "Shows debug output for the DirectX system.", false, 0.f, false, 0.f, nullptr, nullptr);
+	mat_alwaysComplain = ConVar::Create("mat_alwaysComplain", "0", FCVAR_RELEASE | FCVAR_MATERIAL_SYSTEM_THREAD, "Always complain when a material is missing.", false, 0.f, false, 0.f, nullptr, nullptr);
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// SQUIRREL                                                               |

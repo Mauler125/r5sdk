@@ -164,6 +164,7 @@ ConVar* fs_packedstore_compression_level   = nullptr;
 // MATERIALSYSTEM                                                             |
 #ifndef DEDICATED
 ConVar* mat_showdxoutput                   = nullptr;
+ConVar* mat_alwaysComplain                 = nullptr;
 #endif // !DEDICATED
 //-----------------------------------------------------------------------------
 // SQUIRREL                                                                   |
