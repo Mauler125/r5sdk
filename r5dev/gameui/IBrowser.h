@@ -36,22 +36,20 @@ public:
     void SetHostName(const char* pszHostName);
     virtual void SetStyleVar(void);
 
-
-    const char* m_pszBrowserLabel = nullptr;
-    bool m_bActivate     = false;
+    const char* m_pszBrowserLabel;
+    bool m_bActivate;
 
 private:
-    bool m_bInitialized  = false;
-    bool m_bReclaimFocus = false;
-    bool m_bQueryListNonRecursive = false; // When set, refreshes the server list once the next frame.
-    char m_szServerAddressBuffer[256] = { '\0' };
-    char m_szServerEncKeyBuffer[30]   = { '\0' };
-    float m_flFadeAlpha               = 0.f;
+    bool m_bInitialized;
+    bool m_bReclaimFocus;
+    bool m_bQueryListNonRecursive; // When set, refreshes the server list once the next frame.
+    char m_szServerAddressBuffer[256];
+    char m_szServerEncKeyBuffer[30];
+    float m_flFadeAlpha;
 
-    ImGuiStyle_t              m_Style = ImGuiStyle_t::NONE;
-    ID3D11ShaderResourceView* m_idLockedIcon = nullptr;
-    MODULERESOURCE            m_rLockedIconBlob;
-    mutable std::mutex        m_Mutex;
+    ID3D11ShaderResourceView* m_idLockedIcon;
+    MODULERESOURCE m_rLockedIconBlob;
+    mutable std::mutex m_Mutex;
 
     ////////////////////
     //   Server List  //
@@ -65,14 +63,16 @@ private:
     ////////////////////
     string m_svHostRequestMessage;
     string m_svHostToken;
-    ImVec4 m_HostRequestMessageColor = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+    ImVec4 m_HostRequestMessageColor;
 
     ////////////////////
     // Private Server //
     ////////////////////
     string m_svHiddenServerToken;
     string m_svHiddenServerRequestMessage;
-    ImVec4 m_ivHiddenServerMessageColor = ImVec4(0.00f, 1.00f, 0.00f, 1.00f);
+    ImVec4 m_ivHiddenServerMessageColor;
+
+    ImGuiStyle_t m_Style;
 };
 
 extern CBrowser* g_pBrowser;
