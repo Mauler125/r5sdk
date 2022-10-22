@@ -133,6 +133,20 @@ CMaterialGlue* CMaterialSystem::FindMaterialEx(CMaterialSystem* pMatSys, const c
 	}
 	return pMaterial;
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: get screen size
+// Input  : *pMatSys - 
+// Output : Vector2D screen size
+//-----------------------------------------------------------------------------
+Vector2D CMaterialSystem::GetScreenSize(CMaterialSystem* pMatSys)
+{
+	Vector2D vecScreenSize;
+
+	CMaterialSystem_GetScreenSize(pMatSys, &vecScreenSize.x, &vecScreenSize.y);
+
+	return vecScreenSize;
+}
 #endif // !DEDICATED
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -36,6 +36,7 @@
     <ClCompile Include="..\engine\common.cpp" />
     <ClCompile Include="..\engine\debugoverlay.cpp" />
     <ClCompile Include="..\engine\enginetrace.cpp" />
+    <ClCompile Include="..\engine\gl_rmain.cpp" />
     <ClCompile Include="..\engine\gl_rsurf.cpp" />
     <ClCompile Include="..\engine\gl_screen.cpp" />
     <ClCompile Include="..\engine\host.cpp" />
@@ -195,6 +196,7 @@
     <ClInclude Include="..\engine\framesnapshot.h" />
     <ClInclude Include="..\engine\gl_matsysiface.h" />
     <ClInclude Include="..\engine\gl_model_private.h" />
+    <ClInclude Include="..\engine\gl_rmain.h" />
     <ClInclude Include="..\engine\gl_rsurf.h" />
     <ClInclude Include="..\engine\gl_screen.h" />
     <ClInclude Include="..\engine\host.h" />

@@ -1,5 +1,4 @@
-#ifndef GL_RSURF_H
-#define GL_RSURF_H
+#pragma once
 #include "public/ivrenderview.h"
 
 inline CMemory P_DrawWorldMeshes;
@@ -45,5 +44,3 @@ class VGL_RSurf : public IDetour
 ///////////////////////////////////////////////////////////////////////////////
 
 REGISTER(VGL_RSurf);
-
-#endif // GL_RSURF_H
