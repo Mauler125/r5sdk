@@ -55,8 +55,9 @@ playlists
 				///////////////////////////////////////////////////////////////////////////////////
 				//// Character Configurations
 				///////////////////////////////////////////////////////////////////////////////////
-				//character_wattson                              lock
-				//character_crypto                               lock
+				//character_wattson                            lock
+				//character_crypto                             lock
+
 				//============= Hide from Normal Use ============//
 				
 				
@@ -198,8 +199,8 @@ playlists
 				///////////////////////////////////////////////////////////////////////////////////
 				//// Battlepass
 				///////////////////////////////////////////////////////////////////////////////////
-				//battlepass_character_max_xp                    25000
-				//battlepass_character_max_weekly_xp             25000
+				//battlepass_character_max_xp                  25000
+				//battlepass_character_max_weekly_xp           25000
 
 
 				///////////////////////////////////////////////////////////////////////////////////
