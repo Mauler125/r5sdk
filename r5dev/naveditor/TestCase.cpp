@@ -288,7 +288,7 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 			{
 				float h = 0;
 				navquery->getPolyHeight(polys[iter->npolys-1], hitPos, &h);
-				hitPos[1] = h;
+				hitPos[2] = h;
 			}
 			dtVcopy(&iter->straight[3], hitPos);
 

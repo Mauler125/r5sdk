@@ -492,7 +492,7 @@ dtStatus dtNavMeshQuery::findRandomPointAroundCircle(dtPolyRef startRef, const f
 	dtStatus stat = getPolyHeight(randomPolyRef, pt, &h);
 	if (dtStatusFailed(status))
 		return stat;
-	pt[1] = h;
+	pt[2] = h;
 	
 	dtVcopy(randomPt, pt);
 	*randomRef = randomPolyRef;

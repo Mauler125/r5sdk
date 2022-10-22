@@ -553,7 +553,7 @@ void NavMeshTesterTool::handleToggle()
 
 	float h = 0;
 	m_navQuery->getPolyHeight(m_pathIterPolys[0], result, &h);
-	result[1] = h;
+	result[2] = h;
 	dtVcopy(m_iterPos, result);
 	
 	// Handle end of path and off-mesh links when close enough.
