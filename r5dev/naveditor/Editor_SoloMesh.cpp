@@ -29,11 +29,11 @@
 #include "NavEditor/Include/ConvexVolumeTool.h"
 #include "NavEditor/Include/CrowdTool.h"
 #include "NavEditor/Include/InputGeom.h"
-#include "NavEditor/Include/Sample.h"
-#include "NavEditor/Include/Sample_SoloMesh.h"
+#include "NavEditor/Include/Editor.h"
+#include "NavEditor/Include/Editor_SoloMesh.h"
 
 
-Sample_SoloMesh::Sample_SoloMesh() :
+Editor_SoloMesh::Editor_SoloMesh() :
 	m_keepInterResults(true),
 	m_totalBuildTimeMs(0),
 	m_triareas(0),
@@ -47,12 +47,12 @@ Sample_SoloMesh::Sample_SoloMesh() :
 	setTool(new NavMeshTesterTool);
 }
 		
-Sample_SoloMesh::~Sample_SoloMesh()
+Editor_SoloMesh::~Editor_SoloMesh()
 {
 	cleanup();
 }
 	
-void Sample_SoloMesh::cleanup()
+void Editor_SoloMesh::cleanup()
 {
 	delete [] m_triareas;
 	m_triareas = 0;
@@ -70,9 +70,9 @@ void Sample_SoloMesh::cleanup()
 	m_navMesh = 0;
 }
 
-void Sample_SoloMesh::handleSettings()
+void Editor_SoloMesh::handleSettings()
 {
-	Sample::handleCommonSettings();
+	Editor::handleCommonSettings();
 
 	if (imguiCheck("Keep Itermediate Results", m_keepInterResults))
 		m_keepInterResults = !m_keepInterResults;
@@ -84,13 +84,13 @@ void Sample_SoloMesh::handleSettings()
 
 	if (imguiButton("Save"))
 	{
-		Sample::saveAll("solo_navmesh.bin", m_navMesh);
+		Editor::saveAll("solo_navmesh.bin", m_navMesh);
 	}
 
 	if (imguiButton("Load"))
 	{
 		dtFreeNavMesh(m_navMesh);
-		m_navMesh = Sample::loadAll("solo_navmesh.bin");
+		m_navMesh = Editor::loadAll("solo_navmesh.bin");
 		m_navQuery->init(m_navMesh, 2048);
 	}
 
@@ -104,7 +104,7 @@ void Sample_SoloMesh::handleSettings()
 	imguiSeparator();
 }
 
-void Sample_SoloMesh::handleTools()
+void Editor_SoloMesh::handleTools()
 {
 	int type = !m_tool ? TOOL_NONE : m_tool->type();
 	
@@ -140,7 +140,7 @@ void Sample_SoloMesh::handleTools()
 
 }
 
-void Sample_SoloMesh::handleDebugMode()
+void Editor_SoloMesh::handleDebugMode()
 {
 	// Check which modes are valid.
 	bool valid[MAX_DRAWMODE];
@@ -218,7 +218,7 @@ void Sample_SoloMesh::handleDebugMode()
 	}
 }
 
-void Sample_SoloMesh::handleRender()
+void Editor_SoloMesh::handleRender()
 {
 	if (!m_geom || !m_geom->getMesh())
 		return;
@@ -334,16 +334,16 @@ void Sample_SoloMesh::handleRender()
 	glDepthMask(GL_TRUE);
 }
 
-void Sample_SoloMesh::handleRenderOverlay(double* proj, double* model, int* view)
+void Editor_SoloMesh::handleRenderOverlay(double* proj, double* model, int* view)
 {
 	if (m_tool)
 		m_tool->handleRenderOverlay(proj, model, view);
 	renderOverlayToolStates(proj, model, view);
 }
 
-void Sample_SoloMesh::handleMeshChanged(class InputGeom* geom)
+void Editor_SoloMesh::handleMeshChanged(class InputGeom* geom)
 {
-	Sample::handleMeshChanged(geom);
+	Editor::handleMeshChanged(geom);
 
 	dtFreeNavMesh(m_navMesh);
 	m_navMesh = 0;
@@ -358,7 +358,7 @@ void Sample_SoloMesh::handleMeshChanged(class InputGeom* geom)
 }
 
 
-bool Sample_SoloMesh::handleBuild()
+bool Editor_SoloMesh::handleBuild()
 {
 	if (!m_geom || !m_geom->getMesh())
 	{

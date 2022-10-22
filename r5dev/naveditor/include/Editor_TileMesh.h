@@ -22,7 +22,7 @@
 #include "Recast/Include/Recast.h"
 #include "Detour/Include/DetourNavMesh.h"
 #include "NavEditor/Include/ChunkyTriMesh.h"
-#include "NavEditor/Include/Sample.h"
+#include "NavEditor/Include/Editor.h"
 
 class Editor_TileMesh : public Editor
 {

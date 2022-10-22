@@ -22,7 +22,7 @@
 #include "DebugUtils/Include/DetourDebugDraw.h"
 #include "DebugUtils/Include/RecastDump.h"
 #include "Detour/Include/DetourNavMesh.h"
-#include "NavEditor/Include/Sample_Debug.h"
+#include "NavEditor/Include/Editor_Debug.h"
 #include "NavEditor/Include/InputGeom.h"
 
 /*

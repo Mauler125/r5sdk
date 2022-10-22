@@ -23,7 +23,7 @@
 #include "DebugUtils/Include/DetourDebugDraw.h"
 #include "NavEditor/Include/NavMeshPruneTool.h"
 #include "NavEditor/Include/InputGeom.h"
-#include "NavEditor/Include/Sample.h"
+#include "NavEditor/Include/Editor.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf

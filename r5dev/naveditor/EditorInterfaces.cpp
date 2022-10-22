@@ -2,7 +2,7 @@
 #include "Recast/Include/Recast.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "DebugUtils/Include/DetourDebugDraw.h"
-#include "NavEditor/Include/SampleInterfaces.h"
+#include "NavEditor/Include/EditorInterfaces.h"
 #include "NavEditor/Include/PerfTimer.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

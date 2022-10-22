@@ -19,7 +19,7 @@
 #ifndef OFFMESHCONNECTIONTOOL_H
 #define OFFMESHCONNECTIONTOOL_H
 
-#include "NavEditor/Include/Sample.h"
+#include "NavEditor/Include/Editor.h"
 
 // Tool to create off-mesh connection for InputGeom
 

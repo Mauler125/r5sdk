@@ -22,7 +22,7 @@
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "NavEditor/Include/ConvexVolumeTool.h"
 #include "NavEditor/Include/InputGeom.h"
-#include "NavEditor/Include/Sample.h"
+#include "NavEditor/Include/Editor.h"
 #include <naveditor/include/GameUtils.h>
 
 // Quick and dirty convex hull.

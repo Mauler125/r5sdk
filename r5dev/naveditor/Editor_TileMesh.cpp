@@ -28,8 +28,8 @@
 #include "NavEditor/Include/ConvexVolumeTool.h"
 #include "NavEditor/Include/CrowdTool.h"
 #include "NavEditor/Include/InputGeom.h"
-#include "NavEditor/Include/Sample.h"
-#include "NavEditor/Include/Sample_TileMesh.h"
+#include "NavEditor/Include/Editor.h"
+#include "NavEditor/Include/Editor_TileMesh.h"
 
 
 inline unsigned int nextPow2(unsigned int v)

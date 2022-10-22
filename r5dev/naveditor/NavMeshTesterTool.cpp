@@ -24,7 +24,7 @@
 #include "DebugUtils/Include/DetourDebugDraw.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "NavEditor/Include/NavMeshTesterTool.h"
-#include "NavEditor/Include/Sample.h"
+#include "NavEditor/Include/Editor.h"
 
 // Uncomment this to dump all the requests in stdout.
 #define DUMP_REQS

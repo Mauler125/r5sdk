@@ -19,7 +19,7 @@
 #ifndef RECASTSAMPLEDEBUG_H
 #define RECASTSAMPLEDEBUG_H
 
-#include "NavEditor/Include/Sample.h"
+#include "NavEditor/Include/Editor.h"
 #include "Detour/Include/DetourNavMesh.h"
 #include "Recast/Include/Recast.h"
 

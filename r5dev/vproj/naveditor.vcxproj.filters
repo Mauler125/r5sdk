@@ -39,7 +39,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\naveditor\include\Sample.h">
+    <ClInclude Include="..\naveditor\include\Editor.h">
       <Filter>core\include</Filter>
     </ClInclude>
     <ClInclude Include="..\naveditor\include\MeshLoaderPly.h">
@@ -57,7 +57,7 @@
     <ClInclude Include="..\naveditor\include\InputGeom.h">
       <Filter>builder\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\naveditor\include\Sample_TileMesh.h">
+    <ClInclude Include="..\naveditor\include\Editor_TileMesh.h">
       <Filter>builder\include</Filter>
     </ClInclude>
     <ClInclude Include="..\naveditor\include\ChunkyTriMesh.h">
@@ -84,10 +84,10 @@
     <ClInclude Include="..\naveditor\include\TestCase.h">
       <Filter>utils\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\naveditor\include\SampleInterfaces.h">
+    <ClInclude Include="..\naveditor\include\EditorInterfaces.h">
       <Filter>utils\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\naveditor\include\Sample_Debug.h">
+    <ClInclude Include="..\naveditor\include\Editor_Debug.h">
       <Filter>utils\include</Filter>
     </ClInclude>
     <ClInclude Include="..\naveditor\include\PerfTimer.h">
@@ -119,7 +119,7 @@
     <ClCompile Include="..\naveditor\main.cpp">
       <Filter>core</Filter>
     </ClCompile>
-    <ClCompile Include="..\naveditor\Sample.cpp">
+    <ClCompile Include="..\naveditor\Editor.cpp">
       <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="..\naveditor\MeshLoaderBsp.cpp">
@@ -158,10 +158,10 @@
     <ClCompile Include="..\naveditor\NavMeshTesterTool.cpp">
       <Filter>tools</Filter>
     </ClCompile>
-    <ClCompile Include="..\naveditor\SampleInterfaces.cpp">
+    <ClCompile Include="..\naveditor\EditorInterfaces.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\naveditor\Sample_Debug.cpp">
+    <ClCompile Include="..\naveditor\Editor_Debug.cpp">
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="..\naveditor\PerfTimer.cpp">
@@ -170,7 +170,7 @@
     <ClCompile Include="..\naveditor\ValueHistory.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\naveditor\Sample_TileMesh.cpp">
+    <ClCompile Include="..\naveditor\Editor_TileMesh.cpp">
       <Filter>builder</Filter>
     </ClCompile>
     <ClCompile Include="..\naveditor\InputGeom.cpp">

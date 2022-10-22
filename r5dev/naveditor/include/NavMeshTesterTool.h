@@ -21,7 +21,7 @@
 
 #include "Detour/Include/DetourNavMesh.h"
 #include "Detour/Include/DetourNavMeshQuery.h"
-#include "NavEditor/Include/Sample.h"
+#include "NavEditor/Include/Editor.h"
 
 class NavMeshTesterTool : public EditorTool
 {

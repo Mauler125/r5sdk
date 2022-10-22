@@ -26,7 +26,7 @@
 #include "NavEditor/Include/FileTypes.h"
 #include "NavEditor/Include/GameUtils.h"
 #include "NavEditor/Include/InputGeom.h"
-#include "NavEditor/Include/Sample.h"
+#include "NavEditor/Include/Editor.h"
 
 unsigned int EditorDebugDraw::areaToCol(unsigned int area)
 {

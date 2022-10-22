@@ -23,7 +23,7 @@
 #include "Detour/Include/DetourNavMesh.h"
 #include "NavEditor/Include/Sample.h"
 
-class Sample_SoloMesh : public Sample
+class Editor_SoloMesh : public Sample
 {
 protected:
 	bool m_keepInterResults;
@@ -64,8 +64,8 @@ protected:
 	void cleanup();
 
 public:
-	Sample_SoloMesh();
-	virtual ~Sample_SoloMesh();
+	Editor_SoloMesh();
+	virtual ~Editor_SoloMesh();
 	
 	virtual void handleSettings();
 	virtual void handleTools();
@@ -78,8 +78,8 @@ public:
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
-	Sample_SoloMesh(const Sample_SoloMesh&);
-	Sample_SoloMesh& operator=(const Sample_SoloMesh&);
+	Editor_SoloMesh(const Editor_SoloMesh&);
+	Editor_SoloMesh& operator=(const Editor_SoloMesh&);
 };
 
 

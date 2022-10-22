@@ -24,8 +24,8 @@
 #include "DebugUtils/Include/DetourDebugDraw.h"
 #include "NavEditor/Include/CrowdTool.h"
 #include "NavEditor/Include/InputGeom.h"
-#include "NavEditor/Include/Sample.h"
-#include "NavEditor/Include/SampleInterfaces.h"
+#include "NavEditor/Include/Editor.h"
+#include "NavEditor/Include/EditorInterfaces.h"
 #include "thirdparty/recast/DetourCrowd/Include/DetourCrowdInternal.h"
 
 static bool isectSegAABB(const float* sp, const float* sq,

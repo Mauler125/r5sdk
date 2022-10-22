@@ -23,7 +23,7 @@
 #include "DetourCrowd/Include/DetourObstacleAvoidance.h"
 #include "DetourCrowd/Include/DetourCrowd.h"
 #include "NavEditor/Include/ValueHistory.h"
-#include "NavEditor/Include/Sample.h"
+#include "NavEditor/Include/Editor.h"
 
 // Tool to create crowds.
 

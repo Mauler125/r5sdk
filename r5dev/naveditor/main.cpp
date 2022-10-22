@@ -23,8 +23,8 @@
 #include "NavEditor/Include/InputGeom.h"
 #include "NavEditor/Include/TestCase.h"
 #include "NavEditor/Include/Filelist.h"
-#include "NavEditor/Include/Sample_TileMesh.h"
-#include "NavEditor/Include/Sample_Debug.h"
+#include "NavEditor/Include/Editor_TileMesh.h"
+#include "NavEditor/Include/Editor_Debug.h"
 #include "NavEditor/include/DroidSans.h"
 
 using std::string;

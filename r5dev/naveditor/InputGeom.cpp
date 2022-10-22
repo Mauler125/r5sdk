@@ -25,7 +25,7 @@
 #include "DebugUtils/Include/DebugDraw.h"
 #include "DebugUtils/Include/RecastDebugDraw.h"
 #include "Detour/Include/DetourNavMesh.h"
-#include "NavEditor/Include/Sample.h"
+#include "NavEditor/Include/Editor.h"
 #include <naveditor/include/GameUtils.h>
 
 static bool intersectSegmentTriangle(const float* sp, const float* sq,

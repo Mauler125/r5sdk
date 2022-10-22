@@ -20,7 +20,7 @@
 #define RECASTSAMPLE_H
 
 #include "Recast/Include/Recast.h"
-#include "NavEditor/Include/SampleInterfaces.h"
+#include "NavEditor/Include/EditorInterfaces.h"
 
 struct hulldef
 {

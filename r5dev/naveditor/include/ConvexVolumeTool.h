@@ -19,7 +19,7 @@
 #ifndef CONVEXVOLUMETOOL_H
 #define CONVEXVOLUMETOOL_H
 
-#include "NavEditor/Include/Sample.h"
+#include "NavEditor/Include/Editor.h"
 
 // Tool to create convex volumess for InputGeom
 
