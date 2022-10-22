@@ -32,11 +32,11 @@ using std::vector;
 
 struct SampleItem
 {
-	Sample* (*create)();
+	Editor* (*create)();
 	const string name;
 };
-Sample* createTile() { return new Sample_TileMesh(); }
-Sample* createDebug() { return new Sample_Debug(); }
+Editor* createTile() { return new Editor_TileMesh(); }
+Editor* createDebug() { return new Editor_Debug(); }
 
 void save_ply(std::vector<float>& pts,std::vector<int>& colors,rcIntArray& tris)
 {
@@ -117,7 +117,7 @@ void generate_points(float* pts, int count, float dx, float dy, float dz)
 	}
 }
 
-void auto_load(const char* path, BuildContext& ctx, Sample*& sample,InputGeom*& geom, string& meshName)
+void auto_load(const char* path, BuildContext& ctx, Editor*& sample,InputGeom*& geom, string& meshName)
 {
 	string geom_path = std::string(path);
 	meshName = geom_path.substr(geom_path.rfind("\\") + 1);
@@ -393,22 +393,22 @@ int not_main(int argc, char** argv)
 	bool markerPositionSet = false;
 	
 	InputGeom* geom = nullptr;
-	Sample* sample = nullptr;
+	Editor* editor = nullptr;
 	TestCase* test = nullptr;
 	BuildContext ctx;
 	
 	//Load tiled sample
 
-	sample = createTile();
-	sample->setContext(&ctx);
+	editor = createTile();
+	editor->setContext(&ctx);
 	if (geom)
 	{
-		sample->handleMeshChanged(geom);
+		editor->handleMeshChanged(geom);
 	}
 	if (autoLoad)
 	{
-		auto_load(autoLoad, ctx, sample, geom, meshName);
-		if (geom || sample)
+		auto_load(autoLoad, ctx, editor, geom, meshName);
+		if (geom || editor)
 		{
 			const float* bmin = 0;
 			const float* bmax = 0;
@@ -424,7 +424,7 @@ int not_main(int argc, char** argv)
 		}
 		if (argc > 2)
 		{
-			auto ts = dynamic_cast<Sample_TileMesh*>(sample);
+			auto ts = dynamic_cast<Editor_TileMesh*>(editor);
 			ts->buildAllHulls();
 			return EXIT_SUCCESS;
 		}
@@ -500,17 +500,17 @@ int not_main(int argc, char** argv)
 					}
 					else if (event.key.keysym.sym == SDLK_SPACE)
 					{
-						if (sample)
-							sample->handleToggle();
+						if (editor)
+							editor->handleToggle();
 					}
 					else if (event.key.keysym.sym == SDLK_1)
 					{
-						if (sample)
-							sample->handleStep();
+						if (editor)
+							editor->handleStep();
 					}
 					else if (event.key.keysym.sym == SDLK_9)
 					{
-						if (sample && geom)
+						if (editor && geom)
 						{
 							string savePath = meshesFolder + "/";
 							BuildSettings settings;
@@ -519,7 +519,7 @@ int not_main(int argc, char** argv)
 							rcVcopy(settings.navMeshBMin, geom->getNavMeshBoundsMin());
 							rcVcopy(settings.navMeshBMax, geom->getNavMeshBoundsMax());
 
-							sample->collectSettings(settings);
+							editor->collectSettings(settings);
 
 							geom->saveGeomSet(&settings);
 						}
@@ -631,7 +631,7 @@ int not_main(int argc, char** argv)
 		t += dt;
 
 		// Hit test mesh.
-		if (processHitTest && geom && sample)
+		if (processHitTest && geom && editor)
 		{
 			float hitTime;
 			bool hit = geom->raycastMesh(rayStart, rayEnd, hitTime);
@@ -652,7 +652,7 @@ int not_main(int argc, char** argv)
 					pos[0] = rayStart[0] + (rayEnd[0] - rayStart[0]) * hitTime;
 					pos[1] = rayStart[1] + (rayEnd[1] - rayStart[1]) * hitTime;
 					pos[2] = rayStart[2] + (rayEnd[2] - rayStart[2]) * hitTime;
-					sample->handleClick(rayStart, pos, processHitTestShift);
+					editor->handleClick(rayStart, pos, processHitTestShift);
 				}
 			}
 			else
@@ -673,9 +673,9 @@ int not_main(int argc, char** argv)
 		while (timeAcc > DELTA_TIME)
 		{
 			timeAcc -= DELTA_TIME;
-			if (simIter < 5 && sample)
+			if (simIter < 5 && editor)
 			{
-				sample->handleUpdate(DELTA_TIME);
+				editor->handleUpdate(DELTA_TIME);
 			}
 			simIter++;
 		}
@@ -768,8 +768,8 @@ int not_main(int argc, char** argv)
 
 		glEnable(GL_FOG);
 
-		if (sample)
-			sample->handleRender();
+		if (editor)
+			editor->handleRender();
 		if (test)
 			test->handleRender();
 		
@@ -787,9 +787,9 @@ int not_main(int argc, char** argv)
 		
 		imguiBeginFrame(mousePos[0], mousePos[1], mouseButtonMask, mouseScroll);
 		
-		if (sample)
+		if (editor)
 		{
-			sample->handleRenderOverlay(reinterpret_cast<double*>(projectionMatrix), 
+			editor->handleRenderOverlay(reinterpret_cast<double*>(projectionMatrix), 
 				reinterpret_cast<double*>(modelviewMatrix), reinterpret_cast<int*>(viewport));
 		}
 		if (test)
@@ -874,16 +874,16 @@ int not_main(int argc, char** argv)
 			}
 			imguiSeparator();
 
-			if (geom && sample)
+			if (geom && editor)
 			{
 				imguiSeparatorLine();
 				
-				sample->handleSettings();
+				editor->handleSettings();
 
 				if (imguiButton("Build"))
 				{
 					ctx.resetLog();
-					if (!sample->handleBuild())
+					if (!editor->handleBuild())
 					{
 						showLog = true;
 						logScroll = 0;
@@ -898,10 +898,10 @@ int not_main(int argc, char** argv)
 				imguiSeparator();
 			}
 			
-			if (sample)
+			if (editor)
 			{
 				imguiSeparatorLine();
-				sample->handleDebugMode();
+				editor->handleDebugMode();
 			}
 
 			imguiEndScrollArea();
@@ -911,7 +911,7 @@ int not_main(int argc, char** argv)
 		if (showSample)
 		{
 			static int levelScroll = 0;
-			if (geom || sample)
+			if (geom || editor)
 			{
 				const float* bmin = 0;
 				const float* bmax = 0;
@@ -968,23 +968,23 @@ int not_main(int argc, char** argv)
 				geom = 0;
 
 				// Destroy the sample if it already had geometry loaded, as we've just deleted it!
-				if (sample && sample->getInputGeom())
+				if (editor && editor->getInputGeom())
 				{
-					delete sample;
-					sample = 0;
+					delete editor;
+					editor = 0;
 				}
 
 				showLog = true;
 				logScroll = 0;
 				ctx.dumpLog("Geom load log %s:", meshName.c_str());
 			}
-			if (sample && geom)
+			if (editor && geom)
 			{
-				sample->handleMeshChanged(geom);
-				sample->m_modelName = meshName.substr(0, meshName.size() - 4);
+				editor->handleMeshChanged(geom);
+				editor->m_modelName = meshName.substr(0, meshName.size() - 4);
 			}
 
-			if (geom || sample)
+			if (geom || editor)
 			{
 				const float* bmin = 0;
 				const float* bmax = 0;
@@ -1028,9 +1028,9 @@ int not_main(int argc, char** argv)
 						test = 0;
 					}
 
-					if (sample)
+					if (editor)
 					{
-						sample->setContext(&ctx);
+						editor->setContext(&ctx);
 						showSample = false;
 					}
 
@@ -1046,29 +1046,29 @@ int not_main(int argc, char** argv)
 					{
 						delete geom;
 						geom = 0;
-						delete sample;
-						sample = 0;
+						delete editor;
+						editor = 0;
 						showLog = true;
 						logScroll = 0;
 						ctx.dumpLog("Geom load log %s:", meshName.c_str());
 					}
-					if (sample && geom)
+					if (editor && geom)
 					{
-						sample->handleMeshChanged(geom);
-						sample->m_modelName = meshName.substr(0, meshName.size() - 4);
+						editor->handleMeshChanged(geom);
+						editor->m_modelName = meshName.substr(0, meshName.size() - 4);
 					}
 
 					// This will ensure that tile & poly bits are updated in tiled sample.
-					if (sample)
-						sample->handleSettings();
+					if (editor)
+						editor->handleSettings();
 
 					ctx.resetLog();
-					if (sample && !sample->handleBuild())
+					if (editor && !editor->handleBuild())
 					{
 						ctx.dumpLog("Build log %s:", meshName.c_str());
 					}
 					
-					if (geom || sample)
+					if (geom || editor)
 					{
 						const float* bmin = 0;
 						const float* bmax = 0;
@@ -1082,8 +1082,8 @@ int not_main(int argc, char** argv)
 					}
 					
 					// Do the tests.
-					if (sample)
-						test->doTests(sample->getNavMesh(), sample->getNavMeshQuery());
+					if (editor)
+						test->doTests(editor->getNavMesh(), editor->getNavMeshQuery());
 				}
 			}				
 				
@@ -1107,8 +1107,8 @@ int not_main(int argc, char** argv)
 			if (imguiBeginScrollArea("Tools", 10, 10, 250, height - 20, &toolsScroll))
 				mouseOverMenu = true;
 
-			if (sample)
-				sample->handleTools();
+			if (editor)
+				editor->handleTools();
 			
 			imguiEndScrollArea();
 		}
@@ -1146,7 +1146,7 @@ int not_main(int argc, char** argv)
 	
 	SDL_Quit();
 	
-	delete sample;
+	delete editor;
 	delete geom;
 	
 	return EXIT_SUCCESS;

@@ -199,7 +199,7 @@ static bool getSteerTarget(dtNavMeshQuery* navQuery, const float* startPos, cons
 
 
 NavMeshTesterTool::NavMeshTesterTool() :
-	m_sample(0),
+	m_editor(0),
 	m_navMesh(0),
 	m_navQuery(0),
 	m_pathFindStatus(DT_FAILURE),
@@ -220,7 +220,7 @@ NavMeshTesterTool::NavMeshTesterTool() :
 	m_pathIterPolyCount(0),
 	m_steerPointCount(0)
 {
-	m_filter.setIncludeFlags(SAMPLE_POLYFLAGS_ALL ^ SAMPLE_POLYFLAGS_DISABLED);
+	m_filter.setIncludeFlags(EDITOR_POLYFLAGS_ALL ^ EDITOR_POLYFLAGS_DISABLED);
 	m_filter.setExcludeFlags(0);
 
 	m_polyPickExt[0] = 2;
@@ -231,26 +231,26 @@ NavMeshTesterTool::NavMeshTesterTool() :
 	m_randomRadius = 5.0f;
 }
 
-void NavMeshTesterTool::init(Sample* sample)
+void NavMeshTesterTool::init(Editor* editor)
 {
-	m_sample = sample;
-	m_navMesh = sample->getNavMesh();
-	m_navQuery = sample->getNavMeshQuery();
+	m_editor = editor;
+	m_navMesh = editor->getNavMesh();
+	m_navQuery = editor->getNavMeshQuery();
 	recalc();
 
 	if (m_navQuery)
 	{
 		// Change costs.
-		m_filter.setAreaCost(SAMPLE_POLYAREA_GROUND, 1.0f);
-		m_filter.setAreaCost(SAMPLE_POLYAREA_WATER, 10.0f);
-		m_filter.setAreaCost(SAMPLE_POLYAREA_ROAD, 1.0f);
-		m_filter.setAreaCost(SAMPLE_POLYAREA_DOOR, 1.0f);
-		m_filter.setAreaCost(SAMPLE_POLYAREA_GRASS, 2.0f);
-		m_filter.setAreaCost(SAMPLE_POLYAREA_JUMP, 1.5f);
+		m_filter.setAreaCost(EDITOR_POLYAREA_GROUND, 1.0f);
+		m_filter.setAreaCost(EDITOR_POLYAREA_WATER, 10.0f);
+		m_filter.setAreaCost(EDITOR_POLYAREA_ROAD, 1.0f);
+		m_filter.setAreaCost(EDITOR_POLYAREA_DOOR, 1.0f);
+		m_filter.setAreaCost(EDITOR_POLYAREA_GRASS, 2.0f);
+		m_filter.setAreaCost(EDITOR_POLYAREA_JUMP, 1.5f);
 	}
 	
-	m_neighbourhoodRadius = sample->getAgentRadius() * 20.0f;
-	m_randomRadius = sample->getAgentRadius() * 30.0f;
+	m_neighbourhoodRadius = editor->getAgentRadius() * 20.0f;
+	m_randomRadius = editor->getAgentRadius() * 30.0f;
 }
 
 void NavMeshTesterTool::handleMenu()
@@ -398,24 +398,24 @@ void NavMeshTesterTool::handleMenu()
 	imguiLabel("Include Flags");
 
 	imguiIndent();
-	if (imguiCheck("Walk", (m_filter.getIncludeFlags() & SAMPLE_POLYFLAGS_WALK) != 0))
+	if (imguiCheck("Walk", (m_filter.getIncludeFlags() & EDITOR_POLYFLAGS_WALK) != 0))
 	{
-		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ SAMPLE_POLYFLAGS_WALK);
+		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ EDITOR_POLYFLAGS_WALK);
 		recalc();
 	}
-	if (imguiCheck("Swim", (m_filter.getIncludeFlags() & SAMPLE_POLYFLAGS_SWIM) != 0))
+	if (imguiCheck("Swim", (m_filter.getIncludeFlags() & EDITOR_POLYFLAGS_SWIM) != 0))
 	{
-		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ SAMPLE_POLYFLAGS_SWIM);
+		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ EDITOR_POLYFLAGS_SWIM);
 		recalc();
 	}
-	if (imguiCheck("Door", (m_filter.getIncludeFlags() & SAMPLE_POLYFLAGS_DOOR) != 0))
+	if (imguiCheck("Door", (m_filter.getIncludeFlags() & EDITOR_POLYFLAGS_DOOR) != 0))
 	{
-		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ SAMPLE_POLYFLAGS_DOOR);
+		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ EDITOR_POLYFLAGS_DOOR);
 		recalc();
 	}
-	if (imguiCheck("Jump", (m_filter.getIncludeFlags() & SAMPLE_POLYFLAGS_JUMP) != 0))
+	if (imguiCheck("Jump", (m_filter.getIncludeFlags() & EDITOR_POLYFLAGS_JUMP) != 0))
 	{
-		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ SAMPLE_POLYFLAGS_JUMP);
+		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ EDITOR_POLYFLAGS_JUMP);
 		recalc();
 	}
 	imguiUnindent();
@@ -424,24 +424,24 @@ void NavMeshTesterTool::handleMenu()
 	imguiLabel("Exclude Flags");
 	
 	imguiIndent();
-	if (imguiCheck("Walk", (m_filter.getExcludeFlags() & SAMPLE_POLYFLAGS_WALK) != 0))
+	if (imguiCheck("Walk", (m_filter.getExcludeFlags() & EDITOR_POLYFLAGS_WALK) != 0))
 	{
-		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ SAMPLE_POLYFLAGS_WALK);
+		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ EDITOR_POLYFLAGS_WALK);
 		recalc();
 	}
-	if (imguiCheck("Swim", (m_filter.getExcludeFlags() & SAMPLE_POLYFLAGS_SWIM) != 0))
+	if (imguiCheck("Swim", (m_filter.getExcludeFlags() & EDITOR_POLYFLAGS_SWIM) != 0))
 	{
-		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ SAMPLE_POLYFLAGS_SWIM);
+		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ EDITOR_POLYFLAGS_SWIM);
 		recalc();
 	}
-	if (imguiCheck("Door", (m_filter.getExcludeFlags() & SAMPLE_POLYFLAGS_DOOR) != 0))
+	if (imguiCheck("Door", (m_filter.getExcludeFlags() & EDITOR_POLYFLAGS_DOOR) != 0))
 	{
-		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ SAMPLE_POLYFLAGS_DOOR);
+		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ EDITOR_POLYFLAGS_DOOR);
 		recalc();
 	}
-	if (imguiCheck("Jump", (m_filter.getExcludeFlags() & SAMPLE_POLYFLAGS_JUMP) != 0))
+	if (imguiCheck("Jump", (m_filter.getExcludeFlags() & EDITOR_POLYFLAGS_JUMP) != 0))
 	{
-		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ SAMPLE_POLYFLAGS_JUMP);
+		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ EDITOR_POLYFLAGS_JUMP);
 		recalc();
 	}
 	imguiUnindent();
@@ -949,7 +949,7 @@ void NavMeshTesterTool::recalc()
 		{
 			const float nx = -(m_epos[1] - m_spos[1])*0.25f;
 			const float ny = (m_epos[0] - m_spos[0])*0.25f;
-			const float agentHeight = m_sample ? m_sample->getAgentHeight() : 0;
+			const float agentHeight = m_editor ? m_editor->getAgentHeight() : 0;
 
 			m_queryPoly[0] = m_spos[0] + nx*1.2f;
 			m_queryPoly[1] = m_spos[1] + ny*1.2f;
@@ -1023,15 +1023,15 @@ static void getPolyCenter(dtNavMesh* navMesh, dtPolyRef ref, float* center)
 
 void NavMeshTesterTool::handleRender()
 {
-	duDebugDraw& dd = m_sample->getDebugDraw();
+	duDebugDraw& dd = m_editor->getDebugDraw();
 	
 	static const unsigned int startCol = duRGBA(128,25,0,192);
 	static const unsigned int endCol = duRGBA(51,102,0,129);
 	static const unsigned int pathCol = duRGBA(0,0,0,64);
 	
-	const float agentRadius = m_sample->getAgentRadius();
-	const float agentHeight = m_sample->getAgentHeight();
-	const float agentClimb = m_sample->getAgentClimb();
+	const float agentRadius = m_editor->getAgentRadius();
+	const float agentHeight = m_editor->getAgentHeight();
+	const float agentClimb = m_editor->getAgentClimb();
 	
 	dd.depthMask(false);
 	if (m_sposSet)
@@ -1380,7 +1380,7 @@ void NavMeshTesterTool::handleRenderOverlay(double* proj, double* model, int* vi
 
 void NavMeshTesterTool::drawAgent(const float* pos, float r, float h, float c, const unsigned int col)
 {
-	duDebugDraw& dd = m_sample->getDebugDraw();
+	duDebugDraw& dd = m_editor->getDebugDraw();
 	
 	dd.depthMask(false);
 	

@@ -56,16 +56,16 @@ inline unsigned int ilog2(unsigned int v)
 	return r;
 }
 
-class NavMeshTileTool : public SampleTool
+class NavMeshTileTool : public EditorTool
 {
-	Sample_TileMesh* m_sample;
+	Editor_TileMesh* m_editor;
 	float m_hitPos[3];
 	bool m_hitPosSet;
 	
 public:
 
 	NavMeshTileTool() :
-		m_sample(0),
+		m_editor(0),
 		m_hitPosSet(false)
 	{
 		m_hitPos[0] = m_hitPos[1] = m_hitPos[2] = 0;
@@ -77,9 +77,9 @@ public:
 
 	virtual int type() { return TOOL_TILE_EDIT; }
 
-	virtual void init(Sample* sample)
+	virtual void init(Editor* editor)
 	{
-		m_sample = (Sample_TileMesh*)sample; 
+		m_editor = (Editor_TileMesh*)editor;
 	}
 	
 	virtual void reset() {}
@@ -89,13 +89,13 @@ public:
 		imguiLabel("Create Tiles");
 		if (imguiButton("Create All"))
 		{
-			if (m_sample)
-				m_sample->buildAllTiles();
+			if (m_editor)
+				m_editor->buildAllTiles();
 		}
 		if (imguiButton("Remove All"))
 		{
-			if (m_sample)
-				m_sample->removeAllTiles();
+			if (m_editor)
+				m_editor->removeAllTiles();
 		}
 	}
 
@@ -103,12 +103,12 @@ public:
 	{
 		m_hitPosSet = true;
 		rcVcopy(m_hitPos,p);
-		if (m_sample)
+		if (m_editor)
 		{
 			if (shift)
-				m_sample->removeTile(m_hitPos);
+				m_editor->removeTile(m_hitPos);
 			else
-				m_sample->buildTile(m_hitPos);
+				m_editor->buildTile(m_hitPos);
 		}
 	}
 
@@ -122,7 +122,7 @@ public:
 	{
 		if (m_hitPosSet)
 		{
-			const float s = m_sample->getAgentRadius();
+			const float s = m_editor->getAgentRadius();
 			glColor4ub(0,0,0,128);
 			glLineWidth(2.0f);
 			glBegin(GL_LINES);
@@ -144,7 +144,7 @@ public:
 									  model, proj, view, &x, &y, &z))
 		{
 			int tx=0, ty=0;
-			m_sample->getTilePos(m_hitPos, tx, ty);
+			m_editor->getTilePos(m_hitPos, tx, ty);
 			char text[32];
 			snprintf(text,32,"(%d,%d)", tx,ty);
 			imguiDrawText((int)x, (int)y-25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0,0,0,220));
@@ -159,7 +159,7 @@ public:
 
 
 
-Sample_TileMesh::Sample_TileMesh() :
+Editor_TileMesh::Editor_TileMesh() :
 	m_keepInterResults(false),
 	m_buildAll(true),
 	m_totalBuildTimeMs(0),
@@ -185,14 +185,14 @@ Sample_TileMesh::Sample_TileMesh() :
 	setTool(new NavMeshTileTool);
 }
 
-Sample_TileMesh::~Sample_TileMesh()
+Editor_TileMesh::~Editor_TileMesh()
 {
 	cleanup();
 	dtFreeNavMesh(m_navMesh);
 	m_navMesh = 0;
 }
 
-void Sample_TileMesh::cleanup()
+void Editor_TileMesh::cleanup()
 {
 	delete [] m_triareas;
 	m_triareas = 0;
@@ -214,7 +214,7 @@ const hulldef hulls[5] = {
 	{ "large", 60, 235 * 0.5, 60, 64.0f },
 	{ "extra_large", 88, 235 * 0.5, 65, 64.0f },
 };
-void Sample_TileMesh::handleSettings()
+void Editor_TileMesh::handleSettings()
 {
 	for (const hulldef& h : hulls)
 	{
@@ -227,7 +227,7 @@ void Sample_TileMesh::handleSettings()
 			m_tileSize = h.tile_size;
 		}
 	}
-	Sample::handleCommonSettings();
+	Editor::handleCommonSettings();
 
 	if (imguiCheck("Keep Itermediate Results", m_keepInterResults))
 		m_keepInterResults = !m_keepInterResults;
@@ -277,13 +277,13 @@ void Sample_TileMesh::handleSettings()
 	
 	if (imguiButton("Save"))
 	{
-		Sample::saveAll(m_modelName.c_str(), m_navMesh);
+		Editor::saveAll(m_modelName.c_str(), m_navMesh);
 	}
 
 	if (imguiButton("Load"))
 	{
 		dtFreeNavMesh(m_navMesh);
-		m_navMesh = Sample::loadAll(m_modelName.c_str());
+		m_navMesh = Editor::loadAll(m_modelName.c_str());
 		m_navQuery->init(m_navMesh, 2048);
 	}
 
@@ -300,7 +300,7 @@ void Sample_TileMesh::handleSettings()
 	
 }
 
-void Sample_TileMesh::handleTools()
+void Editor_TileMesh::handleTools()
 {
 	int type = !m_tool ? TOOL_NONE : m_tool->type();
 
@@ -339,7 +339,7 @@ void Sample_TileMesh::handleTools()
 	imguiUnindent();
 }
 
-void Sample_TileMesh::handleDebugMode()
+void Editor_TileMesh::handleDebugMode()
 {
 	// Check which modes are valid.
 	bool valid[MAX_DRAWMODE];
@@ -421,7 +421,7 @@ void Sample_TileMesh::handleDebugMode()
 	}
 }
 
-void Sample_TileMesh::handleRender()
+void Editor_TileMesh::handleRender()
 {
 	if (!m_geom || !m_geom->getMesh())
 		return;
@@ -473,7 +473,7 @@ void Sample_TileMesh::handleRender()
 			duDebugDrawNavMeshPortals(&m_dd, *m_navMesh);
 		if (m_drawMode == DRAWMODE_NAVMESH_NODES)
 			duDebugDrawNavMeshNodes(&m_dd, *m_navQuery);
-		duDebugDrawNavMeshPolysWithFlags(&m_dd, *m_navMesh, SAMPLE_POLYFLAGS_DISABLED, duRGBA(0,0,0,128));
+		duDebugDrawNavMeshPolysWithFlags(&m_dd, *m_navMesh, EDITOR_POLYFLAGS_DISABLED, duRGBA(0,0,0,128));
 	}
 	
 	
@@ -549,7 +549,7 @@ void Sample_TileMesh::handleRender()
 	glDepthMask(GL_TRUE);
 }
 
-void Sample_TileMesh::handleRenderOverlay(double* proj, double* model, int* view)
+void Editor_TileMesh::handleRenderOverlay(double* proj, double* model, int* view)
 {
 	GLdouble x, y, z;
 	
@@ -567,9 +567,9 @@ void Sample_TileMesh::handleRenderOverlay(double* proj, double* model, int* view
 	renderOverlayToolStates(proj, model, view);
 }
 
-void Sample_TileMesh::handleMeshChanged(InputGeom* geom)
+void Editor_TileMesh::handleMeshChanged(InputGeom* geom)
 {
-	Sample::handleMeshChanged(geom);
+	Editor::handleMeshChanged(geom);
 
 	const BuildSettings* buildSettings = geom->getBuildSettings();
 	if (buildSettings && buildSettings->tileSize > 0)
@@ -589,7 +589,7 @@ void Sample_TileMesh::handleMeshChanged(InputGeom* geom)
 	initToolStates(this);
 }
 
-bool Sample_TileMesh::handleBuild()
+bool Editor_TileMesh::handleBuild()
 {
 	if (!m_geom || !m_geom->getMesh())
 	{
@@ -642,14 +642,14 @@ bool Sample_TileMesh::handleBuild()
 	return true;
 }
 
-void Sample_TileMesh::collectSettings(BuildSettings& settings)
+void Editor_TileMesh::collectSettings(BuildSettings& settings)
 {
-	Sample::collectSettings(settings);
+	Editor::collectSettings(settings);
 
 	settings.tileSize = m_tileSize;
 }
 
-void Sample_TileMesh::buildTile(const float* pos)
+void Editor_TileMesh::buildTile(const float* pos)
 {
 	if (!m_geom) return;
 	if (!m_navMesh) return;
@@ -680,7 +680,7 @@ void Sample_TileMesh::buildTile(const float* pos)
 	m_ctx->dumpLog("Build Tile (%d,%d):", tx,ty);
 }
 
-void Sample_TileMesh::getTileExtents(int tx, int ty, float* tmin, float* tmax)
+void Editor_TileMesh::getTileExtents(int tx, int ty, float* tmin, float* tmax)
 {
 	const float ts = m_tileSize * m_cellSize;
 	const float* bmin = m_geom->getNavMeshBoundsMin();
@@ -693,7 +693,7 @@ void Sample_TileMesh::getTileExtents(int tx, int ty, float* tmin, float* tmax)
 	tmax[1] = bmin[1] + (ty+1)*ts;
 	tmax[2] = bmax[2];
 }
-void Sample_TileMesh::getTilePos(const float* pos, int& tx, int& ty)
+void Editor_TileMesh::getTilePos(const float* pos, int& tx, int& ty)
 {
 	if (!m_geom) return;
 	
@@ -705,7 +705,7 @@ void Sample_TileMesh::getTilePos(const float* pos, int& tx, int& ty)
 	ty = (int)((pos[1] - bmin[1]) / ts);
 }
 
-void Sample_TileMesh::removeTile(const float* pos)
+void Editor_TileMesh::removeTile(const float* pos)
 {
 	if (!m_geom) return;
 	if (!m_navMesh) return;
@@ -719,7 +719,7 @@ void Sample_TileMesh::removeTile(const float* pos)
 	m_navMesh->removeTile(m_navMesh->getTileRefAt(tx,ty,0),0,0);
 }
 
-void Sample_TileMesh::buildAllTiles()
+void Editor_TileMesh::buildAllTiles()
 {
 	if (!m_geom) return;
 	if (!m_navMesh) return;
@@ -764,7 +764,7 @@ void Sample_TileMesh::buildAllTiles()
 	
 }
 
-void Sample_TileMesh::removeAllTiles()
+void Editor_TileMesh::removeAllTiles()
 {
 	if (!m_geom || !m_navMesh)
 		return;
@@ -782,7 +782,7 @@ void Sample_TileMesh::removeAllTiles()
 			m_navMesh->removeTile(m_navMesh->getTileRefAt(x,y,0),0,0);
 }
 
-void Sample_TileMesh::buildAllHulls()
+void Editor_TileMesh::buildAllHulls()
 {
 	for (const hulldef& h : hulls)
 	{
@@ -794,11 +794,11 @@ void Sample_TileMesh::buildAllHulls()
 
 		handleSettings();
 		handleBuild();
-		Sample::saveAll(m_modelName.c_str(), m_navMesh);
+		Editor::saveAll(m_modelName.c_str(), m_navMesh);
 	}
 }
 
-unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const float* bmin, const float* bmax, int& dataSize)
+unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const float* bmin, const float* bmax, int& dataSize)
 {
 	if (!m_geom || !m_geom->getMesh() || !m_geom->getChunkyMesh())
 	{
@@ -1030,7 +1030,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	//     if you have large open areas with small obstacles (not a problem if you use tiles)
 	//   * good choice to use for tiled navmesh with medium and small sized tiles
 	
-	if (m_partitionType == SAMPLE_PARTITION_WATERSHED)
+	if (m_partitionType == EDITOR_PARTITION_WATERSHED)
 	{
 		// Prepare for region partitioning, by calculating distance field along the walkable surface.
 		if (!rcBuildDistanceField(m_ctx, *m_chf))
@@ -1046,7 +1046,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 			return 0;
 		}
 	}
-	else if (m_partitionType == SAMPLE_PARTITION_MONOTONE)
+	else if (m_partitionType == EDITOR_PARTITION_MONOTONE)
 	{
 		// Partition the walkable surface into simple regions without holes.
 		// Monotone partitioning does not need distancefield.
@@ -1137,21 +1137,21 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		for (int i = 0; i < m_pmesh->npolys; ++i)
 		{
 			if (m_pmesh->areas[i] == RC_WALKABLE_AREA)
-				m_pmesh->areas[i] = SAMPLE_POLYAREA_GROUND;
+				m_pmesh->areas[i] = EDITOR_POLYAREA_GROUND;
 			
-			if (m_pmesh->areas[i] == SAMPLE_POLYAREA_GROUND ||
-				m_pmesh->areas[i] == SAMPLE_POLYAREA_GRASS ||
-				m_pmesh->areas[i] == SAMPLE_POLYAREA_ROAD)
+			if (m_pmesh->areas[i] == EDITOR_POLYAREA_GROUND ||
+				m_pmesh->areas[i] == EDITOR_POLYAREA_GRASS ||
+				m_pmesh->areas[i] == EDITOR_POLYAREA_ROAD)
 			{
-				m_pmesh->flags[i] = SAMPLE_POLYFLAGS_WALK;
+				m_pmesh->flags[i] = EDITOR_POLYFLAGS_WALK;
 			}
-			else if (m_pmesh->areas[i] == SAMPLE_POLYAREA_WATER)
+			else if (m_pmesh->areas[i] == EDITOR_POLYAREA_WATER)
 			{
-				m_pmesh->flags[i] = SAMPLE_POLYFLAGS_SWIM;
+				m_pmesh->flags[i] = EDITOR_POLYFLAGS_SWIM;
 			}
-			else if (m_pmesh->areas[i] == SAMPLE_POLYAREA_DOOR)
+			else if (m_pmesh->areas[i] == EDITOR_POLYAREA_DOOR)
 			{
-				m_pmesh->flags[i] = SAMPLE_POLYFLAGS_WALK | SAMPLE_POLYFLAGS_DOOR;
+				m_pmesh->flags[i] = EDITOR_POLYFLAGS_WALK | EDITOR_POLYFLAGS_DOOR;
 			}
 		}
 		

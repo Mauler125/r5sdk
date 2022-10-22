@@ -57,9 +57,9 @@ struct CrowdToolParams
 	float m_maxSpeed;
 };
 
-class CrowdToolState : public SampleToolState
+class CrowdToolState : public EditorToolState
 {
-	Sample* m_sample;
+	Editor* m_editor;
 	dtNavMesh* m_nav;
 	dtCrowd* m_crowd;
 	
@@ -89,7 +89,7 @@ public:
 	CrowdToolState();
 	virtual ~CrowdToolState();
 	
-	virtual void init(class Sample* sample);
+	virtual void init(class Editor* editor);
 	virtual void reset();
 	virtual void handleRender();
 	virtual void handleRenderOverlay(double* proj, double* model, int* view);
@@ -115,9 +115,9 @@ private:
 };
 
 
-class CrowdTool : public SampleTool
+class CrowdTool : public EditorTool
 {
-	Sample* m_sample;
+	Editor* m_editor;
 	CrowdToolState* m_state;
 	
 	enum ToolMode
@@ -133,7 +133,7 @@ public:
 	CrowdTool();
 	
 	virtual int type() { return TOOL_CROWD; }
-	virtual void init(Sample* sample);
+	virtual void init(Editor* editor);
 	virtual void reset();
 	virtual void handleMenu();
 	virtual void handleClick(const float* s, const float* p, bool shift);

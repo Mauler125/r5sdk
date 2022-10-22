@@ -81,7 +81,7 @@ static void getAgentBounds(const dtCrowdAgent* ag, float* bmin, float* bmax)
 }
 
 CrowdToolState::CrowdToolState() :
-	m_sample(0),
+	m_editor(0),
 	m_nav(0),
 	m_crowd(0),
 	m_targetRef(0),
@@ -126,25 +126,25 @@ CrowdToolState::~CrowdToolState()
 	dtFreeObstacleAvoidanceDebugData(m_vod);
 }
 
-void CrowdToolState::init(class Sample* sample)
+void CrowdToolState::init(class Editor* editor)
 {
-	if (m_sample != sample)
+	if (m_editor != editor)
 	{
-		m_sample = sample;
+		m_editor = editor;
 	}
 	
-	dtNavMesh* nav = m_sample->getNavMesh();
-	dtCrowd* crowd = m_sample->getCrowd();
+	dtNavMesh* nav = m_editor->getNavMesh();
+	dtCrowd* crowd = m_editor->getCrowd();
 	
 	if (nav && crowd && (m_nav != nav || m_crowd != crowd))
 	{
 		m_nav = nav;
 		m_crowd = crowd;
 	
-		crowd->init(MAX_AGENTS, m_sample->getAgentRadius(), nav);
+		crowd->init(MAX_AGENTS, m_editor->getAgentRadius(), nav);
 		
 		// Make polygons with 'disabled' flag invalid.
-		crowd->getEditableFilter(0)->setExcludeFlags(SAMPLE_POLYFLAGS_DISABLED);
+		crowd->getEditableFilter(0)->setExcludeFlags(EDITOR_POLYFLAGS_DISABLED);
 		
 		// Setup local avoidance params to different qualities.
 		dtObstacleAvoidanceParams params;
@@ -188,11 +188,11 @@ void CrowdToolState::reset()
 
 void CrowdToolState::handleRender()
 {
-	duDebugDraw& dd = m_sample->getDebugDraw();
-	const float rad = m_sample->getAgentRadius();
+	duDebugDraw& dd = m_editor->getDebugDraw();
+	const float rad = m_editor->getAgentRadius();
 	
-	dtNavMesh* nav = m_sample->getNavMesh();
-	dtCrowd* crowd = m_sample->getCrowd();
+	dtNavMesh* nav = m_editor->getNavMesh();
+	dtCrowd* crowd = m_editor->getCrowd();
 	if (!nav || !crowd)
 		return;
 	
@@ -520,7 +520,7 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 	
 	if (m_toolParams.m_showNodes)
 	{
-		dtCrowd* crowd = m_sample->getCrowd();
+		dtCrowd* crowd = m_editor->getCrowd();
 		if (crowd && crowd->getPathQueue())
 		{
 			const dtNavMeshQuery* navquery = crowd->getPathQueue()->getNavQuery();
@@ -550,7 +550,7 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 	
 	if (m_toolParams.m_showLabels)
 	{
-		dtCrowd* crowd = m_sample->getCrowd();
+		dtCrowd* crowd = m_editor->getCrowd();
 		if (crowd)
 		{
 			for (int i = 0; i < crowd->getAgentCount(); ++i)
@@ -570,7 +570,7 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 	}
 	if (m_agentDebug.idx != -1)
 	{
-		dtCrowd* crowd = m_sample->getCrowd();
+		dtCrowd* crowd = m_editor->getCrowd();
 		if (crowd) 
 		{
 			for (int i = 0; i < crowd->getAgentCount(); i++)
@@ -625,13 +625,13 @@ void CrowdToolState::handleUpdate(const float dt)
 
 void CrowdToolState::addAgent(const float* p)
 {
-	if (!m_sample) return;
-	dtCrowd* crowd = m_sample->getCrowd();
+	if (!m_editor) return;
+	dtCrowd* crowd = m_editor->getCrowd();
 	
 	dtCrowdAgentParams ap;
 	memset(&ap, 0, sizeof(ap));
-	ap.radius = m_sample->getAgentRadius();
-	ap.height = m_sample->getAgentHeight();
+	ap.radius = m_editor->getAgentRadius();
+	ap.height = m_editor->getAgentHeight();
 	ap.maxAcceleration = m_toolParams.m_maxAcceleration;
 	ap.maxSpeed = m_toolParams.m_maxSpeed;
 	ap.collisionQueryRange = ap.radius * 50.0f;
@@ -666,8 +666,8 @@ void CrowdToolState::addAgent(const float* p)
 
 void CrowdToolState::removeAgent(const int idx)
 {
-	if (!m_sample) return;
-	dtCrowd* crowd = m_sample->getCrowd();
+	if (!m_editor) return;
+	dtCrowd* crowd = m_editor->getCrowd();
 
 	crowd->removeAgent(idx);
 	
@@ -690,11 +690,11 @@ static void calcVel(float* vel, const float* pos, const float* tgt, const float 
 
 void CrowdToolState::setMoveTarget(const float* p, bool adjust)
 {
-	if (!m_sample) return;
+	if (!m_editor) return;
 	
 	// Find nearest point on navmesh and set move request to that location.
-	dtNavMeshQuery* navquery = m_sample->getNavMeshQuery();
-	dtCrowd* crowd = m_sample->getCrowd();
+	dtNavMeshQuery* navquery = m_editor->getNavMeshQuery();
+	dtCrowd* crowd = m_editor->getCrowd();
 	const dtQueryFilter* filter = crowd->getFilter(0);
 	const float* halfExtents = crowd->getQueryExtents();
 
@@ -746,8 +746,8 @@ void CrowdToolState::setMoveTarget(const float* p, bool adjust)
 
 int CrowdToolState::hitTestAgents(const float* s, const float* p)
 {
-	if (!m_sample) return -1;
-	dtCrowd* crowd = m_sample->getCrowd();
+	if (!m_editor) return -1;
+	dtCrowd* crowd = m_editor->getCrowd();
 	
 	int isel = -1;
 	float tsel = FLT_MAX;
@@ -774,8 +774,8 @@ int CrowdToolState::hitTestAgents(const float* s, const float* p)
 
 void CrowdToolState::updateAgentParams()
 {
-	if (!m_sample) return;
-	dtCrowd* crowd = m_sample->getCrowd();
+	if (!m_editor) return;
+	dtCrowd* crowd = m_editor->getCrowd();
 	if (!crowd) return;
 	
 	unsigned char updateFlags = 0;
@@ -814,9 +814,9 @@ void CrowdToolState::updateAgentParams()
 
 void CrowdToolState::updateTick(const float dt)
 {
-	if (!m_sample) return;
-	dtNavMesh* nav = m_sample->getNavMesh();
-	dtCrowd* crowd = m_sample->getCrowd();
+	if (!m_editor) return;
+	dtNavMesh* nav = m_editor->getNavMesh();
+	dtCrowd* crowd = m_editor->getCrowd();
 	if (!nav || !crowd) return;
 	
 	TimeVal startTime = getPerfTime();
@@ -847,29 +847,29 @@ void CrowdToolState::updateTick(const float dt)
 
 
 CrowdTool::CrowdTool() :
-	m_sample(0),
+	m_editor(0),
 	m_state(0),
 	m_mode(TOOLMODE_CREATE)
 {
 }
 
-void CrowdTool::init(Sample* sample)
+void CrowdTool::init(Editor* editor)
 {
-	if (m_sample != sample)
+	if (m_editor != editor)
 	{
-		m_sample = sample;
+		m_editor = editor;
 	}
 	
-	if (!sample)
+	if (!editor)
 		return;
 		
-	m_state = (CrowdToolState*)sample->getToolState(type());
+	m_state = (CrowdToolState*)editor->getToolState(type());
 	if (!m_state)
 	{
 		m_state = new CrowdToolState();
-		sample->setToolState(type(), m_state);
+		editor->setToolState(type(), m_state);
 	}
-	m_state->init(sample);
+	m_state->init(editor);
 }
 
 void CrowdTool::reset()
@@ -987,11 +987,11 @@ void CrowdTool::handleMenu()
 
 void CrowdTool::handleClick(const float* s, const float* p, bool shift)
 {
-	if (!m_sample) return;
+	if (!m_editor) return;
 	if (!m_state) return;
-	InputGeom* geom = m_sample->getInputGeom();
+	InputGeom* geom = m_editor->getInputGeom();
 	if (!geom) return;
-	dtCrowd* crowd = m_sample->getCrowd();
+	dtCrowd* crowd = m_editor->getCrowd();
 	if (!crowd) return;
 
 	if (m_mode == TOOLMODE_CREATE)
@@ -1021,8 +1021,8 @@ void CrowdTool::handleClick(const float* s, const float* p, bool shift)
 	}
 	else if (m_mode == TOOLMODE_TOGGLE_POLYS)
 	{
-		dtNavMesh* nav = m_sample->getNavMesh();
-		dtNavMeshQuery* navquery = m_sample->getNavMeshQuery();
+		dtNavMesh* nav = m_editor->getNavMesh();
+		dtNavMeshQuery* navquery = m_editor->getNavMeshQuery();
 		if (nav && navquery)
 		{
 			dtQueryFilter filter;
@@ -1035,7 +1035,7 @@ void CrowdTool::handleClick(const float* s, const float* p, bool shift)
 				unsigned short flags = 0;
 				if (dtStatusSucceed(nav->getPolyFlags(ref, &flags)))
 				{
-					flags ^= SAMPLE_POLYFLAGS_DISABLED;
+					flags ^= EDITOR_POLYFLAGS_DISABLED;
 					nav->setPolyFlags(ref, flags);
 				}
 			}

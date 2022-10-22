@@ -173,14 +173,14 @@ static void disableUnvisitedPolys(dtNavMesh* nav, NavmeshFlags* flags)
 			{
 				unsigned short f = 0;
 				nav->getPolyFlags(ref, &f);
-				nav->setPolyFlags(ref, f | SAMPLE_POLYFLAGS_DISABLED);
+				nav->setPolyFlags(ref, f | EDITOR_POLYFLAGS_DISABLED);
 			}
 		}
 	}
 }
 
 NavMeshPruneTool::NavMeshPruneTool() :
-	m_sample(0),
+	m_editor(0),
 	m_flags(0),
 	m_hitPosSet(false)
 {
@@ -191,9 +191,9 @@ NavMeshPruneTool::~NavMeshPruneTool()
 	delete m_flags;
 }
 
-void NavMeshPruneTool::init(Sample* sample)
+void NavMeshPruneTool::init(Editor* editor)
 {
-	m_sample = sample;
+	m_editor = editor;
 }
 
 void NavMeshPruneTool::reset()
@@ -205,7 +205,7 @@ void NavMeshPruneTool::reset()
 
 void NavMeshPruneTool::handleMenu()
 {
-	dtNavMesh* nav = m_sample->getNavMesh();
+	dtNavMesh* nav = m_editor->getNavMesh();
 	if (!nav) return;
 	if (!m_flags) return;
 
@@ -227,12 +227,12 @@ void NavMeshPruneTool::handleClick(const float* s, const float* p, bool shift)
 	rcIgnoreUnused(s);
 	rcIgnoreUnused(shift);
 
-	if (!m_sample) return;
-	InputGeom* geom = m_sample->getInputGeom();
+	if (!m_editor) return;
+	InputGeom* geom = m_editor->getInputGeom();
 	if (!geom) return;
-	dtNavMesh* nav = m_sample->getNavMesh();
+	dtNavMesh* nav = m_editor->getNavMesh();
 	if (!nav) return;
-	dtNavMeshQuery* query = m_sample->getNavMeshQuery();
+	dtNavMeshQuery* query = m_editor->getNavMeshQuery();
 	if (!query) return;
 	
 	dtVcopy(m_hitPos, p);
@@ -266,11 +266,11 @@ void NavMeshPruneTool::handleUpdate(const float /*dt*/)
 
 void NavMeshPruneTool::handleRender()
 {
-	duDebugDraw& dd = m_sample->getDebugDraw();
+	duDebugDraw& dd = m_editor->getDebugDraw();
 
 	if (m_hitPosSet)
 	{
-		const float s = m_sample->getAgentRadius();
+		const float s = m_editor->getAgentRadius();
 		const unsigned int col = duRGBA(255,255,255,255);
 		dd.begin(DU_DRAW_LINES);
 		dd.vertex(m_hitPos[0]-s,m_hitPos[1],m_hitPos[2], col);
@@ -282,7 +282,7 @@ void NavMeshPruneTool::handleRender()
 		dd.end();
 	}
 
-	const dtNavMesh* nav = m_sample->getNavMesh();
+	const dtNavMesh* nav = m_editor->getNavMesh();
 	if (m_flags && nav)
 	{
 		for (int i = 0; i < nav->getMaxTiles(); ++i)

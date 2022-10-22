@@ -89,8 +89,8 @@ static int pointInPoly(int nvert, const float* verts, const float* p)
 
 
 ConvexVolumeTool::ConvexVolumeTool() :
-	m_sample(0),
-	m_areaType(SAMPLE_POLYAREA_GROUND),
+	m_editor(0),
+	m_areaType(EDITOR_POLYAREA_GROUND),
 	m_polyOffset(0.0f),
 	m_boxHeight(650.0f),
 	m_boxDescent(150.0f),
@@ -99,9 +99,9 @@ ConvexVolumeTool::ConvexVolumeTool() :
 {
 }
 
-void ConvexVolumeTool::init(Sample* sample)
+void ConvexVolumeTool::init(Editor* editor)
 {
-	m_sample = sample;
+	m_editor = editor;
 }
 
 void ConvexVolumeTool::reset()
@@ -120,18 +120,18 @@ void ConvexVolumeTool::handleMenu()
 
 	imguiLabel("Area Type");
 	imguiIndent();
-	if (imguiCheck("Ground", m_areaType == SAMPLE_POLYAREA_GROUND))
-		m_areaType = SAMPLE_POLYAREA_GROUND;
-	if (imguiCheck("Water", m_areaType == SAMPLE_POLYAREA_WATER))
-		m_areaType = SAMPLE_POLYAREA_WATER;
-	if (imguiCheck("Road", m_areaType == SAMPLE_POLYAREA_ROAD))
-		m_areaType = SAMPLE_POLYAREA_ROAD;
-	if (imguiCheck("Door", m_areaType == SAMPLE_POLYAREA_DOOR))
-		m_areaType = SAMPLE_POLYAREA_DOOR;
-	if (imguiCheck("Grass", m_areaType == SAMPLE_POLYAREA_GRASS))
-		m_areaType = SAMPLE_POLYAREA_GRASS;
-	if (imguiCheck("Jump", m_areaType == SAMPLE_POLYAREA_JUMP))
-		m_areaType = SAMPLE_POLYAREA_JUMP;
+	if (imguiCheck("Ground", m_areaType == EDITOR_POLYAREA_GROUND))
+		m_areaType = EDITOR_POLYAREA_GROUND;
+	if (imguiCheck("Water", m_areaType == EDITOR_POLYAREA_WATER))
+		m_areaType = EDITOR_POLYAREA_WATER;
+	if (imguiCheck("Road", m_areaType == EDITOR_POLYAREA_ROAD))
+		m_areaType = EDITOR_POLYAREA_ROAD;
+	if (imguiCheck("Door", m_areaType == EDITOR_POLYAREA_DOOR))
+		m_areaType = EDITOR_POLYAREA_DOOR;
+	if (imguiCheck("Grass", m_areaType == EDITOR_POLYAREA_GRASS))
+		m_areaType = EDITOR_POLYAREA_GRASS;
+	if (imguiCheck("Jump", m_areaType == EDITOR_POLYAREA_JUMP))
+		m_areaType = EDITOR_POLYAREA_JUMP;
 	imguiUnindent();
 
 	imguiSeparator();
@@ -145,8 +145,8 @@ void ConvexVolumeTool::handleMenu()
 
 void ConvexVolumeTool::handleClick(const float* /*s*/, const float* p, bool shift)
 {
-	if (!m_sample) return;
-	InputGeom* geom = m_sample->getInputGeom();
+	if (!m_editor) return;
+	InputGeom* geom = m_editor->getInputGeom();
 	if (!geom) return;
 	
 	if (shift)
@@ -240,7 +240,7 @@ void ConvexVolumeTool::handleUpdate(const float /*dt*/)
 
 void ConvexVolumeTool::handleRender()
 {
-	duDebugDraw& dd = m_sample->getDebugDraw();
+	duDebugDraw& dd = m_editor->getDebugDraw();
 	
 	// Find height extent of the shape.
 	float minh = FLT_MAX, maxh = 0;

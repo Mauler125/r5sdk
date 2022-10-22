@@ -23,9 +23,9 @@
 
 // Tool to create off-mesh connection for InputGeom
 
-class OffMeshConnectionTool : public SampleTool
+class OffMeshConnectionTool : public EditorTool
 {
-	Sample* m_sample;
+	Editor* m_editor;
 	float m_hitPos[3];
 	bool m_hitPosSet;
 	bool m_bidir;
@@ -36,7 +36,7 @@ public:
 	~OffMeshConnectionTool();
 	
 	virtual int type() { return TOOL_OFFMESH_CONNECTION; }
-	virtual void init(Sample* sample);
+	virtual void init(Editor* editor);
 	virtual void reset();
 	virtual void handleMenu();
 	virtual void handleClick(const float* s, const float* p, bool shift);

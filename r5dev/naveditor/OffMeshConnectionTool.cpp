@@ -29,7 +29,7 @@
 #endif
 
 OffMeshConnectionTool::OffMeshConnectionTool() :
-	m_sample(0),
+	m_editor(0),
 	m_hitPosSet(0),
 	m_bidir(true),
 	m_oldFlags(0)
@@ -38,19 +38,19 @@ OffMeshConnectionTool::OffMeshConnectionTool() :
 
 OffMeshConnectionTool::~OffMeshConnectionTool()
 {
-	if (m_sample)
+	if (m_editor)
 	{
-		m_sample->setNavMeshDrawFlags(m_oldFlags);
+		m_editor->setNavMeshDrawFlags(m_oldFlags);
 	}
 }
 
-void OffMeshConnectionTool::init(Sample* sample)
+void OffMeshConnectionTool::init(Editor* editor)
 {
-	if (m_sample != sample)
+	if (m_editor != editor)
 	{
-		m_sample = sample;
-		m_oldFlags = m_sample->getNavMeshDrawFlags();
-		m_sample->setNavMeshDrawFlags(m_oldFlags & ~DU_DRAWNAVMESH_OFFMESHCONS);
+		m_editor = editor;
+		m_oldFlags = m_editor->getNavMeshDrawFlags();
+		m_editor->setNavMeshDrawFlags(m_oldFlags & ~DU_DRAWNAVMESH_OFFMESHCONS);
 	}
 }
 
@@ -69,8 +69,8 @@ void OffMeshConnectionTool::handleMenu()
 
 void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, bool shift)
 {
-	if (!m_sample) return;
-	InputGeom* geom = m_sample->getInputGeom();
+	if (!m_editor) return;
+	InputGeom* geom = m_editor->getInputGeom();
 	if (!geom) return;
 
 	if (shift)
@@ -92,7 +92,7 @@ void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, bool
 		}
 		// If end point close enough, delete it.
 		if (nearestIndex != -1 &&
-			sqrtf(nearestDist) < m_sample->getAgentRadius())
+			sqrtf(nearestDist) < m_editor->getAgentRadius())
 		{
 			geom->deleteOffMeshConnection(nearestIndex);
 		}
@@ -107,9 +107,9 @@ void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, bool
 		}
 		else
 		{
-			const unsigned char area = SAMPLE_POLYAREA_JUMP;
-			const unsigned short flags = SAMPLE_POLYFLAGS_JUMP; 
-			geom->addOffMeshConnection(m_hitPos, p, m_sample->getAgentRadius(), m_bidir ? 1 : 0, area, flags);
+			const unsigned char area = EDITOR_POLYAREA_JUMP;
+			const unsigned short flags = EDITOR_POLYFLAGS_JUMP; 
+			geom->addOffMeshConnection(m_hitPos, p, m_editor->getAgentRadius(), m_bidir ? 1 : 0, area, flags);
 			m_hitPosSet = false;
 		}
 	}
@@ -129,13 +129,13 @@ void OffMeshConnectionTool::handleUpdate(const float /*dt*/)
 
 void OffMeshConnectionTool::handleRender()
 {
-	duDebugDraw& dd = m_sample->getDebugDraw();
-	const float s = m_sample->getAgentRadius();
+	duDebugDraw& dd = m_editor->getDebugDraw();
+	const float s = m_editor->getAgentRadius();
 	
 	if (m_hitPosSet)
 		duDebugDrawCross(&dd, m_hitPos[0],m_hitPos[1],m_hitPos[2]+0.1f, s, duRGBA(0,0,0,128), 2.0f);
 
-	InputGeom* geom = m_sample->getInputGeom();
+	InputGeom* geom = m_editor->getInputGeom();
 	if (geom)
 		geom->drawOffMeshConnections(&dd, true);
 }

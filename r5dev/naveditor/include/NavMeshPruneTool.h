@@ -23,9 +23,9 @@
 
 // Prune navmesh to accessible locations from a point.
 
-class NavMeshPruneTool : public SampleTool
+class NavMeshPruneTool : public EditorTool
 {
-	Sample* m_sample;
+	Editor* m_editor;
 	
 	class NavmeshFlags* m_flags;
 
@@ -37,7 +37,7 @@ public:
 	virtual ~NavMeshPruneTool();
 	
 	virtual int type() { return TOOL_NAVMESH_PRUNE; }
-	virtual void init(Sample* sample);
+	virtual void init(Editor* editor);
 	virtual void reset();
 	virtual void handleMenu();
 	virtual void handleClick(const float* s, const float* p, bool shift);

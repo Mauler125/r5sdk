@@ -28,28 +28,28 @@
 #include "NavEditor/Include/InputGeom.h"
 #include "NavEditor/Include/Sample.h"
 
-unsigned int SampleDebugDraw::areaToCol(unsigned int area)
+unsigned int EditorDebugDraw::areaToCol(unsigned int area)
 {
 	switch(area)
 	{
 	// Ground (0) : light blue
-	case SAMPLE_POLYAREA_GROUND: return duRGBA(0, 135, 255, 255);
+	case EDITOR_POLYAREA_GROUND: return duRGBA(0, 135, 255, 255);
 	// Water : blue
-	case SAMPLE_POLYAREA_WATER: return duRGBA(0, 0, 255, 255);
+	case EDITOR_POLYAREA_WATER: return duRGBA(0, 0, 255, 255);
 	// Road : brown
-	case SAMPLE_POLYAREA_ROAD: return duRGBA(50, 20, 12, 255);
+	case EDITOR_POLYAREA_ROAD: return duRGBA(50, 20, 12, 255);
 	// Door : cyan
-	case SAMPLE_POLYAREA_DOOR: return duRGBA(0, 255, 255, 255);
+	case EDITOR_POLYAREA_DOOR: return duRGBA(0, 255, 255, 255);
 	// Grass : green
-	case SAMPLE_POLYAREA_GRASS: return duRGBA(0, 255, 0, 255);
+	case EDITOR_POLYAREA_GRASS: return duRGBA(0, 255, 0, 255);
 	// Jump : yellow
-	case SAMPLE_POLYAREA_JUMP: return duRGBA(255, 255, 0, 255);
+	case EDITOR_POLYAREA_JUMP: return duRGBA(255, 255, 0, 255);
 	// Unexpected : red
 	default: return duRGBA(255, 0, 0, 255);
 	}
 }
 
-Sample::Sample() :
+Editor::Editor() :
 	m_geom(0),
 	m_navMesh(0),
 	m_navQuery(0),
@@ -69,7 +69,7 @@ Sample::Sample() :
 		m_toolStates[i] = 0;
 }
 
-Sample::~Sample()
+Editor::~Editor()
 {
 	dtFreeNavMeshQuery(m_navQuery);
 	dtFreeNavMesh(m_navMesh);
@@ -79,7 +79,7 @@ Sample::~Sample()
 		delete m_toolStates[i];
 }
 
-void Sample::setTool(SampleTool* tool)
+void Editor::setTool(EditorTool* tool)
 {
 	delete m_tool;
 	m_tool = tool;
@@ -87,19 +87,19 @@ void Sample::setTool(SampleTool* tool)
 		m_tool->init(this);
 }
 
-void Sample::handleSettings()
+void Editor::handleSettings()
 {
 }
 
-void Sample::handleTools()
+void Editor::handleTools()
 {
 }
 
-void Sample::handleDebugMode()
+void Editor::handleDebugMode()
 {
 }
 
-void Sample::handleRender()
+void Editor::handleRender()
 {
 	if (!m_geom)
 		return;
@@ -113,11 +113,11 @@ void Sample::handleRender()
 	duDebugDrawBoxWire(&m_dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duRGBA(255,255,255,128), 1.0f);
 }
 
-void Sample::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/)
+void Editor::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/)
 {
 }
 
-void Sample::handleMeshChanged(InputGeom* geom)
+void Editor::handleMeshChanged(InputGeom* geom)
 {
 	m_geom = geom;
 
@@ -141,7 +141,7 @@ void Sample::handleMeshChanged(InputGeom* geom)
 	}
 }
 
-void Sample::collectSettings(BuildSettings& settings)
+void Editor::collectSettings(BuildSettings& settings)
 {
 	settings.cellSize = m_cellSize;
 	settings.cellHeight = m_cellHeight;
@@ -160,7 +160,7 @@ void Sample::collectSettings(BuildSettings& settings)
 }
 
 
-void Sample::resetCommonSettings()
+void Editor::resetCommonSettings()
 {
 	m_cellSize = 15.0f;
 	m_cellHeight = 5.85f;
@@ -175,10 +175,10 @@ void Sample::resetCommonSettings()
 	m_vertsPerPoly = 6.0f;
 	m_detailSampleDist = 6.0f;
 	m_detailSampleMaxError = 1.0f;
-	m_partitionType = SAMPLE_PARTITION_WATERSHED;
+	m_partitionType = EDITOR_PARTITION_WATERSHED;
 	m_reachabilityTableCount = 4;
 }
-void Sample::handleCommonSettings()
+void Editor::handleCommonSettings()
 {
 	imguiLabel("Rasterization");
 	imguiSlider("Cell Size", &m_cellSize, 0.1f, 100.0f, 0.01f);
@@ -209,12 +209,12 @@ void Sample::handleCommonSettings()
 
 	imguiSeparator();
 	imguiLabel("Partitioning");
-	if (imguiCheck("Watershed", m_partitionType == SAMPLE_PARTITION_WATERSHED))
-		m_partitionType = SAMPLE_PARTITION_WATERSHED;
-	if (imguiCheck("Monotone", m_partitionType == SAMPLE_PARTITION_MONOTONE))
-		m_partitionType = SAMPLE_PARTITION_MONOTONE;
-	if (imguiCheck("Layers", m_partitionType == SAMPLE_PARTITION_LAYERS))
-		m_partitionType = SAMPLE_PARTITION_LAYERS;
+	if (imguiCheck("Watershed", m_partitionType == EDITOR_PARTITION_WATERSHED))
+		m_partitionType = EDITOR_PARTITION_WATERSHED;
+	if (imguiCheck("Monotone", m_partitionType == EDITOR_PARTITION_MONOTONE))
+		m_partitionType = EDITOR_PARTITION_MONOTONE;
+	if (imguiCheck("Layers", m_partitionType == EDITOR_PARTITION_LAYERS))
+		m_partitionType = EDITOR_PARTITION_LAYERS;
 	
 	imguiSeparator();
 	imguiLabel("Filtering");
@@ -239,30 +239,30 @@ void Sample::handleCommonSettings()
 	imguiSeparator();
 }
 
-void Sample::handleClick(const float* s, const float* p, bool shift)
+void Editor::handleClick(const float* s, const float* p, bool shift)
 {
 	if (m_tool)
 		m_tool->handleClick(s, p, shift);
 }
 
-void Sample::handleToggle()
+void Editor::handleToggle()
 {
 	if (m_tool)
 		m_tool->handleToggle();
 }
 
-void Sample::handleStep()
+void Editor::handleStep()
 {
 	if (m_tool)
 		m_tool->handleStep();
 }
 
-bool Sample::handleBuild()
+bool Editor::handleBuild()
 {
 	return true;
 }
 
-void Sample::handleUpdate(const float dt)
+void Editor::handleUpdate(const float dt)
 {
 	if (m_tool)
 		m_tool->handleUpdate(dt);
@@ -270,7 +270,7 @@ void Sample::handleUpdate(const float dt)
 }
 
 
-void Sample::updateToolStates(const float dt)
+void Editor::updateToolStates(const float dt)
 {
 	for (int i = 0; i < MAX_TOOLS; i++)
 	{
@@ -279,16 +279,16 @@ void Sample::updateToolStates(const float dt)
 	}
 }
 
-void Sample::initToolStates(Sample* sample)
+void Editor::initToolStates(Editor* editor)
 {
 	for (int i = 0; i < MAX_TOOLS; i++)
 	{
 		if (m_toolStates[i])
-			m_toolStates[i]->init(sample);
+			m_toolStates[i]->init(editor);
 	}
 }
 
-void Sample::resetToolStates()
+void Editor::resetToolStates()
 {
 	for (int i = 0; i < MAX_TOOLS; i++)
 	{
@@ -297,7 +297,7 @@ void Sample::resetToolStates()
 	}
 }
 
-void Sample::renderToolStates()
+void Editor::renderToolStates()
 {
 	for (int i = 0; i < MAX_TOOLS; i++)
 	{
@@ -306,7 +306,7 @@ void Sample::renderToolStates()
 	}
 }
 
-void Sample::renderOverlayToolStates(double* proj, double* model, int* view)
+void Editor::renderOverlayToolStates(double* proj, double* model, int* view)
 {
 	for (int i = 0; i < MAX_TOOLS; i++)
 	{
@@ -315,7 +315,7 @@ void Sample::renderOverlayToolStates(double* proj, double* model, int* view)
 	}
 }
 
-dtNavMesh* Sample::loadAll(std::string path)
+dtNavMesh* Editor::loadAll(std::string path)
 {
 	std::filesystem::path p = "..\\maps\\navmesh\\";
 	if (std::filesystem::is_directory(p))
@@ -401,7 +401,7 @@ dtNavMesh* Sample::loadAll(std::string path)
 	return mesh;
 }
 
-void Sample::saveAll(std::string path, dtNavMesh* mesh)
+void Editor::saveAll(std::string path, dtNavMesh* mesh)
 {
 	if (!mesh)
 		return;

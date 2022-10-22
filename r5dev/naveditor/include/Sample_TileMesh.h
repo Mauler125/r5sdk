@@ -24,7 +24,7 @@
 #include "NavEditor/Include/ChunkyTriMesh.h"
 #include "NavEditor/Include/Sample.h"
 
-class Sample_TileMesh : public Sample
+class Editor_TileMesh : public Editor
 {
 protected:
 	bool m_keepInterResults;
@@ -83,8 +83,8 @@ protected:
 	dtNavMesh* loadAll(const char* path);
 	
 public:
-	Sample_TileMesh();
-	virtual ~Sample_TileMesh();
+	Editor_TileMesh();
+	virtual ~Editor_TileMesh();
 	
 	virtual void handleSettings();
 	virtual void handleTools();
@@ -106,8 +106,8 @@ public:
 	void buildAllHulls();
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
-	Sample_TileMesh(const Sample_TileMesh&);
-	Sample_TileMesh& operator=(const Sample_TileMesh&);
+	Editor_TileMesh(const Editor_TileMesh&);
+	Editor_TileMesh& operator=(const Editor_TileMesh&);
 };
 
 

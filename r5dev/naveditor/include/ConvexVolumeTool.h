@@ -23,9 +23,9 @@
 
 // Tool to create convex volumess for InputGeom
 
-class ConvexVolumeTool : public SampleTool
+class ConvexVolumeTool : public EditorTool
 {
-	Sample* m_sample;
+	Editor* m_editor;
 	int m_areaType;
 	float m_polyOffset;
 	float m_boxHeight;
@@ -41,7 +41,7 @@ public:
 	ConvexVolumeTool();
 	
 	virtual int type() { return TOOL_CONVEX_VOLUME; }
-	virtual void init(Sample* sample);
+	virtual void init(Editor* editor);
 	virtual void reset();
 	virtual void handleMenu();
 	virtual void handleClick(const float* s, const float* p, bool shift);

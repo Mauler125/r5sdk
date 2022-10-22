@@ -25,7 +25,7 @@
 #include "NavEditor/Include/Sample.h"
 
 
-class Sample_TempObstacles : public Sample
+class Editor_TempObstacles : public Sample
 {
 protected:
 	bool m_keepInterResults;
@@ -62,8 +62,8 @@ protected:
 	float m_tileSize;
 	
 public:
-	Sample_TempObstacles();
-	virtual ~Sample_TempObstacles();
+	Editor_TempObstacles();
+	virtual ~Editor_TempObstacles();
 	
 	virtual void handleSettings();
 	virtual void handleTools();
@@ -88,8 +88,8 @@ public:
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
-	Sample_TempObstacles(const Sample_TempObstacles&);
-	Sample_TempObstacles& operator=(const Sample_TempObstacles&);
+	Editor_TempObstacles(const Editor_TempObstacles&);
+	Editor_TempObstacles& operator=(const Editor_TempObstacles&);
 
 	int rasterizeTileLayers(const int tx, const int ty, const rcConfig& cfg, struct TileCacheData* tiles, const int maxTiles);
 };

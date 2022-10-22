@@ -40,7 +40,7 @@ static int loadBin(const char* path, unsigned char** data)
 } 
 */
 
-Sample_Debug::Sample_Debug() :
+Editor_Debug::Editor_Debug() :
 	m_chf(0),
 	m_cset(0),
 	m_pmesh(0)
@@ -161,26 +161,26 @@ Sample_Debug::Sample_Debug() :
 	
 }
 
-Sample_Debug::~Sample_Debug()
+Editor_Debug::~Editor_Debug()
 {
 	rcFreeCompactHeightfield(m_chf);
 	rcFreeContourSet(m_cset);
 	rcFreePolyMesh(m_pmesh);
 }
 
-void Sample_Debug::handleSettings()
+void Editor_Debug::handleSettings()
 {
 }
 
-void Sample_Debug::handleTools()
+void Editor_Debug::handleTools()
 {
 }
 
-void Sample_Debug::handleDebugMode()
+void Editor_Debug::handleDebugMode()
 {
 }
 
-void Sample_Debug::handleRender()
+void Editor_Debug::handleRender()
 {
 	if (m_chf)
 	{
@@ -309,16 +309,16 @@ void Sample_Debug::handleRender()
 	dd.depthMask(true);*/
 }
 
-void Sample_Debug::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/)
+void Editor_Debug::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/)
 {
 }
 
-void Sample_Debug::handleMeshChanged(InputGeom* geom)
+void Editor_Debug::handleMeshChanged(InputGeom* geom)
 {
 	m_geom = geom;
 }
 
-const float* Sample_Debug::getBoundsMin()
+const float* Editor_Debug::getBoundsMin()
 {
 	if (m_cset)
 		return m_cset->bmin;
@@ -329,7 +329,7 @@ const float* Sample_Debug::getBoundsMin()
 	return 0;
 }
 
-const float* Sample_Debug::getBoundsMax()
+const float* Editor_Debug::getBoundsMax()
 {
 	if (m_cset)
 		return m_cset->bmax;
@@ -340,19 +340,19 @@ const float* Sample_Debug::getBoundsMax()
 	return 0;
 }
 
-void Sample_Debug::handleClick(const float* s, const float* p, bool shift)
+void Editor_Debug::handleClick(const float* s, const float* p, bool shift)
 {
 	if (m_tool)
 		m_tool->handleClick(s, p, shift);
 }
 
-void Sample_Debug::handleToggle()
+void Editor_Debug::handleToggle()
 {
 	if (m_tool)
 		m_tool->handleToggle();
 }
 
-bool Sample_Debug::handleBuild()
+bool Editor_Debug::handleBuild()
 {
 
 	if (m_chf)

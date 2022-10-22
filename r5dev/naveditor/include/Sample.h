@@ -35,7 +35,7 @@ struct hulldef
 extern const hulldef hulls[5];
 
 /// Tool types.
-enum SampleToolType
+enum EditorToolType
 {
 	TOOL_NONE = 0,
 	TOOL_TILE_EDIT,
@@ -51,43 +51,43 @@ enum SampleToolType
 
 /// These are just sample areas to use consistent values across the samples.
 /// The use should specify these base on his needs.
-enum SamplePolyAreas
+enum EditorPolyAreas
 {
-	SAMPLE_POLYAREA_GROUND,
-	SAMPLE_POLYAREA_WATER,
-	SAMPLE_POLYAREA_ROAD,
-	SAMPLE_POLYAREA_DOOR,
-	SAMPLE_POLYAREA_GRASS,
-	SAMPLE_POLYAREA_JUMP,
+	EDITOR_POLYAREA_GROUND,
+	EDITOR_POLYAREA_WATER,
+	EDITOR_POLYAREA_ROAD,
+	EDITOR_POLYAREA_DOOR,
+	EDITOR_POLYAREA_GRASS,
+	EDITOR_POLYAREA_JUMP,
 };
-enum SamplePolyFlags
+enum EditorPolyFlags
 {
-	SAMPLE_POLYFLAGS_WALK		= 0x01,		// Ability to walk (ground, grass, road)
-	SAMPLE_POLYFLAGS_SWIM		= 0x02,		// Ability to swim (water).
-	SAMPLE_POLYFLAGS_DOOR		= 0x04,		// Ability to move through doors.
-	SAMPLE_POLYFLAGS_JUMP		= 0x08,		// Ability to jump.
-	SAMPLE_POLYFLAGS_DISABLED	= 0x10,		// Disabled polygon
-	SAMPLE_POLYFLAGS_ALL		= 0xffff	// All abilities.
+	EDITOR_POLYFLAGS_WALK		= 0x01,		// Ability to walk (ground, grass, road)
+	EDITOR_POLYFLAGS_SWIM		= 0x02,		// Ability to swim (water).
+	EDITOR_POLYFLAGS_DOOR		= 0x04,		// Ability to move through doors.
+	EDITOR_POLYFLAGS_JUMP		= 0x08,		// Ability to jump.
+	EDITOR_POLYFLAGS_DISABLED	= 0x10,		// Disabled polygon
+	EDITOR_POLYFLAGS_ALL		= 0xffff	// All abilities.
 };
 
-class SampleDebugDraw : public DebugDrawGL
+class EditorDebugDraw : public DebugDrawGL
 {
 public:
 	virtual unsigned int areaToCol(unsigned int area);
 };
 
-enum SamplePartitionType
+enum EditorPartitionType
 {
-	SAMPLE_PARTITION_WATERSHED,
-	SAMPLE_PARTITION_MONOTONE,
-	SAMPLE_PARTITION_LAYERS,
+	EDITOR_PARTITION_WATERSHED,
+	EDITOR_PARTITION_MONOTONE,
+	EDITOR_PARTITION_LAYERS,
 };
 
-struct SampleTool
+struct EditorTool
 {
-	virtual ~SampleTool() {}
+	virtual ~EditorTool() {}
 	virtual int type() = 0;
-	virtual void init(class Sample* sample) = 0;
+	virtual void init(class Editor* editor) = 0;
 	virtual void reset() = 0;
 	virtual void handleMenu() = 0;
 	virtual void handleClick(const float* s, const float* p, bool shift) = 0;
@@ -98,16 +98,16 @@ struct SampleTool
 	virtual void handleUpdate(const float dt) = 0;
 };
 
-struct SampleToolState {
-	virtual ~SampleToolState() {}
-	virtual void init(class Sample* sample) = 0;
+struct EditorToolState {
+	virtual ~EditorToolState() {}
+	virtual void init(class Editor* editor) = 0;
 	virtual void reset() = 0;
 	virtual void handleRender() = 0;
 	virtual void handleRenderOverlay(double* proj, double* model, int* view) = 0;
 	virtual void handleUpdate(const float dt) = 0;
 };
 
-class Sample
+class Editor
 {
 protected:
 	class InputGeom* m_geom;
@@ -137,12 +137,12 @@ protected:
 	int m_reachabilityTableCount;
 	const char* m_navmeshName = "unnamed";
 	
-	SampleTool* m_tool;
-	SampleToolState* m_toolStates[MAX_TOOLS];
+	EditorTool* m_tool;
+	EditorToolState* m_toolStates[MAX_TOOLS];
 	
 	BuildContext* m_ctx;
 
-	SampleDebugDraw m_dd;
+	EditorDebugDraw m_dd;
 	
 	dtNavMesh* loadAll(std::string path);
 	void saveAll(std::string path, dtNavMesh* mesh);
@@ -150,16 +150,16 @@ protected:
 public:
 	std::string m_modelName;
 
-	Sample();
-	virtual ~Sample();
+	Editor();
+	virtual ~Editor();
 	
 	void setContext(BuildContext* ctx) { m_ctx = ctx; }
 	
-	void setTool(SampleTool* tool);
-	SampleToolState* getToolState(int type) { return m_toolStates[type]; }
-	void setToolState(int type, SampleToolState* s) { m_toolStates[type] = s; }
+	void setTool(EditorTool* tool);
+	EditorToolState* getToolState(int type) { return m_toolStates[type]; }
+	void setToolState(int type, EditorToolState* s) { m_toolStates[type] = s; }
 
-	SampleDebugDraw& getDebugDraw() { return m_dd; }
+	EditorDebugDraw& getDebugDraw() { return m_dd; }
 
 	virtual void handleSettings();
 	virtual void handleTools();
@@ -186,7 +186,7 @@ public:
 	void setNavMeshDrawFlags(unsigned char flags) { m_navMeshDrawFlags = flags; }
 
 	void updateToolStates(const float dt);
-	void initToolStates(Sample* sample);
+	void initToolStates(Editor* editor);
 	void resetToolStates();
 	void renderToolStates();
 	void renderOverlayToolStates(double* proj, double* model, int* view);
@@ -196,8 +196,8 @@ public:
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
-	Sample(const Sample&);
-	Sample& operator=(const Sample&);
+	Editor(const Editor&);
+	Editor& operator=(const Editor&);
 };
 
 

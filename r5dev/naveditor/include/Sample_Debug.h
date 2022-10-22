@@ -24,7 +24,7 @@
 #include "Recast/Include/Recast.h"
 
 /// Sample used for random debugging.
-class Sample_Debug : public Sample
+class Editor_Debug : public Editor
 {
 protected:
 	rcCompactHeightfield* m_chf;
@@ -37,8 +37,8 @@ protected:
 	dtPolyRef m_ref;
 	
 public:
-	Sample_Debug();
-	virtual ~Sample_Debug();
+	Editor_Debug();
+	virtual ~Editor_Debug();
 	
 	virtual void handleSettings();
 	virtual void handleTools();
@@ -55,8 +55,8 @@ public:
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
-	Sample_Debug(const Sample_Debug&);
-	Sample_Debug& operator=(const Sample_Debug&);
+	Editor_Debug(const Editor_Debug&);
+	Editor_Debug& operator=(const Editor_Debug&);
 };
 
 

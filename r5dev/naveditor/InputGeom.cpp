@@ -595,7 +595,7 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
 		const ConvexVolume* vol = &m_volumes[i];
 		unsigned int col;
 
-		if (vol->area == SAMPLE_POLYAREA_GROUND)
+		if (vol->area == EDITOR_POLYAREA_GROUND)
 			col = duRGBA(255, 0, 0, 128); // Use red for visibility (ground acts as deletion).
 		else
 			col = duTransCol(dd->areaToCol(vol->area), 64);
@@ -627,7 +627,7 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
 		const ConvexVolume* vol = &m_volumes[i];
 		unsigned int col;
 
-		if (vol->area == SAMPLE_POLYAREA_GROUND)
+		if (vol->area == EDITOR_POLYAREA_GROUND)
 			col = duRGBA(255, 0, 0, 220);
 		else
 			col = duTransCol(dd->areaToCol(vol->area), 220);
@@ -652,7 +652,7 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
 		const ConvexVolume* vol = &m_volumes[i];
 		unsigned int col;
 
-		if (vol->area == SAMPLE_POLYAREA_GROUND)
+		if (vol->area == EDITOR_POLYAREA_GROUND)
 			col = duRGBA(255, 0, 0, 220);
 		else
 			col = duDarkenCol(duTransCol(dd->areaToCol(vol->area), 220));

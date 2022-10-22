@@ -23,9 +23,9 @@
 #include "Detour/Include/DetourNavMeshQuery.h"
 #include "NavEditor/Include/Sample.h"
 
-class NavMeshTesterTool : public SampleTool
+class NavMeshTesterTool : public EditorTool
 {
-	Sample* m_sample;
+	Editor* m_editor;
 	
 	dtNavMesh* m_navMesh;
 	dtNavMeshQuery* m_navQuery;
@@ -96,7 +96,7 @@ public:
 	NavMeshTesterTool();
 
 	virtual int type() { return TOOL_NAVMESH_TESTER; }
-	virtual void init(Sample* sample);
+	virtual void init(Editor* editor);
 	virtual void reset();
 	virtual void handleMenu();
 	virtual void handleClick(const float* s, const float* p, bool shift);
