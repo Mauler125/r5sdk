@@ -178,21 +178,21 @@ struct MeshProcess : public dtTileCacheMeshProcess
 		for (int i = 0; i < params->polyCount; ++i)
 		{
 			if (polyAreas[i] == DT_TILECACHE_WALKABLE_AREA)
-				polyAreas[i] = SAMPLE_POLYAREA_GROUND;
+				polyAreas[i] = EDITOR_POLYAREA_GROUND;
 
-			if (polyAreas[i] == SAMPLE_POLYAREA_GROUND ||
-				polyAreas[i] == SAMPLE_POLYAREA_GRASS ||
-				polyAreas[i] == SAMPLE_POLYAREA_ROAD)
+			if (polyAreas[i] == EDITOR_POLYAREA_GROUND ||
+				polyAreas[i] == EDITOR_POLYAREA_GRASS ||
+				polyAreas[i] == EDITOR_POLYAREA_ROAD)
 			{
-				polyFlags[i] = SAMPLE_POLYFLAGS_WALK;
+				polyFlags[i] = EDITOR_POLYFLAGS_WALK;
 			}
-			else if (polyAreas[i] == SAMPLE_POLYAREA_WATER)
+			else if (polyAreas[i] == EDITOR_POLYAREA_WATER)
 			{
-				polyFlags[i] = SAMPLE_POLYFLAGS_SWIM;
+				polyFlags[i] = EDITOR_POLYFLAGS_SWIM;
 			}
-			else if (polyAreas[i] == SAMPLE_POLYAREA_DOOR)
+			else if (polyAreas[i] == EDITOR_POLYAREA_DOOR)
 			{
-				polyFlags[i] = SAMPLE_POLYFLAGS_WALK | SAMPLE_POLYFLAGS_DOOR;
+				polyFlags[i] = EDITOR_POLYFLAGS_WALK | EDITOR_POLYFLAGS_DOOR;
 			}
 		}
 
@@ -1065,7 +1065,7 @@ void Editor_TempObstacles::handleRender()
 			duDebugDrawNavMeshPortals(&m_dd, *m_navMesh);
 		if (m_drawMode == DRAWMODE_NAVMESH_NODES)
 			duDebugDrawNavMeshNodes(&m_dd, *m_navQuery);
-		duDebugDrawNavMeshPolysWithFlags(&m_dd, *m_navMesh, SAMPLE_POLYFLAGS_DISABLED, duRGBA(0,0,0,128));
+		duDebugDrawNavMeshPolysWithFlags(&m_dd, *m_navMesh, EDITOR_POLYFLAGS_DISABLED, duRGBA(0,0,0,128));
 	}
 	
 	

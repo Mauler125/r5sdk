@@ -60,4 +60,4 @@ private:
 };
 
 
-#endif // RECASTSAMPLE_H
+#endif // RECASTEDITOR_H

@@ -1056,7 +1056,7 @@ unsigned char* Editor_TileMesh::buildTileMesh(const int tx, const int ty, const 
 			return 0;
 		}
 	}
-	else // SAMPLE_PARTITION_LAYERS
+	else // EDITOR_PARTITION_LAYERS
 	{
 		// Partition the walkable surface into simple regions without holes.
 		if (!rcBuildLayerRegions(m_ctx, *m_chf, m_cfg.borderSize, m_cfg.minRegionArea))

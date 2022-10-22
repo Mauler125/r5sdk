@@ -16,8 +16,8 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef RECASTSAMPLE_H
-#define RECASTSAMPLE_H
+#ifndef RECASTEDITOR_H
+#define RECASTEDITOR_H
 
 #include "Recast/Include/Recast.h"
 #include "NavEditor/Include/EditorInterfaces.h"
@@ -201,4 +201,4 @@ private:
 };
 
 
-#endif // RECASTSAMPLE_H
+#endif // RECASTEDITOR_H
