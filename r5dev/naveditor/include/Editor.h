@@ -49,7 +49,7 @@ enum EditorToolType
 	MAX_TOOLS
 };
 
-/// These are just sample areas to use consistent values across the samples.
+/// These are just poly areas to use consistent values across the editors.
 /// The use should specify these base on his needs.
 enum EditorPolyAreas
 {

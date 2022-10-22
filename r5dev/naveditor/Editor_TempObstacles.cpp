@@ -675,9 +675,9 @@ public:
 
 	virtual int type() { return TOOL_TILE_HIGHLIGHT; }
 
-	virtual void init(Sample* sample)
+	virtual void init(Editor* editor)
 	{
-		 = (Editor_TempObstacles*)sample; 
+		 = (Editor_TempObstacles*)editor; 
 	}
 	
 	virtual void reset() {}
@@ -763,9 +763,9 @@ public:
 	
 	virtual int type() { return TOOL_TEMP_OBSTACLE; }
 	
-	virtual void init(Sample* sample)
+	virtual void init(Editor* editor)
 	{
-		 = (Editor_TempObstacles*)sample; 
+		 = (Editor_TempObstacles*)editor; 
 	}
 	
 	virtual void reset() {}

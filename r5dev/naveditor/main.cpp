@@ -117,7 +117,7 @@ void generate_points(float* pts, int count, float dx, float dy, float dz)
 	}
 }
 
-void auto_load(const char* path, BuildContext& ctx, Editor*& sample,InputGeom*& geom, string& meshName)
+void auto_load(const char* path, BuildContext& ctx, Editor*& editor,InputGeom*& geom, string& meshName)
 {
 	string geom_path = std::string(path);
 	meshName = geom_path.substr(geom_path.rfind("\\") + 1);
@@ -127,18 +127,18 @@ void auto_load(const char* path, BuildContext& ctx, Editor*& sample,InputGeom*& 
 		delete geom;
 		geom = 0;
 
-		// Destroy the sample if it already had geometry loaded, as we've just deleted it!
-		/*if (sample && sample->getInputGeom())
+		// Destroy the editor if it already had geometry loaded, as we've just deleted it!
+		/*if (editor && editor->getInputGeom())
 		{
-			delete sample;
-			sample = 0;
+			delete editor;
+			editor = 0;
 		}*/
 		ctx.dumpLog("Geom load log %s:", meshName.c_str());
 	}
-	if (sample && geom)
+	if (editor && geom)
 	{
-		sample->handleMeshChanged(geom);
-		sample->m_modelName = meshName.substr(0, meshName.size() - 4);
+		editor->handleMeshChanged(geom);
+		editor->m_modelName = meshName.substr(0, meshName.size() - 4);
 	}
 }
 
@@ -397,7 +397,7 @@ int not_main(int argc, char** argv)
 	TestCase* test = nullptr;
 	BuildContext ctx;
 	
-	//Load tiled sample
+	//Load tiled editor
 
 	editor = createTile();
 	editor->setContext(&ctx);
@@ -453,7 +453,7 @@ int not_main(int argc, char** argv)
 	bool showLog = false;
 	bool showTools = true;
 	bool showLevels = false;
-	bool showSample = false;
+	bool showEditor = false;
 	bool showTestCases = false;
 
 	// Window scroll positions.
@@ -490,7 +490,7 @@ int not_main(int argc, char** argv)
 					else if (event.key.keysym.sym == SDLK_t)
 					{
 						showLevels = false;
-						showSample = false;
+						showEditor = false;
 						showTestCases = true;
 						scanDirectory(testCasesFolder, ".txt", files);
 					}
@@ -665,7 +665,7 @@ int not_main(int argc, char** argv)
 			}
 		}
 		
-		// Update sample simulation.
+		// Update editor simulation.
 		const float SIM_RATE = 20;
 		const float DELTA_TIME = 1.0f / SIM_RATE;
 		timeAcc = rcClamp(timeAcc + dt, -1.0f, 1.0f);
@@ -856,7 +856,7 @@ int not_main(int argc, char** argv)
 				}
 				else
 				{
-					showSample = false;
+					showEditor = false;
 					showTestCases = false;
 					showLevels = true;
 					scanDirectory(meshesFolder, ".obj", files);
@@ -907,8 +907,8 @@ int not_main(int argc, char** argv)
 			imguiEndScrollArea();
 		}
 		
-		// Sample selection dialog.
-		if (showSample)
+		// Editor selection dialog.
+		if (showEditor)
 		{
 			static int levelScroll = 0;
 			if (geom || editor)
@@ -967,7 +967,7 @@ int not_main(int argc, char** argv)
 				delete geom;
 				geom = 0;
 
-				// Destroy the sample if it already had geometry loaded, as we've just deleted it!
+				// Destroy the editor if it already had geometry loaded, as we've just deleted it!
 				if (editor && editor->getInputGeom())
 				{
 					delete editor;
@@ -1031,7 +1031,7 @@ int not_main(int argc, char** argv)
 					if (editor)
 					{
 						editor->setContext(&ctx);
-						showSample = false;
+						showEditor = false;
 					}
 
 					// Load geom.
@@ -1058,7 +1058,7 @@ int not_main(int argc, char** argv)
 						editor->m_modelName = meshName.substr(0, meshName.size() - 4);
 					}
 
-					// This will ensure that tile & poly bits are updated in tiled sample.
+					// This will ensure that tile & poly bits are updated in tiled editor.
 					if (editor)
 						editor->handleSettings();
 
@@ -1102,7 +1102,7 @@ int not_main(int argc, char** argv)
 		}
 		
 		// Left column tools menu
-		if (!showTestCases && showTools && showMenu) // && geom && sample)
+		if (!showTestCases && showTools && showMenu) // && geom && editor)
 		{
 			if (imguiBeginScrollArea("Tools", 10, 10, 250, height - 20, &toolsScroll))
 				mouseOverMenu = true;
