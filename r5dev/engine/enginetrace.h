@@ -34,8 +34,14 @@ struct Ray_t
 struct csurface_t
 {
 	const char* name;
-	int surfaceProp;
+	short surfaceProp;
 	uint16_t flags;
+};
+
+struct cplanetrace_t
+{
+	Vector3D normal;
+	float dist;
 };
 
 struct trace_t
@@ -44,7 +50,7 @@ struct trace_t
 	float unk1;
 	Vector3D endpos;
 	float unk2;
-	cplane_t plane;
+	cplanetrace_t plane;
 	float fraction;
 	int contents;
 	bool allsolid;

@@ -12,7 +12,7 @@ void CEngineTrace_Attach()
 
 }
 
-void CEngineTrace_Dettach()
+void CEngineTrace_Detach()
 {
 
 }
