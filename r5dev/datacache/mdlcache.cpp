@@ -38,7 +38,7 @@ studiohdr_t* CMDLCache::FindMDL(CMDLCache* cache, MDLHandle_t handle, void* a3)
             studiohdr_t* pStudioHDR = **reinterpret_cast<studiohdr_t***>(pStudioData);
             if (pStudioHDR)
             {
-                string svStudio = ConvertToUnixPath(string(pStudioHDR->name));
+                const string svStudio = ConvertToUnixPath(pStudioHDR->name);
                 if (svStudio.compare(ERROR_MODEL) == NULL)
                 {
                     g_pMDLFallback->m_pErrorHDR = pStudioHDR;
