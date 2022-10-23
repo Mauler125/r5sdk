@@ -165,7 +165,7 @@ void CConsole::RunFrame(void)
 // Purpose: runs tasks for the console while not being drawn 
 // (!!! RunTask and RunFrame must be called from the same thread !!!)
 //-----------------------------------------------------------------------------
-void CConsole::RunTask()
+void CConsole::RunTask(void)
 {
     // m_Logger and m_vHistory are modified.
     std::lock_guard<std::mutex> l(m_Mutex);
@@ -588,7 +588,7 @@ void CConsole::BuildSummary(string svConVar)
 {
     if (!svConVar.empty())
     {
-        // Remove trailing space and semicolon before we call 'g_pCVar->FindVar(..)'.
+        // Remove trailing space and/or semicolon before we call 'g_pCVar->FindVar(..)'.
         StringRTrim(svConVar, " ;");
 
         if (const ConVar* pConVar = g_pCVar->FindVar(svConVar.c_str()))
@@ -917,7 +917,9 @@ void CConsole::AddLog(const ImVec4& color, const char* fmt, ...) IM_FMTARGS(2)
 //-----------------------------------------------------------------------------
 void CConsole::RemoveLog(int nStart, int nEnd)
 {
+    std::lock_guard<std::mutex> l(m_Mutex);
     int nLines = m_Logger.GetTotalLines();
+
     if (nEnd >= nLines)
     {
         // Sanitize for last array elem.
@@ -948,7 +950,6 @@ void CConsole::RemoveLog(int nStart, int nEnd)
         return;
     }
 
-    std::lock_guard<std::mutex> l(m_Mutex);
     m_Logger.RemoveLine(nStart, nEnd);
 }
 
@@ -965,7 +966,7 @@ void CConsole::ClearLog(void)
 // Purpose: gets all console submissions
 // Output : vector of strings
 //-----------------------------------------------------------------------------
-vector<string> CConsole::GetHistory(void)
+vector<string> CConsole::GetHistory(void) const
 {
     std::lock_guard<std::mutex> l(m_Mutex);
     return m_vHistory;

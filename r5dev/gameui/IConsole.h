@@ -50,7 +50,7 @@ public:
     void RemoveLog(int nStart, int nEnd);
     void ClearLog(void);
 
-    vector<string> GetHistory(void);
+    vector<string> GetHistory(void) const;
     void ClearHistory(void);
 
 private: // Internal only.
