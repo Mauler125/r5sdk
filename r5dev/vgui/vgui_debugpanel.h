@@ -15,10 +15,10 @@ struct CNotifyText
 	string           m_svMessage       = "";
 };
 
-class CLogSystem
+class CTextOverlay
 {
 public:
-	CLogSystem()
+	CTextOverlay()
 	{
 		m_nFontHeight = 16;
 		memset(m_pszCon_NPrintf_Buf, '\0', sizeof(m_pszCon_NPrintf_Buf));
@@ -26,8 +26,8 @@ public:
 
 	void Update(void);
 	void AddLog(const EGlobalContext_t context, const string& svText);
-	void DrawLog(void);
-	void DrawNotify();
+	void DrawNotify(void);
+	void DrawFormat(const int x, const int y, const Color c, const char* pszFormat, ...) const;
 	void ShouldDraw(const float flFrameTime);
 	void DrawHostStats(void) const;
 	void DrawSimStats(void) const;
@@ -51,4 +51,4 @@ void CEngineVGui_Attach();
 void CEngineVGui_Detach();
 
 ///////////////////////////////////////////////////////////////////////////////
-extern CLogSystem g_pLogSystem;
+extern CTextOverlay* g_pOverlay;

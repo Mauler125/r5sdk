@@ -10,24 +10,23 @@
 #include <windows/id3dx.h>
 #include <vpc/keyvalues.h>
 #include <mathlib/color.h>
+#include <rtech/rtech_utils.h>
 #include <rtech/rui/rui.h>
 #include <vgui/vgui_debugpanel.h>
 #include <vguimatsurface/MatSystemSurface.h>
 #include <materialsystem/cmaterialsystem.h>
+#ifndef CLIENT_DLL
+#include <engine/server/server.h>
+#endif // !CLIENT_DLL
+#include <engine/sys_engine.h>
 #include <engine/debugoverlay.h>
 #include <engine/client/clientstate.h>
 #include <materialsystem/cmaterialglue.h>
 
-#ifndef CLIENT_DLL
-#include <engine/server/server.h>
-#endif
-#include <rtech/rtech_utils.h>
-#include <engine/sys_engine.h>
-
 //-----------------------------------------------------------------------------
 // Purpose: proceed a log update
 //-----------------------------------------------------------------------------
-void CLogSystem::Update(void)
+void CTextOverlay::Update(void)
 {
 	if (!g_pMatSystemSurface)
 	{
@@ -62,50 +61,33 @@ void CLogSystem::Update(void)
 //-----------------------------------------------------------------------------
 // Purpose: add a log to the vector.
 //-----------------------------------------------------------------------------
-void CLogSystem::AddLog(const EGlobalContext_t context, const string& svText)
+void CTextOverlay::AddLog(const EGlobalContext_t context, const string& svText)
 {
-	if (con_drawnotify->GetBool())
+	if (!con_drawnotify->GetBool() || svText.empty())
 	{
-		if (svText.length() > 0)
-		{
-			std::lock_guard<std::mutex> l(m_Mutex);
-			m_vNotifyText.push_back(CNotifyText{ context, con_notifytime->GetFloat() , svText });
+		return;
+	}
 
-			while (m_vNotifyText.size() > 0 &&
-				(m_vNotifyText.size() > con_notifylines->GetInt()))
-			{
-				m_vNotifyText.erase(m_vNotifyText.begin());
-			}
-		}
+	std::lock_guard<std::mutex> l(m_Mutex);
+	m_vNotifyText.push_back(CNotifyText{ context, con_notifytime->GetFloat() , svText });
+
+	while (m_vNotifyText.size() > 0 &&
+		(m_vNotifyText.size() > con_notifylines->GetInt()))
+	{
+		m_vNotifyText.erase(m_vNotifyText.begin());
 	}
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: draw notify logs on screen.
 //-----------------------------------------------------------------------------
-void CLogSystem::DrawNotify(void)
+void CTextOverlay::DrawNotify(void)
 {
-	int x;
-	int y;
-	if (con_notify_invert_x->GetBool())
-	{
-		x = g_nWindowWidth - con_notify_offset_x->GetInt();
-	}
-	else
-	{
-		x = con_notify_offset_x->GetInt();
-	}
-	if (con_notify_invert_y->GetBool())
-	{
-		y = g_nWindowHeight - con_notify_offset_y->GetInt();
-	}
-	else
-	{
-		y = con_notify_offset_y->GetInt();
-	}
+	int x = con_notify_invert_x->GetBool() ? g_nWindowWidth - con_notify_offset_x->GetInt() : con_notify_offset_x->GetInt();
+	int y = con_notify_invert_y->GetBool() ? g_nWindowHeight - con_notify_offset_y->GetInt() : con_notify_offset_y->GetInt();
 
 	std::lock_guard<std::mutex> l(m_Mutex);
-	for (int i = 0, j = m_vNotifyText.size(); i < j; i++)
+	for (size_t i = 0, j = m_vNotifyText.size(); i < j; i++)
 	{
 		CNotifyText* pNotify = &m_vNotifyText[i];
 		Color c = GetLogColorForType(m_vNotifyText[i].m_type);
@@ -115,7 +97,7 @@ void CLogSystem::DrawNotify(void)
 		if (flTimeleft < 1.0f)
 		{
 			float f = clamp(flTimeleft, 0.0f, 1.0f) / 1.0f;
-			c[3] = (int)(f * 255.0f);
+			c[3] = static_cast<int>(f * 255.0f);
 
 			if (i == 0 && f < 0.2f)
 			{
@@ -141,10 +123,33 @@ void CLogSystem::DrawNotify(void)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: draws formatted text over RUI
+// Input  : x - 
+//			y - 
+//			pszFormat - 
+//			... - 
+//-----------------------------------------------------------------------------
+void CTextOverlay::DrawFormat(const int x, const int y, const Color c, const char* pszFormat, ...) const
+{
+	static char szLogbuf[4096]{};
+	{/////////////////////////////
+		va_list args{};
+		va_start(args, pszFormat);
+
+		vsnprintf(szLogbuf, sizeof(szLogbuf), pszFormat, args);
+
+		szLogbuf[sizeof(szLogbuf) - 1] = '\0';
+		va_end(args);
+	}/////////////////////////////
+
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, x, y, c.r(), c.g(), c.b(), c.a(), szLogbuf);
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: checks if the notify text is expired
 // Input  : flFrameTime - 
 //-----------------------------------------------------------------------------
-void CLogSystem::ShouldDraw(const float flFrameTime)
+void CTextOverlay::ShouldDraw(const float flFrameTime)
 {
 	if (con_drawnotify->GetBool())
 	{
@@ -166,119 +171,86 @@ void CLogSystem::ShouldDraw(const float flFrameTime)
 	}
 	else if (!m_vNotifyText.empty())
 	{
+		std::lock_guard<std::mutex> l(m_Mutex);
 		m_vNotifyText.clear();
 	}
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: draw current host stats on screen.
+// Purpose: draws live host stats on screen.
 //-----------------------------------------------------------------------------
-void CLogSystem::DrawHostStats(void) const
+void CTextOverlay::DrawHostStats(void) const
 {
-	int nWidth  = cl_hoststats_offset_x->GetInt();
-	int nHeight = cl_hoststats_offset_y->GetInt();
 	const static Color c = { 255, 255, 255, 255 };
-
-	if (cl_hoststats_invert_x->GetBool())
-	{
-		nWidth = g_nWindowWidth  - nWidth;
-	}
-	if (cl_hoststats_invert_y->GetBool())
-	{
-		nHeight = g_nWindowHeight - nHeight;
-	}
+	int nWidth = cl_hoststats_invert_x->GetBool() ? g_nWindowWidth - cl_hoststats_offset_x->GetInt() : cl_hoststats_offset_x->GetInt();
+	int nHeight = cl_hoststats_invert_y->GetBool() ? g_nWindowHeight - cl_hoststats_offset_y->GetInt() : cl_hoststats_offset_y->GetInt();
 
 	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), m_pszCon_NPrintf_Buf);
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: draw current simulation stats on screen.
+// Purpose: draws live simulation stats on screen.
 //-----------------------------------------------------------------------------
-void CLogSystem::DrawSimStats(void) const
+void CTextOverlay::DrawSimStats(void) const
 {
-	int nWidth  = cl_simstats_offset_x->GetInt();
-	int nHeight = cl_simstats_offset_y->GetInt();
-
 	static Color c = { 255, 255, 255, 255 };
-	static const char* szLogbuf[4096]{};
+	int nWidth = cl_simstats_invert_x->GetBool() ? g_nWindowWidth - cl_simstats_offset_x->GetInt() : cl_simstats_offset_x->GetInt();
+	int nHeight = cl_simstats_invert_y->GetBool() ? g_nWindowHeight - cl_simstats_offset_y->GetInt() : cl_simstats_offset_y->GetInt();
 
-	snprintf((char*)szLogbuf, 4096, "Server Frame: (%d) Client Frame: (%d) Render Frame: (%d)\n",
+	DrawFormat(nWidth, nHeight, c, "Server Frame: (%d) Client Frame: (%d) Render Frame: (%d)\n", 
 		g_pClientState->GetServerTickCount(), g_pClientState->GetClientTickCount(), *g_nRenderTickCount);
-
-	if (cl_simstats_invert_x->GetBool())
-	{
-		nWidth  = g_nWindowWidth  - nWidth;
-	}
-	if (cl_simstats_invert_y->GetBool())
-	{
-		nHeight = g_nWindowHeight - nHeight;
-	}
-
-	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: draw current gpu stats on screen.
+// Purpose: draws live gpu stats on screen.
 //-----------------------------------------------------------------------------
-void CLogSystem::DrawGPUStats(void) const
+void CTextOverlay::DrawGPUStats(void) const
 {
-	int nWidth  = cl_gpustats_offset_x->GetInt();
-	int nHeight = cl_gpustats_offset_y->GetInt();
-
 	static Color c = { 255, 255, 255, 255 };
-	static const char* szLogbuf[4096]{};
-	snprintf((char*)szLogbuf, 4096, "%8d/%8d/%8dkiB unusable/unfree/total GPU Streaming Texture memory\n", 
-	*g_nUnusableStreamingTextureMemory / 1024, *g_nUnfreeStreamingTextureMemory / 1024, *g_nUnusableStreamingTextureMemory / 1024);
+	int nWidth  = cl_gpustats_invert_x->GetBool() ? g_nWindowWidth - cl_gpustats_offset_x->GetInt() : cl_gpustats_offset_x->GetInt();
+	int nHeight = cl_gpustats_invert_y->GetBool() ? g_nWindowHeight - cl_gpustats_offset_y->GetInt() : cl_gpustats_offset_y->GetInt();
 
-	if (cl_gpustats_invert_x->GetBool())
-	{
-		nWidth  = g_nWindowWidth  - nWidth;
-	}
-	if (cl_gpustats_invert_y->GetBool())
-	{
-		nHeight = g_nWindowHeight - nHeight;
-	}
-
-	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
+	DrawFormat(nWidth, nHeight, c, "%8d/%8d/%8dkiB unusable/unfree/total GPU Streaming Texture memory\n",
+		*g_nUnusableStreamingTextureMemory / 1024, *g_nUnfreeStreamingTextureMemory / 1024, *g_nUnusableStreamingTextureMemory / 1024);
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: draw currently traced material info on screen.
+// Purpose: draws currently traced material info on screen.
 //-----------------------------------------------------------------------------
-void CLogSystem::DrawCrosshairMaterial(void) const
+void CTextOverlay::DrawCrosshairMaterial(void) const
 {
 	CMaterialGlue* pMaterialGlue = GetMaterialAtCrossHair();
 	if (!pMaterialGlue)
 		return;
 
 	static Color c = { 255, 255, 255, 255 };
-	static const char* szLogbuf[4096]{};
-	snprintf((char*)szLogbuf, 4096, "name: %s\nguid: %llx\ndimensions: %d x %d\nsurface: %s/%s\nstc: %i\ntc: %i",
+	DrawFormat(cl_materialinfo_offset_x->GetInt(), cl_materialinfo_offset_y->GetInt(), c, "name: %s\nguid: %llx\ndimensions: %d x %d\nsurface: %s/%s\nstc: %i\ntc: %i",
 		pMaterialGlue->m_pszName,
 		pMaterialGlue->m_GUID,
 		pMaterialGlue->m_iWidth, pMaterialGlue->m_iHeight,
 		pMaterialGlue->m_pszSurfaceProp, pMaterialGlue->m_pszSurfaceProp2,
 		pMaterialGlue->m_nStreamableTextureCount,
 		pMaterialGlue->m_pShaderGlue->m_nTextureInputCount);
-
-	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, cl_materialinfo_offset_x->GetInt(), cl_materialinfo_offset_y->GetInt(), c.r(), c.g(), c.b(), c.a(), (char*)szLogbuf);
 }
 
-void CLogSystem::DrawStreamOverlay(void) const
+//-----------------------------------------------------------------------------
+// Purpose: draws the stream overlay on screen.
+//-----------------------------------------------------------------------------
+void CTextOverlay::DrawStreamOverlay(void) const
 {
-	char buf[4096];
-	
-	GetStreamOverlay(stream_overlay_mode->GetString(), buf, sizeof(buf));
-
+	static char szLogbuf[4096];
 	static Color c = { 255, 255, 255, 255 };
-
-	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, 20, 300, c.r(), c.g(), c.b(), c.a(), buf);
+	
+	GetStreamOverlay(stream_overlay_mode->GetString(), szLogbuf, sizeof(szLogbuf));
+	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, 20, 300, c.r(), c.g(), c.b(), c.a(), szLogbuf);
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: get log color for passed type.
+// Purpose: gets the log color for context.
+// Input  : context - 
+// Output : Color
 //-----------------------------------------------------------------------------
-Color CLogSystem::GetLogColorForType(const EGlobalContext_t context) const
+Color CTextOverlay::GetLogColorForType(const EGlobalContext_t context) const
 {
 	switch (context)
 	{
@@ -316,4 +288,4 @@ Color CLogSystem::GetLogColorForType(const EGlobalContext_t context) const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-CLogSystem g_pLogSystem;
+CTextOverlay* g_pOverlay = new CTextOverlay();

@@ -83,8 +83,8 @@ void HCon_NPrintf(int pos, const char* fmt, ...)
 			va_end(args);
 		}/////////////////////////////
 
-		snprintf(g_pLogSystem.m_pszCon_NPrintf_Buf, 
-			sizeof(g_pLogSystem.m_pszCon_NPrintf_Buf), buf);
+		snprintf(g_pOverlay->m_pszCon_NPrintf_Buf, 
+			sizeof(g_pOverlay->m_pszCon_NPrintf_Buf), buf);
 	}
 }
 #endif // !DEDICATED

@@ -15,7 +15,7 @@
 //-----------------------------------------------------------------------------
 ConVar* HCFPSPanel_Paint(void* thisptr)
 {
-	g_pLogSystem.Update();
+	g_pOverlay->Update();
 	return CFPSPanel_Paint(thisptr);
 }
 

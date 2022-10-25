@@ -172,7 +172,7 @@ void NetMsg(EGlobalContext_t context, const char* fmt, ...)
 		iconsole->debug(svOut);
 
 		g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), color));
-		g_pLogSystem.AddLog(static_cast<EGlobalContext_t>(context), g_spd_sys_w_oss.str());
+		g_pOverlay->AddLog(static_cast<EGlobalContext_t>(context), g_spd_sys_w_oss.str());
 
 		g_spd_sys_w_oss.str("");
 		g_spd_sys_w_oss.clear();
@@ -271,7 +271,7 @@ void NetMsg(EGlobalContext_t context, const char* fmt, ...)
 		iconsole->info(svOut);
 
 		g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), color));
-		g_pLogSystem.AddLog(context, g_spd_sys_w_oss.str());
+		g_pOverlay->AddLog(context, g_spd_sys_w_oss.str());
 
 		g_spd_sys_w_oss.str("");
 		g_spd_sys_w_oss.clear();
@@ -391,7 +391,7 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 	if (g_bSpdLog_PostInit)
 	{
 		g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), color));
-		g_pLogSystem.AddLog(tLog, g_spd_sys_w_oss.str());
+		g_pOverlay->AddLog(tLog, g_spd_sys_w_oss.str());
 	}
 
 	g_spd_sys_w_oss.str("");
@@ -472,7 +472,7 @@ void Warning(eDLL_T context, const char* fmt, ...)
 	if (g_bSpdLog_PostInit)
 	{
 		g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), ImVec4(1.00f, 1.00f, 0.00f, 0.80f)));
-		g_pLogSystem.AddLog(EGlobalContext_t::WARNING_C, g_spd_sys_w_oss.str());
+		g_pOverlay->AddLog(EGlobalContext_t::WARNING_C, g_spd_sys_w_oss.str());
 	}
 
 	g_spd_sys_w_oss.str("");
@@ -555,7 +555,7 @@ void Error(eDLL_T context, UINT code, const char* fmt, ...)
 	if (g_bSpdLog_PostInit)
 	{
 		g_pConsole->AddLog(ConLog_t(g_spd_sys_w_oss.str(), ImVec4(1.00f, 0.00f, 0.00f, 1.00f)));
-		g_pLogSystem.AddLog(EGlobalContext_t::ERROR_C, g_spd_sys_w_oss.str());
+		g_pOverlay->AddLog(EGlobalContext_t::ERROR_C, g_spd_sys_w_oss.str());
 	}
 
 	g_spd_sys_w_oss.str("");
