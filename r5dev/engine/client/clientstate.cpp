@@ -17,7 +17,7 @@
 //------------------------------------------------------------------------------
 // Purpose: returns true if client simulation is paused
 //------------------------------------------------------------------------------
-bool CClientState::IsPaused()
+bool CClientState::IsPaused() const
 {
 	return m_bPaused;
 }
@@ -26,7 +26,7 @@ bool CClientState::IsPaused()
 // Purpose: gets the client time
 // Technically doesn't belong here
 //------------------------------------------------------------------------------
-float CClientState::GetClientTime()
+float CClientState::GetClientTime() const
 {
     if (m_bClockCorrectionEnabled)
     {

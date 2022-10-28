@@ -24,8 +24,8 @@ public:
 class CClientState : CS_INetChannelHandler, IConnectionlessPacketHandler, IServerMessageHandler, CClientSnapshotManager
 {
 public:
-	bool IsPaused();
-	float GetClientTime();
+	bool IsPaused() const;
+	float GetClientTime() const;
 
 	int GetTick() const;
 
