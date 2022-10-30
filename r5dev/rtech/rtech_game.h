@@ -81,7 +81,7 @@ class VRTechGame : public IDetour
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const
 	{
-		p_CPakFile_LoadPak_OpenFileOffset = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x7C\x24\x30\xC7\x44\x24\x28\x00\x00\x00\x40"), "xxxxxxxxxxxxx");
+		p_CPakFile_LoadPak_OpenFileOffset = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x7C\x24\x30\xC7\x44\x24\x28\x00\x00\x00\x40"), "xxxxxxxxxxxxx"); /*48 89 7C 24 30 C7 44 24 28 00 00 00 40*/
 	}
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }
