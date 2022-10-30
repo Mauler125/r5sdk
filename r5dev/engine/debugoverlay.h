@@ -26,7 +26,7 @@ enum class OverlayType_t
 	OVERLAY_SPHERE,
 	OVERLAY_LINE,
 	OVERLAY_TRIANGLE,
-	OVERLAY_SWEPT_BOX,
+	OVERLAY_LASER_LINE,
 	OVERLAY_BOX2,
 	OVERLAY_CAPSULE,
 	OVERLAY_UNK0,
@@ -53,19 +53,6 @@ struct OverlayBase_t
 	OverlayBase_t*  m_pNextOverlay {}; // 16
 	int             m_nOverlayTick {}; // 24
 	int             m_nFlags{}; // Maybe
-};
-
-struct OverlayLine_t : public OverlayBase_t
-{
-	OverlayLine_t(void) { m_Type = OverlayType_t::OVERLAY_LINE; }
-
-	Vector3D        origin{};
-	Vector3D        dest{};
-	int             r{};
-	int             g{};
-	int             b{};
-	int             a{};
-	bool            noDepthTest{};
 };
 
 struct OverlayBox_t : public OverlayBase_t
@@ -111,6 +98,19 @@ struct OverlaySphere_t : public OverlayBase_t
 	int             a{};
 };
 
+struct OverlayLine_t : public OverlayBase_t
+{
+	OverlayLine_t(void) { m_Type = OverlayType_t::OVERLAY_LINE; }
+
+	Vector3D        origin{};
+	Vector3D        dest{};
+	int             r{};
+	int             g{};
+	int             b{};
+	int             a{};
+	bool            noDepthTest{};
+};
+
 struct OverlayTriangle_t : public OverlayBase_t
 {
 	OverlayTriangle_t() { m_Type = OverlayType_t::OVERLAY_TRIANGLE; }
@@ -125,19 +125,17 @@ struct OverlayTriangle_t : public OverlayBase_t
 	bool			noDepthTest;
 };
 
-struct OverlaySweptBox_t : public OverlayBase_t
+struct OverlayLaserLine_t : public OverlayBase_t
 {
-	OverlaySweptBox_t() { m_Type = OverlayType_t::OVERLAY_SWEPT_BOX; }
+	OverlayLaserLine_t() { m_Type = OverlayType_t::OVERLAY_LASER_LINE; }
 
 	Vector3D		start;
 	Vector3D		end;
-	Vector3D		mins;
-	Vector3D		maxs;
-	QAngle			angles;
 	int				r;
 	int				g;
 	int				b;
 	int				a;
+	bool			noDepthTest;
 };
 
 struct OverlayCapsule_t : public OverlayBase_t

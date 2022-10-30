@@ -85,7 +85,7 @@ void DestroyOverlay(OverlayBase_t* pOverlay)
     case OverlayType_t::OVERLAY_TRIANGLE:
         pOverlaySize = 6200i64;
         goto LABEL_MALLOC;
-    case OverlayType_t::OVERLAY_SWEPT_BOX:
+    case OverlayType_t::OVERLAY_LASER_LINE:
         pOverlay->m_Type = OverlayType_t::OVERLAY_UNK1;
         LeaveCriticalSection(&*s_OverlayMutex);
         return;
@@ -189,9 +189,10 @@ void DrawOverlay(OverlayBase_t* pOverlay)
         //printf("TRIANGLE %p\n", pOverlay);
         break;
     }
-    case OverlayType_t::OVERLAY_SWEPT_BOX:
+    case OverlayType_t::OVERLAY_LASER_LINE:
     {
-        //printf("SBOX %p\n", pOverlay);
+        OverlayLaserLine_t* pLaser = static_cast<OverlayLaserLine_t*>(pOverlay);
+        v_RenderLine(pLaser->start, pLaser->end, Color(pLaser->r, pLaser->g, pLaser->b, pLaser->a), !pLaser->noDepthTest);
         break;
     }
     case OverlayType_t::OVERLAY_BOX2:
