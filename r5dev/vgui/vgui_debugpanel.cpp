@@ -69,7 +69,7 @@ void CTextOverlay::AddLog(const EGlobalContext_t context, const string& svText)
 	}
 
 	std::lock_guard<std::mutex> l(m_Mutex);
-	m_vNotifyText.push_back(CNotifyText{ context, con_notifytime->GetFloat() , svText });
+	m_vNotifyText.push_back(CTextNotify{ context, con_notifytime->GetFloat() , svText });
 
 	while (m_vNotifyText.size() > 0 &&
 		(m_vNotifyText.size() > con_notifylines->GetInt()))
@@ -89,7 +89,7 @@ void CTextOverlay::DrawNotify(void)
 	std::lock_guard<std::mutex> l(m_Mutex);
 	for (size_t i = 0, j = m_vNotifyText.size(); i < j; i++)
 	{
-		CNotifyText* pNotify = &m_vNotifyText[i];
+		CTextNotify* pNotify = &m_vNotifyText[i];
 		Color c = GetLogColorForType(m_vNotifyText[i].m_type);
 
 		float flTimeleft = pNotify->m_flLifeRemaining;
@@ -159,7 +159,7 @@ void CTextOverlay::ShouldDraw(const float flFrameTime)
 		int c = m_vNotifyText.size();
 		for (i = c - 1; i >= 0; i--)
 		{
-			CNotifyText* pNotify = &m_vNotifyText[i];
+			CTextNotify* pNotify = &m_vNotifyText[i];
 			pNotify->m_flLifeRemaining -= flFrameTime;
 
 			if (pNotify->m_flLifeRemaining <= 0.0f)
@@ -181,9 +181,9 @@ void CTextOverlay::ShouldDraw(const float flFrameTime)
 //-----------------------------------------------------------------------------
 void CTextOverlay::DrawHostStats(void) const
 {
-	const static Color c = { 255, 255, 255, 255 };
-	int nWidth = cl_hoststats_invert_x->GetBool() ? g_nWindowWidth - cl_hoststats_offset_x->GetInt() : cl_hoststats_offset_x->GetInt();
-	int nHeight = cl_hoststats_invert_y->GetBool() ? g_nWindowHeight - cl_hoststats_offset_y->GetInt() : cl_hoststats_offset_y->GetInt();
+	static const Color c = { 255, 255, 255, 255 };
+	const int nWidth = cl_hoststats_invert_x->GetBool() ? g_nWindowWidth - cl_hoststats_offset_x->GetInt() : cl_hoststats_offset_x->GetInt();
+	const int nHeight = cl_hoststats_invert_y->GetBool() ? g_nWindowHeight - cl_hoststats_offset_y->GetInt() : cl_hoststats_offset_y->GetInt();
 
 	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, nWidth, nHeight, c.r(), c.g(), c.b(), c.a(), m_pszCon_NPrintf_Buf);
 }
@@ -193,9 +193,9 @@ void CTextOverlay::DrawHostStats(void) const
 //-----------------------------------------------------------------------------
 void CTextOverlay::DrawSimStats(void) const
 {
-	static Color c = { 255, 255, 255, 255 };
-	int nWidth = cl_simstats_invert_x->GetBool() ? g_nWindowWidth - cl_simstats_offset_x->GetInt() : cl_simstats_offset_x->GetInt();
-	int nHeight = cl_simstats_invert_y->GetBool() ? g_nWindowHeight - cl_simstats_offset_y->GetInt() : cl_simstats_offset_y->GetInt();
+	static const Color c = { 255, 255, 255, 255 };
+	const int nWidth = cl_simstats_invert_x->GetBool() ? g_nWindowWidth - cl_simstats_offset_x->GetInt() : cl_simstats_offset_x->GetInt();
+	const int nHeight = cl_simstats_invert_y->GetBool() ? g_nWindowHeight - cl_simstats_offset_y->GetInt() : cl_simstats_offset_y->GetInt();
 
 	DrawFormat(nWidth, nHeight, c, "Server Frame: (%d) Client Frame: (%d) Render Frame: (%d)\n", 
 		g_pClientState->GetServerTickCount(), g_pClientState->GetClientTickCount(), *g_nRenderTickCount);
@@ -206,9 +206,9 @@ void CTextOverlay::DrawSimStats(void) const
 //-----------------------------------------------------------------------------
 void CTextOverlay::DrawGPUStats(void) const
 {
-	static Color c = { 255, 255, 255, 255 };
-	int nWidth  = cl_gpustats_invert_x->GetBool() ? g_nWindowWidth - cl_gpustats_offset_x->GetInt() : cl_gpustats_offset_x->GetInt();
-	int nHeight = cl_gpustats_invert_y->GetBool() ? g_nWindowHeight - cl_gpustats_offset_y->GetInt() : cl_gpustats_offset_y->GetInt();
+	static const Color c = { 255, 255, 255, 255 };
+	const int nWidth  = cl_gpustats_invert_x->GetBool() ? g_nWindowWidth - cl_gpustats_offset_x->GetInt() : cl_gpustats_offset_x->GetInt();
+	const int nHeight = cl_gpustats_invert_y->GetBool() ? g_nWindowHeight - cl_gpustats_offset_y->GetInt() : cl_gpustats_offset_y->GetInt();
 
 	DrawFormat(nWidth, nHeight, c, "%8d/%8d/%8dkiB unusable/unfree/total GPU Streaming Texture memory\n",
 		*g_nUnusableStreamingTextureMemory / 1024, *g_nUnfreeStreamingTextureMemory / 1024, *g_nUnusableStreamingTextureMemory / 1024);
@@ -239,7 +239,7 @@ void CTextOverlay::DrawCrosshairMaterial(void) const
 void CTextOverlay::DrawStreamOverlay(void) const
 {
 	static char szLogbuf[4096];
-	static Color c = { 255, 255, 255, 255 };
+	static const Color c = { 255, 255, 255, 255 };
 	
 	GetStreamOverlay(stream_overlay_mode->GetString(), szLogbuf, sizeof(szLogbuf));
 	CMatSystemSurface_DrawColoredText(g_pMatSystemSurface, v_Rui_GetFontFace(), m_nFontHeight, 20, 300, c.r(), c.g(), c.b(), c.a(), szLogbuf);

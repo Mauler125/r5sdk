@@ -16,7 +16,7 @@ int HQHull_PrintFunc(const char* fmt, ...)
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
 	static std::shared_ptr<spdlog::logger> qhlogger = spdlog::get("qhull_info");
 
-	s_LogMutex.lock();
+	g_LogMutex.lock();
 	{/////////////////////////////
 		va_list args{};
 		va_start(args, fmt);
@@ -38,7 +38,7 @@ int HQHull_PrintFunc(const char* fmt, ...)
 	g_spd_sys_w_oss.clear();
 #endif // !DEDICATED
 
-	s_LogMutex.unlock();
+	g_LogMutex.unlock();
 	return NULL;
 }
 

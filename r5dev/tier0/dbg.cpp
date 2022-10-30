@@ -22,7 +22,7 @@
 #if defined( _X360 )
 #include "xbox/xbox_console.h"
 #endif
-std::mutex s_LogMutex;
+std::mutex g_LogMutex;
 
 //-----------------------------------------------------------------------------
 // True if -hushasserts was passed on command line.
@@ -99,10 +99,10 @@ void NetMsg(EGlobalContext_t context, const char* fmt, ...)
 #ifndef DEDICATED
 	static char szBuf[4096] = {};
 	static std::string svOut;
-	static std::regex rxAnsiExp("\\\033\\[.*?m");
-	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
-	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
-	static std::shared_ptr<spdlog::logger> ntlogger = spdlog::get("net_con");
+
+	static const std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
+	static const std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
+	static const std::shared_ptr<spdlog::logger> ntlogger = spdlog::get("net_con");
 	switch (context)
 	{
 	case EGlobalContext_t::GLOBAL_NONE:
@@ -110,7 +110,7 @@ void NetMsg(EGlobalContext_t context, const char* fmt, ...)
 	case EGlobalContext_t::SCRIPT_CLIENT:
 	case EGlobalContext_t::SCRIPT_UI:
 	{
-		s_LogMutex.lock();
+		g_LogMutex.lock();
 		{/////////////////////////////
 			va_list args{};
 			va_start(args, fmt);
@@ -160,11 +160,11 @@ void NetMsg(EGlobalContext_t context, const char* fmt, ...)
 		if (g_bSpdLog_UseAnsiClr)
 		{
 			wconsole->debug(svOut);
-			svOut = std::regex_replace(svOut, rxAnsiExp, "");
+			svOut = std::regex_replace(svOut, rANSI_EXP, "");
 		}
 		else
 		{
-			svOut = std::regex_replace(svOut, rxAnsiExp, "");
+			svOut = std::regex_replace(svOut, rANSI_EXP, "");
 			wconsole->debug(svOut);
 		}
 
@@ -177,7 +177,7 @@ void NetMsg(EGlobalContext_t context, const char* fmt, ...)
 		g_spd_sys_w_oss.str("");
 		g_spd_sys_w_oss.clear();
 
-		s_LogMutex.unlock();
+		g_LogMutex.unlock();
 
 		break;
 	}
@@ -191,7 +191,7 @@ void NetMsg(EGlobalContext_t context, const char* fmt, ...)
 	case EGlobalContext_t::NETCON_S:
 	case EGlobalContext_t::COMMON_C:
 	{
-		s_LogMutex.lock();
+		g_LogMutex.lock();
 		{/////////////////////////////
 			va_list args{};
 			va_start(args, fmt);
@@ -259,11 +259,11 @@ void NetMsg(EGlobalContext_t context, const char* fmt, ...)
 		if (g_bSpdLog_UseAnsiClr)
 		{
 			wconsole->debug(svOut);
-			svOut = std::regex_replace(svOut, rxAnsiExp, "");
+			svOut = std::regex_replace(svOut, rANSI_EXP, "");
 		}
 		else
 		{
-			svOut = std::regex_replace(svOut, rxAnsiExp, "");
+			svOut = std::regex_replace(svOut, rANSI_EXP, "");
 			wconsole->debug(svOut);
 		}
 
@@ -275,7 +275,7 @@ void NetMsg(EGlobalContext_t context, const char* fmt, ...)
 
 		g_spd_sys_w_oss.str("");
 		g_spd_sys_w_oss.clear();
-		s_LogMutex.unlock();
+		g_LogMutex.unlock();
 		break;
 	}
 	}
@@ -294,13 +294,11 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 	static std::string svOut;
 	static std::string svAnsiOut;
 
-	static std::regex rxAnsiExp("\\\033\\[.*?m");
-
 	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
 	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sdk_info");
 
-	s_LogMutex.lock();
+	g_LogMutex.lock();
 	const char* pszUpTime = Plat_GetProcessUpTime();
 
 	{/////////////////////////////
@@ -316,7 +314,7 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 	svOut = g_bSpdLog_PostInit ? pszUpTime : "";
 	svOut.append(sDLL_T[static_cast<int>(context)]);
 	svOut.append(szBuf);
-	svOut = std::regex_replace(svOut, rxAnsiExp, "");
+	svOut = std::regex_replace(svOut, rANSI_EXP, "");
 
 	if (svOut.back() != '\n')
 	{
@@ -397,7 +395,7 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 	g_spd_sys_w_oss.str("");
 	g_spd_sys_w_oss.clear();
 #endif // !DEDICATED
-	s_LogMutex.unlock();
+	g_LogMutex.unlock();
 }
 
 //-----------------------------------------------------------------------------
@@ -412,13 +410,11 @@ void Warning(eDLL_T context, const char* fmt, ...)
 	static std::string svOut;
 	static std::string svAnsiOut;
 
-	static std::regex rxAnsiExp("\\\033\\[.*?m");
-
 	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
 	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sdk_warn");
 
-	s_LogMutex.lock();
+	g_LogMutex.lock();
 	const char* pszUpTime = Plat_GetProcessUpTime();
 
 	{/////////////////////////////
@@ -434,7 +430,7 @@ void Warning(eDLL_T context, const char* fmt, ...)
 	svOut = g_bSpdLog_PostInit ? pszUpTime : "";
 	svOut.append(sDLL_T[static_cast<int>(context)]);
 	svOut.append(szBuf);
-	svOut = std::regex_replace(svOut, rxAnsiExp, "");
+	svOut = std::regex_replace(svOut, rANSI_EXP, "");
 
 	if (svOut.back() != '\n')
 	{
@@ -478,7 +474,7 @@ void Warning(eDLL_T context, const char* fmt, ...)
 	g_spd_sys_w_oss.str("");
 	g_spd_sys_w_oss.clear();
 #endif // !DEDICATED
-	s_LogMutex.unlock();
+	g_LogMutex.unlock();
 }
 
 //-----------------------------------------------------------------------------
@@ -487,20 +483,18 @@ void Warning(eDLL_T context, const char* fmt, ...)
 //			code - 
 //			*fmt - ... - 
 //-----------------------------------------------------------------------------
-void Error(eDLL_T context, UINT code, const char* fmt, ...)
+void Error(eDLL_T context, const UINT code, const char* fmt, ...)
 {
 	static char szBuf[4096] = {};
 
 	static std::string svOut;
 	static std::string svAnsiOut;
 
-	static std::regex rxAnsiExp("\\\033\\[.*?m");
-
 	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
 	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sdk_error");
 
-	s_LogMutex.lock();
+	g_LogMutex.lock();
 	const char* pszUpTime = Plat_GetProcessUpTime();
 
 	{/////////////////////////////
@@ -516,7 +510,7 @@ void Error(eDLL_T context, UINT code, const char* fmt, ...)
 	svOut = g_bSpdLog_PostInit ? pszUpTime : "";
 	svOut.append(sDLL_T[static_cast<int>(context)]);
 	svOut.append(szBuf);
-	svOut = std::regex_replace(svOut, rxAnsiExp, "");
+	svOut = std::regex_replace(svOut, rANSI_EXP, "");
 
 	if (svOut.back() != '\n')
 	{
@@ -568,5 +562,5 @@ void Error(eDLL_T context, UINT code, const char* fmt, ...)
 			TerminateProcess(GetCurrentProcess(), code);
 		}
 	}
-	s_LogMutex.unlock();
+	g_LogMutex.unlock();
 }

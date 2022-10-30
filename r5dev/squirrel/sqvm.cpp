@@ -84,7 +84,7 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
 	static std::shared_ptr<spdlog::logger> sqlogger = spdlog::get("sqvm_info");
 
-	s_LogMutex.lock();
+	g_LogMutex.lock();
 	const char* pszUpTime = Plat_GetProcessUpTime();
 
 	{/////////////////////////////
@@ -204,7 +204,7 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 	g_spd_sys_w_oss.str("");
 	g_spd_sys_w_oss.clear();
 
-	s_LogMutex.unlock();
+	g_LogMutex.unlock();
 	return SQ_OK;
 }
 
@@ -228,7 +228,7 @@ SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* 
 		return result;
 	}
 
-	s_LogMutex.lock();
+	g_LogMutex.lock();
 	const char* pszUpTime = Plat_GetProcessUpTime();
 #ifdef GAMEDLL_S3
 	context = v->GetContext();
@@ -296,7 +296,7 @@ SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* 
 	g_spd_sys_w_oss.str("");
 	g_spd_sys_w_oss.clear();
 
-	s_LogMutex.unlock();
+	g_LogMutex.unlock();
 	return result;
 }
 

@@ -46,7 +46,7 @@ enum class eDLL_T : int
 	COMMON = 8
 };
 
-const string sDLL_T[9] = 
+static const string sDLL_T[9] = 
 {
 	"Native(S):",
 	"Native(C):",
@@ -59,7 +59,7 @@ const string sDLL_T[9] =
 	""
 };
 
-const static string sANSI_DLL_T[9] = 
+static const string sANSI_DLL_T[9] =
 {
 	"\033[38;2;059;120;218mNative(S):",
 	"\033[38;2;118;118;118mNative(C):",
@@ -71,7 +71,11 @@ const static string sANSI_DLL_T[9] =
 	"\033[38;2;204;204;204mNetcon(X):",
 	"\033[38;2;255;204;153m"
 };
-extern std::mutex s_LogMutex;
+
+
+static const std::regex rANSI_EXP("\\\033\\[.*?m");
+
+extern std::mutex g_LogMutex;
 
 //////////////////////////////////////////////////////////////////////////
 // Legacy Logging System
@@ -80,8 +84,8 @@ extern std::mutex s_LogMutex;
 // These functions do not return.
 PLATFORM_INTERFACE void NetMsg(EGlobalContext_t context, const char* fmt, ...) FMTFUNCTION(2, 3);
 PLATFORM_INTERFACE void DevMsg(eDLL_T context, const char* fmt, ...) FMTFUNCTION(2, 3);
-PLATFORM_INTERFACE void Warning(eDLL_T context, const char* fmt, ...) FMTFUNCTION(1, 2);
-PLATFORM_INTERFACE void Error(eDLL_T context, UINT code, const char* fmt, ...) FMTFUNCTION(1, 2);
+PLATFORM_INTERFACE void Warning(eDLL_T context, const char* fmt, ...) FMTFUNCTION(2, 3);
+PLATFORM_INTERFACE void Error(eDLL_T context, const UINT code, const char* fmt, ...) FMTFUNCTION(3, 4);
 
 // You can use this macro like a runtime assert macro.
 // If the condition fails, then Error is called with the message. This macro is called

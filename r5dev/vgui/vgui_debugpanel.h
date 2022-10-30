@@ -2,9 +2,9 @@
 #include "core/stdafx.h"
 #include "mathlib/color.h"
 
-struct CNotifyText
+struct CTextNotify
 {
-	CNotifyText(const EGlobalContext_t type, const float nTime, const string& svMessage)
+	CTextNotify(const EGlobalContext_t type, const float nTime, const string& svMessage)
 	{
 		this->m_svMessage       = svMessage;
 		this->m_flLifeRemaining = nTime;
@@ -37,7 +37,7 @@ public:
 
 private:
 	Color GetLogColorForType(const EGlobalContext_t type) const;
-	vector<CNotifyText> m_vNotifyText;
+	vector<CTextNotify> m_vNotifyText;
 	int m_nFontHeight; // Hardcoded to 16 in this engine.
 
 	mutable std::mutex m_Mutex;
