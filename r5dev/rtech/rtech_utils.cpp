@@ -746,8 +746,6 @@ void RTech::PakProcessGuidRelationsForAsset(PakFile_t* pPak, RPakAssetEntry* pAs
 				}
 
 				assetIdx++;
-				assetIdx &= 0x3FFFF;
-				assetIdxEntryGuid = g_pUnknownPakStruct->m_Assets[assetIdx].m_Guid;
 
 				// Check if we have a deadlock and report it if we have rtech_debug enabled.
 				if (rtech_debug->GetBool() && assetIdx > 0x40000)
@@ -756,6 +754,9 @@ void RTech::PakProcessGuidRelationsForAsset(PakFile_t* pPak, RPakAssetEntry* pAs
 					if (IsDebuggerPresent())
 						DebugBreak();
 				}
+
+				assetIdx &= 0x3FFFF;
+				assetIdxEntryGuid = g_pUnknownPakStruct->m_Assets[assetIdx].m_Guid;
 
 				if (assetIdxEntryGuid == currentGuid)
 					return true;
