@@ -707,9 +707,92 @@ RPakLoadedInfo_t* RTech::GetPakLoadedInfo(const char* szPakName)
 	return nullptr;
 }
 
+
+//-----------------------------------------------------------------------------
+// Purpose: process guid relations for asset
+//-----------------------------------------------------------------------------
+void RTech::PakProcessGuidRelationsForAsset(PakFile_t* pPak, RPakAssetEntry* pAsset)
+{
+	RPakDescriptor* pGuidDescriptors = &pPak->m_pGuidDescriptors[pAsset->m_nUsesStartIdx];
+
+	volatile uint32_t* v5 = reinterpret_cast<volatile uint32_t*>(*(reinterpret_cast<uint64_t*>(g_pUnknownPakStruct) + 0x17 * (pPak->qword578 & 0x1FF) + 0x160212));
+
+	if (rtech_debug->GetBool())
+		DevMsg(eDLL_T::RTECH, "Processing GUID relations for asset '0x%-16llX' in pak '%-32s'. Uses: %-4i\n", pAsset->m_Guid, pPak->m_pszFileName, pAsset->m_nUsesCount);
+
+	for (uint64_t i = 0; i < pAsset->m_nUsesCount; i++)
+	{
+		void** pCurrentGuid = reinterpret_cast<void**>(pPak->m_ppPagePointers[pGuidDescriptors[i].m_Index] + pGuidDescriptors[i].m_Offset);
+
+		// Get current guid.
+		uint64_t currentGuid = reinterpret_cast<uint64_t>(*pCurrentGuid);
+
+		// Get asset index.
+		int assetIdx = currentGuid & 0x3FFFF;
+		uint64_t assetIdxEntryGuid = g_pUnknownPakStruct->m_Assets[assetIdx].m_Guid;
+
+		int64_t v9 = 2i64 * InterlockedExchangeAdd(v5, 1u);
+		*(uint64_t*)&v5[2 * v9 + 2] = currentGuid;
+		*(uint64_t*)&v5[2 * v9 + 4] = pAsset->m_Guid;
+
+		std::function<bool(bool)> fnCheckAsset = [&](bool shouldCheckTwo)
+		{
+			while (true)
+			{
+				if (shouldCheckTwo && assetIdxEntryGuid == 2)
+				{
+					if (pPak->m_PakHdr.m_nAssetEntryCount)
+						return false;
+				}
+
+				assetIdx++;
+				assetIdx &= 0x3FFFF;
+				assetIdxEntryGuid = g_pUnknownPakStruct->m_Assets[assetIdx].m_Guid;
+
+				// Check if we have a deadlock and report it if we have rtech_debug enabled.
+				if (rtech_debug->GetBool() && assetIdx > 0x40000)
+				{
+					DevMsg(eDLL_T::RTECH, "Possible deadlock detected in fnCheckAsset for asset '0x%-16llX' in pak '%-32s'. Uses: %-4i | assetIdxEntryGuid: '0x%-16llX' | currentGuid: '0x%-16llX'\n", pAsset->m_Guid, pPak->m_pszFileName, pAsset->m_nUsesCount, assetIdxEntryGuid, currentGuid);
+					if (IsDebuggerPresent())
+						DebugBreak();
+				}
+
+				if (assetIdxEntryGuid == currentGuid)
+					return true;
+			}
+		};
+
+		if (assetIdxEntryGuid != currentGuid)
+		{
+			// Are we some special asset with the guid 2?
+			if (!fnCheckAsset(true))
+			{
+				RPakAssetEntry* assetEntries = pPak->m_pAssetEntries;
+				uint64_t a; for (a = 0; assetEntries->m_Guid != currentGuid; a++, assetEntries++)
+				{
+					if (a >= pPak->m_PakHdr.m_nAssetEntryCount)
+					{
+						fnCheckAsset(false);
+						break;
+					}
+				}
+
+				assetIdx = pPak->qword580[a];
+			}
+		}
+
+		// Finally write the pointer to the guid entry.
+		*pCurrentGuid = g_pUnknownPakStruct->m_Assets[assetIdx].m_pHead;
+	}
+}
+
 void RTech_Utils_Attach()
 {
 	DetourAttach((LPVOID*)&RTech_OpenFile, &RTech::OpenFile);
+
+#ifdef GAMEDLL_S3
+	DetourAttach((LPVOID*)&RTech_Pak_ProcessGuidRelationsForAsset, &RTech::PakProcessGuidRelationsForAsset);
+#endif
 
 #if not defined DEDICATED && defined GAMEDLL_S3
 	DetourAttach((LPVOID*)&RTech_CreateDXTexture, &RTech::CreateDXTexture);
@@ -718,8 +801,11 @@ void RTech_Utils_Attach()
 
 void RTech_Utils_Detach()
 {
-	// [ PIXIE ]: Everything related to RTech::OpenFile should be compatible across seasons.
 	DetourDetach((LPVOID*)&RTech_OpenFile, &RTech::OpenFile);
+
+#ifdef GAMEDLL_S3
+	DetourDetach((LPVOID*)&RTech_Pak_ProcessGuidRelationsForAsset, &RTech::PakProcessGuidRelationsForAsset);
+#endif
 
 #if not defined DEDICATED && defined GAMEDLL_S3
 	DetourDetach((LPVOID*)&RTech_CreateDXTexture, &RTech::CreateDXTexture);

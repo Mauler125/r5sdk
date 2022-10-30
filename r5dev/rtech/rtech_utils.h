@@ -109,9 +109,37 @@ struct RPakAssetBinding_t
 	// [ PIXIE ]: Should be the full size across Season 0-3.
 };
 
+struct RPakAssetEntry
+{
+	uint64_t m_Guid;
+	uint64_t m_Padding;
+	void* m_pHead;
+	void* m_pCpu;
+	uint64_t m_nStarpakOffset;
+	uint64_t m_nStarpakOptOffset;
+	uint16_t m_nPageEnd;
+	uint16_t unk1;
+	uint32_t m_nRelationsStartIdx;
+	uint32_t m_nUsesStartIdx;
+	uint32_t m_nRelationsCount;
+	uint32_t m_nUsesCount;
+	uint32_t m_nAssetHeaderSize;
+	uint32_t m_nVersion;
+	uint32_t m_nMagic;
+};
+
+struct RPakAssetEntryShort
+{
+	uint64_t m_Guid;
+	uint64_t m_Padding;
+	void* m_pHead;
+	void* m_pCpu;
+};
+
 struct RPakUnknownStruct_t
 {
 	RPakAssetBinding_t m_nAssetBindings[64]; // [ PIXIE ]: Max possible registered assets on Season 3, 0-2 I did not check yet.
+	RPakAssetEntryShort m_Assets[0x40000];
 	// End size unknown.
 };
 
@@ -204,6 +232,58 @@ public:
 	uint64_t m_nUnkEnd; //0x00B0/0x00E8
 }; //Size: 0x00B8/0x00E8
 
+struct RPakDescriptor
+{
+	uint32_t m_Index;
+	uint32_t m_Offset;
+};
+
+struct __declspec(align(2)) PakFile_t
+{
+	int m_nDescCount;
+	int m_nProcessedAssetCount;
+	int m_nPageEnd;
+	int m_nPageStart;
+	uint32_t m_nPatchIndex_maybe;
+	uint32_t dword14;
+	char gap18[184];
+	uint32_t unsigned_intD0;
+	char gapD4[284];
+	uint64_t m_nInputBytePos;
+	uint8_t byte1F8;
+	char gap1F9[4];
+	uint8_t byte1FD;
+	uint8_t byte1FE;
+	uint8_t byte200;
+	RPakDecompState_t m_PakDecompState;
+	uint64_t qword288;
+	uint64_t qword290;
+	uint64_t qword298;
+	uint64_t qword2A0;
+	char* m_PatchData;
+	char gap2B0[696];
+	unsigned __int8(__fastcall* pfunc568)(__int64, LARGE_INTEGER*, unsigned __int64);
+	uint64_t qword570;
+	uint64_t qword578;
+	int* qword580;
+	uint8_t** m_ppPagePointers;
+	void* m_pPatchCompressPairs;
+	uint64_t qword598;
+	char* m_pszStreamingFilePaths;
+	char* m_pszOptStreamingFilePaths;
+	void* m_pVirtualSegments;
+	void* m_pMemPages;
+	void* m_pVirtualPointers;
+	RPakAssetEntry* m_pAssetEntries;
+	RPakDescriptor* m_pGuidDescriptors;
+	uint32_t* m_pFileRelations;
+	char gap5E0[40];
+	RPakAssetEntry** m_ppAssetEntries;
+	char gap610[520];
+	const char* m_pszFileName;
+	RPakHeader_t m_PakHdr;
+};
+
 /* ==== RTECH =========================================================================================================================================================== */
 #if not defined DEDICATED
 inline CMemory p_RTech_CreateDXTexture;
@@ -219,6 +299,11 @@ inline auto RTech_FindFreeSlotInFiles = p_RTech_FindFreeSlotInFiles.RCast<int32_
 
 inline CMemory p_RTech_OpenFile;
 inline auto RTech_OpenFile = p_RTech_OpenFile.RCast<int32_t(*)(const char*, void*, int64_t*)>();
+
+#ifdef GAMEDLL_S3
+inline CMemory p_Pak_ProcessGuidRelationsForAsset;
+inline auto RTech_Pak_ProcessGuidRelationsForAsset = p_RTech_OpenFile.RCast<void(__fastcall*)(PakFile_t*, RPakAssetEntry*)>();
+#endif
 
 inline CMemory p_StreamDB_Init;
 inline auto v_StreamDB_Init = p_StreamDB_Init.RCast<void (*)(const char* pszLevelName)>();
@@ -246,6 +331,11 @@ public:
 	RPakLoadedInfo_t* GetPakLoadedInfo(const char* szPakName);
 
 	static int32_t OpenFile(const CHAR* szFilePath, void* unused, LONGLONG* fileSizeOut);
+
+#ifdef GAMEDLL_S3
+	static void PakProcessGuidRelationsForAsset(PakFile_t* pak, RPakAssetEntry* asset);
+#endif
+
 
 #if not defined DEDICATED
 	static void CreateDXTexture(TextureHeader_t* textureHeader, int64_t cpuArg);
@@ -306,6 +396,11 @@ class VPakFile : public IDetour
 
 		p_RTech_OpenFile = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x89\x85\x08\x01\x00\x00"), "x????xxxxxx").FollowNearCallSelf();
 		RTech_OpenFile   = p_RTech_OpenFile.RCast<int32_t(*)(const char*, void*, int64_t*)>(); /*E8 ? ? ? ? 89 85 08 01 00 00*/
+
+#ifdef GAMEDLL_S3
+		p_Pak_ProcessGuidRelationsForAsset = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x48\x8B\x86\x00\x00\x00\x00\x42\x8B\x0C\xB0"), "x????xxx????xxxx").FollowNearCallSelf();
+		RTech_Pak_ProcessGuidRelationsForAsset = p_Pak_ProcessGuidRelationsForAsset.RCast<void(__fastcall*)(PakFile_t*, RPakAssetEntry*)>(); /*E8 ? ? ? ? 48 8B 86 ? ? ? ? 42 8B 0C B0*/
+#endif
 	}
 	virtual void GetVar(void) const
 	{
