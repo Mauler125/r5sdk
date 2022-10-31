@@ -109,7 +109,7 @@ struct RPakAssetBinding_t
 	// [ PIXIE ]: Should be the full size across Season 0-3.
 };
 
-struct RPakAssetEntry
+struct RPakAssetEntry_t
 {
 	uint64_t m_Guid;
 	uint64_t m_Padding;
@@ -232,7 +232,7 @@ public:
 	uint64_t m_nUnkEnd; //0x00B0/0x00E8
 }; //Size: 0x00B8/0x00E8
 
-struct RPakDescriptor
+struct RPakDescriptor_t
 {
 	uint32_t m_Index;
 	uint32_t m_Offset;
@@ -274,11 +274,11 @@ struct __declspec(align(2)) PakFile_t
 	void* m_pVirtualSegments;
 	void* m_pMemPages;
 	void* m_pVirtualPointers;
-	RPakAssetEntry* m_pAssetEntries;
-	RPakDescriptor* m_pGuidDescriptors;
+	RPakAssetEntry_t* m_pAssetEntries;
+	RPakDescriptor_t* m_pGuidDescriptors;
 	uint32_t* m_pFileRelations;
 	char gap5E0[40];
-	RPakAssetEntry** m_ppAssetEntries;
+	RPakAssetEntry_t** m_ppAssetEntries;
 	char gap610[520];
 	const char* m_pszFileName;
 	RPakHeader_t m_PakHdr;
@@ -302,7 +302,7 @@ inline auto RTech_OpenFile = p_RTech_OpenFile.RCast<int32_t(*)(const char*, void
 
 #ifdef GAMEDLL_S3
 inline CMemory p_Pak_ProcessGuidRelationsForAsset;
-inline auto RTech_Pak_ProcessGuidRelationsForAsset = p_RTech_OpenFile.RCast<void(__fastcall*)(PakFile_t*, RPakAssetEntry*)>();
+inline auto RTech_Pak_ProcessGuidRelationsForAsset = p_RTech_OpenFile.RCast<void(__fastcall*)(PakFile_t*, RPakAssetEntry_t*)>();
 #endif
 
 inline CMemory p_StreamDB_Init;
@@ -333,7 +333,7 @@ public:
 	static int32_t OpenFile(const CHAR* szFilePath, void* unused, LONGLONG* fileSizeOut);
 
 #ifdef GAMEDLL_S3
-	static void PakProcessGuidRelationsForAsset(PakFile_t* pak, RPakAssetEntry* asset);
+	static void PakProcessGuidRelationsForAsset(PakFile_t* pak, RPakAssetEntry_t* asset);
 #endif
 
 
@@ -399,7 +399,7 @@ class VPakFile : public IDetour
 
 #ifdef GAMEDLL_S3
 		p_Pak_ProcessGuidRelationsForAsset = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x48\x8B\x86\x00\x00\x00\x00\x42\x8B\x0C\xB0"), "x????xxx????xxxx").FollowNearCallSelf();
-		RTech_Pak_ProcessGuidRelationsForAsset = p_Pak_ProcessGuidRelationsForAsset.RCast<void(__fastcall*)(PakFile_t*, RPakAssetEntry*)>(); /*E8 ? ? ? ? 48 8B 86 ? ? ? ? 42 8B 0C B0*/
+		RTech_Pak_ProcessGuidRelationsForAsset = p_Pak_ProcessGuidRelationsForAsset.RCast<void(__fastcall*)(PakFile_t*, RPakAssetEntry_t*)>(); /*E8 ? ? ? ? 48 8B 86 ? ? ? ? 42 8B 0C B0*/
 #endif
 	}
 	virtual void GetVar(void) const

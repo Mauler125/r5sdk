@@ -711,29 +711,29 @@ RPakLoadedInfo_t* RTech::GetPakLoadedInfo(const char* szPakName)
 //-----------------------------------------------------------------------------
 // Purpose: process guid relations for asset
 //-----------------------------------------------------------------------------
-void RTech::PakProcessGuidRelationsForAsset(PakFile_t* pPak, RPakAssetEntry* pAsset)
+void RTech::PakProcessGuidRelationsForAsset(PakFile_t* pPak, RPakAssetEntry_t* pAsset)
 {
-	RPakDescriptor* pGuidDescriptors = &pPak->m_pGuidDescriptors[pAsset->m_nUsesStartIdx];
-
+	RPakDescriptor_t* pGuidDescriptors = &pPak->m_pGuidDescriptors[pAsset->m_nUsesStartIdx];
 	volatile uint32_t* v5 = reinterpret_cast<volatile uint32_t*>(*(reinterpret_cast<uint64_t*>(g_pUnknownPakStruct) + 0x17 * (pPak->qword578 & 0x1FF) + 0x160212));
+	const bool bDebug = rtech_debug->GetBool();
 
-	if (rtech_debug->GetBool())
+	if (bDebug)
 		DevMsg(eDLL_T::RTECH, "Processing GUID relations for asset '0x%-16llX' in pak '%-32s'. Uses: %-4i\n", pAsset->m_Guid, pPak->m_pszFileName, pAsset->m_nUsesCount);
 
-	for (uint64_t i = 0; i < pAsset->m_nUsesCount; i++)
+	for (uint32_t i = 0; i < pAsset->m_nUsesCount; i++)
 	{
 		void** pCurrentGuid = reinterpret_cast<void**>(pPak->m_ppPagePointers[pGuidDescriptors[i].m_Index] + pGuidDescriptors[i].m_Offset);
 
 		// Get current guid.
-		uint64_t currentGuid = reinterpret_cast<uint64_t>(*pCurrentGuid);
+		const uint64_t currentGuid = reinterpret_cast<uint64_t>(*pCurrentGuid);
 
 		// Get asset index.
 		int assetIdx = currentGuid & 0x3FFFF;
 		uint64_t assetIdxEntryGuid = g_pUnknownPakStruct->m_Assets[assetIdx].m_Guid;
 
-		int64_t v9 = 2i64 * InterlockedExchangeAdd(v5, 1u);
-		*(uint64_t*)&v5[2 * v9 + 2] = currentGuid;
-		*(uint64_t*)&v5[2 * v9 + 4] = pAsset->m_Guid;
+		const int64_t v9 = 2i64 * InterlockedExchangeAdd(v5, 1u);
+		*reinterpret_cast<uint64_t*>(const_cast<uint32_t*>(&v5[2 * v9 + 2])) = currentGuid;
+		*reinterpret_cast<uint64_t*>(const_cast<uint32_t*>(&v5[2 * v9 + 4])) = pAsset->m_Guid;
 
 		std::function<bool(bool)> fnCheckAsset = [&](bool shouldCheckTwo)
 		{
@@ -748,9 +748,9 @@ void RTech::PakProcessGuidRelationsForAsset(PakFile_t* pPak, RPakAssetEntry* pAs
 				assetIdx++;
 
 				// Check if we have a deadlock and report it if we have rtech_debug enabled.
-				if (rtech_debug->GetBool() && assetIdx > 0x40000)
+				if (bDebug && assetIdx > 0x40000)
 				{
-					DevMsg(eDLL_T::RTECH, "Possible deadlock detected in fnCheckAsset for asset '0x%-16llX' in pak '%-32s'. Uses: %-4i | assetIdxEntryGuid: '0x%-16llX' | currentGuid: '0x%-16llX'\n", pAsset->m_Guid, pPak->m_pszFileName, pAsset->m_nUsesCount, assetIdxEntryGuid, currentGuid);
+					Warning(eDLL_T::RTECH, "Possible deadlock detected while processing asset '0x%-16llX' in pak '%-32s'. Uses: %-4i | assetIdxEntryGuid: '0x%-16llX' | currentGuid: '0x%-16llX'\n", pAsset->m_Guid, pPak->m_pszFileName, pAsset->m_nUsesCount, assetIdxEntryGuid, currentGuid);
 					if (IsDebuggerPresent())
 						DebugBreak();
 				}
@@ -768,8 +768,10 @@ void RTech::PakProcessGuidRelationsForAsset(PakFile_t* pPak, RPakAssetEntry* pAs
 			// Are we some special asset with the guid 2?
 			if (!fnCheckAsset(true))
 			{
-				RPakAssetEntry* assetEntries = pPak->m_pAssetEntries;
-				uint64_t a; for (a = 0; assetEntries->m_Guid != currentGuid; a++, assetEntries++)
+				RPakAssetEntry_t* assetEntries = pPak->m_pAssetEntries;
+				uint64_t a = 0;
+
+				for (; assetEntries->m_Guid != currentGuid; a++, assetEntries++)
 				{
 					if (a >= pPak->m_PakHdr.m_nAssetEntryCount)
 					{
