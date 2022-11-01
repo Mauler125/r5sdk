@@ -41,13 +41,13 @@ public:
 	uint8_t pad_0080[8]; //0x0080
 	uint32_t m_iUnknownFlags1; //0x0088
 	char pad_008C[4]; //0x008C
-	CMaterialGlue_Unknown unk_sections[2];
-	_BYTE bytef0;
-	_BYTE bytef1;
-	_BYTE materialType;
-	_BYTE bytef3;
+	CMaterialGlue_Unknown m_UnkSections[2];
+	uint8_t bytef0;
+	uint8_t bytef1;
+	uint8_t m_iMaterialType;
+	uint8_t bytef3;
 	int dwordf4;
-	void* textureAnim;
+	void* m_pTextureAnim;
 	void** m_pDXBuffer;
 	void** m_pID3D11BufferVTable;
 	void* m_pViewsBuffer;
