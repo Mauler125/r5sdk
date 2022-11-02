@@ -425,7 +425,7 @@ void CCvarUtilities::CvarList(const CCommand& args)
 	// Print usage?
 	if (iArgs == 2 && !Q_strcasecmp(args[1], "?"))
 	{
-		DevMsg(eDLL_T::ENGINE, "cvarlist:  [log logfile] [ partial ]\n");
+		DevMsg(eDLL_T::ENGINE, "convar_list:  [ log logfile ] [ partial ]\n");
 		return;
 	}
 
@@ -457,7 +457,7 @@ void CCvarUtilities::CvarList(const CCommand& args)
 	}
 
 	// Banner
-	DevMsg(eDLL_T::ENGINE, "cvar list\n--------------\n");
+	DevMsg(eDLL_T::ENGINE, "convar list\n--------------\n");
 
 	CUtlRBTree< ConCommandBase* > sorted(0, 0, ConCommandBaseLessFunc);
 	CCvar::CCVarIteratorInternal* itint = g_pCVar->FactoryInternalIterator();
@@ -594,7 +594,7 @@ void CCvarUtilities::CvarFindFlags_f(const CCommand& args)
 {
 	if (args.ArgC() < 2)
 	{
-		DevMsg(eDLL_T::ENGINE, "Usage:  findflags <string>\n");
+		DevMsg(eDLL_T::ENGINE, "Usage:  convar_findByFlags <string>\n");
 		DevMsg(eDLL_T::ENGINE, "Available flags to search for: \n");
 
 		for (int i = 0; i < ARRAYSIZE(g_ConVarFlags); i++)
