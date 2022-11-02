@@ -43,6 +43,7 @@ struct OverlayBase_t
 		m_nServerCount  = -1;
 		m_pNextOverlay  = NULL;
 		m_nOverlayTick  = NULL;
+		m_nFlags        = NULL;
 	}
 	bool IsDead(void) const;
 
