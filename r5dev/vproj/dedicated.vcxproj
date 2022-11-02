@@ -232,6 +232,7 @@
     <ClInclude Include="..\public\isnapshotmgr.h" />
     <ClInclude Include="..\public\ivscript.h" />
     <ClInclude Include="..\public\model_types.h" />
+    <ClInclude Include="..\public\server_class.h" />
     <ClInclude Include="..\public\studio.h" />
     <ClInclude Include="..\public\utility\binstream.h" />
     <ClInclude Include="..\public\utility\httplib.h" />

@@ -1889,6 +1889,9 @@
     <ClInclude Include="..\engine\gl_rmain.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\server_class.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\shared\resource\lockedserver.png">
