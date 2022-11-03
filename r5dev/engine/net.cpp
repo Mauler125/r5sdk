@@ -117,7 +117,7 @@ void NET_GenerateKey()
 //-----------------------------------------------------------------------------
 void NET_PrintFunc(const char* fmt, ...)
 {
-	static char buf[1024];
+	static char buf[2048];
 #ifndef DEDICATED
 	const static eDLL_T context = eDLL_T::CLIENT;
 #else // !DEDICATED
