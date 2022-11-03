@@ -64,17 +64,30 @@ int CServer::GetNumFakeClients(void) const
 //---------------------------------------------------------------------------------
 bool CServer::AuthClient(user_creds_s* pChallenge)
 {
-	string svIpAddress = pChallenge->m_nAddr.GetAddress();
-	if (sv_showconnecting->GetBool())
-		DevMsg(eDLL_T::SERVER, "Processing connectionless challenge for '%s' ('%llu')\n", svIpAddress.c_str(), pChallenge->m_nNucleusID);
+	char pszAddresBuffer[INET6_ADDRSTRLEN]; // Render the client's address.
+	pChallenge->m_nAddr.GetAddress(pszAddresBuffer, sizeof(pszAddresBuffer));
+
+	const bool bEnableLogging = sv_showconnecting->GetBool();
+	if (bEnableLogging)
+		DevMsg(eDLL_T::SERVER, "Processing connectionless challenge for '%s' ('%llu')\n", pszAddresBuffer, pChallenge->m_nNucleusID);
+
+	char* pUserID = pChallenge->m_pUserID;
+	if (!pUserID || !pUserID[0] || !IsValidUTF8(pUserID)) // Only proceed connection if the client's name is valid and UTF-8 encoded.
+	{
+		RejectConnection(m_Socket, &pChallenge->m_nAddr, "#Valve_Reject_Invalid_Name");
+		if (bEnableLogging)
+			Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%llu' has an invalid name!)\n", pszAddresBuffer, pChallenge->m_nNucleusID);
+
+		return false;
+	}
 
 	if (g_pBanSystem->IsBanListValid()) // Is the banned list vector valid?
 	{
-		if (g_pBanSystem->IsBanned(svIpAddress, pChallenge->m_nNucleusID)) // Is the client trying to connect banned?
+		if (g_pBanSystem->IsBanned(pszAddresBuffer, pChallenge->m_nNucleusID)) // Is the client trying to connect banned?
 		{
-			RejectConnection(m_Socket, pChallenge, "#Valve_Reject_Banned"); // RejectConnection for the client.
-			if (sv_showconnecting->GetBool())
-				Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%llu' is banned from this server!)\n", svIpAddress.c_str(), pChallenge->m_nNucleusID);
+			RejectConnection(m_Socket, &pChallenge->m_nAddr, "#Valve_Reject_Banned"); // RejectConnection for the client.
+			if (bEnableLogging)
+				Warning(eDLL_T::SERVER, "Connection rejected for '%s' ('%llu' is banned from this server!)\n", pszAddresBuffer, pChallenge->m_nNucleusID);
 
 			return false;
 		}
@@ -82,7 +95,7 @@ bool CServer::AuthClient(user_creds_s* pChallenge)
 
 	if (g_bCheckCompBanDB)
 	{
-		std::thread th(SV_IsClientBanned, svIpAddress, pChallenge->m_nNucleusID);
+		std::thread th(SV_IsClientBanned, string(pszAddresBuffer), pChallenge->m_nNucleusID);
 		th.detach();
 	}
 
@@ -98,13 +111,11 @@ bool CServer::AuthClient(user_creds_s* pChallenge)
 //---------------------------------------------------------------------------------
 CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 {
-	if (pServer->AuthClient(pChallenge))
-	{
-		CClient* pClient = v_CServer_ConnectClient(pServer, pChallenge);
-		return pClient;
-	}
+	if (pServer->m_State < server_state_t::ss_active || !pServer->AuthClient(pChallenge))
+		return nullptr;
 
-	return nullptr;
+	CClient* pClient = v_CServer_ConnectClient(pServer, pChallenge);
+	return pClient;
 }
 
 //---------------------------------------------------------------------------------
@@ -113,9 +124,9 @@ CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 //			*pChallenge - 
 //			*szMessage - 
 //---------------------------------------------------------------------------------
-void CServer::RejectConnection(int iSocket, user_creds_s* pChallenge, const char* szMessage)
+void CServer::RejectConnection(int iSocket, v_netadr_t* pNetAdr, const char* szMessage)
 {
-	v_CServer_RejectConnection(this, iSocket, pChallenge, szMessage);
+	v_CServer_RejectConnection(this, iSocket, pNetAdr, szMessage);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

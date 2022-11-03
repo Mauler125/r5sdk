@@ -72,18 +72,10 @@ public:
 	{
 		return this->type;
 	}
-	inline string GetAddress(void) const
+	inline void GetAddress(char* pchBuffer, uint32_t nBufferLen) const
 	{
-		// Select a static buffer
-		static char s[4][INET6_ADDRSTRLEN];
-		static int slot = 0;
-		int useSlot = (slot++) % 4;
-
-		// Render into it
-		inet_ntop(AF_INET6, &this->adr, s[useSlot], sizeof(s[0]));
-
-		// Pray the caller uses it before it gets clobbered
-		return s[useSlot];
+		assert(nBufferLen >= INET6_ADDRSTRLEN);
+		inet_ntop(AF_INET6, &this->adr, pchBuffer, nBufferLen);
 	}
 	inline uint16_t GetPort(void) const
 	{

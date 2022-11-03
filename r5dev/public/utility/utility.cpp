@@ -482,7 +482,7 @@ string Base64Decode(const string& svInput)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// For encoding data in UTF8.
+// For encoding data in UTF-8.
 string UTF8Encode(const wstring& wsvInput)
 {
     string result;
@@ -496,7 +496,7 @@ string UTF8Encode(const wstring& wsvInput)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// For decoding data in UTF8.
+// For decoding data in UTF-8.
 string UTF8Decode(const string& svInput)
 {
     //struct destructible_codecvt : public std::codecvt<char32_t, char, std::mbstate_t>
@@ -510,7 +510,7 @@ string UTF8Decode(const string& svInput)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// For obtaining UTF8 character length.
+// For obtaining UTF-8 character length.
 size_t UTF8CharLength(const uint8_t cInput)
 {
     if ((cInput & 0xFE) == 0xFC)
@@ -524,6 +524,69 @@ size_t UTF8CharLength(const uint8_t cInput)
     else if ((cInput & 0xE0) == 0xC0)
         return 2;
     return 1;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// For checking if input string is a valid UTF-8 encoded string.
+bool IsValidUTF8(char* pszString)
+{
+    char v1; // r9
+    char* v2; // rdx
+    char v4; // r10
+    int v5; // er8
+
+    while (true)
+    {
+        while (true)
+        {
+            v1 = *pszString;
+            v2 = pszString++;
+            if (v1 < 0)
+            {
+                break;
+            }
+            if (!v1)
+            {
+                return true;
+            }
+        }
+
+        v4 = *pszString;
+        if ((*pszString & 0xC0) != 0x80)
+        {
+            break;
+        }
+
+        pszString = v2 + 2;
+        if (v1 >= 0xE0u)
+        {
+            v5 = *pszString & 0x3F | ((v4 & 0x3F | ((v1 & 0xF) << 6)) << 6);
+            if ((*pszString & 0xC0) != 0x80)
+            {
+                return false;
+            }
+
+            pszString = v2 + 3;
+            if (v1 >= 0xF0u)
+            {
+                if ((*pszString & 0xC0) != 0x80 || ((v5 << 6) | *pszString & 0x3Fu) > 0x10FFFF)
+                {
+                    return false;
+                }
+
+                pszString = v2 + 4;
+            }
+            else if ((v5 - 55296) <= 0x7FF)
+            {
+                return false;
+            }
+        }
+        else if (v1 < 0xC2u)
+        {
+            return false;
+        }
+    }
+    return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -23,7 +23,7 @@ struct user_creds_s
 	int32_t  m_nChallenge;
 	uint32_t m_nReservation;
 	uint64_t m_nNucleusID;
-	uint8_t* m_pUserID;
+	char* m_pUserID;
 };
 
 class CServer : public IServer
@@ -41,7 +41,7 @@ public:
 	bool IsLoading(void) const { return m_State == server_state_t::ss_loading; }
 	bool IsDedicated(void) const { return g_bDedicated; }
 	bool AuthClient(user_creds_s* pChallenge);
-	void RejectConnection(int iSocket, user_creds_s* pCreds, const char* szMessage);
+	void RejectConnection(int iSocket, v_netadr_t* pNetAdr, const char* szMessage);
 	static CClient* ConnectClient(CServer* pServer, user_creds_s* pChallenge);
 #endif // !CLIENT_DLL
 
@@ -91,7 +91,7 @@ inline CMemory p_CServer_Authenticate;
 inline auto v_CServer_ConnectClient = p_CServer_Authenticate.RCast<CClient* (*)(CServer* pServer, user_creds_s* pCreds)>();
 
 inline CMemory p_CServer_RejectConnection;
-inline auto v_CServer_RejectConnection = p_CServer_RejectConnection.RCast<void* (*)(CServer* pServer, int iSocket, user_creds_s* pCreds, const char* szMessage)>();
+inline auto v_CServer_RejectConnection = p_CServer_RejectConnection.RCast<void* (*)(CServer* pServer, int iSocket, v_netadr_t* pNetAdr, const char* szMessage)>();
 
 void CServer_Attach();
 void CServer_Detach();
@@ -124,9 +124,9 @@ class VServer : public IDetour
 #endif
 		p_CServer_RejectConnection = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x89\x4C\x24\x00\x53\x55\x56\x57\x48\x81\xEC\x00\x00\x00\x00\x49\x8B\xD9"), "xxxx?xxxxxxx????xxx");
 
-		v_CServer_Think = p_CServer_Think.RCast<void (*)(bool, bool)>();                                                       /*48 89 5C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ??*/
-		v_CServer_ConnectClient = p_CServer_Authenticate.RCast<CClient* (*)(CServer*, user_creds_s*)>();                       /*40 55 57 41 55 41 57 48 8D AC 24 ?? ?? ?? ??*/
-		v_CServer_RejectConnection = p_CServer_RejectConnection.RCast<void* (*)(CServer*, int, user_creds_s*, const char*)>(); /*4C 89 4C 24 ?? 53 55 56 57 48 81 EC ?? ?? ?? ?? 49 8B D9*/
+		v_CServer_Think = p_CServer_Think.RCast<void (*)(bool, bool)>();                                                     /*48 89 5C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ??*/
+		v_CServer_ConnectClient = p_CServer_Authenticate.RCast<CClient* (*)(CServer*, user_creds_s*)>();                     /*40 55 57 41 55 41 57 48 8D AC 24 ?? ?? ?? ??*/
+		v_CServer_RejectConnection = p_CServer_RejectConnection.RCast<void* (*)(CServer*, int, v_netadr_t*, const char*)>(); /*4C 89 4C 24 ?? 53 55 56 57 48 81 EC ?? ?? ?? ?? 49 8B D9*/
 #endif // !CLIENT_DLL
 	}
 	virtual void GetVar(void) const
