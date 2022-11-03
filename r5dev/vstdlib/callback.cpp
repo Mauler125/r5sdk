@@ -39,6 +39,7 @@
 #ifndef CLIENT_DLL
 #include "networksystem/bansystem.h"
 #endif // !CLIENT_DLL
+#include "public/edict.h"
 #include "public/worldsize.h"
 #include "mathlib/crc32.h"
 #include "mathlib/mathlib.h"
@@ -215,14 +216,27 @@ void Host_Changelevel_f(const CCommand& args)
 
 /*
 =====================
-Detour_Reload_f
+Detour_HotSwap_f
 
   Hot swaps the NavMesh
+  while the game is running
 =====================
 */
-void Detour_Reload_f(const CCommand& args)
+void Detour_HotSwap_f(const CCommand& args)
 {
-	Detour_Reload();
+	if (!g_pServer->IsActive())
+		return;
+
+	DevMsg(eDLL_T::SERVER, "Executing NavMesh hot swap for level '%s'\n", 
+		g_ServerGlobalVariables->m_pszMapName);
+
+	CFastTimer timer;
+
+	timer.Start();
+	Detour_HotSwap();
+
+	timer.End();
+	DevMsg(eDLL_T::SERVER, "Hot swap took '%.6f' seconds\n", timer.GetDuration().GetSeconds());
 }
 #endif // !CLIENT_DLL
 /*

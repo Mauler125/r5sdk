@@ -20,6 +20,8 @@
 constexpr int AINET_SCRIPT_VERSION_NUMBER = 21;
 constexpr int AINET_VERSION_NUMBER        = 57;
 constexpr int AINET_MIN_FILE_SIZE         = 82;
+constexpr const char* AINETWORK_EXT       = ".ain";
+constexpr const char* AINETWORK_PATH      = "maps/graphs/";
 
 /*
 ==============================
@@ -32,11 +34,11 @@ CAI_NetworkBuilder::BuildFile
 */
 void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 {
-	const string svMeshDir = "maps/navmesh/";
-	const string svGraphDir = "maps/graphs/";
+	const string svMeshDir = NAVMESH_PATH;
+	const string svGraphDir = AINETWORK_PATH;
 
-	fs::path fsMeshPath(svMeshDir + g_pHostState->m_levelName + "_" + SHULL_SIZE[EHULL_SIZE::LARGE] + ".nm");
-	fs::path fsGraphPath(svGraphDir + g_pHostState->m_levelName + ".ain");
+	fs::path fsMeshPath(svMeshDir + g_pHostState->m_levelName + "_" + S_HULL_TYPE[E_HULL_TYPE::LARGE] + NAVMESH_EXT);
+	fs::path fsGraphPath(svGraphDir + g_pHostState->m_levelName + AINETWORK_EXT);
 
 	CFastTimer masterTimer;
 	CFastTimer timer;
@@ -68,7 +70,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 
 	if (!pNavMesh)
 	{
-		Warning(eDLL_T::SERVER, "%s - No %s NavMesh found. Unable to calculate CRC for AI Network\n", __FUNCTION__, SHULL_SIZE[EHULL_SIZE::LARGE].c_str());
+		Warning(eDLL_T::SERVER, "%s - No %s NavMesh found. Unable to calculate CRC for AI Network\n", __FUNCTION__, S_HULL_TYPE[E_HULL_TYPE::LARGE]);
 	}
 	else
 	{
@@ -305,11 +307,11 @@ CAI_NetworkManager::LoadNetworkGraph
 */
 void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager, void* pBuffer, const char* szAIGraphFile)
 {
-	string svMeshDir = "maps/navmesh/";
-	string svGraphDir = "maps/graphs/";
+	string svMeshDir = NAVMESH_PATH;
+	string svGraphDir = AINETWORK_PATH;
 
-	fs::path fsMeshPath(svMeshDir + g_pHostState->m_levelName + "_" + SHULL_SIZE[EHULL_SIZE::LARGE] + ".nm");
-	fs::path fsGraphPath(svGraphDir + g_pHostState->m_levelName + ".ain");
+	fs::path fsMeshPath(svMeshDir + g_pHostState->m_levelName + "_" + S_HULL_TYPE[E_HULL_TYPE::LARGE] + NAVMESH_EXT);
+	fs::path fsGraphPath(svGraphDir + g_pHostState->m_levelName + AINETWORK_EXT);
 
 	int nAiNetVersion = NULL;
 	int nAiMapVersion = NULL;
@@ -321,7 +323,7 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager,
 	FileHandle_t pNavMesh = FileSystem()->Open(fsMeshPath.relative_path().u8string().c_str(), "rb", "GAME");
 	if (!pNavMesh)
 	{
-		Warning(eDLL_T::SERVER, "%s - No %s NavMesh found. Unable to calculate CRC for AI Network\n", __FUNCTION__, SHULL_SIZE[EHULL_SIZE::LARGE].c_str());
+		Warning(eDLL_T::SERVER, "%s - No %s NavMesh found. Unable to calculate CRC for AI Network\n", __FUNCTION__, S_HULL_TYPE[E_HULL_TYPE::LARGE]);
 		bNavMeshAvailable = false;
 	}
 	else

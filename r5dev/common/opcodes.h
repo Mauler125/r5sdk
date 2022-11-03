@@ -59,11 +59,6 @@ inline CMemory Host_Shutdown;
 inline CMemory Host_Disconnect;
 
 //-------------------------------------------------------------------------
-// RUNTIME: DETOUR_LEVELINIT
-//-------------------------------------------------------------------------
-inline CMemory Detour_LevelInit;
-
-//-------------------------------------------------------------------------
 // RUNTIME: S2C_CHALLENGE
 //-------------------------------------------------------------------------
 #ifndef CLIENT_DLL
@@ -200,10 +195,6 @@ class VOpcodes : public IDetour
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		Host_Disconnect = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x30\x0F\xB6\xD9"), "xxxxxxxxx");
 #endif // 0x14023CCA0 // 40 53 48 83 EC 30 0F B6 D9 //
-
-		//-------------------------------------------------------------------------
-		Detour_LevelInit = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x45\x33\xE4"), "xxxx?xxxx?xxxx?xxxxxxxxxxxxx????xxx????xxx");
-		// 0x140EF9100 // 48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 55 41 54 41 55 41 56 41 57 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ? 45 33 E4 //
 
 		//-------------------------------------------------------------------------
 #ifndef CLIENT_DLL

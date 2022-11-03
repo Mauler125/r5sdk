@@ -6,6 +6,7 @@
 
 #include "core/stdafx.h"
 #include "tier1/cvar.h"
+#include "public/edict.h"
 #include "game/server/detour_impl.h"
 #include "game/server/ai_networkmanager.h"
 
@@ -54,33 +55,74 @@ uint8_t IsGoalPolyReachable(dtNavMesh* nav, dtPolyRef fromRef, dtPolyRef goalRef
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: hot swaps the NavMesh with the current files on the disk
-// (All hulls will be reloaded! If NavMesh for hull no longer exist, it will be empty!!!)
+// Purpose: initialize NavMesh and Detour query singleton for level
 //-----------------------------------------------------------------------------
-void Detour_Reload()
+void Detour_LevelInit()
 {
-    // Destroy and free the memory for all NavMesh hulls.
+    v_Detour_LevelInit();
+    Detour_IsLoaded(); // Inform user which NavMesh files had failed to load.
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: free's the memory used by all valid NavMesh slots
+//-----------------------------------------------------------------------------
+void Detour_Free()
+{
     for (int i = 0; i < MAX_HULLS; i++)
     {
         dtNavMesh* nav = GetNavMeshForHull(i);
-        if (nav)
+        if (nav) // Only free if NavMesh for hull is loaded.
         {
             v_Detour_FreeNavMesh(nav);
             MemAllocSingleton()->Free(nav);
         }
     }
+}
 
-    // Reload NavMesh for current level.
-    v_Detour_LevelInit();
+//-----------------------------------------------------------------------------
+// Purpose: checks if a NavMesh has failed to load
+// Output : true if a NavMesh has successfully loaded, false otherwise
+//-----------------------------------------------------------------------------
+bool Detour_IsLoaded()
+{
+    int ret = 0;
+    for (int i = 0; i < MAX_HULLS; i++)
+    {
+        const dtNavMesh* nav = GetNavMeshForHull(i);
+        if (!nav) // Failed to load...
+        {
+            Warning(eDLL_T::SERVER, "NavMesh '%s%s_%s%s' not loaded\n", 
+                NAVMESH_PATH, g_ServerGlobalVariables->m_pszMapName, S_HULL_TYPE[i], NAVMESH_EXT);
+
+            ret++;
+        }
+    }
+
+    assert(i <= MAX_HULLS);
+    return (ret != MAX_HULLS);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: hot swaps the NavMesh with the current files on the disk
+// (All hulls will be reloaded! If NavMesh for hull no longer exist, it will be kept empty!!!)
+//-----------------------------------------------------------------------------
+void Detour_HotSwap()
+{
+    // Free and re-init NavMesh.
+    Detour_Free();
+    if (!Detour_IsLoaded())
+        Error(eDLL_T::SERVER, NOERROR, "%s - Failed to hot swap NavMesh\n", __FUNCTION__);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void CAI_Utility_Attach()
 {
 	DetourAttach((LPVOID*)&v_dtNavMesh__isPolyReachable, &IsGoalPolyReachable);
+	DetourAttach((LPVOID*)&v_Detour_LevelInit, &Detour_LevelInit);
 }
 
 void CAI_Utility_Detach()
 {
 	DetourDetach((LPVOID*)&v_dtNavMesh__isPolyReachable, &IsGoalPolyReachable);
+	DetourDetach((LPVOID*)&v_Detour_LevelInit, &Detour_LevelInit);
 }

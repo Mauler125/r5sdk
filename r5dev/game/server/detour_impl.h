@@ -21,7 +21,11 @@ inline auto v_dtNavMesh__addTile = p_dtNavMesh__addTile.RCast<dtStatus(*)(dtNavM
 inline CMemory p_dtNavMesh__isPolyReachable;
 inline auto v_dtNavMesh__isPolyReachable = p_dtNavMesh__isPolyReachable.RCast<bool(*)(dtNavMesh* thisptr, dtPolyRef poly_1, dtPolyRef poly_2, int hull_type)>();
 
-const string SHULL_SIZE[5] =
+
+constexpr const char* NAVMESH_PATH = "maps/navmesh/";
+constexpr const char* NAVMESH_EXT = ".nm";
+
+static const char* S_HULL_TYPE[5] =
 {
 	"small",
 	"med_short",
@@ -30,7 +34,7 @@ const string SHULL_SIZE[5] =
 	"extra_large"
 };
 
-enum EHULL_SIZE
+enum E_HULL_TYPE
 {
 	SMALL = 0,
 	MED_SHORT,
@@ -44,14 +48,18 @@ inline dtNavMeshQuery* g_pNavMeshQuery = nullptr;
 
 dtNavMesh* GetNavMeshForHull(int hullSize);
 uint32_t GetHullMaskById(int hullId);
-void Detour_Reload();
+
+void Detour_LevelInit();
+void Detour_Free();
+bool Detour_IsLoaded();
+void Detour_HotSwap();
 ///////////////////////////////////////////////////////////////////////////////
 class VRecast : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
 		spdlog::debug("| FUN: Detour_LevelInit                     : {:#18x} |\n", p_Detour_LevelInit.GetPtr());
-		spdlog::debug("| FUN: p_Detour_FreeNavMesh                 : {:#18x} |\n", p_Detour_FreeNavMesh.GetPtr());
+		spdlog::debug("| FUN: Detour_FreeNavMesh                   : {:#18x} |\n", p_Detour_FreeNavMesh.GetPtr());
 		spdlog::debug("| FUN: dtNavMesh::Init                      : {:#18x} |\n", p_dtNavMesh__Init.GetPtr());
 		spdlog::debug("| FUN: dtNavMesh::addTile                   : {:#18x} |\n", p_dtNavMesh__addTile.GetPtr());
 		spdlog::debug("| FUN: dtNavMesh::isPolyReachable           : {:#18x} |\n", p_dtNavMesh__isPolyReachable.GetPtr());
