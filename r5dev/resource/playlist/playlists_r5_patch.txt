@@ -1,7 +1,7 @@
 playlists
 {
 	version stable
-	versionNum 228
+	versionNum 229
 	Gamemodes
 	{
 		defaults
@@ -1188,8 +1188,9 @@ playlists
 				"PLAYER_ENDED_KILLSTREAK"             "`1%s1`0 ended `1%s2`0's killstreak"
 				"PLAYER_ENDED_OWN_KILLSTREAK"         "`1%s1`0 ended their own killstreak"
 
-				"VALVE_REJECT_BANNED"                 "You have been banned from this server."
 				"DISCONNECT_BANNED"                   "The client's game account has been banned."
+				"VALVE_REJECT_BANNED"                 "You have been banned from this server."
+				"VALVE_REJECT_INVALID_NAME"           "The client's game account has an invalid name."
 
 				"DISCONNECT_SEND_RELIABLEOVERFLOW"    "Connection to server overflowed (code:river)."
 				"DISCONNECT_SEND_OVERFLOW"            "Connection to server overflowed (code:dam)."
