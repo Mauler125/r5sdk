@@ -53,6 +53,27 @@ uint8_t IsGoalPolyReachable(dtNavMesh* nav, dtPolyRef fromRef, dtPolyRef goalRef
     return v_dtNavMesh__isPolyReachable(nav, fromRef, goalRef, hullId);
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: hot swaps the NavMesh with the current files on the disk
+// (All hulls will be reloaded! If NavMesh for hull no longer exist, it will be empty!!!)
+//-----------------------------------------------------------------------------
+void Detour_Reload()
+{
+    // Destroy and free the memory for all NavMesh hulls.
+    for (int i = 0; i < MAX_HULLS; i++)
+    {
+        dtNavMesh* nav = GetNavMeshForHull(i);
+        if (nav)
+        {
+            v_Detour_FreeNavMesh(nav);
+            MemAllocSingleton()->Free(nav);
+        }
+    }
+
+    // Reload NavMesh for current level.
+    v_Detour_LevelInit();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 void CAI_Utility_Attach()
 {

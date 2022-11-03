@@ -343,6 +343,8 @@ void ConCommand::Init(void)
 	ConCommand::Create("sv_banid", "Bans a client from the server by handle, nucleus id or ip address | Usage: sv_banid \"<HandleID>\"/\"<NucleusID>/<IPAddress>\".", FCVAR_RELEASE, Host_BanID_f, nullptr);
 	ConCommand::Create("sv_unban", "Unbans a client from the server by nucleus id or ip address | Usage: sv_unban \"<NucleusID>\"/\"<IPAddress>\".", FCVAR_RELEASE, Host_Unban_f, nullptr);
 	ConCommand::Create("sv_reloadbanlist", "Reloads the banned list.", FCVAR_RELEASE, Host_ReloadBanList_f, nullptr);
+
+	ConCommand::Create("navmesh_reload", "Reloads the NavMesh for all hulls.", FCVAR_RELEASE, Detour_Reload_f, nullptr);
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 	//-------------------------------------------------------------------------

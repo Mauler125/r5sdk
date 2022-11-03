@@ -48,6 +48,9 @@
 #include "materialsystem/cmaterialglue.h"
 #include "public/idebugoverlay.h"
 #endif // !DEDICATED
+#ifndef CLIENT_DLL
+#include "game/server/detour_impl.h"
+#endif // !CLIENT_DLL
 #ifndef DEDICATED
 #include "game/client/view.h"
 #endif // !DEDICATED
@@ -210,6 +213,17 @@ void Host_Changelevel_f(const CCommand& args)
 	}
 }
 
+/*
+=====================
+Detour_Reload_f
+
+  Hot swaps the NavMesh
+=====================
+*/
+void Detour_Reload_f(const CCommand& args)
+{
+	Detour_Reload();
+}
 #endif // !CLIENT_DLL
 /*
 =====================

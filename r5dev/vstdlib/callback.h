@@ -24,6 +24,7 @@ void Host_Unban_f(const CCommand& args);
 void Host_ReloadBanList_f(const CCommand& args);
 void Host_ReloadPlaylists_f(const CCommand& args);
 void Host_Changelevel_f(const CCommand& args);
+void Detour_Reload_f(const CCommand& args);
 #endif // !CLIENT_DLL
 void Pak_ListPaks_f(const CCommand& args);
 void Pak_RequestUnload_f(const CCommand& args);
