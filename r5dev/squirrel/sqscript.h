@@ -136,7 +136,7 @@ SQBool Script_CreateServerVM();
 SQBool Script_CreateClientVM(CHLClient* hlclient);
 #endif // !DEDICATED
 SQBool Script_CreateUIVM();
-CSquirrelVM* Script_GetContextObject(const SQCONTEXT context);
+CSquirrelVM* Script_GetScriptHandle(const SQCONTEXT context);
 
 SQInteger Script_LoadRson(const SQChar* rsonfile);
 SQBool Script_LoadScript(HSQUIRRELVM v, const SQChar* path, const SQChar* name, SQInteger flags);
