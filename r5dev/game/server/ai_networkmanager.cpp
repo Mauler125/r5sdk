@@ -83,7 +83,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	}
 
 	// Large NavMesh CRC.
-	DevMsg(eDLL_T::SERVER, " |-- NavMesh CRC: '%lx'\n", nNavMeshHash);
+	DevMsg(eDLL_T::SERVER, " |-- NavMesh CRC: '0x%lX'\n", nNavMeshHash);
 	FileSystem()->Write(&nNavMeshHash, sizeof(uint32_t), pAIGraph);
 
 	// Path nodes.
