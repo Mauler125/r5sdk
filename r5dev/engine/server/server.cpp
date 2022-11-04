@@ -122,7 +122,7 @@ CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 
 //---------------------------------------------------------------------------------
 // Purpose: Rejects connection request and sends back a message
-// Input  : *iSocket - 
+// Input  : iSocket - 
 //			*pChallenge - 
 //			*szMessage - 
 //---------------------------------------------------------------------------------
@@ -131,15 +131,28 @@ void CServer::RejectConnection(int iSocket, v_netadr_t* pNetAdr, const char* szM
 	v_CServer_RejectConnection(this, iSocket, pNetAdr, szMessage);
 }
 
+//---------------------------------------------------------------------------------
+// Purpose: Runs the server frame
+// Input  : flFrameTime - 
+//			bRunOverlays - 
+//			bUniformSnapshotInterval - 
+//---------------------------------------------------------------------------------
+void CServer::FrameJob(double flFrameTime, bool bRunOverlays, bool bUniformSnapshotInterval)
+{
+	v_CServer_FrameJob(flFrameTime, bRunOverlays, bUniformSnapshotInterval);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 void CServer_Attach()
 {
 	DetourAttach((LPVOID*)&v_CServer_ConnectClient, &CServer::ConnectClient);
+	DetourAttach((LPVOID*)&v_CServer_FrameJob, &CServer::FrameJob);
 }
 
 void CServer_Detach()
 {
 	DetourDetach((LPVOID*)&v_CServer_ConnectClient, &CServer::ConnectClient);
+	DetourDetach((LPVOID*)&v_CServer_FrameJob, &CServer::FrameJob);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
