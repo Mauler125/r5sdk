@@ -66,7 +66,7 @@ void Detour_LevelInit()
 //-----------------------------------------------------------------------------
 // Purpose: free's the memory used by all valid NavMesh slots
 //-----------------------------------------------------------------------------
-void Detour_Free()
+void Detour_LevelShutdown()
 {
     for (int i = 0; i < MAX_HULLS; i++)
     {
@@ -80,7 +80,7 @@ void Detour_Free()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: checks if a NavMesh has failed to load
+// Purpose: checks if the NavMesh has failed to load
 // Output : true if a NavMesh has successfully loaded, false otherwise
 //-----------------------------------------------------------------------------
 bool Detour_IsLoaded()
@@ -109,7 +109,9 @@ bool Detour_IsLoaded()
 void Detour_HotSwap()
 {
     // Free and re-init NavMesh.
-    Detour_Free();
+    Detour_LevelShutdown();
+    v_Detour_LevelInit();
+
     if (!Detour_IsLoaded())
         Error(eDLL_T::SERVER, NOERROR, "%s - Failed to hot swap NavMesh\n", __FUNCTION__);
 }

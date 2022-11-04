@@ -225,7 +225,7 @@ Detour_HotSwap_f
 void Detour_HotSwap_f(const CCommand& args)
 {
 	if (!g_pServer->IsActive())
-		return;
+		return; // Only execute if server is initialized and active.
 
 	DevMsg(eDLL_T::SERVER, "Executing NavMesh hot swap for level '%s'\n", 
 		g_ServerGlobalVariables->m_pszMapName);

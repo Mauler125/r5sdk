@@ -50,7 +50,7 @@ dtNavMesh* GetNavMeshForHull(int hullSize);
 uint32_t GetHullMaskById(int hullId);
 
 void Detour_LevelInit();
-void Detour_Free();
+void Detour_LevelShutdown();
 bool Detour_IsLoaded();
 void Detour_HotSwap();
 ///////////////////////////////////////////////////////////////////////////////
