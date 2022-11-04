@@ -187,7 +187,7 @@ void ConVar::Init(void) const
 	fs_warning_level_sdk             = ConVar::Create("fs_warning_level_sdk"                  , "0", FCVAR_DEVELOPMENTONLY, "Set the SDK FileSystem warning level.", false, 0.f, false, 0.f, nullptr, nullptr);
 	fs_show_warning_output           = ConVar::Create("fs_show_warning_output"                , "0", FCVAR_DEVELOPMENTONLY, "Logs the FileSystem warnings to the console, filtered by 'fs_warning_level_native' ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	fs_packedstore_entryblock_stats  = ConVar::Create("fs_packedstore_entryblock_stats"       , "0", FCVAR_DEVELOPMENTONLY, "Logs the stats of each file entry in the VPK during decompression ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
-	fs_packedstore_workspace         = ConVar::Create("fs_packedstore_workspace"  , "platform/vpk/", FCVAR_DEVELOPMENTONLY, "Determines the current VPK workspace.", false, 0.f, false, 0.f, nullptr, nullptr);
+	fs_packedstore_workspace         = ConVar::Create("fs_packedstore_workspace"      , "platform/", FCVAR_DEVELOPMENTONLY, "Determines the current VPK workspace.", false, 0.f, false, 0.f, nullptr, nullptr);
 	fs_packedstore_compression_level = ConVar::Create("fs_packedstore_compression_level", "default", FCVAR_DEVELOPMENTONLY, "Determines the VPK compression level.", false, 0.f, false, 0.f, nullptr, "fastest faster default better uber");
 	//-------------------------------------------------------------------------
 	// MATERIALSYSTEM                                                         |
