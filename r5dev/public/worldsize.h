@@ -1,4 +1,4 @@
-//========= Copyright � 1996-2005, Valve Corporation, All rights reserved. ============//
+//====== Copyright � 1996-2005, Valve Corporation, All rights reserved. =======//
 //
 // Purpose: 
 //
@@ -13,9 +13,7 @@
 
 
 // These definitions must match the coordinate message sizes in coordsize.h
-
 // Following values should be +65536, -65536, +15/16, -15/16
-// NOTE THAT IF THIS GOES ANY BIGGER THEN DISK NODES/LEAVES CANNOT USE SHORTS TO STORE THE BOUNDS
 #define MAX_COORD_INTEGER			(65536)
 #define MIN_COORD_INTEGER			(-MAX_COORD_INTEGER)
 #define MAX_COORD_FRACTION			(1.0-(1.0/16.0))
