@@ -365,9 +365,10 @@ void ConCommand::Init(void)
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 	// FILESYSTEM API                                                         |
-	ConCommand::Create("fs_vpk_mount",  "Mounts a VPK file for FileSystem usage.", FCVAR_DEVELOPMENTONLY, VPK_Mount_f, nullptr);
-	ConCommand::Create("fs_vpk_build",  "Builds a VPK file from current workspace.", FCVAR_DEVELOPMENTONLY, VPK_Pack_f, nullptr);
-	ConCommand::Create("fs_vpk_unpack", "Unpacks all files from a VPK file.", FCVAR_DEVELOPMENTONLY, VPK_Unpack_f, nullptr);
+	ConCommand::Create("fs_vpk_mount",  "Mount a VPK file for FileSystem usage.", FCVAR_DEVELOPMENTONLY, VPK_Mount_f, nullptr);
+	ConCommand::Create("fs_vpk_unmount",  "Unmount a VPK file and clear its cache.", FCVAR_DEVELOPMENTONLY, VPK_Unmount_f, nullptr);
+	ConCommand::Create("fs_vpk_build",  "Build a VPK file from current workspace.", FCVAR_DEVELOPMENTONLY, VPK_Pack_f, nullptr);
+	ConCommand::Create("fs_vpk_unpack", "Unpack all files from a VPK file.", FCVAR_DEVELOPMENTONLY, VPK_Unpack_f, nullptr);
 	//-------------------------------------------------------------------------
 	// RTECH API                                                              |
 	ConCommand::Create("rtech_strtoguid", "Calculates the GUID from input data.", FCVAR_DEVELOPMENTONLY, RTech_StringToGUID_f, nullptr);

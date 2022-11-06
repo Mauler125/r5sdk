@@ -594,15 +594,26 @@ void VPK_Mount_f(const CCommand& args)
 	}
 
 	const char* pArg = args.Arg(1);
-	VPKData_t* pPakData = FileSystem()->MountVPKFile(pArg);
-	if (pPakData)
+	FileSystem()->MountVPKFile(pArg);
+}
+
+/*
+=====================
+VPK_Unmount_f
+
+  Unmounts input VPK file
+  and clears its cache
+=====================
+*/
+void VPK_Unmount_f(const CCommand& args)
+{
+	if (args.ArgC() < 2)
 	{
-		DevMsg(eDLL_T::FS, "Mounted VPK file '%s' with handle '%i'\n", pArg, pPakData->m_nHandle);
+		return;
 	}
-	else
-	{
-		Warning(eDLL_T::FS, "Unable to mount VPK file '%s': non-existent VPK file\n", pArg);
-	}
+
+	const char* pArg = args.Arg(1);
+	FileSystem()->UnmountVPKFile(pArg);
 }
 
 /*

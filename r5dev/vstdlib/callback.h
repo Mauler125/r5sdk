@@ -35,6 +35,7 @@ void RTech_Decompress_f(const CCommand& args);
 void VPK_Pack_f(const CCommand& args);
 void VPK_Unpack_f(const CCommand& args);
 void VPK_Mount_f(const CCommand& args);
+void VPK_Unmount_f(const CCommand& args);
 void NET_SetKey_f(const CCommand& args);
 void NET_GenerateKey_f(const CCommand& args);
 void NET_UseRandomKeyChanged_f(IConVar* pConVar, const char* pOldString, float flOldValue);

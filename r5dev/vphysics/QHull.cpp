@@ -10,7 +10,7 @@
 //-----------------------------------------------------------------------------
 int HQHull_PrintFunc(const char* fmt, ...)
 {
-	static char buf[1024] = {};
+	static char buf[4096] = {};
 
 	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");

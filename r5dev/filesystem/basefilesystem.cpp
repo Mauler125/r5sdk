@@ -20,7 +20,7 @@ void CBaseFileSystem::Warning(CBaseFileSystem* pFileSystem, FileWarningLevel_t l
 		return;
 	}
 
-	static char szBuf[1024] = {};
+	static char szBuf[4096] = {};
 
 	static std::shared_ptr<spdlog::logger> iconsole = spdlog::get("game_console");
 	static std::shared_ptr<spdlog::logger> wconsole = spdlog::get("win_console");
@@ -53,10 +53,10 @@ void CBaseFileSystem::Warning(CBaseFileSystem* pFileSystem, FileWarningLevel_t l
 
 //---------------------------------------------------------------------------------
 // Purpose: attempts to load files from disk if exist before loading from VPK
-// Input  : *pVpk - 
+// Input  : *this - 
 //			*pResults - 
 //			*pszFilePath - 
-// Output : Handle to file on success, NULL on failure
+// Output : handle to file on success, NULL on failure
 //---------------------------------------------------------------------------------
 FileHandle_t CBaseFileSystem::VReadFromVPK(CBaseFileSystem* pFileSystem, FileHandle_t pResults, char* pszFilePath)
 {
@@ -76,12 +76,12 @@ FileHandle_t CBaseFileSystem::VReadFromVPK(CBaseFileSystem* pFileSystem, FileHan
 		*reinterpret_cast<int64_t*>(pResults) = -1;
 		return pResults;
 	}
-	return CBaseFileSystem_VLoadFromVPK(pFileSystem, pResults, pszFilePath);
+	return v_CBaseFileSystem_LoadFromVPK(pFileSystem, pResults, pszFilePath);
 }
 
 //---------------------------------------------------------------------------------
 // Purpose: attempts to load files from disk if exist before loading from cache
-// Input  : *pFileSystem - 
+// Input  : *this - 
 //			*pszFilePath - 
 //			*pResults - 
 // Output : true if file exists, false otherwise
@@ -103,20 +103,66 @@ bool CBaseFileSystem::VReadFromCache(CBaseFileSystem* pFileSystem, char* pszFile
 	{
 		return false;
 	}
-	return CBaseFileSystem_VLoadFromCache(pFileSystem, pszFilePath, pResults);
+	return v_CBaseFileSystem_LoadFromCache(pFileSystem, pszFilePath, pResults);
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: attempts to mount VPK file for filesystem usage
+// Input  : *this - 
+//			*pszVpkPath - 
+// Output : pointer to VPK on success, NULL on failure
+//---------------------------------------------------------------------------------
+VPKData_t* CBaseFileSystem::VMountVPKFile(CBaseFileSystem* pFileSystem, const char* pszVpkPath)
+{
+	int nHandle = v_CBaseFileSystem_GetMountedVPKHandle(pFileSystem, pszVpkPath);
+	VPKData_t* pPakData = v_CBaseFileSystem_MountVPKFile(pFileSystem, pszVpkPath);
+
+	if (nHandle < 0 && pPakData) // Only log if VPK hasn't been mounted yet and we have a valid pointer.
+	{
+		::DevMsg(eDLL_T::FS, "Mounted VPK file: '%s' with handle: '%i'\n", pszVpkPath, pPakData->m_nHandle);
+	}
+	else if (!pPakData) // VPK failed to load or does not exist...
+	{
+		::Warning(eDLL_T::FS, "Unable to mount VPK file: '%s'\n", pszVpkPath);
+	}
+
+	return pPakData;
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: unmount a VPK file
+// Input  : *this - 
+//			*pszVpkPath - 
+// Output : pointer to formatted VPK path string
+//---------------------------------------------------------------------------------
+const char* CBaseFileSystem::VUnmountVPKFile(CBaseFileSystem* pFileSystem, const char* pszVpkPath)
+{
+	int nHandle = v_CBaseFileSystem_GetMountedVPKHandle(pFileSystem, pszVpkPath);
+	const char* pRet = v_CBaseFileSystem_UnmountVPKFile(pFileSystem, pszVpkPath);
+
+	if (nHandle >= 0)
+	{
+		::DevMsg(eDLL_T::FS, "Unmounted VPK file: '%s' with handle: '%i'\n", pszVpkPath, nHandle);
+	}
+
+	return pRet;
 }
 
 void CBaseFileSystem_Attach()
 {
-	DetourAttach((LPVOID*)&CBaseFileSystem_Warning, &CBaseFileSystem::Warning);
-	DetourAttach((LPVOID*)&CBaseFileSystem_VLoadFromVPK, &CBaseFileSystem::VReadFromVPK);
-	DetourAttach((LPVOID*)&CBaseFileSystem_VLoadFromCache, &CBaseFileSystem::VReadFromCache);
+	DetourAttach((LPVOID*)&v_CBaseFileSystem_Warning, &CBaseFileSystem::Warning);
+	DetourAttach((LPVOID*)&v_CBaseFileSystem_LoadFromVPK, &CBaseFileSystem::VReadFromVPK);
+	DetourAttach((LPVOID*)&v_CBaseFileSystem_LoadFromCache, &CBaseFileSystem::VReadFromCache);
+	DetourAttach((LPVOID*)&v_CBaseFileSystem_MountVPKFile, &CBaseFileSystem::VMountVPKFile);
+	DetourAttach((LPVOID*)&v_CBaseFileSystem_UnmountVPKFile, &CBaseFileSystem::VUnmountVPKFile);
 }
 
 void CBaseFileSystem_Detach()
 {
-	DetourDetach((LPVOID*)&CBaseFileSystem_Warning, &CBaseFileSystem::Warning);
-	DetourDetach((LPVOID*)&CBaseFileSystem_VLoadFromVPK, &CBaseFileSystem::VReadFromVPK);
-	DetourDetach((LPVOID*)&CBaseFileSystem_VLoadFromCache, &CBaseFileSystem::VReadFromCache);
+	DetourDetach((LPVOID*)&v_CBaseFileSystem_Warning, &CBaseFileSystem::Warning);
+	DetourDetach((LPVOID*)&v_CBaseFileSystem_LoadFromVPK, &CBaseFileSystem::VReadFromVPK);
+	DetourDetach((LPVOID*)&v_CBaseFileSystem_LoadFromCache, &CBaseFileSystem::VReadFromCache);
+	DetourDetach((LPVOID*)&v_CBaseFileSystem_MountVPKFile, &CBaseFileSystem::VMountVPKFile);
+	DetourDetach((LPVOID*)&v_CBaseFileSystem_UnmountVPKFile, &CBaseFileSystem::VUnmountVPKFile);
 }
 CBaseFileSystem* g_pFileSystem = nullptr;
