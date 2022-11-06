@@ -15,6 +15,7 @@
 #include "mathlib/color.h"
 #include "rtech/stryder/stryder.h"
 #include "engine/sys_dll2.h"
+#include "engine/cmodel_bsp.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
@@ -1231,6 +1232,7 @@ void KeyValues::InitPlaylists(void)
 			}
 		}
 	}
+	MOD_GetAllInstalledMaps(); // Parse all installed maps.
 }
 
 //-----------------------------------------------------------------------------

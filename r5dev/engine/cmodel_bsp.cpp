@@ -36,9 +36,7 @@ bool MOD_LevelHasChanged(const string& svLevelName)
 void MOD_GetAllInstalledMaps()
 {
     std::lock_guard<std::mutex> l(g_MapVecMutex);
-
-    if (!g_vAllMaps.empty())
-        return;
+    g_vAllMaps.clear(); // Clear current list.
 
     std::regex rgArchiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
     std::smatch smRegexMatches;
@@ -51,13 +49,13 @@ void MOD_GetAllInstalledMaps()
         if (!smRegexMatches.empty())
         {
             if (smRegexMatches[1].str().compare("frontend") == 0)
-                continue;
+                continue; // Frontend contains no BSP's.
 
             else if (smRegexMatches[1].str().compare("mp_common") == 0)
             {
                 if (std::find(g_vAllMaps.begin(), g_vAllMaps.end(), "mp_lobby") == g_vAllMaps.end())
                     g_vAllMaps.push_back("mp_lobby");
-                continue;
+                continue; // Common contains mp_lobby.
             }
 
             if (std::find(g_vAllMaps.begin(), g_vAllMaps.end(), smRegexMatches[1].str()) == g_vAllMaps.end())
