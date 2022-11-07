@@ -25,9 +25,15 @@ inline auto Host_ChangeLevel = p_Host_ChangeLevel.RCast<bool (*)(bool bLoadFromS
 inline CMemory p_SetLaunchOptions;
 inline auto v_SetLaunchOptions = p_SetLaunchOptions.RCast<int (*)(const CCommand& args)>();
 
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
+inline CMemory p_DFS_InitializeFeatureFlagDefinitions;
+inline auto v_DFS_InitializeFeatureFlagDefinitions = p_DFS_InitializeFeatureFlagDefinitions.RCast<bool (*)(const char* pszFeatureFlags)>();
+#endif // !(GAMEDLL_S0) || !(GAMEDLL_S1) || !(GAMEDLL_S2)
+
 extern EngineParms_t* g_pEngineParms;
 
-
+void HostCmd_Attach();
+void HostCmd_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 class VHostCmd : public IDetour
 {
@@ -37,6 +43,9 @@ class VHostCmd : public IDetour
 		spdlog::debug("| FUN: Host_NewGame                         : {:#18x} |\n", p_Host_NewGame.GetPtr());
 		spdlog::debug("| FUN: Host_ChangeLevel                     : {:#18x} |\n", p_Host_ChangeLevel.GetPtr());
 		spdlog::debug("| FUN: SetLaunchOptions                     : {:#18x} |\n", p_SetLaunchOptions.GetPtr());
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
+		spdlog::debug("| FUN: DFS_InitializeFeatureFlagDefinitions : {:#18x} |\n", p_DFS_InitializeFeatureFlagDefinitions.GetPtr());
+#endif // !(GAMEDLL_S0) || !(GAMEDLL_S1) || !(GAMEDLL_S2)
 		spdlog::debug("| VAR: g_pEngineParms                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pEngineParms));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
@@ -53,6 +62,10 @@ class VHostCmd : public IDetour
 		p_Host_ChangeLevel = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x56\x57\x41\x56\x48\x81\xEC\x00\x00\x00\x00"), "xxxxxxxx????");
 		p_SetLaunchOptions = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\x1D\x00\x00\x00\x00\x48\x8B\xE9\x48\x85\xDB"), "xxxx?xxxx?xxxxxxxx????xxxxxx");
 #endif
+#if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
+		p_DFS_InitializeFeatureFlagDefinitions = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x55\x53\x48\x8D\x68\xE8"), "xxxxxxxxx");
+		v_DFS_InitializeFeatureFlagDefinitions = p_DFS_InitializeFeatureFlagDefinitions.RCast<bool (*)(const char*)>(); /*48 8B C4 55 53 48 8D 68 E8*/
+#endif // !(GAMEDLL_S0) || !(GAMEDLL_S1) || !(GAMEDLL_S2)
 		Host_Init = p_Host_Init.RCast<void* (*)(bool*)>();                                        /*48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B D9*/
 		Host_NewGame = p_Host_NewGame.RCast<bool (*)(char*, char*, bool, char, LARGE_INTEGER)>(); /*48 8B C4 ?? 41 54 41 55 48 81 EC 70 04 00 00 F2 0F 10 05 ?? ?? ?? 0B*/
 		Host_ChangeLevel = p_Host_ChangeLevel.RCast<bool (*)(bool, const char*, const char*)>();  /*40 56 57 41 56 48 81 EC ?? ?? ?? ??*/

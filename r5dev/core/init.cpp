@@ -181,6 +181,8 @@ void Systems_Init()
 #endif // !CLIENT_DLL && GAMEDLL_S3
 
 	Host_Attach();
+	HostCmd_Attach();
+
 	CHostState_Attach();
 
 	CModelBsp_Attach();
@@ -314,6 +316,8 @@ void Systems_Shutdown()
 #endif // !CLIENT_DLL && GAMEDLL_S3
 
 	Host_Detach();
+	HostCmd_Detach();
+
 	CHostState_Detach();
 
 	CModelBsp_Detach();
