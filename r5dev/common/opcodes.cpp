@@ -340,18 +340,6 @@ void Dedicated_Init()
 		KeyboardLayout_Init.Patch({ 0xC3 });                                               // FUN --> RET | Prevent keyboard layout initialization for IME in CInit.
 #endif
 	}
-
-	// This mandatory pak file should only exist on the server.
-	if (FileExists("vpk\\server_mp_common.bsp.pak000_000.vpk"))
-	{
-		// Patch 'client' pak file string constants to 'server' if this is a standalone dedicated server.
-		g_pClientVPKDir.PatchString("vpk/%sserver_%s.bsp.pak000%s");
-		g_pClientBSP.PatchString("vpk/server_%s.bsp");
-		g_pClientCommonBSP.PatchString("vpk/server_mp_common.bsp");
-		g_pClientMPLobby.PatchString("vpk/server_mp_lobby");
-		g_pClientMP.PatchString("vpk/server_mp");
-		g_pClientSP.PatchString("vpk/server_sp");
-	}
 }
 #endif // DEDICATED
 

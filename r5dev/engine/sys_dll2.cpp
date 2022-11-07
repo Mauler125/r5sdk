@@ -115,9 +115,14 @@ void CEngineAPI::VSetStartupInfo(CEngineAPI* pEngineAPI, StartupInfo_t* pStartup
     }
     if (!CommandLine()->CheckParm("-novpk") && FileSystem()->FileExists(szCacheEnableFilePath, nullptr))
     {
-        FileSystem()->SetVPKCacheModeClient();
         FileSystem()->AddSearchPath(".", "MAIN", SearchPathAdd_t::PATH_ADD_TO_TAIL);
+#ifndef DEDICATED
+        FileSystem()->SetVPKCacheModeClient();
         FileSystem()->MountVPKFile("vpk/client_frontend.bsp");
+#else // Dedicated runs server vpk's and must have 'vpk/mp_lobby.bsp' mounted.
+        FileSystem()->SetVPKCacheModeServer();
+        FileSystem()->MountVPKFile("vpk/server_mp_lobby.bsp");
+#endif // !DEDICATED
     }
     v_TRACEINIT(NULL, "COM_InitFilesystem( m_StartupInfo.m_szInitialMod )", "COM_ShutdownFileSystem()");
     COM_InitFilesystem(pEngineAPI->m_StartupInfo.m_szInitialMod);

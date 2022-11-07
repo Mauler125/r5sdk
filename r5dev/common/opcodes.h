@@ -80,17 +80,6 @@ inline CMemory CWin32Surface_initStaticData;
 inline CMemory KeyboardLayout_Init;
 #endif
 
-//-------------------------------------------------------------------------
-// .RDATA
-//-------------------------------------------------------------------------
-inline CMemory g_pClientVPKDir;
-inline CMemory g_pClientBSP;
-inline CMemory g_pClientCommonBSP;
-inline CMemory g_pClientMPLobby;
-inline CMemory g_pClientMP;
-inline CMemory g_pClientSP;
-
-
 ///////////////////////////////////////////////////////////////////////////////
 class VOpcodes : public IDetour
 {
@@ -127,13 +116,6 @@ class VOpcodes : public IDetour
 		spdlog::debug("| FUN: CWin32Surface::initStaticData        : {:#18x} |\n", CWin32Surface_initStaticData.GetPtr());
 #endif
 		spdlog::debug("| FUN: KeyboardLayout_Init                  : {:#18x} |\n", KeyboardLayout_Init.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
-		spdlog::debug("| CON: g_pClientVPKDir                      : {:#18x} |\n", g_pClientVPKDir.GetPtr());
-		spdlog::debug("| CON: g_pClientBSP                         : {:#18x} |\n", g_pClientBSP.GetPtr());
-		spdlog::debug("| CON: g_pClientCommonBSP                   : {:#18x} |\n", g_pClientCommonBSP.GetPtr());
-		spdlog::debug("| CON: g_pClientMPLobby                     : {:#18x} |\n", g_pClientMPLobby.GetPtr());
-		spdlog::debug("| CON: g_pClientMP                          : {:#18x} |\n", g_pClientMP.GetPtr());
-		spdlog::debug("| CON: g_pClientSP                          : {:#18x} |\n", g_pClientSP.GetPtr());
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const { }
@@ -231,15 +213,7 @@ class VOpcodes : public IDetour
 		KeyboardLayout_Init = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x33\xC9\xFF\x15\x00\x00\x00\x00\x48\x8D\x0D\x00\x00\x00\x00"), "xxxxxxxx????xxx????");
 #endif //48 83 EC 28 33 C9 FF 15 ? ? ? ? 48 8D 0D ? ? ? ?
 	}
-	virtual void GetCon(void) const
-	{
-		g_pClientVPKDir    = g_GameDll.FindStringReadOnly("vpk/%sclient_%s.bsp.pak000%s", true);
-		g_pClientBSP       = g_GameDll.FindStringReadOnly("vpk/client_%s.bsp", true);
-		g_pClientCommonBSP = g_GameDll.FindStringReadOnly("vpk/client_mp_common.bsp", true);
-		g_pClientMPLobby   = g_GameDll.FindStringReadOnly("vpk/client_mp_lobby", true);
-		g_pClientMP        = g_GameDll.FindStringReadOnly("vpk/client_mp_", true);
-		g_pClientSP        = g_GameDll.FindStringReadOnly("vpk/client_sp_", true);
-	}
+	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }
 };
