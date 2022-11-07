@@ -12,9 +12,9 @@
 struct StartupInfo_t
 {
 	void* m_pInstance;
-	const char m_pBaseDirectory[260];
-	const char m_pInitialMod[260];
-	const char m_pInitialGame[260];
+	const char m_szBaseDirectory[260];
+	const char m_szInitialMod[260];
+	const char m_szInitialGame[260];
 	uint8_t m_pParentAppSystemGroup[236];
 	bool m_bTextMode;
 };

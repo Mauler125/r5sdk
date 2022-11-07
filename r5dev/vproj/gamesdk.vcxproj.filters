@@ -1892,6 +1892,9 @@
     <ClInclude Include="..\public\server_class.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
+    <ClInclude Include="..\engine\traceinit.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\shared\resource\lockedserver.png">

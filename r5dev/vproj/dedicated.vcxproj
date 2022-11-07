@@ -170,6 +170,7 @@
     <ClInclude Include="..\engine\sys_engine.h" />
     <ClInclude Include="..\engine\sys_getmodes.h" />
     <ClInclude Include="..\engine\sys_utils.h" />
+    <ClInclude Include="..\engine\traceinit.h" />
     <ClInclude Include="..\filesystem\basefilesystem.h" />
     <ClInclude Include="..\filesystem\filesystem.h" />
     <ClInclude Include="..\game\server\ai_network.h" />

@@ -1,5 +1,13 @@
 #pragma once
 
+#ifdef _WIN32
+#define CORRECT_PATH_SEPARATOR '\\'
+#define INCORRECT_PATH_SEPARATOR '/'
+#elif POSIX
+#define CORRECT_PATH_SEPARATOR '/'
+#define INCORRECT_PATH_SEPARATOR '\\'
+#endif
+
 #define V_snprintf snprintf
 #define V_strlower _strlwr
 #define V_strlen strlen
@@ -22,3 +30,4 @@ char const* V_stristr(char const* pStr, char const* pSearch);
 
 int V_UTF8ToUnicode(const char* pUTF8, wchar_t* pwchDest, int cubDestSizeInBytes);
 int V_UnicodeToUTF8(const wchar_t* pUnicode, char* pUTF8, int cubDestSizeInBytes);
+void V_FixSlashes(char* pname, char separator = CORRECT_PATH_SEPARATOR);

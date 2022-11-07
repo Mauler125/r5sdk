@@ -1,4 +1,5 @@
 #include "core/stdafx.h"
+#include "tier1/strtools.h"
 
 FORCEINLINE unsigned char tolower_fast(unsigned char c)
 {
@@ -85,9 +86,7 @@ int V_UTF8ToUnicode(const char* pUTF8, wchar_t* pwchDest, int cubDestSizeInBytes
 int V_UnicodeToUTF8(const wchar_t* pUnicode, char* pUTF8, int cubDestSizeInBytes)
 {
 	if (cubDestSizeInBytes > 0)
-	{
 		pUTF8[0] = 0;
-	}
 
 #ifdef _WIN32
 	int cchResult = WideCharToMultiByte(CP_UTF8, 0, pUnicode, -1, pUTF8, cubDestSizeInBytes, NULL, NULL);
@@ -98,9 +97,24 @@ int V_UnicodeToUTF8(const wchar_t* pUnicode, char* pUTF8, int cubDestSizeInBytes
 #endif
 
 	if (cubDestSizeInBytes > 0)
-	{
 		pUTF8[cubDestSizeInBytes - 1] = 0;
-	}
 
 	return cchResult;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Changes all '/' or '\' characters into separator
+// Input  : *pName - 
+//			cSeparator - 
+//-----------------------------------------------------------------------------
+void V_FixSlashes(char* pName, char cSeperator /* = CORRECT_PATH_SEPARATOR */)
+{
+	while (*pName)
+	{
+		if (*pName == INCORRECT_PATH_SEPARATOR || *pName == CORRECT_PATH_SEPARATOR)
+		{
+			*pName = cSeperator;
+		}
+		pName++;
+	}
 }

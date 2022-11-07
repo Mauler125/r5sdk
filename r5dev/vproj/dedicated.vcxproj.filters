@@ -1251,6 +1251,9 @@
     <ClInclude Include="..\public\server_class.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
+    <ClInclude Include="..\engine\traceinit.h">
+      <Filter>sdk\engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
