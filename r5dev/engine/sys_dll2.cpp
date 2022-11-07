@@ -43,6 +43,39 @@ static bool IsRespawnMod(const char* pModName)
 }
 
 //-----------------------------------------------------------------------------
+// Initialize the VPK and file cache system
+//-----------------------------------------------------------------------------
+static void InitVPKSystem()
+{
+    char szCacheEnableFilePath[280]; // [rsp+20h] [rbp-118h] BYREF
+    char bFixSlashes = FileSystem()->GetCurrentDirectory(szCacheEnableFilePath, 260) ? szCacheEnableFilePath[0] : '\0';
+
+    size_t nCachePathLen = strlen(szCacheEnableFilePath);
+    size_t nCacheFileLen = 15; // sizeof '/vpk/enable.txt' - 1;
+
+    if ((nCachePathLen + nCacheFileLen) < 0x104 || (nCacheFileLen = 259 - nCachePathLen, nCachePathLen != 259))
+    {
+        strncat(szCacheEnableFilePath, "/vpk/enable.txt", nCacheFileLen)[259] = '\0';
+        bFixSlashes = szCacheEnableFilePath[0];
+    }
+    if (bFixSlashes)
+    {
+        V_FixSlashes(szCacheEnableFilePath, '/');
+    }
+    if (!CommandLine()->CheckParm("-novpk") && FileSystem()->FileExists(szCacheEnableFilePath, nullptr))
+    {
+        FileSystem()->AddSearchPath(".", "MAIN", SearchPathAdd_t::PATH_ADD_TO_TAIL);
+#ifndef DEDICATED
+        FileSystem()->SetVPKCacheModeClient();
+        FileSystem()->MountVPKFile("vpk/client_frontend.bsp");
+#else // Dedicated runs server vpk's and must have 'vpk/mp_lobby.bsp' mounted.
+        FileSystem()->SetVPKCacheModeServer();
+        FileSystem()->MountVPKFile("vpk/server_mp_lobby.bsp");
+#endif // !DEDICATED
+    }
+}
+
+//-----------------------------------------------------------------------------
 // Initialization, shutdown of a mod.
 //-----------------------------------------------------------------------------
 bool CEngineAPI::VModInit(CEngineAPI* pEngineAPI, const char* pModName, const char* pGameDir)
@@ -68,62 +101,38 @@ bool CEngineAPI::VModInit(CEngineAPI* pEngineAPI, const char* pModName, const ch
 //-----------------------------------------------------------------------------
 void CEngineAPI::VSetStartupInfo(CEngineAPI* pEngineAPI, StartupInfo_t* pStartupInfo)
 {
-    char szCacheEnableFilePath[280]; // [rsp+20h] [rbp-118h] BYREF
-
     if (*g_bTextMode)
     {
         return;
     }
 
     strncpy(&*g_szBaseDir, pStartupInfo->m_szBaseDirectory, 260);
-    g_pEngineParms->baseDirectory = &*g_szBaseDir;
 
-    void** v4 = &pEngineAPI->m_StartupInfo.m_pInstance;
-    size_t nInstances = 6;
+    g_pEngineParms->baseDirectory = &*g_szBaseDir;
     g_szBaseDir[259] = '\0';
+
+    void** pCurrentInstance = &pEngineAPI->m_StartupInfo.m_pInstance;
+    size_t nInstances = 6;
     do
     {
-        v4 += 16;
-        uint64_t v6 = *(_QWORD*)&pStartupInfo->m_pInstance;
+        pCurrentInstance += 16;
+        uint64_t pInstance = *(_QWORD*)&pStartupInfo->m_pInstance;
         pStartupInfo = (StartupInfo_t*)((char*)pStartupInfo + 128);
-        *((_QWORD*)v4 - 8) = v6;
-        *((_QWORD*)v4 - 7) = *(_QWORD*)&pStartupInfo[-1].m_pParentAppSystemGroup[132];
-        *((_QWORD*)v4 - 6) = *(_QWORD*)&pStartupInfo[-1].m_pParentAppSystemGroup[148];
-        *((_QWORD*)v4 - 5) = *(_QWORD*)&pStartupInfo[-1].m_pParentAppSystemGroup[164];
-        *((_QWORD*)v4 - 4) = *(_QWORD*)&pStartupInfo[-1].m_pParentAppSystemGroup[180];
-        *((_QWORD*)v4 - 3) = *(_QWORD*)&pStartupInfo[-1].m_pParentAppSystemGroup[196];
-        *((_QWORD*)v4 - 2) = *(_QWORD*)&pStartupInfo[-1].m_pParentAppSystemGroup[212];
-        *((_QWORD*)v4 - 1) = *(_QWORD*)&pStartupInfo[-1].m_pParentAppSystemGroup[228];
+        *((_QWORD*)pCurrentInstance - 8) = pInstance;
+        *((_QWORD*)pCurrentInstance - 7) = *(_QWORD*)&pStartupInfo[-1].m_pParentAppSystemGroup[132];
+        *((_QWORD*)pCurrentInstance - 6) = *(_QWORD*)&pStartupInfo[-1].m_pParentAppSystemGroup[148];
+        *((_QWORD*)pCurrentInstance - 5) = *(_QWORD*)&pStartupInfo[-1].m_pParentAppSystemGroup[164];
+        *((_QWORD*)pCurrentInstance - 4) = *(_QWORD*)&pStartupInfo[-1].m_pParentAppSystemGroup[180];
+        *((_QWORD*)pCurrentInstance - 3) = *(_QWORD*)&pStartupInfo[-1].m_pParentAppSystemGroup[196];
+        *((_QWORD*)pCurrentInstance - 2) = *(_QWORD*)&pStartupInfo[-1].m_pParentAppSystemGroup[212];
+        *((_QWORD*)pCurrentInstance - 1) = *(_QWORD*)&pStartupInfo[-1].m_pParentAppSystemGroup[228];
         --nInstances;
     } while (nInstances);
-    *(_QWORD*)v4 = *(_QWORD*)&pStartupInfo->m_pInstance;
-    *((_QWORD*)v4 + 1) = *(_QWORD*)&pStartupInfo->m_szBaseDirectory[8];
+    *(_QWORD*)pCurrentInstance = *(_QWORD*)&pStartupInfo->m_pInstance;
+    *((_QWORD*)pCurrentInstance + 1) = *(_QWORD*)&pStartupInfo->m_szBaseDirectory[8];
 
+    InitVPKSystem();
 
-    char bFixSlashes = FileSystem()->GetCurrentDirectory(szCacheEnableFilePath, 260) ? szCacheEnableFilePath[0] : '\0';
-    size_t nCachePathLen = strlen(szCacheEnableFilePath);
-    size_t nCacheFileLen = 15; // sizeof '/vpk/enable.txt' - 1;
-
-    if ((nCachePathLen + nCacheFileLen) < 0x104 || (nCacheFileLen = 259 - nCachePathLen, nCachePathLen != 259))
-    {
-        strncat(szCacheEnableFilePath, "/vpk/enable.txt", nCacheFileLen)[259] = '\0';
-        bFixSlashes = szCacheEnableFilePath[0];
-    }
-    if (bFixSlashes)
-    {
-        V_FixSlashes(szCacheEnableFilePath, '/');
-    }
-    if (!CommandLine()->CheckParm("-novpk") && FileSystem()->FileExists(szCacheEnableFilePath, nullptr))
-    {
-        FileSystem()->AddSearchPath(".", "MAIN", SearchPathAdd_t::PATH_ADD_TO_TAIL);
-#ifndef DEDICATED
-        FileSystem()->SetVPKCacheModeClient();
-        FileSystem()->MountVPKFile("vpk/client_frontend.bsp");
-#else // Dedicated runs server vpk's and must have 'vpk/mp_lobby.bsp' mounted.
-        FileSystem()->SetVPKCacheModeServer();
-        FileSystem()->MountVPKFile("vpk/server_mp_lobby.bsp");
-#endif // !DEDICATED
-    }
     v_TRACEINIT(NULL, "COM_InitFilesystem( m_StartupInfo.m_szInitialMod )", "COM_ShutdownFileSystem()");
     COM_InitFilesystem(pEngineAPI->m_StartupInfo.m_szInitialMod);
 
