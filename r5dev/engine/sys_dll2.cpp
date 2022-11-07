@@ -113,7 +113,7 @@ void CEngineAPI::VSetStartupInfo(CEngineAPI* pEngineAPI, StartupInfo_t* pStartup
     {
         V_FixSlashes(szCacheEnableFilePath, '/');
     }
-    if (FileSystem()->FileExists(szCacheEnableFilePath, nullptr))
+    if (!CommandLine()->CheckParm("-novpk") && FileSystem()->FileExists(szCacheEnableFilePath, nullptr))
     {
         FileSystem()->SetVPKCacheModeClient();
         FileSystem()->AddSearchPath(".", "MAIN", SearchPathAdd_t::PATH_ADD_TO_TAIL);
