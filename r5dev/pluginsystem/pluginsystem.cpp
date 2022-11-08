@@ -15,9 +15,9 @@
 //-----------------------------------------------------------------------------
 void CPluginSystem::PluginSystem_Init()
 {
-	CreateDirectories("bin\\x64_plugins\\");
+	CreateDirectories("bin\\x64_retail\\plugins");
 
-	for (auto& it : fs::directory_iterator("bin\\x64_plugins"))
+	for (auto& it : fs::directory_iterator("bin\\x64_retail\\plugins"))
 	{
 		if (!it.is_regular_file())
 			continue;

@@ -80,16 +80,16 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)game\bin\x64_retail\plugins\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
-    <TargetName>pluginsdk_x64</TargetName>
+    <TargetName>PluginSDK</TargetName>
     <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)game\bin\x64_plugins\</OutDir>
+    <OutDir>$(SolutionDir)game\bin\x64_retail\plugins\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
-    <TargetName>pluginsdk_x64</TargetName>
+    <TargetName>PluginSDK</TargetName>
     <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
