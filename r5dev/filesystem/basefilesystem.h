@@ -8,6 +8,7 @@ public:
 	// Purpose: Static methods used for hooking.
 	//--------------------------------------------------------
 	static void Warning(CBaseFileSystem* pFileSystem, FileWarningLevel_t level, const char* fmt, ...);
+	static bool VCheckDisk(const char* pszFilePath);
 	static FileHandle_t VReadFromVPK(CBaseFileSystem* pFileSystem, FileHandle_t pResults, char* pszFilePath);
 	static bool VReadFromCache(CBaseFileSystem* pFileSystem, char* pszFilePath, void* pResults);
 	static VPKData_t* VMountVPKFile(CBaseFileSystem* pFileSystem, const char* pszVpkPath);

@@ -52,7 +52,40 @@ void CBaseFileSystem::Warning(CBaseFileSystem* pFileSystem, FileWarningLevel_t l
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: attempts to load files from disk if exist before loading from VPK
+// Purpose: attempts to load files from disk if exist before loading from VPK/cache
+// Input  : *pszFilePath - 
+// Output : handle to file on success, NULL on failure
+//---------------------------------------------------------------------------------
+bool CBaseFileSystem::VCheckDisk(const char* pszFilePath)
+{
+	// Only load material files from the disk if the mode isn't zero,
+	// use -novpk to load valve materials from the disk.
+	if (FileSystem()->CheckVPKMode(0) && strstr(pszFilePath, ".vmt"))
+	{
+		return false;
+	}
+
+	std::string svFilePath = ConvertToWinPath(pszFilePath);
+
+	if (svFilePath.find("\\\*\\") != string::npos)
+	{
+		// Erase '//*/'.
+		svFilePath.erase(0, 4);
+	}
+
+	// TODO: obtain 'mod' SearchPath's instead.
+	svFilePath.insert(0, "platform\\");
+
+	if (::FileExists(svFilePath) /*|| ::FileExists(pszFilePath)*/)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+//---------------------------------------------------------------------------------
+// Purpose: loads files from VPK
 // Input  : *this - 
 //			*pResults - 
 //			*pszFilePath - 
@@ -60,27 +93,17 @@ void CBaseFileSystem::Warning(CBaseFileSystem* pFileSystem, FileWarningLevel_t l
 //---------------------------------------------------------------------------------
 FileHandle_t CBaseFileSystem::VReadFromVPK(CBaseFileSystem* pFileSystem, FileHandle_t pResults, char* pszFilePath)
 {
-	std::string svFilePath = ConvertToWinPath(pszFilePath);
-
-	if (svFilePath.find("\\\*\\") != string::npos)
-	{
-		// Erase '//*/'.
-		svFilePath.erase(0, 4);
-	}
-
-	// TODO: obtain 'mod' SearchPath's instead.
-	svFilePath.insert(0, "platform\\");
-
-	if (::FileExists(svFilePath) /*|| ::FileExists(pszFilePath)*/)
+	if (VCheckDisk(pszFilePath))
 	{
 		*reinterpret_cast<int64_t*>(pResults) = -1;
 		return pResults;
 	}
+
 	return v_CBaseFileSystem_LoadFromVPK(pFileSystem, pResults, pszFilePath);
 }
 
 //---------------------------------------------------------------------------------
-// Purpose: attempts to load files from disk if exist before loading from cache
+// Purpose: loads files from cache
 // Input  : *this - 
 //			*pszFilePath - 
 //			*pResults - 
@@ -88,21 +111,11 @@ FileHandle_t CBaseFileSystem::VReadFromVPK(CBaseFileSystem* pFileSystem, FileHan
 //---------------------------------------------------------------------------------
 bool CBaseFileSystem::VReadFromCache(CBaseFileSystem* pFileSystem, char* pszFilePath, void* pResults)
 {
-	std::string svFilePath = ConvertToWinPath(pszFilePath);
-
-	if (svFilePath.find("\\\*\\") != string::npos)
-	{
-		// Erase '//*/'.
-		svFilePath.erase(0, 4);
-	}
-
-	// TODO: obtain 'mod' SearchPath's instead.
-	svFilePath.insert(0, "platform\\");
-
-	if (::FileExists(svFilePath) /*|| ::FileExists(pszFilePath)*/)
+	if (VCheckDisk(pszFilePath))
 	{
 		return false;
 	}
+
 	return v_CBaseFileSystem_LoadFromCache(pFileSystem, pszFilePath, pResults);
 }
 

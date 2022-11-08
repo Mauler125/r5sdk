@@ -385,7 +385,7 @@ public:
 	virtual bool __fastcall sub_140383E00(__int64 a2) = 0;
 	virtual bool sub_1403836A0() = 0;
 	virtual __int64 __fastcall sub_140384310(int a1) = 0;
-	virtual __int64 __fastcall sub_140383820(int a1) = 0;
+	virtual __int64 __fastcall CheckVPKMode(int nMode) = 0; // Checks if the VPK mode equals the mode input.
 
 
 	//--------------------------------------------------------
