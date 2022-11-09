@@ -201,7 +201,7 @@ class VConCommand : public IDetour
 		spdlog::debug("| FUN: CallbackStub                         : {:#18x} |\n", p_CallbackStub.GetPtr());
 		spdlog::debug("| FUN: NullSub                              : {:#18x} |\n", p_NullSub.GetPtr());
 		spdlog::debug("+----------------------------------------------------------------+\n");
-		spdlog::debug("| VAR: g_pConCommandVFTable                 : {:#18x} |\n", g_pConCommandVFTable.GetPtr());
+		spdlog::debug("| CON: g_pConCommandVFTable                 : {:#18x} |\n", g_pConCommandVFTable.GetPtr());
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
@@ -220,11 +220,11 @@ class VConCommand : public IDetour
 		NullSub                           = p_NullSub.RCast<void(*)(void)>();                                   /*C2 00 00 CC CC CC CC CC CC CC CC CC CC CC CC CC 40 53 48 83 EC 20 48 8D 05 ?? ?? ?? ??*/
 		CallbackStub                      = p_CallbackStub.RCast<FnCommandCompletionCallback>();                /*33 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC 80 49 68 08*/ /*UserMathErrorFunction*/
 	}
-	virtual void GetVar(void) const
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const 
 	{
 		g_pConCommandVFTable = g_GameDll.GetVirtualMethodTable(".?AVConCommand@@");
 	}
-	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }
 };

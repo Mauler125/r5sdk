@@ -53,7 +53,7 @@
 #include "game/server/detour_impl.h"
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
-#include "game/client/view.h"
+#include "game/client/viewrender.h"
 #endif // !DEDICATED
 
 

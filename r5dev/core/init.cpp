@@ -107,7 +107,7 @@
 #include "game/server/gameinterface.h"
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
-#include "game/client/view.h"
+#include "game/client/viewrender.h"
 #endif // !DEDICATED
 #include "public/edict.h"
 #ifndef DEDICATED

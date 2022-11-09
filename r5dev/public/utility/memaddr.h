@@ -105,8 +105,8 @@ public:
 
 	inline CMemory WalkVTable(ptrdiff_t vfuncIndex)
 	{
-		ptr += (8 * vfuncIndex);
-		return CMemory(this);
+		uintptr_t reference = ptr + (8 * vfuncIndex);
+		return CMemory(reference);
 	}
 
 	inline CMemory WalkVTableSelf(ptrdiff_t vfuncIndex)

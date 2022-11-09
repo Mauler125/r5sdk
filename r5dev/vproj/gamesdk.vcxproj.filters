@@ -597,7 +597,7 @@
     <ClCompile Include="..\game\client\c_baseentity.cpp">
       <Filter>sdk\game\client</Filter>
     </ClCompile>
-    <ClCompile Include="..\game\client\view.cpp">
+    <ClCompile Include="..\game\client\viewrender.cpp">
       <Filter>sdk\game\client</Filter>
     </ClCompile>
     <ClCompile Include="..\game\shared\ai_utility_shared.cpp">
@@ -1760,7 +1760,7 @@
     <ClInclude Include="..\public\ivscript.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
-    <ClInclude Include="..\game\client\view.h">
+    <ClInclude Include="..\game\client\viewrender.h">
       <Filter>sdk\game\client</Filter>
     </ClInclude>
     <ClInclude Include="..\game\shared\ai_utility_shared.h">

@@ -16,7 +16,7 @@
 #include "game/server/ai_utility.h"
 #include "game/server/ai_networkmanager.h"
 #include "game/server/ai_network.h"
-#include "game/client/view.h"
+#include "game/client/viewrender.h"
 #include "thirdparty/recast/detour/include/detourcommon.h"
 #include "thirdparty/recast/detour/include/detournavmesh.h"
 

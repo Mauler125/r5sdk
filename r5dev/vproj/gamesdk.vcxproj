@@ -61,7 +61,7 @@
     <ClCompile Include="..\gameui\IBrowser.cpp" />
     <ClCompile Include="..\game\client\c_baseentity.cpp" />
     <ClCompile Include="..\game\client\spritemodel.cpp" />
-    <ClCompile Include="..\game\client\view.cpp" />
+    <ClCompile Include="..\game\client\viewrender.cpp" />
     <ClCompile Include="..\game\server\ai_network.cpp" />
     <ClCompile Include="..\game\server\ai_networkmanager.cpp" />
     <ClCompile Include="..\game\server\ai_utility.cpp" />
@@ -225,7 +225,7 @@
     <ClInclude Include="..\game\client\c_baseplayer.h" />
     <ClInclude Include="..\game\client\enginesprite.h" />
     <ClInclude Include="..\game\client\hud.h" />
-    <ClInclude Include="..\game\client\view.h" />
+    <ClInclude Include="..\game\client\viewrender.h" />
     <ClInclude Include="..\game\server\ai_network.h" />
     <ClInclude Include="..\game\server\ai_networkmanager.h" />
     <ClInclude Include="..\game\server\ai_node.h" />

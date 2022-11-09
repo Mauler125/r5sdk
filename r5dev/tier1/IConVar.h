@@ -122,8 +122,8 @@ class VConVar : public IDetour
 		spdlog::debug("| FUN: ConVar::IsFlagSet                    : {:#18x} |\n", p_ConVar_IsFlagSet.GetPtr());
 		spdlog::debug("| FUN: ConVar::Register                     : {:#18x} |\n", p_ConVar_Register.GetPtr());
 		spdlog::debug("| FUN: ConVar_PrintDescription              : {:#18x} |\n", p_ConVar_PrintDescription.GetPtr());
-		spdlog::debug("| VAR: g_pConVarVFTable                     : {:#18x} |\n", g_pConVarVFTable.GetPtr());
-		spdlog::debug("| VAR: g_pIConVarVFTable                    : {:#18x} |\n", g_pIConVarVFTable.GetPtr());
+		spdlog::debug("| CON: g_pConVarVFTable                     : {:#18x} |\n", g_pConVarVFTable.GetPtr());
+		spdlog::debug("| CON: g_pIConVarVFTable                    : {:#18x} |\n", g_pIConVarVFTable.GetPtr());
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
