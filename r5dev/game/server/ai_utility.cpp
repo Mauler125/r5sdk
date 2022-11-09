@@ -98,7 +98,7 @@ bool Detour_IsLoaded()
         }
     }
 
-    assert(i <= MAX_HULLS);
+    assert(ret <= MAX_HULLS);
     return (ret != MAX_HULLS);
 }
 
