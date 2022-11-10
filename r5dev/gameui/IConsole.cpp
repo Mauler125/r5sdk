@@ -53,6 +53,7 @@ CConsole::CConsole(void)
         ImGuiInputTextFlags_CallbackCompletion     |
         ImGuiInputTextFlags_CallbackHistory        |
         ImGuiInputTextFlags_CallbackAlways         |
+        ImGuiInputTextFlags_CallbackCharFilter     |
         ImGuiInputTextFlags_CallbackEdit           |
         ImGuiInputTextFlags_AutoCaretEnd;
 
@@ -414,8 +415,8 @@ void CConsole::SuggestPanel(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: runs the autocomplete for the console
-// Output : true if autocomplete is performed, false otherwise
+// Purpose: runs the auto complete for the console
+// Output : true if auto complete is performed, false otherwise
 //-----------------------------------------------------------------------------
 bool CConsole::AutoComplete(void)
 {
@@ -458,7 +459,7 @@ bool CConsole::AutoComplete(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: resets the autocomplete window
+// Purpose: resets the auto complete window
 //-----------------------------------------------------------------------------
 void CConsole::ResetAutoComplete(void)
 {
@@ -469,7 +470,7 @@ void CConsole::ResetAutoComplete(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: clears the autocomplete window
+// Purpose: clears the auto complete window
 //-----------------------------------------------------------------------------
 void CConsole::ClearAutoComplete(void)
 {
@@ -682,7 +683,7 @@ bool CConsole::LoadFlagIcons(void)
 
 //-----------------------------------------------------------------------------
 // Purpose: returns flag texture index for CommandBase (must be aligned with resource.h!)
-//          this will be refactored to build the image procedurally with use of popcnt
+//          in the future we should build the texture procedurally with use of popcnt.
 // Input  : nFlags - 
 //-----------------------------------------------------------------------------
 int CConsole::GetFlagTextureIndex(int nFlags) const
@@ -736,12 +737,15 @@ int CConsole::GetFlagTextureIndex(int nFlags) const
         switch (v)
         {
         case 0:
-            return 0; // Pink checkered texture (FCVAR_NONE)
+            return 0; // Pink checker texture (FCVAR_NONE)
         case 1:
-            return 1; // Yellow checkered texture (non-indexed).
+            return 1; // Yellow checker texture (non-indexed).
         default:
+
+            // If 3 or more bits are set, we test the flags
+            // and display the appropriate checker texture.
+            bool mul = v > 2;
             int ret = NULL;
-            bool mul = v > 2; // If 3 or more bits are set we display a checkered texture.
 
             if (nFlags & FCVAR_DEVELOPMENTONLY)
             {
@@ -752,7 +756,9 @@ int CConsole::GetFlagTextureIndex(int nFlags) const
                 return ret = mul ? 6 : 5;
             }
 
-            return 2; // Rainbow checkered texture (user needs to manually check flags).
+            // Rainbow checker texture (user needs to manually check flags).
+            // These commands are not restricted if ran from the same context.
+            return 2;
         }
     }
 }
@@ -800,7 +806,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
                 }
             }
         }
-        else // Allow user to navigate through the history if suggest isn't drawn.
+        else // Allow user to navigate through the history if suggest panel isn't drawn.
         {
             const ssize_t nPrevHistoryPos = m_nHistoryPos;
             if (iData->EventKey == ImGuiKey_UpArrow)
@@ -845,39 +851,43 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
     }
     case ImGuiInputTextFlags_CallbackAlways:
     {
-        if (m_bModifyInput)
+        if (m_bModifyInput) // User entered a value in the input field.
         {
             iData->DeleteChars(0, iData->BufTextLen);
             m_bSuggestActive = false;
 
-            if (!m_svInputConVar.empty())
+            if (!m_svInputConVar.empty()) // User selected a ConVar from the suggestion window, copy it to the buffer.
             {
                 iData->InsertChars(0, m_svInputConVar.c_str());
                 m_svInputConVar.clear();
             }
             m_bModifyInput = false;
         }
-
         break;
+    }
+    case ImGuiInputTextFlags_CallbackCharFilter:
+    {
+        const ImWchar c = iData->EventChar;
+        if (!iData->BufTextLen)
+        {
+            if (c == '~' || c == ' ') // Discard space and tilde character as first input.
+            {
+                iData->EventChar = 0;
+                return 1;
+            }
+        }
+        if (c == '`') // Discard back quote character (default console invoke key).
+        {
+            iData->EventChar = 0;
+            return 1;
+        }
+
+        return 0;
     }
     case ImGuiInputTextFlags_CallbackEdit:
     {
-        if (size_t n = strlen(iData->Buf))
+        if (iData->BufTextLen)
         {
-            for (size_t i = 0; i < n; i++)
-            {
-                if (iData->Buf[i] != '~'
-                    && iData->Buf[i] != '`'
-                    && iData->Buf[i] != ' ')
-                {
-                    break;
-                }
-                else if (i == (n - 1))
-                {
-                    iData->DeleteChars(0, static_cast<int>(n));
-                }
-            }
-
             m_bCanAutoComplete = true;
             BuildSummary(iData->Buf);
         }
@@ -889,7 +899,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
         break;
     }
     }
-    return NULL;
+    return 0;
 }
 
 //-----------------------------------------------------------------------------
