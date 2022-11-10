@@ -72,6 +72,7 @@ private:
     ssize_t                        m_nSuggestPos;
     int                            m_nScrollBack;
     int                            m_nSelectBack;
+    int                            m_nInputTextLen;
     float                          m_flScrollX;
     float                          m_flScrollY;
     float                          m_flFadeAlpha;

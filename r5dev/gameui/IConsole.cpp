@@ -34,6 +34,7 @@ CConsole::CConsole(void)
     , m_nSuggestPos(-1)
     , m_nScrollBack(0)
     , m_nSelectBack(0)
+    , m_nInputTextLen(0)
     , m_flScrollX(0.f)
     , m_flScrollY(0.f)
     , m_flFadeAlpha(0.f)
@@ -851,9 +852,10 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
     }
     case ImGuiInputTextFlags_CallbackAlways:
     {
+        m_nInputTextLen = iData->BufTextLen;
         if (m_bModifyInput) // User entered a value in the input field.
         {
-            iData->DeleteChars(0, iData->BufTextLen);
+            iData->DeleteChars(0, m_nInputTextLen);
             m_bSuggestActive = false;
 
             if (!m_svInputConVar.empty()) // User selected a ConVar from the suggestion window, copy it to the buffer.
@@ -868,7 +870,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
     case ImGuiInputTextFlags_CallbackCharFilter:
     {
         const ImWchar c = iData->EventChar;
-        if (!iData->BufTextLen)
+        if (!m_nInputTextLen)
         {
             if (c == '~' || c == ' ') // Discard space and tilde character as first input.
             {
@@ -886,7 +888,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
     }
     case ImGuiInputTextFlags_CallbackEdit:
     {
-        if (iData->BufTextLen)
+        if (iData->BufTextLen) // Attempt to build a summary..
         {
             m_bCanAutoComplete = true;
             BuildSummary(iData->Buf);
