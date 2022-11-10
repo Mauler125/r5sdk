@@ -8,6 +8,8 @@ public:
 	void EnableInput(bool bEnabled);        // @0x14039F100 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	void EnableMessagePump(bool bEnabled);  // @0x14039F110 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 	bool IsButtonDown(ButtonCode_t Button); // @0x1403A0140 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
+	bool ButtonCodeToString(ButtonCode_t Button);
+	ButtonCode_t StringToButtonCode(const char* pString);
 
 private:
 	char pad_0000[16]; //0x0000
