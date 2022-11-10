@@ -65,7 +65,6 @@ private:
 	bool                          m_bUpdateFrame;                // perform snapshot update
 	bool                          m_bUseReputation;              // use of player reputation on the server
 	bool                          m_bSimulating;                 // are we simulating or not
-	int                           m_nPad;                        // padding
 	bf_write                      m_Signon;                      // signon bitbuf
 	CUtlMemory<byte>              m_SignonBuffer;                // signon memory
 	int                           m_nServerClasses;              // number of unique server classes

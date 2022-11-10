@@ -21,6 +21,7 @@
 #else // 
 #include "engine/client/cl_rcon.h"
 #include "engine/client/cl_main.h"
+#include "engine/client/clientstate.h"
 #endif // DEDICATED
 #include "engine/net.h"
 #include "engine/gl_screen.h"
@@ -119,6 +120,18 @@ FORCEINLINE void CHostState::FrameUpdate(CHostState* pHostState, double flCurren
 				{
 					bResetIdleName = true;
 				}
+
+#if !defined (DEDICATED) && !defined (CLIENT_DLL)
+				// Parallel processing of 'C_BaseAnimating::SetupBones()' is not supported
+				// on listen servers running the local client.
+				if (g_pServer->IsActive())
+				{
+					if (cl_threaded_bone_setup->GetBool())
+					{
+						cl_threaded_bone_setup->SetValue(false);
+					}
+				}
+#endif // !DEDICATED && !CLIENT_DLL
 
 				CHostState_State_Run(&g_pHostState->m_iCurrentState, flCurrentTime, flFrameTime);
 				break;
@@ -445,12 +458,12 @@ FORCEINLINE void CHostState::ResetLevelName(void)
 ///////////////////////////////////////////////////////////////////////////////
 void CHostState_Attach()
 {
-	DetourAttach((LPVOID*)&CHostState_FrameUpdate, &CHostState::FrameUpdate);
+	DetourAttach(&CHostState_FrameUpdate, &CHostState::FrameUpdate);
 }
 
 void CHostState_Detach()
 {
-	DetourDetach((LPVOID*)&CHostState_FrameUpdate, &CHostState::FrameUpdate);
+	DetourDetach(&CHostState_FrameUpdate, &CHostState::FrameUpdate);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

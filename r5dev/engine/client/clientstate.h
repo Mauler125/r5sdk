@@ -25,6 +25,10 @@ class CClientState : CS_INetChannelHandler, IConnectionlessPacketHandler, IServe
 {
 public:
 	bool IsPaused() const;
+	bool IsActive(void) const;
+	bool IsConnected(void) const;
+	bool IsConnecting(void) const;
+
 	float GetClientTime() const;
 
 	int GetTick() const;

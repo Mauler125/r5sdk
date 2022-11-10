@@ -23,6 +23,30 @@ bool CClientState::IsPaused() const
 }
 
 //------------------------------------------------------------------------------
+// Purpose: returns true if client is fully connected and active
+//------------------------------------------------------------------------------
+bool CClientState::IsActive(void) const
+{
+    return m_nSignonState == SIGNONSTATE::SIGNONSTATE_FULL;
+};
+
+//------------------------------------------------------------------------------
+// Purpose: returns true if client connected but not active
+//------------------------------------------------------------------------------
+bool CClientState::IsConnected(void) const
+{
+    return m_nSignonState >= SIGNONSTATE::SIGNONSTATE_CONNECTED;
+};
+
+//------------------------------------------------------------------------------
+// Purpose: returns true if client is still connecting
+//------------------------------------------------------------------------------
+bool CClientState::IsConnecting(void) const
+{
+    return m_nSignonState >= SIGNONSTATE::SIGNONSTATE_NONE;
+}
+
+//------------------------------------------------------------------------------
 // Purpose: gets the client time
 // Technically doesn't belong here
 //------------------------------------------------------------------------------
