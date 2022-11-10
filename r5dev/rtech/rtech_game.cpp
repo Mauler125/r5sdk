@@ -41,10 +41,10 @@ RPakHandle_t CPakFile::LoadAsync(const char* szPakFileName, uintptr_t pMalloc, i
 	}
 #endif // DEDICATED
 
-	string svPakFilePathMod = "paks\\Win32\\" + string(szPakFileName);
+	string svPakFileModPath = "paks\\Win32\\" + string(szPakFileName);
 	string svPakFilePathBase = "paks\\Win64\\" + string(szPakFileName);
 
-	if (FileExists(svPakFilePathMod) || FileExists(svPakFilePathBase))
+	if (FileExists(svPakFileModPath) || FileExists(svPakFilePathBase))
 	{
 		DevMsg(eDLL_T::RTECH, "Loading pak file: '%s'\n", szPakFileName);
 		pakHandle = CPakFile_LoadAsync(szPakFileName, pMalloc, nIdx, bUnk);
