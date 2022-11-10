@@ -350,8 +350,6 @@ void ConCommand::Init(void)
 	//-------------------------------------------------------------------------
 	// CLIENT DLL                                                             |
 	ConCommand::Create("script_client", "Run input code as CLIENT script on the VM.", FCVAR_CLIENTDLL | FCVAR_CHEAT, SQVM_ClientScript_f, nullptr);
-	ConCommand::Create("cl_showconsole", "Opens the developer console.", FCVAR_CLIENTDLL | FCVAR_RELEASE, GameConsole_Invoke_f, nullptr);
-	ConCommand::Create("cl_showbrowser", "Opens the server browser.", FCVAR_CLIENTDLL | FCVAR_RELEASE, ServerBrowser_Invoke_f, nullptr);
 	ConCommand::Create("rcon", "Forward RCON query to remote server. | Usage: rcon \"<query>\".", FCVAR_CLIENTDLL | FCVAR_RELEASE, RCON_CmdQuery_f, nullptr);
 	ConCommand::Create("rcon_disconnect", "Disconnect from RCON server.", FCVAR_CLIENTDLL | FCVAR_RELEASE, RCON_Disconnect_f, nullptr);
 
@@ -359,6 +357,9 @@ void ConCommand::Init(void)
 	ConCommand::Create("con_removeline", "Removes a range of lines from the developer console.", FCVAR_CLIENTDLL | FCVAR_RELEASE, CON_RemoveLine_f, nullptr);
 	ConCommand::Create("con_clearlines", "Clears all lines from the developer console.", FCVAR_CLIENTDLL | FCVAR_RELEASE, CON_ClearLines_f, nullptr);
 	ConCommand::Create("con_clearhistory", "Clears all submissions from the developer console history.", FCVAR_CLIENTDLL | FCVAR_RELEASE, CON_ClearHistory_f, nullptr);
+
+	ConCommand::Create("toggleconsole", "Show/hide the developer console.", FCVAR_CLIENTDLL | FCVAR_RELEASE, ToggleConsole_f, nullptr);
+	ConCommand::Create("togglebrowser", "Show/hide the server browser.", FCVAR_CLIENTDLL | FCVAR_RELEASE, ToggleBrowser_f, nullptr);
 	//-------------------------------------------------------------------------
 	// UI DLL                                                                 |
 	ConCommand::Create("script_ui", "Run input code as UI script on the VM.", FCVAR_CLIENTDLL | FCVAR_CHEAT, SQVM_UIScript_f, nullptr);

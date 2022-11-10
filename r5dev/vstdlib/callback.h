@@ -12,8 +12,8 @@ inline auto _DownloadPlaylists_f = p_DownloadPlaylists_f.RCast<void(*)(void)>();
 void MP_GameMode_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue);
 void MP_HostName_Changed_f(IConVar* pConVar, const char* pOldString, float flOldValue);
 #ifndef DEDICATED
-void GameConsole_Invoke_f(const CCommand& args);
-void ServerBrowser_Invoke_f(const CCommand& args);
+void ToggleConsole_f(const CCommand& args);
+void ToggleBrowser_f(const CCommand& args);
 #endif // !DEDICATED
 #ifndef CLIENT_DLL
 void Host_Kick_f(const CCommand& args);

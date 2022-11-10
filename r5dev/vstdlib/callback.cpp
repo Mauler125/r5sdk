@@ -82,22 +82,24 @@ void MP_HostName_Changed_f(IConVar* pConVar, const char* pOldString, float flOld
 #ifndef DEDICATED
 /*
 =====================
-GameConsole_Invoke_f
+ToggleConsole_f
 =====================
 */
-void GameConsole_Invoke_f(const CCommand& args)
+void ToggleConsole_f(const CCommand& args)
 {
-	g_pConsole->m_bActivate = !g_pConsole->m_bActivate;
+	g_pConsole->m_bActivate ^= true;
+	ResetInput(); // Disable input to game when console is drawn.
 }
 
 /*
 =====================
-ServerBrowser_Invoke_f
+ToggleBrowser_f
 =====================
 */
-void ServerBrowser_Invoke_f(const CCommand& args)
+void ToggleBrowser_f(const CCommand& args)
 {
-	g_pBrowser->m_bActivate = !g_pBrowser->m_bActivate;
+	g_pBrowser->m_bActivate ^= true;
+	ResetInput(); // Disable input to game when browser is drawn.
 }
 #endif // !DEDICATED
 #ifndef CLIENT_DLL
