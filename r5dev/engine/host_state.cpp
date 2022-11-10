@@ -329,6 +329,9 @@ FORCEINLINE void CHostState::LoadConfig(void) const
 #endif // !DEDICATED
 			Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"autoexec_dev.cfg\"", cmd_source_t::kCommandSrcCode);
 		}
+#ifndef DEDICATED
+		Cbuf_AddText(Cbuf_GetCurrentPlayer(), "exec \"bind.cfg\"", cmd_source_t::kCommandSrcCode);
+#endif // !DEDICATED
 		Cbuf_Execute();
 	}
 }
