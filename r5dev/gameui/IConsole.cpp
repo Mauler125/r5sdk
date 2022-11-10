@@ -888,6 +888,14 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
     }
     case ImGuiInputTextFlags_CallbackEdit:
     {
+        // If user selected all text in the input field and replaces it with
+        // a tilde or space character, it will be set as the first character
+        // in the input field as m_nInputTextLen is set before the actual edit.
+        while (iData->Buf[0] == '~' || iData->Buf[0] == ' ')
+        {
+            iData->DeleteChars(0, 1);
+        }
+
         if (iData->BufTextLen) // Attempt to build a summary..
         {
             m_bCanAutoComplete = true;
