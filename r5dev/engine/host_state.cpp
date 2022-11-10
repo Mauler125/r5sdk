@@ -450,7 +450,7 @@ FORCEINLINE void CHostState::ResetLevelName(void)
 #ifdef DEDICATED
 	static const char* szNoMap = "server_idle";
 #else // DEDICATED
-	static const char* szNoMap = "main_menu";
+	static const char* szNoMap = "menu_main";
 #endif
 	Q_snprintf(const_cast<char*>(m_levelName), sizeof(m_levelName), szNoMap);
 }
