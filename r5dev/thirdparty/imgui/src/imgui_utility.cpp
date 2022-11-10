@@ -45,7 +45,7 @@ void Strtrim(char* s)
 
 void ImGuiConfig::Load()
 {
-    static const fs::path fsPath = "platform\\imgui.json";
+    static const fs::path fsPath = "platform\\cfg\\imgui\\bind.json";
     DevMsg(eDLL_T::MS, "Loading ImGui config file '%s'\n", fsPath.relative_path().u8string().c_str());
 
     if (!fs::exists(fsPath))
