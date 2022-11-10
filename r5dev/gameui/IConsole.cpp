@@ -368,7 +368,7 @@ void CConsole::SuggestPanel(void)
 
         if (con_suggestion_showflags->GetBool())
         {
-            const int k = GetFlagColorIndex(suggest.m_nFlags);
+            const int k = GetFlagTextureIndex(suggest.m_nFlags);
             ImGui::Image(m_vFlagIcons[k].m_idIcon, ImVec2(m_vFlagIcons[k].m_nWidth, m_vFlagIcons[k].m_nHeight));
             ImGui::SameLine();
         }
@@ -667,7 +667,7 @@ bool CConsole::LoadFlagIcons(void)
     bool ret = false;
 
     // Get all image resources for displaying flags.
-    for (int i = IDB_PNG3, k = NULL; i <= IDB_PNG24; i++, k++)
+    for (int i = IDB_PNG3, k = NULL; i <= IDB_PNG29; i++, k++)
     {
         m_vFlagIcons.push_back(MODULERESOURCE(GetModuleResource(i)));
         MODULERESOURCE& rFlagIcon = m_vFlagIcons[k];
@@ -681,57 +681,79 @@ bool CConsole::LoadFlagIcons(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: returns flag image index for CommandBase (must be aligned with resource.h!)
+// Purpose: returns flag texture index for CommandBase (must be aligned with resource.h!)
+//          this will be refactored to build the image procedurally with use of popcnt
 // Input  : nFlags - 
 //-----------------------------------------------------------------------------
-int CConsole::GetFlagColorIndex(int nFlags) const
+int CConsole::GetFlagTextureIndex(int nFlags) const
 {
-    switch (nFlags)
+    switch (nFlags) // All indices for single/dual flag textures.
     {
-    case FCVAR_NONE:
-        return 1;
     case FCVAR_DEVELOPMENTONLY:
-        return 2;
-    case FCVAR_GAMEDLL:
-        return 3;
-    case FCVAR_CLIENTDLL:
-        return 4;
-    case FCVAR_REPLICATED:
-        return 5;
-    case FCVAR_CHEAT:
-        return 6;
-    case FCVAR_RELEASE:
         return 7;
-    case FCVAR_MATERIAL_SYSTEM_THREAD:
+    case FCVAR_GAMEDLL:
         return 8;
-    case FCVAR_DEVELOPMENTONLY | FCVAR_GAMEDLL:
+    case FCVAR_CLIENTDLL:
         return 9;
-    case FCVAR_DEVELOPMENTONLY | FCVAR_CLIENTDLL:
+    case FCVAR_REPLICATED:
         return 10;
-    case FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED:
+    case FCVAR_CHEAT:
         return 11;
-    case FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT:
+    case FCVAR_RELEASE:
         return 12;
-    case FCVAR_DEVELOPMENTONLY | FCVAR_MATERIAL_SYSTEM_THREAD:
+    case FCVAR_MATERIAL_SYSTEM_THREAD:
         return 13;
-    case FCVAR_REPLICATED | FCVAR_CHEAT:
+    case FCVAR_DEVELOPMENTONLY | FCVAR_GAMEDLL:
         return 14;
-    case FCVAR_REPLICATED | FCVAR_RELEASE:
+    case FCVAR_DEVELOPMENTONLY | FCVAR_CLIENTDLL:
         return 15;
-    case FCVAR_GAMEDLL | FCVAR_CHEAT:
+    case FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED:
         return 16;
-    case FCVAR_GAMEDLL | FCVAR_RELEASE:
+    case FCVAR_DEVELOPMENTONLY | FCVAR_CHEAT:
         return 17;
-    case FCVAR_CLIENTDLL | FCVAR_CHEAT:
+    case FCVAR_DEVELOPMENTONLY | FCVAR_MATERIAL_SYSTEM_THREAD:
         return 18;
-    case FCVAR_CLIENTDLL | FCVAR_RELEASE:
+    case FCVAR_REPLICATED | FCVAR_CHEAT:
         return 19;
-    case FCVAR_MATERIAL_SYSTEM_THREAD | FCVAR_CHEAT:
+    case FCVAR_REPLICATED | FCVAR_RELEASE:
         return 20;
-    case FCVAR_MATERIAL_SYSTEM_THREAD | FCVAR_RELEASE:
+    case FCVAR_GAMEDLL | FCVAR_CHEAT:
         return 21;
-    default:
-        return 0;
+    case FCVAR_GAMEDLL | FCVAR_RELEASE:
+        return 22;
+    case FCVAR_CLIENTDLL | FCVAR_CHEAT:
+        return 23;
+    case FCVAR_CLIENTDLL | FCVAR_RELEASE:
+        return 24;
+    case FCVAR_MATERIAL_SYSTEM_THREAD | FCVAR_CHEAT:
+        return 25;
+    case FCVAR_MATERIAL_SYSTEM_THREAD | FCVAR_RELEASE:
+        return 26;
+
+    default: // Hit when flag is non-indexed or 3+ bits are set.
+
+        int v = __popcnt(nFlags);
+        switch (v)
+        {
+        case 0:
+            return 0; // Pink checkered texture (FCVAR_NONE)
+        case 1:
+            return 1; // Yellow checkered texture (non-indexed).
+        default:
+            int ret = NULL;
+            bool mul = v > 2; // If 3 or more bits are set we display a checkered texture.
+
+            if (nFlags & FCVAR_DEVELOPMENTONLY)
+            {
+                return ret = mul ? 4 : 3;
+            }
+            else if (nFlags & FCVAR_CHEAT)
+            {
+                return ret = mul ? 6 : 5;
+            }
+
+            return 2; // Rainbow checkered texture (user needs to manually check flags).
+        }
     }
 }
 

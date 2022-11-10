@@ -39,7 +39,7 @@ private:
     void ClampHistorySize(void);
 
     bool LoadFlagIcons(void);
-    int GetFlagColorIndex(int nFlags) const;
+    int GetFlagTextureIndex(int nFlags) const;
 
     int TextEditCallback(ImGuiInputTextCallbackData* pData);
     static int TextEditCallbackStub(ImGuiInputTextCallbackData* pData);
