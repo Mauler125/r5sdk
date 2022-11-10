@@ -130,11 +130,14 @@ VPKData_t* CBaseFileSystem::VMountVPKFile(CBaseFileSystem* pFileSystem, const ch
 	int nHandle = v_CBaseFileSystem_GetMountedVPKHandle(pFileSystem, pszVpkPath);
 	VPKData_t* pPakData = v_CBaseFileSystem_MountVPKFile(pFileSystem, pszVpkPath);
 
-	if (nHandle < 0 && pPakData) // Only log if VPK hasn't been mounted yet and we have a valid pointer.
+	if (pPakData)
 	{
-		::DevMsg(eDLL_T::FS, "Mounted vpk file: '%s' with handle: '%i'\n", pszVpkPath, pPakData->m_nHandle);
+		if (nHandle < 0) // Only log if VPK hasn't been mounted yet.
+		{
+			::DevMsg(eDLL_T::FS, "Mounted vpk file: '%s' with handle: '%i'\n", pszVpkPath, pPakData->m_nHandle);
+		}
 	}
-	else if (!pPakData) // VPK failed to load or does not exist...
+	else // VPK failed to load or does not exist...
 	{
 		::Warning(eDLL_T::FS, "Unable to mount vpk file: '%s'\n", pszVpkPath);
 	}
