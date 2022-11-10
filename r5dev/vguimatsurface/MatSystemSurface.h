@@ -10,7 +10,7 @@ class CMatSystemSurface
 };
 
 inline CMatSystemSurface* g_pMatSystemSurface;
-inline CMatSystemSurface* g_pMatSystemSurfaceReference;
+inline CMatSystemSurface* g_pVGuiSurface;
 
 ///////////////////////////////////////////////////////////////////////////////
 class VMatSystemSurface : public IDetour
@@ -19,7 +19,7 @@ class VMatSystemSurface : public IDetour
 	{
 		spdlog::debug("| FUN: CMatSystemSurface::DrawColoredText   : {:#18x} |\n", p_CMatSystemSurface_DrawColoredText.GetPtr());
 		spdlog::debug("| VAR: g_pMatSystemSurface                  : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pMatSystemSurface));
-		spdlog::debug("| VAR: g_pMatSystemSurfaceReference         : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pMatSystemSurfaceReference));
+		spdlog::debug("| VAR: g_pVGuiSurface                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pVGuiSurface));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
@@ -38,7 +38,7 @@ class VMatSystemSurface : public IDetour
 			"\x48\x83\xEC\x28\x48\x83\x3D\x00\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00"), "xxxxxxx?????xxx????")
 			.FindPatternSelf("48 83 3D", CMemory::Direction::DOWN, 40).ResolveRelativeAddressSelf(0x3, 0x8).RCast<CMatSystemSurface*>();
 #endif
-		g_pMatSystemSurfaceReference = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
+		g_pVGuiSurface = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
 			"\x48\x8B\x05\x00\x00\x00\x00\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x48\x8B\x05\x00\x00\x00\x00\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x8B\x81\x00\x00\x00\x00"), "xxx????xxxxxxxxxxxx????xxxxxxxxxxx????")
 			.ResolveRelativeAddressSelf(0x3, 0x7).RCast<CMatSystemSurface*>();
 	}
