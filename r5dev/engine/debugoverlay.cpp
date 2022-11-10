@@ -246,22 +246,9 @@ void DrawOverlay(OverlayBase_t* pOverlay)
 //------------------------------------------------------------------------------
 void DrawAllOverlays(bool bDraw)
 {
-    if (!enable_debug_overlays->GetBool())
-        return;
     EnterCriticalSection(&*s_OverlayMutex);
-#ifndef CLIENT_DLL
-    if (ai_script_nodes_draw->GetInt() > -1)
-        g_pAIUtility->DrawAIScriptNetwork(*g_pAINetwork);
-    if (navmesh_draw_bvtree->GetInt() > -1)
-        g_pAIUtility->DrawNavMeshBVTree();
-    if (navmesh_draw_portal->GetInt() > -1)
-        g_pAIUtility->DrawNavMeshPortals();
-    if (navmesh_draw_polys->GetInt() > -1)
-        g_pAIUtility->DrawNavMeshPolys();
-    if (navmesh_draw_poly_bounds->GetInt() > -1)
-        g_pAIUtility->DrawNavMeshPolyBoundaries();
-#endif // !CLIENT_DLL
 
+    const bool bOverlayEnabled = enable_debug_overlays->GetBool();
     OverlayBase_t* pCurrOverlay = *s_pOverlays; // rdi
     OverlayBase_t* pPrevOverlay = nullptr;      // rsi
     OverlayBase_t* pNextOverlay = nullptr;      // rbx
@@ -305,7 +292,7 @@ void DrawAllOverlays(bool bDraw)
             {
                 bDraw = pCurrOverlay->m_nCreationTick == *g_nRenderTickCount;
             }
-            if (bDraw)
+            if (bOverlayEnabled && bDraw)
             {
                 if (bDraw)
                 {
@@ -316,16 +303,33 @@ void DrawAllOverlays(bool bDraw)
             pCurrOverlay = pCurrOverlay->m_pNextOverlay;
         }
     }
+
+#ifndef CLIENT_DLL
+    if (bOverlayEnabled)
+    {
+        if (ai_script_nodes_draw->GetInt() > -1)
+            g_pAIUtility->DrawAIScriptNetwork(*g_pAINetwork);
+        if (navmesh_draw_bvtree->GetInt() > -1)
+            g_pAIUtility->DrawNavMeshBVTree();
+        if (navmesh_draw_portal->GetInt() > -1)
+            g_pAIUtility->DrawNavMeshPortals();
+        if (navmesh_draw_polys->GetInt() > -1)
+            g_pAIUtility->DrawNavMeshPolys();
+        if (navmesh_draw_poly_bounds->GetInt() > -1)
+            g_pAIUtility->DrawNavMeshPolyBoundaries();
+    }
+#endif // !CLIENT_DLL
+
     LeaveCriticalSection(&*s_OverlayMutex);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void DebugOverlays_Attach()
 {
-    DetourAttach((LPVOID*)&v_DrawAllOverlays, &DrawAllOverlays);
+    DetourAttach(&v_DrawAllOverlays, &DrawAllOverlays);
 }
 
 void DebugOverlays_Detach()
 {
-    DetourDetach((LPVOID*)&v_DrawAllOverlays, &DrawAllOverlays);
+    DetourDetach(&v_DrawAllOverlays, &DrawAllOverlays);
 }
