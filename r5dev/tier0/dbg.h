@@ -35,15 +35,15 @@ enum class EGlobalContext_t : int
 
 enum class eDLL_T : int
 {
-	SERVER = 0, // Game DLL
-	CLIENT = 1, // Game DLL
-	UI     = 2, // Game DLL
-	ENGINE = 3, // Wrapper
-	FS     = 4, // File System
-	RTECH  = 5, // RTech API
-	MS     = 6, // Material System
-	NETCON = 7, // Net Console
-	COMMON = 8
+	SERVER = 0, // server.dll              (GameDLL)
+	CLIENT = 1, // client.dll              (GameDLL)
+	UI     = 2, // ui.dll                  (GameDLL)
+	ENGINE = 3, // engine.dll              (Wrapper)
+	FS     = 4, // filesystem_stdio.dll    (FileSystem API)
+	RTECH  = 5, // rtech_game.dll          (RTech API)
+	MS     = 6, // materialsystem_dx11.dll (MaterialSystem API)
+	NETCON = 7, // netconsole impl         (RCON wire)
+	COMMON = 8  // general                 (No specific subsystem)
 };
 
 static const string sDLL_T[9] = 
