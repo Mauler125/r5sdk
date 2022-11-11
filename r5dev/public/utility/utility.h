@@ -52,9 +52,9 @@ string StringUnescape(const string& svInput);
 size_t StringCount(const string& svInput, char cDelim);
 vector<string> StringSplit(string svInput, char cDelim, size_t nMax = SIZE_MAX);
 
-string& StringLTrim(string& svInput, const char* pszToTrim);
-string& StringRTrim(string& svInput, const char* pszToTrim);
-string& StringTrim(string& svInput, const char* pszToTrim);
+string& StringLTrim(string& svInput, const char* pszToTrim, bool bTrimBefore = false);
+string& StringRTrim(string& svInput, const char* pszToTrim, bool bTrimAfter = false);
+string& StringTrim(string& svInput, const char* pszToTrim, bool bTrimAll = false);
 
 /////////////////////////////////////////////////////////////////////////////
 // Bytes

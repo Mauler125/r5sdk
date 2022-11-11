@@ -748,25 +748,57 @@ vector<string> StringSplit(string svInput, char cDelim, size_t nMax)
 
 ///////////////////////////////////////////////////////////////////////////////
 // For trimming leading characters from input.
-string& StringLTrim(string& svInput, const char* pszToTrim)
+string& StringLTrim(string& svInput, const char* pszToTrim, bool bTrimBefore)
 {
-    svInput.erase(0, svInput.find_first_not_of(pszToTrim));
+    size_t n = 0;
+    if (!bTrimBefore)
+    {
+        n = svInput.find_first_not_of(pszToTrim);
+    }
+    else // Remove everything before criteria as well.
+    {
+        n = svInput.find_first_of(pszToTrim);
+        n = svInput.find_first_not_of(pszToTrim, n);
+    }
+
+    if (n != string::npos)
+    {
+        svInput.erase(0, n);
+    }
+
     return svInput;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // For trimming trailing characters from input.
-string& StringRTrim(string& svInput, const char* pszToTrim)
+string& StringRTrim(string& svInput, const char* pszToTrim, bool bTrimAfter)
 {
-    svInput.erase(svInput.find_last_not_of(pszToTrim) + 1);
+    size_t n = 0;
+    if (!bTrimAfter)
+    {
+        n = svInput.find_last_not_of(pszToTrim) + 1;
+    }
+    else // Remove everything after criteria as well.
+    {
+        n = svInput.find_first_of(pszToTrim) + 1;
+    }
+
+    if (n > 0)
+    {
+        svInput.erase(n);
+        if (bTrimAfter)
+        {
+            svInput.at(svInput.size() - 1) = '\0';
+        }
+    }
     return svInput;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // For trimming leading and trailing characters from input.
-string& StringTrim(string& svInput, const char* pszToTrim)
+string& StringTrim(string& svInput, const char* pszToTrim, bool bTrimAll)
 {
-    return StringLTrim(StringRTrim(svInput, pszToTrim), pszToTrim);
+    return StringRTrim(StringLTrim(svInput, pszToTrim, bTrimAll), pszToTrim, bTrimAll);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
