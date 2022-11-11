@@ -591,7 +591,7 @@ void CConsole::BuildSummary(string svConVar)
     if (!svConVar.empty())
     {
         // Remove trailing space and/or semicolon before we call 'g_pCVar->FindVar(..)'.
-        StringRTrim(svConVar, " ;");
+        StringRTrim(svConVar, " ;", true);
 
         if (const ConVar* pConVar = g_pCVar->FindVar(svConVar.c_str()))
         {
