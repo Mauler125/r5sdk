@@ -58,7 +58,7 @@
     <ClCompile Include="..\gameui\IBrowser.cpp" />
     <ClCompile Include="..\game\client\c_baseentity.cpp" />
     <ClCompile Include="..\game\client\spritemodel.cpp" />
-    <ClCompile Include="..\game\client\view.cpp" />
+    <ClCompile Include="..\game\client\viewrender.cpp" />
     <ClCompile Include="..\game\shared\animation.cpp" />
     <ClCompile Include="..\inputsystem\inputsystem.cpp" />
     <ClCompile Include="..\launcher\IApplication.cpp" />
@@ -211,7 +211,7 @@
     <ClInclude Include="..\game\client\c_baseplayer.h" />
     <ClInclude Include="..\game\client\enginesprite.h" />
     <ClInclude Include="..\game\client\hud.h" />
-    <ClInclude Include="..\game\client\view.h" />
+    <ClInclude Include="..\game\client\viewrender.h" />
     <ClInclude Include="..\game\shared\animation.h" />
     <ClInclude Include="..\inputsystem\ButtonCode.h" />
     <ClInclude Include="..\inputsystem\inputsystem.h" />

@@ -564,9 +564,6 @@
     <ClCompile Include="..\game\client\c_baseentity.cpp">
       <Filter>sdk\game\client</Filter>
     </ClCompile>
-    <ClCompile Include="..\game\client\view.cpp">
-      <Filter>sdk\game\client</Filter>
-    </ClCompile>
     <ClCompile Include="..\tier1\characterset.cpp">
       <Filter>sdk\tier1</Filter>
     </ClCompile>
@@ -611,6 +608,9 @@
     </ClCompile>
     <ClCompile Include="..\engine\gl_rmain.cpp">
       <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\client\viewrender.cpp">
+      <Filter>sdk\game\client</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1676,9 +1676,6 @@
     <ClInclude Include="..\public\ivscript.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
-    <ClInclude Include="..\game\client\view.h">
-      <Filter>sdk\game\client</Filter>
-    </ClInclude>
     <ClInclude Include="..\public\iconcommand.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
@@ -1798,6 +1795,9 @@
     </ClInclude>
     <ClInclude Include="..\engine\traceinit.h">
       <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\client\viewrender.h">
+      <Filter>sdk\game\client</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
