@@ -625,7 +625,7 @@
     <IncludePath>$(IncludePath);$(DXSDK_DIR)Include;$(SolutionDir)r5dev\;$(SolutionDir)r5dev\thirdparty\recast\</IncludePath>
     <LibraryPath>$(LibraryPath);$(DXSDK_DIR)Lib\x64</LibraryPath>
     <TargetName>gamesdk</TargetName>
-    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)game\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
     <ReferencePath>$(VC_ReferencesPath_x64);</ReferencePath>
   </PropertyGroup>

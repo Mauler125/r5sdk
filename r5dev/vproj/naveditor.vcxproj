@@ -107,7 +107,7 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)r5dev\;$(SolutionDir)r5dev\thirdparty\recast\;$(IncludePath)</IncludePath>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
-    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)game\bin\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

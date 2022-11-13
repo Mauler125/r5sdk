@@ -52,7 +52,7 @@
     <IncludePath>$(SolutionDir)r5dev\;$(IncludePath);</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
     <TargetName>launcher</TargetName>
-    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)game\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
