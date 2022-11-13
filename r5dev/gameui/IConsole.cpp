@@ -495,7 +495,7 @@ void CConsole::FindFromPartial(void)
         {
             return;
         }
-        if (suggest.m_svName.find(m_szInputBuf) == string::npos)
+        if (!HasPartial(suggest.m_svName, m_szInputBuf))
         {
             continue;
         }

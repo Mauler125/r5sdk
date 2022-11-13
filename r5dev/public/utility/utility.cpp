@@ -246,6 +246,19 @@ char* StripQuotes(const char* pInBuffer, char* pOutBuffer, int nOutBufferSize)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For finding a partial string within input (case insensitive).
+bool HasPartial(const string& svInput, const string& svPartial)
+{
+    auto it = std::search( svInput.begin(), svInput.end(),
+        svPartial.begin(), svPartial.end(), [](char ci, char cp)
+        {
+            return std::toupper(ci) == std::toupper(cp);
+        }
+    );
+    return (it != svInput.end());
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For checking if file name has a specific extension.
 bool HasExtension(const string& svInput, const string& svExtension)
 {

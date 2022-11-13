@@ -20,6 +20,7 @@ char* StripQuotes(const char* pInBuffer, char* pOutBuffer, int nOutBufferSize);
 
 /////////////////////////////////////////////////////////////////////////////
 // String
+bool HasPartial(const string& svInput, const string& svPartial);
 bool HasExtension(const string& svInput, const string& svExtension);
 string GetExtension(const string& svInput, bool bReturnOriginal = false, bool bKeepDelimiter = false);
 string RemoveExtension(const string& svInput);
