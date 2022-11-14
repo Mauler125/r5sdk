@@ -556,7 +556,33 @@ void CBrowser::HostPanel(void)
             }
         }
 
-        if (ImGui::Button("Weapon Reparse", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
+
+        if (ImGui::Button("Rebuild AI Network", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+        {
+            ProcessCommand("BuildAINFile");
+        }
+
+        if (ImGui::Button("NavMesh Hot Swap", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+        {
+            ProcessCommand("navmesh_hotswap");
+        }
+
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
+
+        if (ImGui::Button("AI Settings Reparse", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+        {
+            DevMsg(eDLL_T::ENGINE, "Reparsing AI data on %s\n", "server and client");
+
+            ProcessCommand("aisettings_reparse");
+            ProcessCommand("aisettings_reparse_client");
+        }
+
+        if (ImGui::Button("Weapon Settings Reparse", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
         {
             DevMsg(eDLL_T::ENGINE, "Reparsing weapon data on %s\n", "server and client");
             ProcessCommand("weapon_reparse");
