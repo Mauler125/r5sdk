@@ -12,7 +12,6 @@
 #include "public/edict.h"
 #include "public/utility/utility.h"
 #include "filesystem/filesystem.h"
-#include "engine/host_state.h"
 #include "game/server/ai_node.h"
 #include "game/server/ai_network.h"
 #include "game/server/ai_networkmanager.h"
@@ -34,11 +33,11 @@ CAI_NetworkBuilder::BuildFile
 */
 void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 {
-	const string svMeshDir = NAVMESH_PATH;
-	const string svGraphDir = AINETWORK_PATH;
+	char szMeshPath[MAX_PATH];
+	char szGraphPath[MAX_PATH];
 
-	fs::path fsMeshPath(svMeshDir + g_pHostState->m_levelName + "_" + S_HULL_TYPE[E_HULL_TYPE::LARGE] + NAVMESH_EXT);
-	fs::path fsGraphPath(svGraphDir + g_pHostState->m_levelName + AINETWORK_EXT);
+	V_snprintf(szMeshPath, sizeof(szMeshPath), "%s%s_%s%s", NAVMESH_PATH, g_ServerGlobalVariables->m_pszMapName, S_HULL_TYPE[E_HULL_TYPE::LARGE], NAVMESH_EXT);
+	V_snprintf(szGraphPath, sizeof(szGraphPath), "%s%s%s", AINETWORK_PATH, g_ServerGlobalVariables->m_pszMapName, AINETWORK_EXT);
 
 	CFastTimer masterTimer;
 	CFastTimer timer;
@@ -51,10 +50,10 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	masterTimer.Start();
 	timer.Start();
 
-	FileHandle_t pAIGraph = FileSystem()->Open(fsGraphPath.relative_path().u8string().c_str(), "wb", "GAME");
+	FileHandle_t pAIGraph = FileSystem()->Open(szGraphPath, "wb", "GAME");
 	if (!pAIGraph)
 	{
-		Error(eDLL_T::SERVER, NO_ERROR, "%s - Unable to write to '%s' (read-only?)\n", __FUNCTION__, fsGraphPath.relative_path().u8string().c_str());
+		Error(eDLL_T::SERVER, NO_ERROR, "%s - Unable to write to '%s' (read-only?)\n", __FUNCTION__, szGraphPath);
 		return;
 	}
 
@@ -65,7 +64,7 @@ void CAI_NetworkBuilder::SaveNetworkGraph(CAI_Network* pNetwork)
 	DevMsg(eDLL_T::SERVER, " |-- Map version: '%d'\n", g_ServerGlobalVariables->m_nMapVersion);
 	FileSystem()->Write(&g_ServerGlobalVariables->m_nMapVersion, sizeof(int), pAIGraph);
 
-	FileHandle_t pNavMesh = FileSystem()->Open(fsMeshPath.relative_path().u8string().c_str(), "rb", "GAME");
+	FileHandle_t pNavMesh = FileSystem()->Open(szMeshPath, "rb", "GAME");
 	uint32_t nNavMeshHash = NULL;
 
 	if (!pNavMesh)
@@ -307,20 +306,21 @@ CAI_NetworkManager::LoadNetworkGraph
 */
 void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager, void* pBuffer, const char* szAIGraphFile)
 {
-	string svMeshDir = NAVMESH_PATH;
-	string svGraphDir = AINETWORK_PATH;
+	bool bNavMeshAvailable = true;
 
-	fs::path fsMeshPath(svMeshDir + g_pHostState->m_levelName + "_" + S_HULL_TYPE[E_HULL_TYPE::LARGE] + NAVMESH_EXT);
-	fs::path fsGraphPath(svGraphDir + g_pHostState->m_levelName + AINETWORK_EXT);
+	char szMeshPath[MAX_PATH];
+	char szGraphPath[MAX_PATH];
+
+	V_snprintf(szMeshPath, sizeof(szMeshPath), "%s%s_%s%s", NAVMESH_PATH, g_ServerGlobalVariables->m_pszMapName, S_HULL_TYPE[E_HULL_TYPE::LARGE], NAVMESH_EXT);
+	V_snprintf(szGraphPath, sizeof(szGraphPath), "%s%s%s", AINETWORK_PATH, g_ServerGlobalVariables->m_pszMapName, AINETWORK_EXT);
 
 	int nAiNetVersion = NULL;
 	int nAiMapVersion = NULL;
-	bool bNavMeshAvailable = true;
 
 	uint32_t nAiGraphHash = NULL;
 	uint32_t nNavMeshHash = NULL;
 
-	FileHandle_t pNavMesh = FileSystem()->Open(fsMeshPath.relative_path().u8string().c_str(), "rb", "GAME");
+	FileHandle_t pNavMesh = FileSystem()->Open(szMeshPath, "rb", "GAME");
 	if (!pNavMesh)
 	{
 		Warning(eDLL_T::SERVER, "%s - No %s NavMesh found. Unable to calculate CRC for AI Network\n", __FUNCTION__, S_HULL_TYPE[E_HULL_TYPE::LARGE]);
@@ -338,11 +338,10 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager,
 		MemAllocSingleton()->Free(pBuf);
 	}
 
-	FileHandle_t pAIGraph = FileSystem()->Open(fsGraphPath.relative_path().u8string().c_str(), "rb", "GAME");
+	FileHandle_t pAIGraph = FileSystem()->Open(szGraphPath, "rb", "GAME");
 	if (!pAIGraph)
 	{
-		Error(eDLL_T::SERVER, NO_ERROR, "%s - Unable to open '%s' (insufficient rights?)\n", __FUNCTION__,
-			fsGraphPath.relative_path().u8string().c_str());
+		Error(eDLL_T::SERVER, NO_ERROR, "%s - Unable to open '%s' (insufficient rights?)\n", __FUNCTION__, szGraphPath);
 		LoadNetworkGraphEx(pAINetworkManager, pBuffer, szAIGraphFile);
 
 		return;
@@ -356,30 +355,23 @@ void CAI_NetworkManager::LoadNetworkGraph(CAI_NetworkManager* pAINetworkManager,
 
 		if (nAiNetVersion > AINET_VERSION_NUMBER)
 		{
-			Warning(eDLL_T::SERVER, "AI node graph '%s' is unsupported (net version: '%d' expected: '%d')\n",
-				fsGraphPath.relative_path().u8string().c_str(), nAiNetVersion, AINET_VERSION_NUMBER);
+			Warning(eDLL_T::SERVER, "AI node graph '%s' is unsupported (net version: '%d' expected: '%d')\n", 
+				szGraphPath, nAiNetVersion, AINET_VERSION_NUMBER);
 		}
 		else if (nAiMapVersion != g_ServerGlobalVariables->m_nMapVersion)
 		{
-			Warning(eDLL_T::SERVER, "AI node graph '%s' is out of date (map version: '%d' expected: '%d')\n",
-				fsGraphPath.relative_path().u8string().c_str(), nAiMapVersion, g_ServerGlobalVariables->m_nMapVersion);
+			Warning(eDLL_T::SERVER, "AI node graph '%s' is out of date (map version: '%d' expected: '%d')\n", 
+				szGraphPath, nAiMapVersion, g_ServerGlobalVariables->m_nMapVersion);
 		}
-		else
+		else if (bNavMeshAvailable && nAiGraphHash != nNavMeshHash)
 		{
-			if (bNavMeshAvailable)
-			{
-				if (nAiGraphHash != nNavMeshHash)
-				{
-					Warning(eDLL_T::SERVER, "AI node graph '%s' is out of date (checksum: '0x%X' expected: '0x%X')\n",
-						fsGraphPath.relative_path().u8string().c_str(), nAiGraphHash, nNavMeshHash);
-				}
-			}
+			Warning(eDLL_T::SERVER, "AI node graph '%s' is out of date (checksum: '0x%X' expected: '0x%X')\n", 
+				szGraphPath, nAiGraphHash, nNavMeshHash);
 		}
 	}
 	else
 	{
-		Error(eDLL_T::SERVER, NO_ERROR, "%s - AI node graph '%s' is corrupt\n", __FUNCTION__,
-			fsGraphPath.relative_path().u8string().c_str());
+		Error(eDLL_T::SERVER, NO_ERROR, "%s - AI node graph '%s' is corrupt\n", __FUNCTION__, szGraphPath);
 	}
 
 	FileSystem()->Close(pAIGraph);
