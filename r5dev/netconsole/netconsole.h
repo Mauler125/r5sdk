@@ -33,18 +33,23 @@ public:
 	void ProcessBuffer(const char* pRecvBuf, int nRecvLen, CConnectedNetConsoleData* pData);
 	void ProcessMessage(const sv_rcon::response& sv_response) const;
 
-	std::string Serialize(const std::string& svReqBuf, const std::string& svReqVal, cl_rcon::request_t request_t) const;
+	std::string Serialize(const std::string& svReqBuf, const std::string& svReqVal, const cl_rcon::request_t request_t) const;
 	sv_rcon::response Deserialize(const std::string& svBuf) const;
 
 private:
-	CNetAdr2* m_pNetAdr2;
-	CSocketCreator* m_pSocket;
-
 	bool m_bInitialized;
 	bool m_bNoColor;
 	bool m_bQuitApplication;
 	std::atomic<bool> m_abPromptConnect;
 	std::atomic<bool> m_abConnEstablished;
 
+	CNetAdr2 m_NetAdr2;
+	CSocketCreator m_Socket;
+
 	mutable std::mutex m_Mutex;
 };
+
+//-----------------------------------------------------------------------------
+// singleton
+//-----------------------------------------------------------------------------
+extern CNetCon* NetConsole();

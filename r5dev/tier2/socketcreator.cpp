@@ -11,7 +11,6 @@
 #include <engine/sys_utils.h>
 #endif // !NETCONSOLE
 #include <engine/net.h>
-#include <netconsole/netconsole.h>
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor

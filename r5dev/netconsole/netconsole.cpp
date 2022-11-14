@@ -23,9 +23,8 @@ CNetCon::CNetCon(void)
 	, m_bQuitApplication(false)
 	, m_abPromptConnect(true)
 	, m_abConnEstablished(false)
+	, m_NetAdr2("localhost", "37015")
 {
-	m_pNetAdr2 = new CNetAdr2("localhost", "37015");
-	m_pSocket = new CSocketCreator();
 }
 
 //-----------------------------------------------------------------------------
@@ -33,8 +32,6 @@ CNetCon::CNetCon(void)
 //-----------------------------------------------------------------------------
 CNetCon::~CNetCon(void)
 {
-	delete m_pNetAdr2;
-	delete m_pSocket;
 }
 
 //-----------------------------------------------------------------------------
@@ -43,8 +40,8 @@ CNetCon::~CNetCon(void)
 //-----------------------------------------------------------------------------
 bool CNetCon::Init(void)
 {
-	WSAData wsaData{};
-	int nError = ::WSAStartup(MAKEWORD(2, 2), &wsaData);
+	WSAData wsaData;
+	const int nError = ::WSAStartup(MAKEWORD(2, 2), &wsaData);
 
 	if (nError != 0)
 	{
@@ -72,10 +69,10 @@ bool CNetCon::Init(void)
 //-----------------------------------------------------------------------------
 bool CNetCon::Shutdown(void)
 {
-	m_pSocket->CloseAllAcceptedSockets();
+	m_Socket.CloseAllAcceptedSockets();
 	m_abConnEstablished = false;
 
-	int nError = ::WSACleanup();
+	const int nError = ::WSACleanup();
 	if (nError != 0)
 	{
 		std::cerr << "Failed to stop Winsock via WSACleanup: (" << NET_ErrorString(WSAGetLastError()) << ")" << std::endl;
@@ -114,7 +111,6 @@ void CNetCon::TermSetup(void)
 	}
 
 	CONSOLE_SCREEN_BUFFER_INFOEX sbInfoEx{};
-	COLORREF storedBG = sbInfoEx.ColorTable[0];
 	sbInfoEx.cbSize = sizeof(CONSOLE_SCREEN_BUFFER_INFOEX);
 
 	GetConsoleScreenBufferInfoEx(hOutput, &sbInfoEx);
@@ -146,7 +142,7 @@ void CNetCon::UserInput(void)
 				return;
 			}
 
-			vector<string> vSubStrings = StringSplit(svInput, ' ', 2);
+			const std::vector<std::string> vSubStrings = StringSplit(svInput, ' ', 2);
 			if (vSubStrings.size() > 1)
 			{
 				if (vSubStrings[0].compare("PASS") == 0) // Auth with RCON server.
@@ -178,7 +174,7 @@ void CNetCon::UserInput(void)
 		{
 			if (!svInput.empty())
 			{
-				string::size_type nPos = svInput.find(' ');
+				const string::size_type nPos = svInput.find(' ');
 				if (nPos > 0
 					&& nPos < svInput.size()
 					&& nPos != svInput.size())
@@ -244,15 +240,15 @@ bool CNetCon::Connect(const std::string& svInAdr, const std::string& svInPort)
 	if (!svInAdr.empty() && !svInPort.empty())
 	{
 		// Default is [127.0.0.1]:37015
-		m_pNetAdr2->SetIPAndPort(svInAdr, svInPort);
+		m_NetAdr2.SetIPAndPort(svInAdr, svInPort);
 	}
 
-	if (m_pSocket->ConnectSocket(*m_pNetAdr2, true) == SOCKET_ERROR)
+	if (m_Socket.ConnectSocket(m_NetAdr2, true) == SOCKET_ERROR)
 	{
 		std::cerr << "Failed to connect. Error: (SOCKET_ERROR). Verify IP and PORT." << std::endl;
 		return false;
 	}
-	std::cout << "Connected to: " << m_pNetAdr2->GetIPAndPort() << std::endl;
+	std::cout << "Connected to: " << m_NetAdr2.GetIPAndPort() << std::endl;
 
 	m_abConnEstablished = true;
 	return true;
@@ -263,7 +259,7 @@ bool CNetCon::Connect(const std::string& svInAdr, const std::string& svInPort)
 //-----------------------------------------------------------------------------
 void CNetCon::Disconnect(void)
 {
-	m_pSocket->CloseAcceptedSocket(0);
+	m_Socket.CloseAcceptedSocket(0);
 	m_abPromptConnect = true;
 	m_abConnEstablished = false;
 }
@@ -275,14 +271,12 @@ void CNetCon::Disconnect(void)
 void CNetCon::Send(const std::string& svMessage) const
 {
 	std::ostringstream ssSendBuf;
+	const u_long nLen = htonl(svMessage.size());
 
-	ssSendBuf << static_cast<uint8_t>(static_cast<int>(svMessage.size()) >> 24);
-	ssSendBuf << static_cast<uint8_t>(static_cast<int>(svMessage.size()) >> 16);
-	ssSendBuf << static_cast<uint8_t>(static_cast<int>(svMessage.size()) >> 8 );
-	ssSendBuf << static_cast<uint8_t>(static_cast<int>(svMessage.size()));
-	ssSendBuf << svMessage;
+	ssSendBuf.write(reinterpret_cast<const char*>(&nLen), sizeof(u_long));
+	ssSendBuf.write(svMessage.data(), svMessage.size());
 
-	int nSendResult = ::send(m_pSocket->GetAcceptedSocketData(0)->m_hSocket,
+	const int nSendResult = ::send(m_Socket.GetAcceptedSocketData(0)->m_hSocket,
 		ssSendBuf.str().data(), static_cast<int>(ssSendBuf.str().size()), MSG_NOSIGNAL);
 	if (nSendResult == SOCKET_ERROR)
 	{
@@ -296,11 +290,11 @@ void CNetCon::Send(const std::string& svMessage) const
 void CNetCon::Recv(void)
 {
 	static char szRecvBuf[1024];
-	CConnectedNetConsoleData* pData = m_pSocket->GetAcceptedSocketData(0);
+	CConnectedNetConsoleData* pData = m_Socket.GetAcceptedSocketData(0);
 
 	{//////////////////////////////////////////////
-		int nPendingLen = ::recv(pData->m_hSocket, szRecvBuf, sizeof(char), MSG_PEEK);
-		if (nPendingLen == SOCKET_ERROR && m_pSocket->IsSocketBlocking())
+		const int nPendingLen = ::recv(pData->m_hSocket, szRecvBuf, sizeof(char), MSG_PEEK);
+		if (nPendingLen == SOCKET_ERROR && m_Socket.IsSocketBlocking())
 		{
 			return;
 		}
@@ -317,14 +311,14 @@ void CNetCon::Recv(void)
 
 	while (nReadLen > 0)
 	{
-		int nRecvLen = ::recv(pData->m_hSocket, szRecvBuf, MIN(sizeof(szRecvBuf), nReadLen), MSG_NOSIGNAL);
+		const int nRecvLen = ::recv(pData->m_hSocket, szRecvBuf, MIN(sizeof(szRecvBuf), nReadLen), MSG_NOSIGNAL);
 		if (nRecvLen == 0 && m_abConnEstablished) // Socket was closed.
 		{
 			this->Disconnect();
 			std::cout << "Server closed connection" << std::endl;
 			break;
 		}
-		if (nRecvLen < 0 && !m_pSocket->IsSocketBlocking())
+		if (nRecvLen < 0 && !m_Socket.IsSocketBlocking())
 		{
 			std::cout << "RCON Cmd: recv error (" << NET_ErrorString(WSAGetLastError()) << ")" << std::endl;
 			break;
@@ -372,11 +366,7 @@ void CNetCon::ProcessBuffer(const char* pRecvBuf, int nRecvLen, CConnectedNetCon
 		}
 		else // Build prefix.
 		{
-			pData->m_nPayloadLen = static_cast<int>(
-				pData->m_RecvBuffer[0] << 24 |
-				pData->m_RecvBuffer[1] << 16 |
-				pData->m_RecvBuffer[2] << 8  |
-				pData->m_RecvBuffer[3]);
+			pData->m_nPayloadLen = ntohl(*reinterpret_cast<u_long*>(&pData->m_RecvBuffer[0]));
 			pData->m_nPayloadRead = 0;
 
 			if (pData->m_nPayloadLen < 0 ||
@@ -401,14 +391,13 @@ void CNetCon::ProcessBuffer(const char* pRecvBuf, int nRecvLen, CConnectedNetCon
 //-----------------------------------------------------------------------------
 void CNetCon::ProcessMessage(const sv_rcon::response& sv_response) const
 {
-	static std::regex rxAnsiExp("\\\033\\[.*?m");
 	switch (sv_response.responsetype())
 	{
 	case sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH:
 	{
 		if (!sv_response.responseval().empty())
 		{
-			long i = strtol(sv_response.responseval().c_str(), NULL, NULL);
+			const long i = strtol(sv_response.responseval().c_str(), NULL, NULL);
 			if (!i) // sv_rcon_sendlogs is not set.
 			{
 				string svLogQuery = this->Serialize("", "", cl_rcon::request_t::SERVERDATA_REQUEST_SEND_CONSOLE_LOG);
@@ -422,7 +411,7 @@ void CNetCon::ProcessMessage(const sv_rcon::response& sv_response) const
 		std::string svOut = sv_response.responsebuf();
 		if (m_bNoColor)
 		{
-			svOut = std::regex_replace(svOut, rxAnsiExp, "");
+			svOut = std::regex_replace(svOut, std::regex("\\\033\\[.*?m"), "");
 		}
 		else
 		{
@@ -445,7 +434,7 @@ void CNetCon::ProcessMessage(const sv_rcon::response& sv_response) const
 //			request_t - 
 // Output : serialized results as string
 //-----------------------------------------------------------------------------
-std::string CNetCon::Serialize(const std::string& svReqBuf, const std::string& svReqVal, cl_rcon::request_t request_t) const
+std::string CNetCon::Serialize(const std::string& svReqBuf, const std::string& svReqVal, const cl_rcon::request_t request_t) const
 {
 	cl_rcon::request cl_request;
 
@@ -490,31 +479,39 @@ sv_rcon::response CNetCon::Deserialize(const std::string& svBuf) const
 //-----------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
-	CNetCon* pNetCon = new CNetCon();
 	std::cout << "R5Reloaded TCP net console [Version " << NETCON_VERSION << "]" << std::endl;
 
-	if (!pNetCon->Init())
+	if (!NetConsole()->Init())
 	{
 		return EXIT_FAILURE;
 	}
 
 	if (argc >= 3) // Get IP and Port from command line.
 	{
-		if (!pNetCon->Connect(argv[1], argv[2]))
+		if (!NetConsole()->Connect(argv[1], argv[2]))
 		{
 			return EXIT_FAILURE;
 		}
 	}
 
-	while (!pNetCon->ShouldQuit())
+	while (!NetConsole()->ShouldQuit())
 	{
-		pNetCon->UserInput();
+		NetConsole()->UserInput();
 	}
 
-	if (!pNetCon->Shutdown())
+	if (!NetConsole()->Shutdown())
 	{
 		return EXIT_FAILURE;
 	}
 
 	return ERROR_SUCCESS;
+}
+
+//-----------------------------------------------------------------------------
+// singleton
+//-----------------------------------------------------------------------------
+CNetCon g_NetCon;
+inline CNetCon* NetConsole()
+{
+	return &g_NetCon;
 }

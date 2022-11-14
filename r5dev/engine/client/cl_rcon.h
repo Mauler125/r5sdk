@@ -26,18 +26,18 @@ public:
 	void ProcessBuffer(const char* pRecvBuf, int nRecvLen, CConnectedNetConsoleData* pData);
 	void ProcessMessage(const sv_rcon::response& sv_response) const;
 
-	std::string Serialize(const std::string& svReqBuf, const std::string& svReqVal, cl_rcon::request_t request_t) const;
+	std::string Serialize(const std::string& svReqBuf, const std::string& svReqVal, const cl_rcon::request_t request_t) const;
 	sv_rcon::response Deserialize(const std::string& svBuf) const;
 
 	bool IsInitialized(void) const;
 	bool IsConnected(void) const;
 
 private:
-	CNetAdr2* m_pNetAdr2;
-	CSocketCreator* m_pSocket;
-
 	bool m_bInitialized = false;
 	bool m_bConnEstablished = false;
+
+	CNetAdr2 m_NetAdr2;
+	CSocketCreator m_Socket;
 };
-extern CRConClient* g_pRConClient;
+
 CRConClient* RCONClient();

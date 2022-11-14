@@ -23,12 +23,12 @@ public:
 	void RunFrame(void);
 
 	void Send(const std::string& svMessage) const;
-	void Send(SocketHandle_t hSocket, const std::string& svMessage) const;
-	void Send(const std::string& svRspBuf, const std::string& svRspVal, sv_rcon::response_t responseType, int nResponseId = -4);
-	void Send(SocketHandle_t hSocket, const std::string& svRspBuf, const std::string& svRspVal, sv_rcon::response_t responseType, int nResponseId = -4);
+	void Send(const SocketHandle_t hSocket, const std::string& svMessage) const;
+	void Send(const std::string& svRspBuf, const std::string& svRspVal, const sv_rcon::response_t responseType, const int nResponseId = -4);
+	void Send(const SocketHandle_t hSocket, const std::string& svRspBuf, const std::string& svRspVal, const sv_rcon::response_t responseType, const int nResponseId = -4);
 	void Recv(void);
 
-	std::string Serialize(const std::string& svRspBuf, const std::string& svRspVal, sv_rcon::response_t responseType, int nResponseId = -4) const;
+	std::string Serialize(const std::string& svRspBuf, const std::string& svRspVal, const sv_rcon::response_t responseType, const int nResponseId = -4) const;
 	cl_rcon::request Deserialize(const std::string& svBuf) const;
 
 	void Authenticate(const cl_rcon::request& cl_request, CConnectedNetConsoleData* pData);
@@ -37,7 +37,7 @@ public:
 	void ProcessBuffer(const char* pszIn, int nRecvLen, CConnectedNetConsoleData* pData);
 	void ProcessMessage(const cl_rcon::request& cl_request);
 
-	void Execute(const cl_rcon::request& cl_request, bool bConVar) const;
+	void Execute(const cl_rcon::request& cl_request, const bool bConVar) const;
 	bool CheckForBan(CConnectedNetConsoleData* pData);
 
 	void CloseConnection(void);
@@ -49,10 +49,10 @@ private:
 
 	bool                     m_bInitialized;
 	int                      m_nConnIndex;
-	CNetAdr2*                m_pAdr2;
-	CSocketCreator*          m_pSocket;
-	std::vector<std::string> m_vBannedAddress;
+	std::vector<std::string> m_vBannedList;
 	std::string              m_svPasswordHash;
+	CNetAdr2                 m_Adr2;
+	CSocketCreator           m_Socket;
 };
-extern CRConServer* g_pRConServer;
+
 CRConServer* RCONServer();

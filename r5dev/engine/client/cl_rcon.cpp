@@ -22,9 +22,8 @@
 CRConClient::CRConClient()
 	: m_bInitialized(false)
 	, m_bConnEstablished(false)
+	, m_NetAdr2("localhost", "37015")
 {
-	m_pNetAdr2 = new CNetAdr2("localhost", "37015");
-	m_pSocket = new CSocketCreator();
 }
 
 //-----------------------------------------------------------------------------
@@ -32,8 +31,6 @@ CRConClient::CRConClient()
 //-----------------------------------------------------------------------------
 CRConClient::~CRConClient(void)
 {
-	delete m_pNetAdr2;
-	delete m_pSocket;
 }
 
 //-----------------------------------------------------------------------------
@@ -66,7 +63,7 @@ void CRConClient::Shutdown(void)
 //-----------------------------------------------------------------------------
 bool CRConClient::SetPassword(const char* pszPassword)
 {
-	size_t nLen = std::strlen(pszPassword);
+	const size_t nLen = std::strlen(pszPassword);
 	if (nLen < 8)
 	{
 		if (nLen > 0)
@@ -98,15 +95,15 @@ bool CRConClient::Connect(void)
 	if (strlen(rcon_address->GetString()) > 0)
 	{
 		// Default is [127.0.0.1]:37015
-		m_pNetAdr2->SetIPAndPort(rcon_address->GetString());
+		m_NetAdr2.SetIPAndPort(rcon_address->GetString());
 	}
 
-	if (m_pSocket->ConnectSocket(*m_pNetAdr2, true) == SOCKET_ERROR)
+	if (m_Socket.ConnectSocket(m_NetAdr2, true) == SOCKET_ERROR)
 	{
-		Warning(eDLL_T::CLIENT, "Connection to RCON server failed: (SOCKET_ERROR)\n");
+		Warning(eDLL_T::CLIENT, "Connection to RCON server failed: (%s)\n", "SOCKET_ERROR");
 		return false;
 	}
-	DevMsg(eDLL_T::CLIENT, "Connected to: %s\n", m_pNetAdr2->GetIPAndPort().c_str());
+	DevMsg(eDLL_T::CLIENT, "Connected to: %s\n", m_NetAdr2.GetIPAndPort().c_str());
 
 	m_bConnEstablished = true;
 	return true;
@@ -123,15 +120,15 @@ bool CRConClient::Connect(const std::string& svInAdr, const std::string& svInPor
 	if (!svInAdr.empty() && !svInPort.empty())
 	{
 		// Default is [127.0.0.1]:37015
-		m_pNetAdr2->SetIPAndPort(svInAdr, svInPort);
+		m_NetAdr2.SetIPAndPort(svInAdr, svInPort);
 	}
 
-	if (m_pSocket->ConnectSocket(*m_pNetAdr2, true) == SOCKET_ERROR)
+	if (m_Socket.ConnectSocket(m_NetAdr2, true) == SOCKET_ERROR)
 	{
-		Warning(eDLL_T::CLIENT, "Connection to RCON server failed: (SOCKET_ERROR)\n");
+		Warning(eDLL_T::CLIENT, "Connection to RCON server failed: (%s)\n", "SOCKET_ERROR");
 		return false;
 	}
-	DevMsg(eDLL_T::CLIENT, "Connected to: %s\n", m_pNetAdr2->GetIPAndPort().c_str());
+	DevMsg(eDLL_T::CLIENT, "Connected to: %s\n", m_NetAdr2.GetIPAndPort().c_str());
 
 	m_bConnEstablished = true;
 	return true;
@@ -142,7 +139,7 @@ bool CRConClient::Connect(const std::string& svInAdr, const std::string& svInPor
 //-----------------------------------------------------------------------------
 void CRConClient::Disconnect(void)
 {
-	m_pSocket->CloseAcceptedSocket(0);
+	m_Socket.CloseAcceptedSocket(0);
 	m_bConnEstablished = false;
 }
 
@@ -153,18 +150,16 @@ void CRConClient::Disconnect(void)
 void CRConClient::Send(const std::string& svMessage) const
 {
 	std::ostringstream ssSendBuf;
+	const u_long nLen = htonl(svMessage.size());
 
-	ssSendBuf << static_cast<uint8_t>(static_cast<int>(svMessage.size()) >> 24);
-	ssSendBuf << static_cast<uint8_t>(static_cast<int>(svMessage.size()) >> 16);
-	ssSendBuf << static_cast<uint8_t>(static_cast<int>(svMessage.size()) >> 8 );
-	ssSendBuf << static_cast<uint8_t>(static_cast<int>(svMessage.size()));
-	ssSendBuf << svMessage;
+	ssSendBuf.write(reinterpret_cast<const char*>(&nLen), sizeof(u_long));
+	ssSendBuf.write(svMessage.data(), svMessage.size());
 
-	int nSendResult = ::send(m_pSocket->GetAcceptedSocketData(0)->m_hSocket,
+	int nSendResult = ::send(m_Socket.GetAcceptedSocketData(0)->m_hSocket,
 		ssSendBuf.str().data(), static_cast<int>(ssSendBuf.str().size()), MSG_NOSIGNAL);
 	if (nSendResult == SOCKET_ERROR)
 	{
-		Warning(eDLL_T::CLIENT, "Failed to send RCON message: (SOCKET_ERROR)\n");
+		Warning(eDLL_T::CLIENT, "Failed to send RCON message: (%s)\n", "SOCKET_ERROR");
 	}
 }
 
@@ -174,11 +169,11 @@ void CRConClient::Send(const std::string& svMessage) const
 void CRConClient::Recv(void)
 {
 	static char szRecvBuf[1024];
-	CConnectedNetConsoleData* pData = m_pSocket->GetAcceptedSocketData(0);
+	CConnectedNetConsoleData* pData = m_Socket.GetAcceptedSocketData(0);
 
 	{//////////////////////////////////////////////
-		int nPendingLen = ::recv(pData->m_hSocket, szRecvBuf, sizeof(char), MSG_PEEK);
-		if (nPendingLen == SOCKET_ERROR && m_pSocket->IsSocketBlocking())
+		const int nPendingLen = ::recv(pData->m_hSocket, szRecvBuf, sizeof(char), MSG_PEEK);
+		if (nPendingLen == SOCKET_ERROR && m_Socket.IsSocketBlocking())
 		{
 			return;
 		}
@@ -195,14 +190,14 @@ void CRConClient::Recv(void)
 
 	while (nReadLen > 0)
 	{
-		int nRecvLen = ::recv(pData->m_hSocket, szRecvBuf, MIN(sizeof(szRecvBuf), nReadLen), MSG_NOSIGNAL);
+		const int nRecvLen = ::recv(pData->m_hSocket, szRecvBuf, MIN(sizeof(szRecvBuf), nReadLen), MSG_NOSIGNAL);
 		if (nRecvLen == 0 && m_bConnEstablished) // Socket was closed.
 		{
 			this->Disconnect();
 			DevMsg(eDLL_T::CLIENT, "Server closed RCON connection\n");
 			break;
 		}
-		if (nRecvLen < 0 && !m_pSocket->IsSocketBlocking())
+		if (nRecvLen < 0 && !m_Socket.IsSocketBlocking())
 		{
 			Error(eDLL_T::CLIENT, NO_ERROR, "RCON Cmd: recv error (%s)\n", NET_ErrorString(WSAGetLastError()));
 			break;
@@ -241,7 +236,7 @@ void CRConClient::ProcessBuffer(const char* pRecvBuf, int nRecvLen, CConnectedNe
 				pData->m_nPayloadRead = 0;
 			}
 		}
-		else if (pData->m_nPayloadRead < sizeof(int)) // Read size field.
+		else if (pData->m_nPayloadRead < sizeof(u_long)) // Read size field.
 		{
 			pData->m_RecvBuffer[pData->m_nPayloadRead++] = *pRecvBuf;
 
@@ -250,11 +245,7 @@ void CRConClient::ProcessBuffer(const char* pRecvBuf, int nRecvLen, CConnectedNe
 		}
 		else // Build prefix.
 		{
-			pData->m_nPayloadLen = static_cast<int>(
-				pData->m_RecvBuffer[0] << 24 |
-				pData->m_RecvBuffer[1] << 16 |
-				pData->m_RecvBuffer[2] << 8  |
-				pData->m_RecvBuffer[3]);
+			pData->m_nPayloadLen = ntohl(*reinterpret_cast<u_long*>(&pData->m_RecvBuffer[0]));
 			pData->m_nPayloadRead = 0;
 
 			if (pData->m_nPayloadLen < 0 ||
@@ -279,15 +270,13 @@ void CRConClient::ProcessBuffer(const char* pRecvBuf, int nRecvLen, CConnectedNe
 //-----------------------------------------------------------------------------
 void CRConClient::ProcessMessage(const sv_rcon::response& sv_response) const
 {
-	std::string svOut = sv_response.responsebuf();
-
 	switch (sv_response.responsetype())
 	{
 	case sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH:
 	{
 		if (!sv_response.responseval().empty())
 		{
-			long i = strtol(sv_response.responseval().c_str(), NULL, NULL);
+			const long i = strtol(sv_response.responseval().c_str(), NULL, NULL);
 			if (!i) // sv_rcon_sendlogs is not set.
 			{
 				if (cl_rcon_request_sendlogs->GetBool())
@@ -298,12 +287,12 @@ void CRConClient::ProcessMessage(const sv_rcon::response& sv_response) const
 			}
 		}
 
-		DevMsg(eDLL_T::NETCON, "%s", svOut.c_str());
+		DevMsg(eDLL_T::NETCON, "%s", PrintPercentageEscape(sv_response.responsebuf()).c_str());
 		break;
 	}
 	case sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG:
 	{
-		NetMsg(static_cast<EGlobalContext_t>(sv_response.responseid()), svOut.c_str());
+		NetMsg(static_cast<EGlobalContext_t>(sv_response.responseid()), PrintPercentageEscape(sv_response.responsebuf()).c_str());
 		break;
 	}
 	default:
@@ -320,7 +309,7 @@ void CRConClient::ProcessMessage(const sv_rcon::response& sv_response) const
 //			request_t - 
 // Output : serialized results as string
 //-----------------------------------------------------------------------------
-std::string CRConClient::Serialize(const std::string& svReqBuf, const std::string& svReqVal, cl_rcon::request_t request_t) const
+std::string CRConClient::Serialize(const std::string& svReqBuf, const std::string& svReqVal, const cl_rcon::request_t request_t) const
 {
 	cl_rcon::request cl_request;
 
@@ -376,8 +365,8 @@ bool CRConClient::IsConnected(void) const
 	return m_bConnEstablished;
 }
 ///////////////////////////////////////////////////////////////////////////////
-CRConClient* g_pRConClient = new CRConClient();
-CRConClient* RCONClient()
+CRConClient g_RCONClient;
+CRConClient* RCONClient() // Singleton RCON Client.
 {
-	return g_pRConClient;
+	return &g_RCONClient;
 }
