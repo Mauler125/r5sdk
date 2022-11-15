@@ -521,8 +521,8 @@ void RTech_Decompress_f(const CCommand& args)
 =====================
 VPK_Pack_f
 
-  Compresses new VPK files and
-  dumps the output to '\vpk'.
+  Packs VPK files into
+  'PLATFORM' VPK directory.
 =====================
 */
 void VPK_Pack_f(const CCommand& args)
@@ -538,7 +538,7 @@ void VPK_Pack_f(const CCommand& args)
 
 	DevMsg(eDLL_T::FS, "*** Starting VPK build command for: '%s'\n", vPair.m_svDirectoryName.c_str());
 
-	std::thread th([&] { g_pPackedStore->PackAll(vPair, fs_packedstore_workspace->GetString(), "vpk/", (args.ArgC() > 4)); });
+	std::thread th([&] { g_pPackedStore->PackWorkspace(vPair, fs_packedstore_workspace->GetString(), "vpk/", (args.ArgC() > 4)); });
 	th.join();
 
 	std::chrono::milliseconds msEnd = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
@@ -552,8 +552,8 @@ void VPK_Pack_f(const CCommand& args)
 =====================
 VPK_Unpack_f
 
-  Decompresses input VPK files and
-  dumps the output to '<mod>\vpk'.
+  Unpacks VPK files into
+  workspace directory.
 =====================
 */
 void VPK_Unpack_f(const CCommand& args)
@@ -570,7 +570,7 @@ void VPK_Unpack_f(const CCommand& args)
 	VPKDir_t vpk = g_pPackedStore->GetDirectoryFile(pArg, (args.ArgC() > 2));
 	g_pPackedStore->InitLzDecompParams();
 
-	std::thread th([&] { g_pPackedStore->UnpackAll(vpk, ConvertToWinPath(fs_packedstore_workspace->GetString())); });
+	std::thread th([&] { g_pPackedStore->UnpackWorkspace(vpk, ConvertToWinPath(fs_packedstore_workspace->GetString())); });
 	th.join();
 
 	std::chrono::milliseconds msEnd = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
