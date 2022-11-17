@@ -1895,6 +1895,9 @@
     <ClInclude Include="..\engine\traceinit.h">
       <Filter>sdk\engine</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\dt_common.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\shared\resource\lockedserver.png">

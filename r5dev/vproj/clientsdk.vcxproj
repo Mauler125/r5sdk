@@ -252,6 +252,7 @@
     <ClInclude Include="..\public\avi\iavi.h" />
     <ClInclude Include="..\public\avi\ibik.h" />
     <ClInclude Include="..\public\bitmap\stb_image.h" />
+    <ClInclude Include="..\public\dt_common.h" />
     <ClInclude Include="..\public\iengine.h" />
     <ClInclude Include="..\public\client_class.h" />
     <ClInclude Include="..\public\const.h" />
