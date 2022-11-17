@@ -238,7 +238,7 @@ void Detour_HotSwap_f(const CCommand& args)
 	Detour_HotSwap();
 
 	timer.End();
-	DevMsg(eDLL_T::SERVER, "Hot swap took '%.6f' seconds\n", timer.GetDuration().GetSeconds());
+	DevMsg(eDLL_T::SERVER, "Hot swap took '%lf' seconds\n", timer.GetDuration().GetSeconds());
 }
 #endif // !CLIENT_DLL
 /*
@@ -531,20 +531,18 @@ void VPK_Pack_f(const CCommand& args)
 	{
 		return;
 	}
-	std::chrono::milliseconds msStart = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 
-	g_pPackedStore->InitLzCompParams();
 	VPKPair_t vPair = g_pPackedStore->BuildFileName(args.Arg(1), args.Arg(2), args.Arg(3), NULL);
+	CFastTimer timer;
 
 	DevMsg(eDLL_T::FS, "*** Starting VPK build command for: '%s'\n", vPair.m_svDirectoryName.c_str());
+	timer.Start();
 
-	std::thread th([&] { g_pPackedStore->PackWorkspace(vPair, fs_packedstore_workspace->GetString(), "vpk/", (args.ArgC() > 4)); });
-	th.join();
+	g_pPackedStore->InitLzCompParams();
+	g_pPackedStore->PackWorkspace(vPair, fs_packedstore_workspace->GetString(), "vpk/", (args.ArgC() > 4));
 
-	std::chrono::milliseconds msEnd = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-	float duration = msEnd.count() - msStart.count();
-
-	DevMsg(eDLL_T::FS, "*** Time elapsed: '%.3f' seconds\n", (duration / 1000));
+	timer.End();
+	DevMsg(eDLL_T::FS, "*** Time elapsed: '%lf' seconds\n", timer.GetDuration().GetSeconds());
 	DevMsg(eDLL_T::FS, "\n");
 }
 
@@ -562,21 +560,19 @@ void VPK_Unpack_f(const CCommand& args)
 	{
 		return;
 	}
-	std::chrono::milliseconds msStart = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+
 	const char* pArg = args.Arg(1);
+	VPKDir_t vpk = g_pPackedStore->GetDirectoryFile(pArg, (args.ArgC() > 2));
+	CFastTimer timer;
 
 	DevMsg(eDLL_T::FS, "*** Starting VPK extraction command for: '%s'\n", pArg);
+	timer.Start();
 
-	VPKDir_t vpk = g_pPackedStore->GetDirectoryFile(pArg, (args.ArgC() > 2));
 	g_pPackedStore->InitLzDecompParams();
+	g_pPackedStore->UnpackWorkspace(vpk, ConvertToWinPath(fs_packedstore_workspace->GetString()));
 
-	std::thread th([&] { g_pPackedStore->UnpackWorkspace(vpk, ConvertToWinPath(fs_packedstore_workspace->GetString())); });
-	th.join();
-
-	std::chrono::milliseconds msEnd = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-	float duration = msEnd.count() - msStart.count();
-
-	DevMsg(eDLL_T::FS, "*** Time elapsed: '%.3f' seconds\n", (duration / 1000));
+	timer.End();
+	DevMsg(eDLL_T::FS, "*** Time elapsed: '%lf' seconds\n", timer.GetDuration().GetSeconds());
 	DevMsg(eDLL_T::FS, "\n");
 }
 
