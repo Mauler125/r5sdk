@@ -40,7 +40,9 @@ void CAI_Utility::DrawAIScriptNetwork(const CAI_Network* pNetwork) const
 
     const bool bUseDepthBuffer = r_debug_overlay_zbuffer->GetBool();
     const bool bDrawNearest = ai_script_nodes_draw_nearest->GetBool();
-    const int  nTileRange = ai_script_nodes_draw_range->GetInt();
+    const int  nNodeRange = ai_script_nodes_draw_range->GetInt();
+    const float flCameraRange = navmesh_debug_camera_range->GetFloat();
+    const Vector3D vCamera = MainViewOrigin();
 
     static const __m128 xMins = _mm_setzero_ps();
     static const __m128 xMaxs = _mm_setr_ps(50.0f, 50.0f, 50.0f, 0.0f);
@@ -51,14 +53,25 @@ void CAI_Utility::DrawAIScriptNetwork(const CAI_Network* pNetwork) const
 
     for (int i = ai_script_nodes_draw->GetInt(), ns = pNetwork->GetNumScriptNodes(); i < ns; i++)
     {
-        if (nTileRange && i > nTileRange)
+        if (nNodeRange && i > nNodeRange)
             break;
 
         const CAI_ScriptNode* pScriptNode = &pNetwork->m_ScriptNode[i];
 
-        __m128 xOrigin = _mm_setr_ps(pScriptNode->m_vOrigin.x, pScriptNode->m_vOrigin.y, pScriptNode->m_vOrigin.z, 0.0f);
+        __m128 xOrigin = _mm_setr_ps(pScriptNode->m_vOrigin.x, pScriptNode->m_vOrigin.y, pScriptNode->m_vOrigin.z, vCamera.z);
         xOrigin = _mm_sub_ps(xOrigin, xSubMask); // Subtract 25.f from our scalars to align box with node.
 
+        if (flCameraRange > 0.0f)
+        {
+            // Flip the script node Z axis with that of the camera, so that it won't be used for
+            // the final distance computation. This allows for viewing the AI Network from above.
+            const __m128 xOriginCamZ = _mm_shuffle_ps(xOrigin, xOrigin, _MM_SHUFFLE(2, 3, 1, 0));
+
+            if (vCamera.DistTo(*reinterpret_cast<const Vector3D*>(&xOriginCamZ)) > flCameraRange)
+                continue; // Do not render if node is not within range set by cvar 'navmesh_debug_camera_range'.
+        }
+
+        // Construct box transforms.
         vTransforms.xmm[0] = _mm_set_ps(xOrigin.m128_f32[0], 0.0f, 0.0f, 1.0f);
         vTransforms.xmm[1] = _mm_set_ps(xOrigin.m128_f32[1], 0.0f, 1.0f, 0.0f);
         vTransforms.xmm[2] = _mm_set_ps(xOrigin.m128_f32[2], 1.0f, 0.0f, 0.0f);
@@ -72,7 +85,7 @@ void CAI_Utility::DrawAIScriptNetwork(const CAI_Network* pNetwork) const
             if (nNearest != NO_NODE) // NO_NODE = -1
             {
                 auto p = uLinkSet.insert(PackNodeLink(i, nNearest).m128i_i64[1]);
-                if (p.second)
+                if (p.second) // Only render if link hasn't already been rendered.
                 {
                     const CAI_ScriptNode* pNearestNode = &pNetwork->m_ScriptNode[nNearest];
                     v_RenderLine(pScriptNode->m_vOrigin, pNearestNode->m_vOrigin, m_LinkColor, bUseDepthBuffer);
