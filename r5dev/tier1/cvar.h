@@ -156,6 +156,7 @@ extern ConVar* fs_show_warning_output;
 extern ConVar* fs_packedstore_entryblock_stats;
 extern ConVar* fs_packedstore_workspace;
 extern ConVar* fs_packedstore_compression_level;
+extern ConVar* fs_packedstore_max_helper_threads;
 //-------------------------------------------------------------------------
 // MATERIALSYSTEM                                                         |
 #ifndef DEDICATED

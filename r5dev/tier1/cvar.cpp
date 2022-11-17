@@ -160,6 +160,7 @@ ConVar* fs_show_warning_output             = nullptr;
 ConVar* fs_packedstore_entryblock_stats    = nullptr;
 ConVar* fs_packedstore_workspace           = nullptr;
 ConVar* fs_packedstore_compression_level   = nullptr;
+ConVar* fs_packedstore_max_helper_threads  = nullptr;
 //-----------------------------------------------------------------------------
 // MATERIALSYSTEM                                                             |
 #ifndef DEDICATED
