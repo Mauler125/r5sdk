@@ -21,7 +21,7 @@
 #include "vpklib/packedstore.h"
 
 //-----------------------------------------------------------------------------
-// Static buffers for chunking/compressing the source files and decompressing
+// Static buffers for fragmenting/compressing the source files and decompressing
 //-----------------------------------------------------------------------------
 static uint8_t s_EntryBuf[ENTRY_MAX_LEN];
 static uint8_t s_DecompBuf[ENTRY_MAX_LEN];
@@ -35,7 +35,7 @@ void CPackedStore::InitLzCompParams(void)
 	m_lzCompParams.m_dict_size_log2     = VPK_DICT_SIZE;
 	m_lzCompParams.m_level              = GetCompressionLevel();
 	m_lzCompParams.m_compress_flags     = lzham_compress_flags::LZHAM_COMP_FLAG_DETERMINISTIC_PARSING;
-	m_lzCompParams.m_max_helper_threads = -1;
+	m_lzCompParams.m_max_helper_threads = fs_packedstore_max_helper_threads->GetInt();
 }
 
 //-----------------------------------------------------------------------------
@@ -58,13 +58,17 @@ void CPackedStore::InitLzDecompParams(void)
 VPKDir_t CPackedStore::GetDirectoryFile(const string& svPackDirFile, bool bSanitizeName) const
 {
 	if (!bSanitizeName)
+	{
 		return VPKDir_t(svPackDirFile);
+	}
 
 	std::smatch smRegexMatches;
 	std::regex_search(svPackDirFile, smRegexMatches, BLOCK_REGEX);
 
 	if (smRegexMatches.empty())
+	{
 		return VPKDir_t(svPackDirFile);
+	}
 
 	string svSanitizedName = svPackDirFile;
 	StringReplace(svSanitizedName, smRegexMatches[0], "pak000_dir");
@@ -198,7 +202,7 @@ vector<string> CPackedStore::GetEntryPaths(const string& svPathIn) const
 // Purpose: scans the input directory and returns the paths to the vector if path exists in manifest
 // Input  : &svPathIn - 
 //          &jManifest - 
-// Output : a string vector of all included entry paths
+// Output : a string vector of all included and existing entry paths
 //-----------------------------------------------------------------------------
 vector<string> CPackedStore::GetEntryPaths(const string& svPathIn, const nlohmann::json& jManifest) const
 {
@@ -482,8 +486,8 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vPair, const string& svWorkspa
 		vPaths = GetEntryPaths(svWorkspace);
 	}
 
-	uint64_t nSharedTotal = 0;
-	uint32_t nSharedCount = 0;
+	uint64_t nSharedTotal = NULL;
+	uint32_t nSharedCount = NULL;
 
 	for (size_t i = 0, ps = vPaths.size(); i < ps; i++)
 	{
@@ -492,11 +496,11 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vPair, const string& svWorkspa
 		if (reader.IsReadable())
 		{
 			const string svDestPath = StringReplaceC(svPath, svWorkspace, "");
-			uint16_t iPreloadSize  = 0;
-			uint32_t nLoadFlags    = static_cast<uint32_t>(EPackedLoadFlags::LOAD_VISIBLE) | static_cast<uint32_t>(EPackedLoadFlags::LOAD_CACHE);
-			uint16_t nTextureFlags = static_cast<uint16_t>(EPackedTextureFlags::TEXTURE_DEFAULT);
-			bool bUseCompression   = true;
-			bool bUseDataSharing   = true;
+			uint16_t iPreloadSize   = NULL;
+			uint32_t nLoadFlags     = static_cast<uint32_t>(EPackedLoadFlags::LOAD_VISIBLE) | static_cast<uint32_t>(EPackedLoadFlags::LOAD_CACHE);
+			uint16_t nTextureFlags  = static_cast<uint16_t>(EPackedTextureFlags::TEXTURE_DEFAULT);
+			bool bUseCompression    = true;
+			bool bUseDataSharing    = true;
 
 			if (!jManifest.is_null())
 			{
@@ -548,8 +552,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vPair, const string& svWorkspa
 
 				if (bUseCompression)
 				{
-					m_lzCompStatus = lzham_compress_memory(&m_lzCompParams, s_EntryBuf,
-						&vDescriptor.m_nCompressedSize, s_EntryBuf,
+					m_lzCompStatus = lzham_compress_memory(&m_lzCompParams, s_EntryBuf, &vDescriptor.m_nCompressedSize, s_EntryBuf,
 						vDescriptor.m_nUncompressedSize, &m_nAdler32_Internal, &m_nCrc32_Internal);
 
 					if (m_lzCompStatus != lzham_compress_status_t::LZHAM_COMP_STATUS_SUCCESS)
@@ -657,7 +660,7 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vDir, const string& svWorkspa
 
 				if (m_nChunkCount == vBlock.m_vFragments.size()) // Only validate after last entry in block had been written.
 				{
-					m_nChunkCount = 0;
+					m_nChunkCount = NULL;
 					m_nCrc32_Internal = vBlock.m_nFileCRC;
 
 					oStream.Flush();
@@ -797,7 +800,7 @@ void VPKDir_t::Build(const string& svDirectoryFile, const vector<VPKEntryBlock_t
 {
 	CIOStream writer(svDirectoryFile, CIOStream::Mode_t::WRITE);
 	auto vMap = std::map<string, std::map<string, std::list<VPKEntryBlock_t>>>();
-	uint64_t nDescriptors = 0;
+	uint64_t nDescriptors = NULL;
 
 	writer.Write<uint32_t>(m_vHeader.m_nHeaderMarker);
 	writer.Write<uint16_t>(m_vHeader.m_nMajorVersion);
@@ -852,13 +855,11 @@ void VPKDir_t::Build(const string& svDirectoryFile, const vector<VPKEntryBlock_t
 
 					if (i != (nc - 1))
 					{
-						const ushort s = 0;
-						writer.Write(s);
+						writer.Write<uint16_t>(NULL);
 					}
 					else // Mark end of entry.
 					{
-						const ushort s = PACKFILEINDEX_END;
-						writer.Write(s);
+						writer.Write<uint16_t>(PACKFILEINDEX_END);
 					}
 					nDescriptors++;
 				}

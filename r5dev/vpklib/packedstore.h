@@ -16,6 +16,7 @@ constexpr unsigned int VPK_MAJOR_VERSION = 2;
 constexpr unsigned int VPK_MINOR_VERSION = 3;
 constexpr unsigned int VPK_DICT_SIZE = 20;
 constexpr int ENTRY_MAX_LEN = 1024 * 1024;
+constexpr int PACKFILEPATCH_MAX = 512;
 constexpr int PACKFILEINDEX_END = 0xffff;
 
 static const std::regex BLOCK_REGEX{ R"(pak000_([0-9]{3}))" };
@@ -180,7 +181,7 @@ public:
 	void ValidateCRC32PostDecomp(const string& svDirAsset);
 
 private:
-	size_t                       m_nChunkCount;       // The number of patches (multi-pack file).
+	size_t                       m_nChunkCount;       // The number of fragments for this asset.
 	lzham_uint32                 m_nAdler32_Internal; // Internal operation Adler32 file checksum.
 	lzham_uint32                 m_nAdler32;          // Pre/post operation Adler32 file checksum.
 	lzham_uint32                 m_nCrc32_Internal;   // Internal operation Crc32 file checksum.
