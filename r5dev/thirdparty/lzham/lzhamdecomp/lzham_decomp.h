@@ -31,7 +31,7 @@ namespace lzham
    int LZHAM_CDECL lzham_lib_z_uncompress(unsigned char *pDest, lzham_z_ulong *pDest_len, const unsigned char *pSource, lzham_z_ulong source_len);
 
    const char * LZHAM_CDECL lzham_lib_z_error(int err);
-   lzham_z_ulong lzham_lib_z_adler32(lzham_z_ulong adler, const unsigned char *ptr, size_t buf_len);
+   lzham_z_ulong LZHAM_CDECL lzham_lib_z_adler32(lzham_z_ulong adler, const lzham_uint8*ptr, size_t buf_len);
    lzham_z_ulong LZHAM_CDECL lzham_lib_z_crc32(lzham_z_ulong crc, const lzham_uint8 *ptr, size_t buf_len);
 
 } // namespace lzham

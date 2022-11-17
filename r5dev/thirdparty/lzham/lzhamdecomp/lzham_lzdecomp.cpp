@@ -193,7 +193,7 @@ namespace lzham
                size_t bytes_to_copy = LZHAM_MIN((size_t)(m_flush_n - copy_ofs), cBytesToMemCpyPerIteration); \
                LZHAM_MEMCPY(m_pOut_buf + copy_ofs, m_pFlush_src + copy_ofs, bytes_to_copy); \
                m_decomp_adler32 = adler32(m_pFlush_src + copy_ofs, bytes_to_copy, m_decomp_adler32); \
-               m_decomp_crc32 = crc32(m_decomp_crc32, m_pFlush_src + copy_ofs, bytes_to_copy); \
+               m_decomp_crc32 = crc32(m_pFlush_src + copy_ofs, bytes_to_copy, m_decomp_crc32); \
                copy_ofs += bytes_to_copy; \
             } \
          } \
@@ -1146,7 +1146,7 @@ namespace lzham
          {
              if (unbuffered)
              {
-                 m_decomp_crc32 = crc32(cInitCRC32, pDst, dst_ofs);
+                 m_decomp_crc32 = crc32(pDst, dst_ofs, cInitCRC32);
              }
 
              //if (m_file_src_file_crc32 != m_decomp_crc32)
@@ -1576,14 +1576,14 @@ namespace lzham
       return NULL;
    }
 
-   lzham_z_ulong lzham_lib_z_adler32(lzham_z_ulong adler, const unsigned char *ptr, size_t buf_len)
+   lzham_z_ulong LZHAM_CDECL lzham_lib_z_adler32(lzham_z_ulong adler, const lzham_uint8 *ptr, size_t buf_len)
    {
       return adler32(ptr, buf_len, adler);
    }
 
    lzham_z_ulong LZHAM_CDECL lzham_lib_z_crc32(lzham_z_ulong crc, const lzham_uint8 *ptr, size_t buf_len)
    {
-      return crc32(crc, ptr, buf_len);
+      return crc32(ptr, buf_len, crc);
    }
 
 } // namespace lzham

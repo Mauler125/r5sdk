@@ -8,6 +8,6 @@ namespace lzham
    uint adler32(const void* pBuf, size_t buflen, uint adler32 = cInitAdler32);
    
    const uint cInitCRC32 = 0U;
-   uint crc32(uint crc, const lzham_uint8 *ptr, size_t buf_len);
+   uint crc32(const void* pBuf, size_t buflen, uint crc32 = cInitCRC32);
    
 }  // namespace lzham

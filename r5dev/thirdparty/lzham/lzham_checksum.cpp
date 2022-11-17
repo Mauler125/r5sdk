@@ -53,19 +53,21 @@ namespace lzham
       0xedb88320, 0xf00f9344, 0xd6d6a3e8, 0xcb61b38c, 0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c 
    };
    
-   uint crc32(uint crc, const lzham_uint8 *ptr, size_t buf_len)
+   uint crc32(const void* pBuf, size_t buflen, uint crc32)
    {
-      if (!ptr) 
+      if (!pBuf)
          return cInitCRC32;
 
-      crc = ~crc; 
-      while (buf_len--) 
+      crc32 = ~crc32;
+      const uint8* buffer = static_cast<const uint8*>(pBuf);
+
+      while (buflen--) 
       { 
-         lzham_uint8 b = *ptr++; 
-         crc = (crc >> 4) ^ s_crc32[(crc & 0xF) ^ (b & 0xF)]; 
-         crc = (crc >> 4) ^ s_crc32[(crc & 0xF) ^ (b >> 4)]; 
+         uint8 b = *buffer++;
+         crc32 = (crc32 >> 4) ^ s_crc32[(crc32 & 0xF) ^ (b & 0xF)];
+         crc32 = (crc32 >> 4) ^ s_crc32[(crc32 & 0xF) ^ (b >> 4)];
       }
-      return ~crc;
+      return ~crc32;
    }
 
   

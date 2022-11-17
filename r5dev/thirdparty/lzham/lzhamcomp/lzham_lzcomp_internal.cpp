@@ -1547,7 +1547,7 @@ namespace lzham
       m_start_of_block_state = m_state;
 
       m_src_adler32 = adler32(pBuf, buf_len, m_src_adler32);
-      m_src_crc32 = crc32(m_src_adler32, (const lzham_uint8*)pBuf, buf_len);
+      m_src_crc32 = crc32(pBuf, buf_len, m_src_crc32);
 
       m_block_start_dict_ofs = m_accel.get_lookahead_pos() & (m_accel.get_max_dict_size() - 1);
 
