@@ -131,9 +131,9 @@ public:
 	ConCommand(void);
 	~ConCommand(void);
 
-	void Init(void);
-	void InitShipped(void);
-	void PurgeShipped(void) const;
+	static void Init(void);
+	static void InitShipped(void);
+	static void PurgeShipped(void);
 	bool IsCommand(void) const;
 
 	void*          m_nNullCallBack; //0x0040
@@ -184,8 +184,6 @@ ECommandTarget_t Cbuf_GetCurrentPlayer(void);
 
 void ConCommand_Attach();
 void ConCommand_Detach();
-
-extern ConCommand* g_pConCommand;
 
 ///////////////////////////////////////////////////////////////////////////////
 class VConCommand : public IDetour

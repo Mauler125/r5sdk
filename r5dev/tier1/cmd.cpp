@@ -458,7 +458,7 @@ void ConCommand::InitShipped(void)
 //-----------------------------------------------------------------------------
 // Purpose: unregister extraneous ConCommand's.
 //-----------------------------------------------------------------------------
-void ConCommand::PurgeShipped(void) const
+void ConCommand::PurgeShipped(void)
 {
 #ifdef DEDICATED
 	const char* pszCommandToRemove[] =
@@ -731,4 +731,3 @@ void ConCommand_Detach()
 	DetourDetach((LPVOID*)&ConCommandBase_IsFlagSet, &ConCommandBase::IsFlagSetInternal);
 	DetourDetach((LPVOID*)&v_Cmd_ForwardToServer, &Cmd_ForwardToServer);
 }
-ConCommand* g_pConCommand = new ConCommand();

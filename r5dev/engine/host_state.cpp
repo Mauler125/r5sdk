@@ -211,7 +211,7 @@ FORCEINLINE void CHostState::Setup(void)
 #ifndef CLIENT_DLL
 	g_pBanSystem->Load();
 #endif // !CLIENT_DLL
-	g_pConVar->PurgeHostNames();
+	ConVar::PurgeHostNames();
 
 	net_usesocketsforloopback->SetValue(1);
 	if (net_useRandomKey->GetBool())

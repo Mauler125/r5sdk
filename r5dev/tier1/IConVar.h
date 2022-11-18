@@ -15,11 +15,11 @@ public:
 	ConVar(void);
 	~ConVar(void);
 
-	void Init(void) const;
-	void InitShipped(void) const;
+	static void Init(void);
+	static void InitShipped(void);
 
-	void PurgeShipped(void) const;
-	void PurgeHostNames(void) const;
+	static void PurgeShipped(void);
+	static void PurgeHostNames(void);
 
 	void AddFlags(int nFlags);
 	void RemoveFlags(int nFlags);
@@ -81,14 +81,14 @@ public:
 		int        m_nValue;
 	};
 
-	IConVar*       m_pIConVarVFTable{}; //0x0040
-	ConVar*        m_pParent        {}; //0x0048
-	const char*    m_pszDefaultValue{}; //0x0050
-	CVValue_t      m_Value          {}; //0c0058
-	bool           m_bHasMin        {}; //0x0070
-	float          m_fMinVal        {}; //0x0074
-	bool           m_bHasMax        {}; //0x0078
-	float          m_fMaxVal        {}; //0x007C
+	IConVar*       m_pIConVarVFTable; //0x0040
+	ConVar*        m_pParent        ; //0x0048
+	const char*    m_pszDefaultValue; //0x0050
+	CVValue_t      m_Value          ; //0c0058
+	bool           m_bHasMin        ; //0x0070
+	float          m_fMinVal        ; //0x0074
+	bool           m_bHasMax        ; //0x0078
+	float          m_fMaxVal        ; //0x007C
 	CUtlVector<FnChangeCallback_t> m_fnChangeCallbacks; //0x0080
 }; //Size: 0x00A0
 static_assert(sizeof(ConVar) == 0xA0);
@@ -111,8 +111,6 @@ void IConVar_Attach();
 void IConVar_Detach();
 
 void ConVar_PrintDescription(ConCommandBase* pVar);
-
-extern ConVar* g_pConVar;
 
 ///////////////////////////////////////////////////////////////////////////////
 class VConVar : public IDetour

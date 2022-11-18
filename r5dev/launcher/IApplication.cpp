@@ -56,11 +56,11 @@ int CModAppSystemGroup::Main(CModAppSystemGroup* pModAppSystemGroup)
 //-----------------------------------------------------------------------------
 bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 {
+	ConCommand::Init();
 #ifdef DEDICATED
 	pModAppSystemGroup->SetServerOnly();
 	*g_bDedicated = true;
 #endif // DEDICATED
-	g_pConCommand->Init();
 	g_pFactory->GetFactoriesFromRegister();
 	g_pFactory->AddFactory(FACTORY_INTERFACE_VERSION, g_pFactory);
 	g_pFactory->AddFactory(INTERFACEVERSION_PLUGINSYSTEM, g_pPluginSystem);

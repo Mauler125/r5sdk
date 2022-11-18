@@ -80,10 +80,10 @@ static void InitVPKSystem()
 //-----------------------------------------------------------------------------
 bool CEngineAPI::VModInit(CEngineAPI* pEngineAPI, const char* pModName, const char* pGameDir)
 {
-	g_pConCommand->InitShipped();
-	g_pConCommand->PurgeShipped();
-	g_pConVar->InitShipped();
-	g_pConVar->PurgeShipped();
+	ConCommand::InitShipped();
+	ConCommand::PurgeShipped();
+	ConVar::InitShipped();
+	ConVar::PurgeShipped();
 
 	bool results = CEngineAPI_ModInit(pEngineAPI, pModName, pGameDir);
 	if (!IsValveMod(pModName) && !IsRespawnMod(pModName))
@@ -149,5 +149,5 @@ void SysDll2_Attach()
 void SysDll2_Detach()
 {
 	DetourDetach((LPVOID*)&CEngineAPI_ModInit, &CEngineAPI::VModInit);
-    DetourDetach((LPVOID*)&v_CEngineAPI_SetStartupInfo, &CEngineAPI::VSetStartupInfo);
+	DetourDetach((LPVOID*)&v_CEngineAPI_SetStartupInfo, &CEngineAPI::VSetStartupInfo);
 }

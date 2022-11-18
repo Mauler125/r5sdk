@@ -61,7 +61,7 @@ ConVar::~ConVar(void)
 //-----------------------------------------------------------------------------
 // Purpose: initialize ConVar's
 //-----------------------------------------------------------------------------
-void ConVar::Init(void) const
+void ConVar::Init(void)
 {
 	//-------------------------------------------------------------------------
 	// ENGINE                                                                 |
@@ -227,7 +227,7 @@ void ConVar::Init(void) const
 //-----------------------------------------------------------------------------
 // Purpose: initialize shipped ConVar's
 //-----------------------------------------------------------------------------
-void ConVar::InitShipped(void) const
+void ConVar::InitShipped(void)
 {
 #ifndef CLIENT_DLL
 	ai_script_nodes_draw             = g_pCVar->FindVar("ai_script_nodes_draw");
@@ -284,7 +284,7 @@ void ConVar::InitShipped(void) const
 //-----------------------------------------------------------------------------
 // Purpose: unregister/disable extraneous ConVar's.
 //-----------------------------------------------------------------------------
-void ConVar::PurgeShipped(void) const
+void ConVar::PurgeShipped(void)
 {
 #ifdef DEDICATED
 	const char* pszToPurge[] =
@@ -311,7 +311,7 @@ void ConVar::PurgeShipped(void) const
 //-----------------------------------------------------------------------------
 // Purpose: clear all hostname ConVar's.
 //-----------------------------------------------------------------------------
-void ConVar::PurgeHostNames(void) const
+void ConVar::PurgeHostNames(void)
 {
 	const char* pszHostNames[] =
 	{
@@ -1075,4 +1075,3 @@ void IConVar_Detach()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-ConVar* g_pConVar = new ConVar();

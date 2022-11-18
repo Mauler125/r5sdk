@@ -251,7 +251,7 @@ void Systems_Init()
 	spdlog::info("Detour->Attach() '{:10.6f}' seconds ('{:12d}' clocks)\n", initTimer.GetDuration().GetSeconds(), initTimer.GetDuration().GetCycles());
 	spdlog::info("+-------------------------------------------------------------+\n");
 
-	g_pConVar->Init();
+	ConVar::Init();
 
 #ifdef DEDICATED
 	Dedicated_Init();
