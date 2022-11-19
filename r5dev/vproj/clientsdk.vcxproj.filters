@@ -612,6 +612,9 @@
     <ClCompile Include="..\game\client\viewrender.cpp">
       <Filter>sdk\game\client</Filter>
     </ClCompile>
+    <ClCompile Include="..\public\datamap.cpp">
+      <Filter>sdk\public</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1800,6 +1803,9 @@
       <Filter>sdk\game\client</Filter>
     </ClInclude>
     <ClInclude Include="..\public\dt_common.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\datamap.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
   </ItemGroup>

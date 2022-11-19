@@ -1257,6 +1257,9 @@
     <ClInclude Include="..\public\dt_common.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\datamap.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1576,6 +1579,9 @@
     </ClCompile>
     <ClCompile Include="..\materialsystem\cmaterialsystem.cpp">
       <Filter>sdk\materialsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\datamap.cpp">
+      <Filter>sdk\public</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -92,6 +92,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\public\datamap.cpp" />
     <ClCompile Include="..\public\utility\binstream.cpp" />
     <ClCompile Include="..\public\utility\memaddr.cpp" />
     <ClCompile Include="..\public\utility\module.cpp" />
@@ -252,6 +253,7 @@
     <ClInclude Include="..\public\avi\iavi.h" />
     <ClInclude Include="..\public\avi\ibik.h" />
     <ClInclude Include="..\public\bitmap\stb_image.h" />
+    <ClInclude Include="..\public\datamap.h" />
     <ClInclude Include="..\public\dt_common.h" />
     <ClInclude Include="..\public\iengine.h" />
     <ClInclude Include="..\public\client_class.h" />
