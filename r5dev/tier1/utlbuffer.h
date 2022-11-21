@@ -1,4 +1,4 @@
-//====== Copyright (c) 1996-2005, Valve Corporation, All rights reserved. =======//
+//===== Copyright (c) 1996-2005, Valve Corporation, All rights reserved. ======//
 //
 // Purpose: 
 //
@@ -343,19 +343,19 @@ public:
 
 	// What am I writing (put)/reading (get)?
 	void* PeekPut(int offset = 0);
-	const void* PeekGet(int offset = 0) const;
-	const void* PeekGet(int nMaxSize, int nOffset);
+	const void* PeekGet(int64 offset = 0) const;
+	const void* PeekGet(int64 nMaxSize, int64 nOffset);
 
 	// Where am I writing (put)/reading (get)?
-	int TellPut() const;
-	int TellGet() const;
+	int64 TellPut() const;
+	int64 TellGet() const;
 
 	// What's the most I've ever written?
-	int TellMaxPut() const;
+	int64 TellMaxPut() const;
 
 	// How many bytes remain to be read?
 	// NOTE: This is not accurate for streaming text files; it overshoots
-	int GetBytesRemaining() const;
+	int64 GetBytesRemaining() const;
 
 	// Change where I'm writing (put)/reading (get)
 	void SeekPut(SeekType_t type, int offset);
@@ -423,7 +423,7 @@ protected:
 
 	// NOTE: Pass in nPut here even though it is just a copy of m_Put.  This is almost always called immediately 
 	// after modifying m_Put and this lets it stay in a register
-	void AddNullTermination(int nPut);
+	void AddNullTermination(int64 nPut);
 
 	// Methods to help with pretty-printing
 	bool WasLastCharacterCR();
@@ -465,8 +465,8 @@ protected:
 	// be sure to also update the copy constructor
 	// and SwapCopy() when adding members.
 	CUtlMemory<unsigned char> m_Memory;
-	int m_Get;
-	int m_Put;
+	int64 m_Get;
+	int64 m_Put;
 
 	unsigned char m_Error;
 	unsigned char m_Flags;
@@ -476,13 +476,17 @@ protected:
 #endif
 
 	int m_nTab;
-	int m_nMaxPut;
+	int64 m_nMaxPut;
 	int64 m_nOffset;
 
 	UtlBufferOverflowFunc_t m_GetOverflowFunc;
 	UtlBufferOverflowFunc_t m_PutOverflowFunc;
 
-	CByteswap	m_Byteswap;
+	CByteSwap	m_Byteswap;
+
+	// [ AMOS ] TODO: Reverse these.. could be part of the CByteSwap class.
+	__declspec(align(16)) __int64 KeyValuesPtrUnk;
+	__int64 KeyValuesCountUnk;
 };
 
 // Stream style output operators for CUtlBuffer
@@ -623,7 +627,7 @@ public:
 //-----------------------------------------------------------------------------
 // Where am I reading?
 //-----------------------------------------------------------------------------
-inline int CUtlBuffer::TellGet() const
+inline int64 CUtlBuffer::TellGet() const
 {
 	return m_Get;
 }
@@ -632,7 +636,7 @@ inline int CUtlBuffer::TellGet() const
 //-----------------------------------------------------------------------------
 // How many bytes remain to be read?
 //-----------------------------------------------------------------------------
-inline int CUtlBuffer::GetBytesRemaining() const
+inline int64 CUtlBuffer::GetBytesRemaining() const
 {
 	return m_nMaxPut - TellGet();
 }
@@ -641,7 +645,7 @@ inline int CUtlBuffer::GetBytesRemaining() const
 //-----------------------------------------------------------------------------
 // What am I reading?
 //-----------------------------------------------------------------------------
-inline const void* CUtlBuffer::PeekGet(int offset) const
+inline const void* CUtlBuffer::PeekGet(int64 offset) const
 {
 	return &m_Memory[m_Get + offset - m_nOffset];
 }
@@ -853,7 +857,7 @@ inline bool CUtlBuffer::GetTypeText(T& value, int nRadix /*= 10*/)
 	char* pEnd = pStart;
 	value = StringToNumber< T >(pStart, &pEnd, nRadix);
 
-	int nBytesRead = (int)(pEnd - pStart);
+	int64 nBytesRead = (int64)(pEnd - pStart);
 	if (nBytesRead == 0)
 		return false;
 
@@ -1001,7 +1005,7 @@ inline bool CUtlBuffer::IsExternallyAllocated() const
 //-----------------------------------------------------------------------------
 // Where am I writing?
 //-----------------------------------------------------------------------------
-inline int CUtlBuffer::TellPut() const
+inline int64 CUtlBuffer::TellPut() const
 {
 	return m_Put;
 }
@@ -1010,7 +1014,7 @@ inline int CUtlBuffer::TellPut() const
 //-----------------------------------------------------------------------------
 // What's the most I've ever written?
 //-----------------------------------------------------------------------------
-inline int CUtlBuffer::TellMaxPut() const
+inline int64 CUtlBuffer::TellMaxPut() const
 {
 	return m_nMaxPut;
 }
