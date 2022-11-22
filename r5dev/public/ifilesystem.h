@@ -4,19 +4,23 @@
 #include <tier0/annotations.h>
 #include <tier0/threadtools.h>
 #include <appframework/iappsystem.h>
-#include <vpc/keyvalues.h>
-#include <vpc/interfaces.h>
-#include <vpklib/packedstore.h>
+#include <public/ipackedstore.h>
 
 typedef void* FileHandle_t;
 typedef void* FileNameHandle_t; // !TODO: Check if this is 4 or 8 bytes (model_t was 4 bytes in mem).
 typedef void* FileCacheHandle_t;
 typedef int FileFindHandle_t;
 
-#define FILESYSTEM_INVALID_HANDLE	( FileHandle_t )0
+#define FILESYSTEM_INVALID_HANDLE	( FileHandle_t )nullptr
 
 #define GAMEINFOPATH_TOKEN		"|gameinfo_path|"
 #define BASESOURCEPATHS_TOKEN	"|all_source_engine_paths|"
+
+//---------------------------------------------------------------------------------
+// Purpose: Forward declarations
+//---------------------------------------------------------------------------------
+class KeyValues;
+class CUtlBuffer;
 
 //-----------------------------------------------------------------------------
 // Structures used by the interface
@@ -163,8 +167,8 @@ public:
 	//--------------------------------------------------------
 	// Reads/writes files to utlbuffers. Use this for optimal read performance when doing open/read/close.
 	//--------------------------------------------------------
-	virtual bool			ReadFile(const char* pFileName, const char* pPath, void* buf, int nMaxBytes = 0, int nStartingByte = 0, FSAllocFunc_t pfnAlloc = NULL) = 0; // !FIXME [AMOS]: buf = CUtlBuffer&!
-	virtual bool			WriteFile(const char* pFileName, const char* pPath, void* buf) = 0; // !FIXME [AMOS]: buf = CUtlBuffer&!
+	virtual bool			ReadFile(const char* pFileName, const char* pPath, CUtlBuffer& buf, int nMaxBytes = 0, int nStartingByte = 0, FSAllocFunc_t pfnAlloc = NULL) = 0;
+	virtual bool			WriteFile(const char* pFileName, const char* pPath, CUtlBuffer& buf) = 0;
 	virtual bool			UnzipFile(const char* pFileName, const char* pPath, const char* pDestination) = 0;
 };
 
@@ -372,7 +376,7 @@ public:
 
 	//--------------------------------------------------------
 	//--------------------------------------------------------
-	virtual bool		ReadToBuffer(FileHandle_t hFile, void* buf, int nMaxBytes = 0, FSAllocFunc_t pfnAlloc = NULL) = 0; // !TODO: buf = 'CUtlBuffer&'
+	virtual bool		ReadToBuffer(FileHandle_t hFile, CUtlBuffer& buf, int nMaxBytes = 0, FSAllocFunc_t pfnAlloc = NULL) = 0;
 
 	//--------------------------------------------------------
 	// Optimal IO operations

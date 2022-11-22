@@ -1,5 +1,7 @@
 #pragma once
 #include "mathlib/color.h"
+#include "tier1/utlbuffer.h"
+#include "public/ifilesystem.h"
 
 #define MAKE_3_BYTES_FROM_1_AND_2( x1, x2 ) (( (( uint16_t )x2) << 8 ) | (uint8_t)(x1))
 #define SPLIT_3_BYTES_INTO_1_AND_2( x1, x2, x3 ) do { x1 = (uint8)(x3); x2 = (uint16)( (x3) >> 8 ); } while( 0 )
@@ -15,6 +17,7 @@ inline std::mutex g_PlaylistsVecMutex;
 //---------------------------------------------------------------------------------
 class KeyValues;
 class CFileSystem_Stdio;
+class IBaseFileSystem;
 
 /* ==== KEYVALUES ======================================================================================================================================================= */
 inline CMemory p_KeyValues_FindKey;
@@ -31,6 +34,9 @@ inline auto KeyValues_GetCurrentPlaylist = p_KeyValues_GetCurrentPlaylist.RCast<
 
 inline CMemory p_KeyValues_ReadKeyValuesFile;
 inline auto KeyValues_ReadKeyValuesFile = p_KeyValues_ReadKeyValuesFile.RCast<KeyValues* (*)(CFileSystem_Stdio* pFileSystem, const char* pFileName)>();
+
+inline CMemory p_KeyValues_RecursiveSaveToFile;
+inline auto KeyValues_RecursiveSaveToFile = p_KeyValues_RecursiveSaveToFile.RCast<void (*)(KeyValues* thisptr, IBaseFileSystem* pFileSystem, FileHandle_t pHandle, CUtlBuffer* pBuf, int nIndentLevel)>();
 
 enum KeyValuesTypes_t : char
 {
@@ -134,8 +140,12 @@ public:
 	void SetStringValue(char const* pszValue);
 	void SetColor(const char* pszKeyName, Color color);
 	void SetFloat(const char* pszKeyName, float flValue);
+	void SetBool(const char* pszKeyName, bool bValue) { SetInt(pszKeyName, bValue ? 1 : 0); }
 
 	void RecursiveCopyKeyValues(KeyValues& src);
+	void RecursiveSaveToFile(CUtlBuffer& buf, int nIndentLevel);
+	void RecursiveSaveToFile(IBaseFileSystem* pFileSystem, FileHandle_t pHandle, CUtlBuffer* pBuf, int nIndentLevel);
+
 	void CopySubkeys(KeyValues* pParent) const;
 	KeyValues* MakeCopy(void) const;
 
@@ -184,6 +194,7 @@ class VKeyValues : public IDetour
 		spdlog::debug("| FUN: KeyValues::ParsePlaylists            : {:#18x} |\n", p_KeyValues_ParsePlaylists.GetPtr());
 		spdlog::debug("| FUN: KeyValues::GetCurrentPlaylist        : {:#18x} |\n", p_KeyValues_GetCurrentPlaylist.GetPtr());
 		spdlog::debug("| FUN: KeyValues::ReadKeyValuesFile         : {:#18x} |\n", p_KeyValues_ReadKeyValuesFile.GetPtr());
+		spdlog::debug("| FUN: KeyValues::RecursiveSaveToFile       : {:#18x} |\n", p_KeyValues_RecursiveSaveToFile.GetPtr());
 		spdlog::debug("| VAR: g_pPlaylistKeyValues                 : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pPlaylistKeyValues));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
@@ -200,12 +211,14 @@ class VKeyValues : public IDetour
 #endif
 		p_KeyValues_LoadPlaylists        = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x56\x57\x41\x56\x48\x83\xEC\x40\x48\x8B\xF1"), "xxxx?xxxx?xxxxxxxxxxx");
 		p_KeyValues_ParsePlaylists       = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x74\x0C"), "x????xx?????xx").FollowNearCallSelf();
+		p_KeyValues_RecursiveSaveToFile  = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x53\x00\x57\x41\x55\x41\x00\x48\x83"), "xxxx?xxxx?xx");
 
 		KeyValues_FindKey            = p_KeyValues_FindKey.RCast<void* (*)(KeyValues*, const char*, bool)>();                  /*40 56 57 41 57 48 81 EC 30 01 00 00 45 0F B6 F8*/
 		KeyValues_LoadPlaylists      = p_KeyValues_ParsePlaylists.RCast<bool (*)(const char*)>();                              /*48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 40 48 8B F1*/
 		KeyValues_ParsePlaylists     = p_KeyValues_ParsePlaylists.RCast<bool (*)(const char*)>();                              /*E8 ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 74 0C*/
 		KeyValues_GetCurrentPlaylist = p_KeyValues_GetCurrentPlaylist.RCast<const char* (*)(void)>();                          /*48 8B 05 ?? ?? ?? ?? 48 85 C0 75 08 48 8D 05 ?? ?? ?? ?? C3 0F B7 50 2A*/
 		KeyValues_ReadKeyValuesFile  = p_KeyValues_ReadKeyValuesFile.RCast<KeyValues* (*)(CFileSystem_Stdio*, const char*)>(); /*48 8B C4 55 53 57 41 54 48 8D 68 A1*/
+		KeyValues_RecursiveSaveToFile = p_KeyValues_RecursiveSaveToFile.RCast<void (*)(KeyValues*, IBaseFileSystem*, FileHandle_t, CUtlBuffer*, int)>();  /*48 8B C4 53 ?? 57 41 55 41 ?? 48 83*/
 	}
 	virtual void GetVar(void) const
 	{

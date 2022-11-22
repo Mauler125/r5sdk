@@ -1117,6 +1117,25 @@ void KeyValues::RecursiveCopyKeyValues(KeyValues& src)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : &buf -
+//			nIndentLevel - 
+//-----------------------------------------------------------------------------
+void KeyValues::RecursiveSaveToFile(CUtlBuffer& buf, int nIndentLevel)
+{
+	RecursiveSaveToFile(NULL, FILESYSTEM_INVALID_HANDLE, &buf, nIndentLevel);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Save keyvalues from disk, if subkey values are detected, calls
+//			itself to save those
+//-----------------------------------------------------------------------------
+void KeyValues::RecursiveSaveToFile(IBaseFileSystem* pFileSystem, FileHandle_t pHandle, CUtlBuffer* pBuf, int nIndentLevel)
+{
+	KeyValues_RecursiveSaveToFile(this, pFileSystem, pHandle, pBuf, nIndentLevel);
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Make a new copy of all subkeys, add them all to the passed-in keyvalues
 // Input  : *pParent - 
 //-----------------------------------------------------------------------------
