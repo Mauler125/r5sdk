@@ -245,7 +245,7 @@ private:
 			((unsigned char*)&temp)[i] = ((unsigned char*)input)[sizeof(T) - (i + 1)];
 		}
 #endif
-		Q_memcpy(output, &temp, sizeof(T));
+		memcpy(output, &temp, sizeof(T));
 	}
 
 #if defined( _X360 )

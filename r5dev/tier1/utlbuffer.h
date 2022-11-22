@@ -18,7 +18,6 @@
 
 #include "tier1/utlmemory.h"
 #include "tier1/byteswap.h"
-#include <stdarg.h>
 #include <tier0/annotations.h>
 
 
@@ -166,13 +165,13 @@ public:
 	};
 
 	// Overflow functions when a get or put overflows
-	typedef bool (CUtlBuffer::* UtlBufferOverflowFunc_t)(int nSize);
+	typedef bool (CUtlBuffer::* UtlBufferOverflowFunc_t)(int64 nSize);
 
 	// Constructors for growable + external buffers for serialization/unserialization
-	CUtlBuffer(int growSize = 0, int initSize = 0, int nFlags = 0);
-	CUtlBuffer(const void* pBuffer, int size, int nFlags = 0);
+	CUtlBuffer(int64 growSize = 0, int64 initSize = 0, int nFlags = 0);
+	CUtlBuffer(const void* pBuffer, int64 size, int nFlags = 0);
 	// This one isn't actually defined so that we catch contructors that are trying to pass a bool in as the third param.
-	CUtlBuffer(const void* pBuffer, int size, bool crap) = delete;
+	CUtlBuffer(const void* pBuffer, int64 size, bool crap) = delete;
 
 	// UtlBuffer objects should not be copyable; we do a slow copy if you use this but it asserts.
 	// (REI: I'd like to delete these but we have some python bindings that currently rely on being able to copy these objects)
@@ -413,13 +412,13 @@ protected:
 
 	void SetOverflowFuncs(UtlBufferOverflowFunc_t getFunc, UtlBufferOverflowFunc_t putFunc);
 
-	bool OnPutOverflow(int nSize);
-	bool OnGetOverflow(int nSize);
+	bool OnPutOverflow(int64 nSize);
+	bool OnGetOverflow(int64 nSize);
 
 protected:
 	// Checks if a get/put is ok
-	bool CheckPut(int size);
-	bool CheckGet(int size);
+	bool CheckPut(int64 size);
+	bool CheckGet(int64 size);
 
 	// NOTE: Pass in nPut here even though it is just a copy of m_Put.  This is almost always called immediately 
 	// after modifying m_Put and this lets it stay in a register
@@ -434,8 +433,8 @@ protected:
 	void PutDelimitedCharInternal(CUtlCharConversion* pConv, char c);
 
 	// Default overflow funcs
-	bool PutOverflow(int nSize);
-	bool GetOverflow(int nSize);
+	bool PutOverflow(int64 nSize);
+	bool GetOverflow(int64 nSize);
 
 	// Does the next bytes of the buffer match a pattern?
 	bool PeekStringMatch(int nOffset, const char* pString, int nLen);

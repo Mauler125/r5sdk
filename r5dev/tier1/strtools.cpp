@@ -63,6 +63,105 @@ char* V_stristr(char* pStr, char const* pSearch)
 }
 
 //-----------------------------------------------------------------------------
+// Finds a string in another string with a case insensitive test w/ length validation
+//-----------------------------------------------------------------------------
+const char* V_strnistr(const char* pStr, const char* pSearch, int n)
+{
+	Assert(pStr);
+	Assert(pSearch);
+	if (!pStr || !pSearch)
+		return 0;
+
+	const char* pLetter = pStr;
+
+	// Check the entire string
+	while (*pLetter != 0)
+	{
+		if (n <= 0)
+			return 0;
+
+		// Skip over non-matches
+		if (FastASCIIToLower(*pLetter) == FastASCIIToLower(*pSearch))
+		{
+			int n1 = n - 1;
+
+			// Check for match
+			const char* pMatch = pLetter + 1;
+			const char* pTest = pSearch + 1;
+			while (*pTest != 0)
+			{
+				if (n1 <= 0)
+					return 0;
+
+				// We've run off the end; don't bother.
+				if (*pMatch == 0)
+					return 0;
+
+				if (FastASCIIToLower(*pMatch) != FastASCIIToLower(*pTest))
+					break;
+
+				++pMatch;
+				++pTest;
+				--n1;
+			}
+
+			// Found a match!
+			if (*pTest == 0)
+				return pLetter;
+		}
+
+		++pLetter;
+		--n;
+	}
+
+	return 0;
+}
+
+const char* V_strnchr(const char* pStr, char c, int n)
+{
+	const char* pLetter = pStr;
+	const char* pLast = pStr + n;
+
+	// Check the entire string
+	while ((pLetter < pLast) && (*pLetter != 0))
+	{
+		if (*pLetter == c)
+			return pLetter;
+		++pLetter;
+	}
+	return NULL;
+}
+
+bool V_isspace(int c)
+{
+	// The standard white-space characters are the following: space, tab, carriage-return, newline, vertical tab, and form-feed. In the C locale, V_isspace() returns true only for the standard white-space characters. 
+	//return c == ' ' || c == 9 /*horizontal tab*/ || c == '\r' || c == '\n' || c == 11 /*vertical tab*/ || c == '\f';
+	// codes of whitespace symbols: 9 HT, 10 \n, 11 VT, 12 form feed, 13 \r, 32 space
+
+	// easy to understand version, validated:
+	// return ((1 << (c-1)) & 0x80001F00) != 0 && ((c-1)&0xE0) == 0;
+
+	// 5% faster on Core i7, 35% faster on Xbox360, no branches, validated:
+#ifdef _X360
+	return ((1 << (c - 1)) & 0x80001F00 & ~(-int((c - 1) & 0xE0))) != 0;
+#else
+// this is 11% faster on Core i7 than the previous, VC2005 compiler generates a seemingly unbalanced search tree that's faster
+	switch (c)
+	{
+	case ' ':
+	case 9:
+	case '\r':
+	case '\n':
+	case 11:
+	case '\f':
+		return true;
+	default:
+		return false;
+	}
+#endif
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Converts a UTF8 string into a unicode string
 //-----------------------------------------------------------------------------
 int V_UTF8ToUnicode(const char* pUTF8, wchar_t* pwchDest, int cubDestSizeInBytes)
