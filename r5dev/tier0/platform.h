@@ -366,6 +366,10 @@ template <typename T> const char* MemAllocClassName(T* p)
 #define MAX_PATH  260
 #endif
 
+#ifdef _DEBUG
+#define LEAKTRACK
+#endif
+
 //-----------------------------------------------------------------------------
 // Time stamp counter
 //-----------------------------------------------------------------------------
