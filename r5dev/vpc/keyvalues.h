@@ -163,8 +163,8 @@ public:
 	static KeyValues* ReadKeyValuesFile(CFileSystem_Stdio* pFileSystem, const char* pFileName);
 
 public:
-	uint32_t m_iKeyName               : 24;        // 0x0000
-	uint32_t m_iKeyNameCaseSensitive1 : 8;         // 0x0003
+	uint32_t         m_iKeyName               : 24;// 0x0000
+	uint32_t         m_iKeyNameCaseSensitive1 : 8; // 0x0003
 	char*            m_sValue;                     // 0x0008
 	wchar_t*         m_wsValue;                    // 0x0010
 	union                                          // 0x0018
