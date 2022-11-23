@@ -447,6 +447,7 @@
     <ClInclude Include="..\tier0\valve_on.h" />
     <ClInclude Include="..\tier0\wchartypes.h" />
     <ClInclude Include="..\tier1\bitbuf.h" />
+    <ClInclude Include="..\tier1\byteswap.h" />
     <ClInclude Include="..\tier1\characterset.h" />
     <ClInclude Include="..\tier1\cmd.h" />
     <ClInclude Include="..\tier1\cvar.h" />
@@ -456,6 +457,7 @@
     <ClInclude Include="..\tier1\NetAdr2.h" />
     <ClInclude Include="..\tier1\strtools.h" />
     <ClInclude Include="..\tier1\utlblockmemory.h" />
+    <ClInclude Include="..\tier1\utlbuffer.h" />
     <ClInclude Include="..\tier1\utldict.h" />
     <ClInclude Include="..\tier1\utlfixedmemory.h" />
     <ClInclude Include="..\tier1\utllinkedlist.h" />
@@ -581,6 +583,7 @@
     <ClCompile Include="..\tier1\NetAdr2.cpp" />
     <ClCompile Include="..\tier1\splitstring.cpp" />
     <ClCompile Include="..\tier1\strtools.cpp" />
+    <ClCompile Include="..\tier1\utlbuffer.cpp" />
     <ClCompile Include="..\tier2\socketcreator.cpp" />
     <ClCompile Include="..\vpc\IAppSystem.cpp" />
     <ClCompile Include="..\vpc\interfaces.cpp" />

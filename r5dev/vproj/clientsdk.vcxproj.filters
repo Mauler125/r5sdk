@@ -615,6 +615,9 @@
     <ClCompile Include="..\public\datamap.cpp">
       <Filter>sdk\public</Filter>
     </ClCompile>
+    <ClCompile Include="..\tier1\utlbuffer.cpp">
+      <Filter>sdk\tier1</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1807,6 +1810,12 @@
     </ClInclude>
     <ClInclude Include="..\public\datamap.h">
       <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\utlbuffer.h">
+      <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\byteswap.h">
+      <Filter>sdk\tier1</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
