@@ -164,6 +164,28 @@ const char* CBaseFileSystem::VUnmountVPKFile(CBaseFileSystem* pFileSystem, const
 	return pRet;
 }
 
+//---------------------------------------------------------------------------------
+// Purpose: reads a string until its null terminator
+// Input  : *pFile - 
+// Output : string
+//---------------------------------------------------------------------------------
+string CBaseFileSystem::ReadString(FileHandle_t pFile)
+{
+	string svString;
+	char c = '\0';
+
+	do
+	{
+		Read(&c, sizeof(char), pFile);
+
+		if (c)
+			svString += c;
+
+	} while (c);
+
+	return svString;
+}
+
 void CBaseFileSystem_Attach()
 {
 	DetourAttach((LPVOID*)&v_CBaseFileSystem_Warning, &CBaseFileSystem::Warning);

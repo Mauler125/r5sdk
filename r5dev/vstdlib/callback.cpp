@@ -55,6 +55,7 @@
 #ifndef DEDICATED
 #include "game/client/viewrender.h"
 #endif // !DEDICATED
+#include "public/utility/binstream.h"
 
 
 /*
@@ -569,7 +570,7 @@ void VPK_Unpack_f(const CCommand& args)
 	timer.Start();
 
 	g_pPackedStore->InitLzDecompParams();
-	g_pPackedStore->UnpackWorkspace(vpk, ConvertToWinPath(fs_packedstore_workspace->GetString()));
+	g_pPackedStore->UnpackWorkspace(vpk, fs_packedstore_workspace->GetString());
 
 	timer.End();
 	DevMsg(eDLL_T::FS, "*** Time elapsed: '%lf' seconds\n", timer.GetDuration().GetSeconds());

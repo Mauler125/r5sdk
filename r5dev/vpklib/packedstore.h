@@ -8,7 +8,7 @@
 * ██║  ██║ ██║     ╚████╔╝ ██║     ██║  ██╗    ███████╗██║██████╔╝ *
 * ╚═╝  ╚═╝ ╚═╝      ╚═══╝  ╚═╝     ╚═╝  ╚═╝    ╚══════╝╚═╝╚═════╝  *
 *******************************************************************/
-#include "public/utility/binstream.h"
+#include "public/ifilesystem.h"
 #include "thirdparty/lzham/include/lzham.h"
 
 constexpr unsigned int VPK_HEADER_MARKER = 0x55AA1234;
@@ -17,6 +17,7 @@ constexpr unsigned int VPK_MINOR_VERSION = 3;
 constexpr unsigned int VPK_DICT_SIZE = 20;
 constexpr int ENTRY_MAX_LEN = 1024 * 1024;
 constexpr int PACKFILEPATCH_MAX = 512;
+constexpr int PACKFILEINDEX_SEP = 0x0;
 constexpr int PACKFILEINDEX_END = 0xffff;
 
 static const std::regex BLOCK_REGEX{ R"(pak000_([0-9]{3}))" };
@@ -42,55 +43,21 @@ static const vector<string> DIR_LOCALE  =
 	"tchinese"
 };
 
-enum class EPackedLoadFlags : int
+struct VPKKeyValues_t
 {
-	LOAD_NONE,
-	LOAD_VISIBLE      = 1 << 0,  // Visible to FileSystem.
-	LOAD_CACHE        = 1 << 8,  // Only set for assets not stored in the depot directory.
-	LOAD_TEXTURE_UNK0 = 1 << 18,
-	LOAD_TEXTURE_UNK1 = 1 << 19,
-	LOAD_TEXTURE_UNK2 = 1 << 20,
-};
+	static constexpr uint16_t TEXTURE_FLAGS_DEFAULT = static_cast<uint16_t>(EPackedTextureFlags::TEXTURE_DEFAULT);
+	static constexpr uint32_t LOAD_FLAGS_DEFAULT = static_cast<uint32_t>(EPackedLoadFlags::LOAD_VISIBLE) | static_cast<uint32_t>(EPackedLoadFlags::LOAD_CACHE);
 
-enum class EPackedTextureFlags : short
-{
-	TEXTURE_NONE,
-	TEXTURE_DEFAULT         = 1 << 3,
-	TEXTURE_ENVIRONMENT_MAP = 1 << 10,
-};
+	string m_svEntryPath;
+	uint16_t m_iPreloadSize;
+	uint32_t m_nLoadFlags;
+	uint16_t m_nTextureFlags;
+	bool m_bUseCompression;
+	bool m_bUseDataSharing;
 
-struct FileHandleTracker_t
-{
-	int m_nFileNumber;
-	int m_nCurOfs;
-	HANDLE m_hFileHandle;
+	VPKKeyValues_t(const string& svEntryPath = "", uint16_t iPreloadSize = NULL, uint32_t nLoadFlags = LOAD_FLAGS_DEFAULT, 
+		uint16_t nTextureFlags = TEXTURE_FLAGS_DEFAULT, bool bUseCompression = true, bool bUseDataSharing = true);
 };
-
-struct pFileHandleTracker_t
-{
-	FileHandleTracker_t self[1024];
-};
-
-#pragma pack(push, 1)
-struct VPKFileEntry_t
-{
-	char* m_pszDirectory;
-	char* m_pszFileName;
-	char* m_pszExtension;
-	uint8_t unknown[0x38];
-};
-
-struct VPKData_t
-{
-	int             m_nHandle;
-	char            pad[1];
-	char            m_szPath[255];
-	uint8_t         unknown2[0x134];
-	int32_t         m_nEntries;
-	uint8_t         unknown3[12];
-	VPKFileEntry_t* m_pEntries;
-};
-#pragma pack(pop)
 
 struct VPKChunkDescriptor_t
 {
@@ -102,7 +69,7 @@ struct VPKChunkDescriptor_t
 	bool     m_bIsCompressed  = false;
 
 	VPKChunkDescriptor_t(){};
-	VPKChunkDescriptor_t(CIOStream* pReader);
+	VPKChunkDescriptor_t(FileHandle_t pFile);
 	VPKChunkDescriptor_t(uint32_t nEntryFlags, uint16_t nTextureFlags, uint64_t nPackFileOffset, uint64_t nCompressedSize, uint64_t nUncompressedSize);
 };
 
@@ -114,8 +81,9 @@ struct VPKEntryBlock_t
 	vector<VPKChunkDescriptor_t> m_vFragments;     // Vector of all the chunks of a given entry (chunks have a size limit of 1 MiB, anything over this limit is fragmented into smaller chunks).
 	string                       m_svEntryPath;    // Path to entry within vpk.
 
-	VPKEntryBlock_t(CIOStream* pReader, string svEntryPath);
-	VPKEntryBlock_t(const vector<uint8_t>& vData, int64_t nOffset, uint16_t iPreloadSize, uint16_t iPackFileIndex, uint32_t nEntryFlags, uint16_t nTextureFlags, const string& svEntryPath);
+	VPKEntryBlock_t(FileHandle_t pFile, string svEntryPath);
+	VPKEntryBlock_t(const uint8_t* pData, size_t nLen, int64_t nOffset, uint16_t iPreloadSize, 
+		uint16_t iPackFileIndex, uint32_t nEntryFlags, uint16_t nTextureFlags, const string& svEntryPath);
 };
 
 struct VPKDirHeader_t
@@ -130,7 +98,6 @@ struct VPKDirHeader_t
 struct VPKDir_t
 {
 	VPKDirHeader_t               m_vHeader;        // Dir header.
-	uint32_t                     m_nFileDataSize;  // File data section size.
 	vector<VPKEntryBlock_t>      m_vEntryBlocks;   // Vector of entry blocks.
 	uint16_t                     m_nPackFileCount; // Number of pack patches (pack file count-1).
 	vector<string>               m_vPackFile;      // Vector of pack file names.
@@ -158,17 +125,17 @@ public:
 	string GetPackFile(const string& svPackDirFile, uint16_t iPackFileIndex) const;
 	lzham_compress_level GetCompressionLevel(void) const;
 
-	vector<VPKEntryBlock_t> GetEntryBlocks(CIOStream* pReader) const;
-	vector<string> GetEntryPaths(const string& svPathIn) const;
-	vector<string> GetEntryPaths(const string& svPathIn, const nlohmann::json& jManifest) const;
+	vector<VPKEntryBlock_t> GetEntryBlocks(FileHandle_t pDirectory) const;
+	vector<VPKKeyValues_t> GetEntryPaths(const string& svPathIn) const;
+	vector<VPKKeyValues_t> GetEntryPaths(const string& svPathIn, KeyValues* pManifestKeyValues) const;
 
 	string GetNameParts(const string& svDirectoryName, int nCaptureGroup) const;
 	string GetLevelName(const string& svDirectoryName) const;
 
-	nlohmann::json GetManifest(const string& svWorkspace, const string& svManifestName) const;
+	KeyValues* GetManifest(const string& svWorkspace, const string& svManifestName) const;
 	vector<string> GetIgnoreList(const string& svWorkspace) const;
 
-	string FormatEntryPath(string svName, const string& svPath, const string& svExtension) const;
+	string FormatEntryPath(const string& svName, const string& svPath, const string& svExtension) const;
 	string StripLocalePrefix(const string& svDirectoryFile) const;
 
 	VPKPair_t BuildFileName(string svLanguage, string svTarget, const string& svLevel, int nPatch) const;
@@ -177,8 +144,8 @@ public:
 	void PackWorkspace(const VPKPair_t& vPair, const string& svWorkspace, const string& svBuildPath, bool bManifestOnly);
 	void UnpackWorkspace(const VPKDir_t& vDir, const string& svPathOut = "");
 
-	void ValidateAdler32PostDecomp(const string& svDirAsset);
-	void ValidateCRC32PostDecomp(const string& svDirAsset);
+	void ValidateAdler32PostDecomp(const string& svAssetPath);
+	void ValidateCRC32PostDecomp(const string& svAssetPath);
 
 private:
 	size_t                       m_nChunkCount;       // The number of fragments for this asset.

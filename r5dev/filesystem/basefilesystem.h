@@ -14,6 +14,8 @@ public:
 	static VPKData_t* VMountVPKFile(CBaseFileSystem* pFileSystem, const char* pszVpkPath);
 	static const char* VUnmountVPKFile(CBaseFileSystem* pFileSystem, const char* pszVpkPath);
 
+	string ReadString(FileHandle_t pFile);
+
 protected:
 	//----------------------------------------------------------------------------
 	// Purpose: Functions implementing basic file system behavior.
