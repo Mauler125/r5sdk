@@ -1016,6 +1016,14 @@ void KeyValues::SetColor(const char* pszKeyName, Color color)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: if parser should translate escape sequences ( /n, /t etc), set to true
+//-----------------------------------------------------------------------------
+void KeyValues::UsesEscapeSequences(bool bState)
+{
+	m_bHasEscapeSequences = bState;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : &src - 
 //-----------------------------------------------------------------------------
@@ -1136,6 +1144,15 @@ void KeyValues::RecursiveSaveToFile(IBaseFileSystem* pFileSystem, FileHandle_t p
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Save keyvalues from disk, if subkey values are detected, calls
+//			itself to save those
+//-----------------------------------------------------------------------------
+KeyValues* KeyValues::LoadFromFile(IBaseFileSystem* pFileSystem, const char* pszResourceName, const char* pszPathID, void* pfnEvaluateSymbolProc)
+{
+	return KeyValues_LoadFromFile(this, pFileSystem, pszResourceName, pszPathID, pfnEvaluateSymbolProc);
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Make a new copy of all subkeys, add them all to the passed-in keyvalues
 // Input  : *pParent - 
 //-----------------------------------------------------------------------------
@@ -1239,7 +1256,7 @@ void KeyValues::InitPlaylists(void)
 {
 	if (*g_pPlaylistKeyValues)
 	{
-		KeyValues* pPlaylists = (*g_pPlaylistKeyValues)->FindKey("Playlists", false);
+		KeyValues* pPlaylists = (*g_pPlaylistKeyValues)->FindKey("Playlists");
 		if (pPlaylists)
 		{
 			std::lock_guard<std::mutex> l(g_PlaylistsVecMutex);
@@ -1262,10 +1279,10 @@ void KeyValues::InitFileSystem(void)
 	KeyValues* pMainFile = KeyValues::ReadKeyValuesFile(FileSystem(), "GameInfo.txt");
 	if (pMainFile)
 	{
-		KeyValues* pFileSystemInfo = pMainFile->FindKey("FileSystem", false);
+		KeyValues* pFileSystemInfo = pMainFile->FindKey("FileSystem");
 		if (pFileSystemInfo)
 		{
-			KeyValues* pSearchPaths = pFileSystemInfo->FindKey("SearchPaths", false);
+			KeyValues* pSearchPaths = pFileSystemInfo->FindKey("SearchPaths");
 			if (pSearchPaths)
 			{
 				g_vGameInfoPaths.clear();
@@ -1279,6 +1296,8 @@ void KeyValues::InitFileSystem(void)
 				}
 			}
 		}
+
+		pMainFile->DeleteThis();
 	}
 }
 

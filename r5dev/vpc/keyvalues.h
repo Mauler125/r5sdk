@@ -38,6 +38,9 @@ inline auto KeyValues_ReadKeyValuesFile = p_KeyValues_ReadKeyValuesFile.RCast<Ke
 inline CMemory p_KeyValues_RecursiveSaveToFile;
 inline auto KeyValues_RecursiveSaveToFile = p_KeyValues_RecursiveSaveToFile.RCast<void (*)(KeyValues* thisptr, IBaseFileSystem* pFileSystem, FileHandle_t pHandle, CUtlBuffer* pBuf, int nIndentLevel)>();
 
+inline CMemory p_KeyValues_LoadFromFile;
+inline auto KeyValues_LoadFromFile = p_KeyValues_LoadFromFile.RCast<KeyValues* (*)(KeyValues* thisptr, IBaseFileSystem* pFileSystem, const char* pszResourceName, const char* pszPathID, void* pfnEvaluateSymbolProc)>();
+
 enum KeyValuesTypes_t : char
 {
 	TYPE_NONE              = 0x0,
@@ -126,6 +129,7 @@ public:
 	const char* GetString(const char* pszKeyName = nullptr, const char* pszDefaultValue = "");
 	const wchar_t* GetWString(const char* pszKeyName = nullptr, const wchar_t* pwszDefaultValue = L"");
 	Color GetColor(const char* pszKeyName, const Color& defaultColor);
+	bool GetBool(const char* pszKeyName = nullptr, bool nDefaultValue = false) { return GetInt(pszKeyName, nDefaultValue ? 1 : 0) ? true : false; }
 	KeyValuesTypes_t GetDataType(const char* pszKeyName);
 	KeyValuesTypes_t GetDataType(void) const;
 
@@ -141,10 +145,12 @@ public:
 	void SetColor(const char* pszKeyName, Color color);
 	void SetFloat(const char* pszKeyName, float flValue);
 	void SetBool(const char* pszKeyName, bool bValue) { SetInt(pszKeyName, bValue ? 1 : 0); }
+	void UsesEscapeSequences(bool bState);
 
 	void RecursiveCopyKeyValues(KeyValues& src);
 	void RecursiveSaveToFile(CUtlBuffer& buf, int nIndentLevel);
 	void RecursiveSaveToFile(IBaseFileSystem* pFileSystem, FileHandle_t pHandle, CUtlBuffer* pBuf, int nIndentLevel);
+	KeyValues* LoadFromFile(IBaseFileSystem* pFileSystem, const char* pszResourceName, const char* pszPathID, void* pfnEvaluateSymbolProc);
 
 	void CopySubkeys(KeyValues* pParent) const;
 	KeyValues* MakeCopy(void) const;
@@ -195,6 +201,7 @@ class VKeyValues : public IDetour
 		spdlog::debug("| FUN: KeyValues::GetCurrentPlaylist        : {:#18x} |\n", p_KeyValues_GetCurrentPlaylist.GetPtr());
 		spdlog::debug("| FUN: KeyValues::ReadKeyValuesFile         : {:#18x} |\n", p_KeyValues_ReadKeyValuesFile.GetPtr());
 		spdlog::debug("| FUN: KeyValues::RecursiveSaveToFile       : {:#18x} |\n", p_KeyValues_RecursiveSaveToFile.GetPtr());
+		spdlog::debug("| FUN: KeyValues::LoadFromFile              : {:#18x} |\n", p_KeyValues_LoadFromFile.GetPtr());
 		spdlog::debug("| VAR: g_pPlaylistKeyValues                 : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pPlaylistKeyValues));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
@@ -204,10 +211,12 @@ class VKeyValues : public IDetour
 		p_KeyValues_FindKey            = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x10\x48\x89\x6C\x24\x18\x48\x89\x74\x24\x20\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x81\xEC\x20\x01\x00\x00\x45"), "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 		p_KeyValues_GetCurrentPlaylist = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\x0D\x00\x00\x00\x00\x48\x85\xC9\x75\x08\x48\x8D\x05\x00\x00\x00\x00"), "xxx????xxxxxxxx????");
 		p_KeyValues_ReadKeyValuesFile  = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x57\x48\x8D\x6C\x24\x00"), "xxxx?xxxxxxxxxxx?");
+		p_KeyValues_LoadFromFile       = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x4C\x89\x4C\x24\x00\x4C\x89\x44\x24\x00\x48\x89\x4C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00"), "xxxx?xxxx?xxxx?xxxx?xxxxxxxxxxxxxxx?");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		p_KeyValues_FindKey            = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x56\x57\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x45"), "xxxxxxxx????x");
 		p_KeyValues_GetCurrentPlaylist = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\x05\x00\x00\x00\x00\x48\x85\xC0\x75\x08\x48\x8D\x05\x00\x00\x00\x00\xC3\x0F\xB7\x50\x2A"), "xxx????xxxxxxxx????xxxxx");
 		p_KeyValues_ReadKeyValuesFile  = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x55\x53\x57\x41\x54\x48\x8D\x68\xA1"), "xxxxxxxxxxxx");
+		p_KeyValues_LoadFromFile       = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x4C\x89\x4C\x24\x00\x48\x89\x4C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00"), "xxxx?xxxx?xxxx?xxxxxxxxxxxxxxx?");
 #endif
 		p_KeyValues_LoadPlaylists        = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x56\x57\x41\x56\x48\x83\xEC\x40\x48\x8B\xF1"), "xxxx?xxxx?xxxxxxxxxxx");
 		p_KeyValues_ParsePlaylists       = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x74\x0C"), "x????xx?????xx").FollowNearCallSelf();
@@ -219,6 +228,7 @@ class VKeyValues : public IDetour
 		KeyValues_GetCurrentPlaylist = p_KeyValues_GetCurrentPlaylist.RCast<const char* (*)(void)>();                          /*48 8B 05 ?? ?? ?? ?? 48 85 C0 75 08 48 8D 05 ?? ?? ?? ?? C3 0F B7 50 2A*/
 		KeyValues_ReadKeyValuesFile  = p_KeyValues_ReadKeyValuesFile.RCast<KeyValues* (*)(CFileSystem_Stdio*, const char*)>(); /*48 8B C4 55 53 57 41 54 48 8D 68 A1*/
 		KeyValues_RecursiveSaveToFile = p_KeyValues_RecursiveSaveToFile.RCast<void (*)(KeyValues*, IBaseFileSystem*, FileHandle_t, CUtlBuffer*, int)>();  /*48 8B C4 53 ?? 57 41 55 41 ?? 48 83*/
+		KeyValues_LoadFromFile        = p_KeyValues_LoadFromFile.RCast<KeyValues* (*)(KeyValues*, IBaseFileSystem*, const char*, const char*, void*)>();
 	}
 	virtual void GetVar(void) const
 	{
