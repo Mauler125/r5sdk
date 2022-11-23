@@ -523,6 +523,10 @@ void CUIBaseSurface::LaunchGame(Forms::Control* pSender)
 {
 	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
 
+	pSurface->m_LogList.clear(); // Clear console.
+	pSurface->m_ConsoleListView->SetVirtualListSize(0);
+	pSurface->m_ConsoleListView->Refresh();
+
 	fs::path cfgPath = fs::current_path() /= "platform\\cfg\\startup_launcher.cfg";
 
 	ifstream cfgFile(cfgPath);
