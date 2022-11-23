@@ -106,7 +106,12 @@ struct VPKDir_t
 	VPKDir_t(const string& svPath);
 	VPKDir_t() { m_vHeader.m_nHeaderMarker = VPK_HEADER_MARKER; m_vHeader.m_nMajorVersion = VPK_MAJOR_VERSION; m_vHeader.m_nMinorVersion = VPK_MINOR_VERSION; };
 
-	void Build(const string& svDirectoryFile, const vector<VPKEntryBlock_t>& vEntryBlocks);
+	void WriteHeader(FileHandle_t pDirectoryFile) const;
+	void WriteTreeSize(FileHandle_t pDirectoryFile) const;
+	uint64_t WriteDescriptor(FileHandle_t pDirectoryFile, std::map<string, std::map<string, std::list<VPKEntryBlock_t>>>& vMap) const;
+
+	void BuildDirectoryTree(const vector<VPKEntryBlock_t>& vEntryBlocks, std::map<string, std::map<string, std::list<VPKEntryBlock_t>>>& vMap) const;
+	void BuildDirectoryFile(const string& svDirectoryFile, const vector<VPKEntryBlock_t>& vEntryBlocks);
 };
 
 struct VPKPair_t

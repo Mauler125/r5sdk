@@ -609,7 +609,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vPair, const string& svWorkspa
 	memset(s_EntryBuf, '\0', sizeof(s_EntryBuf));
 
 	VPKDir_t vDir = VPKDir_t();
-	vDir.Build(svBuildPath + vPair.m_svDirectoryName, vEntryBlocks);
+	vDir.BuildDirectoryFile(svBuildPath + vPair.m_svDirectoryName, vEntryBlocks);
 }
 
 //-----------------------------------------------------------------------------
@@ -862,28 +862,92 @@ VPKDir_t::VPKDir_t(const string& svPath)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: builds the vpk directory file
-// Input  : &svDirectoryFile - 
-//          &vEntryBlocks - 
+// Purpose: writes the vpk directory header
+// Input  : pDirectoryFile - 
 //-----------------------------------------------------------------------------
-void VPKDir_t::Build(const string& svDirectoryFile, const vector<VPKEntryBlock_t>& vEntryBlocks)
+void VPKDir_t::WriteHeader(FileHandle_t pDirectoryFile) const
 {
-	FileHandle_t hDirectoryFile = FileSystem()->Open(svDirectoryFile.c_str(), "wb", "GAME");
-	if (!hDirectoryFile)
-	{
-		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to write to '%s' (read-only?)\n", __FUNCTION__, svDirectoryFile.c_str());
-		return;
-	}
+	FileSystem()->Write(&m_vHeader.m_nHeaderMarker, sizeof(uint32_t), pDirectoryFile);
+	FileSystem()->Write(&m_vHeader.m_nMajorVersion, sizeof(uint16_t), pDirectoryFile);
+	FileSystem()->Write(&m_vHeader.m_nMinorVersion, sizeof(uint16_t), pDirectoryFile);
+	FileSystem()->Write(&m_vHeader.m_nDirectorySize, sizeof(uint32_t), pDirectoryFile);
+	FileSystem()->Write(&m_vHeader.m_nSignatureSize, sizeof(uint32_t), pDirectoryFile);
+}
 
-	auto vMap = std::map<string, std::map<string, std::list<VPKEntryBlock_t>>>();
+//-----------------------------------------------------------------------------
+// Purpose: writes the directory tree size
+// Input  : &vEntryBlocks - 
+//-----------------------------------------------------------------------------
+void VPKDir_t::WriteTreeSize(FileHandle_t pDirectoryFile) const
+{
+	FileSystem()->Seek(pDirectoryFile, offsetof(VPKDir_t, m_vHeader.m_nDirectorySize), FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
+	FileSystem()->Write(&m_vHeader.m_nDirectorySize, sizeof(uint32_t), pDirectoryFile);
+	FileSystem()->Write(&PACKFILEINDEX_SEP, sizeof(uint32_t), pDirectoryFile);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: writes the vpk chunk descriptors
+// Input  : pDirectoryFile - 
+//			&vMap - 
+// Output : number of descriptors written
+//-----------------------------------------------------------------------------
+uint64_t VPKDir_t::WriteDescriptor(FileHandle_t pDirectoryFile, std::map<string, std::map<string, std::list<VPKEntryBlock_t>>>& vMap) const
+{
 	uint64_t nDescriptors = NULL;
 
-	FileSystem()->Write(&m_vHeader.m_nHeaderMarker, sizeof(uint32_t), hDirectoryFile);
-	FileSystem()->Write(&m_vHeader.m_nMajorVersion, sizeof(uint16_t), hDirectoryFile);
-	FileSystem()->Write(&m_vHeader.m_nMinorVersion, sizeof(uint16_t), hDirectoryFile);
-	FileSystem()->Write(&m_vHeader.m_nDirectorySize, sizeof(uint32_t), hDirectoryFile);
-	FileSystem()->Write(&m_vHeader.m_nSignatureSize, sizeof(uint32_t), hDirectoryFile);
+	for (auto& iKeyValue : vMap)
+	{
+		FileSystem()->Write(iKeyValue.first.c_str(), (iKeyValue.first.length() + 1), pDirectoryFile);
+		for (auto& jKeyValue : iKeyValue.second)
+		{
+			FileSystem()->Write(jKeyValue.first.c_str(), (jKeyValue.first.length() + 1), pDirectoryFile);
+			for (auto& vEntry : jKeyValue.second)
+			{
+				string pszEntryPath = GetFileName(vEntry.m_svEntryPath, true);
+				FileSystem()->Write(pszEntryPath.c_str(), (pszEntryPath.length() + 1), pDirectoryFile);
 
+				FileSystem()->Write(&vEntry.m_nFileCRC, sizeof(uint32_t), pDirectoryFile);
+				FileSystem()->Write(&vEntry.m_iPreloadSize, sizeof(uint16_t), pDirectoryFile);
+				FileSystem()->Write(&vEntry.m_iPackFileIndex, sizeof(uint16_t), pDirectoryFile);
+
+				for (size_t i = 0, nc = vEntry.m_vFragments.size(); i < nc; i++)
+				{
+					/*Write chunk descriptor*/
+					const VPKChunkDescriptor_t* pDescriptor = &vEntry.m_vFragments[i];
+
+					FileSystem()->Write(&pDescriptor->m_nLoadFlags, sizeof(uint32_t), pDirectoryFile);
+					FileSystem()->Write(&pDescriptor->m_nTextureFlags, sizeof(uint16_t), pDirectoryFile);
+					FileSystem()->Write(&pDescriptor->m_nPackFileOffset, sizeof(uint64_t), pDirectoryFile);
+					FileSystem()->Write(&pDescriptor->m_nCompressedSize, sizeof(uint64_t), pDirectoryFile);
+					FileSystem()->Write(&pDescriptor->m_nUncompressedSize, sizeof(uint64_t), pDirectoryFile);
+
+					if (i != (nc - 1))
+					{
+						FileSystem()->Write(&PACKFILEINDEX_SEP, sizeof(uint16_t), pDirectoryFile);
+					}
+					else // Mark end of entry.
+					{
+						FileSystem()->Write(&PACKFILEINDEX_END, sizeof(uint16_t), pDirectoryFile);
+					}
+					nDescriptors++;
+				}
+			}
+			FileSystem()->Write(&PACKFILEINDEX_SEP, sizeof(uint8_t), pDirectoryFile);
+		}
+		FileSystem()->Write(&PACKFILEINDEX_SEP, sizeof(uint8_t), pDirectoryFile);
+	}
+	FileSystem()->Write(&PACKFILEINDEX_SEP, sizeof(uint8_t), pDirectoryFile);
+
+	return nDescriptors;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: builds the vpk directory tree
+// Input  : &vEntryBlocks - 
+//          &vMap - 
+//-----------------------------------------------------------------------------
+void VPKDir_t::BuildDirectoryTree(const vector<VPKEntryBlock_t>& vEntryBlocks, std::map<string, std::map<string, std::list<VPKEntryBlock_t>>>& vMap) const
+{
 	for (const VPKEntryBlock_t& vBlock : vEntryBlocks)
 	{
 		string svExtension = GetExtension(vBlock.m_svEntryPath);
@@ -903,61 +967,35 @@ void VPKDir_t::Build(const string& svDirectoryFile, const vector<VPKEntryBlock_t
 		}
 		vMap[svExtension][svFilePath].push_back(vBlock);
 	}
-
-	for (auto& iKeyValue : vMap)
-	{
-		FileSystem()->Write(iKeyValue.first.c_str(), (iKeyValue.first.length() + 1), hDirectoryFile);
-		for (auto& jKeyValue : iKeyValue.second)
-		{
-			FileSystem()->Write(jKeyValue.first.c_str(), (jKeyValue.first.length() + 1), hDirectoryFile);
-			for (auto& vEntry : jKeyValue.second)
-			{
-				string pszEntryPath = GetFileName(vEntry.m_svEntryPath, true);
-				FileSystem()->Write(pszEntryPath.c_str(), (pszEntryPath.length() + 1), hDirectoryFile);
-
-				FileSystem()->Write(&vEntry.m_nFileCRC, sizeof(uint32_t), hDirectoryFile);
-				FileSystem()->Write(&vEntry.m_iPreloadSize, sizeof(uint16_t), hDirectoryFile);
-				FileSystem()->Write(&vEntry.m_iPackFileIndex, sizeof(uint16_t), hDirectoryFile);
-
-				for (size_t i = 0, nc = vEntry.m_vFragments.size(); i < nc; i++)
-				{
-					/*Write chunk descriptor*/
-					const VPKChunkDescriptor_t* pDescriptor = &vEntry.m_vFragments[i];
-
-					FileSystem()->Write(&pDescriptor->m_nLoadFlags, sizeof(uint32_t), hDirectoryFile);
-					FileSystem()->Write(&pDescriptor->m_nTextureFlags, sizeof(uint16_t), hDirectoryFile);
-					FileSystem()->Write(&pDescriptor->m_nPackFileOffset, sizeof(uint64_t), hDirectoryFile);
-					FileSystem()->Write(&pDescriptor->m_nCompressedSize, sizeof(uint64_t), hDirectoryFile);
-					FileSystem()->Write(&pDescriptor->m_nUncompressedSize, sizeof(uint64_t), hDirectoryFile);
-
-					if (i != (nc - 1))
-					{
-						FileSystem()->Write(&PACKFILEINDEX_SEP, sizeof(uint16_t), hDirectoryFile);
-					}
-					else // Mark end of entry.
-					{
-						FileSystem()->Write(&PACKFILEINDEX_END, sizeof(uint16_t), hDirectoryFile);
-					}
-					nDescriptors++;
-				}
-			}
-			FileSystem()->Write(&PACKFILEINDEX_SEP, sizeof(uint8_t), hDirectoryFile);
-		}
-		FileSystem()->Write(&PACKFILEINDEX_SEP, sizeof(uint8_t), hDirectoryFile);
-	}
-	FileSystem()->Write(&PACKFILEINDEX_SEP, sizeof(uint8_t), hDirectoryFile);
-	m_vHeader.m_nDirectorySize = static_cast<uint32_t>(FileSystem()->Tell(hDirectoryFile) - sizeof(VPKDirHeader_t));
-
-	FileSystem()->Seek(hDirectoryFile, offsetof(VPKDir_t, m_vHeader.m_nDirectorySize), FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
-	FileSystem()->Write(&m_vHeader.m_nDirectorySize, sizeof(uint32_t), hDirectoryFile);
-	FileSystem()->Write(&PACKFILEINDEX_SEP, sizeof(uint32_t), hDirectoryFile);
-
-	FileSystem()->Close(hDirectoryFile);
-
-	DevMsg(eDLL_T::FS, "*** Build directory totaling '%zu' bytes with '%zu' entries and '%zu' descriptors\n", 
-		size_t(sizeof(VPKDirHeader_t) + m_vHeader.m_nDirectorySize), vEntryBlocks.size(), nDescriptors);
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: builds the vpk directory file
+// Input  : &svDirectoryFile - 
+//          &vEntryBlocks - 
+//-----------------------------------------------------------------------------
+void VPKDir_t::BuildDirectoryFile(const string& svDirectoryFile, const vector<VPKEntryBlock_t>& vEntryBlocks)
+{
+	FileHandle_t pDirectoryFile = FileSystem()->Open(svDirectoryFile.c_str(), "wb", "GAME");
+	if (!pDirectoryFile)
+	{
+		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to write to '%s' (read-only?)\n", __FUNCTION__, svDirectoryFile.c_str());
+		return;
+	}
+
+	auto vMap = std::map<string, std::map<string, std::list<VPKEntryBlock_t>>>();
+	BuildDirectoryTree(vEntryBlocks, vMap);
+
+	WriteHeader(pDirectoryFile);
+	uint64_t nDescriptors = WriteDescriptor(pDirectoryFile, vMap);
+
+	m_vHeader.m_nDirectorySize = static_cast<uint32_t>(FileSystem()->Tell(pDirectoryFile) - sizeof(VPKDirHeader_t));
+	WriteTreeSize(pDirectoryFile);
+
+	FileSystem()->Close(pDirectoryFile);
+	DevMsg(eDLL_T::FS, "*** Build directory totaling '%zu' bytes with '%zu' entries and '%zu' descriptors\n",
+		size_t(sizeof(VPKDirHeader_t) + m_vHeader.m_nDirectorySize), vEntryBlocks.size(), nDescriptors);
+}
 //-----------------------------------------------------------------------------
 // Singleton
 //-----------------------------------------------------------------------------
