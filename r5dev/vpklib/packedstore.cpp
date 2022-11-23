@@ -52,75 +52,6 @@ void CPackedStore::InitLzDecompParams(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: gets a directory structure for specified file.
-// Input  : svPackDirFile - 
-//          bSanitizeName - retrieve the directory file name from block name
-// Output : VPKDir_t
-//-----------------------------------------------------------------------------
-VPKDir_t CPackedStore::GetDirectoryFile(const string& svPackDirFile, bool bSanitizeName) const
-{
-	if (!bSanitizeName)
-	{
-		return VPKDir_t(svPackDirFile);
-	}
-
-	std::smatch smRegexMatches;
-	std::regex_search(svPackDirFile, smRegexMatches, BLOCK_REGEX);
-
-	if (smRegexMatches.empty())
-	{
-		return VPKDir_t(svPackDirFile);
-	}
-
-	string svSanitizedName = svPackDirFile;
-	StringReplace(svSanitizedName, smRegexMatches[0], "pak000_dir");
-
-	bool bHasLocale = false;
-	for (const string& svLocale : DIR_LOCALE)
-	{
-		if (svSanitizedName.find(svLocale) != string::npos)
-		{
-			bHasLocale = true;
-			break;
-		}
-	}
-
-	if (!bHasLocale) // Only sanitize if no locale was provided.
-	{
-		string svPackDirPrefix;
-		svPackDirPrefix.append(DIR_LOCALE[0]);
-
-		for (const string& svTarget : DIR_TARGET)
-		{
-			if (svSanitizedName.find(svTarget) != string::npos)
-			{
-				svPackDirPrefix.append(svTarget);
-				StringReplace(svSanitizedName, svTarget, svPackDirPrefix);
-
-				break;
-			}
-		}
-	}
-
-	return VPKDir_t(svSanitizedName);
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: formats pack file path for specific directory file
-// Input  : &svPackDirFile - 
-//          iPackFileIndex - 
-// output : string
-//-----------------------------------------------------------------------------
-string CPackedStore::GetPackFile(const string& svPackDirFile, uint16_t iPackFileIndex) const
-{
-	string svPackChunkFile = StripLocalePrefix(svPackDirFile);
-	string svPackChunkIndex = fmt::format("{:s}{:03d}", "pak000_", iPackFileIndex);
-
-	StringReplace(svPackChunkFile, "pak000_dir", svPackChunkIndex);
-	return svPackChunkFile;
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: gets the LZHAM compression level
 // output : lzham_compress_level
 //-----------------------------------------------------------------------------
@@ -144,83 +75,83 @@ lzham_compress_level CPackedStore::GetCompressionLevel(void) const
 
 //-----------------------------------------------------------------------------
 // Purpose: obtains and returns the entry block to the vector
-// Input  : hDirectory - 
+// Input  : hDirectoryFile - 
 // output : vector<VPKEntryBlock_t>
 //-----------------------------------------------------------------------------
-vector<VPKEntryBlock_t> CPackedStore::GetEntryBlocks(FileHandle_t hDirectory) const
+vector<VPKEntryBlock_t> CPackedStore::GetEntryBlocks(FileHandle_t hDirectoryFile) const
 {
 	string svName, svPath, svExtension;
-	vector<VPKEntryBlock_t> vBlocks;
-	while (!(svExtension = FileSystem()->ReadString(hDirectory)).empty())
+	vector<VPKEntryBlock_t> vEntryBlocks;
+	while (!(svExtension = FileSystem()->ReadString(hDirectoryFile)).empty())
 	{
-		while (!(svPath = FileSystem()->ReadString(hDirectory)).empty())
+		while (!(svPath = FileSystem()->ReadString(hDirectoryFile)).empty())
 		{
-			while (!(svName = FileSystem()->ReadString(hDirectory)).empty())
+			while (!(svName = FileSystem()->ReadString(hDirectoryFile)).empty())
 			{
 				const string svFilePath = FormatEntryPath(svPath, svName, svExtension);
-				vBlocks.push_back(VPKEntryBlock_t(hDirectory, svFilePath));
+				vEntryBlocks.push_back(VPKEntryBlock_t(hDirectoryFile, svFilePath));
 			}
 		}
 	}
-	return vBlocks;
+	return vEntryBlocks;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: scans the input directory and returns the paths to the vector
-// Input  : &svPathIn - 
-// Output : a vpk keyvalues vector of all existing entry paths
+// Input  : &svWorkspace - 
+// Output : vpk keyvalues vector of all existing entry paths
 //-----------------------------------------------------------------------------
-vector<VPKKeyValues_t> CPackedStore::GetEntryPaths(const string& svPathIn) const
+vector<VPKKeyValues_t> CPackedStore::GetEntryValues(const string& svWorkspace) const
 {
-	vector<VPKKeyValues_t> vKeys;
-	vector<string> vIgnore = GetIgnoreList(svPathIn);
+	vector<VPKKeyValues_t> vEntryValues;
+	vector<string> vIgnoredList = GetIgnoreList(svWorkspace);
 
-	fs::recursive_directory_iterator dir(svPathIn), end;
+	fs::recursive_directory_iterator dir(svWorkspace), end;
 	while (dir != end)
 	{
-		const vector<string>::iterator it = std::find(vIgnore.begin(), vIgnore.end(),
+		const vector<string>::iterator it = std::find(vIgnoredList.begin(), vIgnoredList.end(),
 			GetExtension(dir->path().filename().u8string(), true, true));
-		if (it != vIgnore.end())
+		if (it != vIgnoredList.end())
 		{
 			dir.disable_recursion_pending(); // Skip all ignored folders and extensions.
 		}
 		else if (dir->file_size() > 0) // Empty files are not supported.
 		{
-			const string svPath = dir->path().u8string();
-			if (!GetExtension(svPath).empty())
+			const string svEntryPath = dir->path().u8string();
+			if (!GetExtension(svEntryPath).empty())
 			{
-				vKeys.push_back(VPKKeyValues_t(ConvertToUnixPath(svPath)));
+				vEntryValues.push_back(VPKKeyValues_t(ConvertToUnixPath(svEntryPath)));
 			}
 		}
 		dir++;
 	}
-	return vKeys;
+	return vEntryValues;
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: scans the input directory and returns the paths to the vector if path exists in manifest
-// Input  : &svPathIn - 
+// Purpose: scans the input directory and returns the values to the vector if path exists in manifest
+// Input  : &svWorkspace - 
 //          *pManifestKV - 
-// Output : a vpk keyvalues vector of all existing and included entry paths
+// Output : vpk keyvalues vector of all existing and included entry paths
 //-----------------------------------------------------------------------------
-vector<VPKKeyValues_t> CPackedStore::GetEntryPaths(const string& svPathIn, KeyValues* pManifestKV) const
+vector<VPKKeyValues_t> CPackedStore::GetEntryValues(const string& svWorkspace, KeyValues* pManifestKV) const
 {
-	vector<VPKKeyValues_t> vKeys;
+	vector<VPKKeyValues_t> vEntryValues;
 
 	if (!pManifestKV)
 	{
 		Warning(eDLL_T::FS, "Invalid VPK manifest KV; unable to build entry list\n");
-		return vKeys;
+		return vEntryValues;
 	}
 
-	vector<string> vIgnore = GetIgnoreList(svPathIn);
-	fs::recursive_directory_iterator dir(svPathIn), end;
+	vector<string> vIgnoredList = GetIgnoreList(svWorkspace);
+	fs::recursive_directory_iterator dir(svWorkspace), end;
 
 	while (dir != end)
 	{
-		const vector<string>::iterator it = std::find(vIgnore.begin(), vIgnore.end(), 
+		const vector<string>::iterator it = std::find(vIgnoredList.begin(), vIgnoredList.end(), 
 			GetExtension(dir->path().filename().u8string(), true, true));
-		if (it != vIgnore.end())
+		if (it != vIgnoredList.end())
 		{
 			dir.disable_recursion_pending(); // Skip all ignored folders and extensions.
 		}
@@ -230,12 +161,12 @@ vector<VPKKeyValues_t> CPackedStore::GetEntryPaths(const string& svPathIn, KeyVa
 			if (!GetExtension(svFullPath).empty())
 			{
 				// Remove workspace path by offsetting it by its size.
-				const char* pszEntry = (svFullPath.c_str() + svPathIn.length());
+				const char* pszEntry = (svFullPath.c_str() + svWorkspace.length());
 				KeyValues* pEntryKV = pManifestKV->FindKey(pszEntry);
 
 				if (pEntryKV)
 				{
-					vKeys.push_back(VPKKeyValues_t(
+					vEntryValues.push_back(VPKKeyValues_t(
 						ConvertToUnixPath(svFullPath),
 						pEntryKV->GetInt("preloadSize", NULL),
 						pEntryKV->GetInt("loadFlags", static_cast<uint32_t>(EPackedLoadFlags::LOAD_VISIBLE) | static_cast<uint32_t>(EPackedLoadFlags::LOAD_CACHE)),
@@ -248,7 +179,7 @@ vector<VPKKeyValues_t> CPackedStore::GetEntryPaths(const string& svPathIn, KeyVa
 		}
 		dir++;
 	}
-	return vKeys;
+	return vEntryValues;
 }
 
 //-----------------------------------------------------------------------------
@@ -282,7 +213,7 @@ string CPackedStore::GetLevelName(const string& svDirectoryName) const
 // Purpose: gets the manifest file associated with the VPK name (must be freed after wards)
 // Input  : &svWorkspace - 
 //          &svManifestName - 
-// Output : KeyValues build manifest pointer
+// Output : KeyValues (build manifest pointer)
 //-----------------------------------------------------------------------------
 KeyValues* CPackedStore::GetManifest(const string& svWorkspace, const string& svManifestName) const
 {
@@ -355,56 +286,9 @@ string CPackedStore::FormatEntryPath(const string& svPath, const string& svName,
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: strips locale prefix from file path
-// Input  : &svDirectoryFile - 
-// Output : directory filename without locale prefix
-//-----------------------------------------------------------------------------
-string CPackedStore::StripLocalePrefix(const string& svDirectoryFile) const
-{
-	fs::path fsDirectoryFile(svDirectoryFile);
-	string svFileName = fsDirectoryFile.filename().u8string();
-
-	for (const string& svLocale : DIR_LOCALE)
-	{
-		if (svFileName.find(svLocale) != string::npos)
-		{
-			StringReplace(svFileName, svLocale, "");
-			break;
-		}
-	}
-	return svFileName;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: builds a valid file name for the VPK
-// Input  : svLanguage - 
-//          svTarget - 
-//          &svLevel - 
-//          nPatch - 
-// Output : a vpk file pair (block and directory file names)
-//-----------------------------------------------------------------------------
-VPKPair_t CPackedStore::BuildFileName(string svLanguage, string svTarget, const string& svLevel, int nPatch) const
-{
-	if (std::find(DIR_LOCALE.begin(), DIR_LOCALE.end(), svLanguage) == DIR_LOCALE.end())
-	{
-		svLanguage = DIR_LOCALE[0];
-	}
-	if (std::find(DIR_TARGET.begin(), DIR_TARGET.end(), svTarget) == DIR_TARGET.end())
-	{
-		svTarget = DIR_TARGET[0];
-	}
-
-	VPKPair_t vPair;
-	vPair.m_svBlockName = fmt::format("{:s}_{:s}.bsp.pak000_{:03d}{:s}", svTarget, svLevel, nPatch, ".vpk");
-	vPair.m_svDirectoryName = fmt::format("{:s}{:s}_{:s}.bsp.pak000_{:s}", svLanguage, svTarget, svLevel, "dir.vpk");
-
-	return vPair;
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: builds the VPK manifest file
 // Input  : &vBlock - 
-//          &svWorkSpace - 
+//          &svWorkspace - 
 //          &svManifestName - 
 //-----------------------------------------------------------------------------
 void CPackedStore::BuildManifest(const vector<VPKEntryBlock_t>& vBlock, const string& svWorkspace, const string& svManifestName) const
@@ -435,7 +319,7 @@ void CPackedStore::BuildManifest(const vector<VPKEntryBlock_t>& vBlock, const st
 
 //-----------------------------------------------------------------------------
 // Purpose: validates extraction result with precomputed ADLER32 hash
-// Input  : &svAssetFile - 
+// Input  : &svAssetPath - 
 //-----------------------------------------------------------------------------
 void CPackedStore::ValidateAdler32PostDecomp(const string& svAssetPath)
 {
@@ -464,7 +348,7 @@ void CPackedStore::ValidateAdler32PostDecomp(const string& svAssetPath)
 
 //-----------------------------------------------------------------------------
 // Purpose: validates extraction result with precomputed CRC32 hash
-// Input  : &svAssetFile - 
+// Input  : &svAssetPath - 
 //-----------------------------------------------------------------------------
 void CPackedStore::ValidateCRC32PostDecomp(const string& svAssetPath)
 {
@@ -500,7 +384,7 @@ void CPackedStore::ValidateCRC32PostDecomp(const string& svAssetPath)
 //-----------------------------------------------------------------------------
 void CPackedStore::PackWorkspace(const VPKPair_t& vPair, const string& svWorkspace, const string& svBuildPath, bool bManifestOnly)
 {
-	const string svPackFilePath = string(svBuildPath + vPair.m_svBlockName).c_str();
+	const string svPackFilePath = string(svBuildPath + vPair.m_svPackName);
 	FileHandle_t hPackFile = FileSystem()->Open(svPackFilePath.c_str(), "wb", "GAME");
 
 	if (!hPackFile)
@@ -509,14 +393,14 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vPair, const string& svWorkspa
 		return;
 	}
 
-	vector<VPKKeyValues_t> vPaths;
+	vector<VPKKeyValues_t> vEntryValues;
 	vector<VPKEntryBlock_t> vEntryBlocks;
 	KeyValues* pManifestKV = nullptr;
 
 	if (bManifestOnly)
 	{
 		pManifestKV = GetManifest(svWorkspace, GetLevelName(vPair.m_svDirectoryName));
-		vPaths = GetEntryPaths(svWorkspace, pManifestKV);
+		vEntryValues = GetEntryValues(svWorkspace, pManifestKV);
 
 		if (pManifestKV)
 		{
@@ -525,23 +409,23 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vPair, const string& svWorkspa
 	}
 	else // Pack all files in workspace.
 	{
-		vPaths = GetEntryPaths(svWorkspace);
+		vEntryValues = GetEntryValues(svWorkspace);
 	}
 
 	uint64_t nSharedTotal = NULL;
 	uint32_t nSharedCount = NULL;
 
-	for (size_t i = 0, ps = vPaths.size(); i < ps; i++)
+	for (size_t i = 0, ps = vEntryValues.size(); i < ps; i++)
 	{
-		const VPKKeyValues_t& vKeys = vPaths[i];
-		FileHandle_t hAsset = FileSystem()->Open(vKeys.m_svEntryPath.c_str(), "rb", "GAME");
+		const VPKKeyValues_t& vEntryValue = vEntryValues[i];
+		FileHandle_t hAsset = FileSystem()->Open(vEntryValue.m_svEntryPath.c_str(), "rb", "GAME");
 		if (!hAsset)
 		{
-			Error(eDLL_T::FS, NO_ERROR, "%s - Unable to open '%s' (insufficient rights?)\n", __FUNCTION__, vKeys.m_svEntryPath.c_str());
+			Error(eDLL_T::FS, NO_ERROR, "%s - Unable to open '%s' (insufficient rights?)\n", __FUNCTION__, vEntryValue.m_svEntryPath.c_str());
 			continue;
 		}
 
-		const char* szDestPath = (vKeys.m_svEntryPath.c_str() + svWorkspace.length());
+		const char* szDestPath = (vEntryValue.m_svEntryPath.c_str() + svWorkspace.length());
 		uint32_t nLen = FileSystem()->Size(hAsset);
 		uint8_t* pBuf = MemAllocSingleton()->Alloc<uint8_t>(nLen);
 
@@ -549,17 +433,17 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vPair, const string& svWorkspa
 		FileSystem()->Seek(hAsset, 0, FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
 
 		DevMsg(eDLL_T::FS, "Packing entry '%zu' ('%s')\n", i, szDestPath);
-		vEntryBlocks.push_back(VPKEntryBlock_t(pBuf, nLen, FileSystem()->Tell(hPackFile), vKeys.m_iPreloadSize, 0, vKeys.m_nLoadFlags, vKeys.m_nTextureFlags, szDestPath));
+		vEntryBlocks.push_back(VPKEntryBlock_t(pBuf, nLen, FileSystem()->Tell(hPackFile), vEntryValue.m_iPreloadSize, 0, vEntryValue.m_nLoadFlags, vEntryValue.m_nTextureFlags, szDestPath));
 
-		VPKEntryBlock_t& vEntry = vEntryBlocks[i];
-		for (size_t j = 0, es = vEntry.m_vFragments.size(); j < es; j++)
+		VPKEntryBlock_t& vEntryBlock = vEntryBlocks[i];
+		for (size_t j = 0, es = vEntryBlock.m_vFragments.size(); j < es; j++)
 		{
-			VPKChunkDescriptor_t& vDescriptor = vEntry.m_vFragments[j];
+			VPKChunkDescriptor_t& vDescriptor = vEntryBlock.m_vFragments[j];
 
 			FileSystem()->Read(s_EntryBuf, vDescriptor.m_nCompressedSize, hAsset);
 			vDescriptor.m_nPackFileOffset = FileSystem()->Tell(hPackFile);
 
-			if (vKeys.m_bUseDataSharing)
+			if (vEntryValue.m_bUseDataSharing)
 			{
 				string svEntryHash = sha1(string(reinterpret_cast<char*>(s_EntryBuf), vDescriptor.m_nUncompressedSize));
 				auto p = m_mChunkHashMap.insert({ svEntryHash, vDescriptor });
@@ -576,7 +460,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vPair, const string& svWorkspa
 				}
 			}
 
-			if (vKeys.m_bUseCompression)
+			if (vEntryValue.m_bUseCompression)
 			{
 				m_lzCompStatus = lzham_compress_memory(&m_lzCompParams, s_EntryBuf, &vDescriptor.m_nCompressedSize, s_EntryBuf,
 					vDescriptor.m_nUncompressedSize, &m_nAdler32_Internal, &m_nCrc32_Internal);
@@ -608,31 +492,31 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vPair, const string& svWorkspa
 	m_mChunkHashMap.clear();
 	memset(s_EntryBuf, '\0', sizeof(s_EntryBuf));
 
-	VPKDir_t vDir = VPKDir_t();
-	vDir.BuildDirectoryFile(svBuildPath + vPair.m_svDirectoryName, vEntryBlocks);
+	VPKDir_t vDirectory;
+	vDirectory.BuildDirectoryFile(svBuildPath + vPair.m_svDirectoryName, vEntryBlocks);
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: rebuilds manifest and extracts all files from specified VPK file
-// Input  : &vDir - 
+// Input  : &vDirectory - 
 //          &svWorkspace - 
 //-----------------------------------------------------------------------------
-void CPackedStore::UnpackWorkspace(const VPKDir_t& vDir, const string& svWorkspace)
+void CPackedStore::UnpackWorkspace(const VPKDir_t& vDirectory, const string& svWorkspace)
 {
-	if (vDir.m_vHeader.m_nHeaderMarker != VPK_HEADER_MARKER ||
-		vDir.m_vHeader.m_nMajorVersion != VPK_MAJOR_VERSION ||
-		vDir.m_vHeader.m_nMinorVersion != VPK_MINOR_VERSION)
+	if (vDirectory.m_vHeader.m_nHeaderMarker != VPK_HEADER_MARKER ||
+		vDirectory.m_vHeader.m_nMajorVersion != VPK_MAJOR_VERSION ||
+		vDirectory.m_vHeader.m_nMinorVersion != VPK_MINOR_VERSION)
 	{
 		Error(eDLL_T::FS, NO_ERROR, "Unsupported VPK directory file (invalid header criteria)\n");
 		return;
 	}
 
-	BuildManifest(vDir.m_vEntryBlocks, svWorkspace, GetLevelName(vDir.m_svDirPath));
-	const string svPath = RemoveFileName(vDir.m_svDirPath) + '/';
+	BuildManifest(vDirectory.m_vEntryBlocks, svWorkspace, GetLevelName(vDirectory.m_svDirectoryPath));
+	const string svPath = RemoveFileName(vDirectory.m_svDirectoryPath) + '/';
 
-	for (size_t i = 0, fs = vDir.m_vPackFile.size(); i < fs; i++)
+	for (size_t i = 0, fs = vDirectory.m_vPackFile.size(); i < fs; i++)
 	{
-		const string svPackFile = svPath + vDir.m_vPackFile[i];
+		const string svPackFile = svPath + vDirectory.m_vPackFile[i];
 
 		// Read from each pack file.
 		FileHandle_t hPackFile = FileSystem()->Open(svPackFile.c_str(), "rb", "GAME");
@@ -642,16 +526,16 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vDir, const string& svWorkspa
 			continue;
 		}
 
-		for (size_t j = 0, es = vDir.m_vEntryBlocks.size(); j < es; j++)
+		for (size_t j = 0, es = vDirectory.m_vEntryBlocks.size(); j < es; j++)
 		{
-			const VPKEntryBlock_t& vBlock = vDir.m_vEntryBlocks[j];
-			if (vBlock.m_iPackFileIndex != static_cast<uint16_t>(i))
+			const VPKEntryBlock_t& vEntryBlock = vDirectory.m_vEntryBlocks[j];
+			if (vEntryBlock.m_iPackFileIndex != static_cast<uint16_t>(i))
 			{
 				continue;
 			}
 			else // Chunk belongs to this block.
 			{
-				const string svFilePath = CreateDirectories(svWorkspace + vBlock.m_svEntryPath);
+				const string svFilePath = CreateDirectories(svWorkspace + vEntryBlock.m_svEntryPath);
 				FileHandle_t hAsset = FileSystem()->Open(svFilePath.c_str(), "wb", "GAME");
 
 				if (!hAsset)
@@ -660,10 +544,10 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vDir, const string& svWorkspa
 					continue;
 				}
 
-				DevMsg(eDLL_T::FS, "Unpacking entry '%zu' from block '%zu' ('%s')\n", j, i, vBlock.m_svEntryPath.c_str());
-				for (size_t k = 0, cs = vBlock.m_vFragments.size(); k < cs; k++)
+				DevMsg(eDLL_T::FS, "Unpacking entry '%zu' from block '%zu' ('%s')\n", j, i, vEntryBlock.m_svEntryPath.c_str());
+				for (size_t k = 0, cs = vEntryBlock.m_vFragments.size(); k < cs; k++)
 				{
-					const VPKChunkDescriptor_t& vChunk = vBlock.m_vFragments[k];
+					const VPKChunkDescriptor_t& vChunk = vEntryBlock.m_vFragments[k];
 					m_nChunkCount++;
 
 					FileSystem()->Seek(hPackFile, vChunk.m_nPackFileOffset, FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
@@ -683,7 +567,7 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vDir, const string& svWorkspa
 						if (m_lzDecompStatus != lzham_decompress_status_t::LZHAM_DECOMP_STATUS_SUCCESS)
 						{
 							Error(eDLL_T::FS, NO_ERROR, "Status '%d' for chunk '%zu' within entry '%zu' in block '%hu' (chunk not decompressed)\n",
-								m_lzDecompStatus, m_nChunkCount, i, vBlock.m_iPackFileIndex);
+								m_lzDecompStatus, m_nChunkCount, i, vEntryBlock.m_iPackFileIndex);
 						}
 						else // If successfully decompressed, write to file.
 						{
@@ -697,10 +581,10 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vDir, const string& svWorkspa
 				}
 
 				FileSystem()->Close(hAsset);
-				if (m_nChunkCount == vBlock.m_vFragments.size()) // Only validate after last entry in block had been written.
+				if (m_nChunkCount == vEntryBlock.m_vFragments.size()) // Only validate after last entry in block had been written.
 				{
 					m_nChunkCount = NULL;
-					m_nCrc32_Internal = vBlock.m_nFileCRC;
+					m_nCrc32_Internal = vEntryBlock.m_nFileCRC;
 
 					ValidateCRC32PostDecomp(svFilePath);
 				}
@@ -733,27 +617,27 @@ VPKKeyValues_t::VPKKeyValues_t(const string& svEntryPath, uint16_t iPreloadSize,
 
 //-----------------------------------------------------------------------------
 // Purpose: 'VPKEntryBlock_t' file constructor
-// Input  : hFile - 
+// Input  : hDirectoryFile - 
 //          &svEntryPath - 
 //-----------------------------------------------------------------------------
-VPKEntryBlock_t::VPKEntryBlock_t(FileHandle_t hFile, const string& svEntryPath)
+VPKEntryBlock_t::VPKEntryBlock_t(FileHandle_t hDirectoryFile, const string& svEntryPath)
 {
 	m_svEntryPath = svEntryPath; // Set the entry path.
 	StringReplace(m_svEntryPath, "\\", "/"); // Flip windows-style backslash to forward slash.
 	StringReplace(m_svEntryPath, " /", ""); // Remove space character representing VPK root.
 
-	FileSystem()->Read(&m_nFileCRC, sizeof(uint32_t), hFile);       //
-	FileSystem()->Read(&m_iPreloadSize, sizeof(uint16_t), hFile);   //
-	FileSystem()->Read(&m_iPackFileIndex, sizeof(uint16_t), hFile); //
+	FileSystem()->Read(&m_nFileCRC, sizeof(uint32_t), hDirectoryFile);       //
+	FileSystem()->Read(&m_iPreloadSize, sizeof(uint16_t), hDirectoryFile);   //
+	FileSystem()->Read(&m_iPackFileIndex, sizeof(uint16_t), hDirectoryFile); //
 
 
 	uint16_t nMarker = 0;
 	do // Loop through all chunks in the entry and add to list.
 	{
-		VPKChunkDescriptor_t entry(hFile);
+		VPKChunkDescriptor_t entry(hDirectoryFile);
 		m_vFragments.push_back(entry);
 
-		FileSystem()->Read(&nMarker, sizeof(nMarker), hFile);
+		FileSystem()->Read(&nMarker, sizeof(nMarker), hDirectoryFile);
 
 	} while (nMarker != static_cast<uint16_t>(PACKFILEINDEX_END));
 }
@@ -761,6 +645,7 @@ VPKEntryBlock_t::VPKEntryBlock_t(FileHandle_t hFile, const string& svEntryPath)
 //-----------------------------------------------------------------------------
 // Purpose: 'VPKEntryBlock_t' memory constructor
 // Input  : *pData - 
+//          nLen
 //          nOffset - 
 //          iPreloadSize - 
 //          iPackFileIndex - 
@@ -791,15 +676,15 @@ VPKEntryBlock_t::VPKEntryBlock_t(const uint8_t* pData, size_t nLen, int64_t nOff
 
 //-----------------------------------------------------------------------------
 // Purpose: 'VPKChunkDescriptor_t' file constructor
-// Input  : hFile - 
+// Input  : hDirectoryFile - 
 //-----------------------------------------------------------------------------
-VPKChunkDescriptor_t::VPKChunkDescriptor_t(FileHandle_t hFile)
+VPKChunkDescriptor_t::VPKChunkDescriptor_t(FileHandle_t hDirectoryFile)
 {
-	FileSystem()->Read(&m_nLoadFlags, sizeof(uint32_t), hFile);        //
-	FileSystem()->Read(&m_nTextureFlags, sizeof(uint16_t), hFile);     //
-	FileSystem()->Read(&m_nPackFileOffset, sizeof(uint64_t), hFile);   //
-	FileSystem()->Read(&m_nCompressedSize, sizeof(uint64_t), hFile);   //
-	FileSystem()->Read(&m_nUncompressedSize, sizeof(uint64_t), hFile); //
+	FileSystem()->Read(&m_nLoadFlags, sizeof(uint32_t), hDirectoryFile);        //
+	FileSystem()->Read(&m_nTextureFlags, sizeof(uint16_t), hDirectoryFile);     //
+	FileSystem()->Read(&m_nPackFileOffset, sizeof(uint64_t), hDirectoryFile);   //
+	FileSystem()->Read(&m_nCompressedSize, sizeof(uint64_t), hDirectoryFile);   //
+	FileSystem()->Read(&m_nUncompressedSize, sizeof(uint64_t), hDirectoryFile); //
 	m_bIsCompressed = (m_nCompressedSize != m_nUncompressedSize);
 }
 
@@ -812,27 +697,115 @@ VPKChunkDescriptor_t::VPKChunkDescriptor_t(FileHandle_t hFile)
 //          nUncompressedSize - 
 //-----------------------------------------------------------------------------
 VPKChunkDescriptor_t::VPKChunkDescriptor_t(uint32_t nLoadFlags, uint16_t nTextureFlags, 
-	uint64_t nArchiveOffset, uint64_t nCompressedSize, uint64_t nUncompressedSize)
+	uint64_t nPackFileOffset, uint64_t nCompressedSize, uint64_t nUncompressedSize)
 {
 	m_nLoadFlags = nLoadFlags;
 	m_nTextureFlags = nTextureFlags;
-	m_nPackFileOffset = nArchiveOffset;
+	m_nPackFileOffset = nPackFileOffset;
 
 	m_nCompressedSize = nCompressedSize;
 	m_nUncompressedSize = nUncompressedSize;
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: builds a valid file name for the VPK
+// Input  : svLanguage - 
+//          svTarget - 
+//          &svLevel - 
+//          nPatch - 
+// Output : a vpk file pair (block and directory file names)
+//-----------------------------------------------------------------------------
+VPKPair_t::VPKPair_t(string svLanguage, string svTarget, const string& svLevel, int nPatch)
+{
+	if (std::find(DIR_LOCALE.begin(), DIR_LOCALE.end(), svLanguage) == DIR_LOCALE.end())
+	{
+		svLanguage = DIR_LOCALE[0];
+	}
+	if (std::find(DIR_TARGET.begin(), DIR_TARGET.end(), svTarget) == DIR_TARGET.end())
+	{
+		svTarget = DIR_TARGET[0];
+	}
+
+	m_svPackName = fmt::format("{:s}_{:s}.bsp.pak000_{:03d}{:s}", svTarget, svLevel, nPatch, ".vpk");
+	m_svDirectoryName = fmt::format("{:s}{:s}_{:s}.bsp.pak000_{:s}", svLanguage, svTarget, svLevel, "dir.vpk");
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: 'VPKDir_t' file constructor
 // Input  : &svPath - 
 //-----------------------------------------------------------------------------
-VPKDir_t::VPKDir_t(const string& svPath)
+VPKDir_t::VPKDir_t(const string& svDirectoryPath)
+{
+	Init(svDirectoryPath);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 'VPKDir_t' file constructor with sanitation
+// Input  : svDirectoryName - 
+//          bSanitizeName - retrieve the directory file name from block name
+// Output : VPKDir_t
+//-----------------------------------------------------------------------------
+VPKDir_t::VPKDir_t(const string& svDirectoryPath, bool bSanitizeName)
+{
+	if (!bSanitizeName)
+	{
+		Init(svDirectoryPath);
+		return;
+	}
+
+	std::smatch smRegexMatches;
+	std::regex_search(svDirectoryPath, smRegexMatches, BLOCK_REGEX);
+
+	if (smRegexMatches.empty())
+	{
+		Init(svDirectoryPath);
+		return;
+	}
+
+	string svSanitizedName = svDirectoryPath;
+	StringReplace(svSanitizedName, smRegexMatches[0], "pak000_dir");
+
+	bool bHasLocale = false;
+	for (const string& svLocale : DIR_LOCALE)
+	{
+		if (svSanitizedName.find(svLocale) != string::npos)
+		{
+			bHasLocale = true;
+			break;
+		}
+	}
+
+	if (!bHasLocale) // Only sanitize if no locale was provided.
+	{
+		string svPackDirPrefix;
+		svPackDirPrefix.append(DIR_LOCALE[0]);
+
+		for (const string& svTarget : DIR_TARGET)
+		{
+			if (svSanitizedName.find(svTarget) != string::npos)
+			{
+				svPackDirPrefix.append(svTarget);
+				StringReplace(svSanitizedName, svTarget, svPackDirPrefix);
+
+				break;
+			}
+		}
+	}
+
+	Init(svSanitizedName);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 'VPKDir_t' file constructor
+// Input  : &svDirectoryPath - 
+//-----------------------------------------------------------------------------
+void VPKDir_t::Init(const string& svDirectoryPath)
 {
 	// Create stream to read from each pack file.
-	FileHandle_t hDirectory = FileSystem()->Open(svPath.c_str(), "rb", "GAME");
+	FileHandle_t hDirectory = FileSystem()->Open(svDirectoryPath.c_str(), "rb", "GAME");
 	if (!hDirectory)
 	{
-		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to open '%s' (insufficient rights?)\n", __FUNCTION__, svPath.c_str());
+		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to open '%s' (insufficient rights?)\n", __FUNCTION__, svDirectoryPath.c_str());
 		return;
 	}
 
@@ -843,7 +816,7 @@ VPKDir_t::VPKDir_t(const string& svPath)
 	FileSystem()->Read(&m_vHeader.m_nSignatureSize, sizeof(uint32_t), hDirectory); //
 
 	m_vEntryBlocks = g_pPackedStore->GetEntryBlocks(hDirectory);
-	m_svDirPath = svPath; // Set path to vpk directory file.
+	m_svDirectoryPath = svDirectoryPath; // Set path to vpk directory file.
 
 	m_nPackFileCount = 0;
 	for (VPKEntryBlock_t vEntry : m_vEntryBlocks)
@@ -856,87 +829,122 @@ VPKDir_t::VPKDir_t(const string& svPath)
 
 	for (uint16_t i = 0; i < m_nPackFileCount + 1; i++)
 	{
-		string svArchivePath = g_pPackedStore->GetPackFile(svPath, i);
-		m_vPackFile.push_back(svArchivePath);
+		string svPackPath = GetPackFile(svDirectoryPath, i);
+		m_vPackFile.push_back(svPackPath);
 	}
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: writes the vpk directory header
-// Input  : pDirectoryFile - 
+// Purpose: formats pack file path for specific directory file
+// Input  : &svDirectoryPath - 
+//          iPackFileIndex - 
+// output : string
 //-----------------------------------------------------------------------------
-void VPKDir_t::WriteHeader(FileHandle_t pDirectoryFile) const
+string VPKDir_t::GetPackFile(const string& svDirectoryPath, uint16_t iPackFileIndex) const
 {
-	FileSystem()->Write(&m_vHeader.m_nHeaderMarker, sizeof(uint32_t), pDirectoryFile);
-	FileSystem()->Write(&m_vHeader.m_nMajorVersion, sizeof(uint16_t), pDirectoryFile);
-	FileSystem()->Write(&m_vHeader.m_nMinorVersion, sizeof(uint16_t), pDirectoryFile);
-	FileSystem()->Write(&m_vHeader.m_nDirectorySize, sizeof(uint32_t), pDirectoryFile);
-	FileSystem()->Write(&m_vHeader.m_nSignatureSize, sizeof(uint32_t), pDirectoryFile);
+	string svPackChunkName = StripLocalePrefix(svDirectoryPath);
+	string svPackChunkIndex = fmt::format("{:s}{:03d}", "pak000_", iPackFileIndex);
+
+	StringReplace(svPackChunkName, "pak000_dir", svPackChunkIndex);
+	return svPackChunkName;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: strips locale prefix from file path
+// Input  : &svDirectoryPath - 
+// Output : directory filename without locale prefix
+//-----------------------------------------------------------------------------
+string VPKDir_t::StripLocalePrefix(const string& svDirectoryPath) const
+{
+	string svFileName = GetFileName(svDirectoryPath);
+
+	for (const string& svLocale : DIR_LOCALE)
+	{
+		if (svFileName.find(svLocale) != string::npos)
+		{
+			StringReplace(svFileName, svLocale, "");
+			break;
+		}
+	}
+	return svFileName;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: writes the vpk directory header
+// Input  : hDirectoryFile - 
+//-----------------------------------------------------------------------------
+void VPKDir_t::WriteHeader(FileHandle_t hDirectoryFile) const
+{
+	FileSystem()->Write(&m_vHeader.m_nHeaderMarker, sizeof(uint32_t), hDirectoryFile);
+	FileSystem()->Write(&m_vHeader.m_nMajorVersion, sizeof(uint16_t), hDirectoryFile);
+	FileSystem()->Write(&m_vHeader.m_nMinorVersion, sizeof(uint16_t), hDirectoryFile);
+	FileSystem()->Write(&m_vHeader.m_nDirectorySize, sizeof(uint32_t), hDirectoryFile);
+	FileSystem()->Write(&m_vHeader.m_nSignatureSize, sizeof(uint32_t), hDirectoryFile);
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: writes the directory tree size
-// Input  : &vEntryBlocks - 
+// Input  : hDirectoryFile - 
 //-----------------------------------------------------------------------------
-void VPKDir_t::WriteTreeSize(FileHandle_t pDirectoryFile) const
+void VPKDir_t::WriteTreeSize(FileHandle_t hDirectoryFile) const
 {
-	FileSystem()->Seek(pDirectoryFile, offsetof(VPKDir_t, m_vHeader.m_nDirectorySize), FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
-	FileSystem()->Write(&m_vHeader.m_nDirectorySize, sizeof(uint32_t), pDirectoryFile);
-	FileSystem()->Write(&PACKFILEINDEX_SEP, sizeof(uint32_t), pDirectoryFile);
+	FileSystem()->Seek(hDirectoryFile, offsetof(VPKDir_t, m_vHeader.m_nDirectorySize), FileSystemSeek_t::FILESYSTEM_SEEK_HEAD);
+	FileSystem()->Write(&m_vHeader.m_nDirectorySize, sizeof(uint32_t), hDirectoryFile);
+	FileSystem()->Write(&PACKFILEINDEX_SEP, sizeof(uint32_t), hDirectoryFile);
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: writes the vpk chunk descriptors
-// Input  : pDirectoryFile - 
+// Input  : hDirectoryFile - 
 //			&vMap - 
 // Output : number of descriptors written
 //-----------------------------------------------------------------------------
-uint64_t VPKDir_t::WriteDescriptor(FileHandle_t pDirectoryFile, std::map<string, std::map<string, std::list<VPKEntryBlock_t>>>& vMap) const
+uint64_t VPKDir_t::WriteDescriptor(FileHandle_t hDirectoryFile, std::map<string, std::map<string, std::list<VPKEntryBlock_t>>>& vMap) const
 {
 	uint64_t nDescriptors = NULL;
 
 	for (auto& iKeyValue : vMap)
 	{
-		FileSystem()->Write(iKeyValue.first.c_str(), (iKeyValue.first.length() + 1), pDirectoryFile);
+		FileSystem()->Write(iKeyValue.first.c_str(), (iKeyValue.first.length() + 1), hDirectoryFile);
 		for (auto& jKeyValue : iKeyValue.second)
 		{
-			FileSystem()->Write(jKeyValue.first.c_str(), (jKeyValue.first.length() + 1), pDirectoryFile);
+			FileSystem()->Write(jKeyValue.first.c_str(), (jKeyValue.first.length() + 1), hDirectoryFile);
 			for (auto& vEntry : jKeyValue.second)
 			{
 				string pszEntryPath = GetFileName(vEntry.m_svEntryPath, true);
-				FileSystem()->Write(pszEntryPath.c_str(), (pszEntryPath.length() + 1), pDirectoryFile);
+				FileSystem()->Write(pszEntryPath.c_str(), (pszEntryPath.length() + 1), hDirectoryFile);
 
-				FileSystem()->Write(&vEntry.m_nFileCRC, sizeof(uint32_t), pDirectoryFile);
-				FileSystem()->Write(&vEntry.m_iPreloadSize, sizeof(uint16_t), pDirectoryFile);
-				FileSystem()->Write(&vEntry.m_iPackFileIndex, sizeof(uint16_t), pDirectoryFile);
+				FileSystem()->Write(&vEntry.m_nFileCRC, sizeof(uint32_t), hDirectoryFile);
+				FileSystem()->Write(&vEntry.m_iPreloadSize, sizeof(uint16_t), hDirectoryFile);
+				FileSystem()->Write(&vEntry.m_iPackFileIndex, sizeof(uint16_t), hDirectoryFile);
 
 				for (size_t i = 0, nc = vEntry.m_vFragments.size(); i < nc; i++)
 				{
 					/*Write chunk descriptor*/
 					const VPKChunkDescriptor_t* pDescriptor = &vEntry.m_vFragments[i];
 
-					FileSystem()->Write(&pDescriptor->m_nLoadFlags, sizeof(uint32_t), pDirectoryFile);
-					FileSystem()->Write(&pDescriptor->m_nTextureFlags, sizeof(uint16_t), pDirectoryFile);
-					FileSystem()->Write(&pDescriptor->m_nPackFileOffset, sizeof(uint64_t), pDirectoryFile);
-					FileSystem()->Write(&pDescriptor->m_nCompressedSize, sizeof(uint64_t), pDirectoryFile);
-					FileSystem()->Write(&pDescriptor->m_nUncompressedSize, sizeof(uint64_t), pDirectoryFile);
+					FileSystem()->Write(&pDescriptor->m_nLoadFlags, sizeof(uint32_t), hDirectoryFile);
+					FileSystem()->Write(&pDescriptor->m_nTextureFlags, sizeof(uint16_t), hDirectoryFile);
+					FileSystem()->Write(&pDescriptor->m_nPackFileOffset, sizeof(uint64_t), hDirectoryFile);
+					FileSystem()->Write(&pDescriptor->m_nCompressedSize, sizeof(uint64_t), hDirectoryFile);
+					FileSystem()->Write(&pDescriptor->m_nUncompressedSize, sizeof(uint64_t), hDirectoryFile);
 
 					if (i != (nc - 1))
 					{
-						FileSystem()->Write(&PACKFILEINDEX_SEP, sizeof(uint16_t), pDirectoryFile);
+						FileSystem()->Write(&PACKFILEINDEX_SEP, sizeof(uint16_t), hDirectoryFile);
 					}
 					else // Mark end of entry.
 					{
-						FileSystem()->Write(&PACKFILEINDEX_END, sizeof(uint16_t), pDirectoryFile);
+						FileSystem()->Write(&PACKFILEINDEX_END, sizeof(uint16_t), hDirectoryFile);
 					}
 					nDescriptors++;
 				}
 			}
-			FileSystem()->Write(&PACKFILEINDEX_SEP, sizeof(uint8_t), pDirectoryFile);
+			FileSystem()->Write(&PACKFILEINDEX_SEP, sizeof(uint8_t), hDirectoryFile);
 		}
-		FileSystem()->Write(&PACKFILEINDEX_SEP, sizeof(uint8_t), pDirectoryFile);
+		FileSystem()->Write(&PACKFILEINDEX_SEP, sizeof(uint8_t), hDirectoryFile);
 	}
-	FileSystem()->Write(&PACKFILEINDEX_SEP, sizeof(uint8_t), pDirectoryFile);
+	FileSystem()->Write(&PACKFILEINDEX_SEP, sizeof(uint8_t), hDirectoryFile);
 
 	return nDescriptors;
 }
@@ -971,28 +979,28 @@ void VPKDir_t::BuildDirectoryTree(const vector<VPKEntryBlock_t>& vEntryBlocks, s
 
 //-----------------------------------------------------------------------------
 // Purpose: builds the vpk directory file
-// Input  : &svDirectoryFile - 
+// Input  : &svDirectoryPath - 
 //          &vEntryBlocks - 
 //-----------------------------------------------------------------------------
-void VPKDir_t::BuildDirectoryFile(const string& svDirectoryFile, const vector<VPKEntryBlock_t>& vEntryBlocks)
+void VPKDir_t::BuildDirectoryFile(const string& svDirectoryPath, const vector<VPKEntryBlock_t>& vEntryBlocks)
 {
-	FileHandle_t pDirectoryFile = FileSystem()->Open(svDirectoryFile.c_str(), "wb", "GAME");
-	if (!pDirectoryFile)
+	FileHandle_t hDirectoryFile = FileSystem()->Open(svDirectoryPath.c_str(), "wb", "GAME");
+	if (!hDirectoryFile)
 	{
-		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to write to '%s' (read-only?)\n", __FUNCTION__, svDirectoryFile.c_str());
+		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to write to '%s' (read-only?)\n", __FUNCTION__, svDirectoryPath.c_str());
 		return;
 	}
 
 	auto vMap = std::map<string, std::map<string, std::list<VPKEntryBlock_t>>>();
 	BuildDirectoryTree(vEntryBlocks, vMap);
 
-	WriteHeader(pDirectoryFile);
-	uint64_t nDescriptors = WriteDescriptor(pDirectoryFile, vMap);
+	WriteHeader(hDirectoryFile);
+	uint64_t nDescriptors = WriteDescriptor(hDirectoryFile, vMap);
 
-	m_vHeader.m_nDirectorySize = static_cast<uint32_t>(FileSystem()->Tell(pDirectoryFile) - sizeof(VPKDirHeader_t));
-	WriteTreeSize(pDirectoryFile);
+	m_vHeader.m_nDirectorySize = static_cast<uint32_t>(FileSystem()->Tell(hDirectoryFile) - sizeof(VPKDirHeader_t));
+	WriteTreeSize(hDirectoryFile);
 
-	FileSystem()->Close(pDirectoryFile);
+	FileSystem()->Close(hDirectoryFile);
 	DevMsg(eDLL_T::FS, "*** Build directory totaling '%zu' bytes with '%zu' entries and '%zu' descriptors\n",
 		size_t(sizeof(VPKDirHeader_t) + m_vHeader.m_nDirectorySize), vEntryBlocks.size(), nDescriptors);
 }

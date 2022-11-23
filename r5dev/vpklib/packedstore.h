@@ -69,8 +69,8 @@ struct VPKChunkDescriptor_t
 	bool     m_bIsCompressed  = false;
 
 	VPKChunkDescriptor_t(){};
-	VPKChunkDescriptor_t(FileHandle_t pFile);
-	VPKChunkDescriptor_t(uint32_t nEntryFlags, uint16_t nTextureFlags, uint64_t nPackFileOffset, uint64_t nCompressedSize, uint64_t nUncompressedSize);
+	VPKChunkDescriptor_t(FileHandle_t hDirectoryFile);
+	VPKChunkDescriptor_t(uint32_t nLoadFlags, uint16_t nTextureFlags, uint64_t nPackFileOffset, uint64_t nCompressedSize, uint64_t nUncompressedSize);
 };
 
 struct VPKEntryBlock_t
@@ -82,8 +82,8 @@ struct VPKEntryBlock_t
 	string                       m_svEntryPath;    // Path to entry within vpk.
 
 	VPKEntryBlock_t(FileHandle_t pFile, const string& svEntryPath);
-	VPKEntryBlock_t(const uint8_t* pData, size_t nLen, int64_t nOffset, uint16_t iPreloadSize, 
-		uint16_t iPackFileIndex, uint32_t nEntryFlags, uint16_t nTextureFlags, const string& svEntryPath);
+	VPKEntryBlock_t(const uint8_t* pData, size_t nLen, int64_t nOffset, uint16_t iPreloadSize,
+		uint16_t iPackFileIndex, uint32_t nLoadFlags, uint16_t nTextureFlags, const string& svEntryPath);
 };
 
 struct VPKDirHeader_t
@@ -95,29 +95,41 @@ struct VPKDirHeader_t
 	uint32_t                     m_nSignatureSize; // Directory signature.
 };
 
+struct VPKPair_t
+{
+	string m_svPackName;
+	string m_svDirectoryName;
+
+	VPKPair_t(string svLanguage, string svTarget, const string& svLevel, int nPatch);
+};
+
 struct VPKDir_t
 {
 	VPKDirHeader_t               m_vHeader;        // Dir header.
 	vector<VPKEntryBlock_t>      m_vEntryBlocks;   // Vector of entry blocks.
 	uint16_t                     m_nPackFileCount; // Number of pack patches (pack file count-1).
 	vector<string>               m_vPackFile;      // Vector of pack file names.
-	string                       m_svDirPath;      // Path to vpk_dir file.
+	string                       m_svDirectoryPath;// Path to vpk_dir file.
 
-	VPKDir_t(const string& svPath);
-	VPKDir_t() { m_vHeader.m_nHeaderMarker = VPK_HEADER_MARKER; m_vHeader.m_nMajorVersion = VPK_MAJOR_VERSION; m_vHeader.m_nMinorVersion = VPK_MINOR_VERSION; };
+	VPKDir_t()
+	{
+		m_vHeader.m_nHeaderMarker = VPK_HEADER_MARKER; m_vHeader.m_nMajorVersion = VPK_MAJOR_VERSION; 
+		m_vHeader.m_nMinorVersion = VPK_MINOR_VERSION; m_vHeader.m_nDirectorySize = NULL, m_vHeader.m_nSignatureSize = NULL;
+	};
+	VPKDir_t(const string& svDirectoryFile);
+	VPKDir_t(const string& svDirectoryFile, bool bSanitizeName);
 
-	void WriteHeader(FileHandle_t pDirectoryFile) const;
-	void WriteTreeSize(FileHandle_t pDirectoryFile) const;
-	uint64_t WriteDescriptor(FileHandle_t pDirectoryFile, std::map<string, std::map<string, std::list<VPKEntryBlock_t>>>& vMap) const;
+	void Init(const string& svPath);
+
+	string StripLocalePrefix(const string& svDirectoryFile) const;
+	string GetPackFile(const string& svDirectoryPath, uint16_t iPackFileIndex) const;
+
+	void WriteHeader(FileHandle_t hDirectoryFile) const;
+	void WriteTreeSize(FileHandle_t hDirectoryFile) const;
+	uint64_t WriteDescriptor(FileHandle_t hDirectoryFile, std::map<string, std::map<string, std::list<VPKEntryBlock_t>>>& vMap) const;
 
 	void BuildDirectoryTree(const vector<VPKEntryBlock_t>& vEntryBlocks, std::map<string, std::map<string, std::list<VPKEntryBlock_t>>>& vMap) const;
 	void BuildDirectoryFile(const string& svDirectoryFile, const vector<VPKEntryBlock_t>& vEntryBlocks);
-};
-
-struct VPKPair_t
-{
-	string m_svBlockName;
-	string m_svDirectoryName;
 };
 
 class CPackedStore
@@ -126,13 +138,11 @@ public:
 	void InitLzCompParams(void);
 	void InitLzDecompParams(void);
 
-	VPKDir_t GetDirectoryFile(const string& svDirectoryFile, bool bSanitizeName) const;
-	string GetPackFile(const string& svPackDirFile, uint16_t iPackFileIndex) const;
 	lzham_compress_level GetCompressionLevel(void) const;
 
-	vector<VPKEntryBlock_t> GetEntryBlocks(FileHandle_t pDirectory) const;
-	vector<VPKKeyValues_t> GetEntryPaths(const string& svPathIn) const;
-	vector<VPKKeyValues_t> GetEntryPaths(const string& svPathIn, KeyValues* pManifestKeyValues) const;
+	vector<VPKEntryBlock_t> GetEntryBlocks(FileHandle_t hDirectoryFile) const;
+	vector<VPKKeyValues_t> GetEntryValues(const string& svWorkspace) const;
+	vector<VPKKeyValues_t> GetEntryValues(const string& svWorkspace, KeyValues* pManifestKeyValues) const;
 
 	string GetNameParts(const string& svDirectoryName, int nCaptureGroup) const;
 	string GetLevelName(const string& svDirectoryName) const;
@@ -140,14 +150,12 @@ public:
 	KeyValues* GetManifest(const string& svWorkspace, const string& svManifestName) const;
 	vector<string> GetIgnoreList(const string& svWorkspace) const;
 
-	string FormatEntryPath(const string& svName, const string& svPath, const string& svExtension) const;
-	string StripLocalePrefix(const string& svDirectoryFile) const;
+	string FormatEntryPath(const string& svPath, const string& svName, const string& svExtension) const;
 
-	VPKPair_t BuildFileName(string svLanguage, string svTarget, const string& svLevel, int nPatch) const;
-	void BuildManifest(const vector<VPKEntryBlock_t>& vBlock, const string& svWorkSpace, const string& svManifestName) const;
+	void BuildManifest(const vector<VPKEntryBlock_t>& vBlock, const string& svWorkspace, const string& svManifestName) const;
 
 	void PackWorkspace(const VPKPair_t& vPair, const string& svWorkspace, const string& svBuildPath, bool bManifestOnly);
-	void UnpackWorkspace(const VPKDir_t& vDir, const string& svPathOut = "");
+	void UnpackWorkspace(const VPKDir_t& vDirectory, const string& svWorkspace = "");
 
 	void ValidateAdler32PostDecomp(const string& svAssetPath);
 	void ValidateCRC32PostDecomp(const string& svAssetPath);

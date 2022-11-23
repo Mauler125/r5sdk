@@ -533,14 +533,14 @@ void VPK_Pack_f(const CCommand& args)
 		return;
 	}
 
-	VPKPair_t vPair = g_pPackedStore->BuildFileName(args.Arg(1), args.Arg(2), args.Arg(3), NULL);
+	VPKPair_t pair(args.Arg(1), args.Arg(2), args.Arg(3), NULL);
 	CFastTimer timer;
 
-	DevMsg(eDLL_T::FS, "*** Starting VPK build command for: '%s'\n", vPair.m_svDirectoryName.c_str());
+	DevMsg(eDLL_T::FS, "*** Starting VPK build command for: '%s'\n", pair.m_svDirectoryName.c_str());
 	timer.Start();
 
 	g_pPackedStore->InitLzCompParams();
-	g_pPackedStore->PackWorkspace(vPair, fs_packedstore_workspace->GetString(), "vpk/", (args.ArgC() > 4));
+	g_pPackedStore->PackWorkspace(pair, fs_packedstore_workspace->GetString(), "vpk/", (args.ArgC() > 4));
 
 	timer.End();
 	DevMsg(eDLL_T::FS, "*** Time elapsed: '%lf' seconds\n", timer.GetDuration().GetSeconds());
@@ -563,7 +563,7 @@ void VPK_Unpack_f(const CCommand& args)
 	}
 
 	const char* pArg = args.Arg(1);
-	VPKDir_t vpk = g_pPackedStore->GetDirectoryFile(pArg, (args.ArgC() > 2));
+	VPKDir_t vpk(pArg, (args.ArgC() > 2));
 	CFastTimer timer;
 
 	DevMsg(eDLL_T::FS, "*** Starting VPK extraction command for: '%s'\n", pArg);
