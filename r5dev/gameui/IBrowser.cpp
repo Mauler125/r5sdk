@@ -27,6 +27,7 @@ History:
 #ifndef CLIENT_DLL
 #include "engine/server/server.h"
 #endif // CLIENT_DLL
+#include "engine/client/clientstate.h"
 #include "networksystem/serverlisting.h"
 #include "networksystem/pylon.h"
 #include "networksystem/listmanager.h"
@@ -484,7 +485,7 @@ void CBrowser::HostPanel(void)
     }
 
     ImGui::Spacing();
-    if (!g_pHostState->m_bActiveGame)
+    if (!g_pServer->IsActive())
     {
         if (ImGui::Button("Start Server", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
         {
@@ -576,15 +577,18 @@ void CBrowser::HostPanel(void)
 
         if (ImGui::Button("AI Settings Reparse", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
         {
-            DevMsg(eDLL_T::ENGINE, "Reparsing AI data on %s\n", "server and client");
-
+            DevMsg(eDLL_T::ENGINE, "Reparsing AI data on %s\n", g_pClientState->IsActive() ? "server and client" : "server");
             ProcessCommand("aisettings_reparse");
-            ProcessCommand("aisettings_reparse_client");
+
+            if (g_pClientState->IsActive())
+            {
+                ProcessCommand("aisettings_reparse_client");
+            }
         }
 
         if (ImGui::Button("Weapon Settings Reparse", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
         {
-            DevMsg(eDLL_T::ENGINE, "Reparsing weapon data on %s\n", "server and client");
+            DevMsg(eDLL_T::ENGINE, "Reparsing weapon data on %s\n", g_pClientState->IsActive() ? "server and client" : "server");
             ProcessCommand("weapon_reparse");
         }
     }
