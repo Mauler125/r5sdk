@@ -26,7 +26,7 @@ string GetExtension(const string& svInput, bool bReturnOriginal = false, bool bK
 string RemoveExtension(const string& svInput);
 
 bool HasFileName(const string& svInput, const string& svFileName);
-string GetFileName(const string& svInput, bool bRemoveExtension, bool bWindows = false);
+string GetFileName(const string& svInput, bool bRemoveExtension = false, bool bWindows = false);
 string RemoveFileName(const string& svInput, bool bWindows = false);
 
 string CreateDirectories(string svInput, bool bWindows = false);

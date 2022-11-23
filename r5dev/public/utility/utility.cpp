@@ -274,6 +274,7 @@ bool HasExtension(const string& svInput, const string& svExtension)
 string GetExtension(const string& svInput, bool bReturnOriginal, bool bKeepDelimiter)
 {
     string::size_type nPos = svInput.rfind('.');
+
     if (nPos != string::npos)
     {
         if (!bKeepDelimiter)
@@ -294,6 +295,7 @@ string GetExtension(const string& svInput, bool bReturnOriginal, bool bKeepDelim
 string RemoveExtension(const string& svInput)
 {
     string::size_type nPos = svInput.find_last_of('.');
+
     if (nPos == string::npos)
     {
         return svInput;
@@ -316,15 +318,8 @@ bool HasFileName(const string& svInput, const string& svFileName)
 // For removing the path from file names.
 string GetFileName(const string& svInput, bool bRemoveExtension, bool bWindows)
 {
-    string::size_type nPos;
-    if (bWindows)
-    {
-        nPos = svInput.rfind('\\');
-    }
-    else
-    {
-        nPos = svInput.rfind('/');
-    }
+    string::size_type nPos = bWindows ? svInput.rfind('\\') : svInput.rfind('/');
+
     if (nPos != string::npos)
     {
         if (bRemoveExtension)
@@ -347,15 +342,8 @@ string GetFileName(const string& svInput, bool bRemoveExtension, bool bWindows)
 // For removing file names from the path.
 string RemoveFileName(const string& svInput, bool bWindows)
 {
-    string::size_type nPos;
-    if (bWindows)
-    {
-        nPos = svInput.find_last_of('\\');
-    }
-    else
-    {
-        nPos = svInput.find_last_of('/');
-    }
+    string::size_type nPos = bWindows ? svInput.find_last_of('\\') : svInput.find_last_of('/');
+
     if (nPos == string::npos)
     {
         return "";
