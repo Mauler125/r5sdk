@@ -734,13 +734,13 @@ VPKKeyValues_t::VPKKeyValues_t(const string& svEntryPath, uint16_t iPreloadSize,
 //-----------------------------------------------------------------------------
 // Purpose: 'VPKEntryBlock_t' file constructor
 // Input  : hFile - 
-//          svEntryPath - 
+//          &svEntryPath - 
 //-----------------------------------------------------------------------------
-VPKEntryBlock_t::VPKEntryBlock_t(FileHandle_t hFile, string svEntryPath)
+VPKEntryBlock_t::VPKEntryBlock_t(FileHandle_t hFile, const string& svEntryPath)
 {
-	StringReplace(svEntryPath, "\\", "/"); // Flip windows-style backslash to forward slash.
-	StringReplace(svEntryPath, " /", "" ); // Remove space character representing VPK root.
 	m_svEntryPath = svEntryPath; // Set the entry path.
+	StringReplace(m_svEntryPath, "\\", "/"); // Flip windows-style backslash to forward slash.
+	StringReplace(m_svEntryPath, " /", ""); // Remove space character representing VPK root.
 
 	FileSystem()->Read(&m_nFileCRC, sizeof(uint32_t), hFile);       //
 	FileSystem()->Read(&m_iPreloadSize, sizeof(uint16_t), hFile);   //

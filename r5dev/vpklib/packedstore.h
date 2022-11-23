@@ -81,7 +81,7 @@ struct VPKEntryBlock_t
 	vector<VPKChunkDescriptor_t> m_vFragments;     // Vector of all the chunks of a given entry (chunks have a size limit of 1 MiB, anything over this limit is fragmented into smaller chunks).
 	string                       m_svEntryPath;    // Path to entry within vpk.
 
-	VPKEntryBlock_t(FileHandle_t pFile, string svEntryPath);
+	VPKEntryBlock_t(FileHandle_t pFile, const string& svEntryPath);
 	VPKEntryBlock_t(const uint8_t* pData, size_t nLen, int64_t nOffset, uint16_t iPreloadSize, 
 		uint16_t iPackFileIndex, uint32_t nEntryFlags, uint16_t nTextureFlags, const string& svEntryPath);
 };
