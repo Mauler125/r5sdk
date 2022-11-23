@@ -1913,6 +1913,9 @@
     <ClInclude Include="..\tier1\utlbuffer.h">
       <Filter>sdk\tier1</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\ipackedstore.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\shared\resource\lockedserver.png">

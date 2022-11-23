@@ -1266,6 +1266,9 @@
     <ClInclude Include="..\tier1\byteswap.h">
       <Filter>sdk\tier1</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\ipackedstore.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
