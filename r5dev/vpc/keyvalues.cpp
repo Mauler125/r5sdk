@@ -157,6 +157,7 @@ void KeyValues::Clear(void)
 //-----------------------------------------------------------------------------
 void KeyValues::DeleteThis(void)
 {
+	this->~KeyValues();
 	MemAllocSingleton()->Free(this);
 }
 
