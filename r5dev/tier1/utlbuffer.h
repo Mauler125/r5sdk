@@ -192,10 +192,10 @@ public:
 	void			SetBufferType(bool bIsText, bool bContainsCRLF);
 
 	// Makes sure we've got at least this much memory
-	void			EnsureCapacity(int num);
+	void			EnsureCapacity(int64 num);
 
 	// Access for direct read into buffer
-	void* AccessForDirectRead(int nBytes);
+	void* AccessForDirectRead(int64 nBytes);
 
 	// Attaches the buffer to external memory....
 	void			SetExternalBuffer(void* pMemory, int nSize, int nInitialPut, int nFlags = 0);
@@ -206,7 +206,7 @@ public:
 
 	// copies data from another buffer
 	void			CopyBuffer(const CUtlBuffer& buffer);
-	void			CopyBuffer(const void* pubData, int cubData);
+	void			CopyBuffer(const void* pubData, int64 cubData);
 
 	void			Swap(CUtlBuffer& buf);
 	void			Swap(CUtlMemory<uint8>& mem);
@@ -326,7 +326,7 @@ public:
 	void			PutDouble(double d);
 	void			PutPtr(void*); // Writes the pointer, not the pointed to
 	void			PutString(const char* pString);
-	void			Put(const void* pMem, int size);
+	void			Put(const void* pMem, int64 size);
 
 	// Used for putting objects that have a byteswap datadesc defined
 	template <typename T> void PutObjects(T* src, int count = 1);
@@ -357,8 +357,8 @@ public:
 	int64 GetBytesRemaining() const;
 
 	// Change where I'm writing (put)/reading (get)
-	void SeekPut(SeekType_t type, int offset);
-	void SeekGet(SeekType_t type, int offset);
+	void SeekPut(SeekType_t type, int64 offset);
+	void SeekGet(SeekType_t type, int64 offset);
 
 	// Buffer base
 	const void* Base() const;
@@ -366,7 +366,7 @@ public:
 
 	// memory allocation size, does *not* reflect size written or read,
 	//	use TellPut or TellGet for that
-	int Size() const;
+	int64 Size() const;
 
 	// Am I a text buffer?
 	bool IsText() const;
@@ -976,7 +976,7 @@ inline void* CUtlBuffer::GetPtr()
 	void* p;
 	// LEGACY WARNING: in text mode, PutPtr writes 32 bit pointers in hex, while GetPtr reads 32 or 64 bit pointers in decimal
 #if !defined(X64BITS) && !defined(PLATFORM_64BITS)
-	p = (void*)GetUnsignedInt();
+	p = (void*)GetUnsignedInt64();
 #else
 	p = (void*)GetInt64();
 #endif
@@ -1352,7 +1352,7 @@ inline void* CUtlBuffer::Base()
 	return m_Memory.Base();
 }
 
-inline int CUtlBuffer::Size() const
+inline int64 CUtlBuffer::Size() const
 {
 	return m_Memory.NumAllocated();
 }
@@ -1384,7 +1384,7 @@ inline void CUtlBuffer::Purge()
 //-----------------------------------------------------------------------------
 // 
 //-----------------------------------------------------------------------------
-inline void* CUtlBuffer::AccessForDirectRead(int nBytes)
+inline void* CUtlBuffer::AccessForDirectRead(int64 nBytes)
 {
 	Assert(m_Get == 0 && m_Put == 0 && m_nMaxPut == 0);
 	EnsureCapacity(nBytes);
@@ -1438,7 +1438,7 @@ inline void CUtlBuffer::CopyBuffer(const CUtlBuffer& buffer)
 	CopyBuffer(buffer.Base(), buffer.TellPut());
 }
 
-inline void	CUtlBuffer::CopyBuffer(const void* pubData, int cubData)
+inline void	CUtlBuffer::CopyBuffer(const void* pubData, int64 cubData)
 {
 	Clear();
 	if (cubData)

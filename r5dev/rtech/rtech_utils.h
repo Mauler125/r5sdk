@@ -174,13 +174,13 @@ struct RPakHeader_t
 	uint8_t  unk3[0x8];                    //
 };
 
-struct __declspec(align(8)) RPakPatchCompressedHeader_t
+struct RPakPatchCompressedHeader_t
 {
 	uint64_t m_nSizeDisk;
 	uint64_t m_nSizeMemory;
 };
 
-struct __declspec(align(8)) RPakDecompState_t
+struct RPakDecompState_t
 {
 	uint64_t m_nInputBuf;
 	uint64_t m_nOut;
@@ -238,7 +238,7 @@ struct RPakDescriptor_t
 	uint32_t m_Offset;
 };
 
-struct __declspec(align(2)) PakFile_t
+struct PakFile_t
 {
 	int m_nDescCount;
 	int m_nProcessedAssetCount;
@@ -283,6 +283,10 @@ struct __declspec(align(2)) PakFile_t
 	const char* m_pszFileName;
 	RPakHeader_t m_PakHdr;
 };
+
+static_assert(sizeof(PakFile_t) == 2208);
+static_assert(sizeof(RPakDecompState_t) == 136);
+static_assert(sizeof(RPakPatchCompressedHeader_t) == 16);
 
 /* ==== RTECH =========================================================================================================================================================== */
 #if not defined DEDICATED

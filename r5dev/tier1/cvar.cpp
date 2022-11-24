@@ -413,10 +413,10 @@ void CCvarUtilities::EnableDevCvars()
 void CCvarUtilities::CvarList(const CCommand& args)
 {
 	ConCommandBase* var;	// Temporary Pointer to cvars
-	int iArgs;						// Argument count
+	int64 iArgs;						// Argument count
 	const char* partial = NULL;		// Partial cvar to search for...
 									// E.eg
-	int ipLen = 0;					// Length of the partial cvar
+	size_t ipLen = 0;				// Length of the partial cvar
 
 	FileHandle_t f = FILESYSTEM_INVALID_HANDLE;         // FilePointer for logging
 	bool bLogging = false;
@@ -641,7 +641,7 @@ int CCvarUtilities::CvarFindFlagsCompletionCallback(const char* partial, char co
 {
 	int flagC = ARRAYSIZE(g_ConVarFlags);
 	char const* pcmd = "findflags ";
-	int len = Q_strlen(partial);
+	size_t len = Q_strlen(partial);
 
 	if (len < Q_strlen(pcmd))
 	{
@@ -655,7 +655,7 @@ int CCvarUtilities::CvarFindFlagsCompletionCallback(const char* partial, char co
 	}
 
 	char const* pSub = partial + Q_strlen(pcmd);
-	int nSubLen = Q_strlen(pSub);
+	size_t nSubLen = Q_strlen(pSub);
 
 	int values = 0;
 	for (int i = 0; i < flagC; ++i)

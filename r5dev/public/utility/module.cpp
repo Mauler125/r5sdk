@@ -69,7 +69,7 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, c
 		{
 			if (szMask[i * 16 + j] == 'x')
 			{
-				_bittestandset(reinterpret_cast<LONG*>(&nMasks[i]), j);
+				_bittestandset(reinterpret_cast<LONG*>(&nMasks[i]), static_cast<LONG>(j));
 			}
 		}
 	}

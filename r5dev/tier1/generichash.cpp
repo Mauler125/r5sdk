@@ -129,7 +129,7 @@ unsigned FASTCALL HashStringCaseless(const char* pszKey)
 uint32 FASTCALL HashStringCaselessConventional(const char* pszKey)
 {
 	uint32 hash = 0xAAAAAAAA; // Alternating 1's and 0's to maximize the effect of the later multiply and add
-	hash += (2 * V_strlen(pszKey)); // Add the string length * 2 to the hash to give it more variety
+	hash += (2 * (uint32)V_strlen(pszKey)); // Add the string length * 2 to the hash to give it more variety
 
 	for (; *pszKey; pszKey++)
 	{
@@ -358,7 +358,7 @@ uint32 MurmurHash2(const void* key, int len, uint32 seed)
 #define TOLOWERU( c ) ( ( uint32 ) ( ( ( c >= 'A' ) && ( c <= 'Z' ) )? c + 32 : c ) )
 uint32 MurmurHash2LowerCase(char const* pString, uint32 nSeed)
 {
-	int nLen = V_strlen(pString);
+	int nLen = (int)V_strlen(pString);
 	char* p = (char*)stackalloc(nLen + 1);
 	for (int i = 0; i < nLen; i++)
 	{

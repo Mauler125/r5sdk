@@ -41,7 +41,7 @@ void CSplitString::Construct(const char* pString, const char** pSeparators, int 
 	// make a duplicate of the original string. We'll use pieces of this duplicate to tokenize the string
 	// and create NULL-terminated tokens of the original string
 	//
-	int nOriginalStringLength = strlen(pString);
+	size_t nOriginalStringLength = strlen(pString);
 	m_szBuffer = new char[nOriginalStringLength + 1];
 	memcpy(m_szBuffer, pString, nOriginalStringLength + 1);
 
@@ -64,13 +64,13 @@ void CSplitString::Construct(const char* pString, const char** pSeparators, int 
 		if (pFirstSeparator)
 		{
 			// Split on this separator and continue on.
-			int separatorLen = strlen(pSeparators[iFirstSeparator]);
+			size_t separatorLen = strlen(pSeparators[iFirstSeparator]);
 			if (pFirstSeparator > pCurPos)
 			{
 				//////////////////////////////////////////////////////////////////////////
 				/// Cut the token out of the duplicate string
 				char* pTokenInDuplicate = m_szBuffer + (pCurPos - pString);
-				int nTokenLength = pFirstSeparator - pCurPos;
+				int64 nTokenLength = pFirstSeparator - pCurPos;
 				//Assert(nTokenLength > 0 && !memcmp(pTokenInDuplicate, pCurPos, nTokenLength));
 				pTokenInDuplicate[nTokenLength] = '\0';
 
@@ -82,7 +82,7 @@ void CSplitString::Construct(const char* pString, const char** pSeparators, int 
 		else
 		{
 			// Copy the rest of the string
-			if (int nTokenLength = strlen(pCurPos))
+			if (size_t nTokenLength = strlen(pCurPos))
 			{
 				//////////////////////////////////////////////////////////////////////////
 				// There's no need to cut this token, because there's no separator after it.

@@ -162,7 +162,7 @@ void DebugDrawSphere(const Vector3D& vOrigin, float flRadius, Color color, int n
 void DebugDrawHemiSphere(const Vector3D& vOrigin, const QAngle& vAngles, const Vector3D& vRadius, Color color, int nSegments, bool bZBuffer)
 {
     bool bFirstLoop = true;
-    float flDegrees = 360.0 / float(nSegments * 2);
+    float flDegrees = 360.0f / float(nSegments * 2);
 
     Vector3D vStart[4], vEnd[4], vForward[4];
     QAngle vComposed[4];

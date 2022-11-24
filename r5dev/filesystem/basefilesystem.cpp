@@ -67,7 +67,7 @@ bool CBaseFileSystem::VCheckDisk(const char* pszFilePath)
 
 	std::string svFilePath = ConvertToWinPath(pszFilePath);
 
-	if (svFilePath.find("\\\*\\") != string::npos)
+	if (svFilePath.find("\\*\\") != string::npos)
 	{
 		// Erase '//*/'.
 		svFilePath.erase(0, 4);

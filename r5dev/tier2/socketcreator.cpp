@@ -46,7 +46,7 @@ void CSocketCreator::ProcessAccept(void)
 {
 	sockaddr_storage inClient{};
 	int nLengthAddr = sizeof(inClient);
-	int newSocket = ::accept(m_hListenSocket, reinterpret_cast<sockaddr*>(&inClient), &nLengthAddr);
+	SocketHandle_t newSocket = ::accept(m_hListenSocket, reinterpret_cast<sockaddr*>(&inClient), &nLengthAddr);
 	if (newSocket == -1)
 	{
 		if (!IsSocketBlocking())
@@ -346,7 +346,7 @@ bool CSocketCreator::IsSocketBlocking(void) const
 //-----------------------------------------------------------------------------
 int CSocketCreator::GetAcceptedSocketCount(void) const
 {
-	return m_hAcceptedSockets.size();
+	return static_cast<int>(m_hAcceptedSockets.size());
 }
 
 //-----------------------------------------------------------------------------

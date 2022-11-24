@@ -441,7 +441,7 @@ void* CUtlBuffer::DetachMemory()
 //-----------------------------------------------------------------------------
 // Makes sure we've got at least this much memory
 //-----------------------------------------------------------------------------
-void CUtlBuffer::EnsureCapacity(int num)
+void CUtlBuffer::EnsureCapacity(int64 num)
 {
 	//MEM_ALLOC_CREDIT();
 	// Add one extra for the null termination
@@ -972,7 +972,7 @@ const void* CUtlBuffer::PeekGet(int64 nMaxSize, int64 nOffset)
 //-----------------------------------------------------------------------------
 // Change where I'm reading
 //-----------------------------------------------------------------------------
-void CUtlBuffer::SeekGet(SeekType_t type, int offset)
+void CUtlBuffer::SeekGet(SeekType_t type, int64 offset)
 {
 	switch (type)
 	{
@@ -1212,22 +1212,22 @@ bool CUtlBuffer::GetToken(const char* pToken)
 	Assert(pToken);
 
 	// Look for the token
-	int nLen = V_strlen(pToken);
+	int64 nLen = V_strlen(pToken);
 
 	// First time through on streaming, check what we already have loaded
 	// if we have enough loaded to do the check
-	int nMaxSize = Size() - (TellGet() - m_nOffset);
+	int64 nMaxSize = Size() - (TellGet() - m_nOffset);
 	if (nMaxSize <= nLen)
 	{
 		nMaxSize = Size();
 	}
-	int nSizeRemaining = TellMaxPut() - TellGet();
+	int64 nSizeRemaining = TellMaxPut() - TellGet();
 
-	int nGet = TellGet();
+	int64 nGet = TellGet();
 	while (nSizeRemaining >= nLen)
 	{
 		bool bOverFlow = (nSizeRemaining > nMaxSize);
-		int nSizeToCheck = bOverFlow ? nMaxSize : nSizeRemaining;
+		int64 nSizeToCheck = bOverFlow ? nMaxSize : nSizeRemaining;
 		if (!CheckPeekGet(0, nSizeToCheck))
 			break;
 
@@ -1239,7 +1239,7 @@ bool CUtlBuffer::GetToken(const char* pToken)
 		// we could be looking for 'foo' for example, and find 'foobar'
 		// if 'foo' happens to be the last 3 characters of the current window
 		size_t nOffset = (size_t)pFoundEnd - (size_t)pBufStart;
-		bool bPotentialMismatch = (bOverFlow && ((int)nOffset == Size() - nLen));
+		bool bPotentialMismatch = (bOverFlow && ((int64)nOffset == Size() - nLen));
 		if (!pFoundEnd || bPotentialMismatch)
 		{
 			nSizeRemaining -= nSizeToCheck;
@@ -1256,7 +1256,7 @@ bool CUtlBuffer::GetToken(const char* pToken)
 		}
 
 		// Seek past the end of the found string
-		SeekGet(CUtlBuffer::SEEK_CURRENT, (int)(nOffset + nLen));
+		SeekGet(CUtlBuffer::SEEK_CURRENT, (int64)(nOffset + nLen));
 		return true;
 	}
 
@@ -1293,9 +1293,9 @@ bool CUtlBuffer::ParseToken(const char* pStartingDelim, const char* pEndingDelim
 	Assert(pEndingDelim && pEndingDelim[0]);
 	nEndingDelimLen = V_strlen(pEndingDelim);
 
-	int nStartGet = TellGet();
+	int64 nStartGet = TellGet();
+	int64 nTokenStart = -1;
 	char nCurrChar;
-	int nTokenStart = -1;
 	EatWhiteSpace();
 	while (*pStartingDelim)
 	{
@@ -1445,7 +1445,7 @@ int CUtlBuffer::ParseToken(characterset_t* pBreaks, char* pTokenBuf, int nMaxLen
 //-----------------------------------------------------------------------------
 // Serialization
 //-----------------------------------------------------------------------------
-void CUtlBuffer::Put(const void* pMem, int size)
+void CUtlBuffer::Put(const void* pMem, int64 size)
 {
 	if (size && CheckPut(size))
 	{
@@ -1555,8 +1555,8 @@ void CUtlBuffer::PutDelimitedString(CUtlCharConversion* pConv, const char* pStri
 	}
 	Put(pConv->GetDelimiter(), pConv->GetDelimiterLength());
 
-	int nLen = pString ? V_strlen(pString) : 0;
-	for (int i = 0; i < nLen; ++i)
+	size_t nLen = pString ? V_strlen(pString) : 0;
+	for (size_t i = 0; i < nLen; ++i)
 	{
 		PutDelimitedCharInternal(pConv, pString[i]);
 	}
@@ -1659,9 +1659,9 @@ bool CUtlBuffer::CheckPut(int64 nSize)
 	return true;
 }
 
-void CUtlBuffer::SeekPut(SeekType_t type, int offset)
+void CUtlBuffer::SeekPut(SeekType_t type, int64 offset)
 {
-	int nNextPut = m_Put;
+	int64 nNextPut = m_Put;
 	switch (type)
 	{
 	case SEEK_HEAD:
@@ -1745,7 +1745,7 @@ bool CUtlBuffer::ConvertCRLF(CUtlBuffer& outBuf)
 	if (ContainsCRLF() == outBuf.ContainsCRLF())
 		return false;
 
-	int nInCount = TellMaxPut();
+	int64 nInCount = TellMaxPut();
 
 	outBuf.Purge();
 	outBuf.EnsureCapacity(nInCount);
@@ -1753,10 +1753,10 @@ bool CUtlBuffer::ConvertCRLF(CUtlBuffer& outBuf)
 	bool bFromCRLF = ContainsCRLF();
 
 	// Start reading from the beginning
-	int nGet = TellGet();
-	int nPut = TellPut();
-	int nGetDelta = 0;
-	int nPutDelta = 0;
+	int64 nGet = TellGet();
+	int64 nPut = TellPut();
+	int64 nGetDelta = 0;
+	int64 nPutDelta = 0;
 
 	const char* pBase = (const char*)Base();
 	intptr_t nCurrGet = 0;
@@ -1765,7 +1765,7 @@ bool CUtlBuffer::ConvertCRLF(CUtlBuffer& outBuf)
 		const char* pCurr = &pBase[nCurrGet];
 		if (bFromCRLF)
 		{
-			const char* pNext = V_strnistr(pCurr, "\r\n", nInCount - nCurrGet);
+			const char* pNext = V_strnistr(pCurr, "\r\n", (int)nInCount - (int)nCurrGet);
 			if (!pNext)
 			{
 				outBuf.Put(pCurr, nInCount - nCurrGet);
@@ -1787,15 +1787,15 @@ bool CUtlBuffer::ConvertCRLF(CUtlBuffer& outBuf)
 		}
 		else
 		{
-			const char* pNext = V_strnchr(pCurr, '\n', nInCount - nCurrGet);
+			const char* pNext = V_strnchr(pCurr, '\n', (int)nInCount - (int)nCurrGet);
 			if (!pNext)
 			{
-				outBuf.Put(pCurr, nInCount - nCurrGet);
+				outBuf.Put(pCurr, (int64)nInCount - (int64)nCurrGet);
 				break;
 			}
 
 			intptr_t nBytes = (intptr_t)pNext - (intptr_t)pCurr;
-			outBuf.Put(pCurr, (int)nBytes);
+			outBuf.Put(pCurr, (int64)nBytes);
 			outBuf.PutChar('\r');
 			outBuf.PutChar('\n');
 			nCurrGet += nBytes + 1;

@@ -823,7 +823,7 @@ void ConVar::ChangeStringValue(const char* pszTempVal)
 	char* pszOldValue = (char*)stackalloc(m_Value.m_iStringLength);
 	memcpy(pszOldValue, m_Value.m_pszString, m_Value.m_iStringLength);
 
-	int len = strlen(pszTempVal) + 1;
+	size_t len = strlen(pszTempVal) + 1;
 
 	if (len > m_Value.m_iStringLength)
 	{

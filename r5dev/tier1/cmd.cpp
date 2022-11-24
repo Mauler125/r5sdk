@@ -58,7 +58,7 @@ CCommand::CCommand(int nArgC, const char** ppArgV, cmd_source_t source)
 	for (int i = 0; i < nArgC; ++i)
 	{
 		m_ppArgv[i] = pBuf;
-		int nLen = strlen(ppArgV[i]);
+		int64 nLen = strlen(ppArgV[i]);
 		memcpy(pBuf, ppArgV[i], nLen + 1);
 		if (i == 0)
 		{
