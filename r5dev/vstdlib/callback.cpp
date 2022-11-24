@@ -1098,7 +1098,7 @@ void BHit_f(const CCommand& args)
 
 	if (bhit_abs_origin->GetBool())
 	{
-		const int iEnt = atof(args[2]);
+		const int iEnt = atoi(args[2]);
 		if (const IClientEntity* pEntity = g_pClientEntityList->GetClientEntity(iEnt))
 		{
 			g_pDebugOverlay->AddSphereOverlay( // Render a debug sphere at the client's predicted entity origin.
