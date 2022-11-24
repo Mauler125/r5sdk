@@ -1269,7 +1269,7 @@ void KeyValues::InitPlaylists(void)
 			}
 		}
 	}
-	MOD_GetAllInstalledMaps(); // Parse all installed maps.
+	Mod_GetAllInstalledMaps(); // Parse all installed maps.
 }
 
 //-----------------------------------------------------------------------------

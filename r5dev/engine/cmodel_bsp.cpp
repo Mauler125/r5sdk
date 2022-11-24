@@ -29,7 +29,7 @@ KeyValues* s_pLevelSetKV = nullptr;
 // Input  : *pszLevelName - 
 // Output : true if level name deviates from previous level
 //-----------------------------------------------------------------------------
-bool MOD_LevelHasChanged(const char* pszLevelName)
+bool Mod_LevelHasChanged(const char* pszLevelName)
 {
 	return (s_svLevelName.compare(pszLevelName) != 0);
 }
@@ -37,7 +37,7 @@ bool MOD_LevelHasChanged(const char* pszLevelName)
 //-----------------------------------------------------------------------------
 // Purpose: gets all installed maps
 //-----------------------------------------------------------------------------
-void MOD_GetAllInstalledMaps()
+void Mod_GetAllInstalledMaps()
 {
     std::lock_guard<std::mutex> l(g_MapVecMutex);
     g_vAllMaps.clear(); // Clear current list.
@@ -75,7 +75,7 @@ void MOD_GetAllInstalledMaps()
 //          a3 - 
 // Output : __int64
 //-----------------------------------------------------------------------------
-__int64 __fastcall MOD_GetQueuedPakHandle(char* a1, char* a2, __int64 a3)
+__int64 __fastcall Mod_GetQueuedPakHandle(char* a1, char* a2, __int64 a3)
 {
     char v3; // al
     signed int v4; // er11
@@ -129,7 +129,7 @@ __int64 __fastcall MOD_GetQueuedPakHandle(char* a1, char* a2, __int64 a3)
 //-----------------------------------------------------------------------------
 // Purpose: processes queued pak files
 //-----------------------------------------------------------------------------
-void MOD_ProcessPakQueue()
+void Mod_ProcessPakQueue()
 {
     char v0; // bl
     char** v1; // r10
@@ -242,7 +242,7 @@ void MOD_ProcessPakQueue()
                         }
 
                         g_pakLoadApi->UnloadPak(*(RPakHandle_t*)v10);
-                        MOD_UnloadPakFile(); // Unload mod pak files.
+                        Mod_UnloadPakFile(); // Unload mod pak files.
 
                         s_pLevelSetKV->DeleteThis(); // Delete current level settings if we drop all paks..
                         s_pLevelSetKV = nullptr;
@@ -273,7 +273,7 @@ void MOD_ProcessPakQueue()
             }       while (v19);
             if (!v20)
                 goto LABEL_37;
-            MOD_GetQueuedPakHandle(v17, *((char**)v15 + 34), 260i64);
+            Mod_GetQueuedPakHandle(v17, *((char**)v15 + 34), 260i64);
             if (v15[5])
                 break;
             *(_DWORD*)v15 = -1;
@@ -321,7 +321,7 @@ void MOD_ProcessPakQueue()
         if (s_bBasePaksInitialized && !s_bLevelResourceInitialized)
         {
             s_bLevelResourceInitialized = true;
-            MOD_PreloadLevelPaks(g_pHostState->m_levelName);
+            Mod_PreloadLevelPaks(g_pHostState->m_levelName);
         }
         *(_DWORD*)v15 = g_pakLoadApi->LoadAsync(v17, g_pMallocPool.GetPtr(), 4, 0);
 
@@ -353,13 +353,13 @@ void MOD_ProcessPakQueue()
 // Input  : *szLevelName - 
 // Output : true on success, false on failure
 //-----------------------------------------------------------------------------
-bool MOD_LoadPakForMap(const char* szLevelName)
+bool Mod_LoadPakForMap(const char* szLevelName)
 {
-	if (MOD_LevelHasChanged(szLevelName))
+	if (Mod_LevelHasChanged(szLevelName))
 		s_bLevelResourceInitialized = false;
 
 	s_svLevelName = szLevelName;
-	return v_MOD_LoadPakForMap(szLevelName);
+	return v_Mod_LoadPakForMap(szLevelName);
 }
 
 //-----------------------------------------------------------------------------
@@ -367,11 +367,11 @@ bool MOD_LoadPakForMap(const char* szLevelName)
 // Input  : *pszLevelName - 
 // Output : KeyValues*
 //-----------------------------------------------------------------------------
-KeyValues* MOD_GetLevelSettings(const char* pszLevelName)
+KeyValues* Mod_GetLevelSettings(const char* pszLevelName)
 {
     if (s_pLevelSetKV)
     {
-        if (!MOD_LevelHasChanged(pszLevelName))
+        if (!Mod_LevelHasChanged(pszLevelName))
         {
             return s_pLevelSetKV;
         }
@@ -390,9 +390,9 @@ KeyValues* MOD_GetLevelSettings(const char* pszLevelName)
 // Purpose: loads required pakfile assets for specified BSP level
 // Input  : &svSetFile - 
 //-----------------------------------------------------------------------------
-void MOD_PreloadLevelPaks(const char* pszLevelName)
+void Mod_PreloadLevelPaks(const char* pszLevelName)
 {
-    KeyValues* pSettingsKV = MOD_GetLevelSettings(pszLevelName);
+    KeyValues* pSettingsKV = Mod_GetLevelSettings(pszLevelName);
 
     if (!pSettingsKV)
         return;
@@ -422,7 +422,7 @@ void MOD_PreloadLevelPaks(const char* pszLevelName)
 //-----------------------------------------------------------------------------
 // Purpose: unloads all pakfiles loaded by the SDK
 //-----------------------------------------------------------------------------
-void MOD_UnloadPakFile(void)
+void Mod_UnloadPakFile(void)
 {
 	for (const RPakHandle_t& it : g_vLoadedPakHandle)
 	{
@@ -437,12 +437,12 @@ void MOD_UnloadPakFile(void)
 
 void CModelBsp_Attach()
 {
-	DetourAttach((LPVOID*)&v_MOD_LoadPakForMap, &MOD_LoadPakForMap);
-	DetourAttach((LPVOID*)&v_MOD_ProcessPakQueue, &MOD_ProcessPakQueue);
+	DetourAttach((LPVOID*)&v_Mod_LoadPakForMap, &Mod_LoadPakForMap);
+	DetourAttach((LPVOID*)&v_Mod_ProcessPakQueue, &Mod_ProcessPakQueue);
 }
 
 void CModelBsp_Detach()
 {
-	DetourDetach((LPVOID*)&v_MOD_LoadPakForMap, &MOD_LoadPakForMap);
-	DetourDetach((LPVOID*)&v_MOD_ProcessPakQueue, &MOD_ProcessPakQueue);
+	DetourDetach((LPVOID*)&v_Mod_LoadPakForMap, &Mod_LoadPakForMap);
+	DetourDetach((LPVOID*)&v_Mod_ProcessPakQueue, &Mod_ProcessPakQueue);
 }
