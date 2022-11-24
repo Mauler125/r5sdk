@@ -143,14 +143,12 @@ void NET_PrintFunc(const char* fmt, ...)
 //-----------------------------------------------------------------------------
 void NET_Shutdown(void* thisptr, const char* szReason, uint8_t bBadRep, bool bRemoveNow)
 {
-	if (!ThreadInMainThread())
-	{
-		g_TaskScheduler->Dispatch([]()
-			{
-				// Re-load playlist from disk the next frame.
-				_DownloadPlaylists_f();
-			}, 0);
-	}
+#ifndef DEDICATED
+	// Re-load playlist from the disk to replace the one we received from the server.
+	_DownloadPlaylists_f();
+	KeyValues::InitPlaylists();
+#endif // !DEDICATED
+
 	v_NET_Shutdown(thisptr, szReason, bBadRep, bRemoveNow);
 }
 
