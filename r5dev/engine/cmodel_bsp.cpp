@@ -10,6 +10,7 @@
 #include "tier0/jobthread.h"
 #include "engine/sys_dll2.h"
 #include "engine/host_cmd.h"
+#include "engine/host_state.h"
 #include "engine/cmodel_bsp.h"
 #include "rtech/rtech_utils.h"
 #include "rtech/rtech_game.h"
@@ -17,18 +18,20 @@
 #include "datacache/mdlcache.h"
 #include "filesystem/filesystem.h"
 
-string g_svLevelName;
 vector<string> g_vAllMaps;
+string s_svLevelName;
 bool s_bLevelResourceInitialized = false;
 bool s_bBasePaksInitialized = false;
+KeyValues* s_pLevelSetKV = nullptr;
+
 //-----------------------------------------------------------------------------
 // Purpose: checks if level has changed
-// Input  : &svLevelName - 
+// Input  : *pszLevelName - 
 // Output : true if level name deviates from previous level
 //-----------------------------------------------------------------------------
-bool MOD_LevelHasChanged(const string& svLevelName)
+bool MOD_LevelHasChanged(const char* pszLevelName)
 {
-	return (g_svLevelName.compare(svLevelName) != 0);
+	return (s_svLevelName.compare(pszLevelName) != 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -240,6 +243,9 @@ void MOD_ProcessPakQueue()
 
                         g_pakLoadApi->UnloadPak(*(RPakHandle_t*)v10);
                         MOD_UnloadPakFile(); // Unload mod pak files.
+
+                        s_pLevelSetKV->DeleteThis(); // Delete current level settings if we drop all paks..
+                        s_pLevelSetKV = nullptr;
                     }
                     if (v13 && (unsigned int)(v13 - 13) > 1)
                         return;
@@ -315,7 +321,7 @@ void MOD_ProcessPakQueue()
         if (s_bBasePaksInitialized && !s_bLevelResourceInitialized)
         {
             s_bLevelResourceInitialized = true;
-            MOD_PreloadPakFile(g_svLevelName);
+            MOD_PreloadLevelPaks(g_pHostState->m_levelName);
         }
         *(_DWORD*)v15 = g_pakLoadApi->LoadAsync(v17, g_pMallocPool.GetPtr(), 4, 0);
 
@@ -352,60 +358,65 @@ bool MOD_LoadPakForMap(const char* szLevelName)
 	if (MOD_LevelHasChanged(szLevelName))
 		s_bLevelResourceInitialized = false;
 
-	g_svLevelName = szLevelName;
+	s_svLevelName = szLevelName;
 	return v_MOD_LoadPakForMap(szLevelName);
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: loads required pakfile assets for specified BSP
+// Purpose: loads the level settings file, returns current if level hasn't changed.
+// Input  : *pszLevelName - 
+// Output : KeyValues*
+//-----------------------------------------------------------------------------
+KeyValues* MOD_GetLevelSettings(const char* pszLevelName)
+{
+    if (s_pLevelSetKV)
+    {
+        if (!MOD_LevelHasChanged(pszLevelName))
+        {
+            return s_pLevelSetKV;
+        }
+
+        s_pLevelSetKV->DeleteThis();
+    }
+
+    char szPathBuffer[MAX_PATH];
+    snprintf(szPathBuffer, sizeof(szPathBuffer), "scripts/levels/settings/%s.kv", pszLevelName);
+
+    s_pLevelSetKV = FileSystem()->LoadKeyValues(IFileSystem::TYPE_LEVELSETTINGS, szPathBuffer, "GAME");
+    return s_pLevelSetKV;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: loads required pakfile assets for specified BSP level
 // Input  : &svSetFile - 
 //-----------------------------------------------------------------------------
-void MOD_PreloadPakFile(const string& svLevelName)
+void MOD_PreloadLevelPaks(const char* pszLevelName)
 {
-	ostringstream ostream;
-	ostream << "scripts/levels/settings/" << svLevelName << ".json";
+    KeyValues* pSettingsKV = MOD_GetLevelSettings(pszLevelName);
 
-    FileHandle_t pFile = FileSystem()->Open(ostream.str().c_str(), "rt");
-    if (!pFile)
+    if (!pSettingsKV)
         return;
 
-    uint32_t nLen = FileSystem()->Size(pFile);
-    uint8_t* pBuf = MemAllocSingleton()->Alloc<uint8_t>(nLen);
+    KeyValues* pPakListKV = pSettingsKV->FindKey("PakList");
 
-    int nRead = FileSystem()->Read(pBuf, nLen, pFile);
-    FileSystem()->Close(pFile);
+    if (!pPakListKV)
+        return;
 
-    pBuf[nRead] = '\0';
+    char szPathBuffer[MAX_PATH];
 
-    try
+    for (KeyValues* pSubKey = pPakListKV->GetFirstSubKey(); pSubKey != nullptr; pSubKey = pSubKey->GetNextKey())
     {
-        nlohmann::json jsIn = nlohmann::json::parse(pBuf);
-        if (!jsIn.is_null())
-        {
-            if (!jsIn["rpak"].is_null())
-            {
-                for (auto& it : jsIn["rpak"])
-                {
-                    if (it.is_string())
-                    {
-                        string svToLoad = it.get<string>() + ".rpak";
-                        RPakHandle_t nPakId = g_pakLoadApi->LoadAsync(svToLoad.c_str(), g_pMallocPool.GetPtr(), 4, 0);
+        if (!pSubKey->GetBool())
+            continue;
 
-                        if (nPakId == INVALID_PAK_HANDLE)
-                            Error(eDLL_T::ENGINE, NO_ERROR, "%s: unable to load pak '%s' results '%d'\n", __FUNCTION__, svToLoad.c_str(), nPakId);
-                        else
-                            g_vLoadedPakHandle.push_back(nPakId);
-                    }
-                }
-            }
-        }
-    }
-    catch (const std::exception& ex)
-    {
-        Warning(eDLL_T::RTECH, "Exception while parsing RPak load list: '%s'\n", ex.what());
-    }
+        snprintf(szPathBuffer, sizeof(szPathBuffer), "%s.rpak", pSubKey->GetName());
+        RPakHandle_t nPakId = g_pakLoadApi->LoadAsync(szPathBuffer, g_pMallocPool.GetPtr(), 4, 0);
 
-    MemAllocSingleton()->Free(pBuf);
+        if (nPakId == INVALID_PAK_HANDLE)
+            Error(eDLL_T::ENGINE, NO_ERROR, "%s: unable to load pak '%s' results '%d'\n", __FUNCTION__, szPathBuffer, nPakId);
+        else
+            g_vLoadedPakHandle.push_back(nPakId);
+    }
 }
 
 //-----------------------------------------------------------------------------

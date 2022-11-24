@@ -1,6 +1,11 @@
 #pragma once
 #include "tier0/jobthread.h"
 
+//-----------------------------------------------------------------------------
+// Forward declarations
+//-----------------------------------------------------------------------------
+class KeyValues;
+
 inline CMemory p_MOD_LoadPakForMap;
 inline auto v_MOD_LoadPakForMap = p_MOD_LoadPakForMap.RCast<bool(*)(const char* szLevelName)>();
 
@@ -24,12 +29,12 @@ inline auto sub_14045A1D0 = p_MOD_ProcessPakQueue.RCast<__int64(*)(unsigned __in
 inline auto sub_140441220 = p_MOD_ProcessPakQueue.RCast<void(*)(__int64 a1, __int64 a2)>();
 
 extern bool s_bBasePaksInitialized;
-extern string g_svLevelName;
 extern vector<string> g_vAllMaps;
 
-bool MOD_LevelHasChanged(const string& svLevelName);
+bool MOD_LevelHasChanged(const char* pszLevelName);
 void MOD_GetAllInstalledMaps();
-void MOD_PreloadPakFile(const string& svLevelName);
+KeyValues* MOD_GetLevelSettings(const char* pszLevelName);
+void MOD_PreloadLevelPaks(const char* pszLevelName);
 void MOD_UnloadPakFile(void);
 
 void CModelBsp_Attach();

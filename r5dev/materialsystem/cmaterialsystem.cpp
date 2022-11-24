@@ -5,8 +5,9 @@
 //===========================================================================//
 #include "core/stdafx.h"
 #include "tier1/cvar.h"
+#include "vpc/keyvalues.h"
 #include "rtech/rtech_utils.h"
-#include "filesystem/filesystem.h"
+#include "engine/cmodel_bsp.h"
 #include "materialsystem/cmaterialglue.h"
 #include "materialsystem/cmaterialsystem.h"
 
@@ -18,46 +19,23 @@
 //---------------------------------------------------------------------------------
 void StreamDB_Init(const char* pszLevelName)
 {
-	ostringstream ostream;
-	ostream << "scripts/levels/settings/" << pszLevelName << ".json";
+	KeyValues* pSettingsKV = MOD_GetLevelSettings(pszLevelName);
 
-	FileHandle_t pFile = FileSystem()->Open(ostream.str().c_str(), "rt");
-	if (pFile)
+	if (pSettingsKV)
 	{
-		uint32_t nLen = FileSystem()->Size(pFile);
-		uint8_t* pBuf = MemAllocSingleton()->Alloc<uint8_t>(nLen);
+		KeyValues* pStreamKV = pSettingsKV->FindKey("StreamDB");
 
-		int nRead = FileSystem()->Read(pBuf, nLen, pFile);
-		FileSystem()->Close(pFile);
-
-		pBuf[nRead] = '\0';
-
-		try
+		if (pStreamKV)
 		{
-			nlohmann::json jsIn = nlohmann::json::parse(pBuf);
-			if (!jsIn.is_null())
-			{
-				if (!jsIn[STREAM_DB_EXT].is_null())
-				{
-					string svStreamDBFile = jsIn[STREAM_DB_EXT].get<string>();
-					DevMsg(eDLL_T::MS, "%s: Loading override STBSP file '%s.%s'\n", __FUNCTION__, svStreamDBFile.c_str(), STREAM_DB_EXT);
+			const char* pszColumnName = pStreamKV->GetString();
+			DevMsg(eDLL_T::MS, "%s: Loading override STBSP file '%s.stbsp'\n", __FUNCTION__, pszColumnName);
 
-					v_StreamDB_Init(svStreamDBFile.c_str());
-					MemAllocSingleton()->Free(pBuf);
-
-					return;
-				}
-			}
+			v_StreamDB_Init(pszColumnName);
+			return;
 		}
-		catch (const std::exception& ex)
-		{
-			Warning(eDLL_T::MS, "%s: Exception while parsing STBSP override:\n%s\n", __FUNCTION__, ex.what());
-		}
-
-		MemAllocSingleton()->Free(pBuf);
 	}
 
-	DevMsg(eDLL_T::MS, "%s: Loading STBSP file '%s.%s'\n", __FUNCTION__, pszLevelName, STREAM_DB_EXT);
+	DevMsg(eDLL_T::MS, "%s: Loading STBSP file '%s.stbsp'\n", __FUNCTION__, pszLevelName);
 	v_StreamDB_Init(pszLevelName);
 }
 
