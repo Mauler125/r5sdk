@@ -453,11 +453,15 @@ void RTech_Decompress_f(const CCommand& args)
 	uint32_t nLen = FileSystem()->Size(hPakFile);
 	uint16_t flags = (pHeader->m_nFlags[0] << 8) | pHeader->m_nFlags[1];
 
+	SYSTEMTIME systemTime;
+	FileTimeToSystemTime(&pHeader->m_nFileTime, &systemTime);
+
 	DevMsg(eDLL_T::RTECH, " | |-+ Header ------------------------------------------------\n");
-	DevMsg(eDLL_T::RTECH, " |   |-- Magic    : '%08X'\n", pHeader->m_nMagic);
+	DevMsg(eDLL_T::RTECH, " |   |-- Magic    : '0x%08X'\n", pHeader->m_nMagic);
 	DevMsg(eDLL_T::RTECH, " |   |-- Version  : '%hu'\n", pHeader->m_nVersion);
-	DevMsg(eDLL_T::RTECH, " |   |-- Flags    : '%04hX'\n", flags);
-	DevMsg(eDLL_T::RTECH, " |   |-- Hash     : '%llu%llu'\n", pHeader->m_nFileTime, pHeader->m_nHash);
+	DevMsg(eDLL_T::RTECH, " |   |-- Flags    : '0x%04hX'\n", flags);
+	DevMsg(eDLL_T::RTECH, " |   |-- Time     : '%hu-%hu-%hu/%hu %hu:%hu:%hu.%hu'\n",systemTime.wYear,systemTime.wMonth,systemTime.wDay, systemTime.wDayOfWeek, systemTime.wHour, systemTime.wMinute, systemTime.wSecond, systemTime.wMilliseconds);
+	DevMsg(eDLL_T::RTECH, " |   |-- Hash     : '0x%08llX'\n", pHeader->m_nHash);
 	DevMsg(eDLL_T::RTECH, " |   |-- Entries  : '%u'\n", pHeader->m_nAssetEntryCount);
 	DevMsg(eDLL_T::RTECH, " |   |-+ Compression -----------------------------------------\n");
 	DevMsg(eDLL_T::RTECH, " |     |-- Size disk: '%llu'\n", pHeader->m_nSizeDisk);
@@ -546,7 +550,7 @@ void RTech_Decompress_f(const CCommand& args)
 	memcpy_s(pDecompBuf, sizeof(RPakHeader_t), pPakBuf, sizeof(RPakHeader_t));// Overwrite first 0x80 bytes which are NULL with the header data.
 	FileSystem()->Write(pDecompBuf, decompState.m_nDecompSize, hDecompFile);
 
-	DevMsg(eDLL_T::RTECH, " |     |-- Checksum : '%08X'\n", crc32::update(NULL, pDecompBuf, decompState.m_nDecompSize));
+	DevMsg(eDLL_T::RTECH, " |     |-- Checksum : '0x%08X'\n", crc32::update(NULL, pDecompBuf, decompState.m_nDecompSize));
 	DevMsg(eDLL_T::RTECH, " |-+ Decompressed pak file to: '%s'\n", svPakNameOut.c_str());
 	DevMsg(eDLL_T::RTECH, "--------------------------------------------------------------\n");
 

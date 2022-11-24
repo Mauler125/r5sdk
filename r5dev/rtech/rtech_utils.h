@@ -148,7 +148,7 @@ struct RPakHeader_t
 	uint32_t m_nMagic;                     // 'RPak'
 	uint16_t m_nVersion;                   // R2 = '7' R5 = '8'
 	uint8_t  m_nFlags[0x2];                //
-	uint64_t m_nFileTime;                  //
+	FILETIME m_nFileTime;                  //
 	uint64_t m_nHash;                      //
 	uint64_t m_nSizeDisk;                  // Compressed size
 	uint64_t m_nEmbeddedStarpakOffset;     //
