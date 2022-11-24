@@ -236,7 +236,7 @@ KeyValues* CPackedStore::GetManifest(const string& svWorkspace, const string& sv
 vector<string> CPackedStore::GetIgnoreList(const string& svWorkspace) const
 {
 	string svIgnore = svWorkspace + ".vpkignore";
-	FileHandle_t hIgnoreFile = FileSystem()->Open(svIgnore.c_str(), "rb", "GAME");
+	FileHandle_t hIgnoreFile = FileSystem()->Open(svIgnore.c_str(), "rt", "GAME");
 
 	if (!hIgnoreFile)
 	{
