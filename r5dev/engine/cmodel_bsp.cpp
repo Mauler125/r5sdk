@@ -244,8 +244,12 @@ void Mod_ProcessPakQueue()
                         g_pakLoadApi->UnloadPak(*(RPakHandle_t*)v10);
                         Mod_UnloadPakFile(); // Unload mod pak files.
 
-                        s_pLevelSetKV->DeleteThis(); // Delete current level settings if we drop all paks..
-                        s_pLevelSetKV = nullptr;
+                        if (s_pLevelSetKV)
+                        {
+                            // Delete current level settings if we drop all paks..
+                            s_pLevelSetKV->DeleteThis();
+                            s_pLevelSetKV = nullptr;
+                        }
                     }
                     if (v13 && (unsigned int)(v13 - 13) > 1)
                         return;
