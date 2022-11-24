@@ -20,7 +20,7 @@ vector<RPakHandle_t> g_vLoadedPakHandle;
 //			bUnk - 
 // Output : pak file handle on success, INVALID_PAK_HANDLE on failure
 //-----------------------------------------------------------------------------
-RPakHandle_t CPakFile::LoadAsync(const char* szPakFileName, uintptr_t pMalloc, int nIdx, bool bUnk)
+RPakHandle_t CPakFile::LoadAsync(const char* szPakFileName, void* pMalloc, int nIdx, bool bUnk)
 {
 	RPakHandle_t pakHandle = INVALID_PAK_HANDLE;
 #ifdef DEDICATED

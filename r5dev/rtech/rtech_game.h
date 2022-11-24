@@ -26,7 +26,7 @@ enum class ePakStatus : int
 
 /* ==== RTECH_GAME ====================================================================================================================================================== */
 inline CMemory p_CPakFile_LoadAsync;
-inline auto CPakFile_LoadAsync = p_CPakFile_LoadAsync.RCast<RPakHandle_t(*)(const char* szPakFileName, uintptr_t pMalloc, int nIdx, bool bUnk)>();
+inline auto CPakFile_LoadAsync = p_CPakFile_LoadAsync.RCast<RPakHandle_t(*)(const char* szPakFileName, void* pMalloc, int nIdx, bool bUnk)>();
 
 inline CMemory p_CPakFile_LoadPak;
 inline auto CPakFile_LoadPak = p_CPakFile_LoadPak.RCast<unsigned int (*)(void* thisptr, void* a2, uint64_t a3)>();
@@ -39,7 +39,7 @@ inline CMemory p_CPakFile_LoadPak_OpenFileOffset;
 class CPakFile
 {
 public:
-	static RPakHandle_t LoadAsync(const char* szPakFileName, uintptr_t pMalloc = g_pMallocPool.GetPtr(), int nIdx = NULL, bool bUnk = false);
+	static RPakHandle_t LoadAsync(const char* szPakFileName, void* pMalloc = g_pMallocPool, int nIdx = NULL, bool bUnk = false);
 	static void UnloadPak(RPakHandle_t handle);
 };
 extern CPakFile* g_pakLoadApi;
@@ -73,7 +73,7 @@ class VRTechGame : public IDetour
 		CPakFile_LoadAsync = p_CPakFile_LoadAsync.RCast<RPakHandle_t(*)(const char*, uintptr_t, int, bool)>(); /*40 53 48 83 EC 40 48 89 6C 24 ? 41 8B E8*/
 #elif defined (GAMEDLL_S3)
 		p_CPakFile_LoadAsync = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x40\x48\x89\x6C\x24\x00\x41\x0F\xB6\xE9"), "xxxxxxxxxx?xxxx");
-		CPakFile_LoadAsync = p_CPakFile_LoadAsync.RCast<RPakHandle_t(*)(const char*, uintptr_t, int, bool)>(); /*40 53 48 83 EC 40 48 89 6C 24 ? 41 0F B6 E9*/
+		CPakFile_LoadAsync = p_CPakFile_LoadAsync.RCast<RPakHandle_t(*)(const char*, void*, int, bool)>(); /*40 53 48 83 EC 40 48 89 6C 24 ? 41 0F B6 E9*/
 #endif
 		p_CPakFile_UnloadPak = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x30\x8B\xC1"), "xxxx?xxxx?xxxxxxx");
 		CPakFile_UnloadPak = p_CPakFile_UnloadPak.RCast<void (*)(RPakHandle_t)>(); /*48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 30 8B C1*/
