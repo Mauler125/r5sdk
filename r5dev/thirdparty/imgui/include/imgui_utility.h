@@ -3,13 +3,6 @@
 constexpr char IMGUI_BIND_PATH[] = "cfg/imgui/";
 constexpr char IMGUI_BIND_FILE[] = "bind.json";
 
-/////////////////////////////////////////////////////////////////////////////
-// Internals
-int   Stricmp(const char* s1, const char* s2);
-int   Strnicmp(const char* s1, const char* s2, int n);
-char* Strdup(const char* s);
-void  Strtrim(char* s);
-
 enum class ImGuiStyle_t
 {
     NONE = -1,
