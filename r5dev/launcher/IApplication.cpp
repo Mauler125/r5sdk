@@ -90,10 +90,8 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 	}
 	if (pModAppSystemGroup->IsServerOnly())
 	{
-		memset(gHLClient, '\0', sizeof(void*));
-		gHLClient = nullptr;
-		memset(g_pHLClient, '\0', sizeof(void*));
-		g_pHLClient = nullptr;
+		*g_pHLClient = nullptr;
+		*gHLClient = nullptr;
 	}
 
 	g_FrameTasks.push_back(std::move(g_TaskScheduler));

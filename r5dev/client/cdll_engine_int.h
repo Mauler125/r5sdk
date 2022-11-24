@@ -60,8 +60,8 @@ inline CMemory p_CHLClient_GetAllClasses;
 inline auto CHLClient_GetAllClasses = p_CHLClient_GetAllClasses.RCast<ClientClass*(*)()>();
 #endif // !DEDICATED
 
-inline CHLClient* gHLClient = nullptr;
-inline CHLClient* g_pHLClient = nullptr;
+inline CHLClient** gHLClient = nullptr;
+inline CHLClient** g_pHLClient = nullptr;
 #ifndef DEDICATED 
 inline IClientEntityList* g_pClientEntityList = nullptr;
 #endif // !DEDICATED
@@ -118,11 +118,11 @@ class VDll_Engine_Int : public IDetour
 	{
 		gHLClient = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>
 			("\x48\x8D\x05\x00\x00\x00\x00\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x30\x48\x8B\xF9"),
-			"xxx????xxxxxxxxxxxxx?xxxxxxxx").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CHLClient*>();
+			"xxx????xxxxxxxxxxxxx?xxxxxxxx").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CHLClient**>();
 
 		g_pHLClient = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>
 			("\x41\x55\x48\x83\xEC\x00\x4C\x63\x91\x00\x00\x00\x00"),
-			"xxxxx?xxx????").FindPatternSelf("4C 8B", CMemory::Direction::DOWN, 512, 2).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CHLClient*>();
+			"xxxxx?xxx????").FindPatternSelf("4C 8B", CMemory::Direction::DOWN, 512, 2).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CHLClient**>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
