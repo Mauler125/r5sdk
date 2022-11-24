@@ -536,7 +536,7 @@ int not_main(int argc, char** argv)
 						}
 						else
 						{
-							scrollZoom += 1.0f;
+							scrollZoom += 120.0f;
 						}
 					}
 					else
@@ -547,7 +547,7 @@ int not_main(int argc, char** argv)
 						}
 						else
 						{
-							scrollZoom -= 1.0f;
+							scrollZoom -= 120.0f;
 						}
 					}
 					break;
