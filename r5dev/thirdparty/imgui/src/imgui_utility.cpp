@@ -4,6 +4,8 @@
 
 #include "core/stdafx.h"
 #include "tier0/commandline.h"
+#include "tier0/memstd.h"
+#include "filesystem/filesystem.h"
 #include "thirdparty/imgui/include/imgui_utility.h"
 
 int Stricmp(const char* s1, const char* s2)
@@ -45,44 +47,62 @@ void Strtrim(char* s)
 
 void ImGuiConfig::Load()
 {
-    static const fs::path fsPath = "platform\\cfg\\imgui\\bind.json";
-    DevMsg(eDLL_T::MS, "Loading ImGui config file '%s'\n", fsPath.relative_path().u8string().c_str());
+    const string svPath = fmt::format("{:s}{:s}", IMGUI_BIND_PATH, IMGUI_BIND_FILE);
+    DevMsg(eDLL_T::MS, "Loading ImGui config file '%s'\n", svPath.c_str());
 
-    if (!fs::exists(fsPath))
+    FileSystem()->CreateDirHierarchy(IMGUI_BIND_PATH, "PLATFORM"); // Create directory, so ImGui can load/save 'layout.ini'.
+    FileHandle_t hFile = FileSystem()->Open(svPath.c_str(), "rt", "PLATFORM");
+
+    if (!hFile)
     {
         return;
     }
 
+    uint32_t nLen = FileSystem()->Size(hFile);
+    uint8_t* pBuf = MemAllocSingleton()->Alloc<uint8_t>(nLen);
+
+    int nRead = FileSystem()->Read(pBuf, nLen, hFile);
+    FileSystem()->Close(hFile);
+
+    pBuf[nRead] = '\0';
+
     try
     {
-        nlohmann::json jsIn;
-        std::ifstream configFile(fsPath, std::ios::binary); // Parse config file.
+        nlohmann::json jsIn = nlohmann::json::parse(pBuf);
 
-        configFile >> jsIn;
-        configFile.close();
-
-        if (jsIn.is_null() || jsIn["config"].is_null())
+        if (!jsIn.is_null() || !jsIn["config"].is_null())
         {
-            return; // Invalid or no config.
+            // IConsole
+            m_ConsoleConfig.m_nBind0 = jsIn["config"]["GameConsole"]["bind0"].get<int>();
+            m_ConsoleConfig.m_nBind1 = jsIn["config"]["GameConsole"]["bind1"].get<int>();
+
+            // IBrowser
+            m_BrowserConfig.m_nBind0 = jsIn["config"]["GameBrowser"]["bind0"].get<int>();
+            m_BrowserConfig.m_nBind1 = jsIn["config"]["GameBrowser"]["bind1"].get<int>();
         }
-
-        // IConsole
-        m_ConsoleConfig.m_nBind0 = jsIn["config"]["GameConsole"]["bind0"].get<int>();
-        m_ConsoleConfig.m_nBind1 = jsIn["config"]["GameConsole"]["bind1"].get<int>();
-
-        // IBrowser
-        m_BrowserConfig.m_nBind0 = jsIn["config"]["GameBrowser"]["bind0"].get<int>();
-        m_BrowserConfig.m_nBind1 = jsIn["config"]["GameBrowser"]["bind1"].get<int>();
     }
     catch (const std::exception& ex)
     {
         Warning(eDLL_T::MS, "Exception while parsing ImGui config file:\n%s\n", ex.what());
-        return;
     }
+
+    MemAllocSingleton()->Free(pBuf);
 }
 
 void ImGuiConfig::Save()
 {
+    const string svPath = fmt::format("{:s}{:s}", IMGUI_BIND_PATH, IMGUI_BIND_FILE);
+    DevMsg(eDLL_T::MS, "Saving ImGui config file '%s'\n", svPath.c_str());
+
+    FileSystem()->CreateDirHierarchy(IMGUI_BIND_PATH, "PLATFORM");
+    FileHandle_t hFile = FileSystem()->Open(svPath.c_str(), "wt", "PLATFORM");
+
+    if (!hFile)
+    {
+        Error(eDLL_T::MS, NO_ERROR, "%s - Unable to write to '%s' (read-only?)\n", __FUNCTION__, svPath.c_str());
+        return;
+    }
+
     nlohmann::json jsOut;
 
     // IConsole
@@ -93,13 +113,10 @@ void ImGuiConfig::Save()
     jsOut["config"]["GameBrowser"]["bind0"] = m_BrowserConfig.m_nBind0;
     jsOut["config"]["GameBrowser"]["bind1"] = m_BrowserConfig.m_nBind1;
 
-    fs::path fsPath = "platform\\imgui.json";
+    const string svOutFile = jsOut.dump(4);
 
-    DevMsg(eDLL_T::MS, "Saving ImGui config file '%s'\n", fsPath.relative_path().u8string().c_str());
-    std::ofstream outFile(fsPath, std::ios::out | std::ios::trunc); // Write config file.
-
-    outFile << jsOut.dump(4); // Dump it into config file.
-    outFile.close();          // Close the file handle.
+    FileSystem()->Write(svOutFile.data(), svOutFile.size(), hFile);
+    FileSystem()->Close(hFile);
 }
 
 ImGuiStyle_t ImGuiConfig::InitStyle() const

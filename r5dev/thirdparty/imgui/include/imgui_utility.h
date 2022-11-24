@@ -1,5 +1,8 @@
 #pragma once
 
+constexpr char IMGUI_BIND_PATH[] = "cfg/imgui/";
+constexpr char IMGUI_BIND_FILE[] = "bind.json";
+
 /////////////////////////////////////////////////////////////////////////////
 // Internals
 int   Stricmp(const char* s1, const char* s2);

@@ -521,7 +521,6 @@ void VDXGI::GetAdr(void) const
 
 DWORD __stdcall DXSwapChainWorker(LPVOID)
 {
-	g_pImGuiConfig->Load(); // Load ImGui configs.
 	GetPresent();
 	InstallDXHooks();
 
