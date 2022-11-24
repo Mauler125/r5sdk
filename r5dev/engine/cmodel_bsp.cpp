@@ -362,7 +362,6 @@ bool Mod_LoadPakForMap(const char* szLevelName)
 	if (Mod_LevelHasChanged(szLevelName))
 		s_bLevelResourceInitialized = false;
 
-	s_svLevelName = szLevelName;
 	return v_Mod_LoadPakForMap(szLevelName);
 }
 
@@ -376,9 +375,7 @@ KeyValues* Mod_GetLevelSettings(const char* pszLevelName)
     if (s_pLevelSetKV)
     {
         if (!Mod_LevelHasChanged(pszLevelName))
-        {
             return s_pLevelSetKV;
-        }
 
         s_pLevelSetKV->DeleteThis();
     }
@@ -386,7 +383,9 @@ KeyValues* Mod_GetLevelSettings(const char* pszLevelName)
     char szPathBuffer[MAX_PATH];
     snprintf(szPathBuffer, sizeof(szPathBuffer), "scripts/levels/settings/%s.kv", pszLevelName);
 
+    s_svLevelName = pszLevelName;
     s_pLevelSetKV = FileSystem()->LoadKeyValues(IFileSystem::TYPE_LEVELSETTINGS, szPathBuffer, "GAME");
+
     return s_pLevelSetKV;
 }
 
