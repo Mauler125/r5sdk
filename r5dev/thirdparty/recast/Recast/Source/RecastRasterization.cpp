@@ -264,7 +264,7 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 	// Calculate the footprint of the triangle on the grid's y-axis
 	int y0 = (int)((tmin[1] - bmin[1])*ics);
 	int y1 = (int)((tmax[1] - bmin[1])*ics);
-	y0 = rcClamp(y0, 0, h-1);
+	y0 = rcClamp(y0, -1, h-1); // use -1 rather than 0 to cut the polygon properly at the start of the tile
 	y1 = rcClamp(y1, 0, h-1);
 	
 	// Clip the triangle into all grid cells it touches.
@@ -282,7 +282,9 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 		const float cy = bmin[1] + y*cs;
 		dividePoly(in, nvIn, inrow, &nvrow, p1, &nvIn, cy+cs, 1);
 		rcSwap(in, p1);
-		if (nvrow < 3) continue;
+
+		if (nvrow < 3 || y < 0)
+			continue;
 		
 		// find the horizontal bounds in the row
 		float minX = inrow[0], maxX = inrow[0];
@@ -293,7 +295,11 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 		}
 		int x0 = (int)((minX - bmin[0])*ics);
 		int x1 = (int)((maxX - bmin[0])*ics);
-		x0 = rcClamp(x0, 0, w-1);
+
+		if (x1 < 0 || x0 >= w)
+			continue;
+
+		x0 = rcClamp(x0, -1, w-1);
 		x1 = rcClamp(x1, 0, w-1);
 
 		int nv, nv2 = nvrow;
@@ -304,7 +310,9 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 			const float cx = bmin[0] + x*cs;
 			dividePoly(inrow, nv2, p1, &nv, p2, &nv2, cx+cs, 0);
 			rcSwap(inrow, p2);
-			if (nv < 3) continue;
+
+			if (nv < 3 || x < 0)
+				continue;
 			
 			// Calculate min and max of the span.
 			float smin = p1[2], smax = p1[2];
@@ -315,12 +323,16 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 			}
 			smin -= bmin[2];
 			smax -= bmin[2];
+
 			// Skip the span if it is outside the heightfield bbox
-			if (smax < 0.0f) continue;
-			if (smin > bz) continue;
+			if (smax < 0.0f || smin > bz)
+				continue;
+
 			// Clamp the span to the heightfield bbox.
-			if (smin < 0.0f) smin = 0;
-			if (smax > bz) smax = bz;
+			if (smin < 0.0f)
+				smin = 0;
+			if (smax > bz)
+				smax = bz;
 			
 			// Snap the span to the heightfield height grid.
 			unsigned short ismin = (unsigned short)rcClamp((int)floorf(smin * ich), 0, RC_SPAN_MAX_HEIGHT);
