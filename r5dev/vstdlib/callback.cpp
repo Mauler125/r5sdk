@@ -542,7 +542,7 @@ void RTech_Decompress_f(const CCommand& args)
 		for (uint32_t i = 1, nPatchOffset = (sizeof(RPakHeader_t) + sizeof(uint64_t));
 			i <= pHeader->m_nPatchIndex; i++, nPatchOffset += sizeof(RPakPatchCompressedHeader_t))
 		{
-			RPakPatchCompressedHeader_t* pPatchHeader = (RPakPatchCompressedHeader_t*)((uintptr_t)pPakBuf + nPatchOffset);
+			RPakPatchCompressedHeader_t* pPatchHeader = reinterpret_cast<RPakPatchCompressedHeader_t*>(pDecompBuf + nPatchOffset);
 			pPatchHeader->m_nSizeDisk = pPatchHeader->m_nSizeMemory; // Fix size for decompress.
 		}
 	}
