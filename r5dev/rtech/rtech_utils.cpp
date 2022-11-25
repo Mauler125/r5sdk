@@ -106,13 +106,13 @@ uint64_t __fastcall RTech::DecompressPakFileInit(RPakDecompState_t* state, uint8
 	state->m_nDecompPosition = headerSize;
 	decompressed_size_bits = byte_init & 0x3F;
 	byte_init >>= 6;
-	state->input_byte_pos = input_byte_pos_init;
+	state->m_nInputBytePos = input_byte_pos_init;
 	state->m_nDecompSize = byte_init & ((1i64 << decompressed_size_bits) - 1) | (1i64 << decompressed_size_bits);
 	byte_1_low = *(uint64_t*)((mask & input_byte_pos_init) + file_buf) << (64
 		- ((uint8_t)decompressed_size_bits
 			+ 6));
 	input_byte_pos_1 = input_byte_pos_init + ((uint64_t)(uint32_t)(decompressed_size_bits + 6) >> 3);
-	state->input_byte_pos = input_byte_pos_1;
+	state->m_nInputBytePos = input_byte_pos_1;
 	bit_pos_final = ((decompressed_size_bits + 6) & 7) + 13;
 	byte_1 = (0xFFFFFFFFFFFFFFFFui64 >> ((decompressed_size_bits + 6) & 7)) & ((byte_init >> decompressed_size_bits) | byte_1_low);
 	brih_bits = (((uint8_t)byte_1 - 1) & 0x3F) + 1;
@@ -125,18 +125,18 @@ uint64_t __fastcall RTech::DecompressPakFileInit(RPakDecompState_t* state, uint8
 	byte_bit_offset_final = bit_pos_final & 7;
 	input_byte_pos_final = (bit_pos_final_1 >> 3) + input_byte_pos_1;
 	byte_final = (0xFFFFFFFFFFFFFFFFui64 >> byte_bit_offset_final) & byte_final_full;
-	state->input_byte_pos = input_byte_pos_final;
+	state->m_nInputBytePos = input_byte_pos_final;
 	if (inv_mask_in == -1i64)
 	{
-		state->header_skip_bytes_bs = 0;
+		state->m_nHeaderOffset = 0;
 		stream_len_needed = fileSize;
 	}
 	else
 	{
 		brih_bytes = brih_bits >> 3;
-		state->header_skip_bytes_bs = brih_bytes + 1;
+		state->m_nHeaderOffset = brih_bytes + 1;
 		byte_tmp = *(uint64_t*)((mask & input_byte_pos_final) + file_buf);
-		state->input_byte_pos = input_byte_pos_final + brih_bytes + 1;
+		state->m_nInputBytePos = input_byte_pos_final + brih_bytes + 1;
 		stream_len_needed = byte_tmp & ((1i64 << (8 * ((uint8_t)brih_bytes + 1))) - 1);
 	}
 	result = state->m_nDecompSize;
@@ -145,13 +145,13 @@ uint64_t __fastcall RTech::DecompressPakFileInit(RPakDecompState_t* state, uint8
 	state->m_nLengthNeeded = stream_len_needed + offNoHeader;
 	state->qword70 = qw70;
 	state->byte = byte_final;
-	state->byte_bit_offset = byte_bit_offset_final;
+	state->m_nByteBitOffset = byte_bit_offset_final;
 	state->dword6C = 0;
 	state->m_nCompressedStreamSize = stream_len_needed + offNoHeader;
 	state->m_nDecompStreamSize = result;
 	if (result - 1 > inv_mask_out)
 	{
-		stream_compressed_size_new = stream_len_needed + offNoHeader - state->header_skip_bytes_bs;
+		stream_compressed_size_new = stream_len_needed + offNoHeader - state->m_nHeaderOffset;
 		state->m_nDecompStreamSize = inv_mask_out + 1;
 		state->m_nCompressedStreamSize = stream_compressed_size_new;
 	}
@@ -229,9 +229,9 @@ uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, uint64_t i
 	if (outLen < state->m_nInvMaskOut + (decompressed_position & ~state->m_nInvMaskOut) + 1 && outLen < state->m_nDecompSize)
 		return 0;
 
-	byte_bit_offset = state->byte_bit_offset; // Keeping copy since we increment it down below.
+	byte_bit_offset = state->m_nByteBitOffset; // Keeping copy since we increment it down below.
 	byte = state->byte; // Keeping copy since its getting overwritten down below.
-	input_byte_pos = state->input_byte_pos; // Keeping copy since we increment it down below.
+	input_byte_pos = state->m_nInputBytePos; // Keeping copy since we increment it down below.
 	some_size = state->qword70;
 	if (state->m_nCompressedStreamSize < some_size)
 		some_size = state->m_nCompressedStreamSize;
@@ -432,14 +432,14 @@ uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, uint64_t i
 	decompressed_size = state->m_nDecompSize;
 	if (decompressed_position == decompressed_size)
 	{
-		state->input_byte_pos = input_byte_pos;
+		state->m_nInputBytePos = input_byte_pos;
 		result = 1;
 		state->m_nDecompPosition = decompressed_position;
 		return result;
 	}
 
 	inv_mask_in = state->m_nInvMaskIn;
-	header_skip_bytes_bs = state->header_skip_bytes_bs;
+	header_skip_bytes_bs = state->m_nHeaderOffset;
 	v32 = inv_mask_in & -(int64_t)input_byte_pos;
 	byte_new >>= 1;
 	++byte_bit_offset;
@@ -494,10 +494,10 @@ uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, uint64_t i
 
 	state->dword6C = dword6C;
 	result = 0;
-	state->input_byte_pos = input_byte_pos;
+	state->m_nInputBytePos = input_byte_pos;
 	state->m_nDecompPosition = decompressed_position;
 	state->byte = byte_new;
-	state->byte_bit_offset = byte_bit_offset;
+	state->m_nByteBitOffset = byte_bit_offset;
 
 	return result;
 }

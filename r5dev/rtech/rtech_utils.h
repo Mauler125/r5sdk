@@ -113,8 +113,10 @@ struct RPakAssetEntry_t
 {
 	uint64_t m_Guid;
 	uint64_t m_Padding;
-	void* m_pHead;
-	void* m_pCpu;
+	uint32_t m_nHeadPageIdx;
+	uint32_t m_nHeadPageOffset;
+	uint32_t m_nCpuPageIdx;
+	uint32_t m_nCpuPageOffset;
 	uint64_t m_nStarpakOffset;
 	uint64_t m_nStarpakOptOffset;
 	uint16_t m_nPageEnd;
@@ -190,13 +192,13 @@ struct RPakDecompState_t
 	uint64_t m_nDecompSize;
 	uint64_t m_nInvMaskIn;
 	uint64_t m_nInvMaskOut;
-	uint32_t header_skip_bytes_bs;
+	uint32_t m_nHeaderOffset;
 	uint32_t dword44;
-	uint64_t input_byte_pos;
+	uint64_t m_nInputBytePos;
 	uint64_t m_nDecompPosition;
 	uint64_t m_nLengthNeeded;
 	uint64_t byte;
-	uint32_t byte_bit_offset;
+	uint32_t m_nByteBitOffset;
 	uint32_t dword6C;
 	uint64_t qword70;
 	uint64_t m_nCompressedStreamSize;
@@ -238,6 +240,20 @@ struct RPakDescriptor_t
 	uint32_t m_Offset;
 };
 
+struct RPakMemPageInfo_t
+{
+	uint32_t m_nVirtualSegmentIndex;
+	uint32_t m_nFlags;
+	uint32_t m_nDataSize;
+};
+
+struct RPakVirtualSegment_t
+{
+	uint32_t m_nFlags;
+	uint32_t m_nFlags_Unk;
+	uint64_t m_nDataSize;
+};
+
 struct PakFile_t
 {
 	int m_nDescCount;
@@ -272,8 +288,8 @@ struct PakFile_t
 	char* m_pszStreamingFilePaths;
 	char* m_pszOptStreamingFilePaths;
 	void* m_pVirtualSegments;
-	void* m_pMemPages;
-	void* m_pVirtualPointers;
+	RPakMemPageInfo_t* m_pMemPages;
+	RPakVirtualSegment_t* m_pVirtualPointers;
 	RPakAssetEntry_t* m_pAssetEntries;
 	RPakDescriptor_t* m_pGuidDescriptors;
 	uint32_t* m_pFileRelations;
@@ -306,7 +322,7 @@ inline auto RTech_OpenFile = p_RTech_OpenFile.RCast<int32_t(*)(const char*, void
 
 #ifdef GAMEDLL_S3
 inline CMemory p_Pak_ProcessGuidRelationsForAsset;
-inline auto RTech_Pak_ProcessGuidRelationsForAsset = p_RTech_OpenFile.RCast<void(__fastcall*)(PakFile_t*, RPakAssetEntry_t*)>();
+inline auto RTech_Pak_ProcessGuidRelationsForAsset = p_Pak_ProcessGuidRelationsForAsset.RCast<void(__fastcall*)(PakFile_t*, RPakAssetEntry_t*)>();
 #endif
 
 inline CMemory p_StreamDB_Init;
