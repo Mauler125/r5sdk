@@ -464,7 +464,7 @@ void RTech_Decompress_f(const CCommand& args)
 	DevMsg(eDLL_T::RTECH, " |   |-- Hash     : '0x%08llX'\n", pHeader->m_nHash);
 	DevMsg(eDLL_T::RTECH, " |   |-- Entries  : '%u'\n", pHeader->m_nAssetEntryCount);
 	DevMsg(eDLL_T::RTECH, " |   |-+ Compression -----------------------------------------\n");
-	DevMsg(eDLL_T::RTECH, " |     |-- Size disk: '%llu'\n", pHeader->m_nSizeDisk);
+	DevMsg(eDLL_T::RTECH, " |     |-- Size comp: '%llu'\n", pHeader->m_nSizeDisk);
 	DevMsg(eDLL_T::RTECH, " |     |-- Size decp: '%llu'\n", pHeader->m_nSizeMemory);
 
 	if (pHeader->m_nMagic != RPAKHEADER)
@@ -543,6 +543,10 @@ void RTech_Decompress_f(const CCommand& args)
 			i <= pHeader->m_nPatchIndex; i++, nPatchOffset += sizeof(RPakPatchCompressedHeader_t))
 		{
 			RPakPatchCompressedHeader_t* pPatchHeader = reinterpret_cast<RPakPatchCompressedHeader_t*>(pDecompBuf + nPatchOffset);
+			DevMsg(eDLL_T::RTECH, " |     |-+ Patch #%02u -----------------------------------------\n", i);
+			DevMsg(eDLL_T::RTECH, " |     %s |-- Size comp: '%llu'\n", i < pHeader->m_nPatchIndex ? "|" : " ", pPatchHeader->m_nSizeDisk);
+			DevMsg(eDLL_T::RTECH, " |     %s |-- Size decp: '%llu'\n", i < pHeader->m_nPatchIndex ? "|" : " ", pPatchHeader->m_nSizeMemory);
+
 			pPatchHeader->m_nSizeDisk = pPatchHeader->m_nSizeMemory; // Fix size for decompress.
 		}
 	}
@@ -550,8 +554,8 @@ void RTech_Decompress_f(const CCommand& args)
 	memcpy_s(pDecompBuf, sizeof(RPakHeader_t), pPakBuf, sizeof(RPakHeader_t));// Overwrite first 0x80 bytes which are NULL with the header data.
 	FileSystem()->Write(pDecompBuf, decompState.m_nDecompSize, hDecompFile);
 
-	DevMsg(eDLL_T::RTECH, " |     |-- Checksum : '0x%08X'\n", crc32::update(NULL, pDecompBuf, decompState.m_nDecompSize));
-	DevMsg(eDLL_T::RTECH, " |-+ Decompressed pak file to: '%s'\n", svPakNameOut.c_str());
+	DevMsg(eDLL_T::RTECH, " |-- Checksum : '0x%08X'\n", crc32::update(NULL, pDecompBuf, decompState.m_nDecompSize));
+	DevMsg(eDLL_T::RTECH, "-+ Decompressed pak file to: '%s'\n", svPakNameOut.c_str());
 	DevMsg(eDLL_T::RTECH, "--------------------------------------------------------------\n");
 
 	MemAllocSingleton()->Free(pPakBuf);
