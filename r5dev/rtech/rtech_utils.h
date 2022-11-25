@@ -236,21 +236,21 @@ public:
 
 struct RPakDescriptor_t
 {
-	uint32_t m_Index;
+	uint32_t m_nSegIndex;
 	uint32_t m_Offset;
 };
 
 struct RPakMemPageInfo_t
 {
 	uint32_t m_nVirtualSegmentIndex;
-	uint32_t m_nFlags;
+	uint32_t m_nPageAlignment;
 	uint32_t m_nDataSize;
 };
 
 struct RPakVirtualSegment_t
 {
 	uint32_t m_nFlags;
-	uint32_t m_nFlags_Unk;
+	uint32_t m_nAlignment;
 	uint64_t m_nDataSize;
 };
 
