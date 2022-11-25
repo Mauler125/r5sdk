@@ -10,7 +10,6 @@
 #include "tier0/jobthread.h"
 #include "engine/sys_dll2.h"
 #include "engine/host_cmd.h"
-#include "engine/host_state.h"
 #include "engine/cmodel_bsp.h"
 #include "rtech/rtech_utils.h"
 #include "rtech/rtech_game.h"
@@ -324,8 +323,8 @@ void Mod_ProcessPakQueue()
 
         if (s_bBasePaksInitialized && !s_bLevelResourceInitialized)
         {
+            Mod_PreloadLevelPaks(s_svLevelName.c_str());
             s_bLevelResourceInitialized = true;
-            Mod_PreloadLevelPaks(g_pHostState->m_levelName);
         }
         *(_DWORD*)v15 = g_pakLoadApi->LoadAsync(v17, g_pMallocPool, 4, 0);
 
@@ -357,12 +356,13 @@ void Mod_ProcessPakQueue()
 // Input  : *szLevelName - 
 // Output : true on success, false on failure
 //-----------------------------------------------------------------------------
-bool Mod_LoadPakForMap(const char* szLevelName)
+bool Mod_LoadPakForMap(const char* pszLevelName)
 {
-	if (Mod_LevelHasChanged(szLevelName))
+	if (Mod_LevelHasChanged(pszLevelName))
 		s_bLevelResourceInitialized = false;
 
-	return v_Mod_LoadPakForMap(szLevelName);
+	s_svLevelName = pszLevelName;
+	return v_Mod_LoadPakForMap(pszLevelName);
 }
 
 //-----------------------------------------------------------------------------
@@ -374,7 +374,7 @@ KeyValues* Mod_GetLevelSettings(const char* pszLevelName)
 {
     if (s_pLevelSetKV)
     {
-        if (!Mod_LevelHasChanged(pszLevelName))
+        if (s_bLevelResourceInitialized)
             return s_pLevelSetKV;
 
         s_pLevelSetKV->DeleteThis();
@@ -383,9 +383,7 @@ KeyValues* Mod_GetLevelSettings(const char* pszLevelName)
     char szPathBuffer[MAX_PATH];
     snprintf(szPathBuffer, sizeof(szPathBuffer), "scripts/levels/settings/%s.kv", pszLevelName);
 
-    s_svLevelName = pszLevelName;
     s_pLevelSetKV = FileSystem()->LoadKeyValues(IFileSystem::TYPE_LEVELSETTINGS, szPathBuffer, "GAME");
-
     return s_pLevelSetKV;
 }
 
