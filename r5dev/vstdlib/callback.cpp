@@ -316,7 +316,7 @@ void Pak_RequestUnload_f(const CCommand& args)
 	}
 	catch (const std::exception& e)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - %s", __FUNCTION__, e.what());
+		Error(eDLL_T::RTECH, NO_ERROR, "%s - %s\n", __FUNCTION__, e.what());
 		return;
 	}
 }
@@ -379,7 +379,7 @@ void Pak_Swap_f(const CCommand& args)
 	}
 	catch (const std::exception& e)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - %s", __FUNCTION__, e.what());
+		Error(eDLL_T::RTECH, NO_ERROR, "%s - %s\n", __FUNCTION__, e.what());
 		return;
 	}
 }

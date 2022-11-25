@@ -357,7 +357,7 @@ void CBanSystem::KickPlayerById(const string& svHandle)
 	}
 	catch (const std::exception& e)
 	{
-		Error(eDLL_T::SERVER, NO_ERROR, "%s - %s", __FUNCTION__, e.what());
+		Error(eDLL_T::SERVER, NO_ERROR, "%s - %s\n", __FUNCTION__, e.what());
 		return;
 	}
 }
@@ -461,7 +461,7 @@ void CBanSystem::BanPlayerById(const string& svHandle)
 	}
 	catch (const std::exception& e)
 	{
-		Error(eDLL_T::SERVER, NO_ERROR, "%s - %s", __FUNCTION__, e.what());
+		Error(eDLL_T::SERVER, NO_ERROR, "%s - %s\n", __FUNCTION__, e.what());
 		return;
 	}
 }
@@ -491,7 +491,7 @@ void CBanSystem::UnbanPlayer(const string& svCriteria)
 	}
 	catch (const std::exception& e)
 	{
-		Error(eDLL_T::SERVER, NO_ERROR, "%s - %s", __FUNCTION__, e.what());
+		Error(eDLL_T::SERVER, NO_ERROR, "%s - %s\n", __FUNCTION__, e.what());
 		return;
 	}
 }
