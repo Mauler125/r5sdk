@@ -236,7 +236,7 @@ public:
 
 struct RPakDescriptor_t
 {
-	uint32_t m_nSegIndex;
+	uint32_t m_Index;
 	uint32_t m_Offset;
 };
 
@@ -289,7 +289,7 @@ struct PakFile_t
 	char* m_pszOptStreamingFilePaths;
 	void* m_pVirtualSegments;
 	RPakMemPageInfo_t* m_pMemPages;
-	RPakVirtualSegment_t* m_pVirtualPointers;
+	RPakDescriptor_t* m_pVirtualPointers;
 	RPakAssetEntry_t* m_pAssetEntries;
 	RPakDescriptor_t* m_pGuidDescriptors;
 	uint32_t* m_pFileRelations;
