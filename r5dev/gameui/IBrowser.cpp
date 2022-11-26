@@ -485,7 +485,7 @@ void CBrowser::HostPanel(void)
     }
 
     ImGui::Spacing();
-    if (!g_pServer->IsActive())
+    if (!g_pHostState->m_bActiveGame)
     {
         if (ImGui::Button("Start Server", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
         {
@@ -557,39 +557,42 @@ void CBrowser::HostPanel(void)
             }
         }
 
-        ImGui::Spacing();
-        ImGui::Separator();
-        ImGui::Spacing();
-
-        if (ImGui::Button("Rebuild AI Network", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+        if (g_pServer->IsActive())
         {
-            ProcessCommand("BuildAINFile");
-        }
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
 
-        if (ImGui::Button("NavMesh Hot Swap", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
-        {
-            ProcessCommand("navmesh_hotswap");
-        }
-
-        ImGui::Spacing();
-        ImGui::Separator();
-        ImGui::Spacing();
-
-        if (ImGui::Button("AI Settings Reparse", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
-        {
-            DevMsg(eDLL_T::ENGINE, "Reparsing AI data on %s\n", g_pClientState->IsActive() ? "server and client" : "server");
-            ProcessCommand("aisettings_reparse");
-
-            if (g_pClientState->IsActive())
+            if (ImGui::Button("Rebuild AI Network", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
             {
-                ProcessCommand("aisettings_reparse_client");
+                ProcessCommand("BuildAINFile");
             }
-        }
 
-        if (ImGui::Button("Weapon Settings Reparse", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
-        {
-            DevMsg(eDLL_T::ENGINE, "Reparsing weapon data on %s\n", g_pClientState->IsActive() ? "server and client" : "server");
-            ProcessCommand("weapon_reparse");
+            if (ImGui::Button("NavMesh Hot Swap", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+            {
+                ProcessCommand("navmesh_hotswap");
+            }
+
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
+
+            if (ImGui::Button("AI Settings Reparse", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+            {
+                DevMsg(eDLL_T::ENGINE, "Reparsing AI data on %s\n", g_pClientState->IsActive() ? "server and client" : "server");
+                ProcessCommand("aisettings_reparse");
+
+                if (g_pClientState->IsActive())
+                {
+                    ProcessCommand("aisettings_reparse_client");
+                }
+            }
+
+            if (ImGui::Button("Weapon Settings Reparse", ImVec2(ImGui::GetWindowContentRegionWidth(), 32)))
+            {
+                DevMsg(eDLL_T::ENGINE, "Reparsing weapon data on %s\n", g_pClientState->IsActive() ? "server and client" : "server");
+                ProcessCommand("weapon_reparse");
+            }
         }
     }
 #endif // !CLIENT_DLL
