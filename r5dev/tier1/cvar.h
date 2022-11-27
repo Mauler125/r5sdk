@@ -191,11 +191,6 @@ extern ConVar* rtech_debug;
 extern ConVar* rui_drawEnable;
 extern ConVar* rui_defaultDebugFontFace;
 #endif // !DEDICATED
-//-----------------------------------------------------------------------------
-// MILES                                                                      |
-#ifndef DEDICATED
-extern ConVar* miles_debug;
-#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 

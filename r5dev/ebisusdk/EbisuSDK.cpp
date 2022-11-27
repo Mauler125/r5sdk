@@ -25,24 +25,6 @@ bool IsOriginInitialized()
 //-----------------------------------------------------------------------------
 void HEbisuSDK_Init()
 {
-
-	FILE* sNameCfg;
-	CHAR sNameBuf[64] = { 0 };
-	fopen_s(&sNameCfg, "platform\\cfg\\name.cfg", "r");
-
-	if (sNameCfg)
-	{
-		while (fgets(sNameBuf, sizeof(sNameBuf), sNameCfg) != NULL)
-		{
-			fclose(sNameCfg);
-		}
-	}
-	memcpy((char*)g_sPlayerName, sNameBuf, sizeof(sNameBuf));
-
-	*(char*)g_bEbisuSDKInitialized = (char)0x1; // <- 1st EbisuSDK check
-	*(char*)g_bEbisuSDKCvarInitialized = (char)0x1; // <- 2nd EbisuSDK check
-	*(char*)g_NucleusID = (char)0x1; // <- 3rd EbisuSDK
-
 #ifdef DEDICATED
 	*(char*)g_bEbisuSDKInitialized     = (char)0x1; // <- 1st EbisuSDK
 	*(char*)g_bEbisuSDKCvarInitialized = (char)0x1; // <- 2nd EbisuSDK

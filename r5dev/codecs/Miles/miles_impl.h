@@ -1,5 +1,4 @@
 #pragma once
-#include "miles_types.h"
 
 /* ==== WASAPI THREAD SERVICE =========================================================================================================================================== */
 inline CMemory p_AIL_LogFunc;
@@ -7,12 +6,6 @@ inline auto v_AIL_LogFunc = p_AIL_LogFunc.RCast<void(*)(int64_t nLogLevel, const
 
 inline CMemory p_Miles_Initialize;
 inline auto v_Miles_Initialize = p_Miles_Initialize.RCast<bool(*)()>();
-
-inline CMemory p_MilesQueueEventRun;
-inline auto v_MilesQueueEventRun = p_MilesQueueEventRun.RCast<void(*)(Miles::Queue*, const char*)>();
-
-inline CMemory p_MilesBankPatch;
-inline auto v_MilesBankPatch = p_MilesBankPatch.RCast<void(*)(Miles::Bank*, char*, char*)>();
 
 void MilesCore_Attach();
 void MilesCore_Detach();
@@ -35,13 +28,6 @@ class MilesCore : public IDetour
 		p_Miles_Initialize = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\xFF\x0D\x00\x00\x00\x00\xC6\x05\x00\x00\x00\x00\x00"), "x????xx????xx?????").FollowNearCallSelf();
 		v_Miles_Initialize = p_Miles_Initialize.RCast<bool(*)()>();
 		// 0x14095A140 // E8 ? ? ? ? FF 0D ? ? ? ? C6 05 ? ? ? ? ?  //
-
-		p_MilesQueueEventRun = g_RadAudioSystemDll.GetExportedFunction("MilesQueueEventRun");
-		v_MilesQueueEventRun = p_MilesQueueEventRun.RCast<void(*)(Miles::Queue*, const char*)>();
-
-		p_MilesBankPatch = g_RadAudioSystemDll.GetExportedFunction("MilesBankPatch");
-		v_MilesBankPatch = p_MilesBankPatch.RCast<void(*)(Miles::Bank*, char*, char*)>();
-
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

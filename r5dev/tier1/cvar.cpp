@@ -195,12 +195,6 @@ ConVar* rtech_debug                        = nullptr;
 ConVar* rui_drawEnable                     = nullptr;
 ConVar* rui_defaultDebugFontFace           = nullptr;
 #endif // !DEDICATED
-//-----------------------------------------------------------------------------
-// MILES                                                                      |
-#ifndef DEDICATED
-ConVar* miles_debug                        = nullptr;
-#endif
-
 
 struct ConVarFlags_t
 {
