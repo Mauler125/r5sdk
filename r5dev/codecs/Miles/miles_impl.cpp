@@ -18,11 +18,12 @@ void AIL_LogFunc(int64_t nLogLevel, const char* pszMessage)
 //-----------------------------------------------------------------------------
 bool Miles_Initialize()
 {
-	bool result = v_Miles_Initialize();
+	bool bResult = v_Miles_Initialize();
 
-	DevMsg(eDLL_T::AUDIO, "Miles_Initialize: %s\n", result ? "initialized successfully" : "failed to initialize");
+	bResult	? DevMsg(eDLL_T::AUDIO, __FUNCTION__": %s\n", "initialized successfully")
+			: Warning(eDLL_T::AUDIO, __FUNCTION__": %s\n", "failed to initialize");
 
-	return result;
+	return bResult;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
