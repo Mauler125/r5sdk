@@ -36,6 +36,7 @@
 #ifndef DEDICATED
 #include "milessdk/shared/core.h"
 #include "milessdk/win64_rrthreads.h"
+#include "codecs/bink_impl.h"
 #endif // !DEDICATED
 #include "vphysics/QHull.h"
 #include "bsplib/bsplib.h"
@@ -167,6 +168,8 @@ void Systems_Init()
 
 #ifndef DEDICATED
 	MilesCore_Attach();
+	BinkImpl_Attach();
+
 	CMaterialSystem_Attach();
 #endif // !DEDICATED
 
@@ -303,6 +306,8 @@ void Systems_Shutdown()
 
 #ifndef DEDICATED
 	MilesCore_Detach();
+	BinkImpl_Detach();
+
 	CMaterialSystem_Detach();
 #endif // !DEDICATED
 

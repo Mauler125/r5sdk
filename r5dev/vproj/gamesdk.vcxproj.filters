@@ -244,6 +244,9 @@
     <Filter Include="sdk\milessdk\shared">
       <UniqueIdentifier>{14049eac-0367-4235-b555-c4815be3e905}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\codecs">
+      <UniqueIdentifier>{389ac126-74f8-456a-93f3-aae243804dcc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\vengineclient_impl.cpp">
@@ -665,6 +668,9 @@
     </ClCompile>
     <ClCompile Include="..\milessdk\shared\core.cpp">
       <Filter>sdk\milessdk\shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\codecs\bink_impl.cpp">
+      <Filter>sdk\codecs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1924,6 +1930,9 @@
     </ClInclude>
     <ClInclude Include="..\milessdk\shared\core.h">
       <Filter>sdk\milessdk\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\codecs\bink_impl.h">
+      <Filter>sdk\codecs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

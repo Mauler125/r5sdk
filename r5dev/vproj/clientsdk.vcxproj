@@ -15,6 +15,7 @@
     <ClCompile Include="..\bsplib\bsplib.cpp" />
     <ClCompile Include="..\client\cdll_engine_int.cpp" />
     <ClCompile Include="..\client\vengineclient_impl.cpp" />
+    <ClCompile Include="..\codecs\bink_impl.cpp" />
     <ClCompile Include="..\common\netmessages.cpp" />
     <ClCompile Include="..\common\opcodes.cpp" />
     <ClCompile Include="..\core\dllmain.cpp" />
@@ -156,6 +157,7 @@
     <ClInclude Include="..\bsplib\bsplib.h" />
     <ClInclude Include="..\client\cdll_engine_int.h" />
     <ClInclude Include="..\client\vengineclient_impl.h" />
+    <ClInclude Include="..\codecs\bink_impl.h" />
     <ClInclude Include="..\common\igameserverdata.h" />
     <ClInclude Include="..\common\netmessages.h" />
     <ClInclude Include="..\common\opcodes.h" />
