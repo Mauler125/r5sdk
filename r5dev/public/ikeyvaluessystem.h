@@ -33,7 +33,7 @@ public:
 	virtual void FreeKeyValuesMemory( void *pMem ) = 0;
 
 	// symbol table access (used for key names)
-	virtual HKeySymbol GetSymbolForString( const char *name, bool bCreate = true ) = 0;
+	virtual HKeySymbol GetSymbolForString( const char *pName, bool bCreate = true ) = 0;
 	virtual const char *GetStringForSymbol( HKeySymbol symbol ) = 0;
 
 	// for debugging, adds KeyValues record into global list so we can track memory leaks
@@ -44,11 +44,11 @@ public:
 	virtual void *GetKeyValuesMemory( void ) = 0;
 	// set/get a value for keyvalues resolution symbol
 	// e.g.: SetKeyValuesExpressionSymbol( "LOWVIOLENCE", true ) - enables [$LOWVIOLENCE]
-	virtual void SetKeyValuesExpressionSymbol( const char *name, bool bValue ) = 0;
-	virtual bool GetKeyValuesExpressionSymbol( const char *name ) = 0;
+	virtual void SetKeyValuesExpressionSymbol( const char *pName, bool bValue ) = 0;
+	virtual bool GetKeyValuesExpressionSymbol( const char *pName ) = 0;
 
 	// symbol table access from code with case-preserving requirements (used for key names)
-	virtual HKeySymbol GetSymbolForStringCaseSensitive( HKeySymbol &hCaseInsensitiveSymbol, const char *name, bool bCreate = true ) = 0;
+	virtual HKeySymbol GetSymbolForStringCaseSensitive( HKeySymbol &hCaseInsensitiveSymbol, const char *pName, bool bCreate = true ) = 0;
 };
 
 #endif // VSTDLIB_IKEYVALUESSYSTEM_H
