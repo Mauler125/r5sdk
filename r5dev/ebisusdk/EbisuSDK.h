@@ -18,6 +18,7 @@ inline char* g_OriginAuthCode = nullptr; /*SIZE = 256*/
 inline char* g_OriginNucleusToken = nullptr; /*SIZE = 1024*/
 inline bool* g_bEbisuSDKInitialized = nullptr;
 inline bool* g_bEbisuSDKCvarInitialized = nullptr;
+inline char* g_sPlayerName = nullptr;
 //#endif // DEDICATED
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -67,6 +68,8 @@ class VEbisuSDK : public IDetour
 		g_OriginNucleusToken = p_EbisuSDK_SetState.Offset(0x1EF).FindPatternSelf("80 3D", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x2, 0x7).RCast<char*>();
 #endif
 		g_OriginAuthCode = p_EbisuSDK_SetState.Offset(0x1BF).FindPatternSelf("0F B6", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).RCast<char*>();
+
+		g_sPlayerName = p_EbisuSDK_CVar_Init.Offset(0x120).FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 600).ResolveRelativeAddressSelf(0x3, 0x7).RCast<char*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

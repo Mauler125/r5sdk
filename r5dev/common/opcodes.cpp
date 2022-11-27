@@ -345,6 +345,9 @@ void Dedicated_Init()
 
 void RuntimePtc_Init() /* .TEXT */
 {
+
+	p_EbisuSDK_SetState.Offset(0x0).FindPatternSelf("0F 84", CMemory::Direction::DOWN).Patch({ 0x0F, 0x85 }); // JE  --> JNZ | Prevent EbisuSDK from initializing on the engine and server.
+
 #ifndef DEDICATED
 	p_WASAPI_GetAudioDevice.Offset(0x410).FindPatternSelf("FF 15 ?? ?? 01 00", CMemory::Direction::DOWN, 100).Patch({ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0xEB }); // CAL --> NOP | Disable debugger check when miles searches for audio device to allow attaching the debugger to the game upon launch.
 #ifndef CLIENT_DLL

@@ -224,6 +224,11 @@ void ConVar::Init(void)
 	rui_drawEnable = ConVar::Create("rui_drawEnable", "1", FCVAR_RELEASE, "Draws the RUI if set.", false, 0.f, false, 0.f, nullptr, " 1 = Draw, 0 = No Draw.");
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
+	// MILES                                                                  |
+#ifndef DEDICATED
+	miles_debug = ConVar::Create("miles_debug", "0", FCVAR_RELEASE, "Enables debug prints for the Miles Sound System", false, 0.f, false, 0.f, nullptr, " 1 = Print, 0 = No Print");
+#endif // !DEDICATED
+	//-------------------------------------------------------------------------
 }
 
 //-----------------------------------------------------------------------------
