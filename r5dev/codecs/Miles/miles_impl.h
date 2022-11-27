@@ -10,6 +10,10 @@ inline auto v_Miles_Initialize = p_Miles_Initialize.RCast<bool(*)()>();
 
 inline CMemory p_MilesQueueEventRun;
 inline auto v_MilesQueueEventRun = p_MilesQueueEventRun.RCast<void(*)(Miles::Queue*, const char*)>();
+
+inline CMemory p_MilesBankPatch;
+inline auto v_MilesBankPatch = p_MilesBankPatch.RCast<void(*)(Miles::Bank*, char*, char*)>();
+
 void MilesCore_Attach();
 void MilesCore_Detach();
 
@@ -34,6 +38,10 @@ class MilesCore : public IDetour
 
 		p_MilesQueueEventRun = g_RadAudioSystemDll.GetExportedFunction("MilesQueueEventRun");
 		v_MilesQueueEventRun = p_MilesQueueEventRun.RCast<void(*)(Miles::Queue*, const char*)>();
+
+		p_MilesBankPatch = g_RadAudioSystemDll.GetExportedFunction("MilesBankPatch");
+		v_MilesBankPatch = p_MilesBankPatch.RCast<void(*)(Miles::Bank*, char*, char*)>();
+
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

@@ -36,12 +36,20 @@ void MilesQueueEventRun(Miles::Queue* queue, const char* eventName)
 
 	v_MilesQueueEventRun(queue, eventName);
 }
+
+void MilesBankPatch(Miles::Bank* bank, char* streamPatch, char* localizedStreamPatch)
+{
+	// TODO [REXX]: add print for patch loading when Miles::Bank struct is mapped out a bit better with file name
+	v_MilesBankPatch(bank, streamPatch, localizedStreamPatch);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 void MilesCore_Attach()
 {
 	DetourAttach(&v_AIL_LogFunc, &AIL_LogFunc);
 	DetourAttach(&v_Miles_Initialize, &Miles_Initialize);
 	DetourAttach(&v_MilesQueueEventRun, &MilesQueueEventRun);
+	DetourAttach(&v_MilesBankPatch, &MilesBankPatch);
 }
 
 void MilesCore_Detach()
@@ -49,4 +57,5 @@ void MilesCore_Detach()
 	DetourDetach(&v_AIL_LogFunc, &AIL_LogFunc);
 	DetourDetach(&v_Miles_Initialize, &Miles_Initialize);
 	DetourDetach(&v_MilesQueueEventRun, &MilesQueueEventRun);
+	DetourDetach(&v_MilesBankPatch, &MilesBankPatch);
 }
