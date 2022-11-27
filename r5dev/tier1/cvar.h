@@ -135,6 +135,8 @@ extern ConVar* con_notify_native_engine_clr;
 extern ConVar* con_notify_native_fs_clr;
 extern ConVar* con_notify_native_rtech_clr;
 extern ConVar* con_notify_native_ms_clr;
+extern ConVar* con_notify_native_audio_clr;
+extern ConVar* con_notify_native_video_clr;
 extern ConVar* con_notify_netcon_clr;
 extern ConVar* con_notify_common_clr;
 extern ConVar* con_notify_warning_clr;

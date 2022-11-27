@@ -188,6 +188,8 @@ void NetMsg(EGlobalContext_t context, const char* fmt, ...)
 	case EGlobalContext_t::NATIVE_FS:
 	case EGlobalContext_t::NATIVE_RTECH:
 	case EGlobalContext_t::NATIVE_MS:
+	case EGlobalContext_t::NATIVE_AUDIO:
+	case EGlobalContext_t::NATIVE_VIDEO:
 	case EGlobalContext_t::NETCON_S:
 	case EGlobalContext_t::COMMON_C:
 	{
@@ -242,7 +244,13 @@ void NetMsg(EGlobalContext_t context, const char* fmt, ...)
 				color = ImVec4(0.36f, 0.70f, 0.35f, 1.00f);
 				break;
 			case eDLL_T::MS:
-				color = ImVec4(0.75f, 0.41f, 0.67f, 1.00f);
+				color = ImVec4(0.75f, 0.30f, 0.68f, 1.00f);
+				break;
+			case eDLL_T::AUDIO:
+				color = ImVec4(0.85f, 0.51f, 0.00f, 1.00f);
+				break;
+			case eDLL_T::VIDEO:
+				color = ImVec4(0.73f, 0.00f, 0.92f, 1.00f);
 				break;
 			case eDLL_T::NETCON:
 				color = ImVec4(0.81f, 0.81f, 0.81f, 1.00f);
@@ -373,7 +381,13 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 		color = ImVec4(0.36f, 0.70f, 0.35f, 1.00f);
 		break;
 	case eDLL_T::MS:
-		color = ImVec4(0.75f, 0.41f, 0.67f, 1.00f);
+		color = ImVec4(0.75f, 0.30f, 0.68f, 1.00f);
+		break;
+	case eDLL_T::AUDIO:
+		color = ImVec4(0.85f, 0.51f, 0.00f, 1.00f);
+		break;
+	case eDLL_T::VIDEO:
+		color = ImVec4(0.73f, 0.00f, 0.92f, 1.00f);
 		break;
 	case eDLL_T::NETCON:
 		color = ImVec4(0.81f, 0.81f, 0.81f, 1.00f);

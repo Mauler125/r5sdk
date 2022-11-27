@@ -274,6 +274,10 @@ Color CTextOverlay::GetLogColorForType(const EGlobalContext_t context) const
 		return { con_notify_native_rtech_clr->GetColor() };
 	case EGlobalContext_t::NATIVE_MS:
 		return { con_notify_native_ms_clr->GetColor() };
+	case EGlobalContext_t::NATIVE_AUDIO:
+		return { con_notify_native_audio_clr->GetColor() };
+	case EGlobalContext_t::NATIVE_VIDEO:
+		return { con_notify_native_video_clr->GetColor() };
 	case EGlobalContext_t::NETCON_S:
 		return { con_notify_netcon_clr->GetColor() };
 	case EGlobalContext_t::COMMON_C:
