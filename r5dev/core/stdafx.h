@@ -27,6 +27,7 @@
 #include <iomanip>
 #include <cassert>
 #include <filesystem>
+#include <unordered_set>
 
 #if !defined(DEDICATED) && !defined(SDKLAUNCHER) && !defined (NETCONSOLE) && !defined(PLUGINSDK)
 #include <d3d11.h>
