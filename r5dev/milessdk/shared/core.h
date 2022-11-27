@@ -24,7 +24,7 @@ class MilesCore : public IDetour
 		v_AIL_LogFunc = p_AIL_LogFunc.RCast<void(*)(int64_t, const char*)>();
 		// 0x1409D1420 // 40 53 48 83 EC 20 48 8B DA 48 8D 15 ? ? ? ? //
 
-		p_Miles_Initialize = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\xFF\x0D\x00\x00\x00\x00\xC6\x05\x00\x00\x00\x00\x00"), "x????xx????xx?????").FollowNearCallSelf();;
+		p_Miles_Initialize = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\xFF\x0D\x00\x00\x00\x00\xC6\x05\x00\x00\x00\x00\x00"), "x????xx????xx?????").FollowNearCallSelf();
 		v_Miles_Initialize = p_Miles_Initialize.RCast<bool(*)()>();
 		// 0x14095A140 // E8 ? ? ? ? FF 0D ? ? ? ? C6 05 ? ? ? ? ?  //
 	}
