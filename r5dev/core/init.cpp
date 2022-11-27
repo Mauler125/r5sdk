@@ -34,6 +34,7 @@
 #include "datacache/mdlcache.h"
 #include "ebisusdk/EbisuSDK.h"
 #ifndef DEDICATED
+#include "milessdk/shared/core.h"
 #include "milessdk/win64_rrthreads.h"
 #endif // !DEDICATED
 #include "vphysics/QHull.h"
@@ -165,6 +166,7 @@ void Systems_Init()
 	MDLCache_Attach();
 
 #ifndef DEDICATED
+	MilesCore_Attach();
 	CMaterialSystem_Attach();
 #endif // !DEDICATED
 
@@ -300,6 +302,7 @@ void Systems_Shutdown()
 	MDLCache_Detach();
 
 #ifndef DEDICATED
+	MilesCore_Detach();
 	CMaterialSystem_Detach();
 #endif // !DEDICATED
 

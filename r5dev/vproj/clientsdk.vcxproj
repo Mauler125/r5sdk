@@ -81,6 +81,7 @@
     <ClCompile Include="..\mathlib\ssenoise.cpp" />
     <ClCompile Include="..\mathlib\transform.cpp" />
     <ClCompile Include="..\mathlib\vmatrix.cpp" />
+    <ClCompile Include="..\milessdk\shared\core.cpp" />
     <ClCompile Include="..\networksystem\listmanager.cpp" />
     <ClCompile Include="..\networksystem\pylon.cpp" />
     <ClCompile Include="..\pluginsystem\pluginsystem.cpp" />
@@ -243,6 +244,7 @@
     <ClInclude Include="..\mathlib\vector4d.h" />
     <ClInclude Include="..\mathlib\vmatrix.h" />
     <ClInclude Include="..\mathlib\vplane.h" />
+    <ClInclude Include="..\milessdk\shared\core.h" />
     <ClInclude Include="..\milessdk\win64_rrthreads.h" />
     <ClInclude Include="..\networksystem\listmanager.h" />
     <ClInclude Include="..\networksystem\pylon.h" />
