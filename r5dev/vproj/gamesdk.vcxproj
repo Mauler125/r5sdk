@@ -170,6 +170,7 @@
     <ClInclude Include="..\client\vengineclient_impl.h" />
     <ClInclude Include="..\codecs\bink\bink_impl.h" />
     <ClInclude Include="..\codecs\Miles\miles_impl.h" />
+    <ClInclude Include="..\codecs\Miles\miles_types.h" />
     <ClInclude Include="..\codecs\Miles\radshal_wasapi.h" />
     <ClInclude Include="..\common\igameserverdata.h" />
     <ClInclude Include="..\common\netmessages.h" />

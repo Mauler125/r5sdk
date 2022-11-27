@@ -1934,6 +1934,9 @@
     <ClInclude Include="..\codecs\Miles\radshal_wasapi.h">
       <Filter>sdk\codecs\miles</Filter>
     </ClInclude>
+    <ClInclude Include="..\codecs\Miles\miles_types.h">
+      <Filter>sdk\codecs\miles</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\shared\resource\lockedserver.png">
