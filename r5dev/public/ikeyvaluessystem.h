@@ -40,6 +40,8 @@ public:
 	virtual void AddKeyValuesToMemoryLeakList( void *pMem, HKeySymbol name ) = 0;
 	virtual void RemoveKeyValuesFromMemoryLeakList( void *pMem ) = 0;
 
+	// Returns the globally allocated keyvalues memory pool.
+	virtual void *GetKeyValuesMemory( void ) = 0
 	// set/get a value for keyvalues resolution symbol
 	// e.g.: SetKeyValuesExpressionSymbol( "LOWVIOLENCE", true ) - enables [$LOWVIOLENCE]
 	virtual void SetKeyValuesExpressionSymbol( const char *name, bool bValue ) = 0;
