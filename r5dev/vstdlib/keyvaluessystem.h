@@ -1,9 +1,8 @@
 #pragma once
 
-typedef int HKeySymbol;
-#define INVALID_KEY_SYMBOL (-1)
+#include "public/ikeyvaluessystem.h"
 
-class CKeyValuesSystem // VTABLE @ 0x1413AA1E8 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
+class CKeyValuesSystem : public IKeyValuesSystem// VTABLE @ 0x1413AA1E8 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 {
 public:
 	void RegisterSizeofKeyValues(int64_t size);
@@ -19,7 +18,6 @@ public:
 
 	// Datatypes aren't accurate. But full fill the actual byte distance.
 public:
-	void* m_pVTable;                         // 0x0000
 	int64_t m_iMaxKeyValuesSize;             // 0x0008
 private:
 	char         gap10[240];                 // 0x0010
