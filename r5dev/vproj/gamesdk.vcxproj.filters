@@ -112,9 +112,6 @@
     <Filter Include="sdk\materialsystem">
       <UniqueIdentifier>{55bb4f60-5f5a-4780-a7a2-b3db51c53680}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sdk\milessdk">
-      <UniqueIdentifier>{f52dfb17-f5bd-4258-91a2-500587bee708}</UniqueIdentifier>
-    </Filter>
     <Filter Include="sdk\tier1">
       <UniqueIdentifier>{c5adc45b-d14c-4d52-9835-29948cab931a}</UniqueIdentifier>
     </Filter>
@@ -241,11 +238,14 @@
     <Filter Include="sdk\public\materialsystem">
       <UniqueIdentifier>{1718d302-db9b-4d2e-b666-cb9f2712eef4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sdk\milessdk\shared">
-      <UniqueIdentifier>{14049eac-0367-4235-b555-c4815be3e905}</UniqueIdentifier>
-    </Filter>
     <Filter Include="sdk\codecs">
       <UniqueIdentifier>{389ac126-74f8-456a-93f3-aae243804dcc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\codecs\bink">
+      <UniqueIdentifier>{e10598dd-d765-4394-a017-a3847ded2045}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sdk\codecs\miles">
+      <UniqueIdentifier>{f53df686-70b6-4883-a966-1eb3fd7eb2b1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -666,11 +666,11 @@
     <ClCompile Include="..\tier1\utlbuffer.cpp">
       <Filter>sdk\tier1</Filter>
     </ClCompile>
-    <ClCompile Include="..\milessdk\shared\core.cpp">
-      <Filter>sdk\milessdk\shared</Filter>
+    <ClCompile Include="..\codecs\bink\bink_impl.cpp">
+      <Filter>sdk\codecs\bink</Filter>
     </ClCompile>
-    <ClCompile Include="..\codecs\bink_impl.cpp">
-      <Filter>sdk\codecs</Filter>
+    <ClCompile Include="..\codecs\Miles\miles_impl.cpp">
+      <Filter>sdk\codecs\miles</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1156,9 +1156,6 @@
     </ClInclude>
     <ClInclude Include="..\engine\debugoverlay.h">
       <Filter>sdk\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\milessdk\win64_rrthreads.h">
-      <Filter>sdk\milessdk</Filter>
     </ClInclude>
     <ClInclude Include="..\mathlib\fbits.h">
       <Filter>sdk\mathlib</Filter>
@@ -1928,11 +1925,14 @@
     <ClInclude Include="..\public\ipackedstore.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
-    <ClInclude Include="..\milessdk\shared\core.h">
-      <Filter>sdk\milessdk\shared</Filter>
+    <ClInclude Include="..\codecs\bink\bink_impl.h">
+      <Filter>sdk\codecs\bink</Filter>
     </ClInclude>
-    <ClInclude Include="..\codecs\bink_impl.h">
-      <Filter>sdk\codecs</Filter>
+    <ClInclude Include="..\codecs\Miles\miles_impl.h">
+      <Filter>sdk\codecs\miles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\codecs\Miles\radshal_wasapi.h">
+      <Filter>sdk\codecs\miles</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

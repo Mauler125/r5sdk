@@ -34,9 +34,9 @@
 #include "datacache/mdlcache.h"
 #include "ebisusdk/EbisuSDK.h"
 #ifndef DEDICATED
-#include "milessdk/shared/core.h"
-#include "milessdk/win64_rrthreads.h"
-#include "codecs/bink_impl.h"
+#include "codecs/bink/bink_impl.h"
+#include "codecs/miles/miles_impl.h"
+#include "codecs/miles/radshal_wasapi.h"
 #endif // !DEDICATED
 #include "vphysics/QHull.h"
 #include "bsplib/bsplib.h"
@@ -167,8 +167,8 @@ void Systems_Init()
 	MDLCache_Attach();
 
 #ifndef DEDICATED
-	MilesCore_Attach();
 	BinkImpl_Attach();
+	MilesCore_Attach();
 
 	CMaterialSystem_Attach();
 #endif // !DEDICATED
@@ -305,8 +305,8 @@ void Systems_Shutdown()
 	MDLCache_Detach();
 
 #ifndef DEDICATED
-	MilesCore_Detach();
 	BinkImpl_Detach();
+	MilesCore_Detach();
 
 	CMaterialSystem_Detach();
 #endif // !DEDICATED

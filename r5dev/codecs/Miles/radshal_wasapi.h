@@ -4,7 +4,7 @@
 inline CMemory p_WASAPI_GetAudioDevice;
 
 ///////////////////////////////////////////////////////////////////////////////
-class VWASAPIServiceThread : public IDetour
+class VRadShal : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
@@ -23,4 +23,4 @@ class VWASAPIServiceThread : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(VWASAPIServiceThread);
+REGISTER(VRadShal);

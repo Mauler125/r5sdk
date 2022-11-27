@@ -16,6 +16,7 @@ class MilesCore : public IDetour
 	virtual void GetAdr(void) const
 	{
 		spdlog::debug("| FUN: AIL_LogFunc                          : {:#18x} |\n", p_AIL_LogFunc.GetPtr());
+		spdlog::debug("| FUN: Miles_Initialize                     : {:#18x} |\n", p_Miles_Initialize.GetPtr());
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const

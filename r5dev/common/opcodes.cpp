@@ -31,7 +31,7 @@
 #include "bsplib/bsplib.h"
 #include "ebisusdk/EbisuSDK.h"
 #ifndef DEDICATED
-#include "milessdk/win64_rrthreads.h"
+#include "codecs/miles/radshal_wasapi.h"
 #endif // !DEDICATED
 
 #ifdef DEDICATED
