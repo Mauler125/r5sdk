@@ -217,6 +217,12 @@ void Swap(T& a, T& b)
 	b = temp;
 }
 
+template <typename T>
+inline T AlignValue(T val, uintptr_t alignment)
+{
+	return (T)(((uintp)val + alignment - 1) & ~(alignment - 1));
+}
+
 #else
 
 #define clamp(val, min, max) (((val) > (max)) ? (max) : (((val) < (min)) ? (min) : (val)))
