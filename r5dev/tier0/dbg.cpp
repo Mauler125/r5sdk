@@ -247,7 +247,7 @@ void NetMsg(EGlobalContext_t context, const char* fmt, ...)
 				color = ImVec4(0.75f, 0.30f, 0.68f, 1.00f);
 				break;
 			case eDLL_T::AUDIO:
-				color = ImVec4(0.85f, 0.51f, 0.00f, 1.00f);
+				color = ImVec4(0.93f, 0.42f, 0.12f, 1.00f);
 				break;
 			case eDLL_T::VIDEO:
 				color = ImVec4(0.73f, 0.00f, 0.92f, 1.00f);
@@ -384,7 +384,7 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 		color = ImVec4(0.75f, 0.30f, 0.68f, 1.00f);
 		break;
 	case eDLL_T::AUDIO:
-		color = ImVec4(0.85f, 0.51f, 0.00f, 1.00f);
+		color = ImVec4(0.93f, 0.42f, 0.12f, 1.00f);
 		break;
 	case eDLL_T::VIDEO:
 		color = ImVec4(0.73f, 0.00f, 0.92f, 1.00f);
