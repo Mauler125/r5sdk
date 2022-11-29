@@ -35,12 +35,14 @@ void PrintStatus( void* p )
 }
 
 CMemoryStack::CMemoryStack()
- : 	m_pNextAlloc( NULL )
-	, m_pCommitLimit( NULL )
-	, m_pAllocLimit( NULL )
-	, m_pHighestAllocLimit( NULL )
-	, m_pBase( NULL )
+ : 	m_pNextAlloc( nullptr )
+	, m_pCommitLimit( nullptr )
+	, m_pAllocLimit( nullptr )
+	, m_pHighestAllocLimit( nullptr )
+	, m_pBase( nullptr )
+	, m_pUnkPtr( nullptr )
 	, m_bRegisteredAllocation( false )
+ 	, m_unkSize( 0 )
  	, m_maxSize( 0 )
 	, m_alignment( 16 )
 #ifdef MEMSTACK_VIRTUAL_MEMORY_AVAILABLE
@@ -51,7 +53,7 @@ CMemoryStack::CMemoryStack()
 	#endif
 #endif
 {
-	AddMemoryInfoCallback( this );
+	//AddMemoryInfoCallback( this );
 	m_pszAllocOwner = strdup( "CMemoryStack unattributed" );
 }
 	
@@ -62,13 +64,13 @@ CMemoryStack::~CMemoryStack()
 	if ( m_pBase )
 		Term();
 
-	RemoveMemoryInfoCallback( this );
+	//RemoveMemoryInfoCallback( this );
 	free( m_pszAllocOwner );
 }
 
 //-------------------------------------
 
-bool CMemoryStack::Init( const char *pszAllocOwner, unsigned maxSize, unsigned commitIncrement, unsigned initialCommit, unsigned alignment )
+bool CMemoryStack::Init( const char *pszAllocOwner, uint64 maxSize, uint64 commitIncrement, uint64 initialCommit, uint64 alignment )
 {
 	Assert( !m_pBase );
 
@@ -96,7 +98,7 @@ bool CMemoryStack::Init( const char *pszAllocOwner, unsigned maxSize, unsigned c
 		m_commitIncrement = commitIncrement;
 	}
 
-	unsigned pageSize;
+	uint64 pageSize;
 
 #ifdef _PS3
 	pageSize = PS3_PAGE_SIZE;
@@ -179,7 +181,7 @@ bool CMemoryStack::Init( const char *pszAllocOwner, unsigned maxSize, unsigned c
 
 	m_pAllocLimit = m_pBase + m_maxSize;
 
-	return ( m_pBase != NULL );
+	return ( m_pBase != nullptr );
 }
 
 //-------------------------------------
@@ -257,12 +259,13 @@ void CMemoryStack::Term()
 #else
 		MemAlloc_FreeAligned( m_pBase );
 #endif
-		m_pBase = NULL;
+		m_pBase = nullptr;
 		// Zero these variables to avoid getting misleading mem_dump
 		// results when m_pBase is NULL.
-		m_pNextAlloc = NULL;
-		m_pCommitLimit = NULL;
-		m_pHighestAllocLimit = NULL;
+		m_pNextAlloc = nullptr;
+		m_pCommitLimit = nullptr;
+		m_pHighestAllocLimit = nullptr;
+		m_pUnkPtr = nullptr;
 		m_maxSize = 0;
 		RegisterDeallocation(true);
 	}
@@ -270,7 +273,7 @@ void CMemoryStack::Term()
 
 //-------------------------------------
 
-int CMemoryStack::GetSize() const
+uint64 CMemoryStack::GetSize() const
 { 
 	if ( m_bPhysical )
 		return m_maxSize;
@@ -289,7 +292,7 @@ bool CMemoryStack::CommitTo( byte *pNextAlloc ) RESTRICT
 {
 	if ( m_bPhysical )
 	{
-		return NULL;
+		return false;
 	}
 
 #ifdef MEMSTACK_VIRTUAL_MEMORY_AVAILABLE
@@ -433,31 +436,31 @@ void CMemoryStack::FreeAll( bool bDecommit )
 
 //-------------------------------------
 
-void CMemoryStack::Access( void **ppRegion, unsigned *pBytes )
+void CMemoryStack::Access( void **ppRegion, uint64 *pBytes )
 {
 	*ppRegion = m_pBase;
 	*pBytes = ( m_pNextAlloc - m_pBase);
 }
 
-const char* CMemoryStack::GetMemoryName() const
-{
-	return m_pszAllocOwner;
-}
-
-size_t CMemoryStack::GetAllocatedBytes() const
-{
-	return GetUsed();
-}
-
-size_t CMemoryStack::GetCommittedBytes() const
-{
-	return GetSize();
-}
-
-size_t CMemoryStack::GetReservedBytes() const
-{
-	return GetMaxSize();
-}
+//const char* CMemoryStack::GetMemoryName() const
+//{
+//	return m_pszAllocOwner;
+//}
+//
+//size_t CMemoryStack::GetAllocatedBytes() const
+//{
+//	return GetUsed();
+//}
+//
+//size_t CMemoryStack::GetCommittedBytes() const
+//{
+//	return GetSize();
+//}
+//
+//size_t CMemoryStack::GetReservedBytes() const
+//{
+//	return GetMaxSize();
+//}
 
 //size_t CMemoryStack::GetHighestBytes() const
 //{
@@ -467,22 +470,22 @@ size_t CMemoryStack::GetReservedBytes() const
 
 //-------------------------------------
 
-//void CMemoryStack::PrintContents() const
-//{
-//	size_t highest = m_pHighestAllocLimit - m_pBase;
-//	MEMORY_BASIC_INFORMATION info;
-//	char moduleName[260];
-//	strcpy( moduleName, "unknown module" );
-//	// Because this code is statically linked into each DLL, this function and the PrintStatus
-//	// function will be in the DLL that constructed the CMemoryStack object. We can then
-//	// retrieve the DLL name to give slightly more verbose memory dumps.
-//	if ( VirtualQuery( &PrintStatus, &info, sizeof( info ) ) == sizeof( info ) )
-//	{
-//		GetModuleFileNameA( (HMODULE) info.AllocationBase, moduleName, _countof( moduleName ) );
-//		moduleName[ _countof( moduleName )-1 ] = 0;
-//	}
-//	DevMsg( eDLL_T::COMMON, "CMemoryStack %s in %s\n", m_pszAllocOwner, moduleName );
-//	DevMsg( eDLL_T::COMMON, "    Total used memory:      %d KB\n", GetUsed() / 1024 );
-//	DevMsg( eDLL_T::COMMON, "    Total committed memory: %d KB\n", GetSize() / 1024 );
-//	DevMsg( eDLL_T::COMMON, "    Max committed memory: %u KB out of %d KB\n", (unsigned)highest / 1024, GetMaxSize() / 1024 );
-//}
+void CMemoryStack::PrintContents() const
+{
+	size_t highest = m_pHighestAllocLimit - m_pBase;
+	MEMORY_BASIC_INFORMATION info;
+	char moduleName[260];
+	strcpy( moduleName, "unknown module" );
+	// Because this code is statically linked into each DLL, this function and the PrintStatus
+	// function will be in the DLL that constructed the CMemoryStack object. We can then
+	// retrieve the DLL name to give slightly more verbose memory dumps.
+	if ( VirtualQuery( &PrintStatus, &info, sizeof( info ) ) == sizeof( info ) )
+	{
+		GetModuleFileNameA( (HMODULE) info.AllocationBase, moduleName, _countof( moduleName ) );
+		moduleName[ _countof( moduleName )-1 ] = 0;
+	}
+	DevMsg( eDLL_T::COMMON, "CMemoryStack %s in %s\n", m_pszAllocOwner, moduleName );
+	DevMsg( eDLL_T::COMMON, "    Total used memory:      %zu KB\n", GetUsed() / 1024 );
+	DevMsg( eDLL_T::COMMON, "    Total committed memory: %zu KB\n", GetSize() / 1024 );
+	DevMsg( eDLL_T::COMMON, "    Max committed memory: %zu KB out of %zu KB\n", highest / 1024, GetMaxSize() / 1024 );
+}

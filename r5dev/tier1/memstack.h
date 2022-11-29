@@ -20,38 +20,35 @@
 
 //-----------------------------------------------------------------------------
 
-typedef unsigned MemoryStackMark_t;
+typedef uint64 MemoryStackMark_t;
 
-class CMemoryStack : private IMemoryInfo
+class CMemoryStack //: private IMemoryInfo
 {
 public:
 	CMemoryStack();
 	~CMemoryStack();
 
-	bool Init( const char *pszAllocOwner, unsigned maxSize = 0, unsigned commitIncrement = 0, unsigned initialCommit = 0, unsigned alignment = 16 );
-#ifdef _GAMECONSOLE
-	bool InitPhysical( const char *pszAllocOwner, uint size, uint nBaseAddrAlignment, uint alignment = 16, uint32 nAdditionalFlags = 0 );
-#endif
+	bool Init( const char *pszAllocOwner, uint64 maxSize = 0, uint64 commitIncrement = 0, uint64 initialCommit = 0, uint64 alignment = 16 );
 	void Term();
 
-	int GetSize() const;
-	int GetMaxSize() const ;
-	int	GetUsed() const;
+	uint64 GetSize() const;
+	uint64 GetMaxSize() const ;
+	uint64 GetUsed() const;
 	
-	void *Alloc( unsigned bytes, bool bClear = false ) RESTRICT;
+	void *Alloc( uint64 bytes, bool bClear = false ) RESTRICT;
 
 	MemoryStackMark_t GetCurrentAllocPoint() const;
 	void FreeToAllocPoint( MemoryStackMark_t mark, bool bDecommit = true );
 	void FreeAll( bool bDecommit = true );
 	
-	void Access( void **ppRegion, unsigned *pBytes );
+	void Access( void **ppRegion, uint64 *pBytes );
 
 	void PrintContents() const;
 
 	void *GetBase();
 	const void *GetBase() const {  return const_cast<CMemoryStack *>(this)->GetBase(); }
 
-	bool CommitSize( int nBytes );
+	bool CommitSize( uint64 nBytes );
 
 	void SetAllocOwner( const char *pszAllocOwner );
 
@@ -60,28 +57,33 @@ private:
 	void RegisterAllocation();
 	void RegisterDeallocation( bool bShouldSpew );
 
-	const char* GetMemoryName() const OVERRIDE; // User friendly name for this stack or pool
-	size_t GetAllocatedBytes() const OVERRIDE; // Number of bytes currently allocated
-	size_t GetCommittedBytes() const OVERRIDE; // Bytes committed -- may be greater than allocated.
-	size_t GetReservedBytes() const OVERRIDE; // Bytes reserved -- may be greater than committed.
-	size_t GetHighestBytes() const OVERRIDE; // The maximum number of bytes allocated or committed.	
+	//const char* GetMemoryName() const OVERRIDE; // User friendly name for this stack or pool
+	//size_t GetAllocatedBytes() const OVERRIDE; // Number of bytes currently allocated
+	//size_t GetCommittedBytes() const OVERRIDE; // Bytes committed -- may be greater than allocated.
+	//size_t GetReservedBytes() const OVERRIDE; // Bytes reserved -- may be greater than committed.
+	//size_t GetHighestBytes() const OVERRIDE; // The maximum number of bytes allocated or committed.	
 
 	byte *m_pNextAlloc; // Current alloc point (m_pNextAlloc - m_pBase == allocated bytes)
 	byte *m_pCommitLimit; // The current end of the committed memory. On systems without dynamic commit/decommit this is always m_pAllocLimit
 	byte *m_pAllocLimit; // The top of the allocated address space (m_pBase + m_maxSize)
-	// Track the highest alloc limit seen.
-	byte *m_pHighestAllocLimit;
 
 	byte *m_pBase;
+
+	// Track the highest alloc limit seen.
+	byte* m_pHighestAllocLimit; // This field probably no longer exist, but there is a 64bit type at this offset.
+	byte* m_pUnkPtr; // Unknown..
+
+
 	bool m_bRegisteredAllocation;
 	bool m_bPhysical;
 	char *m_pszAllocOwner;
 
-	unsigned m_maxSize; // m_maxSize stores how big the stack can grow. It measures the reservation size.
-	unsigned m_alignment;
+	uint64 m_unkSize; // Unknown field..
+	uint64 m_maxSize; // m_maxSize stores how big the stack can grow. It measures the reservation size.
+	uint64 m_alignment;
 #ifdef MEMSTACK_VIRTUAL_MEMORY_AVAILABLE
-	unsigned m_commitIncrement;
-	unsigned m_minCommit;
+	uint64 m_commitIncrement;
+	uint64 m_minCommit;
 #endif
 #if defined( MEMSTACK_VIRTUAL_MEMORY_AVAILABLE ) && defined( _PS3 )
 	IVirtualMemorySection *m_pVirtualMemorySection;
@@ -95,8 +97,9 @@ private:
 
 //-------------------------------------
 
-FORCEINLINE void *CMemoryStack::Alloc( unsigned bytes, bool bClear ) RESTRICT
+FORCEINLINE void *CMemoryStack::Alloc( uint64 bytes, bool bClear ) RESTRICT
 {
+	sizeof(CMemoryStack);
 	Assert( m_pBase );
 
 	bytes = MAX( bytes, m_alignment );
@@ -109,7 +112,7 @@ FORCEINLINE void *CMemoryStack::Alloc( unsigned bytes, bool bClear ) RESTRICT
 	{
 		if ( !CommitTo( pNextAlloc ) )
 		{
-			return NULL;
+			return nullptr;
 		}
 	}
 
@@ -126,7 +129,7 @@ FORCEINLINE void *CMemoryStack::Alloc( unsigned bytes, bool bClear ) RESTRICT
 
 //-------------------------------------
 
-inline bool CMemoryStack::CommitSize( int nBytes )
+inline bool CMemoryStack::CommitSize( uint64 nBytes )
 {
 	if ( GetSize() != nBytes )
 	{
@@ -139,14 +142,14 @@ inline bool CMemoryStack::CommitSize( int nBytes )
 
 // How big can this memory stack grow? This is equivalent to how many
 // bytes are reserved.
-inline int CMemoryStack::GetMaxSize() const
+inline uint64 CMemoryStack::GetMaxSize() const
 { 
 	return m_maxSize;
 }
 
 //-------------------------------------
 
-inline int CMemoryStack::GetUsed() const
+inline uint64 CMemoryStack::GetUsed() const
 { 
 	return ( m_pNextAlloc - m_pBase ); 
 }
