@@ -46,6 +46,17 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, c
 	if (!m_ExecutableCode.IsSectionValid())
 		return CMemory();
 
+
+	//if (g_SigCache.m_bInitialized) // Get from cache instead.
+	//{
+	//	auto p = g_SigCache.m_Map.find(szPattern);
+	//	if (p != g_SigCache.m_Map.end())
+	//	{
+	//		return CMemory(p->second);
+	//	}
+	//}
+
+
 	uint64_t nBase = static_cast<uint64_t>(m_ExecutableCode.m_pSectionBase);
 	uint64_t nSize = static_cast<uint64_t>(m_ExecutableCode.m_nSectionSize);
 
@@ -55,12 +66,13 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, c
 		nSize = static_cast<uint64_t>(moduleSection.m_nSectionSize);
 	}
 
+	const size_t nMaskLen = strlen(szMask);
 	const uint8_t* pData = reinterpret_cast<uint8_t*>(nBase);
-	const uint8_t* pEnd = pData + static_cast<uint32_t>(nSize) - strlen(szMask);
+	const uint8_t* pEnd = pData + static_cast<uint32_t>(nSize) - nMaskLen;
 
 	int nOccurrenceCount = 0;
 	int nMasks[64]; // 64*16 = enough masks for 1024 bytes.
-	const int iNumMasks = static_cast<int>(ceil(static_cast<float>(strlen(szMask)) / 16.f));
+	const int iNumMasks = static_cast<int>(ceil(static_cast<float>(nMaskLen) / 16.f));
 
 	memset(nMasks, '\0', iNumMasks * sizeof(int));
 	for (intptr_t i = 0; i < iNumMasks; ++i)
@@ -94,6 +106,7 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, c
 						{
 							if (nOccurrenceCount == nOccurrence)
 							{
+								g_SigCache.AddEntry(reinterpret_cast<const char*>(szPattern), nMaskLen, reinterpret_cast<uint64_t>(pData - nBase));
 								return static_cast<CMemory>(const_cast<uint8_t*>(pData));
 							}
 							nOccurrenceCount++;
@@ -106,6 +119,7 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, c
 				}
 				if (nOccurrenceCount == nOccurrence)
 				{
+					g_SigCache.AddEntry(reinterpret_cast<const char*>(szPattern), nMaskLen, reinterpret_cast<uint64_t>(pData - nBase));
 					return static_cast<CMemory>((&*(const_cast<uint8_t*>(pData))));
 				}
 				nOccurrenceCount++;

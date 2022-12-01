@@ -40,18 +40,16 @@ bool CIOStream::Open(const fs::path& fsFilePath, Mode_t eMode)
 		{
 			m_iStream.close();
 		}
-		m_iStream.open(fsFilePath, std::ios::binary | std::ios::in);
+		m_iStream.open(fsFilePath, std::ios::binary | std::ios::in || std::ios::ate);
 		if (!m_iStream.is_open() || !m_iStream.good())
 		{
 			m_eCurrentMode = Mode_t::NONE;
 			return false;
 		}
-		m_iStream.seekg(0, fstream::end);
-		m_vData.resize(m_iStream.tellg());
-		m_iStream.seekg(0, fstream::beg);
-		m_iStream.read(reinterpret_cast<char*>(m_vData.data()), m_vData.size());
-		m_iStream.seekg(0);
-		m_iStream.clear();
+
+		m_nSize = m_iStream.tellg();
+		m_iStream.seekg(0, std::ios::beg);
+
 		return true;
 
 	case Mode_t::WRITE:
@@ -101,7 +99,7 @@ void CIOStream::Flush()
 //-----------------------------------------------------------------------------
 // Purpose: gets the position of the current character in the stream
 //-----------------------------------------------------------------------------
-size_t CIOStream::GetPosition()
+std::streampos CIOStream::GetPosition()
 {
 	switch (m_eCurrentMode)
 	{
@@ -112,7 +110,7 @@ size_t CIOStream::GetPosition()
 		return m_oStream.tellp();
 		break;
 	default:
-		return static_cast<size_t>(NULL);
+		return static_cast<std::streampos>(NULL);
 	}
 }
 
@@ -120,7 +118,7 @@ size_t CIOStream::GetPosition()
 // Purpose: sets the position of the current character in the stream
 // Input  : nOffset - 
 //-----------------------------------------------------------------------------
-void CIOStream::SetPosition(int64_t nOffset)
+void CIOStream::SetPosition(std::streampos nOffset)
 {
 	switch (m_eCurrentMode)
 	{
@@ -136,27 +134,19 @@ void CIOStream::SetPosition(int64_t nOffset)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: returns the vector (ifstream only)
-//-----------------------------------------------------------------------------
-const vector<uint8_t>& CIOStream::GetVector() const
-{
-	return m_vData;
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: returns the data (ifstream only)
 //-----------------------------------------------------------------------------
-const uint8_t* CIOStream::GetData() const
+const std::filebuf* CIOStream::GetData() const
 {
-	return m_vData.data();
+	return m_iStream.rdbuf();
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: returns the data size (ifstream only)
 //-----------------------------------------------------------------------------
-const size_t CIOStream::GetSize() const
+const std::streampos CIOStream::GetSize() const
 {
-	return m_vData.size();
+	return m_nSize;
 }
 
 //-----------------------------------------------------------------------------
@@ -211,16 +201,18 @@ bool CIOStream::IsEof() const
 //-----------------------------------------------------------------------------
 string CIOStream::ReadString()
 {
+	string result;
+
 	if (IsReadable())
 	{
 		char c;
-		string result = "";
 		while (!m_iStream.eof() && (c = Read<char>()) != '\0')
 			result += c;
 
 		return result;
 	}
-	return "";
+
+	return result;
 }
 
 //-----------------------------------------------------------------------------
@@ -233,8 +225,8 @@ void CIOStream::WriteString(string svInput)
 
 	svInput += '\0'; // null-terminate the string.
 
-	char* szText = const_cast<char*>(svInput.c_str());
+	const char* szText = svInput.c_str();
 	size_t nSize = svInput.size();
 
-	m_oStream.write(reinterpret_cast<const char*>(szText), nSize);
+	m_oStream.write(szText, nSize);
 }
