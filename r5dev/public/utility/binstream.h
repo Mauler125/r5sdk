@@ -18,6 +18,8 @@ public:
 	void Close();
 	void Flush();
 
+	void ComputeFileSize();
+
 	std::streampos GetPosition();
 	void SetPosition(std::streampos nOffset);
 

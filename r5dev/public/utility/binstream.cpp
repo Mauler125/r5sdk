@@ -40,16 +40,14 @@ bool CIOStream::Open(const fs::path& fsFilePath, Mode_t eMode)
 		{
 			m_iStream.close();
 		}
-		m_iStream.open(fsFilePath, std::ios::binary | std::ios::in || std::ios::ate);
+		m_iStream.open(fsFilePath, std::ios::binary | std::ios::in);
 		if (!m_iStream.is_open() || !m_iStream.good())
 		{
 			m_eCurrentMode = Mode_t::NONE;
 			return false;
 		}
 
-		m_nSize = m_iStream.tellg();
-		m_iStream.seekg(0, std::ios::beg);
-
+		ComputeFileSize();
 		return true;
 
 	case Mode_t::WRITE:
@@ -94,6 +92,18 @@ void CIOStream::Flush()
 {
 	if (IsWritable())
 		m_oStream.flush();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: computes the input file size
+//-----------------------------------------------------------------------------
+void CIOStream::ComputeFileSize()
+{
+	m_nSize = m_iStream.tellg();
+	m_iStream.seekg(0, std::ios::end);
+	m_nSize = m_iStream.tellg() - m_nSize;
+	m_iStream.seekg(0, std::ios::beg);
+	m_iStream.clear();
 }
 
 //-----------------------------------------------------------------------------
