@@ -33,6 +33,7 @@ public:
 	uintptr_t        GetModuleBase(void) const;
 	DWORD            GetModuleSize(void) const;
 	string           GetModuleName(void) const;
+	uintptr_t        GetRVA(const uintptr_t nAddress) const;
 
 	ModuleSections_t         m_ExecutableCode;
 	ModuleSections_t         m_ExceptionTable;

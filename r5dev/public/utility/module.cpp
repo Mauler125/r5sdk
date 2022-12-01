@@ -46,17 +46,6 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, c
 	if (!m_ExecutableCode.IsSectionValid())
 		return CMemory();
 
-
-	//if (g_SigCache.m_bInitialized) // Get from cache instead.
-	//{
-	//	auto p = g_SigCache.m_Map.find(szPattern);
-	//	if (p != g_SigCache.m_Map.end())
-	//	{
-	//		return CMemory(p->second);
-	//	}
-	//}
-
-
 	uint64_t nBase = static_cast<uint64_t>(m_ExecutableCode.m_pSectionBase);
 	uint64_t nSize = static_cast<uint64_t>(m_ExecutableCode.m_nSectionSize);
 
@@ -106,7 +95,6 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, c
 						{
 							if (nOccurrenceCount == nOccurrence)
 							{
-								g_SigCache.AddEntry(reinterpret_cast<const char*>(szPattern), nMaskLen, reinterpret_cast<uint64_t>(pData - nBase));
 								return static_cast<CMemory>(const_cast<uint8_t*>(pData));
 							}
 							nOccurrenceCount++;
@@ -119,7 +107,6 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, c
 				}
 				if (nOccurrenceCount == nOccurrence)
 				{
-					g_SigCache.AddEntry(reinterpret_cast<const char*>(szPattern), nMaskLen, reinterpret_cast<uint64_t>(pData - nBase));
 					return static_cast<CMemory>((&*(const_cast<uint8_t*>(pData))));
 				}
 				nOccurrenceCount++;
@@ -137,8 +124,22 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, c
 //-----------------------------------------------------------------------------
 CMemory CModule::FindPatternSIMD(const string& svPattern, const ModuleSections_t& moduleSection) const
 {
+	if (g_SigCache.m_bInitialized) // Get from cache instead.
+	{
+		google::protobuf::Map sMap = g_SigCache.m_Cache.smap();
+
+		auto p = sMap.find(svPattern);
+		if (p != sMap.end())
+		{
+			return CMemory((GetModuleBase() + p->second));
+		}
+	}
+
 	const pair patternInfo = PatternToMaskedBytes(svPattern);
-	return FindPatternSIMD(patternInfo.first.data(), patternInfo.second.c_str(), moduleSection);
+	CMemory memory = FindPatternSIMD(patternInfo.first.data(), patternInfo.second.c_str(), moduleSection);
+
+	g_SigCache.AddEntry(svPattern, GetRVA(memory.GetPtr()));
+	return memory;
 }
 
 //-----------------------------------------------------------------------------
@@ -350,4 +351,12 @@ DWORD CModule::GetModuleSize(void) const
 string CModule::GetModuleName(void) const
 {
 	return m_svModuleName;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: returns the RVA of given address
+//-----------------------------------------------------------------------------
+uintptr_t CModule::GetRVA(const uintptr_t nAddress) const
+{
+	return (nAddress - GetModuleBase());
 }
