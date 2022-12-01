@@ -121,7 +121,7 @@ class VDXGI : public IDetour
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
-		p_gGameDevice = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xD3\xEA\x48\x8B\x0D\x00\x00\x00\x00"), "xxxxx????").FindPatternSelf("48 8B").ResolveRelativeAddressSelf(0x3, 0x7);
+		p_gGameDevice = g_GameDll.FindPatternSIMD("D3 EA 48 8B 0D ?? ?? ?? ??").FindPatternSelf("48 8B").ResolveRelativeAddressSelf(0x3, 0x7);
 		g_ppGameDevice = p_gGameDevice.RCast<ID3D11Device**>(); /*D3 EA 48 8B 0D ? ? ? ?*/
 	}
 	virtual void GetCon(void) const { }

@@ -42,7 +42,7 @@ class VServerGameDLL : public IDetour
 	virtual void GetFun(void) const
 	{
 #if defined(GAMEDLL_S3)
-		p_CServerGameDLL__OnReceivedSayTextMessage = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x85\xD2\x0F\x8E\x00\x00\x00\x00\x4C\x8B\xDC"), "xxxx????xxx");
+		p_CServerGameDLL__OnReceivedSayTextMessage = g_GameDll.FindPatternSIMD("85 D2 0F 8E ?? ?? ?? ?? 4C 8B DC");
 
 		CServerGameDLL__OnReceivedSayTextMessage = p_CServerGameDLL__OnReceivedSayTextMessage.RCast<void(__fastcall*)(void* thisptr, int senderId, const char* text, bool isTeamChat)>();
 #endif
@@ -50,7 +50,7 @@ class VServerGameDLL : public IDetour
 	virtual void GetVar(void) const
 	{
 		g_pServerGameDLL = p_SV_CreateBaseline.Offset(0x0).FindPatternSelf("48 8B", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).Deref().RCast<CServerGameDLL*>();
-		g_pServerGameClients = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x0F\xB7\x51\x14"), "xxxx?xxxx????xxxx").
+		g_pServerGameClients = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 57 48 81 EC ?? ?? ?? ?? 0F B7 51 14").
 			FindPatternSelf("48 8B 0D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CServerGameClients*>();
 	}
 	virtual void GetCon(void) const { }

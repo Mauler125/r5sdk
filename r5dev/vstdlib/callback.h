@@ -80,8 +80,8 @@ class VCallback : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		p_SetupGamemode = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x48\x8B\xD9\x48\xC7\xC0\x00\x00\x00\x00"), "xxxxxxxxxxxx????");
-		p_DownloadPlaylists_f = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x33\xC9\xC6\x05\x00\x00\x00\x00\x00\xE9\x00\x00\x00\x00"), "xxxx?????x????");
+		p_SetupGamemode = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 48 8B D9 48 C7 C0 ?? ?? ?? ??");
+		p_DownloadPlaylists_f = g_GameDll.FindPatternSIMD("33 C9 C6 05 ?? ?? ?? ?? ?? E9 ?? ?? ?? ??");
 
 		SetupGamemode = p_SetupGamemode.RCast<bool(*)(const char*)>();       /*40 53 48 83 EC 20 48 8B D9 48 C7 C0 ?? ?? ?? ??*/
 		_DownloadPlaylists_f = p_DownloadPlaylists_f.RCast<void(*)(void)>(); /*33 C9 C6 05 ?? ?? ?? ?? ?? E9 ?? ?? ?? ??*/

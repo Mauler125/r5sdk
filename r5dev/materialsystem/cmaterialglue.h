@@ -88,7 +88,7 @@ class VMaterialGlue : public IDetour
 	virtual void GetFun(void) const
 	{
 #ifndef DEDICATED
-		p_GetMaterialAtCrossHair = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x83\xEC\x58\x48\x83\x3D\x00\x00\x00\x00\x00"), "xxxxxxxxxx?????");
+		p_GetMaterialAtCrossHair = g_GameDll.FindPatternSIMD("48 8B C4 48 83 EC 58 48 83 3D ?? ?? ?? ?? ??");
 		GetMaterialAtCrossHair = p_GetMaterialAtCrossHair.RCast<CMaterialGlue* (*)(void)>(); /*48 8B C4 48 83 EC 58 48 83 3D ? ? ? ? ?*/
 #endif // !DEDICATED
 	}

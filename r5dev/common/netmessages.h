@@ -126,7 +126,7 @@ class HMM_Heartbeat : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		MM_Heartbeat__ToString = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x38\xE8\x00\x00\x00\x00\x3B\x05\x00\x00\x00\x00"), "xxxxx????xx????");
+		MM_Heartbeat__ToString = g_GameDll.FindPatternSIMD("48 83 EC 38 E8 ?? ?? ?? ?? 3B 05 ?? ?? ?? ??");
 		// 48 83 EC 38 E8 ? ? ? ? 3B 05 ? ? ? ?
 	}
 	virtual void GetVar(void) const { }
