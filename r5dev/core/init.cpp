@@ -497,7 +497,7 @@ bool SigDB_Init()
 	}
 
 	sigDbHeader.m_nVersion = sigDbStream.Read<int>();
-	if (sigDbHeader.m_nMagic != SIGDB_VERSION)
+	if (sigDbHeader.m_nVersion != SIGDB_VERSION)
 	{
 		return false;
 	}
@@ -509,7 +509,7 @@ bool SigDB_Init()
 
 	vData.resize(nSize);
 	uint8_t* pBuf = vData.data();
-	sigDbStream.Read<uint8_t*>(pBuf, nSize);
+	sigDbStream.Read<uint8_t>(*pBuf, nSize);
 
 	if (!g_SigCache.m_Cache.ParseFromArray(pBuf, nSize))
 	{
