@@ -7,11 +7,11 @@
 #include "public/utility/binstream.h"
 #include "sigcache.h"
 
-void CSigCache::AddEntry(const char* pszPattern, const size_t nMaskLen, const uint64_t nRVA)
+void CSigCache::AddEntry(const string& svPattern, const uint64_t nRVA)
 {
 	if (g_SigCache.m_bUseCache)
 	{
-		(*g_SigCache.m_Cache.mutable_smap())[string(pszPattern, nMaskLen)] = nRVA;
+		(*g_SigCache.m_Cache.mutable_smap())[svPattern] = nRVA;
 	}
 }
 

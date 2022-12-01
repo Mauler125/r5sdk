@@ -14,7 +14,7 @@ public:
 	// Load
 	// Clear
 
-	void AddEntry(const char* pszPattern, const size_t nMaskLen, const uint64_t nRVA);
+	void AddEntry(const string& svPattern, const uint64_t nRVA);
 	void WriteCache();
 
 	SigMap_Pb m_Cache;
