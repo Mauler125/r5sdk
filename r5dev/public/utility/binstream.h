@@ -18,12 +18,11 @@ public:
 	void Close();
 	void Flush();
 
-	size_t GetPosition();
-	void SetPosition(int64_t nOffset);
+	std::streampos GetPosition();
+	void SetPosition(std::streampos nOffset);
 
-	const vector<uint8_t>& GetVector() const;
-	const uint8_t* GetData() const;
-	const size_t GetSize() const;
+	const std::filebuf* GetData() const;
+	const std::streampos GetSize() const;
 
 	bool IsReadable();
 	bool IsWritable() const;
@@ -34,7 +33,7 @@ public:
 	// Purpose: reads any value from the file
 	//-----------------------------------------------------------------------------
 	template<typename T>
-	void Read(T& tValue) // Template functions have to be in the header!
+	void Read(T& tValue)
 	{
 		if (IsReadable())
 			m_iStream.read(reinterpret_cast<char*>(&tValue), sizeof(tValue));
@@ -44,7 +43,7 @@ public:
 	// Purpose: reads any value from the file with specified size
 	//-----------------------------------------------------------------------------
 	template<typename T>
-	void Read(T& tValue, size_t nSize) // Template functions have to be in the header!
+	void Read(T& tValue, size_t nSize)
 	{
 		if (IsReadable())
 			m_iStream.read(reinterpret_cast<char*>(&tValue), nSize);
@@ -54,7 +53,7 @@ public:
 	// Purpose: reads any value from the file and returns it
 	//-----------------------------------------------------------------------------
 	template<typename T>
-	T Read() // Template functions have to be in the header!
+	T Read()
 	{
 		T value{};
 		if (!IsReadable())
@@ -69,7 +68,7 @@ public:
 	// Purpose: writes any value to the file
 	//-----------------------------------------------------------------------------
 	template<typename T>
-	void Write(T tValue) // Template functions have to be in the header!
+	void Write(T tValue)
 	{
 		if (!IsWritable())
 			return;
@@ -81,7 +80,7 @@ public:
 	// Purpose: writes any value to the file with specified size
 	//-----------------------------------------------------------------------------
 	template<typename T>
-	void Write(T tValue, size_t nSize) // Template functions have to be in the header!
+	void Write(T tValue, size_t nSize)
 	{
 		if (!IsWritable())
 			return;
@@ -92,8 +91,8 @@ public:
 
 private:
 
+	std::streampos  m_nSize;        // Size of ifstream.
+	Mode_t          m_eCurrentMode; // Current active mode.
 	ofstream        m_oStream;      // Output file stream.
 	ifstream        m_iStream;      // Input file stream.
-	vector<uint8_t> m_vData;        // Data vector
-	Mode_t          m_eCurrentMode; // Current active mode.
 };
