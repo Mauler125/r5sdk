@@ -18,15 +18,16 @@ CIOStream::CIOStream(const fs::path& svFileFullPath, Mode_t eMode)
 //-----------------------------------------------------------------------------
 CIOStream::~CIOStream()
 {
-	if (m_oStream.is_open())
-		m_oStream.close();
-	if (m_iStream.is_open())
-		m_iStream.close();
+	if (m_Stream.is_open())
+		m_Stream.close();
+	if (m_Stream.is_open())
+		m_Stream.close();
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: opens the file in specified mode
-// Input  : fileFullPath - mode
+// Input  : fsFilePath - 
+//			eMode - 
 // Output : true if operation is successful
 //-----------------------------------------------------------------------------
 bool CIOStream::Open(const fs::path& fsFilePath, Mode_t eMode)
@@ -36,12 +37,12 @@ bool CIOStream::Open(const fs::path& fsFilePath, Mode_t eMode)
 	switch (m_eCurrentMode)
 	{
 	case Mode_t::READ:
-		if (m_iStream.is_open())
+		if (m_Stream.is_open())
 		{
-			m_iStream.close();
+			m_Stream.close();
 		}
-		m_iStream.open(fsFilePath, std::ios::binary | std::ios::in);
-		if (!m_iStream.is_open() || !m_iStream.good())
+		m_Stream.open(fsFilePath, std::ios::binary | std::ios::in);
+		if (!m_Stream.is_open() || !m_Stream.good())
 		{
 			m_eCurrentMode = Mode_t::NONE;
 			return false;
@@ -51,12 +52,12 @@ bool CIOStream::Open(const fs::path& fsFilePath, Mode_t eMode)
 		return true;
 
 	case Mode_t::WRITE:
-		if (m_oStream.is_open())
+		if (m_Stream.is_open())
 		{
-			m_oStream.close();
+			m_Stream.close();
 		}
-		m_oStream.open(fsFilePath, std::ios::binary | std::ios::out);
-		if (!m_oStream.is_open() || !m_oStream.good())
+		m_Stream.open(fsFilePath, std::ios::binary | std::ios::out);
+		if (!m_Stream.is_open() || !m_Stream.good())
 		{
 			m_eCurrentMode = Mode_t::NONE;
 			return false;
@@ -77,10 +78,10 @@ void CIOStream::Close()
 	switch (m_eCurrentMode)
 	{
 	case Mode_t::READ:
-		m_iStream.close();
+		m_Stream.close();
 		return;
 	case Mode_t::WRITE:
-		m_oStream.close();
+		m_Stream.close();
 		return;
 	}
 }
@@ -91,7 +92,7 @@ void CIOStream::Close()
 void CIOStream::Flush()
 {
 	if (IsWritable())
-		m_oStream.flush();
+		m_Stream.flush();
 }
 
 //-----------------------------------------------------------------------------
@@ -99,25 +100,26 @@ void CIOStream::Flush()
 //-----------------------------------------------------------------------------
 void CIOStream::ComputeFileSize()
 {
-	m_nSize = m_iStream.tellg();
-	m_iStream.seekg(0, std::ios::end);
-	m_nSize = m_iStream.tellg() - m_nSize;
-	m_iStream.seekg(0, std::ios::beg);
-	m_iStream.clear();
+	m_nSize = m_Stream.tellg();
+	m_Stream.seekg(0, std::ios::end);
+	m_nSize = m_Stream.tellg() - m_nSize;
+	m_Stream.seekg(0, std::ios::beg);
+	m_Stream.clear();
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: gets the position of the current character in the stream
+// Output : std::streampos
 //-----------------------------------------------------------------------------
 std::streampos CIOStream::GetPosition()
 {
 	switch (m_eCurrentMode)
 	{
 	case Mode_t::READ:
-		return m_iStream.tellg();
+		return m_Stream.tellg();
 		break;
 	case Mode_t::WRITE:
-		return m_oStream.tellp();
+		return m_Stream.tellp();
 		break;
 	default:
 		return static_cast<std::streampos>(NULL);
@@ -133,10 +135,10 @@ void CIOStream::SetPosition(std::streampos nOffset)
 	switch (m_eCurrentMode)
 	{
 	case Mode_t::READ:
-		m_iStream.seekg(nOffset);
+		m_Stream.seekg(nOffset);
 		break;
 	case Mode_t::WRITE:
-		m_oStream.seekp(nOffset);
+		m_Stream.seekp(nOffset);
 		break;
 	default:
 		break;
@@ -145,14 +147,16 @@ void CIOStream::SetPosition(std::streampos nOffset)
 
 //-----------------------------------------------------------------------------
 // Purpose: returns the data (ifstream only)
+// Output : std::filebuf*
 //-----------------------------------------------------------------------------
 const std::filebuf* CIOStream::GetData() const
 {
-	return m_iStream.rdbuf();
+	return m_Stream.rdbuf();
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: returns the data size (ifstream only)
+// Output : std::streampos
 //-----------------------------------------------------------------------------
 const std::streampos CIOStream::GetSize() const
 {
@@ -168,12 +172,12 @@ bool CIOStream::IsReadable()
 	if (m_eCurrentMode != Mode_t::READ)
 		return false;
 
-	if (!m_iStream)
+	if (!m_Stream)
 		return false;
 
-	if (m_iStream.eof())
+	if (m_Stream.eof())
 	{
-		m_iStream.close();
+		m_Stream.close();
 		m_eCurrentMode = Mode_t::NONE;
 		return false;
 	}
@@ -190,7 +194,7 @@ bool CIOStream::IsWritable() const
 	if (m_eCurrentMode != Mode_t::WRITE)
 		return false;
 
-	if (!m_oStream)
+	if (!m_Stream)
 		return false;
 
 	return true;
@@ -202,7 +206,7 @@ bool CIOStream::IsWritable() const
 //-----------------------------------------------------------------------------
 bool CIOStream::IsEof() const
 {
-	return m_iStream.eof();
+	return m_Stream.eof();
 }
 
 //-----------------------------------------------------------------------------
@@ -216,7 +220,7 @@ string CIOStream::ReadString()
 	if (IsReadable())
 	{
 		char c;
-		while (!m_iStream.eof() && (c = Read<char>()) != '\0')
+		while (!m_Stream.eof() && (c = Read<char>()) != '\0')
 			result += c;
 
 		return result;
@@ -227,16 +231,15 @@ string CIOStream::ReadString()
 
 //-----------------------------------------------------------------------------
 // Purpose: writes a string to the file
+// Input  : &svInput - 
 //-----------------------------------------------------------------------------
-void CIOStream::WriteString(string svInput)
+void CIOStream::WriteString(const string& svInput)
 {
 	if (!IsWritable())
 		return;
 
-	svInput += '\0'; // null-terminate the string.
-
 	const char* szText = svInput.c_str();
-	size_t nSize = svInput.size();
+	size_t nSize = svInput.size() + 1; // '+1' for the null terminator.
 
-	m_oStream.write(szText, nSize);
+	m_Stream.write(szText, nSize);
 }

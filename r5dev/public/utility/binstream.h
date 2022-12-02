@@ -38,7 +38,7 @@ public:
 	void Read(T& tValue)
 	{
 		if (IsReadable())
-			m_iStream.read(reinterpret_cast<char*>(&tValue), sizeof(tValue));
+			m_Stream.read(reinterpret_cast<char*>(&tValue), sizeof(tValue));
 	}
 
 	//-----------------------------------------------------------------------------
@@ -48,7 +48,7 @@ public:
 	void Read(T& tValue, size_t nSize)
 	{
 		if (IsReadable())
-			m_iStream.read(reinterpret_cast<char*>(&tValue), nSize);
+			m_Stream.read(reinterpret_cast<char*>(&tValue), nSize);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -61,7 +61,7 @@ public:
 		if (!IsReadable())
 			return value;
 
-		m_iStream.read(reinterpret_cast<char*>(&value), sizeof(value));
+		m_Stream.read(reinterpret_cast<char*>(&value), sizeof(value));
 		return value;
 	}
 	string ReadString();
@@ -75,7 +75,7 @@ public:
 		if (!IsWritable())
 			return;
 
-		m_oStream.write(reinterpret_cast<const char*>(&tValue), sizeof(tValue));
+		m_Stream.write(reinterpret_cast<const char*>(&tValue), sizeof(tValue));
 	}
 
 	//-----------------------------------------------------------------------------
@@ -87,14 +87,13 @@ public:
 		if (!IsWritable())
 			return;
 
-		m_oStream.write(reinterpret_cast<const char*>(tValue), nSize);
+		m_Stream.write(reinterpret_cast<const char*>(tValue), nSize);
 	}
-	void WriteString(string svInput);
+	void WriteString(const string& svInput);
 
 private:
 
 	std::streampos  m_nSize;        // Size of ifstream.
 	Mode_t          m_eCurrentMode; // Current active mode.
-	ofstream        m_oStream;      // Output file stream.
-	ifstream        m_iStream;      // Input file stream.
+	fstream         m_Stream;       // I/O file stream.
 };
