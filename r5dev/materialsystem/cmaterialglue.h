@@ -35,7 +35,7 @@ public:
 	int16_t m_nStreamableTextureCount; //0x0070
 	int16_t m_iWidth; //0x0072 
 	int16_t m_iHeight; //0x0074
-	int16_t m_unused1; //0x0076
+	int16_t m_iDepth; //0x0076
 	uint32_t m_iFlags; //0x0078 [ PIXIE ]: I'm pretty sure those are VTF Image Flags, If you set them to NULL they cause Texture stretching.
 	int32_t m_unused2; //0x007C
 	uint8_t pad_0080[8]; //0x0080
