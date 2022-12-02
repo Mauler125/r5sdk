@@ -1962,6 +1962,5 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\GameSDK.def" />
-    <None Include="..\protoc\sig_map.pb.cc.vsspell" />
   </ItemGroup>
 </Project>

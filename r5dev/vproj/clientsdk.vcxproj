@@ -90,6 +90,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\protoc\sig_map.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\protoc\sv_rcon.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
@@ -98,6 +102,7 @@
     <ClCompile Include="..\public\utility\binstream.cpp" />
     <ClCompile Include="..\public\utility\memaddr.cpp" />
     <ClCompile Include="..\public\utility\module.cpp" />
+    <ClCompile Include="..\public\utility\sigcache.cpp" />
     <ClCompile Include="..\public\utility\utility.cpp" />
     <ClCompile Include="..\rtech\rtech_utils.cpp" />
     <ClCompile Include="..\rtech\rtech_game.cpp" />
@@ -254,6 +259,7 @@
     <ClInclude Include="..\networksystem\sm_protocol.h" />
     <ClInclude Include="..\pluginsystem\pluginsystem.h" />
     <ClInclude Include="..\protoc\cl_rcon.pb.h" />
+    <ClInclude Include="..\protoc\sig_map.pb.h" />
     <ClInclude Include="..\protoc\sv_rcon.pb.h" />
     <ClInclude Include="..\public\avi\iavi.h" />
     <ClInclude Include="..\public\avi\ibik.h" />
@@ -299,6 +305,7 @@
     <ClInclude Include="..\public\utility\httplib.h" />
     <ClInclude Include="..\public\utility\memaddr.h" />
     <ClInclude Include="..\public\utility\module.h" />
+    <ClInclude Include="..\public\utility\sigcache.h" />
     <ClInclude Include="..\public\utility\utility.h" />
     <ClInclude Include="..\public\utility\vdf_parser.h" />
     <ClInclude Include="..\public\worldsize.h" />
