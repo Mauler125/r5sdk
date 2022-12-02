@@ -22,11 +22,13 @@ public:
 
 	CModule(void) = default;
 	CModule(const string& moduleName);
+#ifndef PLUGINSDK
 	CMemory FindPatternSIMD(const string& svPattern, const ModuleSections_t& moduleSection = {}) const;
 	CMemory FindString(const string& string, const ptrdiff_t occurrence = 1, bool nullTerminator = false) const;
 	CMemory FindStringReadOnly(const string& svString, bool nullTerminator) const;
 
 	CMemory          GetVirtualMethodTable(const string& svTableName, const uint32_t nRefIndex = 0);
+#endif // !PLUGINSDK
 	CMemory          GetExportedFunction(const string& svFunctionName) const;
 	ModuleSections_t GetSectionByName(const string& svSectionName) const;
 	uintptr_t        GetModuleBase(void) const;

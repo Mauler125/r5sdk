@@ -35,6 +35,7 @@ CModule::CModule(const string& svModuleName) : m_svModuleName(svModuleName)
 	m_ReadOnlyData = GetSectionByName(".rdata");
 }
 
+#ifndef PLUGINSDK
 //-----------------------------------------------------------------------------
 // Purpose: find array of bytes in process memory using SIMD instructions
 // Input  : *szPattern - 
@@ -249,6 +250,54 @@ CMemory CModule::FindString(const string& svString, const ptrdiff_t nOccurrence,
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: get address of a virtual method table by rtti type descriptor name.
+// Input  : *svTableName - 
+//			nRefIndex - 
+// Output : CMemory
+//-----------------------------------------------------------------------------
+CMemory CModule::GetVirtualMethodTable(const string& svTableName, const uint32_t nRefIndex)
+{
+	uint64_t nRVA; // Packed together as we can have multiple VFTable searches, but with different ref indexes.
+	string svPackedTableName = svTableName + std::to_string(nRefIndex);
+
+	if (g_SigCache.FindEntry(svPackedTableName, nRVA))
+	{
+		return CMemory(nRVA + GetModuleBase());
+	}
+
+	const auto tableNameInfo = StringToMaskedBytes(svTableName, false);
+	CMemory rttiTypeDescriptor = FindPatternSIMD(tableNameInfo.first.data(), tableNameInfo.second.c_str(), { ".data", m_RunTimeData.m_pSectionBase, m_RunTimeData.m_nSectionSize }).OffsetSelf(-0x10);
+	if (!rttiTypeDescriptor)
+		return CMemory();
+
+	uintptr_t scanStart = m_ReadOnlyData.m_pSectionBase; // Get the start address of our scan.
+
+	const uintptr_t scanEnd = (m_ReadOnlyData.m_pSectionBase + m_ReadOnlyData.m_nSectionSize) - 0x4; // Calculate the end of our scan.
+	const uintptr_t rttiTDRva = rttiTypeDescriptor.GetPtr() - m_pModuleBase; // The RTTI gets referenced by a 4-Byte RVA address. We need to scan for that address.
+	while (scanStart < scanEnd)
+	{
+		CMemory reference = FindPatternSIMD(reinterpret_cast<rsig_t>(&rttiTDRva), "xxxx", { ".rdata", scanStart, m_ReadOnlyData.m_nSectionSize }, nRefIndex);
+		if (!reference)
+			break;
+		
+		CMemory referenceOffset = reference.Offset(-0xC);
+		if (referenceOffset.GetValue<int32_t>() != 1) // Check if we got a RTTI Object Locator for this reference by checking if -0xC is 1, which is the 'signature' field which is always 1 on x64.
+		{
+			scanStart = reference.Offset(0x4).GetPtr(); // Set location to current reference + 0x4 so we avoid pushing it back again into the vector.
+			continue;
+		}
+
+		CMemory vfTable = FindPatternSIMD(reinterpret_cast<rsig_t>(&referenceOffset), "xxxxxxxx", { ".rdata", m_ReadOnlyData.m_pSectionBase, m_ReadOnlyData.m_nSectionSize }).OffsetSelf(0x8);
+		g_SigCache.AddEntry(svPackedTableName, GetRVA(vfTable.GetPtr()));
+
+		return vfTable;
+	}
+
+	return CMemory();
+}
+#endif // !PLUGINSDK
+
+//-----------------------------------------------------------------------------
 // Purpose: get address of exported function in this module
 // Input  : *svFunctionName - 
 //          bNullTerminator - 
@@ -297,53 +346,6 @@ CMemory CModule::GetExportedFunction(const string& svFunctionName) const
 			return CMemory(m_pModuleBase + pAddressOfFunctions[reinterpret_cast<WORD*>(pAddressOfOrdinals)[i]]); // Return as CMemory class.
 		}
 	}
-	return CMemory();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: get address of a virtual method table by rtti type descriptor name.
-// Input  : *svTableName - 
-//			nRefIndex - 
-// Output : CMemory
-//-----------------------------------------------------------------------------
-CMemory CModule::GetVirtualMethodTable(const string& svTableName, const uint32_t nRefIndex)
-{
-	uint64_t nRVA; // Packed together as we can have multiple VFTable searches, but with different ref indexes.
-	string svPackedTableName = svTableName + std::to_string(nRefIndex);
-
-	if (g_SigCache.FindEntry(svPackedTableName, nRVA))
-	{
-		return CMemory(nRVA + GetModuleBase());
-	}
-
-	const auto tableNameInfo = StringToMaskedBytes(svTableName, false);
-	CMemory rttiTypeDescriptor = FindPatternSIMD(tableNameInfo.first.data(), tableNameInfo.second.c_str(), { ".data", m_RunTimeData.m_pSectionBase, m_RunTimeData.m_nSectionSize }).OffsetSelf(-0x10);
-	if (!rttiTypeDescriptor)
-		return CMemory();
-
-	uintptr_t scanStart = m_ReadOnlyData.m_pSectionBase; // Get the start address of our scan.
-
-	const uintptr_t scanEnd = (m_ReadOnlyData.m_pSectionBase + m_ReadOnlyData.m_nSectionSize) - 0x4; // Calculate the end of our scan.
-	const uintptr_t rttiTDRva = rttiTypeDescriptor.GetPtr() - m_pModuleBase; // The RTTI gets referenced by a 4-Byte RVA address. We need to scan for that address.
-	while (scanStart < scanEnd)
-	{
-		CMemory reference = FindPatternSIMD(reinterpret_cast<rsig_t>(&rttiTDRva), "xxxx", { ".rdata", scanStart, m_ReadOnlyData.m_nSectionSize }, nRefIndex);
-		if (!reference)
-			break;
-		
-		CMemory referenceOffset = reference.Offset(-0xC);
-		if (referenceOffset.GetValue<int32_t>() != 1) // Check if we got a RTTI Object Locator for this reference by checking if -0xC is 1, which is the 'signature' field which is always 1 on x64.
-		{
-			scanStart = reference.Offset(0x4).GetPtr(); // Set location to current reference + 0x4 so we avoid pushing it back again into the vector.
-			continue;
-		}
-
-		CMemory vfTable = FindPatternSIMD(reinterpret_cast<rsig_t>(&referenceOffset), "xxxxxxxx", { ".rdata", m_ReadOnlyData.m_pSectionBase, m_ReadOnlyData.m_nSectionSize }).OffsetSelf(0x8);
-		g_SigCache.AddEntry(svPackedTableName, GetRVA(vfTable.GetPtr()));
-
-		return vfTable;
-	}
-
 	return CMemory();
 }
 
