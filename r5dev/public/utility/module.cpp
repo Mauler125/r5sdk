@@ -149,6 +149,12 @@ CMemory CModule::FindStringReadOnly(const string& svString, bool bNullTerminator
 	if (!m_ReadOnlyData.IsSectionValid())
 		return CMemory();
 
+	uint64_t nRVA;
+	if (g_SigCache.FindEntry(svString, nRVA))
+	{
+		return CMemory(nRVA + GetModuleBase());
+	}
+
 	const vector<int> vBytes = StringToBytes(svString, bNullTerminator); // Convert our string to a byte array.
 	const pair bytesInfo = std::make_pair(vBytes.size(), vBytes.data()); // Get the size and data of our bytes.
 
@@ -171,7 +177,10 @@ CMemory CModule::FindStringReadOnly(const string& svString, bool bNullTerminator
 
 		if (bFound)
 		{
-			return CMemory(&pBase[i]);
+			CMemory result = CMemory(&pBase[i]);
+			g_SigCache.AddEntry(svString, GetRVA(result.GetPtr()));
+
+			return result;
 		}
 	}
 
@@ -234,8 +243,8 @@ CMemory CModule::FindString(const string& svString, const ptrdiff_t nOccurrence,
 	}
 
 	resultAddress = CMemory(pLatestOccurrence);
-
 	g_SigCache.AddEntry(svPackedString, GetRVA(resultAddress.GetPtr()));
+
 	return resultAddress;
 }
 
@@ -330,9 +339,9 @@ CMemory CModule::GetVirtualMethodTable(const string& svTableName, const uint32_t
 		}
 
 		CMemory vfTable = FindPatternSIMD(reinterpret_cast<rsig_t>(&referenceOffset), "xxxxxxxx", { ".rdata", m_ReadOnlyData.m_pSectionBase, m_ReadOnlyData.m_nSectionSize }).OffsetSelf(0x8);
-
 		g_SigCache.AddEntry(svPackedTableName, GetRVA(vfTable.GetPtr()));
-		return FindPatternSIMD(reinterpret_cast<rsig_t>(&referenceOffset), "xxxxxxxx", { ".rdata", m_ReadOnlyData.m_pSectionBase, m_ReadOnlyData.m_nSectionSize }).OffsetSelf(0x8);
+
+		return vfTable;
 	}
 
 	return CMemory();
