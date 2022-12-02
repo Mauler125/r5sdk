@@ -15,6 +15,7 @@ public:
 	// Clear
 
 	void AddEntry(const string& svPattern, const uint64_t nRVA);
+	bool FindEntry(const string& svPattern, uint64_t& nRVA) const;
 	void WriteCache();
 
 	SigMap_Pb m_Cache;
