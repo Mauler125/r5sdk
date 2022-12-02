@@ -14,10 +14,8 @@
 //-----------------------------------------------------------------------------
 void CSigCache::AddEntry(const string& svPattern, const uint64_t nRVA)
 {
-	if (g_SigCache.m_bUseCache)
-	{
-		(*g_SigCache.m_Cache.mutable_smap())[svPattern] = nRVA;
-	}
+	Assert(!m_bInitialized);
+	(*m_Cache.mutable_smap())[svPattern] = nRVA;
 }
 
 //-----------------------------------------------------------------------------
@@ -28,9 +26,9 @@ void CSigCache::AddEntry(const string& svPattern, const uint64_t nRVA)
 //-----------------------------------------------------------------------------
 bool CSigCache::FindEntry(const string& svPattern, uint64_t& nRVA) const
 {
-	if (g_SigCache.m_bInitialized)
+	if (m_bInitialized)
 	{
-		google::protobuf::Map sMap = g_SigCache.m_Cache.smap();
+		google::protobuf::Map sMap = m_Cache.smap();
 		auto p = sMap.find(svPattern);
 
 		if (p != sMap.end())
@@ -44,16 +42,72 @@ bool CSigCache::FindEntry(const string& svPattern, uint64_t& nRVA) const
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: writes the cache map to the disk
+// Purpose: loads the cache map from the disk
+// Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-void CSigCache::WriteCache()
+bool CSigCache::LoadCache(const string& svCacheFile)
 {
-	CIOStream writer("bin\\startup.smap", CIOStream::Mode_t::WRITE);
+	Assert(!m_bInitialized); // Recursive load.
+	CIOStream reader(svCacheFile, CIOStream::Mode_t::READ);
 
+	if (!reader.IsReadable())
+	{
+		return false;
+	}
+	if (!reader.GetSize() > sizeof(SigDBHeader_t))
+	{
+		return false;
+	}
+
+	SigDBHeader_t sigDbHeader;
+	sigDbHeader.m_nMagic = reader.Read<int>();
+
+	if (sigDbHeader.m_nMagic != SIGDB_MAGIC)
+	{
+		return false;
+	}
+
+	sigDbHeader.m_nVersion = reader.Read<int>();
+	if (sigDbHeader.m_nVersion != SIGDB_VERSION)
+	{
+		return false;
+	}
+
+	sigDbHeader.m_FileTime = reader.Read<FILETIME>();
+
+	vector<uint8_t> vData;
+	size_t nSize = (static_cast<size_t>(reader.GetSize()) - sizeof(SigDBHeader_t));
+
+	vData.resize(nSize);
+	uint8_t* pBuf = vData.data();
+	reader.Read<uint8_t>(*pBuf, nSize);
+
+	if (!m_Cache.ParseFromArray(pBuf, nSize))
+	{
+		return false;
+	}
+
+	m_bInitialized = true;
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: writes the cache map to the disk
+// Output : true on success, false otherwise
+//-----------------------------------------------------------------------------
+bool CSigCache::WriteCache(const string& svCacheFile)
+{
+	if (m_bInitialized)
+	{
+		// Only write when we don't have anything valid on the disk.
+		return false;
+	}
+
+	CIOStream writer(svCacheFile, CIOStream::Mode_t::WRITE);
 	if (!writer.IsWritable())
 	{
 		// Error message..
-		return;
+		return false;
 	}
 
 	SigDBHeader_t header;
@@ -65,4 +119,6 @@ void CSigCache::WriteCache()
 
 	writer.Write(header);
 	writer.Write(svBuffer.data(), svBuffer.size());
+
+	return true;
 }

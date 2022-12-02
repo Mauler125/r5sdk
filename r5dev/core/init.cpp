@@ -258,11 +258,6 @@ void Systems_Init()
 	spdlog::info("+-------------------------------------------------------------+\n");
 
 	ConVar::Init();
-
-#ifdef DEDICATED
-	Dedicated_Init();
-#endif // DEDICATED
-
 	SpdLog_PostInit();
 
 	std::thread fixed(&CEngineSDK::FixedFrame, g_EngineSDK);
@@ -473,59 +468,12 @@ void CheckCPU() // Respawn's engine and our SDK utilize POPCNT, SSE3 and SSSE3 (
 	}
 }
 
-#include "protoc/sig_map.pb.h"
-
-bool SigDB_Init()
-{
-	CIOStream sigDbStream("bin\\startup.smap", CIOStream::Mode_t::READ);
-
-	if (!sigDbStream.IsReadable())
-	{
-		return false;
-	}
-	if (!sigDbStream.GetSize() > sizeof(SigDBHeader_t))
-	{
-		return false;
-	}
-
-	SigDBHeader_t sigDbHeader;
-	sigDbHeader.m_nMagic = sigDbStream.Read<int>();
-
-	if (sigDbHeader.m_nMagic != SIGDB_MAGIC)
-	{
-		return false;
-	}
-
-	sigDbHeader.m_nVersion = sigDbStream.Read<int>();
-	if (sigDbHeader.m_nVersion != SIGDB_VERSION)
-	{
-		return false;
-	}
-
-	sigDbHeader.m_FileTime = sigDbStream.Read<FILETIME>();
-
-	vector<uint8_t> vData;
-	size_t nSize = (static_cast<size_t>(sigDbStream.GetSize()) - sizeof(SigDBHeader_t));
-
-	vData.resize(nSize);
-	uint8_t* pBuf = vData.data();
-	sigDbStream.Read<uint8_t>(*pBuf, nSize);
-
-	if (!g_SigCache.m_Cache.ParseFromArray(pBuf, nSize))
-	{
-		return false;
-	}
-
-	return true;
-}
-
-
 void DetourInit() // Run the sigscan
 {
 	bool bLogAdr = (strstr(GetCommandLineA(), "-sig_toconsole") != nullptr);
 	bool bInitDivider = false;
 
-	g_SigCache.m_bInitialized = SigDB_Init();
+	g_SigCache.LoadCache(SIGDB_FILE);
 
 	for (const IDetour* pDetour : vDetour)
 	{
@@ -544,8 +492,14 @@ void DetourInit() // Run the sigscan
 		}
 	}
 
-	g_SigCache.WriteCache();
+#ifdef DEDICATED
+	// Must be performed after detour init as we patch instructions which alters the function signatures.
+	Dedicated_Init();
+#endif // DEDICATED
+
+	g_SigCache.WriteCache(SIGDB_FILE);
 }
+
 void DetourAddress() // Test the sigscan results
 {
 	spdlog::debug("+----------------------------------------------------------------+\n");
