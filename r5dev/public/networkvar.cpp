@@ -93,9 +93,7 @@ int CNetVarTables::GetOffset(const string& tableName, const string& varName)
 	for (const auto& table : vTables)
 	{
 		if (table.m_svNetTableName.compare(tableName) == 0)
-		{
 			return GetOffset(table, varName);
-		}
 	}
 
 	return 0;
@@ -114,9 +112,7 @@ int CNetVarTables::GetOffset(const Table& table, const string& varName)
 	{
 		string svVarName = child.m_pProp->m_pVarName;
 		if (svVarName.compare(varName) == 0)
-		{
 			return table.m_Offset + child.m_Offset;
-		}
 	}
 
 	// Try to loop through sub tables.
