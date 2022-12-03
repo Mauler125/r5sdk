@@ -43,6 +43,7 @@ void CServerGameDLL::LevelShutdown(void)
 //-----------------------------------------------------------------------------
 void CServerGameDLL::GameShutdown(void)
 {
+	// Game just calls a nullsub for GameShutdown lol.
 	const static int index = 9;
 	CallVFunc<void>(index, this);
 }
