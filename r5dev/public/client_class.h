@@ -20,7 +20,7 @@ public:
 	CreateClientClassFn m_pCreateFn;
 	CreateEventFn       m_pCreateEventFn;
 	char*               m_pNetworkName;
-	CRecvTable*        m_pRecvTable;
+	CRecvTable*         m_pRecvTable;
 	ClientClass*        m_pNext;
 	int                 m_ClassID;
 	int                 m_ClassSize;
