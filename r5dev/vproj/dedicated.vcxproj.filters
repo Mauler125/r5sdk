@@ -1269,6 +1269,12 @@
     <ClInclude Include="..\public\ipackedstore.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\dt_send.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\networkvar.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1594,6 +1600,9 @@
     </ClCompile>
     <ClCompile Include="..\tier1\utlbuffer.cpp">
       <Filter>sdk\tier1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\networkvar.cpp">
+      <Filter>sdk\public</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

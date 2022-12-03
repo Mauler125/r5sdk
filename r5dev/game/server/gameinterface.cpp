@@ -8,6 +8,7 @@
 #include "core/stdafx.h"
 #include "engine/server/sv_main.h"
 #include "game/server/gameinterface.h"
+#include "public/server_class.h"
 
 //-----------------------------------------------------------------------------
 // This is called when a new game is started. (restart, map)
@@ -47,13 +48,23 @@ void CServerGameDLL::GameShutdown(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Gets the simulation tick interfal
+// Purpose: Gets the simulation tick interval
 // Output : float
 //-----------------------------------------------------------------------------
 float CServerGameDLL::GetTickInterval(void)
 {
 	const static int index = 11;
 	return CallVFunc<float>(index, this);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: get all server classes
+// Output : ServerClass*
+//-----------------------------------------------------------------------------
+ServerClass* CServerGameDLL::GetAllServerClasses(void)
+{
+	const static int index = 12;
+	return CallVFunc<ServerClass*>(index, this);
 }
 
 void __fastcall CServerGameDLL::OnReceivedSayTextMessage(void* thisptr, int senderId, const char* text, bool isTeamChat)

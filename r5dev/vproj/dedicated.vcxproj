@@ -216,6 +216,7 @@
     <ClInclude Include="..\protoc\sv_rcon.pb.h" />
     <ClInclude Include="..\public\datamap.h" />
     <ClInclude Include="..\public\dt_common.h" />
+    <ClInclude Include="..\public\dt_send.h" />
     <ClInclude Include="..\public\iengine.h" />
     <ClInclude Include="..\public\client_class.h" />
     <ClInclude Include="..\public\const.h" />
@@ -236,6 +237,7 @@
     <ClInclude Include="..\public\isnapshotmgr.h" />
     <ClInclude Include="..\public\ivscript.h" />
     <ClInclude Include="..\public\model_types.h" />
+    <ClInclude Include="..\public\networkvar.h" />
     <ClInclude Include="..\public\server_class.h" />
     <ClInclude Include="..\public\studio.h" />
     <ClInclude Include="..\public\utility\binstream.h" />
@@ -552,6 +554,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\public\datamap.cpp" />
+    <ClCompile Include="..\public\networkvar.cpp" />
     <ClCompile Include="..\public\utility\binstream.cpp" />
     <ClCompile Include="..\public\utility\memaddr.cpp" />
     <ClCompile Include="..\public\utility\module.cpp" />

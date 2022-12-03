@@ -1,5 +1,7 @@
 #pragma once
 
+class SendTable;
+
 //-----------------------------------------------------------------------------
 // Purpose: Server side class definition
 //-----------------------------------------------------------------------------
@@ -13,7 +15,7 @@ public:
 
 public:
 	char* m_pNetworkName;
-	void* m_pSendTable;
+	SendTable* m_pSendTable;
 	ServerClass* m_pNext;
 	int m_Unknown1;
 	int m_ClassID;

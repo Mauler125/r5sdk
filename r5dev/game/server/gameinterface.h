@@ -5,6 +5,8 @@
 // $NoKeywords: $
 //=============================================================================//
 
+class ServerClass;
+
 class CServerGameDLL
 {
 public:
@@ -13,6 +15,7 @@ public:
 	void LevelShutdown(void);
 	void GameShutdown(void);
 	float GetTickInterval(void);
+	ServerClass* GetAllServerClasses(void);
 
 	static void __fastcall OnReceivedSayTextMessage(void* thisptr, int senderId, const char* text, bool isTeamChat);
 };
