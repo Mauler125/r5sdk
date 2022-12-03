@@ -151,7 +151,7 @@ bool CSigCache::WriteCache(const string& svCacheFile)
 //-----------------------------------------------------------------------------
 // Purpose: decompresses the blob containing the signature map
 // Input  : nSrcLen - 
-//			&nDstSize - 
+//			&nDstLen - 
 //			&nCrc32 - 
 //			*pSrcBuf - 
 //			*pDstBuf - 
@@ -178,20 +178,20 @@ bool CSigCache::DecompressBlob(size_t nSrcLen, size_t& nDstLen, uint32_t& nCrc32
 //-----------------------------------------------------------------------------
 // Purpose: compresses the blob containing the signature map
 // Input  : nSrcLen - 
-//			&nDstSize - 
+//			&nDstLen - 
 //			&nCrc32 - 
 //			*pSrcBuf - 
 //			*pDstBuf - 
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CSigCache::CompressBlob(size_t nSrcLen, size_t& nDstSize, uint32_t& nCrc32, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const
+bool CSigCache::CompressBlob(size_t nSrcLen, size_t& nDstLen, uint32_t& nCrc32, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const
 {
 	lzham_compress_params lzCompParams{};
 	lzCompParams.m_dict_size_log2 = SIGDB_DICT_SIZE;
 	lzCompParams.m_level = lzham_compress_level::LZHAM_COMP_LEVEL_FASTEST;
 	lzCompParams.m_compress_flags = lzham_compress_flags::LZHAM_COMP_FLAG_DETERMINISTIC_PARSING;
 
-	lzham_compress_status_t lzCompStatus = lzham_compress_memory(&lzCompParams, pDstBuf, &nDstSize, pSrcBuf, nSrcLen, NULL, &nCrc32);
+	lzham_compress_status_t lzCompStatus = lzham_compress_memory(&lzCompParams, pDstBuf, &nDstLen, pSrcBuf, nSrcLen, NULL, &nCrc32);
 
 	if (lzCompStatus != lzham_compress_status_t::LZHAM_COMP_STATUS_SUCCESS)
 	{

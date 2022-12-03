@@ -28,8 +28,8 @@ public:
 	bool WriteCache(const string& svCacheFile);
 
 private:
-	bool CompressBlob(size_t nSrcLen, size_t& nDstSize, uint32_t& nCrc32, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const;
-	bool DecompressBlob(size_t nSrcLen, size_t& nDstSize, uint32_t& nCrc32, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const;
+	bool CompressBlob(size_t nSrcLen, size_t& nDstLen, uint32_t& nCrc32, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const;
+	bool DecompressBlob(size_t nSrcLen, size_t& nDstLen, uint32_t& nCrc32, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const;
 
 	SigMap_Pb m_Cache;
 	bool m_bInitialized;
