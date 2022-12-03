@@ -10,11 +10,11 @@ struct typedescription_t;
 struct datamap_t
 {
 	typedescription_t* dataDesc;
-	int dataNumFields;
-	int unk1_;
+	int unk1;
+	int unk2;
 	const char* dataClassName;
 	uint64_t packed_size;
-	int64_t unk2;
+	int64_t dataNumFields;
 	datamap_t* baseMap;
 	// Verify size.
 };
