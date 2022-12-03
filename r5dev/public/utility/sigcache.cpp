@@ -195,7 +195,7 @@ bool CSigCache::CompressBlob(size_t nSrcLen, size_t& nDstSize, uint32_t& nCrc32,
 
 	if (lzCompStatus != lzham_compress_status_t::LZHAM_COMP_STATUS_SUCCESS)
 	{
-		Warning(eDLL_T::COMMON, NO_ERROR, "Failed to compress blob: status = %08x\n", lzCompStatus);
+		Error(eDLL_T::COMMON, NO_ERROR, "Failed to compress blob: status = %08x\n", lzCompStatus);
 		return false;
 	}
 
