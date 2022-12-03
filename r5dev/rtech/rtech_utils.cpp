@@ -508,6 +508,7 @@ uint8_t __fastcall RTech::DecompressPakFile(RPakDecompState_t* state, uint64_t i
 // Disable stack warning, tells us to move more data to the heap instead. Not really possible with 'initialData' here. Since its parallel processed.
 // Also disable 6378, complains that there is no control path where it would use 'nullptr', if that happens 'Error' will be called though.
 #pragma warning( disable : 6262 6387)
+constexpr uint32_t ALIGNMENT_SIZE = 15; // Used by the game in CreateDXTexture.
 //----------------------------------------------------------------------------------
 // Purpose: creates 2D texture and shader resource from textureHeader and imageData.
 //----------------------------------------------------------------------------------
@@ -539,12 +540,12 @@ void RTech::CreateDXTexture(TextureHeader_t* textureHeader, int64_t imageData)
 				uint8_t x = s_pBytesPerPixel[textureHeader->m_nImageFormat].first;
 				uint8_t y = s_pBytesPerPixel[textureHeader->m_nImageFormat].second;
 
-				uint32_t bytesPerPixelWidth = (y + mipWidth) >> (y >> 1);
-				uint32_t bytesPerPixelHeight = (y + mipHeight) >> (y >> 1);
+				uint32_t bppWidth = (y + mipWidth) >> (y >> 1);
+				uint32_t bppHeight = (y + mipHeight) >> (y >> 1);
 				uint32_t sliceWidth = x * (y >> (y >> 1));
 
-				uint32_t rowPitch = sliceWidth * bytesPerPixelWidth;
-				uint32_t slicePitch = x * bytesPerPixelWidth * bytesPerPixelHeight;
+				uint32_t rowPitch = sliceWidth * bppWidth;
+				uint32_t slicePitch = x * bppWidth * bppHeight;
 
 				uint32_t subResourceEntry = mipLevel;
 				for (int i = 0; i < textureHeader->m_nArraySize; i++)
@@ -555,7 +556,7 @@ void RTech::CreateDXTexture(TextureHeader_t* textureHeader, int64_t imageData)
 					*(uint32_t*)((uint8_t*)&initialData[1] + offsetCurrentResourceData) = rowPitch;
 					*(uint32_t*)((uint8_t*)&initialData[1] + offsetCurrentResourceData + 4) = slicePitch;
 
-					imageData += (slicePitch + 15) & 0xFFFFFFF0;
+					imageData += (slicePitch + ALIGNMENT_SIZE) & ~ALIGNMENT_SIZE;
 					subResourceEntry += textureHeader->m_nPermanentMipCount;
 				}
 			}

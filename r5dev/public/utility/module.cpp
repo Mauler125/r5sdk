@@ -305,10 +305,10 @@ CMemory CModule::GetVirtualMethodTable(const string& svTableName, const uint32_t
 //-----------------------------------------------------------------------------
 CModule::ModuleSections_t CModule::GetSectionByName(const string& svSectionName) const
 {
-	for (size_t i = 0; i < m_vModuleSections.size(); i++)
+	for (const ModuleSections_t& section : m_vModuleSections)
 	{
-		if (m_vModuleSections[i].m_svSectionName.compare(svSectionName) == 0)
-			return m_vModuleSections[i];
+		if (section.m_svSectionName == svSectionName)
+			return section;
 	}
 
 	return ModuleSections_t();
