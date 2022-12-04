@@ -47,7 +47,7 @@ void CPackedStore::InitLzDecompParams(void)
 {
 	/*| PARAMETERS ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*/
 	m_lzDecompParams.m_dict_size_log2   = VPK_DICT_SIZE;
-	m_lzDecompParams.m_decompress_flags = lzham_decompress_flags::LZHAM_DECOMP_FLAG_OUTPUT_UNBUFFERED | lzham_decompress_flags::LZHAM_DECOMP_FLAG_COMPUTE_CRC32;
+	m_lzDecompParams.m_decompress_flags = lzham_decompress_flags::LZHAM_DECOMP_FLAG_OUTPUT_UNBUFFERED;
 	m_lzDecompParams.m_struct_size      = sizeof(lzham_decompress_params);
 }
 
@@ -318,39 +318,11 @@ void CPackedStore::BuildManifest(const vector<VPKEntryBlock_t>& vBlock, const st
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: validates extraction result with precomputed ADLER32 hash
-// Input  : &svAssetPath - 
-//-----------------------------------------------------------------------------
-void CPackedStore::ValidateAdler32PostDecomp(const string& svAssetPath)
-{
-	FileHandle_t hAsset = FileSystem()->Open(svAssetPath.c_str(), "rb", "GAME");
-	if (!hAsset)
-	{
-		Error(eDLL_T::FS, NO_ERROR, "%s - Unable to open '%s' (insufficient rights?)\n", __FUNCTION__, svAssetPath.c_str());
-		return;
-	}
-	uint32_t nLen = FileSystem()->Size(hAsset);
-	uint8_t* pBuf = MemAllocSingleton()->Alloc<uint8_t>(nLen);
-
-	FileSystem()->Read(pBuf, nLen, hAsset);
-	FileSystem()->Close(hAsset);
-
-	m_nAdler32 = adler32::update(NULL, pBuf, nLen);
-	MemAllocSingleton()->Free(pBuf);
-
-	if (m_nAdler32 != m_nAdler32_Internal)
-	{
-		Warning(eDLL_T::FS, "Computed checksum '0x%lX' doesn't match expected checksum '0x%lX'. File may be corrupt!\n", m_nAdler32, m_nAdler32_Internal);
-		m_nAdler32          = NULL;
-		m_nAdler32_Internal = NULL;
-	}
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: validates extraction result with precomputed CRC32 hash
 // Input  : &svAssetPath - 
+//        : nFileCRC - 
 //-----------------------------------------------------------------------------
-void CPackedStore::ValidateCRC32PostDecomp(const string& svAssetPath)
+void CPackedStore::ValidateCRC32PostDecomp(const string& svAssetPath, const uint32_t nFileCRC)
 {
 	FileHandle_t hAsset = FileSystem()->Open(svAssetPath.c_str(), "rb", "GAME");
 	if (!hAsset)
@@ -364,14 +336,13 @@ void CPackedStore::ValidateCRC32PostDecomp(const string& svAssetPath)
 	FileSystem()->Read(pBuf, nLen, hAsset);
 	FileSystem()->Close(hAsset);
 
-	m_nCrc32 = crc32::update(NULL, pBuf, nLen);
+	uint32_t nCrc32 = crc32::update(NULL, pBuf, nLen);
 	MemAllocSingleton()->Free(pBuf);
 
-	if (m_nCrc32 != m_nCrc32_Internal)
+	if (nCrc32 != nFileCRC)
 	{
-		Warning(eDLL_T::FS, "Computed checksum '0x%lX' doesn't match expected checksum '0x%lX'. File may be corrupt!\n", m_nCrc32, m_nCrc32_Internal);
-		m_nCrc32          = NULL;
-		m_nCrc32_Internal = NULL;
+		Warning(eDLL_T::FS, "Computed checksum '0x%lX' doesn't match expected checksum '0x%lX'. File may be corrupt!\n", nCrc32, nFileCRC);
+		nCrc32          = NULL;
 	}
 }
 
@@ -463,7 +434,7 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vPair, const string& svWorkspa
 			if (vEntryValue.m_bUseCompression)
 			{
 				m_lzCompStatus = lzham_compress_memory(&m_lzCompParams, s_EntryBuf, &vDescriptor.m_nCompressedSize, s_EntryBuf,
-					vDescriptor.m_nUncompressedSize, &m_nAdler32_Internal, &m_nCrc32_Internal);
+					vDescriptor.m_nUncompressedSize, nullptr);
 
 				if (m_lzCompStatus != lzham_compress_status_t::LZHAM_COMP_STATUS_SUCCESS)
 				{
@@ -562,7 +533,7 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vDirectory, const string& svW
 							break; // Corrupt or invalid chunk descriptor.
 
 						m_lzDecompStatus = lzham_decompress_memory(&m_lzDecompParams, s_DecompBuf,
-							&nDstLen, s_EntryBuf, vChunk.m_nCompressedSize, &m_nAdler32_Internal, &m_nCrc32_Internal);
+							&nDstLen, s_EntryBuf, vChunk.m_nCompressedSize, nullptr);
 
 						if (m_lzDecompStatus != lzham_decompress_status_t::LZHAM_DECOMP_STATUS_SUCCESS)
 						{
@@ -584,9 +555,7 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vDirectory, const string& svW
 				if (m_nChunkCount == vEntryBlock.m_vFragments.size()) // Only validate after last entry in block had been written.
 				{
 					m_nChunkCount = NULL;
-					m_nCrc32_Internal = vEntryBlock.m_nFileCRC;
-
-					ValidateCRC32PostDecomp(svFilePath);
+					ValidateCRC32PostDecomp(svFilePath, vEntryBlock.m_nFileCRC);
 				}
 			}
 		}

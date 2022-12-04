@@ -81,17 +81,17 @@ bool CSigCache::LoadCache(const string& svCacheFile)
 
 	header.m_nBlobSizeMem = reader.Read<uint64_t>();
 	header.m_nBlobSizeDisk = reader.Read<uint64_t>();
-	header.m_nBlobHash = reader.Read<uint32_t>();
+	header.m_nBlobChecksum = reader.Read<uint32_t>();
 
-	uint32_t nCrc32;
+	uint32_t nAdler32;
 
 	std::unique_ptr<uint8_t[]> pSrcBuf(new uint8_t[header.m_nBlobSizeDisk]);
 	std::unique_ptr<uint8_t[]> pDstBuf(new uint8_t[header.m_nBlobSizeMem]);
 
 	reader.Read<uint8_t>(*pSrcBuf.get(), header.m_nBlobSizeDisk);
-	DecompressBlob(header.m_nBlobSizeDisk, header.m_nBlobSizeMem, nCrc32, pSrcBuf.get(), pDstBuf.get());
+	DecompressBlob(header.m_nBlobSizeDisk, header.m_nBlobSizeMem, nAdler32, pSrcBuf.get(), pDstBuf.get());
 
-	if (header.m_nBlobHash != nCrc32)
+	if (header.m_nBlobChecksum != nAdler32)
 	{
 		return false;
 	}
@@ -135,7 +135,7 @@ bool CSigCache::WriteCache(const string& svCacheFile)
 	header.m_nBlobSizeMem = svBuffer.size();
 	uint64_t nCompSize = svBuffer.size();
 
-	if (!CompressBlob(svBuffer.size(), nCompSize, header.m_nBlobHash, reinterpret_cast<const uint8_t*>(svBuffer.data()), pBuffer.get()))
+	if (!CompressBlob(svBuffer.size(), nCompSize, header.m_nBlobChecksum, reinterpret_cast<const uint8_t*>(svBuffer.data()), pBuffer.get()))
 	{
 		return false;
 	}
@@ -152,19 +152,19 @@ bool CSigCache::WriteCache(const string& svCacheFile)
 // Purpose: decompresses the blob containing the signature map
 // Input  : nSrcLen - 
 //			&nDstLen - 
-//			&nCrc32 - 
+//			&nAdler - 
 //			*pSrcBuf - 
 //			*pDstBuf - 
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CSigCache::DecompressBlob(size_t nSrcLen, size_t& nDstLen, uint32_t& nCrc32, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const
+bool CSigCache::DecompressBlob(size_t nSrcLen, size_t& nDstLen, uint32_t& nAdler, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const
 {
 	lzham_decompress_params lzDecompParams{};
 	lzDecompParams.m_dict_size_log2 = SIGDB_DICT_SIZE;
-	lzDecompParams.m_decompress_flags = lzham_decompress_flags::LZHAM_DECOMP_FLAG_OUTPUT_UNBUFFERED | lzham_decompress_flags::LZHAM_DECOMP_FLAG_COMPUTE_CRC32;
+	lzDecompParams.m_decompress_flags = lzham_decompress_flags::LZHAM_DECOMP_FLAG_OUTPUT_UNBUFFERED | lzham_decompress_flags::LZHAM_DECOMP_FLAG_COMPUTE_ADLER32;
 	lzDecompParams.m_struct_size = sizeof(lzham_decompress_params);
 
-	lzham_decompress_status_t lzDecompStatus = lzham_decompress_memory(&lzDecompParams, pDstBuf, &nDstLen, pSrcBuf, nSrcLen, NULL, &nCrc32);
+	lzham_decompress_status_t lzDecompStatus = lzham_decompress_memory(&lzDecompParams, pDstBuf, &nDstLen, pSrcBuf, nSrcLen, &nAdler);
 
 	if (lzDecompStatus != lzham_decompress_status_t::LZHAM_DECOMP_STATUS_SUCCESS)
 	{
@@ -179,19 +179,19 @@ bool CSigCache::DecompressBlob(size_t nSrcLen, size_t& nDstLen, uint32_t& nCrc32
 // Purpose: compresses the blob containing the signature map
 // Input  : nSrcLen - 
 //			&nDstLen - 
-//			&nCrc32 - 
+//			&nAdler - 
 //			*pSrcBuf - 
 //			*pDstBuf - 
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CSigCache::CompressBlob(size_t nSrcLen, size_t& nDstLen, uint32_t& nCrc32, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const
+bool CSigCache::CompressBlob(size_t nSrcLen, size_t& nDstLen, uint32_t& nAdler, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const
 {
 	lzham_compress_params lzCompParams{};
 	lzCompParams.m_dict_size_log2 = SIGDB_DICT_SIZE;
 	lzCompParams.m_level = lzham_compress_level::LZHAM_COMP_LEVEL_FASTEST;
 	lzCompParams.m_compress_flags = lzham_compress_flags::LZHAM_COMP_FLAG_DETERMINISTIC_PARSING;
 
-	lzham_compress_status_t lzCompStatus = lzham_compress_memory(&lzCompParams, pDstBuf, &nDstLen, pSrcBuf, nSrcLen, NULL, &nCrc32);
+	lzham_compress_status_t lzCompStatus = lzham_compress_memory(&lzCompParams, pDstBuf, &nDstLen, pSrcBuf, nSrcLen, &nAdler);
 
 	if (lzCompStatus != lzham_compress_status_t::LZHAM_COMP_STATUS_SUCCESS)
 	{

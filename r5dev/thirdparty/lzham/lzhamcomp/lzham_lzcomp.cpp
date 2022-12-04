@@ -150,18 +150,16 @@ namespace lzham
       return pState;
    }
 
-   lzham_compress_checksums LZHAM_CDECL lzham_lib_compress_deinit(lzham_compress_state_ptr p)
+   lzham_uint32 LZHAM_CDECL lzham_lib_compress_deinit(lzham_compress_state_ptr p)
    {
-       lzham_compress_checksums checksums{};
       lzham_compress_state *pState = static_cast<lzham_compress_state *>(p);
       if (!pState)
-         return checksums;
+         return 0;
 
-      checksums.adler32 = pState->m_compressor.get_src_adler32();
-      checksums.crc32 = pState->m_compressor.get_src_crc32();
+      uint32 adler32 = pState->m_compressor.get_src_adler32();
 
       lzham_delete(pState);
-      return checksums;
+      return adler32;
    }
 
    lzham_compress_status_t LZHAM_CDECL lzham_lib_compress(
@@ -296,7 +294,7 @@ namespace lzham
       return pState->m_status;
    }
 
-   lzham_compress_status_t LZHAM_CDECL lzham_lib_compress_memory(const lzham_compress_params *pParams, lzham_uint8* pDst_buf, size_t *pDst_len, const lzham_uint8* pSrc_buf, size_t src_len, lzham_uint32 *pAdler32, lzham_uint32 *pCrc32)
+   lzham_compress_status_t LZHAM_CDECL lzham_lib_compress_memory(const lzham_compress_params *pParams, lzham_uint8* pDst_buf, size_t *pDst_len, const lzham_uint8* pSrc_buf, size_t src_len, lzham_uint32 *pAdler32)
    {
       if ((!pParams) || (!pDst_len))
          return LZHAM_COMP_STATUS_INVALID_PARAMETER;
@@ -368,8 +366,6 @@ namespace lzham
 
       if (pAdler32)
          *pAdler32 = pCompressor->get_src_adler32();
-      if (pCrc32)
-          *pCrc32 = pCompressor->get_src_crc32();
 
       if (comp_data.size() == dst_buf_size)
       {
@@ -523,7 +519,6 @@ namespace lzham
          pStream->total_out += (uint)out_bytes;
 
          pStream->adler32 = pState->m_compressor.get_src_adler32();
-         pStream->crc32 = pState->m_compressor.get_src_crc32();
 
          if (status >= LZHAM_COMP_STATUS_FIRST_FAILURE_CODE)
          {
@@ -555,11 +550,7 @@ namespace lzham
       lzham_compress_state_ptr pComp = (lzham_compress_state_ptr)pStream->state;
       if (pComp)
       {
-          lzham_compress_checksums checksums = lzham_lib_compress_deinit(pComp);
-          
-          pStream->adler32 = checksums.adler32;
-          pStream->crc32 = checksums.crc32;
-
+         pStream->adler32 = lzham_lib_compress_deinit(pComp);
          pStream->state = NULL;
       }
 

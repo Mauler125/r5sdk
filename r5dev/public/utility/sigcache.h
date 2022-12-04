@@ -28,8 +28,8 @@ public:
 	bool WriteCache(const string& svCacheFile);
 
 private:
-	bool CompressBlob(size_t nSrcLen, size_t& nDstLen, uint32_t& nCrc32, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const;
-	bool DecompressBlob(size_t nSrcLen, size_t& nDstLen, uint32_t& nCrc32, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const;
+	bool CompressBlob(size_t nSrcLen, size_t& nDstLen, uint32_t& nAdler32, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const;
+	bool DecompressBlob(size_t nSrcLen, size_t& nDstLen, uint32_t& nAdler32, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const;
 
 	SigMap_Pb m_Cache;
 	bool m_bInitialized;
@@ -43,7 +43,7 @@ struct SigDBHeader_t
 	uint16_t m_nMinorVersion;
 	uint64_t m_nBlobSizeMem;
 	uint64_t m_nBlobSizeDisk;
-	uint32_t m_nBlobHash;
+	uint32_t m_nBlobChecksum;
 };
 #pragma pack(pop)
 
