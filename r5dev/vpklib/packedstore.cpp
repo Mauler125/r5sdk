@@ -433,13 +433,13 @@ void CPackedStore::PackWorkspace(const VPKPair_t& vPair, const string& svWorkspa
 
 			if (vEntryValue.m_bUseCompression)
 			{
-				m_lzCompStatus = lzham_compress_memory(&m_lzCompParams, s_EntryBuf, &vDescriptor.m_nCompressedSize, s_EntryBuf,
+				lzham_compress_status_t lzCompStatus = lzham_compress_memory(&m_lzCompParams, s_EntryBuf, &vDescriptor.m_nCompressedSize, s_EntryBuf,
 					vDescriptor.m_nUncompressedSize, nullptr);
 
-				if (m_lzCompStatus != lzham_compress_status_t::LZHAM_COMP_STATUS_SUCCESS)
+				if (lzCompStatus != lzham_compress_status_t::LZHAM_COMP_STATUS_SUCCESS)
 				{
 					Warning(eDLL_T::FS, "Status '%d' for chunk '%zu' within entry '%zu' in block '%hu' (chunk packed without compression)\n",
-						m_lzCompStatus, j, i, vEntryBlocks[i].m_iPackFileIndex);
+						lzCompStatus, j, i, vEntryBlocks[i].m_iPackFileIndex);
 
 					vDescriptor.m_nCompressedSize = vDescriptor.m_nUncompressedSize;
 				}
@@ -532,13 +532,13 @@ void CPackedStore::UnpackWorkspace(const VPKDir_t& vDirectory, const string& svW
 						if (vChunk.m_nCompressedSize > nDstLen)
 							break; // Corrupt or invalid chunk descriptor.
 
-						m_lzDecompStatus = lzham_decompress_memory(&m_lzDecompParams, s_DecompBuf,
+						lzham_decompress_status_t lzDecompStatus = lzham_decompress_memory(&m_lzDecompParams, s_DecompBuf,
 							&nDstLen, s_EntryBuf, vChunk.m_nCompressedSize, nullptr);
 
-						if (m_lzDecompStatus != lzham_decompress_status_t::LZHAM_DECOMP_STATUS_SUCCESS)
+						if (lzDecompStatus != lzham_decompress_status_t::LZHAM_DECOMP_STATUS_SUCCESS)
 						{
 							Error(eDLL_T::FS, NO_ERROR, "Status '%d' for chunk '%zu' within entry '%zu' in block '%hu' (chunk not decompressed)\n",
-								m_lzDecompStatus, m_nChunkCount, i, vEntryBlock.m_iPackFileIndex);
+								lzDecompStatus, m_nChunkCount, i, vEntryBlock.m_iPackFileIndex);
 						}
 						else // If successfully decompressed, write to file.
 						{
@@ -674,6 +674,8 @@ VPKChunkDescriptor_t::VPKChunkDescriptor_t(uint32_t nLoadFlags, uint16_t nTextur
 
 	m_nCompressedSize = nCompressedSize;
 	m_nUncompressedSize = nUncompressedSize;
+
+	m_bIsCompressed = (m_nCompressedSize != m_nUncompressedSize);
 }
 
 //-----------------------------------------------------------------------------
