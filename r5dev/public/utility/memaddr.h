@@ -10,8 +10,8 @@ public:
 	};
 
 	CMemory(void) = default;
-	CMemory(uintptr_t ptr) : ptr(ptr) {}
-	CMemory(void* ptr) : ptr(uintptr_t(ptr)) {}
+	CMemory(const uintptr_t ptr) : ptr(ptr) {}
+	CMemory(const void* ptr) : ptr(uintptr_t(ptr)) {}
 
 	inline operator uintptr_t(void) const
 	{

@@ -99,7 +99,7 @@ bool CSigCache::LoadCache(const string& svCacheFile)
 	{
 		return false;
 	}
-	if (!reader.GetSize() > sizeof(SigDBHeader_t))
+	if (reader.GetSize() <= sizeof(SigDBHeader_t))
 	{
 		return false;
 	}

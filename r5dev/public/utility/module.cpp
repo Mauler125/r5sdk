@@ -47,18 +47,14 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, c
 	if (!m_ExecutableCode.IsSectionValid())
 		return CMemory();
 
-	uint64_t nBase = static_cast<uint64_t>(m_ExecutableCode.m_pSectionBase);
-	uint64_t nSize = static_cast<uint64_t>(m_ExecutableCode.m_nSectionSize);
+	const bool bSectionValid = moduleSection.IsSectionValid();
 
-	if (moduleSection.IsSectionValid())
-	{
-		nBase = static_cast<uint64_t>(moduleSection.m_pSectionBase);
-		nSize = static_cast<uint64_t>(moduleSection.m_nSectionSize);
-	}
+	const uintptr_t nBase = bSectionValid ? moduleSection.m_pSectionBase : m_ExecutableCode.m_pSectionBase;
+	const uintptr_t nSize = bSectionValid ? moduleSection.m_nSectionSize : m_ExecutableCode.m_nSectionSize;
 
 	const size_t nMaskLen = strlen(szMask);
 	const uint8_t* pData = reinterpret_cast<uint8_t*>(nBase);
-	const uint8_t* pEnd = pData + static_cast<uint32_t>(nSize) - nMaskLen;
+	const uint8_t* pEnd = pData + nSize - nMaskLen;
 
 	int nOccurrenceCount = 0;
 	int nMasks[64]; // 64*16 = enough masks for 1024 bytes.
@@ -133,7 +129,7 @@ CMemory CModule::FindPatternSIMD(const string& svPattern, const ModuleSections_t
 	}
 
 	const pair patternInfo = PatternToMaskedBytes(svPattern);
-	CMemory memory = FindPatternSIMD(patternInfo.first.data(), patternInfo.second.c_str(), moduleSection);
+	const CMemory memory = FindPatternSIMD(patternInfo.first.data(), patternInfo.second.c_str(), moduleSection);
 
 	g_SigCache.AddEntry(svPattern, GetRVA(memory.GetPtr()));
 	return memory;
@@ -159,7 +155,7 @@ CMemory CModule::FindStringReadOnly(const string& svString, bool bNullTerminator
 	const vector<int> vBytes = StringToBytes(svString, bNullTerminator); // Convert our string to a byte array.
 	const pair bytesInfo = std::make_pair(vBytes.size(), vBytes.data()); // Get the size and data of our bytes.
 
-	uint8_t* pBase = reinterpret_cast<uint8_t*>(m_ReadOnlyData.m_pSectionBase); // Get start of .rdata section.
+	const uint8_t* pBase = reinterpret_cast<uint8_t*>(m_ReadOnlyData.m_pSectionBase); // Get start of .rdata section.
 
 	for (size_t i = 0ull; i < m_ReadOnlyData.m_nSectionSize - bytesInfo.first; i++)
 	{
