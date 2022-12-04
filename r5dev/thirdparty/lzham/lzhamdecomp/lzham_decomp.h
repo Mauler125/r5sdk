@@ -11,7 +11,7 @@ namespace lzham
 
    lzham_decompress_state_ptr LZHAM_CDECL lzham_lib_decompress_reinit(lzham_decompress_state_ptr pState, const lzham_decompress_params *pParams);
 
-   lzham_decompress_checksums LZHAM_CDECL lzham_lib_decompress_deinit(lzham_decompress_state_ptr pState);
+   lzham_uint32 LZHAM_CDECL lzham_lib_decompress_deinit(lzham_decompress_state_ptr pState);
 
    lzham_decompress_status_t LZHAM_CDECL lzham_lib_decompress(
       lzham_decompress_state_ptr pState,
@@ -21,7 +21,7 @@ namespace lzham
       
    lzham_decompress_status_t LZHAM_CDECL lzham_lib_decompress_memory(const lzham_decompress_params *pParams, 
       lzham_uint8* pDst_buf, size_t *pDst_len, 
-      const lzham_uint8* pSrc_buf, size_t src_len, lzham_uint32 *pAdler32, lzham_uint32* pCrc32);
+      const lzham_uint8* pSrc_buf, size_t src_len, lzham_uint32 *pAdler32);
 
    int LZHAM_CDECL lzham_lib_z_inflateInit2(lzham_z_streamp pStream, int window_bits);
    int LZHAM_CDECL lzham_lib_z_inflateInit(lzham_z_streamp pStream);
@@ -31,7 +31,7 @@ namespace lzham
    int LZHAM_CDECL lzham_lib_z_uncompress(unsigned char *pDest, lzham_z_ulong *pDest_len, const unsigned char *pSource, lzham_z_ulong source_len);
 
    const char * LZHAM_CDECL lzham_lib_z_error(int err);
-   lzham_z_ulong LZHAM_CDECL lzham_lib_z_adler32(lzham_z_ulong adler, const lzham_uint8*ptr, size_t buf_len);
+   lzham_z_ulong LZHAM_CDECL lzham_lib_z_adler32(lzham_z_ulong adler, const lzham_uint8 *ptr, size_t buf_len);
    lzham_z_ulong LZHAM_CDECL lzham_lib_z_crc32(lzham_z_ulong crc, const lzham_uint8 *ptr, size_t buf_len);
 
 } // namespace lzham

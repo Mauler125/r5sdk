@@ -20,15 +20,15 @@ class VPlatform : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		p_Plat_FloatTime = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x80\x3D\x00\x00\x00\x00\x00\x75\x05\xE8\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x74\x1D"), "xxxxxx?????xxx????xx?????xx");
-		p_Plat_MSTime    = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x80\x3D\x00\x00\x00\x00\x00\x75\x05\xE8\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x74\x2A"), "xxxxxx?????xxx????xx?????xx");
+		p_Plat_FloatTime = g_GameDll.FindPatternSIMD("48 83 EC 28 80 3D ?? ?? ?? ?? ?? 75 05 E8 ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 74 1D");
+		p_Plat_MSTime    = g_GameDll.FindPatternSIMD("48 83 EC 28 80 3D ?? ?? ?? ?? ?? 75 05 E8 ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 74 2A");
 
 		v_Plat_FloatTime = p_Plat_FloatTime.RCast<double(*)(void)>(); /*48 83 EC 28 80 3D ? ? ? ? ? 75 05 E8 ? ? ? ? 80 3D ? ? ? ? ? 74 1D*/
 		v_Plat_MSTime    = p_Plat_MSTime.RCast<uint64_t(*)(void)>();  /*48 83 EC 28 80 3D ? ? ? ? ? 75 05 E8 ? ? ? ? 80 3D ? ? ? ? ? 74 2A*/
 	}
 	virtual void GetVar(void) const
 	{
-		g_flErrorTimeStamp = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x0F\x57\xC0\xF2\x0F\x11\x05\x00\x00\x00\x00\xC3"), "xxxxxxx????x").FindPatternSelf("F2 0F").ResolveRelativeAddressSelf(0x4, 0x8).RCast<double*>();
+		g_flErrorTimeStamp = g_GameDll.FindPatternSIMD("0F 57 C0 F2 0F 11 05 ?? ?? ?? ?? C3").FindPatternSelf("F2 0F").ResolveRelativeAddressSelf(0x4, 0x8).RCast<double*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

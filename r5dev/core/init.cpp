@@ -112,6 +112,7 @@
 #include "game/client/viewrender.h"
 #endif // !DEDICATED
 #include "public/edict.h"
+#include "public/utility/binstream.h"
 #ifndef DEDICATED
 #include "public/idebugoverlay.h"
 #include "inputsystem/inputsystem.h"
@@ -257,11 +258,6 @@ void Systems_Init()
 	spdlog::info("+-------------------------------------------------------------+\n");
 
 	ConVar::Init();
-
-#ifdef DEDICATED
-	Dedicated_Init();
-#endif // DEDICATED
-
 	SpdLog_PostInit();
 
 	std::thread fixed(&CEngineSDK::FixedFrame, g_EngineSDK);
@@ -474,8 +470,13 @@ void CheckCPU() // Respawn's engine and our SDK utilize POPCNT, SSE3 and SSSE3 (
 
 void DetourInit() // Run the sigscan
 {
-	bool bLogAdr = (strstr(GetCommandLineA(), "-sig_toconsole") != nullptr);
+	LPSTR pCommandLine = GetCommandLineA();
+
+	bool bLogAdr = (strstr(pCommandLine, "-sig_toconsole") != nullptr);
 	bool bInitDivider = false;
+
+	g_SigCache.SetDisabled((strstr(pCommandLine, "-nosmap") != nullptr));
+	g_SigCache.LoadCache(SIGDB_FILE);
 
 	for (const IDetour* pDetour : vDetour)
 	{
@@ -493,7 +494,16 @@ void DetourInit() // Run the sigscan
 			pDetour->GetAdr();
 		}
 	}
+
+#ifdef DEDICATED
+	// Must be performed after detour init as we patch instructions which alters the function signatures.
+	Dedicated_Init();
+#endif // DEDICATED
+
+	g_SigCache.WriteCache(SIGDB_FILE);
+	g_SigCache.InvalidateMap();
 }
+
 void DetourAddress() // Test the sigscan results
 {
 	spdlog::debug("+----------------------------------------------------------------+\n");

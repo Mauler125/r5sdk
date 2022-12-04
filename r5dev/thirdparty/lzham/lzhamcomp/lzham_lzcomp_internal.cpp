@@ -69,7 +69,6 @@ namespace lzham
    lzcompressor::lzcompressor() :
       m_src_size(-1),
       m_src_adler32(0),
-      m_src_crc32(0),
       m_step(0),
       m_block_start_dict_ofs(0),
       m_block_index(0),
@@ -298,7 +297,6 @@ namespace lzham
       m_codec.clear();
       m_src_size = -1;
       m_src_adler32 = cInitAdler32;
-      m_src_crc32 = cInitCRC32;
       m_block_buf.clear();
       m_comp_buf.clear();
 
@@ -341,7 +339,6 @@ namespace lzham
       m_stats.clear();
       m_src_size = 0;
       m_src_adler32 = cInitAdler32;
-      m_src_crc32 = cInitCRC32;
       m_block_buf.try_resize(0);
       m_comp_buf.try_resize(0);
 
@@ -571,9 +568,6 @@ namespace lzham
 
       if (!m_codec.encode_bits(m_src_adler32, 32))
          return false;
-
-      if (!m_codec.encode_bits(m_src_crc32, 32))
-          return false;
 
       if (!m_codec.stop_encoding(true))
          return false;
@@ -1547,7 +1541,6 @@ namespace lzham
       m_start_of_block_state = m_state;
 
       m_src_adler32 = adler32(pBuf, buf_len, m_src_adler32);
-      m_src_crc32 = crc32(pBuf, buf_len, m_src_crc32);
 
       m_block_start_dict_ofs = m_accel.get_lookahead_pos() & (m_accel.get_max_dict_size() - 1);
 

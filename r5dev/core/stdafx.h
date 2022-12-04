@@ -86,6 +86,7 @@
 #include "public/utility/utility.h"
 #include "public/utility/memaddr.h"
 #include "public/utility/module.h"
+#include "public/utility/sigcache.h"
 #include "public/utility/httplib.h"
 #include "public/utility/vdf_parser.h"
 
@@ -107,6 +108,7 @@ inline CModule g_RadAudioSystemDll  = CModule("mileswin64.dll");
 #else // No DirectX and Miles imports.
 inline CModule g_GameDll = CModule("r5apex_ds.exe");
 #endif // !DEDICATED
+inline CSigCache g_SigCache;
 
 #define VAR_NAME(varName)  #varName
 

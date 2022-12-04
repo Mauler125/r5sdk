@@ -191,10 +191,10 @@ class VNetChannel : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		p_NetChan_Clear = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x88\x54\x24\x10\x53\x55\x57"), "xxxxxxx");
+		p_NetChan_Clear = g_GameDll.FindPatternSIMD("88 54 24 10 53 55 57");
 		v_NetChan_Clear = p_NetChan_Clear.RCast<void (*)(CNetChan*, bool)>(); /*88 54 24 10 53 55 57*/
 
-		p_NetChan_ProcessMessages = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xFA"), "xxxx?xxxx?xxxx????xxx");
+		p_NetChan_ProcessMessages = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B FA");
 		v_NetChan_ProcessMessages = p_NetChan_ProcessMessages.RCast<bool (*)(CNetChan* pChan, bf_read* pMsg)>();/*48 89 5C 24 ?? 48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B FA*/
 	}
 	virtual void GetVar(void) const { }

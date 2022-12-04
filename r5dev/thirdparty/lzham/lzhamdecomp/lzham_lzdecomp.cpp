@@ -43,7 +43,6 @@ namespace lzham
       uint8 *m_pRaw_decomp_buf;
       uint8 *m_pDecomp_buf;
       uint32 m_decomp_adler32;
-      uint32 m_decomp_crc32;
 
       const uint8 *m_pIn_buf;
       size_t *m_pIn_buf_size;
@@ -105,7 +104,6 @@ namespace lzham
       uint m_seed_bytes_to_ignore_when_flushing;
 
       uint m_file_src_file_adler32;
-      uint m_file_src_file_crc32;
 
       uint m_rep_lit0;
       uint m_match_len;
@@ -193,7 +191,6 @@ namespace lzham
                size_t bytes_to_copy = LZHAM_MIN((size_t)(m_flush_n - copy_ofs), cBytesToMemCpyPerIteration); \
                LZHAM_MEMCPY(m_pOut_buf + copy_ofs, m_pFlush_src + copy_ofs, bytes_to_copy); \
                m_decomp_adler32 = adler32(m_pFlush_src + copy_ofs, bytes_to_copy, m_decomp_adler32); \
-               m_decomp_crc32 = crc32(m_pFlush_src + copy_ofs, bytes_to_copy, m_decomp_crc32); \
                copy_ofs += bytes_to_copy; \
             } \
          } \
@@ -239,7 +236,6 @@ namespace lzham
       m_pOrig_out_buf = NULL;
       m_orig_out_buf_size = 0;
       m_decomp_adler32 = cInitAdler32;
-      m_decomp_crc32 = cInitCRC32;
       m_seed_bytes_to_ignore_when_flushing = 0;
       
       m_z_last_status = LZHAM_DECOMP_STATUS_NOT_FINISHED;
@@ -1142,23 +1138,6 @@ namespace lzham
          {
              m_decomp_adler32 = m_file_src_file_adler32;
          }
-         if (m_params.m_decompress_flags & LZHAM_DECOMP_FLAG_COMPUTE_CRC32)
-         {
-             if (unbuffered)
-             {
-                 m_decomp_crc32 = crc32(pDst, dst_ofs, cInitCRC32);
-             }
-
-             //if (m_file_src_file_crc32 != m_decomp_crc32)
-             //{
-             //    printf("m_file_src_file_crc32 %zX\n", m_file_src_file_crc32);
-             //    m_status = LZHAM_DECOMP_STATUS_FAILED_CRC32;
-             //}
-         }
-         else
-         {
-             m_decomp_crc32 = m_file_src_file_crc32;
-         }
       }
 
       LZHAM_SYMBOL_CODEC_DECODE_END(codec);
@@ -1273,20 +1252,18 @@ namespace lzham
       return pState;
    }
 
-   lzham_decompress_checksums LZHAM_CDECL lzham_lib_decompress_deinit(lzham_decompress_state_ptr p)
+   lzham_uint32 LZHAM_CDECL lzham_lib_decompress_deinit(lzham_decompress_state_ptr p)
    {
-      lzham_decompress_checksums checksums{};
       lzham_decompressor *pState = static_cast<lzham_decompressor *>(p);
       if (!pState)
-         return checksums;
+         return 0;
 
-      checksums.adler32 = pState->m_decomp_adler32;
-      checksums.crc32 = pState->m_decomp_crc32;
+      uint32 adler32 = pState->m_decomp_adler32;
 
       lzham_free(pState->m_pRaw_decomp_buf);
       lzham_delete(pState);
 
-      return checksums;
+      return adler32;
    }
 
    lzham_decompress_status_t LZHAM_CDECL lzham_lib_decompress(
@@ -1343,7 +1320,7 @@ namespace lzham
       return status;
    }
 
-   lzham_decompress_status_t LZHAM_CDECL lzham_lib_decompress_memory(const lzham_decompress_params *pParams, lzham_uint8* pDst_buf, size_t *pDst_len, const lzham_uint8* pSrc_buf, size_t src_len, lzham_uint32 *pAdler32, lzham_uint32 *pCrc32)
+   lzham_decompress_status_t LZHAM_CDECL lzham_lib_decompress_memory(const lzham_decompress_params *pParams, lzham_uint8* pDst_buf, size_t *pDst_len, const lzham_uint8* pSrc_buf, size_t src_len, lzham_uint32 *pAdler32)
    {
       if (!pParams)
          return LZHAM_DECOMP_STATUS_INVALID_PARAMETER;
@@ -1356,13 +1333,10 @@ namespace lzham
          return LZHAM_DECOMP_STATUS_FAILED_INITIALIZING;
 
       lzham_decompress_status_t status = lzham_lib_decompress(pState, pSrc_buf, &src_len, pDst_buf, pDst_len, true);
-      lzham_decompress_checksums checksums = lzham_lib_decompress_deinit(pState);
+      lzham_uint32 adler32 = lzham_lib_decompress_deinit(pState);
 
       if (pAdler32)
-         *pAdler32 = checksums.adler32;
-      if (pCrc32)
-          *pCrc32 = checksums.crc32;
-
+         *pAdler32 = adler32;
 
       return status;
    }
@@ -1468,7 +1442,6 @@ namespace lzham
          pStream->avail_in -= (uint)in_bytes;
          pStream->total_in += (uint)in_bytes; 
          pStream->adler32 = pDecomp->m_decomp_adler32;
-         pStream->crc32 = pDecomp->m_decomp_crc32;
 
          pStream->next_out += (uint)out_bytes;
          pStream->avail_out -= (uint)out_bytes;
@@ -1510,10 +1483,7 @@ namespace lzham
       lzham_decompress_state_ptr pState = static_cast<lzham_decompress_state_ptr>(pStream->state);
       if (pState)
       {
-          lzham_decompress_checksums checksums = lzham_lib_decompress_deinit(pState);
-
-         pStream->adler32 = checksums.adler32;
-         pStream->crc32 = checksums.crc32;
+         pStream->adler32 = lzham_lib_decompress_deinit(pState);
          pStream->state = NULL;
       }
 

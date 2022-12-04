@@ -82,12 +82,12 @@ class VBaseFileSystem : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		p_CBaseFileSystem_Warning             = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x89\x4C\x24\x20\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x48"), "xxxxxx??????????x");
-		p_CBaseFileSystem_LoadFromVPK         = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x49\x8B\xC0\x4C\x8D\x8C\x24\x00\x00\x00\x00"), "xxxx?xxxx????xxxxxxx????");
-		p_CBaseFileSystem_LoadFromCache       = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x81\xEC\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x49\x8B\xD8"), "xxxxx????xx?????xxx");
-		p_CBaseFileSystem_MountVPKFile        = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xF9\x4C\x8D\x05\x00\x00\x00\x00"), "xxxx?xxxx?xxxx????xxxxxx????");
-		p_CBaseFileSystem_UnmountVPKFile      = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\xDA\x48\x8B\xF9\x48\x8B\xCB\x48\x8D\x15\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x85\xC0"), "xxxx?xxxxxxxxxxxxxxxxx????x????xxx");
-		p_CBaseFileSystem_GetMountedVPKHandle = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x74\x24\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xF9\x4C\x8D\x05\x00\x00\x00\x00"), "xxxx?xxxx????xxxxxx????");
+		p_CBaseFileSystem_Warning             = g_GameDll.FindPatternSIMD("4C 89 4C 24 20 C3 CC CC CC CC CC CC CC CC CC CC 48");
+		p_CBaseFileSystem_LoadFromVPK         = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 57 48 81 EC ?? ?? ?? ?? 49 8B C0 4C 8D 8C 24 ?? ?? ?? ??");
+		p_CBaseFileSystem_LoadFromCache       = g_GameDll.FindPatternSIMD("40 53 48 81 EC ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 49 8B D8");
+		p_CBaseFileSystem_MountVPKFile        = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B F9 4C 8D 05 ?? ?? ?? ??");
+		p_CBaseFileSystem_UnmountVPKFile      = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 57 48 83 EC 20 48 8B DA 48 8B F9 48 8B CB 48 8D 15 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 85 C0");
+		p_CBaseFileSystem_GetMountedVPKHandle = g_GameDll.FindPatternSIMD("48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B F9 4C 8D 05 ?? ?? ?? ??");
 
 		v_CBaseFileSystem_Warning             = p_CBaseFileSystem_Warning.RCast<void(*)(CBaseFileSystem*, FileWarningLevel_t, const char*, ...)>();  /*4C 89 4C 24 20 C3 ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 48*/
 		v_CBaseFileSystem_LoadFromVPK         = p_CBaseFileSystem_LoadFromVPK.RCast<FileHandle_t(*)(CBaseFileSystem*, FileHandle_t, const char*)>(); /*48 89 5C 24 ?? 57 48 81 EC ?? ?? ?? ?? 49 8B C0 4C 8D 8C 24 ?? ?? ?? ??*/
@@ -98,8 +98,8 @@ class VBaseFileSystem : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		g_pFileSystem = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x0D\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\xE9\x00\x00\x00\x00"),
-			"xxx????xxx????xxx????xxx????xxx????x????").FindPattern("48 89", CMemory::Direction::DOWN, 512, 2).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CBaseFileSystem*>();
+		g_pFileSystem = g_GameDll.FindPatternSIMD("48 8D 05 ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? E9 ?? ?? ?? ??")
+			.FindPattern("48 89", CMemory::Direction::DOWN, 512, 2).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CBaseFileSystem*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

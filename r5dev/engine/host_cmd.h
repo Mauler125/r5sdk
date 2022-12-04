@@ -52,18 +52,18 @@ class VHostCmd : public IDetour
 	virtual void GetFun(void) const
 	{
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_Host_Init = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xD9\xFF\x15\x00\x00\x00\x00"), "xxxx?xxxx?xxxx?xxxxxxxxxxxx????xxxxx????");
-		p_Host_NewGame = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x56\x41\x54\x41\x57\x48\x81\xEC\x00\x00\x00\x00\xF2\x0F\x10\x05\x00\x00\x00\x00"), "xxxxxxxxxxx????xxxx????"); /*48 8B C4 56 41 54 41 57 48 81 EC ? ? ? ? F2 0F 10 05 ? ? ? ?*/
-		p_Host_ChangeLevel = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x56\x41\x56\x48\x81\xEC\x00\x00\x00\x00\x49\x8B\xD8"), "xxxxxxxx????xxx");
-		p_SetLaunchOptions = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x6C\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\xE9\x48\x8B\x0D\x00\x00\x00\x00"), "xxxx?xxxxxxxxxxx????");
+		p_Host_Init = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 81 EC ?? ?? ?? ?? 48 8B D9 FF 15 ?? ?? ?? ??");
+		p_Host_NewGame = g_GameDll.FindPatternSIMD("48 8B C4 56 41 54 41 57 48 81 EC ?? ?? ?? ?? F2 0F 10 05 ?? ?? ?? ??"); /*48 8B C4 56 41 54 41 57 48 81 EC ? ? ? ? F2 0F 10 05 ? ? ? ?*/
+		p_Host_ChangeLevel = g_GameDll.FindPatternSIMD("40 53 56 41 56 48 81 EC ?? ?? ?? ?? 49 8B D8");
+		p_SetLaunchOptions = g_GameDll.FindPatternSIMD("48 89 6C 24 ?? 57 48 83 EC 20 48 8B E9 48 8B 0D ?? ?? ?? ??");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_Host_Init = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\xB8\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x2B\xE0\x48\x8B\xD9"), "xxxx?xxxx?xxxx?xxxxxxxxxxxxx????x????x????xxxxxx");
-		p_Host_NewGame = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x00\x41\x54\x41\x55\x48\x81\xEC\x70\x04\x00\x00\xF2\x0F\x10\x05\x00\x00\x00\x0B"), "xxx?xxxxxxxxxxxxxxx???x");
-		p_Host_ChangeLevel = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x56\x57\x41\x56\x48\x81\xEC\x00\x00\x00\x00"), "xxxxxxxx????");
-		p_SetLaunchOptions = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\x1D\x00\x00\x00\x00\x48\x8B\xE9\x48\x85\xDB"), "xxxx?xxxx?xxxxxxxx????xxxxxx");
+		p_Host_Init = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B D9");
+		p_Host_NewGame = g_GameDll.FindPatternSIMD("48 8B C4 ?? 41 54 41 55 48 81 EC 70 04 ?? ?? F2 0F 10 05 ?? ?? ?? 0B");
+		p_Host_ChangeLevel = g_GameDll.FindPatternSIMD("40 56 57 41 56 48 81 EC ?? ?? ?? ??");
+		p_SetLaunchOptions = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 57 48 83 EC 20 48 8B 1D ?? ?? ?? ?? 48 8B E9 48 85 DB");
 #endif
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
-		p_DFS_InitializeFeatureFlagDefinitions = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x55\x53\x48\x8D\x68\xE8"), "xxxxxxxxx");
+		p_DFS_InitializeFeatureFlagDefinitions = g_GameDll.FindPatternSIMD("48 8B C4 55 53 48 8D 68 E8");
 		v_DFS_InitializeFeatureFlagDefinitions = p_DFS_InitializeFeatureFlagDefinitions.RCast<bool (*)(const char*)>(); /*48 8B C4 55 53 48 8D 68 E8*/
 #endif // !(GAMEDLL_S0) || !(GAMEDLL_S1) || !(GAMEDLL_S2)
 		Host_Init = p_Host_Init.RCast<void* (*)(bool*)>();                                        /*48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B D9*/

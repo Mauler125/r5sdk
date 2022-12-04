@@ -678,6 +678,12 @@
     <ClCompile Include="..\public\networkvar.cpp">
       <Filter>sdk\public</Filter>
     </ClCompile>
+    <ClCompile Include="..\protoc\sig_map.pb.cc">
+      <Filter>thirdparty\protobuf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\utility\sigcache.cpp">
+      <Filter>sdk\public\utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1951,6 +1957,12 @@
     </ClInclude>
     <ClInclude Include="..\public\dt_send.h">
       <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\protoc\sig_map.pb.h">
+      <Filter>thirdparty\protobuf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\utility\sigcache.h">
+      <Filter>sdk\public\utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

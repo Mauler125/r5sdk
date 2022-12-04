@@ -25,12 +25,12 @@ class VGL_RSurf : public IDetour
 	virtual void GetFun(void) const
 	{
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		P_DrawWorldMeshes              = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x89\x48\x08\x53\x48\x83\xEC\x70"), "xxxxxxxxxxxx");
+		P_DrawWorldMeshes              = g_GameDll.FindPatternSIMD("48 8B C4 48 89 48 08 53 48 83 EC 70");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		P_DrawWorldMeshes              = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x89\x48\x08\x53\x57\x41\x55"), "xxxxxxxxxxx");
+		P_DrawWorldMeshes              = g_GameDll.FindPatternSIMD("48 8B C4 48 89 48 08 53 57 41 55");
 #endif
-		P_DrawWorldMeshesDepthOnly     = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x56\x57\xB8\x00\x00\x00\x00"), "xxxx????");
-		P_DrawWorldMeshesDepthAtTheEnd = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\x48\x8B\x0D\x00\x00\x00\x00\x41\x8B\xF9"), "xxxx?xxxx?xxxxxxxx????xxx");
+		P_DrawWorldMeshesDepthOnly     = g_GameDll.FindPatternSIMD("40 56 57 B8 ?? ?? ?? ??");
+		P_DrawWorldMeshesDepthAtTheEnd = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B 0D ?? ?? ?? ?? 41 8B F9");
 
 		V_DrawWorldMeshes              = P_DrawWorldMeshes.RCast<void* (*)(void*, void*, DrawWorldLists_t)>();                     /*48 8B C4 48 89 48 08 53 57 41 55*/
 		V_DrawWorldMeshesDepthOnly     = P_DrawWorldMeshesDepthOnly.RCast<void* (*)(void*, DrawWorldLists_t)>();                   /*40 56 57 B8 ?? ?? ?? ??*/

@@ -98,23 +98,23 @@ class VModelLoader : public IDetour
 	virtual void GetFun(void) const
 	{
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_CModelLoader__FindModel         = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x55\x41\x55\x41\x56\x48\x8D\xAC\x24\x00\x00\x00\x00"), "xxxxxxxxxx????");
-		p_CModelLoader__LoadModel         = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x57\x41\x56\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xFA"), "xxxxxxxx????xxx");
-		p_CModelLoader__UnloadModel       = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x89\x58\x18\x55\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xDA"), "xxxxxxxxxxx????xxx");
-		p_CModelLoader__Studio_LoadModel  = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x56\x48\x8D\xAC\x24\x00\x00\x00\x00"), "xxxx?xxxxxxxxxxx????");
-		p_CModelLoader__Map_LoadModelGuts = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x54\x24\x00\x48\x89\x4C\x24\x00\x55\x53\x41\x54\x41\x55\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\xFF\x05\x00\x00\x00\x00"), "xxxx?xxxx?xxxxxxxxxx????xxx????xx????"); // BSP.
-		p_CModelLoader__Map_IsValid       = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x53\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xDA"), "xxxxxxx????xxx");
-		p_GetSpriteInfo                   = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x30\x4C\x8B\xAC\x24\x00\x00\x00\x00\xBE\x00\x00\x00\x00"), "xxxx?xxxx?xxxx?xxxxxxxxxxxxxxxxx????x????");
+		p_CModelLoader__FindModel         = g_GameDll.FindPatternSIMD("40 55 41 55 41 56 48 8D AC 24 ?? ?? ?? ??");
+		p_CModelLoader__LoadModel         = g_GameDll.FindPatternSIMD("40 53 57 41 56 48 81 EC ?? ?? ?? ?? 48 8B FA");
+		p_CModelLoader__UnloadModel       = g_GameDll.FindPatternSIMD("48 8B C4 48 89 58 18 55 48 81 EC ?? ?? ?? ?? 48 8B DA");
+		p_CModelLoader__Studio_LoadModel  = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 57 41 54 41 56 48 8D AC 24 ?? ?? ?? ??");
+		p_CModelLoader__Map_LoadModelGuts = g_GameDll.FindPatternSIMD("48 89 54 24 ?? 48 89 4C 24 ?? 55 53 41 54 41 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? FF 05 ?? ?? ?? ??"); // BSP.
+		p_CModelLoader__Map_IsValid       = g_GameDll.FindPatternSIMD("48 8B C4 53 48 81 EC ?? ?? ?? ?? 48 8B DA");
+		p_GetSpriteInfo                   = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 30 4C 8B AC 24 ?? ?? ?? ?? BE ?? ?? ?? ??");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_CModelLoader__FindModel         = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x55\x41\x57\x48\x83\xEC\x48\x80\x3A\x2A"), "xxxxxxxxxxx");
-		p_CModelLoader__LoadModel         = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x57\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00"), "xxxxxxxx????xxx????");
-		p_CModelLoader__UnloadModel       = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xF9\x33\xED"), "xxxx?xxxx?xxxx????xxxxx");
-		p_CModelLoader__Studio_LoadModel  = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x57\x48\x81\xEC\x00\x00\x00\x00"), "xxxx?xxxxxxxxxx????");
-		p_CModelLoader__Map_LoadModelGuts = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x54\x24\x00\x48\x89\x4C\x24\x00\x55\x53\x56\x57\x41\x54\x41\x55\x41\x57"), "xxxx?xxxx?xxxxxxxxxx"); // BSP.
-		p_CModelLoader__Map_IsValid       = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xDA\x48\x85\xD2\x0F\x84\x00\x00\x00\x00\x80\x3A\x00\x0F\x84\x00\x00\x00\x00\x4C\x8B\xCA"), "xxxxx????xxxxxxxx????xxxxx????xxx");
-		p_GetSpriteInfo                   = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x30\x4C\x8B\xBC\x24\x00\x00\x00\x00"), "xxxx?xxxx?xxxx?xxxxxxxxxxxxxxxxx????");
+		p_CModelLoader__FindModel         = g_GameDll.FindPatternSIMD("40 55 41 57 48 83 EC 48 80 3A 2A");
+		p_CModelLoader__LoadModel         = g_GameDll.FindPatternSIMD("40 53 57 41 57 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ??");
+		p_CModelLoader__UnloadModel       = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B F9 33 ED");
+		p_CModelLoader__Studio_LoadModel  = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 57 41 54 41 57 48 81 EC ?? ?? ?? ??");
+		p_CModelLoader__Map_LoadModelGuts = g_GameDll.FindPatternSIMD("48 89 54 24 ?? 48 89 4C 24 ?? 55 53 56 57 41 54 41 55 41 57"); // BSP.
+		p_CModelLoader__Map_IsValid       = g_GameDll.FindPatternSIMD("40 53 48 81 EC ?? ?? ?? ?? 48 8B DA 48 85 D2 0F 84 ?? ?? ?? ?? 80 3A ?? 0F 84 ?? ?? ?? ?? 4C 8B CA");
+		p_GetSpriteInfo                   = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 30 4C 8B BC 24 ?? ?? ?? ??");
 #endif
-		p_BuildSpriteLoadName             = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x81\xEC\x00\x00\x00\x00\x4D\x8B\xF1\x48\x8B\xF2"), "xxxx?xxxx?xxxx?xxxx?xxxxx????xxxxxx");
+		p_BuildSpriteLoadName             = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC ?? ?? ?? ?? 4D 8B F1 48 8B F2");
 
 		CModelLoader__FindModel         = p_CModelLoader__FindModel.RCast<void* (*)(CModelLoader*, const char*)>();
 		CModelLoader__LoadModel         = p_CModelLoader__LoadModel.RCast<void(*)(CModelLoader*, model_t*)>();
@@ -128,8 +128,7 @@ class VModelLoader : public IDetour
 	virtual void GetVar(void) const
 	{
 		g_pModelLoader = g_GameDll.FindPatternSIMD(
-			reinterpret_cast<rsig_t>("\x48\x89\x4C\x24\x00\x53\x55\x56\x41\x54\x41\x55\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00"),
-			"xxxx?xxxxxxxxxxxxxx????").FindPatternSelf("48 ?? 0D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(3, 7).RCast<CModelLoader*>();
+			"48 89 4C 24 ?? 53 55 56 41 54 41 55 41 56 41 57 48 81 EC ?? ?? ?? ??").FindPatternSelf("48 ?? 0D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(3, 7).RCast<CModelLoader*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

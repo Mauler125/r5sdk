@@ -52,7 +52,7 @@ class VDebugOverlayBase : public IDetour
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
-		g_pDebugOverlay = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8D\x05\x00\x00\x00\x00\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x48\x8D\x05\x00\x00\x00\x00\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x48\x83\xEC\x28\xF3\x0F\x10\x41\x00"), "xxx????xxxxxxxxxxxx????xxxxxxxxxxxxxxxxx?")
+		g_pDebugOverlay = g_GameDll.FindPatternSIMD("48 8D 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 48 8D 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 48 83 EC 28 F3 0F 10 41 ??")
 			.ResolveRelativeAddressSelf(0x3, 0x7).RCast<CIVDebugOverlay*>();
 	}
 	virtual void GetCon(void) const { }

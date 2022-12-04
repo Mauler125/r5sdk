@@ -24,7 +24,7 @@ extern "C" LZHAM_DLL_EXPORT lzham_decompress_state_ptr lzham_decompress_reinit(l
    return lzham::lzham_lib_decompress_reinit(p, pParams);
 }
 
-extern "C" LZHAM_DLL_EXPORT lzham_decompress_checksums lzham_decompress_deinit(lzham_decompress_state_ptr p)
+extern "C" LZHAM_DLL_EXPORT lzham_uint32 lzham_decompress_deinit(lzham_decompress_state_ptr p)
 {
    return lzham::lzham_lib_decompress_deinit(p);
 }
@@ -38,9 +38,9 @@ extern "C" LZHAM_DLL_EXPORT lzham_decompress_status_t lzham_decompress(
    return lzham::lzham_lib_decompress(p, pIn_buf, pIn_buf_size, pOut_buf, pOut_buf_size, no_more_input_bytes_flag);
 }   
 
-extern "C" LZHAM_DLL_EXPORT lzham_decompress_status_t lzham_decompress_memory(const lzham_decompress_params *pParams, lzham_uint8* pDst_buf, size_t *pDst_len, const lzham_uint8* pSrc_buf, size_t src_len, lzham_uint32 *pAdler32, lzham_uint32 *pCrc32)
+extern "C" LZHAM_DLL_EXPORT lzham_decompress_status_t lzham_decompress_memory(const lzham_decompress_params *pParams, lzham_uint8* pDst_buf, size_t *pDst_len, const lzham_uint8* pSrc_buf, size_t src_len, lzham_uint32 *pAdler32)
 {
-   return lzham::lzham_lib_decompress_memory(pParams, pDst_buf, pDst_len, pSrc_buf, src_len, pAdler32, pCrc32);
+   return lzham::lzham_lib_decompress_memory(pParams, pDst_buf, pDst_len, pSrc_buf, src_len, pAdler32);
 }
 
 extern "C" LZHAM_DLL_EXPORT lzham_compress_state_ptr lzham_compress_init(const lzham_compress_params *pParams)
@@ -53,7 +53,7 @@ extern "C" LZHAM_DLL_EXPORT lzham_compress_state_ptr lzham_compress_reinit(lzham
    return lzham::lzham_lib_compress_reinit(p);
 }
 
-extern "C" LZHAM_DLL_EXPORT lzham_compress_checksums lzham_compress_deinit(lzham_compress_state_ptr p)
+extern "C" LZHAM_DLL_EXPORT lzham_uint32 lzham_compress_deinit(lzham_compress_state_ptr p)
 {
    return lzham::lzham_lib_compress_deinit(p);
 }
@@ -76,9 +76,9 @@ extern "C" LZHAM_DLL_EXPORT lzham_compress_status_t lzham_compress2(
    return lzham::lzham_lib_compress2(p, pIn_buf, pIn_buf_size, pOut_buf, pOut_buf_size, flush_type);
 }   
 
-extern "C" LZHAM_DLL_EXPORT lzham_compress_status_t lzham_compress_memory(const lzham_compress_params *pParams, lzham_uint8* pDst_buf, size_t *pDst_len, const lzham_uint8* pSrc_buf, size_t src_len, lzham_uint32 *pAdler32, lzham_uint32 * pCrc32)
+extern "C" LZHAM_DLL_EXPORT lzham_compress_status_t lzham_compress_memory(const lzham_compress_params *pParams, lzham_uint8* pDst_buf, size_t *pDst_len, const lzham_uint8* pSrc_buf, size_t src_len, lzham_uint32 *pAdler32)
 {
-   return lzham::lzham_lib_compress_memory(pParams, pDst_buf, pDst_len, pSrc_buf, src_len, pAdler32, pCrc32);
+   return lzham::lzham_lib_compress_memory(pParams, pDst_buf, pDst_len, pSrc_buf, src_len, pAdler32);
 }
 
 // ----------------- zlib-style API's
@@ -88,7 +88,7 @@ extern "C" LZHAM_DLL_EXPORT const char *lzham_z_version(void)
    return LZHAM_Z_VERSION;
 }
 
-extern "C" lzham_z_ulong LZHAM_DLL_EXPORT lzham_z_adler32(lzham_z_ulong adler, const unsigned char *ptr, size_t buf_len)
+extern "C" lzham_z_ulong LZHAM_DLL_EXPORT lzham_z_adler32(lzham_z_ulong adler, const lzham_uint8 *ptr, size_t buf_len)
 {
    return lzham::lzham_lib_z_adler32(adler, ptr, buf_len);
 }

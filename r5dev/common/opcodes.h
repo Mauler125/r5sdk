@@ -123,94 +123,94 @@ class VOpcodes : public IDetour
 	{
 #ifdef GAMEDLL_S3
 		/* -------------- OTHER ------------------------------------------------------------------------------------------------------------------------------------------------- */
-		dst007 = /*0x14028F3B0*/ g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x44\x89\x40\x18\x48\x89\x50\x10\x55\x53\x56\x57\x41"), "xxxxxxxxxxxxxxxx");
-		dst008 = /*0x140E3E110*/ g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x78\x48\x8B\x84\x24\x00\x00\x00\x00\x4D\x8B\xD8\x00"), "xxxxxxxx????xxx?");
+		dst007 = /*0x14028F3B0*/ g_GameDll.FindPatternSIMD("48 8B C4 44 89 40 18 48 89 50 10 55 53 56 57 41");
+		dst008 = /*0x140E3E110*/ g_GameDll.FindPatternSIMD("48 83 EC 78 48 8B 84 24 ?? ?? ?? ?? 4D 8B D8 ??");
 		/* -------------- ------- ----------------------------------------------------------------------------------------------------------------------------------------------- */
 #endif // GAMEDLL_S3
 
 
 		//-------------------------------------------------------------------------
-		CShaderSystem__Init = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\xC6\x41\x10\x00"), "xxxx?xxxx?xxxxxxxxx");
+		CShaderSystem__Init = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 C6 41 10 ??");
 		// 0x1403DF870 // 48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 C6 41 10 00 //
 
 		//-------------------------------------------------------------------------
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		CVGui__RunFrame = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x55\x56\x57\x48\x83\xEC\x20\x0F\xB6\x69\x5C"), "xxxx?xxxxxxxxxxx");
+		CVGui__RunFrame = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 57 48 83 EC 20 0F B6 69 5C");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		CVGui__RunFrame = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x57\x48\x83\xEC\x20\x48\x89\x5C\x24\x00\x48\x8B\xF9\x48\x89\x6C\x24\x00\x0F\xB6\x69\x5C"), "xxxxxxxxxx?xxxxxxx?xxxx");
+		CVGui__RunFrame = g_GameDll.FindPatternSIMD("40 57 48 83 EC 20 48 89 5C 24 ?? 48 8B F9 48 89 6C 24 ?? 0F B6 69 5C");
 #endif
 
 		//-------------------------------------------------------------------------
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		CEngineVGui__Shutdown = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x4C\x24\x00\x57\x41\x54\x48\x83\xEC\x38"), "xxxx?xxxxxxx");
+		CEngineVGui__Shutdown = g_GameDll.FindPatternSIMD("48 89 4C 24 ?? 57 41 54 48 83 EC 38");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		CEngineVGui__Shutdown = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\x80\x3D\x00\x00\x00\x00\x00\x48\x8B\xD9"), "xxxx?xxxx?xxxxxxx?????xxx");
+		CEngineVGui__Shutdown = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 80 3D ?? ?? ?? ?? ?? 48 8B D9");
 #endif // 0x140282C90 // 48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 80 3D ? ? ? ? ? 48 8B D9 //
-		CEngineVGui__ActivateGameUI = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\xF6\x81\x00\x00\x00\x00\x00\x48\x8B\xD9\x74\x08"), "xxxxxxxx?????xxxxx");
+		CEngineVGui__ActivateGameUI = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 F6 81 ?? ?? ?? ?? ?? 48 8B D9 74 08");
 		// 
 
 		//-------------------------------------------------------------------------
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		CInputSystem__RunFrameIME = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x57\x41\x55"), "xxxxxx");
+		CInputSystem__RunFrameIME = g_GameDll.FindPatternSIMD("48 8B C4 57 41 55");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		CInputSystem__RunFrameIME = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x57\x41\x54\x41\x55\x48\x83\xEC\x70"), "xxxxxxxxxx");
+		CInputSystem__RunFrameIME = g_GameDll.FindPatternSIMD("40 57 41 54 41 55 48 83 EC 70");
 #endif
 
 		//-------------------------------------------------------------------------
-		Sys_InitGame = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x80\x3D\x00\x00\x00\x00\x00\x41\x8B\xD8"), "xxxx?xxxx????xx?????xxx");
+		Sys_InitGame = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 57 48 81 EC ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 41 8B D8");
 		// 0x1402958D0 // 48 89 5C 24 ? 57 48 81 EC ? ? ? ? 80 3D ? ? ? ? ? 41 8B D8 //
 
 		//-------------------------------------------------------------------------
-		gHost_Init_1 = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x41\x56\x48\x81\xEC\x00\x00\x00\x00\x45\x33\xF6"), "xxxxxxxx????xxx"); // server Host_Init()?
+		gHost_Init_1 = g_GameDll.FindPatternSIMD("48 8B C4 41 56 48 81 EC ?? ?? ?? ?? 45 33 F6"); // server Host_Init()?
 		// 0x140237B00 // 48 8B C4 41 56 48 81 EC ? ? ? ? 45 33 F6 //
 
-		gHost_Init_2 = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x88\x4C\x24\x08\x53\x55\x56\x57\x48\x83\xEC\x68"), "xxxxxxxxxxxx"); // client Host_Init()?
+		gHost_Init_2 = g_GameDll.FindPatternSIMD("88 4C 24 08 53 55 56 57 48 83 EC 68"); // client Host_Init()?
 		// 0x140236640 // 88 4C 24 08 53 55 56 57 48 83 EC 68 //
 
 		//-------------------------------------------------------------------------
-		Host_Shutdown = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x83\xEC\x00\x80\x3D\x00\x00\x00\x00\x00\x0F\x85\x00\x00\x00\x00\x8B\x15\x00\x00\x00\x00"), "xxxxxx?xx?????xx????xx????");
+		Host_Shutdown = g_GameDll.FindPatternSIMD("48 8B C4 48 83 EC ?? 80 3D ?? ?? ?? ?? ?? 0F 85 ?? ?? ?? ?? 8B 15 ?? ?? ?? ??");
 		// 0x140239620 // 48 8B C4 48 83 EC ?? 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 8B 15 ? ? ? ? //
 
 		//-------------------------------------------------------------------------
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		Host_Disconnect = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x38\x48\x89\x7C\x24\x00\x0F\xB6\xF9"), "xxxxxxxx?xxx");
+		Host_Disconnect = g_GameDll.FindPatternSIMD("48 83 EC 38 48 89 7C 24 ?? 0F B6 F9");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		Host_Disconnect = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x30\x0F\xB6\xD9"), "xxxxxxxxx");
+		Host_Disconnect = g_GameDll.FindPatternSIMD("40 53 48 83 EC 30 0F B6 D9");
 #endif // 0x14023CCA0 // 40 53 48 83 EC 30 0F B6 D9 //
 
 		//-------------------------------------------------------------------------
 #ifndef CLIENT_DLL
-		Server_S2C_CONNECT_1 = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x3B\x05\x00\x00\x00\x00\x74\x0C"), "xxx????xx");
+		Server_S2C_CONNECT_1 = g_GameDll.FindPatternSIMD("48 3B 05 ?? ?? ?? ?? 74 0C");
 #endif // !CLIENT_DLL
 
 		//-------------------------------------------------------------------------
-		UpdateMaterialSystemConfig = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x20\x80\x3D\x00\x00\x00\x00\x00\x0F\x84\x00\x00\x00\x00"), "xxxx?xxxxxxx?????xx????");
-		UpdateCurrentVideoConfig = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x55\x00\x41\x56\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x4C\x8B\xF1"), "xx?xxxxxx????xxx????xxx????xxx");
-		HandleConfigFile = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x56\x48\x81\xEC\x00\x00\x00\x00\x8B\xF1"), "xxxxx????xx");
-		ResetPreviousGameState = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xE8\x00\x00\x00\x00\x44\x89\x3D\x00\x00\x00\x00\x00\x8B\x00\x24\x00"), "x????xxx?????x?x?").ResolveRelativeAddressSelf(0x1, 0x5);
+		UpdateMaterialSystemConfig = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 57 48 83 EC 20 80 3D ?? ?? ?? ?? ?? 0F 84 ?? ?? ?? ??");
+		UpdateCurrentVideoConfig = g_GameDll.FindPatternSIMD("40 55 ?? 41 56 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 4C 8B F1");
+		HandleConfigFile = g_GameDll.FindPatternSIMD("40 56 48 81 EC ?? ?? ?? ?? 8B F1");
+		ResetPreviousGameState = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 44 89 3D ?? ?? ?? ?? ?? 8B ?? 24 ??").ResolveRelativeAddressSelf(0x1, 0x5);
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
-		LoadPlayerConfig = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x81\xEC\x00\x00\x00\x00\x48\x83\x3D\x00\x00\x00\x00\x00\x75\x0C"), "xxx????xxx?????xx");
+		LoadPlayerConfig = g_GameDll.FindPatternSIMD("48 81 EC ?? ?? ?? ?? 48 83 3D ?? ?? ?? ?? ?? 75 0C");
 #elif defined (GAMEDLL_S3)
-		LoadPlayerConfig = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x89\x4C\x24\x08\x48\x81\xEC\x00\x00\x00\x00\x48\x83\x3D\x00\x00\x00\x00\x00"), "xxxxxxx????xxx?????");
+		LoadPlayerConfig = g_GameDll.FindPatternSIMD("89 4C 24 08 48 81 EC ?? ?? ?? ?? 48 83 3D ?? ?? ?? ?? ??");
 #endif
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		GetEngineClientThread = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x65\x48\x8B\x04\x25\x00\x00\x00\x00\x48\x8B\xD9\xB9\x00\x00\x00\x00\x48\x8B\x10\x8B\x04\x11\x39\x05\x00\x00\x00\x00\x7F\x15"), "xxxxxxxxxxx????xxxx????xxxxxxxx????xx");
+		GetEngineClientThread = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 65 48 8B 04 25 ?? ?? ?? ?? 48 8B D9 B9 ?? ?? ?? ?? 48 8B 10 8B 04 11 39 05 ?? ?? ?? ?? 7F 15");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		GetEngineClientThread = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x65\x48\x8B\x04\x25\x00\x00\x00\x00\x48\x8B\xD9\xB9\x00\x00\x00\x00\x48\x8B\x10\x8B\x04\x11\x39\x05\x00\x00\x00\x00\x7F\x21"), "xxxxxxxxxxx????xxxx????xxxxxxxx????xx");
+		GetEngineClientThread = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 65 48 8B 04 25 ?? ?? ?? ?? 48 8B D9 B9 ?? ?? ?? ?? 48 8B 10 8B 04 11 39 05 ?? ?? ?? ?? 7F 21");
 #endif
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		MatchMaking_Frame = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x55\x56\x41\x54\x41\x55\x48\x8D\xAC\x24\x00\x00\x00\x00"), "xxxxxxxxxxx????");
+		MatchMaking_Frame = g_GameDll.FindPatternSIMD("40 55 56 41 54 41 55 48 8D AC 24 ?? ?? ?? ??");
 #elif defined (GAMEDLL_S2)
-		MatchMaking_Frame = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x74\x24\x00\x55\x41\x54\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00"), "xxxx?xxxxxxxxx????");
+		MatchMaking_Frame = g_GameDll.FindPatternSIMD("48 89 74 24 ?? 55 41 54 41 57 48 8D AC 24 ?? ?? ?? ??");
 #elif defined (GAMEDLL_S3)
-		MatchMaking_Frame = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x55\x48\x8D\xA8\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x89\x78\x18"), "xxxxxxx????xxx????xxxx");
+		MatchMaking_Frame = g_GameDll.FindPatternSIMD("48 8B C4 55 48 8D A8 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 48 89 78 18");
 #endif
 
 
-		CWin32Surface_initStaticData = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\xE8\x00\x00\x00\x00\x48\x8D\x0D\x00\x00\x00\x00\x48\x83\xC4\x28\xE9\x00\x00\x00\x00\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x33\xC9"), "xxxxx????xxx????xxxxx????xxxxxxxxx");
+		CWin32Surface_initStaticData = g_GameDll.FindPatternSIMD("48 83 EC 28 E8 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 48 83 C4 28 E9 ?? ?? ?? ?? CC CC CC CC CC CC CC 33 C9");
 		// 48 83 EC 28 E8 ? ? ? ? 48 8D 0D ? ? ? ? 48 83 C4 28 E9 ? ? ? ? CC CC CC CC CC CC CC 33 C9 
 #if !defined (GAMEDLL_S0) || !defined (GAMEDLL_S1)
-		KeyboardLayout_Init = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x33\xC9\xFF\x15\x00\x00\x00\x00\x48\x8D\x0D\x00\x00\x00\x00"), "xxxxxxxx????xxx????");
+		KeyboardLayout_Init = g_GameDll.FindPatternSIMD("48 83 EC 28 33 C9 FF 15 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ??");
 #endif //48 83 EC 28 33 C9 FF 15 ? ? ? ? 48 8D 0D ? ? ? ?
 	}
 	virtual void GetCon(void) const { }

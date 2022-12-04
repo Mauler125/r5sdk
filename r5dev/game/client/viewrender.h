@@ -45,12 +45,12 @@ class V_ViewRender : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		CMemory base = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x30\xF3\x0F\x10\x05\x00\x00\x00\x00\x00\x8B\x00"), "xxxx?xxxxxxxxx?????x?");
+		CMemory base = g_GameDll.FindPatternSIMD("48 89 74 24 ?? 57 48 83 EC 30 F3 0F 10 05 ?? ?? ?? ?? ?? 8B ??");
 
 		g_vecRenderOrigin = base.Offset(0x00).FindPatternSelf("F3 0F 10 05").ResolveRelativeAddressSelf(0x4, 0x8).RCast<Vector3D*>();
 		g_vecRenderAngles = base.Offset(0x30).FindPatternSelf("F3 0F 10 0D").ResolveRelativeAddressSelf(0x4, 0x8).RCast<QAngle*>();
 
-		g_pViewRender = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8D\x05\x00\x00\x00\x00\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x48\x8B\xC4"), "xxx????xxxxxxxxxxxxxx").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CViewRender*>(); /*48 8D 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC CC CC 48 8B C4*/
+		g_pViewRender = g_GameDll.FindPatternSIMD("48 8D 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC CC CC 48 8B C4").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CViewRender*>(); /*48 8D 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC CC CC 48 8B C4*/
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

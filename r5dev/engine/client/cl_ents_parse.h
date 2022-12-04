@@ -15,7 +15,7 @@ class V_CL_Ents_Parse : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		p_CL_CopyExistingEntity = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x70\x4C\x63\x51\x28"), "xxxxxxxxxx");
+		p_CL_CopyExistingEntity = g_GameDll.FindPatternSIMD("40 53 48 83 EC 70 4C 63 51 28");
 		v_CL_CopyExistingEntity = p_CL_CopyExistingEntity.RCast<bool (*)(__int64, unsigned int*, char*)>(); /*40 53 48 83 EC 70 4C 63 51 28*/
 	}
 	virtual void GetVar(void) const { }
