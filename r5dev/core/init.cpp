@@ -470,9 +470,12 @@ void CheckCPU() // Respawn's engine and our SDK utilize POPCNT, SSE3 and SSSE3 (
 
 void DetourInit() // Run the sigscan
 {
-	bool bLogAdr = (strstr(GetCommandLineA(), "-sig_toconsole") != nullptr);
+	LPSTR pCommandLine = GetCommandLineA();
+
+	bool bLogAdr = (strstr(pCommandLine, "-sig_toconsole") != nullptr);
 	bool bInitDivider = false;
 
+	g_SigCache.SetDisabled((strstr(pCommandLine, "-nosmap") != nullptr));
 	g_SigCache.LoadCache(SIGDB_FILE);
 
 	for (const IDetour* pDetour : vDetour)
@@ -498,6 +501,7 @@ void DetourInit() // Run the sigscan
 #endif // DEDICATED
 
 	g_SigCache.WriteCache(SIGDB_FILE);
+	g_SigCache.InvalidateMap();
 }
 
 void DetourAddress() // Test the sigscan results

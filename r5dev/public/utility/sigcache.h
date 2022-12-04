@@ -18,21 +18,27 @@
 class CSigCache
 {
 public:
-	CSigCache() { m_bInitialized = false; };
+	CSigCache()
+		: m_bInitialized(false)
+		, m_bDisabled(false) {};
 	~CSigCache() {};
+
+	void SetDisabled(const bool bDisabled);
+	void InvalidateMap();
 
 	void AddEntry(const string& svPattern, const uint64_t nRVA);
 	bool FindEntry(const string& svPattern, uint64_t& nRVA) const;
 
 	bool LoadCache(const string& svCacheFile);
-	bool WriteCache(const string& svCacheFile);
+	bool WriteCache(const string& svCacheFile) const;
 
 private:
-	bool CompressBlob(size_t nSrcLen, size_t& nDstLen, uint32_t& nAdler32, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const;
-	bool DecompressBlob(size_t nSrcLen, size_t& nDstLen, uint32_t& nAdler32, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const;
+	bool CompressBlob(const size_t nSrcLen, size_t& nDstLen, uint32_t& nAdler32, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const;
+	bool DecompressBlob(const size_t nSrcLen, size_t& nDstLen, uint32_t& nAdler32, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const;
 
 	SigMap_Pb m_Cache;
 	bool m_bInitialized;
+	bool m_bDisabled;
 };
 
 #pragma pack(push, 1)

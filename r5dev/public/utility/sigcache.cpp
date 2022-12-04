@@ -1,19 +1,59 @@
 //===========================================================================//
 //
 // Purpose: Implementation of the CSigCache class.
-//
+// 
 //===========================================================================//
+// sigcache.cpp
+// 
+// The system creates a static cache file on the disk, who's blob contains a 
+// map of string signatures and its precomputed relative virtual address.
+// 
+// This file gets loaded and parsed during DLL init. If the file is absent or 
+// outdated/corrupt, the system will generate a new cache file if enabled.
+// 
+// By caching the relative virtual addresses, we can drop a significant amount 
+// of time initializing the DLL by parsing the precomputed data instead of 
+// searching for each signature in the memory region of the target executable.
+//
+///////////////////////////////////////////////////////////////////////////////
 #include "core/stdafx.h"
 #include "public/utility/binstream.h"
 #include "public/utility/sigcache.h"
 
 //-----------------------------------------------------------------------------
-// Purpose: creates a pair of a pattern (key) and relative virtual address (value)
-// Input  : &svPattern - 
-//			nRVA - 
+// Purpose: whether or not to disable the caching of signatures
+// Input  : bDisabled - (true = disabled)
+//-----------------------------------------------------------------------------
+void CSigCache::SetDisabled(const bool bDisabled)
+{
+	m_bDisabled = bDisabled;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: clears the signature cache memory
+//-----------------------------------------------------------------------------
+void CSigCache::InvalidateMap()
+{
+	if (m_bDisabled)
+	{
+		return;
+	}
+
+	(*m_Cache.mutable_smap()).clear();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: creates a map of a pattern and relative virtual address
+// Input  : &svPattern - (key)
+//			nRVA - (value)
 //-----------------------------------------------------------------------------
 void CSigCache::AddEntry(const string& svPattern, const uint64_t nRVA)
 {
+	if (m_bDisabled)
+	{
+		return;
+	}
+
 	Assert(!m_bInitialized);
 	(*m_Cache.mutable_smap())[svPattern] = nRVA;
 }
@@ -26,7 +66,7 @@ void CSigCache::AddEntry(const string& svPattern, const uint64_t nRVA)
 //-----------------------------------------------------------------------------
 bool CSigCache::FindEntry(const string& svPattern, uint64_t& nRVA) const
 {
-	if (m_bInitialized)
+	if (!m_bDisabled && m_bInitialized)
 	{
 		google::protobuf::Map sMap = m_Cache.smap();
 		auto p = sMap.find(svPattern);
@@ -48,8 +88,13 @@ bool CSigCache::FindEntry(const string& svPattern, uint64_t& nRVA) const
 bool CSigCache::LoadCache(const string& svCacheFile)
 {
 	Assert(!m_bInitialized); // Recursive load.
-	CIOStream reader(svCacheFile, CIOStream::Mode_t::READ);
 
+	if (m_bDisabled)
+	{
+		return false;
+	}
+
+	CIOStream reader(svCacheFile, CIOStream::Mode_t::READ);
 	if (!reader.IsReadable())
 	{
 		return false;
@@ -109,9 +154,9 @@ bool CSigCache::LoadCache(const string& svCacheFile)
 // Purpose: writes the cache map to the disk
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CSigCache::WriteCache(const string& svCacheFile)
+bool CSigCache::WriteCache(const string& svCacheFile) const
 {
-	if (m_bInitialized)
+	if (m_bDisabled || m_bInitialized)
 	{
 		// Only write when we don't have anything valid on the disk.
 		return false;
@@ -157,7 +202,7 @@ bool CSigCache::WriteCache(const string& svCacheFile)
 //			*pDstBuf - 
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CSigCache::DecompressBlob(size_t nSrcLen, size_t& nDstLen, uint32_t& nAdler, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const
+bool CSigCache::DecompressBlob(const size_t nSrcLen, size_t& nDstLen, uint32_t& nAdler, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const
 {
 	lzham_decompress_params lzDecompParams{};
 	lzDecompParams.m_dict_size_log2 = SIGDB_DICT_SIZE;
@@ -184,7 +229,7 @@ bool CSigCache::DecompressBlob(size_t nSrcLen, size_t& nDstLen, uint32_t& nAdler
 //			*pDstBuf - 
 // Output : true on success, false otherwise
 //-----------------------------------------------------------------------------
-bool CSigCache::CompressBlob(size_t nSrcLen, size_t& nDstLen, uint32_t& nAdler, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const
+bool CSigCache::CompressBlob(const size_t nSrcLen, size_t& nDstLen, uint32_t& nAdler, const uint8_t* pSrcBuf, uint8_t* pDstBuf) const
 {
 	lzham_compress_params lzCompParams{};
 	lzCompParams.m_dict_size_log2 = SIGDB_DICT_SIZE;
