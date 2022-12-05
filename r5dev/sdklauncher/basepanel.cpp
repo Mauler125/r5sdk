@@ -720,6 +720,26 @@ void CUIBaseSurface::ForwardCommandToGame(Forms::Control* pSender)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: appends the reversed core count value to the command line buffer
+// Input  : &svParameters - 
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::AppendReservedCoreCount(string& svParameters)
+{
+	const char* pszReservedCores = this->m_ReservedCoresTextBox->Text().ToCString();
+	if (StringIsDigit(pszReservedCores))
+	{
+		int nReservedCores = atoi(pszReservedCores);
+		if (nReservedCores) // A reserved core count of 0 seems to crash the game on some systems.
+		{
+			svParameters.append("-numreservedcores \"" + this->m_ReservedCoresTextBox->Text() + "\"\n");
+		}
+	}
+
+	if (StringIsDigit(this->m_WorkerThreadsTextBox->Text().ToCString()))
+		svParameters.append("-numworkerthreads \"" + this->m_WorkerThreadsTextBox->Text() + "\"\n");
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: clears the form and reloads the playlist
 // Input  : &svParameters - 
 // Output : eLaunchMode [HOST - SERVER - CLIENT - NONE]
@@ -766,13 +786,7 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 			svParameters.append("-playlistfile \"" + this->m_PlaylistFileTextBox->Text() + "\"\n");
 
 		// ENGINE ###############################################################
-		if (StringIsDigit(this->m_ReservedCoresTextBox->Text().ToCString()))
-			svParameters.append("-numreservedcores \"" + this->m_ReservedCoresTextBox->Text() + "\"\n");
-		//else error;
-
-		if (StringIsDigit(this->m_WorkerThreadsTextBox->Text().ToCString()))
-			svParameters.append("-numworkerthreads \"" + this->m_WorkerThreadsTextBox->Text() + "\"\n");
-		//else error;
+		this->AppendReservedCoreCount(svParameters);
 
 		if (this->m_SingleCoreDediToggle->Checked())
 			svParameters.append("+sv_single_core_dedi \"1\"\n");
@@ -889,13 +903,7 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 			svParameters.append("-playlistfile \"" + this->m_PlaylistFileTextBox->Text() + "\"\n");
 
 		// ENGINE ###############################################################
-		if (StringIsDigit(this->m_ReservedCoresTextBox->Text().ToCString()))
-			svParameters.append("-numreservedcores \"" + this->m_ReservedCoresTextBox->Text() + "\"\n");
-		//else error;
-
-		if (StringIsDigit(this->m_WorkerThreadsTextBox->Text().ToCString()))
-			svParameters.append("-numworkerthreads \"" + this->m_WorkerThreadsTextBox->Text() + "\"\n");
-		//else error;
+		this->AppendReservedCoreCount(svParameters);
 
 		if (this->m_SingleCoreDediToggle->Checked())
 			svParameters.append("+sv_single_core_dedi \"1\"\n");
@@ -982,13 +990,7 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 			svParameters.append("-playlistfile \"" + this->m_PlaylistFileTextBox->Text() + "\"\n");
 
 		// ENGINE ###############################################################
-		if (StringIsDigit(this->m_ReservedCoresTextBox->Text().ToCString()))
-			svParameters.append("-numreservedcores \"" + this->m_ReservedCoresTextBox->Text() + "\"\n");
-		//else error;
-
-		if (StringIsDigit(this->m_WorkerThreadsTextBox->Text().ToCString()))
-			svParameters.append("-numworkerthreads \"" + this->m_WorkerThreadsTextBox->Text() + "\"\n");
-		//else error;
+		this->AppendReservedCoreCount(svParameters);
 
 		if (this->m_SingleCoreDediToggle->Checked())
 			svParameters.append("+sv_single_core_dedi \"1\"\n");

@@ -684,6 +684,9 @@
     <ClCompile Include="..\public\utility\sigcache.cpp">
       <Filter>sdk\public\utility</Filter>
     </ClCompile>
+    <ClCompile Include="..\engine\matsys_interface.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1963,6 +1966,12 @@
     </ClInclude>
     <ClInclude Include="..\public\utility\sigcache.h">
       <Filter>sdk\public\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\imaterialsystem.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\matsys_interface.h">
+      <Filter>sdk\engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -66,13 +66,8 @@ inline CMemory Server_S2C_CONNECT_1;
 #endif // !CLIENT_DLL
 
 //-------------------------------------------------------------------------
-// RUNTIME: GAME_CFG
+// RUNTIME: 
 //-------------------------------------------------------------------------
-inline CMemory UpdateCurrentVideoConfig;
-inline CMemory UpdateMaterialSystemConfig;
-inline CMemory HandleConfigFile;
-inline CMemory ResetPreviousGameState;
-inline CMemory LoadPlayerConfig;
 inline CMemory MatchMaking_Frame;
 inline CMemory GetEngineClientThread;
 inline CMemory CWin32Surface_initStaticData;
@@ -104,11 +99,6 @@ class VOpcodes : public IDetour
 		spdlog::debug("| FUN: Server_S2C_CONNECT_1                 : {:#18x} |\n", Server_S2C_CONNECT_1.GetPtr());
 #endif // !CLIENT_DLL
 		spdlog::debug("+----------------------------------------------------------------+\n");
-		spdlog::debug("| FUN: UpdateMaterialSystemConfig           : {:#18x} |\n", UpdateMaterialSystemConfig.GetPtr());
-		spdlog::debug("| FUN: UpdateCurrentVideoConfig             : {:#18x} |\n", UpdateCurrentVideoConfig.GetPtr());
-		spdlog::debug("| FUN: HandleConfigFile                     : {:#18x} |\n", HandleConfigFile.GetPtr());
-		spdlog::debug("| FUN: ResetPreviousGameState               : {:#18x} |\n", ResetPreviousGameState.GetPtr());
-		spdlog::debug("| FUN: LoadPlayerConfig                     : {:#18x} |\n", LoadPlayerConfig.GetPtr());
 		spdlog::debug("| FUN: GetEngineClientThread                : {:#18x} |\n", GetEngineClientThread.GetPtr());
 		spdlog::debug("| FUN: MatchMaking_Frame                    : {:#18x} |\n", MatchMaking_Frame.GetPtr());
 		spdlog::debug("+----------------------------------------------------------------+\n");
@@ -184,15 +174,6 @@ class VOpcodes : public IDetour
 #endif // !CLIENT_DLL
 
 		//-------------------------------------------------------------------------
-		UpdateMaterialSystemConfig = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 57 48 83 EC 20 80 3D ?? ?? ?? ?? ?? 0F 84 ?? ?? ?? ??");
-		UpdateCurrentVideoConfig = g_GameDll.FindPatternSIMD("40 55 ?? 41 56 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 4C 8B F1");
-		HandleConfigFile = g_GameDll.FindPatternSIMD("40 56 48 81 EC ?? ?? ?? ?? 8B F1");
-		ResetPreviousGameState = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 44 89 3D ?? ?? ?? ?? ?? 8B ?? 24 ??").ResolveRelativeAddressSelf(0x1, 0x5);
-#if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
-		LoadPlayerConfig = g_GameDll.FindPatternSIMD("48 81 EC ?? ?? ?? ?? 48 83 3D ?? ?? ?? ?? ?? 75 0C");
-#elif defined (GAMEDLL_S3)
-		LoadPlayerConfig = g_GameDll.FindPatternSIMD("89 4C 24 08 48 81 EC ?? ?? ?? ?? 48 83 3D ?? ?? ?? ?? ??");
-#endif
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 		GetEngineClientThread = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 65 48 8B 04 25 ?? ?? ?? ?? 48 8B D9 B9 ?? ?? ?? ?? 48 8B 10 8B 04 11 39 05 ?? ?? ?? ?? 7F 15");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)

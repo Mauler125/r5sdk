@@ -92,6 +92,7 @@
 #ifndef DEDICATED
 #include "engine/sys_mainwind.h"
 #endif // !DEDICATED
+#include "engine/matsys_interface.h"
 #include "engine/gl_matsysiface.h"
 #include "engine/gl_screen.h"
 #ifndef DEDICATED
@@ -233,6 +234,8 @@ void Systems_Init()
 #ifndef DEDICATED
 	HCVideoMode_Common_Attach();
 	DebugOverlays_Attach();
+
+	MatSys_Iface_Attach();
 	RSurf_Attach();
 #endif // !DEDICATED
 
@@ -365,6 +368,8 @@ void Systems_Shutdown()
 #ifndef DEDICATED
 	HCVideoMode_Common_Detach();
 	DebugOverlays_Detach();
+
+	MatSys_Iface_Detach();
 	RSurf_Detach();
 #endif // !DEDICATED
 

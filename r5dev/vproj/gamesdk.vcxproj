@@ -44,6 +44,7 @@
     <ClCompile Include="..\engine\host.cpp" />
     <ClCompile Include="..\engine\host_cmd.cpp" />
     <ClCompile Include="..\engine\host_state.cpp" />
+    <ClCompile Include="..\engine\matsys_interface.cpp" />
     <ClCompile Include="..\engine\modelloader.cpp" />
     <ClCompile Include="..\engine\net.cpp" />
     <ClCompile Include="..\engine\networkstringtable.cpp" />
@@ -217,6 +218,7 @@
     <ClInclude Include="..\engine\host.h" />
     <ClInclude Include="..\engine\host_cmd.h" />
     <ClInclude Include="..\engine\host_state.h" />
+    <ClInclude Include="..\engine\matsys_interface.h" />
     <ClInclude Include="..\engine\modelloader.h" />
     <ClInclude Include="..\engine\net.h" />
     <ClInclude Include="..\engine\networkstringtable.h" />
@@ -320,6 +322,7 @@
     <ClInclude Include="..\public\ihandleentity.h" />
     <ClInclude Include="..\public\imaterial.h" />
     <ClInclude Include="..\public\imaterialinternal.h" />
+    <ClInclude Include="..\public\imaterialsystem.h" />
     <ClInclude Include="..\public\inetchannel.h" />
     <ClInclude Include="..\public\inetmessage.h" />
     <ClInclude Include="..\public\inetmsghandler.h" />
