@@ -28,14 +28,14 @@ void StreamDB_Init(const char* pszLevelName)
 		if (pStreamKV)
 		{
 			const char* pszColumnName = pStreamKV->GetString();
-			DevMsg(eDLL_T::MS, "%s: Loading override STBSP file '%s.stbsp'\n", __FUNCTION__, pszColumnName);
+			DevMsg(eDLL_T::MS, __FUNCTION__": Loading override STBSP file '%s.stbsp'\n", pszColumnName);
 
 			v_StreamDB_Init(pszColumnName);
 			return;
 		}
 	}
 
-	DevMsg(eDLL_T::MS, "%s: Loading STBSP file '%s.stbsp'\n", __FUNCTION__, pszLevelName);
+	DevMsg(eDLL_T::MS, __FUNCTION__": Loading STBSP file '%s.stbsp'\n", pszLevelName);
 	v_StreamDB_Init(pszLevelName);
 }
 
