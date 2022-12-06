@@ -2,9 +2,11 @@ REM Remove log files ('log' is no longer used. 'logs' contains current logs, the
 rd /S /Q "%~dp0log"
 rd /S /Q "%~dp0logs"
 REM Remove old NavMesh files which where included as an attempt to debug/suppress warnings.
-rd /S /Q "%~dp0platform\maps\graphs"
-rd /S /Q "%~dp0platform\maps\navmesh"
+rd /S /Q "%~dp0..\maps"
+rd /S /Q "%~dp0maps\graphs"
+rd /S /Q "%~dp0maps\navmesh"
 REM Remove deprecated binary and configuration files (these are no longer used).
+del /Q "%~dp0..\gameinfo.txt"
 del /Q "%~dp0..\banlist.config"
 del /Q "%~dp0..\gui.config"
 del /Q "%~dp0..\Run R5 Reloaded.exe"
