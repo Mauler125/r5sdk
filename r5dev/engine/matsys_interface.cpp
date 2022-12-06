@@ -3,6 +3,10 @@
 #include "public/imaterialsystem.h"
 #include "engine/matsys_interface.h"
 
+// Disabled, as this patch **only** works if we are writing the file.
+// See 'resource/ptc/' for more details regarding how this bug has been
+// fixed in the engine module.
+/*
 //-----------------------------------------------------------------------------
 // Updates the material system config
 //-----------------------------------------------------------------------------
@@ -24,14 +28,15 @@ bool UpdateCurrentVideoConfig(MaterialSystem_Config_t* pConfig)
 
 	return v_UpdateCurrentVideoConfig(pConfig);
 }
+*/
 
 ///////////////////////////////////////////////////////////////////////////////
 void MatSys_Iface_Attach()
 {
-	DetourAttach(&v_UpdateCurrentVideoConfig, &UpdateCurrentVideoConfig);
+	//DetourAttach(&v_UpdateCurrentVideoConfig, &UpdateCurrentVideoConfig);
 }
 
 void MatSys_Iface_Detach()
 {
-	DetourDetach(&v_UpdateCurrentVideoConfig, &UpdateCurrentVideoConfig);
+	//DetourDetach(&v_UpdateCurrentVideoConfig, &UpdateCurrentVideoConfig);
 }

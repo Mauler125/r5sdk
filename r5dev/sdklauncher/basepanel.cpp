@@ -374,6 +374,7 @@ void CUIBaseSurface::Init()
 	this->m_NoBorderToggle->SetTabIndex(0);
 	this->m_NoBorderToggle->SetText("No border");
 	this->m_NoBorderToggle->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
+	this->m_NoBorderToggle->Click += BorderParametersChanged;
 	this->m_EngineVideoGroup->AddControl(this->m_NoBorderToggle);
 
 	this->m_FpsTextBox = new UIX::UIXTextBox();
@@ -479,6 +480,8 @@ void CUIBaseSurface::Init()
 	this->PerformLayout();
 
 	// END DESIGNER CODE
+
+	m_bBorderParamChanged = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -720,6 +723,16 @@ void CUIBaseSurface::ForwardCommandToGame(Forms::Control* pSender)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : *pSender - 
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::BorderParametersChanged(Forms::Control* pSender)
+{
+	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+	pSurface->m_bBorderParamChanged = true;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: appends the reversed core count value to the command line buffer
 // Input  : &svParameters - 
 //-----------------------------------------------------------------------------
@@ -737,6 +750,23 @@ void CUIBaseSurface::AppendReservedCoreCount(string& svParameters)
 
 	if (StringIsDigit(this->m_WorkerThreadsTextBox->Text().ToCString()))
 		svParameters.append("-numworkerthreads \"" + this->m_WorkerThreadsTextBox->Text() + "\"\n");
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : &svParameters - 
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::AppendBorderParameters(string& svParameters)
+{
+	if (m_bBorderParamChanged)
+	{
+		if (this->m_NoBorderToggle->Checked())
+			svParameters.append("-noborder\n");
+		else
+			svParameters.append("-forceborder\n");
+
+		m_bBorderParamChanged = false;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -827,10 +857,7 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 		else
 			svParameters.append("-fullscreen\n");
 
-		if (this->m_NoBorderToggle->Checked())
-			svParameters.append("-noborder\n");
-		//else
-		//	svParameters.append("-forceborder\n"); // !TODO: FIX IN ENGINE!
+		AppendBorderParameters(svParameters);
 
 		if (StringIsDigit(this->m_FpsTextBox->Text().ToCString()))
 			svParameters.append("+fps_max \"" + this->m_FpsTextBox->Text() + "\"\n");
@@ -1027,10 +1054,7 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 		else
 			svParameters.append("-fullscreen\n");
 
-		if (this->m_NoBorderToggle->Checked())
-			svParameters.append("-noborder\n");
-		//else
-		//	svParameters.append("-forceborder\n"); // !TODO: FIX IN ENGINE!
+		AppendBorderParameters(svParameters);
 
 		if (StringIsDigit(this->m_FpsTextBox->Text().ToCString()))
 			svParameters.append("+fps_max \"" + this->m_FpsTextBox->Text() + "\"\n");

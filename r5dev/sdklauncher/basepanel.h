@@ -33,10 +33,13 @@ private:
 	static void ReloadPlaylists(Forms::Control* pSender);
 	static void VirtualItemToClipboard(const std::unique_ptr<MouseEventArgs>& pEventArgs, Forms::Control* pSender);
 	static void GetVirtualItem(const std::unique_ptr<Forms::RetrieveVirtualItemEventArgs>& pEventArgs, Forms::Control* pSender);
+
 	static void ForwardCommandToGame(Forms::Control* pSender);
+	static void BorderParametersChanged(Forms::Control* pSender);
 
 	eLaunchMode BuildParameter(string& svParameter);
 	void AppendReservedCoreCount(string& svParameter);
+	void AppendBorderParameters(string& svParameter);
 
 	enum class eMode
 	{
@@ -105,4 +108,6 @@ private:
 	UIX::UIXButton* m_UpdateSDK;
 	UIX::UIXButton* m_LaunchSDK;
 	UIX::UIXButton* m_ConsoleSendCommand;
+
+	bool m_bBorderParamChanged;
 };
