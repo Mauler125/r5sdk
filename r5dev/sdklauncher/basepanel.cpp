@@ -231,8 +231,9 @@ void CUIBaseSurface::Init()
 	this->m_UpdateSDK->SetSize({ 110, 18 });
 	this->m_UpdateSDK->SetLocation({ 15, 30 });
 	this->m_UpdateSDK->SetTabIndex(0);
-	this->m_UpdateSDK->SetEnabled(false); // !TODO: Implement updater
+	this->m_UpdateSDK->SetEnabled(true); // !TODO: Implement updater
 	this->m_UpdateSDK->SetText("Update SDK");
+	this->m_UpdateSDK->Click += &UpdateSDK;
 	this->m_UpdateSDK->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_MainGroupExt->AddControl(this->m_UpdateSDK);
 
@@ -372,9 +373,8 @@ void CUIBaseSurface::Init()
 	this->m_NoBorderToggle->SetSize({ 150, 18 });
 	this->m_NoBorderToggle->SetLocation({ 155, 7 });
 	this->m_NoBorderToggle->SetTabIndex(0);
-	this->m_NoBorderToggle->SetText("No border");
+	this->m_NoBorderToggle->SetText("Borderless");
 	this->m_NoBorderToggle->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
-	this->m_NoBorderToggle->Click += BorderParametersChanged;
 	this->m_EngineVideoGroup->AddControl(this->m_NoBorderToggle);
 
 	this->m_FpsTextBox = new UIX::UIXTextBox();
@@ -480,8 +480,6 @@ void CUIBaseSurface::Init()
 	this->PerformLayout();
 
 	// END DESIGNER CODE
-
-	m_bBorderParamChanged = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -516,6 +514,19 @@ void CUIBaseSurface::CleanSDK(Forms::Control* pSender)
 	pSurface->m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(pSurface->m_LogList.size()));
 
 	std::system("platform\\clean_sdk.bat");
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: updates the SDK
+// Input  : *pSender - 
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::UpdateSDK(Forms::Control* pSender)
+{
+	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
+	pSurface->m_LogList.push_back(LogList_t(spdlog::level::info, "Running updater for SDK installation\n"));
+	pSurface->m_ConsoleListView->SetVirtualListSize(static_cast<int32_t>(pSurface->m_LogList.size()));
+
+	std::system("platform\\update_sdk.bat");
 }
 
 //-----------------------------------------------------------------------------
@@ -707,7 +718,7 @@ void CUIBaseSurface::ForwardCommandToGame(Forms::Control* pSender)
 	const HWND hWindow = FindWindowA("Respawn001", NULL);
 	if (hWindow)
 	{
-		String kzCommand = pSurface->m_ConsoleCommandTextBox->Text();
+		const String kzCommand = pSurface->m_ConsoleCommandTextBox->Text();
 		const char* szCommand = kzCommand.ToCString();
 		COPYDATASTRUCT cData = { 0, strnlen_s(szCommand, 259) + 1, (void*)szCommand };
 
@@ -720,16 +731,6 @@ void CUIBaseSurface::ForwardCommandToGame(Forms::Control* pSender)
 			pSurface->m_ConsoleListView->Refresh();
 		}
 	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pSender - 
-//-----------------------------------------------------------------------------
-void CUIBaseSurface::BorderParametersChanged(Forms::Control* pSender)
-{
-	CUIBaseSurface* pSurface = reinterpret_cast<CUIBaseSurface*>(pSender->FindForm());
-	pSurface->m_bBorderParamChanged = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -753,20 +754,95 @@ void CUIBaseSurface::AppendReservedCoreCount(string& svParameters)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: appends the console parameters
 // Input  : &svParameters - 
 //-----------------------------------------------------------------------------
-void CUIBaseSurface::AppendBorderParameters(string& svParameters)
+void CUIBaseSurface::AppendConsoleParameters(string& svParameters)
 {
-	if (m_bBorderParamChanged)
-	{
-		if (this->m_NoBorderToggle->Checked())
-			svParameters.append("-noborder\n");
-		else
-			svParameters.append("-forceborder\n");
+	if (this->m_ConsoleToggle->Checked())
+		svParameters.append("-wconsole\n");
 
-		m_bBorderParamChanged = false;
+	if (this->m_ColorConsoleToggle->Checked())
+		svParameters.append("-ansiclr\n");
+
+	if (!String::IsNullOrEmpty(this->m_PlaylistFileTextBox->Text()))
+		svParameters.append("-playlistfile \"" + this->m_PlaylistFileTextBox->Text() + "\"\n");
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: appends the video parameters
+// Input  : &svParameters - 
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::AppendVideoParameters(string& svParameters)
+{
+	if (this->m_WindowedToggle->Checked())
+		svParameters.append("-windowed\n");
+	else
+		svParameters.append("-fullscreen\n");
+
+	if (this->m_NoBorderToggle->Checked())
+		svParameters.append("-noborder\n");
+	else
+		svParameters.append("-forceborder\n");
+
+	if (StringIsDigit(this->m_FpsTextBox->Text().ToCString()))
+		svParameters.append("+fps_max \"" + this->m_FpsTextBox->Text() + "\"\n");
+
+	if (!String::IsNullOrEmpty(this->m_WidthTextBox->Text()))
+		svParameters.append("-w \"" + this->m_WidthTextBox->Text() + "\"\n");
+
+	if (!String::IsNullOrEmpty(this->m_HeightTextBox->Text()))
+		svParameters.append("-h \"" + this->m_HeightTextBox->Text() + "\"\n");
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: appends the host parameters
+// Input  : &svParameters - 
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::AppendHostParameters(string& svParameters)
+{
+	if (!String::IsNullOrEmpty(this->m_HostNameTextBox->Text()))
+	{
+		svParameters.append("+hostname \"" + this->m_HostNameTextBox->Text() + "\"\n");
+
+		switch (static_cast<eVisibility>(this->m_VisibilityCombo->SelectedIndex()))
+		{
+		case eVisibility::PUBLIC:
+		{
+			svParameters.append("+sv_pylonVisibility \"2\"\n");
+			break;
+		}
+		case eVisibility::HIDDEN:
+		{
+			svParameters.append("+sv_pylonVisibility \"1\"\n");
+			break;
+		}
+		default:
+		{
+			svParameters.append("+sv_pylonVisibility \"0\"\n");
+			break;
+		}
+		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: appends the net parameters
+// Input  : &svParameters - 
+//-----------------------------------------------------------------------------
+void CUIBaseSurface::AppendNetParameters(string& svParameters)
+{
+	if (this->m_NetEncryptionToggle->Checked())
+		svParameters.append("+net_encryptionEnable \"1\"\n");
+
+	if (this->m_NetRandomKeyToggle->Checked())
+		svParameters.append("+net_useRandomKey \"1\"\n");
+
+	if (this->m_NoQueuedPacketThread->Checked())
+		svParameters.append("+net_queued_packet_thread \"0\"\n");
+
+	if (this->m_NoTimeOutToggle->Checked())
+		svParameters.append("-notimeout\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -806,14 +882,7 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 			svParameters.append("-showdevmenu\n");
 		}
 
-		if (this->m_ConsoleToggle->Checked())
-			svParameters.append("-wconsole\n");
-
-		if (this->m_ColorConsoleToggle->Checked())
-			svParameters.append("-ansiclr\n");
-
-		if (!String::IsNullOrEmpty(this->m_PlaylistFileTextBox->Text()))
-			svParameters.append("-playlistfile \"" + this->m_PlaylistFileTextBox->Text() + "\"\n");
+		this->AppendConsoleParameters(svParameters);
 
 		// ENGINE ###############################################################
 		this->AppendReservedCoreCount(svParameters);
@@ -840,58 +909,10 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 			svParameters.append("+physics_async_cl \"0\"\n");
 		}
 
-		if (this->m_NetEncryptionToggle->Checked())
-			svParameters.append("+net_encryptionEnable \"1\"\n");
+		this->AppendHostParameters(svParameters);
+		this->AppendNetParameters(svParameters);
+		this->AppendVideoParameters(svParameters);
 
-		if (this->m_NetRandomKeyToggle->Checked())
-			svParameters.append("+net_useRandomKey \"1\"\n");
-
-		if (this->m_NoQueuedPacketThread->Checked())
-			svParameters.append("+net_queued_packet_thread \"0\"\n");
-
-		if (this->m_NoTimeOutToggle->Checked())
-			svParameters.append("-notimeout\n");
-
-		if (this->m_WindowedToggle->Checked())
-			svParameters.append("-windowed\n");
-		else
-			svParameters.append("-fullscreen\n");
-
-		AppendBorderParameters(svParameters);
-
-		if (StringIsDigit(this->m_FpsTextBox->Text().ToCString()))
-			svParameters.append("+fps_max \"" + this->m_FpsTextBox->Text() + "\"\n");
-
-		if (!String::IsNullOrEmpty(this->m_WidthTextBox->Text()))
-			svParameters.append("-w \"" + this->m_WidthTextBox->Text() + "\"\n");
-
-		if (!String::IsNullOrEmpty(this->m_HeightTextBox->Text()))
-			svParameters.append("-h \"" + this->m_HeightTextBox->Text() + "\"\n");
-
-		// MAIN ###############################################################
-		if (!String::IsNullOrEmpty(this->m_HostNameTextBox->Text()))
-		{
-			svParameters.append("+hostname \"" + this->m_HostNameTextBox->Text() + "\"\n");
-
-			switch (static_cast<eVisibility>(this->m_VisibilityCombo->SelectedIndex()))
-			{
-			case eVisibility::PUBLIC:
-			{
-				svParameters.append("+sv_pylonVisibility \"2\"\n");
-				break;
-			}
-			case eVisibility::HIDDEN:
-			{
-				svParameters.append("+sv_pylonVisibility \"1\"\n");
-				break;
-			}
-			default:
-			{
-				svParameters.append("+sv_pylonVisibility \"0\"\n");
-				break;
-			}
-			}
-		}
 		if (!String::IsNullOrEmpty(this->m_LaunchArgsTextBox->Text()))
 			svParameters.append(this->m_LaunchArgsTextBox->Text());
 
@@ -920,14 +941,7 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 		if (this->m_CheatsToggle->Checked())
 			svParameters.append("+sv_cheats \"1\"\n");
 
-		if (this->m_ConsoleToggle->Checked())
-			svParameters.append("-wconsole\n");
-
-		if (this->m_ColorConsoleToggle->Checked())
-			svParameters.append("-ansiclr\n");
-
-		if (!String::IsNullOrEmpty(this->m_PlaylistFileTextBox->Text()))
-			svParameters.append("-playlistfile \"" + this->m_PlaylistFileTextBox->Text() + "\"\n");
+		this->AppendConsoleParameters(svParameters);
 
 		// ENGINE ###############################################################
 		this->AppendReservedCoreCount(svParameters);
@@ -945,42 +959,9 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 			svParameters.append("+physics_async_sv \"0\"\n");
 		}
 
-		if (this->m_NetEncryptionToggle->Checked())
-			svParameters.append("+net_encryptionEnable \"1\"\n");
+		this->AppendHostParameters(svParameters);
+		this->AppendNetParameters(svParameters);
 
-		if (this->m_NetRandomKeyToggle->Checked())
-			svParameters.append("+net_useRandomKey \"1\"\n");
-
-		if (this->m_NoQueuedPacketThread->Checked())
-			svParameters.append("+net_queued_packet_thread \"0\"\n");
-
-		if (this->m_NoTimeOutToggle->Checked())
-			svParameters.append("-notimeout\n");
-
-		// MAIN ###############################################################
-		if (!String::IsNullOrEmpty(this->m_HostNameTextBox->Text()))
-		{
-			svParameters.append("+hostname \"" + this->m_HostNameTextBox->Text() + "\"\n");
-
-			switch (static_cast<eVisibility>(this->m_VisibilityCombo->SelectedIndex()))
-			{
-			case eVisibility::PUBLIC:
-			{
-				svParameters.append("+sv_pylonVisibility \"2\"\n");
-				break;
-			}
-			case eVisibility::HIDDEN:
-			{
-				svParameters.append("+sv_pylonVisibility \"1\"\n");
-				break;
-			}
-			default:
-			{
-				svParameters.append("+sv_pylonVisibility \"0\"\n");
-				break;
-			}
-			}
-		}
 		if (!String::IsNullOrEmpty(this->m_LaunchArgsTextBox->Text()))
 			svParameters.append(this->m_LaunchArgsTextBox->Text());
 
@@ -1007,14 +988,7 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 			svParameters.append("-showdevmenu\n");
 		}
 
-		if (this->m_ConsoleToggle->Checked())
-			svParameters.append("-wconsole\n");
-
-		if (this->m_ColorConsoleToggle->Checked())
-			svParameters.append("-ansiclr\n");
-
-		if (!String::IsNullOrEmpty(this->m_PlaylistFileTextBox->Text()))
-			svParameters.append("-playlistfile \"" + this->m_PlaylistFileTextBox->Text() + "\"\n");
+		this->AppendConsoleParameters(svParameters);
 
 		// ENGINE ###############################################################
 		this->AppendReservedCoreCount(svParameters);
@@ -1037,33 +1011,8 @@ eLaunchMode CUIBaseSurface::BuildParameter(string& svParameters)
 			svParameters.append("+physics_async_cl \"0\"\n");
 		}
 
-		if (this->m_NetEncryptionToggle->Checked())
-			svParameters.append("+net_encryptionEnable \"1\"\n");
-
-		if (this->m_NetRandomKeyToggle->Checked())
-			svParameters.append("+net_useRandomKey \"1\"\n");
-
-		if (this->m_NoQueuedPacketThread->Checked())
-			svParameters.append("+net_queued_packet_thread \"0\"\n");
-
-		if (this->m_NoTimeOutToggle->Checked())
-			svParameters.append("-notimeout\n");
-
-		if (this->m_WindowedToggle->Checked())
-			svParameters.append("-windowed\n");
-		else
-			svParameters.append("-fullscreen\n");
-
-		AppendBorderParameters(svParameters);
-
-		if (StringIsDigit(this->m_FpsTextBox->Text().ToCString()))
-			svParameters.append("+fps_max \"" + this->m_FpsTextBox->Text() + "\"\n");
-
-		if (!String::IsNullOrEmpty(this->m_WidthTextBox->Text()))
-			svParameters.append("-w \"" + this->m_WidthTextBox->Text() + "\"\n");
-
-		if (!String::IsNullOrEmpty(this->m_HeightTextBox->Text()))
-			svParameters.append("-h \"" + this->m_HeightTextBox->Text() + "\"\n");
+		this->AppendNetParameters(svParameters);
+		this->AppendVideoParameters(svParameters);
 
 		// MAIN ###############################################################
 		if (!String::IsNullOrEmpty(this->m_LaunchArgsTextBox->Text()))
@@ -1084,4 +1033,5 @@ CUIBaseSurface::CUIBaseSurface() : Forms::Form()
 	this->Init();
 	this->Setup();
 }
+
 CUIBaseSurface* g_pMainUI;
