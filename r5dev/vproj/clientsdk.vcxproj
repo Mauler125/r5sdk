@@ -107,6 +107,7 @@
     <ClCompile Include="..\public\utility\module.cpp" />
     <ClCompile Include="..\public\utility\sigcache.cpp" />
     <ClCompile Include="..\public\utility\utility.cpp" />
+    <ClCompile Include="..\public\utility\vtable.cpp" />
     <ClCompile Include="..\rtech\rtech_utils.cpp" />
     <ClCompile Include="..\rtech\rtech_game.cpp" />
     <ClCompile Include="..\rtech\rui\rui.cpp" />
@@ -315,6 +316,7 @@
     <ClInclude Include="..\public\utility\sigcache.h" />
     <ClInclude Include="..\public\utility\utility.h" />
     <ClInclude Include="..\public\utility\vdf_parser.h" />
+    <ClInclude Include="..\public\utility\vtable.h" />
     <ClInclude Include="..\public\worldsize.h" />
     <ClInclude Include="..\rtech\rtech_utils.h" />
     <ClInclude Include="..\rtech\rtech_game.h" />

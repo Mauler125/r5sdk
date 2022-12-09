@@ -687,6 +687,9 @@
     <ClCompile Include="..\engine\matsys_interface.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
+    <ClCompile Include="..\public\utility\vtable.cpp">
+      <Filter>sdk\public\utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1972,6 +1975,9 @@
     </ClInclude>
     <ClInclude Include="..\engine\matsys_interface.h">
       <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\utility\vtable.h">
+      <Filter>sdk\public\utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
