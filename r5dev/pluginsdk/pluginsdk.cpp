@@ -50,13 +50,13 @@ bool CPluginSDK::InitSDK()
 
 	// Let's make sure the factory version matches, else we unload.
 	bool isFactoryVersionOk = strcmp(m_FactoryInstance->GetFactoryFullName("VFactorySystem"), FACTORY_INTERFACE_VERSION) == 0;
-	Assert(isFactoryVersionOk, "Version missmatch between IFactory and CFactory.");
+	Assert(isFactoryVersionOk, "Version mismatch between IFactory and CFactory.");
 	if (!isFactoryVersionOk)
 		return false;
 
 	// Let's make sure the SDK version matches with the PluginSystem, else we unload
 	bool isPluginVersionOk = strcmp(m_FactoryInstance->GetFactoryFullName("VPluginSystem"), PLUGINSDK_CLASS_VERSION) == 0;
-	Assert(isPluginVersionOk, "Version missmatch between CPluginSDK and CPluginSystem.");
+	Assert(isPluginVersionOk, "Version mismatch between CPluginSDK and CPluginSystem.");
 	if (!isPluginVersionOk)
 		return false;
 
