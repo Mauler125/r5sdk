@@ -9,6 +9,7 @@ class CModAppSystemGroup
 public:
 	static int Main(CModAppSystemGroup* pModAppSystemGroup);
 	static bool Create(CModAppSystemGroup* pModAppSystemGroup);
+	static void InitPluginSystem(CModAppSystemGroup* pModAppSystemGroup);
 
 	bool IsServerOnly(void) const
 	{

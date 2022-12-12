@@ -64,14 +64,9 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 	g_pFactory->GetFactoriesFromRegister();
 	g_pFactory->AddFactory(FACTORY_INTERFACE_VERSION, g_pFactory);
 	g_pFactory->AddFactory(INTERFACEVERSION_PLUGINSYSTEM, g_pPluginSystem);
-	
-	// DEBUG CODE FOR PLUGINS
-	//g_pPluginSystem->PluginSystem_Init();
-	//for (auto& it : g_pPluginSystem->GetPluginInstances())
-	//{
-	//	if (g_pPluginSystem->LoadPluginInstance(it))
-	//		spdlog::info("Load PLUGIN SUCCESS\n");
-	//}
+
+	//InitPluginSystem(pModAppSystemGroup);
+	//CALL_PLUGIN_CALLBACKS(g_pPluginSystem->GetCreateCallbacks(), pModAppSystemGroup);
 
 #ifndef DEDICATED
 	g_pClientEntityList = g_pFactory->GetFactoryPtr("VClientEntityList003", false).RCast<IClientEntityList*>();
@@ -98,6 +93,19 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 	g_bAppSystemInit = true;
 
 	return CModAppSystemGroup_Create(pModAppSystemGroup);
+}
+//-----------------------------------------------------------------------------
+// Purpose: Initialize plugin system
+//-----------------------------------------------------------------------------
+void CModAppSystemGroup::InitPluginSystem(CModAppSystemGroup* pModAppSystemGroup)
+{
+	// DEBUG CODE FOR PLUGINS
+	g_pPluginSystem->PluginSystem_Init();
+	for (auto& it : g_pPluginSystem->GetPluginInstances())
+	{
+		if (g_pPluginSystem->LoadPluginInstance(it))
+			spdlog::info("Load PLUGIN SUCCESS\n");
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
