@@ -12,7 +12,7 @@ struct PluginHelpWithAnything_t
 		PLUGIN_UNREGISTER_CALLBACK
 	};
 
-	enum ePluginCallback : int16_t
+	enum class ePluginCallback : int16_t
 	{
 		CModAppSystemGroup_Create = 0
 	};
