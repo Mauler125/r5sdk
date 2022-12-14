@@ -97,6 +97,7 @@ private:
 	virtual void stub_76() const = 0;
 	virtual void stub_77() const = 0;
 	virtual void stub_78() const = 0;
+	// STUB_138 should be GetShaderGlue.
 };
 
 #endif // IMATERIAL_H
