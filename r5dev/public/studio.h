@@ -839,7 +839,7 @@ struct mstudioruivertmap_t
 	// in v53 the first two are an array like such:
 	// 1-3
 	// while the third is the fourth vert.
-	int16 vertid[3];
+	short vertid[3];
 };
 
 struct mstudioruivert_t
