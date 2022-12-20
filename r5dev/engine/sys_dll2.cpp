@@ -14,6 +14,7 @@
 #include "engine/sys_dll2.h"
 #include "engine/host_cmd.h"
 #include "engine/traceinit.h"
+#include "rtech/rtech_utils.h"
 #ifndef DEDICATED
 #include "client/vengineclient_impl.h"
 #endif // !DEDICATED
@@ -85,6 +86,9 @@ bool CEngineAPI::VModInit(CEngineAPI* pEngineAPI, const char* pModName, const ch
 	ConVar::InitShipped();
 	ConVar::PurgeShipped();
 
+    // Register new Pak Assets here!
+    //RTech_RegisterAsset(0x6C6C64, 1, "dll", Test, nullptr, nullptr, CMemory(0x1660AD0A8).RCast<void**>(), 8, 8, 8, 0, 0xFFFFFFC);
+
 	bool results = CEngineAPI_ModInit(pEngineAPI, pModName, pGameDir);
 	if (!IsValveMod(pModName) && !IsRespawnMod(pModName))
 	{
@@ -93,6 +97,7 @@ bool CEngineAPI::VModInit(CEngineAPI* pEngineAPI, const char* pModName, const ch
 		g_pEngineClient->SetRestrictClientCommands(true); // Restrict client commands.
 #endif // !DEDICATED
 	}
+
 	return results;
 }
 
