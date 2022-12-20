@@ -222,6 +222,7 @@
     <ClInclude Include="..\materialsystem\cmaterialglue.h" />
     <ClInclude Include="..\materialsystem\cmaterialsystem.h" />
     <ClInclude Include="..\mathlib\adler32.h" />
+    <ClInclude Include="..\mathlib\compressed_vector.h" />
     <ClInclude Include="..\mathlib\fbits.h" />
     <ClInclude Include="..\mathlib\color.h" />
     <ClInclude Include="..\mathlib\crc32.h" />

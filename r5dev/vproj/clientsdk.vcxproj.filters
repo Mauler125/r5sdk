@@ -1820,6 +1820,9 @@
     <ClInclude Include="..\public\ipackedstore.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
+    <ClInclude Include="..\mathlib\compressed_vector.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\shared\resource\lockedserver.png">
