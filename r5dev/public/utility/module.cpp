@@ -42,15 +42,15 @@ CModule::CModule(const string& svModuleName) : m_svModuleName(svModuleName)
 //          *szMask - 
 // Output : CMemory
 //-----------------------------------------------------------------------------
-CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, const ModuleSections_t& moduleSection, const uint32_t nOccurrence) const
+CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, const ModuleSections_t* moduleSection, const uint32_t nOccurrence) const
 {
 	if (!m_ExecutableCode.IsSectionValid())
 		return CMemory();
 
-	const bool bSectionValid = moduleSection.IsSectionValid();
+	const bool bSectionValid = moduleSection ? moduleSection->IsSectionValid() : false;
 
-	const uintptr_t nBase = bSectionValid ? moduleSection.m_pSectionBase : m_ExecutableCode.m_pSectionBase;
-	const uintptr_t nSize = bSectionValid ? moduleSection.m_nSectionSize : m_ExecutableCode.m_nSectionSize;
+	const uintptr_t nBase = bSectionValid ? moduleSection->m_pSectionBase : m_ExecutableCode.m_pSectionBase;
+	const uintptr_t nSize = bSectionValid ? moduleSection->m_nSectionSize : m_ExecutableCode.m_nSectionSize;
 
 	const size_t nMaskLen = strlen(szMask);
 	const uint8_t* pData = reinterpret_cast<uint8_t*>(nBase);
@@ -120,7 +120,7 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, c
 //			&moduleSection
 // Output : CMemory
 //-----------------------------------------------------------------------------
-CMemory CModule::FindPatternSIMD(const string& svPattern, const ModuleSections_t& moduleSection) const
+CMemory CModule::FindPatternSIMD(const string& svPattern, const ModuleSections_t* moduleSection) const
 {
 	uint64_t nRVA;
 	if (g_SigCache.FindEntry(svPattern, nRVA))
@@ -261,8 +261,10 @@ CMemory CModule::GetVirtualMethodTable(const string& svTableName, const uint32_t
 		return CMemory(nRVA + GetModuleBase());
 	}
 
+	ModuleSections_t moduleSection = { ".data", m_RunTimeData.m_pSectionBase, m_RunTimeData.m_nSectionSize };
+
 	const auto tableNameInfo = StringToMaskedBytes(svTableName, false);
-	CMemory rttiTypeDescriptor = FindPatternSIMD(tableNameInfo.first.data(), tableNameInfo.second.c_str(), { ".data", m_RunTimeData.m_pSectionBase, m_RunTimeData.m_nSectionSize }).OffsetSelf(-0x10);
+	CMemory rttiTypeDescriptor = FindPatternSIMD(tableNameInfo.first.data(), tableNameInfo.second.c_str(), &moduleSection).OffsetSelf(-0x10);
 	if (!rttiTypeDescriptor)
 		return CMemory();
 
@@ -272,7 +274,8 @@ CMemory CModule::GetVirtualMethodTable(const string& svTableName, const uint32_t
 	const uintptr_t rttiTDRva = rttiTypeDescriptor.GetPtr() - m_pModuleBase; // The RTTI gets referenced by a 4-Byte RVA address. We need to scan for that address.
 	while (scanStart < scanEnd)
 	{
-		CMemory reference = FindPatternSIMD(reinterpret_cast<rsig_t>(&rttiTDRva), "xxxx", { ".rdata", scanStart, m_ReadOnlyData.m_nSectionSize }, nRefIndex);
+		moduleSection = { ".rdata", scanStart, m_ReadOnlyData.m_nSectionSize };
+		CMemory reference = FindPatternSIMD(reinterpret_cast<rsig_t>(&rttiTDRva), "xxxx", &moduleSection, nRefIndex);
 		if (!reference)
 			break;
 		
@@ -283,7 +286,8 @@ CMemory CModule::GetVirtualMethodTable(const string& svTableName, const uint32_t
 			continue;
 		}
 
-		CMemory vfTable = FindPatternSIMD(reinterpret_cast<rsig_t>(&referenceOffset), "xxxxxxxx", { ".rdata", m_ReadOnlyData.m_pSectionBase, m_ReadOnlyData.m_nSectionSize }).OffsetSelf(0x8);
+		moduleSection = { ".rdata", m_ReadOnlyData.m_pSectionBase, m_ReadOnlyData.m_nSectionSize };
+		CMemory vfTable = FindPatternSIMD(reinterpret_cast<rsig_t>(&referenceOffset), "xxxxxxxx", &moduleSection).OffsetSelf(0x8);
 		g_SigCache.AddEntry(svPackedTableName, GetRVA(vfTable.GetPtr()));
 
 		return vfTable;

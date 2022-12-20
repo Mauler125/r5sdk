@@ -23,7 +23,7 @@ public:
 	CModule(void) = default;
 	CModule(const string& moduleName);
 #ifndef PLUGINSDK
-	CMemory FindPatternSIMD(const string& svPattern, const ModuleSections_t& moduleSection = {}) const;
+	CMemory FindPatternSIMD(const string& svPattern, const ModuleSections_t* moduleSection = nullptr) const;
 	CMemory FindString(const string& string, const ptrdiff_t occurrence = 1, bool nullTerminator = false) const;
 	CMemory FindStringReadOnly(const string& svString, bool nullTerminator) const;
 
@@ -42,7 +42,7 @@ public:
 	ModuleSections_t         m_ReadOnlyData;
 
 private:
-	CMemory FindPatternSIMD(const uint8_t* szPattern, const char* szMask, const ModuleSections_t& moduleSection = {}, const uint32_t nOccurrence = 0) const;
+	CMemory FindPatternSIMD(const uint8_t* szPattern, const char* szMask, const ModuleSections_t* moduleSection = nullptr, const uint32_t nOccurrence = 0) const;
 
 	string                   m_svModuleName;
 	uintptr_t                m_pModuleBase{};
