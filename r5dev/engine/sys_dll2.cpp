@@ -87,7 +87,7 @@ bool CEngineAPI::VModInit(CEngineAPI* pEngineAPI, const char* pModName, const ch
 	ConVar::PurgeShipped();
 
     // Register new Pak Assets here!
-    //RTech_RegisterAsset(0x6C6C64, 1, "dll", Test, nullptr, nullptr, CMemory(0x1660AD0A8).RCast<void**>(), 8, 8, 8, 0, 0xFFFFFFC);
+    //RTech_RegisterAsset(0, 1, "", nullptr, nullptr, nullptr, CMemory(0x1660AD0A8).RCast<void**>(), 8, 8, 8, 0, 0xFFFFFFC);
 
 	bool results = CEngineAPI_ModInit(pEngineAPI, pModName, pGameDir);
 	if (!IsValveMod(pModName) && !IsRespawnMod(pModName))
