@@ -15,6 +15,7 @@
 #include "mathlib/color.h"
 #include "engine/net.h"
 #include "engine/net_chan.h"
+#include "vpc/keyvalues.h"
 #ifndef CLIENT_DLL
 #include "engine/server/server.h"
 #include "engine/client/client.h"
