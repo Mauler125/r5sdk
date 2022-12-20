@@ -403,7 +403,7 @@ class VPakFile : public IDetour
 #if not defined DEDICATED
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 		p_RTech_CreateDXTexture = g_GameDll.FindPatternSIMD("48 8B C4 48 89 48 08 53 55 41 55");
-		RTech_CreateDXTexture = p_RTech_CreateDXTexture.RCast<void(*)(RTechTextureInfo_t*, int64_t)>(); /*48 8B C4 48 89 48 08 53 55 41 55*/
+		RTech_CreateDXTexture = p_RTech_CreateDXTexture.RCast<void(*)(TextureHeader_t*, int64_t)>(); /*48 8B C4 48 89 48 08 53 55 41 55*/
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		p_RTech_CreateDXTexture = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 4C 8B C7 48 8B D5 48 8B CB 48 83 C4 60").FollowNearCallSelf();
 		RTech_CreateDXTexture = p_RTech_CreateDXTexture.RCast<void(*)(TextureHeader_t*, int64_t)>(); /*E8 ? ? ? ? 4C 8B C7 48 8B D5 48 8B CB 48 83 C4 60*/
