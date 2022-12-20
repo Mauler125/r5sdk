@@ -101,10 +101,10 @@ struct RPakAssetBinding_t
 	void* m_pLoadAssetFunction;
 	void* m_pUnloadAssetFunction;
 	void* m_pReplaceAssetFunction;
-	void* m_pUnknownAssetFunction; // [ PIXIE ]: Also a function pointer just sometimes it's set to CStdMemAlloc and sometimes it handles some data.
+	void* m_pAllocAssetFunctions;
 	int m_iSubHeaderSize;
 	int m_iNativeClassSize; // Native class size, for 'material' it would be CMaterialGlue full size.
-	uint32_t unk2;
+	uint32_t m_HeaderAlignment;
 	int unk3;
 	// [ PIXIE ]: Should be the full size across Season 0-3.
 };
