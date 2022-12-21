@@ -5,9 +5,9 @@ class CVTableHelper
 public:
 
 	CVTableHelper(void) = default;
-	CVTableHelper(CModule* module, const std::string& tableName = "", uint32_t refIndex = 0);
-	CVTableHelper(uintptr_t virtualTable, const std::string& tableName = "");
-	CVTableHelper(void* virtualTable, const std::string& tableName = "");
+	CVTableHelper(CModule* module, const string& tableName = "", uint32_t refIndex = 0);
+	CVTableHelper(uintptr_t virtualTable, const string& tableName = "");
+	CVTableHelper(void* virtualTable, const string& tableName = "");
 
 	inline operator uintptr_t(void) const
 	{
@@ -34,7 +34,7 @@ public:
 		return m_nVirtualFunctionCount;
 	}
 
-	const std::string& GetVTableName()
+	const string& GetVTableName()
 	{
 		return m_svVirtualTableName;
 	}

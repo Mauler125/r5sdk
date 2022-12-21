@@ -14,7 +14,7 @@
 //          const std::string& -
 //          uint32_t
 //-----------------------------------------------------------------------------
-CVTableHelper::CVTableHelper(CModule* module, const std::string& tableName, uint32_t refIndex) : m_svVirtualTableName(tableName)
+CVTableHelper::CVTableHelper(CModule* module, const string& tableName, uint32_t refIndex) : m_svVirtualTableName(tableName)
 {
 	m_pVirtualTable = module->GetVirtualMethodTable(tableName, refIndex);
 	m_nVirtualFunctionCount = GetVTableLength();
@@ -27,7 +27,7 @@ CVTableHelper::CVTableHelper(CModule* module, const std::string& tableName, uint
 // Input  : uintptr_t -
 //          const std::string& -
 //-----------------------------------------------------------------------------
-CVTableHelper::CVTableHelper(uintptr_t virtualTable, const std::string& tableName) : m_pVirtualTable(virtualTable), m_svVirtualTableName(tableName)
+CVTableHelper::CVTableHelper(uintptr_t virtualTable, const string& tableName) : m_pVirtualTable(virtualTable), m_svVirtualTableName(tableName)
 {
 	m_nVirtualFunctionCount = GetVTableLength();
 	GetAllVTableFunctions();
@@ -39,7 +39,7 @@ CVTableHelper::CVTableHelper(uintptr_t virtualTable, const std::string& tableNam
 // Input  : void* -
 //          const std::string& -
 //-----------------------------------------------------------------------------
-CVTableHelper::CVTableHelper(void* virtualTable, const std::string& tableName) : m_pVirtualTable(uintptr_t(virtualTable)), m_svVirtualTableName(tableName)
+CVTableHelper::CVTableHelper(void* virtualTable, const string& tableName) : m_pVirtualTable(uintptr_t(virtualTable)), m_svVirtualTableName(tableName)
 {
 	m_nVirtualFunctionCount = GetVTableLength();
 	GetAllVTableFunctions();
