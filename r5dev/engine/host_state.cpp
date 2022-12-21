@@ -153,7 +153,7 @@ FORCEINLINE void CHostState::FrameUpdate(CHostState* pHostState, double flCurren
 			}
 			case HostStates_t::HS_SHUTDOWN:
 			{
-				DevMsg(eDLL_T::ENGINE, "%s - Shutdown state machine\n", "CHostState::FrameUpdate");
+				DevMsg(eDLL_T::ENGINE, __FUNCTION__": Shutdown state machine\n");
 #ifndef DEDICATED
 				CL_EndMovie();
 #endif // !DEDICATED
