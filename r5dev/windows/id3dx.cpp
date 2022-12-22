@@ -340,12 +340,13 @@ HRESULT __stdcall GetResizeBuffers(IDXGISwapChain* pSwapChain, UINT nBufferCount
 {
 	g_pConsole->m_bActivate = false;
 	g_pBrowser->m_bActivate = false;
-	s_bInitialized          = false;
 
+	s_bInitialized  = false;
 	g_nWindowWidth  = nWidth;
 	g_nWindowHeight = nHeight;
 
 	///////////////////////////////////////////////////////////////////////////////
+	ResetInput();
 	DestroyRenderTarget();
 
 	///////////////////////////////////////////////////////////////////////////////
