@@ -638,8 +638,7 @@ void VPK_Mount_f(const CCommand& args)
 		return;
 	}
 
-	const char* pArg = args.Arg(1);
-	FileSystem()->MountVPKFile(pArg);
+	FileSystem()->MountVPKFile(args.Arg(1));
 }
 
 /*
@@ -657,8 +656,7 @@ void VPK_Unmount_f(const CCommand& args)
 		return;
 	}
 
-	const char* pArg = args.Arg(1);
-	FileSystem()->UnmountVPKFile(pArg);
+	FileSystem()->UnmountVPKFile(args.Arg(1));
 }
 
 /*
