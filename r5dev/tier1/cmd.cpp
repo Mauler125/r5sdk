@@ -378,6 +378,7 @@ void ConCommand::Init(void)
 	ConCommand::Create("pak_requestunload", "Requests unload for specified RPAK file or ID.", FCVAR_DEVELOPMENTONLY, Pak_RequestUnload_f, nullptr);
 	ConCommand::Create("pak_swap", "Requests swap for specified RPAK file or ID", FCVAR_DEVELOPMENTONLY, Pak_Swap_f, nullptr);
 	ConCommand::Create("pak_listpaks", "Display a list of the loaded Pak files.", FCVAR_RELEASE, Pak_ListPaks_f, nullptr);
+	ConCommand::Create("pak_listtypes", "Display a list of the registered asset types.", FCVAR_RELEASE, Pak_ListTypes_f, nullptr);
 	//-------------------------------------------------------------------------
 	// NETCHANNEL                                                             |
 	ConCommand::Create("net_setkey", "Sets user specified base64 net key.", FCVAR_RELEASE, NET_SetKey_f, nullptr);

@@ -27,6 +27,7 @@ void Host_Changelevel_f(const CCommand& args);
 void Detour_HotSwap_f(const CCommand& args);
 #endif // !CLIENT_DLL
 void Pak_ListPaks_f(const CCommand& args);
+void Pak_ListTypes_f(const CCommand& args);
 void Pak_RequestUnload_f(const CCommand& args);
 void Pak_RequestLoad_f(const CCommand& args);
 void Pak_Swap_f(const CCommand& args);

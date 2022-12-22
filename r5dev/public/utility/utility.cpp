@@ -848,6 +848,18 @@ pair<vector<uint8_t>, string> StringToMaskedBytes(const string& svInput, bool bN
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+// For converting a 32-bit integer into a 4-char ascii string
+string FourCCToString(int n)
+{
+    stringstream ss;
+    ss << (char)((n & 0x000000ff) >> 0);
+    ss << (char)((n & 0x0000ff00) >> 8);
+    ss << (char)((n & 0x00ff0000) >> 16);
+    ss << (char)((n & 0xff000000) >> 24);
+    return ss.str();
+};
+
+///////////////////////////////////////////////////////////////////////////////
 // For converting a string pattern with wildcards to an array of bytes.
 vector<int> PatternToBytes(const string& svInput)
 {

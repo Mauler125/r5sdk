@@ -277,6 +277,34 @@ void Pak_ListPaks_f(const CCommand& args)
 
 /*
 =====================
+Pak_ListTypes_f
+=====================
+*/
+void Pak_ListTypes_f(const CCommand& args)
+{
+	DevMsg(eDLL_T::RTECH, "| ext  | description               | version | header size | native size |\n");
+	DevMsg(eDLL_T::RTECH, "|------|---------------------------|---------|-------------|-------------|\n");
+
+	uint32_t nRegistered = 0;
+
+	for (int8_t i = 0; i < 64; ++i)
+	{
+		RPakAssetBinding_t* type = &g_pUnknownPakStruct->m_nAssetBindings[i];
+
+		if (!type->m_szDescription)
+			continue;
+		
+		// todo: make status into a string from an array/vector
+		DevMsg(eDLL_T::RTECH, "| %-4s | %-25s | %7i | %11i | %11i |\n", FourCCToString(type->m_nExtension).c_str(), type->m_szDescription, type->m_iVersion, type->m_iSubHeaderSize, type->m_iNativeClassSize);
+		nRegistered++;
+	}
+	DevMsg(eDLL_T::RTECH, "|------|---------------------------|---------|-------------|-------------|\n");
+	DevMsg(eDLL_T::RTECH, "| %18i registered types.                                   |\n", nRegistered);
+	DevMsg(eDLL_T::RTECH, "|------|---------------------------|---------|-------------|-------------|\n");
+}
+
+/*
+=====================
 Pak_RequestUnload_f
 =====================
 */
