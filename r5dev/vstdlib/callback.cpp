@@ -229,7 +229,7 @@ void Detour_HotSwap_f(const CCommand& args)
 	if (!g_pServer->IsActive())
 		return; // Only execute if server is initialized and active.
 
-	DevMsg(eDLL_T::SERVER, "Executing NavMesh hot swap for level '%s'\n", 
+	DevMsg(eDLL_T::SERVER, __FUNCTION__": Executing NavMesh hot swap for level '%s'\n",
 		g_ServerGlobalVariables->m_pszMapName);
 
 	CFastTimer timer;
@@ -238,7 +238,7 @@ void Detour_HotSwap_f(const CCommand& args)
 	Detour_HotSwap();
 
 	timer.End();
-	DevMsg(eDLL_T::SERVER, "Hot swap took '%lf' seconds\n", timer.GetDuration().GetSeconds());
+	DevMsg(eDLL_T::SERVER, __FUNCTION__": Hot swap took '%lf' seconds\n", timer.GetDuration().GetSeconds());
 }
 #endif // !CLIENT_DLL
 /*
@@ -299,7 +299,7 @@ void Pak_RequestUnload_f(const CCommand& args)
 			}
 
 			const string pakName = pakInfo->m_pszFileName;
-			!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested pak unload for file '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested pak unload for handle '%d'\n", pakHandle);
+			!pakName.empty() ? DevMsg(eDLL_T::RTECH, __FUNCTION__": Requested pak unload for file '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, __FUNCTION__": Requested pak unload for handle '%d'\n", pakHandle);
 			g_pakLoadApi->UnloadPak(pakHandle);
 		}
 		else
@@ -310,13 +310,13 @@ void Pak_RequestUnload_f(const CCommand& args)
 				throw std::exception("Found no pak entry for specified name.");
 			}
 
-			DevMsg(eDLL_T::RTECH, "Requested pak unload for file '%s'\n", args.Arg(1));
+			DevMsg(eDLL_T::RTECH, __FUNCTION__": Requested pak unload for file '%s'\n", args.Arg(1));
 			g_pakLoadApi->UnloadPak(pakInfo->m_nHandle);
 		}
 	}
 	catch (const std::exception& e)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - %s\n", __FUNCTION__, e.what());
+		Error(eDLL_T::RTECH, NO_ERROR, __FUNCTION__": %s\n", e.what());
 		return;
 	}
 }
@@ -368,7 +368,7 @@ void Pak_Swap_f(const CCommand& args)
 			pakHandle = pakInfo->m_nHandle;
 		}
 
-		!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested pak swap for file '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested pak swap for handle '%d'\n", pakHandle);
+		!pakName.empty() ? DevMsg(eDLL_T::RTECH, __FUNCTION__": Requested pak swap for file '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, __FUNCTION__": Requested pak swap for handle '%d'\n", pakHandle);
 
 		g_pakLoadApi->UnloadPak(pakHandle);
 
@@ -379,7 +379,7 @@ void Pak_Swap_f(const CCommand& args)
 	}
 	catch (const std::exception& e)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - %s\n", __FUNCTION__, e.what());
+		Error(eDLL_T::RTECH, NO_ERROR, __FUNCTION__": %s\n", e.what());
 		return;
 	}
 }
@@ -429,7 +429,7 @@ void RTech_Decompress_f(const CCommand& args)
 
 	if (!FileSystem()->FileExists(svPakNameIn.c_str(), "GAME"))
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' does not exist!\n", __FUNCTION__, svPakNameIn.c_str());
+		Error(eDLL_T::RTECH, NO_ERROR, __FUNCTION__": pak file '%s' does not exist!\n", svPakNameIn.c_str());
 		return;
 	}
 
@@ -438,7 +438,7 @@ void RTech_Decompress_f(const CCommand& args)
 
 	if (!hPakFile)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - Unable to open '%s' (insufficient rights?)\n", __FUNCTION__, svPakNameIn.c_str());
+		Error(eDLL_T::RTECH, NO_ERROR, __FUNCTION__": Unable to open '%s' (insufficient rights?)\n", svPakNameIn.c_str());
 		return;
 	}
 
@@ -469,21 +469,21 @@ void RTech_Decompress_f(const CCommand& args)
 
 	if (pHeader->m_nMagic != RPAKHEADER)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' has invalid magic!\n", __FUNCTION__, svPakNameIn.c_str());
+		Error(eDLL_T::RTECH, NO_ERROR, __FUNCTION__": pak file '%s' has invalid magic!\n", svPakNameIn.c_str());
 		MemAllocSingleton()->Free(pPakBuf);
 
 		return;
 	}
 	if ((pHeader->m_nFlags[1] & 1) != 1)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' already decompressed!\n", __FUNCTION__, svPakNameIn.c_str());
+		Error(eDLL_T::RTECH, NO_ERROR, __FUNCTION__": pak file '%s' already decompressed!\n", svPakNameIn.c_str());
 		MemAllocSingleton()->Free(pPakBuf);
 
 		return;
 	}
 	if (pHeader->m_nSizeDisk != nPakLen)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' decompressed size '%llu' doesn't match expected size '%llu'!\n", __FUNCTION__, svPakNameIn.c_str(), nPakLen, pHeader->m_nSizeMemory);
+		Error(eDLL_T::RTECH, NO_ERROR, __FUNCTION__": pak file '%s' decompressed size '%llu' doesn't match expected size '%llu'!\n", svPakNameIn.c_str(), nPakLen, pHeader->m_nSizeMemory);
 		MemAllocSingleton()->Free(pPakBuf);
 
 		return;
@@ -494,7 +494,7 @@ void RTech_Decompress_f(const CCommand& args)
 
 	if (nDecompSize == pHeader->m_nSizeDisk)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - calculated size: '%llu' expected: '%llu'!\n", __FUNCTION__, nDecompSize, pHeader->m_nSizeMemory);
+		Error(eDLL_T::RTECH, NO_ERROR, __FUNCTION__": calculated size: '%llu' expected: '%llu'!\n", nDecompSize, pHeader->m_nSizeMemory);
 		MemAllocSingleton()->Free(pPakBuf);
 
 		return;
@@ -513,7 +513,7 @@ void RTech_Decompress_f(const CCommand& args)
 	uint8_t nDecompResult = g_pRTech->DecompressPakFile(&decompState, nPakLen, pHeader->m_nSizeMemory);
 	if (nDecompResult != 1)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - decompression failed for '%s' return value: '%hu'!\n", __FUNCTION__, svPakNameIn.c_str(), nDecompResult);
+		Error(eDLL_T::RTECH, NO_ERROR, __FUNCTION__": decompression failed for '%s' return value: '%hu'!\n", svPakNameIn.c_str(), nDecompResult);
 		MemAllocSingleton()->Free(pPakBuf);
 		MemAllocSingleton()->Free(pDecompBuf);
 
@@ -528,7 +528,7 @@ void RTech_Decompress_f(const CCommand& args)
 
 	if (!hDecompFile)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - Unable to write to '%s' (read-only?)\n", __FUNCTION__, svPakNameOut.c_str());
+		Error(eDLL_T::RTECH, NO_ERROR, __FUNCTION__": Unable to write to '%s' (read-only?)\n", svPakNameOut.c_str());
 
 		MemAllocSingleton()->Free(pPakBuf);
 		MemAllocSingleton()->Free(pDecompBuf);
@@ -826,7 +826,7 @@ void RCON_CmdQuery_f(const CCommand& args)
 	{
 		if (!RCONClient()->IsInitialized())
 		{
-			Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: %s\n", "uninitialized");
+			Warning(eDLL_T::CLIENT, __FUNCTION__": Failed to issue command to RCON server: %s\n", "uninitialized");
 			return;
 		}
 		else if (RCONClient()->IsConnected())
@@ -857,7 +857,7 @@ void RCON_CmdQuery_f(const CCommand& args)
 		}
 		else
 		{
-			Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: %s\n", "unconnected");
+			Warning(eDLL_T::CLIENT, __FUNCTION__": Failed to issue command to RCON server: %s\n", "unconnected");
 			return;
 		}
 	}
@@ -875,7 +875,7 @@ void RCON_Disconnect_f(const CCommand& args)
 	if (RCONClient()->IsConnected())
 	{
 		RCONClient()->Disconnect();
-		DevMsg(eDLL_T::CLIENT, "User closed RCON connection\n");
+		DevMsg(eDLL_T::CLIENT, __FUNCTION__": User closed RCON connection\n");
 	}
 }
 #endif // !DEDICATED
@@ -1018,7 +1018,7 @@ void Mat_CrossHair_f(const CCommand& args)
 	}
 	else
 	{
-		DevMsg(eDLL_T::MS, "%s - No material found >:(\n", __FUNCTION__);
+		DevMsg(eDLL_T::MS, __FUNCTION__": No material found >:(\n");
 	}
 }
 
