@@ -293,8 +293,7 @@ void Pak_ListTypes_f(const CCommand& args)
 
 		if (!type->m_szDescription)
 			continue;
-		
-		// todo: make status into a string from an array/vector
+
 		DevMsg(eDLL_T::RTECH, "| %-4s | %-25s | %7i | %11i | %11i |\n", FourCCToString(type->m_nExtension).c_str(), type->m_szDescription, type->m_iVersion, type->m_iSubHeaderSize, type->m_iNativeClassSize);
 		nRegistered++;
 	}
