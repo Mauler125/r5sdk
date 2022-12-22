@@ -749,7 +749,7 @@ void RTech::PakProcessGuidRelationsForAsset(PakFile_t* pPak, RPakAssetEntry_t* p
 				assetIdx++;
 
 				// Check if we have a deadlock and report it if we have rtech_debug enabled.
-				if (bDebug && assetIdx > 0x40000)
+				if (bDebug && assetIdx >= 0x40000)
 				{
 					Warning(eDLL_T::RTECH, "Possible deadlock detected while processing asset '0x%-16llX' in pak '%-32s'. Uses: %-4i | assetIdxEntryGuid: '0x%-16llX' | currentGuid: '0x%-16llX'\n", pAsset->m_Guid, pPak->m_pszFileName, pAsset->m_nUsesCount, assetIdxEntryGuid, currentGuid);
 					if (IsDebuggerPresent())
