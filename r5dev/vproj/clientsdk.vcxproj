@@ -103,6 +103,7 @@
     <ClCompile Include="..\public\dt_recv.cpp" />
     <ClCompile Include="..\public\networkvar.cpp" />
     <ClCompile Include="..\public\utility\binstream.cpp" />
+    <ClCompile Include="..\public\utility\crashhandler.cpp" />
     <ClCompile Include="..\public\utility\memaddr.cpp" />
     <ClCompile Include="..\public\utility\module.cpp" />
     <ClCompile Include="..\public\utility\sigcache.cpp" />

@@ -1622,6 +1622,9 @@
     <ClCompile Include="..\public\utility\vtable.cpp">
       <Filter>sdk\public\utility</Filter>
     </ClCompile>
+    <ClCompile Include="..\public\utility\crashhandler.cpp">
+      <Filter>sdk\public\utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Dedicated.def" />
