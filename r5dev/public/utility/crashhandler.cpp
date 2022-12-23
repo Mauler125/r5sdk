@@ -129,7 +129,7 @@ long __stdcall ExceptionFilter(EXCEPTION_POINTERS* exceptionInfo)
 
 	// If you are debugging you don't need this.
 	if (IsDebuggerPresent())
-		return EXCEPTION_EXECUTE_HANDLER;
+		return EXCEPTION_CONTINUE_SEARCH;
 
 	// Goodluck on you if you somehow hit a guard page.
 	if (g_ExceptionToString.find(exceptionInfo->ExceptionRecord->ExceptionCode) == g_ExceptionToString.end())
