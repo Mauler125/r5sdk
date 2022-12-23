@@ -19,7 +19,7 @@ private:
 	void* m_hExceptionHandler;
 };
 
-static std::map<DWORD, string> g_ExceptionToString = 
+static const std::map<DWORD, string> g_ExceptionToString = 
 {
 	{ EXCEPTION_ACCESS_VIOLATION,         "Access Violation" },
 	{ EXCEPTION_IN_PAGE_ERROR,            "Access Violation" },
@@ -158,11 +158,11 @@ long __stdcall ExceptionFilter(EXCEPTION_POINTERS* exceptionInfo)
 	svMessage += "\r\nStacktrace:\r\n\r\n";
 
 	// Now get the callstack..
-	constexpr int NUM_FRAMES_TO_CAPTURE = 60;
+	constexpr DWORD NUM_FRAMES_TO_CAPTURE = 60;
 	void* pStackTrace[NUM_FRAMES_TO_CAPTURE] = { 0 };
-	uint16_t nCapturedFrames = RtlCaptureStackBackTrace(0, NUM_FRAMES_TO_CAPTURE, pStackTrace, NULL);
+	WORD nCapturedFrames = RtlCaptureStackBackTrace(0, NUM_FRAMES_TO_CAPTURE, pStackTrace, NULL);
 
-	for (uint16_t i = 0; i < nCapturedFrames; i++)
+	for (WORD i = 0; i < nCapturedFrames; i++)
 	{
 		svMessage += GetModuleCrashOffsetAndName(reinterpret_cast<uintptr_t>(pStackTrace[i])) + "\n";
 	}
@@ -189,7 +189,6 @@ CCrashHandler::~CCrashHandler()
 {
 	RemoveVectoredExceptionHandler(m_hExceptionHandler);
 }
-
 
 // Init on DLL init!
 CCrashHandler* g_CrashHandler = new CCrashHandler();
