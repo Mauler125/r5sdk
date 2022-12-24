@@ -143,26 +143,18 @@ long __stdcall ExceptionFilter(EXCEPTION_POINTERS* exceptionInfo)
 	if (g_ExceptionToString.find(exceptionInfo->ExceptionRecord->ExceptionCode) == g_ExceptionToString.end())
 		return EXCEPTION_CONTINUE_SEARCH;
 
-#ifndef _DEBUG
-	// THIS WONT WORK ON DEBUG!!!
-	// THIS IS DUE TO A JMP TABLE CREATED BY MSVC!!
-	static void* imiRetAddr = nullptr;
-	static auto find_IMI_ref = CMemory(IsMaterialInternal).FindAllCallReferences(reinterpret_cast<uintptr_t>(BuildPropStaticFrustumCullMap), 1000);
-	if (!find_IMI_ref.empty())
-	{
-		imiRetAddr = find_IMI_ref.at(0).Offset(0x5).RCast<void*>();
-	}
-#endif // _DEBUG
-
 	// Now get the callstack..
 	constexpr DWORD NUM_FRAMES_TO_CAPTURE = 60;
 	void* pStackTrace[NUM_FRAMES_TO_CAPTURE] = { 0 };
 	WORD nCapturedFrames = RtlCaptureStackBackTrace(0, NUM_FRAMES_TO_CAPTURE, pStackTrace, NULL);
 
 #ifndef _DEBUG
-	// Check if we found IMI.
-	if (imiRetAddr)
+	// THIS WONT WORK ON DEBUG!!!
+	// THIS IS DUE TO A JMP TABLE CREATED BY MSVC!!
+	static auto find_IMI_ref = CMemory(IsMaterialInternal).FindAllCallReferences(reinterpret_cast<uintptr_t>(BuildPropStaticFrustumCullMap), 1000);
+	if (!find_IMI_ref.empty())
 	{
+		const void* imiRetAddr = find_IMI_ref.at(0).Offset(0x5).RCast<void*>();
 		for (WORD i = 0; i < 10; i++)
 		{
 			if (imiRetAddr == pStackTrace[i])
