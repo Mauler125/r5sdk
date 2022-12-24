@@ -43,7 +43,7 @@ inline int* g_nUnfreeStreamingTextureMemory   = nullptr;
 inline int* g_nUnusableStreamingTextureMemory = nullptr;
 #endif // !DEDICATED
 
-bool IsMaterialInternal(void** pCandidate);
+__declspec(noinline) bool IsMaterialInternal(void** pCandidate);
 void CMaterialSystem_Attach();
 void CMaterialSystem_Detach();
 ///////////////////////////////////////////////////////////////////////////////

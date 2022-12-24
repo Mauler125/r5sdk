@@ -66,7 +66,7 @@ void* __fastcall DispatchDrawCall(int64_t a1, uint64_t a2, int a3, int a4, int64
 // Input  : **pCandidate - 
 // Output : true if valid and material, false otherwise
 //-----------------------------------------------------------------------------
-bool IsMaterialInternal(void** pCandidate)
+__declspec(noinline) bool IsMaterialInternal(void** pCandidate)
 {
 	// NOTE: this is a dirty fix, but for running technically broken BSP's, this is the only fix 
 	// besides going bare metal inline assembly (which on its own isn't directly the problem, but 

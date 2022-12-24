@@ -8,6 +8,14 @@
 
 #ifndef _DEBUG
 
+#include "tier1/cvar.h"
+#include "vpc/keyvalues.h"
+#include "rtech/rtech_utils.h"
+#include "engine/cmodel_bsp.h"
+#include "materialsystem/cmaterialglue.h"
+#include "materialsystem/cmaterialsystem.h"
+#include "bsplib/bsplib.h"
+
 // Class is just for DLL init and DLL close, so we can actually define it here fine.
 class CCrashHandler
 {
@@ -135,6 +143,34 @@ long __stdcall ExceptionFilter(EXCEPTION_POINTERS* exceptionInfo)
 	if (g_ExceptionToString.find(exceptionInfo->ExceptionRecord->ExceptionCode) == g_ExceptionToString.end())
 		return EXCEPTION_CONTINUE_SEARCH;
 
+#ifndef _DEBUG
+	// THIS WONT WORK ON DEBUG!!!
+	// THIS IS DUE TO A JMP TABLE CREATED BY MSVC!!
+	static void* imiRetAddr = nullptr;
+	static auto find_IMI_ref = CMemory(IsMaterialInternal).FindAllCallReferences(reinterpret_cast<uintptr_t>(BuildPropStaticFrustumCullMap), 1000);
+	if (!find_IMI_ref.empty())
+	{
+		imiRetAddr = find_IMI_ref.at(0).Offset(0x5).RCast<void*>();
+	}
+#endif // _DEBUG
+
+	// Now get the callstack..
+	constexpr DWORD NUM_FRAMES_TO_CAPTURE = 60;
+	void* pStackTrace[NUM_FRAMES_TO_CAPTURE] = { 0 };
+	WORD nCapturedFrames = RtlCaptureStackBackTrace(0, NUM_FRAMES_TO_CAPTURE, pStackTrace, NULL);
+
+#ifndef _DEBUG
+	// Check if we found IMI.
+	if (imiRetAddr)
+	{
+		for (WORD i = 0; i < 10; i++)
+		{
+			if (imiRetAddr == pStackTrace[i])
+				return EXCEPTION_CONTINUE_SEARCH;
+		}
+	}
+#endif // _DEBUG
+
 	CONTEXT* pExceptionContext = exceptionInfo->ContextRecord;
 
 	// Setup message.
@@ -157,11 +193,6 @@ long __stdcall ExceptionFilter(EXCEPTION_POINTERS* exceptionInfo)
 
 	svMessage += "\r\nStacktrace:\r\n\r\n";
 
-	// Now get the callstack..
-	constexpr DWORD NUM_FRAMES_TO_CAPTURE = 60;
-	void* pStackTrace[NUM_FRAMES_TO_CAPTURE] = { 0 };
-	WORD nCapturedFrames = RtlCaptureStackBackTrace(0, NUM_FRAMES_TO_CAPTURE, pStackTrace, NULL);
-
 	for (WORD i = 0; i < nCapturedFrames; i++)
 	{
 		svMessage += GetModuleCrashOffsetAndName(reinterpret_cast<uintptr_t>(pStackTrace[i])) + "\n";
@@ -176,6 +207,8 @@ long __stdcall ExceptionFilter(EXCEPTION_POINTERS* exceptionInfo)
 	ioLogFile.Close();
 
 	MessageBoxA(0, svMessage.c_str(), "R5R Crashed :/", MB_ICONERROR | MB_OK);
+
+	bLogged = true;
 
 	return EXCEPTION_EXECUTE_HANDLER;
 }
@@ -192,6 +225,6 @@ CCrashHandler::~CCrashHandler()
 
 // Init on DLL init!
 // Needs fixing for frustum culling, it triggers the SEH handler there which also triggers this, add address to whitelist/whitelist whole code page.
-//CCrashHandler* g_CrashHandler = new CCrashHandler();
+CCrashHandler* g_CrashHandler = new CCrashHandler();
 
 #endif // _DEBUG
