@@ -191,6 +191,7 @@ CCrashHandler::~CCrashHandler()
 }
 
 // Init on DLL init!
-CCrashHandler* g_CrashHandler = new CCrashHandler();
+// Needs fixing for frustum culling, it triggers the SEH handler there which also triggers this, add address to whitelist/whitelist whole code page.
+//CCrashHandler* g_CrashHandler = new CCrashHandler();
 
 #endif // _DEBUG
