@@ -155,7 +155,7 @@ long __stdcall ExceptionFilter(EXCEPTION_POINTERS* exceptionInfo)
 	if (!find_IMI_ref.empty())
 	{
 		const void* imiRetAddr = find_IMI_ref.at(0).Offset(0x5).RCast<void*>();
-		for (WORD i = 0; i < 10; i++)
+		for (WORD i = 0; i < 7; i++)
 		{
 			if (imiRetAddr == pStackTrace[i])
 				return EXCEPTION_CONTINUE_SEARCH;
