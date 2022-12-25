@@ -59,7 +59,7 @@ template<> struct fmt::formatter<M128A> : fmt::formatter<string_view>
 		int v3 = obj.High & INT_MAX;
 		int v4 = obj.High >> 32;
 		return fmt::format_to( ctx.out(),
-			"[ {:G}, {:G}, {:G}, {:G}], [ 0x{:x}, 0x{:x}, 0x{:x}, 0x{:x} ]",
+			"[ [{:G}, {:G}, {:G}, {:G}], [{:#x}, {:#x}, {:#x}, {:#x}] ]",
 			*reinterpret_cast<float*>(&v1),
 			*reinterpret_cast<float*>(&v2),
 			*reinterpret_cast<float*>(&v3),
