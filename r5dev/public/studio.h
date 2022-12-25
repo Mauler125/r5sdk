@@ -539,16 +539,16 @@ struct mstudioanim_valueptr_t
 // flags for the actually per bone animation headers
 // "mstudioanim_valueptr_t" indicates it has a set of offsets into anim tracks
 #define STUDIO_ANIM_DELTA		0x01 // unverified, animation is additive
-#define STUDIO_ANIM_ANIMSCALE	0x02 // mstudioanim_valueptr_t
-#define STUDIO_ANIM_ANIMROT		0x04 // mstudioanim_valueptr_t
-#define STUDIO_ANIM_ANIMPOS		0x08 // mstudioanim_valueptr_t
+#define STUDIO_ANIM_ANIMSCALE	0x01 // mstudioanim_valueptr_t
+#define STUDIO_ANIM_ANIMROT		0x02 // mstudioanim_valueptr_t
+#define STUDIO_ANIM_ANIMPOS		0x04 // mstudioanim_valueptr_t
 
 struct mstudio_rle_anim_t_v54
 {
 
-	short size : 12; // total size of all animation data, not nextoffset because even the last one has it
+	short size : 13; // total size of all animation data, not nextoffset because even the last one has it
 
-	short flags : 4;
+	short flags : 3;
 
 	// if flag 'STUDIO_ANIM_ANIMPOS' then these two
 	float posscale;
