@@ -30,7 +30,9 @@ void CModSystem::Init()
 
 		if (fs::exists(settingsPath))
 		{
-			m_vModList.push_back(CModSystem::ModInstance_t(basePath));
+			CModSystem::ModInstance_t modInst = CModSystem::ModInstance_t(basePath);
+			if (modInst.m_iState == eModState::UNLOADED)
+				m_vModList.push_back(modInst);
 		}
 	}
 
@@ -46,14 +48,14 @@ void CModSystem::LoadModStatusList()
 		for (KeyValues* pSubKey = pModList->GetFirstSubKey(); pSubKey != nullptr; pSubKey = pSubKey->GetNextKey())
 		{
 			size_t idHash = std::hash<std::string>{}(std::string(pSubKey->GetName()));
-			m_vEnabledList.emplace(std::pair<size_t, bool>{idHash, pSubKey->GetBool()});
+			m_vEnabledList.emplace(idHash, pSubKey->GetBool());
 		}
 	}
 }
 
 void CModSystem::WriteModStatusList()
 {
-	KeyValues kv("ModList");
+	KeyValues kv = KeyValues("ModList");
 	KeyValues* pModListKV = kv.FindKey("ModList", true);
 
 	for (auto& it : m_vModList)
@@ -65,7 +67,7 @@ void CModSystem::WriteModStatusList()
 		pModListKV->SetBool(it.m_szModID.c_str(), enabled);
 	}
 
-	CUtlBuffer uBuf(0i64, 0, CUtlBuffer::TEXT_BUFFER);
+	CUtlBuffer uBuf = CUtlBuffer(0i64, 0, CUtlBuffer::TEXT_BUFFER);
 
 	kv.RecursiveSaveToFile(uBuf, 0);
 

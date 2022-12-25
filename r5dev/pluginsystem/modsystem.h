@@ -42,7 +42,6 @@ public:
 	void LoadModStatusList();
 	void WriteModStatusList();
 
-
 	inline vector<ModInstance_t>& GetModList() { return m_vModList; };
 	inline std::map<size_t, bool>& GetEnabledList() { return m_vEnabledList; };
 
