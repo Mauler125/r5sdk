@@ -53,6 +53,7 @@ bool CPluginSystem::LoadPluginInstance(PluginInstance_t& pluginInst)
 
 	CModule pluginModule = CModule(pluginInst.m_svPluginName);
 
+	// Pass selfModule here on load function, we have to do this because local listen/dedi/client dll's are called different, refer to a comment on the pluginsdk.
 	auto onLoadFn = pluginModule.GetExportedFunction("PluginInstance_OnLoad").RCast<PluginInstance_t::OnLoad>();
 	Assert(onLoadFn);
 
