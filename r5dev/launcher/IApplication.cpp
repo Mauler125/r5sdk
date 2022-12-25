@@ -12,6 +12,7 @@
 #include "appframework/engine_launcher_api.h"
 #include "launcher/IApplication.h"
 #include "pluginsystem/pluginsystem.h"
+#include "pluginsystem/modsystem.h"
 #include "ebisusdk/EbisuSDK.h"
 #include "engine/cmodel_bsp.h"
 #include "engine/sys_engine.h"
@@ -67,6 +68,8 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 
 	//InitPluginSystem(pModAppSystemGroup);
 	//CALL_PLUGIN_CALLBACKS(g_pPluginSystem->GetCreateCallbacks(), pModAppSystemGroup);
+
+	g_pModSystem->Init();
 
 #ifndef DEDICATED
 	g_pClientEntityList = g_pFactory->GetFactoryPtr("VClientEntityList003", false).RCast<IClientEntityList*>();
