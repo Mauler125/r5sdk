@@ -35,7 +35,7 @@ static const std::map<DWORD, string> g_ExceptionToString =
 	{ EXCEPTION_ILLEGAL_INSTRUCTION,      "Illegal instruction" },
 	{ EXCEPTION_INVALID_DISPOSITION,      "Invalid disposition" },
 	{ EXCEPTION_NONCONTINUABLE_EXCEPTION, "Non-continuable exception" },
-	{ EXCEPTION_PRIV_INSTRUCTION,         "Priviledged instruction" },
+	{ EXCEPTION_PRIV_INSTRUCTION,         "Privileged instruction" },
 	{ EXCEPTION_STACK_OVERFLOW,           "Stack overflow" },
 	{ EXCEPTION_DATATYPE_MISALIGNMENT,    "Datatype misalignment" },
 	{ EXCEPTION_FLT_DENORMAL_OPERAND,     "Denormal operand [FLT]" },
@@ -46,7 +46,7 @@ static const std::map<DWORD, string> g_ExceptionToString =
 	{ EXCEPTION_FLT_STACK_CHECK,          "Stack check [FLT]" },
 	{ EXCEPTION_FLT_UNDERFLOW,            "Numeric underflow [FLT]" },
 	{ EXCEPTION_INT_DIVIDE_BY_ZERO,       "Divide by zero [INT]" },
-	{ EXCEPTION_INT_OVERFLOW,             "Numeric overfloat [INT]" }
+	{ EXCEPTION_INT_OVERFLOW,             "Numeric overflow [INT]" }
 };
 
 // Borrowed from the R2 project
