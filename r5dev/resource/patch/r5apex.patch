@@ -1,1 +1,6 @@
+//---- PATCH0
 0x249DEE: "or      byte ptr [rdi+14h], 3" --> "and     byte ptr [rdi+14h], 0FDh"; // This fixes an engine bug where '-forceborder' did not force the border over the application window.
+
+//---- PATCH1
+0x1477876:  'FIELD_INTERVALFIELD_MODELINDEX\x00\x00' --> 'FIELD_INTERVAL\x00FIELD_MODELINDEX\x00'; // Concat happened due to bug in engine; Valve forgot a comma separator in the array.
+0x1318C00: 0x0000000000 --> 0x7792474101; // Add new entry in 'g_FieldTypes', this entry points to the 'FIELD_MODELINDEX' string we separated from 'FIELD_INTERVAL'.
