@@ -10,35 +10,29 @@ public:
 	CCrashHandler();
 	~CCrashHandler();
 
-
-	static const char* ExceptionToString(DWORD nExceptionCode);
+	void Lock() const { m_Mutex.lock(); };
+	void Unlock() const { m_Mutex.unlock(); };
 
 	void FormatCrash();
 	void FormatCallstack();
 	void FormatRegisters();
 
-	void FormatAPU(const char* pszRegister, DWORD64 nContent);
-	void FormatFPU(const char* pszRegister, M128A* pxContent);
+	const char* ExceptionToString() const;
 
+	void SetExceptionPointers(EXCEPTION_POINTERS* pExceptionPointers) { m_pExceptionPointers = pExceptionPointers; };
+
+	void WriteFile();
+	void GetCallStack();
+
+private:
 
 	void FormatExceptionAddress(LPCSTR pExceptionAddress = nullptr);
 	void FormatExceptionCode();
 
+	void FormatAPU(const char* pszRegister, DWORD64 nContent);
+	void FormatFPU(const char* pszRegister, M128A* pxContent);
 
-	void GetCallStack();
-
-
-	bool IsPageAccessible();
-
-
-	void SetExceptionPointers(EXCEPTION_POINTERS* pExceptionPointers) { m_pExceptionPointers = pExceptionPointers; };
-
-
-	void WriteFile();
-
-
-	void Lock() const { m_Mutex.lock(); };
-	void Unlock() const { m_Mutex.unlock(); };
+	bool IsPageAccessible() const;
 
 private:
 	enum

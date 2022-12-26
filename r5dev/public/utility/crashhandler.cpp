@@ -20,40 +20,79 @@
 CCrashHandler* g_CrashHandler = new CCrashHandler();
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: formats the crasher (module, address and exception)
 //-----------------------------------------------------------------------------
-const char* CCrashHandler::ExceptionToString(DWORD nExceptionCode)
+void CCrashHandler::FormatCrash()
 {
-	switch (nExceptionCode)
-	{
-	case EXCEPTION_GUARD_PAGE:               { return "\tEXCEPTION_GUARD_PAGE"               ": 0x{:08X}\n"; };
-	case EXCEPTION_BREAKPOINT:               { return "\tEXCEPTION_BREAKPOINT"               ": 0x{:08X}\n"; };
-	case EXCEPTION_SINGLE_STEP:              { return "\tEXCEPTION_SINGLE_STEP"              ": 0x{:08X}\n"; };
-	case EXCEPTION_ACCESS_VIOLATION:         { return "\tEXCEPTION_ACCESS_VIOLATION"         ": 0x{:08X}\n"; };
-	case EXCEPTION_IN_PAGE_ERROR:            { return "\tEXCEPTION_IN_PAGE_ERROR"            ": 0x{:08X}\n"; };
-	case EXCEPTION_INVALID_HANDLE:           { return "\tEXCEPTION_INVALID_HANDLE"           ": 0x{:08X}\n"; };
-	case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:    { return "\tEXCEPTION_ARRAY_BOUNDS_EXCEEDED"    ": 0x{:08X}\n"; };
-	case EXCEPTION_ILLEGAL_INSTRUCTION:      { return "\tEXCEPTION_ILLEGAL_INSTRUCTION"      ": 0x{:08X}\n"; };
-	case EXCEPTION_INVALID_DISPOSITION:      { return "\tEXCEPTION_INVALID_DISPOSITION"      ": 0x{:08X}\n"; };
-	case EXCEPTION_NONCONTINUABLE_EXCEPTION: { return "\tEXCEPTION_NONCONTINUABLE_EXCEPTION" ": 0x{:08X}\n"; };
-	case EXCEPTION_PRIV_INSTRUCTION:         { return "\tEXCEPTION_PRIV_INSTRUCTION"         ": 0x{:08X}\n"; };
-	case EXCEPTION_STACK_OVERFLOW:           { return "\tEXCEPTION_STACK_OVERFLOW"           ": 0x{:08X}\n"; };
-	case EXCEPTION_DATATYPE_MISALIGNMENT:    { return "\tEXCEPTION_DATATYPE_MISALIGNMENT"    ": 0x{:08X}\n"; };
-	case EXCEPTION_FLT_DENORMAL_OPERAND:     { return "\tEXCEPTION_FLT_DENORMAL_OPERAND"     ": 0x{:08X}\n"; };
-	case EXCEPTION_FLT_DIVIDE_BY_ZERO:       { return "\tEXCEPTION_FLT_DIVIDE_BY_ZERO"       ": 0x{:08X}\n"; };
-	case EXCEPTION_FLT_INEXACT_RESULT:       { return "\tEXCEPTION_FLT_INEXACT_RESULT"       ": 0x{:08X}\n"; };
-	case EXCEPTION_FLT_INVALID_OPERATION:    { return "\tEXCEPTION_FLT_INVALID_OPERATION"    ": 0x{:08X}\n"; };
-	case EXCEPTION_FLT_OVERFLOW:             { return "\tEXCEPTION_FLT_OVERFLOW"             ": 0x{:08X}\n"; };
-	case EXCEPTION_FLT_STACK_CHECK:          { return "\tEXCEPTION_FLT_STACK_CHECK"          ": 0x{:08X}\n"; };
-	case EXCEPTION_FLT_UNDERFLOW:            { return "\tEXCEPTION_FLT_UNDERFLOW"            ": 0x{:08X}\n"; };
-	case EXCEPTION_INT_DIVIDE_BY_ZERO:       { return "\tEXCEPTION_INT_DIVIDE_BY_ZERO"       ": 0x{:08X}\n"; };
-	case EXCEPTION_INT_OVERFLOW:             { return "\tEXCEPTION_INT_OVERFLOW"             ": 0x{:08X}\n"; };
-	default:                                 { return "\tUNKNOWN_EXCEPTION"                  ": 0x{:08X}\n"; };
-	}
+	m_svBuffer.append("crash:\n{\n");
+
+	FormatExceptionAddress();
+	FormatExceptionCode();
+
+	m_svBuffer.append("}\n");
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: formats the captured callstack
+//-----------------------------------------------------------------------------
+void CCrashHandler::FormatCallstack()
+{
+	m_svBuffer.append("callstack:\n{\n");
+	for (WORD i = 0; i < m_nCapturedFrames; i++)
+	{
+		FormatExceptionAddress(reinterpret_cast<LPCSTR>(m_ppStackTrace[i]));
+	}
+	m_svBuffer.append("}\n");
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: formats all the registers and their contents
+//-----------------------------------------------------------------------------
+void CCrashHandler::FormatRegisters()
+{
+	m_svBuffer.append("registers:\n{\n");
+
+	PCONTEXT pContextRecord = m_pExceptionPointers->ContextRecord;
+	FormatAPU("rax", pContextRecord->Rax);
+	FormatAPU("rbx", pContextRecord->Rbx);
+	FormatAPU("rcx", pContextRecord->Rcx);
+	FormatAPU("rdx", pContextRecord->Rdx);
+	FormatAPU("rsp", pContextRecord->Rsp);
+	FormatAPU("rbp", pContextRecord->Rbp);
+	FormatAPU("rsi", pContextRecord->Rsi);
+	FormatAPU("rdi", pContextRecord->Rdi);
+	FormatAPU("r8 ", pContextRecord->R8);
+	FormatAPU("r9 ", pContextRecord->R9);
+	FormatAPU("r10", pContextRecord->R10);
+	FormatAPU("r11", pContextRecord->R11);
+	FormatAPU("r12", pContextRecord->R12);
+	FormatAPU("r13", pContextRecord->R13);
+	FormatAPU("r14", pContextRecord->R14);
+	FormatAPU("r15", pContextRecord->R15);
+	FormatAPU("rip", pContextRecord->Rip);
+	FormatFPU("xmm0 ", &pContextRecord->Xmm0);
+	FormatFPU("xmm1 ", &pContextRecord->Xmm1);
+	FormatFPU("xmm2 ", &pContextRecord->Xmm2);
+	FormatFPU("xmm3 ", &pContextRecord->Xmm3);
+	FormatFPU("xmm4 ", &pContextRecord->Xmm4);
+	FormatFPU("xmm5 ", &pContextRecord->Xmm5);
+	FormatFPU("xmm6 ", &pContextRecord->Xmm6);
+	FormatFPU("xmm7 ", &pContextRecord->Xmm7);
+	FormatFPU("xmm8 ", &pContextRecord->Xmm8);
+	FormatFPU("xmm9 ", &pContextRecord->Xmm9);
+	FormatFPU("xmm10", &pContextRecord->Xmm10);
+	FormatFPU("xmm11", &pContextRecord->Xmm11);
+	FormatFPU("xmm12", &pContextRecord->Xmm12);
+	FormatFPU("xmm13", &pContextRecord->Xmm13);
+	FormatFPU("xmm14", &pContextRecord->Xmm14);
+	FormatFPU("xmm15", &pContextRecord->Xmm15);
+
+	m_svBuffer.append("}\n");
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: formats the module, address and exception
+// Input  : pExceptionAddress - 
 //-----------------------------------------------------------------------------
 void CCrashHandler::FormatExceptionAddress(LPCSTR pExceptionAddress)
 {
@@ -84,35 +123,14 @@ void CCrashHandler::FormatExceptionAddress(LPCSTR pExceptionAddress)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-bool CCrashHandler::IsPageAccessible()
-{
-	PCONTEXT pContextRecord = m_pExceptionPointers->ContextRecord;
-	MEMORY_BASIC_INFORMATION pMemory = { 0 };
-
-	SIZE_T t = VirtualQuery((LPCVOID)pContextRecord->Rsp, &pMemory, sizeof(LPCVOID));
-	if (t < sizeof(pMemory) || (pMemory.Protect & PAGE_NOACCESS) || !(pMemory.Protect & PAGE_NOACCESS | PAGE_READWRITE))
-	{
-		return false;
-	}
-	else
-	{
-		return !(pMemory.State & MEM_COMMIT);
-	}
-
-	return false;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: formats the exception code
 //-----------------------------------------------------------------------------
 void CCrashHandler::FormatExceptionCode()
 {
 	DWORD nExceptionCode = m_pExceptionPointers->ExceptionRecord->ExceptionCode;
 	if (nExceptionCode > EXCEPTION_IN_PAGE_ERROR)
 	{
-		m_svBuffer.append(fmt::format(ExceptionToString(nExceptionCode), nExceptionCode));
+		m_svBuffer.append(fmt::format(ExceptionToString(), nExceptionCode));
 	}
 	else if (nExceptionCode >= EXCEPTION_ACCESS_VIOLATION)
 	{
@@ -155,58 +173,12 @@ void CCrashHandler::FormatExceptionCode()
 	}
 	else
 	{
-		m_svBuffer.append(fmt::format(ExceptionToString(nExceptionCode), nExceptionCode));
+		m_svBuffer.append(fmt::format(ExceptionToString(), nExceptionCode));
 	}
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CCrashHandler::GetCallStack()
-{
-	m_nCapturedFrames = RtlCaptureStackBackTrace(0, NUM_FRAMES_TO_CAPTURE, m_ppStackTrace, NULL);
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CCrashHandler::WriteFile()
-{
-	std::time_t time = std::time(nullptr);
-	stringstream ss; ss << "platform\\logs\\" << "apex_crash_" << std::put_time(std::localtime(&time), "%Y-%m-%d %H-%M-%S.txt");
-
-	CIOStream ioLogFile = CIOStream(ss.str(), CIOStream::Mode_t::WRITE);
-	ioLogFile.WriteString(m_svBuffer);
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CCrashHandler::FormatCrash()
-{
-	m_svBuffer.append("crash:\n{\n");
-
-	FormatExceptionAddress();
-	FormatExceptionCode();
-
-	m_svBuffer.append("}\n");
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CCrashHandler::FormatCallstack()
-{
-	m_svBuffer.append("callstack:\n{\n");
-	for (WORD i = 0; i < m_nCapturedFrames; i++)
-	{
-		FormatExceptionAddress(reinterpret_cast<LPCSTR>(m_ppStackTrace[i]));
-	}
-	m_svBuffer.append("}\n");
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: formats the register and its content
 //-----------------------------------------------------------------------------
 void CCrashHandler::FormatAPU(const char* pszRegister, DWORD64 nContent)
 {
@@ -232,15 +204,15 @@ void CCrashHandler::FormatAPU(const char* pszRegister, DWORD64 nContent)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: formats the floating point register and its content
 //-----------------------------------------------------------------------------
 void CCrashHandler::FormatFPU(const char* pszRegister, M128A* pxContent)
 {
 	int nVec[4] =
 	{
-		pxContent->Low& INT_MAX,
+		pxContent->Low & INT_MAX,
 		pxContent->Low >> 32,
-		pxContent->High& INT_MAX,
+		pxContent->High & INT_MAX,
 		pxContent->High >> 32,
 	};
 
@@ -251,7 +223,7 @@ void CCrashHandler::FormatFPU(const char* pszRegister, M128A* pxContent)
 		*reinterpret_cast<float*>(&nVec[3])));
 
 	const char* pszVectorFormat = ", [{:d}, {:d}, {:d}, {:d}] ]\n";
-	int nHighest = *std::max_element(nVec, nVec +4);
+	int nHighest = *std::max_element(nVec, nVec + 4);
 
 	if (nHighest >= 1000000)
 	{
@@ -262,48 +234,77 @@ void CCrashHandler::FormatFPU(const char* pszRegister, M128A* pxContent)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: returns the current exception code as string
 //-----------------------------------------------------------------------------
-void CCrashHandler::FormatRegisters()
+const char* CCrashHandler::ExceptionToString() const
 {
-	m_svBuffer.append("registers:\n{\n");
+	switch (m_pExceptionPointers->ExceptionRecord->ExceptionCode)
+	{
+	case EXCEPTION_GUARD_PAGE:               { return "\tEXCEPTION_GUARD_PAGE"               ": 0x{:08X}\n"; };
+	case EXCEPTION_BREAKPOINT:               { return "\tEXCEPTION_BREAKPOINT"               ": 0x{:08X}\n"; };
+	case EXCEPTION_SINGLE_STEP:              { return "\tEXCEPTION_SINGLE_STEP"              ": 0x{:08X}\n"; };
+	case EXCEPTION_ACCESS_VIOLATION:         { return "\tEXCEPTION_ACCESS_VIOLATION"         ": 0x{:08X}\n"; };
+	case EXCEPTION_IN_PAGE_ERROR:            { return "\tEXCEPTION_IN_PAGE_ERROR"            ": 0x{:08X}\n"; };
+	case EXCEPTION_INVALID_HANDLE:           { return "\tEXCEPTION_INVALID_HANDLE"           ": 0x{:08X}\n"; };
+	case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:    { return "\tEXCEPTION_ARRAY_BOUNDS_EXCEEDED"    ": 0x{:08X}\n"; };
+	case EXCEPTION_ILLEGAL_INSTRUCTION:      { return "\tEXCEPTION_ILLEGAL_INSTRUCTION"      ": 0x{:08X}\n"; };
+	case EXCEPTION_INVALID_DISPOSITION:      { return "\tEXCEPTION_INVALID_DISPOSITION"      ": 0x{:08X}\n"; };
+	case EXCEPTION_NONCONTINUABLE_EXCEPTION: { return "\tEXCEPTION_NONCONTINUABLE_EXCEPTION" ": 0x{:08X}\n"; };
+	case EXCEPTION_PRIV_INSTRUCTION:         { return "\tEXCEPTION_PRIV_INSTRUCTION"         ": 0x{:08X}\n"; };
+	case EXCEPTION_STACK_OVERFLOW:           { return "\tEXCEPTION_STACK_OVERFLOW"           ": 0x{:08X}\n"; };
+	case EXCEPTION_DATATYPE_MISALIGNMENT:    { return "\tEXCEPTION_DATATYPE_MISALIGNMENT"    ": 0x{:08X}\n"; };
+	case EXCEPTION_FLT_DENORMAL_OPERAND:     { return "\tEXCEPTION_FLT_DENORMAL_OPERAND"     ": 0x{:08X}\n"; };
+	case EXCEPTION_FLT_DIVIDE_BY_ZERO:       { return "\tEXCEPTION_FLT_DIVIDE_BY_ZERO"       ": 0x{:08X}\n"; };
+	case EXCEPTION_FLT_INEXACT_RESULT:       { return "\tEXCEPTION_FLT_INEXACT_RESULT"       ": 0x{:08X}\n"; };
+	case EXCEPTION_FLT_INVALID_OPERATION:    { return "\tEXCEPTION_FLT_INVALID_OPERATION"    ": 0x{:08X}\n"; };
+	case EXCEPTION_FLT_OVERFLOW:             { return "\tEXCEPTION_FLT_OVERFLOW"             ": 0x{:08X}\n"; };
+	case EXCEPTION_FLT_STACK_CHECK:          { return "\tEXCEPTION_FLT_STACK_CHECK"          ": 0x{:08X}\n"; };
+	case EXCEPTION_FLT_UNDERFLOW:            { return "\tEXCEPTION_FLT_UNDERFLOW"            ": 0x{:08X}\n"; };
+	case EXCEPTION_INT_DIVIDE_BY_ZERO:       { return "\tEXCEPTION_INT_DIVIDE_BY_ZERO"       ": 0x{:08X}\n"; };
+	case EXCEPTION_INT_OVERFLOW:             { return "\tEXCEPTION_INT_OVERFLOW"             ": 0x{:08X}\n"; };
+	default:                                 { return "\tUNKNOWN_EXCEPTION"                  ": 0x{:08X}\n"; };
+	}
+}
 
+//-----------------------------------------------------------------------------
+// Purpose: tests if memory page is accessible
+//-----------------------------------------------------------------------------
+bool CCrashHandler::IsPageAccessible() const
+{
 	PCONTEXT pContextRecord = m_pExceptionPointers->ContextRecord;
-	FormatAPU("rax", pContextRecord->Rax);
-	FormatAPU("rbx", pContextRecord->Rbx);
-	FormatAPU("rcx", pContextRecord->Rcx);
-	FormatAPU("rdx", pContextRecord->Rdx);
-	FormatAPU("rsp", pContextRecord->Rsp);
-	FormatAPU("rbp", pContextRecord->Rbp);
-	FormatAPU("rsi", pContextRecord->Rsi);
-	FormatAPU("rdi", pContextRecord->Rdi);
-	FormatAPU("r8 ", pContextRecord->R8);
-	FormatAPU("r9 ", pContextRecord->R9);
-	FormatAPU("r10", pContextRecord->R10);
-	FormatAPU("r11", pContextRecord->R11);
-	FormatAPU("r12", pContextRecord->R12);
-	FormatAPU("r13", pContextRecord->R13);
-	FormatAPU("r14", pContextRecord->R14);
-	FormatAPU("r15", pContextRecord->R15);
-	FormatAPU("rip", pContextRecord->Rip);
-	FormatFPU("xmm0 ", &pContextRecord->Xmm0);
-	FormatFPU("xmm1 ", &pContextRecord->Xmm1);
-	FormatFPU("xmm2 ", &pContextRecord->Xmm2);
-	FormatFPU("xmm3 ", &pContextRecord->Xmm3);
-	FormatFPU("xmm4 ", &pContextRecord->Xmm4);
-	FormatFPU("xmm5 ", &pContextRecord->Xmm5);
-	FormatFPU("xmm6 ", &pContextRecord->Xmm6);
-	FormatFPU("xmm7 ", &pContextRecord->Xmm7);
-	FormatFPU("xmm8 ", &pContextRecord->Xmm8);
-	FormatFPU("xmm9 ", &pContextRecord->Xmm9);
-	FormatFPU("xmm10", &pContextRecord->Xmm10);
-	FormatFPU("xmm11", &pContextRecord->Xmm11);
-	FormatFPU("xmm12", &pContextRecord->Xmm12);
-	FormatFPU("xmm13", &pContextRecord->Xmm13);
-	FormatFPU("xmm14", &pContextRecord->Xmm14);
-	FormatFPU("xmm15", &pContextRecord->Xmm15);
+	MEMORY_BASIC_INFORMATION mbi = { 0 };
 
-	m_svBuffer.append("}\n");
+	SIZE_T t = VirtualQuery((LPCVOID)pContextRecord->Rsp, &mbi, sizeof(LPCVOID));
+	if (t < sizeof(mbi) || (mbi.Protect & PAGE_NOACCESS) || !(mbi.Protect & PAGE_NOACCESS | PAGE_READWRITE))
+	{
+		return false;
+	}
+	else
+	{
+		return !(mbi.State & MEM_COMMIT);
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: captures the callstack
+//-----------------------------------------------------------------------------
+void CCrashHandler::GetCallStack()
+{
+	m_nCapturedFrames = RtlCaptureStackBackTrace(0, NUM_FRAMES_TO_CAPTURE, m_ppStackTrace, NULL);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: writes the formatted exception buffer to a file on the disk
+//-----------------------------------------------------------------------------
+void CCrashHandler::WriteFile()
+{
+	std::time_t time = std::time(nullptr);
+	stringstream ss; ss << "platform\\logs\\" << "apex_crash_" << std::put_time(std::localtime(&time), "%Y-%m-%d %H-%M-%S.txt");
+
+	CIOStream ioLogFile = CIOStream(ss.str(), CIOStream::Mode_t::WRITE);
+	ioLogFile.WriteString(m_svBuffer);
 }
 
 //-----------------------------------------------------------------------------
