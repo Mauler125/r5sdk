@@ -204,12 +204,12 @@ class VConCommand : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		p_Cbuf_AddText                      = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\x48\x63\xD9\x41\x8B\xF8\x48\x8D\x0D\x00\x00\x00\x00\x48\x8B\xF2\xFF\x15\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x41\xB9\x00\x00\x00\x00"), "xxxx?xxxx?xxxxxxxxxxxxxx????xxxxx????xxx????xx????");
-		p_Cbuf_Execute                      = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x20\xFF\x15\x00\x00\x00\x00"), "xxxx?xxxx?xxxx?xxxxxxx????");
-		p_Cmd_ForwardToServer               = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x44\x8B\x59\x04"), "xxxx?xxxx?xxxx?xxxx????xxxx");
-		p_ConCommandBase_IsFlagSet          = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x85\x51\x38\x0F\x95\xC0\xC3"), "xxxxxxx");
-		p_NullSub                           = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xC2\x00\x00\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x40\x53\x48\x83\xEC\x20\x48\x8D\x05\x00\x00\x00\x00"), "xxxxxxxxxxxxxxxxxxxxxxxxx????");
-		p_CallbackStub                      = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x33\xC0\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x80\x49\x68\x08"), "xxxxxxxxxxxxxxxxxxxx");
+		p_Cbuf_AddText                      = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 63 D9 41 8B F8 48 8D 0D ?? ?? ?? ?? 48 8B F2 FF 15 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 41 B9 ?? ?? ?? ??");
+		p_Cbuf_Execute                      = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 FF 15 ?? ?? ?? ??");
+		p_Cmd_ForwardToServer               = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 44 8B 59 04");
+		p_ConCommandBase_IsFlagSet          = g_GameDll.FindPatternSIMD("85 51 38 0F 95 C0 C3");
+		p_NullSub                           = g_GameDll.FindPatternSIMD("C2 ?? ?? CC CC CC CC CC CC CC CC CC CC CC CC CC 40 53 48 83 EC 20 48 8D 05 ?? ?? ?? ??");
+		p_CallbackStub                      = g_GameDll.FindPatternSIMD("33 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC 80 49 68 08");
 
 		Cbuf_AddText = p_Cbuf_AddText.RCast<void (*)(ECommandTarget_t, const char*, cmd_source_t)>();           /*48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 63 D9 41 8B F8 48 8D 0D ?? ?? ?? ?? 48 8B F2 FF 15 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 41 B9 ?? ?? ?? ??*/
 		Cbuf_Execute = p_Cbuf_Execute.RCast<void (*)(void)>();                                                  /*48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 FF 15 ?? ?? ?? ??*/

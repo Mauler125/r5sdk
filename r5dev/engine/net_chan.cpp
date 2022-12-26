@@ -39,7 +39,7 @@ const char* CNetChan::GetAddress(void) const
 
 	if (!inet_ntop(AF_INET6, &this->remote_address.adr, s[useSlot], sizeof(s[0])))
 	{
-		Warning(eDLL_T::ENGINE, "%s - Address conversion failed: %s", __FUNCTION__, NET_ErrorString(WSAGetLastError()));
+		Warning(eDLL_T::ENGINE, "%s - Address conversion failed: %s\n", __FUNCTION__, NET_ErrorString(WSAGetLastError()));
 	}
 
 	// Pray the caller uses it before it gets clobbered
@@ -240,7 +240,7 @@ bool CNetChan::ProcessMessages(CNetChan* pChan, bf_read* pMsg)
 	if (pSlot->m_flCurrentNetProcessTime >
 		net_processTimeBudget->GetDouble())
 	{
-		Warning(eDLL_T::ENGINE, "Removing netchannel '%s' ('%s' exceeded frame budget by '%3.1f'ms!)\n", 
+		Warning(eDLL_T::SERVER, "Removing netchannel '%s' ('%s' exceeded frame budget by '%3.1f'ms!)\n", 
 			pChan->GetName(), pChan->GetAddress(), (pSlot->m_flCurrentNetProcessTime - net_processTimeBudget->GetDouble()));
 		pClient->Disconnect(Reputation_t::REP_MARK_BAD, "#DISCONNECT_NETCHAN_OVERFLOW");
 

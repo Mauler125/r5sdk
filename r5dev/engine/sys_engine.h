@@ -37,9 +37,9 @@ class VEngine : public IDetour
 	virtual void GetVar(void) const
 	{
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		g_pEngine = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x80\xB9\x00\x00\x00\x00\x00\x48\x8B\x15\x00\x00\x00\x00"), "xxxxxx?????xxx????").FindPatternSelf("48 8D ?? ?? ?? ?? 01", CMemory::Direction::DOWN, 300).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CEngine*>();
+		g_pEngine = g_GameDll.FindPatternSIMD("48 83 EC 28 80 B9 ?? ?? ?? ?? ?? 48 8B 15 ?? ?? ?? ??").FindPatternSelf("48 8D ?? ?? ?? ?? 01", CMemory::Direction::DOWN, 300).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CEngine*>();
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		g_pEngine = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x80\xB9\x00\x00\x00\x00\x00\xBB\x00\x00\x00\x00"), "xxxxxxxx?????x????").FindPatternSelf("48 8B ?? ?? ?? ?? 01", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CEngine*>();
+		g_pEngine = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 80 B9 ?? ?? ?? ?? ?? BB ?? ?? ?? ??").FindPatternSelf("48 8B ?? ?? ?? ?? 01", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CEngine*>();
 #endif
 	}
 	virtual void GetCon(void) const { }

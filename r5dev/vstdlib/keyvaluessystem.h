@@ -1,9 +1,8 @@
 #pragma once
 
-typedef int HKeySymbol;
-#define INVALID_KEY_SYMBOL (-1)
+#include "public/ikeyvaluessystem.h"
 
-class CKeyValuesSystem // VTABLE @ 0x1413AA1E8 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
+class CKeyValuesSystem : public IKeyValuesSystem// VTABLE @ 0x1413AA1E8 in R5pc_r5launch_N1094_CL456479_2019_10_30_05_20_PM
 {
 public:
 	void RegisterSizeofKeyValues(int64_t size);
@@ -19,7 +18,6 @@ public:
 
 	// Datatypes aren't accurate. But full fill the actual byte distance.
 public:
-	void* m_pVTable;                         // 0x0000
 	int64_t m_iMaxKeyValuesSize;             // 0x0008
 private:
 	char         gap10[240];                 // 0x0010
@@ -52,13 +50,10 @@ class HKeyValuesSystem : public IDetour
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
-		g_pKeyValuesSystem = g_GameDll.FindPatternSIMD(
-			reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x56\x57\x41\x56\x48\x83\xEC\x40\x48\x8B\xF1"), "xxxx?xxxx?xxxxxxxxxxx")
+		g_pKeyValuesSystem = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 40 48 8B F1")
 			.FindPatternSelf("48 8D 0D ?? ?? ?? 01", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CKeyValuesSystem*>();
 
-		g_pKeyValuesMemPool = g_GameDll.FindPatternSIMD(
-			reinterpret_cast<rsig_t>("\x48\x8B\x05\x00\x00\x00\x00\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x48\x85\xD2"), "xxx????xxxxxxxxxxxx").
-			ResolveRelativeAddressSelf(0x3, 0x7).RCast<void*>();
+		g_pKeyValuesMemPool = g_GameDll.FindPatternSIMD("48 8B 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 48 85 D2").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

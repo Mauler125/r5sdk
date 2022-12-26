@@ -3,7 +3,7 @@
 
 struct LogList_t
 {
-	LogList_t(spdlog::level::level_enum nLevel, String svText)
+	LogList_t(const spdlog::level::level_enum nLevel, const String& svText)
 	{
 		m_nLevel = nLevel;
 		m_svText = svText;
@@ -30,11 +30,20 @@ private:
 
 	static void LaunchGame(Forms::Control* pSender);
 	static void CleanSDK(Forms::Control* pSender);
+	static void UpdateSDK(Forms::Control* pSender);
 	static void ReloadPlaylists(Forms::Control* pSender);
 	static void VirtualItemToClipboard(const std::unique_ptr<MouseEventArgs>& pEventArgs, Forms::Control* pSender);
 	static void GetVirtualItem(const std::unique_ptr<Forms::RetrieveVirtualItemEventArgs>& pEventArgs, Forms::Control* pSender);
 	static void ForwardCommandToGame(Forms::Control* pSender);
+
 	eLaunchMode BuildParameter(string& svParameter);
+
+	void AppendReservedCoreCount(string& svParameter);
+
+	void AppendConsoleParameters(string& svParameter);
+	void AppendVideoParameters(string& svParameter);
+	void AppendHostParameters(string& svParameter);
+	void AppendNetParameters(string& svParameter);
 
 	enum class eMode
 	{

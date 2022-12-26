@@ -68,7 +68,6 @@ struct VPKChunkDescriptor_t
 	uint64_t m_nUncompressedSize; // Uncompressed size of chunk.
 	bool     m_bIsCompressed  = false;
 
-	VPKChunkDescriptor_t(){};
 	VPKChunkDescriptor_t(FileHandle_t hDirectoryFile);
 	VPKChunkDescriptor_t(uint32_t nLoadFlags, uint16_t nTextureFlags, uint64_t nPackFileOffset, uint64_t nCompressedSize, uint64_t nUncompressedSize);
 };
@@ -115,6 +114,7 @@ struct VPKDir_t
 	{
 		m_vHeader.m_nHeaderMarker = VPK_HEADER_MARKER; m_vHeader.m_nMajorVersion = VPK_MAJOR_VERSION; 
 		m_vHeader.m_nMinorVersion = VPK_MINOR_VERSION; m_vHeader.m_nDirectorySize = NULL, m_vHeader.m_nSignatureSize = NULL;
+		m_nPackFileCount = NULL;
 	};
 	VPKDir_t(const string& svDirectoryFile);
 	VPKDir_t(const string& svDirectoryFile, bool bSanitizeName);
@@ -156,20 +156,12 @@ public:
 
 	void PackWorkspace(const VPKPair_t& vPair, const string& svWorkspace, const string& svBuildPath, bool bManifestOnly);
 	void UnpackWorkspace(const VPKDir_t& vDirectory, const string& svWorkspace = "");
-
-	void ValidateAdler32PostDecomp(const string& svAssetPath);
-	void ValidateCRC32PostDecomp(const string& svAssetPath);
+	void ValidateCRC32PostDecomp(const string& svAssetPath, const uint32_t nFileCRC);
 
 private:
 	size_t                       m_nChunkCount;       // The number of fragments for this asset.
-	lzham_uint32                 m_nAdler32_Internal; // Internal operation Adler32 file checksum.
-	lzham_uint32                 m_nAdler32;          // Pre/post operation Adler32 file checksum.
-	lzham_uint32                 m_nCrc32_Internal;   // Internal operation Crc32 file checksum.
-	lzham_uint32                 m_nCrc32;            // Pre/post operation Crc32 file checksum.
-	lzham_compress_params        m_lzCompParams;      // LZham decompression parameters.
-	lzham_compress_status_t      m_lzCompStatus;      // LZham compression status.
+	lzham_compress_params        m_lzCompParams;      // LZham compression parameters.
 	lzham_decompress_params      m_lzDecompParams;    // LZham decompression parameters.
-	lzham_decompress_status_t    m_lzDecompStatus;    // LZham decompression status.
 	std::unordered_map<string, VPKChunkDescriptor_t&> m_mChunkHashMap;
 };
 ///////////////////////////////////////////////////////////////////////////////

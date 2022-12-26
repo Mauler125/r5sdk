@@ -62,13 +62,12 @@ class VAI_Network : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		p_CAI_Network__DebugConnectMsg = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x89\x4C\x24\x00\x48\x83\xEC\x18"), "xxxx?xxxx");
+		p_CAI_Network__DebugConnectMsg = g_GameDll.FindPatternSIMD("4C 89 4C 24 ?? 48 83 EC 18");
 		v_CAI_Network__DebugConnectMsg = p_CAI_Network__DebugConnectMsg.RCast<void (*)(int, int, const char*, ...)>(); /*4C 89 4C 24 ?? 48 83 EC 18*/
 	}
 	virtual void GetVar(void) const
 	{
-		g_pAINetwork = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x4C\x63\x91\x00\x00\x00\x00"), "xxxx?xxx????")
-			.FindPatternSelf("48 8B").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CAI_Network**>();
+		g_pAINetwork = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 4C 63 91 ?? ?? ?? ??").FindPatternSelf("48 8B").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CAI_Network**>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

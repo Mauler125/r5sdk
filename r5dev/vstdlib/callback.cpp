@@ -55,7 +55,6 @@
 #ifndef DEDICATED
 #include "game/client/viewrender.h"
 #endif // !DEDICATED
-#include "public/utility/binstream.h"
 
 
 /*
@@ -230,7 +229,7 @@ void Detour_HotSwap_f(const CCommand& args)
 	if (!g_pServer->IsActive())
 		return; // Only execute if server is initialized and active.
 
-	DevMsg(eDLL_T::SERVER, "Executing NavMesh hot swap for level '%s'\n", 
+	DevMsg(eDLL_T::SERVER, __FUNCTION__": Executing NavMesh hot swap for level '%s'\n",
 		g_ServerGlobalVariables->m_pszMapName);
 
 	CFastTimer timer;
@@ -239,7 +238,7 @@ void Detour_HotSwap_f(const CCommand& args)
 	Detour_HotSwap();
 
 	timer.End();
-	DevMsg(eDLL_T::SERVER, "Hot swap took '%lf' seconds\n", timer.GetDuration().GetSeconds());
+	DevMsg(eDLL_T::SERVER, __FUNCTION__": Hot swap took '%lf' seconds\n", timer.GetDuration().GetSeconds());
 }
 #endif // !CLIENT_DLL
 /*
@@ -278,6 +277,33 @@ void Pak_ListPaks_f(const CCommand& args)
 
 /*
 =====================
+Pak_ListTypes_f
+=====================
+*/
+void Pak_ListTypes_f(const CCommand& args)
+{
+	DevMsg(eDLL_T::RTECH, "| ext  | description               | version | header size | native size |\n");
+	DevMsg(eDLL_T::RTECH, "|------|---------------------------|---------|-------------|-------------|\n");
+
+	uint32_t nRegistered = 0;
+
+	for (int8_t i = 0; i < 64; ++i)
+	{
+		RPakAssetBinding_t* type = &g_pUnknownPakStruct->m_nAssetBindings[i];
+
+		if (!type->m_szDescription)
+			continue;
+
+		DevMsg(eDLL_T::RTECH, "| %-4s | %-25s | %7i | %11i | %11i |\n", FourCCToString(type->m_nExtension).c_str(), type->m_szDescription, type->m_iVersion, type->m_iSubHeaderSize, type->m_iNativeClassSize);
+		nRegistered++;
+	}
+	DevMsg(eDLL_T::RTECH, "|------|---------------------------|---------|-------------|-------------|\n");
+	DevMsg(eDLL_T::RTECH, "| %18i registered types.                                   |\n", nRegistered);
+	DevMsg(eDLL_T::RTECH, "|------|---------------------------|---------|-------------|-------------|\n");
+}
+
+/*
+=====================
 Pak_RequestUnload_f
 =====================
 */
@@ -300,7 +326,7 @@ void Pak_RequestUnload_f(const CCommand& args)
 			}
 
 			const string pakName = pakInfo->m_pszFileName;
-			!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested pak unload for file '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested pak unload for handle '%d'\n", pakHandle);
+			!pakName.empty() ? DevMsg(eDLL_T::RTECH, __FUNCTION__": Requested pak unload for file '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, __FUNCTION__": Requested pak unload for handle '%d'\n", pakHandle);
 			g_pakLoadApi->UnloadPak(pakHandle);
 		}
 		else
@@ -311,13 +337,13 @@ void Pak_RequestUnload_f(const CCommand& args)
 				throw std::exception("Found no pak entry for specified name.");
 			}
 
-			DevMsg(eDLL_T::RTECH, "Requested pak unload for file '%s'\n", args.Arg(1));
+			DevMsg(eDLL_T::RTECH, __FUNCTION__": Requested pak unload for file '%s'\n", args.Arg(1));
 			g_pakLoadApi->UnloadPak(pakInfo->m_nHandle);
 		}
 	}
 	catch (const std::exception& e)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - %s", __FUNCTION__, e.what());
+		Error(eDLL_T::RTECH, NO_ERROR, __FUNCTION__": %s\n", e.what());
 		return;
 	}
 }
@@ -369,7 +395,7 @@ void Pak_Swap_f(const CCommand& args)
 			pakHandle = pakInfo->m_nHandle;
 		}
 
-		!pakName.empty() ? DevMsg(eDLL_T::RTECH, "Requested pak swap for file '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, "Requested pak swap for handle '%d'\n", pakHandle);
+		!pakName.empty() ? DevMsg(eDLL_T::RTECH, __FUNCTION__": Requested pak swap for file '%s'\n", pakName.c_str()) : DevMsg(eDLL_T::RTECH, __FUNCTION__": Requested pak swap for handle '%d'\n", pakHandle);
 
 		g_pakLoadApi->UnloadPak(pakHandle);
 
@@ -380,7 +406,7 @@ void Pak_Swap_f(const CCommand& args)
 	}
 	catch (const std::exception& e)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - %s", __FUNCTION__, e.what());
+		Error(eDLL_T::RTECH, NO_ERROR, __FUNCTION__": %s\n", e.what());
 		return;
 	}
 }
@@ -419,103 +445,150 @@ void RTech_Decompress_f(const CCommand& args)
 		return;
 	}
 
-	static const string modDir = "paks\\Win32\\";
-	static const string baseDir = "paks\\Win64\\";
+	static const string svModDir = "paks\\Win32\\";
+	static const string svBaseDir = "paks\\Win64\\";
 
-	const string pakNameOut = modDir + args.Arg(1);
-	const string pakNameIn = baseDir + args.Arg(1);
-
-	CreateDirectories(pakNameOut);
+	const string svPakNameOut = svModDir + args.Arg(1);
+	const string svPakNameIn = svBaseDir + args.Arg(1);
 
 	DevMsg(eDLL_T::RTECH, "______________________________________________________________\n");
 	DevMsg(eDLL_T::RTECH, "-+ RTech decompress ------------------------------------------\n");
 
-	if (!FileExists(pakNameIn))
+	if (!FileSystem()->FileExists(svPakNameIn.c_str(), "GAME"))
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' does not exist!\n", __FUNCTION__, pakNameIn.c_str());
+		Error(eDLL_T::RTECH, NO_ERROR, __FUNCTION__": pak file '%s' does not exist!\n", svPakNameIn.c_str());
 		return;
 	}
 
-	DevMsg(eDLL_T::RTECH, " |-+ Processing: '%s'\n", pakNameIn.c_str());
-	CIOStream reader(pakNameIn, CIOStream::Mode_t::READ);
+	DevMsg(eDLL_T::RTECH, " |-+ Processing: '%s'\n", svPakNameIn.c_str());
+	FileHandle_t hPakFile = FileSystem()->Open(svPakNameIn.c_str(), "rb", "GAME");
 
-	RPakHeader_t rheader = reader.Read<RPakHeader_t>();
-	uint16_t flags = (rheader.m_nFlags[0] << 8) | rheader.m_nFlags[1];
+	if (!hPakFile)
+	{
+		Error(eDLL_T::RTECH, NO_ERROR, __FUNCTION__": Unable to open '%s' (insufficient rights?)\n", svPakNameIn.c_str());
+		return;
+	}
+
+	uint32_t nPakLen = FileSystem()->Size(hPakFile);
+	uint8_t* pPakBuf = MemAllocSingleton()->Alloc<uint8_t>(nPakLen);
+
+	FileSystem()->Read(pPakBuf, nPakLen, hPakFile);
+	FileSystem()->Close(hPakFile);
+
+	RPakHeader_t* pHeader = reinterpret_cast<RPakHeader_t*>(pPakBuf);
+
+	uint32_t nLen = FileSystem()->Size(hPakFile);
+	uint16_t flags = (pHeader->m_nFlags[0] << 8) | pHeader->m_nFlags[1];
+
+	SYSTEMTIME systemTime;
+	FileTimeToSystemTime(&pHeader->m_nFileTime, &systemTime);
 
 	DevMsg(eDLL_T::RTECH, " | |-+ Header ------------------------------------------------\n");
-	DevMsg(eDLL_T::RTECH, " |   |-- Magic    : '%08X'\n", rheader.m_nMagic);
-	DevMsg(eDLL_T::RTECH, " |   |-- Version  : '%hu'\n", rheader.m_nVersion);
-	DevMsg(eDLL_T::RTECH, " |   |-- Flags    : '%04hX'\n", flags);
-	DevMsg(eDLL_T::RTECH, " |   |-- Hash     : '%llu%llu'\n", rheader.m_nHash0, rheader.m_nHash1);
-	DevMsg(eDLL_T::RTECH, " |   |-- Entries  : '%u'\n", rheader.m_nAssetEntryCount);
+	DevMsg(eDLL_T::RTECH, " |   |-- Magic    : '0x%08X'\n", pHeader->m_nMagic);
+	DevMsg(eDLL_T::RTECH, " |   |-- Version  : '%hu'\n", pHeader->m_nVersion);
+	DevMsg(eDLL_T::RTECH, " |   |-- Flags    : '0x%04hX'\n", flags);
+	DevMsg(eDLL_T::RTECH, " |   |-- Time     : '%hu-%hu-%hu/%hu %hu:%hu:%hu.%hu'\n",systemTime.wYear,systemTime.wMonth,systemTime.wDay, systemTime.wDayOfWeek, systemTime.wHour, systemTime.wMinute, systemTime.wSecond, systemTime.wMilliseconds);
+	DevMsg(eDLL_T::RTECH, " |   |-- Hash     : '0x%08llX'\n", pHeader->m_nHash);
+	DevMsg(eDLL_T::RTECH, " |   |-- Entries  : '%u'\n", pHeader->m_nAssetEntryCount);
 	DevMsg(eDLL_T::RTECH, " |   |-+ Compression -----------------------------------------\n");
-	DevMsg(eDLL_T::RTECH, " |     |-- Size disk: '%llu'\n", rheader.m_nSizeDisk);
-	DevMsg(eDLL_T::RTECH, " |     |-- Size decp: '%llu'\n", rheader.m_nSizeMemory);
+	DevMsg(eDLL_T::RTECH, " |     |-- Size comp: '%llu'\n", pHeader->m_nSizeDisk);
+	DevMsg(eDLL_T::RTECH, " |     |-- Size decp: '%llu'\n", pHeader->m_nSizeMemory);
 
-	if (rheader.m_nMagic != RPAKHEADER)
+	if (pHeader->m_nMagic != RPAKHEADER)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' has invalid magic!\n", __FUNCTION__, pakNameIn.c_str());
+		Error(eDLL_T::RTECH, NO_ERROR, __FUNCTION__": pak file '%s' has invalid magic!\n", svPakNameIn.c_str());
+		MemAllocSingleton()->Free(pPakBuf);
+
 		return;
 	}
-	if ((rheader.m_nFlags[1] & 1) != 1)
+	if ((pHeader->m_nFlags[1] & 1) != 1)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' already decompressed!\n", __FUNCTION__, pakNameIn.c_str());
+		Error(eDLL_T::RTECH, NO_ERROR, __FUNCTION__": pak file '%s' already decompressed!\n", svPakNameIn.c_str());
+		MemAllocSingleton()->Free(pPakBuf);
+
 		return;
 	}
-	if (rheader.m_nSizeDisk != reader.GetSize())
+	if (pHeader->m_nSizeDisk != nPakLen)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - pak file '%s' decompressed size '%zu' doesn't match expected size '%llu'!\n", __FUNCTION__, pakNameIn.c_str(), reader.GetSize(), rheader.m_nSizeMemory);
+		Error(eDLL_T::RTECH, NO_ERROR, __FUNCTION__": pak file '%s' decompressed size '%llu' doesn't match expected size '%llu'!\n", svPakNameIn.c_str(), nPakLen, pHeader->m_nSizeMemory);
+		MemAllocSingleton()->Free(pPakBuf);
+
 		return;
 	}
 
-	RPakDecompState_t state;
-	uint64_t decompSize = g_pRTech->DecompressPakFileInit(&state, const_cast<uint8_t*>(reader.GetData()), reader.GetSize(), NULL, sizeof(RPakHeader_t));
+	RPakDecompState_t decompState;
+	uint64_t nDecompSize = g_pRTech->DecompressPakFileInit(&decompState, pPakBuf, nPakLen, NULL, sizeof(RPakHeader_t));
 
-	if (decompSize == rheader.m_nSizeDisk)
+	if (nDecompSize == pHeader->m_nSizeDisk)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - calculated size: '%llu' expected: '%llu'!\n", __FUNCTION__, decompSize, rheader.m_nSizeMemory);
+		Error(eDLL_T::RTECH, NO_ERROR, __FUNCTION__": calculated size: '%llu' expected: '%llu'!\n", nDecompSize, pHeader->m_nSizeMemory);
+		MemAllocSingleton()->Free(pPakBuf);
+
 		return;
 	}
 	else
 	{
-		DevMsg(eDLL_T::RTECH, " |     |-- Size calc: '%llu'\n", decompSize);
+		DevMsg(eDLL_T::RTECH, " |     |-- Size calc: '%llu'\n", nDecompSize);
 	}
 
-	DevMsg(eDLL_T::RTECH, " |     |-- Ratio    : '%.02f'\n", (rheader.m_nSizeDisk * 100.f) / rheader.m_nSizeMemory);
-	vector<uint8_t> pakBuf(rheader.m_nSizeMemory, 0);
+	DevMsg(eDLL_T::RTECH, " |     |-- Ratio    : '%.02f'\n", (pHeader->m_nSizeDisk * 100.f) / pHeader->m_nSizeMemory);
+	uint8_t* pDecompBuf = MemAllocSingleton()->Alloc<uint8_t>(pHeader->m_nSizeMemory);
 
-	state.m_nOutMask = UINT64_MAX;
-	state.m_nOut = uint64_t(pakBuf.data());
+	decompState.m_nOutMask = UINT64_MAX;
+	decompState.m_nOut = uint64_t(pDecompBuf);
 
-	uint8_t decompResult = g_pRTech->DecompressPakFile(&state, reader.GetSize(), pakBuf.size());
-	if (decompResult != 1)
+	uint8_t nDecompResult = g_pRTech->DecompressPakFile(&decompState, nPakLen, pHeader->m_nSizeMemory);
+	if (nDecompResult != 1)
 	{
-		Error(eDLL_T::RTECH, NO_ERROR, "%s - decompression failed for '%s' return value: '%hu'!\n", __FUNCTION__, pakNameIn.c_str(), decompResult);
+		Error(eDLL_T::RTECH, NO_ERROR, __FUNCTION__": decompression failed for '%s' return value: '%hu'!\n", svPakNameIn.c_str(), nDecompResult);
+		MemAllocSingleton()->Free(pPakBuf);
+		MemAllocSingleton()->Free(pDecompBuf);
+
 		return;
 	}
 
-	rheader.m_nFlags[1] = 0x0; // Set compressed flag to false for the decompressed pak file.
-	rheader.m_nSizeDisk = rheader.m_nSizeMemory; // Equal compressed size with decompressed.
+	pHeader->m_nFlags[1] = 0x0; // Set compressed flag to false for the decompressed pak file.
+	pHeader->m_nSizeDisk = pHeader->m_nSizeMemory; // Equal compressed size with decompressed.
 
-	CIOStream writer(pakNameOut, CIOStream::Mode_t::WRITE);
+	FileSystem()->CreateDirHierarchy(svModDir.c_str(), "GAME");
+	FileHandle_t hDecompFile = FileSystem()->Open(svPakNameOut.c_str(), "wb", "GAME");
 
-	if (rheader.m_nPatchIndex > 0) // Check if its an patch rpak.
+	if (!hDecompFile)
+	{
+		Error(eDLL_T::RTECH, NO_ERROR, __FUNCTION__": Unable to write to '%s' (read-only?)\n", svPakNameOut.c_str());
+
+		MemAllocSingleton()->Free(pPakBuf);
+		MemAllocSingleton()->Free(pDecompBuf);
+
+		return;
+	}
+
+	if (pHeader->m_nPatchIndex > 0) // Check if its an patch rpak.
 	{
 		// Loop through all the structs and patch their compress size.
-		for (uint32_t i = 1, patchOffset = (sizeof(RPakHeader_t) + sizeof(uint64_t));
-			i <= rheader.m_nPatchIndex; i++, patchOffset += sizeof(RPakPatchCompressedHeader_t))
+		for (uint32_t i = 1, nPatchOffset = (sizeof(RPakHeader_t) + sizeof(uint64_t));
+			i <= pHeader->m_nPatchIndex; i++, nPatchOffset += sizeof(RPakPatchCompressedHeader_t))
 		{
-			RPakPatchCompressedHeader_t* patchHeader = (RPakPatchCompressedHeader_t*)((uintptr_t)pakBuf.data() + patchOffset);
-			patchHeader->m_nSizeDisk = patchHeader->m_nSizeMemory; // Fix size for decompress.
+			RPakPatchCompressedHeader_t* pPatchHeader = reinterpret_cast<RPakPatchCompressedHeader_t*>(pDecompBuf + nPatchOffset);
+			DevMsg(eDLL_T::RTECH, " |     |-+ Patch #%02u -----------------------------------------\n", i);
+			DevMsg(eDLL_T::RTECH, " |     %s |-- Size comp: '%llu'\n", i < pHeader->m_nPatchIndex ? "|" : " ", pPatchHeader->m_nSizeDisk);
+			DevMsg(eDLL_T::RTECH, " |     %s |-- Size decp: '%llu'\n", i < pHeader->m_nPatchIndex ? "|" : " ", pPatchHeader->m_nSizeMemory);
+
+			pPatchHeader->m_nSizeDisk = pPatchHeader->m_nSizeMemory; // Fix size for decompress.
 		}
 	}
 
-	memcpy_s(pakBuf.data(), state.m_nDecompSize, &rheader, sizeof(RPakHeader_t)); // Overwrite first 0x80 bytes which are NULL with the header data.
-	writer.Write(pakBuf.data(), state.m_nDecompSize);
+	memcpy_s(pDecompBuf, sizeof(RPakHeader_t), pPakBuf, sizeof(RPakHeader_t));// Overwrite first 0x80 bytes which are NULL with the header data.
+	FileSystem()->Write(pDecompBuf, decompState.m_nDecompSize, hDecompFile);
 
-	DevMsg(eDLL_T::RTECH, " |     |-- Checksum : '%08X'\n", crc32::update(NULL, pakBuf.data(), state.m_nDecompSize));
-	DevMsg(eDLL_T::RTECH, " |-+ Decompressed pak file to: '%s'\n", pakNameOut.c_str());
+	DevMsg(eDLL_T::RTECH, " |-- Checksum : '0x%08X'\n", crc32::update(NULL, pDecompBuf, decompState.m_nDecompSize));
+	DevMsg(eDLL_T::RTECH, "-+ Decompressed pak file to: '%s'\n", svPakNameOut.c_str());
 	DevMsg(eDLL_T::RTECH, "--------------------------------------------------------------\n");
+
+	MemAllocSingleton()->Free(pPakBuf);
+	MemAllocSingleton()->Free(pDecompBuf);
+
+	FileSystem()->Close(hDecompFile);
 }
 
 /*
@@ -592,8 +665,7 @@ void VPK_Mount_f(const CCommand& args)
 		return;
 	}
 
-	const char* pArg = args.Arg(1);
-	FileSystem()->MountVPKFile(pArg);
+	FileSystem()->MountVPKFile(args.Arg(1));
 }
 
 /*
@@ -611,8 +683,7 @@ void VPK_Unmount_f(const CCommand& args)
 		return;
 	}
 
-	const char* pArg = args.Arg(1);
-	FileSystem()->UnmountVPKFile(pArg);
+	FileSystem()->UnmountVPKFile(args.Arg(1));
 }
 
 /*
@@ -780,7 +851,7 @@ void RCON_CmdQuery_f(const CCommand& args)
 	{
 		if (!RCONClient()->IsInitialized())
 		{
-			Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: %s\n", "uninitialized");
+			Warning(eDLL_T::CLIENT, __FUNCTION__": Failed to issue command to RCON server: %s\n", "uninitialized");
 			return;
 		}
 		else if (RCONClient()->IsConnected())
@@ -811,7 +882,7 @@ void RCON_CmdQuery_f(const CCommand& args)
 		}
 		else
 		{
-			Warning(eDLL_T::CLIENT, "Failed to issue command to RCON server: %s\n", "unconnected");
+			Warning(eDLL_T::CLIENT, __FUNCTION__": Failed to issue command to RCON server: %s\n", "unconnected");
 			return;
 		}
 	}
@@ -829,7 +900,7 @@ void RCON_Disconnect_f(const CCommand& args)
 	if (RCONClient()->IsConnected())
 	{
 		RCONClient()->Disconnect();
-		DevMsg(eDLL_T::CLIENT, "User closed RCON connection\n");
+		DevMsg(eDLL_T::CLIENT, __FUNCTION__": User closed RCON connection\n");
 	}
 }
 #endif // !DEDICATED
@@ -972,7 +1043,7 @@ void Mat_CrossHair_f(const CCommand& args)
 	}
 	else
 	{
-		DevMsg(eDLL_T::MS, "%s - No material found >:(\n", __FUNCTION__);
+		DevMsg(eDLL_T::MS, __FUNCTION__": No material found >:(\n");
 	}
 }
 

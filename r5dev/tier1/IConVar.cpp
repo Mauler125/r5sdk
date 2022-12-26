@@ -166,8 +166,10 @@ void ConVar::Init(void)
 	con_notify_native_ui_clr     = ConVar::Create("con_notify_native_ui_clr"    , "200 60 60 255"  , FCVAR_MATERIAL_SYSTEM_THREAD, "Native UI RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 	con_notify_native_engine_clr = ConVar::Create("con_notify_native_engine_clr", "255 255 255 255", FCVAR_MATERIAL_SYSTEM_THREAD, "Native engine RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 	con_notify_native_fs_clr     = ConVar::Create("con_notify_native_fs_clr"    , "0 100 225 255"  , FCVAR_MATERIAL_SYSTEM_THREAD, "Native FileSystem RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
-	con_notify_native_rtech_clr  = ConVar::Create("con_notify_native_rtech_clr" , "25 100 100 255" , FCVAR_MATERIAL_SYSTEM_THREAD, "Native RTech RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	con_notify_native_rtech_clr  = ConVar::Create("con_notify_native_rtech_clr" , "25 120 20 255"  , FCVAR_MATERIAL_SYSTEM_THREAD, "Native RTech RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 	con_notify_native_ms_clr     = ConVar::Create("con_notify_native_ms_clr"    , "200 20 180 255" , FCVAR_MATERIAL_SYSTEM_THREAD, "Native MaterialSystem RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	con_notify_native_audio_clr  = ConVar::Create("con_notify_native_audio_clr" , "238 43 10 255"  , FCVAR_MATERIAL_SYSTEM_THREAD, "Native AudioSystem RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
+	con_notify_native_video_clr  = ConVar::Create("con_notify_native_video_clr" , "115 0 235 255"  , FCVAR_MATERIAL_SYSTEM_THREAD, "Native VideoSystem RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 
 	con_notify_netcon_clr  = ConVar::Create("con_notify_netcon_clr" , "255 255 255 255", FCVAR_MATERIAL_SYSTEM_THREAD, "Net console RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
 	con_notify_common_clr  = ConVar::Create("con_notify_common_clr" , "255 140 80 255" , FCVAR_MATERIAL_SYSTEM_THREAD, "Common RUI console overlay log color.", false, 1.f, false, 50.f, nullptr, nullptr);
@@ -220,6 +222,11 @@ void ConVar::Init(void)
 	// RUI                                                                    |
 #ifndef DEDICATED
 	rui_drawEnable = ConVar::Create("rui_drawEnable", "1", FCVAR_RELEASE, "Draws the RUI if set.", false, 0.f, false, 0.f, nullptr, " 1 = Draw, 0 = No Draw.");
+#endif // !DEDICATED
+	//-------------------------------------------------------------------------
+	// MILES                                                                  |
+#ifndef DEDICATED
+	miles_debug = ConVar::Create("miles_debug", "0", FCVAR_RELEASE, "Enables debug prints for the Miles Sound System", false, 0.f, false, 0.f, nullptr, " 1 = Print, 0 = No Print");
 #endif // !DEDICATED
 	//-------------------------------------------------------------------------
 }

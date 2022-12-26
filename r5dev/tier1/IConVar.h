@@ -126,13 +126,13 @@ class VConVar : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		p_ConVar_IsFlagSet = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\x41\x48\x85\x50\x38"), "xxxxxxx");
+		p_ConVar_IsFlagSet = g_GameDll.FindPatternSIMD("48 8B 41 48 85 50 38");
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_ConVar_Register = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x83\xEC\x30\xF3\x0F\x10\x44\x24\x00"), "xxxx?xxxx?xxxx?xxxx?xxxxxxxxxxx?");
+		p_ConVar_Register = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC 30 F3 0F 10 44 24 ??");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_ConVar_Register = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x40\xF3\x0F\x10\x84\x24\x00\x00\x00\x00"), "xxxx?xxxx?xxxx?xxxxxxxxxx????");
+		p_ConVar_Register = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 40 F3 0F 10 84 24 ?? ?? ?? ??");
 #endif
-		p_ConVar_PrintDescription = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\xB8\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x2B\xE0\x48\x8B\x01\x48\x89\x9C\x24\x00\x00\x00\x00"), "x????x????xxxxxxxxxx????");
+		p_ConVar_PrintDescription = g_GameDll.FindPatternSIMD("B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B 01 48 89 9C 24 ?? ?? ?? ??");
 
 		v_ConVar_IsFlagSet = p_ConVar_IsFlagSet.RCast<bool (*)(ConVar*, int)>();                                                                                                  /*48 8B 41 48 85 50 38*/
 		v_ConVar_Register = p_ConVar_Register.RCast<void* (*)(ConVar*, const char*, const char*, int, const char*, bool, float, bool, float, FnChangeCallback_t, const char*)>(); /*48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 40 F3 0F 10 84 24 ? ? ? ?*/

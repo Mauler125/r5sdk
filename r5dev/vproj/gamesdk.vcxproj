@@ -15,6 +15,8 @@
     <ClCompile Include="..\bsplib\bsplib.cpp" />
     <ClCompile Include="..\client\cdll_engine_int.cpp" />
     <ClCompile Include="..\client\vengineclient_impl.cpp" />
+    <ClCompile Include="..\codecs\bink\bink_impl.cpp" />
+    <ClCompile Include="..\codecs\Miles\miles_impl.cpp" />
     <ClCompile Include="..\common\netmessages.cpp" />
     <ClCompile Include="..\common\opcodes.cpp" />
     <ClCompile Include="..\core\dllmain.cpp" />
@@ -42,6 +44,7 @@
     <ClCompile Include="..\engine\host.cpp" />
     <ClCompile Include="..\engine\host_cmd.cpp" />
     <ClCompile Include="..\engine\host_state.cpp" />
+    <ClCompile Include="..\engine\matsys_interface.cpp" />
     <ClCompile Include="..\engine\modelloader.cpp" />
     <ClCompile Include="..\engine\net.cpp" />
     <ClCompile Include="..\engine\networkstringtable.cpp" />
@@ -97,15 +100,24 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\protoc\sig_map.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\protoc\sv_rcon.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\public\datamap.cpp" />
+    <ClCompile Include="..\public\dt_recv.cpp" />
+    <ClCompile Include="..\public\networkvar.cpp" />
     <ClCompile Include="..\public\utility\binstream.cpp" />
+    <ClCompile Include="..\public\utility\crashhandler.cpp" />
     <ClCompile Include="..\public\utility\memaddr.cpp" />
     <ClCompile Include="..\public\utility\module.cpp" />
+    <ClCompile Include="..\public\utility\sigcache.cpp" />
     <ClCompile Include="..\public\utility\utility.cpp" />
+    <ClCompile Include="..\public\utility\vtable.cpp" />
     <ClCompile Include="..\rtech\rtech_utils.cpp" />
     <ClCompile Include="..\rtech\rtech_game.cpp" />
     <ClCompile Include="..\rtech\rui\rui.cpp" />
@@ -166,6 +178,10 @@
     <ClInclude Include="..\bsplib\bsplib.h" />
     <ClInclude Include="..\client\cdll_engine_int.h" />
     <ClInclude Include="..\client\vengineclient_impl.h" />
+    <ClInclude Include="..\codecs\bink\bink_impl.h" />
+    <ClInclude Include="..\codecs\Miles\miles_impl.h" />
+    <ClInclude Include="..\codecs\Miles\miles_types.h" />
+    <ClInclude Include="..\codecs\Miles\radshal_wasapi.h" />
     <ClInclude Include="..\common\igameserverdata.h" />
     <ClInclude Include="..\common\netmessages.h" />
     <ClInclude Include="..\common\opcodes.h" />
@@ -204,6 +220,7 @@
     <ClInclude Include="..\engine\host.h" />
     <ClInclude Include="..\engine\host_cmd.h" />
     <ClInclude Include="..\engine\host_state.h" />
+    <ClInclude Include="..\engine\matsys_interface.h" />
     <ClInclude Include="..\engine\modelloader.h" />
     <ClInclude Include="..\engine\net.h" />
     <ClInclude Include="..\engine\networkstringtable.h" />
@@ -268,7 +285,6 @@
     <ClInclude Include="..\mathlib\vector4d.h" />
     <ClInclude Include="..\mathlib\vmatrix.h" />
     <ClInclude Include="..\mathlib\vplane.h" />
-    <ClInclude Include="..\milessdk\win64_rrthreads.h" />
     <ClInclude Include="..\networksystem\bansystem.h" />
     <ClInclude Include="..\networksystem\listmanager.h" />
     <ClInclude Include="..\networksystem\pylon.h" />
@@ -277,12 +293,15 @@
     <ClInclude Include="..\pluginsystem\ipluginsystem.h" />
     <ClInclude Include="..\pluginsystem\pluginsystem.h" />
     <ClInclude Include="..\protoc\cl_rcon.pb.h" />
+    <ClInclude Include="..\protoc\sig_map.pb.h" />
     <ClInclude Include="..\protoc\sv_rcon.pb.h" />
     <ClInclude Include="..\public\avi\iavi.h" />
     <ClInclude Include="..\public\avi\ibik.h" />
     <ClInclude Include="..\public\bitmap\stb_image.h" />
     <ClInclude Include="..\public\datamap.h" />
     <ClInclude Include="..\public\dt_common.h" />
+    <ClInclude Include="..\public\dt_recv.h" />
+    <ClInclude Include="..\public\dt_send.h" />
     <ClInclude Include="..\public\iengine.h" />
     <ClInclude Include="..\public\client_class.h" />
     <ClInclude Include="..\public\const.h" />
@@ -306,6 +325,7 @@
     <ClInclude Include="..\public\ihandleentity.h" />
     <ClInclude Include="..\public\imaterial.h" />
     <ClInclude Include="..\public\imaterialinternal.h" />
+    <ClInclude Include="..\public\imaterialsystem.h" />
     <ClInclude Include="..\public\inetchannel.h" />
     <ClInclude Include="..\public\inetmessage.h" />
     <ClInclude Include="..\public\inetmsghandler.h" />
@@ -317,6 +337,7 @@
     <ClInclude Include="..\public\ivscript.h" />
     <ClInclude Include="..\public\materialsystem\shader_vcs_version.h" />
     <ClInclude Include="..\public\model_types.h" />
+    <ClInclude Include="..\public\networkvar.h" />
     <ClInclude Include="..\public\rendersystem\schema\texture.g.h" />
     <ClInclude Include="..\public\server_class.h" />
     <ClInclude Include="..\public\studio.h" />
@@ -325,7 +346,9 @@
     <ClInclude Include="..\public\utility\httplib.h" />
     <ClInclude Include="..\public\utility\memaddr.h" />
     <ClInclude Include="..\public\utility\module.h" />
+    <ClInclude Include="..\public\utility\sigcache.h" />
     <ClInclude Include="..\public\utility\utility.h" />
+    <ClInclude Include="..\public\utility\vtable.h" />
     <ClInclude Include="..\public\worldsize.h" />
     <ClInclude Include="..\rtech\rtech_utils.h" />
     <ClInclude Include="..\rtech\rtech_game.h" />

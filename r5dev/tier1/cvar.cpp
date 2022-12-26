@@ -139,6 +139,8 @@ ConVar* con_notify_native_engine_clr       = nullptr;
 ConVar* con_notify_native_fs_clr           = nullptr;
 ConVar* con_notify_native_rtech_clr        = nullptr;
 ConVar* con_notify_native_ms_clr           = nullptr;
+ConVar* con_notify_native_audio_clr        = nullptr;
+ConVar* con_notify_native_video_clr        = nullptr;
 ConVar* con_notify_netcon_clr              = nullptr;
 ConVar* con_notify_common_clr              = nullptr;
 ConVar* con_notify_warning_clr             = nullptr;
@@ -193,6 +195,12 @@ ConVar* rtech_debug                        = nullptr;
 ConVar* rui_drawEnable                     = nullptr;
 ConVar* rui_defaultDebugFontFace           = nullptr;
 #endif // !DEDICATED
+//-----------------------------------------------------------------------------
+// MILES                                                                      |
+#ifndef DEDICATED
+ConVar* miles_debug                        = nullptr;
+#endif
+
 
 struct ConVarFlags_t
 {

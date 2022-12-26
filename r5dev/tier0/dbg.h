@@ -26,6 +26,8 @@ enum class EGlobalContext_t : int
 	NATIVE_FS,
 	NATIVE_RTECH,
 	NATIVE_MS,
+	NATIVE_AUDIO,
+	NATIVE_VIDEO,
 	NETCON_S,
 	COMMON_C,
 	WARNING_C,
@@ -35,18 +37,20 @@ enum class EGlobalContext_t : int
 
 enum class eDLL_T : int
 {
-	SERVER = 0, // server.dll              (GameDLL)
-	CLIENT = 1, // client.dll              (GameDLL)
-	UI     = 2, // ui.dll                  (GameDLL)
-	ENGINE = 3, // engine.dll              (Wrapper)
-	FS     = 4, // filesystem_stdio.dll    (FileSystem API)
-	RTECH  = 5, // rtech_game.dll          (RTech API)
-	MS     = 6, // materialsystem_dx11.dll (MaterialSystem API)
-	NETCON = 7, // netconsole impl         (RCON wire)
-	COMMON = 8  // general                 (No specific subsystem)
+	SERVER = 0, // server.dll                (GameDLL)
+	CLIENT = 1, // client.dll                (GameDLL)
+	UI     = 2, // ui.dll                    (GameDLL)
+	ENGINE = 3, // engine.dll                (Wrapper)
+	FS     = 4, // filesystem_stdio.dll      (FileSystem API)
+	RTECH  = 5, // rtech_game.dll            (RTech API)
+	MS     = 6, // materialsystem_dx11.dll   (MaterialSystem API)
+	AUDIO  = 7, // binkawin64/mileswin64.dll (AudioSystem API)
+	VIDEO  = 8, // bink2w64                  (VideoSystem API)
+	NETCON = 9, // netconsole impl           (RCON wire)
+	COMMON = 10 // general                   (No specific subsystem)
 };
 
-static const string sDLL_T[9] = 
+static const string sDLL_T[11] = 
 {
 	"Native(S):",
 	"Native(C):",
@@ -55,11 +59,13 @@ static const string sDLL_T[9] =
 	"Native(F):",
 	"Native(R):",
 	"Native(M):",
+	"Native(A):",
+	"Native(V):",
 	"Netcon(X):",
 	""
 };
 
-static const string sANSI_DLL_T[9] =
+static const string sANSI_DLL_T[11] =
 {
 	"\033[38;2;059;120;218mNative(S):",
 	"\033[38;2;118;118;118mNative(C):",
@@ -67,7 +73,9 @@ static const string sANSI_DLL_T[9] =
 	"\033[38;2;204;204;204mNative(E):",
 	"\033[38;2;097;214;214mNative(F):",
 	"\033[38;2;092;181;089mNative(R):",
-	"\033[38;2;192;105;173mNative(M):",
+	"\033[38;2;192;077;173mNative(M):",
+	"\033[38;2;238;108;030mNative(A):",
+	"\033[38;2;185;000;235mNative(V):",
 	"\033[38;2;204;204;204mNetcon(X):",
 	"\033[38;2;255;204;153m"
 };

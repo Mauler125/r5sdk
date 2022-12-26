@@ -128,17 +128,17 @@ class VClient : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		p_CClient_Connect    = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x56\x57\x41\x56\x48\x83\xEC\x20\x41\x0F\xB6\xE9"), "xxxx?xxxx?xxxxxxxxxxxx");
+		p_CClient_Connect    = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 20 41 0F B6 E9");
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
-		p_CClient_Disconnect = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x4C\x89\x40\x18\x4C\x89\x48\x20\x53\x56\x57\x48\x81\xEC\x00\x00\x00\x00\x83\xB9\x00\x00\x00\x00\x00\x49\x8B\xF8\x0F\xB6\xF2"), "xxxxxxxxxxxxxxxxx????xx?????xxxxxx");
+		p_CClient_Disconnect = g_GameDll.FindPatternSIMD("48 8B C4 4C 89 40 18 4C 89 48 20 53 56 57 48 81 EC ?? ?? ?? ?? 83 B9 ?? ?? ?? ?? ?? 49 8B F8 0F B6 F2");
 #else // !GAMEDLL_S0 || !GAMEDLL_S1 || !GAMEDLL_S2
-		p_CClient_Disconnect = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x4C\x89\x40\x18\x4C\x89\x48\x20\x53\x56\x57\x48\x81\xEC\x00\x00\x00\x00\x83\xB9\x00\x00\x00\x00\x00\x49\x8B\xF8\x8B\xF2"), "xxxxxxxxxxxxxxxxx????xx?????xxxxx");
+		p_CClient_Disconnect = g_GameDll.FindPatternSIMD("48 8B C4 4C 89 40 18 4C 89 48 20 53 56 57 48 81 EC ?? ?? ?? ?? 83 B9 ?? ?? ?? ?? ?? 49 8B F8 8B F2");
 #endif
-		p_CClient_Clear      = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x41\x56\x41\x57\x48\x83\xEC\x20\x48\x8B\xD9\x48\x89\x74"), "xxxxxxxxxxxxxxxx");
+		p_CClient_Clear      = g_GameDll.FindPatternSIMD("40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74");
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_CClient_ProcessStringCmd = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x4C\x8B\x42\x20"), "xxxxxxxx");
+		p_CClient_ProcessStringCmd = g_GameDll.FindPatternSIMD("48 83 EC 28 4C 8B 42 20");
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_CClient_ProcessStringCmd = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x6C\x24\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x7A\x20"), "xxxx?xxxx????xxxx");
+		p_CClient_ProcessStringCmd = g_GameDll.FindPatternSIMD("48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 7A 20");
 #endif // !GAMEDLL_S0 || !GAMEDLL_S1
 
 		v_CClient_Connect    = p_CClient_Connect.RCast<bool (*)(CClient*, const char*, void*, bool, void*, char*, int)>(); /*48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 20 41 0F B6 E9*/
@@ -148,7 +148,7 @@ class VClient : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		g_pClient = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x3B\x15\x00\x00\x00\x00\x7D\x33"), "xx????xx")
+		g_pClient = g_GameDll.FindPatternSIMD("3B 15 ?? ?? ?? ?? 7D 33")
 			.FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CClient*>();
 	}
 	virtual void GetCon(void) const { }

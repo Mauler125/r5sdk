@@ -91,7 +91,6 @@ namespace lzham
             byte_vec& get_compressed_data()         { return m_comp_buf; }
 
       uint32 get_src_adler32() const { return m_src_adler32; }
-      uint32 get_src_crc32() const { return m_src_crc32; }
 
    private:
       class state;
@@ -346,7 +345,6 @@ namespace lzham
 
       int64 m_src_size;
       uint32 m_src_adler32;
-      uint32 m_src_crc32;
 
       search_accelerator m_accel;
 

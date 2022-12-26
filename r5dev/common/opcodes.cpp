@@ -11,6 +11,7 @@
 #include "engine/host_cmd.h"
 #include "engine/gl_screen.h"
 #include "engine/gl_matsysiface.h"
+#include "engine/matsys_interface.h"
 #include "engine/modelloader.h"
 #include "engine/server/sv_main.h"
 #include "engine/client/cl_main.h"
@@ -31,7 +32,7 @@
 #include "bsplib/bsplib.h"
 #include "ebisusdk/EbisuSDK.h"
 #ifndef DEDICATED
-#include "milessdk/win64_rrthreads.h"
+#include "codecs/miles/radshal_wasapi.h"
 #endif // !DEDICATED
 
 #ifdef DEDICATED
@@ -56,9 +57,7 @@ void Dedicated_Init()
 		p_CHLClient_LevelShutdown.Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 }); // FUN --> RET | Return early in 'CHLClient::LevelShutdown()' during DLL shutdown.
 		p_CHLClient_HudProcessInput.Patch({ 0xC3 });                             // FUN --> RET | Return early in 'CHLClient::HudProcessInput()' to prevent infinite loop.
 
-		g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(                     // MOV --> JMP | Skip virtual call during settings layout parsing (S0/S1/S2/S3).
-			"\x41\x85\xC8\x0F\x84"), "xxxxx").Offset(0x40).Patch({ 0xEB, 0x23 });
-
+		g_GameDll.FindPatternSIMD("41 85 C8 0F 84").Offset(0x40).Patch({ 0xEB, 0x23 }); // MOV --> JMP | Skip virtual call during settings layout parsing (S0/S1/S2/S3).
 	}
 
 	//-------------------------------------------------------------------------
@@ -314,11 +313,11 @@ void Dedicated_Init()
 	//-------------------------------------------------------------------------
 	// RUNTIME: GAME_CFG
 	//-------------------------------------------------------------------------
-	UpdateMaterialSystemConfig.Offset(0x0).Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 });  // FUN --> RET | Return early to prevent the server from updating material system configurations.
-	UpdateCurrentVideoConfig.Offset(0x0).Patch({ 0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3 });    // FUN --> RET | Return early to prevent the server from writing a videoconfig.txt file to the disk (overwriting the existing one).
-	HandleConfigFile.Offset(0x0).Patch({ 0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3 });            // FUN --> RET | Return early to prevent the server from writing various input and ConVar config files to the disk (overwriting the existing one).
-	ResetPreviousGameState.Offset(0x0).Patch({ 0xC3 });                                    // FUN --> RET | Return early to prevent the server from writing a previousgamestate.txt file to the disk (overwriting the existing one).
-	LoadPlayerConfig.Offset(0x0).Patch({ 0xC3 });                                          // FUN --> RET | Return early to prevent the server from executing 'config_default_pc.cfg' (execPlayerConfig) and (only for >S3) running 'chat_wheel' code.
+	p_UpdateMaterialSystemConfig.Offset(0x0).Patch({ 0xB8, 0x00, 0x00, 0x00, 0x00, 0xC3 });// FUN --> RET | Return early to prevent the server from updating material system configurations.
+	p_UpdateCurrentVideoConfig.Offset(0x0).Patch({ 0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3 });  // FUN --> RET | Return early to prevent the server from writing a videoconfig.txt file to the disk (overwriting the existing one).
+	p_HandleConfigFile.Offset(0x0).Patch({ 0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3 });          // FUN --> RET | Return early to prevent the server from writing various input and ConVar config files to the disk (overwriting the existing one).
+	p_ResetPreviousGameState.Offset(0x0).Patch({ 0xC3 });                                  // FUN --> RET | Return early to prevent the server from writing a previousgamestate.txt file to the disk (overwriting the existing one).
+	p_LoadPlayerConfig.Offset(0x0).Patch({ 0xC3 });                                        // FUN --> RET | Return early to prevent the server from executing 'config_default_pc.cfg' (execPlayerConfig) and (only for >S3) running 'chat_wheel' code.
 
 	//-------------------------------------------------------------------------
 	// RUNTIME: COMMUNITIES

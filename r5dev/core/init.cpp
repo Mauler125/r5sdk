@@ -34,7 +34,9 @@
 #include "datacache/mdlcache.h"
 #include "ebisusdk/EbisuSDK.h"
 #ifndef DEDICATED
-#include "milessdk/win64_rrthreads.h"
+#include "codecs/bink/bink_impl.h"
+#include "codecs/miles/miles_impl.h"
+#include "codecs/miles/radshal_wasapi.h"
 #endif // !DEDICATED
 #include "vphysics/QHull.h"
 #include "bsplib/bsplib.h"
@@ -90,6 +92,7 @@
 #ifndef DEDICATED
 #include "engine/sys_mainwind.h"
 #endif // !DEDICATED
+#include "engine/matsys_interface.h"
 #include "engine/gl_matsysiface.h"
 #include "engine/gl_screen.h"
 #ifndef DEDICATED
@@ -110,6 +113,7 @@
 #include "game/client/viewrender.h"
 #endif // !DEDICATED
 #include "public/edict.h"
+#include "public/utility/binstream.h"
 #ifndef DEDICATED
 #include "public/idebugoverlay.h"
 #include "inputsystem/inputsystem.h"
@@ -165,6 +169,9 @@ void Systems_Init()
 	MDLCache_Attach();
 
 #ifndef DEDICATED
+	BinkImpl_Attach();
+	MilesCore_Attach();
+
 	CMaterialSystem_Attach();
 #endif // !DEDICATED
 
@@ -227,6 +234,8 @@ void Systems_Init()
 #ifndef DEDICATED
 	HCVideoMode_Common_Attach();
 	DebugOverlays_Attach();
+
+	MatSys_Iface_Attach();
 	RSurf_Attach();
 #endif // !DEDICATED
 
@@ -252,11 +261,6 @@ void Systems_Init()
 	spdlog::info("+-------------------------------------------------------------+\n");
 
 	ConVar::Init();
-
-#ifdef DEDICATED
-	Dedicated_Init();
-#endif // DEDICATED
-
 	SpdLog_PostInit();
 
 	std::thread fixed(&CEngineSDK::FixedFrame, g_EngineSDK);
@@ -300,6 +304,9 @@ void Systems_Shutdown()
 	MDLCache_Detach();
 
 #ifndef DEDICATED
+	BinkImpl_Detach();
+	MilesCore_Detach();
+
 	CMaterialSystem_Detach();
 #endif // !DEDICATED
 
@@ -361,6 +368,8 @@ void Systems_Shutdown()
 #ifndef DEDICATED
 	HCVideoMode_Common_Detach();
 	DebugOverlays_Detach();
+
+	MatSys_Iface_Detach();
 	RSurf_Detach();
 #endif // !DEDICATED
 
@@ -466,8 +475,13 @@ void CheckCPU() // Respawn's engine and our SDK utilize POPCNT, SSE3 and SSSE3 (
 
 void DetourInit() // Run the sigscan
 {
-	bool bLogAdr = (strstr(GetCommandLineA(), "-sig_toconsole") != nullptr);
+	LPSTR pCommandLine = GetCommandLineA();
+
+	bool bLogAdr = (strstr(pCommandLine, "-sig_toconsole") != nullptr);
 	bool bInitDivider = false;
+
+	g_SigCache.SetDisabled((strstr(pCommandLine, "-nosmap") != nullptr));
+	g_SigCache.LoadCache(SIGDB_FILE);
 
 	for (const IDetour* pDetour : vDetour)
 	{
@@ -485,7 +499,16 @@ void DetourInit() // Run the sigscan
 			pDetour->GetAdr();
 		}
 	}
+
+#ifdef DEDICATED
+	// Must be performed after detour init as we patch instructions which alters the function signatures.
+	Dedicated_Init();
+#endif // DEDICATED
+
+	g_SigCache.WriteCache(SIGDB_FILE);
+	g_SigCache.InvalidateMap();
 }
+
 void DetourAddress() // Test the sigscan results
 {
 	spdlog::debug("+----------------------------------------------------------------+\n");

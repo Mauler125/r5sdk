@@ -28,14 +28,14 @@ void StreamDB_Init(const char* pszLevelName)
 		if (pStreamKV)
 		{
 			const char* pszColumnName = pStreamKV->GetString();
-			DevMsg(eDLL_T::MS, "%s: Loading override STBSP file '%s.stbsp'\n", __FUNCTION__, pszColumnName);
+			DevMsg(eDLL_T::MS, __FUNCTION__": Loading override STBSP file '%s.stbsp'\n", pszColumnName);
 
 			v_StreamDB_Init(pszColumnName);
 			return;
 		}
 	}
 
-	DevMsg(eDLL_T::MS, "%s: Loading STBSP file '%s.stbsp'\n", __FUNCTION__, pszLevelName);
+	DevMsg(eDLL_T::MS, __FUNCTION__": Loading STBSP file '%s.stbsp'\n", pszLevelName);
 	v_StreamDB_Init(pszLevelName);
 }
 
@@ -66,7 +66,7 @@ void* __fastcall DispatchDrawCall(int64_t a1, uint64_t a2, int a3, int a4, int64
 // Input  : **pCandidate - 
 // Output : true if valid and material, false otherwise
 //-----------------------------------------------------------------------------
-bool IsMaterialInternal(void** pCandidate)
+__declspec(noinline) bool IsMaterialInternal(void** pCandidate)
 {
 	// NOTE: this is a dirty fix, but for running technically broken BSP's, this is the only fix 
 	// besides going bare metal inline assembly (which on its own isn't directly the problem, but 

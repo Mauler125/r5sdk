@@ -10,10 +10,12 @@
 #include "core/logdef.h"
 #include "tier0/frametask.h"
 #include "tier1/cvar.h"
+#include "vpc/keyvalues.h"
 #include "vstdlib/callback.h"
 #include "mathlib/color.h"
 #include "engine/net.h"
 #include "engine/net_chan.h"
+#include "vpc/keyvalues.h"
 #ifndef CLIENT_DLL
 #include "engine/server/server.h"
 #include "engine/client/client.h"

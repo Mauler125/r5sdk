@@ -3,6 +3,7 @@
 
 typedef IClientNetworkable* (*CreateClientClassFn)(int entNum, int serialNum);
 typedef IClientNetworkable* (*CreateEventFn)();
+class CRecvTable;
 
 //-----------------------------------------------------------------------------
 // Purpose: Client side class definition
@@ -19,7 +20,7 @@ public:
 	CreateClientClassFn m_pCreateFn;
 	CreateEventFn       m_pCreateEventFn;
 	char*               m_pNetworkName;
-	void*               m_pRecvTable; // CRecvTable*
+	CRecvTable*         m_pRecvTable;
 	ClientClass*        m_pNext;
 	int                 m_ClassID;
 	int                 m_ClassSize;

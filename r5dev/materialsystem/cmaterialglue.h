@@ -35,7 +35,7 @@ public:
 	int16_t m_nStreamableTextureCount; //0x0070
 	int16_t m_iWidth; //0x0072 
 	int16_t m_iHeight; //0x0074
-	int16_t m_unused1; //0x0076
+	int16_t m_iDepth; //0x0076
 	uint32_t m_iFlags; //0x0078 [ PIXIE ]: I'm pretty sure those are VTF Image Flags, If you set them to NULL they cause Texture stretching.
 	int32_t m_unused2; //0x007C
 	uint8_t pad_0080[8]; //0x0080
@@ -88,7 +88,7 @@ class VMaterialGlue : public IDetour
 	virtual void GetFun(void) const
 	{
 #ifndef DEDICATED
-		p_GetMaterialAtCrossHair = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x83\xEC\x58\x48\x83\x3D\x00\x00\x00\x00\x00"), "xxxxxxxxxx?????");
+		p_GetMaterialAtCrossHair = g_GameDll.FindPatternSIMD("48 8B C4 48 83 EC 58 48 83 3D ?? ?? ?? ?? ??");
 		GetMaterialAtCrossHair = p_GetMaterialAtCrossHair.RCast<CMaterialGlue* (*)(void)>(); /*48 8B C4 48 83 EC 58 48 83 3D ? ? ? ? ?*/
 #endif // !DEDICATED
 	}

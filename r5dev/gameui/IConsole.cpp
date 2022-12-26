@@ -877,7 +877,7 @@ int CConsole::TextEditCallback(ImGuiInputTextCallbackData* iData)
         const ImWchar c = iData->EventChar;
         if (!m_nInputTextLen)
         {
-            if (c == '~' || c == ' ') // Discard space and tilde character as first input.
+            if (c == '~') // Discard tilde character as first input.
             {
                 iData->EventChar = 0;
                 return 1;

@@ -135,6 +135,8 @@ extern ConVar* con_notify_native_engine_clr;
 extern ConVar* con_notify_native_fs_clr;
 extern ConVar* con_notify_native_rtech_clr;
 extern ConVar* con_notify_native_ms_clr;
+extern ConVar* con_notify_native_audio_clr;
+extern ConVar* con_notify_native_video_clr;
 extern ConVar* con_notify_netcon_clr;
 extern ConVar* con_notify_common_clr;
 extern ConVar* con_notify_warning_clr;
@@ -189,6 +191,11 @@ extern ConVar* rtech_debug;
 extern ConVar* rui_drawEnable;
 extern ConVar* rui_defaultDebugFontFace;
 #endif // !DEDICATED
+//-----------------------------------------------------------------------------
+// MILES                                                                      |
+#ifndef DEDICATED
+extern ConVar* miles_debug;
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -319,9 +326,8 @@ class VCVar : public IDetour
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
 	{
-		g_pCVar = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
-			"\x48\x83\xEC\x28\x48\x8B\x05\x00\x00\x00\x00\x48\x8D\x0D\x00\x00\x00\x00\x48\x85\xC0\x48\x89\x15"),
-			"xxxxxxx????xxx????xxxxxx").FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 40).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CCvar*>();
+		g_pCVar = g_GameDll.FindPatternSIMD("48 83 EC 28 48 8B 05 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 48 85 C0 48 89 15")
+			.FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 40).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CCvar*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

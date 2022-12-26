@@ -35,32 +35,30 @@ CModule::CModule(const string& svModuleName) : m_svModuleName(svModuleName)
 	m_ReadOnlyData = GetSectionByName(".rdata");
 }
 
+#ifndef PLUGINSDK
 //-----------------------------------------------------------------------------
 // Purpose: find array of bytes in process memory using SIMD instructions
 // Input  : *szPattern - 
 //          *szMask - 
 // Output : CMemory
 //-----------------------------------------------------------------------------
-CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, const ModuleSections_t& moduleSection, const uint32_t nOccurrence) const
+CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, const ModuleSections_t* moduleSection, const uint32_t nOccurrence) const
 {
 	if (!m_ExecutableCode.IsSectionValid())
 		return CMemory();
 
-	uint64_t nBase = static_cast<uint64_t>(m_ExecutableCode.m_pSectionBase);
-	uint64_t nSize = static_cast<uint64_t>(m_ExecutableCode.m_nSectionSize);
+	const bool bSectionValid = moduleSection ? moduleSection->IsSectionValid() : false;
 
-	if (moduleSection.IsSectionValid())
-	{
-		nBase = static_cast<uint64_t>(moduleSection.m_pSectionBase);
-		nSize = static_cast<uint64_t>(moduleSection.m_nSectionSize);
-	}
+	const uintptr_t nBase = bSectionValid ? moduleSection->m_pSectionBase : m_ExecutableCode.m_pSectionBase;
+	const uintptr_t nSize = bSectionValid ? moduleSection->m_nSectionSize : m_ExecutableCode.m_nSectionSize;
 
+	const size_t nMaskLen = strlen(szMask);
 	const uint8_t* pData = reinterpret_cast<uint8_t*>(nBase);
-	const uint8_t* pEnd = pData + static_cast<uint32_t>(nSize) - strlen(szMask);
+	const uint8_t* pEnd = pData + nSize - nMaskLen;
 
 	int nOccurrenceCount = 0;
 	int nMasks[64]; // 64*16 = enough masks for 1024 bytes.
-	const int iNumMasks = static_cast<int>(ceil(static_cast<float>(strlen(szMask)) / 16.f));
+	const int iNumMasks = static_cast<int>(ceil(static_cast<float>(nMaskLen) / 16.f));
 
 	memset(nMasks, '\0', iNumMasks * sizeof(int));
 	for (intptr_t i = 0; i < iNumMasks; ++i)
@@ -117,14 +115,24 @@ CMemory CModule::FindPatternSIMD(const uint8_t* szPattern, const char* szMask, c
 
 
 //-----------------------------------------------------------------------------
-// Purpose: find array of bytes in process memory using SIMD instructions
-// Input  : *svPattern
+// Purpose: find a string pattern in process memory using SIMD instructions
+// Input  : &svPattern
+//			&moduleSection
 // Output : CMemory
 //-----------------------------------------------------------------------------
-CMemory CModule::FindPatternSIMD(const string& svPattern, const ModuleSections_t& moduleSection) const
+CMemory CModule::FindPatternSIMD(const string& svPattern, const ModuleSections_t* moduleSection) const
 {
+	uint64_t nRVA;
+	if (g_SigCache.FindEntry(svPattern, nRVA))
+	{
+		return CMemory(nRVA + GetModuleBase());
+	}
+
 	const pair patternInfo = PatternToMaskedBytes(svPattern);
-	return FindPatternSIMD(patternInfo.first.data(), patternInfo.second.c_str(), moduleSection);
+	const CMemory memory = FindPatternSIMD(patternInfo.first.data(), patternInfo.second.c_str(), moduleSection);
+
+	g_SigCache.AddEntry(svPattern, GetRVA(memory.GetPtr()));
+	return memory;
 }
 
 //-----------------------------------------------------------------------------
@@ -138,10 +146,16 @@ CMemory CModule::FindStringReadOnly(const string& svString, bool bNullTerminator
 	if (!m_ReadOnlyData.IsSectionValid())
 		return CMemory();
 
+	uint64_t nRVA;
+	if (g_SigCache.FindEntry(svString, nRVA))
+	{
+		return CMemory(nRVA + GetModuleBase());
+	}
+
 	const vector<int> vBytes = StringToBytes(svString, bNullTerminator); // Convert our string to a byte array.
 	const pair bytesInfo = std::make_pair(vBytes.size(), vBytes.data()); // Get the size and data of our bytes.
 
-	uint8_t* pBase = reinterpret_cast<uint8_t*>(m_ReadOnlyData.m_pSectionBase); // Get start of .rdata section.
+	const uint8_t* pBase = reinterpret_cast<uint8_t*>(m_ReadOnlyData.m_pSectionBase); // Get start of .rdata section.
 
 	for (size_t i = 0ull; i < m_ReadOnlyData.m_nSectionSize - bytesInfo.first; i++)
 	{
@@ -160,7 +174,10 @@ CMemory CModule::FindStringReadOnly(const string& svString, bool bNullTerminator
 
 		if (bFound)
 		{
-			return CMemory(&pBase[i]);
+			CMemory result = CMemory(&pBase[i]);
+			g_SigCache.AddEntry(svString, GetRVA(result.GetPtr()));
+
+			return result;
 		}
 	}
 
@@ -178,6 +195,14 @@ CMemory CModule::FindString(const string& svString, const ptrdiff_t nOccurrence,
 	if (!m_ExecutableCode.IsSectionValid())
 		return CMemory();
 
+	uint64_t nRVA;
+	string svPackedString = svString + std::to_string(nOccurrence);
+
+	if (g_SigCache.FindEntry(svPackedString, nRVA))
+	{
+		return CMemory(nRVA + GetModuleBase());
+	}
+
 	const CMemory stringAddress = FindStringReadOnly(svString, bNullTerminator); // Get Address for the string in the .rdata section.
 
 	if (!stringAddress)
@@ -186,6 +211,7 @@ CMemory CModule::FindString(const string& svString, const ptrdiff_t nOccurrence,
 	uint8_t* pLatestOccurrence = nullptr;
 	uint8_t* pTextStart = reinterpret_cast<uint8_t*>(m_ExecutableCode.m_pSectionBase); // Get the start of the .text section.
 	ptrdiff_t dOccurrencesFound = 0;
+	CMemory resultAddress;
 
 	for (size_t i = 0ull; i < m_ExecutableCode.m_nSectionSize - 0x5; i++)
 	{
@@ -201,14 +227,75 @@ CMemory CModule::FindString(const string& svString, const ptrdiff_t nOccurrence,
 			{
 				dOccurrencesFound++;
 				if (nOccurrence == dOccurrencesFound)
-					return CMemory(&pTextStart[i]);
+				{
+					resultAddress = CMemory(&pTextStart[i]);
+					g_SigCache.AddEntry(svPackedString, GetRVA(resultAddress.GetPtr()));
+
+					return resultAddress;
+				}
 
 				pLatestOccurrence = &pTextStart[i]; // Stash latest occurrence.
 			}
 		}
 	}
-	return CMemory(pLatestOccurrence);
+
+	resultAddress = CMemory(pLatestOccurrence);
+	g_SigCache.AddEntry(svPackedString, GetRVA(resultAddress.GetPtr()));
+
+	return resultAddress;
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: get address of a virtual method table by rtti type descriptor name.
+// Input  : *svTableName - 
+//			nRefIndex - 
+// Output : CMemory
+//-----------------------------------------------------------------------------
+CMemory CModule::GetVirtualMethodTable(const string& svTableName, const uint32_t nRefIndex)
+{
+	uint64_t nRVA; // Packed together as we can have multiple VFTable searches, but with different ref indexes.
+	string svPackedTableName = svTableName + std::to_string(nRefIndex);
+
+	if (g_SigCache.FindEntry(svPackedTableName, nRVA))
+	{
+		return CMemory(nRVA + GetModuleBase());
+	}
+
+	ModuleSections_t moduleSection = { ".data", m_RunTimeData.m_pSectionBase, m_RunTimeData.m_nSectionSize };
+
+	const auto tableNameInfo = StringToMaskedBytes(svTableName, false);
+	CMemory rttiTypeDescriptor = FindPatternSIMD(tableNameInfo.first.data(), tableNameInfo.second.c_str(), &moduleSection).OffsetSelf(-0x10);
+	if (!rttiTypeDescriptor)
+		return CMemory();
+
+	uintptr_t scanStart = m_ReadOnlyData.m_pSectionBase; // Get the start address of our scan.
+
+	const uintptr_t scanEnd = (m_ReadOnlyData.m_pSectionBase + m_ReadOnlyData.m_nSectionSize) - 0x4; // Calculate the end of our scan.
+	const uintptr_t rttiTDRva = rttiTypeDescriptor.GetPtr() - m_pModuleBase; // The RTTI gets referenced by a 4-Byte RVA address. We need to scan for that address.
+	while (scanStart < scanEnd)
+	{
+		moduleSection = { ".rdata", scanStart, m_ReadOnlyData.m_nSectionSize };
+		CMemory reference = FindPatternSIMD(reinterpret_cast<rsig_t>(&rttiTDRva), "xxxx", &moduleSection, nRefIndex);
+		if (!reference)
+			break;
+		
+		CMemory referenceOffset = reference.Offset(-0xC);
+		if (referenceOffset.GetValue<int32_t>() != 1) // Check if we got a RTTI Object Locator for this reference by checking if -0xC is 1, which is the 'signature' field which is always 1 on x64.
+		{
+			scanStart = reference.Offset(0x4).GetPtr(); // Set location to current reference + 0x4 so we avoid pushing it back again into the vector.
+			continue;
+		}
+
+		moduleSection = { ".rdata", m_ReadOnlyData.m_pSectionBase, m_ReadOnlyData.m_nSectionSize };
+		CMemory vfTable = FindPatternSIMD(reinterpret_cast<rsig_t>(&referenceOffset), "xxxxxxxx", &moduleSection).OffsetSelf(0x8);
+		g_SigCache.AddEntry(svPackedTableName, GetRVA(vfTable.GetPtr()));
+
+		return vfTable;
+	}
+
+	return CMemory();
+}
+#endif // !PLUGINSDK
 
 //-----------------------------------------------------------------------------
 // Purpose: get address of exported function in this module
@@ -263,52 +350,16 @@ CMemory CModule::GetExportedFunction(const string& svFunctionName) const
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: get address of a virtual method table by rtti type descriptor name.
-// Input  : *svTableName - 
-//			nRefIndex - 
-// Output : CMemory
-//-----------------------------------------------------------------------------
-CMemory CModule::GetVirtualMethodTable(const string& svTableName, const uint32_t nRefIndex)
-{
-	const auto tableNameInfo = StringToMaskedBytes(svTableName, false);
-	CMemory rttiTypeDescriptor = FindPatternSIMD(tableNameInfo.first.data(), tableNameInfo.second.c_str(), { ".data", m_RunTimeData.m_pSectionBase, m_RunTimeData.m_nSectionSize }).OffsetSelf(-0x10);
-	if (!rttiTypeDescriptor)
-		return CMemory();
-
-	uintptr_t scanStart = m_ReadOnlyData.m_pSectionBase; // Get the start address of our scan.
-
-	const uintptr_t scanEnd = (m_ReadOnlyData.m_pSectionBase + m_ReadOnlyData.m_nSectionSize) - 0x4; // Calculate the end of our scan.
-	const uintptr_t rttiTDRva = rttiTypeDescriptor.GetPtr() - m_pModuleBase; // The RTTI gets referenced by a 4-Byte RVA address. We need to scan for that address.
-	while (scanStart < scanEnd)
-	{
-		CMemory reference = FindPatternSIMD(reinterpret_cast<rsig_t>(&rttiTDRva), "xxxx", { ".rdata", scanStart, m_ReadOnlyData.m_nSectionSize }, nRefIndex);
-		if (!reference)
-			break;
-		
-		CMemory referenceOffset = reference.Offset(-0xC);
-		if (referenceOffset.GetValue<int32_t>() != 1) // Check if we got a RTTI Object Locator for this reference by checking if -0xC is 1, which is the 'signature' field which is always 1 on x64.
-		{
-			scanStart = reference.Offset(0x4).GetPtr(); // Set location to current reference + 0x4 so we avoid pushing it back again into the vector.
-			continue;
-		}
-
-		return FindPatternSIMD(reinterpret_cast<rsig_t>(&referenceOffset), "xxxxxxxx", { ".rdata", m_ReadOnlyData.m_pSectionBase, m_ReadOnlyData.m_nSectionSize }).OffsetSelf(0x8);
-	}
-
-	return CMemory();
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: get the module section by name (example: '.rdata', '.text')
 // Input  : *svModuleName - 
 // Output : ModuleSections_t
 //-----------------------------------------------------------------------------
 CModule::ModuleSections_t CModule::GetSectionByName(const string& svSectionName) const
 {
-	for (size_t i = 0; i < m_vModuleSections.size(); i++)
+	for (const ModuleSections_t& section : m_vModuleSections)
 	{
-		if (m_vModuleSections[i].m_svSectionName.compare(svSectionName) == 0)
-			return m_vModuleSections[i];
+		if (section.m_svSectionName == svSectionName)
+			return section;
 	}
 
 	return ModuleSections_t();
@@ -336,4 +387,12 @@ DWORD CModule::GetModuleSize(void) const
 string CModule::GetModuleName(void) const
 {
 	return m_svModuleName;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: returns the RVA of given address
+//-----------------------------------------------------------------------------
+uintptr_t CModule::GetRVA(const uintptr_t nAddress) const
+{
+	return (nAddress - GetModuleBase());
 }

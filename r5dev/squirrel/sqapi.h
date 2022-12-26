@@ -75,25 +75,25 @@ class VSqapi : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		p_sq_pushroottable = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x28\x8B\x51\x00\x44\x8B\xC2"), "xxxxxx?xxx");
-		p_sq_pushbool      = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x38\x33\xC0\x48\xC7\x44\x24\x20\x08\x00\x00\x01\x48"), "xxxxxxxxxxxxxxxx");
+		p_sq_pushroottable = g_GameDll.FindPatternSIMD("48 83 EC 28 8B 51 ?? 44 8B C2");
+		p_sq_pushbool      = g_GameDll.FindPatternSIMD("48 83 EC 38 33 C0 48 C7 44 24 20 08 ?? ?? 01 48");
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
-		p_sq_pushstring = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x56\x48\x83\xEC\x30\x48\x8B\xF1\x48\x85\xD2\x0F\x84\x8C\x00"), "xxxxxxxxxxxxxxxx");
+		p_sq_pushstring = g_GameDll.FindPatternSIMD("40 56 48 83 EC 30 48 8B F1 48 85 D2 0F 84 8C ??");
 #elif defined (GAMEDLL_S3)
-		p_sq_pushstring = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x56\x48\x83\xEC\x30\x48\x8B\xF1\x48\x85\xD2\x0F\x84\x8F\x00"), "xxxxxxxxxxxxxxxx");
+		p_sq_pushstring = g_GameDll.FindPatternSIMD("40 56 48 83 EC 30 48 8B F1 48 85 D2 0F 84 8F ??");
 #endif
-		p_sq_pushinteger  = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x83\xEC\x38\x33\xC0\x48\xC7\x44\x24\x20\x02\x00\x00\x05\x48"), "xxxxxxxxxxxxxxxx");
-		p_sq_newarray     = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x08\x57\x48\x83\xEC\x30\x48\x8B\xD9\x48\xC7\x44\x24\x20\x40"), "xxxxxxxxxxxxxxxxxxx");
-		p_sq_newtable     = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x08\x57\x48\x83\xEC\x30\x48\x8B\xD9\x48\xC7\x44\x24\x20\x20"), "xxxxxxxxxxxxxxxxxxx");
-		p_sq_newslot      = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x30\x44\x8B\x49\x00\x48\x8B\xD9\x41\x8B\xC1"), "xxxxxxxxx?xxxxxx");
-		p_sq_arrayappend  = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x8B\x41\x00\x48\x8B\xD9\x2B\x41\x00\x83\xF8\x02\x7D"), "xxxxxxxx?xxxxx?xxxx");
+		p_sq_pushinteger  = g_GameDll.FindPatternSIMD("48 83 EC 38 33 C0 48 C7 44 24 20 02 ?? ?? 05 48");
+		p_sq_newarray     = g_GameDll.FindPatternSIMD("48 89 5C 24 08 57 48 83 EC 30 48 8B D9 48 C7 44 24 20 40");
+		p_sq_newtable     = g_GameDll.FindPatternSIMD("48 89 5C 24 08 57 48 83 EC 30 48 8B D9 48 C7 44 24 20 20");
+		p_sq_newslot      = g_GameDll.FindPatternSIMD("40 53 48 83 EC 30 44 8B 49 ?? 48 8B D9 41 8B C1");
+		p_sq_arrayappend  = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 8B 41 ?? 48 8B D9 2B 41 ?? 83 F8 02 7D");
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
-		p_sq_pushstructure = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x4C\x89\x4C\x24\x00\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8B\xEC"), "xxxx?xxxx?xxxx?xxxx?xxxxxxxxxxxx");
+		p_sq_pushstructure = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 4C 89 4C 24 ?? 55 41 54 41 55 41 56 41 57 48 8B EC");
 #elif defined (GAMEDLL_S3)
-		p_sq_pushstructure = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8B\xEC\x48\x83\xEC\x60\x48\x8B\x59\x60"), "xxxx?xxxx?xxxx?xxxxxxxxxxxxxxxxxxxx");
+		p_sq_pushstructure = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 60 48 8B 59 60");
 #endif
-		p_sq_compilebuffer = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x41\x56\x41\x57\x48\x83\xEC\x50\x41\x8B\xE9\x49\x8B\xF8"), "xxxx?xxxx?xxxx?xxxxxxxxxxxxxxx");
-		p_sq_call          = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x4C\x8B\xDC\x49\x89\x5B\x08\x49\x89\x6B\x10\x49\x89\x73\x18\x57\x48\x83\xEC\x50\x8B\xF2"), "xxxxxxxxxxxxxxxxxxxxxx");
+		p_sq_compilebuffer = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 56 41 57 48 83 EC 50 41 8B E9 49 8B F8");
+		p_sq_call          = g_GameDll.FindPatternSIMD("4C 8B DC 49 89 5B 08 49 89 6B 10 49 89 73 18 57 48 83 EC 50 8B F2");
 
 		v_sq_pushroottable = p_sq_pushroottable.RCast<SQRESULT(*)(HSQUIRRELVM)>();                                                             /*48 83 EC 28 8B 51 ?? 44 8B C2*/
 		v_sq_pushbool      = p_sq_pushbool.RCast<void (*)(HSQUIRRELVM, SQBool)>();                                                             /*48 83 EC 38 33 C0 48 C7 44 24 20 08 00 00 01 48*/

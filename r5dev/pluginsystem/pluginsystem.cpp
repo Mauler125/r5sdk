@@ -53,6 +53,7 @@ bool CPluginSystem::LoadPluginInstance(PluginInstance_t& pluginInst)
 
 	CModule pluginModule = CModule(pluginInst.m_svPluginName);
 
+	// Pass selfModule here on load function, we have to do this because local listen/dedi/client dll's are called different, refer to a comment on the pluginsdk.
 	auto onLoadFn = pluginModule.GetExportedFunction("PluginInstance_OnLoad").RCast<PluginInstance_t::OnLoad>();
 	Assert(onLoadFn);
 
@@ -112,13 +113,49 @@ vector<CPluginSystem::PluginInstance_t>& CPluginSystem::GetPluginInstances()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: get all plugin callbacks
-// Input  : 
-// Output : unordered_map<string, vector<pair<string, void*>>>&
+// Purpose: add plugin callback for function
+// Input  : *help
+// Output : void
 //-----------------------------------------------------------------------------
-unordered_map<string, vector<pair<string, void*>>>& CPluginSystem::GetPluginCallbacks()
+void CPluginSystem::AddPluginCallback(PluginHelpWithAnything_t* help)
 {
-	return pluginCallbacks;
+#define ADD_PLUGIN_CALLBACK(fn, callback, function) callback += reinterpret_cast<fn>(function)
+
+	switch (help->m_nCallbackID)
+	{
+	case PluginHelpWithAnything_t::ePluginCallback::CModAppSystemGroup_Create:
+	{
+		ADD_PLUGIN_CALLBACK(CreateFn, GetCreateCallbacks(), help->m_pFunction);
+		break;
+	}
+	default:
+		break;
+	}
+
+#undef ADD_PLUGIN_CALLBACK
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: remove plugin callback for function
+// Input  : *help
+// Output : void
+//-----------------------------------------------------------------------------
+void CPluginSystem::RemovePluginCallback(PluginHelpWithAnything_t* help)
+{
+#define REMOVE_PLUGIN_CALLBACK(fn, callback, function) callback -= reinterpret_cast<fn>(function)
+
+	switch (help->m_nCallbackID)
+	{
+	case PluginHelpWithAnything_t::ePluginCallback::CModAppSystemGroup_Create:
+	{
+		REMOVE_PLUGIN_CALLBACK(CreateFn, GetCreateCallbacks(), help->m_pFunction);
+		break;
+	}
+	default:
+		break;
+	}
+
+#undef REMOVE_PLUGIN_CALLBACK
 }
 
 //-----------------------------------------------------------------------------
@@ -136,10 +173,12 @@ void* CPluginSystem::HelpWithAnything(PluginHelpWithAnything_t* help)
 	}
 	case PluginHelpWithAnything_t::ePluginHelp::PLUGIN_REGISTER_CALLBACK:
 	{
+		AddPluginCallback(help);
 		break;
 	}
 	case PluginHelpWithAnything_t::ePluginHelp::PLUGIN_UNREGISTER_CALLBACK:
 	{
+		RemovePluginCallback(help);
 		break;
 	}
 	default:

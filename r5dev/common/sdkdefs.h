@@ -17,7 +17,11 @@ using std::ostringstream;
 using std::unordered_map;
 
 namespace fs = std::filesystem;
+
 typedef DWORD ThreadId_t;
+typedef uintptr_t uintp;
+typedef intptr_t intp;
+
 typedef const unsigned char* rsig_t;
 typedef std::make_signed_t<std::size_t> ssize_t;
 

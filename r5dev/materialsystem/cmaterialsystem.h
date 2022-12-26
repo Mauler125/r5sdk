@@ -43,7 +43,7 @@ inline int* g_nUnfreeStreamingTextureMemory   = nullptr;
 inline int* g_nUnusableStreamingTextureMemory = nullptr;
 #endif // !DEDICATED
 
-bool IsMaterialInternal(void** pCandidate);
+__declspec(noinline) bool IsMaterialInternal(void** pCandidate);
 void CMaterialSystem_Attach();
 void CMaterialSystem_Detach();
 ///////////////////////////////////////////////////////////////////////////////
@@ -66,22 +66,22 @@ class VMaterialSystem : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		p_CMaterialSystem__Init = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x70\x48\x83\x3D\x00\x00\x00\x00\x00"), "xxxx?xxxxxxxxxxxxxxxxxx?????");
+		p_CMaterialSystem__Init = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 70 48 83 3D ?? ?? ?? ?? ??");
 		CMaterialSystem__Init = p_CMaterialSystem__Init.RCast<void*(*)(CMaterialSystem*)>(); /*48 89 5C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 70 48 83 3D ?? ?? ?? ?? ??*/
 #ifndef DEDICATED
-		p_CMaterialSystem__FindMaterialEx = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x44\x89\x4C\x24\x00\x44\x88\x44\x24\x00\x48\x89\x4C\x24\x00"), "xxxx?xxxx?xxxx?");
+		p_CMaterialSystem__FindMaterialEx = g_GameDll.FindPatternSIMD("44 89 4C 24 ?? 44 88 44 24 ?? 48 89 4C 24 ??");
 		CMaterialSystem__FindMaterialEx = p_CMaterialSystem__FindMaterialEx.RCast<CMaterialGlue*(*)(CMaterialSystem*, const char*, uint8_t, int, bool)>(); /*44 89 4C 24 ?? 44 88 44 24 ?? 48 89 4C 24 ??*/
 
-		p_CMaterialSystem_GetScreenSize = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x8B\x05\x00\x00\x00\x00\x89\x02\x8B\x05\x00\x00\x00\x00\x41\x89\x00\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x8B\x05\x00\x00\x00\x00"), "xx????xxxx????xxxxxxxxxxxxxxxxxxxx????");
+		p_CMaterialSystem_GetScreenSize = g_GameDll.FindPatternSIMD("8B 05 ?? ?? ?? ?? 89 02 8B 05 ?? ?? ?? ?? 41 89 ?? C3 CC CC CC CC CC CC CC CC CC CC CC CC CC CC 8B 05 ?? ?? ?? ??");
 		CMaterialSystem_GetScreenSize = p_CMaterialSystem_GetScreenSize.RCast<void(*)(CMaterialSystem* pMatSys, float* outX, float* outY)>(); /*8B 05 ? ? ? ? 89 02 8B 05 ? ? ? ? 41 89 00 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC CC 8B 05 ? ? ? ?*/
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_DispatchDrawCall = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x44\x89\x4C\x24\x00\x44\x89\x44\x24\x00\x48\x89\x4C\x24\x00\x55\x53"), "xxxx?xxxx?xxxx?xx");
+		p_DispatchDrawCall = g_GameDll.FindPatternSIMD("44 89 4C 24 ?? 44 89 44 24 ?? 48 89 4C 24 ?? 55 53");
 		v_DispatchDrawCall = p_DispatchDrawCall.RCast<void*(*)(int64_t, uint64_t, int, int, char, int, uint8_t, int64_t, uint32_t, uint32_t, __m128*, int)>();
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_DispatchDrawCall = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x44\x89\x4C\x24\x00\x44\x89\x44\x24\x00\x48\x89\x4C\x24\x00\x55\x53\x56"), "xxxx?xxxx?xxxx?xxx");
+		p_DispatchDrawCall = g_GameDll.FindPatternSIMD("44 89 4C 24 ?? 44 89 44 24 ?? 48 89 4C 24 ?? 55 53 56");
 		v_DispatchDrawCall = p_DispatchDrawCall.RCast<void*(*)(int64_t, uint64_t, int, int, int64_t, int, uint8_t, int64_t, uint32_t, uint32_t, int, __m128*, int, int64_t )>();
 #endif
-		p_DrawStreamOverlay = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x41\x56\xB8\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x2B\xE0\xC6\x02\x00"), "xxx????x????xxxxxx");
+		p_DrawStreamOverlay = g_GameDll.FindPatternSIMD("41 56 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 C6 02 ??");
 		v_DrawStreamOverlay = p_DrawStreamOverlay.RCast<const char*(*)(void*, uint8_t*, void*, void*)>(); // 41 56 B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 C6 02 00 //
 #endif // !DEDICATED
 	}
@@ -94,8 +94,7 @@ class VMaterialSystem : public IDetour
 
 		s_pRenderContext = p_DispatchDrawCall.FindPattern("48 8B ?? ?? ?? ?? 01").ResolveRelativeAddressSelf(0x3, 0x7);
 #endif // !DEDICATED
-		g_pMaterialSystem = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
-			"\x48\x8B\x0D\x00\x00\x00\x00\x48\x85\xC9\x74\x11\x48\x8B\x01\x48\x8D\x15\x00\x00\x00\x00"), "xxx????xxxxxxxxxxx????").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void*>();
+		g_pMaterialSystem = g_GameDll.FindPatternSIMD("48 8B 0D ?? ?? ?? ?? 48 85 C9 74 11 48 8B 01 48 8D 15 ?? ?? ?? ??").ResolveRelativeAddressSelf(0x3, 0x7).RCast<void*>();
 	}
 	virtual void GetCon(void) const
 	{

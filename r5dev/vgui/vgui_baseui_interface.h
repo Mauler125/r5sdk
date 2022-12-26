@@ -55,26 +55,25 @@ class VEngineVGui : public IDetour
 	virtual void GetFun(void) const
 	{
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
-		p_CEngineVGui_Paint = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x89\x54\x24\x10\x55\x56\x41\x55\x48\x81\xEC\x00\x00\x00\x00"), "xxxxxxxxxxx????");
+		p_CEngineVGui_Paint = g_GameDll.FindPatternSIMD("89 54 24 10 55 56 41 55 48 81 EC ?? ?? ?? ??");
 		CEngineVGui_Paint = p_CEngineVGui_Paint.RCast<int (*)(CEngineVGui* thisptr, PaintMode_t mode)>(); /*41 55 41 56 48 83 EC 78 44 8B EA*/
 
-		p_CEngineVGui_RenderStart = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x53\x56\x57\x48\x81\xEC\x00\x00\x00\x00\x0F\x29\x70\xD8"), "xxxxxxxxx????xxxx");
+		p_CEngineVGui_RenderStart = g_GameDll.FindPatternSIMD("48 8B C4 53 56 57 48 81 EC ?? ?? ?? ?? 0F 29 70 D8");
 		CEngineVGui_RenderStart = p_CEngineVGui_RenderStart.RCast<void* (*)(CMatSystemSurface*)>(); /*48 8B C4 53 56 57 48 81 EC ?? ?? ?? ?? 0F 29 70 D8*/
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_CEngineVGui_Paint = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x41\x55\x41\x56\x48\x83\xEC\x78\x44\x8B\xEA"), "xxxxxxxxxxx");
+		p_CEngineVGui_Paint = g_GameDll.FindPatternSIMD("41 55 41 56 48 83 EC 78 44 8B EA");
 		CEngineVGui_Paint = p_CEngineVGui_Paint.RCast<int (*)(CEngineVGui* thisptr, PaintMode_t mode)>(); /*41 55 41 56 48 83 EC 78 44 8B EA*/
 
-		p_CEngineVGui_RenderStart = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xF9"), "xxxxxx????xxx");
+		p_CEngineVGui_RenderStart = g_GameDll.FindPatternSIMD("40 53 57 48 81 EC ?? ?? ?? ?? 48 8B F9");
 		CEngineVGui_RenderStart = p_CEngineVGui_RenderStart.RCast<void* (*)(CMatSystemSurface*)>(); /*40 53 57 48 81 EC ?? ?? ?? ?? 48 8B F9*/
 #endif
-		p_CEngineVGui_RenderEnd = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x40\x53\x48\x83\xEC\x20\x48\x8B\x0D\x00\x00\x00\x00\xC6\x05\x00\x00\x00\x00\x00\x48\x8B\x01"), "xxxxxxxxx????xx?????xxx");
+		p_CEngineVGui_RenderEnd = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 48 8B 0D ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ?? 48 8B 01");
 		CEngineVGui_RenderEnd = p_CEngineVGui_RenderEnd.RCast<void* (*)(void)>(); /*40 53 48 83 EC 20 48 8B 0D ?? ?? ?? ?? C6 05 ?? ?? ?? ?? ?? 48 8B 01*/
 	}
 	virtual void GetVar(void) const
 	{
-		g_pEngineVGui = g_GameDll.FindPatternSIMD(reinterpret_cast<rsig_t>(
-			"\x48\x8B\xC4\x48\x89\x48\x08\x48\x89\x50\x10\x4C\x89\x40\x18\x4C\x89\x48\x20\x53\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xD9\x48\x8D\x78\x10\xE8\x00\x00\x00\x00\x48\x89\x7C\x24\x00\x48\x8D\x54\x24\x00\x33\xFF\x4C\x8B\xCB\x41\xB8\x00\x00\x00\x00\x48\x89\x7C\x24\x00\x48\x8B\x08\x48\x83\xC9\x01\xE8\x00\x00\x00\x00\x85\xC0\x48\x8D\x54\x24\x00"),
-			"xxxxxxxxxxxxxxxxxxxxxxxx????xxxxxxxx????xxxx?xxxx?xxxxxxx????xxxx?xxxxxxxx????xxxxxx?").FindPatternSelf("48 8D ?? ?? ?? ?? 01", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CEngineVGui*>();
+		g_pEngineVGui = g_GameDll.FindPatternSIMD("48 8B C4 48 89 48 08 48 89 50 10 4C 89 40 18 4C 89 48 20 53 57 48 81 EC ?? ?? ?? ?? 48 8B D9 48 8D 78 10 E8 ?? ?? ?? ?? 48 89 7C 24 ?? 48 8D 54 24 ?? 33 FF 4C 8B CB 41 B8 ?? ?? ?? ?? 48 89 7C 24 ?? 48 8B 08 48 83 C9 01 E8 ?? ?? ?? ?? 85 C0 48 8D 54 24 ??")
+			.FindPatternSelf("48 8D ?? ?? ?? ?? 01", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CEngineVGui*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

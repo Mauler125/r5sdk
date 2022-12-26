@@ -343,6 +343,19 @@ template <typename T> const char* MemAllocClassName(T* p)
 #define abstract_class class NO_VTABLE
 #endif
 
+#if defined( _MSC_VER )
+#define OVERRIDE override
+// warning C4481: nonstandard extension used: override specifier 'override'
+#pragma warning(disable : 4481)
+#elif defined( __clang__ )
+#define OVERRIDE override
+// warning: 'override' keyword is a C++11 extension [-Wc++11-extensions]
+// Disabling this warning is less intrusive than enabling C++11 extensions
+#pragma GCC diagnostic ignored "-Wc++11-extensions"
+#else
+#define OVERRIDE
+#endif
+
 //-----------------------------------------------------------------------------
 // Generally useful platform-independent macros (move to another file?)
 //-----------------------------------------------------------------------------

@@ -1,0 +1,1 @@
+0x249DEE: "or      byte ptr [rdi+14h], 3" --> "and     byte ptr [rdi+14h], 0FDh"; // This fixes an engine bug where '-forceborder' did not force the border over the application window.

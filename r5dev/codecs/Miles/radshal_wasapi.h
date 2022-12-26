@@ -4,7 +4,7 @@
 inline CMemory p_WASAPI_GetAudioDevice;
 
 ///////////////////////////////////////////////////////////////////////////////
-class VWASAPIServiceThread : public IDetour
+class VRadShal : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
@@ -13,7 +13,7 @@ class VWASAPIServiceThread : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		p_WASAPI_GetAudioDevice = g_RadAudioSystemDll.FindPatternSIMD(reinterpret_cast<rsig_t>("\x48\x8B\xC4\x48\x89\x58\x20\x55\x56\x41\x54"), "xxxxxxxxxxx");
+		p_WASAPI_GetAudioDevice = g_RadAudioSystemDll.FindPatternSIMD("48 8B C4 48 89 58 20 55 56 41 54");
 		// 0x18005AD10 // 48 8B C4 48 89 58 20 55 56 41 54 //
 	}
 	virtual void GetVar(void) const { }
@@ -23,4 +23,4 @@ class VWASAPIServiceThread : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(VWASAPIServiceThread);
+REGISTER(VRadShal);
