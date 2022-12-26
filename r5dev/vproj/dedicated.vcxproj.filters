@@ -1269,6 +1269,9 @@
     <ClInclude Include="..\public\ipackedstore.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
+    <ClInclude Include="..\mathlib\compressed_vector.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
     <ClInclude Include="..\public\dt_send.h">
       <Filter>sdk\public</Filter>
     </ClInclude>

@@ -1946,6 +1946,9 @@
     <ClInclude Include="..\public\ipackedstore.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
+    <ClInclude Include="..\mathlib\compressed_vector.h">
+      <Filter>sdk\mathlib</Filter>
+    </ClInclude>
     <ClInclude Include="..\codecs\bink\bink_impl.h">
       <Filter>sdk\codecs\bink</Filter>
     </ClInclude>
