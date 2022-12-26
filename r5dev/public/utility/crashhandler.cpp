@@ -97,7 +97,7 @@ void CCrashHandler::FormatSystemInfo()
 
 	const CPUInformation& pi = GetCPUInformation();
 
-	m_svBuffer.append(fmt::format("\tcpu_brand = \"{:s}\"\n", pi.m_szProcessorBrand));
+	m_svBuffer.append(fmt::format("\tcpu_model = \"{:s}\"\n", pi.m_szProcessorBrand));
 	m_svBuffer.append(fmt::format("\tcpu_speed = {:d} // clock cycles\n", pi.m_Speed));
 
 	for (int i = 0; ; i++)
@@ -113,7 +113,7 @@ void CCrashHandler::FormatSystemInfo()
 		{
 			char szDeviceName[128];
 			wcstombs(szDeviceName, dd.DeviceString, sizeof(szDeviceName));
-			m_svBuffer.append(fmt::format("\tgpu_brand = \"{:s}\"\n", szDeviceName));
+			m_svBuffer.append(fmt::format("\tgpu_model = \"{:s}\"\n", szDeviceName));
 			m_svBuffer.append(fmt::format("\tgpu_flags = 0x{:08X} // primary device\n", dd.StateFlags));
 		}
 	}
@@ -123,11 +123,19 @@ void CCrashHandler::FormatSystemInfo()
 
 	if (GlobalMemoryStatusEx(&statex))
 	{
-		m_svBuffer.append(fmt::format("\tram_total = [ [{:d}], [{:d}] ] // physical/virtual (MiB)\n", (statex.ullTotalPhys / 1024) / 1024, (statex.ullTotalVirtual / 1024) / 1024));
-		m_svBuffer.append(fmt::format("\tram_avail = [ [{:d}], [{:d}] ] // physical/virtual (MiB)\n", (statex.ullAvailPhys / 1024) / 1024, (statex.ullAvailVirtual / 1024) / 1024));
+		m_svBuffer.append(fmt::format("\tram_total = [ {:d}, {:d} ] // physical/virtual (MiB)\n", (statex.ullTotalPhys / 1024) / 1024, (statex.ullTotalVirtual / 1024) / 1024));
+		m_svBuffer.append(fmt::format("\tram_avail = [ {:d}, {:d} ] // physical/virtual (MiB)\n", (statex.ullAvailPhys / 1024) / 1024, (statex.ullAvailVirtual / 1024) / 1024));
 	}
 
 	m_svBuffer.append("}\n");
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: formats the build information
+//-----------------------------------------------------------------------------
+void CCrashHandler::FormatBuildInfo()
+{
+	m_svBuffer.append(fmt::format("build_id: {:d}\n", g_SDKDll.m_pNTHeaders->FileHeader.TimeDateStamp));
 }
 
 //-----------------------------------------------------------------------------
@@ -267,7 +275,7 @@ void CCrashHandler::FormatFPU(const char* pszRegister, M128A* pxContent)
 		*reinterpret_cast<float*>(&nVec[3])));
 
 	const char* pszVectorFormat = ", [{:d}, {:d}, {:d}, {:d}] ]\n";
-	int nHighest = *std::max_element(nVec, nVec + 4);
+	int nHighest = *std::max_element(nVec, nVec + SDK_ARRAYSIZE(nVec));
 
 	if (nHighest >= 1000000)
 	{
@@ -371,6 +379,7 @@ long __stdcall ExceptionFilter(EXCEPTION_POINTERS* exceptionInfo)
 	g_CrashHandler->FormatCallstack();
 	g_CrashHandler->FormatRegisters();
 	g_CrashHandler->FormatSystemInfo();
+	g_CrashHandler->FormatBuildInfo();
 
 	g_CrashHandler->WriteFile();
 	g_CrashHandler->Unlock();

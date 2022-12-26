@@ -17,6 +17,7 @@ public:
 	void FormatCallstack();
 	void FormatRegisters();
 	void FormatSystemInfo();
+	void FormatBuildInfo();
 
 	const char* ExceptionToString() const;
 

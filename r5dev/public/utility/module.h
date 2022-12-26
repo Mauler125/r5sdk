@@ -36,6 +36,9 @@ public:
 	string           GetModuleName(void) const;
 	uintptr_t        GetRVA(const uintptr_t nAddress) const;
 
+	IMAGE_NT_HEADERS64* m_pNTHeaders = nullptr;
+	IMAGE_DOS_HEADER* m_pDOSHeader = nullptr;
+
 	ModuleSections_t         m_ExecutableCode;
 	ModuleSections_t         m_ExceptionTable;
 	ModuleSections_t         m_RunTimeData;
@@ -47,8 +50,6 @@ private:
 	string                   m_svModuleName;
 	uintptr_t                m_pModuleBase{};
 	DWORD                    m_nModuleSize{};
-	IMAGE_NT_HEADERS64*      m_pNTHeaders = nullptr;
-	IMAGE_DOS_HEADER*        m_pDOSHeader = nullptr;
 	vector<ModuleSections_t> m_vModuleSections;
 };
 
