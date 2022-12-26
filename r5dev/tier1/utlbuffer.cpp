@@ -564,7 +564,7 @@ int	CUtlBuffer::PeekStringLength()
 	if (!IsValid())
 		return 0;
 
-	// Eat preceeding whitespace
+	// Eat preceding whitespace
 	int nOffset = 0;
 	if (IsText())
 	{
@@ -673,7 +673,7 @@ int CUtlBuffer::PeekDelimitedStringLength(CUtlCharConversion* pConv, bool bActua
 	if (!IsText() || !pConv)
 		return PeekStringLength();
 
-	// Eat preceeding whitespace
+	// Eat preceding whitespace
 	int nOffset = 0;
 	if (IsText())
 	{
