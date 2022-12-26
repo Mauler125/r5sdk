@@ -9,13 +9,11 @@
 #ifndef _DEBUG
 
 #include "crashhandler.h"
-#include "tier1/cvar.h"
-#include "vpc/keyvalues.h"
-#include "rtech/rtech_utils.h"
 #include "engine/cmodel_bsp.h"
-#include "materialsystem/cmaterialglue.h"
-#include "materialsystem/cmaterialsystem.h"
+//#include "materialsystem/cmaterialglue.h"
+//#include "materialsystem/cmaterialsystem.h"
 #include "bsplib/bsplib.h"
+#include <tier0/cpu.h>
 
 CCrashHandler* g_CrashHandler = new CCrashHandler();
 
@@ -86,6 +84,48 @@ void CCrashHandler::FormatRegisters()
 	FormatFPU("xmm13", &pContextRecord->Xmm13);
 	FormatFPU("xmm14", &pContextRecord->Xmm14);
 	FormatFPU("xmm15", &pContextRecord->Xmm15);
+
+	m_svBuffer.append("}\n");
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: formats the system information
+//-----------------------------------------------------------------------------
+void CCrashHandler::FormatSystemInfo()
+{
+	m_svBuffer.append("system:\n{\n");
+
+	const CPUInformation& pi = GetCPUInformation();
+
+	m_svBuffer.append(fmt::format("\tcpu_brand = \"{:s}\"\n", pi.m_szProcessorBrand));
+	m_svBuffer.append(fmt::format("\tcpu_speed = {:d} // clock cycles\n", pi.m_Speed));
+
+	for (int i = 0; ; i++)
+	{
+		DISPLAY_DEVICE dd = { sizeof(dd), 0 };
+		BOOL f = EnumDisplayDevices(NULL, i, &dd, EDD_GET_DEVICE_INTERFACE_NAME);
+		if (!f)
+		{
+			break;
+		}
+
+		if (dd.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE) // The primary device is the only relevant device.
+		{
+			char szDeviceName[128];
+			wcstombs(szDeviceName, dd.DeviceString, sizeof(szDeviceName));
+			m_svBuffer.append(fmt::format("\tgpu_brand = \"{:s}\"\n", szDeviceName));
+			m_svBuffer.append(fmt::format("\tgpu_flags = 0x{:08X} // primary device\n", dd.StateFlags));
+		}
+	}
+
+	MEMORYSTATUSEX statex{};
+	statex.dwLength = sizeof(statex);
+
+	if (GlobalMemoryStatusEx(&statex))
+	{
+		m_svBuffer.append(fmt::format("\tram_total = [ [{:d}], [{:d}] ] // physical/virtual (MiB)\n", (statex.ullTotalPhys / 1024) / 1024, (statex.ullTotalVirtual / 1024) / 1024));
+		m_svBuffer.append(fmt::format("\tram_avail = [ [{:d}], [{:d}] ] // physical/virtual (MiB)\n", (statex.ullAvailPhys / 1024) / 1024, (statex.ullAvailVirtual / 1024) / 1024));
+	}
 
 	m_svBuffer.append("}\n");
 }
@@ -179,6 +219,8 @@ void CCrashHandler::FormatExceptionCode()
 
 //-----------------------------------------------------------------------------
 // Purpose: formats the register and its content
+// Input  : *pszRegister - 
+//			nContent - 
 //-----------------------------------------------------------------------------
 void CCrashHandler::FormatAPU(const char* pszRegister, DWORD64 nContent)
 {
@@ -205,6 +247,8 @@ void CCrashHandler::FormatAPU(const char* pszRegister, DWORD64 nContent)
 
 //-----------------------------------------------------------------------------
 // Purpose: formats the floating point register and its content
+// Input  : *pszRegister - 
+//			*pxContent - 
 //-----------------------------------------------------------------------------
 void CCrashHandler::FormatFPU(const char* pszRegister, M128A* pxContent)
 {
@@ -323,12 +367,10 @@ long __stdcall ExceptionFilter(EXCEPTION_POINTERS* exceptionInfo)
 	g_CrashHandler->GetCallStack();
 	g_CrashHandler->SetExceptionPointers(exceptionInfo);
 
-
 	g_CrashHandler->FormatCrash();
 	g_CrashHandler->FormatCallstack();
 	g_CrashHandler->FormatRegisters();
-
-
+	g_CrashHandler->FormatSystemInfo();
 
 	g_CrashHandler->WriteFile();
 	g_CrashHandler->Unlock();
