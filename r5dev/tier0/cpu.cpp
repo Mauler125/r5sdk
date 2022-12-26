@@ -511,7 +511,7 @@ const CPUInformation& GetCPUInformation(void)
 					}
 					if (nCacheType & 1)
 					{
-						// This cache includes data cache: it's either data or unified. Instuction cache type is 2.
+						// This cache includes data cache: it's either data or unified. Instruction cache type is 2.
 						uint32_t nCacheLevel = (cpuid4.eax >> 5) & 7;
 						if (nCacheLevel < nCachesToQuery)
 						{
