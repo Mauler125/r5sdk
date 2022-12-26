@@ -1287,6 +1287,9 @@
     <ClInclude Include="..\public\utility\vtable.h">
       <Filter>sdk\public\utility</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\utility\crashhandler.h">
+      <Filter>sdk\public\utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">

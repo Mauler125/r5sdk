@@ -243,6 +243,7 @@
     <ClInclude Include="..\public\server_class.h" />
     <ClInclude Include="..\public\studio.h" />
     <ClInclude Include="..\public\utility\binstream.h" />
+    <ClInclude Include="..\public\utility\crashhandler.h" />
     <ClInclude Include="..\public\utility\httplib.h" />
     <ClInclude Include="..\public\utility\memaddr.h" />
     <ClInclude Include="..\public\utility\module.h" />
