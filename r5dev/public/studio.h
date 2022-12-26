@@ -1,6 +1,6 @@
 #ifndef STUDIO_H
 #define STUDIO_H
-#include "mathlib/vector.h"
+#include "mathlib/mathlib.h"
 
 #define MAX_NUM_LODS 8
 
@@ -618,7 +618,6 @@ struct mstudioframemovement_t
 					   // may have more than one, even when not section anim
 };
 
-
 struct mstudioseqdesc_t
 {
 	int baseptr;
@@ -991,7 +990,7 @@ struct BVH4Node_t
 // studio model data
 struct studiomeshdata_t
 {
-	int   m_NumGroup;
+	int m_NumGroup;
 	void* m_pMeshGroup; // studiomeshgroup_t
 };
 
@@ -1003,10 +1002,10 @@ struct studioloddata_t
 
 struct studiohwdata_t
 {
-	int                   m_RootLOD; // calced and clamped, nonzero for lod culling
-	int                   m_NumLODs;
-	studioloddata_t*        m_pLODs;
-	int           m_NumStudioMeshes;
+	int m_RootLOD; // calced and clamped, nonzero for lod culling
+	int m_NumLODs;
+	studioloddata_t* m_pLODs;
+	int m_NumStudioMeshes;
 	// !TODO:
 };
 
