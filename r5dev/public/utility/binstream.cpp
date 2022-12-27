@@ -239,7 +239,7 @@ void CIOStream::WriteString(const string& svInput)
 		return;
 
 	const char* szText = svInput.c_str();
-	size_t nSize = svInput.size() + 1; // '+1' for the null terminator.
+	size_t nSize = svInput.size();
 
 	m_Stream.write(szText, nSize);
 }
