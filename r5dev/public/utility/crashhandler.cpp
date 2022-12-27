@@ -323,7 +323,7 @@ void CCrashHandler::FormatAPU(const char* pszRegister, DWORD64 nContent)
 //-----------------------------------------------------------------------------
 void CCrashHandler::FormatFPU(const char* pszRegister, M128A* pxContent)
 {
-	int nVec[4] =
+	DWORD nVec[4] =
 	{
 		pxContent->Low & INT_MAX,
 		pxContent->Low >> 32,
