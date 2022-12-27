@@ -6,6 +6,8 @@ constexpr int SPDLOG_NUM_FILE = 0; // Sets number of files to rotate to.
 inline bool g_bSpdLog_UseAnsiClr = false;
 inline bool g_bSpdLog_PostInit = false;
 
+inline string g_svLogSessionDirectory;
+
 //-------------------------------------------------------------------------
 // IMGUI CONSOLE SINK                                                     |
 inline std::ostringstream g_spd_sys_w_oss;

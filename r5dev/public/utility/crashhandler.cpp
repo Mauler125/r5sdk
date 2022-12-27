@@ -4,18 +4,10 @@
 //
 //=============================================================================//
 #include "core/stdafx.h"
+#include "core/logdef.h"
+#include "tier0/cpu.h"
 #include "public/utility/binstream.h"
-
-#ifndef _DEBUG
-
-#include "crashhandler.h"
-#include "engine/cmodel_bsp.h"
-//#include "materialsystem/cmaterialglue.h"
-//#include "materialsystem/cmaterialsystem.h"
-#include "bsplib/bsplib.h"
-#include <tier0/cpu.h>
-
-CCrashHandler* g_CrashHandler = new CCrashHandler();
+#include "public/utility/crashhandler.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: formats the crasher (module, address and exception)
@@ -153,6 +145,7 @@ void CCrashHandler::FormatExceptionAddress(LPCSTR pExceptionAddress)
 	if (!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, pExceptionAddress, &hCrashedModule))
 	{
 		m_svBuffer.append(fmt::format("\t!!!unknown-module!!!: 0x{:016X}\n", reinterpret_cast<uintptr_t>(pExceptionAddress)));
+		m_nCrashMsgFlags = 0; // Display the "unknown DLL or EXE" message.
 		return;
 	}
 
@@ -162,12 +155,19 @@ void CCrashHandler::FormatExceptionAddress(LPCSTR pExceptionAddress)
 	if (GetModuleFileNameExA(GetCurrentProcess(), hCrashedModule, szCrashedModuleFullName, sizeof(szCrashedModuleFullName)) - 1 > 0x1FE)
 	{
 		m_svBuffer.append(fmt::format("\tmodule@{:016X}: 0x{:016X}\n", (void*)hCrashedModule, reinterpret_cast<uintptr_t>(pModuleBase)));
+		m_nCrashMsgFlags = 0; // Display the "Apex crashed" message without additional information regarding the module.
 		return;
 	}
 
 	// TODO: REMOVE EXT.
 	const char* szCrashedModuleName = strrchr(szCrashedModuleFullName, '\\') + 1;
-	m_svBuffer.append(fmt::format("\t{:s}: 0x{:016X}\n", szCrashedModuleName, reinterpret_cast<uintptr_t>(pModuleBase)));
+	m_svBuffer.append(fmt::format("\t{:15s}: 0x{:016X}\n", szCrashedModuleName, reinterpret_cast<uintptr_t>(pModuleBase)));
+	m_nCrashMsgFlags = 1; // Display the "Apex crashed in <module>" message.
+
+	if (m_svCrashMsgInfo.empty()) // Only set it once to the crashing module.
+	{
+		m_svCrashMsgInfo = szCrashedModuleName;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -288,9 +288,9 @@ void CCrashHandler::FormatFPU(const char* pszRegister, M128A* pxContent)
 //-----------------------------------------------------------------------------
 // Purpose: returns the current exception code as string
 //-----------------------------------------------------------------------------
-const char* CCrashHandler::ExceptionToString() const
+const char* CCrashHandler::ExceptionToString(DWORD nExceptionCode) const
 {
-	switch (m_pExceptionPointers->ExceptionRecord->ExceptionCode)
+	switch (nExceptionCode)
 	{
 	case EXCEPTION_GUARD_PAGE:               { return "\tEXCEPTION_GUARD_PAGE"               ": 0x{:08X}\n"; };
 	case EXCEPTION_BREAKPOINT:               { return "\tEXCEPTION_BREAKPOINT"               ": 0x{:08X}\n"; };
@@ -316,6 +316,14 @@ const char* CCrashHandler::ExceptionToString() const
 	case EXCEPTION_INT_OVERFLOW:             { return "\tEXCEPTION_INT_OVERFLOW"             ": 0x{:08X}\n"; };
 	default:                                 { return "\tUNKNOWN_EXCEPTION"                  ": 0x{:08X}\n"; };
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: returns the current exception code as string
+//-----------------------------------------------------------------------------
+const char* CCrashHandler::ExceptionToString() const
+{
+	return ExceptionToString(m_pExceptionPointers->ExceptionRecord->ExceptionCode);
 }
 
 //-----------------------------------------------------------------------------
@@ -352,11 +360,48 @@ void CCrashHandler::GetCallStack()
 //-----------------------------------------------------------------------------
 void CCrashHandler::WriteFile()
 {
-	std::time_t time = std::time(nullptr);
-	stringstream ss; ss << "platform\\logs\\" << "apex_crash_" << std::put_time(std::localtime(&time), "%Y-%m-%d %H-%M-%S.txt");
+	string svLogDirectory = fmt::format("{:s}{:s}", g_svLogSessionDirectory, "apex_crash.txt");
+	CIOStream ioLogFile(svLogDirectory, CIOStream::Mode_t::WRITE);
 
-	CIOStream ioLogFile = CIOStream(ss.str(), CIOStream::Mode_t::WRITE);
 	ioLogFile.WriteString(m_svBuffer);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: creates the crashmsg process displaying the error to the user
+// the process has to be separate as the current process is getting killed
+//-----------------------------------------------------------------------------
+void CCrashHandler::CreateMessageProcess()
+{
+	if (m_bCrashMsgCreated)
+	{
+		return; // CrashMsg already displayed.
+	}
+	m_bCrashMsgCreated = true;
+
+	PEXCEPTION_RECORD pExceptionRecord = m_pExceptionPointers->ExceptionRecord;
+	PCONTEXT pContextRecord = m_pExceptionPointers->ContextRecord;
+
+	if (pExceptionRecord->ExceptionCode == 0xC0000005 &&
+		pExceptionRecord->ExceptionInformation[0] == 8 &&
+		pExceptionRecord->ExceptionInformation[1] != pContextRecord->Rip)
+	{
+		m_svCrashMsgInfo = "bin\\crashmsg.exe overclock";
+	}
+	else
+	{
+		m_svCrashMsgInfo = fmt::format("bin\\crashmsg.exe crash {:d} \"{:s}\"", m_nCrashMsgFlags, m_svCrashMsgInfo);
+	}
+
+	PROCESS_INFORMATION processInfo;
+	STARTUPINFOA startupInfo = { 0 };
+
+	startupInfo.cb = sizeof(STARTUPINFOA);
+
+	if (CreateProcessA(NULL, (LPSTR)m_svCrashMsgInfo.c_str(), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &startupInfo, &processInfo))
+	{
+		CloseHandle(processInfo.hProcess);
+		CloseHandle(processInfo.hThread);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -366,14 +411,25 @@ long __stdcall ExceptionFilter(EXCEPTION_POINTERS* exceptionInfo)
 {
 	g_CrashHandler->Lock();
 
+	g_CrashHandler->SetExceptionPointers(exceptionInfo);
+	if (g_CrashHandler->ExceptionToString() == g_CrashHandler->ExceptionToString(-1))
+	{
+		g_CrashHandler->Unlock();
+		return EXCEPTION_CONTINUE_SEARCH;
+	}
+
+	if (IsDebuggerPresent())
+	{
+		g_CrashHandler->Unlock();
+		return EXCEPTION_CONTINUE_SEARCH;
+	}
+
 	// Kill on recursive call.
-	static bool bLogged = false;
-	if (bLogged)
+	if (g_CrashHandler->GetState())
 		ExitProcess(1u);
-	bLogged = true;
+	g_CrashHandler->SetState(true);
 
 	g_CrashHandler->GetCallStack();
-	g_CrashHandler->SetExceptionPointers(exceptionInfo);
 
 	g_CrashHandler->FormatCrash();
 	g_CrashHandler->FormatCallstack();
@@ -382,23 +438,9 @@ long __stdcall ExceptionFilter(EXCEPTION_POINTERS* exceptionInfo)
 	g_CrashHandler->FormatBuildInfo();
 
 	g_CrashHandler->WriteFile();
+	g_CrashHandler->CreateMessageProcess();
+
 	g_CrashHandler->Unlock();
-
-
-//#ifndef _DEBUG
-//	// THIS WONT WORK ON DEBUG!!!
-//	// THIS IS DUE TO A JMP TABLE CREATED BY MSVC!!
-//	static auto find_IMI_ref = CMemory(IsMaterialInternal).FindAllCallReferences(reinterpret_cast<uintptr_t>(BuildPropStaticFrustumCullMap), 1000);
-//	if (!find_IMI_ref.empty())
-//	{
-//		const void* imiRetAddr = find_IMI_ref.at(0).Offset(0x5).RCast<void*>();
-//		for (WORD i = 0; i < 7; i++)
-//		{
-//			if (imiRetAddr == pStackTrace[i])
-//				return EXCEPTION_CONTINUE_SEARCH;
-//		}
-//	}
-//#endif // _DEBUG
 
 	return EXCEPTION_EXECUTE_HANDLER;
 }
@@ -408,8 +450,11 @@ long __stdcall ExceptionFilter(EXCEPTION_POINTERS* exceptionInfo)
 //-----------------------------------------------------------------------------
 CCrashHandler::CCrashHandler()
 	: m_ppStackTrace()
+	, m_pExceptionPointers(nullptr)
 	, m_nCapturedFrames(0)
-
+	, m_nCrashMsgFlags(0)
+	, m_bCallState(false)
+	, m_bCrashMsgCreated(false)
 {
 	m_hExceptionHandler = AddVectoredExceptionHandler(TRUE, ExceptionFilter);
 }
@@ -422,4 +467,4 @@ CCrashHandler::~CCrashHandler()
 	RemoveVectoredExceptionHandler(m_hExceptionHandler);
 }
 
-#endif // _DEBUG
+CCrashHandler* g_CrashHandler = new CCrashHandler();

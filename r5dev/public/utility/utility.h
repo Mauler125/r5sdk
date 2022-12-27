@@ -29,7 +29,9 @@ bool HasFileName(const string& svInput, const string& svFileName);
 string GetFileName(const string& svInput, bool bRemoveExtension = false, bool bWindows = false);
 string RemoveFileName(const string& svInput, bool bWindows = false);
 
+string CreateTimedFileName();
 string CreateDirectories(string svInput, bool bWindows = false);
+
 string ConvertToWinPath(const string& svInput);
 string ConvertToUnixPath(const string& svInput);
 

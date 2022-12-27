@@ -352,6 +352,27 @@ string RemoveFileName(const string& svInput, bool bWindows)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// For creating a file name with the current (now) date and time
+string CreateTimedFileName()
+{
+    auto now = std::chrono::system_clock::now();
+
+    // Get number of milliseconds for the current second (remainder after division into seconds).
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
+
+    // Convert to std::time_t in order to convert to std::tm (broken time).
+    auto timer = std::chrono::system_clock::to_time_t(now);
+    std::tm bt = *std::localtime(&timer);
+
+    ostringstream oss;
+
+    oss << std::put_time(&bt, "%Y-%m-%d_%H-%M-%S");
+    oss << '.' << std::setfill('0') << std::setw(3) << ms.count();
+
+    return oss.str(); // 'YY-MM-DD_HH-MM-SS.MMM'.
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // For creating directories for output streams.
 string CreateDirectories(string svInput, bool bWindows)
 {
