@@ -5,9 +5,11 @@
 //===========================================================================//
 #include "core/stdafx.h"
 #include "tier1/cvar.h"
+#include "public/utility/crashhandler.h"
 #include "vpc/keyvalues.h"
 #include "rtech/rtech_utils.h"
 #include "engine/cmodel_bsp.h"
+#include "bsplib/bsplib.h"
 #include "materialsystem/cmaterialglue.h"
 #include "materialsystem/cmaterialsystem.h"
 
@@ -130,6 +132,16 @@ Vector2D CMaterialSystem::GetScreenSize(CMaterialSystem* pMatSys)
 ///////////////////////////////////////////////////////////////////////////////
 void CMaterialSystem_Attach()
 {
+	// TODO: This has to be removed!!!
+#ifndef _DEBUG
+	vector<CMemory> find_IMI_ref = CMemory(IsMaterialInternal).FindAllCallReferences(reinterpret_cast<uintptr_t>(BuildPropStaticFrustumCullMap), 1000);
+	if (!find_IMI_ref.empty())
+	{
+		void* imiRetAddr = find_IMI_ref.at(0).Offset(0x5).RCast<void*>();
+		g_CrashHandler->AddToWhitelist(imiRetAddr);
+	}
+#endif // !_DEBUG
+
 #ifndef DEDICATED
 	DetourAttach((LPVOID*)&v_StreamDB_Init, &StreamDB_Init);
 	DetourAttach((LPVOID*)&v_DispatchDrawCall, &DispatchDrawCall);
