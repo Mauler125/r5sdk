@@ -32,7 +32,6 @@ public:
 	//-------------------------------------------------------------------------
 	const char* ExceptionToString() const;
 	const char* ExceptionToString(DWORD nExceptionCode) const;
-
 	void SetExceptionPointers(EXCEPTION_POINTERS* pExceptionPointers) { m_pExceptionPointers = pExceptionPointers; };
 
 	void WriteFile();
@@ -55,7 +54,7 @@ private:
 private:
 	enum
 	{
-		NUM_FRAMES_TO_CAPTURE = 60
+		NUM_FRAMES_TO_CAPTURE = 128
 	};
 
 	PVOID m_hExceptionHandler;

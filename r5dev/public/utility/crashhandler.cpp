@@ -28,10 +28,30 @@ void CCrashHandler::FormatCrash()
 void CCrashHandler::FormatCallstack()
 {
 	m_svBuffer.append("callstack:\n{\n");
+
+	if (m_nCapturedFrames)
+	{
+		PEXCEPTION_RECORD pExceptionRecord = m_pExceptionPointers->ExceptionRecord;
+		if (m_ppStackTrace[m_nCapturedFrames - 1] == pExceptionRecord->ExceptionAddress)
+		{
+			PCONTEXT pContextRecord = m_pExceptionPointers->ContextRecord;
+			MEMORY_BASIC_INFORMATION mbi = { 0 };
+			SIZE_T t = VirtualQuery((LPCVOID)pContextRecord->Rsp, &mbi, sizeof(LPCVOID));
+
+			if (t >= sizeof(mbi)
+				&& !(mbi.Protect & PAGE_NOACCESS)
+				&& (mbi.Protect & PAGE_READONLY | PAGE_READWRITE)
+				&& (mbi.State & MEM_COMMIT))
+			{
+				m_svBuffer.append("\t// call stack ended; possible return address?\n");
+			}
+		}
+	}
 	for (WORD i = 0; i < m_nCapturedFrames; i++)
 	{
 		FormatExceptionAddress(reinterpret_cast<LPCSTR>(m_ppStackTrace[i]));
 	}
+
 	m_svBuffer.append("}\n");
 }
 
@@ -41,8 +61,8 @@ void CCrashHandler::FormatCallstack()
 void CCrashHandler::FormatRegisters()
 {
 	m_svBuffer.append("registers:\n{\n");
-
 	PCONTEXT pContextRecord = m_pExceptionPointers->ContextRecord;
+
 	FormatAPU("rax", pContextRecord->Rax);
 	FormatAPU("rbx", pContextRecord->Rbx);
 	FormatAPU("rcx", pContextRecord->Rcx);
@@ -60,6 +80,7 @@ void CCrashHandler::FormatRegisters()
 	FormatAPU("r14", pContextRecord->R14);
 	FormatAPU("r15", pContextRecord->R15);
 	FormatAPU("rip", pContextRecord->Rip);
+
 	FormatFPU("xmm0 ", &pContextRecord->Xmm0);
 	FormatFPU("xmm1 ", &pContextRecord->Xmm1);
 	FormatFPU("xmm2 ", &pContextRecord->Xmm2);
@@ -352,7 +373,7 @@ bool CCrashHandler::IsPageAccessible() const
 //-----------------------------------------------------------------------------
 void CCrashHandler::GetCallStack()
 {
-	m_nCapturedFrames = RtlCaptureStackBackTrace(0, NUM_FRAMES_TO_CAPTURE, m_ppStackTrace, NULL);
+	m_nCapturedFrames = RtlCaptureStackBackTrace(2, NUM_FRAMES_TO_CAPTURE, m_ppStackTrace, NULL);
 }
 
 //-----------------------------------------------------------------------------
