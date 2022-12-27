@@ -218,7 +218,7 @@ void CCrashHandler::FormatExceptionAddress(LPCSTR pExceptionAddress)
 	if (GetModuleFileNameExA(GetCurrentProcess(), hCrashedModule, szCrashedModuleFullName, sizeof(szCrashedModuleFullName)) - 1 > 0x1FE)
 	{
 		m_svBuffer.append(fmt::format("\tmodule@{:016X}: 0x{:016X}\n", (void*)hCrashedModule, reinterpret_cast<uintptr_t>(pModuleBase)));
-		m_nCrashMsgFlags = 0; // Display the "Apex crashed" message without additional information regarding the module.
+		m_nCrashMsgFlags = 2; // Display the "Apex crashed" message without additional information regarding the module.
 		return;
 	}
 
