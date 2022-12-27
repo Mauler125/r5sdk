@@ -195,16 +195,19 @@ void CCrashHandler::FormatBuildInfo()
 
 //-----------------------------------------------------------------------------
 // Purpose: formats the module, address and exception
+//-----------------------------------------------------------------------------
+void CCrashHandler::FormatExceptionAddress()
+{
+	FormatExceptionAddress(static_cast<LPCSTR>(m_pExceptionPointers->ExceptionRecord->ExceptionAddress));
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: formats the module, address and exception
 // Input  : pExceptionAddress - 
 //-----------------------------------------------------------------------------
 void CCrashHandler::FormatExceptionAddress(LPCSTR pExceptionAddress)
 {
 	HMODULE hCrashedModule;
-	if (!pExceptionAddress)
-	{
-		pExceptionAddress = static_cast<LPCSTR>(m_pExceptionPointers->ExceptionRecord->ExceptionAddress);
-	}
-
 	if (!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, pExceptionAddress, &hCrashedModule))
 	{
 		m_svBuffer.append(fmt::format("\t!!!unknown-module!!!: 0x{:016X}\n", reinterpret_cast<uintptr_t>(pExceptionAddress)));
@@ -419,6 +422,38 @@ void CCrashHandler::GetCallStack()
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: adds a whitelist exception address
+//-----------------------------------------------------------------------------
+void CCrashHandler::AddWhitelist(void* pWhitelist)
+{
+	m_WhiteList.insert(pWhitelist);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: removes a whitelist exception address
+//-----------------------------------------------------------------------------
+void CCrashHandler::RemoveWhitelist(void* pWhitelist)
+{
+	m_WhiteList.erase(pWhitelist);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: checks if callstack contains whitelisted addresses up to 'MAX_IMI_SEARCH' frames.
+// Output : true is exist, false otherwise
+//-----------------------------------------------------------------------------
+bool CCrashHandler::HasWhitelist()
+{
+	for (WORD i = 0; i < MAX_IMI_SEARCH; i++)
+	{
+		if (m_WhiteList.count(m_ppStackTrace[i]))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: writes the formatted exception buffer to a file on the disk
 //-----------------------------------------------------------------------------
 void CCrashHandler::WriteFile()
@@ -481,7 +516,18 @@ long __stdcall ExceptionFilter(EXCEPTION_POINTERS* exceptionInfo)
 		return EXCEPTION_CONTINUE_SEARCH;
 	}
 
+	// Don't run when a debugger is present.
 	if (IsDebuggerPresent())
+	{
+		g_CrashHandler->Unlock();
+		return EXCEPTION_CONTINUE_SEARCH;
+	}
+
+	g_CrashHandler->GetCallStack();
+
+	// Don't run when exception return address is in whitelist.
+	// This is usefull for when we want to use a different exception handler instead.
+	if (g_CrashHandler->HasWhitelist())
 	{
 		g_CrashHandler->Unlock();
 		return EXCEPTION_CONTINUE_SEARCH;
@@ -492,8 +538,6 @@ long __stdcall ExceptionFilter(EXCEPTION_POINTERS* exceptionInfo)
 		ExitProcess(1u);
 	g_CrashHandler->SetState(true);
 
-	g_CrashHandler->GetCallStack();
-
 	g_CrashHandler->FormatCrash();
 	g_CrashHandler->FormatCallstack();
 	g_CrashHandler->FormatRegisters();
@@ -502,7 +546,7 @@ long __stdcall ExceptionFilter(EXCEPTION_POINTERS* exceptionInfo)
 	g_CrashHandler->FormatBuildInfo();
 
 	g_CrashHandler->WriteFile();
-	g_CrashHandler->CreateMessageProcess();
+	g_CrashHandler->CreateMessageProcess(); // Display the message to the user.
 
 	g_CrashHandler->Unlock();
 

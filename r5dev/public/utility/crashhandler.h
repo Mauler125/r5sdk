@@ -35,8 +35,13 @@ public:
 	const char* ExceptionToString(DWORD nExceptionCode) const;
 	void SetExceptionPointers(EXCEPTION_POINTERS* pExceptionPointers) { m_pExceptionPointers = pExceptionPointers; };
 
-	void WriteFile();
+	void AddWhitelist(void* pWhiteList);
+	void RemoveWhitelist(void* pWhiteList);
+	bool HasWhitelist();
+
 	void GetCallStack();
+	void WriteFile();
+
 	void CreateMessageProcess();
 
 private:
@@ -44,7 +49,8 @@ private:
 	//-------------------------------------------------------------------------
 	// Internals: 
 	//-------------------------------------------------------------------------
-	void FormatExceptionAddress(LPCSTR pExceptionAddress = nullptr);
+	void FormatExceptionAddress();
+	void FormatExceptionAddress(LPCSTR pExceptionAddress);
 	void FormatExceptionCode();
 
 	void FormatAPU(const char* pszRegister, DWORD64 nContent);
@@ -55,6 +61,7 @@ private:
 private:
 	enum
 	{
+		MAX_IMI_SEARCH = 7,
 		NUM_FRAMES_TO_CAPTURE = 128
 	};
 
@@ -69,6 +76,8 @@ private:
 
 	bool m_bCallState;       // Set when called to prevent recursive calls.
 	bool m_bCrashMsgCreated; // Set when crashmsg.exe is created to prevent recursive messages.
+
+	std::set<void*> m_WhiteList;
 	mutable std::mutex m_Mutex;
 };
 
