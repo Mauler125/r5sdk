@@ -418,10 +418,27 @@ void WinSock_Shutdown()
 }
 void QuerySystemInfo()
 {
+	for (int i = 0; ; i++)
+	{
+		DISPLAY_DEVICE dd = { sizeof(dd), 0 };
+		BOOL f = EnumDisplayDevices(NULL, i, &dd, EDD_GET_DEVICE_INTERFACE_NAME);
+		if (!f)
+		{
+			break;
+		}
+
+		if (dd.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE) // Only log the primary device.
+		{
+			char szDeviceName[128];
+			wcstombs(szDeviceName, dd.DeviceString, sizeof(szDeviceName));
+			spdlog::info("GPU model identifier     : '{:s}'\n", szDeviceName);
+		}
+	}
+
 	const CPUInformation& pi = GetCPUInformation();
 
 	spdlog::info("CPU model identifier     : '{:s}'\n", pi.m_szProcessorBrand);
-	spdlog::info("CPU vendor identifier    : '{:s}'\n", pi.m_szProcessorID);
+	spdlog::info("CPU vendor tag           : '{:s}'\n", pi.m_szProcessorID);
 	spdlog::info("CPU core count           : '{:12d}' ({:s})\n", pi.m_nPhysicalProcessors, "Physical");
 	spdlog::info("CPU core count           : '{:12d}' ({:s})\n", pi.m_nLogicalProcessors, "Logical");
 	spdlog::info("L1 cache            (KiB): '{:12d}'\n", pi.m_nL1CacheSizeKb);

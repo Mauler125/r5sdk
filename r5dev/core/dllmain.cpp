@@ -40,7 +40,6 @@ void SDK_Init()
     Console_Init();
 #endif // !DEDICATED
     SpdLog_Init();
-    spdlog::info("\n");
     for (size_t i = 0; i < SDK_ARRAYSIZE(R5R_EMBLEM); i++)
     {
         std::string svEscaped = StringEscape(R5R_EMBLEM[i]);
