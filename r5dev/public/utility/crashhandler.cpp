@@ -102,6 +102,48 @@ void CCrashHandler::FormatRegisters()
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: formats all loaded modules (verbose)
+//-----------------------------------------------------------------------------
+void CCrashHandler::FormatModules()
+{
+	m_svBuffer.append("modules:\n{\n");
+
+	HMODULE hModule[4096];
+	HANDLE hProcess = GetCurrentProcess();
+	DWORD cbNeeded;
+
+	BOOL result = K32EnumProcessModulesEx(hProcess, hModule, sizeof(hModule), &cbNeeded, LIST_MODULES_ALL);
+	if (result && cbNeeded <= sizeof(hModule) && cbNeeded >> 3)
+	{
+		char szModuleName[512];
+		char* pszModuleName;
+		MODULEINFO modInfo;
+
+		for (int i = 0, j = cbNeeded >> 3; j; i++, j--)
+		{
+			DWORD m = GetModuleFileNameA(hModule[i], szModuleName, sizeof(szModuleName));
+			if ((m - 1) > (sizeof(szModuleName) - 2)) // Too small for buffer.
+			{
+				snprintf(szModuleName, sizeof(szModuleName), "module@%p", hModule[i]);
+				pszModuleName = szModuleName;
+			}
+			else
+			{
+				pszModuleName = strrchr(szModuleName, '\\') + 1;
+			}
+
+			K32GetModuleInformation(hProcess, hModule[i], &modInfo, sizeof(modInfo));
+
+			m_svBuffer.append(fmt::format("\t{:15s}: [0x{:016X}, 0x{:016X}]\n", 
+				pszModuleName, reinterpret_cast<uintptr_t>(modInfo.lpBaseOfDll), 
+				static_cast<uintptr_t>((reinterpret_cast<uintptr_t>(modInfo.lpBaseOfDll) + modInfo.SizeOfImage))));
+		}
+	}
+
+	m_svBuffer.append("}\n");
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: formats the system information
 //-----------------------------------------------------------------------------
 void CCrashHandler::FormatSystemInfo()
@@ -455,6 +497,7 @@ long __stdcall ExceptionFilter(EXCEPTION_POINTERS* exceptionInfo)
 	g_CrashHandler->FormatCrash();
 	g_CrashHandler->FormatCallstack();
 	g_CrashHandler->FormatRegisters();
+	g_CrashHandler->FormatModules();
 	g_CrashHandler->FormatSystemInfo();
 	g_CrashHandler->FormatBuildInfo();
 

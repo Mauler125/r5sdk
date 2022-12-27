@@ -24,6 +24,7 @@ public:
 	void FormatCrash();
 	void FormatCallstack();
 	void FormatRegisters();
+	void FormatModules();
 	void FormatSystemInfo();
 	void FormatBuildInfo();
 
