@@ -17,6 +17,7 @@ public:
 	void Unlock() const { m_Mutex.unlock(); };
 	bool GetState() const { return m_bCallState; };
 	void SetState(bool bState) { m_bCallState = bState; };
+	bool IsValid() const { return m_hExceptionHandler != nullptr; };
 
 	//-------------------------------------------------------------------------
 	// Formatters: 

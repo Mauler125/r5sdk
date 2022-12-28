@@ -300,7 +300,7 @@ void CCrashHandler::FormatAPU(const CHAR* pszRegister, DWORD64 nContent)
 {
 	if (abs64(nContent) >= 1000000)
 	{
-		if (nContent > 0xFFFFFFFF)
+		if (nContent > UINT_MAX)
 		{
 			m_svBuffer.append(fmt::format("\t{:s} = 0x{:016X}\n", pszRegister, nContent));
 		}
@@ -309,13 +309,14 @@ void CCrashHandler::FormatAPU(const CHAR* pszRegister, DWORD64 nContent)
 			m_svBuffer.append(fmt::format("\t{:s} = 0x{:08X}\n", pszRegister, nContent));
 		}
 	}
-	else if (nContent < 0xFFFFFF80 || nContent > 0xFF)
+	else // Display as decimal.
 	{
-		m_svBuffer.append(fmt::format("\t{:s} = {:<15d} // 0x{:08X}\n", pszRegister, nContent, nContent));
-	}
-	else
-	{
-		m_svBuffer.append(fmt::format("\t{:s} = {:<10d}\n", pszRegister, nContent));
+		m_svBuffer.append(fmt::format("\t{:s} = {:<15d}\n", pszRegister, nContent));
+		if (nContent >= 10)
+		{
+			const string& svDesc = fmt::format(" // 0x{:08X}\n", nContent);
+			m_svBuffer.replace(m_svBuffer.length()-1, svDesc.size(), svDesc);
+		}
 	}
 }
 
@@ -364,12 +365,10 @@ const CHAR* CCrashHandler::ExceptionToString(DWORD nExceptionCode) const
 {
 	switch (nExceptionCode)
 	{
-	case EXCEPTION_GUARD_PAGE:               { return "\tEXCEPTION_GUARD_PAGE"               ": 0x{:08X}\n"; };
 	case EXCEPTION_BREAKPOINT:               { return "\tEXCEPTION_BREAKPOINT"               ": 0x{:08X}\n"; };
 	case EXCEPTION_SINGLE_STEP:              { return "\tEXCEPTION_SINGLE_STEP"              ": 0x{:08X}\n"; };
 	case EXCEPTION_ACCESS_VIOLATION:         { return "\tEXCEPTION_ACCESS_VIOLATION"         ": 0x{:08X}\n"; };
 	case EXCEPTION_IN_PAGE_ERROR:            { return "\tEXCEPTION_IN_PAGE_ERROR"            ": 0x{:08X}\n"; };
-	case EXCEPTION_INVALID_HANDLE:           { return "\tEXCEPTION_INVALID_HANDLE"           ": 0x{:08X}\n"; };
 	case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:    { return "\tEXCEPTION_ARRAY_BOUNDS_EXCEEDED"    ": 0x{:08X}\n"; };
 	case EXCEPTION_ILLEGAL_INSTRUCTION:      { return "\tEXCEPTION_ILLEGAL_INSTRUCTION"      ": 0x{:08X}\n"; };
 	case EXCEPTION_INVALID_DISPOSITION:      { return "\tEXCEPTION_INVALID_DISPOSITION"      ": 0x{:08X}\n"; };
@@ -519,7 +518,7 @@ long __stdcall ExceptionFilter(EXCEPTION_POINTERS* pExceptionInfo)
 	g_CrashHandler->Lock();
 
 	g_CrashHandler->SetExceptionPointers(pExceptionInfo);
-	if (g_CrashHandler->ExceptionToString() == g_CrashHandler->ExceptionToString(0xffffffff))
+	if (g_CrashHandler->ExceptionToString() == g_CrashHandler->ExceptionToString(-1))
 	{
 		g_CrashHandler->Unlock();
 		return EXCEPTION_CONTINUE_SEARCH;
