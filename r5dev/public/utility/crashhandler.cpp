@@ -10,6 +10,24 @@
 #include "public/utility/crashhandler.h"
 
 //-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CCrashHandler::Start()
+{
+	Lock();
+	m_bExceptionHandled = true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CCrashHandler::End()
+{
+	m_bExceptionHandled = false;
+	Unlock();
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: formats the crasher (module, address and exception)
 //-----------------------------------------------------------------------------
 void CCrashHandler::FormatCrash()
@@ -108,12 +126,12 @@ void CCrashHandler::FormatModules()
 {
 	m_svBuffer.append("modules:\n{\n");
 
-	HMODULE hModule[4096];
+	std::unique_ptr<HMODULE[]> hModule(new HMODULE[4096]);
 	HANDLE hProcess = GetCurrentProcess();
 	DWORD cbNeeded;
 
-	BOOL result = K32EnumProcessModulesEx(hProcess, hModule, sizeof(hModule), &cbNeeded, LIST_MODULES_ALL);
-	if (result && cbNeeded <= sizeof(hModule) && cbNeeded >> 3)
+	BOOL result = K32EnumProcessModulesEx(hProcess, &*hModule.get(), 4096, &cbNeeded, LIST_MODULES_ALL);
+	if (result && cbNeeded <= 4096 && cbNeeded >> 3)
 	{
 		CHAR szModuleName[512];
 		LPSTR pszModuleName;
@@ -121,10 +139,10 @@ void CCrashHandler::FormatModules()
 
 		for (DWORD i = 0, j = cbNeeded >> 3; j; i++, j--)
 		{
-			DWORD m = GetModuleFileNameA(hModule[i], szModuleName, sizeof(szModuleName));
+			DWORD m = GetModuleFileNameA(&*hModule.get()[i], szModuleName, sizeof(szModuleName));
 			if ((m - 1) > (sizeof(szModuleName) - 2)) // Too small for buffer.
 			{
-				snprintf(szModuleName, sizeof(szModuleName), "module@%p", hModule[i]);
+				snprintf(szModuleName, sizeof(szModuleName), "module@%p", &*hModule.get()[i]);
 				pszModuleName = szModuleName;
 			}
 			else
@@ -132,7 +150,7 @@ void CCrashHandler::FormatModules()
 				pszModuleName = strrchr(szModuleName, '\\') + 1;
 			}
 
-			K32GetModuleInformation(hProcess, hModule[i], &modInfo, sizeof(modInfo));
+			K32GetModuleInformation(hProcess, &*hModule.get()[i], &modInfo, sizeof(modInfo));
 
 			m_svBuffer.append(fmt::format("\t{:15s}: [0x{:016X}, 0x{:016X}]\n", 
 				pszModuleName, reinterpret_cast<uintptr_t>(modInfo.lpBaseOfDll), 
@@ -515,29 +533,30 @@ void CCrashHandler::CreateMessageProcess()
 //-----------------------------------------------------------------------------
 long __stdcall ExceptionFilter(EXCEPTION_POINTERS* pExceptionInfo)
 {
-	g_CrashHandler->Lock();
-
+	g_CrashHandler->Start();
 	g_CrashHandler->SetExceptionPointers(pExceptionInfo);
+
+	// Let the higher level exception handlers deal with this particular exception.
 	if (g_CrashHandler->ExceptionToString() == g_CrashHandler->ExceptionToString(-1))
 	{
-		g_CrashHandler->Unlock();
+		g_CrashHandler->End();
 		return EXCEPTION_CONTINUE_SEARCH;
 	}
 
 	// Don't run when a debugger is present.
 	if (IsDebuggerPresent())
 	{
-		g_CrashHandler->Unlock();
+		g_CrashHandler->End();
 		return EXCEPTION_CONTINUE_SEARCH;
 	}
 
 	g_CrashHandler->GetCallStack();
 
-	// Don't run when exception return address is in whitelist.
+	// Don't run filter when exception return address is in whitelist.
 	// This is useful for when we want to use a different exception handler instead.
 	if (g_CrashHandler->HasWhitelist())
 	{
-		g_CrashHandler->Unlock();
+		g_CrashHandler->End();
 		return EXCEPTION_CONTINUE_SEARCH;
 	}
 
@@ -556,6 +575,7 @@ long __stdcall ExceptionFilter(EXCEPTION_POINTERS* pExceptionInfo)
 	g_CrashHandler->WriteFile();
 	g_CrashHandler->CreateMessageProcess(); // Display the message to the user.
 
+	// Don't end, just unlock the mutex so the next call kills the process.
 	g_CrashHandler->Unlock();
 
 	return EXCEPTION_EXECUTE_HANDLER;
@@ -570,6 +590,7 @@ CCrashHandler::CCrashHandler()
 	, m_nCapturedFrames(0)
 	, m_nCrashMsgFlags(0)
 	, m_bCallState(false)
+	, m_bExceptionHandled(false)
 	, m_bCrashMsgCreated(false)
 {
 	m_hExceptionHandler = AddVectoredExceptionHandler(TRUE, ExceptionFilter);
