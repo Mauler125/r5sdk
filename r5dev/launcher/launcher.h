@@ -7,6 +7,9 @@ inline auto v_WinMain = p_WinMain.RCast<int (*)(HINSTANCE hInstance, HINSTANCE h
 inline CMemory p_LauncherMain;
 inline auto v_LauncherMain = p_LauncherMain.RCast<int(*)(HINSTANCE hInstance)>();
 
+inline CMemory p_TopLevelExceptionFilter;
+inline auto v_TopLevelExceptionFilter = p_TopLevelExceptionFilter.RCast<LONG(*)(EXCEPTION_POINTERS* pExceptionPointer)>();
+
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 inline CMemory p_RemoveSpuriousGameParameters;
 inline auto v_RemoveSpuriousGameParameters = p_RemoveSpuriousGameParameters.RCast<void* (*)(void)>();
@@ -27,6 +30,7 @@ class VLauncher : public IDetour
 	{
 		spdlog::debug("| FUN: WinMain                              : {:#18x} |\n", p_WinMain.GetPtr());
 		spdlog::debug("| FUN: LauncherMain                         : {:#18x} |\n", p_LauncherMain.GetPtr());
+		spdlog::debug("| FUN: TopLevelExceptionFilter              : {:#18x} |\n", p_TopLevelExceptionFilter.GetPtr());
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 		spdlog::debug("| FUN: RemoveSpuriousGameParameters         : {:#18x} |\n", p_RemoveSpuriousGameParameters.GetPtr());
 #endif // !GAMEDLL_S0 || !GAMEDLL_S1
@@ -39,6 +43,9 @@ class VLauncher : public IDetour
 
 		p_LauncherMain = g_GameDll.GetExportedFunction("LauncherMain");
 		v_LauncherMain = p_LauncherMain.RCast<int(*)(HINSTANCE)>();
+
+		p_TopLevelExceptionFilter = g_GameDll.FindPatternSIMD("40 53 48 83 EC 20 48 8B 05 ?? ?? ?? ?? 48 8B D9 48 85 C0 74 06");
+		v_TopLevelExceptionFilter = p_TopLevelExceptionFilter.RCast<LONG(*)(EXCEPTION_POINTERS*)>();
 
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 		p_RemoveSpuriousGameParameters = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 33 ED 48 8D 3D ?? ?? ?? ??");

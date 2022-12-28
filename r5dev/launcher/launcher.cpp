@@ -7,6 +7,7 @@
 #include "core/stdafx.h"
 #include "tier0/commandline.h"
 #include "tier1/strtools.h"
+#include "public/utility/crashhandler.h"
 #include "launcher/launcher.h"
 
 int HWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
@@ -152,14 +153,27 @@ const char* ExitCodeToString(int nCode)
 	case EXIT_FAILURE:
 		return "EXIT_FAILURE";
 	default:
-		return "";
+		return "UNKNOWN_EXIT_CODE";
 	}
+}
+
+LONG WINAPI TopLevelExceptionFilter(EXCEPTION_POINTERS* pExceptionPointers)
+{
+	// Don't run the unhandled exception filter from the
+	// game if we have a valid vectored exception filter.
+	if (g_CrashHandler && g_CrashHandler->Handled())
+	{
+		return NULL;
+	}
+
+	return v_TopLevelExceptionFilter(pExceptionPointers);
 }
 
 void Launcher_Attach()
 {
 	DetourAttach((LPVOID*)&v_WinMain, &HWinMain);
 	DetourAttach((LPVOID*)&v_LauncherMain, &LauncherMain);
+	DetourAttach((LPVOID*)&v_TopLevelExceptionFilter, &TopLevelExceptionFilter);
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 	DetourAttach((LPVOID*)&v_RemoveSpuriousGameParameters, &RemoveSpuriousGameParameters);
 #endif
@@ -169,6 +183,7 @@ void Launcher_Detach()
 {
 	DetourDetach((LPVOID*)&v_WinMain, &HWinMain);
 	DetourDetach((LPVOID*)&v_LauncherMain, &LauncherMain);
+	DetourDetach((LPVOID*)&v_TopLevelExceptionFilter, &TopLevelExceptionFilter);
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 	DetourDetach((LPVOID*)&v_RemoveSpuriousGameParameters, &RemoveSpuriousGameParameters);
 #endif
