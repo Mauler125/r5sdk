@@ -691,6 +691,7 @@
       <ModuleDefinitionFile>..\GameSDK.def</ModuleDefinitionFile>
       <AdditionalDependencies>d3d11.lib;bcrypt.lib;libdetours_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;librecast_x64.lib;libdtdetour_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
+      <StackReserveSize>8000000</StackReserveSize>
     </Link>
     <PostBuildEvent>
       <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\gamesdk.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
@@ -734,6 +735,7 @@
       <AdditionalDependencies>d3d11.lib;bcrypt.lib;libdetours_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;librecast_x64.lib;libdtdetour_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <SetChecksum>true</SetChecksum>
+      <StackReserveSize>8000000</StackReserveSize>
     </Link>
     <PostBuildEvent>
       <Command>IF EXIST "$(SolutionDir)..\..\r5apex.exe" del "$(SolutionDir)..\..\gamesdk.dll" &amp;&amp; copy /Y "$(TargetPath)" "$(SolutionDir)..\..\</Command>
