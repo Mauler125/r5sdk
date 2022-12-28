@@ -531,7 +531,7 @@ void CCrashHandler::CreateMessageProcess()
 // Input  : 
 // Output : 
 //-----------------------------------------------------------------------------
-long __stdcall ExceptionFilter(EXCEPTION_POINTERS* pExceptionInfo)
+long __stdcall BottomLevelExceptionFilter(EXCEPTION_POINTERS* pExceptionInfo)
 {
 	g_CrashHandler->Start();
 	g_CrashHandler->SetExceptionPointers(pExceptionInfo);
@@ -593,7 +593,7 @@ CCrashHandler::CCrashHandler()
 	, m_bExceptionHandled(false)
 	, m_bCrashMsgCreated(false)
 {
-	m_hExceptionHandler = AddVectoredExceptionHandler(TRUE, ExceptionFilter);
+	m_hExceptionHandler = AddVectoredExceptionHandler(TRUE, BottomLevelExceptionFilter);
 }
 
 //-----------------------------------------------------------------------------
