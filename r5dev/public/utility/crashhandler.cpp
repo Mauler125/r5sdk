@@ -115,11 +115,11 @@ void CCrashHandler::FormatModules()
 	BOOL result = K32EnumProcessModulesEx(hProcess, hModule, sizeof(hModule), &cbNeeded, LIST_MODULES_ALL);
 	if (result && cbNeeded <= sizeof(hModule) && cbNeeded >> 3)
 	{
-		char szModuleName[512];
-		char* pszModuleName;
+		CHAR szModuleName[512];
+		LPSTR pszModuleName;
 		MODULEINFO modInfo;
 
-		for (int i = 0, j = cbNeeded >> 3; j; i++, j--)
+		for (DWORD i = 0, j = cbNeeded >> 3; j; i++, j--)
 		{
 			DWORD m = GetModuleFileNameA(hModule[i], szModuleName, sizeof(szModuleName));
 			if ((m - 1) > (sizeof(szModuleName) - 2)) // Too small for buffer.
@@ -153,9 +153,9 @@ void CCrashHandler::FormatSystemInfo()
 	const CPUInformation& pi = GetCPUInformation();
 
 	m_svBuffer.append(fmt::format("\tcpu_model = \"{:s}\"\n", pi.m_szProcessorBrand));
-	m_svBuffer.append(fmt::format("\tcpu_speed = {:d} // clock cycles\n", pi.m_Speed));
+	m_svBuffer.append(fmt::format("\tcpu_speed = {:010d} // clock cycles\n", pi.m_Speed));
 
-	for (int i = 0; ; i++)
+	for (DWORD i = 0; ; i++)
 	{
 		DISPLAY_DEVICE dd = { sizeof(dd), 0 };
 		BOOL f = EnumDisplayDevices(NULL, i, &dd, EDD_GET_DEVICE_INTERFACE_NAME);
@@ -178,8 +178,8 @@ void CCrashHandler::FormatSystemInfo()
 
 	if (GlobalMemoryStatusEx(&statex))
 	{
-		m_svBuffer.append(fmt::format("\tram_total = [ {:d}, {:d} ] // physical/virtual (MiB)\n", (statex.ullTotalPhys / 1024) / 1024, (statex.ullTotalVirtual / 1024) / 1024));
-		m_svBuffer.append(fmt::format("\tram_avail = [ {:d}, {:d} ] // physical/virtual (MiB)\n", (statex.ullAvailPhys / 1024) / 1024, (statex.ullAvailVirtual / 1024) / 1024));
+		m_svBuffer.append(fmt::format("\tram_total = [{:010d}, {:010d}] // physical/virtual (MiB)\n", (statex.ullTotalPhys / 1024) / 1024, (statex.ullTotalVirtual / 1024) / 1024));
+		m_svBuffer.append(fmt::format("\tram_avail = [{:010d}, {:010d}] // physical/virtual (MiB)\n", (statex.ullAvailPhys / 1024) / 1024, (statex.ullAvailVirtual / 1024) / 1024));
 	}
 
 	m_svBuffer.append("}\n");
@@ -328,27 +328,32 @@ void CCrashHandler::FormatFPU(const char* pszRegister, M128A* pxContent)
 {
 	DWORD nVec[4] =
 	{
-		pxContent->Low & INT_MAX,
+		pxContent->Low & UINT_MAX,
 		pxContent->Low >> 32,
-		pxContent->High & INT_MAX,
+		pxContent->High & UINT_MAX,
 		pxContent->High >> 32,
 	};
 
-	m_svBuffer.append(fmt::format("\t{:s} = [ [{:g}, {:g}, {:g}, {:g}]", pszRegister,
-		*reinterpret_cast<float*>(&nVec[0]),
-		*reinterpret_cast<float*>(&nVec[1]),
-		*reinterpret_cast<float*>(&nVec[2]),
-		*reinterpret_cast<float*>(&nVec[3])));
+	m_svBuffer.append(fmt::format("\t{:s} = [ [{:.8g}, {:.8g}, {:.8g}, {:.8g}]", pszRegister,
+		*reinterpret_cast<FLOAT*>(&nVec[0]),
+		*reinterpret_cast<FLOAT*>(&nVec[1]),
+		*reinterpret_cast<FLOAT*>(&nVec[2]),
+		*reinterpret_cast<FLOAT*>(&nVec[3])));
 
-	const char* pszVectorFormat = ", [{:d}, {:d}, {:d}, {:d}] ]\n";
-	int nHighest = *std::max_element(nVec, nVec + SDK_ARRAYSIZE(nVec));
+	const CHAR* pszVectorFormat = ", [{:d}, {:d}, {:d}, {:d}] ]\n";
+	LONG nHighest = static_cast<LONG>(*std::max_element(nVec, nVec + SDK_ARRAYSIZE(nVec)));
 
-	if (nHighest >= 1000000)
+	if (nHighest <= -1000000 || nHighest >= 1000000)
 	{
 		pszVectorFormat = ", [0x{:08X}, 0x{:08X}, 0x{:08X}, 0x{:08X}] ]\n";
+		m_svBuffer.append(fmt::format(pszVectorFormat, nVec[0], nVec[1], nVec[2], nVec[3]));
 	}
-
-	m_svBuffer.append(fmt::format(pszVectorFormat, nVec[0], nVec[1], nVec[2], nVec[3]));
+	else
+	{
+		m_svBuffer.append(fmt::format(pszVectorFormat,
+			static_cast<LONG>(nVec[0]), static_cast<LONG>(nVec[1]),
+			static_cast<LONG>(nVec[2]), static_cast<LONG>(nVec[3])));
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -526,7 +531,7 @@ long __stdcall ExceptionFilter(EXCEPTION_POINTERS* exceptionInfo)
 	g_CrashHandler->GetCallStack();
 
 	// Don't run when exception return address is in whitelist.
-	// This is usefull for when we want to use a different exception handler instead.
+	// This is useful for when we want to use a different exception handler instead.
 	if (g_CrashHandler->HasWhitelist())
 	{
 		g_CrashHandler->Unlock();
