@@ -138,7 +138,7 @@ void CMaterialSystem_Attach()
 	if (!find_IMI_ref.empty())
 	{
 		void* imiRetAddr = find_IMI_ref.at(0).Offset(0x5).RCast<void*>();
-		g_CrashHandler->AddToWhitelist(imiRetAddr);
+		g_CrashHandler->AddWhitelist(imiRetAddr);
 	}
 #endif // !_DEBUG
 

@@ -35,8 +35,8 @@ public:
 	const char* ExceptionToString(DWORD nExceptionCode) const;
 	void SetExceptionPointers(EXCEPTION_POINTERS* pExceptionPointers) { m_pExceptionPointers = pExceptionPointers; };
 
-	void AddWhitelist(void* pWhiteList);
-	void RemoveWhitelist(void* pWhiteList);
+	void AddWhitelist(void* pWhitelist);
+	void RemoveWhitelist(void* pWhitelist);
 	bool HasWhitelist();
 
 	void GetCallStack();
