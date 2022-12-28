@@ -31,8 +31,8 @@ public:
 	//-------------------------------------------------------------------------
 	// Utility: 
 	//-------------------------------------------------------------------------
-	const char* ExceptionToString() const;
-	const char* ExceptionToString(DWORD nExceptionCode) const;
+	const CHAR* ExceptionToString() const;
+	const CHAR* ExceptionToString(DWORD nExceptionCode) const;
 	void SetExceptionPointers(EXCEPTION_POINTERS* pExceptionPointers) { m_pExceptionPointers = pExceptionPointers; };
 
 	void AddWhitelist(void* pWhitelist);
@@ -53,8 +53,8 @@ private:
 	void FormatExceptionAddress(LPCSTR pExceptionAddress);
 	void FormatExceptionCode();
 
-	void FormatAPU(const char* pszRegister, DWORD64 nContent);
-	void FormatFPU(const char* pszRegister, M128A* pxContent);
+	void FormatAPU(const CHAR* pszRegister, DWORD64 nContent);
+	void FormatFPU(const CHAR* pszRegister, M128A* pxContent);
 
 	bool IsPageAccessible() const;
 

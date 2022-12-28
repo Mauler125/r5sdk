@@ -217,7 +217,7 @@ void CCrashHandler::FormatExceptionAddress(LPCSTR pExceptionAddress)
 
 	LPCSTR pModuleBase = reinterpret_cast<LPCSTR>(pExceptionAddress - reinterpret_cast<LPCSTR>(hCrashedModule));
 
-	char szCrashedModuleFullName[512];
+	CHAR szCrashedModuleFullName[512];
 	if (GetModuleFileNameExA(GetCurrentProcess(), hCrashedModule, szCrashedModuleFullName, sizeof(szCrashedModuleFullName)) - 1 > 0x1FE)
 	{
 		m_svBuffer.append(fmt::format("\tmodule@{:016X}: 0x{:016X}\n", (void*)hCrashedModule, reinterpret_cast<uintptr_t>(pModuleBase)));
@@ -226,7 +226,7 @@ void CCrashHandler::FormatExceptionAddress(LPCSTR pExceptionAddress)
 	}
 
 	// TODO: REMOVE EXT.
-	const char* szCrashedModuleName = strrchr(szCrashedModuleFullName, '\\') + 1;
+	const CHAR* szCrashedModuleName = strrchr(szCrashedModuleFullName, '\\') + 1;
 	m_svBuffer.append(fmt::format("\t{:15s}: 0x{:016X}\n", szCrashedModuleName, reinterpret_cast<uintptr_t>(pModuleBase)));
 	m_nCrashMsgFlags = 1; // Display the "Apex crashed in <module>" message.
 
@@ -248,7 +248,7 @@ void CCrashHandler::FormatExceptionCode()
 	}
 	else if (nExceptionCode >= EXCEPTION_ACCESS_VIOLATION)
 	{
-		const char* pszException = "EXCEPTION_IN_PAGE_ERROR";
+		const CHAR* pszException = "EXCEPTION_IN_PAGE_ERROR";
 		if (nExceptionCode == EXCEPTION_ACCESS_VIOLATION)
 		{
 			pszException = "EXCEPTION_ACCESS_VIOLATION";
@@ -296,7 +296,7 @@ void CCrashHandler::FormatExceptionCode()
 // Input  : *pszRegister - 
 //			nContent - 
 //-----------------------------------------------------------------------------
-void CCrashHandler::FormatAPU(const char* pszRegister, DWORD64 nContent)
+void CCrashHandler::FormatAPU(const CHAR* pszRegister, DWORD64 nContent)
 {
 	if (abs64(nContent) >= 1000000)
 	{
@@ -324,7 +324,7 @@ void CCrashHandler::FormatAPU(const char* pszRegister, DWORD64 nContent)
 // Input  : *pszRegister - 
 //			*pxContent - 
 //-----------------------------------------------------------------------------
-void CCrashHandler::FormatFPU(const char* pszRegister, M128A* pxContent)
+void CCrashHandler::FormatFPU(const CHAR* pszRegister, M128A* pxContent)
 {
 	DWORD nVec[4] =
 	{
@@ -358,8 +358,9 @@ void CCrashHandler::FormatFPU(const char* pszRegister, M128A* pxContent)
 
 //-----------------------------------------------------------------------------
 // Purpose: returns the current exception code as string
+// Output : exception code, "UNKNOWN_EXCEPTION" if exception code doesn't exist in this context
 //-----------------------------------------------------------------------------
-const char* CCrashHandler::ExceptionToString(DWORD nExceptionCode) const
+const CHAR* CCrashHandler::ExceptionToString(DWORD nExceptionCode) const
 {
 	switch (nExceptionCode)
 	{
@@ -399,6 +400,7 @@ const char* CCrashHandler::ExceptionToString() const
 
 //-----------------------------------------------------------------------------
 // Purpose: tests if memory page is accessible
+// Output : true if accessible, false otherwise
 //-----------------------------------------------------------------------------
 bool CCrashHandler::IsPageAccessible() const
 {
@@ -509,13 +511,15 @@ void CCrashHandler::CreateMessageProcess()
 
 //-----------------------------------------------------------------------------
 // Purpose: 
+// Input  : 
+// Output : 
 //-----------------------------------------------------------------------------
-long __stdcall ExceptionFilter(EXCEPTION_POINTERS* exceptionInfo)
+long __stdcall ExceptionFilter(EXCEPTION_POINTERS* pExceptionInfo)
 {
 	g_CrashHandler->Lock();
 
-	g_CrashHandler->SetExceptionPointers(exceptionInfo);
-	if (g_CrashHandler->ExceptionToString() == g_CrashHandler->ExceptionToString(-1))
+	g_CrashHandler->SetExceptionPointers(pExceptionInfo);
+	if (g_CrashHandler->ExceptionToString() == g_CrashHandler->ExceptionToString(0xffffffff))
 	{
 		g_CrashHandler->Unlock();
 		return EXCEPTION_CONTINUE_SEARCH;
