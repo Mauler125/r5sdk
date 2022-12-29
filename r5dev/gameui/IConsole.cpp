@@ -370,8 +370,45 @@ void CConsole::SuggestPanel(void)
 
         if (con_suggestion_showflags->GetBool())
         {
-            const int k = GetFlagTextureIndex(suggest.m_nFlags);
-            ImGui::Image(m_vFlagIcons[k].m_idIcon, ImVec2(m_vFlagIcons[k].m_nWidth, m_vFlagIcons[k].m_nHeight));
+            // Show the flag texture before the cvar name.
+            const int mainTexIdx = GetFlagTextureIndex(suggest.m_nFlags);
+            const MODULERESOURCE& mainRes = m_vFlagIcons[mainTexIdx];
+            ImGui::Image(mainRes.m_idIcon, ImVec2(mainRes.m_nWidth, mainRes.m_nHeight)); 
+
+            // Show a more detailed description of the flag when user hovers over the texture.
+            if (ImGui::IsItemHovered(ImGuiHoveredFlags_RectOnly))
+            {
+                std::function<void(const ConVarFlagsToString_t&)> fnAddHint = [&](const ConVarFlagsToString_t& cvarInfo)
+                {
+                    const int hintTexIdx = GetFlagTextureIndex(cvarInfo.m_nFlag);
+                    const MODULERESOURCE& hintRes = m_vFlagIcons[hintTexIdx];
+
+                    ImGui::Image(hintRes.m_idIcon, ImVec2(hintRes.m_nWidth, hintRes.m_nHeight));
+                    ImGui::SameLine();
+                    ImGui::Text(cvarInfo.m_pszDesc);
+                };
+
+                ImGui::BeginTooltip();
+                bool bFlagSet = false;
+
+                // Reverse loop to display the most significant flag first.
+                for (int j = IM_ARRAYSIZE(g_PrintConVarFlags); (j--) > 0;)
+                {
+                    const ConVarFlagsToString_t& info = g_PrintConVarFlags[j];
+                    if (suggest.m_nFlags & info.m_nFlag)
+                    {
+                        bFlagSet = true;
+                        fnAddHint(info);
+                    }
+                }
+                if (!bFlagSet) // Display the FCVAR_NONE flag if no flags are set.
+                {
+                    fnAddHint(g_PrintConVarFlags[FCVAR_NONE]);
+                }
+
+                ImGui::EndTooltip();
+            }
+
             ImGui::SameLine();
         }
 

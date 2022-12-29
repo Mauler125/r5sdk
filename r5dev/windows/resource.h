@@ -10,13 +10,14 @@ struct MODULERESOURCE
 		m_nWidth = NULL;
 		m_nHeight = NULL;
 	}
-	MODULERESOURCE(LPVOID pData, DWORD nSize, ID3D11ShaderResourceView* pIcon = nullptr)
+	MODULERESOURCE(LPVOID pData, DWORD nSize, ID3D11ShaderResourceView* pIcon = nullptr, 
+		int nWidth = NULL, int nHeight = NULL)
 	{
 		m_pData = pData;
 		m_nSize = nSize;
 		m_idIcon = pIcon;
-		m_nWidth = NULL;
-		m_nHeight = NULL;
+		m_nWidth = nWidth;
+		m_nHeight = nHeight;
 	}
 	LPVOID m_pData;
 	DWORD  m_nSize;

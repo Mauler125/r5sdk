@@ -941,30 +941,6 @@ bool ConVar::IsFlagSetInternal(const ConVar* pConVar, int nFlags)
 	return pConVar->HasFlags(nFlags) != 0;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-struct PrintConVarFlags_t
-{
-	int flag;
-	const char* desc;
-};
-
-static PrintConVarFlags_t g_PrintConVarFlags[] =
-{
-	{ FCVAR_GAMEDLL, "game" },
-	{ FCVAR_CLIENTDLL, "client" },
-	{ FCVAR_ARCHIVE, "archive" },
-	{ FCVAR_NOTIFY, "notify" },
-	{ FCVAR_SPONLY, "singleplayer" },
-	{ FCVAR_NOT_CONNECTED, "notconnected" },
-	{ FCVAR_CHEAT, "cheat" },
-	{ FCVAR_REPLICATED, "replicated" },
-	{ FCVAR_SERVER_CAN_EXECUTE, "server_can_execute" },
-	{ FCVAR_CLIENTCMD_CAN_EXECUTE, "clientcmd_can_execute" },
-	{ FCVAR_USERINFO, "user" },
-	{ FCVAR_SS, "ss" },
-	{ FCVAR_SS_ADDED, "ss_added" },
-};
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -972,11 +948,11 @@ void ConVar_AppendFlags(ConCommandBase* var, char* buf, size_t bufsize)
 {
 	for (int i = 0; i < ARRAYSIZE(g_PrintConVarFlags); ++i)
 	{
-		const PrintConVarFlags_t& info = g_PrintConVarFlags[i];
-		if (var->IsFlagSet(info.flag))
+		const ConVarFlagsToString_t& info = g_PrintConVarFlags[i];
+		if (var->IsFlagSet(info.m_nFlag))
 		{
 			char append[128];
-			V_snprintf(append, sizeof(append), " %s", info.desc);
+			V_snprintf(append, sizeof(append), " %s", info.m_pszDesc);
 			V_strncat(buf, append, bufsize);
 		}
 	}

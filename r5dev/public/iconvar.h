@@ -147,5 +147,43 @@ public:
 	virtual int GetSplitScreenPlayerSlot() const = 0;
 };
 
+struct ConVarFlagsToString_t
+{
+	int m_nFlag;
+	const char* m_pszDesc;
+};
+
+inline ConVarFlagsToString_t g_PrintConVarFlags[] =
+{
+	{ FCVAR_NONE, "none" },
+	{ FCVAR_UNREGISTERED, "unregistered" },
+	{ FCVAR_DEVELOPMENTONLY, "development_only" },
+	{ FCVAR_GAMEDLL, "game" },
+	{ FCVAR_CLIENTDLL, "client" },
+	{ FCVAR_HIDDEN, "hidden" },
+	{ FCVAR_PROTECTED, "protected" },
+	{ FCVAR_SPONLY, "singleplayer" },
+	{ FCVAR_ARCHIVE, "archive" },
+	{ FCVAR_NOTIFY, "notify" },
+	{ FCVAR_USERINFO, "userinfo" },
+	{ FCVAR_PRINTABLEONLY, "printable_only" },
+	{ FCVAR_UNLOGGED, "unlogged" },
+	{ FCVAR_NEVER_AS_STRING, "never_as_string" },
+	{ FCVAR_REPLICATED, "replicated" },
+	{ FCVAR_CHEAT, "cheat" },
+	{ FCVAR_SS, "splitscreen" },
+	{ FCVAR_DEMO, "demo" },
+	{ FCVAR_DONTRECORD, "dont_record" },
+	{ FCVAR_SS_ADDED, "splitscreen_added" },
+	{ FCVAR_RELEASE, "release" },
+	{ FCVAR_RELOAD_MATERIALS, "reload_materials" },
+	{ FCVAR_RELOAD_TEXTURES, "reload_textures" },
+	{ FCVAR_NOT_CONNECTED, "not_connected" },
+	{ FCVAR_MATERIAL_SYSTEM_THREAD, "materialsystem_thread" },
+	{ FCVAR_ARCHIVE_PLAYERPROFILE, "playerprofile" },
+	{ FCVAR_SERVER_CAN_EXECUTE, "server_can_execute" },
+	{ FCVAR_SERVER_CANNOT_QUERY, "server_cannot_query" },
+	{ FCVAR_CLIENTCMD_CAN_EXECUTE, "clientcmd_can_execute" },
+};
 
 #endif // ICONVAR_H
