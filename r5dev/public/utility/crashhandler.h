@@ -60,7 +60,7 @@ private:
 	void FormatExceptionAddress(LPCSTR pExceptionAddress);
 	void FormatExceptionCode();
 
-	void FormatAPU(const CHAR* pszRegister, DWORD64 nContent);
+	void FormatALU(const CHAR* pszRegister, DWORD64 nContent);
 	void FormatFPU(const CHAR* pszRegister, M128A* pxContent);
 
 	bool IsPageAccessible() const;

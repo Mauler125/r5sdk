@@ -81,23 +81,23 @@ void CCrashHandler::FormatRegisters()
 	m_svBuffer.append("registers:\n{\n");
 	PCONTEXT pContextRecord = m_pExceptionPointers->ContextRecord;
 
-	FormatAPU("rax", pContextRecord->Rax);
-	FormatAPU("rbx", pContextRecord->Rbx);
-	FormatAPU("rcx", pContextRecord->Rcx);
-	FormatAPU("rdx", pContextRecord->Rdx);
-	FormatAPU("rsp", pContextRecord->Rsp);
-	FormatAPU("rbp", pContextRecord->Rbp);
-	FormatAPU("rsi", pContextRecord->Rsi);
-	FormatAPU("rdi", pContextRecord->Rdi);
-	FormatAPU("r8 ", pContextRecord->R8);
-	FormatAPU("r9 ", pContextRecord->R9);
-	FormatAPU("r10", pContextRecord->R10);
-	FormatAPU("r11", pContextRecord->R11);
-	FormatAPU("r12", pContextRecord->R12);
-	FormatAPU("r13", pContextRecord->R13);
-	FormatAPU("r14", pContextRecord->R14);
-	FormatAPU("r15", pContextRecord->R15);
-	FormatAPU("rip", pContextRecord->Rip);
+	FormatALU("rax", pContextRecord->Rax);
+	FormatALU("rbx", pContextRecord->Rbx);
+	FormatALU("rcx", pContextRecord->Rcx);
+	FormatALU("rdx", pContextRecord->Rdx);
+	FormatALU("rsp", pContextRecord->Rsp);
+	FormatALU("rbp", pContextRecord->Rbp);
+	FormatALU("rsi", pContextRecord->Rsi);
+	FormatALU("rdi", pContextRecord->Rdi);
+	FormatALU("r8 ", pContextRecord->R8);
+	FormatALU("r9 ", pContextRecord->R9);
+	FormatALU("r10", pContextRecord->R10);
+	FormatALU("r11", pContextRecord->R11);
+	FormatALU("r12", pContextRecord->R12);
+	FormatALU("r13", pContextRecord->R13);
+	FormatALU("r14", pContextRecord->R14);
+	FormatALU("r15", pContextRecord->R15);
+	FormatALU("rip", pContextRecord->Rip);
 
 	FormatFPU("xmm0 ", &pContextRecord->Xmm0);
 	FormatFPU("xmm1 ", &pContextRecord->Xmm1);
@@ -310,11 +310,11 @@ void CCrashHandler::FormatExceptionCode()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: formats the register and its content
+// Purpose: formats the arithmetic logic register and its content
 // Input  : *pszRegister - 
 //			nContent - 
 //-----------------------------------------------------------------------------
-void CCrashHandler::FormatAPU(const CHAR* pszRegister, DWORD64 nContent)
+void CCrashHandler::FormatALU(const CHAR* pszRegister, DWORD64 nContent)
 {
 	if (abs64(nContent) >= 1000000)
 	{
