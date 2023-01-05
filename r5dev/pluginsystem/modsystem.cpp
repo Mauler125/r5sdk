@@ -166,8 +166,6 @@ CModSystem::ModInstance_t::ModInstance_t(const fs::path& basePath) : m_szName(st
 	{
 		for (KeyValues* pSubKey = pLocalizationFiles->GetFirstSubKey(); pSubKey != nullptr; pSubKey = pSubKey->GetNextKey())
 		{
-			DevMsg(eDLL_T::ENGINE, "Localization file '%s' ('%s') found in mod.vdf\n", pSubKey->GetName(), pSubKey->GetString());
-			
 			this->m_vszLocalizationFiles.push_back(pSubKey->GetName());
 		}
 	}
