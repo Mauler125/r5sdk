@@ -72,7 +72,7 @@ void CModSystem::WriteModStatusList()
 
 	kv.RecursiveSaveToFile(uBuf, 0);
 
-	FileSystem()->WriteFile("platform/mods.vdf", NULL, uBuf);
+	FileSystem()->WriteFile("platform/mods.vdf", NULL, uBuf); // NULL instead of "GAME" because otherwise for some reason the file clears itself when the process exits
 }
 
 
