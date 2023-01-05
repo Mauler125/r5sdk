@@ -20,11 +20,9 @@ public:
 	{
 		ModInstance_t(const fs::path& basePath);
 
-		inline void SetState(eModState state)
-		{
-			m_iState = state;
-		}
+		inline void SetState(eModState state) { m_iState = state; };
 
+		inline bool IsEnabled() { return m_iState == eModState::ENABLED; };
 
 		string m_szName; // mod display name
 		string m_szModID; // internal mod identifier

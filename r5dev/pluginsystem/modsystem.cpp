@@ -148,6 +148,11 @@ CModSystem::ModInstance_t::ModInstance_t(const fs::path& basePath) : m_szName(st
 
 		DevMsg(eDLL_T::ENGINE, "Mod exists in 'mods.vdf' and is %s.\n", bEnable ? "enabled" : "disabled");
 	}
+
+	if (m_iState == eModState::ENABLED)
+	{
+		FileSystem()->AddSearchPath(m_BasePath.string().c_str(), "GAME", SearchPathAdd_t::PATH_ADD_TO_TAIL);
+	}
 };
 
 CModSystem* g_pModSystem = new CModSystem();
