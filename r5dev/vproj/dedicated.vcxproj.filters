@@ -1284,6 +1284,9 @@
     <ClInclude Include="..\public\utility\vtable.h">
       <Filter>sdk\public\utility</Filter>
     </ClInclude>
+    <ClInclude Include="..\pluginsystem\modsystem.h">
+      <Filter>sdk\pluginsystem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1624,6 +1627,9 @@
     </ClCompile>
     <ClCompile Include="..\public\utility\crashhandler.cpp">
       <Filter>sdk\public\utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pluginsystem\modsystem.cpp">
+      <Filter>sdk\pluginsystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

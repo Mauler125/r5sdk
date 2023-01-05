@@ -657,6 +657,9 @@
     <ClCompile Include="..\localize\localize.cpp">
       <Filter>sdk\localize</Filter>
     </ClCompile>
+    <ClCompile Include="..\pluginsystem\modsystem.cpp">
+      <Filter>sdk\pluginsystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1888,6 +1891,9 @@
     </ClInclude>
     <ClInclude Include="..\localize\localize.h">
       <Filter>sdk\localize</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pluginsystem\modsystem.h">
+      <Filter>sdk\pluginsystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
