@@ -1,5 +1,4 @@
-#ifndef LOCALIZE_H
-#define LOCALIZE_H
+#pragma once
 
 #include "tier0/threadtools.h"
 #include "tier1/utldict.h"
@@ -46,5 +45,3 @@ class VLocalize : public IDetour
 ///////////////////////////////////////////////////////////////////////////////
 
 REGISTER(VLocalize);
-
-#endif
