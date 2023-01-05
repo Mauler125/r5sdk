@@ -31,7 +31,9 @@ public:
 		string m_szVersion; // version string
 		KeyValues* m_SettingsKV;
 
-		eModState m_iState;
+		eModState m_iState = eModState::UNLOADED;
+
+		std::vector<string> m_vszLocalizationFiles;
 	};
 
 	void Init();

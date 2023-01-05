@@ -238,6 +238,9 @@
     <Filter Include="sdk\codecs\miles">
       <UniqueIdentifier>{5529291a-e3b6-44a7-8edf-f0fe4e0ac4dc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\localize">
+      <UniqueIdentifier>{c409f62c-d2d9-4748-b3b3-59db6fb1f7ba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\cdll_engine_int.cpp">
@@ -650,6 +653,9 @@
     </ClCompile>
     <ClCompile Include="..\public\utility\crashhandler.cpp">
       <Filter>sdk\public\utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\localize\localize.cpp">
+      <Filter>sdk\localize</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1879,6 +1885,9 @@
     </ClInclude>
     <ClInclude Include="..\public\utility\vtable.h">
       <Filter>sdk\public\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\localize\localize.h">
+      <Filter>sdk\localize</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

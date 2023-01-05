@@ -8,6 +8,7 @@
 
 #include "core/stdafx.h"
 #include "modsystem.h"
+#include "localize/localize.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: initialize the mod system
@@ -31,7 +32,7 @@ void CModSystem::Init()
 		if (fs::exists(settingsPath))
 		{
 			CModSystem::ModInstance_t modInst = CModSystem::ModInstance_t(basePath);
-			if (modInst.m_iState == eModState::UNLOADED)
+			if (modInst.m_iState != eModState::UNLOADED)
 				m_vModList.push_back(modInst);
 		}
 	}
@@ -71,7 +72,7 @@ void CModSystem::WriteModStatusList()
 
 	kv.RecursiveSaveToFile(uBuf, 0);
 
-	FileSystem()->WriteFile("platform/mods.vdf", "GAME", uBuf);  
+	FileSystem()->WriteFile("platform/mods.vdf", NULL, uBuf);
 }
 
 
@@ -149,10 +150,28 @@ CModSystem::ModInstance_t::ModInstance_t(const fs::path& basePath) : m_szName(st
 		DevMsg(eDLL_T::ENGINE, "Mod exists in 'mods.vdf' and is %s.\n", bEnable ? "enabled" : "disabled");
 	}
 
-	if (m_iState == eModState::ENABLED)
+	if (m_iState != eModState::ENABLED)
+		return;
+
+	// parse any additional info from mod.vdf
+
+	// add mod folder to search paths so files can be easily loaded from here
+	// [rexx]: maybe this isn't ideal as the only way of finding the mod's files, as there may be name clashes in files where the engine
+	//         won't really care about the input file name. it may be better to, where possible, request files by file path relative to root (i.e. including platform/mods/{mod}/)
+	FileSystem()->AddSearchPath(m_BasePath.string().c_str(), "GAME", SearchPathAdd_t::PATH_ADD_TO_TAIL);
+
+	KeyValues* pLocalizationFiles = pSettingsKV->FindKey("LocalizationFiles");
+
+	if (pLocalizationFiles)
 	{
-		FileSystem()->AddSearchPath(m_BasePath.string().c_str(), "GAME", SearchPathAdd_t::PATH_ADD_TO_TAIL);
+		for (KeyValues* pSubKey = pLocalizationFiles->GetFirstSubKey(); pSubKey != nullptr; pSubKey = pSubKey->GetNextKey())
+		{
+			DevMsg(eDLL_T::ENGINE, "Localization file '%s' ('%s') found in mod.vdf\n", pSubKey->GetName(), pSubKey->GetString());
+			
+			this->m_vszLocalizationFiles.push_back(pSubKey->GetName());
+		}
 	}
+
 };
 
 CModSystem* g_pModSystem = new CModSystem();

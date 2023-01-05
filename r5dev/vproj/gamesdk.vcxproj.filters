@@ -247,6 +247,9 @@
     <Filter Include="sdk\codecs\miles">
       <UniqueIdentifier>{f53df686-70b6-4883-a966-1eb3fd7eb2b1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\localize">
+      <UniqueIdentifier>{f466a357-44e8-4ee9-b786-e40c5ff72360}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\vengineclient_impl.cpp">
@@ -695,6 +698,9 @@
     </ClCompile>
     <ClCompile Include="..\pluginsystem\modsystem.cpp">
       <Filter>sdk\pluginsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\localize\localize.cpp">
+      <Filter>sdk\localize</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1987,6 +1993,9 @@
     </ClInclude>
     <ClInclude Include="..\pluginsystem\modsystem.h">
       <Filter>sdk\pluginsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\localize\localize.h">
+      <Filter>sdk\localize</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

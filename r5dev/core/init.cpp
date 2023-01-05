@@ -48,6 +48,7 @@
 #include "vgui/vgui_fpspanel.h"
 #include "vguimatsurface/MatSystemSurface.h"
 #include "client/vengineclient_impl.h"
+#include "localize/localize.h"
 #endif // !DEDICATED
 #include "client/cdll_engine_int.h"
 #ifndef CLIENT_DLL
@@ -182,6 +183,7 @@ void Systems_Init()
 	CEngineVGui_Attach();
 	//CFPSPanel_Attach();
 	CHLClient_Attach();
+	Localize_Attach();
 #endif // !DEDICATED
 
 #if !defined(CLIENT_DLL) && defined (GAMEDLL_S3)
@@ -317,6 +319,7 @@ void Systems_Shutdown()
 	CEngineVGui_Detach();
 	//CFPSPanel_Detach();
 	CHLClient_Detach();
+	Localize_Detach();
 #endif // !DEDICATED
 
 #if !defined(CLIENT_DLL) && defined (GAMEDLL_S3)
