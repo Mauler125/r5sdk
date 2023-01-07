@@ -9,6 +9,7 @@
 #include "core/stdafx.h"
 #include "modsystem.h"
 #include "localize/localize.h"
+#include "tier1/cvar.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: initialize the mod system
@@ -167,6 +168,40 @@ CModSystem::ModInstance_t::ModInstance_t(const fs::path& basePath) : m_szName(st
 		for (KeyValues* pSubKey = pLocalizationFiles->GetFirstSubKey(); pSubKey != nullptr; pSubKey = pSubKey->GetNextKey())
 		{
 			this->m_vszLocalizationFiles.push_back(pSubKey->GetName());
+		}
+	}
+
+	KeyValues* pConVars = pSettingsKV->FindKey("ConVars");
+
+	if (pConVars)
+	{
+		for (KeyValues* pSubKey = pConVars->GetFirstSubKey(); pSubKey != nullptr; pSubKey = pSubKey->GetNextKey())
+		{
+			const char* pszName = pSubKey->GetName();
+			const char* pszHelpString = pSubKey->GetString("helpString");
+			const char* pszFlagsString = pSubKey->GetString("flags", "NONE");
+
+			KeyValues* pValues = pSubKey->FindKey("Values");
+
+			const char* pszDefaultValue = "0";
+			bool bMin = false;
+			bool bMax = false;
+			float fMin = 0.f;
+			float fMax = 0.f;
+
+			if (pValues)
+			{
+				pszDefaultValue = pValues->GetString("default", "0");
+				bMin = pValues->GetBool("bMin", false);
+				bMax = pValues->GetBool("bMax", false);
+
+				fMin = pValues->GetFloat("fMin", 0.f);
+				fMax = pValues->GetFloat("fMax", 0.f);
+			}
+
+			int flags = FCVAR_NONE;
+			if(ConVar::ParseFlagString(pszFlagsString, flags, pszName))
+				ConVar::Create(pszName, pszDefaultValue, flags, pszHelpString, bMin, fMin, bMax, fMax, nullptr, nullptr);
 		}
 	}
 

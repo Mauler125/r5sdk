@@ -942,6 +942,74 @@ bool ConVar::IsFlagSetInternal(const ConVar* pConVar, int nFlags)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// see iconvar.h
+static std::map<string, int> s_ConVarFlags = {
+	{"NONE", FCVAR_NONE},
+	{"DEVELOPMENTONLY", FCVAR_DEVELOPMENTONLY},
+	{"GAMEDLL", FCVAR_GAMEDLL},
+	{"CLIENTDLL", FCVAR_CLIENTDLL},
+	{"HIDDEN", FCVAR_HIDDEN},
+	{"PROTECTED", FCVAR_PROTECTED},
+	{"SPONLY", FCVAR_SPONLY},
+	{"ARCHIVE", FCVAR_ARCHIVE},
+	{"NOTIFY", FCVAR_NOTIFY},
+	{"USERINFO", FCVAR_USERINFO},
+	{"PRINTABLEONLY", FCVAR_PRINTABLEONLY},
+	{"GAMEDLL_FOR_REMOTE_CLIENTS", FCVAR_GAMEDLL_FOR_REMOTE_CLIENTS},
+	{"UNLOGGED", FCVAR_UNLOGGED},
+	{"NEVER_AS_STRING", FCVAR_NEVER_AS_STRING},
+	{"REPLICATED", FCVAR_REPLICATED},
+	{"CHEAT", FCVAR_CHEAT},
+	{"SS", FCVAR_SS},
+	{"DEMO", FCVAR_DEMO},
+	{"DONTRECORD", FCVAR_DONTRECORD},
+	{"SS_ADDED", FCVAR_SS_ADDED},
+	{"RELEASE", FCVAR_RELEASE},
+	{"RELOAD_MATERIALS", FCVAR_RELOAD_MATERIALS},
+	{"RELOAD_TEXTURES", FCVAR_RELOAD_TEXTURES},
+	{"NOT_CONNECTED", FCVAR_NOT_CONNECTED},
+	{"MATERIAL_SYSTEM_THREAD", FCVAR_MATERIAL_SYSTEM_THREAD},
+	{"ARCHIVE_PLAYERPROFILE", FCVAR_ARCHIVE_PLAYERPROFILE},
+};
+
+bool ConVar::ParseFlagString(const char* pszFlags, int& nFlags, const char* pszConVarName)
+{
+	int len = strlen(pszFlags);
+	int flags = 0;
+
+	std::string sFlag = "";
+	for (int i = 0; i < len; ++i)
+	{
+		char c = pszFlags[i];
+
+		if (std::isspace(c))
+			continue;
+
+		if (c != '|')
+			sFlag += c;
+		
+		if (c == '|' || i == len-1)
+		{
+			if (sFlag == "")
+				continue;
+
+			if (s_ConVarFlags.count(sFlag) == 0)
+			{
+				Warning(eDLL_T::ENGINE, "%s: Attempted to parse invalid flag '%s' for convar '%s'\n", __FUNCTION__, sFlag.c_str(), pszConVarName);
+				return false;
+			}
+
+			flags |= s_ConVarFlags.at(sFlag);
+
+			sFlag = "";
+		}
+	}
+	nFlags = flags;
+
+	return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 struct PrintConVarFlags_t
 {
 	int flag;

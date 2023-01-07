@@ -73,6 +73,8 @@ public:
 	bool IsFlagSet(int nFlags) const { return IsFlagSetInternal(this, nFlags); };
 	static bool IsFlagSetInternal(const ConVar* pConVar, int nFlags);
 
+	static bool ParseFlagString(const char* pszFlags, int& nFlags, const char* pszConVarName = nullptr);
+
 	struct CVValue_t
 	{
 		char*      m_pszString;
