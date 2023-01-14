@@ -24,7 +24,7 @@ void CBanSystem::Load(void)
 		return;
 
 	uint32_t nLen = FileSystem()->Size(pFile);
-	char* pBuf = MemAllocSingleton()->Alloc<char>(nLen);
+	char* pBuf = MemAllocSingleton()->Alloc<char>(nLen + 1);
 
 	int nRead = FileSystem()->Read(pBuf, nLen, pFile);
 	FileSystem()->Close(pFile);
