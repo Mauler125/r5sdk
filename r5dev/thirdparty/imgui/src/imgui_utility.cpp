@@ -22,7 +22,7 @@ void ImGuiConfig::Load()
     }
 
     uint32_t nLen = FileSystem()->Size(hFile);
-    uint8_t* pBuf = MemAllocSingleton()->Alloc<uint8_t>(nLen);
+    uint8_t* pBuf = MemAllocSingleton()->Alloc<uint8_t>(nLen + 1);
 
     int nRead = FileSystem()->Read(pBuf, nLen, hFile);
     FileSystem()->Close(hFile);
