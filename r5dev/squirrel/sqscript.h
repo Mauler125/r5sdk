@@ -238,15 +238,15 @@ class VSquirrelVM : public IDetour
 		v_Script_DestroySignalEntryListHead = p_Script_DestroySignalEntryListHead.RCast<SQBool(*)(CSquirrelVM*, HSQUIRRELVM, SQFloat)>();/*48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 50 44 8B 42*/
 		v_Script_LoadRson = p_Script_LoadRson.RCast<SQInteger(*)(const SQChar*)>();                                                      /*4C 8B DC 49 89 5B 08 57 48 81 EC A0 00 00 00 33*/
 		v_Script_LoadScript = p_Script_LoadScript.RCast<SQBool(*)(HSQUIRRELVM, const SQChar*, const SQChar*, SQInteger)>();              /*48 8B C4 48 89 48 08 55 41 56 48 8D 68*/
-	
-		// script list rson compiling
+
 #ifndef DEDICATED
-		// cl, ui
+		// cl/ui scripts.rson compiling
 		p_CSquirrelVM_CompileUICLScripts = g_GameDll.FindPatternSIMD("E8 ? ? ? ? 88 05 ? ? ? ? 33 C0").FollowNearCallSelf();
 		v_CSquirrelVM_CompileUICLScripts = p_CSquirrelVM_CompileUICLScripts.RCast<__int64(__fastcall*)(CSquirrelVM* vm)>();
 #endif
 
 #ifndef CLIENT_DLL
+		// sv scripts.rson compiling
 		p_CSquirrelVM_CompileSVScripts = g_GameDll.FindPatternSIMD("E8 ? ? ? ? 33 DB 88 05 ? ? ? ? ").FollowNearCallSelf();
 		v_CSquirrelVM_CompileSVScripts = p_CSquirrelVM_CompileSVScripts.RCast<__int64(__fastcall*)(__int64 a1)>();
 #endif
