@@ -150,6 +150,7 @@
     <ClCompile Include="..\vpc\IAppSystem.cpp" />
     <ClCompile Include="..\vpc\interfaces.cpp" />
     <ClCompile Include="..\vpc\keyvalues.cpp" />
+    <ClCompile Include="..\vpc\rson.cpp" />
     <ClCompile Include="..\vphysics\physics_collide.cpp" />
     <ClCompile Include="..\vphysics\QHull.cpp" />
     <ClCompile Include="..\vpklib\packedstore.cpp" />
@@ -563,6 +564,7 @@
     <ClInclude Include="..\vpc\interfaces.h" />
     <ClInclude Include="..\vpc\keyvalues.h" />
     <ClInclude Include="..\vpc\kvleaktrace.h" />
+    <ClInclude Include="..\vpc\rson.h" />
     <ClInclude Include="..\vphysics\QHull.h" />
     <ClInclude Include="..\vpklib\packedstore.h" />
     <ClInclude Include="..\vstdlib\callback.h" />

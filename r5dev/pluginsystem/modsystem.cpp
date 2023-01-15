@@ -10,6 +10,7 @@
 #include "modsystem.h"
 #include "localize/localize.h"
 #include "tier1/cvar.h"
+#include "vpc/rson.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: initialize the mod system
@@ -205,6 +206,13 @@ CModSystem::ModInstance_t::ModInstance_t(const fs::path& basePath) : m_szName(st
 		}
 	}
 
+
+	std::string scriptsRsonPath = (m_BasePath / "scripts/vscripts/scripts.rson").string();
+
+	//RSON::Node_t* rson = RSON::LoadFromFile(scriptsRsonPath.c_str());
+
+	//if (rson)
+	//	DevMsg(eDLL_T::ENGINE, "mod rson loaded: %p\n", uintptr_t(rson));
 };
 
 CModSystem* g_pModSystem = new CModSystem();

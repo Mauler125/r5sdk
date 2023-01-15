@@ -78,14 +78,17 @@ inline auto v_Script_RegisterFunction = p_Script_RegisterFunction.RCast<SQRESULT
 
 inline CMemory p_Script_RegisterConstant;
 inline auto v_Script_RegisterConstant = p_Script_RegisterConstant.RCast<SQRESULT(*)(CSquirrelVM* s, const SQChar* name, SQInteger value)>();
+
 #if !defined (CLIENT_DLL)
 inline CMemory p_Script_InitializeSVGlobalStructs;
 inline auto v_Script_InitializeSVGlobalStructs = p_Script_InitializeSVGlobalStructs.RCast<SQRESULT(*)(HSQUIRRELVM v)>();
 #endif // !CLIENT_DLL
+
 #if !defined (DEDICATED)
 inline CMemory p_Script_InitializeCLGlobalStructs;
 inline auto v_Script_InitializeCLGlobalStructs = p_Script_InitializeCLGlobalStructs.RCast<SQRESULT(*)(HSQUIRRELVM v, SQCONTEXT context)>();
 #endif // !DEDICATED
+
 #if !defined (CLIENT_DLL) && defined (GAMEDLL_S0) || defined (GAMEDLL_S1)
 inline CMemory p_Script_CreateServerVM;
 inline auto v_Script_CreateServerVM = p_Script_CreateServerVM.RCast<SQBool(*)(void)>();
@@ -112,6 +115,16 @@ inline auto v_Script_LoadRson = p_Script_LoadRson.RCast<SQInteger(*)(const SQCha
 
 inline CMemory p_Script_LoadScript;
 inline auto v_Script_LoadScript = p_Script_LoadScript.RCast<SQBool(*)(HSQUIRRELVM v, const SQChar* path, const SQChar* name, SQInteger flags)>();
+
+#ifndef DEDICATED
+inline CMemory p_CSquirrelVM_CompileUICLScripts;
+inline auto v_CSquirrelVM_CompileUICLScripts = p_CSquirrelVM_CompileUICLScripts.RCast<__int64(__fastcall*)(CSquirrelVM* vm)>();
+#endif
+
+#ifndef CLIENT_DLL
+inline CMemory p_CSquirrelVM_CompileSVScripts;
+inline auto v_CSquirrelVM_CompileSVScripts = p_CSquirrelVM_CompileSVScripts.RCast<__int64(__fastcall*)(__int64 a1)>();
+#endif
 
 #if !defined (CLIENT_DLL)
 inline CMemory g_pServerScript;
@@ -225,6 +238,18 @@ class VSquirrelVM : public IDetour
 		v_Script_DestroySignalEntryListHead = p_Script_DestroySignalEntryListHead.RCast<SQBool(*)(CSquirrelVM*, HSQUIRRELVM, SQFloat)>();/*48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 50 44 8B 42*/
 		v_Script_LoadRson = p_Script_LoadRson.RCast<SQInteger(*)(const SQChar*)>();                                                      /*4C 8B DC 49 89 5B 08 57 48 81 EC A0 00 00 00 33*/
 		v_Script_LoadScript = p_Script_LoadScript.RCast<SQBool(*)(HSQUIRRELVM, const SQChar*, const SQChar*, SQInteger)>();              /*48 8B C4 48 89 48 08 55 41 56 48 8D 68*/
+	
+		// script list rson compiling
+#ifndef DEDICATED
+		// cl, ui
+		p_CSquirrelVM_CompileUICLScripts = g_GameDll.FindPatternSIMD("E8 ? ? ? ? 88 05 ? ? ? ? 33 C0").FollowNearCallSelf();
+		v_CSquirrelVM_CompileUICLScripts = p_CSquirrelVM_CompileUICLScripts.RCast<__int64(__fastcall*)(CSquirrelVM* vm)>();
+#endif
+
+#ifndef CLIENT_DLL
+		p_CSquirrelVM_CompileSVScripts = g_GameDll.FindPatternSIMD("E8 ? ? ? ? 33 DB 88 05 ? ? ? ? ").FollowNearCallSelf();
+		v_CSquirrelVM_CompileSVScripts = p_CSquirrelVM_CompileSVScripts.RCast<__int64(__fastcall*)(__int64 a1)>();
+#endif
 	}
 	virtual void GetVar(void) const
 	{

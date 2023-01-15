@@ -702,6 +702,9 @@
     <ClCompile Include="..\localize\localize.cpp">
       <Filter>sdk\localize</Filter>
     </ClCompile>
+    <ClCompile Include="..\vpc\rson.cpp">
+      <Filter>sdk\vpc</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1996,6 +1999,9 @@
     </ClInclude>
     <ClInclude Include="..\localize\localize.h">
       <Filter>sdk\localize</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vpc\rson.h">
+      <Filter>sdk\vpc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

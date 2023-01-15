@@ -324,41 +324,63 @@ void Script_Execute(const SQChar* code, const SQCONTEXT context)
 	}
 }
 
+__int64 CSquirrelVM_CompileUICLScripts(CSquirrelVM* vm)
+{
+	HSQUIRRELVM v = vm->GetVM();
+	DevMsg(v->GetNativePrintContext(), (char*)"Loading and compiling script lists\n");
+
+	return v_CSquirrelVM_CompileUICLScripts(vm);
+}
+
+__int64 CSquirrelVM_CompileSVScripts(__int64 a1)
+{
+	CSquirrelVM* sqvm = g_pServerScript.GetValue<CSquirrelVM*>();
+	HSQUIRRELVM v = sqvm->GetVM();
+
+	DevMsg(v->GetNativePrintContext(), (char*)"Loading and compiling script lists\n");
+
+	return v_CSquirrelVM_CompileSVScripts(a1);
+}
+
 //---------------------------------------------------------------------------------
 void SQScript_Attach()
 {
 	DetourAttach((LPVOID*)&v_Script_RegisterConstant, &Script_RegisterConstant);
-#ifndef DEDICATED
-	DetourAttach((LPVOID*)&v_Script_InitializeCLGlobalStructs, &Script_InitializeCLGlobalStructs);
-#endif // !DEDICATED
-#ifndef CLIENT_DLL
-	DetourAttach((LPVOID*)&v_Script_InitializeSVGlobalStructs, &Script_InitializeSVGlobalStructs);
-	DetourAttach((LPVOID*)&v_Script_CreateServerVM, &Script_CreateServerVM);
-#endif // !CLIENT_DLL
-#ifndef DEDICATED
-	DetourAttach((LPVOID*)&v_Script_CreateClientVM, &Script_CreateClientVM);
-	DetourAttach((LPVOID*)&v_Script_CreateUIVM, &Script_CreateUIVM);
-#endif // !DEDICATED
 	DetourAttach((LPVOID*)&v_Script_DestroySignalEntryListHead, &Script_DestroySignalEntryListHead);
 	DetourAttach((LPVOID*)&v_Script_LoadRson, &Script_LoadRson);
 	DetourAttach((LPVOID*)&v_Script_LoadScript, &Script_LoadScript);
+
+#ifndef DEDICATED
+	DetourAttach((LPVOID*)&v_Script_InitializeCLGlobalStructs, &Script_InitializeCLGlobalStructs);
+	DetourAttach((LPVOID*)&v_Script_CreateClientVM, &Script_CreateClientVM);
+	DetourAttach((LPVOID*)&v_Script_CreateUIVM, &Script_CreateUIVM);
+	DetourAttach((LPVOID*)&v_CSquirrelVM_CompileUICLScripts, &CSquirrelVM_CompileUICLScripts);
+#endif // !DEDICATED
+
+#ifndef CLIENT_DLL
+	DetourAttach((LPVOID*)&v_Script_InitializeSVGlobalStructs, &Script_InitializeSVGlobalStructs);
+	DetourAttach((LPVOID*)&v_Script_CreateServerVM, &Script_CreateServerVM);
+	DetourAttach((LPVOID*)&v_CSquirrelVM_CompileSVScripts, &CSquirrelVM_CompileSVScripts);
+#endif // !CLIENT_DLL
 }
 //---------------------------------------------------------------------------------
 void SQScript_Detach()
 {
 	DetourDetach((LPVOID*)&v_Script_RegisterConstant, &Script_RegisterConstant);
-#ifndef DEDICATED
-	DetourDetach((LPVOID*)&v_Script_InitializeCLGlobalStructs, &Script_InitializeCLGlobalStructs);
-#endif // !DEDICATED
-#ifndef CLIENT_DLL
-	DetourDetach((LPVOID*)&v_Script_InitializeSVGlobalStructs, &Script_InitializeSVGlobalStructs);
-	DetourDetach((LPVOID*)&v_Script_CreateServerVM, &Script_CreateServerVM);
-#endif // !CLIENT_DLL
-#ifndef DEDICATED
-	DetourDetach((LPVOID*)&v_Script_CreateClientVM, &Script_CreateClientVM);
-	DetourDetach((LPVOID*)&v_Script_CreateUIVM, &Script_CreateUIVM);
-#endif // !DEDICATED
 	DetourDetach((LPVOID*)&v_Script_DestroySignalEntryListHead, &Script_DestroySignalEntryListHead);
 	DetourDetach((LPVOID*)&v_Script_LoadRson, &Script_LoadRson);
 	DetourDetach((LPVOID*)&v_Script_LoadScript, &Script_LoadScript);
+
+#ifndef DEDICATED
+	DetourDetach((LPVOID*)&v_Script_InitializeCLGlobalStructs, &Script_InitializeCLGlobalStructs);
+	DetourDetach((LPVOID*)&v_Script_CreateClientVM, &Script_CreateClientVM);
+	DetourDetach((LPVOID*)&v_Script_CreateUIVM, &Script_CreateUIVM);
+	DetourDetach((LPVOID*)&v_CSquirrelVM_CompileUICLScripts, &CSquirrelVM_CompileUICLScripts);
+#endif // !DEDICATED
+
+#ifndef CLIENT_DLL
+	DetourDetach((LPVOID*)&v_Script_InitializeSVGlobalStructs, &Script_InitializeSVGlobalStructs);
+	DetourDetach((LPVOID*)&v_Script_CreateServerVM, &Script_CreateServerVM);
+	DetourDetach((LPVOID*)&v_CSquirrelVM_CompileSVScripts, &CSquirrelVM_CompileSVScripts);
+#endif // !CLIENT_DLL
 }

@@ -1287,6 +1287,9 @@
     <ClInclude Include="..\pluginsystem\modsystem.h">
       <Filter>sdk\pluginsystem</Filter>
     </ClInclude>
+    <ClInclude Include="..\vpc\rson.h">
+      <Filter>sdk\vpc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1630,6 +1633,9 @@
     </ClCompile>
     <ClCompile Include="..\pluginsystem\modsystem.cpp">
       <Filter>sdk\pluginsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\vpc\rson.cpp">
+      <Filter>sdk\vpc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
