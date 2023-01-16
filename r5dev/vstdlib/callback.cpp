@@ -1230,3 +1230,23 @@ void CVFlag_f(const CCommand& args)
 {
 	cv->CvarFindFlags_f(args);
 }
+
+/*
+=====================
+CC_CreateFakePlayer_f
+
+  Creates a fake player
+  on the server
+=====================
+*/
+void CC_CreateFakePlayer_f(const CCommand& args)
+{
+#ifndef CLIENT_DLL
+	if (args.ArgC() < 3)
+	{
+		DevMsg(eDLL_T::SERVER, "usage: sv_addbot name teamid\n");
+		return;
+	}
+	IVEngineServer__CreateFakeClient(nullptr, args.Arg(1), std::stoi(args.Arg(2)));
+#endif // !CLIENT_DLL
+}
