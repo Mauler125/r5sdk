@@ -13,7 +13,7 @@
 //-----------------------------------------------------------------------------
 // Purpose: sets the persistence var in the CClient instance to 'ready'
 //-----------------------------------------------------------------------------
-bool HIVEngineServer__PersistenceAvailable(void* entidx, int clienthandle)
+bool CVEngineServer::PersistenceAvailable(void* entidx, int clienthandle)
 {
 	CClient* pClient = g_pClient->GetClient(clienthandle);        // Get client instance.
 	pClient->SetPersistenceState(PERSISTENCE::PERSISTENCE_READY); // Set the client instance to 'ready'.
@@ -42,12 +42,12 @@ bool HIVEngineServer__PersistenceAvailable(void* entidx, int clienthandle)
 
 void IVEngineServer_Attach()
 {
-	DetourAttach((LPVOID*)&IVEngineServer__PersistenceAvailable, &HIVEngineServer__PersistenceAvailable);
+	DetourAttach((LPVOID*)&IVEngineServer__PersistenceAvailable, &CVEngineServer::PersistenceAvailable);
 }
 
 void IVEngineServer_Detach()
 {
-	DetourDetach((LPVOID*)&IVEngineServer__PersistenceAvailable, &HIVEngineServer__PersistenceAvailable);
+	DetourDetach((LPVOID*)&IVEngineServer__PersistenceAvailable, &CVEngineServer::PersistenceAvailable);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
