@@ -51,11 +51,11 @@
 #endif // !DEDICATED
 #ifndef CLIENT_DLL
 #include "game/server/detour_impl.h"
+#include "game/server/gameinterface.h"
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 #include "game/client/viewrender.h"
 #endif // !DEDICATED
-#include <game/server/gameinterface.h>
 
 
 /*
