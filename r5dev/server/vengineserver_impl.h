@@ -1,5 +1,6 @@
 #pragma once
 #include "public/edict.h"
+#include "public/eiface.h"
 
 /* ==== CVENGINESERVER ================================================================================================================================================== */
 inline CMemory p_IVEngineServer__PersistenceAvailable;
@@ -57,16 +58,23 @@ struct ServerPlayer_t
 
 extern ServerPlayer_t g_ServerPlayer[MAX_PLAYERS];
 
+class CVEngineServer : public IVEngineServer
+{
+
+};
+
+inline CVEngineServer* g_pEngineServer;
+
 ///////////////////////////////////////////////////////////////////////////////
 class HVEngineServer : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: IVEngineServer::PersistenceAvailable : {:#18x} |\n", p_IVEngineServer__PersistenceAvailable.GetPtr());
-		spdlog::debug("| FUN: IVEngineServer::IsDedicatedServer    : {:#18x} |\n", p_IVEngineServer__IsDedicatedServer.GetPtr());
-		spdlog::debug("| FUN: IVEngineServer::GetNumHumanPlayers   : {:#18x} |\n", p_IVEngineServer__GetNumHumanPlayers.GetPtr());
-		spdlog::debug("| FUN: IVEngineServer::GetNumFakeClients    : {:#18x} |\n", p_IVEngineServer__GetNumFakeClients.GetPtr());
-		spdlog::debug("| FUN: IVEngineServer::CreateFakeClient     : {:#18x} |\n", p_IVEngineServer__CreateFakeClient.GetPtr());
+		spdlog::debug("| FUN: CVEngineServer::PersistenceAvailable : {:#18x} |\n", p_IVEngineServer__PersistenceAvailable.GetPtr());
+		spdlog::debug("| FUN: CVEngineServer::IsDedicatedServer    : {:#18x} |\n", p_IVEngineServer__IsDedicatedServer.GetPtr());
+		spdlog::debug("| FUN: CVEngineServer::GetNumHumanPlayers   : {:#18x} |\n", p_IVEngineServer__GetNumHumanPlayers.GetPtr());
+		spdlog::debug("| FUN: CVEngineServer::GetNumFakeClients    : {:#18x} |\n", p_IVEngineServer__GetNumFakeClients.GetPtr());
+		spdlog::debug("| FUN: CVEngineServer::CreateFakeClient     : {:#18x} |\n", p_IVEngineServer__CreateFakeClient.GetPtr());
 		//spdlog::debug("| FUN: RunFrameServer                       : {:#18x} |\n", p_RunFrameServer.GetPtr());
 		spdlog::debug("| VAR: g_bDedicated                         : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_bDedicated));
 		spdlog::debug("+----------------------------------------------------------------+\n");
