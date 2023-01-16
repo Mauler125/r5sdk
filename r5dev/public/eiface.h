@@ -56,8 +56,8 @@ public:
 	virtual bool		IsMapValid(const char* szFileName) = 0;
 	// Is this a dedicated server?
 	virtual bool		IsDedicatedServer(void) = 0;
-	// Is in Hammer editing mode?
-	virtual bool		IsInEditMode(void) = 0; // Might be wrong!!!
+	// Is this server active?
+	virtual bool		IsActive(void) = 0;
 	virtual void NullSub0(void) = 0;
 	// get arbitrary launch options
 	virtual KeyValues* GetLaunchOptions(void) = 0;
