@@ -9,6 +9,7 @@
 #include "engine/server/sv_main.h"
 #include "game/server/gameinterface.h"
 #include "public/server_class.h"
+#include "public/eiface.h"
 
 //-----------------------------------------------------------------------------
 // This is called when a new game is started. (restart, map)
@@ -91,6 +92,6 @@ void CServerGameDLL_Detach()
 #endif
 }
 
-// Pointer to CServerGameDLL virtual function table.
 CServerGameDLL* g_pServerGameDLL = nullptr;
 CServerGameClients* g_pServerGameClients = nullptr;
+CServerGameEnts* g_pServerGameEntities = nullptr;

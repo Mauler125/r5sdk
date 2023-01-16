@@ -21,6 +21,9 @@
 #include "server/vengineserver_impl.h"
 #include "client/cdll_engine_int.h"
 #include "engine/enginetrace.h"
+#ifndef CLIENT_DLL
+#include "game/server/gameinterface.h"
+#endif // !CLIENT_DLL
 #ifndef DEDICATED
 #include "gameui/IConsole.h"
 #endif // !DEDICATED
@@ -68,9 +71,17 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 	//InitPluginSystem(pModAppSystemGroup);
 	//CALL_PLUGIN_CALLBACKS(g_pPluginSystem->GetCreateCallbacks(), pModAppSystemGroup);
 
+#ifndef CLIENT_DLL
+	g_pServerGameDLL = g_pFactory->GetFactoryPtr(INTERFACEVERSION_SERVERGAMEDLL, false).RCast<CServerGameDLL*>();
+	g_pServerGameClients = g_pFactory->GetFactoryPtr(INTERFACEVERSION_SERVERGAMECLIENTS_NEW, false).RCast<CServerGameClients*>();
+	if (!g_pServerGameClients)
+		g_pServerGameClients = g_pFactory->GetFactoryPtr(INTERFACEVERSION_SERVERGAMECLIENTS, false).RCast<CServerGameClients*>();
+	g_pServerGameEntities = g_pFactory->GetFactoryPtr(INTERFACEVERSION_SERVERGAMEENTS, false).RCast<CServerGameEnts*>();
+#endif // !CLIENT_DLL
+
 #ifndef DEDICATED
-	g_pClientEntityList = g_pFactory->GetFactoryPtr("VClientEntityList003", false).RCast<IClientEntityList*>();
-	g_pEngineTrace = g_pFactory->GetFactoryPtr("EngineTraceClient004", false).RCast<CEngineTrace*>();
+	g_pClientEntityList = g_pFactory->GetFactoryPtr(VCLIENTENTITYLIST_INTERFACE_VERSION, false).RCast<IClientEntityList*>();
+	g_pEngineTrace = g_pFactory->GetFactoryPtr(INTERFACEVERSION_ENGINETRACE_CLIENT, false).RCast<CEngineTrace*>();
 
 	g_pImGuiConfig->Load(); // Load ImGui configs.
 	for (auto& map : g_pCVar->DumpToMap())

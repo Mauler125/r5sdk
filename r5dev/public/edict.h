@@ -7,6 +7,7 @@
 #include "engine/server/sv_main.h"
 #endif // !CLIENT_DLL
 
+typedef uint16_t edict_t;
 
 //-----------------------------------------------------------------------------
 // Purpose: Defines the ways that a map can be loaded.

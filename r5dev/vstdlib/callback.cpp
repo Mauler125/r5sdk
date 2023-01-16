@@ -55,6 +55,7 @@
 #ifndef DEDICATED
 #include "game/client/viewrender.h"
 #endif // !DEDICATED
+#include <game/server/gameinterface.h>
 
 
 /*
@@ -1247,6 +1248,7 @@ void CC_CreateFakePlayer_f(const CCommand& args)
 		DevMsg(eDLL_T::SERVER, "usage: sv_addbot name teamid\n");
 		return;
 	}
-	CClient* pPlayer = IVEngineServer__CreateFakeClient(nullptr, args.Arg(1), std::stoi(args.Arg(2)));
+	edict_t nHandle = IVEngineServer__CreateFakeClient(nullptr, args.Arg(1), std::stoi(args.Arg(2)));
+	g_pServerGameClients->ClientFullyConnect(nHandle, false);
 #endif // !CLIENT_DLL
 }

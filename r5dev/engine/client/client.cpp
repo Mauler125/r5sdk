@@ -25,7 +25,7 @@ CClient* CClient::GetClient(int nIndex) const
 //---------------------------------------------------------------------------------
 // Purpose: gets the handle of this client
 //---------------------------------------------------------------------------------
-uint16_t CClient::GetHandle(void) const
+edict_t CClient::GetHandle(void) const
 {
 	return m_nHandle;
 }
@@ -89,7 +89,7 @@ const char* CClient::GetClientName(void) const
 //---------------------------------------------------------------------------------
 // Purpose: sets the handle of this client
 //---------------------------------------------------------------------------------
-void CClient::SetHandle(uint16_t nHandle)
+void CClient::SetHandle(edict_t nHandle)
 {
 	m_nHandle = nHandle;
 }
