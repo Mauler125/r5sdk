@@ -152,7 +152,7 @@ int CLauncher::HandleInput()
     g_pLauncher->AddLog(spdlog::level::level_enum::warn, "Use DEV SERVER        [2] for research and development purposes.\n");
     g_pLauncher->AddLog(spdlog::level::level_enum::warn, "Use RETAIL SERVER     [3] for running and hosting dedicated servers.\n");
     g_pLauncher->AddLog(spdlog::level::level_enum::warn, "Use DEV CLIENT        [4] for research and development purposes.\n");
-    g_pLauncher->AddLog(spdlog::level::level_enum::warn, "Use RETAIL CLIENT     [5] for running client only builds against remote servers.\n");
+    g_pLauncher->AddLog(spdlog::level::level_enum::warn, "Use RETAIL CLIENT     [5] for running the client only game.\n");
     std::cout << "----------------------------------------------------------------------------------------------------------------------" << std::endl;
     g_pLauncher->AddLog(spdlog::level::level_enum::info, "Enter '0' for 'DEV HOST'.\n");
     g_pLauncher->AddLog(spdlog::level::level_enum::info, "Enter '1' for 'RETAIL HOST'.\n");
