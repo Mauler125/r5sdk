@@ -19,7 +19,7 @@ public:
 
 	static void __fastcall OnReceivedSayTextMessage(void* thisptr, int senderId, const char* text, bool isTeamChat);
 };
-class CServerGameClients
+class CServerGameClients // TODO: Reverse..
 {
 };
 

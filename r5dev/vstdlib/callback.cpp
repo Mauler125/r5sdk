@@ -1247,6 +1247,6 @@ void CC_CreateFakePlayer_f(const CCommand& args)
 		DevMsg(eDLL_T::SERVER, "usage: sv_addbot name teamid\n");
 		return;
 	}
-	IVEngineServer__CreateFakeClient(nullptr, args.Arg(1), std::stoi(args.Arg(2)));
+	CClient* pPlayer = IVEngineServer__CreateFakeClient(nullptr, args.Arg(1), std::stoi(args.Arg(2)));
 #endif // !CLIENT_DLL
 }
