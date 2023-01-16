@@ -60,10 +60,10 @@ extern ServerPlayer_t g_ServerPlayer[MAX_PLAYERS];
 
 class CVEngineServer : public IVEngineServer
 {
-
+	// Implementation in GameDLL.
 };
-
-inline CVEngineServer* g_pEngineServer;
+extern CVEngineServer* g_pEngineServer;
+extern IVEngineServer* g_pEngineServerVFTable;
 
 ///////////////////////////////////////////////////////////////////////////////
 class HVEngineServer : public IDetour
@@ -77,6 +77,7 @@ class HVEngineServer : public IDetour
 		spdlog::debug("| FUN: CVEngineServer::CreateFakeClient     : {:#18x} |\n", p_IVEngineServer__CreateFakeClient.GetPtr());
 		//spdlog::debug("| FUN: RunFrameServer                       : {:#18x} |\n", p_RunFrameServer.GetPtr());
 		spdlog::debug("| VAR: g_bDedicated                         : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_bDedicated));
+		spdlog::debug("| VAR: g_pEngineServerVFTable               : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pEngineServerVFTable));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
@@ -98,6 +99,7 @@ class HVEngineServer : public IDetour
 	virtual void GetVar(void) const
 	{
 		g_bDedicated = p_IVEngineServer__IsDedicatedServer.ResolveRelativeAddress(0x3, 0x7).RCast<bool*>();
+		g_pEngineServerVFTable = g_GameDll.GetVirtualMethodTable(".?AVCVEngineServer@@", 0).RCast<CVEngineServer*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

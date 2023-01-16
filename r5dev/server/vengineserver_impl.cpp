@@ -52,3 +52,6 @@ void IVEngineServer_Detach()
 
 ///////////////////////////////////////////////////////////////////////////////
 ServerPlayer_t g_ServerPlayer[MAX_PLAYERS];
+
+IVEngineServer* g_pEngineServerVFTable = nullptr;
+CVEngineServer* g_pEngineServer = reinterpret_cast<CVEngineServer*>(&g_pEngineServerVFTable);

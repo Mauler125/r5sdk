@@ -8,6 +8,8 @@
 #ifndef EIFACE_H
 #define EIFACE_H
 #include "edict.h"
+#include "tier1/bitbuf.h"
+#include "vpc/keyvalues.h"
 
 //-----------------------------------------------------------------------------
 // Forward declarations
@@ -58,7 +60,7 @@ public:
 	virtual bool		IsDedicatedServer(void) = 0;
 	// Is this server active?
 	virtual bool		IsActive(void) = 0;
-	virtual void NullSub0(void) = 0;
+	virtual void		NullSub0(void) = 0;
 	// get arbitrary launch options
 	virtual KeyValues* GetLaunchOptions(void) = 0;
 
