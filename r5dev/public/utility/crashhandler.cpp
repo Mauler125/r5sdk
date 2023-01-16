@@ -316,7 +316,7 @@ void CCrashHandler::FormatExceptionCode()
 //-----------------------------------------------------------------------------
 void CCrashHandler::FormatALU(const CHAR* pszRegister, DWORD64 nContent)
 {
-	if (abs64(nContent) >= 1000000)
+	if (nContent >= 1000000)
 	{
 		if (nContent > UINT_MAX)
 		{
