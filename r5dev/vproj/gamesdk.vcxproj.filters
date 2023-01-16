@@ -1988,6 +1988,9 @@
     <ClInclude Include="..\public\utility\crashhandler.h">
       <Filter>sdk\public\utility</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\eiface.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\shared\resource\lockedserver.png">

@@ -302,6 +302,7 @@
     <ClInclude Include="..\public\dt_common.h" />
     <ClInclude Include="..\public\dt_recv.h" />
     <ClInclude Include="..\public\dt_send.h" />
+    <ClInclude Include="..\public\eiface.h" />
     <ClInclude Include="..\public\iengine.h" />
     <ClInclude Include="..\public\client_class.h" />
     <ClInclude Include="..\public\const.h" />

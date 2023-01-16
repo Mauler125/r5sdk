@@ -14,7 +14,8 @@
 #define MATERIALSYSTEM_CONFIG_VERSION             "VMaterialSystemConfig004"
 
 #define SERVER_DLL_SHARED_APPSYSTEMS              "VServerDllSharedAppSystems001"
-#define INTERFACEVERSION_SERVERGAMECLIENTS        "ServerGameClients004"
+#define INTERFACEVERSION_SERVERGAMECLIENTS_NEW    "ServerGameClients004"
+#define INTERFACEVERSION_SERVERGAMECLIENTS        "ServerGameClients003"
 #define INTERFACEVERSION_SERVERGAMEENTS           "ServerGameEnts002"
 #define INTERFACEVERSION_SERVERGAMEDLL            "ServerGameDLL005"
 

@@ -51,6 +51,7 @@
 #endif // !DEDICATED
 #ifndef CLIENT_DLL
 #include "game/server/detour_impl.h"
+#include "game/server/gameinterface.h"
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 #include "game/client/viewrender.h"
@@ -1229,4 +1230,30 @@ CVFlag_f
 void CVFlag_f(const CCommand& args)
 {
 	cv->CvarFindFlags_f(args);
+}
+
+/*
+=====================
+CC_CreateFakePlayer_f
+
+  Creates a fake player
+  on the server
+=====================
+*/
+void CC_CreateFakePlayer_f(const CCommand& args)
+{
+#ifndef CLIENT_DLL
+	if (args.ArgC() < 3)
+	{
+		DevMsg(eDLL_T::SERVER, "usage: sv_addbot name teamid\n");
+		return;
+	}
+
+	g_pEngineServer->LockNetworkStringTables(true);
+
+	edict_t nHandle = g_pEngineServer->CreateFakeClient(args.Arg(1), std::stoi(args.Arg(2)));
+	g_pServerGameClients->ClientFullyConnect(nHandle, false);
+
+	g_pEngineServer->LockNetworkStringTables(false);
+#endif // !CLIENT_DLL
 }

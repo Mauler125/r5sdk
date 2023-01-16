@@ -2,6 +2,7 @@
 #include "vpc/keyvalues.h"
 #include "common/protocol.h"
 #include "engine/net_chan.h"
+#include "public/edict.h"
 
 //-----------------------------------------------------------------------------
 // Enumerations
@@ -26,7 +27,7 @@ class CClient : IClientMessageHandler, INetChannelHandler
 {
 public:
 	CClient* GetClient(int nIndex) const;
-	uint16_t GetHandle(void) const;
+	edict_t GetHandle(void) const;
 	uint32_t GetUserID(void) const;
 	uint64_t GetNucleusID(void) const;
 	SIGNONSTATE GetSignonState(void) const;
@@ -34,7 +35,7 @@ public:
 	CNetChan* GetNetChan(void) const;
 	const char* GetServerName(void) const;
 	const char* GetClientName(void) const;
-	void SetHandle(uint16_t nHandle);
+	void SetHandle(edict_t nHandle);
 	void SetUserID(uint32_t nUserID);
 	void SetNucleusID(uint64_t nNucleusID);
 	void SetSignonState(SIGNONSTATE nSignonState);
@@ -56,7 +57,7 @@ public:
 
 private:
 	uint32_t m_nUserID;              //0x0010
-	uint16_t m_nHandle;              //0x0014
+	edict_t m_nHandle;               //0x0014
 	char m_szServerName[64];         //0x0016
 	int64_t m_nReputation;           //0x0058
 	char pad_0014[182];              //0x0060
