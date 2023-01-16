@@ -1248,7 +1248,12 @@ void CC_CreateFakePlayer_f(const CCommand& args)
 		DevMsg(eDLL_T::SERVER, "usage: sv_addbot name teamid\n");
 		return;
 	}
-	edict_t nHandle = IVEngineServer__CreateFakeClient(nullptr, args.Arg(1), std::stoi(args.Arg(2)));
+
+	g_pEngineServer->LockNetworkStringTables(true);
+
+	edict_t nHandle = g_pEngineServer->CreateFakeClient(args.Arg(1), std::stoi(args.Arg(2)));
 	g_pServerGameClients->ClientFullyConnect(nHandle, false);
+
+	g_pEngineServer->LockNetworkStringTables(false);
 #endif // !CLIENT_DLL
 }
