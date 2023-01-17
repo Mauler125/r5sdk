@@ -1,0 +1,242 @@
+//===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
+//
+// Purpose: 
+//
+// $NoKeywords: $
+//===========================================================================//
+
+#ifndef BASEENTITY_H
+#define BASEENTITY_H
+#ifdef _WIN32
+#pragma once
+#endif
+
+#include "mathlib/vector.h"
+#include "game/server/networkproperty.h"
+#include "game/shared/collisionproperty.h"
+#include "iservernetworkable.h"
+#include "iserverentity.h"
+
+
+class CBaseEntity : public IServerEntity
+{
+	char m_RefEHandle[4];
+	char gap_c[4];
+	void* m_collideable;
+	void* m_networkable;
+	int genericKeyValueCount;
+	char gap_24[4];
+	void* genericKeyValues;
+	void* m_pfnMoveDone;
+	void* m_pfnThink;
+	CServerNetworkProperty m_Network;
+	__int64 m_ModelName;
+	int m_entIndex;
+	char gap_74[8];
+	__int64 m_iClassname;
+	float m_flAnimTime;
+	float m_flSimulationTime;
+	int m_creationTick;
+	int m_nLastThinkTick;
+	int m_PredictableID;
+	int touchStamp;
+	char m_aThinkFunctions[32];
+	float m_entitySpawnTime;
+	int m_spawner;
+	bool m_wantsDamageCallbacks;
+	bool m_wantsDeathCallbacks;
+	char gap_c2[2];
+	int m_nNextThinkTick;
+	int m_fEffects;
+	bool m_thinkNextFrame;
+	char gap_cd[3];
+	__int64 m_target;
+	int m_networkedFlags;
+	char m_nRenderFX;
+	char m_nRenderMode;
+	__int16 m_nModelIndex;
+	int m_clrRender;
+	char m_clIntensity;
+	char gap_e5[3];
+	int m_desiredHibernationType;
+	int m_scriptMinHibernationType;
+	int m_minSelfAndDescendantHibernationType;
+	int m_actualHibernationType;
+	int m_hibernationQueueIndex;
+	bool m_bRenderWithViewModels;
+	char gap_fd[3];
+	int m_nameVisibilityFlags;
+	float m_cloakEndTime;
+	float m_cloakFadeInEndTime;
+	float m_cloakFadeOutStartTime;
+	float m_cloakFadeInDuration;
+	float m_cloakFlickerAmount;
+	float m_cloakFlickerEndTime;
+	float m_cloakFadeOutDuration;
+	Vector3D m_highlightParams[16];
+	int m_highlightFunctionBits[8];
+	float m_highlightServerFadeBases[2];
+	float m_highlightServerFadeStartTimes[2];
+	float m_highlightServerFadeEndTimes[2];
+	int m_highlightServerContextID;
+	int m_highlightTeamBits;
+	float m_nextGrenadeTargetTime;
+	float m_grenadeTargetDebounce;
+	int m_nSimulationTick;
+	int m_fDataObjectTypes;
+	int m_iEFlags;
+	int m_fFlags;
+	__int64 m_iName;
+	int m_scriptNameIndex;
+	int m_instanceNameIndex;
+	char m_scriptName[64];
+	char m_instanceName[64];
+	__int64 m_holdUsePrompt;
+	__int64 m_pressUsePrompt;
+	float m_attachmentLerpStartTime;
+	float m_attachmentLerpEndTime;
+	Vector3D m_attachmentLerpStartOrigin;
+	Vector3D m_attachmentLerpStartAngles;
+	int m_parentAttachmentType;
+	int m_parentAttachmentIndex;
+	int m_parentAttachmentHitbox;
+	int m_parentAttachmentModel;
+	char m_MoveType;
+	char m_MoveCollide;
+	char gap_30a[2];
+	int m_RestoreMoveTypeOnDetach;
+	int m_hMoveParent;
+	int m_hMoveChild;
+	int m_hMovePeer;
+	bool m_bIsActiveChild;
+	bool m_bPrevAbsOriginValid;
+	char gap_31e[2];
+	int m_descendantZiplineCount;
+	char gap_324[4];
+	CCollisionProperty m_Collision;
+	int m_hOwnerEntity;
+	int m_CollisionGroup;
+	int m_contents;
+	bool m_collideWithOwner;
+	char gap_3ad[3];
+	int m_baseSolidType;
+	char gap_3b4[4];
+	char m_pPhysicsObject[8];
+	float m_flNavIgnoreUntilTime;
+	int m_hGroundEntity;
+	float m_flGroundChangeTime;
+	Vector3D m_vecBaseVelocity;
+	int m_baseVelocityEnt;
+	Vector3D m_vecAbsVelocity;
+	Vector3D m_vecAngVelocity;
+	char gap_3f4[12];
+	float m_rgflCoordinateFrame[12];
+	float m_flFriction;
+	float m_flLocalTime;
+	float m_flVPhysicsUpdateLocalTime;
+	float m_flMoveDoneTime;
+	int m_nPushEnumCount;
+	Vector3D m_vecPrevAbsOrigin;
+	Vector3D m_vecAbsOrigin;
+	Vector3D m_angAbsRotation;
+	Vector3D m_vecVelocity;
+	char gap_474[4];
+	__int64 m_iParent;
+	int m_iHammerID;
+	float m_flSpeed;
+	int m_iMaxHealth;
+	int m_iHealth;
+	void* m_pfnTouch;
+	bool m_bClientSideRagdoll;
+	char m_lifeState;
+	char gap_49a[2];
+	int m_scriptNetData;
+	int m_phaseShiftFlags;
+	char m_baseTakeDamage;
+	char gap_4a5[3];
+	int m_invulnerableToDamageCount;
+	char m_passDamageToParent;
+	char gap_4ad[3];
+	Vector3D m_deathVelocity;
+	float m_lastTitanFootstepDamageTime;
+	float m_flMaxspeed;
+	int m_visibilityFlags;
+	char m_OnUser1[40];
+	char m_OnDeath[40];
+	char m_OnDestroy[40];
+	int m_cellWidth;
+	int m_cellBits;
+	int m_cellX;
+	int m_cellY;
+	int m_cellZ;
+	Vector3D m_localOrigin;
+	Vector3D m_localAngles;
+	Vector3D m_vecViewOffset;
+	int m_ListByClass;
+	char gap_57c[4];
+	void* m_pPrevByClass;
+	void* m_pNextByClass;
+	int m_iInitialTeamNum;
+	int m_iTeamNum;
+	int m_teamMemberIndex;
+	int m_squadID;
+	int m_grade;
+	int m_ignorePredictedTriggerFlags;
+	int m_passThroughFlags;
+	int m_passThroughThickness;
+	float m_passThroughDirection;
+	int m_spawnflags;
+	float m_flGravity;
+	float m_entityFadeDist;
+	int m_dissolveEffectEntityHandle;
+	float m_fadeDist;
+	__int64 m_iSignifierName;
+	int m_collectedInvalidateFlags;
+	bool m_collectingInvalidateFlags;
+	char gap_5d5[3];
+	int m_lagCompensationCounter;
+	bool m_bLagCompensate;
+	bool m_bNetworkQuantizeOriginAndAngles;
+	bool m_bForcePurgeFixedupStrings;
+	char gap_5df[1];
+	int m_debugOverlays;
+	char gap_5e4[4];
+	void* m_pTimedOverlay;
+	char m_ScriptScope[32];
+	char m_hScriptInstance[8];
+	__int64 m_iszScriptId;
+	int m_bossPlayer;
+	int m_usableType;
+	int m_usablePriority;
+	float m_usableDistanceOverride;
+	float m_usableFOV;
+	float m_usePromptSize;
+	bool m_hasDispatchedSpawn;
+	bool m_bDoDestroyCallback;
+	bool m_bDoPusherCallback;
+	bool m_bDoPreSpawnCallback;
+	bool m_bDoOnSpawnedCallback;
+	char gap_63d[3];
+	float m_spottedBeginTimes[128];
+	float m_spottedLatestTimes[128];
+	__int64 m_spottedByTeams[4];
+	char m_minimapData[88];
+	int m_shieldHealth;
+	int m_shieldHealthMax;
+	int m_firstChildEntityLink;
+	int m_firstParentEntityLink;
+	bool m_bIsSoundCodeControllerValueSet;
+	char gap_ac9[3];
+	float m_flSoundCodeControllerValue;
+	float m_pusherWithChildrenRadius;
+	int m_childPusherMoveHandlerCount;
+	bool m_inWater;
+	char gap_ad9[7];
+	void* m_statusEffectPlugin;
+	__int64 m_realmsBitMask;
+	char m_realmsTransmitMaskCached[16];
+	int m_realmsTransmitMaskCachedSerialNumber;
+};
+
+
+#endif // BASEENTITY_H

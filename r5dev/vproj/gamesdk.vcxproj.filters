@@ -247,6 +247,9 @@
     <Filter Include="sdk\codecs\miles">
       <UniqueIdentifier>{f53df686-70b6-4883-a966-1eb3fd7eb2b1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\public\engine">
+      <UniqueIdentifier>{027d27a1-089a-4ea1-b764-1b436c6d20a2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\vengineclient_impl.cpp">
@@ -692,6 +695,12 @@
     </ClCompile>
     <ClCompile Include="..\public\utility\crashhandler.cpp">
       <Filter>sdk\public\utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\server\networkproperty.cpp">
+      <Filter>sdk\game\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\shared\collisionproperty.cpp">
+      <Filter>sdk\game\shared</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1989,6 +1998,33 @@
       <Filter>sdk\public\utility</Filter>
     </ClInclude>
     <ClInclude Include="..\public\eiface.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\iservernetworkable.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\iserverunknown.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\iserverentity.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\string_t.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\baseentity.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\server\networkproperty.h">
+      <Filter>sdk\game\server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\shared\collisionproperty.h">
+      <Filter>sdk\game\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\engine\ICollideable.h">
+      <Filter>sdk\public\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\basehandle.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
   </ItemGroup>

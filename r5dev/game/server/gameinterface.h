@@ -74,7 +74,7 @@ class VServerGameDLL : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		g_pGlobals = g_GameDll.FindPatternSIMD("4C 8B 0D ? ? ? ? 48 8B D1").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CGlobalVars*>();
+		g_pGlobals = g_GameDll.FindPatternSIMD("4C 8B 0D ?? ?? ?? ?? 48 8B D1").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CGlobalVars*>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

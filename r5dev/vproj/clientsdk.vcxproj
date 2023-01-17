@@ -63,6 +63,7 @@
     <ClCompile Include="..\game\client\spritemodel.cpp" />
     <ClCompile Include="..\game\client\viewrender.cpp" />
     <ClCompile Include="..\game\shared\animation.cpp" />
+    <ClCompile Include="..\game\shared\collisionproperty.cpp" />
     <ClCompile Include="..\inputsystem\inputsystem.cpp" />
     <ClCompile Include="..\launcher\IApplication.cpp" />
     <ClCompile Include="..\launcher\launcher.cpp" />
@@ -231,6 +232,7 @@
     <ClInclude Include="..\game\client\hud.h" />
     <ClInclude Include="..\game\client\viewrender.h" />
     <ClInclude Include="..\game\shared\animation.h" />
+    <ClInclude Include="..\game\shared\collisionproperty.h" />
     <ClInclude Include="..\inputsystem\ButtonCode.h" />
     <ClInclude Include="..\inputsystem\inputsystem.h" />
     <ClInclude Include="..\launcher\IApplication.h" />
@@ -270,11 +272,13 @@
     <ClInclude Include="..\protoc\sv_rcon.pb.h" />
     <ClInclude Include="..\public\avi\iavi.h" />
     <ClInclude Include="..\public\avi\ibik.h" />
+    <ClInclude Include="..\public\basehandle.h" />
     <ClInclude Include="..\public\bitmap\stb_image.h" />
     <ClInclude Include="..\public\datamap.h" />
     <ClInclude Include="..\public\dt_common.h" />
     <ClInclude Include="..\public\dt_recv.h" />
     <ClInclude Include="..\public\eiface.h" />
+    <ClInclude Include="..\public\engine\ICollideable.h" />
     <ClInclude Include="..\public\iengine.h" />
     <ClInclude Include="..\public\client_class.h" />
     <ClInclude Include="..\public\const.h" />

@@ -69,8 +69,10 @@
     <ClCompile Include="..\game\server\ai_networkmanager.cpp" />
     <ClCompile Include="..\game\server\ai_utility.cpp" />
     <ClCompile Include="..\game\server\gameinterface.cpp" />
+    <ClCompile Include="..\game\server\networkproperty.cpp" />
     <ClCompile Include="..\game\shared\ai_utility_shared.cpp" />
     <ClCompile Include="..\game\shared\animation.cpp" />
+    <ClCompile Include="..\game\shared\collisionproperty.cpp" />
     <ClCompile Include="..\inputsystem\inputsystem.cpp" />
     <ClCompile Include="..\launcher\IApplication.cpp" />
     <ClCompile Include="..\launcher\launcher.cpp" />
@@ -252,8 +254,10 @@
     <ClInclude Include="..\game\server\detour_impl.h" />
     <ClInclude Include="..\game\server\fairfight_impl.h" />
     <ClInclude Include="..\game\server\gameinterface.h" />
+    <ClInclude Include="..\game\server\networkproperty.h" />
     <ClInclude Include="..\game\shared\ai_utility_shared.h" />
     <ClInclude Include="..\game\shared\animation.h" />
+    <ClInclude Include="..\game\shared\collisionproperty.h" />
     <ClInclude Include="..\inputsystem\ButtonCode.h" />
     <ClInclude Include="..\inputsystem\inputsystem.h" />
     <ClInclude Include="..\launcher\IApplication.h" />
@@ -297,12 +301,15 @@
     <ClInclude Include="..\protoc\sv_rcon.pb.h" />
     <ClInclude Include="..\public\avi\iavi.h" />
     <ClInclude Include="..\public\avi\ibik.h" />
+    <ClInclude Include="..\public\baseentity.h" />
+    <ClInclude Include="..\public\basehandle.h" />
     <ClInclude Include="..\public\bitmap\stb_image.h" />
     <ClInclude Include="..\public\datamap.h" />
     <ClInclude Include="..\public\dt_common.h" />
     <ClInclude Include="..\public\dt_recv.h" />
     <ClInclude Include="..\public\dt_send.h" />
     <ClInclude Include="..\public\eiface.h" />
+    <ClInclude Include="..\public\engine\ICollideable.h" />
     <ClInclude Include="..\public\iengine.h" />
     <ClInclude Include="..\public\client_class.h" />
     <ClInclude Include="..\public\const.h" />
@@ -332,6 +339,9 @@
     <ClInclude Include="..\public\inetmsghandler.h" />
     <ClInclude Include="..\public\ipackedstore.h" />
     <ClInclude Include="..\public\iserver.h" />
+    <ClInclude Include="..\public\iserverentity.h" />
+    <ClInclude Include="..\public\iservernetworkable.h" />
+    <ClInclude Include="..\public\iserverunknown.h" />
     <ClInclude Include="..\public\isnapshotmgr.h" />
     <ClInclude Include="..\public\isurfacesystem.h" />
     <ClInclude Include="..\public\ivrenderview.h" />
@@ -341,6 +351,7 @@
     <ClInclude Include="..\public\networkvar.h" />
     <ClInclude Include="..\public\rendersystem\schema\texture.g.h" />
     <ClInclude Include="..\public\server_class.h" />
+    <ClInclude Include="..\public\string_t.h" />
     <ClInclude Include="..\public\studio.h" />
     <ClInclude Include="..\core\resource.h" />
     <ClInclude Include="..\public\utility\binstream.h" />

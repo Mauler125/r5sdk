@@ -1,8 +1,7 @@
 #pragma once
+#include "basehandle.h"
 #include "iclientnetworkable.h"
 #include "icliententity.h"
-
-using CBaseHandle = unsigned long;
 
 class IClientEntityList // Fully reversed beside index 0 which is probably a destructor.
 {

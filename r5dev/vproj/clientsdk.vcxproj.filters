@@ -238,6 +238,9 @@
     <Filter Include="sdk\codecs\miles">
       <UniqueIdentifier>{5529291a-e3b6-44a7-8edf-f0fe4e0ac4dc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\public\engine">
+      <UniqueIdentifier>{c785a075-5583-4bb4-bdac-5f7419ee64ab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\cdll_engine_int.cpp">
@@ -650,6 +653,9 @@
     </ClCompile>
     <ClCompile Include="..\public\utility\crashhandler.cpp">
       <Filter>sdk\public\utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\shared\collisionproperty.cpp">
+      <Filter>sdk\game\shared</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1888,6 +1894,15 @@
     </ClInclude>
     <ClInclude Include="..\public\eiface.h">
       <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\engine\ICollideable.h">
+      <Filter>sdk\public\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\basehandle.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\shared\collisionproperty.h">
+      <Filter>sdk\game\shared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

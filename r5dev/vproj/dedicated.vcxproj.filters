@@ -196,6 +196,9 @@
     <Filter Include="sdk\pluginsystem">
       <UniqueIdentifier>{d0650f0e-6359-4322-82c2-97f2e40f141f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\public\engine">
+      <UniqueIdentifier>{3760be6a-7ccb-4ad7-bba8-608dcc60a6b5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\opcodes.h">
@@ -1293,6 +1296,33 @@
     <ClInclude Include="..\public\eiface.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\basehandle.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\iserverentity.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\iservernetworkable.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\iserverunknown.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\string_t.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\baseentity.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\engine\ICollideable.h">
+      <Filter>sdk\public\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\shared\collisionproperty.h">
+      <Filter>sdk\game\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\server\networkproperty.h">
+      <Filter>sdk\game\server</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1633,6 +1663,12 @@
     </ClCompile>
     <ClCompile Include="..\public\utility\crashhandler.cpp">
       <Filter>sdk\public\utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\shared\collisionproperty.cpp">
+      <Filter>sdk\game\shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\server\networkproperty.cpp">
+      <Filter>sdk\game\server</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
