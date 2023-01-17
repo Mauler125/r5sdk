@@ -48,6 +48,8 @@ extern CServerGameDLL* g_pServerGameDLL;
 extern CServerGameClients* g_pServerGameClients;
 extern CServerGameEnts* g_pServerGameEntities;
 
+extern CGlobalVars* g_pGlobals;
+
 void CServerGameDLL_Attach();
 void CServerGameDLL_Detach();
 
@@ -60,6 +62,7 @@ class VServerGameDLL : public IDetour
 		spdlog::debug("| VAR: g_pServerGameDLL                     : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pServerGameDLL));
 		spdlog::debug("| VAR: g_pServerGameClients                 : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pServerGameClients));
 		spdlog::debug("| VAR: g_pServerGameEntities                : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pServerGameEntities));
+		spdlog::debug("| VAR: g_pGlobals                           : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pGlobals));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
@@ -69,7 +72,10 @@ class VServerGameDLL : public IDetour
 		CServerGameDLL__OnReceivedSayTextMessage = p_CServerGameDLL__OnReceivedSayTextMessage.RCast<void(__fastcall*)(void* thisptr, int senderId, const char* text, bool isTeamChat)>();
 #endif
 	}
-	virtual void GetVar(void) const { }
+	virtual void GetVar(void) const
+	{
+		g_pGlobals = g_GameDll.FindPatternSIMD("4C 8B 0D ? ? ? ? 48 8B D1").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CGlobalVars*>();
+	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
 	virtual void Detach(void) const { }
