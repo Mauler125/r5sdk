@@ -7,7 +7,7 @@
 #define SIGDB_DICT_SIZE 20
 
 #define SIGDB_MAJOR_VERSION 0x1 // Increment when library changes are made.
-#define SIGDB_MINOR_VERSION 0x5 // Increment when SDK updates are released.
+#define SIGDB_MINOR_VERSION 0x6 // Increment when SDK updates are released.
 
 #ifdef DEDICATED
 #define SIGDB_FILE "cfg\\server\\startup.bin"
