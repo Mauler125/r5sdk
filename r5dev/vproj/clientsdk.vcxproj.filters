@@ -1904,6 +1904,18 @@
     <ClInclude Include="..\game\shared\collisionproperty.h">
       <Filter>sdk\game\shared</Filter>
     </ClInclude>
+    <ClInclude Include="..\game\shared\playernet_vars.h">
+      <Filter>sdk\game\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\shared\shared_classnames.h">
+      <Filter>sdk\game\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\playerstate.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\shared\takedamageinfo.h">
+      <Filter>sdk\game\shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\shared\resource\lockedserver.png">

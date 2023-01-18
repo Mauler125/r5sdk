@@ -183,8 +183,13 @@
     <ClInclude Include="..\game\server\fairfight_impl.h" />
     <ClInclude Include="..\game\server\gameinterface.h" />
     <ClInclude Include="..\game\server\networkproperty.h" />
+    <ClInclude Include="..\game\server\player.h" />
+    <ClInclude Include="..\game\server\playerlocaldata.h" />
     <ClInclude Include="..\game\shared\animation.h" />
     <ClInclude Include="..\game\shared\collisionproperty.h" />
+    <ClInclude Include="..\game\shared\playernet_vars.h" />
+    <ClInclude Include="..\game\shared\shared_classnames.h" />
+    <ClInclude Include="..\game\shared\takedamageinfo.h" />
     <ClInclude Include="..\launcher\IApplication.h" />
     <ClInclude Include="..\launcher\launcher.h" />
     <ClInclude Include="..\launcher\prx.h" />
@@ -251,6 +256,7 @@
     <ClInclude Include="..\public\ivscript.h" />
     <ClInclude Include="..\public\model_types.h" />
     <ClInclude Include="..\public\networkvar.h" />
+    <ClInclude Include="..\public\playerstate.h" />
     <ClInclude Include="..\public\server_class.h" />
     <ClInclude Include="..\public\string_t.h" />
     <ClInclude Include="..\public\studio.h" />

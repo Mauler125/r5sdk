@@ -255,9 +255,14 @@
     <ClInclude Include="..\game\server\fairfight_impl.h" />
     <ClInclude Include="..\game\server\gameinterface.h" />
     <ClInclude Include="..\game\server\networkproperty.h" />
+    <ClInclude Include="..\game\server\player.h" />
+    <ClInclude Include="..\game\server\playerlocaldata.h" />
     <ClInclude Include="..\game\shared\ai_utility_shared.h" />
     <ClInclude Include="..\game\shared\animation.h" />
     <ClInclude Include="..\game\shared\collisionproperty.h" />
+    <ClInclude Include="..\game\shared\playernet_vars.h" />
+    <ClInclude Include="..\game\shared\shared_classnames.h" />
+    <ClInclude Include="..\game\shared\takedamageinfo.h" />
     <ClInclude Include="..\inputsystem\ButtonCode.h" />
     <ClInclude Include="..\inputsystem\inputsystem.h" />
     <ClInclude Include="..\launcher\IApplication.h" />
@@ -349,6 +354,7 @@
     <ClInclude Include="..\public\materialsystem\shader_vcs_version.h" />
     <ClInclude Include="..\public\model_types.h" />
     <ClInclude Include="..\public\networkvar.h" />
+    <ClInclude Include="..\public\playerstate.h" />
     <ClInclude Include="..\public\rendersystem\schema\texture.g.h" />
     <ClInclude Include="..\public\server_class.h" />
     <ClInclude Include="..\public\string_t.h" />

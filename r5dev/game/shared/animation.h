@@ -1,5 +1,70 @@
 #ifndef ANIMATION_H
 #define ANIMATION_H
+#include "mathlib/vector.h"
+
+class CAnimationLayer
+{
+	bool m_bSequenceFinished;
+	char gap_1[3];
+	int m_fFlags;
+	int m_layerIndex;
+	int m_modelIndex;
+	float m_flKillRate;
+	float m_flKillDelay;
+	char m_nActivity[4];
+	int m_nPriority;
+	float m_flLastEventCheck;
+	char gap_24[4];
+	void* m_animationLayerOwner;
+};
+
+struct __declspec(align(8)) AnimRelativeData
+{
+	char gap_0[8];
+	Vector3D m_animInitialPos;
+	Vector3D m_animInitialVel;
+	Quaternion m_animInitialRot;
+	Vector3D m_animInitialCorrectPos;
+	Quaternion m_animInitialCorrectRot;
+	Vector3D m_animEntityToRefOffset;
+	Quaternion m_animEntityToRefRotation;
+	float m_animBlendBeginTime;
+	float m_animBlendEndTime;
+	int m_animScriptSequence;
+	int m_animScriptModel;
+	bool m_animIgnoreParentRot;
+	char gap_79[3];
+	int m_animMotionMode;
+	bool m_safePushMode;
+};
+
+struct Player_AnimViewEntityData
+{
+	char gap_0[8];
+	int animViewEntityHandle;
+	float animViewEntityAngleLerpInDuration;
+	float animViewEntityOriginLerpInDuration;
+	float animViewEntityLerpOutDuration;
+	bool animViewEntityStabilizePlayerEyeAngles;
+	char gap_19[3];
+	int animViewEntityThirdPersonCameraParity;
+	int animViewEntityThirdPersonCameraAttachment[6];
+	int animViewEntityNumThirdPersonCameraAttachments;
+	bool animViewEntityThirdPersonCameraVisibilityChecks;
+	bool animViewEntityDrawPlayer;
+	char gap_3e[2];
+	float fovTarget;
+	float fovSmoothTime;
+	int animViewEntityParity;
+	int lastAnimViewEntityParity;
+	int lastAnimViewEntityParityTick;
+	Vector3D animViewEntityCameraPosition;
+	Vector3D animViewEntityCameraAngles;
+	float animViewEntityBlendStartTime;
+	Vector3D animViewEntityBlendStartEyePosition;
+	Vector3D animViewEntityBlendStartEyeAngles;
+};
+
 
 inline CMemory p_CStudioHdr__LookupSequence;
 inline auto v_CStudioHdr__LookupSequence = p_CStudioHdr__LookupSequence.RCast<int(*)(CStudioHdr* pStudio, const char* pszName)>();
