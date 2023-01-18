@@ -18,7 +18,9 @@
 #include "engine/sys_dll2.h"
 #include "engine/host_cmd.h"
 #include "engine/server/sv_main.h"
+#ifndef CLIENT_DLL
 #include "server/vengineserver_impl.h"
+#endif // !CLIENT_DLL
 #include "client/cdll_engine_int.h"
 #include "engine/enginetrace.h"
 #ifndef CLIENT_DLL
