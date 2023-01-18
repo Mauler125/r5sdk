@@ -2045,6 +2045,15 @@
     <ClInclude Include="..\game\shared\takedamageinfo.h">
       <Filter>sdk\game\shared</Filter>
     </ClInclude>
+    <ClInclude Include="..\game\server\baseanimating.h">
+      <Filter>sdk\game\server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\server\baseanimatingoverlay.h">
+      <Filter>sdk\game\server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\server\basecombatcharacter.h">
+      <Filter>sdk\game\server</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\shared\resource\lockedserver.png">

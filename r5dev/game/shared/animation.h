@@ -18,6 +18,18 @@ class CAnimationLayer
 	void* m_animationLayerOwner;
 };
 
+struct __declspec(align(8)) PredictedAnimEventData
+{
+	char gap_0[8];
+	float m_predictedAnimEventTimes[8];
+	int m_predictedAnimEventIndices[8];
+	int m_predictedAnimEventCount;
+	int m_predictedAnimEventTarget;
+	int m_predictedAnimEventSequence;
+	int m_predictedAnimEventModel;
+	float m_predictedAnimEventsReadyToFireTime;
+};
+
 struct __declspec(align(8)) AnimRelativeData
 {
 	char gap_0[8];

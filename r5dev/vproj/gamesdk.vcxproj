@@ -251,6 +251,9 @@
     <ClInclude Include="..\game\server\ai_networkmanager.h" />
     <ClInclude Include="..\game\server\ai_node.h" />
     <ClInclude Include="..\game\server\ai_utility.h" />
+    <ClInclude Include="..\game\server\baseanimatingoverlay.h" />
+    <ClInclude Include="..\game\server\baseanimating.h" />
+    <ClInclude Include="..\game\server\basecombatcharacter.h" />
     <ClInclude Include="..\game\server\detour_impl.h" />
     <ClInclude Include="..\game\server\fairfight_impl.h" />
     <ClInclude Include="..\game\server\gameinterface.h" />
