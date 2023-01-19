@@ -16,7 +16,7 @@
 
 class CBaseAnimating : public CBaseEntity
 {
-	char gap_b04[12];
+	char gap_b04[8]; // Aligns properly in IDA and generated code after setting from 12 to 8.
 	bool m_markedForServerInterpolation;
 	bool m_animRemoveFromServerInterpolationNextFrame;
 	char gap_b12[2];

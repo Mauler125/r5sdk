@@ -32,7 +32,7 @@ class CBaseEntity : public IServerEntity
 	CServerNetworkProperty m_Network;
 	__int64 m_ModelName;
 	int m_entIndex;
-	char gap_74[8];
+	char gap_74[8]; // Aligns properly in IDA and generated code after setting from 4 to 8.
 	__int64 m_iClassname;
 	float m_flAnimTime;
 	float m_flSimulationTime;
@@ -121,7 +121,7 @@ class CBaseEntity : public IServerEntity
 	char gap_3ad[3];
 	int m_baseSolidType;
 	char gap_3b4[4];
-	char m_pPhysicsObject[8];
+	void* m_pPhysicsObject;
 	float m_flNavIgnoreUntilTime;
 	int m_hGroundEntity;
 	float m_flGroundChangeTime;
@@ -237,6 +237,5 @@ class CBaseEntity : public IServerEntity
 	char m_realmsTransmitMaskCached[16];
 	int m_realmsTransmitMaskCachedSerialNumber;
 };
-
 
 #endif // BASEENTITY_H
