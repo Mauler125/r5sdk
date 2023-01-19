@@ -12,6 +12,7 @@
 // Forward declarations
 //-----------------------------------------------------------------------------
 class CBaseEntity;
+class ServerClass;
 
 //-----------------------------------------------------------------------------
 // 
@@ -26,7 +27,7 @@ public:
 protected:
 	// Should never call delete on this! 
 	virtual					~IServerNetworkable() {}
-	virtual					void* Unk() {};
+	virtual					ServerClass* GetServerClass() {};
 };
 
 

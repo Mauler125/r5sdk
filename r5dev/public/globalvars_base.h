@@ -29,7 +29,7 @@ public:
 	int             m_nMaxClients;                   // Current maxplayers setting
 	GameMode_t      m_nGameMode;                     // 1 (MP) 2 (PVE) 3 (SP)
 	int             m_nTickCount;                    // Simulation ticks - does not increase when game is paused - resets on restart.
-	int             m_nUnk0;
+	int             m_nTickInterval;
 	int             m_nUnk1;
 
 	// The following seem to be mainly used in c:\depot\r5launch\src\engine\client\clientstate.cpp.

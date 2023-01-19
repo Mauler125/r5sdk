@@ -14,7 +14,11 @@
 
 class CPlayerState
 {
-	char gap_0[8];
+public:
+	// This virtual method is necessary to generate a vtable in all cases
+	// (DECLARE_PREDICTABLE will generate a vtable also)!
+	virtual ~CPlayerState() {}
+
 	int playerEntityIndex;
 	char gap_c[4];
 	__int64 currentClass;

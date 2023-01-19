@@ -8,6 +8,7 @@
 #endif // !CLIENT_DLL
 
 typedef uint16_t edict_t;
+#define FL_EDICT_INVALID -1
 
 //-----------------------------------------------------------------------------
 // Purpose: Defines the ways that a map can be loaded.
@@ -33,7 +34,7 @@ public:
 	MapLoadType_t   m_eLoadType;      // How the current map was loaded.
 	bool            m_bMapLoadFailed; // Map has failed to load, we need to kick back to the main menu (unused?).
 
-	void*           m_pUnk0;          // r5apex_ds.exe 'CBaseServer::Clear() + 0x7E'
+	SHORT*           m_pUnk0;          // r5apex_ds.exe 'CBaseServer::Clear() + 0x7E'
 	void*           m_pUnk1;          // r5apex_ds.exe 'CBaseServer::Clear() + 0x93'
 	void*           m_pUnk2;          // r5apex_ds.exe 'CServer::FrameJob()  + 0x20'
 	void*           m_pUnk3;
