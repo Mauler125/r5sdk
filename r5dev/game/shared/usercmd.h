@@ -22,6 +22,9 @@ class CUserCmd;
 inline CMemory p_CUserCmd__Reset;
 inline auto v_CUserCmd__Reset = p_CUserCmd__Reset.RCast<void(*)(CUserCmd* pUserCmd)>();
 
+inline CMemory p_CUserCmd__Copy;
+inline auto v_CUserCmd__Copy = p_CUserCmd__Copy.RCast<CUserCmd*(*)(CUserCmd* pDest, CUserCmd* pSource)>();
+
 //-------------------------------------------------------------------------------------
 // 
 //-------------------------------------------------------------------------------------
@@ -31,6 +34,11 @@ public:
 	CUserCmd() // Cannot be constructed during DLL init.
 	{
 		v_CUserCmd__Reset(this);
+	}
+
+	CUserCmd* Copy(CUserCmd* pSource)
+	{
+		v_CUserCmd__Copy(this, pSource);
 	}
 
 	int32_t command_number;
@@ -47,7 +55,7 @@ public:
 	char pad_0x0188[8];
 	Vector3D headposition;
 	float maxpitch;
-	char pad_0x01A0[224];
+	char pad_0x01A0[60];
 };
 
 
@@ -57,12 +65,16 @@ class VUserCmd : public IDetour
 	virtual void GetAdr(void) const
 	{
 		spdlog::debug("| FUN: CUserCmd::Reset                      : {:#18x} |\n", p_CUserCmd__Reset.GetPtr());
+		spdlog::debug("| FUN: CUserCmd::Copy                       : {:#18x} |\n", p_CUserCmd__Copy.GetPtr());
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
 		p_CUserCmd__Reset = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 83 FD FF 74 0A").FollowNearCallSelf();
 		v_CUserCmd__Reset = p_CUserCmd__Reset.RCast<void(*)(CUserCmd*)>();
+
+		p_CUserCmd__Copy = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 4C 8B 9B ?? ?? ?? ??").FollowNearCallSelf();
+		v_CUserCmd__Copy = p_CUserCmd__Copy.RCast<CUserCmd* (*)(CUserCmd*, CUserCmd*)>();
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
