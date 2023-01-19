@@ -60,6 +60,7 @@
     <ClCompile Include="..\gameui\IConsole.cpp" />
     <ClCompile Include="..\gameui\IBrowser.cpp" />
     <ClCompile Include="..\game\client\c_baseentity.cpp" />
+    <ClCompile Include="..\game\client\movehelper_client.cpp" />
     <ClCompile Include="..\game\client\spritemodel.cpp" />
     <ClCompile Include="..\game\client\viewrender.cpp" />
     <ClCompile Include="..\game\shared\animation.cpp" />
@@ -231,6 +232,7 @@
     <ClInclude Include="..\game\client\c_baseplayer.h" />
     <ClInclude Include="..\game\client\enginesprite.h" />
     <ClInclude Include="..\game\client\hud.h" />
+    <ClInclude Include="..\game\client\movehelper_client.h" />
     <ClInclude Include="..\game\client\viewrender.h" />
     <ClInclude Include="..\game\shared\animation.h" />
     <ClInclude Include="..\game\shared\collisionproperty.h" />
