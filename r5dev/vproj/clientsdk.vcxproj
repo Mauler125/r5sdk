@@ -233,7 +233,9 @@
     <ClInclude Include="..\game\client\viewrender.h" />
     <ClInclude Include="..\game\shared\animation.h" />
     <ClInclude Include="..\game\shared\collisionproperty.h" />
+    <ClInclude Include="..\game\shared\ehandle.h" />
     <ClInclude Include="..\game\shared\playernet_vars.h" />
+    <ClInclude Include="..\game\shared\predictioncopy.h" />
     <ClInclude Include="..\game\shared\shared_classnames.h" />
     <ClInclude Include="..\game\shared\takedamageinfo.h" />
     <ClInclude Include="..\inputsystem\ButtonCode.h" />

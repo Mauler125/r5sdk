@@ -9,6 +9,34 @@
 #define BASECOMBATCHARACTER_H
 #include "baseanimatingoverlay.h"
 
+struct WeaponDropInfo
+{
+	Vector3D weaponPosition;
+	char prevDropFrameCounter;
+	char dropFrameCounter;
+	char gap_e[2];
+	Vector3D weaponAngles;
+	float weaponPositionTime;
+};
+
+/* 1410 */
+struct WeaponInventory
+{
+	char gap_0[8];
+	int weapons[9];
+	int offhandWeapons[6];
+	int activeWeapons[3];
+};
+
+struct CTether
+{
+	char gap_0[8];
+	Vector3D pos;
+	float health;
+	float nextSoundTime;
+	float creationTime;
+	int scriptID;
+};
 
 //-----------------------------------------------------------------------------
 // Purpose: This should contain all of the combat entry points / functionality 

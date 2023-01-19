@@ -1350,6 +1350,12 @@
     <ClInclude Include="..\game\server\basecombatcharacter.h">
       <Filter>sdk\game\server</Filter>
     </ClInclude>
+    <ClInclude Include="..\game\shared\predictioncopy.h">
+      <Filter>sdk\game\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\shared\ehandle.h">
+      <Filter>sdk\game\shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
