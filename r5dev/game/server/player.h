@@ -14,6 +14,7 @@
 
 #include "game/shared/animation.h"
 #include "game/shared/takedamageinfo.h"
+#include "game/shared/usercmd.h"
 #include "playerlocaldata.h"
 #include "basecombatcharacter.h"
 #include <mathlib/vector4d.h>
@@ -233,11 +234,14 @@ class CPlayer : public CBaseCombatCharacter
 {
 public:
 	void RunNullCommand(void);
-	QAngle* EyeAngles(QAngle& angles);
+	QAngle* EyeAngles(QAngle* pAngles);
 
 	void SetTimeBase(float flTimeBase);
 	void SetLastUCmdSimulationRemainderTime(float flRemainderTime);
 	void SetTotalExtraClientCmdTimeAttempted(float flAttemptedTime);
+
+	void PlayerRunCommand(CUserCmd* pUserCmd, IMoveHelper* pMover);
+	void SetLastUserCommand(CUserCmd* pUserCmd);
 
 private:
 	int m_StuckLast;
@@ -391,8 +395,8 @@ private:
 	bool m_activeViewmodelModifiers[35];
 	bool m_activeViewmodelModifiersChanged;
 	int m_hViewModels[3];
-	char m_LastCmd[476];
-	void* m_pCurrentCommand;
+	CUserCmd m_LastCmd;
+	CUserCmd* m_pCurrentCommand;
 	float m_flStepSoundTime;
 	int m_hThirdPersonEnt;
 	bool m_thirdPersonShoulderView;
@@ -771,9 +775,13 @@ private:
 	char gap_7ee5[3];
 	int m_armsModelIndex;
 };
+static_assert(sizeof(CPlayer) == 0x7EF0); // !TODO: backwards compatibility.
 
 inline CMemory p_CPlayer__EyeAngles;
 inline auto v_CPlayer__EyeAngles = p_CPlayer__EyeAngles.RCast<QAngle* (*)(CPlayer* pPlayer, QAngle* pAngles)>();
+
+inline CMemory p_CPlayer__PlayerRunCommand;
+inline auto v_CPlayer__PlayerRunCommand = p_CPlayer__PlayerRunCommand.RCast<void (*)(CPlayer* pPlayer, CUserCmd* pUserCmd, IMoveHelper* pMover)>();
 
 //inline CMemory p_CBaseEntity__GetBaseEntity;
 //inline auto v_CBaseEntity__GetBaseEntity = p_CBaseEntity__GetBaseEntity.RCast<CBaseEntity* (*)(CBaseEntity* thisp)>();
@@ -784,6 +792,7 @@ class VPlayer : public IDetour
 	virtual void GetAdr(void) const
 	{
 		spdlog::debug("| FUN: CPlayer::EyeAngles                   : {:#18x} |\n", p_CPlayer__EyeAngles.GetPtr());
+		spdlog::debug("| FUN: CPlayer::PlayerRunCommand            : {:#18x} |\n", p_CPlayer__PlayerRunCommand.GetPtr());
 		//spdlog::debug("| FUN: CBaseEntity::GetBaseEntity           : {:#18x} |\n", p_CBaseEntity__GetBaseEntity.GetPtr());
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
@@ -791,6 +800,9 @@ class VPlayer : public IDetour
 	{
 		p_CPlayer__EyeAngles = g_GameDll.FindPatternSIMD("40 53 48 83 EC 30 F2 0F 10 05 ?? ?? ?? ??");
 		v_CPlayer__EyeAngles = p_CPlayer__EyeAngles.RCast<QAngle* (*)(CPlayer*, QAngle*)>();
+
+		p_CPlayer__PlayerRunCommand = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 8B 03 49 81 C6 ?? ?? ?? ??").FollowNearCallSelf();
+		v_CPlayer__PlayerRunCommand = p_CPlayer__PlayerRunCommand.RCast<void (*)(CPlayer*, CUserCmd*, IMoveHelper*)>();
 
 		//p_CBaseEntity__GetBaseEntity = g_GameDll.FindPatternSIMD("8B 91 ?? ?? ?? ?? 83 FA FF 74 1F 0F B7 C2 48 8D 0D ?? ?? ?? ?? C1 EA 10 48 8D 04 40 48 03 C0 39 54 C1 08 75 05 48 8B 04 C1 C3 33 C0 C3 CC CC CC 48 8B 41 30");
 		//v_CBaseEntity__GetBaseEntity = p_CBaseEntity__GetBaseEntity.RCast<CBaseEntity* (*)(CBaseEntity* thisp)>();

@@ -7,21 +7,30 @@
 #include "player.h"
 #include "gameinterface.h"
 #include "game/shared/shareddefs.h"
+#include "game/shared/usercmd.h"
+#include "game/server/movehelper_server.h"
 
 //------------------------------------------------------------------------------
 // Purpose: executes a null command for this player
 //------------------------------------------------------------------------------
 void CPlayer::RunNullCommand(void)
 {
+	CUserCmd cmd;
+
 	float flOldFrameTime = g_pGlobals->m_fFrameTime;
 	float flOldCurTime = g_pGlobals->m_fCurTime;
 
 	pl.fixangle = FIXANGLE_NONE;
 
+	EyeAngles(&cmd.viewangles);
 	SetTimeBase(g_pGlobals->m_fCurTime);
 
+	MoveHelperServer()->SetHost(this);
 
-	// !TODO: Run command..
+	PlayerRunCommand(&cmd, MoveHelperServer());
+	SetLastUserCommand(&cmd);
+
+	MoveHelperServer()->SetHost(NULL);
 
 	g_pGlobals->m_fFrameTime = flOldFrameTime;
 	g_pGlobals->m_fCurTime = flOldCurTime;
@@ -29,12 +38,12 @@ void CPlayer::RunNullCommand(void)
 
 //------------------------------------------------------------------------------
 // Purpose: gets the eye angles of this player
-// Input  : &angles - 
+// Input  : *pAngles - 
 // Output : QAngle*
 //------------------------------------------------------------------------------
-QAngle* CPlayer::EyeAngles(QAngle& angles)
+QAngle* CPlayer::EyeAngles(QAngle* pAngles)
 {
-	return v_CPlayer__EyeAngles(this, &angles);
+	return v_CPlayer__EyeAngles(this, pAngles);
 }
 
 //------------------------------------------------------------------------------
@@ -93,4 +102,23 @@ void CPlayer::SetTotalExtraClientCmdTimeAttempted(float flAttemptedTime)
 
 		m_totalExtraClientCmdTimeAttempted = flAttemptedTime;
 	}
+}
+
+//------------------------------------------------------------------------------
+// Purpose: runs user command for this player
+// Input  : *pUserCmd - 
+//			*pMover - 
+//------------------------------------------------------------------------------
+void CPlayer::PlayerRunCommand(CUserCmd* pUserCmd, IMoveHelper* pMover)
+{
+	v_CPlayer__PlayerRunCommand(this, pUserCmd, pMover);
+}
+
+//------------------------------------------------------------------------------
+// Purpose: stores off a user command
+// Input  : *pUserCmd - 
+//------------------------------------------------------------------------------
+void CPlayer::SetLastUserCommand(CUserCmd* pUserCmd)
+{
+	m_LastCmd.Copy(pUserCmd);
 }
