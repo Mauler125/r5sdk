@@ -73,7 +73,7 @@ void CPlayer::SetLastUCmdSimulationRemainderTime(float flRemainderTime)
 			_InterlockedOr16(g_pGlobals->m_pUnk0 + nEdict + 32, 0x200u);
 		}
 
-		m_totalExtraClientCmdTimeAttempted = flRemainderTime;
+		m_lastUCmdSimulationRemainderTime = flRemainderTime;
 	}
 }
 
