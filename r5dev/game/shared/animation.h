@@ -1,6 +1,7 @@
 #ifndef ANIMATION_H
 #define ANIMATION_H
 #include "mathlib/vector.h"
+#include "public/baseentity.h"
 
 class CAnimationLayer
 {
@@ -15,7 +16,7 @@ class CAnimationLayer
 	int m_nPriority;
 	float m_flLastEventCheck;
 	char gap_24[4];
-	void* m_animationLayerOwner;
+	CBaseEntity* m_animationLayerOwner;
 };
 
 struct __declspec(align(8)) PredictedAnimEventData
