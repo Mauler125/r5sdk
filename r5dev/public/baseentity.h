@@ -20,6 +20,15 @@
 
 class CBaseEntity : public IServerEntity
 {
+	// non-virtual methods. Don't override these!
+public:
+	// An inline version the game code can use
+	CCollisionProperty* CollisionProp();
+	const CCollisionProperty* CollisionProp() const;
+	CServerNetworkProperty* NetworkProp();
+	const CServerNetworkProperty* NetworkProp() const;
+
+private:
 	char m_RefEHandle[4];
 	char gap_c[4];
 	void* m_collideable;

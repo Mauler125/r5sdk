@@ -4,6 +4,8 @@
 //
 // $NoKeywords: $
 //=============================================================================//
+#ifndef GAMEINTERFACE_H
+#define GAMEINTERFACE_H
 #include "public/eiface.h"
 
 //-----------------------------------------------------------------------------
@@ -83,3 +85,5 @@ class VServerGameDLL : public IDetour
 ///////////////////////////////////////////////////////////////////////////////
 
 REGISTER(VServerGameDLL);
+
+#endif // GAMEINTERFACE_H

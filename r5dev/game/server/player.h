@@ -231,6 +231,15 @@ struct SpeedChangeHistoryEntry
 
 class CPlayer : public CBaseCombatCharacter
 {
+public:
+	void RunNullCommand(void);
+	QAngle* EyeAngles(QAngle& angles);
+
+	void SetTimeBase(float flTimeBase);
+	void SetLastUCmdSimulationRemainderTime(float flRemainderTime);
+	void SetTotalExtraClientCmdTimeAttempted(float flAttemptedTime);
+
+private:
 	int m_StuckLast;
 	char gap_5a8c[4];
 	CPlayerLocalData m_Local;
@@ -762,5 +771,37 @@ class CPlayer : public CBaseCombatCharacter
 	char gap_7ee5[3];
 	int m_armsModelIndex;
 };
+
+inline CMemory p_CPlayer__EyeAngles;
+inline auto v_CPlayer__EyeAngles = p_CPlayer__EyeAngles.RCast<QAngle* (*)(CPlayer* pPlayer, QAngle* pAngles)>();
+
+//inline CMemory p_CBaseEntity__GetBaseEntity;
+//inline auto v_CBaseEntity__GetBaseEntity = p_CBaseEntity__GetBaseEntity.RCast<CBaseEntity* (*)(CBaseEntity* thisp)>();
+
+///////////////////////////////////////////////////////////////////////////////
+class VPlayer : public IDetour
+{
+	virtual void GetAdr(void) const
+	{
+		spdlog::debug("| FUN: CPlayer::EyeAngles                   : {:#18x} |\n", p_CPlayer__EyeAngles.GetPtr());
+		//spdlog::debug("| FUN: CBaseEntity::GetBaseEntity           : {:#18x} |\n", p_CBaseEntity__GetBaseEntity.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
+	}
+	virtual void GetFun(void) const
+	{
+		p_CPlayer__EyeAngles = g_GameDll.FindPatternSIMD("40 53 48 83 EC 30 F2 0F 10 05 ?? ?? ?? ??");
+		v_CPlayer__EyeAngles = p_CPlayer__EyeAngles.RCast<QAngle* (*)(CPlayer*, QAngle*)>();
+
+		//p_CBaseEntity__GetBaseEntity = g_GameDll.FindPatternSIMD("8B 91 ?? ?? ?? ?? 83 FA FF 74 1F 0F B7 C2 48 8D 0D ?? ?? ?? ?? C1 EA 10 48 8D 04 40 48 03 C0 39 54 C1 08 75 05 48 8B 04 C1 C3 33 C0 C3 CC CC CC 48 8B 41 30");
+		//v_CBaseEntity__GetBaseEntity = p_CBaseEntity__GetBaseEntity.RCast<CBaseEntity* (*)(CBaseEntity* thisp)>();
+	}
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
+};
+///////////////////////////////////////////////////////////////////////////////
+
+REGISTER(VPlayer);
 
 #endif // PLAYER_H

@@ -1356,6 +1356,12 @@
     <ClInclude Include="..\game\shared\ehandle.h">
       <Filter>sdk\game\shared</Filter>
     </ClInclude>
+    <ClInclude Include="..\game\shared\entitylist_base.h">
+      <Filter>sdk\game\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\shared\shareddefs.h">
+      <Filter>sdk\game\shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1702,6 +1708,15 @@
     </ClCompile>
     <ClCompile Include="..\game\server\networkproperty.cpp">
       <Filter>sdk\game\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\shared\entitylist_base.cpp">
+      <Filter>sdk\game\shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\server\player.cpp">
+      <Filter>sdk\game\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\baseentity.cpp">
+      <Filter>sdk\public</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
