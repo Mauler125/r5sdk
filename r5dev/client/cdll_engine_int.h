@@ -62,9 +62,6 @@ inline auto CHLClient_GetAllClasses = p_CHLClient_GetAllClasses.RCast<ClientClas
 
 inline CHLClient** gHLClient = nullptr;
 inline CHLClient** g_pHLClient = nullptr;
-#ifndef DEDICATED 
-inline IClientEntityList* g_pClientEntityList = nullptr;
-#endif // !DEDICATED
 
 ///////////////////////////////////////////////////////////////////////////////
 void CHLClient_Attach();

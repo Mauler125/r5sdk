@@ -1374,6 +1374,9 @@
     <ClInclude Include="..\game\server\physics_main.h">
       <Filter>sdk\game\server</Filter>
     </ClInclude>
+    <ClInclude Include="..\game\shared\util_shared.h">
+      <Filter>sdk\game\shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1735,6 +1738,9 @@
     </ClCompile>
     <ClCompile Include="..\game\server\physics_main.cpp">
       <Filter>sdk\game\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\shared\util_shared.cpp">
+      <Filter>sdk\game\shared</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

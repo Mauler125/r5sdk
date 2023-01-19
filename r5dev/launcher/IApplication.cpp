@@ -27,6 +27,7 @@
 #include "game/server/gameinterface.h"
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
+#include "game/client/cliententitylist.h"
 #include "gameui/IConsole.h"
 #endif // !DEDICATED
 
@@ -82,7 +83,7 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 #endif // !CLIENT_DLL
 
 #ifndef DEDICATED
-	g_pClientEntityList = g_pFactory->GetFactoryPtr(VCLIENTENTITYLIST_INTERFACE_VERSION, false).RCast<IClientEntityList*>();
+	g_pClientEntityList = g_pFactory->GetFactoryPtr(VCLIENTENTITYLIST_INTERFACE_VERSION, false).RCast<CClientEntityList*>();
 	g_pEngineTrace = g_pFactory->GetFactoryPtr(INTERFACEVERSION_ENGINETRACE_CLIENT, false).RCast<CEngineTrace*>();
 
 	g_pImGuiConfig->Load(); // Load ImGui configs.

@@ -201,6 +201,7 @@
     <ClInclude Include="..\game\shared\shared_classnames.h" />
     <ClInclude Include="..\game\shared\takedamageinfo.h" />
     <ClInclude Include="..\game\shared\usercmd.h" />
+    <ClInclude Include="..\game\shared\util_shared.h" />
     <ClInclude Include="..\launcher\IApplication.h" />
     <ClInclude Include="..\launcher\launcher.h" />
     <ClInclude Include="..\launcher\prx.h" />
@@ -562,6 +563,7 @@
     <ClCompile Include="..\game\shared\animation.cpp" />
     <ClCompile Include="..\game\shared\collisionproperty.cpp" />
     <ClCompile Include="..\game\shared\entitylist_base.cpp" />
+    <ClCompile Include="..\game\shared\util_shared.cpp" />
     <ClCompile Include="..\launcher\IApplication.cpp" />
     <ClCompile Include="..\launcher\launcher.cpp" />
     <ClCompile Include="..\launcher\prx.cpp" />

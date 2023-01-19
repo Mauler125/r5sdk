@@ -78,6 +78,7 @@
     <ClCompile Include="..\game\shared\animation.cpp" />
     <ClCompile Include="..\game\shared\collisionproperty.cpp" />
     <ClCompile Include="..\game\shared\entitylist_base.cpp" />
+    <ClCompile Include="..\game\shared\util_shared.cpp" />
     <ClCompile Include="..\inputsystem\inputsystem.cpp" />
     <ClCompile Include="..\launcher\IApplication.cpp" />
     <ClCompile Include="..\launcher\launcher.cpp" />
@@ -248,6 +249,7 @@
     <ClInclude Include="..\filesystem\filesystem.h" />
     <ClInclude Include="..\gameui\IConsole.h" />
     <ClInclude Include="..\gameui\IBrowser.h" />
+    <ClInclude Include="..\game\client\cliententitylist.h" />
     <ClInclude Include="..\game\client\c_baseentity.h" />
     <ClInclude Include="..\game\client\c_baseplayer.h" />
     <ClInclude Include="..\game\client\enginesprite.h" />
@@ -281,6 +283,7 @@
     <ClInclude Include="..\game\shared\shared_classnames.h" />
     <ClInclude Include="..\game\shared\takedamageinfo.h" />
     <ClInclude Include="..\game\shared\usercmd.h" />
+    <ClInclude Include="..\game\shared\util_shared.h" />
     <ClInclude Include="..\inputsystem\ButtonCode.h" />
     <ClInclude Include="..\inputsystem\inputsystem.h" />
     <ClInclude Include="..\launcher\IApplication.h" />

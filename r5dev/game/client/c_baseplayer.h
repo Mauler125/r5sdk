@@ -42,10 +42,4 @@ class C_Player : public C_BaseCombatCharacter, public C_BaseAnimatingOverlay
 
 };
 
-
-void F()
-{
-	sizeof(C_Player);
-}
-
 #endif // C_BASEPLAYER_H

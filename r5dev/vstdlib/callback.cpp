@@ -54,6 +54,7 @@
 #include "game/server/gameinterface.h"
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
+#include "game/client/cliententitylist.h"
 #include "game/client/viewrender.h"
 #endif // !DEDICATED
 
