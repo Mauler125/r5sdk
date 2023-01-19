@@ -185,6 +185,7 @@
     <ClInclude Include="..\game\server\detour_impl.h" />
     <ClInclude Include="..\game\server\fairfight_impl.h" />
     <ClInclude Include="..\game\server\gameinterface.h" />
+    <ClInclude Include="..\game\server\movehelper_server.h" />
     <ClInclude Include="..\game\server\networkproperty.h" />
     <ClInclude Include="..\game\server\player.h" />
     <ClInclude Include="..\game\server\playerlocaldata.h" />
@@ -192,6 +193,7 @@
     <ClInclude Include="..\game\shared\collisionproperty.h" />
     <ClInclude Include="..\game\shared\ehandle.h" />
     <ClInclude Include="..\game\shared\entitylist_base.h" />
+    <ClInclude Include="..\game\shared\imovehelper.h" />
     <ClInclude Include="..\game\shared\playernet_vars.h" />
     <ClInclude Include="..\game\shared\predictioncopy.h" />
     <ClInclude Include="..\game\shared\shareddefs.h" />
@@ -552,6 +554,7 @@
     <ClCompile Include="..\game\server\ai_networkmanager.cpp" />
     <ClCompile Include="..\game\server\ai_utility.cpp" />
     <ClCompile Include="..\game\server\gameinterface.cpp" />
+    <ClCompile Include="..\game\server\movehelper_server.cpp" />
     <ClCompile Include="..\game\server\networkproperty.cpp" />
     <ClCompile Include="..\game\server\player.cpp" />
     <ClCompile Include="..\game\shared\animation.cpp" />

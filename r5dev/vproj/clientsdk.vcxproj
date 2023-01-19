@@ -236,6 +236,7 @@
     <ClInclude Include="..\game\shared\collisionproperty.h" />
     <ClInclude Include="..\game\shared\ehandle.h" />
     <ClInclude Include="..\game\shared\entitylist_base.h" />
+    <ClInclude Include="..\game\shared\imovehelper.h" />
     <ClInclude Include="..\game\shared\playernet_vars.h" />
     <ClInclude Include="..\game\shared\predictioncopy.h" />
     <ClInclude Include="..\game\shared\shareddefs.h" />

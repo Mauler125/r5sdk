@@ -711,6 +711,9 @@
     <ClCompile Include="..\public\baseentity.cpp">
       <Filter>sdk\public</Filter>
     </ClCompile>
+    <ClCompile Include="..\game\server\movehelper_server.cpp">
+      <Filter>sdk\game\server</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -2076,6 +2079,12 @@
       <Filter>sdk\game\shared</Filter>
     </ClInclude>
     <ClInclude Include="..\game\shared\usercmd.h">
+      <Filter>sdk\game\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\server\movehelper_server.h">
+      <Filter>sdk\game\server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\shared\imovehelper.h">
       <Filter>sdk\game\shared</Filter>
     </ClInclude>
   </ItemGroup>

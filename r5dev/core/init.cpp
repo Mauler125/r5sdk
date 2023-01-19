@@ -108,6 +108,7 @@
 #include "game/server/detour_impl.h"
 #include "game/server/fairfight_impl.h"
 #include "game/server/gameinterface.h"
+#include "game/server/movehelper_server.h"
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 #include "game/client/viewrender.h"
