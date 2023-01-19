@@ -15,6 +15,7 @@
 #include "game/shared/animation.h"
 #include "game/shared/takedamageinfo.h"
 #include "game/shared/usercmd.h"
+#include "game/shared/imovehelper.h"
 #include "playerlocaldata.h"
 #include "basecombatcharacter.h"
 #include <mathlib/vector4d.h>
