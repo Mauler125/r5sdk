@@ -197,6 +197,7 @@
     <ClInclude Include="..\game\shared\shareddefs.h" />
     <ClInclude Include="..\game\shared\shared_classnames.h" />
     <ClInclude Include="..\game\shared\takedamageinfo.h" />
+    <ClInclude Include="..\game\shared\usercmd.h" />
     <ClInclude Include="..\launcher\IApplication.h" />
     <ClInclude Include="..\launcher\launcher.h" />
     <ClInclude Include="..\launcher\prx.h" />

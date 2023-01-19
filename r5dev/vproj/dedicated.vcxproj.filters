@@ -1362,6 +1362,9 @@
     <ClInclude Include="..\game\shared\shareddefs.h">
       <Filter>sdk\game\shared</Filter>
     </ClInclude>
+    <ClInclude Include="..\game\shared\usercmd.h">
+      <Filter>sdk\game\shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
