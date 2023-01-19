@@ -187,6 +187,7 @@
     <ClInclude Include="..\game\server\gameinterface.h" />
     <ClInclude Include="..\game\server\movehelper_server.h" />
     <ClInclude Include="..\game\server\networkproperty.h" />
+    <ClInclude Include="..\game\server\physics_main.h" />
     <ClInclude Include="..\game\server\player.h" />
     <ClInclude Include="..\game\server\playerlocaldata.h" />
     <ClInclude Include="..\game\shared\animation.h" />
@@ -556,6 +557,7 @@
     <ClCompile Include="..\game\server\gameinterface.cpp" />
     <ClCompile Include="..\game\server\movehelper_server.cpp" />
     <ClCompile Include="..\game\server\networkproperty.cpp" />
+    <ClCompile Include="..\game\server\physics_main.cpp" />
     <ClCompile Include="..\game\server\player.cpp" />
     <ClCompile Include="..\game\shared\animation.cpp" />
     <ClCompile Include="..\game\shared\collisionproperty.cpp" />

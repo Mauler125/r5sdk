@@ -717,6 +717,9 @@
     <ClCompile Include="..\game\client\movehelper_client.cpp">
       <Filter>sdk\game\client</Filter>
     </ClCompile>
+    <ClCompile Include="..\game\server\physics_main.cpp">
+      <Filter>sdk\game\server</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -2092,6 +2095,9 @@
     </ClInclude>
     <ClInclude Include="..\game\client\movehelper_client.h">
       <Filter>sdk\game\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\server\physics_main.h">
+      <Filter>sdk\game\server</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

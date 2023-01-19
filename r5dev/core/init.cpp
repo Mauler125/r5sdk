@@ -109,6 +109,7 @@
 #include "game/server/fairfight_impl.h"
 #include "game/server/gameinterface.h"
 #include "game/server/movehelper_server.h"
+#include "game/server/physics_main.h"
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 #include "game/client/viewrender.h"
@@ -212,6 +213,8 @@ void Systems_Init()
 	Persistence_Attach();
 	IVEngineServer_Attach();
 	CServerGameDLL_Attach();
+
+	Physics_Main_Attach();
 #endif // !CLIENT_DLL
 
 	SQAPI_Attach();
@@ -347,6 +350,8 @@ void Systems_Shutdown()
 	Persistence_Detach();
 	IVEngineServer_Detach();
 	CServerGameDLL_Detach();
+
+	Physics_Main_Detach();
 #endif // !CLIENT_DLL
 	SQAPI_Detach();
 	SQVM_Detach();
