@@ -12,8 +12,6 @@
 
 class CMoveHelperServer : public IMoveHelper
 {
-	CBaseEntity* m_pHost;
-
 	// results, tallied on client and server, but only used by server to run SV_Impact.
 	// we store off our velocity in the trace_t structure so that we can determine results
 	// of shoving boxes etc. around.
@@ -23,6 +21,7 @@ class CMoveHelperServer : public IMoveHelper
 		//trace_t trace; // !TODO: Reverse CGameTrace! 
 	};
 
+	CBaseEntity* m_pHost;
 	CUtlVector<touchlist_t>	m_TouchList;
 };
 
