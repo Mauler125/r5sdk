@@ -30,10 +30,10 @@ void CPlayer::RunNullCommand(void)
 	PlayerRunCommand(&cmd, MoveHelperServer());
 	SetLastUserCommand(&cmd);
 
-	MoveHelperServer()->SetHost(NULL);
-
 	g_pGlobals->m_fFrameTime = flOldFrameTime;
 	g_pGlobals->m_fCurTime = flOldCurTime;
+
+	MoveHelperServer()->SetHost(NULL);
 }
 
 //------------------------------------------------------------------------------
@@ -79,7 +79,7 @@ void CPlayer::SetLastUCmdSimulationRemainderTime(float flRemainderTime)
 		edict_t nEdict = NetworkProp()->GetEdict();
 		if (nEdict != FL_EDICT_INVALID)
 		{
-			_InterlockedOr16(g_pGlobals->m_pUnk0 + nEdict + 32, 0x200u);
+			_InterlockedOr16(g_pGlobals->m_pInterlock + nEdict + 32, 0x200u);
 		}
 
 		m_lastUCmdSimulationRemainderTime = flRemainderTime;
@@ -97,7 +97,7 @@ void CPlayer::SetTotalExtraClientCmdTimeAttempted(float flAttemptedTime)
 		edict_t nEdict = NetworkProp()->GetEdict();
 		if (nEdict != FL_EDICT_INVALID)
 		{
-			_InterlockedOr16(g_pGlobals->m_pUnk0 + nEdict + 32, 0x200u);
+			_InterlockedOr16(g_pGlobals->m_pInterlock + nEdict + 32, 0x200u);
 		}
 
 		m_totalExtraClientCmdTimeAttempted = flAttemptedTime;
