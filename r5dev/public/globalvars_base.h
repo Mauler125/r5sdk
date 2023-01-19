@@ -20,11 +20,12 @@ public:
 	float           m_nUnkTime;
 	float           m_rRealTime;                     // Absolute time (per frame still - Use Plat_FloatTime() for a high precision real time.
 	int             m_nFrameCount;                   // Absolute frame counter - continues to increase even if game is paused - never resets.
+	int             m_nSomeTick;
+	float           m_fCurTime;
 	float           m_fAbsoluteFrameTime;            // Non-paused frametime
 	float           m_fAbsoluteFrameStartTimeStdDev;
+	char            m_nPad0[20];                     // All unknown.
 	float           m_fFrameTime;                    // Time spent on last server or client frame (has nothing to do with think intervals) (Also empty on dedicated)
-	float           m_fCurTime;                      
-	char            m_nPad0[24];                     // All unknown.
 	int             m_nMaxMilesAudioQueues;          // Only used on the server.
 	int             m_nMaxClients;                   // Current maxplayers setting
 	GameMode_t      m_nGameMode;                     // 1 (MP) 2 (PVE) 3 (SP)

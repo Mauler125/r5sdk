@@ -34,7 +34,7 @@ public:
 	MapLoadType_t   m_eLoadType;      // How the current map was loaded.
 	bool            m_bMapLoadFailed; // Map has failed to load, we need to kick back to the main menu (unused?).
 
-	SHORT*           m_pUnk0;          // r5apex_ds.exe 'CBaseServer::Clear() + 0x7E'
+	SHORT*          m_pInterlock;     // r5apex_ds.exe 'CBaseServer::Clear() + 0x7E'
 	void*           m_pUnk1;          // r5apex_ds.exe 'CBaseServer::Clear() + 0x93'
 	void*           m_pUnk2;          // r5apex_ds.exe 'CServer::FrameJob()  + 0x20'
 	void*           m_pUnk3;
