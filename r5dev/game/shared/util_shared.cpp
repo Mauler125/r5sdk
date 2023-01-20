@@ -15,11 +15,11 @@
 
 CPlayer* UTIL_PlayerByIndex(int nIndex)
 {
-	if (nIndex < 1 || nIndex > g_pGlobals->m_nMaxClients || nIndex == FL_EDICT_INVALID)
+	if (nIndex < 1 || nIndex > (*g_pGlobals)->m_nMaxClients || nIndex == FL_EDICT_INVALID)
 		return nullptr;
 
 	// !TODO: Improve this!!!
-	CPlayer* pPlayer = *reinterpret_cast<CPlayer**>(g_pGlobals->m_pInterlock + nIndex + 0x7808);
+	CPlayer* pPlayer = reinterpret_cast<CPlayer*>((*g_pGlobals)->m_pInterlock[nIndex + 0x7808]);
 	return pPlayer;
 }
 #endif // CLIENT_DLL

@@ -8,7 +8,7 @@
 #define PHYSICS_MAIN_H
 
 inline CMemory p_Physics_RunThinkFunctions;
-inline auto v_Physics_RunThinkFunctions = p_Physics_RunThinkFunctions.RCast<void (*)(bool bSimulating)>();
+inline auto v_Physics_RunThinkFunctions = p_Physics_RunThinkFunctions.RCast<void* (*)(bool bSimulating)>();
 
 void Physics_Main_Attach();
 void Physics_Main_Detach();
@@ -23,7 +23,7 @@ class VPhysics_Main : public IDetour
 	virtual void GetFun(void) const
 	{
 		p_Physics_RunThinkFunctions = g_GameDll.FindPatternSIMD("88 4C 24 08 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ?? ?? ?? ??");
-		v_Physics_RunThinkFunctions = p_Physics_RunThinkFunctions.RCast<void (*)(bool)>();
+		v_Physics_RunThinkFunctions = p_Physics_RunThinkFunctions.RCast<void* (*)(bool)>();
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }

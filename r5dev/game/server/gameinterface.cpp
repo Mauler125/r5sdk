@@ -97,4 +97,4 @@ CServerGameClients* g_pServerGameClients = nullptr;
 CServerGameEnts* g_pServerGameEntities = nullptr;
 
 // Holds global variables shared between engine and game.
-CGlobalVars* g_pGlobals = nullptr;
+CGlobalVars** g_pGlobals = nullptr;

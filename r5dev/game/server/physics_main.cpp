@@ -37,10 +37,10 @@ void Physics_RunBotSimulation(bool bSimulating)
 //-----------------------------------------------------------------------------
 // Purpose: Runs the main physics simulation loop against all entities ( except players )
 //-----------------------------------------------------------------------------
-void Physics_RunThinkFunctions(bool bSimulating)
+void* Physics_RunThinkFunctions(bool bSimulating)
 {
 	Physics_RunBotSimulation(bSimulating);
-	v_Physics_RunThinkFunctions(bSimulating);
+	return v_Physics_RunThinkFunctions(bSimulating);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

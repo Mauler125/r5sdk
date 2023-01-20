@@ -50,7 +50,7 @@ extern CServerGameDLL* g_pServerGameDLL;
 extern CServerGameClients* g_pServerGameClients;
 extern CServerGameEnts* g_pServerGameEntities;
 
-extern CGlobalVars* g_pGlobals;
+extern CGlobalVars** g_pGlobals;
 
 void CServerGameDLL_Attach();
 void CServerGameDLL_Detach();
@@ -76,7 +76,7 @@ class VServerGameDLL : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		g_pGlobals = g_GameDll.FindPatternSIMD("4C 8B 0D ?? ?? ?? ?? 48 8B D1").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CGlobalVars*>();
+		g_pGlobals = g_GameDll.FindPatternSIMD("4C 8B 0D ?? ?? ?? ?? 48 8B D1").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CGlobalVars**>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }
