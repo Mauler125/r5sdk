@@ -56,7 +56,7 @@ public:
 	_BYTE gap9C[4];
 	double m_flNextCmdTime;
 	int m_nServerCount;
-	int field_AC;
+	int m_nInSequenceNr;
 	float m_flClockDriftFrameTime;
 	CClockDriftMgr m_ClockDriftMgr;
 	_BYTE field_148;
