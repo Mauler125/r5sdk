@@ -111,6 +111,9 @@ inline auto v_CClient_Clear = p_CClient_Clear.RCast<void (*)(CClient* pClient)>(
 inline CMemory p_CClient_ProcessStringCmd;
 inline auto v_CClient_ProcessStringCmd = p_CClient_ProcessStringCmd.RCast<bool (*)(CClient* pClient, NET_StringCmd* pMsg)>();
 
+inline CMemory p_CClient_SetSignonState;
+inline auto v_CClient_SetSignonState = p_CClient_SetSignonState.RCast<bool (*)(CClient* pClient, SIGNONSTATE signon)>();
+
 ///////////////////////////////////////////////////////////////////////////////
 void CBaseClient_Attach();
 void CBaseClient_Detach();
@@ -124,6 +127,7 @@ class VClient : public IDetour
 		spdlog::debug("| FUN: CClient::Disconnect                  : {:#18x} |\n", p_CClient_Disconnect.GetPtr());
 		spdlog::debug("| FUN: CClient::Clear                       : {:#18x} |\n", p_CClient_Clear.GetPtr());
 		spdlog::debug("| FUN: CClient::ProcessStringCmd            : {:#18x} |\n", p_CClient_ProcessStringCmd.GetPtr());
+		spdlog::debug("| FUN: CClient::SetSignonState              : {:#18x} |\n", p_CClient_SetSignonState.GetPtr());
 		spdlog::debug("| VAR: g_pClient[128]                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pClient));
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
@@ -141,11 +145,13 @@ class VClient : public IDetour
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
 		p_CClient_ProcessStringCmd = g_GameDll.FindPatternSIMD("48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 7A 20");
 #endif // !GAMEDLL_S0 || !GAMEDLL_S1
+		p_CClient_SetSignonState = g_GameDll.FindPatternSIMD("48 8B C4 48 89 58 10 48 89 70 18 57 48 81 EC ?? ?? ?? ?? 0F 29 70 E8 8B F2");
 
 		v_CClient_Connect    = p_CClient_Connect.RCast<bool (*)(CClient*, const char*, void*, bool, void*, char*, int)>(); /*48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 20 41 0F B6 E9*/
 		v_CClient_Disconnect = p_CClient_Disconnect.RCast<bool (*)(CClient*, const Reputation_t, const char*, ...)>();     /*48 8B C4 4C 89 40 18 4C 89 48 20 53 56 57 48 81 EC ?? ?? ?? ?? 83 B9 ?? ?? ?? ?? ?? 49 8B F8 8B F2*/
 		v_CClient_Clear      = p_CClient_Clear.RCast<void (*)(CClient*)>();                                                /*40 53 41 56 41 57 48 83 EC 20 48 8B D9 48 89 74*/
 		v_CClient_ProcessStringCmd = p_CClient_ProcessStringCmd.RCast<bool (*)(CClient*, NET_StringCmd*)>();               /*48 89 6C 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 7A 20*/
+		v_CClient_SetSignonState = p_CClient_SetSignonState.RCast<bool (*)(CClient* pClient, SIGNONSTATE signon)>();
 	}
 	virtual void GetVar(void) const
 	{
