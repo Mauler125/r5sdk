@@ -1952,6 +1952,18 @@
     <ClInclude Include="..\game\client\cliententitylist.h">
       <Filter>sdk\game\client</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\engine\IEngineTrace.h">
+      <Filter>sdk\public\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\cmodel.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\gametrace.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\trace.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\shared\resource\lockedserver.png">

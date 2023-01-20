@@ -330,12 +330,15 @@
     <ClInclude Include="..\public\baseentity.h" />
     <ClInclude Include="..\public\basehandle.h" />
     <ClInclude Include="..\public\bitmap\stb_image.h" />
+    <ClInclude Include="..\public\cmodel.h" />
     <ClInclude Include="..\public\datamap.h" />
     <ClInclude Include="..\public\dt_common.h" />
     <ClInclude Include="..\public\dt_recv.h" />
     <ClInclude Include="..\public\dt_send.h" />
     <ClInclude Include="..\public\eiface.h" />
     <ClInclude Include="..\public\engine\ICollideable.h" />
+    <ClInclude Include="..\public\engine\IEngineTrace.h" />
+    <ClInclude Include="..\public\gametrace.h" />
     <ClInclude Include="..\public\iengine.h" />
     <ClInclude Include="..\public\client_class.h" />
     <ClInclude Include="..\public\const.h" />
@@ -381,6 +384,7 @@
     <ClInclude Include="..\public\string_t.h" />
     <ClInclude Include="..\public\studio.h" />
     <ClInclude Include="..\core\resource.h" />
+    <ClInclude Include="..\public\trace.h" />
     <ClInclude Include="..\public\utility\binstream.h" />
     <ClInclude Include="..\public\utility\crashhandler.h" />
     <ClInclude Include="..\public\utility\httplib.h" />
