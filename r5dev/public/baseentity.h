@@ -14,6 +14,7 @@
 #include "mathlib/vector.h"
 #include "game/server/networkproperty.h"
 #include "game/shared/collisionproperty.h"
+#include "game/shared/entitylist_base.h"
 #include "iservernetworkable.h"
 #include "iserverentity.h"
 
@@ -39,10 +40,10 @@ private:
 	void* m_pfnMoveDone;
 	void* m_pfnThink;
 	CServerNetworkProperty m_Network;
-	__int64 m_ModelName;
+	const char* m_ModelName;
 	int m_entIndex;
 	char gap_74[8]; // Aligns properly in IDA and generated code after setting from 4 to 8.
-	__int64 m_iClassname;
+	const char* m_iClassname;
 	float m_flAnimTime;
 	float m_flSimulationTime;
 	int m_creationTick;
@@ -246,5 +247,36 @@ private:
 	char m_realmsTransmitMaskCached[16];
 	int m_realmsTransmitMaskCachedSerialNumber;
 };
+
+inline CMemory p_CBaseEntity__GetBaseEntity;
+inline auto v_CBaseEntity__GetBaseEntity = p_CBaseEntity__GetBaseEntity.RCast<CBaseEntity* (*)(CBaseEntity* thisp)>();
+
+inline CEntInfo* g_pEntityList = nullptr;
+
+///////////////////////////////////////////////////////////////////////////////
+class VBaseEntity : public IDetour
+{
+	virtual void GetAdr(void) const
+	{
+		spdlog::debug("| FUN: CBaseEntity::GetBaseEntity           : {:#18x} |\n", p_CBaseEntity__GetBaseEntity.GetPtr());
+		spdlog::debug("| VAR: g_pEntityList                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pEntityList));
+		spdlog::debug("+----------------------------------------------------------------+\n");
+	}
+	virtual void GetFun(void) const
+	{
+		p_CBaseEntity__GetBaseEntity = g_GameDll.FindPatternSIMD("8B 91 ?? ?? ?? ?? 83 FA FF 74 1F 0F B7 C2 48 8D 0D ?? ?? ?? ?? C1 EA 10 48 8D 04 40 48 03 C0 39 54 C1 08 75 05 48 8B 04 C1 C3 33 C0 C3 CC CC CC 48 8B 41 30");
+		v_CBaseEntity__GetBaseEntity = p_CBaseEntity__GetBaseEntity.RCast<CBaseEntity* (*)(CBaseEntity* thisp)>();
+	}
+	virtual void GetVar(void) const
+	{
+		g_pEntityList = p_CBaseEntity__GetBaseEntity.FindPattern("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CEntInfo*>();
+	}
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
+};
+///////////////////////////////////////////////////////////////////////////////
+
+REGISTER(VBaseEntity);
 
 #endif // BASEENTITY_H
