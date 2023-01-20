@@ -1246,7 +1246,7 @@ void CC_CreateFakePlayer_f(const CCommand& args)
 #ifndef CLIENT_DLL
 	if (args.ArgC() < 3)
 	{
-		DevMsg(eDLL_T::SERVER, "usage: sv_addbot name teamid\n");
+		DevMsg(eDLL_T::SERVER, "usage 'sv_addbot': name(string) teamid(int)\n");
 		return;
 	}
 
