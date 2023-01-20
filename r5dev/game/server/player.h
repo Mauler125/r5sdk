@@ -20,6 +20,13 @@
 #include "basecombatcharacter.h"
 #include <mathlib/vector4d.h>
 
+enum PlayerConnectedState
+{
+	PlayerConnected,
+	PlayerDisconnecting,
+	PlayerDisconnected,
+};
+
 
 // TODO: Move to separate header file!!
 struct ThirdPersonViewData
@@ -243,6 +250,9 @@ public:
 
 	void PlayerRunCommand(CUserCmd* pUserCmd, IMoveHelper* pMover);
 	void SetLastUserCommand(CUserCmd* pUserCmd);
+
+	bool	IsConnected() const { return m_iConnected != PlayerDisconnected; }
+	bool	IsDisconnecting() const { return m_iConnected == PlayerDisconnecting; }
 
 private:
 	int m_StuckLast;

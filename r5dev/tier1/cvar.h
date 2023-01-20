@@ -70,6 +70,8 @@ extern ConVar* sv_forceChatToTeamOnly;
 extern ConVar* sv_autoReloadRate;
 extern ConVar* sv_quota_stringCmdsPerSecond;
 
+extern ConVar* sv_simulateBots;
+
 #ifdef DEDICATED
 extern ConVar* sv_rcon_debug;
 extern ConVar* sv_rcon_sendlogs;

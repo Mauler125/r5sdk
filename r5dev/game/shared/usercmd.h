@@ -38,7 +38,7 @@ public:
 
 	CUserCmd* Copy(CUserCmd* pSource)
 	{
-		v_CUserCmd__Copy(this, pSource);
+		return v_CUserCmd__Copy(this, pSource);
 	}
 
 	int32_t command_number;

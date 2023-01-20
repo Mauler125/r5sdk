@@ -107,6 +107,7 @@ void ConVar::Init(void)
 	sv_statusRefreshRate  = ConVar::Create("sv_statusRefreshRate" , "0.5", FCVAR_RELEASE, "Server status refresh rate (seconds).", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_autoReloadRate     = ConVar::Create("sv_autoReloadRate"    , "0"  , FCVAR_RELEASE, "Time in seconds between each server auto-reload (disabled if null). ", true, 0.f, false, 0.f, nullptr, nullptr);
 	sv_quota_stringCmdsPerSecond = ConVar::Create("sv_quota_stringCmdsPerSecond", "16", FCVAR_RELEASE, "How many string commands per second clients are allowed to submit, 0 to disallow all string commands.", true, 0.f, false, 0.f, nullptr, nullptr);
+	sv_simulateBots = ConVar::Create("sv_simulateBots", "1", FCVAR_RELEASE, "Simulate user commands for bots on the server.", true, 0.f, false, 0.f, nullptr, nullptr);
 #ifdef DEDICATED
 	sv_rcon_debug       = ConVar::Create("sv_rcon_debug"      , "0" , FCVAR_RELEASE, "Show rcon debug information ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_sendlogs    = ConVar::Create("sv_rcon_sendlogs"   , "0" , FCVAR_RELEASE, "Network console logs to connected and authenticated sockets.", false, 0.f, false, 0.f, nullptr, nullptr);
