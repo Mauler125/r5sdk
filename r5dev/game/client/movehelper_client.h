@@ -7,8 +7,9 @@
 
 #ifndef MOVEHELPER_CLIENT_H
 #define MOVEHELPER_CLIENT_H
-#include "game/shared/imovehelper.h"
 #include "tier1/utlvector.h"
+#include "public/gametrace.h"
+#include "game/shared/imovehelper.h"
 
 class CMoveHelperClient : public IMoveHelper
 {
@@ -18,7 +19,7 @@ class CMoveHelperClient : public IMoveHelper
 	struct touchlist_t
 	{
 		Vector3D deltavelocity;
-		//trace_t trace; // !TODO: Reverse CGameTrace! 
+		trace_t trace;
 	};
 
 	CUtlVector<touchlist_t>	m_TouchList;
