@@ -13,27 +13,24 @@ public:
 	virtual void* ProcessStringCmd(void) = 0;
 	virtual void* ProcessScriptMessage(void) = 0;
 	virtual void* ProcessSetConVar(void) = 0;
-	virtual char ProcessSignonState(void* msg) = 0; // NET_SignonState
 	virtual bool nullsub_0(void) = 0;
-	virtual bool nullsub_1(void) = 0;
-	virtual void* ProcessClientInfo(void) = 0;;
+	virtual char ProcessSignonState(void* msg) = 0; // NET_SignonState
 	virtual void* ProcessMove(void) = 0;;
 	virtual void* ProcessVoiceData(void) = 0;;
 	virtual void* ProcessDurangoVoiceData(void) = 0;;
-	virtual bool nullsub_2(void) = 0;
+	virtual bool nullsub_1(void) = 0;
 	virtual void* ProcessLoadingProgress(void) = 0;
 	virtual void* ProcessPersistenceRequestSave(void) = 0;
+	virtual bool nullsub_2(void) = 0;
 	virtual bool nullsub_3(void) = 0;
-	virtual bool nullsub_4(void) = 0;
 	virtual void* ProcessSetPlaylistVarOverride(void) = 0;
 	virtual void* ProcessClaimClientSidePickup(void) = 0;
 	virtual void* ProcessCmdKeyValues(void) = 0;
 	virtual void* ProcessClientTick(void) = 0;
 	virtual void* ProcessClientSayText(void) = 0;
+	virtual bool nullsub_4(void) = 0;
 	virtual bool nullsub_5(void) = 0;
 	virtual bool nullsub_6(void) = 0;
-	virtual bool nullsub_7(void) = 0;
-	virtual bool nullsub_8(void) = 0;
 	virtual void* ProcessScriptMessageChecksum(void) = 0;
 };
 
