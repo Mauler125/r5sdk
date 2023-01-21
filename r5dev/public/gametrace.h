@@ -12,18 +12,29 @@
 #include "trace.h"
 #include "cmodel.h"
 
+// !TODO: Remove these and include properly.
+#if defined( CLIENT_DLL )
+class C_BaseEntity;
+#else
+class CBaseEntity;
+#endif
 //-----------------------------------------------------------------------------
 // Purpose: A trace is returned when a box is swept through the world
 //-----------------------------------------------------------------------------
 class CGameTrace : public CBaseTrace
 {
+public:
 	char gap3A[0x4];
 	csurface_t surface;
 	float fractionleftsolid;
 	int hitgroup;
 	short physicsBone;
 	char gap5A[0x6];
-	void* hit_entity; // !TODO: CBaseEntity/C_BaseEntity.
+#if defined( CLIENT_DLL )
+	C_BaseEntity* hit_entity;
+#else
+	CBaseEntity* hit_entity;
+#endif
 	int hitbox;
 	char gap6C[0x114];
 };
