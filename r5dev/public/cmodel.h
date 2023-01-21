@@ -14,34 +14,50 @@
 #endif
 #include "mathlib/mathlib.h"
 
-// EVERYTHING IN HERE STILL NEEDS TESTING!!!!
-
 struct Ray_t
 {
 	VectorAligned m_Start;
 	VectorAligned m_Delta;
 	VectorAligned m_StartOffset;
-	VectorAligned m_Extents;
-	char gap2C[0x10];
-	void* m_pWorldAxisTransform;
+	int m_nUnk30;
+	int m_nUnk34;
+	int m_nUnk38;
+	int m_nUnk3C;
+	int m_nUnk40;
+	int m_nUnk44;
+	int m_nFlags;
+	const matrix3x4_t* m_pWorldAxisTransform;
+	int m_nUnk58;
 	bool m_IsRay;
 	bool m_IsSwept;
+	void* m_pUnk60;
+
+	Ray_t() : m_pWorldAxisTransform(NULL) {};
 
 	void Init(Vector3D const& start, Vector3D const& end)
 	{
-		m_Delta = end - start;
-
+		VectorSubtract(end, start, m_Delta);
 		m_IsSwept = (m_Delta.LengthSqr() != 0);
 
-		m_Extents.Init();
+		m_nUnk30 = NULL;
+		m_nUnk34 = NULL;
+		m_nUnk3C = NULL;
+		m_nUnk44 = NULL;
+		m_nUnk44 = NULL;
+
+		m_nFlags = 0x3F800000; // !TODO: Reverse these flags!
 
 		m_pWorldAxisTransform = NULL;
 		m_IsRay = true;
 
-		m_StartOffset.Init();
-		m_Start = start;
+		m_nUnk58 = NULL;
+		m_pUnk60 = NULL;
+
+		VectorClear(m_StartOffset);
+		VectorCopy(start, m_Start);
 	}
 };
+static_assert(sizeof(Ray_t) == 0x70);
 
 struct csurface_t
 {
