@@ -794,9 +794,6 @@ inline auto v_CPlayer__EyeAngles = p_CPlayer__EyeAngles.RCast<QAngle* (*)(CPlaye
 inline CMemory p_CPlayer__PlayerRunCommand;
 inline auto v_CPlayer__PlayerRunCommand = p_CPlayer__PlayerRunCommand.RCast<void (*)(CPlayer* pPlayer, CUserCmd* pUserCmd, IMoveHelper* pMover)>();
 
-//inline CMemory p_CBaseEntity__GetBaseEntity;
-//inline auto v_CBaseEntity__GetBaseEntity = p_CBaseEntity__GetBaseEntity.RCast<CBaseEntity* (*)(CBaseEntity* thisp)>();
-
 ///////////////////////////////////////////////////////////////////////////////
 class VPlayer : public IDetour
 {
@@ -804,7 +801,6 @@ class VPlayer : public IDetour
 	{
 		spdlog::debug("| FUN: CPlayer::EyeAngles                   : {:#18x} |\n", p_CPlayer__EyeAngles.GetPtr());
 		spdlog::debug("| FUN: CPlayer::PlayerRunCommand            : {:#18x} |\n", p_CPlayer__PlayerRunCommand.GetPtr());
-		//spdlog::debug("| FUN: CBaseEntity::GetBaseEntity           : {:#18x} |\n", p_CBaseEntity__GetBaseEntity.GetPtr());
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
@@ -814,9 +810,6 @@ class VPlayer : public IDetour
 
 		p_CPlayer__PlayerRunCommand = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 8B 03 49 81 C6 ?? ?? ?? ??").FollowNearCallSelf();
 		v_CPlayer__PlayerRunCommand = p_CPlayer__PlayerRunCommand.RCast<void (*)(CPlayer*, CUserCmd*, IMoveHelper*)>();
-
-		//p_CBaseEntity__GetBaseEntity = g_GameDll.FindPatternSIMD("8B 91 ?? ?? ?? ?? 83 FA FF 74 1F 0F B7 C2 48 8D 0D ?? ?? ?? ?? C1 EA 10 48 8D 04 40 48 03 C0 39 54 C1 08 75 05 48 8B 04 C1 C3 33 C0 C3 CC CC CC 48 8B 41 30");
-		//v_CBaseEntity__GetBaseEntity = p_CBaseEntity__GetBaseEntity.RCast<CBaseEntity* (*)(CBaseEntity* thisp)>();
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
