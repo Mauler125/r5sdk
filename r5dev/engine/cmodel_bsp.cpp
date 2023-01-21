@@ -41,10 +41,11 @@ void Mod_GetAllInstalledMaps()
     std::lock_guard<std::mutex> l(g_MapVecMutex);
     g_vAllMaps.clear(); // Clear current list.
 
+    fs::directory_iterator fsDir("vpk");
     std::regex rgArchiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
     std::smatch smRegexMatches;
 
-    for (const fs::directory_entry& dEntry : fs::directory_iterator("vpk"))
+    for (const fs::directory_entry& dEntry : fsDir)
     {
         std::string svFileName = dEntry.path().u8string();
         std::regex_search(svFileName, smRegexMatches, rgArchiveRegex);
