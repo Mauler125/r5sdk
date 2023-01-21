@@ -84,7 +84,7 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 
 #ifndef DEDICATED
 	g_pClientEntityList = g_pFactory->GetFactoryPtr(VCLIENTENTITYLIST_INTERFACE_VERSION, false).RCast<CClientEntityList*>();
-	g_pEngineTrace = g_pFactory->GetFactoryPtr(INTERFACEVERSION_ENGINETRACE_CLIENT, false).RCast<CEngineTrace*>();
+	g_pEngineTraceClient = g_pFactory->GetFactoryPtr(INTERFACEVERSION_ENGINETRACE_CLIENT, false).RCast<CEngineTraceClient*>();
 
 	g_pImGuiConfig->Load(); // Load ImGui configs.
 	for (auto& map : g_pCVar->DumpToMap())
