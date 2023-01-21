@@ -9,11 +9,12 @@
 #define COLLISIONPROPERTY_H
 
 #include "public/engine/ICollideable.h"
+#include "public/baseentity.h"
 #include "mathlib/vector.h"
 
 class CCollisionProperty : public ICollideable
 {
-	void* m_pOuter; // CBaseEntity?
+	CBaseEntity* m_pOuter;
 	Vector3D m_vecMins;
 	Vector3D m_vecMaxs;
 	int m_usSolidFlags;
