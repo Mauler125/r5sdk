@@ -14,12 +14,12 @@ void CUIBaseSurface::Init()
 {
 	// START DESIGNER CODE
 	const INT WindowX = 800;
-	const INT WindowY = 350;
+	const INT WindowY = 353;
 
 	this->SuspendLayout();
 	this->SetAutoScaleDimensions({ 6, 13 });
 	this->SetAutoScaleMode(Forms::AutoScaleMode::Font);
-	this->SetText("Launcher");
+	this->SetText("Dashboard");
 	this->SetClientSize({ WindowX, WindowY });
 	this->SetFormBorderStyle(Forms::FormBorderStyle::FixedSingle);
 	this->SetStartPosition(Forms::FormStartPosition::CenterParent);
@@ -32,7 +32,7 @@ void CUIBaseSurface::Init()
 	// ########################################################################
 	this->m_GameGroup = new UIX::UIXGroupBox();
 	this->m_GameGroup->SetSize({ 458, 84 });
-	this->m_GameGroup->SetLocation({ 12, 10 });
+	this->m_GameGroup->SetLocation({ 12, 12 });
 	this->m_GameGroup->SetTabIndex(0);
 	this->m_GameGroup->SetText("Game");
 	this->m_GameGroup->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
@@ -40,7 +40,7 @@ void CUIBaseSurface::Init()
 
 	this->m_GameGroupExt = new UIX::UIXGroupBox();
 	this->m_GameGroupExt->SetSize({ 458, 55 });
-	this->m_GameGroupExt->SetLocation({ 12, 93 });
+	this->m_GameGroupExt->SetLocation({ 12, 95 });
 	this->m_GameGroupExt->SetTabIndex(0);
 	this->m_GameGroupExt->SetText("");
 	this->m_GameGroupExt->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
@@ -91,7 +91,7 @@ void CUIBaseSurface::Init()
 	this->m_GameGroupExt->AddControl(this->m_CheatsToggle);
 
 	this->m_DeveloperToggle = new UIX::UIXCheckBox();
-	this->m_DeveloperToggle->SetSize({ 150, 18 });
+	this->m_DeveloperToggle->SetSize({ 110, 18 });
 	this->m_DeveloperToggle->SetLocation({ 130, 7 });
 	this->m_DeveloperToggle->SetTabIndex(0);
 	this->m_DeveloperToggle->SetText("Enable developer");
@@ -99,7 +99,7 @@ void CUIBaseSurface::Init()
 	this->m_GameGroupExt->AddControl(this->m_DeveloperToggle);
 
 	this->m_ConsoleToggle = new UIX::UIXCheckBox();
-	this->m_ConsoleToggle->SetSize({ 150, 18 });
+	this->m_ConsoleToggle->SetSize({ 110, 18 });
 	this->m_ConsoleToggle->SetLocation({ 290, 7 });
 	this->m_ConsoleToggle->SetTabIndex(0);
 	this->m_ConsoleToggle->SetText("Show console");
@@ -107,7 +107,7 @@ void CUIBaseSurface::Init()
 	this->m_GameGroupExt->AddControl(this->m_ConsoleToggle);
 
 	this->m_ColorConsoleToggle = new UIX::UIXCheckBox();
-	this->m_ColorConsoleToggle->SetSize({ 105, 18 });
+	this->m_ColorConsoleToggle->SetSize({ 110, 18 });
 	this->m_ColorConsoleToggle->SetLocation({ 15, 30 });
 	this->m_ColorConsoleToggle->SetTabIndex(0);
 	this->m_ColorConsoleToggle->SetChecked(true);
@@ -137,7 +137,7 @@ void CUIBaseSurface::Init()
 	// ########################################################################
 	this->m_MainGroup = new UIX::UIXGroupBox();
 	this->m_MainGroup->SetSize({ 308, 84 });
-	this->m_MainGroup->SetLocation({ 480, 10 });
+	this->m_MainGroup->SetLocation({ 480, 12 });
 	this->m_MainGroup->SetTabIndex(0);
 	this->m_MainGroup->SetText("Main");
 	this->m_MainGroup->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
@@ -145,7 +145,7 @@ void CUIBaseSurface::Init()
 
 	this->m_MainGroupExt = new UIX::UIXGroupBox();
 	this->m_MainGroupExt->SetSize({ 308, 55 });
-	this->m_MainGroupExt->SetLocation({ 480, 93 });
+	this->m_MainGroupExt->SetLocation({ 480, 95 });
 	this->m_MainGroupExt->SetTabIndex(0);
 	this->m_MainGroupExt->SetText("");
 	this->m_MainGroupExt->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
@@ -219,7 +219,7 @@ void CUIBaseSurface::Init()
 	this->m_MainGroup->AddControl(this->m_LaunchArgsLabel);
 
 	this->m_CleanSDK = new UIX::UIXButton();
-	this->m_CleanSDK->SetSize({ 110, 18 });
+	this->m_CleanSDK->SetSize({ 111, 18 });
 	this->m_CleanSDK->SetLocation({ 15, 7 });
 	this->m_CleanSDK->SetTabIndex(0);
 	this->m_CleanSDK->SetText("Clean SDK");
@@ -228,7 +228,7 @@ void CUIBaseSurface::Init()
 	this->m_MainGroupExt->AddControl(this->m_CleanSDK);
 
 	this->m_UpdateSDK = new UIX::UIXButton();
-	this->m_UpdateSDK->SetSize({ 110, 18 });
+	this->m_UpdateSDK->SetSize({ 111, 18 });
 	this->m_UpdateSDK->SetLocation({ 15, 30 });
 	this->m_UpdateSDK->SetTabIndex(0);
 	this->m_UpdateSDK->SetEnabled(true); // !TODO: Implement updater
@@ -239,7 +239,7 @@ void CUIBaseSurface::Init()
 
 	this->m_LaunchSDK = new UIX::UIXButton();
 	this->m_LaunchSDK->SetSize({ 170, 41 });
-	this->m_LaunchSDK->SetLocation({ 130, 7 });
+	this->m_LaunchSDK->SetLocation({ 131, 7 });
 	this->m_LaunchSDK->SetTabIndex(0);
 	this->m_LaunchSDK->SetText("Launch game");
 	this->m_LaunchSDK->SetBackColor(Drawing::Color(3, 102, 214));
@@ -252,7 +252,7 @@ void CUIBaseSurface::Init()
 	// ########################################################################
 	this->m_EngineBaseGroup = new UIX::UIXGroupBox();
 	this->m_EngineBaseGroup->SetSize({ 337, 73 });
-	this->m_EngineBaseGroup->SetLocation({ 12, 158 });
+	this->m_EngineBaseGroup->SetLocation({ 12, 160 });
 	this->m_EngineBaseGroup->SetTabIndex(0);
 	this->m_EngineBaseGroup->SetText("Engine");
 	this->m_EngineBaseGroup->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
@@ -260,7 +260,7 @@ void CUIBaseSurface::Init()
 
 	this->m_EngineNetworkGroup = new UIX::UIXGroupBox();
 	this->m_EngineNetworkGroup->SetSize({ 337, 55 });
-	this->m_EngineNetworkGroup->SetLocation({ 12, 230 });
+	this->m_EngineNetworkGroup->SetLocation({ 12, 232 });
 	this->m_EngineNetworkGroup->SetTabIndex(0);
 	this->m_EngineNetworkGroup->SetText("");
 	this->m_EngineNetworkGroup->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
@@ -268,7 +268,7 @@ void CUIBaseSurface::Init()
 
 	this->m_EngineVideoGroup = new UIX::UIXGroupBox();
 	this->m_EngineVideoGroup->SetSize({ 337, 55 });
-	this->m_EngineVideoGroup->SetLocation({ 12, 284 });
+	this->m_EngineVideoGroup->SetLocation({ 12, 286 });
 	this->m_EngineVideoGroup->SetTabIndex(0);
 	this->m_EngineVideoGroup->SetText("");
 	this->m_EngineVideoGroup->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
@@ -361,7 +361,7 @@ void CUIBaseSurface::Init()
 	this->m_EngineNetworkGroup->AddControl(this->m_NoTimeOutToggle);
 
 	this->m_WindowedToggle = new UIX::UIXCheckBox();
-	this->m_WindowedToggle->SetSize({ 105, 18 });
+	this->m_WindowedToggle->SetSize({ 125, 18 });
 	this->m_WindowedToggle->SetLocation({ 15, 7 });
 	this->m_WindowedToggle->SetTabIndex(0);
 	this->m_WindowedToggle->SetChecked(true);
@@ -370,7 +370,7 @@ void CUIBaseSurface::Init()
 	this->m_EngineVideoGroup->AddControl(this->m_WindowedToggle);
 
 	this->m_NoBorderToggle = new UIX::UIXCheckBox();
-	this->m_NoBorderToggle->SetSize({ 150, 18 });
+	this->m_NoBorderToggle->SetSize({ 125, 18 });
 	this->m_NoBorderToggle->SetLocation({ 155, 7 });
 	this->m_NoBorderToggle->SetTabIndex(0);
 	this->m_NoBorderToggle->SetText("Borderless");
@@ -397,7 +397,7 @@ void CUIBaseSurface::Init()
 
 	this->m_WidthTextBox = new UIX::UIXTextBox();
 	this->m_WidthTextBox->SetSize({ 50, 18 });
-	this->m_WidthTextBox->SetLocation({ 100, 30 });
+	this->m_WidthTextBox->SetLocation({ 106, 30 });
 	this->m_WidthTextBox->SetTabIndex(0);
 	this->m_WidthTextBox->SetReadOnly(false);
 	this->m_WidthTextBox->SetText("");
@@ -406,7 +406,7 @@ void CUIBaseSurface::Init()
 
 	this->m_HeightTextBox = new UIX::UIXTextBox();
 	this->m_HeightTextBox->SetSize({ 50, 18 });
-	this->m_HeightTextBox->SetLocation({ 149, 30 });
+	this->m_HeightTextBox->SetLocation({ 155, 30 });
 	this->m_HeightTextBox->SetTabIndex(0);
 	this->m_HeightTextBox->SetReadOnly(false);
 	this->m_HeightTextBox->SetText("");
@@ -415,7 +415,7 @@ void CUIBaseSurface::Init()
 
 	this->m_ResolutionLabel = new UIX::UIXLabel();
 	this->m_ResolutionLabel->SetSize({ 125, 18 });
-	this->m_ResolutionLabel->SetLocation({ 202, 32 });
+	this->m_ResolutionLabel->SetLocation({ 208, 32 });
 	this->m_ResolutionLabel->SetTabIndex(0);
 	this->m_ResolutionLabel->SetText("Resolution (width | height)");
 	this->m_ResolutionLabel->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
@@ -427,7 +427,7 @@ void CUIBaseSurface::Init()
 	// ########################################################################
 	this->m_ConsoleGroup = new UIX::UIXGroupBox();
 	this->m_ConsoleGroup->SetSize({ 429, 15 });
-	this->m_ConsoleGroup->SetLocation({ 359, 158 });
+	this->m_ConsoleGroup->SetLocation({ 359, 160 });
 	this->m_ConsoleGroup->SetTabIndex(0);
 	this->m_ConsoleGroup->SetText("Console");
 	this->m_ConsoleGroup->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
@@ -435,7 +435,7 @@ void CUIBaseSurface::Init()
 
 	this->m_ConsoleGroupExt = new UIX::UIXGroupBox();
 	this->m_ConsoleGroupExt->SetSize({ 429, 167 });
-	this->m_ConsoleGroupExt->SetLocation({ 359, 172 });
+	this->m_ConsoleGroupExt->SetLocation({ 359, 174 });
 	this->m_ConsoleGroupExt->SetTabIndex(0);
 	this->m_ConsoleGroupExt->SetText("");
 	this->m_ConsoleGroupExt->SetAnchor(Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
@@ -443,7 +443,7 @@ void CUIBaseSurface::Init()
 
 	this->m_ConsoleListView = new UIX::UIXListView();
 	this->m_ConsoleListView->SetSize({ 427, 172 });
-	this->m_ConsoleListView->SetLocation({ 1, -23 }); // Hide columns
+	this->m_ConsoleListView->SetLocation({ 1, -23 }); // HACK: hide columns
 	this->m_ConsoleListView->SetTabIndex(0);
 	this->m_ConsoleListView->SetBackColor(Drawing::Color(29, 33, 37));
 	this->m_ConsoleListView->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Bottom | Forms::AnchorStyles::Left | Forms::AnchorStyles::Right);
@@ -456,7 +456,6 @@ void CUIBaseSurface::Init()
 	this->m_ConsoleListView->RetrieveVirtualItem += &GetVirtualItem;
 	this->m_ConsoleGroupExt->AddControl(this->m_ConsoleListView);
 
-	
 	this->m_ConsoleCommandTextBox = new UIX::UIXTextBox();
 	this->m_ConsoleCommandTextBox->SetSize({ 351, 18 });
 	this->m_ConsoleCommandTextBox->SetLocation({ 0, 149 });
