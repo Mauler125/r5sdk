@@ -1389,6 +1389,9 @@
     <ClInclude Include="..\public\trace.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\bspflags.h">
+      <Filter>sdk\public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">

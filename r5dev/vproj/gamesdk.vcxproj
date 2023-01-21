@@ -330,6 +330,7 @@
     <ClInclude Include="..\public\baseentity.h" />
     <ClInclude Include="..\public\basehandle.h" />
     <ClInclude Include="..\public\bitmap\stb_image.h" />
+    <ClInclude Include="..\public\bspflags.h" />
     <ClInclude Include="..\public\cmodel.h" />
     <ClInclude Include="..\public\datamap.h" />
     <ClInclude Include="..\public\dt_common.h" />
