@@ -12,7 +12,6 @@
 
 
 #ifndef CLIENT_DLL
-
 CPlayer* UTIL_PlayerByIndex(int nIndex)
 {
 	if (nIndex < 1 || nIndex > (*g_pGlobals)->m_nMaxClients || nIndex == FL_EDICT_INVALID)
@@ -23,3 +22,14 @@ CPlayer* UTIL_PlayerByIndex(int nIndex)
 	return pPlayer;
 }
 #endif // CLIENT_DLL
+
+CTraceFilterSimple::CTraceFilterSimple(const IHandleEntity* pPassEntity, int collisionGroup, ShouldHitFunc_t pExtraShouldHitCheckFn)
+{
+	void** pVTable = reinterpret_cast<void**>(&*this); // Assign vftable pointer to the implementation supplied by the engine.
+	*pVTable = reinterpret_cast<void*>(g_pTraceFilterSimpleVFTable);
+
+	m_collisionGroup = 0;
+	m_pPassEntity = pPassEntity;
+	m_traceType = 0;
+	m_pExtraShouldHitCheckFunction = pExtraShouldHitCheckFn;
+}
