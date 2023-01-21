@@ -279,7 +279,7 @@ void CUIBaseSurface::Init()
 	this->m_ReservedCoresTextBox->SetLocation({ 15, 25 });
 	this->m_ReservedCoresTextBox->SetTabIndex(0);
 	this->m_ReservedCoresTextBox->SetReadOnly(false);
-	this->m_ReservedCoresTextBox->SetText("0");
+	this->m_ReservedCoresTextBox->SetText("-1");
 	this->m_ReservedCoresTextBox->SetAnchor(Forms::AnchorStyles::Top | Forms::AnchorStyles::Left);
 	this->m_EngineBaseGroup->AddControl(this->m_ReservedCoresTextBox);
 
@@ -565,11 +565,13 @@ void CUIBaseSurface::LaunchGame(Forms::Control* pSender)
 //-----------------------------------------------------------------------------
 void CUIBaseSurface::ParseMaps()
 {
+	fs::directory_iterator fsDir("vpk");
 	std::regex rgArchiveRegex{ R"([^_]*_(.*)(.bsp.pak000_dir).*)" };
 	std::smatch smRegexMatches;
-	for (const fs::directory_entry& dEntry : fs::directory_iterator("vpk"))
+
+	for (const fs::directory_entry& dEntry : fsDir)
 	{
-		std::string svFileName = dEntry.path().string();
+		std::string svFileName = dEntry.path().u8string();
 		std::regex_search(svFileName, smRegexMatches, rgArchiveRegex);
 
 		if (!smRegexMatches.empty())
@@ -738,17 +740,14 @@ void CUIBaseSurface::ForwardCommandToGame(Forms::Control* pSender)
 //-----------------------------------------------------------------------------
 void CUIBaseSurface::AppendReservedCoreCount(string& svParameters)
 {
-	const char* pszReservedCores = this->m_ReservedCoresTextBox->Text().ToCString();
-	if (StringIsDigit(pszReservedCores))
+	int nReservedCores = atoi(this->m_ReservedCoresTextBox->Text().ToCString());
+	if (nReservedCores > -1) // A reserved core count of 0 seems to crash the game on some systems.
 	{
-		int nReservedCores = atoi(pszReservedCores);
-		if (nReservedCores) // A reserved core count of 0 seems to crash the game on some systems.
-		{
-			svParameters.append("-numreservedcores \"" + this->m_ReservedCoresTextBox->Text() + "\"\n");
-		}
+		svParameters.append("-numreservedcores \"" + this->m_ReservedCoresTextBox->Text() + "\"\n");
 	}
 
-	if (StringIsDigit(this->m_WorkerThreadsTextBox->Text().ToCString()))
+	int nWorkerThreads = atoi(this->m_WorkerThreadsTextBox->Text().ToCString());
+	if (nWorkerThreads > -1)
 		svParameters.append("-numworkerthreads \"" + this->m_WorkerThreadsTextBox->Text() + "\"\n");
 }
 
