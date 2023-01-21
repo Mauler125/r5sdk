@@ -29,23 +29,19 @@
 #define	CONTENTS_GRATE			0x8		// alpha-tested "grate" textures.  Bullets/sight pass through, but solids don't
 #define	CONTENTS_SLIME			0x10
 #define	CONTENTS_WATER			0x20
-#define	CONTENTS_BLOCKLOS		0x40	// block AI line of sight
+#define	CONTENTS_WINDOW_NOCOLLIDE 0x40	// block AI line of sight
 #define CONTENTS_OPAQUE			0x80	// things that cannot be seen through (may be non-solid though)
 #define	LAST_VISIBLE_CONTENTS	CONTENTS_OPAQUE
 
 #define ALL_VISIBLE_CONTENTS (LAST_VISIBLE_CONTENTS | (LAST_VISIBLE_CONTENTS-1))
 
 #define CONTENTS_TESTFOGVOLUME	0x100
-#define CONTENTS_UNUSED			0x200	
+#define CONTENTS_PHYSICSCLIP	0x200	
 
-// unused 
-// NOTE: If it's visible, grab from the top + update LAST_VISIBLE_CONTENTS
-// if not visible, then grab from the bottom.
-// CONTENTS_OPAQUE + SURF_NODRAW count as CONTENTS_OPAQUE (shadow-casting toolsblocklight textures)
-#define CONTENTS_BLOCKLIGHT		0x400
+#define CONTENTS_SOUNDTRIGGER	0x400
 
-#define CONTENTS_TEAM1			0x800	// per team contents used to differentiate collisions 
-#define CONTENTS_TEAM2			0x1000	// between players and objects on different teams
+#define CONTENTS_NOGRAPPLE		0x800	// no grapples
+#define CONTENTS_OCCLUDESOUND	0x1000	// occlude sounds
 
 // ignore CONTENTS_OPAQUE on surfaces that have SURF_NODRAW
 #define CONTENTS_IGNORE_NODRAW_OPAQUE	0x2000
@@ -54,25 +50,25 @@
 #define CONTENTS_MOVEABLE		0x4000
 
 // remaining contents are non-visible, and don't eat brushes
-#define	CONTENTS_AREAPORTAL		0x8000
+#define	CONTENTS_TEST_SOLID_BODY_SHOT		0x8000
 
 #define	CONTENTS_PLAYERCLIP		0x10000
 #define	CONTENTS_MONSTERCLIP	0x20000
 
-#define	CONTENTS_BRUSH_PAINT	0x40000
-#define	CONTENTS_GRENADECLIP	0x80000
-#define	CONTENTS_UNUSED2		0x100000
-#define	CONTENTS_UNUSED3		0x200000
-#define	CONTENTS_UNUSED4		0x400000
-#define	CONTENTS_UNUSED5		0x800000
+#define	CONTENTS_OPERATOR_FLOOR	0x40000
+#define	CONTENTS_BLOCKLOS		0x80000
+#define	CONTENTS_NOCLIMB		0x100000
+#define	CONTENTS_TITANCLIP		0x200000
+#define	CONTENTS_BULLETCLIP		0x400000
+#define	CONTENTS_OPERATORCLIP	0x800000
 
-#define	CONTENTS_ORIGIN			0x1000000	// removed before bsping an entity
+#define	CONTENTS_NOAIRDROP		0x1000000	// no air drops
 
 #define	CONTENTS_MONSTER		0x2000000	// should never be on a brush, only in game
 #define	CONTENTS_DEBRIS			0x4000000
 #define	CONTENTS_DETAIL			0x8000000	// brushes to be added after vis leafs
 #define	CONTENTS_TRANSLUCENT	0x10000000	// auto set if any surface has trans
-#define	CONTENTS_LADDER			0x20000000
+#define	CONTENTS_BLOCK_PING		0x20000000
 #define CONTENTS_HITBOX			0x40000000	// use accurate hitboxes on trace
 
 // NOTE: These are stored in a short in the engine now.  Don't use more than 16 bits
