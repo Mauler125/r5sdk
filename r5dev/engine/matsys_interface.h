@@ -22,12 +22,12 @@ class VMatSys_Interface : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("+----------------------------------------------------------------+\n");
 		spdlog::debug("| FUN: UpdateMaterialSystemConfig           : {:#18x} |\n", p_UpdateMaterialSystemConfig.GetPtr());
 		spdlog::debug("| FUN: UpdateCurrentVideoConfig             : {:#18x} |\n", p_UpdateCurrentVideoConfig.GetPtr());
 		spdlog::debug("| FUN: HandleConfigFile                     : {:#18x} |\n", p_HandleConfigFile.GetPtr());
 		spdlog::debug("| FUN: ResetPreviousGameState               : {:#18x} |\n", p_ResetPreviousGameState.GetPtr());
 		spdlog::debug("| FUN: LoadPlayerConfig                     : {:#18x} |\n", p_LoadPlayerConfig.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
