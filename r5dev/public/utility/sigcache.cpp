@@ -54,7 +54,7 @@ void CSigCache::AddEntry(const string& svPattern, const uint64_t nRVA)
 		return;
 	}
 
-	Assert(!m_bInitialized);
+	Assert(m_bInitialized);
 	(*m_Cache.mutable_smap())[svPattern] = nRVA;
 }
 
