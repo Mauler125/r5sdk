@@ -38,8 +38,9 @@
 #define SOUNDCARD_INTERFACE_VERSION               "ISoundC002"
 
 #define SHADERSYSTEM_INTERFACE_VERSION            "ShaderSystem002"
-#define FILESYSTEM_INTERFACE_VERSION              "VFileSystem017"
 #define FACTORY_INTERFACE_VERSION                 "VFactorySystem001"
+#define FILESYSTEM_INTERFACE_VERSION              "VFileSystem017"
+#define BASEFILESYSTEM_INTERFACE_VERSION          "VBaseFileSystem011"
 //-----------------------------------------------------------------------------
 
 enum class InterfaceStatus_t : int
