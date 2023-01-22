@@ -40,26 +40,4 @@ public:
 };
 
 inline CIVDebugOverlay* g_pDebugOverlay = nullptr;
-
-///////////////////////////////////////////////////////////////////////////////
-class VDebugOverlayBase : public IDetour
-{
-	virtual void GetAdr(void) const
-	{
-		spdlog::debug("| VAR: g_pDebugOverlay                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pDebugOverlay));
-		spdlog::debug("+----------------------------------------------------------------+\n");
-	}
-	virtual void GetFun(void) const { }
-	virtual void GetVar(void) const
-	{
-		g_pDebugOverlay = g_GameDll.FindPatternSIMD("48 8D 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 48 8D 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 48 83 EC 28 F3 0F 10 41 ??")
-			.ResolveRelativeAddressSelf(0x3, 0x7).RCast<CIVDebugOverlay*>();
-	}
-	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
-};
-///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VDebugOverlayBase);
 #endif // IDEBUGOVERLAY_H
