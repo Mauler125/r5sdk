@@ -30,28 +30,32 @@ struct Ray_t
 	int m_nUnk58;
 	bool m_IsRay;
 	bool m_IsSwept;
-	void* m_pUnk60;
+	int m_nFlags2; // Unsure what these do yet.
+	int m_nUnk68;
 
-	Ray_t() : m_pWorldAxisTransform(NULL) {};
+	Ray_t() : m_pWorldAxisTransform(nullptr) {};
+	Ray_t(Vector3D const& start, Vector3D const& end, int nFlags1 = 0x3f800000, int nFlags2 = NULL) { Init(start, end, nFlags1, nFlags2); };
 
-	void Init(Vector3D const& start, Vector3D const& end)
+	void Init(Vector3D const& start, Vector3D const& end, int nFlags1, int nFlags2)
 	{
 		VectorSubtract(end, start, m_Delta);
 		m_IsSwept = (m_Delta.LengthSqr() != 0);
 
 		m_nUnk30 = NULL;
 		m_nUnk34 = NULL;
+		m_nUnk38 = NULL;
 		m_nUnk3C = NULL;
-		m_nUnk44 = NULL;
+		m_nUnk40 = NULL;
 		m_nUnk44 = NULL;
 
-		m_nFlags = 0x3F800000; // !TODO: Reverse these flags!
+		m_nFlags = nFlags1; // !TODO: Reverse these flags!
 
-		m_pWorldAxisTransform = NULL;
+		m_pWorldAxisTransform = nullptr;
 		m_IsRay = true;
 
 		m_nUnk58 = NULL;
-		m_pUnk60 = NULL;
+		m_nFlags2 = nFlags2; // !TODO: Reverse these flags!
+		m_nUnk68 = NULL;
 
 		VectorClear(m_StartOffset);
 		VectorCopy(start, m_Start);
