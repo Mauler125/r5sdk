@@ -41,6 +41,11 @@ ConVar* r_drawWorldMeshes                  = nullptr;
 ConVar* r_drawWorldMeshesDepthOnly         = nullptr;
 ConVar* r_drawWorldMeshesDepthAtTheEnd     = nullptr;
 
+#ifndef DEDICATED
+ConVar* r_visualizetraces                 = nullptr;
+ConVar* r_visualizetraces_duration        = nullptr;
+#endif // !DEDICATED
+
 ConVar* stream_overlay                     = nullptr;
 ConVar* stream_overlay_mode                = nullptr;
 //-----------------------------------------------------------------------------
@@ -90,6 +95,7 @@ ConVar* sv_visualizetraces                 = nullptr;
 ConVar* sv_visualizetraces_duration        = nullptr;
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 ConVar* bhit_enable                        = nullptr;
+ConVar* bhit_zbuffer                       = nullptr;
 ConVar* bhit_abs_origin                    = nullptr;
 #endif // !GAMEDLL_S0 && !GAMEDLL_S1
 //-----------------------------------------------------------------------------

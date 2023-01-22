@@ -38,6 +38,11 @@ extern ConVar* r_drawWorldMeshes;
 extern ConVar* r_drawWorldMeshesDepthOnly;
 extern ConVar* r_drawWorldMeshesDepthAtTheEnd;
 
+#ifndef DEDICATED
+extern ConVar* r_visualizetraces;
+extern ConVar* r_visualizetraces_duration;
+#endif // !DEDICATED
+
 extern ConVar* stream_overlay;
 extern ConVar* stream_overlay_mode;
 //-------------------------------------------------------------------------
@@ -86,6 +91,7 @@ extern ConVar* sv_visualizetraces;
 extern ConVar* sv_visualizetraces_duration;
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 extern ConVar* bhit_enable;
+extern ConVar* bhit_zbuffer;
 extern ConVar* bhit_abs_origin;
 #endif // !GAMEDLL_S0 && !GAMEDLL_S1
 //-------------------------------------------------------------------------

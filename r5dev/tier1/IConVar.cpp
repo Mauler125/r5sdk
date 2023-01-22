@@ -119,6 +119,7 @@ void ConVar::Init(void)
 #endif // DEDICATED
 #endif // !CLIENT_DLL
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
+	bhit_zbuffer    = ConVar::Create("bhit_zbuffer"   , "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Use z-buffer for bullet ray trace overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
 	bhit_abs_origin = ConVar::Create("bhit_abs_origin", "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Draw entity's predicted abs origin upon bullet impact for trajectory debugging.", false, 0.f, false, 0.f, nullptr, nullptr);
 #endif // !GAMEDLL_S0 && !GAMEDLL_S1
 	//-------------------------------------------------------------------------
@@ -254,6 +255,8 @@ void ConVar::InitShipped(void)
 #ifndef DEDICATED
 	rui_defaultDebugFontFace         = g_pCVar->FindVar("rui_defaultDebugFontFace");
 #endif // !DEDICATED
+	r_visualizetraces                = g_pCVar->FindVar("r_visualizetraces");
+	r_visualizetraces_duration       = g_pCVar->FindVar("r_visualizetraces_duration");
 	staticProp_no_fade_scalar        = g_pCVar->FindVar("staticProp_no_fade_scalar");
 	staticProp_gather_size_weight    = g_pCVar->FindVar("staticProp_gather_size_weight");
 	stream_overlay                   = g_pCVar->FindVar("stream_overlay");

@@ -19,6 +19,7 @@
 #include "engine/net.h"
 #include "engine/host_cmd.h"
 #include "engine/host_state.h"
+#include "engine/enginetrace.h"
 #ifndef CLIENT_DLL
 #include "engine/server/server.h"
 #endif // !CLIENT_DLL
@@ -47,6 +48,8 @@
 #include "vstdlib/callback.h"
 #ifndef DEDICATED
 #include "materialsystem/cmaterialglue.h"
+#include "public/bspflags.h"
+#include "public/cmodel.h"
 #include "public/idebugoverlay.h"
 #endif // !DEDICATED
 #ifndef CLIENT_DLL
@@ -1161,21 +1164,23 @@ void BHit_f(const CCommand& args)
 	vecBulletAngles.z = 180.f; // Flipped axis.
 	AngleVectors(vecBulletAngles, &vecAbsEnd);
 
-	static char szBuf[2048]; // Render physics trace.
-	snprintf(szBuf, sizeof(szBuf), "drawline %g %g %g %g %g %g",
-		vecAbsStart.x, vecAbsStart.y, vecAbsStart.z,
-		vecAbsStart.x + vecAbsEnd.x * MAX_COORD_RANGE,
-		vecAbsStart.y + vecAbsEnd.y * MAX_COORD_RANGE,
-		vecAbsStart.z + vecAbsEnd.z * MAX_COORD_RANGE);
-	Cbuf_AddText(Cbuf_GetCurrentPlayer(), szBuf, cmd_source_t::kCommandSrcCode);
+	vecAbsEnd.MulAdd(vecAbsStart, vecAbsEnd, MAX_COORD_RANGE);
 
-	if (bhit_abs_origin->GetBool())
+	Ray_t ray(vecAbsStart, vecAbsEnd);
+	trace_t trace;
+
+	g_pEngineTraceServer->TraceRay(ray, TRACE_MASK_NPCWORLDSTATIC, &trace);
+
+	g_pDebugOverlay->AddLineOverlay(trace.startpos, trace.endpos, 0, 255, 0, bhit_zbuffer->GetBool(), sv_visualizetraces_duration->GetFloat());
+	g_pDebugOverlay->AddLineOverlay(trace.endpos, vecAbsEnd, 255, 0, 0, bhit_zbuffer->GetBool(), sv_visualizetraces_duration->GetFloat());
+
+	if (bhit_abs_origin->GetBool() && r_visualizetraces->GetBool())
 	{
 		const int iEnt = atoi(args[2]);
 		if (const IClientEntity* pEntity = g_pClientEntityList->GetClientEntity(iEnt))
 		{
 			g_pDebugOverlay->AddSphereOverlay( // Render a debug sphere at the client's predicted entity origin.
-				pEntity->GetAbsOrigin(), 10.f, 8, 6, 20, 60, 255, 0, sv_visualizetraces_duration->GetFloat());
+				pEntity->GetAbsOrigin(), 10.f, 8, 6, 20, 60, 255, 0, r_visualizetraces_duration->GetFloat());
 		}
 	}
 #endif // !DEDICATED
