@@ -2,6 +2,7 @@
 #define ANIMATION_H
 #include "mathlib/vector.h"
 #include "public/baseentity.h"
+#include "public/studio.h"
 
 class CAnimationLayer
 {

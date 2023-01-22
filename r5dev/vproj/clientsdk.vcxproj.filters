@@ -666,6 +666,9 @@
     <ClCompile Include="..\game\shared\util_shared.cpp">
       <Filter>sdk\game\shared</Filter>
     </ClCompile>
+    <ClCompile Include="..\engine\modelinfo.cpp">
+      <Filter>sdk\engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1966,6 +1969,12 @@
     </ClInclude>
     <ClInclude Include="..\public\bspflags.h">
       <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\engine\IVModelInfo.h">
+      <Filter>sdk\public\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\modelinfo.h">
+      <Filter>sdk\engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

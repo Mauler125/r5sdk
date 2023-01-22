@@ -44,6 +44,7 @@
     <ClCompile Include="..\engine\host_cmd.cpp" />
     <ClCompile Include="..\engine\host_state.cpp" />
     <ClCompile Include="..\engine\matsys_interface.cpp" />
+    <ClCompile Include="..\engine\modelinfo.cpp" />
     <ClCompile Include="..\engine\modelloader.cpp" />
     <ClCompile Include="..\engine\net.cpp" />
     <ClCompile Include="..\engine\networkstringtable.cpp" />
@@ -212,6 +213,7 @@
     <ClInclude Include="..\engine\host_cmd.h" />
     <ClInclude Include="..\engine\host_state.h" />
     <ClInclude Include="..\engine\matsys_interface.h" />
+    <ClInclude Include="..\engine\modelinfo.h" />
     <ClInclude Include="..\engine\modelloader.h" />
     <ClInclude Include="..\engine\net.h" />
     <ClInclude Include="..\engine\networkstringtable.h" />
@@ -297,6 +299,7 @@
     <ClInclude Include="..\public\eiface.h" />
     <ClInclude Include="..\public\engine\ICollideable.h" />
     <ClInclude Include="..\public\engine\IEngineTrace.h" />
+    <ClInclude Include="..\public\engine\IVModelInfo.h" />
     <ClInclude Include="..\public\gametrace.h" />
     <ClInclude Include="..\public\iengine.h" />
     <ClInclude Include="..\public\client_class.h" />
