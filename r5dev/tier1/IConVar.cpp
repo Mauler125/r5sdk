@@ -120,7 +120,7 @@ void ConVar::Init(void)
 #endif // !CLIENT_DLL
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 	bhit_zbuffer    = ConVar::Create("bhit_zbuffer"   , "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Use z-buffer for bullet ray trace overlay.", false, 0.f, false, 0.f, nullptr, nullptr);
-	bhit_abs_origin = ConVar::Create("bhit_abs_origin", "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Draw entity's predicted abs origin upon bullet impact for trajectory debugging.", false, 0.f, false, 0.f, nullptr, nullptr);
+	bhit_abs_origin = ConVar::Create("bhit_abs_origin", "1", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Draw entity's predicted abs origin upon bullet impact for trajectory debugging (requires 'r_visualizetraces' to be set!).", false, 0.f, false, 0.f, nullptr, nullptr);
 #endif // !GAMEDLL_S0 && !GAMEDLL_S1
 	//-------------------------------------------------------------------------
 	// CLIENT                                                                 |

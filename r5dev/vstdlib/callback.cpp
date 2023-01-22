@@ -1148,31 +1148,35 @@ void BHit_f(const CCommand& args)
 	if (args.ArgC() != 9)
 		return;
 
-	if (!bhit_enable->GetBool() && !sv_visualizetraces->GetBool())
+	if (!bhit_enable->GetBool())
 		return;
 
-	Vector3D vecAbsStart;
-	Vector3D vecAbsEnd;
+	if (sv_visualizetraces->GetBool())
+	{
+		Vector3D vecAbsStart;
+		Vector3D vecAbsEnd;
 
-	for (int i = 0; i < 3; ++i)
-		vecAbsStart[i] = atof(args[i + 4]);
+		for (int i = 0; i < 3; ++i)
+			vecAbsStart[i] = atof(args[i + 4]);
 
-	QAngle vecBulletAngles;
-	for (int i = 0; i < 2; ++i)
-		vecBulletAngles[i] = atof(args[i + 7]);
+		QAngle vecBulletAngles;
+		for (int i = 0; i < 2; ++i)
+			vecBulletAngles[i] = atof(args[i + 7]);
 
-	vecBulletAngles.z = 180.f; // Flipped axis.
-	AngleVectors(vecBulletAngles, &vecAbsEnd);
+		vecBulletAngles.z = 180.f; // Flipped axis.
+		AngleVectors(vecBulletAngles, &vecAbsEnd);
 
-	vecAbsEnd.MulAdd(vecAbsStart, vecAbsEnd, MAX_COORD_RANGE);
+		vecAbsEnd.MulAdd(vecAbsStart, vecAbsEnd, MAX_COORD_RANGE);
 
-	Ray_t ray(vecAbsStart, vecAbsEnd);
-	trace_t trace;
+		Ray_t ray(vecAbsStart, vecAbsEnd);
+		trace_t trace;
 
-	g_pEngineTraceServer->TraceRay(ray, TRACE_MASK_NPCWORLDSTATIC, &trace);
+		g_pEngineTraceServer->TraceRay(ray, TRACE_MASK_NPCWORLDSTATIC, &trace);
 
-	g_pDebugOverlay->AddLineOverlay(trace.startpos, trace.endpos, 0, 255, 0, bhit_zbuffer->GetBool(), sv_visualizetraces_duration->GetFloat());
-	g_pDebugOverlay->AddLineOverlay(trace.endpos, vecAbsEnd, 255, 0, 0, bhit_zbuffer->GetBool(), sv_visualizetraces_duration->GetFloat());
+		g_pDebugOverlay->AddLineOverlay(trace.startpos, trace.endpos, 0, 255, 0, bhit_zbuffer->GetBool(), sv_visualizetraces_duration->GetFloat());
+		g_pDebugOverlay->AddLineOverlay(trace.endpos, vecAbsEnd, 255, 0, 0, bhit_zbuffer->GetBool(), sv_visualizetraces_duration->GetFloat());
+
+	}
 
 	if (bhit_abs_origin->GetBool() && r_visualizetraces->GetBool())
 	{
