@@ -123,7 +123,7 @@
 // everything that blocks line of sight for AI
 #define TRACE_MASK_BLOCKLOS				(CONTENTS_BLOCKLOS|CONTENTS_MOVEABLE|CONTENTS_OPAQUE|CONTENTS_SOLID)
 // everything that blocks line of sight for AI plus NPCs
-#define MASK_BLOCKLOS_AND_NPCS		(TRACE_MASK_BLOCKLOS|CONTENTS_MONSTER)
+#define TRACE_MASK_BLOCKLOS_AND_NPCS	(TRACE_MASK_BLOCKLOS|CONTENTS_MONSTER)
 // everything that blocks line of sight for players
 #define	TRACE_MASK_VISIBLE			(TRACE_MASK_OPAQUE|CONTENTS_IGNORE_NODRAW_OPAQUE)
 // everything that blocks line of sight for players, but with monsters added.
