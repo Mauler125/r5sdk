@@ -339,7 +339,7 @@ struct studiohdr_t
 
 
 	// Look up hitbox set by index
-	mstudiohitboxset_t* pHitboxSet(int i) const
+	mstudiohitboxset_t* GetHitboxSet(int i) const
 	{
 		Assert(i >= 0 && i < numhitboxsets);
 		return (mstudiohitboxset_t*)(((byte*)this) + hitboxsetindex) + i;
@@ -1033,13 +1033,22 @@ struct studiohwdata_t
 
 class CStudioHdr
 {
-public:
+public: // Detour statics:
 	static int LookupSequence(CStudioHdr* pStudio, const char* pszName);
-	inline mstudiohitboxset_t* pHitboxSet(int i) const { return m_pStudioHdr->pHitboxSet(i); };
 
+public:
+	inline bool IsVirtual(void) { return (m_pVModel != NULL); };
+	inline bool IsValid(void) { return (m_pStudioHdr != NULL); };
+	inline bool IsReadyForAccess(void) const { return (m_pStudioHdr != NULL); };
+
+public:
+	inline const studiohdr_t* GetRenderHdr(void) const { return m_pStudioHdr; };
+	inline mstudiohitboxset_t* GetHitboxSet(int i) const { return m_pStudioHdr->GetHitboxSet(i); };
+
+private:
 	void* vtbl;
 	studiohdr_t* m_pStudioHdr;
-	void* m_pVModel;
+	void* m_pVModel; // !TODO: 'virtualmodel_t'.
 	char gap0[156];
 	mstudiobbox_t m_pHitBox;
 	char gap_10[1896];

@@ -12,22 +12,27 @@
 #endif
 
 #include "mathlib/vector.h"
-#include "game/server/networkproperty.h"
+#include "public/iservernetworkable.h"
+#include "public/iserverentity.h"
+#include "public/string_t.h"
+#include "engine/gl_model_private.h"
 #include "game/shared/collisionproperty.h"
-#include "game/shared/entitylist_base.h"
-#include "iservernetworkable.h"
-#include "iserverentity.h"
+#include "networkproperty.h"
+#include "entitylist.h"
 
 
 class CBaseEntity : public IServerEntity
 {
 	// non-virtual methods. Don't override these!
 public:
-	// An inline version the game code can use
 	CCollisionProperty* CollisionProp();
 	const CCollisionProperty* CollisionProp() const;
 	CServerNetworkProperty* NetworkProp();
 	const CServerNetworkProperty* NetworkProp() const;
+
+	model_t*		GetModel(void);
+	int				GetModelIndex(void) const; // Virtual in-engine!
+	string_t		GetModelName(void) const;  // Virtual in-engine!
 
 protected:
 	char m_RefEHandle[4];
@@ -40,7 +45,7 @@ protected:
 	void* m_pfnMoveDone;
 	void* m_pfnThink;
 	CServerNetworkProperty m_Network;
-	const char* m_ModelName;
+	string_t m_ModelName;
 	int m_entIndex;
 	char gap_74[8]; // Aligns properly in IDA and generated code after setting from 4 to 8.
 	const char* m_iClassname;
@@ -250,8 +255,6 @@ protected:
 
 inline CMemory p_CBaseEntity__GetBaseEntity;
 inline auto v_CBaseEntity__GetBaseEntity = p_CBaseEntity__GetBaseEntity.RCast<CBaseEntity* (*)(CBaseEntity* thisp)>();
-
-inline CEntInfo* g_pEntityList = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
 class VBaseEntity : public IDetour

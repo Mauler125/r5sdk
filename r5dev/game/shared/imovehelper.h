@@ -13,7 +13,7 @@
 #endif
 
 #include "tier0/annotations.h"
-#include "public/baseentity.h"
+#include "public/ihandleentity.h"
 
 typedef CBaseHandle EntityHandle_t;
 class IPhysicsSurfaceProps; // !TODO: reverse vtable.
@@ -32,8 +32,8 @@ public:
 	virtual	char const* GetName(EntityHandle_t handle) const = 0;
 
 	// sets the entity being moved
-	virtual void	SetHost(CBaseEntity* host) = 0;
-	virtual CBaseEntity* GetHost(void) = 0;
+	virtual void	SetHost(IHandleEntity* host) = 0;
+	virtual IHandleEntity* GetHost(void) = 0;
 	virtual void	ResetTouchList(void) = 0;
 	virtual bool	AddToTouched(const /*CGameTrace&*/void* tr, const Vector3D& impactvelocity) = 0;
 

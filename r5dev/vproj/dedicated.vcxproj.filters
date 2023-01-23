@@ -1311,9 +1311,6 @@
     <ClInclude Include="..\public\string_t.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\baseentity.h">
-      <Filter>sdk\public</Filter>
-    </ClInclude>
     <ClInclude Include="..\public\engine\ICollideable.h">
       <Filter>sdk\public\engine</Filter>
     </ClInclude>
@@ -1397,6 +1394,12 @@
     </ClInclude>
     <ClInclude Include="..\engine\modelinfo.h">
       <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\server\entitylist.h">
+      <Filter>sdk\game\server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\server\baseentity.h">
+      <Filter>sdk\game\server</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1751,9 +1754,6 @@
     <ClCompile Include="..\game\server\player.cpp">
       <Filter>sdk\game\server</Filter>
     </ClCompile>
-    <ClCompile Include="..\public\baseentity.cpp">
-      <Filter>sdk\public</Filter>
-    </ClCompile>
     <ClCompile Include="..\game\server\movehelper_server.cpp">
       <Filter>sdk\game\server</Filter>
     </ClCompile>
@@ -1768,6 +1768,12 @@
     </ClCompile>
     <ClCompile Include="..\engine\modelinfo.cpp">
       <Filter>sdk\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\server\entitylist.cpp">
+      <Filter>sdk\game\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\server\baseentity.cpp">
+      <Filter>sdk\game\server</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -9,8 +9,8 @@
 #define COLLISIONPROPERTY_H
 
 #include "public/engine/ICollideable.h"
-#include "public/baseentity.h"
 #include "mathlib/vector.h"
+#include "baseentity.h"
 
 class CCollisionProperty : public ICollideable
 {

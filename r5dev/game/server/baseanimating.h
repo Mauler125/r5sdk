@@ -9,19 +9,20 @@
 #ifdef _WIN32
 #pragma once
 #endif
-#include "public/baseentity.h"
-#include "game/shared/animation.h"
+#include "baseentity.h"
 #include "public/studio.h"
+#include "game/shared/animation.h"
 
 
 class CBaseAnimating : public CBaseEntity
 {
 public:
 	void DrawServerHitboxes(float duration = 0.0f);
-	void UpdateModelPtr();
 
+	void LockStudioHdr(void);
 	void HitboxToWorldTransforms(uint32_t iBone, matrix3x4_t* transforms);
 
+	CStudioHdr*			GetModelPtr(void);
 	float				GetModelScale() const { return m_flModelScale; }
 
 protected:
@@ -135,8 +136,8 @@ protected:
 	char gap_11E4[12]; // TODO: this might belong to CBaseAnimatingOverlay!
 };
 
-inline CMemory p_CBaseAnimating__UpdateModelPtr;
-inline auto v_CBaseAnimating__UpdateModelPtr = p_CBaseAnimating__UpdateModelPtr.RCast<CBaseAnimating* (*)(CBaseAnimating* thisp)>();
+inline CMemory p_CBaseAnimating__LockStudioHdr;
+inline auto v_CBaseAnimating__LockStudioHdr = p_CBaseAnimating__LockStudioHdr.RCast<CBaseAnimating* (*)(CBaseAnimating* thisp)>();
 
 inline CMemory p_CBaseAnimating__DrawServerHitboxes;
 inline auto v_CBaseAnimating__DrawServerHitboxes = p_CBaseAnimating__DrawServerHitboxes.RCast<void (*)(CBaseAnimating* thisp, float duration)>();
@@ -149,14 +150,14 @@ class VBaseAnimating : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CBaseAnimating::UpdateModelPtr       : {:#18x} |\n", p_CBaseAnimating__UpdateModelPtr.GetPtr());
+		spdlog::debug("| FUN: CBaseAnimating::LockStudioHdr        : {:#18x} |\n", p_CBaseAnimating__LockStudioHdr.GetPtr());
 		spdlog::debug("| FUN: CBaseAnimating::DrawServerHitboxes   : {:#18x} |\n", p_CBaseAnimating__DrawServerHitboxes.GetPtr());
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
-		p_CBaseAnimating__UpdateModelPtr = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 41 56 48 83 EC 20 0F BF 41 58");
-		v_CBaseAnimating__UpdateModelPtr = p_CBaseAnimating__UpdateModelPtr.RCast<CBaseAnimating* (*)(CBaseAnimating* thisp)>();
+		p_CBaseAnimating__LockStudioHdr = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 41 56 48 83 EC 20 0F BF 41 58");
+		v_CBaseAnimating__LockStudioHdr = p_CBaseAnimating__LockStudioHdr.RCast<CBaseAnimating* (*)(CBaseAnimating* thisp)>();
 
 		p_CBaseAnimating__DrawServerHitboxes = g_GameDll.FindPatternSIMD("41 57 48 81 EC ?? ?? ?? ?? 48 83 B9 ?? ?? ?? ?? ?? 4C 8B F9"); // !FIXME NOT COMPAT WITH S0~S2!
 		v_CBaseAnimating__DrawServerHitboxes = p_CBaseAnimating__DrawServerHitboxes.RCast<void (*)(CBaseAnimating* thisp, float duration)>();

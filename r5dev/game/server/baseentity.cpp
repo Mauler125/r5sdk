@@ -5,6 +5,8 @@
 //===============================================================================
 #include "core/stdafx.h"
 #include "baseentity.h"
+#include "engine/gl_model_private.h"
+#include "engine/modelinfo.h"
 
 //-----------------------------------------------------------------------------
 // 
@@ -36,4 +38,22 @@ CServerNetworkProperty* CBaseEntity::NetworkProp()
 const CServerNetworkProperty* CBaseEntity::NetworkProp() const
 {
 	return &m_Network;
+}
+
+//-----------------------------------------------------------------------------
+// 
+//-----------------------------------------------------------------------------
+model_t* CBaseEntity::GetModel(void)
+{
+	return (model_t*)g_pModelInfoServer->GetModel(GetModelIndex());
+}
+
+inline string_t CBaseEntity::GetModelName(void) const
+{
+	return m_ModelName;
+}
+
+inline int CBaseEntity::GetModelIndex(void) const
+{
+	return m_nModelIndex;
 }

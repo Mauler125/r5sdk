@@ -7,18 +7,19 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "public/baseentity.h"
+#include "baseentity.h"
 #include "mathlib/mathlib.h"
-#include <public/studio.h>
-#include <public/playerstate.h>
+#include "mathlib/vector4d.h"
+#include "public/studio.h"
+#include "public/playerstate.h"
 
 #include "game/shared/animation.h"
 #include "game/shared/takedamageinfo.h"
 #include "game/shared/usercmd.h"
 #include "game/shared/imovehelper.h"
+
 #include "playerlocaldata.h"
 #include "basecombatcharacter.h"
-#include <mathlib/vector4d.h>
 
 enum PlayerConnectedState
 {

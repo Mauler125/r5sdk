@@ -71,6 +71,8 @@
     <ClCompile Include="..\game\server\ai_networkmanager.cpp" />
     <ClCompile Include="..\game\server\ai_utility.cpp" />
     <ClCompile Include="..\game\server\baseanimating.cpp" />
+    <ClCompile Include="..\game\server\baseentity.cpp" />
+    <ClCompile Include="..\game\server\entitylist.cpp" />
     <ClCompile Include="..\game\server\gameinterface.cpp" />
     <ClCompile Include="..\game\server\movehelper_server.cpp" />
     <ClCompile Include="..\game\server\networkproperty.cpp" />
@@ -118,7 +120,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\public\baseentity.cpp" />
     <ClCompile Include="..\public\datamap.cpp" />
     <ClCompile Include="..\public\dt_recv.cpp" />
     <ClCompile Include="..\public\networkvar.cpp" />
@@ -266,7 +267,9 @@
     <ClInclude Include="..\game\server\baseanimatingoverlay.h" />
     <ClInclude Include="..\game\server\baseanimating.h" />
     <ClInclude Include="..\game\server\basecombatcharacter.h" />
+    <ClInclude Include="..\game\server\baseentity.h" />
     <ClInclude Include="..\game\server\detour_impl.h" />
+    <ClInclude Include="..\game\server\entitylist.h" />
     <ClInclude Include="..\game\server\fairfight_impl.h" />
     <ClInclude Include="..\game\server\gameinterface.h" />
     <ClInclude Include="..\game\server\movehelper_server.h" />
@@ -330,7 +333,6 @@
     <ClInclude Include="..\protoc\sv_rcon.pb.h" />
     <ClInclude Include="..\public\avi\iavi.h" />
     <ClInclude Include="..\public\avi\ibik.h" />
-    <ClInclude Include="..\public\baseentity.h" />
     <ClInclude Include="..\public\basehandle.h" />
     <ClInclude Include="..\public\bitmap\stb_image.h" />
     <ClInclude Include="..\public\bspflags.h" />
