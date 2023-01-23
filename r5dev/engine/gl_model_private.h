@@ -6,6 +6,9 @@
 // $Date:         $
 // $NoKeywords: $
 //=============================================================================//
+#ifndef GL_MODEL_PRIVATE_H
+#define GL_MODEL_PRIVATE_H
+
 #include "vpc/keyvalues.h"
 #include "mathlib/vector.h"
 #include "common/qlimits.h"
@@ -67,3 +70,5 @@ struct model_t // !! CONFIRMED !!
 #endif // !DEDICATED
 	};
 };
+
+#endif // GL_MODEL_PRIVATE_H
