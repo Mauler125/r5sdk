@@ -8,6 +8,7 @@
 #define ENTITYLIST_H
 #include "game/shared/entitylist_base.h"
 
-extern CEntInfo* g_pEntityList;
+IHandleEntity* LookupEntityByIndex(int iEntity);
+extern CEntInfo** g_pEntityList;
 
 #endif // ENTITYLIST_H

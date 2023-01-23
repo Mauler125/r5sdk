@@ -272,7 +272,7 @@ class VBaseEntity : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		g_pEntityList = p_CBaseEntity__GetBaseEntity.FindPattern("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CEntInfo*>();
+		g_pEntityList = p_CBaseEntity__GetBaseEntity.FindPattern("48 8D 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CEntInfo**>();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

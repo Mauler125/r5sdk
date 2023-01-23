@@ -14,7 +14,7 @@
 #define	MAX_EDICTS					(1<<MAX_EDICT_BITS)
 // Used for networking ehandles.
 #define NUM_ENT_ENTRY_BITS		(MAX_EDICT_BITS + 2)
-#define NUM_ENT_ENTRIES			(1 << NUM_ENT_ENTRY_BITS) // !TODO: is this correct?
+#define NUM_ENT_ENTRIES			(1 << NUM_ENT_ENTRY_BITS) // Value is correct for r5.
 #define INVALID_EHANDLE_INDEX	0xFFFFFFFF
 
 #define NUM_SERIAL_NUM_BITS		16 // (32 - NUM_ENT_ENTRY_BITS)
