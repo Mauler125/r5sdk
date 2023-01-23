@@ -29,7 +29,7 @@ public:
 	CServerNetworkProperty* NetworkProp();
 	const CServerNetworkProperty* NetworkProp() const;
 
-private:
+protected:
 	char m_RefEHandle[4];
 	char gap_c[4];
 	void* m_collideable;
