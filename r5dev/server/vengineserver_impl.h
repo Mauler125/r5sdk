@@ -6,9 +6,6 @@
 inline CMemory p_IVEngineServer__PersistenceAvailable;
 inline auto IVEngineServer__PersistenceAvailable = p_IVEngineServer__PersistenceAvailable.RCast<bool (*)(void* entidx, int clientidx)>();
 
-//inline CMemory p_RunFrameServer;
-//inline auto v_RunFrameServer = p_RunFrameServer.RCast<void(*)(double flFrameTime, bool bRunOverlays, bool bUniformUpdate)>();
-
 inline bool* g_bDedicated = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -59,7 +56,6 @@ class HVEngineServer : public IDetour
 	virtual void GetAdr(void) const
 	{
 		spdlog::debug("| FUN: CVEngineServer::PersistenceAvailable : {:#18x} |\n", p_IVEngineServer__PersistenceAvailable.GetPtr());
-		//spdlog::debug("| FUN: RunFrameServer                       : {:#18x} |\n", p_RunFrameServer.GetPtr());
 		spdlog::debug("| VAR: g_bDedicated                         : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_bDedicated));
 		spdlog::debug("| VAR: g_pEngineServerVFTable               : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pEngineServerVFTable));
 		spdlog::debug("+----------------------------------------------------------------+\n");
@@ -67,10 +63,7 @@ class HVEngineServer : public IDetour
 	virtual void GetFun(void) const
 	{
 		p_IVEngineServer__PersistenceAvailable = g_GameDll.FindPatternSIMD("3B 15 ?? ?? ?? ?? 7D 33");
-//		p_RunFrameServer                       = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 57 48 83 EC 30 0F 29 74 24 ?? 48 8D 0D ?? ?? ?? ??");
-
-		IVEngineServer__PersistenceAvailable = p_IVEngineServer__PersistenceAvailable.RCast<bool (*)(void*, int)>();       /*3B 15 ?? ?? ?? ?? 7D 33*/
-//		v_RunFrameServer                     = p_RunFrameServer.RCast<void(*)(double, bool, bool)>();                        /*48 89 5C 24 ?? 57 48 83 EC 30 0F 29 74 24 ?? 48 8D 0D ?? ?? ?? ??*/
+		IVEngineServer__PersistenceAvailable = p_IVEngineServer__PersistenceAvailable.RCast<bool (*)(void*, int)>();
 	}
 	virtual void GetVar(void) const
 	{

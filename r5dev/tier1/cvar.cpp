@@ -80,6 +80,7 @@ ConVar* sv_autoReloadRate                  = nullptr;
 ConVar* sv_quota_stringCmdsPerSecond       = nullptr;
 
 ConVar* sv_simulateBots                    = nullptr;
+ConVar* sv_showhitboxes                    = nullptr;
 
 #ifdef DEDICATED
 ConVar* sv_rcon_debug                      = nullptr;

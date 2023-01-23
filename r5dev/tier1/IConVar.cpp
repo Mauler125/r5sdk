@@ -12,6 +12,7 @@
 #include "tier1/utlvector.h"
 #include "mathlib/fbits.h"
 #include "vstdlib/callback.h"
+#include "public/const.h"
 #include "public/iconvar.h"
 #include "public/iconcommand.h"
 
@@ -274,6 +275,11 @@ void ConVar::InitShipped(void)
 	host_hasIrreversibleShutdown     = g_pCVar->FindVar("host_hasIrreversibleShutdown");
 	net_usesocketsforloopback        = g_pCVar->FindVar("net_usesocketsforloopback");
 #ifndef CLIENT_DLL
+	sv_showhitboxes = g_pCVar->FindVar("sv_showhitboxes");
+
+	sv_showhitboxes->SetMin(-1); // Allow user to go over each entity manually without going out of bounds.
+	sv_showhitboxes->SetMax(NUM_ENT_ENTRIES - 1);
+
 	sv_forceChatToTeamOnly = g_pCVar->FindVar("sv_forceChatToTeamOnly");
 
 	sv_forceChatToTeamOnly->RemoveFlags(FCVAR_DEVELOPMENTONLY);
@@ -479,6 +485,26 @@ const char* ConVar::GetString(void) const
 
 	char const* str = m_pParent->m_Value.m_pszString;
 	return str ? str : "";
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : flMaxVal - 
+//-----------------------------------------------------------------------------
+void ConVar::SetMax(float flMaxVal)
+{
+	m_pParent->m_fMaxVal = flMaxVal;
+	m_pParent->m_bHasMax = true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : flMinVal - 
+//-----------------------------------------------------------------------------
+void ConVar::SetMin(float flMinVal)
+{
+	m_pParent->m_fMinVal = flMinVal;
+	m_pParent->m_bHasMin = true;
 }
 
 //-----------------------------------------------------------------------------

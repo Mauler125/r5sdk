@@ -6,10 +6,14 @@
 //=============================================================================//
 
 #include "core/stdafx.h"
-#include "engine/server/sv_main.h"
-#include "game/server/gameinterface.h"
+#include "tier1/cvar.h"
 #include "public/server_class.h"
 #include "public/eiface.h"
+#include "public/const.h"
+#include "engine/server/sv_main.h"
+#include "gameinterface.h"
+#include "entitylist.h"
+#include "baseanimating.h"
 
 //-----------------------------------------------------------------------------
 // This is called when a new game is started. (restart, map)
@@ -78,11 +82,50 @@ void __fastcall CServerGameDLL::OnReceivedSayTextMessage(void* thisptr, int send
 #endif
 }
 
+void DrawServerHitboxes(bool bRunOverlays)
+{
+	int nVal = sv_showhitboxes->GetInt();
+	Assert(nVal < NUM_ENT_ENTRIES);
+
+	if (nVal == -1)
+		return;
+
+	std::function<void(int)> fnLookupAndDraw = [&](int iEntity)
+	{
+		IHandleEntity* pEntity = LookupEntityByIndex(iEntity);
+		CBaseAnimating* pAnimating = dynamic_cast<CBaseAnimating*>(pEntity);
+
+		if (pAnimating)
+		{
+			pAnimating->DrawServerHitboxes();
+		}
+	};
+
+	if (nVal == 0)
+	{
+		for (int i = 0; i < NUM_ENT_ENTRIES; i++)
+		{
+			fnLookupAndDraw(i);
+		}
+	}
+	else // Lookup entity manually by index from 'sv_showhitboxes'.
+	{
+		fnLookupAndDraw(nVal);
+	}
+}
+
+void RunFrameServer(double flFrameTime, bool bRunOverlays, bool bUniformUpdate)
+{
+	DrawServerHitboxes(bRunOverlays);
+	v_RunFrameServer(flFrameTime, bRunOverlays, bUniformUpdate);
+}
+
 void CServerGameDLL_Attach()
 {
 #if defined(GAMEDLL_S3)
 	DetourAttach((LPVOID*)&CServerGameDLL__OnReceivedSayTextMessage, &CServerGameDLL::OnReceivedSayTextMessage);
 #endif
+	DetourAttach(&v_RunFrameServer, &RunFrameServer);
 }
 
 void CServerGameDLL_Detach()
@@ -90,6 +133,7 @@ void CServerGameDLL_Detach()
 #if defined(GAMEDLL_S3)
 	DetourDetach((LPVOID*)&CServerGameDLL__OnReceivedSayTextMessage, &CServerGameDLL::OnReceivedSayTextMessage);
 #endif
+	DetourDetach(&v_RunFrameServer, &RunFrameServer);
 }
 
 CServerGameDLL* g_pServerGameDLL = nullptr;

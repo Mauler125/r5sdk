@@ -76,6 +76,7 @@ extern ConVar* sv_autoReloadRate;
 extern ConVar* sv_quota_stringCmdsPerSecond;
 
 extern ConVar* sv_simulateBots;
+extern ConVar* sv_showhitboxes;
 
 #ifdef DEDICATED
 extern ConVar* sv_rcon_debug;

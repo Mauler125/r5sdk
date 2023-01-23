@@ -37,6 +37,8 @@ public:
 	Color GetColor(void) const;
 	const char* GetString(void) const;
 
+	void SetMax(float flMaxValue);
+	void SetMin(float flMinValue);
 	bool GetMin(float& flMinValue) const;
 	bool GetMax(float& flMaxValue) const;
 	float GetMinValue(void) const;
