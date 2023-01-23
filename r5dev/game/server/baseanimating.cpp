@@ -80,16 +80,9 @@ CStudioHdr* CBaseAnimating::GetModelPtr(void)
 	return (m_pStudioHdr && m_pStudioHdr->IsValid()) ? m_pStudioHdr : nullptr;
 }
 
-void DrawServerHitboxes(CBaseAnimating* thisp, float duration)
-{
-    thisp->DrawServerHitboxes(duration);
-}
-
 void BaseAnimating_Attach()
 {
-    DetourAttach(&v_CBaseAnimating__DrawServerHitboxes, &DrawServerHitboxes);
 }
 void BaseAnimating_Detach()
 {
-    DetourDetach(&v_CBaseAnimating__DrawServerHitboxes, &DrawServerHitboxes);
 }

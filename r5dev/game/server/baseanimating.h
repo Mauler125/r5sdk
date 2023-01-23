@@ -139,9 +139,6 @@ protected:
 inline CMemory p_CBaseAnimating__LockStudioHdr;
 inline auto v_CBaseAnimating__LockStudioHdr = p_CBaseAnimating__LockStudioHdr.RCast<CBaseAnimating* (*)(CBaseAnimating* thisp)>();
 
-inline CMemory p_CBaseAnimating__DrawServerHitboxes;
-inline auto v_CBaseAnimating__DrawServerHitboxes = p_CBaseAnimating__DrawServerHitboxes.RCast<void (*)(CBaseAnimating* thisp, float duration)>();
-
 void BaseAnimating_Attach();
 void BaseAnimating_Detach();
 
@@ -151,16 +148,12 @@ class VBaseAnimating : public IDetour
 	virtual void GetAdr(void) const
 	{
 		spdlog::debug("| FUN: CBaseAnimating::LockStudioHdr        : {:#18x} |\n", p_CBaseAnimating__LockStudioHdr.GetPtr());
-		spdlog::debug("| FUN: CBaseAnimating::DrawServerHitboxes   : {:#18x} |\n", p_CBaseAnimating__DrawServerHitboxes.GetPtr());
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
 		p_CBaseAnimating__LockStudioHdr = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 41 56 48 83 EC 20 0F BF 41 58");
 		v_CBaseAnimating__LockStudioHdr = p_CBaseAnimating__LockStudioHdr.RCast<CBaseAnimating* (*)(CBaseAnimating* thisp)>();
-
-		p_CBaseAnimating__DrawServerHitboxes = g_GameDll.FindPatternSIMD("41 57 48 81 EC ?? ?? ?? ?? 48 83 B9 ?? ?? ?? ?? ?? 4C 8B F9"); // !FIXME NOT COMPAT WITH S0~S2!
-		v_CBaseAnimating__DrawServerHitboxes = p_CBaseAnimating__DrawServerHitboxes.RCast<void (*)(CBaseAnimating* thisp, float duration)>();
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
