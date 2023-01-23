@@ -76,7 +76,7 @@ void CAI_Utility::DrawAIScriptNetwork(const CAI_Network* pNetwork) const
         vTransforms.xmm[1] = _mm_set_ps(xOrigin.m128_f32[1], 0.0f, 1.0f, 0.0f);
         vTransforms.xmm[2] = _mm_set_ps(xOrigin.m128_f32[2], 1.0f, 0.0f, 0.0f);
 
-        v_RenderBox(vTransforms, *reinterpret_cast<const Vector3D*>(&xMins),
+        v_RenderBox(vTransforms.mat, *reinterpret_cast<const Vector3D*>(&xMins),
             *reinterpret_cast<const Vector3D*>(&xMaxs), m_BoxColor, bUseDepthBuffer);
 
         if (bDrawNearest) // Render links to the nearest node.
@@ -154,7 +154,7 @@ void CAI_Utility::DrawNavMeshBVTree(dtNavMesh* pMesh) const
             const __m128 xMaxs = _mm_add_ps(xTileAABB, _mm_mul_ps( // Formula: tile->header->bmax[axis]+node->bmax[axis]*cs;
                 _mm_setr_ps(pNode->bmax[0], pNode->bmax[1], pNode->bmax[2], 0.0f), xCellSize));
 
-            v_RenderBox(vTransforms, *reinterpret_cast<const Vector3D*>(&xMins), *reinterpret_cast<const Vector3D*>(&xMaxs),
+            v_RenderBox(vTransforms.mat, *reinterpret_cast<const Vector3D*>(&xMins), *reinterpret_cast<const Vector3D*>(&xMaxs),
                 Color(188, 188, 188, 255), bDepthBuffer);
         }
     }

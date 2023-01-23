@@ -17,7 +17,7 @@ class IVDebugOverlay
 class CIVDebugOverlay : public IVDebugOverlay
 {
 public:
-	void AddBoxOverlay(__m128i& vTransforms, const Vector3D& vMins, const Vector3D& vMaxs, int r, int g, int b, int a, bool bZBuffer, float flDuration)
+	void AddBoxOverlay(matrix3x4_t& vTransforms, const Vector3D& vMins, const Vector3D& vMaxs, int r, int g, int b, int a, bool bZBuffer, float flDuration)
 	{
 		const static int index = 1;
 		CallVFunc<void>(index, this, vTransforms, vMins, vMaxs, r, g, b, a, bZBuffer, flDuration);

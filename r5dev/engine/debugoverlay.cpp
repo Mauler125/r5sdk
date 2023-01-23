@@ -135,7 +135,7 @@ void DrawOverlay(OverlayBase_t* pOverlay)
             }
         }
 
-        v_RenderBox(pBox->transforms, pBox->mins, pBox->maxs, Color(pBox->r, pBox->g, pBox->b, pBox->a), r_debug_overlay_zbuffer->GetBool());
+        v_RenderBox(pBox->transforms.mat, pBox->mins, pBox->maxs, Color(pBox->r, pBox->g, pBox->b, pBox->a), r_debug_overlay_zbuffer->GetBool());
         break;
     }
     case OverlayType_t::OVERLAY_SPHERE:
