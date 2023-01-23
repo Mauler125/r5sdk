@@ -16,6 +16,15 @@
 
 class CBaseAnimating : public CBaseEntity
 {
+public:
+	void DrawServerHitboxes(float duration = 0.0f);
+	void UpdateModelPtr();
+
+	void HitboxToWorldTransforms(uint32_t iBone, matrix3x4_t* transforms);
+
+	float				GetModelScale() const { return m_flModelScale; }
+
+protected:
 	char gap_b04[8]; // Aligns properly in IDA and generated code after setting from 12 to 8.
 	bool m_markedForServerInterpolation;
 	bool m_animRemoveFromServerInterpolationNextFrame;
@@ -126,5 +135,40 @@ class CBaseAnimating : public CBaseEntity
 	char gap_11E4[12]; // TODO: this might belong to CBaseAnimatingOverlay!
 };
 
+inline CMemory p_CBaseAnimating__UpdateModelPtr;
+inline auto v_CBaseAnimating__UpdateModelPtr = p_CBaseAnimating__UpdateModelPtr.RCast<CBaseAnimating* (*)(CBaseAnimating* thisp)>();
+
+inline CMemory p_CBaseAnimating__DrawServerHitboxes;
+inline auto v_CBaseAnimating__DrawServerHitboxes = p_CBaseAnimating__DrawServerHitboxes.RCast<void (*)(CBaseAnimating* thisp, float duration)>();
+
+void BaseAnimating_Attach();
+void BaseAnimating_Detach();
+
+///////////////////////////////////////////////////////////////////////////////
+class VBaseAnimating : public IDetour
+{
+	virtual void GetAdr(void) const
+	{
+		spdlog::debug("| FUN: CBaseAnimating::UpdateModelPtr       : {:#18x} |\n", p_CBaseAnimating__UpdateModelPtr.GetPtr());
+		spdlog::debug("| FUN: CBaseAnimating::DrawServerHitboxes   : {:#18x} |\n", p_CBaseAnimating__DrawServerHitboxes.GetPtr());
+		spdlog::debug("+----------------------------------------------------------------+\n");
+	}
+	virtual void GetFun(void) const
+	{
+		p_CBaseAnimating__UpdateModelPtr = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 41 56 48 83 EC 20 0F BF 41 58");
+		v_CBaseAnimating__UpdateModelPtr = p_CBaseAnimating__UpdateModelPtr.RCast<CBaseAnimating* (*)(CBaseAnimating* thisp)>();
+
+		p_CBaseAnimating__DrawServerHitboxes = g_GameDll.FindPatternSIMD("41 57 48 81 EC ?? ?? ?? ?? 48 83 B9 ?? ?? ?? ?? ?? 4C 8B F9"); // !FIXME NOT COMPAT WITH S0~S2!
+		v_CBaseAnimating__DrawServerHitboxes = p_CBaseAnimating__DrawServerHitboxes.RCast<void (*)(CBaseAnimating* thisp, float duration)>();
+	}
+	virtual void GetVar(void) const { }
+	virtual void GetCon(void) const { }
+	virtual void Attach(void) const { }
+	virtual void Detach(void) const { }
+};
+///////////////////////////////////////////////////////////////////////////////
+
+REGISTER(VBaseAnimating);
 
 #endif // BASEANIMATING_H
+
