@@ -111,6 +111,43 @@ enum
 	STUDIODATA_FLAGS_COMBINED_ASSET = 0x0800,
 };
 
+// intersection boxes
+struct mstudiobbox_t
+{
+//	DECLARE_BYTESWAP_DATADESC();
+	int					bone;
+	int					group;				// intersection group
+	Vector3D			bbmin;				// bounding box
+	Vector3D			bbmax;
+	int					szhitboxnameindex;	// offset to the name of the hitbox.
+	int					critoverride;		// overrides the group to be a crit, 0 or 1. might be group override since group 1 is head.
+	int					keyvalueindex;		// used for keyvalues, most for titans.
+
+	const char* pszHitboxName()
+	{
+		if (szhitboxnameindex == 0)
+			return "";
+
+		return ((const char*)this) + szhitboxnameindex;
+	}
+
+	mstudiobbox_t() {}
+
+private:
+	// No copy constructors allowed
+	mstudiobbox_t(const mstudiobbox_t& vOther);
+};
+
+struct mstudiohitboxset_t
+{
+//	DECLARE_BYTESWAP_DATADESC();
+	int					sznameindex;
+	inline char* const	pszName(void) const { return ((char*)this) + sznameindex; }
+	int					numhitboxes;
+	int					hitboxindex;
+	inline mstudiobbox_t* pHitbox(int i) const { return (mstudiobbox_t*)(((byte*)this) + hitboxindex) + i; };
+};
+
 #pragma pack(push, 1)
 struct studiohdr_t
 {
@@ -299,6 +336,14 @@ struct studiohdr_t
 	// new in apex vertex weight file for verts that have more than three weights
 	int vvwindex; // index will come last after other vertex files
 	int vvwsize;
+
+
+	// Look up hitbox set by index
+	mstudiohitboxset_t* pHitboxSet(int i) const
+	{
+		Assert(i >= 0 && i < numhitboxsets);
+		return (mstudiohitboxset_t*)(((byte*)this) + hitboxsetindex) + i;
+	};
 };
 
 #define BONE_CALCULATE_MASK			0x1F
@@ -433,29 +478,6 @@ struct mstudioattachment_t
 	int localbone; // parent bone
 
 	matrix3x4_t			localmatrix; // attachment point
-};
-
-struct mstudiohitboxset_t
-{
-	int sznameindex;
-
-	int numhitboxes;
-	int hitboxindex;
-};
-
-struct mstudiobbox_t
-{
-	int bone;
-	int group; // intersection group
-
-	Vector3D bbmin; // bounding box
-	Vector3D bbmax;
-
-	int szhitboxnameindex; // offset to the name of the hitbox.
-
-	int critoverride; // overrides the group to be a crit, 0 or 1. might be group override since group 1 is head.
-
-	int keyvalueindex; // used for keyvalues, most for titans.
 };
 
 // sequence and autolayer flags
@@ -1013,10 +1035,17 @@ class CStudioHdr
 {
 public:
 	static int LookupSequence(CStudioHdr* pStudio, const char* pszName);
+	inline mstudiohitboxset_t* pHitboxSet(int i) const { return m_pStudioHdr->pHitboxSet(i); };
 
-	int64_t m_nUnk0;
+	void* vtbl;
 	studiohdr_t* m_pStudioHdr;
-	uint8_t m_Pad[0x85A]; // Compatible between S0 - S3.
+	void* m_pVModel;
+	char gap0[156];
+	mstudiobbox_t m_pHitBox;
+	char gap_10[1896];
+	int m_nPerfAnimatedBones;
+	int m_nPerfUsedBones;
+	int m_nPerfAnimationLayers;
 	void* m_pMdlCacheVTable;
 };
 
