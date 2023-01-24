@@ -256,9 +256,9 @@ void ConVar::InitShipped(void)
 	model_defaultFadeDistMin         = g_pCVar->FindVar("model_defaultFadeDistMin");
 #ifndef DEDICATED
 	rui_defaultDebugFontFace         = g_pCVar->FindVar("rui_defaultDebugFontFace");
-#endif // !DEDICATED
 	r_visualizetraces                = g_pCVar->FindVar("r_visualizetraces");
 	r_visualizetraces_duration       = g_pCVar->FindVar("r_visualizetraces_duration");
+#endif // !DEDICATED
 	staticProp_no_fade_scalar        = g_pCVar->FindVar("staticProp_no_fade_scalar");
 	staticProp_gather_size_weight    = g_pCVar->FindVar("staticProp_gather_size_weight");
 	stream_overlay                   = g_pCVar->FindVar("stream_overlay");

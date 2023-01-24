@@ -10,6 +10,7 @@
 #include "tier1/utlvector.h"
 #include "public/gametrace.h"
 #include "game/shared/imovehelper.h"
+#include "c_baseplayer.h"
 
 class CMoveHelperClient : public IMoveHelper
 {
@@ -23,7 +24,7 @@ class CMoveHelperClient : public IMoveHelper
 	};
 
 	CUtlVector<touchlist_t>	m_TouchList;
-	CBaseEntity* m_pHost;
+	C_BaseEntity* m_pHost;
 };
 
 IMoveHelper* MoveHelperClient();

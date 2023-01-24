@@ -48,10 +48,10 @@
 #include "vstdlib/callback.h"
 #ifndef DEDICATED
 #include "materialsystem/cmaterialglue.h"
+#endif // !DEDICATED
 #include "public/bspflags.h"
 #include "public/cmodel.h"
 #include "public/idebugoverlay.h"
-#endif // !DEDICATED
 #ifndef CLIENT_DLL
 #include "game/server/detour_impl.h"
 #include "game/server/gameinterface.h"
@@ -1144,7 +1144,7 @@ BHit_f
 */
 void BHit_f(const CCommand& args)
 {
-#ifndef DEDICATED // Stubbed to suppress server warnings as this is a GAMEDLL command!
+#ifndef CLIENT_DLL // Stubbed to suppress server warnings as this is a GAMEDLL command!
 	if (args.ArgC() != 9)
 		return;
 
@@ -1176,7 +1176,9 @@ void BHit_f(const CCommand& args)
 		g_pDebugOverlay->AddLineOverlay(trace.startpos, trace.endpos, 0, 255, 0, !bhit_depth_test->GetBool(), sv_visualizetraces_duration->GetFloat());
 		g_pDebugOverlay->AddLineOverlay(trace.endpos, vecAbsEnd, 255, 0, 0, !bhit_depth_test->GetBool(), sv_visualizetraces_duration->GetFloat());
 	}
+#endif // !CLIENT_DLL
 
+#ifndef DEDICATED
 	if (bhit_abs_origin->GetBool() && r_visualizetraces->GetBool())
 	{
 		const int iEnt = atoi(args[2]);
