@@ -47,13 +47,13 @@ struct OverlayBase_t
 	}
 	bool IsDead(void) const;
 
-	OverlayType_t   m_Type         {}; // What type of overlay is it?
-	int             m_nCreationTick{}; // Duration -1 means go away after this frame #
-	float           m_flEndTime    {}; // When does this box go away
-	int             m_nServerCount {}; // Latch server count, too
-	OverlayBase_t*  m_pNextOverlay {}; // 16
-	int             m_nOverlayTick {}; // 24
-	int             m_nFlags{}; // Maybe
+	OverlayType_t   m_Type;          // What type of overlay is it?
+	int             m_nCreationTick; // Duration -1 means go away after this frame #
+	float           m_flEndTime;     // When does this box go away
+	int             m_nServerCount;  // Latch server count, too
+	OverlayBase_t*  m_pNextOverlay;  // 16
+	int             m_nOverlayTick;  // 24
+	int             m_nFlags;        // Maybe
 };
 
 struct OverlayBox_t : public OverlayBase_t
@@ -76,40 +76,40 @@ struct OverlayBox_t : public OverlayBase_t
 	};
 
 	Transforms transforms;
-	Vector3D mins{};
-	Vector3D maxs{};
-	int             r{};
-	int             g{};
-	int             b{};
-	int             a{};
-	bool            noDepthTest{};
+	Vector3D mins;
+	Vector3D maxs;
+	int             r;
+	int             g;
+	int             b;
+	int             a;
+	bool            noDepthTest;
 };
 
 struct OverlaySphere_t : public OverlayBase_t
 {
 	OverlaySphere_t(void) { m_Type = OverlayType_t::OVERLAY_SPHERE; }
 
-	Vector3D        vOrigin{};
-	float           flRadius{};
-	int             nTheta{};
-	int             nPhi{};
-	int             r{};
-	int             g{};
-	int             b{};
-	int             a{};
+	Vector3D        vOrigin;
+	float           flRadius;
+	int             nTheta;
+	int             nPhi;
+	int             r;
+	int             g;
+	int             b;
+	int             a;
 };
 
 struct OverlayLine_t : public OverlayBase_t
 {
 	OverlayLine_t(void) { m_Type = OverlayType_t::OVERLAY_LINE; }
 
-	Vector3D        origin{};
-	Vector3D        dest{};
-	int             r{};
-	int             g{};
-	int             b{};
-	int             a{};
-	bool            noDepthTest{};
+	Vector3D        origin;
+	Vector3D        dest;
+	int             r;
+	int             g;
+	int             b;
+	int             a;
+	bool            noDepthTest;
 };
 
 struct OverlayTriangle_t : public OverlayBase_t
