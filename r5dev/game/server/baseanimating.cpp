@@ -4,6 +4,7 @@
 //
 //===========================================================================//
 #include "core/stdafx.h"
+#include "tier1/cvar.h"
 #include "baseanimating.h"
 #include "engine/modelinfo.h"
 #include "public/idebugoverlay.h"
@@ -40,6 +41,7 @@ void CBaseAnimating::DrawServerHitboxes(float duration /*= 0.0f*/)
 	int r = 0;
 	int g = 0;
 	int b = 255;
+	bool bDepthTest = !debug_draw_box_depth_test->GetBool();
 
     for (int i = 0; i < pSet->numhitboxes; i++)
     {
@@ -52,7 +54,7 @@ void CBaseAnimating::DrawServerHitboxes(float duration /*= 0.0f*/)
 		b = static_cast<int>(255.0f * s_HullColor[j][2]);
 
         HitboxToWorldTransforms(pBox->bone, &transforms);
-        g_pDebugOverlay->AddBoxOverlay(transforms, pBox->bbmin, pBox->bbmax, r, g, b, 0, true, duration);
+        g_pDebugOverlay->AddBoxOverlay(transforms, pBox->bbmin, pBox->bbmax, r, g, b, 0, bDepthTest, duration);
     }
 }
 

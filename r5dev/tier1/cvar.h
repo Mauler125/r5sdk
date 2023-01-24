@@ -7,8 +7,10 @@
 extern ConVar* sdk_fixedframe_tickinterval;
 extern ConVar* single_frame_shutdown_for_reload;
 extern ConVar* old_gather_props;
-extern ConVar* enable_debug_overlays;
 extern ConVar* cm_unset_all_cmdquery;
+
+extern ConVar* enable_debug_overlays;
+extern ConVar* debug_draw_box_depth_test;
 
 extern ConVar* developer;
 
@@ -33,7 +35,7 @@ extern ConVar* rcon_password;
 extern ConVar* r_debug_overlay_nodecay;
 extern ConVar* r_debug_overlay_invisible;
 extern ConVar* r_debug_overlay_wireframe;
-extern ConVar* r_debug_overlay_zbuffer;
+extern ConVar* r_debug_draw_depth_test;
 extern ConVar* r_drawWorldMeshes;
 extern ConVar* r_drawWorldMeshesDepthOnly;
 extern ConVar* r_drawWorldMeshesDepthAtTheEnd;
@@ -92,7 +94,7 @@ extern ConVar* sv_visualizetraces;
 extern ConVar* sv_visualizetraces_duration;
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 extern ConVar* bhit_enable;
-extern ConVar* bhit_zbuffer;
+extern ConVar* bhit_depth_test;
 extern ConVar* bhit_abs_origin;
 #endif // !GAMEDLL_S0 && !GAMEDLL_S1
 //-------------------------------------------------------------------------

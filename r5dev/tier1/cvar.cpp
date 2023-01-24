@@ -11,8 +11,10 @@
 ConVar* sdk_fixedframe_tickinterval        = nullptr;
 ConVar* single_frame_shutdown_for_reload   = nullptr;
 ConVar* old_gather_props                   = nullptr;
-ConVar* enable_debug_overlays              = nullptr;
 ConVar* cm_unset_all_cmdquery              = nullptr;
+
+ConVar* enable_debug_overlays              = nullptr;
+ConVar* debug_draw_box_depth_test          = nullptr;
 
 ConVar* developer                          = nullptr;
 
@@ -36,14 +38,14 @@ ConVar* rcon_password                      = nullptr;
 ConVar* r_debug_overlay_nodecay            = nullptr;
 ConVar* r_debug_overlay_invisible          = nullptr;
 ConVar* r_debug_overlay_wireframe          = nullptr;
-ConVar* r_debug_overlay_zbuffer            = nullptr;
+ConVar* r_debug_draw_depth_test            = nullptr;
 ConVar* r_drawWorldMeshes                  = nullptr;
 ConVar* r_drawWorldMeshesDepthOnly         = nullptr;
 ConVar* r_drawWorldMeshesDepthAtTheEnd     = nullptr;
 
 #ifndef DEDICATED
-ConVar* r_visualizetraces                 = nullptr;
-ConVar* r_visualizetraces_duration        = nullptr;
+ConVar* r_visualizetraces                  = nullptr;
+ConVar* r_visualizetraces_duration         = nullptr;
 #endif // !DEDICATED
 
 ConVar* stream_overlay                     = nullptr;
@@ -96,7 +98,7 @@ ConVar* sv_visualizetraces                 = nullptr;
 ConVar* sv_visualizetraces_duration        = nullptr;
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 ConVar* bhit_enable                        = nullptr;
-ConVar* bhit_zbuffer                       = nullptr;
+ConVar* bhit_depth_test                    = nullptr;
 ConVar* bhit_abs_origin                    = nullptr;
 #endif // !GAMEDLL_S0 && !GAMEDLL_S1
 //-----------------------------------------------------------------------------

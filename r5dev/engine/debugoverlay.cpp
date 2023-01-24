@@ -135,7 +135,7 @@ void DrawOverlay(OverlayBase_t* pOverlay)
             }
         }
 
-        v_RenderBox(pBox->transforms.mat, pBox->mins, pBox->maxs, Color(pBox->r, pBox->g, pBox->b, pBox->a), r_debug_overlay_zbuffer->GetBool());
+        v_RenderBox(pBox->transforms.mat, pBox->mins, pBox->maxs, Color(pBox->r, pBox->g, pBox->b, pBox->a), !pBox->noDepthTest);
         break;
     }
     case OverlayType_t::OVERLAY_SPHERE:
@@ -157,11 +157,11 @@ void DrawOverlay(OverlayBase_t* pOverlay)
         if (r_debug_overlay_wireframe->GetBool())
         {
             v_RenderWireframeSphere(pSphere->vOrigin, pSphere->flRadius, pSphere->nTheta, pSphere->nPhi, 
-                Color(pSphere->r, pSphere->g, pSphere->b, pSphere->a), r_debug_overlay_zbuffer->GetBool());
+                Color(pSphere->r, pSphere->g, pSphere->b, pSphere->a), r_debug_draw_depth_test->GetBool());
         }
         else
         {
-            DebugDrawSphere(pSphere->vOrigin, pSphere->flRadius, Color(pSphere->r, pSphere->g, pSphere->b, pSphere->a), 16, r_debug_overlay_zbuffer->GetBool());
+            DebugDrawSphere(pSphere->vOrigin, pSphere->flRadius, Color(pSphere->r, pSphere->g, pSphere->b, pSphere->a), 16, r_debug_draw_depth_test->GetBool());
         }
         break;
     }
@@ -222,7 +222,7 @@ void DrawOverlay(OverlayBase_t* pOverlay)
         AngleInverse(angles, angles);
 
         DebugDrawCapsule(pCapsule->start, angles, pCapsule->radius, pCapsule->start.DistTo(pCapsule->end), 
-            Color(pCapsule->r, pCapsule->g, pCapsule->b, pCapsule->a), r_debug_overlay_zbuffer->GetBool());
+            Color(pCapsule->r, pCapsule->g, pCapsule->b, pCapsule->a), r_debug_draw_depth_test->GetBool());
         break;
     }
     case OverlayType_t::OVERLAY_UNK0:

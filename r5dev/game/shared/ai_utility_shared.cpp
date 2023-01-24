@@ -38,7 +38,7 @@ void CAI_Utility::DrawAIScriptNetwork(const CAI_Network* pNetwork) const
     if (!pNetwork)
         return; // AI Network not build or loaded.
 
-    const bool bUseDepthBuffer = r_debug_overlay_zbuffer->GetBool();
+    const bool bUseDepthBuffer = r_debug_draw_depth_test->GetBool();
     const bool bDrawNearest = ai_script_nodes_draw_nearest->GetBool();
     const int  nNodeRange = ai_script_nodes_draw_range->GetInt();
     const float flCameraRange = navmesh_debug_camera_range->GetFloat();
@@ -109,7 +109,7 @@ void CAI_Utility::DrawNavMeshBVTree(dtNavMesh* pMesh) const
         return; // NavMesh for hull not loaded.
 
     const Vector3D vCamera = MainViewOrigin();
-    const bool bDepthBuffer = r_debug_overlay_zbuffer->GetBool();
+    const bool bDepthBuffer = r_debug_draw_depth_test->GetBool();
     const int nTileRange = navmesh_debug_tile_range->GetInt();
     const float flCameraRange = navmesh_debug_camera_range->GetFloat();
 
@@ -172,7 +172,7 @@ void CAI_Utility::DrawNavMeshPortals(dtNavMesh* pMesh) const
         return; // NavMesh for hull not loaded.
 
     const Vector3D vCamera = MainViewOrigin();
-    const bool bDepthBuffer = r_debug_overlay_zbuffer->GetBool();
+    const bool bDepthBuffer = r_debug_draw_depth_test->GetBool();
     const int nTileRange = navmesh_debug_tile_range->GetInt();
     const float flCameraRange = navmesh_debug_camera_range->GetFloat();
 
@@ -290,7 +290,7 @@ void CAI_Utility::DrawNavMeshPolys(dtNavMesh* pMesh) const
         return; // NavMesh for hull not loaded.
 
     const Vector3D vCamera = MainViewOrigin();
-    const bool bDepthBuffer = r_debug_overlay_zbuffer->GetBool();
+    const bool bDepthBuffer = r_debug_draw_depth_test->GetBool();
     const int nTileRange = navmesh_debug_tile_range->GetInt();
     const float flCameraRange = navmesh_debug_camera_range->GetFloat();
 
@@ -374,7 +374,7 @@ void CAI_Utility::DrawNavMeshPolyBoundaries(dtNavMesh* pMesh) const
         return; // NavMesh for hull not loaded.
 
     const Vector3D vCamera = MainViewOrigin();
-    const bool bDepthBuffer = r_debug_overlay_zbuffer->GetBool();
+    const bool bDepthBuffer = r_debug_draw_depth_test->GetBool();
     const bool bDrawInner = navmesh_draw_poly_bounds_inner->GetBool();
     const int nTileRange = navmesh_debug_tile_range->GetInt();
     const float flCameraRange = navmesh_debug_camera_range->GetFloat();
