@@ -12,7 +12,7 @@ bool IsOriginInitialized()
 		&& (*g_NucleusID)
 		&& (*g_bEbisuSDKCvarInitialized)))
 	//	&& (*g_OriginAuthCode)
-	//		&& (g_OriginNucleusToken[0])))
+	//		&& (g_NucleusToken[0])))
 #endif // DEDICATED
 	{
 		return true;
