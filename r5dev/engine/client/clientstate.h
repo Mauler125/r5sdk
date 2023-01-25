@@ -195,13 +195,12 @@ class VClientState : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CClientState::RunFrame               : {:#18x} |\n", p_CClientState__RunFrame.GetPtr());
-		spdlog::debug("| FUN: CClientState::Disconnect             : {:#18x} |\n", p_CClientState__Disconnect.GetPtr());
+		LogFunAdr("CClientState::RunFrame", p_CClientState__RunFrame.GetPtr());
+		LogFunAdr("CClientState::Disconnect", p_CClientState__Disconnect.GetPtr());
 #ifndef DEDICATED
-		spdlog::debug("| VAR: g_pClientState                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pClientState));
-		spdlog::debug("| VAR: g_pClientState_Shifted               : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pClientState_Shifted));
+		LogVarAdr("g_pClientState", reinterpret_cast<uintptr_t>(g_pClientState));
+		LogVarAdr("g_pClientState_Shifted", reinterpret_cast<uintptr_t>(g_pClientState_Shifted));
 #endif // DEDICATED
-		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -231,5 +230,3 @@ class VClientState : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VClientState);

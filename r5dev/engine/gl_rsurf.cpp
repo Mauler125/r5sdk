@@ -32,16 +32,16 @@ void* R_DrawWorldMeshesDepthAtTheEnd(void* ptr1, void* ptr2, void* ptr3, DrawWor
 		return nullptr;
 }
 
-void RSurf_Attach()
+void VGL_RSurf::Attach() const
 {
-	DetourAttach((LPVOID*)&V_DrawWorldMeshes, &R_DrawWorldMeshes);
-	DetourAttach((LPVOID*)&V_DrawWorldMeshesDepthOnly, &R_DrawWorldMeshesDepthOnly);
-	DetourAttach((LPVOID*)&V_DrawWorldMeshesDepthAtTheEnd, &R_DrawWorldMeshesDepthAtTheEnd);
+	DetourAttach(&V_DrawWorldMeshes, &R_DrawWorldMeshes);
+	DetourAttach(&V_DrawWorldMeshesDepthOnly, &R_DrawWorldMeshesDepthOnly);
+	DetourAttach(&V_DrawWorldMeshesDepthAtTheEnd, &R_DrawWorldMeshesDepthAtTheEnd);
 }
 
-void RSurf_Detach()
+void VGL_RSurf::Detach() const
 {
-	DetourDetach((LPVOID*)&V_DrawWorldMeshes, &R_DrawWorldMeshes);
-	DetourDetach((LPVOID*)&V_DrawWorldMeshesDepthOnly, &R_DrawWorldMeshesDepthOnly);
-	DetourDetach((LPVOID*)&V_DrawWorldMeshesDepthAtTheEnd, &R_DrawWorldMeshesDepthAtTheEnd);
+	DetourDetach(&V_DrawWorldMeshes, &R_DrawWorldMeshes);
+	DetourDetach(&V_DrawWorldMeshesDepthOnly, &R_DrawWorldMeshesDepthOnly);
+	DetourDetach(&V_DrawWorldMeshesDepthAtTheEnd, &R_DrawWorldMeshesDepthAtTheEnd);
 }

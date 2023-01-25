@@ -44,25 +44,23 @@ inline int* g_nUnusableStreamingTextureMemory = nullptr;
 #endif // !DEDICATED
 
 __declspec(noinline) bool IsMaterialInternal(void** pCandidate);
-void CMaterialSystem_Attach();
-void CMaterialSystem_Detach();
+
 ///////////////////////////////////////////////////////////////////////////////
 class VMaterialSystem : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CMaterialSystem::Init                : {:#18x} |\n", p_CMaterialSystem__Init.GetPtr());
+		LogFunAdr("CMaterialSystem::Init", p_CMaterialSystem__Init.GetPtr());
 #ifndef DEDICATED
-		spdlog::debug("| FUN: CMaterialSystem::DispatchDrawCall    : {:#18x} |\n", p_DispatchDrawCall.GetPtr());
-		spdlog::debug("| FUN: CMaterialSystem::DrawStreamOverlay   : {:#18x} |\n", p_DrawStreamOverlay.GetPtr());
-		spdlog::debug("| VAR: g_nTotalStreamingTextureMemory       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_nTotalStreamingTextureMemory));
-		spdlog::debug("| VAR: g_nUnfreeStreamingTextureMemory      : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_nUnfreeStreamingTextureMemory));
-		spdlog::debug("| VAR: g_nUnusableStreamingTextureMemory    : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_nUnusableStreamingTextureMemory));
-		spdlog::debug("| VAR: s_pRenderContext                     : {:#18x} |\n", s_pRenderContext.GetPtr());
+		LogFunAdr("CMaterialSystem::DispatchDrawCall", p_DispatchDrawCall.GetPtr());
+		LogFunAdr("CMaterialSystem::DrawStreamOverlay", p_DrawStreamOverlay.GetPtr());
+		LogVarAdr("g_nTotalStreamingTextureMemory", reinterpret_cast<uintptr_t>(g_nTotalStreamingTextureMemory));
+		LogVarAdr("g_nUnfreeStreamingTextureMemory", reinterpret_cast<uintptr_t>(g_nUnfreeStreamingTextureMemory));
+		LogVarAdr("g_nUnusableStreamingTextureMemory", reinterpret_cast<uintptr_t>(g_nUnusableStreamingTextureMemory));
+		LogVarAdr("s_pRenderContext", s_pRenderContext.GetPtr());
 #endif // !DEDICATED
-		spdlog::debug("| VAR: g_pMaterialSystem                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pMaterialSystem));
-		spdlog::debug("| CON: g_pMaterialVFTable                   : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pMaterialVFTable));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogVarAdr("g_pMaterialSystem", reinterpret_cast<uintptr_t>(g_pMaterialSystem));
+		LogConAdr("g_pMaterialVFTable", reinterpret_cast<uintptr_t>(g_pMaterialVFTable));
 	}
 	virtual void GetFun(void) const
 	{
@@ -100,11 +98,9 @@ class VMaterialSystem : public IDetour
 	{
 		g_pMaterialVFTable = g_GameDll.GetVirtualMethodTable(".?AVCMaterial@@").RCast<void*>();
 	}
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VMaterialSystem);
 
 #endif // MATERIALSYSTEM_H

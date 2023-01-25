@@ -99,20 +99,20 @@ int Sys_GetProcessUpTime(char* szBuffer)
 	return v_Sys_GetProcessUpTime(szBuffer);
 }
 
-void SysUtils_Attach()
+void VSys_Utils::Attach() const
 {
-	//DetourAttach((LPVOID*)&Sys_Error, &HSys_Error);
-	DetourAttach((LPVOID*)&v_Sys_Warning, &HSys_Warning);
+	//DetourAttach(&Sys_Error, &HSys_Error);
+	DetourAttach(&v_Sys_Warning, &HSys_Warning);
 #ifndef DEDICATED
-	DetourAttach((LPVOID*)&v_Con_NPrintf, &HCon_NPrintf);
+	DetourAttach(&v_Con_NPrintf, &HCon_NPrintf);
 #endif // !DEDICATED
 }
 
-void SysUtils_Detach()
+void VSys_Utils::Detach() const
 {
-	//DetourDetach((LPVOID*)&Sys_Error, &HSys_Error);
-	DetourDetach((LPVOID*)&v_Sys_Warning, &HSys_Warning);
+	//DetourDetach(&Sys_Error, &HSys_Error);
+	DetourDetach(&v_Sys_Warning, &HSys_Warning);
 #ifndef DEDICATED
-	DetourDetach((LPVOID*)&v_Con_NPrintf, &HCon_NPrintf);
+	DetourDetach(&v_Con_NPrintf, &HCon_NPrintf);
 #endif // !DEDICATED
 }

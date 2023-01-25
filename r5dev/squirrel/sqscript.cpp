@@ -325,7 +325,7 @@ void Script_Execute(const SQChar* code, const SQCONTEXT context)
 }
 
 //---------------------------------------------------------------------------------
-void SQScript_Attach()
+void VSquirrelVM::Attach() const
 {
 	DetourAttach((LPVOID*)&v_Script_RegisterConstant, &Script_RegisterConstant);
 #ifndef DEDICATED
@@ -344,7 +344,7 @@ void SQScript_Attach()
 	DetourAttach((LPVOID*)&v_Script_LoadScript, &Script_LoadScript);
 }
 //---------------------------------------------------------------------------------
-void SQScript_Detach()
+void VSquirrelVM::Detach() const
 {
 	DetourDetach((LPVOID*)&v_Script_RegisterConstant, &Script_RegisterConstant);
 #ifndef DEDICATED

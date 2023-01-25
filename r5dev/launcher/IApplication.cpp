@@ -125,16 +125,3 @@ void CModAppSystemGroup::InitPluginSystem(CModAppSystemGroup* pModAppSystemGroup
 			Warning(eDLL_T::ENGINE, "Failed loading plugin: '%s'\n", it.m_svPluginName.c_str());
 	}
 }
-
-///////////////////////////////////////////////////////////////////////////////
-void IApplication_Attach()
-{
-	DetourAttach((LPVOID*)&CModAppSystemGroup_Main, &CModAppSystemGroup::Main);
-	DetourAttach((LPVOID*)&CModAppSystemGroup_Create, &CModAppSystemGroup::Create);
-}
-
-void IApplication_Detach()
-{
-	DetourDetach((LPVOID*)&CModAppSystemGroup_Main, &CModAppSystemGroup::Main);
-	DetourDetach((LPVOID*)&CModAppSystemGroup_Create, &CModAppSystemGroup::Create);
-}

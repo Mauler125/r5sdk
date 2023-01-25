@@ -145,14 +145,14 @@ void CEngineAPI::VSetStartupInfo(CEngineAPI* pEngineAPI, StartupInfo_t* pStartup
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void SysDll2_Attach()
+void VSys_Dll2::Attach() const
 {
-	DetourAttach((LPVOID*)&CEngineAPI_ModInit, &CEngineAPI::VModInit);
-	DetourAttach((LPVOID*)&v_CEngineAPI_SetStartupInfo, &CEngineAPI::VSetStartupInfo);
+	DetourAttach(&CEngineAPI_ModInit, &CEngineAPI::VModInit);
+	DetourAttach(&v_CEngineAPI_SetStartupInfo, &CEngineAPI::VSetStartupInfo);
 }
 
-void SysDll2_Detach()
+void VSys_Dll2::Detach() const
 {
-	DetourDetach((LPVOID*)&CEngineAPI_ModInit, &CEngineAPI::VModInit);
-	DetourDetach((LPVOID*)&v_CEngineAPI_SetStartupInfo, &CEngineAPI::VSetStartupInfo);
+	DetourDetach(&CEngineAPI_ModInit, &CEngineAPI::VModInit);
+	DetourDetach(&v_CEngineAPI_SetStartupInfo, &CEngineAPI::VSetStartupInfo);
 }

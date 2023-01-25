@@ -84,23 +84,19 @@ void SQVM_CompileError(HSQUIRRELVM v, const SQChar* pszError, const SQChar* pszF
 const SQChar* SQVM_GetContextName(SQCONTEXT context);
 const SQCONTEXT SQVM_GetContextIndex(HSQUIRRELVM v);
 
-void SQVM_Attach();
-void SQVM_Detach();
-
 ///////////////////////////////////////////////////////////////////////////////
 class HSQVM : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: SQVM_PrintFunc                       : {:#18x} |\n", p_SQVM_PrintFunc.GetPtr());
-		spdlog::debug("| FUN: SQVM_WarningFunc                     : {:#18x} |\n", p_SQVM_WarningFunc.GetPtr());
-		spdlog::debug("| FUN: SQVM_GetErrorLine                    : {:#18x} |\n", p_SQVM_GetErrorLine.GetPtr());
-		spdlog::debug("| FUN: SQVM_WarningCmd                      : {:#18x} |\n", p_SQVM_WarningCmd.GetPtr());
-		spdlog::debug("| FUN: SQVM_CompileError                    : {:#18x} |\n", p_SQVM_CompileError.GetPtr());
-		spdlog::debug("| FUN: SQVM_LogicError                      : {:#18x} |\n", p_SQVM_LogicError.GetPtr());
-		spdlog::debug("| FUN: SQVM_ScriptError                     : {:#18x} |\n", p_SQVM_ScriptError.GetPtr());
-		spdlog::debug("| FUN: SQVM_RaiseError                      : {:#18x} |\n", p_SQVM_RaiseError.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("SQVM_PrintFunc", p_SQVM_PrintFunc.GetPtr());
+		LogFunAdr("SQVM_WarningFunc", p_SQVM_WarningFunc.GetPtr());
+		LogFunAdr("SQVM_GetErrorLine", p_SQVM_GetErrorLine.GetPtr());
+		LogFunAdr("SQVM_WarningCmd", p_SQVM_WarningCmd.GetPtr());
+		LogFunAdr("SQVM_CompileError", p_SQVM_CompileError.GetPtr());
+		LogFunAdr("SQVM_LogicError", p_SQVM_LogicError.GetPtr());
+		LogFunAdr("SQVM_ScriptError", p_SQVM_ScriptError.GetPtr());
+		LogFunAdr("SQVM_RaiseError", p_SQVM_RaiseError.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -129,9 +125,7 @@ class HSQVM : public IDetour
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(HSQVM);

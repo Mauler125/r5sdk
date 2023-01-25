@@ -24,12 +24,3 @@ bool CL_CopyExistingEntity(__int64 a1, unsigned int* a2, char* a3)
 	}
 	return v_CL_CopyExistingEntity(a1, a2, a3);
 }
-
-void CL_Ents_Parse_Attach()
-{
-	DetourAttach((LPVOID*)&v_CL_CopyExistingEntity, &CL_CopyExistingEntity);
-}
-void CL_Ents_Parse_Detach()
-{
-	DetourDetach((LPVOID*)&v_CL_CopyExistingEntity, &CL_CopyExistingEntity);
-}

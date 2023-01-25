@@ -32,12 +32,11 @@ class VEngineTrace : public IDetour
 	virtual void GetAdr(void) const
 	{
 #ifndef CLIENT_DLL
-		spdlog::debug("| VAR: g_pEngineTraceServer                 : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pEngineTraceServer));
+		LogVarAdr("g_pEngineTraceServer", reinterpret_cast<uintptr_t>(g_pEngineTraceServer));
 #endif // CLIENT_DLL
 #ifndef DEDICATED
-		spdlog::debug("| VAR: g_pEngineTraceClient                 : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pEngineTraceClient));
+		LogVarAdr("g_pEngineTraceClient", reinterpret_cast<uintptr_t>(g_pEngineTraceClient));
 #endif // DEDICATED
-		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const { }
@@ -52,5 +51,3 @@ class VEngineTrace : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VEngineTrace);

@@ -41,17 +41,21 @@ bool SVC_UserMessage::ProcessImpl()
 	return SVC_UserMessage_Process(this); // Need to return original.
 }
 
-void CNetMessages_Attach()
+void V_NetMessages::Attach() const
 {
+#if !defined(DEDICATED)
 	auto SVCPrint = &SVC_Print::ProcessImpl;
 	auto SVCUserMessage = &SVC_UserMessage::ProcessImpl;
 	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_Print_VFTable,       (LPVOID&)SVCPrint,       3, (LPVOID*)&SVC_Print_Process);
 	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_UserMessage_VFTable, (LPVOID&)SVCUserMessage, 3, (LPVOID*)&SVC_UserMessage_Process);
+#endif // DEDICATED
 }
 
-void CNetMessages_Detach()
+void V_NetMessages::Detach() const
 {
+#if !defined(DEDICATED)
 	void* hkRestore = nullptr;
 	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_Print_VFTable,       (LPVOID)SVC_Print_Process,       3, (LPVOID*)&hkRestore);
 	CMemory::HookVirtualMethod((uintptr_t)g_pSVC_UserMessage_VFTable, (LPVOID)SVC_UserMessage_Process, 3, (LPVOID*)&hkRestore);
+#endif // DEDICATED
 }

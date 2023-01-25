@@ -281,7 +281,7 @@ const char* NET_ErrorString(int iCode)
 
 #ifndef NETCONSOLE
 ///////////////////////////////////////////////////////////////////////////////
-void NET_Attach()
+void VNet::Attach() const
 {
 	DetourAttach((LPVOID*)&v_NET_ReceiveDatagram, &NET_ReceiveDatagram);
 	DetourAttach((LPVOID*)&v_NET_SendDatagram, &NET_SendDatagram);
@@ -291,7 +291,7 @@ void NET_Attach()
 #endif
 }
 
-void NET_Detach()
+void VNet::Detach() const
 {
 	DetourDetach((LPVOID*)&v_NET_ReceiveDatagram, &NET_ReceiveDatagram);
 	DetourDetach((LPVOID*)&v_NET_SendDatagram, &NET_SendDatagram);

@@ -43,9 +43,8 @@ class HKeyValuesSystem : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| VAR: g_pKeyValuesMemPool                  : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pKeyValuesMemPool));
-		spdlog::debug("| VAR: g_pKeyValuesSystem                   : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pKeyValuesSystem));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogVarAdr("g_pKeyValuesMemPool", reinterpret_cast<uintptr_t>(g_pKeyValuesMemPool));
+		LogVarAdr("g_pKeyValuesSystem", reinterpret_cast<uintptr_t>(g_pKeyValuesSystem));
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
@@ -60,5 +59,3 @@ class HKeyValuesSystem : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(HKeyValuesSystem);

@@ -382,7 +382,7 @@ const SQCONTEXT SQVM_GetContextIndex(HSQUIRRELVM v)
 }
 
 //---------------------------------------------------------------------------------
-void SQVM_Attach()
+void HSQVM::Attach() const
 {
 	DetourAttach((LPVOID*)&v_SQVM_PrintFunc, &SQVM_PrintFunc);
 	DetourAttach((LPVOID*)&v_SQVM_WarningFunc, &SQVM_WarningFunc);
@@ -390,7 +390,7 @@ void SQVM_Attach()
 	DetourAttach((LPVOID*)&v_SQVM_LogicError, &SQVM_LogicError);
 }
 //---------------------------------------------------------------------------------
-void SQVM_Detach()
+void HSQVM::Detach() const
 {
 	DetourDetach((LPVOID*)&v_SQVM_PrintFunc, &SQVM_PrintFunc);
 	DetourDetach((LPVOID*)&v_SQVM_WarningFunc, &SQVM_WarningFunc);

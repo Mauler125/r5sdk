@@ -111,18 +111,14 @@ inline void* g_pSVC_Print_VFTable = nullptr;
 inline auto SVC_UserMessage_Process = CMemory().RCast<bool(*)(SVC_UserMessage* thisptr)>();
 inline void* g_pSVC_UserMessage_VFTable = nullptr;
 
-void CNetMessages_Attach();
-void CNetMessages_Detach();
-
 ///////////////////////////////////////////////////////////////////////////////
-class HMM_Heartbeat : public IDetour
+class V_NetMessages : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: MM_Heartbeat::ToString               : {:#18x} |\n", MM_Heartbeat__ToString.GetPtr());
-		spdlog::debug("| CON: SVC_Print                  (VFTable) : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pSVC_Print_VFTable));
-		spdlog::debug("| CON: SVC_UserMessage            (VFTable) : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pSVC_UserMessage_VFTable));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("MM_Heartbeat::ToString", MM_Heartbeat__ToString.GetPtr());
+		LogConAdr("SVC_Print                  (VFTable)", reinterpret_cast<uintptr_t>(g_pSVC_Print_VFTable));
+		LogConAdr("SVC_UserMessage            (VFTable)", reinterpret_cast<uintptr_t>(g_pSVC_UserMessage_VFTable));
 	}
 	virtual void GetFun(void) const
 	{
@@ -136,9 +132,8 @@ class HMM_Heartbeat : public IDetour
 		g_pSVC_Print_VFTable = g_GameDll.GetVirtualMethodTable(".?AVSVC_Print@@");
 		g_pSVC_UserMessage_VFTable = g_GameDll.GetVirtualMethodTable(".?AVSVC_UserMessage@@");
 	}
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(HMM_Heartbeat);

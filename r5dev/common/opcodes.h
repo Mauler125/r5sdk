@@ -80,33 +80,24 @@ class VOpcodes : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CShaderSystem::Init                  : {:#18x} |\n", CShaderSystem__Init.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
-		spdlog::debug("| FUN: CVGui::RunFrame                      : {:#18x} |\n", CVGui__RunFrame.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
-		spdlog::debug("| FUN: CEngineVGui::Shutdown                : {:#18x} |\n", CEngineVGui__Shutdown.GetPtr());
-		spdlog::debug("| FUN: CEngineVGui::ActivateGameUI          : {:#18x} |\n", CEngineVGui__ActivateGameUI.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
-		spdlog::debug("| FUN: CInputSystem::RunFrameIME            : {:#18x} |\n", CInputSystem__RunFrameIME.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
-		spdlog::debug("| FUN: Sys_InitGame                         : {:#18x} |\n", Sys_InitGame.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
-		spdlog::debug("| FUN: Host_Init_1                          : {:#18x} |\n", gHost_Init_1.GetPtr());
-		spdlog::debug("| FUN: Host_Init_2                          : {:#18x} |\n", gHost_Init_2.GetPtr());
-		spdlog::debug("| FUN: Host_Disconnect                      : {:#18x} |\n", Host_Disconnect.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CShaderSystem::Init", CShaderSystem__Init.GetPtr());
+		LogFunAdr("CVGui::RunFrame", CVGui__RunFrame.GetPtr());
+		LogFunAdr("CEngineVGui::Shutdown", CEngineVGui__Shutdown.GetPtr());
+		LogFunAdr("CEngineVGui::ActivateGameUI", CEngineVGui__ActivateGameUI.GetPtr());
+		LogFunAdr("CInputSystem::RunFrameIME", CInputSystem__RunFrameIME.GetPtr());
+		LogFunAdr("Sys_InitGame", Sys_InitGame.GetPtr());
+		LogFunAdr("Host_Init_1", gHost_Init_1.GetPtr());
+		LogFunAdr("Host_Init_2", gHost_Init_2.GetPtr());
+		LogFunAdr("Host_Disconnect", Host_Disconnect.GetPtr());
 #ifndef CLIENT_DLL
-		spdlog::debug("| FUN: Server_S2C_CONNECT_1                 : {:#18x} |\n", Server_S2C_CONNECT_1.GetPtr());
+		LogFunAdr("Server_S2C_CONNECT_1", Server_S2C_CONNECT_1.GetPtr());
 #endif // !CLIENT_DLL
-		spdlog::debug("+----------------------------------------------------------------+\n");
-		spdlog::debug("| FUN: GetEngineClientThread                : {:#18x} |\n", GetEngineClientThread.GetPtr());
-		spdlog::debug("| FUN: MatchMaking_Frame                    : {:#18x} |\n", MatchMaking_Frame.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("GetEngineClientThread", GetEngineClientThread.GetPtr());
+		LogFunAdr("MatchMaking_Frame", MatchMaking_Frame.GetPtr());
 #if !defined (GAMEDLL_S0) || !defined (GAMEDLL_S1)
-		spdlog::debug("| FUN: CWin32Surface::initStaticData        : {:#18x} |\n", CWin32Surface_initStaticData.GetPtr());
+		LogFunAdr("CWin32Surface::initStaticData", CWin32Surface_initStaticData.GetPtr());
 #endif
-		spdlog::debug("| FUN: KeyboardLayout_Init                  : {:#18x} |\n", KeyboardLayout_Init.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("KeyboardLayout_Init", KeyboardLayout_Init.GetPtr());
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
@@ -199,5 +190,3 @@ class VOpcodes : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VOpcodes);

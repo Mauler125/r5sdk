@@ -29,12 +29,11 @@ class HSV_Main : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: SV_InitGameDLL                       : {:#18x} |\n", p_SV_InitGameDLL.GetPtr());
-		spdlog::debug("| FUN: SV_ShutdownGameDLL                   : {:#18x} |\n", p_SV_ShutdownGameDLL.GetPtr());
-		spdlog::debug("| FUN: SV_CreateBaseline                    : {:#18x} |\n", p_SV_CreateBaseline.GetPtr());
-		spdlog::debug("| FUN: CGameServer::SpawnServer             : {:#18x} |\n", p_CGameServer__SpawnServer.GetPtr());
-		spdlog::debug("| VAR: s_bDedicated                         : {:#18x} |\n", reinterpret_cast<uintptr_t>(s_bDedicated));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("SV_InitGameDLL", p_SV_InitGameDLL.GetPtr());
+		LogFunAdr("SV_ShutdownGameDLL", p_SV_ShutdownGameDLL.GetPtr());
+		LogFunAdr("SV_CreateBaseline", p_SV_CreateBaseline.GetPtr());
+		LogFunAdr("CGameServer::SpawnServer", p_CGameServer__SpawnServer.GetPtr());
+		LogVarAdr("s_bDedicated", reinterpret_cast<uintptr_t>(s_bDedicated));
 	}
 	virtual void GetFun(void) const
 	{
@@ -62,5 +61,3 @@ class HSV_Main : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(HSV_Main);

@@ -93,9 +93,6 @@ inline auto v_CServer_ConnectClient = p_CServer_Authenticate.RCast<CClient* (*)(
 inline CMemory p_CServer_RejectConnection;
 inline auto v_CServer_RejectConnection = p_CServer_RejectConnection.RCast<void* (*)(CServer* pServer, int iSocket, v_netadr_t* pNetAdr, const char* szMessage)>();
 
-void CServer_Attach();
-void CServer_Detach();
-
 extern bool g_bCheckCompBanDB;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -104,11 +101,10 @@ class VServer : public IDetour
 	virtual void GetAdr(void) const
 	{
 #ifndef CLIENT_DLL
-		spdlog::debug("| FUN: CServer::FrameJob                    : {:#18x} |\n", p_CServer_FrameJob.GetPtr());
-		spdlog::debug("| FUN: CServer::ConnectClient               : {:#18x} |\n", p_CServer_Authenticate.GetPtr());
-		spdlog::debug("| FUN: CServer::RejectConnection            : {:#18x} |\n", p_CServer_RejectConnection.GetPtr());
-		spdlog::debug("| VAR: g_pServer[128]                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pServer));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CServer::FrameJob", p_CServer_FrameJob.GetPtr());
+		LogFunAdr("CServer::ConnectClient", p_CServer_Authenticate.GetPtr());
+		LogFunAdr("CServer::RejectConnection", p_CServer_RejectConnection.GetPtr());
+		LogVarAdr("g_pServer[128]", reinterpret_cast<uintptr_t>(g_pServer));
 #endif // !CLIENT_DLL
 	}
 	virtual void GetFun(void) const
@@ -136,9 +132,7 @@ class VServer : public IDetour
 #endif // !CLIENT_DLL
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VServer);

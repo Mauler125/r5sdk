@@ -185,9 +185,8 @@ class VNetChannel : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CNetChan::Clear                      : {:#18x} |\n", p_NetChan_Clear.GetPtr());
-		spdlog::debug("| FUN: CNetChan::ProcessMessages            : {:#18x} |\n", p_NetChan_ProcessMessages.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CNetChan::Clear", p_NetChan_Clear.GetPtr());
+		LogFunAdr("CNetChan::ProcessMessages", p_NetChan_ProcessMessages.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -199,13 +198,9 @@ class VNetChannel : public IDetour
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-REGISTER(VNetChannel);
-
-void NetChan_Attach();
-void NetChan_Detach();
 
 #endif // NET_CHAN_H

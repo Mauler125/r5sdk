@@ -24,28 +24,25 @@ inline auto v_BuildPropStaticFrustumCullMap = p_BuildPropStaticFrustumCullMap.RC
 
 void* __fastcall BuildPropStaticFrustumCullMap(int64_t a1, int64_t a2, unsigned int a3, unsigned int a4, int64_t a5, int64_t a6, int64_t a7);
 
-void BspLib_Attach();
-void BspLib_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 class VBspLib : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: BuildPropStaticFrustumCullMap        : {:#18x} |\n", p_BuildPropStaticFrustumCullMap.GetPtr());
-		//spdlog::debug("| FUN: sub_1404365A0                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(sub_1404365A0));
-		//spdlog::debug("| FUN: sub_140270130                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(sub_140270130));
-		//spdlog::debug("| FUN: sub_14028F170                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(sub_14028F170));
-		//spdlog::debug("| FUN: sub_140257F20                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(sub_140257F20));
-		//spdlog::debug("| VAR: dword_1696A9D20                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(dword_1696A9D20));
-		//spdlog::debug("| VAR: dword_141744EBC                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(dword_141744EBC));
-		//spdlog::debug("| VAR: dword_141744EE8                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(dword_141744EE8));
-		//spdlog::debug("| VAR: qword_141744EA8                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(qword_141744EA8));
-		//spdlog::debug("| VAR: qword_141744EA0                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(qword_141744EA0));
-		//spdlog::debug("| VAR: qword_141744E88                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(qword_141744E88));
-		//spdlog::debug("| VAR: xmmword_1415BD270                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(xmmword_1415BD270));
-		//spdlog::debug("| VAR: off_141744E70                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(off_141744E70));
-		//spdlog::debug("| VAR: off_141731448                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(off_141731448));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("BuildPropStaticFrustumCullMap", p_BuildPropStaticFrustumCullMap.GetPtr());
+		//LogFunAdr("sub_1404365A0", reinterpret_cast<uintptr_t>(sub_1404365A0));
+		//LogFunAdr("sub_140270130", reinterpret_cast<uintptr_t>(sub_140270130));
+		//LogFunAdr("sub_14028F170", reinterpret_cast<uintptr_t>(sub_14028F170));
+		//LogFunAdr("sub_140257F20", reinterpret_cast<uintptr_t>(sub_140257F20));
+		//LogVarAdr("dword_1696A9D20", reinterpret_cast<uintptr_t>(dword_1696A9D20));
+		//LogVarAdr("dword_141744EBC", reinterpret_cast<uintptr_t>(dword_141744EBC));
+		//LogVarAdr("dword_141744EE8", reinterpret_cast<uintptr_t>(dword_141744EE8));
+		//LogVarAdr("qword_141744EA8", reinterpret_cast<uintptr_t>(qword_141744EA8));
+		//LogVarAdr("qword_141744EA0", reinterpret_cast<uintptr_t>(qword_141744EA0));
+		//LogVarAdr("qword_141744E88", reinterpret_cast<uintptr_t>(qword_141744E88));
+		//LogVarAdr("xmmword_1415BD270", reinterpret_cast<uintptr_t>(xmmword_1415BD270));
+		//LogVarAdr("off_141744E70", reinterpret_cast<uintptr_t>(off_141744E70));
+		//LogVarAdr("off_141731448", reinterpret_cast<uintptr_t>(off_141731448));
 	}
 	virtual void GetFun(void) const
 	{
@@ -77,9 +74,7 @@ class VBspLib : public IDetour
 //#endif
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VBspLib);

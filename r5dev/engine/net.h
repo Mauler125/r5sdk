@@ -45,9 +45,6 @@ void NET_PrintFunc(const char* fmt, ...);
 void NET_Shutdown(void* thisptr, const char* szReason, uint8_t bBadRep, bool bRemoveNow);
 void NET_RemoveChannel(CClient* pClient, int nIndex, const char* szReason, uint8_t bBadRep, bool bRemoveNow);
 
-void NET_Attach();
-void NET_Detach();
-
 ///////////////////////////////////////////////////////////////////////////////
 extern string g_svNetKey;
 extern uintptr_t g_pNetKey;
@@ -58,14 +55,13 @@ class VNet : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: NET_Init                             : {:#18x} |\n", p_NET_Init.GetPtr());
-		spdlog::debug("| FUN: NET_Shutdown                         : {:#18x} |\n", p_NET_Shutdown.GetPtr());
-		spdlog::debug("| FUN: NET_SetKey                           : {:#18x} |\n", p_NET_SetKey.GetPtr());
-		spdlog::debug("| FUN: NET_ReceiveDatagram                  : {:#18x} |\n", p_NET_ReceiveDatagram.GetPtr());
-		spdlog::debug("| FUN: NET_SendDatagram                     : {:#18x} |\n", p_NET_SendDatagram.GetPtr());
-		spdlog::debug("| FUN: NET_PrintFunc                        : {:#18x} |\n", p_NET_PrintFunc.GetPtr());
-		spdlog::debug("| VAR: g_pNetKey                            : {:#18x} |\n", g_pNetKey);
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("NET_Init", p_NET_Init.GetPtr());
+		LogFunAdr("NET_Shutdown", p_NET_Shutdown.GetPtr());
+		LogFunAdr("NET_SetKey", p_NET_SetKey.GetPtr());
+		LogFunAdr("NET_ReceiveDatagram", p_NET_ReceiveDatagram.GetPtr());
+		LogFunAdr("NET_SendDatagram", p_NET_SendDatagram.GetPtr());
+		LogFunAdr("NET_PrintFunc", p_NET_PrintFunc.GetPtr());
+		LogVarAdr("g_pNetKey", g_pNetKey);
 	}
 	virtual void GetFun(void) const
 	{
@@ -94,11 +90,10 @@ class VNet : public IDetour
 		g_pNetKey = g_GameDll.FindString("client:NetEncryption_NewKey").FindPatternSelf("48 8D ? ? ? ? ? 48 3B", CMemory::Direction::UP, 300).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-REGISTER(VNet);
 #endif // !NETCONSOLE
 
 const char* NET_ErrorString(int iCode);

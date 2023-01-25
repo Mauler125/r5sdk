@@ -20,8 +20,7 @@ class HVEngineClient : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| CON: g_pEngineClientVFTable               : {:#18x} |\n", g_pEngineClientVFTable.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogConAdr("g_pEngineClientVFTable", g_pEngineClientVFTable.GetPtr());
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const { }
@@ -34,5 +33,3 @@ class HVEngineClient : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(HVEngineClient);

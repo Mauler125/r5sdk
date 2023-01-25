@@ -19,21 +19,17 @@ inline auto v_Con_NPrintf = p_Con_NPrintf.RCast<void (*)(int pos, const char* fm
 void HSys_Error(char* fmt, ...);
 int Sys_GetProcessUpTime(char* szBuffer);
 
-void SysUtils_Attach();
-void SysUtils_Detach();
-
 ///////////////////////////////////////////////////////////////////////////////
 class VSys_Utils : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: Sys_Error                            : {:#18x} |\n", p_Sys_Error.GetPtr());
-		spdlog::debug("| FUN: Sys_Warning                          : {:#18x} |\n", p_Sys_Warning.GetPtr());
-		spdlog::debug("| FUN: Sys_GetProcessUpTime                 : {:#18x} |\n", p_Sys_GetProcessUpTime.GetPtr());
+		LogFunAdr("Sys_Error", p_Sys_Error.GetPtr());
+		LogFunAdr("Sys_Warning", p_Sys_Warning.GetPtr());
+		LogFunAdr("Sys_GetProcessUpTime", p_Sys_GetProcessUpTime.GetPtr());
 #ifndef DEDICATED
-		spdlog::debug("| FUN: Con_NPrintf                          : {:#18x} |\n", p_Con_NPrintf.GetPtr());
+		LogFunAdr("Con_NPrintf", p_Con_NPrintf.GetPtr());
 #endif // !DEDICATED
-		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -52,9 +48,7 @@ class VSys_Utils : public IDetour
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VSys_Utils);

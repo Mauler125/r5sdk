@@ -14,10 +14,9 @@ class VGL_Screen : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: SCR_BeginLoadingPlaque               : {:#18x} |\n", SCR_BeginLoadingPlaque.GetPtr());
-		spdlog::debug("| VAR: scr_drawloading                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(scr_drawloading));
-		spdlog::debug("| VAR: scr_engineevent_loadingstarted       : {:#18x} |\n", reinterpret_cast<uintptr_t>(scr_engineevent_loadingstarted));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("SCR_BeginLoadingPlaque", SCR_BeginLoadingPlaque.GetPtr());
+		LogVarAdr("scr_drawloading", reinterpret_cast<uintptr_t>(scr_drawloading));
+		LogVarAdr("scr_engineevent_loadingstarted", reinterpret_cast<uintptr_t>(scr_engineevent_loadingstarted));
 	}
 	virtual void GetFun(void) const
 	{
@@ -44,5 +43,3 @@ class VGL_Screen : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VGL_Screen);

@@ -366,37 +366,33 @@ public:
 #endif // !DEDICATED
 };
 
-void RTech_Utils_Attach();
-void RTech_Utils_Detach();
-
 ///////////////////////////////////////////////////////////////////////////////
 extern RTech* g_pRTech;
 
 ///////////////////////////////////////////////////////////////////////////////
-class VPakFile : public IDetour
+class V_RTechUtils : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
 #if not defined DEDICATED
-		spdlog::debug("| FUN: RTech::CreateDXTexture               : {:#18x} |\n", p_RTech_CreateDXTexture.GetPtr());
+		LogFunAdr("RTech::CreateDXTexture", p_RTech_CreateDXTexture.GetPtr());
 #endif // !DEDICATED
-		spdlog::debug("| FUN: RTech::FindFreeSlotInFiles           : {:#18x} |\n", p_RTech_FindFreeSlotInFiles.GetPtr());
-		spdlog::debug("| FUN: RTech::OpenFile                      : {:#18x} |\n", p_RTech_OpenFile.GetPtr());
+		LogFunAdr("RTech::FindFreeSlotInFiles", p_RTech_FindFreeSlotInFiles.GetPtr());
+		LogFunAdr("RTech::OpenFile", p_RTech_OpenFile.GetPtr());
 #if not defined DEDICATED
-		spdlog::debug("| FUN: GetStreamOverlay                     : {:#18x} |\n", p_GetStreamOverlay.GetPtr());
+		LogFunAdr("GetStreamOverlay", p_GetStreamOverlay.GetPtr());
 #endif // !DEDICATED
-		spdlog::debug("| FUN: StreamDB_Init                        : {:#18x} |\n", p_StreamDB_Init.GetPtr());
-		spdlog::debug("| VAR: g_pLoadedPakInfo                     : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pLoadedPakInfo));
-		spdlog::debug("| VAR: s_pLoadedPakCount                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(s_pLoadedPakCount));
-		spdlog::debug("| VAR: s_pParsedPakCount                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(s_pParsedPakCount));
-		spdlog::debug("| VAR: s_pFileArray                         : {:#18x} |\n", reinterpret_cast<uintptr_t>(s_pFileArray));
-		spdlog::debug("| VAR: g_pPakFileSlotLock                   : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pPakFileSlotLock));
-		spdlog::debug("| VAR: m_FileHandles                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(m_FileHandles));
-		spdlog::debug("| VAR: g_pUnknownPakStruct                  : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pUnknownPakStruct));
-		spdlog::debug("| VAR: g_pPakFifoLock                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pPakFifoLock));
-		spdlog::debug("| VAR: g_pPakFifoLockWrapper                : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pPakFifoLockWrapper));
-		spdlog::debug("| VAR: g_bPakFifoLockAcquired               : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_bPakFifoLockAcquired));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("StreamDB_Init", p_StreamDB_Init.GetPtr());
+		LogVarAdr("g_pLoadedPakInfo", reinterpret_cast<uintptr_t>(g_pLoadedPakInfo));
+		LogVarAdr("s_pLoadedPakCount", reinterpret_cast<uintptr_t>(s_pLoadedPakCount));
+		LogVarAdr("s_pParsedPakCount", reinterpret_cast<uintptr_t>(s_pParsedPakCount));
+		LogVarAdr("s_pFileArray", reinterpret_cast<uintptr_t>(s_pFileArray));
+		LogVarAdr("g_pPakFileSlotLock", reinterpret_cast<uintptr_t>(g_pPakFileSlotLock));
+		LogVarAdr("m_FileHandles", reinterpret_cast<uintptr_t>(m_FileHandles));
+		LogVarAdr("g_pUnknownPakStruct", reinterpret_cast<uintptr_t>(g_pUnknownPakStruct));
+		LogVarAdr("g_pPakFifoLock", reinterpret_cast<uintptr_t>(g_pPakFifoLock));
+		LogVarAdr("g_pPakFifoLockWrapper", reinterpret_cast<uintptr_t>(g_pPakFifoLockWrapper));
+		LogVarAdr("g_bPakFifoLockAcquired", reinterpret_cast<uintptr_t>(g_bPakFifoLockAcquired));
 	}
 	virtual void GetFun(void) const 
 	{
@@ -445,9 +441,7 @@ class VPakFile : public IDetour
 		g_bPakFifoLockAcquired = p_JT_HelpWithAnything.Offset(0x50).FindPatternSelf("C6 05").ResolveRelativeAddressSelf(0x2, 0x7).RCast<bool*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VPakFile);

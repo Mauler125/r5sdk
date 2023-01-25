@@ -11,9 +11,8 @@ class VStudioRenderContext : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CStudioRenderContext::LoadModel      : {:#18x} |\n", CStudioRenderContext__LoadModel.GetPtr());
-		spdlog::debug("| FUN: CStudioRenderContext::LoadMaterials  : {:#18x} |\n", CStudioRenderContext__LoadMaterials.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CStudioRenderContext::LoadModel", CStudioRenderContext__LoadModel.GetPtr());
+		LogFunAdr("CStudioRenderContext::LoadMaterials", CStudioRenderContext__LoadMaterials.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -37,5 +36,3 @@ class VStudioRenderContext : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VStudioRenderContext);

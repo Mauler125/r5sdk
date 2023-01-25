@@ -37,31 +37,28 @@ KeyValues* Mod_GetLevelSettings(const char* pszLevelName);
 void Mod_PreloadLevelPaks(const char* pszLevelName);
 void Mod_UnloadPakFile(void);
 
-void CModelBsp_Attach();
-void CModelBsp_Detach();
+
 ///////////////////////////////////////////////////////////////////////////////
 class VModel_BSP : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: Mod_LoadPakForMap                    : {:#18x} |\n", p_Mod_LoadPakForMap.GetPtr());
-		spdlog::debug("| FUN: Mod_ProcessPakQueue                  : {:#18x} |\n", p_Mod_ProcessPakQueue.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
-		spdlog::debug("| FUN: sub_14045BAC0                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(sub_14045BAC0));
-		spdlog::debug("| FUN: sub_14045A1D0                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(sub_14045A1D0));
-		spdlog::debug("| FUN: sub_140441220                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(sub_140441220));
-		spdlog::debug("| VAR: dword_14B383420                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(dword_14B383420));
-		spdlog::debug("| VAR: dword_1634F445C                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(dword_1634F445C));
-		spdlog::debug("| VAR: qword_167ED7BB8                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(qword_167ED7BB8));
-		spdlog::debug("| VAR: qword_14180A098                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(qword_14180A098));
-		spdlog::debug("| VAR: byte_16709DDDF                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(byte_16709DDDF));
-		spdlog::debug("| VAR: off_141874660                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(off_141874660));
-		spdlog::debug("| VAR: unk_141874555                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(unk_141874555));
-		spdlog::debug("| VAR: unk_1418749B0                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(unk_1418749B0));
-		spdlog::debug("| VAR: unk_141874550                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(unk_141874550));
-		spdlog::debug("| VAR: qword_167ED7BC0                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(qword_167ED7BC0));
-		spdlog::debug("| VAR: qword_167ED7C68                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(qword_167ED7C68));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("Mod_LoadPakForMap", p_Mod_LoadPakForMap.GetPtr());
+		LogFunAdr("Mod_ProcessPakQueue", p_Mod_ProcessPakQueue.GetPtr());
+		LogFunAdr("sub_14045BAC0", reinterpret_cast<uintptr_t>(sub_14045BAC0));
+		LogFunAdr("sub_14045A1D0", reinterpret_cast<uintptr_t>(sub_14045A1D0));
+		LogFunAdr("sub_140441220", reinterpret_cast<uintptr_t>(sub_140441220));
+		LogVarAdr("dword_14B383420", reinterpret_cast<uintptr_t>(dword_14B383420));
+		LogVarAdr("dword_1634F445C", reinterpret_cast<uintptr_t>(dword_1634F445C));
+		LogVarAdr("qword_167ED7BB8", reinterpret_cast<uintptr_t>(qword_167ED7BB8));
+		LogVarAdr("qword_14180A098", reinterpret_cast<uintptr_t>(qword_14180A098));
+		LogVarAdr("byte_16709DDDF", reinterpret_cast<uintptr_t>(byte_16709DDDF));
+		LogVarAdr("off_141874660", reinterpret_cast<uintptr_t>(off_141874660));
+		LogVarAdr("unk_141874555", reinterpret_cast<uintptr_t>(unk_141874555));
+		LogVarAdr("unk_1418749B0", reinterpret_cast<uintptr_t>(unk_1418749B0));
+		LogVarAdr("unk_141874550", reinterpret_cast<uintptr_t>(unk_141874550));
+		LogVarAdr("qword_167ED7BC0", reinterpret_cast<uintptr_t>(qword_167ED7BC0));
+		LogVarAdr("qword_167ED7C68", reinterpret_cast<uintptr_t>(qword_167ED7C68));
 	}
 	virtual void GetFun(void) const
 	{
@@ -100,9 +97,7 @@ class VModel_BSP : public IDetour
 		(*((char**)(&qword_167ED7C68))) -= 6;
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VModel_BSP);

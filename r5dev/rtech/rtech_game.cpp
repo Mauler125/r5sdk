@@ -84,16 +84,16 @@ void CPakFile::UnloadPak(RPakHandle_t handle)
 	CPakFile_UnloadPak(handle);
 }
 
-void RTech_Game_Attach()
+void V_RTechGame::Attach() const
 {
-	DetourAttach((LPVOID*)&CPakFile_LoadAsync, &CPakFile::LoadAsync);
-	DetourAttach((LPVOID*)&CPakFile_UnloadPak, &CPakFile::UnloadPak);
+	DetourAttach(&CPakFile_LoadAsync, &CPakFile::LoadAsync);
+	DetourAttach(&CPakFile_UnloadPak, &CPakFile::UnloadPak);
 }
 
-void RTech_Game_Detach()
+void V_RTechGame::Detach() const
 {
-	DetourDetach((LPVOID*)&CPakFile_LoadAsync, &CPakFile::LoadAsync);
-	DetourDetach((LPVOID*)&CPakFile_UnloadPak, &CPakFile::UnloadPak);
+	DetourDetach(&CPakFile_LoadAsync, &CPakFile::LoadAsync);
+	DetourDetach(&CPakFile_UnloadPak, &CPakFile::UnloadPak);
 }
 
 // Symbols taken from R2 dll's.

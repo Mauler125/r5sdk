@@ -104,7 +104,7 @@ class VFactory : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| VAR: s_pInterfacesRegs                    : {:#18x} |\n", s_pInterfacesRegs.GetPtr());
+		LogVarAdr("s_pInterfacesRegs", s_pInterfacesRegs.GetPtr());
 		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const { }
@@ -117,5 +117,3 @@ class VFactory : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VFactory);

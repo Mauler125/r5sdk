@@ -124,12 +124,12 @@ CAI_Node** CAI_Network::GetPathNodes(void) const
 }
 
 //-----------------------------------------------------------------------------
-void CAI_Network_Attach()
+void VAI_Network::Attach() const
 {
-	DetourAttach((LPVOID*)&v_CAI_Network__DebugConnectMsg, &CAI_Network::DebugConnectMsg);
+	DetourAttach(&v_CAI_Network__DebugConnectMsg, &CAI_Network::DebugConnectMsg);
 }
 
-void CAI_Network_Detach()
+void VAI_Network::Detach() const
 {
-	DetourDetach((LPVOID*)&v_CAI_Network__DebugConnectMsg, &CAI_Network::DebugConnectMsg);
+	DetourDetach(&v_CAI_Network__DebugConnectMsg, &CAI_Network::DebugConnectMsg);
 }

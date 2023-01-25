@@ -357,7 +357,7 @@ bool CMDLCache::IsKnownBadModel(MDLHandle_t handle)
     return std::find(g_vBadMDLHandles.begin(), g_vBadMDLHandles.end(), handle) != g_vBadMDLHandles.end();
 }
 
-void MDLCache_Attach()
+void VMDLCache::Attach() const
 {
     DetourAttach((LPVOID*)&v_CMDLCache__FindMDL, &CMDLCache::FindMDL);
 #ifdef GAMEDLL_S3 // !!! DECLARED INLINE WITH FINDMDL IN < S3 !!!
@@ -370,7 +370,7 @@ void MDLCache_Attach()
 #endif
 }
 
-void MDLCache_Detach()
+void VMDLCache::Detach() const
 {
     DetourDetach((LPVOID*)&v_CMDLCache__FindMDL, &CMDLCache::FindMDL);
 #ifdef GAMEDLL_S3 // !!! DECLARED INLINE WITH FINDMDL IN < S3 !!!

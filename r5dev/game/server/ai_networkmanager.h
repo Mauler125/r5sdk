@@ -32,9 +32,6 @@ inline AINodeClusters    *** g_pppAiNodeClusters     = nullptr;
 inline int                 * g_nAiNodeClusterLinks   = nullptr;
 inline AINodeClusterLinks*** g_pppAiNodeClusterLinks = nullptr;
 
-void CAI_NetworkManager_Attach();
-void CAI_NetworkManager_Detach();
-
 //-----------------------------------------------------------------------------
 // CAI_NetworkBuilder
 //
@@ -68,14 +65,13 @@ class VAI_NetworkManager : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CAI_NetworkManager::LoadNetworkGraph : {:#18x} |\n", p_CAI_NetworkManager__LoadNetworkGraph.GetPtr());
-		spdlog::debug("| FUN: CAI_NetworkManager::ShouldRebuild    : {:#18x} |\n", p_CAI_NetworkManager__ShouldRebuild.GetPtr());
-		spdlog::debug("| FUN: CAI_NetworkBuilder::Build            : {:#18x} |\n", p_CAI_NetworkBuilder__Build.GetPtr()        );
-		spdlog::debug("| VAR: g_nAiNodeClusters                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_nAiNodeClusters      ));
-		spdlog::debug("| VAR: g_pppAiNodeClusters                  : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pppAiNodeClusters    ));
-		spdlog::debug("| VAR: g_nAiNodeClusterLinks                : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_nAiNodeClusterLinks  ));
-		spdlog::debug("| VAR: g_pppAiNodeClusterLinks              : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pppAiNodeClusterLinks));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CAI_NetworkManager::LoadNetworkGraph", p_CAI_NetworkManager__LoadNetworkGraph.GetPtr());
+		LogFunAdr("CAI_NetworkManager::ShouldRebuild", p_CAI_NetworkManager__ShouldRebuild.GetPtr());
+		LogFunAdr("CAI_NetworkBuilder::Build", p_CAI_NetworkBuilder__Build.GetPtr());
+		LogVarAdr("g_nAiNodeClusters", reinterpret_cast<uintptr_t>(g_nAiNodeClusters));
+		LogVarAdr("g_pppAiNodeClusters", reinterpret_cast<uintptr_t>(g_pppAiNodeClusters));
+		LogVarAdr("g_nAiNodeClusterLinks", reinterpret_cast<uintptr_t>(g_nAiNodeClusterLinks));
+		LogVarAdr("g_pppAiNodeClusterLinks", reinterpret_cast<uintptr_t>(g_pppAiNodeClusterLinks));
 	}
 	virtual void GetFun(void) const
 	{
@@ -107,9 +103,7 @@ class VAI_NetworkManager : public IDetour
 			.FindPatternSelf("4C 8B 1D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(0x3, 0x7).RCast<AINodeClusterLinks***>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VAI_NetworkManager);

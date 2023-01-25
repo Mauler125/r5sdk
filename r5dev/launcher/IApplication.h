@@ -40,10 +40,6 @@ inline auto CSourceAppSystemGroup__PreInit = p_CSourceAppSystemGroup__PreInit.RC
 inline CMemory p_CSourceAppSystemGroup__Create;
 inline auto CSourceAppSystemGroup__Create = p_CSourceAppSystemGroup__Create.RCast<bool(*)(CModAppSystemGroup* pModAppSystemGroup)>();
 
-///////////////////////////////////////////////////////////////////////////////
-void IApplication_Attach();
-void IApplication_Detach();
-
 inline bool g_bAppSystemInit = false;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -51,11 +47,10 @@ class VApplication : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CModAppSystemGroup::Main             : {:#18x} |\n", p_CModAppSystemGroup_Main.GetPtr());
-		spdlog::debug("| FUN: CModAppSystemGroup::Create           : {:#18x} |\n", p_CModAppSystemGroup_Create.GetPtr());
-		spdlog::debug("| FUN: CSourceAppSystemGroup::Create        : {:#18x} |\n", p_CSourceAppSystemGroup__Create.GetPtr());
-		spdlog::debug("| FUN: CSourceAppSystemGroup::PreInit       : {:#18x} |\n", p_CSourceAppSystemGroup__PreInit.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CModAppSystemGroup::Main", p_CModAppSystemGroup_Main.GetPtr());
+		LogFunAdr("CModAppSystemGroup::Create", p_CModAppSystemGroup_Create.GetPtr());
+		LogFunAdr("CSourceAppSystemGroup::Create", p_CSourceAppSystemGroup__Create.GetPtr());
+		LogFunAdr("CSourceAppSystemGroup::PreInit", p_CSourceAppSystemGroup__PreInit.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -80,9 +75,15 @@ class VApplication : public IDetour
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const
+	{
+		DetourAttach((LPVOID*)&CModAppSystemGroup_Main, &CModAppSystemGroup::Main);
+		DetourAttach((LPVOID*)&CModAppSystemGroup_Create, &CModAppSystemGroup::Create);
+	}
+	virtual void Detach(void) const
+	{
+		DetourDetach((LPVOID*)&CModAppSystemGroup_Main, &CModAppSystemGroup::Main);
+		DetourDetach((LPVOID*)&CModAppSystemGroup_Create, &CModAppSystemGroup::Create);
+	}
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VApplication);

@@ -10,8 +10,7 @@ class VFairFight : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: FairFight_Init                       : {:#18x} |\n", FairFight_Init.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("FairFight_Init", FairFight_Init.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -27,5 +26,3 @@ class VFairFight : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VFairFight);

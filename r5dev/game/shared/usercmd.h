@@ -64,9 +64,8 @@ class VUserCmd : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CUserCmd::Reset                      : {:#18x} |\n", p_CUserCmd__Reset.GetPtr());
-		spdlog::debug("| FUN: CUserCmd::Copy                       : {:#18x} |\n", p_CUserCmd__Copy.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CUserCmd::Reset", p_CUserCmd__Reset.GetPtr());
+		LogFunAdr("CUserCmd::Copy", p_CUserCmd__Copy.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -82,7 +81,5 @@ class VUserCmd : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VUserCmd);
 
 #endif // USERCMD_H

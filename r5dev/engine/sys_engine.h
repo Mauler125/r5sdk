@@ -30,8 +30,7 @@ class VEngine : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| VAR: g_pEngine                            : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pEngine));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogVarAdr("g_pEngine", reinterpret_cast<uintptr_t>(g_pEngine));
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
@@ -47,5 +46,3 @@ class VEngine : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VEngine);

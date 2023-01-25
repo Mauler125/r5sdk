@@ -261,9 +261,8 @@ class VBaseEntity : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CBaseEntity::GetBaseEntity           : {:#18x} |\n", p_CBaseEntity__GetBaseEntity.GetPtr());
-		spdlog::debug("| VAR: g_pEntityList                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pEntityList));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CBaseEntity::GetBaseEntity", p_CBaseEntity__GetBaseEntity.GetPtr());
+		LogVarAdr("g_pEntityList", reinterpret_cast<uintptr_t>(g_pEntityList));
 	}
 	virtual void GetFun(void) const
 	{
@@ -279,7 +278,5 @@ class VBaseEntity : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VBaseEntity);
 
 #endif // BASEENTITY_H

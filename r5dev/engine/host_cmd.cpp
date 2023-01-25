@@ -11,12 +11,12 @@ bool DFS_InitializeFeatureFlagDefinitions(const char* pszFeatureFlags)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void HostCmd_Attach()
+void VHostCmd::Attach() const
 {
 	DetourAttach(&v_DFS_InitializeFeatureFlagDefinitions, &DFS_InitializeFeatureFlagDefinitions);
 }
 
-void HostCmd_Detach()
+void VHostCmd::Detach() const
 {
 	DetourDetach(&v_DFS_InitializeFeatureFlagDefinitions, &DFS_InitializeFeatureFlagDefinitions);
 }

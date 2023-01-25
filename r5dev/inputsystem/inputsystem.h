@@ -26,8 +26,7 @@ class VInputSystem : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| VAR: g_pInputSystem                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pInputSystem));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogVarAdr("g_pInputSystem", reinterpret_cast<uintptr_t>(g_pInputSystem));
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
@@ -40,5 +39,3 @@ class VInputSystem : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VInputSystem);

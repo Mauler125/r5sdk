@@ -13,10 +13,9 @@ class VPlatform : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: Plat_FloatTime                       : {:#18x} |\n", p_Plat_FloatTime.GetPtr());
-		spdlog::debug("| FUN: Plat_MSTime                          : {:#18x} |\n", p_Plat_MSTime.GetPtr());
-		spdlog::debug("| VAR: g_flErrorTimeStamp                   : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_flErrorTimeStamp));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("Plat_FloatTime", p_Plat_FloatTime.GetPtr());
+		LogFunAdr("Plat_MSTime", p_Plat_MSTime.GetPtr());
+		LogVarAdr("g_flErrorTimeStamp", reinterpret_cast<uintptr_t>(g_flErrorTimeStamp));
 	}
 	virtual void GetFun(void) const
 	{
@@ -35,7 +34,5 @@ class VPlatform : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VPlatform);
 
 #endif /* PLATFORM_INTERNAL_H */

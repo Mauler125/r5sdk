@@ -157,8 +157,6 @@ struct OverlayCapsule_t : public OverlayBase_t
 
 void DestroyOverlay(OverlayBase_t* pOverlay);
 void DrawOverlay(OverlayBase_t* pOverlay);
-void DebugOverlays_Attach();
-void DebugOverlays_Detach();
 
 inline CMemory p_DrawAllOverlays;
 inline auto v_DrawAllOverlays = p_DrawAllOverlays.RCast<void (*)(bool bDraw)>();
@@ -186,16 +184,15 @@ class VDebugOverlay : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: DrawAllOverlays                      : {:#18x} |\n", p_DrawAllOverlays.GetPtr());
-		spdlog::debug("| FUN: DestroyOverlay                       : {:#18x} |\n", p_DestroyOverlay.GetPtr());
-		spdlog::debug("| FUN: RenderLine                           : {:#18x} |\n", p_RenderLine.GetPtr());
-		spdlog::debug("| FUN: RenderBox                            : {:#18x} |\n", p_RenderBox.GetPtr());
-		spdlog::debug("| FUN: RenderWireframeSphere                : {:#18x} |\n", p_RenderWireframeSphere.GetPtr());
-		spdlog::debug("| VAR: s_pOverlays                          : {:#18x} |\n", reinterpret_cast<uintptr_t>(s_pOverlays));
-		spdlog::debug("| VAR: s_OverlayMutex                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(s_OverlayMutex));
-		spdlog::debug("| VAR: g_nOverlayTickCount                  : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_nOverlayTickCount));
-		spdlog::debug("| VAR: g_nRenderTickCount                   : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_nRenderTickCount));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("DrawAllOverlays", p_DrawAllOverlays.GetPtr());
+		LogFunAdr("DestroyOverlay", p_DestroyOverlay.GetPtr());
+		LogFunAdr("RenderLine", p_RenderLine.GetPtr());
+		LogFunAdr("RenderBox", p_RenderBox.GetPtr());
+		LogFunAdr("RenderWireframeSphere", p_RenderWireframeSphere.GetPtr());
+		LogVarAdr("s_pOverlays", reinterpret_cast<uintptr_t>(s_pOverlays));
+		LogVarAdr("s_OverlayMutex", reinterpret_cast<uintptr_t>(s_OverlayMutex));
+		LogVarAdr("g_nOverlayTickCount", reinterpret_cast<uintptr_t>(g_nOverlayTickCount));
+		LogVarAdr("g_nRenderTickCount", reinterpret_cast<uintptr_t>(g_nRenderTickCount));
 	}
 	virtual void GetFun(void) const
 	{
@@ -230,9 +227,7 @@ class VDebugOverlay : public IDetour
 #endif
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VDebugOverlay);

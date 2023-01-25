@@ -331,8 +331,7 @@ class VCVar : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| VAR: g_pCVar                              : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pCVar));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogVarAdr("g_pCVar", reinterpret_cast<uintptr_t>(g_pCVar));
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
@@ -345,5 +344,3 @@ class VCVar : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VCVar);

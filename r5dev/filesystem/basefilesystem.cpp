@@ -186,7 +186,7 @@ string CBaseFileSystem::ReadString(FileHandle_t pFile)
 	return svString;
 }
 
-void CBaseFileSystem_Attach()
+void VBaseFileSystem::Attach() const
 {
 	DetourAttach((LPVOID*)&v_CBaseFileSystem_Warning, &CBaseFileSystem::Warning);
 	DetourAttach((LPVOID*)&v_CBaseFileSystem_LoadFromVPK, &CBaseFileSystem::VReadFromVPK);
@@ -195,7 +195,7 @@ void CBaseFileSystem_Attach()
 	DetourAttach((LPVOID*)&v_CBaseFileSystem_UnmountVPKFile, &CBaseFileSystem::VUnmountVPKFile);
 }
 
-void CBaseFileSystem_Detach()
+void VBaseFileSystem::Detach() const
 {
 	DetourDetach((LPVOID*)&v_CBaseFileSystem_Warning, &CBaseFileSystem::Warning);
 	DetourDetach((LPVOID*)&v_CBaseFileSystem_LoadFromVPK, &CBaseFileSystem::VReadFromVPK);

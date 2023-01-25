@@ -53,12 +53,11 @@ class VEdict : public IDetour
 	virtual void GetAdr(void) const
 	{
 #ifndef CLIENT_DLL
-		spdlog::debug("| VAR: g_ServerGlobalVariables              : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_ServerGlobalVariables));
+		LogVarAdr("g_ServerGlobalVariables", reinterpret_cast<uintptr_t>(g_ServerGlobalVariables));
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
-		spdlog::debug("| VAR: g_ClientGlobalVariables              : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_ClientGlobalVariables));
+		LogVarAdr("g_ClientGlobalVariables", reinterpret_cast<uintptr_t>(g_ClientGlobalVariables));
 #endif // !DEDICATED
-		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
@@ -82,5 +81,3 @@ class VEdict : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VEdict);

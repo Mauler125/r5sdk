@@ -669,6 +669,9 @@
     <ClCompile Include="..\engine\modelinfo.cpp">
       <Filter>sdk\engine</Filter>
     </ClCompile>
+    <ClCompile Include="..\launcher\prx.cpp">
+      <Filter>sdk\launcher</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1975,6 +1978,9 @@
     </ClInclude>
     <ClInclude Include="..\engine\modelinfo.h">
       <Filter>sdk\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\launcher\prx.h">
+      <Filter>sdk\launcher</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

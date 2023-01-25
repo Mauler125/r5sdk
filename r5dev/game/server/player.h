@@ -800,9 +800,8 @@ class VPlayer : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CPlayer::EyeAngles                   : {:#18x} |\n", p_CPlayer__EyeAngles.GetPtr());
-		spdlog::debug("| FUN: CPlayer::PlayerRunCommand            : {:#18x} |\n", p_CPlayer__PlayerRunCommand.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CPlayer::EyeAngles", p_CPlayer__EyeAngles.GetPtr());
+		LogFunAdr("CPlayer::PlayerRunCommand", p_CPlayer__PlayerRunCommand.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -818,7 +817,5 @@ class VPlayer : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VPlayer);
 
 #endif // PLAYER_H

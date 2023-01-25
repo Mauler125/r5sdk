@@ -17,12 +17,12 @@ bool HCVideoMode_Common__CreateGameWindow(int* pnRect)
 	return CVideoMode_Common__CreateGameWindow(pnRect);
 }
 
-void HCVideoMode_Common_Attach()
+void HVideoMode_Common::Attach() const
 {
-	DetourAttach((LPVOID*)&CVideoMode_Common__CreateGameWindow, &HCVideoMode_Common__CreateGameWindow);
+	DetourAttach(&CVideoMode_Common__CreateGameWindow, &HCVideoMode_Common__CreateGameWindow);
 }
 
-void HCVideoMode_Common_Detach()
+void HVideoMode_Common::Detach() const
 {
-	DetourDetach((LPVOID*)&CVideoMode_Common__CreateGameWindow, &HCVideoMode_Common__CreateGameWindow);
+	DetourDetach(&CVideoMode_Common__CreateGameWindow, &HCVideoMode_Common__CreateGameWindow);
 }

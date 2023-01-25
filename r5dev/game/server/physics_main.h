@@ -10,15 +10,12 @@
 inline CMemory p_Physics_RunThinkFunctions;
 inline auto v_Physics_RunThinkFunctions = p_Physics_RunThinkFunctions.RCast<void* (*)(bool bSimulating)>();
 
-void Physics_Main_Attach();
-void Physics_Main_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 class VPhysics_Main : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: Physics_RunThinkFunctions            : {:#18x} |\n", p_Physics_RunThinkFunctions.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("Physics_RunThinkFunctions", p_Physics_RunThinkFunctions.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -27,10 +24,9 @@ class VPhysics_Main : public IDetour
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(VPhysics_Main);
 #endif // PHYSICS_MAIN_H

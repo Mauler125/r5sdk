@@ -120,7 +120,7 @@ void RunFrameServer(double flFrameTime, bool bRunOverlays, bool bUniformUpdate)
 	v_RunFrameServer(flFrameTime, bRunOverlays, bUniformUpdate);
 }
 
-void CServerGameDLL_Attach()
+void VServerGameDLL::Attach() const
 {
 #if defined(GAMEDLL_S3)
 	DetourAttach((LPVOID*)&CServerGameDLL__OnReceivedSayTextMessage, &CServerGameDLL::OnReceivedSayTextMessage);
@@ -128,7 +128,7 @@ void CServerGameDLL_Attach()
 	DetourAttach(&v_RunFrameServer, &RunFrameServer);
 }
 
-void CServerGameDLL_Detach()
+void VServerGameDLL::Detach() const
 {
 #if defined(GAMEDLL_S3)
 	DetourDetach((LPVOID*)&CServerGameDLL__OnReceivedSayTextMessage, &CServerGameDLL::OnReceivedSayTextMessage);

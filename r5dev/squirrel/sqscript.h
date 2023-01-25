@@ -143,39 +143,36 @@ SQBool Script_LoadScript(HSQUIRRELVM v, const SQChar* path, const SQChar* name, 
 
 void Script_Execute(const SQChar* code, const SQCONTEXT context);
 
-void SQScript_Attach();
-void SQScript_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 class VSquirrelVM : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: Script_RegisterConstant              : {:#18x} |\n", p_Script_RegisterConstant.GetPtr());
-		spdlog::debug("| FUN: Script_RegisterFunction              : {:#18x} |\n", p_Script_RegisterFunction.GetPtr());
+		LogFunAdr("Script_RegisterConstant", p_Script_RegisterConstant.GetPtr());
+		LogFunAdr("Script_RegisterFunction", p_Script_RegisterFunction.GetPtr());
 #ifndef CLIENT_DLL
-		spdlog::debug("| FUN: Script_InitializeSVGlobalStructs     : {:#18x} |\n", p_Script_InitializeSVGlobalStructs.GetPtr());
+		LogFunAdr("Script_InitializeSVGlobalStructs", p_Script_InitializeSVGlobalStructs.GetPtr());
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
-		spdlog::debug("| FUN: Script_InitializeCLGlobalStructs     : {:#18x} |\n", p_Script_InitializeCLGlobalStructs.GetPtr());
+		LogFunAdr("Script_InitializeCLGlobalStructs", p_Script_InitializeCLGlobalStructs.GetPtr());
 #endif // !DEDICATED
 #ifndef CLIENT_DLL
-		spdlog::debug("| FUN: Script_CreateServerVM                : {:#18x} |\n", p_Script_CreateServerVM.GetPtr());
+		LogFunAdr("Script_CreateServerVM", p_Script_CreateServerVM.GetPtr());
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
-		spdlog::debug("| FUN: Script_CreateClientVM                : {:#18x} |\n", p_Script_CreateClientVM.GetPtr());
-		spdlog::debug("| FUN: Script_CreateUIVM                    : {:#18x} |\n", p_Script_CreateUIVM.GetPtr());
+		LogFunAdr("Script_CreateClientVM", p_Script_CreateClientVM.GetPtr());
+		LogFunAdr("Script_CreateUIVM", p_Script_CreateUIVM.GetPtr());
 #endif // !DEDICATED
-		spdlog::debug("| FUN: Script_DestroySignalEntryListHead    : {:#18x} |\n", p_Script_DestroySignalEntryListHead.GetPtr());
-		spdlog::debug("| FUN: Script_LoadRson                      : {:#18x} |\n", p_Script_LoadRson.GetPtr());
-		spdlog::debug("| FUN: Script_LoadScript                    : {:#18x} |\n", p_Script_LoadScript.GetPtr());
+		LogFunAdr("Script_DestroySignalEntryListHead", p_Script_DestroySignalEntryListHead.GetPtr());
+		LogFunAdr("Script_LoadRson", p_Script_LoadRson.GetPtr());
+		LogFunAdr("Script_LoadScript", p_Script_LoadScript.GetPtr());
 #ifndef CLIENT_DLL
-		spdlog::debug("| VAR: g_pServerScript                      : {:#18x} |\n", g_pServerScript.GetPtr());
+		LogVarAdr("g_pServerScript", g_pServerScript.GetPtr());
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
-		spdlog::debug("| VAR: g_pClientScript                      : {:#18x} |\n", g_pClientScript.GetPtr());
-		spdlog::debug("| VAR: g_pUIScript                          : {:#18x} |\n", g_pUIScript.GetPtr());
+		LogVarAdr("g_pClientScript", g_pClientScript.GetPtr());
+		LogVarAdr("g_pUIScript", g_pUIScript.GetPtr());
 #endif // !DEDICATED
-		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -237,9 +234,7 @@ class VSquirrelVM : public IDetour
 #endif // !DEDICATED
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VSquirrelVM);

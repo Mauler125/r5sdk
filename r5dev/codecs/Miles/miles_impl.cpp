@@ -44,7 +44,7 @@ void MilesBankPatch(Miles::Bank* bank, char* streamPatch, char* localizedStreamP
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void MilesCore_Attach()
+void MilesCore::Attach() const
 {
 	DetourAttach(&v_AIL_LogFunc, &AIL_LogFunc);
 	DetourAttach(&v_Miles_Initialize, &Miles_Initialize);
@@ -52,7 +52,7 @@ void MilesCore_Attach()
 	DetourAttach(&v_MilesBankPatch, &MilesBankPatch);
 }
 
-void MilesCore_Detach()
+void MilesCore::Detach() const
 {
 	DetourDetach(&v_AIL_LogFunc, &AIL_LogFunc);
 	DetourDetach(&v_Miles_Initialize, &Miles_Initialize);

@@ -44,12 +44,12 @@ void* Physics_RunThinkFunctions(bool bSimulating)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void Physics_Main_Attach()
+void VPhysics_Main::Attach() const
 {
 	DetourAttach(&v_Physics_RunThinkFunctions, &Physics_RunThinkFunctions);
 }
 
-void Physics_Main_Detach()
+void VPhysics_Main::Detach() const
 {
 	DetourDetach(&v_Physics_RunThinkFunctions, &Physics_RunThinkFunctions);
 }

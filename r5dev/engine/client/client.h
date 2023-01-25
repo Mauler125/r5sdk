@@ -115,21 +115,16 @@ inline CMemory p_CClient_SetSignonState;
 inline auto v_CClient_SetSignonState = p_CClient_SetSignonState.RCast<bool (*)(CClient* pClient, SIGNONSTATE signon)>();
 
 ///////////////////////////////////////////////////////////////////////////////
-void CBaseClient_Attach();
-void CBaseClient_Detach();
-
-///////////////////////////////////////////////////////////////////////////////
 class VClient : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CClient::Connect                     : {:#18x} |\n", p_CClient_Connect.GetPtr());
-		spdlog::debug("| FUN: CClient::Disconnect                  : {:#18x} |\n", p_CClient_Disconnect.GetPtr());
-		spdlog::debug("| FUN: CClient::Clear                       : {:#18x} |\n", p_CClient_Clear.GetPtr());
-		spdlog::debug("| FUN: CClient::ProcessStringCmd            : {:#18x} |\n", p_CClient_ProcessStringCmd.GetPtr());
-		spdlog::debug("| FUN: CClient::SetSignonState              : {:#18x} |\n", p_CClient_SetSignonState.GetPtr());
-		spdlog::debug("| VAR: g_pClient[128]                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pClient));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CClient::Connect", p_CClient_Connect.GetPtr());
+		LogFunAdr("CClient::Disconnect", p_CClient_Disconnect.GetPtr());
+		LogFunAdr("CClient::Clear", p_CClient_Clear.GetPtr());
+		LogFunAdr("CClient::ProcessStringCmd", p_CClient_ProcessStringCmd.GetPtr());
+		LogFunAdr("CClient::SetSignonState", p_CClient_SetSignonState.GetPtr());
+		LogVarAdr("g_pClient[128]", reinterpret_cast<uintptr_t>(g_pClient));
 	}
 	virtual void GetFun(void) const
 	{
@@ -159,9 +154,18 @@ class VClient : public IDetour
 			.FindPatternSelf("48 8D 0D", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CClient*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const
+	{
+		DetourAttach((LPVOID*)&v_CClient_Clear, &CClient::VClear);
+		DetourAttach((LPVOID*)&v_CClient_Connect, &CClient::VConnect);
+		DetourAttach((LPVOID*)&v_CClient_ProcessStringCmd, &CClient::VProcessStringCmd);
+	}
+	virtual void Detach(void) const
+	{
+		DetourDetach((LPVOID*)&v_CClient_Clear, &CClient::VClear);
+		DetourDetach((LPVOID*)&v_CClient_Connect, &CClient::VConnect);
+		DetourDetach((LPVOID*)&v_CClient_ProcessStringCmd, &CClient::VProcessStringCmd);
+	}
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(VClient);

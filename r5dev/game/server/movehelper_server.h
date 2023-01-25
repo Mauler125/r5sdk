@@ -34,8 +34,7 @@ class VMoveHelperServer : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| VAR: s_MoveHelperServer                   : {:#18x} |\n", reinterpret_cast<uintptr_t>(s_MoveHelperServer));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogVarAdr("s_MoveHelperServer", reinterpret_cast<uintptr_t>(s_MoveHelperServer));
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
@@ -48,7 +47,5 @@ class VMoveHelperServer : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VMoveHelperServer);
 
 #endif // MOVEHELPER_SERVER_H

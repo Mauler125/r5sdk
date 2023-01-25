@@ -42,22 +42,19 @@ public:
 	static RPakHandle_t LoadAsync(const char* szPakFileName, void* pMalloc = g_pMallocPool, int nIdx = NULL, bool bUnk = false);
 	static void UnloadPak(RPakHandle_t handle);
 };
+
 extern CPakFile* g_pakLoadApi;
-
-void RTech_Game_Attach();
-void RTech_Game_Detach();
-
 extern vector<RPakHandle_t> g_vLoadedPakHandle;
+
 ///////////////////////////////////////////////////////////////////////////////
-class VRTechGame : public IDetour
+class V_RTechGame : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CPakFile::LoadAsync                  : {:#18x} |\n", p_CPakFile_LoadAsync.GetPtr());
-		spdlog::debug("| FUN: CPakFile::LoadPak                    : {:#18x} |\n", p_CPakFile_LoadPak.GetPtr());
-		spdlog::debug("| FUN: CPakFile::UnloadPak                  : {:#18x} |\n", p_CPakFile_UnloadPak.GetPtr());
-		spdlog::debug("| CON: CPakFile::LoadPak_OpenFileOffset     : {:#18x} |\n", p_CPakFile_LoadPak_OpenFileOffset.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CPakFile::LoadAsync", p_CPakFile_LoadAsync.GetPtr());
+		LogFunAdr("CPakFile::LoadPak", p_CPakFile_LoadPak.GetPtr());
+		LogFunAdr("CPakFile::UnloadPak", p_CPakFile_UnloadPak.GetPtr());
+		LogConAdr("CPakFile::LoadPak_OpenFileOffset", p_CPakFile_LoadPak_OpenFileOffset.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -83,9 +80,7 @@ class VRTechGame : public IDetour
 	{
 		p_CPakFile_LoadPak_OpenFileOffset = g_GameDll.FindPatternSIMD("48 89 7C 24 30 C7 44 24 28 ?? ?? ?? 40"); /*48 89 7C 24 30 C7 44 24 28 00 00 00 40*/
 	}
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VRTechGame);

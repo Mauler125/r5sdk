@@ -415,13 +415,13 @@ void CAI_NetworkBuilder::Build(CAI_NetworkBuilder* pBuilder, CAI_Network* pAINet
 	CAI_NetworkBuilder::SaveNetworkGraph(pAINetwork);
 }
 
-void CAI_NetworkManager_Attach()
+void VAI_NetworkManager::Attach() const
 {
 	DetourAttach((LPVOID*)&CAI_NetworkManager__LoadNetworkGraph, &CAI_NetworkManager::LoadNetworkGraph);
 	DetourAttach((LPVOID*)&CAI_NetworkBuilder__Build, &CAI_NetworkBuilder::Build);
 }
 
-void CAI_NetworkManager_Detach()
+void VAI_NetworkManager::Detach() const
 {
 	DetourDetach((LPVOID*)&CAI_NetworkManager__LoadNetworkGraph, &CAI_NetworkManager::LoadNetworkGraph);
 	DetourDetach((LPVOID*)&CAI_NetworkBuilder__Build, &CAI_NetworkBuilder::Build);

@@ -56,13 +56,13 @@ uint64_t CModelLoader::Map_LoadModelGuts(CModelLoader* loader, model_t* model)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void CModelLoader_Attach()
+void VModelLoader::Attach() const
 {
 	DetourAttach((LPVOID*)&CModelLoader__LoadModel, &CModelLoader::LoadModel);
 	DetourAttach((LPVOID*)&CModelLoader__Map_LoadModelGuts, &CModelLoader::Map_LoadModelGuts);
 }
 
-void CModelLoader_Detach()
+void VModelLoader::Detach() const
 {
 	DetourDetach((LPVOID*)&CModelLoader__LoadModel, &CModelLoader::LoadModel);
 	DetourDetach((LPVOID*)&CModelLoader__Map_LoadModelGuts, &CModelLoader::Map_LoadModelGuts);

@@ -732,6 +732,9 @@
     <ClCompile Include="..\game\server\baseentity.cpp">
       <Filter>sdk\game\server</Filter>
     </ClCompile>
+    <ClCompile Include="..\launcher\prx.cpp">
+      <Filter>sdk\launcher</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -2140,6 +2143,9 @@
     </ClInclude>
     <ClInclude Include="..\game\server\baseentity.h">
       <Filter>sdk\game\server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\launcher\prx.h">
+      <Filter>sdk\launcher</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

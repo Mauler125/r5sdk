@@ -71,9 +71,11 @@
 #include "engine/client/cl_main.h"
 #include "engine/client/client.h"
 #include "engine/client/clientstate.h"
+#include "engine/enginetrace.h"
 #include "engine/traceinit.h"
 #include "engine/common.h"
 #include "engine/cmodel_bsp.h"
+#include "engine/modelinfo.h"
 #include "engine/host.h"
 #include "engine/host_cmd.h"
 #include "engine/host_state.h"
@@ -90,6 +92,7 @@
 #include "engine/sys_utils.h"
 #include "engine/sys_getmodes.h"
 #ifndef DEDICATED
+#include "engine/gl_rmain.h"
 #include "engine/sys_mainwind.h"
 #endif // !DEDICATED
 #include "engine/matsys_interface.h"
@@ -99,6 +102,8 @@
 #include "engine/gl_rsurf.h"
 #include "engine/debugoverlay.h"
 #endif // !DEDICATED
+#include "game/shared/util_shared.h"
+#include "game/shared/usercmd.h"
 #include "game/shared/animation.h"
 #ifndef CLIENT_DLL
 #include "game/server/ai_node.h"
@@ -113,6 +118,7 @@
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
 #include "game/client/viewrender.h"
+#include "game/client/movehelper_client.h"
 #endif // !DEDICATED
 #include "public/edict.h"
 #include "public/utility/binstream.h"
@@ -155,100 +161,11 @@ void Systems_Init()
 	DetourUpdateThread(GetCurrentThread());
 
 	// Hook functions
-	//TSList_Attach();
+	for (const IDetour* pDetour : vDetour)
+	{
+		pDetour->Attach();
+	}
 
-	Launcher_Attach();
-	IApplication_Attach();
-#ifdef DEDICATED
-	//PRX_Attach();
-#endif // DEDICATED
-#ifndef DEDICATED
-	CL_Ents_Parse_Attach();
-#endif // !DEDICATED
-	CBaseClient_Attach();
-	CBaseFileSystem_Attach();
-
-	MDLCache_Attach();
-
-#ifndef DEDICATED
-	BinkImpl_Attach();
-	MilesCore_Attach();
-
-	CMaterialSystem_Attach();
-#endif // !DEDICATED
-
-	QHull_Attach();
-	BspLib_Attach();
-
-#ifndef DEDICATED
-	CEngineVGui_Attach();
-	//CFPSPanel_Attach();
-	CHLClient_Attach();
-#endif // !DEDICATED
-
-#if !defined(CLIENT_DLL) && defined (GAMEDLL_S3)
-	CServer_Attach(); // S1 and S2 CServer functions require work.
-#endif // !CLIENT_DLL && GAMEDLL_S3
-
-	Host_Attach();
-	HostCmd_Attach();
-
-	CHostState_Attach();
-
-	CModelBsp_Attach();
-	CModelLoader_Attach();
-
-#if !defined(DEDICATED) && defined (GAMEDLL_S3)
-	CNetMessages_Attach(); // S1 and S2 require certification.
-#endif // !DEDICATED && GAMEDLL_S3
-
-	NET_Attach();
-	NetChan_Attach();
-
-	ConCommand_Attach();
-	IConVar_Attach();
-	CKeyValueSystem_Attach();
-
-#ifndef CLIENT_DLL
-	Persistence_Attach();
-	IVEngineServer_Attach();
-	CServerGameDLL_Attach();
-
-	Physics_Main_Attach();
-#endif // !CLIENT_DLL
-
-	SQAPI_Attach();
-	SQVM_Attach();
-	SQScript_Attach();
-	SQAUX_Attach();
-
-	RTech_Game_Attach();
-	RTech_Utils_Attach();
-#ifndef DEDICATED
-	Rui_Attach();
-#endif // !DEDICATED
-
-	SysDll_Attach();
-	SysDll2_Attach();
-	SysUtils_Attach();
-#ifndef DEDICATED
-	SysGame_Attach();
-#endif // !DEDICATED
-
-#ifndef DEDICATED
-	HCVideoMode_Common_Attach();
-	DebugOverlays_Attach();
-
-	MatSys_Iface_Attach();
-	RSurf_Attach();
-#endif // !DEDICATED
-
-	Animation_Attach();
-#ifndef CLIENT_DLL
-	CAI_Utility_Attach();
-	CAI_Network_Attach();
-	CAI_NetworkManager_Attach();
-#endif // !#ifndef CLIENT_DLL
 	// Patch instructions
 	RuntimePtc_Init();
 
@@ -292,99 +209,10 @@ void Systems_Shutdown()
 	DetourUpdateThread(GetCurrentThread());
 
 	// Unhook functions
-	//TSList_Detach();
-
-	Launcher_Detach();
-	IApplication_Detach();
-#ifdef DEDICATED
-	//PRX_Detach();
-#endif // DEDICATED
-#ifndef DEDICATED
-	CL_Ents_Parse_Detach();
-#endif // !DEDICATED
-	CBaseClient_Detach();
-	CBaseFileSystem_Detach();
-
-	MDLCache_Detach();
-
-#ifndef DEDICATED
-	BinkImpl_Detach();
-	MilesCore_Detach();
-
-	CMaterialSystem_Detach();
-#endif // !DEDICATED
-
-	QHull_Detach();
-	BspLib_Detach();
-
-#ifndef DEDICATED
-	CEngineVGui_Detach();
-	//CFPSPanel_Detach();
-	CHLClient_Detach();
-#endif // !DEDICATED
-
-#if !defined(CLIENT_DLL) && defined (GAMEDLL_S3)
-	CServer_Detach(); // S1 and S2 CServer functions require work.
-#endif // !CLIENT_DLL && GAMEDLL_S3
-
-	Host_Detach();
-	HostCmd_Detach();
-
-	CHostState_Detach();
-
-	CModelBsp_Detach();
-	CModelLoader_Detach();
-
-#if !defined(DEDICATED) && defined (GAMEDLL_S3)
-	CNetMessages_Detach(); // S1 and S2 require certification.
-#endif // !DEDICATED && GAMEDLL_S3
-
-	NET_Detach();
-	NetChan_Detach();
-
-	ConCommand_Detach();
-	IConVar_Detach();
-	CKeyValueSystem_Detach();
-
-#ifndef CLIENT_DLL
-	Persistence_Detach();
-	IVEngineServer_Detach();
-	CServerGameDLL_Detach();
-
-	Physics_Main_Detach();
-#endif // !CLIENT_DLL
-	SQAPI_Detach();
-	SQVM_Detach();
-	SQScript_Detach();
-	SQAUX_Detach();
-
-	RTech_Game_Detach();
-	RTech_Utils_Detach();
-#ifndef DEDICATED
-	Rui_Detach();
-#endif // !DEDICATED
-
-	SysDll_Detach();
-	SysDll2_Detach();
-	SysUtils_Detach();
-#ifndef DEDICATED
-	SysGame_Detach();
-#endif // DEDICATED
-
-#ifndef DEDICATED
-	HCVideoMode_Common_Detach();
-	DebugOverlays_Detach();
-
-	MatSys_Iface_Detach();
-	RSurf_Detach();
-#endif // !DEDICATED
-
-	Animation_Detach();
-#ifndef CLIENT_DLL
-	CAI_Utility_Detach();
-	CAI_Network_Detach();
-	CAI_NetworkManager_Detach();
-#endif // !CLIENT_DLL
+	for (const IDetour* pDetour : vDetour)
+	{
+		pDetour->Detach();
+	}
 
 	// Commit the transaction
 	DetourTransactionCommit();
@@ -517,9 +345,10 @@ void DetourInit() // Run the sigscan
 			if (!bInitDivider)
 			{
 				bInitDivider = true;
-				spdlog::debug("+----------------------------------------------------------------+\n");
+				spdlog::debug("+---------------------------------------------------------------------+\n");
 			}
 			pDetour->GetAdr();
+			spdlog::debug("+---------------------------------------------------------------------+\n");
 		}
 	}
 
@@ -534,9 +363,194 @@ void DetourInit() // Run the sigscan
 
 void DetourAddress() // Test the sigscan results
 {
-	spdlog::debug("+----------------------------------------------------------------+\n");
+	spdlog::debug("+---------------------------------------------------------------------+\n");
 	for (const IDetour* pDetour : vDetour)
 	{
 		pDetour->GetAdr();
+		spdlog::debug("+---------------------------------------------------------------------+\n");
 	}
 }
+
+// Tier0
+REGISTER(VPlatform);
+REGISTER(VJobThread);
+REGISTER(VThreadTools);
+REGISTER(VTSListBase);
+REGISTER(VMemStd);
+
+// Tier1
+REGISTER(VCommandLine);
+REGISTER(VConCommand);
+REGISTER(VConVar);
+REGISTER(VCVar);
+
+// VPC
+REGISTER(VAppSystem);
+REGISTER(VKeyValues);
+REGISTER(VFactory);
+
+// VstdLib
+REGISTER(VCallback);
+REGISTER(VCompletion);
+REGISTER(HKeyValuesSystem);
+
+// Common
+REGISTER(VOpcodes);
+REGISTER(V_NetMessages);
+
+// Launcher
+REGISTER(VPRX);
+REGISTER(VLauncher);
+REGISTER(VApplication);
+
+// FileSystem
+REGISTER(VBaseFileSystem);
+REGISTER(VFileSystem_Stdio);
+
+// DataCache
+REGISTER(VMDLCache);
+
+// Ebisu
+REGISTER(VEbisuSDK);
+
+#ifndef DEDICATED
+
+// Codecs
+REGISTER(BinkCore); // REGISTER CLIENT ONLY!
+REGISTER(MilesCore); // REGISTER CLIENT ONLY!
+REGISTER(VRadShal);
+
+#endif // !DEDICATED
+
+// VPhysics
+REGISTER(VQHull);
+
+// BspLib
+REGISTER(VBspLib);
+
+// MaterialSystem
+REGISTER(VMaterialSystem);
+REGISTER(VMaterialGlue);
+
+#ifndef DEDICATED
+REGISTER(VShaderGlue);
+
+// VGui
+REGISTER(VEngineVGui); // REGISTER CLIENT ONLY!
+REGISTER(VFPSPanel); // REGISTER CLIENT ONLY!
+REGISTER(VMatSystemSurface);
+
+// Client
+REGISTER(HVEngineClient);
+#endif // !DEDICATED
+
+REGISTER(VDll_Engine_Int);
+
+#ifndef CLIENT_DLL
+
+// Server
+REGISTER(VServer); // REGISTER SERVER ONLY!
+REGISTER(VPersistence); // REGISTER SERVER ONLY!
+REGISTER(HVEngineServer); // REGISTER SERVER ONLY!
+
+#endif // !CLIENT_DLL
+
+// Squirrel
+REGISTER(VSqInit);
+REGISTER(VSqapi);
+REGISTER(HSQVM);
+REGISTER(VSquirrelVM);
+REGISTER(VSqStdAux);
+
+// Studio
+REGISTER(VStudioRenderContext);
+
+// RTech
+REGISTER(V_RTechGame);
+REGISTER(V_RTechUtils);
+REGISTER(VStryder);
+
+REGISTER(V_Rui); // Should this be client dll only???
+
+#ifndef DEDICATED
+REGISTER(V_CL_Ents_Parse); // REGISTER CLIENT ONLY!
+#endif // !DEDICATED
+
+// Engine/client
+REGISTER(VCL_Main);
+REGISTER(VClient);
+REGISTER(VClientState);
+
+// Engine
+REGISTER(VTraceInit);
+REGISTER(VCommon);
+REGISTER(VModel_BSP);
+REGISTER(VHost);
+REGISTER(VHostCmd);
+REGISTER(VHostState);
+REGISTER(VModelLoader);
+REGISTER(VNet);
+REGISTER(VNetChannel);
+
+REGISTER(VSys_Dll);
+REGISTER(VSys_Dll2);
+REGISTER(VSys_Utils);
+REGISTER(VEngine);
+REGISTER(VEngineTrace);
+REGISTER(VModelInfo);
+
+REGISTER(HVideoMode_Common);
+
+#ifndef DEDICATED
+REGISTER(VGL_RMain); // Client only?
+#endif // !DEDICATED
+
+REGISTER(VMatSys_Interface); // Should this be client dll only???
+REGISTER(VGL_MatSysIFace);
+REGISTER(VGL_Screen);
+
+
+// !!! SERVER DLL ONLY !!!
+REGISTER(HSV_Main);
+// !!! END SERVER DLL ONLY !!!
+
+#ifndef DEDICATED
+REGISTER(VGame); // REGISTER CLIENT ONLY!
+REGISTER(VGL_RSurf);
+#endif // !DEDICATED
+
+REGISTER(VDebugOverlay); // !TODO: This also needs to be exposed to server dll!!!
+
+// Game/shared
+REGISTER(VUserCmd);
+REGISTER(VAnimation);
+REGISTER(VUtil_Shared);
+
+#ifndef CLIENT_DLL
+
+// Game/server
+REGISTER(VAI_Network);
+REGISTER(VAI_NetworkManager);
+REGISTER(VRecast);
+REGISTER(VFairFight);
+REGISTER(VServerGameDLL);
+REGISTER(VMoveHelperServer);
+REGISTER(VPhysics_Main); // REGISTER SERVER ONLY
+REGISTER(VBaseEntity);
+REGISTER(VBaseAnimating);
+REGISTER(VPlayer);
+
+#endif // !CLIENT_DLL
+
+#ifndef DEDICATED
+REGISTER(V_ViewRender);
+REGISTER(VMoveHelperClient);
+#endif // !DEDICATED
+
+// Public
+REGISTER(VEdict);
+
+#ifndef DEDICATED
+REGISTER(VInputSystem);
+REGISTER(VDXGI);
+#endif // !DEDICATED

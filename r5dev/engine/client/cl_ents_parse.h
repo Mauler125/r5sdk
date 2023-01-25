@@ -4,14 +4,13 @@
 inline CMemory p_CL_CopyExistingEntity;
 inline auto v_CL_CopyExistingEntity = p_CL_CopyExistingEntity.RCast<bool (*)(__int64 a1, unsigned int* a2, char* a3)>();
 
-
+bool CL_CopyExistingEntity(__int64 a1, unsigned int* a2, char* a3);
 ///////////////////////////////////////////////////////////////////////////////
 class V_CL_Ents_Parse : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CL_CopyExistingEntity                : {:#18x} |\n", p_CL_CopyExistingEntity.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CL_CopyExistingEntity", p_CL_CopyExistingEntity.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -20,13 +19,15 @@ class V_CL_Ents_Parse : public IDetour
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const
+	{
+		DetourAttach((LPVOID*)&v_CL_CopyExistingEntity, &CL_CopyExistingEntity);
+	}
+	virtual void Detach(void) const
+	{
+		DetourDetach((LPVOID*)&v_CL_CopyExistingEntity, &CL_CopyExistingEntity);
+	}
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-void CL_Ents_Parse_Attach();
-void CL_Ents_Parse_Detach();
-
-REGISTER(V_CL_Ents_Parse);
 #endif // !CL_ENTS_PARSE_H

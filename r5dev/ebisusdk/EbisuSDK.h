@@ -33,16 +33,15 @@ class VEbisuSDK : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: EbisuSDK_Tier0_Init                  : {:#18x} |\n", p_EbisuSDK_Tier0_Init.GetPtr());
-		spdlog::debug("| FUN: EbisuSDK_CVar_Init                   : {:#18x} |\n", p_EbisuSDK_CVar_Init.GetPtr());
-		spdlog::debug("| FUN: EbisuSDK_SetState                    : {:#18x} |\n", p_EbisuSDK_SetState.GetPtr());
-		spdlog::debug("| VAR: g_NucleusID                          : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_NucleusID));
-		spdlog::debug("| VAR: g_OriginErrorLevel                   : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_OriginErrorLevel));
-		spdlog::debug("| VAR: g_OriginAuthCode                     : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_OriginAuthCode));
-		spdlog::debug("| VAR: g_OriginNucleusToken                 : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_OriginNucleusToken));
-		spdlog::debug("| VAR: g_bEbisuSDKInitialized               : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_bEbisuSDKInitialized));
-		spdlog::debug("| VAR: g_bEbisuSDKCvarInitialized           : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_bEbisuSDKCvarInitialized));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("EbisuSDK_Tier0_Init", p_EbisuSDK_Tier0_Init.GetPtr());
+		LogFunAdr("EbisuSDK_CVar_Init", p_EbisuSDK_CVar_Init.GetPtr());
+		LogFunAdr("EbisuSDK_SetState", p_EbisuSDK_SetState.GetPtr());
+		LogVarAdr("g_NucleusID", reinterpret_cast<uintptr_t>(g_NucleusID));
+		LogVarAdr("g_OriginErrorLevel", reinterpret_cast<uintptr_t>(g_OriginErrorLevel));
+		LogVarAdr("g_OriginAuthCode", reinterpret_cast<uintptr_t>(g_OriginAuthCode));
+		LogVarAdr("g_OriginNucleusToken", reinterpret_cast<uintptr_t>(g_OriginNucleusToken)); // TODO: rename to g_NucleusToken.
+		LogVarAdr("g_bEbisuSDKInitialized", reinterpret_cast<uintptr_t>(g_bEbisuSDKInitialized));
+		LogVarAdr("g_bEbisuSDKCvarInitialized", reinterpret_cast<uintptr_t>(g_bEbisuSDKCvarInitialized));
 	}
 	virtual void GetFun(void) const
 	{
@@ -73,5 +72,3 @@ class VEbisuSDK : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VEbisuSDK);

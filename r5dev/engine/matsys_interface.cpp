@@ -26,12 +26,12 @@ bool UpdateCurrentVideoConfig(MaterialSystem_Config_t* pConfig)
 */
 
 ///////////////////////////////////////////////////////////////////////////////
-void MatSys_Iface_Attach()
+void VMatSys_Interface::Attach() const
 {
 	//DetourAttach(&v_UpdateCurrentVideoConfig, &UpdateCurrentVideoConfig);
 }
 
-void MatSys_Iface_Detach()
+void VMatSys_Interface::Detach() const
 {
 	//DetourDetach(&v_UpdateCurrentVideoConfig, &UpdateCurrentVideoConfig);
 }

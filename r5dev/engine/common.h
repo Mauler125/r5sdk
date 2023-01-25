@@ -12,9 +12,8 @@ class VCommon : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: COM_InitFilesystem                   : {:#18x} |\n", p_COM_InitFilesystem.GetPtr());
-		spdlog::debug("| FUN: COM_ExplainDisconnection             : {:#18x} |\n", p_COM_ExplainDisconnection.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("COM_InitFilesystem", p_COM_InitFilesystem.GetPtr());
+		LogFunAdr("COM_ExplainDisconnection", p_COM_ExplainDisconnection.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -30,5 +29,3 @@ class VCommon : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VCommon);

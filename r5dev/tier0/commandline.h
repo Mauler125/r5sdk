@@ -24,8 +24,7 @@ class VCommandLine : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| VAR: g_pCmdLine                           : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pCmdLine));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogVarAdr("g_pCmdLine", reinterpret_cast<uintptr_t>(g_pCmdLine));
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
@@ -38,5 +37,3 @@ class VCommandLine : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VCommandLine);

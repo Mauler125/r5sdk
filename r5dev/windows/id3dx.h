@@ -129,5 +129,4 @@ class VDXGI : public IDetour
 	virtual void Detach(void) const { }
 	///////////////////////////////////////////////////////////////////////////////
 };
-REGISTER(VDXGI);
 #endif // !DEDICATED

@@ -13,12 +13,16 @@ void h_exit_or_terminate_process(UINT uExitCode)
 	TerminateProcess(h, uExitCode);
 }
 
-void PRX_Attach()
+void VPRX::Attach() const
 {
-	DetourAttach((LPVOID*)&v_exit_or_terminate_process, &h_exit_or_terminate_process);
+#ifdef DEDICATED
+	//DetourAttach(&v_exit_or_terminate_process, &h_exit_or_terminate_process);
+#endif // DEDICATED
 }
 
-void PRX_Detach()
+void VPRX::Detach() const
 {
-	DetourDetach((LPVOID*)&v_exit_or_terminate_process, &h_exit_or_terminate_process);
+#ifdef DEDICATED
+	//DetourDetach(&v_exit_or_terminate_process, &h_exit_or_terminate_process);
+#endif // DEDICATED
 }

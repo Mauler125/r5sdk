@@ -130,7 +130,7 @@ Vector2D CMaterialSystem::GetScreenSize(CMaterialSystem* pMatSys)
 #endif // !DEDICATED
 
 ///////////////////////////////////////////////////////////////////////////////
-void CMaterialSystem_Attach()
+void VMaterialSystem::Attach() const
 {
 	// TODO: This has to be removed!!!
 #ifndef _DEBUG
@@ -149,7 +149,7 @@ void CMaterialSystem_Attach()
 #endif // !DEDICATED
 }
 
-void CMaterialSystem_Detach()
+void VMaterialSystem::Detach() const
 {
 #ifndef DEDICATED
 	DetourDetach((LPVOID*)&v_StreamDB_Init, &StreamDB_Init);

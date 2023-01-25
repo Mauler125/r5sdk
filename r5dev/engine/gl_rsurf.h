@@ -10,17 +10,14 @@ inline auto V_DrawWorldMeshesDepthOnly = P_DrawWorldMeshesDepthOnly.RCast<void*(
 inline CMemory P_DrawWorldMeshesDepthAtTheEnd;
 inline auto V_DrawWorldMeshesDepthAtTheEnd = P_DrawWorldMeshesDepthAtTheEnd.RCast<void* (*)(void* ptr1, void* ptr2, void* ptr3, DrawWorldLists_t worldLists)>();
 
-void RSurf_Attach();
-void RSurf_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 class VGL_RSurf : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: R_DrawWorldMeshes                    : {:#18x} |\n", P_DrawWorldMeshes.GetPtr());
-		spdlog::debug("| FUN: R_DrawWorldMeshesDepthOnly           : {:#18x} |\n", P_DrawWorldMeshesDepthOnly.GetPtr());
-		spdlog::debug("| FUN: R_DrawWorldMeshesDepthAtTheEnd       : {:#18x} |\n", P_DrawWorldMeshesDepthAtTheEnd.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("R_DrawWorldMeshes", P_DrawWorldMeshes.GetPtr());
+		LogFunAdr("R_DrawWorldMeshesDepthOnly", P_DrawWorldMeshesDepthOnly.GetPtr());
+		LogFunAdr("R_DrawWorldMeshesDepthAtTheEnd", P_DrawWorldMeshesDepthAtTheEnd.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -38,9 +35,7 @@ class VGL_RSurf : public IDetour
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VGL_RSurf);

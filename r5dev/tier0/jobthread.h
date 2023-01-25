@@ -24,11 +24,10 @@ class VJobThread : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: JT_ParallelCall                      : {:#18x} |\n", p_JT_ParallelCall.GetPtr());
-		spdlog::debug("| FUN: JT_HelpWithAnything                  : {:#18x} |\n", p_JT_HelpWithAnything.GetPtr());
-		spdlog::debug("| FUN: JT_AcquireFifoLock                   : {:#18x} |\n", p_JT_AcquireFifoLock.GetPtr());
-		spdlog::debug("| FUN: JT_ReleaseFifoLock                   : {:#18x} |\n", p_JT_ReleaseFifoLock.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("JT_ParallelCall", p_JT_ParallelCall.GetPtr());
+		LogFunAdr("JT_HelpWithAnything", p_JT_HelpWithAnything.GetPtr());
+		LogFunAdr("JT_AcquireFifoLock", p_JT_AcquireFifoLock.GetPtr());
+		LogFunAdr("JT_ReleaseFifoLock", p_JT_ReleaseFifoLock.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -53,7 +52,5 @@ class VJobThread : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VJobThread);
 
 #endif // JOBTHREAD_H

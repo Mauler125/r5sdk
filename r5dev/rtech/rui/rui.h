@@ -10,18 +10,14 @@ inline auto v_Rui_LoadAsset = p_Rui_LoadAsset.RCast<void* (*)(const char* szRuiA
 inline CMemory p_Rui_GetFontFace;
 inline auto v_Rui_GetFontFace = p_Rui_GetFontFace.RCast<int16_t (*)(void)>();
 
-void Rui_Attach();
-void Rui_Detach();
-
 ///////////////////////////////////////////////////////////////////////////////
-class VRui : public IDetour
+class V_Rui : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: Rui_Draw                             : {:#18x} |\n", p_Rui_Draw.GetPtr());
-		spdlog::debug("| FUN: Rui_LoadAsset                        : {:#18x} |\n", p_Rui_LoadAsset.GetPtr());
-		spdlog::debug("| FUN: Rui_GetFontFace                      : {:#18x} |\n", p_Rui_GetFontFace.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("Rui_Draw", p_Rui_Draw.GetPtr());
+		LogFunAdr("Rui_LoadAsset", p_Rui_LoadAsset.GetPtr());
+		LogFunAdr("Rui_GetFontFace", p_Rui_GetFontFace.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -36,9 +32,7 @@ class VRui : public IDetour
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VRui);

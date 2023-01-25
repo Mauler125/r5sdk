@@ -64,26 +64,21 @@ inline CHLClient** gHLClient = nullptr;
 inline CHLClient** g_pHLClient = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
-void CHLClient_Attach();
-void CHLClient_Detach();
-
-///////////////////////////////////////////////////////////////////////////////
 class VDll_Engine_Int : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
 #ifndef DEDICATED
-		spdlog::debug("| FUN: CHLClient::PostInit                  : {:#18x} |\n", p_CHLClient_PostInit.GetPtr());
+		LogFunAdr("CHLClient::PostInit", p_CHLClient_PostInit.GetPtr());
 #endif // !DEDICATED
-		spdlog::debug("| FUN: CHLClient::LevelShutdown             : {:#18x} |\n", p_CHLClient_LevelShutdown.GetPtr());
-		spdlog::debug("| FUN: CHLClient::HudProcessInput           : {:#18x} |\n", p_CHLClient_HudProcessInput.GetPtr());
+		LogFunAdr("CHLClient::LevelShutdown", p_CHLClient_LevelShutdown.GetPtr());
+		LogFunAdr("CHLClient::HudProcessInput", p_CHLClient_HudProcessInput.GetPtr());
 #ifndef DEDICATED
-		spdlog::debug("| FUN: CHLClient::FrameStageNotify          : {:#18x} |\n", p_CHLClient_FrameStageNotify.GetPtr());
-		spdlog::debug("| FUN: CHLClient::GetAllClasses             : {:#18x} |\n", p_CHLClient_GetAllClasses.GetPtr());
+		LogFunAdr("CHLClient::FrameStageNotify", p_CHLClient_FrameStageNotify.GetPtr());
+		LogFunAdr("CHLClient::GetAllClasses", p_CHLClient_GetAllClasses.GetPtr());
 #endif // !DEDICATED
-		spdlog::debug("| VAR: gHLClient                            : {:#18x} |\n", reinterpret_cast<uintptr_t>(gHLClient));
-		spdlog::debug("| VAR: g_pHLClient                          : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pHLClient));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogVarAdr("gHLClient", reinterpret_cast<uintptr_t>(gHLClient));
+		LogVarAdr("g_pHLClient", reinterpret_cast<uintptr_t>(g_pHLClient));
 	}
 	virtual void GetFun(void) const
 	{
@@ -120,9 +115,7 @@ class VDll_Engine_Int : public IDetour
 			.FindPatternSelf("4C 8B", CMemory::Direction::DOWN, 512, 2).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CHLClient**>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VDll_Engine_Int);

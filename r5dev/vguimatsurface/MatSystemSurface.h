@@ -17,10 +17,9 @@ class VMatSystemSurface : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CMatSystemSurface::DrawColoredText   : {:#18x} |\n", p_CMatSystemSurface_DrawColoredText.GetPtr());
-		spdlog::debug("| VAR: g_pMatSystemSurface                  : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pMatSystemSurface));
-		spdlog::debug("| VAR: g_pVGuiSurface                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pVGuiSurface));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CMatSystemSurface::DrawColoredText", p_CMatSystemSurface_DrawColoredText.GetPtr());
+		LogVarAdr("g_pMatSystemSurface", reinterpret_cast<uintptr_t>(g_pMatSystemSurface));
+		LogVarAdr("g_pVGuiSurface", reinterpret_cast<uintptr_t>(g_pVGuiSurface));
 	}
 	virtual void GetFun(void) const
 	{
@@ -44,5 +43,3 @@ class VMatSystemSurface : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VMatSystemSurface);

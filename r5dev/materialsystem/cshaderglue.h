@@ -43,9 +43,8 @@ class VShaderGlue : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CShaderGlue::SetupShader             : {:#18x} |\n", reinterpret_cast<uintptr_t>(CShaderGlue_SetupShader));
-		spdlog::debug("| CON: g_pShaderGlueVFTable                 : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pShaderGlueVFTable));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CShaderGlue::SetupShader", reinterpret_cast<uintptr_t>(CShaderGlue_SetupShader));
+		LogConAdr("g_pShaderGlueVFTable", reinterpret_cast<uintptr_t>(g_pShaderGlueVFTable));
 	}
 	virtual void GetFun(void) const 
 	{
@@ -61,5 +60,3 @@ class VShaderGlue : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VShaderGlue);

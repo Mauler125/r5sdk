@@ -14,17 +14,13 @@ inline auto v_MilesQueueEventRun = p_MilesQueueEventRun.RCast<void(*)(Miles::Que
 inline CMemory p_MilesBankPatch;
 inline auto v_MilesBankPatch = p_MilesBankPatch.RCast<void(*)(Miles::Bank*, char*, char*)>();
 
-void MilesCore_Attach();
-void MilesCore_Detach();
-
 ///////////////////////////////////////////////////////////////////////////////
 class MilesCore : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: AIL_LogFunc                          : {:#18x} |\n", p_AIL_LogFunc.GetPtr());
-		spdlog::debug("| FUN: Miles_Initialize                     : {:#18x} |\n", p_Miles_Initialize.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("AIL_LogFunc", p_AIL_LogFunc.GetPtr());
+		LogFunAdr("Miles_Initialize", p_Miles_Initialize.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -45,9 +41,7 @@ class MilesCore : public IDetour
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(MilesCore);

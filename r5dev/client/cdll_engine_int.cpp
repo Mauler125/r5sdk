@@ -35,12 +35,16 @@ ClientClass* CHLClient::GetAllClasses()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void CHLClient_Attach()
+void VDll_Engine_Int::Attach() const
 {
-	//DetourAttach((LPVOID*)&CHLClient_FrameStageNotify, &CHLClient::FrameStageNotify);
+#ifndef DEDICATED
+	DetourAttach((LPVOID*)&CHLClient_FrameStageNotify, &CHLClient::FrameStageNotify);
+#endif // !DEDICATED
 }
 
-void CHLClient_Detach()
+void VDll_Engine_Int::Detach() const
 {
-	//DetourDetach((LPVOID*)&CHLClient_FrameStageNotify, &CHLClient::FrameStageNotify);
+#ifndef DEDICATED
+	DetourDetach((LPVOID*)&CHLClient_FrameStageNotify, &CHLClient::FrameStageNotify);
+#endif // !DEDICATED
 }

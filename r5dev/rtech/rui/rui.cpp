@@ -22,14 +22,14 @@ bool __fastcall Rui_Draw(__int64* a1, __m128* a2, const __m128i* a3, __int64 a4,
 	return v_Rui_Draw(a1, a2, a3, a4, a5);
 }
 
-void Rui_Attach()
+void V_Rui::Attach() const
 {
-	DetourAttach((LPVOID*)&v_Rui_Draw, &Rui_Draw);
+	DetourAttach(&v_Rui_Draw, &Rui_Draw);
 }
 
-void Rui_Detach()
+void V_Rui::Detach() const
 {
-	DetourDetach((LPVOID*)&v_Rui_Draw, &Rui_Draw);
+	DetourDetach(&v_Rui_Draw, &Rui_Draw);
 }
 
 #endif // !DEDICATED

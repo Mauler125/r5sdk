@@ -63,22 +63,17 @@ inline auto v_CBaseFileSystem_GetMountedVPKHandle = p_CBaseFileSystem_GetMounted
 extern CBaseFileSystem* g_pFileSystem;
 
 ///////////////////////////////////////////////////////////////////////////////
-void CBaseFileSystem_Attach();
-void CBaseFileSystem_Detach();
-
-///////////////////////////////////////////////////////////////////////////////
 class VBaseFileSystem : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CBaseFileSystem::Warning             : {:#18x} |\n", p_CBaseFileSystem_Warning.GetPtr());
-		spdlog::debug("| FUN: CBaseFileSystem::LoadFromVPK         : {:#18x} |\n", p_CBaseFileSystem_LoadFromVPK.GetPtr());
-		spdlog::debug("| FUN: CBaseFileSystem::LoadFromCache       : {:#18x} |\n", p_CBaseFileSystem_LoadFromCache.GetPtr());
-		spdlog::debug("| FUN: CBaseFileSystem::MountVPKFile        : {:#18x} |\n", p_CBaseFileSystem_MountVPKFile.GetPtr());
-		spdlog::debug("| FUN: CBaseFileSystem::UnmountVPKFile      : {:#18x} |\n", p_CBaseFileSystem_UnmountVPKFile.GetPtr());
-		spdlog::debug("| FUN: CBaseFileSystem::GetMountedVPKHandle : {:#18x} |\n", p_CBaseFileSystem_GetMountedVPKHandle.GetPtr());
-		spdlog::debug("| VAR: g_pFileSystem                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pFileSystem));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CBaseFileSystem::Warning", p_CBaseFileSystem_Warning.GetPtr());
+		LogFunAdr("CBaseFileSystem::LoadFromVPK", p_CBaseFileSystem_LoadFromVPK.GetPtr());
+		LogFunAdr("CBaseFileSystem::LoadFromCache", p_CBaseFileSystem_LoadFromCache.GetPtr());
+		LogFunAdr("CBaseFileSystem::MountVPKFile", p_CBaseFileSystem_MountVPKFile.GetPtr());
+		LogFunAdr("CBaseFileSystem::UnmountVPKFile", p_CBaseFileSystem_UnmountVPKFile.GetPtr());
+		LogFunAdr("CBaseFileSystem::GetMountedVPKHandle", p_CBaseFileSystem_GetMountedVPKHandle.GetPtr());
+		LogVarAdr("g_pFileSystem", reinterpret_cast<uintptr_t>(g_pFileSystem));
 	}
 	virtual void GetFun(void) const
 	{
@@ -102,9 +97,7 @@ class VBaseFileSystem : public IDetour
 			.FindPattern("48 89", CMemory::Direction::DOWN, 512, 2).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CBaseFileSystem*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VBaseFileSystem);

@@ -62,27 +62,23 @@ inline char* g_szBaseDir = nullptr; // static size = 260
 inline int64_t* g_pMTVFTaskItem = nullptr; // struct.
 inline char* g_szMTVFItemName = nullptr;
 
-
-void SysDll2_Attach();
-void SysDll2_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 class VSys_Dll2 : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CEngineAPI::Connect                  : {:#18x} |\n", p_CEngineAPI_Connect.GetPtr());
-		spdlog::debug("| FUN: CEngineAPI::ModInit                  : {:#18x} |\n", p_CEngineAPI_ModInit.GetPtr());
-		spdlog::debug("| FUN: CEngineAPI::MainLoop                 : {:#18x} |\n", p_CEngineAPI_MainLoop.GetPtr());
+		LogFunAdr("CEngineAPI::Connect", p_CEngineAPI_Connect.GetPtr());
+		LogFunAdr("CEngineAPI::ModInit", p_CEngineAPI_ModInit.GetPtr());
+		LogFunAdr("CEngineAPI::MainLoop", p_CEngineAPI_MainLoop.GetPtr());
 #if defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		spdlog::debug("| FUN: CEngineAPI::SetStartupInfo           : {:#18x} |\n", p_CEngineAPI_SetStartupInfo.GetPtr());
+		LogFunAdr("CEngineAPI::SetStartupInfo", p_CEngineAPI_SetStartupInfo.GetPtr());
 #endif
-		spdlog::debug("| FUN: ResetMTVFTaskItem                    : {:#18x} |\n", p_ResetMTVFTaskItem.GetPtr());
-		spdlog::debug("| FUN: PakFile_Init                         : {:#18x} |\n", p_PakFile_Init.GetPtr());
-		spdlog::debug("| VAR: g_bTextMode                          : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_bTextMode));
-		spdlog::debug("| VAR: g_szBaseDir                          : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_szBaseDir));
-		spdlog::debug("| VAR: g_pMTVFTaskItem                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pMTVFTaskItem));
-		spdlog::debug("| VAR: g_szMTVFItemName                     : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_szMTVFItemName));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("ResetMTVFTaskItem", p_ResetMTVFTaskItem.GetPtr());
+		LogFunAdr("PakFile_Init", p_PakFile_Init.GetPtr());
+		LogVarAdr("g_bTextMode", reinterpret_cast<uintptr_t>(g_bTextMode));
+		LogVarAdr("g_szBaseDir", reinterpret_cast<uintptr_t>(g_szBaseDir));
+		LogVarAdr("g_pMTVFTaskItem", reinterpret_cast<uintptr_t>(g_pMTVFTaskItem));
+		LogVarAdr("g_szMTVFItemName", reinterpret_cast<uintptr_t>(g_szMTVFItemName));
 	}
 	virtual void GetFun(void) const
 	{
@@ -114,9 +110,7 @@ class VSys_Dll2 : public IDetour
 		g_szMTVFItemName = p_ResetMTVFTaskItem.FindPattern("C6 05", CMemory::Direction::DOWN, 250).ResolveRelativeAddressSelf(0x2, 0x7).RCast<char*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VSys_Dll2);

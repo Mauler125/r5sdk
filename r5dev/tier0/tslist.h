@@ -3,15 +3,12 @@
 
 inline void* g_pMallocPool;
 
-void TSList_Attach();
-void TSList_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 class VTSListBase : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| VAR: g_pMallocPool                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pMallocPool));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogVarAdr("g_pMallocPool", reinterpret_cast<uintptr_t>(g_pMallocPool));
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
@@ -29,7 +26,5 @@ class VTSListBase : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VTSListBase);
 
 #endif // TSLIST_H

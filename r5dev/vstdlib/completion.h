@@ -11,5 +11,3 @@ class VCompletion : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VCompletion);

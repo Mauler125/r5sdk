@@ -105,29 +105,25 @@ inline LPCRITICAL_SECTION* m_MDLMutex = nullptr;
 inline PSRWLOCK* m_MDLLock = nullptr;
 inline CMDLCache* g_MDLCache = nullptr;
 
-
-void MDLCache_Attach();
-void MDLCache_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 class VMDLCache : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CMDLCache::FindMDL                   : {:#18x} |\n", p_CMDLCache__FindMDL.GetPtr());
+		LogFunAdr("CMDLCache::FindMDL", p_CMDLCache__FindMDL.GetPtr());
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
-		spdlog::debug("| FUN: CMDLCache::FindCachedMDL             : {:#18x} |\n", p_CMDLCache__FindCachedMDL.GetPtr());
-		spdlog::debug("| FUN: CMDLCache::FindUncachedMDL           : {:#18x} |\n", p_CMDLCache__FindUncachedMDL.GetPtr());
+		LogFunAdr("CMDLCache::FindCachedMDL", p_CMDLCache__FindCachedMDL.GetPtr());
+		LogFunAdr("CMDLCache::FindUncachedMDL", p_CMDLCache__FindUncachedMDL.GetPtr());
 #endif
-		spdlog::debug("| FUN: CMDLCache::GetStudioHDR              : {:#18x} |\n", p_CMDLCache__GetStudioHDR.GetPtr());
-		spdlog::debug("| FUN: CMDLCache::GetHardwareData           : {:#18x} |\n", p_CMDLCache__GetHardwareData.GetPtr());
+		LogFunAdr("CMDLCache::GetStudioHDR", p_CMDLCache__GetStudioHDR.GetPtr());
+		LogFunAdr("CMDLCache::GetHardwareData", p_CMDLCache__GetHardwareData.GetPtr());
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
-		spdlog::debug("| FUN: CStudioHWDataRef::SetFlags           : {:#18x} |\n", p_CStudioHWDataRef__SetFlags.GetPtr());
+		LogFunAdr("CStudioHWDataRef::SetFlags", p_CStudioHWDataRef__SetFlags.GetPtr());
 #endif
-		spdlog::debug("| VAR: m_MDLMutex                           : {:#18x} |\n", reinterpret_cast<uintptr_t>(m_MDLMutex));
-		spdlog::debug("| VAR: m_MDLLock                            : {:#18x} |\n", reinterpret_cast<uintptr_t>(m_MDLLock));
-		spdlog::debug("| VAR: m_MDLDict                            : {:#18x} |\n", reinterpret_cast<uintptr_t>(m_MDLDict));
-		spdlog::debug("| VAR: g_MDLCache                           : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_MDLCache));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogVarAdr("m_MDLMutex", reinterpret_cast<uintptr_t>(m_MDLMutex));
+		LogVarAdr("m_MDLLock", reinterpret_cast<uintptr_t>(m_MDLLock));
+		LogVarAdr("m_MDLDict", reinterpret_cast<uintptr_t>(m_MDLDict));
+		LogVarAdr("g_MDLCache", reinterpret_cast<uintptr_t>(g_MDLCache));
 	}
 	virtual void GetFun(void) const
 	{
@@ -178,10 +174,9 @@ class VMDLCache : public IDetour
 			.ResolveRelativeAddressSelf(0x3, 0x7).RCast<CMDLCache*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(VMDLCache);
 #endif // MDLCACHE_H

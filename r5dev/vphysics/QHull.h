@@ -9,17 +9,13 @@ inline auto QHull_PrintFunc = p_QHull_PrintFunc.RCast<int (*)(const char* fmt, .
 ///////////////////////////////////////////////////////////////////////////////
 int HQHull_PrintFunc(const char* fmt, ...);
 
-void QHull_Attach();
-void QHull_Detach();
-
 ///////////////////////////////////////////////////////////////////////////////
 class VQHull : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: QHull_PrintFunc                      : {:#18x} |\n", p_QHull_PrintFunc.GetPtr());
-		//spdlog::debug("| FUN: speex_warning_int                    : {:#18x} |\n", p_speex_warning_int.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("QHull_PrintFunc", p_QHull_PrintFunc.GetPtr());
+		//LogFunAdr("speex_warning_int", p_speex_warning_int.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -31,9 +27,7 @@ class VQHull : public IDetour
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VQHull);

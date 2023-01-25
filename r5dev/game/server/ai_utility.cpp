@@ -117,13 +117,13 @@ void Detour_HotSwap()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void CAI_Utility_Attach()
+void VRecast::Attach() const
 {
 	DetourAttach((LPVOID*)&v_dtNavMesh__isPolyReachable, &IsGoalPolyReachable);
 	DetourAttach((LPVOID*)&v_Detour_LevelInit, &Detour_LevelInit);
 }
 
-void CAI_Utility_Detach()
+void VRecast::Detach() const
 {
 	DetourDetach((LPVOID*)&v_dtNavMesh__isPolyReachable, &IsGoalPolyReachable);
 	DetourDetach((LPVOID*)&v_Detour_LevelInit, &Detour_LevelInit);

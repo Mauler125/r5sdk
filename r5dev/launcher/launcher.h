@@ -20,21 +20,17 @@ string LoadConfigFile(const string& svConfig);
 void ParseAndApplyConfigFile(const string& svConfig);
 const char* ExitCodeToString(int nCode);
 
-void Launcher_Attach();
-void Launcher_Detach();
-
 ///////////////////////////////////////////////////////////////////////////////
 class VLauncher : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: WinMain                              : {:#18x} |\n", p_WinMain.GetPtr());
-		spdlog::debug("| FUN: LauncherMain                         : {:#18x} |\n", p_LauncherMain.GetPtr());
-		spdlog::debug("| FUN: TopLevelExceptionFilter              : {:#18x} |\n", p_TopLevelExceptionFilter.GetPtr());
+		LogFunAdr("WinMain", p_WinMain.GetPtr());
+		LogFunAdr("LauncherMain", p_LauncherMain.GetPtr());
+		LogFunAdr("TopLevelExceptionFilter", p_TopLevelExceptionFilter.GetPtr());
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
-		spdlog::debug("| FUN: RemoveSpuriousGameParameters         : {:#18x} |\n", p_RemoveSpuriousGameParameters.GetPtr());
+		LogFunAdr("RemoveSpuriousGameParameters", p_RemoveSpuriousGameParameters.GetPtr());
 #endif // !GAMEDLL_S0 || !GAMEDLL_S1
-		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -54,10 +50,9 @@ class VLauncher : public IDetour
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(VLauncher);
 #endif // LAUNCHER_H

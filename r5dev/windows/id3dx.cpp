@@ -507,13 +507,12 @@ void DirectX_Shutdown()
 void VDXGI::GetAdr(void) const
 {
 	///////////////////////////////////////////////////////////////////////////////
-	spdlog::debug("| FUN: IDXGISwapChain::Present              : {:#18x} |\n", reinterpret_cast<uintptr_t>(s_fnSwapChainPresent));
-	spdlog::debug("| VAR: s_pSwapChain                         : {:#18x} |\n", reinterpret_cast<uintptr_t>(s_pSwapChain)             );
-	spdlog::debug("| VAR: s_pRenderTargetView                  : {:#18x} |\n", reinterpret_cast<uintptr_t>(s_pRenderTargetView)      );
-	spdlog::debug("| VAR: s_pDeviceContext                     : {:#18x} |\n", reinterpret_cast<uintptr_t>(s_pDeviceContext)         );
-	spdlog::debug("| VAR: s_pDevice                            : {:#18x} |\n", reinterpret_cast<uintptr_t>(s_pDevice)                );
-	spdlog::debug("| VAR: g_ppGameDevice                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_ppGameDevice)           );
-	spdlog::debug("+----------------------------------------------------------------+\n");
+	LogFunAdr("IDXGISwapChain::Present", reinterpret_cast<uintptr_t>(s_fnSwapChainPresent));
+	LogVarAdr("s_pSwapChain", reinterpret_cast<uintptr_t>(s_pSwapChain));
+	LogVarAdr("s_pRenderTargetView", reinterpret_cast<uintptr_t>(s_pRenderTargetView));
+	LogVarAdr("s_pDeviceContext", reinterpret_cast<uintptr_t>(s_pDeviceContext));
+	LogVarAdr("s_pDevice", reinterpret_cast<uintptr_t>(s_pDevice));
+	LogVarAdr("g_ppGameDevice", reinterpret_cast<uintptr_t>(g_ppGameDevice));
 }
 
 //#################################################################################

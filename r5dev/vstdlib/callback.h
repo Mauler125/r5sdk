@@ -77,9 +77,8 @@ class VCallback : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: SetupGamemode                        : {:#18x} |\n", p_SetupGamemode.GetPtr());
-		spdlog::debug("| FUN: DownloadPlaylist_f                   : {:#18x} |\n", p_DownloadPlaylists_f.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("SetupGamemode", p_SetupGamemode.GetPtr());
+		LogFunAdr("DownloadPlaylist_f", p_DownloadPlaylists_f.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -95,5 +94,3 @@ class VCallback : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VCallback);

@@ -246,12 +246,11 @@ class VThreadTools : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CThreadFastMutex::WaitForLock        : {:#18x} |\n", p_MutexInternal_WaitForLock.GetPtr());
-		spdlog::debug("| FUN: CThreadFastMutex::ReleaseWaiter      : {:#18x} |\n", p_MutexInternal_ReleaseWaiter.GetPtr());
-		spdlog::debug("| FUN: DeclareCurrentThreadIsMainThread     : {:#18x} |\n", p_DeclareCurrentThreadIsMainThread.GetPtr());
-		spdlog::debug("| VAR: g_ThreadMainThreadID                 : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_ThreadMainThreadID));
-		spdlog::debug("| VAR: g_ThreadServerFrameThreadID          : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_ThreadServerFrameThreadID));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CThreadFastMutex::WaitForLock", p_MutexInternal_WaitForLock.GetPtr());
+		LogFunAdr("CThreadFastMutex::ReleaseWaiter", p_MutexInternal_ReleaseWaiter.GetPtr());
+		LogFunAdr("DeclareCurrentThreadIsMainThread", p_DeclareCurrentThreadIsMainThread.GetPtr());
+		LogVarAdr("g_ThreadMainThreadID", reinterpret_cast<uintptr_t>(g_ThreadMainThreadID));
+		LogVarAdr("g_ThreadServerFrameThreadID", reinterpret_cast<uintptr_t>(g_ThreadServerFrameThreadID));
 	}
 	virtual void GetFun(void) const
 	{
@@ -273,7 +272,5 @@ class VThreadTools : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VThreadTools);
 
 #endif // THREADTOOLS_H

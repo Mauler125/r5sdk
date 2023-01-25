@@ -9,17 +9,13 @@ inline auto CVideoMode_Common__CreateGameWindow = p_CVideoMode_Common__CreateGam
 inline CMemory p_CVideoMode_Common__CreateWindowClass;
 inline auto CVideoMode_Common__CreateWindowClass = p_CVideoMode_Common__CreateWindowClass.RCast<HWND(*)(vrect_t* pnRect)>();
 
-void HCVideoMode_Common_Attach();
-void HCVideoMode_Common_Detach();
-
 ///////////////////////////////////////////////////////////////////////////////
 class HVideoMode_Common : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CVideoMode_Common::CreateGameWindow  : {:#18x} |\n", p_CVideoMode_Common__CreateGameWindow.GetPtr());
-		spdlog::debug("| FUN: CVideoMode_Common::CreateWindowClass : {:#18x} |\n", p_CVideoMode_Common__CreateWindowClass.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CVideoMode_Common::CreateGameWindow", p_CVideoMode_Common__CreateGameWindow.GetPtr());
+		LogFunAdr("CVideoMode_Common::CreateWindowClass", p_CVideoMode_Common__CreateWindowClass.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -35,9 +31,7 @@ class HVideoMode_Common : public IDetour
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(HVideoMode_Common);

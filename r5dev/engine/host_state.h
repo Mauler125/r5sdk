@@ -62,10 +62,6 @@ inline CMemory p_HostState_ChangeLevelMP;
 inline auto v_HostState_ChangeLevelMP = p_HostState_ChangeLevelMP.RCast<void(*)(char const* pNewLevel, char const* pLandmarkName)>();
 
 ///////////////////////////////////////////////////////////////////////////////
-void CHostState_Attach();
-void CHostState_Detach();
-
-///////////////////////////////////////////////////////////////////////////////
 extern CHostState* g_pHostState;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -73,12 +69,11 @@ class VHostState : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CHostState::FrameUpdate              : {:#18x} |\n", p_CHostState_FrameUpdate.GetPtr());
-		spdlog::debug("| FUN: CHostState::State_Run                : {:#18x} |\n", p_CHostState_State_Run.GetPtr());
-		spdlog::debug("| FUN: CHostState::State_GameShutDown       : {:#18x} |\n", p_CHostState_State_GameShutDown.GetPtr());
-		spdlog::debug("| FUN: HostState_ChangeLevelMP              : {:#18x} |\n", p_HostState_ChangeLevelMP.GetPtr());
-		spdlog::debug("| VAR: g_pHostState                         : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pHostState));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CHostState::FrameUpdate", p_CHostState_FrameUpdate.GetPtr());
+		LogFunAdr("CHostState::State_Run", p_CHostState_State_Run.GetPtr());
+		LogFunAdr("CHostState::State_GameShutDown", p_CHostState_State_GameShutDown.GetPtr());
+		LogFunAdr("HostState_ChangeLevelMP", p_HostState_ChangeLevelMP.GetPtr());
+		LogVarAdr("g_pHostState", reinterpret_cast<uintptr_t>(g_pHostState));
 	}
 	virtual void GetFun(void) const
 	{
@@ -103,9 +98,7 @@ class VHostState : public IDetour
 		g_pHostState = p_CHostState_FrameUpdate.FindPattern("48 8D ?? ?? ?? ?? 01", CMemory::Direction::DOWN, 100).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CHostState*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VHostState);

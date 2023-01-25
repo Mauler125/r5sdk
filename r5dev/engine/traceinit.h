@@ -9,8 +9,7 @@ class VTraceInit : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: TRACEINIT                            : {:#18x} |\n", p_TRACEINIT.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("TRACEINIT", p_TRACEINIT.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -23,7 +22,5 @@ class VTraceInit : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VTraceInit);
 
 #endif // TRACEINIT_H

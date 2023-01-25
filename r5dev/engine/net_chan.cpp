@@ -254,11 +254,11 @@ bool CNetChan::ProcessMessages(CNetChan* pChan, bf_read* pMsg)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void NetChan_Attach()
+void VNetChannel::Attach() const
 {
-	DetourAttach((LPVOID*)&v_NetChan_ProcessMessages, &CNetChan::ProcessMessages);
+	DetourAttach(&v_NetChan_ProcessMessages, &CNetChan::ProcessMessages);
 }
-void NetChan_Detach()
+void VNetChannel::Detach() const
 {
-	DetourDetach((LPVOID*)&v_NetChan_ProcessMessages, &CNetChan::ProcessMessages);
+	DetourDetach(&v_NetChan_ProcessMessages, &CNetChan::ProcessMessages);
 }

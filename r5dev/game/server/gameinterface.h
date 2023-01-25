@@ -55,21 +55,17 @@ extern CServerGameEnts* g_pServerGameEntities;
 
 extern CGlobalVars** g_pGlobals;
 
-void CServerGameDLL_Attach();
-void CServerGameDLL_Detach();
-
 ///////////////////////////////////////////////////////////////////////////////
 class VServerGameDLL : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: OnReceivedSayTextMessage             : {:#18x} |\n", p_CServerGameDLL__OnReceivedSayTextMessage.GetPtr());
-		spdlog::debug("| FUN: RunFrameServer                       : {:#18x} |\n", p_RunFrameServer.GetPtr());
-		spdlog::debug("| VAR: g_pServerGameDLL                     : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pServerGameDLL));
-		spdlog::debug("| VAR: g_pServerGameClients                 : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pServerGameClients));
-		spdlog::debug("| VAR: g_pServerGameEntities                : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pServerGameEntities));
-		spdlog::debug("| VAR: g_pGlobals                           : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pGlobals));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CServerGameDLL::OnReceivedSayTextMessage", p_CServerGameDLL__OnReceivedSayTextMessage.GetPtr());
+		LogFunAdr("RunFrameServer", p_RunFrameServer.GetPtr());
+		LogVarAdr("g_pServerGameDLL", reinterpret_cast<uintptr_t>(g_pServerGameDLL));
+		LogVarAdr("g_pServerGameClients", reinterpret_cast<uintptr_t>(g_pServerGameClients));
+		LogVarAdr("g_pServerGameEntities", reinterpret_cast<uintptr_t>(g_pServerGameEntities));
+		LogVarAdr("g_pGlobals", reinterpret_cast<uintptr_t>(g_pGlobals));
 	}
 	virtual void GetFun(void) const
 	{
@@ -86,11 +82,9 @@ class VServerGameDLL : public IDetour
 		g_pGlobals = g_GameDll.FindPatternSIMD("4C 8B 0D ?? ?? ?? ?? 48 8B D1").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CGlobalVars**>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VServerGameDLL);
 
 #endif // GAMEINTERFACE_H

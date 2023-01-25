@@ -76,24 +76,20 @@ inline auto BuildSpriteLoadName = p_BuildSpriteLoadName.RCast<void* (*)(const ch
 
 inline CModelLoader* g_pModelLoader;
 
-void CModelLoader_Attach();
-void CModelLoader_Detach();
-
 ///////////////////////////////////////////////////////////////////////////////
 class VModelLoader : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CModelLoader::FindModel              : {:#18x} |\n", p_CModelLoader__FindModel.GetPtr());
-		spdlog::debug("| FUN: CModelLoader::LoadModel              : {:#18x} |\n", p_CModelLoader__LoadModel.GetPtr());
-		spdlog::debug("| FUN: CModelLoader::UnloadModel            : {:#18x} |\n", p_CModelLoader__UnloadModel.GetPtr());
-		spdlog::debug("| FUN: CModelLoader::Map_LoadModelGuts      : {:#18x} |\n", p_CModelLoader__Map_LoadModelGuts.GetPtr());
-		spdlog::debug("| FUN: CModelLoader::Map_IsValid            : {:#18x} |\n", p_CModelLoader__Map_IsValid.GetPtr());
-		spdlog::debug("| FUN: CModelLoader::Studio_LoadModel       : {:#18x} |\n", p_CModelLoader__Studio_LoadModel.GetPtr());
-		spdlog::debug("| FUN: GetSpriteInfo                        : {:#18x} |\n", p_GetSpriteInfo.GetPtr());
-		spdlog::debug("| FUN: BuildSpriteLoadName                  : {:#18x} |\n", p_BuildSpriteLoadName.GetPtr());
-		spdlog::debug("| VAR: g_pModelLoader                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pModelLoader));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CModelLoader::FindModel", p_CModelLoader__FindModel.GetPtr());
+		LogFunAdr("CModelLoader::LoadModel", p_CModelLoader__LoadModel.GetPtr());
+		LogFunAdr("CModelLoader::UnloadModel", p_CModelLoader__UnloadModel.GetPtr());
+		LogFunAdr("CModelLoader::Map_LoadModelGuts", p_CModelLoader__Map_LoadModelGuts.GetPtr());
+		LogFunAdr("CModelLoader::Map_IsValid", p_CModelLoader__Map_IsValid.GetPtr());
+		LogFunAdr("CModelLoader::Studio_LoadModel", p_CModelLoader__Studio_LoadModel.GetPtr());
+		LogFunAdr("GetSpriteInfo", p_GetSpriteInfo.GetPtr());
+		LogFunAdr("BuildSpriteLoadName", p_BuildSpriteLoadName.GetPtr());
+		LogVarAdr("g_pModelLoader", reinterpret_cast<uintptr_t>(g_pModelLoader));
 	}
 	virtual void GetFun(void) const
 	{
@@ -131,9 +127,7 @@ class VModelLoader : public IDetour
 			"48 89 4C 24 ?? 53 55 56 41 54 41 55 41 56 41 57 48 81 EC ?? ?? ?? ??").FindPatternSelf("48 ?? 0D", CMemory::Direction::DOWN).ResolveRelativeAddressSelf(3, 7).RCast<CModelLoader*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VModelLoader);

@@ -16,16 +16,12 @@ public:
 	static void PlayStartupVideos(void);
 };
 
-void SysGame_Attach();
-void SysGame_Detach();
-
 ///////////////////////////////////////////////////////////////////////////////
 class VGame : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CGame::PlayStartupVideos             : {:#18x} |\n", p_CGame__PlayStartupVideos.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CGame::PlayStartupVideos", p_CGame__PlayStartupVideos.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -38,9 +34,7 @@ class VGame : public IDetour
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VGame);

@@ -790,29 +790,29 @@ void RTech::PakProcessGuidRelationsForAsset(PakFile_t* pPak, RPakAssetEntry_t* p
 	}
 }
 
-void RTech_Utils_Attach()
+void V_RTechUtils::Attach() const
 {
-	DetourAttach((LPVOID*)&RTech_OpenFile, &RTech::OpenFile);
+	DetourAttach(&RTech_OpenFile, &RTech::OpenFile);
 
 #ifdef GAMEDLL_S3
-	DetourAttach((LPVOID*)&RTech_Pak_ProcessGuidRelationsForAsset, &RTech::PakProcessGuidRelationsForAsset);
+	DetourAttach(&RTech_Pak_ProcessGuidRelationsForAsset, &RTech::PakProcessGuidRelationsForAsset);
 #endif
 
 #if not defined DEDICATED && defined GAMEDLL_S3
-	DetourAttach((LPVOID*)&RTech_CreateDXTexture, &RTech::CreateDXTexture);
+	DetourAttach(&RTech_CreateDXTexture, &RTech::CreateDXTexture);
 #endif // !DEDICATED
 }
 
-void RTech_Utils_Detach()
+void V_RTechUtils::Detach() const
 {
-	DetourDetach((LPVOID*)&RTech_OpenFile, &RTech::OpenFile);
+	DetourDetach(&RTech_OpenFile, &RTech::OpenFile);
 
 #ifdef GAMEDLL_S3
-	DetourDetach((LPVOID*)&RTech_Pak_ProcessGuidRelationsForAsset, &RTech::PakProcessGuidRelationsForAsset);
+	DetourDetach(&RTech_Pak_ProcessGuidRelationsForAsset, &RTech::PakProcessGuidRelationsForAsset);
 #endif
 
 #if not defined DEDICATED && defined GAMEDLL_S3
-	DetourDetach((LPVOID*)&RTech_CreateDXTexture, &RTech::CreateDXTexture);
+	DetourDetach(&RTech_CreateDXTexture, &RTech::CreateDXTexture);
 #endif // !DEDICATED
 }
 

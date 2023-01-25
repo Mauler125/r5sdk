@@ -45,9 +45,6 @@ public:
 };
 inline CAI_Network** g_pAINetwork = nullptr;
 
-void CAI_Network_Attach();
-void CAI_Network_Detach();
-
 inline CMemory p_CAI_Network__DebugConnectMsg;
 inline auto v_CAI_Network__DebugConnectMsg = p_CAI_Network__DebugConnectMsg.RCast<void (*)(int node1, int node2, const char* pszformat, ...)>();
 
@@ -56,9 +53,8 @@ class VAI_Network : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CAI_Network::DebugConnectMsg         : {:#18x} |\n", p_CAI_Network__DebugConnectMsg.GetPtr());
-		spdlog::debug("| VAR: g_pAINetwork                         : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pAINetwork));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CAI_Network::DebugConnectMsg", p_CAI_Network__DebugConnectMsg.GetPtr());
+		LogVarAdr("g_pAINetwork", reinterpret_cast<uintptr_t>(g_pAINetwork));
 	}
 	virtual void GetFun(void) const
 	{
@@ -70,9 +66,7 @@ class VAI_Network : public IDetour
 		g_pAINetwork = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 4C 63 91 ?? ?? ?? ??").FindPatternSelf("48 8B").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CAI_Network**>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VAI_Network);

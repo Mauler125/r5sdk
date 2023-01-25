@@ -9,8 +9,7 @@ class VAppSystem : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		//spdlog::debug("| FUN: IAppSystem::LoadLibrary              : {:#18x} |\n", p_IAppSystem_LoadLibrary.GetPtr());
-		//spdlog::debug("+----------------------------------------------------------------+\n");
+		//LogFunAdr("CAppSystem::LoadLibrary", p_IAppSystem_LoadLibrary.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -23,5 +22,3 @@ class VAppSystem : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VAppSystem);

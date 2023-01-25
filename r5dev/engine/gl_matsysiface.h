@@ -10,8 +10,7 @@ class VGL_MatSysIFace : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: InitMaterialSystem                   : {:#18x} |\n", p_InitMaterialSystem.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("InitMaterialSystem", p_InitMaterialSystem.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -24,5 +23,3 @@ class VGL_MatSysIFace : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VGL_MatSysIFace);

@@ -39,9 +39,8 @@ class VFileSystem_Stdio : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| VAR: g_pFullFileSystem                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pFullFileSystem));
-		spdlog::debug("| VAR: g_pFileSystem_Stdio                  : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pFileSystem_Stdio));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogVarAdr("g_pFullFileSystem", reinterpret_cast<uintptr_t>(g_pFullFileSystem));
+		LogVarAdr("g_pFileSystem_Stdio", reinterpret_cast<uintptr_t>(g_pFileSystem_Stdio));
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
@@ -57,5 +56,4 @@ class VFileSystem_Stdio : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(VFileSystem_Stdio);
 #endif // !FILESYSTEM_H

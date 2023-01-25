@@ -15,19 +15,16 @@ inline CMemory p_LoadPlayerConfig;
 inline auto v_UpdateCurrentVideoConfig = p_UpdateCurrentVideoConfig.RCast<bool (*)(MaterialSystem_Config_t* pConfig)>();
 
 
-void MatSys_Iface_Attach();
-void MatSys_Iface_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 class VMatSys_Interface : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: UpdateMaterialSystemConfig           : {:#18x} |\n", p_UpdateMaterialSystemConfig.GetPtr());
-		spdlog::debug("| FUN: UpdateCurrentVideoConfig             : {:#18x} |\n", p_UpdateCurrentVideoConfig.GetPtr());
-		spdlog::debug("| FUN: HandleConfigFile                     : {:#18x} |\n", p_HandleConfigFile.GetPtr());
-		spdlog::debug("| FUN: ResetPreviousGameState               : {:#18x} |\n", p_ResetPreviousGameState.GetPtr());
-		spdlog::debug("| FUN: LoadPlayerConfig                     : {:#18x} |\n", p_LoadPlayerConfig.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("UpdateMaterialSystemConfig", p_UpdateMaterialSystemConfig.GetPtr());
+		LogFunAdr("UpdateCurrentVideoConfig", p_UpdateCurrentVideoConfig.GetPtr());
+		LogFunAdr("HandleConfigFile", p_HandleConfigFile.GetPtr());
+		LogFunAdr("ResetPreviousGameState", p_ResetPreviousGameState.GetPtr());
+		LogFunAdr("LoadPlayerConfig", p_LoadPlayerConfig.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -45,11 +42,9 @@ class VMatSys_Interface : public IDetour
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VMatSys_Interface);
 
 #endif // MATSYS_INTERFACE_H

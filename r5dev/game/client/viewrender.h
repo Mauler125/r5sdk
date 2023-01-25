@@ -29,12 +29,11 @@ class V_ViewRender : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CViewRender::GetWorldMatrixForView   : {:#18x} |\n", p_CViewRender_GetWorldMatrixForView.GetPtr());
-		spdlog::debug("| VAR: g_vecRenderOrigin                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_vecRenderOrigin));
-		spdlog::debug("| VAR: g_vecRenderAngles                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_vecRenderAngles));
-		spdlog::debug("| VAR: g_pViewRender                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pViewRender));
-		spdlog::debug("| CON: CViewRender                (VFTable) : {:#18x} |\n", g_pViewRender_VFTable.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CViewRender::GetWorldMatrixForView", p_CViewRender_GetWorldMatrixForView.GetPtr());
+		LogVarAdr("g_vecRenderOrigin", reinterpret_cast<uintptr_t>(g_vecRenderOrigin));
+		LogVarAdr("g_vecRenderAngles", reinterpret_cast<uintptr_t>(g_vecRenderAngles));
+		LogVarAdr("g_pViewRender", reinterpret_cast<uintptr_t>(g_pViewRender));
+		LogConAdr("CViewRender                (VFTable)", g_pViewRender_VFTable.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -57,5 +56,3 @@ class V_ViewRender : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(V_ViewRender);

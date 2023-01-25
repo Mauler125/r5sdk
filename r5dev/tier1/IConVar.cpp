@@ -1076,13 +1076,13 @@ void ConVar_PrintDescription(ConCommandBase* pVar)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void IConVar_Attach()
+void VConVar::Attach() const
 {
 	DetourAttach((LPVOID*)&v_ConVar_IsFlagSet, &ConVar::IsFlagSetInternal);
 	DetourAttach((LPVOID*)&v_ConVar_PrintDescription, &ConVar_PrintDescription);
 }
 
-void IConVar_Detach()
+void VConVar::Detach() const
 {
 	DetourDetach((LPVOID*)&v_ConVar_IsFlagSet, &ConVar::IsFlagSetInternal);
 	DetourDetach((LPVOID*)&v_ConVar_PrintDescription, &ConVar_PrintDescription);

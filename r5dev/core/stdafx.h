@@ -130,4 +130,17 @@ ReturnType CallVFunc(int index, void* thisPtr, Args... args)
 {
 	return (*reinterpret_cast<ReturnType(__fastcall***)(void*, Args...)>(thisPtr))[index](thisPtr, args...);
 }
+
+inline void LogFunAdr(const char* szFun, uintptr_t nAdr) // Logging function addresses.
+{
+	spdlog::debug("| FUN: {:42s}: {:#18x} |\n", szFun, nAdr);
+}
+inline void LogVarAdr(const char* szVar, uintptr_t nAdr) // Logging variable addresses.
+{
+	spdlog::debug("| VAR: {:42s}: {:#18x} |\n", szVar, nAdr);
+}
+inline void LogConAdr(const char* szCon, uintptr_t nAdr) // Logging constant addresses.
+{
+	spdlog::debug("| CON: {:42s}: {:#18x} |\n", szCon, nAdr);
+}
 #endif // !SDKLAUNCHER && !NETCONSOLE && !PLUGINSDK

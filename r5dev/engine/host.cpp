@@ -39,12 +39,12 @@ void _Host_RunFrame(void* unused, float time)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void Host_Attach()
+void VHost::Attach() const
 {
 	DetourAttach((LPVOID*)&v_Host_RunFrame, &_Host_RunFrame);
 }
 
-void Host_Detach()
+void VHost::Detach() const
 {
 	DetourDetach((LPVOID*)&v_Host_RunFrame, &_Host_RunFrame);
 }

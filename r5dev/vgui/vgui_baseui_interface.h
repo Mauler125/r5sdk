@@ -46,11 +46,10 @@ class VEngineVGui : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CEngineVGui::Paint                   : {:#18x} |\n", p_CEngineVGui_Paint.GetPtr());
-		spdlog::debug("| FUN: CEngineVGui::RenderStart             : {:#18x} |\n", p_CEngineVGui_RenderStart.GetPtr());
-		spdlog::debug("| FUN: CEngineVGui::RenderEnd               : {:#18x} |\n", p_CEngineVGui_RenderEnd.GetPtr());
-		spdlog::debug("| VAR: g_pEngineVGui                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pEngineVGui));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CEngineVGui::Paint", p_CEngineVGui_Paint.GetPtr());
+		LogFunAdr("CEngineVGui::RenderStart", p_CEngineVGui_RenderStart.GetPtr());
+		LogFunAdr("CEngineVGui::RenderEnd", p_CEngineVGui_RenderEnd.GetPtr());
+		LogVarAdr("g_pEngineVGui", reinterpret_cast<uintptr_t>(g_pEngineVGui));
 	}
 	virtual void GetFun(void) const
 	{
@@ -76,9 +75,7 @@ class VEngineVGui : public IDetour
 			.FindPatternSelf("48 8D ?? ?? ?? ?? 01", CMemory::Direction::DOWN, 150).ResolveRelativeAddressSelf(0x3, 0x7).RCast<CEngineVGui*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VEngineVGui);

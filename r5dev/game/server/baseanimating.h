@@ -147,8 +147,7 @@ class VBaseAnimating : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CBaseAnimating::LockStudioHdr        : {:#18x} |\n", p_CBaseAnimating__LockStudioHdr.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CBaseAnimating::LockStudioHdr", p_CBaseAnimating__LockStudioHdr.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -162,7 +161,4 @@ class VBaseAnimating : public IDetour
 };
 ///////////////////////////////////////////////////////////////////////////////
 
-REGISTER(VBaseAnimating);
-
 #endif // BASEANIMATING_H
-

@@ -109,9 +109,6 @@ inline CMemory g_pConVarVFTable;
 inline CMemory g_pIConVarVFTable;
 
 ///////////////////////////////////////////////////////////////////////////////
-void IConVar_Attach();
-void IConVar_Detach();
-
 void ConVar_PrintDescription(ConCommandBase* pVar);
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -119,12 +116,11 @@ class VConVar : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: ConVar::IsFlagSet                    : {:#18x} |\n", p_ConVar_IsFlagSet.GetPtr());
-		spdlog::debug("| FUN: ConVar::Register                     : {:#18x} |\n", p_ConVar_Register.GetPtr());
-		spdlog::debug("| FUN: ConVar_PrintDescription              : {:#18x} |\n", p_ConVar_PrintDescription.GetPtr());
-		spdlog::debug("| CON: g_pConVarVFTable                     : {:#18x} |\n", g_pConVarVFTable.GetPtr());
-		spdlog::debug("| CON: g_pIConVarVFTable                    : {:#18x} |\n", g_pIConVarVFTable.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("ConVar::IsFlagSet", p_ConVar_IsFlagSet.GetPtr());
+		LogFunAdr("ConVar::Register", p_ConVar_Register.GetPtr());
+		LogFunAdr("ConVar_PrintDescription", p_ConVar_PrintDescription.GetPtr());
+		LogConAdr("g_pConVarVFTable", g_pConVarVFTable.GetPtr());
+		LogConAdr("g_pIConVarVFTable", g_pIConVarVFTable.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -146,9 +142,7 @@ class VConVar : public IDetour
 		g_pConVarVFTable = g_GameDll.GetVirtualMethodTable(".?AVConVar@@", 0);
 		g_pIConVarVFTable = g_GameDll.GetVirtualMethodTable(".?AVConVar@@", 1);
 	}
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VConVar);

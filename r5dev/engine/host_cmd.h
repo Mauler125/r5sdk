@@ -32,22 +32,19 @@ inline auto v_DFS_InitializeFeatureFlagDefinitions = p_DFS_InitializeFeatureFlag
 
 extern EngineParms_t* g_pEngineParms;
 
-void HostCmd_Attach();
-void HostCmd_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 class VHostCmd : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: Host_Init                            : {:#18x} |\n", p_Host_Init.GetPtr());
-		spdlog::debug("| FUN: Host_NewGame                         : {:#18x} |\n", p_Host_NewGame.GetPtr());
-		spdlog::debug("| FUN: Host_ChangeLevel                     : {:#18x} |\n", p_Host_ChangeLevel.GetPtr());
-		spdlog::debug("| FUN: SetLaunchOptions                     : {:#18x} |\n", p_SetLaunchOptions.GetPtr());
+		LogFunAdr("Host_Init", p_Host_Init.GetPtr());
+		LogFunAdr("Host_NewGame", p_Host_NewGame.GetPtr());
+		LogFunAdr("Host_ChangeLevel", p_Host_ChangeLevel.GetPtr());
+		LogFunAdr("SetLaunchOptions", p_SetLaunchOptions.GetPtr());
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1) && !defined (GAMEDLL_S2)
-		spdlog::debug("| FUN: DFS_InitializeFeatureFlagDefinitions : {:#18x} |\n", p_DFS_InitializeFeatureFlagDefinitions.GetPtr());
+		LogFunAdr("DFS_InitializeFeatureFlagDefinitions", p_DFS_InitializeFeatureFlagDefinitions.GetPtr());
 #endif // !(GAMEDLL_S0) || !(GAMEDLL_S1) || !(GAMEDLL_S2)
-		spdlog::debug("| VAR: g_pEngineParms                       : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pEngineParms));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogVarAdr("g_pEngineParms", reinterpret_cast<uintptr_t>(g_pEngineParms));
 	}
 	virtual void GetFun(void) const
 	{
@@ -80,9 +77,7 @@ class VHostCmd : public IDetour
 #endif
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VHostCmd);

@@ -83,15 +83,12 @@ struct Player_AnimViewEntityData
 inline CMemory p_CStudioHdr__LookupSequence;
 inline auto v_CStudioHdr__LookupSequence = p_CStudioHdr__LookupSequence.RCast<int(*)(CStudioHdr* pStudio, const char* pszName)>();
 
-void Animation_Attach();
-void Animation_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 class VAnimation : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CStudioHdr::LookupSequence           : {:#18x} |\n", p_CStudioHdr__LookupSequence.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CStudioHdr::LookupSequence", p_CStudioHdr__LookupSequence.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -100,11 +97,9 @@ class VAnimation : public IDetour
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VAnimation);
 
 #endif // ANIMATION_H

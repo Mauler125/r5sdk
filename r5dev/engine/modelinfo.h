@@ -41,12 +41,11 @@ class VModelInfo : public IDetour
 	virtual void GetAdr(void) const
 	{
 #ifndef CLIENT_DLL
-		spdlog::debug("| FUN: g_pModelInfoServer                   : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pModelInfoServer));
+		LogFunAdr("g_pModelInfoServer", reinterpret_cast<uintptr_t>(g_pModelInfoServer));
 #endif // CLIENT_DLL
 #ifndef DEDICATED
-		spdlog::debug("| FUN: g_pModelInfoClient                   : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pModelInfoClient));
+		LogFunAdr("g_pModelInfoClient", reinterpret_cast<uintptr_t>(g_pModelInfoClient));
 #endif // DEDICATED
-		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const
@@ -65,7 +64,5 @@ class VModelInfo : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VModelInfo);
 
 #endif // ENGINE_MODELINFO_H

@@ -722,12 +722,12 @@ bool Cmd_ForwardToServer(const CCommand* args)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void ConCommand_Attach()
+void VConCommand::Attach() const
 {
 	DetourAttach((LPVOID*)&ConCommandBase_IsFlagSet, &ConCommandBase::IsFlagSetInternal);
 	DetourAttach((LPVOID*)&v_Cmd_ForwardToServer, &Cmd_ForwardToServer);
 }
-void ConCommand_Detach()
+void VConCommand::Detach() const
 {
 	DetourDetach((LPVOID*)&ConCommandBase_IsFlagSet, &ConCommandBase::IsFlagSetInternal);
 	DetourDetach((LPVOID*)&v_Cmd_ForwardToServer, &Cmd_ForwardToServer);

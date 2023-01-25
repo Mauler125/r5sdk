@@ -17,22 +17,18 @@ inline jmp_buf* host_abortserver = nullptr;
 
 inline float* interval_per_tick = nullptr;
 
-
-void Host_Attach();
-void Host_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 class VHost : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: _Host_RunFrame                       : {:#18x} |\n", p_Host_RunFrame.GetPtr());
-		spdlog::debug("| FUN: _Host_RunFrame_Render                : {:#18x} |\n", p_Host_RunFrame_Render.GetPtr());
-		spdlog::debug("| FUN: Host_Error                           : {:#18x} |\n", p_Host_Error.GetPtr());
-		spdlog::debug("| FUN: VCR_EnterPausedState                 : {:#18x} |\n", p_VCR_EnterPausedState.GetPtr());
-		spdlog::debug("| VAR: interval_per_tick                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(interval_per_tick));
-		spdlog::debug("| VAR: host_abortserver                     : {:#18x} |\n", reinterpret_cast<uintptr_t>(host_abortserver));
-		spdlog::debug("| VAR: g_bAbortServerSet                    : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_bAbortServerSet));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("_Host_RunFrame", p_Host_RunFrame.GetPtr());
+		LogFunAdr("_Host_RunFrame_Render", p_Host_RunFrame_Render.GetPtr());
+		LogFunAdr("Host_Error", p_Host_Error.GetPtr());
+		LogFunAdr("VCR_EnterPausedState", p_VCR_EnterPausedState.GetPtr());
+		LogVarAdr("interval_per_tick", reinterpret_cast<uintptr_t>(interval_per_tick));
+		LogVarAdr("host_abortserver", reinterpret_cast<uintptr_t>(host_abortserver));
+		LogVarAdr("g_bAbortServerSet", reinterpret_cast<uintptr_t>(g_bAbortServerSet));
 	}
 	virtual void GetFun(void) const
 	{
@@ -62,9 +58,7 @@ class VHost : public IDetour
 #endif
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VHost);

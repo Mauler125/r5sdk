@@ -40,14 +40,14 @@ bool CVEngineServer::PersistenceAvailable(void* entidx, int clienthandle)
 	return IVEngineServer__PersistenceAvailable(entidx, clienthandle);
 }
 
-void IVEngineServer_Attach()
+void HVEngineServer::Attach() const
 {
-	DetourAttach((LPVOID*)&IVEngineServer__PersistenceAvailable, &CVEngineServer::PersistenceAvailable);
+	DetourAttach(&IVEngineServer__PersistenceAvailable, &CVEngineServer::PersistenceAvailable);
 }
 
-void IVEngineServer_Detach()
+void HVEngineServer::Detach() const
 {
-	DetourDetach((LPVOID*)&IVEngineServer__PersistenceAvailable, &CVEngineServer::PersistenceAvailable);
+	DetourDetach(&IVEngineServer__PersistenceAvailable, &CVEngineServer::PersistenceAvailable);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

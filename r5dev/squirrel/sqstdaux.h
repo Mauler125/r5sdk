@@ -11,16 +11,13 @@ inline auto v_sqstd_aux_printerror = p_sqstd_aux_printerror.RCast<SQInteger(*)(H
 inline CMemory p_sqstd_aux_badlogic;
 inline auto v_sqstd_aux_badlogic = p_sqstd_aux_badlogic.RCast<SQInteger(*)(HSQUIRRELVM v, __m128i* a2, __m128i* a3)>();
 
-void SQAUX_Attach();
-void SQAUX_Detach();
 ///////////////////////////////////////////////////////////////////////////////
 class VSqStdAux : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: sqstd_aux_printerror                 : {:#18x} |\n", p_sqstd_aux_printerror.GetPtr());
-		spdlog::debug("| FUN: sqstd_aux_badlogic                   : {:#18x} |\n", p_sqstd_aux_badlogic.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("sqstd_aux_printerror", p_sqstd_aux_printerror.GetPtr());
+		LogFunAdr("sqstd_aux_badlogic", p_sqstd_aux_badlogic.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -36,9 +33,7 @@ class VSqStdAux : public IDetour
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VSqStdAux);

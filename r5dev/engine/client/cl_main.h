@@ -15,9 +15,8 @@ class VCL_Main : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CL_EndMovie                          : {:#18x} |\n", p_CL_EndMovie.GetPtr());
-		spdlog::debug("| FUN: CL_ClearState                        : {:#18x} |\n", p_CL_ClearState.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CL_EndMovie", p_CL_EndMovie.GetPtr());
+		LogFunAdr("CL_ClearState", p_CL_ClearState.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -37,5 +36,3 @@ class VCL_Main : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VCL_Main);

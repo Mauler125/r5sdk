@@ -58,14 +58,13 @@ class VRecast : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: Detour_LevelInit                     : {:#18x} |\n", p_Detour_LevelInit.GetPtr());
-		spdlog::debug("| FUN: Detour_FreeNavMesh                   : {:#18x} |\n", p_Detour_FreeNavMesh.GetPtr());
-		spdlog::debug("| FUN: dtNavMesh::Init                      : {:#18x} |\n", p_dtNavMesh__Init.GetPtr());
-		spdlog::debug("| FUN: dtNavMesh::addTile                   : {:#18x} |\n", p_dtNavMesh__addTile.GetPtr());
-		spdlog::debug("| FUN: dtNavMesh::isPolyReachable           : {:#18x} |\n", p_dtNavMesh__isPolyReachable.GetPtr());
-		spdlog::debug("| VAR: g_pNavMesh[5]                        : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pNavMesh));
-		spdlog::debug("| VAR: g_pNavMeshQuery                      : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pNavMeshQuery));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("Detour_LevelInit", p_Detour_LevelInit.GetPtr());
+		LogFunAdr("Detour_FreeNavMesh", p_Detour_FreeNavMesh.GetPtr());
+		LogFunAdr("dtNavMesh::Init", p_dtNavMesh__Init.GetPtr());
+		LogFunAdr("dtNavMesh::addTile", p_dtNavMesh__addTile.GetPtr());
+		LogFunAdr("dtNavMesh::isPolyReachable", p_dtNavMesh__isPolyReachable.GetPtr());
+		LogVarAdr("g_pNavMesh[5]", reinterpret_cast<uintptr_t>(g_pNavMesh));
+		LogVarAdr("g_pNavMeshQuery", reinterpret_cast<uintptr_t>(g_pNavMeshQuery));
 	}
 	virtual void GetFun(void) const
 	{
@@ -95,9 +94,7 @@ class VRecast : public IDetour
 			.FindPatternSelf("48 89 0D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<dtNavMeshQuery*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VRecast);

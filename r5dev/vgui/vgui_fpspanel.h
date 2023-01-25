@@ -5,16 +5,12 @@
 inline CMemory p_CFPSPanel_Paint;
 inline auto CFPSPanel_Paint = p_CFPSPanel_Paint.RCast<ConVar* (*)(void* thisptr)>();
 
-void CFPSPanel_Attach();
-void CFPSPanel_Detach();
-
 ///////////////////////////////////////////////////////////////////////////////
 class VFPSPanel : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CFPSPanel::Paint                     : {:#18x} |\n", p_CFPSPanel_Paint.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CFPSPanel::Paint", p_CFPSPanel_Paint.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -23,9 +19,7 @@ class VFPSPanel : public IDetour
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VFPSPanel);

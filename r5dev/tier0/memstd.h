@@ -55,9 +55,8 @@ class VMemStd : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CreateGlobalMemAlloc                 : {:#18x} |\n", p_CreateGlobalMemAlloc.GetPtr());
-		spdlog::debug("| VAR: g_pMemAllocSingleton                 : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pMemAllocSingleton));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CreateGlobalMemAlloc", p_CreateGlobalMemAlloc.GetPtr());
+		LogVarAdr("g_pMemAllocSingleton", reinterpret_cast<uintptr_t>(g_pMemAllocSingleton));
 	}
 	virtual void GetFun(void) const
 	{
@@ -73,7 +72,5 @@ class VMemStd : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VMemStd);
 
 #endif // MEMSTD_H

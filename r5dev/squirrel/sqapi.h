@@ -18,9 +18,6 @@ SQRESULT sq_pushstructure(HSQUIRRELVM v, const SQChar* name, const SQChar* membe
 SQRESULT sq_compilebuffer(HSQUIRRELVM v, SQBufState* bufferState, const SQChar* buffer, SQInteger context);
 SQRESULT sq_call(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBool raiseerror);
 
-void SQAPI_Attach();
-void SQAPI_Detach();
-
 /* ==== SQUIRREL ======================================================================================================================================================== */
 inline CMemory p_sq_pushroottable;
 inline auto v_sq_pushroottable = p_sq_pushroottable.RCast<SQRESULT(*)(HSQUIRRELVM v)>();
@@ -60,18 +57,17 @@ class VSqapi : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: sq_pushroottable                     : {:#18x} |\n", p_sq_pushroottable.GetPtr());
-		spdlog::debug("| FUN: sq_pushbool                          : {:#18x} |\n", p_sq_pushbool.GetPtr());
-		spdlog::debug("| FUN: sq_pushstring                        : {:#18x} |\n", p_sq_pushstring.GetPtr());
-		spdlog::debug("| FUN: sq_pushinteger                       : {:#18x} |\n", p_sq_pushinteger.GetPtr());
-		spdlog::debug("| FUN: sq_newarray                          : {:#18x} |\n", p_sq_newarray.GetPtr());
-		spdlog::debug("| FUN: sq_arrayappend                       : {:#18x} |\n", p_sq_arrayappend.GetPtr());
-		spdlog::debug("| FUN: sq_newtable                          : {:#18x} |\n", p_sq_newtable.GetPtr());
-		spdlog::debug("| FUN: sq_newslot                           : {:#18x} |\n", p_sq_newslot.GetPtr());
-		spdlog::debug("| FUN: sq_pushstructure                     : {:#18x} |\n", p_sq_pushstructure.GetPtr());
-		spdlog::debug("| FUN: sq_compilebuffer                     : {:#18x} |\n", p_sq_compilebuffer.GetPtr());
-		spdlog::debug("| FUN: sq_call                              : {:#18x} |\n", p_sq_call.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("sq_pushroottable", p_sq_pushroottable.GetPtr());
+		LogFunAdr("sq_pushbool", p_sq_pushbool.GetPtr());
+		LogFunAdr("sq_pushstring", p_sq_pushstring.GetPtr());
+		LogFunAdr("sq_pushinteger", p_sq_pushinteger.GetPtr());
+		LogFunAdr("sq_newarray", p_sq_newarray.GetPtr());
+		LogFunAdr("sq_arrayappend", p_sq_arrayappend.GetPtr());
+		LogFunAdr("sq_newtable", p_sq_newtable.GetPtr());
+		LogFunAdr("sq_newslot", p_sq_newslot.GetPtr());
+		LogFunAdr("sq_pushstructure", p_sq_pushstructure.GetPtr());
+		LogFunAdr("sq_compilebuffer", p_sq_compilebuffer.GetPtr());
+		LogFunAdr("sq_call", p_sq_call.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -110,9 +106,7 @@ class VSqapi : public IDetour
 	}
 	virtual void GetVar(void) const { }
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VSqapi);

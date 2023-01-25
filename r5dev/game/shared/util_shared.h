@@ -48,8 +48,7 @@ class VUtil_Shared : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| VAR: g_pTraceFilterSimpleVFTable          : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pTraceFilterSimpleVFTable));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogVarAdr("g_pTraceFilterSimpleVFTable", reinterpret_cast<uintptr_t>(g_pTraceFilterSimpleVFTable));
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const { }
@@ -61,7 +60,5 @@ class VUtil_Shared : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VUtil_Shared);
 
 #endif // !UTIL_SHARED_H

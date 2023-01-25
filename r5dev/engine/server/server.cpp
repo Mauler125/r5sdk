@@ -143,16 +143,20 @@ void CServer::FrameJob(double flFrameTime, bool bRunOverlays, bool bUniformSnaps
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void CServer_Attach()
+void VServer::Attach() const
 {
+#if	defined(GAMEDLL_S3)
 	DetourAttach((LPVOID*)&v_CServer_ConnectClient, &CServer::ConnectClient);
 	DetourAttach((LPVOID*)&v_CServer_FrameJob, &CServer::FrameJob);
+#endif // !TODO: S1 and S2 CServer functions require work.
 }
 
-void CServer_Detach()
+void VServer::Detach() const
 {
+#if	defined(GAMEDLL_S3)
 	DetourDetach((LPVOID*)&v_CServer_ConnectClient, &CServer::ConnectClient);
 	DetourDetach((LPVOID*)&v_CServer_FrameJob, &CServer::FrameJob);
+#endif // !TODO: S1 and S2 CServer functions require work.
 }
 
 ///////////////////////////////////////////////////////////////////////////////

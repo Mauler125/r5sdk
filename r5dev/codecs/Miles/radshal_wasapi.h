@@ -8,8 +8,7 @@ class VRadShal : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: WASAPI_GetAudioDevice                : {:#18x} |\n", p_WASAPI_GetAudioDevice.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("WASAPI_GetAudioDevice", p_WASAPI_GetAudioDevice.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -22,5 +21,3 @@ class VRadShal : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VRadShal);

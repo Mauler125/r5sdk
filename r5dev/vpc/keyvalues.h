@@ -184,10 +184,6 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-void CKeyValueSystem_Attach();
-void CKeyValueSystem_Detach();
-
-///////////////////////////////////////////////////////////////////////////////
 extern KeyValues** g_pPlaylistKeyValues;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -195,15 +191,14 @@ class VKeyValues : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: KeyValues::FindKey                   : {:#18x} |\n", p_KeyValues_FindKey.GetPtr());
-		spdlog::debug("| FUN: KeyValues::LoadPlaylists             : {:#18x} |\n", p_KeyValues_LoadPlaylists.GetPtr());
-		spdlog::debug("| FUN: KeyValues::ParsePlaylists            : {:#18x} |\n", p_KeyValues_ParsePlaylists.GetPtr());
-		spdlog::debug("| FUN: KeyValues::GetCurrentPlaylist        : {:#18x} |\n", p_KeyValues_GetCurrentPlaylist.GetPtr());
-		spdlog::debug("| FUN: KeyValues::ReadKeyValuesFile         : {:#18x} |\n", p_KeyValues_ReadKeyValuesFile.GetPtr());
-		spdlog::debug("| FUN: KeyValues::RecursiveSaveToFile       : {:#18x} |\n", p_KeyValues_RecursiveSaveToFile.GetPtr());
-		spdlog::debug("| FUN: KeyValues::LoadFromFile              : {:#18x} |\n", p_KeyValues_LoadFromFile.GetPtr());
-		spdlog::debug("| VAR: g_pPlaylistKeyValues                 : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pPlaylistKeyValues));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("KeyValues::FindKey", p_KeyValues_FindKey.GetPtr());
+		LogFunAdr("KeyValues::LoadPlaylists", p_KeyValues_LoadPlaylists.GetPtr());
+		LogFunAdr("KeyValues::ParsePlaylists", p_KeyValues_ParsePlaylists.GetPtr());
+		LogFunAdr("KeyValues::GetCurrentPlaylist", p_KeyValues_GetCurrentPlaylist.GetPtr());
+		LogFunAdr("KeyValues::ReadKeyValuesFile", p_KeyValues_ReadKeyValuesFile.GetPtr());
+		LogFunAdr("KeyValues::RecursiveSaveToFile", p_KeyValues_RecursiveSaveToFile.GetPtr());
+		LogFunAdr("KeyValues::LoadFromFile", p_KeyValues_LoadFromFile.GetPtr());
+		LogVarAdr("g_pPlaylistKeyValues", reinterpret_cast<uintptr_t>(g_pPlaylistKeyValues));
 	}
 	virtual void GetFun(void) const
 	{
@@ -241,9 +236,7 @@ class VKeyValues : public IDetour
 #endif
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VKeyValues);

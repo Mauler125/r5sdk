@@ -182,32 +182,25 @@ inline CMemory g_pConCommandVFTable;
 ///////////////////////////////////////////////////////////////////////////////
 ECommandTarget_t Cbuf_GetCurrentPlayer(void);
 
-void ConCommand_Attach();
-void ConCommand_Detach();
-
 ///////////////////////////////////////////////////////////////////////////////
 class VConCommand : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: Cbuf_AddText                         : {:#18x} |\n", p_Cbuf_AddText.GetPtr());
-		spdlog::debug("| FUN: Cbuf_Execute                         : {:#18x} |\n", p_Cbuf_Execute.GetPtr());
-		spdlog::debug("| FUN: Cmd_ForwardToServer                  : {:#18x} |\n", p_Cmd_ForwardToServer.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
-		spdlog::debug("| FUN: ConCommandBase::IsFlagSet            : {:#18x} |\n", p_ConCommandBase_IsFlagSet.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
-		spdlog::debug("| FUN: CallbackStub                         : {:#18x} |\n", p_CallbackStub.GetPtr());
-		spdlog::debug("| FUN: NullSub                              : {:#18x} |\n", p_NullSub.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
-		spdlog::debug("| CON: g_pConCommandVFTable                 : {:#18x} |\n", g_pConCommandVFTable.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("ConCommandBase::IsFlagSet", p_ConCommandBase_IsFlagSet.GetPtr());
+		LogFunAdr("Cbuf_AddText", p_Cbuf_AddText.GetPtr());
+		LogFunAdr("Cbuf_Execute", p_Cbuf_Execute.GetPtr());
+		LogFunAdr("Cmd_ForwardToServer", p_Cmd_ForwardToServer.GetPtr());
+		LogFunAdr("CallbackStub", p_CallbackStub.GetPtr());
+		LogFunAdr("NullSub", p_NullSub.GetPtr());
+		LogConAdr("g_pConCommandVFTable", g_pConCommandVFTable.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
+		p_ConCommandBase_IsFlagSet          = g_GameDll.FindPatternSIMD("85 51 38 0F 95 C0 C3");
 		p_Cbuf_AddText                      = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 63 D9 41 8B F8 48 8D 0D ?? ?? ?? ?? 48 8B F2 FF 15 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 41 B9 ?? ?? ?? ??");
 		p_Cbuf_Execute                      = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 FF 15 ?? ?? ?? ??");
 		p_Cmd_ForwardToServer               = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 44 8B 59 04");
-		p_ConCommandBase_IsFlagSet          = g_GameDll.FindPatternSIMD("85 51 38 0F 95 C0 C3");
 		p_NullSub                           = g_GameDll.FindPatternSIMD("C2 ?? ?? CC CC CC CC CC CC CC CC CC CC CC CC CC 40 53 48 83 EC 20 48 8D 05 ?? ?? ?? ??");
 		p_CallbackStub                      = g_GameDll.FindPatternSIMD("33 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC 80 49 68 08");
 
@@ -223,9 +216,7 @@ class VConCommand : public IDetour
 	{
 		g_pConCommandVFTable = g_GameDll.GetVirtualMethodTable(".?AVConCommand@@");
 	}
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VConCommand);

@@ -9,10 +9,6 @@ inline auto IVEngineServer__PersistenceAvailable = p_IVEngineServer__Persistence
 inline bool* g_bDedicated = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
-void IVEngineServer_Attach();
-void IVEngineServer_Detach();
-
-///////////////////////////////////////////////////////////////////////////////
 
 struct ServerPlayer_t
 {
@@ -55,10 +51,9 @@ class HVEngineServer : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: CVEngineServer::PersistenceAvailable : {:#18x} |\n", p_IVEngineServer__PersistenceAvailable.GetPtr());
-		spdlog::debug("| VAR: g_bDedicated                         : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_bDedicated));
-		spdlog::debug("| VAR: g_pEngineServerVFTable               : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pEngineServerVFTable));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("CVEngineServer::PersistenceAvailable", p_IVEngineServer__PersistenceAvailable.GetPtr());
+		LogVarAdr("g_bDedicated", reinterpret_cast<uintptr_t>(g_bDedicated));
+		LogVarAdr("g_pEngineServerVFTable", reinterpret_cast<uintptr_t>(g_pEngineServerVFTable));
 	}
 	virtual void GetFun(void) const
 	{
@@ -73,9 +68,7 @@ class HVEngineServer : public IDetour
 		g_bDedicated = pEngineServerVFTable.WalkVTableSelf(3).DerefSelf().ResolveRelativeAddress(0x3, 0x7).RCast<bool*>();
 	}
 	virtual void GetCon(void) const { }
-	virtual void Attach(void) const { }
-	virtual void Detach(void) const { }
+	virtual void Attach(void) const;
+	virtual void Detach(void) const;
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(HVEngineServer);

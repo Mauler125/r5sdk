@@ -19,12 +19,12 @@ void CGame::PlayStartupVideos(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void SysGame_Attach()
+void VGame::Attach() const
 {
-	DetourAttach((LPVOID*)&v_CGame__PlayStartupVideos, &CGame::PlayStartupVideos);
+	DetourAttach(&v_CGame__PlayStartupVideos, &CGame::PlayStartupVideos);
 }
 
-void SysGame_Detach()
+void VGame::Detach() const
 {
-	DetourDetach((LPVOID*)&v_CGame__PlayStartupVideos, &CGame::PlayStartupVideos);
+	DetourDetach(&v_CGame__PlayStartupVideos, &CGame::PlayStartupVideos);
 }

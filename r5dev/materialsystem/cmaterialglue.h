@@ -80,10 +80,9 @@ class VMaterialGlue : public IDetour
 	virtual void GetAdr(void) const
 	{
 #ifndef DEDICATED
-		spdlog::debug("| FUN: CMaterialGlue::GetMaterialAtCrossHair: {:#18x} |\n", p_GetMaterialAtCrossHair.GetPtr());
+		LogFunAdr("CMaterialGlue::GetMaterialAtCrossHair", p_GetMaterialAtCrossHair.GetPtr());
 #endif // !DEDICATED
-		spdlog::debug("| CON: g_pMaterialGlueVFTable               : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_pMaterialGlueVFTable));
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogConAdr("g_pMaterialGlueVFTable", reinterpret_cast<uintptr_t>(g_pMaterialGlueVFTable));
 	}
 	virtual void GetFun(void) const
 	{
@@ -101,5 +100,3 @@ class VMaterialGlue : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VMaterialGlue);

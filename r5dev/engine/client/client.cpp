@@ -332,19 +332,5 @@ bool CClient::VProcessStringCmd(CClient* pClient, NET_StringCmd* pMsg)
 	return v_CClient_ProcessStringCmd(pClient, pMsg);
 }
 
-///////////////////////////////////////////////////////////////////////////////////
-void CBaseClient_Attach()
-{
-	DetourAttach((LPVOID*)&v_CClient_Clear, &CClient::VClear);
-	DetourAttach((LPVOID*)&v_CClient_Connect, &CClient::VConnect);
-	DetourAttach((LPVOID*)&v_CClient_ProcessStringCmd, &CClient::VProcessStringCmd);
-}
-void CBaseClient_Detach()
-{
-	DetourDetach((LPVOID*)&v_CClient_Clear, &CClient::VClear);
-	DetourDetach((LPVOID*)&v_CClient_Connect, &CClient::VConnect);
-	DetourDetach((LPVOID*)&v_CClient_ProcessStringCmd, &CClient::VProcessStringCmd);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 CClient* g_pClient = nullptr;

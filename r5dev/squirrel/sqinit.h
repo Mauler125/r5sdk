@@ -67,15 +67,14 @@ class VSqInit : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: Remote_BeginRegisteringFunctions     : {:#18x} |\n", p_Script_Remote_BeginRegisteringFunctions.GetPtr());
-		spdlog::debug("| FUN: RestoreRemoteChecksumsFromSaveGame   : {:#18x} |\n", p_RestoreRemoteChecksumsFromSaveGame.GetPtr());
+		LogFunAdr("Remote_BeginRegisteringFunctions", p_Script_Remote_BeginRegisteringFunctions.GetPtr());
+		LogFunAdr("RestoreRemoteChecksumsFromSaveGame", p_RestoreRemoteChecksumsFromSaveGame.GetPtr());
 #ifndef CLIENT_DLL
-		spdlog::debug("| VAR: g_nServerRemoteChecksum              : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_nServerRemoteChecksum));
+		LogVarAdr("g_nServerRemoteChecksum", reinterpret_cast<uintptr_t>(g_nServerRemoteChecksum));
 #endif // !CLIENT_DLL
 #ifndef DEDICATED
-		spdlog::debug("| VAR: g_nClientRemoteChecksum              : {:#18x} |\n", reinterpret_cast<uintptr_t>(g_nClientRemoteChecksum));
+		LogVarAdr("g_nClientRemoteChecksum", reinterpret_cast<uintptr_t>(g_nClientRemoteChecksum));
 #endif // !DEDICATED
-		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const
 	{
@@ -99,5 +98,3 @@ class VSqInit : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VSqInit);

@@ -12,9 +12,8 @@ class VStryder : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		spdlog::debug("| FUN: Stryder_StitchRequest                : {:#18x} |\n", p_Stryder_StitchRequest.GetPtr());
-		spdlog::debug("| FUN: Stryder_SendOfflineRequest           : {:#18x} |\n", p_Stryder_SendOfflineRequest.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
+		LogFunAdr("Stryder_StitchRequest", p_Stryder_StitchRequest.GetPtr());
+		LogFunAdr("Stryder_SendOfflineRequest", p_Stryder_SendOfflineRequest.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
@@ -34,5 +33,3 @@ class VStryder : public IDetour
 	virtual void Detach(void) const { }
 };
 ///////////////////////////////////////////////////////////////////////////////
-
-REGISTER(VStryder);

@@ -459,13 +459,11 @@ FORCEINLINE void CHostState::ResetLevelName(void)
 	Q_snprintf(const_cast<char*>(m_levelName), sizeof(m_levelName), szNoMap);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-void CHostState_Attach()
+void VHostState::Attach(void) const
 {
 	DetourAttach(&CHostState_FrameUpdate, &CHostState::FrameUpdate);
 }
-
-void CHostState_Detach()
+void VHostState::Detach(void) const
 {
 	DetourDetach(&CHostState_FrameUpdate, &CHostState::FrameUpdate);
 }
