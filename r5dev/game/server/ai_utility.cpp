@@ -23,7 +23,7 @@ inline uint32_t g_pHullMasks[10] = // Hull mask table [r5apex_ds.exe + 131a2f8].
 //-----------------------------------------------------------------------------
 dtNavMesh* GetNavMeshForHull(int hullSize)
 {
-    assert(hullSize >= NULL && hullSize < MAX_HULLS); // Programmer error.
+    Assert(hullSize >= NULL && hullSize < MAX_HULLS); // Programmer error.
     return g_pNavMesh[hullSize];
 }
 
@@ -34,7 +34,7 @@ dtNavMesh* GetNavMeshForHull(int hullSize)
 //-----------------------------------------------------------------------------
 uint32_t GetHullMaskById(int hullId)
 {
-    assert(hullId >= NULL && hullId < SDK_ARRAYSIZE(g_pHullMasks)); // Programmer error.
+    Assert(hullId >= NULL && hullId < SDK_ARRAYSIZE(g_pHullMasks)); // Programmer error.
     return (hullId + g_pHullMasks[hullId]);
 }
 
@@ -98,7 +98,7 @@ bool Detour_IsLoaded()
         }
     }
 
-    assert(ret <= MAX_HULLS);
+    Assert(ret <= MAX_HULLS);
     return (ret != MAX_HULLS);
 }
 

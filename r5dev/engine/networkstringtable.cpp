@@ -64,7 +64,7 @@ int CNetworkStringTable::GetEntryBits(void) const
 //-----------------------------------------------------------------------------
 void CNetworkStringTable::SetTick(int tick_count)
 {
-	assert(tick_count >= m_nTickCount);
+	Assert(tick_count >= m_nTickCount);
 	m_nTickCount = tick_count;
 }
 
