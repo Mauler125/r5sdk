@@ -33,10 +33,13 @@ inline std::vector<IDetour*> vDetour;
 inline std::unordered_set<IDetour*> sDetour;
 inline std::size_t AddDetour(IDetour* pDetour, const char* pszName)
 {
+#ifdef _DEBUG
 	IDetour* pVFTable = reinterpret_cast<IDetour**>(pDetour)[0];
 	auto p = sDetour.insert(pVFTable); // Only register if VFTable isn't already registered.
 
+	assert(p.second); // Code bug: duplicate registration!!! (called 'REGISTER(...)' from a header file?).
 	p.second ? vDetour.push_back(pDetour) : delete pDetour;
+#endif // DEBUG
 	return vDetour.size();
 }
 
