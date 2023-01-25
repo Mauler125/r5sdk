@@ -415,7 +415,7 @@ void Editor_TileMesh::handleDebugMode()
 		
 	if (unavail)
 	{
-		imguiValue("Tick 'Keep Itermediate Results'");
+		imguiValue("Tick 'Keep Intermediate Results'");
 		imguiValue("rebuild some tiles to see");
 		imguiValue("more debug mode options.");
 	}
@@ -792,8 +792,12 @@ void Editor_TileMesh::buildAllHulls()
 		m_navmeshName = h.name;
 		m_tileSize = h.tile_size;
 
+		m_ctx->resetLog();
+
 		handleSettings();
 		handleBuild();
+
+		m_ctx->dumpLog("Build log %s:", h.name);
 		Editor::saveAll(m_modelName.c_str(), m_navMesh);
 	}
 }

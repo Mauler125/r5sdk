@@ -12,7 +12,6 @@ BuildContext::BuildContext() :
 	m_textPoolSize(0)
 {
 	memset(m_messages, 0, sizeof(char*) * MAX_MESSAGES);
-
 	resetTimers();
 }
 
@@ -21,6 +20,7 @@ void BuildContext::doResetLog()
 {
 	m_messageCount = 0;
 	m_textPoolSize = 0;
+	memset(m_textPool, '\0', sizeof(m_textPool));
 }
 
 void BuildContext::doLog(const rcLogCategory category, const char* msg, const int len)
