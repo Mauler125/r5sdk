@@ -50,6 +50,7 @@ class VMaterialSystem : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
+		LogConAdr("CMaterial::`vftable'", reinterpret_cast<uintptr_t>(g_pMaterialVFTable));
 		LogFunAdr("CMaterialSystem::Init", p_CMaterialSystem__Init.GetPtr());
 #ifndef DEDICATED
 		LogFunAdr("CMaterialSystem::DispatchDrawCall", p_DispatchDrawCall.GetPtr());
@@ -60,7 +61,6 @@ class VMaterialSystem : public IDetour
 		LogVarAdr("s_pRenderContext", s_pRenderContext.GetPtr());
 #endif // !DEDICATED
 		LogVarAdr("g_pMaterialSystem", reinterpret_cast<uintptr_t>(g_pMaterialSystem));
-		LogConAdr("g_pMaterialVFTable", reinterpret_cast<uintptr_t>(g_pMaterialVFTable));
 	}
 	virtual void GetFun(void) const
 	{

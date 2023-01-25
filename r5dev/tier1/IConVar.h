@@ -116,11 +116,11 @@ class VConVar : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
+		LogConAdr("IConVar::`vftable'", g_pIConVarVFTable.GetPtr());
+		LogConAdr("ConVar::`vftable'", g_pConVarVFTable.GetPtr());
 		LogFunAdr("ConVar::IsFlagSet", p_ConVar_IsFlagSet.GetPtr());
 		LogFunAdr("ConVar::Register", p_ConVar_Register.GetPtr());
 		LogFunAdr("ConVar_PrintDescription", p_ConVar_PrintDescription.GetPtr());
-		LogConAdr("g_pConVarVFTable", g_pConVarVFTable.GetPtr());
-		LogConAdr("g_pIConVarVFTable", g_pIConVarVFTable.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{

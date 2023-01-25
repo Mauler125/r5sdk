@@ -51,9 +51,9 @@ class HVEngineServer : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
+		LogVarAdr("CVEngineServer::`vftable'", reinterpret_cast<uintptr_t>(g_pEngineServerVFTable));
 		LogFunAdr("CVEngineServer::PersistenceAvailable", p_IVEngineServer__PersistenceAvailable.GetPtr());
 		LogVarAdr("g_bDedicated", reinterpret_cast<uintptr_t>(g_bDedicated));
-		LogVarAdr("g_pEngineServerVFTable", reinterpret_cast<uintptr_t>(g_pEngineServerVFTable));
 	}
 	virtual void GetFun(void) const
 	{

@@ -187,13 +187,13 @@ class VConCommand : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
+		LogConAdr("ConCommand::`vftable'", g_pConCommandVFTable.GetPtr());
 		LogFunAdr("ConCommandBase::IsFlagSet", p_ConCommandBase_IsFlagSet.GetPtr());
 		LogFunAdr("Cbuf_AddText", p_Cbuf_AddText.GetPtr());
 		LogFunAdr("Cbuf_Execute", p_Cbuf_Execute.GetPtr());
 		LogFunAdr("Cmd_ForwardToServer", p_Cmd_ForwardToServer.GetPtr());
 		LogFunAdr("CallbackStub", p_CallbackStub.GetPtr());
 		LogFunAdr("NullSub", p_NullSub.GetPtr());
-		LogConAdr("g_pConCommandVFTable", g_pConCommandVFTable.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{

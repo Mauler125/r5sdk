@@ -43,8 +43,8 @@ class VShaderGlue : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
+		LogConAdr("CShaderGlue::`vftable'", reinterpret_cast<uintptr_t>(g_pShaderGlueVFTable));
 		LogFunAdr("CShaderGlue::SetupShader", reinterpret_cast<uintptr_t>(CShaderGlue_SetupShader));
-		LogConAdr("g_pShaderGlueVFTable", reinterpret_cast<uintptr_t>(g_pShaderGlueVFTable));
 	}
 	virtual void GetFun(void) const 
 	{

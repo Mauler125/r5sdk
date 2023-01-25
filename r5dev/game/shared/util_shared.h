@@ -48,7 +48,7 @@ class VUtil_Shared : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogVarAdr("g_pTraceFilterSimpleVFTable", reinterpret_cast<uintptr_t>(g_pTraceFilterSimpleVFTable));
+		LogConAdr("CTraceFilterSimple::`vftable'", reinterpret_cast<uintptr_t>(g_pTraceFilterSimpleVFTable));
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const { }

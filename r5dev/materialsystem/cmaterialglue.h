@@ -79,10 +79,10 @@ class VMaterialGlue : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
+		LogConAdr("CMaterialGlue::`vftable'", reinterpret_cast<uintptr_t>(g_pMaterialGlueVFTable));
 #ifndef DEDICATED
 		LogFunAdr("CMaterialGlue::GetMaterialAtCrossHair", p_GetMaterialAtCrossHair.GetPtr());
 #endif // !DEDICATED
-		LogConAdr("g_pMaterialGlueVFTable", reinterpret_cast<uintptr_t>(g_pMaterialGlueVFTable));
 	}
 	virtual void GetFun(void) const
 	{

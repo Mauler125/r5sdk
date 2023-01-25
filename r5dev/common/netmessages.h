@@ -116,9 +116,9 @@ class V_NetMessages : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
+		LogConAdr("SVC_Print::`vftable'", reinterpret_cast<uintptr_t>(g_pSVC_Print_VFTable));
+		LogConAdr("SVC_UserMessage::`vftable'", reinterpret_cast<uintptr_t>(g_pSVC_UserMessage_VFTable));
 		LogFunAdr("MM_Heartbeat::ToString", MM_Heartbeat__ToString.GetPtr());
-		LogConAdr("SVC_Print                  (VFTable)", reinterpret_cast<uintptr_t>(g_pSVC_Print_VFTable));
-		LogConAdr("SVC_UserMessage            (VFTable)", reinterpret_cast<uintptr_t>(g_pSVC_UserMessage_VFTable));
 	}
 	virtual void GetFun(void) const
 	{

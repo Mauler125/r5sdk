@@ -20,7 +20,7 @@ class HVEngineClient : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
-		LogConAdr("g_pEngineClientVFTable", g_pEngineClientVFTable.GetPtr());
+		LogConAdr("CEngineClient::`vftable'", g_pEngineClientVFTable.GetPtr());
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const { }

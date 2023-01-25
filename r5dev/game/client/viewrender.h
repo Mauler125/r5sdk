@@ -29,11 +29,11 @@ class V_ViewRender : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
+		LogConAdr("CViewRender::`vftable'", g_pViewRender_VFTable.GetPtr());
 		LogFunAdr("CViewRender::GetWorldMatrixForView", p_CViewRender_GetWorldMatrixForView.GetPtr());
+		LogVarAdr("g_pViewRender", reinterpret_cast<uintptr_t>(g_pViewRender));
 		LogVarAdr("g_vecRenderOrigin", reinterpret_cast<uintptr_t>(g_vecRenderOrigin));
 		LogVarAdr("g_vecRenderAngles", reinterpret_cast<uintptr_t>(g_vecRenderAngles));
-		LogVarAdr("g_pViewRender", reinterpret_cast<uintptr_t>(g_pViewRender));
-		LogConAdr("CViewRender                (VFTable)", g_pViewRender_VFTable.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{
