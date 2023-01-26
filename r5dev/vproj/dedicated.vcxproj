@@ -147,13 +147,11 @@
     <ClInclude Include="..\datacache\mdlcache.h" />
     <ClInclude Include="..\ebisusdk\EbisuSDK.h" />
     <ClInclude Include="..\engine\client\client.h" />
-    <ClInclude Include="..\engine\client\cl_main.h" />
     <ClInclude Include="..\engine\clockdriftmgr.h" />
     <ClInclude Include="..\engine\cmodel_bsp.h" />
     <ClInclude Include="..\engine\common.h" />
     <ClInclude Include="..\engine\datablock.h" />
     <ClInclude Include="..\engine\framesnapshot.h" />
-    <ClInclude Include="..\engine\gl_matsysiface.h" />
     <ClInclude Include="..\engine\gl_model_private.h" />
     <ClInclude Include="..\engine\host.h" />
     <ClInclude Include="..\engine\host_cmd.h" />
@@ -171,7 +169,6 @@
     <ClInclude Include="..\engine\sys_dll.h" />
     <ClInclude Include="..\engine\sys_dll2.h" />
     <ClInclude Include="..\engine\sys_engine.h" />
-    <ClInclude Include="..\engine\sys_getmodes.h" />
     <ClInclude Include="..\engine\sys_utils.h" />
     <ClInclude Include="..\engine\traceinit.h" />
     <ClInclude Include="..\filesystem\basefilesystem.h" />
@@ -292,7 +289,6 @@
     <ClInclude Include="..\public\worldsize.h" />
     <ClInclude Include="..\rtech\rtech_utils.h" />
     <ClInclude Include="..\rtech\rtech_game.h" />
-    <ClInclude Include="..\rtech\rui\rui.h" />
     <ClInclude Include="..\rtech\stryder\stryder.h" />
     <ClInclude Include="..\server\persistence.h" />
     <ClInclude Include="..\server\vengineserver_impl.h" />
@@ -528,6 +524,8 @@
   <ItemGroup>
     <ClCompile Include="..\bonesetup\bone_utils.cpp" />
     <ClCompile Include="..\bsplib\bsplib.cpp" />
+    <ClCompile Include="..\client\cdll_engine_int.cpp" />
+    <ClCompile Include="..\common\netmessages.cpp" />
     <ClCompile Include="..\common\opcodes.cpp" />
     <ClCompile Include="..\core\dllmain.cpp" />
     <ClCompile Include="..\core\init.cpp" />

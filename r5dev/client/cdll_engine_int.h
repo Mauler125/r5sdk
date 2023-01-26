@@ -46,13 +46,13 @@ public:
 #ifndef DEDICATED
 inline CMemory p_CHLClient_PostInit;
 inline auto CHLClient_PostInit = p_CHLClient_PostInit.RCast<void*(*)(void)>();
-#endif // !DEDICATED
+
 inline CMemory p_CHLClient_LevelShutdown;
 inline auto CHLClient_LevelShutdown = p_CHLClient_LevelShutdown.RCast<void* (*)(CHLClient* thisptr)>();
 
 inline CMemory p_CHLClient_HudProcessInput;
 inline auto CHLClient_HudProcessInput = p_CHLClient_HudProcessInput.RCast<void(*)(CHLClient* thisptr, bool bActive)>();
-#ifndef DEDICATED
+
 inline CMemory p_CHLClient_FrameStageNotify;
 inline auto CHLClient_FrameStageNotify = p_CHLClient_FrameStageNotify.RCast<void(*)(CHLClient* thisptr, ClientFrameStage_t frameStage)>();
 
@@ -70,10 +70,8 @@ class VDll_Engine_Int : public IDetour
 	{
 #ifndef DEDICATED
 		LogFunAdr("CHLClient::PostInit", p_CHLClient_PostInit.GetPtr());
-#endif // !DEDICATED
 		LogFunAdr("CHLClient::LevelShutdown", p_CHLClient_LevelShutdown.GetPtr());
 		LogFunAdr("CHLClient::HudProcessInput", p_CHLClient_HudProcessInput.GetPtr());
-#ifndef DEDICATED
 		LogFunAdr("CHLClient::FrameStageNotify", p_CHLClient_FrameStageNotify.GetPtr());
 		LogFunAdr("CHLClient::GetAllClasses", p_CHLClient_GetAllClasses.GetPtr());
 #endif // !DEDICATED
@@ -90,15 +88,15 @@ class VDll_Engine_Int : public IDetour
 		p_CHLClient_GetAllClasses    = g_GameDll.FindPatternSIMD("48 8B 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 48 89 74 24 ??");
 #endif // !DEDICATED
 #elif defined (GAMEDLL_S2) || defined (GAMEDLL_S3)
-		p_CHLClient_LevelShutdown    = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B F9 48 8D 0D ?? ?? ?? ??");
 #ifndef DEDICATED
+		p_CHLClient_LevelShutdown    = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B F9 48 8D 0D ?? ?? ?? ??");
 		p_CHLClient_PostInit         = g_GameDll.FindPatternSIMD("48 83 EC 28 48 83 3D ?? ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ??");
 		p_CHLClient_FrameStageNotify = g_GameDll.FindPatternSIMD("48 83 EC 28 89 15 ?? ?? ?? ??");
 		p_CHLClient_GetAllClasses    = g_GameDll.FindPatternSIMD("48 8B 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 48 8B 05 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ??");
 #endif // !DEDICATED
 #endif
-		p_CHLClient_HudProcessInput  = g_GameDll.FindPatternSIMD("48 83 EC 28 0F B6 0D ?? ?? ?? ?? 88 15 ?? ?? ?? ??");
 #ifndef DEDICATED
+		p_CHLClient_HudProcessInput  = g_GameDll.FindPatternSIMD("48 83 EC 28 0F B6 0D ?? ?? ?? ?? 88 15 ?? ?? ?? ??");
 		CHLClient_LevelShutdown    = p_CHLClient_LevelShutdown.RCast<void*(*)(CHLClient*)>();                       /*48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B F9 48 8D 0D ?? ?? ?? ??*/
 		CHLClient_PostInit         = p_CHLClient_PostInit.RCast<void*(*)(void)>();                                  /*48 83 EC 28 48 83 3D ?? ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ??*/
 		CHLClient_FrameStageNotify = p_CHLClient_FrameStageNotify.RCast<void(*)(CHLClient*, ClientFrameStage_t)>(); /*48 83 EC 28 89 15 ?? ?? ?? ??*/

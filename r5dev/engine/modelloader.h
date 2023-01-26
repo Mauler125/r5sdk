@@ -68,11 +68,11 @@ inline auto CModelLoader__Map_LoadModelGuts = p_CModelLoader__Map_LoadModelGuts.
 inline CMemory p_CModelLoader__Map_IsValid;
 inline auto CModelLoader__Map_IsValid = p_CModelLoader__Map_IsValid.RCast<bool(*)(CModelLoader* loader, const char* pszMapName)>();
 
-inline CMemory p_GetSpriteInfo;
-inline auto GetSpriteInfo = p_GetSpriteInfo.RCast<void* (*)(const char* pName, bool bIsAVI, bool bIsBIK, int& nWidth, int& nHeight, int& nFrameCount, void* a7)>();
+//inline CMemory p_GetSpriteInfo; // DEDICATED PATCH!
+//inline auto GetSpriteInfo = p_GetSpriteInfo.RCast<void* (*)(const char* pName, bool bIsAVI, bool bIsBIK, int& nWidth, int& nHeight, int& nFrameCount, void* a7)>();
 
-inline CMemory p_BuildSpriteLoadName;
-inline auto BuildSpriteLoadName = p_BuildSpriteLoadName.RCast<void* (*)(const char* pName, char* pOut, int outLen, bool& bIsAVI, bool& bIsBIK)>();
+//inline CMemory p_BuildSpriteLoadName; // DEDICATED PATCH!
+//inline auto BuildSpriteLoadName = p_BuildSpriteLoadName.RCast<void* (*)(const char* pName, char* pOut, int outLen, bool& bIsAVI, bool& bIsBIK)>();
 
 inline CModelLoader* g_pModelLoader;
 
@@ -87,8 +87,8 @@ class VModelLoader : public IDetour
 		LogFunAdr("CModelLoader::Map_LoadModelGuts", p_CModelLoader__Map_LoadModelGuts.GetPtr());
 		LogFunAdr("CModelLoader::Map_IsValid", p_CModelLoader__Map_IsValid.GetPtr());
 		LogFunAdr("CModelLoader::Studio_LoadModel", p_CModelLoader__Studio_LoadModel.GetPtr());
-		LogFunAdr("GetSpriteInfo", p_GetSpriteInfo.GetPtr());
-		LogFunAdr("BuildSpriteLoadName", p_BuildSpriteLoadName.GetPtr());
+		//LogFunAdr("GetSpriteInfo", p_GetSpriteInfo.GetPtr());
+		//LogFunAdr("BuildSpriteLoadName", p_BuildSpriteLoadName.GetPtr());
 		LogVarAdr("g_pModelLoader", reinterpret_cast<uintptr_t>(g_pModelLoader));
 	}
 	virtual void GetFun(void) const
@@ -108,9 +108,9 @@ class VModelLoader : public IDetour
 		p_CModelLoader__Studio_LoadModel  = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 55 56 57 41 54 41 57 48 81 EC ?? ?? ?? ??");
 		p_CModelLoader__Map_LoadModelGuts = g_GameDll.FindPatternSIMD("48 89 54 24 ?? 48 89 4C 24 ?? 55 53 56 57 41 54 41 55 41 57"); // BSP.
 		p_CModelLoader__Map_IsValid       = g_GameDll.FindPatternSIMD("40 53 48 81 EC ?? ?? ?? ?? 48 8B DA 48 85 D2 0F 84 ?? ?? ?? ?? 80 3A ?? 0F 84 ?? ?? ?? ?? 4C 8B CA");
-		p_GetSpriteInfo                   = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 30 4C 8B BC 24 ?? ?? ?? ??");
+		//p_GetSpriteInfo                   = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 30 4C 8B BC 24 ?? ?? ?? ??");
 #endif
-		p_BuildSpriteLoadName             = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC ?? ?? ?? ?? 4D 8B F1 48 8B F2");
+		//p_BuildSpriteLoadName             = g_GameDll.FindPatternSIMD("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 81 EC ?? ?? ?? ?? 4D 8B F1 48 8B F2");
 
 		CModelLoader__FindModel         = p_CModelLoader__FindModel.RCast<void* (*)(CModelLoader*, const char*)>();
 		CModelLoader__LoadModel         = p_CModelLoader__LoadModel.RCast<void(*)(CModelLoader*, model_t*)>();
@@ -118,8 +118,8 @@ class VModelLoader : public IDetour
 		CModelLoader__Studio_LoadModel  = p_CModelLoader__Studio_LoadModel.RCast<void* (*)(CModelLoader*)>();
 		CModelLoader__Map_LoadModelGuts = p_CModelLoader__Map_LoadModelGuts.RCast<uint64_t(*)(CModelLoader*, model_t* mod)>();
 		CModelLoader__Map_IsValid       = p_CModelLoader__Map_IsValid.RCast<bool(*)(CModelLoader*, const char*)>();
-		GetSpriteInfo                   = p_GetSpriteInfo.RCast<void* (*)(const char*, bool, bool, int&, int&, int&, void*)>();
-		BuildSpriteLoadName             = p_BuildSpriteLoadName.RCast<void* (*)(const char*, char*, int, bool&, bool&)>();
+		//GetSpriteInfo                   = p_GetSpriteInfo.RCast<void* (*)(const char*, bool, bool, int&, int&, int&, void*)>();
+		//BuildSpriteLoadName             = p_BuildSpriteLoadName.RCast<void* (*)(const char*, char*, int, bool&, bool&)>();
 	}
 	virtual void GetVar(void) const
 	{

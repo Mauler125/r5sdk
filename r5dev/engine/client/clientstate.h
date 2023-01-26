@@ -197,10 +197,8 @@ class VClientState : public IDetour
 	{
 		LogFunAdr("CClientState::RunFrame", p_CClientState__RunFrame.GetPtr());
 		LogFunAdr("CClientState::Disconnect", p_CClientState__Disconnect.GetPtr());
-#ifndef DEDICATED
 		LogVarAdr("g_pClientState", reinterpret_cast<uintptr_t>(g_pClientState));
 		LogVarAdr("g_pClientState_Shifted", reinterpret_cast<uintptr_t>(g_pClientState_Shifted));
-#endif // DEDICATED
 	}
 	virtual void GetFun(void) const
 	{
@@ -220,10 +218,8 @@ class VClientState : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-#ifndef DEDICATED
 		g_pClientState = g_GameDll.FindPatternSIMD("0F 84 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 48 83 C4 28").FindPatternSelf("48 8D").ResolveRelativeAddressSelf(0x3, 0x7).RCast<CClientState*>(); /*0F 84 ? ? ? ? 48 8D 0D ? ? ? ? 48 83 C4 28*/
 		g_pClientState_Shifted = g_GameDll.FindPatternSIMD("80 3D ?? ?? ?? ?? ?? 74 14 66 0F 6E 05 ?? ?? ?? ??").ResolveRelativeAddress(0x2, 0x7).RCast<CClientState**>();
-#endif // DEDICATED
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const { }

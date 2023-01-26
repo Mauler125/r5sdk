@@ -64,13 +64,15 @@
 #include "rtech/rtech_game.h"
 #include "rtech/rtech_utils.h"
 #include "rtech/stryder/stryder.h"
-#include "rtech/rui/rui.h"
 #ifndef DEDICATED
+#include "rtech/rui/rui.h"
 #include "engine/client/cl_ents_parse.h"
-#endif // !DEDICATED
 #include "engine/client/cl_main.h"
+#endif // !DEDICATED
 #include "engine/client/client.h"
+#ifndef DEDICATED
 #include "engine/client/clientstate.h"
+#endif // !DEDICATED
 #include "engine/enginetrace.h"
 #include "engine/traceinit.h"
 #include "engine/common.h"
@@ -90,15 +92,13 @@
 #include "engine/sys_dll2.h"
 #include "engine/sys_engine.h"
 #include "engine/sys_utils.h"
-#include "engine/sys_getmodes.h"
 #ifndef DEDICATED
+#include "engine/sys_getmodes.h"
 #include "engine/gl_rmain.h"
 #include "engine/sys_mainwind.h"
-#endif // !DEDICATED
 #include "engine/matsys_interface.h"
 #include "engine/gl_matsysiface.h"
 #include "engine/gl_screen.h"
-#ifndef DEDICATED
 #include "engine/gl_rsurf.h"
 #include "engine/debugoverlay.h"
 #endif // !DEDICATED
@@ -145,6 +145,7 @@ void Systems_Init()
 	spdlog::info("+-------------------------------------------------------------+\n");
 	QuerySystemInfo();
 
+	DetourRegister();
 	CFastTimer initTimer;
 
 	initTimer.Start();
@@ -371,186 +372,187 @@ void DetourAddress() // Test the sigscan results
 	}
 }
 
-// Tier0
-REGISTER(VPlatform);
-REGISTER(VJobThread);
-REGISTER(VThreadTools);
-REGISTER(VTSListBase);
-REGISTER(VMemStd);
+void DetourRegister() // Register detour classes to be searched and hooked.
+{
+	// Tier0
+	REGISTER(VPlatform);
+	REGISTER(VJobThread);
+	REGISTER(VThreadTools);
+	REGISTER(VTSListBase);
+	REGISTER(VMemStd);
 
-// Tier1
-REGISTER(VCommandLine);
-REGISTER(VConCommand);
-REGISTER(VConVar);
-REGISTER(VCVar);
+	// Tier1
+	REGISTER(VCommandLine);
+	REGISTER(VConCommand);
+	REGISTER(VConVar);
+	REGISTER(VCVar);
 
-// VPC
-REGISTER(VAppSystem);
-REGISTER(VKeyValues);
-REGISTER(VFactory);
+	// VPC
+	REGISTER(VAppSystem);
+	REGISTER(VKeyValues);
+	REGISTER(VFactory);
 
-// VstdLib
-REGISTER(VCallback);
-REGISTER(VCompletion);
-REGISTER(HKeyValuesSystem);
+	// VstdLib
+	REGISTER(VCallback);
+	REGISTER(VCompletion);
+	REGISTER(HKeyValuesSystem);
 
-// Common
-REGISTER(VOpcodes);
-REGISTER(V_NetMessages);
+	// Common
+	REGISTER(VOpcodes);
+	REGISTER(V_NetMessages);
 
-// Launcher
-REGISTER(VPRX);
-REGISTER(VLauncher);
-REGISTER(VApplication);
+	// Launcher
+	REGISTER(VPRX);
+	REGISTER(VLauncher);
+	REGISTER(VApplication);
 
-// FileSystem
-REGISTER(VBaseFileSystem);
-REGISTER(VFileSystem_Stdio);
+	// FileSystem
+	REGISTER(VBaseFileSystem);
+	REGISTER(VFileSystem_Stdio);
 
-// DataCache
-REGISTER(VMDLCache);
+	// DataCache
+	REGISTER(VMDLCache);
 
-// Ebisu
-REGISTER(VEbisuSDK);
+	// Ebisu
+	REGISTER(VEbisuSDK);
 
 #ifndef DEDICATED
 
-// Codecs
-REGISTER(BinkCore); // REGISTER CLIENT ONLY!
-REGISTER(MilesCore); // REGISTER CLIENT ONLY!
-REGISTER(VRadShal);
+	// Codecs
+	REGISTER(BinkCore); // REGISTER CLIENT ONLY!
+	REGISTER(MilesCore); // REGISTER CLIENT ONLY!
+	REGISTER(VRadShal);
 
 #endif // !DEDICATED
 
-// VPhysics
-REGISTER(VQHull);
+	// VPhysics
+	REGISTER(VQHull);
 
-// BspLib
-REGISTER(VBspLib);
+	// BspLib
+	REGISTER(VBspLib);
 
-// MaterialSystem
-REGISTER(VMaterialSystem);
-REGISTER(VMaterialGlue);
+	// MaterialSystem
+	REGISTER(VMaterialSystem);
 
 #ifndef DEDICATED
-REGISTER(VShaderGlue);
+	REGISTER(VMaterialGlue);
+	REGISTER(VShaderGlue);
 
-// VGui
-REGISTER(VEngineVGui); // REGISTER CLIENT ONLY!
-REGISTER(VFPSPanel); // REGISTER CLIENT ONLY!
-REGISTER(VMatSystemSurface);
+	// VGui
+	REGISTER(VEngineVGui); // REGISTER CLIENT ONLY!
+	REGISTER(VFPSPanel); // REGISTER CLIENT ONLY!
+	REGISTER(VMatSystemSurface);
 
-// Client
-REGISTER(HVEngineClient);
+	// Client
+	REGISTER(HVEngineClient);
 #endif // !DEDICATED
 
-REGISTER(VDll_Engine_Int);
+	REGISTER(VDll_Engine_Int);
 
 #ifndef CLIENT_DLL
 
-// Server
-REGISTER(VServer); // REGISTER SERVER ONLY!
-REGISTER(VPersistence); // REGISTER SERVER ONLY!
-REGISTER(HVEngineServer); // REGISTER SERVER ONLY!
+	// Server
+	REGISTER(VServer); // REGISTER SERVER ONLY!
+	REGISTER(VPersistence); // REGISTER SERVER ONLY!
+	REGISTER(HVEngineServer); // REGISTER SERVER ONLY!
 
 #endif // !CLIENT_DLL
 
-// Squirrel
-REGISTER(VSqInit);
-REGISTER(VSqapi);
-REGISTER(HSQVM);
-REGISTER(VSquirrelVM);
-REGISTER(VSqStdAux);
+	// Squirrel
+	REGISTER(VSqInit);
+	REGISTER(VSqapi);
+	REGISTER(HSQVM);
+	REGISTER(VSquirrelVM);
+	REGISTER(VSqStdAux);
 
-// Studio
-REGISTER(VStudioRenderContext);
+	// Studio
+	REGISTER(VStudioRenderContext);
 
-// RTech
-REGISTER(V_RTechGame);
-REGISTER(V_RTechUtils);
-REGISTER(VStryder);
-
-REGISTER(V_Rui); // Should this be client dll only???
+	// RTech
+	REGISTER(V_RTechGame);
+	REGISTER(V_RTechUtils);
+	REGISTER(VStryder);
 
 #ifndef DEDICATED
-REGISTER(V_CL_Ents_Parse); // REGISTER CLIENT ONLY!
+	REGISTER(V_Rui);
+	REGISTER(V_CL_Ents_Parse); // REGISTER CLIENT ONLY!
 #endif // !DEDICATED
 
-// Engine/client
-REGISTER(VCL_Main);
-REGISTER(VClient);
-REGISTER(VClientState);
+	// Engine/client
+	REGISTER(VClient);
+#ifndef DEDICATED
+	REGISTER(VClientState);
+	REGISTER(VCL_Main);
+#endif // !DEDICATED
 
-// Engine
-REGISTER(VTraceInit);
-REGISTER(VCommon);
-REGISTER(VModel_BSP);
-REGISTER(VHost);
-REGISTER(VHostCmd);
-REGISTER(VHostState);
-REGISTER(VModelLoader);
-REGISTER(VNet);
-REGISTER(VNetChannel);
+	// Engine
+	REGISTER(VTraceInit);
+	REGISTER(VCommon);
+	REGISTER(VModel_BSP);
+	REGISTER(VHost);
+	REGISTER(VHostCmd);
+	REGISTER(VHostState);
+	REGISTER(VModelLoader);
+	REGISTER(VNet);
+	REGISTER(VNetChannel);
 
-REGISTER(VSys_Dll);
-REGISTER(VSys_Dll2);
-REGISTER(VSys_Utils);
-REGISTER(VEngine);
-REGISTER(VEngineTrace);
-REGISTER(VModelInfo);
-
-REGISTER(HVideoMode_Common);
+	REGISTER(VSys_Dll);
+	REGISTER(VSys_Dll2);
+	REGISTER(VSys_Utils);
+	REGISTER(VEngine);
+	REGISTER(VEngineTrace);
+	REGISTER(VModelInfo);
 
 #ifndef DEDICATED
-REGISTER(VGL_RMain); // Client only?
+	REGISTER(HVideoMode_Common);
+	REGISTER(VGL_RMain);
+	REGISTER(VMatSys_Interface);
+	REGISTER(VGL_MatSysIFace);
+	REGISTER(VGL_Screen);
 #endif // !DEDICATED
 
-REGISTER(VMatSys_Interface); // Should this be client dll only???
-REGISTER(VGL_MatSysIFace);
-REGISTER(VGL_Screen);
-
-
-// !!! SERVER DLL ONLY !!!
-REGISTER(HSV_Main);
-// !!! END SERVER DLL ONLY !!!
+	// !!! SERVER DLL ONLY !!!
+	REGISTER(HSV_Main);
+	// !!! END SERVER DLL ONLY !!!
 
 #ifndef DEDICATED
-REGISTER(VGame); // REGISTER CLIENT ONLY!
-REGISTER(VGL_RSurf);
+	REGISTER(VGame); // REGISTER CLIENT ONLY!
+	REGISTER(VGL_RSurf);
+
+	REGISTER(VDebugOverlay); // !TODO: This also needs to be exposed to server dll!!!
 #endif // !DEDICATED
 
-REGISTER(VDebugOverlay); // !TODO: This also needs to be exposed to server dll!!!
-
-// Game/shared
-REGISTER(VUserCmd);
-REGISTER(VAnimation);
-REGISTER(VUtil_Shared);
+	// Game/shared
+	REGISTER(VUserCmd);
+	REGISTER(VAnimation);
+	REGISTER(VUtil_Shared);
 
 #ifndef CLIENT_DLL
 
-// Game/server
-REGISTER(VAI_Network);
-REGISTER(VAI_NetworkManager);
-REGISTER(VRecast);
-REGISTER(VFairFight);
-REGISTER(VServerGameDLL);
-REGISTER(VMoveHelperServer);
-REGISTER(VPhysics_Main); // REGISTER SERVER ONLY
-REGISTER(VBaseEntity);
-REGISTER(VBaseAnimating);
-REGISTER(VPlayer);
+	// Game/server
+	REGISTER(VAI_Network);
+	REGISTER(VAI_NetworkManager);
+	REGISTER(VRecast);
+	REGISTER(VFairFight);
+	REGISTER(VServerGameDLL);
+	REGISTER(VMoveHelperServer);
+	REGISTER(VPhysics_Main); // REGISTER SERVER ONLY
+	REGISTER(VBaseEntity);
+	REGISTER(VBaseAnimating);
+	REGISTER(VPlayer);
 
 #endif // !CLIENT_DLL
 
 #ifndef DEDICATED
-REGISTER(V_ViewRender);
-REGISTER(VMoveHelperClient);
+	REGISTER(V_ViewRender);
+	REGISTER(VMoveHelperClient);
 #endif // !DEDICATED
 
-// Public
-REGISTER(VEdict);
+	// Public
+	REGISTER(VEdict);
 
 #ifndef DEDICATED
-REGISTER(VInputSystem);
-REGISTER(VDXGI);
+	REGISTER(VInputSystem);
+	REGISTER(VDXGI);
 #endif // !DEDICATED
+}

@@ -13,3 +13,4 @@ void CheckCPU();
 
 void DetourInit();
 void DetourAddress();
+void DetourRegister();

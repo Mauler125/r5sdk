@@ -142,9 +142,6 @@
     <Filter Include="sdk\vstdlib">
       <UniqueIdentifier>{f6e1bcba-3548-4849-918d-9adea1603b0b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sdk\rtech\rui">
-      <UniqueIdentifier>{cc54d9ba-f73a-48af-af6a-3b2064710e61}</UniqueIdentifier>
-    </Filter>
     <Filter Include="sdk\datacache">
       <UniqueIdentifier>{4573ce75-0337-41b1-a43e-e9c17773b127}</UniqueIdentifier>
     </Filter>
@@ -672,9 +669,6 @@
     <ClInclude Include="..\studiorender\studiorendercontext.h">
       <Filter>sdk\studiorender</Filter>
     </ClInclude>
-    <ClInclude Include="..\engine\sys_getmodes.h">
-      <Filter>sdk\engine</Filter>
-    </ClInclude>
     <ClInclude Include="..\game\server\fairfight_impl.h">
       <Filter>sdk\game\server</Filter>
     </ClInclude>
@@ -792,9 +786,6 @@
     <ClInclude Include="..\public\globalvars_base.h">
       <Filter>sdk\public</Filter>
     </ClInclude>
-    <ClInclude Include="..\engine\gl_matsysiface.h">
-      <Filter>sdk\engine</Filter>
-    </ClInclude>
     <ClInclude Include="..\game\server\detour_impl.h">
       <Filter>sdk\game\server</Filter>
     </ClInclude>
@@ -875,9 +866,6 @@
     </ClInclude>
     <ClInclude Include="..\tier0\jobthread.h">
       <Filter>sdk\tier0</Filter>
-    </ClInclude>
-    <ClInclude Include="..\rtech\rui\rui.h">
-      <Filter>sdk\rtech\rui</Filter>
     </ClInclude>
     <ClInclude Include="..\public\studio.h">
       <Filter>sdk\public</Filter>
@@ -1060,9 +1048,6 @@
       <Filter>sdk\squirrel</Filter>
     </ClInclude>
     <ClInclude Include="..\engine\client\client.h">
-      <Filter>sdk\engine\client</Filter>
-    </ClInclude>
-    <ClInclude Include="..\engine\client\cl_main.h">
       <Filter>sdk\engine\client</Filter>
     </ClInclude>
     <ClInclude Include="..\engine\server\server.h">
@@ -1774,6 +1759,12 @@
     </ClCompile>
     <ClCompile Include="..\game\server\baseentity.cpp">
       <Filter>sdk\game\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\client\cdll_engine_int.cpp">
+      <Filter>sdk\client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\netmessages.cpp">
+      <Filter>sdk\common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
