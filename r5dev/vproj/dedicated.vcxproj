@@ -74,7 +74,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>bcrypt.lib;user32.lib;libdetours_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>bcrypt.lib;user32.lib;libcurl_x64.lib;libdetours_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>..\Dedicated.def</ModuleDefinitionFile>
       <StackReserveSize>8000000</StackReserveSize>
@@ -109,7 +109,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>bcrypt.lib;user32.lib;libdetours_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>bcrypt.lib;user32.lib;libcurl_x64.lib;libdetours_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>..\Dedicated.def</ModuleDefinitionFile>
       <SetChecksum>true</SetChecksum>
