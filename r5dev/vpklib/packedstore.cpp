@@ -154,27 +154,31 @@ vector<VPKKeyValues_t> CPackedStore::GetEntryValues(const string& svWorkspace, K
 		if (it != vIgnoredList.end())
 		{
 			dir.disable_recursion_pending(); // Skip all ignored folders and extensions.
+			continue;
 		}
-		else if (dir->file_size() > 0) // Empty files are not supported.
+		const string svFullPath = ConvertToWinPath(dir->path().u8string());
+		if (!GetExtension(svFullPath).empty())
 		{
-			const string svFullPath = ConvertToWinPath(dir->path().u8string());
-			if (!GetExtension(svFullPath).empty())
-			{
-				// Remove workspace path by offsetting it by its size.
-				const char* pszEntry = (svFullPath.c_str() + svWorkspace.length());
-				KeyValues* pEntryKV = pManifestKV->FindKey(pszEntry);
+			// Remove workspace path by offsetting it by its size.
+			const char* pszEntry = (svFullPath.c_str() + svWorkspace.length());
+			KeyValues* pEntryKV = pManifestKV->FindKey(pszEntry);
 
-				if (pEntryKV)
+			if (pEntryKV)
+			{
+				if (!dir->file_size()) // Empty files are not supported.
 				{
-					vEntryValues.push_back(VPKKeyValues_t(
-						ConvertToUnixPath(svFullPath),
-						pEntryKV->GetInt("preloadSize", NULL),
-						pEntryKV->GetInt("loadFlags", static_cast<uint32_t>(EPackedLoadFlags::LOAD_VISIBLE) | static_cast<uint32_t>(EPackedLoadFlags::LOAD_CACHE)),
-						pEntryKV->GetInt("textureFlags", static_cast<uint16_t>(EPackedTextureFlags::TEXTURE_DEFAULT)),
-						pEntryKV->GetBool("useCompression", true),
-						pEntryKV->GetBool("useDataSharing", true))
-					);
+					Warning(eDLL_T::FS, "File '%s' listed in build manifest appears truncated\n", dir->path().relative_path().c_str());
+					continue;
 				}
+
+				vEntryValues.push_back(VPKKeyValues_t(
+					ConvertToUnixPath(svFullPath),
+					pEntryKV->GetInt("preloadSize", NULL),
+					pEntryKV->GetInt("loadFlags", static_cast<uint32_t>(EPackedLoadFlags::LOAD_VISIBLE) | static_cast<uint32_t>(EPackedLoadFlags::LOAD_CACHE)),
+					pEntryKV->GetInt("textureFlags", static_cast<uint16_t>(EPackedTextureFlags::TEXTURE_DEFAULT)),
+					pEntryKV->GetBool("useCompression", true),
+					pEntryKV->GetBool("useDataSharing", true))
+				);
 			}
 		}
 		dir++;
