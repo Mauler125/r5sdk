@@ -133,7 +133,9 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
     string svRequestBody = jsRequestBody.dump(4);
     string svResponseBuf;
 
-    if (pylon_showdebuginfo->GetBool())
+    const bool bDebugLog = pylon_showdebuginfo->GetBool();
+
+    if (bDebugLog)
     {
         DevMsg(eDLL_T::ENGINE, "%s - Sending token connect request to comp-server:\n%s\n", __FUNCTION__, svRequestBody.c_str());
     }
@@ -144,7 +146,7 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
         return false;
     }
 
-    if (pylon_showdebuginfo->GetBool())
+    if (bDebugLog)
     {
         DevMsg(eDLL_T::ENGINE, "%s - Comp-server replied with status: '%d'\n", __FUNCTION__, status);
         try
@@ -267,7 +269,9 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
     string svRequestBody = jsRequestBody.dump(4);
     string svResponseBuf;
 
-    if (pylon_showdebuginfo->GetBool())
+    const bool bDebugLog = pylon_showdebuginfo->GetBool();
+
+    if (bDebugLog)
     {
         DevMsg(eDLL_T::ENGINE, "%s - Sending post host request to comp-server:\n%s\n", __FUNCTION__, svRequestBody.c_str());
     }
@@ -278,13 +282,13 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
         return false;
     }
 
-    if (pylon_showdebuginfo->GetBool())
+    if (bDebugLog)
     {
         DevMsg(eDLL_T::ENGINE, "%s - Comp-server replied with status: '%d'\n", __FUNCTION__, status);
         try
         {
-            string jsResultBody = nlohmann::json::parse(svResponseBuf).dump(4);
-            DevMsg(eDLL_T::ENGINE, "%s - Comp-server response body:\n%s\n", __FUNCTION__, jsResultBody.c_str());
+            string svResultBody = nlohmann::json::parse(svResponseBuf).dump(4);
+            DevMsg(eDLL_T::ENGINE, "%s - Comp-server response body:\n%s\n", __FUNCTION__, svResultBody.c_str());
         }
         catch (const std::exception& ex)
         {
@@ -397,10 +401,22 @@ bool CPylon::CheckForBan(const string& svIpAddress, const uint64_t nNucleusID, s
     string svOutMessage;
     CURLINFO status;
 
+    const bool bDebugLog = pylon_showdebuginfo->GetBool();
+
+    if (bDebugLog)
+    {
+        DevMsg(eDLL_T::ENGINE, "%s - Sending ban check request to comp-server:\n%s\n", __FUNCTION__, svRequestBody.c_str());
+    }
+
     if (!QueryMasterServer(pylon_matchmaking_hostname->GetString(), "/banlist/isBanned", svRequestBody, svResponseBuf, svOutMessage, status))
     {
         Error(eDLL_T::ENGINE, NO_ERROR, "%s - Failed to query comp-server: %s\n", __FUNCTION__, svOutMessage.c_str());
         return false;
+    }
+
+    if (bDebugLog)
+    {
+        DevMsg(eDLL_T::ENGINE, "%s - Comp-server replied with status: '%d'\n", __FUNCTION__, status);
     }
 
     try
@@ -408,6 +424,13 @@ bool CPylon::CheckForBan(const string& svIpAddress, const uint64_t nNucleusID, s
         if (status == 200)
         {
             nlohmann::json jsResultBody = nlohmann::json::parse(svResponseBuf);
+
+            if (bDebugLog)
+            {
+                string svResultBody = jsResultBody.dump(4);
+                DevMsg(eDLL_T::ENGINE, "%s - Comp-server response body:\n%s\n", __FUNCTION__, svResultBody.c_str());
+            }
+
             if (jsResultBody["success"].is_boolean() && jsResultBody["success"].get<bool>())
             {
                 if (jsResultBody["banned"].is_boolean() && jsResultBody["banned"].get<bool>())
