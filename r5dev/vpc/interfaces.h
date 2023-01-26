@@ -105,7 +105,6 @@ class VFactory : public IDetour
 	virtual void GetAdr(void) const
 	{
 		LogVarAdr("s_pInterfacesRegs", s_pInterfacesRegs.GetPtr());
-		spdlog::debug("+----------------------------------------------------------------+\n");
 	}
 	virtual void GetFun(void) const { }
 	virtual void GetVar(void) const

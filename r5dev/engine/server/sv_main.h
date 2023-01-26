@@ -29,10 +29,10 @@ class HSV_Main : public IDetour
 {
 	virtual void GetAdr(void) const
 	{
+		LogFunAdr("CGameServer::SpawnServer", p_CGameServer__SpawnServer.GetPtr());
 		LogFunAdr("SV_InitGameDLL", p_SV_InitGameDLL.GetPtr());
 		LogFunAdr("SV_ShutdownGameDLL", p_SV_ShutdownGameDLL.GetPtr());
 		LogFunAdr("SV_CreateBaseline", p_SV_CreateBaseline.GetPtr());
-		LogFunAdr("CGameServer::SpawnServer", p_CGameServer__SpawnServer.GetPtr());
 		LogVarAdr("s_bDedicated", reinterpret_cast<uintptr_t>(s_bDedicated));
 	}
 	virtual void GetFun(void) const

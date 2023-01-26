@@ -144,7 +144,7 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
         try
         {
             string jsResultBody = nlohmann::json::parse(htResult->body).dump(4);
-            DevMsg(eDLL_T::ENGINE, "%s - Comp-Server response body:\n'%s'\n", __FUNCTION__, jsResultBody.c_str());
+            DevMsg(eDLL_T::ENGINE, "%s - Comp-server response body:\n'%s'\n", __FUNCTION__, jsResultBody.c_str());
         }
         catch (const std::exception& ex)
         {
@@ -276,7 +276,7 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
         try
         {
             string jsResultBody = nlohmann::json::parse(htResult->body).dump(4);
-            DevMsg(eDLL_T::ENGINE, "%s - Comp-Server response body:\n'%s'\n", __FUNCTION__, jsResultBody.c_str());
+            DevMsg(eDLL_T::ENGINE, "%s - Comp-server response body:\n'%s'\n", __FUNCTION__, jsResultBody.c_str());
         }
         catch (const std::exception& ex)
         {
