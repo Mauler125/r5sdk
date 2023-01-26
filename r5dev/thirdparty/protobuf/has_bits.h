@@ -34,6 +34,7 @@
 #include <thirdparty/protobuf/stubs/common.h>
 #include <thirdparty/protobuf/port.h>
 
+// Must be included last.
 #include <thirdparty/protobuf/port_def.inc>
 
 #ifdef SWIG

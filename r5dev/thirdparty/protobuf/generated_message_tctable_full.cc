@@ -30,10 +30,10 @@
 
 #include <cstdint>
 
-#include <thirdparty/protobuf/parse_context.h>
 #include <thirdparty/protobuf/extension_set.h>
 #include <thirdparty/protobuf/generated_message_tctable_impl.h>
 #include <thirdparty/protobuf/message.h>
+#include <thirdparty/protobuf/parse_context.h>
 #include <thirdparty/protobuf/unknown_field_set.h>
 
 // clang-format off

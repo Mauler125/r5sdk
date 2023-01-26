@@ -183,7 +183,6 @@
     <ClCompile Include="..\thirdparty\protobuf\arenastring.cc" />
     <ClCompile Include="..\thirdparty\protobuf\extension_set.cc" />
     <ClCompile Include="..\thirdparty\protobuf\generated_enum_util.cc" />
-    <ClCompile Include="..\thirdparty\protobuf\generated_message_table_driven_lite.cc" />
     <ClCompile Include="..\thirdparty\protobuf\generated_message_tctable_lite.cc" />
     <ClCompile Include="..\thirdparty\protobuf\generated_message_util.cc" />
     <ClCompile Include="..\thirdparty\protobuf\implicit_weak_message.cc" />

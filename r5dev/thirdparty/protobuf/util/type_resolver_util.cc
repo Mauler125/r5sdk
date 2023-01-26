@@ -34,10 +34,10 @@
 #include <thirdparty/protobuf/wrappers.pb.h>
 #include <thirdparty/protobuf/descriptor.pb.h>
 #include <thirdparty/protobuf/descriptor.h>
-#include <thirdparty/protobuf/util/internal/utility.h>
-#include <thirdparty/protobuf/util/type_resolver.h>
 #include <thirdparty/protobuf/stubs/strutil.h>
 #include <thirdparty/protobuf/stubs/status.h>
+#include <thirdparty/protobuf/util/internal/utility.h>
+#include <thirdparty/protobuf/util/type_resolver.h>
 #include <thirdparty/protobuf/stubs/status.h>
 
 // clang-format off

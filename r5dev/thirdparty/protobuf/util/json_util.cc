@@ -31,9 +31,12 @@
 #include <thirdparty/protobuf/util/json_util.h>
 
 #include <thirdparty/protobuf/stubs/common.h>
+#include <thirdparty/protobuf/stubs/once.h>
+#include <thirdparty/protobuf/stubs/status.h>
+#include <thirdparty/protobuf/stubs/bytestream.h>
+#include <thirdparty/protobuf/stubs/strutil.h>
 #include <thirdparty/protobuf/io/coded_stream.h>
 #include <thirdparty/protobuf/io/zero_copy_stream.h>
-#include <thirdparty/protobuf/stubs/once.h>
 #include <thirdparty/protobuf/util/internal/default_value_objectwriter.h>
 #include <thirdparty/protobuf/util/internal/error_listener.h>
 #include <thirdparty/protobuf/util/internal/json_objectwriter.h>
@@ -42,9 +45,6 @@
 #include <thirdparty/protobuf/util/internal/protostream_objectwriter.h>
 #include <thirdparty/protobuf/util/type_resolver.h>
 #include <thirdparty/protobuf/util/type_resolver_util.h>
-#include <thirdparty/protobuf/stubs/bytestream.h>
-#include <thirdparty/protobuf/stubs/status.h>
-#include <thirdparty/protobuf/stubs/strutil.h>
 #include <thirdparty/protobuf/stubs/status_macros.h>
 
 // clang-format off
@@ -64,7 +64,7 @@ ZeroCopyStreamByteSink::~ZeroCopyStreamByteSink() {
 
 void ZeroCopyStreamByteSink::Append(const char* bytes, size_t len) {
   while (true) {
-    if (len <= buffer_size_) {
+    if (len <= buffer_size_) {  // NOLINT
       memcpy(buffer_, bytes, len);
       buffer_ = static_cast<char*>(buffer_) + len;
       buffer_size_ -= len;
@@ -218,7 +218,7 @@ util::Status JsonToBinaryString(TypeResolver* resolver,
 
 namespace {
 const char* kTypeUrlPrefix = "type.googleapis.com";
-TypeResolver* generated_type_resolver_ = NULL;
+TypeResolver* generated_type_resolver_ = nullptr;
 PROTOBUF_NAMESPACE_ID::internal::once_flag generated_type_resolver_init_;
 
 std::string GetTypeUrl(const Message& message) {
@@ -226,7 +226,9 @@ std::string GetTypeUrl(const Message& message) {
          message.GetDescriptor()->full_name();
 }
 
-void DeleteGeneratedTypeResolver() { delete generated_type_resolver_; }
+void DeleteGeneratedTypeResolver() {  // NOLINT
+  delete generated_type_resolver_;
+}
 
 void InitGeneratedTypeResolver() {
   generated_type_resolver_ = NewTypeResolverForDescriptorPool(

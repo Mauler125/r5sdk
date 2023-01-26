@@ -41,6 +41,7 @@
 #include <thirdparty/protobuf/io/coded_stream.h>
 #include <thirdparty/protobuf/io/zero_copy_stream_impl.h>
 
+// Must be included last.
 #include <thirdparty/protobuf/port_def.inc>
 
 namespace google {

@@ -36,11 +36,11 @@
 #include <thirdparty/protobuf/stubs/logging.h>
 #include <thirdparty/protobuf/stubs/common.h>
 #include <thirdparty/protobuf/descriptor.h>
-#include <thirdparty/protobuf/util/internal/default_value_objectwriter.h>
-#include <thirdparty/protobuf/util/internal/type_info.h>
 #include <thirdparty/protobuf/util/internal/constants.h>
+#include <thirdparty/protobuf/util/internal/default_value_objectwriter.h>
 #include <thirdparty/protobuf/util/internal/protostream_objectsource.h>
 #include <thirdparty/protobuf/util/internal/protostream_objectwriter.h>
+#include <thirdparty/protobuf/util/internal/type_info.h>
 #include <thirdparty/protobuf/util/type_resolver.h>
 #include <thirdparty/protobuf/util/type_resolver_util.h>
 

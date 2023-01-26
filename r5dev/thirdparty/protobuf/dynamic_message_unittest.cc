@@ -40,19 +40,19 @@
 // reflection_ops_unittest, cover the rest of the functionality used by
 // DynamicMessage.
 
+#include <thirdparty/protobuf/dynamic_message.h>
+
 #include <memory>
 
-#include <thirdparty/protobuf/test_util.h>
+#include <thirdparty/protobuf/stubs/logging.h>
+#include <thirdparty/protobuf/stubs/common.h>
 #include <thirdparty/protobuf/unittest.pb.h>
 #include <thirdparty/protobuf/unittest_no_field_presence.pb.h>
 #include <thirdparty/protobuf/descriptor.pb.h>
 #include <thirdparty/protobuf/descriptor.h>
-#include <thirdparty/protobuf/dynamic_message.h>
-
-#include <thirdparty/protobuf/stubs/logging.h>
-#include <thirdparty/protobuf/stubs/common.h>
 #include <thirdparty/protobuf/testing/googletest.h>
 #include <gtest/gtest.h>
+#include <thirdparty/protobuf/test_util.h>
 
 namespace google {
 namespace protobuf {

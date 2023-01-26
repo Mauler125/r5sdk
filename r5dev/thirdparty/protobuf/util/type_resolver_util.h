@@ -41,6 +41,7 @@ class DescriptorPool;
 namespace util {
 class TypeResolver;
 
+// Must be included last.
 #include <thirdparty/protobuf/port_def.inc>
 
 // Creates a TypeResolver that serves type information in the given descriptor

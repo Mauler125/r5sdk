@@ -28,8 +28,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef GOOGLE_PROTOBUF_UTIL_CONVERTER_DEFAULT_VALUE_OBJECTWRITER_H__
-#define GOOGLE_PROTOBUF_UTIL_CONVERTER_DEFAULT_VALUE_OBJECTWRITER_H__
+#ifndef GOOGLE_PROTOBUF_UTIL_INTERNAL_DEFAULT_VALUE_OBJECTWRITER_H__
+#define GOOGLE_PROTOBUF_UTIL_INTERNAL_DEFAULT_VALUE_OBJECTWRITER_H__
 
 #include <cstdint>
 #include <functional>
@@ -38,12 +38,12 @@
 #include <vector>
 
 #include <thirdparty/protobuf/stubs/common.h>
-#include <thirdparty/protobuf/util/internal/type_info.h>
+#include <thirdparty/protobuf/stubs/strutil.h>
 #include <thirdparty/protobuf/util/internal/datapiece.h>
 #include <thirdparty/protobuf/util/internal/object_writer.h>
+#include <thirdparty/protobuf/util/internal/type_info.h>
 #include <thirdparty/protobuf/util/internal/utility.h>
 #include <thirdparty/protobuf/util/type_resolver.h>
-#include <thirdparty/protobuf/stubs/strutil.h>
 
 // Must be included last.
 #include <thirdparty/protobuf/port_def.inc>
@@ -81,7 +81,7 @@ class PROTOBUF_EXPORT DefaultValueObjectWriter : public ObjectWriter {
                            const google::protobuf::Type& type,
                            ObjectWriter* ow);
 
-  virtual ~DefaultValueObjectWriter();
+  ~DefaultValueObjectWriter() override;
 
   // ObjectWriter methods.
   DefaultValueObjectWriter* StartObject(StringPiece name) override;
@@ -329,4 +329,4 @@ class PROTOBUF_EXPORT DefaultValueObjectWriter : public ObjectWriter {
 
 #include <thirdparty/protobuf/port_undef.inc>
 
-#endif  // GOOGLE_PROTOBUF_UTIL_CONVERTER_DEFAULT_VALUE_OBJECTWRITER_H__
+#endif  // GOOGLE_PROTOBUF_UTIL_INTERNAL_DEFAULT_VALUE_OBJECTWRITER_H__

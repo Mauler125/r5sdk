@@ -29,6 +29,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <thirdparty/protobuf/arena_test_util.h>
+
 #include <thirdparty/protobuf/stubs/logging.h>
 #include <thirdparty/protobuf/stubs/common.h>
 

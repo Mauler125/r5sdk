@@ -37,6 +37,7 @@
 #include <thirdparty/protobuf/stubs/common.h>
 #include <thirdparty/protobuf/descriptor.h>
 
+// Must be included last.
 #include <thirdparty/protobuf/port_def.inc>
 
 namespace google {

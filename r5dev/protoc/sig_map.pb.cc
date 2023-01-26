@@ -13,29 +13,34 @@
 #include <thirdparty/protobuf/port_def.inc>
 
 PROTOBUF_PRAGMA_INIT_SEG
-constexpr SigMap_Pb_SMapEntry_DoNotUse::SigMap_Pb_SMapEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+
+namespace _pb = ::PROTOBUF_NAMESPACE_ID;
+namespace _pbi = _pb::internal;
+
+PROTOBUF_CONSTEXPR SigMap_Pb_SMapEntry_DoNotUse::SigMap_Pb_SMapEntry_DoNotUse(
+    ::_pbi::ConstantInitialized) {}
 struct SigMap_Pb_SMapEntry_DoNotUseDefaultTypeInternal {
-  constexpr SigMap_Pb_SMapEntry_DoNotUseDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  PROTOBUF_CONSTEXPR SigMap_Pb_SMapEntry_DoNotUseDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
   ~SigMap_Pb_SMapEntry_DoNotUseDefaultTypeInternal() {}
   union {
     SigMap_Pb_SMapEntry_DoNotUse _instance;
   };
 };
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT SigMap_Pb_SMapEntry_DoNotUseDefaultTypeInternal _SigMap_Pb_SMapEntry_DoNotUse_default_instance_;
-constexpr SigMap_Pb::SigMap_Pb(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : smap_(){}
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 SigMap_Pb_SMapEntry_DoNotUseDefaultTypeInternal _SigMap_Pb_SMapEntry_DoNotUse_default_instance_;
+PROTOBUF_CONSTEXPR SigMap_Pb::SigMap_Pb(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.smap_)*/{}
+  , /*decltype(_impl_._cached_size_)*/{}} {}
 struct SigMap_PbDefaultTypeInternal {
-  constexpr SigMap_PbDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  PROTOBUF_CONSTEXPR SigMap_PbDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
   ~SigMap_PbDefaultTypeInternal() {}
   union {
     SigMap_Pb _instance;
   };
 };
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT SigMap_PbDefaultTypeInternal _SigMap_Pb_default_instance_;
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 SigMap_PbDefaultTypeInternal _SigMap_Pb_default_instance_;
 
 // ===================================================================
 
@@ -54,43 +59,49 @@ class SigMap_Pb::_Internal {
 
 SigMap_Pb::SigMap_Pb(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned),
-  smap_(arena) {
-  SharedCtor();
-  if (!is_message_owned) {
-    RegisterArenaDtor(arena);
-  }
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
   // @@protoc_insertion_point(arena_constructor:SigMap_Pb)
 }
 SigMap_Pb::SigMap_Pb(const SigMap_Pb& from)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite() {
+  SigMap_Pb* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      /*decltype(_impl_.smap_)*/{}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
-  smap_.MergeFrom(from.smap_);
+  _this->_impl_.smap_.MergeFrom(from._impl_.smap_);
   // @@protoc_insertion_point(copy_constructor:SigMap_Pb)
 }
 
-inline void SigMap_Pb::SharedCtor() {
+inline void SigMap_Pb::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      /*decltype(_impl_.smap_)*/{::_pbi::ArenaInitialized(), arena}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
 }
 
 SigMap_Pb::~SigMap_Pb() {
   // @@protoc_insertion_point(destructor:SigMap_Pb)
-  if (GetArenaForAllocation() != nullptr) return;
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<std::string>()) {
+  (void)arena;
+    return;
+  }
   SharedDtor();
-  _internal_metadata_.Delete<std::string>();
 }
 
 inline void SigMap_Pb::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.smap_.Destruct();
+  _impl_.smap_.~MapFieldLite();
 }
 
-void SigMap_Pb::ArenaDtor(void* object) {
-  SigMap_Pb* _this = reinterpret_cast< SigMap_Pb* >(object);
-  (void)_this;
-}
-void SigMap_Pb::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
 void SigMap_Pb::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
+  _impl_._cached_size_.Set(size);
 }
 
 void SigMap_Pb::Clear() {
@@ -99,15 +110,15 @@ void SigMap_Pb::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  smap_.Clear();
+  _impl_.smap_.Clear();
   _internal_metadata_.Clear<std::string>();
 }
 
-const char* SigMap_Pb::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* SigMap_Pb::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
       // map<string, uint64> sMap = 1;
       case 1:
@@ -115,7 +126,7 @@ const char* SigMap_Pb::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
           ptr -= 1;
           do {
             ptr += 1;
-            ptr = ctx->ParseMessage(&smap_, ptr);
+            ptr = ctx->ParseMessage(&_impl_.smap_, ptr);
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
           } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
@@ -153,42 +164,26 @@ uint8_t* SigMap_Pb::_InternalSerialize(
 
   // map<string, uint64> sMap = 1;
   if (!this->_internal_smap().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, uint64_t >::const_pointer
-        ConstPtr;
-    typedef ConstPtr SortItem;
-    typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
-    struct Utf8Check {
-      static void Check(ConstPtr p) {
-        (void)p;
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-          p->first.data(), static_cast<int>(p->first.length()),
-          ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-          "SigMap_Pb.SMapEntry.key");
-      }
+    using MapType = ::_pb::Map<std::string, uint64_t>;
+    using WireHelper = SigMap_Pb_SMapEntry_DoNotUse::Funcs;
+    const auto& map_field = this->_internal_smap();
+    auto check_utf8 = [](const MapType::value_type& entry) {
+      (void)entry;
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+        entry.first.data(), static_cast<int>(entry.first.length()),
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+        "SigMap_Pb.SMapEntry.key");
     };
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_smap().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_smap().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, uint64_t >::size_type size_type;
-      size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, uint64_t >::const_iterator
-          it = this->_internal_smap().begin();
-          it != this->_internal_smap().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
-        target = SigMap_Pb_SMapEntry_DoNotUse::Funcs::InternalSerialize(1, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
-        Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
+    if (stream->IsSerializationDeterministic() && map_field.size() > 1) {
+      for (const auto& entry : ::_pbi::MapSorterPtr<MapType>(map_field)) {
+        target = WireHelper::InternalSerialize(1, entry.first, entry.second, target, stream);
+        check_utf8(entry);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, uint64_t >::const_iterator
-          it = this->_internal_smap().begin();
-          it != this->_internal_smap().end(); ++it) {
-        target = SigMap_Pb_SMapEntry_DoNotUse::Funcs::InternalSerialize(1, it->first, it->second, target, stream);
-        Utf8Check::Check(&(*it));
+      for (const auto& entry : map_field) {
+        target = WireHelper::InternalSerialize(1, entry.first, entry.second, target, stream);
+        check_utf8(entry);
       }
     }
   }
@@ -221,25 +216,26 @@ size_t SigMap_Pb::ByteSizeLong() const {
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
   }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  int cached_size = ::_pbi::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
 void SigMap_Pb::CheckTypeAndMergeFrom(
     const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const SigMap_Pb*>(
+  MergeFrom(*::_pbi::DownCast<const SigMap_Pb*>(
       &from));
 }
 
 void SigMap_Pb::MergeFrom(const SigMap_Pb& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:SigMap_Pb)
-  GOOGLE_DCHECK_NE(&from, this);
+  SigMap_Pb* const _this = this;
+  // @@protoc_insertion_point(class_specific_merge_from_start:SigMap_Pb)
+  GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  smap_.MergeFrom(from.smap_);
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  _this->_impl_.smap_.MergeFrom(from._impl_.smap_);
+  _this->_internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
 }
 
 void SigMap_Pb::CopyFrom(const SigMap_Pb& from) {
@@ -256,7 +252,7 @@ bool SigMap_Pb::IsInitialized() const {
 void SigMap_Pb::InternalSwap(SigMap_Pb* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  smap_.InternalSwap(&other->smap_);
+  _impl_.smap_.InternalSwap(&other->_impl_.smap_);
 }
 
 std::string SigMap_Pb::GetTypeName() const {
@@ -266,10 +262,12 @@ std::string SigMap_Pb::GetTypeName() const {
 
 // @@protoc_insertion_point(namespace_scope)
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::SigMap_Pb_SMapEntry_DoNotUse* Arena::CreateMaybeMessage< ::SigMap_Pb_SMapEntry_DoNotUse >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::SigMap_Pb_SMapEntry_DoNotUse*
+Arena::CreateMaybeMessage< ::SigMap_Pb_SMapEntry_DoNotUse >(Arena* arena) {
   return Arena::CreateMessageInternal< ::SigMap_Pb_SMapEntry_DoNotUse >(arena);
 }
-template<> PROTOBUF_NOINLINE ::SigMap_Pb* Arena::CreateMaybeMessage< ::SigMap_Pb >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::SigMap_Pb*
+Arena::CreateMaybeMessage< ::SigMap_Pb >(Arena* arena) {
   return Arena::CreateMessageInternal< ::SigMap_Pb >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

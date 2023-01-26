@@ -40,21 +40,21 @@
 
 #include <thirdparty/protobuf/stubs/logging.h>
 #include <thirdparty/protobuf/stubs/common.h>
-#include <thirdparty/protobuf/stubs/stringprintf.h>
-#include <thirdparty/protobuf/descriptor.pb.h>
-#include <thirdparty/protobuf/parse_context.h>
 #include <thirdparty/protobuf/io/coded_stream.h>
 #include <thirdparty/protobuf/io/zero_copy_stream.h>
 #include <thirdparty/protobuf/io/zero_copy_stream_impl.h>
 #include <thirdparty/protobuf/descriptor.h>
+#include <thirdparty/protobuf/descriptor.pb.h>
 #include <thirdparty/protobuf/dynamic_message.h>
 #include <thirdparty/protobuf/map_field.h>
 #include <thirdparty/protobuf/map_field_inl.h>
 #include <thirdparty/protobuf/message.h>
 #include <thirdparty/protobuf/message_lite.h>
+#include <thirdparty/protobuf/parse_context.h>
 #include <thirdparty/protobuf/unknown_field_set.h>
 
 
+// Must be included last.
 #include <thirdparty/protobuf/port_def.inc>
 
 const size_t kMapEntryTagByteSize = 2;
@@ -657,9 +657,11 @@ struct WireFormat::MessageSetParser {
   const char* _InternalParse(const char* ptr, internal::ParseContext* ctx) {
     // Parse a MessageSetItem
     auto metadata = reflection->MutableInternalMetadata(msg);
+    enum class State { kNoTag, kHasType, kHasPayload, kDone };
+    State state = State::kNoTag;
+
     std::string payload;
     uint32_t type_id = 0;
-    bool payload_read = false;
     while (!ctx->Done(&ptr)) {
       // We use 64 bit tags in order to allow typeid's that span the whole
       // range of 32 bit numbers.
@@ -668,8 +670,11 @@ struct WireFormat::MessageSetParser {
         uint64_t tmp;
         ptr = ParseBigVarint(ptr, &tmp);
         GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
-        type_id = tmp;
-        if (payload_read) {
+        if (state == State::kNoTag) {
+          type_id = tmp;
+          state = State::kHasType;
+        } else if (state == State::kHasPayload) {
+          type_id = tmp;
           const FieldDescriptor* field;
           if (ctx->data().pool == nullptr) {
             field = reflection->FindKnownExtensionByNumber(type_id);
@@ -696,17 +701,17 @@ struct WireFormat::MessageSetParser {
             GOOGLE_PROTOBUF_PARSER_ASSERT(value->_InternalParse(p, &tmp_ctx) &&
                                            tmp_ctx.EndedAtLimit());
           }
-          type_id = 0;
+          state = State::kDone;
         }
         continue;
       } else if (tag == WireFormatLite::kMessageSetMessageTag) {
-        if (type_id == 0) {
+        if (state == State::kNoTag) {
           int32_t size = ReadSize(&ptr);
           GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
           ptr = ctx->ReadString(ptr, size, &payload);
           GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
-          payload_read = true;
-        } else {
+          state = State::kHasPayload;
+        } else if (state == State::kHasType) {
           // We're now parsing the payload
           const FieldDescriptor* field = nullptr;
           if (descriptor->IsExtensionNumber(type_id)) {
@@ -720,7 +725,12 @@ struct WireFormat::MessageSetParser {
           ptr = WireFormat::_InternalParseAndMergeField(
               msg, ptr, ctx, static_cast<uint64_t>(type_id) * 8 + 2, reflection,
               field);
-          type_id = 0;
+          state = State::kDone;
+        } else {
+          int32_t size = ReadSize(&ptr);
+          GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+          ptr = ctx->Skip(ptr, size);
+          GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
         }
       } else {
         // An unknown field in MessageSetItem.
@@ -1125,10 +1135,11 @@ static uint8_t* SerializeMapValueRefWithCachedSizes(
     case FieldDescriptor::TYPE_BYTES:
       target = stream->WriteString(2, value.GetStringValue(), target);
       break;
-    case FieldDescriptor::TYPE_MESSAGE:
-      target = WireFormatLite::InternalWriteMessage(2, value.GetMessageValue(),
+    case FieldDescriptor::TYPE_MESSAGE: {
+      auto& msg = value.GetMessageValue();
+      target = WireFormatLite::InternalWriteMessage(2, msg, msg.GetCachedSize(),
                                                     target, stream);
-      break;
+    } break;
     case FieldDescriptor::TYPE_GROUP:
       target = WireFormatLite::InternalWriteGroup(2, value.GetMessageValue(),
                                                   target, stream);
@@ -1320,6 +1331,16 @@ uint8_t* WireFormat::InternalSerializeField(const FieldDescriptor* field,
     return target;
   }
 
+  auto get_message_from_field = [&message, &map_entries, message_reflection](
+                                    const FieldDescriptor* field, int j) {
+    if (!field->is_repeated()) {
+      return &message_reflection->GetMessage(message, field);
+    }
+    if (!map_entries.empty()) {
+      return map_entries[j];
+    }
+    return &message_reflection->GetRepeatedMessage(message, field, j);
+  };
   for (int j = 0; j < count; j++) {
     target = stream->EnsureSpace(target);
     switch (field->type()) {
@@ -1353,22 +1374,17 @@ uint8_t* WireFormat::InternalSerializeField(const FieldDescriptor* field,
       HANDLE_PRIMITIVE_TYPE(BOOL, bool, Bool, Bool)
 #undef HANDLE_PRIMITIVE_TYPE
 
-#define HANDLE_TYPE(TYPE, TYPE_METHOD, CPPTYPE_METHOD)                         \
-  case FieldDescriptor::TYPE_##TYPE:                                           \
-    target = WireFormatLite::InternalWrite##TYPE_METHOD(                       \
-        field->number(),                                                       \
-        field->is_repeated()                                                   \
-            ? (map_entries.empty()                                             \
-                   ? message_reflection->GetRepeated##CPPTYPE_METHOD(message,  \
-                                                                     field, j) \
-                   : *map_entries[j])                                          \
-            : message_reflection->Get##CPPTYPE_METHOD(message, field),         \
-        target, stream);                                                       \
-    break;
+      case FieldDescriptor::TYPE_GROUP: {
+        auto* msg = get_message_from_field(field, j);
+        target = WireFormatLite::InternalWriteGroup(field->number(), *msg,
+                                                    target, stream);
+      } break;
 
-      HANDLE_TYPE(GROUP, Group, Message)
-      HANDLE_TYPE(MESSAGE, Message, Message)
-#undef HANDLE_TYPE
+      case FieldDescriptor::TYPE_MESSAGE: {
+        auto* msg = get_message_from_field(field, j);
+        target = WireFormatLite::InternalWriteMessage(
+            field->number(), *msg, msg->GetCachedSize(), target, stream);
+      } break;
 
       case FieldDescriptor::TYPE_ENUM: {
         const EnumValueDescriptor* value =
@@ -1432,9 +1448,10 @@ uint8_t* WireFormat::InternalSerializeMessageSetItem(
   target = WireFormatLite::WriteUInt32ToArray(
       WireFormatLite::kMessageSetTypeIdNumber, field->number(), target);
   // Write message.
+  auto& msg = message_reflection->GetMessage(message, field);
   target = WireFormatLite::InternalWriteMessage(
-      WireFormatLite::kMessageSetMessageNumber,
-      message_reflection->GetMessage(message, field), target, stream);
+      WireFormatLite::kMessageSetMessageNumber, msg, msg.GetCachedSize(),
+      target, stream);
   // End group.
   target = stream->EnsureSpace(target);
   target = io::CodedOutputStream::WriteTagToArray(

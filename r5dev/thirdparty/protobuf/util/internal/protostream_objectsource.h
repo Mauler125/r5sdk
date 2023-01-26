@@ -28,8 +28,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef GOOGLE_PROTOBUF_UTIL_CONVERTER_PROTOSTREAM_OBJECTSOURCE_H__
-#define GOOGLE_PROTOBUF_UTIL_CONVERTER_PROTOSTREAM_OBJECTSOURCE_H__
+#ifndef GOOGLE_PROTOBUF_UTIL_INTERNAL_PROTOSTREAM_OBJECTSOURCE_H__
+#define GOOGLE_PROTOBUF_UTIL_INTERNAL_PROTOSTREAM_OBJECTSOURCE_H__
 
 #include <cstdint>
 #include <functional>
@@ -40,16 +40,17 @@
 
 #include <thirdparty/protobuf/stubs/common.h>
 #include <thirdparty/protobuf/type.pb.h>
-#include <thirdparty/protobuf/util/internal/type_info.h>
-#include <thirdparty/protobuf/util/internal/object_source.h>
-#include <thirdparty/protobuf/util/internal/object_writer.h>
-#include <thirdparty/protobuf/util/type_resolver.h>
 #include <thirdparty/protobuf/stubs/statusor.h>
 #include <thirdparty/protobuf/stubs/strutil.h>
+#include <thirdparty/protobuf/util/internal/object_source.h>
+#include <thirdparty/protobuf/util/internal/object_writer.h>
+#include <thirdparty/protobuf/util/internal/type_info.h>
+#include <thirdparty/protobuf/util/type_resolver.h>
 #include <thirdparty/protobuf/stubs/hash.h>
 #include <thirdparty/protobuf/stubs/status.h>
 
 
+// Must be included last.
 #include <thirdparty/protobuf/port_def.inc>
 
 namespace google {
@@ -325,4 +326,4 @@ class PROTOBUF_EXPORT ProtoStreamObjectSource : public ObjectSource {
 
 #include <thirdparty/protobuf/port_undef.inc>
 
-#endif  // GOOGLE_PROTOBUF_UTIL_CONVERTER_PROTOSTREAM_OBJECTSOURCE_H__
+#endif  // GOOGLE_PROTOBUF_UTIL_INTERNAL_PROTOSTREAM_OBJECTSOURCE_H__

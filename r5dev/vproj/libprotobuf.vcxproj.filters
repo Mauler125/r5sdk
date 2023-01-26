@@ -60,9 +60,6 @@
     <ClCompile Include="..\thirdparty\protobuf\generated_enum_util.cc">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\thirdparty\protobuf\generated_message_table_driven_lite.cc">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="..\thirdparty\protobuf\generated_message_tctable_lite.cc">
       <Filter>source</Filter>
     </ClCompile>

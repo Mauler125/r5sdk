@@ -35,9 +35,9 @@
 #include <thirdparty/protobuf/stubs/logging.h>
 #include <thirdparty/protobuf/stubs/common.h>
 #include <thirdparty/protobuf/util/internal/expecting_objectwriter.h>
-#include <thirdparty/protobuf/util/internal/object_writer.h>
 #include <gtest/gtest.h>
 #include <thirdparty/protobuf/stubs/time.h>
+#include <thirdparty/protobuf/util/internal/object_writer.h>
 #include <thirdparty/protobuf/stubs/status.h>
 
 
@@ -85,7 +85,7 @@ using ParseErrorType =
 class JsonStreamParserTest : public ::testing::Test {
  protected:
   JsonStreamParserTest() : mock_(), ow_(&mock_) {}
-  virtual ~JsonStreamParserTest() {}
+  ~JsonStreamParserTest() override {}
 
   util::Status RunTest(StringPiece json, int split,
                        std::function<void(JsonStreamParser*)> setup) {

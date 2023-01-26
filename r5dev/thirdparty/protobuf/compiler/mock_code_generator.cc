@@ -47,13 +47,13 @@
 #include <thirdparty/protobuf/testing/file.h>
 #include <thirdparty/protobuf/testing/file.h>
 #include <thirdparty/protobuf/compiler/plugin.pb.h>
-#include <thirdparty/protobuf/io/printer.h>
-#include <thirdparty/protobuf/io/zero_copy_stream.h>
 #include <thirdparty/protobuf/descriptor.pb.h>
-#include <thirdparty/protobuf/descriptor.h>
-#include <thirdparty/protobuf/text_format.h>
 #include <gtest/gtest.h>
 #include <thirdparty/protobuf/stubs/substitute.h>
+#include <thirdparty/protobuf/descriptor.h>
+#include <thirdparty/protobuf/io/printer.h>
+#include <thirdparty/protobuf/io/zero_copy_stream.h>
+#include <thirdparty/protobuf/text_format.h>
 
 #ifdef major
 #undef major
@@ -315,7 +315,7 @@ bool MockCodeGenerator::Generate(const FileDescriptor* file,
     io::AnnotationProtoCollector<GeneratedCodeInfo> annotation_collector(
         &annotations);
     io::Printer printer(output.get(), '$',
-                        annotate ? &annotation_collector : NULL);
+                        annotate ? &annotation_collector : nullptr);
     printer.PrintRaw(GetOutputFileContent(name_, parameter, file, context));
     std::string annotate_suffix = "_annotation";
     if (annotate) {

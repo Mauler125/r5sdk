@@ -39,22 +39,22 @@
 #ifndef GOOGLE_PROTOBUF_WIRE_FORMAT_H__
 #define GOOGLE_PROTOBUF_WIRE_FORMAT_H__
 
-#include <string>
 
 #include <thirdparty/protobuf/stubs/common.h>
-#include <thirdparty/protobuf/parse_context.h>
 #include <thirdparty/protobuf/io/coded_stream.h>
+#include <thirdparty/protobuf/stubs/casts.h>
 #include <thirdparty/protobuf/descriptor.h>
 #include <thirdparty/protobuf/generated_message_util.h>
 #include <thirdparty/protobuf/message.h>
 #include <thirdparty/protobuf/metadata_lite.h>
+#include <thirdparty/protobuf/parse_context.h>
 #include <thirdparty/protobuf/wire_format_lite.h>
-#include <thirdparty/protobuf/stubs/casts.h>
 
 #ifdef SWIG
 #error "You cannot SWIG proto headers"
 #endif
 
+// Must be included last.
 #include <thirdparty/protobuf/port_def.inc>
 
 namespace google {

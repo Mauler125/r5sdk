@@ -13,23 +13,28 @@
 #include <thirdparty/protobuf/port_def.inc>
 
 PROTOBUF_PRAGMA_INIT_SEG
+
+namespace _pb = ::PROTOBUF_NAMESPACE_ID;
+namespace _pbi = _pb::internal;
+
 namespace cl_rcon {
-constexpr request::request(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : requestbuf_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , requestval_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , requestid_(0)
-  , requesttype_(0)
-{}
+PROTOBUF_CONSTEXPR request::request(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_._has_bits_)*/{}
+  , /*decltype(_impl_._cached_size_)*/{}
+  , /*decltype(_impl_.requestbuf_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.requestval_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.requestid_)*/0
+  , /*decltype(_impl_.requesttype_)*/0} {}
 struct requestDefaultTypeInternal {
-  constexpr requestDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  PROTOBUF_CONSTEXPR requestDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
   ~requestDefaultTypeInternal() {}
   union {
     request _instance;
   };
 };
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT requestDefaultTypeInternal _request_default_instance_;
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 requestDefaultTypeInternal _request_default_instance_;
 }  // namespace cl_rcon
 namespace cl_rcon {
 bool request_t_IsValid(int value) {
@@ -104,7 +109,7 @@ bool request_t_Parse(
 
 class request::_Internal {
  public:
-  using HasBits = decltype(std::declval<request>()._has_bits_);
+  using HasBits = decltype(std::declval<request>()._impl_._has_bits_);
   static void set_has_requestid(HasBits* has_bits) {
     (*has_bits)[0] |= 4u;
   }
@@ -122,74 +127,82 @@ class request::_Internal {
 request::request(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
-  SharedCtor();
-  if (!is_message_owned) {
-    RegisterArenaDtor(arena);
-  }
+  SharedCtor(arena, is_message_owned);
   // @@protoc_insertion_point(arena_constructor:cl_rcon.request)
 }
 request::request(const request& from)
-  : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
-      _has_bits_(from._has_bits_) {
+  : ::PROTOBUF_NAMESPACE_ID::MessageLite() {
+  request* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_._has_bits_){from._impl_._has_bits_}
+    , /*decltype(_impl_._cached_size_)*/{}
+    , decltype(_impl_.requestbuf_){}
+    , decltype(_impl_.requestval_){}
+    , decltype(_impl_.requestid_){}
+    , decltype(_impl_.requesttype_){}};
+
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
-  requestbuf_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  _impl_.requestbuf_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-    requestbuf_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
+    _impl_.requestbuf_.Set("", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if (from._internal_has_requestbuf()) {
-    requestbuf_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_requestbuf(), 
-      GetArenaForAllocation());
+    _this->_impl_.requestbuf_.Set(from._internal_requestbuf(), 
+      _this->GetArenaForAllocation());
   }
-  requestval_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  _impl_.requestval_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-    requestval_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
+    _impl_.requestval_.Set("", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if (from._internal_has_requestval()) {
-    requestval_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_requestval(), 
-      GetArenaForAllocation());
+    _this->_impl_.requestval_.Set(from._internal_requestval(), 
+      _this->GetArenaForAllocation());
   }
-  ::memcpy(&requestid_, &from.requestid_,
-    static_cast<size_t>(reinterpret_cast<char*>(&requesttype_) -
-    reinterpret_cast<char*>(&requestid_)) + sizeof(requesttype_));
+  ::memcpy(&_impl_.requestid_, &from._impl_.requestid_,
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.requesttype_) -
+    reinterpret_cast<char*>(&_impl_.requestid_)) + sizeof(_impl_.requesttype_));
   // @@protoc_insertion_point(copy_constructor:cl_rcon.request)
 }
 
-inline void request::SharedCtor() {
-requestbuf_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  requestbuf_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
-#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-requestval_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  requestval_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
-#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&requestid_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&requesttype_) -
-    reinterpret_cast<char*>(&requestid_)) + sizeof(requesttype_));
+inline void request::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_._has_bits_){}
+    , /*decltype(_impl_._cached_size_)*/{}
+    , decltype(_impl_.requestbuf_){}
+    , decltype(_impl_.requestval_){}
+    , decltype(_impl_.requestid_){0}
+    , decltype(_impl_.requesttype_){0}
+  };
+  _impl_.requestbuf_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.requestbuf_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  _impl_.requestval_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.requestval_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
 }
 
 request::~request() {
   // @@protoc_insertion_point(destructor:cl_rcon.request)
-  if (GetArenaForAllocation() != nullptr) return;
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<std::string>()) {
+  (void)arena;
+    return;
+  }
   SharedDtor();
-  _internal_metadata_.Delete<std::string>();
 }
 
 inline void request::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  requestbuf_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  requestval_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  _impl_.requestbuf_.Destroy();
+  _impl_.requestval_.Destroy();
 }
 
-void request::ArenaDtor(void* object) {
-  request* _this = reinterpret_cast< request* >(object);
-  (void)_this;
-}
-void request::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
 void request::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
+  _impl_._cached_size_.Set(size);
 }
 
 void request::Clear() {
@@ -198,36 +211,36 @@ void request::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  cached_has_bits = _has_bits_[0];
+  cached_has_bits = _impl_._has_bits_[0];
   if (cached_has_bits & 0x00000003u) {
     if (cached_has_bits & 0x00000001u) {
-      requestbuf_.ClearNonDefaultToEmpty();
+      _impl_.requestbuf_.ClearNonDefaultToEmpty();
     }
     if (cached_has_bits & 0x00000002u) {
-      requestval_.ClearNonDefaultToEmpty();
+      _impl_.requestval_.ClearNonDefaultToEmpty();
     }
   }
   if (cached_has_bits & 0x0000000cu) {
-    ::memset(&requestid_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&requesttype_) -
-        reinterpret_cast<char*>(&requestid_)) + sizeof(requesttype_));
+    ::memset(&_impl_.requestid_, 0, static_cast<size_t>(
+        reinterpret_cast<char*>(&_impl_.requesttype_) -
+        reinterpret_cast<char*>(&_impl_.requestid_)) + sizeof(_impl_.requesttype_));
   }
-  _has_bits_.Clear();
+  _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<std::string>();
 }
 
-const char* request::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* request::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
       // optional int32 requestID = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
           _Internal::set_has_requestid(&has_bits);
-          requestid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          _impl_.requestid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -245,9 +258,9 @@ const char* request::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           auto str = _internal_mutable_requestbuf();
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, nullptr));
         } else
           goto handle_unusual;
         continue;
@@ -255,9 +268,9 @@ const char* request::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           auto str = _internal_mutable_requestval();
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, nullptr));
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, nullptr));
         } else
           goto handle_unusual;
         continue;
@@ -277,7 +290,7 @@ const char* request::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
     CHK_(ptr != nullptr);
   }  // while
 message_done:
-  _has_bits_.Or(has_bits);
+  _impl_._has_bits_.Or(has_bits);
   return ptr;
 failure:
   ptr = nullptr;
@@ -294,13 +307,13 @@ uint8_t* request::_InternalSerialize(
   // optional int32 requestID = 1;
   if (_internal_has_requestid()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_requestid(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(1, this->_internal_requestid(), target);
   }
 
   // optional .cl_rcon.request_t requestType = 2;
   if (_internal_has_requesttype()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
+    target = ::_pbi::WireFormatLite::WriteEnumToArray(
       2, this->_internal_requesttype(), target);
   }
 
@@ -340,7 +353,7 @@ size_t request::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  cached_has_bits = _has_bits_[0];
+  cached_has_bits = _impl_._has_bits_[0];
   if (cached_has_bits & 0x0000000fu) {
     // optional string requestBuf = 3;
     if (cached_has_bits & 0x00000001u) {
@@ -358,53 +371,54 @@ size_t request::ByteSizeLong() const {
 
     // optional int32 requestID = 1;
     if (cached_has_bits & 0x00000004u) {
-      total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_requestid());
+      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_requestid());
     }
 
     // optional .cl_rcon.request_t requestType = 2;
     if (cached_has_bits & 0x00000008u) {
       total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_requesttype());
+        ::_pbi::WireFormatLite::EnumSize(this->_internal_requesttype());
     }
 
   }
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     total_size += _internal_metadata_.unknown_fields<std::string>(::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString).size();
   }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  int cached_size = ::_pbi::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
 }
 
 void request::CheckTypeAndMergeFrom(
     const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const request*>(
+  MergeFrom(*::_pbi::DownCast<const request*>(
       &from));
 }
 
 void request::MergeFrom(const request& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:cl_rcon.request)
-  GOOGLE_DCHECK_NE(&from, this);
+  request* const _this = this;
+  // @@protoc_insertion_point(class_specific_merge_from_start:cl_rcon.request)
+  GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  cached_has_bits = from._has_bits_[0];
+  cached_has_bits = from._impl_._has_bits_[0];
   if (cached_has_bits & 0x0000000fu) {
     if (cached_has_bits & 0x00000001u) {
-      _internal_set_requestbuf(from._internal_requestbuf());
+      _this->_internal_set_requestbuf(from._internal_requestbuf());
     }
     if (cached_has_bits & 0x00000002u) {
-      _internal_set_requestval(from._internal_requestval());
+      _this->_internal_set_requestval(from._internal_requestval());
     }
     if (cached_has_bits & 0x00000004u) {
-      requestid_ = from.requestid_;
+      _this->_impl_.requestid_ = from._impl_.requestid_;
     }
     if (cached_has_bits & 0x00000008u) {
-      requesttype_ = from.requesttype_;
+      _this->_impl_.requesttype_ = from._impl_.requesttype_;
     }
-    _has_bits_[0] |= cached_has_bits;
+    _this->_impl_._has_bits_[0] |= cached_has_bits;
   }
-  _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
+  _this->_internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
 }
 
 void request::CopyFrom(const request& from) {
@@ -423,23 +437,21 @@ void request::InternalSwap(request* other) {
   auto* lhs_arena = GetArenaForAllocation();
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  swap(_has_bits_[0], other->_has_bits_[0]);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &requestbuf_, lhs_arena,
-      &other->requestbuf_, rhs_arena
+      &_impl_.requestbuf_, lhs_arena,
+      &other->_impl_.requestbuf_, rhs_arena
   );
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &requestval_, lhs_arena,
-      &other->requestval_, rhs_arena
+      &_impl_.requestval_, lhs_arena,
+      &other->_impl_.requestval_, rhs_arena
   );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(request, requesttype_)
-      + sizeof(request::requesttype_)
-      - PROTOBUF_FIELD_OFFSET(request, requestid_)>(
-          reinterpret_cast<char*>(&requestid_),
-          reinterpret_cast<char*>(&other->requestid_));
+      PROTOBUF_FIELD_OFFSET(request, _impl_.requesttype_)
+      + sizeof(request::_impl_.requesttype_)
+      - PROTOBUF_FIELD_OFFSET(request, _impl_.requestid_)>(
+          reinterpret_cast<char*>(&_impl_.requestid_),
+          reinterpret_cast<char*>(&other->_impl_.requestid_));
 }
 
 std::string request::GetTypeName() const {
@@ -450,7 +462,8 @@ std::string request::GetTypeName() const {
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace cl_rcon
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::cl_rcon::request* Arena::CreateMaybeMessage< ::cl_rcon::request >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::cl_rcon::request*
+Arena::CreateMaybeMessage< ::cl_rcon::request >(Arena* arena) {
   return Arena::CreateMessageInternal< ::cl_rcon::request >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

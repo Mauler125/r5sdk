@@ -53,6 +53,8 @@
 #include <string>
 
 #include <thirdparty/protobuf/port.h>
+
+// Must be included last.
 #include <thirdparty/protobuf/port_def.inc>
 
 // Compilers on Windows other than MSVC (e.g. Cygwin, MinGW32) define the

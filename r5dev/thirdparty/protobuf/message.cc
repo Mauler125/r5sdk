@@ -41,25 +41,26 @@
 #include <thirdparty/protobuf/stubs/casts.h>
 #include <thirdparty/protobuf/stubs/logging.h>
 #include <thirdparty/protobuf/stubs/common.h>
-#include <thirdparty/protobuf/descriptor.pb.h>
-#include <thirdparty/protobuf/parse_context.h>
-#include <thirdparty/protobuf/reflection_internal.h>
 #include <thirdparty/protobuf/io/coded_stream.h>
 #include <thirdparty/protobuf/io/zero_copy_stream_impl.h>
+#include <thirdparty/protobuf/stubs/strutil.h>
 #include <thirdparty/protobuf/descriptor.h>
+#include <thirdparty/protobuf/descriptor.pb.h>
 #include <thirdparty/protobuf/generated_message_reflection.h>
 #include <thirdparty/protobuf/generated_message_util.h>
 #include <thirdparty/protobuf/map_field.h>
 #include <thirdparty/protobuf/map_field_inl.h>
+#include <thirdparty/protobuf/parse_context.h>
+#include <thirdparty/protobuf/reflection_internal.h>
 #include <thirdparty/protobuf/reflection_ops.h>
 #include <thirdparty/protobuf/unknown_field_set.h>
 #include <thirdparty/protobuf/wire_format.h>
 #include <thirdparty/protobuf/wire_format_lite.h>
-#include <thirdparty/protobuf/stubs/strutil.h>
 #include <thirdparty/protobuf/stubs/map_util.h>
 #include <thirdparty/protobuf/stubs/stl_util.h>
 #include <thirdparty/protobuf/stubs/hash.h>
 
+// Must be included last.
 #include <thirdparty/protobuf/port_def.inc>
 
 namespace google {
@@ -83,11 +84,11 @@ void Message::MergeFrom(const Message& from) {
   auto* class_from = from.GetClassData();
   auto* merge_to_from = class_to ? class_to->merge_to_from : nullptr;
   if (class_to == nullptr || class_to != class_from) {
-    merge_to_from = [](Message* to, const Message& from) {
-      ReflectionOps::Merge(from, to);
+    merge_to_from = [](Message& to, const Message& from) {
+      ReflectionOps::Merge(from, &to);
     };
   }
-  merge_to_from(this, from);
+  merge_to_from(*this, from);
 }
 
 void Message::CheckTypeAndMergeFrom(const MessageLite& other) {
@@ -110,25 +111,28 @@ void Message::CopyFrom(const Message& from) {
         << ", "
            "from: "
         << from.GetDescriptor()->full_name();
-    copy_to_from = [](Message* to, const Message& from) {
-      ReflectionOps::Copy(from, to);
+    copy_to_from = [](Message& to, const Message& from) {
+      ReflectionOps::Copy(from, &to);
     };
   }
-  copy_to_from(this, from);
+  copy_to_from(*this, from);
 }
 
-void Message::CopyWithSizeCheck(Message* to, const Message& from) {
+void Message::CopyWithSourceCheck(Message& to, const Message& from) {
 #ifndef NDEBUG
-  size_t from_size = from.ByteSizeLong();
+  FailIfCopyFromDescendant(to, from);
 #endif
-  to->Clear();
-#ifndef NDEBUG
-  GOOGLE_CHECK_EQ(from_size, from.ByteSizeLong())
-      << "Source of CopyFrom changed when clearing target.  Either "
-         "source is a nested message in target (not allowed), or "
-         "another thread is modifying the source.";
-#endif
-  to->GetClassData()->merge_to_from(to, from);
+  to.Clear();
+  to.GetClassData()->merge_to_from(to, from);
+}
+
+void Message::FailIfCopyFromDescendant(Message& to, const Message& from) {
+  auto* arena = to.GetArenaForAllocation();
+  bool same_message_owned_arena = to.GetOwningArena() == nullptr &&
+                                  arena != nullptr &&
+                                  arena == from.GetOwningArena();
+  GOOGLE_CHECK(!same_message_owned_arena && !internal::IsDescendant(to, from))
+      << "Source of CopyFrom cannot be a descendant of the target.";
 }
 
 std::string Message::GetTypeName() const {

@@ -38,8 +38,6 @@
 #include <thirdparty/protobuf/wrappers.pb.h>
 #include <thirdparty/protobuf/io/zero_copy_stream_impl_lite.h>
 #include <thirdparty/protobuf/descriptor.pb.h>
-#include <thirdparty/protobuf/descriptor.h>
-#include <thirdparty/protobuf/dynamic_message.h>
 #include <thirdparty/protobuf/message.h>
 #include <thirdparty/protobuf/util/internal/mock_error_listener.h>
 #include <thirdparty/protobuf/util/internal/testdata/anys.pb.h>
@@ -51,13 +49,15 @@
 #include <thirdparty/protobuf/util/internal/testdata/struct.pb.h>
 #include <thirdparty/protobuf/util/internal/testdata/timestamp_duration.pb.h>
 #include <thirdparty/protobuf/util/internal/testdata/wrappers.pb.h>
-#include <thirdparty/protobuf/util/internal/type_info_test_helper.h>
-#include <thirdparty/protobuf/util/internal/constants.h>
-#include <thirdparty/protobuf/util/message_differencer.h>
-#include <thirdparty/protobuf/util/type_resolver_util.h>
 #include <thirdparty/protobuf/stubs/bytestream.h>
 #include <thirdparty/protobuf/stubs/strutil.h>
 #include <gtest/gtest.h>
+#include <thirdparty/protobuf/descriptor.h>
+#include <thirdparty/protobuf/dynamic_message.h>
+#include <thirdparty/protobuf/util/internal/constants.h>
+#include <thirdparty/protobuf/util/internal/type_info_test_helper.h>
+#include <thirdparty/protobuf/util/message_differencer.h>
+#include <thirdparty/protobuf/util/type_resolver_util.h>
 
 
 namespace google {
@@ -134,7 +134,7 @@ class BaseProtoStreamObjectWriterTest
     ResetTypeInfo(descriptors);
   }
 
-  virtual ~BaseProtoStreamObjectWriterTest() {}
+  ~BaseProtoStreamObjectWriterTest() override {}
 
   void CheckOutput(const Message& expected, int expected_length) {
     size_t nbytes;
@@ -178,7 +178,7 @@ class ProtoStreamObjectWriterTest : public BaseProtoStreamObjectWriterTest {
 
   void ResetProtoWriter() { ResetTypeInfo(Book::descriptor()); }
 
-  virtual ~ProtoStreamObjectWriterTest() {}
+  ~ProtoStreamObjectWriterTest() override {}
 };
 
 INSTANTIATE_TEST_SUITE_P(DifferentTypeInfoSourceTest,

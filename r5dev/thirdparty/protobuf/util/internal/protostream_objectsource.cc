@@ -36,7 +36,6 @@
 
 #include <thirdparty/protobuf/stubs/logging.h>
 #include <thirdparty/protobuf/stubs/common.h>
-#include <thirdparty/protobuf/stubs/stringprintf.h>
 #include <thirdparty/protobuf/io/coded_stream.h>
 #include <thirdparty/protobuf/io/zero_copy_stream_impl.h>
 #include <thirdparty/protobuf/descriptor.h>
@@ -44,18 +43,21 @@
 #include <thirdparty/protobuf/unknown_field_set.h>
 #include <thirdparty/protobuf/wire_format.h>
 #include <thirdparty/protobuf/wire_format_lite.h>
-#include <thirdparty/protobuf/util/internal/field_mask_utility.h>
-#include <thirdparty/protobuf/util/internal/constants.h>
-#include <thirdparty/protobuf/util/internal/utility.h>
 #include <thirdparty/protobuf/stubs/strutil.h>
 #include <thirdparty/protobuf/stubs/casts.h>
 #include <thirdparty/protobuf/stubs/status.h>
+#include <thirdparty/protobuf/stubs/stringprintf.h>
 #include <thirdparty/protobuf/stubs/time.h>
+#include <thirdparty/protobuf/util/internal/constants.h>
+#include <thirdparty/protobuf/util/internal/field_mask_utility.h>
+#include <thirdparty/protobuf/util/internal/utility.h>
 #include <thirdparty/protobuf/stubs/map_util.h>
 #include <thirdparty/protobuf/stubs/status_macros.h>
 
 
+// Must be included last.
 #include <thirdparty/protobuf/port_def.inc>
+
 
 namespace google {
 namespace protobuf {
@@ -782,7 +784,7 @@ util::Status ProtoStreamObjectSource::RenderNonMessageField(
     }
     case google::protobuf::Field::TYPE_INT64: {
       stream_->ReadVarint64(&buffer64);
-      ow->RenderInt64(field_name, bit_cast<int64>(buffer64));
+      ow->RenderInt64(field_name, bit_cast<int64_t>(buffer64));
       break;
     }
     case google::protobuf::Field::TYPE_UINT32: {
@@ -792,7 +794,7 @@ util::Status ProtoStreamObjectSource::RenderNonMessageField(
     }
     case google::protobuf::Field::TYPE_UINT64: {
       stream_->ReadVarint64(&buffer64);
-      ow->RenderUint64(field_name, bit_cast<uint64>(buffer64));
+      ow->RenderUint64(field_name, bit_cast<uint64_t>(buffer64));
       break;
     }
     case google::protobuf::Field::TYPE_SINT32: {
@@ -812,7 +814,7 @@ util::Status ProtoStreamObjectSource::RenderNonMessageField(
     }
     case google::protobuf::Field::TYPE_SFIXED64: {
       stream_->ReadLittleEndian64(&buffer64);
-      ow->RenderInt64(field_name, bit_cast<int64>(buffer64));
+      ow->RenderInt64(field_name, bit_cast<int64_t>(buffer64));
       break;
     }
     case google::protobuf::Field::TYPE_FIXED32: {
@@ -822,7 +824,7 @@ util::Status ProtoStreamObjectSource::RenderNonMessageField(
     }
     case google::protobuf::Field::TYPE_FIXED64: {
       stream_->ReadLittleEndian64(&buffer64);
-      ow->RenderUint64(field_name, bit_cast<uint64>(buffer64));
+      ow->RenderUint64(field_name, bit_cast<uint64_t>(buffer64));
       break;
     }
     case google::protobuf::Field::TYPE_FLOAT: {
@@ -1096,11 +1098,11 @@ const std::string FormatNanos(uint32_t nanos, bool with_trailing_zeros) {
     return with_trailing_zeros ? ".000" : "";
   }
 
-  const char* format = (nanos % 1000 != 0)      ? "%.9f"
-                       : (nanos % 1000000 != 0) ? "%.6f"
-                                                : "%.3f";
-  std::string formatted =
-      StringPrintf(format, static_cast<double>(nanos) / kNanosPerSecond);
+  const int precision = (nanos % 1000 != 0)      ? 9
+                        : (nanos % 1000000 != 0) ? 6
+                                                 : 3;
+  std::string formatted = StringPrintf(
+      "%.*f", precision, static_cast<double>(nanos) / kNanosPerSecond);
   // remove the leading 0 before decimal.
   return formatted.substr(1);
 }

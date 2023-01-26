@@ -31,8 +31,6 @@
 #ifndef GOOGLE_PROTOBUF_COMPILER_CSHARP_ENUM_FIELD_H__
 #define GOOGLE_PROTOBUF_COMPILER_CSHARP_ENUM_FIELD_H__
 
-#include <string>
-
 #include <thirdparty/protobuf/compiler/code_generator.h>
 #include <thirdparty/protobuf/compiler/csharp/csharp_primitive_field.h>
 

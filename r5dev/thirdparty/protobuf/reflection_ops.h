@@ -45,6 +45,7 @@
 #error "You cannot SWIG proto headers"
 #endif
 
+// Must be included last.
 #include <thirdparty/protobuf/port_def.inc>
 
 namespace google {

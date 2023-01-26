@@ -30,14 +30,14 @@
 
 #include <memory>
 
+#include <thirdparty/protobuf/any.pb.h>
 #include <thirdparty/protobuf/compiler/command_line_interface.h>
 #include <thirdparty/protobuf/compiler/csharp/csharp_helpers.h>
+#include <thirdparty/protobuf/descriptor.pb.h>
 #include <thirdparty/protobuf/io/zero_copy_stream.h>
 #include <thirdparty/protobuf/io/printer.h>
 
-#include <thirdparty/protobuf/testing/googletest.h>
 #include <gtest/gtest.h>
-#include <thirdparty/protobuf/testing/file.h>
 
 namespace google {
 namespace protobuf {
@@ -61,6 +61,17 @@ TEST(CSharpEnumValue, PascalCasedPrefixStripping) {
   // Identifiers can't start with digits
   EXPECT_EQ("_2Bar", GetEnumValueName("Foo", "FOO_2_BAR"));
   EXPECT_EQ("_2", GetEnumValueName("Foo", "FOO___2"));
+}
+
+TEST(DescriptorProtoHelpers, IsDescriptorProto) {
+  EXPECT_TRUE(IsDescriptorProto(DescriptorProto::descriptor()->file()));
+  EXPECT_FALSE(IsDescriptorProto(google::protobuf::Any::descriptor()->file()));
+}
+
+TEST(DescriptorProtoHelpers, IsDescriptorOptionMessage) {
+  EXPECT_TRUE(IsDescriptorOptionMessage(FileOptions::descriptor()));
+  EXPECT_FALSE(IsDescriptorOptionMessage(google::protobuf::Any::descriptor()));
+  EXPECT_FALSE(IsDescriptorOptionMessage(DescriptorProto::descriptor()));
 }
 
 }  // namespace

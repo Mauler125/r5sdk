@@ -46,17 +46,18 @@
 #include <vector>
 
 #include <thirdparty/protobuf/stubs/common.h>
+#include <thirdparty/protobuf/stubs/once.h>  // Add direct dep on port for pb.cc
+#include <thirdparty/protobuf/port.h>
+#include <thirdparty/protobuf/stubs/strutil.h>
 #include <thirdparty/protobuf/any.h>
 #include <thirdparty/protobuf/has_bits.h>
 #include <thirdparty/protobuf/implicit_weak_message.h>
 #include <thirdparty/protobuf/message_lite.h>
-#include <thirdparty/protobuf/stubs/once.h>  // Add direct dep on port for pb.cc
-#include <thirdparty/protobuf/port.h>
 #include <thirdparty/protobuf/repeated_field.h>
 #include <thirdparty/protobuf/wire_format_lite.h>
-#include <thirdparty/protobuf/stubs/strutil.h>
 #include <thirdparty/protobuf/stubs/casts.h>
 
+// Must be included last.
 #include <thirdparty/protobuf/port_def.inc>
 
 #ifdef SWIG

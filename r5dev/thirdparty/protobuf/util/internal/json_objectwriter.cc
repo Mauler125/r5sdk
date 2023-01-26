@@ -38,8 +38,8 @@
 #include <thirdparty/protobuf/stubs/logging.h>
 #include <thirdparty/protobuf/stubs/common.h>
 #include <thirdparty/protobuf/util/internal/utility.h>
-#include <thirdparty/protobuf/util/internal/json_escaping.h>
 #include <thirdparty/protobuf/stubs/strutil.h>
+#include <thirdparty/protobuf/util/internal/json_escaping.h>
 
 namespace google {
 namespace protobuf {

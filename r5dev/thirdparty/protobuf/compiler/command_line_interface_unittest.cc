@@ -50,23 +50,26 @@
 #include <thirdparty/protobuf/testing/file.h>
 #include <thirdparty/protobuf/testing/file.h>
 #include <thirdparty/protobuf/any.pb.h>
-#include <thirdparty/protobuf/compiler/mock_code_generator.h>
-#include <thirdparty/protobuf/compiler/subprocess.h>
-#include <thirdparty/protobuf/compiler/code_generator.h>
-#include <thirdparty/protobuf/compiler/command_line_interface.h>
 #include <thirdparty/protobuf/test_util2.h>
 #include <thirdparty/protobuf/unittest.pb.h>
 #include <thirdparty/protobuf/unittest_custom_options.pb.h>
-#include <thirdparty/protobuf/io/printer.h>
-#include <thirdparty/protobuf/io/zero_copy_stream.h>
 #include <thirdparty/protobuf/descriptor.pb.h>
-#include <thirdparty/protobuf/descriptor.h>
 #include <thirdparty/protobuf/testing/googletest.h>
 #include <gtest/gtest.h>
 #include <thirdparty/protobuf/stubs/strutil.h>
 #include <thirdparty/protobuf/stubs/substitute.h>
+#include <thirdparty/protobuf/compiler/code_generator.h>
+#include <thirdparty/protobuf/compiler/command_line_interface.h>
+#include <thirdparty/protobuf/compiler/mock_code_generator.h>
+#include <thirdparty/protobuf/compiler/subprocess.h>
+#include <thirdparty/protobuf/descriptor.h>
 #include <thirdparty/protobuf/io/io_win32.h>
+#include <thirdparty/protobuf/io/printer.h>
+#include <thirdparty/protobuf/io/zero_copy_stream.h>
 
+
+// Must be included last.
+#include <thirdparty/protobuf/port_def.inc>
 
 namespace google {
 namespace protobuf {
@@ -96,8 +99,8 @@ bool FileExists(const std::string& path) {
 
 class CommandLineInterfaceTest : public testing::Test {
  protected:
-  virtual void SetUp();
-  virtual void TearDown();
+  void SetUp() override;
+  void TearDown() override;
 
   // Runs the CommandLineInterface with the given command line.  The
   // command is automatically split on spaces, and the string "$tmpdir"
@@ -256,14 +259,14 @@ class CommandLineInterfaceTest : public testing::Test {
 class CommandLineInterfaceTest::NullCodeGenerator : public CodeGenerator {
  public:
   NullCodeGenerator() : called_(false) {}
-  ~NullCodeGenerator() {}
+  ~NullCodeGenerator() override {}
 
   mutable bool called_;
   mutable std::string parameter_;
 
   // implements CodeGenerator ----------------------------------------
   bool Generate(const FileDescriptor* file, const std::string& parameter,
-                GeneratorContext* context, std::string* error) const {
+                GeneratorContext* context, std::string* error) const override {
     called_ = true;
     parameter_ = parameter;
     return true;
@@ -1714,7 +1717,7 @@ TEST_F(CommandLineInterfaceTest, WriteDependencyManifestFile) {
                  "  optional Foo foo = 1;\n"
                  "}\n");
 
-  std::string current_working_directory = getcwd(NULL, 0);
+  std::string current_working_directory = getcwd(nullptr, 0);
   SwitchToTempDirectory();
 
   Run("protocol_compiler --dependency_out=manifest --test_out=. "
@@ -1751,6 +1754,28 @@ TEST_F(CommandLineInterfaceTest, WriteDependencyManifestFileForAbsolutePath) {
 
   ExpectFileContent("manifest",
                     "$tmpdir/bar.proto.MockCodeGenerator.test_generator: "
+                    "$tmpdir/foo.proto\\\n $tmpdir/bar.proto");
+}
+
+TEST_F(CommandLineInterfaceTest,
+       WriteDependencyManifestFileWithDescriptorSetOut) {
+  CreateTempFile("foo.proto",
+                 "syntax = \"proto2\";\n"
+                 "message Foo {}\n");
+  CreateTempFile("bar.proto",
+                 "syntax = \"proto2\";\n"
+                 "import \"foo.proto\";\n"
+                 "message Bar {\n"
+                 "  optional Foo foo = 1;\n"
+                 "}\n");
+
+  Run("protocol_compiler --dependency_out=$tmpdir/manifest "
+      "--descriptor_set_out=$tmpdir/bar.pb --proto_path=$tmpdir bar.proto");
+
+  ExpectNoErrors();
+
+  ExpectFileContent("manifest",
+                    "$tmpdir/bar.pb: "
                     "$tmpdir/foo.proto\\\n $tmpdir/bar.proto");
 }
 #endif  // !_WIN32
@@ -2518,12 +2543,12 @@ enum EncodeDecodeTestMode { PROTO_PATH, DESCRIPTOR_SET_IN };
 
 class EncodeDecodeTest : public testing::TestWithParam<EncodeDecodeTestMode> {
  protected:
-  virtual void SetUp() {
+  void SetUp() override {
     WriteUnittestProtoDescriptorSet();
     duped_stdin_ = dup(STDIN_FILENO);
   }
 
-  virtual void TearDown() {
+  void TearDown() override {
     dup2(duped_stdin_, STDIN_FILENO);
     close(duped_stdin_);
   }
@@ -2754,6 +2779,8 @@ INSTANTIATE_TEST_SUITE_P(FileDescriptorSetSource, EncodeDecodeTest,
 }  // anonymous namespace
 
 #endif  // !GOOGLE_PROTOBUF_HEAP_CHECK_DRACONIAN
+
+#include <thirdparty/protobuf/port_undef.inc>
 
 }  // namespace compiler
 }  // namespace protobuf

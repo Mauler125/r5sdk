@@ -41,8 +41,8 @@
 #include <thirdparty/protobuf/wrappers.pb.h>
 #include <thirdparty/protobuf/descriptor.pb.h>
 #include <thirdparty/protobuf/descriptor.h>
-#include <thirdparty/protobuf/util/internal/constants.h>
 #include <thirdparty/protobuf/stubs/strutil.h>
+#include <thirdparty/protobuf/util/internal/constants.h>
 #include <thirdparty/protobuf/stubs/map_util.h>
 
 // clang-format off

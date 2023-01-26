@@ -33,9 +33,9 @@
 
 #include <thirdparty/protobuf/stubs/logging.h>
 #include <thirdparty/protobuf/stubs/common.h>
+#include <thirdparty/protobuf/arena.h>
 #include <thirdparty/protobuf/io/coded_stream.h>
 #include <thirdparty/protobuf/io/zero_copy_stream_impl_lite.h>
-#include <thirdparty/protobuf/arena.h>
 
 namespace google {
 namespace protobuf {
@@ -75,6 +75,12 @@ void TestParseCorruptedString(const T& message) {
 }
 
 namespace internal {
+
+struct ArenaTestPeer {
+  static void ReturnArrayMemory(Arena* arena, void* p, size_t size) {
+    arena->ReturnArrayMemory(p, size);
+  }
+};
 
 class NoHeapChecker {
  public:
