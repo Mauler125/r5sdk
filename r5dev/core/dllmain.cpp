@@ -23,6 +23,8 @@ void SDK_Init()
     MathLib_Init(); // Initialize Mathlib.
     WinSock_Init(); // Initialize Winsock.
 
+    curl_global_init(CURL_GLOBAL_ALL);
+
     if (strstr(GetCommandLineA(), "-launcher"))
     {
         g_svCmdLine = GetCommandLineA();
@@ -71,6 +73,8 @@ void SDK_Shutdown()
     }
     bShutDown = true;
     spdlog::info("Shutdown GameSDK\n");
+
+    curl_global_cleanup();
 
     WinSock_Shutdown();
     Systems_Shutdown();
