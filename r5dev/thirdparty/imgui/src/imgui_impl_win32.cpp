@@ -25,11 +25,9 @@
 // Includes of the game have to be here since this header is precompiled.
 #include "string"
 #include "d3d11.h"
-#include "public/utility/httplib.h"
 
 // Game ImGui headers are here for mouse tracking.
-#include "gameui/IBrowser.h"
-#include "gameui/IConsole.h"
+#include "windows/id3dx.h"
 
 // Configuration flags to add in your imconfig.h file:
 //#define IMGUI_IMPL_WIN32_DISABLE_GAMEPAD              // Disable gamepad support. This was meaningful before <1.81 but we now load XInput dynamically so the option is now less relevant.
@@ -186,7 +184,7 @@ void    ImGui_ImplWin32_Shutdown()
 static bool ImGui_ImplWin32_UpdateMouseCursor()
 {
     // These have to be here to prevent the mouse in-game from flickering when '::SetCursor(...)' is called.
-    if (g_pBrowser->m_bActivate || g_pConsole->m_bActivate)
+    if (PanelsVisible())
     {
         ImGuiIO& io = ImGui::GetIO();
         if (io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)

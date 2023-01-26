@@ -445,6 +445,15 @@ void ResetInput()
 		!g_pBrowser->m_bActivate && !g_pConsole->m_bActivate);
 }
 
+bool PanelsVisible()
+{
+	if (g_pBrowser->m_bActivate || g_pConsole->m_bActivate)
+	{
+		return true;
+	}
+	return false;
+}
+
 //#################################################################################
 // MANAGEMENT
 //#################################################################################

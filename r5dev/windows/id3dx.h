@@ -19,7 +19,9 @@ extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam
 extern HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT nSyncInterval, UINT nFlags);
 //extern bool LoadTextureBuffer(unsigned char* image_data, const int& image_width, const int& image_height, ID3D11ShaderResourceView** out_srv);
 extern bool LoadTextureBuffer(unsigned char* buffer, int len, ID3D11ShaderResourceView** out_srv, int* out_width, int* out_height);
+
 extern void ResetInput();
+extern bool PanelsVisible();
 
 /////////////////////////////////////////////////////////////////////////////
 // Typedefs
@@ -112,6 +114,7 @@ enum class DXGISwapChainVTbl : short
 	GetLastPresentCount                  = 17,
 };
 
+#ifndef BUILDING_LIBIMGUI
 inline CMemory p_gGameDevice;
 inline ID3D11Device** g_ppGameDevice = nullptr;
 
@@ -129,4 +132,5 @@ class VDXGI : public IDetour
 	virtual void Detach(void) const { }
 	///////////////////////////////////////////////////////////////////////////////
 };
+#endif // !BUILDING_LIBIMGUI
 #endif // !DEDICATED
