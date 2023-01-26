@@ -46,6 +46,7 @@ CBrowser::CBrowser(void)
     , m_bInitialized(false)
     , m_bReclaimFocus(false)
     , m_bQueryListNonRecursive(false)
+    , m_bQueryGlobalBanList(true)
     , m_flFadeAlpha(0.f)
     , m_HostRequestMessageColor(1.00f, 1.00f, 1.00f, 1.00f)
     , m_ivHiddenServerMessageColor(0.00f, 1.00f, 0.00f, 1.00f)
@@ -459,7 +460,11 @@ void CBrowser::HostPanel(void)
         ImGui::EndCombo();
     }
 
-    ImGui::Checkbox("Load Global Ban List", &g_bCheckCompBanDB);
+    if (ImGui::Checkbox("Load Global Ban List", &m_bQueryGlobalBanList))
+    {
+        sv_globalBanlist->SetValue(m_bQueryGlobalBanList);
+    }
+
     ImGui::Spacing();
 
     ImGui::SameLine();

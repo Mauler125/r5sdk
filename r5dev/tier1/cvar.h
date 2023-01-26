@@ -68,6 +68,7 @@ extern ConVar* navmesh_draw_poly_bounds;
 extern ConVar* navmesh_draw_poly_bounds_inner;
 #endif // DEDICATED
 extern ConVar* sv_showconnecting;
+extern ConVar* sv_globalBanlist;
 extern ConVar* sv_pylonVisibility;
 extern ConVar* sv_pylonRefreshRate;
 extern ConVar* sv_banlistRefreshRate;

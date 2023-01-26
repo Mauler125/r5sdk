@@ -72,6 +72,7 @@ ConVar* navmesh_draw_poly_bounds_inner     = nullptr;
 #endif // !DEDICATED
 
 ConVar* sv_showconnecting                  = nullptr;
+ConVar* sv_globalBanlist                   = nullptr;
 ConVar* sv_pylonVisibility                 = nullptr;
 ConVar* sv_pylonRefreshRate                = nullptr;
 ConVar* sv_banlistRefreshRate              = nullptr;

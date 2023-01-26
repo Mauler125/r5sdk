@@ -93,8 +93,6 @@ inline auto v_CServer_ConnectClient = p_CServer_Authenticate.RCast<CClient* (*)(
 inline CMemory p_CServer_RejectConnection;
 inline auto v_CServer_RejectConnection = p_CServer_RejectConnection.RCast<void* (*)(CServer* pServer, int iSocket, v_netadr_t* pNetAdr, const char* szMessage)>();
 
-extern bool g_bCheckCompBanDB;
-
 ///////////////////////////////////////////////////////////////////////////////
 class VServer : public IDetour
 {

@@ -95,7 +95,7 @@ bool CServer::AuthClient(user_creds_s* pChallenge)
 		}
 	}
 
-	if (g_bCheckCompBanDB)
+	if (sv_globalBanlist->GetBool())
 	{
 		std::thread th(SV_IsClientBanned, string(pszAddresBuffer), nNucleusID);
 		th.detach();
@@ -160,5 +160,4 @@ void VServer::Detach() const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-bool g_bCheckCompBanDB = true; // Maybe make this a static method in CServer? It won't be added to the struct offsets then.
 CServer* g_pServer = nullptr;
