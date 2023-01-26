@@ -65,7 +65,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalOptions>/D GAMESDK /D DEDICATED /D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D GAMESDK /D DEDICATED /D _CRT_SECURE_NO_WARNINGS /D CURL_STATICLIB %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>core\stdafx.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -74,7 +74,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>bcrypt.lib;user32.lib;libcurl_x64.lib;libdetours_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;bcrypt.lib;crypt32.lib;user32.lib;wldap32.lib;ws2_32.lib;libcurl_x64.lib;libdetours_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>..\Dedicated.def</ModuleDefinitionFile>
       <StackReserveSize>8000000</StackReserveSize>
@@ -95,7 +95,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalOptions>/D GAMESDK /D DEDICATED /D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D GAMESDK /D DEDICATED /D _CRT_SECURE_NO_WARNINGS /D CURL_STATICLIB %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>core\stdafx.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -109,7 +109,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>bcrypt.lib;user32.lib;libcurl_x64.lib;libdetours_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;bcrypt.lib;crypt32.lib;user32.lib;wldap32.lib;ws2_32.lib;libcurl_x64.lib;libdetours_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>..\Dedicated.def</ModuleDefinitionFile>
       <SetChecksum>true</SetChecksum>
@@ -279,7 +279,6 @@
     <ClInclude Include="..\public\trace.h" />
     <ClInclude Include="..\public\utility\binstream.h" />
     <ClInclude Include="..\public\utility\crashhandler.h" />
-    <ClInclude Include="..\public\utility\httplib.h" />
     <ClInclude Include="..\public\utility\memaddr.h" />
     <ClInclude Include="..\public\utility\module.h" />
     <ClInclude Include="..\public\utility\sigcache.h" />
@@ -506,6 +505,7 @@
     <ClInclude Include="..\tier1\utlmemory.h" />
     <ClInclude Include="..\tier1\utlrbtree.h" />
     <ClInclude Include="..\tier1\utlvector.h" />
+    <ClInclude Include="..\tier2\curlutils.h" />
     <ClInclude Include="..\tier2\socketcreator.h" />
     <ClInclude Include="..\vpc\IAppSystem.h" />
     <ClInclude Include="..\vpc\interfaces.h" />
@@ -647,6 +647,7 @@
     <ClCompile Include="..\tier1\splitstring.cpp" />
     <ClCompile Include="..\tier1\strtools.cpp" />
     <ClCompile Include="..\tier1\utlbuffer.cpp" />
+    <ClCompile Include="..\tier2\curlutils.cpp" />
     <ClCompile Include="..\tier2\socketcreator.cpp" />
     <ClCompile Include="..\vpc\IAppSystem.cpp" />
     <ClCompile Include="..\vpc\interfaces.cpp" />

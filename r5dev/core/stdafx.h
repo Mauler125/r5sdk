@@ -4,6 +4,8 @@
 #define WIN32_LEAN_AND_MEAN // Prevent winsock2 redefinition.
 #include <windows.h>
 #include <WinSock2.h>
+#include <Ws2tcpip.h>
+#include <bcrypt.h>
 #include <comdef.h>
 #include <gdiplus.h>
 #include <timeapi.h>
@@ -79,6 +81,8 @@
 #include "thirdparty/spdlog/include/sinks/ansicolor_sink.h"
 #include "thirdparty/spdlog/include/sinks/rotating_file_sink.h"
 
+#include "thirdparty/curl/include/curl/curl.h"
+
 #include "common/pseudodefs.h"
 #include "common/x86defs.h"
 #include "common/sdkdefs.h"
@@ -87,7 +91,6 @@
 #include "public/utility/memaddr.h"
 #include "public/utility/module.h"
 #include "public/utility/sigcache.h"
-#include "public/utility/httplib.h"
 #include "public/utility/vdf_parser.h"
 
 #include "core/assert.h"

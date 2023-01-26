@@ -1188,9 +1188,6 @@
     <ClInclude Include="..\public\utility\binstream.h">
       <Filter>sdk\public\utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\utility\httplib.h">
-      <Filter>sdk\public\utility</Filter>
-    </ClInclude>
     <ClInclude Include="..\networksystem\bansystem.h">
       <Filter>sdk\networksystem</Filter>
     </ClInclude>
@@ -1385,6 +1382,9 @@
     </ClInclude>
     <ClInclude Include="..\game\server\baseentity.h">
       <Filter>sdk\game\server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier2\curlutils.h">
+      <Filter>sdk\tier2</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1765,6 +1765,9 @@
     </ClCompile>
     <ClCompile Include="..\common\netmessages.cpp">
       <Filter>sdk\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier2\curlutils.cpp">
+      <Filter>sdk\tier2</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

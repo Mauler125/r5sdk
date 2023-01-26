@@ -429,7 +429,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D BUILDING_LIBCURL  /D USE_WINDOWS_SSPI /D USE_SCHANNEL %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D BUILDING_LIBCURL /D CURL_STATICLIB  /D USE_WINDOWS_SSPI /D USE_SCHANNEL %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)r5dev\thirdparty\curl\include\;$(SolutionDir)r5dev\thirdparty\curl\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -446,7 +446,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D BUILDING_LIBCURL  /D USE_WINDOWS_SSPI /D USE_SCHANNEL %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D BUILDING_LIBCURL /D CURL_STATICLIB  /D USE_WINDOWS_SSPI /D USE_SCHANNEL %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -467,7 +467,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D BUILDING_LIBCURL  /D USE_WINDOWS_SSPI /D USE_SCHANNEL %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D BUILDING_LIBCURL /D CURL_STATICLIB  /D USE_WINDOWS_SSPI /D USE_SCHANNEL %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)r5dev\thirdparty\curl\include\;$(SolutionDir)r5dev\thirdparty\curl\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -484,7 +484,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D BUILDING_LIBCURL  /D USE_WINDOWS_SSPI /D USE_SCHANNEL %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /D BUILDING_LIBCURL /D CURL_STATICLIB  /D USE_WINDOWS_SSPI /D USE_SCHANNEL %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <OmitFramePointers>true</OmitFramePointers>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>

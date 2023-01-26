@@ -672,6 +672,9 @@
     <ClCompile Include="..\launcher\prx.cpp">
       <Filter>sdk\launcher</Filter>
     </ClCompile>
+    <ClCompile Include="..\tier2\curlutils.cpp">
+      <Filter>sdk\tier2</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -1763,9 +1766,6 @@
     <ClInclude Include="..\public\utility\binstream.h">
       <Filter>sdk\public\utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\utility\httplib.h">
-      <Filter>sdk\public\utility</Filter>
-    </ClInclude>
     <ClInclude Include="..\public\utility\memaddr.h">
       <Filter>sdk\public\utility</Filter>
     </ClInclude>
@@ -1981,6 +1981,9 @@
     </ClInclude>
     <ClInclude Include="..\launcher\prx.h">
       <Filter>sdk\launcher</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier2\curlutils.h">
+      <Filter>sdk\tier2</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

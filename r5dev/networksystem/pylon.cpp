@@ -7,6 +7,7 @@
 
 #include <core/stdafx.h>
 #include <tier1/cvar.h>
+#include <tier2/curlutils.h>
 #include <networksystem/pylon.h>
 #ifndef CLIENT_DLL
 #include <engine/server/server.h>
@@ -14,34 +15,35 @@
 
 //-----------------------------------------------------------------------------
 // Purpose: returns a vector of hosted servers.
+// Input  : &svOutMessage - 
+// Output : vector<NetGameServer_t>
 //-----------------------------------------------------------------------------
 vector<NetGameServer_t> CPylon::GetServerList(string& svOutMessage) const
 {
-    vector<NetGameServer_t> vslList{};
+    vector<NetGameServer_t> vslList;
 
     nlohmann::json jsRequestBody = nlohmann::json::object();
     jsRequestBody["version"] = SDK_VERSION;
 
     string svRequestBody = jsRequestBody.dump(4);
+    string svResponse;
 
     if (pylon_showdebuginfo->GetBool())
     {
         DevMsg(eDLL_T::ENGINE, "%s - Sending server list request to comp-server:\n%s\n", __FUNCTION__, svRequestBody.c_str());
     }
 
-    httplib::Client htClient(pylon_matchmaking_hostname->GetString()); htClient.set_connection_timeout(10);
-    httplib::Result htResult = htClient.Post("/servers", svRequestBody.c_str(), svRequestBody.length(), "application/json");
-
-    if (htResult && pylon_showdebuginfo->GetBool())
+    CURLINFO status;
+    if (!QueryMasterServer(pylon_matchmaking_hostname->GetString(), "/servers", svRequestBody, svResponse, svOutMessage, status))
     {
-        DevMsg(eDLL_T::ENGINE, "%s - Comp-server replied with '%d'\n", __FUNCTION__, htResult->status);
+        return vslList;
     }
 
     try
     {
-        if (htResult && htResult->status == 200) // STATUS_OK
+        if (status == 200) // STATUS_OK
         {
-            nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
+            nlohmann::json jsResultBody = nlohmann::json::parse(svResponse);
             if (jsResultBody["success"].is_boolean() && jsResultBody["success"].get<bool>())
             {
                 for (auto& obj : jsResultBody["servers"])
@@ -76,17 +78,17 @@ vector<NetGameServer_t> CPylon::GetServerList(string& svOutMessage) const
                 }
                 else
                 {
-                    svOutMessage = string("Unknown error with status: ") + std::to_string(htResult->status);
+                    svOutMessage = string("Unknown error with status: ") + std::to_string(status);
                 }
             }
         }
         else
         {
-            if (htResult)
+            if (status)
             {
-                if (!htResult->body.empty())
+                if (!svResponse.empty())
                 {
-                    nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
+                    nlohmann::json jsResultBody = nlohmann::json::parse(svResponse);
 
                     if (jsResultBody["error"].is_string())
                     {
@@ -94,13 +96,13 @@ vector<NetGameServer_t> CPylon::GetServerList(string& svOutMessage) const
                     }
                     else
                     {
-                        svOutMessage = string("Failed HTTP request: ") + std::to_string(htResult->status);
+                        svOutMessage = string("Failed HTTP request: ") + std::to_string(status);
                     }
 
                     return vslList;
                 }
 
-                svOutMessage = string("Failed HTTP request: ") + std::to_string(htResult->status);
+                svOutMessage = string("Failed HTTP request: ") + std::to_string(status);
                 return vslList;
             }
 
@@ -120,7 +122,7 @@ vector<NetGameServer_t> CPylon::GetServerList(string& svOutMessage) const
 // Purpose: Gets the server by token string.
 // Input  : &slOutServer - 
 //			&svOutMessage - 
-//			svToken - 
+//			&svToken - 
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
 bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage, const string& svToken) const
@@ -129,22 +131,26 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
     jsRequestBody["token"] = svToken;
 
     string svRequestBody = jsRequestBody.dump(4);
+    string svResponseBuf;
 
     if (pylon_showdebuginfo->GetBool())
     {
         DevMsg(eDLL_T::ENGINE, "%s - Sending token connect request to comp-server:\n%s\n", __FUNCTION__, svRequestBody.c_str());
     }
 
-    httplib::Client htClient(pylon_matchmaking_hostname->GetString()); htClient.set_connection_timeout(10);
-    httplib::Result htResult = htClient.Post("/server/byToken", svRequestBody.c_str(), svRequestBody.length(), "application/json");
+    CURLINFO status;
+    if (!QueryMasterServer(pylon_matchmaking_hostname->GetString(), "/server/byToken", svRequestBody, svResponseBuf, svOutMessage, status))
+    {
+        return false;
+    }
 
     if (pylon_showdebuginfo->GetBool())
     {
-        DevMsg(eDLL_T::ENGINE, "%s - Comp-server replied with status: '%d'\n", __FUNCTION__, htResult->status);
+        DevMsg(eDLL_T::ENGINE, "%s - Comp-server replied with status: '%d'\n", __FUNCTION__, status);
         try
         {
-            string jsResultBody = nlohmann::json::parse(htResult->body).dump(4);
-            DevMsg(eDLL_T::ENGINE, "%s - Comp-server response body:\n'%s'\n", __FUNCTION__, jsResultBody.c_str());
+            string jsResultBody = nlohmann::json::parse(svResponseBuf).dump(4);
+            DevMsg(eDLL_T::ENGINE, "%s - Comp-server response body:\n%s\n", __FUNCTION__, jsResultBody.c_str());
         }
         catch (const std::exception& ex)
         {
@@ -154,13 +160,13 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
 
     try
     {
-        if (htResult && htResult->status == 200) // STATUS_OK
+        if (status == 200) // STATUS_OK
         {
-            if (!htResult->body.empty())
+            if (!svResponseBuf.empty())
             {
-                nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
+                nlohmann::json jsResultBody = nlohmann::json::parse(svResponseBuf);
 
-                if (htResult && jsResultBody["success"].is_boolean() && jsResultBody["success"])
+                if (jsResultBody["success"].is_boolean() && jsResultBody["success"])
                 {
                     slOutServer = NetGameServer_t
                     {
@@ -190,7 +196,7 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
                     }
                     else
                     {
-                        svOutMessage = string("Unknown error with status: ") + std::to_string(htResult->status);
+                        svOutMessage = string("Unknown error with status: ") + std::to_string(status);
                     }
 
                     slOutServer = NetGameServer_t{};
@@ -200,27 +206,24 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
         }
         else
         {
-            if (htResult)
+            if (!svResponseBuf.empty())
             {
-                if (!htResult->body.empty())
+                nlohmann::json jsResultBody = nlohmann::json::parse(svResponseBuf);
+
+                if (jsResultBody["error"].is_string())
                 {
-                    nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
-
-                    if (jsResultBody["error"].is_string())
-                    {
-                        svOutMessage = jsResultBody["error"].get<string>();
-                    }
-                    else
-                    {
-                        svOutMessage = string("Server not found: ") + std::to_string(htResult->status);
-                    }
-
-                    return false;
+                    svOutMessage = jsResultBody["error"].get<string>();
+                }
+                else
+                {
+                    svOutMessage = string("Server not found: ") + std::to_string(status);
                 }
 
-                svOutMessage = string("Failed HTTP request: ") + std::to_string(htResult->status);
                 return false;
             }
+
+            svOutMessage = string("Failed HTTP request: ") + std::to_string(status);
+            return false;
 
             svOutMessage = "Failed to reach comp-server: connection timed-out";
             slOutServer = NetGameServer_t{};
@@ -239,44 +242,49 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
 // Purpose: Sends host server POST request.
 // Input  : &svOutMessage - 
 //			&svOutToken - 
-//			&slServerListing - 
+//			&netGameServer - 
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
-bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetGameServer_t& slServerListing) const
+bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetGameServer_t& netGameServer) const
 {
     nlohmann::json jsRequestBody = nlohmann::json::object();
-    jsRequestBody["name"] = slServerListing.m_svHostName;
-    jsRequestBody["description"] = slServerListing.m_svDescription;
-    jsRequestBody["hidden"] = slServerListing.m_bHidden;
-    jsRequestBody["map"] = slServerListing.m_svHostMap;
-    jsRequestBody["playlist"] = slServerListing.m_svPlaylist;
-    jsRequestBody["ip"] = slServerListing.m_svIpAddress;
-    jsRequestBody["port"] = slServerListing.m_svGamePort;
-    jsRequestBody["key"] = slServerListing.m_svEncryptionKey;
-    jsRequestBody["checksum"] = slServerListing.m_svRemoteChecksum;
-    jsRequestBody["version"] = slServerListing.m_svSDKVersion;
-    jsRequestBody["playerCount"] = slServerListing.m_svPlayerCount;
-    jsRequestBody["maxPlayers"] = slServerListing.m_svMaxPlayers;
-    jsRequestBody["timeStamp"] = slServerListing.m_nTimeStamp;
-    jsRequestBody["publicRef"] = slServerListing.m_svPublicRef;
-    jsRequestBody["cachedId"] = slServerListing.m_svCachedId;
+    jsRequestBody["name"] = netGameServer.m_svHostName;
+    jsRequestBody["description"] = netGameServer.m_svDescription;
+    jsRequestBody["hidden"] = netGameServer.m_bHidden;
+    jsRequestBody["map"] = netGameServer.m_svHostMap;
+    jsRequestBody["playlist"] = netGameServer.m_svPlaylist;
+    jsRequestBody["ip"] = netGameServer.m_svIpAddress;
+    jsRequestBody["port"] = netGameServer.m_svGamePort;
+    jsRequestBody["key"] = netGameServer.m_svEncryptionKey;
+    jsRequestBody["checksum"] = netGameServer.m_svRemoteChecksum;
+    jsRequestBody["version"] = netGameServer.m_svSDKVersion;
+    jsRequestBody["playerCount"] = netGameServer.m_svPlayerCount;
+    jsRequestBody["maxPlayers"] = netGameServer.m_svMaxPlayers;
+    jsRequestBody["timeStamp"] = netGameServer.m_nTimeStamp;
+    jsRequestBody["publicRef"] = netGameServer.m_svPublicRef;
+    jsRequestBody["cachedId"] = netGameServer.m_svCachedId;
 
     string svRequestBody = jsRequestBody.dump(4);
+    string svResponseBuf;
+
     if (pylon_showdebuginfo->GetBool())
     {
         DevMsg(eDLL_T::ENGINE, "%s - Sending post host request to comp-server:\n%s\n", __FUNCTION__, svRequestBody.c_str());
     }
 
-    httplib::Client htClient(pylon_matchmaking_hostname->GetString()); htClient.set_connection_timeout(10);
-    httplib::Result htResult = htClient.Post("/servers/add", svRequestBody.c_str(), svRequestBody.length(), "application/json");
-
-    if (htResult && pylon_showdebuginfo->GetBool())
+    CURLINFO status;
+    if (!QueryMasterServer(pylon_matchmaking_hostname->GetString(), "/servers/add", svRequestBody, svResponseBuf, svOutMessage, status))
     {
-        DevMsg(eDLL_T::ENGINE, "%s - Comp-server replied with status: '%d'\n", __FUNCTION__, htResult->status);
+        return false;
+    }
+
+    if (pylon_showdebuginfo->GetBool())
+    {
+        DevMsg(eDLL_T::ENGINE, "%s - Comp-server replied with status: '%d'\n", __FUNCTION__, status);
         try
         {
-            string jsResultBody = nlohmann::json::parse(htResult->body).dump(4);
-            DevMsg(eDLL_T::ENGINE, "%s - Comp-server response body:\n'%s'\n", __FUNCTION__, jsResultBody.c_str());
+            string jsResultBody = nlohmann::json::parse(svResponseBuf).dump(4);
+            DevMsg(eDLL_T::ENGINE, "%s - Comp-server response body:\n%s\n", __FUNCTION__, jsResultBody.c_str());
         }
         catch (const std::exception& ex)
         {
@@ -286,9 +294,9 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
 
     try
     {
-        if (htResult && htResult->status == 200) // STATUS_OK
+        if (status == 200) // STATUS_OK
         {
-            nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
+            nlohmann::json jsResultBody = nlohmann::json::parse(svResponseBuf);
             if (jsResultBody["success"].is_boolean() && jsResultBody["success"].get<bool>())
             {
                 if (jsResultBody["token"].is_string())
@@ -310,36 +318,33 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
                 }
                 else
                 {
-                    svOutMessage = string("Unknown error with status: ") + std::to_string(htResult->status);
+                    svOutMessage = string("Unknown error with status: ") + std::to_string(status);
                 }
                 return false;
             }
         }
         else
         {
-            if (htResult)
+            if (!svResponseBuf.empty())
             {
-                if (!htResult->body.empty())
+                nlohmann::json jsResultBody = nlohmann::json::parse(svResponseBuf);
+
+                if (jsResultBody["error"].is_string())
                 {
-                    nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
-
-                    if (jsResultBody["error"].is_string())
-                    {
-                        svOutMessage = jsResultBody["error"].get<string>();
-                    }
-                    else
-                    {
-                        svOutMessage = string("Failed HTTP request: ") + std::to_string(htResult->status);
-                    }
-
-                    svOutToken = string();
-                    return false;
+                    svOutMessage = jsResultBody["error"].get<string>();
+                }
+                else
+                {
+                    svOutMessage = string("Failed HTTP request: ") + std::to_string(status);
                 }
 
                 svOutToken = string();
-                svOutMessage = string("Failed HTTP request: ") + std::to_string(htResult->status);
                 return false;
             }
+
+            svOutToken = string();
+            svOutMessage = string("Failed HTTP request: ") + std::to_string(status);
+            return false;
 
             svOutToken = string();
             svOutMessage = "Failed to reach comp-server: connection timed-out";
@@ -367,7 +372,7 @@ bool CPylon::KeepAlive(const NetGameServer_t& netGameServer) const
         string m_szHostToken;
         string m_szHostRequestMessage;
 
-        bool result = g_pMasterServer->PostServerHost(m_szHostRequestMessage, m_szHostToken, netGameServer);
+        bool result = PostServerHost(m_szHostRequestMessage, m_szHostToken, netGameServer);
         return result;
     }
 #endif // !CLIENT_DLL
@@ -376,7 +381,7 @@ bool CPylon::KeepAlive(const NetGameServer_t& netGameServer) const
 
 //-----------------------------------------------------------------------------
 // Purpose: Checks if client is banned on the comp server.
-// Input  : svIpAddress - 
+// Input  : &svIpAddress - 
 //			nNucleusID - 
 //			&svOutReason - 
 // Output : Returns true if banned, false if not banned.
@@ -387,14 +392,22 @@ bool CPylon::CheckForBan(const string& svIpAddress, const uint64_t nNucleusID, s
     jsRequestBody["id"] = nNucleusID;
     jsRequestBody["ip"] = svIpAddress;
 
-    httplib::Client htClient(pylon_matchmaking_hostname->GetString()); htClient.set_connection_timeout(10);
-    httplib::Result htResult = htClient.Post("/banlist/isBanned", jsRequestBody.dump(4).c_str(), jsRequestBody.dump(4).length(), "application/json");
+    string svRequestBody = jsRequestBody.dump(4);
+    string svResponseBuf;
+    string svOutMessage;
+    CURLINFO status;
+
+    if (!QueryMasterServer(pylon_matchmaking_hostname->GetString(), "/banlist/isBanned", svRequestBody, svResponseBuf, svOutMessage, status))
+    {
+        Error(eDLL_T::ENGINE, NO_ERROR, "%s - Failed to query comp-server: %s\n", __FUNCTION__, svOutMessage.c_str());
+        return false;
+    }
 
     try
     {
-        if (htResult && htResult->status == 200)
+        if (status == 200)
         {
-            nlohmann::json jsResultBody = nlohmann::json::parse(htResult->body);
+            nlohmann::json jsResultBody = nlohmann::json::parse(svResponseBuf);
             if (jsResultBody["success"].is_boolean() && jsResultBody["success"].get<bool>())
             {
                 if (jsResultBody["banned"].is_boolean() && jsResultBody["banned"].get<bool>())
@@ -404,6 +417,10 @@ bool CPylon::CheckForBan(const string& svIpAddress, const uint64_t nNucleusID, s
                 }
             }
         }
+        else
+        {
+            Error(eDLL_T::ENGINE, NO_ERROR, "%s - Failed to query comp-server: status code = %d\n", __FUNCTION__, status);
+        }
     }
     catch (const std::exception& ex)
     {
@@ -411,5 +428,39 @@ bool CPylon::CheckForBan(const string& svIpAddress, const uint64_t nNucleusID, s
     }
     return false;
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: Sends query to master server.
+// Input  : &svHostName - 
+//			&svApi - 
+//			&svInRequest - 
+//          &svResponse - 
+//          &svOutMessage - 
+//          &outStatus - 
+// Output : Returns true if successful, false otherwise.
+//-----------------------------------------------------------------------------
+bool CPylon::QueryMasterServer(const string& svHostName, const string& svApi, const string& svInRequest, 
+    string& svOutResponse, string& svOutMessage, CURLINFO& outStatus) const
+{
+    string svUrl;
+    CURLFormatUrl(svUrl, svHostName, svApi);
+
+    curl_slist* sList = nullptr;
+    CURL* curl = CURLInitRequest(svUrl, svInRequest, svOutResponse, sList);
+    if (!curl)
+    {
+        return false;
+    }
+
+    CURLcode res = CURLSubmitRequest(curl, sList);
+    if (!CURLHandleError(curl, res, svOutMessage))
+    {
+        return false;
+    }
+
+    outStatus = CURLRetrieveInfo(curl);
+    return true;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 CPylon* g_pMasterServer(new CPylon());

@@ -162,6 +162,7 @@
     <ClCompile Include="..\tier1\splitstring.cpp" />
     <ClCompile Include="..\tier1\strtools.cpp" />
     <ClCompile Include="..\tier1\utlbuffer.cpp" />
+    <ClCompile Include="..\tier2\curlutils.cpp" />
     <ClCompile Include="..\tier2\meshutils.cpp" />
     <ClCompile Include="..\tier2\renderutils.cpp" />
     <ClCompile Include="..\tier2\socketcreator.cpp" />
@@ -396,7 +397,6 @@
     <ClInclude Include="..\public\trace.h" />
     <ClInclude Include="..\public\utility\binstream.h" />
     <ClInclude Include="..\public\utility\crashhandler.h" />
-    <ClInclude Include="..\public\utility\httplib.h" />
     <ClInclude Include="..\public\utility\memaddr.h" />
     <ClInclude Include="..\public\utility\module.h" />
     <ClInclude Include="..\public\utility\sigcache.h" />
@@ -632,6 +632,7 @@
     <ClInclude Include="..\tier1\utlmemory.h" />
     <ClInclude Include="..\tier1\utlrbtree.h" />
     <ClInclude Include="..\tier1\utlvector.h" />
+    <ClInclude Include="..\tier2\curlutils.h" />
     <ClInclude Include="..\tier2\meshutils.h" />
     <ClInclude Include="..\tier2\renderutils.h" />
     <ClInclude Include="..\tier2\socketcreator.h" />
@@ -734,14 +735,14 @@
       </DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalOptions>/D GAMESDK /D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D GAMESDK /D _CRT_SECURE_NO_WARNINGS /D CURL_STATICLIB %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>..\GameSDK.def</ModuleDefinitionFile>
-      <AdditionalDependencies>d3d11.lib;bcrypt.lib;libdetours_x64.lib;libcurl_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;librecast_x64.lib;libdtdetour_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;bcrypt.lib;crypt32.lib;d3d11.lib;wldap32.lib;ws2_32.lib;libdetours_x64.lib;libcurl_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;librecast_x64.lib;libdtdetour_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <StackReserveSize>8000000</StackReserveSize>
     </Link>
@@ -775,7 +776,7 @@
       <CreateHotpatchableImage>
       </CreateHotpatchableImage>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalOptions>/D GAMESDK /D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D GAMESDK /D _CRT_SECURE_NO_WARNINGS /D CURL_STATICLIB %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -784,7 +785,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>..\GameSDK.def</ModuleDefinitionFile>
-      <AdditionalDependencies>d3d11.lib;bcrypt.lib;libdetours_x64.lib;libcurl_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;librecast_x64.lib;libdtdetour_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>advapi32.lib;bcrypt.lib;crypt32.lib;d3d11.lib;wldap32.lib;ws2_32.lib;libdetours_x64.lib;libcurl_x64.lib;libimgui_x64.lib;liblzham_x64.lib;libprotobuf_x64.lib;librecast_x64.lib;libdtdetour_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\$(Configuration)\</AdditionalLibraryDirectories>
       <SetChecksum>true</SetChecksum>
       <StackReserveSize>8000000</StackReserveSize>
