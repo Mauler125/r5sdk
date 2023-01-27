@@ -87,7 +87,7 @@ class VNet : public IDetour
 	}
 	virtual void GetVar(void) const
 	{
-		g_pNetKey = g_GameDll.FindString("client:NetEncryption_NewKey").FindPatternSelf("48 8D ? ? ? ? ? 48 3B", CMemory::Direction::UP, 300).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr();
+		g_pNetKey = g_GameDll.FindString("client:NetEncryption_NewKey").FindPatternSelf("48 8D ?? ?? ?? ?? ?? 48 3B", CMemory::Direction::UP, 300).ResolveRelativeAddressSelf(0x3, 0x7).GetPtr();
 	}
 	virtual void GetCon(void) const { }
 	virtual void Attach(void) const;
