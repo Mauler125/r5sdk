@@ -319,7 +319,7 @@ void CConsole::DrawSurface(void)
 //-----------------------------------------------------------------------------
 void CConsole::OptionsPanel(void)
 {
-    ImGui::Checkbox("Auto-Scroll", &m_Logger.m_bAutoScroll);
+    ImGui::Checkbox("Auto-scroll", &m_Logger.m_bAutoScroll);
 
     ImGui::SameLine();
     ImGui::PushItemWidth(100);
@@ -334,7 +334,7 @@ void CConsole::OptionsPanel(void)
     ImGui::SameLine();
     m_bCopyToClipBoard = ImGui::SmallButton("Copy");
 
-    ImGui::Text("Console Hotkey:");
+    ImGui::Text("Console hotkey:");
     ImGui::SameLine();
 
     if (ImGui::Hotkey("##ToggleConsole", &g_pImGuiConfig->m_ConsoleConfig.m_nBind0, ImVec2(80, 80)))
@@ -342,7 +342,7 @@ void CConsole::OptionsPanel(void)
         g_pImGuiConfig->Save();
     }
 
-    ImGui::Text("Browser Hotkey:");
+    ImGui::Text("Browser hotkey:");
     ImGui::SameLine();
 
     if (ImGui::Hotkey("##ToggleBrowser", &g_pImGuiConfig->m_BrowserConfig.m_nBind0, ImVec2(80, 80)))
