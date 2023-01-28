@@ -78,7 +78,7 @@ vector<NetGameServer_t> CPylon::GetServerList(string& svOutMessage) const
                 }
                 else
                 {
-                    svOutMessage = string("Unknown error with status: ") + std::to_string(status);
+                    svOutMessage = fmt::format("Unknown error with status: {:d}", status);
                 }
             }
         }
@@ -96,17 +96,17 @@ vector<NetGameServer_t> CPylon::GetServerList(string& svOutMessage) const
                     }
                     else
                     {
-                        svOutMessage = string("Failed HTTP request: ") + std::to_string(status);
+                        svOutMessage = fmt::format("Server list error: {:d}", status);
                     }
 
                     return vslList;
                 }
 
-                svOutMessage = string("Failed HTTP request: ") + std::to_string(status);
+                svOutMessage = fmt::format("Failed comp-server query: {:d}", status);
                 return vslList;
             }
 
-            svOutMessage = "Failed to reach comp-server: connection timed-out";
+            svOutMessage = fmt::format("Failed to reach comp-server: {:s}", "connection timed-out");
             return vslList;
         }
     }
@@ -198,37 +198,38 @@ bool CPylon::GetServerByToken(NetGameServer_t& slOutServer, string& svOutMessage
                     }
                     else
                     {
-                        svOutMessage = string("Unknown error with status: ") + std::to_string(status);
+                        svOutMessage = fmt::format("Unknown error with status: {:d}", status);
                     }
 
-                    slOutServer = NetGameServer_t{};
                     return false;
                 }
             }
         }
         else
         {
-            if (!svResponseBuf.empty())
+            if (status)
             {
-                nlohmann::json jsResultBody = nlohmann::json::parse(svResponseBuf);
-
-                if (jsResultBody["error"].is_string())
+                if (!svResponseBuf.empty())
                 {
-                    svOutMessage = jsResultBody["error"].get<string>();
-                }
-                else
-                {
-                    svOutMessage = string("Server not found: ") + std::to_string(status);
+                    nlohmann::json jsResultBody = nlohmann::json::parse(svResponseBuf);
+
+                    if (jsResultBody["error"].is_string())
+                    {
+                        svOutMessage = jsResultBody["error"].get<string>();
+                    }
+                    else
+                    {
+                        svOutMessage = fmt::format("Server not found: {:d}", status);
+                    }
+
+                    return false;
                 }
 
+                svOutMessage = fmt::format("Failed comp-server query: {:d}", status);
                 return false;
             }
 
-            svOutMessage = string("Failed HTTP request: ") + std::to_string(status);
-            return false;
-
-            svOutMessage = "Failed to reach comp-server: connection timed-out";
-            slOutServer = NetGameServer_t{};
+            svOutMessage = fmt::format("Failed to reach comp-server: {:s}", "connection timed-out");
             return false;
         }
     }
@@ -309,7 +310,8 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
                 }
                 else
                 {
-                    svOutToken = string();
+                    svOutMessage = fmt::format("Invalid response with status: {:d}", status);
+                    svOutToken.clear();
                 }
 
                 return true;
@@ -322,36 +324,39 @@ bool CPylon::PostServerHost(string& svOutMessage, string& svOutToken, const NetG
                 }
                 else
                 {
-                    svOutMessage = string("Unknown error with status: ") + std::to_string(status);
+                    svOutMessage = fmt::format("Unknown error with status: {:d}", status);
                 }
                 return false;
             }
         }
         else
         {
-            if (!svResponseBuf.empty())
+            if (status)
             {
-                nlohmann::json jsResultBody = nlohmann::json::parse(svResponseBuf);
-
-                if (jsResultBody["error"].is_string())
+                if (!svResponseBuf.empty())
                 {
-                    svOutMessage = jsResultBody["error"].get<string>();
-                }
-                else
-                {
-                    svOutMessage = string("Failed HTTP request: ") + std::to_string(status);
+                    nlohmann::json jsResultBody = nlohmann::json::parse(svResponseBuf);
+
+                    if (jsResultBody["error"].is_string())
+                    {
+                        svOutMessage = jsResultBody["error"].get<string>();
+                    }
+                    else
+                    {
+                        svOutMessage = fmt::format("Server host error: {:d}", status);
+                    }
+
+                    svOutToken.clear();
+                    return false;
                 }
 
-                svOutToken = string();
+                svOutMessage = fmt::format("Failed comp-server query: {:d}", status);
+                svOutToken.clear();
                 return false;
             }
 
-            svOutToken = string();
-            svOutMessage = string("Failed HTTP request: ") + std::to_string(status);
-            return false;
-
-            svOutToken = string();
-            svOutMessage = "Failed to reach comp-server: connection timed-out";
+            svOutMessage = fmt::format("Failed to reach comp-server: {:s}", "connection timed-out");
+            svOutToken.clear();
             return false;
         }
     }
