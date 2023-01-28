@@ -53,11 +53,11 @@ namespace VSquirrel
 		SQRESULT GetServerMaxPlayers(HSQUIRRELVM v);
 		SQRESULT GetServerCount(HSQUIRRELVM v);
 		SQRESULT GetPromoData(HSQUIRRELVM v);
-		SQRESULT SetEncKeyAndConnect(HSQUIRRELVM v);
-		SQRESULT CreateServerFromMenu(HSQUIRRELVM v);
-		SQRESULT JoinPrivateServerFromMenu(HSQUIRRELVM v);
-		SQRESULT GetPrivateServerMessage(HSQUIRRELVM v);
-		SQRESULT ConnectToIPFromMenu(HSQUIRRELVM v);
+		SQRESULT ConnectToListedServer(HSQUIRRELVM v);
+		SQRESULT CreateServer(HSQUIRRELVM v);
+		SQRESULT ConnectToHiddenServer(HSQUIRRELVM v);
+		SQRESULT GetHiddenServerConnectStatus(HSQUIRRELVM v);
+		SQRESULT ConnectToServer(HSQUIRRELVM v);
 	}
 #endif // !DEDICATED
 }

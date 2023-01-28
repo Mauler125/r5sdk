@@ -102,6 +102,7 @@ void Script_RegisterClientFunctions(CSquirrelVM* s)
 void Script_RegisterUIFunctions(CSquirrelVM* s)
 {
 	Script_RegisterFunction(s, "SDKNativeTest", "Script_SDKNativeTest", "Native UI test function", "void", "", &VSquirrel::SHARED::SDKNativeTest);
+	Script_RegisterFunction(s, "GetSDKVersion", "Script_GetSDKVersion", "Gets the SDK version as a string", "string", "", &VSquirrel::SHARED::GetSDKVersion);
 
 	Script_RegisterFunction(s, "RefreshServerList", "Script_RefreshServerList", "Refreshes the public server list and returns the count", "int", "", &VSquirrel::UI::RefreshServerCount);
 
@@ -115,15 +116,14 @@ void Script_RegisterUIFunctions(CSquirrelVM* s)
 	Script_RegisterFunction(s, "GetServerCount", "Script_GetServerCount", "Gets the number of public servers", "int", "", &VSquirrel::UI::GetServerCount);
 
 	// Misc main menu functions
-	Script_RegisterFunction(s, "GetSDKVersion", "Script_GetSDKVersion", "Gets the SDK version as a string", "string", "", &VSquirrel::SHARED::GetSDKVersion);
 	Script_RegisterFunction(s, "GetPromoData", "Script_GetPromoData", "Gets promo data for specified slot type", "string", "int", &VSquirrel::UI::GetPromoData);
 
 	// Functions for connecting to servers
-	Script_RegisterFunction(s, "CreateServer", "Script_CreateServer", "Start server with the specified settings", "void", "string, string, string, string, int", &VSquirrel::UI::CreateServerFromMenu);
-	Script_RegisterFunction(s, "SetEncKeyAndConnect", "Script_SetEncKeyAndConnect", "Set the encryption key to that of the specified server and connects to it", "void", "int", &VSquirrel::UI::SetEncKeyAndConnect);
-	Script_RegisterFunction(s, "JoinPrivateServerFromMenu", "Script_JoinPrivateServerFromMenu", "Joins private server by token", "void", "string", &VSquirrel::UI::JoinPrivateServerFromMenu);
-	Script_RegisterFunction(s, "GetPrivateServerMessage", "Script_GetPrivateServerMessage", "Gets private server join status message", "string", "string", &VSquirrel::UI::GetPrivateServerMessage);
-	Script_RegisterFunction(s, "ConnectToIPFromMenu", "Script_ConnectToIPFromMenu", "Joins server by ip address and encryption key", "void", "string, string", &VSquirrel::UI::ConnectToIPFromMenu);
+	Script_RegisterFunction(s, "CreateServer", "Script_CreateServer", "Start server with the specified settings", "void", "string, string, string, string, int", &VSquirrel::UI::CreateServer);
+	Script_RegisterFunction(s, "ConnectToServer", "Script_ConnectToServer", "Joins server by ip address and encryption key", "void", "string, string", &VSquirrel::UI::ConnectToServer);
+	Script_RegisterFunction(s, "ConnectToListedServer", "Script_ConnectToListedServer", "Joins listed server by index", "void", "int", &VSquirrel::UI::ConnectToListedServer);
+	Script_RegisterFunction(s, "ConnectToHiddenServer", "Script_ConnectToHiddenServer", "Joins hidden server by token", "void", "string", &VSquirrel::UI::ConnectToHiddenServer);
+	Script_RegisterFunction(s, "GetHiddenServerConnectStatus", "Script_GetHiddenServerConnectStatus", "Gets hidden server join status message", "string", "string", &VSquirrel::UI::GetHiddenServerConnectStatus);
 
 	Script_RegisterFunction(s, "GetAvailableMaps", "Script_GetAvailableMaps", "Gets an array of all available maps", "array< string >", "", &VSquirrel::SHARED::GetAvailableMaps);
 	Script_RegisterFunction(s, "GetAvailablePlaylists", "Script_GetAvailablePlaylists", "Gets an array of all available playlists", "array< string >", "", &VSquirrel::SHARED::GetAvailablePlaylists);

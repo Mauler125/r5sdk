@@ -401,33 +401,11 @@ namespace VSquirrel
         }
 
         //-----------------------------------------------------------------------------
-        // Purpose: set netchannel encryption key and connect to server
-        //-----------------------------------------------------------------------------
-        SQRESULT SetEncKeyAndConnect(HSQUIRRELVM v)
-        {
-            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
-
-            SQInteger iServer = sq_getinteger(v, 1);
-            SQInteger iCount = static_cast<SQInteger>(g_pServerListManager->m_vServerList.size());
-
-            if (iServer >= iCount)
-            {
-                v_SQVM_RaiseError(v, "Index must be less than %i.\n", iCount);
-                return SQ_ERROR;
-            }
-
-            g_pServerListManager->ConnectToServer(g_pServerListManager->m_vServerList[iServer].m_svIpAddress,
-                g_pServerListManager->m_vServerList[iServer].m_svGamePort,
-                g_pServerListManager->m_vServerList[iServer].m_svEncryptionKey);
-
-            return SQ_OK;
-        }
-
-        //-----------------------------------------------------------------------------
         // Purpose: create server via native serverbrowser entries
         //-----------------------------------------------------------------------------
-        SQRESULT CreateServerFromMenu(HSQUIRRELVM v)
+        SQRESULT CreateServer(HSQUIRRELVM v)
         {
+#ifndef CLIENT_DLL
             string svServerName = sq_getstring(v, 1);
             string svServerDescription = sq_getstring(v, 2);
             string svServerMapName = sq_getstring(v, 3);
@@ -450,12 +428,57 @@ namespace VSquirrel
             g_pServerListManager->LaunchServer();
 
             return SQ_OK;
+#else
+            v_SQVM_RaiseError(v, "\"%s\" is not supported for client builds.\n", "CreateServer");
+            return SQ_ERROR;
+#endif
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: connect to server from native server browser entries
+        //-----------------------------------------------------------------------------
+        SQRESULT ConnectToServer(HSQUIRRELVM v)
+        {
+            string svIpAddr = sq_getstring(v, 1);
+            string svEncKey = sq_getstring(v, 2);
+
+            if (svIpAddr.empty() || svEncKey.empty())
+                return SQ_OK;
+
+            DevMsg(eDLL_T::UI, "Connecting to server with ip address '%s' and encryption key '%s'\n", svIpAddr.c_str(), svEncKey.c_str());
+            g_pServerListManager->ConnectToServer(svIpAddr, svEncKey);
+
+            return SQ_OK;
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: set netchannel encryption key and connect to server
+        //-----------------------------------------------------------------------------
+        SQRESULT ConnectToListedServer(HSQUIRRELVM v)
+        {
+            std::lock_guard<std::mutex> l(g_pServerListManager->m_Mutex);
+
+            SQInteger iServer = sq_getinteger(v, 1);
+            SQInteger iCount = static_cast<SQInteger>(g_pServerListManager->m_vServerList.size());
+
+            if (iServer >= iCount)
+            {
+                v_SQVM_RaiseError(v, "Index must be less than %i.\n", iCount);
+                return SQ_ERROR;
+            }
+
+            const NetGameServer_t& gameServer = g_pServerListManager->m_vServerList[iServer];
+
+            g_pServerListManager->ConnectToServer(gameServer.m_svIpAddress, gameServer.m_svGamePort,
+                gameServer.m_svEncryptionKey);
+
+            return SQ_OK;
         }
 
         //-----------------------------------------------------------------------------
         // Purpose: request token from pylon and join server with result.
         //-----------------------------------------------------------------------------
-        SQRESULT JoinPrivateServerFromMenu(HSQUIRRELVM v)
+        SQRESULT ConnectToHiddenServer(HSQUIRRELVM v)
         {
             string svHiddenServerRequestMessage;
             string svToken = sq_getstring(v, 1);
@@ -473,7 +496,7 @@ namespace VSquirrel
         //-----------------------------------------------------------------------------
         // Purpose: get response from private server request
         //-----------------------------------------------------------------------------
-        SQRESULT GetPrivateServerMessage(HSQUIRRELVM v)
+        SQRESULT GetHiddenServerConnectStatus(HSQUIRRELVM v)
         {
             string svHiddenServerRequestMessage;
             string svToken = sq_getstring(v, 1);
@@ -482,33 +505,14 @@ namespace VSquirrel
             bool result = g_pMasterServer->GetServerByToken(serverListing, svHiddenServerRequestMessage, svToken); // Send token connect request.
             if (!serverListing.m_svHostName.empty())
             {
-                svHiddenServerRequestMessage = "Found Server: " + serverListing.m_svHostName;
+                svHiddenServerRequestMessage = fmt::format("Found server: {:s}", serverListing.m_svHostName);
                 sq_pushstring(v, svHiddenServerRequestMessage.c_str(), -1);
             }
             else
             {
-                svHiddenServerRequestMessage = "Error: Server Not Found";
+                svHiddenServerRequestMessage = "Server not found";
                 sq_pushstring(v, svHiddenServerRequestMessage.c_str(), -1);
             }
-
-            DevMsg(eDLL_T::UI, "GetPrivateServeMessage response: %s\n", svHiddenServerRequestMessage.c_str());
-
-            return SQ_OK;
-        }
-
-        //-----------------------------------------------------------------------------
-        // Purpose: connect to server from native server browser entries
-        //-----------------------------------------------------------------------------
-        SQRESULT ConnectToIPFromMenu(HSQUIRRELVM v)
-        {
-            string svIpAddr = sq_getstring(v, 1);
-            string svEncKey = sq_getstring(v, 2);
-
-            if (svIpAddr.empty() || svEncKey.empty())
-                return SQ_OK;
-
-            DevMsg(eDLL_T::UI, "Connecting to server with ip address '%s' and encryption key '%s'\n", svIpAddr.c_str(), svEncKey.c_str());
-            g_pServerListManager->ConnectToServer(svIpAddr, svEncKey);
 
             return SQ_OK;
         }
