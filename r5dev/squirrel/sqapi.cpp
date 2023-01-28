@@ -88,30 +88,30 @@ SQRESULT sq_call(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBool raiseerr
 
 void VSqapi::Attach() const
 {
-	DetourAttach((LPVOID*)&v_sq_pushroottable, &sq_pushroottable);
-	DetourAttach((LPVOID*)&v_sq_pushbool, &sq_pushbool);
-	DetourAttach((LPVOID*)&v_sq_pushstring, &sq_pushstring);
-	DetourAttach((LPVOID*)&v_sq_pushinteger, &sq_pushinteger);
-	DetourAttach((LPVOID*)&v_sq_newarray, &sq_newarray);
-	DetourAttach((LPVOID*)&v_sq_newtable, &sq_newtable);
-	DetourAttach((LPVOID*)&v_sq_newslot, &sq_newslot);
-	DetourAttach((LPVOID*)&v_sq_arrayappend, &sq_arrayappend);
-	DetourAttach((LPVOID*)&v_sq_pushstructure, &sq_pushstructure);
-	DetourAttach((LPVOID*)&v_sq_compilebuffer, &sq_compilebuffer);
-	DetourAttach((LPVOID*)&v_sq_call, &sq_call);
+	DetourAttach(&v_sq_pushroottable, &sq_pushroottable);
+	DetourAttach(&v_sq_pushbool, &sq_pushbool);
+	DetourAttach(&v_sq_pushstring, &sq_pushstring);
+	DetourAttach(&v_sq_pushinteger, &sq_pushinteger);
+	DetourAttach(&v_sq_newarray, &sq_newarray);
+	DetourAttach(&v_sq_newtable, &sq_newtable);
+	DetourAttach(&v_sq_newslot, &sq_newslot);
+	DetourAttach(&v_sq_arrayappend, &sq_arrayappend);
+	DetourAttach(&v_sq_pushstructure, &sq_pushstructure);
+	DetourAttach(&v_sq_compilebuffer, &sq_compilebuffer);
+	DetourAttach(&v_sq_call, &sq_call);
 }
 
 void VSqapi::Detach() const
 {
-	DetourDetach((LPVOID*)&v_sq_pushroottable, &sq_pushroottable);
-	DetourDetach((LPVOID*)&v_sq_pushbool, &sq_pushbool);
-	DetourDetach((LPVOID*)&v_sq_pushstring, &sq_pushstring);
-	DetourDetach((LPVOID*)&v_sq_pushinteger, &sq_pushinteger);
-	DetourDetach((LPVOID*)&v_sq_newarray, &sq_newarray);
-	DetourDetach((LPVOID*)&v_sq_newtable, &sq_newtable);
-	DetourDetach((LPVOID*)&v_sq_newslot, &sq_newslot);
-	DetourDetach((LPVOID*)&v_sq_arrayappend, &sq_arrayappend);
-	DetourDetach((LPVOID*)&v_sq_pushstructure, &sq_pushstructure);
-	DetourDetach((LPVOID*)&v_sq_compilebuffer, &sq_compilebuffer);
-	DetourDetach((LPVOID*)&v_sq_call, &sq_call);
+	DetourDetach(&v_sq_pushroottable, &sq_pushroottable);
+	DetourDetach(&v_sq_pushbool, &sq_pushbool);
+	DetourDetach(&v_sq_pushstring, &sq_pushstring);
+	DetourDetach(&v_sq_pushinteger, &sq_pushinteger);
+	DetourDetach(&v_sq_newarray, &sq_newarray);
+	DetourDetach(&v_sq_newtable, &sq_newtable);
+	DetourDetach(&v_sq_newslot, &sq_newslot);
+	DetourDetach(&v_sq_arrayappend, &sq_arrayappend);
+	DetourDetach(&v_sq_pushstructure, &sq_pushstructure);
+	DetourDetach(&v_sq_compilebuffer, &sq_compilebuffer);
+	DetourDetach(&v_sq_call, &sq_call);
 }
