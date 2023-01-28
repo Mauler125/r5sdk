@@ -460,6 +460,7 @@ void CBrowser::HostPanel(void)
         ImGui::EndCombo();
     }
 
+    m_bQueryGlobalBanList = sv_globalBanlist->GetBool(); // Sync toggle with 'sv_globalBanlist'.
     if (ImGui::Checkbox("Load Global Ban List", &m_bQueryGlobalBanList))
     {
         sv_globalBanlist->SetValue(m_bQueryGlobalBanList);
