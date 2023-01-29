@@ -8,7 +8,7 @@
 #define NET_CHAN_H
 
 #include "tier1/bitbuf.h"
-#include "tier1/NetAdr2.h"
+#include "tier1/NetAdr.h"
 #include "tier1/utlmemory.h"
 #include "tier1/utlvector.h"
 #include "common/netmessages.h"
@@ -167,7 +167,7 @@ private:
 	bool                m_bPad;
 	char                m_Name[NET_CHANNELNAME_MAXLEN];
 	uint8_t             m_bRetrySendLong;
-	v_netadr_t          remote_address;
+	netadr_t            remote_address;
 };
 #if defined (GAMEDLL_S0) || defined (GAMEDLL_S1) || defined (GAMEDLL_S2)
 static_assert(sizeof(CNetChan) == 0x1AD0);

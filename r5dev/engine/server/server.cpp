@@ -68,7 +68,7 @@ bool CServer::AuthClient(user_creds_s* pChallenge)
 	uint64_t nNucleusID = pChallenge->m_nNucleusID;
 
 	char pszAddresBuffer[INET6_ADDRSTRLEN]; // Render the client's address.
-	pChallenge->m_nAddr.GetAddress(pszAddresBuffer, sizeof(pszAddresBuffer));
+	pChallenge->m_nAddr.ToString(pszAddresBuffer, sizeof(pszAddresBuffer));
 
 	const bool bEnableLogging = sv_showconnecting->GetBool();
 	if (bEnableLogging)
@@ -126,7 +126,7 @@ CClient* CServer::ConnectClient(CServer* pServer, user_creds_s* pChallenge)
 //			*pChallenge - 
 //			*szMessage - 
 //---------------------------------------------------------------------------------
-void CServer::RejectConnection(int iSocket, v_netadr_t* pNetAdr, const char* szMessage)
+void CServer::RejectConnection(int iSocket, netadr_t* pNetAdr, const char* szMessage)
 {
 	v_CServer_RejectConnection(this, iSocket, pNetAdr, szMessage);
 }

@@ -30,20 +30,7 @@ const char* CNetChan::GetName(void) const
 //-----------------------------------------------------------------------------
 const char* CNetChan::GetAddress(void) const
 {
-	// Select a static buffer
-	static char s[4][INET6_ADDRSTRLEN];
-	static int slot = 0;
-	int useSlot = (slot++) % 4;
-
-	// Render into it
-
-	if (!inet_ntop(AF_INET6, &this->remote_address.adr, s[useSlot], sizeof(s[0])))
-	{
-		Warning(eDLL_T::ENGINE, "%s - Address conversion failed: %s\n", __FUNCTION__, NET_ErrorString(WSAGetLastError()));
-	}
-
-	// Pray the caller uses it before it gets clobbered
-	return s[useSlot];
+	return this->remote_address.ToString();
 }
 
 //-----------------------------------------------------------------------------

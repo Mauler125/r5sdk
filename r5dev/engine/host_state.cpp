@@ -12,7 +12,7 @@
 #include "tier0/fasttimer.h"
 #include "tier1/cmd.h"
 #include "tier1/cvar.h"
-#include "tier1/NetAdr2.h"
+#include "tier1/NetAdr.h"
 #include "tier2/socketcreator.h"
 #include "vpc/keyvalues.h"
 #include "datacache/mdlcache.h"

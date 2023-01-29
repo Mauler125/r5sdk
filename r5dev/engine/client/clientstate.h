@@ -1,5 +1,5 @@
 #pragma once
-#include "tier1/NetAdr2.h"
+#include "tier1/NetAdr.h"
 #include "tier1/mempool.h"
 #include "common/protocol.h"
 #include "public/inetmsghandler.h"
@@ -47,7 +47,7 @@ public:
 	_DWORD m_nChallengeRetryLimit;
 	_BYTE encrypted_connection_MAYBE;
 	_BYTE gap79[3];
-	v_netadr_t addr;
+	netadr_t addr;
 	bool m_bUnk_used_during_auth;
 	char m_bSendChallengeRequest;
 	_BYTE m_bDoNetParamsReconnect_MAYBE;
@@ -85,7 +85,7 @@ public:
 	float m_flOldTickTime;
 	_BYTE m_bSignonChallengeReceived;
 	_DWORD challenge;
-	v_netadr_t challengeAddr;
+	netadr_t challengeAddr;
 	_BYTE byte33C;
 	_QWORD m_pServerClasses;
 	int m_nServerClasses;

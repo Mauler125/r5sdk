@@ -53,7 +53,7 @@ struct CS_INetChannelHandler : INetChannelHandler
 typedef struct netpacket_s netpacket_t;
 typedef struct __declspec(align(8)) netpacket_s
 {
-	v_netadr_t from;
+	netadr_t from;
 	int source;
 	double received;
 	uint8_t* pData;

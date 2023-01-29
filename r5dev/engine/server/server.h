@@ -1,5 +1,5 @@
 #pragma once
-#include "tier1/NetAdr2.h"
+#include "tier1/NetAdr.h"
 #include "networksystem/pylon.h"
 #include "engine/client/client.h"
 #include "engine/networkstringtable.h"
@@ -18,7 +18,7 @@ enum class server_state_t
 
 struct user_creds_s
 {
-	v_netadr_t m_nAddr;
+	netadr_t m_nAddr;
 	int32_t  m_nProtocolVer;
 	int32_t  m_nChallenge;
 	uint32_t m_nReservation;
@@ -41,7 +41,7 @@ public:
 	bool IsLoading(void) const { return m_State == server_state_t::ss_loading; }
 	bool IsDedicated(void) const { return g_bDedicated; }
 	bool AuthClient(user_creds_s* pChallenge);
-	void RejectConnection(int iSocket, v_netadr_t* pNetAdr, const char* szMessage);
+	void RejectConnection(int iSocket, netadr_t* pNetAdr, const char* szMessage);
 	static CClient* ConnectClient(CServer* pServer, user_creds_s* pChallenge);
 	static void FrameJob(double flFrameTime, bool bRunOverlays, bool bUniformSnapshotInterval);
 #endif // !CLIENT_DLL
@@ -91,7 +91,7 @@ inline CMemory p_CServer_Authenticate;
 inline auto v_CServer_ConnectClient = p_CServer_Authenticate.RCast<CClient* (*)(CServer* pServer, user_creds_s* pCreds)>();
 
 inline CMemory p_CServer_RejectConnection;
-inline auto v_CServer_RejectConnection = p_CServer_RejectConnection.RCast<void* (*)(CServer* pServer, int iSocket, v_netadr_t* pNetAdr, const char* szMessage)>();
+inline auto v_CServer_RejectConnection = p_CServer_RejectConnection.RCast<void* (*)(CServer* pServer, int iSocket, netadr_t* pNetAdr, const char* szMessage)>();
 
 ///////////////////////////////////////////////////////////////////////////////
 class VServer : public IDetour
@@ -120,7 +120,7 @@ class VServer : public IDetour
 
 		v_CServer_FrameJob = p_CServer_FrameJob.RCast<void (*)(double, bool, bool)>();                                       /*48 89 6C 24 ?? 56 41 54 41 56*/
 		v_CServer_ConnectClient = p_CServer_Authenticate.RCast<CClient* (*)(CServer*, user_creds_s*)>();                     /*40 55 57 41 55 41 57 48 8D AC 24 ?? ?? ?? ??*/
-		v_CServer_RejectConnection = p_CServer_RejectConnection.RCast<void* (*)(CServer*, int, v_netadr_t*, const char*)>(); /*4C 89 4C 24 ?? 53 55 56 57 48 81 EC ?? ?? ?? ?? 49 8B D9*/
+		v_CServer_RejectConnection = p_CServer_RejectConnection.RCast<void* (*)(CServer*, int, netadr_t*, const char*)>();   /*4C 89 4C 24 ?? 53 55 56 57 48 81 EC ?? ?? ?? ?? 49 8B D9*/
 #endif // !CLIENT_DLL
 	}
 	virtual void GetVar(void) const

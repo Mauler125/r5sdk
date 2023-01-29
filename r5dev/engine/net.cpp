@@ -50,7 +50,7 @@ bool NET_ReceiveDatagram(int iSocket, netpacket_s* pInpacket, bool bEncrypted)
 //			bEncrypt - 
 // Output : outgoing sequence number for this packet
 //-----------------------------------------------------------------------------
-int NET_SendDatagram(SOCKET s, void* pPayload, int iLenght, v_netadr_t* pAdr, bool bEncrypt)
+int NET_SendDatagram(SOCKET s, void* pPayload, int iLenght, netadr_t* pAdr, bool bEncrypt)
 {
 	int result = v_NET_SendDatagram(s, pPayload, iLenght, pAdr, net_encryptionEnable->GetBool());
 	if (result && net_tracePayload->GetBool())
