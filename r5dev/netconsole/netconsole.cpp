@@ -6,7 +6,7 @@
 
 #include "core/stdafx.h"
 #include "core/termutil.h"
-#include "tier1/NetAdr2.h"
+#include "tier1/NetAdr.h"
 #include "tier2/socketcreator.h"
 #include "protoc/sv_rcon.pb.h"
 #include "protoc/cl_rcon.pb.h"
@@ -23,7 +23,6 @@ CNetCon::CNetCon(void)
 	, m_bQuitApplication(false)
 	, m_abPromptConnect(true)
 	, m_abConnEstablished(false)
-	, m_NetAdr2("localhost", "37015")
 {
 }
 
@@ -45,7 +44,7 @@ bool CNetCon::Init(void)
 
 	if (nError != 0)
 	{
-		std::cerr << "Failed to start Winsock via WSAStartup: (" << NET_ErrorString(WSAGetLastError()) << ")" << std::endl;
+		Error(eDLL_T::NETCON, NO_ERROR, "%s - Failed to start Winsock: (%s)\n", __FUNCTION__, NET_ErrorString(WSAGetLastError()));
 		return false;
 	}
 
@@ -75,7 +74,7 @@ bool CNetCon::Shutdown(void)
 	const int nError = ::WSACleanup();
 	if (nError != 0)
 	{
-		std::cerr << "Failed to stop Winsock via WSACleanup: (" << NET_ErrorString(WSAGetLastError()) << ")" << std::endl;
+		Error(eDLL_T::NETCON, NO_ERROR, "%s - Failed to stop Winsock: (%s)\n", __FUNCTION__, NET_ErrorString(WSAGetLastError()));
 		return false;
 	}
 	return true;
@@ -172,7 +171,8 @@ void CNetCon::UserInput(void)
 		}
 		else // Setup connection from input.
 		{
-			if (!svInput.empty())
+			const std::vector<std::string> vSubStrings = StringSplit(svInput, ' ', 2);
+			if (vSubStrings.size() > 1)
 			{
 				const string::size_type nPos = svInput.find(' ');
 				if (nPos > 0
@@ -189,9 +189,9 @@ void CNetCon::UserInput(void)
 					}
 				}
 			}
-			else // Initialize as [127.0.0.1]:37015.
+			else // Initialize as [ip]:port.
 			{
-				if (!this->Connect("", ""))
+				if (!this->Connect(svInput, ""))
 				{
 					m_abPromptConnect = true;
 					return;
@@ -215,7 +215,7 @@ void CNetCon::RunFrame(void)
 	}
 	else if (m_abPromptConnect)
 	{
-		std::cout << "Enter <IP> <PORT>: ";
+		DevMsg(eDLL_T::NETCON, "Enter [<IP>]:<PORT> or <IP> <PORT>: ");
 		m_abPromptConnect = false;
 	}
 }
@@ -237,18 +237,33 @@ bool CNetCon::ShouldQuit(void) const
 //-----------------------------------------------------------------------------
 bool CNetCon::Connect(const std::string& svInAdr, const std::string& svInPort)
 {
-	if (!svInAdr.empty() && !svInPort.empty())
+	if (!svInAdr.empty() && !svInPort.empty()) // Construct from ip port
 	{
-		// Default is [127.0.0.1]:37015
-		m_NetAdr2.SetIPAndPort(svInAdr, svInPort);
+		const string svFull = fmt::format("[{:s}]:{:s}", svInAdr, svInPort).c_str();
+		if (!m_Address.SetFromString(svFull.c_str(), true))
+		{
+			Warning(eDLL_T::CLIENT, "Failed to set RCON address: %s\n", svFull.c_str());
+		}
 	}
-
-	if (m_Socket.ConnectSocket(m_NetAdr2, true) == SOCKET_ERROR)
+	else if (!svInAdr.empty()) // construct from [ip]:port
 	{
-		std::cerr << "Failed to connect. Error: (SOCKET_ERROR). Verify IP and PORT." << std::endl;
+		if (!m_Address.SetFromString(svInAdr.c_str(), true))
+		{
+			Warning(eDLL_T::CLIENT, "Failed to set RCON address: %s\n", svInAdr.c_str());
+		}
+	}
+	else
+	{
+		Warning(eDLL_T::NETCON, "No IP address provided\n");
 		return false;
 	}
-	std::cout << "Connected to: " << m_NetAdr2.GetIPAndPort() << std::endl;
+
+	if (m_Socket.ConnectSocket(m_Address, true) == SOCKET_ERROR)
+	{
+		Error(eDLL_T::NETCON, NO_ERROR, "Failed to connect: error(%s); verify IP and PORT\n", "SOCKET_ERROR");
+		return false;
+	}
+	DevMsg(eDLL_T::NETCON, "Connected to: %s\n", m_Address.ToString());
 
 	m_abConnEstablished = true;
 	return true;
@@ -280,7 +295,7 @@ void CNetCon::Send(const std::string& svMessage) const
 		ssSendBuf.str().data(), static_cast<int>(ssSendBuf.str().size()), MSG_NOSIGNAL);
 	if (nSendResult == SOCKET_ERROR)
 	{
-		std::cout << "Failed to send message: (SOCKET_ERROR)" << std::endl;
+		Error(eDLL_T::NETCON, NO_ERROR, "Failed to send message (%s)\n", "SOCKET_ERROR");
 	}
 }
 
@@ -301,7 +316,7 @@ void CNetCon::Recv(void)
 		if (nPendingLen <= 0 && m_abConnEstablished) // EOF or error.
 		{
 			this->Disconnect();
-			std::cout << "Server closed connection" << std::endl;
+			DevMsg(eDLL_T::NETCON, "Server closed connection\n");
 			return;
 		}
 	}//////////////////////////////////////////////
@@ -315,12 +330,12 @@ void CNetCon::Recv(void)
 		if (nRecvLen == 0 && m_abConnEstablished) // Socket was closed.
 		{
 			this->Disconnect();
-			std::cout << "Server closed connection" << std::endl;
+			DevMsg(eDLL_T::NETCON, "Server closed connection\n");
 			break;
 		}
 		if (nRecvLen < 0 && !m_Socket.IsSocketBlocking())
 		{
-			std::cout << "RCON Cmd: recv error (" << NET_ErrorString(WSAGetLastError()) << ")" << std::endl;
+			Error(eDLL_T::NETCON, NO_ERROR, "RCON Cmd: recv error (%s)\n", NET_ErrorString(WSAGetLastError()));
 			break;
 		}
 
@@ -372,7 +387,7 @@ void CNetCon::ProcessBuffer(const char* pRecvBuf, int nRecvLen, CConnectedNetCon
 			if (pData->m_nPayloadLen < 0 ||
 				pData->m_nPayloadLen > pData->m_RecvBuffer.max_size())
 			{
-				std::cout << "RCON Cmd: sync error (" << pData->m_nPayloadLen << ")" << std::endl;
+				Error(eDLL_T::NETCON, NO_ERROR, "RCON Cmd: sync error (%zu)\n", pData->m_nPayloadLen);
 				this->Disconnect(); // Out of sync (irrecoverable).
 
 				break;
@@ -417,7 +432,7 @@ void CNetCon::ProcessMessage(const sv_rcon::response& sv_response) const
 		{
 			svOut.append(g_svReset);
 		}
-		std::cout << svOut;
+		NetMsg(EGlobalContext_t::GLOBAL_NONE, svOut.c_str());
 		break;
 	}
 	default:
@@ -479,7 +494,7 @@ sv_rcon::response CNetCon::Deserialize(const std::string& svBuf) const
 //-----------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
-	std::cout << "R5Reloaded TCP net console [Version " << NETCON_VERSION << "]" << std::endl;
+	DevMsg(eDLL_T::NETCON, "R5Reloaded TCP net console [Version %s]\n", NETCON_VERSION);
 
 	if (!NetConsole()->Init())
 	{

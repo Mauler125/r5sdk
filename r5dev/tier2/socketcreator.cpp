@@ -5,7 +5,7 @@
 //===========================================================================//
 
 #include <core/stdafx.h>
-#include <tier1/NetAdr2.h>
+#include <tier1/NetAdr.h>
 #include <tier2/socketcreator.h>
 #ifndef NETCONSOLE
 #include <engine/sys_utils.h>
@@ -51,11 +51,7 @@ void CSocketCreator::ProcessAccept(void)
 	{
 		if (!IsSocketBlocking())
 		{
-#ifndef NETCONSOLE
-			Error(eDLL_T::ENGINE, NO_ERROR, "Socket ProcessAccept Error: %s\n", NET_ErrorString(WSAGetLastError()));
-#else
-			printf("Socket ProcessAccept Error: %s\n", NET_ErrorString(WSAGetLastError()));
-#endif // !NETCONSOLE
+			Error(eDLL_T::ENGINE, NO_ERROR, "%s - Error: %s\n", __FUNCTION__, NET_ErrorString(WSAGetLastError()));
 		}
 		return;
 	}
@@ -66,10 +62,10 @@ void CSocketCreator::ProcessAccept(void)
 		return;
 	}
 
-	CNetAdr2 netAdr2;
-	netAdr2.SetFromSockadr(&inClient);
+	netadr_t netAdr;
+	netAdr.SetFromSockadr(&inClient);
 
-	OnSocketAccepted(newSocket, netAdr2);
+	OnSocketAccepted(newSocket, netAdr);
 }
 
 //-----------------------------------------------------------------------------
@@ -91,11 +87,7 @@ bool CSocketCreator::ConfigureListenSocket(int iSocket)
 	int results = ::ioctlsocket(iSocket, FIONBIO, (u_long*)&opt); // Non-blocking.
 	if (results == -1)
 	{
-#ifndef NETCONSOLE
-		Warning(eDLL_T::ENGINE, "Socket accept 'ioctl(FIONBIO)' failed (%s)\n", NET_ErrorString(WSAGetLastError()));
-#else
-		printf("Socket accept 'ioctl(FIONBIO)' failed (%s)\n", NET_ErrorString(WSAGetLastError()));
-#endif // !NETCONSOLE
+		Warning(eDLL_T::ENGINE, "Socket accept 'ioctl(%s)' failed (%s)\n", "FIONBIO", NET_ErrorString(WSAGetLastError()));
 		return false;
 	}
 	return true;
@@ -114,11 +106,7 @@ bool CSocketCreator::ConfigureConnectSocket(SocketHandle_t hSocket)
 	ret = ::ioctlsocket(hSocket, FIONBIO, reinterpret_cast<u_long*>(&opt)); // Non-blocking
 	if (ret == -1)
 	{
-#ifndef NETCONSOLE
-		Warning(eDLL_T::ENGINE, "Socket ioctl(FIONBIO) failed (%s)\n", NET_ErrorString(WSAGetLastError()));
-#else
-		printf("Socket ioctl(FIONBIO) failed (%s)\n", NET_ErrorString(WSAGetLastError()));
-#endif // !NETCONSOLE
+		Warning(eDLL_T::ENGINE, "Socket ioctl(%s) failed (%s)\n", "FIONBIO", NET_ErrorString(WSAGetLastError()));
 		::closesocket(hSocket);
 		return false;
 	}
@@ -132,14 +120,14 @@ bool CSocketCreator::ConfigureConnectSocket(SocketHandle_t hSocket)
 
 //-----------------------------------------------------------------------------
 // Purpose: bind to a TCP port and accept incoming connections
-// Input  : *netAdr2 - 
+// Input  : *netAdr - 
 //			bListenOnAllInterfaces - 
 // Output : true on success, failed otherwise
 //-----------------------------------------------------------------------------
-bool CSocketCreator::CreateListenSocket(const CNetAdr2& netAdr2, bool bListenOnAllInterfaces = false)
+bool CSocketCreator::CreateListenSocket(const netadr_t& netAdr, bool bListenOnAllInterfaces)
 {
 	CloseListenSocket();
-	m_ListenAddress = netAdr2;
+	m_ListenAddress = netAdr;
 	m_hListenSocket = ::socket(PF_INET6, SOCK_STREAM, IPPROTO_TCP);
 
 	if (m_hListenSocket != INVALID_SOCKET)
@@ -153,27 +141,21 @@ bool CSocketCreator::CreateListenSocket(const CNetAdr2& netAdr2, bool bListenOnA
 		sockaddr_storage sadr{};
 		m_ListenAddress.ToSockadr(&sadr);
 
-		int results = ::bind(m_hListenSocket, reinterpret_cast<sockaddr*>(&sadr), m_ListenAddress.GetSize());
+		int results = ::bind(m_hListenSocket, reinterpret_cast<sockaddr*>(&sadr), sizeof(sockaddr_in6));
 		if (results == -1)
 		{
-#ifndef NETCONSOLE
 			Warning(eDLL_T::ENGINE, "Socket bind failed (%s)\n", NET_ErrorString(WSAGetLastError()));
-#else
-			printf("Socket bind failed (%s)\n", NET_ErrorString(WSAGetLastError()));
-#endif // !NETCONSOLE
 			CloseListenSocket();
+
 			return false;
 		}
 
 		results = ::listen(m_hListenSocket, SOCKET_TCP_MAX_ACCEPTS);
 		if (results == -1)
 		{
-#ifndef NETCONSOLE
 			Warning(eDLL_T::ENGINE, "Socket listen failed (%s)\n", NET_ErrorString(WSAGetLastError()));
-#else
-			printf("Socket listen failed (%s)\n", NET_ErrorString(WSAGetLastError()));
-#endif // !NETCONSOLE
 			CloseListenSocket();
+
 			return false;
 		}
 	}
@@ -194,25 +176,21 @@ void CSocketCreator::CloseListenSocket(void)
 
 //-----------------------------------------------------------------------------
 // Purpose: connect to the remote server
-// Input  : *netAdr2 - 
+// Input  : *netAdr - 
 //			bSingleSocker - 
 // Output : accepted socket index, SOCKET_ERROR (-1) if failed
 //-----------------------------------------------------------------------------
-int CSocketCreator::ConnectSocket(const CNetAdr2& netAdr2, bool bSingleSocket)
+int CSocketCreator::ConnectSocket(const netadr_t& netAdr, bool bSingleSocket)
 {
 	if (bSingleSocket)
 	{ // NOTE: Closing an accepted socket will re-index all the sockets with higher indices
 		CloseAllAcceptedSockets();
 	}
 
-	SocketHandle_t hSocket = ::socket(netAdr2.GetFamily(), SOCK_STREAM, IPPROTO_TCP);
+	SocketHandle_t hSocket = ::socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
 	if (hSocket == SOCKET_ERROR)
 	{
-#ifndef NETCONSOLE
 		Warning(eDLL_T::ENGINE, "Unable to create socket (%s)\n", NET_ErrorString(WSAGetLastError()));
-#else
-		printf("Unable to create socket (%s)\n", NET_ErrorString(WSAGetLastError()));
-#endif // !NETCONSOLE
 		return SOCKET_ERROR;
 	}
 
@@ -222,18 +200,15 @@ int CSocketCreator::ConnectSocket(const CNetAdr2& netAdr2, bool bSingleSocket)
 	}
 
 	struct sockaddr_storage s{};
-	netAdr2.ToSockadr(&s);
+	netAdr.ToSockadr(&s);
 
-	int results = ::connect(hSocket, reinterpret_cast<sockaddr*>(&s), netAdr2.GetSize());
+	int results = ::connect(hSocket, reinterpret_cast<sockaddr*>(&s), sizeof(sockaddr_in6));
 	if (results == SOCKET_ERROR)
 	{
 		if (!IsSocketBlocking())
 		{
-#ifndef NETCONSOLE
 			Warning(eDLL_T::ENGINE, "Socket connection failed (%s)\n", NET_ErrorString(WSAGetLastError()));
-#else
-			printf("Socket connection failed (%s)\n", NET_ErrorString(WSAGetLastError()));
-#endif // !NETCONSOLE
+
 			::closesocket(hSocket);
 			return SOCKET_ERROR;
 		}
@@ -247,16 +222,16 @@ int CSocketCreator::ConnectSocket(const CNetAdr2& netAdr2, bool bSingleSocket)
 		FD_ZERO(&writefds);
 		FD_SET(static_cast<u_int>(hSocket), &writefds);
 
-		if (::select(hSocket + 1, NULL, &writefds, NULL, &tv) < 1) // block for at most 1 second
+		if (::select(hSocket + 1, NULL, &writefds, NULL, &tv) < 1) // block for at most 1 second.
 		{
-			::closesocket(hSocket); // took too long to connect to, give up
+			::closesocket(hSocket); // took too long to connect to, give up.
 			return SOCKET_ERROR;
 		}
 	}
 
 	// TODO: CRConClient check if connected.
 
-	int nIndex = OnSocketAccepted(hSocket, netAdr2);
+	int nIndex = OnSocketAccepted(hSocket, netAdr);
 	return nIndex;
 }
 
@@ -272,18 +247,18 @@ void CSocketCreator::DisconnectSocket(void)
 //-----------------------------------------------------------------------------
 // Purpose: handles new TCP requests and puts them in accepted queue
 // Input  : hSocket - 
-//			*netAdr2 - 
+//			*netAdr - 
 // Output : accepted socket index, -1 if failed
 //-----------------------------------------------------------------------------
-int CSocketCreator::OnSocketAccepted(SocketHandle_t hSocket, CNetAdr2 netAdr2)
+int CSocketCreator::OnSocketAccepted(SocketHandle_t hSocket, const netadr_t& netAdr)
 {
-	AcceptedSocket_t pNewEntry;
+	AcceptedSocket_t newEntry;
 
-	pNewEntry.m_hSocket = hSocket;
-	pNewEntry.m_Address = netAdr2;
-	pNewEntry.m_pData   = new CConnectedNetConsoleData(hSocket);
+	newEntry.m_hSocket = hSocket;
+	newEntry.m_Address = netAdr;
+	newEntry.m_pData   = new CConnectedNetConsoleData(hSocket);
 
-	m_hAcceptedSockets.push_back(pNewEntry);
+	m_hAcceptedSockets.push_back(newEntry);
 
 	int nIndex = static_cast<int>(m_hAcceptedSockets.size()) - 1;
 	return nIndex;
@@ -362,9 +337,9 @@ SocketHandle_t CSocketCreator::GetAcceptedSocketHandle(int nIndex) const
 //-----------------------------------------------------------------------------
 // Purpose: returns accepted socket address
 // Input  : nIndex - 
-// Output : const CNetAdr2&
+// Output : const netadr_t&
 //-----------------------------------------------------------------------------
-const CNetAdr2& CSocketCreator::GetAcceptedSocketAddress(int nIndex) const
+const netadr_t& CSocketCreator::GetAcceptedSocketAddress(int nIndex) const
 {
 	return m_hAcceptedSockets[nIndex].m_Address;
 }

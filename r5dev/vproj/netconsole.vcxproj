@@ -27,6 +27,7 @@
     </ClCompile>
     <ClCompile Include="..\core\termutil.cpp" />
     <ClCompile Include="..\engine\net.cpp" />
+    <ClCompile Include="..\netconsole\dbg_stub.cpp" />
     <ClCompile Include="..\netconsole\netconsole.cpp" />
     <ClCompile Include="..\protoc\cl_rcon.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -41,7 +42,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\public\utility\utility.cpp" />
-    <ClCompile Include="..\tier1\NetAdr2.cpp" />
+    <ClCompile Include="..\tier1\NetAdr.cpp" />
     <ClCompile Include="..\tier2\socketcreator.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -52,7 +53,8 @@
     <ClInclude Include="..\protoc\cl_rcon.pb.h" />
     <ClInclude Include="..\protoc\sv_rcon.pb.h" />
     <ClInclude Include="..\public\utility\utility.h" />
-    <ClInclude Include="..\tier1\NetAdr2.h" />
+    <ClInclude Include="..\tier0\dbg.h" />
+    <ClInclude Include="..\tier1\NetAdr.h" />
     <ClInclude Include="..\tier2\socketcreator.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

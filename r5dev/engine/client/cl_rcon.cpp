@@ -22,7 +22,6 @@
 CRConClient::CRConClient()
 	: m_bInitialized(false)
 	, m_bConnEstablished(false)
-	, m_NetAdr2("localhost", "37015")
 {
 }
 
@@ -94,41 +93,31 @@ bool CRConClient::Connect(void)
 {
 	if (strlen(rcon_address->GetString()) > 0)
 	{
-		// Default is [127.0.0.1]:37015
-		m_NetAdr2.SetIPAndPort(rcon_address->GetString());
+		return Connect(rcon_address->GetString());
 	}
 
-	if (m_Socket.ConnectSocket(m_NetAdr2, true) == SOCKET_ERROR)
-	{
-		Warning(eDLL_T::CLIENT, "Connection to RCON server failed: (%s)\n", "SOCKET_ERROR");
-		return false;
-	}
-	DevMsg(eDLL_T::CLIENT, "Connected to: %s\n", m_NetAdr2.GetIPAndPort().c_str());
-
-	m_bConnEstablished = true;
-	return true;
+	return false;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: connect to specified address and port
-// Input  : *svInAdr - 
-//			*svInPort - 
+// Input  : *szInAdr - 
 // Output : true if connection succeeds, false otherwise
 //-----------------------------------------------------------------------------
-bool CRConClient::Connect(const std::string& svInAdr, const std::string& svInPort)
+bool CRConClient::Connect(const char* szInAdr)
 {
-	if (!svInAdr.empty() && !svInPort.empty())
+	if (!m_Address.SetFromString(szInAdr, true))
 	{
-		// Default is [127.0.0.1]:37015
-		m_NetAdr2.SetIPAndPort(svInAdr, svInPort);
+		Warning(eDLL_T::CLIENT, "Failed to set RCON address: %s\n", szInAdr);
+		return false;
 	}
 
-	if (m_Socket.ConnectSocket(m_NetAdr2, true) == SOCKET_ERROR)
+	if (m_Socket.ConnectSocket(m_Address, true) == SOCKET_ERROR)
 	{
 		Warning(eDLL_T::CLIENT, "Connection to RCON server failed: (%s)\n", "SOCKET_ERROR");
 		return false;
 	}
-	DevMsg(eDLL_T::CLIENT, "Connected to: %s\n", m_NetAdr2.GetIPAndPort().c_str());
+	DevMsg(eDLL_T::CLIENT, "Connected to: %s\n", m_Address.ToString());
 
 	m_bConnEstablished = true;
 	return true;

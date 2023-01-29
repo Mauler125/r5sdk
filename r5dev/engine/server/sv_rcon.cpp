@@ -8,7 +8,7 @@
 #include "tier1/cmd.h"
 #include "tier1/cvar.h"
 #include "tier1/IConVar.h"
-#include "tier1/NetAdr2.h"
+#include "tier1/NetAdr.h"
 #include "tier2/socketcreator.h"
 #include "engine/net.h"
 #include "engine/server/sv_rcon.h"
@@ -47,8 +47,10 @@ void CRConServer::Init(void)
 		}
 	}
 
-	m_Adr2.SetIPAndPort(rcon_address->GetString(), hostport->GetString());
-	m_Socket.CreateListenSocket(m_Adr2, false);
+	m_Address.SetFromString(hostip->GetString(), true);
+	m_Address.SetPort(htons(hostport->GetInt()));
+
+	m_Socket.CreateListenSocket(m_Address, false);
 
 	DevMsg(eDLL_T::SERVER, "Remote server access initialized\n");
 	m_bInitialized = true;
@@ -78,8 +80,8 @@ void CRConServer::Think(void)
 	{
 		for (m_nConnIndex = nCount - 1; m_nConnIndex >= 0; m_nConnIndex--)
 		{
-			const CNetAdr2 netAdr2 = m_Socket.GetAcceptedSocketAddress(m_nConnIndex);
-			if (netAdr2.GetIP(true).compare(sv_rcon_whitelist_address->GetString()) != 0)
+			const netadr_t& netAdr = m_Socket.GetAcceptedSocketAddress(m_nConnIndex);
+			if (strcmp(netAdr.ToString(true), sv_rcon_whitelist_address->GetString()) != 0) // TODO: doesn't work
 			{
 				const CConnectedNetConsoleData* pData = m_Socket.GetAcceptedSocketData(m_nConnIndex);
 				if (!pData->m_bAuthorized)
@@ -95,7 +97,7 @@ void CRConServer::Think(void)
 	{
 		if (!m_Socket.IsListening())
 		{
-			m_Socket.CreateListenSocket(m_Adr2, false);
+			m_Socket.CreateListenSocket(m_Address, false);
 		}
 	}
 }
@@ -349,10 +351,10 @@ void CRConServer::Authenticate(const cl_rcon::request& cl_request, CConnectedNet
 		}
 		else // Bad password.
 		{
-			const CNetAdr2 netAdr2 = m_Socket.GetAcceptedSocketAddress(m_nConnIndex);
+			const netadr_t netAdr = m_Socket.GetAcceptedSocketAddress(m_nConnIndex);
 			if (sv_rcon_debug->GetBool())
 			{
-				DevMsg(eDLL_T::SERVER, "Bad RCON password attempt from '%s'\n", netAdr2.GetIPAndPort().c_str());
+				DevMsg(eDLL_T::SERVER, "Bad RCON password attempt from '%s'\n", netAdr.ToString());
 			}
 
 			this->Send(pData->m_hSocket, this->Serialize(s_pszWrongPwMessage, "", sv_rcon::response_t::SERVERDATA_RESPONSE_AUTH, static_cast<int>(EGlobalContext_t::NETCON_S)));
@@ -540,11 +542,11 @@ bool CRConServer::CheckForBan(CConnectedNetConsoleData* pData)
 	}
 
 	pData->m_bValidated = true;
-	CNetAdr2 netAdr2 = m_Socket.GetAcceptedSocketAddress(m_nConnIndex);
+	netadr_t netAdr = m_Socket.GetAcceptedSocketAddress(m_nConnIndex);
 
 	// Check if IP is in the banned list.
-	if (std::find(m_vBannedList.begin(), m_vBannedList.end(),
-		netAdr2.GetIP(true)) != m_vBannedList.end())
+	if (std::find(m_BannedList.begin(), m_BannedList.end(),
+		netAdr.ToString(true)) != m_BannedList.end())
 	{
 		return true;
 	}
@@ -554,15 +556,15 @@ bool CRConServer::CheckForBan(CConnectedNetConsoleData* pData)
 		|| pData->m_nIgnoredMessage >= sv_rcon_maxignores->GetInt())
 	{
 		// Don't add white listed address to banned list.
-		if (netAdr2.GetIP(true).compare(sv_rcon_whitelist_address->GetString()) == 0)
+		if (strcmp(netAdr.ToString(true), sv_rcon_whitelist_address->GetString()) == 0)
 		{
 			pData->m_nFailedAttempts = 0;
 			pData->m_nIgnoredMessage = 0;
 			return false;
 		}
 
-		DevMsg(eDLL_T::SERVER, "Banned '%s' for RCON hacking attempts\n", netAdr2.GetIPAndPort().c_str());
-		m_vBannedList.push_back(netAdr2.GetIP(true));
+		DevMsg(eDLL_T::SERVER, "Banned '%s' for RCON hacking attempts\n", netAdr.ToString());
+		m_BannedList.push_back(netAdr.ToString(true));
 		return true;
 	}
 	return false;
@@ -577,8 +579,8 @@ void CRConServer::CloseConnection(void) // NETMGR
 	if (pData->m_bAuthorized)
 	{
 		// Inform server owner when authenticated connection has been closed.
-		CNetAdr2 netAdr2 = m_Socket.GetAcceptedSocketAddress(m_nConnIndex);
-		DevMsg(eDLL_T::SERVER, "Net console '%s' closed RCON connection\n", netAdr2.GetIPAndPort().c_str());
+		netadr_t netAdr = m_Socket.GetAcceptedSocketAddress(m_nConnIndex);
+		DevMsg(eDLL_T::SERVER, "Net console '%s' closed RCON connection\n", netAdr.ToString());
 	}
 	m_Socket.CloseAcceptedSocket(m_nConnIndex);
 }

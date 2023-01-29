@@ -1,5 +1,5 @@
 #pragma once
-#include "tier1/NetAdr2.h"
+#include "tier1/NetAdr.h"
 #include "tier2/SocketCreator.h"
 #include "protoc/sv_rcon.pb.h"
 #include "protoc/cl_rcon.pb.h"
@@ -17,7 +17,7 @@ public:
 	void RunFrame(void);
 
 	bool Connect(void);
-	bool Connect(const std::string& svInAdr, const std::string& svInPort);
+	bool Connect(const char* szInAdr);
 	void Disconnect(void);
 
 	void Send(const std::string& svMessage) const;
@@ -36,7 +36,7 @@ private:
 	bool m_bInitialized = false;
 	bool m_bConnEstablished = false;
 
-	CNetAdr2 m_NetAdr2;
+	netadr_t m_Address;
 	CSocketCreator m_Socket;
 };
 

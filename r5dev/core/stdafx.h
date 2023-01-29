@@ -98,7 +98,7 @@
 #include "tier0/basetypes.h"
 #include "tier0/platform.h"
 #include "tier0/commonmacros.h"
-#if !defined(SDKLAUNCHER) && !defined (NETCONSOLE) && !defined(PLUGINSDK)
+#if !defined(SDKLAUNCHER) && !defined(PLUGINSDK)
 #include "tier0/dbg.h"
 #endif // !SDKLAUNCHER && !NETCONSOLE && !PLUGINSDK
 

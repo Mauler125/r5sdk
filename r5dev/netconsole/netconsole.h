@@ -43,7 +43,7 @@ private:
 	std::atomic<bool> m_abPromptConnect;
 	std::atomic<bool> m_abConnEstablished;
 
-	CNetAdr2 m_NetAdr2;
+	CNetAdr m_Address;
 	CSocketCreator m_Socket;
 
 	mutable std::mutex m_Mutex;

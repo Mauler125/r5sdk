@@ -495,7 +495,7 @@
     <ClInclude Include="..\tier1\generichash.h" />
     <ClInclude Include="..\tier1\IConVar.h" />
     <ClInclude Include="..\tier1\mempool.h" />
-    <ClInclude Include="..\tier1\NetAdr2.h" />
+    <ClInclude Include="..\tier1\NetAdr.h" />
     <ClInclude Include="..\tier1\strtools.h" />
     <ClInclude Include="..\tier1\utlblockmemory.h" />
     <ClInclude Include="..\tier1\utlbuffer.h" />
@@ -643,7 +643,7 @@
     <ClCompile Include="..\tier1\cvar.cpp" />
     <ClCompile Include="..\tier1\generichash.cpp" />
     <ClCompile Include="..\tier1\IConVar.cpp" />
-    <ClCompile Include="..\tier1\NetAdr2.cpp" />
+    <ClCompile Include="..\tier1\NetAdr.cpp" />
     <ClCompile Include="..\tier1\splitstring.cpp" />
     <ClCompile Include="..\tier1\strtools.cpp" />
     <ClCompile Include="..\tier1\utlbuffer.cpp" />

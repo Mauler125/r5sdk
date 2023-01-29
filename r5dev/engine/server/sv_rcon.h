@@ -1,5 +1,5 @@
 #pragma once
-#include "tier1/NetAdr2.h"
+#include "tier1/NetAdr.h"
 #include "tier2/socketcreator.h"
 #include "protoc/sv_rcon.pb.h"
 #include "protoc/cl_rcon.pb.h"
@@ -49,9 +49,9 @@ private:
 
 	bool                     m_bInitialized;
 	int                      m_nConnIndex;
-	std::vector<std::string> m_vBannedList;
+	std::vector<std::string> m_BannedList;
 	std::string              m_svPasswordHash;
-	CNetAdr2                 m_Adr2;
+	netadr_t                 m_Address;
 	CSocketCreator           m_Socket;
 };
 

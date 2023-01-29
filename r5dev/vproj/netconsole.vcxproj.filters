@@ -26,11 +26,11 @@
     <Filter Include="thirdparty\protobuf">
       <UniqueIdentifier>{7c7da8dd-043a-46b7-9413-832924e4574e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\tier0">
+      <UniqueIdentifier>{7064c656-b1c1-4940-be0a-eeb46b78a221}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\tier1\NetAdr2.cpp">
-      <Filter>sdk\tier1</Filter>
-    </ClCompile>
     <ClCompile Include="..\core\stdafx.cpp">
       <Filter>core</Filter>
     </ClCompile>
@@ -55,11 +55,14 @@
     <ClCompile Include="..\public\utility\utility.cpp">
       <Filter>sdk\public</Filter>
     </ClCompile>
+    <ClCompile Include="..\netconsole\dbg_stub.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier1\NetAdr.cpp">
+      <Filter>sdk\tier1</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\tier1\NetAdr2.h">
-      <Filter>sdk\tier1</Filter>
-    </ClInclude>
     <ClInclude Include="..\core\stdafx.h">
       <Filter>core</Filter>
     </ClInclude>
@@ -83,6 +86,12 @@
     </ClInclude>
     <ClInclude Include="..\public\utility\utility.h">
       <Filter>sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier0\dbg.h">
+      <Filter>sdk\tier0</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\NetAdr.h">
+      <Filter>sdk\tier1</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

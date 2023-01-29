@@ -1,5 +1,5 @@
 #pragma once
-#include "tier1/netadr2.h"
+#include "tier1/netadr.h"
 #include "common/igameserverdata.h"
 
 //-----------------------------------------------------------------------------
@@ -17,13 +17,13 @@ public:
 	bool ConfigureListenSocket(int iSocket);
 	bool ConfigureConnectSocket(SocketHandle_t hSocket);
 
-	bool CreateListenSocket(const CNetAdr2& netAdr2, bool bListenOnAllInterfaces);
+	bool CreateListenSocket(const netadr_t& netAdr, bool bListenOnAllInterfaces = false);
 	void CloseListenSocket(void);
 
-	int ConnectSocket(const CNetAdr2& netAdr2, bool bSingleSocket);
+	int ConnectSocket(const netadr_t& netAdr, bool bSingleSocket);
 	void DisconnectSocket(void);
 
-	int OnSocketAccepted(SocketHandle_t hSocket, CNetAdr2 netAdr2);
+	int OnSocketAccepted(SocketHandle_t hSocket, const netadr_t& netAdr);
 
 	void CloseAcceptedSocket(int nIndex);
 	void CloseAllAcceptedSockets(void);
@@ -33,22 +33,20 @@ public:
 
 	int GetAcceptedSocketCount(void) const;
 	SocketHandle_t GetAcceptedSocketHandle(int nIndex) const;
-	const CNetAdr2& GetAcceptedSocketAddress(int nIndex) const;
+	const netadr_t& GetAcceptedSocketAddress(int nIndex) const;
 	CConnectedNetConsoleData* GetAcceptedSocketData(int nIndex) const;
 
 public:
 	struct AcceptedSocket_t
 	{
 		SocketHandle_t            m_hSocket{};
-		CNetAdr2                  m_Address{};
+		netadr_t                  m_Address{};
 		CConnectedNetConsoleData* m_pData = nullptr;
-
-		bool operator==(const AcceptedSocket_t& rhs) const { return (m_Address.CompareAdr(rhs.m_Address, false) == 0); }
 	};
 
-	std::vector<AcceptedSocket_t> m_hAcceptedSockets{};
-	SocketHandle_t                m_hListenSocket   {}; // Used to accept connections.
-	CNetAdr2                      m_ListenAddress   {}; // Address used to listen on.
+	std::vector<AcceptedSocket_t> m_hAcceptedSockets;
+	SocketHandle_t                m_hListenSocket; // Used to accept connections.
+	netadr_t                      m_ListenAddress; // Address used to listen on.
 
 private:
 	enum

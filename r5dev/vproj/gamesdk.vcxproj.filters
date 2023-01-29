@@ -387,9 +387,6 @@
     <ClCompile Include="..\tier2\socketcreator.cpp">
       <Filter>sdk\tier2</Filter>
     </ClCompile>
-    <ClCompile Include="..\tier1\NetAdr2.cpp">
-      <Filter>sdk\tier1</Filter>
-    </ClCompile>
     <ClCompile Include="..\mathlib\sha256.cpp">
       <Filter>sdk\mathlib</Filter>
     </ClCompile>
@@ -737,6 +734,9 @@
     </ClCompile>
     <ClCompile Include="..\tier2\curlutils.cpp">
       <Filter>sdk\tier2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tier1\NetAdr.cpp">
+      <Filter>sdk\tier1</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1243,9 +1243,6 @@
     </ClInclude>
     <ClInclude Include="..\tier2\socketcreator.h">
       <Filter>sdk\tier2</Filter>
-    </ClInclude>
-    <ClInclude Include="..\tier1\NetAdr2.h">
-      <Filter>sdk\tier1</Filter>
     </ClInclude>
     <ClInclude Include="..\mathlib\sha256.h">
       <Filter>sdk\mathlib</Filter>
@@ -2149,6 +2146,9 @@
     </ClInclude>
     <ClInclude Include="..\tier2\curlutils.h">
       <Filter>sdk\tier2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tier1\NetAdr.h">
+      <Filter>sdk\tier1</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
