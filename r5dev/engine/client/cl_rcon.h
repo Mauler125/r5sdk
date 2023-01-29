@@ -19,14 +19,14 @@ public:
 	bool Connect(const char* szInAdr);
 	void Disconnect(void);
 
-	void Send(const std::string& svMessage) const;
+	void Send(const string& svMessage) const;
 	void Recv(void);
 
 	void ProcessBuffer(const char* pRecvBuf, int nRecvLen, CConnectedNetConsoleData* pData);
 	void ProcessMessage(const sv_rcon::response& sv_response) const;
 
-	std::string Serialize(const std::string& svReqBuf, const std::string& svReqVal, const cl_rcon::request_t request_t) const;
-	sv_rcon::response Deserialize(const std::string& svBuf) const;
+	string Serialize(const string& svReqBuf, const string& svReqVal, const cl_rcon::request_t request_t) const;
+	sv_rcon::response Deserialize(const string& svBuf) const;
 
 	bool IsInitialized(void) const;
 	bool IsConnected(void) const;

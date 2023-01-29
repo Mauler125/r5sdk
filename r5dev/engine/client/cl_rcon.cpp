@@ -83,6 +83,17 @@ bool CRConClient::Connect(void)
 //-----------------------------------------------------------------------------
 bool CRConClient::Connect(const char* szInAdr)
 {
+	string svLocalHost;
+	if (strcmp(szInAdr, "localhost") == 0)
+	{
+		char szHostName[512];
+		if (!gethostname(szHostName, sizeof(szHostName)))
+		{
+			svLocalHost = fmt::format("[{:s}]:{:s}", szHostName, hostport->GetString());
+			szInAdr = svLocalHost.c_str();
+		}
+	}
+
 	if (!m_Address.SetFromString(szInAdr, true))
 	{
 		Warning(eDLL_T::CLIENT, "Failed to set RCON address: %s\n", szInAdr);
@@ -113,9 +124,9 @@ void CRConClient::Disconnect(void)
 // Purpose: send message
 // Input  : *svMessage - 
 //-----------------------------------------------------------------------------
-void CRConClient::Send(const std::string& svMessage) const
+void CRConClient::Send(const string& svMessage) const
 {
-	std::ostringstream ssSendBuf;
+	ostringstream ssSendBuf;
 	const u_long nLen = htonl(svMessage.size());
 
 	ssSendBuf.write(reinterpret_cast<const char*>(&nLen), sizeof(u_long));
@@ -195,7 +206,7 @@ void CRConClient::ProcessBuffer(const char* pRecvBuf, int nRecvLen, CConnectedNe
 			}
 			if (pData->m_nPayloadRead == pData->m_nPayloadLen)
 			{
-				this->ProcessMessage(this->Deserialize(std::string(
+				this->ProcessMessage(this->Deserialize(string(
 					reinterpret_cast<char*>(pData->m_RecvBuffer.data()), pData->m_nPayloadLen)));
 
 				pData->m_nPayloadLen = 0;
@@ -275,7 +286,7 @@ void CRConClient::ProcessMessage(const sv_rcon::response& sv_response) const
 //			request_t - 
 // Output : serialized results as string
 //-----------------------------------------------------------------------------
-std::string CRConClient::Serialize(const std::string& svReqBuf, const std::string& svReqVal, const cl_rcon::request_t request_t) const
+string CRConClient::Serialize(const string& svReqBuf, const string& svReqVal, const cl_rcon::request_t request_t) const
 {
 	cl_rcon::request cl_request;
 
@@ -305,7 +316,7 @@ std::string CRConClient::Serialize(const std::string& svReqBuf, const std::strin
 // Input  : *svBuf - 
 // Output : de-serialized object
 //-----------------------------------------------------------------------------
-sv_rcon::response CRConClient::Deserialize(const std::string& svBuf) const
+sv_rcon::response CRConClient::Deserialize(const string& svBuf) const
 {
 	sv_rcon::response sv_response;
 	sv_response.ParseFromArray(svBuf.data(), static_cast<int>(svBuf.size()));

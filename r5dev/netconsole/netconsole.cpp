@@ -239,7 +239,17 @@ bool CNetCon::Connect(const std::string& svInAdr, const std::string& svInPort)
 {
 	if (!svInAdr.empty() && !svInPort.empty()) // Construct from ip port
 	{
-		const string svFull = fmt::format("[{:s}]:{:s}", svInAdr, svInPort).c_str();
+		string svLocalHost;
+		if (svInAdr.compare("localhost") == 0)
+		{
+			char szHostName[512];
+			if (!gethostname(szHostName, sizeof(szHostName)))
+			{
+				svLocalHost = szHostName;
+			}
+		}
+
+		const string svFull = fmt::format("[{:s}]:{:s}", svLocalHost.empty() ? svInAdr : svLocalHost, svInPort);
 		if (!m_Address.SetFromString(svFull.c_str(), true))
 		{
 			Warning(eDLL_T::CLIENT, "Failed to set RCON address: %s\n", svFull.c_str());
