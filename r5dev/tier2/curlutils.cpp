@@ -4,6 +4,7 @@
 //
 //===========================================================================//
 #include "core/stdafx.h"
+#include "tier1/cvar.h"
 #include "curlutils.h"
 
 size_t CURLWriteStringCallback(char* contents, size_t size, size_t nmemb, void* userp)
@@ -42,6 +43,13 @@ CURL* CURLInitRequest(const string& hostname, const string& request, string& res
 
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CURLWriteStringCallback);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+
+    curl_easy_setopt(curl, CURLOPT_VERBOSE, curl_debug->GetBool());
+
+    if (!ssl_verify_peer->GetBool())
+    {
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+    }
 
     return curl;
 }

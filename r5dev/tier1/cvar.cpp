@@ -32,6 +32,9 @@ ConVar* hostport                           = nullptr;
 ConVar* host_hasIrreversibleShutdown       = nullptr;
 ConVar* mp_gamemode                        = nullptr;
 
+ConVar* curl_debug                         = nullptr;
+ConVar* ssl_verify_peer                    = nullptr;
+
 ConVar* rcon_address                       = nullptr;
 ConVar* rcon_password                      = nullptr;
 
