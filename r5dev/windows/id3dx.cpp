@@ -248,6 +248,13 @@ void DrawImGui()
 
 	ImGui::NewFrame();
 
+	// This is required to disable the ctrl+tab menu as some users use this shortcut for other things in-game.
+	// See https://github.com/ocornut/imgui/issues/5641 for more details.
+	if (GImGui->ConfigNavWindowingKeyNext)
+		ImGui::SetShortcutRouting(GImGui->ConfigNavWindowingKeyNext, ImGuiKeyOwner_None);
+	if (GImGui->ConfigNavWindowingKeyPrev)
+		ImGui::SetShortcutRouting(GImGui->ConfigNavWindowingKeyPrev, ImGuiKeyOwner_None);
+
 	g_pBrowser->RunTask();
 	g_pConsole->RunTask();
 
