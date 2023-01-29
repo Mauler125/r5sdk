@@ -52,7 +52,7 @@ void CRConServer::Init(void)
 
 	m_Socket.CreateListenSocket(m_Address, false);
 
-	DevMsg(eDLL_T::SERVER, "Remote server access initialized\n");
+	DevMsg(eDLL_T::SERVER, "Remote server access initialized ('%s')\n", m_Address.ToString());
 	m_bInitialized = true;
 }
 

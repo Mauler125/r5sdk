@@ -53,6 +53,7 @@
     <ClCompile Include="..\engine\sdk_dll.cpp" />
     <ClCompile Include="..\engine\server\server.cpp" />
     <ClCompile Include="..\engine\server\sv_main.cpp" />
+    <ClCompile Include="..\engine\server\sv_rcon.cpp" />
     <ClCompile Include="..\engine\sys_dll.cpp" />
     <ClCompile Include="..\engine\sys_dll2.cpp" />
     <ClCompile Include="..\engine\sys_engine.cpp" />
@@ -244,6 +245,7 @@
     <ClInclude Include="..\engine\sdk_dll.h" />
     <ClInclude Include="..\engine\server\server.h" />
     <ClInclude Include="..\engine\server\sv_main.h" />
+    <ClInclude Include="..\engine\server\sv_rcon.h" />
     <ClInclude Include="..\engine\sys_dll.h" />
     <ClInclude Include="..\engine\sys_dll2.h" />
     <ClInclude Include="..\engine\sys_engine.h" />

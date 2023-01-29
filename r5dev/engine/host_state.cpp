@@ -16,9 +16,10 @@
 #include "tier2/socketcreator.h"
 #include "vpc/keyvalues.h"
 #include "datacache/mdlcache.h"
-#ifdef DEDICATED
+#ifndef CLIENT_DLL
 #include "engine/server/sv_rcon.h"
-#else // 
+#endif // !CLIENT_DLL
+#ifndef DEDICATED
 #include "engine/client/cl_rcon.h"
 #include "engine/client/cl_main.h"
 #include "engine/client/clientstate.h"
@@ -66,11 +67,12 @@ FORCEINLINE void CHostState::FrameUpdate(CHostState* pHostState, double flCurren
 	}
 
 	g_pHostState->Think();
-#ifdef DEDICATED
+#ifndef CLIENT_DLL
 	RCONServer()->RunFrame();
-#else // 
+#endif // !CLIENT_DLL
+#ifndef DEDICATED
 	RCONClient()->RunFrame();
-#endif // DEDICATED
+#endif // !DEDICATED
 
 	HostStates_t oldState{};
 	if (setjmp(*host_abortserver))

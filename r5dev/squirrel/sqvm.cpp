@@ -10,13 +10,14 @@
 #include "tier0/commandline.h"
 #include "tier1/cvar.h"
 #include "tier1/IConVar.h"
-#ifdef DEDICATED
+#ifndef CLIENT_DLL
 #include "engine/server/sv_rcon.h"
-#else // DEDICATED
+#endif // CLIENT_DLL
+#ifndef DEDICATED
 #include "client/cdll_engine_int.h"
 #include "vgui/vgui_debugpanel.h"
 #include "gameui/IConsole.h"
-#endif
+#endif // !DEDICATED
 #include "squirrel/sqtype.h"
 #include "squirrel/sqvm.h"
 #include "squirrel/sqinit.h"
@@ -133,9 +134,9 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 		if (!g_bSpdLog_UseAnsiClr)
 		{
 			wconsole->debug(vmStr);
-#ifdef DEDICATED
+#ifndef CLIENT_DLL
 			RCONServer()->Send(vmStr, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, nResponseId);
-#endif // DEDICATED
+#endif // !CLIENT_DLL
 		}
 		else // Use ANSI escape codes for the external console.
 		{
@@ -155,9 +156,9 @@ SQRESULT SQVM_PrintFunc(HSQUIRRELVM v, SQChar* fmt, ...)
 			}
 			vmStrAnsi.append(buf);
 			wconsole->debug(vmStrAnsi);
-#ifdef DEDICATED
+#ifndef CLIENT_DLL
 			RCONServer()->Send(vmStrAnsi, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, nResponseId);
-#endif // DEDICATED
+#endif // !CLIENT_DLL
 		}
 
 #ifndef DEDICATED
@@ -270,9 +271,9 @@ SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* 
 		if (!g_bSpdLog_UseAnsiClr)
 		{
 			wconsole->debug(vmStr);
-#ifdef DEDICATED
+#ifndef CLIENT_DLL
 			RCONServer()->Send(vmStr, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, nResponseId);
-#endif // DEDICATED
+#endif // !CLIENT_DLL
 		}
 		else
 		{
@@ -280,9 +281,9 @@ SQRESULT SQVM_WarningFunc(HSQUIRRELVM v, SQInteger a2, SQInteger a3, SQInteger* 
 			vmStrAnsi.append(SQVM_WARNING_ANSI_LOG_T[static_cast<int>(context)]);
 			vmStrAnsi.append(svConstructor);
 			wconsole->debug(vmStrAnsi);
-#ifdef DEDICATED
+#ifndef CLIENT_DLL
 			RCONServer()->Send(vmStrAnsi, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, nResponseId);
-#endif // DEDICATED
+#endif // !CLIENT_DLL
 		}
 
 #ifndef DEDICATED

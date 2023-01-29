@@ -9,9 +9,9 @@
 #include "tier0/fasttimer.h"
 #include "tier1/cvar.h"
 #include "tier1/IConVar.h"
-#ifdef DEDICATED
+#ifndef CLIENT_DLL
 #include "engine/server/sv_rcon.h"
-#endif // DEDICATED
+#endif // !CLIENT_DLL
 #ifndef DEDICATED
 #include "engine/client/cl_rcon.h"
 #endif // !DEDICATED
@@ -926,16 +926,15 @@ void RCON_PasswordChanged_f(IConVar* pConVar, const char* pOldString, float flOl
 			return; // Same password.
 
 #ifndef DEDICATED
-		if (RCONClient()->IsInitialized())
-			RCONClient()->SetPassword(pConVarRef->GetString());
-		else
+		if (!RCONClient()->IsInitialized())
 			RCONClient()->Init(); // Initialize first.
-#elif DEDICATED
+#endif // !DEDICATED
+#ifndef CLIENT_DLL
 		if (RCONServer()->IsInitialized())
 			RCONServer()->SetPassword(pConVarRef->GetString());
 		else
 			RCONServer()->Init(); // Initialize first.
-#endif // DEDICATED
+#endif // !CLIENT_DLL
 	}
 }
 

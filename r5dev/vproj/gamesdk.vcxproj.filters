@@ -738,6 +738,9 @@
     <ClCompile Include="..\tier1\NetAdr.cpp">
       <Filter>sdk\tier1</Filter>
     </ClCompile>
+    <ClCompile Include="..\engine\server\sv_rcon.cpp">
+      <Filter>sdk\engine\server</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\client\cdll_engine_int.h">
@@ -2149,6 +2152,9 @@
     </ClInclude>
     <ClInclude Include="..\tier1\NetAdr.h">
       <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\engine\server\sv_rcon.h">
+      <Filter>sdk\engine\server</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

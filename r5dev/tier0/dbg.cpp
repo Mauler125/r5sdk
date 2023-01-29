@@ -15,9 +15,10 @@
 #ifndef DEDICATED
 #include "vgui/vgui_debugpanel.h"
 #include "gameui/IConsole.h"
-#else
+#endif // !DEDICATED
+#ifndef CLIENT_DLL
 #include "engine/server/sv_rcon.h"
-#endif
+#endif // !CLIENT_DLL
 
 #if defined( _X360 )
 #include "xbox/xbox_console.h"
@@ -332,9 +333,9 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 	if (!g_bSpdLog_UseAnsiClr)
 	{
 		wconsole->debug(svOut);
-#ifdef DEDICATED
+#ifndef CLIENT_DLL
 		RCONServer()->Send(svOut, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, static_cast<int>(context));
-#endif // DEDICATED
+#endif // !CLIENT_DLL
 	}
 	else
 	{
@@ -347,9 +348,9 @@ void DevMsg(eDLL_T context, const char* fmt, ...)
 			svAnsiOut.append("\n");
 		}
 		wconsole->debug(svAnsiOut);
-#ifdef DEDICATED
+#ifndef CLIENT_DLL
 		RCONServer()->Send(svAnsiOut, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, static_cast<int>(context));
-#endif // DEDICATED
+#endif // !CLIENT_DLL
 	}
 
 	sqlogger->debug(svOut);
@@ -454,9 +455,9 @@ void Warning(eDLL_T context, const char* fmt, ...)
 	if (!g_bSpdLog_UseAnsiClr)
 	{
 		wconsole->debug(svOut);
-#ifdef DEDICATED
+#ifndef CLIENT_DLL
 		RCONServer()->Send(svOut, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, static_cast<int>(context));
-#endif // DEDICATED
+#endif // !CLIENT_DLL
 	}
 	else
 	{
@@ -470,9 +471,9 @@ void Warning(eDLL_T context, const char* fmt, ...)
 			svAnsiOut.append("\n");
 		}
 		wconsole->debug(svAnsiOut);
-#ifdef DEDICATED
+#ifndef CLIENT_DLL
 		RCONServer()->Send(svAnsiOut, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, static_cast<int>(context));
-#endif // DEDICATED
+#endif // !CLIENT_DLL
 	}
 
 	sqlogger->debug(svOut);
@@ -534,9 +535,9 @@ void Error(eDLL_T context, const UINT code, const char* fmt, ...)
 	if (!g_bSpdLog_UseAnsiClr)
 	{
 		wconsole->debug(svOut);
-#ifdef DEDICATED
+#ifndef CLIENT_DLL
 		RCONServer()->Send(svOut, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, static_cast<int>(context));
-#endif // DEDICATED
+#endif // !CLIENT_DLL
 	}
 	else
 	{
@@ -550,9 +551,9 @@ void Error(eDLL_T context, const UINT code, const char* fmt, ...)
 			svAnsiOut.append("\n");
 		}
 		wconsole->debug(svAnsiOut);
-#ifdef DEDICATED
+#ifndef CLIENT_DLL
 		RCONServer()->Send(svAnsiOut, "", sv_rcon::response_t::SERVERDATA_RESPONSE_CONSOLE_LOG, static_cast<int>(context));
-#endif // DEDICATED
+#endif // !CLIENT_DLL
 	}
 
 	sqlogger->debug(svOut);

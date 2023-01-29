@@ -110,15 +110,14 @@ void ConVar::Init(void)
 	sv_autoReloadRate     = ConVar::Create("sv_autoReloadRate"    , "0"  , FCVAR_RELEASE, "Time in seconds between each server auto-reload (disabled if null). ", true, 0.f, false, 0.f, nullptr, nullptr);
 	sv_quota_stringCmdsPerSecond = ConVar::Create("sv_quota_stringCmdsPerSecond", "16", FCVAR_RELEASE, "How many string commands per second clients are allowed to submit, 0 to disallow all string commands.", true, 0.f, false, 0.f, nullptr, nullptr);
 	sv_simulateBots = ConVar::Create("sv_simulateBots", "1", FCVAR_RELEASE, "Simulate user commands for bots on the server.", true, 0.f, false, 0.f, nullptr, nullptr);
-#ifdef DEDICATED
+
 	sv_rcon_debug       = ConVar::Create("sv_rcon_debug"      , "0" , FCVAR_RELEASE, "Show rcon debug information ( !slower! ).", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_sendlogs    = ConVar::Create("sv_rcon_sendlogs"   , "0" , FCVAR_RELEASE, "Network console logs to connected and authenticated sockets.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_banpenalty  = ConVar::Create("sv_rcon_banpenalty" , "10", FCVAR_RELEASE, "Number of minutes to ban users who fail rcon authentication.", false, 0.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_maxfailures = ConVar::Create("sv_rcon_maxfailures", "10", FCVAR_RELEASE, "Max number of times a user can fail rcon authentication before being banned.", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_maxignores  = ConVar::Create("sv_rcon_maxignores" , "15", FCVAR_RELEASE, "Max number of times a user can ignore the no-auth message before being banned.", true, 1.f, false, 0.f, nullptr, nullptr);
 	sv_rcon_maxsockets  = ConVar::Create("sv_rcon_maxsockets" , "32", FCVAR_RELEASE, "Max number of accepted sockets before the server starts closing redundant sockets.", true, 1.f, false, 0.f, nullptr, nullptr);
-	sv_rcon_whitelist_address = ConVar::Create("sv_rcon_whitelist_address", "", FCVAR_RELEASE, "This address is not considered a 'redundant' socket and will never be banned for failed authentication attempts.", false, 0.f, false, 0.f, nullptr, "Format: '::ffff:127.0.0.1'.");
-#endif // DEDICATED
+	sv_rcon_whitelist_address = ConVar::Create("sv_rcon_whitelist_address", "", FCVAR_RELEASE, "This address is not considered a 'redundant' socket and will never be banned for failed authentication attempts.", false, 0.f, false, 0.f, nullptr, "Format: '::ffff:127.0.0.1'");
 #endif // !CLIENT_DLL
 #if !defined (GAMEDLL_S0) && !defined (GAMEDLL_S1)
 	bhit_depth_test = ConVar::Create("bhit_depth_test", "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Use depth test for bullet ray trace overlay.", false, 0.f, false, 0.f, nullptr, nullptr);

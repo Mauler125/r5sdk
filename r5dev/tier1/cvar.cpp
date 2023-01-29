@@ -85,7 +85,7 @@ ConVar* sv_quota_stringCmdsPerSecond       = nullptr;
 ConVar* sv_simulateBots                    = nullptr;
 ConVar* sv_showhitboxes                    = nullptr;
 
-#ifdef DEDICATED
+//#ifdef DEDICATED
 ConVar* sv_rcon_debug                      = nullptr;
 ConVar* sv_rcon_sendlogs                   = nullptr;
 ConVar* sv_rcon_banpenalty                 = nullptr; // TODO
@@ -93,7 +93,7 @@ ConVar* sv_rcon_maxfailures                = nullptr;
 ConVar* sv_rcon_maxignores                 = nullptr;
 ConVar* sv_rcon_maxsockets                 = nullptr;
 ConVar* sv_rcon_whitelist_address          = nullptr;
-#endif // DEDICATED
+//#endif // DEDICATED
 #endif // !CLIENT_DLL
 ConVar* sv_visualizetraces                 = nullptr;
 ConVar* sv_visualizetraces_duration        = nullptr;

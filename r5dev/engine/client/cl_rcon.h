@@ -13,7 +13,6 @@ public:
 	void Init(void);
 	void Shutdown(void);
 
-	bool SetPassword(const char* pszPassword);
 	void RunFrame(void);
 
 	bool Connect(void);
