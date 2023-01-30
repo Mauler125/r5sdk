@@ -33,12 +33,17 @@ class CUserCmd
 public:
 	CUserCmd() // Cannot be constructed during DLL init.
 	{
-		v_CUserCmd__Reset(this);
+		Reset();
 	}
 
 	CUserCmd* Copy(CUserCmd* pSource)
 	{
 		return v_CUserCmd__Copy(this, pSource);
+	}
+
+	void Reset()
+	{
+		v_CUserCmd__Reset(this);
 	}
 
 	int32_t command_number;
@@ -69,7 +74,7 @@ class VUserCmd : public IDetour
 	}
 	virtual void GetFun(void) const
 	{
-		p_CUserCmd__Reset = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 83 FD FF 74 0A").FollowNearCallSelf();
+		p_CUserCmd__Reset = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 48 8B DF 66 83 FE FF").FollowNearCallSelf();
 		v_CUserCmd__Reset = p_CUserCmd__Reset.RCast<void(*)(CUserCmd*)>();
 
 		p_CUserCmd__Copy = g_GameDll.FindPatternSIMD("E8 ?? ?? ?? ?? 4C 8B 9B ?? ?? ?? ??").FollowNearCallSelf();

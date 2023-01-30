@@ -27,7 +27,7 @@ void Physics_RunBotSimulation(bool bSimulating)
 
 		if (pClient->IsActive() && pClient->IsFakeClient())
 		{
-			CPlayer* pPlayer = UTIL_PlayerByIndex(i + 1);
+			CPlayer* pPlayer = UTIL_PlayerByIndex(pClient->GetHandle());
 			if (pPlayer)
 				pPlayer->RunNullCommand();
 		}
@@ -37,10 +37,10 @@ void Physics_RunBotSimulation(bool bSimulating)
 //-----------------------------------------------------------------------------
 // Purpose: Runs the main physics simulation loop against all entities ( except players )
 //-----------------------------------------------------------------------------
-void* Physics_RunThinkFunctions(bool bSimulating)
+void Physics_RunThinkFunctions(bool bSimulating)
 {
 	Physics_RunBotSimulation(bSimulating);
-	return v_Physics_RunThinkFunctions(bSimulating);
+	v_Physics_RunThinkFunctions(bSimulating);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
