@@ -7,7 +7,7 @@
 #ifndef ENGINE_LAUNCHER_APIH
 #define ENGINE_LAUNCHER_APIH
 
-#include "appframework/iappsystem.h"
+#include "public/appframework/IAppSystem.h"
 
 struct StartupInfo_t
 {

@@ -3,8 +3,8 @@
 
 #include <tier0/annotations.h>
 #include <tier0/threadtools.h>
-#include <appframework/iappsystem.h>
 #include <public/ipackedstore.h>
+#include <public/appframework/iappsystem.h>
 
 typedef void* FileHandle_t;
 typedef void* FileNameHandle_t; // !TODO: Check if this is 4 or 8 bytes (model_t was 4 bytes in mem).

@@ -116,6 +116,7 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 
 	return CModAppSystemGroup_Create(pModAppSystemGroup);
 }
+
 //-----------------------------------------------------------------------------
 // Purpose: Initialize plugin system
 //-----------------------------------------------------------------------------

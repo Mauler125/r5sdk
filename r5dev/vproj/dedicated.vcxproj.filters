@@ -196,6 +196,9 @@
     <Filter Include="sdk\public\engine">
       <UniqueIdentifier>{3760be6a-7ccb-4ad7-bba8-608dcc60a6b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\public\appframework">
+      <UniqueIdentifier>{55c87120-310f-4eb5-81b9-3d8912b1dfb4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\opcodes.h">
@@ -671,9 +674,6 @@
     </ClInclude>
     <ClInclude Include="..\common\netmessages.h">
       <Filter>sdk\common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\appframework\iappsystem.h">
-      <Filter>sdk\appframework</Filter>
     </ClInclude>
     <ClInclude Include="..\appframework\engine_launcher_api.h">
       <Filter>sdk\appframework</Filter>
@@ -1386,6 +1386,12 @@
     <ClInclude Include="..\tier1\NetAdr.h">
       <Filter>sdk\tier1</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\appframework\IAppSystemGroup.h">
+      <Filter>sdk\public\appframework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\appframework\IAppSystem.h">
+      <Filter>sdk\public\appframework</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\opcodes.cpp">
@@ -1768,6 +1774,9 @@
     </ClCompile>
     <ClCompile Include="..\tier1\NetAdr.cpp">
       <Filter>sdk\tier1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\appframework\IAppSystemGroup.cpp">
+      <Filter>sdk\public\appframework</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

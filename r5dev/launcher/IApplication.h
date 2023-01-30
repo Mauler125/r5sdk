@@ -1,10 +1,11 @@
 #pragma once
-#include "appframework/iappsystem.h"
+#include "public/appframework/IAppSystem.h"
+#include "public/appframework/IAppSystemGroup.h"
 
 //-------------------------------------------------------------------------
 // 
 //-------------------------------------------------------------------------
-class CModAppSystemGroup
+class CModAppSystemGroup : public CAppSystemGroup
 {
 public:
 	static int Main(CModAppSystemGroup* pModAppSystemGroup);
@@ -19,8 +20,8 @@ public:
 	{
 		m_bServerOnly = true;
 	}
+
 private:
-	char pad[0xA8];
 	bool m_bServerOnly;
 };
 

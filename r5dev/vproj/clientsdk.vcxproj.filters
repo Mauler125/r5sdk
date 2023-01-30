@@ -241,6 +241,9 @@
     <Filter Include="sdk\public\engine">
       <UniqueIdentifier>{c785a075-5583-4bb4-bdac-5f7419ee64ab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sdk\public\appframework">
+      <UniqueIdentifier>{87c9d891-5df4-445a-941a-b479d8ce0436}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\client\cdll_engine_int.cpp">
@@ -674,6 +677,9 @@
     </ClCompile>
     <ClCompile Include="..\tier1\NetAdr.cpp">
       <Filter>sdk\tier1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\public\appframework\IAppSystemGroup.cpp">
+      <Filter>sdk\public\appframework</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1219,9 +1225,6 @@
     </ClInclude>
     <ClInclude Include="..\common\netmessages.h">
       <Filter>sdk\common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\appframework\iappsystem.h">
-      <Filter>sdk\appframework</Filter>
     </ClInclude>
     <ClInclude Include="..\appframework\engine_launcher_api.h">
       <Filter>sdk\appframework</Filter>
@@ -1984,6 +1987,12 @@
     </ClInclude>
     <ClInclude Include="..\tier1\NetAdr.h">
       <Filter>sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\appframework\IAppSystemGroup.h">
+      <Filter>sdk\public\appframework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\appframework\IAppSystem.h">
+      <Filter>sdk\public\appframework</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

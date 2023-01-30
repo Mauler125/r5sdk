@@ -125,7 +125,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\appframework\engine_launcher_api.h" />
-    <ClInclude Include="..\appframework\iappsystem.h" />
     <ClInclude Include="..\bsplib\bsplib.h" />
     <ClInclude Include="..\client\cdll_engine_int.h" />
     <ClInclude Include="..\common\igameserverdata.h" />
@@ -237,6 +236,8 @@
     <ClInclude Include="..\protoc\cl_rcon.pb.h" />
     <ClInclude Include="..\protoc\sig_map.pb.h" />
     <ClInclude Include="..\protoc\sv_rcon.pb.h" />
+    <ClInclude Include="..\public\appframework\IAppSystem.h" />
+    <ClInclude Include="..\public\appframework\IAppSystemGroup.h" />
     <ClInclude Include="..\public\basehandle.h" />
     <ClInclude Include="..\public\bspflags.h" />
     <ClInclude Include="..\public\cmodel.h" />
@@ -609,6 +610,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\public\appframework\IAppSystemGroup.cpp" />
     <ClCompile Include="..\public\datamap.cpp" />
     <ClCompile Include="..\public\networkvar.cpp" />
     <ClCompile Include="..\public\utility\binstream.cpp" />
