@@ -51,6 +51,10 @@ void SDK_Init()
 
     Systems_Init();
     WinSys_Attach();
+
+#ifndef DEDICATED
+    Input_Init();
+#endif // !DEDICATED
 }
 
 //#############################################################################

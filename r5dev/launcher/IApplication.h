@@ -50,8 +50,8 @@ class VApplication : public IDetour
 	{
 		LogFunAdr("CModAppSystemGroup::Main", p_CModAppSystemGroup_Main.GetPtr());
 		LogFunAdr("CModAppSystemGroup::Create", p_CModAppSystemGroup_Create.GetPtr());
-		LogFunAdr("CSourceAppSystemGroup::Create", p_CSourceAppSystemGroup__Create.GetPtr());
 		LogFunAdr("CSourceAppSystemGroup::PreInit", p_CSourceAppSystemGroup__PreInit.GetPtr());
+		LogFunAdr("CSourceAppSystemGroup::Create", p_CSourceAppSystemGroup__Create.GetPtr());
 	}
 	virtual void GetFun(void) const
 	{

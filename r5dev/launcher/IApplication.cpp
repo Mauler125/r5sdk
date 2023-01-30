@@ -97,7 +97,6 @@ bool CModAppSystemGroup::Create(CModAppSystemGroup* pModAppSystemGroup)
 			CSuggest(map.first, map.second->GetFlags()));
 	}
 
-	Input_Init();
 	DirectX_Init();
 
 #endif // !DEDICATED
